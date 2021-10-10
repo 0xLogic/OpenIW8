@@ -809,13 +809,12 @@ void bdLobbyConnection::close(bdLobbyConnection *this)
   bdLobbyConnectionListener *v6; 
   bdLobbyConnectionListener_vtbl *v7; 
   bdStreamSocket_vtbl *v8; 
-  bdLinkedList<bdLobbyConnectionMigrationHeldBackTask> v13; 
-  bdLinkedList<bdPendingBufferTransfer> v14; 
+  bdLinkedList<bdLobbyConnectionMigrationHeldBackTask> v12; 
+  bdLinkedList<bdPendingBufferTransfer> v13; 
+  bdLobbyConnection *v14; 
   bdLobbyConnection *v15; 
-  bdLobbyConnection *v16; 
 
   m_status = this->m_status;
-  _RBX = this;
   if ( m_status == BD_TOO_MANY_TASKS )
   {
     if ( this->m_migrationState == BD_MIGRATION220_IDLE )
@@ -824,9 +823,9 @@ void bdLobbyConnection::close(bdLobbyConnection *this)
       if ( m_connectionListener )
       {
         v5 = m_connectionListener->__vftable;
-        v15 = _RBX;
-        _InterlockedExchangeAdd((volatile signed __int32 *)&_RBX->m_refCount, 1u);
-        ((void (__fastcall *)(bdLobbyConnectionListener *, bdLobbyConnection **))v5->onConnectFailed)(m_connectionListener, &v15);
+        v14 = this;
+        _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_refCount, 1u);
+        ((void (__fastcall *)(bdLobbyConnectionListener *, bdLobbyConnection **))v5->onConnectFailed)(m_connectionListener, &v14);
       }
       goto LABEL_8;
     }
@@ -839,39 +838,29 @@ void bdLobbyConnection::close(bdLobbyConnection *this)
   if ( v6 )
   {
     v7 = v6->__vftable;
-    v16 = _RBX;
-    _InterlockedExchangeAdd((volatile signed __int32 *)&_RBX->m_refCount, 1u);
-    ((void (__fastcall *)(bdLobbyConnectionListener *, bdLobbyConnection **))v7->onDisconnect)(v6, &v16);
+    v15 = this;
+    _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_refCount, 1u);
+    ((void (__fastcall *)(bdLobbyConnectionListener *, bdLobbyConnection **))v7->onDisconnect)(v6, &v15);
   }
 LABEL_8:
-  _RBX->m_status = BD_HANDLE_TASK_FAILED;
-  v8 = _RBX->m_socket.__vftable;
-  _RBX->m_cryptoState = BD_CRYPTO210_INVALID;
-  _RBX->m_migrationState = BD_MIGRATION220_IDLE;
+  this->m_status = BD_HANDLE_TASK_FAILED;
+  v8 = this->m_socket.__vftable;
+  this->m_cryptoState = BD_CRYPTO210_INVALID;
+  this->m_migrationState = BD_MIGRATION220_IDLE;
   *(double *)&_XMM0 = ((double (*)(void))v8->close)();
+  *(_QWORD *)&v12.m_size = 0i64;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&this->m_migrationOutgoingTaskQueue.m_list.m_head = _XMM0;
+  *(_OWORD *)&v12.m_head = _XMM0;
+  _XMM0 = *(unsigned __int64 *)&v12.m_size;
+  *(double *)&this->m_migrationOutgoingTaskQueue.m_list.m_size = *(double *)&v12.m_size;
+  bdLinkedList<bdLobbyConnectionMigrationHeldBackTask>::~bdLinkedList<bdLobbyConnectionMigrationHeldBackTask>(&v12);
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&this->m_outgoingBuffers.m_list.m_head = _XMM0;
+  *(_OWORD *)&v13.m_head = _XMM0;
   *(_QWORD *)&v13.m_size = 0i64;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovups xmmword ptr [rbx+378h], xmm0
-    vmovdqu xmmword ptr [rsp+58h+var_38.m_head], xmm0
-    vmovsd  xmm0, qword ptr [rsp+58h+var_38.m_size]
-    vmovsd  qword ptr [rbx+388h], xmm0
-  }
-  bdLinkedList<bdLobbyConnectionMigrationHeldBackTask>::~bdLinkedList<bdLobbyConnectionMigrationHeldBackTask>(&v13);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovups xmmword ptr [rbx+0D8h], xmm0
-    vmovdqu xmmword ptr [rsp+58h+var_20.m_head], xmm0
-  }
-  *(_QWORD *)&v14.m_size = 0i64;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsp+58h+var_20.m_size]
-    vmovsd  qword ptr [rbx+0E8h], xmm0
-  }
-  bdLinkedList<bdPendingBufferTransfer>::~bdLinkedList<bdPendingBufferTransfer>(&v14);
+  *(double *)&this->m_outgoingBuffers.m_list.m_size = 0i64;
+  bdLinkedList<bdPendingBufferTransfer>::~bdLinkedList<bdPendingBufferTransfer>(&v13);
 }
 
 /*
@@ -882,75 +871,35 @@ bdLobbyConnection::connect
 char bdLobbyConnection::connect(bdLobbyConnection *this, bdAuthInfo *authInfo)
 {
   bdTrulyRandomImpl *Instance; 
-  const bdAddr *v22; 
-  bdSocketStatusCode v23; 
-  bdAddr v25; 
+  const bdAddr *v5; 
+  bdSocketStatusCode v6; 
+  bdAddr v8; 
 
   this->m_status = BD_TOO_MANY_TASKS;
-  _RBX = authInfo;
   this->m_cryptoState = BD_CRYPTO210_INVALID;
-  _RDI = this;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx+180h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+10h]
-    vmovups xmmword ptr [rcx+190h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+20h]
-    vmovups xmmword ptr [rcx+1A0h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+30h]
-    vmovups xmmword ptr [rcx+1B0h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+40h]
-    vmovups xmmword ptr [rcx+1C0h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+50h]
-    vmovups xmmword ptr [rcx+1D0h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+60h]
-    vmovups xmmword ptr [rcx+1E0h], xmm0
-    vmovups xmm0, xmmword ptr [rdx+70h]
-    vmovups xmmword ptr [rcx+1F0h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+80h]
-    vmovups xmmword ptr [rcx+200h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+90h]
-    vmovups xmmword ptr [rcx+210h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0A0h]
-    vmovups xmmword ptr [rcx+220h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0B0h]
-    vmovups xmmword ptr [rcx+230h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0C0h]
-    vmovups xmmword ptr [rcx+240h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0D0h]
-    vmovups xmmword ptr [rcx+250h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0E0h]
-    vmovups xmmword ptr [rcx+260h], xmm1
-  }
-  *(_QWORD *)&this->m_authInfo.m_clientID[62] = *(_QWORD *)&authInfo->m_clientID[62];
+  this->m_authInfo = *authInfo;
   Instance = bdSingleton<bdTrulyRandomImpl>::getInstance();
-  bdTrulyRandomImpl::getRandomUByte8(Instance, _RDI->m_clientNonce, 8u);
+  bdTrulyRandomImpl::getRandomUByte8(Instance, this->m_clientNonce, 8u);
   bdHandleAssert(1, "sizeof(m_sessionKey) <= sizeof(authInfo.m_sessionKey)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::connect", 0x759u, "Session key size constants invalid.");
-  __asm
+  *(_OWORD *)this->m_sessionKey = *(_OWORD *)authInfo->m_sessionKey;
+  *(double *)&this->m_sessionKey[16] = *(double *)&authInfo->m_sessionKey[16];
+  bdAddr::bdAddr(&v8, &this->m_lobbyAddr);
+  v6 = bdStreamSocket::connect(&this->m_socket, v5);
+  if ( v6 == BD_NET_SUCCESS )
   {
-    vmovups xmm0, xmmword ptr [rbx+88h]
-    vmovups xmmword ptr [rdi+120h], xmm0
-    vmovsd  xmm1, qword ptr [rbx+98h]
-    vmovsd  qword ptr [rdi+130h], xmm1
-  }
-  bdAddr::bdAddr(&v25, &_RDI->m_lobbyAddr);
-  v23 = bdStreamSocket::connect(&_RDI->m_socket, v22);
-  if ( v23 == BD_NET_SUCCESS )
-  {
-    _RDI->m_status = BD_NOT_CONNECTED;
-    bdLobbyConnection::onTcpConnect(_RDI, 1);
+    this->m_status = BD_NOT_CONNECTED;
+    bdLobbyConnection::onTcpConnect(this, 1);
     return 1;
   }
-  else if ( v23 == BD_NET_WOULD_BLOCK )
+  else if ( v6 == BD_NET_WOULD_BLOCK )
   {
-    bdStopwatch::reset(&_RDI->m_asyncConnectTimer);
-    bdStopwatch::start(&_RDI->m_asyncConnectTimer);
+    bdStopwatch::reset(&this->m_asyncConnectTimer);
+    bdStopwatch::start(&this->m_asyncConnectTimer);
     return 1;
   }
   else
   {
-    bdLobbyConnection::close(_RDI);
+    bdLobbyConnection::close(this);
     return 0;
   }
 }
@@ -1085,6 +1034,8 @@ bdLobbyConnection::getHandleInfo
 void bdLobbyConnection::getHandleInfo(bdLobbyConnection *this, int *handle, bool *read, bool *write, float *timeout)
 {
   bdLobbyConnection::Status m_status; 
+  double ElapsedTimeInSeconds; 
+  __int128 v11; 
 
   if ( (unsigned int)(this->m_status - 1) <= 1 )
   {
@@ -1106,36 +1057,22 @@ void bdLobbyConnection::getHandleInfo(bdLobbyConnection *this, int *handle, bool
   }
   if ( this->m_status == BD_NOT_CONNECTED )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
     bdStopwatch::getElapsedTimeInSeconds(&this->m_keepAliveTimer);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_keepAliveTimer);
+    v11 = LODWORD(FLOAT_1800_0);
+    *(float *)&v11 = 1800.0 - *(float *)&ElapsedTimeInSeconds;
+    _XMM0 = v11;
     __asm
     {
-      vmovss  xmm1, cs:__real@44160000
-      vsubss  xmm6, xmm1, xmm0
-    }
-    bdStopwatch::getElapsedTimeInSeconds(&this->m_keepAliveTimer);
-    __asm { vmovss  xmm1, cs:__real@44e10000 }
-    _RAX = timeout;
-    __asm
-    {
-      vsubss  xmm0, xmm1, xmm0
       vminss  xmm3, xmm0, xmm6
-      vxorps  xmm2, xmm2, xmm2
       vcmpltss xmm0, xmm3, xmm2
       vblendvps xmm1, xmm3, xmm2, xmm0
-      vmovss  dword ptr [rax], xmm1
-      vmovaps xmm6, [rsp+38h+var_18]
-      vmovss  [rsp+38h+arg_0], xmm1
     }
+    *timeout = *(float *)&_XMM1;
   }
   else
   {
-    _RAX = timeout;
-    __asm
-    {
-      vmovss  xmm0, cs:__real@bf800000
-      vmovss  dword ptr [rax], xmm0
-    }
+    *timeout = FLOAT_N1_0;
   }
 }
 
@@ -1608,125 +1545,124 @@ bdLobbyConnection::parse220MigrateAck
 */
 bool bdLobbyConnection::parse220MigrateAck(bdLobbyConnection *this, unsigned __int8 *const readPtr, const unsigned int validBytes, unsigned int *offset)
 {
+  unsigned int v8; 
   unsigned int v9; 
-  unsigned int v10; 
-  unsigned __int8 v11; 
-  unsigned int v12; 
-  unsigned __int8 v13; 
-  char v14; 
-  __int64 v20; 
-  unsigned __int16 v21; 
+  unsigned __int8 v10; 
+  unsigned int v11; 
+  unsigned __int8 v12; 
+  char v13; 
+  __m256i v14; 
+  __m256i v15; 
+  __m256i v16; 
+  bdRelayRoute m_relayRoute; 
+  double v18; 
+  __int64 v19; 
+  unsigned __int16 v20; 
+  unsigned int v21; 
   unsigned int v22; 
-  unsigned int v23; 
-  char v24; 
+  char v23; 
   bool result; 
-  __int64 v30; 
+  __int128 v25; 
+  __int64 v28; 
   unsigned __int8 var[4]; 
   unsigned int newOffset[3]; 
-  bdAddr v33; 
-  char v34[32]; 
+  bdAddr v31; 
+  char v32[32]; 
   char str[32]; 
 
-  _R13 = this;
   if ( this->m_migrationState != BD_MIGRATION220_INIT_ACK_SENT )
     goto LABEL_16;
-  v9 = *offset;
+  v8 = *offset;
   var[0] = 0;
-  if ( !bdBytePacker::removeBasicType<unsigned char>(readPtr, validBytes, v9, offset, var) || var[0] != 1 || (v10 = *offset, var[0] = 0, !bdBytePacker::removeBasicType<unsigned char>(readPtr, validBytes, v10, offset, var)) || (v11 = var[0], (unsigned __int8)(var[0] - 1) > 1u) || (v12 = *offset, var[0] = 0, !bdBytePacker::removeBasicType<unsigned char>(readPtr, validBytes, v12, offset, var)) || (v13 = var[0]) != 0 && v11 != 2 )
+  if ( !bdBytePacker::removeBasicType<unsigned char>(readPtr, validBytes, v8, offset, var) || var[0] != 1 || (v9 = *offset, var[0] = 0, !bdBytePacker::removeBasicType<unsigned char>(readPtr, validBytes, v9, offset, var)) || (v10 = var[0], (unsigned __int8)(var[0] - 1) > 1u) || (v11 = *offset, var[0] = 0, !bdBytePacker::removeBasicType<unsigned char>(readPtr, validBytes, v11, offset, var)) || (v12 = var[0]) != 0 && v10 != 2 )
   {
 LABEL_16:
-    v14 = 0;
+    v13 = 0;
     goto LABEL_17;
   }
-  v14 = 1;
-  if ( v11 == 2 )
+  v13 = 1;
+  if ( v10 == 2 )
   {
-    bdAddr::bdAddr(&v33);
+    bdAddr::bdAddr(&v31);
     newOffset[0] = *offset;
-    if ( bdAddr::deserialize(&v33, readPtr, validBytes, newOffset[0], newOffset) && newOffset[0] - *offset == v13 )
+    if ( bdAddr::deserialize(&v31, readPtr, validBytes, newOffset[0], newOffset) && newOffset[0] - *offset == v12 )
     {
       *offset = newOffset[0];
       str[0] = 0;
-      bdAddr::toString(&v33, str, 0x20ui64);
-      v34[0] = 0;
-      bdAddr::toString(&_R13->m_lobbyMigrationAddr, v34, 0x20ui64);
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::parse220MigrateAck", 0x2D7u, "Asked to migrate to a new address %s (old %s)", str, v34);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+190h+var_130.m_address.inUn]
-        vmovups ymm1, ymmword ptr [rbp+90h+var_130.m_address.inUn+20h]
-        vmovups ymmword ptr [r13+2E0h], ymm0
-        vmovups ymm0, ymmword ptr [rbp+90h+var_130.m_address.inUn+40h]
-        vmovups ymmword ptr [r13+300h], ymm1
-        vmovups ymm1, ymmword ptr [rbp+90h+var_130.m_address.inUn+60h]
-        vmovups ymmword ptr [r13+320h], ymm0
-        vmovups xmm0, xmmword ptr [rbp+90h+var_130.m_relayRoute.m_relayID]
-        vmovups ymmword ptr [r13+340h], ymm1
-        vmovsd  xmm1, qword ptr [rbp+90h+var_130.m_type]
-        vmovups xmmword ptr [r13+360h], xmm0
-        vmovsd  qword ptr [r13+370h], xmm1
-      }
+      bdAddr::toString(&v31, str, 0x20ui64);
+      v32[0] = 0;
+      bdAddr::toString(&this->m_lobbyMigrationAddr, v32, 0x20ui64);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::parse220MigrateAck", 0x2D7u, "Asked to migrate to a new address %s (old %s)", str, v32);
+      v14 = *((__m256i *)&v31.m_address.inUn.m_ipv6Sockaddr + 1);
+      *(__m256i *)&this->m_lobbyMigrationAddr.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&v31.m_address.inUn.m_sockaddrStorage.ss_family;
+      v15 = *((__m256i *)&v31.m_address.inUn.m_ipv6Sockaddr + 2);
+      *((__m256i *)&this->m_lobbyMigrationAddr.m_address.inUn.m_ipv6Sockaddr + 1) = v14;
+      v16 = *((__m256i *)&v31.m_address.inUn.m_ipv6Sockaddr + 3);
+      *((__m256i *)&this->m_lobbyMigrationAddr.m_address.inUn.m_ipv6Sockaddr + 2) = v15;
+      m_relayRoute = v31.m_relayRoute;
+      *((__m256i *)&this->m_lobbyMigrationAddr.m_address.inUn.m_ipv6Sockaddr + 3) = v16;
+      v18 = *(double *)&v31.m_type;
+      this->m_lobbyMigrationAddr.m_relayRoute = m_relayRoute;
+      *(double *)&this->m_lobbyMigrationAddr.m_type = v18;
       goto LABEL_17;
     }
     goto LABEL_16;
   }
-  if ( v11 == 1 )
+  if ( v10 == 1 )
   {
     if ( !var[0] )
       goto LABEL_18;
-    v14 = 0;
+    v13 = 0;
   }
 LABEL_17:
-  if ( !v14 )
+  if ( !v13 )
   {
 LABEL_27:
-    v24 = 0;
+    v23 = 0;
     goto LABEL_28;
   }
 LABEL_18:
-  v20 = *offset;
-  v21 = 0;
-  v22 = v20 + 2;
-  *offset = v20 + 2;
+  v19 = *offset;
+  v20 = 0;
+  v21 = v19 + 2;
+  *offset = v19 + 2;
   if ( readPtr )
   {
-    if ( v22 > validBytes )
+    if ( v21 > validBytes )
     {
       bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 2i64);
-      v21 = 0;
+      v20 = 0;
     }
     else
     {
-      v21 = *(_WORD *)&readPtr[v20];
+      v20 = *(_WORD *)&readPtr[v19];
     }
   }
-  if ( v22 > validBytes && readPtr )
+  if ( v21 > validBytes && readPtr )
     goto LABEL_27;
-  if ( v21 > 0x400u )
+  if ( v20 > 0x400u )
     goto LABEL_27;
-  v23 = v21;
-  if ( !bdBytePacker::removeBuffer(readPtr, validBytes, *offset, offset, _R13->m_migrationTicket, v21) )
+  v22 = v20;
+  if ( !bdBytePacker::removeBuffer(readPtr, validBytes, *offset, offset, this->m_migrationTicket, v20) )
     goto LABEL_27;
-  v24 = 1;
-  _R13->m_migrationTicketLen = v23;
+  v23 = 1;
+  this->m_migrationTicketLen = v22;
 LABEL_28:
   newOffset[0] = 0;
-  if ( v24 && bdBytePacker::removeBasicType<unsigned int>(readPtr, validBytes, *offset, offset, newOffset) )
+  if ( v23 && bdBytePacker::removeBasicType<unsigned int>(readPtr, validBytes, *offset, offset, newOffset) )
   {
     result = 1;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rcx
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vminss  xmm2, xmm1, cs:__real@41f00000
-      vmovss  dword ptr [r13+794h], xmm2
-    }
+    v25 = 0i64;
+    *(float *)&v25 = (float)newOffset[0];
+    *(float *)&v25 = *(float *)&v25 * 0.001;
+    _XMM1 = v25;
+    __asm { vminss  xmm2, xmm1, cs:__real@41f00000 }
+    this->m_migrationReconnectTimeout = *(float *)&_XMM2;
   }
   else
   {
-    LODWORD(v30) = *offset;
-    bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::parse220MigrateAck", 0x2F9u, "Failed to parse a MIGRATE_ACK message. Last offset %u.", v30);
+    LODWORD(v28) = *offset;
+    bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::parse220MigrateAck", 0x2F9u, "Failed to parse a MIGRATE_ACK message. Last offset %u.", v28);
     return 0;
   }
   return result;
@@ -1758,7 +1694,7 @@ __int64 bdLobbyConnection::prepare2x0ClientAuthAndDeriveCrypto(bdLobbyConnection
   bool v27; 
   bdBitBuffer *v28; 
   bdBitBuffer *v29; 
-  int m_titleID; 
+  unsigned int m_titleID; 
   unsigned int m_IVSeed; 
   char v32; 
   bool appended; 
@@ -1770,55 +1706,56 @@ __int64 bdLobbyConnection::prepare2x0ClientAuthAndDeriveCrypto(bdLobbyConnection
   unsigned int v39; 
   char v40; 
   bool v41; 
-  const unsigned __int8 *m_sessionKey; 
+  unsigned __int8 *m_sessionKey; 
   char v43; 
   bool v44; 
   bdCypherAES *m_cypher210Client; 
-  bdCypherAES *v49; 
-  bdCypherAES *v50; 
-  bdCypherAES *v51; 
-  bool v52; 
+  bdCypherAES *v46; 
+  bdCypherAES *v47; 
+  bdCypherAES *v48; 
+  bool v49; 
   bdCypherAES *m_cypher210Server; 
-  bdCypherAES *v54; 
-  bdBitBuffer *v55; 
-  unsigned __int8 v56; 
+  bdCypherAES *v51; 
+  bdBitBuffer *v52; 
+  unsigned __int8 v53; 
   unsigned int offset; 
   unsigned __int8 var; 
   unsigned __int8 bits; 
-  char v61; 
-  unsigned __int8 v62; 
-  unsigned int v63; 
-  bdBitBuffer *v64; 
+  char v58; 
+  unsigned __int8 v59; 
+  unsigned int v60; 
+  bdBitBuffer *v61; 
   unsigned int m_maxRecvMessageSize; 
   unsigned int resultSize; 
-  char v67; 
+  char v64; 
+  int v65; 
+  unsigned int v66; 
+  const unsigned __int8 *v67; 
   int v68; 
-  unsigned int v69; 
-  const unsigned __int8 *v70; 
-  int v71; 
-  bdBitBuffer *v72; 
-  __int64 v73; 
-  bdHashSHA1 v74; 
+  bdBitBuffer *v69; 
+  __int64 v70; 
+  bdHashSHA1 v71; 
   char src[8]; 
+  double v73; 
   unsigned __int8 result[20]; 
   unsigned __int8 outPRK[20]; 
   __int128 buffer; 
-  int v80; 
-  int v82; 
-  char v83[16]; 
-  char v84[24]; 
+  int v77; 
+  __int128 v78; 
+  int v79; 
+  char v80[16]; 
+  char v81[24]; 
   char outBuffer[32]; 
   int dest[276]; 
   unsigned int serverHeaderAckEndOffseta; 
 
-  v73 = -2i64;
-  _RSI = this;
-  v70 = serverHeaderAckReadPtr;
-  v63 = serverHeaderAckReadOffset;
+  v70 = -2i64;
+  v67 = serverHeaderAckReadPtr;
+  v60 = serverHeaderAckReadOffset;
   v11 = *replyPacketOffset;
-  v68 = v11;
+  v65 = v11;
   v12 = v11 + 4;
-  v69 = v11 + 4;
+  v66 = v11 + 4;
   *replyPacketOffset = v11 + 4;
   v13 = (int)v11 + 4 <= replyPacketMaxSize || !replyPacketPtr;
   bdHandleAssert(v13, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 4i64);
@@ -1832,7 +1769,7 @@ LABEL_8:
   }
   if ( v12 <= replyPacketMaxSize )
   {
-    v71 = 0;
+    v68 = 0;
     *(_DWORD *)&replyPacketPtr[v11] = 0;
     goto LABEL_8;
   }
@@ -1858,7 +1795,7 @@ LABEL_17:
   }
   if ( v16 <= replyPacketMaxSize )
   {
-    v67 = -85;
+    v64 = -85;
     replyPacketPtr[v15] = -85;
     goto LABEL_17;
   }
@@ -1868,41 +1805,41 @@ LABEL_18:
 LABEL_20:
   v18 = 1;
 LABEL_21:
-  m_migrationState = _RSI->m_migrationState;
+  m_migrationState = this->m_migrationState;
   if ( m_migrationState != BD_MIGRATION220_RECONNECTED )
   {
     if ( !v18 )
       goto LABEL_36;
     bdHandleAssert(m_migrationState == BD_MIGRATION220_IDLE, "m_migrationState == BD_MIGRATION220_IDLE", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::prepare2x0ClientAuthAndDeriveCrypto", 0x447u, "Unexpected migration state.");
-    v72 = NULL;
+    v69 = NULL;
     bits = 7;
     v28 = (bdBitBuffer *)bdMemory::allocate(0x30ui64);
-    v64 = v28;
+    v61 = v28;
     if ( v28 )
     {
       bdBitBuffer::bdBitBuffer(v28, &bits, 8u, 1);
       v14 = v29;
     }
-    v72 = v14;
+    v69 = v14;
     if ( !v14 )
       goto LABEL_50;
     _InterlockedExchangeAdd((volatile signed __int32 *)&v14->m_refCount, 1u);
     bdBitBuffer::setTypeCheck(v14, 0);
     bdBitBuffer::writeDataType(v14, BD_BB_BOOL_TYPE);
-    v61 = -1;
-    bdBitBuffer::writeBits(v14, &v61, 1u);
+    v58 = -1;
+    bdBitBuffer::writeBits(v14, &v58, 1u);
     bdBitBuffer::setTypeCheck(v14, 1);
-    m_titleID = _RSI->m_authInfo.m_titleID;
+    m_titleID = this->m_authInfo.m_titleID;
     bdBitBuffer::writeDataType(v14, BD_BB_UNSIGNED_INTEGER32_TYPE);
     m_maxRecvMessageSize = m_titleID;
     bdBitBuffer::writeBits(v14, &m_maxRecvMessageSize, 0x20u);
-    m_IVSeed = _RSI->m_authInfo.m_IVSeed;
+    m_IVSeed = this->m_authInfo.m_IVSeed;
     bdBitBuffer::writeDataType(v14, BD_BB_UNSIGNED_INTEGER32_TYPE);
-    LODWORD(v64) = m_IVSeed;
-    bdBitBuffer::writeBits(v14, &v64, 0x20u);
-    bdBitBuffer::writeBits(v14, _RSI->m_authInfo.m_data, 0x400u);
-    v62 = -126;
-    if ( !bdBytePacker::appendBasicType<unsigned char>(replyPacketPtr, replyPacketMaxSize, *replyPacketOffset, replyPacketOffset, &v62) )
+    LODWORD(v61) = m_IVSeed;
+    bdBitBuffer::writeBits(v14, &v61, 0x20u);
+    bdBitBuffer::writeBits(v14, this->m_authInfo.m_data, 0x400u);
+    v59 = -126;
+    if ( !bdBytePacker::appendBasicType<unsigned char>(replyPacketPtr, replyPacketMaxSize, *replyPacketOffset, replyPacketOffset, &v59) )
       goto LABEL_50;
     if ( bdBytePacker::appendBuffer(replyPacketPtr, replyPacketMaxSize, *replyPacketOffset, replyPacketOffset, v14->m_data.m_data, v14->m_data.m_size) && bdBytePacker::skipBytes(replyPacketPtr, replyPacketMaxSize, *replyPacketOffset, replyPacketOffset, 8u) )
       v32 = 1;
@@ -1921,7 +1858,7 @@ LABEL_50:
   var = -112;
   if ( !bdBytePacker::appendBasicType<unsigned char>(replyPacketPtr, replyPacketMaxSize, *replyPacketOffset, replyPacketOffset, &var) )
     goto LABEL_36;
-  resultSize = _RSI->m_migrationTicketLen;
+  resultSize = this->m_migrationTicketLen;
   if ( resultSize >= 0x400 )
     goto LABEL_36;
   v20 = *replyPacketOffset;
@@ -1942,22 +1879,22 @@ LABEL_33:
     {
 LABEL_36:
       v23 = *replyPacketOffset;
-      v24 = v69;
+      v24 = v66;
 LABEL_37:
       v25 = 0;
       goto LABEL_38;
     }
   }
-  if ( !bdBytePacker::appendBuffer(replyPacketPtr, replyPacketMaxSize, *replyPacketOffset, replyPacketOffset, _RSI->m_migrationTicket, _RSI->m_migrationTicketLen) || !bdBytePacker::skipBytes(replyPacketPtr, replyPacketMaxSize, *replyPacketOffset, replyPacketOffset, 8u) )
+  if ( !bdBytePacker::appendBuffer(replyPacketPtr, replyPacketMaxSize, *replyPacketOffset, replyPacketOffset, this->m_migrationTicket, this->m_migrationTicketLen) || !bdBytePacker::skipBytes(replyPacketPtr, replyPacketMaxSize, *replyPacketOffset, replyPacketOffset, 8u) )
     goto LABEL_36;
 LABEL_55:
   v23 = *replyPacketOffset;
-  v24 = v69;
-  if ( *replyPacketOffset <= v69 )
+  v24 = v66;
+  if ( *replyPacketOffset <= v66 )
     goto LABEL_37;
   v25 = 1;
 LABEL_38:
-  v26 = v23 - v68 - 4;
+  v26 = v23 - v65 - 4;
   if ( !v25 )
     goto LABEL_68;
   v27 = v24 <= replyPacketMaxSize || !replyPacketPtr;
@@ -1966,7 +1903,7 @@ LABEL_38:
   {
     if ( v24 > replyPacketMaxSize )
       goto LABEL_62;
-    *(_DWORD *)&replyPacketPtr[v68] = v26;
+    *(_DWORD *)&replyPacketPtr[v65] = v26;
   }
   if ( v24 > replyPacketMaxSize )
   {
@@ -1976,7 +1913,7 @@ LABEL_62:
 LABEL_68:
     offset = 0;
 LABEL_69:
-    v34 = v63;
+    v34 = v60;
 LABEL_70:
     v36 = 0;
     v35 = serverHeaderAckEndOffset;
@@ -1985,23 +1922,23 @@ LABEL_70:
 LABEL_63:
   bdHandleAssert(1, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 4i64);
   dest[0] = 210;
-  LODWORD(v64) = 4;
+  LODWORD(v61) = 4;
   offset = 8;
   bdHandleAssert(1, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 4i64);
-  *(int *)((char *)dest + (unsigned int)v64) = 220;
-  m_maxRecvMessageSize = _RSI->m_maxRecvMessageSize;
-  LODWORD(v64) = offset;
+  *(int *)((char *)dest + (unsigned int)v61) = 220;
+  m_maxRecvMessageSize = this->m_maxRecvMessageSize;
+  LODWORD(v61) = offset;
   offset += 4;
   bdHandleAssert(offset <= 0x44A, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 4i64);
   if ( offset > 0x44A )
     goto LABEL_69;
-  *(int *)((char *)dest + (unsigned int)v64) = m_maxRecvMessageSize;
-  appended = bdBytePacker::appendBuffer(dest, 0x44Au, offset, &offset, _RSI->m_clientNonce, 8u);
-  v34 = v63;
+  *(int *)((char *)dest + (unsigned int)v61) = m_maxRecvMessageSize;
+  appended = bdBytePacker::appendBuffer(dest, 0x44Au, offset, &offset, this->m_clientNonce, 8u);
+  v34 = v60;
   if ( !appended )
     goto LABEL_70;
   v35 = serverHeaderAckEndOffset;
-  if ( serverHeaderAckEndOffset <= v63 )
+  if ( serverHeaderAckEndOffset <= v60 )
     goto LABEL_70;
   v36 = 1;
 LABEL_71:
@@ -2009,44 +1946,44 @@ LABEL_71:
   m_maxRecvMessageSize = v35 - v34 + 2;
   if ( !v36 )
     goto LABEL_79;
-  LODWORD(v64) = offset;
+  LODWORD(v61) = offset;
   v37 = offset + 4;
   offset = v37;
   bdHandleAssert(v37 <= 0x44A, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 4i64);
   if ( v37 > 0x44A )
     goto LABEL_79;
-  *(int *)((char *)dest + (unsigned int)v64) = m_maxRecvMessageSize;
-  LODWORD(v64) = offset;
+  *(int *)((char *)dest + (unsigned int)v61) = m_maxRecvMessageSize;
+  LODWORD(v61) = offset;
   v38 = offset + 1;
   offset = v38;
   bdHandleAssert(v38 <= 0x44A, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 1i64);
   if ( v38 > 0x44A )
     goto LABEL_79;
-  *((_BYTE *)dest + (unsigned int)v64) = -85;
-  LODWORD(v64) = offset;
+  *((_BYTE *)dest + (unsigned int)v61) = -85;
+  LODWORD(v61) = offset;
   v39 = offset + 1;
   offset = v39;
   bdHandleAssert(v39 <= 0x44A, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 1i64);
-  if ( v39 <= 0x44A && (*((_BYTE *)dest + (unsigned int)v64) = -127, bdBytePacker::appendBuffer(dest, 0x44Au, offset, &offset, &v70[v63], serverHeaderAckEndOffseta)) && v26 > 0xC && bdBytePacker::appendBuffer(dest, 0x44Au, offset, &offset, &replyPacketPtr[v68], v26 - 4) )
+  if ( v39 <= 0x44A && (*((_BYTE *)dest + (unsigned int)v61) = -127, bdBytePacker::appendBuffer(dest, 0x44Au, offset, &offset, &v67[v60], serverHeaderAckEndOffseta)) && v26 > 0xC && bdBytePacker::appendBuffer(dest, 0x44Au, offset, &offset, &replyPacketPtr[v65], v26 - 4) )
     v40 = 1;
   else
 LABEL_79:
     v40 = 0;
-  bdHashSHA1::bdHashSHA1(&v74);
+  bdHashSHA1::bdHashSHA1(&v71);
   resultSize = 20;
-  v41 = v40 && bdHashSHA1::hash(&v74, (const unsigned __int8 *)dest, offset, result, &resultSize);
+  v41 = v40 && bdHashSHA1::hash(&v71, (const unsigned __int8 *)dest, offset, result, &resultSize);
   bdHandleAssert(resultSize == 20, "hashSize == BD_SHA1_HASH_SIZE", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::prepare2x0ClientAuthAndDeriveCrypto", 0x4B7u, "SHA1 Result size unexpected");
-  if ( _RSI->m_authInfo.m_authSessionKeyKDF )
+  if ( this->m_authInfo.m_authSessionKeyKDF )
   {
-    if ( !v41 || !bdCryptoUtils::hkdfExpand(_RSI->m_sessionKey, 0x18u, BD_AUTH_TRAFFIC_SIGNING_KEY_3, 0x126u, outBuffer, 0x18u, BD_HASH_SHA1) )
+    if ( !v41 || !bdCryptoUtils::hkdfExpand(this->m_sessionKey, 0x18u, BD_AUTH_TRAFFIC_SIGNING_KEY_3, 0x126u, outBuffer, 0x18u, BD_HASH_SHA1) )
       goto LABEL_92;
-    m_sessionKey = (const unsigned __int8 *)outBuffer;
+    m_sessionKey = (unsigned __int8 *)outBuffer;
   }
   else
   {
     if ( !v41 )
       goto LABEL_92;
-    m_sessionKey = _RSI->m_sessionKey;
+    m_sessionKey = this->m_sessionKey;
   }
   if ( bdCryptoUtils::hkdfExtractSHA1((const unsigned __int8 (*)[20])result, m_sessionKey, 0x18u, (unsigned __int8 (*)[20])outPRK) )
   {
@@ -2057,68 +1994,56 @@ LABEL_92:
   v43 = 0;
 LABEL_93:
   bdCryptoUtils::zeroBuffer(result, 0x14ui64);
-  bdHashSHA1::~bdHashSHA1(&v74);
+  bdHashSHA1::~bdHashSHA1(&v71);
   v44 = v43 && bdCryptoUtils::hkdfExpand(outPRK, 0x14u, "CLIENTCHAL", 0xAu, src, 0x10u, BD_HASH_SHA1) && bdBytePacker::rewindBytes(replyPacketPtr, replyPacketMaxSize, *replyPacketOffset, replyPacketOffset, 8u) && bdBytePacker::appendBuffer(replyPacketPtr, replyPacketMaxSize, *replyPacketOffset, replyPacketOffset, src, 8u);
-  __asm
-  {
-    vmovsd  xmm0, [rbp+500h+var_550]
-    vmovsd  qword ptr [rsi+28Ch], xmm0
-  }
+  *(double *)this->m_expectedServerVerify = v73;
   bdCryptoUtils::zeroBuffer(src, 0x10ui64);
   if ( !v44 || !bdCryptoUtils::hkdfExpand(outPRK, 0x14u, "BDDATA", 6u, &buffer, 0x48u, BD_HASH_SHA1) )
     goto LABEL_113;
-  __asm
-  {
-    vmovups xmm0, [rbp+500h+buffer]
-    vmovups xmmword ptr [rsi+2A8h], xmm0
-  }
-  *(_DWORD *)&_RSI->m_cypher210ClientMacKey[16] = v80;
-  __asm
-  {
-    vmovups xmm0, [rbp+500h+var_4FC]
-    vmovups xmmword ptr [rsi+2BCh], xmm0
-  }
-  *(_DWORD *)&_RSI->m_cypher210ServerMacKey[16] = v82;
-  m_cypher210Client = _RSI->m_cypher210Client;
+  *(_OWORD *)this->m_cypher210ClientMacKey = buffer;
+  *(_DWORD *)&this->m_cypher210ClientMacKey[16] = v77;
+  *(_OWORD *)this->m_cypher210ServerMacKey = v78;
+  *(_DWORD *)&this->m_cypher210ServerMacKey[16] = v79;
+  m_cypher210Client = this->m_cypher210Client;
   if ( m_cypher210Client )
   {
     ((void (__fastcall *)(bdCypherAES *, __int64))m_cypher210Client->~bdCypher)(m_cypher210Client, 1i64);
-    _RSI->m_cypher210Client = NULL;
+    this->m_cypher210Client = NULL;
   }
-  v49 = (bdCypherAES *)bdMemory::allocate(0x20ui64);
-  v70 = (const unsigned __int8 *)v49;
-  if ( v49 )
+  v46 = (bdCypherAES *)bdMemory::allocate(0x20ui64);
+  v67 = (const unsigned __int8 *)v46;
+  if ( v46 )
   {
-    bdCypherAES::bdCypherAES(v49);
-    v51 = v50;
+    bdCypherAES::bdCypherAES(v46);
+    v48 = v47;
   }
   else
   {
-    v51 = NULL;
+    v48 = NULL;
   }
-  _RSI->m_cypher210Client = v51;
-  v52 = v51->init(v51, (const unsigned __int8 *)v83, 16u);
-  m_cypher210Server = _RSI->m_cypher210Server;
+  this->m_cypher210Client = v48;
+  v49 = v48->init(v48, (const unsigned __int8 *)v80, 16u);
+  m_cypher210Server = this->m_cypher210Server;
   if ( m_cypher210Server )
   {
     ((void (__fastcall *)(bdCypherAES *, __int64))m_cypher210Server->~bdCypher)(m_cypher210Server, 1i64);
-    _RSI->m_cypher210Server = NULL;
+    this->m_cypher210Server = NULL;
   }
-  v54 = (bdCypherAES *)bdMemory::allocate(0x20ui64);
-  v70 = (const unsigned __int8 *)v54;
-  if ( v54 )
+  v51 = (bdCypherAES *)bdMemory::allocate(0x20ui64);
+  v67 = (const unsigned __int8 *)v51;
+  if ( v51 )
   {
-    bdCypherAES::bdCypherAES(v54);
-    v14 = v55;
+    bdCypherAES::bdCypherAES(v51);
+    v14 = v52;
   }
-  _RSI->m_cypher210Server = (bdCypherAES *)v14;
-  if ( v52 && ((unsigned __int8 (__fastcall *)(bdBitBuffer *, char *, __int64))v14->__vftable[1].~bdReferencable)(v14, v84, 16i64) )
-    v56 = 1;
+  this->m_cypher210Server = (bdCypherAES *)v14;
+  if ( v49 && ((unsigned __int8 (__fastcall *)(bdBitBuffer *, char *, __int64))v14->__vftable[1].~bdReferencable)(v14, v81, 16i64) )
+    v53 = 1;
   else
 LABEL_113:
-    v56 = 0;
+    v53 = 0;
   bdCryptoUtils::zeroBuffer(&buffer, 0x48ui64);
-  return v56;
+  return v53;
 }
 
 /*
@@ -2135,41 +2060,42 @@ char bdLobbyConnection::process210ExpectedRecord(bdLobbyConnection *this, unsign
   bool v12; 
   unsigned __int8 *v13; 
   bool v14; 
-  unsigned int v17; 
+  unsigned __int8 *v15; 
+  unsigned int v16; 
   unsigned int m_cypher210RecvCounter; 
-  const char *v19; 
+  const char *v18; 
   bdTaskByteBuffer *m_ptr; 
   unsigned __int64 m_taskData; 
-  bool v22; 
-  const char *v23; 
+  bool v21; 
+  const char *v22; 
+  unsigned int v23; 
   unsigned int v24; 
   unsigned int v25; 
-  unsigned int v26; 
-  unsigned __int8 v27; 
+  unsigned __int8 v26; 
+  unsigned int v27; 
   unsigned int v28; 
   unsigned int v29; 
-  unsigned int v30; 
   unsigned int length; 
   unsigned int newOffset; 
-  unsigned int v34; 
-  const char *v35; 
-  unsigned int v36; 
+  unsigned int v33; 
+  const char *v34; 
+  unsigned int v35; 
   unsigned int m_taskDataSize; 
   unsigned __int8 *data; 
-  bdReference<bdByteBuffer> *v39; 
-  unsigned __int8 *v40; 
-  bdHMacSHA1 v41; 
-  __int64 v42; 
+  bdReference<bdByteBuffer> *v38; 
+  unsigned __int8 *v39; 
+  bdHMacSHA1 v40; 
+  __int64 v41; 
   unsigned __int8 buffer2[8]; 
   char dest[16]; 
   unsigned __int8 digest[24]; 
 
-  v42 = -2i64;
+  v41 = -2i64;
   v6 = validBytes;
-  v40 = returnMsgType;
-  v39 = returnPayload;
-  v35 = "???";
-  v34 = 0;
+  v39 = returnMsgType;
+  v38 = returnPayload;
+  v34 = "???";
+  v33 = 0;
   length = 0;
   v9 = readOffset + 4;
   v10 = readOffset + 4;
@@ -2196,25 +2122,21 @@ char bdLobbyConnection::process210ExpectedRecord(bdLobbyConnection *this, unsign
   }
   v13 = &readPtr[v10];
   v14 = v12 && (unsigned int)v6 > 8;
-  _R13 = &readPtr[v6 - 8];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [r13+0]
-    vmovsd  qword ptr [rbp+47h+buffer2], xmm0
-  }
+  v15 = &readPtr[v6 - 8];
+  *(_QWORD *)buffer2 = *(_QWORD *)v15;
   if ( v14 )
   {
-    if ( _R13 > v13 && (((((_R13 - v13) >> 63) & 0xF) + (unsigned __int8)_R13 - (unsigned __int8)v13) & 0xF) == (((_R13 - v13) >> 63) & 0xF) && _R13 - v13 < 0xFFFFFF )
+    if ( v15 > v13 && (((((v15 - v13) >> 63) & 0xF) + (unsigned __int8)v15 - (unsigned __int8)v13) & 0xF) == (((v15 - v13) >> 63) & 0xF) && v15 - v13 < 0xFFFFFF )
     {
       v14 = 1;
     }
     else
     {
       v14 = 0;
-      v35 = "Bad frame/payload size";
+      v34 = "Bad frame/payload size";
     }
   }
-  v17 = (_DWORD)_R13 - (_DWORD)v13;
+  v16 = (_DWORD)v15 - (_DWORD)v13;
   if ( !v14 )
     goto LABEL_64;
   m_cypher210RecvCounter = this->m_cypher210RecvCounter;
@@ -2222,9 +2144,9 @@ char bdLobbyConnection::process210ExpectedRecord(bdLobbyConnection *this, unsign
   if ( length != m_cypher210RecvCounter )
   {
     v14 = 0;
-    v19 = "Bad recv counter";
+    v18 = "Bad recv counter";
 LABEL_65:
-    bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process210ExpectedRecord", 0x3D0u, "Received corrupted record. Reason: %s", v19);
+    bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process210ExpectedRecord", 0x3D0u, "Received corrupted record. Reason: %s", v18);
     bdLobbyConnection::close(this);
     return v14;
   }
@@ -2233,15 +2155,15 @@ LABEL_65:
   m_ptr = this->m_recvMessage.m_ptr;
   m_taskData = (unsigned __int64)m_ptr->m_taskData;
   m_taskDataSize = m_ptr->m_taskDataSize;
-  v36 = this->m_messageSize - 4;
-  bdHandleAssert(v36 <= m_taskDataSize, "endPtrInRange", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process210ExpectedRecord", 0x383u, "Pointer arith fail.");
-  v22 = (unsigned __int64)data >= m_taskData && v36 <= m_taskDataSize;
+  v35 = this->m_messageSize - 4;
+  bdHandleAssert(v35 <= m_taskDataSize, "endPtrInRange", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process210ExpectedRecord", 0x383u, "Pointer arith fail.");
+  v21 = (unsigned __int64)data >= m_taskData && v35 <= m_taskDataSize;
   bdHandleAssert(1, "sizeof(m_cypher210ServerMacKey) == 20", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process210ExpectedRecord", 0x386u, "Unexpected HMAC key size.");
-  bdHMacSHA1::bdHMacSHA1(&v41, this->m_cypher210ServerMacKey, 0x14u);
-  if ( v22 && bdHMacSHA1::process(&v41, data, this->m_messageSize - 4) )
+  bdHMacSHA1::bdHMacSHA1(&v40, this->m_cypher210ServerMacKey, 0x14u);
+  if ( v21 && bdHMacSHA1::process(&v40, data, this->m_messageSize - 4) )
   {
     length = 20;
-    if ( bdHMacSHA1::getData(&v41, digest, &length) )
+    if ( bdHMacSHA1::getData(&v40, digest, &length) )
     {
       v14 = 1;
       goto LABEL_33;
@@ -2254,24 +2176,24 @@ LABEL_65:
   v14 = 0;
 LABEL_33:
   bdHandleAssert(length == 20, "sz == hmacFullResultSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process210ExpectedRecord", 0x38Du, "HMAC produced unexpected data size?");
-  v23 = "HMAC calculation";
+  v22 = "HMAC calculation";
   if ( v14 )
-    v23 = v35;
-  v35 = v23;
-  bdHMacSHA1::~bdHMacSHA1(&v41);
+    v22 = v34;
+  v34 = v22;
+  bdHMacSHA1::~bdHMacSHA1(&v40);
   if ( !v14 )
   {
 LABEL_64:
-    v19 = v35;
+    v18 = v34;
     goto LABEL_65;
   }
   if ( !bdCryptoUtils::constTimeCompare(digest, buffer2, 8ui64) )
   {
     v14 = 0;
-    v19 = "HMAC mismatch";
+    v18 = "HMAC mismatch";
     goto LABEL_65;
   }
-  if ( !this->m_cypher210Server->decrypt(this->m_cypher210Server, (const unsigned __int8 *)dest, &readPtr[v10], &readPtr[v10], v17) )
+  if ( !this->m_cypher210Server->decrypt(this->m_cypher210Server, (const unsigned __int8 *)dest, &readPtr[v10], &readPtr[v10], v16) )
   {
     length = v10;
 LABEL_63:
@@ -2279,62 +2201,62 @@ LABEL_63:
     bdLobbyConnection::close(this);
     return 0;
   }
+  v23 = v10 + 4;
   v24 = v10 + 4;
-  v25 = v10 + 4;
   length = v10 + 4;
   if ( !readPtr )
     goto LABEL_43;
-  if ( v24 > (unsigned int)v6 )
+  if ( v23 > (unsigned int)v6 )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 4i64);
-    v25 = length;
+    v24 = length;
 LABEL_43:
-    v26 = 0;
+    v25 = 0;
     goto LABEL_44;
   }
-  v26 = *(_DWORD *)&readPtr[v10];
-  v34 = v26;
+  v25 = *(_DWORD *)&readPtr[v10];
+  v33 = v25;
 LABEL_44:
-  if ( v24 > (unsigned int)v6 && readPtr || v26 > v17 )
+  if ( v23 > (unsigned int)v6 && readPtr || v25 > v16 )
     goto LABEL_63;
-  v27 = 0;
-  v28 = v25 + 1;
-  v29 = v25 + 1;
-  length = v25 + 1;
+  v26 = 0;
+  v27 = v24 + 1;
+  v28 = v24 + 1;
+  length = v24 + 1;
   if ( readPtr )
   {
-    if ( v28 > (unsigned int)v6 )
+    if ( v27 > (unsigned int)v6 )
     {
       bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 1i64);
-      v29 = length;
+      v28 = length;
     }
     else
     {
-      v27 = readPtr[v25];
+      v26 = readPtr[v24];
     }
-    v26 = v34;
+    v25 = v33;
   }
-  if ( v28 > (unsigned int)v6 && readPtr )
+  if ( v27 > (unsigned int)v6 && readPtr )
     goto LABEL_63;
-  v30 = v26 + v29;
-  if ( v26 + v29 > (unsigned int)v6 )
+  v29 = v25 + v28;
+  if ( v25 + v28 > (unsigned int)v6 )
     goto LABEL_63;
-  if ( v27 == 0x87 )
+  if ( v26 == 0x87 )
   {
     if ( this->m_serverSelectedProto >= 0xDC )
     {
-      bdLobbyConnection::process220MigrateInit(this, readPtr, v30, &length);
+      bdLobbyConnection::process220MigrateInit(this, readPtr, v29, &length);
       return 0;
     }
   }
-  else if ( v27 == 0x89 && this->m_serverSelectedProto >= 0xDC )
+  else if ( v26 == 0x89 && this->m_serverSelectedProto >= 0xDC )
   {
-    bdLobbyConnection::process220MigrateAck(this, readPtr, v30, &length);
+    bdLobbyConnection::process220MigrateAck(this, readPtr, v29, &length);
     return 0;
   }
-  bdTaskByteBuffer::adjustPayload(this->m_recvMessage.m_ptr, &readPtr[v29], v26);
-  bdReference<bdByteBuffer>::operator=<bdTaskByteBuffer>(v39, &this->m_recvMessage);
-  *v40 = v27;
+  bdTaskByteBuffer::adjustPayload(this->m_recvMessage.m_ptr, &readPtr[v28], v25);
+  bdReference<bdByteBuffer>::operator=<bdTaskByteBuffer>(v38, &this->m_recvMessage);
+  *v39 = v26;
   return 1;
 }
 
@@ -2387,18 +2309,17 @@ char bdLobbyConnection::process210ExpectedServerHeader(bdLobbyConnection *this, 
   unsigned int v10; 
   unsigned int v11; 
   unsigned int v12; 
-  char v15; 
-  __int64 v17; 
-  int v18; 
-  int v19; 
+  char v13; 
+  __int64 v15; 
+  int v16; 
+  int v17; 
   unsigned int newOffset; 
   unsigned int replyPacketOffset[2]; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v20; 
+  __int64 v21; 
   unsigned __int8 replyPacketPtr[1056]; 
 
-  v22 = -2i64;
-  _RDI = readPtr;
+  v20 = -2i64;
   v8 = 0;
   v9 = readOffset + 4;
   v10 = readOffset + 4;
@@ -2415,12 +2336,12 @@ char bdLobbyConnection::process210ExpectedServerHeader(bdLobbyConnection *this, 
       v8 = *(_DWORD *)&readPtr[readOffset];
     }
   }
-  if ( v9 > validBytes && _RDI )
+  if ( v9 > validBytes && readPtr )
     goto LABEL_20;
   v11 = v10 + 8;
   v12 = v10 + 8;
   newOffset = v10 + 8;
-  if ( _RDI )
+  if ( readPtr )
   {
     if ( v11 > validBytes )
     {
@@ -2429,16 +2350,11 @@ char bdLobbyConnection::process210ExpectedServerHeader(bdLobbyConnection *this, 
     }
     else
     {
-      _RAX = v10;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rax+rdi]
-        vmovsd  qword ptr [rsp+4D8h+replyPacketOffset], xmm0
-      }
+      *(_QWORD *)replyPacketOffset = *(_QWORD *)&readPtr[v10];
       this->m_cypher210ConnID = *(_QWORD *)replyPacketOffset;
     }
   }
-  if ( v11 > validBytes && _RDI || !bdBytePacker::skipBytes(_RDI, validBytes, v12, &newOffset, 8u) )
+  if ( v11 > validBytes && readPtr || !bdBytePacker::skipBytes(readPtr, validBytes, v12, &newOffset, 8u) )
   {
 LABEL_20:
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process210ExpectedServerHeader", 0x551u, "Failed to parse server_header_ack. Killing the connection.");
@@ -2447,10 +2363,10 @@ LABEL_20:
   if ( v8 - 210 > 0xA )
   {
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process210ExpectedServerHeader", 0x545u, "ERR: The DemonWare LSG server being communicated to doesn't support this client's protocol.");
-    v19 = 220;
-    v18 = 210;
-    LODWORD(v17) = v8;
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process210ExpectedServerHeader", 0x549u, "ERR: Server selected protocol %i, client requires %i-%i.", v17, v18, v19);
+    v17 = 220;
+    v16 = 210;
+    LODWORD(v15) = v8;
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process210ExpectedServerHeader", 0x549u, "ERR: Server selected protocol %i, client requires %i-%i.", v15, v16, v17);
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process210ExpectedServerHeader", 0x54Au, "ERR: Please contact DemonWare Support. Killing the connection.");
 LABEL_21:
     bdLobbyConnection::close(this);
@@ -2458,20 +2374,20 @@ LABEL_21:
   }
   replyPacketOffset[0] = 0;
   this->m_serverSelectedProto = v8;
-  v23 = 0i64;
-  if ( bdLobbyConnection::prepare2x0ClientAuthAndDeriveCrypto(this, replyPacketPtr, replyPacketOffset, 0x418u, _RDI, readOffset, newOffset) )
+  v21 = 0i64;
+  if ( bdLobbyConnection::prepare2x0ClientAuthAndDeriveCrypto(this, replyPacketPtr, replyPacketOffset, 0x418u, readPtr, readOffset, newOffset) )
   {
-    v15 = 1;
+    v13 = 1;
     bdLobbyConnection::sendFramedMessage(this, replyPacketPtr, replyPacketOffset[0]);
     this->m_cryptoState = BD_CRYPTO210_WAIT_SERVER_AUTH_DONE;
   }
   else
   {
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process210ExpectedServerHeader", 0x53Eu, "Failed to derive crypto keys. Killing the connection.");
-    v15 = 0;
+    v13 = 0;
     bdLobbyConnection::close(this);
   }
-  return v15;
+  return v13;
 }
 
 /*
@@ -2483,66 +2399,65 @@ char bdLobbyConnection::process220MigrateAck(bdLobbyConnection *this, unsigned _
 {
   bdStreamSocket_vtbl *v6; 
   bdTrulyRandomImpl *Instance; 
-  const bdAddr *v15; 
-  bdSocketStatusCode v16; 
-  bdAddr v17; 
+  __m256i v8; 
+  __m256i v9; 
+  __m256i v10; 
+  bdRelayRoute m_relayRoute; 
+  double v12; 
+  const bdAddr *v13; 
+  bdSocketStatusCode v14; 
+  bdAddr v15; 
 
-  _RDI = this;
   if ( this->m_migrationState != BD_MIGRATION220_INIT_ACK_SENT )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process220MigrateAck", 0x307u, "Received unexpected migration INIT_ACK");
 LABEL_3:
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process220MigrateAck", 0x338u, "Received unexpected or corrupted MIGRATE_ACK.");
-    bdLobbyConnection::close(_RDI);
+    bdLobbyConnection::close(this);
     return 0;
   }
   if ( !bdLobbyConnection::parse220MigrateAck(this, readPtr, validBytes, offset) )
     goto LABEL_3;
   bdLogMessage(BD_LOG_INFO, "info/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process220MigrateAck", 0x310u, "Starting migration reconnect process...");
-  bdHandleAssert(_RDI->m_outgoingBuffers.m_list.m_size == 0, "m_outgoingBuffers.isEmpty()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process220MigrateAck", 0x312u, "Unexpected data found in m_outgoingBuffers after MIGRATE_ACK");
-  bdHandleAssert(_RDI->m_status == BD_NOT_CONNECTED, "m_status == BD_CONNECTED", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process220MigrateAck", 0x313u, "Unexpected state when processing MIGRATE_ACK");
-  bdHandleAssert(_RDI->m_cryptoState == BD_CRYPTO210_READY, "m_cryptoState == BD_CRYPTO210_READY", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process220MigrateAck", 0x314u, "Unexpected crypto state when processing MIGRATE_ACK");
-  v6 = _RDI->m_socket.__vftable;
-  _RDI->m_status = BD_TOO_MANY_TASKS;
-  _RDI->m_migrationState = BD_MIGRATION220_RECONNECTING;
-  _RDI->m_cryptoState = BD_CRYPTO210_INVALID;
-  v6->close(&_RDI->m_socket);
-  bdStreamSocket::create(&_RDI->m_socket, 0);
+  bdHandleAssert(this->m_outgoingBuffers.m_list.m_size == 0, "m_outgoingBuffers.isEmpty()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process220MigrateAck", 0x312u, "Unexpected data found in m_outgoingBuffers after MIGRATE_ACK");
+  bdHandleAssert(this->m_status == BD_NOT_CONNECTED, "m_status == BD_CONNECTED", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process220MigrateAck", 0x313u, "Unexpected state when processing MIGRATE_ACK");
+  bdHandleAssert(this->m_cryptoState == BD_CRYPTO210_READY, "m_cryptoState == BD_CRYPTO210_READY", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process220MigrateAck", 0x314u, "Unexpected crypto state when processing MIGRATE_ACK");
+  v6 = this->m_socket.__vftable;
+  this->m_status = BD_TOO_MANY_TASKS;
+  this->m_migrationState = BD_MIGRATION220_RECONNECTING;
+  this->m_cryptoState = BD_CRYPTO210_INVALID;
+  v6->close(&this->m_socket);
+  bdStreamSocket::create(&this->m_socket, 0);
   Instance = bdSingleton<bdTrulyRandomImpl>::getInstance();
-  bdTrulyRandomImpl::getRandomUByte8(Instance, _RDI->m_clientNonce, 8u);
-  _RDX = &_RDI->m_lobbyMigrationAddr;
-  __asm
+  bdTrulyRandomImpl::getRandomUByte8(Instance, this->m_clientNonce, 8u);
+  v8 = *((__m256i *)&this->m_lobbyMigrationAddr.m_address.inUn.m_ipv6Sockaddr + 1);
+  *(__m256i *)&this->m_lobbyAddr.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&this->m_lobbyMigrationAddr.m_address.inUn.m_sockaddrStorage.ss_family;
+  v9 = *((__m256i *)&this->m_lobbyMigrationAddr.m_address.inUn.m_ipv6Sockaddr + 2);
+  *((__m256i *)&this->m_lobbyAddr.m_address.inUn.m_ipv6Sockaddr + 1) = v8;
+  v10 = *((__m256i *)&this->m_lobbyMigrationAddr.m_address.inUn.m_ipv6Sockaddr + 3);
+  *((__m256i *)&this->m_lobbyAddr.m_address.inUn.m_ipv6Sockaddr + 2) = v9;
+  m_relayRoute = this->m_lobbyMigrationAddr.m_relayRoute;
+  *((__m256i *)&this->m_lobbyAddr.m_address.inUn.m_ipv6Sockaddr + 3) = v10;
+  v12 = *(double *)&this->m_lobbyMigrationAddr.m_type;
+  this->m_lobbyAddr.m_relayRoute = m_relayRoute;
+  *(double *)&this->m_lobbyAddr.m_type = v12;
+  bdAddr::bdAddr(&v15, &this->m_lobbyMigrationAddr);
+  v14 = bdStreamSocket::connect(&this->m_socket, v13);
+  if ( v14 == BD_NET_SUCCESS )
   {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rdi+10h], ymm0
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups ymmword ptr [rdi+30h], ymm1
-    vmovups ymm1, ymmword ptr [rdx+60h]
-    vmovups ymmword ptr [rdi+50h], ymm0
-    vmovups xmm0, xmmword ptr [rdx+80h]
-    vmovups ymmword ptr [rdi+70h], ymm1
-    vmovsd  xmm1, qword ptr [rdx+90h]
-    vmovups xmmword ptr [rdi+90h], xmm0
-    vmovsd  qword ptr [rdi+0A0h], xmm1
-  }
-  bdAddr::bdAddr(&v17, &_RDI->m_lobbyMigrationAddr);
-  v16 = bdStreamSocket::connect(&_RDI->m_socket, v15);
-  if ( v16 == BD_NET_SUCCESS )
-  {
-    _RDI->m_status = BD_NOT_CONNECTED;
-    bdLobbyConnection::onTcpConnect(_RDI, 1);
+    this->m_status = BD_NOT_CONNECTED;
+    bdLobbyConnection::onTcpConnect(this, 1);
   }
   else
   {
-    if ( v16 != BD_NET_WOULD_BLOCK )
+    if ( v14 != BD_NET_WOULD_BLOCK )
     {
       bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::process220MigrateAck", 0x330u, "Failed to start connect() for a migration.");
-      bdLobbyConnection::close(_RDI);
+      bdLobbyConnection::close(this);
       return 0;
     }
-    bdStopwatch::reset(&_RDI->m_asyncConnectTimer);
-    bdStopwatch::start(&_RDI->m_asyncConnectTimer);
+    bdStopwatch::reset(&this->m_asyncConnectTimer);
+    bdStopwatch::start(&this->m_asyncConnectTimer);
   }
   return 1;
 }
@@ -2709,62 +2624,63 @@ bool bdLobbyConnection::pump(bdLobbyConnection *this)
   bdLinkedList<bdPendingBufferTransfer>::Node *m_head; 
   signed int m_txAvail; 
   int AvailTokens; 
-  int v8; 
-  int v9; 
+  int v6; 
+  int v7; 
+  unsigned int v8; 
+  unsigned int v9; 
   unsigned int v10; 
-  unsigned int v11; 
-  unsigned int v12; 
-  bdLinkedList<bdPendingBufferTransfer>::Node *v13; 
+  bdLinkedList<bdPendingBufferTransfer>::Node *v11; 
   bdLinkedList<bdPendingBufferTransfer>::Node *m_prev; 
   bool result; 
-  char v16; 
-  char v17; 
+  double v14; 
+  float m_migrationReconnectTimeout; 
+  double v16; 
   bdByteBuffer *m_ptr; 
-  bdByteBuffer *v20; 
-  int v21; 
+  bdByteBuffer *v18; 
+  double ElapsedTimeInSeconds; 
+  int v20; 
+  double v21; 
   bdSocketStatusCode error; 
   int data; 
 
-  __asm { vmovaps [rsp+98h+var_48], xmm6 }
-  _RBX = this;
   bdTokenBucket::fillBucket(&this->m_throttleBucket);
-  m_status = _RBX->m_status;
+  m_status = this->m_status;
   if ( m_status != BD_TOO_MANY_TASKS )
     goto LABEL_5;
   error = BD_NET_SUCCESS;
-  if ( bdStreamSocket::isWritable(&_RBX->m_socket, &error) )
+  if ( bdStreamSocket::isWritable(&this->m_socket, &error) )
   {
     if ( error == BD_NET_SUCCESS )
     {
-      _RBX->m_status = BD_NOT_CONNECTED;
-      bdLobbyConnection::onTcpConnect(_RBX, 1);
-      m_status = _RBX->m_status;
+      this->m_status = BD_NOT_CONNECTED;
+      bdLobbyConnection::onTcpConnect(this, 1);
+      m_status = this->m_status;
 LABEL_5:
       if ( m_status == BD_NOT_CONNECTED )
       {
         do
         {
-          if ( !_RBX->m_outgoingBuffers.m_list.m_size )
+          if ( !this->m_outgoingBuffers.m_list.m_size )
             break;
-          bdHandleAssert(_RBX->m_outgoingBuffers.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<class bdPendingBufferTransfer>::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
-          bdHandleAssert(_RBX->m_outgoingBuffers.m_list.m_head != NULL, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<class bdPendingBufferTransfer>::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
-          m_head = _RBX->m_outgoingBuffers.m_list.m_head;
+          bdHandleAssert(this->m_outgoingBuffers.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<class bdPendingBufferTransfer>::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
+          bdHandleAssert(this->m_outgoingBuffers.m_list.m_head != NULL, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<class bdPendingBufferTransfer>::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
+          m_head = this->m_outgoingBuffers.m_list.m_head;
           m_txAvail = m_head->m_data.m_txAvail;
           if ( m_head->m_data.m_isThrottled )
           {
-            AvailTokens = bdTokenBucket::getAvailTokens(&_RBX->m_throttleBucket, m_txAvail + 40);
-            v8 = AvailTokens;
+            AvailTokens = bdTokenBucket::getAvailTokens(&this->m_throttleBucket, m_txAvail + 40);
+            v6 = AvailTokens;
             if ( AvailTokens <= 0 )
               goto LABEL_40;
             bdHandleAssert(AvailTokens > 40, "bytesToSend > BD_LOBBY_CONNECTION_ESTIMATED_TCP_HEADER_BYTES", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::pump", 0x87Fu, "minFragmentTokens in the throttled bucket is too low.");
-            m_txAvail = v8 - 40;
+            m_txAvail = v6 - 40;
           }
           if ( m_txAvail <= 0 )
           {
 LABEL_40:
-            v9 = -2;
+            v7 = -2;
 LABEL_41:
-            switch ( v9 )
+            switch ( v7 )
             {
               case -11:
                 bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::pump", 0x8B7u, "not connected to host!");
@@ -2788,121 +2704,108 @@ LABEL_41:
                 bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::pump", 0x8A3u, "unknown error.");
                 goto $LN321_1;
               default:
-                bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::pump", 0x8BBu, "unknown error %i.", v9);
+                bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::pump", 0x8BBu, "unknown error %i.", v7);
 $LN321_1:
-                bdLobbyConnection::close(_RBX);
+                bdLobbyConnection::close(this);
 $LN4_289:
-                result = _RBX->m_status == BD_NOT_CONNECTED;
+                result = this->m_status == BD_NOT_CONNECTED;
                 break;
             }
-            goto LABEL_55;
+            return result;
           }
-          v9 = bdStreamSocket::send(&_RBX->m_socket, m_head->m_data.m_txPtr, m_txAvail);
-          if ( v9 <= 0 )
+          v7 = bdStreamSocket::send(&this->m_socket, m_head->m_data.m_txPtr, m_txAvail);
+          if ( v7 <= 0 )
             goto LABEL_41;
-          bdStopwatch::start(&_RBX->m_keepAliveTimer);
-          bdTokenBucket::removeTokens(&_RBX->m_throttleBucket, v9 + 40);
-          bdHandleAssert(v9 <= m_head->m_data.m_txAvail, "amountTransfered <= m_txAvail", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdPendingBufferTransfer::updateTransfer", 0x947u, "Transfered too much on lobby task");
-          v10 = m_head->m_data.m_txAvail;
-          v11 = v10;
-          if ( v10 > v9 )
-            v11 = v9;
-          m_head->m_data.m_txPtr += v11;
-          v12 = v10 - v11;
-          m_head->m_data.m_txAvail = v12;
-          if ( !v12 )
+          bdStopwatch::start(&this->m_keepAliveTimer);
+          bdTokenBucket::removeTokens(&this->m_throttleBucket, v7 + 40);
+          bdHandleAssert(v7 <= m_head->m_data.m_txAvail, "amountTransfered <= m_txAvail", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdPendingBufferTransfer::updateTransfer", 0x947u, "Transfered too much on lobby task");
+          v8 = m_head->m_data.m_txAvail;
+          v9 = v8;
+          if ( v8 > v7 )
+            v9 = v7;
+          m_head->m_data.m_txPtr += v9;
+          v10 = v8 - v9;
+          m_head->m_data.m_txAvail = v10;
+          if ( !v10 )
           {
-            bdHandleAssert(_RBX->m_outgoingBuffers.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<class bdPendingBufferTransfer>::dequeue", 0x12u, "bdQueue::dequeue, queue empty, can't dequeue.");
-            v13 = _RBX->m_outgoingBuffers.m_list.m_head;
-            if ( v13 )
+            bdHandleAssert(this->m_outgoingBuffers.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<class bdPendingBufferTransfer>::dequeue", 0x12u, "bdQueue::dequeue, queue empty, can't dequeue.");
+            v11 = this->m_outgoingBuffers.m_list.m_head;
+            if ( v11 )
             {
-              _RBX->m_outgoingBuffers.m_list.m_head = v13->m_next;
-              m_prev = v13->m_prev;
-              if ( v13 == _RBX->m_outgoingBuffers.m_list.m_tail )
-                _RBX->m_outgoingBuffers.m_list.m_tail = m_prev;
+              this->m_outgoingBuffers.m_list.m_head = v11->m_next;
+              m_prev = v11->m_prev;
+              if ( v11 == this->m_outgoingBuffers.m_list.m_tail )
+                this->m_outgoingBuffers.m_list.m_tail = m_prev;
               else
-                v13->m_next->m_prev = m_prev;
-              v13->m_data.__vftable = (bdPendingBufferTransfer_vtbl *)&bdPendingBufferTransfer::`vftable';
-              m_ptr = v13->m_data.m_buffer.m_ptr;
+                v11->m_next->m_prev = m_prev;
+              v11->m_data.__vftable = (bdPendingBufferTransfer_vtbl *)&bdPendingBufferTransfer::`vftable';
+              m_ptr = v11->m_data.m_buffer.m_ptr;
               if ( m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
               {
-                v20 = v13->m_data.m_buffer.m_ptr;
-                if ( v20 )
-                  ((void (__fastcall *)(bdByteBuffer *, __int64))v20->~bdReferencable)(v20, 1i64);
-                v13->m_data.m_buffer.m_ptr = NULL;
+                v18 = v11->m_data.m_buffer.m_ptr;
+                if ( v18 )
+                  ((void (__fastcall *)(bdByteBuffer *, __int64))v18->~bdReferencable)(v18, 1i64);
+                v11->m_data.m_buffer.m_ptr = NULL;
               }
-              bdReferencable::~bdReferencable(&v13->m_data);
-              bdMemory::deallocate(v13);
-              --_RBX->m_outgoingBuffers.m_list.m_size;
+              bdReferencable::~bdReferencable(&v11->m_data);
+              bdMemory::deallocate(v11);
+              --this->m_outgoingBuffers.m_list.m_size;
             }
           }
-          m_status = _RBX->m_status;
+          m_status = this->m_status;
         }
         while ( m_status == BD_NOT_CONNECTED );
-        if ( m_status == BD_NOT_CONNECTED && _RBX->m_cryptoState == BD_CRYPTO210_READY && !_RBX->m_outgoingBuffers.m_list.m_size )
+        if ( m_status == BD_NOT_CONNECTED && this->m_cryptoState == BD_CRYPTO210_READY && !this->m_outgoingBuffers.m_list.m_size )
         {
-          *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RBX->m_keepAliveTimer);
-          __asm { vcomiss xmm0, cs:__real@44160000 }
-          if ( !(v16 | v17) )
+          ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_keepAliveTimer);
+          if ( *(float *)&ElapsedTimeInSeconds > 600.0 )
           {
             data = 0;
-            v21 = bdStreamSocket::send(&_RBX->m_socket, &data, 4u);
-            if ( (int)(v21 + 0x80000000) >= 0 && v21 != -2 )
+            v20 = bdStreamSocket::send(&this->m_socket, &data, 4u);
+            if ( (int)(v20 + 0x80000000) >= 0 && v20 != -2 )
             {
               bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::pump", 0x8D1u, "KeepAlive packet failed to send! Closing.");
-              bdLobbyConnection::close(_RBX);
-              result = 0;
-              goto LABEL_55;
+              bdLobbyConnection::close(this);
+              return 0;
             }
-            bdStopwatch::start(&_RBX->m_keepAliveTimer);
+            bdStopwatch::start(&this->m_keepAliveTimer);
           }
         }
       }
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RBX->m_lastReceivedTimer);
-      __asm { vcomiss xmm0, cs:__real@44e10000 }
-      if ( !(v16 | v17) )
+      v21 = bdStopwatch::getElapsedTimeInSeconds(&this->m_lastReceivedTimer);
+      if ( *(float *)&v21 > 1800.0 )
       {
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::pump", 0x8DBu, "Connection timed out\n");
-        bdLobbyConnection::close(_RBX);
+        bdLobbyConnection::close(this);
       }
-      goto LABEL_54;
+      return 1;
     }
-    goto LABEL_19;
-  }
-  if ( error == BD_NET_SUCCESS )
-  {
-    if ( _RBX->m_migrationState )
-      goto LABEL_23;
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RBX->m_asyncConnectTimer);
-    __asm { vcomiss xmm0, cs:__real@41f00000 }
-    if ( !(v16 | v17) )
-    {
-LABEL_24:
-      bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::pump", 0x85Fu, "Failed to establish connection due to timeout");
-      bdLobbyConnection::close(_RBX);
-      result = 0;
-      goto LABEL_55;
-    }
-    if ( _RBX->m_migrationState )
-    {
-LABEL_23:
-      __asm { vmovss  xmm6, dword ptr [rbx+794h] }
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RBX->m_asyncConnectTimer);
-      __asm { vcomiss xmm6, xmm0 }
-      if ( v16 )
-        goto LABEL_24;
-    }
-LABEL_54:
-    result = 1;
-    goto LABEL_55;
-  }
 LABEL_19:
-  bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::pump", 0x858u, "Failed to establish connection due to socket error %d", error);
-  bdLobbyConnection::close(_RBX);
-  result = 0;
-LABEL_55:
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
-  return result;
+    bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::pump", 0x858u, "Failed to establish connection due to socket error %d", error);
+    bdLobbyConnection::close(this);
+    return 0;
+  }
+  if ( error != BD_NET_SUCCESS )
+    goto LABEL_19;
+  if ( this->m_migrationState )
+    goto LABEL_23;
+  v14 = bdStopwatch::getElapsedTimeInSeconds(&this->m_asyncConnectTimer);
+  if ( *(float *)&v14 > 30.0 )
+  {
+LABEL_24:
+    bdLogMessage(BD_LOG_WARNING, "warn/", "bdLobby/bdLobbyConnection", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobbyconnection\\bdlobbyconnection.cpp", "bdLobbyConnection::pump", 0x85Fu, "Failed to establish connection due to timeout");
+    bdLobbyConnection::close(this);
+    return 0;
+  }
+  if ( this->m_migrationState )
+  {
+LABEL_23:
+    m_migrationReconnectTimeout = this->m_migrationReconnectTimeout;
+    v16 = bdStopwatch::getElapsedTimeInSeconds(&this->m_asyncConnectTimer);
+    if ( m_migrationReconnectTimeout < *(float *)&v16 )
+      goto LABEL_24;
+  }
+  return 1;
 }
 
 /*

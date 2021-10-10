@@ -156,15 +156,14 @@ float BT_Builtin_GetFloatParam(BehaviorTree *pTree, int taskID, int paramsID)
   int Function; 
   scrContext_t *v5; 
   unsigned int v6; 
-  int outReturnValue; 
+  float outReturnValue; 
 
   Function = AI_BT_GetFunction(pTree, paramsID);
   v5 = ScriptContext_Server();
   Scr_AddInt(v5, taskID);
   v6 = Scr_ExecThreadWithReturnValue(v5, Function, 1u, Scr_ExecThreadCallback_Float, NULL, &outReturnValue);
   Scr_FreeThread(v5, v6);
-  __asm { vmovss  xmm0, [rsp+38h+arg_18] }
-  return *(float *)&_XMM0;
+  return outReturnValue;
 }
 
 /*

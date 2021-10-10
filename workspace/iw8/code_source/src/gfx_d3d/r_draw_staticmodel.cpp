@@ -44,45 +44,32 @@ void R_DrawStaticModelSubdivPatchSurf(GfxSModelSurfIter *smodelSurfIter, GfxCmdB
   const char *name; 
   const char *v8; 
   const char *ConstantLayoutName; 
-  GfxCmdBufContext v13[2]; 
+  GfxCmdBufContext v10[2]; 
 
-  _RBX = context;
   Profile_Begin(80);
   if ( !smodelSurfIter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 410, ASSERT_TYPE_ASSERT, "(smodelSurfIter)", (const char *)&queryFormat, "smodelSurfIter", -2i64) )
     __debugbreak();
-  if ( !_RBX->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 411, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
+  if ( !context->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 411, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
     __debugbreak();
-  if ( !_RBX->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 412, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
+  if ( !context->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 412, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
     __debugbreak();
-  state = _RBX->state;
+  state = context->state;
   technique = state->technique;
   precompiledIndex = technique->precompiledIndex;
   if ( precompiledIndex == MTL_CONSTANT_LAYOUT_SMODEL_SUBDIV_PATCH )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rsp+68h+var_28], xmm0
-    }
-    R_DrawStaticModelSurf_Internal_7_(smodelSurfIter, v13);
+    v10[0] = *context;
+    R_DrawStaticModelSurf_Internal_7_(smodelSurfIter, v10);
   }
   else if ( technique->precompiledIndex == MTL_CONSTANT_LAYOUT_SMODEL_SUBDIV_PATCH_LIT_PROBE )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rsp+68h+var_28], xmm0
-    }
-    R_DrawStaticModelSurf_Internal_8_(smodelSurfIter, v13);
+    v10[0] = *context;
+    R_DrawStaticModelSurf_Internal_8_(smodelSurfIter, v10);
   }
   else if ( technique->precompiledIndex == MTL_CONSTANT_LAYOUT_SMODEL_SUBDIV_PATCH_LIT_LMAP )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rsp+68h+var_28], xmm0
-    }
-    R_DrawStaticModelSurf_Internal_9_(smodelSurfIter, v13);
+    v10[0] = *context;
+    R_DrawStaticModelSurf_Internal_9_(smodelSurfIter, v10);
   }
   else
   {
@@ -108,45 +95,32 @@ void R_DrawStaticModelSubdivSurf(GfxSModelSurfIter *smodelSurfIter, GfxCmdBufCon
   const char *name; 
   const char *v8; 
   const char *ConstantLayoutName; 
-  GfxCmdBufContext v13[2]; 
+  GfxCmdBufContext v10[2]; 
 
-  _RBX = context;
   Profile_Begin(80);
   if ( !smodelSurfIter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 380, ASSERT_TYPE_ASSERT, "(smodelSurfIter)", (const char *)&queryFormat, "smodelSurfIter", -2i64) )
     __debugbreak();
-  if ( !_RBX->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 381, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
+  if ( !context->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 381, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
     __debugbreak();
-  if ( !_RBX->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 382, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
+  if ( !context->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 382, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
     __debugbreak();
-  state = _RBX->state;
+  state = context->state;
   technique = state->technique;
   precompiledIndex = technique->precompiledIndex;
   if ( precompiledIndex == MTL_CONSTANT_LAYOUT_SMODEL_SUBDIV )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rsp+68h+var_28], xmm0
-    }
-    R_DrawStaticModelSurf_Internal_4_(smodelSurfIter, v13);
+    v10[0] = *context;
+    R_DrawStaticModelSurf_Internal_4_(smodelSurfIter, v10);
   }
   else if ( technique->precompiledIndex == MTL_CONSTANT_LAYOUT_SMODEL_SUBDIV_LIT_PROBE )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rsp+68h+var_28], xmm0
-    }
-    R_DrawStaticModelSurf_Internal_5_(smodelSurfIter, v13);
+    v10[0] = *context;
+    R_DrawStaticModelSurf_Internal_5_(smodelSurfIter, v10);
   }
   else if ( technique->precompiledIndex == MTL_CONSTANT_LAYOUT_SMODEL_SUBDIV_LIT_LMAP )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rsp+68h+var_28], xmm0
-    }
-    R_DrawStaticModelSurf_Internal_6_(smodelSurfIter, v13);
+    v10[0] = *context;
+    R_DrawStaticModelSurf_Internal_6_(smodelSurfIter, v10);
   }
   else
   {
@@ -172,75 +146,64 @@ void R_DrawStaticModelSurf(GfxSModelSurfIter *smodelSurfIter, GfxCmdBufContext *
   const char *name; 
   const char *v8; 
   const char *ConstantLayoutName; 
-  int v12; 
-  GfxCmdBufState *v13; 
-  const GfxSModelSurf *v16; 
-  unsigned __int64 v17; 
-  int v18; 
-  int v22; 
-  GfxCmdBufState *v23; 
+  GfxCmdBufContext v10; 
+  int v11; 
+  GfxCmdBufState *v12; 
+  const GfxSModelSurf *v13; 
+  unsigned __int64 v14; 
+  int v15; 
+  GfxCmdBufContext v16; 
+  int drawListType; 
+  GfxCmdBufState *v18; 
   const GfxSModelSurf *current; 
-  unsigned __int64 v27; 
-  int v28; 
+  unsigned __int64 v20; 
+  int v21; 
   GfxCmdBufState *state[2]; 
-  __int64 v30; 
+  __int64 v23; 
 
-  v30 = -2i64;
-  _RBX = context;
+  v23 = -2i64;
   Profile_Begin(80);
   if ( !smodelSurfIter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 349, ASSERT_TYPE_ASSERT, "(smodelSurfIter)", (const char *)&queryFormat, "smodelSurfIter") )
     __debugbreak();
-  if ( !_RBX->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 350, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
+  if ( !context->state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 350, ASSERT_TYPE_ASSERT, "(context.state)", (const char *)&queryFormat, "context.state") )
     __debugbreak();
-  if ( !_RBX->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 351, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
+  if ( !context->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp", 351, ASSERT_TYPE_ASSERT, "(context.source)", (const char *)&queryFormat, "context.source") )
     __debugbreak();
-  v4 = _RBX->state;
+  v4 = context->state;
   technique = v4->technique;
   precompiledIndex = technique->precompiledIndex;
   if ( precompiledIndex == MTL_CONSTANT_LAYOUT_SMODEL )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rsp+88h+state], xmm0
-      vmovq   rbp, xmm0
-    }
-    v22 = *(_DWORD *)(_RBP + 11656);
-    *(_QWORD *)(_RBP + 10528) = 3i64;
-    v23 = state[1];
-    if ( v22 < 65 )
-      R_SetIndicesWithType(state[1], **(ID3D12Resource ***)(_RBP + 9008), DXGI_FORMAT_R32_UINT);
+    v16 = *context;
+    *(GfxCmdBufContext *)state = v16;
+    drawListType = v16.source->drawListType;
+    v16.source->objectPlacement = (const GfxPlacement *)3;
+    v18 = state[1];
+    if ( drawListType < 65 )
+      R_SetIndicesWithType(state[1], v16.source->input.codeBuffers[6]->buffer, DXGI_FORMAT_R32_UINT);
     if ( state[1]->vertDeclType != VERTDECL_PACKED )
       state[1]->pipelineStateDirty = 1;
-    v23->vertDeclType = VERTDECL_PACKED;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rsp+88h+state], xmm0
-    }
+    v18->vertDeclType = VERTDECL_PACKED;
+    *(GfxCmdBufContext *)state = *context;
     R_SetupPassStableArgsInternal((GfxCmdBufContext *)state, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp(136)");
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rsp+88h+state], xmm0
-    }
+    *(GfxCmdBufContext *)state = *context;
     R_SetupPassPerObjectArgsInternal((GfxCmdBufContext *)state, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp(137)");
     state[0] = (GfxCmdBufState *)0xFFFFFFFFFFFFi64;
     current = smodelSurfIter->current;
-    v27 = *(_QWORD *)&smodelSurfIter->current->header & 0xFFFF000000000000ui64;
+    v20 = *(_QWORD *)&smodelSurfIter->current->header & 0xFFFF000000000000ui64;
     do
     {
-      if ( (current->header.packed & 0xFFFF000000000000ui64) != v27 || !R_CheckReserveBuffers(v23) )
+      if ( (current->header.packed & 0xFFFF000000000000ui64) != v20 || !R_CheckReserveBuffers(v18) )
         break;
-      if ( R_GP_IsBatchIndexValid(current->header.fields.gpBatchIndex, *(const GfxBackEndData **)(_RBP + 9728), *(_DWORD *)(_RBP + 11680)) )
+      if ( R_GP_IsBatchIndexValid(current->header.fields.gpBatchIndex, v16.source->input.data, v16.source->passIndex) )
       {
-        v28 = 0;
-        if ( v22 < 65 )
-          v28 = 0x40000;
-        if ( v22 >= 65 )
-          R_DrawIndirectPrimitive(v23, **(ID3D12Resource ***)(_RBP + 9032), v28 + 16 * current->header.fields.gpBatchIndex);
+        v21 = 0;
+        if ( drawListType < 65 )
+          v21 = 0x40000;
+        if ( drawListType >= 65 )
+          R_DrawIndirectPrimitive(v18, v16.source->input.codeBuffers[9]->buffer, v21 + 16 * current->header.fields.gpBatchIndex);
         else
-          R_DrawIndexedIndirectPrimitive(v23, **(ID3D12Resource ***)(_RBP + 9032), v28 + 20 * current->header.fields.gpBatchIndex);
+          R_DrawIndexedIndirectPrimitive(v18, v16.source->input.codeBuffers[9]->buffer, v21 + 20 * current->header.fields.gpBatchIndex);
       }
       current = (const GfxSModelSurf *)&smodelSurfIter->current->visDataRefs[smodelSurfIter->current->header.fields.visDataRefCountLessOne + 1];
       smodelSurfIter->current = current;
@@ -249,60 +212,44 @@ void R_DrawStaticModelSurf(GfxSModelSurfIter *smodelSurfIter, GfxCmdBufContext *
   }
   else if ( technique->precompiledIndex == MTL_CONSTANT_LAYOUT_SMODEL_LIT_PROBE )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rsp+88h+state], xmm0
-    }
+    *(GfxCmdBufContext *)state = *context;
     R_DrawStaticModelSurf_Internal_2_(smodelSurfIter, (GfxCmdBufContext *)state);
   }
   else if ( technique->precompiledIndex == MTL_CONSTANT_LAYOUT_SMODEL_LIT_LMAP )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rsp+88h+state], xmm0
-      vmovq   rbp, xmm0
-    }
-    v12 = *(_DWORD *)(_RBP + 11656);
-    *(_QWORD *)(_RBP + 10528) = 3i64;
-    v13 = state[1];
-    if ( v12 < 65 )
-      R_SetIndicesWithType(state[1], **(ID3D12Resource ***)(_RBP + 9008), DXGI_FORMAT_R32_UINT);
+    v10 = *context;
+    *(GfxCmdBufContext *)state = v10;
+    v11 = v10.source->drawListType;
+    v10.source->objectPlacement = (const GfxPlacement *)3;
+    v12 = state[1];
+    if ( v11 < 65 )
+      R_SetIndicesWithType(state[1], v10.source->input.codeBuffers[6]->buffer, DXGI_FORMAT_R32_UINT);
     if ( state[1]->vertDeclType != VERTDECL_PACKED_MLMAP )
       state[1]->pipelineStateDirty = 1;
-    v13->vertDeclType = VERTDECL_PACKED_MLMAP;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rsp+88h+state], xmm0
-    }
+    v12->vertDeclType = VERTDECL_PACKED_MLMAP;
+    *(GfxCmdBufContext *)state = *context;
     R_SetupPassStableArgsInternal((GfxCmdBufContext *)state, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp(136)");
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rsp+88h+state], xmm0
-    }
+    *(GfxCmdBufContext *)state = *context;
     R_SetupPassPerObjectArgsInternal((GfxCmdBufContext *)state, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_draw_staticmodel.cpp(137)");
     state[0] = (GfxCmdBufState *)0xFFFFFFFFFFFFi64;
-    v16 = smodelSurfIter->current;
-    v17 = *(_QWORD *)&smodelSurfIter->current->header & 0xFFFF000000000000ui64;
+    v13 = smodelSurfIter->current;
+    v14 = *(_QWORD *)&smodelSurfIter->current->header & 0xFFFF000000000000ui64;
     do
     {
-      if ( (v16->header.packed & 0xFFFF000000000000ui64) != v17 || !R_CheckReserveBuffers(v13) )
+      if ( (v13->header.packed & 0xFFFF000000000000ui64) != v14 || !R_CheckReserveBuffers(v12) )
         break;
-      if ( R_GP_IsBatchIndexValid(v16->header.fields.gpBatchIndex, *(const GfxBackEndData **)(_RBP + 9728), *(_DWORD *)(_RBP + 11680)) )
+      if ( R_GP_IsBatchIndexValid(v13->header.fields.gpBatchIndex, v10.source->input.data, v10.source->passIndex) )
       {
-        v18 = 0;
-        if ( v12 < 65 )
-          v18 = 0x40000;
-        if ( v12 >= 65 )
-          R_DrawIndirectPrimitive(v13, **(ID3D12Resource ***)(_RBP + 9032), v18 + 16 * v16->header.fields.gpBatchIndex);
+        v15 = 0;
+        if ( v11 < 65 )
+          v15 = 0x40000;
+        if ( v11 >= 65 )
+          R_DrawIndirectPrimitive(v12, v10.source->input.codeBuffers[9]->buffer, v15 + 16 * v13->header.fields.gpBatchIndex);
         else
-          R_DrawIndexedIndirectPrimitive(v13, **(ID3D12Resource ***)(_RBP + 9032), v18 + 20 * v16->header.fields.gpBatchIndex);
+          R_DrawIndexedIndirectPrimitive(v12, v10.source->input.codeBuffers[9]->buffer, v15 + 20 * v13->header.fields.gpBatchIndex);
       }
-      v16 = (const GfxSModelSurf *)&smodelSurfIter->current->visDataRefs[smodelSurfIter->current->header.fields.visDataRefCountLessOne + 1];
-      smodelSurfIter->current = v16;
+      v13 = (const GfxSModelSurf *)&smodelSurfIter->current->visDataRefs[smodelSurfIter->current->header.fields.visDataRefCountLessOne + 1];
+      smodelSurfIter->current = v13;
     }
     while ( !GfxSurfIter<GfxSModelSurf,GfxSModelSurfList>::IsDone(smodelSurfIter) );
   }

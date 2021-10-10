@@ -126,55 +126,38 @@ G_HudElem_SetColor
 */
 void G_HudElem_SetColor(scrContext_t *scrContext, game_hudelem_t *hud, int offset)
 {
+  int v14; 
   vec3_t vectorValue; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm8
-  }
   if ( s_hudElemFields[offset].ofs != 64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 880, ASSERT_TYPE_ASSERT, "(s_hudElemFields[offset].ofs == ( static_cast< intptr_t >( ( __builtin_offsetof(game_hudelem_t,elem.color) ) ) ))", (const char *)&queryFormat, "s_hudElemFields[offset].ofs == HEOFS( elem.color )") )
     __debugbreak();
   Scr_GetVector(scrContext, 0, &vectorValue);
+  _XMM0 = LODWORD(vectorValue.v[0]);
   __asm
   {
-    vmovss  xmm5, cs:__real@437f0000
-    vmovss  xmm4, cs:__real@3f000000
-    vmovss  xmm0, dword ptr [rsp+78h+vectorValue]
     vminss  xmm1, xmm0, cs:__real@3f800000
-    vxorps  xmm6, xmm6, xmm6
     vmaxss  xmm0, xmm1, xmm6
-    vmulss  xmm1, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rsp+78h+vectorValue+4]
-    vaddss  xmm2, xmm1, xmm4
-    vminss  xmm1, xmm0, cs:__real@3f800000
-    vxorps  xmm8, xmm8, xmm8
+  }
+  _XMM0 = LODWORD(vectorValue.v[1]);
+  __asm { vminss  xmm1, xmm0, cs:__real@3f800000 }
+  _XMM8 = 0i64;
+  __asm
+  {
     vmaxss  xmm1, xmm1, xmm6
-    vmulss  xmm0, xmm1, xmm5
     vroundss xmm3, xmm8, xmm2, 1
-    vcvttss2si eax, xmm3
-    vaddss  xmm3, xmm0, xmm4
     vroundss xmm0, xmm8, xmm3, 1
   }
-  hud->elem.color.r = _EAX;
+  hud->elem.color.r = (int)*(float *)&_XMM3;
+  v14 = (int)*(float *)&_XMM0;
+  _XMM0 = LODWORD(vectorValue.v[2]);
   __asm
   {
-    vcvttss2si eax, xmm0
-    vmovss  xmm0, dword ptr [rsp+78h+vectorValue+8]
     vminss  xmm1, xmm0, cs:__real@3f800000
     vmaxss  xmm1, xmm1, xmm6
-    vmulss  xmm0, xmm1, xmm5
-    vaddss  xmm3, xmm0, xmm4
     vroundss xmm0, xmm8, xmm3, 1
   }
-  hud->elem.color.g = _EAX;
-  __asm { vcvttss2si eax, xmm0 }
-  hud->elem.color.b = _EAX;
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm8, [rsp+78h+var_28]
-  }
+  hud->elem.color.g = v14;
+  hud->elem.color.b = (int)*(float *)&_XMM0;
 }
 
 /*
@@ -184,26 +167,17 @@ G_HudElem_GetColor
 */
 void G_HudElem_GetColor(scrContext_t *scrContext, game_hudelem_t *hud, int offset)
 {
+  float g; 
+  int b; 
   float value[4]; 
 
   if ( s_hudElemFields[offset].ofs != 64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 893, ASSERT_TYPE_ASSERT, "(s_hudElemFields[offset].ofs == ( static_cast< intptr_t >( ( __builtin_offsetof(game_hudelem_t,elem.color) ) ) ))", (const char *)&queryFormat, "s_hudElemFields[offset].ofs == HEOFS( elem.color )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3b808081
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm0, xmm2
-    vmovss  [rsp+58h+value], xmm0
-    vmulss  xmm0, xmm1, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmovss  [rsp+58h+var_24], xmm0
-    vmulss  xmm0, xmm1, xmm2
-    vmovss  [rsp+58h+var_20], xmm0
-  }
+  g = (float)hud->elem.color.g;
+  b = hud->elem.color.b;
+  value[0] = (float)hud->elem.color.r * 0.0039215689;
+  value[1] = g * 0.0039215689;
+  value[2] = (float)b * 0.0039215689;
   Scr_AddVector(scrContext, value);
 }
 
@@ -220,16 +194,11 @@ void G_HudElem_SetAlpha(scrContext_t *scrContext, game_hudelem_t *hud, int offse
   __asm
   {
     vminss  xmm2, xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
     vmaxss  xmm2, xmm2, xmm1
-    vmulss  xmm0, xmm2, cs:__real@437f0000
-    vaddss  xmm3, xmm0, cs:__real@3f000000
-    vmovss  xmm2, xmm1, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vcvttss2si eax, xmm4
   }
-  hud->elem.color.a = _EAX;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  hud->elem.color.a = (int)*(float *)&_XMM4;
 }
 
 /*
@@ -241,13 +210,7 @@ void G_HudElem_GetAlpha(scrContext_t *scrContext, game_hudelem_t *hud, int offse
 {
   if ( s_hudElemFields[offset].ofs != 64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 942, ASSERT_TYPE_ASSERT, "(s_hudElemFields[offset].ofs == ( static_cast< intptr_t >( ( __builtin_offsetof(game_hudelem_t,elem.color) ) ) ))", (const char *)&queryFormat, "s_hudElemFields[offset].ofs == HEOFS( elem.color )") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3b808081; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, (float)hud->elem.color.a * 0.0039215689);
 }
 
 /*
@@ -257,55 +220,38 @@ G_HudElem_SetGlowColor
 */
 void G_HudElem_SetGlowColor(scrContext_t *scrContext, game_hudelem_t *hud, int offset)
 {
+  int v14; 
   vec3_t vectorValue; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm8
-  }
   if ( s_hudElemFields[offset].ofs != 156 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 952, ASSERT_TYPE_ASSERT, "(s_hudElemFields[offset].ofs == ( static_cast< intptr_t >( ( __builtin_offsetof(game_hudelem_t,elem.glowColor) ) ) ))", (const char *)&queryFormat, "s_hudElemFields[offset].ofs == HEOFS( elem.glowColor )") )
     __debugbreak();
   Scr_GetVector(scrContext, 0, &vectorValue);
+  _XMM0 = LODWORD(vectorValue.v[0]);
   __asm
   {
-    vmovss  xmm5, cs:__real@437f0000
-    vmovss  xmm4, cs:__real@3f000000
-    vmovss  xmm0, dword ptr [rsp+78h+vectorValue]
     vminss  xmm1, xmm0, cs:__real@3f800000
-    vxorps  xmm6, xmm6, xmm6
     vmaxss  xmm0, xmm1, xmm6
-    vmulss  xmm1, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rsp+78h+vectorValue+4]
-    vaddss  xmm2, xmm1, xmm4
-    vminss  xmm1, xmm0, cs:__real@3f800000
-    vxorps  xmm8, xmm8, xmm8
+  }
+  _XMM0 = LODWORD(vectorValue.v[1]);
+  __asm { vminss  xmm1, xmm0, cs:__real@3f800000 }
+  _XMM8 = 0i64;
+  __asm
+  {
     vmaxss  xmm1, xmm1, xmm6
-    vmulss  xmm0, xmm1, xmm5
     vroundss xmm3, xmm8, xmm2, 1
-    vcvttss2si eax, xmm3
-    vaddss  xmm3, xmm0, xmm4
     vroundss xmm0, xmm8, xmm3, 1
   }
-  hud->elem.glowColor.r = _EAX;
+  hud->elem.glowColor.r = (int)*(float *)&_XMM3;
+  v14 = (int)*(float *)&_XMM0;
+  _XMM0 = LODWORD(vectorValue.v[2]);
   __asm
   {
-    vcvttss2si eax, xmm0
-    vmovss  xmm0, dword ptr [rsp+78h+vectorValue+8]
     vminss  xmm1, xmm0, cs:__real@3f800000
     vmaxss  xmm1, xmm1, xmm6
-    vmulss  xmm0, xmm1, xmm5
-    vaddss  xmm3, xmm0, xmm4
     vroundss xmm0, xmm8, xmm3, 1
   }
-  hud->elem.glowColor.g = _EAX;
-  __asm { vcvttss2si eax, xmm0 }
-  hud->elem.glowColor.b = _EAX;
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm8, [rsp+78h+var_28]
-  }
+  hud->elem.glowColor.g = v14;
+  hud->elem.glowColor.b = (int)*(float *)&_XMM0;
 }
 
 /*
@@ -315,26 +261,17 @@ G_HudElem_GetGlowColor
 */
 void G_HudElem_GetGlowColor(scrContext_t *scrContext, game_hudelem_t *hud, int offset)
 {
+  float g; 
+  int b; 
   float value[4]; 
 
   if ( s_hudElemFields[offset].ofs != 156 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 965, ASSERT_TYPE_ASSERT, "(s_hudElemFields[offset].ofs == ( static_cast< intptr_t >( ( __builtin_offsetof(game_hudelem_t,elem.glowColor) ) ) ))", (const char *)&queryFormat, "s_hudElemFields[offset].ofs == HEOFS( elem.glowColor )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3b808081
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm0, xmm2
-    vmovss  [rsp+58h+value], xmm0
-    vmulss  xmm0, xmm1, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmovss  [rsp+58h+var_24], xmm0
-    vmulss  xmm0, xmm1, xmm2
-    vmovss  [rsp+58h+var_20], xmm0
-  }
+  g = (float)hud->elem.glowColor.g;
+  b = hud->elem.glowColor.b;
+  value[0] = (float)hud->elem.glowColor.r * 0.0039215689;
+  value[1] = g * 0.0039215689;
+  value[2] = (float)b * 0.0039215689;
   Scr_AddVector(scrContext, value);
 }
 
@@ -351,16 +288,11 @@ void G_HudElem_SetGlowAlpha(scrContext_t *scrContext, game_hudelem_t *hud, int o
   __asm
   {
     vminss  xmm2, xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
     vmaxss  xmm2, xmm2, xmm1
-    vmulss  xmm0, xmm2, cs:__real@437f0000
-    vaddss  xmm3, xmm0, cs:__real@3f000000
-    vmovss  xmm2, xmm1, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vcvttss2si eax, xmm4
   }
-  hud->elem.glowColor.a = _EAX;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  hud->elem.glowColor.a = (int)*(float *)&_XMM4;
 }
 
 /*
@@ -372,13 +304,7 @@ void G_HudElem_GetGlowAlpha(scrContext_t *scrContext, game_hudelem_t *hud, int o
 {
   if ( s_hudElemFields[offset].ofs != 156 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 987, ASSERT_TYPE_ASSERT, "(s_hudElemFields[offset].ofs == ( static_cast< intptr_t >( ( __builtin_offsetof(game_hudelem_t,elem.glowColor) ) ) ))", (const char *)&queryFormat, "s_hudElemFields[offset].ofs == HEOFS( elem.glowColor )") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3b808081; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, (float)hud->elem.glowColor.a * 0.0039215689);
 }
 
 /*
@@ -388,39 +314,20 @@ G_HudElem_SetFontScale
 */
 void G_HudElem_SetFontScale(scrContext_t *scrContext, game_hudelem_t *hud, int offset)
 {
-  char v10; 
-  char v11; 
-  const char *v14; 
+  double Float; 
+  const char *v6; 
 
-  _RDI = hud;
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( s_hudElemFields[offset].ofs != 36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 997, ASSERT_TYPE_ASSERT, "(s_hudElemFields[offset].ofs == ( static_cast< intptr_t >( ( __builtin_offsetof(game_hudelem_t,elem.fontScale) ) ) ))", (const char *)&queryFormat, "s_hudElemFields[offset].ofs == HEOFS( elem.fontScale )") )
     __debugbreak();
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float <= 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps xmm6, xmm0
+    v6 = j_va("font scale was %g; should be > 0", *(float *)&Float);
+    Scr_Error(COM_ERR_3549, scrContext, v6);
   }
-  if ( v10 | v11 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm0
-      vmovq   rdx, xmm1
-    }
-    v14 = j_va("font scale was %g; should be > 0", _RDX);
-    Scr_Error(COM_ERR_3549, scrContext, v14);
-  }
-  __asm { vmovaps xmm0, xmm6; fontScale }
-  if ( !SV_Game_CheckFontScaleRange(*(const float *)&_XMM0) )
+  if ( !SV_Game_CheckFontScaleRange(*(const float *)&Float) )
     Scr_ParamError(COM_ERR_3550, scrContext, 0, "Font scale is not within the appropriate range");
-  __asm
-  {
-    vmovss  dword ptr [rdi+24h], xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
+  hud->elem.fontScale = *(float *)&Float;
 }
 
 /*
@@ -755,16 +662,16 @@ G_HudElem_SetRotation
 */
 void G_HudElem_SetRotation(scrContext_t *scrContext, game_hudelem_t *hud, int offset)
 {
-  __int64 v5; 
+  __int64 v4; 
+  double Float; 
 
-  v5 = offset;
-  _RDI = hud;
+  v4 = offset;
   if ( Com_GameMode_SupportsFeature(WEAPON_OFFHAND_FIRE|0x80) )
   {
-    if ( s_hudElemFields[v5].ofs != 20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 910, ASSERT_TYPE_ASSERT, "(s_hudElemFields[offset].ofs == ( static_cast< intptr_t >( ( __builtin_offsetof(game_hudelem_t,elem.rotation) ) ) ))", (const char *)&queryFormat, "s_hudElemFields[offset].ofs == HEOFS( elem.rotation )") )
+    if ( s_hudElemFields[v4].ofs != 20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 910, ASSERT_TYPE_ASSERT, "(s_hudElemFields[offset].ofs == ( static_cast< intptr_t >( ( __builtin_offsetof(game_hudelem_t,elem.rotation) ) ) ))", (const char *)&queryFormat, "s_hudElemFields[offset].ofs == HEOFS( elem.rotation )") )
       __debugbreak();
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovss  dword ptr [rdi+14h], xmm0 }
+    Float = Scr_GetFloat(scrContext, 0);
+    hud->elem.rotation = *(float *)&Float;
   }
 }
 
@@ -778,13 +685,11 @@ void G_HudElem_GetRotation(scrContext_t *scrContext, game_hudelem_t *hud, int of
   __int64 v4; 
 
   v4 = offset;
-  _RSI = hud;
   if ( Com_GameMode_SupportsFeature(WEAPON_OFFHAND_FIRE|0x80) )
   {
     if ( s_hudElemFields[v4].ofs != 20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 923, ASSERT_TYPE_ASSERT, "(s_hudElemFields[offset].ofs == ( static_cast< intptr_t >( ( __builtin_offsetof(game_hudelem_t,elem.rotation) ) ) ))", (const char *)&queryFormat, "s_hudElemFields[offset].ofs == HEOFS( elem.rotation )") )
       __debugbreak();
-    __asm { vmovss  xmm1, dword ptr [rsi+14h]; value }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
+    Scr_AddFloat(scrContext, hud->elem.rotation);
   }
   else
   {
@@ -1001,29 +906,22 @@ HECmd_LinkWaypointToTargetWithOffset
 */
 void HECmd_LinkWaypointToTargetWithOffset(scrContext_t *scrContext, scr_entref_t entref)
 {
+  game_hudelem_t *HudElem; 
   gentity_s *Entity; 
   int number; 
   vec3_t vectorValue; 
 
   if ( Scr_GetNumParam(scrContext) == 2 )
   {
-    _RSI = HECmd_GetHudElem(scrContext, entref);
-    if ( _RSI->elem.type == HE_TYPE_WAYPOINT )
+    HudElem = HECmd_GetHudElem(scrContext, entref);
+    if ( HudElem->elem.type == HE_TYPE_WAYPOINT )
     {
       Entity = GScr_GetEntity(0);
       Scr_GetVector(scrContext, 1u, &vectorValue);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+48h+vectorValue]
-        vmovss  dword ptr [rsi+4], xmm0
-        vmovss  xmm1, dword ptr [rsp+48h+vectorValue+4]
-        vmovss  dword ptr [rsi+8], xmm1
-        vmovss  xmm0, dword ptr [rsp+48h+vectorValue+8]
-        vmovss  dword ptr [rsi+0Ch], xmm0
-      }
+      *(vec3_t *)&HudElem->elem.x = vectorValue;
       number = Entity->s.number;
-      _RSI->elem.flags |= 0x2000u;
-      _RSI->elem.targetEntNum = number;
+      HudElem->elem.flags |= 0x2000u;
+      HudElem->elem.targetEntNum = number;
       Entity->r.svFlags &= ~1u;
     }
     else
@@ -1055,41 +953,28 @@ HECmd_SetTimer
 void HECmd_SetTimer(scrContext_t *scrContext, scr_entref_t entref)
 {
   game_hudelem_t *HudElem; 
-  const char *v6; 
-  const char *v18; 
+  const char *v4; 
+  int v7; 
+  const char *v8; 
 
   HudElem = HECmd_GetHudElem(scrContext, entref);
   if ( Scr_GetNumParam(scrContext) != 1 )
   {
-    v6 = j_va("USAGE: <hudelem> %s(time_in_seconds);\n", "setTimer");
-    Scr_Error(COM_ERR_3561, scrContext, v6);
+    v4 = j_va("USAGE: <hudelem> %s(time_in_seconds);\n", "setTimer");
+    Scr_Error(COM_ERR_3561, scrContext, v4);
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Scr_GetFloat(scrContext, 0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 2 }
+  v7 = (int)*(float *)&_XMM4;
+  if ( (int)*(float *)&_XMM4 <= 0 )
   {
-    vmulss  xmm2, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 2
-    vcvttss2si esi, xmm4
-  }
-  if ( _ESI <= 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, esi
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v18 = j_va("time %g should be > 0", _RDX);
-    Scr_ParamError(COM_ERR_3562, scrContext, 0, v18);
+    v8 = j_va("time %g should be > 0", (float)((float)v7 * 0.001));
+    Scr_ParamError(COM_ERR_3562, scrContext, 0, v8);
   }
   G_HudElem_ClearTypeSettings(HudElem);
   HudElem->elem.type = HE_TYPE_TIMER_DOWN;
-  HudElem->elem.time = _ESI + level.time;
+  HudElem->elem.time = v7 + level.time;
 }
 
 /*
@@ -1100,32 +985,20 @@ HECmd_SetTimerUp
 void HECmd_SetTimerUp(scrContext_t *scrContext, scr_entref_t entref)
 {
   game_hudelem_t *HudElem; 
-  const char *v7; 
+  const char *v4; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   HudElem = HECmd_GetHudElem(scrContext, entref);
   if ( Scr_GetNumParam(scrContext) != 1 )
   {
-    v7 = j_va("USAGE: <hudelem> %s(time_in_seconds);\n", "setTimerUp");
-    Scr_Error(COM_ERR_3561, scrContext, v7);
+    v4 = j_va("USAGE: <hudelem> %s(time_in_seconds);\n", "setTimerUp");
+    Scr_Error(COM_ERR_3561, scrContext, v4);
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm6, xmm0, xmm3, 2
-  }
+  Scr_GetFloat(scrContext, 0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm6, xmm0, xmm3, 2 }
   G_HudElem_ClearTypeSettings(HudElem);
-  __asm
-  {
-    vcvttss2si eax, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
   HudElem->elem.type = HE_TYPE_TIMER_UP;
-  HudElem->elem.time = level.time - _EAX;
+  HudElem->elem.time = level.time - (int)*(float *)&_XMM6;
 }
 
 /*
@@ -1136,40 +1009,27 @@ HECmd_SetTimerStatic
 void HECmd_SetTimerStatic(scrContext_t *scrContext, scr_entref_t entref)
 {
   game_hudelem_t *HudElem; 
-  const char *v6; 
-  const char *v18; 
+  const char *v4; 
+  int v7; 
+  const char *v8; 
 
   HudElem = HECmd_GetHudElem(scrContext, entref);
   if ( Scr_GetNumParam(scrContext) != 1 )
   {
-    v6 = j_va("USAGE: <hudelem> %s(time_in_seconds);\n", "setTimerStatic");
-    Scr_Error(COM_ERR_3561, scrContext, v6);
+    v4 = j_va("USAGE: <hudelem> %s(time_in_seconds);\n", "setTimerStatic");
+    Scr_Error(COM_ERR_3561, scrContext, v4);
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Scr_GetFloat(scrContext, 0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 2 }
+  v7 = (int)*(float *)&_XMM4;
+  if ( (int)*(float *)&_XMM4 <= 0 )
   {
-    vmulss  xmm2, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 2
-    vcvttss2si esi, xmm4
-  }
-  if ( _ESI <= 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, esi
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v18 = j_va("time %g should be > 0", _RDX);
-    Scr_ParamError(COM_ERR_3562, scrContext, 0, v18);
+    v8 = j_va("time %g should be > 0", (float)((float)v7 * 0.001));
+    Scr_ParamError(COM_ERR_3562, scrContext, 0, v8);
   }
   G_HudElem_ClearTypeSettings(HudElem);
-  HudElem->elem.time = _ESI;
+  HudElem->elem.time = v7;
   HudElem->elem.type = HE_TYPE_TIMER_STATIC;
 }
 
@@ -1181,41 +1041,28 @@ HECmd_SetTenthsTimer
 void HECmd_SetTenthsTimer(scrContext_t *scrContext, scr_entref_t entref)
 {
   game_hudelem_t *HudElem; 
-  const char *v6; 
-  const char *v18; 
+  const char *v4; 
+  int v7; 
+  const char *v8; 
 
   HudElem = HECmd_GetHudElem(scrContext, entref);
   if ( Scr_GetNumParam(scrContext) != 1 )
   {
-    v6 = j_va("USAGE: <hudelem> %s(time_in_seconds);\n", "setTenthsTimer");
-    Scr_Error(COM_ERR_3561, scrContext, v6);
+    v4 = j_va("USAGE: <hudelem> %s(time_in_seconds);\n", "setTenthsTimer");
+    Scr_Error(COM_ERR_3561, scrContext, v4);
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Scr_GetFloat(scrContext, 0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 2 }
+  v7 = (int)*(float *)&_XMM4;
+  if ( (int)*(float *)&_XMM4 <= 0 )
   {
-    vmulss  xmm2, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 2
-    vcvttss2si esi, xmm4
-  }
-  if ( _ESI <= 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, esi
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v18 = j_va("time %g should be > 0", _RDX);
-    Scr_ParamError(COM_ERR_3562, scrContext, 0, v18);
+    v8 = j_va("time %g should be > 0", (float)((float)v7 * 0.001));
+    Scr_ParamError(COM_ERR_3562, scrContext, 0, v8);
   }
   G_HudElem_ClearTypeSettings(HudElem);
   HudElem->elem.type = HE_TYPE_TENTHS_TIMER_DOWN;
-  HudElem->elem.time = _ESI + level.time;
+  HudElem->elem.time = v7 + level.time;
 }
 
 /*
@@ -1226,32 +1073,20 @@ HECmd_SetTenthsTimerUp
 void HECmd_SetTenthsTimerUp(scrContext_t *scrContext, scr_entref_t entref)
 {
   game_hudelem_t *HudElem; 
-  const char *v7; 
+  const char *v4; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   HudElem = HECmd_GetHudElem(scrContext, entref);
   if ( Scr_GetNumParam(scrContext) != 1 )
   {
-    v7 = j_va("USAGE: <hudelem> %s(time_in_seconds);\n", "setTenthsTimerUp");
-    Scr_Error(COM_ERR_3561, scrContext, v7);
+    v4 = j_va("USAGE: <hudelem> %s(time_in_seconds);\n", "setTenthsTimerUp");
+    Scr_Error(COM_ERR_3561, scrContext, v4);
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm6, xmm0, xmm3, 2
-  }
+  Scr_GetFloat(scrContext, 0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm6, xmm0, xmm3, 2 }
   G_HudElem_ClearTypeSettings(HudElem);
-  __asm
-  {
-    vcvttss2si eax, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
   HudElem->elem.type = HE_TYPE_TENTHS_TIMER_UP;
-  HudElem->elem.time = level.time - _EAX;
+  HudElem->elem.time = level.time - (int)*(float *)&_XMM6;
 }
 
 /*
@@ -1262,40 +1097,27 @@ HECmd_SetTenthsTimerStatic
 void HECmd_SetTenthsTimerStatic(scrContext_t *scrContext, scr_entref_t entref)
 {
   game_hudelem_t *HudElem; 
-  const char *v6; 
-  const char *v18; 
+  const char *v4; 
+  int v7; 
+  const char *v8; 
 
   HudElem = HECmd_GetHudElem(scrContext, entref);
   if ( Scr_GetNumParam(scrContext) != 1 )
   {
-    v6 = j_va("USAGE: <hudelem> %s(time_in_seconds);\n", "setTimerStatic");
-    Scr_Error(COM_ERR_3561, scrContext, v6);
+    v4 = j_va("USAGE: <hudelem> %s(time_in_seconds);\n", "setTimerStatic");
+    Scr_Error(COM_ERR_3561, scrContext, v4);
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Scr_GetFloat(scrContext, 0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 2 }
+  v7 = (int)*(float *)&_XMM4;
+  if ( (int)*(float *)&_XMM4 <= 0 )
   {
-    vmulss  xmm2, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 2
-    vcvttss2si esi, xmm4
-  }
-  if ( _ESI <= 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, esi
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v18 = j_va("time %g should be > 0", _RDX);
-    Scr_ParamError(COM_ERR_3562, scrContext, 0, v18);
+    v8 = j_va("time %g should be > 0", (float)((float)v7 * 0.001));
+    Scr_ParamError(COM_ERR_3562, scrContext, 0, v8);
   }
   G_HudElem_ClearTypeSettings(HudElem);
-  HudElem->elem.time = _ESI;
+  HudElem->elem.time = v7;
   HudElem->elem.type = HE_TYPE_TENTHS_TIMER_STATIC;
 }
 
@@ -1326,17 +1148,14 @@ HECmd_SetValue
 */
 void HECmd_SetValue(scrContext_t *scrContext, scr_entref_t entref)
 {
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RDI = HECmd_GetHudElem(scrContext, entref);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm6, xmm0 }
-  G_HudElem_ClearTypeSettings(_RDI);
-  __asm
-  {
-    vmovss  dword ptr [rdi+90h], xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  _RDI->elem.type = HE_TYPE_VALUE;
+  game_hudelem_t *HudElem; 
+  double Float; 
+
+  HudElem = HECmd_GetHudElem(scrContext, entref);
+  Float = Scr_GetFloat(scrContext, 0);
+  G_HudElem_ClearTypeSettings(HudElem);
+  HudElem->elem.value = *(float *)&Float;
+  HudElem->elem.type = HE_TYPE_VALUE;
 }
 
 /*
@@ -1405,66 +1224,62 @@ HECmd_SetWaypoint
 */
 void HECmd_SetWaypoint(scrContext_t *scrContext, scr_entref_t entref)
 {
+  game_hudelem_t *HudElem; 
   int NumParam; 
   int Int; 
   unsigned int flags; 
-  int v8; 
-  unsigned int v9; 
+  int v7; 
+  unsigned int v8; 
+  int v9; 
+  unsigned int v10; 
+  unsigned int v11; 
   int v12; 
   unsigned int v13; 
   unsigned int v14; 
   int v15; 
   unsigned int v16; 
   unsigned int v17; 
-  int v18; 
-  unsigned int v19; 
-  unsigned int v20; 
 
-  _RBX = HECmd_GetHudElem(scrContext, entref);
+  HudElem = HECmd_GetHudElem(scrContext, entref);
   NumParam = Scr_GetNumParam(scrContext);
   Int = Scr_GetInt(scrContext, 0);
-  flags = _RBX->elem.flags;
-  v8 = flags | 0x200;
-  _RBX->elem.type = HE_TYPE_WAYPOINT;
-  v9 = flags & 0xFFFFFDFF;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  flags = HudElem->elem.flags;
+  v7 = flags | 0x200;
+  HudElem->elem.type = HE_TYPE_WAYPOINT;
+  v8 = flags & 0xFFFFFDFF;
   if ( Int > 0 )
-    v9 = v8;
-  _RBX->elem.flags = v9;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [rbx+90h], xmm0
-  }
+    v8 = v7;
+  HudElem->elem.flags = v8;
+  HudElem->elem.value = (float)Int;
   if ( NumParam > 2 )
   {
-    v12 = Scr_GetInt(scrContext, 2u);
-    v13 = _RBX->elem.flags;
-    if ( v12 )
-      v14 = v13 | 0x10;
+    v9 = Scr_GetInt(scrContext, 2u);
+    v10 = HudElem->elem.flags;
+    if ( v9 )
+      v11 = v10 | 0x10;
     else
-      v14 = v13 & 0xFFFFFFEF;
-    _RBX->elem.flags = v14;
+      v11 = v10 & 0xFFFFFFEF;
+    HudElem->elem.flags = v11;
   }
   if ( NumParam > 1 )
   {
-    v15 = Scr_GetInt(scrContext, 1u);
-    v16 = _RBX->elem.flags;
-    if ( v15 )
-      v17 = v16 | 8;
+    v12 = Scr_GetInt(scrContext, 1u);
+    v13 = HudElem->elem.flags;
+    if ( v12 )
+      v14 = v13 | 8;
     else
-      v17 = v16 & 0xFFFFFFF7;
-    _RBX->elem.flags = v17;
+      v14 = v13 & 0xFFFFFFF7;
+    HudElem->elem.flags = v14;
   }
   if ( NumParam > 3 )
   {
-    v18 = Scr_GetInt(scrContext, 3u);
-    v19 = _RBX->elem.flags;
-    if ( v18 )
-      v20 = v19 | 0x400;
+    v15 = Scr_GetInt(scrContext, 3u);
+    v16 = HudElem->elem.flags;
+    if ( v15 )
+      v17 = v16 | 0x400;
     else
-      v20 = v19 & 0xFFFFFBFF;
-    _RBX->elem.flags = v20;
+      v17 = v16 & 0xFFFFFBFF;
+    HudElem->elem.flags = v17;
   }
 }
 
@@ -1545,60 +1360,32 @@ HECmd_FadeOverTime
 void HECmd_FadeOverTime(scrContext_t *scrContext, scr_entref_t entref)
 {
   game_hudelem_t *HudElem; 
-  char v7; 
-  char v8; 
-  const char *v12; 
-  ComErrorCode v13; 
+  double Float; 
+  const char *v5; 
+  ComErrorCode v6; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   HudElem = HECmd_GetHudElem(scrContext, entref);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float <= 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps xmm6, xmm0
-  }
-  if ( v7 | v8 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm0
-      vmovq   rdx, xmm1
-    }
-    v12 = j_va("fade time %g <= 0", _RDX);
-    v13 = COM_ERR_3572;
+    v5 = j_va("fade time %g <= 0", *(float *)&Float);
+    v6 = COM_ERR_3572;
 LABEL_5:
-    Scr_ParamError(v13, scrContext, 0, v12);
+    Scr_ParamError(v6, scrContext, 0, v5);
     goto LABEL_6;
   }
-  __asm { vcomiss xmm6, cs:__real@42700000 }
-  if ( !(v7 | v8) )
+  if ( *(float *)&Float > 60.0 )
   {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
-    }
-    v12 = j_va("fade time %g > 60", _RDX);
-    v13 = COM_ERR_3573;
+    v5 = j_va("fade time %g > 60", *(float *)&Float);
+    v6 = COM_ERR_3573;
     goto LABEL_5;
   }
 LABEL_6:
   BG_LerpHudColors(&HudElem->elem, level.time, &HudElem->elem.fromColor);
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@447a0000
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vmovaps xmm6, [rsp+38h+var_18]
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-  }
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
   HudElem->elem.fadeStartTime = level.time;
-  __asm { vcvttss2si eax, xmm4 }
-  HudElem->elem.fadeTime = _EAX;
+  HudElem->elem.fadeTime = (int)*(float *)&_XMM4;
 }
 
 /*
@@ -1609,60 +1396,32 @@ HECmd_ChangeFontScaleOverTime
 void HECmd_ChangeFontScaleOverTime(scrContext_t *scrContext, scr_entref_t entref)
 {
   game_hudelem_t *HudElem; 
-  char v7; 
-  char v8; 
-  const char *v12; 
-  ComErrorCode v13; 
+  double Float; 
+  const char *v5; 
+  ComErrorCode v6; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   HudElem = HECmd_GetHudElem(scrContext, entref);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float <= 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps xmm6, xmm0
-  }
-  if ( v7 | v8 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm0
-      vmovq   rdx, xmm1
-    }
-    v12 = j_va("scale time %g <= 0", _RDX);
-    v13 = COM_ERR_3574;
+    v5 = j_va("scale time %g <= 0", *(float *)&Float);
+    v6 = COM_ERR_3574;
 LABEL_5:
-    Scr_ParamError(v13, scrContext, 0, v12);
+    Scr_ParamError(v6, scrContext, 0, v5);
     goto LABEL_6;
   }
-  __asm { vcomiss xmm6, cs:__real@42700000 }
-  if ( !(v7 | v8) )
+  if ( *(float *)&Float > 60.0 )
   {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
-    }
-    v12 = j_va("scale time %g > 60", _RDX);
-    v13 = COM_ERR_3575;
+    v5 = j_va("scale time %g > 60", *(float *)&Float);
+    v6 = COM_ERR_3575;
     goto LABEL_5;
   }
 LABEL_6:
   BG_LerpFontScale(&HudElem->elem, level.time, &HudElem->elem.fromFontScale);
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@447a0000
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vmovaps xmm6, [rsp+38h+var_18]
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-  }
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
   HudElem->elem.fontScaleStartTime = level.time;
-  __asm { vcvttss2si eax, xmm4 }
-  HudElem->elem.fontScaleTime = _EAX;
+  HudElem->elem.fontScaleTime = (int)*(float *)&_XMM4;
 }
 
 /*
@@ -1673,76 +1432,45 @@ HECmd_ScaleOverTime
 void HECmd_ScaleOverTime(scrContext_t *scrContext, scr_entref_t entref)
 {
   game_hudelem_t *HudElem; 
-  char v7; 
-  char v8; 
-  const char *v12; 
-  ComErrorCode v13; 
+  double Float; 
+  const char *v5; 
+  ComErrorCode v6; 
   int Int; 
-  int v16; 
+  int v8; 
   int height; 
   int width; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   HudElem = HECmd_GetHudElem(scrContext, entref);
   if ( Scr_GetNumParam(scrContext) != 3 )
     Scr_Error(COM_ERR_3576, scrContext, "hudelem scaleOverTime(time_in_seconds, new_width, new_height)");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float <= 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps xmm6, xmm0
-  }
-  if ( v7 | v8 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm0
-      vmovq   rdx, xmm1
-    }
-    v12 = j_va("scale time %g <= 0", _RDX);
-    v13 = COM_ERR_3577;
+    v5 = j_va("scale time %g <= 0", *(float *)&Float);
+    v6 = COM_ERR_3577;
 LABEL_7:
-    Scr_ParamError(v13, scrContext, 0, v12);
+    Scr_ParamError(v6, scrContext, 0, v5);
     goto LABEL_8;
   }
-  __asm { vcomiss xmm6, cs:__real@42700000 }
-  if ( !(v7 | v8) )
+  if ( *(float *)&Float > 60.0 )
   {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
-    }
-    v12 = j_va("scale time %g > 60", _RDX);
-    v13 = COM_ERR_3578;
+    v5 = j_va("scale time %g > 60", *(float *)&Float);
+    v6 = COM_ERR_3578;
     goto LABEL_7;
   }
 LABEL_8:
   Int = Scr_GetInt(scrContext, 1u);
-  v16 = Scr_GetInt(scrContext, 2u);
-  __asm { vmulss  xmm0, xmm6, cs:__real@447a0000 }
+  v8 = Scr_GetInt(scrContext, 2u);
   height = HudElem->elem.height;
-  __asm
-  {
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
   HudElem->elem.scaleStartTime = level.time;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-    vcvttss2si ecx, xmm4
-  }
-  HudElem->elem.scaleTime = _ECX;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
+  HudElem->elem.scaleTime = (int)*(float *)&_XMM4;
   width = HudElem->elem.width;
   HudElem->elem.width = Int;
   HudElem->elem.fromWidth = width;
   HudElem->elem.fromHeight = height;
-  HudElem->elem.height = v16;
+  HudElem->elem.height = v8;
 }
 
 /*
@@ -1753,62 +1481,31 @@ HECmd_MoveOverTime
 void HECmd_MoveOverTime(scrContext_t *scrContext, scr_entref_t entref)
 {
   game_hudelem_t *HudElem; 
-  char v7; 
-  char v8; 
-  const char *v12; 
-  ComErrorCode v13; 
+  double Float; 
+  const char *v5; 
+  ComErrorCode v6; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   HudElem = HECmd_GetHudElem(scrContext, entref);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float <= 0.0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps xmm6, xmm0
-  }
-  if ( v7 | v8 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm0
-      vmovq   rdx, xmm1
-    }
-    v12 = j_va("move time %g <= 0", _RDX);
-    v13 = COM_ERR_3579;
+    v5 = j_va("move time %g <= 0", *(float *)&Float);
+    v6 = COM_ERR_3579;
 LABEL_5:
-    Scr_ParamError(v13, scrContext, 0, v12);
+    Scr_ParamError(v6, scrContext, 0, v5);
     goto LABEL_6;
   }
-  __asm { vcomiss xmm6, cs:__real@42700000 }
-  if ( !(v7 | v8) )
+  if ( *(float *)&Float > 60.0 )
   {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
-    }
-    v12 = j_va("move time %g > 60", _RDX);
-    v13 = COM_ERR_3580;
+    v5 = j_va("move time %g > 60", *(float *)&Float);
+    v6 = COM_ERR_3580;
     goto LABEL_5;
   }
 LABEL_6:
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@447a0000
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
   HudElem->elem.moveStartTime = level.time;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-    vcvttss2si eax, xmm4
-  }
-  HudElem->elem.moveTime = _EAX;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
+  HudElem->elem.moveTime = (int)*(float *)&_XMM4;
   HudElem->elem.fromX = HudElem->elem.x;
   HudElem->elem.fromY = HudElem->elem.y;
   HudElem->elem.fromAlignOrg = HudElem->elem.alignOrg;
@@ -1823,66 +1520,35 @@ HECmd_RotateOverTime
 void HECmd_RotateOverTime(scrContext_t *scrContext, scr_entref_t entref)
 {
   game_hudelem_t *HudElem; 
-  char v8; 
-  char v9; 
-  const char *v13; 
-  ComErrorCode v14; 
+  double Float; 
+  const char *v6; 
+  ComErrorCode v7; 
 
   if ( Com_GameMode_SupportsFeature(WEAPON_OFFHAND_FIRE|0x80) )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
     HudElem = HECmd_GetHudElem(scrContext, entref);
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm
+    Float = Scr_GetFloat(scrContext, 0);
+    if ( *(float *)&Float > 0.0 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vmovaps xmm6, xmm0
-    }
-    if ( v8 | v9 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm1, xmm6, xmm0
-        vmovq   rdx, xmm1
-      }
-      v13 = j_va("rotate time %g <= 0", _RDX);
-      v14 = COM_ERR_3581;
-    }
-    else
-    {
-      __asm { vcomiss xmm6, cs:__real@42700000 }
-      if ( v8 | v9 )
+      if ( *(float *)&Float <= 60.0 )
       {
 LABEL_7:
-        __asm
-        {
-          vmulss  xmm0, xmm6, cs:__real@447a0000
-          vaddss  xmm2, xmm0, cs:__real@3f000000
-          vmovaps xmm6, [rsp+38h+var_18]
-        }
         HudElem->elem.rotationStartTime = level.time;
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vmovss  xmm3, xmm1, xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vroundss xmm4, xmm0, xmm3, 1
-          vcvttss2si eax, xmm4
-        }
-        HudElem->elem.rotationTime = _EAX;
+        _XMM0 = 0i64;
+        __asm { vroundss xmm4, xmm0, xmm3, 1 }
+        HudElem->elem.rotationTime = (int)*(float *)&_XMM4;
         HudElem->elem.fromRotation = HudElem->elem.rotation;
         return;
       }
-      __asm
-      {
-        vcvtss2sd xmm1, xmm6, xmm6
-        vmovq   rdx, xmm1
-      }
-      v13 = j_va("rotate time %g > 60", _RDX);
-      v14 = COM_ERR_3582;
+      v6 = j_va("rotate time %g > 60", *(float *)&Float);
+      v7 = COM_ERR_3582;
     }
-    Scr_ParamError(v14, scrContext, 0, v13);
+    else
+    {
+      v6 = j_va("rotate time %g <= 0", *(float *)&Float);
+      v7 = COM_ERR_3581;
+    }
+    Scr_ParamError(v7, scrContext, 0, v6);
     goto LABEL_7;
   }
   Scr_Error(COM_ERR_3583, scrContext, "RotateOverTime() not supported in this game mode");
@@ -1921,22 +1587,20 @@ HECmd_SetPlayerNameString
 */
 void HECmd_SetPlayerNameString(scrContext_t *scrContext, scr_entref_t entref)
 {
+  game_hudelem_t *HudElem; 
   gentity_s *Entity; 
+  gentity_s *v4; 
 
-  _RBX = HECmd_GetHudElem(scrContext, entref);
+  HudElem = HECmd_GetHudElem(scrContext, entref);
   Entity = GScr_GetEntity(0);
+  v4 = Entity;
   if ( Entity )
   {
     if ( Entity->client )
     {
-      G_HudElem_ClearTypeSettings(_RBX);
-      _RBX->elem.type = HE_TYPE_PLAYERNAME;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmovss  dword ptr [rbx+90h], xmm0
-      }
+      G_HudElem_ClearTypeSettings(HudElem);
+      HudElem->elem.type = HE_TYPE_PLAYERNAME;
+      HudElem->elem.value = (float)v4->s.number;
     }
     else
     {
@@ -2574,51 +2238,51 @@ G_HudElem_SetDefaults
 */
 void G_HudElem_SetDefaults(game_hudelem_t *hud)
 {
-  char v4; 
-  __int64 v5; 
+  float v2; 
+  unsigned __int8 v3; 
+  __int64 v4; 
 
-  _RBX = hud;
   if ( !hud && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 503, ASSERT_TYPE_ASSERT, "(hud)", (const char *)&queryFormat, "hud") )
     __debugbreak();
-  if ( (unsigned int)(_RBX - g_hudelems) >= 0x438 )
+  if ( (unsigned int)(hud - g_hudelems) >= 0x438 )
   {
-    LODWORD(v5) = _RBX - g_hudelems;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 504, ASSERT_TYPE_ASSERT, "(unsigned)( hud - g_hudelems ) < (unsigned)( ( sizeof( *array_counter( g_hudelems ) ) + 0 ) )", "hud - g_hudelems doesn't index ARRAY_COUNT( g_hudelems )\n\t%i not in [0, %i)", v5, 1080) )
+    LODWORD(v4) = hud - g_hudelems;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 504, ASSERT_TYPE_ASSERT, "(unsigned)( hud - g_hudelems ) < (unsigned)( ( sizeof( *array_counter( g_hudelems ) ) + 0 ) )", "hud - g_hudelems doesn't index ARRAY_COUNT( g_hudelems )\n\t%i not in [0, %i)", v4, 1080) )
       __debugbreak();
   }
-  *(_QWORD *)&_RBX->elem.type = 1i64;
-  *(_QWORD *)&_RBX->elem.y = 0i64;
-  *(_QWORD *)&_RBX->elem.rotationStartTime = 0i64;
-  *(_QWORD *)&_RBX->elem.font = 0i64;
-  _RBX->elem.alignScreen = 0;
-  *(_QWORD *)&_RBX->elem.sort = 0i64;
-  *(_QWORD *)&_RBX->elem.fromColor.r = 0i64;
-  _RBX->elem.fadeTime = 0;
-  *(_QWORD *)&_RBX->elem.soundID = 0i64;
-  *(_QWORD *)&_RBX->elem.fxBirthTime = 0i64;
-  *(_QWORD *)&_RBX->elem.fxDecayStartTime = 0i64;
-  *(_QWORD *)&_RBX->elem.moveStartTime = 0i64;
-  *(_QWORD *)&_RBX->elem.targetEntNum = 2047i64;
-  _RBX->elem.color.rgba = -1;
+  *(_QWORD *)&hud->elem.type = 1i64;
+  *(_QWORD *)&hud->elem.y = 0i64;
+  *(_QWORD *)&hud->elem.rotationStartTime = 0i64;
+  *(_QWORD *)&hud->elem.font = 0i64;
+  hud->elem.alignScreen = 0;
+  *(_QWORD *)&hud->elem.sort = 0i64;
+  *(_QWORD *)&hud->elem.fromColor.r = 0i64;
+  hud->elem.fadeTime = 0;
+  *(_QWORD *)&hud->elem.soundID = 0i64;
+  *(_QWORD *)&hud->elem.fxBirthTime = 0i64;
+  *(_QWORD *)&hud->elem.fxDecayStartTime = 0i64;
+  *(_QWORD *)&hud->elem.moveStartTime = 0i64;
+  *(_QWORD *)&hud->elem.targetEntNum = 2047i64;
+  hud->elem.color.rgba = -1;
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|0x80) )
   {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-    v4 = 0;
+    v2 = FLOAT_1_0;
+    v3 = 0;
   }
   else
   {
-    v4 = 1;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    v3 = 1;
+    v2 = 0.0;
   }
-  __asm { vmovss  dword ptr [rbx+24h], xmm0 }
-  _RBX->isArchived = v4;
-  _RBX->currentShowInKillcam = v4;
-  *(_QWORD *)&_RBX->elem.fromFontScale = 0i64;
-  _RBX->elem.fontScaleTime = 0;
+  hud->elem.fontScale = v2;
+  hud->isArchived = v3;
+  hud->currentShowInKillcam = v3;
+  *(_QWORD *)&hud->elem.fromFontScale = 0i64;
+  hud->elem.fontScaleTime = 0;
   if ( !GConfigStrings::ms_gConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_configstrings.h", 71, ASSERT_TYPE_ASSERT, "( ms_gConfigStrings )", (const char *)&queryFormat, "ms_gConfigStrings") )
     __debugbreak();
-  GConfigStrings::ms_gConfigStrings->SetLocalizedString(GConfigStrings::ms_gConfigStrings, (char *)&queryFormat.fmt + 3, &_RBX->elem.label);
-  G_HudElem_ClearTypeSettings(_RBX);
+  GConfigStrings::ms_gConfigStrings->SetLocalizedString(GConfigStrings::ms_gConfigStrings, (char *)&queryFormat.fmt + 3, &hud->elem.label);
+  G_HudElem_ClearTypeSettings(hud);
 }
 
 /*
@@ -2755,114 +2419,82 @@ void HECmd_SetClock_Internal(scrContext_t *scrContext, scr_entref_t entref, he_t
 {
   game_hudelem_t *HudElem; 
   unsigned int NumParam; 
-  const char *v11; 
-  const char *v21; 
-  const char *v32; 
-  GConfigStrings *v33; 
+  const char *v9; 
+  const char *v12; 
+  int v14; 
+  const char *v15; 
+  GConfigStrings *v16; 
   unsigned int (__fastcall *GetMaterialIndex)(GConfigStrings *, const char *); 
   const char *String; 
-  int v36; 
-  int v37; 
-  int v38; 
+  int v19; 
+  int v20; 
+  int v21; 
   int Int; 
-  const char *v40; 
-  int v41; 
-  const char *v42; 
-  int v44; 
-  int v46; 
+  const char *v23; 
+  int v24; 
+  const char *v25; 
+  int v26; 
 
-  __asm { vmovaps [rsp+68h+var_38], xmm7 }
   HudElem = HECmd_GetHudElem(scrContext, entref);
   if ( (unsigned int)(type - 11) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudelem.cpp", 1583, ASSERT_TYPE_ASSERT, "( ( type == HE_TYPE_CLOCK_DOWN || type == HE_TYPE_CLOCK_UP ) )", "( type ) = %i", type) )
     __debugbreak();
   NumParam = Scr_GetNumParam(scrContext);
   if ( ((NumParam - 3) & 0xFFFFFFFD) != 0 )
   {
-    v11 = j_va("USAGE: <hudelem> %s(time_in_seconds, total_clock_time_in_seconds, shadername[, width, height]);\n", cmdName);
-    Scr_Error(COM_ERR_3563, scrContext, v11);
+    v9 = j_va("USAGE: <hudelem> %s(time_in_seconds, total_clock_time_in_seconds, shadername[, width, height]);\n", cmdName);
+    Scr_Error(COM_ERR_3563, scrContext, v9);
   }
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  _XMM7 = 0i64;
+  Scr_GetFloat(scrContext, 0);
+  __asm { vroundss xmm2, xmm7, xmm1, 2 }
+  if ( (int)*(float *)&_XMM2 <= 0 && type != HE_TYPE_CLOCK_UP )
   {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, xmm0, xmm1
-    vroundss xmm2, xmm7, xmm1, 2
-    vcvttss2si eax, xmm2
+    v12 = j_va("time %g should be > 0", (float)((float)(int)*(float *)&_XMM2 * 0.001));
+    Scr_ParamError(COM_ERR_3564, scrContext, 0, v12);
   }
-  v46 = _EAX;
-  if ( _EAX <= 0 && type != HE_TYPE_CLOCK_UP )
+  Scr_GetFloat(scrContext, 1u);
+  __asm { vroundss xmm0, xmm7, xmm2, 2 }
+  v14 = (int)*(float *)&_XMM0;
+  if ( (int)*(float *)&_XMM0 <= 0 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v21 = j_va("time %g should be > 0", _RDX);
-    Scr_ParamError(COM_ERR_3564, scrContext, 0, v21);
-  }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm2, xmm1, xmm2
-    vroundss xmm0, xmm7, xmm2, 2
-    vcvttss2si r12d, xmm0
-  }
-  if ( _ER12 <= 0 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r12d
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v32 = j_va("duration %g should be > 0", _RDX);
-    Scr_ParamError(COM_ERR_3565, scrContext, 1u, v32);
+    v15 = j_va("duration %g should be > 0", (float)((float)v14 * 0.001));
+    Scr_ParamError(COM_ERR_3565, scrContext, 1u, v15);
   }
   if ( !GConfigStrings::ms_gConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_configstrings.h", 71, ASSERT_TYPE_ASSERT, "( ms_gConfigStrings )", (const char *)&queryFormat, "ms_gConfigStrings") )
     __debugbreak();
-  v33 = GConfigStrings::ms_gConfigStrings;
+  v16 = GConfigStrings::ms_gConfigStrings;
   GetMaterialIndex = GConfigStrings::ms_gConfigStrings->GetMaterialIndex;
   String = Scr_GetString(scrContext, 2u);
-  v36 = GetMaterialIndex(v33, String);
+  v19 = GetMaterialIndex(v16, String);
   if ( NumParam == 3 )
   {
-    v37 = 0;
-    v38 = 0;
+    v20 = 0;
+    v21 = 0;
   }
   else
   {
     Int = Scr_GetInt(scrContext, 3u);
-    v37 = Int;
+    v20 = Int;
     if ( Int < 0 )
     {
-      v40 = j_va("width %i < 0", (unsigned int)Int);
-      Scr_ParamError(COM_ERR_3566, scrContext, 3u, v40);
+      v23 = j_va("width %i < 0", (unsigned int)Int);
+      Scr_ParamError(COM_ERR_3566, scrContext, 3u, v23);
     }
-    v41 = Scr_GetInt(scrContext, 4u);
-    v38 = v41;
-    if ( v41 < 0 )
+    v24 = Scr_GetInt(scrContext, 4u);
+    v21 = v24;
+    if ( v24 < 0 )
     {
-      v42 = j_va("height %i < 0", (unsigned int)v41);
-      Scr_ParamError(COM_ERR_3567, scrContext, 4u, v42);
+      v25 = j_va("height %i < 0", (unsigned int)v24);
+      Scr_ParamError(COM_ERR_3567, scrContext, 4u, v25);
     }
   }
   G_HudElem_ClearTypeSettings(HudElem);
-  __asm { vmovaps xmm7, [rsp+68h+var_38] }
   HudElem->elem.type = type;
-  v44 = level.time + v46;
-  HudElem->elem.width = v37;
-  HudElem->elem.time = v44;
-  HudElem->elem.duration = _ER12;
-  HudElem->elem.materialIndex = v36;
-  HudElem->elem.height = v38;
+  v26 = level.time + (int)*(float *)&_XMM2;
+  HudElem->elem.width = v20;
+  HudElem->elem.time = v26;
+  HudElem->elem.duration = v14;
+  HudElem->elem.materialIndex = v19;
+  HudElem->elem.height = v21;
 }
 

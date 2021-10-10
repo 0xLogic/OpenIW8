@@ -16,75 +16,55 @@ XAnimBonePhysics_CalculateShortestRotationQuaternion
 */
 void XAnimBonePhysics_CalculateShortestRotationQuaternion(const float4 *fromVector, const float4 *toVector, float4 *outQuat)
 {
-  char v58; 
-  void *retaddr; 
+  __m128 v; 
+  __m128 v16; 
+  __m128 v17; 
+  __m128 v18; 
+  __m128 v19; 
+  __m128 v29; 
 
-  _RAX = &retaddr;
+  _XMM7 = g_one.v;
+  _XMM1 = _mm128_mul_ps(toVector->v, fromVector->v);
+  v = g_oneHalf.v;
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovdqa xmm7, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmovups xmm1, xmmword ptr [rdx]
-    vmulps  xmm1, xmm1, xmmword ptr [rcx]
-    vmovdqa xmm9, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
     vinsertps xmm2, xmm1, xmm1, 8
     vhaddps xmm0, xmm2, xmm2
-    vxorps  xmm8, xmm8, xmm8
-    vsubps  xmm6, xmm8, xmm7
+  }
+  _mm128_sub_ps((__m128)0i64, g_one.v);
+  __asm
+  {
     vhaddps xmm10, xmm0, xmm0
     vcmpltps xmm0, xmm7, xmm6
     vmovmskps eax, xmm0
   }
-  _RSI = outQuat;
-  _RBX = toVector;
-  _RDI = fromVector;
-  if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 2854, ASSERT_TYPE_SANITY, "( Float4AllLe( vmin, vmax ) )", (const char *)&queryFormat, "Float4AllLe( vmin, vmax )") )
+  if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 2854, ASSERT_TYPE_SANITY, "( Float4AllLe( vmin, vmax ) )", (const char *)&queryFormat, "Float4AllLe( vmin, vmax )") )
     __debugbreak();
   __asm
   {
-    vmovups xmm4, xmmword ptr [rbx]
-    vmovups xmm2, xmmword ptr [rdi]
-    vshufps xmm1, xmm2, xmm2, 0C9h ; 'É'
-    vshufps xmm2, xmm2, xmm2, 0D2h ; 'Ò'
     vmaxps  xmm0, xmm10, xmm6
     vminps  xmm5, xmm0, xmm7
-    vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm4, xmm3, xmm0
-    vmulps  xmm1, xmm5, xmm9
-    vsubps  xmm0, xmm9, xmm1
-    vsqrtps xmm5, xmm0
-    vaddps  xmm6, xmm1, xmm9
-    vmulps  xmm3, xmm4, xmm4
+  }
+  v16 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(fromVector->v, fromVector->v, 201), _mm_shuffle_ps(toVector->v, toVector->v, 210)), _mm128_mul_ps(_mm_shuffle_ps(fromVector->v, fromVector->v, 210), _mm_shuffle_ps(toVector->v, toVector->v, 201)));
+  v17 = _mm128_mul_ps(_XMM5, v);
+  v18 = _mm_sqrt_ps(_mm128_sub_ps(v, v17));
+  v19 = _mm128_add_ps(v17, v);
+  _XMM3 = _mm128_mul_ps(v16, v16);
+  __asm
+  {
     vhaddps xmm0, xmm3, xmm3
     vhaddps xmm0, xmm0, xmm0
-    vsqrtps xmm1, xmm0
-    vdivps  xmm2, xmm4, xmm1
+  }
+  _XMM2 = _mm128_div_ps(v16, _mm_sqrt_ps(_XMM0));
+  __asm
+  {
     vhaddps xmm0, xmm3, xmm3
     vhaddps xmm0, xmm0, xmm0
     vcmpeqps xmm0, xmm0, xmm8
     vblendps xmm1, xmm7, xmm8, 0Eh
     vblendvps xmm1, xmm2, xmm1, xmm0
-    vmulps  xmm2, xmm5, xmm1
-    vsqrtps xmm0, xmm6
-    vshufps xmm1, xmm2, xmm0, 0FAh ; 'ú'
-    vshufps xmm2, xmm2, xmm1, 84h ; '„'
-    vmovups xmmword ptr [rsi], xmm2
   }
-  _R11 = &v58;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  v29 = _mm128_mul_ps(v18, _XMM1);
+  outQuat->v = _mm_shuffle_ps(v29, _mm_shuffle_ps(v29, _mm_sqrt_ps(v19), 250), 132);
 }
 

@@ -84,114 +84,163 @@ SND_FiveTapDelayFrame
 */
 void SND_FiveTapDelayFrame(snd_quad_five_tap_delay_state *state, float *input0, float *input1, float *input2, float *input3, const int count)
 {
-  __int64 v18; 
-  __int64 v20; 
-  unsigned int v61; 
-  int v76; 
-  char *v77; 
-  __int64 v78; 
+  signed __int64 v10; 
+  signed __int64 v11; 
+  float *v12; 
+  signed __int64 v13; 
+  char *v14; 
+  __int64 v15; 
+  float *v16; 
+  __int64 v17; 
+  __m128 v18; 
+  __m128 v19; 
+  __m128 v20; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v23; 
+  __m128 v24; 
+  __m128 v25; 
+  __m128 v26; 
+  __m128 v27; 
+  __m128 v28; 
+  __m128 v29; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v32; 
+  __m128 v33; 
+  __m128 v34; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v37; 
+  __m128 v38; 
+  __m128 v39; 
+  __m128 v40; 
+  __m128 v41; 
+  __m128 v42; 
+  __m128 v43; 
+  __m128 v44; 
+  __m128 v45; 
+  __m128 v46; 
+  __m128 v47; 
+  unsigned int v48; 
+  int v63; 
+  __m128 *v64; 
+  __int64 v65; 
   int readPos; 
-  __int64 v91; 
-  char v140[160]; 
-  char v141[3936]; 
+  __m128 *v67; 
+  __int64 v68; 
+  char *v69; 
+  __m128 v70; 
+  __m128 v71; 
+  __m128 v72; 
+  __m128 v73; 
+  __m128 v74; 
+  __m128 v75; 
+  __m128 v76; 
+  __m128 v77; 
+  __m128 v78; 
+  __m128 v79; 
+  __m128 v80; 
+  __m128 v81; 
+  __m128 v82; 
+  __m128 v83; 
+  __m128 v84; 
+  __m128 v85; 
+  __m128 v86; 
+  __m128 v87; 
+  __m128 v88; 
+  __m128 v89; 
+  __m128 v90; 
+  __m128 v91; 
+  __m128 v92; 
+  __m128 v93; 
+  __m128 v94; 
+  __m128 v95; 
+  __m128 v96; 
+  __m128 v97; 
+  __m128 v98; 
+  __m128 v99; 
+  __m128 v100; 
+  char v101[160]; 
+  char v102[3936]; 
 
-  _RBX = state;
   Sys_ProfBeginNamedEvent(0xFF00FFu, "SND_FiveTapDelayFrame");
   if ( count != 256 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_delay.cpp", 108, ASSERT_TYPE_ASSERT, "(count == ( 256 ))", (const char *)&queryFormat, "count == SD_MIX_FRAME_COUNT") )
     __debugbreak();
-  if ( _RBX->state[0].enabled || _RBX->state[1].enabled || _RBX->state[2].enabled || _RBX->state[3].enabled || _RBX->state[4].enabled )
+  if ( state->state[0].enabled || state->state[1].enabled || state->state[2].enabled || state->state[3].enabled || state->state[4].enabled )
   {
-    _RSI = (char *)input0 - (char *)input1;
-    __asm { vmovaps [rsp+1098h+var_38], xmm6 }
-    _RBP = (char *)input2 - (char *)input1;
-    __asm { vmovaps [rsp+1098h+var_48], xmm7 }
-    _R11 = input1 + 4;
-    __asm { vmovaps [rsp+1098h+var_58], xmm8 }
-    _R14 = (char *)input3 - (char *)input1;
-    _RCX = v141;
-    v18 = 16i64;
-    _RAX = _R11;
-    v20 = 16i64;
+    v10 = (char *)input0 - (char *)input1;
+    v11 = (char *)input2 - (char *)input1;
+    v12 = input1 + 4;
+    v13 = (char *)input3 - (char *)input1;
+    v14 = v102;
+    v15 = 16i64;
+    v16 = v12;
+    v17 = 16i64;
     do
     {
-      _RCX += 256;
-      __asm
-      {
-        vmovups xmm3, xmmword ptr [rsi+rax-10h]
-        vshufps xmm6, xmm3, xmmword ptr [rax-10h], 44h ; 'D'
-        vshufps xmm2, xmm3, xmmword ptr [rax-10h], 0EEh ; 'î'
-        vmovups xmm1, xmmword ptr [rax+rbp-10h]
-        vshufps xmm4, xmm1, xmmword ptr [r14+rax-10h], 44h ; 'D'
-        vshufps xmm5, xmm1, xmmword ptr [r14+rax-10h], 0EEh ; 'î'
-        vmovups xmm3, xmmword ptr [rsi+rax]
-      }
-      _RAX += 16;
-      __asm
-      {
-        vshufps xmm1, xmm6, xmm4, 0DDh ; 'Ý'
-        vmovups xmmword ptr [rcx-190h], xmm1
-        vshufps xmm1, xmm2, xmm5, 0DDh ; 'Ý'
-        vmovups xmmword ptr [rcx-170h], xmm1
-        vmovups xmm1, xmmword ptr [rax+rbp-40h]
-        vshufps xmm0, xmm6, xmm4, 88h ; 'ˆ'
-        vshufps xmm4, xmm1, xmmword ptr [r14+rax-40h], 44h ; 'D'
-        vshufps xmm6, xmm3, xmmword ptr [rax-40h], 44h ; 'D'
-        vmovups xmmword ptr [rcx-1A0h], xmm0
-        vshufps xmm0, xmm2, xmm5, 88h ; 'ˆ'
-        vshufps xmm5, xmm1, xmmword ptr [r14+rax-40h], 0EEh ; 'î'
-        vshufps xmm2, xmm3, xmmword ptr [rax-40h], 0EEh ; 'î'
-        vmovups xmm3, xmmword ptr [rsi+rax-30h]
-        vmovups xmmword ptr [rcx-180h], xmm0
-        vshufps xmm0, xmm6, xmm4, 88h ; 'ˆ'
-        vmovups xmmword ptr [rcx-160h], xmm0
-        vshufps xmm1, xmm6, xmm4, 0DDh ; 'Ý'
-        vshufps xmm6, xmm3, xmmword ptr [rax-30h], 44h ; 'D'
-        vmovups xmmword ptr [rcx-150h], xmm1
-        vshufps xmm0, xmm2, xmm5, 88h ; 'ˆ'
-        vmovups xmmword ptr [rcx-140h], xmm0
-        vshufps xmm1, xmm2, xmm5, 0DDh ; 'Ý'
-        vshufps xmm2, xmm3, xmmword ptr [rax-30h], 0EEh ; 'î'
-        vmovups xmm3, xmmword ptr [rsi+rax-20h]
-        vmovups xmmword ptr [rcx-130h], xmm1
-        vmovups xmm1, xmmword ptr [rax+rbp-30h]
-        vshufps xmm4, xmm1, xmmword ptr [r14+rax-30h], 44h ; 'D'
-        vshufps xmm5, xmm1, xmmword ptr [r14+rax-30h], 0EEh ; 'î'
-        vshufps xmm0, xmm6, xmm4, 88h ; 'ˆ'
-        vmovups xmmword ptr [rcx-120h], xmm0
-        vshufps xmm1, xmm6, xmm4, 0DDh ; 'Ý'
-        vshufps xmm6, xmm3, xmmword ptr [rax-20h], 44h ; 'D'
-        vmovups xmmword ptr [rcx-110h], xmm1
-        vshufps xmm0, xmm2, xmm5, 88h ; 'ˆ'
-        vmovups xmmword ptr [rcx-100h], xmm0
-        vshufps xmm1, xmm2, xmm5, 0DDh ; 'Ý'
-        vshufps xmm2, xmm3, xmmword ptr [rax-20h], 0EEh ; 'î'
-        vmovups xmmword ptr [rcx-0F0h], xmm1
-        vmovups xmm1, xmmword ptr [rax+rbp-20h]
-        vshufps xmm4, xmm1, xmmword ptr [r14+rax-20h], 44h ; 'D'
-        vshufps xmm5, xmm1, xmmword ptr [r14+rax-20h], 0EEh ; 'î'
-        vshufps xmm0, xmm6, xmm4, 88h ; 'ˆ'
-        vmovups xmmword ptr [rcx-0E0h], xmm0
-        vshufps xmm1, xmm6, xmm4, 0DDh ; 'Ý'
-        vmovups xmmword ptr [rcx-0D0h], xmm1
-        vshufps xmm0, xmm2, xmm5, 88h ; 'ˆ'
-        vmovups xmmword ptr [rcx-0C0h], xmm0
-        vshufps xmm1, xmm2, xmm5, 0DDh ; 'Ý'
-        vmovups xmmword ptr [rcx-0B0h], xmm1
-      }
-      --v20;
+      v14 += 256;
+      v18 = *(__m128 *)((char *)v16 + v10 - 16);
+      v19 = _mm_shuffle_ps(v18, *(__m128 *)(v16 - 4), 68);
+      v20 = _mm_shuffle_ps(v18, *(__m128 *)(v16 - 4), 238);
+      v21 = *(__m128 *)((char *)v16 + v11 - 16);
+      v22 = _mm_shuffle_ps(v21, *(__m128 *)((char *)v16 + v13 - 16), 68);
+      v23 = _mm_shuffle_ps(v21, *(__m128 *)((char *)v16 + v13 - 16), 238);
+      v24 = *(__m128 *)((char *)v16 + v10);
+      v16 += 16;
+      *((__m128 *)v14 - 25) = _mm_shuffle_ps(v19, v22, 221);
+      *((__m128 *)v14 - 23) = _mm_shuffle_ps(v20, v23, 221);
+      v25 = *(__m128 *)((char *)v16 + v11 - 64);
+      v26 = _mm_shuffle_ps(v19, v22, 136);
+      v27 = _mm_shuffle_ps(v25, *(__m128 *)((char *)v16 + v13 - 64), 68);
+      v28 = _mm_shuffle_ps(v24, *(__m128 *)(v16 - 16), 68);
+      *((__m128 *)v14 - 26) = v26;
+      v29 = _mm_shuffle_ps(v20, v23, 136);
+      v30 = _mm_shuffle_ps(v25, *(__m128 *)((char *)v16 + v13 - 64), 238);
+      v31 = _mm_shuffle_ps(v24, *(__m128 *)(v16 - 16), 238);
+      v32 = *(__m128 *)((char *)v16 + v10 - 48);
+      *((__m128 *)v14 - 24) = v29;
+      *((__m128 *)v14 - 22) = _mm_shuffle_ps(v28, v27, 136);
+      v33 = _mm_shuffle_ps(v28, v27, 221);
+      v34 = _mm_shuffle_ps(v32, *(__m128 *)(v16 - 12), 68);
+      *((__m128 *)v14 - 21) = v33;
+      *((__m128 *)v14 - 20) = _mm_shuffle_ps(v31, v30, 136);
+      v35 = _mm_shuffle_ps(v31, v30, 221);
+      v36 = _mm_shuffle_ps(v32, *(__m128 *)(v16 - 12), 238);
+      v37 = *(__m128 *)((char *)v16 + v10 - 32);
+      *((__m128 *)v14 - 19) = v35;
+      v38 = *(__m128 *)((char *)v16 + v11 - 48);
+      v39 = _mm_shuffle_ps(v38, *(__m128 *)((char *)v16 + v13 - 48), 68);
+      v40 = _mm_shuffle_ps(v38, *(__m128 *)((char *)v16 + v13 - 48), 238);
+      *((__m128 *)v14 - 18) = _mm_shuffle_ps(v34, v39, 136);
+      v41 = _mm_shuffle_ps(v34, v39, 221);
+      v42 = _mm_shuffle_ps(v37, *(__m128 *)(v16 - 8), 68);
+      *((__m128 *)v14 - 17) = v41;
+      *((__m128 *)v14 - 16) = _mm_shuffle_ps(v36, v40, 136);
+      v43 = _mm_shuffle_ps(v36, v40, 221);
+      v44 = _mm_shuffle_ps(v37, *(__m128 *)(v16 - 8), 238);
+      *((__m128 *)v14 - 15) = v43;
+      v45 = *(__m128 *)((char *)v16 + v11 - 32);
+      v46 = _mm_shuffle_ps(v45, *(__m128 *)((char *)v16 + v13 - 32), 68);
+      v47 = _mm_shuffle_ps(v45, *(__m128 *)((char *)v16 + v13 - 32), 238);
+      *((__m128 *)v14 - 14) = _mm_shuffle_ps(v42, v46, 136);
+      *((__m128 *)v14 - 13) = _mm_shuffle_ps(v42, v46, 221);
+      *((__m128 *)v14 - 12) = _mm_shuffle_ps(v44, v47, 136);
+      *((__m128 *)v14 - 11) = _mm_shuffle_ps(v44, v47, 221);
+      --v17;
     }
-    while ( v20 );
-    v61 = 0;
-    _RDX = &_RBX->state[0].level;
+    while ( v17 );
+    v48 = 0;
+    _RDX = &state->state[0].level;
     do
     {
       if ( *((_BYTE *)_RDX - 8) )
       {
+        _XMM2 = *((unsigned int *)_RDX + 3);
+        __asm { vinsertps xmm2, xmm2, dword ptr [rdx+10h], 10h }
+        _XMM3 = *((unsigned int *)_RDX + 9);
         __asm
         {
-          vmovss  xmm2, dword ptr [rdx+0Ch]
-          vinsertps xmm2, xmm2, dword ptr [rdx+10h], 10h
-          vmovss  xmm3, dword ptr [rdx+24h]
           vinsertps xmm3, xmm3, dword ptr [rdx+28h], 10h
           vinsertps xmm2, xmm2, dword ptr [rdx+14h], 20h ; ' '
           vinsertps xmm3, xmm3, dword ptr [rdx+2Ch], 20h ; ' '
@@ -203,144 +252,107 @@ void SND_FiveTapDelayFrame(snd_quad_five_tap_delay_state *state, float *input0, 
           vbroadcastss xmm7, dword ptr [rdx+1Ch]
           vbroadcastss xmm8, dword ptr [rdx+20h]
         }
-        v76 = *((_DWORD *)_RDX - 1);
-        v77 = v140;
-        v78 = 256i64;
+        v63 = *((_DWORD *)_RDX - 1);
+        v64 = (__m128 *)v101;
+        v65 = 256i64;
         do
         {
-          __asm { vmulps  xmm1, xmm5, xmmword ptr [r8] }
-          _RAX = 2i64 * v76;
-          __asm
-          {
-            vmulps  xmm0, xmm6, xmm2
-            vaddps  xmm2, xmm0, xmm1
-            vmulps  xmm1, xmm7, xmm2
-            vmulps  xmm0, xmm8, xmm3
-            vaddps  xmm3, xmm0, xmm1
-            vsubps  xmm0, xmm2, xmm3
-            vmulps  xmm0, xmm0, xmm4
-            vaddps  xmm1, xmm0, xmmword ptr [rbx+rax*8+130h]
-            vmovups xmmword ptr [rbx+rax*8+130h], xmm1
-          }
-          v76 = (v76 + 1) % 0x10000;
-          v77 += 16;
-          --v78;
+          _XMM2 = _mm128_add_ps(_mm128_mul_ps(_XMM6, _XMM2), _mm128_mul_ps(_XMM5, *v64));
+          _XMM3 = _mm128_add_ps(_mm128_mul_ps(_XMM8, _XMM3), _mm128_mul_ps(_XMM7, _XMM2));
+          *(__m128 *)&state->delayLine[4 * v63] = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM2, _XMM3), _XMM4), *(__m128 *)&state->delayLine[4 * v63]);
+          v63 = (v63 + 1) % 0x10000;
+          ++v64;
+          --v65;
         }
-        while ( v78 );
-        *((_DWORD *)_RDX - 1) = v76;
+        while ( v65 );
+        *((_DWORD *)_RDX - 1) = v63;
+        _RDX[3] = _XMM2.m128_f32[0];
         __asm
         {
-          vmovss  dword ptr [rdx+0Ch], xmm2
           vextractps dword ptr [rdx+10h], xmm2, 1
           vextractps dword ptr [rdx+14h], xmm2, 2
           vextractps dword ptr [rdx+18h], xmm2, 3
-          vmovss  dword ptr [rdx+24h], xmm3
+        }
+        _RDX[9] = _XMM3.m128_f32[0];
+        __asm
+        {
           vextractps dword ptr [rdx+28h], xmm3, 1
           vextractps dword ptr [rdx+2Ch], xmm3, 2
           vextractps dword ptr [rdx+30h], xmm3, 3
         }
       }
-      ++v61;
+      ++v48;
       _RDX += 15;
     }
-    while ( v61 < 5 );
-    readPos = _RBX->readPos;
-    _RDX = v140;
-    __asm { vmovaps xmm8, [rsp+1098h+var_58] }
-    v91 = 256i64;
-    __asm
-    {
-      vmovaps xmm7, [rsp+1098h+var_48]
-      vxorps  xmm2, xmm2, xmm2
-    }
+    while ( v48 < 5 );
+    readPos = state->readPos;
+    v67 = (__m128 *)v101;
+    v68 = 256i64;
     do
     {
-      _RAX = 2i64 * readPos;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx+rax*8+130h]
-        vaddps  xmm0, xmm1, xmmword ptr [rdx]
-        vmovups xmmword ptr [rdx], xmm0
-        vmovups xmmword ptr [rbx+rax*8+130h], xmm2
-      }
+      *v67 = _mm128_add_ps(*(__m128 *)&state->delayLine[4 * readPos], *v67);
+      *(_OWORD *)&state->delayLine[4 * readPos] = 0i64;
       readPos = (readPos + 1) % 0x10000;
-      _RDX += 16;
-      --v91;
+      ++v67;
+      --v68;
     }
-    while ( v91 );
-    _RBX->readPos = readPos;
-    _RAX = v141;
+    while ( v68 );
+    state->readPos = readPos;
+    v69 = v102;
     do
     {
-      _R11 += 16;
-      __asm
-      {
-        vmovups xmm3, xmmword ptr [rax-0A0h]
-        vmovups xmm1, xmmword ptr [rax-80h]
-        vshufps xmm4, xmm1, xmmword ptr [rax-70h], 44h ; 'D'
-        vshufps xmm5, xmm1, xmmword ptr [rax-70h], 0EEh ; 'î'
-        vmovups xmm2, xmmword ptr [rax-90h]
-      }
-      _RAX += 256;
-      __asm
-      {
-        vshufps xmm6, xmm3, xmm2, 44h ; 'D'
-        vshufps xmm1, xmm6, xmm4, 0DDh ; 'Ý'
-        vmovups xmmword ptr [r11-50h], xmm1
-        vshufps xmm2, xmm3, xmm2, 0EEh ; 'î'
-        vmovups xmm3, xmmword ptr [rax-160h]
-        vshufps xmm1, xmm2, xmm5, 0DDh ; 'Ý'
-        vmovups xmmword ptr [r11+r14-50h], xmm1
-        vmovups xmm1, xmmword ptr [rax-140h]
-        vshufps xmm0, xmm6, xmm4, 88h ; 'ˆ'
-        vshufps xmm4, xmm1, xmmword ptr [rax-130h], 44h ; 'D'
-        vshufps xmm6, xmm3, xmmword ptr [rax-150h], 44h ; 'D'
-        vmovups xmmword ptr [r11+rsi-50h], xmm0
-        vshufps xmm0, xmm2, xmm5, 88h ; 'ˆ'
-        vshufps xmm5, xmm1, xmmword ptr [rax-130h], 0EEh ; 'î'
-        vshufps xmm2, xmm3, xmmword ptr [rax-150h], 0EEh ; 'î'
-        vmovups xmm3, xmmword ptr [rax-120h]
-        vmovups xmmword ptr [r11+rbp-50h], xmm0
-        vshufps xmm1, xmm6, xmm4, 0DDh ; 'Ý'
-        vmovups xmmword ptr [r11-40h], xmm1
-        vshufps xmm1, xmm2, xmm5, 0DDh ; 'Ý'
-        vmovups xmmword ptr [r11+r14-40h], xmm1
-        vmovups xmm1, xmmword ptr [rax-100h]
-        vshufps xmm0, xmm6, xmm4, 88h ; 'ˆ'
-        vshufps xmm4, xmm1, xmmword ptr [rax-0F0h], 44h ; 'D'
-        vshufps xmm6, xmm3, xmmword ptr [rax-110h], 44h ; 'D'
-        vmovups xmmword ptr [r11+rsi-40h], xmm0
-        vshufps xmm0, xmm2, xmm5, 88h ; 'ˆ'
-        vshufps xmm5, xmm1, xmmword ptr [rax-0F0h], 0EEh ; 'î'
-        vshufps xmm2, xmm3, xmmword ptr [rax-110h], 0EEh ; 'î'
-        vmovups xmm3, xmmword ptr [rax-0E0h]
-        vmovups xmmword ptr [r11+rbp-40h], xmm0
-        vshufps xmm1, xmm6, xmm4, 0DDh ; 'Ý'
-        vmovups xmmword ptr [r11-30h], xmm1
-        vshufps xmm1, xmm2, xmm5, 0DDh ; 'Ý'
-        vshufps xmm0, xmm6, xmm4, 88h ; 'ˆ'
-        vshufps xmm6, xmm3, xmmword ptr [rax-0D0h], 44h ; 'D'
-        vmovups xmmword ptr [r11+r14-30h], xmm1
-        vmovups xmm1, xmmword ptr [rax-0C0h]
-        vshufps xmm4, xmm1, xmmword ptr [rax-0B0h], 44h ; 'D'
-        vmovups xmmword ptr [r11+rsi-30h], xmm0
-        vshufps xmm0, xmm2, xmm5, 88h ; 'ˆ'
-        vshufps xmm5, xmm1, xmmword ptr [rax-0B0h], 0EEh ; 'î'
-        vshufps xmm2, xmm3, xmmword ptr [rax-0D0h], 0EEh ; 'î'
-        vmovups xmmword ptr [r11+rbp-30h], xmm0
-        vshufps xmm0, xmm6, xmm4, 88h ; 'ˆ'
-        vshufps xmm1, xmm6, xmm4, 0DDh ; 'Ý'
-        vmovups xmmword ptr [r11+rsi-20h], xmm0
-        vmovups xmmword ptr [r11-20h], xmm1
-        vshufps xmm0, xmm2, xmm5, 88h ; 'ˆ'
-        vshufps xmm1, xmm2, xmm5, 0DDh ; 'Ý'
-        vmovups xmmword ptr [r11+rbp-20h], xmm0
-        vmovups xmmword ptr [r11+r14-20h], xmm1
-      }
-      --v18;
+      v12 += 16;
+      v70 = *((__m128 *)v69 - 10);
+      v71 = *((__m128 *)v69 - 8);
+      v72 = _mm_shuffle_ps(v71, *((__m128 *)v69 - 7), 68);
+      v73 = _mm_shuffle_ps(v71, *((__m128 *)v69 - 7), 238);
+      v74 = *((__m128 *)v69 - 9);
+      v69 += 256;
+      v75 = _mm_shuffle_ps(v70, v74, 68);
+      *((__m128 *)v12 - 5) = _mm_shuffle_ps(v75, v72, 221);
+      v76 = _mm_shuffle_ps(v70, v74, 238);
+      v77 = *((__m128 *)v69 - 22);
+      *(__m128 *)((char *)v12 + v13 - 80) = _mm_shuffle_ps(v76, v73, 221);
+      v78 = *((__m128 *)v69 - 20);
+      v79 = _mm_shuffle_ps(v75, v72, 136);
+      v80 = _mm_shuffle_ps(v78, *((__m128 *)v69 - 19), 68);
+      v81 = _mm_shuffle_ps(v77, *((__m128 *)v69 - 21), 68);
+      *(__m128 *)((char *)v12 + v10 - 80) = v79;
+      v82 = _mm_shuffle_ps(v76, v73, 136);
+      v83 = _mm_shuffle_ps(v78, *((__m128 *)v69 - 19), 238);
+      v84 = _mm_shuffle_ps(v77, *((__m128 *)v69 - 21), 238);
+      v85 = *((__m128 *)v69 - 18);
+      *(__m128 *)((char *)v12 + v11 - 80) = v82;
+      *((__m128 *)v12 - 4) = _mm_shuffle_ps(v81, v80, 221);
+      *(__m128 *)((char *)v12 + v13 - 64) = _mm_shuffle_ps(v84, v83, 221);
+      v86 = *((__m128 *)v69 - 16);
+      v87 = _mm_shuffle_ps(v81, v80, 136);
+      v88 = _mm_shuffle_ps(v86, *((__m128 *)v69 - 15), 68);
+      v89 = _mm_shuffle_ps(v85, *((__m128 *)v69 - 17), 68);
+      *(__m128 *)((char *)v12 + v10 - 64) = v87;
+      v90 = _mm_shuffle_ps(v84, v83, 136);
+      v91 = _mm_shuffle_ps(v86, *((__m128 *)v69 - 15), 238);
+      v92 = _mm_shuffle_ps(v85, *((__m128 *)v69 - 17), 238);
+      v93 = *((__m128 *)v69 - 14);
+      *(__m128 *)((char *)v12 + v11 - 64) = v90;
+      *((__m128 *)v12 - 3) = _mm_shuffle_ps(v89, v88, 221);
+      v94 = _mm_shuffle_ps(v89, v88, 136);
+      v95 = _mm_shuffle_ps(v93, *((__m128 *)v69 - 13), 68);
+      *(__m128 *)((char *)v12 + v13 - 48) = _mm_shuffle_ps(v92, v91, 221);
+      v96 = *((__m128 *)v69 - 12);
+      v97 = _mm_shuffle_ps(v96, *((__m128 *)v69 - 11), 68);
+      *(__m128 *)((char *)v12 + v10 - 48) = v94;
+      v98 = _mm_shuffle_ps(v92, v91, 136);
+      v99 = _mm_shuffle_ps(v96, *((__m128 *)v69 - 11), 238);
+      v100 = _mm_shuffle_ps(v93, *((__m128 *)v69 - 13), 238);
+      *(__m128 *)((char *)v12 + v11 - 48) = v98;
+      *(__m128 *)((char *)v12 + v10 - 32) = _mm_shuffle_ps(v95, v97, 136);
+      *((__m128 *)v12 - 2) = _mm_shuffle_ps(v95, v97, 221);
+      *(__m128 *)((char *)v12 + v11 - 32) = _mm_shuffle_ps(v100, v99, 136);
+      *(__m128 *)((char *)v12 + v13 - 32) = _mm_shuffle_ps(v100, v99, 221);
+      --v15;
     }
-    while ( v18 );
-    __asm { vmovaps xmm6, [rsp+1098h+var_38] }
+    while ( v15 );
   }
   Sys_ProfEndNamedEvent();
 }
@@ -362,105 +374,63 @@ SND_FiveTapDelaySetParams
 */
 void SND_FiveTapDelaySetParams(snd_quad_five_tap_delay_state *state, snd_quad_five_tap_delay_params *params)
 {
-  unsigned int v14; 
-  char v17; 
-  __int64 v25; 
-  char v42; 
-  void *retaddr; 
+  float *p_lpfCutoff; 
+  int *p_tapPos; 
+  unsigned int i; 
+  char v6; 
+  int v7; 
+  __int64 v11; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-  _RSI = &params->params[0].lpfCutoff;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm7 }
-  _RDI = &state->state[0].tapPos;
-  __asm
+  p_lpfCutoff = &params->params[0].lpfCutoff;
+  p_tapPos = &state->state[0].tapPos;
+  for ( i = 0; i < 5; ++i )
   {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovss  xmm8, cs:__real@46bb8000
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovss  xmm9, cs:__real@b909421f
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  v14 = 0;
-  __asm
-  {
-    vmovss  xmm10, cs:__real@42400000
-    vxorps  xmm6, xmm6, xmm6
-  }
-  do
-  {
-    _RDI[1] = 0;
-    v17 = *((_BYTE *)_RSI - 12);
-    *((_BYTE *)_RDI - 4) = v17;
-    if ( v17 )
+    p_tapPos[1] = 0;
+    v6 = *((_BYTE *)p_lpfCutoff - 12);
+    *((_BYTE *)p_tapPos - 4) = v6;
+    if ( v6 )
     {
+      v7 = (int)(float)(48.0 * *(p_lpfCutoff - 2));
+      if ( v7 > 65280 )
+        v7 = 65280;
+      if ( v7 < 0 )
+        v7 = 0;
+      *p_tapPos = v7;
+      _XMM0 = *(unsigned int *)p_lpfCutoff;
       __asm
       {
-        vmulss  xmm1, xmm10, dword ptr [rsi-8]
-        vcvttss2si eax, xmm1
-      }
-      if ( _EAX > 65280 )
-        _EAX = 65280;
-      if ( _EAX < 0 )
-        _EAX = 0;
-      *_RDI = _EAX;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]
         vmaxss  xmm0, xmm0, xmm6
         vminss  xmm1, xmm0, xmm8
-        vmulss  xmm0, xmm1, xmm9; X
       }
-      *(float *)&_XMM0 = expf_0(*(float *)&_XMM0);
+      *(float *)&_XMM0 = expf_0(*(float *)&_XMM1 * -0.0001308997);
+      p_tapPos[3] = _XMM0;
+      *((float *)p_tapPos + 2) = 1.0 - *(float *)&_XMM0;
+      v11 = (int)i;
+      *(_QWORD *)state->state[v11].lpfD = 0i64;
+      *(_QWORD *)&state->state[v11].lpfD[2] = 0i64;
+      _XMM0 = *((unsigned int *)p_lpfCutoff + 1);
       __asm
       {
-        vmovss  dword ptr [rdi+0Ch], xmm0
-        vsubss  xmm0, xmm7, xmm0
-        vmovss  dword ptr [rdi+8], xmm0
-      }
-      v25 = (int)v14;
-      *(_QWORD *)state->state[v25].lpfD = 0i64;
-      *(_QWORD *)&state->state[v25].lpfD[2] = 0i64;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+4]
         vmaxss  xmm0, xmm0, xmm6
         vminss  xmm1, xmm0, xmm8
-        vmulss  xmm0, xmm1, xmm9; X
       }
-      *(float *)&_XMM0 = expf_0(*(float *)&_XMM0);
+      *(float *)&_XMM0 = expf_0(*(float *)&_XMM1 * -0.0001308997);
+      p_tapPos[9] = _XMM0;
+      *((float *)p_tapPos + 8) = 1.0 - *(float *)&_XMM0;
+      *(_QWORD *)state->state[v11].hpfD = 0i64;
+      *(_QWORD *)&state->state[v11].hpfD[2] = 0i64;
+      _XMM0 = *((unsigned int *)p_lpfCutoff - 1);
       __asm
       {
-        vmovss  dword ptr [rdi+24h], xmm0
-        vsubss  xmm0, xmm7, xmm0
-        vmovss  dword ptr [rdi+20h], xmm0
-      }
-      *(_QWORD *)state->state[v25].hpfD = 0i64;
-      *(_QWORD *)&state->state[v25].hpfD[2] = 0i64;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi-4]
         vmaxss  xmm0, xmm0, xmm6
         vminss  xmm1, xmm0, xmm7
-        vmovss  dword ptr [rdi+4], xmm1
       }
+      p_tapPos[1] = _XMM1;
     }
-    ++v14;
-    _RSI += 5;
-    _RDI += 15;
+    p_lpfCutoff += 5;
+    p_tapPos += 15;
   }
-  while ( v14 < 5 );
   state->readPos = 0;
-  _R11 = &v42;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
   memset_0(state->delayLine, 0, sizeof(state->delayLine));
 }
 

@@ -333,6 +333,7 @@ IWMemAllocatorTableEntry *LeanRBTree<IWMemAllocatorTableEntry>::Remove(LeanRBTre
   unsigned __int8 v4; 
   IWMemAllocatorTableEntry *mp_root; 
   IWMemAllocatorTableEntry *v7; 
+  IWMemAllocatorTableEntry *p_p_root; 
   IWMemAllocatorTableEntry *v9; 
   unsigned int v10; 
   IWMemAllocatorTableEntry *v11; 
@@ -371,22 +372,22 @@ IWMemAllocatorTableEntry *LeanRBTree<IWMemAllocatorTableEntry>::Remove(LeanRBTre
   __int64 v44; 
   IWMemAllocatorTableEntry *v45; 
   unsigned int v46; 
-  IWMemAllocatorTableEntry *v48; 
-  unsigned int v49; 
-  __int64 v50; 
-  IWMemAllocatorTableEntry *v51; 
-  unsigned int v52; 
-  IWMemAllocatorTableEntry *v53; 
-  __int64 v55; 
-  IWMemAllocatorTableEntry *v56; 
-  bool v57; 
-  __int64 v58; 
-  int v59; 
+  IWMemAllocatorTableEntry *v47; 
+  unsigned int v48; 
+  __int64 v49; 
+  IWMemAllocatorTableEntry *v50; 
+  unsigned int v51; 
+  IWMemAllocatorTableEntry *v52; 
+  __int64 v53; 
+  IWMemAllocatorTableEntry *v54; 
+  bool v55; 
+  __int64 v56; 
+  int v57; 
+  IWMemAllocatorTableEntry *v58; 
+  __int64 v59; 
   IWMemAllocatorTableEntry *v60; 
-  __int64 v61; 
-  IWMemAllocatorTableEntry *v62; 
-  bool v63; 
-  IWMemAllocatorTableEntry *v65; 
+  bool v61; 
+  IWMemAllocatorTableEntry *v63; 
   IWMemAllocatorTableEntry p_root; 
 
   v2 = NULL;
@@ -394,7 +395,7 @@ IWMemAllocatorTableEntry *LeanRBTree<IWMemAllocatorTableEntry>::Remove(LeanRBTre
   *(_QWORD *)p_root.m_childNodeIndices = 0i64;
   *((_QWORD *)&p_root + 1) |= 0x20000000000ui64;
   v4 = 1;
-  v65 = NULL;
+  v63 = NULL;
   mp_root = this->mp_root;
   if ( !this->mp_root )
   {
@@ -405,30 +406,30 @@ IWMemAllocatorTableEntry *LeanRBTree<IWMemAllocatorTableEntry>::Remove(LeanRBTre
       return 0i64;
   }
   v7 = NULL;
-  _R14 = &p_root;
+  p_p_root = &p_root;
   IWMemAllocatorTableEntry::SetChildNode(&p_root, 1, mp_root);
   v9 = g_iwMemAllocatorPool;
   while ( 1 )
   {
-    v10 = _R14->m_childNodeIndices[v4];
+    v10 = p_p_root->m_childNodeIndices[v4];
     if ( !v10 || !&v9[v10] )
       break;
     v11 = v7;
-    v7 = _R14;
-    _R14 = &v9[v10];
-    v12 = _R14;
-    m_address = _R14->m_address;
-    v14 = _R14->m_address < remove_key;
-    if ( _R14->m_address != remove_key )
-      v12 = v65;
-    v65 = v12;
-    v63 = _R14->m_address < remove_key;
-    if ( (*((_QWORD *)_R14 + 1) & 0x20000000000i64) != 0 )
+    v7 = p_p_root;
+    p_p_root = &v9[v10];
+    v12 = p_p_root;
+    m_address = p_p_root->m_address;
+    v14 = p_p_root->m_address < remove_key;
+    if ( p_p_root->m_address != remove_key )
+      v12 = v63;
+    v63 = v12;
+    v61 = p_p_root->m_address < remove_key;
+    if ( (*((_QWORD *)p_p_root + 1) & 0x20000000000i64) != 0 )
       goto LABEL_65;
     v15 = 16i64;
     if ( m_address < remove_key )
       v15 = 20i64;
-    v16 = *(_DWORD *)((char *)&_R14->m_address + v15);
+    v16 = *(_DWORD *)((char *)&p_p_root->m_address + v15);
     if ( v16 )
     {
       v17 = &v9[v16];
@@ -441,17 +442,17 @@ IWMemAllocatorTableEntry *LeanRBTree<IWMemAllocatorTableEntry>::Remove(LeanRBTre
     v18 = 16i64;
     if ( m_address >= remove_key )
       v18 = 20i64;
-    v19 = *(unsigned int *)((char *)&_R14->m_address + v18);
+    v19 = *(unsigned int *)((char *)&p_p_root->m_address + v18);
     if ( (_DWORD)v19 )
     {
       v20 = &v9[(unsigned int)v19];
       if ( v20 && (*((_QWORD *)v20 + 1) & 0x20000000000i64) != 0 )
       {
-        v21 = LeanRBTree<IWMemAllocatorTableEntry>::SingleRotation(v3, _R14, _R14->m_address < remove_key);
+        v21 = LeanRBTree<IWMemAllocatorTableEntry>::SingleRotation(v3, p_p_root, p_p_root->m_address < remove_key);
         IWMemAllocatorTableEntry::SetChildNode(v7, v4, v21);
         v22 = v7->m_childNodeIndices[v4];
         v9 = g_iwMemAllocatorPool;
-        v4 = v63;
+        v4 = v61;
         if ( v22 )
           v7 = &g_iwMemAllocatorPool[v22];
         else
@@ -484,7 +485,7 @@ LABEL_27:
         {
           *((_QWORD *)v7 + 1) &= ~0x20000000000ui64;
           *((_QWORD *)v26 + 1) |= 0x20000000000ui64;
-          *((_QWORD *)_R14 + 1) |= 0x20000000000ui64;
+          *((_QWORD *)p_p_root + 1) |= 0x20000000000ui64;
           v9 = g_iwMemAllocatorPool;
           goto LABEL_65;
         }
@@ -522,7 +523,7 @@ LABEL_46:
         }
       }
 LABEL_47:
-      *((_QWORD *)_R14 + 1) |= 0x20000000000ui64;
+      *((_QWORD *)p_p_root + 1) |= 0x20000000000ui64;
       v37 = 16i64;
       if ( v32 == v7 )
         v37 = 20i64;
@@ -552,7 +553,7 @@ LABEL_47:
       if ( v46 )
       {
         v3 = this;
-        v4 = v63;
+        v4 = v61;
         *((_QWORD *)&g_iwMemAllocatorPool[v46] + 1) &= ~0x20000000000ui64;
         v9 = g_iwMemAllocatorPool;
       }
@@ -561,54 +562,49 @@ LABEL_47:
         MEMORY[8] &= ~0x20000000000ui64;
         v9 = g_iwMemAllocatorPool;
         v3 = this;
-        v4 = v63;
+        v4 = v61;
       }
     }
   }
-  _R13 = v65;
-  v48 = NULL;
-  if ( v65 )
+  v47 = NULL;
+  if ( v63 )
   {
-    v49 = v65->m_childNodeIndices[0];
-    v50 = *((_QWORD *)v65 + 1);
-    if ( v49 )
-      v51 = &v9[v49];
+    v48 = v63->m_childNodeIndices[0];
+    v49 = *((_QWORD *)v63 + 1);
+    if ( v48 )
+      v50 = &v9[v48];
     else
-      v51 = NULL;
-    v52 = v65->m_childNodeIndices[1];
-    if ( v52 )
-      v53 = &v9[v52];
+      v50 = NULL;
+    v51 = v63->m_childNodeIndices[1];
+    if ( v51 )
+      v52 = &v9[v51];
     else
-      v53 = NULL;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups ymmword ptr [r13+0], ymm0
-    }
-    v48 = _R14;
-    *((_QWORD *)v65 + 1) ^= (v50 ^ *((_QWORD *)v65 + 1)) & 0x20000000000i64;
-    IWMemAllocatorTableEntry::SetChildNode(v65, 0, v51);
-    IWMemAllocatorTableEntry::SetChildNode(v65, 1, v53);
-    v55 = _R14->m_childNodeIndices[0];
-    if ( (_DWORD)v55 )
-      v56 = &g_iwMemAllocatorPool[v55];
+      v52 = NULL;
+    *v63 = *p_p_root;
+    v47 = p_p_root;
+    *((_QWORD *)v63 + 1) ^= (v49 ^ *((_QWORD *)v63 + 1)) & 0x20000000000i64;
+    IWMemAllocatorTableEntry::SetChildNode(v63, 0, v50);
+    IWMemAllocatorTableEntry::SetChildNode(v63, 1, v52);
+    v53 = p_p_root->m_childNodeIndices[0];
+    if ( (_DWORD)v53 )
+      v54 = &g_iwMemAllocatorPool[v53];
     else
-      v56 = NULL;
-    v57 = v56 == NULL;
-    v58 = 16i64;
+      v54 = NULL;
+    v55 = v54 == NULL;
+    v56 = 16i64;
+    if ( v55 )
+      v56 = 20i64;
+    v57 = *(_DWORD *)((char *)&p_p_root->m_address + v56);
     if ( v57 )
-      v58 = 20i64;
-    v59 = *(_DWORD *)((char *)&_R14->m_address + v58);
-    if ( v59 )
+      v58 = &g_iwMemAllocatorPool[v57];
+    else
+      v58 = NULL;
+    v59 = v7->m_childNodeIndices[1];
+    if ( (_DWORD)v59 )
       v60 = &g_iwMemAllocatorPool[v59];
     else
       v60 = NULL;
-    v61 = v7->m_childNodeIndices[1];
-    if ( (_DWORD)v61 )
-      v62 = &g_iwMemAllocatorPool[v61];
-    else
-      v62 = NULL;
-    IWMemAllocatorTableEntry::SetChildNode(v7, v62 == _R14, v60);
+    IWMemAllocatorTableEntry::SetChildNode(v7, v60 == p_p_root, v58);
     v3 = this;
     --this->m_count;
   }
@@ -621,7 +617,7 @@ LABEL_47:
   v3->mp_root = v2;
   if ( v2 )
     *((_QWORD *)v2 + 1) &= ~0x20000000000ui64;
-  return v48;
+  return v47;
 }
 
 /*

@@ -484,51 +484,51 @@ bdObjectStoreStreaming::exitHTTP
 */
 void bdObjectStoreStreaming::exitHTTP(bdObjectStoreStreaming *this)
 {
-  int v3; 
+  int v2; 
+  unsigned int v3; 
   unsigned int v4; 
   unsigned int v5; 
-  unsigned int v6; 
   bdStructBufferSerializable *m_cachedRequest; 
-  bdObjectStoreCompleteUploadSessionsRequest *v8; 
-  bdRemoteTask *v9; 
-  bdObjectStoreStreaming::bdStatus v10; 
-  bdLobbyErrorCode v11; 
-  bdStructBufferTask *v12; 
-  bdObjectStoreStreaming::bdStatus v13; 
-  bdRemoteTask *v14; 
-  bdObjectStoreStreaming::bdStatus v15; 
+  bdObjectStoreCompleteUploadSessionsRequest *v7; 
+  bdRemoteTask *v8; 
+  bdObjectStoreStreaming::bdStatus v9; 
+  bdLobbyErrorCode v10; 
+  bdStructBufferTask *v11; 
+  bdObjectStoreStreaming::bdStatus v12; 
+  bdRemoteTask *v13; 
+  bdObjectStoreStreaming::bdStatus v14; 
   bdObjectStoreMetadata *Metadata; 
-  bdRemoteTask *v17; 
-  bdObjectStoreStreaming::bdStatus v18; 
-  bdRemoteTask *v19; 
-  bdObjectStoreStreaming::bdStatus v20; 
-  bdRemoteTask *v21; 
+  bdRemoteTask *v16; 
+  bdObjectStoreStreaming::bdStatus v17; 
+  bdRemoteTask *v18; 
+  bdObjectStoreStreaming::bdStatus v19; 
+  bdRemoteTask *v20; 
   bdLobbyErrorCode started; 
   bdStructBufferTask *m_ptr; 
-  bdRemoteTask *v24; 
+  bdRemoteTask *v23; 
   bdObjectStoreStreaming::bdStatus m_state; 
-  unsigned int v26; 
-  __int64 v29; 
+  unsigned int v25; 
+  double v26; 
+  __int64 v27; 
   unsigned __int64 ContentLength; 
+  bdRemoteTask *v29; 
+  bdObjectStoreStreaming::bdStatus v30; 
   bdRemoteTask *v31; 
   bdObjectStoreStreaming::bdStatus v32; 
-  bdRemoteTask *v33; 
-  bdObjectStoreStreaming::bdStatus v34; 
-  __int64 v35; 
-  double v36; 
+  __int64 v33; 
   bdReference<bdStructBufferTask> newTask; 
   bdReference<bdStructBufferTask> other; 
-  __int64 v39; 
+  __int64 v36; 
   bdJSONDeserializer json; 
-  bdObjectStoreHTTPHeader v41; 
+  bdObjectStoreHTTPHeader v38; 
 
-  v39 = -2i64;
-  v3 = 0;
-  v4 = this->m_operation - 1;
-  if ( v4 )
+  v36 = -2i64;
+  v2 = 0;
+  v3 = this->m_operation - 1;
+  if ( v3 )
   {
-    v5 = v4 - 1;
-    if ( !v5 )
+    v4 = v3 - 1;
+    if ( !v4 )
     {
       bdObjectStoreStreaming::logUploadProgress(this);
       other.m_ptr = NULL;
@@ -539,107 +539,107 @@ void bdObjectStoreStreaming::exitHTTP(bdObjectStoreStreaming *this)
       if ( other.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&other.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && other.m_ptr )
         ((void (__fastcall *)(bdStructBufferTask *, __int64))other.m_ptr->~bdReferencable)(other.m_ptr, 1i64);
       m_ptr = this->m_remoteTask.m_ptr;
-      v13 = BD_TIMED_OUT;
+      v12 = BD_TIMED_OUT;
       if ( !m_ptr )
-        v13 = BD_MAX_STATUS;
-      v24 = this->m_overallTask.m_ptr;
-      if ( v24->m_errorCode == BD_NO_ERROR )
+        v12 = BD_MAX_STATUS;
+      v23 = this->m_overallTask.m_ptr;
+      if ( v23->m_errorCode == BD_NO_ERROR )
       {
         m_state = this->m_state;
         if ( m_state == BD_PENDING || m_state == BD_TIMED_OUT )
-          v24->m_errorCode = m_ptr->m_errorCode;
+          v23->m_errorCode = m_ptr->m_errorCode;
       }
       if ( !m_ptr )
         this->m_overallTask.m_ptr->m_status = BD_FAILED;
       goto LABEL_58;
     }
-    v6 = v5 - 1;
-    if ( v6 )
+    v5 = v4 - 1;
+    if ( v5 )
     {
-      if ( v6 != 1 )
+      if ( v5 != 1 )
         return;
       bdObjectStoreStreaming::logUploadProgress(this);
       m_cachedRequest = this->m_cachedRequest;
-      v8 = (bdObjectStoreCompleteUploadSessionsRequest *)&m_cachedRequest[-1];
+      v7 = (bdObjectStoreCompleteUploadSessionsRequest *)&m_cachedRequest[-1];
       if ( !m_cachedRequest )
-        v8 = NULL;
-      if ( bdObjectStoreCompleteUploadSessionsRequest::hasMoreObjectsToUpload(v8) )
+        v7 = NULL;
+      if ( bdObjectStoreCompleteUploadSessionsRequest::hasMoreObjectsToUpload(v7) )
       {
-        bdObjectStoreCompleteUploadSessionsRequest::incrementIndex(v8);
-        v9 = this->m_overallTask.m_ptr;
-        if ( v9->m_errorCode == BD_NO_ERROR )
+        bdObjectStoreCompleteUploadSessionsRequest::incrementIndex(v7);
+        v8 = this->m_overallTask.m_ptr;
+        if ( v8->m_errorCode == BD_NO_ERROR )
         {
-          v10 = this->m_state;
-          if ( v10 == BD_PENDING || v10 == BD_TIMED_OUT )
-            v9->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
+          v9 = this->m_state;
+          if ( v9 == BD_PENDING || v9 == BD_TIMED_OUT )
+            v8->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
         }
         this->m_state = BD_PENDING;
         return;
       }
       newTask.m_ptr = NULL;
-      v11 = bdRemoteTaskManager::startStructTask(this->m_remoteTaskManager, &newTask, 0xC1u, 0x18u, this->m_cachedRequest, this->m_cachedResponse, this->m_lobbyService);
-      if ( v11 )
-        bdLogMessage(BD_LOG_WARNING, "warn/", "bdObjectStore", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::postMultipleUpload", 0x224u, "Failed to start task: Error %i", v11);
+      v10 = bdRemoteTaskManager::startStructTask(this->m_remoteTaskManager, &newTask, 0xC1u, 0x18u, this->m_cachedRequest, this->m_cachedResponse, this->m_lobbyService);
+      if ( v10 )
+        bdLogMessage(BD_LOG_WARNING, "warn/", "bdObjectStore", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::postMultipleUpload", 0x224u, "Failed to start task: Error %i", v10);
       bdReference<bdStructBufferTask>::operator=(&this->m_remoteTask, &newTask);
       if ( newTask.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&newTask.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && newTask.m_ptr )
         ((void (__fastcall *)(bdStructBufferTask *, __int64))newTask.m_ptr->~bdReferencable)(newTask.m_ptr, 1i64);
-      v12 = this->m_remoteTask.m_ptr;
-      v13 = BD_TIMED_OUT;
-      if ( !v12 )
-        v13 = BD_MAX_STATUS;
-      v14 = this->m_overallTask.m_ptr;
-      if ( v14->m_errorCode == BD_NO_ERROR )
+      v11 = this->m_remoteTask.m_ptr;
+      v12 = BD_TIMED_OUT;
+      if ( !v11 )
+        v12 = BD_MAX_STATUS;
+      v13 = this->m_overallTask.m_ptr;
+      if ( v13->m_errorCode == BD_NO_ERROR )
       {
-        v15 = this->m_state;
-        if ( v15 == BD_PENDING || v15 == BD_TIMED_OUT )
-          v14->m_errorCode = v12->m_errorCode;
+        v14 = this->m_state;
+        if ( v14 == BD_PENDING || v14 == BD_TIMED_OUT )
+          v13->m_errorCode = v11->m_errorCode;
       }
-      if ( !v12 )
+      if ( !v11 )
       {
         this->m_overallTask.m_ptr->m_status = BD_FAILED;
-        this->m_state = v13;
+        this->m_state = v12;
         return;
       }
 LABEL_58:
-      this->m_state = v13;
+      this->m_state = v12;
       return;
     }
     bdObjectStoreStreaming::logUploadProgress(this);
-    bdObjectStoreHTTPHeader::bdObjectStoreHTTPHeader(&v41);
-    if ( this->m_http->getHeader(this->m_http, "Dw-Objectstore-Metadata", v41.m_value, 4096u) )
+    bdObjectStoreHTTPHeader::bdObjectStoreHTTPHeader(&v38);
+    if ( this->m_http->getHeader(this->m_http, "Dw-Objectstore-Metadata", v38.m_value, 4096u) )
     {
-      bdJSONDeserializer::bdJSONDeserializer(&json, v41.m_value);
+      bdJSONDeserializer::bdJSONDeserializer(&json, v38.m_value);
       Metadata = bdObjectStoreUploadUserSummaryObjectResponse::getMetadata((bdObjectStoreUploadUserSummaryObjectResponse *)this->m_cachedResponse);
       if ( bdObjectStoreMetadata::deserializeFromJSON(Metadata, &json, USER_SUMMARY_OWNER_TYPE) )
       {
-        v19 = this->m_overallTask.m_ptr;
-        if ( v19->m_errorCode == BD_NO_ERROR )
+        v18 = this->m_overallTask.m_ptr;
+        if ( v18->m_errorCode == BD_NO_ERROR )
         {
-          v20 = this->m_state;
-          if ( v20 == BD_PENDING || v20 == BD_TIMED_OUT )
+          v19 = this->m_state;
+          if ( v19 == BD_PENDING || v19 == BD_TIMED_OUT )
           {
-            v19->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
-            v19 = this->m_overallTask.m_ptr;
+            v18->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
+            v18 = this->m_overallTask.m_ptr;
           }
         }
-        LOBYTE(v3) = v19->m_errorCode != BD_NO_ERROR;
-        v19->m_status = v3 + 2;
+        LOBYTE(v2) = v18->m_errorCode != BD_NO_ERROR;
+        v18->m_status = v2 + 2;
         this->m_state = BD_CANCELLED;
       }
       else
       {
-        bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdObjectStore/bdObjectStoreStreaming", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::exitHTTP", 0x1F0u, "Error deserializing metadata header : [%s]", v41.m_value);
-        v17 = this->m_overallTask.m_ptr;
-        if ( v17->m_errorCode == BD_NO_ERROR )
+        bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdObjectStore/bdObjectStoreStreaming", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::exitHTTP", 0x1F0u, "Error deserializing metadata header : [%s]", v38.m_value);
+        v16 = this->m_overallTask.m_ptr;
+        if ( v16->m_errorCode == BD_NO_ERROR )
         {
-          v18 = this->m_state;
-          if ( v18 == BD_PENDING || v18 == BD_TIMED_OUT )
+          v17 = this->m_state;
+          if ( v17 == BD_PENDING || v17 == BD_TIMED_OUT )
           {
-            v17->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
-            v17 = this->m_overallTask.m_ptr;
+            v16->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
+            v16 = this->m_overallTask.m_ptr;
           }
         }
-        v17->m_status = BD_FAILED;
+        v16->m_status = BD_FAILED;
         this->m_state = BD_MAX_STATUS;
       }
       bdJSONDeserializer::~bdJSONDeserializer(&json);
@@ -647,52 +647,27 @@ LABEL_58:
     else
     {
       bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdObjectStore/bdObjectStoreStreaming", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::exitHTTP", 0x1FAu, "Error getting metadata header");
-      v21 = this->m_overallTask.m_ptr;
-      if ( v21->m_errorCode == BD_NO_ERROR )
+      v20 = this->m_overallTask.m_ptr;
+      if ( v20->m_errorCode == BD_NO_ERROR )
       {
-        v21->m_errorCode = BD_OBJECTSTORE_HTTP_ERROR;
-        v21 = this->m_overallTask.m_ptr;
+        v20->m_errorCode = BD_OBJECTSTORE_HTTP_ERROR;
+        v20 = this->m_overallTask.m_ptr;
       }
-      v21->m_status = BD_FAILED;
+      v20->m_status = BD_FAILED;
       this->m_state = BD_MAX_STATUS;
     }
-    bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v41.__vftable + 2));
-    bdReferencable::~bdReferencable((bdReferencable *)&v41.gap1074[4]);
+    bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v38.__vftable + 2));
+    bdReferencable::~bdReferencable((bdReferencable *)&v38.gap1074[4]);
   }
   else
   {
-    v26 = this->m_http->getDownloadProgress(this->m_http) >> 10;
-    *(double *)&_XMM0 = ((double (__fastcall *)(bdHTTP *))this->m_http->getDownloadRate)(this->m_http);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3a800000
-      vcvtss2sd xmm2, xmm1, xmm1
-      vmovsd  [rsp+1138h+var_10F8], xmm2
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdObjectStore/bdObjectStoreStreaming", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::exitHTTP", 0x1B0u, "Transferred: %d KB @ %0.2f KB/sec", v26, v36);
+    v25 = this->m_http->getDownloadProgress(this->m_http) >> 10;
+    v26 = ((double (__fastcall *)(bdHTTP *))this->m_http->getDownloadRate)(this->m_http);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdObjectStore/bdObjectStoreStreaming", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::exitHTTP", 0x1B0u, "Transferred: %d KB @ %0.2f KB/sec", v25, (float)(*(float *)&v26 * 0.0009765625));
     bdLogMessage(BD_LOG_INFO, "info/", "bdObjectStore/bdObjectStoreStreaming", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::exitHTTP", 0x1B2u, "Completed download of object");
-    v29 = this->m_http->getDownloadProgress(this->m_http);
-    if ( v29 == bdObjectStoreMetadata::getContentLength((bdObjectStoreMetadata *)this->m_metadata) )
+    v27 = this->m_http->getDownloadProgress(this->m_http);
+    if ( v27 == bdObjectStoreMetadata::getContentLength((bdObjectStoreMetadata *)this->m_metadata) )
     {
-      v33 = this->m_overallTask.m_ptr;
-      if ( v33->m_errorCode == BD_NO_ERROR )
-      {
-        v34 = this->m_state;
-        if ( v34 == BD_PENDING || v34 == BD_TIMED_OUT )
-        {
-          v33->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
-          v33 = this->m_overallTask.m_ptr;
-        }
-      }
-      LOBYTE(v3) = v33->m_errorCode != BD_NO_ERROR;
-      v33->m_status = v3 + 2;
-      this->m_state = BD_CANCELLED;
-    }
-    else
-    {
-      ContentLength = bdObjectStoreMetadata::getContentLength((bdObjectStoreMetadata *)this->m_metadata);
-      LODWORD(v35) = this->m_http->getDownloadProgress(this->m_http);
-      bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdObjectStore/bdObjectStoreStreaming", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::exitHTTP", 0x1B6u, "HTTP GET failed, received %d of %d bytes", v35, ContentLength);
       v31 = this->m_overallTask.m_ptr;
       if ( v31->m_errorCode == BD_NO_ERROR )
       {
@@ -703,7 +678,26 @@ LABEL_58:
           v31 = this->m_overallTask.m_ptr;
         }
       }
-      v31->m_status = BD_FAILED;
+      LOBYTE(v2) = v31->m_errorCode != BD_NO_ERROR;
+      v31->m_status = v2 + 2;
+      this->m_state = BD_CANCELLED;
+    }
+    else
+    {
+      ContentLength = bdObjectStoreMetadata::getContentLength((bdObjectStoreMetadata *)this->m_metadata);
+      LODWORD(v33) = this->m_http->getDownloadProgress(this->m_http);
+      bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdObjectStore/bdObjectStoreStreaming", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::exitHTTP", 0x1B6u, "HTTP GET failed, received %d of %d bytes", v33, ContentLength);
+      v29 = this->m_overallTask.m_ptr;
+      if ( v29->m_errorCode == BD_NO_ERROR )
+      {
+        v30 = this->m_state;
+        if ( v30 == BD_PENDING || v30 == BD_TIMED_OUT )
+        {
+          v29->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
+          v29 = this->m_overallTask.m_ptr;
+        }
+      }
+      v29->m_status = BD_FAILED;
       this->m_state = BD_MAX_STATUS;
     }
   }
@@ -1135,21 +1129,13 @@ bdObjectStoreStreaming::logUploadProgress
 */
 void bdObjectStoreStreaming::logUploadProgress(bdObjectStoreStreaming *this)
 {
-  unsigned int v7; 
-  double v8; 
+  double v2; 
+  unsigned int v3; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  *(double *)&_XMM0 = ((double (__fastcall *)(bdHTTP *))this->m_http->getUploadRate)(this->m_http);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@3a800000
-    vcvtss2sd xmm6, xmm1, xmm1
-    vmovsd  [rsp+68h+var_28], xmm6
-  }
-  v7 = this->m_http->getUploadProgress(this->m_http);
-  bdLogMessage(BD_LOG_INFO, "info/", "bdObjectStore/bdObjectStoreStreaming", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::logUploadProgress", 0x1A3u, "Uploaded %d @ %.2f KB/sec", v7, v8);
+  v2 = ((double (__fastcall *)(bdHTTP *))this->m_http->getUploadRate)(this->m_http);
+  v3 = this->m_http->getUploadProgress(this->m_http);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdObjectStore/bdObjectStoreStreaming", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::logUploadProgress", 0x1A3u, "Uploaded %d @ %.2f KB/sec", v3, (float)(*(float *)&v2 * 0.0009765625));
   bdLogMessage(BD_LOG_INFO, "info/", "bdObjectStore/bdObjectStoreStreaming", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdobjectstore\\bdobjectstorestreaming.cpp", "bdObjectStoreStreaming::logUploadProgress", 0x1A4u, "Completed upload of object.");
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
 }
 
 /*
@@ -1536,57 +1522,56 @@ bdObjectStoreStreaming::start
 */
 bdReference<bdRemoteTask> *bdObjectStoreStreaming::start(bdObjectStoreStreaming *this, bdReference<bdRemoteTask> *result, bdObjectStoreStreaming::bdObjectStoreOperation operation)
 {
+  bdRemoteTask *v5; 
   bdRemoteTask *v6; 
   bdRemoteTask *v7; 
-  bdRemoteTask *v8; 
   bdRemoteTask *m_ptr; 
+  bdRemoteTask *v9; 
   bdRemoteTask *v10; 
-  bdRemoteTask *v12; 
   bdObjectStoreStreaming::bdStatus m_state; 
 
   this->m_operation = operation;
-  v6 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
-  if ( v6 )
+  v5 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
+  if ( v5 )
   {
-    bdRemoteTask::bdRemoteTask(v6);
-    v8 = v7;
+    bdRemoteTask::bdRemoteTask(v5);
+    v7 = v6;
   }
   else
   {
-    v8 = NULL;
+    v7 = NULL;
   }
   m_ptr = this->m_overallTask.m_ptr;
   if ( m_ptr )
   {
     if ( _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
     {
-      v10 = this->m_overallTask.m_ptr;
-      if ( v10 )
-        ((void (__fastcall *)(bdRemoteTask *, __int64))v10->~bdReferencable)(v10, 1i64);
+      v9 = this->m_overallTask.m_ptr;
+      if ( v9 )
+        ((void (__fastcall *)(bdRemoteTask *, __int64))v9->~bdReferencable)(v9, 1i64);
     }
   }
-  this->m_overallTask.m_ptr = v8;
-  if ( v8 )
+  this->m_overallTask.m_ptr = v7;
+  if ( v7 )
   {
-    _InterlockedExchangeAdd((volatile signed __int32 *)&v8->m_refCount, 1u);
-    v8 = this->m_overallTask.m_ptr;
+    _InterlockedExchangeAdd((volatile signed __int32 *)&v7->m_refCount, 1u);
+    v7 = this->m_overallTask.m_ptr;
   }
-  __asm { vxorps  xmm1, xmm1, xmm1 }
-  ((void (__fastcall *)(bdRemoteTask *))v8->start)(v8);
-  v12 = this->m_overallTask.m_ptr;
-  if ( v12->m_errorCode == BD_NO_ERROR )
+  ((void (__fastcall *)(bdRemoteTask *))v7->start)(v7);
+  v10 = this->m_overallTask.m_ptr;
+  if ( v10->m_errorCode == BD_NO_ERROR )
   {
     m_state = this->m_state;
     if ( m_state == BD_PENDING || m_state == BD_TIMED_OUT )
     {
-      v12->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
-      v12 = this->m_overallTask.m_ptr;
+      v10->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
+      v10 = this->m_overallTask.m_ptr;
     }
   }
   this->m_state = BD_PENDING;
-  result->m_ptr = v12;
-  if ( v12 )
-    _InterlockedExchangeAdd((volatile signed __int32 *)&v12->m_refCount, 1u);
+  result->m_ptr = v10;
+  if ( v10 )
+    _InterlockedExchangeAdd((volatile signed __int32 *)&v10->m_refCount, 1u);
   return result;
 }
 

@@ -137,265 +137,60 @@ FX_GetBoneOrientation
 */
 char FX_GetBoneOrientation(LocalClientNum_t localClientNum, int dobjHandle, int boneIndex, orientation_t *orient)
 {
-  const char *v20; 
-  int v21; 
-  const char *v22; 
+  const char *v8; 
+  int v9; 
+  const char *v10; 
   const DObj *ClientDObj; 
-  const DObj *v24; 
+  const DObj *v12; 
   const cpose_t *Pose; 
-  int v39; 
-  int v40; 
-  int v41; 
-  int v42; 
-  int v43; 
-  int v44; 
-  int v45; 
-  int v46; 
-  int v47; 
-  int v48; 
-  int v49; 
-  int v50; 
-  int v51; 
-  int v52; 
-  int v53; 
-  int v54; 
-  int v55; 
-  int v56; 
-  int v57; 
-  int v58; 
-  int v59; 
-  int v60; 
-  int v61; 
-  int v62; 
 
-  _RDI = orient;
   if ( (unsigned int)dobjHandle >= 0x9E5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 221, ASSERT_TYPE_ASSERT, "(unsigned)( dobjHandle ) < (unsigned)( ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", "dobjHandle doesn't index CLIENT_DOBJ_HANDLE_MAX\n\t%i not in [0, %i)", dobjHandle, 2533) )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 222, ASSERT_TYPE_ASSERT, "(orient)", (const char *)&queryFormat, "orient") )
+  if ( !orient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 222, ASSERT_TYPE_ASSERT, "(orient)", (const char *)&queryFormat, "orient") )
     __debugbreak();
   if ( Com_GameMode_SupportsFeature(WEAPON_DETONATING) || (unsigned int)dobjHandle >= 0x7FE || (CG_GetEntity(localClientNum, dobjHandle)->flags & 1) != 0 && CG_Entity_CanUseDObj(localClientNum, dobjHandle) )
   {
     if ( boneIndex < 0 )
     {
-      CG_Utils_GetDObjOrientation(localClientNum, dobjHandle, &_RDI->axis, &_RDI->origin);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+0Ch]
-        vmovss  [rsp+58h+arg_8], xmm0
-      }
-      if ( (v39 & 0x7F800000) == 2139095040 )
-        goto LABEL_61;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+10h]
-        vmovss  [rsp+58h+arg_8], xmm0
-      }
-      if ( (v40 & 0x7F800000) == 2139095040 )
-        goto LABEL_61;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+14h]
-        vmovss  [rsp+58h+arg_8], xmm0
-      }
-      if ( (v41 & 0x7F800000) == 2139095040 )
-      {
-LABEL_61:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 232, ASSERT_TYPE_SANITY, "( !IS_NAN( ( orient->axis[0] )[0] ) && !IS_NAN( ( orient->axis[0] )[1] ) && !IS_NAN( ( orient->axis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( orient->axis[0] )[0] ) && !IS_NAN( ( orient->axis[0] )[1] ) && !IS_NAN( ( orient->axis[0] )[2] )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+18h]
-        vmovss  [rsp+58h+arg_8], xmm0
-      }
-      if ( (v42 & 0x7F800000) == 2139095040 )
-        goto LABEL_62;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+1Ch]
-        vmovss  [rsp+58h+arg_8], xmm0
-      }
-      if ( (v43 & 0x7F800000) == 2139095040 )
-        goto LABEL_62;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+20h]
-        vmovss  [rsp+58h+arg_8], xmm0
-      }
-      if ( (v44 & 0x7F800000) == 2139095040 )
-      {
-LABEL_62:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 233, ASSERT_TYPE_SANITY, "( !IS_NAN( ( orient->axis[1] )[0] ) && !IS_NAN( ( orient->axis[1] )[1] ) && !IS_NAN( ( orient->axis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( orient->axis[1] )[0] ) && !IS_NAN( ( orient->axis[1] )[1] ) && !IS_NAN( ( orient->axis[1] )[2] )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+24h]
-        vmovss  [rsp+58h+arg_8], xmm0
-      }
-      if ( (v45 & 0x7F800000) == 2139095040 )
-        goto LABEL_63;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vmovss  [rsp+58h+arg_8], xmm0
-      }
-      if ( (v46 & 0x7F800000) == 2139095040 )
-        goto LABEL_63;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+2Ch]
-        vmovss  [rsp+58h+arg_8], xmm0
-      }
-      if ( (v47 & 0x7F800000) == 2139095040 )
-      {
-LABEL_63:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 234, ASSERT_TYPE_SANITY, "( !IS_NAN( ( orient->axis[2] )[0] ) && !IS_NAN( ( orient->axis[2] )[1] ) && !IS_NAN( ( orient->axis[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( orient->axis[2] )[0] ) && !IS_NAN( ( orient->axis[2] )[1] ) && !IS_NAN( ( orient->axis[2] )[2] )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]
-        vmovss  [rsp+58h+arg_8], xmm0
-      }
-      if ( (v48 & 0x7F800000) != 2139095040 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+4]
-          vmovss  [rsp+58h+arg_8], xmm0
-        }
-        if ( (v49 & 0x7F800000) != 2139095040 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+8]
-            vmovss  [rsp+58h+arg_8], xmm0
-          }
-          if ( (v50 & 0x7F800000) != 2139095040 )
-            return 1;
-        }
-      }
-      v20 = "!IS_NAN( ( orient->origin )[0] ) && !IS_NAN( ( orient->origin )[1] ) && !IS_NAN( ( orient->origin )[2] )";
-      v21 = 235;
-      v22 = "( !IS_NAN( ( orient->origin )[0] ) && !IS_NAN( ( orient->origin )[1] ) && !IS_NAN( ( orient->origin )[2] ) )";
+      CG_Utils_GetDObjOrientation(localClientNum, dobjHandle, &orient->axis, &orient->origin);
+      if ( ((LODWORD(orient->axis.m[0].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(orient->axis.m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(orient->axis.m[0].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 232, ASSERT_TYPE_SANITY, "( !IS_NAN( ( orient->axis[0] )[0] ) && !IS_NAN( ( orient->axis[0] )[1] ) && !IS_NAN( ( orient->axis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( orient->axis[0] )[0] ) && !IS_NAN( ( orient->axis[0] )[1] ) && !IS_NAN( ( orient->axis[0] )[2] )") )
+        __debugbreak();
+      if ( ((LODWORD(orient->axis.m[1].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(orient->axis.m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(orient->axis.m[1].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 233, ASSERT_TYPE_SANITY, "( !IS_NAN( ( orient->axis[1] )[0] ) && !IS_NAN( ( orient->axis[1] )[1] ) && !IS_NAN( ( orient->axis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( orient->axis[1] )[0] ) && !IS_NAN( ( orient->axis[1] )[1] ) && !IS_NAN( ( orient->axis[1] )[2] )") )
+        __debugbreak();
+      if ( ((LODWORD(orient->axis.m[2].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(orient->axis.m[2].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(orient->axis.m[2].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 234, ASSERT_TYPE_SANITY, "( !IS_NAN( ( orient->axis[2] )[0] ) && !IS_NAN( ( orient->axis[2] )[1] ) && !IS_NAN( ( orient->axis[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( orient->axis[2] )[0] ) && !IS_NAN( ( orient->axis[2] )[1] ) && !IS_NAN( ( orient->axis[2] )[2] )") )
+        __debugbreak();
+      if ( (LODWORD(orient->origin.v[0]) & 0x7F800000) != 2139095040 && (LODWORD(orient->origin.v[1]) & 0x7F800000) != 2139095040 && (LODWORD(orient->origin.v[2]) & 0x7F800000) != 2139095040 )
+        return 1;
+      v8 = "!IS_NAN( ( orient->origin )[0] ) && !IS_NAN( ( orient->origin )[1] ) && !IS_NAN( ( orient->origin )[2] )";
+      v9 = 235;
+      v10 = "( !IS_NAN( ( orient->origin )[0] ) && !IS_NAN( ( orient->origin )[1] ) && !IS_NAN( ( orient->origin )[2] ) )";
 LABEL_55:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", v21, ASSERT_TYPE_SANITY, v22, (const char *)&queryFormat, v20) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", v9, ASSERT_TYPE_SANITY, v10, (const char *)&queryFormat, v8) )
         __debugbreak();
       return 1;
     }
     if ( !Mayhem_IsMayhem(dobjHandle) || !Mayhem_IsHidden(localClientNum, dobjHandle) )
     {
       ClientDObj = Com_GetClientDObj(dobjHandle, localClientNum);
-      v24 = ClientDObj;
+      v12 = ClientDObj;
       if ( ClientDObj )
       {
         if ( DObjIsValidBoneIndex(ClientDObj, boneIndex) )
         {
           Pose = CG_GetPose(localClientNum, dobjHandle);
-          if ( CG_DObjGetWorldBoneMatrix(Pose, v24, boneIndex, &_RDI->axis, &_RDI->origin) )
+          if ( CG_DObjGetWorldBoneMatrix(Pose, v12, boneIndex, &orient->axis, &orient->origin) )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi]
-              vmovss  [rsp+58h+arg_8], xmm0
-            }
-            if ( (v51 & 0x7F800000) == 2139095040 )
-              goto LABEL_64;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+4]
-              vmovss  [rsp+58h+arg_8], xmm0
-            }
-            if ( (v52 & 0x7F800000) == 2139095040 )
-              goto LABEL_64;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+8]
-              vmovss  [rsp+58h+arg_8], xmm0
-            }
-            if ( (v53 & 0x7F800000) == 2139095040 )
-            {
-LABEL_64:
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 270, ASSERT_TYPE_SANITY, "( !IS_NAN( ( orient->origin )[0] ) && !IS_NAN( ( orient->origin )[1] ) && !IS_NAN( ( orient->origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( orient->origin )[0] ) && !IS_NAN( ( orient->origin )[1] ) && !IS_NAN( ( orient->origin )[2] )") )
-                __debugbreak();
-            }
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+0Ch]
-              vmovss  [rsp+58h+arg_8], xmm0
-            }
-            if ( (v54 & 0x7F800000) == 2139095040 )
-              goto LABEL_65;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+10h]
-              vmovss  [rsp+58h+arg_8], xmm0
-            }
-            if ( (v55 & 0x7F800000) == 2139095040 )
-              goto LABEL_65;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+14h]
-              vmovss  [rsp+58h+arg_8], xmm0
-            }
-            if ( (v56 & 0x7F800000) == 2139095040 )
-            {
-LABEL_65:
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 271, ASSERT_TYPE_SANITY, "( !IS_NAN( ( orient->axis[0] )[0] ) && !IS_NAN( ( orient->axis[0] )[1] ) && !IS_NAN( ( orient->axis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( orient->axis[0] )[0] ) && !IS_NAN( ( orient->axis[0] )[1] ) && !IS_NAN( ( orient->axis[0] )[2] )") )
-                __debugbreak();
-            }
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+18h]
-              vmovss  [rsp+58h+arg_8], xmm0
-            }
-            if ( (v57 & 0x7F800000) == 2139095040 )
-              goto LABEL_66;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+1Ch]
-              vmovss  [rsp+58h+arg_8], xmm0
-            }
-            if ( (v58 & 0x7F800000) == 2139095040 )
-              goto LABEL_66;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+20h]
-              vmovss  [rsp+58h+arg_8], xmm0
-            }
-            if ( (v59 & 0x7F800000) == 2139095040 )
-            {
-LABEL_66:
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 272, ASSERT_TYPE_SANITY, "( !IS_NAN( ( orient->axis[1] )[0] ) && !IS_NAN( ( orient->axis[1] )[1] ) && !IS_NAN( ( orient->axis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( orient->axis[1] )[0] ) && !IS_NAN( ( orient->axis[1] )[1] ) && !IS_NAN( ( orient->axis[1] )[2] )") )
-                __debugbreak();
-            }
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+24h]
-              vmovss  [rsp+58h+arg_8], xmm0
-            }
-            if ( (v60 & 0x7F800000) != 2139095040 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rdi+28h]
-                vmovss  [rsp+58h+arg_8], xmm0
-              }
-              if ( (v61 & 0x7F800000) != 2139095040 )
-              {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rdi+2Ch]
-                  vmovss  [rsp+58h+arg_8], xmm0
-                }
-                if ( (v62 & 0x7F800000) != 2139095040 )
-                  return 1;
-              }
-            }
-            v20 = "!IS_NAN( ( orient->axis[2] )[0] ) && !IS_NAN( ( orient->axis[2] )[1] ) && !IS_NAN( ( orient->axis[2] )[2] )";
-            v21 = 273;
-            v22 = "( !IS_NAN( ( orient->axis[2] )[0] ) && !IS_NAN( ( orient->axis[2] )[1] ) && !IS_NAN( ( orient->axis[2] )[2] ) )";
+            if ( ((LODWORD(orient->origin.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(orient->origin.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(orient->origin.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 270, ASSERT_TYPE_SANITY, "( !IS_NAN( ( orient->origin )[0] ) && !IS_NAN( ( orient->origin )[1] ) && !IS_NAN( ( orient->origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( orient->origin )[0] ) && !IS_NAN( ( orient->origin )[1] ) && !IS_NAN( ( orient->origin )[2] )") )
+              __debugbreak();
+            if ( ((LODWORD(orient->axis.m[0].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(orient->axis.m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(orient->axis.m[0].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 271, ASSERT_TYPE_SANITY, "( !IS_NAN( ( orient->axis[0] )[0] ) && !IS_NAN( ( orient->axis[0] )[1] ) && !IS_NAN( ( orient->axis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( orient->axis[0] )[0] ) && !IS_NAN( ( orient->axis[0] )[1] ) && !IS_NAN( ( orient->axis[0] )[2] )") )
+              __debugbreak();
+            if ( ((LODWORD(orient->axis.m[1].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(orient->axis.m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(orient->axis.m[1].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 272, ASSERT_TYPE_SANITY, "( !IS_NAN( ( orient->axis[1] )[0] ) && !IS_NAN( ( orient->axis[1] )[1] ) && !IS_NAN( ( orient->axis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( orient->axis[1] )[0] ) && !IS_NAN( ( orient->axis[1] )[1] ) && !IS_NAN( ( orient->axis[1] )[2] )") )
+              __debugbreak();
+            if ( (LODWORD(orient->axis.m[2].v[0]) & 0x7F800000) != 2139095040 && (LODWORD(orient->axis.m[2].v[1]) & 0x7F800000) != 2139095040 && (LODWORD(orient->axis.m[2].v[2]) & 0x7F800000) != 2139095040 )
+              return 1;
+            v8 = "!IS_NAN( ( orient->axis[2] )[0] ) && !IS_NAN( ( orient->axis[2] )[1] ) && !IS_NAN( ( orient->axis[2] )[2] )";
+            v9 = 273;
+            v10 = "( !IS_NAN( ( orient->axis[2] )[0] ) && !IS_NAN( ( orient->axis[2] )[1] ) && !IS_NAN( ( orient->axis[2] )[2] ) )";
             goto LABEL_55;
           }
         }
@@ -485,18 +280,8 @@ void FX_GetMultipleBoneOrientations(LocalClientNum_t localClientNum, int dobjHan
   __int64 i; 
   const DObj *ClientDObj; 
   const cpose_t *Pose; 
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
-  int v35; 
-  int v36; 
-  int v37; 
-  int v38; 
-  int v39; 
-  int v40; 
-  int v41; 
-  int v42; 
+  float *v16; 
+  _DWORD *v17; 
 
   v6 = boneCount;
   if ( (unsigned int)dobjHandle >= 0x9E5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 154, ASSERT_TYPE_ASSERT, "(unsigned)( dobjHandle ) < (unsigned)( ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", "dobjHandle doesn't index CLIENT_DOBJ_HANDLE_MAX\n\t%i not in [0, %i)", dobjHandle, 2533) )
@@ -543,112 +328,20 @@ void FX_GetMultipleBoneOrientations(LocalClientNum_t localClientNum, int dobjHan
   CG_DObjGetWorldBoneMatrices(Pose, ClientDObj, v6, boneIndices, outTagMatrices, v10);
   if ( v12 > 0 )
   {
-    _RBX = &outTagMatrices->m[0].v[2];
-    _RDI = &v10->v[2];
+    v16 = &outTagMatrices->m[0].v[2];
+    v17 = (_DWORD *)&v10->v[2];
     do
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi-8]
-        vmovss  [rsp+68h+arg_10], xmm0
-      }
-      if ( (v31 & 0x7F800000) == 2139095040 )
-        goto LABEL_63;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi-4]
-        vmovss  [rsp+68h+arg_10], xmm0
-      }
-      if ( (v32 & 0x7F800000) == 2139095040 )
-        goto LABEL_63;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]
-        vmovss  [rsp+68h+arg_10], xmm0
-      }
-      if ( (v33 & 0x7F800000) == 2139095040 )
-      {
-LABEL_63:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 187, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outOrigins[i] )[0] ) && !IS_NAN( ( outOrigins[i] )[1] ) && !IS_NAN( ( outOrigins[i] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outOrigins[i] )[0] ) && !IS_NAN( ( outOrigins[i] )[1] ) && !IS_NAN( ( outOrigins[i] )[2] )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx-8]
-        vmovss  [rsp+68h+arg_10], xmm0
-      }
-      if ( (v34 & 0x7F800000) == 2139095040 )
-        goto LABEL_64;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx-4]
-        vmovss  [rsp+68h+arg_10], xmm0
-      }
-      if ( (v35 & 0x7F800000) == 2139095040 )
-        goto LABEL_64;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  [rsp+68h+arg_10], xmm0
-      }
-      if ( (v36 & 0x7F800000) == 2139095040 )
-      {
-LABEL_64:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outTagMatrices[i][0] )[0] ) && !IS_NAN( ( outTagMatrices[i][0] )[1] ) && !IS_NAN( ( outTagMatrices[i][0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outTagMatrices[i][0] )[0] ) && !IS_NAN( ( outTagMatrices[i][0] )[1] ) && !IS_NAN( ( outTagMatrices[i][0] )[2] )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+4]
-        vmovss  [rsp+68h+arg_10], xmm0
-      }
-      if ( (v37 & 0x7F800000) == 2139095040 )
-        goto LABEL_65;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+8]
-        vmovss  [rsp+68h+arg_10], xmm0
-      }
-      if ( (v38 & 0x7F800000) == 2139095040 )
-        goto LABEL_65;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+0Ch]
-        vmovss  [rsp+68h+arg_10], xmm0
-      }
-      if ( (v39 & 0x7F800000) == 2139095040 )
-      {
-LABEL_65:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 189, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outTagMatrices[i][1] )[0] ) && !IS_NAN( ( outTagMatrices[i][1] )[1] ) && !IS_NAN( ( outTagMatrices[i][1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outTagMatrices[i][1] )[0] ) && !IS_NAN( ( outTagMatrices[i][1] )[1] ) && !IS_NAN( ( outTagMatrices[i][1] )[2] )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+10h]
-        vmovss  [rsp+68h+arg_10], xmm0
-      }
-      if ( (v40 & 0x7F800000) == 2139095040 )
-        goto LABEL_66;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+14h]
-        vmovss  [rsp+68h+arg_10], xmm0
-      }
-      if ( (v41 & 0x7F800000) == 2139095040 )
-        goto LABEL_66;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+18h]
-        vmovss  [rsp+68h+arg_10], xmm0
-      }
-      if ( (v42 & 0x7F800000) == 2139095040 )
-      {
-LABEL_66:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 190, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outTagMatrices[i][2] )[0] ) && !IS_NAN( ( outTagMatrices[i][2] )[1] ) && !IS_NAN( ( outTagMatrices[i][2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outTagMatrices[i][2] )[0] ) && !IS_NAN( ( outTagMatrices[i][2] )[1] ) && !IS_NAN( ( outTagMatrices[i][2] )[2] )") )
-          __debugbreak();
-      }
-      _RDI += 3;
-      _RBX += 9;
+      if ( ((*(v17 - 2) & 0x7F800000) == 2139095040 || (*(v17 - 1) & 0x7F800000) == 2139095040 || (*v17 & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 187, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outOrigins[i] )[0] ) && !IS_NAN( ( outOrigins[i] )[1] ) && !IS_NAN( ( outOrigins[i] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outOrigins[i] )[0] ) && !IS_NAN( ( outOrigins[i] )[1] ) && !IS_NAN( ( outOrigins[i] )[2] )") )
+        __debugbreak();
+      if ( ((*(_DWORD *)(v16 - 2) & 0x7F800000) == 2139095040 || (*(_DWORD *)(v16 - 1) & 0x7F800000) == 2139095040 || (*(_DWORD *)v16 & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outTagMatrices[i][0] )[0] ) && !IS_NAN( ( outTagMatrices[i][0] )[1] ) && !IS_NAN( ( outTagMatrices[i][0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outTagMatrices[i][0] )[0] ) && !IS_NAN( ( outTagMatrices[i][0] )[1] ) && !IS_NAN( ( outTagMatrices[i][0] )[2] )") )
+        __debugbreak();
+      if ( (((_DWORD)v16[1] & 0x7F800000) == 2139095040 || ((_DWORD)v16[2] & 0x7F800000) == 2139095040 || ((_DWORD)v16[3] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 189, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outTagMatrices[i][1] )[0] ) && !IS_NAN( ( outTagMatrices[i][1] )[1] ) && !IS_NAN( ( outTagMatrices[i][1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outTagMatrices[i][1] )[0] ) && !IS_NAN( ( outTagMatrices[i][1] )[1] ) && !IS_NAN( ( outTagMatrices[i][1] )[2] )") )
+        __debugbreak();
+      if ( (((_DWORD)v16[4] & 0x7F800000) == 2139095040 || ((_DWORD)v16[5] & 0x7F800000) == 2139095040 || ((_DWORD)v16[6] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_system_api.cpp", 190, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outTagMatrices[i][2] )[0] ) && !IS_NAN( ( outTagMatrices[i][2] )[1] ) && !IS_NAN( ( outTagMatrices[i][2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outTagMatrices[i][2] )[0] ) && !IS_NAN( ( outTagMatrices[i][2] )[1] ) && !IS_NAN( ( outTagMatrices[i][2] )[2] )") )
+        __debugbreak();
+      v17 += 3;
+      v16 += 9;
       --v12;
     }
     while ( v12 );

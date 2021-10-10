@@ -369,543 +369,283 @@ G_VehicleSP_EntInfo
 */
 void G_VehicleSP_EntInfo(gentity_s *self, const vec3_t *source)
 {
+  float v4; 
+  float v5; 
+  float v6; 
+  const dvar_t *v7; 
+  float v8; 
+  float v9; 
+  const dvar_t *v10; 
+  Vehicle *vehicle; 
   const VehicleDef *ServerDef; 
-  const dvar_t *v25; 
-  const VehicleDef *v26; 
-  int v28; 
-  float *v29; 
-  bool v30; 
-  char v46; 
-  bool v55; 
-  const vec4_t *v67; 
+  const dvar_t *v13; 
+  const VehicleDef *v14; 
+  int v15; 
+  float *v16; 
+  bool v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  bool v25; 
+  float v26; 
+  const vec4_t *v27; 
+  float v28; 
+  float v29; 
   int number; 
-  __int64 v81; 
-  __int64 v82; 
-  const dvar_t *v83; 
-  const char *v108; 
-  const char *v131; 
-  const char *v156; 
-  const char *v166; 
-  const char *v176; 
-  const char *v182; 
-  const char *v184; 
-  const char *v194; 
-  const char *v204; 
-  const char *v214; 
-  const char *v224; 
-  const char *v237; 
-  char *fmt; 
+  __int64 v31; 
+  __int64 v32; 
+  const dvar_t *v33; 
+  double EntInfoScale; 
+  float v35; 
+  float v36; 
+  float v37; 
+  const char *v38; 
+  float manualDecel; 
+  float v40; 
+  const char *v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  const char *v48; 
+  const char *v49; 
+  const char *v50; 
+  const char *v51; 
+  const char *v52; 
+  const char *v53; 
+  const char *v54; 
+  const char *v55; 
+  const char *v56; 
+  const char *v57; 
   __int64 duration; 
-  __int64 v249; 
+  __int64 v59; 
   vec3_t center; 
   vec3_t end; 
   vec3_t start; 
   vec3_t forward; 
   vec3_t right; 
   vec3_t up; 
-  char v258; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  _R15 = self;
   misc_EntInfo(self, source);
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 577, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
+  if ( !self && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 577, ASSERT_TYPE_ASSERT, "(self)", (const char *)&queryFormat, "self") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+130h]
-    vsubss  xmm3, xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [r15+134h]
-    vsubss  xmm2, xmm1, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [r15+138h]
-    vsubss  xmm4, xmm0, dword ptr [rbx+8]
-  }
-  _RBX = DVARFLT_g_entinfo_maxdist;
-  __asm
-  {
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm8, xmm2, xmm2
-  }
+  v4 = self->r.currentOrigin.v[0] - source->v[0];
+  v5 = self->r.currentOrigin.v[1] - source->v[1];
+  v6 = self->r.currentOrigin.v[2] - source->v[2];
+  v7 = DVARFLT_g_entinfo_maxdist;
+  v9 = fsqrt((float)((float)(v5 * v5) + (float)(v4 * v4)) + (float)(v6 * v6));
+  v8 = v9;
   if ( !DVARFLT_g_entinfo_maxdist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_entinfo_maxdist") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm7, dword ptr [rbx+28h]
-  }
-  if ( !v30 )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.value <= 0.0 )
     goto LABEL_12;
-  _RBX = DVARFLT_g_entinfo_maxdist;
+  v10 = DVARFLT_g_entinfo_maxdist;
   if ( !DVARFLT_g_entinfo_maxdist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_entinfo_maxdist") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vcomiss xmm8, dword ptr [rbx+28h] }
-  if ( v30 || v55 )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( v9 <= v10->current.value )
   {
 LABEL_12:
-    _RBX = _R15->vehicle;
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 584, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
+    vehicle = self->vehicle;
+    if ( !vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 584, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
       __debugbreak();
-    ServerDef = G_Vehicle_GetServerDef(_RBX->defIndex);
-    v25 = DVARINT_bg_entinfo;
-    v26 = ServerDef;
+    ServerDef = G_Vehicle_GetServerDef(vehicle->defIndex);
+    v13 = DVARINT_bg_entinfo;
+    v14 = ServerDef;
     if ( !DVARINT_bg_entinfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_entinfo") )
       __debugbreak();
-    __asm { vmovaps xmmword ptr [rsp+110h+var_48+8], xmm6 }
-    Dvar_CheckFrontendServerThread(v25);
-    if ( v25->current.integer == 3 )
+    Dvar_CheckFrontendServerThread(v13);
+    if ( v13->current.integer == 3 )
       goto LABEL_52;
-    AngleVectors(&_R15->r.currentAngles, &forward, &right, &up);
-    __asm { vmovss  xmm6, cs:__real@40a00000 }
-    v28 = 0;
-    v29 = &forward.v[2];
-    v30 = 1;
+    AngleVectors(&self->r.currentAngles, &forward, &right, &up);
+    v15 = 0;
+    v16 = &forward.v[2];
+    v17 = 1;
     do
     {
-      if ( !v30 )
+      if ( !v17 )
       {
-        LODWORD(v249) = 3;
-        LODWORD(duration) = v28;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", duration, v249) )
+        LODWORD(v59) = 3;
+        LODWORD(duration) = v15;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", duration, v59) )
           __debugbreak();
       }
-      __asm
+      v18 = 5.0 * *(v16 - 1);
+      start.v[0] = (float)(5.0 * *(v16 - 2)) + self->r.currentOrigin.v[0];
+      v19 = v18 + self->r.currentOrigin.v[1];
+      start.v[2] = (float)(5.0 * *v16) + self->r.currentOrigin.v[2];
+      start.v[1] = v19;
+      if ( (unsigned int)v15 >= 3 )
       {
-        vmulss  xmm1, xmm6, dword ptr [r14-8]
-        vaddss  xmm2, xmm1, dword ptr [r15+130h]
-        vmulss  xmm1, xmm6, dword ptr [r14-4]
-        vmovss  dword ptr [rbp+57h+start], xmm2
-        vaddss  xmm2, xmm1, dword ptr [r15+134h]
-        vmulss  xmm1, xmm6, dword ptr [r14]
-        vaddss  xmm1, xmm1, dword ptr [r15+138h]
-        vmovss  dword ptr [rbp+57h+start+8], xmm1
-        vmovss  dword ptr [rbp+57h+start+4], xmm2
-      }
-      if ( (unsigned int)v28 >= 3 )
-      {
-        LODWORD(v249) = 3;
-        LODWORD(duration) = v28;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", duration, v249) )
+        LODWORD(v59) = 3;
+        LODWORD(duration) = v15;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", duration, v59) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r15+130h]
-        vmulss  xmm3, xmm6, dword ptr [r14-4]
-        vmulss  xmm2, xmm6, dword ptr [r14-8]
-        vsubss  xmm2, xmm1, xmm2
-        vmovss  xmm1, dword ptr [r15+134h]
-        vmovss  dword ptr [rbp+57h+end], xmm2
-        vsubss  xmm2, xmm1, xmm3
-        vmulss  xmm3, xmm6, dword ptr [r14]
-        vmovss  xmm1, dword ptr [r15+138h]
-        vmovss  dword ptr [rbp+57h+end+4], xmm2
-        vsubss  xmm2, xmm1, xmm3
-        vmovss  dword ptr [rbp+57h+end+8], xmm2
-      }
+      v20 = 5.0 * *(v16 - 1);
+      v21 = self->r.currentOrigin.v[1];
+      end.v[0] = self->r.currentOrigin.v[0] - (float)(5.0 * *(v16 - 2));
+      v22 = v21 - v20;
+      v23 = 5.0 * *v16;
+      v24 = self->r.currentOrigin.v[2];
+      end.v[1] = v22;
+      end.v[2] = v24 - v23;
       G_DebugLine(&start, &end, &colorWhite, 0);
-      ++v28;
-      v29 += 3;
-      v30 = (unsigned int)v28 < 3;
+      ++v15;
+      v16 += 3;
+      v17 = (unsigned int)v15 < 3;
     }
-    while ( v28 < 3 );
-    v46 = v26->type - 4;
-    if ( (v46 & 0xFB) != 0 )
+    while ( v15 < 3 );
+    if ( ((v14->type - 4) & 0xFB) != 0 )
     {
-      __asm
+      if ( (float)((float)((float)(vehicle->goalPosition.v[0] * vehicle->goalPosition.v[0]) + (float)(vehicle->goalPosition.v[1] * vehicle->goalPosition.v[1])) + (float)(vehicle->goalPosition.v[2] * vehicle->goalPosition.v[2])) > 0.0 )
       {
-        vmovss  xmm3, dword ptr [rbx+6ACh]
-        vmovss  xmm0, dword ptr [rbx+6A8h]
-        vmovss  xmm4, dword ptr [rbx+6A4h]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm0, xmm0
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vcomiss xmm3, xmm7
-      }
-      if ( (v46 & 0xFB) != 0 )
-      {
-        v55 = _RBX->drivingState == VEH_DRIVE_AI;
-        __asm
-        {
-          vmovss  dword ptr [rbp+57h+center], xmm4
-          vmovss  xmm0, dword ptr [rbx+6A8h]
-          vmovss  dword ptr [rbp+57h+center+4], xmm0
-          vmovss  xmm1, dword ptr [rbx+6ACh]
-        }
+        v25 = vehicle->drivingState == VEH_DRIVE_AI;
+        *(_QWORD *)center.v = *(_QWORD *)vehicle->goalPosition.v;
+        v26 = vehicle->goalPosition.v[2];
 LABEL_32:
-        v67 = &colorBlack;
-        if ( v55 )
-          v67 = &colorMagenta;
-        __asm { vmovss  dword ptr [rbp+57h+center+8], xmm1 }
-        G_DebugLine(&_R15->r.currentOrigin, &center, v67, 0);
-        __asm { vmovss  xmm1, cs:__real@42800000; radius }
-        G_DebugCircle(&center, *(float *)&_XMM1, v67, 0, 1, 0);
+        v27 = &colorBlack;
+        if ( v25 )
+          v27 = &colorMagenta;
+        center.v[2] = v26;
+        G_DebugLine(&self->r.currentOrigin, &center, v27, 0);
+        G_DebugCircle(&center, 64.0, v27, 0, 1, 0);
       }
     }
-    else
+    else if ( (float)((float)((float)(vehicle->heliPathPos.goalPosition.v[0] * vehicle->heliPathPos.goalPosition.v[0]) + (float)(vehicle->heliPathPos.goalPosition.v[1] * vehicle->heliPathPos.goalPosition.v[1])) + (float)(vehicle->heliPathPos.goalPosition.v[2] * vehicle->heliPathPos.goalPosition.v[2])) > 0.0 )
     {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+340h]
-        vmovss  xmm0, dword ptr [rbx+33Ch]
-        vmovss  xmm4, dword ptr [rbx+338h]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm0, xmm0
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vcomiss xmm3, xmm7
-      }
-      if ( (v46 & 0xFB) != 0 )
-      {
-        v55 = _RBX->drivingState == VEH_DRIVE_AI;
-        __asm
-        {
-          vmovss  dword ptr [rbp+57h+center], xmm4
-          vmovss  xmm0, dword ptr [rbx+33Ch]
-          vmovss  dword ptr [rbp+57h+center+4], xmm0
-          vmovss  xmm1, dword ptr [rbx+340h]
-        }
-        goto LABEL_32;
-      }
+      v25 = vehicle->drivingState == VEH_DRIVE_AI;
+      *(_QWORD *)center.v = *(_QWORD *)vehicle->heliPathPos.goalPosition.v;
+      v26 = vehicle->heliPathPos.goalPosition.v[2];
+      goto LABEL_32;
     }
-    __asm
+    v28 = self->r.currentOrigin.v[1];
+    center.v[0] = self->r.currentOrigin.v[0] + vehicle->phys.vel.v[0];
+    v29 = self->r.currentOrigin.v[2];
+    center.v[1] = v28 + vehicle->phys.vel.v[1];
+    center.v[2] = v29 + vehicle->phys.vel.v[2];
+    G_DebugLine(&self->r.currentOrigin, &center, &colorBlue, 0);
+    center.v[0] = (float)(5.0 * vehicle->phys.accel.v[0]) + self->r.currentOrigin.v[0];
+    center.v[1] = (float)(5.0 * vehicle->phys.accel.v[1]) + self->r.currentOrigin.v[1];
+    center.v[2] = (float)(5.0 * vehicle->phys.accel.v[2]) + self->r.currentOrigin.v[2];
+    G_DebugLine(&self->r.currentOrigin, &center, &colorRed, 0);
+    if ( EntHandle::isDefined(&vehicle->lookAtEnt) )
     {
-      vmovss  xmm0, dword ptr [r15+130h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+138h]
-      vmovss  xmm2, dword ptr [r15+134h]
-      vmovss  dword ptr [rbp+57h+center], xmm1
-      vaddss  xmm0, xmm2, dword ptr [rbx+13Ch]
-      vmovss  xmm1, dword ptr [r15+138h]
-      vmovss  dword ptr [rbp+57h+center+4], xmm0
-      vaddss  xmm2, xmm1, dword ptr [rbx+140h]
-      vmovss  dword ptr [rbp+57h+center+8], xmm2
-    }
-    G_DebugLine(&_R15->r.currentOrigin, &center, &colorBlue, 0);
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rbx+150h]
-      vaddss  xmm2, xmm1, dword ptr [r15+130h]
-      vmovss  dword ptr [rbp+57h+center], xmm2
-      vmulss  xmm1, xmm6, dword ptr [rbx+154h]
-      vaddss  xmm2, xmm1, dword ptr [r15+134h]
-      vmovss  dword ptr [rbp+57h+center+4], xmm2
-      vmulss  xmm1, xmm6, dword ptr [rbx+158h]
-      vaddss  xmm2, xmm1, dword ptr [r15+138h]
-      vmovss  dword ptr [rbp+57h+center+8], xmm2
-    }
-    G_DebugLine(&_R15->r.currentOrigin, &center, &colorRed, 0);
-    if ( EntHandle::isDefined(&_RBX->lookAtEnt) )
-    {
-      number = _RBX->lookAtEnt.number;
+      number = vehicle->lookAtEnt.number;
       if ( (unsigned int)(number - 1) >= 0x7FF )
       {
-        LODWORD(v249) = 2047;
+        LODWORD(v59) = 2047;
         LODWORD(duration) = number - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", duration, v249) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", duration, v59) )
           __debugbreak();
       }
-      v81 = _RBX->lookAtEnt.number;
-      if ( (unsigned int)(v81 - 1) >= 0x800 )
+      v31 = vehicle->lookAtEnt.number;
+      if ( (unsigned int)(v31 - 1) >= 0x800 )
       {
-        LODWORD(v249) = 2048;
-        LODWORD(duration) = v81 - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", duration, v249) )
+        LODWORD(v59) = 2048;
+        LODWORD(duration) = v31 - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", duration, v59) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      v82 = v81 - 1;
-      if ( g_entities[v82].r.isInUse != g_entityIsInUse[v82] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      v32 = v31 - 1;
+      if ( g_entities[v32].r.isInUse != g_entityIsInUse[v32] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( !g_entityIsInUse[v82] )
+      if ( !g_entityIsInUse[v32] )
       {
-        LODWORD(v249) = _RBX->lookAtEnt.number - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v249) )
+        LODWORD(v59) = vehicle->lookAtEnt.number - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v59) )
           __debugbreak();
       }
-      G_DebugLine(&_R15->r.currentOrigin, &g_entities[_RBX->lookAtEnt.number - 1].r.currentOrigin, &colorWhite, 0);
+      G_DebugLine(&self->r.currentOrigin, &g_entities[vehicle->lookAtEnt.number - 1].r.currentOrigin, &colorWhite, 0);
     }
 LABEL_52:
-    v83 = DVARINT_bg_entinfo;
+    v33 = DVARINT_bg_entinfo;
     if ( !DVARINT_bg_entinfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_entinfo") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v83);
-    if ( v83->current.integer <= 3 )
+    Dvar_CheckFrontendServerThread(v33);
+    if ( v33->current.integer <= 3 )
     {
-      __asm { vmovaps xmmword ptr [rsp+110h+var_78+8], xmm9 }
-      *(double *)&_XMM0 = G_GetEntInfoScale();
-      __asm
+      EntInfoScale = G_GetEntInfoScale();
+      v35 = *(float *)&EntInfoScale * 0.75;
+      *(float *)&EntInfoScale = self->r.absBox.midPoint.v[0];
+      v36 = (float)(v35 * v8) * 0.0026041667;
+      v37 = v36 * 12.0;
+      center.v[1] = self->r.absBox.midPoint.v[1];
+      center.v[0] = *(float *)&EntInfoScale;
+      center.v[2] = self->r.absBox.midPoint.v[2] - (float)(v36 * 12.0);
+      v38 = j_va("speed cur: %0.1f, goal: %0.1f", (float)(fsqrt((float)((float)(vehicle->phys.vel.v[0] * vehicle->phys.vel.v[0]) + (float)(vehicle->phys.vel.v[1] * vehicle->phys.vel.v[1])) + (float)(vehicle->phys.vel.v[2] * vehicle->phys.vel.v[2])) * 0.056818184), (float)(0.056818184 * vehicle->manualSpeed));
+      G_Main_AddDebugString(&center, &colorLtGrey, v36, v38);
+      manualDecel = vehicle->manualDecel;
+      v40 = vehicle->manualAccel * 0.056818184;
+      center.v[2] = center.v[2] - (float)(v36 * 12.0);
+      v41 = j_va("accel: %0.1f maxAccel %0.1f maxDecel %0.1f", fsqrt((float)((float)(vehicle->phys.accel.v[0] * vehicle->phys.accel.v[0]) + (float)(vehicle->phys.accel.v[1] * vehicle->phys.accel.v[1])) + (float)(vehicle->phys.accel.v[2] * vehicle->phys.accel.v[2])), v40, (float)(manualDecel * 0.056818184));
+      G_Main_AddDebugString(&center, &colorLtGrey, v36, v41);
+      v42 = self->r.currentOrigin.v[0];
+      v43 = self->r.currentOrigin.v[1];
+      v44 = self->r.currentOrigin.v[2];
+      if ( v14->type == VEH_HELICOPTER )
       {
-        vmulss  xmm1, xmm0, cs:__real@3f400000
-        vmovss  xmm0, dword ptr [r15+118h]
-        vmovss  xmm7, cs:__real@3d68ba2f
-        vmulss  xmm2, xmm1, xmm8
-        vmulss  xmm9, xmm2, cs:__real@3b2aaaab
-        vmovss  xmm1, dword ptr [r15+11Ch]
-        vmulss  xmm8, xmm9, cs:__real@41400000
-        vmovss  dword ptr [rbp+57h+center+4], xmm1
-        vmovss  dword ptr [rbp+57h+center], xmm0
-        vmovss  xmm0, dword ptr [r15+120h]
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  dword ptr [rbp+57h+center+8], xmm1
-        vmovss  xmm1, dword ptr [rbx+138h]
-        vmovss  xmm4, dword ptr [rbx+13Ch]
-        vmulss  xmm0, xmm7, dword ptr [rbx+61Ch]
-        vmovss  xmm5, dword ptr [rbx+140h]
-        vmulss  xmm3, xmm1, xmm1
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm4, xmm3, xmm1
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm3, xmm4, xmm0
-        vsqrtss xmm1, xmm3, xmm3
-        vmulss  xmm4, xmm1, xmm7
-        vcvtss2sd xmm1, xmm4, xmm4
-        vmovq   rdx, xmm1
-        vmovq   r8, xmm2
-      }
-      v108 = j_va("speed cur: %0.1f, goal: %0.1f", _RDX, _R8);
-      __asm { vmovaps xmm2, xmm9; scale }
-      G_Main_AddDebugString(&center, &colorLtGrey, *(float *)&_XMM2, v108);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+620h]
-        vmovss  xmm1, dword ptr [rbx+624h]
-        vmulss  xmm6, xmm0, xmm7
-        vmovss  xmm0, dword ptr [rbp+57h+center+8]
-        vsubss  xmm2, xmm0, xmm8
-        vmovss  dword ptr [rbp+57h+center+8], xmm2
-        vmovss  xmm0, dword ptr [rbx+150h]
-        vmovss  xmm4, dword ptr [rbx+154h]
-        vmovss  xmm5, dword ptr [rbx+158h]
-        vmulss  xmm3, xmm1, xmm7
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm4, xmm1, xmm0
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm4, xmm4, xmm1
-        vsqrtss xmm0, xmm4, xmm4
-        vcvtss2sd xmm1, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm6, xmm6
-        vmovq   rdx, xmm1
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-      }
-      v131 = j_va("accel: %0.1f maxAccel %0.1f maxDecel %0.1f", _RDX, _R8, _R9);
-      __asm { vmovaps xmm2, xmm9; scale }
-      G_Main_AddDebugString(&center, &colorLtGrey, *(float *)&_XMM2, v131);
-      __asm
-      {
-        vmovss  xmm6, dword ptr [r15+130h]
-        vmovss  xmm0, dword ptr [r15+134h]
-        vmovss  xmm1, dword ptr [r15+138h]
-      }
-      if ( v26->type == VEH_HELICOPTER )
-      {
-        __asm
-        {
-          vsubss  xmm5, xmm6, dword ptr [rbx+338h]
-          vsubss  xmm3, xmm0, dword ptr [rbx+33Ch]
-          vsubss  xmm4, xmm1, dword ptr [rbx+340h]
-        }
+        v45 = v42 - vehicle->heliPathPos.goalPosition.v[0];
+        v46 = v43 - vehicle->heliPathPos.goalPosition.v[1];
+        v47 = v44 - vehicle->heliPathPos.goalPosition.v[2];
       }
       else
       {
-        __asm
-        {
-          vsubss  xmm5, xmm6, dword ptr [rbx+6A4h]
-          vsubss  xmm3, xmm0, dword ptr [rbx+6A8h]
-          vsubss  xmm4, xmm1, dword ptr [rbx+6ACh]
-        }
+        v45 = v42 - vehicle->goalPosition.v[0];
+        v46 = v43 - vehicle->goalPosition.v[1];
+        v47 = v44 - vehicle->goalPosition.v[2];
       }
-      __asm
+      center.v[2] = center.v[2] - v37;
+      v48 = j_va("<%0.1f %0.1f %0.1f> distToGoal: %0.1f", v42, self->r.currentOrigin.v[1], self->r.currentOrigin.v[2], fsqrt((float)((float)(v46 * v46) + (float)(v45 * v45)) + (float)(v47 * v47)));
+      G_Main_AddDebugString(&center, &colorLtGrey, v36, v48);
+      center.v[2] = center.v[2] - v37;
+      v49 = j_va("yaw speed: %0.1f, goal: %0.1f", vehicle->phys.rotVel.v[1], vehicle->heliPathPos.maxAngleVel.v[1]);
+      G_Main_AddDebugString(&center, &colorLtGrey, v36, v49);
+      center.v[2] = center.v[2] - v37;
+      v50 = j_va("yaw accel: %0.1f, decel: %0.1f", vehicle->heliPathPos.yawAccel, vehicle->heliPathPos.yawDecel);
+      G_Main_AddDebugString(&center, &colorLtGrey, v36, v50);
+      center.v[2] = center.v[2] - v37;
+      v51 = (char *)&queryFormat.fmt + 3;
+      if ( vehicle->heliPathPos.yawSlowDown )
+        v51 = ", slowdown";
+      v52 = j_va("yaw overshoot: %0.1f%s", vehicle->heliPathPos.yawOverShoot, v51);
+      G_Main_AddDebugString(&center, &colorLtGrey, v36, v52);
+      if ( vehicle->heliPathPos.hasTargetYaw )
       {
-        vmovss  xmm0, dword ptr [rbp+57h+center+8]
-        vmulss  xmm1, xmm3, xmm3
-        vsubss  xmm2, xmm0, xmm8
-        vmovss  dword ptr [rbp+57h+center+8], xmm2
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vmovss  xmm2, dword ptr [r15+134h]
-        vsqrtss xmm0, xmm3, xmm3
-        vmovss  xmm3, dword ptr [r15+138h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm6, xmm6
-        vcvtss2sd xmm4, xmm0, xmm0
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-        vmovsd  [rsp+110h+fmt], xmm4
+        center.v[2] = center.v[2] - v37;
+        v53 = j_va("targetyaw %0.1f, current %0.1f", vehicle->heliPathPos.targetYaw, vehicle->phys.angles.v[1]);
+        G_Main_AddDebugString(&center, &colorLtGrey, v36, v53);
       }
-      v156 = j_va("<%0.1f %0.1f %0.1f> distToGoal: %0.1f", _RDX, _R8, _R9, fmt);
-      __asm { vmovaps xmm2, xmm9; scale }
-      G_Main_AddDebugString(&center, &colorLtGrey, *(float *)&_XMM2, v156);
-      __asm
+      if ( vehicle->heliPathPos.hasGoalYaw )
       {
-        vmovss  xmm0, dword ptr [rbp+57h+center+8]
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  dword ptr [rbp+57h+center+8], xmm1
-        vmovss  xmm2, dword ptr [rbx+568h]
-        vmovss  xmm1, dword ptr [rbx+16Ch]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
+        center.v[2] = center.v[2] - v37;
+        v54 = j_va("goalyaw %0.1f, current %0.1f", vehicle->heliPathPos.goalYaw, vehicle->phys.angles.v[1]);
+        G_Main_AddDebugString(&center, &colorLtGrey, v36, v54);
       }
-      v166 = j_va("yaw speed: %0.1f, goal: %0.1f", _RDX, _R8);
-      __asm { vmovaps xmm2, xmm9; scale }
-      G_Main_AddDebugString(&center, &colorLtGrey, *(float *)&_XMM2, v166);
-      __asm
+      center.v[2] = center.v[2] - v37;
+      v55 = j_va("cur pitch: %0.1f cur roll: %0.1f", vehicle->phys.angles.v[0], vehicle->phys.angles.v[2]);
+      G_Main_AddDebugString(&center, &colorLtGrey, v36, v55);
+      center.v[2] = center.v[2] - v37;
+      v56 = j_va("max pitch: %0.1f max roll: %0.1f", vehicle->heliPathPos.maxPitchAngle, vehicle->heliPathPos.maxRollAngle);
+      G_Main_AddDebugString(&center, &colorLtGrey, v36, v56);
+      center.v[2] = center.v[2] - v37;
+      v57 = j_va("hover radius: %0.1f, speed: %0.1f, accel: %0.1f", vehicle->heliPathPos.hover.hoverRadius, vehicle->heliPathPos.hover.hoverSpeed, vehicle->heliPathPos.hover.hoverAccel);
+      G_Main_AddDebugString(&center, &colorLtGrey, v36, v57);
+      if ( vehicle->heliPathPos.stopAtGoal )
       {
-        vmovss  xmm0, dword ptr [rbp+57h+center+8]
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  dword ptr [rbp+57h+center+8], xmm1
-        vmovss  xmm2, dword ptr [rbx+574h]
-        vmovss  xmm1, dword ptr [rbx+570h]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
+        center.v[2] = center.v[2] - v37;
+        G_Main_AddDebugString(&center, &colorLtGrey, v36, "stopAtGoal");
       }
-      v176 = j_va("yaw accel: %0.1f, decel: %0.1f", _RDX, _R8);
-      __asm { vmovaps xmm2, xmm9; scale }
-      G_Main_AddDebugString(&center, &colorLtGrey, *(float *)&_XMM2, v176);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+center+8]
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  dword ptr [rbp+57h+center+8], xmm1
-        vmovss  xmm1, dword ptr [rbx+560h]
-        vcvtss2sd xmm1, xmm1, xmm1
-      }
-      v182 = (char *)&queryFormat.fmt + 3;
-      __asm { vmovq   rdx, xmm1 }
-      if ( _RBX->heliPathPos.yawSlowDown )
-        v182 = ", slowdown";
-      v184 = j_va("yaw overshoot: %0.1f%s", *(double *)&_XMM1, v182);
-      __asm { vmovaps xmm2, xmm9; scale }
-      G_Main_AddDebugString(&center, &colorLtGrey, *(float *)&_XMM2, v184);
-      if ( _RBX->heliPathPos.hasTargetYaw )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+57h+center+8]
-          vsubss  xmm1, xmm0, xmm8
-          vmovss  dword ptr [rbp+57h+center+8], xmm1
-          vmovss  xmm2, dword ptr [rbx+10Ch]
-          vmovss  xmm1, dword ptr [rbx+55Ch]
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovq   r8, xmm2
-          vmovq   rdx, xmm1
-        }
-        v194 = j_va("targetyaw %0.1f, current %0.1f", _RDX, _R8);
-        __asm { vmovaps xmm2, xmm9; scale }
-        G_Main_AddDebugString(&center, &colorLtGrey, *(float *)&_XMM2, v194);
-      }
-      if ( _RBX->heliPathPos.hasGoalYaw )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+57h+center+8]
-          vsubss  xmm1, xmm0, xmm8
-          vmovss  dword ptr [rbp+57h+center+8], xmm1
-          vmovss  xmm2, dword ptr [rbx+10Ch]
-          vmovss  xmm1, dword ptr [rbx+558h]
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovq   r8, xmm2
-          vmovq   rdx, xmm1
-        }
-        v204 = j_va("goalyaw %0.1f, current %0.1f", _RDX, _R8);
-        __asm { vmovaps xmm2, xmm9; scale }
-        G_Main_AddDebugString(&center, &colorLtGrey, *(float *)&_XMM2, v204);
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+center+8]
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  dword ptr [rbp+57h+center+8], xmm1
-        vmovss  xmm2, dword ptr [rbx+110h]
-        vmovss  xmm1, dword ptr [rbx+108h]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      v214 = j_va("cur pitch: %0.1f cur roll: %0.1f", _RDX, _R8);
-      __asm { vmovaps xmm2, xmm9; scale }
-      G_Main_AddDebugString(&center, &colorLtGrey, *(float *)&_XMM2, v214);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+center+8]
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  dword ptr [rbp+57h+center+8], xmm1
-        vmovss  xmm2, dword ptr [rbx+57Ch]
-        vmovss  xmm1, dword ptr [rbx+578h]
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      v224 = j_va("max pitch: %0.1f max roll: %0.1f", _RDX, _R8);
-      __asm { vmovaps xmm2, xmm9; scale }
-      G_Main_AddDebugString(&center, &colorLtGrey, *(float *)&_XMM2, v224);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+center+8]
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  dword ptr [rbp+57h+center+8], xmm1
-        vmovss  xmm3, dword ptr [rbx+2E4h]
-        vmovss  xmm2, dword ptr [rbx+2E0h]
-        vmovss  xmm1, dword ptr [rbx+2DCh]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      v237 = j_va("hover radius: %0.1f, speed: %0.1f, accel: %0.1f", _RDX, _R8, _R9);
-      __asm { vmovaps xmm2, xmm9; scale }
-      G_Main_AddDebugString(&center, &colorLtGrey, *(float *)&_XMM2, v237);
-      if ( _RBX->heliPathPos.stopAtGoal )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+57h+center+8]
-          vsubss  xmm1, xmm0, xmm8
-          vmovaps xmm2, xmm9; scale
-          vmovss  dword ptr [rbp+57h+center+8], xmm1
-        }
-        G_Main_AddDebugString(&center, &colorLtGrey, *(float *)&_XMM2, "stopAtGoal");
-      }
-      __asm { vmovaps xmm9, xmmword ptr [rsp+110h+var_78+8] }
     }
-    __asm { vmovaps xmm6, xmmword ptr [rsp+110h+var_48+8] }
-  }
-  _R11 = &v258;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -914,55 +654,39 @@ LABEL_52:
 G_VehicleSP_FinishAnimatedFrameExtras
 ==============
 */
-
-void __fastcall G_VehicleSP_FinishAnimatedFrameExtras(Vehicle *veh, bool waitNodeHit, double prevSpeed)
+void G_VehicleSP_FinishAnimatedFrameExtras(Vehicle *veh, bool waitNodeHit, float prevSpeed)
 {
-  const gentity_s *ent; 
-  bool IsEndOfPath; 
-  char v10; 
-  bool v11; 
+  gentity_s *ent; 
+  float waitSpeed; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = veh;
-  __asm { vmovaps xmm6, xmm2 }
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 191, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 192, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION )") )
     __debugbreak();
-  ent = _RBX->ent;
-  G_Vehicle_CalcPhysVelFromPrevState(_RBX);
-  if ( waitNodeHit && _RBX->waitNode > -1 )
+  ent = veh->ent;
+  G_Vehicle_CalcPhysVelFromPrevState(veh);
+  if ( waitNodeHit && veh->waitNode > -1 )
     GScr_Notify(ent, scr_const.reached_wait_node, 0);
-  IsEndOfPath = G_VehiclePath_IsEndOfPath(&_RBX->pathPos);
-  v10 = 0;
-  v11 = !IsEndOfPath;
-  if ( IsEndOfPath )
+  if ( G_VehiclePath_IsEndOfPath(&veh->pathPos) )
     GScr_Notify(ent, scr_const.reached_end_node, 0);
-  __asm
+  waitSpeed = veh->waitSpeed;
+  if ( waitSpeed >= 0.0 )
   {
-    vmovss  xmm1, dword ptr [rbx+5A0h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  if ( !v10 )
-  {
-    __asm { vcomiss xmm6, xmm1 }
-    if ( v10 | v11 )
+    if ( prevSpeed <= waitSpeed )
     {
-      __asm { vcomiss xmm1, dword ptr [rbx+58Ch] }
-      if ( v10 | v11 )
+      if ( waitSpeed <= veh->pathSpeed )
       {
 LABEL_17:
         GScr_Notify(ent, scr_const.reached_wait_speed, 0);
-        goto LABEL_18;
+        return;
       }
-      __asm { vcomiss xmm6, xmm1 }
+      if ( prevSpeed < waitSpeed )
+        return;
     }
-    __asm { vcomiss xmm1, dword ptr [rbx+58Ch] }
+    if ( waitSpeed < veh->pathSpeed )
+      return;
     goto LABEL_17;
   }
-LABEL_18:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -972,184 +696,137 @@ G_VehicleSP_Init
 */
 void G_VehicleSP_Init(gentity_s *pSelf)
 {
+  __int128 xmm6_0; 
+  __int128 v2; 
+  Vehicle *vehicle; 
   const VehicleDef *ServerDef; 
   int *wheel; 
   int i; 
+  __int128 v9; 
   VehicleType type; 
-  __int64 v33; 
-  int v34; 
-  int v36; 
-  VehicleType v49; 
+  __m128 v12; 
+  __m128 v13; 
+  float *wheelZPos; 
+  __int64 v20; 
+  int v21; 
+  int v22; 
+  VehicleType v23; 
   vec3_t outOrigin; 
   vec3_t outPos; 
   float v1[4]; 
+  __int128 v27; 
+  __int128 v28; 
 
-  _RSI = pSelf;
-  _R15 = pSelf->vehicle;
-  __asm { vmovaps [rsp+0B8h+var_48], xmm7 }
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 733, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
+  vehicle = pSelf->vehicle;
+  v27 = v2;
+  if ( !vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 733, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3a83126f; epsilon
-    vxorps  xmm7, xmm7, xmm7
-  }
-  _RDI = &_R15->phys;
-  ServerDef = G_Vehicle_GetServerDef(_R15->defIndex);
-  __asm
-  {
-    vmovss  [rsp+0B8h+v1], xmm7
-    vmovss  [rsp+0B8h+var_64], xmm7
-    vmovss  [rsp+0B8h+var_60], xmm7
-  }
-  if ( VecNCompareCustomEpsilon(_R15->phys.bounds.halfSize.v, v1, *(float *)&_XMM2, 3) )
+  ServerDef = G_Vehicle_GetServerDef(vehicle->defIndex);
+  v1[0] = 0.0;
+  v1[1] = 0.0;
+  v1[2] = 0.0;
+  if ( VecNCompareCustomEpsilon(vehicle->phys.bounds.halfSize.v, v1, 0.001, 3) )
   {
     if ( (unsigned __int8)(ServerDef->type - 1) > 2u )
     {
-      __asm { vmovaps [rsp+0B8h+var_38], xmm6 }
-      wheel = _R15->boneIndex.wheel;
-      __asm { vxorps  xmm6, xmm6, xmm6 }
+      v28 = xmm6_0;
+      wheel = vehicle->boneIndex.wheel;
+      _XMM6 = 0i64;
       for ( i = 0; i < 12; ++i )
       {
         if ( *wheel >= 0 )
         {
-          G_Vehicle_GetWheelOrigin(_RSI, i, &outOrigin);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+0B8h+outOrigin]
-            vmovss  xmm1, dword ptr [rsp+0B8h+outOrigin+4]
-            vmulss  xmm2, xmm1, xmm1
-            vmulss  xmm3, xmm0, xmm0
-            vmovss  xmm0, dword ptr [rsp+0B8h+outOrigin+8]
-            vmulss  xmm1, xmm0, xmm0
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm2, xmm4, xmm1
-            vmaxss  xmm6, xmm2, xmm6
-          }
+          G_Vehicle_GetWheelOrigin(pSelf, i, &outOrigin);
+          v9 = LODWORD(outOrigin.v[0]);
+          *(float *)&v9 = (float)((float)(outOrigin.v[0] * outOrigin.v[0]) + (float)(outOrigin.v[1] * outOrigin.v[1])) + (float)(outOrigin.v[2] * outOrigin.v[2]);
+          _XMM2 = v9;
+          __asm { vmaxss  xmm6, xmm2, xmm6 }
         }
         ++wheel;
       }
-      __asm { vcomiss xmm6, xmm7 }
       type = ServerDef->type;
-      if ( (unsigned int)i <= 0xC )
+      if ( _XMM6.m128_f32[0] <= 0.0 )
       {
+        _XMM0 = LODWORD(pSelf->r.box.halfSize.v[1]);
         __asm
         {
-          vmovss  xmm0, dword ptr [rsi+110h]
           vminss  xmm1, xmm0, dword ptr [rsi+10Ch]
           vminss  xmm2, xmm1, dword ptr [rsi+114h]
         }
-        *(_QWORD *)_R15->phys.bounds.midPoint.v = 0i64;
-        _R15->phys.bounds.midPoint.v[2] = 0.0;
-        __asm
-        {
-          vmovss  dword ptr [rdi+3Ch], xmm2
-          vmovss  dword ptr [rdi+40h], xmm2
-          vmovss  dword ptr [rdi+44h], xmm2
-        }
+        *(_QWORD *)vehicle->phys.bounds.midPoint.v = 0i64;
+        vehicle->phys.bounds.midPoint.v[2] = 0.0;
+        vehicle->phys.bounds.halfSize.v[0] = *(float *)&_XMM2;
+        vehicle->phys.bounds.halfSize.v[1] = *(float *)&_XMM2;
+        vehicle->phys.bounds.halfSize.v[2] = *(float *)&_XMM2;
       }
       else
       {
-        __asm
-        {
-          vsqrtss xmm0, xmm6, xmm6
-          vaddss  xmm1, xmm0, cs:__real@3f800000
-          vshufps xmm1, xmm1, xmm1, 0
-        }
+        v12 = _XMM6;
+        v12.m128_f32[0] = fsqrt(_XMM6.m128_f32[0]) + 1.0;
+        v13 = _mm_shuffle_ps(v12, v12, 0);
         if ( type == VEH_WHEELS_4 || type == VEH_TREADED )
         {
-          *(_QWORD *)_R15->phys.bounds.midPoint.v = 0i64;
-          __asm { vmovups xmmword ptr [rdi+38h], xmm1 }
+          *(_QWORD *)vehicle->phys.bounds.midPoint.v = 0i64;
+          *(__m128 *)&vehicle->phys.bounds.midPoint.z = v13;
         }
         else if ( type == VEH_HELICOPTER )
         {
-          *(_QWORD *)_R15->phys.bounds.midPoint.v = 0i64;
-          _R15->phys.bounds.midPoint.v[2] = 0.0;
-          __asm
-          {
-            vmovss  dword ptr [rdi+3Ch], xmm1
-            vmovss  dword ptr [rdi+40h], xmm1
-            vmovss  dword ptr [rdi+44h], xmm1
-          }
+          *(_QWORD *)vehicle->phys.bounds.midPoint.v = 0i64;
+          vehicle->phys.bounds.midPoint.v[2] = 0.0;
+          vehicle->phys.bounds.halfSize.v[0] = v13.m128_f32[0];
+          vehicle->phys.bounds.halfSize.v[1] = v13.m128_f32[0];
+          vehicle->phys.bounds.halfSize.v[2] = v13.m128_f32[0];
         }
       }
-      __asm { vmovaps xmm6, [rsp+0B8h+var_38] }
     }
     if ( ServerDef->type == VEH_BOAT )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+110h]
-        vminss  xmm1, xmm0, dword ptr [rsi+10Ch]
-        vaddss  xmm0, xmm1, cs:__real@3c23d70a
-        vmovss  dword ptr [rdi+38h], xmm0
-      }
-      *(_QWORD *)_R15->phys.bounds.midPoint.v = 0i64;
-      __asm
-      {
-        vmovss  dword ptr [rdi+3Ch], xmm1
-        vmovss  dword ptr [rdi+40h], xmm1
-        vmovss  dword ptr [rdi+44h], xmm1
-      }
+      _XMM0 = LODWORD(pSelf->r.box.halfSize.v[1]);
+      __asm { vminss  xmm1, xmm0, dword ptr [rsi+10Ch] }
+      vehicle->phys.bounds.midPoint.v[2] = *(float *)&_XMM1 + 0.0099999998;
+      *(_QWORD *)vehicle->phys.bounds.midPoint.v = 0i64;
+      vehicle->phys.bounds.halfSize.v[0] = *(float *)&_XMM1;
+      vehicle->phys.bounds.halfSize.v[1] = *(float *)&_XMM1;
+      vehicle->phys.bounds.halfSize.v[2] = *(float *)&_XMM1;
     }
   }
-  __asm { vmovaps xmm7, [rsp+0B8h+var_48] }
-  _RBX = _R15->phys.wheelZPos;
-  v33 = 12i64;
+  wheelZPos = vehicle->phys.wheelZPos;
+  v20 = 12i64;
   do
   {
-    v34 = *((_DWORD *)_RBX + 340);
-    if ( v34 >= 0 )
+    v21 = *((_DWORD *)wheelZPos + 340);
+    if ( v21 >= 0 )
     {
-      G_Utils_DObjGetWorldBoneIndexPos(_RSI, v34, &outPos);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0B8h+outPos+8]
-        vmovss  dword ptr [rbx], xmm0
-      }
+      G_Utils_DObjGetWorldBoneIndexPos(pSelf, v21, &outPos);
+      *wheelZPos = outPos.v[2];
     }
-    ++_RBX;
-    --v33;
+    ++wheelZPos;
+    --v20;
   }
-  while ( v33 );
-  v36 = _R15->boneIndex.flash[0];
-  if ( v36 >= 0 && _R15->boneIndex.barrel >= 0 )
+  while ( v20 );
+  v22 = vehicle->boneIndex.flash[0];
+  if ( v22 >= 0 && vehicle->boneIndex.barrel >= 0 )
   {
-    G_Utils_DObjGetWorldBoneIndexPos(_RSI, v36, &outOrigin);
-    G_Utils_DObjGetWorldBoneIndexPos(_RSI, _R15->boneIndex.barrel, &outPos);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0B8h+outOrigin]
-      vsubss  xmm3, xmm0, dword ptr [rsp+0B8h+outPos]
-      vmovss  xmm1, dword ptr [rsp+0B8h+outOrigin+4]
-      vsubss  xmm2, xmm1, dword ptr [rsp+0B8h+outPos+4]
-      vmovss  xmm0, dword ptr [rsp+0B8h+outOrigin+8]
-      vsubss  xmm4, xmm0, dword ptr [rsp+0B8h+outPos+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
-      vmovss  dword ptr [r15+5B8h], xmm1
-    }
+    G_Utils_DObjGetWorldBoneIndexPos(pSelf, v22, &outOrigin);
+    G_Utils_DObjGetWorldBoneIndexPos(pSelf, vehicle->boneIndex.barrel, &outPos);
+    vehicle->turret.barrelOffset = fsqrt((float)((float)((float)(outOrigin.v[1] - outPos.v[1]) * (float)(outOrigin.v[1] - outPos.v[1])) + (float)((float)(outOrigin.v[0] - outPos.v[0]) * (float)(outOrigin.v[0] - outPos.v[0]))) + (float)((float)(outOrigin.v[2] - outPos.v[2]) * (float)(outOrigin.v[2] - outPos.v[2])));
   }
-  v49 = ServerDef->type;
-  if ( v49 == VEH_WHEELS_4 || v49 == VEH_TREADED )
-    G_Vehicle_GroundPlant(_RSI, _RDI, 0);
-  G_Vehicle_SetPosition(_RSI, &_R15->phys.origin, &_R15->phys.vel, &_R15->phys.angles, 1);
-  _R15->phys.prevOrigin.v[0] = _R15->phys.origin.v[0];
-  _R15->phys.prevOrigin.v[1] = _R15->phys.origin.v[1];
-  _R15->phys.prevOrigin.v[2] = _R15->phys.origin.v[2];
-  _R15->phys.prevAngles.v[0] = _R15->phys.angles.v[0];
-  _R15->phys.prevAngles.v[1] = _R15->phys.angles.v[1];
-  _R15->phys.prevAngles.v[2] = _R15->phys.angles.v[2];
-  G_Vehicle_TouchEntities(_RSI);
-  G_ActiveSP_TouchTriggers(_RSI);
-  if ( _RSI->handler != 25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 819, ASSERT_TYPE_ASSERT, "(pSelf->handler == ENT_HANDLER_VEHICLE_INIT)", (const char *)&queryFormat, "pSelf->handler == ENT_HANDLER_VEHICLE_INIT") )
+  v23 = ServerDef->type;
+  if ( v23 == VEH_WHEELS_4 || v23 == VEH_TREADED )
+    G_Vehicle_GroundPlant(pSelf, &vehicle->phys, 0);
+  G_Vehicle_SetPosition(pSelf, &vehicle->phys.origin, &vehicle->phys.vel, &vehicle->phys.angles, 1);
+  vehicle->phys.prevOrigin.v[0] = vehicle->phys.origin.v[0];
+  vehicle->phys.prevOrigin.v[1] = vehicle->phys.origin.v[1];
+  vehicle->phys.prevOrigin.v[2] = vehicle->phys.origin.v[2];
+  vehicle->phys.prevAngles.v[0] = vehicle->phys.angles.v[0];
+  vehicle->phys.prevAngles.v[1] = vehicle->phys.angles.v[1];
+  vehicle->phys.prevAngles.v[2] = vehicle->phys.angles.v[2];
+  G_Vehicle_TouchEntities(pSelf);
+  G_ActiveSP_TouchTriggers(pSelf);
+  if ( pSelf->handler != 25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 819, ASSERT_TYPE_ASSERT, "(pSelf->handler == ENT_HANDLER_VEHICLE_INIT)", (const char *)&queryFormat, "pSelf->handler == ENT_HANDLER_VEHICLE_INIT") )
     __debugbreak();
-  _RSI->handler = 24;
-  _RSI->nextthink = G_Vehicle_GetNextThinkTime();
+  pSelf->handler = 24;
+  pSelf->nextthink = G_Vehicle_GetNextThinkTime();
 }
 
 /*
@@ -1162,19 +839,17 @@ _BOOL8 G_VehicleSP_IsVehicleScriptedAnimRunning(Vehicle *veh)
   EntityAnimScript *scripted; 
   const XAnimTree *EntAnimTree; 
   const XAnim_s *Anims; 
-  char v15; 
-  char v16; 
+  double Time; 
+  float v6; 
+  double DeltaTime; 
+  float v8; 
+  double Length; 
 
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 141, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
   scripted = veh->ent->scripted;
   if ( !scripted || !scripted->anim )
     return 0i64;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 147, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION )") )
     __debugbreak();
   EntAnimTree = G_Utils_GetEntAnimTree(veh->ent);
@@ -1183,21 +858,12 @@ _BOOL8 G_VehicleSP_IsVehicleScriptedAnimRunning(Vehicle *veh)
   Anims = XAnimGetAnims(EntAnimTree);
   if ( !Anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 153, ASSERT_TYPE_ASSERT, "( anims )", (const char *)&queryFormat, "anims") )
     __debugbreak();
-  *(double *)&_XMM0 = XAnimGetTime(EntAnimTree, 0, XANIM_SUBTREE_DEFAULT, scripted->anim);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = G_Vehicle_GetDeltaTime();
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = XAnimGetLength(Anims, scripted->anim);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vsubss  xmm2, xmm1, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmulss  xmm3, xmm0, xmm2
-    vcomiss xmm7, xmm3
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  return v15 | v16 || XAnimIsLooped(Anims, scripted->anim);
+  Time = XAnimGetTime(EntAnimTree, 0, XANIM_SUBTREE_DEFAULT, scripted->anim);
+  v6 = *(float *)&Time;
+  DeltaTime = G_Vehicle_GetDeltaTime();
+  v8 = *(float *)&DeltaTime;
+  Length = XAnimGetLength(Anims, scripted->anim);
+  return v8 <= (float)(*(float *)&Length * (float)(1.0 - v6)) || XAnimIsLooped(Anims, scripted->anim);
 }
 
 /*
@@ -1205,124 +871,62 @@ _BOOL8 G_VehicleSP_IsVehicleScriptedAnimRunning(Vehicle *veh)
 G_VehicleSP_OrientTo_Init
 ==============
 */
-
-void __fastcall G_VehicleSP_OrientTo_Init(Vehicle *veh, const vec3_t *tgtOrigin, const vec3_t *tgtAngles, double tgtSpeed, float tgtAngleSpeed)
+void G_VehicleSP_OrientTo_Init(Vehicle *veh, const vec3_t *tgtOrigin, const vec3_t *tgtAngles, float tgtSpeed, float tgtAngleSpeed)
 {
   float speed; 
-  bool v24; 
-  bool v39; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  double DeltaTime; 
+  __int128 orientToTime_low; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-  }
-  _RBX = veh;
-  __asm { vmovaps xmm6, xmm3 }
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 294, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  _RBX->orientToOrigin.current.v[0] = _RBX->phys.origin.v[0];
-  _RBX->orientToOrigin.current.v[1] = _RBX->phys.origin.v[1];
-  _RBX->orientToOrigin.current.v[2] = _RBX->phys.origin.v[2];
-  __asm { vmulss  xmm0, xmm6, cs:__real@418ccccd }
-  _RBX->orientToOrigin.target.v[0] = tgtOrigin->v[0];
-  _RBX->orientToOrigin.target.v[1] = tgtOrigin->v[1];
-  _RBX->orientToOrigin.target.v[2] = tgtOrigin->v[2];
-  speed = _RBX->speed;
-  __asm { vmovss  dword ptr [rbx+648h], xmm0 }
-  _RBX->orientToOrigin.speed = speed;
-  _RBX->orientToAngles.current.v[0] = _RBX->phys.angles.v[0];
-  _RBX->orientToAngles.current.v[1] = _RBX->phys.angles.v[1];
-  _RBX->orientToAngles.current.v[2] = _RBX->phys.angles.v[2];
-  _RBX->orientToAngles.target.v[0] = tgtAngles->v[0];
-  _RBX->orientToAngles.target.v[1] = tgtAngles->v[1];
-  _RBX->orientToAngles.target.v[2] = tgtAngles->v[2];
-  __asm
+  veh->orientToOrigin.current.v[0] = veh->phys.origin.v[0];
+  veh->orientToOrigin.current.v[1] = veh->phys.origin.v[1];
+  veh->orientToOrigin.current.v[2] = veh->phys.origin.v[2];
+  veh->orientToOrigin.target.v[0] = tgtOrigin->v[0];
+  veh->orientToOrigin.target.v[1] = tgtOrigin->v[1];
+  veh->orientToOrigin.target.v[2] = tgtOrigin->v[2];
+  speed = veh->speed;
+  veh->orientToOrigin.tgtSpeed = tgtSpeed * 17.6;
+  veh->orientToOrigin.speed = speed;
+  veh->orientToAngles.current.v[0] = veh->phys.angles.v[0];
+  veh->orientToAngles.current.v[1] = veh->phys.angles.v[1];
+  veh->orientToAngles.current.v[2] = veh->phys.angles.v[2];
+  veh->orientToAngles.target.v[0] = tgtAngles->v[0];
+  veh->orientToAngles.target.v[1] = tgtAngles->v[1];
+  veh->orientToAngles.target.v[2] = tgtAngles->v[2];
+  v9 = (float)((float)(veh->phys.rotVel.v[0] * veh->phys.rotVel.v[0]) + (float)(veh->phys.rotVel.v[1] * veh->phys.rotVel.v[1])) + (float)(veh->phys.rotVel.v[2] * veh->phys.rotVel.v[2]);
+  veh->orientToAngles.tgtSpeed = tgtAngleSpeed;
+  veh->orientToAngles.speed = fsqrt(v9);
+  v10 = veh->orientToOrigin.target.v[0] - veh->orientToOrigin.current.v[0];
+  v11 = veh->orientToOrigin.target.v[1] - veh->orientToOrigin.current.v[1];
+  v12 = veh->orientToOrigin.target.v[2] - veh->orientToOrigin.current.v[2];
+  v13 = veh->orientToOrigin.tgtSpeed + veh->orientToOrigin.speed;
+  v14 = fsqrt((float)((float)(v10 * v10) + (float)(v11 * v11)) + (float)(v12 * v12));
+  if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
+    __debugbreak();
+  v15 = (float)level.frameDuration * 0.001;
+  if ( v13 == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rbx+168h]
-    vmovss  xmm2, dword ptr [rbx+16Ch]
-    vmovss  xmm3, dword ptr [rbx+170h]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, [rsp+68h+tgtAngleSpeed]
-    vmovss  dword ptr [rbx+668h], xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vmovss  dword ptr [rbx+664h], xmm0
-  }
-  v24 = level.frameDuration == 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+638h]
-    vsubss  xmm2, xmm0, dword ptr [rbx+62Ch]
-    vmovss  xmm1, dword ptr [rbx+63Ch]
-    vsubss  xmm3, xmm1, dword ptr [rbx+630h]
-    vmovss  xmm0, dword ptr [rbx+640h]
-    vsubss  xmm4, xmm0, dword ptr [rbx+634h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, dword ptr [rbx+648h]
-    vaddss  xmm6, xmm1, dword ptr [rbx+644h]
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm8, xmm2, xmm2
-  }
-  if ( !level.frameDuration )
-  {
-    v39 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration");
-    v24 = !v39;
-    if ( v39 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmulss  xmm7, xmm0, cs:__real@3a83126f
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-  }
-  if ( v24 )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rbx+66Ch], xmm7
-      vmovss  dword ptr [rbx+670h], xmm7
-    }
+    veh->orientToTime = v15;
+    veh->orientToStartTime = v15;
   }
   else
   {
-    __asm
-    {
-      vmulss  xmm0, xmm8, cs:__real@40000000
-      vdivss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rbx+66Ch], xmm1
-    }
-    *(double *)&_XMM0 = G_Vehicle_GetDeltaTime();
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+66Ch]
-      vmovaps xmm1, xmm0; Y
-      vmovaps xmm0, xmm6; X
-    }
-    fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vsubss  xmm1, xmm6, xmm0
-      vmaxss  xmm2, xmm1, xmm7
-      vmovss  dword ptr [rbx+66Ch], xmm2
-      vmovss  dword ptr [rbx+670h], xmm2
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
+    veh->orientToTime = (float)(v14 * 2.0) / v13;
+    DeltaTime = G_Vehicle_GetDeltaTime();
+    orientToTime_low = LODWORD(veh->orientToTime);
+    *(float *)&orientToTime_low = *(float *)&orientToTime_low - fmodf_0(veh->orientToTime, *(float *)&DeltaTime);
+    _XMM1 = orientToTime_low;
+    __asm { vmaxss  xmm2, xmm1, xmm7 }
+    veh->orientToTime = *(float *)&_XMM2;
+    veh->orientToStartTime = *(float *)&_XMM2;
   }
 }
 
@@ -1359,143 +963,116 @@ void G_VehicleSP_ReadSaveGame(SaveGame *save)
 G_VehicleSP_Think
 ==============
 */
-
-void __fastcall G_VehicleSP_Think(gentity_s *pSelf, double _XMM1_8)
+void G_VehicleSP_Think(gentity_s *pSelf)
 {
-  gentity_s *Player; 
-  gentity_s *v10; 
-  bool v11; 
-  gclient_s *client; 
-  unsigned int number; 
-  int NextThinkTime; 
   Vehicle *vehicle; 
-  double v45; 
+  const VehicleDef *ServerDef; 
+  gentity_s *Player; 
+  gentity_s *v5; 
+  int NextThinkTime; 
+  Vehicle *v7; 
+  float speed; 
+  BOOL v9; 
+  float orientToStartTime; 
+  float v11; 
+  float v12; 
+  float *p_number; 
+  __int128 orientToTime_low; 
+  double DeltaTime; 
+  __int128 v17; 
+  const gentity_s *ent; 
 
   if ( !pSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 392, ASSERT_TYPE_ASSERT, "( pSelf )", (const char *)&queryFormat, "pSelf") )
     __debugbreak();
-  _RBX = pSelf->vehicle;
-  _RBP = G_Vehicle_GetServerDef(_RBX->defIndex);
-  G_Vehicle_SetEntityStateTeam(pSelf, (team_t)_RBX->team);
+  vehicle = pSelf->vehicle;
+  ServerDef = G_Vehicle_GetServerDef(vehicle->defIndex);
+  G_Vehicle_SetEntityStateTeam(pSelf, (team_t)vehicle->team);
   Player = G_Vehicle_GetPlayer(pSelf);
-  v10 = Player;
-  v11 = 0;
-  if ( Player && (client = Player->client, number = pSelf->s.number, v11 = client->ps.vehicleState.entity < number, client->ps.vehicleState.entity == number) )
+  v5 = Player;
+  if ( Player && Player->client->ps.vehicleState.entity == pSelf->s.number )
   {
     G_ActiveSP_TouchTriggers(pSelf);
     NextThinkTime = G_Vehicle_GetNextThinkTime();
-    vehicle = pSelf->vehicle;
+    v7 = pSelf->vehicle;
     pSelf->nextthink = NextThinkTime;
-    G_Vehicle_UpdateCameraState(vehicle);
+    G_Vehicle_UpdateCameraState(v7);
+    return;
+  }
+  speed = vehicle->speed;
+  if ( speed < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 413, ASSERT_TYPE_ASSERT, "( ( vehicle->speed >= 0.0f ) )", "%s\n\t( vehicle->speed ) = %g", "( vehicle->speed >= 0.0f )", speed) )
+    __debugbreak();
+  pSelf->s.lerp.u.anonymous.data[1] &= ~2u;
+  if ( !BGVehicles::PhysicsIsValid(vehicle->physicsVehicle) || vehicle->ent->scripted || COERCE_FLOAT(LODWORD(vehicle->orientToTime) & _xmm) > 0.001 || pSelf->tagInfo )
+  {
+    if ( vehicle->drivingState == VEH_DRIVE_PATH_CONSTRAINED )
+      vehicle->speed = vehicle->pathSpeed;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+588h]
-      vmovaps [rsp+88h+var_18], xmm6
-      vmovaps [rsp+88h+var_28], xmm7
-      vxorps  xmm6, xmm6, xmm6
-      vcomiss xmm0, xmm6
-      vmovaps [rsp+88h+var_38], xmm8
-      vmovaps [rsp+88h+var_48], xmm9
-    }
-    if ( v11 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+88h+var_58], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 413, ASSERT_TYPE_ASSERT, "( ( vehicle->speed >= 0.0f ) )", "%s\n\t( vehicle->speed ) = %g", "( vehicle->speed >= 0.0f )", v45) )
-        __debugbreak();
-    }
-    pSelf->s.lerp.u.anonymous.data[1] &= ~2u;
-    __asm
-    {
-      vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm8, cs:__real@3a83126f
-    }
-    if ( !BGVehicles::PhysicsIsValid(_RBX->physicsVehicle) )
-      goto LABEL_15;
-    if ( _RBX->ent->scripted )
-      goto LABEL_15;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+66Ch]
-      vandps  xmm0, xmm0, xmm7
-      vcomiss xmm0, xmm8
-    }
-    if ( _RBX->ent->scripted || pSelf->tagInfo )
-    {
-LABEL_15:
-      if ( _RBX->drivingState == VEH_DRIVE_PATH_CONSTRAINED )
-        _RBX->speed = _RBX->pathSpeed;
-    }
-    else
-    {
-      G_Vehicle_UpdatePhysics(pSelf, v10);
-    }
-    G_Vehicle_UpdatePhysicsLinkEntity(pSelf);
-    G_Vehicle_UpdatePosition(pSelf, v10);
-    G_ActiveSP_TouchTriggers(pSelf);
-    G_Vehicle_DrawDebugOrigin(_RBP, &_RBX->phys);
-    _RBX->turret.barrelBlocked = 0;
-    G_Vehicle_UpdatePlayerControlledWeapon(pSelf);
-    G_Vehicle_UpdateAim(pSelf);
-    G_Vehicle_UpdateBody(_RBX);
-    G_Vehicle_UpdateSteering(pSelf);
-    G_Vehicle_UpdateSounds(pSelf);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+66Ch]
-      vandps  xmm0, xmm0, xmm7
-      vcomiss xmm0, xmm8
-    }
-    if ( G_VehicleSP_IsVehicleScriptedAnimRunning(_RBX) )
-    {
-      __asm { vxorps  xmm1, xmm1, xmm1 }
-      _RAX = _RBX->ent;
-      __asm
-      {
-        vmulss  xmm0, xmm1, dword ptr [rax+68h]
-        vmovss  dword ptr [rax+68h], xmm0
-        vmulss  xmm0, xmm1, dword ptr [rax+60h]
-        vmovss  dword ptr [rax+60h], xmm0
-        vmulss  xmm0, xmm1, dword ptr [rax+64h]
-        vmovss  dword ptr [rax+64h], xmm0
-        vmulss  xmm0, xmm1, dword ptr [rbx+144h]
-        vmovss  dword ptr [rbx+144h], xmm0
-        vmulss  xmm0, xmm1, dword ptr [rbx+148h]
-        vmovss  dword ptr [rbx+148h], xmm0
-        vmulss  xmm0, xmm1, dword ptr [rbx+14Ch]
-        vmovss  dword ptr [rbx+14Ch], xmm0
-        vmulss  xmm0, xmm1, dword ptr [rbx+15Ch]
-        vmovss  dword ptr [rbx+15Ch], xmm0
-        vmulss  xmm0, xmm1, dword ptr [rbx+160h]
-        vmovss  dword ptr [rbx+160h], xmm0
-        vmulss  xmm0, xmm1, dword ptr [rbx+164h]
-        vmovss  dword ptr [rbx+164h], xmm0
-      }
-    }
-    __asm
-    {
-      vmovss  xmm9, dword ptr [rbx+66Ch]
-      vandps  xmm0, xmm9, xmm7
-      vcomiss xmm0, xmm8
-      vmovss  xmm0, dword ptr [rbp+2E4h]
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si eax, xmm1
-    }
-    pSelf->s.time2 = _EAX;
-    __asm
-    {
-      vmovaps xmm9, [rsp+88h+var_48]
-      vmovaps xmm8, [rsp+88h+var_38]
-      vmovaps xmm7, [rsp+88h+var_28]
-      vmovaps xmm6, [rsp+88h+var_18]
-    }
-    pSelf->nextthink = G_Vehicle_GetNextThinkTime();
+    G_Vehicle_UpdatePhysics(pSelf, v5);
   }
+  G_Vehicle_UpdatePhysicsLinkEntity(pSelf);
+  G_Vehicle_UpdatePosition(pSelf, v5);
+  G_ActiveSP_TouchTriggers(pSelf);
+  G_Vehicle_DrawDebugOrigin(ServerDef, &vehicle->phys);
+  vehicle->turret.barrelBlocked = 0;
+  G_Vehicle_UpdatePlayerControlledWeapon(pSelf);
+  G_Vehicle_UpdateAim(pSelf);
+  G_Vehicle_UpdateBody(vehicle);
+  G_Vehicle_UpdateSteering(pSelf);
+  G_Vehicle_UpdateSounds(pSelf);
+  v9 = COERCE_FLOAT(LODWORD(vehicle->orientToTime) & _xmm) > 0.001;
+  if ( G_VehicleSP_IsVehicleScriptedAnimRunning(vehicle) )
+  {
+    if ( !v9 )
+      goto LABEL_23;
+    goto LABEL_21;
+  }
+  if ( v9 )
+  {
+LABEL_21:
+    orientToStartTime = vehicle->orientToStartTime;
+    if ( orientToStartTime > 0.0 )
+    {
+      v11 = vehicle->orientToTime / orientToStartTime;
+      I_fclamp(v11, 0.0, 1.0);
+      v12 = v11;
+LABEL_24:
+      p_number = (float *)&vehicle->ent->s.number;
+      p_number[26] = v12 * vehicle->ent->s.lerp.u.actor.impactVector.v[1];
+      p_number[24] = v12 * p_number[24];
+      p_number[25] = v12 * p_number[25];
+      vehicle->phys.bodyVel.v[0] = v12 * vehicle->phys.bodyVel.v[0];
+      vehicle->phys.bodyVel.v[1] = v12 * vehicle->phys.bodyVel.v[1];
+      vehicle->phys.bodyVel.v[2] = v12 * vehicle->phys.bodyVel.v[2];
+      vehicle->phys.bodyAccel.v[0] = v12 * vehicle->phys.bodyAccel.v[0];
+      vehicle->phys.bodyAccel.v[1] = v12 * vehicle->phys.bodyAccel.v[1];
+      vehicle->phys.bodyAccel.v[2] = v12 * vehicle->phys.bodyAccel.v[2];
+      goto LABEL_25;
+    }
+LABEL_23:
+    v12 = 0.0;
+    goto LABEL_24;
+  }
+LABEL_25:
+  orientToTime_low = LODWORD(vehicle->orientToTime);
+  if ( COERCE_FLOAT(orientToTime_low & _xmm) > 0.001 )
+  {
+    DeltaTime = G_Vehicle_GetDeltaTime();
+    v17 = orientToTime_low;
+    *(float *)&v17 = *(float *)&orientToTime_low - *(float *)&DeltaTime;
+    _XMM1 = v17;
+    __asm { vmaxss  xmm2, xmm1, xmm6 }
+    vehicle->orientToTime = *(float *)&_XMM2;
+    if ( COERCE_FLOAT(_XMM2 & _xmm) <= 0.001 )
+    {
+      ent = vehicle->ent;
+      vehicle->orientToTime = 0.0;
+      GScr_Notify(ent, scr_const.orientto_complete, 0);
+    }
+  }
+  pSelf->s.time2 = (int)(float)(ServerDef->vehiclePhysicsDef.suspensionTravel * 1000.0);
+  pSelf->nextthink = G_Vehicle_GetNextThinkTime();
 }
 
 /*
@@ -1506,166 +1083,114 @@ G_VehicleSP_UpdateAnimatedSubState
 __int64 G_VehicleSP_UpdateAnimatedSubState(Vehicle *veh, VehiclePathPos *nextVpp, bool *waitNodeHit)
 {
   gentity_s *ent; 
-  bool v12; 
-  int v18; 
-  bool v20; 
+  int v7; 
+  VehicleOrientTo *p_orientToAngles; 
+  bool v9; 
+  float v12; 
   vec3_t *p_angles; 
-  const vec3_t *v33; 
-  gentity_s *v34; 
+  const vec3_t *v14; 
+  gentity_s *v15; 
   __int64 pathDir; 
-  __int64 v50; 
+  __int64 v18; 
 
-  _RSI = nextVpp;
-  _R14 = veh;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 223, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 224, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION )") )
     __debugbreak();
-  ent = _R14->ent;
-  v12 = (_R14->ent->s.lerp.u.anonymous.data[1] & 0xFFFFFF7F) == 0;
-  _R14->ent->s.lerp.u.anonymous.data[1] &= ~0x80u;
-  __asm
+  ent = veh->ent;
+  veh->ent->s.lerp.u.anonymous.data[1] &= ~0x80u;
+  if ( COERCE_FLOAT(LODWORD(veh->orientToTime) & _xmm) > 0.001 )
   {
-    vmovss  xmm0, dword ptr [r14+66Ch]
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3a83126f
-  }
-  if ( !v12 )
-  {
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_38], xmm6
-      vmovaps [rsp+0B8h+var_48], xmm7
-      vmovaps [rsp+0B8h+var_58], xmm8
-      vmovaps [rsp+0B8h+var_68], xmm9
-      vmovaps [rsp+0B8h+var_78], xmm10
-    }
-    G_VehicleSP_UpdateOrientToVelocity(_R14, &_R14->orientToOrigin, 0);
-    _R14->phys.origin.v[0] = _R14->orientToOrigin.current.v[0];
-    _R14->phys.origin.v[1] = _R14->orientToOrigin.current.v[1];
-    _R14->phys.origin.v[2] = _R14->orientToOrigin.current.v[2];
-    G_VehicleSP_UpdateOrientToVelocity(_R14, &_R14->orientToAngles, 1);
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3b360b61
-      vmovss  xmm9, cs:__real@3f000000
-      vmovss  xmm10, cs:__real@43b40000
-    }
-    v18 = 0;
-    _RDI = &_R14->orientToAngles;
-    v20 = 1;
-    __asm { vxorps  xmm7, xmm7, xmm7 }
+    G_VehicleSP_UpdateOrientToVelocity(veh, &veh->orientToOrigin, 0);
+    veh->phys.origin.v[0] = veh->orientToOrigin.current.v[0];
+    veh->phys.origin.v[1] = veh->orientToOrigin.current.v[1];
+    veh->phys.origin.v[2] = veh->orientToOrigin.current.v[2];
+    G_VehicleSP_UpdateOrientToVelocity(veh, &veh->orientToAngles, 1);
+    v7 = 0;
+    p_orientToAngles = &veh->orientToAngles;
+    v9 = 1;
+    _XMM7 = 0i64;
     do
     {
-      if ( !v20 )
+      if ( !v9 )
       {
-        LODWORD(v50) = 3;
-        LODWORD(pathDir) = v18;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", pathDir, v50) )
+        LODWORD(v18) = 3;
+        LODWORD(pathDir) = v7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", pathDir, v18) )
           __debugbreak();
       }
-      __asm
+      __asm { vroundss xmm3, xmm7, xmm2, 1 }
+      v12 = (float)((float)(0.0027777778 * p_orientToAngles->current.v[0]) - *(float *)&_XMM3) * 360.0;
+      if ( (unsigned int)v7 >= 3 )
       {
-        vmulss  xmm4, xmm8, dword ptr [rdi]
-        vaddss  xmm2, xmm4, xmm9
-        vroundss xmm3, xmm7, xmm2, 1
-        vsubss  xmm1, xmm4, xmm3
-        vmulss  xmm6, xmm1, xmm10
-      }
-      if ( (unsigned int)v18 >= 3 )
-      {
-        LODWORD(v50) = 3;
-        LODWORD(pathDir) = v18;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", pathDir, v50) )
+        LODWORD(v18) = 3;
+        LODWORD(pathDir) = v7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", pathDir, v18) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [rdi], xmm6 }
-      _RDI = (VehicleOrientTo *)((char *)_RDI + 4);
-      v20 = (unsigned int)++v18 < 3;
+      p_orientToAngles->current.v[0] = v12;
+      p_orientToAngles = (VehicleOrientTo *)((char *)p_orientToAngles + 4);
+      v9 = (unsigned int)++v7 < 3;
     }
-    while ( v18 < 3 );
-    p_angles = &_R14->phys.angles;
-    __asm
-    {
-      vmovaps xmm10, [rsp+0B8h+var_78]
-      vmovaps xmm9, [rsp+0B8h+var_68]
-      vmovaps xmm8, [rsp+0B8h+var_58]
-      vmovaps xmm7, [rsp+0B8h+var_48]
-      vmovaps xmm6, [rsp+0B8h+var_38]
-    }
-    _R14->phys.angles.v[0] = _R14->orientToAngles.current.v[0];
-    _R14->phys.angles.v[1] = _R14->orientToAngles.current.v[1];
-    _R14->phys.angles.v[2] = _R14->orientToAngles.current.v[2];
+    while ( v7 < 3 );
+    p_angles = &veh->phys.angles;
+    veh->phys.angles.v[0] = veh->orientToAngles.current.v[0];
+    veh->phys.angles.v[1] = veh->orientToAngles.current.v[1];
+    veh->phys.angles.v[2] = veh->orientToAngles.current.v[2];
 LABEL_21:
-    if ( _RSI )
+    if ( nextVpp )
     {
-      v33 = p_angles;
+      v14 = p_angles;
       if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 170, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION )") )
         __debugbreak();
-      v34 = _R14->ent;
-      G_VehiclePath_UpdatePathPosAnimated(_RSI, &_R14->phys.origin, v33);
-      *waitNodeHit = G_VehiclePath_UpdatePathPosNotifies(&_R14->pathPos, _RSI, v34->s.number, _R14->waitNode, VEH_PATH_NOTIFY_SCRIPT, VEH_PATH_FORWARD);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups xmmword ptr [r14+10h], xmm0
-        vmovups xmm1, xmmword ptr [rsi+10h]
-        vmovups xmmword ptr [r14+20h], xmm1
-        vmovups xmm0, xmmword ptr [rsi+20h]
-        vmovups xmmword ptr [r14+30h], xmm0
-        vmovups xmm1, xmmword ptr [rsi+30h]
-        vmovups xmmword ptr [r14+40h], xmm1
-        vmovups xmm0, xmmword ptr [rsi+40h]
-        vmovups xmmword ptr [r14+50h], xmm0
-        vmovups xmm1, xmmword ptr [rsi+50h]
-        vmovups xmmword ptr [r14+60h], xmm1
-        vmovups xmm0, xmmword ptr [rsi+60h]
-        vmovups xmmword ptr [r14+70h], xmm0
-        vmovups xmm1, xmmword ptr [rsi+70h]
-        vmovups xmmword ptr [r14+80h], xmm1
-        vmovups xmm0, xmmword ptr [rsi+80h]
-        vmovups xmmword ptr [r14+90h], xmm0
-        vmovups xmm1, xmmword ptr [rsi+90h]
-        vmovups xmmword ptr [r14+0A0h], xmm1
-        vmovups xmm0, xmmword ptr [rsi+0A0h]
-        vmovups xmmword ptr [r14+0B0h], xmm0
-        vmovups xmm1, xmmword ptr [rsi+0B0h]
-        vmovups xmmword ptr [r14+0C0h], xmm1
-        vmovups xmm0, xmmword ptr [rsi+0C0h]
-        vmovups xmmword ptr [r14+0D0h], xmm0
-      }
-      *(_QWORD *)&_R14->pathPos.switchNode[1].length = *(_QWORD *)&_RSI->switchNode[1].length;
-      *(_DWORD *)&_R14->pathPos.switchNode[1].notifyIdx = *(_DWORD *)&_RSI->switchNode[1].notifyIdx;
-      _R14->manualTime = 0.0;
-      if ( G_VehiclePath_IsEndOfPath(&_R14->pathPos) )
-        _R14->pathSpeed = 0.0;
+      v15 = veh->ent;
+      G_VehiclePath_UpdatePathPosAnimated(nextVpp, &veh->phys.origin, v14);
+      *waitNodeHit = G_VehiclePath_UpdatePathPosNotifies(&veh->pathPos, nextVpp, v15->s.number, veh->waitNode, VEH_PATH_NOTIFY_SCRIPT, VEH_PATH_FORWARD);
+      *(_OWORD *)&veh->pathPos.nodeIdx = *(_OWORD *)&nextVpp->nodeIdx;
+      *(_OWORD *)&veh->pathPos.lookAhead = *(_OWORD *)&nextVpp->lookAhead;
+      *(_OWORD *)veh->pathPos.angles.v = *(_OWORD *)nextVpp->angles.v;
+      *(_OWORD *)&veh->pathPos.lookPos.y = *(_OWORD *)&nextVpp->lookPos.y;
+      *(_OWORD *)&veh->pathPos.driftOffset.z = *(_OWORD *)&nextVpp->driftOffset.z;
+      *(_OWORD *)&veh->pathPos.switchNode[0].script_noteworthy = *(_OWORD *)&nextVpp->switchNode[0].script_noteworthy;
+      *(_OWORD *)veh->pathPos.switchNode[0].origin.v = *(_OWORD *)nextVpp->switchNode[0].origin.v;
+      *(_OWORD *)&veh->pathPos.switchNode[0].dir.y = *(_OWORD *)&nextVpp->switchNode[0].dir.y;
+      *(_OWORD *)&veh->pathPos.switchNode[0].angles.z = *(_OWORD *)&nextVpp->switchNode[0].angles.z;
+      *(_OWORD *)&veh->pathPos.switchNode[1].name = *(_OWORD *)&nextVpp->switchNode[1].name;
+      *(_OWORD *)&veh->pathPos.switchNode[1].index = *(_OWORD *)&nextVpp->switchNode[1].index;
+      *(_OWORD *)&veh->pathPos.switchNode[1].origin.y = *(_OWORD *)&nextVpp->switchNode[1].origin.y;
+      *(_OWORD *)&veh->pathPos.switchNode[1].dir.z = *(_OWORD *)&nextVpp->switchNode[1].dir.z;
+      *(_QWORD *)&veh->pathPos.switchNode[1].length = *(_QWORD *)&nextVpp->switchNode[1].length;
+      *(_DWORD *)&veh->pathPos.switchNode[1].notifyIdx = *(_DWORD *)&nextVpp->switchNode[1].notifyIdx;
+      veh->manualTime = 0.0;
+      if ( G_VehiclePath_IsEndOfPath(&veh->pathPos) )
+        veh->pathSpeed = 0.0;
     }
     return 1i64;
   }
-  if ( G_VehicleSP_IsVehicleScriptedAnimRunning(_R14) )
+  if ( G_VehicleSP_IsVehicleScriptedAnimRunning(veh) )
   {
     G_Animscripted_Think(ent);
-    p_angles = &_R14->phys.angles;
-    _R14->phys.origin.v[0] = ent->r.currentOrigin.v[0];
-    _R14->phys.origin.v[1] = ent->r.currentOrigin.v[1];
-    _R14->phys.origin.v[2] = ent->r.currentOrigin.v[2];
-    _R14->phys.angles.v[0] = ent->r.currentAngles.v[0];
-    _R14->phys.angles.v[1] = ent->r.currentAngles.v[1];
-    _R14->phys.angles.v[2] = ent->r.currentAngles.v[2];
+    p_angles = &veh->phys.angles;
+    veh->phys.origin.v[0] = ent->r.currentOrigin.v[0];
+    veh->phys.origin.v[1] = ent->r.currentOrigin.v[1];
+    veh->phys.origin.v[2] = ent->r.currentOrigin.v[2];
+    veh->phys.angles.v[0] = ent->r.currentAngles.v[0];
+    veh->phys.angles.v[1] = ent->r.currentAngles.v[1];
+    veh->phys.angles.v[2] = ent->r.currentAngles.v[2];
     ent->s.lerp.u.anonymous.data[1] |= 0x80u;
-    if ( _RSI )
+    if ( nextVpp )
     {
-      if ( G_VehiclePath_IsEndOfPath(_RSI) )
-        _RSI->flags |= 2u;
+      if ( G_VehiclePath_IsEndOfPath(nextVpp) )
+        nextVpp->flags |= 2u;
       goto LABEL_21;
     }
     return 1i64;
   }
-  if ( _RSI && (_RSI->flags & 2) != 0 )
+  if ( nextVpp && (nextVpp->flags & 2) != 0 )
   {
-    if ( G_VehiclePath_IsEndOfPath(_RSI) )
+    if ( G_VehiclePath_IsEndOfPath(nextVpp) )
       return 1i64;
-    _RSI->flags &= ~2u;
+    nextVpp->flags &= ~2u;
   }
   return 0i64;
 }
@@ -1677,134 +1202,72 @@ G_VehicleSP_UpdateOrientToVelocity
 */
 void G_VehicleSP_UpdateOrientToVelocity(Vehicle *veh, VehicleOrientTo *orientTo, int angles)
 {
-  bool v10; 
-  bool v11; 
+  float orientToStartTime; 
+  double v7; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
+  float v11; 
+  __int128 v12; 
+  __int128 v13; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float frameDuration; 
   vec3_t v3; 
-  char v69; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-  }
-  _RBX = orientTo;
-  _RDI = veh;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 76, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  v10 = _RBX == NULL;
-  if ( !_RBX )
+  if ( !orientTo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 77, ASSERT_TYPE_ASSERT, "(orientTo)", (const char *)&queryFormat, "orientTo") )
+    __debugbreak();
+  orientToStartTime = veh->orientToStartTime;
+  if ( orientToStartTime <= 0.0 )
   {
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 77, ASSERT_TYPE_ASSERT, "(orientTo)", (const char *)&queryFormat, "orientTo");
-    v10 = !v11;
-    if ( v11 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+670h]
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1; min
-    vcomiss xmm2, xmm1
-  }
-  if ( v10 )
-  {
-    __asm { vmovaps xmm1, xmm7 }
+    v8 = FLOAT_1_0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+66Ch]
-      vdivss  xmm0, xmm0, xmm2; val
-      vmovaps xmm2, xmm7; max
-    }
-    I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vsubss  xmm1, xmm7, xmm0 }
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm1, cs:__real@3f333333
-    vaddss  xmm8, xmm0, cs:__real@3e99999a
+    v7 = I_fclamp(veh->orientToTime / orientToStartTime, 0.0, 1.0);
+    v8 = 1.0 - *(float *)&v7;
   }
   if ( angles )
   {
-    AnglesSubtract(&_RBX->target, &_RBX->current, &v3);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsp+88h+v3+8]
-      vmovss  xmm5, dword ptr [rsp+88h+v3+4]
-      vmovss  xmm6, dword ptr [rsp+88h+v3]
-    }
+    AnglesSubtract(&orientTo->target, &orientTo->current, &v3);
+    v9 = v3.v[2];
+    v10 = LODWORD(v3.v[1]);
+    v11 = v3.v[0];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0Ch]
-      vsubss  xmm6, xmm0, dword ptr [rbx]
-      vmovss  xmm0, dword ptr [rbx+14h]
-      vmovss  xmm1, dword ptr [rbx+10h]
-      vsubss  xmm4, xmm0, dword ptr [rbx+8]
-      vsubss  xmm5, xmm1, dword ptr [rbx+4]
-    }
+    v11 = orientTo->target.v[0] - orientTo->current.v[0];
+    v9 = orientTo->target.v[2] - orientTo->current.v[2];
+    v12 = LODWORD(orientTo->target.v[1]);
+    *(float *)&v12 = orientTo->target.v[1] - orientTo->current.v[1];
+    v10 = v12;
   }
+  v13 = v10;
+  *(float *)&v13 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(v11 * v11)) + (float)(v9 * v9));
+  _XMM3 = v13;
   __asm
   {
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm1, xmm7, xmm0
-    vmulss  xmm0, xmm3, cs:__real@40000000
-    vmulss  xmm6, xmm6, xmm1
-    vmulss  xmm5, xmm5, xmm1
-    vmulss  xmm4, xmm4, xmm1
-    vdivss  xmm1, xmm0, dword ptr [rdi+66Ch]
-    vsubss  xmm2, xmm1, dword ptr [rbx+1Ch]
-    vsubss  xmm0, xmm7, xmm8
-    vmulss  xmm1, xmm0, dword ptr [rbx+18h]
-    vmulss  xmm3, xmm2, xmm8
-    vaddss  xmm2, xmm3, xmm1
-    vmovss  dword ptr [rbx+18h], xmm2
-    vmovss  dword ptr [rsp+88h+v3], xmm6
-    vmovss  dword ptr [rsp+88h+v3+4], xmm5
-    vmovss  dword ptr [rsp+88h+v3+8], xmm4
-    vmulss  xmm6, xmm6, xmm2
-    vmulss  xmm7, xmm5, xmm2
-    vmulss  xmm8, xmm4, xmm2
   }
+  v17 = (float)((float)((float)((float)(*(float *)&v13 * 2.0) / veh->orientToTime) - orientTo->tgtSpeed) * (float)((float)(v8 * 0.69999999) + 0.30000001)) + (float)((float)(1.0 - (float)((float)(v8 * 0.69999999) + 0.30000001)) * orientTo->speed);
+  orientTo->speed = v17;
+  v3.v[0] = v11 * (float)(1.0 / *(float *)&_XMM0);
+  v3.v[1] = *(float *)&v10 * (float)(1.0 / *(float *)&_XMM0);
+  v3.v[2] = v9 * (float)(1.0 / *(float *)&_XMM0);
+  v18 = v3.v[0] * v17;
+  v19 = v3.v[1] * v17;
+  v20 = v3.v[2] * v17;
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3a83126f
-    vxorps  xmm4, xmm4, xmm4
-    vcvtsi2ss xmm4, xmm4, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmulss  xmm0, xmm4, xmm6
-    vmulss  xmm0, xmm0, xmm3
-    vaddss  xmm1, xmm0, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-    vmulss  xmm0, xmm4, xmm7
-    vmulss  xmm1, xmm0, xmm3
-    vaddss  xmm2, xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx+4], xmm2
-    vmulss  xmm0, xmm4, xmm8
-    vmulss  xmm1, xmm0, xmm3
-    vaddss  xmm2, xmm1, dword ptr [rbx+8]
-    vmovss  dword ptr [rbx+8], xmm2
-  }
-  _R11 = &v69;
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  frameDuration = (float)level.frameDuration;
+  orientTo->current.v[0] = (float)((float)(frameDuration * v18) * 0.001) + orientTo->current.v[0];
+  orientTo->current.v[1] = (float)((float)(frameDuration * v19) * 0.001) + orientTo->current.v[1];
+  orientTo->current.v[2] = (float)((float)(frameDuration * v20) * 0.001) + orientTo->current.v[2];
 }
 
 /*
@@ -1840,12 +1303,13 @@ GVehiclesSP::GetVehicleBoatRockingScale
 */
 float GVehiclesSP::GetVehicleBoatRockingScale(GVehiclesSP *this)
 {
-  _RBX = DVARFLT_vehBoatRockingScale;
+  const dvar_t *v1; 
+
+  v1 = DVARFLT_vehBoatRockingScale;
   if ( !DVARFLT_vehBoatRockingScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehBoatRockingScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v1);
+  return v1->current.value;
 }
 
 /*
@@ -1855,15 +1319,16 @@ GVehiclesSP::GetVehicleHeliPlayerMove
 */
 void GVehiclesSP::GetVehicleHeliPlayerMove(GVehiclesSP *this, const Vehicle *veh, gentity_s *player, char *outMove)
 {
+  const VehicleDef *ServerDef; 
   char v8; 
-  const dvar_t *v15; 
+  const dvar_t *v9; 
   int integer; 
-  int v17; 
-  int v18; 
+  int v11; 
+  int v12; 
   __int16 buttons; 
-  __int16 v20; 
-  __int16 v21; 
-  const dvar_t *v22; 
+  __int16 v14; 
+  __int16 v15; 
+  const dvar_t *v16; 
   usercmd_s outUserCmd; 
 
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 966, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
@@ -1874,7 +1339,7 @@ void GVehiclesSP::GetVehicleHeliPlayerMove(GVehiclesSP *this, const Vehicle *veh
     __debugbreak();
   if ( !Com_GameMode_SupportsFeature(WEAPON_ANIM_SCRIPTED) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 969, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::VEHICLE_REMOTE_CONTROL ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::VEHICLE_REMOTE_CONTROL )") )
     __debugbreak();
-  _RSI = G_Vehicle_GetServerDef(veh->defIndex);
+  ServerDef = G_Vehicle_GetServerDef(veh->defIndex);
   G_Utils_GetClientCommonUserCommand(player->client, &outUserCmd);
   GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&player->client->ps.eFlags, GameModeFlagValues::ms_spValue, 0x1Cu);
   player->client->linkAnglesFrac = 0.0;
@@ -1892,44 +1357,32 @@ LABEL_44:
     GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&player->client->ps.eFlags, GameModeFlagValues::ms_spValue, 0x1Cu);
     *outMove = outUserCmd.forwardmove;
     outMove[1] = outUserCmd.rightmove;
-    _RAX = player->client;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+0C84h]
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmovss  dword ptr [rax+5ED0h], xmm1
-    }
-    player->client->link_viewClamp.max.goal.v[1] = _RSI->turretHorizSpanLeft;
-    _RAX = player->client;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+0C88h]
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmovss  dword ptr [rax+5ECCh], xmm1
-    }
-    player->client->link_viewClamp.max.goal.v[0] = _RSI->turretVertSpanDown;
+    player->client->link_viewClamp.min.goal.v[1] = COERCE_FLOAT(LODWORD(ServerDef->turretHorizSpanRight) ^ _xmm);
+    player->client->link_viewClamp.max.goal.v[1] = ServerDef->turretHorizSpanLeft;
+    player->client->link_viewClamp.min.goal.v[0] = COERCE_FLOAT(LODWORD(ServerDef->turretVertSpanUp) ^ _xmm);
+    player->client->link_viewClamp.max.goal.v[0] = ServerDef->turretVertSpanDown;
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_IDLE|WEAPON_OFFHAND_END) )
     {
-      player->client->link_viewClamp.resistMin.goal.v[1] = _RSI->turretHorizResistLeft;
-      player->client->link_viewClamp.resistMax.goal.v[1] = _RSI->turretHorizResistRight;
-      player->client->link_viewClamp.resistMin.goal.v[0] = _RSI->turretVertResistDown;
-      player->client->link_viewClamp.resistMax.goal.v[0] = _RSI->turretVertResistUp;
+      player->client->link_viewClamp.resistMin.goal.v[1] = ServerDef->turretHorizResistLeft;
+      player->client->link_viewClamp.resistMax.goal.v[1] = ServerDef->turretHorizResistRight;
+      player->client->link_viewClamp.resistMin.goal.v[0] = ServerDef->turretVertResistDown;
+      player->client->link_viewClamp.resistMax.goal.v[0] = ServerDef->turretVertResistUp;
     }
     G_SnapToViewAngleClampGoal(&player->client->link_viewClamp);
-    v15 = DVARINT_vehHelicopterControlsAltitude;
+    v9 = DVARINT_vehHelicopterControlsAltitude;
     if ( !DVARINT_vehHelicopterControlsAltitude && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHelicopterControlsAltitude") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v15);
-    integer = v15->current.integer;
+    Dvar_CheckFrontendServerThread(v9);
+    integer = v9->current.integer;
     if ( integer )
     {
-      v17 = integer - 1;
-      if ( v17 )
+      v11 = integer - 1;
+      if ( v11 )
       {
-        v18 = v17 - 1;
-        if ( v18 )
+        v12 = v11 - 1;
+        if ( v12 )
         {
-          if ( v18 == 1 )
+          if ( v12 == 1 )
           {
             buttons = outUserCmd.buttons;
             if ( (outUserCmd.buttons & 0x100) != 0 )
@@ -1940,19 +1393,19 @@ LABEL_44:
         }
         else
         {
-          v20 = outUserCmd.buttons;
+          v14 = outUserCmd.buttons;
           if ( (outUserCmd.buttons & 0x2000) != 0 )
             outMove[2] = 127;
-          if ( (v20 & 0x200) != 0 )
+          if ( (v14 & 0x200) != 0 )
             outMove[2] -= 127;
         }
       }
       else
       {
-        v21 = outUserCmd.buttons;
+        v15 = outUserCmd.buttons;
         if ( (outUserCmd.buttons & 0x1000) != 0 )
           outMove[2] = 127;
-        if ( (v21 & 0x2000) != 0 )
+        if ( (v15 & 0x2000) != 0 )
           outMove[2] -= 127;
       }
     }
@@ -1960,11 +1413,11 @@ LABEL_44:
     {
       outMove[2] = outUserCmd.pitchmove;
     }
-    v22 = DVARBOOL_vehHelicopterInvertUpDown;
+    v16 = DVARBOOL_vehHelicopterInvertUpDown;
     if ( !DVARBOOL_vehHelicopterInvertUpDown && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehHelicopterInvertUpDown") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    if ( v22->current.enabled )
+    Dvar_CheckFrontendServerThread(v16);
+    if ( v16->current.enabled )
     {
       v8 = -outMove[2];
       goto LABEL_44;
@@ -2047,13 +1500,7 @@ float GVehiclesSP::GetVehicleTankPlayerThrottle(GVehiclesSP *this, const usercmd
 {
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 1107, ASSERT_TYPE_ASSERT, "( cmd )", (const char *)&queryFormat, "cmd") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, cs:__real@3c010204
-  }
-  return *(float *)&_XMM0;
+  return (float)cmd->upmove * 0.0078740157;
 }
 
 /*
@@ -2227,90 +1674,76 @@ GVehiclesSP::UpdateHelicopterAIMove
 */
 void GVehiclesSP::UpdateHelicopterAIMove(GVehiclesSP *this, Vehicle *veh)
 {
-  const gentity_s *ent; 
-  bool IsEndOfPath; 
-  char v8; 
-  bool v9; 
+  float pathSpeed; 
+  gentity_s *ent; 
+  float waitSpeed; 
   bool waitNodeHit; 
 
-  _RBX = veh;
   G_VehicleHeli_PathFromVeh(&veh->heliPathPos, veh);
-  if ( G_VehicleSP_UpdateAnimatedSubState(_RBX, NULL, &waitNodeHit) )
+  if ( G_VehicleSP_UpdateAnimatedSubState(veh, NULL, &waitNodeHit) )
   {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rbx+58Ch]
-    }
+    pathSpeed = veh->pathSpeed;
     if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 192, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION )") )
       __debugbreak();
-    ent = _RBX->ent;
-    G_Vehicle_CalcPhysVelFromPrevState(_RBX);
-    if ( waitNodeHit && _RBX->waitNode > -1 )
+    ent = veh->ent;
+    G_Vehicle_CalcPhysVelFromPrevState(veh);
+    if ( waitNodeHit && veh->waitNode > -1 )
       GScr_Notify(ent, scr_const.reached_wait_node, 0);
-    IsEndOfPath = G_VehiclePath_IsEndOfPath(&_RBX->pathPos);
-    v8 = 0;
-    v9 = !IsEndOfPath;
-    if ( IsEndOfPath )
+    if ( G_VehiclePath_IsEndOfPath(&veh->pathPos) )
       GScr_Notify(ent, scr_const.reached_end_node, 0);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+5A0h]
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm1, xmm0
-    }
-    if ( v8 )
+    waitSpeed = veh->waitSpeed;
+    if ( waitSpeed < 0.0 )
       goto LABEL_16;
-    __asm { vcomiss xmm6, xmm1 }
-    if ( v8 | v9 )
+    if ( pathSpeed > waitSpeed )
+      goto LABEL_14;
+    if ( waitSpeed <= veh->pathSpeed )
     {
-      __asm { vcomiss xmm1, dword ptr [rbx+58Ch] }
-      if ( v8 | v9 )
-      {
 LABEL_15:
-        GScr_Notify(ent, scr_const.reached_wait_speed, 0);
-LABEL_16:
-        __asm { vmovaps xmm6, [rsp+48h+var_18] }
-        _RBX->heliPathPos.origin.v[0] = _RBX->phys.origin.v[0];
-        _RBX->heliPathPos.origin.v[1] = _RBX->phys.origin.v[1];
-        _RBX->heliPathPos.origin.v[2] = _RBX->phys.origin.v[2];
-        _RBX->heliPathPos.angles.v[0] = _RBX->phys.angles.v[0];
-        _RBX->heliPathPos.angles.v[1] = _RBX->phys.angles.v[1];
-        _RBX->heliPathPos.angles.v[2] = _RBX->phys.angles.v[2];
-        _RBX->heliPathPos.vel.v[0] = _RBX->phys.vel.v[0];
-        _RBX->heliPathPos.vel.v[1] = _RBX->phys.vel.v[1];
-        _RBX->heliPathPos.vel.v[2] = _RBX->phys.vel.v[2];
-        _RBX->heliPathPos.rotVel.v[0] = _RBX->phys.rotVel.v[0];
-        _RBX->heliPathPos.rotVel.v[1] = _RBX->phys.rotVel.v[1];
-        _RBX->heliPathPos.rotVel.v[2] = _RBX->phys.rotVel.v[2];
-        _RBX->heliPathPos.accel.v[0] = _RBX->phys.accel.v[0];
-        _RBX->heliPathPos.accel.v[1] = _RBX->phys.accel.v[1];
-        _RBX->heliPathPos.accel.v[2] = _RBX->phys.accel.v[2];
-        _RBX->heliPathPos.speed = _RBX->speed;
-        return;
-      }
-      __asm { vcomiss xmm6, xmm1 }
+      GScr_Notify(ent, scr_const.reached_wait_speed, 0);
+      goto LABEL_16;
     }
-    __asm { vcomiss xmm1, dword ptr [rbx+58Ch] }
-    goto LABEL_15;
+    if ( pathSpeed >= waitSpeed )
+    {
+LABEL_14:
+      if ( waitSpeed >= veh->pathSpeed )
+        goto LABEL_15;
+    }
+LABEL_16:
+    veh->heliPathPos.origin.v[0] = veh->phys.origin.v[0];
+    veh->heliPathPos.origin.v[1] = veh->phys.origin.v[1];
+    veh->heliPathPos.origin.v[2] = veh->phys.origin.v[2];
+    veh->heliPathPos.angles.v[0] = veh->phys.angles.v[0];
+    veh->heliPathPos.angles.v[1] = veh->phys.angles.v[1];
+    veh->heliPathPos.angles.v[2] = veh->phys.angles.v[2];
+    veh->heliPathPos.vel.v[0] = veh->phys.vel.v[0];
+    veh->heliPathPos.vel.v[1] = veh->phys.vel.v[1];
+    veh->heliPathPos.vel.v[2] = veh->phys.vel.v[2];
+    veh->heliPathPos.rotVel.v[0] = veh->phys.rotVel.v[0];
+    veh->heliPathPos.rotVel.v[1] = veh->phys.rotVel.v[1];
+    veh->heliPathPos.rotVel.v[2] = veh->phys.rotVel.v[2];
+    veh->heliPathPos.accel.v[0] = veh->phys.accel.v[0];
+    veh->heliPathPos.accel.v[1] = veh->phys.accel.v[1];
+    veh->heliPathPos.accel.v[2] = veh->phys.accel.v[2];
+    veh->heliPathPos.speed = veh->speed;
+    return;
   }
-  G_VehicleHeli_UpdateAiMoveInternal(&_RBX->heliPathPos);
-  _RBX->phys.origin.v[0] = _RBX->heliPathPos.origin.v[0];
-  _RBX->phys.origin.v[1] = _RBX->heliPathPos.origin.v[1];
-  _RBX->phys.origin.v[2] = _RBX->heliPathPos.origin.v[2];
-  _RBX->phys.angles.v[0] = _RBX->heliPathPos.angles.v[0];
-  _RBX->phys.angles.v[1] = _RBX->heliPathPos.angles.v[1];
-  _RBX->phys.angles.v[2] = _RBX->heliPathPos.angles.v[2];
-  _RBX->phys.vel.v[0] = _RBX->heliPathPos.vel.v[0];
-  _RBX->phys.vel.v[1] = _RBX->heliPathPos.vel.v[1];
-  _RBX->phys.vel.v[2] = _RBX->heliPathPos.vel.v[2];
-  _RBX->phys.rotVel.v[0] = _RBX->heliPathPos.rotVel.v[0];
-  _RBX->phys.rotVel.v[1] = _RBX->heliPathPos.rotVel.v[1];
-  _RBX->phys.rotVel.v[2] = _RBX->heliPathPos.rotVel.v[2];
-  _RBX->phys.accel.v[0] = _RBX->heliPathPos.accel.v[0];
-  _RBX->phys.accel.v[1] = _RBX->heliPathPos.accel.v[1];
-  _RBX->phys.accel.v[2] = _RBX->heliPathPos.accel.v[2];
-  _RBX->speed = _RBX->heliPathPos.speed;
+  G_VehicleHeli_UpdateAiMoveInternal(&veh->heliPathPos);
+  veh->phys.origin.v[0] = veh->heliPathPos.origin.v[0];
+  veh->phys.origin.v[1] = veh->heliPathPos.origin.v[1];
+  veh->phys.origin.v[2] = veh->heliPathPos.origin.v[2];
+  veh->phys.angles.v[0] = veh->heliPathPos.angles.v[0];
+  veh->phys.angles.v[1] = veh->heliPathPos.angles.v[1];
+  veh->phys.angles.v[2] = veh->heliPathPos.angles.v[2];
+  veh->phys.vel.v[0] = veh->heliPathPos.vel.v[0];
+  veh->phys.vel.v[1] = veh->heliPathPos.vel.v[1];
+  veh->phys.vel.v[2] = veh->heliPathPos.vel.v[2];
+  veh->phys.rotVel.v[0] = veh->heliPathPos.rotVel.v[0];
+  veh->phys.rotVel.v[1] = veh->heliPathPos.rotVel.v[1];
+  veh->phys.rotVel.v[2] = veh->heliPathPos.rotVel.v[2];
+  veh->phys.accel.v[0] = veh->heliPathPos.accel.v[0];
+  veh->phys.accel.v[1] = veh->heliPathPos.accel.v[1];
+  veh->phys.accel.v[2] = veh->heliPathPos.accel.v[2];
+  veh->speed = veh->heliPathPos.speed;
 }
 
 /*
@@ -2320,70 +1753,46 @@ GVehiclesSP::UpdatePathConstrainedMove
 */
 void GVehiclesSP::UpdatePathConstrainedMove(GVehiclesSP *this, Vehicle *veh)
 {
-  unsigned int defIndex; 
-  __int64 v8; 
-  char v17; 
-  char v18; 
+  __m256i v3; 
+  __int64 v4; 
+  float pathSpeed; 
   bool updated; 
   bool waitNodeHit; 
   VehiclePathPos nextVpp; 
 
-  _RBX = veh;
   if ( !veh && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 827, ASSERT_TYPE_ASSERT, "( veh )", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  if ( !BGVehicles::PhysicsIsValid(_RBX->physicsVehicle) )
+  if ( !BGVehicles::PhysicsIsValid(veh->physicsVehicle) )
   {
-    defIndex = _RBX->defIndex;
-    __asm { vmovaps [rsp+148h+var_18], xmm6 }
-    G_Vehicle_GetServerDef(defIndex);
-    if ( !_RBX->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 467, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+    G_Vehicle_GetServerDef(veh->defIndex);
+    if ( !veh->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 467, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+10h]
-      vmovups ymm1, ymmword ptr [rbx+90h]
-    }
-    v8 = *(_QWORD *)&_RBX->pathPos.switchNode[1].length;
-    _RDX = &nextVpp;
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+58Ch]
-      vmovups ymmword ptr [rdx], ymm0
-      vmovups ymm0, ymmword ptr [rbx+30h]
-      vmovups ymmword ptr [rdx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rbx+50h]
-      vmovups ymmword ptr [rdx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rbx+70h]
-      vmovups ymmword ptr [rdx+60h], ymm0
-      vmovups ymmword ptr [rdx+80h], ymm1
-      vmovups ymm1, ymmword ptr [rbx+0B0h]
-      vmovups ymmword ptr [rdx+0A0h], ymm1
-      vmovups xmm1, xmmword ptr [rbx+0D0h]
-      vmovups xmmword ptr [rdx+0C0h], xmm1
-    }
-    *(_QWORD *)&nextVpp.switchNode[1].length = v8;
-    *(_DWORD *)&nextVpp.switchNode[1].notifyIdx = *(_DWORD *)&_RBX->pathPos.switchNode[1].notifyIdx;
+    v3 = *(__m256i *)&veh->pathPos.switchNode[0].angles.z;
+    v4 = *(_QWORD *)&veh->pathPos.switchNode[1].length;
+    pathSpeed = veh->pathSpeed;
+    *(__m256i *)&nextVpp.nodeIdx = *(__m256i *)&veh->pathPos.nodeIdx;
+    *(__m256i *)nextVpp.angles.v = *(__m256i *)veh->pathPos.angles.v;
+    *(__m256i *)&nextVpp.driftOffset.z = *(__m256i *)&veh->pathPos.driftOffset.z;
+    *(__m256i *)nextVpp.switchNode[0].origin.v = *(__m256i *)veh->pathPos.switchNode[0].origin.v;
+    *(__m256i *)&nextVpp.switchNode[0].angles.z = v3;
+    *(__m256i *)&nextVpp.switchNode[1].index = *(__m256i *)&veh->pathPos.switchNode[1].index;
+    *(_OWORD *)&nextVpp.switchNode[1].dir.z = *(_OWORD *)&veh->pathPos.switchNode[1].dir.z;
+    *(_QWORD *)&nextVpp.switchNode[1].length = v4;
+    *(_DWORD *)&nextVpp.switchNode[1].notifyIdx = *(_DWORD *)&veh->pathPos.switchNode[1].notifyIdx;
     waitNodeHit = 0;
     if ( nextVpp.nodeIdx >= 0 )
     {
-      G_Vehicle_UpdatePathSpeed(_RBX);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm0, dword ptr [rbx+58Ch]
-      }
-      if ( !(v17 | v18) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 478, ASSERT_TYPE_ASSERT, "(veh->pathSpeed >= 0.0f)", (const char *)&queryFormat, "veh->pathSpeed >= 0.0f") )
+      G_Vehicle_UpdatePathSpeed(veh);
+      if ( veh->pathSpeed < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_sp.cpp", 478, ASSERT_TYPE_ASSERT, "(veh->pathSpeed >= 0.0f)", (const char *)&queryFormat, "veh->pathSpeed >= 0.0f") )
         __debugbreak();
-      if ( G_VehicleSP_UpdateAnimatedSubState(_RBX, &nextVpp, &waitNodeHit) )
+      if ( G_VehicleSP_UpdateAnimatedSubState(veh, &nextVpp, &waitNodeHit) )
         updated = waitNodeHit;
       else
-        updated = G_Vehicle_UpdatePathPosition(_RBX);
-      G_Vehicle_DrawDebugLookahead(_RBX);
-      G_Vehicle_CalcPhysVelFromPrevState(_RBX);
-      __asm { vmovaps xmm1, xmm6; prevSpeed }
-      G_Vehicle_UpdatePathScript(_RBX, *(float *)&_XMM1, updated);
+        updated = G_Vehicle_UpdatePathPosition(veh);
+      G_Vehicle_DrawDebugLookahead(veh);
+      G_Vehicle_CalcPhysVelFromPrevState(veh);
+      G_Vehicle_UpdatePathScript(veh, pathSpeed, updated);
     }
-    __asm { vmovaps xmm6, [rsp+148h+var_18] }
   }
 }
 

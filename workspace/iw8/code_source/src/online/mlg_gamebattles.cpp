@@ -3498,29 +3498,43 @@ GameBattles_HandleChatChannelMessage
 */
 char GameBattles_HandleChatChannelMessage(const int controllerIndex, const unsigned __int64 channelID, const unsigned __int64 senderId, const unsigned int messageType, const void *message, const unsigned int messageSize)
 {
+  __m256i *v7; 
   unsigned int v11; 
   const XUID *v12; 
   unsigned __int64 *p_platformId; 
-  unsigned int v15; 
-  const XUID *v19; 
-  MLGLobbyMemberState *v20; 
-  __int64 v21; 
-  __int64 v23; 
-  __int64 v36; 
-  __int64 v44; 
-  const char *v45; 
-  const XUID *v46; 
-  unsigned __int64 v48; 
-  const char *v49; 
+  unsigned int v14; 
+  __int64 v15; 
+  const XUID *v16; 
+  MLGLobbyMemberState *v17; 
+  __int64 v18; 
+  XUID *v19; 
+  __int64 v20; 
+  __m256i v21; 
+  __int128 v22; 
+  MLGLobby *v23; 
+  __int64 v24; 
+  __int64 *v25; 
+  MLGLobbyMemberState v26; 
+  __int128 v27; 
+  __int128 v28; 
+  __int64 v29; 
+  const char *v30; 
+  const XUID *v31; 
+  unsigned __int64 v32; 
+  const char *v33; 
   XUID result; 
   XUID receivingUserId; 
-  XUID v52; 
+  XUID v36; 
   XUID xuid[4]; 
-  XUID v54[4]; 
-  __int64 v59[3]; 
-  MLGLobbyMemberState v60; 
+  XUID v38[4]; 
+  __m256i v39; 
+  __m256i v40; 
+  __int128 v41; 
+  double v42; 
+  __int64 v43[3]; 
+  MLGLobbyMemberState v44; 
 
-  _RBX = (char *)message;
+  v7 = (__m256i *)message;
   if ( s_activeChatChannel.m_channelID != channelID )
     return 0;
   Com_Printf(25, "GAMEBATTLES(%i): Handling chat channel message of type %s, sender: (%zu).\n", (unsigned int)controllerIndex, s_chatChannelMessageType[messageType], senderId);
@@ -3537,34 +3551,28 @@ char GameBattles_HandleChatChannelMessage(const int controllerIndex, const unsig
         {
           if ( messageSize != 32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\mlg_gamebattles.cpp", 3548, ASSERT_TYPE_ASSERT, "(messageSize == sizeof( MLGLobbyMemberState ))", (const char *)&queryFormat, "messageSize == sizeof( MLGLobbyMemberState )") )
             __debugbreak();
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx]
-            vmovups ymmword ptr [rsp+2B0h+xuid.m_id], ymm0
-          }
+          *(__m256i *)&xuid[0].m_id = *(__m256i *)message;
           if ( !XUID::operator==(&result, xuid) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\mlg_gamebattles.cpp", 3550, ASSERT_TYPE_ASSERT, "(xuid == msg.xuid)", (const char *)&queryFormat, "xuid == msg.xuid") )
             __debugbreak();
           Com_Printf(25, "GAMEBATTLES(%i): Finding member puid: %zu.\n", (unsigned int)controllerIndex, xuid[1].m_id);
           p_platformId = &s_lobbyInfo.members[0].platformId;
-          v15 = 0;
+          v14 = 0;
           while ( *p_platformId != xuid[1].m_id )
           {
-            ++v15;
+            ++v14;
             p_platformId += 4;
             if ( (__int64)p_platformId >= (__int64)&s_hostInfo )
               goto LABEL_21;
           }
-          if ( v15 == -1 )
+          if ( v14 == -1 )
           {
 LABEL_21:
             Com_Printf(25, "GAMEBATTLES(%i): Unexpected player in match %zu.\n", (unsigned int)controllerIndex, senderId);
             return 1;
           }
-          __asm { vmovups ymm0, ymmword ptr [rbx] }
-          _RCX = &s_lobbyInfo;
-          _RAX = v15;
-          __asm { vmovups ymmword ptr [rax+rcx+18h], ymm0 }
-          s_lobbyInfo.members[_RAX].isOnline = 1;
+          v15 = v14;
+          s_lobbyInfo.members[v15] = *(MLGLobbyMemberState *)message;
+          s_lobbyInfo.members[v15].isOnline = 1;
           Com_Printf(25, "GAMEBATTLES(%i): Chat channel update member received from %zu.\n", (unsigned int)controllerIndex, senderId);
           MLGLobby_DumpInternalState();
         }
@@ -3577,95 +3585,68 @@ LABEL_21:
     else
     {
       XUID::FromUniversalId(&receivingUserId, s_activeChatChannel.m_adminID);
-      v19 = Live_GetXuid(&result, controllerIndex);
-      if ( !XUID::operator==(&receivingUserId, v19) )
+      v16 = Live_GetXuid(&result, controllerIndex);
+      if ( !XUID::operator==(&receivingUserId, v16) )
       {
         if ( messageSize != 528 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\mlg_gamebattles.cpp", 3597, ASSERT_TYPE_ASSERT, "(messageSize == sizeof( MLGLobbyStateMessage ))", (const char *)&queryFormat, "messageSize == sizeof( MLGLobbyStateMessage )") )
           __debugbreak();
-        XUID::XUID(v54);
-        v20 = &v60;
-        memset(v59, 0, sizeof(v59));
-        v21 = 12i64;
+        XUID::XUID(v38);
+        v17 = &v44;
+        memset(v43, 0, sizeof(v43));
+        v18 = 12i64;
         do
         {
-          MLGLobbyMemberState::MLGLobbyMemberState(v20++);
-          --v21;
+          MLGLobbyMemberState::MLGLobbyMemberState(v17++);
+          --v18;
         }
-        while ( v21 );
-        _RAX = v54;
-        v23 = 4i64;
+        while ( v18 );
+        v19 = v38;
+        v20 = 4i64;
         do
         {
-          _RAX += 16;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx]
-            vmovups xmm1, xmmword ptr [rbx+70h]
-          }
-          _RBX += 128;
-          __asm
-          {
-            vmovups ymmword ptr [rax-80h], ymm0
-            vmovups ymm0, ymmword ptr [rbx-60h]
-            vmovups ymmword ptr [rax-60h], ymm0
-            vmovups ymm0, ymmword ptr [rbx-40h]
-            vmovups ymmword ptr [rax-40h], ymm0
-            vmovups xmm0, xmmword ptr [rbx-20h]
-            vmovups xmmword ptr [rax-20h], xmm0
-            vmovups xmmword ptr [rax-10h], xmm1
-          }
-          --v23;
+          v19 += 16;
+          v21 = *v7;
+          v22 = *(_OWORD *)&v7[3].m256i_u64[2];
+          v7 += 4;
+          *(__m256i *)&v19[-16].m_id = v21;
+          *(__m256i *)&v19[-12].m_id = v7[-3];
+          *(__m256i *)&v19[-8].m_id = v7[-2];
+          *(_OWORD *)&v19[-4].m_id = *(_OWORD *)v7[-1].m256i_i8;
+          *(_OWORD *)&v19[-2].m_id = v22;
+          --v20;
         }
-        while ( v23 );
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbx]
-          vmovups xmmword ptr [rax], xmm0
-          vmovups ymm1, ymmword ptr [rsp+2B0h+var_240.m_id]
-          vmovups ymm0, [rbp+1B0h+var_220]
-          vmovups ymmword ptr cs:s_hostInfo.xuid.m_id, ymm1
-          vmovups ymm1, [rbp+1B0h+var_200]
-          vmovups ymmword ptr cs:s_hostInfo.session+38h, ymm1
-          vmovsd  xmm1, [rbp+1B0h+var_1D0]
-          vmovups ymmword ptr cs:s_hostInfo.session+18h, ymm0
-          vmovups xmm0, [rbp+1B0h+var_1E0]
-          vmovsd  qword ptr cs:s_hostInfo.session+68h, xmm1
-          vmovups xmmword ptr cs:s_hostInfo.session+58h, xmm0
-        }
-        _RCX = &s_lobbyInfo;
-        v36 = 3i64;
-        _RAX = v59;
+        while ( v20 );
+        *(_OWORD *)&v19->m_id = *(_OWORD *)v7->m256i_i8;
+        *(__m256i *)&s_hostInfo.xuid.m_id = *(__m256i *)&v38[0].m_id;
+        *(__m256i *)&s_hostInfo.session[56] = v40;
+        *(__m256i *)&s_hostInfo.session[24] = v39;
+        *(double *)&s_hostInfo.session[104] = v42;
+        *(_OWORD *)&s_hostInfo.session[88] = v41;
+        v23 = &s_lobbyInfo;
+        v24 = 3i64;
+        v25 = v43;
         do
         {
-          _RCX = (MLGLobby *)((char *)_RCX + 128);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups xmm1, xmmword ptr [rax+70h]
-          }
-          _RAX += 16;
-          __asm
-          {
-            vmovups ymmword ptr [rcx-80h], ymm0
-            vmovups ymm0, ymmword ptr [rax-60h]
-            vmovups ymmword ptr [rcx-60h], ymm0
-            vmovups ymm0, ymmword ptr [rax-40h]
-            vmovups ymmword ptr [rcx-40h], ymm0
-            vmovups xmm0, xmmword ptr [rax-20h]
-            vmovups xmmword ptr [rcx-20h], xmm0
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          --v36;
+          v23 = (MLGLobby *)((char *)v23 + 128);
+          v26 = *(MLGLobbyMemberState *)v25;
+          v27 = *((_OWORD *)v25 + 7);
+          v25 += 16;
+          v23[-1].members[8] = v26;
+          v23[-1].members[9] = (MLGLobbyMemberState)*((__m256i *)v25 - 3);
+          v23[-1].members[10] = (MLGLobbyMemberState)*((__m256i *)v25 - 2);
+          *(_OWORD *)&v23[-1].members[11].xuid.m_id = *((_OWORD *)v25 - 2);
+          *(_OWORD *)&v23[-1].members[11].mlgId = v27;
+          --v24;
         }
-        while ( v36 );
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        v44 = _RAX[2];
-        __asm { vmovups xmmword ptr [rcx], xmm0 }
-        *(_QWORD *)&_RCX->gameIndex = v44;
+        while ( v24 );
+        v28 = *(_OWORD *)v25;
+        v29 = v25[2];
+        *(_OWORD *)&v23->lobbyId = v28;
+        *(_QWORD *)&v23->gameIndex = v29;
         s_lobbyLastKeepAlive = Sys_Milliseconds();
         receivingUserId.m_id = s_hostInfo.xuid.m_id;
-        v45 = XUID::ToDevString(&receivingUserId);
-        Com_Printf(25, "GAMEBATTLES(%i): Lobby state message received. Host xuid: (%s).\n", (unsigned int)controllerIndex, v45);
+        v30 = XUID::ToDevString(&receivingUserId);
+        Com_Printf(25, "GAMEBATTLES(%i): Lobby state message received. Host xuid: (%s).\n", (unsigned int)controllerIndex, v30);
         MLGLobby_DumpInternalState();
       }
     }
@@ -3673,23 +3654,19 @@ LABEL_21:
   else
   {
     XUID::FromUniversalId(&result, s_activeChatChannel.m_adminID);
-    v46 = Live_GetXuid(&v52, controllerIndex);
-    if ( XUID::operator==(&result, v46) )
+    v31 = Live_GetXuid(&v36, controllerIndex);
+    if ( XUID::operator==(&result, v31) )
     {
       XUID::FromUniversalId(&receivingUserId, senderId);
       result.m_id = 0i64;
       if ( messageSize != 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\mlg_gamebattles.cpp", 3618, ASSERT_TYPE_ASSERT, "(messageSize == sizeof( PlatformUserId ))", (const char *)&queryFormat, "messageSize == sizeof( PlatformUserId )", result.m_id) )
         __debugbreak();
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbx]
-        vmovsd  [rsp+2B0h+result.m_id], xmm0
-      }
+      result.m_id = *(_QWORD *)message;
       MLGLobby_SetMemberOnlineState(controllerIndex, result.m_id, &receivingUserId, 1);
       MLGLobbyMsg_SendLobbyStateUpdate(controllerIndex, &receivingUserId);
-      v48 = DB_HASH_INTERNAL("MLGLobbyMsg_HandleLobbyUpdateRequest", 1ui64, 0x2F63E04C8601F358ui64);
-      v49 = j_va("m %zu h", v48);
-      GameBattles_TraceState(controllerIndex, v49, NULL);
+      v32 = DB_HASH_INTERNAL("MLGLobbyMsg_HandleLobbyUpdateRequest", 1ui64, 0x2F63E04C8601F358ui64);
+      v33 = j_va("m %zu h", v32);
+      GameBattles_TraceState(controllerIndex, v33, NULL);
     }
     else
     {
@@ -4648,56 +4625,59 @@ void GameBattles_PushPartyMembersToModel(const PartyData *partyData, const unsig
   unsigned __int16 v7; 
   unsigned __int16 v8; 
   int v9; 
-  int *v28; 
-  int *v29; 
+  _OWORD *v10; 
+  int v11; 
+  int i; 
+  int *v25; 
+  int *v26; 
+  __int64 v27; 
+  int v28; 
+  int v29; 
   __int64 v30; 
-  int v31; 
-  int v32; 
-  __int64 v33; 
-  int *v34; 
+  int *v31; 
+  __int64 v32; 
+  int v33; 
+  int v34; 
   __int64 v35; 
-  int v36; 
-  int v37; 
-  __int64 v38; 
-  int *v39; 
+  int *v36; 
+  __int64 v37; 
+  int v38; 
+  __int64 v39; 
   __int64 v40; 
-  int v41; 
-  __int64 v42; 
-  __int64 v43; 
-  __int64 v44; 
+  __int64 v41; 
   unsigned __int64 *p_platformId; 
+  int v43; 
+  int v44; 
+  __int64 v45; 
   int v46; 
-  int v47; 
-  __int64 v48; 
-  int v49; 
-  __int64 v50; 
-  unsigned int v51; 
-  __int64 i; 
+  __int64 v47; 
+  unsigned int v48; 
+  __int64 j; 
   unsigned __int16 ModelFromPath; 
-  __int64 v54; 
-  unsigned __int16 v55; 
+  __int64 v51; 
+  unsigned __int16 v52; 
+  int v53; 
+  GameBattlePlayer *v54; 
+  unsigned __int64 *v55; 
   int v56; 
-  GameBattlePlayer *v57; 
-  unsigned __int64 *v58; 
-  int v59; 
-  __int64 v60; 
-  unsigned __int16 v61; 
+  __int64 v57; 
+  unsigned __int16 v58; 
   int *MatchById; 
-  int v64; 
-  int v66; 
-  __int64 v67; 
-  int *v68; 
-  __int64 v69; 
-  int v71[200]; 
+  int v61; 
+  int v63; 
+  __int64 v64; 
+  int *v65; 
+  __int64 v66; 
+  int v68[200]; 
   GameBattlePlayer *currentPlayer[200]; 
   char dest[8]; 
+  __int64 v71; 
+  __int64 v72; 
+  __int64 v73; 
   __int64 v74; 
   __int64 v75; 
   __int64 v76; 
   __int64 v77; 
-  __int64 v78; 
-  __int64 v79; 
-  __int64 v80; 
 
   v4 = partyMemberOrder;
   v5 = baseModel;
@@ -4705,203 +4685,203 @@ void GameBattles_PushPartyMembersToModel(const PartyData *partyData, const unsig
   MatchById = (int *)GetMatchById(ControllerFromClient, s_currentMatchId);
   if ( MatchById )
   {
-    __asm { vmovdqu xmm2, cs:__xmm@00000003000000020000000100000000 }
-    _R8 = v4 + 8;
-    _ECX = 0;
-    _EDX = 8;
-    do
+    v10 = v4 + 8;
+    v11 = 0;
+    for ( i = 8; i < 200; i += 16 )
     {
-      _EAX = _EDX - 4;
+      _XMM0 = (unsigned int)v11;
       __asm
       {
-        vmovd   xmm0, ecx
-        vpshufd xmm0, xmm0, 0
-        vpaddd  xmm1, xmm0, xmm2
-        vmovdqu xmmword ptr [r8-20h], xmm1
-        vmovd   xmm0, eax
-        vpshufd xmm0, xmm0, 0
-        vpaddd  xmm1, xmm0, xmm2
-        vmovdqu xmmword ptr [r8-10h], xmm1
-        vmovd   xmm0, edx
-        vpshufd xmm0, xmm0, 0
-        vpaddd  xmm1, xmm0, xmm2
-        vmovdqu xmmword ptr [r8], xmm1
-      }
-      _EAX = _EDX + 4;
-      _ECX += 16;
-      __asm
-      {
-        vmovd   xmm0, eax
         vpshufd xmm0, xmm0, 0
         vpaddd  xmm1, xmm0, xmm2
       }
-      _EDX += 16;
-      __asm { vmovdqu xmmword ptr [r8+10h], xmm1 }
-      _R8 += 16;
+      *(v10 - 2) = _XMM1;
+      _XMM0 = (unsigned int)(i - 4);
+      __asm
+      {
+        vpshufd xmm0, xmm0, 0
+        vpaddd  xmm1, xmm0, xmm2
+      }
+      *(v10 - 1) = _XMM1;
+      _XMM0 = (unsigned int)i;
+      __asm
+      {
+        vpshufd xmm0, xmm0, 0
+        vpaddd  xmm1, xmm0, xmm2
+      }
+      *v10 = _XMM1;
+      v11 += 16;
+      _XMM0 = (unsigned int)(i + 4);
+      __asm
+      {
+        vpshufd xmm0, xmm0, 0
+        vpaddd  xmm1, xmm0, xmm2
+      }
+      v10[1] = _XMM1;
+      v10 += 4;
     }
-    while ( _EDX < 200 );
-    if ( _ECX < 200 )
+    if ( v11 < 200 )
     {
-      v28 = &v4[_ECX];
+      v25 = &v4[v11];
       do
-        *v28++ = _ECX++;
-      while ( _ECX < 200 );
+        *v25++ = v11++;
+      while ( v11 < 200 );
     }
     memset_0(currentPlayer, 0, sizeof(currentPlayer));
-    memset_0(v71, 0, sizeof(v71));
-    v29 = MatchById;
-    v30 = MatchById[266];
-    v66 = 6 * v30;
-    if ( MatchById[323] > 6 * (int)v30 )
+    memset_0(v68, 0, sizeof(v68));
+    v26 = MatchById;
+    v27 = MatchById[266];
+    v63 = 6 * v27;
+    if ( MatchById[323] > 6 * (int)v27 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\mlg_gamebattles.cpp", 4506, ASSERT_TYPE_ASSERT, "(int( gbMatch->totalPlayerCount ) <= maxPlayers)", (const char *)&queryFormat, "int( gbMatch->totalPlayerCount ) <= maxPlayers") )
         __debugbreak();
-      v29 = MatchById;
+      v26 = MatchById;
     }
-    v31 = 0;
-    v64 = 0;
-    v32 = 0;
-    v69 = v30;
-    v33 = v30;
-    if ( (int)v30 > 0 )
+    v28 = 0;
+    v61 = 0;
+    v29 = 0;
+    v66 = v27;
+    v30 = v27;
+    if ( (int)v27 > 0 )
     {
-      v34 = v29 + 132;
-      v35 = 0i64;
-      v68 = v29 + 132;
+      v31 = v26 + 132;
+      v32 = 0i64;
+      v65 = v26 + 132;
       do
       {
-        v36 = *v34;
-        v37 = 0;
-        if ( *v34 > 0 )
+        v33 = *v31;
+        v34 = 0;
+        if ( *v31 > 0 )
         {
-          v38 = v31;
-          v39 = &v4[v35];
-          v67 = v31;
-          v40 = 0i64;
+          v35 = v28;
+          v36 = &v4[v32];
+          v64 = v28;
+          v37 = 0i64;
           do
           {
-            if ( v35 >= 200 )
+            if ( v32 >= 200 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\mlg_gamebattles.cpp", 4515, ASSERT_TYPE_ASSERT, "(curPlayer < 200)", (const char *)&queryFormat, "curPlayer < MAX_PARTY_MEMBERS") )
                 __debugbreak();
-              v29 = MatchById;
-              v31 = v64;
-              v38 = v67;
+              v26 = MatchById;
+              v28 = v61;
+              v35 = v64;
             }
-            v41 = -1;
-            v42 = -1i64;
-            if ( v37 < v36 )
+            v38 = -1;
+            v39 = -1i64;
+            if ( v34 < v33 )
             {
-              v42 = 0i64;
-              v43 = v40 + 528i64 * v32;
-              *(int *)((char *)v39 + (char *)v71 - (char *)partyMemberOrder) = v32 + 1;
-              v44 = *(_QWORD *)((char *)v29 + v43 + 56);
-              currentPlayer[v35] = (GameBattlePlayer *)((char *)v29 + v43 + 48);
+              v39 = 0i64;
+              v40 = v37 + 528i64 * v29;
+              *(int *)((char *)v36 + (char *)v68 - (char *)partyMemberOrder) = v29 + 1;
+              v41 = *(_QWORD *)((char *)v26 + v40 + 56);
+              currentPlayer[v32] = (GameBattlePlayer *)((char *)v26 + v40 + 48);
               p_platformId = &s_lobbyInfo.members[0].platformId;
-              v41 = 0;
-              while ( *p_platformId != v44 )
+              v38 = 0;
+              while ( *p_platformId != v41 )
               {
-                ++v41;
-                ++v42;
+                ++v38;
+                ++v39;
                 p_platformId += 4;
                 if ( (__int64)p_platformId >= (__int64)&s_hostInfo )
                 {
-                  v41 = -1;
-                  v42 = -1i64;
+                  v38 = -1;
+                  v39 = -1i64;
                   break;
                 }
               }
             }
-            v46 = *v39;
-            if ( v41 != *v39 )
+            v43 = *v36;
+            if ( v38 != *v36 )
             {
-              v47 = v31;
-              if ( v41 != -1 )
-                v47 = v41;
-              *v39 = v47;
-              v48 = v38;
-              if ( v41 != -1 )
-                v48 = v42;
-              partyMemberOrder[v48] = v46;
-              v49 = v31 + 1;
-              if ( v41 != -1 )
-                v49 = v31;
-              v31 = v49;
-              v64 = v49;
-              v50 = v38 + 1;
-              if ( v41 != -1 )
-                v50 = v38;
-              v38 = v50;
-              v67 = v50;
+              v44 = v28;
+              if ( v38 != -1 )
+                v44 = v38;
+              *v36 = v44;
+              v45 = v35;
+              if ( v38 != -1 )
+                v45 = v39;
+              partyMemberOrder[v45] = v43;
+              v46 = v28 + 1;
+              if ( v38 != -1 )
+                v46 = v28;
+              v28 = v46;
+              v61 = v46;
+              v47 = v35 + 1;
+              if ( v38 != -1 )
+                v47 = v35;
+              v35 = v47;
+              v64 = v47;
             }
-            v29 = MatchById;
-            ++v35;
-            ++v39;
-            ++v37;
-            v40 += 80i64;
+            v26 = MatchById;
+            ++v32;
+            ++v36;
+            ++v34;
+            v37 += 80i64;
           }
-          while ( v37 < v36 );
-          v34 = v68;
-          v33 = v69;
+          while ( v34 < v33 );
+          v31 = v65;
+          v30 = v66;
           v4 = partyMemberOrder;
         }
-        v34 += 132;
-        ++v32;
-        v68 = v34;
-        v69 = --v33;
+        v31 += 132;
+        ++v29;
+        v65 = v31;
+        v66 = --v30;
       }
-      while ( v33 );
+      while ( v30 );
       v5 = baseModel;
     }
-    v51 = 0;
-    if ( v66 > 0 )
+    v48 = 0;
+    if ( v63 > 0 )
     {
-      for ( i = 0i64; i < v66; ++i )
+      for ( j = 0i64; j < v63; ++j )
       {
         *(_QWORD *)dest = 0i64;
+        v71 = 0i64;
+        v72 = 0i64;
+        v73 = 0i64;
         v74 = 0i64;
         v75 = 0i64;
         v76 = 0i64;
         v77 = 0i64;
-        v78 = 0i64;
-        v79 = 0i64;
-        v80 = 0i64;
-        Com_sprintf(dest, 0x40ui64, "%i", v51);
+        Com_sprintf(dest, 0x40ui64, "%i", v48);
         ModelFromPath = LUI_Model_CreateModelFromPath(v5, dest);
-        v54 = v71[i];
-        v55 = ModelFromPath;
-        v56 = v4[i];
-        if ( (_DWORD)v54 )
+        v51 = v68[j];
+        v52 = ModelFromPath;
+        v53 = v4[j];
+        if ( (_DWORD)v51 )
         {
-          v57 = currentPlayer[i];
-          v58 = &s_lobbyInfo.members[0].platformId;
-          v59 = 0;
-          v60 = 0i64;
-          while ( *v58 != v57->platformId )
+          v54 = currentPlayer[j];
+          v55 = &s_lobbyInfo.members[0].platformId;
+          v56 = 0;
+          v57 = 0i64;
+          while ( *v55 != v54->platformId )
           {
-            ++v59;
-            ++v60;
-            v58 += 4;
-            if ( (__int64)v58 >= (__int64)&s_hostInfo )
+            ++v56;
+            ++v57;
+            v55 += 4;
+            if ( (__int64)v55 >= (__int64)&s_hostInfo )
               goto LABEL_45;
           }
-          if ( v59 == -1 || XUID::IsNull(&s_lobbyInfo.members[v59].xuid) || !s_lobbyInfo.members[v60].isOnline )
+          if ( v56 == -1 || XUID::IsNull(&s_lobbyInfo.members[v56].xuid) || !s_lobbyInfo.members[v57].isOnline )
           {
 LABEL_45:
-            GameBattles_CreateFakePlayer(v57, (team_t)v54, v56, v55);
+            GameBattles_CreateFakePlayer(v54, (team_t)v51, v53, v52);
             goto LABEL_46;
           }
-          GameBattles_CreateChannelPlayerModel(v57, (team_t)v54, v56, v55);
-          ++teamCount[v54];
+          GameBattles_CreateChannelPlayerModel(v54, (team_t)v51, v53, v52);
+          ++teamCount[v51];
 LABEL_46:
           v4 = partyMemberOrder;
         }
         v5 = baseModel;
-        ++v51;
+        ++v48;
       }
     }
-    v61 = LUI_Model_CreateModelFromPath(baseModel, "GameBattlesTeamRosterAxisCount");
-    LUI_Model_SetInt(v61, MatchById[132]);
+    v58 = LUI_Model_CreateModelFromPath(baseModel, "GameBattlesTeamRosterAxisCount");
+    LUI_Model_SetInt(v58, MatchById[132]);
     v8 = LUI_Model_CreateModelFromPath(baseModel, "GameBattlesTeamRosterAlliesCount");
     v9 = MatchById[264];
   }
@@ -7659,24 +7639,28 @@ MLGLobbyMsg_SendLobbyStateUpdate
 void MLGLobbyMsg_SendLobbyStateUpdate(const int controllerIndex, const XUID *receivingUserId)
 {
   int MemberByXUID; 
+  MLGLobby *v5; 
   MLGLobbyMemberState *v6; 
   __int64 v7; 
   const XUID *Xuid; 
+  __int64 *v9; 
   __int64 v10; 
-  __int64 v17; 
-  const char *v18; 
+  __m256i v11; 
+  __int128 v12; 
+  __int64 v13; 
+  const char *v14; 
   XUID result; 
   XUID message; 
-  __int64 v21[3]; 
-  MLGLobbyMemberState v22; 
+  __int64 v17[3]; 
+  MLGLobbyMemberState v18; 
 
   MemberByXUID = MLGLobby_FindMemberByXUID(receivingUserId);
-  _RBX = &s_lobbyInfo;
+  v5 = &s_lobbyInfo;
   if ( MemberByXUID != -1 )
     s_lobbyInfo.members[MemberByXUID].isOnline = 1;
   XUID::XUID(&message);
-  v6 = &v22;
-  memset(v21, 0, sizeof(v21));
+  v6 = &v18;
+  memset(v17, 0, sizeof(v17));
   v7 = 12i64;
   do
   {
@@ -7686,39 +7670,29 @@ void MLGLobbyMsg_SendLobbyStateUpdate(const int controllerIndex, const XUID *rec
   while ( v7 );
   Xuid = Live_GetXuid(&result, controllerIndex);
   XUID::operator=(&message, Xuid);
-  _RDX = v21;
+  v9 = v17;
   s_lobbyInfo.isValidLobby = 1;
   v10 = 3i64;
   do
   {
-    _RDX += 16;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups xmm1, xmmword ptr [rbx+70h]
-    }
-    _RBX = (MLGLobby *)((char *)_RBX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rdx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rbx-60h]
-      vmovups ymmword ptr [rdx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rbx-40h]
-      vmovups ymmword ptr [rdx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rbx-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
+    v9 += 16;
+    v11 = *(__m256i *)&v5->lobbyId;
+    v12 = *(_OWORD *)&v5->members[2].usingGamepad;
+    v5 = (MLGLobby *)((char *)v5 + 128);
+    *((__m256i *)v9 - 4) = v11;
+    *((MLGLobbyMemberState *)v9 - 3) = v5[-1].members[9];
+    *((MLGLobbyMemberState *)v9 - 2) = v5[-1].members[10];
+    *((_OWORD *)v9 - 2) = *(_OWORD *)&v5[-1].members[11].xuid.m_id;
+    *((_OWORD *)v9 - 1) = v12;
     --v10;
   }
   while ( v10 );
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  v17 = *(_QWORD *)&_RBX->gameIndex;
-  __asm { vmovups xmmword ptr [rdx], xmm0 }
-  _RDX[2] = v17;
+  v13 = *(_QWORD *)&v5->gameIndex;
+  *(_OWORD *)v9 = *(_OWORD *)&v5->lobbyId;
+  v9[2] = v13;
   MLGLobbyMsg_SendMessage(controllerIndex, receivingUserId, &message, 0x210u, DODGE);
-  v18 = XUID::ToString((XUID *)receivingUserId);
-  Com_Printf(25, "GAMEBATTLES(%i): Sending current lobby state to %s .\n", (unsigned int)controllerIndex, v18);
+  v14 = XUID::ToString((XUID *)receivingUserId);
+  Com_Printf(25, "GAMEBATTLES(%i): Sending current lobby state to %s .\n", (unsigned int)controllerIndex, v14);
   MLGLobby_DumpInternalState();
 }
 
@@ -7734,8 +7708,8 @@ void MLGLobbyMsg_SendMemberState(const int controllerIndex, const XUID *destUser
   int v5; 
   unsigned __int64 *p_platformId; 
   __int64 v7; 
-  unsigned __int64 v10; 
-  const char *v11; 
+  unsigned __int64 v8; 
+  const char *v9; 
   XUID message[4]; 
   XUID result; 
 
@@ -7765,23 +7739,18 @@ LABEL_7:
       __debugbreak();
 LABEL_9:
     v7 = v5;
-    _RBX = &s_lobbyInfo.members[v7];
     s_lobbyInfo.members[v7].platformId = PlatformUserId;
     XUID::operator=(&s_lobbyInfo.members[v7].xuid, &result);
     s_lobbyInfo.members[v7].usingGamepad = s_localInputIsGamepad[v2];
     s_lobbyInfo.members[v7].isOnline = 1;
     s_lobbyInfo.members[v7].platformType[0] = GetClientPlatform();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rsp+68h+message.m_id], ymm0
-    }
+    *(MLGLobbyMemberState *)&message[0].m_id = s_lobbyInfo.members[v7];
     MLGLobbyMsg_SendMessage(v2, destUserId, message, 0x20u, COUNT);
     Com_Printf(25, "GAMEBATTLES(%i): Sending mameber state.\n", (unsigned int)v2);
     MLGLobby_DumpInternalState();
-    v10 = DB_HASH_INTERNAL("MLGLobbyMsg_SendMemberState", 1ui64, 0x2F63E04C8601F358ui64);
-    v11 = j_va("m %zu s", v10);
-    GameBattles_TraceState(v2, v11, NULL);
+    v8 = DB_HASH_INTERNAL("MLGLobbyMsg_SendMemberState", 1ui64, 0x2F63E04C8601F358ui64);
+    v9 = j_va("m %zu s", v8);
+    GameBattles_TraceState(v2, v9, NULL);
   }
 }
 

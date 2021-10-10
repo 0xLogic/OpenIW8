@@ -534,55 +534,51 @@ Nav_AddResourceToNewSpace
 */
 void Nav_AddResourceToNewSpace(nav_space_s *pSpace, nav_resource_s *pResource, const vec3_t *localOffsetPos, const vec4_t *localOffsetRot, int offsetLayer)
 {
-  const char *v13; 
-  bool v14; 
+  const char *v9; 
+  bool v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
   unsigned __int8 *pGraphBuffer; 
-  char v44; 
+  bfx::Vector3 *Pos; 
+  float m_x; 
+  float m_y; 
+  float m_z; 
+  bfx::Quaternion *Rot; 
+  float m_w; 
+  float v23; 
+  float v24; 
   bfx::ResourceOffset offset; 
   bfx::Quaternion result; 
   float v0[4]; 
-  char v52; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  _RDI = localOffsetRot;
-  _RSI = localOffsetPos;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 827, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( !pResource && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 828, ASSERT_TYPE_ASSERT, "( pResource )", (const char *)&queryFormat, "pResource") )
     __debugbreak();
   if ( pResource->pNext || pResource->pPrev )
   {
-    v13 = SL_ConvertToString(pResource->targetName);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 829, ASSERT_TYPE_ASSERT, "(!pResource->pNext && !pResource->pPrev)", "%s\n\tresource %s is already in a space's list", "!pResource->pNext && !pResource->pPrev", v13) )
+    v9 = SL_ConvertToString(pResource->targetName);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 829, ASSERT_TYPE_ASSERT, "(!pResource->pNext && !pResource->pPrev)", "%s\n\tresource %s is already in a space's list", "!pResource->pNext && !pResource->pPrev", v9) )
       __debugbreak();
   }
-  v14 = !pResource->bDockable;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  [rsp+0E8h+offset.m_positionOffset.m_x], xmm0
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+0E8h+offset.m_positionOffset.m_z], xmm0
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+0E8h+offset.m_positionOffset.m_y], xmm1
-    vmovss  xmm1, dword ptr [rdi]
-    vmovss  [rsp+0E8h+offset.m_rotationOffset.m_y], xmm0
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vmovss  [rsp+0E8h+offset.m_rotationOffset.m_x], xmm1
-    vmovss  xmm1, dword ptr [rdi+8]
-    vmovss  [rsp+0E8h+offset.m_rotationOffset.m_w], xmm0
-    vmovss  [rsp+0E8h+offset.m_rotationOffset.m_z], xmm1
-  }
+  v10 = !pResource->bDockable;
+  v11 = localOffsetPos->v[1];
+  offset.m_positionOffset.m_x = localOffsetPos->v[0];
+  offset.m_positionOffset.m_z = localOffsetPos->v[2];
+  v12 = localOffsetRot->v[1];
+  offset.m_positionOffset.m_y = v11;
+  v13 = localOffsetRot->v[0];
+  offset.m_rotationOffset.m_y = v12;
+  v14 = localOffsetRot->v[3];
+  offset.m_rotationOffset.m_x = v13;
+  v15 = localOffsetRot->v[2];
+  offset.m_rotationOffset.m_w = v14;
+  offset.m_rotationOffset.m_z = v15;
   offset.m_layerOffset = offsetLayer;
-  if ( v14 )
+  if ( v10 )
   {
     pGraphBuffer = pResource->pGraphBuffer;
   }
@@ -595,58 +591,31 @@ void Nav_AddResourceToNewSpace(nav_space_s *pSpace, nav_resource_s *pResource, c
   }
   bfx::AddResource(&pSpace->hSpace, (char *)pGraphBuffer, &offset);
   pResource->pSpace = pSpace;
-  _RAX = bfx::SpaceHandle::GetPos(&pSpace->hSpace, (bfx::Vector3 *)&result);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rax]
-    vmovss  xmm7, dword ptr [rax+4]
-    vmovss  xmm8, dword ptr [rax+8]
-  }
-  _RAX = bfx::SpaceHandle::GetRot(&pSpace->hSpace, &result);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+4]
-    vmovss  xmm3, dword ptr [rax]
-    vmovss  xmm2, dword ptr [rax+0Ch]
-    vmovss  xmm1, dword ptr [rax+8]
-    vmovss  [rsp+0E8h+v0], xmm0
-    vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-    vmovss  [rsp+0E8h+var_70], xmm2
-    vmovss  [rsp+0E8h+var_74], xmm1
-    vmovss  xmm1, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-    vsubss  xmm2, xmm1, xmm7
-    vmovss  [rsp+0E8h+var_6C], xmm3
-    vsubss  xmm3, xmm0, xmm6
-    vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-    vsubss  xmm4, xmm0, xmm8
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm2, cs:__real@3f800000; epsilon
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm0
-    vcomiss xmm4, xmm2
-  }
-  if ( (!v44 || !VecNCompareCustomEpsilon(v0, quat_identity.v, *(float *)&_XMM2, 4)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 854, ASSERT_TYPE_ASSERT, "( Vec3DistanceSq( spacePos, vec3_origin ) < 1.f && Vec4CompareCustomEpsilon( qSpaceRot, quat_identity, 1.f ) )", (const char *)&queryFormat, "Vec3DistanceSq( spacePos, vec3_origin ) < 1.f && Vec4CompareCustomEpsilon( qSpaceRot, quat_identity, 1.f )") )
+  Pos = bfx::SpaceHandle::GetPos(&pSpace->hSpace, (bfx::Vector3 *)&result);
+  m_x = Pos->m_x;
+  m_y = Pos->m_y;
+  m_z = Pos->m_z;
+  Rot = bfx::SpaceHandle::GetRot(&pSpace->hSpace, &result);
+  m_w = Rot->m_w;
+  v23 = Rot->m_z;
+  v24 = Rot->m_y;
+  v0[0] = Rot->m_x;
+  v0[2] = v23;
+  v0[1] = v24;
+  v0[3] = m_w;
+  if ( ((float)((float)((float)((float)(0.0 - m_y) * (float)(0.0 - m_y)) + (float)((float)(0.0 - m_x) * (float)(0.0 - m_x))) + (float)((float)(0.0 - m_z) * (float)(0.0 - m_z))) >= 1.0 || !VecNCompareCustomEpsilon(v0, quat_identity.v, 1.0, 4)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 854, ASSERT_TYPE_ASSERT, "( Vec3DistanceSq( spacePos, vec3_origin ) < 1.f && Vec4CompareCustomEpsilon( qSpaceRot, quat_identity, 1.f ) )", (const char *)&queryFormat, "Vec3DistanceSq( spacePos, vec3_origin ) < 1.f && Vec4CompareCustomEpsilon( qSpaceRot, quat_identity, 1.f )") )
     __debugbreak();
-  pResource->localOffsetPos.v[0] = _RSI->v[0];
-  pResource->localOffsetPos.v[1] = _RSI->v[1];
-  pResource->localOffsetPos.v[2] = _RSI->v[2];
-  pResource->localOffsetRot.v[0] = _RDI->v[0];
-  pResource->localOffsetRot.v[1] = _RDI->v[1];
-  pResource->localOffsetRot.v[2] = _RDI->v[2];
-  pResource->localOffsetRot.v[3] = _RDI->v[3];
+  pResource->localOffsetPos.v[0] = localOffsetPos->v[0];
+  pResource->localOffsetPos.v[1] = localOffsetPos->v[1];
+  pResource->localOffsetPos.v[2] = localOffsetPos->v[2];
+  pResource->localOffsetRot.v[0] = localOffsetRot->v[0];
+  pResource->localOffsetRot.v[1] = localOffsetRot->v[1];
+  pResource->localOffsetRot.v[2] = localOffsetRot->v[2];
+  pResource->localOffsetRot.v[3] = localOffsetRot->v[3];
   pResource->offsetLayer = offsetLayer;
   Nav_AddObjToList_nav_resource_s_(&pSpace->resourceList, pResource);
   ++pSpace->numResources;
   pResource->pSpace = pSpace;
-  _R11 = &v52;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -657,18 +626,28 @@ Nav_AddResourceToOldSpace
 void Nav_AddResourceToOldSpace(nav_space_s *pSpace, nav_resource_s *pResource, const vec3_t *currentResourcePos, const vec4_t *qCurrentResourceRot, int offsetLayer)
 {
   const char *v9; 
+  vec4_t *p_localOffsetRot; 
+  vec3_t *p_localOffsetPos; 
+  gentity_s *v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   unsigned __int8 *pWorkingGraph; 
-  __int64 v38; 
-  __int64 v39; 
+  __int64 v22; 
+  __int64 v23; 
   bfx::Quaternion rot; 
   bfx::ResourceOffset offset; 
   bfx::Vector3 result; 
-  bfx::Quaternion v43; 
+  bfx::Quaternion v27; 
   vec4_t in2; 
   vec3_t in; 
   vec4_t quat; 
 
-  _R12 = currentResourcePos;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 873, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( !pResource && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 874, ASSERT_TYPE_ASSERT, "( pResource )", (const char *)&queryFormat, "pResource") )
@@ -684,85 +663,60 @@ void Nav_AddResourceToOldSpace(nav_space_s *pSpace, nav_resource_s *pResource, c
   {
     if ( pSpace->parentEntNum >= 0x800u )
     {
-      LODWORD(v39) = 2048;
-      LODWORD(v38) = pSpace->parentEntNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 891, ASSERT_TYPE_ASSERT, "(unsigned)( pSpace->parentEntNum ) < (unsigned)( ( 2048 ) )", "pSpace->parentEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v38, v39) )
+      LODWORD(v23) = 2048;
+      LODWORD(v22) = pSpace->parentEntNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 891, ASSERT_TYPE_ASSERT, "(unsigned)( pSpace->parentEntNum ) < (unsigned)( ( 2048 ) )", "pSpace->parentEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v22, v23) )
         __debugbreak();
     }
-    AnglesToQuat(&g_entities[pSpace->parentEntNum].r.currentAngles, &quat);
-    __asm
-    {
-      vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm0, dword ptr [rbp+4Fh+quat]
-      vmovss  xmm2, dword ptr [rbp+4Fh+quat+4]
-      vxorps  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rbp+4Fh+in2], xmm1
-      vmovss  xmm1, dword ptr [rbp+4Fh+quat+8]
-      vxorps  xmm0, xmm2, xmm3
-      vmovss  dword ptr [rbp+4Fh+in2+4], xmm0
-      vmovss  xmm0, dword ptr [rbp+4Fh+quat+0Ch]
-      vxorps  xmm2, xmm1, xmm3
-      vmovss  xmm1, dword ptr [r12]
-      vmovss  dword ptr [rbp+4Fh+in2+8], xmm2
-      vmovss  xmm2, dword ptr [r12+4]
-      vmovss  dword ptr [rbp+4Fh+in2+0Ch], xmm0
-      vsubss  xmm0, xmm1, dword ptr [rbx+130h]
-      vmovss  dword ptr [rbp+4Fh+in], xmm0
-      vsubss  xmm1, xmm2, dword ptr [rbx+134h]
-      vmovss  xmm0, dword ptr [r12+8]
-      vmovss  dword ptr [rbp+4Fh+in+4], xmm1
-      vsubss  xmm2, xmm0, dword ptr [rbx+138h]
-    }
-    _R14 = &pResource->localOffsetPos;
-    __asm { vmovss  dword ptr [rbp+4Fh+in+8], xmm2 }
+    v12 = &g_entities[pSpace->parentEntNum];
+    AnglesToQuat(&v12->r.currentAngles, &quat);
+    LODWORD(in2.v[0]) = LODWORD(quat.v[0]) ^ _xmm;
+    LODWORD(in2.v[1]) = LODWORD(quat.v[1]) ^ _xmm;
+    v13 = currentResourcePos->v[0];
+    LODWORD(in2.v[2]) = LODWORD(quat.v[2]) ^ _xmm;
+    v14 = currentResourcePos->v[1];
+    in2.v[3] = quat.v[3];
+    in.v[0] = v13 - v12->r.currentOrigin.v[0];
+    v15 = currentResourcePos->v[2];
+    in.v[1] = v14 - v12->r.currentOrigin.v[1];
+    p_localOffsetPos = &pResource->localOffsetPos;
+    in.v[2] = v15 - v12->r.currentOrigin.v[2];
     QuatTransform(&in2, &in, &pResource->localOffsetPos);
-    _RBX = &pResource->localOffsetRot;
+    p_localOffsetRot = &pResource->localOffsetRot;
     QuatMultiply(qCurrentResourceRot, &in2, &pResource->localOffsetRot);
   }
   else
   {
-    _RBX = &pResource->localOffsetRot;
-    pResource->localOffsetPos.v[0] = _R12->v[0];
-    _R14 = &pResource->localOffsetPos;
-    pResource->localOffsetPos.v[1] = _R12->v[1];
-    pResource->localOffsetPos.v[2] = _R12->v[2];
+    p_localOffsetRot = &pResource->localOffsetRot;
+    pResource->localOffsetPos.v[0] = currentResourcePos->v[0];
+    p_localOffsetPos = &pResource->localOffsetPos;
+    pResource->localOffsetPos.v[1] = currentResourcePos->v[1];
+    pResource->localOffsetPos.v[2] = currentResourcePos->v[2];
     pResource->localOffsetRot.v[0] = qCurrentResourceRot->v[0];
     pResource->localOffsetRot.v[1] = qCurrentResourceRot->v[1];
     pResource->localOffsetRot.v[2] = qCurrentResourceRot->v[2];
     pResource->localOffsetRot.v[3] = qCurrentResourceRot->v[3];
   }
   pResource->offsetLayer = offsetLayer;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  xmm1, dword ptr [r14+4]
-    vmovss  [rbp+4Fh+offset.m_positionOffset.m_x], xmm0
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rbp+4Fh+offset.m_positionOffset.m_z], xmm0
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rbp+4Fh+offset.m_positionOffset.m_y], xmm1
-    vmovss  xmm1, dword ptr [rbx]
-    vmovss  [rbp+4Fh+offset.m_rotationOffset.m_y], xmm0
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rbp+4Fh+offset.m_rotationOffset.m_x], xmm1
-    vmovss  xmm1, dword ptr [rbx+8]
-    vmovss  [rbp+4Fh+offset.m_rotationOffset.m_w], xmm0
-    vmovss  [rbp+4Fh+offset.m_rotationOffset.m_z], xmm1
-  }
+  v16 = p_localOffsetPos->v[1];
+  offset.m_positionOffset.m_x = p_localOffsetPos->v[0];
+  offset.m_positionOffset.m_z = p_localOffsetPos->v[2];
+  v17 = p_localOffsetRot->v[1];
+  offset.m_positionOffset.m_y = v16;
+  v18 = p_localOffsetRot->v[0];
+  offset.m_rotationOffset.m_y = v17;
+  v19 = p_localOffsetRot->v[3];
+  offset.m_rotationOffset.m_x = v18;
+  v20 = p_localOffsetRot->v[2];
+  offset.m_rotationOffset.m_w = v19;
+  offset.m_rotationOffset.m_z = v20;
   offset.m_layerOffset = offsetLayer;
   bfx::SpaceHandle::GetPos(&pSpace->hSpace, &result);
-  bfx::SpaceHandle::GetRot(&pSpace->hSpace, &v43);
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-    vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+4; vec4_t const quat_identity
-    vmovss  [rbp+4Fh+rot.m_x], xmm0
-    vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+8; vec4_t const quat_identity
-    vmovss  [rbp+4Fh+rot.m_y], xmm1
-    vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+0Ch; vec4_t const quat_identity
-    vmovss  [rbp+4Fh+rot.m_z], xmm0
-    vmovss  [rbp+4Fh+rot.m_w], xmm1
-  }
+  bfx::SpaceHandle::GetRot(&pSpace->hSpace, &v27);
+  rot.m_x = quat_identity.v[0];
+  rot.m_y = quat_identity.v[1];
+  rot.m_z = quat_identity.v[2];
+  rot.m_w = quat_identity.v[3];
   bfx::SpaceHandle::SetPos(&pSpace->hSpace, &bfx::ZERO_VECTOR);
   bfx::SpaceHandle::SetRot(&pSpace->hSpace, &rot);
   if ( pResource->bDockable )
@@ -778,7 +732,7 @@ void Nav_AddResourceToOldSpace(nav_space_s *pSpace, nav_resource_s *pResource, c
   }
   bfx::AddResource(&pSpace->hSpace, (char *)pWorkingGraph, &offset);
   bfx::SpaceHandle::SetPos(&pSpace->hSpace, &result);
-  bfx::SpaceHandle::SetRot(&pSpace->hSpace, &v43);
+  bfx::SpaceHandle::SetRot(&pSpace->hSpace, &v27);
   Nav_AddObjToList_nav_resource_s_(&pSpace->resourceList, pResource);
   ++pSpace->numResources;
   pResource->pSpace = pSpace;
@@ -1163,8 +1117,7 @@ nav_space_s *Nav_FindMostLikelySpace(const vec3_t *pos, const AINavLayer layer, 
 {
   vec3_t outPos; 
 
-  __asm { vmovss  xmm1, cs:__real@bf800000; radius }
-  return Nav_FindMostLikelySpaceCustom(pos, *(float *)&_XMM1, layer, pIgnoreSpace, NULL, &outPos, NULL);
+  return Nav_FindMostLikelySpaceCustom(pos, -1.0, layer, pIgnoreSpace, NULL, &outPos, NULL);
 }
 
 /*
@@ -1172,215 +1125,210 @@ nav_space_s *Nav_FindMostLikelySpace(const vec3_t *pos, const AINavLayer layer, 
 Nav_FindMostLikelySpaceCustom
 ==============
 */
-
-nav_space_s *__fastcall Nav_FindMostLikelySpaceCustom(const vec3_t *pos, double radius, const AINavLayer layer, const nav_space_s *pIgnoreSpace, const bfx::PathSpec *pPathSpec, vec3_t *outPos, bfx::AreaHandle *pOutArea)
+nav_space_s *Nav_FindMostLikelySpaceCustom(const vec3_t *pos, float radius, const AINavLayer layer, const nav_space_s *pIgnoreSpace, const bfx::PathSpec *pPathSpec, vec3_t *outPos, bfx::AreaHandle *pOutArea)
 {
-  bfx::AreaHandle *v21; 
+  vec3_t *v8; 
+  bfx::AreaHandle *v9; 
+  int v10; 
   int firstUsed; 
-  __int64 v28; 
-  nav_space_s *v29; 
+  const nav_space_s *v12; 
+  unsigned int v13; 
+  __int64 v14; 
+  nav_space_s *v15; 
   unsigned int parentEntNum; 
-  __int64 v32; 
+  __int64 v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  bfx::AreaHandle *v26; 
+  nav_space_s *v27; 
   nav_space_s *DefaultSpace; 
-  nav_space_s *v72; 
-  const char *v73; 
-  nav_space_s *result; 
+  const char *v29; 
   vec3_t *outClosestPos; 
-  bfx::AreaHandle *v87; 
+  bfx::AreaHandle *v32; 
+  float v34; 
+  int v35; 
+  float v36; 
+  int v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
   bfx::AreaHandle rhs; 
-  vec3_t *v94; 
-  bfx::AreaHandle *v95; 
-  bfx::AreaHandle v96; 
-  bfx::AreaHandle v97; 
-  __int64 v98; 
+  vec3_t *v44; 
+  bfx::AreaHandle *v45; 
+  bfx::AreaHandle v46; 
+  bfx::AreaHandle v47; 
+  __int64 v48; 
   vec3_t up; 
-  vec3_t v100; 
-  bfx::PathSpec v101; 
-  char v102; 
-  void *retaddr; 
+  vec3_t v50; 
+  bfx::PathSpec v51; 
 
-  _RAX = &retaddr;
-  v98 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-    vmovss  [rsp+210h+var_1BC], xmm1
-  }
-  _R12 = pos;
-  _RBX = pPathSpec;
-  _R14 = outPos;
-  v94 = outPos;
-  v21 = pOutArea;
-  v95 = pOutArea;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@7f7fffff
-    vmovss  [rsp+210h+var_1C4], xmm7
-  }
-  bfx::AreaHandle::AreaHandle(&v97);
-  __asm { vmovss  [rsp+210h+var_1CC], xmm7 }
-  bfx::AreaHandle::AreaHandle(&v96);
-  v101.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-  *(_QWORD *)&v101.m_obstacleBlockageFlags = -1i64;
-  *(_QWORD *)&v101.m_areaPenaltyFlags = -1i64;
-  v101.m_usePathSharingPenalty = 0;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  [rbp+110h+var_130.m_pathSharingPenalty], xmm6
-    vmovss  [rbp+110h+var_130.m_maxPathSharingPenalty], xmm6
-    vmovss  [rbp+110h+var_130.m_maxSearchDist], xmm6
-  }
-  bfx::PenaltyTable::PenaltyTable(&v101.m_penaltyTable);
-  v101.m_snapMode = SNAP_CLOSEST;
+  v48 = -2i64;
+  v8 = outPos;
+  v44 = outPos;
+  v9 = pOutArea;
+  v45 = pOutArea;
+  v36 = FLOAT_3_4028235e38;
+  v10 = -1;
+  v37 = -1;
+  bfx::AreaHandle::AreaHandle(&v47);
+  v34 = FLOAT_3_4028235e38;
+  v35 = -1;
+  bfx::AreaHandle::AreaHandle(&v46);
+  v51.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
+  *(_QWORD *)&v51.m_obstacleBlockageFlags = -1i64;
+  *(_QWORD *)&v51.m_areaPenaltyFlags = -1i64;
+  v51.m_usePathSharingPenalty = 0;
+  v51.m_pathSharingPenalty = 0.0;
+  v51.m_maxPathSharingPenalty = 0.0;
+  v51.m_maxSearchDist = 0.0;
+  bfx::PenaltyTable::PenaltyTable(&v51.m_penaltyTable);
+  v51.m_snapMode = SNAP_CLOSEST;
   if ( pPathSpec )
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rbp+110h+var_130.m_obstacleMode], ymm0
-      vmovups ymm1, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rbp+110h+var_130.m_maxSearchDist], ymm1
-      vmovups xmm0, xmmword ptr [rbx+40h]
-      vmovups xmmword ptr [rbp+20h], xmm0
-    }
-  }
+    v51 = *pPathSpec;
   firstUsed = g_NavData.spacePoolInfo.firstUsed;
   if ( g_NavData.spacePoolInfo.firstUsed >= 0 )
   {
+    v12 = pIgnoreSpace;
+    v13 = layer;
     do
     {
-      v28 = firstUsed;
-      v29 = &g_NavData.spaces[v28];
+      v14 = firstUsed;
+      v15 = &g_NavData.spaces[v14];
       if ( (unsigned int)firstUsed >= 0x80 )
       {
-        LODWORD(v87) = 128;
+        LODWORD(v32) = 128;
         LODWORD(outClosestPos) = firstUsed;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 200, ASSERT_TYPE_ASSERT, "(unsigned)( iSpace ) < (unsigned)( NAV_MAX_SPACES )", "iSpace doesn't index NAV_MAX_SPACES\n\t%i not in [0, %i)", outClosestPos, v87) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 200, ASSERT_TYPE_ASSERT, "(unsigned)( iSpace ) < (unsigned)( NAV_MAX_SPACES )", "iSpace doesn't index NAV_MAX_SPACES\n\t%i not in [0, %i)", outClosestPos, v32) )
           __debugbreak();
       }
-      if ( !bfx::SpaceHandle::IsValid(&v29->hSpace) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 201, ASSERT_TYPE_ASSERT, "( pSpace->hSpace.IsValid() )", (const char *)&queryFormat, "pSpace->hSpace.IsValid()") )
+      if ( !bfx::SpaceHandle::IsValid(&v15->hSpace) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 201, ASSERT_TYPE_ASSERT, "( pSpace->hSpace.IsValid() )", (const char *)&queryFormat, "pSpace->hSpace.IsValid()") )
         __debugbreak();
-      if ( g_NavData.spaces[v28].numResources && pIgnoreSpace != v29 )
+      if ( g_NavData.spaces[v14].numResources && v12 != v15 )
       {
-        parentEntNum = g_NavData.spaces[v28].parentEntNum;
+        parentEntNum = g_NavData.spaces[v14].parentEntNum;
         if ( parentEntNum == 2047 )
         {
-          __asm
-          {
-            vmovss  dword ptr [rbp+110h+up], xmm6
-            vmovss  dword ptr [rbp+110h+up+4], xmm6
-            vmovss  xmm0, cs:__real@3f800000
-            vmovss  dword ptr [rbp+110h+up+8], xmm0
-          }
+          up.v[0] = 0.0;
+          up.v[1] = 0.0;
+          up.v[2] = FLOAT_1_0;
         }
         else
         {
           if ( parentEntNum >= 0x800 )
           {
-            LODWORD(v87) = 2048;
-            LODWORD(outClosestPos) = g_NavData.spaces[v28].parentEntNum;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 315, ASSERT_TYPE_ASSERT, "(unsigned)( pSpace->parentEntNum ) < (unsigned)( ( 2048 ) )", "pSpace->parentEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", outClosestPos, v87) )
+            LODWORD(v32) = 2048;
+            LODWORD(outClosestPos) = g_NavData.spaces[v14].parentEntNum;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 315, ASSERT_TYPE_ASSERT, "(unsigned)( pSpace->parentEntNum ) < (unsigned)( ( 2048 ) )", "pSpace->parentEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", outClosestPos, v32) )
               __debugbreak();
           }
-          v32 = g_NavData.spaces[v28].parentEntNum;
-          if ( (unsigned int)v32 >= 0x800 )
+          v17 = g_NavData.spaces[v14].parentEntNum;
+          if ( (unsigned int)v17 >= 0x800 )
           {
-            LODWORD(v87) = 2048;
-            LODWORD(outClosestPos) = g_NavData.spaces[v28].parentEntNum;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", outClosestPos, v87) )
+            LODWORD(v32) = 2048;
+            LODWORD(outClosestPos) = g_NavData.spaces[v14].parentEntNum;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", outClosestPos, v32) )
               __debugbreak();
           }
           if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
             __debugbreak();
-          if ( g_entities[v32].r.isInUse != g_entityIsInUse[v32] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+          if ( g_entities[v17].r.isInUse != g_entityIsInUse[v17] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
             __debugbreak();
-          if ( !g_entityIsInUse[v32] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 316, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( pSpace->parentEntNum ) )", (const char *)&queryFormat, "G_IsEntityInUse( pSpace->parentEntNum )") )
+          if ( !g_entityIsInUse[v17] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 316, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( pSpace->parentEntNum ) )", (const char *)&queryFormat, "G_IsEntityInUse( pSpace->parentEntNum )") )
             __debugbreak();
-          AngleVectors(&g_entities[g_NavData.spaces[v28].parentEntNum].r.currentAngles, NULL, NULL, &up);
+          AngleVectors(&g_entities[g_NavData.spaces[v14].parentEntNum].r.currentAngles, NULL, NULL, &up);
+          v10 = v35;
         }
         bfx::AreaHandle::AreaHandle(&rhs);
-        if ( Nav_GetClosestVerticalPos(_R12, &up, layer, &v29->hSpace, &v101, &v100, &rhs) )
+        if ( Nav_GetClosestVerticalPos(pos, &up, v13, &v15->hSpace, &v51, &v50, &rhs) )
         {
-          __asm
+          v18 = v50.v[0];
+          v19 = pos->v[1];
+          v20 = v50.v[1];
+          v21 = pos->v[2];
+          v22 = v50.v[2];
+          v23 = (float)((float)((float)(v50.v[1] - v19) * (float)(v50.v[1] - v19)) + (float)((float)(v50.v[0] - pos->v[0]) * (float)(v50.v[0] - pos->v[0]))) + (float)((float)(v50.v[2] - v21) * (float)(v50.v[2] - v21));
+          v24 = pos->v[0] - v50.v[0];
+          v25 = (float)((float)((float)(v19 - v50.v[1]) * up.v[1]) + (float)(v24 * up.v[0])) + (float)((float)(v21 - v50.v[2]) * up.v[2]);
+          if ( radius > 0.0 && (float)((float)((float)((float)((float)(COERCE_FLOAT(LODWORD(v25) ^ _xmm) * up.v[1]) + (float)(v19 - v50.v[1])) * (float)((float)(COERCE_FLOAT(LODWORD(v25) ^ _xmm) * up.v[1]) + (float)(v19 - v50.v[1]))) + (float)((float)((float)(COERCE_FLOAT(LODWORD(v25) ^ _xmm) * up.v[0]) + v24) * (float)((float)(COERCE_FLOAT(LODWORD(v25) ^ _xmm) * up.v[0]) + v24))) + (float)((float)((float)(COERCE_FLOAT(LODWORD(v25) ^ _xmm) * up.v[2]) + (float)(v21 - v50.v[2])) * (float)((float)(COERCE_FLOAT(LODWORD(v25) ^ _xmm) * up.v[2]) + (float)(v21 - v50.v[2])))) < (float)(radius * radius) && v25 > -12.0 && v25 < 128.0 && COERCE_FLOAT(LODWORD(v25) & _xmm) <= v34 )
           {
-            vmovss  xmm6, dword ptr [r12]
-            vmovss  xmm12, dword ptr [rbp+110h+var_148]
-            vsubss  xmm2, xmm12, xmm6
-            vmovss  xmm5, dword ptr [r12+4]
-            vmovss  xmm13, dword ptr [rbp+110h+var_148+4]
-            vsubss  xmm0, xmm13, xmm5
-            vmovss  xmm4, dword ptr [r12+8]
-            vmovss  xmm14, dword ptr [rbp+110h+var_148+8]
-            vsubss  xmm3, xmm14, xmm4
-            vmulss  xmm1, xmm0, xmm0
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm15, xmm2, xmm1
-            vsubss  xmm8, xmm6, xmm12
-            vsubss  xmm9, xmm5, xmm13
-            vsubss  xmm10, xmm4, xmm14
-            vmulss  xmm1, xmm9, dword ptr [rbp+110h+up+4]
-            vmulss  xmm0, xmm8, dword ptr [rbp+110h+up]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm10, dword ptr [rbp+110h+up+8]
-            vaddss  xmm11, xmm2, xmm1
-            vxorps  xmm3, xmm11, cs:__xmm@80000000800000008000000080000000
-            vmulss  xmm0, xmm3, dword ptr [rbp+110h+up]
-            vaddss  xmm5, xmm0, xmm8
-            vmulss  xmm1, xmm3, dword ptr [rbp+110h+up+4]
-            vaddss  xmm2, xmm1, xmm9
-            vmulss  xmm0, xmm3, dword ptr [rbp+110h+up+8]
-            vaddss  xmm4, xmm0, xmm10
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm5, xmm5
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm5, xmm3, xmm0
-            vxorps  xmm6, xmm6, xmm6
-            vmovss  xmm8, [rsp+210h+var_1BC]
-            vcomiss xmm8, xmm6
-            vmulss  xmm0, xmm8, xmm8
-            vcomiss xmm5, xmm0
-            vcomiss xmm15, [rsp+210h+var_1C4]
+            LODWORD(v34) = LODWORD(v25) & _xmm;
+            v10 = firstUsed;
+            v35 = firstUsed;
+            layer = SLODWORD(v50.v[0]);
+            v38 = v50.v[1];
+            v39 = v50.v[2];
+            bfx::AreaHandle::operator=(&v46, &rhs);
+            v22 = v50.v[2];
+            v20 = v50.v[1];
+            v18 = v50.v[0];
+          }
+          if ( v23 < v36 )
+          {
+            v36 = v23;
+            v37 = firstUsed;
+            v40 = v18;
+            v41 = v20;
+            *(float *)&pIgnoreSpace = v22;
+            bfx::AreaHandle::operator=(&v47, &rhs);
           }
         }
         bfx::AreaHandle::~AreaHandle(&rhs);
       }
-      firstUsed = g_NavData.spaces[v28].nextIdx;
+      firstUsed = g_NavData.spaces[v14].nextIdx;
     }
     while ( firstUsed >= 0 );
-    _R14 = v94;
-    v21 = v95;
+    v8 = v44;
+    v9 = v45;
+    if ( v10 >= 0 )
+    {
+      v44->v[0] = *(float *)&layer;
+      v8->v[1] = v38;
+      v8->v[2] = v39;
+      if ( v9 )
+      {
+        v26 = &v46;
+LABEL_48:
+        bfx::AreaHandle::operator=(v9, v26);
+        goto LABEL_49;
+      }
+      goto LABEL_49;
+    }
+    v10 = v37;
+    if ( v37 >= 0 )
+    {
+      v44->v[0] = v40;
+      v8->v[1] = v41;
+      v8->v[2] = *(float *)&pIgnoreSpace;
+      if ( v9 )
+      {
+        v26 = &v47;
+        goto LABEL_48;
+      }
+LABEL_49:
+      v27 = &g_NavData.spaces[v10];
+      goto LABEL_57;
+    }
   }
-  _R14->v[0] = _R12->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+4]
-    vmovss  dword ptr [r14+4], xmm0
-    vmovss  xmm1, dword ptr [r12+8]
-    vmovss  dword ptr [r14+8], xmm1
-  }
-  if ( v21 )
-    bfx::AreaHandle::Release(v21);
+  v8->v[0] = pos->v[0];
+  v8->v[1] = pos->v[1];
+  v8->v[2] = pos->v[2];
+  if ( v9 )
+    bfx::AreaHandle::Release(v9);
   DefaultSpace = Nav_GetDefaultSpace();
-  v72 = DefaultSpace;
+  v27 = DefaultSpace;
   if ( DefaultSpace )
   {
     if ( DefaultSpace->numResources )
     {
-      v73 = vtos(_R12);
-      Com_PrintWarning(18, "FindMostLikelySpace: returning default, which is not considered valid for pos %s\n", v73);
+      v29 = vtos(pos);
+      Com_PrintWarning(18, "FindMostLikelySpace: returning default, which is not considered valid for pos %s\n", v29);
     }
     else
     {
@@ -1389,26 +1337,12 @@ nav_space_s *__fastcall Nav_FindMostLikelySpaceCustom(const vec3_t *pos, double 
   }
   else
   {
-    v72 = NULL;
+    v27 = NULL;
   }
-  bfx::AreaHandle::~AreaHandle(&v96);
-  bfx::AreaHandle::~AreaHandle(&v97);
-  result = v72;
-  _R11 = &v102;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return result;
+LABEL_57:
+  bfx::AreaHandle::~AreaHandle(&v46);
+  bfx::AreaHandle::~AreaHandle(&v47);
+  return v27;
 }
 
 /*
@@ -1416,7 +1350,7 @@ nav_space_s *__fastcall Nav_FindMostLikelySpaceCustom(const vec3_t *pos, double 
 Nav_FindMostLikelySpaceWithRadius
 ==============
 */
-nav_space_s *Nav_FindMostLikelySpaceWithRadius(const vec3_t *pos, double radius, const AINavLayer layer, nav_space_s *pIgnoreSpace)
+nav_space_s *Nav_FindMostLikelySpaceWithRadius(const vec3_t *pos, float radius, const AINavLayer layer, nav_space_s *pIgnoreSpace)
 {
   vec3_t outPos; 
 
@@ -1428,11 +1362,9 @@ nav_space_s *Nav_FindMostLikelySpaceWithRadius(const vec3_t *pos, double radius,
 Nav_GetClosestVerticalPosInMostLikelySpace
 ==============
 */
-
-nav_space_s *__fastcall Nav_GetClosestVerticalPosInMostLikelySpace(const vec3_t *pos, AINavLayer layer, double radius, const bfx::PathSpec *pPathSpec, vec3_t *outPos, bfx::AreaHandle *pOutArea)
+nav_space_s *Nav_GetClosestVerticalPosInMostLikelySpace(const vec3_t *pos, AINavLayer layer, float radius, const bfx::PathSpec *pPathSpec, vec3_t *outPos, bfx::AreaHandle *pOutArea)
 {
-  __asm { vmovaps xmm1, xmm2; radius }
-  return Nav_FindMostLikelySpaceCustom(pos, *(double *)&_XMM1, layer, NULL, pPathSpec, outPos, pOutArea);
+  return Nav_FindMostLikelySpaceCustom(pos, radius, layer, NULL, pPathSpec, outPos, pOutArea);
 }
 
 /*
@@ -1763,111 +1695,138 @@ Nav_ReadSpace
 */
 void Nav_ReadSpace(MemoryFile *memFile)
 {
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
   const char *CString; 
   scr_string_t String; 
-  int v16; 
+  int v14; 
   nav_space_s *SpaceByEntNum; 
-  __int64 v25; 
+  double Float; 
+  float v17; 
+  double v18; 
+  float v19; 
+  double v20; 
+  float v21; 
+  double v22; 
+  float v23; 
+  double v24; 
+  float v25; 
+  double v26; 
+  float v27; 
+  double v28; 
+  float v29; 
+  __int64 v30; 
+  double v31; 
+  float v32; 
+  double v33; 
+  float v34; 
+  double v35; 
+  float v36; 
+  double v37; 
+  double v38; 
+  double v39; 
+  double v40; 
   nav_resource_s *ResourceByEntNum; 
+  nav_resource_s *v42; 
   nav_space_s *pSpace; 
-  char v32; 
-  bool v33; 
-  __int64 v37; 
+  bool v44; 
   __int64 v45; 
   __int64 v46; 
   __int64 v47; 
   __int64 v48; 
+  __int64 v49; 
   int offsetLayer; 
   unsigned int p; 
-  scr_string_t v51; 
+  scr_string_t v52; 
   bfx::Vector3 pos; 
   bfx::Quaternion rot; 
   vec3_t localOffsetPos; 
   vec4_t localOffsetRot; 
-  void *retaddr; 
+  __int128 v57; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v60; 
+  __int128 v61; 
+  __int128 v62; 
+  __int128 v63; 
+  __int128 v64; 
+  __int128 v65; 
+  __int128 v66; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-68h], xmm9
-    vmovaps xmmword ptr [r11-78h], xmm10
-    vmovaps xmmword ptr [r11-88h], xmm11
-    vmovaps xmmword ptr [r11-98h], xmm12
-    vmovaps xmmword ptr [r11-0A8h], xmm13
-    vmovaps xmmword ptr [r11-0B8h], xmm14
-    vmovaps xmmword ptr [r11-0C8h], xmm15
-  }
+  v63 = v4;
+  v62 = v5;
+  v61 = v6;
+  v60 = v7;
+  v59 = v8;
+  v58 = v9;
+  v57 = v10;
   CString = MemFile_ReadCString(memFile);
   if ( CString && *CString )
     String = SL_GetString(CString, 0);
   else
     String = 0;
-  v51 = String;
+  v52 = String;
   MemFile_ReadData(memFile, 4ui64, &p);
-  v16 = p;
+  v14 = p;
   SpaceByEntNum = Nav_GetSpaceByEntNum(p);
   if ( !SpaceByEntNum )
   {
-    SpaceByEntNum = Nav_CreateSpaceWithName(String, v16);
+    SpaceByEntNum = Nav_CreateSpaceWithName(String, v14);
     if ( !SpaceByEntNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 1123, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
       __debugbreak();
   }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovaps xmm9, xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovaps xmm10, xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovaps xmm11, xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovaps xmm12, xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovaps xmm13, xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovaps xmm14, xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovaps xmm15, xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  v17 = *(float *)&Float;
+  v18 = MemFile_ReadFloat(memFile);
+  v19 = *(float *)&v18;
+  v20 = MemFile_ReadFloat(memFile);
+  v21 = *(float *)&v20;
+  v22 = MemFile_ReadFloat(memFile);
+  v23 = *(float *)&v22;
+  v24 = MemFile_ReadFloat(memFile);
+  v25 = *(float *)&v24;
+  v26 = MemFile_ReadFloat(memFile);
+  v27 = *(float *)&v26;
+  v28 = MemFile_ReadFloat(memFile);
+  v29 = *(float *)&v28;
   MemFile_ReadData(memFile, 4ui64, &p);
   if ( (int)p > 0 )
   {
-    __asm { vmovaps [rsp+160h+var_38+8], xmm6 }
-    v25 = p;
-    __asm
-    {
-      vmovaps [rsp+160h+var_48+8], xmm7
-      vmovaps [rsp+160h+var_58+8], xmm8
-    }
+    v66 = v1;
+    v30 = p;
+    v65 = v2;
+    v64 = v3;
     while ( 1 )
     {
       MemFile_ReadData(memFile, 4ui64, &p);
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm
-      {
-        vmovss  dword ptr [rsp+160h+localOffsetPos], xmm0
-        vmovaps xmm8, xmm0
-      }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm
-      {
-        vmovss  dword ptr [rsp+160h+localOffsetPos+4], xmm0
-        vmovaps xmm6, xmm0
-      }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm
-      {
-        vmovss  dword ptr [rsp+160h+localOffsetPos+8], xmm0
-        vmovaps xmm7, xmm0
-      }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbp+60h+localOffsetRot], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbp+60h+localOffsetRot+4], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbp+60h+localOffsetRot+8], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbp+60h+localOffsetRot+0Ch], xmm0 }
+      v31 = MemFile_ReadFloat(memFile);
+      localOffsetPos.v[0] = *(float *)&v31;
+      v32 = *(float *)&v31;
+      v33 = MemFile_ReadFloat(memFile);
+      localOffsetPos.v[1] = *(float *)&v33;
+      v34 = *(float *)&v33;
+      v35 = MemFile_ReadFloat(memFile);
+      localOffsetPos.v[2] = *(float *)&v35;
+      v36 = *(float *)&v35;
+      v37 = MemFile_ReadFloat(memFile);
+      localOffsetRot.v[0] = *(float *)&v37;
+      v38 = MemFile_ReadFloat(memFile);
+      localOffsetRot.v[1] = *(float *)&v38;
+      v39 = MemFile_ReadFloat(memFile);
+      localOffsetRot.v[2] = *(float *)&v39;
+      v40 = MemFile_ReadFloat(memFile);
+      localOffsetRot.v[3] = *(float *)&v40;
       MemFile_ReadData(memFile, 4ui64, &offsetLayer);
       ResourceByEntNum = Nav_GetResourceByEntNum(p);
-      _RBX = ResourceByEntNum;
+      v42 = ResourceByEntNum;
       if ( ResourceByEntNum )
       {
         if ( ResourceByEntNum->bDockable )
@@ -1877,117 +1836,89 @@ void Nav_ReadSpace(MemoryFile *memFile)
             goto LABEL_26;
           if ( pSpace )
             Nav_RemoveResourceFromSpace(pSpace, ResourceByEntNum);
-          Nav_AddResourceToNewSpace(SpaceByEntNum, _RBX, &localOffsetPos, &localOffsetRot, offsetLayer);
-          __asm { vucomiss xmm8, dword ptr [rbx+1Ch] }
-          if ( v32 )
-          {
-            __asm { vucomiss xmm6, dword ptr [rbx+20h] }
-            if ( v32 )
-            {
-              __asm { vucomiss xmm7, dword ptr [rbx+24h] }
-              if ( v32 )
-                goto LABEL_26;
-            }
-          }
-          v33 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 1168, ASSERT_TYPE_ASSERT, "( Vec3Compare( pResource->localOffsetPos, localPos ) )", (const char *)&queryFormat, "Vec3Compare( pResource->localOffsetPos, localPos )");
+          Nav_AddResourceToNewSpace(SpaceByEntNum, v42, &localOffsetPos, &localOffsetRot, offsetLayer);
+          if ( v32 == v42->localOffsetPos.v[0] && v34 == v42->localOffsetPos.v[1] && v36 == v42->localOffsetPos.v[2] )
+            goto LABEL_26;
+          v44 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 1168, ASSERT_TYPE_ASSERT, "( Vec3Compare( pResource->localOffsetPos, localPos ) )", (const char *)&queryFormat, "Vec3Compare( pResource->localOffsetPos, localPos )");
           goto LABEL_24;
         }
         if ( !ResourceByEntNum->pNext || !ResourceByEntNum->pPrev || !ResourceByEntNum->pSpace )
         {
-          v33 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 1173, ASSERT_TYPE_ASSERT, "( pResource->pNext && pResource->pPrev && pResource->pSpace )", (const char *)&queryFormat, "pResource->pNext && pResource->pPrev && pResource->pSpace");
+          v44 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 1173, ASSERT_TYPE_ASSERT, "( pResource->pNext && pResource->pPrev && pResource->pSpace )", (const char *)&queryFormat, "pResource->pNext && pResource->pPrev && pResource->pSpace");
 LABEL_24:
-          if ( v33 )
+          if ( v44 )
             __debugbreak();
         }
       }
 LABEL_26:
-      if ( !--v25 )
+      if ( !--v30 )
       {
-        String = v51;
-        __asm
-        {
-          vmovaps xmm8, [rsp+160h+var_58+8]
-          vmovaps xmm7, [rsp+160h+var_48+8]
-          vmovaps xmm6, [rsp+160h+var_38+8]
-        }
+        String = v52;
         break;
       }
     }
   }
-  __asm
-  {
-    vmovss  [rsp+160h+pos.m_x], xmm9
-    vmovss  [rsp+160h+pos.m_y], xmm10
-    vmovss  [rsp+160h+pos.m_z], xmm11
-    vmovss  [rsp+160h+rot.m_x], xmm12
-    vmovss  [rsp+160h+rot.m_y], xmm13
-    vmovss  [rsp+160h+rot.m_z], xmm14
-    vmovss  [rsp+160h+rot.m_w], xmm15
-  }
+  pos.m_x = v17;
+  pos.m_y = v19;
+  pos.m_z = v21;
+  rot.m_x = v23;
+  rot.m_y = v25;
+  rot.m_z = v27;
+  rot.m_w = v29;
   bfx::SpaceHandle::SetPos(&SpaceByEntNum->hSpace, &pos);
   bfx::SpaceHandle::SetRot(&SpaceByEntNum->hSpace, &rot);
   MemFile_ReadData(memFile, 4ui64, &offsetLayer);
-  v37 = (unsigned int)offsetLayer;
-  __asm
-  {
-    vmovaps xmm15, [rsp+160h+var_C8+8]
-    vmovaps xmm14, [rsp+160h+var_B8+8]
-    vmovaps xmm13, [rsp+160h+var_A8+8]
-    vmovaps xmm12, [rsp+160h+var_98+8]
-    vmovaps xmm11, [rsp+160h+var_88+8]
-    vmovaps xmm10, [rsp+160h+var_78+8]
-    vmovaps xmm9, [rsp+160h+var_68+8]
-  }
+  v45 = (unsigned int)offsetLayer;
   if ( (unsigned int)offsetLayer >= 0x900 )
   {
-    LODWORD(v47) = offsetLayer;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 1183, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( NAV_MAX_LINKS )", "count doesn't index NAV_MAX_LINKS\n\t%i not in [0, %i)", v47, 2304) )
-      __debugbreak();
-  }
-  if ( (int)v37 > 0 )
-  {
-    do
-    {
-      Nav_ReadLink(memFile, SpaceByEntNum);
-      --v37;
-    }
-    while ( v37 );
-  }
-  MemFile_ReadData(memFile, 4ui64, &offsetLayer);
-  v45 = (unsigned int)offsetLayer;
-  if ( (unsigned int)v45 >= Nav_GetMaxNumObstacles() )
-  {
-    LODWORD(v48) = Nav_GetMaxNumObstacles();
-    LODWORD(v47) = v45;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 1190, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( Nav_GetMaxNumObstacles() )", "count doesn't index Nav_GetMaxNumObstacles()\n\t%i not in [0, %i)", v47, v48) )
+    LODWORD(v48) = offsetLayer;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 1183, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( NAV_MAX_LINKS )", "count doesn't index NAV_MAX_LINKS\n\t%i not in [0, %i)", v48, 2304) )
       __debugbreak();
   }
   if ( (int)v45 > 0 )
   {
     do
     {
-      Nav_ReadAndCreateObstacle(memFile, SpaceByEntNum);
+      Nav_ReadLink(memFile, SpaceByEntNum);
       --v45;
     }
     while ( v45 );
   }
   MemFile_ReadData(memFile, 4ui64, &offsetLayer);
   v46 = (unsigned int)offsetLayer;
-  if ( (unsigned int)offsetLayer >= 0x100 )
+  if ( (unsigned int)v46 >= Nav_GetMaxNumObstacles() )
   {
-    LODWORD(v48) = 256;
-    LODWORD(v47) = offsetLayer;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 1197, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( NAV_MAX_REPULSORS )", "count doesn't index NAV_MAX_REPULSORS\n\t%i not in [0, %i)", v47, v48) )
+    LODWORD(v49) = Nav_GetMaxNumObstacles();
+    LODWORD(v48) = v46;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 1190, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( Nav_GetMaxNumObstacles() )", "count doesn't index Nav_GetMaxNumObstacles()\n\t%i not in [0, %i)", v48, v49) )
       __debugbreak();
   }
   if ( (int)v46 > 0 )
   {
     do
     {
-      Nav_ReadRepulsor(memFile, SpaceByEntNum);
+      Nav_ReadAndCreateObstacle(memFile, SpaceByEntNum);
       --v46;
     }
     while ( v46 );
+  }
+  MemFile_ReadData(memFile, 4ui64, &offsetLayer);
+  v47 = (unsigned int)offsetLayer;
+  if ( (unsigned int)offsetLayer >= 0x100 )
+  {
+    LODWORD(v49) = 256;
+    LODWORD(v48) = offsetLayer;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 1197, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( NAV_MAX_REPULSORS )", "count doesn't index NAV_MAX_REPULSORS\n\t%i not in [0, %i)", v48, v49) )
+      __debugbreak();
+  }
+  if ( (int)v47 > 0 )
+  {
+    do
+    {
+      Nav_ReadRepulsor(memFile, SpaceByEntNum);
+      --v47;
+    }
+    while ( v47 );
   }
   if ( String )
     SL_RemoveRefToString(String);
@@ -2040,11 +1971,11 @@ void Nav_RemoveObstacleFromSpace(nav_space_s *pSpace, nav_obstacle_s *pObstacle,
 {
   int numObstacles; 
   nav_obstacle_s *pNext; 
+  nav_obstacle_s *v8; 
   nav_obstacle_s *v9; 
   nav_obstacle_s *v10; 
-  nav_obstacle_s *v11; 
   nav_obstacle_s **p_pNext; 
-  nav_obstacle_s v13; 
+  nav_obstacle_s v12; 
 
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 662, ASSERT_TYPE_ASSERT, "(pSpace)", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
@@ -2059,19 +1990,15 @@ void Nav_RemoveObstacleFromSpace(nav_space_s *pSpace, nav_obstacle_s *pObstacle,
   if ( pObstacle->pPrev && pObstacle->pNext )
   {
     numObstacles = pSpace->numObstacles;
-    bfx::ObstacleHandle::ObstacleHandle(&v13.hObstacle);
-    v13.obsData.m_layerMask = -1;
-    v13.obsData.m_obstacleBehavior = OBSTACLE_BEHAVIOR_AUTOMATIC;
-    __asm
-    {
-      vmovss  xmm0, cs:__real@41700000
-      vmovss  [rsp+1D8h+var_158], xmm0
-    }
-    v13.obsData.m_obstacleBlockageFlags = -1;
-    v13.obsData.m_userData = 0i64;
-    v13.obsData.m_obstacleName = NULL;
-    v13.pPrev = &v13;
-    v13.pNext = &v13;
+    bfx::ObstacleHandle::ObstacleHandle(&v12.hObstacle);
+    v12.obsData.m_layerMask = -1;
+    v12.obsData.m_obstacleBehavior = OBSTACLE_BEHAVIOR_AUTOMATIC;
+    v12.obsData.m_penaltyMult = FLOAT_15_0;
+    v12.obsData.m_obstacleBlockageFlags = -1;
+    v12.obsData.m_userData = 0i64;
+    v12.obsData.m_obstacleName = NULL;
+    v12.pPrev = &v12;
+    v12.pNext = &v12;
     if ( bPreserveOrdering )
     {
       pNext = pSpace->obstacleList.pNext;
@@ -2079,31 +2006,31 @@ void Nav_RemoveObstacleFromSpace(nav_space_s *pSpace, nav_obstacle_s *pObstacle,
       {
         if ( pNext == pObstacle )
           break;
-        v9 = pNext;
+        v8 = pNext;
         pNext = pNext->pNext;
-        Nav_RemoveObstacleFromSpace(pSpace, v9, 0);
-        bfx::DestroyObstacle(&v9->hObstacle);
-        bfx::ObstacleHandle::Release(&v9->hObstacle);
-        Nav_AddObjToList_nav_obstacle_s_(&v13, v9);
+        Nav_RemoveObstacleFromSpace(pSpace, v8, 0);
+        bfx::DestroyObstacle(&v8->hObstacle);
+        bfx::ObstacleHandle::Release(&v8->hObstacle);
+        Nav_AddObjToList_nav_obstacle_s_(&v12, v8);
       }
     }
     Nav_RemoveObjFromList_nav_obstacle_s_(&pSpace->obstacleList, pObstacle);
     --pSpace->numObstacles;
     if ( bPreserveOrdering )
     {
-      v10 = v13.pNext;
-      while ( v10 != &v13 )
+      v9 = v12.pNext;
+      while ( v9 != &v12 )
       {
-        v11 = v10;
-        p_pNext = &v10->pNext;
-        v10 = v10->pNext;
-        if ( (!v11->pPrev || !v10) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 601, ASSERT_TYPE_ASSERT, "(pObj->pPrev && pObj->pNext)", "%s\n\tpObj is not in a list.", "pObj->pPrev && pObj->pNext") )
+        v10 = v9;
+        p_pNext = &v9->pNext;
+        v9 = v9->pNext;
+        if ( (!v10->pPrev || !v9) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 601, ASSERT_TYPE_ASSERT, "(pObj->pPrev && pObj->pNext)", "%s\n\tpObj is not in a list.", "pObj->pPrev && pObj->pNext") )
           __debugbreak();
-        v11->pPrev->pNext = *p_pNext;
-        (*p_pNext)->pPrev = v11->pPrev;
-        v11->pPrev = NULL;
+        v10->pPrev->pNext = *p_pNext;
+        (*p_pNext)->pPrev = v10->pPrev;
+        v10->pPrev = NULL;
         *p_pNext = NULL;
-        Nav_AddExistingObstacleToSpace(pSpace, v11);
+        Nav_AddExistingObstacleToSpace(pSpace, v10);
       }
     }
     pObstacle->pSpace = NULL;
@@ -2111,7 +2038,7 @@ void Nav_RemoveObstacleFromSpace(nav_space_s *pSpace, nav_obstacle_s *pObstacle,
       __debugbreak();
     if ( pSpace->numObstacles < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 712, ASSERT_TYPE_ASSERT, "(pSpace->numObstacles >= 0)", (const char *)&queryFormat, "pSpace->numObstacles >= 0") )
       __debugbreak();
-    bfx::ObstacleHandle::~ObstacleHandle(&v13.hObstacle);
+    bfx::ObstacleHandle::~ObstacleHandle(&v12.hObstacle);
   }
 }
 
@@ -2122,118 +2049,105 @@ Nav_RemoveObstaclesMarkedForDeleteFromAllSpaces
 */
 void Nav_RemoveObstaclesMarkedForDeleteFromAllSpaces(bool bPreserveOrdering)
 {
-  bool v3; 
-  int firstUsed; 
-  nav_space_s *v6; 
-  char v7; 
-  nav_obstacle_s *v8; 
+  bool v1; 
+  int i; 
+  nav_space_s *v3; 
+  char v4; 
+  nav_obstacle_s *v5; 
   navdata_s *pNext; 
-  navdata_s *v10; 
-  nav_obstacle_s *v11; 
-  nav_obstacle_s *v12; 
-  nav_obstacle_s *v13; 
+  navdata_s *v7; 
+  nav_obstacle_s *v8; 
+  nav_obstacle_s *v9; 
+  nav_obstacle_s *v10; 
   nav_obstacle_s **p_pNext; 
-  char v17; 
-  __int64 v19; 
-  nav_obstacle_s v20; 
-  char v21; 
-  void *retaddr; 
+  char v12; 
+  __int64 v14; 
+  nav_obstacle_s v15; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v3 = bPreserveOrdering;
-  firstUsed = g_NavData.spacePoolInfo.firstUsed;
-  if ( g_NavData.spacePoolInfo.firstUsed >= 0 )
+  v1 = bPreserveOrdering;
+  for ( i = g_NavData.spacePoolInfo.firstUsed; i >= 0; i = g_NavData.spaces[v14].nextIdx )
   {
-    __asm { vmovss  xmm6, cs:__real@41700000 }
-    do
+    v14 = i;
+    v3 = &g_NavData.spaces[v14];
+    if ( (navdata_s *)((char *)&g_NavData + v14 * 640) == (navdata_s *)-1056i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 717, ASSERT_TYPE_ASSERT, "(pSpace)", (const char *)&queryFormat, "pSpace") )
+      __debugbreak();
+    Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Nav_RemoveObstaclesMarkedForDeleteFromSpace");
+    v4 = 0;
+    v12 = 0;
+    bfx::ObstacleHandle::ObstacleHandle(&v15.hObstacle);
+    v15.obsData.m_layerMask = -1;
+    v15.obsData.m_obstacleBehavior = OBSTACLE_BEHAVIOR_AUTOMATIC;
+    v15.obsData.m_penaltyMult = FLOAT_15_0;
+    v15.obsData.m_obstacleBlockageFlags = -1;
+    v15.obsData.m_userData = 0i64;
+    v15.obsData.m_obstacleName = NULL;
+    v15.pPrev = &v15;
+    v5 = &v15;
+    v15.pNext = &v15;
+    pNext = (navdata_s *)g_NavData.spaces[v14].obstacleList.pNext;
+    v7 = pNext;
+    if ( pNext != (navdata_s *)&g_NavData.spaces[v14].obstacleList )
     {
-      v19 = firstUsed;
-      v6 = &g_NavData.spaces[v19];
-      if ( (navdata_s *)((char *)&g_NavData + v19 * 640) == (navdata_s *)-1056i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 717, ASSERT_TYPE_ASSERT, "(pSpace)", (const char *)&queryFormat, "pSpace") )
-        __debugbreak();
-      Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Nav_RemoveObstaclesMarkedForDeleteFromSpace");
-      v7 = 0;
-      v17 = 0;
-      bfx::ObstacleHandle::ObstacleHandle(&v20.hObstacle);
-      v20.obsData.m_layerMask = -1;
-      v20.obsData.m_obstacleBehavior = OBSTACLE_BEHAVIOR_AUTOMATIC;
-      __asm { vmovss  [rsp+1E8h+var_158], xmm6 }
-      v20.obsData.m_obstacleBlockageFlags = -1;
-      v20.obsData.m_userData = 0i64;
-      v20.obsData.m_obstacleName = NULL;
-      v20.pPrev = &v20;
-      v8 = &v20;
-      v20.pNext = &v20;
-      pNext = (navdata_s *)g_NavData.spaces[v19].obstacleList.pNext;
-      v10 = pNext;
-      if ( pNext != (navdata_s *)&g_NavData.spaces[v19].obstacleList )
+      do
       {
-        do
+        v8 = (nav_obstacle_s *)v7;
+        v7 = (navdata_s *)v7->resources[38];
+        if ( v8->m_bDeleteMe )
         {
-          v11 = (nav_obstacle_s *)v10;
-          v10 = (navdata_s *)v10->resources[38];
-          if ( v11->m_bDeleteMe )
+          if ( v1 )
           {
-            if ( v3 )
+            Sys_ProfBeginNamedEvent(0xFFFFFFFF, "RemoveObstacles_PreserveOrdering");
+            while ( pNext != (navdata_s *)v8 )
             {
-              Sys_ProfBeginNamedEvent(0xFFFFFFFF, "RemoveObstacles_PreserveOrdering");
-              while ( pNext != (navdata_s *)v11 )
-              {
-                v12 = (nav_obstacle_s *)pNext;
-                pNext = (navdata_s *)pNext->resources[38];
-                Nav_RemoveObstacleFromSpace(v6, v12, 0);
-                bfx::DestroyObstacle(&v12->hObstacle);
-                bfx::ObstacleHandle::Release(&v12->hObstacle);
-                Nav_AddObjToList_nav_obstacle_s_(&v20, v12);
-              }
-              Sys_ProfEndNamedEvent();
+              v9 = (nav_obstacle_s *)pNext;
+              pNext = (navdata_s *)pNext->resources[38];
+              Nav_RemoveObstacleFromSpace(v3, v9, 0);
+              bfx::DestroyObstacle(&v9->hObstacle);
+              bfx::ObstacleHandle::Release(&v9->hObstacle);
+              Nav_AddObjToList_nav_obstacle_s_(&v15, v9);
             }
-            bfx::DestroyObstacle(&v11->hObstacle);
-            bfx::ObstacleHandle::Release(&v11->hObstacle);
-            Nav_RemoveObjFromList_nav_obstacle_s_(&g_NavData.spaces[v19].obstacleList, v11);
-            --g_NavData.spaces[v19].numObstacles;
-            v11->pSpace = NULL;
-            Nav_FreeObstacle(v11);
-            v7 = 1;
-            pNext = v10;
+            Sys_ProfEndNamedEvent();
           }
+          bfx::DestroyObstacle(&v8->hObstacle);
+          bfx::ObstacleHandle::Release(&v8->hObstacle);
+          Nav_RemoveObjFromList_nav_obstacle_s_(&g_NavData.spaces[v14].obstacleList, v8);
+          --g_NavData.spaces[v14].numObstacles;
+          v8->pSpace = NULL;
+          Nav_FreeObstacle(v8);
+          v4 = 1;
+          pNext = v7;
         }
-        while ( v10 != (navdata_s *)&g_NavData.spaces[v19].obstacleList );
-        v17 = v7;
-        v8 = v20.pNext;
       }
-      if ( v3 && v8 != &v20 )
-      {
-        do
-        {
-          v13 = v8;
-          p_pNext = &v8->pNext;
-          v8 = v8->pNext;
-          if ( (!v13->pPrev || !v8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 601, ASSERT_TYPE_ASSERT, "(pObj->pPrev && pObj->pNext)", "%s\n\tpObj is not in a list.", "pObj->pPrev && pObj->pNext") )
-            __debugbreak();
-          v13->pPrev->pNext = *p_pNext;
-          (*p_pNext)->pPrev = v13->pPrev;
-          v13->pPrev = NULL;
-          *p_pNext = NULL;
-          Nav_AddExistingObstacleToSpace(v6, v13);
-        }
-        while ( v8 != &v20 );
-        v7 = v17;
-        v3 = bPreserveOrdering;
-      }
-      if ( v7 )
-        Nav_ClearCachedData(v6);
-      if ( g_NavData.spaces[v19].numObstacles < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 786, ASSERT_TYPE_ASSERT, "(pSpace->numObstacles >= 0)", (const char *)&queryFormat, "pSpace->numObstacles >= 0") )
-        __debugbreak();
-      Sys_ProfEndNamedEvent();
-      bfx::ObstacleHandle::~ObstacleHandle(&v20.hObstacle);
-      firstUsed = g_NavData.spaces[v19].nextIdx;
+      while ( v7 != (navdata_s *)&g_NavData.spaces[v14].obstacleList );
+      v12 = v4;
+      v5 = v15.pNext;
     }
-    while ( firstUsed >= 0 );
+    if ( v1 && v5 != &v15 )
+    {
+      do
+      {
+        v10 = v5;
+        p_pNext = &v5->pNext;
+        v5 = v5->pNext;
+        if ( (!v10->pPrev || !v5) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 601, ASSERT_TYPE_ASSERT, "(pObj->pPrev && pObj->pNext)", "%s\n\tpObj is not in a list.", "pObj->pPrev && pObj->pNext") )
+          __debugbreak();
+        v10->pPrev->pNext = *p_pNext;
+        (*p_pNext)->pPrev = v10->pPrev;
+        v10->pPrev = NULL;
+        *p_pNext = NULL;
+        Nav_AddExistingObstacleToSpace(v3, v10);
+      }
+      while ( v5 != &v15 );
+      v4 = v12;
+      v1 = bPreserveOrdering;
+    }
+    if ( v4 )
+      Nav_ClearCachedData(v3);
+    if ( g_NavData.spaces[v14].numObstacles < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 786, ASSERT_TYPE_ASSERT, "(pSpace->numObstacles >= 0)", (const char *)&queryFormat, "pSpace->numObstacles >= 0") )
+      __debugbreak();
+    Sys_ProfEndNamedEvent();
+    bfx::ObstacleHandle::~ObstacleHandle(&v15.hObstacle);
   }
-  _R11 = &v21;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -2244,93 +2158,89 @@ Nav_RemoveObstaclesMarkedForDeleteFromSpace
 void Nav_RemoveObstaclesMarkedForDeleteFromSpace(nav_space_s *pSpace, bool bPreserveOrdering)
 {
   char v4; 
-  nav_obstacle_s *v6; 
+  nav_obstacle_s *v5; 
   nav_obstacle_s *pNext; 
+  nav_obstacle_s *v7; 
   nav_obstacle_s *v8; 
   nav_obstacle_s *v9; 
   nav_obstacle_s *v10; 
-  nav_obstacle_s *v11; 
   nav_obstacle_s **p_pNext; 
-  nav_obstacle_s v13; 
+  nav_obstacle_s v12; 
 
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 717, ASSERT_TYPE_ASSERT, "(pSpace)", (const char *)&queryFormat, "pSpace", -2i64) )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Nav_RemoveObstaclesMarkedForDeleteFromSpace");
   v4 = 0;
-  bfx::ObstacleHandle::ObstacleHandle(&v13.hObstacle);
-  v13.obsData.m_layerMask = -1;
-  v13.obsData.m_obstacleBehavior = OBSTACLE_BEHAVIOR_AUTOMATIC;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@41700000
-    vmovss  [rsp+1C8h+var_148], xmm0
-  }
-  v13.obsData.m_obstacleBlockageFlags = -1;
-  v13.obsData.m_userData = 0i64;
-  v13.obsData.m_obstacleName = NULL;
-  v13.pPrev = &v13;
-  v6 = &v13;
-  v13.pNext = &v13;
+  bfx::ObstacleHandle::ObstacleHandle(&v12.hObstacle);
+  v12.obsData.m_layerMask = -1;
+  v12.obsData.m_obstacleBehavior = OBSTACLE_BEHAVIOR_AUTOMATIC;
+  v12.obsData.m_penaltyMult = FLOAT_15_0;
+  v12.obsData.m_obstacleBlockageFlags = -1;
+  v12.obsData.m_userData = 0i64;
+  v12.obsData.m_obstacleName = NULL;
+  v12.pPrev = &v12;
+  v5 = &v12;
+  v12.pNext = &v12;
   pNext = pSpace->obstacleList.pNext;
-  v8 = pNext;
+  v7 = pNext;
   if ( pNext != &pSpace->obstacleList )
   {
     do
     {
-      v9 = v8;
-      v8 = v8->pNext;
-      if ( v9->m_bDeleteMe )
+      v8 = v7;
+      v7 = v7->pNext;
+      if ( v8->m_bDeleteMe )
       {
         if ( bPreserveOrdering )
         {
           Sys_ProfBeginNamedEvent(0xFFFFFFFF, "RemoveObstacles_PreserveOrdering");
-          while ( pNext != v9 )
+          while ( pNext != v8 )
           {
-            v10 = pNext;
+            v9 = pNext;
             pNext = pNext->pNext;
-            Nav_RemoveObstacleFromSpace(pSpace, v10, 0);
-            bfx::DestroyObstacle(&v10->hObstacle);
-            bfx::ObstacleHandle::Release(&v10->hObstacle);
-            Nav_AddObjToList_nav_obstacle_s_(&v13, v10);
+            Nav_RemoveObstacleFromSpace(pSpace, v9, 0);
+            bfx::DestroyObstacle(&v9->hObstacle);
+            bfx::ObstacleHandle::Release(&v9->hObstacle);
+            Nav_AddObjToList_nav_obstacle_s_(&v12, v9);
           }
           Sys_ProfEndNamedEvent();
         }
-        bfx::DestroyObstacle(&v9->hObstacle);
-        bfx::ObstacleHandle::Release(&v9->hObstacle);
-        Nav_RemoveObjFromList_nav_obstacle_s_(&pSpace->obstacleList, v9);
+        bfx::DestroyObstacle(&v8->hObstacle);
+        bfx::ObstacleHandle::Release(&v8->hObstacle);
+        Nav_RemoveObjFromList_nav_obstacle_s_(&pSpace->obstacleList, v8);
         --pSpace->numObstacles;
-        v9->pSpace = NULL;
-        Nav_FreeObstacle(v9);
+        v8->pSpace = NULL;
+        Nav_FreeObstacle(v8);
         v4 = 1;
-        pNext = v8;
+        pNext = v7;
       }
     }
-    while ( v8 != &pSpace->obstacleList );
-    v6 = v13.pNext;
+    while ( v7 != &pSpace->obstacleList );
+    v5 = v12.pNext;
   }
-  if ( bPreserveOrdering && v6 != &v13 )
+  if ( bPreserveOrdering && v5 != &v12 )
   {
     do
     {
-      v11 = v6;
-      p_pNext = &v6->pNext;
-      v6 = v6->pNext;
-      if ( (!v11->pPrev || !v6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 601, ASSERT_TYPE_ASSERT, "(pObj->pPrev && pObj->pNext)", "%s\n\tpObj is not in a list.", "pObj->pPrev && pObj->pNext") )
+      v10 = v5;
+      p_pNext = &v5->pNext;
+      v5 = v5->pNext;
+      if ( (!v10->pPrev || !v5) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 601, ASSERT_TYPE_ASSERT, "(pObj->pPrev && pObj->pNext)", "%s\n\tpObj is not in a list.", "pObj->pPrev && pObj->pNext") )
         __debugbreak();
-      v11->pPrev->pNext = *p_pNext;
-      (*p_pNext)->pPrev = v11->pPrev;
-      v11->pPrev = NULL;
+      v10->pPrev->pNext = *p_pNext;
+      (*p_pNext)->pPrev = v10->pPrev;
+      v10->pPrev = NULL;
       *p_pNext = NULL;
-      Nav_AddExistingObstacleToSpace(pSpace, v11);
+      Nav_AddExistingObstacleToSpace(pSpace, v10);
     }
-    while ( v6 != &v13 );
+    while ( v5 != &v12 );
   }
   if ( v4 )
     Nav_ClearCachedData(pSpace);
   if ( pSpace->numObstacles < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 786, ASSERT_TYPE_ASSERT, "(pSpace->numObstacles >= 0)", (const char *)&queryFormat, "pSpace->numObstacles >= 0") )
     __debugbreak();
   Sys_ProfEndNamedEvent();
-  bfx::ObstacleHandle::~ObstacleHandle(&v13.hObstacle);
+  bfx::ObstacleHandle::~ObstacleHandle(&v12.hObstacle);
 }
 
 /*
@@ -2405,62 +2315,49 @@ Nav_SpaceConvertLocalToWorld
 */
 void Nav_SpaceConvertLocalToWorld(nav_space_s *pSpace, const vec3_t *localPos, vec3_t *outWorldPos)
 {
+  bfx::Vector3 *Pos; 
+  float m_x; 
+  float m_y; 
+  float m_z; 
+  bfx::Quaternion *Rot; 
+  float m_w; 
+  float v12; 
+  float v13; 
+  float v14; 
   bfx::Quaternion result; 
   vec4_t quat; 
 
-  _RBX = outWorldPos;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 492, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( !bfx::SpaceHandle::IsValid(&pSpace->hSpace) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 493, ASSERT_TYPE_ASSERT, "( pSpace->hSpace.IsValid() )", (const char *)&queryFormat, "pSpace->hSpace.IsValid()") )
     __debugbreak();
-  if ( localPos == _RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 494, ASSERT_TYPE_ASSERT, "( &localPos != &outWorldPos )", (const char *)&queryFormat, "&localPos != &outWorldPos") )
+  if ( localPos == outWorldPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 494, ASSERT_TYPE_ASSERT, "( &localPos != &outWorldPos )", (const char *)&queryFormat, "&localPos != &outWorldPos") )
     __debugbreak();
   if ( pSpace == Nav_GetDefaultSpace() )
   {
-    _RBX->v[0] = localPos->v[0];
-    _RBX->v[1] = localPos->v[1];
-    _RBX->v[2] = localPos->v[2];
+    outWorldPos->v[0] = localPos->v[0];
+    outWorldPos->v[1] = localPos->v[1];
+    outWorldPos->v[2] = localPos->v[2];
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_28], xmm6
-      vmovaps [rsp+0A8h+var_38], xmm7
-      vmovaps [rsp+0A8h+var_48], xmm8
-    }
-    _RAX = bfx::SpaceHandle::GetPos(&pSpace->hSpace, (bfx::Vector3 *)&result);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rax]
-      vmovss  xmm7, dword ptr [rax+4]
-      vmovss  xmm8, dword ptr [rax+8]
-    }
-    _RAX = bfx::SpaceHandle::GetRot(&pSpace->hSpace, &result);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rax]
-      vmovss  xmm2, dword ptr [rax+0Ch]
-      vmovss  xmm1, dword ptr [rax+8]
-      vmovss  xmm0, dword ptr [rax+4]
-      vmovss  dword ptr [rsp+0A8h+quat], xmm0
-      vmovss  dword ptr [rsp+0A8h+quat+4], xmm1
-      vmovss  dword ptr [rsp+0A8h+quat+8], xmm2
-      vmovss  dword ptr [rsp+0A8h+quat+0Ch], xmm3
-    }
-    QuatTransform(&quat, localPos, _RBX);
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rbx]
-      vaddss  xmm1, xmm7, dword ptr [rbx+4]
-      vmovaps xmm7, [rsp+0A8h+var_38]
-      vmovaps xmm6, [rsp+0A8h+var_28]
-      vmovss  dword ptr [rbx], xmm0
-      vaddss  xmm0, xmm8, dword ptr [rbx+8]
-      vmovaps xmm8, [rsp+0A8h+var_48]
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
+    Pos = bfx::SpaceHandle::GetPos(&pSpace->hSpace, (bfx::Vector3 *)&result);
+    m_x = Pos->m_x;
+    m_y = Pos->m_y;
+    m_z = Pos->m_z;
+    Rot = bfx::SpaceHandle::GetRot(&pSpace->hSpace, &result);
+    m_w = Rot->m_w;
+    v12 = Rot->m_z;
+    v13 = Rot->m_y;
+    quat.v[0] = Rot->m_x;
+    quat.v[1] = v13;
+    quat.v[2] = v12;
+    quat.v[3] = m_w;
+    QuatTransform(&quat, localPos, outWorldPos);
+    v14 = m_y + outWorldPos->v[1];
+    outWorldPos->v[0] = m_x + outWorldPos->v[0];
+    outWorldPos->v[2] = m_z + outWorldPos->v[2];
+    outWorldPos->v[1] = v14;
   }
 }
 
@@ -2471,67 +2368,51 @@ Nav_SpaceConvertLocalToWorld
 */
 void Nav_SpaceConvertLocalToWorld(nav_space_s *pSpace, const vec3_t *localPos, const vec4_t *localRot, vec3_t *outWorldPos, vec4_t *outWorldRot)
 {
+  bfx::Vector3 *Pos; 
+  float m_x; 
+  float m_y; 
+  float m_z; 
+  bfx::Quaternion *Rot; 
+  float m_w; 
+  float v15; 
+  float v16; 
+  float v17; 
   bfx::Quaternion result; 
   vec4_t quat; 
 
-  _RBX = outWorldPos;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 441, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( !bfx::SpaceHandle::IsValid(&pSpace->hSpace) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 442, ASSERT_TYPE_ASSERT, "( pSpace->hSpace.IsValid() )", (const char *)&queryFormat, "pSpace->hSpace.IsValid()") )
     __debugbreak();
-  if ( localPos == _RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 443, ASSERT_TYPE_ASSERT, "( &localPos != &outWorldPos )", (const char *)&queryFormat, "&localPos != &outWorldPos") )
+  if ( localPos == outWorldPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 443, ASSERT_TYPE_ASSERT, "( &localPos != &outWorldPos )", (const char *)&queryFormat, "&localPos != &outWorldPos") )
     __debugbreak();
   if ( pSpace == Nav_GetDefaultSpace() )
   {
-    _RBX->v[0] = localPos->v[0];
-    _RBX->v[1] = localPos->v[1];
-    _RBX->v[2] = localPos->v[2];
+    outWorldPos->v[0] = localPos->v[0];
+    outWorldPos->v[1] = localPos->v[1];
+    outWorldPos->v[2] = localPos->v[2];
     *outWorldRot = *localRot;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_48], xmm6
-      vmovaps [rsp+0C8h+var_58], xmm7
-      vmovaps [rsp+0C8h+var_68], xmm8
-    }
-    _RAX = bfx::SpaceHandle::GetPos(&pSpace->hSpace, (bfx::Vector3 *)&result);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rax]
-      vmovss  xmm7, dword ptr [rax+4]
-      vmovss  xmm8, dword ptr [rax+8]
-    }
-    _RAX = bfx::SpaceHandle::GetRot(&pSpace->hSpace, &result);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rax]
-      vmovss  xmm2, dword ptr [rax+0Ch]
-      vmovss  xmm1, dword ptr [rax+8]
-      vmovss  xmm0, dword ptr [rax+4]
-      vmovss  dword ptr [rsp+0C8h+quat], xmm0
-      vmovss  dword ptr [rsp+0C8h+quat+4], xmm1
-      vmovss  dword ptr [rsp+0C8h+quat+8], xmm2
-      vmovss  dword ptr [rsp+0C8h+quat+0Ch], xmm3
-    }
-    QuatTransform(&quat, localPos, _RBX);
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rbx]
-      vaddss  xmm1, xmm7, dword ptr [rbx+4]
-      vmovss  dword ptr [rbx], xmm0
-      vaddss  xmm0, xmm8, dword ptr [rbx+8]
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-    }
+    Pos = bfx::SpaceHandle::GetPos(&pSpace->hSpace, (bfx::Vector3 *)&result);
+    m_x = Pos->m_x;
+    m_y = Pos->m_y;
+    m_z = Pos->m_z;
+    Rot = bfx::SpaceHandle::GetRot(&pSpace->hSpace, &result);
+    m_w = Rot->m_w;
+    v15 = Rot->m_z;
+    v16 = Rot->m_y;
+    quat.v[0] = Rot->m_x;
+    quat.v[1] = v16;
+    quat.v[2] = v15;
+    quat.v[3] = m_w;
+    QuatTransform(&quat, localPos, outWorldPos);
+    v17 = m_y + outWorldPos->v[1];
+    outWorldPos->v[0] = m_x + outWorldPos->v[0];
+    outWorldPos->v[2] = m_z + outWorldPos->v[2];
+    outWorldPos->v[1] = v17;
     QuatMultiply(&quat, localRot, outWorldRot);
-    __asm
-    {
-      vmovaps xmm8, [rsp+0C8h+var_68]
-      vmovaps xmm7, [rsp+0C8h+var_58]
-      vmovaps xmm6, [rsp+0C8h+var_48]
-    }
   }
 }
 
@@ -2542,68 +2423,50 @@ Nav_SpaceConvertWorldToLocal
 */
 void Nav_SpaceConvertWorldToLocal(nav_space_s *pSpace, const vec3_t *worldPos, vec3_t *outLocalPos)
 {
+  bfx::Vector3 *Pos; 
+  float m_x; 
+  float m_y; 
+  float m_z; 
+  bfx::Quaternion *Rot; 
+  float v11; 
+  float m_w; 
+  float v13; 
+  float v14; 
+  float v15; 
   bfx::Quaternion result; 
   vec3_t in; 
   vec4_t quat; 
 
-  _RBX = worldPos;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 467, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( !bfx::SpaceHandle::IsValid(&pSpace->hSpace) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 468, ASSERT_TYPE_ASSERT, "( pSpace->hSpace.IsValid() )", (const char *)&queryFormat, "pSpace->hSpace.IsValid()") )
     __debugbreak();
   if ( pSpace == Nav_GetDefaultSpace() )
   {
-    outLocalPos->v[0] = _RBX->v[0];
-    outLocalPos->v[1] = _RBX->v[1];
-    outLocalPos->v[2] = _RBX->v[2];
+    outLocalPos->v[0] = worldPos->v[0];
+    outLocalPos->v[1] = worldPos->v[1];
+    outLocalPos->v[2] = worldPos->v[2];
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_28], xmm6
-      vmovaps [rsp+0B8h+var_38], xmm7
-      vmovaps [rsp+0B8h+var_48], xmm8
-    }
-    _RAX = bfx::SpaceHandle::GetPos(&pSpace->hSpace, (bfx::Vector3 *)&result);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rax]
-      vmovss  xmm7, dword ptr [rax+4]
-      vmovss  xmm8, dword ptr [rax+8]
-    }
-    _RAX = bfx::SpaceHandle::GetRot(&pSpace->hSpace, &result);
-    __asm
-    {
-      vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm0, dword ptr [rax+4]
-      vmovss  xmm1, dword ptr [rax+8]
-      vmovss  xmm3, dword ptr [rax+0Ch]
-      vmovss  xmm4, dword ptr [rax]
-      vxorps  xmm0, xmm0, xmm2
-      vxorps  xmm1, xmm1, xmm2
-      vmovss  dword ptr [rsp+0B8h+quat], xmm0
-      vxorps  xmm0, xmm3, xmm2
-      vmovss  xmm2, dword ptr [rbx+4]
-      vmovss  dword ptr [rsp+0B8h+quat+4], xmm1
-      vmovss  xmm1, dword ptr [rbx]
-      vmovss  dword ptr [rsp+0B8h+quat+8], xmm0
-      vsubss  xmm0, xmm1, xmm6
-      vsubss  xmm1, xmm2, xmm7
-      vmovss  dword ptr [rsp+0B8h+in], xmm0
-      vmovss  xmm0, dword ptr [rbx+8]
-      vsubss  xmm2, xmm0, xmm8
-      vmovss  dword ptr [rsp+0B8h+in+8], xmm2
-      vmovss  dword ptr [rsp+0B8h+quat+0Ch], xmm4
-      vmovss  dword ptr [rsp+0B8h+in+4], xmm1
-    }
+    Pos = bfx::SpaceHandle::GetPos(&pSpace->hSpace, (bfx::Vector3 *)&result);
+    m_x = Pos->m_x;
+    m_y = Pos->m_y;
+    m_z = Pos->m_z;
+    Rot = bfx::SpaceHandle::GetRot(&pSpace->hSpace, &result);
+    v11 = Rot->m_z;
+    m_w = Rot->m_w;
+    LODWORD(v13) = LODWORD(Rot->m_y) ^ _xmm;
+    LODWORD(quat.v[0]) = LODWORD(Rot->m_x) ^ _xmm;
+    v14 = worldPos->v[1];
+    quat.v[1] = v13;
+    v15 = worldPos->v[0];
+    LODWORD(quat.v[2]) = LODWORD(v11) ^ _xmm;
+    in.v[0] = v15 - m_x;
+    in.v[2] = worldPos->v[2] - m_z;
+    quat.v[3] = m_w;
+    in.v[1] = v14 - m_y;
     QuatTransform(&quat, &in, outLocalPos);
-    __asm
-    {
-      vmovaps xmm8, [rsp+0B8h+var_48]
-      vmovaps xmm7, [rsp+0B8h+var_38]
-      vmovaps xmm6, [rsp+0B8h+var_28]
-    }
   }
 }
 
@@ -2614,11 +2477,20 @@ Nav_SpaceConvertWorldToLocal
 */
 void Nav_SpaceConvertWorldToLocal(nav_space_s *pSpace, const vec3_t *worldPos, const vec4_t *worldRot, vec3_t *outLocalPos, vec4_t *outLocalRot)
 {
+  bfx::Vector3 *Pos; 
+  float m_x; 
+  float m_y; 
+  float m_z; 
+  bfx::Quaternion *Rot; 
+  float v14; 
+  float m_w; 
+  float v16; 
+  float v17; 
+  float v18; 
   bfx::Quaternion result; 
   vec4_t quat; 
   vec3_t in; 
 
-  _R14 = worldPos;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 412, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( !bfx::SpaceHandle::IsValid(&pSpace->hSpace) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 413, ASSERT_TYPE_ASSERT, "( pSpace->hSpace.IsValid() )", (const char *)&queryFormat, "pSpace->hSpace.IsValid()") )
@@ -2627,59 +2499,32 @@ void Nav_SpaceConvertWorldToLocal(nav_space_s *pSpace, const vec3_t *worldPos, c
     __debugbreak();
   if ( pSpace == Nav_GetDefaultSpace() )
   {
-    outLocalPos->v[0] = _R14->v[0];
-    outLocalPos->v[1] = _R14->v[1];
-    outLocalPos->v[2] = _R14->v[2];
+    outLocalPos->v[0] = worldPos->v[0];
+    outLocalPos->v[1] = worldPos->v[1];
+    outLocalPos->v[2] = worldPos->v[2];
     *outLocalRot = *worldRot;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_38], xmm6
-      vmovaps [rsp+0C8h+var_48], xmm7
-      vmovaps [rsp+0C8h+var_58], xmm8
-    }
-    _RAX = bfx::SpaceHandle::GetPos(&pSpace->hSpace, (bfx::Vector3 *)&result);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rax]
-      vmovss  xmm7, dword ptr [rax+4]
-      vmovss  xmm8, dword ptr [rax+8]
-    }
-    _RAX = bfx::SpaceHandle::GetRot(&pSpace->hSpace, &result);
-    __asm
-    {
-      vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm0, dword ptr [rax+4]
-      vmovss  xmm1, dword ptr [rax+8]
-      vmovss  xmm3, dword ptr [rax+0Ch]
-      vmovss  xmm4, dword ptr [rax]
-      vxorps  xmm0, xmm0, xmm2
-      vxorps  xmm1, xmm1, xmm2
-      vmovss  dword ptr [rsp+0C8h+quat], xmm0
-      vxorps  xmm0, xmm3, xmm2
-      vmovss  xmm2, dword ptr [r14+4]
-      vmovss  dword ptr [rsp+0C8h+quat+4], xmm1
-      vmovss  xmm1, dword ptr [r14]
-      vmovss  dword ptr [rsp+0C8h+quat+8], xmm0
-      vsubss  xmm0, xmm1, xmm6
-      vsubss  xmm1, xmm2, xmm7
-      vmovss  dword ptr [rsp+0C8h+in], xmm0
-      vmovss  xmm0, dword ptr [r14+8]
-      vsubss  xmm2, xmm0, xmm8
-      vmovss  dword ptr [rsp+0C8h+in+8], xmm2
-      vmovss  dword ptr [rsp+0C8h+quat+0Ch], xmm4
-      vmovss  dword ptr [rsp+0C8h+in+4], xmm1
-    }
+    Pos = bfx::SpaceHandle::GetPos(&pSpace->hSpace, (bfx::Vector3 *)&result);
+    m_x = Pos->m_x;
+    m_y = Pos->m_y;
+    m_z = Pos->m_z;
+    Rot = bfx::SpaceHandle::GetRot(&pSpace->hSpace, &result);
+    v14 = Rot->m_z;
+    m_w = Rot->m_w;
+    LODWORD(v16) = LODWORD(Rot->m_y) ^ _xmm;
+    LODWORD(quat.v[0]) = LODWORD(Rot->m_x) ^ _xmm;
+    v17 = worldPos->v[1];
+    quat.v[1] = v16;
+    v18 = worldPos->v[0];
+    LODWORD(quat.v[2]) = LODWORD(v14) ^ _xmm;
+    in.v[0] = v18 - m_x;
+    in.v[2] = worldPos->v[2] - m_z;
+    quat.v[3] = m_w;
+    in.v[1] = v17 - m_y;
     QuatTransform(&quat, &in, outLocalPos);
     QuatMultiply(worldRot, &quat, outLocalRot);
-    __asm
-    {
-      vmovaps xmm8, [rsp+0C8h+var_58]
-      vmovaps xmm7, [rsp+0C8h+var_48]
-      vmovaps xmm6, [rsp+0C8h+var_38]
-    }
   }
 }
 
@@ -2704,8 +2549,9 @@ Nav_UpdateSpace
 void Nav_UpdateSpace(nav_space_s *pSpace)
 {
   __int64 parentEntNum; 
-  __int64 v11; 
-  __int64 v12; 
+  gentity_s *v3; 
+  __int64 v4; 
+  __int64 v5; 
   bfx::Vector3 pos; 
   bfx::Quaternion rot; 
   vec4_t quat; 
@@ -2717,9 +2563,9 @@ void Nav_UpdateSpace(nav_space_s *pSpace)
   {
     if ( (unsigned int)parentEntNum >= 0x800 )
     {
-      LODWORD(v12) = 2048;
-      LODWORD(v11) = pSpace->parentEntNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v11, v12) )
+      LODWORD(v5) = 2048;
+      LODWORD(v4) = pSpace->parentEntNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v4, v5) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -2728,28 +2574,13 @@ void Nav_UpdateSpace(nav_space_s *pSpace)
       __debugbreak();
     if ( !g_entityIsInUse[parentEntNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 523, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( pSpace->parentEntNum ) )", (const char *)&queryFormat, "G_IsEntityInUse( pSpace->parentEntNum )") )
       __debugbreak();
-    _RCX = &g_entities[pSpace->parentEntNum];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+130h]
-      vmovss  [rsp+88h+pos.m_x], xmm0
-      vmovss  xmm1, dword ptr [rcx+134h]
-      vmovss  [rsp+88h+pos.m_y], xmm1
-      vmovss  xmm0, dword ptr [rcx+138h]
-      vmovss  [rsp+88h+pos.m_z], xmm0
-    }
-    AnglesToQuat(&_RCX->r.currentAngles, &quat);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+88h+quat]
-      vmovss  xmm1, dword ptr [rsp+88h+quat+4]
-      vmovss  [rsp+88h+rot.m_x], xmm0
-      vmovss  xmm0, dword ptr [rsp+88h+quat+8]
-      vmovss  [rsp+88h+rot.m_y], xmm1
-      vmovss  xmm1, dword ptr [rsp+88h+quat+0Ch]
-      vmovss  [rsp+88h+rot.m_z], xmm0
-      vmovss  [rsp+88h+rot.m_w], xmm1
-    }
+    v3 = &g_entities[pSpace->parentEntNum];
+    pos = (bfx::Vector3)v3->r.currentOrigin;
+    AnglesToQuat(&v3->r.currentAngles, &quat);
+    rot.m_x = quat.v[0];
+    rot.m_y = quat.v[1];
+    rot.m_z = quat.v[2];
+    rot.m_w = quat.v[3];
     bfx::SpaceHandle::SetPos(&pSpace->hSpace, &pos);
     bfx::SpaceHandle::SetRot(&pSpace->hSpace, &rot);
   }
@@ -2768,8 +2599,9 @@ void Nav_UpdateSpaces(void)
   __int64 parentEntNum; 
   unsigned int v4; 
   __int64 v5; 
-  __int64 v14; 
-  __int64 v15; 
+  gentity_s *v6; 
+  __int64 v7; 
+  __int64 v8; 
   bfx::Vector3 pos; 
   bfx::Quaternion rot; 
   vec4_t quat; 
@@ -2787,9 +2619,9 @@ void Nav_UpdateSpaces(void)
       {
         if ( (unsigned int)parentEntNum >= 0x800 )
         {
-          LODWORD(v15) = 2048;
-          LODWORD(v14) = g_NavData.spaces[v1].parentEntNum;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v14, v15) )
+          LODWORD(v8) = 2048;
+          LODWORD(v7) = g_NavData.spaces[v1].parentEntNum;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v7, v8) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -2804,9 +2636,9 @@ void Nav_UpdateSpaces(void)
       {
         if ( v4 >= 0x800 )
         {
-          LODWORD(v15) = 2048;
-          LODWORD(v14) = v2->parentEntNum;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 518, ASSERT_TYPE_ASSERT, "(unsigned)( pSpace->parentEntNum ) < (unsigned)( ( 2048 ) )", "pSpace->parentEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v14, v15) )
+          LODWORD(v8) = 2048;
+          LODWORD(v7) = v2->parentEntNum;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 518, ASSERT_TYPE_ASSERT, "(unsigned)( pSpace->parentEntNum ) < (unsigned)( ( 2048 ) )", "pSpace->parentEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v7, v8) )
             __debugbreak();
         }
         v5 = v2->parentEntNum;
@@ -2814,9 +2646,9 @@ void Nav_UpdateSpaces(void)
         {
           if ( (unsigned int)v5 >= 0x800 )
           {
-            LODWORD(v15) = 2048;
-            LODWORD(v14) = v2->parentEntNum;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v14, v15) )
+            LODWORD(v8) = 2048;
+            LODWORD(v7) = v2->parentEntNum;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v7, v8) )
               __debugbreak();
           }
           if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -2825,28 +2657,13 @@ void Nav_UpdateSpaces(void)
             __debugbreak();
           if ( !g_entityIsInUse[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 523, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( pSpace->parentEntNum ) )", (const char *)&queryFormat, "G_IsEntityInUse( pSpace->parentEntNum )") )
             __debugbreak();
-          _RCX = &g_entities[v2->parentEntNum];
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rcx+130h]
-            vmovss  [rsp+0A8h+pos.m_x], xmm0
-            vmovss  xmm1, dword ptr [rcx+134h]
-            vmovss  [rsp+0A8h+pos.m_y], xmm1
-            vmovss  xmm0, dword ptr [rcx+138h]
-            vmovss  [rsp+0A8h+pos.m_z], xmm0
-          }
-          AnglesToQuat(&_RCX->r.currentAngles, &quat);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+0A8h+quat]
-            vmovss  xmm1, dword ptr [rsp+0A8h+quat+4]
-            vmovss  [rsp+0A8h+rot.m_x], xmm0
-            vmovss  xmm0, dword ptr [rsp+0A8h+quat+8]
-            vmovss  [rsp+0A8h+rot.m_y], xmm1
-            vmovss  xmm1, dword ptr [rsp+0A8h+quat+0Ch]
-            vmovss  [rsp+0A8h+rot.m_z], xmm0
-            vmovss  [rsp+0A8h+rot.m_w], xmm1
-          }
+          v6 = &g_entities[v2->parentEntNum];
+          pos = (bfx::Vector3)v6->r.currentOrigin;
+          AnglesToQuat(&v6->r.currentAngles, &quat);
+          rot.m_x = quat.v[0];
+          rot.m_y = quat.v[1];
+          rot.m_z = quat.v[2];
+          rot.m_w = quat.v[3];
           bfx::SpaceHandle::SetPos(&v2->hSpace, &pos);
           bfx::SpaceHandle::SetRot(&v2->hSpace, &rot);
         }
@@ -2873,6 +2690,13 @@ Nav_WriteSpace
 void Nav_WriteSpace(MemoryFile *memFile, nav_space_s *pSpace)
 {
   const char *v4; 
+  bfx::Vector3 *Pos; 
+  float m_z; 
+  float m_y; 
+  bfx::Quaternion *Rot; 
+  float m_w; 
+  float v10; 
+  float v11; 
   nav_resource_s *i; 
   nav_link_s *j; 
   nav_obstacle_s *k; 
@@ -2880,8 +2704,8 @@ void Nav_WriteSpace(MemoryFile *memFile, nav_space_s *pSpace)
   nav_repulsor_s *m; 
   int p; 
   bfx::Quaternion result; 
-  int v21[4]; 
-  int v22[4]; 
+  int v19[4]; 
+  int v20[4]; 
 
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_space.cpp", 1042, ASSERT_TYPE_ASSERT, "( memFile )", (const char *)&queryFormat, "memFile") )
     __debugbreak();
@@ -2891,30 +2715,22 @@ void Nav_WriteSpace(MemoryFile *memFile, nav_space_s *pSpace)
   MemFile_WriteCString(memFile, v4);
   p = pSpace->parentEntNum;
   MemFile_WriteData(memFile, 4ui64, &p);
-  _RAX = bfx::SpaceHandle::GetPos(&pSpace->hSpace, (bfx::Vector3 *)&result);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rax+8]
-    vmovss  xmm1, dword ptr [rax+4]
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  [rbp+var_28], xmm0
-    vmovss  [rbp+var_24], xmm1
-    vmovss  [rbp+var_20], xmm2
-  }
-  _RAX = bfx::SpaceHandle::GetRot(&pSpace->hSpace, &result);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rax]
-    vmovss  xmm2, dword ptr [rax+0Ch]
-    vmovss  xmm1, dword ptr [rax+8]
-    vmovss  xmm0, dword ptr [rax+4]
-    vmovss  [rbp+var_18], xmm0
-    vmovss  [rbp+var_14], xmm1
-    vmovss  [rbp+var_10], xmm2
-    vmovss  [rbp+var_C], xmm3
-  }
-  MemFile_WriteData(memFile, 0xCui64, v21);
-  MemFile_WriteData(memFile, 0x10ui64, v22);
+  Pos = bfx::SpaceHandle::GetPos(&pSpace->hSpace, (bfx::Vector3 *)&result);
+  m_z = Pos->m_z;
+  m_y = Pos->m_y;
+  v19[0] = LODWORD(Pos->m_x);
+  *(float *)&v19[1] = m_y;
+  *(float *)&v19[2] = m_z;
+  Rot = bfx::SpaceHandle::GetRot(&pSpace->hSpace, &result);
+  m_w = Rot->m_w;
+  v10 = Rot->m_z;
+  v11 = Rot->m_y;
+  v20[0] = LODWORD(Rot->m_x);
+  *(float *)&v20[1] = v11;
+  *(float *)&v20[2] = v10;
+  *(float *)&v20[3] = m_w;
+  MemFile_WriteData(memFile, 0xCui64, v19);
+  MemFile_WriteData(memFile, 0x10ui64, v20);
   p = pSpace->numResources;
   MemFile_WriteData(memFile, 4ui64, &p);
   for ( i = pSpace->resourceList.pNext; i != &pSpace->resourceList; i = i->pNext )

@@ -27,261 +27,169 @@ Glass_AreaX2AndScaledCentroidForEdgeLoop
 */
 long double Glass_AreaX2AndScaledCentroidForEdgeLoop(const FxGlassCrackShardWork *work, const FxGlassCrackEdge *edgeLoop, long double *scaledCentroid)
 {
-  const FxGlassCrackEdge *v17; 
+  const FxGlassCrackEdge *v6; 
+  unsigned int v7; 
+  unsigned int v8; 
+  __int64 i0; 
+  __int64 v10; 
+  double v11; 
+  __int128 v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  __int128 v17; 
   unsigned int v18; 
-  unsigned int v19; 
-  unsigned int v31; 
-  unsigned int v59; 
-  __int64 *v135; 
-  __int64 v165; 
-  __int64 v166; 
-  __int64 v173[2]; 
-  __int64 v174; 
-  char v176; 
-  void *retaddr; 
+  double v19; 
+  double v20; 
+  double v21; 
+  __int128 v22; 
+  __int128 v23; 
+  unsigned int v24; 
+  double *v25; 
+  double v26; 
+  double v27; 
+  double v28; 
+  double v29; 
+  double v30; 
+  double v31; 
+  double v32; 
+  double v33; 
+  double v34; 
+  double v35; 
+  double v36; 
+  double v37; 
+  double v38; 
+  double v39; 
+  double v40; 
+  double v41; 
+  double v42; 
+  double v43; 
+  double v44; 
+  __int128 v45; 
+  __int64 *v46; 
+  __int64 v47; 
+  double v48; 
+  double v49; 
+  double v50; 
+  __int128 v51; 
+  __int64 v53; 
+  __int64 v54; 
+  double v55; 
+  double v56; 
+  double v57; 
+  double v58; 
+  double v59; 
+  double v60; 
+  double v61; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-68h], xmm9
-    vmovaps xmmword ptr [r11-78h], xmm10
-    vmovaps xmmword ptr [r11-88h], xmm11
-    vmovaps xmmword ptr [r11-98h], xmm12
-    vmovaps xmmword ptr [r11-0A8h], xmm13
-    vmovaps xmmword ptr [r11-0B8h], xmm14
-  }
-  _RSI = scaledCentroid;
-  _R15 = work;
-  v17 = edgeLoop;
-  v18 = 0;
+  v6 = edgeLoop;
+  v7 = 0;
   do
   {
-    v19 = v18;
-    if ( v18 >= 0x80 )
+    v8 = v7;
+    if ( v7 >= 0x80 )
     {
-      LODWORD(v166) = 128;
-      LODWORD(v165) = v18;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 779, ASSERT_TYPE_ASSERT, "(unsigned)( vertCount ) < (unsigned)( ( sizeof( *array_counter( coord ) ) + 0 ) )", "vertCount doesn't index ARRAY_COUNT( coord )\n\t%i not in [0, %i)", v165, v166) )
+      LODWORD(v54) = 128;
+      LODWORD(v53) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 779, ASSERT_TYPE_ASSERT, "(unsigned)( vertCount ) < (unsigned)( ( sizeof( *array_counter( coord ) ) + 0 ) )", "vertCount doesn't index ARRAY_COUNT( coord )\n\t%i not in [0, %i)", v53, v54) )
         __debugbreak();
     }
-    _RCX = v17->i0;
-    v17 = v17->next;
-    _RAX = v18++;
-    _RAX *= 2i64;
-    __asm
+    i0 = v6->i0;
+    v6 = v6->next;
+    v10 = v7++;
+    v10 *= 2i64;
+    v11 = work->pts[i0].xy.v[0];
+    v13 = work->pts[i0].xy.v[1];
+    v12 = *(unsigned __int64 *)&v13;
+    *(&v58 + v10) = v11;
+    *(&v59 + v10) = v13;
+  }
+  while ( v6 != edgeLoop );
+  v14 = v58;
+  v15 = v59;
+  *((_QWORD *)&v17 + 1) = 0i64;
+  v16 = v13 - v61;
+  v18 = 1;
+  v19 = *(&v59 + 2 * v7 - 4);
+  v20 = *(&v58 + 2 * v7 - 4);
+  v21 = (v19 - v59) * v11;
+  *(double *)&v17 = (v13 - v61) * v58 + v21;
+  v22 = v17;
+  v56 = (v58 - v20) * *(double *)&v12 * (v20 + v11 + v58) + (v60 - v11) * v59 * (v11 + v58 + v60) + *scaledCentroid;
+  *scaledCentroid = v56;
+  *((_QWORD *)&v17 + 1) = *((_QWORD *)&v12 + 1);
+  *(double *)&v17 = (*(double *)&v12 + v15 + v61) * (v16 * v14) + (v19 + *(double *)&v12 + v15) * v21 + scaledCentroid[1];
+  v23 = v17;
+  scaledCentroid[1] = *(double *)&v17;
+  v55 = *(double *)&v22;
+  if ( v8 > 1 )
+  {
+    if ( v8 - 1 >= 4 )
     {
-      vmovss  xmm12, dword ptr [r15+rcx*8+3FCh]
-      vmovss  xmm13, dword ptr [r15+rcx*8+400h]
-      vcvtss2sd xmm12, xmm12, xmm12
-      vcvtss2sd xmm13, xmm13, xmm13
-      vmovsd  [rsp+rax*8+930h+var_8D0], xmm12
-      vmovsd  [rsp+rax*8+930h+var_8C8], xmm13
-    }
-  }
-  while ( v17 != edgeLoop );
-  __asm
-  {
-    vmovsd  xmm6, [rsp+930h+var_8D0]
-    vmovsd  xmm11, [rsp+930h+var_8C8]
-    vsubsd  xmm8, xmm13, [rsp+930h+var_8B8]
-    vmovsd  xmm4, [rsp+930h+var_8C0]
-  }
-  _RCX = 2i64 * (v18 - 2);
-  v31 = 1;
-  __asm
-  {
-    vmovsd  xmm10, [rsp+rcx*8+930h+var_8C8]
-    vmovsd  xmm2, [rsp+rcx*8+930h+var_8D0]
-    vsubsd  xmm1, xmm6, xmm2
-    vmulsd  xmm3, xmm1, xmm13
-    vsubsd  xmm0, xmm10, xmm11
-    vmulsd  xmm9, xmm0, xmm12
-    vmulsd  xmm0, xmm8, xmm6
-    vaddsd  xmm14, xmm0, xmm9
-    vaddsd  xmm0, xmm2, xmm12
-    vaddsd  xmm2, xmm0, xmm6
-    vmulsd  xmm5, xmm3, xmm2
-    vsubsd  xmm0, xmm4, xmm12
-    vmulsd  xmm3, xmm0, xmm11
-    vaddsd  xmm1, xmm12, xmm6
-    vaddsd  xmm2, xmm1, xmm4
-    vmulsd  xmm0, xmm3, xmm2
-    vaddsd  xmm3, xmm5, xmm0
-    vaddsd  xmm0, xmm3, qword ptr [rsi]
-    vmovsd  [rsp+930h+var_8E8], xmm0
-    vmovsd  qword ptr [rsi], xmm0
-    vaddsd  xmm0, xmm13, xmm11
-    vaddsd  xmm2, xmm0, [rsp+930h+var_8B8]
-    vmulsd  xmm1, xmm8, xmm6
-    vmulsd  xmm3, xmm2, xmm1
-    vaddsd  xmm0, xmm10, xmm13
-    vaddsd  xmm2, xmm0, xmm11
-    vmulsd  xmm1, xmm2, xmm9
-    vaddsd  xmm3, xmm3, xmm1
-    vaddsd  xmm10, xmm3, qword ptr [rsi+8]
-    vmovsd  qword ptr [rsi+8], xmm10
-    vmovsd  [rsp+930h+var_8F0], xmm14
-  }
-  if ( v19 > 1 )
-  {
-    if ( v19 - 1 >= 4 )
-    {
-      __asm { vmovaps xmmword ptr [rsp+930h+var_C8+8], xmm15 }
-      v59 = 2;
-      _RBX = &v174;
+      v24 = 2;
+      v25 = &v61;
       do
       {
-        _RCX = 2i64 * v59;
-        _R9 = 2i64 * (v59 - 2);
-        _RDX = 2i64 * (v59 + 1);
-        _R8 = 2i64 * (v59 + 2);
-        _R10 = 2i64 * v31;
-        __asm
-        {
-          vmovsd  xmm8, [rsp+rcx*8+930h+var_8C8]
-          vmovsd  xmm1, [rsp+r9*8+930h+var_8C8]
-          vmovsd  xmm9, [rsp+rdx*8+930h+var_8C8]
-          vmovsd  xmm5, [rsp+r8*8+930h+var_8C8]
-          vmovsd  xmm11, [rsp+r8*8+930h+var_8D0]
-          vmovsd  xmm4, [rsp+r10*8+930h+var_8C8]
-          vmovsd  xmm15, [rsp+rdx*8+930h+var_8D0]
-          vsubsd  xmm0, xmm1, xmm8
-          vmulsd  xmm3, xmm0, qword ptr [rbx-8]
-          vmovsd  [rsp+930h+var_8E0], xmm3
-          vsubsd  xmm0, xmm4, xmm9
-          vmulsd  xmm7, xmm0, qword ptr [rbx+8]
-          vsubsd  xmm0, xmm8, xmm5
-          vmulsd  xmm6, xmm0, qword ptr [rbx+18h]
-          vaddsd  xmm0, xmm1, qword ptr [rbx]
-          vaddsd  xmm1, xmm0, xmm8
-          vaddsd  xmm0, xmm4, qword ptr [rbx+10h]
-          vmulsd  xmm2, xmm1, xmm3
-          vaddsd  xmm1, xmm0, xmm9
-          vaddsd  xmm0, xmm8, qword ptr [rbx+20h]
-          vaddsd  xmm3, xmm2, xmm10
-          vmulsd  xmm2, xmm1, xmm7
-          vaddsd  xmm4, xmm3, xmm2
-          vaddsd  xmm1, xmm0, xmm5
-          vmulsd  xmm2, xmm1, xmm6
-          vmovsd  xmm1, [rsp+930h+var_8E0]
-          vaddsd  xmm1, xmm1, [rsp+930h+var_8F0]
-          vaddsd  xmm13, xmm4, xmm2
-          vaddsd  xmm2, xmm1, xmm7
-          vmovsd  xmm1, [rsp+r9*8+930h+var_8D0]
-          vmovsd  xmm7, qword ptr [rbx+30h]
-        }
-        _R8 = 2i64 * (v59 + 3);
-        __asm
-        {
-          vmovsd  xmm10, [rsp+r8*8+930h+var_8C8]
-          vsubsd  xmm0, xmm9, xmm10
-          vmulsd  xmm9, xmm0, qword ptr [rbx+28h]
-          vaddsd  xmm0, xmm2, xmm6
-          vmovsd  xmm2, [rsp+rcx*8+930h+var_8D0]
-          vmovsd  xmm6, [rsp+r8*8+930h+var_8D0]
-          vaddsd  xmm0, xmm0, xmm9
-          vmovsd  [rsp+930h+var_8F0], xmm0
-          vsubsd  xmm0, xmm2, xmm1
-          vaddsd  xmm1, xmm1, qword ptr [rbx-8]
-          vmulsd  xmm3, xmm0, qword ptr [rbx]
-          vaddsd  xmm2, xmm1, xmm2
-          vmovsd  xmm1, [rsp+rdx*8+930h+var_8D0]
-          vmulsd  xmm0, xmm3, xmm2
-          vaddsd  xmm4, xmm0, [rsp+930h+var_8E8]
-          vmovsd  xmm0, [rsp+r10*8+930h+var_8D0]
-          vsubsd  xmm1, xmm1, xmm0
-          vmulsd  xmm3, xmm1, qword ptr [rbx+10h]
-          vaddsd  xmm0, xmm0, qword ptr [rbx+8]
-          vaddsd  xmm2, xmm0, xmm15
-          vmulsd  xmm1, xmm3, xmm2
-          vaddsd  xmm5, xmm4, xmm1
-          vmovsd  xmm1, [rsp+rcx*8+930h+var_8D0]
-          vaddsd  xmm0, xmm1, qword ptr [rbx+18h]
-          vaddsd  xmm3, xmm0, xmm11
-          vsubsd  xmm1, xmm11, xmm1
-          vmulsd  xmm2, xmm1, qword ptr [rbx+20h]
-          vaddsd  xmm1, xmm15, qword ptr [rbx+28h]
-          vmulsd  xmm0, xmm3, xmm2
-          vaddsd  xmm4, xmm5, xmm0
-          vsubsd  xmm0, xmm6, xmm15
-          vmulsd  xmm2, xmm0, xmm7
-          vaddsd  xmm0, xmm7, [rsp+rdx*8+930h+var_8C8]
-          vaddsd  xmm3, xmm1, xmm6
-          vmulsd  xmm1, xmm3, xmm2
-          vaddsd  xmm3, xmm4, xmm1
-          vmovsd  [rsp+930h+var_8E8], xmm3
-          vaddsd  xmm2, xmm0, xmm10
-        }
-        v31 += 4;
-        _RBX += 8;
-        v59 += 4;
-        __asm
-        {
-          vmulsd  xmm1, xmm2, xmm9
-          vaddsd  xmm10, xmm13, xmm1
-        }
+        v26 = *(&v59 + 2 * v24);
+        v27 = *(&v59 + 2 * v24 - 4);
+        v28 = *(&v59 + 2 * v24 + 2);
+        v29 = *(&v59 + 2 * v24 + 4);
+        v30 = *(&v58 + 2 * v24 + 4);
+        v31 = *(&v59 + 2 * v18);
+        v32 = *(&v58 + 2 * v24 + 2);
+        v57 = (v27 - v26) * *(v25 - 1);
+        v33 = (v31 - v28) * v25[1];
+        v34 = (v26 - v29) * v25[3];
+        *((_QWORD *)&v45 + 1) = 0i64;
+        *(double *)&v45 = (v27 + *v25 + v26) * v57 + *(double *)&v23 + (v31 + v25[2] + v28) * v33 + (v26 + v25[4] + v29) * v34;
+        v35 = v57 + v55 + v33;
+        v36 = *(&v58 + 2 * v24 - 4);
+        v37 = v25[6];
+        v38 = *(&v59 + 2 * v24 + 6);
+        v39 = (v28 - v38) * v25[5];
+        v40 = v35 + v34;
+        v41 = *(&v58 + 2 * v24);
+        v42 = *(&v58 + 2 * v24 + 6);
+        v55 = v40 + v39;
+        v43 = v37 + *(&v59 + 2 * v24 + 2);
+        v44 = (v41 - v36) * *v25 * (v36 + *(v25 - 1) + v41) + v56 + (v32 - *(&v58 + 2 * v18)) * v25[2] * (*(&v58 + 2 * v18) + v25[1] + v32) + (v41 + v25[3] + v30) * ((v30 - v41) * v25[4]) + (v32 + v25[5] + v42) * ((v42 - v32) * v37);
+        v56 = v44;
+        v18 += 4;
+        v25 += 8;
+        v24 += 4;
+        *(double *)&v45 = *(double *)&v45 + (v43 + v38) * v39;
+        v23 = v45;
       }
-      while ( v31 < v19 - 3 );
-      __asm
-      {
-        vmovsd  xmm14, [rsp+930h+var_8F0]
-        vmovaps xmm15, xmmword ptr [rsp+930h+var_C8+8]
-        vmovsd  qword ptr [rsi], xmm3
-        vmovsd  qword ptr [rsi+8], xmm10
-      }
+      while ( v18 < v8 - 3 );
+      v22 = *(unsigned __int64 *)&v55;
+      *scaledCentroid = v44;
+      scaledCentroid[1] = *(double *)&v45;
     }
-    if ( v31 < v19 )
+    if ( v18 < v8 )
     {
-      v135 = &v173[2 * v31];
+      v46 = (__int64 *)(&v59 + 2 * v18);
       do
       {
-        _RCX = 2i64 * (v31 - 1);
-        v135 += 2;
-        _RAX = 2i64 * ++v31;
-        __asm
-        {
-          vmovsd  xmm8, [rsp+rcx*8+930h+var_8C8]
-          vmovsd  xmm1, [rsp+rcx*8+930h+var_8D0]
-          vmovsd  xmm2, [rsp+rax*8+930h+var_8D0]
-          vmovsd  xmm7, [rsp+rax*8+930h+var_8C8]
-          vsubsd  xmm0, xmm8, xmm7
-          vmulsd  xmm6, xmm0, qword ptr [rdx-18h]
-          vaddsd  xmm0, xmm1, qword ptr [rdx-18h]
-          vaddsd  xmm3, xmm0, xmm2
-          vsubsd  xmm1, xmm2, xmm1
-          vmulsd  xmm2, xmm1, qword ptr [rdx-10h]
-          vaddsd  xmm1, xmm8, qword ptr [rdx-10h]
-          vmulsd  xmm3, xmm3, xmm2
-          vaddsd  xmm4, xmm3, qword ptr [rsi]
-          vaddsd  xmm2, xmm1, xmm7
-          vmulsd  xmm3, xmm2, xmm6
-          vaddsd  xmm10, xmm10, xmm3
-          vmovsd  qword ptr [rsi], xmm4
-          vaddsd  xmm14, xmm14, xmm6
-        }
+        v47 = 2i64 * (v18 - 1);
+        v46 += 2;
+        ++v18;
+        v48 = *(&v59 + v47);
+        v49 = *(&v59 + 2 * v18);
+        v50 = (v48 - v49) * *((double *)v46 - 3);
+        *((_QWORD *)&v51 + 1) = *((_QWORD *)&v23 + 1);
+        *(double *)&v51 = *(double *)&v23 + (v48 + *((double *)v46 - 2) + v49) * v50;
+        v23 = v51;
+        *scaledCentroid = (*(&v58 + v47) + *((double *)v46 - 3) + *(&v58 + 2 * v18)) * ((*(&v58 + 2 * v18) - *(&v58 + v47)) * *((double *)v46 - 2)) + *scaledCentroid;
+        *((_QWORD *)&v51 + 1) = *((_QWORD *)&v22 + 1);
+        *(double *)&v51 = *(double *)&v22 + v50;
+        v22 = v51;
       }
-      while ( v31 < v19 );
-      __asm { vmovsd  qword ptr [rsi+8], xmm10 }
+      while ( v18 < v8 );
+      scaledCentroid[1] = *(double *)&v23;
     }
   }
-  __asm { vmovaps xmm0, xmm14 }
-  _R11 = &v176;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
-  return *(double *)&_XMM0;
+  return *(double *)&v22;
 }
 
 /*
@@ -356,70 +264,60 @@ Glass_ConvertLoopsToPiece
 */
 char Glass_ConvertLoopsToPiece(FxGlassCrackShardWork *work, FxGlassCrackEdge *const *inLoops, unsigned int inLoopCount, FxGlassShard *outShard)
 {
-  int v5; 
-  unsigned int v10; 
+  int v4; 
+  unsigned int v9; 
   FxGlassCrackEdge *firstEdge; 
   unsigned __int8 ptCount; 
-  FxGlassVertex *p_vert; 
-  int v14; 
-  __int16 v16; 
+  FxGlassGeometryData *v12; 
+  int v13; 
+  __int16 v14; 
+  float v15; 
 
-  v5 = 0;
-  _RDI = outShard;
+  v4 = 0;
   outShard->loopCount = 0;
   outShard->crackCount = 0;
-  _RBP = work;
-  v10 = 0;
+  v9 = 0;
   if ( inLoopCount )
   {
-    while ( Glass_ExtractCracksAndHolesFromLoop(_RBP, _RDI, *inLoops) )
+    while ( Glass_ExtractCracksAndHolesFromLoop(work, outShard, *inLoops) )
     {
-      ++v10;
+      ++v9;
       ++inLoops;
-      if ( v10 >= inLoopCount )
+      if ( v9 >= inLoopCount )
         goto LABEL_4;
     }
   }
   else
   {
 LABEL_4:
-    if ( Glass_SetupShard(_RBP, _RDI) )
+    if ( Glass_SetupShard(work, outShard) )
     {
-      _RDI->supportMask = 0;
-      firstEdge = _RDI->loops[0].firstEdge;
+      outShard->supportMask = 0;
+      firstEdge = outShard->loops[0].firstEdge;
       do
       {
-        ptCount = _RDI->ptCount;
+        ptCount = outShard->ptCount;
         if ( !firstEdge->type )
-          _RDI->supportMask |= 0x80000000 >> ptCount;
-        p_vert = &_RDI->geoData[ptCount].vert;
-        Glass_EmitShardVertex(_RBP, _RDI, firstEdge->i0, p_vert);
+          outShard->supportMask |= 0x80000000 >> ptCount;
+        v12 = &outShard->geoData[ptCount];
+        Glass_EmitShardVertex(work, outShard, firstEdge->i0, &v12->vert);
         firstEdge = firstEdge->next;
-        v14 = p_vert->y * p_vert->y + p_vert->x * p_vert->x;
-        if ( v5 > v14 )
-          v14 = v5;
-        v5 = v14;
+        v13 = v12->vert.y * v12->vert.y + v12->vert.x * v12->vert.x;
+        if ( v4 > v13 )
+          v13 = v4;
+        v4 = v13;
       }
-      while ( firstEdge != _RDI->loops[0].firstEdge );
-      __asm { vmovss  xmm0, dword ptr [rbp+4C08h] }
-      v16 = _RDI->ptCount;
-      __asm
-      {
-        vmulss  xmm2, xmm0, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, r14
-        vmulss  xmm0, xmm1, cs:__real@3a800000
-        vaddss  xmm2, xmm2, xmm0
-        vsqrtss xmm3, xmm2, xmm2
-        vmovss  dword ptr [rdi+4], xmm3
-      }
-      if ( v16 != _RDI->loops[0].vertCount && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1218, ASSERT_TYPE_SANITY, "( shard->ptCount == shard->loops[0].vertCount )", (const char *)&queryFormat, "shard->ptCount == shard->loops[0].vertCount") )
+      while ( firstEdge != outShard->loops[0].firstEdge );
+      v14 = outShard->ptCount;
+      v15 = (float)(unsigned int)v13;
+      outShard->radius = fsqrt((float)(work->halfThickness * work->halfThickness) + (float)(v15 * 0.0009765625));
+      if ( v14 != outShard->loops[0].vertCount && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1218, ASSERT_TYPE_SANITY, "( shard->ptCount == shard->loops[0].vertCount )", (const char *)&queryFormat, "shard->ptCount == shard->loops[0].vertCount") )
         __debugbreak();
-      _RDI->geoDataUsed += _RDI->ptCount;
-      if ( Glass_PackShardHoles(_RBP, _RDI) )
+      outShard->geoDataUsed += outShard->ptCount;
+      if ( Glass_PackShardHoles(work, outShard) )
       {
-        Glass_PackShardCracks(_RBP, _RDI);
-        Glass_TriangulateShard(_RBP, _RDI);
+        Glass_PackShardCracks(work, outShard);
+        Glass_TriangulateShard(work, outShard);
         return 1;
       }
     }
@@ -543,120 +441,122 @@ char Glass_ExtractCracksAndHolesFromLoop(const FxGlassCrackShardWork *work, FxGl
   unsigned int v32; 
   unsigned int v33; 
   unsigned int v34; 
-  __int64 v35; 
+  FxGlassShardEdgeLoop *v35; 
   unsigned int v36; 
   FxGlassCrackEdge *v37; 
   bool v38; 
-  __int64 v39; 
+  FxGlassCrackEdge *v39; 
   __int64 v40; 
   unsigned int v42; 
   __int64 v43; 
   __int64 *v44; 
-  unsigned __int8 **v45; 
+  FxGlassCrackEdge **v45; 
   __int64 v46; 
   char *v47; 
   char v48; 
   unsigned int v49; 
   unsigned int v50; 
-  unsigned __int8 *v51; 
+  FxGlassCrackEdge *v51; 
   unsigned int v52; 
-  char v53; 
+  unsigned __int8 v53; 
   unsigned int v54; 
   unsigned int v55; 
-  __int64 v56; 
+  FxGlassShardEdgeLoop *v56; 
   unsigned int v57; 
   unsigned int v58; 
   unsigned int v59; 
   __int64 v60; 
-  unsigned int v65; 
-  __int16 v66; 
-  __int64 v67; 
+  FxGlassShardEdgeLoop *v61; 
+  FxGlassShardEdgeLoop v62; 
+  __int64 v63; 
+  unsigned int v64; 
+  __int16 v65; 
+  __int64 v66; 
   unsigned __int16 parentLoopIndex; 
+  __int64 v68; 
   __int64 v69; 
-  __int64 v70; 
-  __int64 v71; 
-  FxGlassCrackEdge *v72; 
-  unsigned __int8 *v74; 
-  __int64 v75[287]; 
-  char v76[256]; 
+  FxGlassCrackEdge *v70; 
+  FxGlassCrackEdge *v71; 
+  FxGlassCrackEdge *v73; 
+  __int64 v74[287]; 
+  char v75[256]; 
 
-  _RBX = shard;
-  memset_0(v76, 255, work->ptCount);
-  loopCount = _RBX->loopCount;
+  memset_0(v75, 255, work->ptCount);
+  loopCount = shard->loopCount;
   LODWORD(v6) = 0;
   v7 = NULL;
   v8 = edgeLoop;
-  v71 = 0i64;
+  v70 = NULL;
   do
   {
     v9 = (unsigned int)(v6 - 2);
     next = v8->next;
-    v72 = next;
-    v11 = (unsigned __int8)v76[v8->i1];
+    v71 = next;
+    v11 = (unsigned __int8)v75[v8->i1];
     if ( v11 == (_DWORD)v9 )
     {
       v6 = (unsigned int)(v6 - 1);
-      if ( (unsigned __int8)v76[v8->i0] != (_DWORD)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 896, ASSERT_TYPE_SANITY, "( emitAtIndex[edgeIter->i0] == borderCount )", (const char *)&queryFormat, "emitAtIndex[edgeIter->i0] == borderCount") )
+      if ( (unsigned __int8)v75[v8->i0] != (_DWORD)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 896, ASSERT_TYPE_SANITY, "( emitAtIndex[edgeIter->i0] == borderCount )", (const char *)&queryFormat, "emitAtIndex[edgeIter->i0] == borderCount") )
         __debugbreak();
-      v12 = v75[v6 - 1];
+      v12 = v74[v6 - 1];
       i0 = v8->i0;
-      v71 = v12;
+      v70 = (FxGlassCrackEdge *)v12;
       *(_QWORD *)(v12 + 24) = v7;
       v7 = (FxGlassCrackEdge *)v12;
-      v76[i0] = -1;
+      v75[i0] = -1;
       if ( (*(_BYTE *)(v12 + 1) != v8->i0 || *(_BYTE *)v12 != v8->i1) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 900, ASSERT_TYPE_SANITY, "( activeCrack->i1 == edgeIter->i0 && activeCrack->i0 == edgeIter->i1 )", (const char *)&queryFormat, "activeCrack->i1 == edgeIter->i0 && activeCrack->i0 == edgeIter->i1") )
         __debugbreak();
-      if ( *(_BYTE *)(v75[(unsigned int)(v6 - 1) - 1] + 1) != v8->i1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 901, ASSERT_TYPE_SANITY, "( border[borderCount - 1]->i1 == edgeIter->i1 )", (const char *)&queryFormat, "border[borderCount - 1]->i1 == edgeIter->i1") )
+      if ( *(_BYTE *)(v74[(unsigned int)(v6 - 1) - 1] + 1) != v8->i1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 901, ASSERT_TYPE_SANITY, "( border[borderCount - 1]->i1 == edgeIter->i1 )", (const char *)&queryFormat, "border[borderCount - 1]->i1 == edgeIter->i1") )
         __debugbreak();
-      if ( *((_BYTE *)&v75[255] + v8->i1) )
+      if ( *((_BYTE *)&v74[255] + v8->i1) )
       {
-        crackCount = _RBX->crackCount;
+        crackCount = shard->crackCount;
         if ( (_DWORD)crackCount != 64 )
         {
-          _RBX->cracks[crackCount] = v7;
-          ++_RBX->crackCount;
+          shard->cracks[crackCount] = v7;
+          ++shard->crackCount;
         }
         v7 = NULL;
-        v71 = 0i64;
+        v70 = NULL;
       }
     }
     else
     {
       if ( v7 )
       {
-        v15 = _RBX->crackCount;
+        v15 = shard->crackCount;
         if ( (_DWORD)v15 != 64 )
         {
-          _RBX->cracks[v15] = v7;
-          ++_RBX->crackCount;
+          shard->cracks[v15] = v7;
+          ++shard->crackCount;
         }
         v7 = NULL;
-        v71 = 0i64;
+        v70 = NULL;
       }
       if ( v11 == 255 )
       {
         if ( (unsigned int)v6 >= 0xFF )
         {
-          LODWORD(v70) = 255;
-          LODWORD(v69) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 926, ASSERT_TYPE_ASSERT, "(unsigned)( borderCount ) < (unsigned)( ( sizeof( *array_counter( border ) ) + 0 ) )", "borderCount doesn't index ARRAY_COUNT( border )\n\t%i not in [0, %i)", v69, v70) )
+          LODWORD(v69) = 255;
+          LODWORD(v68) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 926, ASSERT_TYPE_ASSERT, "(unsigned)( borderCount ) < (unsigned)( ( sizeof( *array_counter( border ) ) + 0 ) )", "borderCount doesn't index ARRAY_COUNT( border )\n\t%i not in [0, %i)", v68, v69) )
             __debugbreak();
         }
         i1 = v8->i1;
-        v76[i1] = v6;
+        v75[i1] = v6;
         if ( i1 >= 0xFF )
         {
           j___report_rangecheckfailure(v9);
           JUMPOUT(0x141FF8F79i64);
         }
-        *((_BYTE *)&v75[255] + i1) = 0;
+        *((_BYTE *)&v74[255] + i1) = 0;
         v17 = (unsigned int)v6;
         LODWORD(v6) = v6 + 1;
-        v75[v17 - 1] = (__int64)v8;
+        v74[v17 - 1] = (__int64)v8;
       }
       else
       {
-        v18 = _RBX->loopCount;
+        v18 = shard->loopCount;
         if ( v18 == 16 || !(_DWORD)v6 )
           return 0;
         if ( v11 >= (unsigned int)v9 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 941, ASSERT_TYPE_SANITY, "( priorIndex < borderCount - 2 )", (const char *)&queryFormat, "priorIndex < borderCount - 2") )
@@ -664,52 +564,52 @@ char Glass_ExtractCracksAndHolesFromLoop(const FxGlassCrackShardWork *work, FxGl
         v19 = v11 + 2;
         if ( (unsigned int)v19 < (unsigned int)v6 )
         {
-          v20 = &v75[v19 - 1];
+          v20 = &v74[v19 - 1];
           do
           {
-            v21 = v75[(unsigned int)(v19 - 1) - 1];
-            v76[*(unsigned __int8 *)(v21 + 1)] = -1;
+            v21 = v74[(unsigned int)(v19 - 1) - 1];
+            v75[*(unsigned __int8 *)(v21 + 1)] = -1;
             v22 = (char *)*v20;
             *(_QWORD *)(v21 + 24) = *v20;
             v23 = *v22;
-            if ( *((_BYTE *)&v75[255] + (unsigned __int8)*v22) )
+            if ( *((_BYTE *)&v74[255] + (unsigned __int8)*v22) )
             {
-              v24 = _RBX->loopCount;
+              v24 = shard->loopCount;
               v25 = loopCount;
               if ( loopCount < v24 )
               {
                 do
                 {
-                  if ( _RBX->loops[v25].firstEdge->i0 == v23 )
-                    _RBX->loops[v25].parentLoopIndex = v24;
+                  if ( shard->loops[v25].firstEdge->i0 == v23 )
+                    shard->loops[v25].parentLoopIndex = v24;
                   ++v25;
-                  LOWORD(v24) = _RBX->loopCount;
+                  LOWORD(v24) = shard->loopCount;
                 }
-                while ( v25 < _RBX->loopCount );
+                while ( v25 < shard->loopCount );
               }
             }
             LODWORD(v19) = v19 + 1;
             ++v20;
           }
           while ( (unsigned int)v19 < (unsigned int)v6 );
-          v18 = _RBX->loopCount;
+          v18 = shard->loopCount;
         }
-        v26 = v75[(unsigned int)(v6 - 1) - 1];
+        v26 = v74[(unsigned int)(v6 - 1) - 1];
         v27 = *(unsigned __int8 *)(v26 + 1);
         *(_QWORD *)(v26 + 24) = v8;
         v28 = v18;
         v29 = v8->i0;
-        v76[v27] = -1;
-        if ( *((_BYTE *)&v75[255] + v29) )
+        v75[v27] = -1;
+        if ( *((_BYTE *)&v74[255] + v29) )
         {
           v30 = loopCount;
           if ( loopCount < v18 )
           {
             do
             {
-              if ( _RBX->loops[v30].firstEdge->i0 == (_BYTE)v29 )
-                _RBX->loops[v30].parentLoopIndex = v18;
-              v28 = _RBX->loopCount;
+              if ( shard->loops[v30].firstEdge->i0 == (_BYTE)v29 )
+                shard->loops[v30].parentLoopIndex = v18;
+              v28 = shard->loopCount;
               ++v30;
               LOWORD(v18) = v28;
             }
@@ -718,17 +618,17 @@ char Glass_ExtractCracksAndHolesFromLoop(const FxGlassCrackShardWork *work, FxGl
         }
         v31 = v8->i1;
         v32 = v28;
-        v8->next = (FxGlassCrackEdge *)v75[v11];
-        if ( *((_BYTE *)&v75[255] + v31) )
+        v8->next = (FxGlassCrackEdge *)v74[v11];
+        if ( *((_BYTE *)&v74[255] + v31) )
         {
           v33 = loopCount;
           if ( loopCount < v28 )
           {
             do
             {
-              if ( _RBX->loops[v33].firstEdge->i0 == (_BYTE)v31 )
-                _RBX->loops[v33].parentLoopIndex = v28;
-              v32 = _RBX->loopCount;
+              if ( shard->loops[v33].firstEdge->i0 == (_BYTE)v31 )
+                shard->loops[v33].parentLoopIndex = v28;
+              v32 = shard->loopCount;
               ++v33;
               LOWORD(v28) = v32;
             }
@@ -738,25 +638,25 @@ char Glass_ExtractCracksAndHolesFromLoop(const FxGlassCrackShardWork *work, FxGl
         v34 = v32;
         if ( v32 >= 0x10 )
         {
-          LODWORD(v70) = 16;
-          LODWORD(v69) = v32;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 953, ASSERT_TYPE_ASSERT, "(unsigned)( shard->loopCount ) < (unsigned)( ( sizeof( *array_counter( shard->loops ) ) + 0 ) )", "shard->loopCount doesn't index ARRAY_COUNT( shard->loops )\n\t%i not in [0, %i)", v69, v70) )
+          LODWORD(v69) = 16;
+          LODWORD(v68) = v32;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 953, ASSERT_TYPE_ASSERT, "(unsigned)( shard->loopCount ) < (unsigned)( ( sizeof( *array_counter( shard->loops ) ) + 0 ) )", "shard->loopCount doesn't index ARRAY_COUNT( shard->loops )\n\t%i not in [0, %i)", v68, v69) )
           {
             __debugbreak();
-            v34 = _RBX->loopCount;
+            v34 = shard->loopCount;
           }
         }
-        v35 = (__int64)&_RBX->loops[v34];
+        v35 = &shard->loops[v34];
         v36 = v34 + 1;
-        next = v72;
-        _RBX->loopCount = v36;
+        next = v71;
+        shard->loopCount = v36;
         v37 = v8->next;
-        *(_WORD *)(v35 + 8) = v6 - v11;
+        v35->vertCount = v6 - v11;
         LODWORD(v6) = v11 + 1;
-        v7 = (FxGlassCrackEdge *)v71;
-        *(_QWORD *)v35 = v37;
-        *(_WORD *)(v35 + 10) = -1;
-        *((_BYTE *)&v75[255] + v37->i0) = 1;
+        v7 = v70;
+        v35->firstEdge = v37;
+        v35->parentLoopIndex = -1;
+        *((_BYTE *)&v74[255] + v37->i0) = 1;
       }
     }
     v8 = next;
@@ -771,58 +671,58 @@ char Glass_ExtractCracksAndHolesFromLoop(const FxGlassCrackShardWork *work, FxGl
   }
   if ( v38 )
   {
-    v39 = v75[0];
-    if ( (*v74 != *(_BYTE *)(v75[0] + 1) || v74[1] != *(_BYTE *)v75[0]) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 972, ASSERT_TYPE_SANITY, "( border[0]->i0 == border[1]->i1 && border[0]->i1 == border[1]->i0 )", (const char *)&queryFormat, "border[0]->i0 == border[1]->i1 && border[0]->i1 == border[1]->i0") )
+    v39 = (FxGlassCrackEdge *)v74[0];
+    if ( (v73->i0 != *(_BYTE *)(v74[0] + 1) || v73->i1 != *(_BYTE *)v74[0]) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 972, ASSERT_TYPE_SANITY, "( border[0]->i0 == border[1]->i1 && border[0]->i1 == border[1]->i0 )", (const char *)&queryFormat, "border[0]->i0 == border[1]->i1 && border[0]->i1 == border[1]->i0") )
       __debugbreak();
-    v40 = _RBX->crackCount;
-    *(_QWORD *)(v39 + 24) = v7;
+    v40 = shard->crackCount;
+    v39->next = v7;
     if ( (_DWORD)v40 != 64 )
     {
-      _RBX->cracks[v40] = (FxGlassCrackEdge *)v39;
-      ++_RBX->crackCount;
+      shard->cracks[v40] = v39;
+      ++shard->crackCount;
     }
-    Glass_ReverseLoopsStartingAt(_RBX, loopCount);
+    Glass_ReverseLoopsStartingAt(shard, loopCount);
     return 1;
   }
   else
   {
-    v42 = _RBX->loopCount;
+    v42 = shard->loopCount;
     if ( v42 == 16 )
       return 0;
     if ( v7 )
     {
-      v43 = _RBX->crackCount;
+      v43 = shard->crackCount;
       if ( (_DWORD)v43 != 64 )
       {
-        _RBX->cracks[v43] = v7;
-        ++_RBX->crackCount;
-        v42 = _RBX->loopCount;
+        shard->cracks[v43] = v7;
+        ++shard->crackCount;
+        v42 = shard->loopCount;
       }
     }
     if ( (unsigned int)v6 > 1 )
     {
-      v44 = v75;
-      v45 = &v74;
+      v44 = v74;
+      v45 = &v73;
       v46 = (unsigned int)(v6 - 1);
       do
       {
         v47 = (char *)*v44;
-        *((_QWORD *)*v45 + 3) = *v44;
+        (*v45)->next = (FxGlassCrackEdge *)*v44;
         v48 = *v47;
-        if ( *((_BYTE *)&v75[255] + (unsigned __int8)*v47) )
+        if ( *((_BYTE *)&v74[255] + (unsigned __int8)*v47) )
         {
-          v49 = _RBX->loopCount;
+          v49 = shard->loopCount;
           v50 = loopCount;
           if ( loopCount < v49 )
           {
             do
             {
-              if ( _RBX->loops[v50].firstEdge->i0 == v48 )
-                _RBX->loops[v50].parentLoopIndex = v49;
+              if ( shard->loops[v50].firstEdge->i0 == v48 )
+                shard->loops[v50].parentLoopIndex = v49;
               ++v50;
-              LOWORD(v49) = _RBX->loopCount;
+              LOWORD(v49) = shard->loopCount;
             }
-            while ( v50 < _RBX->loopCount );
+            while ( v50 < shard->loopCount );
           }
         }
         ++v45;
@@ -830,22 +730,22 @@ char Glass_ExtractCracksAndHolesFromLoop(const FxGlassCrackShardWork *work, FxGl
         --v46;
       }
       while ( v46 );
-      v42 = _RBX->loopCount;
+      v42 = shard->loopCount;
     }
-    v51 = v74;
-    *(_QWORD *)(v75[(unsigned int)(v6 - 1) - 1] + 24) = v74;
+    v51 = v73;
+    *(_QWORD *)(v74[(unsigned int)(v6 - 1) - 1] + 24) = v73;
     v52 = v42;
-    v53 = *v51;
-    if ( *((_BYTE *)&v75[255] + *v51) )
+    v53 = v51->i0;
+    if ( *((_BYTE *)&v74[255] + v51->i0) )
     {
       v54 = loopCount;
       if ( loopCount < v42 )
       {
         do
         {
-          if ( _RBX->loops[v54].firstEdge->i0 == v53 )
-            _RBX->loops[v54].parentLoopIndex = v42;
-          v52 = _RBX->loopCount;
+          if ( shard->loops[v54].firstEdge->i0 == v53 )
+            shard->loops[v54].parentLoopIndex = v42;
+          v52 = shard->loopCount;
           ++v54;
           LOWORD(v42) = v52;
         }
@@ -855,20 +755,20 @@ char Glass_ExtractCracksAndHolesFromLoop(const FxGlassCrackShardWork *work, FxGl
     v55 = v52;
     if ( v52 >= 0x10 )
     {
-      LODWORD(v70) = 16;
-      LODWORD(v69) = v52;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1003, ASSERT_TYPE_ASSERT, "(unsigned)( shard->loopCount ) < (unsigned)( ( sizeof( *array_counter( shard->loops ) ) + 0 ) )", "shard->loopCount doesn't index ARRAY_COUNT( shard->loops )\n\t%i not in [0, %i)", v69, v70) )
+      LODWORD(v69) = 16;
+      LODWORD(v68) = v52;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1003, ASSERT_TYPE_ASSERT, "(unsigned)( shard->loopCount ) < (unsigned)( ( sizeof( *array_counter( shard->loops ) ) + 0 ) )", "shard->loopCount doesn't index ARRAY_COUNT( shard->loops )\n\t%i not in [0, %i)", v68, v69) )
       {
         __debugbreak();
-        v55 = _RBX->loopCount;
+        v55 = shard->loopCount;
       }
     }
-    v56 = (__int64)&_RBX->loops[v55];
-    _RBX->loopCount = v55 + 1;
-    *(_QWORD *)v56 = v51;
-    *(_WORD *)(v56 + 8) = v6;
-    *(_WORD *)(v56 + 10) = -1;
-    v57 = _RBX->loopCount;
+    v56 = &shard->loops[v55];
+    shard->loopCount = v55 + 1;
+    v56->firstEdge = v51;
+    v56->vertCount = v6;
+    v56->parentLoopIndex = -1;
+    v57 = shard->loopCount;
     if ( loopCount + 1 < v57 )
     {
       v58 = loopCount;
@@ -876,30 +776,26 @@ char Glass_ExtractCracksAndHolesFromLoop(const FxGlassCrackShardWork *work, FxGl
       do
       {
         v60 = v58++;
-        _RCX = (__int64)&_RBX->loops[v60];
-        __asm { vmovups xmm1, xmmword ptr [rcx] }
-        _RAX = 2i64 * v59--;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbx+rax*8+18h]
-          vmovups xmmword ptr [rcx], xmm0
-          vmovups xmmword ptr [rbx+rax*8+18h], xmm1
-        }
+        v61 = &shard->loops[v60];
+        v62 = *v61;
+        v63 = v59--;
+        *v61 = shard->loops[v63];
+        shard->loops[v63] = v62;
       }
       while ( v58 < v59 );
-      v65 = _RBX->loopCount;
-      v66 = v65 + loopCount - 1;
-      if ( loopCount < v65 )
+      v64 = shard->loopCount;
+      v65 = v64 + loopCount - 1;
+      if ( loopCount < v64 )
       {
         do
         {
-          v67 = loopCount;
-          parentLoopIndex = _RBX->loops[v67].parentLoopIndex;
+          v66 = loopCount;
+          parentLoopIndex = shard->loops[v66].parentLoopIndex;
           if ( parentLoopIndex != 0xFFFF )
-            _RBX->loops[v67].parentLoopIndex = v66 - parentLoopIndex;
+            shard->loops[v66].parentLoopIndex = v65 - parentLoopIndex;
           ++loopCount;
         }
-        while ( loopCount < _RBX->loopCount );
+        while ( loopCount < shard->loopCount );
       }
     }
     return 1;
@@ -1191,35 +1087,30 @@ Glass_IsEdgeLoopBackwards
 */
 bool Glass_IsEdgeLoopBackwards(const FxGlassCrackShardWork *work, const FxGlassCrackEdge *edgeLoop)
 {
-  const FxGlassCrackEdge *v4; 
+  const FxGlassCrackEdge *v2; 
+  __int128 v3; 
+  FxGlassCrackPoint *v4; 
   __int64 i1; 
+  float *v6; 
+  float v7; 
+  __int128 v8; 
 
-  v4 = edgeLoop;
-  __asm
-  {
-    vxorps  xmm5, xmm5, xmm5
-    vxorps  xmm4, xmm4, xmm4
-  }
-  _R10 = &work->pts[edgeLoop->i0];
+  v2 = edgeLoop;
+  v3 = 0i64;
+  v4 = &work->pts[edgeLoop->i0];
   do
   {
-    i1 = v4->i1;
-    _R8 = _R10;
-    __asm { vmovss  xmm0, dword ptr [r8+4] }
-    v4 = v4->next;
-    _R10 = &work->pts[i1];
-    __asm
-    {
-      vmovss  xmm1, dword ptr [r10+4]
-      vmulss  xmm2, xmm1, dword ptr [r8]
-      vmulss  xmm3, xmm0, dword ptr [r10]
-      vsubss  xmm0, xmm3, xmm2
-      vaddss  xmm4, xmm4, xmm0
-    }
+    i1 = v2->i1;
+    v6 = (float *)v4;
+    v7 = v4->xy.v[1];
+    v2 = v2->next;
+    v4 = &work->pts[i1];
+    v8 = v3;
+    *(float *)&v8 = *(float *)&v3 + (float)((float)(v7 * v4->xy.v[0]) - (float)(work->pts[i1].xy.v[1] * *v6));
+    v3 = v8;
   }
-  while ( v4 != edgeLoop );
-  __asm { vcomiss xmm4, xmm5 }
-  return v4 < edgeLoop;
+  while ( v2 != edgeLoop );
+  return *(float *)&v8 < 0.0;
 }
 
 /*
@@ -1340,125 +1231,109 @@ LABEL_37:
 Glass_PackShardHoles
 ==============
 */
-bool Glass_PackShardHoles(const FxGlassCrackShardWork *work, FxGlassShard *shard)
+char Glass_PackShardHoles(const FxGlassCrackShardWork *work, FxGlassShard *shard)
 {
-  FxGlassCrackEdge *v4; 
+  FxGlassCrackEdge *v2; 
+  __int128 v5; 
   FxGlassCrackEdge *firstEdge; 
+  FxGlassCrackPoint *v7; 
   __int64 i1; 
-  int v18; 
-  FxGlassGeometryData *v19; 
-  FxGlassCrackEdge *v21; 
+  float *v9; 
+  float v10; 
+  __int128 v11; 
+  int v12; 
+  FxGlassGeometryData *v13; 
+  __int128 v14; 
+  FxGlassCrackEdge *v15; 
+  FxGlassCrackEdge *v16; 
+  FxGlassCrackPoint *v17; 
+  __int64 v18; 
+  float *v19; 
+  float v20; 
+  __int128 v21; 
   FxGlassCrackEdge *v22; 
-  __int64 v24; 
-  FxGlassCrackEdge *v31; 
   __int64 i0; 
   int uniqueVertCount; 
-  bool result; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_38], xmm6
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm4, xmm4, xmm4
-  }
+  v5 = 0i64;
   firstEdge = shard->loops[0].firstEdge;
-  v4 = firstEdge;
-  _R9 = &work->pts[firstEdge->i0];
+  v2 = firstEdge;
+  v7 = &work->pts[firstEdge->i0];
   do
   {
     i1 = firstEdge->i1;
-    _R8 = _R9;
-    __asm { vmovss  xmm0, dword ptr [r8+4] }
+    v9 = (float *)v7;
+    v10 = v7->xy.v[1];
     firstEdge = firstEdge->next;
-    _R9 = &work->pts[i1];
-    __asm
-    {
-      vmovss  xmm1, dword ptr [r9+4]
-      vmulss  xmm2, xmm1, dword ptr [r8]
-      vmulss  xmm3, xmm0, dword ptr [r9]
-      vsubss  xmm0, xmm3, xmm2
-      vaddss  xmm4, xmm4, xmm0
-    }
+    v7 = &work->pts[i1];
+    v11 = v5;
+    *(float *)&v11 = *(float *)&v5 + (float)((float)(v10 * v7->xy.v[0]) - (float)(work->pts[i1].xy.v[1] * *v9));
+    v5 = v11;
   }
-  while ( firstEdge != v4 );
-  __asm { vcomiss xmm4, xmm6 }
-  if ( firstEdge < v4 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1230, ASSERT_TYPE_SANITY, "( !Glass_IsEdgeLoopBackwards( work, shard->loops[0].firstEdge ) )", (const char *)&queryFormat, "!Glass_IsEdgeLoopBackwards( work, shard->loops[0].firstEdge )") )
+  while ( firstEdge != v2 );
+  if ( *(float *)&v11 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1230, ASSERT_TYPE_SANITY, "( !Glass_IsEdgeLoopBackwards( work, shard->loops[0].firstEdge ) )", (const char *)&queryFormat, "!Glass_IsEdgeLoopBackwards( work, shard->loops[0].firstEdge )") )
     __debugbreak();
-  v18 = 1;
-  v19 = &shard->geoData[shard->geoDataUsed];
+  v12 = 1;
+  v13 = &shard->geoData[shard->geoDataUsed];
   shard->holeDataCount = 0;
   if ( shard->loopCount <= 1 )
+    return 1;
+  while ( 1 )
   {
-LABEL_28:
-    result = 1;
-  }
-  else
-  {
-    while ( 1 )
+    v14 = 0i64;
+    v15 = shard->loops[v12].firstEdge;
+    v16 = v15;
+    v17 = &work->pts[v15->i0];
+    do
     {
-      __asm { vmovaps xmm4, xmm6 }
-      v21 = shard->loops[v18].firstEdge;
-      v22 = v21;
-      _R8 = &work->pts[v21->i0];
-      do
-      {
-        v24 = v22->i1;
-        _RCX = _R8;
-        __asm { vmovss  xmm0, dword ptr [rcx+4] }
-        v22 = v22->next;
-        _R8 = &work->pts[v24];
-        __asm
-        {
-          vmovss  xmm1, dword ptr [r8+4]
-          vmulss  xmm2, xmm1, dword ptr [rcx]
-          vmulss  xmm3, xmm0, dword ptr [r8]
-          vsubss  xmm0, xmm3, xmm2
-          vaddss  xmm4, xmm4, xmm0
-        }
-      }
-      while ( v22 != v21 );
-      __asm { vcomiss xmm4, xmm6 }
-      if ( v22 >= v21 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1237, ASSERT_TYPE_SANITY, "( Glass_IsEdgeLoopBackwards( work, loop->firstEdge ) )", (const char *)&queryFormat, "Glass_IsEdgeLoopBackwards( work, loop->firstEdge )") )
-        __debugbreak();
-      v31 = shard->loops[v18].firstEdge;
-      i0 = v31->i0;
-      if ( shard->loops[v18].parentLoopIndex == 0xFFFF )
-      {
-        if ( shard->ptIndexMap[i0] != 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1241, ASSERT_TYPE_SANITY, "( shard->ptIndexMap[edgeIter->i0] == 0xff )", (const char *)&queryFormat, "shard->ptIndexMap[edgeIter->i0] == GLASS_VERT_INDEX_NONE") )
-          __debugbreak();
-        v19->vert.x = shard->loops[v18].vertCount;
-        v19->vert.y = 255;
-      }
-      else
-      {
-        if ( shard->ptIndexMap[i0] == 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1250, ASSERT_TYPE_SANITY, "( shard->ptIndexMap[edgeIter->i0] != 0xff )", (const char *)&queryFormat, "shard->ptIndexMap[edgeIter->i0] != GLASS_VERT_INDEX_NONE") )
-          __debugbreak();
-        v19->vert.x = shard->loops[v18].vertCount - 1;
-        v19->vert.y = shard->ptIndexMap[v31->i0];
-        v31 = v31->next;
-      }
-      uniqueVertCount = v19->hole.uniqueVertCount;
-      if ( uniqueVertCount + (unsigned int)shard->ptCount > 0x80 )
-        break;
-      shard->geoDataUsed += uniqueVertCount + 1;
-      shard->holeDataCount += v19->hole.uniqueVertCount + 1;
-      ++v19;
-      do
-      {
-        Glass_EmitShardVertex(work, shard, v31->i0, &v19->vert);
-        v31 = v31->next;
-        ++v19;
-      }
-      while ( v31 != shard->loops[v18].firstEdge );
-      if ( v19 != &shard->geoData[shard->geoDataUsed] && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1273, ASSERT_TYPE_SANITY, "( geoData == &shard->geoData[shard->geoDataUsed] )", (const char *)&queryFormat, "geoData == &shard->geoData[shard->geoDataUsed]") )
-        __debugbreak();
-      if ( ++v18 >= shard->loopCount )
-        goto LABEL_28;
+      v18 = v16->i1;
+      v19 = (float *)v17;
+      v20 = v17->xy.v[1];
+      v16 = v16->next;
+      v17 = &work->pts[v18];
+      v21 = v14;
+      *(float *)&v21 = *(float *)&v14 + (float)((float)(v20 * v17->xy.v[0]) - (float)(work->pts[v18].xy.v[1] * *v19));
+      v14 = v21;
     }
-    result = 0;
+    while ( v16 != v15 );
+    if ( *(float *)&v21 >= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1237, ASSERT_TYPE_SANITY, "( Glass_IsEdgeLoopBackwards( work, loop->firstEdge ) )", (const char *)&queryFormat, "Glass_IsEdgeLoopBackwards( work, loop->firstEdge )") )
+      __debugbreak();
+    v22 = shard->loops[v12].firstEdge;
+    i0 = v22->i0;
+    if ( shard->loops[v12].parentLoopIndex == 0xFFFF )
+    {
+      if ( shard->ptIndexMap[i0] != 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1241, ASSERT_TYPE_SANITY, "( shard->ptIndexMap[edgeIter->i0] == 0xff )", (const char *)&queryFormat, "shard->ptIndexMap[edgeIter->i0] == GLASS_VERT_INDEX_NONE") )
+        __debugbreak();
+      v13->vert.x = shard->loops[v12].vertCount;
+      v13->vert.y = 255;
+    }
+    else
+    {
+      if ( shard->ptIndexMap[i0] == 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1250, ASSERT_TYPE_SANITY, "( shard->ptIndexMap[edgeIter->i0] != 0xff )", (const char *)&queryFormat, "shard->ptIndexMap[edgeIter->i0] != GLASS_VERT_INDEX_NONE") )
+        __debugbreak();
+      v13->vert.x = shard->loops[v12].vertCount - 1;
+      v13->vert.y = shard->ptIndexMap[v22->i0];
+      v22 = v22->next;
+    }
+    uniqueVertCount = v13->hole.uniqueVertCount;
+    if ( uniqueVertCount + (unsigned int)shard->ptCount > 0x80 )
+      break;
+    shard->geoDataUsed += uniqueVertCount + 1;
+    shard->holeDataCount += v13->hole.uniqueVertCount + 1;
+    ++v13;
+    do
+    {
+      Glass_EmitShardVertex(work, shard, v22->i0, &v13->vert);
+      v22 = v22->next;
+      ++v13;
+    }
+    while ( v22 != shard->loops[v12].firstEdge );
+    if ( v13 != &shard->geoData[shard->geoDataUsed] && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1273, ASSERT_TYPE_SANITY, "( geoData == &shard->geoData[shard->geoDataUsed] )", (const char *)&queryFormat, "geoData == &shard->geoData[shard->geoDataUsed]") )
+      __debugbreak();
+    if ( ++v12 >= shard->loopCount )
+      return 1;
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_38] }
-  return result;
+  return 0;
 }
 
 /*
@@ -1470,155 +1345,134 @@ __int64 Glass_PickShardTriangleFanBaseEdge(const FxGlassCrackShardWork *work, Fx
 {
   unsigned int edgeCount; 
   __int64 result; 
-  __int64 v14; 
-  unsigned int v15; 
-  bool v17; 
-  FxGlassShardEdge *v18; 
-  unsigned int v19; 
-  int v20; 
-  unsigned int v23; 
-  int v42; 
-  int v43; 
-  bool v56; 
-  __int64 v59; 
-  unsigned int v62; 
+  __int64 v7; 
+  unsigned int v8; 
+  FxGlassShardEdge *v10; 
+  unsigned int v11; 
+  int v12; 
+  float v13; 
+  float v14; 
   __int64 i0; 
+  unsigned int v16; 
+  float v17; 
+  __int128 v18; 
+  __int64 v19; 
+  float v21; 
+  __int128 v22; 
+  __int64 v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v28; 
+  float v29; 
+  __int64 v30; 
+  __int128 v31; 
+  __int128 v33; 
+  float v34; 
+  int v36; 
+  int v37; 
+  FxGlassShardEdge *v42; 
+  __int64 v43; 
+  float v44; 
+  __int128 v45; 
+  unsigned int v46; 
+  bool v48; 
+  __int64 v49; 
 
   edgeCount = triang->edgeCount;
-  _R11 = triang;
   if ( evalTime > 2u )
     return (3 * edgeCount) >> 4;
-  v14 = 0i64;
-  __asm { vmovaps [rsp+78h+var_58], xmm10 }
-  v15 = edgeCount;
-  __asm { vxorps  xmm10, xmm10, xmm10 }
-  v17 = edgeCount <= 4;
+  v7 = 0i64;
+  v8 = edgeCount;
+  LODWORD(_XMM10) = 0;
   if ( edgeCount >= 4 )
   {
-    v18 = &_R11->edges[1];
-    v19 = edgeCount - 3;
-    v20 = 2;
-    __asm
-    {
-      vmovaps [rsp+78h+var_18], xmm6
-      vmovaps [rsp+78h+var_28], xmm7
-      vmovaps [rsp+78h+var_38], xmm8
-      vmovaps [rsp+78h+var_48], xmm9
-      vmovaps [rsp+78h+var_68], xmm11
-      vmovss  xmm11, dword ptr [r11+0CF4h]
-      vmovaps [rsp+78h+var_78], xmm12
-      vmovss  xmm12, dword ptr [r11+0CF8h]
-    }
+    v10 = &triang->edges[1];
+    v11 = edgeCount - 3;
+    v12 = 2;
+    v13 = triang->awayFromPoint.v[0];
+    v14 = triang->awayFromPoint.v[1];
     do
     {
-      v18 += 4;
-      v23 = v14;
-      __asm
-      {
-        vsubss  xmm1, xmm11, dword ptr [r10+rax*8+3FCh]
-        vsubss  xmm0, xmm12, dword ptr [r10+rax*8+400h]
-        vmulss  xmm1, xmm1, xmm1
-        vmulss  xmm2, xmm0, xmm0
-        vaddss  xmm8, xmm2, xmm1
-        vsubss  xmm1, xmm11, dword ptr [r10+rax*8+3FCh]
-        vsubss  xmm0, xmm12, dword ptr [r10+rax*8+400h]
-        vcomiss xmm8, xmm10
-        vmulss  xmm2, xmm0, xmm0
-      }
-      if ( v17 )
-        v23 = edgeCount;
-      edgeCount = v20 + 1;
-      __asm
-      {
-        vsubss  xmm0, xmm12, dword ptr [r10+rax*8+400h]
-        vmulss  xmm1, xmm1, xmm1
-        vaddss  xmm6, xmm2, xmm1
-        vsubss  xmm1, xmm11, dword ptr [r10+rax*8+3FCh]
-        vmulss  xmm2, xmm0, xmm0
-        vmulss  xmm1, xmm1, xmm1
-        vaddss  xmm4, xmm2, xmm1
-        vsubss  xmm0, xmm12, dword ptr [r10+rax*8+400h]
-        vsubss  xmm1, xmm11, dword ptr [r10+rax*8+3FCh]
-        vmaxss  xmm9, xmm8, xmm10
-        vcomiss xmm6, xmm9
-      }
-      v42 = v20 - 1;
-      if ( v17 )
-        v42 = v23;
-      v43 = v20;
-      __asm
-      {
-        vmaxss  xmm7, xmm6, xmm9
-        vcomiss xmm4, xmm7
-        vmulss  xmm2, xmm0, xmm0
-      }
-      if ( v17 )
-        v43 = v42;
-      __asm
-      {
-        vmaxss  xmm5, xmm4, xmm7
-        vmulss  xmm1, xmm1, xmm1
-        vaddss  xmm3, xmm2, xmm1
-        vcomiss xmm3, xmm5
-        vmaxss  xmm0, xmm3, xmm5
-      }
-      if ( v17 )
-        edgeCount = v43;
-      v14 = (unsigned int)(v14 + 4);
-      v20 += 4;
-      __asm { vmovaps xmm10, xmm0 }
-      v17 = (unsigned int)v14 <= v19;
+      i0 = v10[-1].fields.i0;
+      v10 += 4;
+      v16 = v7;
+      v17 = v13 - work->pts[i0].xy.v[0];
+      v18 = LODWORD(triang->awayFromPoint.v[1]);
+      *(float *)&v18 = v14 - work->pts[i0].xy.v[1];
+      v19 = v10[-4].fields.i0;
+      *(float *)&v18 = (float)(*(float *)&v18 * *(float *)&v18) + (float)(v17 * v17);
+      _XMM8 = v18;
+      v21 = v13 - work->pts[v19].xy.v[0];
+      v22 = LODWORD(triang->awayFromPoint.v[1]);
+      *(float *)&v22 = v14 - work->pts[v19].xy.v[1];
+      v23 = v10[-3].fields.i0;
+      *(float *)&v22 = *(float *)&v22 * *(float *)&v22;
+      v24 = v22;
+      if ( *(float *)&_XMM8 <= *(float *)&_XMM10 )
+        v16 = edgeCount;
+      edgeCount = v12 + 1;
+      v26 = LODWORD(triang->awayFromPoint.v[1]);
+      *(float *)&v26 = v14 - work->pts[v23].xy.v[1];
+      v25 = v26;
+      v28 = v24;
+      *(float *)&v28 = *(float *)&v24 + (float)(v21 * v21);
+      _XMM6 = v28;
+      v29 = v13 - work->pts[v23].xy.v[0];
+      v30 = v10[-2].fields.i0;
+      v31 = v25;
+      *(float *)&v31 = (float)(*(float *)&v25 * *(float *)&v25) + (float)(v29 * v29);
+      _XMM4 = v31;
+      v33 = LODWORD(triang->awayFromPoint.v[1]);
+      *(float *)&v33 = v14 - work->pts[v30].xy.v[1];
+      v34 = v13 - work->pts[v30].xy.v[0];
+      __asm { vmaxss  xmm9, xmm8, xmm10 }
+      v36 = v12 - 1;
+      if ( *(float *)&_XMM6 <= *(float *)&_XMM9 )
+        v36 = v16;
+      v37 = v12;
+      __asm { vmaxss  xmm7, xmm6, xmm9 }
+      *(float *)&v33 = *(float *)&v33 * *(float *)&v33;
+      if ( *(float *)&_XMM4 <= *(float *)&_XMM7 )
+        v37 = v36;
+      __asm { vmaxss  xmm5, xmm4, xmm7 }
+      *(float *)&v33 = *(float *)&v33 + (float)(v34 * v34);
+      _XMM3 = v33;
+      __asm { vmaxss  xmm0, xmm3, xmm5 }
+      if ( *(float *)&v33 <= *(float *)&_XMM5 )
+        edgeCount = v37;
+      v7 = (unsigned int)(v7 + 4);
+      v12 += 4;
+      LODWORD(_XMM10) = _XMM0;
     }
-    while ( (unsigned int)v14 < v19 );
-    __asm
-    {
-      vmovaps xmm12, [rsp+78h+var_78]
-      vmovaps xmm11, [rsp+78h+var_68]
-      vmovaps xmm9, [rsp+78h+var_48]
-      vmovaps xmm8, [rsp+78h+var_38]
-      vmovaps xmm7, [rsp+78h+var_28]
-      vmovaps xmm6, [rsp+78h+var_18]
-    }
+    while ( (unsigned int)v7 < v11 );
   }
-  v56 = (unsigned int)v14 <= v15;
-  if ( (unsigned int)v14 < v15 )
+  if ( (unsigned int)v7 < v8 )
   {
-    __asm
-    {
-      vmovss  xmm4, dword ptr [r11+0CF4h]
-      vmovss  xmm5, dword ptr [r11+0CF8h]
-    }
-    v59 = (__int64)&_R11->edges[v14];
+    v42 = &triang->edges[v7];
     do
     {
-      v59 += 2i64;
-      __asm
-      {
-        vsubss  xmm1, xmm4, dword ptr [r10+rax*8+3FCh]
-        vsubss  xmm0, xmm5, dword ptr [r10+rax*8+400h]
-      }
-      v62 = v14;
-      __asm
-      {
-        vmulss  xmm2, xmm0, xmm0
-        vmulss  xmm1, xmm1, xmm1
-        vaddss  xmm3, xmm2, xmm1
-        vcomiss xmm3, xmm10
-        vmaxss  xmm10, xmm3, xmm10
-      }
-      if ( v56 )
-        v62 = edgeCount;
-      LODWORD(v14) = v14 + 1;
-      edgeCount = v62;
-      v56 = (unsigned int)v14 <= v15;
+      v43 = v42->fields.i0;
+      ++v42;
+      v44 = triang->awayFromPoint.v[0] - work->pts[v43].xy.v[0];
+      v45 = LODWORD(triang->awayFromPoint.v[1]);
+      *(float *)&v45 = triang->awayFromPoint.v[1] - work->pts[v43].xy.v[1];
+      v46 = v7;
+      *(float *)&v45 = (float)(*(float *)&v45 * *(float *)&v45) + (float)(v44 * v44);
+      _XMM3 = v45;
+      v48 = *(float *)&v45 <= *(float *)&_XMM10;
+      __asm { vmaxss  xmm10, xmm3, xmm10 }
+      if ( v48 )
+        v46 = edgeCount;
+      LODWORD(v7) = v7 + 1;
+      edgeCount = v46;
     }
-    while ( (unsigned int)v14 < v15 );
+    while ( (unsigned int)v7 < v8 );
   }
-  __asm { vmovaps xmm10, [rsp+78h+var_58] }
   result = edgeCount;
-  i0 = _R11->edges[edgeCount].fields.i0;
-  _R11->awayFromPoint.v[0] = work->pts[i0].xy.v[0];
-  _R11->awayFromPoint.v[1] = work->pts[i0].xy.v[1];
+  v49 = triang->edges[edgeCount].fields.i0;
+  triang->awayFromPoint.v[0] = work->pts[v49].xy.v[0];
+  triang->awayFromPoint.v[1] = work->pts[v49].xy.v[1];
   return result;
 }
 
@@ -1633,12 +1487,14 @@ void Glass_ReverseLoopsStartingAt(FxGlassShard *shard, unsigned int firstLoopInd
   unsigned int v4; 
   unsigned int v5; 
   __int64 v6; 
-  unsigned int v11; 
-  __int16 v12; 
+  FxGlassShardEdgeLoop *v7; 
+  FxGlassShardEdgeLoop v8; 
+  __int64 v9; 
+  unsigned int v10; 
+  __int16 v11; 
   unsigned __int16 parentLoopIndex; 
 
   loopCount = shard->loopCount;
-  _R8 = shard;
   if ( firstLoopIndex + 1 < loopCount )
   {
     v4 = firstLoopIndex;
@@ -1646,29 +1502,25 @@ void Glass_ReverseLoopsStartingAt(FxGlassShard *shard, unsigned int firstLoopInd
     do
     {
       v6 = v4++;
-      _RCX = (__int64)&_R8->loops[v6];
-      __asm { vmovups xmm1, xmmword ptr [rcx] }
-      _RAX = 2i64 * v5--;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r8+rax*8+18h]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovups xmmword ptr [r8+rax*8+18h], xmm1
-      }
+      v7 = &shard->loops[v6];
+      v8 = *v7;
+      v9 = v5--;
+      *v7 = shard->loops[v9];
+      shard->loops[v9] = v8;
     }
     while ( v4 < v5 );
-    v11 = _R8->loopCount;
-    v12 = v11 + firstLoopIndex - 1;
-    if ( firstLoopIndex < v11 )
+    v10 = shard->loopCount;
+    v11 = v10 + firstLoopIndex - 1;
+    if ( firstLoopIndex < v10 )
     {
       do
       {
-        parentLoopIndex = _R8->loops[firstLoopIndex].parentLoopIndex;
+        parentLoopIndex = shard->loops[firstLoopIndex].parentLoopIndex;
         if ( parentLoopIndex != 0xFFFF )
-          _R8->loops[firstLoopIndex].parentLoopIndex = v12 - parentLoopIndex;
+          shard->loops[firstLoopIndex].parentLoopIndex = v11 - parentLoopIndex;
         ++firstLoopIndex;
       }
-      while ( firstLoopIndex < _R8->loopCount );
+      while ( firstLoopIndex < shard->loopCount );
     }
   }
 }
@@ -1748,56 +1600,39 @@ void Glass_RotateLoops(FxGlassShard *shard, unsigned int i0, unsigned int i1)
   __int64 v3; 
   __int64 v5; 
   unsigned int v6; 
-  unsigned int v11; 
+  FxGlassShardEdgeLoop *v7; 
+  FxGlassShardEdgeLoop i; 
+  unsigned int v9; 
   unsigned __int16 *p_parentLoopIndex; 
-  unsigned int v14; 
+  unsigned int v11; 
 
   v3 = i1;
-  _RDI = shard;
   v5 = i0;
   if ( i0 >= i1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1056, ASSERT_TYPE_SANITY, "( i0 < i1 )", (const char *)&queryFormat, "i0 < i1") )
     __debugbreak();
   v6 = v3;
-  _RDX = (__int64)&_RDI->loops[v3];
-  __asm { vmovups xmm1, xmmword ptr [rdx] }
-  if ( (unsigned int)v3 > (unsigned int)v5 )
+  v7 = &shard->loops[v3];
+  for ( i = *v7; v6 > (unsigned int)v5; v7[1] = shard->loops[v6] )
   {
-    do
-    {
-      --v6;
-      _RDX -= 16i64;
-      _RAX = 2i64 * v6;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi+rax*8+18h]
-        vmovups xmmword ptr [rdx+10h], xmm0
-      }
-    }
-    while ( v6 > (unsigned int)v5 );
+    --v6;
+    --v7;
   }
-  v11 = v5 + 1;
-  _RAX = 2 * v5;
-  __asm { vmovups xmmword ptr [rdi+rax*8+18h], xmm1 }
-  if ( (unsigned int)(v5 + 1) < _RDI->loopCount )
+  v9 = v5 + 1;
+  for ( shard->loops[v5] = i; v9 < shard->loopCount; ++v9 )
   {
-    do
+    p_parentLoopIndex = &shard->loops[v9].parentLoopIndex;
+    v11 = *p_parentLoopIndex;
+    if ( v11 <= (unsigned int)v3 )
     {
-      p_parentLoopIndex = &_RDI->loops[v11].parentLoopIndex;
-      v14 = *p_parentLoopIndex;
-      if ( v14 <= (unsigned int)v3 )
+      if ( v11 == (_DWORD)v3 )
       {
-        if ( v14 == (_DWORD)v3 )
-        {
-          *p_parentLoopIndex = v5;
-        }
-        else if ( v14 >= (unsigned int)v5 )
-        {
-          *p_parentLoopIndex = v14 + 1;
-        }
+        *p_parentLoopIndex = v5;
       }
-      ++v11;
+      else if ( v11 >= (unsigned int)v5 )
+      {
+        *p_parentLoopIndex = v11 + 1;
+      }
     }
-    while ( v11 < _RDI->loopCount );
   }
 }
 
@@ -1806,33 +1641,25 @@ void Glass_RotateLoops(FxGlassShard *shard, unsigned int i0, unsigned int i1)
 Glass_SetupShard
 ==============
 */
-
-bool __fastcall Glass_SetupShard(const FxGlassCrackShardWork *work, FxGlassShard *shard, double _XMM2_8)
+char Glass_SetupShard(const FxGlassCrackShardWork *work, FxGlassShard *shard)
 {
   unsigned int loopCount; 
+  double v5; 
+  unsigned int v8; 
+  unsigned int v9; 
   unsigned int v12; 
-  unsigned int v13; 
-  unsigned int v16; 
-  char v18; 
-  __int16 v29; 
-  __int16 v36; 
+  double v13; 
+  __int128 v14; 
+  __int16 v22; 
+  __int16 v25; 
   size_t ptCount; 
-  bool result; 
+  FxGlassVertex packedCentroid; 
   long double scaledCentroid[2]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_48], xmm6
-    vmovaps [rsp+0B8h+var_58], xmm7
-    vmovaps xmmword ptr [r11-68h], xmm8
-  }
   loopCount = shard->loopCount;
-  __asm { vmovsd  xmm8, cs:__real@4020000000000000 }
-  _R14 = shard;
-  v12 = 0;
-  v13 = loopCount;
+  v5 = DOUBLE_8_0;
+  v8 = 0;
+  v9 = loopCount;
   __asm
   {
     vxorpd  xmm6, xmm6, xmm6
@@ -1841,104 +1668,73 @@ bool __fastcall Glass_SetupShard(const FxGlassCrackShardWork *work, FxGlassShard
   }
   if ( loopCount )
   {
-    v16 = loopCount;
+    v12 = loopCount;
     do
     {
-      *(double *)&_XMM0 = Glass_AreaX2AndScaledCentroidForEdgeLoop(work, _R14->loops[v12].firstEdge, scaledCentroid);
-      __asm
+      v13 = Glass_AreaX2AndScaledCentroidForEdgeLoop(work, shard->loops[v8].firstEdge, scaledCentroid);
+      *((_QWORD *)&v14 + 1) = *((_QWORD *)&_XMM7 + 1);
+      *(double *)&v14 = *(double *)&_XMM7 + v13;
+      _XMM7 = v14;
+      v9 = v12;
+      if ( v5 < v13 )
       {
-        vcomisd xmm8, xmm0
-        vmovaps xmm6, xmm0
-        vaddsd  xmm7, xmm7, xmm0
-      }
-      v13 = v16;
-      if ( v18 )
-      {
-        if ( loopCount != v16 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1149, ASSERT_TYPE_SANITY, "( outerIndex == shard->loopCount )", (const char *)&queryFormat, "outerIndex == shard->loopCount") )
+        if ( loopCount != v12 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1149, ASSERT_TYPE_SANITY, "( outerIndex == shard->loopCount )", (const char *)&queryFormat, "outerIndex == shard->loopCount") )
         {
           __debugbreak();
-          v13 = _R14->loopCount;
+          v9 = shard->loopCount;
         }
-        loopCount = v12;
-        __asm { vmovaps xmm8, xmm6 }
+        loopCount = v8;
+        v5 = v13;
       }
-      ++v12;
-      v16 = v13;
+      ++v8;
+      v12 = v9;
     }
-    while ( v12 < v13 );
+    while ( v8 < v9 );
     __asm { vmovupd xmm6, xmmword ptr [rsp+0B8h+scaledCentroid] }
   }
   __asm { vmovddup xmm8, xmm7 }
-  if ( loopCount == v13 )
-    goto LABEL_20;
+  if ( loopCount == v9 )
+    return 0;
   if ( loopCount )
   {
-    if ( _R14->loops[loopCount].parentLoopIndex == 0xFFFF || (loopCount = Glass_SwapLoopParentChildRelationship_r(_R14, loopCount)) != 0 )
+    if ( shard->loops[loopCount].parentLoopIndex == 0xFFFF || (loopCount = Glass_SwapLoopParentChildRelationship_r(shard, loopCount)) != 0 )
     {
-      Glass_RotateLoops(_R14, 0, loopCount);
-      Glass_AssertValidLoopOrder(_R14);
+      Glass_RotateLoops(shard, 0, loopCount);
+      Glass_AssertValidLoopOrder(shard);
     }
   }
-  if ( _R14->loops[0].vertCount > 0x20u )
-  {
-LABEL_20:
-    result = 0;
-  }
-  else
-  {
-    __asm { vcomisd xmm7, cs:__real@3eb0c6f7a0b5ed8d }
-    if ( _R14->loops[0].vertCount <= 0x20u && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1163, ASSERT_TYPE_SANITY, "( totalAreaX2 > 1.0E-6 )", (const char *)&queryFormat, "totalAreaX2 > ZERO_EPSILON") )
-      __debugbreak();
-    __asm
-    {
-      vmulpd  xmm1, xmm8, cs:__xmm@40080000000000004008000000000000
-      vcvtsd2ss xmm0, xmm7, xmm7
-      vmovss  dword ptr [r14], xmm0
-      vdivpd  xmm0, xmm6, xmm1
-      vcvtpd2ps xmm8, xmm0
-      vmulss  xmm0, xmm8, cs:__real@42000000
-      vaddss  xmm1, xmm0, cs:__real@3f000000
-      vxorps  xmm2, xmm2, xmm2
-      vroundss xmm2, xmm2, xmm1, 1
-      vcvttss2si ecx, xmm2; val
-    }
-    v29 = truncate_cast<short,int>(_ECX);
-    __asm
-    {
-      vshufps xmm0, xmm8, xmm8, 55h ; 'U'
-      vmulss  xmm0, xmm0, cs:__real@42000000
-      vaddss  xmm1, xmm0, cs:__real@3f000000
-      vxorps  xmm2, xmm2, xmm2
-      vroundss xmm2, xmm2, xmm1, 1
-      vcvttss2si ecx, xmm2; val
-    }
-    _R14->packedCentroid.x = v29;
-    v36 = truncate_cast<short,int>(_ECX);
-    ptCount = work->ptCount;
-    _R14->packedCentroid.y = v36;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm0, xmm0, cs:__real@3d000000
-      vmovss  dword ptr [r14+8], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3d000000
-      vmovss  dword ptr [r14+0Ch], xmm1
-    }
-    _R14->geoDataUsed = 0;
-    _R14->ptCount = 0;
-    memset_0(_R14->ptIndexMap, 255, ptCount);
-    result = 1;
-  }
+  if ( shard->loops[0].vertCount > 0x20u )
+    return 0;
+  if ( *(double *)&_XMM7 <= 0.000001 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 1163, ASSERT_TYPE_SANITY, "( totalAreaX2 > 1.0E-6 )", (const char *)&queryFormat, "totalAreaX2 > ZERO_EPSILON") )
+    __debugbreak();
   __asm
   {
-    vmovaps xmm6, [rsp+0B8h+var_48]
-    vmovaps xmm7, [rsp+0B8h+var_58]
-    vmovaps xmm8, [rsp+0B8h+var_68]
+    vmulpd  xmm1, xmm8, cs:__xmm@40080000000000004008000000000000
+    vcvtsd2ss xmm0, xmm7, xmm7
   }
-  return result;
+  shard->areaX2 = *(float *)&_XMM0;
+  __asm
+  {
+    vdivpd  xmm0, xmm6, xmm1
+    vcvtpd2ps xmm8, xmm0
+  }
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  v22 = truncate_cast<short,int>((int)*(float *)&_XMM2);
+  _mm_shuffle_ps(_XMM8, _XMM8, 85);
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  shard->packedCentroid.x = v22;
+  v25 = truncate_cast<short,int>((int)*(float *)&_XMM2);
+  ptCount = work->ptCount;
+  shard->packedCentroid.y = v25;
+  packedCentroid = shard->packedCentroid;
+  shard->centroid.v[0] = (float)packedCentroid.x * 0.03125;
+  shard->centroid.v[1] = (float)packedCentroid.y * 0.03125;
+  shard->geoDataUsed = 0;
+  shard->ptCount = 0;
+  memset_0(shard->ptIndexMap, 255, ptCount);
+  return 1;
 }
 
 /*
@@ -1949,164 +1745,105 @@ Glass_SimplifyTriangleFan
 __int64 Glass_SimplifyTriangleFan(const FxGlassCrackShardWork *work, FxGlassShardTriangulate *triang, unsigned int fanVertCount)
 {
   unsigned int edgeCount; 
-  unsigned __int8 *v14; 
-  unsigned int v15; 
-  unsigned __int8 v16; 
-  unsigned __int8 v17; 
-  unsigned __int8 *v18; 
-  __int64 v20; 
-  unsigned __int8 v22; 
-  unsigned int v23; 
+  unsigned __int8 *v7; 
+  unsigned int v8; 
+  unsigned __int8 v9; 
+  unsigned __int8 v10; 
+  unsigned __int8 *v11; 
+  __int64 v12; 
+  unsigned __int8 v13; 
+  unsigned int v14; 
   FxGlassShardEdge *edges; 
-  unsigned int v25; 
-  bool v26; 
-  bool v27; 
-  FxGlassShardEdge *v28; 
-  __int64 v59; 
-  __int16 v68; 
-  __int16 v69; 
+  unsigned int v16; 
+  FxGlassShardEdge *v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  __int64 v25; 
+  __int16 v27; 
+  __int16 v28; 
 
-  _R12 = work;
-  if ( fanVertCount <= 6 )
-    return fanVertCount;
-  edgeCount = triang->edgeCount;
-  if ( fanVertCount >= edgeCount - 1 )
-    return fanVertCount;
-  v14 = &triang->fanData[triang->fanDataUsed];
-  v15 = 2;
-  v16 = v14[1];
-  v17 = v14[2];
-  v18 = v14 + 3;
-  __asm
+  if ( fanVertCount > 6 )
   {
-    vmovaps [rsp+0A8h+var_88], xmm11
-    vmovaps [rsp+0A8h+var_98], xmm12
-    vmovss  xmm12, cs:__real@3e8930a3
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovaps [rsp+0A8h+var_48], xmm7
-    vmovaps [rsp+0A8h+var_58], xmm8
-    vmovaps [rsp+0A8h+var_68], xmm9
-    vmovaps [rsp+0A8h+var_78], xmm10
-  }
-  v20 = fanVertCount - 3;
-  __asm { vxorps  xmm11, xmm11, xmm11 }
-  do
-  {
-    v22 = v17;
-    LOBYTE(v68) = v16;
-    v17 = *v18;
-    v23 = 0;
-    HIBYTE(v68) = v22;
-    if ( edgeCount )
+    edgeCount = triang->edgeCount;
+    if ( fanVertCount < edgeCount - 1 )
     {
-      edges = triang->edges;
-      while ( edges->packed != v68 )
+      v7 = &triang->fanData[triang->fanDataUsed];
+      v8 = 2;
+      v9 = v7[1];
+      v10 = v7[2];
+      v11 = v7 + 3;
+      v12 = fanVertCount - 3;
+      while ( 1 )
       {
-        ++v23;
-        ++edges;
-        if ( v23 >= edgeCount )
-          goto LABEL_9;
-      }
-    }
-    else
-    {
-LABEL_9:
-      v25 = 0;
-      LOBYTE(v69) = v22;
-      v26 = 0;
-      v27 = edgeCount == 0;
-      if ( edgeCount )
-      {
-        v28 = triang->edges;
-        while ( 1 )
+        v13 = v10;
+        LOBYTE(v27) = v9;
+        v10 = *v11;
+        v14 = 0;
+        HIBYTE(v27) = v13;
+        if ( edgeCount )
         {
-          HIBYTE(v69) = *v18;
-          if ( v28->packed == v69 )
-            break;
-          ++v25;
-          ++v28;
-          v26 = v25 < edgeCount;
-          v27 = v25 <= edgeCount;
-          if ( v25 >= edgeCount )
-            goto LABEL_13;
-        }
-      }
-      else
-      {
-LABEL_13:
-        _RAX = v22;
-        _RCX = v16;
-        __asm
-        {
-          vmovss  xmm1, dword ptr [r12+rax*8+3FCh]
-          vmovss  xmm0, dword ptr [r12+rax*8+400h]
-          vmovss  xmm7, dword ptr [r12+rcx*8+3FCh]
-          vmovss  xmm8, dword ptr [r12+rcx*8+400h]
-        }
-        _RAX = v17;
-        __asm
-        {
-          vsubss  xmm2, xmm1, xmm7
-          vsubss  xmm3, xmm0, xmm8
-          vmovss  xmm9, dword ptr [r12+rax*8+3FCh]
-          vmovss  xmm10, dword ptr [r12+rax*8+400h]
-          vsubss  xmm4, xmm9, xmm1
-          vsubss  xmm5, xmm10, xmm0
-          vmulss  xmm1, xmm4, xmm3
-          vmulss  xmm0, xmm5, xmm2
-          vsubss  xmm6, xmm1, xmm0
-          vcomiss xmm6, xmm11
-        }
-        if ( !v27 )
-        {
-          __asm
+          edges = triang->edges;
+          while ( edges->packed != v27 )
           {
-            vmulss  xmm0, xmm4, xmm2
-            vmulss  xmm1, xmm5, xmm3
-            vaddss  xmm1, xmm1, xmm0
-            vmulss  xmm2, xmm1, xmm12
-            vcomiss xmm6, xmm2
+            ++v14;
+            ++edges;
+            if ( v14 >= edgeCount )
+              goto LABEL_9;
           }
-          if ( !v26 )
+        }
+        else
+        {
+LABEL_9:
+          v16 = 0;
+          LOBYTE(v28) = v13;
+          if ( edgeCount )
           {
-            _RAX = *v14;
-            __asm
+            v17 = triang->edges;
+            while ( 1 )
             {
-              vmovss  xmm4, dword ptr [r12+rax*8+3FCh]
-              vmovss  xmm2, dword ptr [r12+rax*8+400h]
-              vsubss  xmm0, xmm2, xmm8
-              vsubss  xmm1, xmm9, xmm4
-              vmulss  xmm3, xmm1, xmm0
-              vsubss  xmm1, xmm4, xmm7
-              vsubss  xmm2, xmm10, xmm2
-              vmulss  xmm0, xmm2, xmm1
-              vsubss  xmm3, xmm3, xmm0
-              vcomiss xmm3, xmm11
+              HIBYTE(v28) = *v11;
+              if ( v17->packed == v28 )
+                break;
+              ++v16;
+              ++v17;
+              if ( v16 >= edgeCount )
+                goto LABEL_13;
             }
           }
+          else
+          {
+LABEL_13:
+            v18 = work->pts[v13].xy.v[0];
+            v19 = work->pts[v13].xy.v[1];
+            v20 = work->pts[v9].xy.v[0];
+            v21 = work->pts[v9].xy.v[1];
+            v22 = work->pts[v10].xy.v[0];
+            v23 = work->pts[v10].xy.v[1];
+            v24 = (float)((float)(v22 - v18) * (float)(v19 - v21)) - (float)((float)(v23 - v19) * (float)(v18 - v20));
+            if ( v24 > 0.0 && v24 >= (float)((float)((float)((float)(v23 - v19) * (float)(v19 - v21)) + (float)((float)(v22 - v18) * (float)(v18 - v20))) * 0.26794919) && (float)((float)((float)(v22 - work->pts[*v7].xy.v[0]) * (float)(work->pts[*v7].xy.v[1] - v21)) - (float)((float)(v23 - work->pts[*v7].xy.v[1]) * (float)(work->pts[*v7].xy.v[0] - v20))) < 0.0 )
+              goto LABEL_17;
+          }
+        }
+        v25 = v8;
+        v9 = v13;
+        ++v8;
+        v7[v25] = v13;
+LABEL_17:
+        ++v11;
+        if ( !--v12 )
+        {
+          v7[v8] = v7[fanVertCount - 1];
+          return v8 + 1;
         }
       }
     }
-    v59 = v15;
-    v16 = v22;
-    ++v15;
-    v14[v59] = v22;
-    ++v18;
-    --v20;
   }
-  while ( v20 );
-  __asm
-  {
-    vmovaps xmm12, [rsp+0A8h+var_98]
-    vmovaps xmm11, [rsp+0A8h+var_88]
-    vmovaps xmm10, [rsp+0A8h+var_78]
-    vmovaps xmm9, [rsp+0A8h+var_68]
-    vmovaps xmm8, [rsp+0A8h+var_58]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-    vmovaps xmm6, [rsp+0A8h+var_38]
-  }
-  v14[v15] = v14[fanVertCount - 1];
-  return v15 + 1;
+  return fanVertCount;
 }
 
 /*
@@ -2169,130 +1906,111 @@ Glass_TriangulateShard
 void Glass_TriangulateShard(const FxGlassCrackShardWork *work, FxGlassShard *shard)
 {
   size_t ptCount; 
-  FxGlassShard *v5; 
-  const FxGlassCrackShardWork *v6; 
+  FxGlassShard *v3; 
+  const FxGlassCrackShardWork *v4; 
   __int64 geoDataUsed; 
   unsigned int loopCount; 
-  __int64 v9; 
-  unsigned int v10; 
-  int v11; 
+  __int64 v7; 
+  unsigned int v8; 
+  unsigned int v9; 
   FxGlassShardEdgeLoop *loops; 
-  __int64 v14; 
+  __int64 v11; 
   FxGlassCrackEdge *firstEdge; 
-  int v16; 
-  FxGlassCrackEdge *v17; 
-  unsigned __int8 i1; 
-  __int64 v21; 
+  int v13; 
+  FxGlassCrackEdge *v14; 
+  __int64 i1; 
+  __int64 v16; 
   unsigned __int8 i0; 
-  unsigned int v30; 
+  float v18; 
+  float v19; 
+  unsigned int v20; 
   unsigned int ShardTriangleFanForBaseEdge; 
-  unsigned int v32; 
+  unsigned int v22; 
   unsigned int fanDataLimit; 
   unsigned int fanDataUsed; 
   unsigned __int8 *fanData; 
-  unsigned __int8 *v36; 
-  unsigned __int8 v37; 
-  __int64 v38; 
+  unsigned __int8 *v26; 
+  unsigned __int8 v27; 
+  __int64 v28; 
   unsigned int edgeCount; 
-  unsigned __int8 v40; 
-  int v41; 
+  unsigned __int8 v30; 
+  int v31; 
+  __int64 v32; 
+  __int64 v33; 
+  unsigned int v34; 
+  unsigned int v35; 
+  __int64 v36; 
+  unsigned __int8 v37; 
+  unsigned __int8 v38; 
+  unsigned int v39; 
+  __int64 v40; 
+  __int64 v41; 
   __int64 v42; 
   __int64 v43; 
-  unsigned int v44; 
-  unsigned int v45; 
-  __int64 v46; 
-  unsigned __int8 v47; 
-  unsigned __int8 v48; 
-  unsigned int v49; 
-  __int64 v50; 
-  __int64 v51; 
-  __int64 v52; 
-  __int64 v53; 
-  unsigned __int8 v54; 
-  __int16 v55; 
-  unsigned int v56; 
+  unsigned __int8 v44; 
+  __int16 v45; 
+  unsigned int v46; 
   FxGlassShardTriangulate triang; 
 
   ptCount = work->ptCount;
-  v5 = shard;
-  v6 = work;
+  v3 = shard;
+  v4 = work;
   geoDataUsed = shard->geoDataUsed;
-  triang.fanData = (unsigned __int8 *)&v5->geoData[geoDataUsed];
+  triang.fanData = (unsigned __int8 *)&v3->geoData[geoDataUsed];
   triang.fanDataLimit = 4 * (231 - geoDataUsed);
   memset_0(triang.evalTime, 0, ptCount);
-  loopCount = v5->loopCount;
-  v9 = 0i64;
-  v10 = 0;
-  v11 = 0;
+  loopCount = v3->loopCount;
+  v7 = 0i64;
+  v8 = 0;
+  v9 = 0;
   triang.edgeCount = 0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbp+10C0h+triang.awayFromPoint], xmm0
-    vmovss  dword ptr [rbp+10C0h+triang.awayFromPoint+4], xmm0
-  }
+  triang.awayFromPoint.v[0] = 0.0;
+  triang.awayFromPoint.v[1] = 0.0;
   if ( loopCount )
   {
-    loops = v5->loops;
-    v14 = loopCount;
+    loops = v3->loops;
+    v11 = loopCount;
     do
     {
       firstEdge = loops->firstEdge;
-      v16 = 0;
-      v17 = loops->firstEdge;
+      v13 = 0;
+      v14 = loops->firstEdge;
       do
       {
-        __asm { vmovss  xmm0, dword ptr [rbp+10C0h+triang.awayFromPoint] }
-        i1 = v17->i1;
-        ++v16;
-        __asm { vmovss  xmm2, dword ptr [rbp+10C0h+triang.awayFromPoint+4] }
-        v21 = v10;
-        i0 = v17->i0;
-        __asm
-        {
-          vaddss  xmm1, xmm0, dword ptr [r13+rdx*8+3FCh]
-          vaddss  xmm0, xmm2, dword ptr [r13+rdx*8+400h]
-        }
-        v17 = v17->next;
-        __asm
-        {
-          vmovss  dword ptr [rbp+10C0h+triang.awayFromPoint+4], xmm0
-          vmovss  dword ptr [rbp+10C0h+triang.awayFromPoint], xmm1
-        }
-        triang.edges[v21].fields.i0 = i0;
+        i1 = v14->i1;
+        ++v13;
+        v16 = v8;
+        i0 = v14->i0;
+        v18 = triang.awayFromPoint.v[0] + v4->pts[i1].xy.v[0];
+        v14 = v14->next;
+        triang.awayFromPoint.v[1] = triang.awayFromPoint.v[1] + v4->pts[i1].xy.v[1];
+        triang.awayFromPoint.v[0] = v18;
+        triang.edges[v16].fields.i0 = i0;
         triang.edges[triang.edgeCount].fields.i1 = i1;
-        v10 = ++triang.edgeCount;
+        v8 = ++triang.edgeCount;
       }
-      while ( v17 != firstEdge );
-      v11 += v16;
+      while ( v14 != firstEdge );
+      v9 += v13;
       ++loops;
-      --v14;
+      --v11;
     }
-    while ( v14 );
+    while ( v11 );
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vdivss  xmm3, xmm0, xmm1
-    vmulss  xmm2, xmm3, dword ptr [rbp+10C0h+triang.awayFromPoint]
-    vmulss  xmm1, xmm3, dword ptr [rbp+10C0h+triang.awayFromPoint+4]
-    vmovss  dword ptr [rbp+10C0h+triang.awayFromPoint], xmm2
-    vmovss  dword ptr [rbp+10C0h+triang.awayFromPoint+4], xmm1
-  }
+  v19 = (float)v9;
+  triang.awayFromPoint.v[0] = (float)(1.0 / v19) * triang.awayFromPoint.v[0];
+  triang.awayFromPoint.v[1] = (float)(1.0 / v19) * triang.awayFromPoint.v[1];
   triang.fanDataUsed = 0;
-  v54 = 1;
-  v30 = Glass_PickShardTriangleFanBaseEdge(v6, &triang, 1u);
-  ShardTriangleFanForBaseEdge = Glass_GetShardTriangleFanForBaseEdge(v6, &triang, 1u, v30);
-  v56 = Glass_SimplifyTriangleFan(v6, &triang, ShardTriangleFanForBaseEdge);
-  v32 = v56;
-  if ( v56 <= 2 )
+  v44 = 1;
+  v20 = Glass_PickShardTriangleFanBaseEdge(v4, &triang, 1u);
+  ShardTriangleFanForBaseEdge = Glass_GetShardTriangleFanForBaseEdge(v4, &triang, 1u, v20);
+  v46 = Glass_SimplifyTriangleFan(v4, &triang, ShardTriangleFanForBaseEdge);
+  v22 = v46;
+  if ( v46 <= 2 )
   {
 LABEL_27:
-    Core_PrintWarning_Unchecked("GLASS: fanVertCount %u must be greater than 2. Shard will not be triangulated\n", v32);
+    Core_PrintWarning_Unchecked("GLASS: fanVertCount %u must be greater than 2. Shard will not be triangulated\n", v22);
 LABEL_40:
-    v5->fanDataCount = 0;
+    v3->fanDataCount = 0;
   }
   else
   {
@@ -2300,34 +2018,34 @@ LABEL_40:
     {
       fanDataLimit = triang.fanDataLimit;
       fanDataUsed = triang.fanDataUsed;
-      if ( v32 > triang.fanDataLimit - triang.fanDataUsed - 1 )
+      if ( v22 > triang.fanDataLimit - triang.fanDataUsed - 1 )
       {
-        v5 = shard;
+        v3 = shard;
         goto LABEL_40;
       }
       fanData = triang.fanData;
-      v36 = &triang.fanData[triang.fanDataUsed];
-      v37 = v36[v32 - 1];
-      if ( v32 )
+      v26 = &triang.fanData[triang.fanDataUsed];
+      v27 = v26[v22 - 1];
+      if ( v22 )
       {
-        v38 = v32;
+        v28 = v22;
         edgeCount = triang.edgeCount;
         do
         {
-          v40 = v37;
-          v37 = *v36;
-          HIBYTE(v55) = *v36;
-          v41 = 0;
-          LOBYTE(v55) = v40;
+          v30 = v27;
+          v27 = *v26;
+          HIBYTE(v45) = *v26;
+          v31 = 0;
+          LOBYTE(v45) = v30;
           if ( edgeCount )
           {
-            while ( triang.edges[v41].packed != v55 )
+            while ( triang.edges[v31].packed != v45 )
             {
-              if ( ++v41 >= edgeCount )
+              if ( ++v31 >= edgeCount )
                 goto LABEL_13;
             }
             triang.edgeCount = edgeCount - 1;
-            triang.edges[v41].packed = triang.edges[edgeCount - 1].packed;
+            triang.edges[v31].packed = triang.edges[edgeCount - 1].packed;
             edgeCount = triang.edgeCount;
           }
           else
@@ -2335,20 +2053,20 @@ LABEL_40:
 LABEL_13:
             if ( edgeCount >= 0x200 )
             {
-              LODWORD(v51) = 512;
-              LODWORD(v50) = edgeCount;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 563, ASSERT_TYPE_ASSERT, "(unsigned)( triang->edgeCount ) < (unsigned)( 512 )", "triang->edgeCount doesn't index GLASS_CRACK_EDGE_LIMIT\n\t%i not in [0, %i)", v50, v51) )
+              LODWORD(v41) = 512;
+              LODWORD(v40) = edgeCount;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 563, ASSERT_TYPE_ASSERT, "(unsigned)( triang->edgeCount ) < (unsigned)( 512 )", "triang->edgeCount doesn't index GLASS_CRACK_EDGE_LIMIT\n\t%i not in [0, %i)", v40, v41) )
                 __debugbreak();
             }
-            triang.edges[edgeCount].fields.i0 = v37;
-            triang.edges[triang.edgeCount].fields.i1 = v40;
+            triang.edges[edgeCount].fields.i0 = v27;
+            triang.edges[triang.edgeCount].fields.i1 = v30;
             edgeCount = ++triang.edgeCount;
           }
-          ++v36;
-          --v38;
+          ++v26;
+          --v28;
         }
-        while ( v38 );
-        v6 = work;
+        while ( v28 );
+        v4 = work;
         fanData = triang.fanData;
         fanDataLimit = triang.fanDataLimit;
         fanDataUsed = triang.fanDataUsed;
@@ -2357,58 +2075,58 @@ LABEL_13:
       {
         edgeCount = triang.edgeCount;
       }
-      if ( fanDataUsed + v56 + 1 > fanDataLimit )
+      if ( fanDataUsed + v46 + 1 > fanDataLimit )
       {
-        LODWORD(v53) = fanDataLimit;
-        LODWORD(v52) = fanDataUsed + v56 + 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 723, ASSERT_TYPE_ASSERT, "( triang.fanDataUsed + fanVertCount + 1 ) <= ( triang.fanDataLimit )", "%s <= %s\n\t%i, %i", "triang.fanDataUsed + fanVertCount + 1", "triang.fanDataLimit", v52, v53) )
+        LODWORD(v43) = fanDataLimit;
+        LODWORD(v42) = fanDataUsed + v46 + 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 723, ASSERT_TYPE_ASSERT, "( triang.fanDataUsed + fanVertCount + 1 ) <= ( triang.fanDataLimit )", "%s <= %s\n\t%i, %i", "triang.fanDataUsed + fanVertCount + 1", "triang.fanDataLimit", v42, v43) )
           __debugbreak();
       }
-      v42 = fanDataUsed + v56;
-      v43 = (unsigned int)(v42 + 1);
-      triang.fanDataUsed = v42 + 1;
-      fanData[v42] = -1;
+      v32 = fanDataUsed + v46;
+      v33 = (unsigned int)(v32 + 1);
+      triang.fanDataUsed = v32 + 1;
+      fanData[v32] = -1;
       if ( !edgeCount )
         break;
-      v44 = Glass_PickShardTriangleFanBaseEdge(v6, &triang, ++v54);
-      v45 = Glass_GetShardTriangleFanForBaseEdge(v6, &triang, v54, v44);
-      v56 = Glass_SimplifyTriangleFan(v6, &triang, v45);
-      v32 = v56;
-      if ( v56 <= 2 )
+      v34 = Glass_PickShardTriangleFanBaseEdge(v4, &triang, ++v44);
+      v35 = Glass_GetShardTriangleFanForBaseEdge(v4, &triang, v44, v34);
+      v46 = Glass_SimplifyTriangleFan(v4, &triang, v35);
+      v22 = v46;
+      if ( v46 <= 2 )
       {
-        v5 = shard;
+        v3 = shard;
         goto LABEL_27;
       }
     }
-    if ( v54 == 1 )
+    if ( v44 == 1 )
     {
-      v46 = *fanData;
+      v36 = *fanData;
       shard->fanDataCount = 0;
-      Glass_RotateBorderVerts(shard, shard->ptIndexMap[v46]);
+      Glass_RotateBorderVerts(shard, shard->ptIndexMap[v36]);
     }
     else
     {
-      if ( (_DWORD)v42 != -1 )
+      if ( (_DWORD)v32 != -1 )
       {
         do
         {
-          v47 = fanData[v9];
-          if ( v47 != 0xFF )
+          v37 = fanData[v7];
+          if ( v37 != 0xFF )
           {
-            v48 = shard->ptIndexMap[v47];
-            fanData[v9] = v48;
-            if ( v48 == 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 742, ASSERT_TYPE_SANITY, "( triang.fanData[fanVertIter] != 0xff )", (const char *)&queryFormat, "triang.fanData[fanVertIter] != GLASS_VERT_INDEX_NONE") )
+            v38 = shard->ptIndexMap[v37];
+            fanData[v7] = v38;
+            if ( v38 == 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\iweffects\\glass_crack_shard.cpp", 742, ASSERT_TYPE_SANITY, "( triang.fanData[fanVertIter] != 0xff )", (const char *)&queryFormat, "triang.fanData[fanVertIter] != GLASS_VERT_INDEX_NONE") )
               __debugbreak();
           }
-          v9 = (unsigned int)(v9 + 1);
+          v7 = (unsigned int)(v7 + 1);
         }
-        while ( (unsigned int)v9 < (unsigned int)v43 );
+        while ( (unsigned int)v7 < (unsigned int)v33 );
       }
-      for ( ; (v43 & 3) != 0; v43 = (unsigned int)(v43 + 1) )
-        fanData[v43] = -1;
-      v49 = (unsigned int)v43 >> 2;
-      shard->geoDataUsed += v49;
-      shard->fanDataCount = v49;
+      for ( ; (v33 & 3) != 0; v33 = (unsigned int)(v33 + 1) )
+        fanData[v33] = -1;
+      v39 = (unsigned int)v33 >> 2;
+      shard->geoDataUsed += v39;
+      shard->fanDataCount = v39;
     }
   }
 }

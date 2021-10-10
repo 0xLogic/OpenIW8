@@ -52,8 +52,7 @@ CgCompassSystemSP::GetGhostAlphaScale
 */
 float CgCompassSystemSP::GetGhostAlphaScale(CgCompassSystemSP *this)
 {
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  return *(float *)&_XMM0;
+  return FLOAT_1_0;
 }
 
 /*

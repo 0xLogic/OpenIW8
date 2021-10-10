@@ -47,87 +47,85 @@ Cmd_JumpToNode_f
 */
 void Cmd_JumpToNode_f(gentity_s *ent)
 {
-  unsigned int v4; 
-  SvClient *v5; 
-  unsigned int v6; 
-  SvClient *v7; 
-  int v8; 
-  pathnode_t *v10; 
-  unsigned int v12; 
-  const char *v13; 
+  __int128 v1; 
+  unsigned int v3; 
+  SvClient *v4; 
+  unsigned int v5; 
+  SvClient *v6; 
+  int v7; 
+  pathnode_t *v8; 
+  double Angle; 
+  unsigned int v10; 
+  const char *v11; 
   unsigned int EntityIndex; 
   SvClient *CommonClient; 
-  __int64 v16; 
-  __int64 v17; 
+  __int64 v14; 
+  __int64 v15; 
   vec3_t pos; 
   char buffer[1024]; 
+  __int128 v18; 
 
   if ( G_Cmds_AreCheatsOk(ent) )
   {
     if ( SV_Cmd_Argc() == 2 )
     {
       SV_Cmd_ArgvBuffer(1, buffer, 0x400ui64);
-      v8 = atoi(buffer);
-      if ( v8 >= 0 && v8 < Path_NodeCount() && Path_NodeValid(v8) )
+      v7 = atoi(buffer);
+      if ( v7 >= 0 && v7 < Path_NodeCount() && Path_NodeValid(v7) )
       {
-        __asm { vmovaps [rsp+478h+var_18], xmm6 }
+        v18 = v1;
         Stream_ImageRecord_Disable("jumptonode");
-        __asm { vxorps  xmm6, xmm6, xmm6 }
-        v10 = Path_ConvertIndexToNode(v8);
-        __asm { vmovss  [rsp+478h+var_448], xmm6 }
-        *(double *)&_XMM0 = pathnode_t::GetAngle(v10);
-        __asm
-        {
-          vmovss  [rsp+478h+var_444], xmm0
-          vmovss  dword ptr [rsp+478h+var_440], xmm6
-        }
-        pathnode_t::GetPos(v10, &pos);
-        __asm { vmovaps xmm6, [rsp+478h+var_18] }
-        if ( !GClientSystem::ms_gClientSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_client.h", 423, ASSERT_TYPE_ASSERT, "( ms_gClientSystem )", (const char *)&queryFormat, "ms_gClientSystem", v16, v17) )
+        v8 = Path_ConvertIndexToNode(v7);
+        *(float *)&v14 = 0.0;
+        Angle = pathnode_t::GetAngle(v8);
+        *((float *)&v14 + 1) = *(float *)&Angle;
+        *(float *)&v15 = 0.0;
+        pathnode_t::GetPos(v8, &pos);
+        if ( !GClientSystem::ms_gClientSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_client.h", 423, ASSERT_TYPE_ASSERT, "( ms_gClientSystem )", (const char *)&queryFormat, "ms_gClientSystem", v14, v15) )
           __debugbreak();
-        GClientSystem::ms_gClientSystem->TeleportPlayer(GClientSystem::ms_gClientSystem, ent, &pos, (const vec3_t *)&v16);
+        GClientSystem::ms_gClientSystem->TeleportPlayer(GClientSystem::ms_gClientSystem, ent, &pos, (const vec3_t *)&v14);
       }
       else
       {
-        v12 = Path_NodeCount();
-        v13 = j_va(aPrint, v12);
+        v10 = Path_NodeCount();
+        v11 = j_va(aPrint, v10);
         EntityIndex = G_GetEntityIndex(ent);
         if ( EntityIndex == -1 )
         {
-          SV_Game_BroadcastServerCommand(SV_CMD_CAN_IGNORE, v13);
+          SV_Game_BroadcastServerCommand(SV_CMD_CAN_IGNORE, v11);
         }
         else
         {
           CommonClient = SvClient::GetCommonClient(EntityIndex);
-          CommonClient->SendServerCommand(CommonClient, SV_CMD_CAN_IGNORE, v13);
+          CommonClient->SendServerCommand(CommonClient, SV_CMD_CAN_IGNORE, v11);
         }
       }
     }
     else
     {
-      v6 = G_GetEntityIndex(ent);
-      if ( v6 == -1 )
+      v5 = G_GetEntityIndex(ent);
+      if ( v5 == -1 )
       {
         SV_Game_BroadcastServerCommand(SV_CMD_CAN_IGNORE, aPrintGameUsage_0);
       }
       else
       {
-        v7 = SvClient::GetCommonClient(v6);
-        v7->SendServerCommand(v7, SV_CMD_CAN_IGNORE, aPrintGameUsage_0);
+        v6 = SvClient::GetCommonClient(v5);
+        v6->SendServerCommand(v6, SV_CMD_CAN_IGNORE, aPrintGameUsage_0);
       }
     }
   }
   else
   {
-    v4 = G_GetEntityIndex(ent);
-    if ( v4 == -1 )
+    v3 = G_GetEntityIndex(ent);
+    if ( v3 == -1 )
     {
       SV_Game_BroadcastServerCommand(SV_CMD_CAN_IGNORE, "print \"GAME/CHEATSNOTENABLED\"");
     }
     else
     {
-      v5 = SvClient::GetCommonClient(v4);
-      v5->SendServerCommand(v5, SV_CMD_CAN_IGNORE, "print \"GAME/CHEATSNOTENABLED\"");
+      v4 = SvClient::GetCommonClient(v3);
+      v4->SendServerCommand(v4, SV_CMD_CAN_IGNORE, "print \"GAME/CHEATSNOTENABLED\"");
     }
   }
 }

@@ -494,133 +494,67 @@ AIScriptedInterface::GrenadeLauncher_CheckPos
 */
 _BOOL8 AIScriptedInterface::GrenadeLauncher_CheckPos(AIScriptedInterface *this, const vec3_t *vStandPos, const vec3_t *vOffset, const vec3_t *vTargetPos, float speed, vec3_t *vPosOut, vec3_t *vVelOut)
 {
-  bool v12; 
-  char v20; 
-  _BOOL8 result; 
+  const dvar_t *v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  const dvar_t *v15; 
+  float v16; 
+  float value; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  __int128 v22; 
+  float v23; 
+  float v27; 
   float c; 
   float s[3]; 
 
-  v12 = this->m_pAI == NULL;
-  _RSI = vTargetPos;
-  _R12 = vVelOut;
-  __asm { vmovaps [rsp+0D8h+var_58], xmm7 }
-  if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 701, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
+  if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 701, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  _RDI = DCONST_DVARFLT_bg_lowGravity;
+  v11 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+0D8h+var_48], xmm6
-    vmovaps [rsp+0D8h+var_68], xmm8
-    vmovaps [rsp+0D8h+var_78], xmm9
-  }
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm7, dword ptr [rdi+28h]
-  }
-  if ( !v20 )
-    goto LABEL_14;
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.value <= 0.0 )
+    return 0i64;
   AIScriptedInterface::Grenade_GetTossFromPosition(this, vStandPos, vOffset, vPosOut);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vsubss  xmm2, xmm0, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rsi+4]
-    vsubss  xmm1, xmm0, dword ptr [rbx+4]
-    vmulss  xmm3, xmm1, xmm1
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm6, xmm3, xmm2
-    vsqrtss xmm0, xmm6, xmm6
-    vucomiss xmm0, xmm7
-  }
-  if ( v12 )
-    goto LABEL_14;
-  _RDI = DCONST_DVARFLT_bg_lowGravity;
-  __asm
-  {
-    vmovaps [rsp+0D8h+var_88], xmm10
-    vmovss  xmm0, dword ptr [rsi+8]
-    vsubss  xmm10, xmm0, dword ptr [rbx+8]
-  }
+  v12 = vTargetPos->v[1] - vPosOut->v[1];
+  v14 = (float)(v12 * v12) + (float)((float)(vTargetPos->v[0] - vPosOut->v[0]) * (float)(vTargetPos->v[0] - vPosOut->v[0]));
+  v13 = v14;
+  if ( fsqrt(v14) == 0.0 )
+    return 0i64;
+  v15 = DCONST_DVARFLT_bg_lowGravity;
+  v16 = vTargetPos->v[2] - vPosOut->v[2];
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
+  Dvar_CheckFrontendServerThread(v15);
+  value = v15->current.value;
+  v18 = speed * speed;
+  v19 = (float)(v14 - (float)((float)((float)((float)(value * value) * v14) * v14) / (float)(v18 * v18))) + (float)((float)((float)((float)(value * 2.0) * v14) * v16) / (float)(speed * speed));
+  if ( v19 < 0.0 )
+    return 0i64;
+  v20 = atanf_0((float)((float)(fsqrt(v19) - v13) * v18) / (float)(v13 * value));
+  FastSinCos(v20, s, &c);
+  v22 = LODWORD(vTargetPos->v[0]);
+  v21 = vTargetPos->v[0] - vPosOut->v[0];
+  vVelOut->v[0] = v21;
+  v23 = vTargetPos->v[1] - vPosOut->v[1];
+  *(float *)&v22 = fsqrt((float)(v21 * v21) + (float)(v23 * v23));
+  _XMM2 = v22;
   __asm
   {
-    vmovss  xmm5, dword ptr [rdi+28h]
-    vmovss  xmm9, [rsp+0D8h+speed]
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm3, xmm1, xmm6
-    vmulss  xmm1, xmm5, cs:__real@40000000
-    vmulss  xmm8, xmm9, xmm9
-    vmulss  xmm2, xmm8, xmm8
-    vdivss  xmm0, xmm3, xmm2
-    vmulss  xmm2, xmm1, xmm6
-    vsubss  xmm4, xmm6, xmm0
-    vmulss  xmm0, xmm2, xmm10
-    vmovaps xmm10, [rsp+0D8h+var_88]
-    vdivss  xmm3, xmm0, xmm8
-    vaddss  xmm1, xmm4, xmm3
-    vcomiss xmm1, xmm7
+    vcmpless xmm0, xmm2, cs:__real@80000000
+    vblendvps xmm0, xmm2, xmm1, xmm0
   }
-  if ( v20 )
-  {
-LABEL_14:
-    result = 0i64;
-  }
-  else
-  {
-    __asm
-    {
-      vsqrtss xmm0, xmm1, xmm1
-      vsubss  xmm1, xmm0, xmm6
-      vmulss  xmm3, xmm1, xmm8
-      vmulss  xmm2, xmm6, xmm5
-      vdivss  xmm0, xmm3, xmm2; X
-    }
-    *(float *)&_XMM0 = atanf_0(*(float *)&_XMM0);
-    FastSinCos(*(const float *)&_XMM0, s, &c);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm4, xmm0, dword ptr [rbx]
-      vmovss  dword ptr [r12], xmm4
-      vmovss  xmm0, dword ptr [rsi+4]
-      vsubss  xmm5, xmm0, dword ptr [rbx+4]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vcmpless xmm0, xmm2, cs:__real@80000000
-      vmovss  xmm1, cs:__real@3f800000
-      vblendvps xmm0, xmm2, xmm1, xmm0
-      vmulss  xmm2, xmm9, [rsp+0D8h+s]
-      vdivss  xmm3, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm3
-      vmulss  xmm4, xmm1, [rsp+0D8h+c]
-      vmulss  xmm0, xmm5, xmm3
-      vmulss  xmm1, xmm0, [rsp+0D8h+c]
-      vmovss  dword ptr [r12+4], xmm1
-      vmulss  xmm1, xmm9, dword ptr [r12+4]
-      vmulss  xmm0, xmm9, xmm4
-      vmovss  dword ptr [r12+4], xmm1
-      vmovss  dword ptr [r12], xmm0
-      vmovss  dword ptr [r12+8], xmm2
-    }
-    result = Grenade_IsValidTrajectory(this->m_pAI, 2047, vPosOut, vVelOut, _RSI);
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+0D8h+var_78]
-    vmovaps xmm8, [rsp+0D8h+var_68]
-    vmovaps xmm6, [rsp+0D8h+var_48]
-    vmovaps xmm7, [rsp+0D8h+var_58]
-  }
-  return result;
+  *(float *)&_XMM2 = speed * s[0];
+  v27 = (float)(v21 * (float)(1.0 / *(float *)&_XMM0)) * c;
+  vVelOut->v[1] = (float)(v23 * (float)(1.0 / *(float *)&_XMM0)) * c;
+  vVelOut->v[1] = speed * vVelOut->v[1];
+  vVelOut->v[0] = speed * v27;
+  vVelOut->v[2] = *(float *)&_XMM2;
+  return Grenade_IsValidTrajectory(this->m_pAI, 2047, vPosOut, vVelOut, vTargetPos);
 }
 
 /*
@@ -628,236 +562,188 @@ LABEL_14:
 AIScriptedInterface::Grenade_AttemptEscape
 ==============
 */
-
-bool __fastcall AIScriptedInterface::Grenade_AttemptEscape(AIScriptedInterface *this, double _XMM1_8)
+bool AIScriptedInterface::Grenade_AttemptEscape(AIScriptedInterface *this)
 {
   ai_scripted_t *m_pAI; 
   unsigned __int16 number; 
-  __int64 v7; 
-  unsigned int v8; 
-  __int64 v9; 
-  gentity_s *v10; 
-  gentity_s *v11; 
-  ai_scripted_t *v12; 
+  __int64 v4; 
+  unsigned int v5; 
+  __int64 v6; 
+  gentity_s *v7; 
+  gentity_s *v8; 
+  ai_scripted_t *v9; 
   sentient_s *sentient; 
-  sentient_s *v14; 
-  __int64 v15; 
-  gentity_s *v16; 
+  sentient_s *v11; 
+  __int64 v12; 
+  gentity_s *v13; 
   GWeaponMap *Instance; 
   const Weapon *WeaponForEntity; 
+  float v16; 
+  float v17; 
   const vec3_t *p_pos1; 
   CombatMode combatMode; 
   pathnode_t *CoverFromPoint; 
-  pathnode_t *v28; 
-  ai_scripted_t *v29; 
+  pathnode_t *v21; 
+  ai_scripted_t *v22; 
   bool result; 
   const tacpoint_t *ClosestPoint; 
-  const tacpoint_t *v32; 
+  const tacpoint_t *v25; 
   const tacpoint_t *ClosestPointWithoutVisWithinRadius; 
   const tacpoint_t *ClosestPointWithVisWithinRadius; 
   AINavigator *pNavigator; 
   bool (__fastcall *IsAreaReachable)(AINavigator *, const bfx::AreaHandle *); 
   bfx::AreaHandle *AreaForPoint; 
+  ai_scripted_t *v31; 
+  const vec3_t *p_currentOrigin; 
+  __int128 v33; 
+  float v34; 
+  AINavigator *v37; 
+  bool (__fastcall *v38)(AINavigator *, const bfx::AreaHandle *); 
+  bfx::AreaHandle *v39; 
   ai_scripted_t *v40; 
-  AINavigator *v57; 
-  bool (__fastcall *v58)(AINavigator *, const bfx::AreaHandle *); 
-  bfx::AreaHandle *v59; 
-  ai_scripted_t *v60; 
-  float fmt; 
   tacpoint_t *pTargetPoint; 
-  __int64 v66; 
-  int v67; 
+  __int64 v42; 
+  int v43; 
   vec3_t pos; 
-  char v71; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps [rsp+98h+var_38], xmm8
-  }
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 576, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   m_pAI = this->m_pAI;
   number = m_pAI->grenade.pGrenade.number;
   if ( !number )
-    goto LABEL_57;
-  v7 = number;
-  v8 = number - 1;
-  if ( v8 >= 0x800 )
+    goto LABEL_56;
+  v4 = number;
+  v5 = number - 1;
+  if ( v5 >= 0x800 )
   {
-    v67 = 2048;
-    LODWORD(pTargetPoint) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", pTargetPoint, v67) )
+    v43 = 2048;
+    LODWORD(pTargetPoint) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", pTargetPoint, v43) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v9 = v7 - 1;
-  if ( g_entities[v9].r.isInUse != g_entityIsInUse[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+  v6 = v4 - 1;
+  if ( g_entities[v6].r.isInUse != g_entityIsInUse[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
     __debugbreak();
-  if ( !g_entityIsInUse[v9] )
+  if ( !g_entityIsInUse[v6] )
   {
-    LODWORD(v66) = m_pAI->grenade.pGrenade.number - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v66) )
+    LODWORD(v42) = m_pAI->grenade.pGrenade.number - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v42) )
       __debugbreak();
   }
   if ( !m_pAI->grenade.pGrenade.number )
   {
-LABEL_57:
+LABEL_56:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 577, ASSERT_TYPE_ASSERT, "(m_pAI->grenade.pGrenade.isDefined())", (const char *)&queryFormat, "m_pAI->grenade.pGrenade.isDefined()") )
       __debugbreak();
   }
   if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 578, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
     __debugbreak();
-  v10 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
-  if ( EntHandle::isDefined(&v10->parent) )
-    v11 = EntHandle::ent(&v10->parent);
+  v7 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
+  if ( EntHandle::isDefined(&v7->parent) )
+    v8 = EntHandle::ent(&v7->parent);
   else
-    v11 = NULL;
+    v8 = NULL;
   if ( !AICommonInterface::GetTargetEntity(this) )
   {
-    v12 = this->m_pAI;
-    if ( !v12->threat.ignoreExplosionEvents )
+    v9 = this->m_pAI;
+    if ( !v9->threat.ignoreExplosionEvents )
     {
-      if ( v11 )
+      if ( v8 )
       {
-        sentient = v11->sentient;
+        sentient = v8->sentient;
         if ( sentient )
         {
-          v14 = v12->sentient;
-          if ( sentient != v14 && Sentient_IsEnemyTeam(v14, sentient) && !this->CheckIgnore(this, this->m_pAI->sentient) )
+          v11 = v9->sentient;
+          if ( sentient != v11 && Sentient_IsEnemyTeam(v11, sentient) && !this->CheckIgnore(this, this->m_pAI->sentient) )
           {
-            LOBYTE(v15) = 21;
-            this->GetPerfectInfo(this, v11->sentient, v15);
-            Sentient_SetEnemy(this->m_pAI->sentient, v11, 1, 1);
+            LOBYTE(v12) = 21;
+            this->GetPerfectInfo(this, v8->sentient, v12);
+            Sentient_SetEnemy(this->m_pAI->sentient, v8, 1, 1);
           }
         }
       }
     }
   }
-  v16 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
+  v13 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
   Instance = GWeaponMap::GetInstance();
-  WeaponForEntity = BG_GetWeaponForEntity(Instance, &v16->s);
-  BG_ExplosionRadius(WeaponForEntity, 0);
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vcvtsi2ss xmm8, xmm8, eax
-    vaddss  xmm7, xmm8, cs:__real@43000000
-  }
-  if ( !G_Missile_IsGrenade(v10) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 613, ASSERT_TYPE_ASSERT, "(G_Missile_IsGrenade( grenade ))", (const char *)&queryFormat, "G_Missile_IsGrenade( grenade )") )
+  WeaponForEntity = BG_GetWeaponForEntity(Instance, &v13->s);
+  v17 = (float)BG_ExplosionRadius(WeaponForEntity, 0) + 128.0;
+  v16 = v17;
+  if ( !G_Missile_IsGrenade(v7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 613, ASSERT_TYPE_ASSERT, "(G_Missile_IsGrenade( grenade ))", (const char *)&queryFormat, "G_Missile_IsGrenade( grenade )") )
     __debugbreak();
-  p_pos1 = &v10->c.mover.angle.pos1;
-  if ( AICommonInterface::HasPath(this) )
-  {
-    __asm
-    {
-      vmovss  xmm3, cs:__real@44800000; maxDistDownPath
-      vmovaps xmm2, xmm7; maxDistFromPath
-    }
-    if ( !Nav_IsPointNearPath(this->m_pAI->pNavigator, &v10->c.mover.angle.pos1, *(float *)&_XMM2, *(float *)&_XMM3) )
-      goto LABEL_43;
-  }
+  p_pos1 = &v7->c.mover.angle.pos1;
+  if ( AICommonInterface::HasPath(this) && !Nav_IsPointNearPath(this->m_pAI->pNavigator, &v7->c.mover.angle.pos1, v17, 1024.0) )
+    return 1;
   combatMode = this->m_pAI->combat.combatMode;
-  if ( combatMode == AI_COMBAT_NO_COVER )
-    goto LABEL_44;
-  __asm { vmovaps xmm2, xmm7; fMinSafeDist }
-  CoverFromPoint = AIScriptedInterface::Cover_FindCoverFromPoint(this, &v10->c.mover.angle.pos1, *(float *)&_XMM2, combatMode, v10);
-  v28 = CoverFromPoint;
-  if ( !CoverFromPoint )
+  if ( combatMode != AI_COMBAT_NO_COVER )
   {
-LABEL_44:
-    ClosestPoint = TacGraph_FindClosestPoint(p_pos1);
-    v32 = ClosestPoint;
-    if ( ClosestPoint )
+    CoverFromPoint = AIScriptedInterface::Cover_FindCoverFromPoint(this, &v7->c.mover.angle.pos1, v17, combatMode, v7);
+    v21 = CoverFromPoint;
+    if ( CoverFromPoint )
     {
-      __asm
+      if ( this->m_pAI->sentient->pClaimedNode != CoverFromPoint )
       {
-        vmovss  xmm2, cs:__real@44800000; maxRadius
-        vxorps  xmm1, xmm1, xmm1; minRadius
-        vmovss  dword ptr [rsp+98h+fmt], xmm7
+        pathnode_t::GetPos(CoverFromPoint, &pos);
+        v22 = this->m_pAI;
+        v22->btGoals[2].node = v21;
+        pathnode_t::GetPos(v21, &v22->btGoals[2].pos);
+        EntHandle::setEnt(&v22->btGoals[2].hEnt, NULL);
+        EntHandle::setEnt(&v22->btGoals[2].hVolume, NULL);
+        v22->btGoals[2].bValid = 1;
+        this->ClearKeepClaimedNode(this);
+        Sentient_ClaimNode(this->m_pAI->sentient, v21);
       }
-      ClosestPointWithoutVisWithinRadius = TacGraph_FindClosestPointWithoutVisWithinRadius(&this->m_pAI->ent->r.currentOrigin, *(float *)&_XMM1, *(float *)&_XMM2, p_pos1, fmt, ClosestPoint);
-      ClosestPointWithVisWithinRadius = ClosestPointWithoutVisWithinRadius;
-      if ( ClosestPointWithoutVisWithinRadius )
-      {
-        pNavigator = this->m_pAI->pNavigator;
-        IsAreaReachable = pNavigator->IsAreaReachable;
-        AreaForPoint = TacGraph_GetAreaForPoint(ClosestPointWithoutVisWithinRadius);
-        if ( IsAreaReachable(pNavigator, AreaForPoint) )
-        {
-LABEL_52:
-          v60 = this->m_pAI;
-          TacGraph_GetApproxGroundPosForPoint(ClosestPointWithVisWithinRadius, &v60->btGoals[2].pos);
-          v60->btGoals[2].radius = 24.0;
-          v60->btGoals[2].node = NULL;
-          EntHandle::setEnt(&v60->btGoals[2].hEnt, NULL);
-          EntHandle::setEnt(&v60->btGoals[2].hVolume, NULL);
-          result = 1;
-          v60->btGoals[2].bValid = 1;
-          goto LABEL_54;
-        }
-        ClosestPointWithVisWithinRadius = NULL;
-      }
-      v40 = this->m_pAI;
-      _RCX = &v40->ent->r.currentOrigin;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx]
-        vsubss  xmm3, xmm0, dword ptr [r14]
-        vmovss  xmm1, dword ptr [rcx+4]
-        vsubss  xmm2, xmm1, dword ptr [r14+4]
-        vmovss  xmm0, dword ptr [rcx+8]
-        vsubss  xmm4, xmm0, dword ptr [r14+8]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm1, xmm2, xmm2
-        vaddss  xmm2, xmm7, cs:__real@42900000; maxRadius
-        vmaxss  xmm1, xmm1, xmm8; minRadius
-        vcomiss xmm1, xmm2
-      }
-      if ( v40->ent >= (gentity_s *)0xFFFFFFFFFFFFFED0i64 )
-      {
-        __asm { vmovss  xmm3, cs:__real@42a00000; minRadiusZ }
-        ClosestPointWithVisWithinRadius = TacGraph_FindClosestPointWithVisWithinRadius(p_pos1, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, _RCX, v32);
-      }
-      if ( ClosestPointWithVisWithinRadius )
-      {
-        v57 = this->m_pAI->pNavigator;
-        v58 = v57->IsAreaReachable;
-        v59 = TacGraph_GetAreaForPoint(ClosestPointWithVisWithinRadius);
-        if ( v58(v57, v59) )
-          goto LABEL_52;
-      }
+      return 1;
     }
-    result = 0;
-    goto LABEL_54;
   }
-  if ( this->m_pAI->sentient->pClaimedNode != CoverFromPoint )
+  ClosestPoint = TacGraph_FindClosestPoint(p_pos1);
+  v25 = ClosestPoint;
+  if ( ClosestPoint )
   {
-    pathnode_t::GetPos(CoverFromPoint, &pos);
-    v29 = this->m_pAI;
-    v29->btGoals[2].node = v28;
-    pathnode_t::GetPos(v28, &v29->btGoals[2].pos);
-    EntHandle::setEnt(&v29->btGoals[2].hEnt, NULL);
-    EntHandle::setEnt(&v29->btGoals[2].hVolume, NULL);
-    v29->btGoals[2].bValid = 1;
-    this->ClearKeepClaimedNode(this);
-    Sentient_ClaimNode(this->m_pAI->sentient, v28);
+    ClosestPointWithoutVisWithinRadius = TacGraph_FindClosestPointWithoutVisWithinRadius(&this->m_pAI->ent->r.currentOrigin, 0.0, 1024.0, p_pos1, v17, ClosestPoint);
+    ClosestPointWithVisWithinRadius = ClosestPointWithoutVisWithinRadius;
+    if ( ClosestPointWithoutVisWithinRadius )
+    {
+      pNavigator = this->m_pAI->pNavigator;
+      IsAreaReachable = pNavigator->IsAreaReachable;
+      AreaForPoint = TacGraph_GetAreaForPoint(ClosestPointWithoutVisWithinRadius);
+      if ( IsAreaReachable(pNavigator, AreaForPoint) )
+      {
+LABEL_52:
+        v40 = this->m_pAI;
+        TacGraph_GetApproxGroundPosForPoint(ClosestPointWithVisWithinRadius, &v40->btGoals[2].pos);
+        v40->btGoals[2].radius = 24.0;
+        v40->btGoals[2].node = NULL;
+        EntHandle::setEnt(&v40->btGoals[2].hEnt, NULL);
+        EntHandle::setEnt(&v40->btGoals[2].hVolume, NULL);
+        result = 1;
+        v40->btGoals[2].bValid = 1;
+        return result;
+      }
+      ClosestPointWithVisWithinRadius = NULL;
+    }
+    v31 = this->m_pAI;
+    p_currentOrigin = &v31->ent->r.currentOrigin;
+    v33 = LODWORD(v31->ent->r.currentOrigin.v[1]);
+    *(float *)&v33 = v31->ent->r.currentOrigin.v[1] - p_pos1->v[1];
+    v34 = v31->ent->r.currentOrigin.v[2] - p_pos1->v[2];
+    *(float *)&v33 = fsqrt((float)((float)(*(float *)&v33 * *(float *)&v33) + (float)((float)(p_currentOrigin->v[0] - p_pos1->v[0]) * (float)(p_currentOrigin->v[0] - p_pos1->v[0]))) + (float)(v34 * v34));
+    _XMM1 = v33;
+    __asm { vmaxss  xmm1, xmm1, xmm8; minRadius }
+    if ( *(float *)&_XMM1 < (float)(v16 + 72.0) )
+      ClosestPointWithVisWithinRadius = TacGraph_FindClosestPointWithVisWithinRadius(p_pos1, *(float *)&_XMM1, v16 + 72.0, 80.0, p_currentOrigin, v25);
+    if ( ClosestPointWithVisWithinRadius )
+    {
+      v37 = this->m_pAI->pNavigator;
+      v38 = v37->IsAreaReachable;
+      v39 = TacGraph_GetAreaForPoint(ClosestPointWithVisWithinRadius);
+      if ( v38(v37, v39) )
+        goto LABEL_52;
+    }
   }
-LABEL_43:
-  result = 1;
-LABEL_54:
-  _R11 = &v71;
-  __asm
-  {
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -880,11 +766,12 @@ bool AIScriptedInterface::Grenade_AttemptReturn(AIScriptedInterface *this, float
   gentity_s *v13; 
   int v14; 
   ai_scripted_t *v15; 
+  ai_scripted_t *v16; 
   gentity_s *ent; 
-  ai_scripted_t *v25; 
+  ai_scripted_t *v18; 
   int nextthink; 
-  __int64 v28; 
-  __int64 v29; 
+  __int64 v21; 
+  __int64 v22; 
   AIGrenadeReturnThrowInfo info; 
 
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 517, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
@@ -897,8 +784,8 @@ bool AIScriptedInterface::Grenade_AttemptReturn(AIScriptedInterface *this, float
   v6 = number - 1;
   if ( v6 >= 0x800 )
   {
-    LODWORD(v28) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v28, 2048) )
+    LODWORD(v21) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v21, 2048) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -908,8 +795,8 @@ bool AIScriptedInterface::Grenade_AttemptReturn(AIScriptedInterface *this, float
     __debugbreak();
   if ( !g_entityIsInUse[v7] )
   {
-    LODWORD(v29) = m_pAI->grenade.pGrenade.number - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v29) )
+    LODWORD(v22) = m_pAI->grenade.pGrenade.number - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v22) )
       __debugbreak();
   }
   if ( !m_pAI->grenade.pGrenade.number )
@@ -950,45 +837,30 @@ LABEL_47:
     v15->grenade.vGrenadeTossPos.v[0] = v8->c.mover.angle.pos1.v[0];
     v15->grenade.vGrenadeTossPos.v[1] = v8->c.mover.angle.pos1.v[1];
     v15->grenade.vGrenadeTossPos.v[2] = v8->c.mover.angle.pos1.v[2];
-    _RAX = this->m_pAI;
-    __asm
+    this->m_pAI->grenade.vGrenadeTossVel = info.vVelocity;
+    v16 = this->m_pAI;
+    if ( v16->grenade.bGrenadeTargetValid )
     {
-      vmovss  xmm0, dword ptr [rsp+88h+info.vVelocity]
-      vmovss  dword ptr [rax+4D0h], xmm0
-      vmovss  xmm1, dword ptr [rsp+88h+info.vVelocity+4]
-      vmovss  dword ptr [rax+4D4h], xmm1
-      vmovss  xmm0, dword ptr [rsp+88h+info.vVelocity+8]
-      vmovss  dword ptr [rax+4D8h], xmm0
+      v16->grenade.vGrenadeTargetPos.v[0] = info.vThrowAtPos.v[0];
+      v16->grenade.vGrenadeTargetPos.v[1] = info.vThrowAtPos.v[1];
+      v16->grenade.vGrenadeTargetPos.v[2] = info.vThrowAtPos.v[2];
+      v16 = this->m_pAI;
     }
-    _RAX = this->m_pAI;
-    if ( _RAX->grenade.bGrenadeTargetValid )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+88h+info.vThrowAtPos]
-        vmovss  dword ptr [rax+4C4h], xmm0
-        vmovss  xmm1, dword ptr [rsp+88h+info.vThrowAtPos+4]
-        vmovss  dword ptr [rax+4C8h], xmm1
-        vmovss  xmm0, dword ptr [rsp+88h+info.vThrowAtPos+8]
-        vmovss  dword ptr [rax+4CCh], xmm0
-      }
-      _RAX = this->m_pAI;
-    }
-    ent = _RAX->ent;
+    ent = v16->ent;
     if ( !EntHandle::isDefined(&v8->grenadeActivator) || EntHandle::ent(&v8->grenadeActivator) != ent )
     {
-      if ( this->m_pAI->sentient->eTeam == TEAM_TWO || (v25 = this->m_pAI, !v10) )
+      if ( this->m_pAI->sentient->eTeam == TEAM_TWO || (v18 = this->m_pAI, !v10) )
       {
         nextthink = v8->nextthink;
-        v25 = this->m_pAI;
+        v18 = this->m_pAI;
         if ( nextthink - level.time < 3000 && (v8->c.missile.flags & 0x400) == 0 )
         {
           v8->c.missile.flags = 0;
           v8->nextthink = nextthink + 1000;
-          v25 = this->m_pAI;
+          v18 = this->m_pAI;
         }
       }
-      EntHandle::setEnt(&v8->grenadeActivator, v25->ent);
+      EntHandle::setEnt(&v8->grenadeActivator, v18->ent);
     }
     LOBYTE(v14) = 1;
   }
@@ -1002,44 +874,35 @@ AIScriptedInterface::Grenade_AttemptReturnTo
 */
 int AIScriptedInterface::Grenade_AttemptReturnTo(AIScriptedInterface *this, const vec3_t *vFrom, const vec3_t *vEnemyPos, vec3_t *vLand, vec3_t *vVelocity)
 {
+  float v9; 
+  float v10; 
+  float v11; 
   ai_scripted_t *m_pAI; 
+  float v13; 
+  float v14; 
   AIGrenadeCheckInfo throwInfo; 
 
-  _RDI = vEnemyPos;
-  _RSI = vFrom;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 334, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  dword ptr [rsp+98h+throwInfo.vStandPos], xmm0
-    vmovss  xmm0, dword ptr [rsi+8]
-  }
+  v9 = vFrom->v[1];
+  throwInfo.vStandPos.v[0] = vFrom->v[0];
+  v10 = vFrom->v[2];
   throwInfo.methods[0] = scr_const.min_energy;
   throwInfo.methods[1] = scr_const.min_time;
-  __asm
-  {
-    vmovss  dword ptr [rsp+98h+throwInfo.vStandPos+8], xmm0
-    vmovss  xmm0, cs:__real@42640000
-    vmovss  dword ptr [rsp+98h+throwInfo.vStandPos+4], xmm1
-    vmovss  xmm1, dword ptr [rdi]
-    vxorps  xmm2, xmm2, xmm2
-  }
+  throwInfo.vStandPos.v[2] = v10;
+  throwInfo.vStandPos.v[1] = v9;
+  v11 = vEnemyPos->v[0];
   throwInfo.methods[2] = scr_const.max_time;
   m_pAI = this->m_pAI;
-  __asm
-  {
-    vmovss  dword ptr [rsp+98h+throwInfo.vOffset+8], xmm0
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  dword ptr [rsp+98h+throwInfo.vTargetPos], xmm1
-    vmovss  xmm1, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+98h+throwInfo.vTargetPos+4], xmm0
-    vmovss  dword ptr [rsp+98h+throwInfo.vOffset], xmm2
-    vmovss  dword ptr [rsp+98h+throwInfo.vOffset+4], xmm2
-    vmovss  dword ptr [rsp+98h+throwInfo.vTargetPos+8], xmm1
-    vmovss  [rsp+98h+throwInfo.randomRange], xmm2
-  }
+  throwInfo.vOffset.v[2] = FLOAT_57_0;
+  v13 = vEnemyPos->v[1];
+  throwInfo.vTargetPos.v[0] = v11;
+  v14 = vEnemyPos->v[2];
+  throwInfo.vTargetPos.v[1] = v13;
+  throwInfo.vOffset.v[0] = 0.0;
+  throwInfo.vOffset.v[1] = 0.0;
+  throwInfo.vTargetPos.v[2] = v14;
+  throwInfo.randomRange = 0.0;
   throwInfo.withBounce = 1;
   throwInfo.bRechecking = 1;
   throwInfo.methods[3] = 0;
@@ -1054,44 +917,33 @@ AIScriptedInterface::Grenade_AttemptThrowAway
 */
 int AIScriptedInterface::Grenade_AttemptThrowAway(AIScriptedInterface *this, const vec3_t *vFrom, const vec3_t *vEnemyPos, vec3_t *vLand, vec3_t *vVelocity)
 {
+  float v9; 
+  float v10; 
   ai_scripted_t *m_pAI; 
+  float v12; 
+  float v13; 
   AIGrenadeCheckInfo throwInfo; 
 
-  _RDI = vEnemyPos;
-  _RSI = vFrom;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 400, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  dword ptr [rsp+98h+throwInfo.vStandPos], xmm0
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rsp+98h+throwInfo.vStandPos+8], xmm0
-    vmovss  xmm0, cs:__real@42640000
-    vmovss  dword ptr [rsp+98h+throwInfo.vStandPos+4], xmm1
-    vmovss  xmm1, dword ptr [rdi]
-  }
+  v9 = vFrom->v[1];
+  throwInfo.vStandPos.v[0] = vFrom->v[0];
+  throwInfo.vStandPos.v[2] = vFrom->v[2];
+  throwInfo.vStandPos.v[1] = v9;
+  v10 = vEnemyPos->v[0];
   throwInfo.methods[0] = scr_const.infinite_energy;
   m_pAI = this->m_pAI;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  dword ptr [rsp+98h+throwInfo.vOffset+8], xmm0
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  dword ptr [rsp+98h+throwInfo.vTargetPos], xmm1
-    vmovss  xmm1, dword ptr [rdi+8]
-  }
+  throwInfo.vOffset.v[2] = FLOAT_57_0;
+  v12 = vEnemyPos->v[1];
+  throwInfo.vTargetPos.v[0] = v10;
+  v13 = vEnemyPos->v[2];
   *(_QWORD *)&throwInfo.methods[1] = 0i64;
   throwInfo.methods[3] = 0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+98h+throwInfo.vTargetPos+4], xmm0
-    vmovss  dword ptr [rsp+98h+throwInfo.vOffset], xmm2
-    vmovss  dword ptr [rsp+98h+throwInfo.vOffset+4], xmm2
-    vmovss  dword ptr [rsp+98h+throwInfo.vTargetPos+8], xmm1
-    vmovss  [rsp+98h+throwInfo.randomRange], xmm2
-  }
+  throwInfo.vTargetPos.v[1] = v12;
+  throwInfo.vOffset.v[0] = 0.0;
+  throwInfo.vOffset.v[1] = 0.0;
+  throwInfo.vTargetPos.v[2] = v13;
+  throwInfo.randomRange = 0.0;
   *(_QWORD *)&throwInfo.bRechecking = 1i64;
   m_pAI->grenade.bGrenadeTargetValid = 1;
   return AIScriptedInterface::Grenade_CheckTossPos(this, &throwInfo, vLand, vVelocity);
@@ -1104,43 +956,39 @@ AIScriptedInterface::Grenade_CheckLaunch
 */
 _BOOL8 AIScriptedInterface::Grenade_CheckLaunch(AIScriptedInterface *this, const vec3_t *vStartPos, const vec3_t *vOffset, const vec3_t *vTargetPos, vec3_t *outTossVelocity)
 {
-  const Weapon *v10; 
-  scrContext_t *v11; 
-  const char *v12; 
+  const Weapon *v9; 
+  scrContext_t *v10; 
+  const char *v11; 
   ai_scripted_t *m_pAI; 
+  int v13; 
   scrContext_t *v14; 
   const char *v15; 
   vec3_t *v16; 
-  float outSpeedUp; 
   int outSpeed; 
   float speed; 
 
-  v10 = this->GetEquippedWeapon(this);
-  if ( !v10->weaponIdx || v10->weaponIdx >= BG_GetNumWeapons() )
+  v9 = this->GetEquippedWeapon(this);
+  if ( !v9->weaponIdx || v9->weaponIdx >= BG_GetNumWeapons() )
   {
-    v11 = ScriptContext_Server();
-    v12 = j_va("Grenade_CheckLaunch: invalid weapon for entity %d", (unsigned int)this->m_pAI->ent->s.number);
-    Scr_Error(COM_ERR_3322, v11, v12);
+    v10 = ScriptContext_Server();
+    v11 = j_va("Grenade_CheckLaunch: invalid weapon for entity %d", (unsigned int)this->m_pAI->ent->s.number);
+    Scr_Error(COM_ERR_3322, v10, v11);
   }
   m_pAI = this->m_pAI;
   m_pAI->grenade.vGrenadeTargetPos.v[0] = vTargetPos->v[0];
   m_pAI->grenade.vGrenadeTargetPos.v[1] = vTargetPos->v[1];
   m_pAI->grenade.vGrenadeTargetPos.v[2] = vTargetPos->v[2];
-  G_Missile_GetScaledProjectileSpeed(this->m_pAI->ent, v10, 0, &outSpeed, (int *)&speed);
+  G_Missile_GetScaledProjectileSpeed(this->m_pAI->ent, v9, 0, &outSpeed, (int *)&speed);
+  v13 = outSpeed;
   if ( outSpeed <= 0 )
   {
     v14 = ScriptContext_Server();
     v15 = j_va("Grenade_CheckLaunch: grenade launcher speed must be > 0");
     Scr_Error(COM_ERR_3323, v14, v15);
+    v13 = outSpeed;
   }
   v16 = outTossVelocity;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmovss  dword ptr [rsp+68h+outSpeedUp], xmm0
-  }
-  this->m_pAI->grenade.bGrenadeTossValid = AIScriptedInterface::GrenadeLauncher_CheckPos(this, vStartPos, vOffset, &this->m_pAI->grenade.vGrenadeTargetPos, outSpeedUp, &this->m_pAI->grenade.vGrenadeTossPos, outTossVelocity) == 1;
+  this->m_pAI->grenade.bGrenadeTossValid = AIScriptedInterface::GrenadeLauncher_CheckPos(this, vStartPos, vOffset, &this->m_pAI->grenade.vGrenadeTargetPos, (float)v13, &this->m_pAI->grenade.vGrenadeTossPos, outTossVelocity) == 1;
   this->m_pAI->grenade.vGrenadeTossVel = *v16;
   return this->m_pAI->grenade.bGrenadeTossValid;
 }
@@ -1191,189 +1039,111 @@ AIScriptedInterface::Grenade_CheckThrowAwayGrenade
 */
 int AIScriptedInterface::Grenade_CheckThrowAwayGrenade(AIScriptedInterface *this, gentity_s *pGrenade, AIGrenadeReturnThrowInfo *info)
 {
-  int v7; 
-  pathnode_t *pClaimedNode; 
-  char v27; 
+  __int128 v3; 
+  int v4; 
   ai_scripted_t *m_pAI; 
-  int result; 
+  pathnode_t *pClaimedNode; 
+  gentity_s *ent; 
+  float v11; 
+  float fraction; 
+  float v13; 
+  float v14; 
+  ai_scripted_t *v15; 
+  float v16; 
+  float v17; 
+  ai_scripted_t *v18; 
+  float v19; 
+  float v20; 
   vec3_t start; 
   vec2_t forward; 
   vec3_t pos; 
   AIGrenadeCheckInfo throwInfo; 
   trace_t results; 
-  char v68; 
-  void *retaddr; 
+  _QWORD v27[3]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  v7 = 0;
-  _RBX = info;
+  v4 = 0;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 432, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !pGrenade && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 433, ASSERT_TYPE_ASSERT, "(pGrenade)", (const char *)&queryFormat, "pGrenade") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 434, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
+  if ( !info && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 434, ASSERT_TYPE_ASSERT, "(info)", (const char *)&queryFormat, "info") )
     __debugbreak();
-  _RCX = this->m_pAI;
-  if ( _RCX->grenade.bGrenadeTargetValid )
+  m_pAI = this->m_pAI;
+  if ( m_pAI->grenade.bGrenadeTargetValid )
   {
-    v7 = 1;
-    _RBX->vThrowAtPos.v[0] = _RCX->grenade.vGrenadeTargetPos.v[0];
-    _RBX->vThrowAtPos.v[1] = _RCX->grenade.vGrenadeTargetPos.v[1];
-    _RBX->vThrowAtPos.v[2] = _RCX->grenade.vGrenadeTargetPos.v[2];
-    _RCX = this->m_pAI;
+    v4 = 1;
+    info->vThrowAtPos.v[0] = m_pAI->grenade.vGrenadeTargetPos.v[0];
+    info->vThrowAtPos.v[1] = m_pAI->grenade.vGrenadeTargetPos.v[1];
+    info->vThrowAtPos.v[2] = m_pAI->grenade.vGrenadeTargetPos.v[2];
+    m_pAI = this->m_pAI;
   }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@42640000
-    vxorps  xmm6, xmm6, xmm6
-  }
-  pClaimedNode = _RCX->sentient->pClaimedNode;
+  pClaimedNode = m_pAI->sentient->pClaimedNode;
   if ( !pClaimedNode )
     goto LABEL_19;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4DCh]
-    vmovss  dword ptr [rsp+170h+start], xmm0
-    vmovss  xmm1, dword ptr [rcx+4E0h]
-    vmovss  dword ptr [rsp+170h+start+4], xmm1
-    vaddss  xmm2, xmm7, dword ptr [rcx+4E4h]
-    vmovss  dword ptr [rsp+170h+start+8], xmm2
-  }
-  _RAX = _RCX->ent;
-  __asm
-  {
-    vmovaps xmmword ptr [rsp+170h+var_68+8], xmm8
-    vmovss  xmm0, dword ptr [rax+138h]
-    vaddss  xmm1, xmm0, cs:__real@43c80000
-    vmovss  dword ptr [rbx+8], xmm1
-  }
+  *(_QWORD *)start.v = *(_QWORD *)m_pAI->grenade.pickupPos.v;
+  start.v[2] = m_pAI->grenade.pickupPos.v[2] + 57.0;
+  ent = m_pAI->ent;
+  *(_OWORD *)&v27[1] = v3;
+  info->vThrowAtPos.v[2] = ent->r.currentOrigin.v[2] + 400.0;
   pathnode_t::GetPos(pClaimedNode, &pos);
   pathnode_t::GetForward(pClaimedNode, &forward);
-  __asm
+  v11 = 300.0 * forward.v[1];
+  info->vThrowAtPos.v[0] = (float)(300.0 * forward.v[0]) + pos.v[0];
+  info->vThrowAtPos.v[1] = v11 + pos.v[1];
+  G_Main_TraceCapsule(&results, &start, &info->vThrowAtPos, &bounds_origin, this->m_pAI->ent->s.number, 41972113);
+  Debug_DrawGrenadeTraceLine(&start, &info->vThrowAtPos, 0.0, &colorYellow, 1);
+  fraction = results.fraction;
+  if ( results.fraction < 0.5 )
   {
-    vmovss  xmm8, cs:__real@43960000
-    vmulss  xmm1, xmm8, dword ptr [rsp+170h+forward]
-    vaddss  xmm2, xmm1, dword ptr [rsp+170h+pos]
-    vmulss  xmm1, xmm8, dword ptr [rsp+170h+forward+4]
-    vmovss  dword ptr [rbx], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rsp+170h+pos+4]
-    vmovss  dword ptr [rbx+4], xmm2
+    v13 = 300.0 * forward.v[1];
+    v14 = pos.v[1];
+    info->vThrowAtPos.v[0] = pos.v[0] - (float)(300.0 * forward.v[0]);
+    info->vThrowAtPos.v[1] = v14 - v13;
+    G_Main_TraceCapsule(&results, &start, &info->vThrowAtPos, &bounds_origin, this->m_pAI->ent->s.number, 41972113);
+    Debug_DrawGrenadeTraceLine(&start, &info->vThrowAtPos, 0.0, &colorYellow, 1);
+    fraction = results.fraction;
   }
-  G_Main_TraceCapsule(&results, &start, &_RBX->vThrowAtPos, &bounds_origin, this->m_pAI->ent->s.number, 41972113);
-  __asm { vxorps  xmm2, xmm2, xmm2; height }
-  Debug_DrawGrenadeTraceLine(&start, &_RBX->vThrowAtPos, *(float *)&_XMM2, &colorYellow, 1);
-  __asm
+  if ( fraction >= 0.5 )
   {
-    vmovss  xmm4, [rbp+70h+results.fraction]
-    vcomiss xmm4, cs:__real@3f000000
-  }
-  if ( v27 )
-  {
-    __asm
+    if ( fraction < 1.0 )
     {
-      vmovss  xmm1, dword ptr [rsp+170h+pos]
-      vmulss  xmm2, xmm8, dword ptr [rsp+170h+forward]
-      vmulss  xmm3, xmm8, dword ptr [rsp+170h+forward+4]
-      vsubss  xmm2, xmm1, xmm2
-      vmovss  xmm1, dword ptr [rsp+170h+pos+4]
-      vmovss  dword ptr [rbx], xmm2
-      vsubss  xmm2, xmm1, xmm3
-      vmovss  dword ptr [rbx+4], xmm2
+      fraction = fraction * 0.89999998;
+      results.fraction = fraction;
     }
-    G_Main_TraceCapsule(&results, &start, &_RBX->vThrowAtPos, &bounds_origin, this->m_pAI->ent->s.number, 41972113);
-    __asm { vxorps  xmm2, xmm2, xmm2; height }
-    Debug_DrawGrenadeTraceLine(&start, &_RBX->vThrowAtPos, *(float *)&_XMM2, &colorYellow, 1);
-    __asm { vmovss  xmm4, [rbp+70h+results.fraction] }
-  }
-  __asm
-  {
-    vcomiss xmm4, cs:__real@3f000000
-    vmovaps xmm8, xmmword ptr [rsp+170h+var_68+8]
-  }
-  if ( v27 )
-  {
-LABEL_19:
-    if ( !v7 )
-    {
-      result = 0;
-      goto LABEL_25;
-    }
+    info->vThrowAtPos.v[0] = (float)((float)(info->vThrowAtPos.v[0] - start.v[0]) * fraction) + start.v[0];
+    info->vThrowAtPos.v[1] = (float)((float)(info->vThrowAtPos.v[1] - start.v[1]) * fraction) + start.v[1];
+    info->vThrowAtPos.v[2] = (float)((float)(info->vThrowAtPos.v[2] - start.v[2]) * fraction) + start.v[2];
   }
   else
   {
-    __asm { vcomiss xmm4, cs:__real@3f800000 }
-    if ( v27 )
-    {
-      __asm
-      {
-        vmulss  xmm4, xmm4, cs:__real@3f666666
-        vmovss  [rbp+70h+results.fraction], xmm4
-      }
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vsubss  xmm0, xmm0, dword ptr [rsp+170h+start]
-      vmulss  xmm1, xmm0, xmm4
-      vaddss  xmm2, xmm1, dword ptr [rsp+170h+start]
-      vmovss  dword ptr [rbx], xmm2
-      vmovss  xmm0, dword ptr [rbx+4]
-      vsubss  xmm0, xmm0, dword ptr [rsp+170h+start+4]
-      vmulss  xmm1, xmm0, xmm4
-      vaddss  xmm2, xmm1, dword ptr [rsp+170h+start+4]
-      vmovss  dword ptr [rbx+4], xmm2
-      vmovss  xmm0, dword ptr [rbx+8]
-      vsubss  xmm0, xmm0, dword ptr [rsp+170h+start+8]
-      vmulss  xmm1, xmm0, xmm4
-      vaddss  xmm2, xmm1, dword ptr [rsp+170h+start+8]
-      vmovss  dword ptr [rbx+8], xmm2
-    }
+LABEL_19:
+    if ( !v4 )
+      return 0;
   }
-  _RSI = this->m_pAI;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 400, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
+  v15 = this->m_pAI;
+  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 400, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4DCh]
-    vmovss  xmm1, dword ptr [rsi+4E0h]
-    vmovss  dword ptr [rsp+170h+throwInfo.vStandPos], xmm0
-    vmovss  xmm0, dword ptr [rsi+4E4h]
-    vmovss  dword ptr [rsp+170h+throwInfo.vStandPos+8], xmm0
-    vmovss  xmm0, dword ptr [rbx]
-  }
+  v16 = v15->grenade.pickupPos.v[1];
+  throwInfo.vStandPos.v[0] = v15->grenade.pickupPos.v[0];
+  throwInfo.vStandPos.v[2] = v15->grenade.pickupPos.v[2];
+  v17 = info->vThrowAtPos.v[0];
   throwInfo.methods[0] = scr_const.infinite_energy;
-  m_pAI = this->m_pAI;
-  __asm
-  {
-    vmovss  dword ptr [rsp+170h+throwInfo.vTargetPos], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+170h+throwInfo.vStandPos+4], xmm1
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rbp+70h+throwInfo.vTargetPos+8], xmm0
-    vmovss  dword ptr [rsp+170h+throwInfo.vOffset], xmm6
-    vmovss  dword ptr [rsp+170h+throwInfo.vOffset+4], xmm6
-    vmovss  dword ptr [rsp+170h+throwInfo.vOffset+8], xmm7
-    vmovss  dword ptr [rsp+170h+throwInfo.vTargetPos+4], xmm1
-    vmovss  [rbp+70h+throwInfo.randomRange], xmm6
-  }
+  v18 = this->m_pAI;
+  throwInfo.vTargetPos.v[0] = v17;
+  v19 = info->vThrowAtPos.v[2];
+  throwInfo.vStandPos.v[1] = v16;
+  v20 = info->vThrowAtPos.v[1];
+  throwInfo.vTargetPos.v[2] = v19;
+  throwInfo.vOffset.v[0] = 0.0;
+  throwInfo.vOffset.v[1] = 0.0;
+  throwInfo.vOffset.v[2] = FLOAT_57_0;
+  throwInfo.vTargetPos.v[1] = v20;
+  throwInfo.randomRange = 0.0;
   *(_QWORD *)&throwInfo.bRechecking = 1i64;
   *(_QWORD *)&throwInfo.methods[1] = 0i64;
   throwInfo.methods[3] = 0;
-  m_pAI->grenade.bGrenadeTargetValid = 1;
-  result = AIScriptedInterface::Grenade_CheckTossPos(this, &throwInfo, &_RBX->vLand, &_RBX->vVelocity);
-LABEL_25:
-  _R11 = &v68;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  v18->grenade.bGrenadeTargetValid = 1;
+  return AIScriptedInterface::Grenade_CheckTossPos(this, &throwInfo, &info->vLand, &info->vVelocity);
 }
 
 /*
@@ -1384,51 +1154,41 @@ AIScriptedInterface::Grenade_CheckToss
 int AIScriptedInterface::Grenade_CheckToss(AIScriptedInterface *this, AIGrenadeCheckInfo *throwInfo, vec3_t *vPosOut, vec3_t *vVelOut)
 {
   const sentient_s *TargetSentient; 
-  char v12; 
+  const dvar_t *v9; 
+  float v10; 
+  float v11; 
+  ai_scripted_t *m_pAI; 
   vec3_t vVelOuta; 
   vec3_t vOriginOut; 
 
-  _RSI = throwInfo;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 91, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 92, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 93, ASSERT_TYPE_ASSERT, "(throwInfo)", (const char *)&queryFormat, "throwInfo") )
+  if ( !throwInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 93, ASSERT_TYPE_ASSERT, "(throwInfo)", (const char *)&queryFormat, "throwInfo") )
     __debugbreak();
   TargetSentient = AICommonInterface::GetTargetSentient(this);
   if ( !TargetSentient )
     return 0;
-  _RDI = DCONST_DVARFLT_bg_lowGravity;
+  v9 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rdi+28h]
-  }
-  if ( !v12 || EntHandle::isDefined(&this->m_pAI->grenade.pGrenade) && !_RSI->bRechecking )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.value <= 0.0 || EntHandle::isDefined(&this->m_pAI->grenade.pGrenade) && !throwInfo->bRechecking )
     return 0;
   Sentient_GetOrigin(TargetSentient, &vOriginOut);
   Sentient_GetVelocity(TargetSentient, &vVelOuta);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0A8h+vVelOut]
-    vmovss  xmm1, dword ptr [rsp+0A8h+vVelOut+4]
-    vaddss  xmm3, xmm0, dword ptr [rsp+0A8h+vOriginOut]
-    vaddss  xmm0, xmm1, dword ptr [rsp+0A8h+vOriginOut+4]
-    vmovss  xmm2, dword ptr [rsp+0A8h+vVelOut+8]
-    vaddss  xmm1, xmm2, dword ptr [rsp+0A8h+vOriginOut+8]
-    vmovss  dword ptr [rsi+20h], xmm1
-    vmovss  dword ptr [rsi+18h], xmm3
-    vmovss  dword ptr [rsi+1Ch], xmm0
-  }
-  _R10 = this->m_pAI;
-  __asm { vmovss  dword ptr [r10+4C4h], xmm3 }
-  _R10->grenade.vGrenadeTargetPos.v[1] = _RSI->vTargetPos.v[1];
-  _R10->grenade.vGrenadeTargetPos.v[2] = _RSI->vTargetPos.v[2];
+  v10 = vVelOuta.v[0] + vOriginOut.v[0];
+  v11 = vVelOuta.v[1] + vOriginOut.v[1];
+  throwInfo->vTargetPos.v[2] = vVelOuta.v[2] + vOriginOut.v[2];
+  throwInfo->vTargetPos.v[0] = v10;
+  throwInfo->vTargetPos.v[1] = v11;
+  m_pAI = this->m_pAI;
+  m_pAI->grenade.vGrenadeTargetPos.v[0] = v10;
+  m_pAI->grenade.vGrenadeTargetPos.v[1] = throwInfo->vTargetPos.v[1];
+  m_pAI->grenade.vGrenadeTargetPos.v[2] = throwInfo->vTargetPos.v[2];
   this->m_pAI->grenade.bGrenadeTargetValid = 1;
-  return AIScriptedInterface::Grenade_CheckTossPos(this, _RSI, vPosOut, vVelOut);
+  return AIScriptedInterface::Grenade_CheckTossPos(this, throwInfo, vPosOut, vVelOut);
 }
 
 /*
@@ -1438,26 +1198,25 @@ AIScriptedInterface::Grenade_CheckTossPos
 */
 _BOOL8 AIScriptedInterface::Grenade_CheckTossPos(AIScriptedInterface *this, const AIGrenadeCheckInfo *throwInfo, vec3_t *vPosOut, vec3_t *vVelOut)
 {
-  char v11; 
-  int isDefined; 
-  bool v13; 
+  const dvar_t *v8; 
+  float randomRange; 
+  float v10; 
   const Weapon *Weapon; 
   bool detailTrace; 
-  int v24; 
-  const vec4_t *v26; 
-  BOOL v41; 
+  int v13; 
+  const vec4_t *v14; 
+  BOOL v15; 
   ai_scripted_t *m_pAI; 
   int number; 
-  __int64 v44; 
-  __int64 v45; 
-  int v46; 
-  scr_string_t *methods; 
-  scr_string_t v48; 
-  bool v49; 
-  const dvar_t *v50; 
-  _BOOL8 result; 
-  const char *v54; 
-  const char *v55; 
+  __int64 v18; 
+  __int64 v19; 
+  int v20; 
+  scr_string_t *i; 
+  scr_string_t v22; 
+  bool v23; 
+  const dvar_t *v24; 
+  const char *v26; 
+  const char *v27; 
   __int64 passEntityNum; 
   __int64 passEntityNum2; 
   bool TossPositionsFromHints; 
@@ -1467,215 +1226,146 @@ _BOOL8 AIScriptedInterface::Grenade_CheckTossPos(AIScriptedInterface *this, cons
   vec3_t in; 
   trace_t results; 
 
-  __asm { vmovaps [rsp+160h+var_50], xmm6 }
-  _R12 = throwInfo;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 140, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 141, ASSERT_TYPE_ASSERT, "(throwInfo)", (const char *)&queryFormat, "throwInfo") )
+  if ( !throwInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 141, ASSERT_TYPE_ASSERT, "(throwInfo)", (const char *)&queryFormat, "throwInfo") )
     __debugbreak();
-  _RBX = DCONST_DVARFLT_bg_lowGravity;
+  v8 = DCONST_DVARFLT_bg_lowGravity;
   if ( !DCONST_DVARFLT_bg_lowGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_lowGravity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v8);
+  if ( v8->current.value > 0.0 && (!EntHandle::isDefined(&this->m_pAI->grenade.pGrenade) || throwInfo->bRechecking) )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm6, dword ptr [rbx+28h]
-  }
-  if ( !v11 )
-    goto LABEL_63;
-  isDefined = EntHandle::isDefined(&this->m_pAI->grenade.pGrenade);
-  v13 = isDefined == 0;
-  if ( isDefined )
-  {
-    v13 = _R12->bRechecking == 0;
-    if ( !_R12->bRechecking )
-      goto LABEL_63;
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+18h]
-    vmovss  xmm2, dword ptr [r12+24h]; range
-    vucomiss xmm2, xmm6
-    vmovss  xmm1, dword ptr [r12+1Ch]
-    vmovss  dword ptr [rsp+160h+out], xmm0
-    vmovss  xmm0, dword ptr [r12+20h]
-    vmovss  dword ptr [rbp+60h+out+8], xmm0
-    vmovss  dword ptr [rsp+160h+out+4], xmm1
-  }
-  if ( !v13 )
-  {
-    VecRandomRange_vec3_t_(&_R12->vTargetPos, &out, *(float *)&_XMM2, 2);
-    __asm { vmovss  xmm0, dword ptr [rsp+160h+out] }
-    _RAX = this->m_pAI;
-    __asm
+    randomRange = throwInfo->randomRange;
+    v10 = throwInfo->vTargetPos.v[1];
+    out.v[0] = throwInfo->vTargetPos.v[0];
+    out.v[2] = throwInfo->vTargetPos.v[2];
+    out.v[1] = v10;
+    if ( randomRange != 0.0 )
     {
-      vmovss  dword ptr [rax+4C4h], xmm0
-      vmovss  xmm1, dword ptr [rsp+160h+out+4]
-      vmovss  dword ptr [rax+4C8h], xmm1
-      vmovss  xmm0, dword ptr [rbp+60h+out+8]
-      vmovss  dword ptr [rax+4CCh], xmm0
+      VecRandomRange_vec3_t_(&throwInfo->vTargetPos, &out, randomRange, 2);
+      this->m_pAI->grenade.vGrenadeTargetPos = out;
     }
-  }
-  AIScriptedInterface::Grenade_GetTossFromPosition(this, &_R12->vStandPos, &_R12->vOffset, vPosOut);
-  scrContext = ScriptContext_Server();
-  Weapon = GScr_Weapon_GetWeapon(scrContext, (const scr_weapon_t)this->m_pAI->grenade.grenadeWeapon);
-  detailTrace = BG_WeaponRadiusDamageDetailTrace(Weapon, 0);
-  v24 = 2047;
-  G_Missile_Trace(NULL, &results, vPosOut, &out, &bounds_origin, 2047, 2047, 2065, detailTrace);
-  __asm
-  {
-    vmovss  xmm0, [rbp+60h+results.fraction]
-    vucomiss xmm0, cs:__real@3f800000
-  }
-  TossPositionsFromHints = 0;
-  if ( v13 )
-  {
-    if ( _R12->withBounce )
+    AIScriptedInterface::Grenade_GetTossFromPosition(this, &throwInfo->vStandPos, &throwInfo->vOffset, vPosOut);
+    scrContext = ScriptContext_Server();
+    Weapon = GScr_Weapon_GetWeapon(scrContext, (const scr_weapon_t)this->m_pAI->grenade.grenadeWeapon);
+    detailTrace = BG_WeaponRadiusDamageDetailTrace(Weapon, 0);
+    v13 = 2047;
+    G_Missile_Trace(NULL, &results, vPosOut, &out, &bounds_origin, 2047, 2047, 2065, detailTrace);
+    TossPositionsFromHints = 0;
+    if ( results.fraction == 1.0 )
     {
-      Grenade_GetTossPositions(vPosOut, &out, &vLand, Weapon);
-      v26 = &colorRed;
-    }
-    else
-    {
-      __asm { vmovsd  xmm0, qword ptr [rsp+160h+out] }
-      v26 = &colorRed;
-      __asm { vmovsd  qword ptr [rsp+160h+vLand], xmm0 }
-      vLand.v[2] = out.v[2];
-    }
-  }
-  else if ( level.grenadeHintCount && (TossPositionsFromHints = Grenade_GetTossPositionsFromHints(vPosOut, &_R12->vTargetPos, &in)) )
-  {
-    __asm { vmovss  xmm2, cs:__real@41700000; range }
-    VecRandomRange_vec3_t_(&in, &vLand, *(float *)&_XMM2, 3);
-    v26 = &colorCyan;
-  }
-  else
-  {
-    __asm { vmovsd  xmm0, qword ptr [rsp+160h+out] }
-    v26 = &colorBlue;
-    __asm { vmovsd  qword ptr [rsp+160h+vLand], xmm0 }
-    vLand.v[2] = out.v[2];
-  }
-  __asm { vxorps  xmm2, xmm2, xmm2; height }
-  Debug_DrawGrenadeTraceLine(vPosOut, &vLand, *(float *)&_XMM2, v26, 0);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+160h+vLand]
-    vsubss  xmm3, xmm0, dword ptr [r14]
-    vmovss  xmm1, dword ptr [rsp+160h+vLand+4]
-    vmovss  xmm0, dword ptr [rsp+160h+vLand+8]
-    vsubss  xmm2, xmm1, dword ptr [r14+4]
-    vsubss  xmm4, xmm0, dword ptr [r14+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm4, xmm3, xmm0
-    vucomiss xmm4, xmm6
-  }
-  if ( v13 )
-  {
-LABEL_63:
-    result = 0i64;
-    goto LABEL_64;
-  }
-  v41 = 0;
-  if ( EntHandle::isDefined(&this->m_pAI->grenade.pGrenade) )
-  {
-    m_pAI = this->m_pAI;
-    number = m_pAI->grenade.pGrenade.number;
-    if ( (unsigned int)(number - 1) >= 0x7FF )
-    {
-      LODWORD(passEntityNum2) = 2047;
-      LODWORD(passEntityNum) = number - 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 231, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", passEntityNum, passEntityNum2) )
-        __debugbreak();
-    }
-    v44 = m_pAI->grenade.pGrenade.number;
-    if ( (unsigned int)(v44 - 1) >= 0x800 )
-    {
-      LODWORD(passEntityNum2) = 2048;
-      LODWORD(passEntityNum) = v44 - 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", passEntityNum, passEntityNum2) )
-        __debugbreak();
-    }
-    if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
-      __debugbreak();
-    v45 = v44 - 1;
-    if ( g_entities[v45].r.isInUse != g_entityIsInUse[v45] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
-      __debugbreak();
-    if ( !g_entityIsInUse[v45] )
-    {
-      LODWORD(passEntityNum2) = m_pAI->grenade.pGrenade.number - 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 232, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", passEntityNum2) )
-        __debugbreak();
-    }
-    v24 = (__int16)(m_pAI->grenade.pGrenade.number - 1);
-  }
-  v46 = 0;
-  methods = _R12->methods;
-  do
-  {
-    v48 = *methods;
-    if ( !*methods )
-      goto LABEL_59;
-    if ( v48 == scr_const.min_energy )
-    {
-      v49 = Grenade_CheckMinimumEnergyToss(this->m_pAI, v24, vPosOut, &vLand, vVelOut);
-    }
-    else if ( v48 == scr_const.min_time )
-    {
-      v49 = Grenade_CheckMaximumEnergyToss(this->m_pAI, v24, vPosOut, &vLand, 0, vVelOut);
-    }
-    else if ( v48 == scr_const.max_time )
-    {
-      v49 = Grenade_CheckMaximumEnergyToss(this->m_pAI, v24, vPosOut, &vLand, 1, vVelOut);
-    }
-    else
-    {
-      if ( v48 != scr_const.infinite_energy )
+      if ( throwInfo->withBounce )
       {
-        v54 = SL_ConvertToString(v48);
-        v55 = j_va("checkGrenadeThrow: method must be 'min energy', 'min time', or 'max time' - value passed in was %s", v54);
-        Scr_Error(COM_ERR_3320, scrContext, v55);
-        goto LABEL_61;
+        Grenade_GetTossPositions(vPosOut, &out, &vLand, Weapon);
+        v14 = &colorRed;
       }
-      v49 = Grenade_CheckInfiniteEnergyToss(this->m_pAI, v24, vPosOut, &vLand, vVelOut);
-    }
-    v41 = v49;
-    if ( v49 )
-    {
-      Scr_SetString(&this->m_pAI->grenade.GrenadeTossMethod, throwInfo->methods[v46]);
-      this->m_pAI->grenade.grenadeTossWithBounce = throwInfo->withBounce == 1;
-      v50 = DVARINT_g_drawGrenadeHints;
-      if ( !DVARINT_g_drawGrenadeHints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_drawGrenadeHints") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v50);
-      if ( v50->current.integer > 0 )
+      else
       {
-        G_DebugLineWithDuration(vPosOut, &out, &colorWhite, 0, 100);
-        __asm { vmovss  xmm1, cs:__real@40400000; radius }
-        G_DebugCircle(&vLand, *(float *)&_XMM1, &colorWhite, 1, 0, 100);
-        if ( TossPositionsFromHints )
+        v14 = &colorRed;
+        vLand = out;
+      }
+    }
+    else if ( level.grenadeHintCount && (TossPositionsFromHints = Grenade_GetTossPositionsFromHints(vPosOut, &throwInfo->vTargetPos, &in)) )
+    {
+      VecRandomRange_vec3_t_(&in, &vLand, 15.0, 3);
+      v14 = &colorCyan;
+    }
+    else
+    {
+      v14 = &colorBlue;
+      vLand = out;
+    }
+    Debug_DrawGrenadeTraceLine(vPosOut, &vLand, 0.0, v14, 0);
+    if ( (float)((float)((float)((float)(vLand.v[1] - vPosOut->v[1]) * (float)(vLand.v[1] - vPosOut->v[1])) + (float)((float)(vLand.v[0] - vPosOut->v[0]) * (float)(vLand.v[0] - vPosOut->v[0]))) + (float)((float)(vLand.v[2] - vPosOut->v[2]) * (float)(vLand.v[2] - vPosOut->v[2]))) != 0.0 )
+    {
+      v15 = 0;
+      if ( EntHandle::isDefined(&this->m_pAI->grenade.pGrenade) )
+      {
+        m_pAI = this->m_pAI;
+        number = m_pAI->grenade.pGrenade.number;
+        if ( (unsigned int)(number - 1) >= 0x7FF )
         {
-          __asm { vmovss  xmm1, cs:__real@40c00000; radius }
-          G_DebugCircle(&in, *(float *)&_XMM1, &colorCyan, 1, 0, 100);
+          LODWORD(passEntityNum2) = 2047;
+          LODWORD(passEntityNum) = number - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 231, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", passEntityNum, passEntityNum2) )
+            __debugbreak();
         }
+        v18 = m_pAI->grenade.pGrenade.number;
+        if ( (unsigned int)(v18 - 1) >= 0x800 )
+        {
+          LODWORD(passEntityNum2) = 2048;
+          LODWORD(passEntityNum) = v18 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", passEntityNum, passEntityNum2) )
+            __debugbreak();
+        }
+        if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
+          __debugbreak();
+        v19 = v18 - 1;
+        if ( g_entities[v19].r.isInUse != g_entityIsInUse[v19] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+          __debugbreak();
+        if ( !g_entityIsInUse[v19] )
+        {
+          LODWORD(passEntityNum2) = m_pAI->grenade.pGrenade.number - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 232, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", passEntityNum2) )
+            __debugbreak();
+        }
+        v13 = (__int16)(m_pAI->grenade.pGrenade.number - 1);
       }
-LABEL_59:
-      result = v41;
-      goto LABEL_64;
-    }
+      v20 = 0;
+      for ( i = throwInfo->methods; ; ++i )
+      {
+        v22 = *i;
+        if ( !*i )
+          return v15;
+        if ( v22 == scr_const.min_energy )
+        {
+          v23 = Grenade_CheckMinimumEnergyToss(this->m_pAI, v13, vPosOut, &vLand, vVelOut);
+          goto LABEL_52;
+        }
+        if ( v22 == scr_const.min_time )
+          break;
+        if ( v22 == scr_const.max_time )
+        {
+          v23 = Grenade_CheckMaximumEnergyToss(this->m_pAI, v13, vPosOut, &vLand, 1, vVelOut);
+          goto LABEL_52;
+        }
+        if ( v22 == scr_const.infinite_energy )
+        {
+          v23 = Grenade_CheckInfiniteEnergyToss(this->m_pAI, v13, vPosOut, &vLand, vVelOut);
+          goto LABEL_52;
+        }
+        v26 = SL_ConvertToString(v22);
+        v27 = j_va("checkGrenadeThrow: method must be 'min energy', 'min time', or 'max time' - value passed in was %s", v26);
+        Scr_Error(COM_ERR_3320, scrContext, v27);
 LABEL_61:
-    ++v46;
-    ++methods;
+        if ( ++v20 >= 4 )
+          return v15;
+      }
+      v23 = Grenade_CheckMaximumEnergyToss(this->m_pAI, v13, vPosOut, &vLand, 0, vVelOut);
+LABEL_52:
+      v15 = v23;
+      if ( v23 )
+      {
+        Scr_SetString(&this->m_pAI->grenade.GrenadeTossMethod, throwInfo->methods[v20]);
+        this->m_pAI->grenade.grenadeTossWithBounce = throwInfo->withBounce == 1;
+        v24 = DVARINT_g_drawGrenadeHints;
+        if ( !DVARINT_g_drawGrenadeHints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_drawGrenadeHints") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v24);
+        if ( v24->current.integer > 0 )
+        {
+          G_DebugLineWithDuration(vPosOut, &out, &colorWhite, 0, 100);
+          G_DebugCircle(&vLand, 3.0, &colorWhite, 1, 0, 100);
+          if ( TossPositionsFromHints )
+            G_DebugCircle(&in, 6.0, &colorCyan, 1, 0, 100);
+        }
+        return v15;
+      }
+      goto LABEL_61;
+    }
   }
-  while ( v46 < 4 );
-  result = v41;
-LABEL_64:
-  __asm { vmovaps xmm6, [rsp+160h+var_50] }
-  return result;
+  return 0i64;
 }
 
 /*
@@ -1768,46 +1458,30 @@ AIScriptedInterface::Grenade_GetTossFromPosition
 void AIScriptedInterface::Grenade_GetTossFromPosition(AIScriptedInterface *this, const vec3_t *vStandPos, const vec3_t *vOffset, vec3_t *vFrom)
 {
   gentity_s *v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   tmat33_t<vec3_t> axis; 
-  char v31; 
+  char v15; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
-  _RBP = vFrom;
-  _RDI = (char *)vOffset;
   v7 = this->GetEntity(this);
   if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 75, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
   AnglesToAxis(&v7->r.currentAngles, &axis);
-  if ( _RDI == &v31 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+  if ( vOffset == (const vec3_t *)&v15 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rdi+4]
-    vmovss  xmm5, dword ptr [rdi]
-    vmovss  xmm6, dword ptr [rdi+8]
-    vmulss  xmm1, xmm5, dword ptr [rsp+98h+axis]
-    vmulss  xmm0, xmm4, dword ptr [rsp+98h+axis+0Ch]
-    vmulss  xmm3, xmm5, dword ptr [rsp+98h+axis+4]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rsp+98h+axis+18h]
-    vaddss  xmm2, xmm2, xmm1
-    vaddss  xmm0, xmm2, dword ptr [rsi]
-    vmulss  xmm1, xmm4, dword ptr [rsp+98h+axis+10h]
-    vaddss  xmm2, xmm3, xmm1
-    vmulss  xmm3, xmm4, dword ptr [rsp+98h+axis+14h]
-    vmovss  dword ptr [rbp+0], xmm0
-    vmulss  xmm0, xmm6, dword ptr [rsp+98h+axis+1Ch]
-    vaddss  xmm2, xmm2, xmm0
-    vaddss  xmm1, xmm2, dword ptr [rsi+4]
-    vmulss  xmm0, xmm5, dword ptr [rsp+98h+axis+8]
-    vmovss  dword ptr [rbp+4], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rsp+98h+axis+20h]
-    vaddss  xmm2, xmm3, xmm0
-    vaddss  xmm2, xmm2, xmm1
-    vaddss  xmm0, xmm2, dword ptr [rsi+8]
-    vmovss  dword ptr [rbp+8], xmm0
-    vmovaps xmm6, [rsp+98h+var_28]
-  }
+  v8 = vOffset->v[1];
+  v9 = vOffset->v[0];
+  v10 = vOffset->v[2];
+  v11 = (float)(vOffset->v[0] * axis.m[0].v[1]) + (float)(v8 * axis.m[1].v[1]);
+  v12 = v8 * axis.m[1].v[2];
+  vFrom->v[0] = (float)((float)((float)(vOffset->v[0] * axis.m[0].v[0]) + (float)(v8 * axis.m[1].v[0])) + (float)(v10 * axis.m[2].v[0])) + vStandPos->v[0];
+  v13 = v9 * axis.m[0].v[2];
+  vFrom->v[1] = (float)(v11 + (float)(v10 * axis.m[2].v[1])) + vStandPos->v[1];
+  vFrom->v[2] = (float)((float)(v12 + v13) + (float)(v10 * axis.m[2].v[2])) + vStandPos->v[2];
 }
 
 /*
@@ -1867,47 +1541,44 @@ bool AIScriptedInterface::Grenade_IsGrenadeThrowable(AIScriptedInterface *this, 
 AIScriptedInterface::Grenade_IsPointSafe
 ==============
 */
-__int64 AIScriptedInterface::Grenade_IsPointSafe(AIScriptedInterface *this, const vec3_t *vPoint)
+_BOOL8 AIScriptedInterface::Grenade_IsPointSafe(AIScriptedInterface *this, const vec3_t *vPoint)
 {
   ai_scripted_t *m_pAI; 
   unsigned __int16 number; 
+  __int64 v6; 
+  unsigned int v7; 
   __int64 v8; 
-  unsigned int v9; 
-  __int64 v10; 
-  gentity_s *v11; 
+  gentity_s *v9; 
   GWeaponMap *Instance; 
   const Weapon *WeaponForEntity; 
+  float v12; 
+  float v13; 
   bool detailTrace; 
   unsigned __int8 *priorityMap; 
-  GCombat *v19; 
-  __int64 result; 
+  GCombat *v16; 
   unsigned int radius; 
-  float radiusa; 
   __int64 coneAngleCos; 
   int coneAngleCosa; 
-  float coneAngleCosb; 
-  float v29; 
 
   m_pAI = this->m_pAI;
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
   number = m_pAI->grenade.pGrenade.number;
   if ( !number )
-    goto LABEL_30;
-  v8 = number;
-  v9 = number - 1;
-  if ( v9 >= 0x800 )
+    goto LABEL_29;
+  v6 = number;
+  v7 = number - 1;
+  if ( v7 >= 0x800 )
   {
     coneAngleCosa = 2048;
-    radius = v9;
+    radius = v7;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", radius, coneAngleCosa) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v10 = v8 - 1;
-  if ( g_entities[v10].r.isInUse != g_entityIsInUse[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+  v8 = v6 - 1;
+  if ( g_entities[v8].r.isInUse != g_entityIsInUse[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
     __debugbreak();
-  if ( !g_entityIsInUse[v10] )
+  if ( !g_entityIsInUse[v8] )
   {
     LODWORD(coneAngleCos) = m_pAI->grenade.pGrenade.number - 1;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", coneAngleCos) )
@@ -1915,44 +1586,25 @@ __int64 AIScriptedInterface::Grenade_IsPointSafe(AIScriptedInterface *this, cons
   }
   if ( !m_pAI->grenade.pGrenade.number )
   {
-LABEL_30:
+LABEL_29:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 41, ASSERT_TYPE_ASSERT, "(m_pAI->grenade.pGrenade.isDefined())", (const char *)&queryFormat, "m_pAI->grenade.pGrenade.isDefined()") )
       __debugbreak();
   }
-  v11 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
+  v9 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
   Instance = GWeaponMap::GetInstance();
-  WeaponForEntity = BG_GetWeaponForEntity(Instance, &v11->s);
-  BG_ExplosionRadius(WeaponForEntity, 0);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, eax
-  }
+  WeaponForEntity = BG_GetWeaponForEntity(Instance, &v9->s);
+  v12 = (float)BG_ExplosionRadius(WeaponForEntity, 0);
   if ( BG_ProjExplosionType(WeaponForEntity, 0) == WEAPPROJEXP_FLASHBANG )
-    goto LABEL_26;
-  __asm { vaddss  xmm6, xmm6, cs:__real@43000000 }
+    return 1i64;
+  v13 = v12 + 128.0;
   detailTrace = BG_WeaponRadiusDamageDetailTrace(WeaponForEntity, 0);
   priorityMap = BG_GetWeaponPriorityMap(WeaponForEntity, 0);
   if ( !GCombat::ms_gCombatSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_combat.h", 177, ASSERT_TYPE_ASSERT, "( ms_gCombatSystem )", (const char *)&queryFormat, "ms_gCombatSystem") )
     __debugbreak();
-  v19 = GCombat::ms_gCombatSystem;
-  if ( !G_Missile_IsGrenade(v11) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 55, ASSERT_TYPE_ASSERT, "(G_Missile_IsGrenade( grenade ))", (const char *)&queryFormat, "G_Missile_IsGrenade( grenade )") )
+  v16 = GCombat::ms_gCombatSystem;
+  if ( !G_Missile_IsGrenade(v9) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 55, ASSERT_TYPE_ASSERT, "(G_Missile_IsGrenade( grenade ))", (const char *)&queryFormat, "G_Missile_IsGrenade( grenade )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+98h+var_58], xmm0
-    vmovss  [rsp+98h+coneAngleCos], xmm1
-    vmovss  [rsp+98h+radius], xmm6
-  }
-  if ( !GCombat::CanRadiusDamageFromPos(v19, this->m_pAI->ent, vPoint, v11, &v11->c.mover.angle.pos1, radiusa, coneAngleCosb, NULL, v29, 1, 9441297, detailTrace, priorityMap) )
-LABEL_26:
-    result = 1i64;
-  else
-    result = 0i64;
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
-  return result;
+  return !GCombat::CanRadiusDamageFromPos(v16, this->m_pAI->ent, vPoint, v9, &v9->c.mover.angle.pos1, v13, 1.0, NULL, 0.0, 1, 9441297, detailTrace, priorityMap);
 }
 
 /*
@@ -1960,108 +1612,58 @@ LABEL_26:
 AIScriptedInterface::Grenade_IsSafeTarget
 ==============
 */
-
-__int64 __fastcall AIScriptedInterface::Grenade_IsSafeTarget(AIScriptedInterface *this, const vec3_t *vTargetPos, double radius)
+__int64 AIScriptedInterface::Grenade_IsSafeTarget(AIScriptedInterface *this, const vec3_t *vTargetPos, float radius)
 {
-  ai_scripted_t *m_pAI; 
-  bool v10; 
-  bool v11; 
-  const scrContext_t *v14; 
+  float v5; 
+  const scrContext_t *v6; 
   const Weapon *Weapon; 
   bool IsAlternate; 
+  float v9; 
   unsigned __int64 eTeam; 
-  sentient_s *v21; 
-  char v33; 
-  __int64 result; 
+  sentient_s *v11; 
   bitarray<224> iTeamFlags; 
   vec3_t vOriginOut; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-18h], xmm6 }
-  _RSI = vTargetPos;
-  __asm { vmovaps xmm6, xmm2 }
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 258, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  m_pAI = this->m_pAI;
-  v10 = m_pAI->sentient == NULL;
-  if ( !m_pAI->sentient )
+  if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 259, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
+    __debugbreak();
+  if ( radius <= 0.0 )
   {
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 259, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient");
-    v10 = !v11;
-    if ( v11 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v10 )
-  {
-    v14 = ScriptContext_Server();
-    Weapon = GScr_Weapon_GetWeapon(v14, (const scr_weapon_t)this->m_pAI->grenade.grenadeWeapon);
-    IsAlternate = GScr_Weapon_IsAlternate(v14, (const scr_weapon_t)this->m_pAI->grenade.grenadeWeapon);
-    BG_ExplosionRadius(Weapon, IsAlternate);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm1, xmm0, cs:__real@43000000
-      vmulss  xmm6, xmm1, xmm1
-    }
+    v6 = ScriptContext_Server();
+    Weapon = GScr_Weapon_GetWeapon(v6, (const scr_weapon_t)this->m_pAI->grenade.grenadeWeapon);
+    IsAlternate = GScr_Weapon_IsAlternate(v6, (const scr_weapon_t)this->m_pAI->grenade.grenadeWeapon);
+    v9 = (float)BG_ExplosionRadius(Weapon, IsAlternate) + 128.0;
+    v5 = v9 * v9;
   }
   else
   {
-    __asm { vmulss  xmm6, xmm6, xmm6 }
+    v5 = radius * radius;
   }
   eTeam = (unsigned int)this->m_pAI->sentient->eTeam;
   memset(&iTeamFlags, 0, sizeof(iTeamFlags));
   if ( (unsigned int)eTeam >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", eTeam, 224) )
     __debugbreak();
   iTeamFlags.array[eTeam >> 5] |= 0x80000000 >> (eTeam & 0x1F);
-  v21 = Sentient_FirstSentient(&iTeamFlags);
-  if ( v21 )
+  v11 = Sentient_FirstSentient(&iTeamFlags);
+  if ( !v11 )
+    return 1i64;
+  while ( 1 )
   {
-    while ( 1 )
+    if ( v11->ent )
     {
-      if ( v21->ent )
+      if ( v11->ent->health > 0 )
       {
-        if ( v21->ent->health > 0 )
-        {
-          Sentient_GetOrigin(v21, &vOriginOut);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi]
-            vsubss  xmm3, xmm0, dword ptr [rsp+0A8h+vOriginOut]
-            vmovss  xmm1, dword ptr [rsi+4]
-            vsubss  xmm2, xmm1, dword ptr [rsp+0A8h+vOriginOut+4]
-            vmovss  xmm0, dword ptr [rsi+8]
-            vsubss  xmm4, xmm0, dword ptr [rsp+0A8h+vOriginOut+8]
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm2, xmm3, xmm0
-            vcomiss xmm2, xmm6
-          }
-          if ( v33 | v10 )
-            break;
-        }
+        Sentient_GetOrigin(v11, &vOriginOut);
+        if ( (float)((float)((float)((float)(vTargetPos->v[1] - vOriginOut.v[1]) * (float)(vTargetPos->v[1] - vOriginOut.v[1])) + (float)((float)(vTargetPos->v[0] - vOriginOut.v[0]) * (float)(vTargetPos->v[0] - vOriginOut.v[0]))) + (float)((float)(vTargetPos->v[2] - vOriginOut.v[2]) * (float)(vTargetPos->v[2] - vOriginOut.v[2]))) <= v5 )
+          break;
       }
-      v21 = Sentient_NextSentient(v21, &iTeamFlags);
-      if ( !v21 )
-        goto LABEL_18;
     }
-    result = 0i64;
+    v11 = Sentient_NextSentient(v11, &iTeamFlags);
+    if ( !v11 )
+      return 1i64;
   }
-  else
-  {
-LABEL_18:
-    result = 1i64;
-  }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_18] }
-  return result;
+  return 0i64;
 }
 
 /*
@@ -2071,113 +1673,77 @@ AIScriptedInterface::Grenade_Ping
 */
 void AIScriptedInterface::Grenade_Ping(AIScriptedInterface *this, gentity_s *pGrenade, const vec3_t *origin)
 {
-  bool v6; 
-  bool v7; 
-  char v11; 
+  double v5; 
   AINavigator *pNavigator; 
-  __int64 v13; 
+  __int64 v7; 
   ai_scripted_t *m_pAI; 
-  bool v26; 
-  ai_scripted_t *v27; 
+  bool v9; 
+  ai_scripted_t *v10; 
   unsigned __int16 number; 
-  __int64 v29; 
-  unsigned int v30; 
-  __int64 v31; 
-  gentity_s *v32; 
+  __int64 v12; 
+  unsigned int v13; 
+  __int64 v14; 
+  gentity_s *v15; 
   bool ShouldIgnore; 
-  ai_scripted_t *v34; 
+  ai_scripted_t *v17; 
   EntHandle *p_pGrenade; 
-  __int64 v36; 
-  __int64 v37; 
-  char v38[8]; 
-  int v39[4]; 
+  __int64 v19; 
+  __int64 v20; 
+  char v21[8]; 
+  float v22; 
+  float v23; 
+  float v24; 
 
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 1025, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  v6 = pGrenade == NULL;
-  if ( !pGrenade )
+  if ( !pGrenade && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 1026, ASSERT_TYPE_ASSERT, "(pGrenade)", (const char *)&queryFormat, "pGrenade") )
+    __debugbreak();
+  if ( this->m_pAI->grenade.grenadeAwareness != 0.0 )
   {
-    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 1026, ASSERT_TYPE_ASSERT, "(pGrenade)", (const char *)&queryFormat, "pGrenade");
-    v6 = !v7;
-    if ( v7 )
-      __debugbreak();
-  }
-  _RAX = this->m_pAI;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rax+49Ch]
-  }
-  if ( !v6 )
-  {
-    if ( !AICommonInterface::GetTargetEntity(this) )
-      goto LABEL_10;
-    *(double *)&_XMM0 = G_random();
-    _RAX = this->m_pAI;
-    __asm { vcomiss xmm0, dword ptr [rax+49Ch] }
-    if ( v11 | v6 )
+    if ( !AICommonInterface::GetTargetEntity(this) || (v5 = G_random(), *(float *)&v5 <= this->m_pAI->grenade.grenadeAwareness) )
     {
-LABEL_10:
       this->EnterAlertState(this);
       pNavigator = this->m_pAI->pNavigator;
       if ( pNavigator->m_bMultiGoalPath && pNavigator->HasPath(pNavigator) )
       {
-        LOBYTE(v13) = -1;
-        this->m_pAI->pNavigator->GetNextMultiGoalPathGoal(this->m_pAI->pNavigator, v13, (vec3_t *)v39, (bool *)v38);
-        __asm
-        {
-          vmovss  xmm0, [rsp+88h+var_40]
-          vmovss  xmm1, [rsp+88h+var_3C]
-        }
+        LOBYTE(v7) = -1;
+        this->m_pAI->pNavigator->GetNextMultiGoalPathGoal(this->m_pAI->pNavigator, v7, (vec3_t *)&v22, (bool *)v21);
         m_pAI = this->m_pAI;
-        __asm
-        {
-          vsubss  xmm2, xmm1, dword ptr [rax+134h]
-          vsubss  xmm4, xmm0, dword ptr [rax+130h]
-          vmovss  xmm0, [rsp+88h+var_38]
-          vsubss  xmm3, xmm0, dword ptr [rax+138h]
-          vmulss  xmm1, xmm2, xmm2
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vcomiss xmm2, cs:__real@47800000
-        }
-        if ( v11 )
+        if ( (float)((float)((float)((float)(v23 - m_pAI->ent->r.currentOrigin.v[1]) * (float)(v23 - m_pAI->ent->r.currentOrigin.v[1])) + (float)((float)(v22 - m_pAI->ent->r.currentOrigin.v[0]) * (float)(v22 - m_pAI->ent->r.currentOrigin.v[0]))) + (float)((float)(v24 - m_pAI->ent->r.currentOrigin.v[2]) * (float)(v24 - m_pAI->ent->r.currentOrigin.v[2]))) < 65536.0 )
           return;
       }
       else
       {
         m_pAI = this->m_pAI;
       }
-      v26 = EntHandle::isDefined(&m_pAI->grenade.pGrenade) != 0;
+      v9 = EntHandle::isDefined(&m_pAI->grenade.pGrenade) != 0;
       if ( G_Missile_IsGrenade(pGrenade) )
       {
         EntHandle::setEnt(&this->m_pAI->grenade.pGrenade, pGrenade);
-        v27 = this->m_pAI;
-        number = v27->grenade.pGrenade.number;
+        v10 = this->m_pAI;
+        number = v10->grenade.pGrenade.number;
         if ( !number )
           goto LABEL_45;
-        v29 = number;
-        v30 = number - 1;
-        if ( v30 >= 0x800 )
+        v12 = number;
+        v13 = number - 1;
+        if ( v13 >= 0x800 )
         {
-          LODWORD(v36) = v30;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v36, 2048) )
+          LODWORD(v19) = v13;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v19, 2048) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        v31 = v29 - 1;
-        if ( g_entities[v31].r.isInUse != g_entityIsInUse[v31] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        v14 = v12 - 1;
+        if ( g_entities[v14].r.isInUse != g_entityIsInUse[v14] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( !g_entityIsInUse[v31] )
+        if ( !g_entityIsInUse[v14] )
         {
-          LODWORD(v37) = v27->grenade.pGrenade.number - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v37) )
+          LODWORD(v20) = v10->grenade.pGrenade.number - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v20) )
             __debugbreak();
         }
-        if ( !v27->grenade.pGrenade.number )
+        if ( !v10->grenade.pGrenade.number )
         {
 LABEL_45:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 1052, ASSERT_TYPE_ASSERT, "(m_pAI->grenade.pGrenade.isDefined())", (const char *)&queryFormat, "m_pAI->grenade.pGrenade.isDefined()") )
@@ -2188,8 +1754,8 @@ LABEL_45:
       {
         if ( EntHandle::ent(&pGrenade->parent)->sentient )
         {
-          v32 = EntHandle::ent(&pGrenade->parent);
-          if ( Sentient_IsEnemyTeam(this->m_pAI->sentient, v32->sentient) )
+          v15 = EntHandle::ent(&pGrenade->parent);
+          if ( Sentient_IsEnemyTeam(this->m_pAI->sentient, v15->sentient) )
           {
             GScr_AddEntity(pGrenade);
             GScr_Notify(this->m_pAI->ent, scr_const.grenadedanger, 1u);
@@ -2199,16 +1765,16 @@ LABEL_45:
       if ( G_Missile_IsGrenade(pGrenade) )
       {
         G_Missile_PredictGrenadeLandPos(pGrenade);
-        ShouldIgnore = AIScriptedInterface::Grenade_ShouldIgnore(this, pGrenade, v26);
-        v34 = this->m_pAI;
+        ShouldIgnore = AIScriptedInterface::Grenade_ShouldIgnore(this, pGrenade, v9);
+        v17 = this->m_pAI;
         if ( ShouldIgnore )
         {
-          p_pGrenade = &v34->grenade.pGrenade;
+          p_pGrenade = &v17->grenade.pGrenade;
 LABEL_42:
           EntHandle::setEnt(p_pGrenade, NULL);
           return;
         }
-        if ( !v34->grenade.grenadeEvadeActive && AIScriptedInterface::Grenade_IsPointSafe(this, &v34->ent->r.currentOrigin) )
+        if ( !v17->grenade.grenadeEvadeActive && AIScriptedInterface::Grenade_IsPointSafe(this, &v17->ent->r.currentOrigin) )
         {
           p_pGrenade = &this->m_pAI->grenade.pGrenade;
           goto LABEL_42;
@@ -2227,117 +1793,62 @@ bool AIScriptedInterface::Grenade_ShouldIgnore(AIScriptedInterface *this, gentit
 {
   GWeaponMap *Instance; 
   const Weapon *WeaponForEntity; 
-  int isDefined; 
-  bool v32; 
-  gentity_s *v33; 
-  gentity_s *v34; 
-  bool IsEnemyTeam; 
-  bool result; 
+  ai_scripted_t *m_pAI; 
+  float v9; 
+  float v10; 
+  __int128 v11; 
+  float v15; 
+  gentity_s *v16; 
+  ai_scripted_t *v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   vec3_t vLookaheadDir; 
 
-  _RBX = grenade;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 967, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 968, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 969, ASSERT_TYPE_ASSERT, "(grenade)", (const char *)&queryFormat, "grenade") )
+  if ( !grenade && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 969, ASSERT_TYPE_ASSERT, "(grenade)", (const char *)&queryFormat, "grenade") )
     __debugbreak();
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
   Instance = GWeaponMap::GetInstance();
-  WeaponForEntity = BG_GetWeaponForEntity(Instance, &_RBX->s);
-  if ( BG_WeaponDef(WeaponForEntity, 0)->offhandClass == OFFHAND_CLASS_SMOKE_GRENADE || _RBX->targetname == scr_const.car_grenade )
-  {
-    result = 1;
-  }
-  else
+  WeaponForEntity = BG_GetWeaponForEntity(Instance, &grenade->s);
+  if ( BG_WeaponDef(WeaponForEntity, 0)->offhandClass != OFFHAND_CLASS_SMOKE_GRENADE && grenade->targetname != scr_const.car_grenade )
   {
     if ( !AICommonInterface::HasPath(this) || AICommonInterface::PointAtGoal(this, &this->m_pAI->ent->r.currentOrigin, &this->m_pAI->scriptGoal) )
-      goto LABEL_24;
-    __asm
-    {
-      vmovaps [rsp+98h+var_38], xmm7
-      vmovaps [rsp+98h+var_48], xmm8
-    }
-    if ( !G_Missile_IsGrenade(_RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 987, ASSERT_TYPE_ASSERT, "(G_Missile_IsGrenade( grenade ))", (const char *)&queryFormat, "G_Missile_IsGrenade( grenade )") )
+      return 0;
+    if ( !G_Missile_IsGrenade(grenade) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 987, ASSERT_TYPE_ASSERT, "(G_Missile_IsGrenade( grenade ))", (const char *)&queryFormat, "G_Missile_IsGrenade( grenade )") )
       __debugbreak();
+    m_pAI = this->m_pAI;
+    v9 = grenade->c.mover.angle.pos1.v[0] - m_pAI->ent->r.currentOrigin.v[0];
+    v11 = LODWORD(grenade->c.mover.angle.pos1.v[1]);
+    v10 = grenade->c.mover.angle.pos1.v[1] - m_pAI->ent->r.currentOrigin.v[1];
+    *(float *)&v11 = fsqrt((float)(v10 * v10) + (float)(v9 * v9));
+    _XMM3 = v11;
     __asm
     {
-      vmovss  xmm0, dword ptr [rbx+1FCh]
-      vmovss  xmm1, dword ptr [rbx+200h]
-      vsubss  xmm8, xmm0, dword ptr [rcx+130h]
-      vsubss  xmm7, xmm1, dword ptr [rcx+134h]
-      vmulss  xmm0, xmm8, xmm8
-      vmulss  xmm2, xmm7, xmm7
-      vaddss  xmm1, xmm2, xmm0
-      vsqrtss xmm3, xmm1, xmm1
-      vmovss  xmm1, cs:__real@3f800000
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm1, xmm0
-      vdivss  xmm6, xmm1, xmm0
     }
     AIScriptedInterface::GetPathLookaheadDir(this, &vLookaheadDir);
-    __asm
+    v15 = (float)((float)(v10 * (float)(1.0 / *(float *)&_XMM0)) * vLookaheadDir.v[1]) + (float)((float)(v9 * (float)(1.0 / *(float *)&_XMM0)) * vLookaheadDir.v[0]);
+    if ( bWasPreviouslyAware || v15 >= 0.0 )
     {
-      vmulss  xmm0, xmm7, xmm6
-      vmovaps xmm7, [rsp+98h+var_38]
-      vmulss  xmm3, xmm0, dword ptr [rsp+98h+vLookaheadDir+4]
-      vmulss  xmm1, xmm8, xmm6
-      vmovaps xmm8, [rsp+98h+var_48]
-      vmulss  xmm2, xmm1, dword ptr [rsp+98h+vLookaheadDir]
-      vaddss  xmm6, xmm3, xmm2
-    }
-    if ( !bWasPreviouslyAware )
-    {
-      __asm
+      if ( !EntHandle::isDefined(&grenade->parent) || !EntHandle::ent(&grenade->parent)->sentient || (v16 = EntHandle::ent(&grenade->parent), Sentient_IsEnemyTeam(this->m_pAI->sentient, v16->sentient)) )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm6, xmm0
+        if ( v15 > 0.69999999 )
+        {
+          v17 = this->m_pAI;
+          v18 = v17->ent->r.currentOrigin.v[0] - grenade->c.mover.angle.pos1.v[0];
+          v19 = v17->ent->r.currentOrigin.v[1] - grenade->c.mover.angle.pos1.v[1];
+          v20 = v17->ent->r.currentOrigin.v[2] - grenade->c.mover.angle.pos1.v[2];
+          return (float)((float)((float)(v19 * v19) + (float)(v18 * v18)) + (float)(v20 * v20)) > 1024.0;
+        }
       }
-    }
-    isDefined = EntHandle::isDefined(&_RBX->parent);
-    v32 = isDefined == 0;
-    if ( isDefined )
-    {
-      v33 = EntHandle::ent(&_RBX->parent);
-      v32 = v33->sentient == NULL;
-      if ( v33->sentient )
-      {
-        v34 = EntHandle::ent(&_RBX->parent);
-        IsEnemyTeam = Sentient_IsEnemyTeam(this->m_pAI->sentient, v34->sentient);
-        v32 = !IsEnemyTeam;
-        if ( !IsEnemyTeam )
-          goto LABEL_24;
-      }
-    }
-    __asm { vcomiss xmm6, cs:__real@3f333333 }
-    if ( v32 )
-    {
-LABEL_24:
-      result = 0;
-    }
-    else
-    {
-      _RCX = this->m_pAI->ent;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+130h]
-        vsubss  xmm3, xmm0, dword ptr [rbx+1FCh]
-        vmovss  xmm1, dword ptr [rcx+134h]
-        vsubss  xmm2, xmm1, dword ptr [rbx+200h]
-        vmovss  xmm0, dword ptr [rcx+138h]
-        vsubss  xmm4, xmm0, dword ptr [rbx+204h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vcomiss xmm2, cs:__real@44800000
-      }
-      result = !v32;
+      return 0;
     }
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
-  return result;
+  return 1;
 }
 
 /*
@@ -2345,54 +1856,38 @@ LABEL_24:
 AIScriptedInterface::Grenade_ShouldReturnThrow
 ==============
 */
-bool AIScriptedInterface::Grenade_ShouldReturnThrow(AIScriptedInterface *this)
+char AIScriptedInterface::Grenade_ShouldReturnThrow(AIScriptedInterface *this)
 {
-  bool IsGrenade; 
-  bool v4; 
-  bool v5; 
+  gentity_s *v2; 
+  ai_scripted_t *m_pAI; 
+  float v4; 
+  float v5; 
   GWeaponMap *Instance; 
   const Weapon *WeaponForEntity; 
-  char v16; 
+  double v8; 
 
-  _RDI = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 896, ASSERT_TYPE_ASSERT, "(pGrenade)", (const char *)&queryFormat, "pGrenade") )
+  v2 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
+  if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 896, ASSERT_TYPE_ASSERT, "(pGrenade)", (const char *)&queryFormat, "pGrenade") )
     __debugbreak();
-  if ( this->m_pAI->combat.noGrenadeReturnThrow || EntHandle::isDefined(&_RDI->grenadeActivator) || this->m_pAI->grenade.bGrenadeTossValid || (_RDI->c.missile.flags & 0x800) != 0 )
+  if ( this->m_pAI->combat.noGrenadeReturnThrow || EntHandle::isDefined(&v2->grenadeActivator) || this->m_pAI->grenade.bGrenadeTossValid || (v2->c.missile.flags & 0x800) != 0 )
     return 0;
-  IsGrenade = G_Missile_IsGrenade(_RDI);
-  v4 = !IsGrenade;
-  if ( !IsGrenade )
-  {
-    v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 903, ASSERT_TYPE_ASSERT, "(G_Missile_IsGrenade( pGrenade ))", (const char *)&queryFormat, "G_Missile_IsGrenade( pGrenade )");
-    v4 = !v5;
-    if ( v5 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+1FCh]
-    vmovss  xmm1, dword ptr [rdi+200h]
-    vsubss  xmm2, xmm1, dword ptr [rcx+134h]
-    vsubss  xmm4, xmm0, dword ptr [rcx+130h]
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm1, xmm3, xmm0
-    vcomiss xmm1, cs:__real@46afc800
-  }
-  if ( !v4 )
+  if ( !G_Missile_IsGrenade(v2) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 903, ASSERT_TYPE_ASSERT, "(G_Missile_IsGrenade( pGrenade ))", (const char *)&queryFormat, "G_Missile_IsGrenade( pGrenade )") )
+    __debugbreak();
+  m_pAI = this->m_pAI;
+  v4 = v2->c.mover.angle.pos1.v[1] - m_pAI->ent->r.currentOrigin.v[1];
+  v5 = v2->c.mover.angle.pos1.v[0] - m_pAI->ent->r.currentOrigin.v[0];
+  if ( (float)((float)(v4 * v4) + (float)(v5 * v5)) > 22500.0 )
     return 0;
   Instance = GWeaponMap::GetInstance();
-  WeaponForEntity = BG_GetWeaponForEntity(Instance, &_RDI->s);
+  WeaponForEntity = BG_GetWeaponForEntity(Instance, &v2->s);
   if ( BG_GetWeaponType(WeaponForEntity, 0) != WEAPTYPE_GRENADE || BG_WeaponStickinessType(WeaponForEntity, 0) )
     return 0;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 314, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  if ( this->m_pAI->fixedNode )
+  if ( !this->m_pAI->fixedNode && (v8 = G_random(), *(float *)&v8 > this->m_pAI->grenade.grenadeReturnThrowChance) )
+    return 0;
+  else
     return 1;
-  *(double *)&_XMM0 = G_random();
-  _RAX = this->m_pAI;
-  __asm { vcomiss xmm0, dword ptr [rax+4A0h] }
-  return (v16 | v4) != 0;
 }
 
 /*
@@ -2402,17 +1897,19 @@ AIScriptedInterface::Grenade_ShouldTryToReturnThrow
 */
 bool AIScriptedInterface::Grenade_ShouldTryToReturnThrow(AIScriptedInterface *this)
 {
-  char v4; 
-  char v5; 
+  double v2; 
+  bool result; 
 
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 314, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  if ( this->m_pAI->fixedNode )
-    return 1;
-  *(double *)&_XMM0 = G_random();
-  _RAX = this->m_pAI;
-  __asm { vcomiss xmm0, dword ptr [rax+4A0h] }
-  return (v4 | v5) != 0;
+  result = 1;
+  if ( !this->m_pAI->fixedNode )
+  {
+    v2 = G_random();
+    if ( *(float *)&v2 > this->m_pAI->grenade.grenadeReturnThrowChance )
+      return 0;
+  }
+  return result;
 }
 
 /*
@@ -2420,37 +1917,38 @@ bool AIScriptedInterface::Grenade_ShouldTryToReturnThrow(AIScriptedInterface *th
 AIScriptedInterface::Grenade_Throw
 ==============
 */
-
-gentity_s *__fastcall AIScriptedInterface::Grenade_Throw(AIScriptedInterface *this, __int64 a2, double _XMM2_8)
+gentity_s *AIScriptedInterface::Grenade_Throw(AIScriptedInterface *this)
 {
   ai_scripted_t *m_pAI; 
-  scrContext_t *v6; 
-  int v7; 
-  ai_scripted_t *v8; 
+  scrContext_t *v4; 
+  int v5; 
+  ai_scripted_t *v6; 
+  ai_scripted_t *v7; 
   int WorldTagPos; 
+  ai_scripted_t *v9; 
   const DObj *ServerDObjForEnt; 
   const char *Name; 
   unsigned int number; 
-  const char *v15; 
-  const char *v16; 
+  const char *v13; 
+  const char *v14; 
   const Weapon *Weapon; 
   bool IsAlternate; 
-  gentity_s *v32; 
+  gentity_s *v17; 
   EntHandle *p_parent; 
-  gentity_s *v34; 
-  gentity_s *v35; 
+  gentity_s *v19; 
+  gentity_s *v20; 
   GMissile *MissileSystem; 
   int time; 
   gentity_s *ent; 
-  int v39; 
+  int v24; 
   GWeaponMap *Instance; 
-  gentity_s *v41; 
-  gentity_s *v42; 
+  gentity_s *v26; 
+  gentity_s *v27; 
   int gameTime; 
   int fuseTime; 
-  ai_scripted_t *v45; 
+  ai_scripted_t *v30; 
   unsigned __int8 grenadeAmmo; 
-  GEntityMissileComponentData v47; 
+  GEntityMissileComponentData v32; 
   vec3_t vVelOut; 
   vec3_t vPosOut; 
   vec3_t outPos; 
@@ -2463,98 +1961,74 @@ gentity_s *__fastcall AIScriptedInterface::Grenade_Throw(AIScriptedInterface *th
     Scr_SetString(&this->m_pAI->grenade.GrenadeTossMethod, (scr_string_t)0);
     return 0i64;
   }
-  v6 = ScriptContext_Server();
+  v4 = ScriptContext_Server();
   if ( !EntHandle::isDefined(&this->m_pAI->grenade.pGrenade) && !this->m_pAI->grenade.bGrenadeTossValid )
-    Scr_ErrorWithDialogMessage(v6, "cannot call 'throwGrenade' before calling 'checkGrenadeThrow' except in grenade return scripts", (const char *)&queryFormat.fmt + 3);
-  v7 = 0;
-  v8 = this->m_pAI;
-  _RAX = v8;
-  if ( v8->grenade.bGrenadeTargetValid )
+    Scr_ErrorWithDialogMessage(v4, "cannot call 'throwGrenade' before calling 'checkGrenadeThrow' except in grenade return scripts", (const char *)&queryFormat.fmt + 3);
+  v5 = 0;
+  v6 = this->m_pAI;
+  v7 = v6;
+  if ( v6->grenade.bGrenadeTargetValid )
   {
-    WorldTagPos = G_Utils_DObjGetWorldTagPos(v8->ent, scr_const.tag_accessory_right, &outPos);
-    _RCX = this->m_pAI;
+    WorldTagPos = G_Utils_DObjGetWorldTagPos(v6->ent, scr_const.tag_accessory_right, &outPos);
+    v9 = this->m_pAI;
     if ( !WorldTagPos )
     {
-      ServerDObjForEnt = Com_GetServerDObjForEnt(_RCX->ent);
+      ServerDObjForEnt = Com_GetServerDObjForEnt(v9->ent);
       Name = DObjGetName(ServerDObjForEnt);
       number = this->m_pAI->ent->s.number;
-      v15 = SL_ConvertToString(scr_const.tag_accessory_right);
-      v16 = j_va("Missing tag [%s] on entity [%d] (%s)\n", v15, number, Name);
-      Scr_Error(COM_ERR_3321, v6, v16);
+      v13 = SL_ConvertToString(scr_const.tag_accessory_right);
+      v14 = j_va("Missing tag [%s] on entity [%d] (%s)\n", v13, number, Name);
+      Scr_Error(COM_ERR_3321, v4, v14);
       return 0i64;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+30h+outPos]
-      vmovss  dword ptr [rbp+30h+throwInfo], xmm0
-      vmovss  xmm1, dword ptr [rbp+30h+outPos+4]
-      vmovss  dword ptr [rbp+30h+throwInfo+4], xmm1
-      vmovss  xmm0, dword ptr [rbp+30h+outPos+8]
-      vmovss  dword ptr [rbp+30h+throwInfo+8], xmm0
-      vxorps  xmm2, xmm2, xmm2
-      vmovss  dword ptr [rbp+30h+throwInfo+0Ch], xmm2
-      vmovss  dword ptr [rbp+30h+throwInfo+10h], xmm2
-      vmovss  dword ptr [rbp+30h+throwInfo+14h], xmm2
-      vmovss  xmm0, dword ptr [rcx+4C4h]
-      vmovss  dword ptr [rbp+30h+throwInfo+18h], xmm0
-      vmovss  xmm1, dword ptr [rcx+4C8h]
-      vmovss  dword ptr [rbp+30h+throwInfo+1Ch], xmm1
-      vmovss  xmm0, dword ptr [rcx+4CCh]
-      vmovss  dword ptr [rbp+30h+throwInfo+20h], xmm0
-      vmovss  dword ptr [rbp+30h+throwInfo+24h], xmm2
-    }
+    *(float *)&throwInfo.__vftable = outPos.v[0];
+    *((float *)&throwInfo.__vftable + 1) = outPos.v[1];
+    *(float *)&throwInfo.m_origin = outPos.v[2];
+    *((float *)&throwInfo.m_origin + 1) = 0.0;
+    *(float *)&throwInfo.m_angles = 0.0;
+    *((float *)&throwInfo.m_angles + 1) = 0.0;
+    throwInfo.m_box = *(Bounds **)v9->grenade.vGrenadeTargetPos.v;
+    *(float *)&throwInfo.m_clipMask = v9->grenade.vGrenadeTargetPos.v[2];
+    *((float *)&throwInfo.m_clipMask + 1) = 0.0;
     throwInfo.m_parentEntNum = 1;
-    throwInfo.m_ownerEntNum = _RCX->grenade.grenadeTossWithBounce;
-    throwInfo.m_entityState = (entityState_t *)(unsigned int)_RCX->grenade.GrenadeTossMethod;
-    v7 = AIScriptedInterface::Grenade_CheckTossPos(this, (const AIGrenadeCheckInfo *)&throwInfo, &vPosOut, &vVelOut);
-    v8 = this->m_pAI;
-    _RAX = v8;
+    throwInfo.m_ownerEntNum = v9->grenade.grenadeTossWithBounce;
+    throwInfo.m_entityState = (entityState_t *)(unsigned int)v9->grenade.GrenadeTossMethod;
+    v5 = AIScriptedInterface::Grenade_CheckTossPos(this, (const AIGrenadeCheckInfo *)&throwInfo, &vPosOut, &vVelOut);
+    v6 = this->m_pAI;
+    v7 = v6;
   }
-  if ( !v7 )
+  if ( !v5 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+4B8h]
-      vmovss  dword ptr [rbp+30h+vPosOut], xmm0
-      vmovss  xmm1, dword ptr [rax+4BCh]
-      vmovss  dword ptr [rbp+30h+vPosOut+4], xmm1
-      vmovss  xmm0, dword ptr [rax+4C0h]
-      vmovss  dword ptr [rbp+30h+vPosOut+8], xmm0
-      vmovss  xmm1, dword ptr [rax+4D0h]
-      vmovss  dword ptr [rsp+130h+vVelOut], xmm1
-      vmovss  xmm0, dword ptr [rax+4D4h]
-      vmovss  dword ptr [rsp+130h+vVelOut+4], xmm0
-      vmovss  xmm1, dword ptr [rax+4D8h]
-      vmovss  dword ptr [rsp+130h+vVelOut+8], xmm1
-    }
-    v8 = _RAX;
+    vPosOut = v7->grenade.vGrenadeTossPos;
+    vVelOut = v7->grenade.vGrenadeTossVel;
+    v6 = v7;
   }
-  Weapon = GScr_Weapon_GetWeapon(v6, (const scr_weapon_t)v8->grenade.grenadeWeapon);
-  IsAlternate = GScr_Weapon_IsAlternate(v6, (const scr_weapon_t)this->m_pAI->grenade.grenadeWeapon);
+  Weapon = GScr_Weapon_GetWeapon(v4, (const scr_weapon_t)v6->grenade.grenadeWeapon);
+  IsAlternate = GScr_Weapon_IsAlternate(v4, (const scr_weapon_t)this->m_pAI->grenade.grenadeWeapon);
   if ( !BG_WeaponDef(Weapon, IsAlternate) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 818, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
-  if ( EntHandle::isDefined(&this->m_pAI->grenade.pGrenade) && (v32 = EntHandle::ent(&this->m_pAI->grenade.pGrenade)) != NULL && (p_parent = &v32->parent, EntHandle::isDefined(&v32->parent)) && EntHandle::ent(p_parent) == this->m_pAI->ent )
+  if ( EntHandle::isDefined(&this->m_pAI->grenade.pGrenade) && (v17 = EntHandle::ent(&this->m_pAI->grenade.pGrenade)) != NULL && (p_parent = &v17->parent, EntHandle::isDefined(&v17->parent)) && EntHandle::ent(p_parent) == this->m_pAI->ent )
   {
     this->Grenade_Detach(this);
-    v34 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
-    GEntityMissileComponentData::GEntityMissileComponentData(&v47, v34);
-    v35 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
-    GEntityData::GEntityData(&throwInfo, v35, &v47);
+    v19 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
+    GEntityMissileComponentData::GEntityMissileComponentData(&v32, v19);
+    v20 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
+    GEntityData::GEntityData(&throwInfo, v20, &v32);
     MissileSystem = GMissile::GetMissileSystem();
     if ( !MissileSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 831, ASSERT_TYPE_ASSERT, "(missileSystem)", (const char *)&queryFormat, "missileSystem") )
       __debugbreak();
     time = level.time;
     ent = this->m_pAI->ent;
     if ( ent )
-      v39 = ent->s.number;
+      v24 = ent->s.number;
     else
-      v39 = 2047;
+      v24 = 2047;
     Instance = GWeaponMap::GetInstance();
-    BgMissile::InitGrenadeEntity(MissileSystem, Instance, &throwInfo, v39, time);
+    BgMissile::InitGrenadeEntity(MissileSystem, Instance, &throwInfo, v24, time);
     BgMissile::InitGrenadeMovement(MissileSystem, &throwInfo, &vPosOut, &vVelOut, Weapon, 1, level.time);
-    v41 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
-    SV_LinkEntity(v41);
-    v42 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
+    v26 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
+    SV_LinkEntity(v26);
+    v27 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
   }
   else
   {
@@ -2562,17 +2036,17 @@ gentity_s *__fastcall AIScriptedInterface::Grenade_Throw(AIScriptedInterface *th
       return 0i64;
     gameTime = level.time;
     fuseTime = BG_WeaponAIFuseTime(Weapon, IsAlternate);
-    v42 = G_Missile_FireGrenade(this->m_pAI->ent, &vPosOut, &vVelOut, Weapon, 0, WEAPON_HAND_DEFAULT, 1, fuseTime, 1, gameTime);
-    v45 = this->m_pAI;
-    grenadeAmmo = v45->weaponInfo.grenadeAmmo;
+    v27 = G_Missile_FireGrenade(this->m_pAI->ent, &vPosOut, &vVelOut, Weapon, 0, WEAPON_HAND_DEFAULT, 1, fuseTime, 1, gameTime);
+    v30 = this->m_pAI;
+    grenadeAmmo = v30->weaponInfo.grenadeAmmo;
     if ( grenadeAmmo )
-      v45->weaponInfo.grenadeAmmo = grenadeAmmo - 1;
+      v30->weaponInfo.grenadeAmmo = grenadeAmmo - 1;
   }
   this->m_pAI->grenade.bGrenadeTossValid = 0;
   Scr_SetString(&this->m_pAI->grenade.GrenadeTossMethod, (scr_string_t)0);
-  if ( !v42 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 856, ASSERT_TYPE_ASSERT, "(pGrenade)", (const char *)&queryFormat, "pGrenade") )
+  if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 856, ASSERT_TYPE_ASSERT, "(pGrenade)", (const char *)&queryFormat, "pGrenade") )
     __debugbreak();
-  return v42;
+  return v27;
 }
 
 /*
@@ -2661,21 +2135,19 @@ AIScriptedInterface::IsAwareOfGrenade
 */
 bool AIScriptedInterface::IsAwareOfGrenade(AIScriptedInterface *this)
 {
-  char v6; 
-  char v7; 
+  double v2; 
+  bool result; 
 
-  _RAX = this->m_pAI;
-  __asm
+  result = 0;
+  if ( this->m_pAI->grenade.grenadeAwareness != 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rax+49Ch]
+    if ( !AICommonInterface::GetTargetEntity(this) )
+      return 1;
+    v2 = G_random();
+    if ( *(float *)&v2 <= this->m_pAI->grenade.grenadeAwareness )
+      return 1;
   }
-  if ( !AICommonInterface::GetTargetEntity(this) )
-    return 1;
-  *(double *)&_XMM0 = G_random();
-  _RAX = this->m_pAI;
-  __asm { vcomiss xmm0, dword ptr [rax+49Ch] }
-  return (v6 | v7) != 0;
+  return result;
 }
 
 /*
@@ -2707,8 +2179,8 @@ AIScriptedInterface::OnScrCmd_CheckGrenadeLaunch
 void AIScriptedInterface::OnScrCmd_CheckGrenadeLaunch(AIScriptedInterface *this, scrContext_t *scrContext)
 {
   const sentient_s *TargetSentient; 
-  AIScriptedInterface_vtbl *v9; 
-  __int64 v12; 
+  AIScriptedInterface_vtbl *v5; 
+  __int64 v6; 
   vec3_t vVelOut; 
   vec3_t vOriginOut; 
   vec3_t vTargetPos; 
@@ -2721,24 +2193,12 @@ void AIScriptedInterface::OnScrCmd_CheckGrenadeLaunch(AIScriptedInterface *this,
     Scr_GetVector(scrContext, 0, &vectorValue);
     Sentient_GetOrigin(TargetSentient, &vOriginOut);
     Sentient_GetVelocity(TargetSentient, &vVelOut);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+98h+vOriginOut]
-      vaddss  xmm1, xmm0, dword ptr [rsp+98h+vVelOut]
-      vmovss  xmm2, dword ptr [rsp+98h+vVelOut+4]
-      vaddss  xmm0, xmm2, dword ptr [rsp+98h+vOriginOut+4]
-    }
-    v9 = this->__vftable;
-    __asm
-    {
-      vmovss  dword ptr [rsp+98h+vTargetPos], xmm1
-      vmovss  xmm1, dword ptr [rsp+98h+vVelOut+8]
-      vaddss  xmm2, xmm1, dword ptr [rsp+98h+vOriginOut+8]
-      vmovss  dword ptr [rsp+98h+vTargetPos+8], xmm2
-      vmovss  dword ptr [rsp+98h+vTargetPos+4], xmm0
-    }
-    v12 = (__int64)v9->GetEntity(this);
-    if ( AIScriptedInterface::Grenade_CheckLaunch(this, (const vec3_t *)(v12 + 304), &vectorValue, &vTargetPos, &outTossVelocity) )
+    v5 = this->__vftable;
+    vTargetPos.v[0] = vOriginOut.v[0] + vVelOut.v[0];
+    vTargetPos.v[2] = vVelOut.v[2] + vOriginOut.v[2];
+    vTargetPos.v[1] = vVelOut.v[1] + vOriginOut.v[1];
+    v6 = (__int64)v5->GetEntity(this);
+    if ( AIScriptedInterface::Grenade_CheckLaunch(this, (const vec3_t *)(v6 + 304), &vectorValue, &vTargetPos, &outTossVelocity) )
       Scr_AddVector(scrContext, outTossVelocity.v);
   }
 }
@@ -2774,11 +2234,14 @@ void AIScriptedInterface::OnScrCmd_CheckGrenadeThrow(AIScriptedInterface *this, 
   ai_scripted_t *m_pAI; 
   const Weapon *Weapon; 
   int v6; 
-  signed int v12; 
-  int v13; 
-  __int64 v14; 
-  __int64 v15; 
-  ai_scripted_t *v16; 
+  ai_scripted_t *v7; 
+  gentity_s *ent; 
+  double Float; 
+  signed int v10; 
+  int v11; 
+  __int64 v12; 
+  __int64 v13; 
+  ai_scripted_t *v14; 
   AIGrenadeCheckInfo throwInfo; 
 
   if ( !this->GetSentient(this) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 1345, ASSERT_TYPE_ASSERT, "(GetSentient())", (const char *)&queryFormat, "GetSentient()") )
@@ -2793,53 +2256,43 @@ void AIScriptedInterface::OnScrCmd_CheckGrenadeThrow(AIScriptedInterface *this, 
         v6 = BG_WeaponDef(Weapon, 0)->stickiness == WEAPSTICKINESS_NONE;
       else
         v6 = 0;
-      _RCX = this->m_pAI->ent;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+130h]
-        vmovss  dword ptr [rsp+98h+throwInfo.vStandPos], xmm0
-        vmovss  xmm1, dword ptr [rcx+134h]
-        vmovss  dword ptr [rsp+98h+throwInfo.vStandPos+4], xmm1
-        vmovss  xmm0, dword ptr [rcx+138h]
-        vmovss  dword ptr [rsp+98h+throwInfo.vStandPos+8], xmm0
-      }
+      v7 = this->m_pAI;
+      ent = v7->ent;
+      *(_QWORD *)throwInfo.vStandPos.v = *(_QWORD *)v7->ent->r.currentOrigin.v;
+      throwInfo.vStandPos.v[2] = ent->r.currentOrigin.v[2];
       Scr_GetVector(scrContext, 0, &throwInfo.vOffset);
-      __asm { vxorps  xmm0, xmm0, xmm0 }
       throwInfo.withBounce = v6;
       throwInfo.bRechecking = 0;
-      __asm
-      {
-        vmovss  dword ptr [rsp+98h+throwInfo.vTargetPos], xmm0
-        vmovss  dword ptr [rsp+98h+throwInfo.vTargetPos+4], xmm0
-        vmovss  dword ptr [rsp+98h+throwInfo.vTargetPos+8], xmm0
-      }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm { vmovss  [rsp+98h+throwInfo.randomRange], xmm0 }
-      v12 = Scr_GetNumParam(scrContext) - 2;
-      if ( v12 >= 4 )
+      throwInfo.vTargetPos.v[0] = 0.0;
+      throwInfo.vTargetPos.v[1] = 0.0;
+      throwInfo.vTargetPos.v[2] = 0.0;
+      Float = Scr_GetFloat(scrContext, 1u);
+      throwInfo.randomRange = *(float *)&Float;
+      v10 = Scr_GetNumParam(scrContext) - 2;
+      if ( v10 >= 4 )
       {
         Scr_Error(COM_ERR_3324, scrContext, "Too many grenade throw methods\n");
-        v12 = 4;
+        v10 = 4;
       }
-      v13 = 0;
-      v14 = v12;
-      if ( v12 <= 0 )
+      v11 = 0;
+      v12 = v10;
+      if ( v10 <= 0 )
         goto LABEL_15;
-      v15 = 0i64;
+      v13 = 0i64;
       do
       {
-        throwInfo.methods[v15] = Scr_GetConstString(scrContext, v13 + 2);
+        throwInfo.methods[v13] = Scr_GetConstString(scrContext, v11 + 2);
+        ++v11;
         ++v13;
-        ++v15;
       }
-      while ( v15 < v14 );
-      if ( v13 < 4 )
+      while ( v13 < v12 );
+      if ( v11 < 4 )
 LABEL_15:
-        throwInfo.methods[v13] = 0;
+        throwInfo.methods[v11] = 0;
       this->m_pAI->grenade.bGrenadeTossValid = AIScriptedInterface::Grenade_CheckToss(this, &throwInfo, &this->m_pAI->grenade.vGrenadeTossPos, &this->m_pAI->grenade.vGrenadeTossVel) == 1;
-      v16 = this->m_pAI;
-      if ( v16->grenade.bGrenadeTossValid )
-        Scr_AddVector(scrContext, v16->grenade.vGrenadeTossVel.v);
+      v14 = this->m_pAI;
+      if ( v14->grenade.bGrenadeTossValid )
+        Scr_AddVector(scrContext, v14->grenade.vGrenadeTossVel.v);
     }
   }
 }
@@ -2852,13 +2305,13 @@ AIScriptedInterface::OnScrCmd_CheckGrenadeThrowPos
 void AIScriptedInterface::OnScrCmd_CheckGrenadeThrowPos(AIScriptedInterface *this, scrContext_t *scrContext)
 {
   ai_scripted_t *m_pAI; 
-  signed int v10; 
-  int v11; 
-  __int64 v12; 
-  __int64 v13; 
-  char v19; 
-  char v20; 
-  ai_scripted_t *v25; 
+  gentity_s *ent; 
+  signed int v6; 
+  int v7; 
+  __int64 v8; 
+  __int64 v9; 
+  ai_scripted_t *v10; 
+  ai_scripted_t *v11; 
   vec3_t end; 
   AIGrenadeCheckInfo throwInfo; 
   trace_t results; 
@@ -2868,78 +2321,50 @@ void AIScriptedInterface::OnScrCmd_CheckGrenadeThrowPos(AIScriptedInterface *thi
   m_pAI = this->m_pAI;
   if ( m_pAI->weaponInfo.grenadeAmmo )
   {
-    _RAX = m_pAI->ent;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+130h]
-      vmovss  dword ptr [rbp+57h+throwInfo.vStandPos], xmm0
-      vmovss  xmm1, dword ptr [rax+134h]
-      vmovss  dword ptr [rbp+57h+throwInfo.vStandPos+4], xmm1
-      vmovss  xmm0, dword ptr [rax+138h]
-      vmovss  dword ptr [rbp+57h+throwInfo.vStandPos+8], xmm0
-    }
+    ent = m_pAI->ent;
+    *(_QWORD *)throwInfo.vStandPos.v = *(_QWORD *)ent->r.currentOrigin.v;
+    throwInfo.vStandPos.v[2] = ent->r.currentOrigin.v[2];
     Scr_GetVector(scrContext, 0, &throwInfo.vOffset);
     Scr_GetVector(scrContext, 1u, &throwInfo.vTargetPos);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
     throwInfo.withBounce = Scr_GetInt(scrContext, 2u);
-    __asm { vmovss  [rbp+57h+throwInfo.randomRange], xmm0 }
+    throwInfo.randomRange = 0.0;
     throwInfo.bRechecking = 0;
-    v10 = Scr_GetNumParam(scrContext) - 3;
-    if ( v10 >= 4 )
+    v6 = Scr_GetNumParam(scrContext) - 3;
+    if ( v6 >= 4 )
     {
       Scr_Error(COM_ERR_3324, scrContext, "Too many grenade throw methods\n");
-      v10 = 4;
+      v6 = 4;
     }
-    v11 = 0;
-    v12 = v10;
-    if ( v10 <= 0 )
+    v7 = 0;
+    v8 = v6;
+    if ( v6 <= 0 )
       goto LABEL_11;
-    v13 = 0i64;
+    v9 = 0i64;
     do
     {
-      throwInfo.methods[v13] = Scr_GetConstString(scrContext, v11 + 3);
-      ++v11;
-      ++v13;
+      throwInfo.methods[v9] = Scr_GetConstString(scrContext, v7 + 3);
+      ++v7;
+      ++v9;
     }
-    while ( v13 < v12 );
-    if ( v11 < 4 )
+    while ( v9 < v8 );
+    if ( v7 < 4 )
 LABEL_11:
-      throwInfo.methods[v11] = 0;
+      throwInfo.methods[v7] = 0;
     if ( throwInfo.withBounce )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+throwInfo.vTargetPos]
-        vmovss  xmm1, dword ptr [rbp+57h+throwInfo.vTargetPos+4]
-        vmovss  dword ptr [rsp+110h+end], xmm0
-        vmovss  xmm0, dword ptr [rbp+57h+throwInfo.vTargetPos+8]
-        vsubss  xmm2, xmm0, cs:__real@3f800000
-        vmovss  dword ptr [rsp+110h+end+8], xmm2
-        vmovss  dword ptr [rsp+110h+end+4], xmm1
-      }
+      end.v[0] = throwInfo.vTargetPos.v[0];
+      end.v[2] = throwInfo.vTargetPos.v[2] - 1.0;
+      end.v[1] = throwInfo.vTargetPos.v[1];
       G_Main_TraceCapsule(&results, &throwInfo.vTargetPos, &end, &bounds_origin, 2047, 2065);
-      __asm
-      {
-        vmovss  xmm0, [rbp+57h+results.fraction]
-        vcomiss xmm0, cs:__real@3f000000
-      }
-      if ( !(v19 | v20) )
+      if ( results.fraction > 0.5 )
         Com_Printf(18, "targetPos for checkGrenadeThrowPos not at ground level\n");
     }
-    _R8 = this->m_pAI;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+57h+throwInfo.vTargetPos]
-      vmovss  dword ptr [r8+4C4h], xmm0
-      vmovss  xmm1, dword ptr [rbp+57h+throwInfo.vTargetPos+4]
-      vmovss  dword ptr [r8+4C8h], xmm1
-      vmovss  xmm0, dword ptr [rbp+57h+throwInfo.vTargetPos+8]
-      vmovss  dword ptr [r8+4CCh], xmm0
-    }
-    this->m_pAI->grenade.bGrenadeTossValid = AIScriptedInterface::Grenade_CheckTossPos(this, &throwInfo, &_R8->grenade.vGrenadeTossPos, &_R8->grenade.vGrenadeTossVel) == 1;
-    v25 = this->m_pAI;
-    if ( v25->grenade.bGrenadeTossValid )
-      Scr_AddVector(scrContext, v25->grenade.vGrenadeTossVel.v);
+    v10 = this->m_pAI;
+    v10->grenade.vGrenadeTargetPos = throwInfo.vTargetPos;
+    this->m_pAI->grenade.bGrenadeTossValid = AIScriptedInterface::Grenade_CheckTossPos(this, &throwInfo, &v10->grenade.vGrenadeTossPos, &v10->grenade.vGrenadeTossVel) == 1;
+    v11 = this->m_pAI;
+    if ( v11->grenade.bGrenadeTossValid )
+      Scr_AddVector(scrContext, v11->grenade.vGrenadeTossVel.v);
   }
 }
 
@@ -2963,24 +2388,23 @@ AIScriptedInterface::OnScrCmd_IsGrenadePosSafe
 */
 void AIScriptedInterface::OnScrCmd_IsGrenadePosSafe(AIScriptedInterface *this, scrContext_t *scrContext)
 {
+  float v4; 
+  double Float; 
   int IsSafeTarget; 
   vec3_t vectorValue; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
   if ( !this->GetSentient(this) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai_grenade.cpp", 1404, ASSERT_TYPE_ASSERT, "(GetSentient())", (const char *)&queryFormat, "GetSentient()") )
     __debugbreak();
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v4 = 0.0;
   GScr_GetEntity(0);
   Scr_GetVector(scrContext, 1u, &vectorValue);
   if ( Scr_GetNumParam(scrContext) > 2 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 2u);
+    v4 = *(float *)&Float;
   }
-  __asm { vmovaps xmm2, xmm6; radius }
-  IsSafeTarget = AIScriptedInterface::Grenade_IsSafeTarget(this, &vectorValue, *(float *)&_XMM2);
+  IsSafeTarget = AIScriptedInterface::Grenade_IsSafeTarget(this, &vectorValue, v4);
   Scr_AddBool(scrContext, IsSafeTarget);
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
 }
 
 /*
@@ -2990,19 +2414,20 @@ AIScriptedInterface::OnScrCmd_MagicGrenade
 */
 void AIScriptedInterface::OnScrCmd_MagicGrenade(AIScriptedInterface *this, scrContext_t *scrContext)
 {
-  gentity_s *v5; 
+  gentity_s *v4; 
   int shouldThrow; 
+  double Float; 
   int grenadeTime; 
   const Weapon *grenadeWeapon; 
   bool IsAlternate; 
+  const char *v10; 
   const char *v11; 
-  const char *v12; 
-  const WeaponDef *v13; 
-  const gentity_s *v14; 
+  const WeaponDef *v12; 
+  const gentity_s *v13; 
   vec3_t vTargetPos; 
   vec3_t vectorValue; 
 
-  v5 = this->GetEntity(this);
+  v4 = this->GetEntity(this);
   if ( Scr_GetNumParam(scrContext) < 2 || Scr_GetNumParam(scrContext) > 4 )
     Scr_Error(COM_ERR_3907, scrContext, "<ai> MagicGrenade <origin> <target position> [time to blow (seconds)] [should throw].\n");
   Scr_GetVector(scrContext, 0, &vectorValue);
@@ -3014,12 +2439,8 @@ void AIScriptedInterface::OnScrCmd_MagicGrenade(AIScriptedInterface *this, scrCo
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si ebp, xmm1
-    }
+    Float = Scr_GetFloat(scrContext, 2u);
+    grenadeTime = (int)(float)(*(float *)&Float * 1000.0);
   }
   if ( Scr_GetNumParam(scrContext) == 4 )
     shouldThrow = Scr_GetInt(scrContext, 3u);
@@ -3027,14 +2448,14 @@ void AIScriptedInterface::OnScrCmd_MagicGrenade(AIScriptedInterface *this, scrCo
   IsAlternate = GScr_Weapon_IsAlternate(scrContext, (const scr_weapon_t)this->m_pAI->grenade.grenadeWeapon);
   if ( !grenadeWeapon->weaponIdx )
   {
-    v11 = SL_ConvertToString(v5->classname);
-    v12 = j_va("Actor [%s] doesn't have a grenade weapon set.", v11);
-    Scr_Error(COM_ERR_3908, scrContext, v12);
+    v10 = SL_ConvertToString(v4->classname);
+    v11 = j_va("Actor [%s] doesn't have a grenade weapon set.", v10);
+    Scr_Error(COM_ERR_3908, scrContext, v11);
   }
-  v13 = BG_WeaponDef(grenadeWeapon, IsAlternate);
-  v14 = MagicGrenade_Internal(v5, this->m_pAI, &vectorValue, &vTargetPos, grenadeWeapon, grenadeTime, shouldThrow, v13->stickiness != WEAPSTICKINESS_NONE);
-  if ( v14 )
-    GScr_AddEntity(v14);
+  v12 = BG_WeaponDef(grenadeWeapon, IsAlternate);
+  v13 = MagicGrenade_Internal(v4, this->m_pAI, &vectorValue, &vTargetPos, grenadeWeapon, grenadeTime, shouldThrow, v12->stickiness != WEAPSTICKINESS_NONE);
+  if ( v13 )
+    GScr_AddEntity(v13);
   else
     Scr_AddUndefined(scrContext);
 }
@@ -3046,29 +2467,26 @@ AIScriptedInterface::OnScrCmd_MagicGrenadeManual
 */
 void AIScriptedInterface::OnScrCmd_MagicGrenadeManual(AIScriptedInterface *this, scrContext_t *scrContext)
 {
-  gentity_s *v5; 
+  gentity_s *v4; 
+  double Float; 
   int fuseTime; 
   const Weapon *Weapon; 
   bool isAlternate; 
+  const char *v9; 
   const char *v10; 
-  const char *v11; 
-  const gentity_s *v12; 
+  const gentity_s *v11; 
   vec3_t dir; 
   vec3_t vectorValue; 
 
-  v5 = this->GetEntity(this);
+  v4 = this->GetEntity(this);
   if ( Scr_GetNumParam(scrContext) != 2 && Scr_GetNumParam(scrContext) != 3 )
     Scr_Error(COM_ERR_3909, scrContext, "<actor> MagicGrenadeManual <origin> <velocity> [time To Blow (seconds)].\n");
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &dir);
   if ( Scr_GetNumParam(scrContext) == 3 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si edi, xmm1
-    }
+    Float = Scr_GetFloat(scrContext, 2u);
+    fuseTime = (int)(float)(*(float *)&Float * 1000.0);
   }
   else
   {
@@ -3078,12 +2496,12 @@ void AIScriptedInterface::OnScrCmd_MagicGrenadeManual(AIScriptedInterface *this,
   isAlternate = GScr_Weapon_IsAlternate(scrContext, (const scr_weapon_t)this->m_pAI->grenade.grenadeWeapon);
   if ( !Weapon->weaponIdx )
   {
-    v10 = SL_ConvertToString(v5->classname);
-    v11 = j_va("AI [%s] doesn't have a grenade weapon set.", v10);
-    Scr_Error(COM_ERR_3910, scrContext, v11);
+    v9 = SL_ConvertToString(v4->classname);
+    v10 = j_va("AI [%s] doesn't have a grenade weapon set.", v9);
+    Scr_Error(COM_ERR_3910, scrContext, v10);
   }
-  v12 = G_Missile_FireGrenade(v5, &vectorValue, &dir, Weapon, isAlternate, WEAPON_HAND_DEFAULT, 1, fuseTime, 1, level.time);
-  GScr_AddEntity(v12);
+  v11 = G_Missile_FireGrenade(v4, &vectorValue, &dir, Weapon, isAlternate, WEAPON_HAND_DEFAULT, 1, fuseTime, 1, level.time);
+  GScr_AddEntity(v11);
 }
 
 /*

@@ -402,30 +402,17 @@ BG_CoverWall_CalcAnglesForPosition
 */
 void BG_CoverWall_CalcAnglesForPosition(int x, int y, int z, vec3_t *outAngles)
 {
-  const dvar_t *v5; 
+  const dvar_t *v4; 
 
-  v5 = DCONST_DVARMPSPBOOL_g_coverWall_useRotations;
-  _RDI = outAngles;
+  v4 = DCONST_DVARMPSPBOOL_g_coverWall_useRotations;
   if ( !DCONST_DVARMPSPBOOL_g_coverWall_useRotations && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_useRotations") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( v5->current.enabled )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.enabled )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@424c0000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rdi], xmm1
-      vmulss  xmm1, xmm0, cs:__real@428e0000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  dword ptr [rdi+4], xmm1
-      vmulss  xmm1, xmm0, cs:__real@43490000
-      vmovss  dword ptr [rdi+8], xmm1
-    }
+    outAngles->v[0] = (float)(x + y) * 51.0;
+    outAngles->v[1] = (float)(y + z) * 71.0;
+    outAngles->v[2] = (float)(x + z) * 201.0;
   }
 }
 
@@ -436,23 +423,39 @@ BG_CoverWall_CalcNoiseForPosition
 */
 void BG_CoverWall_CalcNoiseForPosition(int x, int y, int z, vec3_t *outNoise)
 {
-  char v13; 
+  const dvar_t *v4; 
+  float value; 
+  double v9; 
+  signed int v10; 
+  __int64 v11; 
+  unsigned int pHoldrand; 
 
-  _RBX = DCONST_DVARMPSPFLT_g_coverWall_maxYOffset;
-  __asm { vmovaps [rsp+88h+var_48], xmm8 }
+  v4 = DCONST_DVARMPSPFLT_g_coverWall_maxYOffset;
   if ( !DCONST_DVARMPSPFLT_g_coverWall_maxYOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_maxYOffset") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rbx+28h]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm8, xmm0
-  }
+  Dvar_CheckFrontendServerThread(v4);
+  value = v4->current.value;
+  LODWORD(v9) = 0;
   *(_QWORD *)outNoise->v = 0i64;
   outNoise->v[2] = 0.0;
-  _R11 = &v13;
-  __asm { vmovaps xmm8, xmmword ptr [r11-30h] }
+  if ( value != 0.0 )
+  {
+    pHoldrand = abs32(13 * z) + abs32(7 * x);
+    v10 = abs32(z) + 3;
+    if ( v10 > 0 )
+    {
+      v11 = (unsigned int)v10;
+      do
+      {
+        v9 = BG_flrand(-1.0, 1.0, &pHoldrand);
+        --v11;
+      }
+      while ( v11 );
+    }
+    outNoise->v[1] = *(float *)&v9 * value;
+    outNoise->v[0] = 0.0;
+    outNoise->v[2] = 0.0;
+  }
 }
 
 /*
@@ -460,175 +463,79 @@ void BG_CoverWall_CalcNoiseForPosition(int x, int y, int z, vec3_t *outNoise)
 BG_CoverWall_CalcSag
 ==============
 */
-
-float __fastcall BG_CoverWall_CalcSag(double sagWeight, double xPos, double zPos)
+float BG_CoverWall_CalcSag(float sagWeight, float xPos, float zPos)
 {
+  const dvar_t *v3; 
+  float v5; 
+  int GridSize; 
+  double v7; 
+  const dvar_t *v8; 
+  float v9; 
+  double v10; 
+  float v11; 
+  const dvar_t *v12; 
   const dvar_t *v13; 
-  char v24; 
-  const dvar_t *v29; 
-  const dvar_t *v37; 
-  const dvar_t *v39; 
-  const dvar_t *v48; 
-  char v85; 
-  void *retaddr; 
+  const dvar_t *v14; 
+  float value; 
+  const dvar_t *v16; 
+  float v17; 
+  unsigned int v18; 
+  double v19; 
 
-  _RAX = &retaddr;
-  v13 = DCONST_DVARMPSPBOOL_g_coverWall_useCurves;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0D8h+var_88], xmm13
-    vmovaps [rsp+0D8h+var_98], xmm14
-    vmovaps xmm7, xmm2
-    vmovaps xmm10, xmm1
-    vmovaps xmm12, xmm0
-    vmovaps xmm6, xmm2
-  }
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_useCurves") )
+  v3 = DCONST_DVARMPSPBOOL_g_coverWall_useCurves;
+  v5 = zPos;
+  if ( !DCONST_DVARMPSPBOOL_g_coverWall_useCurves && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_useCurves") )
     __debugbreak();
-  __asm { vmovaps [rsp+0D8h+var_48], xmm9 }
-  Dvar_CheckFrontendServerThread(v13);
-  __asm
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.enabled )
   {
-    vmovss  xmm13, cs:__real@3dcccccd
-    vmovss  xmm11, cs:__real@3f800000
-    vmovss  xmm14, cs:__real@40000000
-    vxorps  xmm8, xmm8, xmm8
-  }
-  if ( v13->current.enabled )
-  {
-    BG_CoverWall_GetGridSize();
-    __asm
+    GridSize = BG_CoverWall_GetGridSize();
+    if ( zPos < 0.0 )
     {
-      vcomiss xmm7, xmm8
-      vmovaps xmm2, xmm11; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    if ( v24 )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@bdcccccd
-        vcvtsi2ss xmm1, xmm1, eax
-        vdivss  xmm1, xmm0, xmm1
-        vmulss  xmm0, xmm1, xmm7; val
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      v37 = DCONST_DVARMPSPFLT_g_coverWall_curveCoefMin;
-      __asm { vmovaps xmm6, xmm0 }
+      v10 = I_fclamp((float)(-0.1 / (float)GridSize) * zPos, 0.0, 1.0);
+      v8 = DCONST_DVARMPSPFLT_g_coverWall_curveCoefMin;
+      v9 = *(float *)&v10;
       if ( !DCONST_DVARMPSPFLT_g_coverWall_curveCoefMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_curveCoefMin") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v37);
+      Dvar_CheckFrontendServerThread(v8);
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm0, xmm13, xmm0
-        vmulss  xmm0, xmm0, xmm7; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      v29 = DCONST_DVARMPSPFLT_g_coverWall_curveCoefMin;
-      __asm { vmovaps xmm6, xmm0 }
+      v7 = I_fclamp((float)(0.1 / (float)GridSize) * zPos, 0.0, 1.0);
+      v8 = DCONST_DVARMPSPFLT_g_coverWall_curveCoefMin;
       if ( !DCONST_DVARMPSPFLT_g_coverWall_curveCoefMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_curveCoefMin") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v29);
-      __asm { vmulss  xmm6, xmm6, cs:__real@bf800000 }
+      Dvar_CheckFrontendServerThread(v8);
+      v9 = *(float *)&v7 * -1.0;
     }
-    __asm { vmulss  xmm9, xmm6, dword ptr [rbx+28h] }
-    v39 = DCONST_DVARMPSPFLT_g_coverWall_curveCoefMax;
+    v11 = v9 * v8->current.value;
+    v12 = DCONST_DVARMPSPFLT_g_coverWall_curveCoefMax;
     if ( !DCONST_DVARMPSPFLT_g_coverWall_curveCoefMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_curveCoefMax") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v39);
-    __asm
-    {
-      vmulss  xmm4, xmm6, dword ptr [rbx+28h]
-      vsubss  xmm0, xmm14, xmm12
-      vmulss  xmm3, xmm0, xmm12
-      vsubss  xmm1, xmm11, xmm3
-      vmulss  xmm2, xmm1, xmm9
-      vmulss  xmm0, xmm3, xmm4
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm1, xmm10, xmm10
-      vmulss  xmm2, xmm3, xmm1
-      vaddss  xmm6, xmm2, xmm7
-    }
+    Dvar_CheckFrontendServerThread(v12);
+    v5 = (float)((float)((float)((float)(1.0 - (float)((float)(2.0 - sagWeight) * sagWeight)) * v11) + (float)((float)((float)(2.0 - sagWeight) * sagWeight) * (float)(v9 * v12->current.value))) * (float)(xPos * xPos)) + zPos;
   }
-  v48 = DCONST_DVARMPSPBOOL_g_coverWall_useCompression;
+  v13 = DCONST_DVARMPSPBOOL_g_coverWall_useCompression;
   if ( !DCONST_DVARMPSPBOOL_g_coverWall_useCompression && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_useCompression") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v48);
-  if ( !v48->current.enabled )
-    goto LABEL_30;
-  _RBX = DCONST_DVARMPSPFLT_g_coverWall_compressionAmountMin;
+  Dvar_CheckFrontendServerThread(v13);
+  if ( !v13->current.enabled )
+    return v5;
+  v14 = DCONST_DVARMPSPFLT_g_coverWall_compressionAmountMin;
   if ( !DCONST_DVARMPSPFLT_g_coverWall_compressionAmountMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_compressionAmountMin") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm10, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARMPSPFLT_g_coverWall_compressionAmountMax;
+  Dvar_CheckFrontendServerThread(v14);
+  value = v14->current.value;
+  v16 = DCONST_DVARMPSPFLT_g_coverWall_compressionAmountMax;
   if ( !DCONST_DVARMPSPFLT_g_coverWall_compressionAmountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_compressionAmountMax") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vcomiss xmm7, xmm8
-    vmovss  xmm9, dword ptr [rbx+28h]
-  }
-  if ( v24 )
-  {
-LABEL_30:
-    __asm { vmovaps xmm0, xmm6 }
-  }
-  else
-  {
-    _EAX = BG_CoverWall_GetGridSize();
-    __asm
-    {
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vdivss  xmm0, xmm13, xmm0
-      vmulss  xmm0, xmm0, xmm7; val
-      vmovaps xmm2, xmm11; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vsubss  xmm1, xmm14, xmm12
-      vmulss  xmm4, xmm1, xmm12
-      vmulss  xmm2, xmm4, xmm9
-      vmulss  xmm3, xmm2, xmm0
-      vxorps  xmm5, xmm3, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm1, xmm4, xmm10
-      vmulss  xmm2, xmm1, xmm11
-      vsubss  xmm3, xmm10, xmm2
-      vmulss  xmm0, xmm3, xmm0
-      vsubss  xmm1, xmm5, xmm0
-      vaddss  xmm0, xmm6, xmm1
-    }
-  }
-  __asm { vmovaps xmm9, [rsp+0D8h+var_48] }
-  _R11 = &v85;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+0D8h+var_98]
-  }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v16);
+  v17 = v16->current.value;
+  if ( zPos < 0.0 )
+    return v5;
+  v18 = BG_CoverWall_GetGridSize();
+  v19 = I_fclamp((float)(0.1 / _mm_cvtepi32_ps((__m128i)v18).m128_f32[0]) * zPos, 0.0, 1.0);
+  return v5 + (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(2.0 - sagWeight) * sagWeight) * v17) * *(float *)&v19) ^ _xmm) - (float)((float)(value - (float)((float)((float)((float)(2.0 - sagWeight) * sagWeight) * value) * 1.0)) * *(float *)&v19));
 }
 
 /*
@@ -638,38 +545,28 @@ BG_CoverWall_CalcSagAnimWeight
 */
 float BG_CoverWall_CalcSagAnimWeight(const int birthTime, const int gameTime)
 {
-  const dvar_t *v4; 
+  const dvar_t *v2; 
   int integer; 
-  const dvar_t *v8; 
+  const dvar_t *v6; 
+  int v7; 
+  float result; 
 
-  v4 = DCONST_DVARMPSPINT_g_coverWall_settleDuration;
+  v2 = DCONST_DVARMPSPINT_g_coverWall_settleDuration;
   if ( !DCONST_DVARMPSPINT_g_coverWall_settleDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_settleDuration") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  integer = v4->current.integer;
-  v8 = DCONST_DVARMPSPINT_g_coverWall_expansionTimeMS;
+  Dvar_CheckFrontendServerThread(v2);
+  integer = v2->current.integer;
+  v6 = DCONST_DVARMPSPINT_g_coverWall_expansionTimeMS;
   if ( !DCONST_DVARMPSPINT_g_coverWall_expansionTimeMS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_expansionTimeMS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( gameTime < integer + v8->current.integer + birthTime )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    if ( gameTime >= birthTime )
-    {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ebx
-        vcvtsi2ss xmm0, xmm0, ecx
-        vdivss  xmm0, xmm1, xmm0
-      }
-    }
-  }
-  else
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v6);
+  v7 = integer + v6->current.integer;
+  if ( gameTime >= v7 + birthTime )
+    return FLOAT_1_0;
+  result = 0.0;
+  if ( gameTime >= birthTime )
+    return (float)(gameTime - birthTime) / (float)v7;
+  return result;
 }
 
 /*
@@ -744,12 +641,13 @@ BG_CoverWall_GetCollisionRadius
 */
 float BG_CoverWall_GetCollisionRadius()
 {
-  _RBX = DCONST_DVARMPSPFLT_g_coverWall_perBlockCollisionRadius;
+  const dvar_t *v0; 
+
+  v0 = DCONST_DVARMPSPFLT_g_coverWall_perBlockCollisionRadius;
   if ( !DCONST_DVARMPSPFLT_g_coverWall_perBlockCollisionRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_perBlockCollisionRadius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v0);
+  return v0->current.value;
 }
 
 /*
@@ -1180,66 +1078,40 @@ __int64 BG_CoverWall_GridPosToDataArrayIndex(const int gridXCoord, const int gri
 BG_CoverWall_GridPosToLocalPos
 ==============
 */
-
-void __fastcall BG_CoverWall_GridPosToLocalPos(const int gridXCoord, const int gridYCoord, const int gridZCoord, double sagAnimWeight, vec3_t *outLocalPos)
+void BG_CoverWall_GridPosToLocalPos(const int gridXCoord, const int gridYCoord, const int gridZCoord, float sagAnimWeight, vec3_t *outLocalPos)
 {
-  char v10; 
-  const dvar_t *v12; 
-  const dvar_t *v19; 
-  char v31; 
-  void *retaddr; 
+  int GridSize; 
+  int v9; 
+  const dvar_t *v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  const dvar_t *v15; 
+  float v16; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  v10 = gridZCoord;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmm7, xmm3
-  }
-  BG_CoverWall_GetGridSize();
-  v12 = DCONST_DVARMPSPBOOL_g_coverWall_useRowOffsets;
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vxorps  xmm9, xmm9, xmm9
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm8, xmm8, r9d
-    vcvtsi2ss xmm9, xmm9, edx
-    vcvtsi2ss xmm6, xmm6, eax
-  }
+  GridSize = BG_CoverWall_GetGridSize();
+  v9 = gridYCoord * GridSize;
+  v10 = DCONST_DVARMPSPBOOL_g_coverWall_useRowOffsets;
+  v11 = (float)v9;
+  v12 = (float)(gridZCoord * GridSize);
+  v14 = (float)(gridXCoord * GridSize);
+  v13 = v14;
   if ( !DCONST_DVARMPSPBOOL_g_coverWall_useRowOffsets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_useRowOffsets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.enabled && (v10 & 1) != 0 )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( v10->current.enabled && (gridZCoord & 1) != 0 )
   {
-    v19 = DCONST_DVARMPSPFLT_g_coverWall_rowOffsetAmount;
+    v15 = DCONST_DVARMPSPFLT_g_coverWall_rowOffsetAmount;
     if ( !DCONST_DVARMPSPFLT_g_coverWall_rowOffsetAmount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_rowOffsetAmount") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v19);
-    __asm { vaddss  xmm6, xmm6, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v15);
+    v13 = v14 + v15->current.value;
   }
-  __asm
-  {
-    vmovaps xmm2, xmm9; zPos
-    vmovaps xmm1, xmm6; xPos
-    vmovaps xmm0, xmm7; sagWeight
-  }
-  *(float *)&_XMM0 = BG_CoverWall_CalcSag(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2);
-  _RAX = outLocalPos;
-  _R11 = &v31;
-  __asm
-  {
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovss  dword ptr [rax], xmm6
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovss  dword ptr [rax+4], xmm8
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovss  dword ptr [rax+8], xmm0
-  }
+  v16 = BG_CoverWall_CalcSag(sagAnimWeight, v13, v12);
+  outLocalPos->v[0] = v13;
+  outLocalPos->v[1] = v11;
+  outLocalPos->v[2] = v16;
 }
 
 /*
@@ -1249,92 +1121,60 @@ BG_CoverWall_GridPosToWorldPos
 */
 void BG_CoverWall_GridPosToWorldPos(const vec3_t *origin, const vec3_t *angles, const int gridXCoord, const int gridYCoord, const int gridZCoord, float sagAmount, vec3_t *outWorldPos)
 {
-  const dvar_t *v16; 
-  const dvar_t *v23; 
+  int GridSize; 
+  int v12; 
+  const dvar_t *v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  const dvar_t *v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
   tmat33_t<vec3_t> axis; 
-  char v56; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  _RBP = outWorldPos;
-  _R14 = origin;
-  BG_CoverWall_GetGridSize();
-  v16 = DCONST_DVARMPSPBOOL_g_coverWall_useRowOffsets;
-  __asm
-  {
-    vxorps  xmm10, xmm10, xmm10
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm9, xmm9, xmm9
-    vcvtsi2ss xmm10, xmm10, edx
-    vcvtsi2ss xmm9, xmm9, eax
-    vcvtsi2ss xmm6, xmm6, edx
-  }
+  GridSize = BG_CoverWall_GetGridSize();
+  v12 = gridYCoord * GridSize;
+  v13 = DCONST_DVARMPSPBOOL_g_coverWall_useRowOffsets;
+  v14 = (float)v12;
+  v16 = (float)(gridXCoord * GridSize);
+  v15 = v16;
+  v17 = (float)(gridZCoord * GridSize);
   if ( !DCONST_DVARMPSPBOOL_g_coverWall_useRowOffsets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_useRowOffsets") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v16);
-  if ( v16->current.enabled && (gridZCoord & 1) != 0 )
+  Dvar_CheckFrontendServerThread(v13);
+  if ( v13->current.enabled && (gridZCoord & 1) != 0 )
   {
-    v23 = DCONST_DVARMPSPFLT_g_coverWall_rowOffsetAmount;
+    v18 = DCONST_DVARMPSPFLT_g_coverWall_rowOffsetAmount;
     if ( !DCONST_DVARMPSPFLT_g_coverWall_rowOffsetAmount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_rowOffsetAmount") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v23);
-    __asm { vaddss  xmm9, xmm9, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v18);
+    v15 = v16 + v18->current.value;
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+0D8h+sagAmount]; sagWeight
-    vmovaps xmm2, xmm6; zPos
-    vmovaps xmm1, xmm9; xPos
-  }
-  *(float *)&_XMM0 = BG_CoverWall_CalcSag(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2);
-  __asm { vmovaps xmm8, xmm0 }
+  v19 = BG_CoverWall_CalcSag(sagAmount, v15, v17);
   AnglesToAxis(angles, &axis);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [r14]
-    vmulss  xmm2, xmm9, dword ptr [rsp+0D8h+axis]
-    vmulss  xmm1, xmm10, dword ptr [rsp+0D8h+axis+0Ch]
-    vmulss  xmm0, xmm10, dword ptr [rsp+0D8h+axis+10h]
-    vaddss  xmm4, xmm2, xmm3
-    vmulss  xmm2, xmm8, dword ptr [rsp+0D8h+axis+18h]
-    vaddss  xmm5, xmm4, xmm1
-    vmovss  dword ptr [rbp+0], xmm3
-    vmovss  xmm6, dword ptr [r14+4]
-    vaddss  xmm1, xmm5, xmm2
-    vmulss  xmm2, xmm9, dword ptr [rsp+0D8h+axis+4]
-    vaddss  xmm3, xmm2, xmm6
-    vmulss  xmm2, xmm10, dword ptr [rsp+0D8h+axis+14h]
-    vaddss  xmm4, xmm3, xmm0
-    vmovss  dword ptr [rbp+4], xmm6
-    vmovss  xmm7, dword ptr [r14+8]
-    vmovss  dword ptr [rbp+0], xmm1
-    vmulss  xmm1, xmm8, dword ptr [rsp+0D8h+axis+1Ch]
-    vaddss  xmm0, xmm4, xmm1
-    vmulss  xmm1, xmm9, dword ptr [rsp+0D8h+axis+8]
-    vaddss  xmm3, xmm1, xmm7
-    vmovss  dword ptr [rbp+4], xmm0
-    vmulss  xmm0, xmm8, dword ptr [rsp+0D8h+axis+20h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm0
-    vmovss  dword ptr [rbp+8], xmm2
-  }
-  _R11 = &v56;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  v20 = v14 * axis.m[1].v[1];
+  v21 = v19 * axis.m[2].v[0];
+  v22 = (float)((float)(v15 * axis.m[0].v[0]) + origin->v[0]) + (float)(v14 * axis.m[1].v[0]);
+  outWorldPos->v[0] = origin->v[0];
+  v23 = origin->v[1];
+  v24 = v22 + v21;
+  v25 = v14 * axis.m[1].v[2];
+  v26 = (float)((float)(v15 * axis.m[0].v[1]) + v23) + v20;
+  outWorldPos->v[1] = v23;
+  v27 = origin->v[2];
+  outWorldPos->v[0] = v24;
+  v28 = (float)(v15 * axis.m[0].v[2]) + v27;
+  outWorldPos->v[1] = v26 + (float)(v19 * axis.m[2].v[1]);
+  outWorldPos->v[2] = (float)(v28 + v25) + (float)(v19 * axis.m[2].v[2]);
 }
 
 /*
@@ -1463,13 +1303,7 @@ BG_CoverWall_SmoothFunc
 */
 float BG_CoverWall_SmoothFunc(const float x)
 {
-  __asm
-  {
-    vmovss  xmm1, cs:__real@40000000
-    vsubss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm2, xmm0
-  }
-  return *(float *)&_XMM0;
+  return (float)(2.0 - x) * x;
 }
 
 /*
@@ -1480,22 +1314,21 @@ BG_Coverwall_WeaponDamageScalar
 float BG_Coverwall_WeaponDamageScalar(const Weapon *r_weapon, bool isAlternate)
 {
   unsigned int weaponIdx; 
-  int v7; 
-  unsigned int v8; 
+  int v6; 
+  unsigned int v7; 
   WeaponAttachment *attachments; 
 
   weaponIdx = r_weapon->weaponIdx;
   if ( weaponIdx > bg_lastParsedWeaponIndex )
   {
-    v8 = bg_lastParsedWeaponIndex;
-    v7 = r_weapon->weaponIdx;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v7, v8) )
+    v7 = bg_lastParsedWeaponIndex;
+    v6 = r_weapon->weaponIdx;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v6, v7) )
       __debugbreak();
   }
   if ( !bg_weaponDefs[(unsigned __int16)weaponIdx] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
     __debugbreak();
   BG_GetWeaponAttachments(r_weapon, isAlternate, (const WeaponAttachment **)&attachments);
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  return *(float *)&_XMM0;
+  return FLOAT_1_0;
 }
 

@@ -83,16 +83,20 @@ ScriptableCL_BindStandaloneReservedRpInstance
 void ScriptableCL_BindStandaloneReservedRpInstance(const LocalClientNum_t localClientNum, const ScriptableReplicatedInstance *rpInstance)
 {
   ScriptableInstanceContextSecure *InstanceCommonContext; 
-  const char *v7; 
+  const char *v5; 
   const ScriptableDef *NetConstStringDefAtIndex; 
-  unsigned __int16 m_data; 
+  signed __int64 m_data; 
+  float v8; 
+  float v9; 
+  float v10; 
+  unsigned __int16 v11; 
   unsigned __int16 EntityNum; 
   const centity_t *Entity; 
   unsigned __int16 extraPayload; 
   unsigned __int16 payload; 
   unsigned int instanceIndex; 
-  ScriptableInstanceContextSecure *v31; 
-  unsigned __int16 v32; 
+  ScriptableInstanceContextSecure *v17; 
+  unsigned __int16 v18; 
   vec3_t *outWorldOrigin; 
   vec3_t *outWorldAngles; 
   vec3_t origin; 
@@ -112,41 +116,26 @@ void ScriptableCL_BindStandaloneReservedRpInstance(const LocalClientNum_t localC
   if ( ScriptableCl_GetInstanceInUse(localClientNum, rpInstance->instanceIndex) )
   {
     InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, rpInstance->instanceIndex);
-    v7 = InstanceCommonContext->def ? InstanceCommonContext->def->name : "<unknown>";
+    v5 = InstanceCommonContext->def ? InstanceCommonContext->def->name : "<unknown>";
     LODWORD(outWorldAngles) = rpInstance->instanceIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_link.cpp", 517, ASSERT_TYPE_ASSERT, "(!ScriptableCl_GetInstanceInUse( localClientNum, rpInstance.instanceIndex ))", "%s\n\tTrying to double-bind instance index %i (%s)", "!ScriptableCl_GetInstanceInUse( localClientNum, rpInstance.instanceIndex )", outWorldAngles, v7) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_link.cpp", 517, ASSERT_TYPE_ASSERT, "(!ScriptableCl_GetInstanceInUse( localClientNum, rpInstance.instanceIndex ))", "%s\n\tTrying to double-bind instance index %i (%s)", "!ScriptableCl_GetInstanceInUse( localClientNum, rpInstance.instanceIndex )", outWorldAngles, v5) )
       __debugbreak();
   }
   NetConstStringDefAtIndex = ScriptableBg_GetNetConstStringDefAtIndex(rpInstance->defIndex);
   if ( NetConstStringDefAtIndex )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmovss  dword ptr [rsp+0C8h+origin], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmovss  dword ptr [rsp+0C8h+origin+4], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rcx
-      vmovss  dword ptr [rsp+0C8h+origin+8], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  xmm2, cs:__real@3bb40000
-      vmulss  xmm0, xmm0, xmm2
-      vmovss  dword ptr [rsp+0C8h+angles], xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm0, xmm1, xmm2
-      vmovss  dword ptr [rsp+0C8h+angles+4], xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmulss  xmm0, xmm1, xmm2
-      vmovss  dword ptr [rsp+0C8h+angles+8], xmm0
-    }
-    m_data = rpInstance->parent.m_data;
-    if ( m_data )
+    m_data = rpInstance->origin.m_data;
+    v8 = (float)(m_data << 42 >> 42);
+    origin.v[0] = v8;
+    v9 = (float)(m_data << 20 >> 42);
+    origin.v[1] = v9;
+    v10 = (float)(m_data >> 44);
+    origin.v[2] = v10;
+    angles.v[0] = (float)rpInstance->angles.m_pitch * 0.0054931641;
+    angles.v[1] = (float)rpInstance->angles.m_yaw * 0.0054931641;
+    angles.v[2] = (float)rpInstance->angles.m_roll * 0.0054931641;
+    v11 = rpInstance->parent.m_data;
+    if ( v11 )
     {
       ScriptableCl_SetInitialOriginAndAngles(localClientNum, rpInstance->instanceIndex, &origin, &angles);
       EntityNum = ScriptableParentInfo::GetEntityNum(&rpInstance->parent);
@@ -160,7 +149,7 @@ void ScriptableCL_BindStandaloneReservedRpInstance(const LocalClientNum_t localC
       __debugbreak();
     if ( ScriptableCl_CheckFreeReservedParts(localClientNum, NetConstStringDefAtIndex) && ScriptableCl_AllocateEventStreamBuffer(localClientNum, NetConstStringDefAtIndex, 0, outEventStreamBuffer) )
     {
-      ScriptableCl_BindUpdateCommonContext(localClientNum, instanceIndex, NetConstStringDefAtIndex, outEventStreamBuffer[0], &origin, &angles, payload, extraPayload, m_data != 0);
+      ScriptableCl_BindUpdateCommonContext(localClientNum, instanceIndex, NetConstStringDefAtIndex, outEventStreamBuffer[0], &origin, &angles, payload, extraPayload, v11 != 0);
       if ( !ScriptableCl_GetInstanceInUse(localClientNum, instanceIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_link.cpp", 505, ASSERT_TYPE_SANITY, "( ScriptableCl_GetInstanceInUse( localClientNum, scriptableIndex ) )", (const char *)&queryFormat, "ScriptableCl_GetInstanceInUse( localClientNum, scriptableIndex )") )
         __debugbreak();
       ScriptableCl_Spatial_MarkerAlloc(localClientNum, instanceIndex);
@@ -169,18 +158,18 @@ void ScriptableCL_BindStandaloneReservedRpInstance(const LocalClientNum_t localC
     {
       ScriptableCl_EnterError();
     }
-    v31 = ScriptableCl_GetInstanceCommonContext(localClientNum, rpInstance->instanceIndex);
-    if ( (*((_BYTE *)v31 + 60) & 0x20) != 0 )
+    v17 = ScriptableCl_GetInstanceCommonContext(localClientNum, rpInstance->instanceIndex);
+    if ( (*((_BYTE *)v17 + 60) & 0x20) != 0 )
     {
       LODWORD(outWorldOrigin) = rpInstance->instanceIndex;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_client_link.cpp", 547, ASSERT_TYPE_ASSERT, "( ( !commonContext.hasParentEntity ) )", "( rpInstance.instanceIndex ) = %i", outWorldOrigin) )
         __debugbreak();
     }
-    if ( m_data )
+    if ( v11 )
     {
-      v32 = ScriptableParentInfo::GetEntityNum(&rpInstance->parent);
-      ScriptableCl_MarkStandaloneEntityParentUpdate(localClientNum, rpInstance->instanceIndex, v32);
-      *((_BYTE *)v31 + 60) |= 0x20u;
+      v18 = ScriptableParentInfo::GetEntityNum(&rpInstance->parent);
+      ScriptableCl_MarkStandaloneEntityParentUpdate(localClientNum, rpInstance->instanceIndex, v18);
+      *((_BYTE *)v17 + 60) |= 0x20u;
     }
     memset(&origin, 0, sizeof(origin));
   }
@@ -271,6 +260,7 @@ bool ScriptableCl_BindEntityReservedDef(const LocalClientNum_t localClientNum, c
   ScriptableReadChangeQueue *v9; 
   bool IsCharacterEntityIndex; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v15; 
   unsigned int v25; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
   vec3_t *angles; 
@@ -332,25 +322,27 @@ bool ScriptableCl_BindEntityReservedDef(const LocalClientNum_t localClientNum, c
           FunctionPointer_origin(&Entity->pose.origin.origin.origin, &origin);
           if ( Entity->pose.isPosePrecise )
           {
-            __asm
-            {
-              vmovd   xmm0, dword ptr [rsp+98h+origin]
-              vcvtdq2pd xmm0, xmm0
-              vmovsd  xmm3, cs:__real@3f30000000000000
-              vmulsd  xmm0, xmm0, xmm3
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [rsp+98h+origin], xmm1
-              vmovd   xmm2, dword ptr [rsp+98h+origin+4]
-              vcvtdq2pd xmm2, xmm2
-              vmulsd  xmm0, xmm2, xmm3
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [rsp+98h+origin+4], xmm1
-              vmovd   xmm2, dword ptr [rsp+98h+origin+8]
-              vcvtdq2pd xmm2, xmm2
-              vmulsd  xmm0, xmm2, xmm3
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vmovss  dword ptr [rsp+98h+origin+8], xmm1
-            }
+            _XMM0 = LODWORD(origin.v[0]);
+            __asm { vcvtdq2pd xmm0, xmm0 }
+            *((_QWORD *)&v15 + 1) = *((_QWORD *)&_XMM0 + 1);
+            *(double *)&v15 = *(double *)&_XMM0 * 0.000244140625;
+            _XMM0 = v15;
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            origin.v[0] = *(float *)&_XMM1;
+            _XMM2 = LODWORD(origin.v[1]);
+            __asm { vcvtdq2pd xmm2, xmm2 }
+            *((_QWORD *)&v15 + 1) = *((_QWORD *)&_XMM2 + 1);
+            *(double *)&v15 = *(double *)&_XMM2 * 0.000244140625;
+            _XMM0 = v15;
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            origin.v[1] = *(float *)&_XMM1;
+            _XMM2 = LODWORD(origin.v[2]);
+            __asm { vcvtdq2pd xmm2, xmm2 }
+            *((_QWORD *)&v15 + 1) = *((_QWORD *)&_XMM2 + 1);
+            *(double *)&v15 = *(double *)&_XMM2 * 0.000244140625;
+            _XMM0 = v15;
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            origin.v[2] = *(float *)&_XMM1;
           }
           ScriptableCl_BindUpdateCommonContext((const LocalClientNum_t)v5, outInstanceIndex, scriptableDef, outEventStreamBuffer, &origin, &Entity->pose.angles, 0, 0, 0);
           v25 = outInstanceIndex;

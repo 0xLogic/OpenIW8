@@ -137,40 +137,14 @@ char VoiceDecode_AddOutputBus(unsigned int decoderIndex, int voiceBus)
 VoiceDecode_DecoderRead
 ==============
 */
-
-int __fastcall VoiceDecode_DecoderRead(sd_decoder *decoder, double pitchRatio, float *dest, int destCount)
+int VoiceDecode_DecoderRead(sd_decoder *decoder, float pitchRatio, float *dest, int destCount)
 {
-  sd_source *source; 
-  bool v10; 
-  bool v11; 
-  int result; 
-
-  source = decoder->source;
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v10 = source->entry->channelCount == 1;
-  if ( source->entry->channelCount != 1 )
-  {
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\voice\\voice_decode.cpp", 242, ASSERT_TYPE_ASSERT, "(decoder->source->entry->channelCount == 1)", (const char *)&queryFormat, "decoder->source->entry->channelCount == VOICE_CODEC_CHANNELS");
-    v10 = !v11;
-    if ( v11 )
-      __debugbreak();
-  }
-  __asm { vucomiss xmm6, cs:__real@3f800000 }
-  if ( v10 )
-  {
-    result = SD_VoiceNoPitch(decoder, dest, NULL, destCount, 1);
-  }
+  if ( decoder->source->entry->channelCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\voice\\voice_decode.cpp", 242, ASSERT_TYPE_ASSERT, "(decoder->source->entry->channelCount == 1)", (const char *)&queryFormat, "decoder->source->entry->channelCount == VOICE_CODEC_CHANNELS") )
+    __debugbreak();
+  if ( pitchRatio == 1.0 )
+    return SD_VoiceNoPitch(decoder, dest, NULL, destCount, 1);
   else
-  {
-    __asm { vmovaps xmm1, xmm6; pitchRatio }
-    result = SD_VoicePitchMono(decoder, *(float *)&_XMM1, destCount, dest);
-  }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+    return SD_VoicePitchMono(decoder, pitchRatio, destCount, dest);
 }
 
 /*
@@ -212,8 +186,8 @@ char VoiceDecode_Init()
   unsigned __int8 *p_channelCount; 
   SndAssetBankEntry *v4; 
   sd_decoder *v5; 
-  signed __int32 v8[8]; 
-  __int64 v9; 
+  signed __int32 v7[8]; 
+  __int64 v8; 
 
   s_voiceDecoderGlob.voiceDecoderState = 1;
   v0 = 0;
@@ -250,8 +224,8 @@ char VoiceDecode_Init()
     *voiceDecoders = v5;
     if ( !v5 )
     {
-      LODWORD(v9) = v0;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\voice\\voice_decode.cpp", 85, ASSERT_TYPE_ASSERT, "( s_voiceDecoderGlob.voiceDecoders[i] )", "Error allocating voice decoder %d\n", v9) )
+      LODWORD(v8) = v0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\voice\\voice_decode.cpp", 85, ASSERT_TYPE_ASSERT, "( s_voiceDecoderGlob.voiceDecoders[i] )", "Error allocating voice decoder %d\n", v8) )
         __debugbreak();
     }
     if ( !*voiceDecoders )
@@ -262,12 +236,8 @@ char VoiceDecode_Init()
     ++voiceDecoders;
     if ( v0 >= 5 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  cs:s_voiceDecoderGlob.voiceOutputVolume, xmm0
-      }
-      _InterlockedOr(v8, 0);
+      s_voiceDecoderGlob.voiceOutputVolume = FLOAT_1_0;
+      _InterlockedOr(v7, 0);
       s_voiceDecoderGlob.voiceDecoderState = 2;
       return 1;
     }
@@ -326,10 +296,9 @@ char VoiceDecode_ResetDecoder(unsigned int decoderIndex)
 VoiceDecode_SetOutputVolume
 ==============
 */
-
-void __fastcall VoiceDecode_SetOutputVolume(double volume)
+void VoiceDecode_SetOutputVolume(float volume)
 {
-  __asm { vmovss  cs:s_voiceDecoderGlob.voiceOutputVolume, xmm0 }
+  s_voiceDecoderGlob.voiceOutputVolume = volume;
 }
 
 /*
@@ -403,132 +372,113 @@ VoiceDecode_VoiceChatMix
 */
 void VoiceDecode_VoiceChatMix(unsigned int *outMaxSamplesDecoded)
 {
-  unsigned __int64 v5; 
-  unsigned int *v6; 
+  unsigned __int64 v1; 
+  unsigned int *v2; 
   volatile int *voiceOutputBus; 
   sd_decoder **voiceDecoders; 
-  sd_decoder *v10; 
-  int v11; 
-  unsigned int v13; 
+  sd_decoder *v5; 
+  int v6; 
+  unsigned int v7; 
   unsigned int i; 
-  __int64 v19; 
-  float *v20; 
-  unsigned int v23; 
-  bool v24; 
-  sd_decoder **v25; 
-  __int64 v26; 
-  __int64 v30; 
-  char v31[1104]; 
-  char v32; 
-  void *retaddr; 
+  __m128 voiceOutputVolume_low; 
+  __m256i *v10; 
+  __int64 v13; 
+  unsigned __int64 v14; 
+  __m256 *v15; 
+  __m256 v16; 
+  unsigned int v17; 
+  bool v18; 
+  sd_decoder **v19; 
+  __int64 v20; 
+  __int64 v21; 
+  char v22[1104]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  v5 = (unsigned __int64)v31 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(v5 + 1056) = (unsigned __int64)&v30 ^ _security_cookie;
-  *(_QWORD *)(v5 + 24) = outMaxSamplesDecoded;
+  v1 = (unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(v1 + 1056) = (unsigned __int64)&v21 ^ _security_cookie;
+  *(_QWORD *)(v1 + 24) = outMaxSamplesDecoded;
   *(_QWORD *)outMaxSamplesDecoded = 0i64;
-  v6 = outMaxSamplesDecoded;
+  v2 = outMaxSamplesDecoded;
   *((_QWORD *)outMaxSamplesDecoded + 1) = 0i64;
   *((_QWORD *)outMaxSamplesDecoded + 2) = 0i64;
   *((_QWORD *)outMaxSamplesDecoded + 3) = 0i64;
   if ( s_voiceDecoderGlob.voiceDecoderState == 2 )
   {
-    __asm { vmovss  xmm7, cs:__real@3eaaaaab }
     voiceOutputBus = s_voiceDecoderGlob.voiceOutputBus;
-    *(_QWORD *)(((unsigned __int64)v31 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 5i64;
+    *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 5i64;
     voiceDecoders = s_voiceDecoderGlob.voiceDecoders;
-    *(_QWORD *)(((unsigned __int64)v31 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = s_voiceDecoderGlob.voiceOutputBus;
-    *(_QWORD *)v5 = s_voiceDecoderGlob.voiceDecoders;
+    *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = s_voiceDecoderGlob.voiceOutputBus;
+    *(_QWORD *)v1 = s_voiceDecoderGlob.voiceDecoders;
     do
     {
-      v10 = *voiceDecoders;
+      v5 = *voiceDecoders;
       if ( !*voiceDecoders && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\voice\\voice_decode.cpp", 281, ASSERT_TYPE_ASSERT, "(decoder)", (const char *)&queryFormat, "decoder") )
         __debugbreak();
-      v11 = *voiceOutputBus;
-      if ( v10->source->entry->frameRate != 16000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\voice\\voice_decode.cpp", 284, ASSERT_TYPE_ASSERT, "(decoder->source->entry->frameRate == 16000)", (const char *)&queryFormat, "decoder->source->entry->frameRate == VOICE_CODEC_FREQUENCY") )
+      v6 = *voiceOutputBus;
+      if ( v5->source->entry->frameRate != 16000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\voice\\voice_decode.cpp", 284, ASSERT_TYPE_ASSERT, "(decoder->source->entry->frameRate == 16000)", (const char *)&queryFormat, "decoder->source->entry->frameRate == VOICE_CODEC_FREQUENCY") )
         __debugbreak();
-      if ( v10->source->entry->channelCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\voice\\voice_decode.cpp", 242, ASSERT_TYPE_ASSERT, "(decoder->source->entry->channelCount == 1)", (const char *)&queryFormat, "decoder->source->entry->channelCount == VOICE_CODEC_CHANNELS") )
+      if ( v5->source->entry->channelCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\voice\\voice_decode.cpp", 242, ASSERT_TYPE_ASSERT, "(decoder->source->entry->channelCount == 1)", (const char *)&queryFormat, "decoder->source->entry->channelCount == VOICE_CODEC_CHANNELS") )
         __debugbreak();
-      __asm { vmovaps xmm1, xmm7; pitchRatio }
-      v13 = SD_VoicePitchMono(v10, *(float *)&_XMM1, 0x100u, (float *)(v5 + 32)) & 0xFFFFFFF8;
+      v7 = SD_VoicePitchMono(v5, 0.33333334, 0x100u, (float *)(v1 + 32)) & 0xFFFFFFF8;
       for ( i = 0; i < 8; ++i )
       {
-        if ( !v13 )
+        if ( !v7 )
           break;
-        if ( ((v11 >> i) & 1) != 0 )
+        if ( ((v6 >> i) & 1) != 0 )
         {
-          __asm { vmovss  xmm6, cs:s_voiceDecoderGlob.voiceOutputVolume }
-          _RBX = &g_sd.voiceBusBuffers[256 * i];
-          if ( (((_BYTE)v5 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 596, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v5 + 32) )
+          voiceOutputVolume_low = (__m128)LODWORD(s_voiceDecoderGlob.voiceOutputVolume);
+          v10 = (__m256i *)&g_sd.voiceBusBuffers[256 * i];
+          if ( (((_BYTE)v1 + 32) & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 596, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( in ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )in ) ) = 0x%llx", v1 + 32) )
             __debugbreak();
-          if ( ((unsigned __int8)_RBX & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 597, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", &g_sd.voiceBusBuffers[256 * i]) )
+          if ( ((unsigned __int8)v10 & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_dsp.h", 597, ASSERT_TYPE_ASSERT, "( ( ( ( ( uintptr_t )( out ) ) & 31 ) == 0 ) )", "( ( ( uintptr_t )out ) ) = 0x%llx", &g_sd.voiceBusBuffers[256 * i]) )
             __debugbreak();
-          __asm
+          _YMM2 = (__m256i)*(unsigned __int128 *)&_mm_shuffle_ps(voiceOutputVolume_low, voiceOutputVolume_low, 0);
+          __asm { vinsertf128 ymm2, ymm2, xmm2, 1 }
+          if ( v7 >> 3 )
           {
-            vmovaps xmm2, xmm6
-            vshufps xmm2, xmm2, xmm2, 0
-            vinsertf128 ymm2, ymm2, xmm2, 1
-          }
-          if ( v13 >> 3 )
-          {
-            v19 = v13 >> 3;
-            v20 = &g_sd.voiceBusBuffers[256 * i];
+            v13 = v7 >> 3;
+            v14 = v1 + 32 - (_QWORD)v10;
+            v15 = (__m256 *)&g_sd.voiceBusBuffers[256 * i];
             do
             {
-              _RBX += 8;
-              __asm
-              {
-                vmulps  ymm0, ymm2, ymmword ptr [rdx+rax]
-                vaddps  ymm1, ymm0, ymmword ptr [rax]
-              }
-              v20 += 8;
-              __asm { vmovups ymmword ptr [rbx-20h], ymm1 }
-              --v19;
+              ++v10;
+              v16 = _mm256_add_ps(_mm256_mul_ps(_YMM2, *(__m256 *)((char *)v15 + v14)), *v15);
+              ++v15;
+              v10[-1] = (__m256i)v16;
+              --v13;
             }
-            while ( v19 );
+            while ( v13 );
           }
-          v23 = v13;
-          if ( (int)*v6 > (int)v13 )
-            v23 = *v6;
-          *v6 = v23;
+          v17 = v7;
+          if ( (int)*v2 > (int)v7 )
+            v17 = *v2;
+          *v2 = v17;
         }
-        ++v6;
+        ++v2;
       }
-      v6 = *(unsigned int **)(((unsigned __int64)v31 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
-      voiceDecoders = (sd_decoder **)(*(_QWORD *)v5 + 8i64);
-      voiceOutputBus = (volatile int *)(*(_QWORD *)(((unsigned __int64)v31 & 0xFFFFFFFFFFFFFFE0ui64) + 8) + 4i64);
-      v24 = (*(_QWORD *)(((unsigned __int64)v31 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10))-- == 1i64;
-      *(_QWORD *)v5 = voiceDecoders;
-      *(_QWORD *)(((unsigned __int64)v31 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = voiceOutputBus;
+      v2 = *(unsigned int **)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+      voiceDecoders = (sd_decoder **)(*(_QWORD *)v1 + 8i64);
+      voiceOutputBus = (volatile int *)(*(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 8) + 4i64);
+      v18 = (*(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10))-- == 1i64;
+      *(_QWORD *)v1 = voiceDecoders;
+      *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = voiceOutputBus;
     }
-    while ( !v24 );
+    while ( !v18 );
   }
   else if ( !s_voiceDecoderGlob.voiceDecoderState )
   {
-    v25 = s_voiceDecoderGlob.voiceDecoders;
-    v26 = (unsigned int)(s_voiceDecoderGlob.voiceDecoderState + 5);
+    v19 = s_voiceDecoderGlob.voiceDecoders;
+    v20 = (unsigned int)(s_voiceDecoderGlob.voiceDecoderState + 5);
     do
     {
-      if ( *v25 )
+      if ( *v19 )
       {
-        SD_DecoderFree(*v25);
-        *v25 = NULL;
+        SD_DecoderFree(*v19);
+        *v19 = NULL;
       }
-      ++v25;
-      --v26;
+      ++v19;
+      --v20;
     }
-    while ( v26 );
-  }
-  _R11 = &v32;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    while ( v20 );
   }
 }
 

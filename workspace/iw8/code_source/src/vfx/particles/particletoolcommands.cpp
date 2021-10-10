@@ -159,40 +159,36 @@ Particle_ToolCommandRestoreCurrentEffect
 */
 void Particle_ToolCommandRestoreCurrentEffect(LocalClientNum_t localClientNum)
 {
+  char *v2; 
   char *v3; 
-  char *v4; 
-  XAssetHeader v5; 
+  XAssetHeader v4; 
   const ParticleSystemDef *physicsLibrary; 
   ParticleManager *ParticleManager; 
   const FxCamera *pCamera; 
-  ParticleManager *v10; 
+  ParticleManager *v8; 
   int spawnTimeMsec; 
   float4 emitterOrientationQuat; 
   float4 emitterPos; 
 
   if ( s_vfxName[0] )
   {
-    v3 = strrchr_0(s_vfxName, 46);
-    v4 = v3;
+    v2 = strrchr_0(s_vfxName, 46);
+    v3 = v2;
+    if ( v2 )
+      *v2 = 0;
+    v4.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_VFX, s_vfxName, 0).physicsLibrary;
+    physicsLibrary = (const ParticleSystemDef *)v4.physicsLibrary;
     if ( v3 )
-      *v3 = 0;
-    v5.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_VFX, s_vfxName, 0).physicsLibrary;
-    physicsLibrary = (const ParticleSystemDef *)v5.physicsLibrary;
-    if ( v4 )
-      *v4 = 46;
-    if ( v5.physicsLibrary )
+      *v3 = 46;
+    if ( v4.physicsLibrary )
     {
       ParticleManager = ParticleManager::GetParticleManager(localClientNum);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovups xmmword ptr [rsp+98h+emitterPos.v], xmm0
-        vmovups xmmword ptr [rsp+98h+var_38.v], xmm0
-      }
+      emitterPos.v = 0i64;
+      emitterOrientationQuat.v = 0i64;
       pCamera = &ParticleManager->m_pFxSystem->camera;
-      v10 = ParticleManager;
+      v8 = ParticleManager;
       spawnTimeMsec = Particle_GetLocalClientTime(localClientNum);
-      s_pCurrentSystem = ParticleManager::AddSystem(v10, localClientNum, physicsLibrary, &emitterPos, &emitterOrientationQuat, spawnTimeMsec, PARTICLE_SYSTEM_FLAG_NONE, 0xFFFu, 0xFFFFu, NULL, pCamera, NULL);
+      s_pCurrentSystem = ParticleManager::AddSystem(v8, localClientNum, physicsLibrary, &emitterPos, &emitterOrientationQuat, spawnTimeMsec, PARTICLE_SYSTEM_FLAG_NONE, 0xFFFu, 0xFFFFu, NULL, pCamera, NULL);
     }
   }
 }
@@ -390,83 +386,78 @@ Particle_ToolCommandTweakVFXFile
 */
 void Particle_ToolCommandTweakVFXFile(const char *commandList, char *responseCommandBuffer, unsigned int responseCommandBufferSize)
 {
-  char v7; 
-  unsigned __int64 v8; 
-  char *v9; 
-  unsigned int v10; 
-  unsigned int v11; 
+  char v4; 
+  unsigned __int64 v5; 
+  char *v6; 
+  unsigned int v7; 
+  unsigned int v8; 
   ParticleManager *ParticleManager; 
-  char *v14; 
-  const char *v15; 
+  XAssetHeader v10; 
+  char *v11; 
+  const char *v12; 
   cg_t *LocalClientGlobals; 
   RefdefView *p_view; 
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
-  int v24; 
-  int v32; 
-  int v33; 
-  __int64 v41; 
-  ParticleSystemHandle v42; 
-  __int64 v43; 
-  ParticleSystem *v44; 
-  ParticleSystem *v45; 
+  cg_t *v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  int v21; 
+  int v22; 
+  __int64 v23; 
+  ParticleSystemHandle v24; 
+  __int64 v25; 
+  ParticleSystem *v26; 
+  ParticleSystem *v27; 
   const ParticleSystemDef *Def; 
-  bool v47; 
-  const ParticleSystemDef *v48; 
-  ParticleManager *v49; 
-  char *v50; 
-  char *v51; 
-  __int64 v52; 
-  ParticleSystem *v53; 
-  ParticleSystem *v54; 
-  bool v55; 
+  bool v29; 
+  const ParticleSystemDef *v30; 
+  ParticleManager *v31; 
+  char *v32; 
+  char *v33; 
+  __int64 v34; 
+  ParticleSystem *v35; 
+  ParticleSystem *v36; 
+  bool v37; 
+  __m128 v38; 
   FxSystem *m_pFxSystem; 
-  int LocalClientTime; 
-  char *fmt; 
-  char *fmta; 
-  double spawnTimeMsec; 
-  double spawnTimeMseca; 
+  int spawnTimeMsec; 
   float4 emitterOrientationQuat; 
   float4 emitterPos; 
 
-  v7 = s_toolCommandInit;
-  v8 = responseCommandBufferSize;
+  v4 = s_toolCommandInit;
+  v5 = responseCommandBufferSize;
   if ( !s_toolCommandInit )
-    v7 = 1;
-  s_toolCommandInit = v7;
-  v9 = strtok((char *)commandList, ",");
-  v10 = atoi(v9);
-  v11 = v10;
-  if ( v10 > 8 )
+    v4 = 1;
+  s_toolCommandInit = v4;
+  v6 = strtok((char *)commandList, ",");
+  v7 = atoi(v6);
+  v8 = v7;
+  if ( v7 > 8 )
   {
-    Com_PrintWarning(21, "Unsupported COMET command %d", v10);
+    Com_PrintWarning(21, "Unsupported COMET command %d", v7);
     return;
   }
-  if ( v10 == 5 )
+  if ( v7 == 5 )
   {
     Dvar_SetBool_Internal(particle_update, 0);
     return;
   }
-  if ( v10 == 6 )
+  if ( v7 == 6 )
   {
     Dvar_SetBool_Internal(particle_update, 1);
     return;
   }
-  if ( v10 )
+  if ( v7 )
   {
-    if ( v10 == 7 )
+    if ( v7 == 7 )
     {
-      Particle_OutputSystemNamesToBuffer(responseCommandBuffer, v8, 7u);
+      Particle_OutputSystemNamesToBuffer(responseCommandBuffer, v5, 7u);
       return;
     }
-    if ( v10 == 8 )
+    if ( v7 == 8 )
     {
-      __asm
-      {
-        vmovaps [rsp+0E8h+var_48], xmm6
-        vmovaps [rsp+0E8h+var_58], xmm7
-        vmovaps [rsp+0E8h+var_68], xmm8
-      }
       LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
       p_view = &LocalClientGlobals->refdef.view;
       if ( LocalClientGlobals == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
@@ -478,44 +469,13 @@ void Particle_ToolCommandTweakVFXFile(const char *commandList, char *responseCom
       emitterOrientationQuat.v.m128_i32[0] = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
       emitterOrientationQuat.v.m128_i32[1] = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
       emitterOrientationQuat.v.m128_i32[2] = v[2] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2));
-      _RAX = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-      __asm
-      {
-        vmovss  xmm8, dword ptr [rax+6944h]
-        vmovss  xmm7, dword ptr [rax+6948h]
-        vmovss  xmm6, dword ptr [rax+694Ch]
-      }
-      v24 = j_sprintf_s(responseCommandBuffer, v8, "%d,", 8i64);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0E8h+emitterOrientationQuat.v+8]
-        vmovss  xmm3, dword ptr [rsp+0E8h+emitterOrientationQuat.v]
-        vmovss  xmm1, dword ptr [rsp+0E8h+emitterOrientationQuat.v+4]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  qword ptr [rsp+0E8h+spawnTimeMsec], xmm0
-        vmovq   r9, xmm3
-      }
-      v32 = v24;
-      __asm { vmovsd  [rsp+0E8h+fmt], xmm1 }
-      v33 = j_sprintf_s(&responseCommandBuffer[v24], (unsigned int)(v8 - v24), "%.2f,%.2f,%.2f,", *(double *)&_XMM3, *(double *)&fmt, spawnTimeMsec);
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vcvtss2sd xmm3, xmm8, xmm8
-        vcvtss2sd xmm1, xmm7, xmm7
-        vmovsd  qword ptr [rsp+0E8h+spawnTimeMsec], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+0E8h+fmt], xmm1
-      }
-      j_sprintf_s(&responseCommandBuffer[v33 + v32], (unsigned int)(v8 - (v33 + v32)), "%.2f,%.2f,%.2f,", *(double *)&_XMM3, *(double *)&fmta, spawnTimeMseca);
-      __asm
-      {
-        vmovaps xmm8, [rsp+0E8h+var_68]
-        vmovaps xmm7, [rsp+0E8h+var_58]
-        vmovaps xmm6, [rsp+0E8h+var_48]
-      }
+      v17 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
+      v18 = v17->refdef.view.axis.m[0].v[0];
+      v19 = v17->refdef.view.axis.m[0].v[1];
+      v20 = v17->refdef.view.axis.m[0].v[2];
+      v21 = j_sprintf_s(responseCommandBuffer, v5, "%d,", 8i64);
+      v22 = j_sprintf_s(&responseCommandBuffer[v21], (unsigned int)(v5 - v21), "%.2f,%.2f,%.2f,", emitterOrientationQuat.v.m128_f32[0], emitterOrientationQuat.v.m128_f32[1], emitterOrientationQuat.v.m128_f32[2]);
+      j_sprintf_s(&responseCommandBuffer[v22 + v21], (unsigned int)(v5 - (v22 + v21)), "%.2f,%.2f,%.2f,", v18, v19, v20);
       return;
     }
   }
@@ -524,103 +484,99 @@ void Particle_ToolCommandTweakVFXFile(const char *commandList, char *responseCom
     g_debugZoneCompileStartTime = Sys_Milliseconds();
   }
   ParticleManager = ParticleManager::GetParticleManager(LOCAL_CLIENT_0);
-  _RBP = NULL;
-  v14 = strtok(NULL, ",");
-  v15 = v14;
-  if ( !v14 )
+  v10.physicsLibrary = NULL;
+  v11 = strtok(NULL, ",");
+  v12 = v11;
+  if ( !v11 )
   {
     Com_PrintWarning(21, "Could not get the file name from the command.");
     return;
   }
-  I_strlwr(v14);
-  v41 = -1i64;
+  I_strlwr(v11);
+  v23 = -1i64;
   do
-    ++v41;
-  while ( v15[v41] );
-  if ( (unsigned int)v41 >= 0x80 )
+    ++v23;
+  while ( v12[v23] );
+  if ( (unsigned int)v23 >= 0x80 )
   {
-    Com_PrintWarning(21, "The effect name %s (%d characters) is longer than the max length of %d", v15, (unsigned int)v41, 128);
+    Com_PrintWarning(21, "The effect name %s (%d characters) is longer than the max length of %d", v12, (unsigned int)v23, 128);
     return;
   }
-  v42 = s_pCurrentSystem;
-  v43 = 0i64;
+  v24 = s_pCurrentSystem;
+  v25 = 0i64;
   if ( g_particleSystemsGeneration[s_pCurrentSystem & 0xFFF].__all32 == s_pCurrentSystem )
-    v43 = s_pCurrentSystem & 0xFFF;
-  v44 = NULL;
-  v45 = g_particleSystems[0][v43];
-  if ( (unsigned __int64)v45 >= 0x1000 )
-    v44 = v45;
-  if ( v44 )
+    v25 = s_pCurrentSystem & 0xFFF;
+  v26 = NULL;
+  v27 = g_particleSystems[0][v25];
+  if ( (unsigned __int64)v27 >= 0x1000 )
+    v26 = v27;
+  if ( v26 )
   {
-    Def = ParticleSystem::GetDef(v44);
-    v47 = I_strnicmp(Def->name, v15, (unsigned int)(v41 - 4)) != 0;
-    if ( v11 == 4 || v11 == 1 || v47 )
+    Def = ParticleSystem::GetDef(v26);
+    v29 = I_strnicmp(Def->name, v12, (unsigned int)(v23 - 4)) != 0;
+    if ( v8 == 4 || v8 == 1 || v29 )
     {
-      v42 = s_pCurrentSystem;
+      v24 = s_pCurrentSystem;
       if ( s_pCurrentSystem )
       {
-        v49 = ParticleManager::GetParticleManager(LOCAL_CLIENT_0);
-        ParticleManager::KillSystem(v49, s_pCurrentSystem);
-        v42 = PARTICLE_SYSTEM_INVALID_HANDLE;
+        v31 = ParticleManager::GetParticleManager(LOCAL_CLIENT_0);
+        ParticleManager::KillSystem(v31, s_pCurrentSystem);
+        v24 = PARTICLE_SYSTEM_INVALID_HANDLE;
         s_pCurrentSystem = PARTICLE_SYSTEM_INVALID_HANDLE;
       }
     }
     else
     {
-      v48 = ParticleSystem::GetDef(v44);
-      v42 = s_pCurrentSystem;
-      _RBP = (ParticleSystemDef *)v48;
+      v30 = ParticleSystem::GetDef(v26);
+      v24 = s_pCurrentSystem;
+      v10.physicsLibrary = (PhysicsLibrary *)v30;
     }
   }
-  if ( (v11 & 0xFFFFFFFB) == 0 )
+  if ( (v8 & 0xFFFFFFFB) == 0 )
     goto LABEL_59;
-  if ( _RBP )
+  if ( v10.physicsLibrary )
     goto LABEL_46;
-  v50 = strrchr_0(v15, 46);
-  v51 = v50;
-  if ( v50 )
-    *v50 = 0;
-  if ( DB_XAssetExists(ASSET_TYPE_VFX, v15) )
-    _RBP = DB_FindXAssetHeader(ASSET_TYPE_VFX, v15, 0).vfx;
-  if ( v51 )
-    *v51 = 46;
-  v42 = s_pCurrentSystem;
-  if ( _RBP )
+  v32 = strrchr_0(v12, 46);
+  v33 = v32;
+  if ( v32 )
+    *v32 = 0;
+  if ( DB_XAssetExists(ASSET_TYPE_VFX, v12) )
+    v10.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_VFX, v12, 0).physicsLibrary;
+  if ( v33 )
+    *v33 = 46;
+  v24 = s_pCurrentSystem;
+  if ( v10.physicsLibrary )
   {
 LABEL_46:
-    if ( v11 == 2 )
+    if ( v8 == 2 )
     {
       g_lastParticleToolTweakTime = Sys_Milliseconds();
-      Particle_ToolCommandTweakParticleTypes(_RBP, PARTICLE_TOOL_COMMAND_TWEAK);
+      Particle_ToolCommandTweakParticleTypes(v10.vfx, PARTICLE_TOOL_COMMAND_TWEAK);
       return;
     }
   }
-  if ( v11 == 1 && _RBP )
+  if ( v8 == 1 && v10.physicsLibrary )
   {
-    v52 = 0i64;
-    if ( g_particleSystemsGeneration[v42 & 0xFFF].__all32 == v42 )
-      v52 = v42 & 0xFFF;
-    v53 = NULL;
-    v54 = g_particleSystems[0][v52];
-    if ( (unsigned __int64)v54 >= 0x1000 )
-      v53 = v54;
-    if ( !v53 || ParticleSystem::GetDef(v53) != _RBP )
+    v34 = 0i64;
+    if ( g_particleSystemsGeneration[v24 & 0xFFF].__all32 == v24 )
+      v34 = v24 & 0xFFF;
+    v35 = NULL;
+    v36 = g_particleSystems[0][v34];
+    if ( (unsigned __int64)v36 >= 0x1000 )
+      v35 = v36;
+    if ( !v35 || ParticleSystem::GetDef(v35) != v10.vfx )
     {
-      v55 = _RBP->numEmitters <= 0;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+60h]
-        vmovups xmm1, xmmword ptr [rbp+70h]
-        vmovups xmmword ptr [rsp+0E8h+emitterPos.v], xmm0
-        vmovups xmmword ptr [rsp+0E8h+emitterOrientationQuat.v], xmm1
-      }
-      if ( !v55 )
+      v37 = SHIDWORD(v10.physicsLibrary[1].name) <= 0;
+      v38 = *(__m128 *)&v10.physicsLibrary[4].havokData;
+      emitterPos.v = *(__m128 *)&v10.physicsLibrary[4].name;
+      emitterOrientationQuat.v = v38;
+      if ( !v37 )
       {
         m_pFxSystem = ParticleManager->m_pFxSystem;
-        LocalClientTime = Particle_GetLocalClientTime(LOCAL_CLIENT_0);
-        s_pCurrentSystem = ParticleManager::AddSystem(ParticleManager, LOCAL_CLIENT_0, _RBP, &emitterPos, &emitterOrientationQuat, LocalClientTime, PARTICLE_SYSTEM_FLAG_NONE, &m_pFxSystem->camera, NULL);
+        spawnTimeMsec = Particle_GetLocalClientTime(LOCAL_CLIENT_0);
+        s_pCurrentSystem = ParticleManager::AddSystem(ParticleManager, LOCAL_CLIENT_0, v10.vfx, &emitterPos, &emitterOrientationQuat, spawnTimeMsec, PARTICLE_SYSTEM_FLAG_NONE, &m_pFxSystem->camera, NULL);
 LABEL_59:
-        Core_strcpy(s_vfxName, 0x80ui64, v15);
+        Core_strcpy(s_vfxName, 0x80ui64, v12);
       }
     }
   }

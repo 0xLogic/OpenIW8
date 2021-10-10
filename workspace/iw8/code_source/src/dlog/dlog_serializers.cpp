@@ -238,7 +238,7 @@ __int64 DLog_Serialize_DDL(DLogReadContext *context, DLogEventInfo *eventInfo, v
   state.offset = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+218h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   memset_0(buffer, 0, bufferSize);
   DLog_GetNextCmd(context, &cmd);
   if ( cmd.type != DLOG_CMD_EVENT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 256, ASSERT_TYPE_SANITY, "( cmd.type == DLOG_CMD_EVENT )", (const char *)&queryFormat, "cmd.type == DLOG_CMD_EVENT", *(_QWORD *)&state.isValid, *(_QWORD *)&state.arrayIndex, state.member, state.ddlDef) )
@@ -252,12 +252,7 @@ __int64 DLog_Serialize_DDL(DLogReadContext *context, DLogEventInfo *eventInfo, v
   {
     if ( DDL_ResetContext(buffer, bufferSize, ddlDef, &ddlContext, NULL, NULL) )
     {
-      _RAX = DDL_GetRootState(&result, ddlDef);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+218h+state.isValid], ymm0
-      }
+      state = *DDL_GetRootState(&result, ddlDef);
       if ( DLog_GetNextCmdType(context, DLOG_CMD_EVENT_END) )
       {
 LABEL_14:
@@ -332,6 +327,7 @@ __int64 DLog_Serialize_InfluxDB_BitPacker(DLogReadContext *context, DLogEventInf
   _BYTE *v45; 
   int v46; 
   int v47; 
+  _WORD *v48; 
   int v49; 
   __int64 v50; 
   char *v51; 
@@ -339,26 +335,26 @@ __int64 DLog_Serialize_InfluxDB_BitPacker(DLogReadContext *context, DLogEventInf
   int v53; 
   unsigned __int64 v54; 
   unsigned __int8 v55; 
+  __int64 v56; 
   __int64 v57; 
-  __int64 v58; 
-  char v59; 
-  unsigned __int16 v60; 
+  char v58; 
+  unsigned __int16 v59; 
   DLogCmd cmd; 
-  _BYTE *v63; 
-  unsigned __int64 timestamp; 
-  char v65[69632]; 
+  _BYTE *v62; 
+  double v63; 
+  char v64[69632]; 
   char data; 
+  __int64 v66; 
   __int64 v67; 
-  __int64 v68; 
-  __int16 v69; 
-  char v70; 
+  __int16 v68; 
+  char v69; 
   char dest[64]; 
-  char v72[128]; 
-  __int16 v73; 
-  char v74[1022]; 
+  char v71[128]; 
+  __int16 v72; 
+  char v73[1022]; 
 
   v4 = bufferSize;
-  v63 = buffer;
+  v62 = buffer;
   v7 = 0;
   DLog_GetNextCmd(context, &cmd);
   if ( cmd.type != DLOG_CMD_EVENT )
@@ -374,15 +370,15 @@ __int64 DLog_Serialize_InfluxDB_BitPacker(DLogReadContext *context, DLogEventInf
     name = cmd.event.name;
   }
   data = -1;
+  v66 = 0i64;
   v67 = 0i64;
-  v68 = 0i64;
+  v68 = 0;
   v69 = 0;
-  v70 = 0;
   v9 = 0;
-  v60 = 0;
-  v73 = -1;
-  memset_0(v74, 0, sizeof(v74));
-  timestamp = cmd.event.timestamp;
+  v59 = 0;
+  v72 = -1;
+  memset_0(v73, 0, sizeof(v73));
+  v63 = *(double *)&cmd.event.timestamp;
   memset_0(buffer, 0, v4);
   if ( name )
   {
@@ -440,8 +436,8 @@ LABEL_30:
     while ( name[v4] );
     if ( s_measurementNamesDictionary.m_numEntries >= 0x40u )
     {
-      LODWORD(v57) = s_measurementNamesDictionary.m_numEntries;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 499, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( m_entries ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( m_entries )\n\t%i not in [0, %i)", v57, 64) )
+      LODWORD(v56) = s_measurementNamesDictionary.m_numEntries;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 499, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( m_entries ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( m_entries )\n\t%i not in [0, %i)", v56, 64) )
         __debugbreak();
     }
     DLog_strncpy(s_measurementNamesDictionary.m_entries[(__int64)Index], 0x40ui64, name, v4);
@@ -459,10 +455,10 @@ LABEL_31:
 LABEL_33:
   if ( (int)v4 - truncate_cast<int,__int64>(0i64) < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 538, ASSERT_TYPE_ASSERT, "(bufferSize >= size)", (const char *)&queryFormat, "bufferSize >= size") )
     __debugbreak();
-  v18 = v63;
+  v18 = v62;
   v19 = 0;
-  v59 = 0;
-  *v63 = Index;
+  v58 = 0;
+  *v62 = Index;
   v20 = v18 + 1;
   if ( DLog_GetNextCmdType(context, DLOG_CMD_EVENT_END) )
   {
@@ -477,7 +473,7 @@ LABEL_110:
     {
       v43 = v9;
       p_data = &data;
-      v45 = v63;
+      v45 = v62;
       do
       {
         v46 = truncate_cast<int,__int64>((char *)v42 - v45);
@@ -489,84 +485,80 @@ LABEL_110:
     }
     else
     {
-      v45 = v63;
+      v45 = v62;
     }
     if ( bufferSize - truncate_cast<int,__int64>((char *)v42 - v45) < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 538, ASSERT_TYPE_ASSERT, "(bufferSize >= size)", (const char *)&queryFormat, "bufferSize >= size") )
       __debugbreak();
-    *v42 = v60;
-    _R14 = v42 + 1;
-    if ( v60 > 0x200u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 809, ASSERT_TYPE_ASSERT, "(numFields <= ( sizeof( *array_counter( fieldsPresent ) ) + 0 ))", (const char *)&queryFormat, "numFields <= ARRAY_COUNT( fieldsPresent )") )
+    *v42 = v59;
+    v48 = v42 + 1;
+    if ( v59 > 0x200u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 809, ASSERT_TYPE_ASSERT, "(numFields <= ( sizeof( *array_counter( fieldsPresent ) ) + 0 ))", (const char *)&queryFormat, "numFields <= ARRAY_COUNT( fieldsPresent )") )
       __debugbreak();
-    if ( v60 )
+    if ( v59 )
     {
       do
       {
-        v49 = (_DWORD)_R14 - (_DWORD)v45;
-        if ( (unsigned __int64)((char *)_R14 - v45 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", v49, "signed", (char *)_R14 - v45) )
+        v49 = (_DWORD)v48 - (_DWORD)v45;
+        if ( (unsigned __int64)((char *)v48 - v45 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", v49, "signed", (char *)v48 - v45) )
           __debugbreak();
         if ( bufferSize - v49 < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 538, ASSERT_TYPE_ASSERT, "(bufferSize >= size)", (const char *)&queryFormat, "bufferSize >= size") )
           __debugbreak();
         v50 = 136i64 * (unsigned __int16)v7;
-        *_R14++ = *(_WORD *)&v74[2 * (unsigned __int16)v7 - 2];
-        switch ( v65[v50] )
+        *v48++ = *(_WORD *)&v73[2 * (unsigned __int16)v7 - 2];
+        switch ( v64[v50] )
         {
           case 4:
           case 11:
-            v51 = &v65[v50 + 8];
-            v52 = truncate_cast<int,__int64>((char *)_R14 - v45);
+            v51 = &v64[v50 + 8];
+            v52 = truncate_cast<int,__int64>((char *)v48 - v45);
             v53 = 1;
             goto LABEL_136;
           case 5:
           case 9:
           case 13:
-            v51 = &v65[v50 + 8];
-            v52 = truncate_cast<int,__int64>((char *)_R14 - v45);
+            v51 = &v64[v50 + 8];
+            v52 = truncate_cast<int,__int64>((char *)v48 - v45);
             v53 = 4;
             goto LABEL_136;
           case 12:
-            v51 = &v65[v50 + 8];
-            v52 = truncate_cast<int,__int64>((char *)_R14 - v45);
+            v51 = &v64[v50 + 8];
+            v52 = truncate_cast<int,__int64>((char *)v48 - v45);
             v53 = 2;
             goto LABEL_136;
           case 14:
-            v51 = &v65[v50 + 8];
-            v52 = truncate_cast<int,__int64>((char *)_R14 - v45);
+            v51 = &v64[v50 + 8];
+            v52 = truncate_cast<int,__int64>((char *)v48 - v45);
             v53 = 8;
             goto LABEL_136;
           case 15:
-            v51 = &v65[v50 + 8];
+            v51 = &v64[v50 + 8];
             v54 = -1i64;
             do
               ++v54;
             while ( v51[v54] );
             v55 = truncate_cast<unsigned char,unsigned __int64>(v54);
-            if ( bufferSize - truncate_cast<int,__int64>((char *)_R14 - v45) < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 538, ASSERT_TYPE_ASSERT, "(bufferSize >= size)", (const char *)&queryFormat, "bufferSize >= size") )
+            if ( bufferSize - truncate_cast<int,__int64>((char *)v48 - v45) < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 538, ASSERT_TYPE_ASSERT, "(bufferSize >= size)", (const char *)&queryFormat, "bufferSize >= size") )
               __debugbreak();
-            *(_BYTE *)_R14 = v55;
-            _R14 = (_WORD *)((char *)_R14 + 1);
-            v52 = truncate_cast<int,__int64>((char *)_R14 - v45);
+            *(_BYTE *)v48 = v55;
+            v48 = (_WORD *)((char *)v48 + 1);
+            v52 = truncate_cast<int,__int64>((char *)v48 - v45);
             v53 = v55;
 LABEL_136:
-            _R14 = (_WORD *)((char *)_R14 + WriteBytesToBuffer(_R14, bufferSize - v52, v51, v53));
+            v48 = (_WORD *)((char *)v48 + WriteBytesToBuffer(v48, bufferSize - v52, v51, v53));
             break;
           default:
-            LODWORD(v57) = v65[136 * (unsigned __int16)v7];
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 862, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported field type %d\n", v57) )
+            LODWORD(v56) = v64[136 * (unsigned __int16)v7];
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 862, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported field type %d\n", v56) )
               __debugbreak();
             break;
         }
         LOWORD(v7) = v7 + 1;
       }
-      while ( (unsigned __int16)v7 < v60 );
+      while ( (unsigned __int16)v7 < v59 );
     }
-    if ( bufferSize - truncate_cast<int,__int64>((char *)_R14 - v45) < 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 538, ASSERT_TYPE_ASSERT, "(bufferSize >= size)", (const char *)&queryFormat, "bufferSize >= size") )
+    if ( bufferSize - truncate_cast<int,__int64>((char *)v48 - v45) < 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 538, ASSERT_TYPE_ASSERT, "(bufferSize >= size)", (const char *)&queryFormat, "bufferSize >= size") )
       __debugbreak();
-    __asm
-    {
-      vmovsd  xmm0, [rbp+114B0h+var_11528]
-      vmovsd  qword ptr [r14], xmm0
-    }
-    return (unsigned int)truncate_cast<int,__int64>((char *)_R14 - v45 + 8);
+    *(double *)v48 = v63;
+    return (unsigned int)truncate_cast<int,__int64>((char *)v48 - v45 + 8);
   }
   while ( 1 )
   {
@@ -590,7 +582,7 @@ LABEL_107:
         *(&data + v22) = v21;
         goto LABEL_95;
       }
-      if ( v60 >= 0x200u )
+      if ( v59 >= 0x200u )
       {
         DLog_ErrorFatal("Reached the max number of fields that can be serialized per measurement. Increase MAX_FIELDS_PER_MEASUREMENT.\n");
         return 0i64;
@@ -647,9 +639,9 @@ LABEL_107:
           while ( dest[v33] );
           if ( s_measurementFieldsDictionary.m_numEntries >= 0x500u )
           {
-            LODWORD(v58) = 1280;
-            LODWORD(v57) = s_measurementFieldsDictionary.m_numEntries;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 499, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( m_entries ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( m_entries )\n\t%i not in [0, %i)", v57, v58) )
+            LODWORD(v57) = 1280;
+            LODWORD(v56) = s_measurementFieldsDictionary.m_numEntries;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 499, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( m_entries ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( m_entries )\n\t%i not in [0, %i)", v56, v57) )
               __debugbreak();
           }
           DLog_strncpy(s_measurementFieldsDictionary.m_entries[(__int64)m_numEntries], 0x40ui64, dest, v33);
@@ -668,40 +660,40 @@ LABEL_74:
         if ( m_numEntries >= 0 )
         {
           type = cmd.column.type;
-          v35 = v60;
+          v35 = v59;
           v36 = cmd.column.type;
-          *(_WORD *)&v74[2 * v60 - 2] = m_numEntries;
+          *(_WORD *)&v73[2 * v59 - 2] = m_numEntries;
           if ( (unsigned __int8)type > (DLOG_TYPE_COUNT|DLOG_TYPE_UINT64|0x60) )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "signed char __cdecl truncate_cast_impl<signed char,enum DLogType>(enum DLogType)", "signed", type, "unsigned", (unsigned __int8)type) )
               __debugbreak();
             type = cmd.column.type;
           }
-          v65[136 * v60] = v36;
+          v64[136 * v59] = v36;
           switch ( type )
           {
             case DLOG_TYPE_BOOL:
             case DLOG_TYPE_UINT8:
-              v19 = v59;
-              ++v60;
-              v65[136 * v35 + 8] = *cmd.column.u8;
+              v19 = v58;
+              ++v59;
+              v64[136 * v35 + 8] = *cmd.column.u8;
               goto LABEL_95;
             case DLOG_TYPE_FLOAT32:
             case DLOG_TYPE_INT32:
             case DLOG_TYPE_UINT32:
-              v19 = v59;
-              ++v60;
-              *(_DWORD *)&v65[136 * v35 + 8] = *cmd.column.u32;
+              v19 = v58;
+              ++v59;
+              *(_DWORD *)&v64[136 * v35 + 8] = *cmd.column.u32;
               goto LABEL_95;
             case DLOG_TYPE_UINT16:
-              v19 = v59;
-              ++v60;
-              *(_WORD *)&v65[136 * v35 + 8] = *cmd.column.u16;
+              v19 = v58;
+              ++v59;
+              *(_WORD *)&v64[136 * v35 + 8] = *cmd.column.u16;
               goto LABEL_95;
             case DLOG_TYPE_UINT64:
-              v19 = v59;
-              ++v60;
-              *(_QWORD *)&v65[136 * v35 + 8] = *cmd.column.u64;
+              v19 = v58;
+              ++v59;
+              *(_QWORD *)&v64[136 * v35 + 8] = *cmd.column.u64;
               goto LABEL_95;
             case DLOG_TYPE_STRING:
               v37 = -1i64;
@@ -710,21 +702,21 @@ LABEL_74:
               while ( cmd.column.u8[v37] );
               if ( (unsigned __int8)(truncate_cast<unsigned char,unsigned __int64>(v37) + 3) > 0x80u )
               {
-                memset_0(v72, 0, 0x7Dui64);
-                DLog_sprintf(v72, 0x7Dui64, (const char *const)&queryFormat, cmd.column.u8);
-                i8 = v72;
+                memset_0(v71, 0, 0x7Dui64);
+                DLog_sprintf(v71, 0x7Dui64, (const char *const)&queryFormat, cmd.column.u8);
+                i8 = v71;
               }
               else
               {
                 i8 = cmd.column.i8;
               }
-              DLog_sprintf<128>((char (*)[128])&v65[136 * v60 + 8], "\"%s\"", i8);
-              v19 = v59;
-              ++v60;
+              DLog_sprintf<128>((char (*)[128])&v64[136 * v59 + 8], "\"%s\"", i8);
+              v19 = v58;
+              ++v59;
               goto LABEL_95;
             default:
-              LODWORD(v57) = (unsigned __int8)type;
-              v40 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 763, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported field type %d\n", v57);
+              LODWORD(v56) = (unsigned __int8)type;
+              v40 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 763, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported field type %d\n", v56);
               goto LABEL_103;
           }
         }
@@ -734,8 +726,8 @@ LABEL_74:
     }
     if ( cmd.type != DLOG_CMD_BREAK )
     {
-      LODWORD(v57) = (unsigned __int8)cmd.type;
-      v40 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 791, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported cmd type %d\n", v57);
+      LODWORD(v56) = (unsigned __int8)cmd.type;
+      v40 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 791, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported cmd type %d\n", v56);
 LABEL_103:
       if ( v40 )
         __debugbreak();
@@ -744,7 +736,7 @@ LABEL_103:
     if ( v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 649, ASSERT_TYPE_ASSERT, "(!broke)", (const char *)&queryFormat, "!broke") )
       __debugbreak();
     v19 = 1;
-    v59 = 1;
+    v58 = 1;
 LABEL_95:
     if ( DLog_GetNextCmdType(context, DLOG_CMD_EVENT_END) )
       goto LABEL_110;
@@ -1392,52 +1384,49 @@ DLog_Serialize_Blackbox
 */
 __int64 DLog_Serialize_Blackbox(DLogReadContext *context, DLogEventInfo *info, void *buffer, int bufferSize)
 {
+  __m256i v5; 
   unsigned __int64 userId; 
-  XUID *v11; 
+  double v7; 
+  __int128 v8; 
+  XUID *v9; 
   int ControllerIndexFromXuid; 
   bb_msg_t *Msg; 
-  bb_msg_t *v19; 
-  char *v20; 
+  __m256i v12; 
+  double v13; 
+  __int128 v14; 
+  bb_msg_t *v15; 
+  char *v16; 
   const char *name; 
-  int v22; 
-  char v23; 
-  _BYTE *v24; 
-  int v25; 
+  int v18; 
+  char v19; 
+  _BYTE *v20; 
+  int v21; 
   unsigned int DeltaTime; 
-  unsigned __int64 v27; 
-  signed int v28; 
+  unsigned __int64 v23; 
+  signed int v24; 
   __int64 isBlackboxWhitelisted; 
-  __int64 _data; 
+  unsigned __int64 _data; 
   DLogCmd cmd; 
   XUID result; 
-  DLogCmd v38; 
+  DLogCmd v30; 
   unsigned __int8 *parameters; 
-  DLogReadContext v40; 
+  DLogReadContext v32; 
   DLogReadContext contexta; 
   char dest[1024]; 
-  __int64 v43; 
+  __int64 v35; 
 
-  _RBX = context;
   if ( !BB_IsReady() )
     return 0i64;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymm1, ymmword ptr [rbx+20h]
-  }
-  userId = _RBX->userId;
-  __asm
-  {
-    vmovups ymmword ptr [rbp+4F0h+context.event], ymm0
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rbp+4F0h+context.rowArrayName+10h], ymm0
-    vmovsd  xmm0, qword ptr [rbx+70h]
-    vmovups ymmword ptr [rbp+4F0h+context.bufferSize], ymm1
-    vmovups xmm1, xmmword ptr [rbx+60h]
-    vmovsd  qword ptr [rbp+4F0h+context.rowArrayIndex], xmm0
-    vmovups xmmword ptr [rbp+4F0h+context.rowArrayName+30h], xmm1
-  }
-  if ( userId && (v11 = XUID::FromUInt64(&result, userId), ControllerIndexFromXuid = Live_GetControllerIndexFromXuid((XUID)v11->m_id), ControllerIndexFromXuid != -1) || (ControllerIndexFromXuid = BB_GetDemonwareActiveController(), ControllerIndexFromXuid != -1) )
+  v5 = *(__m256i *)&context->bufferSize;
+  userId = context->userId;
+  *(__m256i *)&contexta.event = *(__m256i *)&context->event;
+  *(__m256i *)&contexta.rowArrayName[16] = *(__m256i *)&context->rowArrayName[16];
+  v7 = *(double *)&context->rowArrayIndex;
+  *(__m256i *)&contexta.bufferSize = v5;
+  v8 = *(_OWORD *)&context->rowArrayName[48];
+  *(double *)&contexta.rowArrayIndex = v7;
+  *(_OWORD *)&contexta.rowArrayName[48] = v8;
+  if ( userId && (v9 = XUID::FromUInt64(&result, userId), ControllerIndexFromXuid = Live_GetControllerIndexFromXuid((XUID)v9->m_id), ControllerIndexFromXuid != -1) || (ControllerIndexFromXuid = BB_GetDemonwareActiveController(), ControllerIndexFromXuid != -1) )
   {
     if ( BB_CanSendPackets(ControllerIndexFromXuid) )
     {
@@ -1448,58 +1437,50 @@ __int64 DLog_Serialize_Blackbox(DLogReadContext *context, DLogEventInfo *info, v
       {
         BB_Lock();
         Msg = BB_GetMsg();
-        __asm
+        v12 = *(__m256i *)&context->bufferSize;
+        *(__m256i *)&v32.event = *(__m256i *)&context->event;
+        *(__m256i *)&v32.rowArrayName[16] = *(__m256i *)&context->rowArrayName[16];
+        v13 = *(double *)&context->rowArrayIndex;
+        *(__m256i *)&v32.bufferSize = v12;
+        v14 = *(_OWORD *)&context->rowArrayName[48];
+        v15 = Msg;
+        *(double *)&v32.rowArrayIndex = v13;
+        *(_OWORD *)&v32.rowArrayName[48] = v14;
+        v16 = dest;
+        DLog_GetNextCmd(&v32, &v30);
+        if ( v30.type == DLOG_CMD_EVENT )
         {
-          vmovups ymm0, ymmword ptr [rbx]
-          vmovups ymm1, ymmword ptr [rbx+20h]
-          vmovups ymmword ptr [rbp+4F0h+var_530.event], ymm0
-          vmovups ymm0, ymmword ptr [rbx+40h]
-          vmovups ymmword ptr [rbp+4F0h+var_530.rowArrayName+10h], ymm0
-          vmovsd  xmm0, qword ptr [rbx+70h]
-          vmovups ymmword ptr [rbp+4F0h+var_530.bufferSize], ymm1
-          vmovups xmm1, xmmword ptr [rbx+60h]
-        }
-        v19 = Msg;
-        __asm
-        {
-          vmovsd  qword ptr [rbp+4F0h+var_530.rowArrayIndex], xmm0
-          vmovups xmmword ptr [rbp+4F0h+var_530.rowArrayName+30h], xmm1
-        }
-        v20 = dest;
-        DLog_GetNextCmd(&v40, &v38);
-        if ( v38.type == DLOG_CMD_EVENT )
-        {
-          name = v38.event.name;
-          if ( strcmp_0(v38.event.name, "connections") )
+          name = v30.event.name;
+          if ( strcmp_0(v30.event.name, "connections") )
           {
-            v22 = strcmp_0(name, "sessions");
-            v23 = s_blackboxIsInteresting;
-            if ( v22 )
-              v23 = 1;
-            s_blackboxIsInteresting = v23;
+            v18 = strcmp_0(name, "sessions");
+            v19 = s_blackboxIsInteresting;
+            if ( v18 )
+              v19 = 1;
+            s_blackboxIsInteresting = v19;
           }
-          while ( !DLog_GetNextCmdType(&v40, DLOG_CMD_EVENT_END) )
+          while ( !DLog_GetNextCmdType(&v32, DLOG_CMD_EVENT_END) )
           {
-            DLog_GetNextCmd(&v40, &v38);
-            if ( v38.type == DLOG_CMD_ROW )
+            DLog_GetNextCmd(&v32, &v30);
+            if ( v30.type == DLOG_CMD_ROW )
             {
-              while ( !DLog_GetNextCmdType(&v40, DLOG_CMD_ROW_END) )
-                DLog_GetNextCmd(&v40, &v38);
+              while ( !DLog_GetNextCmdType(&v32, DLOG_CMD_ROW_END) )
+                DLog_GetNextCmd(&v32, &v30);
             }
-            else if ( v38.type == DLOG_CMD_COLUMN )
+            else if ( v30.type == DLOG_CMD_COLUMN )
             {
-              if ( !qword_14506A540[(unsigned __int8)v38.column.type] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 1204, ASSERT_TYPE_ASSERT, "(types[cmd.column.type])", (const char *)&queryFormat, "types[cmd.column.type]") )
+              if ( !qword_14506A540[(unsigned __int8)v30.column.type] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 1204, ASSERT_TYPE_ASSERT, "(types[cmd.column.type])", (const char *)&queryFormat, "types[cmd.column.type]") )
                 __debugbreak();
-              v24 = (_BYTE *)qword_14506A540[(unsigned __int8)v38.column.type];
-              if ( v24 && *v24 )
-                v20 += DLog_sprintf(v20, (char *)&v43 - v20, "%s %s ", v38.event.name, (const char *)qword_14506A540[(unsigned __int8)v38.column.type]);
+              v20 = (_BYTE *)qword_14506A540[(unsigned __int8)v30.column.type];
+              if ( v20 && *v20 )
+                v16 += DLog_sprintf(v16, (char *)&v35 - v16, "%s %s ", v30.event.name, (const char *)qword_14506A540[(unsigned __int8)v30.column.type]);
             }
           }
         }
-        v25 = BB_ParseAndCacheFormatString(v19, cmd.event.name, dest, (int *)&result, (const unsigned __int8 **)&parameters, 1);
-        BB_WriteVarUInt32(v19, 4 * (ControllerIndexFromXuid & 3 | (4 * v25)));
+        v21 = BB_ParseAndCacheFormatString(v15, cmd.event.name, dest, (int *)&result, (const unsigned __int8 **)&parameters, 1);
+        BB_WriteVarUInt32(v15, 4 * (ControllerIndexFromXuid & 3 | (4 * v21)));
         DeltaTime = BB_GetDeltaTime();
-        BB_WriteVarUInt32(v19, DeltaTime);
+        BB_WriteVarUInt32(v15, DeltaTime);
         while ( !DLog_GetNextCmdType(&contexta, DLOG_CMD_EVENT_END) )
         {
           DLog_GetNextCmd(&contexta, &cmd);
@@ -1515,58 +1496,48 @@ __int64 DLog_Serialize_Blackbox(DLogReadContext *context, DLogEventInfo *info, v
               case DLOG_TYPE_NULL:
                 break;
               case DLOG_TYPE_BOOL:
-                BB_WriteVarUInt32(v19, 2 * *cmd.column.u8);
+                BB_WriteVarUInt32(v15, 2 * *cmd.column.u8);
                 break;
               case DLOG_TYPE_FLOAT32:
-                _RAX = cmd.column.u8;
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rax]
-                  vmovss  dword ptr [rsp+5F0h+_data], xmm0
-                }
-                BB_Copy(v19, &_data, 4ui64);
+                LODWORD(_data) = *cmd.column.u32;
+                BB_Copy(v15, &_data, 4ui64);
                 break;
               case DLOG_TYPE_FLOAT64:
-                _RAX = cmd.column.u8;
-                __asm
-                {
-                  vmovsd  xmm0, qword ptr [rax]
-                  vmovsd  [rsp+5F0h+_data], xmm0
-                }
-                BB_Copy(v19, &_data, 8ui64);
+                _data = *cmd.column.u64;
+                BB_Copy(v15, &_data, 8ui64);
                 break;
               case DLOG_TYPE_INT8:
-                v28 = (char)*cmd.column.u8;
+                v24 = (char)*cmd.column.u8;
                 goto LABEL_44;
               case DLOG_TYPE_INT16:
-                v28 = (__int16)*cmd.column.u16;
+                v24 = (__int16)*cmd.column.u16;
                 goto LABEL_44;
               case DLOG_TYPE_INT32:
-                v28 = *cmd.column.u32;
+                v24 = *cmd.column.u32;
 LABEL_44:
-                BB_WriteVarUInt32(v19, (2 * v28) ^ ((unsigned __int64)v28 >> 31));
+                BB_WriteVarUInt32(v15, (2 * v24) ^ ((unsigned __int64)v24 >> 31));
                 break;
               case DLOG_TYPE_INT64:
-                BB_WriteVarUInt64(v19, (2 * *cmd.column.u64) ^ ((__int64)*cmd.column.u64 >> 63));
+                BB_WriteVarUInt64(v15, (2 * *cmd.column.u64) ^ ((__int64)*cmd.column.u64 >> 63));
                 break;
               case DLOG_TYPE_UINT8:
-                BB_WriteVarUInt32(v19, *cmd.column.u8);
+                BB_WriteVarUInt32(v15, *cmd.column.u8);
                 break;
               case DLOG_TYPE_UINT16:
-                BB_WriteVarUInt32(v19, *cmd.column.u16);
+                BB_WriteVarUInt32(v15, *cmd.column.u16);
                 break;
               case DLOG_TYPE_UINT32:
-                BB_WriteVarUInt32(v19, *cmd.column.u32);
+                BB_WriteVarUInt32(v15, *cmd.column.u32);
                 break;
               case DLOG_TYPE_UINT64:
-                BB_WriteVarUInt64(v19, *cmd.column.u64);
+                BB_WriteVarUInt64(v15, *cmd.column.u64);
                 break;
               case DLOG_TYPE_STRING:
-                v27 = -1i64;
+                v23 = -1i64;
                 do
-                  ++v27;
-                while ( cmd.column.u8[v27] );
-                BB_WriteString(v19, cmd.column.i8, v27);
+                  ++v23;
+                while ( cmd.column.u8[v23] );
+                BB_WriteString(v15, cmd.column.i8, v23);
                 break;
               default:
                 LODWORD(isBlackboxWhitelisted) = (unsigned __int8)cmd.column.type;
@@ -1577,7 +1548,7 @@ LABEL_44:
           }
         }
         BB_Unlock();
-        if ( v19->overflow && Sys_IsMainThread() )
+        if ( v15->overflow && Sys_IsMainThread() )
           BB_NetworkFlush();
       }
     }
@@ -1595,12 +1566,8 @@ __int64 DLog_Serialize_DDLReadGUID(DLogReadContext *context, DLogEventInfo *info
   DDLHeader result; 
 
   _RBX = info;
-  _RAX = DDL_GetHeader(&result, context->buffer, 0);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vpextrq qword ptr [rbx+8], xmm0, 1
-  }
+  DDL_GetHeader(&result, context->buffer, 0);
+  __asm { vpextrq qword ptr [rbx+8], xmm0, 1 }
   return 0xFFFFFFFFi64;
 }
 
@@ -1887,14 +1854,15 @@ char DLog_Serialize_DDLValue(DLogReadContext *context, DDLState *state, DDLConte
 {
   DLogType type; 
   int arrayCount; 
-  char v14; 
+  char v13; 
   char *i; 
-  int v17; 
-  bool v21; 
-  __int64 v22; 
+  int v15; 
+  __int64 v16; 
+  bool v17; 
+  __int64 v18; 
   DDLState toState; 
   DLogCmd cmd; 
-  DDLState v26; 
+  DDLState v22; 
   DDLState fromState; 
   char dest[128]; 
 
@@ -1902,7 +1870,7 @@ char DLog_Serialize_DDLValue(DLogReadContext *context, DDLState *state, DDLConte
   __asm { vpxor   xmm0, xmm0, xmm0 }
   toState.arrayIndex = -1;
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+180h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   if ( !DLog_GetNextCmd(context, &cmd) )
     return 0;
   if ( cmd.type != DLOG_CMD_ROW_ARRAY )
@@ -1917,107 +1885,98 @@ char DLog_Serialize_DDLValue(DLogReadContext *context, DDLState *state, DDLConte
         fromState.isValid = 0;
         fromState.offset = 0;
         fromState.arrayIndex = -1;
-        __asm { vmovdqu xmmword ptr [rbp+80h+fromState.member], xmm0 }
+        *(_OWORD *)&fromState.member = _XMM0;
         DLog_strcpy(dest, 0x80ui64, cmd.event.name);
-        v14 = dest[0];
-        for ( i = dest; *i; v14 = *i )
-          *i++ = tolower(v14);
+        v13 = dest[0];
+        for ( i = dest; *i; v13 = *i )
+          *i++ = tolower(v13);
         if ( DDL_MoveToName(state, &toState, dest) )
         {
           if ( cmd.column.arrayCount > 0 )
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rsp+180h+toState.isValid]
-              vmovups ymmword ptr [rbp+80h+fromState.isValid], ymm0
-            }
+            fromState = toState;
             arrayCount = cmd.column.arrayCount;
           }
-          v17 = 0;
-          _RBX = 0i64;
+          v15 = 0;
+          v16 = 0i64;
           while ( 1 )
           {
-            __asm
-            {
-              vpxor   xmm0, xmm0, xmm0
-              vmovdqu xmmword ptr [rbp+80h+var_108.member], xmm0
-            }
-            v26.isValid = 0;
-            v26.offset = 0;
-            v26.arrayIndex = -1;
-            if ( cmd.column.arrayCount > 0 && !DDL_MoveToIndex(&fromState, &toState, v17) )
+            __asm { vpxor   xmm0, xmm0, xmm0 }
+            *(_OWORD *)&v22.member = _XMM0;
+            v22.isValid = 0;
+            v22.offset = 0;
+            v22.arrayIndex = -1;
+            if ( cmd.column.arrayCount > 0 && !DDL_MoveToIndex(&fromState, &toState, v15) )
               break;
             switch ( type )
             {
               case DLOG_TYPE_NULL:
                 break;
               case DLOG_TYPE_BOOL:
-                if ( !DDL_SetBool(&toState, ddlContext, cmd.column.u8[_RBX] != 0) )
+                if ( !DDL_SetBool(&toState, ddlContext, cmd.column.u8[v16] != 0) )
                   return 0;
                 break;
               case DLOG_TYPE_FLOAT32:
-                _RAX = cmd.column.u8;
-                __asm { vmovss  xmm2, dword ptr [rax+rbx*4]; val }
-                if ( !DDL_SetFloat(&toState, ddlContext, *(float *)&_XMM2) )
+                if ( !DDL_SetFloat(&toState, ddlContext, *(float *)&cmd.column.u8[4 * v16]) )
                   return 0;
                 break;
               case DLOG_TYPE_FLOAT64:
-                v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 157, ASSERT_TYPE_SANITY, "( 0 && \"DDL does not support float64\" )", (const char *)&queryFormat, "0 && \"DDL does not support float64\"");
+                v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 157, ASSERT_TYPE_SANITY, "( 0 && \"DDL does not support float64\" )", (const char *)&queryFormat, "0 && \"DDL does not support float64\"");
                 goto LABEL_57;
               case DLOG_TYPE_INT8:
-                if ( !DDL_SetInt(&toState, ddlContext, (char)cmd.column.u8[_RBX]) )
+                if ( !DDL_SetInt(&toState, ddlContext, (char)cmd.column.u8[v16]) )
                   return 0;
                 break;
               case DLOG_TYPE_INT16:
-                if ( !DDL_SetInt(&toState, ddlContext, *(__int16 *)&cmd.column.u8[2 * _RBX]) )
+                if ( !DDL_SetInt(&toState, ddlContext, *(__int16 *)&cmd.column.u8[2 * v16]) )
                   return 0;
                 break;
               case DLOG_TYPE_INT32:
-                if ( !DDL_SetInt(&toState, ddlContext, *(_DWORD *)&cmd.column.u8[4 * _RBX]) )
+                if ( !DDL_SetInt(&toState, ddlContext, *(_DWORD *)&cmd.column.u8[4 * v16]) )
                   return 0;
                 break;
               case DLOG_TYPE_INT64:
               case DLOG_TYPE_UINT64:
-                if ( !DDL_SetUInt64(&toState, ddlContext, *(_QWORD *)&cmd.column.u8[8 * _RBX]) )
+                if ( !DDL_SetUInt64(&toState, ddlContext, *(_QWORD *)&cmd.column.u8[8 * v16]) )
                   return 0;
                 break;
               case DLOG_TYPE_UINT8:
-                if ( !DDL_SetUInt(&toState, ddlContext, cmd.column.u8[_RBX]) )
+                if ( !DDL_SetUInt(&toState, ddlContext, cmd.column.u8[v16]) )
                   return 0;
                 break;
               case DLOG_TYPE_UINT16:
-                if ( !DDL_SetUInt(&toState, ddlContext, *(unsigned __int16 *)&cmd.column.u8[2 * _RBX]) )
+                if ( !DDL_SetUInt(&toState, ddlContext, *(unsigned __int16 *)&cmd.column.u8[2 * v16]) )
                   return 0;
                 break;
               case DLOG_TYPE_UINT32:
-                if ( !DDL_SetUInt(&toState, ddlContext, *(_DWORD *)&cmd.column.u8[4 * _RBX]) )
+                if ( !DDL_SetUInt(&toState, ddlContext, *(_DWORD *)&cmd.column.u8[4 * v16]) )
                   return 0;
                 break;
               case DLOG_TYPE_STRING:
                 if ( !DDL_SetString(&toState, ddlContext, cmd.column.i8) )
                   return 0;
-                v22 = -1i64;
-                while ( cmd.column.u8[++v22] != 0 )
+                v18 = -1i64;
+                while ( cmd.column.u8[++v18] != 0 )
                   ;
-                cmd.column.u8 += v22 + 1;
+                cmd.column.u8 += v18 + 1;
                 break;
               case DLOG_TYPE_BYTES:
-                if ( !DDL_MoveToIndex(&toState, &v26, 0) )
+                if ( !DDL_MoveToIndex(&toState, &v22, 0) )
                   return 0;
-                if ( v26.offset % 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 219, ASSERT_TYPE_SANITY, "( bytesState.offset % 8 == 0 )", (const char *)&queryFormat, "bytesState.offset % 8 == 0") )
+                if ( v22.offset % 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 219, ASSERT_TYPE_SANITY, "( bytesState.offset % 8 == 0 )", (const char *)&queryFormat, "bytesState.offset % 8 == 0") )
                   __debugbreak();
-                if ( !DDL_SetBytes(ddlContext, v26.offset / 8, (const unsigned __int8 *)cmd.column.u8 + 4, *cmd.column.u32) )
+                if ( !DDL_SetBytes(ddlContext, v22.offset / 8, (const unsigned __int8 *)cmd.column.u8 + 4, *cmd.column.u32) )
                   return 0;
                 break;
               default:
-                v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 226, ASSERT_TYPE_SANITY, "( false )", (const char *)&queryFormat, "false");
+                v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dlog\\dlog_serializers.cpp", 226, ASSERT_TYPE_SANITY, "( false )", (const char *)&queryFormat, "false");
 LABEL_57:
-                if ( v21 )
+                if ( v17 )
                   __debugbreak();
                 break;
             }
-            ++v17;
-            if ( ++_RBX >= arrayCount )
+            ++v15;
+            if ( ++v16 >= arrayCount )
               return 1;
           }
         }
@@ -2030,17 +1989,13 @@ LABEL_57:
       if ( cmd.row.arrayIndex < 0 )
         goto LABEL_12;
       __asm { vpxor   xmm0, xmm0, xmm0 }
-      v26.isValid = 0;
-      v26.offset = 0;
-      __asm { vmovdqu xmmword ptr [rbp+80h+var_108.member], xmm0 }
-      v26.arrayIndex = -1;
-      if ( DDL_MoveToIndex(&toState, &v26, cmd.row.arrayIndex) )
+      v22.isValid = 0;
+      v22.offset = 0;
+      *(_OWORD *)&v22.member = _XMM0;
+      v22.arrayIndex = -1;
+      if ( DDL_MoveToIndex(&toState, &v22, cmd.row.arrayIndex) )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+180h+var_108.isValid]
-          vmovups ymmword ptr [rsp+180h+toState.isValid], ymm0
-        }
+        toState = v22;
 LABEL_12:
         if ( !DLog_GetNextCmdType(context, DLOG_CMD_ROW_END) )
         {

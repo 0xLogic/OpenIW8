@@ -304,201 +304,139 @@ R_AddBoundsToCodeSurfGlob
 */
 void R_AddBoundsToCodeSurfGlob(const GfxCodeSurfGlob *codeSurfGlob, const GfxBackEndData *backEndData, const Bounds *bounds)
 {
-  __int64 v17; 
-  __int64 v41; 
-  _BYTE v77[24]; 
+  GfxSunShadowPartition *v5; 
+  char *v6; 
+  __int64 v7; 
+  __m256i v8; 
+  vec4_t v9; 
+  int v10; 
+  float v11; 
+  int v12; 
+  int v13; 
+  float v14; 
+  int v15; 
+  int v16; 
+  float *v17; 
+  __int64 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  double v22; 
+  GfxCodeSurf *codeSurfsMain; 
+  unsigned __int64 v33; 
+  GfxCodeSurf *v34; 
+  unsigned __int64 v35; 
   vec4_t solution_8; 
   vec4_t mulVec; 
   tmat44_t<vec4_t> out; 
-  char v81; 
+  char v39; 
   tmat44_t<vec4_t> in; 
-  int v85[22]; 
-  void *retaddr; 
+  int v41; 
+  float v42; 
+  int v43[22]; 
 
-  _R11 = &retaddr;
-  __asm
+  if ( -3.4028235e38 != bounds->halfSize.v[0] && -3.4028235e38 != bounds->halfSize.v[1] && -3.4028235e38 != bounds->halfSize.v[2] )
   {
-    vmovaps xmmword ptr [r11-58h], xmm9
-    vmovss  xmm9, cs:__real@ff7fffff
-    vucomiss xmm9, dword ptr [r8+0Ch]
-  }
-  _RBX = bounds;
-  if ( (unsigned __int64)v77 != _security_cookie )
-  {
-    __asm { vucomiss xmm9, dword ptr [r8+10h] }
-    if ( (unsigned __int64)v77 != _security_cookie )
+    v5 = &backEndData->sunShadow.partition[3];
+    v6 = &v39;
+    v7 = 3i64;
+    do
     {
-      __asm { vucomiss xmm9, dword ptr [r8+14h] }
-      if ( (unsigned __int64)v77 != _security_cookie )
-      {
-        _RAX = &backEndData->sunShadow.partition[3];
-        __asm { vmovaps xmmword ptr [r11-28h], xmm6 }
-        _RCX = &v81;
-        __asm { vmovaps xmmword ptr [r11-38h], xmm7 }
-        v17 = 3i64;
-        __asm
-        {
-          vmovaps xmmword ptr [r11-48h], xmm8
-          vmovaps xmmword ptr [r11-68h], xmm10
-          vmovaps xmmword ptr [r11-78h], xmm11
-          vmovaps xmmword ptr [r11-88h], xmm12
-          vmovaps xmmword ptr [r11-98h], xmm13
-        }
-        do
-        {
-          _RCX += 128;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups xmm1, xmmword ptr [rax+70h]
-          }
-          _RAX = (GfxSunShadowPartition *)((char *)_RAX + 128);
-          __asm
-          {
-            vmovups ymmword ptr [rcx-80h], ymm0
-            vmovups ymm0, ymmword ptr [rax-60h]
-            vmovups ymmword ptr [rcx-60h], ymm0
-            vmovups ymm0, ymmword ptr [rax-40h]
-            vmovups ymmword ptr [rcx-40h], ymm0
-            vmovups xmm0, xmmword ptr [rax-20h]
-            vmovups xmmword ptr [rcx-20h], xmm0
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          --v17;
-        }
-        while ( v17 );
-        MatrixTranspose44Aligned(&in, &out);
-        __asm
-        {
-          vmovss  xmm5, dword ptr [rbx]
-          vaddss  xmm6, xmm5, dword ptr [rbx+0Ch]
-          vsubss  xmm5, xmm5, dword ptr [rbx+0Ch]
-          vmovss  xmm3, dword ptr [rbx+4]
-          vaddss  xmm7, xmm3, dword ptr [rbx+10h]
-          vsubss  xmm2, xmm3, dword ptr [rbx+10h]
-          vmovss  xmm1, dword ptr [rbx+8]
-          vaddss  xmm8, xmm1, dword ptr [rbx+14h]
-          vsubss  xmm4, xmm1, dword ptr [rbx+14h]
-          vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-          vmovss  xmm13, cs:__real@3f000000
-          vmovss  [rbp+200h+var_100], xmm6
-          vmovss  [rbp+200h+var_E8], xmm6
-          vmovss  [rbp+200h+var_DC], xmm6
-          vmovss  [rbp+200h+var_C4], xmm6
-          vmovss  xmm6, cs:__real@7f7fffff
-          vmovss  [rbp+200h+var_FC], xmm7
-          vmovss  [rbp+200h+var_F8], xmm8
-          vmovss  [rbp+200h+var_F0], xmm7
-          vmovss  [rbp+200h+var_EC], xmm8
-          vmovss  [rbp+200h+var_E0], xmm8
-          vmovss  [rbp+200h+var_D8], xmm7
-          vmovss  [rbp+200h+var_B4], xmm7
-          vmovss  xmm7, cs:__real@3f800000
-          vmovss  [rbp+200h+var_A4], xmm8
-          vmovaps xmm11, xmm6
-          vmovaps xmm12, xmm6
-          vmovss  [rbp+200h+var_F4], xmm5
-          vmovss  [rbp+200h+var_E4], xmm2
-          vmovss  [rbp+200h+var_D4], xmm4
-          vmovss  [rbp+200h+var_D0], xmm5
-          vmovss  [rbp+200h+var_CC], xmm2
-          vmovss  [rbp+200h+var_C8], xmm4
-          vmovss  [rbp+200h+var_C0], xmm2
-          vmovss  [rbp+200h+var_BC], xmm4
-          vmovss  [rbp+200h+var_B8], xmm5
-          vmovss  [rbp+200h+var_B0], xmm4
-          vmovss  [rbp+200h+var_AC], xmm5
-          vmovss  [rbp+200h+var_A8], xmm2
-          vmovaps xmm8, xmm9
-          vmovaps xmm10, xmm9
-          vmovups xmmword ptr [rsp+300h+solution+8], xmm0
-        }
-        _RBX = v85;
-        v41 = 8i64;
-        do
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx-8]
-            vmovss  xmm1, dword ptr [rbx-4]
-            vmovss  xmm2, dword ptr [rbx]
-            vmovss  dword ptr [rsp+300h+mulVec], xmm0
-            vmovss  dword ptr [rsp+300h+mulVec+4], xmm1
-            vmovss  dword ptr [rsp+300h+mulVec+8], xmm2
-            vmovss  dword ptr [rsp+300h+mulVec+0Ch], xmm7
-          }
-          MatrixVecMultiply(&out, &mulVec, &solution_8);
-          __asm
-          {
-            vdivss  xmm3, xmm7, [rsp+300h+var_2D4]
-            vmulss  xmm1, xmm3, dword ptr [rsp+300h+solution+0Ch]
-            vmulss  xmm4, xmm3, dword ptr [rsp+300h+solution+8]
-            vmulss  xmm0, xmm3, [rsp+300h+var_2D8]
-            vmovss  dword ptr [rsp+300h+solution+0Ch], xmm1
-            vaddss  xmm1, xmm4, xmm7
-            vmovss  [rsp+300h+var_2D8], xmm0
-            vmulss  xmm0, xmm1, xmm13; val
-            vxorps  xmm1, xmm1, xmm1; min
-            vmovaps xmm2, xmm7; max
-            vmovss  dword ptr [rsp+300h+solution+8], xmm4
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmulss  xmm1, xmm13, dword ptr [rsp+300h+solution+0Ch]
-            vmovss  dword ptr [rsp+300h+solution+8], xmm0
-            vsubss  xmm0, xmm13, xmm1; val
-            vxorps  xmm1, xmm1, xmm1; min
-            vmovaps xmm2, xmm7; max
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          _RBX += 3;
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rsp+300h+solution+8]
-            vmovss  dword ptr [rsp+300h+solution+0Ch], xmm0
-            vmaxss  xmm8, xmm0, xmm8
-            vminss  xmm11, xmm0, xmm11
-            vmovss  xmm0, [rsp+300h+var_2D8]
-            vmaxss  xmm10, xmm0, xmm10
-            vminss  xmm12, xmm0, xmm12
-            vmaxss  xmm9, xmm1, xmm9
-            vminss  xmm6, xmm1, xmm6
-          }
-          --v41;
-        }
-        while ( v41 );
-        _RAX = codeSurfGlob->codeSurfsMain;
-        __asm
-        {
-          vmovaps xmm13, [rsp+300h+var_98+8]
-          vmovaps xmm7, [rsp+300h+var_38+8]
-        }
-        _RCX = (unsigned __int64)codeSurfGlob->surfCount << 6;
-        __asm
-        {
-          vmovss  dword ptr [rcx+rax+30h], xmm8
-          vmovaps xmm8, [rsp+300h+var_48+8]
-          vmovss  dword ptr [rcx+rax+34h], xmm10
-          vmovaps xmm10, [rsp+300h+var_68+8]
-          vmovss  dword ptr [rcx+rax+2Ch], xmm9
-        }
-        _RAX = codeSurfGlob->codeSurfsMain;
-        _RCX = (unsigned __int64)codeSurfGlob->surfCount << 6;
-        __asm
-        {
-          vmovss  dword ptr [rcx+rax+20h], xmm6
-          vmovaps xmm6, xmmword ptr [rsp+300h+var_28+8]
-          vmovss  dword ptr [rcx+rax+24h], xmm11
-          vmovaps xmm11, [rsp+300h+var_78+8]
-          vmovss  dword ptr [rcx+rax+28h], xmm12
-          vmovaps xmm12, [rsp+300h+var_88+8]
-        }
-        codeSurfGlob->codeSurfsMain[(unsigned __int64)codeSurfGlob->surfCount].translucentShadowDensity = codeSurfGlob->perEmitterData->translucentShadowParams.v[0];
-      }
+      v6 += 128;
+      v8 = *(__m256i *)v5->viewParms.viewMatrix.m.m[0].v;
+      v9 = v5->viewParms.projectionMatrix.m.m[3];
+      v5 = (GfxSunShadowPartition *)((char *)v5 + 128);
+      *((__m256i *)v6 - 4) = v8;
+      *((__m256i *)v6 - 3) = *(__m256i *)&v5[-1].isPrevViewProjectionMatrixValid;
+      *((__m256i *)v6 - 2) = *(__m256i *)&v5[-1].frustumSidePlanes[1].coeffs.xyz.z;
+      *((_OWORD *)v6 - 2) = *(DpvsPlane *)((char *)&v5[-1].frustumSidePlanes[3] + 8);
+      *((vec4_t *)v6 - 1) = v9;
+      --v7;
     }
+    while ( v7 );
+    MatrixTranspose44Aligned(&in, &out);
+    *(float *)&v10 = bounds->midPoint.v[0] - bounds->halfSize.v[0];
+    v11 = bounds->midPoint.v[1];
+    *(float *)&v12 = v11 + bounds->halfSize.v[1];
+    *(float *)&v13 = v11 - bounds->halfSize.v[1];
+    v14 = bounds->midPoint.v[2];
+    *(float *)&v15 = v14 + bounds->halfSize.v[2];
+    *(float *)&v16 = v14 - bounds->halfSize.v[2];
+    *(float *)&v41 = bounds->midPoint.v[0] + bounds->halfSize.v[0];
+    v43[4] = v41;
+    v43[7] = v41;
+    v43[13] = v41;
+    v42 = *(float *)&v12;
+    v43[0] = v15;
+    v43[2] = v12;
+    v43[3] = v15;
+    v43[6] = v15;
+    v43[8] = v12;
+    v43[17] = v12;
+    v43[21] = v15;
+    v43[1] = v10;
+    v43[5] = v13;
+    v43[9] = v16;
+    v43[10] = v10;
+    v43[11] = v13;
+    v43[12] = v16;
+    v43[14] = v13;
+    v43[15] = v16;
+    v43[16] = v10;
+    v43[18] = v16;
+    v43[19] = v10;
+    v43[20] = v13;
+    solution_8 = (vec4_t)_xmm;
+    v17 = (float *)v43;
+    v18 = 8i64;
+    do
+    {
+      v19 = *(v17 - 1);
+      v20 = *v17;
+      mulVec.v[0] = *(v17 - 2);
+      mulVec.v[1] = v19;
+      mulVec.v[2] = v20;
+      mulVec.v[3] = FLOAT_1_0;
+      MatrixVecMultiply(&out, &mulVec, &solution_8);
+      solution_8.v[1] = (float)(1.0 / solution_8.v[3]) * solution_8.v[1];
+      solution_8.v[2] = (float)(1.0 / solution_8.v[3]) * solution_8.v[2];
+      v21 = (float)((float)((float)(1.0 / solution_8.v[3]) * solution_8.v[0]) + 1.0) * 0.5;
+      solution_8.v[0] = (float)(1.0 / solution_8.v[3]) * solution_8.v[0];
+      v22 = I_fclamp(v21, 0.0, 1.0);
+      solution_8.v[0] = *(float *)&v22;
+      *((_QWORD *)&_XMM0 + 1) = 0i64;
+      *(double *)&_XMM0 = I_fclamp(0.5 - (float)(0.5 * solution_8.v[1]), 0.0, 1.0);
+      v17 += 3;
+      _XMM1 = LODWORD(solution_8.v[0]);
+      solution_8.v[1] = *(float *)&_XMM0;
+      __asm
+      {
+        vmaxss  xmm8, xmm0, xmm8
+        vminss  xmm11, xmm0, xmm11
+      }
+      _XMM0 = LODWORD(solution_8.v[2]);
+      __asm
+      {
+        vmaxss  xmm10, xmm0, xmm10
+        vminss  xmm12, xmm0, xmm12
+        vmaxss  xmm9, xmm1, xmm9
+        vminss  xmm6, xmm1, xmm6
+      }
+      --v18;
+    }
+    while ( v18 );
+    codeSurfsMain = codeSurfGlob->codeSurfsMain;
+    v33 = (unsigned __int64)codeSurfGlob->surfCount << 6;
+    *(float *)((char *)&codeSurfsMain->bounds.halfSize.v[1] + v33) = *(float *)&_XMM8;
+    *(float *)((char *)&codeSurfsMain->bounds.halfSize.v[2] + v33) = *(float *)&_XMM10;
+    *(float *)((char *)codeSurfsMain->bounds.halfSize.v + v33) = *(float *)&_XMM9;
+    v34 = codeSurfGlob->codeSurfsMain;
+    v35 = (unsigned __int64)codeSurfGlob->surfCount << 6;
+    *(float *)((char *)v34->bounds.midPoint.v + v35) = *(float *)&_XMM6;
+    *(float *)((char *)&v34->bounds.midPoint.v[1] + v35) = *(float *)&_XMM11;
+    *(float *)((char *)&v34->bounds.midPoint.v[2] + v35) = *(float *)&_XMM12;
+    codeSurfGlob->codeSurfsMain[(unsigned __int64)codeSurfGlob->surfCount].translucentShadowDensity = codeSurfGlob->perEmitterData->translucentShadowParams.v[0];
   }
-  __asm { vmovaps xmm9, [rsp+300h+var_58+8] }
 }
 
 /*
@@ -508,44 +446,43 @@ R_AddCode3DQuadSurf
 */
 void R_AddCode3DQuadSurf(GfxCodeSurfGlob *codeSurfGlob, unsigned int vertIndexBase, unsigned __int16 vertIndexOffset, r_double_index_t *indices, const vec3_t *center, const tmat33_t<vec3_t> *axis, float width, float height, float s0, float t0, float s1, float t1, const vec4_t *color, Material *material)
 {
-  __int64 v33; 
-  __int64 v130; 
-  r_double_index_t v131; 
-  unsigned int v132; 
-  unsigned int v133; 
-  unsigned int v134; 
-  unsigned int v135; 
+  float v18; 
+  float v19; 
+  __int64 v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  GfxSpriteVertex *v26; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  __int64 v55; 
+  r_double_index_t v56; 
   GfxCodeSurfArgs codeSurfArgs; 
-  __int64 v137; 
-  char v138; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  _RBP = &v137;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-    vmovaps xmmword ptr [rax-0A8h], xmm14
-    vmovaps xmmword ptr [rax-0B8h], xmm15
-  }
   if ( !indices && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 651, ASSERT_TYPE_ASSERT, "(indices)", (const char *)&queryFormat, "indices") )
     __debugbreak();
-  v131.value[0] = vertIndexOffset;
-  v131.value[1] = vertIndexOffset + 1;
-  *indices = v131;
-  v131.value[0] = vertIndexOffset + 2;
-  v131.value[1] = vertIndexOffset + 2;
-  indices[1] = v131;
-  v131.value[0] = vertIndexOffset + 3;
+  v56.value[0] = vertIndexOffset;
+  v56.value[1] = vertIndexOffset + 1;
+  *indices = v56;
+  v56.value[0] = vertIndexOffset + 2;
+  v56.value[1] = vertIndexOffset + 2;
+  indices[1] = v56;
+  v56.value[0] = vertIndexOffset + 3;
   codeSurfArgs.indices = indices;
-  v131.value[1] = vertIndexOffset;
-  indices[2] = v131;
+  v56.value[1] = vertIndexOffset;
+  indices[2] = v56;
   codeSurfArgs.material = material;
   codeSurfArgs.fxName = "(code)";
   codeSurfArgs.vertIndexBase = vertIndexBase;
@@ -554,178 +491,89 @@ void R_AddCode3DQuadSurf(GfxCodeSurfGlob *codeSurfGlob, unsigned int vertIndexBa
   codeSurfArgs.sortOrder = 0;
   codeSurfArgs.flags = 0;
   R_AddCodeSurf(codeSurfGlob, &codeSurfArgs);
-  __asm
+  v18 = 0.5 * width;
+  v19 = height * -0.5;
+  v20 = vertIndexBase + vertIndexOffset;
+  v21 = height * 0.5;
+  if ( (unsigned int)v20 >= codeSurfGlob->vertLimit )
   {
-    vmovss  xmm2, cs:__real@3f000000
-    vmovss  xmm1, [rbp+30h+height]
-    vmulss  xmm13, xmm2, [rbp+30h+width]
-    vmulss  xmm15, xmm1, cs:__real@bf000000
-  }
-  v33 = vertIndexBase + vertIndexOffset;
-  __asm { vmulss  xmm14, xmm1, xmm2 }
-  if ( (unsigned int)v33 >= codeSurfGlob->vertLimit )
-  {
-    LODWORD(v130) = v33;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 782, ASSERT_TYPE_ASSERT, "(unsigned)( vertIndexBegin ) < (unsigned)( codeSurfGlob->vertLimit )", "vertIndexBegin doesn't index codeSurfGlob->vertLimit\n\t%i not in [0, %i)", v130, codeSurfGlob->vertLimit) )
+    LODWORD(v55) = v20;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 782, ASSERT_TYPE_ASSERT, "(unsigned)( vertIndexBegin ) < (unsigned)( codeSurfGlob->vertLimit )", "vertIndexBegin doesn't index codeSurfGlob->vertLimit\n\t%i not in [0, %i)", v55, codeSurfGlob->vertLimit) )
       __debugbreak();
   }
-  _R8 = axis;
+  v22 = axis->m[1].v[2];
+  v23 = axis->m[2].v[2];
+  v24 = v21 * axis->m[2].v[1];
+  v25 = v18 * axis->m[1].v[1];
+  v26 = &codeSurfGlob->verts[v20];
+  v26->xyz.v[0] = (float)((float)(v21 * axis->m[2].v[0]) + (float)(v18 * axis->m[1].v[0])) + center->v[0];
+  v26->xyz.v[1] = (float)(v24 + v25) + center->v[1];
+  v26->xyz.v[2] = (float)((float)(v21 * v23) + (float)(v18 * v22)) + center->v[2];
+  v26->extraData = 0;
+  v26->color = *color;
+  *(_QWORD *)&v26->normal.packed = 0i64;
+  _XMM0 = 0i64;
   __asm
   {
-    vxorps  xmm7, xmm15, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm1, xmm14, dword ptr [r8+18h]
-    vmulss  xmm0, xmm13, dword ptr [r8+0Ch]
-    vmovss  xmm5, dword ptr [r8+10h]
-    vmovss  xmm3, dword ptr [r8+1Ch]
-    vmovss  xmm6, dword ptr [r8+14h]
-    vmovss  xmm4, dword ptr [r8+20h]
-    vxorps  xmm11, xmm13, cs:__xmm@80000000800000008000000080000000
-    vaddss  xmm2, xmm1, xmm0
-    vaddss  xmm1, xmm2, dword ptr [rdx]
-    vmulss  xmm2, xmm14, xmm3
-    vmulss  xmm0, xmm13, xmm5
-  }
-  _R9 = &codeSurfGlob->verts[v33];
-  __asm
-  {
-    vmovss  dword ptr [r9], xmm1
-    vaddss  xmm1, xmm2, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rdx+4]
-    vmovss  dword ptr [r9+4], xmm2
-    vmulss  xmm1, xmm14, xmm4
-    vmulss  xmm0, xmm13, xmm6
-    vaddss  xmm1, xmm1, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rdx+8]
-    vmovss  dword ptr [r9+8], xmm2
-  }
-  _R9->extraData = 0;
-  _R9->color = *color;
-  *(_QWORD *)&_R9->normal.packed = 0i64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
     vinsertps xmm0, xmm0, [rbp+30h+s0], 0
     vinsertps xmm0, xmm0, [rbp+30h+t0], 30h+var_20
     vcvtps2ph xmm0, xmm0, 0
-    vmovss  dword ptr [rsp+130h+var_F0], xmm0
   }
-  _R9->texCoord.packed = v132;
+  v26->texCoord.packed = _XMM0;
+  v31 = axis->m[1].v[1];
+  v32 = axis->m[2].v[1];
+  v33 = axis->m[1].v[2];
+  v34 = axis->m[2].v[2];
+  v26[1].xyz.v[0] = (float)((float)(COERCE_FLOAT(LODWORD(v19) ^ _xmm) * axis->m[2].v[0]) + (float)(COERCE_FLOAT(LODWORD(v18) ^ _xmm) * axis->m[1].v[0])) + center->v[0];
+  v26[1].xyz.v[1] = (float)((float)(COERCE_FLOAT(LODWORD(v19) ^ _xmm) * v32) + (float)(COERCE_FLOAT(LODWORD(v18) ^ _xmm) * v31)) + center->v[1];
+  v26[1].xyz.v[2] = (float)((float)(COERCE_FLOAT(LODWORD(v19) ^ _xmm) * v34) + (float)(COERCE_FLOAT(LODWORD(v18) ^ _xmm) * v33)) + center->v[2];
+  v26[1].extraData = 0;
+  v26[1].color = *color;
+  _XMM0 = 0i64;
   __asm
   {
-    vmulss  xmm1, xmm7, dword ptr [r8+18h]
-    vmulss  xmm0, xmm11, dword ptr [r8+0Ch]
-    vmovss  xmm4, dword ptr [r8+10h]
-    vmovss  xmm3, dword ptr [r8+1Ch]
-    vmovss  xmm6, dword ptr [r8+14h]
-    vmovss  xmm5, dword ptr [r8+20h]
-    vaddss  xmm1, xmm1, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rdx]
-    vmovss  dword ptr [r9+30h], xmm2
-    vmulss  xmm3, xmm7, xmm3
-    vmulss  xmm0, xmm11, xmm4
-    vaddss  xmm1, xmm3, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rdx+4]
-    vmovss  dword ptr [r9+34h], xmm2
-    vmulss  xmm3, xmm7, xmm5
-    vxorps  xmm7, xmm14, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm0, xmm11, xmm6
-    vaddss  xmm1, xmm3, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rdx+8]
-    vmovss  dword ptr [r9+38h], xmm2
-  }
-  _R9[1].extraData = 0;
-  _R9[1].color = *color;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
     vinsertps xmm0, xmm0, [rbp+30h+s1], 0
     vinsertps xmm0, xmm0, [rbp+30h+t0], 30h+var_20
     vcvtps2ph xmm0, xmm0, 0
-    vmovss  dword ptr [rsp+130h+var_F0], xmm0
   }
-  _R9[1].texCoord.packed = v133;
-  *(_QWORD *)&_R9[1].normal.packed = 0i64;
+  v26[1].texCoord.packed = _XMM0;
+  *(_QWORD *)&v26[1].normal.packed = 0i64;
+  v39 = axis->m[1].v[1];
+  v40 = axis->m[1].v[2];
+  v41 = axis->m[2].v[2];
+  v42 = axis->m[2].v[1];
+  v26[2].xyz.v[0] = (float)((float)(COERCE_FLOAT(LODWORD(v21) ^ _xmm) * axis->m[2].v[0]) + (float)(COERCE_FLOAT(LODWORD(v18) ^ _xmm) * axis->m[1].v[0])) + center->v[0];
+  v26[2].xyz.v[1] = (float)((float)(COERCE_FLOAT(LODWORD(v21) ^ _xmm) * v42) + (float)(COERCE_FLOAT(LODWORD(v18) ^ _xmm) * v39)) + center->v[1];
+  v26[2].xyz.v[2] = (float)((float)(COERCE_FLOAT(LODWORD(v21) ^ _xmm) * v41) + (float)(COERCE_FLOAT(LODWORD(v18) ^ _xmm) * v40)) + center->v[2];
+  v26[2].extraData = 0;
+  v26[2].color = *color;
+  *(_QWORD *)&v26[2].normal.packed = 0i64;
+  _XMM0 = 0i64;
   __asm
   {
-    vmulss  xmm1, xmm7, dword ptr [r8+18h]
-    vmulss  xmm0, xmm11, dword ptr [r8+0Ch]
-    vmovss  xmm4, dword ptr [r8+10h]
-    vmovss  xmm6, dword ptr [r8+14h]
-    vmovss  xmm5, dword ptr [r8+20h]
-    vmovss  xmm3, dword ptr [r8+1Ch]
-    vaddss  xmm1, xmm1, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rdx]
-    vmovss  dword ptr [r9+60h], xmm2
-  }
-  _R11 = &v138;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
-    vmovaps xmm14, xmmword ptr [r11-80h]
-    vmulss  xmm3, xmm7, xmm3
-    vmulss  xmm0, xmm11, xmm4
-    vaddss  xmm1, xmm3, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rdx+4]
-    vmovss  dword ptr [r9+64h], xmm2
-    vmulss  xmm0, xmm11, xmm6
-    vmovaps xmm11, xmmword ptr [r11-50h]
-    vmulss  xmm3, xmm7, xmm5
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vaddss  xmm1, xmm3, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rdx+8]
-    vmovss  dword ptr [r9+68h], xmm2
-  }
-  _R9[2].extraData = 0;
-  _R9[2].color = *color;
-  *(_QWORD *)&_R9[2].normal.packed = 0i64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
     vinsertps xmm0, xmm0, [rbp+30h+s1], 0
     vinsertps xmm0, xmm0, [rbp+30h+t1], 30h+var_20
     vcvtps2ph xmm0, xmm0, 0
-    vmovss  dword ptr [rsp+130h+var_F0], xmm0
   }
-  _R9[2].texCoord.packed = v134;
+  v26[2].texCoord.packed = _XMM0;
+  v47 = axis->m[2].v[2];
+  v48 = axis->m[1].v[1];
+  v49 = axis->m[2].v[1];
+  v50 = axis->m[1].v[2];
+  v26[3].xyz.v[0] = (float)((float)(v19 * axis->m[2].v[0]) + (float)(v18 * axis->m[1].v[0])) + center->v[0];
+  v26[3].xyz.v[1] = (float)((float)(v19 * v49) + (float)(v18 * v48)) + center->v[1];
+  v26[3].xyz.v[2] = (float)((float)(v18 * v50) + (float)(v19 * v47)) + center->v[2];
+  v26[3].extraData = 0;
+  v26[3].color = *color;
+  _XMM0 = 0i64;
   __asm
   {
-    vmulss  xmm0, xmm13, dword ptr [r8+0Ch]
-    vmulss  xmm1, xmm15, dword ptr [r8+18h]
-    vmovss  xmm6, dword ptr [r8+20h]
-    vmovss  xmm4, dword ptr [r8+10h]
-    vmovss  xmm3, dword ptr [r8+1Ch]
-    vmovss  xmm5, dword ptr [r8+14h]
-    vaddss  xmm1, xmm1, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rdx]
-    vmovss  dword ptr [r9+90h], xmm2
-    vmulss  xmm0, xmm13, xmm4
-    vmulss  xmm3, xmm15, xmm3
-    vaddss  xmm1, xmm3, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rdx+4]
-    vmovss  dword ptr [r9+94h], xmm2
-    vmulss  xmm0, xmm15, xmm6
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmulss  xmm3, xmm13, xmm5
-    vmovaps xmm13, xmmword ptr [r11-70h]
-    vaddss  xmm1, xmm3, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rdx+8]
-    vmovss  dword ptr [r9+98h], xmm2
-  }
-  _R9[3].extraData = 0;
-  _R9[3].color = *color;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
     vinsertps xmm0, xmm0, [rbp+30h+s0], 0
     vinsertps xmm0, xmm0, [rbp+30h+t1], 30h+var_20
     vcvtps2ph xmm0, xmm0, 0
-    vmovss  dword ptr [rsp+130h+var_F0], xmm0
   }
-  _R9[3].texCoord.packed = v135;
-  *(_QWORD *)&_R9[3].normal.packed = 0i64;
-  __asm { vmovaps xmm15, xmmword ptr [r11-90h] }
+  v26[3].texCoord.packed = _XMM0;
+  *(_QWORD *)&v26[3].normal.packed = 0i64;
 }
 
 /*
@@ -735,52 +583,42 @@ R_AddCode3DQuadVertsSurf
 */
 void R_AddCode3DQuadVertsSurf(GfxCodeSurfGlob *codeSurfGlob, unsigned int vertIndexBase, unsigned __int16 vertIndexOffset, r_double_index_t *indices, const vec3_t (*verts)[4], float s0, float t0, float s1, float t1, const vec4_t *color, Material *material, unsigned __int8 flags, unsigned int sortOrder, const GfxMatrix *worldMatrix, const GfxMatrix *invViewMatrix, unsigned int argOffset, unsigned int argCount)
 {
-  __int64 v33; 
-  GfxSpriteVertex *v77; 
-  __int64 v235; 
-  r_double_index_t v236; 
-  unsigned int v237; 
-  unsigned int v238; 
-  unsigned int v239; 
-  unsigned int v240; 
-  unsigned int v241; 
-  unsigned int v242; 
-  unsigned int v243; 
-  unsigned int v244; 
-  unsigned int v245; 
-  unsigned int v246; 
-  unsigned int v247; 
-  unsigned int v248; 
+  __int64 v22; 
+  __int128 v23; 
+  __int128 v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v34; 
+  __int128 v35; 
+  GfxSpriteVertex *v39; 
+  __int128 v45; 
+  __int128 v60; 
+  __int128 v79; 
+  __int128 v94; 
+  __int128 v113; 
+  __int128 v128; 
+  __int128 v147; 
+  __int128 v162; 
+  __int64 v176; 
+  r_double_index_t v177; 
   GfxCodeSurfArgs codeSurfArgs; 
-  __int128 v250; 
-  char v251; 
-  void *retaddr; 
+  __int128 v179; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-    vmovaps xmmword ptr [rax-0C8h], xmm13
-    vmovaps xmmword ptr [rax-0D8h], xmm14
-  }
-  _R13 = verts;
   if ( !indices && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 713, ASSERT_TYPE_ASSERT, "(indices)", (const char *)&queryFormat, "indices") )
     __debugbreak();
-  v236.value[1] = vertIndexOffset + 1;
-  v236.value[0] = vertIndexOffset;
-  *indices = v236;
-  v236.value[0] = vertIndexOffset + 2;
-  v236.value[1] = vertIndexOffset + 2;
-  indices[1] = v236;
-  v236.value[0] = vertIndexOffset + 3;
-  v236.value[1] = vertIndexOffset;
-  indices[2] = v236;
+  v177.value[1] = vertIndexOffset + 1;
+  v177.value[0] = vertIndexOffset;
+  *indices = v177;
+  v177.value[0] = vertIndexOffset + 2;
+  v177.value[1] = vertIndexOffset + 2;
+  indices[1] = v177;
+  v177.value[0] = vertIndexOffset + 3;
+  v177.value[1] = vertIndexOffset;
+  indices[2] = v177;
   codeSurfArgs.material = material;
   codeSurfArgs.argCount = argCount;
   codeSurfArgs.fxName = "(code)";
@@ -793,93 +631,66 @@ void R_AddCode3DQuadVertsSurf(GfxCodeSurfGlob *codeSurfGlob, unsigned int vertIn
   codeSurfArgs.indices = indices;
   codeSurfArgs.indexCount = 6;
   R_AddCodeSurf(codeSurfGlob, &codeSurfArgs);
-  v33 = vertIndexBase + vertIndexOffset;
-  if ( (unsigned int)v33 >= codeSurfGlob->vertLimit )
+  v22 = vertIndexBase + vertIndexOffset;
+  if ( (unsigned int)v22 >= codeSurfGlob->vertLimit )
   {
-    LODWORD(v235) = v33;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 782, ASSERT_TYPE_ASSERT, "(unsigned)( vertIndexBegin ) < (unsigned)( codeSurfGlob->vertLimit )", "vertIndexBegin doesn't index codeSurfGlob->vertLimit\n\t%i not in [0, %i)", v235, codeSurfGlob->vertLimit) )
+    LODWORD(v176) = v22;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 782, ASSERT_TYPE_ASSERT, "(unsigned)( vertIndexBegin ) < (unsigned)( codeSurfGlob->vertLimit )", "vertIndexBegin doesn't index codeSurfGlob->vertLimit\n\t%i not in [0, %i)", v176, codeSurfGlob->vertLimit) )
       __debugbreak();
   }
+  v24 = LODWORD((*verts)[1].v[0]);
+  *(float *)&v24 = (*verts)[1].v[0] - (*verts)[0].v[0];
+  v23 = v24;
+  v25 = (*verts)[1].v[2] - (*verts)[0].v[2];
+  v26 = (*verts)[3].v[0] - (*verts)[0].v[0];
+  v27 = (*verts)[1].v[1] - (*verts)[0].v[1];
+  v28 = (*verts)[3].v[2] - (*verts)[0].v[2];
+  v29 = (*verts)[3].v[1] - (*verts)[0].v[1];
+  v30 = (float)(v29 * v25) - (float)(v27 * v28);
+  *(float *)&v24 = fsqrt((float)((float)((float)((float)(*(float *)&v24 * v28) - (float)(v26 * v25)) * (float)((float)(*(float *)&v24 * v28) - (float)(v26 * v25))) + (float)(v30 * v30)) + (float)((float)((float)(v27 * v26) - (float)(*(float *)&v23 * v29)) * (float)((float)(v27 * v26) - (float)(*(float *)&v23 * v29))));
+  _XMM3 = v24;
   __asm
   {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm0, dword ptr [r13+0Ch]
-    vsubss  xmm11, xmm0, dword ptr [r13+0]
-    vmovss  xmm0, dword ptr [r13+14h]
-    vsubss  xmm9, xmm0, dword ptr [r13+8]
-    vmovss  xmm0, dword ptr [r13+24h]
-    vsubss  xmm5, xmm0, dword ptr [r13+0]
-    vmovss  xmm1, dword ptr [r13+10h]
-    vsubss  xmm10, xmm1, dword ptr [r13+4]
-    vmovss  xmm0, dword ptr [r13+2Ch]
-    vsubss  xmm3, xmm0, dword ptr [r13+8]
-    vmovss  xmm1, dword ptr [r13+28h]
-    vsubss  xmm4, xmm1, dword ptr [r13+4]
-    vmulss  xmm1, xmm10, xmm3
-    vmulss  xmm3, xmm11, xmm3
-    vmulss  xmm0, xmm5, xmm9
-    vsubss  xmm6, xmm3, xmm0
-    vmulss  xmm2, xmm4, xmm9
-    vsubss  xmm8, xmm2, xmm1
-    vmulss  xmm2, xmm10, xmm5
-    vmulss  xmm1, xmm11, xmm4
-    vsubss  xmm5, xmm2, xmm1
-    vmulss  xmm0, xmm8, xmm8
-    vmulss  xmm3, xmm6, xmm6
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm1, xmm7, xmm0
-    vmulss  xmm12, xmm8, xmm1
-    vmulss  xmm13, xmm6, xmm1
-    vmulss  xmm14, xmm5, xmm1
-    vmulss  xmm1, xmm11, xmm11
-    vmulss  xmm0, xmm10, xmm10
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
+  }
+  v34 = v30 * (float)(1.0 / *(float *)&_XMM0);
+  v35 = v23;
+  *(float *)&v35 = fsqrt((float)((float)(*(float *)&v23 * *(float *)&v23) + (float)(v27 * v27)) + (float)(v25 * v25));
+  _XMM3 = v35;
+  __asm
+  {
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm1, xmm7, xmm0
   }
-  v77 = &codeSurfGlob->verts[v33];
+  v39 = &codeSurfGlob->verts[v22];
+  *(float *)&v23 = *(float *)&v23 * (float)(1.0 / *(float *)&_XMM0);
+  MatrixTransformPosition44((const vec3_t *)verts, &worldMatrix->m, &v39->xyz);
+  v39->extraData = 0;
+  _XMM0 = 0i64;
   __asm
   {
-    vmulss  xmm11, xmm11, xmm1
-    vmulss  xmm10, xmm10, xmm1
-    vmulss  xmm9, xmm9, xmm1
-  }
-  MatrixTransformPosition44((const vec3_t *)verts, &worldMatrix->m, &v77->xyz);
-  v77->extraData = 0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
     vinsertps xmm0, xmm0, [rbp+70h+s0], 0
     vinsertps xmm0, xmm0, [rbp+70h+t0], 10h
   }
-  v77->color = *color;
+  v39->color = *color;
+  __asm { vcvtps2ph xmm0, xmm0, 0 }
+  v39->texCoord.packed = _XMM0;
+  HIDWORD(v179) = 0;
+  v45 = v179;
+  *(float *)&v45 = v34;
+  _XMM5 = v45;
   __asm
   {
-    vcvtps2ph xmm0, xmm0, 0
-    vmovss  dword ptr [rsp+170h+var_130], xmm0
-  }
-  v77->texCoord.packed = v237;
-  HIDWORD(v250) = 0;
-  __asm
-  {
-    vmovups xmm5, xmmword ptr [rbp-80h]
-    vmovss  xmm5, xmm5, xmm12
     vinsertps xmm5, xmm5, xmm13, 10h
     vinsertps xmm5, xmm5, xmm14, 20h ; ' '
     vmaxps  xmm0, xmm5, xmmword ptr cs:?g_negativeOneXYZW@@3Ufloat4@@B.v; float4 const g_negativeOneXYZW
     vminps  xmm0, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vaddps  xmm1, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmovups xmmword ptr [rbp-80h], xmm5
-    vmulps  xmm2, xmm1, xmmword ptr cs:?g_unpackMul1010102@@3Ufloat4@@B.v; float4 const g_unpackMul1010102
+  }
+  v179 = _XMM5;
+  _XMM2 = _mm128_mul_ps(_mm128_add_ps(_XMM0, g_one.v), g_unpackMul1010102.v);
+  __asm
+  {
     vcvttps2dq xmm3, xmm2
     vpand   xmm4, xmm3, xmmword ptr cs:?g_packMask1010102@@3Ufloat4@@B.v; float4 const g_packMask1010102
     vpshufd xmm0, xmm4, 0EEh ; 'î'
@@ -888,20 +699,22 @@ void R_AddCode3DQuadVertsSurf(GfxCodeSurfGlob *codeSurfGlob, unsigned int vertIn
     vpor    xmm1, xmm0, xmm1
     vpor    xmm2, xmm1, xmmword ptr cs:?g_packOr1010102@@3Ufloat4@@B.v; float4 const g_packOr1010102
     vblendps xmm0, xmm5, xmm2, 1
-    vmovss  dword ptr [rsp+170h+var_130], xmm0
   }
-  v77->normal.packed = v238;
-  HIDWORD(v250) = 0;
+  v39->normal.packed = _XMM0;
+  HIDWORD(v179) = 0;
+  v60 = v179;
+  *(float *)&v60 = *(float *)&v23;
+  _XMM5 = v60;
   __asm
   {
-    vmovups xmm5, xmmword ptr [rbp-80h]
-    vmovss  xmm5, xmm5, xmm11
     vinsertps xmm5, xmm5, xmm10, 10h
     vinsertps xmm5, xmm5, xmm9, 20h ; ' '
     vmaxps  xmm0, xmm5, xmmword ptr cs:?g_negativeOneXYZW@@3Ufloat4@@B.v; float4 const g_negativeOneXYZW
     vminps  xmm0, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vaddps  xmm1, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmulps  xmm2, xmm1, xmmword ptr cs:?g_unpackMul1010102@@3Ufloat4@@B.v; float4 const g_unpackMul1010102
+  }
+  _XMM2 = _mm128_mul_ps(_mm128_add_ps(_XMM0, g_one.v), g_unpackMul1010102.v);
+  __asm
+  {
     vcvttps2dq xmm3, xmm2
     vpand   xmm4, xmm3, xmmword ptr cs:?g_packMask1010102@@3Ufloat4@@B.v; float4 const g_packMask1010102
     vpshufd xmm0, xmm4, 0EEh ; 'î'
@@ -910,34 +723,35 @@ void R_AddCode3DQuadVertsSurf(GfxCodeSurfGlob *codeSurfGlob, unsigned int vertIn
     vpor    xmm1, xmm0, xmm1
     vpor    xmm2, xmm1, xmmword ptr cs:?g_packOr1010102@@3Ufloat4@@B.v; float4 const g_packOr1010102
     vblendps xmm0, xmm5, xmm2, 1
-    vmovss  dword ptr [rsp+170h+var_130], xmm0
   }
-  v77->tangentBinormalSign.packed = v239;
-  __asm { vmovups xmmword ptr [rbp-80h], xmm5 }
-  MatrixTransformPosition44(&(*verts)[1], &worldMatrix->m, &v77[1].xyz);
-  v77[1].extraData = 0;
-  v77[1].color = *color;
+  v39->tangentBinormalSign.packed = _XMM0;
+  v179 = _XMM5;
+  MatrixTransformPosition44(&(*verts)[1], &worldMatrix->m, &v39[1].xyz);
+  v39[1].extraData = 0;
+  v39[1].color = *color;
+  _XMM0 = 0i64;
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vinsertps xmm0, xmm0, [rbp+70h+s1], 0
     vinsertps xmm0, xmm0, [rbp+70h+t0], 10h
     vcvtps2ph xmm0, xmm0, 0
-    vmovss  dword ptr [rsp+170h+var_130], xmm0
   }
-  v77[1].texCoord.packed = v240;
-  HIDWORD(v250) = 0;
+  v39[1].texCoord.packed = _XMM0;
+  HIDWORD(v179) = 0;
+  v79 = v179;
+  *(float *)&v79 = v34;
+  _XMM5 = v79;
   __asm
   {
-    vmovups xmm5, xmmword ptr [rbp-80h]
-    vmovss  xmm5, xmm5, xmm12
     vinsertps xmm5, xmm5, xmm13, 10h
     vinsertps xmm5, xmm5, xmm14, 20h ; ' '
     vmaxps  xmm0, xmm5, xmmword ptr cs:?g_negativeOneXYZW@@3Ufloat4@@B.v; float4 const g_negativeOneXYZW
     vminps  xmm0, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vaddps  xmm1, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmulps  xmm2, xmm1, xmmword ptr cs:?g_unpackMul1010102@@3Ufloat4@@B.v; float4 const g_unpackMul1010102
-    vmovups xmmword ptr [rbp-80h], xmm5
+  }
+  _XMM2 = _mm128_mul_ps(_mm128_add_ps(_XMM0, g_one.v), g_unpackMul1010102.v);
+  v179 = _XMM5;
+  __asm
+  {
     vcvttps2dq xmm3, xmm2
     vpand   xmm4, xmm3, xmmword ptr cs:?g_packMask1010102@@3Ufloat4@@B.v; float4 const g_packMask1010102
     vpshufd xmm0, xmm4, 0EEh ; 'î'
@@ -946,20 +760,22 @@ void R_AddCode3DQuadVertsSurf(GfxCodeSurfGlob *codeSurfGlob, unsigned int vertIn
     vpor    xmm1, xmm0, xmm1
     vpor    xmm2, xmm1, xmmword ptr cs:?g_packOr1010102@@3Ufloat4@@B.v; float4 const g_packOr1010102
     vblendps xmm0, xmm5, xmm2, 1
-    vmovss  dword ptr [rsp+170h+var_130], xmm0
   }
-  v77[1].normal.packed = v241;
-  HIDWORD(v250) = 0;
+  v39[1].normal.packed = _XMM0;
+  HIDWORD(v179) = 0;
+  v94 = v179;
+  *(float *)&v94 = *(float *)&v23;
+  _XMM5 = v94;
   __asm
   {
-    vmovups xmm5, xmmword ptr [rbp-80h]
-    vmovss  xmm5, xmm5, xmm11
     vinsertps xmm5, xmm5, xmm10, 10h
     vinsertps xmm5, xmm5, xmm9, 20h ; ' '
     vmaxps  xmm0, xmm5, xmmword ptr cs:?g_negativeOneXYZW@@3Ufloat4@@B.v; float4 const g_negativeOneXYZW
     vminps  xmm0, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vaddps  xmm1, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmulps  xmm2, xmm1, xmmword ptr cs:?g_unpackMul1010102@@3Ufloat4@@B.v; float4 const g_unpackMul1010102
+  }
+  _XMM2 = _mm128_mul_ps(_mm128_add_ps(_XMM0, g_one.v), g_unpackMul1010102.v);
+  __asm
+  {
     vcvttps2dq xmm3, xmm2
     vpand   xmm4, xmm3, xmmword ptr cs:?g_packMask1010102@@3Ufloat4@@B.v; float4 const g_packMask1010102
     vpshufd xmm0, xmm4, 0EEh ; 'î'
@@ -968,34 +784,35 @@ void R_AddCode3DQuadVertsSurf(GfxCodeSurfGlob *codeSurfGlob, unsigned int vertIn
     vpor    xmm1, xmm0, xmm1
     vpor    xmm2, xmm1, xmmword ptr cs:?g_packOr1010102@@3Ufloat4@@B.v; float4 const g_packOr1010102
     vblendps xmm0, xmm5, xmm2, 1
-    vmovss  dword ptr [rsp+170h+var_130], xmm0
   }
-  v77[1].tangentBinormalSign.packed = v242;
-  __asm { vmovups xmmword ptr [rbp-80h], xmm5 }
-  MatrixTransformPosition44(&(*verts)[2], &worldMatrix->m, &v77[2].xyz);
-  v77[2].extraData = 0;
-  v77[2].color = *color;
+  v39[1].tangentBinormalSign.packed = _XMM0;
+  v179 = _XMM5;
+  MatrixTransformPosition44(&(*verts)[2], &worldMatrix->m, &v39[2].xyz);
+  v39[2].extraData = 0;
+  v39[2].color = *color;
+  _XMM0 = 0i64;
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vinsertps xmm0, xmm0, [rbp+70h+s1], 0
     vinsertps xmm0, xmm0, [rbp+70h+t1], 10h
     vcvtps2ph xmm0, xmm0, 0
-    vmovss  dword ptr [rsp+170h+var_130], xmm0
   }
-  v77[2].texCoord.packed = v243;
-  HIDWORD(v250) = 0;
+  v39[2].texCoord.packed = _XMM0;
+  HIDWORD(v179) = 0;
+  v113 = v179;
+  *(float *)&v113 = v34;
+  _XMM5 = v113;
   __asm
   {
-    vmovups xmm5, xmmword ptr [rbp-80h]
-    vmovss  xmm5, xmm5, xmm12
     vinsertps xmm5, xmm5, xmm13, 10h
     vinsertps xmm5, xmm5, xmm14, 20h ; ' '
     vmaxps  xmm0, xmm5, xmmword ptr cs:?g_negativeOneXYZW@@3Ufloat4@@B.v; float4 const g_negativeOneXYZW
     vminps  xmm0, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vaddps  xmm1, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmulps  xmm2, xmm1, xmmword ptr cs:?g_unpackMul1010102@@3Ufloat4@@B.v; float4 const g_unpackMul1010102
-    vmovups xmmword ptr [rbp-80h], xmm5
+  }
+  _XMM2 = _mm128_mul_ps(_mm128_add_ps(_XMM0, g_one.v), g_unpackMul1010102.v);
+  v179 = _XMM5;
+  __asm
+  {
     vcvttps2dq xmm3, xmm2
     vpand   xmm4, xmm3, xmmword ptr cs:?g_packMask1010102@@3Ufloat4@@B.v; float4 const g_packMask1010102
     vpshufd xmm0, xmm4, 0EEh ; 'î'
@@ -1004,20 +821,22 @@ void R_AddCode3DQuadVertsSurf(GfxCodeSurfGlob *codeSurfGlob, unsigned int vertIn
     vpor    xmm1, xmm0, xmm1
     vpor    xmm2, xmm1, xmmword ptr cs:?g_packOr1010102@@3Ufloat4@@B.v; float4 const g_packOr1010102
     vblendps xmm0, xmm5, xmm2, 1
-    vmovss  dword ptr [rsp+170h+var_130], xmm0
   }
-  v77[2].normal.packed = v244;
-  HIDWORD(v250) = 0;
+  v39[2].normal.packed = _XMM0;
+  HIDWORD(v179) = 0;
+  v128 = v179;
+  *(float *)&v128 = *(float *)&v23;
+  _XMM5 = v128;
   __asm
   {
-    vmovups xmm5, xmmword ptr [rbp-80h]
-    vmovss  xmm5, xmm5, xmm11
     vinsertps xmm5, xmm5, xmm10, 10h
     vinsertps xmm5, xmm5, xmm9, 20h ; ' '
     vmaxps  xmm0, xmm5, xmmword ptr cs:?g_negativeOneXYZW@@3Ufloat4@@B.v; float4 const g_negativeOneXYZW
     vminps  xmm0, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vaddps  xmm1, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmulps  xmm2, xmm1, xmmword ptr cs:?g_unpackMul1010102@@3Ufloat4@@B.v; float4 const g_unpackMul1010102
+  }
+  _XMM2 = _mm128_mul_ps(_mm128_add_ps(_XMM0, g_one.v), g_unpackMul1010102.v);
+  __asm
+  {
     vcvttps2dq xmm3, xmm2
     vpand   xmm4, xmm3, xmmword ptr cs:?g_packMask1010102@@3Ufloat4@@B.v; float4 const g_packMask1010102
     vpshufd xmm0, xmm4, 0EEh ; 'î'
@@ -1026,56 +845,62 @@ void R_AddCode3DQuadVertsSurf(GfxCodeSurfGlob *codeSurfGlob, unsigned int vertIn
     vpor    xmm1, xmm0, xmm1
     vpor    xmm2, xmm1, xmmword ptr cs:?g_packOr1010102@@3Ufloat4@@B.v; float4 const g_packOr1010102
     vblendps xmm0, xmm5, xmm2, 1
-    vmovss  dword ptr [rsp+170h+var_130], xmm0
   }
-  v77[2].tangentBinormalSign.packed = v245;
-  __asm { vmovups xmmword ptr [rbp-80h], xmm5 }
-  MatrixTransformPosition44(&(*verts)[3], &worldMatrix->m, &v77[3].xyz);
-  v77[3].extraData = 0;
-  v77[3].color = *color;
+  v39[2].tangentBinormalSign.packed = _XMM0;
+  v179 = _XMM5;
+  MatrixTransformPosition44(&(*verts)[3], &worldMatrix->m, &v39[3].xyz);
+  v39[3].extraData = 0;
+  v39[3].color = *color;
+  _XMM0 = 0i64;
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vinsertps xmm0, xmm0, [rbp+70h+s0], 0
     vinsertps xmm0, xmm0, [rbp+70h+t1], 10h
     vcvtps2ph xmm0, xmm0, 0
-    vmovss  dword ptr [rsp+170h+var_130], xmm0
   }
-  v77[3].texCoord.packed = v246;
-  HIDWORD(v250) = 0;
+  v39[3].texCoord.packed = _XMM0;
+  HIDWORD(v179) = 0;
+  v147 = v179;
+  *(float *)&v147 = v34;
+  _XMM5 = v147;
   __asm
   {
-    vmovups xmm5, xmmword ptr [rbp-80h]
-    vmovss  xmm5, xmm5, xmm12
     vinsertps xmm5, xmm5, xmm13, 10h
     vinsertps xmm5, xmm5, xmm14, 20h ; ' '
     vmaxps  xmm0, xmm5, xmmword ptr cs:?g_negativeOneXYZW@@3Ufloat4@@B.v; float4 const g_negativeOneXYZW
     vminps  xmm0, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vaddps  xmm1, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmulps  xmm2, xmm1, xmmword ptr cs:?g_unpackMul1010102@@3Ufloat4@@B.v; float4 const g_unpackMul1010102
+  }
+  _XMM2 = _mm128_mul_ps(_mm128_add_ps(_XMM0, g_one.v), g_unpackMul1010102.v);
+  __asm
+  {
     vcvttps2dq xmm3, xmm2
     vpand   xmm4, xmm3, xmmword ptr cs:?g_packMask1010102@@3Ufloat4@@B.v; float4 const g_packMask1010102
-    vmovups xmmword ptr [rbp-80h], xmm5
+  }
+  v179 = _XMM5;
+  __asm
+  {
     vpshufd xmm0, xmm4, 0EEh ; 'î'
     vpor    xmm1, xmm0, xmm4
     vpshufd xmm0, xmm1, 55h ; 'U'
     vpor    xmm1, xmm0, xmm1
     vpor    xmm2, xmm1, xmmword ptr cs:?g_packOr1010102@@3Ufloat4@@B.v; float4 const g_packOr1010102
     vblendps xmm0, xmm5, xmm2, 1
-    vmovss  dword ptr [rsp+170h+var_130], xmm0
   }
-  v77[3].normal.packed = v247;
-  HIDWORD(v250) = 0;
+  v39[3].normal.packed = _XMM0;
+  HIDWORD(v179) = 0;
+  v162 = v179;
+  *(float *)&v162 = *(float *)&v23;
+  _XMM5 = v162;
   __asm
   {
-    vmovups xmm5, xmmword ptr [rbp-80h]
-    vmovss  xmm5, xmm5, xmm11
     vinsertps xmm5, xmm5, xmm10, 10h
     vinsertps xmm5, xmm5, xmm9, 20h ; ' '
     vmaxps  xmm0, xmm5, xmmword ptr cs:?g_negativeOneXYZW@@3Ufloat4@@B.v; float4 const g_negativeOneXYZW
     vminps  xmm0, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vaddps  xmm1, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmulps  xmm2, xmm1, xmmword ptr cs:?g_unpackMul1010102@@3Ufloat4@@B.v; float4 const g_unpackMul1010102
+  }
+  _XMM2 = _mm128_mul_ps(_mm128_add_ps(_XMM0, g_one.v), g_unpackMul1010102.v);
+  __asm
+  {
     vcvttps2dq xmm3, xmm2
     vpand   xmm4, xmm3, xmmword ptr cs:?g_packMask1010102@@3Ufloat4@@B.v; float4 const g_packMask1010102
     vpshufd xmm0, xmm4, 0EEh ; 'î'
@@ -1084,22 +909,8 @@ void R_AddCode3DQuadVertsSurf(GfxCodeSurfGlob *codeSurfGlob, unsigned int vertIn
     vpor    xmm1, xmm0, xmm1
     vpor    xmm2, xmm1, xmmword ptr cs:?g_packOr1010102@@3Ufloat4@@B.v; float4 const g_packOr1010102
     vblendps xmm0, xmm5, xmm2, 1
-    vmovss  dword ptr [rsp+170h+var_130], xmm0
   }
-  v77[3].tangentBinormalSign.packed = v248;
-  _R11 = &v251;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-  }
+  v39[3].tangentBinormalSign.packed = _XMM0;
 }
 
 /*
@@ -1117,6 +928,7 @@ void R_AddCodeSurf(GfxCodeSurfGlob *codeSurfGlob, const GfxCodeSurfArgs *codeSur
   int *v9; 
   unsigned __int64 v10; 
   ThreadContext CurrentThreadContext; 
+  Material *material; 
   unsigned int indexCount; 
   unsigned int argOffset; 
   unsigned int argCount; 
@@ -1162,7 +974,7 @@ void R_AddCodeSurf(GfxCodeSurfGlob *codeSurfGlob, const GfxCodeSurfArgs *codeSur
   else
     CurrentThreadContext = THREAD_CONTEXT_COUNT;
   CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 101, NULL, 0);
-  _RBX = codeSurfArgs->material;
+  material = codeSurfArgs->material;
   indices = codeSurfArgs->indices;
   indexCount = codeSurfArgs->indexCount;
   argOffset = codeSurfArgs->argOffset;
@@ -1172,27 +984,27 @@ void R_AddCodeSurf(GfxCodeSurfGlob *codeSurfGlob, const GfxCodeSurfArgs *codeSur
     __debugbreak();
   if ( !codeSurfGlob->allowProcess && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 580, ASSERT_TYPE_ASSERT, "(codeSurfGlob->allowProcess)", (const char *)&queryFormat, "codeSurfGlob->allowProcess") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 455, ASSERT_TYPE_ASSERT, "(handle)", (const char *)&queryFormat, "handle") )
+  if ( !material && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 455, ASSERT_TYPE_ASSERT, "(handle)", (const char *)&queryFormat, "handle") )
     __debugbreak();
-  if ( !_RBX->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 456, ASSERT_TYPE_ASSERT, "(handle->name)", (const char *)&queryFormat, "handle->name") )
+  if ( !material->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 456, ASSERT_TYPE_ASSERT, "(handle->name)", (const char *)&queryFormat, "handle->name") )
     __debugbreak();
-  if ( !*_RBX->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 457, ASSERT_TYPE_ASSERT, "(handle->name[0])", (const char *)&queryFormat, "handle->name[0]") )
+  if ( !*material->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 457, ASSERT_TYPE_ASSERT, "(handle->name[0])", (const char *)&queryFormat, "handle->name[0]") )
     __debugbreak();
-  p1_low = LOWORD(_RBX->drawSurf.packed.p1);
+  p1_low = LOWORD(material->drawSurf.packed.p1);
   if ( (unsigned int)p1_low >= rgp.materialCount )
   {
     LODWORD(v26) = rgp.materialCount;
-    LODWORD(v25) = LOWORD(_RBX->drawSurf.packed.p1);
+    LODWORD(v25) = LOWORD(material->drawSurf.packed.p1);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_local.h", 2247, ASSERT_TYPE_ASSERT, "(unsigned)( mtlSortIndex ) < (unsigned)( rgp.materialCount )", "mtlSortIndex doesn't index rgp.materialCount\n\t%i not in [0, %i)", v25, v26) )
       __debugbreak();
   }
-  if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[p1_low]) != _RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 584, ASSERT_TYPE_ASSERT, "(R_GetSortedMaterial( (uint)material->drawSurf.fields.materialSortedIndex ) == material)", (const char *)&queryFormat, "R_GetSortedMaterial( (uint)material->drawSurf.fields.materialSortedIndex ) == material") )
+  if ( DB_GetMaterialAtIndex(rgp.sortedMaterials[p1_low]) != material && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 584, ASSERT_TYPE_ASSERT, "(R_GetSortedMaterial( (uint)material->drawSurf.fields.materialSortedIndex ) == material)", (const char *)&queryFormat, "R_GetSortedMaterial( (uint)material->drawSurf.fields.materialSortedIndex ) == material") )
     __debugbreak();
   if ( rg.distortion )
     goto LABEL_45;
-  if ( !_RBX->techniqueSet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 655, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
+  if ( !material->techniqueSet && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 655, ASSERT_TYPE_ASSERT, "(material->techniqueSet)", (const char *)&queryFormat, "material->techniqueSet") )
     __debugbreak();
-  if ( (_RBX->techniqueSet->flags & 0x800000000i64) == 0 )
+  if ( (material->techniqueSet->flags & 0x800000000i64) == 0 )
   {
 LABEL_45:
     if ( codeSurfGlob->surfCount < codeSurfGlob->surfLimit )
@@ -1200,31 +1012,28 @@ LABEL_45:
       surfList = codeSurfGlob->surfList;
       if ( surfList )
       {
-        if ( surfList == GFX_CODE_SURFLIST_SUNSHADOW_TRANS && !Material_HasTechnique(_RBX, TECHNIQUE_BUILD_TRANS_SHADOWMAP) )
+        if ( surfList == GFX_CODE_SURFLIST_SUNSHADOW_TRANS && !Material_HasTechnique(material, TECHNIQUE_BUILD_TRANS_SHADOWMAP) )
         {
-          R_WarnOncePerFrame(R_WARN_NONSHADOW_FX_MATERIAL, _RBX->name, fxName);
+          R_WarnOncePerFrame(R_WARN_NONSHADOW_FX_MATERIAL, material->name, fxName);
           goto LABEL_59;
         }
       }
       else
       {
-        if ( !Material_HasTechnique(_RBX, TECHNIQUE_EMISSIVE) )
+        if ( !Material_HasTechnique(material, TECHNIQUE_EMISSIVE) )
         {
-          R_WarnOncePerFrame(R_WARN_NONEMISSIVE_FX_MATERIAL, _RBX->name, fxName);
+          R_WarnOncePerFrame(R_WARN_NONEMISSIVE_FX_MATERIAL, material->name, fxName);
           goto LABEL_59;
         }
-        R_AccumulateMaterialRenderTechflagsEmissiveTech(_RBX, codeSurfGlob->matRenderFeatures);
+        R_AccumulateMaterialRenderTechflagsEmissiveTech(material, codeSurfGlob->matRenderFeatures);
       }
       v19 = codeSurfGlob->surfCount++;
       v20 = &codeSurfGlob->codeSurfsMain[(unsigned __int64)v19];
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+28h]
-        vpextrq rax, xmm0, 1
-      }
+      _XMM0.fields = (GfxDrawSurfFields)material->drawSurf;
+      __asm { vpextrq rax, xmm0, 1 }
       *(_WORD *)&v20->drawGroup.fields = _RAX;
       v20->drawGroup.packed &= ~0x10000u;
-      v23 = v20->drawGroup.packed & 0xFE33FFFF | (32 * (_RBX->materialType & 0x2000 | 0x18000));
+      v23 = v20->drawGroup.packed & 0xFE33FFFF | (32 * (material->materialType & 0x2000 | 0x18000));
       v20->drawGroup.packed = v23;
       v24 = v23 ^ (v23 ^ (codeSurfArgs->flags << 25)) & 0x2000000;
       v20->drawGroup.packed = v24;
@@ -1263,42 +1072,27 @@ bool R_AddCodeSurfEmitterData(GfxCodeSurfGlob *codeSurfGlob, const GfxSpriteEmit
 {
   unsigned int perEmitterDataCount; 
   bool result; 
+  GfxSpriteEmitter *v6; 
 
   perEmitterDataCount = codeSurfGlob->perEmitterDataCount;
-  _R10 = data;
   if ( perEmitterDataCount < codeSurfGlob->perEmitterDataLimit )
   {
     *outEmitterDataIndex = perEmitterDataCount;
     ++codeSurfGlob->perEmitterDataCount;
-    __asm { vmovups xmm0, xmmword ptr [r10] }
-    _RDX = &codeSurfGlob->perEmitterData[*outEmitterDataIndex];
+    v6 = &codeSurfGlob->perEmitterData[*outEmitterDataIndex];
     result = 1;
-    __asm
-    {
-      vmovups xmmword ptr [rdx], xmm0
-      vmovups xmm1, xmmword ptr [r10+10h]
-      vmovups xmmword ptr [rdx+10h], xmm1
-      vmovups xmm0, xmmword ptr [r10+20h]
-      vmovups xmmword ptr [rdx+20h], xmm0
-      vmovups xmm1, xmmword ptr [r10+30h]
-      vmovups xmmword ptr [rdx+30h], xmm1
-      vmovups xmm0, xmmword ptr [r10+40h]
-      vmovups xmmword ptr [rdx+40h], xmm0
-      vmovups xmm1, xmmword ptr [r10+50h]
-      vmovups xmmword ptr [rdx+50h], xmm1
-      vmovups xmm0, xmmword ptr [r10+60h]
-      vmovups xmmword ptr [rdx+60h], xmm0
-      vmovups xmm0, xmmword ptr [r10+70h]
-      vmovups xmmword ptr [rdx+70h], xmm0
-      vmovups xmm1, xmmword ptr [r10+80h]
-      vmovups xmmword ptr [rdx+80h], xmm1
-      vmovups xmm0, xmmword ptr [r10+90h]
-      vmovups xmmword ptr [rdx+90h], xmm0
-      vmovups xmm1, xmmword ptr [r10+0A0h]
-      vmovups xmmword ptr [rdx+0A0h], xmm1
-      vmovups xmm0, xmmword ptr [r10+0B0h]
-      vmovups xmmword ptr [rdx+0B0h], xmm0
-    }
+    v6->falloffParms = data->falloffParms;
+    v6->opaqueColor = data->opaqueColor;
+    v6->transparentColor = data->transparentColor;
+    *(_OWORD *)v6->translucentShadowParams.v = *(_OWORD *)data->translucentShadowParams.v;
+    v6->eyeOffsetParms = data->eyeOffsetParms;
+    v6->alphaDissolveParms = data->alphaDissolveParms;
+    v6->featherParms0 = data->featherParms0;
+    v6->featherParms1 = data->featherParms1;
+    v6->regionHighlightParms = data->regionHighlightParms;
+    v6->depthScanColor = data->depthScanColor;
+    v6->depthScanOutlineColor = data->depthScanOutlineColor;
+    *(_OWORD *)v6->thermalParams.v = *(_OWORD *)data->thermalParams.v;
   }
   else
   {
@@ -1340,181 +1134,157 @@ R_AllocateCodeSurfLightmap
 */
 char R_AllocateCodeSurfLightmap(GfxCodeSurfGlob *codeSurfGlob, GfxMeshLightingType lightingType, unsigned int lightingLevel, unsigned int activeLightGridsBitmask, GfxMeshDataLightingInput **lightIter, unsigned int *outLightmapOffset, float *outLightmapU, float *outLightmapV, float *outLightmapD)
 {
+  __int64 v10; 
   __int64 v11; 
-  __int64 v12; 
+  __int64 v13; 
   __int64 v14; 
   __int64 v15; 
-  __int64 v16; 
   unsigned int Offset; 
-  int v30; 
-  __int64 v35; 
+  float v17; 
+  float v18; 
+  int v19; 
+  __int64 v20; 
   GfxMultiLightGridFXLightingBuffers *lightGridBuffers; 
-  int v37; 
+  int v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  int v27; 
+  __int64 v28; 
+  __int64 v29; 
+  __int64 v31; 
+  GfxMultiLightGridFXLightingBuffers *v32; 
+  __int64 v33; 
+  int v34; 
+  GfxMultiLightGridFXLightingBuffers *v35; 
+  int v36; 
+  __int64 v37; 
   __int64 v38; 
   __int64 v39; 
-  __int64 v40; 
-  __int64 v41; 
-  int v42; 
-  __int64 v43; 
-  __int64 v44; 
-  __int64 v46; 
-  GfxMultiLightGridFXLightingBuffers *v47; 
+  GfxMultiLightGridFXLightingBuffers *v40; 
+  int v41; 
+  volatile signed __int32 *v42; 
+  signed __int32 v43; 
+  GfxMultiLightGridFXLightingBuffers *v44; 
+  unsigned int v46; 
+  int v47; 
   __int64 v48; 
-  int v49; 
-  GfxMultiLightGridFXLightingBuffers *v50; 
-  int v51; 
-  __int64 v52; 
-  __int64 v53; 
-  __int64 v54; 
-  GfxMultiLightGridFXLightingBuffers *v55; 
-  int v56; 
-  volatile signed __int32 *v57; 
-  signed __int32 v58; 
-  GfxMultiLightGridFXLightingBuffers *v59; 
-  unsigned int v61; 
-  int v62; 
-  __int64 v63; 
-  __int64 v64; 
-  __int64 v65; 
-  char v66; 
-  int v68; 
-  int v69; 
+  __int64 v49; 
+  __int64 v50; 
+  char v51; 
+  int v53; 
+  int v54; 
 
   _EBP = activeLightGridsBitmask;
-  v11 = lightingLevel;
-  v12 = lightingType;
+  v10 = lightingLevel;
+  v11 = lightingType;
   if ( !codeSurfGlob->allowProcess && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 368, ASSERT_TYPE_ASSERT, "(codeSurfGlob->allowProcess)", (const char *)&queryFormat, "codeSurfGlob->allowProcess") )
     __debugbreak();
-  if ( (unsigned int)v12 > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 369, ASSERT_TYPE_ASSERT, "(lightingType > GFX_MESH_LIGHTING_NONE && lightingType < GFX_MESH_LIGHTING_COUNT)", (const char *)&queryFormat, "lightingType > GFX_MESH_LIGHTING_NONE && lightingType < GFX_MESH_LIGHTING_COUNT") )
+  if ( (unsigned int)v11 > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 369, ASSERT_TYPE_ASSERT, "(lightingType > GFX_MESH_LIGHTING_NONE && lightingType < GFX_MESH_LIGHTING_COUNT)", (const char *)&queryFormat, "lightingType > GFX_MESH_LIGHTING_NONE && lightingType < GFX_MESH_LIGHTING_COUNT") )
     __debugbreak();
-  if ( (unsigned int)v11 >= 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 370, ASSERT_TYPE_ASSERT, "(lightingLevel < 6)", (const char *)&queryFormat, "lightingLevel < GFX_MESH_DATA_LIGHTMAP_LEVELS") )
+  if ( (unsigned int)v10 >= 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 370, ASSERT_TYPE_ASSERT, "(lightingLevel < 6)", (const char *)&queryFormat, "lightingLevel < GFX_MESH_DATA_LIGHTMAP_LEVELS") )
     __debugbreak();
-  v64 = v11;
-  v14 = v11 + 6 * v12;
-  v15 = v12;
-  v16 = v11;
-  if ( codeSurfGlob->lightingCount[0][v14] + 1 > codeSurfGlob->lightingLimit[0][v14] )
+  v49 = v10;
+  v13 = v10 + 6 * v11;
+  v14 = v11;
+  v15 = v10;
+  if ( codeSurfGlob->lightingCount[0][v13] + 1 > codeSurfGlob->lightingLimit[0][v13] )
   {
-    R_WarnOncePerFrame(R_WARN_FX_LIGHTING_INPUT_FULL, (unsigned int)v12, (unsigned int)v11);
+    R_WarnOncePerFrame(R_WARN_FX_LIGHTING_INPUT_FULL, (unsigned int)v11, (unsigned int)v10);
     return 0;
   }
-  Offset = Pow2TexturePacker<6,512>::GetOffset(codeSurfGlob->lightmapPacker[v12], v11);
+  Offset = Pow2TexturePacker<6,512>::GetOffset(codeSurfGlob->lightmapPacker[v11], v10);
   if ( Offset == -1 )
   {
-    R_WarnOncePerFrame(R_WARN_FX_LIGHTMAP_FULL, (unsigned int)v12, (unsigned int)v11);
+    R_WarnOncePerFrame(R_WARN_FX_LIGHTMAP_FULL, (unsigned int)v11, (unsigned int)v10);
     return 0;
   }
-  __asm
-  {
-    vmovss  xmm4, cs:__real@3b000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-  }
-  _RCX = outLightmapU;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm4
-    vaddss  xmm2, xmm1, cs:__real@3a800000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rcx], xmm2
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  _RAX = outLightmapV;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm4
-    vaddss  xmm2, xmm1, cs:__real@3a800000
-    vmovss  dword ptr [rax], xmm2
-  }
-  _RAX = outLightmapD;
-  v30 = 1 << v11;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r14d
-    vmulss  xmm1, xmm0, xmm4
-    vsubss  xmm2, xmm1, xmm4
-    vmovss  dword ptr [rax], xmm2
-  }
-  v62 = 1 << v11;
+  v17 = (float)HIWORD(Offset);
+  *outLightmapU = (float)(v17 * 0.001953125) + 0.0009765625;
+  v18 = (float)(unsigned __int16)Offset;
+  *outLightmapV = (float)(v18 * 0.001953125) + 0.0009765625;
+  v19 = 1 << v10;
+  *outLightmapD = (float)((float)(1 << v10) * 0.001953125) - 0.001953125;
+  v47 = 1 << v10;
   *outLightmapOffset = Offset;
-  v35 = (int)codeSurfGlob->lightingCount[0][v14];
-  v65 = v35;
-  *lightIter = &codeSurfGlob->lightingData[0][v14][v35];
-  ++codeSurfGlob->lightingCount[0][v14];
+  v20 = (int)codeSurfGlob->lightingCount[0][v13];
+  v50 = v20;
+  *lightIter = &codeSurfGlob->lightingData[0][v13][v20];
+  ++codeSurfGlob->lightingCount[0][v13];
   lightGridBuffers = codeSurfGlob->lightGridBuffers;
   if ( lightGridBuffers )
   {
-    v37 = 0;
-    lightGridBuffers->lightGridsActive[v12][v11][v35] = _EBP;
+    v22 = 0;
+    lightGridBuffers->lightGridsActive[v11][v10][v20] = _EBP;
     if ( _EBP )
     {
-      v38 = 5 * (v11 + 2 * (3 * v12 + 21));
-      v63 = v38;
-      v39 = v11 + 2 * (3 * v12 + 78);
-      v68 = (int)v35 / 64;
-      v40 = (int)v35 / 64;
-      v41 = 3 * v12 + 15;
-      v42 = 0;
-      v43 = 5 * (v11 + 2 * (3 * v12 + 9));
-      v44 = 5 * (v11 + 2 * v41);
+      v23 = 5 * (v10 + 2 * (3 * v11 + 21));
+      v48 = v23;
+      v24 = v10 + 2 * (3 * v11 + 78);
+      v53 = (int)v20 / 64;
+      v25 = (int)v20 / 64;
+      v26 = 3 * v11 + 15;
+      v27 = 0;
+      v28 = 5 * (v10 + 2 * (3 * v11 + 9));
+      v29 = 5 * (v10 + 2 * v26);
       do
       {
         __asm { tzcnt   eax, ebp }
-        v46 = _EAX;
-        v66 = _EAX;
-        v47 = codeSurfGlob->lightGridBuffers;
-        v61 = _EBP;
-        v48 = v46 + 4 * v38;
-        v49 = ++*((_DWORD *)&v47->lightGridsActiveBuffer[0][0].buffer + v48);
-        v50 = codeSurfGlob->lightGridBuffers;
-        v51 = *((_DWORD *)&(&v50->lightGridsActiveBuffer[0][0].buffer)[2 * v43] + v46);
-        v52 = *((_DWORD *)&(&v50->lightGridsActiveBuffer[0][0].buffer)[2 * v44] + v46) + 1;
-        if ( v52 < v40 )
+        v31 = _EAX;
+        v51 = _EAX;
+        v32 = codeSurfGlob->lightGridBuffers;
+        v46 = _EBP;
+        v33 = v31 + 4 * v23;
+        v34 = ++*((_DWORD *)&v32->lightGridsActiveBuffer[0][0].buffer + v33);
+        v35 = codeSurfGlob->lightGridBuffers;
+        v36 = *((_DWORD *)&(&v35->lightGridsActiveBuffer[0][0].buffer)[2 * v28] + v31);
+        v37 = *((_DWORD *)&(&v35->lightGridsActiveBuffer[0][0].buffer)[2 * v29] + v31) + 1;
+        if ( v37 < v25 )
         {
-          v53 = 4 * (v46 + 20 * v52);
-          v54 = v40 - v52;
+          v38 = 4 * (v31 + 20 * v37);
+          v39 = v25 - v37;
           do
           {
-            v53 += 80i64;
-            *(_DWORD *)(v53 + *((_QWORD *)&codeSurfGlob->lightGridBuffers->lightGridsActiveBuffer[0][0].buffer + v39) - 80) = v51;
-            --v54;
+            v38 += 80i64;
+            *(_DWORD *)(v38 + *((_QWORD *)&codeSurfGlob->lightGridBuffers->lightGridsActiveBuffer[0][0].buffer + v24) - 80) = v36;
+            --v39;
           }
-          while ( v54 );
-          v50 = codeSurfGlob->lightGridBuffers;
-          v38 = v63;
+          while ( v39 );
+          v35 = codeSurfGlob->lightGridBuffers;
+          v23 = v48;
         }
-        ++v42;
-        *(_DWORD *)(*((_QWORD *)&v50->lightGridsActiveBuffer[0][0].buffer + v39) + 4 * (v46 + 20 * v40)) = v49;
-        *((_DWORD *)&(&codeSurfGlob->lightGridBuffers->lightGridsActiveBuffer[0][0].buffer)[2 * v43] + v46) = v49;
-        *((_DWORD *)&(&codeSurfGlob->lightGridBuffers->lightGridsActiveBuffer[0][0].buffer)[2 * v44] + v46) = v68;
-        _EBP ^= 1 << v66;
+        ++v27;
+        *(_DWORD *)(*((_QWORD *)&v35->lightGridsActiveBuffer[0][0].buffer + v24) + 4 * (v31 + 20 * v25)) = v34;
+        *((_DWORD *)&(&codeSurfGlob->lightGridBuffers->lightGridsActiveBuffer[0][0].buffer)[2 * v28] + v31) = v34;
+        *((_DWORD *)&(&codeSurfGlob->lightGridBuffers->lightGridsActiveBuffer[0][0].buffer)[2 * v29] + v31) = v53;
+        _EBP ^= 1 << v51;
       }
-      while ( 1 << v66 != v61 );
-      LODWORD(v12) = lightingType;
-      v30 = v62;
-      v16 = v64;
-      v69 = v42;
-      v15 = lightingType;
-      v37 = v69;
+      while ( 1 << v51 != v46 );
+      LODWORD(v11) = lightingType;
+      v19 = v47;
+      v15 = v49;
+      v54 = v27;
+      v14 = lightingType;
+      v22 = v54;
     }
-    v55 = codeSurfGlob->lightGridBuffers;
-    v56 = v30 * v30;
-    v57 = &v55->lightGridDataCount[v15];
-    if ( (((_BYTE)v55 + 4 * (_BYTE)v15 - 32) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &v55->lightGridDataCount[v15]) )
+    v40 = codeSurfGlob->lightGridBuffers;
+    v41 = v19 * v19;
+    v42 = &v40->lightGridDataCount[v14];
+    if ( (((_BYTE)v40 + 4 * (_BYTE)v14 - 32) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &v40->lightGridDataCount[v14]) )
       __debugbreak();
-    v58 = _InterlockedExchangeAdd(v57, v37 * v56);
-    if ( codeSurfGlob->lightGridBuffers->lightGridDataCount[v15] <= (signed int)codeSurfGlob->lightGridBuffers->lightGridDataLimit[v15] )
+    v43 = _InterlockedExchangeAdd(v42, v22 * v41);
+    if ( codeSurfGlob->lightGridBuffers->lightGridDataCount[v14] <= (signed int)codeSurfGlob->lightGridBuffers->lightGridDataLimit[v14] )
     {
-      v59 = codeSurfGlob->lightGridBuffers;
+      v44 = codeSurfGlob->lightGridBuffers;
     }
     else
     {
-      R_WarnOncePerFrame(R_WARN_FX_INTERMEDIATE_FULL, (unsigned int)v12);
-      v59 = codeSurfGlob->lightGridBuffers;
-      v58 = v59->lightGridDataLimit[v15];
+      R_WarnOncePerFrame(R_WARN_FX_INTERMEDIATE_FULL, (unsigned int)v11);
+      v44 = codeSurfGlob->lightGridBuffers;
+      v43 = v44->lightGridDataLimit[v14];
     }
-    v59->lightGridsDataOffset[v15][v16][v65] = v58;
+    v44->lightGridsDataOffset[v14][v15][v50] = v43;
   }
   return 1;
 }
@@ -1529,30 +1299,33 @@ __int64 R_BeginCodeSurfs(GfxCodeSurfUser user, GfxCodeSurfListType surfList, Gfx
   unsigned __int64 v3; 
   unsigned int v6; 
   __int64 v7; 
-  volatile signed __int32 *v9; 
+  volatile signed __int32 *v8; 
   __int64 result; 
-  GfxBackEndData *v11; 
-  GfxCodeSurfGlob *v12; 
+  GfxBackEndData *v10; 
+  GfxCodeSurfGlob *v11; 
   unsigned int codeTransShadowSurfCountPrevFrame; 
-  const dvar_t *v19; 
+  GfxBackEndData *v13; 
+  unsigned __int64 v14; 
+  __int64 v15; 
+  const dvar_t *v16; 
   int Int_Internal; 
-  GfxBackEndData *v21; 
-  unsigned __int64 v22; 
-  GfxBackEndData *v23; 
+  GfxBackEndData *v18; 
+  unsigned __int64 v19; 
+  GfxBackEndData *v20; 
   volatile unsigned int used; 
-  GfxBackEndData *v25; 
-  int v26; 
+  GfxBackEndData *v22; 
+  int v23; 
   unsigned int perQuadDataCount; 
   GfxSpriteVertex *data; 
-  char *v29; 
-  unsigned __int16 *v30; 
-  GfxBackEndData *v31; 
+  char *v26; 
+  unsigned __int16 *v27; 
+  GfxBackEndData *v28; 
   Pow2TexturePacker<6,512> **lightmapPacker; 
-  signed __int64 v33; 
-  Pow2TexturePacker<6,512> *v34; 
-  __int64 v35; 
-  unsigned int *v36; 
-  __int64 v37; 
+  signed __int64 v30; 
+  Pow2TexturePacker<6,512> *v31; 
+  __int64 v32; 
+  unsigned int *v33; 
+  __int64 v34; 
 
   v3 = surfList;
   if ( !codeSurfGlobOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 80, ASSERT_TYPE_ASSERT, "(codeSurfGlobOut)", (const char *)&queryFormat, "codeSurfGlobOut") )
@@ -1562,169 +1335,163 @@ __int64 R_BeginCodeSurfs(GfxCodeSurfUser user, GfxCodeSurfListType surfList, Gfx
   *codeSurfGlobOut = NULL;
   if ( (unsigned int)v3 >= 2 )
   {
-    LODWORD(v37) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 83, ASSERT_TYPE_ASSERT, "(unsigned)( surfList ) < (unsigned)( GFX_CODE_SURFLIST_TYPE_COUNT )", "surfList doesn't index GFX_CODE_SURFLIST_TYPE_COUNT\n\t%i not in [0, %i)", v37, 2) )
+    LODWORD(v34) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 83, ASSERT_TYPE_ASSERT, "(unsigned)( surfList ) < (unsigned)( GFX_CODE_SURFLIST_TYPE_COUNT )", "surfList doesn't index GFX_CODE_SURFLIST_TYPE_COUNT\n\t%i not in [0, %i)", v34, 2) )
       __debugbreak();
   }
   if ( user == GFX_CODE_SURF_USER_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 84, ASSERT_TYPE_ASSERT, "(user != GFX_CODE_SURF_USER_NONE)", (const char *)&queryFormat, "user != GFX_CODE_SURF_USER_NONE") )
     __debugbreak();
-  _R13 = &scene;
-  v9 = &scene.codeSurfUser[(unsigned int)v3];
-  if ( ((unsigned __int8)v9 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &scene.codeSurfUser[(unsigned int)v3]) )
+  v8 = &scene.codeSurfUser[(unsigned int)v3];
+  if ( ((unsigned __int8)v8 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &scene.codeSurfUser[(unsigned int)v3]) )
     __debugbreak();
-  if ( _InterlockedCompareExchange(v9, user, 0) )
+  if ( _InterlockedCompareExchange(v8, user, 0) )
     return 0i64;
-  v11 = frontEndDataOut;
-  v12 = &g_codeSurfGlob[(unsigned int)v3];
+  v10 = frontEndDataOut;
+  v11 = &g_codeSurfGlob[(unsigned int)v3];
   if ( !frontEndDataOut )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", (_DWORD)frontEndDataOut + 95, ASSERT_TYPE_ASSERT, "(frontEndDataOut)", (const char *)&queryFormat, "frontEndDataOut") )
       __debugbreak();
-    v11 = frontEndDataOut;
+    v10 = frontEndDataOut;
   }
-  v12->argsCount = v11->codeSurfArgsCount[(unsigned int)v3];
-  v12->surfList = v3;
-  v12->matRenderFeatures = NULL;
+  v11->argsCount = v10->codeSurfArgsCount[(unsigned int)v3];
+  v11->surfList = v3;
+  v11->matRenderFeatures = NULL;
   if ( (_DWORD)v3 )
   {
     if ( (_DWORD)v3 == 1 )
     {
-      v12->surfLimit = 0x4000;
-      v12->codeSurfsMain = scene.codeTransShadowSurfs;
-      v12->codeSurfCountMain = &scene.codeTransShadowSurfCount;
-      v12->outCodeSurfArgsMain = &v11->codeSurfArgs[256];
+      v11->surfLimit = 0x4000;
+      v11->codeSurfsMain = scene.codeTransShadowSurfs;
+      v11->codeSurfCountMain = &scene.codeTransShadowSurfCount;
+      v11->outCodeSurfArgsMain = &v10->codeSurfArgs[256];
       codeTransShadowSurfCountPrevFrame = scene.codeTransShadowSurfCountPrevFrame;
-      v12->vertLimit = 0x10000;
-      v12->quadLimit = 0x4000;
-      v12->indexLimit = 98304;
-      v12->argsLimit = 32;
-      v12->perEmitterDataLimit = 1536;
-      v12->packedAtlasDataLimit = 1536;
-      v12->surfLimitWarn = R_WARN_GFX_CODE_TRANS_SHADOW_SURF_LIMIT;
-      v12->vertLimitWarn = R_WARN_MAX_CODE_TRANS_SHADOW_VERTS;
-      v12->quadLimitWarn = R_WARN_MAX_CODE_TRANS_SHADOW_QUADS;
-      v12->indexLimitWarn = R_WARN_MAX_CODE_TRANS_SHADOW_INDS;
-      v12->argsLimitWarn = R_WARN_MAX_CODE_TRANS_SHADOW_ARGS;
-      v12->perEmitterDataWarn = R_WARN_MAX_CODE_TRANS_SHADOW_EMITTERS;
-      v12->packedAtlasDataWarn = R_WARN_MAX_CODE_TRANS_SHADOW_PACKED_ATLAS;
-      v11->transShadowBoundsCountPrevFrame = codeTransShadowSurfCountPrevFrame;
+      v11->vertLimit = 0x10000;
+      v11->quadLimit = 0x4000;
+      v11->indexLimit = 98304;
+      v11->argsLimit = 32;
+      v11->perEmitterDataLimit = 1536;
+      v11->packedAtlasDataLimit = 1536;
+      v11->surfLimitWarn = R_WARN_GFX_CODE_TRANS_SHADOW_SURF_LIMIT;
+      v11->vertLimitWarn = R_WARN_MAX_CODE_TRANS_SHADOW_VERTS;
+      v11->quadLimitWarn = R_WARN_MAX_CODE_TRANS_SHADOW_QUADS;
+      v11->indexLimitWarn = R_WARN_MAX_CODE_TRANS_SHADOW_INDS;
+      v11->argsLimitWarn = R_WARN_MAX_CODE_TRANS_SHADOW_ARGS;
+      v11->perEmitterDataWarn = R_WARN_MAX_CODE_TRANS_SHADOW_EMITTERS;
+      v11->packedAtlasDataWarn = R_WARN_MAX_CODE_TRANS_SHADOW_PACKED_ATLAS;
+      v10->transShadowBoundsCountPrevFrame = codeTransShadowSurfCountPrevFrame;
       if ( scene.codeTransShadowSurfCountPrevFrame )
       {
-        _RDX = frontEndDataOut;
+        v13 = frontEndDataOut;
         do
         {
-          _RCX = (unsigned __int64)v6 << 6;
-          _RAX = v6++;
-          __asm { vmovups xmm0, xmmword ptr [rcx+r13+100020h] }
-          _RAX *= 3i64;
-          __asm
-          {
-            vmovups xmmword ptr [rdx+rax*8+109CFCh], xmm0
-            vmovsd  xmm1, qword ptr [rcx+r13+100030h]
-            vmovsd  qword ptr [rdx+rax*8+109D0Ch], xmm1
-          }
-          _RDX = frontEndDataOut;
+          v14 = (unsigned __int64)v6 << 6;
+          v15 = v6++;
+          v15 *= 3i64;
+          *(_OWORD *)&v13->transShadowBoundsPrevFrame[0].midPoint.v[2 * v15] = *(_OWORD *)((char *)scene.codeTransShadowSurfs[0].bounds.midPoint.v + v14);
+          *((double *)&v13->transShadowBoundsPrevFrame[0].halfSize.y + v15) = *(double *)((char *)&scene.codeTransShadowSurfs[0].bounds.halfSize.y + v14);
+          v13 = frontEndDataOut;
         }
         while ( v6 < frontEndDataOut->transShadowBoundsCountPrevFrame );
       }
     }
     else
     {
-      LODWORD(v37) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 162, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp(162): unhandled case %d in switch statement", v37) )
+      LODWORD(v34) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 162, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp(162): unhandled case %d in switch statement", v34) )
         __debugbreak();
     }
   }
   else
   {
-    v19 = r_emissive_surf_vert_limit;
-    v12->codeSurfCountMain = &scene.codeEmissiveSurfCount;
-    v12->matRenderFeatures = &scene.codeEmissiveMatRenderFeatures;
-    v12->codeSurfsMain = (GfxCodeSurf *)&scene;
+    v16 = r_emissive_surf_vert_limit;
+    v11->codeSurfCountMain = &scene.codeEmissiveSurfCount;
+    v11->matRenderFeatures = &scene.codeEmissiveMatRenderFeatures;
+    v11->codeSurfsMain = (GfxCodeSurf *)&scene;
     scene.codeEmissiveMatRenderFeatures = GFX_VIEW_MTL_FEAT_NONE;
-    v12->surfLimit = 0x4000;
-    Int_Internal = Dvar_GetInt_Internal(v19);
-    v21 = frontEndDataOut;
-    v12->vertLimit = Int_Internal;
-    v12->quadLimit = 0x4000;
-    v12->indexLimit = 196608;
-    v12->argsLimit = 256;
-    v12->outCodeSurfArgsMain = v21->codeSurfArgs;
-    v12->perEmitterDataLimit = 1536;
-    v12->packedAtlasDataLimit = 1536;
-    v12->surfLimitWarn = R_WARN_GFX_CODE_EMISSIVE_SURF_LIMIT;
-    v12->vertLimitWarn = R_WARN_MAX_CODE_EMISSIVE_VERTS;
-    v12->quadLimitWarn = R_WARN_MAX_CODE_EMISSIVE_QUADS;
-    v12->indexLimitWarn = R_WARN_MAX_CODE_EMISSIVE_INDS;
-    v12->argsLimitWarn = R_WARN_MAX_CODE_EMISSIVE_ARGS;
-    v12->perEmitterDataWarn = R_WARN_MAX_CODE_EMISSIVE_EMITTERS;
-    v12->packedAtlasDataWarn = R_WARN_MAX_CODE_EMISSIVE_PACKED_ATLAS;
+    v11->surfLimit = 0x4000;
+    Int_Internal = Dvar_GetInt_Internal(v16);
+    v18 = frontEndDataOut;
+    v11->vertLimit = Int_Internal;
+    v11->quadLimit = 0x4000;
+    v11->indexLimit = 196608;
+    v11->argsLimit = 256;
+    v11->outCodeSurfArgsMain = v18->codeSurfArgs;
+    v11->perEmitterDataLimit = 1536;
+    v11->packedAtlasDataLimit = 1536;
+    v11->surfLimitWarn = R_WARN_GFX_CODE_EMISSIVE_SURF_LIMIT;
+    v11->vertLimitWarn = R_WARN_MAX_CODE_EMISSIVE_VERTS;
+    v11->quadLimitWarn = R_WARN_MAX_CODE_EMISSIVE_QUADS;
+    v11->indexLimitWarn = R_WARN_MAX_CODE_EMISSIVE_INDS;
+    v11->argsLimitWarn = R_WARN_MAX_CODE_EMISSIVE_ARGS;
+    v11->perEmitterDataWarn = R_WARN_MAX_CODE_EMISSIVE_EMITTERS;
+    v11->packedAtlasDataWarn = R_WARN_MAX_CODE_EMISSIVE_PACKED_ATLAS;
   }
-  v22 = v3;
-  v12->surfCount = *v12->codeSurfCountMain;
-  v23 = frontEndDataOut;
-  used = frontEndDataOut->mesh[v22].vb.used;
-  if ( used % frontEndDataOut->mesh[v22].vertSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_meshdata_inline.h", 47, ASSERT_TYPE_ASSERT, "(vertexBytes % mesh->vertSize == 0)", (const char *)&queryFormat, "vertexBytes % mesh->vertSize == 0") )
+  v19 = v3;
+  v11->surfCount = *v11->codeSurfCountMain;
+  v20 = frontEndDataOut;
+  used = frontEndDataOut->mesh[v19].vb.used;
+  if ( used % frontEndDataOut->mesh[v19].vertSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_meshdata_inline.h", 47, ASSERT_TYPE_ASSERT, "(vertexBytes % mesh->vertSize == 0)", (const char *)&queryFormat, "vertexBytes % mesh->vertSize == 0") )
     __debugbreak();
-  v25 = frontEndDataOut;
-  v26 = used / v23->mesh[v22].vertSize;
-  v12->vertCount = v26;
-  v12->vertIndexBase = v26;
-  perQuadDataCount = v25->mesh[v22].perQuadDataCount;
-  v12->quadCount = perQuadDataCount;
-  v12->quadIndexBase = perQuadDataCount;
-  v12->indexCount = v25->mesh[v22].indexCount;
-  data = (GfxSpriteVertex *)v25->mesh[v22].vb.wrappedBuffer.data;
-  v12->verts = data;
+  v22 = frontEndDataOut;
+  v23 = used / v20->mesh[v19].vertSize;
+  v11->vertCount = v23;
+  v11->vertIndexBase = v23;
+  perQuadDataCount = v22->mesh[v19].perQuadDataCount;
+  v11->quadCount = perQuadDataCount;
+  v11->quadIndexBase = perQuadDataCount;
+  v11->indexCount = v22->mesh[v19].indexCount;
+  data = (GfxSpriteVertex *)v22->mesh[v19].vb.wrappedBuffer.data;
+  v11->verts = data;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 179, ASSERT_TYPE_ASSERT, "(codeSurfGlob->verts)", (const char *)&queryFormat, "codeSurfGlob->verts") )
     __debugbreak();
-  v29 = (char *)frontEndDataOut + v22 * 1016;
-  v12->quads = frontEndDataOut->mesh[v22].perQuadBufferData;
-  v12->perEmitterData = (GfxSpriteEmitter *)*((_QWORD *)v29 + 25);
-  v12->perEmitterDataCount = *((_DWORD *)v29 + 27);
-  v12->packedAtlasData = (GfxPackedAtlasData *)*((_QWORD *)v29 + 35);
-  v12->packedAtlasDataCount = *((_DWORD *)v29 + 31);
-  v30 = (unsigned __int16 *)*((_QWORD *)v29 + 2);
-  v12->indices = v30;
-  if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 190, ASSERT_TYPE_ASSERT, "(codeSurfGlob->indices)", (const char *)&queryFormat, "codeSurfGlob->indices") )
+  v26 = (char *)frontEndDataOut + v19 * 1016;
+  v11->quads = frontEndDataOut->mesh[v19].perQuadBufferData;
+  v11->perEmitterData = (GfxSpriteEmitter *)*((_QWORD *)v26 + 25);
+  v11->perEmitterDataCount = *((_DWORD *)v26 + 27);
+  v11->packedAtlasData = (GfxPackedAtlasData *)*((_QWORD *)v26 + 35);
+  v11->packedAtlasDataCount = *((_DWORD *)v26 + 31);
+  v27 = (unsigned __int16 *)*((_QWORD *)v26 + 2);
+  v11->indices = v27;
+  if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_codesurf.cpp", 190, ASSERT_TYPE_ASSERT, "(codeSurfGlob->indices)", (const char *)&queryFormat, "codeSurfGlob->indices") )
     __debugbreak();
-  v31 = frontEndDataOut;
-  lightmapPacker = v12->lightmapPacker;
-  v33 = (char *)v12 - v22 * 1016 - (char *)frontEndDataOut;
-  v34 = frontEndDataOut->mesh[v22].lightmapPacker;
-  v12->lightGridBuffers = frontEndDataOut->mesh[v22].lightGridBuffers;
-  v35 = (__int64)&v31->mesh[v22].lightingBufferData[0][2];
-  v36 = &v31->mesh[v22].lightingCount[0][1];
+  v28 = frontEndDataOut;
+  lightmapPacker = v11->lightmapPacker;
+  v30 = (char *)v11 - v19 * 1016 - (char *)frontEndDataOut;
+  v31 = frontEndDataOut->mesh[v19].lightmapPacker;
+  v11->lightGridBuffers = frontEndDataOut->mesh[v19].lightGridBuffers;
+  v32 = (__int64)&v28->mesh[v19].lightingBufferData[0][2];
+  v33 = &v28->mesh[v19].lightingCount[0][1];
   do
   {
     ++lightmapPacker;
-    *(unsigned int *)((char *)v36 + v33 - 336) = v36[11];
-    v35 += 48i64;
-    *(unsigned int *)((char *)v36 + v33 - 288) = *(v36 - 1);
-    v36 += 6;
-    *(_QWORD *)(v35 + v33 - 352) = *(_QWORD *)(v35 - 64);
-    *(unsigned int *)((char *)v36 + v33 - 356) = v36[6];
-    *(unsigned int *)((char *)v36 + v33 - 308) = *(v36 - 6);
-    *(_QWORD *)(v33 + v35 - 344) = *(_QWORD *)(v35 - 56);
-    *(unsigned int *)((char *)v36 + v33 - 352) = v36[7];
-    *(unsigned int *)((char *)v36 + v33 - 304) = *(v36 - 5);
-    *(_QWORD *)(v33 + v35 - 336) = *(_QWORD *)(v35 - 48);
-    *(unsigned int *)((char *)v36 + v33 - 348) = v36[8];
-    *(unsigned int *)((char *)v36 + v33 - 300) = *(v36 - 4);
-    *(_QWORD *)(v33 + v35 - 328) = *(_QWORD *)(v35 - 40);
-    *(unsigned int *)((char *)v36 + v33 - 344) = v36[9];
-    *(unsigned int *)((char *)v36 + v33 - 296) = *(v36 - 3);
-    *(_QWORD *)(v33 + v35 - 320) = *(_QWORD *)(v35 - 32);
-    *(unsigned int *)((char *)v36 + v33 - 340) = v36[10];
-    *(unsigned int *)((char *)v36 + v33 - 292) = *(v36 - 2);
-    *(_QWORD *)(v33 + v35 - 312) = *(_QWORD *)(v35 - 24);
-    *(lightmapPacker - 1) = v34++;
+    *(unsigned int *)((char *)v33 + v30 - 336) = v33[11];
+    v32 += 48i64;
+    *(unsigned int *)((char *)v33 + v30 - 288) = *(v33 - 1);
+    v33 += 6;
+    *(_QWORD *)(v32 + v30 - 352) = *(_QWORD *)(v32 - 64);
+    *(unsigned int *)((char *)v33 + v30 - 356) = v33[6];
+    *(unsigned int *)((char *)v33 + v30 - 308) = *(v33 - 6);
+    *(_QWORD *)(v30 + v32 - 344) = *(_QWORD *)(v32 - 56);
+    *(unsigned int *)((char *)v33 + v30 - 352) = v33[7];
+    *(unsigned int *)((char *)v33 + v30 - 304) = *(v33 - 5);
+    *(_QWORD *)(v30 + v32 - 336) = *(_QWORD *)(v32 - 48);
+    *(unsigned int *)((char *)v33 + v30 - 348) = v33[8];
+    *(unsigned int *)((char *)v33 + v30 - 300) = *(v33 - 4);
+    *(_QWORD *)(v30 + v32 - 328) = *(_QWORD *)(v32 - 40);
+    *(unsigned int *)((char *)v33 + v30 - 344) = v33[9];
+    *(unsigned int *)((char *)v33 + v30 - 296) = *(v33 - 3);
+    *(_QWORD *)(v30 + v32 - 320) = *(_QWORD *)(v32 - 32);
+    *(unsigned int *)((char *)v33 + v30 - 340) = v33[10];
+    *(unsigned int *)((char *)v33 + v30 - 292) = *(v33 - 2);
+    *(_QWORD *)(v30 + v32 - 312) = *(_QWORD *)(v32 - 24);
+    *(lightmapPacker - 1) = v31++;
     --v7;
   }
   while ( v7 );
-  v12->allowProcess = 1;
+  v11->allowProcess = 1;
   result = 1i64;
-  *codeSurfGlobOut = v12;
+  *codeSurfGlobOut = v11;
   return result;
 }
 

@@ -203,15 +203,9 @@ bdAddr::bdAddr
 */
 void bdAddr::bdAddr(bdAddr *this, const bdAddr *other)
 {
-  _RBX = other;
-  _RDI = this;
   bdSockAddr::bdSockAddr(&this->m_address, &other->m_address);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+80h]
-    vmovups xmmword ptr [rdi+80h], xmm0
-  }
-  _RDI->m_type = _RBX->m_type;
+  this->m_relayRoute = other->m_relayRoute;
+  this->m_type = other->m_type;
 }
 
 /*
@@ -221,15 +215,9 @@ bdAddr::bdAddr
 */
 void bdAddr::bdAddr(bdAddr *this, const bdRelayRoute *relayRoute)
 {
-  _RBX = relayRoute;
-  _RDI = this;
   bdSockAddr::bdSockAddr(&this->m_address);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rdi+80h], xmm0
-  }
-  _RDI->m_type = BD_ADDR_RELAYED;
+  this->m_relayRoute = *relayRoute;
+  this->m_type = BD_ADDR_RELAYED;
 }
 
 /*
@@ -526,11 +514,7 @@ bdAddr::setRelayRoute
 */
 void bdAddr::setRelayRoute(bdAddr *this, const bdRelayRoute *relayRoute)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx+80h], xmm0
-  }
+  this->m_relayRoute = *relayRoute;
   this->m_type = BD_ADDR_RELAYED;
 }
 

@@ -112,7 +112,7 @@ __int64 LuaShared_LuaCall_PlayerData_GetRootDDLState(lua_State *const luaVM)
   {
     __asm { vpxor   xmm0, xmm0, xmm0 }
     state.isValid = 0;
-    __asm { vmovdqu xmmword ptr [rsp+48h+state.member], xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     state.offset = 0;
     state.arrayIndex = -1;
     if ( (unsigned __int8)lua_tointeger32(luaVM, 2) == 1 )
@@ -240,11 +240,8 @@ LABEL_32:
     v9 = 0;
   else
     v9 = 1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+88h+state.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;

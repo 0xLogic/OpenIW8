@@ -117,66 +117,51 @@ char R_AddFlareEmitterData(GfxFlareSurfGlob *flareSurfGlob, const GfxSpriteEmitt
 {
   unsigned int perEmitterDataLimit; 
   unsigned int perFlareDataLimit; 
-  __int64 v27; 
-  unsigned int v28; 
-  __int64 v29; 
-  unsigned int v30; 
+  GfxSpriteEmitter *v11; 
+  __int64 v12; 
+  GfxEffectFlare *perFlareData; 
+  __int64 v14; 
+  unsigned int v15; 
+  __int64 v16; 
+  unsigned int v17; 
 
   perEmitterDataLimit = flareSurfGlob->meshState.perEmitterDataLimit;
-  _RBP = flareData;
-  _RDI = data;
   if ( flareSurfGlob->meshState.perEmitterDataCount < perEmitterDataLimit )
   {
     perFlareDataLimit = flareSurfGlob->meshState.perFlareDataLimit;
     if ( perEmitterDataLimit != perFlareDataLimit )
     {
-      v30 = perFlareDataLimit;
-      v28 = perEmitterDataLimit;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_flare.cpp", 287, ASSERT_TYPE_ASSERT, "( flareSurfGlob->meshState.perEmitterDataLimit ) == ( flareSurfGlob->meshState.perFlareDataLimit )", "%s == %s\n\t%u, %u", "flareSurfGlob->meshState.perEmitterDataLimit", "flareSurfGlob->meshState.perFlareDataLimit", v28, v30) )
+      v17 = perFlareDataLimit;
+      v15 = perEmitterDataLimit;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_flare.cpp", 287, ASSERT_TYPE_ASSERT, "( flareSurfGlob->meshState.perEmitterDataLimit ) == ( flareSurfGlob->meshState.perFlareDataLimit )", "%s == %s\n\t%u, %u", "flareSurfGlob->meshState.perEmitterDataLimit", "flareSurfGlob->meshState.perFlareDataLimit", v15, v17) )
         __debugbreak();
     }
     if ( flareSurfGlob->meshState.perEmitterDataCount != flareSurfGlob->meshState.perFlareDataCount )
     {
-      LODWORD(v29) = flareSurfGlob->meshState.perFlareDataCount;
-      LODWORD(v27) = flareSurfGlob->meshState.perEmitterDataCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_flare.cpp", 288, ASSERT_TYPE_ASSERT, "( flareSurfGlob->meshState.perEmitterDataCount ) == ( flareSurfGlob->meshState.perFlareDataCount )", "%s == %s\n\t%u, %u", "flareSurfGlob->meshState.perEmitterDataCount", "flareSurfGlob->meshState.perFlareDataCount", v27, v29) )
+      LODWORD(v16) = flareSurfGlob->meshState.perFlareDataCount;
+      LODWORD(v14) = flareSurfGlob->meshState.perEmitterDataCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_flare.cpp", 288, ASSERT_TYPE_ASSERT, "( flareSurfGlob->meshState.perEmitterDataCount ) == ( flareSurfGlob->meshState.perFlareDataCount )", "%s == %s\n\t%u, %u", "flareSurfGlob->meshState.perEmitterDataCount", "flareSurfGlob->meshState.perFlareDataCount", v14, v16) )
         __debugbreak();
     }
     *outEmitterDataIndex = flareSurfGlob->meshState.perEmitterDataCount++;
     ++flareSurfGlob->meshState.perFlareDataCount;
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    _RDX = &flareSurfGlob->meshState.perEmitterData[*outEmitterDataIndex];
-    __asm
-    {
-      vmovups xmmword ptr [rdx], xmm0
-      vmovups xmm1, xmmword ptr [rdi+10h]
-      vmovups xmmword ptr [rdx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+20h]
-      vmovups xmmword ptr [rdx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+30h]
-      vmovups xmmword ptr [rdx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+40h]
-      vmovups xmmword ptr [rdx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+50h]
-      vmovups xmmword ptr [rdx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+60h]
-      vmovups xmmword ptr [rdx+60h], xmm0
-      vmovups xmm0, xmmword ptr [rdi+70h]
-      vmovups xmmword ptr [rdx+70h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+80h]
-      vmovups xmmword ptr [rdx+80h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+90h]
-      vmovups xmmword ptr [rdx+90h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+0A0h]
-      vmovups xmmword ptr [rdx+0A0h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+0B0h]
-      vmovups xmmword ptr [rdx+0B0h], xmm0
-      vmovsd  xmm0, qword ptr [rbp+0]
-    }
-    _RCX = *outEmitterDataIndex;
-    _RAX = flareSurfGlob->meshState.perFlareData;
-    __asm { vmovsd  qword ptr [rax+rcx*4], xmm0 }
-    _RAX[_RCX].worldPosition.v[2] = _RBP->worldPosition.v[2];
+    v11 = &flareSurfGlob->meshState.perEmitterData[*outEmitterDataIndex];
+    v11->falloffParms = data->falloffParms;
+    v11->opaqueColor = data->opaqueColor;
+    v11->transparentColor = data->transparentColor;
+    *(_OWORD *)v11->translucentShadowParams.v = *(_OWORD *)data->translucentShadowParams.v;
+    v11->eyeOffsetParms = data->eyeOffsetParms;
+    v11->alphaDissolveParms = data->alphaDissolveParms;
+    v11->featherParms0 = data->featherParms0;
+    v11->featherParms1 = data->featherParms1;
+    v11->regionHighlightParms = data->regionHighlightParms;
+    v11->depthScanColor = data->depthScanColor;
+    v11->depthScanOutlineColor = data->depthScanOutlineColor;
+    *(_OWORD *)v11->thermalParams.v = *(_OWORD *)data->thermalParams.v;
+    v12 = *outEmitterDataIndex;
+    perFlareData = flareSurfGlob->meshState.perFlareData;
+    *(double *)perFlareData[v12].worldPosition.v = *(double *)flareData->worldPosition.v;
+    perFlareData[v12].worldPosition.v[2] = flareData->worldPosition.v[2];
     return 1;
   }
   else

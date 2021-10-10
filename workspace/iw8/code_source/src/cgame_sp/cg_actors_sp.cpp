@@ -97,42 +97,31 @@ void CG_ActorsSP_PreControllers(centity_t *cent)
   LocalClientNum_t OnlyLocalClientNum; 
   actor_prone_info_t *ClientActorProneInfo; 
   int time; 
+  cg_t *LocalClientGlobals; 
+  double ActorProneFraction; 
   int number; 
   actor_prone_info_lerp_t *ClientActorPrevProneInfo; 
 
   OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
   ClientActorProneInfo = CG_GetClientActorProneInfo(cent->nextState.number);
   time = CG_GetLocalClientGlobals(OnlyLocalClientNum)->time;
-  _R15 = CG_GetLocalClientGlobals(OnlyLocalClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals(OnlyLocalClientNum);
   if ( ClientActorProneInfo && (BG_ActorIsProne(ClientActorProneInfo, time) || ClientActorProneInfo->bCorpseOrientation || ClientActorProneInfo->orientPitch) )
   {
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
-    *(double *)&_XMM0 = BG_GetActorProneFraction(ClientActorProneInfo, time);
-    _RBX = &cent->pose.160;
-    __asm { vmovaps xmm6, xmm0 }
+    ActorProneFraction = BG_GetActorProneFraction(ClientActorProneInfo, time);
     if ( ClientActorProneInfo->bCorpseOrientation )
     {
       number = cent->nextState.number;
       cent->pose.actor.proneType = 2;
       ClientActorPrevProneInfo = CG_GetClientActorPrevProneInfo(number);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r15+65E0h]; frameInterpolation
-        vmovaps xmm3, xmm6; weight
-      }
-      CG_LerpClientActorProneInfo(ClientActorProneInfo, ClientActorPrevProneInfo, *(float *)&_XMM2, *(float *)&_XMM3, &cent->pose.actor.pitch, &cent->pose.actor.roll, &cent->pose.actor.height);
+      CG_LerpClientActorProneInfo(ClientActorProneInfo, ClientActorPrevProneInfo, LocalClientGlobals->frameInterpolation, *(float *)&ActorProneFraction, &cent->pose.actor.pitch, &cent->pose.actor.roll, &cent->pose.actor.height);
     }
     else
     {
       cent->pose.actor.proneType = 1;
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rdi+10h]
-        vmovss  dword ptr [rbx], xmm0
-      }
+      cent->pose.actor.pitch = *(float *)&ActorProneFraction * ClientActorProneInfo->fTorsoPitch;
       cent->pose.coverWall.coverGrid[2] = 0;
     }
-    __asm { vmovaps xmm6, [rsp+68h+var_28] }
   }
   else
   {
@@ -145,339 +134,274 @@ void CG_ActorsSP_PreControllers(centity_t *cent)
 CG_ActorsSP_ProcessActor
 ==============
 */
-
-void __fastcall CG_ActorsSP_ProcessActor(centity_t *cent, bool isVisible, double _XMM2_8)
+void CG_ActorsSP_ProcessActor(centity_t *cent, bool isVisible)
 {
   LocalClientNum_t OnlyLocalClientNum; 
-  __int64 v9; 
+  __int64 v4; 
   DObj *ClientDObj; 
   cg_t *LocalClientGlobals; 
-  LocalClientNum_t v12; 
+  LocalClientNum_t v7; 
   actor_prone_info_t *ClientActorProneInfo; 
+  double ActorProneFraction; 
   actor_prone_info_lerp_t *ClientActorPrevProneInfo; 
-  cg_t_vtbl *v19; 
+  cg_t_vtbl *v11; 
   __int64 number; 
-  characterAnimState_t *v21; 
-  const dvar_t *v29; 
-  const dvar_t *v30; 
+  characterAnimState_t *v13; 
+  unsigned __int8 stepMove; 
+  float v15; 
+  double v16; 
+  const dvar_t *v17; 
+  const dvar_t *v18; 
+  float v19; 
   int ragdollHandle; 
-  char v34; 
-  int v35; 
+  char v21; 
+  int v22; 
   entityType_s eType; 
-  unsigned int v37; 
-  float characterEVOffset; 
-  bool v41; 
+  unsigned int v24; 
+  __m256i *HudOutlineInfo; 
+  float v26; 
+  bool v27; 
   bool useAlternateColor; 
-  unsigned int v44; 
-  bool v47; 
-  bool v48; 
+  double Float_Internal_DebugName; 
+  unsigned int v30; 
+  bool v31; 
+  bool v32; 
+  float v33; 
   float *roll; 
   float *height; 
-  __int64 v65; 
-  __int64 v66; 
-  float v67; 
+  __int64 v36; 
+  __int64 v37; 
   bool isFadeActive[4]; 
   int iCurrentTime; 
   int team[2]; 
   vec3_t outOrigin; 
   unsigned int scriptableIndex[2]; 
-  vec3_t v73[2]; 
-  GfxSceneHudOutlineInfo v74; 
+  vec3_t v43[2]; 
+  GfxSceneHudOutlineInfo v44; 
   CgTrajectory result; 
-  __int64 v76; 
+  __int64 v46; 
   vec3_t actorIndex; 
-  vec3_t v78; 
+  vec3_t v48; 
   vec3_t outPos; 
-  char v80; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v76 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
+  v46 = -2i64;
   isFadeActive[2] = isVisible;
-  _RBX = cent;
   OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
-  v9 = OnlyLocalClientNum;
-  if ( ScriptableCl_GetIndexForEntity(OnlyLocalClientNum, _RBX, scriptableIndex) )
+  v4 = OnlyLocalClientNum;
+  if ( ScriptableCl_GetIndexForEntity(OnlyLocalClientNum, cent, scriptableIndex) )
   {
-    ScriptableCl_UpdatePosition((const LocalClientNum_t)v9, scriptableIndex[0], _RBX);
-    ScriptableCl_UpdateSharedInstance((const LocalClientNum_t)v9, scriptableIndex[0], _RBX->nextState.number);
+    ScriptableCl_UpdatePosition((const LocalClientNum_t)v4, scriptableIndex[0], cent);
+    ScriptableCl_UpdateSharedInstance((const LocalClientNum_t)v4, scriptableIndex[0], cent->nextState.number);
   }
-  ClientDObj = Com_GetClientDObj(_RBX->nextState.number, (LocalClientNum_t)v9);
+  ClientDObj = Com_GetClientDObj(cent->nextState.number, (LocalClientNum_t)v4);
   if ( ClientDObj )
   {
-    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v9);
-    if ( CG_Cloth_Entity_HasClothBinding((const LocalClientNum_t)v9, _RBX->nextState.number) )
-      CG_Cloth_Entity_ActivateClothNode((const LocalClientNum_t)v9, ClientDObj);
-    v12 = CL_GetOnlyLocalClientNum();
-    ClientActorProneInfo = CG_GetClientActorProneInfo(_RBX->nextState.number);
-    iCurrentTime = CG_GetLocalClientGlobals(v12)->time;
-    *(_QWORD *)actorIndex.v = CG_GetLocalClientGlobals(v12);
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v4);
+    if ( CG_Cloth_Entity_HasClothBinding((const LocalClientNum_t)v4, cent->nextState.number) )
+      CG_Cloth_Entity_ActivateClothNode((const LocalClientNum_t)v4, ClientDObj);
+    v7 = CL_GetOnlyLocalClientNum();
+    ClientActorProneInfo = CG_GetClientActorProneInfo(cent->nextState.number);
+    iCurrentTime = CG_GetLocalClientGlobals(v7)->time;
+    *(_QWORD *)actorIndex.v = CG_GetLocalClientGlobals(v7);
     if ( ClientActorProneInfo && (BG_ActorIsProne(ClientActorProneInfo, iCurrentTime) || ClientActorProneInfo->bCorpseOrientation || ClientActorProneInfo->orientPitch) )
     {
-      *(double *)&_XMM0 = BG_GetActorProneFraction(ClientActorProneInfo, iCurrentTime);
-      __asm { vmovaps xmm6, xmm0 }
+      ActorProneFraction = BG_GetActorProneFraction(ClientActorProneInfo, iCurrentTime);
       if ( ClientActorProneInfo->bCorpseOrientation )
       {
-        _RBX->pose.actor.proneType = 2;
-        ClientActorPrevProneInfo = CG_GetClientActorPrevProneInfo(_RBX->nextState.number);
-        __asm { vmovaps xmm3, xmm6; weight }
-        _RCX = *(_QWORD *)actorIndex.v;
-        __asm { vmovss  xmm2, dword ptr [rcx+65E0h]; frameInterpolation }
-        CG_LerpClientActorProneInfo(ClientActorProneInfo, ClientActorPrevProneInfo, *(float *)&_XMM2_8, *(float *)&_XMM3, &_RBX->pose.actor.pitch, &_RBX->pose.actor.roll, &_RBX->pose.actor.height);
+        cent->pose.actor.proneType = 2;
+        ClientActorPrevProneInfo = CG_GetClientActorPrevProneInfo(cent->nextState.number);
+        CG_LerpClientActorProneInfo(ClientActorProneInfo, ClientActorPrevProneInfo, *(float *)(*(_QWORD *)actorIndex.v + 26080i64), *(float *)&ActorProneFraction, &cent->pose.actor.pitch, &cent->pose.actor.roll, &cent->pose.actor.height);
       }
       else
       {
-        _RBX->pose.actor.proneType = 1;
-        __asm
-        {
-          vmulss  xmm0, xmm6, dword ptr [r12+10h]
-          vmovss  dword ptr [rbx+0A0h], xmm0
-        }
-        _RBX->pose.coverWall.coverGrid[2] = 0;
+        cent->pose.actor.proneType = 1;
+        cent->pose.actor.pitch = *(float *)&ActorProneFraction * ClientActorProneInfo->fTorsoPitch;
+        cent->pose.coverWall.coverGrid[2] = 0;
       }
     }
     else
     {
-      _RBX->pose.actor.proneType = 0;
+      cent->pose.actor.proneType = 0;
     }
-    v19 = LocalClientGlobals->__vftable;
-    number = (unsigned int)_RBX->nextState.number;
-    if ( _RBX->nextState.eType == ET_ACTOR_CORPSE )
+    v11 = LocalClientGlobals->__vftable;
+    number = (unsigned int)cent->nextState.number;
+    if ( cent->nextState.eType == ET_ACTOR_CORPSE )
     {
-      v19->ClearCharacterAnimState(LocalClientGlobals, number);
+      v11->ClearCharacterAnimState(LocalClientGlobals, number);
     }
     else
     {
-      v21 = v19->GetCharacterAnimState(LocalClientGlobals, number);
-      if ( v21 )
-        BG_AnimationState_MinimalUpdate(&_RBX->nextState, v21, ClientDObj->tree, NULL, 0);
+      v13 = v11->GetCharacterAnimState(LocalClientGlobals, number);
+      if ( v13 )
+        BG_AnimationState_MinimalUpdate(&cent->nextState, v13, ClientDObj->tree, NULL, 0);
     }
-    CG_GetPoseOrigin(&_RBX->pose, &outOrigin);
-    __asm
+    CG_GetPoseOrigin(&cent->pose, &outOrigin);
+    stepMove = cent->nextState.lerp.u.actor.stepMove;
+    if ( stepMove )
     {
-      vxorps  xmm7, xmm7, xmm7
-      vmovss  xmm6, cs:__real@3f800000
-    }
-    if ( _RBX->nextState.lerp.u.actor.stepMove )
-    {
-      __asm
+      LODWORD(v15) = COERCE_UNSIGNED_INT(outOrigin.v[2] - cent->pose.actor.prevZ) & _xmm;
+      if ( v15 > 1.0 && v15 < 11.0 )
       {
-        vmovss  xmm0, dword ptr [rsp+170h+outOrigin+8]
-        vsubss  xmm1, xmm0, dword ptr [rbx+0ACh]
-        vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm1, xmm6
-        vcomiss xmm1, cs:__real@41300000
+        v16 = I_fclamp(_mm_cvtepi32_ps((__m128i)stepMove).m128_f32[0] * 0.125, 0.0, 1.0);
+        outOrigin.v[2] = (float)((float)(1.0 - (float)((float)((float)(1.0 - *(float *)&v16) * 0.80000001) + (float)(*(float *)&v16 * 0.2))) * cent->pose.actor.prevZ) + (float)((float)((float)((float)(1.0 - *(float *)&v16) * 0.80000001) + (float)(*(float *)&v16 * 0.2)) * outOrigin.v[2]);
+        CG_SetPoseOrigin(&cent->pose, &outOrigin);
       }
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+170h+outOrigin+8]
-      vmovss  dword ptr [rbx+0ACh], xmm0
-      vmovsd  xmm1, qword ptr [rsp+170h+outOrigin]
-      vmovsd  [rsp+170h+var_F8], xmm1
-    }
-    v73[0].v[2] = outOrigin.v[2];
-    v29 = DCONST_DVARMPBOOL_player_spaceEnabled;
+    cent->pose.actor.prevZ = outOrigin.v[2];
+    v43[0] = outOrigin;
+    v17 = DCONST_DVARMPBOOL_player_spaceEnabled;
     if ( !DCONST_DVARMPBOOL_player_spaceEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_spaceEnabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v29);
-    if ( v29->current.enabled )
+    Dvar_CheckFrontendServerThread(v17);
+    if ( v17->current.enabled )
     {
-      v30 = DCONST_DVARMPFLT_actor_spaceLightingOffset;
+      v18 = DCONST_DVARMPFLT_actor_spaceLightingOffset;
       if ( !DCONST_DVARMPFLT_actor_spaceLightingOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "actor_spaceLightingOffset") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v30);
-      __asm
-      {
-        vmovss  xmm0, [rbp+70h+var_F0]
-        vaddss  xmm1, xmm0, dword ptr [rdi+28h]
-      }
+      Dvar_CheckFrontendServerThread(v18);
+      v19 = v43[0].v[2] + v18->current.value;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, [rbp+70h+var_F0]
-        vaddss  xmm1, xmm0, cs:__real@42000000
-      }
+      v19 = v43[0].v[2] + 32.0;
     }
-    __asm { vmovss  [rbp+70h+var_F0], xmm1 }
-    if ( CG_Pose_IsRagdoll(&_RBX->pose) && (ragdollHandle = _RBX->pose.ragdollHandle) != 0 )
+    v43[0].v[2] = v19;
+    if ( CG_Pose_IsRagdoll(&cent->pose) && (ragdollHandle = cent->pose.ragdollHandle) != 0 )
     {
-      v34 = 1;
+      v21 = 1;
       Ragdoll_GetRootOrigin(ragdollHandle, &outOrigin);
-      CG_SetPoseOrigin(&_RBX->pose, &outOrigin);
-      Ragdoll_SetAnimationParameters(ClientDObj, _RBX->pose.ragdollHandle, 1);
+      CG_SetPoseOrigin(&cent->pose, &outOrigin);
+      Ragdoll_SetAnimationParameters(ClientDObj, cent->pose.ragdollHandle, 1);
     }
     else
     {
-      v34 = 0;
+      v21 = 0;
     }
-    v35 = 0;
+    v22 = 0;
     isFadeActive[3] = 0;
     isFadeActive[1] = 0;
     isFadeActive[0] = 0;
-    if ( _RBX->nextState.eType == ET_ACTOR_CORPSE )
-      CG_CorpseFade_ApplyDissolveMaterial((const LocalClientNum_t)v9, ClientDObj, _RBX->nextState.number, &isFadeActive[3], &isFadeActive[1], isFadeActive);
-    eType = _RBX->nextState.eType;
-    if ( eType == ET_ACTOR_CORPSE || v34 )
+    if ( cent->nextState.eType == ET_ACTOR_CORPSE )
+      CG_CorpseFade_ApplyDissolveMaterial((const LocalClientNum_t)v4, ClientDObj, cent->nextState.number, &isFadeActive[3], &isFadeActive[1], isFadeActive);
+    eType = cent->nextState.eType;
+    if ( eType == ET_ACTOR_CORPSE || v21 )
     {
-      if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RBX->nextState.lerp.eFlags, GameModeFlagValues::ms_spValue, 0x1Du) )
+      if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->nextState.lerp.eFlags, GameModeFlagValues::ms_spValue, 0x1Du) )
         ClientDObj->flags &= ~0x40u;
       else
         ClientDObj->flags |= 0x40u;
-      if ( FX_Dismemberment_ProcessEntity((LocalClientNum_t)v9, ClientDObj, isFadeActive[0]) )
-        v35 = 128;
+      if ( FX_Dismemberment_ProcessEntity((LocalClientNum_t)v4, ClientDObj, isFadeActive[0]) )
+        v22 = 128;
     }
     else if ( eType == ET_ACTOR )
     {
       ClientDObj->flags |= 0x80u;
-      FX_Dismemberment_ProcessTimeout((LocalClientNum_t)v9, ClientDObj);
+      FX_Dismemberment_ProcessTimeout((LocalClientNum_t)v4, ClientDObj);
     }
-    v37 = CG_EntitySP_GetRenderFlagForRefEntity(LocalClientGlobals, _RBX, &_RBX->nextState.lerp.eFlags) | 0x1000 | v35;
-    _RAX = CG_Entity_GetHudOutlineInfo((GfxSceneHudOutlineInfo *)&result, LocalClientGlobals, _RBX);
-    __asm
+    v24 = CG_EntitySP_GetRenderFlagForRefEntity(LocalClientGlobals, cent, &cent->nextState.lerp.eFlags) | 0x1000 | v22;
+    HudOutlineInfo = (__m256i *)CG_Entity_GetHudOutlineInfo((GfxSceneHudOutlineInfo *)&result, LocalClientGlobals, cent);
+    *(__m256i *)&v44.color = *HudOutlineInfo;
+    v26 = *(float *)HudOutlineInfo[1].m256i_i32;
+    iCurrentTime = LODWORD(v26);
+    if ( cent->nextState.eType == ET_ACTOR )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups [rbp+70h+var_E0], ymm0
-    }
-    characterEVOffset = _RAX->characterEVOffset;
-    iCurrentTime = LODWORD(characterEVOffset);
-    if ( _RBX->nextState.eType == ET_ACTOR )
-    {
-      if ( CG_Utils_ShouldHighlightInScope((const LocalClientNum_t)v9) && !CG_Utils_StencilScriptControlled((const LocalClientNum_t)v9) && CG_Utils_ShouldHighlightCharacters((const LocalClientNum_t)v9) )
+      if ( CG_Utils_ShouldHighlightInScope((const LocalClientNum_t)v4) && !CG_Utils_StencilScriptControlled((const LocalClientNum_t)v4) && CG_Utils_ShouldHighlightCharacters((const LocalClientNum_t)v4) )
       {
-        CG_GetClientActorIndexAndTeam(_RBX->nextState.number, (int *)&actorIndex, team);
+        CG_GetClientActorIndexAndTeam(cent->nextState.number, (int *)&actorIndex, team);
         if ( ((team[0] - 1) & 0xFFFFFFFD) == 0 )
         {
-          __asm { vmovss  dword ptr [rbp+70h+var_E0+4], xmm6 }
-          v41 = CG_Utils_PlayerLockedOn((const LocalClientNum_t)v9, _RBX);
-          useAlternateColor = v74.useAlternateColor;
-          if ( v41 )
+          v44.scopeStencil = FLOAT_1_0;
+          v27 = CG_Utils_PlayerLockedOn((const LocalClientNum_t)v4, cent);
+          useAlternateColor = v44.useAlternateColor;
+          if ( v27 )
             useAlternateColor = 1;
-          v74.useAlternateColor = useAlternateColor;
+          v44.useAlternateColor = useAlternateColor;
         }
       }
-      if ( LocalClientGlobals->scopeForceEnemyOutlines && _RBX->nextState.eType == ET_ACTOR )
+      if ( LocalClientGlobals->scopeForceEnemyOutlines && cent->nextState.eType == ET_ACTOR )
       {
-        CG_GetClientActorIndexAndTeam(_RBX->nextState.number, (int *)&actorIndex, team);
+        CG_GetClientActorIndexAndTeam(cent->nextState.number, (int *)&actorIndex, team);
         if ( ((team[0] - 1) & 0xFFFFFFFD) == 0 )
         {
-          v74.color = CG_Utils_GetHudOutlineColor(LocalClientGlobals->scopeForceEnemyOutlineColorIndex);
-          v74.drawOccludedPixels = LocalClientGlobals->scopeForceEnemyOutlinesDisableDepthTest;
-          v74.drawNonOccludedPixels = 1;
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_r_hudOutlineWidth, "r_hudOutlineWidth");
-          __asm { vcvttss2si eax, xmm0 }
-          v74.lineWidth = _EAX;
-          v74.renderMode = 0;
+          v44.color = CG_Utils_GetHudOutlineColor(LocalClientGlobals->scopeForceEnemyOutlineColorIndex);
+          v44.drawOccludedPixels = LocalClientGlobals->scopeForceEnemyOutlinesDisableDepthTest;
+          v44.drawNonOccludedPixels = 1;
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_r_hudOutlineWidth, "r_hudOutlineWidth");
+          v44.lineWidth = (int)*(float *)&Float_Internal_DebugName;
+          v44.renderMode = 0;
         }
       }
-      characterEVOffset = *(float *)&iCurrentTime;
+      v26 = *(float *)&iCurrentTime;
     }
     else
     {
-      v37 &= ~0x400u;
+      v24 &= ~0x400u;
     }
     if ( isFadeActive[2] && !isFadeActive[1] )
     {
-      v44 = _RBX->nextState.number;
-      __asm
-      {
-        vmovups ymm0, [rbp+70h+var_E0]
-        vmovups [rbp+70h+var_E0], ymm0
-      }
-      v74.characterEVOffset = characterEVOffset;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_11.scrollRateX
-        vmovups ymmword ptr [rbp+70h+result.color], ymm0
-      }
-      result.m_localClientNum = LODWORD(NULL_SHADER_OVERRIDE_11.atlasTime);
-      __asm { vmovss  dword ptr [rsp+170h+var_130], xmm7 }
-      CG_Entity_AddDObjToScene((const LocalClientNum_t)v9, ClientDObj, &_RBX->pose, v44, v37, (shaderOverride_t *)&result, &v74, v73, v67, 0);
+      v30 = cent->nextState.number;
+      v44.characterEVOffset = v26;
+      memset(&result, 0, 36);
+      CG_Entity_AddDObjToScene((const LocalClientNum_t)v4, ClientDObj, &cent->pose, v30, v24, (shaderOverride_t *)&result, &v44, v43, 0.0, 0);
     }
-    v47 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RBX->nextState.lerp.eFlags, ACTIVE, 9u);
+    v31 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->nextState.lerp.eFlags, ACTIVE, 9u);
     if ( GameModeFlagValues::ms_spValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 127, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a SP-only context", "IsFlagActive( index )") )
       __debugbreak();
-    v48 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RBX->nextState.lerp.eFlags, ACTIVE, 0x13u);
-    if ( (v47 || v48 || CG_LaserForceOnEnabled()) && _RBX->nextState.eType != ET_ACTOR_CORPSE )
+    v32 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->nextState.lerp.eFlags, ACTIVE, 0x13u);
+    if ( (v31 || v32 || CG_LaserForceOnEnabled()) && cent->nextState.eType != ET_ACTOR_CORPSE )
     {
-      CG_GetClientActorIndexAndTeam(_RBX->nextState.number, (int *)&actorIndex, team);
-      CG_LaserAdd((const LocalClientNum_t)v9, _RBX->nextState.number, (const team_t)team[0]);
+      CG_GetClientActorIndexAndTeam(cent->nextState.number, (int *)&actorIndex, team);
+      CG_LaserAdd((const LocalClientNum_t)v4, cent->nextState.number, (const team_t)team[0]);
     }
-    if ( _RBX->nextState.eType == ET_ACTOR )
+    if ( cent->nextState.eType == ET_ACTOR )
     {
       if ( (_BYTE)CgCompassSystem::ms_allocatedType != HALF )
       {
-        LODWORD(v66) = (unsigned __int8)CgCompassSystem::ms_allocatedType;
-        LODWORD(v65) = 1;
-        LODWORD(height) = v9;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", height, v65, v66) )
+        LODWORD(v37) = (unsigned __int8)CgCompassSystem::ms_allocatedType;
+        LODWORD(v36) = 1;
+        LODWORD(height) = v4;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", height, v36, v37) )
           __debugbreak();
       }
-      if ( (unsigned int)v9 >= CgCompassSystem::ms_allocatedCount )
+      if ( (unsigned int)v4 >= CgCompassSystem::ms_allocatedCount )
       {
         LODWORD(height) = CgCompassSystem::ms_allocatedCount;
-        LODWORD(roll) = v9;
+        LODWORD(roll) = v4;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", roll, height) )
           __debugbreak();
       }
-      if ( !CgCompassSystem::ms_compassSystemArray[v9] )
+      if ( !CgCompassSystem::ms_compassSystemArray[v4] )
       {
-        LODWORD(height) = v9;
+        LODWORD(height) = v4;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", height) )
           __debugbreak();
       }
-      CgCompassSystemSP::UpdateActorInfo((CgCompassSystemSP *)CgCompassSystem::ms_compassSystemArray[v9], _RBX->nextState.number);
-      LUIOnEntityElementSpawnerSP::UpdateFiltersForActor((const LocalClientNum_t)v9, _RBX->nextState.number);
+      CgCompassSystemSP::UpdateActorInfo((CgCompassSystemSP *)CgCompassSystem::ms_compassSystemArray[v4], cent->nextState.number);
+      LUIOnEntityElementSpawnerSP::UpdateFiltersForActor((const LocalClientNum_t)v4, cent->nextState.number);
     }
     if ( isFadeActive[2] )
     {
-      CgTrajectory::CgTrajectory(&result, (const LocalClientNum_t)v9, _RBX, &_RBX->prevState);
+      CgTrajectory::CgTrajectory(&result, (const LocalClientNum_t)v4, cent, &cent->prevState);
       BgTrajectory::EvaluatePosTrajectory(&result, LocalClientGlobals->snap->serverTime, &outPos);
-      result.m_es = &_RBX->nextState.lerp;
-      BgTrajectory::EvaluatePosTrajectory(&result, LocalClientGlobals->nextSnap->serverTime, &v78);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+70h+var_68]
-        vsubss  xmm5, xmm0, dword ptr [rbp+70h+outPos]
-        vmovss  [rbp+70h+actorIndex], xmm5
-        vmovss  xmm1, dword ptr [rbp+70h+var_68+4]
-        vsubss  xmm4, xmm1, dword ptr [rbp+70h+outPos+4]
-        vmovss  [rbp+70h+actorIndex+4], xmm4
-        vmovss  xmm0, dword ptr [rbp+70h+var_68+8]
-        vsubss  xmm3, xmm0, dword ptr [rbp+70h+outPos+8]
-        vmovss  [rbp+70h+var_70], xmm3
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, edx
-        vmulss  xmm0, xmm2, xmm5
-        vmovss  [rbp+70h+actorIndex], xmm0
-        vmulss  xmm1, xmm2, xmm4
-        vmovss  [rbp+70h+actorIndex+4], xmm1
-        vmulss  xmm0, xmm2, xmm3
-        vmovss  [rbp+70h+var_70], xmm0
-      }
-      R_ReactiveMotion_AddEffector_MT(&outOrigin, &actorIndex, _RBX->nextState.number);
+      result.m_es = &cent->nextState.lerp;
+      BgTrajectory::EvaluatePosTrajectory(&result, LocalClientGlobals->nextSnap->serverTime, &v48);
+      actorIndex.v[0] = v48.v[0] - outPos.v[0];
+      actorIndex.v[1] = v48.v[1] - outPos.v[1];
+      actorIndex.v[2] = v48.v[2] - outPos.v[2];
+      v33 = (float)(LocalClientGlobals->nextSnap->serverTime - LocalClientGlobals->snap->serverTime);
+      actorIndex.v[0] = v33 * (float)(v48.v[0] - outPos.v[0]);
+      actorIndex.v[1] = v33 * (float)(v48.v[1] - outPos.v[1]);
+      actorIndex.v[2] = v33 * (float)(v48.v[2] - outPos.v[2]);
+      R_ReactiveMotion_AddEffector_MT(&outOrigin, &actorIndex, cent->nextState.number);
     }
-    if ( _RBX->nextState.eType == ET_ACTOR )
+    if ( cent->nextState.eType == ET_ACTOR )
     {
-      CG_PlayContinuousFireSounds((const LocalClientNum_t)v9, NULL, _RBX);
-      XAnimBonePhysicsSetDObjMatrix(ClientDObj, &outOrigin, &_RBX->pose.angles);
+      CG_PlayContinuousFireSounds((const LocalClientNum_t)v4, NULL, cent);
+      XAnimBonePhysicsSetDObjMatrix(ClientDObj, &outOrigin, &cent->pose.angles);
     }
   }
   memset(&outOrigin, 0, sizeof(outOrigin));
-  memset(v73, 0, 0xCui64);
-  _R11 = &v80;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  memset(v43, 0, 0xCui64);
 }
 
 /*
@@ -485,26 +409,18 @@ void __fastcall CG_ActorsSP_ProcessActor(centity_t *cent, bool isVisible, double
 CG_ActorsSP_ProcessSpawner
 ==============
 */
-
-void __fastcall CG_ActorsSP_ProcessSpawner(centity_t *cent, __int64 a2, double _XMM2_8)
+void CG_ActorsSP_ProcessSpawner(centity_t *cent)
 {
   vec3_t outOrigin; 
-  __int64 v8; 
+  __int64 v2; 
   Bounds bounds; 
 
-  v8 = -2i64;
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@41800000421000000000000000000000
-    vmovups xmmword ptr [rsp+78h+bounds.midPoint], xmm0
-    vmovss  xmm1, cs:__real@41800000
-    vmovss  dword ptr [rsp+78h+bounds.halfSize+4], xmm1
-    vmovss  xmm0, cs:__real@42100000
-    vmovss  dword ptr [rsp+78h+bounds.halfSize+8], xmm0
-  }
+  v2 = -2i64;
+  *(_OWORD *)bounds.midPoint.v = _xmm;
+  bounds.halfSize.v[1] = FLOAT_16_0;
+  bounds.halfSize.v[2] = FLOAT_36_0;
   CG_GetPoseOrigin(&cent->pose, &outOrigin);
-  __asm { vxorps  xmm2, xmm2, xmm2; yaw }
-  CG_DebugBox(&outOrigin, &bounds, *(float *)&_XMM2, &colorRed, 1, 0);
+  CG_DebugBox(&outOrigin, &bounds, 0.0, &colorRed, 1, 0);
   memset(&outOrigin, 0, sizeof(outOrigin));
 }
 
@@ -556,106 +472,38 @@ void CG_ActorsSP_UpdateAnimationLod(LocalClientNum_t localClientNum, const centi
 CG_LerpClientActorProneInfo
 ==============
 */
-
-void __fastcall CG_LerpClientActorProneInfo(actor_prone_info_t *proneInfo, actor_prone_info_lerp_t *prevProneInfo, double frameInterpolation, double weight, float *pitch, float *roll, float *height)
+void CG_LerpClientActorProneInfo(actor_prone_info_t *proneInfo, actor_prone_info_lerp_t *prevProneInfo, float frameInterpolation, float weight, float *pitch, float *roll, float *height)
 {
-  bool v19; 
-  bool v20; 
-  double v45; 
-  double v46; 
-  double v47; 
-  char v51; 
+  float v11; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-    vmovaps [rsp+88h+var_48], xmm8
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-  }
   if ( !proneInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_actors_sp.cpp", 77, ASSERT_TYPE_ASSERT, "(proneInfo)", (const char *)&queryFormat, "proneInfo") )
     __debugbreak();
   if ( !prevProneInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_actors_sp.cpp", 78, ASSERT_TYPE_ASSERT, "(prevProneInfo)", (const char *)&queryFormat, "prevProneInfo") )
     __debugbreak();
-  _R14 = pitch;
   if ( !pitch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_actors_sp.cpp", 80, ASSERT_TYPE_ASSERT, "(pitch)", (const char *)&queryFormat, "pitch") )
     __debugbreak();
-  _RBP = roll;
   if ( !roll && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_actors_sp.cpp", 81, ASSERT_TYPE_ASSERT, "(roll)", (const char *)&queryFormat, "roll") )
     __debugbreak();
-  _RDI = height;
-  v19 = height == NULL;
-  if ( !height )
+  if ( !height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_actors_sp.cpp", 82, ASSERT_TYPE_ASSERT, "(height)", (const char *)&queryFormat, "height") )
+    __debugbreak();
+  if ( frameInterpolation < 0.0 || frameInterpolation > 1.0 )
   {
-    v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_actors_sp.cpp", 82, ASSERT_TYPE_ASSERT, "(height)", (const char *)&queryFormat, "height");
-    v19 = !v20;
-    if ( v20 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vcomiss xmm6, xmm8
-  }
-  if ( !v19 )
-  {
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+88h+var_50], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+88h+var_58], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+88h+var_60], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_actors_sp.cpp", 84, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( frameInterpolation ) && ( frameInterpolation ) <= ( 1.0f )", "frameInterpolation not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v45, v46, v47) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_actors_sp.cpp", 84, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( frameInterpolation ) && ( frameInterpolation ) <= ( 1.0f )", "frameInterpolation not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", frameInterpolation, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
   if ( prevProneInfo->iProneTime == proneInfo->iProneTime )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rbx+10h]
-      vsubss  xmm3, xmm8, xmm6
-      vmulss  xmm1, xmm3, dword ptr [rsi+8]
-      vaddss  xmm1, xmm1, xmm0
-      vmulss  xmm2, xmm1, xmm7
-      vmovss  dword ptr [r14], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rsi+0Ch]
-      vmulss  xmm0, xmm6, dword ptr [rbx+14h]
-      vaddss  xmm1, xmm1, xmm0
-      vmulss  xmm2, xmm1, xmm7
-      vmovss  dword ptr [rbp+0], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rsi+4]
-      vmulss  xmm0, xmm6, dword ptr [rbx+0Ch]
-      vaddss  xmm1, xmm1, xmm0
-      vmulss  xmm2, xmm1, xmm7
-    }
+    *pitch = (float)((float)((float)(1.0 - frameInterpolation) * prevProneInfo->fBodyPitch) + (float)(frameInterpolation * proneInfo->fTorsoPitch)) * weight;
+    *roll = (float)((float)((float)(1.0 - frameInterpolation) * prevProneInfo->fBodyRoll) + (float)(frameInterpolation * proneInfo->fWaistPitch)) * weight;
+    v11 = (float)((float)((float)(1.0 - frameInterpolation) * prevProneInfo->fBodyHeight) + (float)(frameInterpolation * proneInfo->fBodyHeight)) * weight;
   }
   else
   {
-    __asm
-    {
-      vmulss  xmm0, xmm7, dword ptr [rbx+10h]
-      vmovss  dword ptr [r14], xmm0
-      vmulss  xmm1, xmm7, dword ptr [rbx+14h]
-      vmovss  dword ptr [rbp+0], xmm1
-      vmulss  xmm2, xmm7, dword ptr [rbx+0Ch]
-    }
+    *pitch = weight * proneInfo->fTorsoPitch;
+    *roll = weight * proneInfo->fWaistPitch;
+    v11 = weight * proneInfo->fBodyHeight;
   }
-  __asm
-  {
-    vmovss  dword ptr [rdi], xmm2
-    vmovaps xmm6, [rsp+88h+var_28]
-  }
-  _R11 = &v51;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
+  *height = v11;
 }
 

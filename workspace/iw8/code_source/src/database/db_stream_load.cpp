@@ -190,7 +190,7 @@ DB_ProcessPreloadedXFile
 */
 void DB_ProcessPreloadedXFile(XZoneMemory *zoneMem, XAssetList *assetList, const char *zoneName)
 {
-  unsigned __int64 v7; 
+  unsigned __int64 v6; 
 
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream_load.cpp", 435, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
@@ -212,7 +212,7 @@ void DB_ProcessPreloadedXFile(XZoneMemory *zoneMem, XAssetList *assetList, const
   DB_PatchMem_BeginPostload();
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream_load.cpp", 385, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
-  v7 = __rdtsc();
+  v6 = __rdtsc();
   if ( s_dbReadType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream_load.cpp", 396, ASSERT_TYPE_ASSERT, "(s_dbReadType == DB_READ_IDLE)", (const char *)&queryFormat, "s_dbReadType == DB_READ_IDLE") )
     __debugbreak();
   s_dbReadType = DB_READ_POSTLOAD;
@@ -236,19 +236,11 @@ void DB_ProcessPreloadedXFile(XZoneMemory *zoneMem, XAssetList *assetList, const
   }
   DB_PopStreamPos();
   s_dbReadType = DB_READ_IDLE;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
-  if ( (__int64)(__rdtsc() - v7) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm3, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovq   r9, xmm3
-  }
-  Com_Printf(16, "ARCHIVE POSTLOAD for %s took %.2fms\n", zoneName, *(double *)&_XMM3);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v6) < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(16, "ARCHIVE POSTLOAD for %s took %.2fms\n", zoneName, (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
   DB_PreloadPackedWalk_Finish();
   DB_PatchMem_EndLoad();
   DB_CloseStreams();
@@ -284,23 +276,22 @@ Load_ArchiveData
 */
 __int64 Load_ArchiveData(XZoneMemory *zoneMem, XAssetList *outAssetList, const char *zoneName, bool wasPaused)
 {
-  unsigned __int64 v9; 
-  unsigned int v10; 
+  unsigned __int64 v7; 
+  unsigned int v8; 
   XAsset *assets; 
   unsigned int assetCount; 
   unsigned int assetReadPos; 
   const char *XAssetTypeName; 
+  long double v15; 
   int LogChannel; 
-  __int64 result; 
 
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream_load.cpp", 197, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
-  v9 = __rdtsc();
+  v7 = __rdtsc();
   if ( s_dbReadType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream_load.cpp", 48, ASSERT_TYPE_ASSERT, "(s_dbReadType == DB_READ_IDLE)", (const char *)&queryFormat, "s_dbReadType == DB_READ_IDLE") )
     __debugbreak();
   varXAssetList = outAssetList;
-  v10 = 1;
+  v8 = 1;
   s_dbReadType = DB_READ_LOAD;
   if ( !outAssetList )
   {
@@ -350,7 +341,7 @@ LABEL_29:
     if ( outAssetList->assetReadPos != outAssetList->assetCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream_load.cpp", 187, ASSERT_TYPE_ASSERT, "(varXAssetList->assetReadPos == varXAssetList->assetCount)", (const char *)&queryFormat, "varXAssetList->assetReadPos == varXAssetList->assetCount") )
       __debugbreak();
 LABEL_32:
-    v10 = 0;
+    v8 = 0;
     goto LABEL_33;
   }
   while ( !DB_IsCurrentFastfileLoadCancelled() )
@@ -368,29 +359,19 @@ LABEL_32:
     if ( assetReadPos >= varXAssetList->assetCount )
       goto LABEL_29;
   }
-  v10 = 2;
+  v8 = 2;
 LABEL_33:
   DB_PopStreamPos();
 LABEL_34:
   s_dbReadType = DB_READ_IDLE;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
-  if ( (__int64)(__rdtsc() - v9) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm { vmulsd  xmm6, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v7) < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  v15 = *(double *)&_XMM0 * msecPerRawTimerTick;
   LogChannel = DB_GetLogChannel();
-  __asm
-  {
-    vmovaps xmm3, xmm6
-    vmovq   r9, xmm3
-  }
-  Com_Printf(LogChannel, "ARCHIVE LOAD for %s took %.2fms\n", zoneName, *(double *)&_XMM3);
-  result = v10;
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
-  return result;
+  Com_Printf(LogChannel, "ARCHIVE LOAD for %s took %.2fms\n", zoneName, (double)v15);
+  return v8;
 }
 
 /*
@@ -508,11 +489,11 @@ Postload_ArchiveData
 */
 __int64 Postload_ArchiveData(XZoneMemory *zoneMem, XAssetList *outAssetList, const char *zoneName)
 {
-  unsigned __int64 v6; 
+  unsigned __int64 v5; 
 
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream_load.cpp", 385, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
-  v6 = __rdtsc();
+  v5 = __rdtsc();
   if ( s_dbReadType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream_load.cpp", 396, ASSERT_TYPE_ASSERT, "(s_dbReadType == DB_READ_IDLE)", (const char *)&queryFormat, "s_dbReadType == DB_READ_IDLE") )
     __debugbreak();
   s_dbReadType = DB_READ_POSTLOAD;
@@ -536,19 +517,11 @@ __int64 Postload_ArchiveData(XZoneMemory *zoneMem, XAssetList *outAssetList, con
   }
   DB_PopStreamPos();
   s_dbReadType = DB_READ_IDLE;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
-  if ( (__int64)(__rdtsc() - v6) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm3, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovq   r9, xmm3
-  }
-  Com_Printf(16, "ARCHIVE POSTLOAD for %s took %.2fms\n", zoneName, *(double *)&_XMM3);
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v5) < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(16, "ARCHIVE POSTLOAD for %s took %.2fms\n", zoneName, (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
   return 0i64;
 }
 
@@ -559,12 +532,12 @@ Preload_ArchiveData
 */
 __int64 Preload_ArchiveData(XZoneMemory *zoneMem, XAssetList *outAssetList, const char *zoneName, bool wasPaused)
 {
-  unsigned __int64 v8; 
-  DB_LoadXFileReturn v9; 
+  unsigned __int64 v7; 
+  DB_LoadXFileReturn v8; 
 
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream_load.cpp", 323, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
-  v8 = __rdtsc();
+  v7 = __rdtsc();
   if ( s_dbReadType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream_load.cpp", 48, ASSERT_TYPE_ASSERT, "(s_dbReadType == DB_READ_IDLE)", (const char *)&queryFormat, "s_dbReadType == DB_READ_IDLE") )
     __debugbreak();
   s_dbReadType = DB_READ_PRELOAD;
@@ -591,30 +564,22 @@ __int64 Preload_ArchiveData(XZoneMemory *zoneMem, XAssetList *outAssetList, cons
   }
   if ( varXAssetList->assets )
   {
-    v9 = Preload_XAssetArrayCustom(wasPaused);
-    if ( v9 == FETCHING_FIRST_PARTY_TOKEN )
+    v8 = Preload_XAssetArrayCustom(wasPaused);
+    if ( v8 == FETCHING_FIRST_PARTY_TOKEN )
       goto LABEL_24;
   }
   else
   {
-    v9 = READY;
+    v8 = READY;
   }
   DB_PopStreamPos();
 LABEL_24:
   s_dbReadType = DB_READ_IDLE;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
-  if ( (__int64)(__rdtsc() - v8) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm3, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovq   r9, xmm3
-  }
-  Com_Printf(16, "ARCHIVE PRELOAD for %s took %.2fms\n", zoneName, *(double *)&_XMM3);
-  return (unsigned int)v9;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v7) < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(16, "ARCHIVE PRELOAD for %s took %.2fms\n", zoneName, (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
+  return (unsigned int)v8;
 }
 

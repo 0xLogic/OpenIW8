@@ -664,23 +664,23 @@ void Profile_InitContext(int profileContext)
   unsigned __int64 v9; 
   ThreadContext CurrentThreadContext; 
   unsigned __int64 v11; 
-  __int64 v15; 
+  __int64 v14; 
   profile_t *prof_array; 
+  __int64 v16; 
   __int64 v17; 
-  __int64 v18; 
-  ProfileStack *v19; 
+  ProfileStack *v18; 
 
-  v19 = &g_prof_stack[profileContext];
-  Sys_SetValue(0, v19);
+  v18 = &g_prof_stack[profileContext];
+  Sys_SetValue(0, v18);
   v1 = 0;
-  v19->prof_pStack[0] = &v19->prof_root;
-  v19->prof_ppStack = v19->prof_pStack;
-  *(_QWORD *)v19->prof_overhead_internal.value = 0i64;
-  *(_QWORD *)&v19->prof_guardpos = 0i64;
+  v18->prof_pStack[0] = &v18->prof_root;
+  v18->prof_ppStack = v18->prof_pStack;
+  *(_QWORD *)v18->prof_overhead_internal.value = 0i64;
+  *(_QWORD *)&v18->prof_guardpos = 0i64;
   Profile_Begin(0);
   Profile_EndInternal(NULL);
-  v19->prof_array[0].write.total.value[0] = 0;
-  *(_QWORD *)v19->prof_root.write.total.value = 0i64;
+  v18->prof_array[0].write.total.value[0] = 0;
+  *(_QWORD *)v18->prof_root.write.total.value = 0i64;
   v2 = 1000i64;
   do
   {
@@ -689,16 +689,16 @@ void Profile_InitContext(int profileContext)
     v5 = (int *)(Value + 2096);
     if ( (unsigned int)(*((_DWORD *)Value + 524) + 1) >= 3 )
     {
-      LODWORD(v18) = 3;
-      LODWORD(v17) = *((_DWORD *)Value + 524) + 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v17, v18) )
+      LODWORD(v17) = 3;
+      LODWORD(v16) = *((_DWORD *)Value + 524) + 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v16, v17) )
         __debugbreak();
     }
     if ( (unsigned int)++*v5 >= 3 )
     {
-      LODWORD(v18) = 3;
-      LODWORD(v17) = *v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v17, v18) )
+      LODWORD(v17) = 3;
+      LODWORD(v16) = *v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v16, v17) )
         __debugbreak();
     }
     v6 = Value + 2088;
@@ -725,24 +725,20 @@ void Profile_InitContext(int profileContext)
     --v2;
   }
   while ( v2 );
-  _R14 = v19;
-  __asm
-  {
-    vmovsd  xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcvtpd2ps xmm0, xmm0
-  }
-  v15 = 826i64;
-  v19->prof_overhead_internal.value[0] = v19->prof_array[0].write.total.value[0] / 0x3E8;
-  __asm { vmovss  dword ptr [r14+8B4Ch], xmm0 }
-  prof_array = v19->prof_array;
-  v19->prof_overhead_external.value[0] = v1 / 0x3E8;
+  _XMM0 = *(unsigned __int64 *)&msecPerRawTimerTick;
+  __asm { vcvtpd2ps xmm0, xmm0 }
+  v14 = 826i64;
+  v18->prof_overhead_internal.value[0] = v18->prof_array[0].write.total.value[0] / 0x3E8;
+  v18->prof_timescale = *(float *)&_XMM0;
+  prof_array = v18->prof_array;
+  v18->prof_overhead_external.value[0] = v1 / 0x3E8;
   do
   {
     prof_array->write.nesting = -1;
     ++prof_array;
-    --v15;
+    --v14;
   }
-  while ( v15 );
+  while ( v14 );
 }
 
 /*
@@ -1008,40 +1004,36 @@ Profile_ResetScriptCounters
 void Profile_ResetScriptCounters(scrContext_t *scrContext)
 {
   ProfileScript *Profile; 
+  __int64 v2; 
   __int64 v3; 
-  __int64 v4; 
-  volatile unsigned int *totalTime; 
+  float *totalTime; 
   int *p_totalCount; 
-  __int64 v8; 
+  volatile unsigned int *totalCount; 
+  __int64 v7; 
+  float v8; 
 
   Profile = ScriptContext_GetProfile(scrContext);
-  v3 = 0i64;
-  v4 = 128i64;
-  totalTime = Profile->totalTime;
+  v2 = 0i64;
+  v3 = 128i64;
+  totalTime = (float *)Profile->totalTime;
   p_totalCount = &Profile->write[0].totalCount;
-  _R9 = Profile->totalCount;
+  totalCount = Profile->totalCount;
   do
   {
-    *((_DWORD *)_R9 - 128) = p_totalCount[2];
-    *_R9 = *p_totalCount + *((_DWORD *)totalTime + 128);
-    if ( *((_DWORD *)totalTime + 256) < *totalTime )
-      *((_DWORD *)_R9 + 128) = *totalTime;
+    *((_DWORD *)totalCount - 128) = p_totalCount[2];
+    *totalCount = *p_totalCount + *((_DWORD *)totalTime + 128);
+    if ( *((_DWORD *)totalTime + 256) < *(_DWORD *)totalTime )
+      *((float *)totalCount + 128) = *totalTime;
     p_totalCount += 4;
-    v8 = v3 + (unsigned int)Profile->historyIndex;
-    v3 += 64i64;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    Profile->history[0][v8] = *totalTime;
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, rax
-      vaddss  xmm0, xmm0, dword ptr [r8+600h]
-      vmovss  dword ptr [r9+400h], xmm0
-    }
-    ++_R9;
+    v7 = v2 + (unsigned int)Profile->historyIndex;
+    v2 += 64i64;
+    Profile->history[0][v7] = *(volatile unsigned int *)totalTime;
+    v8 = (float)*(unsigned int *)totalTime;
+    *((float *)totalCount++ + 256) = v8 + totalTime[384];
     ++totalTime;
-    --v4;
+    --v3;
   }
-  while ( v4 );
+  while ( v3 );
   Profile->historyIndex = ((unsigned __int8)Profile->historyIndex + 1) & 0x3F;
   memset_0(Profile, 0, 0x800ui64);
 }
@@ -1061,319 +1053,218 @@ void Profile_SetTotal(int index, int total)
 Profile_TrackUsageAnalysis
 ==============
 */
-
-void __fastcall Profile_TrackUsageAnalysis(scrContext_t *scrContext, double framtTime, bool forceTrack)
+void Profile_TrackUsageAnalysis(scrContext_t *scrContext, float framtTime, bool forceTrack)
 {
   ProfileScript *Profile; 
-  const dvar_t *v25; 
-  bool v33; 
-  unsigned int scrProfileScriptThreadCreateCount; 
-  bool v37; 
+  float *Value; 
+  __int64 srcTotal; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float *v11; 
+  __int64 scrProfileScriptThreadCreateTime; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float *v16; 
+  __int64 scrProfileCalcTimeTotal; 
+  float v18; 
+  float v19; 
+  const dvar_t *v20; 
+  float v21; 
+  float v22; 
+  const ServerTiming *Current; 
+  float serverTimeTarget; 
+  SvGameGlobals *v25; 
+  bool v26; 
+  float v27; 
+  bool v28; 
+  float *v29; 
+  __int64 v30; 
+  float v31; 
+  float v32; 
   unsigned int scrProfileScriptUsageOpCount; 
   unsigned int scrProfileScriptThreadResumeCount; 
-  const dvar_t *v43; 
-  const dvar_t *v47; 
-  unsigned int serverTimeCount; 
-  char v78; 
-  char v80; 
+  const dvar_t *v35; 
+  float serverScriptTimeMax; 
+  float serverTimeMax; 
+  const dvar_t *v38; 
+  __int64 serverTimeCount; 
+  float serverScriptProfileCalcTimeTotal; 
+  float v41; 
+  float v42; 
+  int serverTimeExceedCount; 
+  double v44; 
+  float serverScriptTimeExceedTotal; 
+  double v46; 
+  float v47; 
+  double v48; 
+  float serverScriptTimeTotal; 
+  double v50; 
+  float v51; 
+  float v52; 
+  const dvar_t *v53; 
+  const dvar_t *v54; 
   ScriptInstanceType m_Instance; 
-  char *fmt; 
-  __int64 v89; 
-  double v90; 
-  double v91; 
-  double v92; 
-  double v93; 
-  double v94; 
-  double v95; 
-  double v96; 
+  __int64 v56; 
 
-  __asm
-  {
-    vmovaps [rsp+118h+var_58], xmm8
-    vmovaps xmm8, xmm1
-  }
   Profile = ScriptContext_GetProfile(scrContext);
   if ( script_usage_tracking && script_usage_tracking->current.integer )
   {
-    __asm
+    Value = (float *)Sys_GetValue(0);
+    srcTotal = Profile->srcTotal;
+    v8 = (float)srcTotal;
+    if ( srcTotal < 0 )
     {
-      vmovaps [rsp+118h+var_38], xmm6
-      vmovaps [rsp+118h+var_48], xmm7
-      vmovaps [rsp+118h+var_68], xmm9
-      vmovaps [rsp+118h+var_78], xmm10
-      vmovaps [rsp+118h+var_98], xmm12
+      v9 = (float)srcTotal;
+      v8 = v9 + 1.8446744e19;
     }
-    Sys_GetValue(0);
-    __asm
+    v10 = v8 * Value[8915];
+    v11 = (float *)Sys_GetValue(0);
+    scrProfileScriptThreadCreateTime = Profile->scrProfileScriptThreadCreateTime;
+    v13 = (float)scrProfileScriptThreadCreateTime;
+    if ( scrProfileScriptThreadCreateTime < 0 )
     {
-      vmovss  xmm6, cs:__real@5f800000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rcx
+      v14 = (float)scrProfileScriptThreadCreateTime;
+      v13 = v14 + 1.8446744e19;
     }
-    if ( (Profile->srcTotal & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, xmm6 }
-    __asm { vmulss  xmm7, xmm0, dword ptr [rax+8B4Ch] }
-    Sys_GetValue(0);
-    __asm
+    v15 = v13 * v11[8915];
+    v16 = (float *)Sys_GetValue(0);
+    scrProfileCalcTimeTotal = Profile->scrProfileCalcTimeTotal;
+    v18 = (float)scrProfileCalcTimeTotal;
+    if ( scrProfileCalcTimeTotal < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rcx
+      v19 = (float)scrProfileCalcTimeTotal;
+      v18 = v19 + 1.8446744e19;
     }
-    if ( (Profile->scrProfileScriptThreadCreateTime & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, xmm6 }
-    __asm { vmulss  xmm9, xmm0, dword ptr [rax+8B4Ch] }
-    Sys_GetValue(0);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rcx
-    }
-    if ( (Profile->scrProfileCalcTimeTotal & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, xmm6 }
-    v25 = DVARBOOL_sv_debugTrackServerTime;
-    __asm { vmulss  xmm12, xmm0, dword ptr [rax+8B4Ch] }
+    v20 = DVARBOOL_sv_debugTrackServerTime;
+    v22 = v18 * v16[8915];
+    v21 = v22;
     if ( !DVARBOOL_sv_debugTrackServerTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_debugTrackServerTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v25);
-    if ( v25->current.enabled )
-    {
-      __asm { vcomiss xmm7, xmm8 }
-      if ( v25->current.enabled )
-      {
-        __asm
-        {
-          vcvtss2sd xmm3, xmm8, xmm8
-          vcvtss2sd xmm2, xmm7, xmm7
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-        }
-        Com_Printf(23, "Profile_TrackUsageAnalysis: Current script time of %0.3f exceeds current frame time of %0.3f. \n", *(double *)&_XMM2, *(double *)&_XMM3);
-      }
-    }
-    _RBP = SV_Timing_GetCurrent();
-    __asm { vmovss  xmm10, dword ptr [rax] }
+    Dvar_CheckFrontendServerThread(v20);
+    if ( v20->current.enabled && v10 > framtTime )
+      Com_Printf(23, "Profile_TrackUsageAnalysis: Current script time of %0.3f exceeds current frame time of %0.3f. \n", v10, framtTime);
+    Current = SV_Timing_GetCurrent();
+    serverTimeTarget = Current->serverTimeTarget;
     if ( !(_BYTE)SvGameGlobals::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game_globals.h", 98, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tAttempting to access server global data outside of an active server context", "ms_allocatedType != GameModeType::NONE") )
       __debugbreak();
     if ( !SvGameGlobals::ms_svGameGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game_globals.h", 99, ASSERT_TYPE_ASSERT, "( ms_svGameGlobals )", (const char *)&queryFormat, "ms_svGameGlobals") )
       __debugbreak();
-    _RBX = SvGameGlobals::ms_svGameGlobals;
-    v33 = 0;
-    __asm
+    v25 = SvGameGlobals::ms_svGameGlobals;
+    v26 = 0;
+    SvGameGlobals::ms_svGameGlobals->timeStats.serverScriptTimeTotal = v10 + SvGameGlobals::ms_svGameGlobals->timeStats.serverScriptTimeTotal;
+    v25->timeStats.serverScriptUsageOpTotal += Profile->scrProfileScriptUsageOpCount;
+    v27 = v15 + v25->timeStats.serverScriptUsageThreadCreateTimeTotal;
+    v25->timeStats.serverScriptUsageThreadResumeTotal += Profile->scrProfileScriptThreadResumeCount;
+    v25->timeStats.serverScriptUsageThreadCreateTimeTotal = v27;
+    v25->timeStats.serverScriptUsageThreadCreateTimeCount += Profile->scrProfileScriptThreadCreateCount;
+    v28 = v10 <= v25->timeStats.serverScriptTimeMax;
+    v25->timeStats.serverScriptProfileCalcTimeTotal = v22 + v25->timeStats.serverScriptProfileCalcTimeTotal;
+    if ( !v28 )
     {
-      vaddss  xmm0, xmm7, dword ptr [rbx+80h]
-      vmovss  dword ptr [rbx+80h], xmm0
+      v25->timeStats.serverScriptTimeMax = v10;
+      v26 = 1;
     }
-    _RBX->timeStats.serverScriptUsageOpTotal += Profile->scrProfileScriptUsageOpCount;
-    __asm { vaddss  xmm0, xmm9, dword ptr [rbx+0A8h] }
-    _RBX->timeStats.serverScriptUsageThreadResumeTotal += Profile->scrProfileScriptThreadResumeCount;
-    __asm { vmovss  dword ptr [rbx+0A8h], xmm0 }
-    scrProfileScriptThreadCreateCount = Profile->scrProfileScriptThreadCreateCount;
-    v37 = __CFADD__(scrProfileScriptThreadCreateCount, _RBX->timeStats.serverScriptUsageThreadCreateTimeCount) || scrProfileScriptThreadCreateCount + _RBX->timeStats.serverScriptUsageThreadCreateTimeCount == 0;
-    _RBX->timeStats.serverScriptUsageThreadCreateTimeCount += scrProfileScriptThreadCreateCount;
-    __asm
+    if ( v15 > v25->timeStats.serverScriptUsageThreadCreateTimeMax )
+      v25->timeStats.serverScriptUsageThreadCreateTimeMax = v15;
+    if ( v22 > v25->timeStats.serverScriptProfileCalcTimeMax )
     {
-      vcomiss xmm7, dword ptr [rbx+94h]
-      vaddss  xmm0, xmm12, dword ptr [rbx+88h]
-      vmovss  dword ptr [rbx+88h], xmm0
+      v25->timeStats.serverScriptProfileCalcTimeMax = v22;
+      v25->timeStats.serverScriptProfileCalcTimeMaxAtFrame = Current->serverTimeCount;
     }
-    if ( !v37 )
+    if ( framtTime > serverTimeTarget )
     {
-      __asm { vmovss  dword ptr [rbx+94h], xmm7 }
-      v33 = 1;
-    }
-    __asm { vcomiss xmm9, dword ptr [rbx+0B0h] }
-    if ( !v37 )
-      __asm { vmovss  dword ptr [rbx+0B0h], xmm9 }
-    __asm { vcomiss xmm12, dword ptr [rbx+8Ch] }
-    if ( !v37 )
-    {
-      __asm { vmovss  dword ptr [rbx+8Ch], xmm12 }
-      _RBX->timeStats.serverScriptProfileCalcTimeMaxAtFrame = _RBP->serverTimeCount;
-    }
-    __asm { vcomiss xmm8, xmm10 }
-    if ( !v37 )
-    {
-      Sys_GetValue(0);
-      __asm
+      v29 = (float *)Sys_GetValue(0);
+      v30 = Profile->srcTotal;
+      v31 = (float)v30;
+      if ( v30 < 0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rcx
+        v32 = (float)v30;
+        v31 = v32 + 1.8446744e19;
       }
-      if ( (Profile->srcTotal & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
-      {
-        vmulss  xmm0, xmm0, dword ptr [rax+8B4Ch]
-        vaddss  xmm1, xmm0, dword ptr [rbx+84h]
-        vmovss  dword ptr [rbx+84h], xmm1
-      }
+      v25->timeStats.serverScriptTimeExceedTotal = (float)(v31 * v29[8915]) + v25->timeStats.serverScriptTimeExceedTotal;
     }
-    if ( forceTrack )
-      Scr_TrackServerTimeAccumScriptTime(scrContext, v33);
-    else
-      __asm { vcomiss xmm8, xmm10 }
+    if ( forceTrack || framtTime > serverTimeTarget )
+      Scr_TrackServerTimeAccumScriptTime(scrContext, v26);
     scrProfileScriptUsageOpCount = Profile->scrProfileScriptUsageOpCount;
-    if ( scrProfileScriptUsageOpCount > _RBX->timeStats.serverScriptUsageOpCountMax )
-      _RBX->timeStats.serverScriptUsageOpCountMax = scrProfileScriptUsageOpCount;
+    if ( scrProfileScriptUsageOpCount > v25->timeStats.serverScriptUsageOpCountMax )
+      v25->timeStats.serverScriptUsageOpCountMax = scrProfileScriptUsageOpCount;
     scrProfileScriptThreadResumeCount = Profile->scrProfileScriptThreadResumeCount;
-    if ( scrProfileScriptThreadResumeCount > _RBX->timeStats.serverScriptUsageThreadResumeMax )
-      _RBX->timeStats.serverScriptUsageThreadResumeMax = scrProfileScriptThreadResumeCount;
-    v43 = DVARBOOL_sv_debugTrackServerTime;
+    if ( scrProfileScriptThreadResumeCount > v25->timeStats.serverScriptUsageThreadResumeMax )
+      v25->timeStats.serverScriptUsageThreadResumeMax = scrProfileScriptThreadResumeCount;
+    v35 = DVARBOOL_sv_debugTrackServerTime;
     if ( !DVARBOOL_sv_debugTrackServerTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_debugTrackServerTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v43);
-    if ( v43->current.enabled )
+    Dvar_CheckFrontendServerThread(v35);
+    if ( v35->current.enabled )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+94h]
-        vmovss  xmm1, dword ptr [rbp+0Ch]
-        vcomiss xmm0, xmm1
-      }
-      if ( v43->current.enabled )
-      {
-        __asm
-        {
-          vcvtss2sd xmm3, xmm1, xmm1
-          vcvtss2sd xmm2, xmm0, xmm0
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-        }
-        Com_Printf(23, "Profile_TrackUsageAnalysis: Script time max of %0.3f exceeds max server time of %0.3f. \n", *(double *)&_XMM2, *(double *)&_XMM3);
-      }
+      serverScriptTimeMax = v25->timeStats.serverScriptTimeMax;
+      serverTimeMax = Current->serverTimeMax;
+      if ( serverScriptTimeMax > serverTimeMax )
+        Com_Printf(23, "Profile_TrackUsageAnalysis: Script time max of %0.3f exceeds max server time of %0.3f. \n", serverScriptTimeMax, serverTimeMax);
     }
-    v47 = DVARBOOL_sv_debugTrackServerTime;
+    v38 = DVARBOOL_sv_debugTrackServerTime;
     if ( !DVARBOOL_sv_debugTrackServerTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_debugTrackServerTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v47);
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    if ( v47->current.enabled )
+    Dvar_CheckFrontendServerThread(v38);
+    if ( v38->current.enabled )
     {
-      serverTimeCount = _RBP->serverTimeCount;
-      __asm
+      serverTimeCount = Current->serverTimeCount;
+      serverScriptProfileCalcTimeTotal = v25->timeStats.serverScriptProfileCalcTimeTotal;
+      if ( (_DWORD)serverTimeCount )
       {
-        vmovaps [rsp+118h+var_88], xmm11
-        vmovss  xmm11, dword ptr [rbx+8Ch]
-        vmovss  xmm1, dword ptr [rbx+88h]
-        vcvtss2sd xmm11, xmm11, xmm11
-      }
-      if ( serverTimeCount )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vdivss  xmm2, xmm1, xmm0
-        }
+        v41 = (float)serverTimeCount;
+        v42 = serverScriptProfileCalcTimeTotal / v41;
       }
       else
       {
-        __asm { vxorps  xmm2, xmm2, xmm2 }
+        v42 = 0.0;
       }
-      __asm
+      serverTimeExceedCount = Current->serverTimeExceedCount;
+      v44 = serverScriptProfileCalcTimeTotal;
+      serverScriptTimeExceedTotal = v25->timeStats.serverScriptTimeExceedTotal;
+      v46 = v42;
+      if ( serverTimeExceedCount <= 0 )
+        v47 = 0.0;
+      else
+        v47 = serverScriptTimeExceedTotal / (float)serverTimeExceedCount;
+      v48 = serverScriptTimeExceedTotal;
+      serverScriptTimeTotal = v25->timeStats.serverScriptTimeTotal;
+      v50 = v47;
+      if ( (_DWORD)serverTimeCount )
       {
-        vcvtss2sd xmm10, xmm1, xmm1
-        vmovss  xmm1, dword ptr [rbx+84h]
-        vcvtss2sd xmm9, xmm2, xmm2
-      }
-      if ( _RBP->serverTimeExceedCount <= 0 )
-      {
-        __asm { vxorps  xmm2, xmm2, xmm2 }
+        v51 = (float)serverTimeCount;
+        v52 = serverScriptTimeTotal / v51;
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, edx
-          vdivss  xmm2, xmm1, xmm0
-        }
+        v52 = 0.0;
       }
-      __asm
-      {
-        vmovss  xmm8, dword ptr [rbx+94h]
-        vcvtss2sd xmm5, xmm1, xmm1
-        vmovss  xmm1, dword ptr [rbx+80h]
-        vcvtss2sd xmm8, xmm8, xmm8
-        vcvtss2sd xmm4, xmm2, xmm2
-      }
-      if ( serverTimeCount )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vdivss  xmm2, xmm1, xmm0
-        }
-      }
-      else
-      {
-        __asm { vxorps  xmm2, xmm2, xmm2 }
-      }
-      __asm
-      {
-        vmovsd  [rsp+118h+var_B0], xmm11
-        vmovsd  [rsp+118h+var_B8], xmm9
-        vmovsd  [rsp+118h+var_C0], xmm10
-        vmovsd  [rsp+118h+var_C8], xmm4
-        vmovsd  [rsp+118h+var_D8], xmm5
-        vcvtss2sd xmm0, xmm2, xmm2
-        vmovsd  [rsp+118h+var_E0], xmm8
-        vmovsd  [rsp+118h+var_E8], xmm0
-      }
-      LODWORD(v89) = _RBP->serverTimeCount;
-      __asm
-      {
-        vcvtss2sd xmm3, xmm12, xmm12
-        vcvtss2sd xmm2, xmm7, xmm7
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovsd  [rsp+118h+fmt], xmm1
-      }
-      Com_Printf(0, "Script Time => [CurrentTime= %0.2f, ProfileCalc= %0.2f], [TotalTime= %0.2f, Count= %d, AvgTotal= %0.2f, Max= %0.2f], [ExceedTimeTotal= %0.2f, ExceedCount= %d, AvgExceed= %0.2f], [ProfileCalcTotal= %0.2f, AvgProfileCalc= %0.2f, MaxProfileCalc= %0.2f @ %d ] \n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt, v89, v90, v91, v92, _RBP->serverTimeExceedCount, v93, v94, v95, v96, _RBX->timeStats.serverScriptProfileCalcTimeMaxAtFrame);
-      __asm { vmovaps xmm11, [rsp+118h+var_88] }
+      LODWORD(v56) = Current->serverTimeCount;
+      Com_Printf(0, "Script Time => [CurrentTime= %0.2f, ProfileCalc= %0.2f], [TotalTime= %0.2f, Count= %d, AvgTotal= %0.2f, Max= %0.2f], [ExceedTimeTotal= %0.2f, ExceedCount= %d, AvgExceed= %0.2f], [ProfileCalcTotal= %0.2f, AvgProfileCalc= %0.2f, MaxProfileCalc= %0.2f @ %d ] \n", v10, v21, serverScriptTimeTotal, v56, v52, v25->timeStats.serverScriptTimeMax, v48, Current->serverTimeExceedCount, v50, v44, v46, v25->timeStats.serverScriptProfileCalcTimeMax, v25->timeStats.serverScriptProfileCalcTimeMaxAtFrame);
     }
-    _RBX = DVARFLT_script_usage_trigger_time;
-    __asm
-    {
-      vmovaps xmm12, [rsp+118h+var_98]
-      vmovaps xmm10, [rsp+118h+var_78]
-      vmovaps xmm9, [rsp+118h+var_68]
-    }
+    v53 = DVARFLT_script_usage_trigger_time;
     if ( !DVARFLT_script_usage_trigger_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "script_usage_trigger_time") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-    if ( !v78 )
+    Dvar_CheckFrontendServerThread(v53);
+    if ( v53->current.value <= 0.0 )
       goto LABEL_67;
-    _RBX = DVARFLT_script_usage_trigger_time;
+    v54 = DVARFLT_script_usage_trigger_time;
     if ( !DVARFLT_script_usage_trigger_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "script_usage_trigger_time") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vcomiss xmm7, dword ptr [rbx+28h] }
-    if ( v78 | v80 )
+    Dvar_CheckFrontendServerThread(v54);
+    if ( v10 <= v54->current.value )
     {
 LABEL_67:
       m_Instance = g_reportScriptContextUsage;
     }
     else
     {
-      __asm
-      {
-        vcvtss2sd xmm2, xmm7, xmm7
-        vmovq   r8, xmm2
-      }
-      Com_Printf(23, "\n==> Script Usage Summary triggered by %fmsec script frame=====\n\n", *(double *)&_XMM2);
-      __asm { vxorps  xmm1, xmm1, xmm1; value }
-      Dvar_SetFloat_Internal(DVARFLT_script_usage_trigger_time, *(float *)&_XMM1);
+      Com_Printf(23, "\n==> Script Usage Summary triggered by %fmsec script frame=====\n\n", v10);
+      Dvar_SetFloat_Internal(DVARFLT_script_usage_trigger_time, 0.0);
       m_Instance = scrContext->m_Instance;
       g_reportScriptContextUsage = m_Instance;
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+118h+var_48]
-      vmovaps xmm6, [rsp+118h+var_38]
     }
     if ( m_Instance == scrContext->m_Instance )
     {
@@ -1382,7 +1273,6 @@ LABEL_67:
     }
     Scr_ScriptProfileResetUsageTimes(scrContext);
   }
-  __asm { vmovaps xmm8, [rsp+118h+var_58] }
 }
 
 /*

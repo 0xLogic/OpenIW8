@@ -992,19 +992,31 @@ StreamDecompressor::QueueJob
 void StreamDecompressor::QueueJob(StreamDecompressor *this, unsigned int jobIndex, const StreamDecompressCmd *cmd)
 {
   __int64 v4; 
-  __int64 v8; 
-  _BYTE v9[32]; 
+  StreamDecompressor::Job *v6; 
+  int size; 
+  __int64 v9; 
+  int numItems; 
+  int v11; 
   StreamDecompressor::Job *data; 
 
   v4 = jobIndex;
-  if ( jobIndex >= LODWORD(this->mJobs.storage_.size_) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 773, ASSERT_TYPE_ASSERT, "(unsigned)( jobIndex ) < (unsigned)( mJobs.size() )", "jobIndex doesn't index mJobs.size()\n\t%i not in [0, %i)", jobIndex, this->mJobs.storage_.size_) )
-    __debugbreak();
-  if ( cmd->numItems > 64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 774, ASSERT_TYPE_ASSERT, "( cmd.numItems ) <= ( STREAM_MAX_ITEMS_PER_READ )", "%s <= %s\n\t%i, %i", "cmd.numItems", "STREAM_MAX_ITEMS_PER_READ", cmd->numItems, 64) )
-    __debugbreak();
+  if ( jobIndex >= LODWORD(this->mJobs.storage_.size_) )
+  {
+    size = this->mJobs.storage_.size_;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 773, ASSERT_TYPE_ASSERT, "(unsigned)( jobIndex ) < (unsigned)( mJobs.size() )", "jobIndex doesn't index mJobs.size()\n\t%i not in [0, %i)", jobIndex, size) )
+      __debugbreak();
+  }
+  if ( cmd->numItems > 64 )
+  {
+    v11 = 64;
+    numItems = cmd->numItems;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 774, ASSERT_TYPE_ASSERT, "( cmd.numItems ) <= ( STREAM_MAX_ITEMS_PER_READ )", "%s <= %s\n\t%i, %i", "cmd.numItems", "STREAM_MAX_ITEMS_PER_READ", numItems, v11) )
+      __debugbreak();
+  }
   if ( cmd->numItems <= 0 )
   {
-    LODWORD(v8) = cmd->numItems;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 775, ASSERT_TYPE_ASSERT, "( cmd.numItems ) > ( 0 )", "%s > %s\n\t%i, %i", "cmd.numItems", "0", v8, 0i64) )
+    LODWORD(v9) = cmd->numItems;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 775, ASSERT_TYPE_ASSERT, "( cmd.numItems ) > ( 0 )", "%s > %s\n\t%i, %i", "cmd.numItems", "0", v9, 0i64) )
       __debugbreak();
   }
   if ( (((_BYTE)this + 16) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &this->mRunningJobCount) )
@@ -1012,30 +1024,25 @@ void StreamDecompressor::QueueJob(StreamDecompressor *this, unsigned int jobInde
   _InterlockedIncrement(&this->mRunningJobCount);
   if ( v4 >= this->mJobs.storage_.size_ && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 514, ASSERT_TYPE_SANITY, "( idx >= 0 && idx < storage_.size() )", (const char *)&queryFormat, "idx >= 0 && idx < storage_.size()") )
     __debugbreak();
-  _RBX = &this->mJobs.storage_.data_[v4];
-  if ( _RBX->mRunning && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 72, ASSERT_TYPE_SANITY, "( !mRunning )", (const char *)&queryFormat, "!mRunning") )
+  v6 = &this->mJobs.storage_.data_[v4];
+  if ( v6->mRunning && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 72, ASSERT_TYPE_SANITY, "( !mRunning )", (const char *)&queryFormat, "!mRunning") )
     __debugbreak();
-  if ( _RBX->mContextCount )
+  if ( v6->mContextCount )
   {
-    LODWORD(v8) = _RBX->mContextCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 74, ASSERT_TYPE_ASSERT, "( mContextCount ) == ( 0 )", "%s == %s\n\t%u, %u", "mContextCount", "0", v8, 0i64) )
+    LODWORD(v9) = v6->mContextCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 74, ASSERT_TYPE_ASSERT, "( mContextCount ) == ( 0 )", "%s == %s\n\t%u, %u", "mContextCount", "0", v9, 0i64) )
       __debugbreak();
   }
-  if ( _RBX->mLastAsyncCheckTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 75, ASSERT_TYPE_ASSERT, "(mLastAsyncCheckTime == 0)", (const char *)&queryFormat, "mLastAsyncCheckTime == 0") )
+  if ( v6->mLastAsyncCheckTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 75, ASSERT_TYPE_ASSERT, "(mLastAsyncCheckTime == 0)", (const char *)&queryFormat, "mLastAsyncCheckTime == 0") )
     __debugbreak();
-  _RBX->mDecompressor = this;
-  _RBX->mRunning = 1;
-  StreamDecompressCmd::operator=(&_RBX->mCmd, cmd);
-  *(_QWORD *)&_RBX->mCurrentChunk = 0i64;
-  memset(v9, 0, sizeof(v9));
-  __asm
-  {
-    vmovups ymm0, [rsp+88h+var_38]
-    vmovups ymmword ptr [rbx+130h], ymm0
-  }
-  _RBX->mCurrentDestOffset = 0;
-  _RBX->mCurrentChunkHeaderOffset = 0;
-  data = _RBX;
+  v6->mDecompressor = this;
+  v6->mRunning = 1;
+  StreamDecompressCmd::operator=(&v6->mCmd, cmd);
+  *(_QWORD *)&v6->mCurrentChunk = 0i64;
+  v6->mCurrentItem = (StreamDecompressItem)0;
+  v6->mCurrentDestOffset = 0;
+  v6->mCurrentChunkHeaderOffset = 0;
+  data = v6;
   Sys_AddWorkerCmd(WRKCMD_STREAM_DECOMPRESS, &data);
 }
 
@@ -1056,29 +1063,27 @@ StreamDecompressor::Job::StartJob
 */
 void StreamDecompressor::Job::StartJob(StreamDecompressor::Job *this, StreamDecompressor *decompressor, const StreamDecompressCmd *cmd)
 {
-  _BYTE v7[32]; 
+  unsigned int mContextCount; 
   StreamDecompressor::Job *data; 
 
-  _RBX = this;
   if ( this->mRunning && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 72, ASSERT_TYPE_SANITY, "( !mRunning )", (const char *)&queryFormat, "!mRunning") )
     __debugbreak();
-  if ( _RBX->mContextCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 74, ASSERT_TYPE_ASSERT, "( mContextCount ) == ( 0 )", "%s == %s\n\t%u, %u", "mContextCount", "0", _RBX->mContextCount, 0i64) )
-    __debugbreak();
-  if ( _RBX->mLastAsyncCheckTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 75, ASSERT_TYPE_ASSERT, "(mLastAsyncCheckTime == 0)", (const char *)&queryFormat, "mLastAsyncCheckTime == 0") )
-    __debugbreak();
-  _RBX->mDecompressor = decompressor;
-  _RBX->mRunning = 1;
-  StreamDecompressCmd::operator=(&_RBX->mCmd, cmd);
-  *(_QWORD *)&_RBX->mCurrentChunk = 0i64;
-  memset(v7, 0, sizeof(v7));
-  __asm
+  if ( this->mContextCount )
   {
-    vmovups ymm0, [rsp+88h+var_38]
-    vmovups ymmword ptr [rbx+130h], ymm0
+    mContextCount = this->mContextCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 74, ASSERT_TYPE_ASSERT, "( mContextCount ) == ( 0 )", "%s == %s\n\t%u, %u", "mContextCount", "0", mContextCount, 0i64) )
+      __debugbreak();
   }
-  _RBX->mCurrentDestOffset = 0;
-  _RBX->mCurrentChunkHeaderOffset = 0;
-  data = _RBX;
+  if ( this->mLastAsyncCheckTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_decompressor.cpp", 75, ASSERT_TYPE_ASSERT, "(mLastAsyncCheckTime == 0)", (const char *)&queryFormat, "mLastAsyncCheckTime == 0") )
+    __debugbreak();
+  this->mDecompressor = decompressor;
+  this->mRunning = 1;
+  StreamDecompressCmd::operator=(&this->mCmd, cmd);
+  *(_QWORD *)&this->mCurrentChunk = 0i64;
+  this->mCurrentItem = (StreamDecompressItem)0;
+  this->mCurrentDestOffset = 0;
+  this->mCurrentChunkHeaderOffset = 0;
+  data = this;
   Sys_AddWorkerCmd(WRKCMD_STREAM_DECOMPRESS, &data);
 }
 

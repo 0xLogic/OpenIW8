@@ -66,11 +66,6 @@ void HavokPhysicsCollisionTileViewer::HavokPhysicsCollisionTileViewer(HavokPhysi
   m_size = contexts->m_size;
   contextsa.m_begin = contexts->m_data;
   contextsa.m_end = &contextsa.m_begin[m_size];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+38h+contexts.m_begin]
-    vmovdqa xmmword ptr [rsp+38h+contexts.m_begin], xmm0
-  }
   hknpViewer::hknpViewer(this, &contextsa);
   this->hknpViewer::hkReferencedObject::hkBaseObject::__vftable = (HavokPhysicsCollisionTileViewer_vtbl *)&HavokPhysicsCollisionTileViewer::`vftable'{for `hkReferencedObject'};
   this->hknpViewer::hkProcess::__vftable = (hkProcess_vtbl *)&HavokPhysicsCollisionTileViewer::`vftable'{for `hkProcess'};
@@ -112,11 +107,6 @@ hkProcess *HavokPhysicsCollisionTileViewer::create(const hkArray<hkProcessContex
     m_size = contexts->m_size;
     contextsa.m_begin = contexts->m_data;
     contextsa.m_end = &contextsa.m_begin[m_size];
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+48h+contexts.m_begin]
-      vmovdqa xmmword ptr [rsp+48h+contexts.m_begin], xmm0
-    }
     hknpViewer::hknpViewer(v3, &contextsa);
     v4->hkReferencedObject::hkBaseObject::__vftable = (hknpViewer_vtbl *)&HavokPhysicsCollisionTileViewer::`vftable'{for `hkReferencedObject'};
     v4->hkProcess::__vftable = (hkProcess_vtbl *)&HavokPhysicsCollisionTileViewer::`vftable'{for `hkProcess'};
@@ -149,98 +139,65 @@ HavokPhysicsCollisionTileViewer::step
 void HavokPhysicsCollisionTileViewer::step(HavokPhysicsCollisionTileViewer *this, float deltaTime)
 {
   hkMonitorStream *Value; 
-  hkMonitorStream *v10; 
-  int v11; 
-  int v14; 
-  char v40[4]; 
-  char v41[4]; 
-  char v42[4]; 
-  char v43[4]; 
-  __int64 v44; 
-  hkMonitorStream *v45; 
-  __int128 v46; 
-  __int128 v47; 
-  __int128 v48; 
-  __int128 v49; 
-  char v50; 
-  void *retaddr; 
+  hkMonitorStream *v4; 
+  int i; 
+  int j; 
+  char v19[4]; 
+  char v20[4]; 
+  char v21[4]; 
+  char v22[4]; 
+  __int64 v23; 
+  hkMonitorStream *v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v27; 
+  __int128 v28; 
 
-  _RAX = &retaddr;
-  v44 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
+  v23 = -2i64;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v10 = Value;
+  v4 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtIWCollisionTileViewer");
-  v45 = v10;
-  v11 = 0;
-  __asm
+  v24 = v4;
+  for ( i = 0; i < 32; ++i )
   {
-    vmovss  xmm9, cs:__real@41800000
-    vmovss  xmm6, cs:__real@43800000
-  }
-  do
-  {
-    v14 = 0;
-    __asm
+    for ( j = 0; j < 32; ++j )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vsubss  xmm1, xmm0, xmm9
-      vmulss  xmm7, xmm1, xmm6
-      vaddss  xmm8, xmm7, xmm6
-    }
-    do
-    {
+      _XMM0 = 0i64;
       __asm
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edi
-        vsubss  xmm1, xmm0, xmm9
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, xmm6
-        vxorps  xmm0, xmm0, xmm0
         vinsertps xmm0, xmm0, xmm7, 0
         vinsertps xmm0, xmm0, xmm2, 10h
-        vmovups [rsp+0F8h+var_88], xmm0
-        vxorps  xmm1, xmm1, xmm1
+      }
+      v26 = _XMM0;
+      _XMM1 = 0i64;
+      __asm
+      {
         vinsertps xmm1, xmm1, xmm8, 0
         vinsertps xmm1, xmm1, xmm2, 10h
-        vmovups [rsp+0F8h+var_68], xmm1
-        vxorps  xmm0, xmm0, xmm0
+      }
+      v28 = _XMM1;
+      _XMM0 = 0i64;
+      __asm
+      {
         vinsertps xmm0, xmm0, xmm7, 0
         vinsertps xmm0, xmm0, xmm3, 10h
-        vmovups [rsp+0F8h+var_98], xmm0
-        vxorps  xmm1, xmm1, xmm1
+      }
+      v25 = _XMM0;
+      _XMM1 = 0i64;
+      __asm
+      {
         vinsertps xmm1, xmm1, xmm8, 0
         vinsertps xmm1, xmm1, xmm3, 10h
-        vmovups [rsp+0F8h+var_78], xmm1
       }
-      (*((void (__fastcall **)(hkProcess_vtbl *, char *, _QWORD, __int128 *, __int128 *, const unsigned int, int))this->~hkProcess + 22))(this->hknpViewer::hkProcess::__vftable, v40, 0i64, &v47, &v49, hkColor::RED, HavokPhysicsCollisionTileViewer::s_tag);
-      (*((void (__fastcall **)(hkProcess_vtbl *, char *, _QWORD, __int128 *, __int128 *, const unsigned int, int))this->~hkProcess + 22))(this->hknpViewer::hkProcess::__vftable, v41, 0i64, &v46, &v48, hkColor::RED, HavokPhysicsCollisionTileViewer::s_tag);
-      (*((void (__fastcall **)(hkProcess_vtbl *, char *, _QWORD, __int128 *, __int128 *, const unsigned int, int))this->~hkProcess + 22))(this->hknpViewer::hkProcess::__vftable, v42, 0i64, &v47, &v46, hkColor::RED, HavokPhysicsCollisionTileViewer::s_tag);
-      (*((void (__fastcall **)(hkProcess_vtbl *, char *, _QWORD, __int128 *, __int128 *, const unsigned int, int))this->~hkProcess + 22))(this->hknpViewer::hkProcess::__vftable, v43, 0i64, &v49, &v48, hkColor::RED, HavokPhysicsCollisionTileViewer::s_tag);
-      ++v14;
+      v27 = _XMM1;
+      (*((void (__fastcall **)(hkProcess_vtbl *, char *, _QWORD, __int128 *, __int128 *, const unsigned int, int))this->~hkProcess + 22))(this->hknpViewer::hkProcess::__vftable, v19, 0i64, &v26, &v28, hkColor::RED, HavokPhysicsCollisionTileViewer::s_tag);
+      (*((void (__fastcall **)(hkProcess_vtbl *, char *, _QWORD, __int128 *, __int128 *, const unsigned int, int))this->~hkProcess + 22))(this->hknpViewer::hkProcess::__vftable, v20, 0i64, &v25, &v27, hkColor::RED, HavokPhysicsCollisionTileViewer::s_tag);
+      (*((void (__fastcall **)(hkProcess_vtbl *, char *, _QWORD, __int128 *, __int128 *, const unsigned int, int))this->~hkProcess + 22))(this->hknpViewer::hkProcess::__vftable, v21, 0i64, &v26, &v25, hkColor::RED, HavokPhysicsCollisionTileViewer::s_tag);
+      (*((void (__fastcall **)(hkProcess_vtbl *, char *, _QWORD, __int128 *, __int128 *, const unsigned int, int))this->~hkProcess + 22))(this->hknpViewer::hkProcess::__vftable, v22, 0i64, &v28, &v27, hkColor::RED, HavokPhysicsCollisionTileViewer::s_tag);
     }
-    while ( v14 < 32 );
-    ++v11;
   }
-  while ( v11 < 32 );
-  if ( v10 )
-    hkMonitorStream::timerEnd(v10, "Et");
-  _R11 = &v50;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  if ( v4 )
+    hkMonitorStream::timerEnd(v4, "Et");
 }
 

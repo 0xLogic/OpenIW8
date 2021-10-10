@@ -370,89 +370,62 @@ DebugLogQueue::RenderAll
 */
 void DebugLogQueue::RenderAll(DebugLogQueue *this)
 {
-  bool v6; 
-  const ScreenPlacement *v7; 
+  bool v2; 
+  const ScreenPlacement *v3; 
   GfxFont *FontHandle; 
+  int v5; 
+  const DebugLogQueueCategoryDef *m_def; 
+  float v7; 
+  float m_renderPosX; 
+  __int128 y; 
+  __int128 v10; 
+  __int128 v11; 
   ntl::internal::list_head_base<ntl::internal::list_node<DebugLogQueueEntry> > *p_m_listHead; 
   ntl::internal::list_node_base *mp_next; 
   ntl::internal::list_node_base *i; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float y; 
-  float ya; 
-  float yb; 
-  float v36; 
-  float v37; 
-  float v38; 
+  __int128 v15; 
   char dest[1024]; 
 
   if ( !this->m_def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_debug_log_queue.cpp", 113, ASSERT_TYPE_ASSERT, "(m_def)", (const char *)&queryFormat, "m_def") )
     __debugbreak();
   if ( this->m_isVisible )
   {
-    __asm
-    {
-      vmovaps [rsp+4C8h+var_38], xmm6
-      vmovaps [rsp+4C8h+var_48], xmm7
-      vmovaps [rsp+4C8h+var_58], xmm8
-    }
     if ( activeScreenPlacementMode )
     {
       if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
       {
-        v7 = scrPlaceViewDisplay;
+        v3 = scrPlaceViewDisplay;
         goto LABEL_12;
       }
       if ( activeScreenPlacementMode == SCRMODE_INVALID )
-        v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+        v2 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
       else
-        v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-      if ( v6 )
+        v2 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+      if ( v2 )
         __debugbreak();
     }
-    v7 = &scrPlaceFull;
+    v3 = &scrPlaceFull;
 LABEL_12:
-    _RAX = this->m_def;
-    __asm { vmovss  xmm2, dword ptr [rax+10h]; scale }
-    FontHandle = UI_GetFontHandle(v7, _RAX->m_fontEnum, *(float *)&_XMM2);
-    R_TextHeight(FontHandle);
-    _RCX = this->m_def;
-    __asm
+    FontHandle = UI_GetFontHandle(v3, this->m_def->m_fontEnum, this->m_def->m_fontScale);
+    v5 = R_TextHeight(FontHandle);
+    m_def = this->m_def;
+    v7 = (float)((float)v5 * m_def->m_fontScale) + m_def->m_rowSpacing;
+    m_renderPosX = m_def->m_renderPosX;
+    y = LODWORD(m_def->m_renderPosY);
+    if ( *m_def->m_headerText )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm0, xmm0, dword ptr [rcx+10h]
-      vaddss  xmm7, xmm0, dword ptr [rcx+30h]
-      vmovss  xmm8, dword ptr [rcx+34h]
-      vmovss  xmm6, dword ptr [rcx+38h]
-    }
-    if ( *_RCX->m_headerText )
-    {
-      Com_sprintf(dest, 0x400ui64, "^1%s", _RCX->m_headerText);
-      _RDX = this->m_def;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdx+10h]
-        vmovss  [rsp+4C8h+var_488], xmm0
-        vmovss  [rsp+4C8h+y], xmm6
-        vmovss  dword ptr [rsp+4C8h+fmt], xmm8
-      }
-      UI_DrawText(v7, dest, 1024, FontHandle, fmt, y, _RDX->m_horizontalAligment, _RDX->m_verticalAligment, v36, &_RDX->m_color, _RDX->m_style);
-      __asm { vaddss  xmm6, xmm6, xmm7 }
+      Com_sprintf(dest, 0x400ui64, "^1%s", m_def->m_headerText);
+      UI_DrawText(v3, dest, 1024, FontHandle, m_renderPosX, *(float *)&y, this->m_def->m_horizontalAligment, this->m_def->m_verticalAligment, this->m_def->m_fontScale, &this->m_def->m_color, this->m_def->m_style);
+      v10 = y;
+      *(float *)&v10 = *(float *)&y + v7;
+      y = v10;
     }
     if ( this->m_infoLineText[0] )
     {
-      _R8 = this->m_def;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r8+10h]
-        vmovss  [rsp+4C8h+var_488], xmm0
-        vmovss  [rsp+4C8h+y], xmm6
-        vmovss  dword ptr [rsp+4C8h+fmt], xmm8
-      }
-      UI_DrawText(v7, this->m_infoLineText, 512, FontHandle, fmta, ya, _R8->m_horizontalAligment, _R8->m_verticalAligment, v37, &_R8->m_color, _R8->m_style);
-      __asm { vaddss  xmm6, xmm6, xmm7 }
+      UI_DrawText(v3, this->m_infoLineText, 512, FontHandle, m_renderPosX, *(float *)&y, this->m_def->m_horizontalAligment, this->m_def->m_verticalAligment, this->m_def->m_fontScale, &this->m_def->m_color, this->m_def->m_style);
+      v11 = y;
+      *(float *)&v11 = *(float *)&y + v7;
+      y = v11;
     }
     p_m_listHead = &this->m_entries.m_listHead;
     mp_next = this->m_entries.m_listHead.m_sentinel.mp_next;
@@ -467,25 +440,13 @@ LABEL_12:
       {
         if ( !i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        _R8 = this->m_def;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r8+10h]
-          vmovss  [rsp+4C8h+var_488], xmm0
-          vmovss  [rsp+4C8h+y], xmm6
-          vmovss  dword ptr [rsp+4C8h+fmt], xmm8
-        }
-        UI_DrawText(v7, (const char *)&i[1].mp_prev + 4, 512, FontHandle, fmtb, yb, _R8->m_horizontalAligment, _R8->m_verticalAligment, v38, &_R8->m_color, _R8->m_style);
-        __asm { vaddss  xmm6, xmm6, xmm7 }
+        UI_DrawText(v3, (const char *)&i[1].mp_prev + 4, 512, FontHandle, m_renderPosX, *(float *)&y, this->m_def->m_horizontalAligment, this->m_def->m_verticalAligment, this->m_def->m_fontScale, &this->m_def->m_color, this->m_def->m_style);
+        v15 = y;
+        *(float *)&v15 = *(float *)&y + v7;
+        y = v15;
         if ( !i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 109, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
       }
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+4C8h+var_38]
-      vmovaps xmm7, [rsp+4C8h+var_48]
-      vmovaps xmm8, [rsp+4C8h+var_58]
     }
   }
 }

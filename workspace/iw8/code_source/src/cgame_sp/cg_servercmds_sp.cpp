@@ -288,431 +288,486 @@ CG_ServerCmdSP_DispatchServerCommand
 */
 void CG_ServerCmdSP_DispatchServerCommand(LocalClientNum_t localClientNum, const char *s)
 {
-  __int64 v9; 
-  const char *v10; 
-  int v12; 
-  __int64 v13; 
-  Material *v14; 
-  __int64 v15; 
-  char v16; 
+  __int64 v4; 
+  const char *v5; 
+  CgGlobalsSP *LocalClientGlobals; 
+  int v7; 
+  __int64 v8; 
+  Material *v9; 
+  __int64 v10; 
+  char v11; 
   CgSoundSystem *SoundSystem; 
-  int v18; 
-  unsigned int v19; 
-  unsigned int v20; 
-  unsigned int v21; 
-  int v22; 
+  int v13; 
+  unsigned int v14; 
+  unsigned int v15; 
+  unsigned int v16; 
+  int v17; 
   centity_t *Entity; 
-  unsigned int v24; 
-  int v25; 
+  unsigned int v19; 
+  int v20; 
   SndAliasList *SoundAliasListByName; 
-  unsigned int v28; 
-  unsigned __int16 v29; 
-  __int64 v30; 
-  char v31; 
-  const char *v32; 
-  unsigned int v33; 
+  unsigned int v22; 
+  unsigned __int16 v23; 
+  __int64 v24; 
+  char v25; 
+  const char *v26; 
+  unsigned int v27; 
   const SndAliasList *AliasFromId; 
-  CgSoundSystem *v35; 
+  double v29; 
+  double v30; 
+  double v31; 
+  CgSoundSystem *v32; 
   int SoundAliasSeed; 
-  int v37; 
-  __int64 v38; 
-  char v39; 
-  CgSoundSystem *v40; 
-  const char *v41; 
-  unsigned int v42; 
-  SndAliasList *v43; 
-  centity_t *v44; 
-  const char *v45; 
-  char v46; 
-  int v47; 
-  char v48; 
-  unsigned int v49; 
-  char v50; 
-  __int64 v51; 
-  char v52; 
-  const char *v53; 
-  const char *v54; 
+  int v34; 
+  __int64 v35; 
+  char v36; 
+  CgSoundSystem *v37; 
+  const char *v38; 
+  unsigned int v39; 
+  SndAliasList *v40; 
+  centity_t *v41; 
+  const char *v42; 
+  char v43; 
+  int v44; 
+  char v45; 
+  unsigned int v46; 
+  char v47; 
+  __int64 v48; 
+  char v49; 
+  const char *v50; 
+  const char *v51; 
   unsigned __int16 GlobalModel; 
   unsigned __int16 ModelFromPath; 
+  unsigned __int16 v54; 
+  unsigned __int16 v55; 
+  bool v56; 
   unsigned __int16 v57; 
-  unsigned __int16 v58; 
-  bool v59; 
-  unsigned __int16 v60; 
-  int v61; 
-  double v62; 
-  int v63; 
-  double v64; 
-  int v65; 
-  BlurTime v67; 
-  BlurPriority v68; 
-  int v71; 
-  int v72; 
-  int v75; 
-  __int64 v80; 
-  char v81; 
-  unsigned int v88; 
-  unsigned int v89; 
+  int v58; 
+  double v59; 
+  int v60; 
+  double v61; 
+  int v62; 
+  double v63; 
+  BlurTime v64; 
+  BlurPriority v65; 
+  int v66; 
+  int v67; 
+  double v68; 
+  int v69; 
+  double v70; 
+  float v71; 
+  double v72; 
+  __int64 v73; 
+  char v74; 
+  double v75; 
+  float v76; 
+  double v77; 
+  double v78; 
+  float v79; 
+  double v80; 
+  unsigned int v81; 
+  unsigned int v82; 
+  double v83; 
+  double v84; 
+  double v85; 
+  double v86; 
+  double v87; 
+  double v88; 
   CgWeaponSystemSP *WeaponSystemSP; 
-  CgWeaponSystemSP *v91; 
+  CgWeaponSystemSP *v90; 
   CgHandler *Handler; 
   CgWeaponMap *Instance; 
+  int v93; 
   int v94; 
   int v95; 
   int v96; 
-  int v97; 
-  unsigned __int16 v98; 
+  unsigned __int16 v97; 
+  double v98; 
+  double v99; 
   int v100; 
-  int v105; 
-  const dvar_t *v106; 
-  int v110; 
-  int v115; 
-  int v116; 
-  const char *v118; 
-  const char *v120; 
-  char v148; 
-  char v149; 
-  int v236; 
-  int v237; 
-  vec3_t *v279; 
-  const vec3_t *v280; 
-  const vec3_t *v281; 
-  const char *v297; 
-  int v298; 
-  int v299; 
-  int v305; 
-  const char *v306; 
-  int v307; 
+  ClientFov *ViewFovBySpace; 
+  double v102; 
+  int v103; 
+  const dvar_t *v104; 
+  double v105; 
+  float v106; 
+  double v107; 
+  int v108; 
+  double v109; 
+  double v110; 
+  double v111; 
+  double v112; 
+  int v113; 
+  int v114; 
+  double v115; 
+  double v116; 
+  double v117; 
+  double v118; 
+  double v119; 
+  double v120; 
+  double v121; 
+  double v122; 
+  double v123; 
+  double v124; 
+  const char *v125; 
+  const char *v127; 
+  vec3_t *PipForward; 
+  vec3_t *PipRight; 
+  vec3_t *PipUp; 
+  double v132; 
+  double v133; 
+  double v134; 
+  float v135; 
+  float v136; 
+  __int128 v137; 
+  __int128 v138; 
+  __int128 v142; 
+  __int128 v143; 
+  __int128 v147; 
+  __int128 v148; 
+  vec3_t *v152; 
+  vec3_t *v153; 
+  vec3_t *v154; 
+  double v155; 
+  double v156; 
+  double v157; 
+  float v158; 
+  float v159; 
+  __int128 v160; 
+  __int128 v161; 
+  __int128 v165; 
+  __int128 v166; 
+  __int128 v170; 
+  __int128 v171; 
+  int v175; 
+  int v176; 
+  vec3_t *v177; 
+  double v178; 
+  double v179; 
+  double v180; 
+  float v181; 
+  const vec3_t *v182; 
+  float v183; 
+  __int128 v184; 
+  __int128 v185; 
+  __int128 v189; 
+  __int128 v190; 
+  vec3_t *v193; 
+  const vec3_t *v194; 
+  const vec3_t *v195; 
+  const vec3_t *v196; 
+  __int128 v197; 
+  __int128 v198; 
+  const char *v201; 
+  int v202; 
+  int v203; 
+  double v204; 
+  double v205; 
+  double v206; 
+  double v207; 
+  double v208; 
+  int v209; 
+  const char *v210; 
+  int v211; 
   ClientVisionSetData *p_cvsData; 
-  const char *v309; 
-  const char *v310; 
-  const char *v311; 
-  const char *v312; 
-  int v316; 
-  const char *v317; 
-  const char *v319; 
-  const char *v321; 
-  int v323; 
-  const char *v324; 
-  const char *v325; 
-  __int64 v326; 
-  char v327; 
-  int v328; 
-  const char *v329; 
-  scr_string_t v330; 
-  const char *v331; 
-  const char *v333; 
-  const char *v335; 
-  const char *v337; 
-  const char *v339; 
-  const char *v341; 
-  int v343; 
-  int v344; 
-  int v345; 
-  int v346; 
+  const char *v213; 
+  const char *v214; 
+  const char *v215; 
+  const char *v216; 
+  double v217; 
+  double v218; 
+  int v219; 
+  const char *v220; 
+  const char *v222; 
+  const char *v224; 
+  int v226; 
+  const char *v227; 
+  const char *v228; 
+  __int64 v229; 
+  char v230; 
+  int v231; 
+  const char *v232; 
+  scr_string_t v233; 
+  const char *v234; 
+  const char *v236; 
+  const char *v238; 
+  const char *v240; 
+  const char *v242; 
+  const char *v244; 
+  int v246; 
+  int v247; 
+  int v248; 
+  int v249; 
   __int64 startTime; 
-  int startTimea; 
   __int64 duration; 
-  int durationa; 
   vec3_t outOrigin; 
   vec3_t seed; 
   vec4_t quat; 
   char dest[512]; 
-  char v360; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
-  v9 = localClientNum;
-  v10 = Cmd_Argv(0);
-  if ( !strcmp_0(v10, "disconnect") )
+  v4 = localClientNum;
+  v5 = Cmd_Argv(0);
+  if ( !strcmp_0(v5, "disconnect") )
     Com_Error_impl(ERR_SERVERDISCONNECT, (const ObfuscateErrorText)&stru_144009360);
-  _R15 = CgGlobalsSP::GetLocalClientGlobals((const LocalClientNum_t)v9);
-  if ( *v10 )
+  LocalClientGlobals = CgGlobalsSP::GetLocalClientGlobals((const LocalClientNum_t)v4);
+  if ( *v5 )
   {
-    v12 = -1;
-    v13 = -1i64;
+    v7 = -1;
+    v8 = -1i64;
     do
-      ++v13;
-    while ( v10[v13] );
-    if ( (_DWORD)v13 == 1 )
+      ++v8;
+    while ( v5[v8] );
+    if ( (_DWORD)v8 == 1 )
     {
-      CG_ServerCmdSP_SingleCharacterCmd((LocalClientNum_t)v9, *v10, s);
-      goto LABEL_275;
+      CG_ServerCmdSP_SingleCharacterCmd((LocalClientNum_t)v4, *v5, s);
+      return;
     }
-    v14 = NULL;
-    v15 = 0i64;
+    v9 = NULL;
+    v10 = 0i64;
     while ( 1 )
     {
-      v16 = v10[v15++];
-      if ( v16 != aSnd_0[v15 - 1] )
+      v11 = v5[v10++];
+      if ( v11 != aSnd_0[v10 - 1] )
         break;
-      if ( v15 == 4 )
+      if ( v10 == 4 )
       {
-        if ( (_DWORD)v9 )
-          goto LABEL_275;
+        if ( (_DWORD)v4 )
+          return;
         SoundSystem = CgSoundSystem::GetSoundSystem(LOCAL_CLIENT_0);
         LODWORD(seed.v[0]) = Com_GetSoundAliasSeed();
-        v18 = Sys_Milliseconds();
-        Com_SetSoundAliasSeed(v18);
-        v19 = Cmd_ArgInt(1);
-        v20 = Cmd_ArgInt(2);
-        v21 = v20;
-        if ( v20 >= 0x200 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 1096, ASSERT_TYPE_ASSERT, "(unsigned)( soundIndex ) < (unsigned)( BgStaticLimitsSP::CS_MAX_SOUND_ALIASES )", "soundIndex doesn't index BgStaticLimitsSP::CS_MAX_SOUND_ALIASES\n\t%i not in [0, %i)", v20, 512) )
+        v13 = Sys_Milliseconds();
+        Com_SetSoundAliasSeed(v13);
+        v14 = Cmd_ArgInt(1);
+        v15 = Cmd_ArgInt(2);
+        v16 = v15;
+        if ( v15 >= 0x200 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 1096, ASSERT_TYPE_ASSERT, "(unsigned)( soundIndex ) < (unsigned)( BgStaticLimitsSP::CS_MAX_SOUND_ALIASES )", "soundIndex doesn't index BgStaticLimitsSP::CS_MAX_SOUND_ALIASES\n\t%i not in [0, %i)", v15, 512) )
           __debugbreak();
-        v22 = Cmd_ArgInt(3) + 3;
-        Entity = CG_GetEntity(LOCAL_CLIENT_0, v19);
+        v17 = Cmd_ArgInt(3) + 3;
+        Entity = CG_GetEntity(LOCAL_CLIENT_0, v14);
         CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-        if ( v22 == 3 )
+        if ( v17 == 3 )
         {
-          v24 = SoundSystem->PlaySoundAliasByName(SoundSystem, v19, &outOrigin, v21);
+          v19 = SoundSystem->PlaySoundAliasByName(SoundSystem, v14, &outOrigin, v16);
           goto LABEL_21;
         }
-        if ( v22 == 4 )
+        if ( v17 == 4 )
         {
-          v24 = CgSoundSystem::PlaySoundAliasAtViewHeight(SoundSystem, v19, &outOrigin, v21);
+          v19 = CgSoundSystem::PlaySoundAliasAtViewHeight(SoundSystem, v14, &outOrigin, v16);
           goto LABEL_21;
         }
-        if ( v22 != 7 )
+        if ( v17 != 7 )
         {
-          LODWORD(startTime) = v22;
+          LODWORD(startTime) = v17;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 1117, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Bad sound event enum specified: %d", startTime) )
             __debugbreak();
           goto LABEL_28;
         }
-        v25 = Cmd_ArgInt(4);
-        SoundAliasListByName = CL_CGameSP_GetSoundAliasListByName(v21);
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vmovss  dword ptr [rsp+310h+duration], xmm0
-          vmovss  [rsp+310h+startTime], xmm0
-        }
-        v24 = ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, int, int, int, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, v19, &outOrigin, SoundAliasListByName, v25, startTimea, durationa, 0);
+        v20 = Cmd_ArgInt(4);
+        SoundAliasListByName = CL_CGameSP_GetSoundAliasListByName(v16);
+        v19 = ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, int, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, v14, &outOrigin, SoundAliasListByName, v20, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
 LABEL_21:
-        v28 = v24;
-        if ( _R15->demoType != HALF )
+        v22 = v19;
+        if ( LocalClientGlobals->demoType != HALF )
         {
-          if ( v24 )
+          if ( v19 )
           {
-            v29 = truncate_cast<unsigned short,int>(v21);
-            SND_AddSoundDoneNotify(v28, v19, v29);
+            v23 = truncate_cast<unsigned short,int>(v16);
+            SND_AddSoundDoneNotify(v22, v14, v23);
             Com_SetSoundAliasSeed(SLODWORD(seed.v[0]));
 LABEL_28:
             memset(&outOrigin, 0, sizeof(outOrigin));
-            goto LABEL_275;
+            return;
           }
-          CG_Utils_ScriptNotifySoundDone(v19, v21);
+          CG_Utils_ScriptNotifySoundDone(v14, v16);
         }
         Com_SetSoundAliasSeed(SLODWORD(seed.v[0]));
         goto LABEL_28;
       }
     }
-    v30 = 0i64;
+    v24 = 0i64;
     while ( 1 )
     {
-      v31 = v10[v30++];
-      if ( v31 != aSndw[v30 - 1] )
+      v25 = v5[v24++];
+      if ( v25 != aSndw[v24 - 1] )
         break;
-      if ( v30 == 5 )
+      if ( v24 == 5 )
       {
-        v32 = Cmd_Argv(1);
-        v33 = strtoul(v32, NULL, 16);
-        AliasFromId = SND_FindAliasFromId(v33);
+        v26 = Cmd_Argv(1);
+        v27 = strtoul(v26, NULL, 16);
+        AliasFromId = SND_FindAliasFromId(v27);
         if ( AliasFromId )
         {
-          *(double *)&_XMM0 = Cmd_ArgFloat(2);
-          __asm { vmovss  dword ptr [rsp+310h+outOrigin], xmm0 }
-          *(double *)&_XMM0 = Cmd_ArgFloat(3);
-          __asm { vmovss  dword ptr [rsp+310h+outOrigin+4], xmm0 }
-          *(double *)&_XMM0 = Cmd_ArgFloat(4);
-          __asm { vmovss  dword ptr [rsp+310h+outOrigin+8], xmm0 }
-          v35 = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v9);
+          v29 = Cmd_ArgFloat(2);
+          outOrigin.v[0] = *(float *)&v29;
+          v30 = Cmd_ArgFloat(3);
+          outOrigin.v[1] = *(float *)&v30;
+          v31 = Cmd_ArgFloat(4);
+          outOrigin.v[2] = *(float *)&v31;
+          v32 = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v4);
           SoundAliasSeed = Com_GetSoundAliasSeed();
-          v37 = Sys_Milliseconds();
-          Com_SetSoundAliasSeed(v37);
-          CgSoundSystem::PlaySoundAlias(v35, 2046, &outOrigin, AliasFromId);
+          v34 = Sys_Milliseconds();
+          Com_SetSoundAliasSeed(v34);
+          CgSoundSystem::PlaySoundAlias(v32, 2046, &outOrigin, AliasFromId);
           Com_SetSoundAliasSeed(SoundAliasSeed);
         }
-        goto LABEL_275;
+        return;
       }
     }
-    v38 = 0i64;
+    v35 = 0i64;
     while ( 1 )
     {
-      v39 = v10[v38++];
-      if ( v39 != aSndexp[v38 - 1] )
+      v36 = v5[v35++];
+      if ( v36 != aSndexp[v35 - 1] )
         break;
-      if ( v38 == 7 )
+      if ( v35 == 7 )
       {
-        v40 = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v9);
-        v41 = Cmd_Argv(2);
-        v42 = strtoul(v41, NULL, 16);
-        v43 = SND_FindAliasFromId(v42);
-        if ( v43 )
+        v37 = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v4);
+        v38 = Cmd_Argv(2);
+        v39 = strtoul(v38, NULL, 16);
+        v40 = SND_FindAliasFromId(v39);
+        if ( v40 )
         {
           LODWORD(seed.v[0]) = Cmd_ArgInt(1);
-          v44 = CG_GetEntity((const LocalClientNum_t)v9, SLODWORD(seed.v[0]));
-          v45 = Cmd_Argv(3);
-          CG_GetPoseOrigin(&v44->pose, &outOrigin);
-          if ( v45 && (v46 = *v45) != 0 )
+          v41 = CG_GetEntity((const LocalClientNum_t)v4, SLODWORD(seed.v[0]));
+          v42 = Cmd_Argv(3);
+          CG_GetPoseOrigin(&v41->pose, &outOrigin);
+          if ( v42 && (v43 = *v42) != 0 )
           {
-            v47 = 5381;
+            v44 = 5381;
             do
             {
-              v48 = v46;
-              v49 = v46 - 65;
-              v50 = v46 | 0x20;
-              if ( v49 >= 0x1A )
-                v50 = v48;
-              v47 = 65599 * v47 + v50;
-              v46 = *++v45;
+              v45 = v43;
+              v46 = v43 - 65;
+              v47 = v43 | 0x20;
+              if ( v46 >= 0x1A )
+                v47 = v45;
+              v44 = 65599 * v44 + v47;
+              v43 = *++v42;
             }
-            while ( *v45 );
-            if ( !v47 )
-              v47 = 1;
+            while ( *v42 );
+            if ( !v44 )
+              v44 = 1;
           }
           else
           {
-            v47 = 0;
+            v44 = 0;
           }
-          v40->PlayExplosionSoundAsync(v40, LODWORD(seed.v[0]), &outOrigin, v43, 0, v47);
+          v37->PlayExplosionSoundAsync(v37, LODWORD(seed.v[0]), &outOrigin, v40, 0, v44);
           memset(&outOrigin, 0, sizeof(outOrigin));
         }
-        goto LABEL_275;
+        return;
       }
     }
-    v51 = 0i64;
+    v48 = 0i64;
     while ( 1 )
     {
-      v52 = v10[v51++];
-      if ( v52 != aPrint_0[v51 - 1] )
+      v49 = v5[v48++];
+      if ( v49 != aPrint_0[v48 - 1] )
         break;
-      if ( v51 == 6 )
+      if ( v48 == 6 )
       {
-        v53 = Cmd_Argv(1);
-        v54 = SEH_LocalizeTextMessage(v53, "server print", LOCMSG_SAFE);
-        Com_Printf(0, "%s\n", v54);
-        goto LABEL_275;
+        v50 = Cmd_Argv(1);
+        v51 = SEH_LocalizeTextMessage(v50, "server print", LOCMSG_SAFE);
+        Com_Printf(0, "%s\n", v51);
+        return;
       }
     }
-    if ( !strcmp_0(v10, "gamesavestart") )
+    if ( !strcmp_0(v5, "gamesavestart") )
     {
       GlobalModel = LUI_Model_GetGlobalModel();
       ModelFromPath = LUI_Model_CreateModelFromPath(GlobalModel, "cg.sp.savingCheckpoint");
       LUI_Model_SetBool(ModelFromPath, 1);
-      goto LABEL_275;
+      return;
     }
-    if ( !strcmp_0(v10, "gamesaved") )
+    if ( !strcmp_0(v5, "gamesaved") )
     {
-      v57 = LUI_Model_GetGlobalModel();
-      v58 = LUI_Model_CreateModelFromPath(v57, "cg.sp.savingCheckpointSucceeded");
-      v59 = 1;
+      v54 = LUI_Model_GetGlobalModel();
+      v55 = LUI_Model_CreateModelFromPath(v54, "cg.sp.savingCheckpointSucceeded");
+      v56 = 1;
 LABEL_57:
-      LUI_Model_SetBool(v58, v59);
-      v60 = LUI_Model_CreateModelFromPath(v57, "cg.sp.savingCheckpoint");
-      LUI_Model_SetBool(v60, 0);
-      goto LABEL_275;
+      LUI_Model_SetBool(v55, v56);
+      v57 = LUI_Model_CreateModelFromPath(v54, "cg.sp.savingCheckpoint");
+      LUI_Model_SetBool(v57, 0);
+      return;
     }
-    if ( !strcmp_0(v10, "gamesavefailed") )
+    if ( !strcmp_0(v5, "gamesavefailed") )
     {
-      v57 = LUI_Model_GetGlobalModel();
-      v58 = LUI_Model_CreateModelFromPath(v57, "cg.sp.savingCheckpointSucceeded");
-      v59 = 0;
+      v54 = LUI_Model_GetGlobalModel();
+      v55 = LUI_Model_CreateModelFromPath(v54, "cg.sp.savingCheckpointSucceeded");
+      v56 = 0;
       goto LABEL_57;
     }
-    if ( !strcmp_0(v10, "snd_fade") )
+    if ( !strcmp_0(v5, "snd_fade") )
     {
-      v61 = Cmd_ArgInt(2);
-      v62 = Cmd_ArgFloat(1);
-      SND_FadeAllSounds(*(float *)&v62, v61);
-      goto LABEL_275;
+      v58 = Cmd_ArgInt(2);
+      v59 = Cmd_ArgFloat(1);
+      SND_FadeAllSounds(*(float *)&v59, v58);
+      return;
     }
-    if ( !strcmp_0(v10, "level_snd_fade") )
+    if ( !strcmp_0(v5, "level_snd_fade") )
     {
-      v63 = Cmd_ArgInt(2);
-      v64 = Cmd_ArgFloat(1);
-      SND_SetLevelFadeIn(*(float *)&v64, v63);
-      goto LABEL_275;
+      v60 = Cmd_ArgInt(2);
+      v61 = Cmd_ArgFloat(1);
+      SND_SetLevelFadeIn(*(float *)&v61, v60);
+      return;
     }
-    if ( !strcmp_0(v10, "scr_blur") )
+    if ( !strcmp_0(v5, "scr_blur") )
     {
-      v65 = Cmd_ArgInt(1);
-      *(double *)&_XMM0 = Cmd_ArgFloat(2);
-      __asm { vmovaps xmm6, xmm0 }
-      v67 = Cmd_ArgInt(3);
-      v68 = Cmd_ArgInt(4);
-      if ( v65 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 911, ASSERT_TYPE_ASSERT, "(time >= 0)", (const char *)&queryFormat, "time >= 0") )
+      v62 = Cmd_ArgInt(1);
+      v63 = Cmd_ArgFloat(2);
+      v64 = Cmd_ArgInt(3);
+      v65 = Cmd_ArgInt(4);
+      if ( v62 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 911, ASSERT_TYPE_ASSERT, "(time >= 0)", (const char *)&queryFormat, "time >= 0") )
         __debugbreak();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm6, xmm0
-        vmovaps xmm2, xmm6; endBlur
-      }
-      CG_Blur((LocalClientNum_t)v9, v65, *(float *)&_XMM2, v67, v68);
-      goto LABEL_275;
-    }
-    if ( !strcmp_0(v10, "clear_blur") )
-    {
-      CG_ClearBlur((LocalClientNum_t)v9);
-      goto LABEL_275;
-    }
-    if ( !strcmp_0(v10, "scr_fade") )
-    {
-      v71 = Cmd_ArgInt(3);
-      v72 = Cmd_ArgInt(2);
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@437f0000
-        vcvttss2si ecx, xmm1
-      }
-      CG_DrawSP_Fade((LocalClientNum_t)v9, 0, 0, 0, _ECX, v72, v71);
-      goto LABEL_275;
-    }
-    if ( !strcmp_0(v10, "time_slow") )
-    {
-      v75 = Cmd_ArgInt(1);
-      *(double *)&_XMM0 = Cmd_ArgFloat(2);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(3);
-      __asm { vmovaps xmm7, xmm0 }
-      if ( (_BYTE)CgDrawSystem::ms_allocatedType != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 187, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::DRAW_SYSTEM_TYPE)", "%s\n\tTrying to access the draw system for localClientNum %d but the draw system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::DRAW_SYSTEM_TYPE", v9, 1, (unsigned __int8)CgDrawSystem::ms_allocatedType) )
+      if ( *(float *)&v63 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 912, ASSERT_TYPE_ASSERT, "(blurEndValue >= 0)", (const char *)&queryFormat, "blurEndValue >= 0") )
         __debugbreak();
-      if ( (unsigned int)v9 >= CgDrawSystem::ms_allocatedCount )
+      CG_Blur((LocalClientNum_t)v4, v62, *(float *)&v63, v64, v65);
+      return;
+    }
+    if ( !strcmp_0(v5, "clear_blur") )
+    {
+      CG_ClearBlur((LocalClientNum_t)v4);
+      return;
+    }
+    if ( !strcmp_0(v5, "scr_fade") )
+    {
+      v66 = Cmd_ArgInt(3);
+      v67 = Cmd_ArgInt(2);
+      v68 = Cmd_ArgFloat(1);
+      CG_DrawSP_Fade((LocalClientNum_t)v4, 0, 0, 0, (int)(float)(*(float *)&v68 * 255.0), v67, v66);
+      return;
+    }
+    if ( !strcmp_0(v5, "time_slow") )
+    {
+      v69 = Cmd_ArgInt(1);
+      v70 = Cmd_ArgFloat(2);
+      v71 = *(float *)&v70;
+      v72 = Cmd_ArgFloat(3);
+      if ( (_BYTE)CgDrawSystem::ms_allocatedType != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 187, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::DRAW_SYSTEM_TYPE)", "%s\n\tTrying to access the draw system for localClientNum %d but the draw system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::DRAW_SYSTEM_TYPE", v4, 1, (unsigned __int8)CgDrawSystem::ms_allocatedType) )
+        __debugbreak();
+      if ( (unsigned int)v4 >= CgDrawSystem::ms_allocatedCount )
       {
         LODWORD(duration) = CgDrawSystem::ms_allocatedCount;
-        LODWORD(startTime) = v9;
+        LODWORD(startTime) = v4;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", startTime, duration) )
           __debugbreak();
       }
-      if ( !CgDrawSystem::ms_drawSystemArray[v9] )
+      if ( !CgDrawSystem::ms_drawSystemArray[v4] )
       {
-        LODWORD(duration) = v9;
+        LODWORD(duration) = v4;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 189, ASSERT_TYPE_ASSERT, "(ms_drawSystemArray[localClientNum])", "%s\n\tTrying to access unallocated draw system for localClientNum %d\n", "ms_drawSystemArray[localClientNum]", duration) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovaps xmm3, xmm7; endScale
-        vmovaps xmm2, xmm6; startScale
-      }
-      CgDrawSystemSP::AlterTimescale((CgDrawSystemSP *)CgDrawSystem::ms_drawSystemArray[v9], v75, *(float *)&_XMM2, *(float *)&_XMM3);
-      goto LABEL_275;
+      CgDrawSystemSP::AlterTimescale((CgDrawSystemSP *)CgDrawSystem::ms_drawSystemArray[v4], v69, v71, *(float *)&v72);
+      return;
     }
-    v80 = 0i64;
+    v73 = 0i64;
     while ( 1 )
     {
-      v81 = v10[v80++];
-      if ( v81 != aSlowaim[v80 - 1] )
+      v74 = v5[v73++];
+      if ( v74 != aSlowaim[v73 - 1] )
         break;
-      if ( v80 == 8 )
+      if ( v73 == 8 )
       {
         if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_MID_AIR_DETACH|WEAPON_OFFHAND_END) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 1250, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::VIEW_SLOW_AIM ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::VIEW_SLOW_AIM )") )
           __debugbreak();
@@ -720,751 +775,606 @@ LABEL_57:
           __debugbreak();
         if ( Cmd_ArgInt(1) )
         {
-          *(double *)&_XMM0 = Cmd_ArgFloat(2);
-          __asm { vmovaps xmm6, xmm0 }
-          *(double *)&_XMM0 = Cmd_ArgFloat(3);
-          __asm
-          {
-            vmovaps xmm2, xmm0; slowAimYawScale
-            vmovaps xmm1, xmm6; slowAimPitchScale
-          }
-          AimAssist_SetSlowAim((LocalClientNum_t)v9, *(const float *)&_XMM1, *(const float *)&_XMM2);
+          v75 = Cmd_ArgFloat(2);
+          v76 = *(float *)&v75;
+          v77 = Cmd_ArgFloat(3);
+          AimAssist_SetSlowAim((LocalClientNum_t)v4, v76, *(const float *)&v77);
         }
         else
         {
-          AimAssist_ClearSlowAim((LocalClientNum_t)v9);
+          AimAssist_ClearSlowAim((LocalClientNum_t)v4);
         }
-        goto LABEL_275;
+        return;
       }
     }
-    if ( !strcmp_0(v10, "capturnrate") )
+    if ( !strcmp_0(v5, "capturnrate") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(2);
-      __asm
+      v78 = Cmd_ArgFloat(1);
+      v79 = *(float *)&v78;
+      v80 = Cmd_ArgFloat(2);
+      CL_CapTurnRate((LocalClientNum_t)v4, TURNRATECAPTYPE_FROMSCRIPT, v79, *(float *)&v80);
+      return;
+    }
+    if ( !strcmp_0(v5, "addviewmodel") )
+    {
+      v81 = Cmd_ArgInt(1);
+      v82 = Cmd_ArgInt(2);
+      v83 = Cmd_ArgFloat(3);
+      seed.v[0] = *(float *)&v83;
+      v84 = Cmd_ArgFloat(4);
+      seed.v[1] = *(float *)&v84;
+      v85 = Cmd_ArgFloat(5);
+      seed.v[2] = *(float *)&v85;
+      v86 = Cmd_ArgFloat(6);
+      outOrigin.v[0] = *(float *)&v86;
+      v87 = Cmd_ArgFloat(7);
+      outOrigin.v[1] = *(float *)&v87;
+      v88 = Cmd_ArgFloat(8);
+      outOrigin.v[2] = *(float *)&v88;
+      WeaponSystemSP = CgWeaponSystemSP::GetWeaponSystemSP((const LocalClientNum_t)v4);
+      WeaponSystemSP->AddWeaponAttachModel(WeaponSystemSP, v81, v82, &seed, &outOrigin);
+      return;
+    }
+    if ( !strcmp_0(v5, "clearviewmodels") )
+    {
+      v90 = CgWeaponSystemSP::GetWeaponSystemSP((const LocalClientNum_t)v4);
+      CgWeaponSystemSP::ClearWeaponAttachModels(v90);
+      return;
+    }
+    if ( !strcmp_0(v5, "showViewModel") )
+    {
+      LocalClientGlobals->hideViewModel = 0;
+      return;
+    }
+    if ( !strcmp_0(v5, "hideViewModel") )
+    {
+      LocalClientGlobals->hideViewModel = 1;
+      Handler = CgHandler::getHandler((LocalClientNum_t)v4);
+      Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)v4);
+      PM_ResetWeaponState(Instance, &LocalClientGlobals->predictedPlayerState, Handler);
+      return;
+    }
+    if ( !strcmp_0(v5, "ret_lock_on") )
+    {
+      v93 = Cmd_ArgInt(2);
+      v94 = Cmd_ArgInt(1);
+      CG_ReticleStartLockOn((LocalClientNum_t)v4, v94, v93);
+      return;
+    }
+    if ( !strcmp_0(v5, "checksound") )
+    {
+      if ( !(_DWORD)v4 )
       {
-        vmovaps xmm3, xmm0; maxYawSpeed
-        vmovaps xmm2, xmm6; maxPitchSpeed
+        v95 = Cmd_ArgInt(1);
+        v96 = Cmd_ArgInt(2);
+        v97 = truncate_cast<unsigned short,int>(v96);
+        if ( !SND_IsScriptNotifySoundPlaying(v95, v97) )
+          CG_Utils_ScriptNotifySoundDone(v95, v97);
       }
-      CL_CapTurnRate((LocalClientNum_t)v9, TURNRATECAPTYPE_FROMSCRIPT, *(float *)&_XMM2, *(float *)&_XMM3);
-      goto LABEL_275;
+      return;
     }
-    if ( !strcmp_0(v10, "addviewmodel") )
+    if ( !strcmp_0(v5, "set_turret_fov") )
     {
-      v88 = Cmd_ArgInt(1);
-      v89 = Cmd_ArgInt(2);
-      *(double *)&_XMM0 = Cmd_ArgFloat(3);
-      __asm { vmovss  [rsp+310h+seed], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(4);
-      __asm { vmovss  [rsp+310h+var_2A4], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(5);
-      __asm { vmovss  dword ptr [rsp+310h+var_2A0], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(6);
-      __asm { vmovss  dword ptr [rsp+310h+outOrigin], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(7);
-      __asm { vmovss  dword ptr [rsp+310h+outOrigin+4], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(8);
-      __asm { vmovss  dword ptr [rsp+310h+outOrigin+8], xmm0 }
-      WeaponSystemSP = CgWeaponSystemSP::GetWeaponSystemSP((const LocalClientNum_t)v9);
-      WeaponSystemSP->AddWeaponAttachModel(WeaponSystemSP, v88, v89, &seed, &outOrigin);
-      goto LABEL_275;
+      v98 = Cmd_ArgFloat(1);
+      LocalClientGlobals->turretFov = *(float *)&v98;
+      return;
     }
-    if ( !strcmp_0(v10, "clearviewmodels") )
-    {
-      v91 = CgWeaponSystemSP::GetWeaponSystemSP((const LocalClientNum_t)v9);
-      CgWeaponSystemSP::ClearWeaponAttachModels(v91);
-      goto LABEL_275;
-    }
-    if ( !strcmp_0(v10, "showViewModel") )
-    {
-      _R15->hideViewModel = 0;
-      goto LABEL_275;
-    }
-    if ( !strcmp_0(v10, "hideViewModel") )
-    {
-      _R15->hideViewModel = 1;
-      Handler = CgHandler::getHandler((LocalClientNum_t)v9);
-      Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)v9);
-      PM_ResetWeaponState(Instance, &_R15->predictedPlayerState, Handler);
-      goto LABEL_275;
-    }
-    if ( !strcmp_0(v10, "ret_lock_on") )
-    {
-      v94 = Cmd_ArgInt(2);
-      v95 = Cmd_ArgInt(1);
-      CG_ReticleStartLockOn((LocalClientNum_t)v9, v95, v94);
-      goto LABEL_275;
-    }
-    if ( !strcmp_0(v10, "checksound") )
-    {
-      if ( !(_DWORD)v9 )
-      {
-        v96 = Cmd_ArgInt(1);
-        v97 = Cmd_ArgInt(2);
-        v98 = truncate_cast<unsigned short,int>(v97);
-        if ( !SND_IsScriptNotifySoundPlaying(v96, v98) )
-          CG_Utils_ScriptNotifySoundDone(v96, v98);
-      }
-      goto LABEL_275;
-    }
-    if ( !strcmp_0(v10, "set_turret_fov") )
-    {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovss  dword ptr [r15+59EC4h], xmm0 }
-      goto LABEL_275;
-    }
-    if ( !strcmp_0(v10, "set_lerp_fov") )
+    if ( !strcmp_0(v5, "set_lerp_fov") )
     {
       if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE|WEAPON_OFFHAND_END) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 1346, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::VIEW_FOV_LERP ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::VIEW_FOV_LERP )") )
         __debugbreak();
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm6, xmm0 }
+      v99 = Cmd_ArgFloat(1);
       v100 = Cmd_ArgInt(2);
-      _RAX = CG_GetViewFovBySpace((ClientFov *)&outOrigin, (const LocalClientNum_t)v9, CG_FovSpace_Scene, 0);
-      __asm
-      {
-        vmovsd  xmm2, qword ptr [rax]
-        vshufps xmm1, xmm2, xmm2, 55h ; 'U'
-        vmovss  dword ptr [r15+66A7Ch], xmm1
-        vmovss  dword ptr [r15+66A80h], xmm6
-      }
-      _R15->fovLerpTimer = v100;
-      _R15->fovLerpDuration = v100;
-      goto LABEL_275;
+      ViewFovBySpace = CG_GetViewFovBySpace((ClientFov *)&outOrigin, (const LocalClientNum_t)v4, CG_FovSpace_Scene, 0);
+      LocalClientGlobals->fovLerpBase = _mm_shuffle_ps((__m128)*(unsigned __int64 *)&ViewFovBySpace->finalFov, (__m128)*(unsigned __int64 *)&ViewFovBySpace->finalFov, 85).m128_f32[0];
+      LocalClientGlobals->fovLerpTarget = *(float *)&v99;
+      LocalClientGlobals->fovLerpTimer = v100;
+      LocalClientGlobals->fovLerpDuration = v100;
+      return;
     }
-    if ( !strcmp_0(v10, "set_base_fov") )
+    if ( !strcmp_0(v5, "set_base_fov") )
     {
       if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_OPEN_PARACHUTE|WEAPON_OFFHAND_END) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 1368, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::VIEW_FOV_LERP ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::VIEW_FOV_LERP )") )
         __debugbreak();
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm6, xmm0 }
-      v105 = Cmd_ArgInt(2);
-      v106 = DVARFLT_cg_targetBaseFov;
+      v102 = Cmd_ArgFloat(1);
+      v103 = Cmd_ArgInt(2);
+      v104 = DVARFLT_cg_targetBaseFov;
       if ( !DVARFLT_cg_targetBaseFov && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_targetBaseFov") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v106);
-      LODWORD(_R15->baseFovLerpInfo.baseFovAtLerpStart) = v106->current.integer;
-      __asm { vmovss  dword ptr [r15+66A70h], xmm6 }
-      _R15->baseFovLerpInfo.timer = v105;
-      _R15->baseFovLerpInfo.duration = v105;
-      goto LABEL_275;
+      Dvar_CheckFrontendServerThread(v104);
+      LODWORD(LocalClientGlobals->baseFovLerpInfo.baseFovAtLerpStart) = v104->current.integer;
+      LocalClientGlobals->baseFovLerpInfo.targetBaseFov = *(float *)&v102;
+      LocalClientGlobals->baseFovLerpInfo.timer = v103;
+      LocalClientGlobals->baseFovLerpInfo.duration = v103;
+      return;
     }
-    if ( !strcmp_0(v10, "digitaldistort") )
+    if ( !strcmp_0(v5, "digitaldistort") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(2);
-      __asm
-      {
-        vmovaps xmm2, xmm0; timeScale
-        vmovaps xmm1, xmm6; intensity
-      }
-      CG_SetDigitalDistortParams((const LocalClientNum_t)v9, *(const float *)&_XMM1, *(const float *)&_XMM2);
-      goto LABEL_275;
+      v105 = Cmd_ArgFloat(1);
+      v106 = *(float *)&v105;
+      v107 = Cmd_ArgFloat(2);
+      CG_SetDigitalDistortParams((const LocalClientNum_t)v4, v106, *(const float *)&v107);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_enabled") )
+    if ( !strcmp_0(v5, "set_pip_enabled") )
     {
-      v110 = Cmd_ArgInt(1);
-      CG_SetPIPActive((LocalClientNum_t)v9, v110 != 0);
-      goto LABEL_275;
+      v108 = Cmd_ArgInt(1);
+      CG_SetPIPActive((LocalClientNum_t)v4, v108 != 0);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_x") )
+    if ( !strcmp_0(v5, "set_pip_x") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm1, xmm0; x }
-      CG_PIP_SetViewX((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      v109 = Cmd_ArgFloat(1);
+      CG_PIP_SetViewX((LocalClientNum_t)v4, *(float *)&v109);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_y") )
+    if ( !strcmp_0(v5, "set_pip_y") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm1, xmm0; y }
-      CG_PIP_SetViewY((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      v110 = Cmd_ArgFloat(1);
+      CG_PIP_SetViewY((LocalClientNum_t)v4, *(float *)&v110);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_width") )
+    if ( !strcmp_0(v5, "set_pip_width") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm1, xmm0; width }
-      CG_PIP_SetViewWidth((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      v111 = Cmd_ArgFloat(1);
+      CG_PIP_SetViewWidth((LocalClientNum_t)v4, *(float *)&v111);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_height") )
+    if ( !strcmp_0(v5, "set_pip_height") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm1, xmm0; height }
-      CG_PIP_SetViewHeight((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      v112 = Cmd_ArgFloat(1);
+      CG_PIP_SetViewHeight((LocalClientNum_t)v4, *(float *)&v112);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_free_camera") )
+    if ( !strcmp_0(v5, "set_pip_free_camera") )
     {
-      v115 = Cmd_ArgInt(1);
-      CG_SetPipNonPlayer((LocalClientNum_t)v9, v115 != 0);
-      goto LABEL_275;
+      v113 = Cmd_ArgInt(1);
+      CG_SetPipNonPlayer((LocalClientNum_t)v4, v113 != 0);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_render_to_texture") )
+    if ( !strcmp_0(v5, "set_pip_render_to_texture") )
     {
-      v116 = Cmd_ArgInt(1);
-      CG_SetPipRenderToTexture((LocalClientNum_t)v9, v116 != 0);
-      goto LABEL_275;
+      v114 = Cmd_ArgInt(1);
+      CG_SetPipRenderToTexture((LocalClientNum_t)v4, v114 != 0);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_origin") )
+    if ( !strcmp_0(v5, "set_pip_origin") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovss  dword ptr [rsp+310h+outOrigin], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(2);
-      __asm { vmovss  dword ptr [rsp+310h+outOrigin+4], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(3);
-      __asm { vmovss  dword ptr [rsp+310h+outOrigin+8], xmm0 }
-      CG_SetPipPos((LocalClientNum_t)v9, &outOrigin);
-      goto LABEL_275;
+      v115 = Cmd_ArgFloat(1);
+      outOrigin.v[0] = *(float *)&v115;
+      v116 = Cmd_ArgFloat(2);
+      outOrigin.v[1] = *(float *)&v116;
+      v117 = Cmd_ArgFloat(3);
+      outOrigin.v[2] = *(float *)&v117;
+      CG_SetPipPos((LocalClientNum_t)v4, &outOrigin);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_origin_offset") )
+    if ( !strcmp_0(v5, "set_pip_origin_offset") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovss  dword ptr [rsp+310h+outOrigin], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(2);
-      __asm { vmovss  dword ptr [rsp+310h+outOrigin+4], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(3);
-      __asm { vmovss  dword ptr [rsp+310h+outOrigin+8], xmm0 }
-      CG_SetPipPosOffset((LocalClientNum_t)v9, &outOrigin);
-      goto LABEL_275;
+      v118 = Cmd_ArgFloat(1);
+      outOrigin.v[0] = *(float *)&v118;
+      v119 = Cmd_ArgFloat(2);
+      outOrigin.v[1] = *(float *)&v119;
+      v120 = Cmd_ArgFloat(3);
+      outOrigin.v[2] = *(float *)&v120;
+      CG_SetPipPosOffset((LocalClientNum_t)v4, &outOrigin);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_angles_offset") )
+    if ( !strcmp_0(v5, "set_pip_angles_offset") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovss  dword ptr [rsp+310h+outOrigin], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(2);
-      __asm { vmovss  dword ptr [rsp+310h+outOrigin+4], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(3);
-      __asm { vmovss  dword ptr [rsp+310h+outOrigin+8], xmm0 }
-      CG_SetPipAnglesOffset((LocalClientNum_t)v9, &outOrigin);
-      goto LABEL_275;
+      v121 = Cmd_ArgFloat(1);
+      outOrigin.v[0] = *(float *)&v121;
+      v122 = Cmd_ArgFloat(2);
+      outOrigin.v[1] = *(float *)&v122;
+      v123 = Cmd_ArgFloat(3);
+      outOrigin.v[2] = *(float *)&v123;
+      CG_SetPipAnglesOffset((LocalClientNum_t)v4, &outOrigin);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_fov") )
+    if ( !strcmp_0(v5, "set_pip_fov") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm1, xmm0; fov }
-      CG_SetPipFOV((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      v124 = Cmd_ArgFloat(1);
+      CG_SetPipFOV((LocalClientNum_t)v4, *(float *)&v124);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_dof_physical_fstop") )
+    if ( !strcmp_0(v5, "set_pip_dof_physical_fstop") )
     {
-      v118 = Cmd_Argv(1);
-      *(double *)&_XMM0 = atof(v118);
+      v125 = Cmd_Argv(1);
+      *(double *)&_XMM0 = atof(v125);
       __asm { vcvtsd2ss xmm1, xmm0, xmm0; fstop }
-      CG_SetPipDofPhysicalFstop((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      CG_SetPipDofPhysicalFstop((LocalClientNum_t)v4, *(float *)&_XMM1);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_dof_physical_focus_distance") )
+    if ( !strcmp_0(v5, "set_pip_dof_physical_focus_distance") )
     {
-      v120 = Cmd_Argv(1);
-      *(double *)&_XMM0 = atof(v120);
+      v127 = Cmd_Argv(1);
+      *(double *)&_XMM0 = atof(v127);
       __asm { vcvtsd2ss xmm1, xmm0, xmm0; focusDistance }
-      CG_SetPipDofPhysicalFocusDistance((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      CG_SetPipDofPhysicalFocusDistance((LocalClientNum_t)v4, *(float *)&_XMM1);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_look") )
+    if ( !strcmp_0(v5, "set_pip_look") )
     {
-      _R15 = CG_GetPipForward((LocalClientNum_t)v9);
-      _RBX = CG_GetPipRight((LocalClientNum_t)v9);
-      _RDI = CG_GetPipUp((LocalClientNum_t)v9);
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovss  dword ptr [r15], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(2);
-      __asm { vmovss  dword ptr [r15+4], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(3);
+      PipForward = CG_GetPipForward((LocalClientNum_t)v4);
+      PipRight = CG_GetPipRight((LocalClientNum_t)v4);
+      PipUp = CG_GetPipUp((LocalClientNum_t)v4);
+      v132 = Cmd_ArgFloat(1);
+      PipForward->v[0] = *(float *)&v132;
+      v133 = Cmd_ArgFloat(2);
+      PipForward->v[1] = *(float *)&v133;
+      v134 = Cmd_ArgFloat(3);
+      v135 = *(float *)&v134;
+      v136 = PipForward->v[1];
+      v137 = LODWORD(PipForward->v[0]);
+      v138 = v137;
+      *(float *)&v138 = fsqrt((float)((float)(*(float *)&v137 * *(float *)&v137) + (float)(v136 * v136)) + (float)(*(float *)&v134 * *(float *)&v134));
+      _XMM4 = v138;
       __asm
       {
-        vmovaps xmm7, xmm0
-        vmovss  xmm6, dword ptr [r15+4]
-        vmovss  xmm5, dword ptr [r15]
-        vmulss  xmm2, xmm5, xmm5
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm2, xmm0, xmm0
-        vaddss  xmm3, xmm3, xmm2
-        vsqrtss xmm4, xmm3, xmm3
-        vmovss  xmm9, cs:__real@80000000
         vcmpless xmm1, xmm4, xmm9
-        vmovss  xmm8, cs:__real@3f800000
         vblendvps xmm0, xmm4, xmm8, xmm1
-        vdivss  xmm2, xmm8, xmm0
-        vmulss  xmm1, xmm2, xmm5
-        vmovss  dword ptr [r15], xmm1
-        vmulss  xmm0, xmm2, xmm6
-        vmovss  dword ptr [r15+4], xmm0
-        vmulss  xmm3, xmm2, xmm7
-        vmovss  dword ptr [r15+8], xmm3
-        vmulss  xmm1, xmm1, dword ptr [rdi]
-        vmulss  xmm0, xmm0, dword ptr [rdi+4]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, dword ptr [rdi+8]
-        vaddss  xmm3, xmm2, xmm1
-        vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm3, cs:__real@3f7ae148
       }
-      if ( v148 | v149 )
+      *(float *)&_XMM1 = (float)(1.0 / *(float *)&_XMM0) * *(float *)&v137;
+      PipForward->v[0] = *(float *)&_XMM1;
+      PipForward->v[1] = (float)(1.0 / *(float *)&_XMM0) * v136;
+      PipForward->v[2] = (float)(1.0 / *(float *)&_XMM0) * v135;
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(*(float *)&_XMM1 * PipUp->v[0]) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v136) * PipUp->v[1])) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v135) * PipUp->v[2])) & _xmm) <= 0.98000002 )
       {
-        Vec3Cross(_R15, _RDI, _RBX);
+        Vec3Cross(PipForward, PipUp, PipRight);
+        v147 = LODWORD(PipRight->v[0]);
+        v148 = v147;
+        *(float *)&v148 = fsqrt((float)((float)(*(float *)&v147 * *(float *)&v147) + (float)(PipRight->v[1] * PipRight->v[1])) + (float)(PipRight->v[2] * PipRight->v[2]));
+        _XMM4 = v148;
         __asm
         {
-          vmovss  xmm0, dword ptr [rbx+4]
-          vmovss  xmm5, dword ptr [rbx]
-          vmovss  xmm3, dword ptr [rbx+8]
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm0, xmm0
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm4, xmm2, xmm2
           vcmpless xmm0, xmm4, xmm9
           vblendvps xmm0, xmm4, xmm8, xmm0
-          vdivss  xmm2, xmm8, xmm0
-          vmulss  xmm0, xmm5, xmm2
-          vmovss  dword ptr [rbx], xmm0
-          vmulss  xmm1, xmm2, dword ptr [rbx+4]
-          vmovss  dword ptr [rbx+4], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rbx+8]
-          vmovss  dword ptr [rbx+8], xmm0
         }
-        Vec3Cross(_RBX, _R15, _RDI);
+        PipRight->v[0] = *(float *)&v147 * (float)(1.0 / *(float *)&_XMM0);
+        PipRight->v[1] = (float)(1.0 / *(float *)&_XMM0) * PipRight->v[1];
+        PipRight->v[2] = (float)(1.0 / *(float *)&_XMM0) * PipRight->v[2];
+        Vec3Cross(PipRight, PipForward, PipUp);
       }
       else
       {
-        Vec3Cross(_RBX, _R15, _RDI);
+        Vec3Cross(PipRight, PipForward, PipUp);
+        v142 = LODWORD(PipUp->v[0]);
+        v143 = v142;
+        *(float *)&v143 = fsqrt((float)((float)(*(float *)&v142 * *(float *)&v142) + (float)(PipUp->v[1] * PipUp->v[1])) + (float)(PipUp->v[2] * PipUp->v[2]));
+        _XMM4 = v143;
         __asm
         {
-          vmovss  xmm0, dword ptr [rdi+4]
-          vmovss  xmm5, dword ptr [rdi]
-          vmovss  xmm3, dword ptr [rdi+8]
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm0, xmm0
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm4, xmm2, xmm2
           vcmpless xmm0, xmm4, xmm9
           vblendvps xmm0, xmm4, xmm8, xmm0
-          vdivss  xmm2, xmm8, xmm0
-          vmulss  xmm0, xmm5, xmm2
-          vmovss  dword ptr [rdi], xmm0
-          vmulss  xmm1, xmm2, dword ptr [rdi+4]
-          vmovss  dword ptr [rdi+4], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rdi+8]
-          vmovss  dword ptr [rdi+8], xmm0
         }
-        Vec3Cross(_R15, _RDI, _RBX);
+        PipUp->v[0] = *(float *)&v142 * (float)(1.0 / *(float *)&_XMM0);
+        PipUp->v[1] = (float)(1.0 / *(float *)&_XMM0) * PipUp->v[1];
+        PipUp->v[2] = (float)(1.0 / *(float *)&_XMM0) * PipUp->v[2];
+        Vec3Cross(PipForward, PipUp, PipRight);
       }
-      goto LABEL_275;
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_up") )
+    if ( !strcmp_0(v5, "set_pip_up") )
     {
-      _RDI = CG_GetPipForward((LocalClientNum_t)v9);
-      _RBX = CG_GetPipRight((LocalClientNum_t)v9);
-      _R14 = CG_GetPipUp((LocalClientNum_t)v9);
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovss  dword ptr [r14], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(2);
-      __asm { vmovss  dword ptr [r14+4], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(3);
+      v152 = CG_GetPipForward((LocalClientNum_t)v4);
+      v153 = CG_GetPipRight((LocalClientNum_t)v4);
+      v154 = CG_GetPipUp((LocalClientNum_t)v4);
+      v155 = Cmd_ArgFloat(1);
+      v154->v[0] = *(float *)&v155;
+      v156 = Cmd_ArgFloat(2);
+      v154->v[1] = *(float *)&v156;
+      v157 = Cmd_ArgFloat(3);
+      v158 = *(float *)&v157;
+      v159 = v154->v[1];
+      v160 = LODWORD(v154->v[0]);
+      v161 = v160;
+      *(float *)&v161 = fsqrt((float)((float)(*(float *)&v160 * *(float *)&v160) + (float)(v159 * v159)) + (float)(*(float *)&v157 * *(float *)&v157));
+      _XMM4 = v161;
       __asm
       {
-        vmovaps xmm7, xmm0
-        vmovss  xmm6, dword ptr [r14+4]
-        vmovss  xmm5, dword ptr [r14]
-        vmulss  xmm2, xmm5, xmm5
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm2, xmm0, xmm0
-        vaddss  xmm3, xmm3, xmm2
-        vsqrtss xmm4, xmm3, xmm3
-        vmovss  xmm9, cs:__real@80000000
         vcmpless xmm1, xmm4, xmm9
-        vmovss  xmm8, cs:__real@3f800000
         vblendvps xmm0, xmm4, xmm8, xmm1
-        vdivss  xmm2, xmm8, xmm0
-        vmulss  xmm4, xmm5, xmm2
-        vmovss  dword ptr [r14], xmm4
-        vmulss  xmm0, xmm6, xmm2
-        vmovss  dword ptr [r14+4], xmm0
-        vmulss  xmm3, xmm2, xmm7
-        vmovss  dword ptr [r14+8], xmm3
-        vmulss  xmm1, xmm0, dword ptr [rdi+4]
-        vmulss  xmm0, xmm4, dword ptr [rdi]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, dword ptr [rdi+8]
-        vaddss  xmm3, xmm2, xmm1
-        vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm3, cs:__real@3f7ae148
       }
-      if ( v148 | v149 )
+      v154->v[0] = *(float *)&v160 * (float)(1.0 / *(float *)&_XMM0);
+      v154->v[1] = v159 * (float)(1.0 / *(float *)&_XMM0);
+      v154->v[2] = (float)(1.0 / *(float *)&_XMM0) * v158;
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v159 * (float)(1.0 / *(float *)&_XMM0)) * v152->v[1]) + (float)((float)(*(float *)&v160 * (float)(1.0 / *(float *)&_XMM0)) * v152->v[0])) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v158) * v152->v[2])) & _xmm) <= 0.98000002 )
       {
-        Vec3Cross(_RDI, _R14, _RBX);
+        Vec3Cross(v152, v154, v153);
+        v170 = LODWORD(v153->v[0]);
+        v171 = v170;
+        *(float *)&v171 = fsqrt((float)((float)(*(float *)&v170 * *(float *)&v170) + (float)(v153->v[1] * v153->v[1])) + (float)(v153->v[2] * v153->v[2]));
+        _XMM4 = v171;
         __asm
         {
-          vmovss  xmm0, dword ptr [rbx+4]
-          vmovss  xmm5, dword ptr [rbx]
-          vmovss  xmm3, dword ptr [rbx+8]
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm0, xmm0
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm4, xmm2, xmm2
           vcmpless xmm0, xmm4, xmm9
           vblendvps xmm0, xmm4, xmm8, xmm0
-          vdivss  xmm2, xmm8, xmm0
-          vmulss  xmm0, xmm5, xmm2
-          vmovss  dword ptr [rbx], xmm0
-          vmulss  xmm1, xmm2, dword ptr [rbx+4]
-          vmovss  dword ptr [rbx+4], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rbx+8]
-          vmovss  dword ptr [rbx+8], xmm0
         }
-        Vec3Cross(_R14, _RBX, _RDI);
+        v153->v[0] = *(float *)&v170 * (float)(1.0 / *(float *)&_XMM0);
+        v153->v[1] = (float)(1.0 / *(float *)&_XMM0) * v153->v[1];
+        v153->v[2] = (float)(1.0 / *(float *)&_XMM0) * v153->v[2];
+        Vec3Cross(v154, v153, v152);
       }
       else
       {
-        Vec3Cross(_R14, _RBX, _RDI);
+        Vec3Cross(v154, v153, v152);
+        v165 = LODWORD(v152->v[0]);
+        v166 = v165;
+        *(float *)&v166 = fsqrt((float)((float)(*(float *)&v165 * *(float *)&v165) + (float)(v152->v[1] * v152->v[1])) + (float)(v152->v[2] * v152->v[2]));
+        _XMM4 = v166;
         __asm
         {
-          vmovss  xmm0, dword ptr [rdi+4]
-          vmovss  xmm5, dword ptr [rdi]
-          vmovss  xmm3, dword ptr [rdi+8]
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm0, xmm0
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm4, xmm2, xmm2
           vcmpless xmm0, xmm4, xmm9
           vblendvps xmm0, xmm4, xmm8, xmm0
-          vdivss  xmm2, xmm8, xmm0
-          vmulss  xmm0, xmm5, xmm2
-          vmovss  dword ptr [rdi], xmm0
-          vmulss  xmm1, xmm2, dword ptr [rdi+4]
-          vmovss  dword ptr [rdi+4], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rdi+8]
-          vmovss  dword ptr [rdi+8], xmm0
         }
-        Vec3Cross(_RDI, _R14, _RBX);
+        v152->v[0] = *(float *)&v165 * (float)(1.0 / *(float *)&_XMM0);
+        v152->v[1] = (float)(1.0 / *(float *)&_XMM0) * v152->v[1];
+        v152->v[2] = (float)(1.0 / *(float *)&_XMM0) * v152->v[2];
+        Vec3Cross(v152, v154, v153);
       }
-      goto LABEL_275;
+      return;
     }
-    v236 = 1;
-    v237 = 3;
-    if ( !strcmp_0(v10, "set_pip_right") )
+    v175 = 1;
+    v176 = 3;
+    if ( !strcmp_0(v5, "set_pip_right") )
     {
-      *(_QWORD *)outOrigin.v = CG_GetPipForward((LocalClientNum_t)v9);
-      *(_QWORD *)seed.v = CG_GetPipRight((LocalClientNum_t)v9);
-      _R13 = CG_GetPipUp((LocalClientNum_t)v9);
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      _RAX = *(_QWORD *)seed.v;
-      __asm { vmovss  dword ptr [rax], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(2);
-      _RAX = *(_QWORD *)seed.v;
-      __asm { vmovss  dword ptr [rax+4], xmm0 }
-      *(double *)&_XMM0 = Cmd_ArgFloat(3);
-      __asm { vmovaps xmm7, xmm0 }
-      _RAX = *(const vec3_t **)seed.v;
+      *(_QWORD *)outOrigin.v = CG_GetPipForward((LocalClientNum_t)v4);
+      *(_QWORD *)seed.v = CG_GetPipRight((LocalClientNum_t)v4);
+      v177 = CG_GetPipUp((LocalClientNum_t)v4);
+      v178 = Cmd_ArgFloat(1);
+      **(float **)seed.v = *(float *)&v178;
+      v179 = Cmd_ArgFloat(2);
+      *(float *)(*(_QWORD *)seed.v + 4i64) = *(float *)&v179;
+      v180 = Cmd_ArgFloat(3);
+      v181 = *(float *)&v180;
+      v182 = *(const vec3_t **)seed.v;
+      v183 = *(float *)(*(_QWORD *)seed.v + 4i64);
+      v184 = (unsigned int)**(_DWORD **)seed.v;
+      v185 = v184;
+      *(float *)&v185 = fsqrt((float)((float)(*(float *)&v184 * *(float *)&v184) + (float)(v183 * v183)) + (float)(*(float *)&v180 * *(float *)&v180));
+      _XMM4 = v185;
       __asm
       {
-        vmovss  xmm6, dword ptr [rax+4]
-        vmovss  xmm5, dword ptr [rax]
-        vmulss  xmm2, xmm5, xmm5
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm2, xmm0, xmm0
-        vaddss  xmm3, xmm3, xmm2
-        vsqrtss xmm4, xmm3, xmm3
-        vmovss  xmm9, cs:__real@80000000
         vcmpless xmm1, xmm4, xmm9
-        vmovss  xmm8, cs:__real@3f800000
         vblendvps xmm0, xmm4, xmm8, xmm1
-        vdivss  xmm2, xmm8, xmm0
-        vmulss  xmm1, xmm5, xmm2
-        vmovss  dword ptr [rax], xmm1
-        vmulss  xmm0, xmm6, xmm2
-        vmovss  dword ptr [rax+4], xmm0
-        vmulss  xmm3, xmm2, xmm7
-        vmovss  dword ptr [rax+8], xmm3
-        vmulss  xmm1, xmm1, dword ptr [r13+0]
-        vmulss  xmm0, xmm0, dword ptr [r13+4]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, dword ptr [r13+8]
-        vaddss  xmm3, xmm2, xmm1
-        vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm3, cs:__real@3f7ae148
       }
-      if ( v148 | v149 )
+      **(float **)seed.v = *(float *)&v184 * (float)(1.0 / *(float *)&_XMM0);
+      v182->v[1] = v183 * (float)(1.0 / *(float *)&_XMM0);
+      v182->v[2] = (float)(1.0 / *(float *)&_XMM0) * v181;
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(*(float *)&v184 * (float)(1.0 / *(float *)&_XMM0)) * v177->v[0]) + (float)((float)(v183 * (float)(1.0 / *(float *)&_XMM0)) * v177->v[1])) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v181) * v177->v[2])) & _xmm) <= 0.98000002 )
       {
-        Vec3Cross(_R13, _RAX, *(vec3_t **)outOrigin.v);
-        _RAX = *(const vec3_t **)outOrigin.v;
+        Vec3Cross(v177, v182, *(vec3_t **)outOrigin.v);
+        v196 = *(const vec3_t **)outOrigin.v;
+        v197 = (unsigned int)**(_DWORD **)outOrigin.v;
+        v198 = v197;
+        *(float *)&v198 = fsqrt((float)((float)(*(float *)&v197 * *(float *)&v197) + (float)(*(float *)(*(_QWORD *)outOrigin.v + 4i64) * *(float *)(*(_QWORD *)outOrigin.v + 4i64))) + (float)(*(float *)(*(_QWORD *)outOrigin.v + 8i64) * *(float *)(*(_QWORD *)outOrigin.v + 8i64)));
+        _XMM4 = v198;
         __asm
         {
-          vmovss  xmm0, dword ptr [rax+4]
-          vmovss  xmm5, dword ptr [rax]
-          vmovss  xmm3, dword ptr [rax+8]
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm0, xmm0
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm4, xmm2, xmm2
           vcmpless xmm0, xmm4, xmm9
           vblendvps xmm0, xmm4, xmm8, xmm0
-          vdivss  xmm2, xmm8, xmm0
-          vmulss  xmm0, xmm5, xmm2
-          vmovss  dword ptr [rax], xmm0
-          vmulss  xmm1, xmm2, dword ptr [rax+4]
-          vmovss  dword ptr [rax+4], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rax+8]
-          vmovss  dword ptr [rax+8], xmm0
         }
-        v279 = _R13;
-        v280 = _RAX;
-        v281 = *(const vec3_t **)seed.v;
+        **(float **)outOrigin.v = *(float *)&v197 * (float)(1.0 / *(float *)&_XMM0);
+        v196->v[1] = (float)(1.0 / *(float *)&_XMM0) * v196->v[1];
+        *((_QWORD *)&_XMM0 + 1) = 0i64;
+        v196->v[2] = (float)(1.0 / *(float *)&_XMM0) * v196->v[2];
+        v193 = v177;
+        v194 = v196;
+        v195 = *(const vec3_t **)seed.v;
       }
       else
       {
-        Vec3Cross(_RAX, *(const vec3_t **)outOrigin.v, _R13);
+        Vec3Cross(v182, *(const vec3_t **)outOrigin.v, v177);
+        v189 = LODWORD(v177->v[0]);
+        v190 = v189;
+        *(float *)&v190 = fsqrt((float)((float)(*(float *)&v189 * *(float *)&v189) + (float)(v177->v[1] * v177->v[1])) + (float)(v177->v[2] * v177->v[2]));
+        _XMM4 = v190;
         __asm
         {
-          vmovss  xmm0, dword ptr [r13+4]
-          vmovss  xmm5, dword ptr [r13+0]
-          vmovss  xmm3, dword ptr [r13+8]
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm0, xmm0
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm4, xmm2, xmm2
           vcmpless xmm0, xmm4, xmm9
           vblendvps xmm0, xmm4, xmm8, xmm0
-          vdivss  xmm2, xmm8, xmm0
-          vmulss  xmm0, xmm5, xmm2
-          vmovss  dword ptr [r13+0], xmm0
-          vmulss  xmm1, xmm2, dword ptr [r13+4]
-          vmovss  dword ptr [r13+4], xmm1
-          vmulss  xmm0, xmm2, dword ptr [r13+8]
-          vmovss  dword ptr [r13+8], xmm0
         }
-        v279 = *(vec3_t **)outOrigin.v;
-        v280 = *(const vec3_t **)seed.v;
-        v281 = _R13;
+        v177->v[0] = *(float *)&v189 * (float)(1.0 / *(float *)&_XMM0);
+        v177->v[1] = (float)(1.0 / *(float *)&_XMM0) * v177->v[1];
+        *((_QWORD *)&_XMM0 + 1) = 0i64;
+        v177->v[2] = (float)(1.0 / *(float *)&_XMM0) * v177->v[2];
+        v193 = *(vec3_t **)outOrigin.v;
+        v194 = *(const vec3_t **)seed.v;
+        v195 = v177;
       }
-      Vec3Cross(v281, v280, v279);
-      v12 = -1;
+      Vec3Cross(v195, v194, v193);
+      v7 = -1;
     }
-    if ( !strcmp_0(v10, "set_pip_thermal_body_material") )
+    if ( !strcmp_0(v5, "set_pip_thermal_body_material") )
     {
-      v297 = Cmd_Argv(1);
-      if ( *v297 )
-        v14 = Material_RegisterHandle(v297, IMAGE_TRACK_MODEL);
-      CG_SetPipThermalBodyMaterial((LocalClientNum_t)v9, v14);
-      goto LABEL_275;
+      v201 = Cmd_Argv(1);
+      if ( *v201 )
+        v9 = Material_RegisterHandle(v201, IMAGE_TRACK_MODEL);
+      CG_SetPipThermalBodyMaterial((LocalClientNum_t)v4, v9);
+      return;
     }
-    if ( !strcmp_0(v10, "pip_link_to_entity") )
+    if ( !strcmp_0(v5, "pip_link_to_entity") )
     {
-      v298 = Cmd_ArgInt(1);
-      CG_SetPIPLinkEntity((LocalClientNum_t)v9, v298);
-      goto LABEL_275;
+      v202 = Cmd_ArgInt(1);
+      CG_SetPIPLinkEntity((LocalClientNum_t)v4, v202);
+      return;
     }
-    if ( !strcmp_0(v10, "pip_link_to_tagname") )
+    if ( !strcmp_0(v5, "pip_link_to_tagname") )
     {
-      v299 = Cmd_ArgInt(1);
-      CG_SetPIPLinkTagname((LocalClientNum_t)v9, v299);
-      goto LABEL_275;
+      v203 = Cmd_ArgInt(1);
+      CG_SetPIPLinkTagname((LocalClientNum_t)v4, v203);
+      return;
     }
-    if ( !strcmp_0(v10, "pip_unlink") )
+    if ( !strcmp_0(v5, "pip_unlink") )
     {
-      CG_SetPIPLinkEntity((LocalClientNum_t)v9, 2047);
-      CG_SetPIPLinkTagname((LocalClientNum_t)v9, 0);
-      goto LABEL_275;
+      CG_SetPIPLinkEntity((LocalClientNum_t)v4, 2047);
+      CG_SetPIPLinkTagname((LocalClientNum_t)v4, 0);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_nearz") )
+    if ( !strcmp_0(v5, "set_pip_nearz") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm1, xmm0; nearZ }
-      CG_SetPIPNearZ((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      v204 = Cmd_ArgFloat(1);
+      CG_SetPIPNearZ((LocalClientNum_t)v4, *(float *)&v204);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_blur") )
+    if ( !strcmp_0(v5, "set_pip_blur") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm1, xmm0; blur }
-      CG_SetPIPBlur((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      v205 = Cmd_ArgFloat(1);
+      CG_SetPIPBlur((LocalClientNum_t)v4, *(float *)&v205);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_lod") )
+    if ( !strcmp_0(v5, "set_pip_lod") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm1, xmm0; lod }
-      CG_SetPIPLod((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      v206 = Cmd_ArgFloat(1);
+      CG_SetPIPLod((LocalClientNum_t)v4, *(float *)&v206);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_aspect") )
+    if ( !strcmp_0(v5, "set_pip_aspect") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm1, xmm0; aspectRatio }
-      CG_PIP_SetAspectRatio((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      v207 = Cmd_ArgFloat(1);
+      CG_PIP_SetAspectRatio((LocalClientNum_t)v4, *(float *)&v207);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_cull_dist") )
+    if ( !strcmp_0(v5, "set_pip_cull_dist") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm1, xmm0; farZ }
-      CG_SetPIPFarZ((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      v208 = Cmd_ArgFloat(1);
+      CG_SetPIPFarZ((LocalClientNum_t)v4, *(float *)&v208);
+      return;
     }
-    if ( !strcmp_0(v10, "set_pip_shadowmaps") )
+    if ( !strcmp_0(v5, "set_pip_shadowmaps") )
     {
-      v305 = Cmd_ArgInt(1);
-      CG_SetPipShadowMaps((LocalClientNum_t)v9, v305 != 0);
-      goto LABEL_275;
+      v209 = Cmd_ArgInt(1);
+      CG_SetPipShadowMaps((LocalClientNum_t)v4, v209 != 0);
+      return;
     }
-    if ( !strcmp_0(v10, "pip_visionset_naked") )
+    if ( !strcmp_0(v5, "pip_visionset_naked") )
     {
-      v306 = Cmd_Argv(1);
-      v307 = Cmd_ArgInt(2);
-      if ( *v306 )
+      v210 = Cmd_Argv(1);
+      v211 = Cmd_ArgInt(2);
+      if ( *v210 )
       {
-        CG_VisionSetUpdateToNode(&_R15->cvsData, _R15->time, VISIONSET_BLENDTYPE_CT_B);
-        CG_VisionSetClearScriptBlendInUseIfNeeded(&_R15->cvsData, _R15->time);
-        p_cvsData = &_R15->pipViews[0].cvsData;
-        CG_VisionSetMergeBlendToLeaf(&_R15->pipViews[0].cvsData, _R15->time, VISIONSET_BLENDTYPE_SCRIPT_BLEND, VISIONSET_LEAFTYPE_SCRIPT_FROM);
-        CG_VisionSetRegisterLeafByFile(&_R15->pipViews[0].cvsData, VISIONSET_LEAFTYPE_SCRIPT_TO, v306);
-        CG_VisionSetRegisterBlendStart(&_R15->pipViews[0].cvsData, VISIONSET_BLENDTYPE_SCRIPT_BLEND, _R15->time, v307, 1, VISIONSETLERP_SMOOTH);
+        CG_VisionSetUpdateToNode(&LocalClientGlobals->cvsData, LocalClientGlobals->time, VISIONSET_BLENDTYPE_CT_B);
+        CG_VisionSetClearScriptBlendInUseIfNeeded(&LocalClientGlobals->cvsData, LocalClientGlobals->time);
+        p_cvsData = &LocalClientGlobals->pipViews[0].cvsData;
+        CG_VisionSetMergeBlendToLeaf(&LocalClientGlobals->pipViews[0].cvsData, LocalClientGlobals->time, VISIONSET_BLENDTYPE_SCRIPT_BLEND, VISIONSET_LEAFTYPE_SCRIPT_FROM);
+        CG_VisionSetRegisterLeafByFile(&LocalClientGlobals->pipViews[0].cvsData, VISIONSET_LEAFTYPE_SCRIPT_TO, v210);
+        CG_VisionSetRegisterBlendStart(&LocalClientGlobals->pipViews[0].cvsData, VISIONSET_BLENDTYPE_SCRIPT_BLEND, LocalClientGlobals->time, v211, 1, VISIONSETLERP_SMOOTH);
       }
       else
       {
-        p_cvsData = &_R15->pipViews[0].cvsData;
+        p_cvsData = &LocalClientGlobals->pipViews[0].cvsData;
       }
-      CG_VisionSetScriptOverride(p_cvsData, v306, _R15->time, v307);
-      goto LABEL_275;
+      CG_VisionSetScriptOverride(p_cvsData, v210, LocalClientGlobals->time, v211);
+      return;
     }
-    if ( !strcmp_0(v10, "pip_visionset_night") )
+    if ( !strcmp_0(v5, "pip_visionset_night") )
     {
-      v309 = Cmd_Argv(1);
-      CG_VisionSetSpecialVision(&_R15->pipViews[0].cvsData, VISIONSET_LEAFTYPE_NIGHTVISION, v309);
-      goto LABEL_275;
+      v213 = Cmd_Argv(1);
+      CG_VisionSetSpecialVision(&LocalClientGlobals->pipViews[0].cvsData, VISIONSET_LEAFTYPE_NIGHTVISION, v213);
+      return;
     }
-    if ( !strcmp_0(v10, "pip_visionset_missilecam") )
+    if ( !strcmp_0(v5, "pip_visionset_missilecam") )
     {
-      v310 = Cmd_Argv(1);
-      CG_VisionSetSpecialVision(&_R15->pipViews[0].cvsData, VISIONSET_LEAFTYPE_PREDATOR, v310);
-      goto LABEL_275;
+      v214 = Cmd_Argv(1);
+      CG_VisionSetSpecialVision(&LocalClientGlobals->pipViews[0].cvsData, VISIONSET_LEAFTYPE_PREDATOR, v214);
+      return;
     }
-    if ( !strcmp_0(v10, "pip_visionset_thermal") )
+    if ( !strcmp_0(v5, "pip_visionset_thermal") )
     {
-      v311 = Cmd_Argv(1);
-      CG_VisionSetSpecialVision(&_R15->pipViews[0].cvsData, VISIONSET_LEAFTYPE_THERMAL, v311);
-      goto LABEL_275;
+      v215 = Cmd_Argv(1);
+      CG_VisionSetSpecialVision(&LocalClientGlobals->pipViews[0].cvsData, VISIONSET_LEAFTYPE_THERMAL, v215);
+      return;
     }
-    if ( !strcmp_0(v10, "pip_visionset_pain") )
+    if ( !strcmp_0(v5, "pip_visionset_pain") )
     {
-      v312 = Cmd_Argv(1);
-      CG_VisionSetRegisterLeafByFile(&_R15->pipViews[0].cvsData, VISIONSET_LEAFTYPE_PAIN, v312);
-      goto LABEL_275;
+      v216 = Cmd_Argv(1);
+      CG_VisionSetRegisterLeafByFile(&LocalClientGlobals->pipViews[0].cvsData, VISIONSET_LEAFTYPE_PAIN, v216);
+      return;
     }
-    if ( !strcmp_0(v10, "pip_enable_visionset_naked") )
+    if ( !strcmp_0(v5, "pip_enable_visionset_naked") )
     {
-      _R15->pipViews[0].cvsData.archived.painVisionActive = 0;
-      _R15->pipViews[0].cvsData.archived.painVisionLerp = 0.0;
-LABEL_205:
-      *(_WORD *)&_R15->pipViews[0].cvsData.transitory.remoteMissileCam = 0;
-LABEL_206:
-      __asm { vmovss  xmm1, cs:__real@bf800000; fadeInTime }
-      CG_PIP_EnableNightVision((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      LocalClientGlobals->pipViews[0].cvsData.archived.painVisionActive = 0;
+      LocalClientGlobals->pipViews[0].cvsData.archived.painVisionLerp = 0.0;
+LABEL_208:
+      *(_WORD *)&LocalClientGlobals->pipViews[0].cvsData.transitory.remoteMissileCam = 0;
+LABEL_209:
+      CG_PIP_EnableNightVision((LocalClientNum_t)v4, -1.0);
+      return;
     }
-    if ( !strcmp_0(v10, "pip_enable_visionset_night") )
+    if ( !strcmp_0(v5, "pip_enable_visionset_night") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      _R15->pipViews[0].cvsData.archived.painVisionActive = 0;
-      _R15->pipViews[0].cvsData.archived.painVisionLerp = 0.0;
-      *(_WORD *)&_R15->pipViews[0].cvsData.transitory.remoteMissileCam = 0;
-      __asm { vmovaps xmm1, xmm0; fadeInTime }
-      CG_PIP_EnableNightVision((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_275;
+      v217 = Cmd_ArgFloat(1);
+      LocalClientGlobals->pipViews[0].cvsData.archived.painVisionActive = 0;
+      LocalClientGlobals->pipViews[0].cvsData.archived.painVisionLerp = 0.0;
+      *(_WORD *)&LocalClientGlobals->pipViews[0].cvsData.transitory.remoteMissileCam = 0;
+      CG_PIP_EnableNightVision((LocalClientNum_t)v4, *(float *)&v217);
+      return;
     }
-    if ( !strcmp_0(v10, "pip_enable_visionset_missilecam") )
+    if ( !strcmp_0(v5, "pip_enable_visionset_missilecam") )
     {
-      _R15->pipViews[0].cvsData.archived.painVisionActive = 0;
-      _R15->pipViews[0].cvsData.archived.painVisionLerp = 0.0;
-      *(_WORD *)&_R15->pipViews[0].cvsData.transitory.remoteMissileCam = 1;
-      goto LABEL_206;
+      LocalClientGlobals->pipViews[0].cvsData.archived.painVisionActive = 0;
+      LocalClientGlobals->pipViews[0].cvsData.archived.painVisionLerp = 0.0;
+      *(_WORD *)&LocalClientGlobals->pipViews[0].cvsData.transitory.remoteMissileCam = 1;
+      goto LABEL_209;
     }
-    if ( !strcmp_0(v10, "pip_enable_visionset_thermal") )
+    if ( !strcmp_0(v5, "pip_enable_visionset_thermal") )
     {
-      _R15->pipViews[0].cvsData.archived.painVisionActive = 0;
-      _R15->pipViews[0].cvsData.archived.painVisionLerp = 0.0;
-      *(_WORD *)&_R15->pipViews[0].cvsData.transitory.remoteMissileCam = 256;
-      goto LABEL_206;
+      LocalClientGlobals->pipViews[0].cvsData.archived.painVisionActive = 0;
+      LocalClientGlobals->pipViews[0].cvsData.archived.painVisionLerp = 0.0;
+      *(_WORD *)&LocalClientGlobals->pipViews[0].cvsData.transitory.remoteMissileCam = 256;
+      goto LABEL_209;
     }
-    if ( !strcmp_0(v10, "pip_enable_visionset_pain") )
+    if ( !strcmp_0(v5, "pip_enable_visionset_pain") )
     {
-      *(double *)&_XMM0 = Cmd_ArgFloat(1);
-      __asm { vmovaps xmm1, xmm0; fadeInTime }
-      CG_PIP_SetPainVision((LocalClientNum_t)v9, *(float *)&_XMM1);
-      goto LABEL_205;
+      v218 = Cmd_ArgFloat(1);
+      CG_PIP_SetPainVision((LocalClientNum_t)v4, *(float *)&v218);
+      goto LABEL_208;
     }
-    if ( !strcmp_0(v10, "set_hud_dyn") )
+    if ( !strcmp_0(v5, "set_hud_dyn") )
     {
-      v316 = Cmd_ArgInt(1);
-      v317 = Cmd_Argv(2);
-      *(double *)&_XMM0 = atof(v317);
-      __asm
+      v219 = Cmd_ArgInt(1);
+      v220 = Cmd_Argv(2);
+      *(double *)&_XMM0 = atof(v220);
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      LocalClientGlobals->hudLightingState.forceAdditiveColorEnd.v[0] = *(float *)&_XMM1;
+      v222 = Cmd_Argv(3);
+      *(double *)&_XMM0 = atof(v222);
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      LocalClientGlobals->hudLightingState.forceAdditiveColorEnd.v[1] = *(float *)&_XMM1;
+      v224 = Cmd_Argv(4);
+      *(double *)&_XMM0 = atof(v224);
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      LocalClientGlobals->hudLightingState.forceAdditiveColorEnd.v[2] = *(float *)&_XMM1;
+      LocalClientGlobals->hudLightingState.forceAdditiveColorStart.v[0] = LocalClientGlobals->hudLightingState.forceAdditiveColor.v[0];
+      LocalClientGlobals->hudLightingState.forceAdditiveColorStart.v[1] = LocalClientGlobals->hudLightingState.forceAdditiveColor.v[1];
+      LocalClientGlobals->hudLightingState.forceAdditiveColorStart.v[2] = LocalClientGlobals->hudLightingState.forceAdditiveColor.v[2];
+      LocalClientGlobals->hudLightingState.forceAdditiveChangeTime = v219;
+      LocalClientGlobals->hudLightingState.forceAdditiveChangeDuration = v219;
+    }
+    else if ( !strcmp_0(v5, "transient") )
+    {
+      v226 = Cmd_Argc();
+      v227 = Cmd_Argv(1);
+      if ( v226 > 2 )
+        v7 = Cmd_ArgInt(2);
+      if ( v226 > 3 )
+        LODWORD(v9) = Cmd_ArgInt(3);
+      if ( I_stricmp(v227, "load") )
       {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [r15+59F10h], xmm1
-      }
-      v319 = Cmd_Argv(3);
-      *(double *)&_XMM0 = atof(v319);
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [r15+59F14h], xmm1
-      }
-      v321 = Cmd_Argv(4);
-      *(double *)&_XMM0 = atof(v321);
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [r15+59F18h], xmm1
-      }
-      _R15->hudLightingState.forceAdditiveColorStart.v[0] = _R15->hudLightingState.forceAdditiveColor.v[0];
-      _R15->hudLightingState.forceAdditiveColorStart.v[1] = _R15->hudLightingState.forceAdditiveColor.v[1];
-      _R15->hudLightingState.forceAdditiveColorStart.v[2] = _R15->hudLightingState.forceAdditiveColor.v[2];
-      _R15->hudLightingState.forceAdditiveChangeTime = v316;
-      _R15->hudLightingState.forceAdditiveChangeDuration = v316;
-    }
-    else if ( !strcmp_0(v10, "transient") )
-    {
-      v323 = Cmd_Argc();
-      v324 = Cmd_Argv(1);
-      if ( v323 > 2 )
-        v12 = Cmd_ArgInt(2);
-      if ( v323 > 3 )
-        LODWORD(v14) = Cmd_ArgInt(3);
-      if ( I_stricmp(v324, "load") )
-      {
-        if ( I_stricmp(v324, "pausegame") )
+        if ( I_stricmp(v227, "pausegame") )
         {
-          if ( I_stricmp(v324, "unload") )
+          if ( I_stricmp(v227, "unload") )
           {
-            if ( I_stricmp(v324, "unloadall") )
+            if ( I_stricmp(v227, "unloadall") )
             {
-              if ( I_stricmp(v324, "unload_level") )
+              if ( I_stricmp(v227, "unload_level") )
               {
-                if ( I_stricmp(v324, "sync") )
+                if ( I_stricmp(v227, "sync") )
                 {
-                  if ( I_stricmp(v324, "setvis") )
-                    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1443174C0, 960i64, v324);
+                  if ( I_stricmp(v227, "setvis") )
+                    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1443174C0, 960i64, v227);
                   else
-                    CL_TransientsWorld_SetVisibility(LOCAL_CLIENT_0, v12, (_DWORD)v14 != 0);
+                    CL_TransientsWorld_SetVisibility(LOCAL_CLIENT_0, v7, (_DWORD)v9 != 0);
                 }
                 else
                 {
@@ -1483,20 +1393,20 @@ LABEL_206:
           }
           else
           {
-            CL_TransientsSP_QueueUnload(v12);
+            CL_TransientsSP_QueueUnload(v7);
           }
         }
         else
         {
-          CL_TransientsSP_PauseGameWaitFor(v12);
+          CL_TransientsSP_PauseGameWaitFor(v7);
         }
       }
       else
       {
-        CL_TransientsSP_QueueLoad(v12);
+        CL_TransientsSP_QueueLoad(v7);
       }
     }
-    else if ( !strcmp_0(v10, "preloadzones") )
+    else if ( !strcmp_0(v5, "preloadzones") )
     {
       if ( Cmd_Argc() < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 1861, ASSERT_TYPE_ASSERT, "(Cmd_Argc() >= 2)", (const char *)&queryFormat, "Cmd_Argc() >= 2") )
         __debugbreak();
@@ -1505,150 +1415,123 @@ LABEL_206:
       {
         do
         {
-          v325 = Cmd_Argv(v236);
-          if ( DB_Zones_IsPreloadZoneName(v325) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 1868, ASSERT_TYPE_ASSERT, "(!DB_Zones_IsPreloadZoneName( zoneName ))", "%s\n\t%s has already been preloaded!", "!DB_Zones_IsPreloadZoneName( zoneName )", v325) )
+          v228 = Cmd_Argv(v175);
+          if ( DB_Zones_IsPreloadZoneName(v228) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 1868, ASSERT_TYPE_ASSERT, "(!DB_Zones_IsPreloadZoneName( zoneName ))", "%s\n\t%s has already been preloaded!", "!DB_Zones_IsPreloadZoneName( zoneName )", v228) )
             __debugbreak();
-          Com_Printf(14, "CLIENT: preloadzones %s\n", v325);
-          Core_strcpy(&dest[64 * (__int64)(v236++ - 1)], 0x40ui64, v325);
+          Com_Printf(14, "CLIENT: preloadzones %s\n", v228);
+          Core_strcpy(&dest[64 * (__int64)(v175++ - 1)], 0x40ui64, v228);
         }
-        while ( v236 < Cmd_Argc() );
+        while ( v175 < Cmd_Argc() );
       }
       CL_PreloadSP_ServerAskedForLoad((const char (*)[8][64])dest);
     }
     else
     {
-      v326 = 0i64;
+      v229 = 0i64;
       while ( 1 )
       {
-        v327 = v10[v326++];
-        if ( v327 != aMayhem[v326 - 1] )
+        v230 = v5[v229++];
+        if ( v230 != aMayhem[v229 - 1] )
           break;
-        if ( v326 == 7 )
+        if ( v229 == 7 )
         {
-          v328 = Cmd_Argc();
-          v329 = Cmd_Argv(1);
-          if ( v328 > 2 )
-            LODWORD(v14) = Cmd_ArgInt(2);
-          if ( I_stricmp(v329, "play") )
+          v231 = Cmd_Argc();
+          v232 = Cmd_Argv(1);
+          if ( v231 > 2 )
+            LODWORD(v9) = Cmd_ArgInt(2);
+          if ( I_stricmp(v232, "play") )
           {
-            if ( I_stricmp(v329, "pause") )
+            if ( I_stricmp(v232, "pause") )
             {
-              if ( I_stricmp(v329, "hide") )
+              if ( I_stricmp(v232, "hide") )
               {
-                if ( I_stricmp(v329, "show") )
+                if ( I_stricmp(v232, "show") )
                 {
-                  if ( I_stricmp(v329, "spawn") )
+                  if ( I_stricmp(v232, "spawn") )
                   {
-                    if ( I_stricmp(v329, "kill") )
-                      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144317600, 961i64, v329);
+                    if ( I_stricmp(v232, "kill") )
+                      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144317600, 961i64, v232);
                     else
-                      Mayhem_KillInstance((scr_string_t)v14);
+                      Mayhem_KillInstance((scr_string_t)v9);
                   }
                   else
                   {
-                    if ( v328 != 10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 1922, ASSERT_TYPE_ASSERT, "(argc == 10)", (const char *)&queryFormat, "argc == 10") )
+                    if ( v231 != 10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_servercmds_sp.cpp", 1922, ASSERT_TYPE_ASSERT, "(argc == 10)", (const char *)&queryFormat, "argc == 10") )
                       __debugbreak();
-                    v330 = Cmd_ArgInt(3);
-                    v331 = Cmd_Argv(4);
-                    *(double *)&_XMM0 = atof(v331);
-                    __asm
-                    {
-                      vcvtsd2ss xmm1, xmm0, xmm0
-                      vmovss  [rsp+310h+seed], xmm1
-                    }
-                    v333 = Cmd_Argv(5);
-                    *(double *)&_XMM0 = atof(v333);
-                    __asm
-                    {
-                      vcvtsd2ss xmm1, xmm0, xmm0
-                      vmovss  [rsp+310h+var_2A4], xmm1
-                    }
-                    v335 = Cmd_Argv(6);
-                    *(double *)&_XMM0 = atof(v335);
-                    __asm
-                    {
-                      vcvtsd2ss xmm1, xmm0, xmm0
-                      vmovss  dword ptr [rsp+310h+var_2A0], xmm1
-                    }
-                    v337 = Cmd_Argv(7);
-                    *(double *)&_XMM0 = atof(v337);
-                    __asm
-                    {
-                      vcvtsd2ss xmm1, xmm0, xmm0
-                      vmovss  dword ptr [rsp+310h+outOrigin], xmm1
-                    }
-                    v339 = Cmd_Argv(8);
-                    *(double *)&_XMM0 = atof(v339);
-                    __asm
-                    {
-                      vcvtsd2ss xmm1, xmm0, xmm0
-                      vmovss  dword ptr [rsp+310h+outOrigin+4], xmm1
-                    }
-                    v341 = Cmd_Argv(9);
-                    *(double *)&_XMM0 = atof(v341);
-                    __asm
-                    {
-                      vcvtsd2ss xmm1, xmm0, xmm0
-                      vmovss  dword ptr [rsp+310h+outOrigin+8], xmm1
-                    }
+                    v233 = Cmd_ArgInt(3);
+                    v234 = Cmd_Argv(4);
+                    *(double *)&_XMM0 = atof(v234);
+                    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+                    seed.v[0] = *(float *)&_XMM1;
+                    v236 = Cmd_Argv(5);
+                    *(double *)&_XMM0 = atof(v236);
+                    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+                    seed.v[1] = *(float *)&_XMM1;
+                    v238 = Cmd_Argv(6);
+                    *(double *)&_XMM0 = atof(v238);
+                    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+                    seed.v[2] = *(float *)&_XMM1;
+                    v240 = Cmd_Argv(7);
+                    *(double *)&_XMM0 = atof(v240);
+                    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+                    outOrigin.v[0] = *(float *)&_XMM1;
+                    v242 = Cmd_Argv(8);
+                    *(double *)&_XMM0 = atof(v242);
+                    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+                    outOrigin.v[1] = *(float *)&_XMM1;
+                    v244 = Cmd_Argv(9);
+                    *(double *)&_XMM0 = atof(v244);
+                    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+                    outOrigin.v[2] = *(float *)&_XMM1;
                     AnglesToQuat(&outOrigin, &quat);
-                    Mayhem_SpawnInstance((scr_string_t)v14, v330, &seed, &quat);
+                    Mayhem_SpawnInstance((scr_string_t)v9, v233, &seed, &quat);
                   }
                 }
                 else
                 {
-                  Mayhem_ShowInstance((scr_string_t)v14);
+                  Mayhem_ShowInstance((scr_string_t)v9);
                 }
               }
               else
               {
-                Mayhem_HideInstance((scr_string_t)v14);
+                Mayhem_HideInstance((scr_string_t)v9);
               }
             }
             else
             {
-              Mayhem_PauseInstance((scr_string_t)v14);
+              Mayhem_PauseInstance((scr_string_t)v9);
             }
           }
           else
           {
-            Mayhem_PlayInstance((scr_string_t)v14);
+            Mayhem_PlayInstance((scr_string_t)v9);
           }
-          goto LABEL_275;
+          return;
         }
       }
-      if ( !strcmp_0(v10, "set_cin_lerp_lb") )
+      if ( !strcmp_0(v5, "set_cin_lerp_lb") )
       {
-        v343 = Cmd_ArgInt(1);
-        v344 = Cmd_ArgInt(2);
-        v345 = Cmd_ArgInt(3);
-        if ( v343 == 1 )
-          v237 = 1;
-        _R15->cinematicLetterboxInfo.wantedState = v237;
-        _R15->cinematicLetterboxInfo.scaleTimer = v344;
-        _R15->cinematicLetterboxInfo.scaleDuration = v344;
-        _R15->cinematicLetterboxInfo.fadeTimer = v345;
-        _R15->cinematicLetterboxInfo.fadeDuration = v345;
+        v246 = Cmd_ArgInt(1);
+        v247 = Cmd_ArgInt(2);
+        v248 = Cmd_ArgInt(3);
+        if ( v246 == 1 )
+          v176 = 1;
+        LocalClientGlobals->cinematicLetterboxInfo.wantedState = v176;
+        LocalClientGlobals->cinematicLetterboxInfo.scaleTimer = v247;
+        LocalClientGlobals->cinematicLetterboxInfo.scaleDuration = v247;
+        LocalClientGlobals->cinematicLetterboxInfo.fadeTimer = v248;
+        LocalClientGlobals->cinematicLetterboxInfo.fadeDuration = v248;
       }
-      else if ( !strcmp_0(v10, "sfreeent") )
+      else if ( !strcmp_0(v5, "sfreeent") )
       {
-        v346 = Cmd_ArgInt(1);
-        SND_FreeEntityParamInfo(v346);
+        v249 = Cmd_ArgInt(1);
+        SND_FreeEntityParamInfo(v249);
       }
       else
       {
-        Com_PrintWarning(14, "Unknown client game command: %s\n", v10);
+        Com_PrintWarning(14, "Unknown client game command: %s\n", v5);
       }
     }
-  }
-LABEL_275:
-  _R11 = &v360;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 
@@ -1701,25 +1584,27 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
   __int64 v21; 
   unsigned int v22; 
   const char *ConfigString; 
-  unsigned int v25; 
+  cg_t *v24; 
+  double FovDvarValue; 
   unsigned int v26; 
+  unsigned int v27; 
   unsigned int i; 
-  const char *v28; 
-  Physics_WorldId v30; 
+  const char *v29; 
+  Physics_WorldId v31; 
   Physics_WorldId j; 
-  CgPlayer_Asm *v32; 
   CgPlayer_Asm *v33; 
-  CgClientSideEffectsSystemSP *v34; 
-  __int64 v35; 
+  CgPlayer_Asm *v34; 
+  CgClientSideEffectsSystemSP *v35; 
   __int64 v36; 
   __int64 v37; 
   __int64 v38; 
-  bdRandom v41; 
+  __int64 v39; 
   bdRandom v42; 
-  __int64 v43; 
+  bdRandom v43; 
+  __int64 v44; 
   RefdefView out; 
 
-  v43 = -2i64;
+  v44 = -2i64;
   v4 = restart;
   v5 = DVARINT_cl_freemove;
   if ( !DVARINT_cl_freemove && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_freemove") )
@@ -1740,16 +1625,16 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
       CgGlobalsSP::ClearLocalClientGlobals((const LocalClientNum_t)v8);
       if ( CgWeaponSystem::ms_allocatedType != WEAPONS_TYPE_SP )
       {
-        LODWORD(v37) = CgWeaponSystem::ms_allocatedType;
-        LODWORD(v36) = 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 606, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::WEAPON_SYSTEM_TYPE)", "%s\n\tCgWeaponSystem::ClearWeaponSystemCommon: Trying to clear weapon system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::WEAPON_SYSTEM_TYPE", v36, v37) )
+        LODWORD(v38) = CgWeaponSystem::ms_allocatedType;
+        LODWORD(v37) = 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 606, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::WEAPON_SYSTEM_TYPE)", "%s\n\tCgWeaponSystem::ClearWeaponSystemCommon: Trying to clear weapon system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::WEAPON_SYSTEM_TYPE", v37, v38) )
           __debugbreak();
       }
       if ( v8 >= (unsigned int)CgWeaponSystem::ms_allocatedCount )
       {
-        LODWORD(v36) = CgWeaponSystem::ms_allocatedCount;
-        LODWORD(v35) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 607, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v37) = CgWeaponSystem::ms_allocatedCount;
+        LODWORD(v36) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons.h", 607, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
       ((void (__fastcall *)(CgWeaponSystem *, _QWORD))CgWeaponSystem::ms_weaponSystemArray[v9]->~CgWeaponSystem)(CgWeaponSystem::ms_weaponSystemArray[v9], 0i64);
@@ -1762,16 +1647,16 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
       v10->__vftable = (CgWeaponSystem_vtbl *)&CgWeaponSystemSP::`vftable';
       if ( (_BYTE)CgEventSystem::ms_allocatedType != HALF )
       {
-        LODWORD(v37) = (unsigned __int8)CgEventSystem::ms_allocatedType;
-        LODWORD(v36) = 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.h", 300, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::EVENT_SYSTEM_TYPE)", "%s\n\tCgEventSystem::ClearEventSystemCommon: Trying to clear event system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::EVENT_SYSTEM_TYPE", v36, v37) )
+        LODWORD(v38) = (unsigned __int8)CgEventSystem::ms_allocatedType;
+        LODWORD(v37) = 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.h", 300, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::EVENT_SYSTEM_TYPE)", "%s\n\tCgEventSystem::ClearEventSystemCommon: Trying to clear event system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::EVENT_SYSTEM_TYPE", v37, v38) )
           __debugbreak();
       }
       if ( v8 >= (unsigned int)CgEventSystem::ms_allocatedCount )
       {
-        LODWORD(v36) = CgEventSystem::ms_allocatedCount;
-        LODWORD(v35) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.h", 301, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v37) = CgEventSystem::ms_allocatedCount;
+        LODWORD(v36) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.h", 301, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
       ((void (__fastcall *)(CgEventSystem *, _QWORD))CgEventSystem::ms_eventSystemArray[v9]->~CgEventSystem)(CgEventSystem::ms_eventSystemArray[v9], 0i64);
@@ -1784,16 +1669,16 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
       CG_Event_Debug_Init((LocalClientNum_t)v8);
       if ( (_BYTE)CgDrawSystem::ms_allocatedType != HALF )
       {
-        LODWORD(v37) = (unsigned __int8)CgDrawSystem::ms_allocatedType;
-        LODWORD(v36) = 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 252, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::DRAW_SYSTEM_TYPE)", "%s\n\tCgDrawSystem::ClearDrawSystemCommon: Trying to clear draw system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::DRAW_SYSTEM_TYPE", v36, v37) )
+        LODWORD(v38) = (unsigned __int8)CgDrawSystem::ms_allocatedType;
+        LODWORD(v37) = 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 252, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::DRAW_SYSTEM_TYPE)", "%s\n\tCgDrawSystem::ClearDrawSystemCommon: Trying to clear draw system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::DRAW_SYSTEM_TYPE", v37, v38) )
           __debugbreak();
       }
       if ( v8 >= (unsigned int)CgDrawSystem::ms_allocatedCount )
       {
-        LODWORD(v36) = CgDrawSystem::ms_allocatedCount;
-        LODWORD(v35) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 253, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v37) = CgDrawSystem::ms_allocatedCount;
+        LODWORD(v36) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 253, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
       ((void (__fastcall *)(CgDrawSystem *, _QWORD))CgDrawSystem::ms_drawSystemArray[v9]->~CgDrawSystem)(CgDrawSystem::ms_drawSystemArray[v9], 0i64);
@@ -1807,16 +1692,16 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
       v14->__vftable = (CgDrawSystem_vtbl *)&CgDrawSystemSP::`vftable';
       if ( (_BYTE)CgCompassSystem::ms_allocatedType != HALF )
       {
-        LODWORD(v37) = (unsigned __int8)CgCompassSystem::ms_allocatedType;
-        LODWORD(v36) = 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 651, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tCgCompassSystem::ClearCompassSystemCommon: Trying to clear compass system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v36, v37) )
+        LODWORD(v38) = (unsigned __int8)CgCompassSystem::ms_allocatedType;
+        LODWORD(v37) = 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 651, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tCgCompassSystem::ClearCompassSystemCommon: Trying to clear compass system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v37, v38) )
           __debugbreak();
       }
       if ( v8 >= (unsigned int)CgCompassSystem::ms_allocatedCount )
       {
-        LODWORD(v36) = CgCompassSystem::ms_allocatedCount;
-        LODWORD(v35) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 652, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v37) = CgCompassSystem::ms_allocatedCount;
+        LODWORD(v36) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 652, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
       ((void (__fastcall *)(CgCompassSystem *, _QWORD))CgCompassSystem::ms_compassSystemArray[v9]->~CgCompassSystem)(CgCompassSystem::ms_compassSystemArray[v9], 0i64);
@@ -1824,37 +1709,37 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
       CgCompassSystemSP::CgCompassSystemSP((CgCompassSystemSP *)CgCompassSystem::ms_compassSystemArray[v9], (const LocalClientNum_t)v8);
       if ( !(_BYTE)CgCompassSystem::ms_allocatedType )
       {
-        LODWORD(v36) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 575, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type is not known\n", "ms_allocatedType != GameModeType::NONE", v36) )
+        LODWORD(v37) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 575, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type is not known\n", "ms_allocatedType != GameModeType::NONE", v37) )
           __debugbreak();
       }
       if ( v8 >= (unsigned int)CgCompassSystem::ms_allocatedCount )
       {
-        LODWORD(v36) = CgCompassSystem::ms_allocatedCount;
-        LODWORD(v35) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 576, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v37) = CgCompassSystem::ms_allocatedCount;
+        LODWORD(v36) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 576, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
       if ( !CgCompassSystem::ms_compassSystemArray[v9] )
       {
-        LODWORD(v36) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 577, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v36) )
+        LODWORD(v37) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 577, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v37) )
           __debugbreak();
       }
       CgCompassSystem::ResetCompassActorObfuscation(CgCompassSystem::ms_compassSystemArray[v9]);
       CG_SnapshotSP_ClearSnapshots((const LocalClientNum_t)v8);
       if ( (_BYTE)CgEntitySystem::ms_allocatedType != HALF )
       {
-        LODWORD(v37) = (unsigned __int8)CgEntitySystem::ms_allocatedType;
-        LODWORD(v36) = 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 368, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::ENTITY_SYSTEM_TYPE)", "%s\n\tCgEntitySystem::ClearEntitySystemCommon: Trying to clear entity system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::ENTITY_SYSTEM_TYPE", v36, v37) )
+        LODWORD(v38) = (unsigned __int8)CgEntitySystem::ms_allocatedType;
+        LODWORD(v37) = 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 368, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::ENTITY_SYSTEM_TYPE)", "%s\n\tCgEntitySystem::ClearEntitySystemCommon: Trying to clear entity system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::ENTITY_SYSTEM_TYPE", v37, v38) )
           __debugbreak();
       }
       if ( v8 >= (unsigned int)CgEntitySystem::ms_allocatedCount )
       {
-        LODWORD(v36) = CgEntitySystem::ms_allocatedCount;
-        LODWORD(v35) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 369, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v37) = CgEntitySystem::ms_allocatedCount;
+        LODWORD(v36) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 369, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
       ((void (__fastcall *)(CgEntitySystem *, _QWORD))CgEntitySystem::ms_entitySystemArray[v9]->~CgEntitySystem)(CgEntitySystem::ms_entitySystemArray[v9], 0i64);
@@ -1863,16 +1748,16 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
       CgEntitySystem::ResetEntitySystemObufscation((const LocalClientNum_t)v8);
       if ( (_BYTE)CgViewSystem::ms_allocatedType != HALF )
       {
-        LODWORD(v37) = (unsigned __int8)CgViewSystem::ms_allocatedType;
-        LODWORD(v36) = 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view.h", 343, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::VIEW_SYSTEM_TYPE)", "%s\n\tCgViewSystem::ClearViewSystemCommon: Trying to clear view system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::VIEW_SYSTEM_TYPE", v36, v37) )
+        LODWORD(v38) = (unsigned __int8)CgViewSystem::ms_allocatedType;
+        LODWORD(v37) = 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view.h", 343, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::VIEW_SYSTEM_TYPE)", "%s\n\tCgViewSystem::ClearViewSystemCommon: Trying to clear view system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::VIEW_SYSTEM_TYPE", v37, v38) )
           __debugbreak();
       }
       if ( v8 >= (unsigned int)CgViewSystem::ms_allocatedCount )
       {
-        LODWORD(v36) = CgViewSystem::ms_allocatedCount;
-        LODWORD(v35) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view.h", 344, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v37) = CgViewSystem::ms_allocatedCount;
+        LODWORD(v36) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view.h", 344, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
       ((void (__fastcall *)(CgViewSystem *, _QWORD))CgViewSystem::ms_viewSystemArray[v9]->~CgViewSystem)(CgViewSystem::ms_viewSystemArray[v9], 0i64);
@@ -1883,16 +1768,16 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
       v15->__vftable = (CgViewSystem_vtbl *)&CgViewSystemSP::`vftable';
       if ( (_BYTE)CgVehicleSystem::ms_allocatedType != HALF )
       {
-        LODWORD(v37) = (unsigned __int8)CgVehicleSystem::ms_allocatedType;
-        LODWORD(v36) = 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 482, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::VEHICLE_SYSTEM_TYPE)", "%s\n\tCgVehicleSystem::ClearVehicleSystemCommon: Trying to clear vehicle system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::VEHICLE_SYSTEM_TYPE", v36, v37) )
+        LODWORD(v38) = (unsigned __int8)CgVehicleSystem::ms_allocatedType;
+        LODWORD(v37) = 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 482, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::VEHICLE_SYSTEM_TYPE)", "%s\n\tCgVehicleSystem::ClearVehicleSystemCommon: Trying to clear vehicle system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::VEHICLE_SYSTEM_TYPE", v37, v38) )
           __debugbreak();
       }
       if ( v8 >= (unsigned int)CgVehicleSystem::ms_allocatedCount )
       {
-        LODWORD(v36) = CgVehicleSystem::ms_allocatedCount;
-        LODWORD(v35) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 483, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v37) = CgVehicleSystem::ms_allocatedCount;
+        LODWORD(v36) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 483, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
       ((void (__fastcall *)(CgVehicleSystem *, _QWORD))CgVehicleSystem::ms_vehicleSystemArray[v9]->~CgVehicleSystem)(CgVehicleSystem::ms_vehicleSystemArray[v9], 0i64);
@@ -1902,16 +1787,16 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
       CGMovingPlatformsSP::ClearMovingPlatformSystem();
       if ( (_BYTE)CgTargetAssist::ms_allocatedType != HALF )
       {
-        LODWORD(v37) = (unsigned __int8)CgTargetAssist::ms_allocatedType;
-        LODWORD(v36) = 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_targetassist.h", 147, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::INSTANCE_TYPE)", "%s\n\tCgTargetAssist::ClearInstanceCommon: Trying to clear target assist system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::INSTANCE_TYPE", v36, v37) )
+        LODWORD(v38) = (unsigned __int8)CgTargetAssist::ms_allocatedType;
+        LODWORD(v37) = 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_targetassist.h", 147, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::INSTANCE_TYPE)", "%s\n\tCgTargetAssist::ClearInstanceCommon: Trying to clear target assist system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::INSTANCE_TYPE", v37, v38) )
           __debugbreak();
       }
       if ( v8 >= (unsigned int)CgTargetAssist::ms_allocatedCount )
       {
-        LODWORD(v36) = CgTargetAssist::ms_allocatedCount;
-        LODWORD(v35) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_targetassist.h", 148, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v37) = CgTargetAssist::ms_allocatedCount;
+        LODWORD(v36) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_targetassist.h", 148, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
       ((void (__fastcall *)(CgTargetAssist *, _QWORD))CgTargetAssist::ms_instances[v9]->~BgTargetAssist)(CgTargetAssist::ms_instances[v9], 0i64);
@@ -1920,16 +1805,16 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
       CgAntiLag::ResetClientHistory((const LocalClientNum_t)v8);
       if ( (_BYTE)CgPredictedEntitySystem::ms_allocatedType != HALF )
       {
-        LODWORD(v37) = (unsigned __int8)CgPredictedEntitySystem::ms_allocatedType;
-        LODWORD(v36) = 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.h", 297, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::SYSTEM_TYPE)", "%s\n\tCgPredictedEntitySystem::ClearSystemCommon: Trying to clear predicted entity system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::SYSTEM_TYPE", v36, v37) )
+        LODWORD(v38) = (unsigned __int8)CgPredictedEntitySystem::ms_allocatedType;
+        LODWORD(v37) = 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.h", 297, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::SYSTEM_TYPE)", "%s\n\tCgPredictedEntitySystem::ClearSystemCommon: Trying to clear predicted entity system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::SYSTEM_TYPE", v37, v38) )
           __debugbreak();
       }
       if ( v8 >= (unsigned int)CgPredictedEntitySystem::ms_allocatedCount )
       {
-        LODWORD(v36) = CgPredictedEntitySystem::ms_allocatedCount;
-        LODWORD(v35) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.h", 298, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v37) = CgPredictedEntitySystem::ms_allocatedCount;
+        LODWORD(v36) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_predictedentity.h", 298, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
       CgPredictedEntitySystem::Shutdown(CgPredictedEntitySystem::ms_systemsArray[v9]);
@@ -1938,16 +1823,16 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
       CgPredictedEntitySystemSP::CgPredictedEntitySystemSP((CgPredictedEntitySystemSP *)CgPredictedEntitySystem::ms_systemsArray[v9], (const LocalClientNum_t)v8);
       if ( (_BYTE)CgBallistics::ms_allocatedType != HALF )
       {
-        LODWORD(v37) = (unsigned __int8)CgBallistics::ms_allocatedType;
-        LODWORD(v36) = 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_ballistics.h", 242, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::SYSTEM_TYPE)", "%s\n\tCgBallistics::ClearSystemCommon: Trying to clear ballistics system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::SYSTEM_TYPE", v36, v37) )
+        LODWORD(v38) = (unsigned __int8)CgBallistics::ms_allocatedType;
+        LODWORD(v37) = 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_ballistics.h", 242, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::SYSTEM_TYPE)", "%s\n\tCgBallistics::ClearSystemCommon: Trying to clear ballistics system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::SYSTEM_TYPE", v37, v38) )
           __debugbreak();
       }
       if ( v8 >= (unsigned int)CgBallistics::ms_allocatedCount )
       {
-        LODWORD(v36) = CgBallistics::ms_allocatedCount;
-        LODWORD(v35) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_ballistics.h", 243, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v37) = CgBallistics::ms_allocatedCount;
+        LODWORD(v36) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_ballistics.h", 243, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
       ((void (__fastcall *)(CgBallistics *, _QWORD))CgBallistics::ms_systemsArray[v9]->~BgBallistics<CgBallisticInstance>)(CgBallistics::ms_systemsArray[v9], 0i64);
@@ -1955,16 +1840,16 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
       CgBallisticsSP::CgBallisticsSP((CgBallisticsSP *)CgBallistics::ms_systemsArray[v9], (const LocalClientNum_t)v8);
       if ( (_BYTE)CgMissile::ms_allocatedType != HALF )
       {
-        LODWORD(v37) = (unsigned __int8)CgMissile::ms_allocatedType;
-        LODWORD(v36) = 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.h", 350, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::SYSTEM_TYPE)", "%s\n\tCgMissile::ClearSystemCommon: Trying to clear missile system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::SYSTEM_TYPE", v36, v37) )
+        LODWORD(v38) = (unsigned __int8)CgMissile::ms_allocatedType;
+        LODWORD(v37) = 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.h", 350, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::SYSTEM_TYPE)", "%s\n\tCgMissile::ClearSystemCommon: Trying to clear missile system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::SYSTEM_TYPE", v37, v38) )
           __debugbreak();
       }
       if ( v8 >= (unsigned int)CgMissile::ms_allocatedCount )
       {
-        LODWORD(v36) = CgMissile::ms_allocatedCount;
-        LODWORD(v35) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.h", 351, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v37) = CgMissile::ms_allocatedCount;
+        LODWORD(v36) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_missile.h", 351, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
           __debugbreak();
       }
       ((void (__fastcall *)(CgMissile *, _QWORD))CgMissile::ms_systemsArray[v9]->~BgMissile)(CgMissile::ms_systemsArray[v9], 0i64);
@@ -2002,16 +1887,16 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
       __debugbreak();
     if ( BgDynamicLimits::ms_data.m_maxConfigStrings <= 0x810 )
     {
-      LODWORD(v36) = 2064;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_configstrings.h", 68, ASSERT_TYPE_ASSERT, "(BG_ConfigStrings_IsConfigStringInCount( base, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() ))", "%s\n\tConfigStringOffset of invalid base ConfigString %u", "BG_ConfigStrings_IsConfigStringInCount( base, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() )", v36) )
+      LODWORD(v37) = 2064;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_configstrings.h", 68, ASSERT_TYPE_ASSERT, "(BG_ConfigStrings_IsConfigStringInCount( base, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() ))", "%s\n\tConfigStringOffset of invalid base ConfigString %u", "BG_ConfigStrings_IsConfigStringInCount( base, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() )", v37) )
         __debugbreak();
     }
     if ( !BgDynamicLimits::IsValidGameMode() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_dynamic_limits.h", 126, ASSERT_TYPE_ASSERT, "(IsValidGameMode())", "%s\n\tAccessing BgDynamicLimits during invalid game mode", "IsValidGameMode()") )
       __debugbreak();
     if ( v22 >= BgDynamicLimits::ms_data.m_maxConfigStrings )
     {
-      LODWORD(v36) = v22;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_configstrings.h", 72, ASSERT_TYPE_ASSERT, "(BG_ConfigStrings_IsConfigStringInCount( newIndex, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() ))", "%s\n\tConfigStringOffset gets invalid ConfigString %u", "BG_ConfigStrings_IsConfigStringInCount( newIndex, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() )", v36) )
+      LODWORD(v37) = v22;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_configstrings.h", 72, ASSERT_TYPE_ASSERT, "(BG_ConfigStrings_IsConfigStringInCount( newIndex, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() ))", "%s\n\tConfigStringOffset gets invalid ConfigString %u", "BG_ConfigStrings_IsConfigStringInCount( newIndex, CS_FIRST, BgDynamicLimits::GetMaxConfigStrings() )", v37) )
         __debugbreak();
     }
     ConfigString = CL_GetConfigString(v22);
@@ -2020,30 +1905,27 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
   }
   while ( v22 - 2064 < 0x15E );
   CG_ServerCmdSP_UpdateServerMaterialsTouch();
-  _RBP = CG_GetLocalClientGlobals((const LocalClientNum_t)v21);
-  _RBP->cinematicLetterboxInfo.currentState = CINEMATIC_LETTER_BOX_OFF;
-  _RBP->cinematicLetterboxInfo.wantedState = CINEMATIC_LETTER_BOX_OFF;
-  _RBP->loaded = restart;
-  _RBP->lastHealthLerpDelay = 1;
-  _RBP->baseFovLerpInfo.targetBaseFov = 65.0;
-  *(_QWORD *)&_RBP->baseFovLerpInfo.timer = 0i64;
-  *(double *)&_XMM0 = CG_View_GetFovDvarValue((const LocalClientNum_t)v21);
-  __asm
-  {
-    vmovss  dword ptr [rbp+66A7Ch], xmm0
-    vmovss  dword ptr [rbp+59EC4h], xmm0
-  }
-  memset_0(&_RBP->viewModelPose, 0, sizeof(_RBP->viewModelPose));
-  bdRandom::bdRandom(&v41);
-  v25 = bdRandom::nextUInt(&v41) % 0x22;
-  bdRandom::~bdRandom(&v41);
+  v24 = CG_GetLocalClientGlobals((const LocalClientNum_t)v21);
+  v24->cinematicLetterboxInfo.currentState = CINEMATIC_LETTER_BOX_OFF;
+  v24->cinematicLetterboxInfo.wantedState = CINEMATIC_LETTER_BOX_OFF;
+  v24->loaded = restart;
+  v24->lastHealthLerpDelay = 1;
+  v24->baseFovLerpInfo.targetBaseFov = 65.0;
+  *(_QWORD *)&v24->baseFovLerpInfo.timer = 0i64;
+  FovDvarValue = CG_View_GetFovDvarValue((const LocalClientNum_t)v21);
+  v24->fovLerpBase = *(float *)&FovDvarValue;
+  v24->turretFov = *(float *)&FovDvarValue;
+  memset_0(&v24->viewModelPose, 0, sizeof(v24->viewModelPose));
   bdRandom::bdRandom(&v42);
   v26 = bdRandom::nextUInt(&v42) % 0x22;
   bdRandom::~bdRandom(&v42);
-  CG_ResetPoseZero(&_RBP->viewModelPose, v26, v25);
-  _RBP->viewModelPose.eType = 29;
-  _RBP->prevViewIndex = -1;
-  *(_WORD *)&_RBP->m_useSellShock = 1;
+  bdRandom::bdRandom(&v43);
+  v27 = bdRandom::nextUInt(&v43) % 0x22;
+  bdRandom::~bdRandom(&v43);
+  CG_ResetPoseZero(&v24->viewModelPose, v27, v26);
+  v24->viewModelPose.eType = 29;
+  v24->prevViewIndex = -1;
+  *(_WORD *)&v24->m_useSellShock = 1;
   CG_Camera_Initialize((const LocalClientNum_t)v21);
   CG_InitLocalEntities((const LocalClientNum_t)v21);
   CG_VisionSetMapInit((const LocalClientNum_t)v21);
@@ -2057,8 +1939,8 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
   CG_InitLightUpdate((LocalClientNum_t)v21);
   for ( i = 4014; i < 0xFEE; ++i )
     CG_TargetsChanged((LocalClientNum_t)v21, i);
-  v28 = CL_GetConfigString(4078);
-  *(double *)&_XMM0 = atof(v28);
+  v29 = CL_GetConfigString(4078);
+  *(double *)&_XMM0 = atof(v29);
   __asm { vcvtsd2ss xmm0, xmm0, xmm0; dist }
   R_SetCullDist(*(float *)&_XMM0);
   CG_DrawTools_MiniMapChanged((LocalClientNum_t)v21);
@@ -2082,8 +1964,8 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
     Ragdoll_Reset((LocalClientNum_t)v21);
     CG_Main_FreeCloth((LocalClientNum_t)v21);
     Physics_CreateClientWorlds((LocalClientNum_t)v21);
-    v30 = 3 * v21 + 4;
-    for ( j = 3 * v21 + 2; j <= v30; ++j )
+    v31 = 3 * v21 + 4;
+    for ( j = 3 * v21 + 2; j <= v31; ++j )
     {
       WorldCollision_InstantiateCollision(j);
       StaticModels_InstantiateCollision(j);
@@ -2097,8 +1979,8 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
     CG_Weapons_SetupAutoComplete();
     if ( PlayerASM_IsEnabled() )
     {
-      v32 = CgPlayer_Asm::Singleton((const LocalClientNum_t)v21);
-      BgPlayer_Asm::Shutdown(v32, 0);
+      v33 = CgPlayer_Asm::Singleton((const LocalClientNum_t)v21);
+      BgPlayer_Asm::Shutdown(v33, 0);
     }
   }
   FX_InitSystem((LocalClientNum_t)v21, 0);
@@ -2111,27 +1993,27 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
   Mayhem_Init();
   if ( PlayerASM_IsEnabled() )
   {
-    v33 = CgPlayer_Asm::Singleton((const LocalClientNum_t)v21);
-    BgPlayer_Asm::Init(v33, 0, 0);
+    v34 = CgPlayer_Asm::Singleton((const LocalClientNum_t)v21);
+    BgPlayer_Asm::Init(v34, 0, 0);
   }
   if ( (_BYTE)CgVehicleSystem::ms_allocatedType != HALF )
   {
-    LODWORD(v37) = 1;
-    LODWORD(v36) = v21;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 417, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::VEHICLE_SYSTEM_TYPE)", "%s\n\tTrying to access the vehicle system for localClientNum %d but the vehicle system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::VEHICLE_SYSTEM_TYPE", v36, v37, (unsigned __int8)CgVehicleSystem::ms_allocatedType) )
+    LODWORD(v38) = 1;
+    LODWORD(v37) = v21;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 417, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::VEHICLE_SYSTEM_TYPE)", "%s\n\tTrying to access the vehicle system for localClientNum %d but the vehicle system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::VEHICLE_SYSTEM_TYPE", v37, v38, (unsigned __int8)CgVehicleSystem::ms_allocatedType) )
       __debugbreak();
   }
   if ( (unsigned int)v21 >= CgVehicleSystem::ms_allocatedCount )
   {
-    LODWORD(v36) = CgVehicleSystem::ms_allocatedCount;
-    LODWORD(v35) = v21;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 418, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+    LODWORD(v37) = CgVehicleSystem::ms_allocatedCount;
+    LODWORD(v36) = v21;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 418, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
       __debugbreak();
   }
   if ( !CgVehicleSystem::ms_vehicleSystemArray[v21] )
   {
-    LODWORD(v36) = v21;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 419, ASSERT_TYPE_ASSERT, "(ms_vehicleSystemArray[localClientNum])", "%s\n\tTrying to access unallocated vehicle system for localClientNum %d\n", "ms_vehicleSystemArray[localClientNum]", v36) )
+    LODWORD(v37) = v21;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 419, ASSERT_TYPE_ASSERT, "(ms_vehicleSystemArray[localClientNum])", "%s\n\tTrying to access unallocated vehicle system for localClientNum %d\n", "ms_vehicleSystemArray[localClientNum]", v37) )
       __debugbreak();
   }
   CgVehicleSystemSP::Init((CgVehicleSystemSP *)CgVehicleSystem::ms_vehicleSystemArray[v21]);
@@ -2143,28 +2025,28 @@ void CG_ServerCmdSP_MapInit(bool restart, bool loadScripts, bool savegame)
   SND_PropagationInit();
   if ( (_BYTE)CgClientSideEffectsSystem::ms_allocatedType != HALF )
   {
-    LODWORD(v38) = (unsigned __int8)CgClientSideEffectsSystem::ms_allocatedType;
-    LODWORD(v37) = 1;
-    LODWORD(v36) = v21;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 321, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE)", "%s\n\tTrying to access the client-side effects system for localClientNum %d but the client-side effects system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE", v36, v37, v38) )
+    LODWORD(v39) = (unsigned __int8)CgClientSideEffectsSystem::ms_allocatedType;
+    LODWORD(v38) = 1;
+    LODWORD(v37) = v21;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 321, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE)", "%s\n\tTrying to access the client-side effects system for localClientNum %d but the client-side effects system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE", v37, v38, v39) )
       __debugbreak();
   }
   if ( (unsigned int)v21 >= CgClientSideEffectsSystem::ms_allocatedCount )
   {
-    LODWORD(v36) = CgClientSideEffectsSystem::ms_allocatedCount;
-    LODWORD(v35) = v21;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 322, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v35, v36) )
+    LODWORD(v37) = CgClientSideEffectsSystem::ms_allocatedCount;
+    LODWORD(v36) = v21;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 322, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v36, v37) )
       __debugbreak();
   }
   if ( !CgClientSideEffectsSystem::ms_cseSystemArray[v21] )
   {
-    LODWORD(v36) = v21;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 323, ASSERT_TYPE_ASSERT, "(ms_cseSystemArray[localClientNum])", "%s\n\tTrying to access unallocated client-side effects system for localClientNum %d\n", "ms_cseSystemArray[localClientNum]", v36) )
+    LODWORD(v37) = v21;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 323, ASSERT_TYPE_ASSERT, "(ms_cseSystemArray[localClientNum])", "%s\n\tTrying to access unallocated client-side effects system for localClientNum %d\n", "ms_cseSystemArray[localClientNum]", v37) )
       __debugbreak();
   }
-  v34 = (CgClientSideEffectsSystemSP *)CgClientSideEffectsSystem::ms_cseSystemArray[v21];
-  CgClientSideEffectsSystem::Shutdown(v34);
-  CgClientSideEffectsSystemSP::Start(v34, !savegame);
+  v35 = (CgClientSideEffectsSystemSP *)CgClientSideEffectsSystem::ms_cseSystemArray[v21];
+  CgClientSideEffectsSystem::Shutdown(v35);
+  CgClientSideEffectsSystemSP::Start(v35, !savegame);
   CG_CreateFx_OnMapRestart();
   FX_ClearViewmodelMarks((LocalClientNum_t)v21);
   CG_VehicleAudio_ResetDistanceScales();
@@ -2410,71 +2292,78 @@ CG_ServerCmdSP_SingleCharacterCmd
 void CG_ServerCmdSP_SingleCharacterCmd(LocalClientNum_t localClientNum, const char cmd, const char *str)
 {
   cg_t *LocalClientGlobals; 
-  const char *v11; 
+  const char *v7; 
   playerState_s *p_predictedPlayerState; 
-  CgWeaponMap *v17; 
+  CgWeaponMap *v9; 
   int EquippedWeaponIndex; 
-  __int64 v19; 
-  bool v20; 
-  const char *v21; 
+  __int64 v11; 
+  bool v12; 
+  const char *v13; 
+  unsigned int v14; 
+  int v15; 
+  const char *v16; 
+  ClConfigStringsSP *ClConfigStringsSP; 
+  int v18; 
+  int v19; 
+  int v20; 
+  unsigned __int16 v21; 
+  int v22; 
+  CgSoundSystem *v23; 
+  unsigned int v24; 
+  int v25; 
   unsigned int v26; 
   int v27; 
-  const char *v28; 
-  ClConfigStringsSP *ClConfigStringsSP; 
-  int v30; 
-  int v31; 
-  int v32; 
-  unsigned __int16 v33; 
-  int v34; 
-  CgSoundSystem *v35; 
-  unsigned int v36; 
-  int v37; 
-  unsigned int v38; 
-  int v39; 
   CgSoundSystem *SoundSystem; 
-  const char *v41; 
-  const char *v42; 
-  const char *v43; 
-  const char *v44; 
-  const char *v45; 
+  const char *v29; 
+  const char *v30; 
+  const char *v31; 
+  const char *v32; 
+  const char *v33; 
   int ControllerFromClient; 
   OnlineProgression *Instance; 
-  int v48; 
-  int v49; 
-  int v50; 
+  int v36; 
+  int v37; 
+  int v38; 
   __int16 pitch; 
-  int v52; 
+  int v40; 
   __int16 yaw; 
-  int v54; 
+  int v42; 
   __int16 roll; 
-  int v56; 
-  int v60; 
+  int v44; 
+  double v45; 
+  float v46; 
+  double v47; 
+  float v48; 
+  double v49; 
+  int v50; 
   __int16 freqPitch; 
-  int v62; 
+  int v52; 
   __int16 freqYaw; 
-  int v64; 
+  int v54; 
   __int16 freqRoll; 
-  int v66; 
-  __int16 v67; 
-  int v68; 
-  __int16 v69; 
-  int v70; 
-  __int16 v71; 
-  int v72; 
-  int v76; 
-  __int16 v77; 
-  int v78; 
-  __int16 v79; 
-  int v80; 
-  __int16 v81; 
-  float fmt; 
-  float fmta; 
-  float v87; 
-  float v88; 
-  float v89; 
-  float v90; 
+  double v56; 
+  double v57; 
+  double v58; 
+  int v59; 
+  __int16 v60; 
+  int v61; 
+  __int16 v62; 
+  int v63; 
+  __int16 v64; 
+  int v65; 
+  double v66; 
+  float v67; 
+  double v68; 
+  float v69; 
+  double v70; 
+  int v71; 
+  __int16 v72; 
+  int v73; 
+  __int16 v74; 
+  int v75; 
+  __int16 v76; 
   Weapon result; 
-  Weapon v92; 
+  Weapon v78; 
   vec3_t src; 
   Weapon r_weapon; 
   char hudElemString[1024]; 
@@ -2484,147 +2373,117 @@ void CG_ServerCmdSP_SingleCharacterCmd(LocalClientNum_t localClientNum, const ch
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !CG_ServerCmd_SingleCharacterCmd(localClientNum, cmd) )
   {
-    __asm
-    {
-      vmovaps [rsp+5B8h+var_48], xmm6
-      vmovaps [rsp+5B8h+var_58], xmm7
-      vmovaps [rsp+5B8h+var_68], xmm8
-    }
     switch ( cmd )
     {
       case '2':
-        v45 = Cmd_Argv(1);
+        v33 = Cmd_Argv(1);
         ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-        Live_GiveAchievement(ControllerFromClient, v45);
+        Live_GiveAchievement(ControllerFromClient, v33);
         Instance = OnlineProgression::GetInstance();
-        v48 = CL_Mgr_GetControllerFromClient(localClientNum);
-        OnlineProgression::CheckSinglePlayerRewards(Instance, v48);
+        v36 = CL_Mgr_GetControllerFromClient(localClientNum);
+        OnlineProgression::CheckSinglePlayerRewards(Instance, v36);
         break;
       case '8':
-        v49 = Cmd_ArgInt(1);
-        v50 = Cmd_ArgInt(2);
-        pitch = truncate_cast<short,int>(v50);
-        v52 = Cmd_ArgInt(3);
-        yaw = truncate_cast<short,int>(v52);
-        v54 = Cmd_ArgInt(4);
-        roll = truncate_cast<short,int>(v54);
-        v56 = Cmd_ArgInt(5);
-        *(double *)&_XMM0 = Cmd_ArgFloat(6);
-        __asm { vmovaps xmm8, xmm0 }
-        *(double *)&_XMM0 = Cmd_ArgFloat(7);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = Cmd_ArgFloat(8);
-        __asm { vmovaps xmm7, xmm0 }
-        v60 = Cmd_ArgInt(9);
-        freqPitch = truncate_cast<short,int>(v60);
-        v62 = Cmd_ArgInt(10);
-        freqYaw = truncate_cast<short,int>(v62);
-        v64 = Cmd_ArgInt(11);
-        freqRoll = truncate_cast<short,int>(v64);
-        __asm
-        {
-          vmovss  [rsp+5B8h+var_558], xmm6
-          vmovss  [rsp+5B8h+var_560], xmm8
-          vmovss  dword ptr [rsp+5B8h+fmt], xmm7
-        }
-        CG_StartShakeCameraWithControls(localClientNum, v56, v49, &vec3_origin, fmt, pitch, yaw, roll, freqPitch, freqYaw, freqRoll, v87, v89, 0);
+        v37 = Cmd_ArgInt(1);
+        v38 = Cmd_ArgInt(2);
+        pitch = truncate_cast<short,int>(v38);
+        v40 = Cmd_ArgInt(3);
+        yaw = truncate_cast<short,int>(v40);
+        v42 = Cmd_ArgInt(4);
+        roll = truncate_cast<short,int>(v42);
+        v44 = Cmd_ArgInt(5);
+        v45 = Cmd_ArgFloat(6);
+        v46 = *(float *)&v45;
+        v47 = Cmd_ArgFloat(7);
+        v48 = *(float *)&v47;
+        v49 = Cmd_ArgFloat(8);
+        v50 = Cmd_ArgInt(9);
+        freqPitch = truncate_cast<short,int>(v50);
+        v52 = Cmd_ArgInt(10);
+        freqYaw = truncate_cast<short,int>(v52);
+        v54 = Cmd_ArgInt(11);
+        freqRoll = truncate_cast<short,int>(v54);
+        CG_StartShakeCameraWithControls(localClientNum, v44, v37, &vec3_origin, *(const float *)&v49, pitch, yaw, roll, freqPitch, freqYaw, freqRoll, v46, v48, 0);
         break;
       case '9':
-        *(double *)&_XMM0 = Cmd_ArgFloat(1);
-        __asm { vmovss  dword ptr [rsp+5B8h+src], xmm0 }
-        *(double *)&_XMM0 = Cmd_ArgFloat(2);
-        __asm { vmovss  dword ptr [rsp+5B8h+src+4], xmm0 }
-        *(double *)&_XMM0 = Cmd_ArgFloat(3);
-        __asm { vmovss  dword ptr [rsp+5B8h+src+8], xmm0 }
-        v66 = Cmd_ArgInt(4);
-        v67 = truncate_cast<short,int>(v66);
-        v68 = Cmd_ArgInt(5);
-        v69 = truncate_cast<short,int>(v68);
-        v70 = Cmd_ArgInt(6);
-        v71 = truncate_cast<short,int>(v70);
-        v72 = Cmd_ArgInt(7);
-        *(double *)&_XMM0 = Cmd_ArgFloat(8);
-        __asm { vmovaps xmm8, xmm0 }
-        *(double *)&_XMM0 = Cmd_ArgFloat(9);
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = Cmd_ArgFloat(10);
-        __asm { vmovaps xmm7, xmm0 }
-        v76 = Cmd_ArgInt(11);
-        v77 = truncate_cast<short,int>(v76);
-        v78 = Cmd_ArgInt(12);
-        v79 = truncate_cast<short,int>(v78);
-        v80 = Cmd_ArgInt(13);
-        v81 = truncate_cast<short,int>(v80);
-        __asm
-        {
-          vmovss  [rsp+5B8h+var_558], xmm6
-          vmovss  [rsp+5B8h+var_560], xmm8
-          vmovss  dword ptr [rsp+5B8h+fmt], xmm7
-        }
-        CG_StartShakeCameraWithControls(localClientNum, v72, 2047, &src, fmta, v67, v69, v71, v77, v79, v81, v88, v90, 0);
+        v56 = Cmd_ArgFloat(1);
+        src.v[0] = *(float *)&v56;
+        v57 = Cmd_ArgFloat(2);
+        src.v[1] = *(float *)&v57;
+        v58 = Cmd_ArgFloat(3);
+        src.v[2] = *(float *)&v58;
+        v59 = Cmd_ArgInt(4);
+        v60 = truncate_cast<short,int>(v59);
+        v61 = Cmd_ArgInt(5);
+        v62 = truncate_cast<short,int>(v61);
+        v63 = Cmd_ArgInt(6);
+        v64 = truncate_cast<short,int>(v63);
+        v65 = Cmd_ArgInt(7);
+        v66 = Cmd_ArgFloat(8);
+        v67 = *(float *)&v66;
+        v68 = Cmd_ArgFloat(9);
+        v69 = *(float *)&v68;
+        v70 = Cmd_ArgFloat(10);
+        v71 = Cmd_ArgInt(11);
+        v72 = truncate_cast<short,int>(v71);
+        v73 = Cmd_ArgInt(12);
+        v74 = truncate_cast<short,int>(v73);
+        v75 = Cmd_ArgInt(13);
+        v76 = truncate_cast<short,int>(v75);
+        CG_StartShakeCameraWithControls(localClientNum, v65, 2047, &src, *(const float *)&v70, v60, v62, v64, v72, v74, v76, v67, v69, 0);
         break;
       case 'a':
-        v11 = Cmd_Argv(1);
-        _RAX = BG_ConvertWeaponFromHexString(&result, v11);
+        v7 = Cmd_Argv(1);
         p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rsp+5B8h+r_weapon.weaponIdx], ymm0
-          vmovups xmm1, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rsp+5B8h+r_weapon.attachmentVariationIndices+5], xmm1
-          vmovsd  xmm0, qword ptr [rax+30h]
-          vmovsd  qword ptr [rsp+5B8h+r_weapon.attachmentVariationIndices+15h], xmm0
-        }
-        *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-        v17 = CgWeaponMap::GetInstance(localClientNum);
-        if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1063, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+        r_weapon = *BG_ConvertWeaponFromHexString(&result, v7);
+        v9 = CgWeaponMap::GetInstance(localClientNum);
+        if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1063, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
           __debugbreak();
         if ( LocalClientGlobals == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1064, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
           __debugbreak();
-        EquippedWeaponIndex = BG_GetEquippedWeaponIndex(v17, &LocalClientGlobals->predictedPlayerState, &r_weapon);
-        v20 = EquippedWeaponIndex >= 0 && (v19 = EquippedWeaponIndex, (playerState_s *)((char *)p_predictedPlayerState + v19 * 16) != (playerState_s *)-1540i64) && p_predictedPlayerState->weapEquippedData[v19].inAltMode;
-        CG_SelectWeapon(localClientNum, &r_weapon, v20);
+        EquippedWeaponIndex = BG_GetEquippedWeaponIndex(v9, &LocalClientGlobals->predictedPlayerState, &r_weapon);
+        v12 = EquippedWeaponIndex >= 0 && (v11 = EquippedWeaponIndex, (playerState_s *)((char *)p_predictedPlayerState + v11 * 16) != (playerState_s *)-1540i64) && p_predictedPlayerState->weapEquippedData[v11].inAltMode;
+        CG_SelectWeapon(localClientNum, &r_weapon, v12);
         break;
       case 'd':
         Cmd_EndTokenizedString();
         Cmd_TokenizeStringWithLimit(str, 3);
-        v26 = Cmd_ArgInt(1);
-        v27 = v26;
-        if ( v26 >= 0x1817 )
-          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441EABA0, 959i64, v26);
-        v28 = Cmd_Argv(2);
+        v14 = Cmd_ArgInt(1);
+        v15 = v14;
+        if ( v14 >= 0x1817 )
+          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_1441EABA0, 959i64, v14);
+        v16 = Cmd_Argv(2);
         ClConfigStringsSP = ClConfigStringsSP::GetClConfigStringsSP();
-        ClConfigStringsSP::ConfigStringModified(ClConfigStringsSP, localClientNum, v27, v28);
+        ClConfigStringsSP::ConfigStringModified(ClConfigStringsSP, localClientNum, v15, v16);
         break;
       case 'e':
-        v41 = Cmd_Argv(1);
-        v42 = SEH_LocalizeTextMessage(v41, "server print", LOCMSG_SAFE);
-        Com_Printf(0, "%s\n", v42);
+        v29 = Cmd_Argv(1);
+        v30 = SEH_LocalizeTextMessage(v29, "server print", LOCMSG_SAFE);
+        Com_Printf(0, "%s\n", v30);
         break;
       case 'f':
-        v43 = Cmd_Argv(1);
-        CG_TranslateHudElemMessage(localClientNum, v43, "game message", hudElemString, 1024);
+        v31 = Cmd_Argv(1);
+        CG_TranslateHudElemMessage(localClientNum, v31, "game message", hudElemString, 1024);
         CG_Utils_GameMessage(localClientNum, hudElemString, 0);
         break;
       case 'g':
-        v44 = Cmd_Argv(1);
-        CG_TranslateHudElemMessage(localClientNum, v44, "bold game message", hudElemString, 1024);
+        v32 = Cmd_Argv(1);
+        CG_TranslateHudElemMessage(localClientNum, v32, "bold game message", hudElemString, 1024);
         CG_Utils_BoldGameMessage(localClientNum, hudElemString, 0);
         break;
       case 'h':
         if ( Cmd_Argc() == 2 )
         {
-          v38 = Cmd_ArgInt(1);
-          v39 = v38;
-          if ( v38 - 1 > 0x1FF )
+          v26 = Cmd_ArgInt(1);
+          v27 = v26;
+          if ( v26 - 1 > 0x1FF )
           {
-            Com_PrintError(9, "ERROR: LocalSoundStop() called with index %i (should be in range[1,%i])\n", v38, 512i64);
+            Com_PrintError(9, "ERROR: LocalSoundStop() called with index %i (should be in range[1,%i])\n", v26, 512i64);
           }
           else
           {
             SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
-            CgSoundSystem::StopClientSoundAliasByName(SoundSystem, v39);
+            CgSoundSystem::StopClientSoundAliasByName(SoundSystem, v27);
           }
         }
         else
@@ -2633,49 +2492,39 @@ void CG_ServerCmdSP_SingleCharacterCmd(LocalClientNum_t localClientNum, const ch
         }
         break;
       case 'n':
-        v30 = Cmd_Argc();
-        v31 = v30;
-        if ( v30 >= 2 )
+        v18 = Cmd_Argc();
+        v19 = v18;
+        if ( v18 >= 2 )
         {
-          v32 = Cmd_ArgInt(1);
-          v33 = truncate_cast<unsigned short,int>(v32);
-          v34 = v33;
-          if ( (unsigned __int16)(v33 - 1) > 0x1FFu )
+          v20 = Cmd_ArgInt(1);
+          v21 = truncate_cast<unsigned short,int>(v20);
+          v22 = v21;
+          if ( (unsigned __int16)(v21 - 1) > 0x1FFu )
           {
-            Com_PrintError(9, "ERROR: LocalSound() called with index %i (should be in range[1,%i])\n", v33, 512i64);
+            Com_PrintError(9, "ERROR: LocalSound() called with index %i (should be in range[1,%i])\n", v21, 512i64);
           }
           else
           {
-            v35 = CgSoundSystem::GetSoundSystem(localClientNum);
-            v36 = CgSoundSystem::PlayClientSoundAliasByName(v35, v34);
-            if ( v31 > 2 )
+            v23 = CgSoundSystem::GetSoundSystem(localClientNum);
+            v24 = CgSoundSystem::PlayClientSoundAliasByName(v23, v22);
+            if ( v19 > 2 )
             {
-              v37 = Cmd_ArgInt(2);
-              if ( v36 )
-                SND_AddSoundDoneNotify(v36, v37, v34);
+              v25 = Cmd_ArgInt(2);
+              if ( v24 )
+                SND_AddSoundDoneNotify(v24, v25, v22);
               else
-                CG_Utils_ScriptNotifySoundDone(v37, v34);
+                CG_Utils_ScriptNotifySoundDone(v25, v22);
             }
           }
         }
         else
         {
-          Com_PrintError(9, "ERROR: LocalSound() called with %i args (should be >= 2)\n", (unsigned int)v30);
+          Com_PrintError(9, "ERROR: LocalSound() called with %i args (should be >= 2)\n", (unsigned int)v18);
         }
         break;
       case 'w':
-        v21 = Cmd_Argv(1);
-        _RAX = BG_ConvertWeaponFromHexString(&v92, v21);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rsp+5B8h+r_weapon.weaponIdx], ymm0
-          vmovups xmm1, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rsp+5B8h+r_weapon.attachmentVariationIndices+5], xmm1
-          vmovsd  xmm0, qword ptr [rax+30h]
-          vmovsd  qword ptr [rsp+5B8h+r_weapon.attachmentVariationIndices+15h], xmm0
-        }
-        *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+        v13 = Cmd_Argv(1);
+        r_weapon = *BG_ConvertWeaponFromHexString(&v78, v13);
         CG_SetEquippedOffHand(localClientNum, &r_weapon);
         break;
       case 'z':
@@ -2684,12 +2533,6 @@ void CG_ServerCmdSP_SingleCharacterCmd(LocalClientNum_t localClientNum, const ch
       default:
         Com_PrintWarning(14, "CG_DispatchServerCommand_Unified: Unknown command '%c'\n", (unsigned int)cmd);
         break;
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+5B8h+var_58]
-      vmovaps xmm6, [rsp+5B8h+var_48]
-      vmovaps xmm8, [rsp+5B8h+var_68]
     }
   }
 }

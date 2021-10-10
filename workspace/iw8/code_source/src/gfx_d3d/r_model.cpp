@@ -500,120 +500,102 @@ R_SceneSurfBufList_f
 */
 void R_SceneSurfBufList_f()
 {
+  __int128 v0; 
   __int64 v1; 
   const char *v2; 
   fileHandle_t *v3; 
   int sceneDObjCount; 
   __int64 v5; 
+  unsigned __int8 v6; 
   unsigned __int8 v7; 
   unsigned __int8 v8; 
-  unsigned __int8 v9; 
-  __int64 v10; 
-  unsigned __int8 v11; 
+  __int64 v9; 
+  unsigned __int8 v10; 
   const cpose_t *pose; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  char *v35; 
-  unsigned __int64 v36; 
-  unsigned __int8 v37; 
+  __int128 v16; 
+  char *v26; 
+  unsigned __int64 v27; 
+  unsigned __int8 v28; 
   const DObj *obj; 
-  char *v39; 
-  unsigned __int64 v40; 
-  char *v41; 
-  unsigned __int64 v42; 
-  char *v44; 
-  unsigned __int64 v45; 
-  volatile int v46; 
-  unsigned __int8 *v47; 
-  unsigned __int8 v49; 
-  int v50; 
-  unsigned __int8 v51; 
-  unsigned __int8 v52; 
-  __int64 v53; 
-  unsigned int v55; 
-  const char **v56; 
-  char *v68; 
-  unsigned __int64 v69; 
-  char *v70; 
-  unsigned __int64 v71; 
-  __int64 v72; 
-  unsigned __int16 v73; 
-  DynEntityClient *v74; 
+  char *v30; 
+  unsigned __int64 v31; 
+  char *v32; 
+  unsigned __int64 v33; 
+  char *v34; 
+  unsigned __int64 v35; 
+  volatile int v36; 
+  unsigned __int8 *v37; 
+  const XModel **p_model; 
+  unsigned __int8 v39; 
+  int v40; 
+  unsigned __int8 v41; 
+  unsigned __int8 v42; 
+  __int64 v43; 
+  __m128 v44; 
+  unsigned int v45; 
+  const char **v46; 
+  char *v47; 
+  unsigned __int64 v48; 
+  char *v49; 
+  unsigned __int64 v50; 
+  __int64 v51; 
+  unsigned __int16 v52; 
+  DynEntityClient *v53; 
+  DynEntityPose *v54; 
   const char **p_name; 
-  unsigned __int8 v77; 
-  unsigned __int8 *v78; 
-  unsigned __int8 v79; 
-  __int64 v80; 
-  unsigned __int8 *v81; 
-  unsigned __int8 *v82; 
-  unsigned __int8 *v83; 
-  unsigned int v84; 
-  unsigned int v86; 
-  int v87; 
-  __int64 v90; 
-  char *v101; 
-  unsigned __int64 v102; 
-  bool v103; 
-  char *v104; 
-  unsigned __int64 v105; 
+  unsigned __int8 v56; 
+  unsigned __int8 *v57; 
+  unsigned __int8 v58; 
+  __int64 v59; 
+  unsigned __int8 *v60; 
+  unsigned __int8 *v61; 
+  unsigned __int8 *v62; 
+  unsigned int v63; 
+  float v64; 
+  __int64 v65; 
+  char *v66; 
+  unsigned __int64 v67; 
+  bool v68; 
+  char *v69; 
+  unsigned __int64 v70; 
   unsigned int *p_surfBufSize; 
-  unsigned __int8 *v107; 
-  __int64 v108; 
-  unsigned __int8 v109; 
-  int v111; 
-  __int64 v112; 
-  unsigned int v113; 
-  char *v127; 
-  unsigned __int64 v128; 
+  unsigned __int8 *v72; 
+  __int64 v73; 
+  unsigned __int8 v74; 
+  __int64 v75; 
+  int v76; 
+  __int64 v77; 
+  unsigned int v78; 
+  char *v79; 
+  unsigned __int64 v80; 
   char *fmt; 
   char *fmta; 
   char *fmtb; 
   char *fmtc; 
   char *fmtd; 
-  __int64 v134; 
-  __int64 v135; 
-  __int64 v136; 
-  __int64 v137; 
-  double v138; 
-  double v139; 
-  __int64 v140; 
-  double v141; 
-  double v142; 
-  double v143; 
-  double v144; 
-  double v145; 
-  double v146; 
-  double v147; 
-  double v148; 
-  double v149; 
-  double v150; 
-  double v151; 
-  double v152; 
-  double v153; 
-  double v154; 
-  double v155; 
-  double v156; 
-  double v157; 
-  double v158; 
-  double v159; 
-  double v160; 
-  double v161; 
-  double v162; 
-  unsigned __int8 v163; 
-  unsigned int v164; 
-  int v165; 
-  __int64 v166; 
-  __int64 v167; 
+  __int64 v86; 
+  __int64 v87; 
+  __int64 v88; 
+  __int64 v89; 
+  __int64 v90; 
+  unsigned __int8 v91; 
+  unsigned int v92; 
+  int v93; 
+  __int64 v94; 
+  __int64 v95; 
   GfxSceneDynModel *sceneDynModel; 
   fileHandle_t h; 
   __int64 sceneDynModelCount; 
-  volatile int v171; 
-  __int64 v172; 
-  int v173; 
-  unsigned __int8 v174; 
+  volatile int v99; 
+  __int64 v100; 
+  float v101; 
+  unsigned __int8 v102; 
+  __int128 v103; 
 
-  v171 = 0;
+  v99 = 0;
   v1 = 0i64;
-  v164 = 0;
+  v92 = 0;
   Com_Printf_NoFilter("\n====================START SCENE SURF DUMP====================\n");
   Com_Printf(15, "\nOpening file \"%s\" for writing.\n", (const char *)&stru_14441D2C8);
   v3 = FS_FOpenTextFileWrite((fileHandle_t *)&stru_14441D2C8, v2);
@@ -632,465 +614,365 @@ void R_SceneSurfBufList_f()
   Com_Printf_NoFilter("-------------------------------------------------------------\n");
   sceneDObjCount = scene.sceneDObjCount;
   v5 = 0i64;
-  v165 = 0;
+  v93 = 0;
   if ( scene.sceneDObjCount > 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+0E0h+var_38+8], xmm6
-      vmovsd  xmm6, cs:__real@3f30000000000000
-    }
-    v167 = 0i64;
+    v103 = v0;
+    v95 = 0i64;
     do
     {
-      v7 = scene.sceneDObjVisData[4][v1];
-      v8 = scene.sceneDObjVisData[0][v1] & 1;
-      v9 = (scene.sceneDObjVisData[3][v1] & 1) + (scene.sceneDObjVisData[2][v1] & 1) + (scene.sceneDObjVisData[1][v1] & 1);
-      v174 = v8;
-      v10 = v1;
-      v11 = (scene.sceneDObjVisData[11][v1] & 1) + (scene.sceneDObjVisData[10][v1] & 1) + (scene.sceneDObjVisData[9][v1] & 1) + (scene.sceneDObjVisData[8][v1] & 1) + (scene.sceneDObjVisData[7][v1] & 1) + (scene.sceneDObjVisData[6][v1] & 1) + (scene.sceneDObjVisData[5][v1] & 1) + (v7 & 1);
+      v6 = scene.sceneDObjVisData[4][v1];
+      v7 = scene.sceneDObjVisData[0][v1] & 1;
+      v8 = (scene.sceneDObjVisData[3][v1] & 1) + (scene.sceneDObjVisData[2][v1] & 1) + (scene.sceneDObjVisData[1][v1] & 1);
+      v102 = v7;
+      v9 = v1;
+      v10 = (scene.sceneDObjVisData[11][v1] & 1) + (scene.sceneDObjVisData[10][v1] & 1) + (scene.sceneDObjVisData[9][v1] & 1) + (scene.sceneDObjVisData[8][v1] & 1) + (scene.sceneDObjVisData[7][v1] & 1) + (scene.sceneDObjVisData[6][v1] & 1) + (scene.sceneDObjVisData[5][v1] & 1) + (v6 & 1);
       if ( scene.sceneDObj[v1].surfBufSize )
       {
-        pose = scene.sceneDObj[v10].info.pose;
+        pose = scene.sceneDObj[v9].info.pose;
         if ( !pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
           __debugbreak();
         if ( !pose->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
           __debugbreak();
         FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(pose->origin.Get_origin, pose);
-        FunctionPointer_origin(&pose->origin.origin.origin, (vec3_t *)&v172);
+        FunctionPointer_origin(&pose->origin.origin.origin, (vec3_t *)&v100);
         if ( pose->isPosePrecise )
         {
+          _XMM0 = (unsigned int)v100;
+          __asm { vcvtdq2pd xmm0, xmm0 }
+          *((_QWORD *)&v16 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v16 = *(double *)&_XMM0 * 0.000244140625;
+          _XMM1 = v16;
+          _XMM0 = HIDWORD(v100);
           __asm
           {
-            vmovd   xmm0, dword ptr [rbp+57h+var_60]
-            vcvtdq2pd xmm0, xmm0
-            vmulsd  xmm1, xmm0, xmm6
-            vmovd   xmm0, dword ptr [rbp+57h+var_60+4]
             vcvtdq2pd xmm0, xmm0
             vcvtsd2ss xmm2, xmm1, xmm1
-            vmulsd  xmm1, xmm0, xmm6
-            vmovd   xmm0, [rbp+57h+var_58]
+          }
+          *((_QWORD *)&v16 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v16 = *(double *)&_XMM0 * 0.000244140625;
+          _XMM1 = v16;
+          _XMM0 = LODWORD(v101);
+          __asm
+          {
             vcvtsd2ss xmm3, xmm1, xmm1
             vcvtdq2pd xmm0, xmm0
-            vmulsd  xmm1, xmm0, xmm6
-            vcvtsd2ss xmm4, xmm1, xmm1
-            vmovss  [rbp+57h+var_58], xmm4
-            vmovss  dword ptr [rbp+57h+var_60], xmm2
-            vmovss  dword ptr [rbp+57h+var_60+4], xmm3
           }
+          *((_QWORD *)&v16 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v16 = *(double *)&_XMM0 * 0.000244140625;
+          _XMM1 = v16;
+          __asm { vcvtsd2ss xmm4, xmm1, xmm1 }
+          v101 = *(float *)&_XMM4;
+          *(float *)&v100 = *(float *)&_XMM2;
+          *((float *)&v100 + 1) = *(float *)&_XMM3;
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm4, [rbp+57h+var_58]
-            vmovss  xmm3, dword ptr [rbp+57h+var_60+4]
-            vmovss  xmm2, dword ptr [rbp+57h+var_60]
-          }
+          *(float *)&_XMM4 = v101;
+          LODWORD(_XMM3) = HIDWORD(v100);
+          LODWORD(_XMM2) = v100;
         }
-        __asm
-        {
-          vcvtss2sd xmm0, xmm4, xmm4
-          vmovsd  [rsp+0E0h+var_A0], xmm0
-          vcvtss2sd xmm1, xmm3, xmm3
-          vmovsd  [rsp+0E0h+var_A8], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+0E0h+var_B0], xmm2
-        }
-        LODWORD(v134) = v11;
-        LODWORD(fmt) = v9;
-        Com_Printf_NoFilter("%d, %d, -, -, %d, %d, %d, -, (%.0f %.0f %.0f)", scene.sceneDObj[v10].surfBufSize, (*((_DWORD *)&scene.sceneDObj[v10] + 346) >> 10) & 0xFFF, v8, fmt, v134, v141, v149, v157);
-        __asm
-        {
-          vmovss  xmm0, [rbp+57h+var_58]
-          vmovss  xmm1, dword ptr [rbp+57h+var_60+4]
-          vmovss  xmm2, dword ptr [rbp+57h+var_60]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+0E0h+var_A0], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+0E0h+var_A8], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+0E0h+var_B0], xmm2
-        }
-        LODWORD(v135) = v11;
-        LODWORD(fmta) = v9;
-        v35 = j_va("%d,%d,-,-,%d,%d,%d,-,(%.0f %.0f %.0f)", scene.sceneDObj[v10].surfBufSize, (*((_DWORD *)&scene.sceneDObj[v10] + 346) >> 10) & 0xFFF, v8, fmta, v135, v142, v150, v158);
-        if ( !v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
+        LODWORD(v86) = v10;
+        LODWORD(fmt) = v8;
+        Com_Printf_NoFilter("%d, %d, -, -, %d, %d, %d, -, (%.0f %.0f %.0f)", scene.sceneDObj[v9].surfBufSize, (*((_DWORD *)&scene.sceneDObj[v9] + 346) >> 10) & 0xFFF, v7, fmt, v86, *(float *)&_XMM2, *(float *)&_XMM3, *(float *)&_XMM4);
+        LODWORD(v87) = v10;
+        LODWORD(fmta) = v8;
+        v26 = j_va("%d,%d,-,-,%d,%d,%d,-,(%.0f %.0f %.0f)", scene.sceneDObj[v9].surfBufSize, (*((_DWORD *)&scene.sceneDObj[v9] + 346) >> 10) & 0xFFF, v7, fmta, v87, *(float *)&v100, *((float *)&v100 + 1), v101);
+        if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
           __debugbreak();
         if ( v3 != (fileHandle_t *)-1i64 )
         {
-          v36 = -1i64;
+          v27 = -1i64;
           do
-            ++v36;
-          while ( v35[v36] );
-          if ( !v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
+            ++v27;
+          while ( v26[v27] );
+          if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
             __debugbreak();
-          FS_Write(v35, v36, (fileHandle_t)v3);
+          FS_Write(v26, v27, (fileHandle_t)v3);
         }
-        v37 = 0;
-        obj = scene.sceneDObj[v10].obj;
+        v28 = 0;
+        obj = scene.sceneDObj[v9].obj;
         if ( obj->numModels )
         {
           do
           {
-            v39 = j_va(",%s", obj->models[v37]->name);
-            Com_Printf_NoFilter(", %s", scene.sceneDObj[v10].obj->models[v37]->name);
-            if ( !v39 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
+            v30 = j_va(",%s", obj->models[v28]->name);
+            Com_Printf_NoFilter(", %s", scene.sceneDObj[v9].obj->models[v28]->name);
+            if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
               __debugbreak();
             if ( v3 != (fileHandle_t *)-1i64 )
             {
-              v40 = -1i64;
+              v31 = -1i64;
               do
-                ++v40;
-              while ( v39[v40] );
-              if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
+                ++v31;
+              while ( v30[v31] );
+              if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
                 __debugbreak();
-              FS_Write(v39, v40, (fileHandle_t)v3);
+              FS_Write(v30, v31, (fileHandle_t)v3);
             }
-            obj = scene.sceneDObj[v10].obj;
-            ++v37;
+            obj = scene.sceneDObj[v9].obj;
+            ++v28;
           }
-          while ( v37 < obj->numModels );
-          v1 = v167;
+          while ( v28 < obj->numModels );
+          v1 = v95;
         }
-        v41 = j_va("\n");
+        v32 = j_va("\n");
         Com_Printf_NoFilter("\n");
-        if ( !v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
+        if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
           __debugbreak();
         if ( v3 != (fileHandle_t *)-1i64 )
         {
-          v42 = -1i64;
+          v33 = -1i64;
           do
-            ++v42;
-          while ( v41[v42] );
-          if ( !v42 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
+            ++v33;
+          while ( v32[v33] );
+          if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
             __debugbreak();
-          FS_Write(v41, v42, (fileHandle_t)v3);
+          FS_Write(v32, v33, (fileHandle_t)v3);
         }
         sceneDObjCount = scene.sceneDObjCount;
-        v164 += scene.sceneDObj[v10].surfBufSize;
-        LODWORD(v5) = v165;
+        v92 += scene.sceneDObj[v9].surfBufSize;
+        LODWORD(v5) = v93;
       }
       v5 = (unsigned int)(v5 + 1);
       ++v1;
-      v165 = v5;
-      v167 = v1;
+      v93 = v5;
+      v95 = v1;
     }
     while ( (int)v5 < sceneDObjCount );
-    LODWORD(v1) = v164;
-    __asm { vmovaps xmm6, [rsp+0E0h+var_38+8] }
+    LODWORD(v1) = v92;
   }
-  v44 = j_va("\n", v5, &queryFormat);
+  v34 = j_va("\n", v5, &queryFormat);
   Com_Printf_NoFilter("\n");
-  if ( !v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
+  if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
     __debugbreak();
   if ( v3 != (fileHandle_t *)-1i64 )
   {
-    v45 = -1i64;
+    v35 = -1i64;
     do
-      ++v45;
-    while ( v44[v45] );
-    if ( !v45 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
+      ++v35;
+    while ( v34[v35] );
+    if ( !v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
       __debugbreak();
-    FS_Write(v44, v45, (fileHandle_t)v3);
+    FS_Write(v34, v35, (fileHandle_t)v3);
   }
-  v46 = 0;
+  v36 = 0;
   if ( scene.sceneModelCount > 0 )
   {
-    v47 = scene.sceneModelVisData[2];
-    _R15 = &scene.sceneModel[0].model;
+    v37 = scene.sceneModelVisData[2];
+    p_model = &scene.sceneModel[0].model;
     do
     {
-      v49 = (*v47 & 1) + (*(v47 - 1024) & 1) + (v47[1024] & 1);
-      v50 = *((_DWORD *)_R15 - 2) >> 6;
-      v51 = *(v47 - 2048) & 1;
-      v52 = (v47[2048] & 1) + (v47[3072] & 1) + (v47[4096] & 1) + (v47[5120] & 1) + (v47[6144] & 1) + (v47[7168] & 1) + (v47[0x2000] & 1) + (v47[9216] & 1);
-      v174 = v51;
-      v53 = v50 & 0xFFFFFF;
-      if ( (_DWORD)v53 )
+      v39 = (*v37 & 1) + (*(v37 - 1024) & 1) + (v37[1024] & 1);
+      v40 = *((_DWORD *)p_model - 2) >> 6;
+      v41 = *(v37 - 2048) & 1;
+      v42 = (v37[2048] & 1) + (v37[3072] & 1) + (v37[4096] & 1) + (v37[5120] & 1) + (v37[6144] & 1) + (v37[7168] & 1) + (v37[0x2000] & 1) + (v37[9216] & 1);
+      v102 = v41;
+      v43 = v40 & 0xFFFFFF;
+      if ( (_DWORD)v43 )
       {
-        __asm { vmovsd  xmm3, qword ptr [r15+40h] }
-        v55 = *((_DWORD *)_R15 + 28);
-        v173 = *((_DWORD *)_R15 + 18);
-        v56 = (const char **)*_R15;
-        __asm
-        {
-          vmovss  xmm2, [rbp+57h+var_58]
-          vshufps xmm0, xmm3, xmm3, 55h ; 'U'
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovsd  [rbp+57h+var_60], xmm3
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+0E0h+var_A0], xmm2
-          vmovsd  [rsp+0E0h+var_A8], xmm1
-          vcvtss2sd xmm0, xmm3, xmm3
-          vmovsd  [rsp+0E0h+var_B0], xmm0
-        }
-        LODWORD(v134) = v52;
-        LODWORD(fmt) = v49;
-        Com_Printf_NoFilter("%d, %d, -, -, %d, %d, %d, -, (%.0f %.0f %.0f), %s\n", v53, (v55 >> 10) & 0xFFF, v51, fmt, v134, v143, v151, v159, *v56);
-        __asm
-        {
-          vmovss  xmm0, [rbp+57h+var_58]
-          vmovss  xmm1, dword ptr [rbp+57h+var_60+4]
-          vmovss  xmm2, dword ptr [rbp+57h+var_60]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+0E0h+var_A0], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+0E0h+var_A8], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+0E0h+var_B0], xmm2
-        }
-        LODWORD(v136) = v52;
-        LODWORD(fmtb) = v49;
-        v68 = j_va("%d,%d,-,-,%d,%d,%d,-,(%.0f %.0f %.0f),%s\n", (*((_DWORD *)_R15 - 2) >> 6) & 0xFFFFFF, (*((_DWORD *)_R15 + 28) >> 10) & 0xFFF, v51, fmtb, v136, v144, v152, v160, (*_R15)->name);
-        if ( !v68 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
+        v44 = (__m128)(unsigned __int64)p_model[8];
+        v45 = *((_DWORD *)p_model + 28);
+        v101 = *((float *)p_model + 18);
+        v46 = (const char **)*p_model;
+        v100 = v44.m128_i64[0];
+        LODWORD(v86) = v42;
+        LODWORD(fmt) = v39;
+        Com_Printf_NoFilter("%d, %d, -, -, %d, %d, %d, -, (%.0f %.0f %.0f), %s\n", v43, (v45 >> 10) & 0xFFF, v41, fmt, v86, v44.m128_f32[0], _mm_shuffle_ps(v44, v44, 85).m128_f32[0], v101, *v46);
+        LODWORD(v88) = v42;
+        LODWORD(fmtb) = v39;
+        v47 = j_va("%d,%d,-,-,%d,%d,%d,-,(%.0f %.0f %.0f),%s\n", (*((_DWORD *)p_model - 2) >> 6) & 0xFFFFFF, (*((_DWORD *)p_model + 28) >> 10) & 0xFFF, v41, fmtb, v88, *(float *)&v100, *((float *)&v100 + 1), v101, (*p_model)->name);
+        if ( !v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
           __debugbreak();
         if ( h.handle.handle != -1 )
         {
-          v69 = -1i64;
+          v48 = -1i64;
           do
-            ++v69;
-          while ( v68[v69] );
-          if ( !v69 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
+            ++v48;
+          while ( v47[v48] );
+          if ( !v48 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
             __debugbreak();
-          FS_Write(v68, v69, h);
+          FS_Write(v47, v48, h);
         }
-        LODWORD(v1) = ((*((_DWORD *)_R15 - 2) >> 6) & 0xFFFFFF) + v1;
+        LODWORD(v1) = ((*((_DWORD *)p_model - 2) >> 6) & 0xFFFFFF) + v1;
       }
-      ++v46;
-      _R15 += 19;
-      ++v47;
+      ++v36;
+      p_model += 19;
+      ++v37;
     }
-    while ( v46 < scene.sceneModelCount );
-    v164 = v1;
+    while ( v36 < scene.sceneModelCount );
+    v92 = v1;
   }
-  v70 = j_va("\n");
+  v49 = j_va("\n");
   Com_Printf_NoFilter("\n");
-  if ( !v70 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
+  if ( !v49 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
     __debugbreak();
   if ( h.handle.handle != -1 )
   {
-    v71 = -1i64;
+    v50 = -1i64;
     do
-      ++v71;
-    while ( v70[v71] );
-    if ( !v71 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
+      ++v50;
+    while ( v49[v50] );
+    if ( !v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
       __debugbreak();
-    FS_Write(v70, v71, h);
+    FS_Write(v49, v50, h);
   }
   if ( scene.sceneDynModelCount )
   {
     sceneDynModelCount = (unsigned int)scene.sceneDynModelCount;
-    v163 = v174;
-    v72 = 0i64;
-    v166 = 0i64;
+    v91 = v102;
+    v51 = 0i64;
+    v94 = 0i64;
     do
     {
       sceneDynModel = rgp.world->sceneDynModel;
-      v73 = *(unsigned __int16 *)((char *)&sceneDynModel->dynEntClientId + v72);
-      if ( v73 >= g_dynEntClientEntsAllocCount[0][0] )
+      v52 = *(unsigned __int16 *)((char *)&sceneDynModel->dynEntClientId + v51);
+      if ( v52 >= g_dynEntClientEntsAllocCount[0][0] )
       {
-        LODWORD(v140) = g_dynEntClientEntsAllocCount[0][0];
-        LODWORD(v134) = v73;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 324, ASSERT_TYPE_ASSERT, "(unsigned)( clientId ) < (unsigned)( g_dynEntClientEntsAllocCount[localClientNum][basis] )", "clientId doesn't index g_dynEntClientEntsAllocCount[localClientNum][basis]\n\t%i not in [0, %i)", v134, v140) )
+        LODWORD(v90) = g_dynEntClientEntsAllocCount[0][0];
+        LODWORD(v86) = v52;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 324, ASSERT_TYPE_ASSERT, "(unsigned)( clientId ) < (unsigned)( g_dynEntClientEntsAllocCount[localClientNum][basis] )", "clientId doesn't index g_dynEntClientEntsAllocCount[localClientNum][basis]\n\t%i not in [0, %i)", v86, v90) )
           __debugbreak();
       }
       if ( !g_dynEntClientLists[0][0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 325, ASSERT_TYPE_ASSERT, "(g_dynEntClientLists[localClientNum][basis])", (const char *)&queryFormat, "g_dynEntClientLists[localClientNum][basis]") )
         __debugbreak();
-      v74 = &g_dynEntClientLists[0][0][v73];
+      v53 = &g_dynEntClientLists[0][0][v52];
       if ( !g_dynEntPoseLists[0][0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 186, ASSERT_TYPE_ASSERT, "(g_dynEntPoseLists[localClientNum][basis])", (const char *)&queryFormat, "g_dynEntPoseLists[localClientNum][basis]") )
         __debugbreak();
-      if ( v73 >= g_dynEntClientEntsAllocCount[0][0] )
+      if ( v52 >= g_dynEntClientEntsAllocCount[0][0] )
       {
-        LODWORD(v140) = g_dynEntClientEntsAllocCount[0][0];
-        LODWORD(v134) = v73;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 187, ASSERT_TYPE_ASSERT, "(unsigned)( clientId ) < (unsigned)( g_dynEntClientEntsAllocCount[localClientNum][basis] )", "clientId doesn't index g_dynEntClientEntsAllocCount[localClientNum][basis]\n\t%i not in [0, %i)", v134, v140) )
+        LODWORD(v90) = g_dynEntClientEntsAllocCount[0][0];
+        LODWORD(v86) = v52;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 187, ASSERT_TYPE_ASSERT, "(unsigned)( clientId ) < (unsigned)( g_dynEntClientEntsAllocCount[localClientNum][basis] )", "clientId doesn't index g_dynEntClientEntsAllocCount[localClientNum][basis]\n\t%i not in [0, %i)", v86, v90) )
           __debugbreak();
       }
-      _R13 = &g_dynEntPoseLists[0][0][v73];
-      if ( !v74 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 241, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
+      v54 = &g_dynEntPoseLists[0][0][v52];
+      if ( !v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 241, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
         __debugbreak();
-      if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 242, ASSERT_TYPE_ASSERT, "(dynEntityPose)", (const char *)&queryFormat, "dynEntityPose") )
+      if ( !v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 242, ASSERT_TYPE_ASSERT, "(dynEntityPose)", (const char *)&queryFormat, "dynEntityPose") )
         __debugbreak();
-      p_name = &v74->activeModel->name;
-      if ( v74->activeModel )
+      p_name = &v53->activeModel->name;
+      if ( v53->activeModel )
       {
-        v77 = 0;
-        v78 = rgp.world->dpvsDyn.dynEntVisData[0][0];
-        if ( v78 )
+        v56 = 0;
+        v57 = rgp.world->dpvsDyn.dynEntVisData[0][0];
+        if ( v57 )
         {
-          v79 = v78[v73];
-          v80 = v73;
-          v163 = v79 & 1;
+          v58 = v57[v52];
+          v59 = v52;
+          v91 = v58 & 1;
         }
         else
         {
-          v80 = v73;
+          v59 = v52;
         }
-        v81 = rgp.world->dpvsDyn.dynEntVisData[0][1];
-        if ( v81 )
+        v60 = rgp.world->dpvsDyn.dynEntVisData[0][1];
+        if ( v60 )
         {
-          v80 = v73;
-          v77 = v81[v73] & 1;
+          v59 = v52;
+          v56 = v60[v52] & 1;
         }
-        v82 = rgp.world->dpvsDyn.dynEntVisData[0][2];
-        if ( v82 )
-          v77 += v82[v80] & 1;
-        v83 = rgp.world->dpvsDyn.dynEntVisData[0][3];
-        if ( v83 )
-          v77 += v83[v80] & 1;
-        if ( (*(_DWORD *)((char *)&sceneDynModel->info + v166) & 0x3FFFFFC0) != 0 )
+        v61 = rgp.world->dpvsDyn.dynEntVisData[0][2];
+        if ( v61 )
+          v56 += v61[v59] & 1;
+        v62 = rgp.world->dpvsDyn.dynEntVisData[0][3];
+        if ( v62 )
+          v56 += v62[v59] & 1;
+        if ( (*(_DWORD *)((char *)&sceneDynModel->info + v94) & 0x3FFFFFC0) != 0 )
         {
-          v84 = R_NumPrimaryShadowLightsLinkedToDynEntClient(LOCAL_CLIENT_0, v73, DYNENT_BASIS_MODEL);
-          __asm { vmovsd  xmm0, qword ptr [r13+4Ch] }
-          v86 = v84;
-          __asm { vmovsd  [rbp+57h+var_60], xmm0 }
-          v87 = LODWORD(_R13->pose.origin.v[2]);
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rbp+57h+var_60+4]
-            vmovss  xmm2, dword ptr [rbp+57h+var_60]
-          }
-          v90 = v166;
-          v173 = v87;
-          __asm
-          {
-            vmovss  xmm0, [rbp+57h+var_58]
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  [rsp+0E0h+var_A0], xmm0
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovsd  [rsp+0E0h+var_A8], xmm1
-            vcvtss2sd xmm2, xmm2, xmm2
-            vmovsd  [rsp+0E0h+var_B0], xmm2
-          }
-          LODWORD(v134) = v77;
-          LODWORD(fmt) = v163;
-          Com_Printf_NoFilter("%d, -, %d, %d, -, %d, %d, -, (%.0f %.0f %.0f), %s\n", (*(_DWORD *)((char *)&sceneDynModel->info + v166) >> 6) & 0xFFFFFF, v74->dynEntDefId, v84, fmt, v134, v145, v153, v161, *p_name);
-          __asm
-          {
-            vmovss  xmm0, [rbp+57h+var_58]
-            vmovss  xmm1, dword ptr [rbp+57h+var_60+4]
-            vmovss  xmm2, dword ptr [rbp+57h+var_60]
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  [rsp+0E0h+var_A0], xmm0
-            vcvtss2sd xmm1, xmm1, xmm1
-            vmovsd  [rsp+0E0h+var_A8], xmm1
-            vcvtss2sd xmm2, xmm2, xmm2
-            vmovsd  [rsp+0E0h+var_B0], xmm2
-          }
-          LODWORD(v137) = v77;
-          LODWORD(fmtc) = v163;
-          v101 = j_va("%d,-,%d, %d,-,%d,%d,-,(%.0f %.0f %.0f),%s\n", (*(_DWORD *)((char *)&sceneDynModel->info + v166) >> 6) & 0xFFFFFF, v74->dynEntDefId, v86, fmtc, v137, v146, v154, v162, *p_name);
-          if ( !v101 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
+          v63 = R_NumPrimaryShadowLightsLinkedToDynEntClient(LOCAL_CLIENT_0, v52, DYNENT_BASIS_MODEL);
+          v100 = *(__int64 *)v54->pose.origin.v;
+          v64 = v54->pose.origin.v[2];
+          v65 = v94;
+          v101 = v64;
+          LODWORD(v86) = v56;
+          LODWORD(fmt) = v91;
+          Com_Printf_NoFilter("%d, -, %d, %d, -, %d, %d, -, (%.0f %.0f %.0f), %s\n", (*(_DWORD *)((char *)&sceneDynModel->info + v94) >> 6) & 0xFFFFFF, v53->dynEntDefId, v63, fmt, v86, *(float *)&v100, *((float *)&v100 + 1), v64, *p_name);
+          LODWORD(v89) = v56;
+          LODWORD(fmtc) = v91;
+          v66 = j_va("%d,-,%d, %d,-,%d,%d,-,(%.0f %.0f %.0f),%s\n", (*(_DWORD *)((char *)&sceneDynModel->info + v94) >> 6) & 0xFFFFFF, v53->dynEntDefId, v63, fmtc, v89, *(float *)&v100, *((float *)&v100 + 1), v101, *p_name);
+          if ( !v66 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
             __debugbreak();
           if ( h.handle.handle != -1 )
           {
-            v102 = -1i64;
+            v67 = -1i64;
             do
-              ++v102;
-            while ( v101[v102] );
-            if ( !v102 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
+              ++v67;
+            while ( v66[v67] );
+            if ( !v67 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
               __debugbreak();
-            FS_Write(v101, v102, h);
+            FS_Write(v66, v67, h);
           }
-          v164 += (*(_DWORD *)((char *)&sceneDynModel->info + v166) >> 6) & 0xFFFFFF;
+          v92 += (*(_DWORD *)((char *)&sceneDynModel->info + v94) >> 6) & 0xFFFFFF;
         }
         else
         {
-          v90 = v166;
+          v65 = v94;
         }
       }
       else
       {
-        v90 = v166;
+        v65 = v94;
       }
-      v72 = v90 + 12;
-      v103 = sceneDynModelCount-- == 1;
-      v166 = v72;
+      v51 = v65 + 12;
+      v68 = sceneDynModelCount-- == 1;
+      v94 = v51;
     }
-    while ( !v103 );
+    while ( !v68 );
   }
-  v104 = j_va("\n");
+  v69 = j_va("\n");
   Com_Printf_NoFilter("\n");
-  if ( !v104 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
+  if ( !v69 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
     __debugbreak();
   if ( h.handle.handle != -1 )
   {
-    v105 = -1i64;
+    v70 = -1i64;
     do
-      ++v105;
-    while ( v104[v105] );
-    if ( !v105 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
+      ++v70;
+    while ( v69[v70] );
+    if ( !v70 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
       __debugbreak();
-    FS_Write(v104, v105, h);
+    FS_Write(v69, v70, h);
   }
   if ( scene.sceneBrushCount > 0 )
   {
     p_surfBufSize = &scene.sceneBrush[0].info.surfBufSize;
-    v107 = scene.sceneBrushVisData[2];
+    v72 = scene.sceneBrushVisData[2];
     do
     {
-      v108 = *p_surfBufSize;
-      v109 = *(v107 - 1024) & 1;
-      if ( (_DWORD)v108 )
+      v73 = *p_surfBufSize;
+      v74 = *(v72 - 1024) & 1;
+      if ( (_DWORD)v73 )
       {
-        _RAX = *(_QWORD *)(p_surfBufSize + 3);
-        v111 = (unsigned __int8)((*v107 & 1) + (*(v107 - 512) & 1) + (v107[512] & 1));
-        v112 = *((unsigned __int16 *)p_surfBufSize + 2);
-        v113 = v109;
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rax+38h]
-          vmovsd  [rbp+57h+var_60], xmm0
-          vmovss  xmm1, dword ptr [rbp+57h+var_60+4]
-          vmovss  xmm2, dword ptr [rbp+57h+var_60]
-        }
-        v173 = *(_DWORD *)(_RAX + 64);
-        __asm
-        {
-          vmovss  xmm0, [rbp+57h+var_58]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+0E0h+var_A8], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+0E0h+var_B0], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+0E0h+var_B8], xmm2
-        }
-        LODWORD(fmt) = v111;
-        Com_Printf_NoFilter("%d, %d, -, -, %d, %d, -, -, (%.0f %.0f %.0f), -\n", v108, v112, v109, fmt, v138, v147, v155);
-        __asm
-        {
-          vmovss  xmm0, [rbp+57h+var_58]
-          vmovss  xmm1, dword ptr [rbp+57h+var_60+4]
-          vmovss  xmm2, dword ptr [rbp+57h+var_60]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+0E0h+var_A8], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+0E0h+var_B0], xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+0E0h+var_B8], xmm2
-        }
-        LODWORD(fmtd) = v111;
-        v127 = j_va("%d,%d,-,-,%d,%d,-,-,(%.0f %.0f %.0f),-\n", *p_surfBufSize, *((unsigned __int16 *)p_surfBufSize + 2), v113, fmtd, v139, v148, v156);
-        if ( !v127 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
+        v75 = *(_QWORD *)(p_surfBufSize + 3);
+        v76 = (unsigned __int8)((*v72 & 1) + (*(v72 - 512) & 1) + (v72[512] & 1));
+        v77 = *((unsigned __int16 *)p_surfBufSize + 2);
+        v78 = v74;
+        v100 = *(__int64 *)(v75 + 56);
+        v101 = *(float *)(v75 + 64);
+        LODWORD(fmt) = v76;
+        Com_Printf_NoFilter("%d, %d, -, -, %d, %d, -, -, (%.0f %.0f %.0f), -\n", v73, v77, v74, fmt, *(float *)&v100, *((float *)&v100 + 1), v101);
+        LODWORD(fmtd) = v76;
+        v79 = j_va("%d,%d,-,-,%d,%d,-,-,(%.0f %.0f %.0f),-\n", *p_surfBufSize, *((unsigned __int16 *)p_surfBufSize + 2), v78, fmtd, *(float *)&v100, *((float *)&v100 + 1), v101);
+        if ( !v79 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 356, ASSERT_TYPE_ASSERT, "(line)", (const char *)&queryFormat, "line") )
           __debugbreak();
         if ( h.handle.handle != -1 )
         {
-          v128 = -1i64;
+          v80 = -1i64;
           do
-            ++v128;
-          while ( v127[v128] );
-          if ( !v128 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
+            ++v80;
+          while ( v79[v80] );
+          if ( !v80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 361, ASSERT_TYPE_ASSERT, "(lineLen)", (const char *)&queryFormat, "lineLen") )
             __debugbreak();
-          FS_Write(v127, v128, h);
+          FS_Write(v79, v80, h);
         }
-        v164 += *p_surfBufSize;
+        v92 += *p_surfBufSize;
       }
       p_surfBufSize += 22;
-      ++v107;
-      ++v171;
+      ++v72;
+      ++v99;
     }
-    while ( v171 < scene.sceneBrushCount );
+    while ( v99 < scene.sceneBrushCount );
   }
   if ( h.handle.handle != -1 )
   {
@@ -1098,7 +980,7 @@ void R_SceneSurfBufList_f()
     Com_Printf(15, "Done writing file: \"%s\"\n\n", (const char *)&stru_14441D2C8);
   }
   Com_Printf_NoFilter("====================SCENE SURF SUMMARY====================\n");
-  Com_Printf_NoFilter("Total: %dkb\n", v164 >> 10);
+  Com_Printf_NoFilter("Total: %dkb\n", v92 >> 10);
   Com_Printf_NoFilter("====================END SCENE SURF DUMP====================\n\n");
 }
 
@@ -1117,31 +999,21 @@ void R_SetIgnorePrecacheErrors(int ignore)
 R_SetMaterialLodSettings
 ==============
 */
-
-void __fastcall R_SetMaterialLodSettings(MaterialLodSettings *materialLodSettings, __int64 a2, __int64 a3, double _XMM3_8)
+void R_SetMaterialLodSettings(MaterialLodSettings *materialLodSettings)
 {
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3fc00000
-    vxorps  xmm3, xmm3, xmm3
-  }
+  _XMM1 = LODWORD(FLOAT_1_5);
+  _XMM3 = 0i64;
   materialLodSettings->m_lodOverride = r_materialLodOverride->current.integer;
   materialLodSettings->m_minLod = r_materialLodMin->current.integer;
-  __asm
-  {
-    vmovss  xmm0, cs:?rg@@3Ur_globals_t@@A.correctedLodParms.invFovScale; r_globals_t rg
-    vmovss  dword ptr [rcx+8], xmm0
-  }
+  materialLodSettings->m_invFovScale = rg.correctedLodParms.invFovScale;
   materialLodSettings->m_lodThresholds[0] = 1.5;
-  _RAX = r_materialLod0SizeThresholdOverride;
   __asm
   {
-    vmovss  xmm2, dword ptr [rax+28h]
     vcmpless xmm0, xmm3, xmm2
     vblendvps xmm1, xmm1, xmm2, xmm0
     vmaxss  xmm0, xmm1, xmm3
-    vmovss  dword ptr [rcx+0Ch], xmm0
   }
+  materialLodSettings->m_lodThresholds[0] = *(float *)&_XMM0;
 }
 
 /*
@@ -1179,6 +1051,16 @@ R_SkinXModel
 */
 __int64 R_SkinXModel(XModelDrawInfo *modelInfo, const XModel *model, const DObj *obj, const GfxPlacement *placement, float scale, const GfxPlacement *placementPrevFrame, float scalePrevFrame, const GfxPlacement *part0Placement, const GfxPlacement *extraPartPlacements, unsigned int numPartPlacements, bool isMotionblurModel, unsigned int gfxEntIndex, unsigned __int16 gfxPackedEntityIndexBase, unsigned int mapEntLookup, float materialLod)
 {
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v20; 
+  __int128 v21; 
+  __int128 v22; 
+  __int128 v23; 
+  __int128 v24; 
   XModelDrawInfo *v25; 
   unsigned int v28; 
   char *Value; 
@@ -1190,55 +1072,92 @@ __int64 R_SkinXModel(XModelDrawInfo *modelInfo, const XModel *model, const DObj 
   unsigned __int64 v36; 
   ThreadContext CurrentThreadContext; 
   const XModelLodInfo *LodInfo; 
+  float v39; 
   int v40; 
   __int64 v41; 
-  __int64 v45; 
-  bool v46; 
-  unsigned int v56; 
-  size_t v58; 
+  unsigned __int8 *v42; 
+  __int64 v43; 
+  bool v44; 
+  size_t v45; 
   volatile int *p_surfPos; 
-  unsigned __int32 v60; 
-  unsigned int v62; 
+  unsigned __int32 v47; 
+  unsigned int v49; 
   unsigned int SurfaceSubdivLevel; 
   unsigned int SubdivSurfTessFactorsTotalCacheSize; 
-  GfxBackEndData *v72; 
-  int v73; 
+  GfxBackEndData *v58; 
+  int v59; 
   XRigidVertList *rigidVertLists; 
   unsigned int boneIndexOffset; 
   DObjAnimMat *baseMat; 
-  __int64 v77; 
-  const char *v79; 
+  __int64 v63; 
+  const DObjAnimMat *v64; 
+  const char *v65; 
+  float v66; 
+  float v67; 
   const char *Name; 
-  float fmt; 
+  float v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  float v82; 
+  float v83; 
+  float v84; 
+  float v85; 
+  float v86; 
+  float v87; 
+  float v88; 
   GfxPlacement *placementa; 
   __int64 scalea; 
   const char *scaleb; 
-  float scalec; 
   __int64 viewDomain; 
-  __int64 v178; 
-  __int64 v179; 
+  __int64 v93; 
+  __int64 v94; 
+  int numLods; 
   unsigned __int8 ModelSubdivLodLevel; 
   unsigned int mbSurfBufSize; 
-  __int64 v182; 
+  __int64 v98; 
   unsigned int totalSurfaceCount; 
   int cacheOffset; 
   DObj *obja; 
-  XModelDrawInfo *v186; 
+  XModelDrawInfo *v102; 
   XSurface *surfaces; 
-  __int64 v188; 
+  __int64 v104; 
   DObjAnimMat mat; 
-  DObjSkelMat v194; 
+  float v106; 
+  float v107; 
+  float v108; 
+  float v109; 
+  DObjSkelMat v110; 
   DObjPartBits partBits; 
   DObjSkelMat skelMat; 
   tmat33_t<vec3_t> axis; 
   unsigned __int8 mbSurfBuf[4]; 
-  int v199[4]; 
+  int v115[4]; 
   base_vec3_t<int> dst; 
   unsigned __int8 surfBuf[65664]; 
-  char v202; 
-  unsigned __int8 v203[16]; 
+  char v118; 
+  unsigned __int8 v119[16]; 
+  __int128 v120; 
+  __int128 v121; 
+  __int128 v122; 
+  __int128 v123; 
+  __int128 v124; 
+  __int128 v125; 
+  __int128 v126; 
+  __int128 v127; 
+  __int128 v128; 
+  __int128 v129; 
 
-  v186 = modelInfo;
+  v102 = modelInfo;
   v25 = modelInfo;
   obja = (DObj *)obj;
   if ( !model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 819, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
@@ -1285,11 +1204,12 @@ __int64 R_SkinXModel(XModelDrawInfo *modelInfo, const XModel *model, const DObj 
     __debugbreak();
   if ( v28 >= model->numLods )
   {
+    numLods = model->numLods;
     LODWORD(scalea) = v28;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 1233, ASSERT_TYPE_ASSERT, "((unsigned)( lodIndex ) < (unsigned)( model->numLods ))", "%s\n\t%d doesn't index %d \n\t%i not in [0, %i) for model '%s'", "(unsigned)( lodIndex ) < (unsigned)( model->numLods )", scalea, model->numLods, v28, model->numLods, model->name) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 1233, ASSERT_TYPE_ASSERT, "((unsigned)( lodIndex ) < (unsigned)( model->numLods ))", "%s\n\t%d doesn't index %d \n\t%i not in [0, %i) for model '%s'", "(unsigned)( lodIndex ) < (unsigned)( model->numLods )", scalea, numLods, v28, numLods, model->name) )
       __debugbreak();
   }
-  __asm { vmovaps [rsp+12D60h+var_60], xmm7 }
+  v128 = v16;
   if ( !r_subdiv->current.enabled )
     goto LABEL_38;
   LodInfo = XModelGetLodInfo(model, v28);
@@ -1302,18 +1222,14 @@ __int64 R_SkinXModel(XModelDrawInfo *modelInfo, const XModel *model, const DObj 
   if ( (LodInfo->flags & 1) == 0 )
   {
 LABEL_38:
-    __asm { vmovss  xmm7, [rbp+12C60h+arg_20] }
+    v39 = scale;
 LABEL_39:
     ModelSubdivLodLevel = 0;
     goto LABEL_40;
   }
   QuatToAxis(&placement->quat, &axis);
-  __asm
-  {
-    vmovss  xmm7, [rbp+12C60h+arg_20]
-    vmovss  dword ptr [rsp+12D60h+fmt], xmm7
-  }
-  ModelSubdivLodLevel = R_GetModelSubdivLodLevel(model, v28, &placement->origin, &axis, fmt);
+  v39 = scale;
+  ModelSubdivLodLevel = R_GetModelSubdivLodLevel(model, v28, &placement->origin, &axis, scale);
   if ( ModelSubdivLodLevel && !R_CacheRigidSubdivLod(model, v28) )
     goto LABEL_39;
 LABEL_40:
@@ -1331,48 +1247,40 @@ LABEL_40:
     DObjGetHidePartBits(obja, &partBits);
   if ( (int)v41 > 128 )
   {
-    LODWORD(v179) = 128;
-    LODWORD(v178) = v41;
+    LODWORD(v94) = 128;
+    LODWORD(v93) = v41;
     LODWORD(viewDomain) = v28;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 872, ASSERT_TYPE_ASSERT, "(surfaceCount <= DOBJ_MAX_SURFS)", "%s\n\tR_SkinXModel : model %s lod %d : surfaceCount %d exceeds DOBJ_MAX_SURFS (%d).", "surfaceCount <= DOBJ_MAX_SURFS", model->name, viewDomain, v178, v179) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 872, ASSERT_TYPE_ASSERT, "(surfaceCount <= DOBJ_MAX_SURFS)", "%s\n\tR_SkinXModel : model %s lod %d : surfaceCount %d exceeds DOBJ_MAX_SURFS (%d).", "surfaceCount <= DOBJ_MAX_SURFS", model->name, viewDomain, v93, v94) )
       __debugbreak();
   }
-  v188 = v41;
-  _RDI = surfBuf;
+  v104 = v41;
+  v42 = surfBuf;
   if ( (int)v41 > 0 )
   {
-    _R12 = part0Placement;
-    __asm
-    {
-      vmovaps [rsp+12D60h+var_50], xmm6
-      vmovaps [rsp+12D60h+var_E0], xmm15
-      vmovss  xmm15, cs:__real@45800000
-      vmovaps [rsp+12D60h+var_70], xmm8
-    }
-    v45 = 0i64;
-    __asm
-    {
-      vmovaps [rsp+12D60h+var_80], xmm9
-      vmovaps [rsp+12D60h+var_90], xmm10
-      vmovaps [rsp+12D60h+var_A0], xmm11
-      vmovaps [rsp+12D60h+var_B0], xmm12
-      vmovaps [rsp+12D60h+var_C0], xmm13
-      vmovaps [rsp+12D60h+var_D0], xmm14
-    }
-    v182 = 0i64;
+    v129 = v15;
+    v120 = v24;
+    v127 = v17;
+    v43 = 0i64;
+    v126 = v18;
+    v125 = v19;
+    v124 = v20;
+    v123 = v21;
+    v122 = v22;
+    v121 = v23;
+    v98 = 0i64;
     while ( 1 )
     {
-      if ( _RDI <= (unsigned __int8 *)&v202 )
+      if ( v42 <= (unsigned __int8 *)&v118 )
       {
         if ( rg.drawRigidModels )
         {
-          _R14 = &surfaces[v45];
+          _R14 = &surfaces[v43];
           if ( obja )
           {
-            v62 = 0;
+            v49 = 0;
             while ( 1 )
             {
-              _RSI = 2i64 * v62;
+              _RSI = 2i64 * v49;
               __asm
               {
                 vlddqu  xmm6, xmmword ptr [r14+rsi*8+70h]
@@ -1382,350 +1290,231 @@ LABEL_40:
               }
               if ( !_ZF )
                 break;
-              if ( ++v62 >= 2 )
+              if ( ++v49 >= 2 )
                 goto LABEL_74;
             }
           }
           else
           {
 LABEL_74:
-            *(_DWORD *)_RDI = -4;
-            *((_WORD *)_RDI + 8) = truncate_cast<unsigned short,unsigned int>(gfxEntIndex);
-            *((_WORD *)_RDI + 9) = truncate_cast<unsigned short,unsigned int>(mapEntLookup);
-            *((_WORD *)_RDI + 25) = gfxPackedEntityIndexBase;
-            *((_DWORD *)_RDI + 5) = 0;
-            *(_QWORD *)(_RDI + 4) = -1i64;
-            __asm
-            {
-              vmovss  xmm0, [rbp+12C60h+arg_70]
-              vmovss  dword ptr [rdi+1Ch], xmm0
-            }
+            *(_DWORD *)v42 = -4;
+            *((_WORD *)v42 + 8) = truncate_cast<unsigned short,unsigned int>(gfxEntIndex);
+            *((_WORD *)v42 + 9) = truncate_cast<unsigned short,unsigned int>(mapEntLookup);
+            *((_WORD *)v42 + 25) = gfxPackedEntityIndexBase;
+            *((_DWORD *)v42 + 5) = 0;
+            *(_QWORD *)(v42 + 4) = -1i64;
+            *((float *)v42 + 7) = materialLod;
             if ( !ModelSubdivLodLevel || !r_subdiv->current.enabled || !_R14->subdivLevelCount )
             {
-              _RDI[54] = 0;
+              v42[54] = 0;
 LABEL_83:
-              *((_DWORD *)_RDI + 16) = -5;
+              *((_DWORD *)v42 + 16) = -5;
 LABEL_84:
-              *((_QWORD *)_RDI + 7) = _R14;
-              __asm { vmovss  dword ptr [rdi+48h], xmm7 }
+              *((_QWORD *)v42 + 7) = _R14;
+              *((float *)v42 + 18) = v39;
               if ( numPartPlacements && (rigidVertLists = _R14->rigidVertLists) != NULL )
               {
                 boneIndexOffset = rigidVertLists->boneIndexOffset;
                 baseMat = model->baseMat;
-                v77 = rigidVertLists->boneIndexOffset;
-                _RBX = &baseMat[v77];
-                *((_QWORD *)_RDI + 4) = baseMat;
+                v63 = rigidVertLists->boneIndexOffset;
+                v64 = &baseMat[v63];
+                *((_QWORD *)v42 + 4) = baseMat;
                 if ( boneIndexOffset >= numPartPlacements )
                 {
-                  LODWORD(v178) = numPartPlacements;
+                  LODWORD(v93) = numPartPlacements;
                   LODWORD(scalea) = boneIndexOffset;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 974, ASSERT_TYPE_ASSERT, "(boneOffset < numPartPlacements)", "%s\n\tBad bone index (%d) for XModel '%s', which has a bone count of %d.", "boneOffset < numPartPlacements", scalea, model->name, v178) )
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 974, ASSERT_TYPE_ASSERT, "(boneOffset < numPartPlacements)", "%s\n\tBad bone index (%d) for XModel '%s', which has a bone count of %d.", "boneOffset < numPartPlacements", scalea, model->name, v93) )
                     __debugbreak();
                 }
-                LocalConvertQuatToInverseSkelMat(_RBX, &skelMat);
+                LocalConvertQuatToInverseSkelMat(v64, &skelMat);
                 if ( (_WORD)boneIndexOffset )
                 {
-                  _RSI = extraPartPlacements;
                   if ( !extraPartPlacements )
                   {
                     Name = XModelGetName(model);
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 984, ASSERT_TYPE_ASSERT, "(extraPartPlacements)", "%s\n\tNull extraPartPlacements for XModel '%s'", "extraPartPlacements", Name) )
                       __debugbreak();
                   }
-                  _RAX = 28 * v77;
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr [rax+rsi-1Ch]
-                    vmovss  xmm1, dword ptr [rax+rsi-8]
-                    vmovaps xmmword ptr [rbp+12C60h+mat.quat], xmm0
-                    vmovss  xmm0, dword ptr [rax+rsi-0Ch]
-                    vmovss  dword ptr [rbp+12C60h+mat.trans], xmm0
-                    vmovss  xmm0, dword ptr [rax+rsi-4]
-                  }
+                  v66 = extraPartPlacements[v63 - 1].origin.v[1];
+                  mat.quat = extraPartPlacements[v63 - 1].quat;
+                  mat.trans.v[0] = extraPartPlacements[v63 - 1].origin.v[0];
+                  v67 = extraPartPlacements[v63 - 1].origin.v[2];
                 }
                 else
                 {
                   if ( !part0Placement )
                   {
-                    v79 = XModelGetName(model);
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 978, ASSERT_TYPE_ASSERT, "(part0Placement)", "%s\n\tNull part0Placement for XModel '%s'", "part0Placement", v79) )
+                    v65 = XModelGetName(model);
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 978, ASSERT_TYPE_ASSERT, "(part0Placement)", "%s\n\tNull part0Placement for XModel '%s'", "part0Placement", v65) )
                       __debugbreak();
                   }
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr [r12]
-                    vmovss  xmm1, dword ptr [r12+14h]
-                    vmovaps xmmword ptr [rbp+12C60h+mat.quat], xmm0
-                    vmovss  xmm0, dword ptr [r12+10h]
-                    vmovss  dword ptr [rbp+12C60h+mat.trans], xmm0
-                    vmovss  xmm0, dword ptr [r12+18h]
-                  }
+                  v66 = part0Placement->origin.v[1];
+                  mat.quat = part0Placement->quat;
+                  mat.trans.v[0] = part0Placement->origin.v[0];
+                  v67 = part0Placement->origin.v[2];
                 }
-                __asm
+                mat.trans.v[2] = v67;
+                mat.transWeight = FLOAT_2_0;
+                mat.trans.v[1] = v66;
+                LocalConvertQuatToSkelMat(&mat, &v110);
+                v69 = v64->quat.v[3];
+                v70 = v64->quat.v[2];
+                v71 = v64->quat.v[1];
+                v72 = (float)((float)((float)(mat.quat.v[0] * v69) - (float)(mat.quat.v[3] * v64->quat.v[0])) - (float)(mat.quat.v[1] * v70)) + (float)(mat.quat.v[2] * v71);
+                v73 = (float)((float)((float)(mat.quat.v[0] * v70) - (float)(mat.quat.v[3] * v71)) + (float)(mat.quat.v[1] * v69)) - (float)(mat.quat.v[2] * v64->quat.v[0]);
+                v74 = (float)((float)(mat.quat.v[1] * v64->quat.v[0]) - (float)((float)(mat.quat.v[0] * v71) + (float)(mat.quat.v[3] * v70))) + (float)(mat.quat.v[2] * v69);
+                v75 = (float)((float)((float)(mat.quat.v[0] * v64->quat.v[0]) + (float)(mat.quat.v[3] * v69)) + (float)(mat.quat.v[1] * v71)) + (float)(mat.quat.v[2] * v70);
+                v76 = fsqrt((float)((float)((float)(v73 * v73) + (float)(v72 * v72)) + (float)(v74 * v74)) + (float)(v75 * v75));
+                v106 = v72;
+                v107 = v73;
+                v108 = v74;
+                v109 = v75;
+                if ( v76 != 0.0 )
                 {
-                  vmovss  dword ptr [rbp+12C60h+mat.trans+8], xmm0
-                  vmovss  xmm0, cs:__real@40000000
-                  vmovss  [rbp+12C60h+mat.transWeight], xmm0
-                  vmovss  dword ptr [rbp+12C60h+mat.trans+4], xmm1
+                  v72 = (float)(1.0 / v76) * v72;
+                  v73 = (float)(1.0 / v76) * v73;
+                  v74 = (float)(1.0 / v76) * v74;
+                  v75 = (float)(1.0 / v76) * v75;
+                  v106 = v72;
+                  v107 = v73;
+                  v108 = v74;
+                  v109 = v75;
                 }
-                LocalConvertQuatToSkelMat(&mat, &v194);
-                __asm
-                {
-                  vmovss  xmm5, dword ptr [rbp+12C60h+mat.quat+4]
-                  vmovss  xmm10, dword ptr [rbx+0Ch]
-                  vmovss  xmm8, dword ptr [rbx]
-                  vmovss  xmm7, dword ptr [rbp+12C60h+mat.quat]
-                  vmovss  xmm6, dword ptr [rbp+12C60h+mat.quat+0Ch]
-                  vmovss  xmm11, dword ptr [rbx+8]
-                  vmovss  xmm9, dword ptr [rbx+4]
-                  vmovss  xmm4, dword ptr [rbp+12C60h+mat.quat+8]
-                  vmulss  xmm1, xmm7, xmm10
-                  vmulss  xmm0, xmm6, xmm8
-                  vsubss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm5, xmm11
-                  vsubss  xmm3, xmm2, xmm1
-                  vmulss  xmm0, xmm4, xmm9
-                  vaddss  xmm12, xmm3, xmm0
-                  vmulss  xmm0, xmm6, xmm9
-                  vmulss  xmm1, xmm7, xmm11
-                  vsubss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm5, xmm10
-                  vaddss  xmm3, xmm2, xmm1
-                  vmulss  xmm2, xmm5, xmm8
-                  vmulss  xmm0, xmm4, xmm8
-                  vsubss  xmm13, xmm3, xmm0
-                  vmulss  xmm0, xmm6, xmm11
-                  vmulss  xmm1, xmm7, xmm9
-                  vaddss  xmm1, xmm1, xmm0
-                  vsubss  xmm3, xmm2, xmm1
-                  vmulss  xmm2, xmm4, xmm10
-                  vaddss  xmm14, xmm3, xmm2
-                  vmulss  xmm1, xmm7, xmm8
-                  vmulss  xmm0, xmm6, xmm10
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm5, xmm9
-                  vaddss  xmm3, xmm2, xmm1
-                  vmulss  xmm0, xmm4, xmm11
-                  vaddss  xmm5, xmm3, xmm0
-                  vmulss  xmm0, xmm12, xmm12
-                  vmulss  xmm1, xmm13, xmm13
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm14, xmm14
-                  vaddss  xmm3, xmm2, xmm1
-                  vmulss  xmm0, xmm5, xmm5
-                  vaddss  xmm2, xmm3, xmm0
-                  vsqrtss xmm1, xmm2, xmm2
-                  vxorps  xmm0, xmm0, xmm0
-                  vucomiss xmm1, xmm0
-                  vmovss  [rbp+12C60h+var_12CA0], xmm12
-                  vmovss  [rbp+12C60h+var_12C9C], xmm13
-                  vmovss  [rbp+12C60h+var_12C98], xmm14
-                  vmovss  [rbp+12C60h+var_12C94], xmm5
-                }
-                if ( !_ZF )
-                {
-                  __asm
-                  {
-                    vmovss  xmm0, cs:__real@3f800000
-                    vdivss  xmm0, xmm0, xmm1
-                    vmulss  xmm12, xmm0, xmm12
-                    vmulss  xmm13, xmm0, xmm13
-                    vmulss  xmm14, xmm0, xmm14
-                    vmulss  xmm5, xmm0, xmm5
-                    vmovss  [rbp+12C60h+var_12CA0], xmm12
-                    vmovss  [rbp+12C60h+var_12C9C], xmm13
-                    vmovss  [rbp+12C60h+var_12C98], xmm14
-                    vmovss  [rbp+12C60h+var_12C94], xmm5
-                  }
-                }
-                __asm
-                {
-                  vmovss  xmm7, dword ptr [rbp+12C60h+skelMat.origin]
-                  vmovss  xmm9, dword ptr [rbp+12C60h+skelMat.origin+4]
-                  vmulss  xmm0, xmm7, dword ptr [rbp+12C60h+var_12C90.axis+4]
-                  vmovss  xmm6, dword ptr [rbp+12C60h+skelMat.origin+8]
-                  vmulss  xmm2, xmm9, dword ptr [rbp+12C60h+var_12C90.axis+14h]
-                  vmulss  xmm1, xmm9, dword ptr [rbp+12C60h+var_12C90.axis+10h]
-                  vaddss  xmm3, xmm2, xmm0
-                  vmulss  xmm0, xmm6, dword ptr [rbp+12C60h+var_12C90.axis+24h]
-                  vaddss  xmm2, xmm3, xmm0
-                  vaddss  xmm8, xmm2, dword ptr [rbp+12C60h+var_12C90.origin+4]
-                  vmulss  xmm2, xmm7, dword ptr [rbp+12C60h+var_12C90.axis+8]
-                  vmulss  xmm3, xmm9, dword ptr [rbp+12C60h+var_12C90.axis+18h]
-                  vmulss  xmm0, xmm6, dword ptr [rbp+12C60h+var_12C90.axis+28h]
-                  vmovss  dword ptr [rdi+4Ch], xmm12
-                  vmovss  dword ptr [rdi+50h], xmm13
-                  vaddss  xmm4, xmm3, xmm2
-                  vaddss  xmm2, xmm4, xmm0
-                  vmulss  xmm0, xmm7, dword ptr [rbp+12C60h+var_12C90.axis]
-                  vmovss  xmm7, [rbp+12C60h+arg_20]
-                  vmovss  dword ptr [rdi+54h], xmm14
-                  vmovss  dword ptr [rdi+58h], xmm5
-                  vaddss  xmm5, xmm2, dword ptr [rbp+12C60h+var_12C90.origin+8]
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm6, dword ptr [rbp+12C60h+var_12C90.axis+20h]
-                  vaddss  xmm2, xmm2, xmm1
-                  vaddss  xmm0, xmm2, dword ptr [rbp+12C60h+var_12C90.origin]
-                  vmulss  xmm3, xmm0, xmm15
-                  vcvttss2si eax, xmm3
-                }
-                *((_DWORD *)_RDI + 23) = _EAX;
-                __asm
-                {
-                  vmulss  xmm0, xmm8, xmm15
-                  vcvttss2si eax, xmm0
-                  vmulss  xmm1, xmm5, xmm15
-                }
-                *((_DWORD *)_RDI + 24) = _EAX;
-                __asm { vcvttss2si eax, xmm1 }
-                *((_DWORD *)_RDI + 25) = _EAX;
+                v77 = skelMat.origin.v[0];
+                v78 = skelMat.origin.v[2];
+                v79 = skelMat.origin.v[1] * v110.axis.m[1].v[0];
+                v80 = (float)((float)((float)(skelMat.origin.v[1] * v110.axis.m[1].v[1]) + (float)(skelMat.origin.v[0] * v110.axis.m[0].v[1])) + (float)(skelMat.origin.v[2] * v110.axis.m[2].v[1])) + v110.origin.v[1];
+                v81 = skelMat.origin.v[0] * v110.axis.m[0].v[2];
+                v82 = skelMat.origin.v[1] * v110.axis.m[1].v[2];
+                v83 = skelMat.origin.v[2] * v110.axis.m[2].v[2];
+                *((float *)v42 + 19) = v72;
+                *((float *)v42 + 20) = v73;
+                v84 = (float)(v82 + v81) + v83;
+                v85 = v77 * v110.axis.m[0].v[0];
+                v39 = scale;
+                *((float *)v42 + 21) = v74;
+                *((float *)v42 + 22) = v75;
+                v86 = v84 + v110.origin.v[2];
+                *((_DWORD *)v42 + 23) = (int)(float)((float)((float)((float)(v79 + v85) + (float)(v78 * v110.axis.m[2].v[0])) + v110.origin.v[0]) * 4096.0);
+                *((_DWORD *)v42 + 24) = (int)(float)(v80 * 4096.0);
+                *((_DWORD *)v42 + 25) = (int)(float)(v86 * 4096.0);
               }
               else
               {
-                __asm
-                {
-                  vmulss  xmm1, xmm15, dword ptr [r13+10h]
-                  vcvttss2si eax, xmm1
-                  vmulss  xmm1, xmm15, dword ptr [r13+14h]
-                }
-                *((_DWORD *)_RDI + 23) = _EAX;
-                __asm
-                {
-                  vcvttss2si eax, xmm1
-                  vmulss  xmm1, xmm15, dword ptr [r13+18h]
-                }
-                *((_DWORD *)_RDI + 24) = _EAX;
-                __asm { vcvttss2si eax, xmm1 }
-                *((_DWORD *)_RDI + 25) = _EAX;
-                *((_DWORD *)_RDI + 19) = LODWORD(placement->quat.v[0]);
-                *((_DWORD *)_RDI + 20) = LODWORD(placement->quat.v[1]);
-                *((_DWORD *)_RDI + 21) = LODWORD(placement->quat.v[2]);
-                *((_DWORD *)_RDI + 22) = LODWORD(placement->quat.v[3]);
+                v87 = 4096.0 * placement->origin.v[1];
+                *((_DWORD *)v42 + 23) = (int)(float)(4096.0 * placement->origin.v[0]);
+                v88 = 4096.0 * placement->origin.v[2];
+                *((_DWORD *)v42 + 24) = (int)v87;
+                *((_DWORD *)v42 + 25) = (int)v88;
+                *((_DWORD *)v42 + 19) = LODWORD(placement->quat.v[0]);
+                *((_DWORD *)v42 + 20) = LODWORD(placement->quat.v[1]);
+                *((_DWORD *)v42 + 21) = LODWORD(placement->quat.v[2]);
+                *((_DWORD *)v42 + 22) = LODWORD(placement->quat.v[3]);
               }
-              *((_WORD *)_RDI + 26) = -1;
+              *((_WORD *)v42 + 26) = -1;
               if ( isMotionblurModel )
               {
-                _R14 = mbSurfBufSize;
                 if ( mbSurfBufSize + 32 > 0x1800 )
                 {
                   R_WarnOncePerFrame(R_WARN_MAX_MOTIONBLUR_SURFS_WORK_BUFFER);
                 }
                 else
                 {
-                  __asm
-                  {
-                    vmovss  xmm0, [rbp+12C60h+arg_30]
-                    vmovss  dword ptr [rbp+r14+12C60h+mbSurfBuf], xmm0
-                  }
+                  *(float *)&mbSurfBuf[mbSurfBufSize] = scalePrevFrame;
                   CopyVec3ToPreciseVec3(&placementPrevFrame->origin, (base_vec3_t<int> *)((char *)&dst + mbSurfBufSize), 0xCu);
-                  v199[mbSurfBufSize / 4] = LODWORD(placementPrevFrame->quat.v[0]);
-                  v199[mbSurfBufSize / 4 + 1] = LODWORD(placementPrevFrame->quat.v[1]);
-                  v199[mbSurfBufSize / 4 + 2] = LODWORD(placementPrevFrame->quat.v[2]);
-                  v199[mbSurfBufSize / 4 + 3] = LODWORD(placementPrevFrame->quat.v[3]);
-                  *((_WORD *)_RDI + 26) = truncate_cast<unsigned short,unsigned int>(mbSurfBufSize);
+                  v115[mbSurfBufSize / 4] = LODWORD(placementPrevFrame->quat.v[0]);
+                  v115[mbSurfBufSize / 4 + 1] = LODWORD(placementPrevFrame->quat.v[1]);
+                  v115[mbSurfBufSize / 4 + 2] = LODWORD(placementPrevFrame->quat.v[2]);
+                  v115[mbSurfBufSize / 4 + 3] = LODWORD(placementPrevFrame->quat.v[3]);
+                  *((_WORD *)v42 + 26) = truncate_cast<unsigned short,unsigned int>(mbSurfBufSize);
                   mbSurfBufSize += 32;
                 }
               }
-              *((_WORD *)_RDI + 52) = -1;
-              _RDI += 108;
-              if ( _RDI > v203 )
+              *((_WORD *)v42 + 52) = -1;
+              v42 += 108;
+              if ( v42 > v119 )
               {
-                v46 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 1033, ASSERT_TYPE_ASSERT, "(surfPos <= surfBuf + sizeof( surfBuf ))", "%s\n\tDOBJ_MAX_SURFS exceeded for '%s'", "surfPos <= surfBuf + sizeof( surfBuf )", model->name);
+                v44 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 1033, ASSERT_TYPE_ASSERT, "(surfPos <= surfBuf + sizeof( surfBuf ))", "%s\n\tDOBJ_MAX_SURFS exceeded for '%s'", "surfPos <= surfBuf + sizeof( surfBuf )", model->name);
                 goto LABEL_54;
               }
 LABEL_56:
-              v45 = v182;
+              v43 = v98;
               goto LABEL_57;
             }
-            _RDI[54] = ModelSubdivLodLevel;
+            v42[54] = ModelSubdivLodLevel;
             SurfaceSubdivLevel = R_GetSurfaceSubdivLevel(_R14, ModelSubdivLodLevel);
             SubdivSurfTessFactorsTotalCacheSize = R_GetSubdivSurfTessFactorsTotalCacheSize(_R14, SurfaceSubdivLevel);
             if ( !SubdivSurfTessFactorsTotalCacheSize )
               goto LABEL_83;
             if ( R_AllocSubdivSkinnedCachedVerts(SubdivSurfTessFactorsTotalCacheSize, &cacheOffset) )
             {
-              v72 = frontEndDataOut;
-              v73 = cacheOffset;
-              __asm { vmovss  [rsp+12D60h+scale], xmm7 }
-              *((_DWORD *)_RDI + 16) = cacheOffset;
-              if ( R_AddRigidSubdivTessFactorsCmd(v72->compute.cmdList, _R14, SurfaceSubdivLevel, v73, -1, placement, scalec, GfxViewDomain_World) )
+              v58 = frontEndDataOut;
+              v59 = cacheOffset;
+              *((_DWORD *)v42 + 16) = cacheOffset;
+              if ( R_AddRigidSubdivTessFactorsCmd(v58->compute.cmdList, _R14, SurfaceSubdivLevel, v59, -1, placement, v39, GfxViewDomain_World) )
                 goto LABEL_84;
             }
           }
-          v45 = v182;
+          v43 = v98;
         }
       }
       else
       {
         R_WarnOncePerFrame(R_WARN_MAX_SURF_BUF, "index doesn't index SIMD_VECTOR_COUNT\n\t%i not in [0, %i)");
-        v45 = v182;
+        v43 = v98;
       }
-      *(_DWORD *)_RDI = -3;
-      _RDI += 4;
-      if ( _RDI > v203 )
+      *(_DWORD *)v42 = -3;
+      v42 += 4;
+      if ( v42 > v119 )
       {
         scaleb = XModelGetName(model);
-        v46 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 887, ASSERT_TYPE_ASSERT, "(surfPos <= surfBuf + sizeof( surfBuf ))", "%s\n\tDOBJ_MAX_SURFS exceeded for '%s'", "surfPos <= surfBuf + sizeof( surfBuf )", scaleb);
+        v44 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 887, ASSERT_TYPE_ASSERT, "(surfPos <= surfBuf + sizeof( surfBuf ))", "%s\n\tDOBJ_MAX_SURFS exceeded for '%s'", "surfPos <= surfBuf + sizeof( surfBuf )", scaleb);
 LABEL_54:
-        if ( v46 )
+        if ( v44 )
           __debugbreak();
         goto LABEL_56;
       }
 LABEL_57:
-      v182 = ++v45;
-      if ( v45 >= v188 )
+      v98 = ++v43;
+      if ( v43 >= v104 )
       {
-        __asm
-        {
-          vmovaps xmm15, [rsp+12D60h+var_E0]
-          vmovaps xmm14, [rsp+12D60h+var_D0]
-          vmovaps xmm13, [rsp+12D60h+var_C0]
-          vmovaps xmm12, [rsp+12D60h+var_B0]
-          vmovaps xmm11, [rsp+12D60h+var_A0]
-          vmovaps xmm10, [rsp+12D60h+var_90]
-          vmovaps xmm9, [rsp+12D60h+var_80]
-          vmovaps xmm8, [rsp+12D60h+var_70]
-          vmovaps xmm6, [rsp+12D60h+var_50]
-        }
         if ( mbSurfBufSize )
-          R_AllocMotionBlurSurfaces(surfBuf, _RDI, totalSurfaceCount, mbSurfBuf, mbSurfBufSize);
-        v25 = v186;
+          R_AllocMotionBlurSurfaces(surfBuf, v42, totalSurfaceCount, mbSurfBuf, mbSurfBufSize);
+        v25 = v102;
         break;
       }
     }
   }
-  v56 = truncate_cast<unsigned int,__int64>(_RDI - surfBuf);
-  __asm { vmovaps xmm7, [rsp+12D60h+var_60] }
-  v58 = v56;
+  v45 = truncate_cast<unsigned int,__int64>(v42 - surfBuf);
   if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 1042, ASSERT_TYPE_ASSERT, "(frontEndDataOut)", (const char *)&queryFormat, "frontEndDataOut") )
     __debugbreak();
   p_surfPos = &frontEndDataOut->surfPos;
   if ( (((_BYTE)frontEndDataOut - 8) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &frontEndDataOut->surfPos) )
     __debugbreak();
-  v60 = _InterlockedExchangeAdd(p_surfPos, v58);
-  if ( v60 + (unsigned int)v58 <= 0x40000 )
+  v47 = _InterlockedExchangeAdd(p_surfPos, v45);
+  if ( v47 + (unsigned int)v45 <= 0x40000 )
   {
-    if ( (v60 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 1052, ASSERT_TYPE_ASSERT, "(!(startSurfPos & 3))", (const char *)&queryFormat, "!(startSurfPos & 3)") )
+    if ( (v47 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 1052, ASSERT_TYPE_ASSERT, "(!(startSurfPos & 3))", (const char *)&queryFormat, "!(startSurfPos & 3)") )
       __debugbreak();
-    if ( v60 >> 2 > 0x1000000 )
+    if ( v47 >> 2 > 0x1000000 )
     {
       LODWORD(scalea) = 0x1000000;
-      LODWORD(placementa) = v60 >> 2;
+      LODWORD(placementa) = v47 >> 2;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 1054, ASSERT_TYPE_ASSERT, "( startSurfPos >> 2 ) <= ( (1 << 24) )", "startSurfPos >> 2 not in [0, XMODELDRAWINFO_SURF_ID_LIMIT]\n\t%u not in [0, %u]", placementa, scalea) )
         __debugbreak();
     }
     *((_DWORD *)v25 + 1) &= 0xFF000000;
-    *((_DWORD *)v25 + 1) |= (v60 >> 2) & 0xFFFFFF;
-    if ( (unsigned int)v58 > 0x1000000 )
+    *((_DWORD *)v25 + 1) |= (v47 >> 2) & 0xFFFFFF;
+    if ( (unsigned int)v45 > 0x1000000 )
     {
       LODWORD(scalea) = 0x1000000;
-      LODWORD(placementa) = v58;
+      LODWORD(placementa) = v45;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 1056, ASSERT_TYPE_ASSERT, "( size ) <= ( (1 << 24) )", "size not in [0, XMODELDRAWINFO_SURF_BUF_SIZE_LIMIT]\n\t%u not in [0, %u]", placementa, scalea) )
         __debugbreak();
     }
     *(_DWORD *)v25 &= 0xC000003F;
-    *(_DWORD *)v25 |= (v58 & 0xFFFFFF) << 6;
-    memcpy_0(&frontEndDataOut->surfsBuffer[v60], surfBuf, v58);
+    *(_DWORD *)v25 |= (v45 & 0xFFFFFF) << 6;
+    memcpy_0(&frontEndDataOut->surfsBuffer[v47], surfBuf, v45);
     Profile_EndInternal(NULL);
     return 1i64;
   }
@@ -1779,107 +1568,81 @@ R_XModelDebugAxes
 void R_XModelDebugAxes(const DObj *obj, DObjPartBits *partBits)
 {
   DObjAnimMat *RotTransArray; 
-  int v7; 
-  unsigned int v8; 
+  int v5; 
+  unsigned int v6; 
   vec4_t *p_color; 
-  const vec3_t *v10; 
-  int v11; 
-  const DObjAnimMat *v12; 
-  __int64 v26; 
-  __int64 v27; 
-  int v28; 
+  const vec3_t *v8; 
+  int v9; 
+  const DObjAnimMat *v10; 
+  __int64 v11; 
+  __int64 v12; 
+  int v13; 
   vec3_t end; 
   vec3_t out; 
   vec4_t color; 
-  __m256i v32; 
+  __m256i v17; 
+  float v18; 
 
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 528, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   RotTransArray = DObjGetRotTransArray(obj);
   if ( RotTransArray )
   {
-    __asm
-    {
-      vmovups ymm0, cs:__ymm@00000000000000000000000040c0000000000000000000000000000040c00000
-      vmovss  xmm1, cs:__real@40c00000
-      vmovss  [rsp+0D8h+var_40], xmm1
-      vmovups [rsp+0D8h+var_60], ymm0
-    }
-    v28 = DObjNumBones(obj);
-    v7 = v28;
+    v18 = FLOAT_6_0;
+    v17 = _ymm;
+    v13 = DObjNumBones(obj);
+    v5 = v13;
     DObjTotalNumBones(obj);
     if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 554, ASSERT_TYPE_ASSERT, "(frontEndDataOut)", (const char *)&queryFormat, "frontEndDataOut") )
       __debugbreak();
-    v8 = 0;
-    if ( v28 > 0 )
+    v6 = 0;
+    if ( v13 > 0 )
     {
       do
       {
-        if ( v8 >= 0x100 )
+        if ( v6 >= 0x100 )
         {
-          LODWORD(v27) = 256;
-          LODWORD(v26) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v26, v27) )
+          LODWORD(v12) = 256;
+          LODWORD(v11) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v11, v12) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> (v8 & 0x1F)) & partBits->array[(unsigned __int64)v8 >> 5]) != 0 )
+        if ( ((0x80000000 >> (v6 & 0x1F)) & partBits->array[(unsigned __int64)v6 >> 5]) != 0 )
         {
           p_color = &color;
-          v10 = (const vec3_t *)&v32;
-          v11 = 0;
-          v12 = &RotTransArray[v8];
+          v8 = (const vec3_t *)&v17;
+          v9 = 0;
+          v10 = &RotTransArray[v6];
           do
           {
-            __asm
+            color = (vec4_t)_xmm;
+            if ( (unsigned int)v9 >= 4 )
             {
-              vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-              vmovups xmmword ptr [rsp+0D8h+color], xmm0
-            }
-            if ( (unsigned int)v11 >= 4 )
-            {
-              LODWORD(v27) = 4;
-              LODWORD(v26) = v11;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v26, v27) )
+              LODWORD(v12) = 4;
+              LODWORD(v11) = v9;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v11, v12) )
                 __debugbreak();
             }
             p_color->v[0] = 1.0;
-            MatrixTransformVectorQuatTrans(&vec3_origin, v12, &out);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+0D8h+out]
-              vaddss  xmm1, xmm0, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset; GfxScene scene
-              vmovss  xmm2, dword ptr [rsp+0D8h+out+4]
-              vaddss  xmm0, xmm2, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+4; GfxScene scene
-              vmovss  dword ptr [rsp+0D8h+out], xmm1
-              vmovss  xmm1, dword ptr [rsp+0D8h+out+8]
-              vaddss  xmm2, xmm1, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+8; GfxScene scene
-              vmovss  dword ptr [rsp+0D8h+out+8], xmm2
-              vmovss  dword ptr [rsp+0D8h+out+4], xmm0
-            }
-            MatrixTransformVectorQuatTrans(v10, v12, &end);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+0D8h+end]
-              vaddss  xmm1, xmm0, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset; GfxScene scene
-              vmovss  xmm2, dword ptr [rsp+0D8h+end+4]
-              vaddss  xmm0, xmm2, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+4; GfxScene scene
-              vmovss  dword ptr [rsp+0D8h+end], xmm1
-              vmovss  xmm1, dword ptr [rsp+0D8h+end+8]
-              vaddss  xmm2, xmm1, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+8; GfxScene scene
-              vmovss  dword ptr [rsp+0D8h+end+8], xmm2
-              vmovss  dword ptr [rsp+0D8h+end+4], xmm0
-            }
+            MatrixTransformVectorQuatTrans(&vec3_origin, v10, &out);
+            out.v[0] = out.v[0] + scene.def.viewOffset.v[0];
+            out.v[2] = out.v[2] + scene.def.viewOffset.v[2];
+            out.v[1] = out.v[1] + scene.def.viewOffset.v[1];
+            MatrixTransformVectorQuatTrans(v8, v10, &end);
+            end.v[0] = end.v[0] + scene.def.viewOffset.v[0];
+            end.v[2] = end.v[2] + scene.def.viewOffset.v[2];
+            end.v[1] = end.v[1] + scene.def.viewOffset.v[1];
             R_AddDebugLine(&frontEndDataOut->debugGlobals, &out, &end, &color);
-            ++v11;
-            ++v10;
+            ++v9;
+            ++v8;
             p_color = (vec4_t *)((char *)p_color + 4);
           }
-          while ( v11 < 3 );
-          v7 = v28;
+          while ( v9 < 3 );
+          v5 = v13;
         }
-        ++v8;
+        ++v6;
       }
-      while ( (int)v8 < v7 );
+      while ( (int)v6 < v5 );
     }
   }
 }
@@ -1891,215 +1654,157 @@ R_XModelDebugBoxes
 */
 void R_XModelDebugBoxes(const DObj *obj, DObjPartBits *partBits)
 {
-  DObjPartBits *v3; 
-  DObjAnimMat *v5; 
-  int v6; 
-  unsigned __int64 v7; 
+  DObjPartBits *v2; 
+  DObjAnimMat *v4; 
+  int v5; 
+  unsigned __int64 v6; 
+  int v7; 
   int v8; 
-  int v11; 
-  __int64 v12; 
-  bool v14; 
-  const int *v16; 
-  const DObjAnimMat *v17; 
+  __int64 v9; 
+  bool v10; 
+  XBoneInfo *v11; 
+  const int *v12; 
+  const DObjAnimMat *v13; 
   vec4_t *p_color; 
-  __int64 v20; 
-  int v22; 
-  int v46; 
-  __int64 v84; 
-  __int64 v85; 
-  int v86; 
-  __int64 v87; 
+  __int64 v15; 
+  int v17; 
+  int v29; 
+  __int64 v42; 
+  __int64 v43; 
+  int v44; 
+  __int64 v45; 
   DObjAnimMat *RotTransArray; 
-  __int64 v90; 
+  __int64 v48; 
   vec3_t in; 
   vec3_t end; 
   vec3_t out; 
-  __int128 v94; 
+  __int128 v52; 
   vec4_t color; 
   XBoneInfo *boneInfo[4094]; 
 
-  v3 = partBits;
+  v2 = partBits;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 466, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   RotTransArray = DObjGetRotTransArray(obj);
-  v5 = RotTransArray;
+  v4 = RotTransArray;
   if ( RotTransArray )
   {
-    v6 = DObjNumBones(obj);
-    v7 = v6;
-    v86 = v6;
-    v8 = DObjTotalNumBones(obj);
-    if ( v7 > 0xFFE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 473, ASSERT_TYPE_ASSERT, "(boneCount <= ( sizeof( *array_counter( boneInfoArray ) ) + 0 ))", (const char *)&queryFormat, "boneCount <= ARRAY_COUNT( boneInfoArray )") )
+    v5 = DObjNumBones(obj);
+    v6 = v5;
+    v44 = v5;
+    v7 = DObjTotalNumBones(obj);
+    if ( v6 > 0xFFE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 473, ASSERT_TYPE_ASSERT, "(boneCount <= ( sizeof( *array_counter( boneInfoArray ) ) + 0 ))", (const char *)&queryFormat, "boneCount <= ARRAY_COUNT( boneInfoArray )") )
       __debugbreak();
     DObjGetBoneInfoClient(obj, boneInfo);
-    __asm
-    {
-      vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-      vmovups xmm1, cs:__xmm@3f8000003f0000003f8000003f800000
-      vmovups xmmword ptr [rbp+7FF0h+color], xmm0
-      vmovups [rbp+7FF0h+var_8058], xmm1
-    }
+    color = (vec4_t)_xmm;
+    v52 = _xmm;
     if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 479, ASSERT_TYPE_ASSERT, "(frontEndDataOut)", (const char *)&queryFormat, "frontEndDataOut") )
       __debugbreak();
-    if ( (v3->array[7] & 2) == 0 )
-      v8 = v7;
-    v11 = 0;
-    v90 = v8;
-    if ( v8 > 0 )
+    if ( (v2->array[7] & 2) == 0 )
+      v7 = v6;
+    v8 = 0;
+    v48 = v7;
+    if ( v7 > 0 )
     {
-      v12 = 0i64;
-      __asm
-      {
-        vmovaps [rsp+80F0h+var_30], xmm6
-        vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-      }
-      v87 = 0i64;
+      v9 = 0i64;
+      v45 = 0i64;
       do
       {
-        v14 = v11 >= (int)v7;
-        if ( v11 >= (int)v7 )
+        v10 = v8 >= (int)v6;
+        if ( v8 >= (int)v6 )
           goto LABEL_20;
-        if ( (unsigned int)v11 >= 0x100 )
+        if ( (unsigned int)v8 >= 0x100 )
         {
-          LODWORD(v85) = 256;
-          LODWORD(v84) = v11;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v84, v85) )
+          LODWORD(v43) = 256;
+          LODWORD(v42) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v42, v43) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> (v11 & 0x1F)) & v3->array[(unsigned __int64)(unsigned int)v11 >> 5]) != 0 )
+        if ( ((0x80000000 >> (v8 & 0x1F)) & v2->array[(unsigned __int64)(unsigned int)v8 >> 5]) != 0 )
         {
 LABEL_20:
-          _RSI = boneInfo[v12];
-          v16 = boxVerts;
-          v17 = &v5[v11];
-          p_color = (vec4_t *)&v94;
-          if ( !v14 )
+          v11 = boneInfo[v9];
+          v12 = boxVerts;
+          v13 = &v4[v8];
+          p_color = (vec4_t *)&v52;
+          if ( !v10 )
             p_color = &color;
-          _EDI = 0;
-          v20 = 12i64;
+          v15 = 12i64;
           do
           {
-            __asm { vmovss  xmm4, dword ptr [rsi+0Ch] }
-            v22 = *v16;
-            __asm { vxorps  xmm3, xmm4, xmm6 }
-            _EAX = *v16 & 1;
+            _XMM4 = LODWORD(v11->bounds.halfSize.v[0]);
+            v17 = *v12;
+            _XMM0 = *v12 & 1;
             __asm
             {
-              vmovd   xmm0, eax
-              vmovd   xmm1, edi
               vpcmpeqd xmm2, xmm0, xmm1
               vblendvps xmm1, xmm4, xmm3, xmm2
-              vaddss  xmm0, xmm1, dword ptr [rsi]
-              vmovss  dword ptr [rsp+80F0h+in], xmm0
-              vmovss  xmm4, dword ptr [rsi+10h]
             }
-            LOBYTE(_EAX) = v22;
-            _ECX = v22 & 4;
+            in.v[0] = *(float *)&_XMM1 + v11->bounds.midPoint.v[0];
+            _XMM4 = LODWORD(v11->bounds.halfSize.v[1]);
+            _XMM0 = v17 & 2;
             __asm
             {
-              vmovd   xmm1, edi
-              vxorps  xmm3, xmm4, xmm6
-            }
-            _EAX = _EAX & 2;
-            __asm
-            {
-              vmovd   xmm0, eax
               vpcmpeqd xmm2, xmm0, xmm1
               vblendvps xmm1, xmm4, xmm3, xmm2
-              vaddss  xmm0, xmm1, dword ptr [rsi+4]
-              vmovss  dword ptr [rsp+80F0h+in+4], xmm0
-              vmovss  xmm4, dword ptr [rsi+14h]
-              vmovd   xmm0, ecx
-              vmovd   xmm1, edi
-              vpcmpeqd xmm2, xmm0, xmm1
-              vxorps  xmm3, xmm4, xmm6
-              vblendvps xmm1, xmm4, xmm3, xmm2
-              vaddss  xmm0, xmm1, dword ptr [rsi+8]
-              vmovss  dword ptr [rsp+80F0h+in+8], xmm0
             }
-            MatrixTransformVectorQuatTrans(&in, v17, &out);
-            v46 = v16[1];
+            in.v[1] = *(float *)&_XMM1 + v11->bounds.midPoint.v[1];
+            _XMM4 = LODWORD(v11->bounds.halfSize.v[2]);
+            _XMM0 = v17 & 4;
             __asm
             {
-              vmovss  xmm0, dword ptr [rbp+7FF0h+out]
-              vaddss  xmm1, xmm0, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset; GfxScene scene
-              vmovss  xmm2, dword ptr [rbp+7FF0h+out+4]
-              vaddss  xmm0, xmm2, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+4; GfxScene scene
-              vmovss  dword ptr [rbp+7FF0h+out], xmm1
-              vmovss  xmm1, dword ptr [rbp+7FF0h+out+8]
-              vaddss  xmm2, xmm1, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+8; GfxScene scene
-              vmovss  dword ptr [rbp+7FF0h+out+8], xmm2
-              vmovss  dword ptr [rbp+7FF0h+out+4], xmm0
-              vmovss  xmm4, dword ptr [rsi+0Ch]
-              vxorps  xmm3, xmm4, xmm6
-            }
-            _EAX = v46 & 1;
-            __asm
-            {
-              vmovd   xmm0, eax
-              vmovd   xmm1, edi
               vpcmpeqd xmm2, xmm0, xmm1
               vblendvps xmm1, xmm4, xmm3, xmm2
-              vaddss  xmm0, xmm1, dword ptr [rsi]
-              vmovss  dword ptr [rsp+80F0h+in], xmm0
-              vmovss  xmm4, dword ptr [rsi+10h]
             }
-            LOBYTE(_EAX) = v46;
-            _ECX = v46 & 4;
+            in.v[2] = *(float *)&_XMM1 + v11->bounds.midPoint.v[2];
+            MatrixTransformVectorQuatTrans(&in, v13, &out);
+            v29 = v12[1];
+            out.v[0] = out.v[0] + scene.def.viewOffset.v[0];
+            out.v[2] = out.v[2] + scene.def.viewOffset.v[2];
+            out.v[1] = out.v[1] + scene.def.viewOffset.v[1];
+            _XMM4 = LODWORD(v11->bounds.halfSize.v[0]);
+            _XMM0 = v29 & 1;
             __asm
             {
-              vmovd   xmm1, edi
-              vxorps  xmm3, xmm4, xmm6
-            }
-            _EAX = _EAX & 2;
-            __asm
-            {
-              vmovd   xmm0, eax
               vpcmpeqd xmm2, xmm0, xmm1
               vblendvps xmm1, xmm4, xmm3, xmm2
-              vaddss  xmm0, xmm1, dword ptr [rsi+4]
-              vmovss  dword ptr [rsp+80F0h+in+4], xmm0
-              vmovss  xmm4, dword ptr [rsi+14h]
-              vmovd   xmm0, ecx
-              vmovd   xmm1, edi
+            }
+            in.v[0] = *(float *)&_XMM1 + v11->bounds.midPoint.v[0];
+            _XMM4 = LODWORD(v11->bounds.halfSize.v[1]);
+            _XMM0 = v29 & 2;
+            __asm
+            {
               vpcmpeqd xmm2, xmm0, xmm1
-              vxorps  xmm3, xmm4, xmm6
               vblendvps xmm1, xmm4, xmm3, xmm2
-              vaddss  xmm0, xmm1, dword ptr [rsi+8]
-              vmovss  dword ptr [rsp+80F0h+in+8], xmm0
             }
-            MatrixTransformVectorQuatTrans(&in, v17, &end);
+            in.v[1] = *(float *)&_XMM1 + v11->bounds.midPoint.v[1];
+            _XMM4 = LODWORD(v11->bounds.halfSize.v[2]);
+            _XMM0 = v29 & 4;
             __asm
             {
-              vmovss  xmm0, dword ptr [rsp+80F0h+end]
-              vaddss  xmm1, xmm0, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset; GfxScene scene
-              vmovss  xmm2, dword ptr [rsp+80F0h+end+4]
-              vmovss  dword ptr [rsp+80F0h+end], xmm1
-              vmovss  xmm1, dword ptr [rbp+7FF0h+end+8]
-              vaddss  xmm0, xmm2, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+4; GfxScene scene
-              vaddss  xmm2, xmm1, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+8; GfxScene scene
+              vpcmpeqd xmm2, xmm0, xmm1
+              vblendvps xmm1, xmm4, xmm3, xmm2
             }
-            v16 += 2;
-            __asm
-            {
-              vmovss  dword ptr [rbp+7FF0h+end+8], xmm2
-              vmovss  dword ptr [rsp+80F0h+end+4], xmm0
-            }
+            in.v[2] = *(float *)&_XMM1 + v11->bounds.midPoint.v[2];
+            MatrixTransformVectorQuatTrans(&in, v13, &end);
+            end.v[0] = end.v[0] + scene.def.viewOffset.v[0];
+            v12 += 2;
+            end.v[2] = end.v[2] + scene.def.viewOffset.v[2];
+            end.v[1] = end.v[1] + scene.def.viewOffset.v[1];
             R_AddDebugLine(&frontEndDataOut->debugGlobals, &out, &end, p_color);
-            --v20;
+            --v15;
           }
-          while ( v20 );
-          v12 = v87;
-          LODWORD(v7) = v86;
-          v3 = partBits;
-          v5 = RotTransArray;
+          while ( v15 );
+          v9 = v45;
+          LODWORD(v6) = v44;
+          v2 = partBits;
+          v4 = RotTransArray;
         }
-        ++v12;
-        ++v11;
-        v87 = v12;
+        ++v9;
+        ++v8;
+        v45 = v9;
       }
-      while ( v12 < v90 );
-      __asm { vmovaps xmm6, [rsp+80F0h+var_30] }
+      while ( v9 < v48 );
     }
   }
 }
@@ -2115,32 +1820,34 @@ void R_XModelDebugSkel(const DObj *obj, DObjPartBits *partBits)
   int v5; 
   const XModel *Model; 
   unsigned int v7; 
+  bitarray_base<bitarray<256> > *v8; 
   int v10; 
-  int v11; 
+  int i; 
   const char *BoneName; 
   unsigned __int8 *parentList; 
-  signed int v22; 
-  unsigned int v23; 
+  signed int v14; 
+  unsigned int v15; 
   bool IsBoneDismembered; 
-  const vec4_t *v31; 
-  const char *v32; 
-  __int64 v34; 
-  __int64 v35; 
-  int v36; 
-  int v37; 
+  const vec4_t *v17; 
+  const char *v18; 
+  __int64 v19; 
+  __int64 v20; 
+  unsigned int v21; 
+  int v22; 
   unsigned int NumModels; 
   DObjAnimMat *RotTransArray; 
   vec3_t out; 
   vec3_t end; 
-  bitarray_base<bitarray<256> > v43[32]; 
+  bitarray_base<bitarray<256> > v28[32]; 
   char dest[256]; 
+  __int128 v30; 
 
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 600, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   RotTransArray = DObjGetRotTransArray(obj);
   if ( RotTransArray )
   {
-    v36 = DObjNumBones(obj);
+    v21 = DObjNumBones(obj);
     if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 607, ASSERT_TYPE_ASSERT, "(frontEndDataOut)", (const char *)&queryFormat, "frontEndDataOut") )
       __debugbreak();
     NumModels = DObjGetNumModels(obj);
@@ -2148,117 +1855,90 @@ void R_XModelDebugSkel(const DObj *obj, DObjPartBits *partBits)
     {
       v4 = 0;
       v5 = 0;
-      __asm { vmovaps [rsp+1E0h+var_30], xmm6 }
+      v30 = _XMM6;
       Model = DObjGetModel(obj, 0);
       v7 = 0;
-      v37 = XModelNumBones(Model);
-      _RDI = v43;
+      v22 = XModelNumBones(Model);
+      v8 = v28;
       __asm { vpxor   xmm6, xmm6, xmm6 }
       do
       {
-        __asm { vmovdqu xmmword ptr [rdi], xmm6 }
-        _RDI += 16;
+        *(_OWORD *)v8 = _XMM6;
+        v8 += 16;
         ++v7;
       }
       while ( v7 < 2 );
-      v10 = v36;
-      v11 = 0;
-      __asm { vmovaps xmm6, [rsp+1E0h+var_30] }
-      if ( v36 > 0 )
+      v10 = v21;
+      for ( i = 0; i < v10; ++i )
       {
-        do
+        if ( (unsigned int)i >= 0x100 )
         {
-          if ( (unsigned int)v11 >= 0x100 )
+          LODWORD(v20) = 256;
+          LODWORD(v19) = i;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v19, v20) )
+            __debugbreak();
+        }
+        if ( ((0x80000000 >> (i & 0x1F)) & partBits->array[(unsigned __int64)(unsigned int)i >> 5]) != 0 )
+        {
+          if ( i >= v22 )
           {
-            LODWORD(v35) = 256;
-            LODWORD(v34) = v11;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v34, v35) )
-              __debugbreak();
-          }
-          if ( ((0x80000000 >> (v11 & 0x1F)) & partBits->array[(unsigned __int64)(unsigned int)v11 >> 5]) != 0 )
-          {
-            if ( v11 >= v37 )
+            if ( ++v4 >= NumModels )
             {
-              if ( ++v4 >= NumModels )
+              LODWORD(v20) = NumModels;
+              LODWORD(v19) = v4;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 629, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( modelCount )", "modelIndex doesn't index modelCount\n\t%i not in [0, %i)", v19, v20) )
+                __debugbreak();
+            }
+            Model = DObjGetModel(obj, v4);
+            if ( !Model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 631, ASSERT_TYPE_ASSERT, "(xmodel)", (const char *)&queryFormat, "xmodel") )
+              __debugbreak();
+            v22 += XModelNumBones(Model);
+            v5 += XModelNumBones(Model);
+          }
+          MatrixTransformVectorQuatTrans(&vec3_origin, &RotTransArray[i], &out);
+          out.v[0] = out.v[0] + scene.def.viewOffset.v[0];
+          out.v[2] = out.v[2] + scene.def.viewOffset.v[2];
+          out.v[1] = out.v[1] + scene.def.viewOffset.v[1];
+          BoneName = DObjGetBoneName(obj, i);
+          Com_sprintf(dest, 0x100ui64, "%i:%s", (unsigned int)i, BoneName);
+          R_AddDebugString(&frontEndDataOut->debugGlobals, &out, &colorWhite, fontSize_0, dest);
+          parentList = Model->parentList;
+          if ( parentList )
+          {
+            v14 = i - v5 - parentList[i - v5 - Model->numRootBones];
+            if ( v14 >= 0 && v14 < Model->numBones )
+            {
+              v15 = i - parentList[i - v5 - Model->numRootBones];
+              if ( v15 >= v21 )
               {
-                LODWORD(v35) = NumModels;
-                LODWORD(v34) = v4;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 629, ASSERT_TYPE_ASSERT, "(unsigned)( modelIndex ) < (unsigned)( modelCount )", "modelIndex doesn't index modelCount\n\t%i not in [0, %i)", v34, v35) )
+                LODWORD(v20) = v21;
+                LODWORD(v19) = i - parentList[i - v5 - Model->numRootBones];
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 653, ASSERT_TYPE_ASSERT, "(unsigned)( dobjParentIndex ) < (unsigned)( boneCount )", "dobjParentIndex doesn't index boneCount\n\t%i not in [0, %i)", v19, v20) )
                   __debugbreak();
               }
-              Model = DObjGetModel(obj, v4);
-              if ( !Model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 631, ASSERT_TYPE_ASSERT, "(xmodel)", (const char *)&queryFormat, "xmodel") )
-                __debugbreak();
-              v37 += XModelNumBones(Model);
-              v5 += XModelNumBones(Model);
-            }
-            MatrixTransformVectorQuatTrans(&vec3_origin, &RotTransArray[v11], &out);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+1E0h+out]
-              vaddss  xmm1, xmm0, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset; GfxScene scene
-              vmovss  xmm2, dword ptr [rsp+1E0h+out+4]
-              vaddss  xmm0, xmm2, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+4; GfxScene scene
-              vmovss  dword ptr [rsp+1E0h+out], xmm1
-              vmovss  xmm1, dword ptr [rsp+1E0h+out+8]
-              vaddss  xmm2, xmm1, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+8; GfxScene scene
-              vmovss  dword ptr [rsp+1E0h+out+8], xmm2
-              vmovss  dword ptr [rsp+1E0h+out+4], xmm0
-            }
-            BoneName = DObjGetBoneName(obj, v11);
-            Com_sprintf(dest, 0x100ui64, "%i:%s", (unsigned int)v11, BoneName);
-            __asm { vmovss  xmm3, cs:fontSize_0; size }
-            R_AddDebugString(&frontEndDataOut->debugGlobals, &out, &colorWhite, *(float *)&_XMM3, dest);
-            parentList = Model->parentList;
-            if ( parentList )
-            {
-              v22 = v11 - v5 - parentList[v11 - v5 - Model->numRootBones];
-              if ( v22 >= 0 && v22 < Model->numBones )
+              if ( bitarray_base<bitarray<256>>::testBit(partBits, v15) )
               {
-                v23 = v11 - parentList[v11 - v5 - Model->numRootBones];
-                if ( v23 >= v36 )
+                MatrixTransformVectorQuatTrans(&vec3_origin, &RotTransArray[v15], &end);
+                end.v[0] = end.v[0] + scene.def.viewOffset.v[0];
+                end.v[2] = end.v[2] + scene.def.viewOffset.v[2];
+                end.v[1] = end.v[1] + scene.def.viewOffset.v[1];
+                IsBoneDismembered = FX_Dismemberment_IsBoneDismembered((LocalClientNum_t)frontEndDataOut->localClientNum, obj, v15, 0);
+                v17 = &colorDkOrange;
+                if ( !IsBoneDismembered )
+                  v17 = &colorMdCyan;
+                R_AddDebugLine(&frontEndDataOut->debugGlobals, &out, &end, v17);
+                if ( !bitarray_base<bitarray<256>>::testBit(v28, v14) )
                 {
-                  LODWORD(v35) = v36;
-                  LODWORD(v34) = v11 - parentList[v11 - v5 - Model->numRootBones];
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_model.cpp", 653, ASSERT_TYPE_ASSERT, "(unsigned)( dobjParentIndex ) < (unsigned)( boneCount )", "dobjParentIndex doesn't index boneCount\n\t%i not in [0, %i)", v34, v35) )
-                    __debugbreak();
+                  bitarray_base<bitarray<256>>::setBit(v28, v14);
+                  v18 = DObjGetBoneName(obj, v15);
+                  Com_sprintf(dest, 0x100ui64, "%i:%s", v15, v18);
+                  R_AddDebugString(&frontEndDataOut->debugGlobals, &end, &colorWhite, fontSize_0, dest);
                 }
-                if ( bitarray_base<bitarray<256>>::testBit(partBits, v23) )
-                {
-                  MatrixTransformVectorQuatTrans(&vec3_origin, &RotTransArray[v23], &end);
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rsp+1E0h+end]
-                    vaddss  xmm1, xmm0, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset; GfxScene scene
-                    vmovss  xmm2, dword ptr [rsp+1E0h+end+4]
-                    vaddss  xmm0, xmm2, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+4; GfxScene scene
-                    vmovss  dword ptr [rsp+1E0h+end], xmm1
-                    vmovss  xmm1, dword ptr [rsp+1E0h+end+8]
-                    vaddss  xmm2, xmm1, dword ptr cs:?scene@@3UGfxScene@@A.def.viewOffset+8; GfxScene scene
-                    vmovss  dword ptr [rsp+1E0h+end+8], xmm2
-                    vmovss  dword ptr [rsp+1E0h+end+4], xmm0
-                  }
-                  IsBoneDismembered = FX_Dismemberment_IsBoneDismembered((LocalClientNum_t)frontEndDataOut->localClientNum, obj, v23, 0);
-                  v31 = &colorDkOrange;
-                  if ( !IsBoneDismembered )
-                    v31 = &colorMdCyan;
-                  R_AddDebugLine(&frontEndDataOut->debugGlobals, &out, &end, v31);
-                  if ( !bitarray_base<bitarray<256>>::testBit(v43, v22) )
-                  {
-                    bitarray_base<bitarray<256>>::setBit(v43, v22);
-                    v32 = DObjGetBoneName(obj, v23);
-                    Com_sprintf(dest, 0x100ui64, "%i:%s", v23, v32);
-                    __asm { vmovss  xmm3, cs:fontSize_0; size }
-                    R_AddDebugString(&frontEndDataOut->debugGlobals, &end, &colorWhite, *(float *)&_XMM3, dest);
-                  }
-                }
-                v10 = v36;
               }
+              v10 = v21;
             }
           }
-          ++v11;
         }
-        while ( v11 < v10 );
       }
     }
   }

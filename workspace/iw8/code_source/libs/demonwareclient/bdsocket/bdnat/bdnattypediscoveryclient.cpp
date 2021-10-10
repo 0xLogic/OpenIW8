@@ -249,81 +249,50 @@ void bdNATTypeDiscoveryClient::handleResponse(bdNATTypeDiscoveryClient *this, co
   bool v10; 
   unsigned __int16 Port; 
   bool v12; 
-  char v27[24]; 
+  char v13[24]; 
   char str[24]; 
 
-  _RDI = this;
   switch ( this->m_state )
   {
     case BD_NTDCS_RUN_TEST_1:
       bdNATTypeDiscoveryTelemetry::setTest1Result(&this->m_telemetry, addr, reply);
-      _RAX = bdNATTypeDiscoveryPacketReply::getSecAddr((bdNATTypeDiscoveryPacketReply *)reply);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rdi+0A0h], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rdi+0C0h], ymm1
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rdi+0E0h], ymm0
-        vmovups ymm1, ymmword ptr [rax+60h]
-        vmovups ymmword ptr [rdi+100h], ymm1
-        vmovups xmm0, xmmword ptr [rax+80h]
-        vmovups xmmword ptr [rdi+120h], xmm0
-        vmovsd  xmm1, qword ptr [rax+90h]
-        vmovsd  qword ptr [rdi+130h], xmm1
-      }
-      _RAX = bdNATTypeDiscoveryPacketReply::getMappedAddr((bdNATTypeDiscoveryPacketReply *)reply);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rdi+138h], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rdi+158h], ymm1
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rdi+178h], ymm0
-        vmovups ymm1, ymmword ptr [rax+60h]
-        vmovups ymmword ptr [rdi+198h], ymm1
-        vmovups xmm0, xmmword ptr [rax+80h]
-        vmovups xmmword ptr [rdi+1B8h], xmm0
-        vmovsd  xmm1, qword ptr [rax+90h]
-        vmovsd  qword ptr [rdi+1C8h], xmm1
-      }
+      this->m_serverAddr2 = *bdNATTypeDiscoveryPacketReply::getSecAddr((bdNATTypeDiscoveryPacketReply *)reply);
+      this->m_mappedAddr = *bdNATTypeDiscoveryPacketReply::getMappedAddr((bdNATTypeDiscoveryPacketReply *)reply);
       bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::handleResponse", 0xFFu, "Reply for test 1. Start test 2.");
-      if ( bdNATTypeDiscoveryClient::sendForTest2(_RDI) )
+      if ( bdNATTypeDiscoveryClient::sendForTest2(this) )
       {
-        _RDI->m_resends = 0;
-        _RDI->m_state = BD_NTDCS_RUN_TEST_2;
+        this->m_resends = 0;
+        this->m_state = BD_NTDCS_RUN_TEST_2;
       }
       else
       {
-        _RDI->m_state = BD_NTDCS_ERROR;
-        bdNATTypeDiscoveryTelemetry::setResultFailure(&_RDI->m_telemetry);
-        bdTelemetry::addNatTypeDiscovery(&_RDI->m_telemetry);
+        this->m_state = BD_NTDCS_ERROR;
+        bdNATTypeDiscoveryTelemetry::setResultFailure(&this->m_telemetry);
+        bdTelemetry::addNatTypeDiscovery(&this->m_telemetry);
       }
       break;
     case BD_NTDCS_RUN_TEST_2:
       bdNATTypeDiscoveryTelemetry::setTest2Result(&this->m_telemetry, addr);
-      v10 = bdSockAddr::compare(&addr->m_address, &_RDI->m_serverAddr2.m_address, 0);
+      v10 = bdSockAddr::compare(&addr->m_address, &this->m_serverAddr2.m_address, 0);
       Port = bdSockAddr::getPort(&addr->m_address);
-      v12 = Port == bdSockAddr::getPort(&_RDI->m_serverAddr2.m_address);
+      v12 = Port == bdSockAddr::getPort(&this->m_serverAddr2.m_address);
       if ( v10 )
       {
         if ( !v12 )
         {
           bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::handleResponse", 0x11Bu, "Reply for test 2. Open NAT (or no NAT).");
-          _RDI->m_NATType = BD_NAT_OPEN;
-          _RDI->m_state = BD_NTDCS_FINI;
-          bdNATTypeDiscoveryTelemetry::setResultSuccess(&_RDI->m_telemetry, BD_NAT_OPEN);
-          bdTelemetry::addNatTypeDiscovery(&_RDI->m_telemetry);
+          this->m_NATType = BD_NAT_OPEN;
+          this->m_state = BD_NTDCS_FINI;
+          bdNATTypeDiscoveryTelemetry::setResultSuccess(&this->m_telemetry, BD_NAT_OPEN);
+          bdTelemetry::addNatTypeDiscovery(&this->m_telemetry);
           return;
         }
       }
       else if ( !v10 )
       {
         bdAddr::toString((bdAddr *)addr, str, 0x16ui64);
-        bdAddr::toString(&_RDI->m_serverAddr2, v27, 0x16ui64);
-        bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::handleResponse", 0x126u, "Received test 2 response from unexpected address \n received from : %s \n expected from :%s ", str, v27);
+        bdAddr::toString(&this->m_serverAddr2, v13, 0x16ui64);
+        bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::handleResponse", 0x126u, "Received test 2 response from unexpected address \n received from : %s \n expected from :%s ", str, v13);
       }
       if ( v12 )
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::handleResponse", 0x12Au, "Received test 2 response from primary port");
@@ -331,7 +300,7 @@ void bdNATTypeDiscoveryClient::handleResponse(bdNATTypeDiscoveryClient *this, co
     case BD_NTDCS_RUN_TEST_3:
       bdNATTypeDiscoveryTelemetry::setTest3Result(&this->m_telemetry, addr, reply);
       MappedAddr = bdNATTypeDiscoveryPacketReply::getMappedAddr((bdNATTypeDiscoveryPacketReply *)reply);
-      if ( bdSockAddr::compare(&_RDI->m_mappedAddr.m_address, &MappedAddr->m_address, 1) )
+      if ( bdSockAddr::compare(&this->m_mappedAddr.m_address, &MappedAddr->m_address, 1) )
       {
         v7 = BD_NAT_MODERATE;
         format = "Reply for test 3. Moderate NAT.";
@@ -344,10 +313,10 @@ void bdNATTypeDiscoveryClient::handleResponse(bdNATTypeDiscoveryClient *this, co
         line = 316;
       }
       bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::handleResponse", line, format);
-      _RDI->m_NATType = v7;
-      _RDI->m_state = BD_NTDCS_FINI;
-      bdNATTypeDiscoveryTelemetry::setResultSuccess(&_RDI->m_telemetry, v7);
-      bdTelemetry::addNatTypeDiscovery(&_RDI->m_telemetry);
+      this->m_NATType = v7;
+      this->m_state = BD_NTDCS_FINI;
+      bdNATTypeDiscoveryTelemetry::setResultSuccess(&this->m_telemetry, v7);
+      bdTelemetry::addNatTypeDiscovery(&this->m_telemetry);
       break;
   }
 }
@@ -360,15 +329,19 @@ bdNATTypeDiscoveryClient::init
 char bdNATTypeDiscoveryClient::init(bdNATTypeDiscoveryClient *this, bdSocket *socket, const bdAddr *serverAddr, bdNATTypeDiscoveryConfig config)
 {
   const void *v8; 
+  double v9; 
+  __m256i v10; 
   unsigned int m_NtdcsMaxResends; 
+  __m256i v12; 
+  __m256i v13; 
+  bdRelayRoute m_relayRoute; 
+  double v15; 
   float m_NtdcsSendTimeout; 
-  bdNATTypeDiscoveryTelemetry v24; 
+  bdNATTypeDiscoveryTelemetry v18; 
 
-  _RSI = this;
-  _R14 = serverAddr;
-  bdNATTypeDiscoveryTelemetry::bdNATTypeDiscoveryTelemetry(&v24);
-  memcpy_0(&_RSI->m_telemetry, v8, sizeof(_RSI->m_telemetry));
-  if ( _RSI->m_state )
+  bdNATTypeDiscoveryTelemetry::bdNATTypeDiscoveryTelemetry(&v18);
+  memcpy_0(&this->m_telemetry, v8, sizeof(this->m_telemetry));
+  if ( this->m_state )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::init", 0x67u, "Cannot initialize already initialized class.");
     return 0;
@@ -376,65 +349,47 @@ char bdNATTypeDiscoveryClient::init(bdNATTypeDiscoveryClient *this, bdSocket *so
   if ( !socket )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::init", 0x61u, "Must initialize NAT Discovery Client with a valid socket");
-    _RSI->m_state = BD_NTDCS_ERROR;
-    bdNATTypeDiscoveryTelemetry::setResultFailure(&_RSI->m_telemetry);
-    bdTelemetry::addNatTypeDiscovery(&_RSI->m_telemetry);
+    this->m_state = BD_NTDCS_ERROR;
+    bdNATTypeDiscoveryTelemetry::setResultFailure(&this->m_telemetry);
+    bdTelemetry::addNatTypeDiscovery(&this->m_telemetry);
     return 0;
   }
-  _RSI->m_socket = socket;
+  this->m_socket = socket;
   bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::init", 0x55u, "NAT discovery client initialized");
-  __asm
+  *(__m256i *)&this->m_serverAddr1.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&serverAddr->m_address.inUn.m_sockaddrStorage.ss_family;
+  *((__m256i *)&this->m_serverAddr1.m_address.inUn.m_ipv6Sockaddr + 1) = *((__m256i *)&serverAddr->m_address.inUn.m_ipv6Sockaddr + 1);
+  *((__m256i *)&this->m_serverAddr1.m_address.inUn.m_ipv6Sockaddr + 2) = *((__m256i *)&serverAddr->m_address.inUn.m_ipv6Sockaddr + 2);
+  *((__m256i *)&this->m_serverAddr1.m_address.inUn.m_ipv6Sockaddr + 3) = *((__m256i *)&serverAddr->m_address.inUn.m_ipv6Sockaddr + 3);
+  this->m_serverAddr1.m_relayRoute = serverAddr->m_relayRoute;
+  v9 = *(double *)&serverAddr->m_type;
+  this->m_config = config;
+  *(double *)&this->m_serverAddr1.m_type = v9;
+  bdNATTypeDiscoveryConfig::sanityCheckConfig(&this->m_config);
+  v10 = *((__m256i *)&this->m_serverAddr1.m_address.inUn.m_ipv6Sockaddr + 1);
+  m_NtdcsMaxResends = this->m_config.m_NtdcsMaxResends;
+  *(__m256i *)&this->m_telemetry.m_serverAddr1.m_address.inUn.m_sockaddrStorage.ss_family = *(__m256i *)&this->m_serverAddr1.m_address.inUn.m_sockaddrStorage.ss_family;
+  v12 = *((__m256i *)&this->m_serverAddr1.m_address.inUn.m_ipv6Sockaddr + 2);
+  *((__m256i *)&this->m_telemetry.m_serverAddr1.m_address.inUn.m_ipv6Sockaddr + 1) = v10;
+  v13 = *((__m256i *)&this->m_serverAddr1.m_address.inUn.m_ipv6Sockaddr + 3);
+  *((__m256i *)&this->m_telemetry.m_serverAddr1.m_address.inUn.m_ipv6Sockaddr + 2) = v12;
+  m_relayRoute = this->m_serverAddr1.m_relayRoute;
+  *((__m256i *)&this->m_telemetry.m_serverAddr1.m_address.inUn.m_ipv6Sockaddr + 3) = v13;
+  v15 = *(double *)&this->m_serverAddr1.m_type;
+  this->m_telemetry.m_configMaxResends = m_NtdcsMaxResends;
+  m_NtdcsSendTimeout = this->m_config.m_NtdcsSendTimeout;
+  this->m_telemetry.m_serverAddr1.m_relayRoute = m_relayRoute;
+  *(double *)&this->m_telemetry.m_serverAddr1.m_type = v15;
+  this->m_telemetry.m_configSendTimeout = m_NtdcsSendTimeout;
+  if ( bdNATTypeDiscoveryClient::sendForTest1(this) )
   {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups ymmword ptr [rsi+8], ymm0
-    vmovups ymm1, ymmword ptr [r14+20h]
-    vmovups ymmword ptr [rsi+28h], ymm1
-    vmovups ymm0, ymmword ptr [r14+40h]
-    vmovups ymmword ptr [rsi+48h], ymm0
-    vmovups ymm1, ymmword ptr [r14+60h]
-    vmovups ymmword ptr [rsi+68h], ymm1
-    vmovups xmm0, xmmword ptr [r14+80h]
-    vmovups xmmword ptr [rsi+88h], xmm0
-    vmovsd  xmm1, qword ptr [r14+90h]
-  }
-  _RSI->m_config = config;
-  __asm { vmovsd  qword ptr [rsi+98h], xmm1 }
-  bdNATTypeDiscoveryConfig::sanityCheckConfig(&_RSI->m_config);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+8]
-    vmovups ymm1, ymmword ptr [rsi+28h]
-  }
-  m_NtdcsMaxResends = _RSI->m_config.m_NtdcsMaxResends;
-  __asm
-  {
-    vmovups ymmword ptr [rsi+0C88h], ymm0
-    vmovups ymm0, ymmword ptr [rsi+48h]
-    vmovups ymmword ptr [rsi+0CA8h], ymm1
-    vmovups ymm1, ymmword ptr [rsi+68h]
-    vmovups ymmword ptr [rsi+0CC8h], ymm0
-    vmovups xmm0, xmmword ptr [rsi+88h]
-    vmovups ymmword ptr [rsi+0CE8h], ymm1
-    vmovsd  xmm1, qword ptr [rsi+98h]
-  }
-  _RSI->m_telemetry.m_configMaxResends = m_NtdcsMaxResends;
-  m_NtdcsSendTimeout = _RSI->m_config.m_NtdcsSendTimeout;
-  __asm
-  {
-    vmovups xmmword ptr [rsi+0D08h], xmm0
-    vmovsd  qword ptr [rsi+0D18h], xmm1
-  }
-  _RSI->m_telemetry.m_configSendTimeout = m_NtdcsSendTimeout;
-  if ( bdNATTypeDiscoveryClient::sendForTest1(_RSI) )
-  {
-    _RSI->m_state = BD_NTDCS_RUN_TEST_1;
-    bdStopwatch::start(&_RSI->m_timer);
+    this->m_state = BD_NTDCS_RUN_TEST_1;
+    bdStopwatch::start(&this->m_timer);
   }
   else
   {
-    _RSI->m_state = BD_NTDCS_ERROR;
-    bdNATTypeDiscoveryTelemetry::setResultFailure(&_RSI->m_telemetry);
-    bdTelemetry::addNatTypeDiscovery(&_RSI->m_telemetry);
+    this->m_state = BD_NTDCS_ERROR;
+    bdNATTypeDiscoveryTelemetry::setResultFailure(&this->m_telemetry);
+    bdTelemetry::addNatTypeDiscovery(&this->m_telemetry);
   }
   return 1;
 }
@@ -488,88 +443,85 @@ bdNATTypeDiscoveryClient::pumpActiveTest
 void bdNATTypeDiscoveryClient::pumpActiveTest(bdNATTypeDiscoveryClient *this)
 {
   bdNATTypeDiscoveryClient::bdNATTypeDiscoveryClientState m_state; 
+  __int32 v3; 
   __int32 v4; 
-  __int32 v5; 
-  char v6; 
-  char v7; 
-  unsigned int v8; 
-  bool v9; 
-  unsigned int v10; 
+  double v5; 
+  unsigned int v6; 
+  bool v7; 
+  double v8; 
+  unsigned int v9; 
+  double ElapsedTimeInSeconds; 
   unsigned int m_resends; 
 
-  _RBX = this;
   m_state = this->m_state;
   if ( m_state == BD_NTDCS_UNINITIALIZED )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::pumpActiveTest", 0x1D4u, "Code logic error in NTDC pump");
     return;
   }
-  v4 = m_state - 1;
-  if ( !v4 )
+  v3 = m_state - 1;
+  if ( !v3 )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RBX->m_timer);
-    __asm { vcomiss xmm0, dword ptr [rbx+1ECh] }
-    if ( v6 | v7 )
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+    if ( *(float *)&ElapsedTimeInSeconds <= this->m_config.m_NtdcsSendTimeout )
       return;
-    m_resends = _RBX->m_resends;
-    _RBX->m_resends = m_resends + 1;
-    if ( m_resends >= _RBX->m_config.m_NtdcsMaxResends )
+    m_resends = this->m_resends;
+    this->m_resends = m_resends + 1;
+    if ( m_resends >= this->m_config.m_NtdcsMaxResends )
     {
       bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::pumpActiveTest", 0x19Au, "Test 1 failed. Not online.");
-      bdNATTypeDiscoveryClient::setStateError(_RBX);
+      bdNATTypeDiscoveryClient::setStateError(this);
       return;
     }
-    bdStopwatch::start(&_RBX->m_timer);
-    v9 = bdNATTypeDiscoveryClient::sendForTest1(_RBX);
+    bdStopwatch::start(&this->m_timer);
+    v7 = bdNATTypeDiscoveryClient::sendForTest1(this);
     goto LABEL_17;
   }
-  v5 = v4 - 1;
-  if ( !v5 )
+  v4 = v3 - 1;
+  if ( !v4 )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RBX->m_timer);
-    __asm { vcomiss xmm0, dword ptr [rbx+1ECh] }
-    if ( v6 | v7 )
+    v8 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+    if ( *(float *)&v8 <= this->m_config.m_NtdcsSendTimeout )
       return;
-    v10 = _RBX->m_resends;
-    _RBX->m_resends = v10 + 1;
-    if ( v10 >= _RBX->m_config.m_NtdcsMaxResends )
+    v9 = this->m_resends;
+    this->m_resends = v9 + 1;
+    if ( v9 >= this->m_config.m_NtdcsMaxResends )
     {
       bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::pumpActiveTest", 0x1AFu, "Test 2 failed.");
-      _RBX->m_resends = 0;
-      _RBX->m_state = BD_NTDCS_RUN_TEST_3;
+      this->m_resends = 0;
+      this->m_state = BD_NTDCS_RUN_TEST_3;
       return;
     }
-    bdStopwatch::start(&_RBX->m_timer);
-    v9 = bdNATTypeDiscoveryClient::sendForTest2(_RBX);
+    bdStopwatch::start(&this->m_timer);
+    v7 = bdNATTypeDiscoveryClient::sendForTest2(this);
     goto LABEL_17;
   }
-  if ( v5 == 1 )
+  if ( v4 == 1 )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RBX->m_timer);
-    __asm { vcomiss xmm0, dword ptr [rbx+1ECh] }
-    if ( !(v6 | v7) )
+    v5 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+    if ( *(float *)&v5 > this->m_config.m_NtdcsSendTimeout )
     {
-      v8 = _RBX->m_resends;
-      _RBX->m_resends = v8 + 1;
-      if ( v8 >= _RBX->m_config.m_NtdcsMaxResends )
+      v6 = this->m_resends;
+      this->m_resends = v6 + 1;
+      if ( v6 >= this->m_config.m_NtdcsMaxResends )
       {
         bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::pumpActiveTest", 0x1C5u, "Test 3 failed. Strict NAT.");
-        _RBX->m_NATType = BD_NAT_STRICT;
-        _RBX->m_state = BD_NTDCS_FINI;
-        bdNATTypeDiscoveryTelemetry::setResultSuccess(&_RBX->m_telemetry, BD_NAT_STRICT);
-        bdTelemetry::addNatTypeDiscovery(&_RBX->m_telemetry);
+        this->m_NATType = BD_NAT_STRICT;
+        this->m_state = BD_NTDCS_FINI;
+        bdNATTypeDiscoveryTelemetry::setResultSuccess(&this->m_telemetry, BD_NAT_STRICT);
+        bdTelemetry::addNatTypeDiscovery(&this->m_telemetry);
         return;
       }
-      bdStopwatch::start(&_RBX->m_timer);
-      v9 = bdNATTypeDiscoveryClient::sendNATTypeDiscoveryPacket(_RBX, BD_NTDP_DIFF_IP, &_RBX->m_serverAddr2);
-      if ( v9 )
+      bdStopwatch::start(&this->m_timer);
+      v7 = bdNATTypeDiscoveryClient::sendNATTypeDiscoveryPacket(this, BD_NTDP_DIFF_IP, &this->m_serverAddr2);
+      if ( v7 )
       {
         bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/nat", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdnat\\bdnattypediscoveryclient.cpp", "bdNATTypeDiscoveryClient::sendForTest3", 0xEEu, "Sent packet for NTDC test 3");
         return;
       }
 LABEL_17:
-      if ( !v9 )
-        bdNATTypeDiscoveryClient::setStateError(_RBX);
+      if ( !v7 )
+        bdNATTypeDiscoveryClient::setStateError(this);
     }
   }
 }

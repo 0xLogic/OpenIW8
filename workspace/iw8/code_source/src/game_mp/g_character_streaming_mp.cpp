@@ -732,18 +732,21 @@ void G_CharacterStreaming_LoadClientViewHandModels(const unsigned int clientInde
   unsigned int v4; 
   __int64 v5; 
   unsigned int assetIndex; 
+  ComStreamSyncEntry *v7; 
   AssetStreamingRequestSource RequestSource; 
-  __int64 v12; 
-  __int64 v13; 
-  _BYTE v15[32]; 
-  __int128 v16; 
-  __int64 v17; 
+  __int64 v9; 
+  __int64 v11; 
+  int v12; 
   unsigned int sourceList[20]; 
   ComStreamSyncEntry entryList[20]; 
 
   v1 = clientIndex;
-  if ( clientIndex >= 0xC8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 74, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientStreamingRequests ) ) + 0 ) )", "clientIndex doesn't index ARRAY_COUNT( s_clientStreamingRequests )\n\t%i not in [0, %i)", clientIndex, 200) )
-    __debugbreak();
+  if ( clientIndex >= 0xC8 )
+  {
+    v12 = 200;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 74, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientStreamingRequests ) ) + 0 ) )", "clientIndex doesn't index ARRAY_COUNT( s_clientStreamingRequests )\n\t%i not in [0, %i)", clientIndex, v12) )
+      __debugbreak();
+  }
   if ( !s_clientStreamingRequests[v1].isActive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 776, ASSERT_TYPE_ASSERT, "( G_CharacterStreaming_IsClientActive( clientIndex ) )", (const char *)&queryFormat, "G_CharacterStreaming_IsClientActive( clientIndex )") )
     __debugbreak();
   ViewHandsRequests = G_CharacterStreaming_GetViewHandsRequests(v1);
@@ -751,9 +754,9 @@ void G_CharacterStreaming_LoadClientViewHandModels(const unsigned int clientInde
   v4 = MaxViewRequests;
   if ( MaxViewRequests > 0x14 )
   {
-    LODWORD(v13) = 20;
-    LODWORD(v12) = MaxViewRequests;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 781, ASSERT_TYPE_ASSERT, "( maxViewRequestCount ) <= ( ((((1 >= 200) ? 1 : 200) <= (20) ? ((1 >= 200) ? 1 : 200) : (20))) )", "maxViewRequestCount not in [0, MAX_VIEWARMS_STREAMED_STATIC]\n\t%u not in [0, %u]", v12, v13) )
+    LODWORD(v11) = 20;
+    LODWORD(v9) = MaxViewRequests;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 781, ASSERT_TYPE_ASSERT, "( maxViewRequestCount ) <= ( ((((1 >= 200) ? 1 : 200) <= (20) ? ((1 >= 200) ? 1 : 200) : (20))) )", "maxViewRequestCount not in [0, MAX_VIEWARMS_STREAMED_STATIC]\n\t%u not in [0, %u]", v9, v11) )
       __debugbreak();
   }
   v5 = 0i64;
@@ -762,36 +765,21 @@ void G_CharacterStreaming_LoadClientViewHandModels(const unsigned int clientInde
     do
     {
       assetIndex = ViewHandsRequests->requestItems[0].assetIndex;
-      _R14 = &entryList[(unsigned int)v5];
+      v7 = &entryList[(unsigned int)v5];
       if ( Com_StreamSyncEntry_GetType(STREAM_SYNC_CLIENT_TYPE_FIRST_VIEW_MODEL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_streamsync_mp.h", 112, ASSERT_TYPE_ASSERT, "(Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL)", (const char *)&queryFormat, "Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL") )
         __debugbreak();
-      memset(v15, 0, sizeof(v15));
-      __asm
-      {
-        vmovups ymm0, [rsp+5C8h+var_580]
-        vmovups ymmword ptr [r14], ymm0
-      }
-      v16 = 0ui64;
-      __asm
-      {
-        vmovups xmm1, [rsp+5C8h+var_560]
-        vmovups xmmword ptr [r14+20h], xmm1
-      }
-      v17 = 0i64;
-      __asm
-      {
-        vmovsd  xmm0, [rsp+5C8h+var_550]
-        vmovsd  qword ptr [r14+30h], xmm0
-      }
-      *(_DWORD *)&_R14->weapon.weaponCamo = 0;
-      _R14->singleModelIndex = truncate_cast<unsigned short,unsigned int>(assetIndex);
+      *(__m256i *)&v7->singleModelIndex = (__m256i)0;
+      *(_OWORD *)&v7->weapon.attachmentVariationIndices[5] = 0ui64;
+      *(double *)&v7->weapon.attachmentVariationIndices[21] = 0i64;
+      *(_DWORD *)&v7->weapon.weaponCamo = 0;
+      v7->singleModelIndex = truncate_cast<unsigned short,unsigned int>(assetIndex);
       RequestSource = BG_AssetStreaming_GetRequestSource(ViewHandsRequests->requestItems);
       sourceList[v5] = RequestSource;
       if ( (unsigned int)RequestSource > ASSET_STREAMING_REQUEST_EQUIPPED_VIEW )
       {
-        LODWORD(v13) = 7;
-        LODWORD(v12) = RequestSource;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 792, ASSERT_TYPE_ASSERT, "( sources[requestCount] ) <= ( ((1 << (3)) - 1) )", "sources[requestCount] not in [0, STREAM_SYNC_MAX_SOURCE]\n\t%u not in [0, %u]", v12, v13) )
+        LODWORD(v11) = 7;
+        LODWORD(v9) = RequestSource;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 792, ASSERT_TYPE_ASSERT, "( sources[requestCount] ) <= ( ((1 << (3)) - 1) )", "sources[requestCount] not in [0, STREAM_SYNC_MAX_SOURCE]\n\t%u not in [0, %u]", v9, v11) )
           __debugbreak();
       }
       v5 = (unsigned int)(v5 + 1);
@@ -1510,41 +1498,32 @@ void G_CharacterStreaming_PrintClientWorldModelRequests(const unsigned int clien
   CharacterStreamingRequest *CurrentRequests; 
   unsigned int bodyIndex; 
   StreamSyncClientType StreamTypeForCustomization; 
-  bool v13; 
+  bool v10; 
   CharacterStreamingRequest *NextEquippedRequests; 
   unsigned int headIndex; 
-  StreamSyncClientType v16; 
-  bool v20; 
-  const char *v21; 
+  StreamSyncClientType v13; 
+  bool v14; 
+  const char *v15; 
   CharacterStreamingRequest *ClassSelectRequests; 
-  unsigned int v23; 
-  StreamSyncClientType v24; 
-  bool v28; 
-  const char *v29; 
-  const char *v30; 
-  const char *v31; 
-  const char *v32; 
-  unsigned int v33; 
-  StreamSyncClientType v34; 
+  unsigned int v17; 
+  StreamSyncClientType v18; 
+  bool v19; 
+  const char *v20; 
+  const char *v21; 
+  const char *v22; 
+  const char *v23; 
+  unsigned int v24; 
+  StreamSyncClientType v25; 
   int HasViewModelLoaded; 
-  const char *v39; 
+  const char *v27; 
   char *fmt; 
-  __int64 v41; 
-  __int64 v42; 
+  __int64 v29; 
+  __int64 v30; 
   const char *ModelName; 
-  _BYTE v45[32]; 
-  __int128 v46; 
-  __int64 v47; 
-  const char *v48; 
-  _BYTE v49[32]; 
-  __int128 v50; 
-  __int64 v51; 
-  _BYTE v52[32]; 
-  __int128 v53; 
-  __int64 v54; 
-  ComStreamSyncEntry v55; 
+  const char *v33; 
+  ComStreamSyncEntry v34; 
   ComStreamSyncEntry modelList; 
-  ComStreamSyncEntry v57; 
+  ComStreamSyncEntry v36; 
 
   v3 = clientIndex;
   if ( (unsigned int)customizationType > CUSTOMIZATION_TYPE_BODY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 201, ASSERT_TYPE_ASSERT, "( customizationType == CUSTOMIZATION_TYPE_BODY || customizationType == CUSTOMIZATION_TYPE_HEAD )", (const char *)&queryFormat, "customizationType == CUSTOMIZATION_TYPE_BODY || customizationType == CUSTOMIZATION_TYPE_HEAD") )
@@ -1552,7 +1531,7 @@ void G_CharacterStreaming_PrintClientWorldModelRequests(const unsigned int clien
   v4 = "Head";
   if ( customizationType == CUSTOMIZATION_TYPE_BODY )
     v4 = "Body";
-  v48 = v4;
+  v33 = v4;
   Com_Printf(15, "***** Begin Client[%d] %s Request List *****\n", v3, v4);
   v5 = 0i64;
   v6 = 0;
@@ -1562,9 +1541,9 @@ void G_CharacterStreaming_PrintClientWorldModelRequests(const unsigned int clien
     {
       if ( v6 >= 0xC8 )
       {
-        LODWORD(v42) = 200;
-        LODWORD(v41) = v6;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 74, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientStreamingRequests ) ) + 0 ) )", "clientIndex doesn't index ARRAY_COUNT( s_clientStreamingRequests )\n\t%i not in [0, %i)", v41, v42) )
+        LODWORD(v30) = 200;
+        LODWORD(v29) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 74, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientStreamingRequests ) ) + 0 ) )", "clientIndex doesn't index ARRAY_COUNT( s_clientStreamingRequests )\n\t%i not in [0, %i)", v29, v30) )
           __debugbreak();
       }
       if ( s_clientStreamingRequests[v6].isActive )
@@ -1579,29 +1558,16 @@ void G_CharacterStreaming_PrintClientWorldModelRequests(const unsigned int clien
           StreamTypeForCustomization = Com_StreamSync_GetStreamTypeForCustomization(customizationType);
           if ( Com_StreamSyncEntry_GetType(StreamTypeForCustomization) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_streamsync_mp.h", 112, ASSERT_TYPE_ASSERT, "(Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL)", (const char *)&queryFormat, "Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL") )
             __debugbreak();
-          memset(v49, 0, sizeof(v49));
-          __asm
-          {
-            vmovups ymm0, [rbp+120h+var_178]
-            vmovups ymmword ptr [rbp+120h+modelList], ymm0
-          }
-          v50 = 0ui64;
-          __asm { vmovups xmm1, [rbp+120h+var_158] }
-          v51 = 0i64;
-          __asm
-          {
-            vmovsd  xmm0, [rbp+120h+var_148]
-            vmovsd  qword ptr [rbp+120h+modelList+30h], xmm0
-            vmovups xmmword ptr [rbp+120h+modelList+20h], xmm1
-          }
+          memset(&modelList, 0, 48);
+          *(double *)&modelList.weapon.attachmentVariationIndices[21] = 0.0;
           *(_DWORD *)&modelList.weapon.weaponCamo = 0;
           modelList.singleModelIndex = truncate_cast<unsigned short,unsigned int>(bodyIndex);
-          v13 = SV_StreamSync_ClientHasViewModelLoaded(v3, &modelList, 1u) != 0;
+          v10 = SV_StreamSync_ClientHasViewModelLoaded(v3, &modelList, 1u) != 0;
           ModelName = BG_Customization_GetModelName(customizationType, bodyIndex);
         }
         else
         {
-          v13 = 1;
+          v10 = 1;
           ModelName = "<none>";
         }
         NextEquippedRequests = G_CharacterStreaming_GetNextEquippedRequests(v6);
@@ -1611,79 +1577,53 @@ void G_CharacterStreaming_PrintClientWorldModelRequests(const unsigned int clien
             headIndex = NextEquippedRequests->bodyIndex;
           else
             headIndex = NextEquippedRequests->headIndex;
-          v16 = Com_StreamSync_GetStreamTypeForCustomization(customizationType);
-          if ( Com_StreamSyncEntry_GetType(v16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_streamsync_mp.h", 112, ASSERT_TYPE_ASSERT, "(Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL)", (const char *)&queryFormat, "Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL") )
+          v13 = Com_StreamSync_GetStreamTypeForCustomization(customizationType);
+          if ( Com_StreamSyncEntry_GetType(v13) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_streamsync_mp.h", 112, ASSERT_TYPE_ASSERT, "(Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL)", (const char *)&queryFormat, "Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL") )
             __debugbreak();
-          memset(v52, 0, sizeof(v52));
-          __asm
-          {
-            vmovups ymm0, [rbp+120h+var_138]
-            vmovups ymmword ptr [rbp+120h+var_78], ymm0
-          }
-          v53 = 0ui64;
-          __asm { vmovups xmm1, [rbp+120h+var_118] }
-          v54 = 0i64;
-          __asm
-          {
-            vmovsd  xmm0, [rbp+120h+var_108]
-            vmovsd  qword ptr [rbp+120h+var_78+30h], xmm0
-            vmovups xmmword ptr [rbp+120h+var_78+20h], xmm1
-          }
-          *(_DWORD *)&v57.weapon.weaponCamo = 0;
-          v57.singleModelIndex = truncate_cast<unsigned short,unsigned int>(headIndex);
-          v20 = SV_StreamSync_ClientHasViewModelLoaded(v3, &v57, 1u) != 0;
-          v21 = BG_Customization_GetModelName(customizationType, headIndex);
+          memset(&v36, 0, 48);
+          *(double *)&v36.weapon.attachmentVariationIndices[21] = 0.0;
+          *(_DWORD *)&v36.weapon.weaponCamo = 0;
+          v36.singleModelIndex = truncate_cast<unsigned short,unsigned int>(headIndex);
+          v14 = SV_StreamSync_ClientHasViewModelLoaded(v3, &v36, 1u) != 0;
+          v15 = BG_Customization_GetModelName(customizationType, headIndex);
         }
         else
         {
-          v20 = 1;
-          v21 = "<none>";
+          v14 = 1;
+          v15 = "<none>";
         }
         ClassSelectRequests = G_CharacterStreaming_GetClassSelectRequests(v6);
         if ( ClassSelectRequests->isValid )
         {
           if ( customizationType == CUSTOMIZATION_TYPE_BODY )
-            v23 = ClassSelectRequests->bodyIndex;
+            v17 = ClassSelectRequests->bodyIndex;
           else
-            v23 = ClassSelectRequests->headIndex;
-          v24 = Com_StreamSync_GetStreamTypeForCustomization(customizationType);
-          if ( Com_StreamSyncEntry_GetType(v24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_streamsync_mp.h", 112, ASSERT_TYPE_ASSERT, "(Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL)", (const char *)&queryFormat, "Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL") )
+            v17 = ClassSelectRequests->headIndex;
+          v18 = Com_StreamSync_GetStreamTypeForCustomization(customizationType);
+          if ( Com_StreamSyncEntry_GetType(v18) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_streamsync_mp.h", 112, ASSERT_TYPE_ASSERT, "(Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL)", (const char *)&queryFormat, "Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL") )
             __debugbreak();
-          memset(v45, 0, sizeof(v45));
-          __asm
-          {
-            vmovups ymm0, [rsp+220h+var_1C0]
-            vmovups ymmword ptr [rbp+120h+var_F8], ymm0
-          }
-          v46 = 0ui64;
-          __asm { vmovups xmm1, [rbp+120h+var_1A0] }
-          v47 = 0i64;
-          __asm
-          {
-            vmovsd  xmm0, [rbp+120h+var_190]
-            vmovsd  qword ptr [rbp+120h+var_F8+30h], xmm0
-            vmovups xmmword ptr [rbp+120h+var_F8+20h], xmm1
-          }
-          *(_DWORD *)&v55.weapon.weaponCamo = 0;
-          v55.singleModelIndex = truncate_cast<unsigned short,unsigned int>(v23);
-          v28 = SV_StreamSync_ClientHasViewModelLoaded(clientIndex, &v55, 1u) != 0;
-          v29 = BG_Customization_GetModelName(customizationType, v23);
+          memset(&v34, 0, 48);
+          *(double *)&v34.weapon.attachmentVariationIndices[21] = 0.0;
+          *(_DWORD *)&v34.weapon.weaponCamo = 0;
+          v34.singleModelIndex = truncate_cast<unsigned short,unsigned int>(v17);
+          v19 = SV_StreamSync_ClientHasViewModelLoaded(clientIndex, &v34, 1u) != 0;
+          v20 = BG_Customization_GetModelName(customizationType, v17);
         }
         else
         {
-          v28 = 1;
-          v29 = "<none>";
+          v19 = 1;
+          v20 = "<none>";
         }
-        v30 = "False";
-        v31 = "False";
-        if ( v28 )
-          v30 = "True";
-        v32 = "False";
-        if ( v20 )
-          v31 = "True";
-        if ( v13 )
-          v32 = "True";
-        Com_Printf(15, "Customization World Request For Client[%d] - CurrentLoaded:%s CurrentModel:%s NextLoaded:%s NextModel:%s SelectedLoaded:%s SelectedModel:%s\n", v6, v32, ModelName, v31, v21, v30, v29);
+        v21 = "False";
+        v22 = "False";
+        if ( v19 )
+          v21 = "True";
+        v23 = "False";
+        if ( v14 )
+          v22 = "True";
+        if ( v10 )
+          v23 = "True";
+        Com_Printf(15, "Customization World Request For Client[%d] - CurrentLoaded:%s CurrentModel:%s NextLoaded:%s NextModel:%s SelectedLoaded:%s SelectedModel:%s\n", v6, v23, ModelName, v22, v15, v21, v20);
         v3 = clientIndex;
       }
       else
@@ -1703,44 +1643,31 @@ void G_CharacterStreaming_PrintClientWorldModelRequests(const unsigned int clien
       break;
     if ( (unsigned int)v5 >= 8 )
     {
-      LODWORD(v42) = 8;
-      LODWORD(v41) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 125, ASSERT_TYPE_ASSERT, "(unsigned)( corpseIndex ) < (unsigned)( ( sizeof( *array_counter( s_corpseStreamingRequests ) ) + 0 ) )", "corpseIndex doesn't index ARRAY_COUNT( s_corpseStreamingRequests )\n\t%i not in [0, %i)", v41, v42) )
+      LODWORD(v30) = 8;
+      LODWORD(v29) = v5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 125, ASSERT_TYPE_ASSERT, "(unsigned)( corpseIndex ) < (unsigned)( ( sizeof( *array_counter( s_corpseStreamingRequests ) ) + 0 ) )", "corpseIndex doesn't index ARRAY_COUNT( s_corpseStreamingRequests )\n\t%i not in [0, %i)", v29, v30) )
         __debugbreak();
     }
     if ( customizationType == CUSTOMIZATION_TYPE_BODY )
-      v33 = s_corpseStreamingRequests[v5].bodyIndex;
+      v24 = s_corpseStreamingRequests[v5].bodyIndex;
     else
-      v33 = s_corpseStreamingRequests[v5].headIndex;
-    v34 = Com_StreamSync_GetStreamTypeForCustomization(customizationType);
-    if ( Com_StreamSyncEntry_GetType(v34) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_streamsync_mp.h", 112, ASSERT_TYPE_ASSERT, "(Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL)", (const char *)&queryFormat, "Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL") )
+      v24 = s_corpseStreamingRequests[v5].headIndex;
+    v25 = Com_StreamSync_GetStreamTypeForCustomization(customizationType);
+    if ( Com_StreamSyncEntry_GetType(v25) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_streamsync_mp.h", 112, ASSERT_TYPE_ASSERT, "(Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL)", (const char *)&queryFormat, "Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL") )
       __debugbreak();
-    memset(v45, 0, sizeof(v45));
-    __asm
-    {
-      vmovups ymm0, [rsp+220h+var_1C0]
-      vmovups ymmword ptr [rbp+120h+var_F8], ymm0
-    }
-    v46 = 0ui64;
-    __asm { vmovups xmm1, [rbp+120h+var_1A0] }
-    v47 = 0i64;
-    __asm
-    {
-      vmovsd  xmm0, [rbp+120h+var_190]
-      vmovsd  qword ptr [rbp+120h+var_F8+30h], xmm0
-      vmovups xmmword ptr [rbp+120h+var_F8+20h], xmm1
-    }
-    *(_DWORD *)&v55.weapon.weaponCamo = 0;
-    v55.singleModelIndex = truncate_cast<unsigned short,unsigned int>(v33);
-    HasViewModelLoaded = SV_StreamSync_ClientHasViewModelLoaded(v3, &v55, 1u);
-    fmt = (char *)BG_Customization_GetModelName(customizationType, v33);
-    v39 = "False";
+    memset(&v34, 0, 48);
+    *(double *)&v34.weapon.attachmentVariationIndices[21] = 0.0;
+    *(_DWORD *)&v34.weapon.weaponCamo = 0;
+    v34.singleModelIndex = truncate_cast<unsigned short,unsigned int>(v24);
+    HasViewModelLoaded = SV_StreamSync_ClientHasViewModelLoaded(v3, &v34, 1u);
+    fmt = (char *)BG_Customization_GetModelName(customizationType, v24);
+    v27 = "False";
     if ( HasViewModelLoaded )
-      v39 = "True";
-    Com_Printf(15, "Customization World Request For Corpse[%d] - CorpseLoaded:%s CorpseModel:%s\n", (unsigned int)v5, v39, fmt);
+      v27 = "True";
+    Com_Printf(15, "Customization World Request For Corpse[%d] - CorpseLoaded:%s CorpseModel:%s\n", (unsigned int)v5, v27, fmt);
     v5 = (unsigned int)(v5 + 1);
   }
-  Com_Printf(15, "***** End Client[%d] %s Request List *****\n", v3, v48);
+  Com_Printf(15, "***** End Client[%d] %s Request List *****\n", v3, v33);
 }
 
 /*
@@ -1755,15 +1682,12 @@ void G_CharacterStreaming_PrintViewModelRequests(const unsigned int clientIndex)
   unsigned int MaxViewRequests; 
   unsigned int i; 
   unsigned int assetIndex; 
-  unsigned __int16 v9; 
-  unsigned int v10; 
+  unsigned __int16 v6; 
+  unsigned int v7; 
   const char *ModelName; 
   int HasViewModelLoaded; 
-  const char *v13; 
+  const char *v10; 
   char *fmt; 
-  _BYTE v15[32]; 
-  __int128 v16; 
-  __int64 v17; 
   ComStreamSyncEntry modelList; 
 
   v1 = clientIndex;
@@ -1779,32 +1703,19 @@ void G_CharacterStreaming_PrintViewModelRequests(const unsigned int clientIndex)
       assetIndex = ViewHandsRequests->requestItems[0].assetIndex;
       if ( Com_StreamSyncEntry_GetType(STREAM_SYNC_CLIENT_TYPE_FIRST_VIEW_MODEL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_streamsync_mp.h", 112, ASSERT_TYPE_ASSERT, "(Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL)", (const char *)&queryFormat, "Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL") )
         __debugbreak();
-      memset(v15, 0, sizeof(v15));
-      __asm
-      {
-        vmovups ymm0, [rsp+0F8h+var_B8]
-        vmovups ymmword ptr [rsp+0F8h+modelList], ymm0
-      }
-      v16 = 0ui64;
-      __asm { vmovups xmm1, [rsp+0F8h+var_98] }
-      v17 = 0i64;
-      __asm
-      {
-        vmovsd  xmm0, [rsp+0F8h+var_88]
-        vmovsd  qword ptr [rsp+0F8h+modelList+30h], xmm0
-        vmovups xmmword ptr [rsp+0F8h+modelList+20h], xmm1
-      }
+      memset(&modelList, 0, 48);
+      *(double *)&modelList.weapon.attachmentVariationIndices[21] = 0.0;
       *(_DWORD *)&modelList.weapon.weaponCamo = 0;
-      v9 = truncate_cast<unsigned short,unsigned int>(assetIndex);
-      v10 = ViewHandsRequests->requestItems[0].assetIndex;
-      modelList.singleModelIndex = v9;
-      ModelName = BG_Customization_GetModelName(CUSTOMIZATION_TYPE_VIEWHANDS, v10);
+      v6 = truncate_cast<unsigned short,unsigned int>(assetIndex);
+      v7 = ViewHandsRequests->requestItems[0].assetIndex;
+      modelList.singleModelIndex = v6;
+      ModelName = BG_Customization_GetModelName(CUSTOMIZATION_TYPE_VIEWHANDS, v7);
       HasViewModelLoaded = SV_StreamSync_ClientHasViewModelLoaded(v1, &modelList, 1u);
-      v13 = "False";
+      v10 = "False";
       if ( HasViewModelLoaded )
-        v13 = "True";
+        v10 = "True";
       LODWORD(fmt) = ViewHandsRequests->requestItems[0].frame;
-      Com_Printf(15, "Customization View Request [%d] - SourceMask:0x%1x Frame:%d Loaded:%s Model:%s\n", i++, ViewHandsRequests->requestItems[0].sourceMask, fmt, v13, ModelName);
+      Com_Printf(15, "Customization View Request [%d] - SourceMask:0x%1x Frame:%d Loaded:%s Model:%s\n", i++, ViewHandsRequests->requestItems[0].sourceMask, fmt, v10, ModelName);
     }
     Com_Printf(15, "***** End Client[%d] View Hands Request List *****\n", (unsigned int)v1);
   }
@@ -1826,17 +1737,14 @@ void G_CharacterStreaming_PrintViewRequests()
   unsigned int MaxViewRequests; 
   unsigned int j; 
   unsigned int assetIndex; 
-  unsigned __int16 v8; 
-  unsigned int v9; 
+  unsigned __int16 v5; 
+  unsigned int v6; 
   const char *ModelName; 
   int HasViewModelLoaded; 
-  const char *v12; 
+  const char *v9; 
   char *fmt; 
-  __int64 v14; 
-  __int64 v15; 
-  _BYTE v16[32]; 
-  __int128 v17; 
-  __int64 v18; 
+  __int64 v11; 
+  __int64 v12; 
   ComStreamSyncEntry modelList; 
 
   Com_Printf(15, "*******************************\n");
@@ -1845,9 +1753,9 @@ void G_CharacterStreaming_PrintViewRequests()
   {
     if ( i >= 0xC8 )
     {
-      LODWORD(v15) = 200;
-      LODWORD(v14) = i;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 74, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientStreamingRequests ) ) + 0 ) )", "clientIndex doesn't index ARRAY_COUNT( s_clientStreamingRequests )\n\t%i not in [0, %i)", v14, v15) )
+      LODWORD(v12) = 200;
+      LODWORD(v11) = i;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_character_streaming_mp.cpp", 74, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( ( sizeof( *array_counter( s_clientStreamingRequests ) ) + 0 ) )", "clientIndex doesn't index ARRAY_COUNT( s_clientStreamingRequests )\n\t%i not in [0, %i)", v11, v12) )
         __debugbreak();
     }
     if ( s_clientStreamingRequests[i].isActive )
@@ -1860,32 +1768,19 @@ void G_CharacterStreaming_PrintViewRequests()
         assetIndex = ViewHandsRequests->requestItems[0].assetIndex;
         if ( Com_StreamSyncEntry_GetType(STREAM_SYNC_CLIENT_TYPE_FIRST_VIEW_MODEL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_streamsync_mp.h", 112, ASSERT_TYPE_ASSERT, "(Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL)", (const char *)&queryFormat, "Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL") )
           __debugbreak();
-        memset(v16, 0, sizeof(v16));
-        __asm
-        {
-          vmovups ymm0, [rsp+0F8h+var_B8]
-          vmovups ymmword ptr [rsp+0F8h+modelList], ymm0
-        }
-        v17 = 0ui64;
-        __asm { vmovups xmm1, [rsp+0F8h+var_98] }
-        v18 = 0i64;
-        __asm
-        {
-          vmovsd  xmm0, [rsp+0F8h+var_88]
-          vmovsd  qword ptr [rsp+0F8h+modelList+30h], xmm0
-          vmovups xmmword ptr [rsp+0F8h+modelList+20h], xmm1
-        }
+        memset(&modelList, 0, 48);
+        *(double *)&modelList.weapon.attachmentVariationIndices[21] = 0.0;
         *(_DWORD *)&modelList.weapon.weaponCamo = 0;
-        v8 = truncate_cast<unsigned short,unsigned int>(assetIndex);
-        v9 = ViewHandsRequests->requestItems[0].assetIndex;
-        modelList.singleModelIndex = v8;
-        ModelName = BG_Customization_GetModelName(CUSTOMIZATION_TYPE_VIEWHANDS, v9);
+        v5 = truncate_cast<unsigned short,unsigned int>(assetIndex);
+        v6 = ViewHandsRequests->requestItems[0].assetIndex;
+        modelList.singleModelIndex = v5;
+        ModelName = BG_Customization_GetModelName(CUSTOMIZATION_TYPE_VIEWHANDS, v6);
         HasViewModelLoaded = SV_StreamSync_ClientHasViewModelLoaded(i, &modelList, 1u);
-        v12 = "False";
+        v9 = "False";
         if ( HasViewModelLoaded )
-          v12 = "True";
+          v9 = "True";
         LODWORD(fmt) = ViewHandsRequests->requestItems[0].frame;
-        Com_Printf(15, "Customization View Request [%d] - SourceMask:0x%1x Frame:%d Loaded:%s Model:%s\n", j++, ViewHandsRequests->requestItems[0].sourceMask, fmt, v12, ModelName);
+        Com_Printf(15, "Customization View Request [%d] - SourceMask:0x%1x Frame:%d Loaded:%s Model:%s\n", j++, ViewHandsRequests->requestItems[0].sourceMask, fmt, v9, ModelName);
       }
       Com_Printf(15, "***** End Client[%d] View Hands Request List *****\n", i);
     }

@@ -107,11 +107,11 @@ char CgTrajectory::GetTargetPos(CgTrajectory *this, vec3_t *outPos)
   CgEntitySystem *v9; 
   __int64 v10; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v15; 
   char result; 
   __int64 v26; 
   __int64 v27; 
 
-  _RDI = outPos;
   if ( !this->m_cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trajectory.cpp", 46, ASSERT_TYPE_ASSERT, "(m_cent)", (const char *)&queryFormat, "m_cent") )
     __debugbreak();
   m_localClientNum = this->m_localClientNum;
@@ -177,36 +177,41 @@ char CgTrajectory::GetTargetPos(CgTrajectory *this, vec3_t *outPos)
   {
 LABEL_38:
     result = 0;
-    *(_QWORD *)_RDI->v = 0i64;
-    _RDI->v[2] = 0.0;
+    *(_QWORD *)outPos->v = 0i64;
+    outPos->v[2] = 0.0;
   }
   else
   {
     if ( !*(_QWORD *)(v10 + 48) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
       __debugbreak();
     FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(*(void (__fastcall *const *)(const vec4_t *, vec3_t *))(v10 + 48), (const cpose_t *)v10);
-    FunctionPointer_origin((const vec4_t *)(v10 + 56), _RDI);
+    FunctionPointer_origin((const vec4_t *)(v10 + 56), outPos);
     if ( *(_BYTE *)(v10 + 2) )
     {
+      _XMM0 = LODWORD(outPos->v[0]);
+      __asm { vcvtdq2pd xmm0, xmm0 }
+      *((_QWORD *)&v15 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v15 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM0 = v15;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      _XMM0 = LODWORD(outPos->v[1]);
+      __asm { vcvtdq2pd xmm0, xmm0 }
+      outPos->v[0] = *(float *)&_XMM1;
+      *((_QWORD *)&v15 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v15 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM1 = v15;
+      _XMM0 = LODWORD(outPos->v[2]);
       __asm
       {
-        vmovsd  xmm3, cs:__real@3f30000000000000
-        vmovd   xmm0, dword ptr [rdi]
-        vcvtdq2pd xmm0, xmm0
-        vmulsd  xmm0, xmm0, xmm3
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovd   xmm0, dword ptr [rdi+4]
-        vcvtdq2pd xmm0, xmm0
-        vmovss  dword ptr [rdi], xmm1
-        vmulsd  xmm1, xmm0, xmm3
-        vmovd   xmm0, dword ptr [rdi+8]
         vcvtsd2ss xmm2, xmm1, xmm1
         vcvtdq2pd xmm0, xmm0
-        vmulsd  xmm1, xmm0, xmm3
-        vmovss  dword ptr [rdi+4], xmm2
-        vcvtsd2ss xmm2, xmm1, xmm1
-        vmovss  dword ptr [rdi+8], xmm2
       }
+      *((_QWORD *)&v15 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v15 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM1 = v15;
+      outPos->v[1] = *(float *)&_XMM2;
+      __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+      outPos->v[2] = *(float *)&_XMM2;
     }
     return 1;
   }
@@ -231,125 +236,63 @@ CgTrajectory::InterpolateEntityAngles
 void CgTrajectory::InterpolateEntityAngles(const cg_t *cgameGlob, const centity_t *cent, vec3_t *outAngles)
 {
   int serverTime; 
-  int v13; 
-  CgTrajectory v66; 
+  int v8; 
+  float v14; 
+  float v16; 
+  float v18; 
+  CgTrajectory v19; 
   vec3_t outAng; 
   vec3_t angles; 
   vec4_t qb; 
   vec4_t quat; 
   vec4_t out; 
   tmat33_t<vec3_t> axis; 
-  __int64 v74; 
-  char v75; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  _RBP = &v74;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _R14 = outAngles;
-  _RBX = cgameGlob;
   if ( !cgameGlob->snap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trajectory.cpp", 105, ASSERT_TYPE_ASSERT, "(cgameGlob->snap)", (const char *)&queryFormat, "cgameGlob->snap") )
     __debugbreak();
-  if ( !_RBX->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trajectory.cpp", 106, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
+  if ( !cgameGlob->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trajectory.cpp", 106, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
     __debugbreak();
-  __asm { vmovss  xmm6, dword ptr [rbx+65E0h] }
-  serverTime = _RBX->snap->serverTime;
-  v13 = _RBX->nextSnap->serverTime;
-  LOBYTE(_EAX) = CG_IsEntityInterpolationValid(cent);
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
-  _ECX = 0;
-  _EAX = (unsigned __int8)_EAX;
+  _XMM6 = LODWORD(cgameGlob->frameInterpolation);
+  serverTime = cgameGlob->snap->serverTime;
+  v8 = cgameGlob->nextSnap->serverTime;
+  _XMM0 = CG_IsEntityInterpolationValid(cent);
   __asm
   {
-    vmovd   xmm0, eax
-    vmovd   xmm1, ecx
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm6, xmm7, xmm2
-    vmovss  [rsp+140h+var_110], xmm0
   }
+  v18 = *(float *)&_XMM0;
   if ( cent->prevState.apos.trType == TR_SLERP && cent->nextState.lerp.apos.trType == TR_SLERP )
   {
-    CgTrajectory::CgTrajectory(&v66, (const LocalClientNum_t)_RBX->localClientNum, cent, &cent->nextState.lerp);
-    __asm
-    {
-      vsubss  xmm1, xmm7, [rsp+140h+var_110]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r15d
-      vmulss  xmm3, xmm1, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, r12d
-      vmulss  xmm2, xmm1, [rsp+140h+var_110]
-      vaddss  xmm0, xmm3, xmm2
-      vcvttss2si edx, xmm0; atTime
-    }
-    BgTrajectory::EvaluateAngTrajectory(&v66, _EDX, _R14);
+    CgTrajectory::CgTrajectory(&v19, (const LocalClientNum_t)cgameGlob->localClientNum, cent, &cent->nextState.lerp);
+    BgTrajectory::EvaluateAngTrajectory(&v19, (int)(float)((float)((float)(1.0 - *(float *)&_XMM0) * (float)serverTime) + (float)((float)v8 * *(float *)&_XMM0)), outAngles);
   }
   else
   {
-    CgTrajectory::CgTrajectory(&v66, (const LocalClientNum_t)_RBX->localClientNum, cent, &cent->prevState);
-    BgTrajectory::EvaluateAngTrajectory(&v66, serverTime, &outAng);
-    v66.m_es = &cent->nextState.lerp;
-    BgTrajectory::EvaluateAngTrajectory(&v66, v13, &angles);
+    CgTrajectory::CgTrajectory(&v19, (const LocalClientNum_t)cgameGlob->localClientNum, cent, &cent->prevState);
+    BgTrajectory::EvaluateAngTrajectory(&v19, serverTime, &outAng);
+    v19.m_es = &cent->nextState.lerp;
+    BgTrajectory::EvaluateAngTrajectory(&v19, v8, &angles);
     if ( cent->nextState.eType == ET_ACTOR && (LOBYTE(cent->nextState.un.animRate) & 8) != 0 )
     {
       AnglesToQuat(&outAng, &quat);
       AnglesToQuat(&angles, &qb);
-      __asm { vmovss  xmm2, [rsp+140h+var_110]; frac }
-      QuatLerp(&quat, &qb, *(float *)&_XMM2, &out);
+      QuatLerp(&quat, &qb, *(float *)&_XMM0, &out);
       QuatToAxis(&out, &axis);
-      AxisToAngles(&axis, _R14);
+      AxisToAngles(&axis, outAngles);
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm7, cs:__real@43b40000
-        vmovss  xmm6, [rsp+140h+var_110]
-        vmovss  xmm0, dword ptr [rsp+140h+angles]
-        vsubss  xmm1, xmm0, dword ptr [rsp+140h+outAng]
-        vmulss  xmm3, xmm1, cs:__real@3b360b61
-        vaddss  xmm1, xmm3, cs:__real@3f000000
-        vmovaps xmmword ptr [rsp+140h+var_68+8], xmm10
-        vxorps  xmm10, xmm10, xmm10
-        vroundss xmm2, xmm10, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm1, xmm0, xmm7
-        vmulss  xmm0, xmm1, xmm6
-        vaddss  xmm1, xmm0, dword ptr [rsp+140h+outAng]
-        vmovss  xmm0, dword ptr [rsp+140h+angles+4]
-        vmovss  dword ptr [r14], xmm1
-        vsubss  xmm1, xmm0, dword ptr [rsp+140h+outAng+4]
-        vmulss  xmm4, xmm1, cs:__real@3b360b61
-        vaddss  xmm2, xmm4, cs:__real@3f000000
-        vroundss xmm3, xmm10, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, xmm7
-        vmovss  xmm0, dword ptr [rsp+140h+angles+8]
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rsp+140h+outAng+4]
-        vsubss  xmm1, xmm0, dword ptr [rsp+140h+outAng+8]
-        vmulss  xmm4, xmm1, cs:__real@3b360b61
-        vaddss  xmm2, xmm4, cs:__real@3f000000
-        vmovss  dword ptr [r14+4], xmm3
-        vroundss xmm3, xmm10, xmm2, 1
-        vmovaps xmm10, xmmword ptr [rsp+140h+var_68+8]
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, xmm7
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rsp+140h+outAng+8]
-        vmovss  dword ptr [r14+8], xmm3
-      }
+      _XMM10 = 0i64;
+      __asm { vroundss xmm2, xmm10, xmm1, 1 }
+      v14 = angles.v[1];
+      outAngles->v[0] = (float)((float)((float)((float)((float)(angles.v[0] - outAng.v[0]) * 0.0027777778) - *(float *)&_XMM2) * 360.0) * v18) + outAng.v[0];
+      __asm { vroundss xmm3, xmm10, xmm2, 1 }
+      v16 = (float)(angles.v[2] - outAng.v[2]) * 0.0027777778;
+      outAngles->v[1] = (float)((float)((float)((float)((float)(v14 - outAng.v[1]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * v18) + outAng.v[1];
+      __asm { vroundss xmm3, xmm10, xmm2, 1 }
+      outAngles->v[2] = (float)((float)((float)(v16 - *(float *)&_XMM3) * 360.0) * v18) + outAng.v[2];
     }
-  }
-  _R11 = &v75;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 

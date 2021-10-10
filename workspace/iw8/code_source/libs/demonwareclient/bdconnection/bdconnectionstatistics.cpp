@@ -299,8 +299,7 @@ bdConnectionStatistics::getAvgRTT
 */
 float bdConnectionStatistics::getAvgRTT(bdConnectionStatistics *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+3Ch] }
-  return *(float *)&_XMM0;
+  return this->m_avgRTT;
 }
 
 /*
@@ -380,35 +379,21 @@ bdConnectionStatistics::setLastRTT
 
 void __fastcall bdConnectionStatistics::setLastRTT(bdConnectionStatistics *this, double time)
 {
-  char v2; 
-
-  __asm
+  _XMM0 = LODWORD(this->m_maxRTT);
+  _XMM2 = *(_OWORD *)&time;
+  if ( *(float *)&_XMM0 == 0.0 && this->m_minRTT == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rcx+34h]
-    vmovaps xmm2, xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
-  }
-  if ( v2 )
-  {
-    __asm { vucomiss xmm1, dword ptr [rcx+38h] }
-    if ( v2 )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rcx+38h], xmm2
-        vmovaps xmm0, xmm2
-      }
-    }
+    this->m_minRTT = *(float *)&time;
+    _XMM0 = *(_OWORD *)&time;
   }
   __asm
   {
     vminss  xmm1, xmm2, dword ptr [rcx+38h]
     vmaxss  xmm0, xmm0, xmm2
-    vmovss  dword ptr [rcx+34h], xmm0
-    vmovss  dword ptr [rcx+38h], xmm1
-    vmovss  dword ptr [rcx+3Ch], xmm2
   }
+  this->m_maxRTT = *(float *)&_XMM0;
+  this->m_minRTT = *(float *)&_XMM1;
+  this->m_avgRTT = *(float *)&_XMM2;
 }
 
 /*
@@ -416,31 +401,20 @@ void __fastcall bdConnectionStatistics::setLastRTT(bdConnectionStatistics *this,
 bdConnectionStatistics::update
 ==============
 */
-
-void __fastcall bdConnectionStatistics::update(bdConnectionStatistics *this, double time)
+void bdConnectionStatistics::update(bdConnectionStatistics *this, const float time)
 {
-  char v2; 
-  char v3; 
-  unsigned int v6; 
+  unsigned int v2; 
+  unsigned int v3; 
+  float v4; 
 
-  __asm
+  if ( time > 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  if ( !(v2 | v3) )
-  {
-    v6 = this->m_bytesSent - this->m_lastBytesSent;
+    v2 = this->m_bytesSent - this->m_lastBytesSent;
     this->m_lastBytesSent = this->m_bytesSent;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm0, xmm1
-    }
-    this->m_avgBytesSent = (v6 + this->m_avgBytesSent) >> 1;
-    __asm { vcvttss2si rax, xmm1 }
-    this->m_bytesSentPerSecond = _RAX;
+    v3 = (v2 + this->m_avgBytesSent) >> 1;
+    v4 = (float)v3;
+    this->m_avgBytesSent = v3;
+    this->m_bytesSentPerSecond = (int)(float)(v4 / time);
   }
 }
 

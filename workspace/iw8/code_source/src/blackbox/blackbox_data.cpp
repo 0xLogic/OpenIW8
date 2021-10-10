@@ -930,9 +930,8 @@ BB_ParseParamForDLog
 */
 void BB_ParseParamForDLog(DLogContext *context, const char *columnName, const unsigned __int8 parameter, char *args)
 {
-  char v11; 
+  char v10; 
 
-  _RSI = args;
   if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox_data.cpp", 500, ASSERT_TYPE_ASSERT, "(context)", (const char *)&queryFormat, "context") )
     __debugbreak();
   if ( (parameter & 3) != 0 )
@@ -941,11 +940,10 @@ void BB_ParseParamForDLog(DLogContext *context, const char *columnName, const un
     {
       if ( (parameter & 3) == 2 )
       {
-        __asm { vmovsd  xmm0, qword ptr [rsi] }
+        _XMM0 = *(unsigned __int64 *)args;
         if ( (parameter & 0x1C) == 12 )
         {
-          __asm { vmovaps xmm2, xmm0; value }
-          DLog_Float64(context, columnName, *(long double *)&_XMM2);
+          DLog_Float64(context, columnName, *(long double *)args);
         }
         else
         {
@@ -955,7 +953,7 @@ void BB_ParseParamForDLog(DLogContext *context, const char *columnName, const un
       }
       else if ( (parameter & 3) == 3 )
       {
-        DLog_String(context, columnName, *(const char **)_RSI, 0);
+        DLog_String(context, columnName, *(const char **)args, 0);
       }
       else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\blackbox\\blackbox_data.cpp", 588, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown type!") )
       {
@@ -965,23 +963,23 @@ void BB_ParseParamForDLog(DLogContext *context, const char *columnName, const un
     }
     if ( (parameter & 0x1C) == 28 )
     {
-      DLog_UInt64(context, columnName, *(_QWORD *)_RSI);
+      DLog_UInt64(context, columnName, *(_QWORD *)args);
       return;
     }
     if ( (parameter & 0x10) != 0 )
     {
-      DLog_UInt32(context, columnName, *(_DWORD *)_RSI);
+      DLog_UInt32(context, columnName, *(_DWORD *)args);
       return;
     }
   }
-  v11 = parameter & 0x1C;
-  if ( (parameter & 0x1C) == 12 || v11 == 28 )
+  v10 = parameter & 0x1C;
+  if ( (parameter & 0x1C) == 12 || v10 == 28 )
   {
-    DLog_Int64(context, columnName, *(_QWORD *)_RSI);
+    DLog_Int64(context, columnName, *(_QWORD *)args);
   }
-  else if ( (parameter & 0x10) != 0 || v11 == 8 || v11 == 4 || !v11 )
+  else if ( (parameter & 0x10) != 0 || v10 == 8 || v10 == 4 || !v10 )
   {
-    DLog_Int32(context, columnName, *(_DWORD *)_RSI);
+    DLog_Int32(context, columnName, *(_DWORD *)args);
   }
 }
 
@@ -1195,6 +1193,7 @@ void BB_WriteFormatParameters(bb_msg_t *msg, bool isProtoWhitelisted, bool isBla
 {
   bool v7; 
   __int64 v8; 
+  char *v9; 
   unsigned __int8 v10; 
   const char *v11; 
   const char *v12; 
@@ -1263,7 +1262,7 @@ void BB_WriteFormatParameters(bb_msg_t *msg, bool isProtoWhitelisted, bool isBla
   if ( parameterCount > 0 )
   {
     v8 = 0i64;
-    _RDI = args;
+    v9 = args;
     v73 = 0i64;
     while ( 1 )
     {
@@ -1276,9 +1275,9 @@ void BB_WriteFormatParameters(bb_msg_t *msg, bool isProtoWhitelisted, bool isBla
           {
             if ( (parameters[v8] & 3) == 3 )
             {
-              v11 = *(const char **)_RDI;
+              v11 = *(const char **)v9;
               v12 = "NULL";
-              _RDI += 8;
+              v9 += 8;
               if ( v11 )
                 v12 = v11;
               if ( v7 )
@@ -1322,15 +1321,15 @@ void BB_WriteFormatParameters(bb_msg_t *msg, bool isProtoWhitelisted, bool isBla
             }
             goto LABEL_84;
           }
-          __asm { vmovsd  xmm0, qword ptr [rdi] }
-          _RDI += 8;
+          _XMM0 = *(unsigned __int64 *)v9;
+          v9 += 8;
           v24 = v10 & 0x1C;
           if ( v24 == 12 )
           {
             if ( !v7 )
               goto LABEL_84;
             v25 = msg->pppHashTable == NULL;
-            __asm { vmovsd  [rsp+68h+var_48], xmm0 }
+            v71 = *(__int64 *)&_XMM0;
             if ( !v25 )
               goto LABEL_84;
             if ( !msg->overflow )
@@ -1365,11 +1364,8 @@ void BB_WriteFormatParameters(bb_msg_t *msg, bool isProtoWhitelisted, bool isBla
             if ( !v7 )
               goto LABEL_84;
             v25 = msg->pppHashTable == NULL;
-            __asm
-            {
-              vcvtsd2ss xmm0, xmm0, xmm0
-              vmovss  [rsp+68h+arg_18], xmm0
-            }
+            __asm { vcvtsd2ss xmm0, xmm0, xmm0 }
+            v75 = _XMM0;
             if ( !v25 )
               goto LABEL_84;
             if ( !msg->overflow )
@@ -1400,11 +1396,8 @@ void BB_WriteFormatParameters(bb_msg_t *msg, bool isProtoWhitelisted, bool isBla
             if ( !v7 )
               goto LABEL_84;
             v25 = msg->pppHashTable == NULL;
-            __asm
-            {
-              vcvtsd2ss xmm0, xmm0, xmm0
-              vmovss  [rsp+68h+arg_18], xmm0
-            }
+            __asm { vcvtsd2ss xmm0, xmm0, xmm0 }
+            v75 = _XMM0;
             if ( !v25 )
               goto LABEL_84;
             if ( !msg->overflow )
@@ -1434,27 +1427,27 @@ void BB_WriteFormatParameters(bb_msg_t *msg, bool isProtoWhitelisted, bool isBla
         }
         if ( (v10 & 0x1C) == 28 )
         {
-          _RDI += 8;
+          v9 += 8;
           if ( v7 )
-            BB_WriteVarUInt64_0(msg, *((_QWORD *)_RDI - 1));
+            BB_WriteVarUInt64_0(msg, *((_QWORD *)v9 - 1));
           goto LABEL_84;
         }
         if ( (v10 & 0x10) != 0 )
         {
-          _RDI += 8;
+          v9 += 8;
           if ( v7 )
-            BB_WriteVarUInt32_1(msg, *((_DWORD *)_RDI - 2));
+            BB_WriteVarUInt32_1(msg, *((_DWORD *)v9 - 2));
           goto LABEL_84;
         }
       }
       v48 = v10 & 0x1C;
       if ( (v10 & 0x1C) == 12 )
       {
-        _RDI += 8;
+        v9 += 8;
         if ( !v7 )
           goto LABEL_84;
         v25 = msg->pppHashTable == NULL;
-        v71 = *((_QWORD *)_RDI - 1);
+        v71 = *((__int64 *)v9 - 1);
         if ( !v25 )
           goto LABEL_84;
         if ( !msg->overflow )
@@ -1487,16 +1480,16 @@ void BB_WriteFormatParameters(bb_msg_t *msg, bool isProtoWhitelisted, bool isBla
       }
       if ( v48 == 28 )
       {
-        v55 = *(_QWORD *)_RDI;
-        _RDI += 8;
+        v55 = *(_QWORD *)v9;
+        v9 += 8;
         if ( v7 )
           BB_WriteVarUInt64_0(msg, (2 * v55) ^ (v55 >> 63));
         goto LABEL_84;
       }
       if ( (v10 & 0x10) != 0 )
       {
-        v56 = *(_DWORD *)_RDI;
-        _RDI += 8;
+        v56 = *(_DWORD *)v9;
+        v9 += 8;
         if ( v7 )
           BB_WriteVarUInt32_1(msg, (2 * v56) ^ ((unsigned __int64)v56 >> 31));
         goto LABEL_84;
@@ -1507,17 +1500,17 @@ void BB_WriteFormatParameters(bb_msg_t *msg, bool isProtoWhitelisted, bool isBla
       {
         if ( !v48 )
         {
-          _RDI += 8;
+          v9 += 8;
           if ( v7 )
-            BB_WriteInt8(msg, *((_DWORD *)_RDI - 2));
+            BB_WriteInt8(msg, *((_DWORD *)v9 - 2));
         }
         goto LABEL_84;
       }
-      _RDI += 8;
+      v9 += 8;
       if ( v7 )
       {
         v25 = msg->pppHashTable == NULL;
-        LOWORD(v75) = *((_WORD *)_RDI - 4);
+        LOWORD(v75) = *((_WORD *)v9 - 4);
         if ( v25 )
         {
           if ( !msg->overflow )
@@ -1550,11 +1543,11 @@ LABEL_84:
       if ( v8 >= v72 )
         goto LABEL_85;
     }
-    _RDI += 8;
+    v9 += 8;
     if ( !v7 )
       goto LABEL_84;
     v25 = msg->pppHashTable == NULL;
-    v75 = *((_DWORD *)_RDI - 2);
+    v75 = *((int *)v9 - 2);
     if ( !v25 )
       goto LABEL_84;
     if ( !msg->overflow )

@@ -345,31 +345,15 @@ void BG_Turret_UpdateAnimParams(characterInfo_t *ci, const vec3_t *playerOrigin,
 {
   vec3_t v3; 
 
-  _RSI = playerOrigin;
-  _RBX = ci;
   if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_turret.cpp", 61, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
   AnglesSubtract(playerAngles, turretAngles, &v3);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+68h+v3]
-    vmulss  xmm5, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vsubss  xmm1, xmm5, xmm4
-    vmulss  xmm0, xmm1, cs:__real@43b40000
-    vmovss  dword ptr [rbx+8C8h], xmm0
-    vmovss  xmm0, dword ptr [rsp+68h+v3+4]; angle
-  }
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rbx+8CCh], xmm0
-    vmovss  xmm1, dword ptr [rsi+8]
-    vsubss  xmm2, xmm1, dword ptr [rdi+8]
-    vmovss  dword ptr [rbx+8D0h], xmm2
-  }
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  ci->turretPlayerAngles.v[0] = (float)((float)(v3.v[0] * 0.0027777778) - *(float *)&_XMM4) * 360.0;
+  *(double *)&_XMM0 = AngleNormalize360(v3.v[1]);
+  ci->turretPlayerAngles.v[1] = *(float *)&_XMM0;
+  ci->turretPlayerHeight = playerOrigin->v[2] - turretOrigin->v[2];
 }
 
 /*
@@ -379,18 +363,37 @@ PM_TurretMove
 */
 void PM_TurretMove(pmove_t *pm, pml_t *pml)
 {
-  const entityState_t *TurretEntityState; 
-  BgAntiLag *antiLag; 
-  int number; 
-  int clientNum; 
-  int serverTime; 
-  char v49; 
-  char v50; 
-  bool v52; 
-  bool v53; 
-  char yawmove; 
-  int contentMask; 
   playerState_s *ps; 
+  const entityState_t *TurretEntityState; 
+  __int128 v6; 
+  BgAntiLag *antiLag; 
+  char v11; 
+  double v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  const dvar_t *v18; 
+  float v19; 
+  float v20; 
+  bool v21; 
+  bool v22; 
+  bool v23; 
+  bool v24; 
+  char v25; 
+  char yawmove; 
+  float v31; 
+  float v35; 
+  int contentMask; 
+  playerState_s *v40; 
+  float v41; 
+  float v42; 
+  __int128 v43; 
+  float v44; 
+  float v48; 
+  float v49; 
+  float v50; 
   bool isUsingRemoteTurret; 
   vec3_t forward; 
   vec3_t outOrigin; 
@@ -400,292 +403,169 @@ void PM_TurretMove(pmove_t *pm, pml_t *pml)
   BgAntiLagEntityInfo outInfo; 
   trace_t outResults; 
 
-  _RBX = pml;
   if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_turret.cpp", 259, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_turret.cpp", 261, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_turret.cpp", 261, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_turret.cpp", 261, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   isUsingRemoteTurret = 0;
   TurretEntityState = BG_Turret_GetTurretEntityState(pm, &isUsingRemoteTurret);
   if ( TurretEntityState )
   {
+    AngleVectors(&ps->viewangles, &forward, NULL, NULL);
+    v6 = LODWORD(forward.v[0]);
+    *(float *)&v6 = fsqrt((float)(*(float *)&v6 * *(float *)&v6) + (float)(forward.v[1] * forward.v[1]));
+    _XMM2 = v6;
     __asm
     {
-      vmovaps [rsp+260h+var_40], xmm6
-      vmovaps [rsp+260h+var_60], xmm8
-      vmovaps [rsp+260h+var_B0], xmm13
-    }
-    AngleVectors(&_RDI->viewangles, &forward, NULL, NULL);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsp+260h+forward]
-      vmovss  xmm4, dword ptr [rsp+260h+forward+4]
-      vmovss  xmm8, cs:__real@3f800000
-      vmovss  xmm13, cs:__real@80000000
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
       vcmpless xmm0, xmm2, xmm13
       vblendvps xmm0, xmm2, xmm8, xmm0
-      vmovss  xmm2, cs:__real@3a83126f; epsilon
-      vxorps  xmm6, xmm6, xmm6
-      vdivss  xmm1, xmm8, xmm0
-      vmulss  xmm0, xmm3, xmm1
-      vmulss  xmm1, xmm4, xmm1
-      vmovss  dword ptr [rsp+260h+forward+4], xmm1
-      vmovss  dword ptr [rsp+260h+forward+8], xmm6
-      vmovss  dword ptr [rsp+260h+forward], xmm0
-      vmovss  [rsp+260h+v1], xmm6
-      vmovss  [rsp+260h+var_1E4], xmm6
-      vmovss  [rbp+160h+var_1E0], xmm6
     }
-    if ( !VecNCompareCustomEpsilon(forward.v, v1, *(float *)&_XMM2, 3) )
+    forward.v[1] = forward.v[1] * (float)(1.0 / *(float *)&_XMM0);
+    forward.v[2] = 0.0;
+    forward.v[0] = forward.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    v1[0] = 0.0;
+    v1[1] = 0.0;
+    v1[2] = 0.0;
+    if ( !VecNCompareCustomEpsilon(forward.v, v1, 0.001, 3) )
     {
       antiLag = (BgAntiLag *)pm->antiLag;
-      _ER15 = 0;
-      __asm
-      {
-        vmovaps [rsp+260h+var_50], xmm7
-        vmovaps [rsp+260h+var_70], xmm9
-      }
+      v11 = 0;
       outInfo.boneInfo.boneList.m_usedSize = 0;
       outInfo.boneInfo.boneList.m_maxSize = 0;
-      number = TurretEntityState->number;
-      clientNum = _RDI->clientNum;
-      serverTime = pm->cmd.serverTime;
-      __asm
-      {
-        vmovaps [rsp+260h+var_80], xmm10
-        vmovaps [rsp+260h+var_90], xmm11
-        vmovaps [rsp+260h+var_A0], xmm12
-      }
-      BgAntiLag::GetEntityInfoAtTime(antiLag, clientNum, number, 1u, serverTime, &outInfo);
+      BgAntiLag::GetEntityInfoAtTime(antiLag, ps->clientNum, TurretEntityState->number, 1u, pm->cmd.serverTime, &outInfo);
       BgAntiLagEntity_GetOrigin(&outInfo, &outOrigin);
-      __asm { vmovss  xmm1, cs:__real@43480000; maxAbsValueSize }
-      _RBX->applyTurretVelocity = 1;
-      *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(_RDI->turretOffset, *(float *)&_XMM1, 6u);
-      __asm
-      {
-        vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-        vxorps  xmm3, xmm0, xmm9
-        vmulss  xmm1, xmm3, dword ptr [rsp+260h+forward]
-        vaddss  xmm2, xmm1, dword ptr [rsp+260h+outOrigin]
-        vmulss  xmm1, xmm3, dword ptr [rsp+260h+forward+4]
-        vmovss  dword ptr [rbx+210h], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rsp+260h+outOrigin+4]
-        vmulss  xmm1, xmm3, dword ptr [rsp+260h+forward+8]
-        vmovss  dword ptr [rbx+214h], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rsp+260h+outOrigin+8]
-        vmovss  dword ptr [rbx+218h], xmm2
-      }
-      _RBX->turretTargetOrigin.v[2] = _RDI->origin.v[2];
-      __asm
-      {
-        vmovss  xmm10, dword ptr [rdi+30h]
-        vmovss  xmm11, dword ptr [rdi+34h]
-        vmovss  xmm12, dword ptr [rdi+38h]
-      }
-      PM_UpdatePlayerCollision(pm, _RBX, 1, 1, 0, 1);
-      _R14 = DCONST_DVARVEC2_turretMaxHeighOffset;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+38h]
-        vsubss  xmm7, xmm0, dword ptr [rsp+260h+outOrigin+8]
-      }
+      pml->applyTurretVelocity = 1;
+      v12 = MSG_UnpackUnsignedFloat(ps->turretOffset, 200.0, 6u);
+      v13 = COERCE_FLOAT(LODWORD(v12) ^ _xmm) * forward.v[1];
+      pml->turretTargetOrigin.v[0] = (float)(COERCE_FLOAT(LODWORD(v12) ^ _xmm) * forward.v[0]) + outOrigin.v[0];
+      v14 = COERCE_FLOAT(LODWORD(v12) ^ _xmm) * forward.v[2];
+      pml->turretTargetOrigin.v[1] = v13 + outOrigin.v[1];
+      pml->turretTargetOrigin.v[2] = v14 + outOrigin.v[2];
+      pml->turretTargetOrigin.v[2] = ps->origin.v[2];
+      v15 = ps->origin.v[0];
+      v16 = ps->origin.v[1];
+      v17 = ps->origin.v[2];
+      PM_UpdatePlayerCollision(pm, pml, 1, 1, 0, 1);
+      v18 = DCONST_DVARVEC2_turretMaxHeighOffset;
+      v19 = ps->origin.v[2] - outOrigin.v[2];
       if ( !DCONST_DVARVEC2_turretMaxHeighOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "turretMaxHeighOffset") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_R14);
-      __asm
+      Dvar_CheckFrontendServerThread(v18);
+      v20 = v18->current.vector.v[1];
+      if ( v19 < 0.0 )
       {
-        vcomiss xmm7, xmm6
-        vmovss  xmm0, dword ptr [r14+2Ch]
+        v21 = v20 < v19;
+        v22 = v20 == v19;
       }
-      if ( v49 )
-        __asm { vcomiss xmm0, xmm7 }
       else
-        __asm { vcomiss xmm7, dword ptr [r14+28h] }
-      v52 = !(v49 | v50);
-      v53 = !pm->cmd.pitchmove && !pm->cmd.yawmove;
-      if ( _RBX->hadSlideContact )
+      {
+        v21 = v19 < v18->current.value;
+        v22 = v19 == v18->current.value;
+      }
+      v23 = !v21 && !v22;
+      v24 = !pm->cmd.pitchmove && !pm->cmd.yawmove;
+      v25 = 0;
+      if ( pml->hadSlideContact )
       {
         yawmove = pm->cmd.yawmove;
         if ( yawmove )
         {
+          if ( TURRET_MIN_WALL_NORMAL <= pml->slideFirstContactNormal.v[2] )
+            goto LABEL_27;
+          _XMM2 = LODWORD(pml->right.v[1]) ^ (unsigned __int128)(unsigned int)_xmm;
+          _XMM0 = (unsigned int)yawmove;
           __asm
           {
-            vmovss  xmm0, cs:?TURRET_MIN_WALL_NORMAL@@3MA; float TURRET_MIN_WALL_NORMAL
-            vcomiss xmm0, dword ptr [rbx+240h]
-            vmovss  xmm4, dword ptr [rbx+0Ch]
-            vmovss  xmm3, dword ptr [rbx+10h]
-            vmovss  xmm5, dword ptr [rbx+14h]
-            vxorps  xmm2, xmm3, xmm9
-          }
-          _EAX = yawmove;
-          __asm
-          {
-            vmovd   xmm0, eax
-            vmovd   xmm1, r15d
             vpcmpgtd xmm1, xmm0, xmm1
             vblendvps xmm1, xmm2, xmm3, xmm1
-            vmulss  xmm3, xmm1, dword ptr [rbx+23Ch]
-            vxorps  xmm2, xmm4, xmm9
           }
-          _EAX = yawmove;
+          v31 = *(float *)&_XMM1 * pml->slideFirstContactNormal.v[1];
+          _XMM2 = LODWORD(pml->right.v[0]) ^ (unsigned __int128)(unsigned int)_xmm;
           __asm
           {
-            vmovd   xmm0, eax
-            vmovd   xmm1, r15d
             vpcmpgtd xmm1, xmm0, xmm1
             vblendvps xmm1, xmm2, xmm4, xmm1
-            vmulss  xmm0, xmm1, dword ptr [rbx+238h]
-            vaddss  xmm4, xmm3, xmm0
-            vxorps  xmm2, xmm5, xmm9
           }
-          _EAX = yawmove;
+          v35 = v31 + (float)(*(float *)&_XMM1 * pml->slideFirstContactNormal.v[0]);
+          _XMM2 = LODWORD(pml->right.v[2]) ^ (unsigned __int128)(unsigned int)_xmm;
           __asm
           {
-            vmovd   xmm0, eax
-            vmovd   xmm1, r15d
             vpcmpgtd xmm1, xmm0, xmm1
             vblendvps xmm1, xmm2, xmm5, xmm1
-            vmulss  xmm0, xmm1, dword ptr [rbx+240h]
-            vaddss  xmm2, xmm4, xmm0
-            vcomiss xmm2, xmm6
           }
+          if ( (float)(v35 + (float)(*(float *)&_XMM1 * pml->slideFirstContactNormal.v[2])) >= 0.0 )
+LABEL_27:
+            v25 = 0;
+          else
+            v25 = 1;
         }
       }
-      __asm { vmovss  xmm1, dword ptr [rdi+30h] }
       contentMask = pm->tracemask;
-      ps = pm->ps;
-      __asm
+      v40 = pm->ps;
+      *(_QWORD *)start.v = *(_QWORD *)ps->origin.v;
+      v41 = ps->origin.v[2];
+      end.v[0] = start.v[0];
+      end.v[1] = start.v[1];
+      start.v[2] = v41 + TURRET_GROUND_TRACE_HEIGHT_UP_OFFSET;
+      end.v[2] = v41 - TURRET_GROUND_TRACE_HEIGHT;
+      BgTrace::LegacyPlayerTrace(pm->m_trace, pm, &outResults, &start, &end, &bounds_origin, v40->clientNum, contentMask, 1);
+      if ( outResults.fraction == 1.0 )
+        v11 = 1;
+      if ( v25 || v23 || v11 )
       {
-        vmovss  dword ptr [rbp+160h+start], xmm1
-        vmovss  xmm0, dword ptr [rdi+34h]
-        vmovss  dword ptr [rbp+160h+start+4], xmm0
-        vmovss  xmm2, dword ptr [rdi+38h]
-        vmovss  dword ptr [rbp+160h+end], xmm1
-        vsubss  xmm1, xmm2, cs:?TURRET_GROUND_TRACE_HEIGHT@@3MA; float TURRET_GROUND_TRACE_HEIGHT
-        vmovss  dword ptr [rbp+160h+end+4], xmm0
-        vaddss  xmm0, xmm2, cs:?TURRET_GROUND_TRACE_HEIGHT_UP_OFFSET@@3MA; float TURRET_GROUND_TRACE_HEIGHT_UP_OFFSET
-        vmovss  dword ptr [rbp+160h+start+8], xmm0
-        vmovss  dword ptr [rbp+160h+end+8], xmm1
-      }
-      BgTrace::LegacyPlayerTrace(pm->m_trace, pm, &outResults, &start, &end, &bounds_origin, ps->clientNum, contentMask, 1);
-      __asm
-      {
-        vmovss  xmm0, [rbp+160h+outResults.fraction]
-        vucomiss xmm0, xmm8
-      }
-      if ( v50 )
-        LOBYTE(_ER15) = 1;
-      if ( v52 || (_BYTE)_ER15 )
-      {
-        if ( !v53 )
+        if ( !v24 )
           PM_AddEvent(pm, EV_TURRET_BLOCKED_HINT);
-        __asm
+        v42 = pml->slideFirstContactPos.v[0];
+        if ( v25 && (float)((float)((float)((float)(v42 - v15) * (float)(v42 - v15)) + (float)((float)(pml->slideFirstContactPos.v[1] - v16) * (float)(pml->slideFirstContactPos.v[1] - v16))) + (float)((float)(pml->slideFirstContactPos.v[2] - v17) * (float)(pml->slideFirstContactPos.v[2] - v17))) > TURRET_MIN_DIST_FOR_PREVIOUS_POSITION_SQ )
         {
-          vmovss  xmm3, dword ptr [rbx+22Ch]
-          vmovss  xmm0, dword ptr [rbx+230h]
-          vmovss  xmm1, dword ptr [rbx+234h]
-          vsubss  xmm2, xmm3, xmm10
-          vsubss  xmm4, xmm0, xmm11
-          vsubss  xmm5, xmm1, xmm12
+          ps->origin.v[0] = v42;
+          ps->origin.v[1] = pml->slideFirstContactPos.v[1];
+          ps->origin.v[2] = pml->slideFirstContactPos.v[2];
         }
-        if ( !(_BYTE)_ER15 )
+        else if ( !v11 )
         {
-          __asm
-          {
-            vmovss  dword ptr [rdi+30h], xmm10
-            vmovss  dword ptr [rdi+34h], xmm11
-            vmovss  dword ptr [rdi+38h], xmm12
-          }
+          ps->origin.v[0] = v15;
+          ps->origin.v[1] = v16;
+          ps->origin.v[2] = v17;
         }
       }
       if ( pm->cmd.yawmove )
       {
+        v43 = LODWORD(outOrigin.v[0]);
+        forward.v[0] = outOrigin.v[0] - ps->origin.v[0];
+        v44 = outOrigin.v[1] - ps->origin.v[1];
+        *(float *)&v43 = fsqrt((float)(forward.v[0] * forward.v[0]) + (float)(v44 * v44));
+        _XMM2 = v43;
         __asm
         {
-          vmovss  xmm0, dword ptr [rsp+260h+outOrigin]
-          vsubss  xmm4, xmm0, dword ptr [rdi+30h]
-          vmovss  xmm0, dword ptr [rsp+260h+outOrigin+4]
-          vmovss  dword ptr [rsp+260h+forward], xmm4
-          vsubss  xmm3, xmm0, dword ptr [rdi+34h]
-          vmulss  xmm0, xmm3, xmm3
-          vmulss  xmm1, xmm4, xmm4
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm2, xmm1, xmm1
           vcmpless xmm0, xmm2, xmm13
           vblendvps xmm0, xmm2, xmm8, xmm0
-          vdivss  xmm1, xmm8, xmm0
-          vmulss  xmm0, xmm1, xmm4
-          vmovss  dword ptr [rsp+260h+forward+8], xmm6
-          vmovss  dword ptr [rsp+260h+forward], xmm0
-          vmulss  xmm1, xmm1, xmm3
-          vmovss  dword ptr [rsp+260h+forward+4], xmm1
-          vmovss  xmm11, dword ptr [rdi+1D8h]
-          vmovss  xmm12, dword ptr [rdi+1E0h]
         }
+        forward.v[2] = 0.0;
+        forward.v[0] = (float)(1.0 / *(float *)&_XMM0) * forward.v[0];
+        forward.v[1] = (float)(1.0 / *(float *)&_XMM0) * v44;
+        v48 = ps->viewangles.v[0];
+        v49 = ps->viewangles.v[2];
         *(double *)&_XMM0 = vectoyaw((const vec2_t *)&forward);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rdi+1D8h]
-          vsubss  xmm2, xmm1, dword ptr [rdi+0B4h]
-          vmovss  xmm1, dword ptr [rdi+1DCh]
-          vmovss  xmm3, dword ptr [rdi+1E0h]
-          vmovss  xmm4, cs:__real@3b360b61
-          vmovss  xmm6, cs:__real@3f000000
-          vmulss  xmm5, xmm2, xmm4
-          vsubss  xmm2, xmm1, dword ptr [rdi+0B8h]
-          vsubss  xmm1, xmm3, dword ptr [rdi+0BCh]
-          vmulss  xmm8, xmm1, xmm4
-          vmulss  xmm7, xmm2, xmm4
-          vmovss  xmm4, cs:__real@43b40000
-          vmovaps xmm10, xmm0
-          vaddss  xmm1, xmm5, xmm6
-          vxorps  xmm9, xmm9, xmm9
-          vroundss xmm2, xmm9, xmm1, 1
-          vsubss  xmm0, xmm5, xmm2
-          vmulss  xmm0, xmm0, xmm4
-          vsubss  xmm1, xmm11, xmm0
-          vmovss  dword ptr [rdi+0B4h], xmm1
-          vaddss  xmm2, xmm7, xmm6
-          vroundss xmm3, xmm9, xmm2, 1
-          vsubss  xmm0, xmm7, xmm3
-          vmulss  xmm1, xmm0, xmm4
-          vsubss  xmm2, xmm10, xmm1
-          vmovss  dword ptr [rdi+0B8h], xmm2
-          vaddss  xmm3, xmm8, xmm6
-          vroundss xmm2, xmm9, xmm3, 1
-          vsubss  xmm0, xmm8, xmm2
-          vmulss  xmm1, xmm0, xmm4
-          vsubss  xmm2, xmm12, xmm1
-          vmovss  dword ptr [rdi+0BCh], xmm2
-          vmovss  dword ptr [rdi+1D8h], xmm11
-          vmovss  dword ptr [rdi+1DCh], xmm10
-          vmovss  dword ptr [rdi+1E0h], xmm12
-        }
-        Vec3AngleNormalize180(&_RDI->viewangles);
+        v50 = (float)(ps->viewangles.v[2] - ps->delta_angles.v[2]) * 0.0027777778;
+        *(float *)&v43 = (float)(ps->viewangles.v[1] - ps->delta_angles.v[1]) * 0.0027777778;
+        _XMM9 = 0i64;
+        __asm { vroundss xmm2, xmm9, xmm1, 1 }
+        ps->delta_angles.v[0] = v48 - (float)((float)((float)((float)(ps->viewangles.v[0] - ps->delta_angles.v[0]) * 0.0027777778) - *(float *)&_XMM2) * 360.0);
+        __asm { vroundss xmm3, xmm9, xmm2, 1 }
+        ps->delta_angles.v[1] = *(float *)&_XMM0 - (float)((float)(*(float *)&v43 - *(float *)&_XMM3) * 360.0);
+        __asm { vroundss xmm2, xmm9, xmm3, 1 }
+        ps->delta_angles.v[2] = v49 - (float)((float)(v50 - *(float *)&_XMM2) * 360.0);
+        ps->viewangles.v[0] = v48;
+        ps->viewangles.v[1] = *(float *)&_XMM0;
+        ps->viewangles.v[2] = v49;
+        Vec3AngleNormalize180(&ps->viewangles);
       }
-      __asm
-      {
-        vmovaps xmm12, [rsp+260h+var_A0]
-        vmovaps xmm11, [rsp+260h+var_90]
-        vmovaps xmm10, [rsp+260h+var_80]
-        vmovaps xmm9, [rsp+260h+var_70]
-        vmovaps xmm7, [rsp+260h+var_50]
-      }
-      _RBX->applyTurretVelocity = 0;
-      _RBX->hadSlideContact = 0;
-    }
-    __asm
-    {
-      vmovaps xmm8, [rsp+260h+var_60]
-      vmovaps xmm6, [rsp+260h+var_40]
-      vmovaps xmm13, [rsp+260h+var_B0]
+      pml->applyTurretVelocity = 0;
+      pml->hadSlideContact = 0;
     }
   }
 }
@@ -697,56 +577,33 @@ PM_Turret_ApplyVelocity
 */
 void PM_Turret_ApplyVelocity(pmove_t *pm, pml_t *pml, vec3_t *inOutAppliedInstantaneousVelocity)
 {
-  _RSI = inOutAppliedInstantaneousVelocity;
-  _RBX = pml;
+  float frametime; 
+  playerState_s *ps; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_turret.cpp", 76, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_turret.cpp", 77, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
+  if ( !pml && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_turret.cpp", 77, ASSERT_TYPE_ASSERT, "(pml)", (const char *)&queryFormat, "pml") )
     __debugbreak();
-  __asm
+  frametime = pml->frametime;
+  if ( frametime >= 0.001 && pml->applyTurretVelocity )
   {
-    vmovss  xmm1, dword ptr [rbx+24h]
-    vcomiss xmm1, cs:__real@3a83126f
-  }
-  if ( _RBX->applyTurretVelocity )
-  {
-    _RAX = pm->ps;
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbx+214h]
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm5, xmm0, xmm1
-      vmovss  xmm1, dword ptr [rbx+210h]
-      vsubss  xmm0, xmm1, dword ptr [rax+30h]
-      vmovss  xmm3, dword ptr [rax+34h]
-      vmovaps [rsp+78h+var_28], xmm6
-      vmovss  xmm6, dword ptr [rax+38h]
-      vmulss  xmm2, xmm0, xmm5
-      vmovaps [rsp+78h+var_38], xmm7
-      vaddss  xmm7, xmm2, dword ptr [rsi]
-      vmovaps [rsp+78h+var_48], xmm8
-      vmovss  xmm8, dword ptr [rbx+218h]
-      vmovss  dword ptr [rsi], xmm7
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm5
-      vaddss  xmm2, xmm1, dword ptr [rsi+4]
-      vmovss  dword ptr [rsi+4], xmm2
-      vsubss  xmm0, xmm8, xmm6
-      vmovaps xmm8, [rsp+78h+var_48]
-      vmovaps xmm6, [rsp+78h+var_28]
-      vmulss  xmm1, xmm0, xmm5
-      vaddss  xmm2, xmm1, dword ptr [rsi+8]
-      vmovss  dword ptr [rsi+8], xmm2
-      vaddss  xmm0, xmm7, dword ptr [rax+3Ch]
-      vmovaps xmm7, [rsp+78h+var_38]
-      vmovss  dword ptr [rax+3Ch], xmm0
-      vmovss  xmm1, dword ptr [rax+40h]
-      vaddss  xmm2, xmm1, dword ptr [rsi+4]
-      vmovss  dword ptr [rax+40h], xmm2
-      vmovss  xmm0, dword ptr [rax+44h]
-      vaddss  xmm1, xmm0, dword ptr [rsi+8]
-      vmovss  dword ptr [rax+44h], xmm1
-    }
+    ps = pm->ps;
+    v8 = pml->turretTargetOrigin.v[1];
+    v9 = ps->origin.v[1];
+    v10 = ps->origin.v[2];
+    v11 = (float)((float)(pml->turretTargetOrigin.v[0] - ps->origin.v[0]) * (float)(1.0 / frametime)) + inOutAppliedInstantaneousVelocity->v[0];
+    v12 = pml->turretTargetOrigin.v[2];
+    inOutAppliedInstantaneousVelocity->v[0] = v11;
+    inOutAppliedInstantaneousVelocity->v[1] = (float)((float)(v8 - v9) * (float)(1.0 / frametime)) + inOutAppliedInstantaneousVelocity->v[1];
+    inOutAppliedInstantaneousVelocity->v[2] = (float)((float)(v12 - v10) * (float)(1.0 / frametime)) + inOutAppliedInstantaneousVelocity->v[2];
+    ps->velocity.v[0] = v11 + ps->velocity.v[0];
+    ps->velocity.v[1] = ps->velocity.v[1] + inOutAppliedInstantaneousVelocity->v[1];
+    ps->velocity.v[2] = ps->velocity.v[2] + inOutAppliedInstantaneousVelocity->v[2];
   }
 }
 

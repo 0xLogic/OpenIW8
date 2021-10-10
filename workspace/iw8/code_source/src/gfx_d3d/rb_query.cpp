@@ -365,77 +365,75 @@ void RB_AllocOcclusionQueries(void)
   HRESULT v0; 
   const char *v1; 
   unsigned int used; 
+  __int64 v3; 
   __int64 v4; 
   __int64 v5; 
-  __int64 v6; 
-  _BYTE *v7; 
-  __int64 v8; 
-  unsigned int v9; 
-  __int64 v10; 
-  GfxBufferCreationContext v11; 
-  ID3D12QueryHeap *v12; 
-  int v13[4]; 
-  D3D12_RESOURCE_DESC v14; 
+  _BYTE *v6; 
+  __int64 v7; 
+  unsigned int v8; 
+  __int64 v9; 
+  GfxBufferCreationContext v10; 
+  ID3D12QueryHeap *v11; 
+  int v12[4]; 
+  D3D12_RESOURCE_DESC v13; 
 
   Sys_EnterCriticalSection(CRITSECT_OCCLUSION_QUERY);
   if ( s_occlusionQueriesAllocated && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 822, ASSERT_TYPE_ASSERT, "(!s_occlusionQueriesAllocated)", (const char *)&queryFormat, "!s_occlusionQueriesAllocated") )
     __debugbreak();
-  v13[1] = 1026;
-  v13[0] = 0;
-  v13[2] = 1;
-  v0 = ((__int64 (__fastcall *)(ID3D12Device *, int *, GUID *, ID3D12QueryHeap **))g_dx.d3d12device->m_pFunction[13].QueryInterface)(g_dx.d3d12device, v13, &GUID_0d9658ae_ed45_469e_a61d_970ec583cab4, &v12);
+  v12[1] = 1026;
+  v12[0] = 0;
+  v12[2] = 1;
+  v0 = ((__int64 (__fastcall *)(ID3D12Device *, int *, GUID *, ID3D12QueryHeap **))g_dx.d3d12device->m_pFunction[13].QueryInterface)(g_dx.d3d12device, v12, &GUID_0d9658ae_ed45_469e_a61d_970ec583cab4, &v11);
   if ( v0 < 0 )
   {
     v1 = R_ErrorDescription(v0);
     Sys_Error((const ObfuscateErrorText)&stru_1444552C0, 123i64, v1);
   }
-  g_dx.occlusionQueryHeap.heap = v12;
+  g_dx.occlusionQueryHeap.heap = v11;
   *(_QWORD *)&g_dx.occlusionQueryHeap.used = 1i64;
-  v11.zoneName = (char *)&queryFormat.fmt + 3;
+  v10.zoneName = (char *)&queryFormat.fmt + 3;
   g_dx.occlusionQueryHeap.numQueries = 1026;
-  v11.objectName = "query heap readback buffer";
-  __asm { vmovups xmm0, [rsp+0D8h+var_98] }
-  v14.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-  v14.Alignment = 0i64;
-  *(_QWORD *)&v14.DepthOrArraySize = 65537i64;
-  v14.Width = 8208i64;
-  v14.Height = 1;
-  v14.SampleDesc = (DXGI_SAMPLE_DESC)1i64;
-  *(_QWORD *)&v14.Layout = 1i64;
-  __asm { vmovdqa [rsp+0D8h+var_98], xmm0 }
-  g_dx.occlusionQueryHeap.data = (unsigned __int64 *)R_DX12_CreateBuffer(&v14, D3D12_HEAP_TYPE_READBACK, D3D12_RESOURCE_STATE_COPY_DEST, NULL, NULL, 0x2010u, &g_dx.occlusionQueryHeap.buffer, &v11);
+  v10.objectName = "query heap readback buffer";
+  v13.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+  v13.Alignment = 0i64;
+  *(_QWORD *)&v13.DepthOrArraySize = 65537i64;
+  v13.Width = 8208i64;
+  v13.Height = 1;
+  v13.SampleDesc = (DXGI_SAMPLE_DESC)1i64;
+  *(_QWORD *)&v13.Layout = 1i64;
+  g_dx.occlusionQueryHeap.data = (unsigned __int64 *)R_DX12_CreateBuffer(&v13, D3D12_HEAP_TYPE_READBACK, D3D12_RESOURCE_STATE_COPY_DEST, NULL, NULL, 0x2010u, &g_dx.occlusionQueryHeap.buffer, &v10);
   g_dx.occlusionQueryHeap.fences = (unsigned __int64 *)PMem_Alloc(0x2010ui64, 8ui64, MEM_POOL_MAIN, PMEM_STACK_GAME, "query heap fences");
   memset_0(g_dx.occlusionQueryHeap.fences, 0, 0x2010ui64);
   used = g_dx.occlusionQueryHeap.used;
-  v4 = 48i64;
-  v5 = 44i64;
-  v6 = 2i64;
+  v3 = 48i64;
+  v4 = 44i64;
+  v5 = 2i64;
   do
   {
-    v7 = (char *)occlusionQueryArray + v5;
-    v8 = 512i64;
+    v6 = (char *)occlusionQueryArray + v4;
+    v7 = 512i64;
     do
     {
       if ( used >= g_dx.occlusionQueryHeap.numQueries )
       {
-        LODWORD(v10) = used;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_device_d3d12.h", 180, ASSERT_TYPE_ASSERT, "( ( handle->used < handle->numQueries ) )", "( handle->used ) = %u", v10) )
+        LODWORD(v9) = used;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_device_d3d12.h", 180, ASSERT_TYPE_ASSERT, "( ( handle->used < handle->numQueries ) )", "( handle->used ) = %u", v9) )
           __debugbreak();
         used = g_dx.occlusionQueryHeap.used;
       }
-      v9 = used++;
-      *(_DWORD *)&v7[v4 - v5] = v9;
-      *v7 = 0;
-      v7 += 68;
+      v8 = used++;
+      *(_DWORD *)&v6[v3 - v4] = v8;
+      *v6 = 0;
+      v6 += 68;
       g_dx.occlusionQueryHeap.used = used;
-      --v8;
+      --v7;
     }
-    while ( v8 );
-    v4 += 4i64;
-    ++v5;
-    --v6;
+    while ( v7 );
+    v3 += 4i64;
+    ++v4;
+    --v5;
   }
-  while ( v6 );
+  while ( v5 );
   s_occlusionQueriesAllocated = 1;
   Sys_LeaveCriticalSection(CRITSECT_OCCLUSION_QUERY);
 }
@@ -445,60 +443,50 @@ void RB_AllocOcclusionQueries(void)
 RB_AllocOcclusionQuery
 ==============
 */
-
-__int64 __fastcall RB_AllocOcclusionQuery(LocalClientNum_t localClientNum, const vec3_t *position, bool isWorldPos, double depthBias)
+__int64 RB_AllocOcclusionQuery(LocalClientNum_t localClientNum, const vec3_t *position, bool isWorldPos, float depthBias)
 {
-  unsigned __int16 v9; 
+  unsigned __int16 v7; 
+  OcclusionQuery *v8; 
+  unsigned int v9; 
   unsigned int v11; 
-  __int64 result; 
-  unsigned int v13; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   Sys_EnterCriticalSection(CRITSECT_OCCLUSION_QUERY);
   if ( (!s_occlusionQueriesInited || !s_occlusionQueriesAllocated) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 900, ASSERT_TYPE_ASSERT, "(s_occlusionQueriesInited && s_occlusionQueriesAllocated)", (const char *)&queryFormat, "s_occlusionQueriesInited && s_occlusionQueriesAllocated") )
     __debugbreak();
-  v9 = 0;
+  v7 = 0;
   while ( 1 )
   {
-    _R8 = &occlusionQueryArray[v9];
-    if ( (*(_DWORD *)_R8 & 1) == 0 )
+    v8 = &occlusionQueryArray[v7];
+    if ( (*(_DWORD *)v8 & 1) == 0 )
       break;
-    if ( ++v9 >= 0x200u )
+    if ( ++v7 >= 0x200u )
     {
       Sys_LeaveCriticalSection(CRITSECT_OCCLUSION_QUERY);
       R_WarnOncePerFrame(R_WARN_MAX_OCCLUSION_QUERIES, 512i64);
-      result = 0xFFFFi64;
-      goto LABEL_13;
+      return 0xFFFFi64;
     }
   }
-  v11 = *(_DWORD *)_R8;
+  v9 = *(_DWORD *)v8;
   if ( position )
   {
-    *(_DWORD *)_R8 = v11 & 0xFFFFFFF9 | (4 * isWorldPos) | 9;
-    _R8->position.v[0] = position->v[0];
-    _R8->position.v[1] = position->v[1];
-    _R8->position.v[2] = position->v[2];
-    v13 = *(_DWORD *)_R8;
+    *(_DWORD *)v8 = v9 & 0xFFFFFFF9 | (4 * isWorldPos) | 9;
+    v8->position.v[0] = position->v[0];
+    v8->position.v[1] = position->v[1];
+    v8->position.v[2] = position->v[2];
+    v11 = *(_DWORD *)v8;
   }
   else
   {
-    v13 = v11 & 0xFFFFFFF1 | (4 * isWorldPos) & 0xFFF7 | 1;
+    v11 = v9 & 0xFFFFFFF1 | (4 * isWorldPos) & 0xFFF7 | 1;
   }
-  _R8->lastVisibility = 0.0;
-  *(_DWORD *)_R8 = v13 & 0xFFFFFF1F;
-  __asm { vmovss  dword ptr [r8+18h], xmm6 }
-  _R8->localClientNum = localClientNum;
-  *(_QWORD *)&_R8->hitNum = 0i64;
-  *(_WORD *)_R8->issued = 0;
+  v8->lastVisibility = 0.0;
+  *(_DWORD *)v8 = v11 & 0xFFFFFF1F;
+  v8->depthBias = depthBias;
+  v8->localClientNum = localClientNum;
+  *(_QWORD *)&v8->hitNum = 0i64;
+  *(_WORD *)v8->issued = 0;
   Sys_LeaveCriticalSection(CRITSECT_OCCLUSION_QUERY);
-  result = v9;
-LABEL_13:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+  return v7;
 }
 
 /*
@@ -509,16 +497,15 @@ RB_DrawOcclusionQueries
 void RB_DrawOcclusionQueries(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
   unsigned int clientIndex; 
+  OcclusionQuery *v5; 
   OcclusionQuery *v6; 
-  OcclusionQuery *v7; 
   materialCommands_t *Tess; 
-  materialCommands_t *v11; 
-  __int64 v14; 
+  materialCommands_t *v8; 
+  __int64 v9; 
   unsigned int maxClientRenderViews; 
-  GfxCmdBufContext v16; 
+  GfxCmdBufContext v11; 
 
   clientIndex = viewInfo->clientIndex;
-  _RSI = gfxContext;
   if ( (!s_occlusionQueriesInited || !s_occlusionQueriesAllocated) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 760, ASSERT_TYPE_ASSERT, "(s_occlusionQueriesInited && s_occlusionQueriesAllocated)", (const char *)&queryFormat, "s_occlusionQueriesInited && s_occlusionQueriesAllocated") )
     __debugbreak();
   if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 761, ASSERT_TYPE_ASSERT, "(rgp.world)", (const char *)&queryFormat, "rgp.world") )
@@ -526,61 +513,41 @@ void RB_DrawOcclusionQueries(GfxCmdBufContext *gfxContext, const GfxViewInfo *vi
   if ( clientIndex >= gfxCfg.maxClientRenderViews )
   {
     maxClientRenderViews = gfxCfg.maxClientRenderViews;
-    LODWORD(v14) = clientIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 762, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( gfxCfg.maxClientRenderViews )", "localClientNum doesn't index gfxCfg.maxClientRenderViews\n\t%i not in [0, %i)", v14, maxClientRenderViews) )
+    LODWORD(v9) = clientIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 762, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( gfxCfg.maxClientRenderViews )", "localClientNum doesn't index gfxCfg.maxClientRenderViews\n\t%i not in [0, %i)", v9, maxClientRenderViews) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+78h+var_38], xmm0
-  }
-  RB_SetIdentity(&v16);
-  v6 = occlusionQueryArray;
+  v11 = *gfxContext;
+  RB_SetIdentity(&v11);
+  v5 = occlusionQueryArray;
   do
   {
-    v7 = v6;
-    if ( (*(_BYTE *)v6 & 1) != 0 && v6->localClientNum == clientIndex )
+    v6 = v5;
+    if ( (*(_BYTE *)v5 & 1) != 0 && v5->localClientNum == clientIndex )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups [rsp+78h+var_38], xmm0
-      }
-      RB_DrawOcclusionQuerySprite(&v16, viewInfo, v6);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups [rsp+78h+var_38], xmm0
-      }
-      Tess = R_GetTess(&v16);
-      v11 = Tess;
+      v11 = *gfxContext;
+      RB_DrawOcclusionQuerySprite(&v11, viewInfo, v5);
+      v11 = *gfxContext;
+      Tess = R_GetTess(&v11);
+      v8 = Tess;
       if ( Tess->vertexCount )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups [rsp+78h+var_38], xmm0
-        }
-        RB_EndTessSurfaceInternal(&v16, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
+        v11 = *gfxContext;
+        RB_EndTessSurfaceInternal(&v11, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h(162)");
       }
       else
       {
         if ( Tess->indexCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_backend.h", 166, ASSERT_TYPE_ASSERT, "(tess.indexCount == 0)", (const char *)&queryFormat, "tess.indexCount == 0") )
           __debugbreak();
-        v11->viewStatsTarget = GFX_VIEW_STATS_INVALID;
-        v11->primStatsTarget = GFX_PRIM_STATS_INVALID;
+        v8->viewStatsTarget = GFX_VIEW_STATS_INVALID;
+        v8->primStatsTarget = GFX_PRIM_STATS_INVALID;
       }
     }
-    ++v6;
+    ++v5;
   }
-  while ( (__int64)v6 < (__int64)&marker_rb_query );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+78h+var_38], xmm0
-  }
-  RB_FinishSpriteOcclusionQueries(&v16, viewInfo, v7);
+  while ( (__int64)v5 < (__int64)&marker_rb_query );
+  v11 = *gfxContext;
+  RB_FinishSpriteOcclusionQueries(&v11, viewInfo, v6);
 }
 
 /*
@@ -590,345 +557,307 @@ RB_DrawOcclusionQuerySprite
 */
 void RB_DrawOcclusionQuerySprite(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, OcclusionQuery *occlusionQuery)
 {
-  int v14; 
-  __int64 v15; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  int v11; 
+  __int64 v12; 
   GfxCmdBufSourceState *source; 
-  char v18; 
+  float SampleRectRelativeArea; 
   int hitNum; 
-  int v27; 
+  float v16; 
+  float v17; 
+  int v18; 
   char *Value; 
-  unsigned int *v29; 
-  unsigned int v30; 
-  _QWORD *v31; 
-  char *v32; 
-  __int64 v33; 
-  unsigned __int64 v34; 
+  unsigned int *v20; 
+  unsigned int v21; 
+  _QWORD *v22; 
+  char *v23; 
+  __int64 v24; 
+  unsigned __int64 v25; 
   ThreadContext CurrentThreadContext; 
-  int v36; 
-  int v37; 
+  int v27; 
+  int v28; 
+  GfxCmdBufSourceState *v29; 
+  float width; 
+  float height; 
+  float v32; 
+  float v33; 
+  float tanHalfFovX; 
+  float tanHalfFovY; 
+  float v36; 
+  float v37; 
   GfxCmdBufState *state; 
-  GfxDepthRangeType v55; 
-  int v56; 
-  bool v59; 
-  bool v60; 
-  __int64 v64; 
+  GfxDepthRangeType v39; 
+  int v40; 
+  GfxCmdBufContext v41; 
+  bool v42; 
+  bool v43; 
+  __int64 v44; 
   unsigned __int64 *fences; 
-  __int64 v66; 
-  unsigned __int64 v67; 
-  unsigned int v74; 
-  bool v76; 
-  unsigned int v77; 
-  unsigned int v78; 
-  unsigned int v80; 
-  char v81; 
-  float fmt; 
-  __int64 v83; 
-  float v84; 
-  __int64 v85; 
-  __int64 v86; 
-  float v87; 
-  bool v88; 
-  unsigned int v89[3]; 
-  GfxViewport v90; 
-  GfxCmdBufContext v91; 
-  GfxCmdBufContext v92; 
+  __int64 v46; 
+  __int64 v47; 
+  __int128 v48; 
+  __int128 v49; 
+  float v50; 
+  __int128 v52; 
+  unsigned int v54; 
+  bool v55; 
+  unsigned int v56; 
+  unsigned int v57; 
+  unsigned int v58; 
+  bool v59; 
+  __int64 v60; 
+  __int64 v61; 
+  __int64 v62; 
+  float depthBias; 
+  bool v64; 
+  unsigned int v65[3]; 
+  GfxViewport v66; 
+  GfxCmdBufContext v67; 
+  GfxCmdBufContext v68; 
   GfxViewport outViewport; 
   vec3_t end; 
   tmat44_t<vec4_t> in2; 
+  __int128 v72; 
+  __int128 v73; 
+  __int128 v74; 
+  __int128 v75; 
+  __int128 v76; 
 
-  v88 = 0;
-  _R13 = gfxContext;
-  _RDI = occlusionQuery;
-  _R12 = viewInfo;
+  v64 = 0;
   if ( !occlusionQuery && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 559, ASSERT_TYPE_ASSERT, "(occlusionQuery)", (const char *)&queryFormat, "occlusionQuery") )
     __debugbreak();
-  if ( (*(_BYTE *)_RDI & 8) != 0 )
+  if ( (*(_BYTE *)occlusionQuery & 8) != 0 )
   {
-    v14 = r_glob.backEndFrameCount % 2;
+    v11 = r_glob.backEndFrameCount % 2;
     if ( (unsigned int)(r_glob.backEndFrameCount % 2) >= 2 )
     {
-      LODWORD(v83) = r_glob.backEndFrameCount % 2;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 565, ASSERT_TYPE_ASSERT, "(unsigned)( queryIndex ) < (unsigned)( ( sizeof( *array_counter( occlusionQuery->query ) ) + 0 ) )", "queryIndex doesn't index ARRAY_COUNT( occlusionQuery->query )\n\t%i not in [0, %i)", v83, 2) )
+      LODWORD(v60) = r_glob.backEndFrameCount % 2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 565, ASSERT_TYPE_ASSERT, "(unsigned)( queryIndex ) < (unsigned)( ( sizeof( *array_counter( occlusionQuery->query ) ) + 0 ) )", "queryIndex doesn't index ARRAY_COUNT( occlusionQuery->query )\n\t%i not in [0, %i)", v60, 2) )
         __debugbreak();
     }
-    v15 = v14;
-    if ( !_RDI->query[v14] )
+    v12 = v11;
+    if ( !occlusionQuery->query[v11] )
     {
-      source = _R13->source;
-      *(float *)&_XMM0 = RB_GetSampleRectRelativeArea(_R13->source, &_RDI->position, 16, 16);
-      __asm
+      source = gfxContext->source;
+      SampleRectRelativeArea = RB_GetSampleRectRelativeArea(gfxContext->source, &occlusionQuery->position, 16, 16);
+      occlusionQuery->lastVisibility = SampleRectRelativeArea;
+      if ( SampleRectRelativeArea != 0.0 )
       {
-        vxorps  xmm1, xmm1, xmm1
-        vucomiss xmm0, xmm1
-        vmovss  dword ptr [rdi+1Ch], xmm0
-      }
-      if ( !v18 )
-      {
-        __asm
-        {
-          vmovss  xmm3, cs:__real@48800000
-          vmulss  xmm0, xmm3, dword ptr [rdi+4]
-        }
-        hitNum = _RDI->hitNum;
-        __asm
-        {
-          vaddss  xmm1, xmm0, dword ptr [rdx]
-          vmulss  xmm0, xmm3, dword ptr [rdi+8]
-          vmovss  dword ptr [rbp+90h+end], xmm1
-          vaddss  xmm1, xmm0, dword ptr [rdx+4]
-          vmulss  xmm0, xmm3, dword ptr [rdi+0Ch]
-          vmovss  dword ptr [rbp+90h+end+4], xmm1
-          vaddss  xmm1, xmm0, dword ptr [rdx+8]
-          vmovss  dword ptr [rbp+90h+end+8], xmm1
-        }
-        v27 = R_LightSightTrace(hitNum, &source->viewParms3D.camera.origin, &end, 0, 8195);
-        _RDI->hitNum = v27;
-        if ( v27 )
-          _RDI->lastVisibility = 0.0;
+        hitNum = occlusionQuery->hitNum;
+        v16 = 262144.0 * occlusionQuery->position.v[1];
+        end.v[0] = (float)(262144.0 * occlusionQuery->position.v[0]) + source->viewParms3D.camera.origin.v[0];
+        v17 = 262144.0 * occlusionQuery->position.v[2];
+        end.v[1] = v16 + source->viewParms3D.camera.origin.v[1];
+        end.v[2] = v17 + source->viewParms3D.camera.origin.v[2];
+        v18 = R_LightSightTrace(hitNum, &source->viewParms3D.camera.origin, &end, 0, 8195);
+        occlusionQuery->hitNum = v18;
+        if ( v18 )
+          occlusionQuery->lastVisibility = 0.0;
       }
       return;
     }
-    __asm
-    {
-      vmovaps [rsp+190h+var_60], xmm8
-      vmovaps [rsp+190h+var_70], xmm9
-      vmovaps [rsp+190h+var_80], xmm10
-    }
+    v74 = v5;
+    v73 = v6;
+    v72 = v7;
     Value = (char *)Sys_GetValue(0);
-    v29 = (unsigned int *)(Value + 6416);
+    v20 = (unsigned int *)(Value + 6416);
     if ( (unsigned int)(*((_DWORD *)Value + 1604) + 1) >= 3 )
     {
-      LODWORD(v86) = 3;
-      LODWORD(v83) = *((_DWORD *)Value + 1604) + 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v83, v86) )
+      LODWORD(v62) = 3;
+      LODWORD(v60) = *((_DWORD *)Value + 1604) + 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v60, v62) )
         __debugbreak();
     }
-    v30 = *v29 + 1;
-    *v29 = v30;
-    if ( v30 >= 3 )
+    v21 = *v20 + 1;
+    *v20 = v21;
+    if ( v21 >= 3 )
     {
-      LODWORD(v86) = 3;
-      LODWORD(v83) = v30;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v83, v86) )
+      LODWORD(v62) = 3;
+      LODWORD(v60) = v21;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", v60, v62) )
         __debugbreak();
     }
-    v31 = Value + 2088;
-    v32 = Value + 40;
-    if ( *v31 < (unsigned __int64)v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
+    v22 = Value + 2088;
+    v23 = Value + 40;
+    if ( *v22 < (unsigned __int64)v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
       __debugbreak();
-    *v31 += 8i64;
-    if ( *v31 >= (unsigned __int64)v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
+    *v22 += 8i64;
+    if ( *v22 >= (unsigned __int64)v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
       __debugbreak();
-    *(_QWORD *)*v31 = v29;
-    if ( *v31 <= (unsigned __int64)v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
+    *(_QWORD *)*v22 = v20;
+    if ( *v22 <= (unsigned __int64)v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
       __debugbreak();
-    v33 = (int)*v29;
-    v34 = __rdtsc();
-    v29[v33 + 2] = v34;
+    v24 = (int)*v20;
+    v25 = __rdtsc();
+    v20[v24 + 2] = v25;
     if ( Sys_HasValidCurrentThreadContext() )
       CurrentThreadContext = Sys_GetCurrentThreadContext();
     else
       CurrentThreadContext = THREAD_CONTEXT_COUNT;
-    v36 = 0;
+    v27 = 0;
     CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 108, NULL, 0);
-    v37 = *(_DWORD *)_RDI;
-    _RSI = _R13->source;
-    if ( (*(_DWORD *)_RDI & 0x10) != 0 )
+    v28 = *(_DWORD *)occlusionQuery;
+    v29 = gfxContext->source;
+    if ( (*(_DWORD *)occlusionQuery & 0x10) != 0 )
     {
-      __asm
-      {
-        vmovss  xmm8, dword ptr [rdi+10h]
-        vmovss  xmm9, dword ptr [rdi+14h]
-      }
+      width = occlusionQuery->width;
+      height = occlusionQuery->height;
     }
     else
     {
-      R_GetViewport(_R13->source, &outViewport);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm8, xmm0, cs:__real@3c088889
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rax
-        vmulss  xmm9, xmm1, cs:__real@3c72b9d6
-      }
-      v37 = *(_DWORD *)_RDI;
+      R_GetViewport(gfxContext->source, &outViewport);
+      v32 = (float)outViewport.width;
+      width = v32 * 0.0083333338;
+      v33 = (float)outViewport.height;
+      height = v33 * 0.014814815;
+      v28 = *(_DWORD *)occlusionQuery;
     }
-    __asm { vmovss  xmm10, cs:__real@3f800000 }
-    if ( (v37 & 0x80u) == 0 )
+    if ( (v28 & 0x80u) == 0 )
     {
-      state = _R13->state;
+      state = gfxContext->state;
       if ( state->depthRangeType == GFX_DEPTH_RANGE_SCENE )
         goto LABEL_39;
-      v55 = GFX_DEPTH_RANGE_SCENE;
+      v39 = GFX_DEPTH_RANGE_SCENE;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r12+130h]
-        vmovss  xmm1, dword ptr [r12+134h]
-        vmovaps [rsp+190h+var_40], xmm6
-        vdivss  xmm6, xmm0, dword ptr [r12+138h]
-        vmovaps [rsp+190h+var_50], xmm7
-        vdivss  xmm7, xmm1, dword ptr [r12+13Ch]
-      }
+      tanHalfFovX = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovX;
+      tanHalfFovY = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovY;
+      v76 = v3;
+      v36 = tanHalfFovX / viewInfo->viewParmsSet.frames[0].viewParms.camera.depthHackFoV.tanHalfFovX;
+      v75 = v4;
+      v37 = tanHalfFovY / viewInfo->viewParmsSet.frames[0].viewParms.camera.depthHackFoV.tanHalfFovY;
       *(vec4_t *)((char *)&in2.row0 + 4) = 0ui64;
-      __asm
-      {
-        vmovss  dword ptr [rbp+90h+in2], xmm6
-        vmovss  dword ptr [rbp+90h+in2+14h], xmm7
-        vmovss  dword ptr [rbp+90h+in2+28h], xmm10
-        vmovss  dword ptr [rbp+90h+in2+3Ch], xmm10
-      }
+      in2.m[0].v[0] = v36;
+      in2.m[1].v[1] = v37;
+      in2.m[2].v[2] = FLOAT_1_0;
+      in2.m[3].v[3] = FLOAT_1_0;
       *(vec4_t *)((char *)&in2.row1 + 8) = 0ui64;
       *(vec4_t *)((char *)&in2.row2 + 12) = 0ui64;
-      MatrixMultiply44(&_RSI->viewParms3D.viewProjectionMatrix.m, &in2, &_RSI->viewParms3D.viewProjectionMatrix.m);
-      __asm { vmulss  xmm0, xmm6, dword ptr [rsi+2970h] }
-      state = _R13->state;
-      __asm
-      {
-        vmovaps xmm6, [rsp+190h+var_40]
-        vmovss  dword ptr [rsi+2970h], xmm0
-        vmulss  xmm0, xmm7, dword ptr [rsi+2984h]
-        vmovaps xmm7, [rsp+190h+var_50]
-        vmovss  dword ptr [rsi+2984h], xmm0
-      }
+      MatrixMultiply44(&v29->viewParms3D.viewProjectionMatrix.m, &in2, &v29->viewParms3D.viewProjectionMatrix.m);
+      state = gfxContext->state;
+      v29->viewParms3D.projectionMatrix.m.m[0].v[0] = v36 * v29->viewParms3D.projectionMatrix.m.m[0].v[0];
+      v29->viewParms3D.projectionMatrix.m.m[1].v[1] = v37 * v29->viewParms3D.projectionMatrix.m.m[1].v[1];
       if ( state->depthRangeType == GFX_DEPTH_RANGE_VIEWMODEL )
         goto LABEL_39;
-      v55 = GFX_DEPTH_RANGE_VIEWMODEL;
+      v39 = GFX_DEPTH_RANGE_VIEWMODEL;
     }
-    R_ChangeDepthRange(state, v55);
+    R_ChangeDepthRange(state, v39);
 LABEL_39:
-    v56 = (*((unsigned __int8 *)_RSI + 11668) >> 5) & 1;
-    R_GetViewport(_RSI, &outViewport);
-    __asm { vmovups xmm1, xmmword ptr [r13+0] }
-    outViewport.width <<= v56;
-    outViewport.height <<= v56;
-    __asm { vmovups xmm0, xmmword ptr [rbp+90h+outViewport.x] }
-    v59 = (*(_DWORD *)_RDI & 0x14) == 20;
-    v60 = (*(_DWORD *)_RDI & 4) != 0;
-    __asm
+    v40 = (*((unsigned __int8 *)v29 + 11668) >> 5) & 1;
+    R_GetViewport(v29, &outViewport);
+    v41 = *gfxContext;
+    outViewport.width <<= v40;
+    outViewport.height <<= v40;
+    v42 = (*(_DWORD *)occlusionQuery & 0x14) == 20;
+    v43 = (*(_DWORD *)occlusionQuery & 4) != 0;
+    v66 = outViewport;
+    depthBias = occlusionQuery->depthBias;
+    v67 = v41;
+    RB_TessRectBillboard(&v67, &occlusionQuery->position, v43, v42, width, height, (GfxColor)-16777216, depthBias, &v66, 1, v65, &v64);
+    if ( !occlusionQuery->issued[v12] )
     {
-      vmovdqa [rsp+190h+var_120], xmm0
-      vmovss  xmm0, dword ptr [rdi+18h]
-      vmovss  [rsp+190h+var_158], xmm0
-      vmovss  dword ptr [rsp+190h+var_168], xmm9
-      vmovss  dword ptr [rsp+190h+fmt], xmm8
-      vmovups [rbp+90h+var_110], xmm1
-    }
-    RB_TessRectBillboard(&v91, &_RDI->position, v60, v59, fmt, v84, (GfxColor)-16777216, v87, &v90, 1, v89, &v88);
-    __asm
-    {
-      vmovaps xmm9, [rsp+190h+var_70]
-      vmovaps xmm8, [rsp+190h+var_60]
-    }
-    if ( !_RDI->issued[v15] )
-    {
-      v74 = *(_DWORD *)_RDI | 0x40;
-      __asm { vxorps  xmm2, xmm2, xmm2 }
+      v54 = *(_DWORD *)occlusionQuery | 0x40;
+      LODWORD(_XMM2) = 0;
 LABEL_59:
-      __asm { vmovaps xmm10, [rsp+190h+var_80] }
-      if ( (v74 & 2) == 0 )
-        __asm { vmovss  dword ptr [rdi+1Ch], xmm2 }
-      v76 = v88;
-      *(_DWORD *)_RDI = v74 & 0xFFFFFFFD;
-      v77 = v89[0];
-      _RDI->samplesCovered[v15] = v89[0];
-      _RDI->anyPortionOffscreen[v15] = v76;
-      if ( v77 )
+      if ( (v54 & 2) == 0 )
+        occlusionQuery->lastVisibility = *(float *)&_XMM2;
+      v55 = v64;
+      *(_DWORD *)occlusionQuery = v54 & 0xFFFFFFFD;
+      v56 = v65[0];
+      occlusionQuery->samplesCovered[v12] = v65[0];
+      occlusionQuery->anyPortionOffscreen[v12] = v55;
+      if ( v56 )
       {
-        v78 = _RDI->query[v15];
+        v57 = occlusionQuery->query[v12];
         if ( !g_dx.occlusionQueryHeap.heap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_device_d3d12.h", 192, ASSERT_TYPE_ASSERT, "(handle->heap)", (const char *)&queryFormat, "handle->heap") )
           __debugbreak();
-        if ( v78 >= g_dx.occlusionQueryHeap.numQueries )
+        if ( v57 >= g_dx.occlusionQueryHeap.numQueries )
         {
-          LODWORD(v85) = v78;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_device_d3d12.h", 193, ASSERT_TYPE_ASSERT, "( ( static_cast<uint>( query ) < handle->numQueries ) )", "( query ) = %i", v85) )
+          LODWORD(v61) = v57;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_device_d3d12.h", 193, ASSERT_TYPE_ASSERT, "( ( static_cast<uint>( query ) < handle->numQueries ) )", "( query ) = %i", v61) )
             __debugbreak();
         }
         if ( !R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 18, ASSERT_TYPE_ASSERT, "(R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "R_IsLockedGfxImmediateContext()") )
           __debugbreak();
-        ((void (__fastcall *)(GfxDevice *, ID3D12QueryHeap *, _QWORD, _QWORD))g_dx.immediateContext->m_pFunction[9].AddRef)(g_dx.immediateContext, g_dx.occlusionQueryHeap.heap, (unsigned int)g_dx.occlusionQueryHeap.queryType, v78);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r13+0]
-          vmovups [rbp+90h+var_100], xmm0
-        }
-        RB_EndTessSurfaceWithScissorInternal(&v92, &_R12->scissorGeoViewport, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp(673)");
-        v80 = _RDI->query[v15];
+        ((void (__fastcall *)(GfxDevice *, ID3D12QueryHeap *, _QWORD, _QWORD))g_dx.immediateContext->m_pFunction[9].AddRef)(g_dx.immediateContext, g_dx.occlusionQueryHeap.heap, (unsigned int)g_dx.occlusionQueryHeap.queryType, v57);
+        v68 = *gfxContext;
+        RB_EndTessSurfaceWithScissorInternal(&v68, &viewInfo->scissorGeoViewport, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp(673)");
+        v58 = occlusionQuery->query[v12];
         if ( !g_dx.occlusionQueryHeap.heap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_device_d3d12.h", 204, ASSERT_TYPE_ASSERT, "(handle->heap)", (const char *)&queryFormat, "handle->heap") )
           __debugbreak();
-        if ( v80 >= g_dx.occlusionQueryHeap.numQueries )
+        if ( v58 >= g_dx.occlusionQueryHeap.numQueries )
         {
-          LODWORD(v85) = v80;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_device_d3d12.h", 205, ASSERT_TYPE_ASSERT, "( ( static_cast<uint>( query ) < handle->numQueries ) )", "( query ) = %i", v85) )
+          LODWORD(v61) = v58;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_device_d3d12.h", 205, ASSERT_TYPE_ASSERT, "( ( static_cast<uint>( query ) < handle->numQueries ) )", "( query ) = %i", v61) )
             __debugbreak();
         }
         if ( !R_IsLockedGfxImmediateContext() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 18, ASSERT_TYPE_ASSERT, "(R_IsLockedGfxImmediateContext())", (const char *)&queryFormat, "R_IsLockedGfxImmediateContext()") )
           __debugbreak();
-        ((void (__fastcall *)(GfxDevice *, ID3D12QueryHeap *, _QWORD, _QWORD))g_dx.immediateContext->m_pFunction[9].Release)(g_dx.immediateContext, g_dx.occlusionQueryHeap.heap, (unsigned int)g_dx.occlusionQueryHeap.queryType, v80);
-        v81 = 1;
+        ((void (__fastcall *)(GfxDevice *, ID3D12QueryHeap *, _QWORD, _QWORD))g_dx.immediateContext->m_pFunction[9].Release)(g_dx.immediateContext, g_dx.occlusionQueryHeap.heap, (unsigned int)g_dx.occlusionQueryHeap.queryType, v58);
+        v59 = 1;
       }
       else
       {
-        v81 = 0;
+        v59 = 0;
       }
-      _RDI->issued[v15] = v81;
+      occlusionQuery->issued[v12] = v59;
       Profile_EndInternal(NULL);
       return;
     }
-    v64 = _RDI->query[v15];
+    v44 = occlusionQuery->query[v12];
     fences = g_dx.occlusionQueryHeap.fences;
     g_dx.immediateCommandQueue.lastQueriedCompletedFenceValue = ((__int64 (__fastcall *)(ID3D12Fence *))g_dx.immediateCommandQueue.fence->m_pFunction[2].Release)(g_dx.immediateCommandQueue.fence);
-    if ( g_dx.immediateCommandQueue.lastQueriedCompletedFenceValue >= fences[v64] )
+    if ( g_dx.immediateCommandQueue.lastQueriedCompletedFenceValue >= fences[v44] )
     {
-      if ( (unsigned int)v64 >= g_dx.occlusionQueryHeap.numQueries )
+      if ( (unsigned int)v44 >= g_dx.occlusionQueryHeap.numQueries )
       {
-        LODWORD(v85) = v64;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_device_d3d12.h", 251, ASSERT_TYPE_ASSERT, "( ( static_cast<uint>( query ) < handle->numQueries ) )", "( query ) = %i", v85) )
+        LODWORD(v61) = v44;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_device_d3d12.h", 251, ASSERT_TYPE_ASSERT, "( ( static_cast<uint>( query ) < handle->numQueries ) )", "( query ) = %i", v61) )
           __debugbreak();
       }
-      v66 = g_dx.occlusionQueryHeap.data[v64];
-      if ( v66 != 0xFFFFFFFFi64 )
+      v46 = g_dx.occlusionQueryHeap.data[v44];
+      if ( v46 != 0xFFFFFFFFi64 )
         goto LABEL_47;
     }
     else
     {
-      v66 = 0xFFFFFFFFi64;
+      v46 = 0xFFFFFFFFi64;
     }
-    *(_DWORD *)_RDI |= 2u;
+    *(_DWORD *)occlusionQuery |= 2u;
 LABEL_47:
-    v67 = _RDI->samplesCovered[v15];
-    if ( !(_DWORD)v67 )
+    v47 = occlusionQuery->samplesCovered[v12];
+    if ( !(_DWORD)v47 )
     {
-      LODWORD(v85) = 0;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 642, ASSERT_TYPE_ASSERT, "( ( spriteSamples > 0 ) )", "( spriteSamples ) = %i", v85) )
+      LODWORD(v61) = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 642, ASSERT_TYPE_ASSERT, "( ( spriteSamples > 0 ) )", "( spriteSamples ) = %i", v61) )
         __debugbreak();
     }
-    if ( v66 > v67 )
+    if ( v46 > (unsigned __int64)v47 )
     {
-      *(_DWORD *)_RDI |= 2u;
-      R_WarnOncePerFrame(R_WARN_OCCLUSION_QUERY, v66, (unsigned int)v67);
+      *(_DWORD *)occlusionQuery |= 2u;
+      R_WarnOncePerFrame(R_WARN_OCCLUSION_QUERY, v46, (unsigned int)v47);
     }
-    __asm
+    v49 = 0i64;
+    *(float *)&v49 = (float)v46;
+    v48 = v49;
+    if ( v46 < 0 )
     {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rbx
+      *(float *)&v49 = *(float *)&v49 + 1.8446744e19;
+      v48 = v49;
     }
-    if ( v66 < 0 )
-      __asm { vaddss  xmm1, xmm1, cs:__real@5f800000 }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rsi
-      vdivss  xmm1, xmm1, xmm0
-      vminss  xmm2, xmm1, xmm10
-    }
-    if ( _RDI->anyPortionOffscreen[v15] || v88 )
-      v36 = 64;
-    v74 = v36 | *(_DWORD *)_RDI & 0xFFFFFFBF;
+    v50 = (float)v47;
+    v52 = v48;
+    *(float *)&v52 = *(float *)&v48 / v50;
+    _XMM1 = v52;
+    __asm { vminss  xmm2, xmm1, xmm10 }
+    if ( occlusionQuery->anyPortionOffscreen[v12] || v64 )
+      v27 = 64;
+    v54 = v27 | *(_DWORD *)occlusionQuery & 0xFFFFFFBF;
     goto LABEL_59;
   }
 }
@@ -1115,22 +1044,21 @@ RB_GetOcclusionQueryVisibility
 */
 float RB_GetOcclusionQueryVisibility(unsigned __int16 handle)
 {
-  int v6; 
-  int v7; 
+  __int64 v2; 
+  int v4; 
+  int v5; 
 
   if ( handle >= 0x200u )
   {
-    v7 = 512;
-    v6 = handle;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 1062, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( ( sizeof( *array_counter( occlusionQueryArray ) ) + 0 ) )", "handle doesn't index ARRAY_COUNT( occlusionQueryArray )\n\t%i not in [0, %i)", v6, v7) )
+    v5 = 512;
+    v4 = handle;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 1062, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( ( sizeof( *array_counter( occlusionQueryArray ) ) + 0 ) )", "handle doesn't index ARRAY_COUNT( occlusionQueryArray )\n\t%i not in [0, %i)", v4, v5) )
       __debugbreak();
   }
-  _RDI = occlusionQueryArray;
-  _RBX = handle;
-  if ( (*(_BYTE *)&occlusionQueryArray[_RBX] & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 1063, ASSERT_TYPE_ASSERT, "(occlusionQueryArray[handle].enabled)", (const char *)&queryFormat, "occlusionQueryArray[handle].enabled") )
+  v2 = handle;
+  if ( (*(_BYTE *)&occlusionQueryArray[v2] & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 1063, ASSERT_TYPE_ASSERT, "(occlusionQueryArray[handle].enabled)", (const char *)&queryFormat, "occlusionQueryArray[handle].enabled") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [rbx+rdi+1Ch] }
-  return *(float *)&_XMM0;
+  return occlusionQueryArray[v2].lastVisibility;
 }
 
 /*
@@ -1140,133 +1068,40 @@ RB_GetSampleRectRelativeArea
 */
 float RB_GetSampleRectRelativeArea(GfxCmdBufSourceState *gfxSource, const vec3_t *position, int widthInPixels, int heightInPixels)
 {
-  bool v11; 
-  bool v15; 
-  int v29; 
-  int v57; 
-  char v79; 
-  void *retaddr; 
+  signed int displayWidth; 
+  int v9; 
+  signed int displayHeight; 
+  int v13; 
+  int v15; 
 
-  _R11 = &retaddr;
-  v11 = rgp.world == NULL;
-  _EBP = heightInPixels;
-  __asm { vmovaps [rsp+98h+var_28], xmm7 }
-  _EDI = widthInPixels;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovaps xmmword ptr [r11-58h], xmm10
-    vmovaps xmmword ptr [r11-68h], xmm11
-  }
-  _RSI = position;
-  if ( v11 )
-  {
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 432, ASSERT_TYPE_ASSERT, "(rgp.world)", (const char *)&queryFormat, "rgp.world");
-    v11 = !v15;
-    if ( v15 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm10, dword ptr [rsi+4]
-    vmovss  xmm9, dword ptr [rsi]
-    vmulss  xmm1, xmm9, dword ptr [rbx+29BCh]
-    vmovss  xmm11, dword ptr [rsi+8]
-    vmulss  xmm0, xmm10, dword ptr [rbx+29CCh]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm11, dword ptr [rbx+29DCh]
-    vaddss  xmm8, xmm2, xmm1
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm8, xmm7
-  }
-  if ( v11 )
-    goto LABEL_16;
-  __asm
-  {
-    vmulss  xmm1, xmm10, dword ptr [rbx+29C0h]
-    vmulss  xmm0, xmm9, dword ptr [rbx+29B0h]
-    vmovss  xmm5, cs:__real@3f000000
-  }
-  _ER10 = vidConfig.displayWidth;
-  v29 = 0;
-  _ER9 = vidConfig.displayHeight;
-  __asm
-  {
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm11, dword ptr [rbx+29D0h]
-    vaddss  xmm0, xmm2, xmm1
-    vdivss  xmm2, xmm0, xmm8
-    vaddss  xmm1, xmm2, cs:__real@3f800000
-    vmovd   xmm0, r10d
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm3, xmm1, xmm0
-    vmovaps [rsp+98h+var_18], xmm6
-    vxorps  xmm6, xmm6, xmm6
-    vmovd   xmm1, edi
-    vcvtdq2ps xmm1, xmm1
-    vsubss  xmm2, xmm3, xmm1
-    vmulss  xmm1, xmm9, dword ptr [rbx+29B4h]
-    vmulss  xmm0, xmm2, xmm5
-    vaddss  xmm3, xmm0, xmm5
-    vroundss xmm0, xmm6, xmm3, 1
-    vcvttss2si r8d, xmm0
-    vmulss  xmm0, xmm10, dword ptr [rbx+29C4h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm11, dword ptr [rbx+29D4h]
-    vaddss  xmm0, xmm2, xmm1
-    vdivss  xmm2, xmm0, xmm8
-    vaddss  xmm3, xmm2, cs:__real@3f800000
-    vmovd   xmm1, r9d
-    vcvtdq2ps xmm1, xmm1
-    vmulss  xmm4, xmm3, xmm1
-  }
-  v57 = 0;
-  if ( _ER8 >= 0 )
-    v57 = _ER8;
-  __asm { vmovd   xmm0, ebp }
-  if ( _ER8 + _EDI <= (int)vidConfig.displayWidth )
-    _ER10 = _ER8 + _EDI;
-  __asm
-  {
-    vcvtdq2ps xmm0, xmm0
-    vsubss  xmm2, xmm4, xmm0
-    vmulss  xmm1, xmm2, xmm5
-    vaddss  xmm3, xmm1, xmm5
-    vroundss xmm1, xmm6, xmm3, 1
-    vmovaps xmm6, [rsp+98h+var_18]
-    vcvttss2si ecx, xmm1
-  }
-  if ( _ECX >= 0 )
-    v29 = _ECX;
-  if ( _ECX + _EBP <= (int)vidConfig.displayHeight )
-    _ER9 = _ECX + _EBP;
-  if ( _ER10 <= v57 || _ER9 <= v29 )
-  {
-LABEL_16:
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
+  if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 432, ASSERT_TYPE_ASSERT, "(rgp.world)", (const char *)&queryFormat, "rgp.world") )
+    __debugbreak();
+  if ( (float)((float)((float)(position->v[0] * gfxSource->viewParms3D.viewProjectionMatrix.m.m[0].v[3]) + (float)(position->v[1] * gfxSource->viewParms3D.viewProjectionMatrix.m.m[1].v[3])) + (float)(position->v[2] * gfxSource->viewParms3D.viewProjectionMatrix.m.m[2].v[3])) <= 0.0 )
+    return 0.0;
+  displayWidth = vidConfig.displayWidth;
+  v9 = 0;
+  displayHeight = vidConfig.displayHeight;
+  _mm_cvtepi32_ps((__m128i)vidConfig.displayWidth);
+  _XMM6 = 0i64;
+  _mm_cvtepi32_ps((__m128i)(unsigned int)widthInPixels);
+  __asm { vroundss xmm0, xmm6, xmm3, 1 }
+  _mm_cvtepi32_ps((__m128i)vidConfig.displayHeight);
+  v13 = 0;
+  if ( (int)*(float *)&_XMM0 >= 0 )
+    v13 = (int)*(float *)&_XMM0;
+  if ( (int)*(float *)&_XMM0 + widthInPixels <= (int)vidConfig.displayWidth )
+    displayWidth = (int)*(float *)&_XMM0 + widthInPixels;
+  _mm_cvtepi32_ps((__m128i)(unsigned int)heightInPixels);
+  __asm { vroundss xmm1, xmm6, xmm3, 1 }
+  v15 = (int)*(float *)&_XMM1;
+  if ( (int)*(float *)&_XMM1 >= 0 )
+    v9 = (int)*(float *)&_XMM1;
+  if ( v15 + heightInPixels <= (int)vidConfig.displayHeight )
+    displayHeight = v15 + heightInPixels;
+  if ( displayWidth <= v13 || displayHeight <= v9 )
+    return 0.0;
   else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, r9d
-      vcvtsi2ss xmm0, xmm0, edi
-      vdivss  xmm0, xmm1, xmm0
-    }
-  }
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  _R11 = &v79;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return *(float *)&_XMM0;
+    return (float)((displayWidth - v13) * (displayHeight - v9)) / (float)(heightInPixels * widthInPixels);
 }
 
 /*
@@ -1335,30 +1170,17 @@ GfxVertex *RB_InitOcclusionQueryBatch(GfxCmdBufContext *gfxContext, GfxColor col
   materialCommands_t *Tess; 
   int vertexCount_low; 
   GfxVertex *result; 
-  GfxCmdBufContext v11; 
+  GfxCmdBufContext v8; 
 
-  _RDI = gfxContext;
   if ( setTechnique )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups xmmword ptr [rsp+48h+var_18.source], xmm0
-    }
-    RB_SetIdentity(&v11);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rsp+48h+var_18.source], xmm0
-    }
-    RB_SetTessTechnique(&v11, rgp.occlusionQueryMaterial, TECHNIQUE_EMISSIVE, GFX_PRIM_STATS_COUNT_GEO);
+    v8 = *gfxContext;
+    RB_SetIdentity(&v8);
+    v8 = *gfxContext;
+    RB_SetTessTechnique(&v8, rgp.occlusionQueryMaterial, TECHNIQUE_EMISSIVE, GFX_PRIM_STATS_COUNT_GEO);
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsp+48h+var_18.source], xmm0
-  }
-  Tess = R_GetTess(&v11);
+  v8 = *gfxContext;
+  Tess = R_GetTess(&v8);
   if ( Tess->vertexCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 77, ASSERT_TYPE_ASSERT, "(tess.vertexCount == 0)", (const char *)&queryFormat, "tess.vertexCount == 0") )
     __debugbreak();
   if ( Tess->indexCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 78, ASSERT_TYPE_ASSERT, "(tess.indexCount == 0)", (const char *)&queryFormat, "tess.indexCount == 0") )
@@ -1670,38 +1492,25 @@ void RB_SetOcclusionQueryPosition(unsigned __int16 handle, const vec3_t *positio
 RB_SetOcclusionQuerySize
 ==============
 */
-
-void __fastcall RB_SetOcclusionQuerySize(unsigned __int16 handle, double width, double height)
+void RB_SetOcclusionQuerySize(unsigned __int16 handle, float width, float height)
 {
-  int v12; 
-  int v13; 
+  __int64 v4; 
+  int v5; 
+  int v6; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm6, xmm2
-    vmovaps xmm7, xmm1
-  }
   if ( handle >= 0x200u )
   {
-    v13 = 512;
-    v12 = handle;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 1025, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( ( sizeof( *array_counter( occlusionQueryArray ) ) + 0 ) )", "handle doesn't index ARRAY_COUNT( occlusionQueryArray )\n\t%i not in [0, %i)", v12, v13) )
+    v6 = 512;
+    v5 = handle;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 1025, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( ( sizeof( *array_counter( occlusionQueryArray ) ) + 0 ) )", "handle doesn't index ARRAY_COUNT( occlusionQueryArray )\n\t%i not in [0, %i)", v5, v6) )
       __debugbreak();
   }
-  _RDI = occlusionQueryArray;
-  _RBX = handle;
-  if ( (*(_BYTE *)&occlusionQueryArray[_RBX] & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 1026, ASSERT_TYPE_ASSERT, "(occlusionQueryArray[handle].enabled)", (const char *)&queryFormat, "occlusionQueryArray[handle].enabled") )
+  v4 = handle;
+  if ( (*(_BYTE *)&occlusionQueryArray[v4] & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 1026, ASSERT_TYPE_ASSERT, "(occlusionQueryArray[handle].enabled)", (const char *)&queryFormat, "occlusionQueryArray[handle].enabled") )
     __debugbreak();
-  *(_DWORD *)&occlusionQueryArray[_RBX] |= 0x10u;
-  __asm
-  {
-    vmovss  dword ptr [rbx+rdi+10h], xmm7
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovss  dword ptr [rbx+rdi+14h], xmm6
-    vmovaps xmm6, [rsp+68h+var_18]
-  }
+  *(_DWORD *)&occlusionQueryArray[v4] |= 0x10u;
+  occlusionQueryArray[v4].width = width;
+  occlusionQueryArray[v4].height = height;
 }
 
 /*
@@ -1711,388 +1520,245 @@ RB_TessRectBillboard
 */
 void RB_TessRectBillboard(GfxCmdBufContext *gfxContext, const vec3_t *inPos, bool isWorldPos, bool isWorldWidthHeight, float widthInPixels, float heightInPixels, GfxColor color, float depthBias, GfxViewport *viewport, bool setTechnique, unsigned int *outSamplesCovered, bool *outAnyPortionOffscreen)
 {
-  bool v113; 
-  bool v178; 
-  GfxCmdBufContext v179; 
-  char v187; 
-  void *retaddr; 
+  GfxCmdBufSourceState *source; 
+  float v17; 
+  __int128 v18; 
+  __int128 v29; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  bool v58; 
+  float width; 
+  float v60; 
+  float height; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  bool v73; 
+  GfxVertex *inited; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  bool v79; 
+  GfxCmdBufContext v80; 
+  float v81; 
+  float v82; 
+  float v83; 
+  float v84; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-68h], xmm9
-  }
-  _R13 = gfxContext;
-  _RSI = inPos;
   *outSamplesCovered = 0;
-  v178 = setTechnique;
-  __asm { vmovss  xmm7, dword ptr [rdx] }
+  source = gfxContext->source;
+  v79 = setTechnique;
+  v17 = inPos->v[0];
   if ( isWorldPos )
   {
-    __asm
-    {
-      vmovsd  xmm2, cs:__real@40b0000000000000
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmulsd  xmm0, xmm0, xmm2
-      vcvttsd2si rcx, xmm0
-    }
+    *((_QWORD *)&v18 + 1) = 0i64;
+    *(double *)&v18 = v17 * 4096.0;
+    _XMM0 = v18;
+    __asm { vcvttsd2si rcx, xmm0 }
     if ( (unsigned __int64)(_RCX + 0x80000000i64) > 0xFFFFFFFF )
       goto LABEL_6;
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rsi+4]
-      vcvtss2sd xmm0, xmm5, xmm5
-      vmulsd  xmm1, xmm0, xmm2
-      vcvttsd2si rcx, xmm1
-    }
+    _XMM1 = COERCE_UNSIGNED_INT64(inPos->v[1] * 4096.0);
+    __asm { vcvttsd2si rcx, xmm1 }
     if ( (unsigned __int64)(_RCX + 0x80000000i64) > 0xFFFFFFFF )
       goto LABEL_6;
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsi+8]
-      vcvtss2sd xmm0, xmm4, xmm4
-      vmulsd  xmm1, xmm0, xmm2
-      vcvttsd2si rcx, xmm1
-    }
+    _XMM1 = COERCE_UNSIGNED_INT64(inPos->v[2] * 4096.0);
+    __asm { vcvttsd2si rcx, xmm1 }
     if ( (unsigned __int64)(_RCX + 0x80000000i64) > 0xFFFFFFFF )
     {
 LABEL_6:
       R_WarnOncePerFrame(R_WARN_PRECISE_COORD_OUTSIDE_INTEGER_RANGE, "sun or occlusion query");
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]
-        vsubss  xmm4, xmm0, dword ptr [rdi+2A30h]
-        vmovss  xmm0, dword ptr [rsi+8]
-        vmovss  xmm1, dword ptr [rsi+4]
-        vsubss  xmm3, xmm0, dword ptr [rdi+2A38h]
-        vsubss  xmm5, xmm1, dword ptr [rdi+2A34h]
-      }
+      *(float *)&_XMM4 = inPos->v[0] - source->viewParms3D.camera.origin.v[0];
+      *(float *)&_XMM3 = inPos->v[2] - source->viewParms3D.camera.origin.v[2];
+      *(float *)&_XMM5 = inPos->v[1] - source->viewParms3D.camera.origin.v[1];
     }
     else
     {
+      _XMM0 = 0i64;
+      _XMM1 = 0i64;
+      __asm { vcvtsi2sd xmm1, xmm1, r8d }
+      *((_QWORD *)&v29 + 1) = *((_QWORD *)&_XMM1 + 1);
+      *(double *)&v29 = *(double *)&_XMM1 * 0.000244140625;
+      _XMM2 = v29;
+      __asm { vcvtsi2sd xmm0, xmm0, edx }
+      *((_QWORD *)&v29 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v29 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM0 = v29;
+      __asm { vcvtsd2ss xmm4, xmm0, xmm0 }
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, r9d }
+      *((_QWORD *)&v29 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v29 = *(double *)&_XMM0 * 0.000244140625;
+      _XMM1 = v29;
       __asm
       {
-        vmovss  xmm3, cs:__real@45800000
-        vmulss  xmm1, xmm5, xmm3
-        vcvttss2si r8d, xmm1
-        vmulss  xmm1, xmm3, dword ptr [rdi+2A34h]
-        vcvttss2si eax, xmm1
-        vmulss  xmm0, xmm7, xmm3
-        vcvttss2si edx, xmm0
-        vmulss  xmm0, xmm4, xmm3
-        vcvttss2si r9d, xmm0
-        vmulss  xmm0, xmm3, dword ptr [rdi+2A30h]
-        vcvttss2si ecx, xmm0
-        vmulss  xmm0, xmm3, dword ptr [rdi+2A38h]
-        vmovsd  xmm3, cs:__real@3f30000000000000
-        vcvttss2si eax, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2sd xmm1, xmm1, r8d
-        vmulsd  xmm2, xmm1, xmm3
-        vcvtsi2sd xmm0, xmm0, edx
-        vmulsd  xmm0, xmm0, xmm3
-        vcvtsd2ss xmm4, xmm0, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, r9d
-        vmulsd  xmm1, xmm0, xmm3
         vcvtsd2ss xmm3, xmm1, xmm1
         vcvtsd2ss xmm5, xmm2, xmm2
       }
     }
-    __asm
-    {
-      vmovss  xmm2, [rsp+108h+arg_38]
-      vmulss  xmm0, xmm2, dword ptr [rdi+2A3Ch]
-      vmulss  xmm1, xmm2, dword ptr [rdi+2A40h]
-      vaddss  xmm7, xmm4, xmm0
-      vmulss  xmm0, xmm2, dword ptr [rdi+2A44h]
-      vaddss  xmm9, xmm3, xmm0
-      vaddss  xmm8, xmm5, xmm1
-    }
+    v17 = *(float *)&_XMM4 + (float)(depthBias * source->viewParms3D.camera.axis.m[0].v[0]);
+    v38 = *(float *)&_XMM3 + (float)(depthBias * source->viewParms3D.camera.axis.m[0].v[2]);
+    v39 = *(float *)&_XMM5 + (float)(depthBias * source->viewParms3D.camera.axis.m[0].v[1]);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rdx+4]
-      vmovss  xmm9, dword ptr [rdx+8]
-    }
+    v39 = inPos->v[1];
+    v38 = inPos->v[2];
   }
   if ( !rgp.world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 207, ASSERT_TYPE_ASSERT, "(rgp.world)", (const char *)&queryFormat, "rgp.world", setTechnique) )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm1, xmm8, dword ptr [rdi+29C0h]
-    vmulss  xmm0, xmm7, dword ptr [rdi+29B0h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, dword ptr [rdi+29D0h]
-    vmulss  xmm0, xmm8, dword ptr [rdi+29C4h]
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm1, xmm7, dword ptr [rdi+29B4h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, dword ptr [rdi+29D4h]
-    vmulss  xmm0, xmm8, dword ptr [rdi+29C8h]
-    vaddss  xmm5, xmm2, xmm1
-    vmulss  xmm1, xmm7, dword ptr [rdi+29B8h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, dword ptr [rdi+29D8h]
-    vmulss  xmm0, xmm8, dword ptr [rdi+29CCh]
-    vaddss  xmm6, xmm2, xmm1
-    vmulss  xmm1, xmm7, dword ptr [rdi+29BCh]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, dword ptr [rdi+29DCh]
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  [rsp+108h+var_AC], xmm0
-    vmovss  [rsp+108h+var_B8], xmm4
-    vmovss  [rsp+108h+var_B4], xmm5
-    vmovss  [rsp+108h+var_B0], xmm6
-  }
+  v41 = (float)((float)(v39 * source->viewParms3D.viewProjectionMatrix.m.m[1].v[0]) + (float)(v17 * source->viewParms3D.viewProjectionMatrix.m.m[0].v[0])) + (float)(v38 * source->viewParms3D.viewProjectionMatrix.m.m[2].v[0]);
+  v40 = v41;
+  v42 = (float)((float)(v17 * source->viewParms3D.viewProjectionMatrix.m.m[0].v[1]) + (float)(v39 * source->viewParms3D.viewProjectionMatrix.m.m[1].v[1])) + (float)(v38 * source->viewParms3D.viewProjectionMatrix.m.m[2].v[1]);
+  v43 = (float)((float)(v17 * source->viewParms3D.viewProjectionMatrix.m.m[0].v[2]) + (float)(v39 * source->viewParms3D.viewProjectionMatrix.m.m[1].v[2])) + (float)(v38 * source->viewParms3D.viewProjectionMatrix.m.m[2].v[2]);
+  v44 = (float)((float)(v17 * source->viewParms3D.viewProjectionMatrix.m.m[0].v[3]) + (float)(v39 * source->viewParms3D.viewProjectionMatrix.m.m[1].v[3])) + (float)(v38 * source->viewParms3D.viewProjectionMatrix.m.m[2].v[3]);
+  v84 = v44;
+  v81 = v41;
+  v82 = v42;
+  v83 = v43;
   if ( isWorldPos )
   {
-    __asm
-    {
-      vaddss  xmm4, xmm4, dword ptr [rdi+29E0h]
-      vaddss  xmm5, xmm5, dword ptr [rdi+29E4h]
-      vaddss  xmm6, xmm6, dword ptr [rdi+29E8h]
-      vaddss  xmm0, xmm0, dword ptr [rdi+29ECh]
-      vmovss  [rsp+108h+var_B8], xmm4
-      vmovss  [rsp+108h+var_B4], xmm5
-      vmovss  [rsp+108h+var_B0], xmm6
-      vmovss  [rsp+108h+var_AC], xmm0
-    }
+    v40 = v41 + source->viewParms3D.viewProjectionMatrix.m.m[3].v[0];
+    v42 = v42 + source->viewParms3D.viewProjectionMatrix.m.m[3].v[1];
+    v43 = v43 + source->viewParms3D.viewProjectionMatrix.m.m[3].v[2];
+    v44 = v44 + source->viewParms3D.viewProjectionMatrix.m.m[3].v[3];
+    v81 = v40;
+    v82 = v42;
+    v83 = v43;
+    v84 = v44;
   }
-  __asm
+  v45 = 1.0 / v44;
+  v46 = v40 * (float)(1.0 / v44);
+  v48 = v42 * (float)(1.0 / v44);
+  v47 = v48;
+  if ( (float)(v43 * (float)(1.0 / v44)) >= 0.0 )
   {
-    vmovss  xmm2, cs:__real@3f800000
-    vdivss  xmm3, xmm2, xmm0
-    vmulss  xmm0, xmm6, xmm3
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-    vmulss  xmm4, xmm4, xmm3
-    vmulss  xmm5, xmm5, xmm3
-    vmovaps [rsp+108h+var_78], xmm10
-    vmovaps [rsp+108h+var_88], xmm11
-    vmovaps [rsp+108h+var_98], xmm12
-  }
-  if ( isWorldWidthHeight )
-  {
-    __asm
+    if ( isWorldWidthHeight )
     {
-      vmovss  xmm0, [rsp+108h+arg_20]
-      vmovss  xmm9, cs:__real@3f000000
-      vmulss  xmm1, xmm0, dword ptr [rax]
-      vmovss  xmm0, [rsp+108h+arg_28]
-      vmulss  xmm11, xmm1, xmm9
-      vmulss  xmm1, xmm0, dword ptr [rax+14h]
-      vmulss  xmm7, xmm11, xmm3
-      vcomiss xmm7, xmm6
-      vmulss  xmm12, xmm1, xmm9
-      vmulss  xmm1, xmm12, xmm3
+      v49 = (float)(widthInPixels * gfxContext->source->viewParms3D.projectionMatrix.m.m[0].v[0]) * 0.5;
+      v50 = v49 * v45;
+      v51 = (float)(heightInPixels * gfxContext->source->viewParms3D.projectionMatrix.m.m[1].v[1]) * 0.5;
+      v52 = v51 * v45;
+      if ( (float)(v49 * v45) >= 0.0 && (float)(v51 * v45) >= 0.0 )
+      {
+        v53 = v46 + v50;
+        if ( (float)(v46 + v50) >= -1.0 )
+        {
+          v54 = v46 - v50;
+          if ( (float)(v46 - v50) <= 1.0 )
+          {
+            v55 = v48 + v52;
+            if ( (float)(v48 + v52) >= -1.0 )
+            {
+              v57 = v48 - v52;
+              v56 = v57;
+              if ( v57 <= 1.0 )
+              {
+                v58 = v53 >= 1.0 || v54 <= -1.0 || v55 >= 1.0 || v57 <= -1.0;
+                *outAnyPortionOffscreen = v58;
+                width = (float)viewport->width;
+                v60 = width * 0.5;
+                height = (float)viewport->height;
+                v62 = height * 0.5;
+                v63 = v62 - (float)(v62 * v56);
+                v64 = (float)(v53 + 1.0) * v60;
+                v65 = roundf((float)(v54 + 1.0) * v60);
+                roundf(v64);
+                roundf(v63);
+                v66 = (float)(v63 - roundf(v62 - (float)(v62 * v55))) * (float)(v64 - v65);
+LABEL_40:
+                *outSamplesCovered = (int)v66;
+                if ( (int)v66 )
+                {
+                  v80 = *gfxContext;
+                  inited = RB_InitOcclusionQueryBatch(&v80, color, v79);
+                  v75 = v82;
+                  v76 = v83;
+                  v77 = v84;
+                  v78 = v81;
+                  inited->xyzw.v[0] = v81;
+                  inited->xyzw.v[1] = v75;
+                  inited->xyzw.v[2] = v76;
+                  inited->xyzw.v[3] = v77;
+                  inited[1].xyzw.v[0] = v78;
+                  inited[1].xyzw.v[1] = v75;
+                  inited[1].xyzw.v[2] = v76;
+                  inited[1].xyzw.v[3] = v77;
+                  inited[2].xyzw.v[0] = v78;
+                  inited[2].xyzw.v[1] = v75;
+                  inited[2].xyzw.v[2] = v76;
+                  inited[2].xyzw.v[3] = v77;
+                  inited[3].xyzw.v[0] = v78;
+                  inited[3].xyzw.v[1] = v75;
+                  inited[3].xyzw.v[2] = v76;
+                  inited[3].xyzw.v[3] = v77;
+                  inited->xyzw.v[0] = v49 + inited->xyzw.v[0];
+                  inited->xyzw.v[1] = v51 + inited->xyzw.v[1];
+                  inited[1].xyzw.v[0] = v49 + inited[1].xyzw.v[0];
+                  inited[1].xyzw.v[1] = inited[1].xyzw.v[1] - v51;
+                  inited[2].xyzw.v[0] = inited[2].xyzw.v[0] - v49;
+                  inited[2].xyzw.v[1] = inited[2].xyzw.v[1] - v51;
+                  inited[3].xyzw.v[0] = inited[3].xyzw.v[0] - v49;
+                  inited[3].xyzw.v[1] = v51 + inited[3].xyzw.v[1];
+                }
+                return;
+              }
+            }
+          }
+        }
+      }
     }
-    if ( _R13->source >= (GfxCmdBufSourceState *)0xFFFFFFFFFFFFD690i64 )
-      goto LABEL_33;
-    __asm { vcomiss xmm1, xmm6 }
-    if ( _R13->source >= (GfxCmdBufSourceState *)0xFFFFFFFFFFFFD690i64 )
-      goto LABEL_33;
-    __asm
-    {
-      vmovss  xmm0, cs:__real@bf800000
-      vaddss  xmm6, xmm4, xmm7
-      vcomiss xmm6, xmm0
-    }
-    if ( _R13->source >= (GfxCmdBufSourceState *)0xFFFFFFFFFFFFD690i64 )
-      goto LABEL_33;
-    __asm
-    {
-      vsubss  xmm8, xmm4, xmm7
-      vcomiss xmm8, xmm2
-    }
-    if ( _R13->source < (GfxCmdBufSourceState *)0xFFFFFFFFFFFFD690i64 && _R13->source != (GfxCmdBufSourceState *)-10608i64 )
-      goto LABEL_33;
-    __asm
-    {
-      vaddss  xmm7, xmm5, xmm1
-      vcomiss xmm7, xmm0
-    }
-    if ( _R13->source >= (GfxCmdBufSourceState *)0xFFFFFFFFFFFFD690i64 )
-      goto LABEL_33;
-    __asm
-    {
-      vsubss  xmm5, xmm5, xmm1
-      vcomiss xmm5, xmm2
-    }
-    if ( _R13->source < (GfxCmdBufSourceState *)0xFFFFFFFFFFFFD690i64 && _R13->source != (GfxCmdBufSourceState *)-10608i64 )
-    {
-LABEL_33:
-      *outAnyPortionOffscreen = 1;
-      goto LABEL_34;
-    }
-    __asm { vcomiss xmm6, xmm2 }
-    if ( _R13->source < (GfxCmdBufSourceState *)0xFFFFFFFFFFFFD690i64 )
-      goto LABEL_26;
-    __asm { vcomiss xmm8, xmm0 }
-    if ( _R13->source >= (GfxCmdBufSourceState *)0xFFFFFFFFFFFFD690i64 || _R13->source == (GfxCmdBufSourceState *)-10608i64 )
-      goto LABEL_26;
-    __asm { vcomiss xmm7, xmm2 }
-    if ( _R13->source < (GfxCmdBufSourceState *)0xFFFFFFFFFFFFD690i64 )
-      goto LABEL_26;
-    __asm { vcomiss xmm5, xmm0 }
-    if ( _R13->source >= (GfxCmdBufSourceState *)0xFFFFFFFFFFFFD690i64 || _R13->source == (GfxCmdBufSourceState *)-10608i64 )
-LABEL_26:
-      v113 = 1;
     else
-      v113 = 0;
-    __asm
     {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-    }
-    *outAnyPortionOffscreen = v113;
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm4, xmm0, xmm9
-      vcvtsi2ss xmm1, xmm1, rax
-      vmulss  xmm3, xmm1, xmm9
-      vaddss  xmm0, xmm8, xmm2
-      vmulss  xmm1, xmm3, xmm5
-      vsubss  xmm9, xmm3, xmm1
-      vmulss  xmm1, xmm3, xmm7
-      vaddss  xmm2, xmm6, xmm2
-      vmulss  xmm0, xmm0, xmm4; X
-      vsubss  xmm8, xmm3, xmm1
-      vmulss  xmm6, xmm2, xmm4
-    }
-    *(float *)&_XMM0 = roundf(*(float *)&_XMM0);
-    __asm
-    {
-      vmovaps xmm10, xmm0
-      vmovaps xmm0, xmm6; X
-    }
-    *(float *)&_XMM0 = roundf(*(float *)&_XMM0);
-    __asm
-    {
-      vmovaps xmm7, xmm0
-      vmovaps xmm0, xmm9; X
-    }
-    *(float *)&_XMM0 = roundf(*(float *)&_XMM0);
-    __asm
-    {
-      vmovaps xmm6, xmm0
-      vmovaps xmm0, xmm8; X
-    }
-    roundf(*(float *)&_XMM0);
-    __asm
-    {
-      vsubss  xmm2, xmm6, xmm0
-      vsubss  xmm1, xmm7, xmm10
-      vmulss  xmm3, xmm2, xmm1
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm9, [rsp+108h+arg_20]
-      vmovss  xmm10, [rsp+108h+arg_28]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm6, xmm9, xmm0
-      vmovss  xmm0, cs:__real@bf800000
-      vxorps  xmm1, xmm1, xmm1
-      vaddss  xmm8, xmm4, xmm6
-      vcomiss xmm8, xmm0
-      vcvtsi2ss xmm1, xmm1, rax
-      vdivss  xmm3, xmm10, xmm1
-      vsubss  xmm1, xmm4, xmm6
-      vcomiss xmm1, xmm2
-      vaddss  xmm7, xmm5, xmm3
-      vcomiss xmm7, xmm0
-      vsubss  xmm4, xmm5, xmm3
-      vcomiss xmm4, xmm2
-      vcomiss xmm8, xmm2
+      v67 = (float)viewport->width;
+      v68 = widthInPixels / v67;
+      v69 = (float)viewport->height;
+      v70 = heightInPixels / v69;
+      if ( (float)(v46 + (float)(widthInPixels / v67)) >= -1.0 && (float)(v46 - v68) <= 1.0 )
+      {
+        v71 = v48 + v70;
+        if ( (float)(v48 + v70) >= -1.0 )
+        {
+          v72 = v48 - v70;
+          if ( (float)(v47 - v70) <= 1.0 )
+          {
+            v73 = (float)(v46 + v68) >= 1.0 || (float)(v46 - v68) <= -1.0 || v71 >= 1.0 || v72 <= -1.0;
+            *outAnyPortionOffscreen = v73;
+            v51 = v84 * v70;
+            v66 = widthInPixels * heightInPixels;
+            v49 = v84 * v68;
+            goto LABEL_40;
+          }
+        }
+      }
     }
     *outAnyPortionOffscreen = 1;
-    __asm
-    {
-      vmovss  xmm0, [rsp+108h+var_AC]
-      vmulss  xmm12, xmm0, xmm3
-      vmulss  xmm3, xmm9, xmm10
-      vmulss  xmm11, xmm0, xmm6
-    }
-  }
-  __asm { vcvttss2si rax, xmm3 }
-  *outSamplesCovered = _RAX;
-  if ( (_DWORD)_RAX )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r13+0]
-      vmovups [rsp+108h+var_C8], xmm0
-    }
-    _RAX = RB_InitOcclusionQueryBatch(&v179, color, v178);
-    __asm
-    {
-      vmovss  xmm2, [rsp+108h+var_B4]
-      vmovss  xmm1, [rsp+108h+var_B0]
-      vmovss  xmm0, [rsp+108h+var_AC]
-      vmovss  xmm3, [rsp+108h+var_B8]
-      vmovss  dword ptr [rax], xmm3
-      vmovss  dword ptr [rax+4], xmm2
-      vmovss  dword ptr [rax+8], xmm1
-      vmovss  dword ptr [rax+0Ch], xmm0
-      vmovss  dword ptr [rax+20h], xmm3
-      vmovss  dword ptr [rax+24h], xmm2
-      vmovss  dword ptr [rax+28h], xmm1
-      vmovss  dword ptr [rax+2Ch], xmm0
-      vmovss  dword ptr [rax+40h], xmm3
-      vmovss  dword ptr [rax+44h], xmm2
-      vmovss  dword ptr [rax+48h], xmm1
-      vmovss  dword ptr [rax+4Ch], xmm0
-      vmovss  dword ptr [rax+60h], xmm3
-      vmovss  dword ptr [rax+64h], xmm2
-      vmovss  dword ptr [rax+68h], xmm1
-      vmovss  dword ptr [rax+6Ch], xmm0
-      vaddss  xmm0, xmm11, dword ptr [rax]
-      vmovss  dword ptr [rax], xmm0
-      vaddss  xmm1, xmm12, dword ptr [rax+4]
-      vmovss  dword ptr [rax+4], xmm1
-      vaddss  xmm0, xmm11, dword ptr [rax+20h]
-      vmovss  dword ptr [rax+20h], xmm0
-      vmovss  xmm1, dword ptr [rax+24h]
-      vsubss  xmm0, xmm1, xmm12
-      vmovss  dword ptr [rax+24h], xmm0
-      vmovss  xmm2, dword ptr [rax+40h]
-      vsubss  xmm1, xmm2, xmm11
-      vmovss  dword ptr [rax+40h], xmm1
-      vmovss  xmm0, dword ptr [rax+44h]
-      vsubss  xmm1, xmm0, xmm12
-      vmovss  dword ptr [rax+44h], xmm1
-      vmovss  xmm2, dword ptr [rax+60h]
-      vsubss  xmm0, xmm2, xmm11
-      vmovss  dword ptr [rax+60h], xmm0
-      vaddss  xmm1, xmm12, dword ptr [rax+64h]
-      vmovss  dword ptr [rax+64h], xmm1
-    }
-  }
-LABEL_34:
-  __asm
-  {
-    vmovaps xmm11, [rsp+108h+var_88]
-    vmovaps xmm10, [rsp+108h+var_78]
-    vmovaps xmm12, [rsp+108h+var_98]
-  }
-  _R11 = &v187;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 
@@ -2114,131 +1780,102 @@ R_GetLatestFrameDuration
 ==============
 */
 
-float __fastcall R_GetLatestFrameDuration(double _XMM0_8, double _XMM1_8)
+float __fastcall R_GetLatestFrameDuration(__int64 a1, double _XMM1_8)
 {
   unsigned __int64 frameBegin; 
+  unsigned __int64 v6; 
+  unsigned __int64 v12; 
+  unsigned __int64 v18; 
+  unsigned __int64 v24; 
+  float v27; 
 
-  _R9 = s_frameQueries.queryHistory;
   frameBegin = 0i64;
   s_frameQueries.latestQuery.frameBegin = 0i64;
   s_frameQueries.latestQuery.waitBegin = 0i64;
   s_frameQueries.latestQuery.waitEnd = 0i64;
   s_frameQueries.latestQuery.frameEnd = 0i64;
-  __asm
+  _YMM1 = *(__m256i *)s_frameQueries.queryHistory;
+  __asm { vpextrq rax, xmm1, 1 }
+  if ( *(_QWORD *)&_XMM1_8 < _RAX )
   {
-    vmovups ymm1, ymmword ptr [r9]
-    vmovq   r8, xmm1
-    vpextrq rax, xmm1, 1
-  }
-  if ( _R8 < _RAX )
-  {
-    __asm
-    {
-      vextractf128 xmm0, ymm1, 1
-      vmovq   rcx, xmm0
-    }
-    if ( _RAX < _RCX )
+    __asm { vextractf128 xmm0, ymm1, 1 }
+    v6 = _XMM0;
+    if ( _RAX < (unsigned __int64)_XMM0 )
     {
       __asm
       {
         vextractf128 xmm0, ymm1, 1
         vpextrq rax, xmm0, 1
       }
-      if ( _RCX < _RAX )
+      if ( v6 < _RAX && _XMM1_8 != 0.0 )
       {
-        if ( _R8 )
-        {
-          __asm { vmovups ymmword ptr cs:s_frameQueries.latestQuery.frameBegin, ymm1 }
-          frameBegin = s_frameQueries.latestQuery.frameBegin;
-        }
-      }
-    }
-  }
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [r9+20h]
-    vmovq   r8, xmm1
-    vpextrq rax, xmm1, 1
-  }
-  if ( _R8 < _RAX )
-  {
-    __asm
-    {
-      vextractf128 xmm0, ymm1, 1
-      vmovq   rcx, xmm0
-    }
-    if ( _RAX < _RCX )
-    {
-      __asm
-      {
-        vextractf128 xmm0, ymm1, 1
-        vpextrq rax, xmm0, 1
-      }
-      if ( _RCX < _RAX && _R8 > frameBegin )
-      {
-        __asm { vmovups ymmword ptr cs:s_frameQueries.latestQuery.frameBegin, ymm1 }
+        s_frameQueries.latestQuery = *s_frameQueries.queryHistory;
         frameBegin = s_frameQueries.latestQuery.frameBegin;
       }
     }
   }
-  __asm
+  _YMM1 = (__m256i)s_frameQueries.queryHistory[1];
+  __asm { vpextrq rax, xmm1, 1 }
+  if ( *(_QWORD *)&_XMM1_8 < _RAX )
   {
-    vmovups ymm1, ymmword ptr [r9+40h]
-    vmovq   r8, xmm1
-    vpextrq rax, xmm1, 1
-  }
-  if ( _R8 < _RAX )
-  {
-    __asm
-    {
-      vextractf128 xmm0, ymm1, 1
-      vmovq   rcx, xmm0
-    }
-    if ( _RAX < _RCX )
+    __asm { vextractf128 xmm0, ymm1, 1 }
+    v12 = _XMM0;
+    if ( _RAX < (unsigned __int64)_XMM0 )
     {
       __asm
       {
         vextractf128 xmm0, ymm1, 1
         vpextrq rax, xmm0, 1
       }
-      if ( _RCX < _RAX && _R8 > frameBegin )
+      if ( v12 < _RAX && *(_QWORD *)&_XMM1_8 > frameBegin )
       {
-        __asm { vmovups ymmword ptr cs:s_frameQueries.latestQuery.frameBegin, ymm1 }
+        s_frameQueries.latestQuery = s_frameQueries.queryHistory[1];
         frameBegin = s_frameQueries.latestQuery.frameBegin;
       }
     }
   }
-  __asm
+  _YMM1 = (__m256i)s_frameQueries.queryHistory[2];
+  __asm { vpextrq rax, xmm1, 1 }
+  if ( *(_QWORD *)&_XMM1_8 < _RAX )
   {
-    vmovups ymm1, ymmword ptr [r9+60h]
-    vmovq   r8, xmm1
-    vpextrq rax, xmm1, 1
-  }
-  if ( _R8 < _RAX )
-  {
-    __asm
-    {
-      vextractf128 xmm0, ymm1, 1
-      vmovq   rcx, xmm0
-    }
-    if ( _RAX < _RCX )
+    __asm { vextractf128 xmm0, ymm1, 1 }
+    v18 = _XMM0;
+    if ( _RAX < (unsigned __int64)_XMM0 )
     {
       __asm
       {
         vextractf128 xmm0, ymm1, 1
         vpextrq rax, xmm0, 1
       }
-      if ( _RCX < _RAX && _R8 > frameBegin )
-        __asm { vmovups ymmword ptr cs:s_frameQueries.latestQuery.frameBegin, ymm1 }
+      if ( v18 < _RAX && *(_QWORD *)&_XMM1_8 > frameBegin )
+      {
+        s_frameQueries.latestQuery = s_frameQueries.queryHistory[2];
+        frameBegin = s_frameQueries.latestQuery.frameBegin;
+      }
     }
   }
-  __asm
+  _YMM1 = (__m256i)s_frameQueries.queryHistory[3];
+  __asm { vpextrq rax, xmm1, 1 }
+  if ( *(_QWORD *)&_XMM1_8 < _RAX )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm0, xmm0, cs:__real@3a83126f
+    __asm { vextractf128 xmm0, ymm1, 1 }
+    v24 = _XMM0;
+    if ( _RAX < (unsigned __int64)_XMM0 )
+    {
+      __asm
+      {
+        vextractf128 xmm0, ymm1, 1
+        vpextrq rax, xmm0, 1
+      }
+      if ( v24 < _RAX && *(_QWORD *)&_XMM1_8 > frameBegin )
+      {
+        s_frameQueries.latestQuery = s_frameQueries.queryHistory[3];
+        frameBegin = s_frameQueries.latestQuery.frameBegin;
+      }
+    }
   }
-  return *(float *)&_XMM0;
+  v27 = (float)((s_frameQueries.latestQuery.frameEnd + s_frameQueries.latestQuery.waitBegin - s_frameQueries.latestQuery.waitEnd - frameBegin) / 0x64);
+  return v27 * 0.001;
 }
 
 /*
@@ -2246,63 +1883,43 @@ float __fastcall R_GetLatestFrameDuration(double _XMM0_8, double _XMM1_8)
 R_UpdateOverTime
 ==============
 */
-
-float __fastcall R_UpdateOverTime(double fCurrent, double fGoal, int iFadeInTime, int iFadeOutTime, int frametime)
+float R_UpdateOverTime(float fCurrent, float fGoal, int iFadeInTime, int iFadeOutTime, int frametime)
 {
-  bool v11; 
-  bool v12; 
-  __int64 v22; 
+  float v7; 
+  __int64 v9; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, xmm0
-  }
+  v7 = fCurrent;
   if ( frametime < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 967, ASSERT_TYPE_ASSERT, "( ( frametime >= 0 ) )", "( frametime ) = %i", frametime) )
     __debugbreak();
   if ( iFadeInTime < 0 )
   {
-    LODWORD(v22) = iFadeInTime;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 968, ASSERT_TYPE_ASSERT, "( ( iFadeInTime >= 0 ) )", "( iFadeInTime ) = %i", v22) )
+    LODWORD(v9) = iFadeInTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 968, ASSERT_TYPE_ASSERT, "( ( iFadeInTime >= 0 ) )", "( iFadeInTime ) = %i", v9) )
       __debugbreak();
   }
-  v11 = iFadeOutTime == 0;
   if ( iFadeOutTime < 0 )
   {
-    LODWORD(v22) = iFadeOutTime;
-    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 969, ASSERT_TYPE_ASSERT, "( ( iFadeOutTime >= 0 ) )", "( iFadeOutTime ) = %i", v22);
-    v11 = !v12;
-    if ( v12 )
+    LODWORD(v9) = iFadeOutTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_query.cpp", 969, ASSERT_TYPE_ASSERT, "( ( iFadeOutTime >= 0 ) )", "( iFadeOutTime ) = %i", v9) )
       __debugbreak();
   }
-  __asm { vcomiss xmm6, xmm7 }
-  if ( !v11 )
+  if ( fCurrent >= fGoal )
   {
-    if ( iFadeOutTime <= 0 )
+    if ( fCurrent <= fGoal )
+      return v7;
+    if ( iFadeOutTime > 0 )
     {
-      __asm { vmovaps xmm0, xmm7 }
-      goto LABEL_12;
+      v7 = fCurrent - (float)((float)frametime / (float)iFadeOutTime);
+      if ( v7 >= fGoal )
+        return v7;
     }
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, esi
-      vcvtsi2ss xmm0, xmm0, edi
-      vdivss  xmm1, xmm1, xmm0
-      vsubss  xmm6, xmm6, xmm1
-      vcomiss xmm6, xmm7
-    }
+    return fGoal;
   }
-  __asm { vmovaps xmm0, xmm6 }
-LABEL_12:
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  return *(float *)&_XMM0;
+  if ( iFadeInTime <= 0 )
+    return fGoal;
+  v7 = fCurrent + (float)((float)frametime / (float)iFadeInTime);
+  if ( v7 > fGoal )
+    return fGoal;
+  return v7;
 }
 

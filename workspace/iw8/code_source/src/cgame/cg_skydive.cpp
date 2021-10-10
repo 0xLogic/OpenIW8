@@ -187,260 +187,225 @@ CG_Skydive_FovUpdate
 */
 void CG_Skydive_FovUpdate(const LocalClientNum_t localClientNum)
 {
+  cg_t *LocalClientGlobals; 
   int pm_type; 
-  char v8; 
-  bool v9; 
-  bool v10; 
-  char v11; 
+  char v4; 
+  bool v5; 
+  bool v6; 
+  char v7; 
   int parachuteCutTime; 
-  const dvar_t *v13; 
-  int v14; 
-  char v16; 
-  int v17; 
+  const dvar_t *v9; 
+  int v10; 
+  const dvar_t *v11; 
+  float v12; 
+  int v13; 
   bool fovChangeIsForParachuteCut; 
-  bool v20; 
-  bool v21; 
+  float value; 
+  bool v16; 
+  const dvar_t *v17; 
+  const dvar_t *v18; 
+  float FovDeltaCurrent; 
+  const dvar_t *v20; 
+  const char *v21; 
+  const dvar_t *v22; 
+  float v23; 
   const dvar_t *v24; 
-  const char *v25; 
   const dvar_t *v26; 
-  const dvar_t *v27; 
-  const char *v31; 
-  void *retaddr; 
+  const char *v27; 
+  const dvar_t *v29; 
+  float v30; 
+  double v31; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 415, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  pm_type = _RBX->predictedPlayerState.pm_type;
-  v8 = _RBX->predictedPlayerState.skydivePlayerState.state[0];
-  v9 = v8 && v8 != 6;
-  v10 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->predictedPlayerState.pm_flags, ACTIVE, 6u);
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  pm_type = LocalClientGlobals->predictedPlayerState.pm_type;
+  v4 = LocalClientGlobals->predictedPlayerState.skydivePlayerState.state[0];
+  v5 = v4 && v4 != 6;
+  v6 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.pm_flags, ACTIVE, 6u);
   if ( pm_type )
     goto LABEL_14;
-  if ( v9 )
+  if ( v5 )
   {
-    _RBX->skydiveClientState.stillInAirAfterSkydiving = 1;
+    LocalClientGlobals->skydiveClientState.stillInAirAfterSkydiving = 1;
     goto LABEL_15;
   }
-  if ( _RBX->predictedPlayerState.pm_type == 3 || !BG_IsInAir(&_RBX->predictedPlayerState, 0) || v10 )
+  if ( LocalClientGlobals->predictedPlayerState.pm_type == 3 || !BG_IsInAir(&LocalClientGlobals->predictedPlayerState, 0) || v6 )
 LABEL_14:
-    _RBX->skydiveClientState.stillInAirAfterSkydiving = 0;
+    LocalClientGlobals->skydiveClientState.stillInAirAfterSkydiving = 0;
 LABEL_15:
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 375, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 375, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( (unsigned __int8)(_RBX->predictedPlayerState.skydivePlayerState.state[0] - 2) <= 1u )
+  if ( (unsigned __int8)(LocalClientGlobals->predictedPlayerState.skydivePlayerState.state[0] - 2) <= 1u )
   {
-    v11 = 1;
+    v7 = 1;
   }
   else
   {
-    v11 = 0;
-    if ( _RBX->skydiveClientState.wasUsingParachute )
+    v7 = 0;
+    if ( LocalClientGlobals->skydiveClientState.wasUsingParachute )
     {
-      if ( _RBX->skydiveClientState.stillInAirAfterSkydiving )
+      if ( LocalClientGlobals->skydiveClientState.stillInAirAfterSkydiving )
       {
-        _RBX->skydiveClientState.parachuteCutTime = _RBX->time;
+        LocalClientGlobals->skydiveClientState.parachuteCutTime = LocalClientGlobals->time;
 LABEL_26:
-        _RBX->skydiveClientState.parachuteCutStateIsActive = 0;
+        LocalClientGlobals->skydiveClientState.parachuteCutStateIsActive = 0;
         goto LABEL_27;
       }
 LABEL_25:
-      _RBX->skydiveClientState.parachuteCutTime = 0;
+      LocalClientGlobals->skydiveClientState.parachuteCutTime = 0;
       goto LABEL_26;
     }
   }
-  if ( !_RBX->skydiveClientState.stillInAirAfterSkydiving || v11 )
+  if ( !LocalClientGlobals->skydiveClientState.stillInAirAfterSkydiving || v7 )
     goto LABEL_25;
 LABEL_27:
-  parachuteCutTime = _RBX->skydiveClientState.parachuteCutTime;
+  parachuteCutTime = LocalClientGlobals->skydiveClientState.parachuteCutTime;
   if ( parachuteCutTime > 0 )
   {
-    v13 = DVARINT_cg_skydive_parachute_cut_look_down_grace_period;
-    v14 = _RBX->time - parachuteCutTime;
+    v9 = DVARINT_cg_skydive_parachute_cut_look_down_grace_period;
+    v10 = LocalClientGlobals->time - parachuteCutTime;
     if ( !DVARINT_cg_skydive_parachute_cut_look_down_grace_period && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_parachute_cut_look_down_grace_period") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    if ( v14 <= v13->current.integer )
+    Dvar_CheckFrontendServerThread(v9);
+    if ( v10 <= v9->current.integer )
     {
-      _RBP = DVARFLT_cg_skydive_parachute_cut_pitch_threshold;
-      __asm { vmovss  xmm6, dword ptr [rbx+1E0h] }
+      v11 = DVARFLT_cg_skydive_parachute_cut_pitch_threshold;
+      v12 = LocalClientGlobals->predictedPlayerState.viewangles.v[0];
       if ( !DVARFLT_cg_skydive_parachute_cut_pitch_threshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_parachute_cut_pitch_threshold") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBP);
-      __asm { vcomiss xmm6, dword ptr [rbp+28h] }
-      if ( !(v16 | v21) )
-        _RBX->skydiveClientState.parachuteCutStateIsActive = 1;
+      Dvar_CheckFrontendServerThread(v11);
+      if ( v12 > v11->current.value )
+        LocalClientGlobals->skydiveClientState.parachuteCutStateIsActive = 1;
     }
   }
-  _RBX->skydiveClientState.wasUsingParachute = v11;
-  v17 = _RBX->predictedPlayerState.pm_type;
-  fovChangeIsForParachuteCut = _RBX->skydiveClientState.fovChangeIsForParachuteCut;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v20 = v17 == 5 && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&_RBX->predictedPlayerState.otherFlags, (POtherFlagsMP)33);
-  v21 = v17 == 3;
-  if ( v17 != 3 )
+  LocalClientGlobals->skydiveClientState.wasUsingParachute = v7;
+  v13 = LocalClientGlobals->predictedPlayerState.pm_type;
+  fovChangeIsForParachuteCut = LocalClientGlobals->skydiveClientState.fovChangeIsForParachuteCut;
+  value = 0.0;
+  v16 = v13 == 5 && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagStrict(&LocalClientGlobals->predictedPlayerState.otherFlags, (POtherFlagsMP)33);
+  if ( v13 != 3 && !v16 && LocalClientGlobals->predictedPlayerState.weapCommon.fWeaponPosFrac <= 0.0 )
   {
-    v21 = !v20;
-    if ( !v20 )
+    if ( CG_Skydive_IsSuperDiveActive(localClientNum) )
     {
-      __asm { vcomiss xmm6, dword ptr [rbx+738h] }
-      if ( CG_Skydive_IsSuperDiveActive(localClientNum) )
-      {
-        _RBX->skydiveClientState.fovChangeIsForParachuteCut = 0;
-        _RSI = DVARFLT_cg_skydive_super_dive_fov_delta;
-        if ( !DVARFLT_cg_skydive_super_dive_fov_delta && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_super_dive_fov_delta") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(_RSI);
-        v21 = !_RBX->skydiveClientState.parachuteCutStateIsActive;
-        __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-        if ( !_RBX->skydiveClientState.parachuteCutStateIsActive )
-          _RBX->skydiveClientState.parachuteCutStateIsActive = 1;
-      }
-      else
-      {
-        v21 = !_RBX->skydiveClientState.parachuteCutStateIsActive;
-        if ( _RBX->skydiveClientState.parachuteCutStateIsActive )
-        {
-          _RBX->skydiveClientState.fovChangeIsForParachuteCut = 1;
-          _RSI = DVARFLT_cg_skydive_parachute_cut_fov_delta;
-          if ( !DVARFLT_cg_skydive_parachute_cut_fov_delta && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_parachute_cut_fov_delta") )
-            __debugbreak();
-          Dvar_CheckFrontendServerThread(_RSI);
-          __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-        }
-      }
+      LocalClientGlobals->skydiveClientState.fovChangeIsForParachuteCut = 0;
+      v17 = DVARFLT_cg_skydive_super_dive_fov_delta;
+      if ( !DVARFLT_cg_skydive_super_dive_fov_delta && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_super_dive_fov_delta") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v17);
+      value = v17->current.value;
+      if ( !LocalClientGlobals->skydiveClientState.parachuteCutStateIsActive )
+        LocalClientGlobals->skydiveClientState.parachuteCutStateIsActive = 1;
+    }
+    else if ( LocalClientGlobals->skydiveClientState.parachuteCutStateIsActive )
+    {
+      LocalClientGlobals->skydiveClientState.fovChangeIsForParachuteCut = 1;
+      v18 = DVARFLT_cg_skydive_parachute_cut_fov_delta;
+      if ( !DVARFLT_cg_skydive_parachute_cut_fov_delta && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_parachute_cut_fov_delta") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v18);
+      value = v18->current.value;
     }
   }
-  __asm { vucomiss xmm6, dword ptr [rbx+0BA1B0h] }
-  if ( !v21 )
+  if ( value != LocalClientGlobals->skydiveClientState.fovChangeGoal )
   {
-    *(float *)&_XMM0 = CG_Skydive_GetFovDeltaCurrent(_RBX, &_RBX->skydiveClientState);
-    __asm
+    FovDeltaCurrent = CG_Skydive_GetFovDeltaCurrent(LocalClientGlobals, &LocalClientGlobals->skydiveClientState);
+    LocalClientGlobals->skydiveClientState.fovChangeStart = FovDeltaCurrent;
+    LocalClientGlobals->skydiveClientState.fovChangeGoal = value;
+    if ( value <= FovDeltaCurrent )
     {
-      vcomiss xmm6, xmm0
-      vmovss  dword ptr [rbx+0BA1B4h], xmm0
-      vmovss  dword ptr [rbx+0BA1B0h], xmm6
-    }
-    if ( v16 | v21 )
-    {
-      if ( !_RBX->skydiveClientState.stillInAirAfterSkydiving )
+      if ( !LocalClientGlobals->skydiveClientState.stillInAirAfterSkydiving )
       {
-        v26 = DVARINT_cg_skydive_land_fov_blend_out_time;
+        v22 = DVARINT_cg_skydive_land_fov_blend_out_time;
         if ( !DVARINT_cg_skydive_land_fov_blend_out_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_land_fov_blend_out_time") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v26);
-        _RBX->skydiveClientState.fovChangeLerpTime = v26->current.integer;
+        Dvar_CheckFrontendServerThread(v22);
+        LocalClientGlobals->skydiveClientState.fovChangeLerpTime = v22->current.integer;
       }
       if ( fovChangeIsForParachuteCut )
       {
-        v24 = DVARINT_cg_skydive_parachute_cut_fov_blend_out_time;
+        v20 = DVARINT_cg_skydive_parachute_cut_fov_blend_out_time;
         if ( DVARINT_cg_skydive_parachute_cut_fov_blend_out_time )
-          goto LABEL_73;
-        v25 = "cg_skydive_parachute_cut_fov_blend_out_time";
+          goto LABEL_74;
+        v21 = "cg_skydive_parachute_cut_fov_blend_out_time";
       }
       else
       {
-        v24 = DVARINT_cg_skydive_super_dive_fov_blend_out_time;
+        v20 = DVARINT_cg_skydive_super_dive_fov_blend_out_time;
         if ( DVARINT_cg_skydive_super_dive_fov_blend_out_time )
-          goto LABEL_73;
-        v25 = "cg_skydive_super_dive_fov_blend_out_time";
+          goto LABEL_74;
+        v21 = "cg_skydive_super_dive_fov_blend_out_time";
       }
     }
     else
     {
-      if ( _RBX->skydiveClientState.fovChangeIsForParachuteCut )
+      if ( LocalClientGlobals->skydiveClientState.fovChangeIsForParachuteCut )
       {
-        v24 = DVARINT_cg_skydive_parachute_cut_fov_blend_in_time;
+        v20 = DVARINT_cg_skydive_parachute_cut_fov_blend_in_time;
         if ( !DVARINT_cg_skydive_parachute_cut_fov_blend_in_time )
         {
-          v25 = "cg_skydive_parachute_cut_fov_blend_in_time";
-          goto LABEL_71;
+          v21 = "cg_skydive_parachute_cut_fov_blend_in_time";
+          goto LABEL_72;
         }
-LABEL_73:
-        Dvar_CheckFrontendServerThread(v24);
-        _RBX->skydiveClientState.fovChangeLerpTime = v24->current.integer;
-        _RBX->skydiveClientState.fovChangeTime = _RBX->time;
-        goto LABEL_74;
-      }
-      v24 = DVARINT_cg_skydive_super_dive_fov_blend_in_time;
-      if ( DVARINT_cg_skydive_super_dive_fov_blend_in_time )
-        goto LABEL_73;
-      v25 = "cg_skydive_super_dive_fov_blend_in_time";
-    }
-LABEL_71:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v25) )
-      __debugbreak();
-    goto LABEL_73;
-  }
 LABEL_74:
-  *(float *)&_XMM0 = CG_Skydive_GetFovDeltaCurrent(_RBX, &_RBX->skydiveClientState);
-  __asm { vmovss  dword ptr [rbx+0BA1B8h], xmm0 }
-  v27 = DVARFLT_cg_skydive_super_dive_fov_delta;
-  __asm { vmovaps xmm6, xmm0 }
+        Dvar_CheckFrontendServerThread(v20);
+        LocalClientGlobals->skydiveClientState.fovChangeLerpTime = v20->current.integer;
+        LocalClientGlobals->skydiveClientState.fovChangeTime = LocalClientGlobals->time;
+        goto LABEL_75;
+      }
+      v20 = DVARINT_cg_skydive_super_dive_fov_blend_in_time;
+      if ( DVARINT_cg_skydive_super_dive_fov_blend_in_time )
+        goto LABEL_74;
+      v21 = "cg_skydive_super_dive_fov_blend_in_time";
+    }
+LABEL_72:
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v21) )
+      __debugbreak();
+    goto LABEL_74;
+  }
+LABEL_75:
+  v23 = CG_Skydive_GetFovDeltaCurrent(LocalClientGlobals, &LocalClientGlobals->skydiveClientState);
+  LocalClientGlobals->skydiveClientState.fovChangeThisFrame = v23;
+  v24 = DVARFLT_cg_skydive_super_dive_fov_delta;
   if ( !DVARFLT_cg_skydive_super_dive_fov_delta && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_super_dive_fov_delta") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v27);
-  __asm { vdivss  xmm6, xmm6, dword ptr [rsi+28h] }
-  if ( !_RBX->predictedPlayerState.pm_type )
+  Dvar_CheckFrontendServerThread(v24);
+  *(float *)&_XMM6 = v23 / v24->current.value;
+  if ( !LocalClientGlobals->predictedPlayerState.pm_type )
   {
-    if ( _RBX->predictedPlayerState.skydivePlayerState.state[0] == 1 )
+    if ( LocalClientGlobals->predictedPlayerState.skydivePlayerState.state[0] == 1 )
     {
-      _RDI = DVARFLT_cg_skydive_rmb_freefall_weight_min;
+      v26 = DVARFLT_cg_skydive_rmb_freefall_weight_min;
       if ( !DVARFLT_cg_skydive_rmb_freefall_weight_min )
       {
-        v31 = "cg_skydive_rmb_freefall_weight_min";
-        goto LABEL_84;
+        v27 = "cg_skydive_rmb_freefall_weight_min";
+        goto LABEL_85;
       }
-      goto LABEL_86;
+      goto LABEL_87;
     }
-    if ( _RBX->skydiveClientState.parachuteCutTime > 0 )
+    if ( LocalClientGlobals->skydiveClientState.parachuteCutTime > 0 )
     {
-      _RDI = DVARFLT_cg_skydive_rmb_parachute_cut_weight_min;
+      v26 = DVARFLT_cg_skydive_rmb_parachute_cut_weight_min;
       if ( !DVARFLT_cg_skydive_rmb_parachute_cut_weight_min )
       {
-        v31 = "cg_skydive_rmb_parachute_cut_weight_min";
-LABEL_84:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v31) )
+        v27 = "cg_skydive_rmb_parachute_cut_weight_min";
+LABEL_85:
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v27) )
           __debugbreak();
       }
-LABEL_86:
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vmaxss  xmm6, xmm0, xmm6
-      }
+LABEL_87:
+      Dvar_CheckFrontendServerThread(v26);
+      _XMM0 = v26->current.unsignedInt;
+      __asm { vmaxss  xmm6, xmm0, xmm6 }
     }
   }
-  _RDI = DVARFLT_cg_skydive_rmb_track_speed;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+65E4h]
-    vmulss  xmm7, xmm0, cs:__real@3a83126f
-  }
+  v29 = DVARFLT_cg_skydive_rmb_track_speed;
+  v30 = (float)LocalClientGlobals->frametime * 0.001;
   if ( !DVARFLT_cg_skydive_rmb_track_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_rmb_track_speed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+28h]; rate
-    vmovss  xmm1, dword ptr [rbx+0BA1ACh]; cur
-    vmovaps xmm3, xmm7; deltaTime
-    vmovaps xmm0, xmm6; tgt
-  }
-  *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_38]
-    vmovaps xmm7, [rsp+88h+var_48]
-    vmovss  dword ptr [rbx+0BA1ACh], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v29);
+  v31 = DiffTrack(*(float *)&_XMM6, LocalClientGlobals->skydiveClientState.rmbWeight, v29->current.value, v30);
+  LocalClientGlobals->skydiveClientState.rmbWeight = *(float *)&v31;
 }
 
 /*
@@ -450,113 +415,76 @@ CG_Skydive_GetCameraShakeVelocity
 */
 float CG_Skydive_GetCameraShakeVelocity(const LocalClientNum_t localClientNum, const playerState_s *ps)
 {
-  int v9; 
+  cg_t *LocalClientGlobals; 
+  int v5; 
+  const dvar_t *v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   const dvar_t *v10; 
-  bool v28; 
+  float v11; 
+  float v12; 
+  double v13; 
+  bool v14; 
+  bool v15; 
+  const dvar_t *v16; 
+  float v17; 
+  float value; 
+  const dvar_t *v19; 
+  float speedForCameraShake; 
 
-  _RDI = ps;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 578, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 579, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 579, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 582, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 582, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  v9 = _RBX->time - _RBX->skydiveClientState.parachuteCutTime;
-  v10 = DVARINT_cg_skydive_parachute_cut_cam_shake_min_time;
+  v5 = LocalClientGlobals->time - LocalClientGlobals->skydiveClientState.parachuteCutTime;
+  v6 = DVARINT_cg_skydive_parachute_cut_cam_shake_min_time;
   if ( !DVARINT_cg_skydive_parachute_cut_cam_shake_min_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_parachute_cut_cam_shake_min_time") )
     __debugbreak();
-  __asm
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v5 <= v6->current.integer || ps->skydivePlayerState.state[0] == 5 )
   {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-  }
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v9 <= v10->current.integer || _RDI->skydivePlayerState.state[0] == 5 )
-  {
-    _RDI = DVARFLT_cg_skydive_parachute_cut_cam_shake_blend_in_speed;
-    __asm
-    {
-      vmovaps [rsp+88h+var_48], xmm8
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+65E4h]
-      vmulss  xmm8, xmm0, cs:__real@3a83126f
-    }
+    v16 = DVARFLT_cg_skydive_parachute_cut_cam_shake_blend_in_speed;
+    v17 = (float)LocalClientGlobals->frametime * 0.001;
     if ( !DVARFLT_cg_skydive_parachute_cut_cam_shake_blend_in_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_parachute_cut_cam_shake_blend_in_speed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-    _RDI = DVARFLT_cg_skydive_parachute_cut_cam_shake_fake_speed;
-    __asm { vmovss  xmm7, dword ptr [rbx+0BA1A8h] }
+    Dvar_CheckFrontendServerThread(v16);
+    value = v16->current.value;
+    v19 = DVARFLT_cg_skydive_parachute_cut_cam_shake_fake_speed;
+    speedForCameraShake = LocalClientGlobals->skydiveClientState.speedForCameraShake;
     if ( !DVARFLT_cg_skydive_parachute_cut_cam_shake_fake_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_parachute_cut_cam_shake_fake_speed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]; tgt
-      vmovaps xmm3, xmm8; deltaTime
-      vmovaps xmm2, xmm6; rate
-      vmovaps xmm1, xmm7; cur
-    }
-    *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm
-    {
-      vmovaps xmm8, [rsp+88h+var_48]
-      vmovss  dword ptr [rbx+0BA1A8h], xmm0
-    }
-    _RBX->skydiveClientState.waitForBlendIntoNormalVelocityForCameraShake = 1;
+    Dvar_CheckFrontendServerThread(v19);
+    v13 = DiffTrack(v19->current.value, speedForCameraShake, value, v17);
+    LocalClientGlobals->skydiveClientState.speedForCameraShake = *(float *)&v13;
+    LocalClientGlobals->skydiveClientState.waitForBlendIntoNormalVelocityForCameraShake = 1;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+3Ch]
-      vmovss  xmm2, dword ptr [rdi+40h]
-      vmovss  xmm3, dword ptr [rdi+44h]
-    }
-    _RDI = DVARFLT_cg_skydive_parachute_cut_cam_shake_blend_out_speed;
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+65E4h]
-      vmulss  xmm7, xmm0, cs:__real@3a83126f
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm6, xmm2, xmm2
-    }
+    v7 = ps->velocity.v[0];
+    v8 = ps->velocity.v[1];
+    v9 = ps->velocity.v[2];
+    v10 = DVARFLT_cg_skydive_parachute_cut_cam_shake_blend_out_speed;
+    v11 = (float)LocalClientGlobals->frametime * 0.001;
+    v12 = fsqrt((float)((float)(v7 * v7) + (float)(v8 * v8)) + (float)(v9 * v9));
     if ( !DVARFLT_cg_skydive_parachute_cut_cam_shake_blend_out_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_parachute_cut_cam_shake_blend_out_speed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
+    Dvar_CheckFrontendServerThread(v10);
+    v13 = DiffTrack(v12, LocalClientGlobals->skydiveClientState.speedForCameraShake, v10->current.value, v11);
+    v14 = !LocalClientGlobals->skydiveClientState.waitForBlendIntoNormalVelocityForCameraShake;
+    LocalClientGlobals->skydiveClientState.speedForCameraShake = *(float *)&v13;
+    if ( !v14 )
     {
-      vmovss  xmm2, dword ptr [rdi+28h]; rate
-      vmovss  xmm1, dword ptr [rbx+0BA1A8h]; cur
-      vmovaps xmm3, xmm7; deltaTime
-      vmovaps xmm0, xmm6; tgt
-    }
-    *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    v28 = !_RBX->skydiveClientState.waitForBlendIntoNormalVelocityForCameraShake;
-    __asm { vmovss  dword ptr [rbx+0BA1A8h], xmm0 }
-    if ( !v28 )
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm0, xmm6
-        vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm0, cs:VEL_CATCH_UP_THRESHOLD
-        vmovss  xmm0, dword ptr [rbx+0BA1A8h]
-      }
+      v15 = COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v13 - v12) & _xmm) < VEL_CATCH_UP_THRESHOLD;
+      *(float *)&v13 = LocalClientGlobals->skydiveClientState.speedForCameraShake;
+      if ( v15 )
+        LocalClientGlobals->skydiveClientState.waitForBlendIntoNormalVelocityForCameraShake = 0;
     }
   }
-  __asm
-  {
-    vmovaps xmm7, [rsp+88h+var_38]
-    vmovaps xmm6, [rsp+88h+var_28]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&v13;
 }
 
 /*
@@ -607,21 +535,17 @@ CG_Skydive_GetFovDelta
 */
 float CG_Skydive_GetFovDelta(const LocalClientNum_t localClientNum)
 {
-  int v7; 
+  float result; 
+  int v4; 
 
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v7 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v7) )
+    v4 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 531, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v4) )
       __debugbreak();
   }
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+0BA1B8h]
-    vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-  }
-  return *(float *)&_XMM0;
+  LODWORD(result) = LODWORD(CG_GetLocalClientGlobals(localClientNum)->skydiveClientState.fovChangeThisFrame) ^ _xmm;
+  return result;
 }
 
 /*
@@ -631,43 +555,26 @@ CG_Skydive_GetFovDeltaCurrent
 */
 float CG_Skydive_GetFovDeltaCurrent(const cg_t *cgameGlob, const SkydiveClientState *skydiveClientState)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm7 }
+  int fovChangeLerpTime; 
+  __int128 v5; 
+  float v8; 
+
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 367, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
-  if ( skydiveClientState->fovChangeLerpTime <= 0 )
+  fovChangeLerpTime = skydiveClientState->fovChangeLerpTime;
+  if ( fovChangeLerpTime <= 0 )
   {
-    __asm { vmovaps xmm3, xmm7 }
+    *(float *)&_XMM3 = FLOAT_1_0;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, eax
-      vcvtsi2ss xmm0, xmm0, ecx
-      vdivss  xmm2, xmm1, xmm0
-      vminss  xmm3, xmm2, xmm7
-    }
+    v5 = 0i64;
+    *(float *)&v5 = (float)(cgameGlob->time - skydiveClientState->fovChangeTime) / (float)fovChangeLerpTime;
+    _XMM2 = v5;
+    __asm { vminss  xmm3, xmm2, xmm7 }
   }
-  __asm
-  {
-    vsubss  xmm0, xmm3, cs:__real@3f000000
-    vmulss  xmm0, xmm0, cs:__real@40490fdb; X
-  }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vaddss  xmm1, xmm0, xmm7
-    vmulss  xmm3, xmm1, cs:__real@3f000000
-    vmulss  xmm1, xmm3, dword ptr [rbx+50h]
-    vsubss  xmm0, xmm7, xmm3
-    vmulss  xmm2, xmm0, dword ptr [rbx+54h]
-    vmovaps xmm7, [rsp+48h+var_18]
-    vaddss  xmm0, xmm2, xmm1
-  }
-  return *(float *)&_XMM0;
+  v8 = sinf_0((float)(*(float *)&_XMM3 - 0.5) * 3.1415927);
+  return (float)((float)(1.0 - (float)((float)(v8 + 1.0) * 0.5)) * skydiveClientState->fovChangeStart) + (float)((float)((float)(v8 + 1.0) * 0.5) * skydiveClientState->fovChangeGoal);
 }
 
 /*
@@ -678,23 +585,24 @@ CG_Skydive_GetTurnRates
 void CG_Skydive_GetTurnRates(const LocalClientNum_t localClientNum, float *outPitchRate, float *outYawRate)
 {
   cg_t *LocalClientGlobals; 
+  const SuitDef *SuitDef; 
+  float skydive_canopyPitchSpeed; 
+  float skydive_canopyYawSpeed; 
   __int64 v10; 
 
-  _RDI = outYawRate;
-  _RSI = outPitchRate;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 22, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 23, ASSERT_TYPE_ASSERT, "(outPitchRate)", (const char *)&queryFormat, "outPitchRate") )
+  if ( !outPitchRate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 23, ASSERT_TYPE_ASSERT, "(outPitchRate)", (const char *)&queryFormat, "outPitchRate") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 24, ASSERT_TYPE_ASSERT, "(outYawRate)", (const char *)&queryFormat, "outYawRate") )
+  if ( !outYawRate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 24, ASSERT_TYPE_ASSERT, "(outYawRate)", (const char *)&queryFormat, "outYawRate") )
     __debugbreak();
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 27, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   if ( !BG_Skydive_IsSkydiving(&LocalClientGlobals->predictedPlayerState) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 31, ASSERT_TYPE_ASSERT, "(BG_Skydive_IsSkydiving( ps ))", (const char *)&queryFormat, "BG_Skydive_IsSkydiving( ps )") )
     __debugbreak();
-  _RBX = BG_GetSuitDef(LocalClientGlobals->predictedPlayerState.suitIndex);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 34, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+  SuitDef = BG_GetSuitDef(LocalClientGlobals->predictedPlayerState.suitIndex);
+  if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 34, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
   switch ( LocalClientGlobals->predictedPlayerState.skydivePlayerState.state[0] )
   {
@@ -705,29 +613,20 @@ void CG_Skydive_GetTurnRates(const LocalClientNum_t localClientNum, float *outPi
     case 2:
     case 3:
     case 4:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+580h]; jumptable 00000001403EAB8D cases 2-4
-        vmovss  xmm1, dword ptr [rbx+584h]
-      }
+      skydive_canopyPitchSpeed = SuitDef->skydive_canopyPitchSpeed;
+      skydive_canopyYawSpeed = SuitDef->skydive_canopyYawSpeed;
       break;
     default:
       LODWORD(v10) = (unsigned __int8)LocalClientGlobals->predictedPlayerState.skydivePlayerState.state[0];
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 57, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled skydive state %d while retrieving suit field values.", v10) )
         __debugbreak();
 $LN22_10:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+434h]; jumptable 00000001403EAB8D cases 1,5,6
-        vmovss  xmm0, dword ptr [rbx+430h]
-      }
+      skydive_canopyYawSpeed = SuitDef->skydive_freefallYawSpeed;
+      skydive_canopyPitchSpeed = SuitDef->skydive_freefallPitchSpeed;
       break;
   }
-  __asm
-  {
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  dword ptr [rdi], xmm1
-  }
+  *outPitchRate = skydive_canopyPitchSpeed;
+  *outYawRate = skydive_canopyYawSpeed;
 }
 
 /*
@@ -800,9 +699,11 @@ bool CG_Skydive_IsSuperDiveActive(const LocalClientNum_t localClientNum)
   int v8; 
   int v9; 
   bool result; 
+  __int64 v11; 
+  char *v12; 
   char *fmt; 
-  char v19[272]; 
-  int v20; 
+  char v14[272]; 
+  int v15; 
 
   v2 = 2i64;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 541, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
@@ -818,7 +719,7 @@ bool CG_Skydive_IsSuperDiveActive(const LocalClientNum_t localClientNum)
   v7 = ClActiveClient::GetClient((const LocalClientNum_t)LocalClientGlobals->localClientNum);
   v8 = ClActiveClient_GetCmdNumber(v7);
   v9 = v8;
-  v20 = v8;
+  v15 = v8;
   if ( CmdNumber > v8 )
   {
     LODWORD(fmt) = v8;
@@ -826,41 +727,30 @@ bool CG_Skydive_IsSuperDiveActive(const LocalClientNum_t localClientNum)
   }
   if ( CmdNumber > v9 - 128 && CmdNumber > 0 )
   {
-    _RBX = &v7->cmds[CmdNumber & 0x7F];
-    memset(&v20, 0, sizeof(v20));
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
+    v11 = (__int64)&v7->cmds[CmdNumber & 0x7F];
+    memset(&v15, 0, sizeof(v15));
+    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
       __debugbreak();
-    _RAX = v19;
+    v12 = v14;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rax], ymm0
-        vmovups ymm0, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rax+20h], ymm0
-        vmovups ymm0, ymmword ptr [rbx+40h]
-        vmovups ymmword ptr [rax+40h], ymm0
-        vmovups xmm0, xmmword ptr [rbx+60h]
-        vmovups xmmword ptr [rax+60h], xmm0
-      }
-      _RAX += 128;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx+70h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
-      _RBX = (usercmd_s *)((char *)_RBX + 128);
+      *(__m256i *)v12 = *(__m256i *)v11;
+      *((__m256i *)v12 + 1) = *(__m256i *)(v11 + 32);
+      *((__m256i *)v12 + 2) = *(__m256i *)(v11 + 64);
+      *((_OWORD *)v12 + 6) = *(_OWORD *)(v11 + 96);
+      v12 += 128;
+      *((_OWORD *)v12 - 1) = *(_OWORD *)(v11 + 112);
+      v11 += 128i64;
       --v2;
     }
     while ( v2 );
-    *(_QWORD *)_RAX = _RBX->buttons;
-    return BG_Skydive_IsSuperDiveActive(p_predictedPlayerState, v19[156], v19[157]);
+    *(_QWORD *)v12 = *(_QWORD *)v11;
+    return BG_Skydive_IsSuperDiveActive(p_predictedPlayerState, v14[156], v14[157]);
   }
   else
   {
     result = 0;
-    memset(&v20, 0, sizeof(v20));
+    memset(&v15, 0, sizeof(v15));
   }
   return result;
 }
@@ -872,158 +762,63 @@ CG_Skydive_PlaySounds
 */
 void CG_Skydive_PlaySounds(cg_t *cgameGlob, const int entitynum, const vec3_t *origin, SkydivePhaseSoundState *phaseSoundState, SndAliasList *ambientSoundAlias, const float ambientMinVolume, const float ambientMaxVolume, const float ambientMinPitch, const float ambientMaxPitch, const float ambientMinGroundSpeed, const float ambientMaxGroundSpeed, const float ambientMinFallSpeed, const float ambientMaxFallSpeed, SndAliasList *highSpeedSoundAlias, const float highSpeedMinVolume, const float highSpeedMaxVolume, const float highSpeedMinPitch, const float highSpeedMaxPitch, const float highSpeedMinGroundSpeed, const float highSpeedMaxGroundSpeed, const float highSpeedMinFallSpeed, const float highSpeedMaxFallSpeed, const float ambientGroundSpeedWeight, const float highSpeedGroundSpeedWeight, const float groundSpeed, const float fallSpeed, bool *outStopAmbientSound, bool *outStopHighSpeedSound)
 {
-  LocalClientNum_t localClientNum; 
   CgSoundSystem *SoundSystem; 
-  char v82; 
-  char v83; 
-  int v96; 
-  int v97; 
-  int v98; 
-  int v99; 
-  char v102; 
-  void *retaddr; 
+  double v32; 
+  double v33; 
+  float v34; 
+  double v35; 
+  double v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  double v40; 
+  double v41; 
+  float v42; 
+  double v43; 
+  double v44; 
+  float v45; 
+  float v46; 
+  float v47; 
 
-  _RAX = &retaddr;
-  _RBX = phaseSoundState;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
   *outStopAmbientSound = 1;
   *outStopHighSpeedSound = 1;
   *(_QWORD *)&phaseSoundState->ambientVolume = 0i64;
   *(_QWORD *)&phaseSoundState->highSpeedVolume = 0i64;
-  localClientNum = cgameGlob->localClientNum;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
-  SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
-  __asm { vmovss  xmm9, cs:__real@3f800000 }
+  SoundSystem = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)cgameGlob->localClientNum);
   if ( ambientSoundAlias )
   {
-    __asm
-    {
-      vmovss  xmm2, [rsp+98h+ambientMaxGroundSpeed]; max
-      vmovss  xmm1, [rsp+98h+ambientMinGroundSpeed]; min
-      vmovss  xmm0, [rsp+98h+groundSpeed]; val
-    }
     *outStopAmbientSound = 0;
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm1, [rsp+98h+ambientMaxGroundSpeed]; max
-      vmovaps xmm2, xmm0; dist
-      vmovss  xmm0, [rsp+98h+ambientMinGroundSpeed]; min
-    }
-    *(double *)&_XMM0 = I_fdistnormalized(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, [rsp+98h+ambientMaxFallSpeed]; max
-      vmovss  xmm1, [rsp+98h+ambientMinFallSpeed]; min
-      vmovaps xmm8, xmm0
-      vmovss  xmm0, [rsp+98h+fallSpeed]; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm1, [rsp+98h+ambientMaxFallSpeed]; max
-      vmovaps xmm2, xmm0; dist
-      vmovss  xmm0, [rsp+98h+ambientMinFallSpeed]; min
-    }
-    *(double *)&_XMM0 = I_fdistnormalized(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmulss  xmm1, xmm8, [rsp+98h+ambientGroundSpeedWeight]
-      vmovaps xmm2, xmm0
-      vsubss  xmm0, xmm9, [rsp+98h+ambientGroundSpeedWeight]
-      vmulss  xmm2, xmm2, xmm0
-      vaddss  xmm4, xmm2, xmm1
-      vmulss  xmm0, xmm4, [rsp+98h+ambientMaxVolume]
-      vsubss  xmm3, xmm9, xmm4
-      vmulss  xmm1, xmm3, [rsp+98h+ambientMinVolume]
-      vmulss  xmm2, xmm3, [rsp+98h+ambientMinPitch]
-      vaddss  xmm5, xmm1, xmm0
-      vmulss  xmm0, xmm4, [rsp+98h+ambientMaxPitch]
-      vaddss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rbx+4], xmm1
-      vmovss  dword ptr [rbx], xmm5
-      vmovss  [rsp+98h+var_70], xmm1
-      vmovss  [rsp+98h+var_78], xmm5
-    }
-    ((void (__fastcall *)(CgSoundSystem *, _QWORD, const vec3_t *, SndAliasList *, int, int, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)entitynum, origin, ambientSoundAlias, v96, v98, 0);
-    _RBX->stoppedAmbientSound = 0;
+    v32 = I_fclamp(groundSpeed, ambientMinGroundSpeed, ambientMaxGroundSpeed);
+    v33 = I_fdistnormalized(ambientMinGroundSpeed, ambientMaxGroundSpeed, *(float *)&v32);
+    v34 = *(float *)&v33;
+    v35 = I_fclamp(fallSpeed, ambientMinFallSpeed, ambientMaxFallSpeed);
+    v36 = I_fdistnormalized(ambientMinFallSpeed, ambientMaxFallSpeed, *(float *)&v35);
+    v37 = (float)(*(float *)&v36 * (float)(1.0 - ambientGroundSpeedWeight)) + (float)(v34 * ambientGroundSpeedWeight);
+    v38 = (float)(1.0 - v37) * ambientMinPitch;
+    v39 = (float)((float)(1.0 - v37) * ambientMinVolume) + (float)(v37 * ambientMaxVolume);
+    phaseSoundState->ambientPitch = v38 + (float)(v37 * ambientMaxPitch);
+    phaseSoundState->ambientVolume = v39;
+    ((void (__fastcall *)(CgSoundSystem *, _QWORD, const vec3_t *, SndAliasList *, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)entitynum, origin, ambientSoundAlias, LODWORD(v39), v38 + (float)(v37 * ambientMaxPitch), 0);
+    phaseSoundState->stoppedAmbientSound = 0;
   }
   if ( highSpeedSoundAlias )
   {
-    __asm
+    v40 = I_fclamp(groundSpeed, highSpeedMinGroundSpeed, highSpeedMaxGroundSpeed);
+    v41 = I_fdistnormalized(highSpeedMinGroundSpeed, highSpeedMaxGroundSpeed, *(float *)&v40);
+    v42 = *(float *)&v41;
+    v43 = I_fclamp(fallSpeed, highSpeedMinFallSpeed, highSpeedMaxFallSpeed);
+    v44 = I_fdistnormalized(highSpeedMinFallSpeed, highSpeedMaxFallSpeed, *(float *)&v43);
+    v45 = (float)(*(float *)&v44 * (float)(1.0 - highSpeedGroundSpeedWeight)) + (float)(v42 * highSpeedGroundSpeedWeight);
+    if ( v45 > 0.0 )
     {
-      vmovss  xmm2, [rsp+98h+highSpeedMaxGroundSpeed]; max
-      vmovss  xmm1, [rsp+98h+highSpeedMinGroundSpeed]; min
-      vmovss  xmm0, [rsp+98h+groundSpeed]; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm1, [rsp+98h+highSpeedMaxGroundSpeed]; max
-      vmovaps xmm2, xmm0; dist
-      vmovss  xmm0, [rsp+98h+highSpeedMinGroundSpeed]; min
-    }
-    *(double *)&_XMM0 = I_fdistnormalized(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, [rsp+98h+highSpeedMaxFallSpeed]; max
-      vmovss  xmm1, [rsp+98h+highSpeedMinFallSpeed]; min
-      vmovaps xmm8, xmm0
-      vmovss  xmm0, [rsp+98h+fallSpeed]; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm1, [rsp+98h+highSpeedMaxFallSpeed]; max
-      vmovaps xmm2, xmm0; dist
-      vmovss  xmm0, [rsp+98h+highSpeedMinFallSpeed]; min
-    }
-    *(double *)&_XMM0 = I_fdistnormalized(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vsubss  xmm1, xmm9, [rsp+98h+highSpeedGroundSpeedWeight]
-      vmulss  xmm2, xmm0, xmm1
-      vmulss  xmm0, xmm8, [rsp+98h+highSpeedGroundSpeedWeight]
-      vaddss  xmm4, xmm2, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm4, xmm1
-    }
-    if ( !(v82 | v83) )
-    {
-      __asm { vmulss  xmm0, xmm4, [rsp+98h+highSpeedMaxVolume] }
       *outStopHighSpeedSound = 0;
-      __asm
-      {
-        vsubss  xmm2, xmm9, xmm4
-        vmulss  xmm1, xmm2, [rsp+98h+highSpeedMinVolume]
-        vmulss  xmm2, xmm2, [rsp+98h+highSpeedMinPitch]
-        vaddss  xmm3, xmm1, xmm0
-        vmulss  xmm0, xmm4, [rsp+98h+highSpeedMaxPitch]
-        vaddss  xmm1, xmm2, xmm0
-        vmovss  dword ptr [rbx+0Ch], xmm1
-        vmovss  dword ptr [rbx+8], xmm3
-        vmovss  [rsp+98h+var_70], xmm1
-        vmovss  [rsp+98h+var_78], xmm3
-      }
-      ((void (__fastcall *)(CgSoundSystem *, _QWORD, const vec3_t *, SndAliasList *, int, int, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)entitynum, origin, highSpeedSoundAlias, v97, v99, 0);
-      _RBX->stoppedHighSpeedSound = 0;
+      v46 = (float)(1.0 - v45) * highSpeedMinPitch;
+      v47 = (float)((float)(1.0 - v45) * highSpeedMinVolume) + (float)(v45 * highSpeedMaxVolume);
+      phaseSoundState->highSpeedPitch = v46 + (float)(v45 * highSpeedMaxPitch);
+      phaseSoundState->highSpeedVolume = v47;
+      ((void (__fastcall *)(CgSoundSystem *, _QWORD, const vec3_t *, SndAliasList *, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)entitynum, origin, highSpeedSoundAlias, LODWORD(v47), v46 + (float)(v45 * highSpeedMaxPitch), 0);
+      phaseSoundState->stoppedHighSpeedSound = 0;
     }
-  }
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
-  _R11 = &v102;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+98h+var_38]
   }
 }
 
@@ -1045,86 +840,51 @@ CG_Skydive_RadialMotionBlurEnabled
 */
 char CG_Skydive_RadialMotionBlurEnabled(LocalClientNum_t localClientNum, const playerState_s *ps, float *minStrength, float *maxStrength, float *minRadius, float *maxRadius)
 {
-  bool v13; 
-  bool v14; 
+  cg_t *LocalClientGlobals; 
+  float rmbWeight; 
   char result; 
-  const dvar_t *v18; 
-  const dvar_t *v20; 
-  const dvar_t *v22; 
-  const dvar_t *v24; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  const dvar_t *v14; 
+  const dvar_t *v15; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  _R14 = maxStrength;
-  _RBP = minStrength;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 636, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 637, ASSERT_TYPE_ASSERT, "(minStrength)", (const char *)&queryFormat, "minStrength") )
+  if ( !minStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 637, ASSERT_TYPE_ASSERT, "(minStrength)", (const char *)&queryFormat, "minStrength") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 638, ASSERT_TYPE_ASSERT, "(maxStrength)", (const char *)&queryFormat, "maxStrength") )
+  if ( !maxStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 638, ASSERT_TYPE_ASSERT, "(maxStrength)", (const char *)&queryFormat, "maxStrength") )
     __debugbreak();
-  _RSI = minRadius;
   if ( !minRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 639, ASSERT_TYPE_ASSERT, "(minRadius)", (const char *)&queryFormat, "minRadius") )
     __debugbreak();
-  _RDI = maxRadius;
   if ( !maxRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 640, ASSERT_TYPE_ASSERT, "(maxRadius)", (const char *)&queryFormat, "maxRadius") )
     __debugbreak();
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  v13 = _RBX == NULL;
-  if ( !_RBX )
-  {
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 643, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob");
-    v13 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+0BA1ACh]
-    vcvtss2sd xmm0, xmm6, xmm6
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( v13 )
-  {
-    result = 0;
-  }
-  else
-  {
-    v18 = DVARFLT_cg_skydive_rmb_strength_min;
-    if ( !DVARFLT_cg_skydive_rmb_strength_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_rmb_strength_min") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v18);
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-      vmovss  dword ptr [rbp+0], xmm0
-    }
-    v20 = DVARFLT_cg_skydive_rmb_strength_max;
-    if ( !DVARFLT_cg_skydive_rmb_strength_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_rmb_strength_max") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v20);
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-      vmovss  dword ptr [r14], xmm0
-    }
-    v22 = DVARFLT_cg_skydive_rmb_radius_min;
-    if ( !DVARFLT_cg_skydive_rmb_radius_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_rmb_radius_min") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-      vmovss  dword ptr [rsi], xmm0
-    }
-    v24 = DVARFLT_cg_skydive_rmb_radius_max;
-    if ( !DVARFLT_cg_skydive_rmb_radius_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_rmb_radius_max") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v24);
-    __asm { vmulss  xmm0, xmm6, dword ptr [rbx+28h] }
-    result = 9;
-    __asm { vmovss  dword ptr [rdi], xmm0 }
-  }
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 643, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+    __debugbreak();
+  rmbWeight = LocalClientGlobals->skydiveClientState.rmbWeight;
+  if ( rmbWeight <= 0.000001 )
+    return 0;
+  v12 = DVARFLT_cg_skydive_rmb_strength_min;
+  if ( !DVARFLT_cg_skydive_rmb_strength_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_rmb_strength_min") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v12);
+  *minStrength = rmbWeight * v12->current.value;
+  v13 = DVARFLT_cg_skydive_rmb_strength_max;
+  if ( !DVARFLT_cg_skydive_rmb_strength_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_rmb_strength_max") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v13);
+  *maxStrength = rmbWeight * v13->current.value;
+  v14 = DVARFLT_cg_skydive_rmb_radius_min;
+  if ( !DVARFLT_cg_skydive_rmb_radius_min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_rmb_radius_min") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v14);
+  *minRadius = rmbWeight * v14->current.value;
+  v15 = DVARFLT_cg_skydive_rmb_radius_max;
+  if ( !DVARFLT_cg_skydive_rmb_radius_max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_skydive_rmb_radius_max") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v15);
+  result = 9;
+  *maxRadius = rmbWeight * v15->current.value;
   return result;
 }
 
@@ -1135,307 +895,160 @@ CG_Skydive_SoundUpdate
 */
 void CG_Skydive_SoundUpdate(cg_t *cgameGlob, const playerState_s *ps)
 {
-  char v15; 
-  char v16; 
-  char v17; 
-  char v18; 
+  const SuitDef *SuitDef; 
+  char v5; 
+  char v6; 
+  char v7; 
+  char v8; 
   const char *name; 
-  SndAliasList *Alias; 
+  float v10; 
+  float v11; 
+  float v12; 
   SndAliasList *highSpeedSoundAlias; 
-  SndAliasList *v43; 
-  const char *v63; 
-  SndAliasList *v76; 
-  SndAliasList *v78; 
-  SndAliasList *v86; 
+  float skydive_canopyAmbientSoundMaxFallSpeed; 
+  float skydive_canopyAmbientSoundMinFallSpeed; 
+  float skydive_canopyAmbientSoundMaxGroundSpeed; 
+  float skydive_canopyAmbientSoundMinGroundSpeed; 
+  float skydive_canopyAmbientSoundMaxPitch; 
+  float skydive_canopyAmbientSoundMinPitch; 
+  float skydive_canopyAmbientSoundMaxVolume; 
+  SndAliasList *Alias; 
+  const char *v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  SndAliasList *v26; 
+  float skydive_freefallAmbientSoundMaxFallSpeed; 
+  float skydive_freefallAmbientSoundMinFallSpeed; 
+  float skydive_freefallAmbientSoundMaxGroundSpeed; 
+  float skydive_freefallAmbientSoundMinGroundSpeed; 
+  float skydive_freefallAmbientSoundMaxPitch; 
+  float skydive_freefallAmbientSoundMinPitch; 
+  float skydive_freefallAmbientSoundMaxVolume; 
+  SndAliasList *v34; 
   unsigned __int64 SndEntHandle; 
-  unsigned __int64 v107; 
+  unsigned __int64 v36; 
+  float skydive_canopyHighSpeedSoundMaxFallSpeed; 
+  float skydive_freefallHighSpeedSoundMinVolume; 
+  float skydive_canopyHighSpeedSoundMinFallSpeed; 
+  float skydive_freefallHighSpeedSoundMaxVolume; 
+  float skydive_canopyHighSpeedSoundMaxGroundSpeed; 
+  float skydive_freefallHighSpeedSoundMinPitch; 
+  float skydive_canopyHighSpeedSoundMinGroundSpeed; 
+  float skydive_freefallHighSpeedSoundMaxPitch; 
+  float skydive_canopyHighSpeedSoundMaxPitch; 
+  float skydive_freefallHighSpeedSoundMinGroundSpeed; 
+  float skydive_canopyHighSpeedSoundMinPitch; 
+  float skydive_freefallHighSpeedSoundMaxGroundSpeed; 
+  float skydive_canopyHighSpeedSoundMaxVolume; 
+  float skydive_freefallHighSpeedSoundMinFallSpeed; 
+  float skydive_canopyHighSpeedSoundMinVolume; 
+  float skydive_freefallHighSpeedSoundMaxFallSpeed; 
   float ambientMinVolume; 
-  float ambientMinVolumea; 
-  float v119; 
-  float v120; 
-  float v121; 
-  float v122; 
-  float v123; 
-  float v124; 
-  float v125; 
-  float v126; 
-  float v127; 
-  float v128; 
-  float v129; 
-  float v130; 
-  float v131; 
-  float v132; 
-  float v133; 
-  float v134; 
-  float v135; 
-  float v136; 
-  float v137; 
-  float v138; 
-  float v139; 
-  float v140; 
-  float v141; 
-  float v142; 
-  float v143; 
-  float v144; 
-  float v145; 
-  float v146; 
-  float v147; 
-  float v148; 
-  float v149; 
-  float v150; 
-  float v151; 
-  float v152; 
-  float v153; 
-  float v154; 
-  float v155; 
-  float v156; 
-  int outStopAmbientSound; 
-  int v187; 
-  int v188; 
+  float skydive_freefallAmbientSoundGroundSpeedWeight; 
+  float skydive_freefallAmbientSoundMinVolume; 
+  float outStopAmbientSound; 
+  float skydive_canopyHighSpeedSoundGroundSpeedWeight; 
+  float skydive_canopyAmbientSoundGroundSpeedWeight; 
   bool outStopHighSpeedSound; 
 
-  _RBP = ps;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 176, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 177, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 177, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RDI = BG_GetSuitDef(_RBP->suitIndex);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 180, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+  SuitDef = BG_GetSuitDef(ps->suitIndex);
+  if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_skydive.cpp", 180, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
-  v15 = _RBP->skydivePlayerState.state[0];
-  __asm { vmovaps [rsp+1F8h+var_58], xmm6 }
-  v16 = 1;
-  __asm { vmovaps [rsp+1F8h+var_68], xmm7 }
-  v17 = 1;
-  __asm { vmovaps [rsp+1F8h+var_78], xmm8 }
-  v18 = 1;
-  __asm
-  {
-    vmovaps [rsp+1F8h+var_88], xmm9
-    vmovaps [rsp+1F8h+var_98], xmm10
-    vmovaps [rsp+1F8h+var_A8], xmm11
-    vmovaps [rsp+1F8h+var_B8], xmm12
-    vmovaps [rsp+1F8h+var_C8], xmm13
-    vmovaps [rsp+1F8h+var_D8], xmm14
-    vmovaps [rsp+1F8h+var_E8], xmm15
-  }
-  LOBYTE(v187) = 1;
-  LOBYTE(v188) = 1;
+  v5 = ps->skydivePlayerState.state[0];
+  v6 = 1;
+  v7 = 1;
+  v8 = 1;
+  LOBYTE(skydive_canopyHighSpeedSoundGroundSpeedWeight) = 1;
+  LOBYTE(skydive_canopyAmbientSoundGroundSpeedWeight) = 1;
   LOBYTE(outStopAmbientSound) = 1;
   outStopHighSpeedSound = 1;
-  if ( ((v15 - 1) & 0xFB) != 0 )
+  if ( ((v5 - 1) & 0xFB) != 0 )
   {
-    if ( v15 == 3 )
+    if ( v5 == 3 )
     {
-      __asm { vmovss  xmm0, dword ptr [rdi+660h] }
-      name = _RDI->skydive_canopyHighSpeedSound.name;
-      __asm
-      {
-        vmovss  xmm8, dword ptr [rbp+40h]
-        vmovss  xmm7, dword ptr [rbp+3Ch]
-        vmovss  xmm6, dword ptr [rbp+44h]
-        vmovss  [rsp+1F8h+arg_8], xmm0
-        vmovss  xmm0, dword ptr [rdi+630h]
-        vmovss  [rsp+1F8h+arg_10], xmm0
-        vmovss  xmm0, dword ptr [rdi+680h]
-        vmovss  [rsp+1F8h+var_118], xmm0
-        vmovss  xmm0, dword ptr [rdi+67Ch]
-        vmovss  [rsp+1F8h+var_114], xmm0
-        vmovss  xmm0, dword ptr [rdi+678h]
-        vmovss  [rsp+1F8h+var_110], xmm0
-        vmovss  xmm0, dword ptr [rdi+674h]
-        vmovss  [rsp+1F8h+var_10C], xmm0
-        vmovss  xmm0, dword ptr [rdi+670h]
-        vmovss  [rsp+1F8h+var_108], xmm0
-        vmovss  xmm0, dword ptr [rdi+66Ch]
-        vmovss  [rsp+1F8h+var_104], xmm0
-        vmovss  xmm0, dword ptr [rdi+668h]
-        vmovss  [rsp+1F8h+var_100], xmm0
-        vmovss  xmm0, dword ptr [rdi+664h]
-        vmovss  [rsp+1F8h+var_FC], xmm0
-      }
-      Alias = SND_FindAlias(name);
-      __asm { vmovss  xmm0, dword ptr [rdi+634h] }
-      highSpeedSoundAlias = Alias;
-      __asm
-      {
-        vmovss  xmm9, dword ptr [rdi+650h]
-        vmovss  xmm10, dword ptr [rdi+64Ch]
-        vmovss  xmm11, dword ptr [rdi+648h]
-        vmovss  xmm12, dword ptr [rdi+644h]
-        vmovss  xmm13, dword ptr [rdi+640h]
-        vmovss  xmm14, dword ptr [rdi+63Ch]
-        vmovss  xmm15, dword ptr [rdi+638h]
-        vmovss  [rsp+1F8h+var_F8], xmm0
-      }
-      v43 = SND_FindAlias(_RDI->skydive_canopyAmbientSound.name);
-      __asm
-      {
-        vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmulss  xmm5, xmm6, cs:__real@3cd013a9
-        vmulss  xmm1, xmm7, xmm7
-        vmulss  xmm0, xmm8, xmm8
-        vaddss  xmm1, xmm1, xmm0
-        vmovss  xmm0, [rsp+1F8h+arg_8]
-        vsqrtss xmm2, xmm1, xmm1
-        vmulss  xmm4, xmm2, cs:__real@3cd013a9
-        vmovss  xmm1, [rsp+1F8h+arg_10]
-        vmovss  xmm2, [rsp+1F8h+var_118]
-        vmovss  [rsp+1F8h+var_130], xmm5
-        vmovss  [rsp+1F8h+var_138], xmm4
-        vmovss  [rsp+1F8h+var_140], xmm0
-        vmovss  xmm0, [rsp+1F8h+var_114]
-        vmovss  [rsp+1F8h+var_148], xmm1
-        vmovss  xmm1, [rsp+1F8h+var_110]
-        vmovss  [rsp+1F8h+var_150], xmm2
-        vmovss  xmm2, [rsp+1F8h+var_10C]
-        vmovss  [rsp+1F8h+var_158], xmm0
-        vmovss  xmm0, [rsp+1F8h+var_108]
-        vmovss  [rsp+1F8h+var_160], xmm1
-        vmovss  xmm1, [rsp+1F8h+var_104]
-        vmovss  [rsp+1F8h+var_168], xmm2
-        vmovss  xmm2, [rsp+1F8h+var_100]
-        vmovss  [rsp+1F8h+var_170], xmm0
-        vmovss  xmm0, [rsp+1F8h+var_FC]
-        vmovss  [rsp+1F8h+var_178], xmm1
-        vmovss  [rsp+1F8h+var_180], xmm2
-        vmovss  [rsp+1F8h+var_188], xmm0
-        vmovss  xmm0, [rsp+1F8h+var_F8]
-        vmovss  [rsp+1F8h+var_198], xmm9
-        vmovss  [rsp+1F8h+var_1A0], xmm10
-        vmovss  [rsp+1F8h+var_1A8], xmm11
-        vmovss  [rsp+1F8h+var_1B0], xmm12
-        vmovss  [rsp+1F8h+var_1B8], xmm13
-        vmovss  [rsp+1F8h+var_1C0], xmm14
-        vmovss  [rsp+1F8h+var_1C8], xmm15
-        vmovss  [rsp+1F8h+ambientMinVolume], xmm0
-      }
-      CG_Skydive_PlaySounds(cgameGlob, _RBP->clientNum, &_RBP->origin, &cgameGlob->skydiveClientState.soundState.canopy, v43, ambientMinVolume, v119, v121, v123, v125, v127, v129, v131, highSpeedSoundAlias, v133, v135, v137, v139, v141, v143, v145, v147, v149, v151, v153, v155, (bool *)&outStopAmbientSound, &outStopHighSpeedSound);
-      v18 = outStopAmbientSound;
+      name = SuitDef->skydive_canopyHighSpeedSound.name;
+      v10 = ps->velocity.v[1];
+      v11 = ps->velocity.v[0];
+      v12 = ps->velocity.v[2];
+      skydive_canopyHighSpeedSoundGroundSpeedWeight = SuitDef->skydive_canopyHighSpeedSoundGroundSpeedWeight;
+      skydive_canopyAmbientSoundGroundSpeedWeight = SuitDef->skydive_canopyAmbientSoundGroundSpeedWeight;
+      skydive_canopyHighSpeedSoundMaxFallSpeed = SuitDef->skydive_canopyHighSpeedSoundMaxFallSpeed;
+      skydive_canopyHighSpeedSoundMinFallSpeed = SuitDef->skydive_canopyHighSpeedSoundMinFallSpeed;
+      skydive_canopyHighSpeedSoundMaxGroundSpeed = SuitDef->skydive_canopyHighSpeedSoundMaxGroundSpeed;
+      skydive_canopyHighSpeedSoundMinGroundSpeed = SuitDef->skydive_canopyHighSpeedSoundMinGroundSpeed;
+      skydive_canopyHighSpeedSoundMaxPitch = SuitDef->skydive_canopyHighSpeedSoundMaxPitch;
+      skydive_canopyHighSpeedSoundMinPitch = SuitDef->skydive_canopyHighSpeedSoundMinPitch;
+      skydive_canopyHighSpeedSoundMaxVolume = SuitDef->skydive_canopyHighSpeedSoundMaxVolume;
+      skydive_canopyHighSpeedSoundMinVolume = SuitDef->skydive_canopyHighSpeedSoundMinVolume;
+      highSpeedSoundAlias = SND_FindAlias(name);
+      skydive_canopyAmbientSoundMaxFallSpeed = SuitDef->skydive_canopyAmbientSoundMaxFallSpeed;
+      skydive_canopyAmbientSoundMinFallSpeed = SuitDef->skydive_canopyAmbientSoundMinFallSpeed;
+      skydive_canopyAmbientSoundMaxGroundSpeed = SuitDef->skydive_canopyAmbientSoundMaxGroundSpeed;
+      skydive_canopyAmbientSoundMinGroundSpeed = SuitDef->skydive_canopyAmbientSoundMinGroundSpeed;
+      skydive_canopyAmbientSoundMaxPitch = SuitDef->skydive_canopyAmbientSoundMaxPitch;
+      skydive_canopyAmbientSoundMinPitch = SuitDef->skydive_canopyAmbientSoundMinPitch;
+      skydive_canopyAmbientSoundMaxVolume = SuitDef->skydive_canopyAmbientSoundMaxVolume;
+      ambientMinVolume = SuitDef->skydive_canopyAmbientSoundMinVolume;
+      Alias = SND_FindAlias(SuitDef->skydive_canopyAmbientSound.name);
+      CG_Skydive_PlaySounds(cgameGlob, ps->clientNum, &ps->origin, &cgameGlob->skydiveClientState.soundState.canopy, Alias, ambientMinVolume, skydive_canopyAmbientSoundMaxVolume, skydive_canopyAmbientSoundMinPitch, skydive_canopyAmbientSoundMaxPitch, skydive_canopyAmbientSoundMinGroundSpeed, skydive_canopyAmbientSoundMaxGroundSpeed, skydive_canopyAmbientSoundMinFallSpeed, skydive_canopyAmbientSoundMaxFallSpeed, highSpeedSoundAlias, skydive_canopyHighSpeedSoundMinVolume, skydive_canopyHighSpeedSoundMaxVolume, skydive_canopyHighSpeedSoundMinPitch, skydive_canopyHighSpeedSoundMaxPitch, skydive_canopyHighSpeedSoundMinGroundSpeed, skydive_canopyHighSpeedSoundMaxGroundSpeed, skydive_canopyHighSpeedSoundMinFallSpeed, skydive_canopyHighSpeedSoundMaxFallSpeed, skydive_canopyAmbientSoundGroundSpeedWeight, skydive_canopyHighSpeedSoundGroundSpeedWeight, fsqrt((float)(v11 * v11) + (float)(v10 * v10)) * 0.0254, COERCE_FLOAT(LODWORD(v12) & _xmm) * 0.0254, (bool *)&outStopAmbientSound, &outStopHighSpeedSound);
+      v8 = LOBYTE(outStopAmbientSound);
     }
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rdi+510h] }
-    v63 = _RDI->skydive_freefallHighSpeedSound.name;
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rbp+40h]
-      vmovss  xmm7, dword ptr [rbp+3Ch]
-      vmovss  xmm6, dword ptr [rbp+44h]
-      vmovss  [rsp+1F8h+arg_0], xmm0
-      vmovss  xmm0, dword ptr [rdi+4E0h]
-      vmovss  [rsp+1F8h+var_F8], xmm0
-      vmovss  xmm0, dword ptr [rdi+530h]
-      vmovss  [rsp+1F8h+var_FC], xmm0
-      vmovss  xmm0, dword ptr [rdi+52Ch]
-      vmovss  [rsp+1F8h+var_100], xmm0
-      vmovss  xmm0, dword ptr [rdi+528h]
-      vmovss  [rsp+1F8h+var_104], xmm0
-      vmovss  xmm0, dword ptr [rdi+524h]
-      vmovss  [rsp+1F8h+var_108], xmm0
-      vmovss  xmm0, dword ptr [rdi+520h]
-      vmovss  [rsp+1F8h+var_10C], xmm0
-      vmovss  xmm0, dword ptr [rdi+51Ch]
-      vmovss  [rsp+1F8h+var_110], xmm0
-      vmovss  xmm0, dword ptr [rdi+518h]
-      vmovss  [rsp+1F8h+var_114], xmm0
-      vmovss  xmm0, dword ptr [rdi+514h]
-      vmovss  [rsp+1F8h+var_118], xmm0
-    }
-    v76 = SND_FindAlias(v63);
-    __asm { vmovss  xmm0, dword ptr [rdi+4E4h] }
-    v78 = v76;
-    __asm
-    {
-      vmovss  xmm9, dword ptr [rdi+500h]
-      vmovss  xmm10, dword ptr [rdi+4FCh]
-      vmovss  xmm11, dword ptr [rdi+4F8h]
-      vmovss  xmm12, dword ptr [rdi+4F4h]
-      vmovss  xmm13, dword ptr [rdi+4F0h]
-      vmovss  xmm14, dword ptr [rdi+4ECh]
-      vmovss  xmm15, dword ptr [rdi+4E8h]
-      vmovss  [rsp+1F8h+var_F4], xmm0
-    }
-    v86 = SND_FindAlias(_RDI->skydive_freefallAmbientSound.name);
-    __asm
-    {
-      vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmulss  xmm5, xmm6, cs:__real@3cd013a9
-      vmulss  xmm1, xmm7, xmm7
-      vmulss  xmm0, xmm8, xmm8
-      vaddss  xmm1, xmm1, xmm0
-      vmovss  xmm0, [rsp+1F8h+arg_0]
-      vsqrtss xmm2, xmm1, xmm1
-      vmulss  xmm4, xmm2, cs:__real@3cd013a9
-      vmovss  xmm1, [rsp+1F8h+var_F8]
-      vmovss  xmm2, [rsp+1F8h+var_FC]
-      vmovss  [rsp+1F8h+var_130], xmm5
-      vmovss  [rsp+1F8h+var_138], xmm4
-      vmovss  [rsp+1F8h+var_140], xmm0
-      vmovss  xmm0, [rsp+1F8h+var_100]
-      vmovss  [rsp+1F8h+var_148], xmm1
-      vmovss  xmm1, [rsp+1F8h+var_104]
-      vmovss  [rsp+1F8h+var_150], xmm2
-      vmovss  xmm2, [rsp+1F8h+var_108]
-      vmovss  [rsp+1F8h+var_158], xmm0
-      vmovss  xmm0, [rsp+1F8h+var_10C]
-      vmovss  [rsp+1F8h+var_160], xmm1
-      vmovss  xmm1, [rsp+1F8h+var_110]
-      vmovss  [rsp+1F8h+var_168], xmm2
-      vmovss  xmm2, [rsp+1F8h+var_114]
-      vmovss  [rsp+1F8h+var_170], xmm0
-      vmovss  xmm0, [rsp+1F8h+var_118]
-      vmovss  [rsp+1F8h+var_178], xmm1
-      vmovss  [rsp+1F8h+var_180], xmm2
-      vmovss  [rsp+1F8h+var_188], xmm0
-      vmovss  xmm0, [rsp+1F8h+var_F4]
-      vmovss  [rsp+1F8h+var_198], xmm9
-      vmovss  [rsp+1F8h+var_1A0], xmm10
-      vmovss  [rsp+1F8h+var_1A8], xmm11
-      vmovss  [rsp+1F8h+var_1B0], xmm12
-      vmovss  [rsp+1F8h+var_1B8], xmm13
-      vmovss  [rsp+1F8h+var_1C0], xmm14
-      vmovss  [rsp+1F8h+var_1C8], xmm15
-      vmovss  [rsp+1F8h+ambientMinVolume], xmm0
-    }
-    CG_Skydive_PlaySounds(cgameGlob, _RBP->clientNum, &_RBP->origin, &cgameGlob->skydiveClientState.soundState.freefall, v86, ambientMinVolumea, v120, v122, v124, v126, v128, v130, v132, v78, v134, v136, v138, v140, v142, v144, v146, v148, v150, v152, v154, v156, (bool *)&v187, (bool *)&v188);
-    v16 = v187;
-    v17 = v188;
+    v22 = SuitDef->skydive_freefallHighSpeedSound.name;
+    v23 = ps->velocity.v[1];
+    v24 = ps->velocity.v[0];
+    v25 = ps->velocity.v[2];
+    outStopAmbientSound = SuitDef->skydive_freefallHighSpeedSoundGroundSpeedWeight;
+    skydive_freefallAmbientSoundGroundSpeedWeight = SuitDef->skydive_freefallAmbientSoundGroundSpeedWeight;
+    skydive_freefallHighSpeedSoundMaxFallSpeed = SuitDef->skydive_freefallHighSpeedSoundMaxFallSpeed;
+    skydive_freefallHighSpeedSoundMinFallSpeed = SuitDef->skydive_freefallHighSpeedSoundMinFallSpeed;
+    skydive_freefallHighSpeedSoundMaxGroundSpeed = SuitDef->skydive_freefallHighSpeedSoundMaxGroundSpeed;
+    skydive_freefallHighSpeedSoundMinGroundSpeed = SuitDef->skydive_freefallHighSpeedSoundMinGroundSpeed;
+    skydive_freefallHighSpeedSoundMaxPitch = SuitDef->skydive_freefallHighSpeedSoundMaxPitch;
+    skydive_freefallHighSpeedSoundMinPitch = SuitDef->skydive_freefallHighSpeedSoundMinPitch;
+    skydive_freefallHighSpeedSoundMaxVolume = SuitDef->skydive_freefallHighSpeedSoundMaxVolume;
+    skydive_freefallHighSpeedSoundMinVolume = SuitDef->skydive_freefallHighSpeedSoundMinVolume;
+    v26 = SND_FindAlias(v22);
+    skydive_freefallAmbientSoundMaxFallSpeed = SuitDef->skydive_freefallAmbientSoundMaxFallSpeed;
+    skydive_freefallAmbientSoundMinFallSpeed = SuitDef->skydive_freefallAmbientSoundMinFallSpeed;
+    skydive_freefallAmbientSoundMaxGroundSpeed = SuitDef->skydive_freefallAmbientSoundMaxGroundSpeed;
+    skydive_freefallAmbientSoundMinGroundSpeed = SuitDef->skydive_freefallAmbientSoundMinGroundSpeed;
+    skydive_freefallAmbientSoundMaxPitch = SuitDef->skydive_freefallAmbientSoundMaxPitch;
+    skydive_freefallAmbientSoundMinPitch = SuitDef->skydive_freefallAmbientSoundMinPitch;
+    skydive_freefallAmbientSoundMaxVolume = SuitDef->skydive_freefallAmbientSoundMaxVolume;
+    skydive_freefallAmbientSoundMinVolume = SuitDef->skydive_freefallAmbientSoundMinVolume;
+    v34 = SND_FindAlias(SuitDef->skydive_freefallAmbientSound.name);
+    CG_Skydive_PlaySounds(cgameGlob, ps->clientNum, &ps->origin, &cgameGlob->skydiveClientState.soundState.freefall, v34, skydive_freefallAmbientSoundMinVolume, skydive_freefallAmbientSoundMaxVolume, skydive_freefallAmbientSoundMinPitch, skydive_freefallAmbientSoundMaxPitch, skydive_freefallAmbientSoundMinGroundSpeed, skydive_freefallAmbientSoundMaxGroundSpeed, skydive_freefallAmbientSoundMinFallSpeed, skydive_freefallAmbientSoundMaxFallSpeed, v26, skydive_freefallHighSpeedSoundMinVolume, skydive_freefallHighSpeedSoundMaxVolume, skydive_freefallHighSpeedSoundMinPitch, skydive_freefallHighSpeedSoundMaxPitch, skydive_freefallHighSpeedSoundMinGroundSpeed, skydive_freefallHighSpeedSoundMaxGroundSpeed, skydive_freefallHighSpeedSoundMinFallSpeed, skydive_freefallHighSpeedSoundMaxFallSpeed, skydive_freefallAmbientSoundGroundSpeedWeight, outStopAmbientSound, fsqrt((float)(v24 * v24) + (float)(v23 * v23)) * 0.0254, COERCE_FLOAT(LODWORD(v25) & _xmm) * 0.0254, (bool *)&skydive_canopyHighSpeedSoundGroundSpeedWeight, (bool *)&skydive_canopyAmbientSoundGroundSpeedWeight);
+    v6 = LOBYTE(skydive_canopyHighSpeedSoundGroundSpeedWeight);
+    v7 = LOBYTE(skydive_canopyAmbientSoundGroundSpeedWeight);
   }
-  SndEntHandle = CG_GenerateSndEntHandle((const LocalClientNum_t)cgameGlob->localClientNum, _RBP->clientNum);
-  __asm { vmovaps xmm15, [rsp+1F8h+var_E8] }
-  v107 = SndEntHandle;
-  __asm
+  SndEntHandle = CG_GenerateSndEntHandle((const LocalClientNum_t)cgameGlob->localClientNum, ps->clientNum);
+  v36 = SndEntHandle;
+  if ( v6 && !cgameGlob->skydiveClientState.soundState.freefall.stoppedAmbientSound )
   {
-    vmovaps xmm14, [rsp+1F8h+var_D8]
-    vmovaps xmm13, [rsp+1F8h+var_C8]
-    vmovaps xmm12, [rsp+1F8h+var_B8]
-    vmovaps xmm11, [rsp+1F8h+var_A8]
-    vmovaps xmm10, [rsp+1F8h+var_98]
-    vmovaps xmm9, [rsp+1F8h+var_88]
-    vmovaps xmm8, [rsp+1F8h+var_78]
-    vmovaps xmm7, [rsp+1F8h+var_68]
-    vmovaps xmm6, [rsp+1F8h+var_58]
-  }
-  if ( v16 && !cgameGlob->skydiveClientState.soundState.freefall.stoppedAmbientSound )
-  {
-    SND_StopSoundAliasOnEnt(SndEntHandle, _RDI->skydive_freefallAmbientSound.name);
+    SND_StopSoundAliasOnEnt(SndEntHandle, SuitDef->skydive_freefallAmbientSound.name);
     cgameGlob->skydiveClientState.soundState.freefall.stoppedAmbientSound = 1;
   }
-  if ( v17 && !cgameGlob->skydiveClientState.soundState.freefall.stoppedHighSpeedSound )
+  if ( v7 && !cgameGlob->skydiveClientState.soundState.freefall.stoppedHighSpeedSound )
   {
-    SND_StopSoundAliasOnEnt(v107, _RDI->skydive_freefallHighSpeedSound.name);
+    SND_StopSoundAliasOnEnt(v36, SuitDef->skydive_freefallHighSpeedSound.name);
     cgameGlob->skydiveClientState.soundState.freefall.stoppedHighSpeedSound = 1;
   }
-  if ( v18 && !cgameGlob->skydiveClientState.soundState.canopy.stoppedAmbientSound )
+  if ( v8 && !cgameGlob->skydiveClientState.soundState.canopy.stoppedAmbientSound )
   {
-    SND_StopSoundAliasOnEnt(v107, _RDI->skydive_canopyAmbientSound.name);
+    SND_StopSoundAliasOnEnt(v36, SuitDef->skydive_canopyAmbientSound.name);
     cgameGlob->skydiveClientState.soundState.canopy.stoppedAmbientSound = 1;
   }
   if ( outStopHighSpeedSound && !cgameGlob->skydiveClientState.soundState.canopy.stoppedHighSpeedSound )
   {
-    SND_StopSoundAliasOnEnt(v107, _RDI->skydive_canopyHighSpeedSound.name);
+    SND_StopSoundAliasOnEnt(v36, SuitDef->skydive_canopyHighSpeedSound.name);
     cgameGlob->skydiveClientState.soundState.canopy.stoppedHighSpeedSound = 1;
   }
 }
@@ -1445,10 +1058,11 @@ void CG_Skydive_SoundUpdate(cg_t *cgameGlob, const playerState_s *ps)
 CG_Skydive_Update
 ==============
 */
-
-void __fastcall CG_Skydive_Update(const LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8, double _XMM3_8)
+void CG_Skydive_Update(const LocalClientNum_t localClientNum)
 {
   cg_t *LocalClientGlobals; 
+  float v3; 
+  float v4; 
   float outYawRate; 
   float outPitchRate; 
 
@@ -1461,21 +1075,15 @@ void __fastcall CG_Skydive_Update(const LocalClientNum_t localClientNum, __int64
   if ( BG_Skydive_IsSkydiving(&LocalClientGlobals->predictedPlayerState) && CL_Input_IsGamepadEnabled(localClientNum) )
   {
     CG_Skydive_GetTurnRates(localClientNum, &outPitchRate, &outYawRate);
-    __asm
-    {
-      vmovss  xmm3, [rsp+48h+outYawRate]
-      vmovss  xmm2, [rsp+48h+outPitchRate]
-    }
+    v3 = outYawRate;
+    v4 = outPitchRate;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm3, xmm3, xmm3; maxYawSpeed
-      vxorps  xmm2, xmm2, xmm2; maxPitchSpeed
-    }
+    v3 = 0.0;
+    v4 = 0.0;
   }
-  CL_CapTurnRate(localClientNum, TURNRATECAPTYPE_SKYDIVE, *(float *)&_XMM2, *(float *)&_XMM3);
+  CL_CapTurnRate(localClientNum, TURNRATECAPTYPE_SKYDIVE, v4, v3);
 }
 
 /*
@@ -1495,6 +1103,7 @@ void CG_Skydive_UpdateClientEntity(LocalClientNum_t localClientNum, const centit
   unsigned __int8 skydiveAnimState; 
   int v11; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v16; 
   __int64 clientNum; 
   characterInfo_t *v27; 
   team_t team; 
@@ -1585,25 +1194,27 @@ LABEL_85:
       FunctionPointer_origin(&cent->pose.origin.origin.origin, &origin);
       if ( cent->pose.isPosePrecise )
       {
-        __asm
-        {
-          vmovd   xmm0, dword ptr [rsp+88h+origin]
-          vcvtdq2pd xmm0, xmm0
-          vmovsd  xmm3, cs:__real@3f30000000000000
-          vmulsd  xmm0, xmm0, xmm3
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovss  dword ptr [rsp+88h+origin], xmm1
-          vmovd   xmm2, dword ptr [rsp+88h+origin+4]
-          vcvtdq2pd xmm2, xmm2
-          vmulsd  xmm0, xmm2, xmm3
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovss  dword ptr [rsp+88h+origin+4], xmm1
-          vmovd   xmm2, dword ptr [rsp+88h+origin+8]
-          vcvtdq2pd xmm2, xmm2
-          vmulsd  xmm0, xmm2, xmm3
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovss  dword ptr [rsp+88h+origin+8], xmm1
-        }
+        _XMM0 = LODWORD(origin.v[0]);
+        __asm { vcvtdq2pd xmm0, xmm0 }
+        *((_QWORD *)&v16 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v16 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM0 = v16;
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        origin.v[0] = *(float *)&_XMM1;
+        _XMM2 = LODWORD(origin.v[1]);
+        __asm { vcvtdq2pd xmm2, xmm2 }
+        *((_QWORD *)&v16 + 1) = *((_QWORD *)&_XMM2 + 1);
+        *(double *)&v16 = *(double *)&_XMM2 * 0.000244140625;
+        _XMM0 = v16;
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        origin.v[1] = *(float *)&_XMM1;
+        _XMM2 = LODWORD(origin.v[2]);
+        __asm { vcvtdq2pd xmm2, xmm2 }
+        *((_QWORD *)&v16 + 1) = *((_QWORD *)&_XMM2 + 1);
+        *(double *)&v16 = *(double *)&_XMM2 * 0.000244140625;
+        _XMM0 = v16;
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        origin.v[2] = *(float *)&_XMM1;
       }
       clientNum = LocalClientGlobals->predictedPlayerState.clientNum;
       if ( LocalClientGlobals->HasCharacterInfo(LocalClientGlobals, LocalClientGlobals->predictedPlayerState.clientNum) )

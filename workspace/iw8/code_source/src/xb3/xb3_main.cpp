@@ -589,6 +589,9 @@ ApplicationView::ApplicationView
 void ApplicationView::ApplicationView(ApplicationView *this)
 {
   unsigned __int64 ullAvailPhys; 
+  float ullTotalPhys; 
+  float v4; 
+  float v5; 
   _MEMORYSTATUSEX Buffer; 
   wchar_t OutputString[256]; 
   char _Buffer[256]; 
@@ -615,37 +618,16 @@ void ApplicationView::ApplicationView(ApplicationView *this)
   if ( g_min_available_memory > Buffer.ullAvailPhys )
     ullAvailPhys = Buffer.ullAvailPhys;
   g_min_available_memory = ullAvailPhys;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, [rsp+388h+Buffer.ullTotalPhys]
-    vmulss  xmm0, xmm0, cs:__real@35800000
-    vcvtss2sd xmm3, xmm0, xmm0
-    vmovq   r9, xmm3
-  }
-  j__snwprintf(OutputString, 0x100ui64, L"OS Total      : %.0f MB\n", _R9, -2i64, this);
+  ullTotalPhys = (float)(__int64)Buffer.ullTotalPhys;
+  j__snwprintf(OutputString, 0x100ui64, L"OS Total      : %.0f MB\n", (float)(ullTotalPhys * 0.00000095367432), -2i64, this);
   OutputDebugStringW(OutputString);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, [rsp+388h+Buffer.ullAvailPhys]
-    vmulss  xmm1, xmm0, cs:__real@35800000
-    vcvtss2sd xmm3, xmm1, xmm1
-    vmovq   r9, xmm3
-  }
-  j__snwprintf(OutputString, 0x100ui64, L"OS Avail      : %.0f MB\n", _R9);
+  v4 = (float)(__int64)Buffer.ullAvailPhys;
+  j__snwprintf(OutputString, 0x100ui64, L"OS Avail      : %.0f MB\n", (float)(v4 * 0.00000095367432));
   OutputDebugStringW(OutputString);
   if ( g_min_available_memory != -1i64 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, cs:__real@35800000
-      vcvtss2sd xmm3, xmm1, xmm1
-      vmovq   r9, xmm3
-    }
-    j__snwprintf(OutputString, 0x100ui64, L"OS Avail (Min): %.0f MB\n\n", _R9);
+    v5 = (float)(__int64)g_min_available_memory;
+    j__snwprintf(OutputString, 0x100ui64, L"OS Avail (Min): %.0f MB\n\n", (float)(v5 * 0.00000095367432));
     OutputDebugStringW(OutputString);
   }
   *(_WORD *)&this->m_activated = 0;
@@ -765,6 +747,7 @@ void ApplicationView::Launch(ApplicationView *this)
   Concurrency::task_options v25; 
   __int64 v26; 
   unsigned __int64 ProcessAffinityMask[3]; 
+  __int128 v28; 
   Concurrency::task_canceled v29; 
   char v30[40]; 
   char v31[40]; 
@@ -854,16 +837,13 @@ void ApplicationView::Launch(ApplicationView *this)
   }
   v25._M_Scheduler._M_sharedScheduler._Ptr = ambient_scheduler->_Ptr;
   v25._M_Scheduler._M_sharedScheduler._Rep = Rep;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rbp+920h+var_908], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v28 = _XMM0;
   v25._M_Scheduler._M_scheduler = v25._M_Scheduler._M_sharedScheduler._Ptr;
   v25._M_CancellationToken._M_Impl = NULL;
   v25._M_ContinuationContext._M_context._M_captureMethod = 1i64;
   v25._M_ContinuationContext._M_RunInline = 0;
-  __asm { vmovdqu [rbp+920h+var_948], xmm0 }
+  *(_OWORD *)&v25._M_InternalTaskOptions._M_presetCreationCallstack._M_frames._Mypair._Myval2._Myfirst = _XMM0;
   v25._M_InternalTaskOptions._M_presetCreationCallstack._M_frames._Mypair._Myval2._Myend = NULL;
   v25._M_InternalTaskOptions._M_presetCreationCallstack._M_SingleFrame = NULL;
   v25._M_InternalTaskOptions._M_hasPresetCreationCallstack = 0;
@@ -1322,78 +1302,55 @@ Sys_DumpRawHWMemStats
 void Sys_DumpRawHWMemStats(const int useRawOutputCmd)
 {
   unsigned __int64 ullAvailPhys; 
+  float ullTotalPhys; 
+  double v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  double v8; 
   _MEMORYSTATUSEX Buffer; 
   wchar_t _Buffer[256]; 
 
-  __asm { vmovaps [rsp+280h+var_10], xmm6 }
   memset(&Buffer.dwMemoryLoad, 0, 60);
   Buffer.dwLength = 64;
   GlobalMemoryStatusEx(&Buffer);
   ullAvailPhys = g_min_available_memory;
-  __asm { vmovss  xmm6, cs:__real@35800000 }
   if ( g_min_available_memory > Buffer.ullAvailPhys )
     ullAvailPhys = Buffer.ullAvailPhys;
   g_min_available_memory = ullAvailPhys;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, [rsp+280h+Buffer.ullTotalPhys]
-    vmulss  xmm0, xmm0, xmm6
-    vcvtss2sd xmm3, xmm0, xmm0
-    vmovq   r9, xmm3
-  }
+  ullTotalPhys = (float)(__int64)Buffer.ullTotalPhys;
+  v4 = (float)(ullTotalPhys * 0.00000095367432);
   if ( useRawOutputCmd )
   {
-    j__snwprintf(_Buffer, 0x100ui64, L"OS Total      : %.0f MB\n", _R9);
+    j__snwprintf(_Buffer, 0x100ui64, L"OS Total      : %.0f MB\n", v4);
     OutputDebugStringW(_Buffer);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, [rsp+280h+Buffer.ullAvailPhys]
-      vmulss  xmm1, xmm0, xmm6
-      vcvtss2sd xmm3, xmm1, xmm1
-      vmovq   r9, xmm3
-    }
-    j__snwprintf(_Buffer, 0x100ui64, L"OS Avail      : %.0f MB\n", _R9);
+    v5 = (float)(__int64)Buffer.ullAvailPhys;
+    j__snwprintf(_Buffer, 0x100ui64, L"OS Avail      : %.0f MB\n", (float)(v5 * 0.00000095367432));
     OutputDebugStringW(_Buffer);
   }
   else
   {
-    j__snprintf((char *const)_Buffer, 0x200ui64, "OS Total      : %.0f MB\n", *(double *)&_XMM3);
+    j__snprintf((char *const)_Buffer, 0x200ui64, "OS Total      : %.0f MB\n", v4);
     Com_MemDumpPrintf((const char *const)_Buffer);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, [rsp+280h+Buffer.ullAvailPhys]
-      vmulss  xmm1, xmm0, xmm6
-      vcvtss2sd xmm3, xmm1, xmm1
-      vmovq   r9, xmm3
-    }
-    j__snprintf((char *const)_Buffer, 0x200ui64, "OS Avail      : %.0f MB\n", *(double *)&_XMM3);
+    v6 = (float)(__int64)Buffer.ullAvailPhys;
+    j__snprintf((char *const)_Buffer, 0x200ui64, "OS Avail      : %.0f MB\n", (float)(v6 * 0.00000095367432));
     Com_MemDumpPrintf((const char *const)_Buffer);
   }
   if ( g_min_available_memory != -1i64 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, xmm6
-      vcvtss2sd xmm3, xmm1, xmm1
-      vmovq   r9, xmm3
-    }
+    v7 = (float)(__int64)g_min_available_memory;
+    v8 = (float)(v7 * 0.00000095367432);
     if ( useRawOutputCmd )
     {
-      j__snwprintf(_Buffer, 0x100ui64, L"OS Avail (Min): %.0f MB\n\n", _R9);
+      j__snwprintf(_Buffer, 0x100ui64, L"OS Avail (Min): %.0f MB\n\n", v8);
       OutputDebugStringW(_Buffer);
     }
     else
     {
-      j__snprintf((char *const)_Buffer, 0x200ui64, "OS Avail (Min): %.0f MB\n\n", *(double *)&_XMM3);
+      j__snprintf((char *const)_Buffer, 0x200ui64, "OS Avail (Min): %.0f MB\n\n", v8);
       Com_MemDumpPrintf((const char *const)_Buffer);
     }
   }
-  __asm { vmovaps xmm6, [rsp+280h+var_10] }
 }
 
 /*
@@ -1530,37 +1487,24 @@ Sys_GetEvent
 sysEvent_t *Sys_GetEvent(sysEvent_t *result)
 {
   unsigned __int8 v1; 
-  sysEvent_t *v6; 
-  __m256i v8; 
+  sysEvent_t *v3; 
+  unsigned __int64 v4; 
 
   v1 = eventTail;
-  _RBX = result;
   if ( eventHead <= eventTail )
   {
-    v8.m256i_i32[0] = 0;
-    memset(&v8.m256i_u64[1], 0, 24);
-    v8.m256i_i32[1] = Sys_Milliseconds();
-    v6 = _RBX;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+48h+var_28]
-      vmovups ymmword ptr [rbx], ymm0
-    }
+    LODWORD(v4) = 0;
+    HIDWORD(v4) = Sys_Milliseconds();
+    v3 = result;
+    *(__m256i *)result = (__m256i)v4;
   }
   else
   {
     ++eventTail;
-    _RDX = v1;
-    _RAX = eventQue;
-    _RDX *= 32i64;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdx+rax]
-      vmovups ymmword ptr [rcx], ymm0
-    }
+    *result = eventQue[v1];
     return result;
   }
-  return v6;
+  return v3;
 }
 
 /*

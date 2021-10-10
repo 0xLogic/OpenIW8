@@ -204,59 +204,32 @@ void BG_Accessory_GetWeapon(const BgWeaponMap *const weaponMap, const playerStat
 {
   bool v3; 
   __int64 accessoryIndex; 
-  AccessoryDef *v11; 
-  __int64 v16; 
-  __int64 v17; 
-  int v18; 
-  int v19; 
+  AccessoryDef *v8; 
+  __int64 v9; 
+  __int64 v10; 
 
   v3 = !s_bgAccessoryDefsInitialized;
-  _RDI = outAccessoryWeapon;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [r8], ymm0
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [r8+20h], xmm1
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [r8+30h], xmm0
-  }
-  *(_DWORD *)&outAccessoryWeapon->weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+  *outAccessoryWeapon = NULL_WEAPON;
   accessoryIndex = ps->accessoryIndex;
   if ( !v3 && (_DWORD)accessoryIndex != 127 )
   {
-    if ( Com_GameMode_SupportsFeature(WEAPON_SPRINT_COMBAT_IN|0x80) && (unsigned int)accessoryIndex >= 0x3F )
-    {
-      v19 = 63;
-      v18 = accessoryIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_accessory.cpp", 103, ASSERT_TYPE_ASSERT, "( index ) < ( (63) )", "%s < %s\n\t%u, %u", "index", "INVALID_ACCESSORY_DEF_LEGACY", v18, v19) )
-        __debugbreak();
-    }
+    if ( Com_GameMode_SupportsFeature(WEAPON_SPRINT_COMBAT_IN|0x80) && (unsigned int)accessoryIndex >= 0x3F && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_accessory.cpp", 103, ASSERT_TYPE_ASSERT, "( index ) < ( (63) )", "%s < %s\n\t%u, %u", "index", "INVALID_ACCESSORY_DEF_LEGACY", accessoryIndex, 63) )
+      __debugbreak();
     if ( (unsigned int)accessoryIndex >= 0x80 )
     {
-      LODWORD(v17) = 128;
-      LODWORD(v16) = accessoryIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_accessory.cpp", 107, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( s_bgAccessoryDefs ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( s_bgAccessoryDefs )\n\t%i not in [0, %i)", v16, v17) )
+      LODWORD(v10) = 128;
+      LODWORD(v9) = accessoryIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_accessory.cpp", 107, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( s_bgAccessoryDefs ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( s_bgAccessoryDefs )\n\t%i not in [0, %i)", v9, v10) )
         __debugbreak();
     }
-    v11 = s_bgAccessoryDefs[accessoryIndex];
-    if ( v11 )
+    v8 = s_bgAccessoryDefs[accessoryIndex];
+    if ( v8 )
     {
-      _RAX = BG_GetFirstEquippedWeaponBySlot(weaponMap, ps, WEAPON_SLOT_ACCESSORY);
-      __asm
+      *outAccessoryWeapon = *BG_GetFirstEquippedWeaponBySlot(weaponMap, ps, WEAPON_SLOT_ACCESSORY);
+      if ( !outAccessoryWeapon->weaponIdx )
       {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rdi], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rdi+20h], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rdi+30h], xmm0
-      }
-      *(_DWORD *)&_RDI->weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-      if ( !_RDI->weaponIdx )
-      {
-        LODWORD(v16) = ps->clientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_accessory.cpp", 168, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Player %i has Accessory '%s' equipped, but does not have a valid Accessory Weapon equipped.  Was the Weapon removed from the player's inventory without calling 'ClearAccessory()'?", v16, v11->name) )
+        LODWORD(v9) = ps->clientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_accessory.cpp", 168, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Player %i has Accessory '%s' equipped, but does not have a valid Accessory Weapon equipped.  Was the Weapon removed from the player's inventory without calling 'ClearAccessory()'?", v9, v8->name) )
           __debugbreak();
       }
     }

@@ -579,81 +579,76 @@ void XB3_Session_CacheSession(std::shared_ptr<xbox::services::multiplayer::multi
 {
   tCachedSession *Myfirst; 
   tCachedSession *Mylast; 
-  xbox::services::multiplayer::multiplayer_session_reference *v7; 
+  xbox::services::multiplayer::multiplayer_session_reference *v6; 
   const std::wstring *Ptr; 
-  xbox::services::multiplayer::multiplayer_session_reference *v9; 
-  const std::wstring *v10; 
+  xbox::services::multiplayer::multiplayer_session_reference *v8; 
+  const std::wstring *v9; 
   unsigned __int64 Mysize; 
-  unsigned __int64 v12; 
-  wchar_t v13; 
-  signed __int64 v14; 
-  bool v15; 
-  wchar_t v16; 
+  unsigned __int64 v11; 
+  wchar_t v12; 
+  signed __int64 v13; 
+  bool v14; 
+  wchar_t v15; 
   int m_timeWritten; 
-  tCachedSession *v18; 
-  int v19; 
-  tCachedSession *v20; 
+  tCachedSession *v17; 
+  int v18; 
+  tCachedSession *v19; 
   std::_Ref_count_base **p_Rep; 
+  std::_Ref_count_base *v21; 
   std::_Ref_count_base *v22; 
-  std::_Ref_count_base *v23; 
-  volatile signed __int32 *v24; 
+  volatile signed __int32 *v23; 
   volatile signed __int32 *Rep; 
-  std::_Ref_count_base *v26; 
-  xbox::services::multiplayer::multiplayer_session *v27; 
-  int v28; 
-  tCachedSession *v29; 
-  std::_Ref_count_base *v30; 
-  tCachedSession v31; 
-  void *retaddr; 
+  std::_Ref_count_base *v25; 
+  xbox::services::multiplayer::multiplayer_session *v26; 
+  int v27; 
+  tCachedSession *v28; 
+  std::_Ref_count_base *v29; 
+  tCachedSession v30; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-40h], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v30.mp_session = _XMM0;
   Myfirst = s_cachedSessionList._Mypair._Myval2._Myfirst;
   Mylast = s_cachedSessionList._Mypair._Myval2._Mylast;
   if ( s_cachedSessionList._Mypair._Myval2._Myfirst != s_cachedSessionList._Mypair._Myval2._Mylast )
   {
     while ( 1 )
     {
-      v7 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::multiplayer_session::session_reference(Myfirst->mp_session._Ptr);
-      Ptr = xbox::services::multiplayer::multiplayer_session_reference::session_name(v7);
-      v9 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::multiplayer_session::session_reference(mp_session->_Ptr);
-      v10 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v9);
+      v6 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::multiplayer_session::session_reference(Myfirst->mp_session._Ptr);
+      Ptr = xbox::services::multiplayer::multiplayer_session_reference::session_name(v6);
+      v8 = (xbox::services::multiplayer::multiplayer_session_reference *)xbox::services::multiplayer::multiplayer_session::session_reference(mp_session->_Ptr);
+      v9 = xbox::services::multiplayer::multiplayer_session_reference::session_name(v8);
       Mysize = Ptr->_Mypair._Myval2._Mysize;
       if ( Ptr->_Mypair._Myval2._Myres >= 8 )
         Ptr = (const std::wstring *)Ptr->_Mypair._Myval2._Bx._Ptr;
-      v12 = v10->_Mypair._Myval2._Mysize;
-      if ( v10->_Mypair._Myval2._Myres >= 8 )
-        v10 = (const std::wstring *)v10->_Mypair._Myval2._Bx._Ptr;
-      if ( v12 == Mysize )
+      v11 = v9->_Mypair._Myval2._Mysize;
+      if ( v9->_Mypair._Myval2._Myres >= 8 )
+        v9 = (const std::wstring *)v9->_Mypair._Myval2._Bx._Ptr;
+      if ( v11 == Mysize )
       {
-        if ( !v12 )
+        if ( !v11 )
         {
 LABEL_43:
           std::shared_ptr<xbox::services::multiplayer::multiplayer_session>::operator=(&Myfirst->mp_session, mp_session);
           Myfirst->m_timeWritten = Sys_Milliseconds();
           goto LABEL_45;
         }
-        v13 = v10->_Mypair._Myval2._Bx._Buf[0];
-        if ( v10->_Mypair._Myval2._Bx._Buf[0] >= Ptr->_Mypair._Myval2._Bx._Buf[0] )
+        v12 = v9->_Mypair._Myval2._Bx._Buf[0];
+        if ( v9->_Mypair._Myval2._Bx._Buf[0] >= Ptr->_Mypair._Myval2._Bx._Buf[0] )
         {
-          v14 = (char *)v10 - (char *)Ptr;
-          v15 = v13 <= Ptr->_Mypair._Myval2._Bx._Buf[0];
+          v13 = (char *)v9 - (char *)Ptr;
+          v14 = v12 <= Ptr->_Mypair._Myval2._Bx._Buf[0];
           do
           {
-            if ( !v15 )
+            if ( !v14 )
               break;
-            if ( v12 == 1 )
+            if ( v11 == 1 )
               goto LABEL_43;
-            --v12;
+            --v11;
             Ptr = (const std::wstring *)((char *)Ptr + 2);
-            v16 = *(wchar_t *)((char *)Ptr->_Mypair._Myval2._Bx._Buf + v14);
-            v15 = v16 <= Ptr->_Mypair._Myval2._Bx._Buf[0];
+            v15 = *(wchar_t *)((char *)Ptr->_Mypair._Myval2._Bx._Buf + v13);
+            v14 = v15 <= Ptr->_Mypair._Myval2._Bx._Buf[0];
           }
-          while ( v16 >= Ptr->_Mypair._Myval2._Bx._Buf[0] );
+          while ( v15 >= Ptr->_Mypair._Myval2._Bx._Buf[0] );
         }
       }
       ++Myfirst;
@@ -668,43 +663,43 @@ LABEL_43:
   if ( Mylast - Myfirst == 3 )
   {
     m_timeWritten = 0x7FFFFFFF;
-    v18 = NULL;
+    v17 = NULL;
     if ( Myfirst != Mylast )
     {
       do
       {
-        v19 = m_timeWritten;
+        v18 = m_timeWritten;
         m_timeWritten = Myfirst->m_timeWritten;
-        v20 = Myfirst;
-        if ( v19 <= m_timeWritten )
-          v20 = v18;
-        v18 = v20;
-        if ( v19 <= m_timeWritten )
-          m_timeWritten = v19;
+        v19 = Myfirst;
+        if ( v18 <= m_timeWritten )
+          v19 = v17;
+        v17 = v19;
+        if ( v18 <= m_timeWritten )
+          m_timeWritten = v18;
         ++Myfirst;
       }
       while ( Myfirst != Mylast );
       if ( m_timeWritten != 0x7FFFFFFF )
       {
-        if ( &v20[1] != Mylast )
+        if ( &v19[1] != Mylast )
         {
-          p_Rep = &v20->mp_session._Rep;
+          p_Rep = &v19->mp_session._Rep;
           do
           {
-            v22 = p_Rep[2];
-            v23 = p_Rep[3];
+            v21 = p_Rep[2];
+            v22 = p_Rep[3];
             p_Rep[2] = NULL;
             p_Rep[3] = NULL;
-            *(p_Rep - 1) = v22;
-            v24 = (volatile signed __int32 *)*p_Rep;
-            *p_Rep = v23;
-            if ( v24 )
+            *(p_Rep - 1) = v21;
+            v23 = (volatile signed __int32 *)*p_Rep;
+            *p_Rep = v22;
+            if ( v23 )
             {
-              if ( _InterlockedExchangeAdd(v24 + 2, 0xFFFFFFFF) == 1 )
+              if ( _InterlockedExchangeAdd(v23 + 2, 0xFFFFFFFF) == 1 )
               {
-                (**(void (__fastcall ***)(volatile signed __int32 *))v24)(v24);
-                if ( _InterlockedExchangeAdd(v24 + 3, 0xFFFFFFFF) == 1 )
-                  (*(void (__fastcall **)(volatile signed __int32 *))(*(_QWORD *)v24 + 8i64))(v24);
+                (**(void (__fastcall ***)(volatile signed __int32 *))v23)(v23);
+                if ( _InterlockedExchangeAdd(v23 + 3, 0xFFFFFFFF) == 1 )
+                  (*(void (__fastcall **)(volatile signed __int32 *))(*(_QWORD *)v23 + 8i64))(v23);
               }
             }
             *((_DWORD *)p_Rep + 2) = *((_DWORD *)p_Rep + 8);
@@ -728,44 +723,44 @@ LABEL_43:
       }
     }
   }
-  v26 = mp_session->_Rep;
-  if ( v26 )
+  v25 = mp_session->_Rep;
+  if ( v25 )
   {
-    _InterlockedIncrement((volatile signed __int32 *)&v26->_Uses);
-    v26 = mp_session->_Rep;
+    _InterlockedIncrement((volatile signed __int32 *)&v25->_Uses);
+    v25 = mp_session->_Rep;
   }
-  v27 = mp_session->_Ptr;
-  v31.mp_session._Ptr = mp_session->_Ptr;
-  v31.mp_session._Rep = v26;
-  v28 = Sys_Milliseconds();
-  v31.m_timeWritten = v28;
-  v29 = s_cachedSessionList._Mypair._Myval2._Mylast;
+  v26 = mp_session->_Ptr;
+  v30.mp_session._Ptr = mp_session->_Ptr;
+  v30.mp_session._Rep = v25;
+  v27 = Sys_Milliseconds();
+  v30.m_timeWritten = v27;
+  v28 = s_cachedSessionList._Mypair._Myval2._Mylast;
   if ( s_cachedSessionList._Mypair._Myval2._Myend == s_cachedSessionList._Mypair._Myval2._Mylast )
   {
-    std::vector<tCachedSession>::_Emplace_reallocate<tCachedSession const &>(&s_cachedSessionList, s_cachedSessionList._Mypair._Myval2._Mylast, &v31);
+    std::vector<tCachedSession>::_Emplace_reallocate<tCachedSession const &>(&s_cachedSessionList, s_cachedSessionList._Mypair._Myval2._Mylast, &v30);
   }
   else
   {
     s_cachedSessionList._Mypair._Myval2._Mylast->mp_session._Ptr = NULL;
-    v29->mp_session._Rep = NULL;
-    if ( v26 )
+    v28->mp_session._Rep = NULL;
+    if ( v25 )
     {
-      _InterlockedIncrement((volatile signed __int32 *)&v26->_Uses);
-      v28 = v31.m_timeWritten;
-      v27 = v31.mp_session._Ptr;
+      _InterlockedIncrement((volatile signed __int32 *)&v25->_Uses);
+      v27 = v30.m_timeWritten;
+      v26 = v30.mp_session._Ptr;
     }
-    v29->mp_session._Ptr = v27;
-    v29->mp_session._Rep = v26;
-    v29->m_timeWritten = v28;
+    v28->mp_session._Ptr = v26;
+    v28->mp_session._Rep = v25;
+    v28->m_timeWritten = v27;
     ++s_cachedSessionList._Mypair._Myval2._Mylast;
   }
 LABEL_45:
-  if ( v31.mp_session._Rep && _InterlockedExchangeAdd((volatile signed __int32 *)&v31.mp_session._Rep->_Uses, 0xFFFFFFFF) == 1 )
+  if ( v30.mp_session._Rep && _InterlockedExchangeAdd((volatile signed __int32 *)&v30.mp_session._Rep->_Uses, 0xFFFFFFFF) == 1 )
   {
-    v30 = v31.mp_session._Rep;
-    v31.mp_session._Rep->_Destroy(v31.mp_session._Rep);
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v30->_Weaks, 0xFFFFFFFF) == 1 )
-      v31.mp_session._Rep->_Delete_this(v31.mp_session._Rep);
+    v29 = v30.mp_session._Rep;
+    v30.mp_session._Rep->_Destroy(v30.mp_session._Rep);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v29->_Weaks, 0xFFFFFFFF) == 1 )
+      v30.mp_session._Rep->_Delete_this(v30.mp_session._Rep);
   }
 }
 

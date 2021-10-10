@@ -415,8 +415,15 @@ DevGui_AddGraphKnot
 void DevGui_AddGraphKnot(DevGraph *graph, LocalClientNum_t localClientNum)
 {
   unsigned __int16 v4; 
-  int v14; 
-  __int64 v15; 
+  vec2_t *knots; 
+  __int64 v6; 
+  vec2_t *selectedKnot; 
+  float v8; 
+  float v9; 
+  int v10; 
+  __int64 v11; 
+  float v12; 
+  float v13; 
   void (__fastcall *eventCallback)(const DevGraph *, DevEventType, LocalClientNum_t); 
 
   if ( !graph && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2356, ASSERT_TYPE_ASSERT, "(graph)", (const char *)&queryFormat, "graph") )
@@ -438,60 +445,40 @@ void DevGui_AddGraphKnot(DevGraph *graph, LocalClientNum_t localClientNum)
   }
   else
   {
-    _RDX = graph->knots;
-    _R9 = v4;
-    _RCX = (vec2_t *)graph->selectedKnot;
-    if ( (int)_RCX + 1 >= (int)_R9 )
+    knots = graph->knots;
+    v6 = v4;
+    selectedKnot = (vec2_t *)graph->selectedKnot;
+    if ( (int)selectedKnot + 1 >= (int)v6 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdx+rcx*8-8]
-        vaddss  xmm1, xmm0, dword ptr [rdx+rcx*8]
-        vmovss  xmm0, dword ptr [rdx+rcx*8-4]
-        vmulss  xmm4, xmm1, cs:__real@3f000000
-        vaddss  xmm1, xmm0, dword ptr [rdx+rcx*8+4]
-        vmulss  xmm3, xmm1, cs:__real@3f000000
-      }
-      _RDX[_R9].v[0] = _RDX[_R9 - 1].v[0];
-      _RDX[_R9].v[1] = _RDX[_R9 - 1].v[1];
-      _RAX = graph->knots;
-      __asm { vmovss  dword ptr [rax+r9*8-8], xmm4 }
-      _RAX = graph->knots;
-      __asm { vmovss  dword ptr [rax+r9*8-4], xmm3 }
+      v12 = (float)(knots[(_QWORD)selectedKnot - 1].v[0] + knots[(_QWORD)selectedKnot].v[0]) * 0.5;
+      v13 = (float)(knots[(_QWORD)selectedKnot - 1].v[1] + knots[(_QWORD)selectedKnot].v[1]) * 0.5;
+      knots[v6].v[0] = knots[v6 - 1].v[0];
+      knots[v6].v[1] = knots[v6 - 1].v[1];
+      graph->knots[v6 - 1].v[0] = v12;
+      graph->knots[v6 - 1].v[1] = v13;
     }
     else
     {
-      __asm
+      v8 = (float)(knots[(_QWORD)selectedKnot + 1].v[0] + knots[(_QWORD)selectedKnot].v[0]) * 0.5;
+      v9 = (float)(knots[(_QWORD)selectedKnot + 1].v[1] + knots[(_QWORD)selectedKnot].v[1]) * 0.5;
+      v10 = v6 - 1;
+      if ( (int)v6 - 1 >= (int)selectedKnot )
       {
-        vmovss  xmm0, dword ptr [rdx+rcx*8+8]
-        vaddss  xmm1, xmm0, dword ptr [rdx+rcx*8]
-        vmovss  xmm0, dword ptr [rdx+rcx*8+0Ch]
-        vmulss  xmm3, xmm1, cs:__real@3f000000
-        vaddss  xmm1, xmm0, dword ptr [rdx+rcx*8+4]
-        vmulss  xmm4, xmm1, cs:__real@3f000000
-      }
-      v14 = _R9 - 1;
-      if ( (int)_R9 - 1 >= (int)_RCX )
-      {
-        v15 = 8i64 * (int)_R9 - 8;
+        v11 = 8i64 * (int)v6 - 8;
         do
         {
-          _RCX = graph->knots;
-          v15 -= 8i64;
-          --v14;
-          *(float *)((char *)_RCX[2].v + v15) = *(float *)((char *)graph->knots[1].v + v15);
-          *(float *)((char *)&_RCX[2].v[1] + v15) = *(float *)((char *)&_RCX[1].v[1] + v15);
-          LODWORD(_RCX) = graph->selectedKnot;
+          selectedKnot = graph->knots;
+          v11 -= 8i64;
+          --v10;
+          *(float *)((char *)selectedKnot[2].v + v11) = *(float *)((char *)graph->knots[1].v + v11);
+          *(float *)((char *)&selectedKnot[2].v[1] + v11) = *(float *)((char *)&selectedKnot[1].v[1] + v11);
+          LODWORD(selectedKnot) = graph->selectedKnot;
         }
-        while ( v14 >= (int)_RCX );
-        _RDX = graph->knots;
+        while ( v10 >= (int)selectedKnot );
+        knots = graph->knots;
       }
-      _RAX = (int)_RCX;
-      __asm { vmovss  dword ptr [rdx+rax*8+8], xmm3 }
-      _RCX = graph->selectedKnot;
-      _RAX = graph->knots;
-      __asm { vmovss  dword ptr [rax+rcx*8+0Ch], xmm4 }
-      ++graph->selectedKnot;
+      knots[(int)selectedKnot + 1].v[0] = v8;
+      graph->knots[++graph->selectedKnot].v[1] = v9;
     }
     ++*graph->knotCount;
     eventCallback = graph->eventCallback;
@@ -862,239 +849,136 @@ DevGui_DrawFloat3ColorSliders
 */
 void DevGui_DrawFloat3ColorSliders(int *x, int *y, const dvar_t *dvar, int rowWidth, int rowHeight)
 {
-  bool v9; 
-  bool v17; 
-  unsigned __int8 v35; 
-  unsigned __int8 v40; 
-  unsigned __int8 v44; 
-  int v45; 
-  int v46; 
-  bool v47; 
-  bool v50; 
-  const dvar_t *v55; 
-  int v56; 
-  int v57; 
-  int v58; 
-  const char **v59; 
-  const dvar_t *v63; 
-  int v64; 
-  int v65; 
-  _BYTE v69[32]; 
-  char *fmt; 
-  int row[2]; 
-  __int64 v72; 
+  float min; 
+  float max; 
+  float v11; 
+  DvarValue *p_latched; 
+  float v13; 
+  float v14; 
+  float v15; 
+  int v18; 
+  unsigned __int8 v19; 
+  int v21; 
+  unsigned __int8 v22; 
+  int v24; 
+  unsigned __int8 v25; 
+  int v26; 
+  int v27; 
+  float v28; 
+  float v29; 
+  const dvar_t *v30; 
+  int v31; 
+  const char **v32; 
+  vec3_t *p_hsv; 
+  const dvar_t *v34; 
+  __int64 row; 
+  __int64 v36; 
   unsigned __int8 color[4]; 
-  int v74; 
+  int v38; 
   int rowWidtha; 
-  int v76; 
+  int v40; 
   vec3_t hsv; 
-  void *retaddr; 
+  float v42; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
-  v9 = (unsigned __int64)v69 == _security_cookie;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+58h]
-    vxorps  xmm8, xmm8, xmm8
-    vucomiss xmm0, xmm8
-  }
-  _RBP = dvar;
-  if ( (unsigned __int64)v69 != _security_cookie )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  qword ptr [rsp+0E8h+row], xmm0
-    }
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1276, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.min == 0.0f ) )", "( dvar->domain.vector.min ) = %g", *(double *)row);
-    v9 = !v17;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+5Ch]
-    vcomiss xmm0, xmm8
-  }
-  if ( v9 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  qword ptr [rsp+0E8h+row], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1277, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.max > 0.0f ) )", "( dvar->domain.vector.max ) = %g", *(double *)row) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm5, cs:__real@437f0000
-    vmovss  xmm4, cs:__real@3f000000
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm1, xmm0, dword ptr [rbp+5Ch]
-  }
-  _R13 = &_RBP->latched;
-  __asm
-  {
-    vmulss  xmm2, xmm1, dword ptr [r13+0]
-    vmulss  xmm0, xmm1, dword ptr [r13+0Ch]
-    vmulss  xmm3, xmm1, dword ptr [r13+4]
-    vmulss  xmm7, xmm1, dword ptr [r13+8]
-    vmovss  [rsp+0E8h+var_8C], xmm0
-    vmulss  xmm0, xmm2, xmm5
-    vaddss  xmm1, xmm0, xmm4
-    vmovss  dword ptr [rsp+0E8h+hsv], xmm2
-    vxorps  xmm6, xmm6, xmm6
-    vroundss xmm2, xmm6, xmm1, 1
-    vcvttss2si ecx, xmm2
-  }
+  min = dvar->domain.value.min;
+  if ( min != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1276, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.min == 0.0f ) )", "( dvar->domain.vector.min ) = %g", min) )
+    __debugbreak();
+  max = dvar->domain.value.max;
+  if ( max <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1277, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.max > 0.0f ) )", "( dvar->domain.vector.max ) = %g", max) )
+    __debugbreak();
+  v11 = 1.0 / dvar->domain.value.max;
+  p_latched = &dvar->latched;
+  v13 = v11 * dvar->latched.value;
+  v14 = v11 * dvar->latched.vector.v[1];
+  v15 = v11 * dvar->latched.vector.v[2];
+  v42 = v11 * dvar->latched.vector.v[3];
+  hsv.v[0] = v13;
+  _XMM6 = 0i64;
+  __asm { vroundss xmm2, xmm6, xmm1, 1 }
+  v18 = (int)*(float *)&_XMM2;
   color[3] = -1;
-  __asm { vmulss  xmm0, xmm3, xmm5 }
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v35 = _ECX;
-  v76 = 0;
-  __asm { vaddss  xmm2, xmm0, xmm4 }
-  if ( _ECX < 0 )
-    v35 = 0;
-  color[0] = v35;
-  __asm
-  {
-    vroundss xmm0, xmm6, xmm2, 1
-    vcvttss2si ecx, xmm0
-    vmulss  xmm0, xmm7, xmm5
-  }
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v40 = _ECX;
-  __asm { vaddss  xmm2, xmm0, xmm4 }
-  if ( _ECX < 0 )
-    v40 = 0;
-  color[1] = v40;
-  __asm
-  {
-    vroundss xmm0, xmm6, xmm2, 1
-    vcvttss2si ecx, xmm0
-    vmovss  dword ptr [rsp+0E8h+hsv+4], xmm3
-  }
-  if ( _ECX > 255 )
-    _ECX = 255;
-  v44 = _ECX;
-  __asm { vmovss  dword ptr [rsp+0E8h+hsv+8], xmm7 }
-  if ( _ECX < 0 )
-    v44 = 0;
-  color[2] = v44;
+  if ( (int)*(float *)&_XMM2 > 255 )
+    v18 = 255;
+  v19 = v18;
+  v40 = 0;
+  if ( v18 < 0 )
+    v19 = 0;
+  color[0] = v19;
+  __asm { vroundss xmm0, xmm6, xmm2, 1 }
+  v21 = (int)*(float *)&_XMM0;
+  if ( (int)*(float *)&_XMM0 > 255 )
+    v21 = 255;
+  v22 = v21;
+  if ( v21 < 0 )
+    v22 = 0;
+  color[1] = v22;
+  __asm { vroundss xmm0, xmm6, xmm2, 1 }
+  v24 = (int)*(float *)&_XMM0;
+  hsv.v[1] = v14;
+  if ( (int)*(float *)&_XMM0 > 255 )
+    v24 = 255;
+  v25 = v24;
+  hsv.v[2] = v15;
+  if ( v24 < 0 )
+    v25 = 0;
+  color[2] = v25;
   *y += rowHeight + 2;
   DevGui_DrawBox(*x, *y, rowWidth, rowHeight, color);
-  v45 = 0;
-  v74 = 2 * DevGui_GetFontWidth(labels[0]);
-  rowWidtha = rowWidth - v74;
-  v46 = rowWidth - v74;
+  v26 = 0;
+  v38 = 2 * DevGui_GetFontWidth(labels[0]);
+  rowWidtha = rowWidth - v38;
+  v27 = rowWidth - v38;
   *(_QWORD *)hsv.v = labels;
   do
   {
-    v9 = rowHeight + 2 + *y == 0;
-    v47 = __CFADD__(rowHeight + 2, *y) || v9;
     *y += rowHeight + 2;
-    __asm
+    v28 = dvar->domain.value.min;
+    if ( v28 != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1292, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.min == 0.0f ) )", "( dvar->domain.vector.min ) = %g", v28) )
+      __debugbreak();
+    v29 = dvar->domain.value.max;
+    if ( v29 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1293, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.max > 0.0f ) )", "( dvar->domain.vector.max ) = %g", v29) )
+      __debugbreak();
+    if ( (unsigned int)v26 >= 4 )
     {
-      vmovss  xmm0, dword ptr [rbp+58h]
-      vucomiss xmm0, xmm8
-    }
-    if ( !v9 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  qword ptr [rsp+0E8h+row], xmm0
-      }
-      v50 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1292, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.min == 0.0f ) )", "( dvar->domain.vector.min ) = %g", *(double *)row);
-      v47 = !v50;
-      if ( v50 )
+      LODWORD(v36) = 4;
+      LODWORD(row) = v26;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 93, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", row, v36) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+5Ch]
-      vcomiss xmm0, xmm8
-    }
-    if ( v47 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  qword ptr [rsp+0E8h+row], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1293, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.max > 0.0f ) )", "( dvar->domain.vector.max ) = %g", *(double *)row) )
-        __debugbreak();
-    }
-    if ( (unsigned int)v45 >= 4 )
-    {
-      LODWORD(v72) = 4;
-      row[0] = v45;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 93, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", *(_QWORD *)row, v72) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r13+0]
-      vdivss  xmm1, xmm0, dword ptr [rbp+5Ch]
-    }
-    v55 = devgui_colorTextSel;
-    if ( v45 != devguiGlob.selRow )
-      v55 = devgui_colorTextGray;
-    v56 = *x + v74;
-    v57 = *y;
-    __asm { vmovss  dword ptr [rsp+0E8h+fmt], xmm1 }
-    DevGui_DrawSingleSlider(v56, v57, v46, rowHeight, *(float *)&fmt, v45);
-    DevGui_DrawFont(*x, *y, (const unsigned __int8 *)&v55->current, **(const char ***)hsv.v);
+    v30 = devgui_colorTextSel;
+    if ( v26 != devguiGlob.selRow )
+      v30 = devgui_colorTextGray;
+    DevGui_DrawSingleSlider(*x + v38, *y, v27, rowHeight, p_latched->value / dvar->domain.value.max, v26);
+    DevGui_DrawFont(*x, *y, (const unsigned __int8 *)&v30->current, **(const char ***)hsv.v);
     *(_QWORD *)hsv.v += 8i64;
-    _R13 = (DvarValue *)((char *)_R13 + 4);
-    ++v45;
+    p_latched = (DvarValue *)((char *)p_latched + 4);
+    ++v26;
   }
-  while ( v45 < 3 );
-  v58 = v76;
-  v59 = &labels[3];
-  _RDI = &hsv;
+  while ( v26 < 3 );
+  v31 = v40;
+  v32 = &labels[3];
+  p_hsv = &hsv;
   do
   {
-    __asm { vmovss  xmm2, dword ptr [rbp+5Ch]; scale }
-    DevGui_Vec3ToHSV((const vec3_t *)&_RBP->latched, &hsv, *(float *)&_XMM2);
+    DevGui_Vec3ToHSV((const vec3_t *)&dvar->latched, &hsv, dvar->domain.value.max);
     *y += rowHeight + 2;
-    if ( (unsigned int)v58 >= 3 )
+    if ( (unsigned int)v31 >= 3 )
     {
-      LODWORD(v72) = 3;
-      row[0] = v58;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", *(_QWORD *)row, v72) )
+      LODWORD(v36) = 3;
+      LODWORD(row) = v31;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", row, v36) )
         __debugbreak();
     }
-    __asm { vmovss  xmm0, dword ptr [rdi] }
-    v63 = devgui_colorTextSel;
-    if ( v58 + 3 != devguiGlob.selRow )
-      v63 = devgui_colorTextGray;
-    v64 = *x + v74;
-    row[0] = v58 + 3;
-    v65 = *y;
-    __asm { vmovss  dword ptr [rsp+0E8h+fmt], xmm0 }
-    DevGui_DrawSingleSlider(v64, v65, rowWidtha, rowHeight, *(float *)&fmt, v58 + 3);
-    DevGui_DrawFont(*x, *y, (const unsigned __int8 *)&v63->current, *v59);
-    _RDI = (vec3_t *)((char *)_RDI + 4);
-    ++v59;
-    ++v58;
+    v34 = devgui_colorTextSel;
+    if ( v31 + 3 != devguiGlob.selRow )
+      v34 = devgui_colorTextGray;
+    DevGui_DrawSingleSlider(*x + v38, *y, rowWidtha, rowHeight, p_hsv->v[0], v31 + 3);
+    DevGui_DrawFont(*x, *y, (const unsigned __int8 *)&v34->current, *v32);
+    p_hsv = (vec3_t *)((char *)p_hsv + 4);
+    ++v32;
+    ++v31;
   }
-  while ( v58 < 3 );
-  __asm
-  {
-    vmovaps xmm6, [rsp+0E8h+var_58]
-    vmovaps xmm7, [rsp+0E8h+var_68]
-    vmovaps xmm8, [rsp+0E8h+var_78]
-  }
+  while ( v31 < 3 );
 }
 
 /*
@@ -1104,6 +988,10 @@ DevGui_DrawGraph
 */
 void DevGui_DrawGraph(const DevMenuItem *menu, LocalClientNum_t localClientNum)
 {
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
   unsigned __int8 childType; 
   DevMenuChild v8; 
   int width; 
@@ -1111,25 +999,37 @@ void DevGui_DrawGraph(const DevMenuItem *menu, LocalClientNum_t localClientNum)
   int v11; 
   int v12; 
   int v13; 
+  int v14; 
+  int v15; 
+  int v16; 
+  __int64 v17; 
+  __int64 v18; 
+  int v19; 
   int v20; 
-  __int64 v21; 
+  int v21; 
   __int64 v22; 
-  int v23; 
+  const dvar_t *v23; 
   int v24; 
-  int v25; 
-  __int64 v27; 
-  int v33; 
+  __int64 v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
   int v34; 
-  const dvar_t *v35; 
-  int v36; 
-  int v63; 
-  void (__fastcall *v67)(DevMenuChild, __int64, __int64, char *, int); 
-  void (__fastcall *v74)(DevMenuChild, __int64, _QWORD); 
-  float fmt; 
-  int v76; 
+  void (__fastcall *v35)(DevMenuChild, __int64, __int64, char *, int); 
+  void (__fastcall *v36)(DevMenuChild, __int64, _QWORD); 
+  int v37; 
   vec2_t end; 
   vec2_t start; 
   char _Buffer[256]; 
+  __int128 v42; 
+  __int128 v43; 
+  __int128 v44; 
+  __int128 v45; 
 
   childType = menu->childType;
   if ( childType != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1582, ASSERT_TYPE_ASSERT, "(menu->childType == DEV_CHILD_GRAPH)", "%s\n\tmenu %s type %i", "menu->childType == DEV_CHILD_GRAPH", menu->label, childType) )
@@ -1144,176 +1044,88 @@ void DevGui_DrawGraph(const DevMenuItem *menu, LocalClientNum_t localClientNum)
   if ( !*((_WORD *)v8.command + 8) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1585, ASSERT_TYPE_ASSERT, "(graph->knotCountMax > 0)", (const char *)&queryFormat, "graph->knotCountMax > 0") )
     __debugbreak();
   width = devguiGlob.slider.width;
-  __asm
-  {
-    vmovaps [rsp+1E8h+var_48], xmm6
-    vmovaps [rsp+1E8h+var_58], xmm7
-  }
+  v45 = v2;
+  v44 = v3;
   FontHeight = DevGui_GetFontHeight();
-  width += 8;
-  v11 = 3 * FontHeight + 16;
-  v12 = devguiGlob.bottom - v11;
-  v13 = devguiGlob.left + (devguiGlob.right - devguiGlob.left - width) / 2;
-  _RAX = devgui_bevelShade;
-  __asm
+  v11 = width + 8;
+  v12 = 3 * FontHeight + 16;
+  v13 = devguiGlob.bottom - v12;
+  v14 = devguiGlob.left + (devguiGlob.right - devguiGlob.left - v11) / 2;
+  DevGui_DrawBevelBox(v14, devguiGlob.bottom - v12, v11, v12, devgui_bevelShade->current.value, (const unsigned __int8 *)&devgui_colorBgnd->current);
+  v15 = (int)(float)((float)v13 * 0.94999999);
+  DevGui_DrawBox(v14, v15, v11, 2, (const unsigned __int8 *)&devgui_colorBgndSel->current);
+  v16 = v14 + 4;
+  v37 = v13 + 6;
+  DevGui_DrawSliderPath(v16, v13 + 6);
+  v19 = 0;
+  v20 = 0;
+  LOWORD(v21) = **((_WORD **)v8.command + 1);
+  if ( (_WORD)v21 )
   {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmovss  dword ptr [rsp+1E8h+fmt], xmm0
-  }
-  DevGui_DrawBevelBox(v13, devguiGlob.bottom - v11, width, v11, fmt, (const unsigned __int8 *)&devgui_colorBgnd->current);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebx
-    vmulss  xmm1, xmm0, cs:__real@3f733333
-    vcvttss2si r15d, xmm1
-  }
-  DevGui_DrawBox(v13, _ER15, width, 2, (const unsigned __int8 *)&devgui_colorBgndSel->current);
-  v20 = v13 + 4;
-  v76 = v12 + 6;
-  DevGui_DrawSliderPath(v20, v12 + 6);
-  v23 = 0;
-  v24 = 0;
-  LOWORD(v25) = **((_WORD **)v8.command + 1);
-  if ( (_WORD)v25 )
-  {
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    v27 = 0i64;
-    __asm
-    {
-      vxorps  xmm7, xmm7, xmm7
-      vcvtsi2ss xmm6, xmm6, r12d
-      vcvtsi2ss xmm7, xmm7, eax
-    }
+    v22 = 0i64;
     do
     {
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rbx+rcx]
-        vcvttss2si r10d, xmm0
-        vmulss  xmm0, xmm7, dword ptr [rbx+rcx+4]
-        vcvttss2si eax, xmm0
-      }
-      v33 = _ER15 - _EAX;
-      v34 = v20 + _ER10;
-      if ( v24 == *((_DWORD *)v8.command + 5) )
+      if ( v20 == *((_DWORD *)v8.command + 5) )
       {
         if ( devguiGlob.editingKnot )
         {
-          v35 = devgui_colorGraphKnotEditing;
-          v36 = 19;
+          v23 = devgui_colorGraphKnotEditing;
+          v24 = 19;
         }
         else
         {
-          v35 = devgui_colorGraphKnotSelected;
-          v36 = 16;
+          v23 = devgui_colorGraphKnotSelected;
+          v24 = 16;
         }
       }
       else
       {
-        v35 = devgui_colorGraphKnotNormal;
-        v36 = 12;
+        v23 = devgui_colorGraphKnotNormal;
+        v24 = 12;
       }
-      DevGui_DrawBoxCentered(v34, v33, v36, v36, (const unsigned __int8 *)&v35->current);
-      ++v24;
-      v27 += 8i64;
-      v25 = **((unsigned __int16 **)v8.command + 1);
+      DevGui_DrawBoxCentered(v16 + (int)(float)((float)v11 * *(float *)(v22 + *(_QWORD *)v8.command)), v15 - (int)(float)((float)(v15 - 48) * *(float *)(v22 + *(_QWORD *)v8.command + 4)), v24, v24, (const unsigned __int8 *)&v23->current);
+      ++v20;
+      v22 += 8i64;
+      v21 = **((unsigned __int16 **)v8.command + 1);
     }
-    while ( v24 < v25 );
+    while ( v20 < v21 );
   }
-  if ( (unsigned __int16)v25 - 1 > 0 )
+  if ( (unsigned __int16)v21 - 1 > 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+1E8h+var_68], xmm8
-      vmovaps [rsp+1E8h+var_78], xmm9
-    }
-    _RBX = 0i64;
-    __asm
-    {
-      vxorps  xmm9, xmm9, xmm9
-      vxorps  xmm6, xmm6, xmm6
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm8, xmm8, xmm8
-      vcvtsi2ss xmm9, xmm9, r12d
-      vcvtsi2ss xmm6, xmm6, r14d
-      vcvtsi2ss xmm7, xmm7, r15d
-      vcvtsi2ss xmm8, xmm8, eax
-    }
+    v43 = v4;
+    v42 = v5;
+    v25 = 0i64;
+    v26 = (float)v11;
+    v27 = (float)v16;
+    v28 = (float)v15;
+    v29 = (float)(v15 - 48);
     do
     {
-      _RAX = *(_QWORD *)v8.command;
-      __asm
-      {
-        vmulss  xmm0, xmm9, dword ptr [rbx+rax]
-        vmovss  xmm2, dword ptr [rbx+rax+4]
-        vaddss  xmm1, xmm0, xmm6
-        vmulss  xmm2, xmm8, xmm2
-        vsubss  xmm0, xmm7, xmm2
-      }
-      _RBX += 8i64;
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+rax]
-        vmovss  xmm4, dword ptr [rbx+rax+4]
-        vmovss  dword ptr [rsp+1E8h+start], xmm1
-        vmulss  xmm1, xmm9, xmm3
-        vaddss  xmm2, xmm1, xmm6
-        vmovss  dword ptr [rsp+1E8h+start+4], xmm0
-        vmulss  xmm0, xmm8, xmm4
-        vsubss  xmm1, xmm7, xmm0
-        vmovss  dword ptr [rsp+1E8h+end+4], xmm1
-        vmovss  dword ptr [rsp+1E8h+end], xmm2
-      }
+      v30 = (float)(v26 * *(float *)(v25 + *(_QWORD *)v8.command)) + v27;
+      v31 = v28 - (float)(v29 * *(float *)(v25 + *(_QWORD *)v8.command + 4));
+      v25 += 8i64;
+      v32 = *(float *)(v25 + *(_QWORD *)v8.command);
+      v33 = *(float *)(v25 + *(_QWORD *)v8.command + 4);
+      start.v[0] = v30;
+      start.v[1] = v31;
+      end.v[1] = v28 - (float)(v29 * v33);
+      end.v[0] = (float)(v26 * v32) + v27;
       DevGui_DrawLine(&start, &end, 2, (const unsigned __int8 *)&devgui_colorGraphKnotNormal->current);
-      ++v23;
+      ++v19;
     }
-    while ( v23 < **((unsigned __int16 **)v8.command + 1) - 1 );
-    __asm
-    {
-      vmovaps xmm9, [rsp+1E8h+var_78]
-      vmovaps xmm8, [rsp+1E8h+var_68]
-    }
+    while ( v19 < **((unsigned __int16 **)v8.command + 1) - 1 );
   }
-  _RCX = *((int *)v8.command + 5);
-  __asm
-  {
-    vmovaps xmm7, [rsp+1E8h+var_58]
-    vmovaps xmm6, [rsp+1E8h+var_48]
-  }
-  v63 = v76 + FontHeight + 2;
-  _RAX = *(_QWORD *)v8.command;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+rcx*8]
-    vmovss  xmm1, dword ptr [rax+rcx*8+4]
-  }
-  v67 = (void (__fastcall *)(DevMenuChild, __int64, __int64, char *, int))*((_QWORD *)v8.command + 4);
-  if ( v67 )
-  {
-    __asm
-    {
-      vmovaps xmm2, xmm1
-      vmovaps xmm1, xmm0
-    }
-    ((void (__fastcall *)(_QWORD, _QWORD, _QWORD, _QWORD, _DWORD))v67)((DevMenuChild)v8.command, v21, v22, _Buffer, 256);
-  }
+  v34 = v37 + FontHeight + 2;
+  v35 = (void (__fastcall *)(DevMenuChild, __int64, __int64, char *, int))*((_QWORD *)v8.command + 4);
+  if ( v35 )
+    ((void (__fastcall *)(_QWORD, _QWORD, _QWORD, _QWORD, _DWORD))v35)((DevMenuChild)v8.command, v17, v18, _Buffer, 256);
   else
-  {
-    __asm
-    {
-      vcvtss2sd xmm3, xmm1, xmm1
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    j_sprintf(_Buffer, "X: %.4f, Y: %.4f", *(double *)&_XMM2, *(double *)&_XMM3);
-  }
-  DevGui_DrawFont(v20, v63, (const unsigned __int8 *)&devgui_colorText->current, _Buffer);
-  DevGui_DrawFont(v20, v63 + FontHeight + 2, (const unsigned __int8 *)&devgui_colorText->current, MYINSTRUCTIONS);
-  v74 = (void (__fastcall *)(DevMenuChild, __int64, _QWORD))*((_QWORD *)v8.command + 3);
-  if ( v74 )
-    ((void (__fastcall *)(_QWORD, _QWORD, _QWORD))v74)((DevMenuChild)v8.command, 4i64, (unsigned int)localClientNum);
+    j_sprintf(_Buffer, "X: %.4f, Y: %.4f", *(float *)(*(_QWORD *)v8.command + 8i64 * *((int *)v8.command + 5)), *(float *)(*(_QWORD *)v8.command + 8i64 * *((int *)v8.command + 5) + 4));
+  DevGui_DrawFont(v16, v34, (const unsigned __int8 *)&devgui_colorText->current, _Buffer);
+  DevGui_DrawFont(v16, v34 + FontHeight + 2, (const unsigned __int8 *)&devgui_colorText->current, MYINSTRUCTIONS);
+  v36 = (void (__fastcall *)(DevMenuChild, __int64, _QWORD))*((_QWORD *)v8.command + 3);
+  if ( v36 )
+    ((void (__fastcall *)(_QWORD, _QWORD, _QWORD))v36)((DevMenuChild)v8.command, 4i64, (unsigned int)localClientNum);
 }
 
 /*
@@ -1332,10 +1144,9 @@ void DevGui_DrawMenu(unsigned __int16 menuHandle, unsigned __int16 activeChild, 
   int v11; 
   DevMenuItem *v12; 
   int v13; 
-  float fmt; 
   unsigned __int8 *color; 
-  __int64 v18; 
-  __int64 v19; 
+  __int64 v15; 
+  __int64 v16; 
   DevMenuItem *Menu; 
   unsigned __int8 outBoxColor[4]; 
   unsigned __int8 outTextColor[4]; 
@@ -1364,10 +1175,10 @@ void DevGui_DrawMenu(unsigned __int16 menuHandle, unsigned __int16 activeChild, 
       {
         if ( (unsigned __int16)(nextSibling - 1) > 0x1F3Fu )
         {
-          LODWORD(v19) = 8000;
-          LODWORD(v18) = 1;
+          LODWORD(v16) = 8000;
+          LODWORD(v15) = 1;
           LODWORD(color) = nextSibling;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 176, ASSERT_TYPE_ASSERT, "( 1 ) <= ( handle ) && ( handle ) <= ( ( sizeof( *array_counter( devguiGlob.menus ) ) + 0 ) )", "handle not in [1, ARRAY_COUNT( devguiGlob.menus )]\n\t%i not in [%i, %i]", color, v18, v19) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 176, ASSERT_TYPE_ASSERT, "( 1 ) <= ( handle ) && ( handle ) <= ( ( sizeof( *array_counter( devguiGlob.menus ) ) + 0 ) )", "handle not in [1, ARRAY_COUNT( devguiGlob.menus )]\n\t%i not in [%i, %i]", color, v15, v16) )
             __debugbreak();
         }
         v12 = &devguiGlob.menus[nextSibling - 1];
@@ -1378,13 +1189,7 @@ void DevGui_DrawMenu(unsigned __int16 menuHandle, unsigned __int16 activeChild, 
           origin[1] = v11 + v7 + 8;
         }
         DevGui_GetButtonColor((unsigned __int8 (*)[4])outBoxColor, (unsigned __int8 (*)[4])outTextColor, nextSibling, nextSibling == menuHandle);
-        _RAX = devgui_bevelShade;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+28h]
-          vmovss  dword ptr [rsp+88h+fmt], xmm0
-        }
-        DevGui_DrawBevelBox(v8, v7, v13, v11 + 8, fmt, outBoxColor);
+        DevGui_DrawBevelBox(v8, v7, v13, v11 + 8, devgui_bevelShade->current.value, outBoxColor);
         DevGui_DrawFont(v8 + 4, v7 + 4, outTextColor, v12->label);
         nextSibling = v12->nextSibling;
         v8 += v13;
@@ -1403,107 +1208,94 @@ DevGui_DrawMenuDescription
 */
 void DevGui_DrawMenuDescription(const DevMenuItem *menu, bool slider)
 {
+  __int128 v2; 
   unsigned __int8 childType; 
+  const dvar_t *dvar; 
   int FontHeight; 
   int left; 
   int v9; 
   const char *description; 
   int v11; 
   int v12; 
+  int v13; 
   int v14; 
-  int v17; 
-  int v19; 
+  int v15; 
   const char *UnobfuscatedName; 
-  BOOL v21; 
+  BOOL v17; 
+  int v18; 
+  int v19; 
+  int v20; 
+  int v21; 
   int v22; 
-  int v23; 
-  int v25; 
-  int v27; 
-  int v29; 
-  const char *v30; 
-  int v31; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
+  const char *v23; 
+  int v24; 
   int outLineCount[4]; 
-  DvarValue v36; 
+  DvarValue current; 
   char text[64]; 
   char dest[128]; 
   char outBuffer[1024]; 
+  __int128 v30; 
 
   childType = menu->childType;
   if ( childType != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1511, ASSERT_TYPE_ASSERT, "(menu->childType == DEV_CHILD_DVAR)", "%s\n\tmenu %s type %i", "menu->childType == DEV_CHILD_DVAR", menu->label, childType) )
     __debugbreak();
-  _R14 = menu->child.dvar;
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1513, ASSERT_TYPE_ASSERT, "( ( dvar ) )", "( menu->label ) = %s", menu->label) )
+  dvar = menu->child.dvar;
+  if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1513, ASSERT_TYPE_ASSERT, "( ( dvar ) )", "( menu->label ) = %s", menu->label) )
     __debugbreak();
   FontHeight = DevGui_GetFontHeight();
   left = devguiGlob.left;
   v9 = 0;
-  description = _R14->description;
+  description = dvar->description;
   v11 = FontHeight + 2;
   v12 = (devguiGlob.right - devguiGlob.left) / 2;
   if ( *description )
   {
-    __asm
-    {
-      vmovaps [rsp+578h+var_48], xmm6
-      vmovss  xmm6, cs:__real@3f800000
-    }
+    v30 = v2;
     do
     {
-      __asm { vmovss  dword ptr [rsp+578h+fmt], xmm6 }
-      description = R_TextLineWrapPosition(description, 256, v12 - 16, cls.consoleFont, fmt);
+      description = R_TextLineWrapPosition(description, 256, v12 - 16, cls.consoleFont, 1.0);
       if ( isspace(*description) )
       {
         do
         {
           if ( *description == 10 )
             break;
-          v14 = *++description;
+          v13 = *++description;
         }
-        while ( isspace(v14) );
+        while ( isspace(v13) );
       }
       ++v9;
     }
     while ( *description );
     left = devguiGlob.left;
-    __asm { vmovaps xmm6, [rsp+578h+var_48] }
   }
-  _RAX = devgui_bevelShade;
-  v17 = v11 * (v9 + 1) + 18;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  v19 = devguiGlob.bottom - 75 * slider - v17 - 25;
-  __asm { vmovss  dword ptr [rsp+578h+fmt], xmm0 }
-  DevGui_DrawBevelBox(left, v19, v12, v17, fmta, (const unsigned __int8 *)&devgui_colorBgnd->current);
-  UnobfuscatedName = Dvar_DevGetUnobfuscatedName(_R14->name);
-  DevGui_DrawFont(left + 8, v19 + 8, (const unsigned __int8 *)&devgui_colorTextSel->current, UnobfuscatedName);
-  DevGui_WrapDescription(_R14->description, v12 - 16, left + 8, v19 + v11 + 10, v11, 1);
-  Dvar_DomainToString_GetLines(_R14, outBuffer, 0x400ui64, outLineCount);
+  v14 = v11 * (v9 + 1) + 18;
+  v15 = devguiGlob.bottom - 75 * slider - v14 - 25;
+  DevGui_DrawBevelBox(left, v15, v12, v14, devgui_bevelShade->current.value, (const unsigned __int8 *)&devgui_colorBgnd->current);
+  UnobfuscatedName = Dvar_DevGetUnobfuscatedName(dvar->name);
+  DevGui_DrawFont(left + 8, v15 + 8, (const unsigned __int8 *)&devgui_colorTextSel->current, UnobfuscatedName);
+  DevGui_WrapDescription(dvar->description, v12 - 16, left + 8, v15 + v11 + 10, v11, 1);
+  Dvar_DomainToString_GetLines(dvar, outBuffer, 0x400ui64, outLineCount);
   ++outLineCount[0];
-  v21 = Dvar_FlagsToString(_R14, text, 0x40ui64);
-  v22 = DevGui_GetFontHeight() + 2;
-  v23 = devguiGlob.right - (devguiGlob.right - devguiGlob.left) / 3;
-  _RAX = devgui_bevelShade;
-  v25 = v22 * (v21 + outLineCount[0] + 1) + 16;
-  __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  v27 = devguiGlob.bottom - v25;
-  __asm { vmovss  dword ptr [rsp+578h+fmt], xmm0 }
-  DevGui_DrawBevelBox(v23 - 30, devguiGlob.bottom - v25 - 25, (devguiGlob.right - devguiGlob.left) / 3, v25, fmtb, (const unsigned __int8 *)&devgui_colorBgnd->current);
-  __asm { vmovups xmm0, xmmword ptr [r14+28h] }
-  v29 = v23 - 22;
-  v27 -= 17;
-  __asm { vmovups [rsp+578h+var_528], xmm0 }
-  v30 = Dvar_ValueToString(_R14, &v36);
-  Com_sprintf(dest, 0x80ui64, "value = %s", v30);
-  DevGui_DrawFont(v29, v27, (const unsigned __int8 *)&devgui_colorTextSel->current, dest);
-  v31 = v22 + v27;
-  if ( v21 )
+  v17 = Dvar_FlagsToString(dvar, text, 0x40ui64);
+  v18 = DevGui_GetFontHeight() + 2;
+  v19 = devguiGlob.right - (devguiGlob.right - devguiGlob.left) / 3;
+  v20 = v18 * (v17 + outLineCount[0] + 1) + 16;
+  v21 = devguiGlob.bottom - v20;
+  DevGui_DrawBevelBox(v19 - 30, devguiGlob.bottom - v20 - 25, (devguiGlob.right - devguiGlob.left) / 3, v20, devgui_bevelShade->current.value, (const unsigned __int8 *)&devgui_colorBgnd->current);
+  v22 = v19 - 22;
+  v21 -= 17;
+  current = dvar->current;
+  v23 = Dvar_ValueToString(dvar, &current);
+  Com_sprintf(dest, 0x80ui64, "value = %s", v23);
+  DevGui_DrawFont(v22, v21, (const unsigned __int8 *)&devgui_colorTextSel->current, dest);
+  v24 = v18 + v21;
+  if ( v17 )
   {
-    DevGui_DrawFont(v29, v31, (const unsigned __int8 *)&devgui_colorText->current, text);
-    v31 += v22;
+    DevGui_DrawFont(v22, v24, (const unsigned __int8 *)&devgui_colorText->current, text);
+    v24 += v18;
   }
-  DevGui_DrawFont(v29, v31, (const unsigned __int8 *)&devgui_colorText->current, outBuffer);
+  DevGui_DrawFont(v22, v24, (const unsigned __int8 *)&devgui_colorText->current, outBuffer);
 }
 
 /*
@@ -1513,278 +1305,256 @@ DevGui_DrawMenuVertically
 */
 void DevGui_DrawMenuVertically(const DevMenuItem *menu, unsigned __int16 activeChild, int *origin)
 {
-  unsigned __int16 v6; 
-  const DevMenuItem *v7; 
+  unsigned __int16 v4; 
+  const DevMenuItem *v5; 
+  int v6; 
+  int v7; 
   int v8; 
   int v9; 
   int v10; 
   int v11; 
   int v12; 
-  int v13; 
-  int v14; 
   unsigned __int16 nextSibling; 
+  int v14; 
+  int v15; 
   int v16; 
   int v17; 
   int v18; 
-  int v19; 
-  int v20; 
-  unsigned __int16 v23; 
-  DevMenuItem *v25; 
-  bool v26; 
-  DevMenuChild v27; 
-  char v28; 
-  const dvar_t *v29; 
+  unsigned __int16 v19; 
+  DevMenuItem *v20; 
+  bool v21; 
+  DevMenuChild v22; 
+  char v23; 
+  const dvar_t *v24; 
   int *p_integer; 
-  const dvar_t *v31; 
-  bool v32; 
+  const dvar_t *v26; 
+  bool v27; 
+  float value; 
   unsigned __int8 childType; 
-  char *v36; 
-  int v37; 
+  char *v30; 
+  int v31; 
   const dvar_t *dvar; 
   unsigned __int8 type; 
-  int v40; 
-  const char *v41; 
-  int v42; 
-  const char *v43; 
-  int v44; 
-  const char *v45; 
-  float fmt; 
-  float fmta; 
+  int v34; 
+  const char *v35; 
+  int v36; 
+  const char *v37; 
+  int v38; 
+  const char *v39; 
   unsigned __int8 *color; 
-  __int64 v51; 
-  __int64 v52; 
+  __int64 v41; 
+  __int64 v42; 
   int w; 
   int x; 
-  unsigned __int8 v55[4]; 
+  unsigned __int8 v45[4]; 
   int h; 
-  int v57; 
-  int v58; 
-  int v62; 
+  int v47; 
+  int v48; 
+  int v50; 
   int integer; 
 
-  v6 = activeChild;
-  v7 = menu;
+  v4 = activeChild;
+  v5 = menu;
   if ( !menu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 872, ASSERT_TYPE_ASSERT, "(menu)", (const char *)&queryFormat, "menu") )
     __debugbreak();
-  v8 = *origin;
-  v9 = origin[1];
+  v6 = *origin;
+  v7 = origin[1];
   x = *origin;
-  v57 = v9;
-  w = DevGui_MaxChildMenuWidth(v7);
+  v47 = v7;
+  w = DevGui_MaxChildMenuWidth(v5);
   h = R_TextHeight(cls.consoleFont) + 8;
-  v10 = R_TextWidth(">", 0, cls.consoleFont);
-  v11 = R_TextWidth("  ", 0, cls.consoleFont);
+  v8 = R_TextWidth(">", 0, cls.consoleFont);
+  v9 = R_TextWidth("  ", 0, cls.consoleFont);
+  v10 = 0;
+  v11 = w - v8;
   v12 = 0;
-  v13 = w - v10;
+  nextSibling = v5->child.menu;
   v14 = 0;
-  nextSibling = v7->child.menu;
-  v16 = 0;
-  v58 = v8 + v13 - v11 - 4;
+  v48 = v6 + v11 - v9 - 4;
   if ( nextSibling )
   {
     do
     {
       if ( (unsigned __int16)(nextSibling - 1) > 0x1F3Fu )
       {
-        LODWORD(v52) = 8000;
-        LODWORD(v51) = 1;
+        LODWORD(v42) = 8000;
+        LODWORD(v41) = 1;
         LODWORD(color) = nextSibling;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 176, ASSERT_TYPE_ASSERT, "( 1 ) <= ( handle ) && ( handle ) <= ( ( sizeof( *array_counter( devguiGlob.menus ) ) + 0 ) )", "handle not in [1, ARRAY_COUNT( devguiGlob.menus )]\n\t%i not in [%i, %i]", color, v51, v52) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 176, ASSERT_TYPE_ASSERT, "( 1 ) <= ( handle ) && ( handle ) <= ( ( sizeof( *array_counter( devguiGlob.menus ) ) + 0 ) )", "handle not in [1, ARRAY_COUNT( devguiGlob.menus )]\n\t%i not in [%i, %i]", color, v41, v42) )
           __debugbreak();
       }
-      v17 = v14;
-      if ( nextSibling != v6 )
-        v17 = v16;
-      ++v14;
-      v16 = v17;
+      v15 = v12;
+      if ( nextSibling != v4 )
+        v15 = v14;
+      ++v12;
+      v14 = v15;
       nextSibling = devguiGlob.menus[nextSibling - 1].nextSibling;
     }
     while ( nextSibling );
-    v7 = menu;
-    v12 = 0;
-    v9 = v57;
-    v8 = x;
+    v5 = menu;
+    v10 = 0;
+    v7 = v47;
+    v6 = x;
   }
-  v18 = h;
-  v19 = (devguiGlob.bottom - h - v9) / h;
-  v20 = 0;
-  v62 = 0;
-  if ( v19 < 1 )
-    v19 = 1;
-  v57 = v19;
-  if ( v14 > 2 && v19 < v14 && v16 >= v19 )
+  v16 = h;
+  v17 = (devguiGlob.bottom - h - v7) / h;
+  v18 = 0;
+  v50 = 0;
+  if ( v17 < 1 )
+    v17 = 1;
+  v47 = v17;
+  if ( v12 > 2 && v17 < v12 && v14 >= v17 )
   {
-    *(_DWORD *)v55 = devgui_colorBgnd->current.integer;
-    _RAX = devgui_bevelShade;
+    *(_DWORD *)v45 = devgui_colorBgnd->current.integer;
     integer = devgui_colorText->current.integer;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+28h]
-      vmovss  dword ptr [rsp+0C8h+fmt], xmm0
-    }
-    DevGui_DrawBevelBox(v8, v9, w, h, fmt, v55);
-    DevGui_DrawFont(v8 + 4, v9 + 4, (const unsigned __int8 *)&integer, "...");
-    v9 += v18;
-    v20 = 1;
-    v62 = 1;
+    DevGui_DrawBevelBox(v6, v7, w, h, devgui_bevelShade->current.value, v45);
+    DevGui_DrawFont(v6 + 4, v7 + 4, (const unsigned __int8 *)&integer, "...");
+    v7 += v16;
+    v18 = 1;
+    v50 = 1;
   }
-  v23 = v7->child.menu;
-  if ( v23 )
+  v19 = v5->child.menu;
+  if ( v19 )
   {
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_68], xmm7
-      vmovss  xmm7, cs:__real@40000000
-      vmovaps [rsp+0C8h+var_58], xmm6
-    }
     while ( 1 )
     {
-      if ( (unsigned __int16)(v23 - 1) > 0x1F3Fu )
+      if ( (unsigned __int16)(v19 - 1) > 0x1F3Fu )
       {
-        LODWORD(v52) = 8000;
-        LODWORD(v51) = 1;
-        LODWORD(color) = v23;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 176, ASSERT_TYPE_ASSERT, "( 1 ) <= ( handle ) && ( handle ) <= ( ( sizeof( *array_counter( devguiGlob.menus ) ) + 0 ) )", "handle not in [1, ARRAY_COUNT( devguiGlob.menus )]\n\t%i not in [%i, %i]", color, v51, v52) )
+        LODWORD(v42) = 8000;
+        LODWORD(v41) = 1;
+        LODWORD(color) = v19;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 176, ASSERT_TYPE_ASSERT, "( 1 ) <= ( handle ) && ( handle ) <= ( ( sizeof( *array_counter( devguiGlob.menus ) ) + 0 ) )", "handle not in [1, ARRAY_COUNT( devguiGlob.menus )]\n\t%i not in [%i, %i]", color, v41, v42) )
           __debugbreak();
-        v20 = v62;
+        v18 = v50;
       }
-      v25 = &devguiGlob.menus[v23 - 1];
-      if ( v20 && v12 < v16 && v16 + v20 - v57 >= v12 )
-        goto LABEL_74;
-      if ( (unsigned __int16)(v23 - 1) > 0x1F3Fu )
+      v20 = &devguiGlob.menus[v19 - 1];
+      if ( v18 && v10 < v14 && v14 + v18 - v47 >= v10 )
+        goto LABEL_73;
+      if ( (unsigned __int16)(v19 - 1) > 0x1F3Fu )
       {
-        LODWORD(v52) = 8000;
-        LODWORD(v51) = 1;
-        LODWORD(color) = v23;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 176, ASSERT_TYPE_ASSERT, "( 1 ) <= ( handle ) && ( handle ) <= ( ( sizeof( *array_counter( devguiGlob.menus ) ) + 0 ) )", "handle not in [1, ARRAY_COUNT( devguiGlob.menus )]\n\t%i not in [%i, %i]", color, v51, v52) )
+        LODWORD(v42) = 8000;
+        LODWORD(v41) = 1;
+        LODWORD(color) = v19;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 176, ASSERT_TYPE_ASSERT, "( 1 ) <= ( handle ) && ( handle ) <= ( ( sizeof( *array_counter( devguiGlob.menus ) ) + 0 ) )", "handle not in [1, ARRAY_COUNT( devguiGlob.menus )]\n\t%i not in [%i, %i]", color, v41, v42) )
           __debugbreak();
       }
-      if ( devguiGlob.menus[v23 - 1].childType == 1 )
+      if ( devguiGlob.menus[v19 - 1].childType == 1 )
       {
-        v27.command = (const char *)devguiGlob.menus[v23 - 1].child;
-        v28 = *((_BYTE *)v27.command + 29);
-        v26 = v28 == 9 || v28 == 8 && !*((_DWORD *)v27.command + 22);
+        v22.command = (const char *)devguiGlob.menus[v19 - 1].child;
+        v23 = *((_BYTE *)v22.command + 29);
+        v21 = v23 == 9 || v23 == 8 && !*((_DWORD *)v22.command + 22);
       }
       else
       {
-        v26 = 0;
+        v21 = 0;
       }
-      if ( v23 == devguiGlob.heldButtonHandle )
+      if ( v19 == devguiGlob.heldButtonHandle )
         break;
-      if ( v23 == devguiGlob.focusButtonHandle && !devguiGlob.heldButtonHandle )
-        goto LABEL_42;
-      if ( v23 == v6 )
+      if ( v19 == devguiGlob.focusButtonHandle && !devguiGlob.heldButtonHandle )
+        goto LABEL_41;
+      if ( v19 == v4 )
       {
-        if ( v26 )
-          v29 = devgui_colorBgndGraySel;
+        if ( v21 )
+          v24 = devgui_colorBgndGraySel;
         else
-          v29 = devgui_colorBgndSel;
+          v24 = devgui_colorBgndSel;
       }
       else
       {
-        v29 = devgui_colorBgndGray;
-        if ( !v26 )
-          v29 = devgui_colorBgnd;
+        v24 = devgui_colorBgndGray;
+        if ( !v21 )
+          v24 = devgui_colorBgnd;
       }
-LABEL_49:
-      p_integer = &v29->current.integer;
-      if ( v23 == v6 )
+LABEL_48:
+      p_integer = &v24->current.integer;
+      if ( v19 == v4 )
       {
-        if ( v26 )
-          v31 = devgui_colorTextGraySel;
+        if ( v21 )
+          v26 = devgui_colorTextGraySel;
         else
-          v31 = devgui_colorTextSel;
+          v26 = devgui_colorTextSel;
       }
       else
       {
-        v32 = !v26;
-        v31 = devgui_colorTextGray;
-        if ( v32 )
-          v31 = devgui_colorText;
+        v27 = !v21;
+        v26 = devgui_colorTextGray;
+        if ( v27 )
+          v26 = devgui_colorText;
       }
-      *(_DWORD *)v55 = *p_integer;
-      integer = v31->current.integer;
-      _RAX = devgui_bevelShade;
-      __asm { vmovss  xmm6, dword ptr [rax+28h] }
-      if ( v23 == v6 )
+      *(_DWORD *)v45 = *p_integer;
+      integer = v26->current.integer;
+      value = devgui_bevelShade->current.value;
+      if ( v19 == v4 )
       {
         *origin = x + w;
-        origin[1] = v9;
-        if ( v23 == devguiGlob.selectedMenu && DevGui_IsButtonDown(INPUT_ACCEPT) )
-          __asm { vsubss  xmm6, xmm7, dword ptr [rax+28h] }
+        origin[1] = v7;
+        if ( v19 == devguiGlob.selectedMenu && DevGui_IsButtonDown(INPUT_ACCEPT) )
+          value = 2.0 - devgui_bevelShade->current.value;
       }
-      __asm { vmovss  dword ptr [rsp+0C8h+fmt], xmm6 }
-      DevGui_DrawBevelBox(x, v9, w, h, fmta, v55);
-      DevGui_DrawFont(x + 4, v9 + 4, (const unsigned __int8 *)&integer, v25->label);
-      childType = v25->childType;
+      DevGui_DrawBevelBox(x, v7, w, h, value, v45);
+      DevGui_DrawFont(x + 4, v7 + 4, (const unsigned __int8 *)&integer, v20->label);
+      childType = v20->childType;
       if ( childType )
       {
         if ( childType != 1 )
-          goto LABEL_73;
-        dvar = v25->child.dvar;
+          goto LABEL_72;
+        dvar = v20->child.dvar;
         if ( !dvar )
-          goto LABEL_73;
+          goto LABEL_72;
         type = dvar->type;
         if ( !type )
         {
           if ( dvar->latched.enabled )
           {
-            v40 = R_TextWidth("on", 0, cls.consoleFont);
-            v41 = "on";
+            v34 = R_TextWidth("on", 0, cls.consoleFont);
+            v35 = "on";
           }
           else
           {
-            v40 = R_TextWidth("off", 0, cls.consoleFont);
-            v41 = "off";
+            v34 = R_TextWidth("off", 0, cls.consoleFont);
+            v35 = "off";
           }
-          v42 = x - v40 - R_TextWidth("  ", 0, cls.consoleFont);
-          v43 = j_va("%s%s", "  ", v41);
-          v37 = v42 + w - 4;
-          goto LABEL_72;
+          v36 = x - v34 - R_TextWidth("  ", 0, cls.consoleFont);
+          v37 = j_va("%s%s", "  ", v35);
+          v31 = v36 + w - 4;
+          goto LABEL_71;
         }
         if ( type == 8 )
         {
-          v44 = x + w - DevGui_DVarEnumValueWidth(dvar) - 4;
-          v45 = Dvar_DisplayableLatchedValue(v25->child.dvar);
-          v36 = j_va("%s%s", "  ", v45);
-          v37 = v44;
-          goto LABEL_71;
+          v38 = x + w - DevGui_DVarEnumValueWidth(dvar) - 4;
+          v39 = Dvar_DisplayableLatchedValue(v20->child.dvar);
+          v30 = j_va("%s%s", "  ", v39);
+          v31 = v38;
+          goto LABEL_70;
         }
       }
-      else if ( v25->child.menu )
+      else if ( v20->child.menu )
       {
-        v36 = j_va("%s%s", "  ", ">");
-        v37 = v58;
+        v30 = j_va("%s%s", "  ", ">");
+        v31 = v48;
+LABEL_70:
+        v37 = v30;
 LABEL_71:
-        v43 = v36;
+        DevGui_DrawFont(v31, v7 + 4, (const unsigned __int8 *)&integer, v37);
+      }
 LABEL_72:
-        DevGui_DrawFont(v37, v9 + 4, (const unsigned __int8 *)&integer, v43);
-      }
+      v7 += h;
+      v4 = activeChild;
+      v18 = v50;
 LABEL_73:
-      v9 += h;
-      v6 = activeChild;
-      v20 = v62;
-LABEL_74:
-      v23 = v25->nextSibling;
-      ++v12;
-      if ( !v23 )
-      {
-        __asm
-        {
-          vmovaps xmm7, [rsp+0C8h+var_68]
-          vmovaps xmm6, [rsp+0C8h+var_58]
-        }
+      v19 = v20->nextSibling;
+      ++v10;
+      if ( !v19 )
         return;
-      }
     }
     if ( devguiGlob.heldButtonHandle == devguiGlob.focusButtonHandle )
     {
-      v29 = devgui_colorBgndHeld;
-      goto LABEL_49;
+      v24 = devgui_colorBgndHeld;
+      goto LABEL_48;
     }
-LABEL_42:
-    v29 = devgui_colorBgndFocus;
-    goto LABEL_49;
+LABEL_41:
+    v24 = devgui_colorBgndFocus;
+    goto LABEL_48;
   }
 }
 
@@ -1795,71 +1565,42 @@ DevGui_DrawSingleSlider
 */
 void DevGui_DrawSingleSlider(int x, int y, int rowWidth, int rowHeight, float fraction, int row)
 {
-  const dvar_t *v9; 
-  const dvar_t *v22; 
-  float v25; 
-  unsigned __int8 *color; 
-  float fractiona; 
-  const unsigned __int8 *rowa; 
+  const dvar_t *v8; 
+  const dvar_t *v11; 
 
   if ( row != devguiGlob.focusRow )
     goto LABEL_5;
   if ( devguiGlob.slider.held )
   {
-    v9 = devgui_colorSliderBgndHeld;
+    v8 = devgui_colorSliderBgndHeld;
     goto LABEL_6;
   }
-  v9 = devgui_colorSliderBgndFocus;
+  v8 = devgui_colorSliderBgndFocus;
   if ( !devguiGlob.slider.focus )
 LABEL_5:
-    v9 = devgui_colorSliderBgnd;
+    v8 = devgui_colorSliderBgnd;
 LABEL_6:
-  color = (unsigned __int8 *)&v9->current;
-  _RAX = devgui_bevelShade;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmovss  [rsp+38h+var_18], xmm0
-  }
-  DevGui_DrawBevelBox(x, y, rowWidth, rowHeight, v25, color);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, r14d
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm2, xmm0, [rsp+38h+fraction]
-    vaddss  xmm2, xmm2, xmm1
-    vaddss  xmm3, xmm2, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm2, xmm1, xmm3, 1
-    vcvttss2si ecx, xmm2; x
-  }
+  DevGui_DrawBevelBox(x, y, rowWidth, rowHeight, devgui_bevelShade->current.value, (const unsigned __int8 *)&v8->current);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm2, xmm1, xmm3, 1 }
   if ( row == devguiGlob.focusRow )
   {
     if ( devguiGlob.slider.knobHeld )
     {
-      v22 = devgui_colorSliderKnobHeld;
+      v11 = devgui_colorSliderKnobHeld;
       goto LABEL_13;
     }
     if ( devguiGlob.slider.knobFocus )
     {
-      v22 = devgui_colorSliderKnobFocus;
+      v11 = devgui_colorSliderKnobFocus;
       goto LABEL_13;
     }
   }
-  v22 = devgui_colorSliderKnobSel;
+  v11 = devgui_colorSliderKnobSel;
   if ( row != devguiGlob.selRow )
-    v22 = devgui_colorSliderKnob;
+    v11 = devgui_colorSliderKnob;
 LABEL_13:
-  rowa = (const unsigned __int8 *)&v22->current;
-  _RAX = devgui_bevelShade;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmovss  [rsp+38h+fraction], xmm0
-  }
-  DevGui_DrawBevelBox(_ECX, y, 8, rowHeight, fractiona, rowa);
+  DevGui_DrawBevelBox((int)*(float *)&_XMM2, y, 8, rowHeight, devgui_bevelShade->current.value, (const unsigned __int8 *)&v11->current);
 }
 
 /*
@@ -1880,182 +1621,140 @@ void DevGui_DrawSliderPath(int x, int y)
 DevGui_DrawSliders
 ==============
 */
-
-void __fastcall DevGui_DrawSliders(const DevMenuItem *menu, double _XMM1_8, double _XMM2_8)
+void DevGui_DrawSliders(const DevMenuItem *menu)
 {
   unsigned __int8 childType; 
+  const dvar_t *dvar; 
   int width; 
   int FontHeight; 
+  int v6; 
+  int v7; 
+  __int64 v8; 
   int v9; 
   int v10; 
-  __int64 v11; 
+  int left; 
   int v12; 
   int v13; 
-  int left; 
-  int v17; 
-  int v18; 
   unsigned __int8 type; 
-  int v21; 
-  int v22; 
+  int v15; 
+  int v16; 
   __int64 i; 
-  unsigned int v47; 
-  int v48; 
-  int v55; 
-  unsigned __int8 v56; 
-  const char *v57; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
+  int max; 
+  int stringCount; 
+  int v24; 
+  unsigned int v25; 
+  int v26; 
+  __int64 j; 
+  int v28; 
+  unsigned __int8 v29; 
+  const char *v30; 
   unsigned __int8 *color; 
-  __int64 v63; 
+  __int64 v32; 
   int x; 
   int y; 
 
   childType = menu->childType;
   if ( childType != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1329, ASSERT_TYPE_ASSERT, "(menu->childType == DEV_CHILD_DVAR)", "%s\n\tmenu %s type %i", "menu->childType == DEV_CHILD_DVAR", menu->label, childType) )
     __debugbreak();
-  _RSI = menu->child.dvar;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1331, ASSERT_TYPE_ASSERT, "( ( dvar ) )", "( menu->label ) = %s", menu->label) )
+  dvar = menu->child.dvar;
+  if ( !dvar && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1331, ASSERT_TYPE_ASSERT, "( ( dvar ) )", "( menu->label ) = %s", menu->label) )
     __debugbreak();
   width = devguiGlob.slider.width;
   FontHeight = DevGui_GetFontHeight();
-  switch ( _RSI->type )
+  switch ( dvar->type )
   {
     case 2u:
-      v9 = 4;
-      v10 = 18;
-      v11 = 2i64;
+      v6 = 4;
+      v7 = 18;
+      v8 = 2i64;
       break;
     case 3u:
-      v9 = 5;
-      v10 = 20;
-      v11 = 3i64;
+      v6 = 5;
+      v7 = 20;
+      v8 = 3i64;
       break;
     case 4u:
     case 0xAu:
-      v9 = 6;
-      v10 = 22;
-      v11 = 4i64;
+      v6 = 6;
+      v7 = 22;
+      v8 = 4i64;
       break;
     case 0xBu:
-      v9 = 8;
-      v10 = 26;
-      v11 = 6i64;
+      v6 = 8;
+      v7 = 26;
+      v8 = 6i64;
       break;
     default:
-      v9 = 3;
-      v10 = 16;
-      v11 = 1i64;
+      v6 = 3;
+      v7 = 16;
+      v8 = 1i64;
       break;
   }
-  v12 = v10 + FontHeight * v9;
-  if ( (unsigned __int8)(_RSI->type - 10) <= 1u )
-    v12 += FontHeight + 2;
-  v13 = devguiGlob.bottom - v12;
+  v9 = v7 + FontHeight * v6;
+  if ( (unsigned __int8)(dvar->type - 10) <= 1u )
+    v9 += FontHeight + 2;
+  v10 = devguiGlob.bottom - v9;
   left = devguiGlob.left;
-  _RAX = devgui_bevelShade;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmovss  dword ptr [rsp+88h+fmt], xmm0
-  }
-  DevGui_DrawBevelBox(devguiGlob.left, devguiGlob.bottom - v12 - 25, width + 8, v12, fmt, (const unsigned __int8 *)&devgui_colorBgnd->current);
-  v17 = left + 4;
-  v18 = v13 - 19;
-  x = v17;
-  y = v18;
-  DevGui_DrawSliderPath(v17, v18);
-  type = _RSI->type;
+  DevGui_DrawBevelBox(devguiGlob.left, devguiGlob.bottom - v9 - 25, width + 8, v9, devgui_bevelShade->current.value, (const unsigned __int8 *)&devgui_colorBgnd->current);
+  v12 = left + 4;
+  v13 = v10 - 19;
+  x = v12;
+  y = v13;
+  DevGui_DrawSliderPath(v12, v13);
+  type = dvar->type;
   if ( type == 10 )
   {
-    __asm { vmovaps [rsp+88h+var_48], xmm6 }
-    v18 += FontHeight + 2;
-    DevGui_DrawBox(v17, v18, width, FontHeight, (const unsigned __int8 *)&_RSI->latched);
-    __asm { vmovss  xmm6, cs:__real@3b808081 }
-    v21 = 0;
-    v22 = FontHeight + 2;
-    for ( i = 0i64; i < v11; ++i )
+    v13 += FontHeight + 2;
+    DevGui_DrawBox(v12, v13, width, FontHeight, (const unsigned __int8 *)&dvar->latched);
+    v15 = 0;
+    v16 = FontHeight + 2;
+    for ( i = 0i64; i < v8; ++i )
     {
-      v18 += v22;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm6
-        vmovss  dword ptr [rsp+88h+fmt], xmm1
-      }
-      DevGui_DrawSingleSlider(v17, v18, width, FontHeight, fmta, v21++);
-      v22 = FontHeight + 2;
+      v13 += v16;
+      DevGui_DrawSingleSlider(v12, v13, width, FontHeight, (float)dvar->latched.color[i] * 0.0039215689, v15++);
+      v16 = FontHeight + 2;
     }
-    __asm { vmovaps xmm6, [rsp+88h+var_48] }
     goto LABEL_45;
   }
   if ( (unsigned __int8)(type - 2) > 2u )
   {
     if ( type == 11 )
     {
-      DevGui_DrawFloat3ColorSliders(&x, &y, _RSI, width, FontHeight);
-      v17 = x;
-      v18 = y;
+      DevGui_DrawFloat3ColorSliders(&x, &y, dvar, width, FontHeight);
+      v12 = x;
+      v13 = y;
       goto LABEL_45;
     }
-    _EDI = 0;
-    v18 += FontHeight + 2;
+    v13 += FontHeight + 2;
     switch ( type )
     {
       case 0u:
-        _EAX = _RSI->latched.color[0];
-        __asm
-        {
-          vmovd   xmm0, eax
-          vmovd   xmm1, edi
-          vpcmpeqd xmm3, xmm0, xmm1
-          vmovss  xmm1, cs:__real@3f800000
-          vxorps  xmm2, xmm2, xmm2
-          vblendvps xmm0, xmm1, xmm2, xmm3
-        }
+        _XMM0 = dvar->latched.color[0];
+        __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+        _XMM1 = LODWORD(FLOAT_1_0);
+        __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
 LABEL_39:
-        __asm { vmovss  dword ptr [rsp+88h+fmt], xmm0 }
-        DevGui_DrawSingleSlider(v17, v18, width, FontHeight, fmtb, 0);
+        DevGui_DrawSingleSlider(v12, v13, width, FontHeight, *(float *)&_XMM0, 0);
         goto LABEL_45;
       case 5u:
-        if ( _RSI->domain.integer.max != _RSI->domain.enumeration.stringCount )
+        max = dvar->domain.integer.max;
+        stringCount = dvar->domain.enumeration.stringCount;
+        if ( max != stringCount )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm0, xmm0, ecx
-            vcvtsi2ss xmm1, xmm1, eax
-            vdivss  xmm0, xmm1, xmm0
-          }
+          *(float *)&_XMM0 = (float)(dvar->latched.integer - stringCount) / (float)(max - stringCount);
           goto LABEL_39;
         }
         break;
       case 8u:
-        if ( _RSI->domain.enumeration.stringCount > 1 )
+        v24 = dvar->domain.enumeration.stringCount;
+        if ( v24 > 1 )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, dword ptr [rsi+38h]
-            vcvtsi2ss xmm0, xmm0, eax
-            vdivss  xmm0, xmm1, xmm0
-          }
+          *(float *)&_XMM0 = (float)dvar->latched.integer / (float)(v24 - 1);
           goto LABEL_39;
         }
         break;
       case 1u:
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+38h]
-          vmovss  xmm1, dword ptr [rsi+5Ch]
-          vsubss  xmm3, xmm0, dword ptr [rsi+58h]
-          vsubss  xmm2, xmm1, dword ptr [rsi+58h]
-          vdivss  xmm0, xmm3, xmm2
-        }
+        *(float *)&_XMM0 = (float)(dvar->latched.value - dvar->domain.value.min) / (float)(dvar->domain.value.max - dvar->domain.value.min);
         goto LABEL_39;
       default:
         LODWORD(color) = type;
@@ -2063,49 +1762,40 @@ LABEL_39:
           __debugbreak();
         break;
     }
-    __asm { vmovss  xmm0, cs:__real@3f000000 }
+    *(float *)&_XMM0 = FLOAT_0_5;
     goto LABEL_39;
   }
-  v47 = 0;
-  v48 = FontHeight + 2;
-  for ( _RBP = 0i64; _RBP < v11; ++_RBP )
+  v25 = 0;
+  v26 = FontHeight + 2;
+  for ( j = 0i64; j < v8; ++j )
   {
-    v18 += v48;
-    if ( v47 >= 4 )
+    v13 += v26;
+    if ( v25 >= 4 )
     {
-      LODWORD(v63) = 4;
-      LODWORD(color) = v47;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 93, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", color, v63) )
+      LODWORD(v32) = 4;
+      LODWORD(color) = v25;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 93, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", color, v32) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+rbp*4+38h]
-      vmovss  xmm1, dword ptr [rsi+5Ch]
-      vsubss  xmm3, xmm0, dword ptr [rsi+58h]
-      vsubss  xmm2, xmm1, dword ptr [rsi+58h]
-      vdivss  xmm0, xmm3, xmm2
-      vmovss  dword ptr [rsp+88h+fmt], xmm0
-    }
-    DevGui_DrawSingleSlider(v17, v18, width, FontHeight, fmtc, v47++);
-    v48 = FontHeight + 2;
+    DevGui_DrawSingleSlider(v12, v13, width, FontHeight, (float)(*(&dvar->latched.value + j) - dvar->domain.value.min) / (float)(dvar->domain.value.max - dvar->domain.value.min), v25++);
+    v26 = FontHeight + 2;
   }
 LABEL_45:
-  v55 = v18 + FontHeight + 2;
-  v56 = _RSI->type;
-  if ( v56 )
+  v28 = v13 + FontHeight + 2;
+  v29 = dvar->type;
+  if ( v29 )
   {
-    v57 = Dvar_DisplayableLatchedValue(_RSI);
-    if ( v56 == 8 )
-      v57 = j_va("%i: %s", _RSI->latched.unsignedInt, v57);
+    v30 = Dvar_DisplayableLatchedValue(dvar);
+    if ( v29 == 8 )
+      v30 = j_va("%i: %s", dvar->latched.unsignedInt, v30);
   }
   else
   {
-    v57 = "Off";
-    if ( _RSI->latched.enabled )
-      v57 = "On";
+    v30 = "Off";
+    if ( dvar->latched.enabled )
+      v30 = "On";
   }
-  DevGui_DrawFont(v17, v55, (const unsigned __int8 *)&devgui_colorText->current, v57);
+  DevGui_DrawFont(v12, v28, (const unsigned __int8 *)&devgui_colorText->current, v30);
 }
 
 /*
@@ -2323,58 +2013,26 @@ LABEL_27:
 DevGui_GetFloatFractionStep
 ==============
 */
-
-float __fastcall DevGui_GetFloatFractionStep(double min, double max)
+float DevGui_GetFloatFractionStep(float min, float max)
 {
-  char v18; 
-  char v19; 
+  float v2; 
+  float v3; 
+  float v5; 
 
-  __asm
+  v3 = max - min;
+  v2 = max - min;
+  v5 = FLOAT_1_0;
+  if ( COERCE_FLOAT(LODWORD(v3) & _xmm) >= 1.0 )
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-    vsubss  xmm8, xmm1, xmm0
-    vmovaps xmm6, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vmovaps xmm7, xmm0
-    vandps  xmm0, xmm8, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; X
-    vcomiss xmm0, xmm1
+    log10f_0(COERCE_FLOAT(LODWORD(v3) & _xmm));
+    _XMM0 = 0i64;
+    __asm { vroundss xmm4, xmm0, xmm3, 1 }
+    v5 = (float)(int)*(float *)&_XMM4;
   }
-  *(float *)&_XMM0 = log10f_0(*(float *)&_XMM0);
-  __asm
-  {
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-    vcvttss2si eax, xmm4
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax; Y
-    vcomiss xmm6, xmm7
-  }
-  if ( v18 | v19 )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
+  if ( max <= min )
+    return 0.0;
   else
-  {
-    __asm { vmovss  xmm0, cs:__real@41200000; X }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3c23d70a
-      vdivss  xmm0, xmm1, xmm8
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
-  }
-  return *(float *)&_XMM0;
+    return (float)(powf_0(10.0, v5) * 0.0099999998) / v2;
 }
 
 /*
@@ -2825,34 +2483,36 @@ __int64 DevGui_MenuItemWidth(const DevMenuItem *menu)
 DevGui_MouseEditSlider
 ==============
 */
-
-void __fastcall DevGui_MouseEditSlider(LocalClientNum_t localClientNum, int mouseX, int mouseY, double deltaTime)
+void DevGui_MouseEditSlider(LocalClientNum_t localClientNum, int mouseX, int mouseY, float deltaTime)
 {
   unsigned __int16 selectedMenu; 
   int focusRow; 
   DevMenuItem *Menu; 
+  int v11; 
+  float pos; 
+  float knobHeldOffset; 
+  const dvar_t *v14; 
+  float max; 
+  __int128 stringCount; 
+  int v18; 
   int v19; 
+  int v20; 
+  __int128 v21; 
   bool held; 
-  bool v44; 
+  float heldScrollTimer; 
+  double v26; 
+  float value; 
+  double v33; 
   DevGui_SliderPoint outSliderPoint; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-28h], xmm6
-    vmovaps xmmword ptr [r11-38h], xmm7
-    vmovaps xmmword ptr [r11-68h], xmm10
-    vmovaps xmm10, xmm3
-  }
   if ( !devguiGlob.isActive || !devguiGlob.editingMenuItem )
-    goto LABEL_49;
+    goto LABEL_51;
   selectedMenu = devguiGlob.selectedMenu;
   if ( (unsigned __int16)(devguiGlob.selectedMenu - 1) > 0x1F3Fu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 176, ASSERT_TYPE_ASSERT, "( 1 ) <= ( handle ) && ( handle ) <= ( ( sizeof( *array_counter( devguiGlob.menus ) ) + 0 ) )", "handle not in [1, ARRAY_COUNT( devguiGlob.menus )]\n\t%i not in [%i, %i]", devguiGlob.selectedMenu, 1, 8000) )
     __debugbreak();
   if ( byte_15153517C[72 * selectedMenu] != 1 )
   {
-LABEL_49:
+LABEL_51:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3148, ASSERT_TYPE_ASSERT, "(DevGui_IsEditingSlider())", (const char *)&queryFormat, "DevGui_IsEditingSlider()") )
       __debugbreak();
   }
@@ -2869,97 +2529,75 @@ LABEL_49:
     focusRow = -1;
     devguiGlob.slider.knobHeld = 0;
   }
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_48], xmm8
-    vmovaps [rsp+0C8h+var_58], xmm9
-    vmovss  xmm6, cs:__real@3f800000
-    vxorps  xmm7, xmm7, xmm7
-  }
+  _XMM7 = 0i64;
   if ( !DevGui_PickSliderPoint(&outSliderPoint, mouseX, mouseY, focusRow) )
-    goto LABEL_38;
+    goto LABEL_39;
   Menu = DevGui_GetMenu(devguiGlob.selectedMenu);
   if ( Menu->childType != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3161, ASSERT_TYPE_ASSERT, "(control->childType == DEV_CHILD_DVAR)", (const char *)&queryFormat, "control->childType == DEV_CHILD_DVAR") )
     __debugbreak();
-  v19 = DevGui_DvarRowCount(Menu->child.dvar);
-  if ( outSliderPoint.componentIndex >= v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3163, ASSERT_TYPE_ASSERT, "(sliderPoint.componentIndex < DevGui_DvarRowCount( dvar ))", (const char *)&queryFormat, "sliderPoint.componentIndex < DevGui_DvarRowCount( dvar )") )
+  v11 = DevGui_DvarRowCount(Menu->child.dvar);
+  if ( outSliderPoint.componentIndex >= v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3163, ASSERT_TYPE_ASSERT, "(sliderPoint.componentIndex < DevGui_DvarRowCount( dvar ))", (const char *)&queryFormat, "sliderPoint.componentIndex < DevGui_DvarRowCount( dvar )") )
     __debugbreak();
   devguiGlob.focusRow = outSliderPoint.componentIndex;
   devguiGlob.slider.knobFocus = outSliderPoint.hitKnob;
   devguiGlob.slider.focus = 1;
   if ( devguiGlob.mouseButtonPressed[0] )
   {
-    __asm
-    {
-      vmovss  xmm1, [rsp+0C8h+outSliderPoint.pos]
-      vmovss  xmm0, [rsp+0C8h+outSliderPoint.knobPos]
-      vsubss  xmm8, xmm0, xmm1
-    }
+    pos = outSliderPoint.pos;
+    knobHeldOffset = outSliderPoint.knobPos - outSliderPoint.pos;
     if ( outSliderPoint.hitKnob )
     {
-      __asm { vmovss  cs:devguiGlob.slider.knobHeldOffset, xmm8 }
+      devguiGlob.slider.knobHeldOffset = outSliderPoint.knobPos - outSliderPoint.pos;
       devguiGlob.slider.knobHeld = 1;
-LABEL_41:
-      __asm
-      {
-        vaddss  xmm0, xmm8, xmm1; val
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovaps xmm2, xmm6; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm1, xmm0; fraction }
-      DevGui_SetDvarBySliderFraction(devguiGlob.focusRow, *(float *)&_XMM1);
-      goto LABEL_46;
+LABEL_42:
+      v26 = I_fclamp(knobHeldOffset + pos, 0.0, 1.0);
+      DevGui_SetDvarBySliderFraction(devguiGlob.focusRow, *(float *)&v26);
+      return;
     }
-    _RAX = DevGui_SelectedDvar();
-    switch ( _RAX->type )
+    v14 = DevGui_SelectedDvar();
+    switch ( v14->type )
     {
       case 0u:
-        __asm { vmovaps xmm2, xmm6; jumptable 0000000141FA3054 case 0 }
+        _XMM2 = LODWORD(FLOAT_1_0);
         break;
       case 1u:
       case 2u:
       case 3u:
       case 4u:
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rax+5Ch]; jumptable 0000000141FA3054 cases 1-4
-          vmovss  xmm0, dword ptr [rax+58h]
-        }
-        goto LABEL_35;
+        max = v14->domain.value.max;
+        stringCount = (unsigned int)v14->domain.enumeration.stringCount;
+        goto LABEL_36;
       case 5u:
-        if ( _RAX->domain.integer.max >= _RAX->domain.enumeration.stringCount )
-          goto LABEL_30;
-        __asm { vxorps  xmm2, xmm2, xmm2 }
-        break;
-      case 8u:
-        if ( _RAX->domain.enumeration.stringCount )
+        v18 = v14->domain.integer.max;
+        v19 = v14->domain.enumeration.stringCount;
+        if ( v18 >= v19 )
         {
-LABEL_30:
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, ecx
-            vdivss  xmm2, xmm6, xmm0
-          }
+          v20 = v18 - v19 + 1;
+LABEL_31:
+          v21 = LODWORD(FLOAT_1_0);
+          *(float *)&v21 = 1.0 / (float)v20;
+          _XMM2 = v21;
         }
         else
         {
-          __asm { vxorps  xmm2, xmm2, xmm2 }
+          _XMM2 = 0i64;
         }
+        break;
+      case 8u:
+        v20 = v14->domain.enumeration.stringCount;
+        if ( v20 )
+          goto LABEL_31;
+        _XMM2 = 0i64;
         break;
       case 0xAu:
-        __asm { vmovss  xmm2, cs:__real@3b808081; jumptable 0000000141FA3054 case 10 }
+        _XMM2 = LODWORD(FLOAT_0_0039215689);
         break;
       case 0xBu:
-        __asm
-        {
-          vmovaps xmm1, xmm6; jumptable 0000000141FA3054 case 11
-          vxorps  xmm0, xmm0, xmm0; min
-        }
-LABEL_35:
-        *(float *)&_XMM0 = DevGui_GetFloatFractionStep(*(double *)&_XMM0, *(double *)&_XMM1);
-        __asm { vmovaps xmm2, xmm0 }
+        max = FLOAT_1_0;
+        stringCount = 0i64;
+LABEL_36:
+        *(float *)&stringCount = DevGui_GetFloatFractionStep(*(float *)&stringCount, max);
+        _XMM2 = stringCount;
         break;
       default:
         CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3000, ASSERT_TYPE_ASSERT, "(( 0, ( 0 ) ))", (const char *)&queryFormat, "C4127_DISABLE( 0 )");
@@ -2967,91 +2605,51 @@ LABEL_35:
     }
     __asm
     {
-      vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000
       vcmpless xmm0, xmm7, xmm8
       vblendvps xmm9, xmm2, xmm1, xmm0
-      vaddss  xmm0, xmm9, [rsp+0C8h+outSliderPoint.fraction]; val
-      vmovaps xmm2, xmm6; max
-      vxorps  xmm1, xmm1, xmm1; min
     }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm0; fraction }
-    DevGui_SetDvarBySliderFraction(devguiGlob.focusRow, *(float *)&_XMM1);
+    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM9 + outSliderPoint.fraction, 0.0, 1.0);
+    DevGui_SetDvarBySliderFraction(devguiGlob.focusRow, *(float *)&_XMM0);
     held = 1;
-    __asm
-    {
-      vxorps  xmm4, xmm4, xmm4
-      vmovss  cs:devguiGlob.slider.heldScrollTimer, xmm4
-    }
+    heldScrollTimer = 0.0;
+    devguiGlob.slider.heldScrollTimer = 0.0;
     devguiGlob.slider.held = 1;
-    __asm { vmovss  cs:devguiGlob.slider.heldStep, xmm9 }
+    devguiGlob.slider.heldStep = *(float *)&_XMM9;
   }
   else
   {
-LABEL_38:
-    __asm
-    {
-      vmovss  xmm4, cs:devguiGlob.slider.heldScrollTimer
-      vmovss  xmm9, cs:devguiGlob.slider.heldStep
-    }
+LABEL_39:
+    heldScrollTimer = devguiGlob.slider.heldScrollTimer;
+    *(float *)&_XMM9 = devguiGlob.slider.heldStep;
     held = devguiGlob.slider.held;
   }
   if ( devguiGlob.slider.knobHeld )
   {
-    __asm
-    {
-      vmovss  xmm1, [rsp+0C8h+outSliderPoint.pos]
-      vmovss  xmm8, cs:devguiGlob.slider.knobHeldOffset
-    }
-    goto LABEL_41;
+    pos = outSliderPoint.pos;
+    knobHeldOffset = devguiGlob.slider.knobHeldOffset;
+    goto LABEL_42;
   }
-  v44 = !held;
   if ( held )
   {
-    _RAX = devgui_mouseScrollDelay;
-    __asm
+    value = devgui_mouseScrollDelay->current.value;
+    if ( heldScrollTimer >= value )
     {
-      vmovss  xmm8, dword ptr [rax+28h]
-      vcomiss xmm4, xmm8
-      vmovss  xmm0, [rsp+0C8h+outSliderPoint.pos]
-      vsubss  xmm1, xmm0, [rsp+0C8h+outSliderPoint.knobPos]
-      vmovss  xmm3, cs:__real@bf800000
-      vcmpless xmm2, xmm7, xmm1
-      vcmpless xmm0, xmm7, xmm9
-      vblendvps xmm1, xmm3, xmm6, xmm2
-      vblendvps xmm0, xmm3, xmm6, xmm0
-      vucomiss xmm1, xmm0
-    }
-    if ( v44 )
-    {
+      _XMM3 = LODWORD(FLOAT_N1_0);
       __asm
       {
-        vsubss  xmm0, xmm4, xmm8
-        vmulss  xmm1, xmm0, xmm9
-        vmovaps xmm2, xmm6; max
-        vmulss  xmm1, xmm1, dword ptr [rax+28h]
-        vaddss  xmm0, xmm1, [rsp+0C8h+outSliderPoint.fraction]; val
-        vxorps  xmm1, xmm1, xmm1; min
+        vcmpless xmm2, xmm7, xmm1
+        vcmpless xmm0, xmm7, xmm9
+        vblendvps xmm1, xmm3, xmm6, xmm2
+        vblendvps xmm0, xmm3, xmm6, xmm0
       }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm1, xmm0; fraction }
-      DevGui_SetDvarBySliderFraction(devguiGlob.focusRow, *(float *)&_XMM1);
+      if ( *(float *)&_XMM1 == *(float *)&_XMM0 )
+      {
+        v33 = I_fclamp((float)((float)((float)(heldScrollTimer - value) * *(float *)&_XMM9) * devgui_mouseScrollSpeed->current.value) + outSliderPoint.fraction, 0.0, 1.0);
+        DevGui_SetDvarBySliderFraction(devguiGlob.focusRow, *(float *)&v33);
+      }
+      heldScrollTimer = value;
     }
-    __asm
-    {
-      vmovaps xmm4, xmm8
-      vaddss  xmm0, xmm4, xmm10
-      vmovss  cs:devguiGlob.slider.heldScrollTimer, xmm0
-    }
-  }
-LABEL_46:
-  __asm
-  {
-    vmovaps xmm9, [rsp+0C8h+var_58]
-    vmovaps xmm8, [rsp+0C8h+var_48]
-    vmovaps xmm6, [rsp+0C8h+var_28]
-    vmovaps xmm7, [rsp+0C8h+var_38]
-    vmovaps xmm10, [rsp+0C8h+var_68]
+    devguiGlob.slider.heldScrollTimer = heldScrollTimer + deltaTime;
   }
 }
 
@@ -3372,21 +2970,68 @@ DevGui_PickFloatScrollStep
 ==============
 */
 
-float __fastcall DevGui_PickFloatScrollStep(double min, double max, double stepOverride)
+float __fastcall DevGui_PickFloatScrollStep(float min, double max, float stepOverride)
 {
-  __asm
+  float v6; 
+  __int128 v7; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v13; 
+
+  if ( stepOverride != 0.0 )
+    return stepOverride;
+  _XMM8 = 0i64;
+  __asm { vroundss xmm2, xmm8, xmm1, 1 }
+  v7 = *(_OWORD *)&max;
+  *(float *)&v7 = *(float *)&max - min;
+  v6 = *(float *)&max - min;
+  if ( *(float *)&max != _mm_cvtepi32_ps((__m128i)(unsigned int)(int)*(float *)&_XMM2).m128_f32[0] )
+    goto LABEL_10;
+  __asm { vroundss xmm2, xmm8, xmm1, 1 }
+  if ( min == (float)(int)*(float *)&_XMM2 )
   {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps [rsp+38h+var_28], xmm7
-    vxorps  xmm7, xmm7, xmm7
-    vucomiss xmm2, xmm7
-    vmovaps xmm6, xmm1
-    vmovaps xmm3, xmm0
-    vmovaps xmm0, xmm2
-    vmovaps xmm6, [rsp+38h+var_18]
-    vmovaps xmm7, [rsp+38h+var_28]
+    _XMM3 = LODWORD(FLOAT_1_0);
+    if ( *(float *)&v7 > 100.0 )
+    {
+      do
+      {
+        v10 = _XMM3;
+        *(float *)&v10 = *(float *)&_XMM3 * 2.0;
+        _XMM3 = v10;
+      }
+      while ( (float)(*(float *)&v10 * 100.0) < v6 );
+    }
+    if ( (float)(*(float *)&_XMM3 * 100.0) > v6 )
+    {
+      do
+      {
+        v11 = _XMM3;
+        *(float *)&v11 = *(float *)&_XMM3 * 0.5;
+        _XMM3 = v11;
+      }
+      while ( (float)(*(float *)&v11 * 100.0) > v6 );
+    }
   }
-  return *(float *)&_XMM0;
+  else
+  {
+LABEL_10:
+    *(float *)&v7 = *(float *)&v7 * 0.0099999998;
+    _XMM3 = v7;
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    v13 = 0i64;
+    *(float *)&v13 = (float)(int)*(float *)&_XMM2;
+    if ( *(float *)&v13 != 0.0 )
+    {
+      *(float *)&v13 = *(float *)&v13 - *(float *)&_XMM3;
+      _XMM1 = v13 & _xmm;
+      __asm
+      {
+        vcmpltss xmm2, xmm1, cs:__real@3dcccccd
+        vblendvps xmm3, xmm3, xmm0, xmm2
+      }
+    }
+  }
+  return *(float *)&_XMM3;
 }
 
 /*
@@ -3580,73 +3225,35 @@ DevGui_PickSingleSliderPoint
 */
 bool DevGui_PickSingleSliderPoint(DevGui_SliderPoint *outSliderPoint, int keyX, int keyY, unsigned __int16 sliderHandle, unsigned int componentIndex, int sliderX, int sliderY, int sliderWidth, int sliderHeight, float knobFraction)
 {
-  int v28; 
-  char v29; 
-  bool result; 
+  float v14; 
+  int v17; 
+  int v18; 
+  bool v19; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-  }
-  _RDI = outSliderPoint;
   if ( !outSliderPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2703, ASSERT_TYPE_ASSERT, "(outSliderPoint)", (const char *)&queryFormat, "outSliderPoint") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm7, [rsp+88h+knobFraction]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r14d
-  }
-  _RDI->handle = sliderHandle;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, eax
-    vmulss  xmm1, xmm6, xmm7
-    vaddss  xmm1, xmm1, xmm0
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si r15d, xmm1
-  }
+  outSliderPoint->handle = sliderHandle;
+  v14 = (float)(sliderWidth - 8);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  v17 = (int)*(float *)&_XMM1;
   if ( componentIndex > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)componentIndex, "unsigned", componentIndex) )
     __debugbreak();
-  _RDI->componentIndex = componentIndex;
-  if ( keyX < _ER15 - 4 || keyY < sliderY || keyX >= _ER15 - 4 + 16 || (v28 = sliderY + sliderHeight, keyY >= sliderY + sliderHeight) )
+  outSliderPoint->componentIndex = componentIndex;
+  if ( keyX < v17 - 4 || keyY < sliderY || keyX >= v17 - 4 + 16 || (v18 = sliderY + sliderHeight, keyY >= sliderY + sliderHeight) )
   {
-    v28 = sliderY + sliderHeight;
-    v29 = 0;
+    v18 = sliderY + sliderHeight;
+    v19 = 0;
   }
   else
   {
-    v29 = 1;
+    v19 = 1;
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm2, xmm0, xmm6
-  }
-  _RDI->hitKnob = v29;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r15d
-    vmovss  dword ptr [rdi+4], xmm1
-    vmulss  xmm1, xmm0, xmm2
-    vmovss  dword ptr [rdi+8], xmm1
-    vmovss  dword ptr [rdi+0Ch], xmm7
-  }
-  result = keyX >= sliderX && keyY >= sliderY && keyX < sliderX + sliderWidth && keyY < v28;
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
-  return result;
+  outSliderPoint->hitKnob = v19;
+  outSliderPoint->pos = (float)(keyX - sliderX - 4) * (float)(1.0 / v14);
+  outSliderPoint->knobPos = (float)(v17 - sliderX) * (float)(1.0 / v14);
+  outSliderPoint->fraction = knobFraction;
+  return keyX >= sliderX && keyY >= sliderY && keyX < sliderX + sliderWidth && keyY < v18;
 }
 
 /*
@@ -3656,49 +3263,46 @@ DevGui_PickSliderPoint
 */
 bool DevGui_PickSliderPoint(DevGui_SliderPoint *outSliderPoint, int keyX, int keyY, int restrictComponentIndex)
 {
-  DevGui_SliderPoint *v10; 
+  DevGui_SliderPoint *v5; 
   unsigned __int16 selectedMenu; 
   DevMenuItem *Menu; 
+  DevMenuChild v8; 
   int sliderHeight; 
+  int v10; 
+  int v11; 
+  __int64 v12; 
+  int v13; 
+  int v14; 
   int v15; 
-  int v16; 
-  int v17; 
-  int v19; 
-  int v20; 
-  unsigned int v21; 
-  bool v22; 
-  int v23; 
-  bool result; 
-  bool v39; 
-  bool v66; 
-  unsigned int v69; 
-  int v70; 
-  int v71; 
-  DevGui_SliderPoint *v75; 
+  float v21; 
+  float v22; 
+  float v23; 
+  int v24; 
+  int v25; 
+  float v26; 
+  float v27; 
+  unsigned int v28; 
+  int v29; 
+  int v30; 
+  float v31; 
+  DevGui_SliderPoint *v32; 
   __int64 sliderX; 
-  double sliderXb; 
-  double sliderXc; 
-  int sliderXd; 
+  int sliderXb; 
   __int64 sliderXa; 
   __int64 sliderY; 
   __int64 sliderYa; 
-  float v86; 
-  float v87; 
-  float v88; 
-  float v89; 
-  float v90; 
-  unsigned __int16 v91; 
+  unsigned __int16 v38; 
   int sliderWidth; 
-  int v93; 
-  int v96; 
+  int v40; 
+  int v43; 
   vec3_t outSliderPointa; 
 
-  v10 = outSliderPoint;
+  v5 = outSliderPoint;
   *(_QWORD *)outSliderPointa.v = outSliderPoint;
   if ( !outSliderPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2724, ASSERT_TYPE_ASSERT, "(outSliderPoint)", (const char *)&queryFormat, "outSliderPoint") )
     __debugbreak();
   if ( !devguiGlob.isActive || !devguiGlob.editingMenuItem )
-    goto LABEL_92;
+    goto LABEL_87;
   selectedMenu = devguiGlob.selectedMenu;
   if ( (unsigned __int16)(devguiGlob.selectedMenu - 1) > 0x1F3Fu )
   {
@@ -3708,263 +3312,147 @@ bool DevGui_PickSliderPoint(DevGui_SliderPoint *outSliderPoint, int keyX, int ke
   }
   if ( byte_15153517C[72 * selectedMenu] != 1 )
   {
-LABEL_92:
+LABEL_87:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2725, ASSERT_TYPE_ASSERT, "(DevGui_IsEditingSlider())", (const char *)&queryFormat, "DevGui_IsEditingSlider()") )
       __debugbreak();
   }
-  DebugWipe(v10, 0x10ui64);
-  v91 = devguiGlob.selectedMenu;
+  DebugWipe(v5, 0x10ui64);
+  v38 = devguiGlob.selectedMenu;
   Menu = DevGui_GetMenu(devguiGlob.selectedMenu);
-  _RBP.command = (const char *)Menu->child;
-  if ( !_RBP.command && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2732, ASSERT_TYPE_ASSERT, "( ( dvar ) )", "( control->label ) = %s", Menu->label) )
+  v8.command = (const char *)Menu->child;
+  if ( !v8.command && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2732, ASSERT_TYPE_ASSERT, "( ( dvar ) )", "( control->label ) = %s", Menu->label) )
     __debugbreak();
   sliderWidth = devguiGlob.slider.width;
   sliderHeight = DevGui_GetFontHeight();
-  v93 = sliderHeight;
-  switch ( *((_BYTE *)_RBP.command + 29) )
+  v40 = sliderHeight;
+  switch ( *((_BYTE *)v8.command + 29) )
   {
     case 2:
-      v15 = 2;
+      v10 = 2;
       break;
     case 3:
-      v15 = 3;
+      v10 = 3;
       break;
     case 4:
     case 0xA:
-      v15 = 4;
+      v10 = 4;
       break;
     case 0xB:
-      v15 = 6;
+      v10 = 6;
       break;
     default:
-      v15 = 1;
+      v10 = 1;
       break;
   }
-  if ( restrictComponentIndex != -1 && restrictComponentIndex >= v15 )
+  if ( restrictComponentIndex != -1 && restrictComponentIndex >= v10 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2737, ASSERT_TYPE_ASSERT, "(restrictComponentIndex == -1 || restrictComponentIndex < static_cast<int>( componentCount ))", (const char *)&queryFormat, "restrictComponentIndex == -1 || restrictComponentIndex < static_cast<int>( componentCount )") )
       __debugbreak();
-    sliderHeight = v93;
+    sliderHeight = v40;
   }
-  v16 = *((unsigned __int8 *)_RBP.command + 29);
-  v17 = sliderHeight + 2;
-  _EBX = 0;
-  v19 = sliderHeight + 2;
-  __asm
-  {
-    vmovaps [rsp+0D8h+var_48], xmm6
-    vmovaps [rsp+0D8h+var_58], xmm7
-  }
-  if ( (unsigned __int8)(v16 - 10) > 1u )
-    v19 = 0;
-  v20 = devguiGlob.left + 4;
-  v21 = v19 + sliderHeight * (v15 + 2) + 2 * v15 + 14;
-  v22 = devguiGlob.bottom <= v21;
-  v23 = devguiGlob.bottom - v21 + v17 - 19;
-  switch ( v16 )
+  v11 = sliderHeight + 2;
+  v12 = 0i64;
+  v13 = sliderHeight + 2;
+  if ( (unsigned __int8)(*((_BYTE *)v8.command + 29) - 10) > 1u )
+    v13 = 0;
+  v14 = devguiGlob.left + 4;
+  v15 = devguiGlob.bottom - (v13 + sliderHeight * (v10 + 2) + 2 * v10 + 14) + v11 - 19;
+  switch ( *((_BYTE *)v8.command + 29) )
   {
     case 0:
-      _EAX = *((unsigned __int8 *)_RBP.command + 56);
-      __asm
-      {
-        vmovd   xmm0, eax
-        vmovd   xmm1, ebx
-        vpcmpeqd xmm3, xmm0, xmm1
-        vmovss  xmm1, cs:__real@3f800000
-        vxorps  xmm2, xmm2, xmm2
-        vblendvps xmm0, xmm1, xmm2, xmm3
-        vmovss  [rsp+0D8h+var_90], xmm0
-      }
-      goto LABEL_34;
+      _XMM0 = *((unsigned __int8 *)v8.command + 56);
+      __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+      _XMM1 = LODWORD(FLOAT_1_0);
+      __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+      return DevGui_PickSingleSliderPoint(v5, keyX, keyY, v38, 0, v14, v15, sliderWidth, sliderHeight, *(float *)&_XMM0);
     case 1:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+5Ch]; jumptable 0000000141FA49A7 case 1
-        vsubss  xmm6, xmm0, dword ptr [rbp+58h]
-        vxorps  xmm1, xmm1, xmm1
-        vcomiss xmm6, xmm1
-      }
-      if ( devguiGlob.bottom <= v21 )
+      v21 = *((float *)v8.command + 23) - *((float *)v8.command + 22);
+      if ( v21 <= 0.0 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2754, ASSERT_TYPE_ASSERT, "(dvarRange > 0.0f)", (const char *)&queryFormat, "dvarRange > 0.0f") )
           __debugbreak();
-        sliderHeight = v93;
-        v10 = *(DevGui_SliderPoint **)outSliderPointa.v;
+        sliderHeight = v40;
+        v5 = *(DevGui_SliderPoint **)outSliderPointa.v;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+38h]
-        vsubss  xmm1, xmm0, dword ptr [rbp+58h]
-        vdivss  xmm2, xmm1, xmm6
-        vmovss  [rsp+0D8h+var_90], xmm2
-      }
-      goto LABEL_34;
+      return DevGui_PickSingleSliderPoint(v5, keyX, keyY, v38, 0, v14, v15, sliderWidth, sliderHeight, (float)(*((float *)v8.command + 14) - *((float *)v8.command + 22)) / v21);
     case 2:
     case 3:
     case 4:
-      __asm { vxorps  xmm7, xmm7, xmm7 }
       while ( 1 )
       {
-        v39 = restrictComponentIndex == 0;
-        if ( restrictComponentIndex < 0 || (v39 = _EBX <= restrictComponentIndex, _EBX == restrictComponentIndex) )
+        if ( restrictComponentIndex < 0 || (_DWORD)v12 == restrictComponentIndex )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+5Ch]
-            vsubss  xmm6, xmm0, dword ptr [rbp+58h]
-            vcomiss xmm6, xmm7
-          }
-          if ( v39 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2768, ASSERT_TYPE_ASSERT, "(dvarRange > 0.0f)", (const char *)&queryFormat, "dvarRange > 0.0f") )
+          v22 = *((float *)v8.command + 23) - *((float *)v8.command + 22);
+          if ( v22 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2768, ASSERT_TYPE_ASSERT, "(dvarRange > 0.0f)", (const char *)&queryFormat, "dvarRange > 0.0f") )
             __debugbreak();
-          _RAX = vec4_t::operator[]((vec4_t *)(_RBP.command + 56), _EBX);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax]
-            vsubss  xmm1, xmm0, dword ptr [rbp+58h]
-            vdivss  xmm2, xmm1, xmm6
-            vmovss  [rsp+0D8h+var_90], xmm2
-          }
-          if ( DevGui_PickSingleSliderPoint(*(DevGui_SliderPoint **)outSliderPointa.v, keyX, keyY, v91, _EBX, v20, v23, sliderWidth, v93, v87) )
-            goto LABEL_76;
+          v23 = (float)(*vec4_t::operator[]((vec4_t *)(v8.command + 56), v12) - *((float *)v8.command + 22)) / v22;
+          if ( DevGui_PickSingleSliderPoint(*(DevGui_SliderPoint **)outSliderPointa.v, keyX, keyY, v38, v12, v14, v15, sliderWidth, v40, v23) )
+            break;
         }
-        v23 += v17;
-        if ( ++_EBX == v15 )
-          goto LABEL_48;
+        v15 += v11;
+        LODWORD(v12) = v12 + 1;
+        if ( (_DWORD)v12 == v10 )
+          return 0;
       }
+      return 1;
     case 5:
-      if ( *((_DWORD *)_RBP.command + 23) == *((_DWORD *)_RBP.command + 22) )
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f000000
-          vmovss  [rsp+0D8h+var_90], xmm0
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vcvtsi2ss xmm0, xmm0, ecx
-          vdivss  xmm0, xmm1, xmm0
-          vmovss  [rsp+0D8h+var_90], xmm0
-        }
-      }
-      goto LABEL_34;
+      v24 = *((_DWORD *)v8.command + 22);
+      v25 = *((_DWORD *)v8.command + 23) - v24;
+      if ( !v25 )
+        return DevGui_PickSingleSliderPoint(v5, keyX, keyY, v38, 0, v14, v15, sliderWidth, sliderHeight, 0.5);
+      return DevGui_PickSingleSliderPoint(v5, keyX, keyY, v38, 0, v14, v15, sliderWidth, sliderHeight, (float)(*((_DWORD *)v8.command + 14) - v24) / (float)v25);
     case 8:
-      if ( *((_DWORD *)_RBP.command + 22) == 1 )
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f000000
-          vmovss  [rsp+0D8h+var_90], xmm0
-        }
-      }
+      if ( *((_DWORD *)v8.command + 22) == 1 )
+        return DevGui_PickSingleSliderPoint(v5, keyX, keyY, v38, 0, v14, v15, sliderWidth, sliderHeight, 0.5);
       else
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, dword ptr [rbp+38h]
-          vcvtsi2ss xmm0, xmm0, eax
-          vdivss  xmm0, xmm1, xmm0
-          vmovss  [rsp+0D8h+var_90], xmm0
-        }
-      }
-LABEL_34:
-      result = DevGui_PickSingleSliderPoint(v10, keyX, keyY, v91, 0, v20, v23, sliderWidth, sliderHeight, v86);
-      goto LABEL_49;
+        return DevGui_PickSingleSliderPoint(v5, keyX, keyY, v38, 0, v14, v15, sliderWidth, sliderHeight, (float)*((int *)v8.command + 14) / (float)(*((_DWORD *)v8.command + 22) - 1));
     case 9:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2792, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "DVAR_TYPE_STRING: unhandled dvar type") )
         __debugbreak();
-      goto LABEL_48;
-    case 10:
-      __asm { vmovss  xmm6, cs:__real@3b808081; jumptable 0000000141FA49A7 case 10 }
+      return 0;
+    case 0xA:
       do
       {
-        v23 += v17;
-        if ( restrictComponentIndex < 0 || _EBX == restrictComponentIndex )
+        v15 += v11;
+        if ( restrictComponentIndex < 0 || (_DWORD)v12 == restrictComponentIndex )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, ecx
-            vmulss  xmm1, xmm0, xmm6
-            vmovss  [rsp+0D8h+var_90], xmm1
-          }
-          if ( DevGui_PickSingleSliderPoint(v10, keyX, keyY, v91, _EBX, v20, v23, sliderWidth, sliderHeight, v88) )
-            goto LABEL_76;
-          sliderHeight = v93;
+          if ( DevGui_PickSingleSliderPoint(v5, keyX, keyY, v38, v12, v14, v15, sliderWidth, sliderHeight, (float)(unsigned __int8)v8.command[v12 + 56] * 0.0039215689) )
+            return 1;
+          sliderHeight = v40;
         }
-        ++_EBX;
+        v12 = (unsigned int)(v12 + 1);
       }
-      while ( _EBX != v15 );
-      goto LABEL_48;
-    case 11:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+58h]; jumptable 0000000141FA49A7 case 11
-        vxorps  xmm6, xmm6, xmm6
-        vucomiss xmm0, xmm6
-      }
-      if ( devguiGlob.bottom != v21 )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+0D8h+sliderX], xmm0
-        }
-        v66 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2815, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.min == 0.0f ) )", "( dvar->domain.vector.min ) = %g", sliderXb);
-        v22 = !v66;
-        if ( v66 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+5Ch]
-        vcomiss xmm0, xmm6
-      }
-      if ( v22 )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+0D8h+sliderX], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2816, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.max > 0.0f ) )", "( dvar->domain.vector.max ) = %g", sliderXc) )
-          __debugbreak();
-      }
-      v69 = 0;
-      v70 = 2 * DevGui_GetFontWidth("R");
-      v71 = v70 + v20;
-      v96 = v71;
+      while ( (_DWORD)v12 != v10 );
+      return 0;
+    case 0xB:
+      v26 = *((float *)v8.command + 22);
+      if ( v26 != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2815, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.min == 0.0f ) )", "( dvar->domain.vector.min ) = %g", v26) )
+        __debugbreak();
+      v27 = *((float *)v8.command + 23);
+      if ( v27 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2816, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.max > 0.0f ) )", "( dvar->domain.vector.max ) = %g", v27) )
+        __debugbreak();
+      v28 = 0;
+      v29 = 2 * DevGui_GetFontWidth("R");
+      v30 = v29 + v14;
+      v43 = v30;
       while ( 2 )
       {
-        v23 += v17;
-        if ( restrictComponentIndex < 0 || v69 == restrictComponentIndex )
+        v15 += v11;
+        if ( restrictComponentIndex < 0 || v28 == restrictComponentIndex )
         {
-          _RAX = vec4_t::operator[]((vec4_t *)(_RBP.command + 56), v69);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax]
-            vdivss  xmm1, xmm0, dword ptr [rbp+5Ch]
-            vmovss  [rsp+0D8h+var_90], xmm1
-          }
-          sliderXd = v71;
-          v75 = *(DevGui_SliderPoint **)outSliderPointa.v;
-          if ( DevGui_PickSingleSliderPoint(*(DevGui_SliderPoint **)outSliderPointa.v, keyX, keyY, v91, v69, sliderXd, v23, sliderWidth - v70, v93, v89) )
-            goto LABEL_76;
+          v31 = *vec4_t::operator[]((vec4_t *)(v8.command + 56), v28);
+          sliderXb = v30;
+          v32 = *(DevGui_SliderPoint **)outSliderPointa.v;
+          if ( DevGui_PickSingleSliderPoint(*(DevGui_SliderPoint **)outSliderPointa.v, keyX, keyY, v38, v28, sliderXb, v15, sliderWidth - v29, v40, v31 / *((float *)v8.command + 23)) )
+            return 1;
         }
         else
         {
-          v75 = *(DevGui_SliderPoint **)outSliderPointa.v;
+          v32 = *(DevGui_SliderPoint **)outSliderPointa.v;
         }
-        if ( ++v69 != 3 )
+        if ( ++v28 != 3 )
         {
-          v71 = v96;
+          v30 = v43;
           continue;
         }
         break;
@@ -3976,47 +3464,29 @@ LABEL_34:
   }
   while ( 1 )
   {
-    v23 += v17;
-    if ( restrictComponentIndex < 0 || _EBX + 3 == restrictComponentIndex )
+    v15 += v11;
+    if ( restrictComponentIndex < 0 || (_DWORD)v12 + 3 == restrictComponentIndex )
     {
-      __asm { vmovss  xmm2, dword ptr [rbp+5Ch]; scale }
-      DevGui_Vec3ToHSV((const vec3_t *)(_RBP.command + 56), &outSliderPointa, *(float *)&_XMM2);
-      if ( _EBX >= 3 )
+      DevGui_Vec3ToHSV((const vec3_t *)(v8.command + 56), &outSliderPointa, *((float *)v8.command + 23));
+      if ( (unsigned int)v12 >= 3 )
       {
         LODWORD(sliderY) = 3;
-        LODWORD(sliderX) = _EBX;
+        LODWORD(sliderX) = v12;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2841, ASSERT_TYPE_ASSERT, "(unsigned)( componentIndex - 3 ) < (unsigned)( 3 )", "componentIndex - 3 doesn't index 3\n\t%i not in [0, %i)", sliderX, sliderY) )
           __debugbreak();
         LODWORD(sliderYa) = 3;
-        LODWORD(sliderXa) = _EBX;
+        LODWORD(sliderXa) = v12;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", sliderXa, sliderYa) )
           __debugbreak();
       }
-      _RAX = (int)_EBX;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+rax*4+0D8h+outSliderPoint]
-        vmovss  [rsp+0D8h+var_90], xmm0
-      }
-      if ( DevGui_PickSingleSliderPoint(v75, keyX, keyY, v91, _EBX + 3, v96, v23, sliderWidth - v70, v93, v90) )
+      if ( DevGui_PickSingleSliderPoint(v32, keyX, keyY, v38, v12 + 3, v43, v15, sliderWidth - v29, v40, outSliderPointa.v[(int)v12]) )
         break;
     }
-    if ( ++_EBX == 3 )
-    {
-LABEL_48:
-      result = 0;
-      goto LABEL_49;
-    }
+    LODWORD(v12) = v12 + 1;
+    if ( (_DWORD)v12 == 3 )
+      return 0;
   }
-LABEL_76:
-  result = 1;
-LABEL_49:
-  __asm
-  {
-    vmovaps xmm7, [rsp+0D8h+var_58]
-    vmovaps xmm6, [rsp+0D8h+var_48]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -4024,263 +3494,34 @@ LABEL_49:
 DevGui_RegisterDvars
 ==============
 */
-void DevGui_RegisterDvars()
+void DevGui_RegisterDvars(void)
 {
-  const dvar_t *v13; 
-  const dvar_t *v34; 
-  const dvar_t *v85; 
-  const dvar_t *v89; 
-  float a; 
-  float aa; 
-  float ab; 
-  float ac; 
-  float ad; 
-  float ae; 
-  float af; 
-  float ag; 
-  float ah; 
-  float ai; 
-  float aj; 
-  float ak; 
-  float al; 
-  float am; 
-  float an; 
-  float ao; 
-  float ap; 
-  float aq; 
-  float ar; 
-  float as; 
-  char v121; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-  }
   Dvar_BeginPermanentRegistration();
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3dcccccd
-    vmovss  xmm9, cs:__real@3f4ccccd
-    vmovaps xmm3, xmm10; b
-    vmovaps xmm2, xmm10; g
-    vmovaps xmm1, xmm10; r
-    vmovss  [rsp+0B8h+a], xmm9
-  }
-  v13 = Dvar_RegisterColor("devgui_colorBgnd", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, a, 0, "Color background for the devgui");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f19999a; r
-    vmovss  xmm12, cs:__real@3f800000
-  }
-  devgui_colorBgnd = v13;
-  __asm
-  {
-    vmovaps xmm3, xmm1; b
-    vmovaps xmm2, xmm1; g
-    vmovss  [rsp+0B8h+a], xmm12
-    vmovss  xmm7, cs:__real@3e99999a
-  }
-  devgui_colorText = Dvar_RegisterColor("devgui_colorText", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, aa, 0, "Text color for the devgui");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; b
-    vxorps  xmm2, xmm2, xmm2; g
-    vmovaps xmm1, xmm12; r
-    vmovss  [rsp+0B8h+a], xmm7
-  }
-  devgui_colorBgndSel = Dvar_RegisterColor("devgui_colorBgndSel", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ab, 0, "Selection background color for the devgui");
-  __asm
-  {
-    vmovaps xmm3, xmm12; b
-    vmovaps xmm2, xmm12; g
-    vmovaps xmm1, xmm12; r
-    vmovss  [rsp+0B8h+a], xmm12
-    vmovss  xmm11, cs:__real@3e4ccccd
-    vmovss  xmm6, cs:__real@3f666666
-  }
-  devgui_colorTextSel = Dvar_RegisterColor("devgui_colorTextSel", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ac, 0, "Selection text color for the devgui");
-  __asm
-  {
-    vmovaps xmm3, xmm11; b
-    vmovaps xmm2, xmm11; g
-    vmovaps xmm1, xmm11; r
-    vmovss  [rsp+0B8h+a], xmm6
-    vmovss  xmm8, cs:__real@3f333333
-  }
-  devgui_colorBgndGray = Dvar_RegisterColor("devgui_colorBgndGray", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ad, 0, "Grayed out background color for the devgui");
-  __asm
-  {
-    vmovaps xmm3, xmm8; b
-    vmovaps xmm2, xmm8; g
-    vmovaps xmm1, xmm8; r
-    vmovss  [rsp+0B8h+a], xmm12
-  }
-  v34 = Dvar_RegisterColor("devgui_colorTextGray", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ae, 0, "Greyed out text color for the devgui");
-  __asm { vmovss  xmm1, cs:__real@3ecccccd; r }
-  devgui_colorTextGray = v34;
-  __asm
-  {
-    vmovss  [rsp+0B8h+a], xmm6
-    vmovaps xmm3, xmm1; b
-    vmovaps xmm2, xmm1; g
-  }
-  devgui_colorBgndGraySel = Dvar_RegisterColor("devgui_colorBgndGraySel", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, af, 0, "Greyed out, selected background color for the devgui");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; b
-    vmovaps xmm2, xmm12; g
-    vmovaps xmm1, xmm12; r
-    vmovss  [rsp+0B8h+a], xmm12
-  }
-  devgui_colorTextGraySel = Dvar_RegisterColor("devgui_colorTextGraySel", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ag, 0, "Greyed out, selected text color for the devgui");
-  __asm
-  {
-    vmovaps xmm3, xmm10; b
-    vmovaps xmm2, xmm10; g
-    vmovaps xmm1, xmm12; r
-    vmovss  [rsp+0B8h+a], xmm7
-    vmovss  xmm6, cs:__real@3f000000
-  }
-  devgui_colorBgndFocus = Dvar_RegisterColor("devgui_colorBgndFocus", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ah, 0, "Button color while the mouse hovers over it.");
-  __asm
-  {
-    vmovaps xmm3, xmm12; b
-    vmovaps xmm2, xmm6; g
-    vmovaps xmm1, xmm6; r
-    vmovss  [rsp+0B8h+a], xmm12
-    vmovss  xmm0, cs:__real@3f400000
-  }
-  devgui_colorBgndHeld = Dvar_RegisterColor("devgui_colorBgndHeld", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ai, 0, "Button color when pressed by the mouse.");
-  __asm
-  {
-    vmovaps xmm3, xmm12; b
-    vmovaps xmm2, xmm12; g
-    vmovaps xmm1, xmm12; r
-    vmovss  [rsp+0B8h+a], xmm0
-  }
-  devgui_colorSliderBgnd = Dvar_RegisterColor("devgui_colorSliderBgnd", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, aj, 0, "Color slider background for the devgui");
-  __asm
-  {
-    vmovaps xmm3, xmm10; b
-    vmovaps xmm2, xmm10; g
-    vmovaps xmm1, xmm12; r
-    vmovss  [rsp+0B8h+a], xmm7
-  }
-  devgui_colorSliderBgndFocus = Dvar_RegisterColor("devgui_colorSliderBgndFocus", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ak, 0, "Focused color slider background for the devgui");
-  __asm
-  {
-    vmovaps xmm3, xmm6; b
-    vmovaps xmm2, xmm6; g
-    vmovaps xmm1, xmm6; r
-    vmovss  [rsp+0B8h+a], xmm12
-  }
-  devgui_colorSliderBgndHeld = Dvar_RegisterColor("devgui_colorSliderBgndHeld", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, al, 0, "Held color slider background for the devgui");
-  __asm
-  {
-    vmovaps xmm3, xmm12; b
-    vmovaps xmm2, xmm12; g
-    vmovaps xmm1, xmm12; r
-    vmovss  [rsp+0B8h+a], xmm12
-  }
-  devgui_colorSliderKnob = Dvar_RegisterColor("devgui_colorSliderKnob", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, am, 0, "Knob color for the devgui");
-  __asm
-  {
-    vmovss  [rsp+0B8h+a], xmm12
-    vmovaps xmm3, xmm7; b
-    vmovaps xmm2, xmm7; g
-    vmovaps xmm1, xmm9; r
-  }
-  devgui_colorSliderKnobFocus = Dvar_RegisterColor("devgui_colorSliderKnobFocus", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, an, 0, "Focused knob color for the devgui");
-  __asm
-  {
-    vmovaps xmm3, xmm10; b
-    vmovaps xmm2, xmm10; g
-    vmovaps xmm1, xmm12; r
-    vmovss  [rsp+0B8h+a], xmm12
-  }
-  devgui_colorSliderKnobHeld = Dvar_RegisterColor("devgui_colorSliderKnobHeld", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ao, 0, "Held knob color for the devgui");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; b
-    vxorps  xmm2, xmm2, xmm2; g
-    vmovaps xmm1, xmm12; r
-    vmovss  [rsp+0B8h+a], xmm12
-  }
-  devgui_colorSliderKnobSel = Dvar_RegisterColor("devgui_colorSliderKnobSel", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ap, 0, "Selected knob color for the devgui");
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  devgui_bevelShade = Dvar_RegisterFloat("devgui_bevelShade", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Bevel shade for the devgui");
-  __asm
-  {
-    vmovaps xmm3, xmm12; b
-    vmovaps xmm2, xmm12; g
-    vxorps  xmm1, xmm1, xmm1; r
-    vmovss  [rsp+0B8h+a], xmm8
-  }
-  devgui_colorGraphKnotNormal = Dvar_RegisterColor("devgui_colorGraphKnotNormal", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, aq, 0, "Devgiu Color graph knot normal color");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; b
-    vxorps  xmm2, xmm2, xmm2; g
-    vmovaps xmm1, xmm12; r
-    vmovss  [rsp+0B8h+a], xmm8
-  }
-  devgui_colorGraphKnotSelected = Dvar_RegisterColor("devgui_colorGraphKnotSelected", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ar, 0, "Devgui color graph knot selected color");
-  __asm
-  {
-    vmovaps xmm3, xmm12; b
-    vxorps  xmm2, xmm2, xmm2; g
-    vmovaps xmm1, xmm12; r
-    vmovss  [rsp+0B8h+a], xmm12
-  }
-  devgui_colorGraphKnotEditing = Dvar_RegisterColor("devgui_colorGraphKnotEditing", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, as, 0, "Devgui color graph knot editing color");
-  __asm
-  {
-    vmovaps xmm3, xmm12; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm11; value
-  }
-  v85 = Dvar_RegisterFloat("devgui_mouseScrollDelay", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Delay before scrolling when holding the slider bar with the left mouse button.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42c80000; max
-    vmovss  xmm1, cs:__real@41200000; value
-  }
-  devgui_mouseScrollDelay = v85;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v89 = Dvar_RegisterFloat("devgui_mouseScrollSpeed", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Scroll speed when holding the slider bar with the left mouse button.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm1, cs:__real@3ca3d70a; value
-  }
-  devgui_mouseScrollSpeed = v89;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  devgui_moveSelectionDelay = Dvar_RegisterFloat("devgui_moveSelectionDelay", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Minimum time between selection changes when moving through the devgui");
+  devgui_colorBgnd = Dvar_RegisterColor("devgui_colorBgnd", 0.1, 0.1, 0.1, 0.80000001, 0, "Color background for the devgui");
+  devgui_colorText = Dvar_RegisterColor("devgui_colorText", 0.60000002, 0.60000002, 0.60000002, 1.0, 0, "Text color for the devgui");
+  devgui_colorBgndSel = Dvar_RegisterColor("devgui_colorBgndSel", 1.0, 0.0, 0.0, 0.30000001, 0, "Selection background color for the devgui");
+  devgui_colorTextSel = Dvar_RegisterColor("devgui_colorTextSel", 1.0, 1.0, 1.0, 1.0, 0, "Selection text color for the devgui");
+  devgui_colorBgndGray = Dvar_RegisterColor("devgui_colorBgndGray", 0.2, 0.2, 0.2, 0.89999998, 0, "Grayed out background color for the devgui");
+  devgui_colorTextGray = Dvar_RegisterColor("devgui_colorTextGray", 0.69999999, 0.69999999, 0.69999999, 1.0, 0, "Greyed out text color for the devgui");
+  devgui_colorBgndGraySel = Dvar_RegisterColor("devgui_colorBgndGraySel", 0.40000001, 0.40000001, 0.40000001, 0.89999998, 0, "Greyed out, selected background color for the devgui");
+  devgui_colorTextGraySel = Dvar_RegisterColor("devgui_colorTextGraySel", 1.0, 1.0, 0.0, 1.0, 0, "Greyed out, selected text color for the devgui");
+  devgui_colorBgndFocus = Dvar_RegisterColor("devgui_colorBgndFocus", 1.0, 0.1, 0.1, 0.30000001, 0, "Button color while the mouse hovers over it.");
+  devgui_colorBgndHeld = Dvar_RegisterColor("devgui_colorBgndHeld", 0.5, 0.5, 1.0, 1.0, 0, "Button color when pressed by the mouse.");
+  devgui_colorSliderBgnd = Dvar_RegisterColor("devgui_colorSliderBgnd", 1.0, 1.0, 1.0, 0.75, 0, "Color slider background for the devgui");
+  devgui_colorSliderBgndFocus = Dvar_RegisterColor("devgui_colorSliderBgndFocus", 1.0, 0.1, 0.1, 0.30000001, 0, "Focused color slider background for the devgui");
+  devgui_colorSliderBgndHeld = Dvar_RegisterColor("devgui_colorSliderBgndHeld", 0.5, 0.5, 0.5, 1.0, 0, "Held color slider background for the devgui");
+  devgui_colorSliderKnob = Dvar_RegisterColor("devgui_colorSliderKnob", 1.0, 1.0, 1.0, 1.0, 0, "Knob color for the devgui");
+  devgui_colorSliderKnobFocus = Dvar_RegisterColor("devgui_colorSliderKnobFocus", 0.80000001, 0.30000001, 0.30000001, 1.0, 0, "Focused knob color for the devgui");
+  devgui_colorSliderKnobHeld = Dvar_RegisterColor("devgui_colorSliderKnobHeld", 1.0, 0.1, 0.1, 1.0, 0, "Held knob color for the devgui");
+  devgui_colorSliderKnobSel = Dvar_RegisterColor("devgui_colorSliderKnobSel", 1.0, 0.0, 0.0, 1.0, 0, "Selected knob color for the devgui");
+  devgui_bevelShade = Dvar_RegisterFloat("devgui_bevelShade", 0.69999999, 0.0, 1.0, 0, "Bevel shade for the devgui");
+  devgui_colorGraphKnotNormal = Dvar_RegisterColor("devgui_colorGraphKnotNormal", 0.0, 1.0, 1.0, 0.69999999, 0, "Devgiu Color graph knot normal color");
+  devgui_colorGraphKnotSelected = Dvar_RegisterColor("devgui_colorGraphKnotSelected", 1.0, 0.0, 0.0, 0.69999999, 0, "Devgui color graph knot selected color");
+  devgui_colorGraphKnotEditing = Dvar_RegisterColor("devgui_colorGraphKnotEditing", 1.0, 0.0, 1.0, 1.0, 0, "Devgui color graph knot editing color");
+  devgui_mouseScrollDelay = Dvar_RegisterFloat("devgui_mouseScrollDelay", 0.2, 0.0, 1.0, 0, "Delay before scrolling when holding the slider bar with the left mouse button.");
+  devgui_mouseScrollSpeed = Dvar_RegisterFloat("devgui_mouseScrollSpeed", 10.0, 0.0, 100.0, 0, "Scroll speed when holding the slider bar with the left mouse button.");
+  devgui_moveSelectionDelay = Dvar_RegisterFloat("devgui_moveSelectionDelay", 0.02, 0.0, 10.0, 0, "Minimum time between selection changes when moving through the devgui");
   devgui_allowMouse = Dvar_RegisterBool("devgui_allowMouse", 0, 0, "Devgui allow mouse input");
-  _R11 = &v121;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
   Dvar_EndPermanentRegistration();
 }
 
@@ -4707,418 +3948,225 @@ const dvar_t *DevGui_SelectedDvar()
 DevGui_SetDvarBySliderFraction
 ==============
 */
-
-void __fastcall DevGui_SetDvarBySliderFraction(int componentIndex, double fraction, double _XMM2_8)
+void DevGui_SetDvarBySliderFraction(int componentIndex, float fraction)
 {
-  bool v8; 
-  bool v9; 
-  bool v23; 
-  bool v24; 
-  char v27; 
-  bool v36; 
-  bool v37; 
-  char v41; 
-  bool v48; 
-  bool v49; 
-  char v54; 
-  bool v55; 
-  bool v56; 
-  bool v120; 
-  bool v126; 
-  float fmt; 
-  float fmta; 
+  __int64 v3; 
+  const dvar_t *v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  char v16; 
+  float v17; 
+  unsigned __int64 v35; 
+  __int128 v36; 
+  unsigned __int64 v38; 
+  int v41; 
+  float v42; 
+  float v43; 
+  float max; 
   __int64 source; 
   vec3_t rgb; 
-  __int128 v133; 
+  DvarValue latched; 
 
-  __asm
-  {
-    vmovaps [rsp+0A0h+var_20], xmm6
-    vmovaps xmm6, xmm1
-  }
-  _RDI = componentIndex;
-  _RBX = DevGui_SelectedDvar();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3013, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
+  v3 = componentIndex;
+  v4 = DevGui_SelectedDvar();
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3013, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  if ( (int)_RDI < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3014, ASSERT_TYPE_ASSERT, "(componentIndex >= 0)", (const char *)&queryFormat, "componentIndex >= 0") )
+  if ( (int)v3 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3014, ASSERT_TYPE_ASSERT, "(componentIndex >= 0)", (const char *)&queryFormat, "componentIndex >= 0") )
     __debugbreak();
-  switch ( _RBX->type )
+  switch ( v4->type )
   {
     case 0u:
-      v55 = (_DWORD)_RDI == 0;
-      if ( (int)_RDI >= 1 )
-      {
-        v56 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3061, ASSERT_TYPE_ASSERT, "(componentIndex < 1)", (const char *)&queryFormat, "componentIndex < 1");
-        v55 = 0;
-        if ( v56 )
-          __debugbreak();
-      }
-      __asm { vcomiss xmm6, cs:__real@3f000000 }
-      if ( !v55 != _RBX->latched.enabled )
-        Dvar_SetBoolFromSource(_RBX, !v55, DVAR_SOURCE_DEVGUI);
-      goto LABEL_13;
+      if ( (int)v3 >= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3061, ASSERT_TYPE_ASSERT, "(componentIndex < 1)", (const char *)&queryFormat, "componentIndex < 1") )
+        __debugbreak();
+      if ( fraction >= 0.5 != v4->latched.enabled )
+        Dvar_SetBoolFromSource(v4, fraction >= 0.5, DVAR_SOURCE_DEVGUI);
+      return;
     case 1u:
-      v8 = (_DWORD)_RDI == 1;
-      if ( (int)_RDI >= 1 )
-      {
-        v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3020, ASSERT_TYPE_ASSERT, "(componentIndex < 1)", (const char *)&queryFormat, "componentIndex < 1");
-        v8 = !v9;
-        if ( v9 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vsubss  xmm1, xmm0, xmm6
-        vmulss  xmm2, xmm1, dword ptr [rbx+58h]
-        vmulss  xmm0, xmm6, dword ptr [rbx+5Ch]
-        vaddss  xmm1, xmm2, xmm0; value
-        vucomiss xmm1, dword ptr [rbx+38h]
-      }
-      if ( !v8 )
-        Dvar_SetFloatFromSource(_RBX, *(float *)&_XMM1, DVAR_SOURCE_DEVGUI);
-      goto LABEL_13;
+      if ( (int)v3 >= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3020, ASSERT_TYPE_ASSERT, "(componentIndex < 1)", (const char *)&queryFormat, "componentIndex < 1") )
+        __debugbreak();
+      v5 = (float)((float)(1.0 - fraction) * v4->domain.value.min) + (float)(fraction * v4->domain.value.max);
+      if ( v5 != v4->latched.value )
+        Dvar_SetFloatFromSource(v4, v5, DVAR_SOURCE_DEVGUI);
+      return;
     case 2u:
-      if ( (int)_RDI >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3029, ASSERT_TYPE_ASSERT, "(componentIndex < 2)", (const char *)&queryFormat, "componentIndex < 2") )
+      if ( (int)v3 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3029, ASSERT_TYPE_ASSERT, "(componentIndex < 2)", (const char *)&queryFormat, "componentIndex < 2") )
         __debugbreak();
-      __asm
+      v6 = (float)(1.0 - fraction) * v4->domain.value.min;
+      v7 = v4->latched.vector.v[1];
+      v8 = v6 + (float)(fraction * v4->domain.value.max);
+      LODWORD(rgb.v[0]) = v4->latched.integer;
+      rgb.v[1] = v7;
+      if ( (unsigned int)v3 >= 2 )
       {
-        vmovss  xmm0, cs:__real@3f800000
-        vsubss  xmm1, xmm0, xmm6
-        vmulss  xmm2, xmm1, dword ptr [rbx+58h]
-        vmulss  xmm0, xmm6, dword ptr [rbx+5Ch]
-        vmovss  xmm1, dword ptr [rbx+3Ch]
-        vaddss  xmm6, xmm2, xmm0
-        vmovss  xmm0, dword ptr [rbx+38h]
-        vmovss  dword ptr [rbp+57h+rgb], xmm0
-        vmovss  dword ptr [rbp+57h+rgb+4], xmm1
-      }
-      v23 = (_DWORD)_RDI == 2;
-      if ( (unsigned int)_RDI >= 2 )
-      {
-        LODWORD(source) = _RDI;
-        v24 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", source, 2);
-        v23 = !v24;
-        if ( v24 )
+        LODWORD(source) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", source, 2) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  dword ptr [rbp+rdi*4+57h+rgb], xmm6
-        vmovss  xmm1, dword ptr [rbp+57h+rgb]; x
-        vucomiss xmm1, dword ptr [rbx+38h]
-        vmovss  xmm2, dword ptr [rbp+57h+rgb+4]; y
-      }
-      if ( !v23 )
-        goto LABEL_23;
-      __asm { vucomiss xmm2, dword ptr [rbx+3Ch] }
-      if ( v23 )
-        v27 = 1;
-      else
-LABEL_23:
-        v27 = 0;
-      if ( !v27 )
-        Dvar_SetVec2FromSource(_RBX, *(float *)&_XMM1, *(float *)&_XMM2, DVAR_SOURCE_DEVGUI);
-      goto LABEL_13;
+      rgb.v[v3] = v8;
+      if ( rgb.v[0] != v4->latched.value || rgb.v[1] != v4->latched.vector.v[1] )
+        Dvar_SetVec2FromSource(v4, rgb.v[0], rgb.v[1], DVAR_SOURCE_DEVGUI);
+      return;
     case 3u:
-      if ( (int)_RDI >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3040, ASSERT_TYPE_ASSERT, "(componentIndex < 3)", (const char *)&queryFormat, "componentIndex < 3") )
+      if ( (int)v3 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3040, ASSERT_TYPE_ASSERT, "(componentIndex < 3)", (const char *)&queryFormat, "componentIndex < 3") )
         __debugbreak();
-      __asm
+      v10 = (float)(1.0 - fraction) * v4->domain.value.min;
+      v11 = v4->latched.vector.v[1];
+      v12 = v10 + (float)(fraction * v4->domain.value.max);
+      LODWORD(rgb.v[0]) = v4->latched.integer;
+      rgb.v[2] = v4->latched.vector.v[2];
+      rgb.v[1] = v11;
+      if ( (unsigned int)v3 >= 3 )
       {
-        vmovss  xmm0, cs:__real@3f800000
-        vsubss  xmm1, xmm0, xmm6
-        vmulss  xmm2, xmm1, dword ptr [rbx+58h]
-        vmulss  xmm0, xmm6, dword ptr [rbx+5Ch]
-        vmovss  xmm1, dword ptr [rbx+3Ch]
-        vaddss  xmm6, xmm2, xmm0
-        vmovss  xmm0, dword ptr [rbx+38h]
-        vmovss  dword ptr [rbp+57h+rgb], xmm0
-        vmovss  xmm0, dword ptr [rbx+40h]
-        vmovss  dword ptr [rbp+57h+rgb+8], xmm0
-        vmovss  dword ptr [rbp+57h+rgb+4], xmm1
-      }
-      v36 = (_DWORD)_RDI == 3;
-      if ( (unsigned int)_RDI >= 3 )
-      {
-        LODWORD(source) = _RDI;
-        v37 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", source, 3);
-        v36 = !v37;
-        if ( v37 )
+        LODWORD(source) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", source, 3) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  dword ptr [rbp+rdi*4+57h+rgb], xmm6
-        vmovss  xmm1, dword ptr [rbp+57h+rgb]; x
-        vucomiss xmm1, dword ptr [rbx+38h]
-        vmovss  xmm3, dword ptr [rbp+57h+rgb+8]; z
-        vmovss  xmm2, dword ptr [rbp+57h+rgb+4]; y
-      }
-      if ( !v36 )
+      rgb.v[v3] = v12;
+      v13 = rgb.v[0];
+      v14 = rgb.v[2];
+      v15 = rgb.v[1];
+      if ( rgb.v[0] != v4->latched.value || rgb.v[1] != v4->latched.vector.v[1] || rgb.v[2] != v4->latched.vector.v[2] )
         goto LABEL_36;
-      __asm { vucomiss xmm2, dword ptr [rbx+3Ch] }
-      if ( !v36 )
-        goto LABEL_36;
-      __asm { vucomiss xmm3, dword ptr [rbx+40h] }
-      if ( !v36 )
-        goto LABEL_36;
-      v41 = 1;
+      v16 = 1;
       goto LABEL_37;
     case 4u:
-      if ( (int)_RDI >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3051, ASSERT_TYPE_ASSERT, "(componentIndex < 4)", (const char *)&queryFormat, "componentIndex < 4") )
+      if ( (int)v3 >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3051, ASSERT_TYPE_ASSERT, "(componentIndex < 4)", (const char *)&queryFormat, "componentIndex < 4") )
         __debugbreak();
-      __asm
+      v17 = (float)((float)(1.0 - fraction) * v4->domain.value.min) + (float)(fraction * v4->domain.value.max);
+      latched = v4->latched;
+      if ( (unsigned int)v3 >= 4 )
       {
-        vmovss  xmm0, cs:__real@3f800000
-        vsubss  xmm1, xmm0, xmm6
-        vmulss  xmm0, xmm6, dword ptr [rbx+5Ch]
-        vmulss  xmm2, xmm1, dword ptr [rbx+58h]
-        vaddss  xmm6, xmm2, xmm0
-        vmovups xmm0, xmmword ptr [rbx+38h]
-        vmovups [rbp+57h+var_40], xmm0
-      }
-      v48 = (_DWORD)_RDI == 4;
-      if ( (unsigned int)_RDI >= 4 )
-      {
-        LODWORD(source) = _RDI;
-        v49 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", source, 4);
-        v48 = !v49;
-        if ( v49 )
+        LODWORD(source) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", source, 4) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  dword ptr [rbp+rdi*4+57h+var_40], xmm6
-        vmovss  xmm1, dword ptr [rbp+57h+var_40]; x
-        vucomiss xmm1, dword ptr [rbx+38h]
-        vmovss  xmm0, dword ptr [rbp+57h+var_40+0Ch]
-        vmovss  xmm3, dword ptr [rbp+57h+var_40+8]; z
-        vmovss  xmm2, dword ptr [rbp+57h+var_40+4]; y
-      }
-      if ( !v48 )
-        goto LABEL_50;
-      __asm { vucomiss xmm2, dword ptr [rbx+3Ch] }
-      if ( !v48 )
-        goto LABEL_50;
-      __asm { vucomiss xmm3, dword ptr [rbx+40h] }
-      if ( !v48 )
-        goto LABEL_50;
-      __asm { vucomiss xmm0, dword ptr [rbx+44h] }
-      if ( v48 )
-        v54 = 1;
-      else
-LABEL_50:
-        v54 = 0;
-      if ( !v54 )
-      {
-        __asm { vmovss  dword ptr [rsp+0A0h+fmt], xmm0 }
-        Dvar_SetVec4FromSource(_RBX, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, DVAR_SOURCE_DEVGUI);
-      }
-      goto LABEL_13;
+      *(&latched.value + v3) = v17;
+      if ( latched.value != v4->latched.value || latched.vector.v[1] != v4->latched.vector.v[1] || latched.vector.v[2] != v4->latched.vector.v[2] || latched.vector.v[3] != v4->latched.vector.v[3] )
+        Dvar_SetVec4FromSource(v4, latched.value, latched.vector.v[1], latched.vector.v[2], latched.vector.v[3], DVAR_SOURCE_DEVGUI);
+      return;
     case 5u:
-      if ( (int)_RDI >= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3069, ASSERT_TYPE_ASSERT, "(componentIndex < 1)", (const char *)&queryFormat, "componentIndex < 1") )
+      if ( (int)v3 >= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3069, ASSERT_TYPE_ASSERT, "(componentIndex < 1)", (const char *)&queryFormat, "componentIndex < 1") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovd   xmm2, dword ptr [rbx+58h]
-        vcvtdq2ps xmm2, xmm2
-        vsubss  xmm1, xmm0, xmm6
-        vmulss  xmm3, xmm2, xmm1
-        vmovd   xmm2, dword ptr [rbx+5Ch]
-        vcvtdq2ps xmm2, xmm2
-        vmulss  xmm0, xmm2, xmm6
-        vaddss  xmm1, xmm3, xmm0
-      }
+      _mm_cvtepi32_ps((__m128i)(unsigned int)v4->domain.enumeration.stringCount);
+      _mm_cvtepi32_ps((__m128i)(unsigned int)v4->domain.integer.max);
       goto LABEL_62;
     case 6u:
-      if ( (int)_RDI >= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3078, ASSERT_TYPE_ASSERT, "(componentIndex < 1)", (const char *)&queryFormat, "componentIndex < 1") )
+      if ( (int)v3 >= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3078, ASSERT_TYPE_ASSERT, "(componentIndex < 1)", (const char *)&queryFormat, "componentIndex < 1") )
         __debugbreak();
+      _XMM2 = 0i64;
+      __asm { vcvtsi2sd xmm2, xmm2, qword ptr [rbx+58h] }
+      _XMM2 = 0i64;
       __asm
       {
-        vmovsd  xmm0, cs:__real@3ff0000000000000
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2sd xmm2, xmm2, qword ptr [rbx+58h]
-        vcvtss2sd xmm4, xmm6, xmm6
-        vsubsd  xmm1, xmm0, xmm4
-        vmulsd  xmm3, xmm2, xmm1
-        vxorps  xmm2, xmm2, xmm2
         vcvtsi2sd xmm2, xmm2, qword ptr [rbx+60h]
-        vmulsd  xmm0, xmm2, xmm4
-        vaddsd  xmm1, xmm3, xmm0
-        vaddsd  xmm3, xmm1, cs:__real@3fe0000000000000
         vxorpd  xmm2, xmm2, xmm2
         vroundsd xmm2, xmm2, xmm3, 1
         vcvttsd2si rdx, xmm2; value
       }
-      if ( _RDX != _RBX->latched.integer64 )
-        Dvar_SetInt64FromSource(_RBX, _RDX, DVAR_SOURCE_DEVGUI);
-      goto LABEL_13;
+      if ( _RDX != v4->latched.integer64 )
+        Dvar_SetInt64FromSource(v4, _RDX, DVAR_SOURCE_DEVGUI);
+      return;
     case 7u:
-      if ( (int)_RDI >= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3087, ASSERT_TYPE_ASSERT, "(componentIndex < 1)", (const char *)&queryFormat, "componentIndex < 1") )
+      if ( (int)v3 >= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3087, ASSERT_TYPE_ASSERT, "(componentIndex < 1)", (const char *)&queryFormat, "componentIndex < 1") )
         __debugbreak();
+      _XMM3 = *(unsigned __int64 *)&DOUBLE_1_844674407370955e19;
+      _XMM2 = 0i64;
+      __asm { vcvtsi2sd xmm2, xmm2, rax }
+      _XMM0 = 0i64;
       __asm
       {
-        vmovsd  xmm3, cs:__real@43f0000000000000
-        vxorps  xmm2, xmm2, xmm2
-        vcvtss2sd xmm4, xmm6, xmm6
-        vcvtsi2sd xmm2, xmm2, rax
-      }
-      if ( _RBX->domain.integer64.min < 0 )
-        __asm { vaddsd  xmm2, xmm2, xmm3 }
-      __asm
-      {
-        vmovsd  xmm0, cs:__real@3ff0000000000000
-        vsubsd  xmm1, xmm0, xmm4
-        vxorps  xmm0, xmm0, xmm0
         vcvtsi2sd xmm0, xmm0, rax
-        vmulsd  xmm5, xmm2, xmm1
-      }
-      if ( _RBX->domain.integer64.max < 0 )
-        __asm { vaddsd  xmm0, xmm0, xmm3 }
-      __asm
-      {
-        vmulsd  xmm0, xmm0, xmm4
-        vaddsd  xmm1, xmm5, xmm0
-        vaddsd  xmm2, xmm1, cs:__real@3fe0000000000000
-        vmovsd  xmm0, cs:__real@43e0000000000000
         vxorpd  xmm3, xmm3, xmm3
         vroundsd xmm3, xmm3, xmm2, 1
-        vcomisd xmm3, xmm0
-        vsubsd  xmm3, xmm3, xmm0
-        vcomisd xmm3, xmm0
-        vcvttsd2si rdx, xmm3
       }
-      if ( _RDX != _RBX->latched.integer64 )
-        Dvar_SetUInt64FromSource(_RBX, _RDX, DVAR_SOURCE_DEVGUI);
-      goto LABEL_13;
+      v35 = 0i64;
+      if ( *(double *)&_XMM3 >= 9.223372036854776e18 )
+      {
+        *((_QWORD *)&v36 + 1) = *((_QWORD *)&_XMM3 + 1);
+        *(double *)&v36 = *(double *)&_XMM3 - 9.223372036854776e18;
+        _XMM3 = v36;
+        if ( *(double *)&v36 < 9.223372036854776e18 )
+          v35 = 0x8000000000000000ui64;
+      }
+      __asm { vcvttsd2si rdx, xmm3 }
+      v38 = v35 + _RDX;
+      if ( v38 != v4->latched.integer64 )
+        Dvar_SetUInt64FromSource(v4, v38, DVAR_SOURCE_DEVGUI);
+      return;
     case 8u:
-      if ( (int)_RDI >= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3096, ASSERT_TYPE_ASSERT, "(componentIndex < 1)", (const char *)&queryFormat, "componentIndex < 1") )
+      if ( (int)v3 >= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3096, ASSERT_TYPE_ASSERT, "(componentIndex < 1)", (const char *)&queryFormat, "componentIndex < 1") )
         __debugbreak();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm6
-      }
 LABEL_62:
-      __asm
-      {
-        vaddss  xmm3, xmm1, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm1, xmm0, xmm3, 1
-        vcvttss2si edx, xmm1; value
-      }
-      if ( _EDX != _RBX->latched.integer )
-        Dvar_SetIntFromSource(_RBX, _EDX, DVAR_SOURCE_DEVGUI);
-      goto LABEL_13;
+      _XMM0 = 0i64;
+      __asm { vroundss xmm1, xmm0, xmm3, 1 }
+      if ( (int)*(float *)&_XMM1 != v4->latched.integer )
+        Dvar_SetIntFromSource(v4, (int)*(float *)&_XMM1, DVAR_SOURCE_DEVGUI);
+      return;
     case 0xAu:
-      if ( (int)_RDI >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3105, ASSERT_TYPE_ASSERT, "(componentIndex < 3)", (const char *)&queryFormat, "componentIndex < 3") )
+      if ( (int)v3 >= 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3105, ASSERT_TYPE_ASSERT, "(componentIndex < 3)", (const char *)&queryFormat, "componentIndex < 3") )
         __debugbreak();
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:__real@437f0000
-        vaddss  xmm2, xmm0, cs:__real@3f000000
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  xmm3, xmm1, xmm2
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm3, 1
-        vcvttss2si esi, xmm4
-      }
-      if ( (_ESI < 0 || (unsigned int)_ESI > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)_ESI, "signed", _ESI) )
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm3, 1 }
+      v41 = (int)*(float *)&_XMM4;
+      if ( ((int)*(float *)&_XMM4 < 0 || (unsigned int)v41 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)v41, "signed", v41) )
         __debugbreak();
-      if ( (_BYTE)_ESI != *(&_RBX->latched.enabled + _RDI) )
+      if ( (_BYTE)v41 != *(&v4->latched.enabled + v3) )
       {
-        LODWORD(rgb.v[0]) = _RBX->latched.integer;
-        *((_BYTE *)rgb.v + _RDI) = _ESI;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vxorps  xmm3, xmm3, xmm3
-          vcvtsi2ss xmm3, xmm3, eax; b
-          vxorps  xmm2, xmm2, xmm2
-          vcvtsi2ss xmm2, xmm2, eax; g
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax; r
-          vmovss  dword ptr [rsp+0A0h+fmt], xmm0
-        }
-        Dvar_SetColorFromSource(_RBX, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, DVAR_SOURCE_DEVGUI);
+        LODWORD(rgb.v[0]) = v4->latched.integer;
+        *((_BYTE *)rgb.v + v3) = v41;
+        Dvar_SetColorFromSource(v4, (float)LOBYTE(rgb.v[0]), (float)BYTE1(rgb.v[0]), (float)BYTE2(rgb.x), (float)HIBYTE(rgb.x), DVAR_SOURCE_DEVGUI);
       }
-      goto LABEL_13;
+      return;
     case 0xBu:
-      __asm
+      v42 = v4->latched.vector.v[1];
+      LODWORD(rgb.v[0]) = v4->latched.integer;
+      rgb.v[2] = v4->latched.vector.v[2];
+      rgb.v[1] = v42;
+      if ( (int)v3 >= 3 )
       {
-        vmovss  xmm0, dword ptr [rbx+38h]; jumptable 0000000141FA67EA case 11
-        vmovss  xmm1, dword ptr [rbx+3Ch]
-        vmovss  dword ptr [rbp+57h+rgb], xmm0
-        vmovss  xmm0, dword ptr [rbx+40h]
-        vmovss  dword ptr [rbp+57h+rgb+8], xmm0
-        vmovss  dword ptr [rbp+57h+rgb+4], xmm1
-      }
-      v120 = (_DWORD)_RDI == 3;
-      if ( (int)_RDI >= 3 )
-      {
-        if ( (int)_RDI >= 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3127, ASSERT_TYPE_ASSERT, "(componentIndex < 6)", (const char *)&queryFormat, "componentIndex < 6") )
+        if ( (int)v3 >= 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3127, ASSERT_TYPE_ASSERT, "(componentIndex < 6)", (const char *)&queryFormat, "componentIndex < 6") )
           __debugbreak();
-        __asm { vmovss  xmm2, dword ptr [rbx+5Ch]; scale }
-        DevGui_Vec3ToHSV(&rgb, (vec3_t *)&v133, *(float *)&_XMM2);
-        if ( (unsigned int)(_RDI - 3) >= 3 )
+        DevGui_Vec3ToHSV(&rgb, (vec3_t *)&latched, v4->domain.value.max);
+        if ( (unsigned int)(v3 - 3) >= 3 )
         {
-          LODWORD(source) = _RDI - 3;
+          LODWORD(source) = v3 - 3;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", source, 3) )
             __debugbreak();
         }
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbx+5Ch]; scale
-          vmovss  dword ptr [rbp+rdi*4+57h+rgb+4], xmm6
-        }
-        DevGui_Vec3FromHSV(&rgb, (const vec3_t *)&v133, *(float *)&_XMM2);
+        max = v4->domain.value.max;
+        rgb.v[v3 + 1] = fraction;
+        DevGui_Vec3FromHSV(&rgb, (const vec3_t *)&latched, max);
       }
       else
       {
-        __asm
+        v43 = (float)((float)(1.0 - fraction) * v4->domain.value.min) + (float)(fraction * v4->domain.value.max);
+        if ( (unsigned int)v3 >= 3 )
         {
-          vmovss  xmm0, cs:__real@3f800000
-          vsubss  xmm1, xmm0, xmm6
-          vmulss  xmm2, xmm1, dword ptr [rbx+58h]
-          vmulss  xmm0, xmm6, dword ptr [rbx+5Ch]
-          vaddss  xmm6, xmm2, xmm0
-        }
-        if ( (unsigned int)_RDI >= 3 )
-        {
-          LODWORD(source) = _RDI;
-          v126 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", source, 3);
-          v120 = !v126;
-          if ( v126 )
+          LODWORD(source) = v3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", source, 3) )
             __debugbreak();
         }
-        __asm { vmovss  dword ptr [rbp+rdi*4+57h+rgb], xmm6 }
+        rgb.v[v3] = v43;
       }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+57h+rgb]
-        vucomiss xmm1, dword ptr [rbx+38h]
-        vmovss  xmm3, dword ptr [rbp+57h+rgb+8]
-        vmovss  xmm2, dword ptr [rbp+57h+rgb+4]
-      }
-      if ( !v120 )
-        goto LABEL_36;
-      __asm { vucomiss xmm2, dword ptr [rbx+3Ch] }
-      if ( !v120 )
-        goto LABEL_36;
-      __asm { vucomiss xmm3, dword ptr [rbx+40h] }
-      if ( v120 )
-        v41 = 1;
+      v13 = rgb.v[0];
+      v14 = rgb.v[2];
+      v15 = rgb.v[1];
+      if ( rgb.v[0] == v4->latched.value && rgb.v[1] == v4->latched.vector.v[1] && rgb.v[2] == v4->latched.vector.v[2] )
+        v16 = 1;
       else
 LABEL_36:
-        v41 = 0;
+        v16 = 0;
 LABEL_37:
-      if ( !v41 )
-        Dvar_SetVec3FromSource(_RBX, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, DVAR_SOURCE_DEVGUI);
-LABEL_13:
-      __asm { vmovaps xmm6, [rsp+0A0h+var_20] }
+      if ( !v16 )
+        Dvar_SetVec3FromSource(v4, v13, v15, v14, DVAR_SOURCE_DEVGUI);
       return;
     default:
       CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3138, ASSERT_TYPE_ASSERT, "(( 0, ( 0 ) ))", (const char *)&queryFormat, "C4127_DISABLE( 0 )");
@@ -5219,58 +4267,53 @@ LABEL_12:
 DevGui_Update
 ==============
 */
-
-void __fastcall DevGui_Update(LocalClientNum_t localClientNum, double deltaTime)
+void DevGui_Update(LocalClientNum_t localClientNum, float deltaTime)
 {
-  unsigned int v3; 
-  __int64 v6; 
-  bool v7; 
+  unsigned int v2; 
+  __int64 v4; 
+  bool v5; 
   int IsKeyDown; 
-  char v9; 
+  char v7; 
   DevMenuItem *Menu; 
   int updated; 
-  char v17; 
-  char v18; 
-  BOOL v21; 
+  BOOL v10; 
   int MenuScroll; 
-  BOOL v23; 
-  bool v24; 
-  __int64 v25; 
+  BOOL v12; 
+  bool v13; 
+  __int64 v14; 
   int ControllerFromClient; 
   int MouseY; 
   int MouseX; 
-  int v30; 
-  int v31; 
+  int v18; 
+  int v19; 
   unsigned __int16 selectedMenu; 
-  int v33; 
-  DevMenuItem *v34; 
-  unsigned __int16 v35; 
-  unsigned __int16 v36; 
+  int v21; 
+  DevMenuItem *v22; 
+  unsigned __int16 v23; 
+  unsigned __int16 v24; 
   unsigned __int16 heldButtonHandle; 
-  bool v42; 
-  DevMenuItem *v43; 
-  DevMenuItem *v44; 
+  bool v26; 
+  DevMenuItem *v27; 
+  DevMenuItem *v28; 
   unsigned __int16 parent; 
-  unsigned __int16 v46; 
-  int v47; 
+  unsigned __int16 v30; 
+  int v31; 
   int origin; 
   int top; 
 
-  __asm { vmovaps [rsp+68h+var_38], xmm6 }
-  v3 = 0;
-  __asm { vmovaps xmm6, xmm1 }
+  v2 = 0;
   do
   {
-    v6 = v3;
-    v7 = devguiGlob.mouseButtonDown[v3];
-    IsKeyDown = CL_Keys_IsKeyDown(localClientNum, v3 + 187);
-    devguiGlob.mouseButtonDownPrev[v3++] = v7;
-    devguiGlob.mouseButtonDown[v6] = IsKeyDown != 0;
-    v9 = v7 ^ (IsKeyDown != 0);
-    devguiGlob.mouseButtonPressed[v6] = (IsKeyDown != 0) & v9;
-    devguiGlob.mouseButtonReleased[v6] = v7 & v9;
+    v4 = v2;
+    v5 = devguiGlob.mouseButtonDown[v2];
+    IsKeyDown = CL_Keys_IsKeyDown(localClientNum, v2 + 187);
+    devguiGlob.mouseButtonDownPrev[v2++] = v5;
+    devguiGlob.mouseButtonDown[v4] = IsKeyDown != 0;
+    v7 = v5 ^ (IsKeyDown != 0);
+    devguiGlob.mouseButtonPressed[v4] = (IsKeyDown != 0) & v7;
+    devguiGlob.mouseButtonReleased[v4] = v5 & v7;
   }
-  while ( v3 != 2 );
+  while ( v2 != 2 );
   devguiGlob.focusButtonHandle = 0;
   devguiGlob.slider.focus = 0;
   devguiGlob.slider.knobFocus = 0;
@@ -5279,204 +4322,170 @@ void __fastcall DevGui_Update(LocalClientNum_t localClientNum, double deltaTime)
     devguiGlob.slider.held = 0;
     devguiGlob.slider.knobHeld = 0;
   }
-  if ( devguiGlob.isActive && !devguiGlob.bindNextKey )
+  if ( devguiGlob.isActive && !devguiGlob.bindNextKey && DevGui_InputUpdate(localClientNum, deltaTime, 1) )
   {
-    __asm { vmovaps xmm1, xmm6; deltaTime }
-    if ( DevGui_InputUpdate(localClientNum, *(float *)&_XMM1, 1) )
+    if ( DevGui_IsButtonReleased(INPUT_BIND) && devguiGlob.selectedMenu )
     {
-      if ( DevGui_IsButtonReleased(INPUT_BIND) && devguiGlob.selectedMenu )
+      devguiGlob.bindNextKey = 1;
+    }
+    else
+    {
+      Menu = DevGui_GetMenu(devguiGlob.selectedMenu);
+      if ( !Menu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3324, ASSERT_TYPE_ASSERT, "(selMenuItem)", (const char *)&queryFormat, "selMenuItem") )
+        __debugbreak();
+      if ( devguiGlob.editingMenuItem && Menu->childType == 3 )
       {
-        devguiGlob.bindNextKey = 1;
+        DevGui_UpdateGraph(localClientNum, deltaTime);
       }
       else
       {
-        Menu = DevGui_GetMenu(devguiGlob.selectedMenu);
-        if ( !Menu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3324, ASSERT_TYPE_ASSERT, "(selMenuItem)", (const char *)&queryFormat, "selMenuItem") )
-          __debugbreak();
-        if ( devguiGlob.editingMenuItem && Menu->childType == 3 )
+        updated = 0;
+        if ( devguiGlob.editingMenuItem )
         {
-          __asm { vmovaps xmm1, xmm6; deltaTime }
-          DevGui_UpdateGraph(localClientNum, *(float *)&_XMM1);
+          if ( Menu->childType != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3336, ASSERT_TYPE_ASSERT, "(selMenuItem->childType == DEV_CHILD_DVAR)", (const char *)&queryFormat, "selMenuItem->childType == DEV_CHILD_DVAR") )
+            __debugbreak();
+          DevGui_UpdateDvar(deltaTime);
+          if ( devguiGlob.moveSelectionDelay <= 0.0 && !devguiGlob.heldButtonHandle && !devguiGlob.slider.held && !devguiGlob.slider.knobHeld )
+            updated = DevGui_UpdateSelection();
         }
-        else
+        else if ( devguiGlob.moveSelectionDelay <= 0.0 && !devguiGlob.heldButtonHandle && !devguiGlob.slider.held && !devguiGlob.slider.knobHeld )
         {
-          updated = 0;
+          v10 = DevGui_MoveSelectionHorizontally();
+          MenuScroll = DevGui_GetMenuScroll(SCROLL_YAXIS);
+          v12 = MenuScroll != 0;
+          v13 = MenuScroll <= 0;
+          if ( MenuScroll < 0 )
+          {
+            v14 = (unsigned int)-MenuScroll;
+            MenuScroll = 0;
+            do
+            {
+              DevGui_MoveDown();
+              --v14;
+            }
+            while ( v14 );
+            v13 = 1;
+          }
+          if ( !v13 )
+          {
+            do
+            {
+              DevGui_MoveUp();
+              --MenuScroll;
+            }
+            while ( MenuScroll > 0 );
+          }
+          updated = v12 || v10;
+        }
+        ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
+        if ( IN_IsMouseActive(ControllerFromClient) )
+        {
           if ( devguiGlob.editingMenuItem )
           {
-            if ( Menu->childType != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3336, ASSERT_TYPE_ASSERT, "(selMenuItem->childType == DEV_CHILD_DVAR)", (const char *)&queryFormat, "selMenuItem->childType == DEV_CHILD_DVAR") )
-              __debugbreak();
-            __asm { vmovaps xmm0, xmm6; deltaTime }
-            DevGui_UpdateDvar(*(float *)&_XMM0);
-            __asm
+            if ( devguiGlob.isActive && DevGui_GetMenu(devguiGlob.selectedMenu)->childType == 1 )
             {
-              vmovss  xmm0, cs:devguiGlob.moveSelectionDelay
-              vxorps  xmm1, xmm1, xmm1
-              vcomiss xmm0, xmm1
+              MouseY = DevGui_GetMouseY();
+              MouseX = DevGui_GetMouseX();
+              DevGui_MouseEditSlider(localClientNum, MouseX, MouseY, deltaTime);
             }
-            if ( v17 | v18 && !devguiGlob.heldButtonHandle && !devguiGlob.slider.held && !devguiGlob.slider.knobHeld )
-              updated = DevGui_UpdateSelection();
+            else if ( (devguiGlob.slider.held || devguiGlob.slider.knobHeld) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3242, ASSERT_TYPE_ASSERT, "(isEditingSlider || !( devguiGlob.slider.held || devguiGlob.slider.knobHeld ))", (const char *)&queryFormat, "isEditingSlider || !( devguiGlob.slider.held || devguiGlob.slider.knobHeld )") )
+            {
+              __debugbreak();
+            }
           }
           else
           {
-            __asm
+            origin = devguiGlob.left;
+            top = devguiGlob.top;
+            DevGui_ChooseOrigin(&origin);
+            v18 = DevGui_GetMouseY();
+            v19 = DevGui_GetMouseX();
+            selectedMenu = devguiGlob.selectedMenu;
+            v21 = v19;
+            v22 = DevGui_GetMenu(devguiGlob.selectedMenu);
+            v23 = DevGui_PickMenu(v22->parent, selectedMenu, v21, v18, &origin);
+            v24 = v23;
+            devguiGlob.focusButtonHandle = v23;
+            if ( devguiGlob.heldButtonHandle )
             {
-              vmovss  xmm0, cs:devguiGlob.moveSelectionDelay
-              vxorps  xmm1, xmm1, xmm1
-              vcomiss xmm0, xmm1
-            }
-            if ( !devguiGlob.editingMenuItem && !devguiGlob.heldButtonHandle && !devguiGlob.slider.held && !devguiGlob.slider.knobHeld )
-            {
-              v21 = DevGui_MoveSelectionHorizontally();
-              MenuScroll = DevGui_GetMenuScroll(SCROLL_YAXIS);
-              v23 = MenuScroll != 0;
-              v24 = MenuScroll <= 0;
-              if ( MenuScroll < 0 )
+              if ( !devguiGlob.mouseButtonDown[0] )
               {
-                v25 = (unsigned int)-MenuScroll;
-                MenuScroll = 0;
-                do
+                if ( v23 == devguiGlob.heldButtonHandle )
                 {
-                  DevGui_MoveDown();
-                  --v25;
+                  devguiGlob.selectedMenu = devguiGlob.heldButtonHandle;
+                  DevGui_Accept(localClientNum);
                 }
-                while ( v25 );
-                v24 = 1;
-              }
-              if ( !v24 )
-              {
-                do
-                {
-                  DevGui_MoveUp();
-                  --MenuScroll;
-                }
-                while ( MenuScroll > 0 );
-              }
-              updated = v23 || v21;
-            }
-          }
-          ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-          if ( IN_IsMouseActive(ControllerFromClient) )
-          {
-            if ( devguiGlob.editingMenuItem )
-            {
-              if ( devguiGlob.isActive && DevGui_GetMenu(devguiGlob.selectedMenu)->childType == 1 )
-              {
-                MouseY = DevGui_GetMouseY();
-                MouseX = DevGui_GetMouseX();
-                __asm { vmovaps xmm3, xmm6; deltaTime }
-                DevGui_MouseEditSlider(localClientNum, MouseX, MouseY, *(double *)&_XMM3);
-              }
-              else if ( (devguiGlob.slider.held || devguiGlob.slider.knobHeld) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3242, ASSERT_TYPE_ASSERT, "(isEditingSlider || !( devguiGlob.slider.held || devguiGlob.slider.knobHeld ))", (const char *)&queryFormat, "isEditingSlider || !( devguiGlob.slider.held || devguiGlob.slider.knobHeld )") )
-              {
-                __debugbreak();
+                devguiGlob.heldButtonHandle = 0;
               }
             }
             else
             {
-              origin = devguiGlob.left;
-              top = devguiGlob.top;
-              DevGui_ChooseOrigin(&origin);
-              v30 = DevGui_GetMouseY();
-              v31 = DevGui_GetMouseX();
-              selectedMenu = devguiGlob.selectedMenu;
-              v33 = v31;
-              v34 = DevGui_GetMenu(devguiGlob.selectedMenu);
-              v35 = DevGui_PickMenu(v34->parent, selectedMenu, v33, v30, &origin);
-              v36 = v35;
-              devguiGlob.focusButtonHandle = v35;
-              if ( devguiGlob.heldButtonHandle )
+              heldButtonHandle = devguiGlob.heldButtonHandle;
+              if ( devguiGlob.mouseButtonPressed[0] )
+                heldButtonHandle = v24;
+              devguiGlob.heldButtonHandle = heldButtonHandle;
+            }
+          }
+        }
+        devguiGlob.moveSelectionDelay = devguiGlob.moveSelectionDelay - deltaTime;
+        if ( updated )
+          LODWORD(devguiGlob.moveSelectionDelay) = devgui_moveSelectionDelay->current.integer;
+        if ( !devguiGlob.heldButtonHandle && !devguiGlob.slider.held && !devguiGlob.slider.knobHeld )
+        {
+          v26 = devguiGlob.mouseButtonReleased[1];
+          if ( DevGui_IsButtonReleased(INPUT_ACCEPT) || v26 )
+            DevGui_Accept(localClientNum);
+          if ( DevGui_IsButtonReleased(INPUT_REJECT) )
+          {
+            devguiGlob.heldButtonHandle = 0;
+            if ( !devguiGlob.selectedMenu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2008, ASSERT_TYPE_ASSERT, "(devguiGlob.selectedMenu)", (const char *)&queryFormat, "devguiGlob.selectedMenu") )
+              __debugbreak();
+            v27 = DevGui_GetMenu(devguiGlob.selectedMenu);
+            v28 = v27;
+            if ( devguiGlob.editingMenuItem )
+            {
+              Dvar_ClearLatchedValue(v27->child.dvar);
+              devguiGlob.editingMenuItem = 0;
+            }
+            else
+            {
+              parent = v27->parent;
+              if ( parent && DevGui_GetMenu(parent)->parent )
               {
-                if ( !devguiGlob.mouseButtonDown[0] )
+                devguiGlob.selectedMenu = v28->parent;
+              }
+              else
+              {
+                v30 = devguiGlob.topmostMenu.child.menu;
+                if ( devguiGlob.topmostMenu.child.menu )
                 {
-                  if ( v35 == devguiGlob.heldButtonHandle )
+                  if ( devguiGlob.selectedMenu )
+                    goto LABEL_84;
+                  if ( devguiGlob.isActive )
                   {
-                    devguiGlob.selectedMenu = devguiGlob.heldButtonHandle;
-                    DevGui_Accept(localClientNum);
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3394, ASSERT_TYPE_ASSERT, "(!devguiGlob.isActive)", (const char *)&queryFormat, "!devguiGlob.isActive") )
+                      __debugbreak();
+                    v30 = devguiGlob.topmostMenu.child.menu;
                   }
-                  devguiGlob.heldButtonHandle = 0;
-                }
-              }
-              else
-              {
-                heldButtonHandle = devguiGlob.heldButtonHandle;
-                if ( devguiGlob.mouseButtonPressed[0] )
-                  heldButtonHandle = v36;
-                devguiGlob.heldButtonHandle = heldButtonHandle;
-              }
-            }
-          }
-          __asm
-          {
-            vmovss  xmm0, cs:devguiGlob.moveSelectionDelay
-            vsubss  xmm1, xmm0, xmm6
-            vmovss  cs:devguiGlob.moveSelectionDelay, xmm1
-          }
-          if ( updated )
-          {
-            _RAX = devgui_moveSelectionDelay;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax+28h]
-              vmovss  cs:devguiGlob.moveSelectionDelay, xmm0
-            }
-          }
-          if ( !devguiGlob.heldButtonHandle && !devguiGlob.slider.held && !devguiGlob.slider.knobHeld )
-          {
-            v42 = devguiGlob.mouseButtonReleased[1];
-            if ( DevGui_IsButtonReleased(INPUT_ACCEPT) || v42 )
-              DevGui_Accept(localClientNum);
-            if ( DevGui_IsButtonReleased(INPUT_REJECT) )
-            {
-              devguiGlob.heldButtonHandle = 0;
-              if ( !devguiGlob.selectedMenu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2008, ASSERT_TYPE_ASSERT, "(devguiGlob.selectedMenu)", (const char *)&queryFormat, "devguiGlob.selectedMenu") )
-                __debugbreak();
-              v43 = DevGui_GetMenu(devguiGlob.selectedMenu);
-              v44 = v43;
-              if ( devguiGlob.editingMenuItem )
-              {
-                Dvar_ClearLatchedValue(v43->child.dvar);
-                devguiGlob.editingMenuItem = 0;
-              }
-              else
-              {
-                parent = v43->parent;
-                if ( parent && DevGui_GetMenu(parent)->parent )
-                {
-                  devguiGlob.selectedMenu = v44->parent;
-                }
-                else
-                {
-                  v46 = devguiGlob.topmostMenu.child.menu;
-                  if ( devguiGlob.topmostMenu.child.menu )
+                  devguiGlob.selectedMenu = v30;
+                  if ( v30 )
                   {
+                    DevGui_SelectTopLevelChild();
                     if ( devguiGlob.selectedMenu )
-                      goto LABEL_84;
-                    if ( devguiGlob.isActive )
                     {
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3394, ASSERT_TYPE_ASSERT, "(!devguiGlob.isActive)", (const char *)&queryFormat, "!devguiGlob.isActive") )
-                        __debugbreak();
-                      v46 = devguiGlob.topmostMenu.child.menu;
-                    }
-                    devguiGlob.selectedMenu = v46;
-                    if ( v46 )
-                    {
-                      DevGui_SelectTopLevelChild();
-                      if ( devguiGlob.selectedMenu )
-                      {
 LABEL_84:
-                        devguiGlob.isActive = !devguiGlob.isActive;
-                        if ( devguiGlob.isActive )
-                        {
-                          v47 = Cmd_LocalControllerIndex();
-                          DevGui_SelectGamepad(v47);
-                        }
+                      devguiGlob.isActive = !devguiGlob.isActive;
+                      if ( devguiGlob.isActive )
+                      {
+                        v31 = Cmd_LocalControllerIndex();
+                        DevGui_SelectGamepad(v31);
                       }
                     }
                   }
-                  else if ( devguiGlob.isActive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3388, ASSERT_TYPE_ASSERT, "(!devguiGlob.isActive)", (const char *)&queryFormat, "!devguiGlob.isActive") )
-                  {
-                    __debugbreak();
-                  }
+                }
+                else if ( devguiGlob.isActive && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 3388, ASSERT_TYPE_ASSERT, "(!devguiGlob.isActive)", (const char *)&queryFormat, "!devguiGlob.isActive") )
+                {
+                  __debugbreak();
                 }
               }
             }
@@ -5485,7 +4494,6 @@ LABEL_84:
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_38] }
 }
 
 /*
@@ -5493,545 +4501,296 @@ LABEL_84:
 DevGui_UpdateDvar
 ==============
 */
-
-void __fastcall DevGui_UpdateDvar(double deltaTime, double _XMM1_8, double _XMM2_8)
+void DevGui_UpdateDvar(float deltaTime)
 {
-  int type; 
-  bool v35; 
-  bool v36; 
-  bool v56; 
-  bool v57; 
-  bool v76; 
-  bool v77; 
-  bool v83; 
-  int max; 
+  const dvar_t *v2; 
+  float v3; 
+  double updated; 
+  float max; 
+  float min; 
+  float v7; 
+  __int64 selRow; 
+  float v9; 
+  __int64 v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int64 v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  __int64 v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __int64 v23; 
+  __int64 v24; 
+  bool v25; 
+  int v26; 
   int stringCount; 
-  int v87; 
-  __int64 updated; 
-  int selRow; 
-  int v112; 
-  bool v115; 
-  bool v116; 
-  bool v127; 
-  bool v133; 
-  int v138; 
-  int v144; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
+  int v28; 
+  __int64 v29; 
+  int v30; 
+  __int64 v31; 
+  float v32; 
+  int v33; 
+  float v34; 
+  float v35; 
+  int v36; 
+  float v37; 
+  int v38; 
+  __int64 v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  int v45; 
+  int v46; 
+  float v47; 
   __int64 axis; 
   __int64 axisa; 
   __int64 axisb; 
   __int64 axisc; 
   __int64 axisd; 
-  double axisf; 
-  double axisg; 
   __int64 axise; 
   __int64 minChange; 
-  float minChangeg; 
-  float minChangeh; 
   __int64 minChangea; 
-  float minChangeb; 
+  __int64 minChangeb; 
   __int64 minChangec; 
-  float minChangei; 
   __int64 minChanged; 
-  float minChangej; 
   __int64 minChangee; 
-  float minChangek; 
-  __int64 minChangef; 
-  __int128 v180; 
+  DvarValue latched; 
   vec3_t hsv; 
 
-  __asm
-  {
-    vmovaps [rsp+0C0h+var_40], xmm8
-    vmovaps xmm8, xmm0
-  }
-  _RBX = DevGui_SelectedDvar();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2243, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
+  v2 = DevGui_SelectedDvar();
+  if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2243, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  type = _RBX->type;
-  __asm
+  switch ( v2->type )
   {
-    vmovaps [rsp+0C0h+var_20], xmm6
-    vmovaps [rsp+0C0h+var_30], xmm7
-    vmovaps [rsp+0C0h+var_50], xmm9
-  }
-  switch ( type )
-  {
-    case 0:
-      __asm { vmovaps xmm0, xmm8; deltaTime }
-      v83 = DevGui_UpdateIntScroll(*(float *)&_XMM0, _RBX->latched.enabled, 0, 1, SCROLL_XAXIS) != 0;
-      if ( v83 != _RBX->latched.enabled )
-        Dvar_SetBoolFromSource(_RBX, v83, DVAR_SOURCE_DEVGUI);
-      break;
-    case 1:
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+60h]; jumptable 0000000141FA7DBF case 1
-        vmovss  xmm1, dword ptr [rbx+5Ch]; max
-        vmovss  xmm0, dword ptr [rbx+58h]; min
-      }
-      *(float *)&_XMM0 = DevGui_PickFloatScrollStep(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+5Ch]; max
-        vmovss  xmm2, dword ptr [rbx+58h]; min
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  [rsp+0C0h+minChange], xmm1
-        vmovss  xmm1, dword ptr [rbx+38h]; value
-        vmovss  dword ptr [rsp+0C0h+fmt], xmm0
-        vmovaps xmm0, xmm8; deltaTime
-      }
-      *(double *)&_XMM0 = DevGui_UpdateFloatScroll(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, SCROLL_XAXIS, minChangeg);
-      __asm { vucomiss xmm0, dword ptr [rbx+38h] }
-      if ( !v35 )
-      {
-        __asm { vmovaps xmm1, xmm0; value }
-        Dvar_SetFloatFromSource(_RBX, *(float *)&_XMM1, DVAR_SOURCE_DEVGUI);
-      }
-      break;
-    case 2:
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbx+5Ch]; jumptable 0000000141FA7DBF case 2
-        vmovss  xmm7, dword ptr [rbx+58h]
-        vmovss  xmm2, dword ptr [rbx+60h]; stepOverride
-        vmovaps xmm1, xmm6; max
-        vmovaps xmm0, xmm7; min
-      }
-      *(float *)&_XMM0 = DevGui_PickFloatScrollStep(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2);
-      _RSI = devguiGlob.selRow;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+38h]
-        vmovss  xmm2, dword ptr [rbx+3Ch]
-        vmovss  dword ptr [rbp+57h+var_80], xmm1
-        vmovss  dword ptr [rbp+57h+var_80+4], xmm2
-        vmovaps xmm9, xmm0
-      }
+    case 0u:
+      v25 = DevGui_UpdateIntScroll(deltaTime, v2->latched.enabled, 0, 1, SCROLL_XAXIS) != 0;
+      if ( v25 != v2->latched.enabled )
+        Dvar_SetBoolFromSource(v2, v25, DVAR_SOURCE_DEVGUI);
+      return;
+    case 1u:
+      v3 = DevGui_PickFloatScrollStep(v2->domain.value.min, COERCE_DOUBLE((unsigned __int64)v2->domain.integer.max), v2->domain.value.devguiStep);
+      updated = DevGui_UpdateFloatScroll(deltaTime, v2->latched.value, v2->domain.value.min, v2->domain.value.max, v3, SCROLL_XAXIS, 0.0);
+      if ( *(float *)&updated != v2->latched.value )
+        Dvar_SetFloatFromSource(v2, deltaTime, DVAR_SOURCE_DEVGUI);
+      return;
+    case 2u:
+      max = v2->domain.value.max;
+      min = v2->domain.value.min;
+      v7 = DevGui_PickFloatScrollStep(min, COERCE_DOUBLE((unsigned __int64)LODWORD(max)), v2->domain.value.devguiStep);
+      selRow = devguiGlob.selRow;
+      v9 = v2->latched.vector.v[1];
+      latched.integer = v2->latched.integer;
+      latched.vector.v[1] = v9;
       if ( devguiGlob.selRow >= 4u )
       {
         LODWORD(axis) = devguiGlob.selRow;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axis, 4) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+rsi*4+57h+var_80]; value
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+0C0h+minChange], xmm0
-        vmovaps xmm0, xmm8; deltaTime
-        vmovaps xmm3, xmm6; max
-        vmovaps xmm2, xmm7; min
-        vmovss  dword ptr [rsp+0C0h+fmt], xmm9
-      }
-      *(double *)&_XMM0 = DevGui_UpdateFloatScroll(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, SCROLL_XAXIS, minChangeh);
-      _RSI = devguiGlob.selRow;
-      __asm { vmovaps xmm6, xmm0 }
-      v35 = devguiGlob.selRow == 4;
+      DevGui_UpdateFloatScroll(deltaTime, *(&latched.value + selRow), min, max, v7, SCROLL_XAXIS, 0.0);
+      v10 = devguiGlob.selRow;
       if ( devguiGlob.selRow >= 4u )
       {
         LODWORD(minChangea) = 4;
         LODWORD(axisa) = devguiGlob.selRow;
-        v36 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axisa, minChangea);
-        v35 = !v36;
-        if ( v36 )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axisa, minChangea) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  dword ptr [rbp+rsi*4+57h+var_80], xmm6
-        vmovss  xmm1, dword ptr [rbp+57h+var_80]; x
-        vucomiss xmm1, dword ptr [rbx+38h]
-        vmovss  xmm2, dword ptr [rbp+57h+var_80+4]; y
-      }
-      if ( !v35 )
-        goto LABEL_15;
-      __asm { vucomiss xmm2, dword ptr [rbx+3Ch] }
-      if ( !v35 )
-LABEL_15:
-        Dvar_SetVec2FromSource(_RBX, *(float *)&_XMM1, *(float *)&_XMM2, DVAR_SOURCE_DEVGUI);
-      break;
-    case 3:
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbx+5Ch]; jumptable 0000000141FA7DBF case 3
-        vmovss  xmm7, dword ptr [rbx+58h]
-        vmovss  xmm2, dword ptr [rbx+60h]; stepOverride
-        vmovaps xmm1, xmm6; max
-        vmovaps xmm0, xmm7; min
-      }
-      *(float *)&_XMM0 = DevGui_PickFloatScrollStep(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2);
-      __asm { vmovss  xmm1, dword ptr [rbx+38h] }
-      _RSI = devguiGlob.selRow;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+3Ch]
-        vmovss  dword ptr [rbp+57h+var_80], xmm1
-        vmovss  xmm1, dword ptr [rbx+40h]
-        vmovss  dword ptr [rbp+57h+var_80+8], xmm1
-        vmovss  dword ptr [rbp+57h+var_80+4], xmm2
-        vmovaps xmm9, xmm0
-      }
+      *(&latched.value + v10) = deltaTime;
+      if ( latched.value != v2->latched.value || latched.vector.v[1] != v2->latched.vector.v[1] )
+        Dvar_SetVec2FromSource(v2, latched.value, latched.vector.v[1], DVAR_SOURCE_DEVGUI);
+      return;
+    case 3u:
+      v11 = v2->domain.value.max;
+      v12 = v2->domain.value.min;
+      v13 = DevGui_PickFloatScrollStep(v12, COERCE_DOUBLE((unsigned __int64)LODWORD(v11)), v2->domain.value.devguiStep);
+      v14 = devguiGlob.selRow;
+      v15 = v2->latched.vector.v[1];
+      latched.integer = v2->latched.integer;
+      latched.vector.v[2] = v2->latched.vector.v[2];
+      latched.vector.v[1] = v15;
+      v16 = v13;
       if ( devguiGlob.selRow >= 4u )
       {
         LODWORD(axis) = devguiGlob.selRow;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axis, 4) )
           __debugbreak();
       }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+0C0h+minChange], xmm0
-        vmovaps xmm3, xmm6; max
-        vmovaps xmm2, xmm7; min
-      }
+      v17 = v11;
+      v18 = v12;
       goto LABEL_20;
-    case 4:
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbx+5Ch]; jumptable 0000000141FA7DBF case 4
-        vmovss  xmm7, dword ptr [rbx+58h]
-        vmovss  xmm2, dword ptr [rbx+60h]; stepOverride
-        vmovaps xmm1, xmm6; max
-        vmovaps xmm0, xmm7; min
-      }
-      *(float *)&_XMM0 = DevGui_PickFloatScrollStep(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2);
-      _RSI = devguiGlob.selRow;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx+38h]
-        vmovups [rbp+57h+var_80], xmm1
-        vmovaps xmm9, xmm0
-      }
+    case 4u:
+      v20 = v2->domain.value.max;
+      v21 = v2->domain.value.min;
+      v22 = DevGui_PickFloatScrollStep(v21, COERCE_DOUBLE((unsigned __int64)LODWORD(v20)), v2->domain.value.devguiStep);
+      v23 = devguiGlob.selRow;
+      latched = v2->latched;
       if ( devguiGlob.selRow >= 4u )
       {
         LODWORD(axis) = devguiGlob.selRow;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axis, 4) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+rsi*4+57h+var_80]; value
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+0C0h+minChange], xmm0
-        vmovaps xmm0, xmm8; deltaTime
-        vmovaps xmm3, xmm6; max
-        vmovaps xmm2, xmm7; min
-        vmovss  dword ptr [rsp+0C0h+fmt], xmm9
-      }
-      *(double *)&_XMM0 = DevGui_UpdateFloatScroll(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, SCROLL_XAXIS, minChangei);
-      _RSI = devguiGlob.selRow;
-      __asm { vmovaps xmm6, xmm0 }
-      v76 = devguiGlob.selRow == 4;
+      DevGui_UpdateFloatScroll(deltaTime, *(&latched.value + v23), v21, v20, v22, SCROLL_XAXIS, 0.0);
+      v24 = devguiGlob.selRow;
       if ( devguiGlob.selRow >= 4u )
       {
-        LODWORD(minChanged) = 4;
+        LODWORD(minChangec) = 4;
         LODWORD(axisc) = devguiGlob.selRow;
-        v77 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axisc, minChanged);
-        v76 = !v77;
-        if ( v77 )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axisc, minChangec) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  dword ptr [rbp+rsi*4+57h+var_80], xmm6
-        vmovss  xmm1, dword ptr [rbp+57h+var_80]; x
-        vucomiss xmm1, dword ptr [rbx+38h]
-        vmovss  xmm0, dword ptr [rbp+57h+var_80+0Ch]
-        vmovss  xmm3, dword ptr [rbp+57h+var_80+8]; z
-        vmovss  xmm2, dword ptr [rbp+57h+var_80+4]; y
-      }
-      if ( !v76 )
-        goto LABEL_38;
-      __asm { vucomiss xmm2, dword ptr [rbx+3Ch] }
-      if ( !v76 )
-        goto LABEL_38;
-      __asm { vucomiss xmm3, dword ptr [rbx+40h] }
-      if ( !v76 )
-        goto LABEL_38;
-      __asm { vucomiss xmm0, dword ptr [rbx+44h] }
-      if ( !v76 )
-      {
-LABEL_38:
-        __asm { vmovss  dword ptr [rsp+0C0h+fmt], xmm0 }
-        Dvar_SetVec4FromSource(_RBX, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, DVAR_SOURCE_DEVGUI);
-      }
-      break;
-    case 5:
-      max = _RBX->domain.integer.max;
-      stringCount = _RBX->domain.enumeration.stringCount;
+      *(&latched.value + v24) = deltaTime;
+      if ( latched.value != v2->latched.value || latched.vector.v[1] != v2->latched.vector.v[1] || latched.vector.v[2] != v2->latched.vector.v[2] || latched.vector.v[3] != v2->latched.vector.v[3] )
+        Dvar_SetVec4FromSource(v2, latched.value, latched.vector.v[1], latched.vector.v[2], latched.vector.v[3], DVAR_SOURCE_DEVGUI);
+      return;
+    case 5u:
+      v26 = v2->domain.integer.max;
+      stringCount = v2->domain.enumeration.stringCount;
       goto LABEL_42;
-    case 6:
-      __asm { vmovaps xmm0, xmm8; deltaTime }
-      updated = DevGui_UpdateInt64Scroll(*(float *)&_XMM0, _RBX->latched.integer64, _RBX->domain.integer64.min, _RBX->domain.integer64.max, SCROLL_XAXIS);
+    case 6u:
+      v29 = DevGui_UpdateInt64Scroll(deltaTime, v2->latched.integer64, v2->domain.integer64.min, v2->domain.integer64.max, SCROLL_XAXIS);
       goto LABEL_45;
-    case 7:
-      __asm { vmovaps xmm0, xmm8; deltaTime }
-      updated = DevGui_UpdateUInt64Scroll(*(float *)&_XMM0, _RBX->latched.unsignedInt64, _RBX->domain.unsignedInt64.min, _RBX->domain.unsignedInt64.max, SCROLL_XAXIS);
+    case 7u:
+      v29 = DevGui_UpdateUInt64Scroll(deltaTime, v2->latched.unsignedInt64, v2->domain.unsignedInt64.min, v2->domain.unsignedInt64.max, SCROLL_XAXIS);
 LABEL_45:
-      if ( updated != _RBX->latched.integer64 )
-        Dvar_SetInt64FromSource(_RBX, updated, DVAR_SOURCE_DEVGUI);
+      if ( v29 != v2->latched.integer64 )
+        Dvar_SetInt64FromSource(v2, v29, DVAR_SOURCE_DEVGUI);
       break;
-    case 8:
-      max = _RBX->domain.enumeration.stringCount - 1;
+    case 8u:
+      v26 = v2->domain.enumeration.stringCount - 1;
       stringCount = 0;
 LABEL_42:
-      __asm { vmovaps xmm0, xmm8; deltaTime }
-      v87 = DevGui_UpdateIntScroll(*(float *)&_XMM0, _RBX->latched.integer, stringCount, max, SCROLL_XAXIS);
-      if ( v87 != _RBX->latched.integer )
-        Dvar_SetIntFromSource(_RBX, v87, DVAR_SOURCE_DEVGUI);
+      v28 = DevGui_UpdateIntScroll(deltaTime, v2->latched.integer, stringCount, v26, SCROLL_XAXIS);
+      if ( v28 != v2->latched.integer )
+        Dvar_SetIntFromSource(v2, v28, DVAR_SOURCE_DEVGUI);
       break;
-    case 10:
-      __asm { vmovss  xmm6, cs:__real@3b808081; jumptable 0000000141FA7DBF case 10 }
-      selRow = devguiGlob.selRow;
-      _R14 = devguiGlob.selRow;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbp+57h+var_80], xmm0
-        vmulss  xmm0, xmm1, xmm6
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmovss  dword ptr [rbp+57h+var_80+4], xmm0
-        vmulss  xmm0, xmm1, xmm6
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmovss  dword ptr [rbp+57h+var_80+8], xmm0
-        vmulss  xmm0, xmm1, xmm6
-        vmovss  dword ptr [rbp+57h+var_80+0Ch], xmm0
-      }
+    case 0xAu:
+      v30 = devguiGlob.selRow;
+      v31 = devguiGlob.selRow;
+      v32 = (float)v2->latched.color[1];
+      v33 = v2->latched.color[2];
+      latched.value = (float)v2->latched.color[0] * 0.0039215689;
+      v34 = v32 * 0.0039215689;
+      v35 = (float)v33;
+      v36 = v2->latched.color[3];
+      latched.vector.v[1] = v34;
+      latched.vector.v[2] = v35 * 0.0039215689;
+      latched.vector.v[3] = (float)v36 * 0.0039215689;
       if ( devguiGlob.selRow >= 4u )
       {
         LODWORD(axis) = devguiGlob.selRow;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axis, 4) )
           __debugbreak();
-        selRow = devguiGlob.selRow;
+        v30 = devguiGlob.selRow;
       }
-      __asm { vmovss  xmm7, dword ptr [rbp+r14*4+57h+var_80] }
-      if ( (unsigned int)selRow >= 4 )
+      v37 = *(&latched.value + v31);
+      if ( (unsigned int)v30 >= 4 )
       {
         LODWORD(minChange) = 4;
-        LODWORD(axis) = selRow;
+        LODWORD(axis) = v30;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axis, minChange) )
           __debugbreak();
       }
-      __asm { vmovss  xmm3, cs:__real@3f800000; max }
-      _RAX = selRow;
-      __asm
-      {
-        vmovss  [rsp+0C0h+minChange], xmm6
-        vxorps  xmm2, xmm2, xmm2; min
-        vmovss  xmm1, dword ptr [rbp+rax*4+57h+var_80]; value
-        vmovaps xmm0, xmm8; deltaTime
-        vmovss  dword ptr [rsp+0C0h+fmt], xmm6
-      }
-      *(double *)&_XMM0 = DevGui_UpdateFloatScroll(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmte, SCROLL_XAXIS, minChangej);
-      v112 = devguiGlob.selRow;
-      _R14 = devguiGlob.selRow;
-      __asm { vmovaps xmm6, xmm0 }
+      DevGui_UpdateFloatScroll(deltaTime, *(&latched.value + v30), 0.0, 1.0, 0.0039215689, SCROLL_XAXIS, 0.0039215689);
+      v38 = devguiGlob.selRow;
+      v39 = devguiGlob.selRow;
       if ( devguiGlob.selRow >= 4u )
       {
-        LODWORD(minChangee) = 4;
+        LODWORD(minChanged) = 4;
         LODWORD(axisd) = devguiGlob.selRow;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axisd, minChangee) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axisd, minChanged) )
           __debugbreak();
-        v112 = devguiGlob.selRow;
+        v38 = devguiGlob.selRow;
       }
-      __asm { vmovss  dword ptr [rbp+r14*4+57h+var_80], xmm6 }
-      v115 = v112 == 4;
-      if ( (unsigned int)v112 >= 4 )
+      *(&latched.value + v39) = deltaTime;
+      if ( (unsigned int)v38 >= 4 )
       {
-        LODWORD(minChangee) = 4;
-        LODWORD(axisd) = v112;
-        v116 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axisd, minChangee);
-        v115 = !v116;
-        if ( v116 )
+        LODWORD(minChanged) = 4;
+        LODWORD(axisd) = v38;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axisd, minChanged) )
           __debugbreak();
       }
-      _RAX = v112;
-      __asm { vucomiss xmm7, dword ptr [rbp+rax*4+57h+var_80] }
-      if ( !v115 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+57h+var_80+0Ch]
-          vmovss  xmm3, dword ptr [rbp+57h+var_80+8]; b
-          vmovss  xmm2, dword ptr [rbp+57h+var_80+4]; g
-          vmovss  xmm1, dword ptr [rbp+57h+var_80]; r
-          vmovss  dword ptr [rsp+0C0h+fmt], xmm0
-        }
-        Dvar_SetColorFromSource(_RBX, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, DVAR_SOURCE_DEVGUI);
-      }
+      if ( v37 != *(&latched.value + v38) )
+        Dvar_SetColorFromSource(v2, latched.value, latched.vector.v[1], latched.vector.v[2], latched.vector.v[3], DVAR_SOURCE_DEVGUI);
       break;
-    case 11:
-      __asm
-      {
-        vmovss  xmm7, cs:__real@3f800000; jumptable 0000000141FA7DBF case 11
-        vmovaps xmm1, xmm7; max
-        vxorps  xmm2, xmm2, xmm2; stepOverride
-        vxorps  xmm0, xmm0, xmm0; min
-        vxorps  xmm6, xmm6, xmm6
-      }
-      *(float *)&_XMM0 = DevGui_PickFloatScrollStep(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2);
-      v127 = devguiGlob.selRow <= 3u;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+38h]
-        vmovss  xmm2, dword ptr [rbx+3Ch]
-        vmovss  dword ptr [rbp+57h+var_80], xmm1
-        vmovss  xmm1, dword ptr [rbx+40h]
-        vmovss  dword ptr [rbp+57h+var_80+8], xmm1
-        vmovss  dword ptr [rbp+57h+var_80+4], xmm2
-        vmovaps xmm9, xmm0
-      }
+    case 0xBu:
+      v40 = DevGui_PickFloatScrollStep(0.0, COERCE_DOUBLE((unsigned __int64)LODWORD(FLOAT_1_0)), 0.0);
+      v41 = v2->latched.vector.v[1];
+      latched.integer = v2->latched.integer;
+      latched.vector.v[2] = v2->latched.vector.v[2];
+      latched.vector.v[1] = v41;
+      v16 = v40;
       if ( devguiGlob.selRow >= 3 )
       {
         if ( devguiGlob.selRow >= 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2331, ASSERT_TYPE_ASSERT, "(devguiGlob.selRow < 6)", (const char *)&queryFormat, "devguiGlob.selRow < 6") )
           __debugbreak();
-        __asm { vmovss  xmm2, dword ptr [rbx+5Ch]; scale }
-        DevGui_Vec3ToHSV((const vec3_t *)&v180, &hsv, *(float *)&_XMM2);
-        v138 = devguiGlob.selRow - 3;
+        DevGui_Vec3ToHSV((const vec3_t *)&latched, &hsv, v2->domain.value.max);
+        v45 = devguiGlob.selRow - 3;
         if ( (unsigned int)(devguiGlob.selRow - 3) >= 3 )
         {
           LODWORD(axis) = devguiGlob.selRow - 3;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axis, 3) )
             __debugbreak();
         }
-        _RAX = v138;
-        __asm
-        {
-          vmovss  [rsp+0C0h+minChange], xmm6
-          vmovaps xmm3, xmm7; max
-          vmovss  xmm1, dword ptr [rbp+rax*4+57h+hsv]; value
-          vxorps  xmm2, xmm2, xmm2; min
-          vmovaps xmm0, xmm8; deltaTime
-          vmovss  dword ptr [rsp+0C0h+fmt], xmm9
-        }
-        *(double *)&_XMM0 = DevGui_UpdateFloatScroll(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtg, SCROLL_XAXIS, minChangek);
-        v144 = devguiGlob.selRow - 3;
-        __asm { vmovaps xmm6, xmm0 }
+        DevGui_UpdateFloatScroll(deltaTime, hsv.v[v45], 0.0, 1.0, v40, SCROLL_XAXIS, 0.0);
+        v46 = devguiGlob.selRow - 3;
         if ( (unsigned int)(devguiGlob.selRow - 3) >= 3 )
         {
-          LODWORD(minChangef) = 3;
+          LODWORD(minChangee) = 3;
           LODWORD(axise) = devguiGlob.selRow - 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axise, minChangef) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axise, minChangee) )
             __debugbreak();
         }
-        __asm { vmovss  xmm2, dword ptr [rbx+5Ch]; scale }
-        _RAX = v144;
-        __asm { vmovss  dword ptr [rbp+rax*4+57h+hsv], xmm6 }
-        DevGui_Vec3FromHSV((vec3_t *)&v180, &hsv, *(float *)&_XMM2);
+        v47 = v2->domain.value.max;
+        hsv.v[v46] = deltaTime;
+        DevGui_Vec3FromHSV((vec3_t *)&latched, &hsv, v47);
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx+58h]
-          vucomiss xmm1, xmm6
-        }
-        if ( devguiGlob.selRow != 3 )
-        {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm1, xmm1
-            vmovsd  qword ptr [rsp+0C0h+axis], xmm0
-          }
-          v133 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2324, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.min == 0.0f ) )", "( dvar->domain.vector.min ) = %g", axisf);
-          v127 = !v133;
-          if ( v133 )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+5Ch]
-          vcomiss xmm0, xmm6
-        }
-        if ( v127 )
-        {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  qword ptr [rsp+0C0h+axis], xmm0
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2325, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.max > 0.0f ) )", "( dvar->domain.vector.max ) = %g", axisg) )
-            __debugbreak();
-        }
-        _RSI = devguiGlob.selRow;
-        __asm { vmovss  xmm7, dword ptr [rbx+5Ch] }
+        v42 = v2->domain.value.min;
+        if ( v42 != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2324, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.min == 0.0f ) )", "( dvar->domain.vector.min ) = %g", v42) )
+          __debugbreak();
+        v43 = v2->domain.value.max;
+        if ( v43 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2325, ASSERT_TYPE_ASSERT, "( ( dvar->domain.vector.max > 0.0f ) )", "( dvar->domain.vector.max ) = %g", v43) )
+          __debugbreak();
+        v14 = devguiGlob.selRow;
+        v44 = v2->domain.value.max;
         if ( devguiGlob.selRow >= 4u )
         {
           LODWORD(axis) = devguiGlob.selRow;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axis, 4) )
             __debugbreak();
         }
-        __asm
-        {
-          vmovss  [rsp+0C0h+minChange], xmm6
-          vmovaps xmm3, xmm7
-          vxorps  xmm2, xmm2, xmm2
-        }
+        v17 = v44;
+        v18 = 0.0;
 LABEL_20:
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbp+rsi*4+57h+var_80]; value
-          vmovaps xmm0, xmm8; deltaTime
-          vmovss  dword ptr [rsp+0C0h+fmt], xmm9
-        }
-        *(double *)&_XMM0 = DevGui_UpdateFloatScroll(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, SCROLL_XAXIS, minChangeb);
-        _RSI = devguiGlob.selRow;
-        __asm { vmovaps xmm6, xmm0 }
-        v56 = devguiGlob.selRow == 4;
+        DevGui_UpdateFloatScroll(deltaTime, *(&latched.value + v14), v18, v17, v16, SCROLL_XAXIS, 0.0);
+        v19 = devguiGlob.selRow;
         if ( devguiGlob.selRow >= 4u )
         {
-          LODWORD(minChangec) = 4;
+          LODWORD(minChangeb) = 4;
           LODWORD(axisb) = devguiGlob.selRow;
-          v57 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axisb, minChangec);
-          v56 = !v57;
-          if ( v57 )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", axisb, minChangeb) )
             __debugbreak();
         }
-        __asm { vmovss  dword ptr [rbp+rsi*4+57h+var_80], xmm6 }
+        *(&latched.value + v19) = deltaTime;
       }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+57h+var_80]; x
-        vucomiss xmm1, dword ptr [rbx+38h]
-        vmovss  xmm2, dword ptr [rbp+57h+var_80+4]; y
-        vmovss  xmm3, dword ptr [rbp+57h+var_80+8]; z
-      }
-      if ( !v56 )
-        goto LABEL_27;
-      __asm { vucomiss xmm2, dword ptr [rbx+3Ch] }
-      if ( !v56 )
-        goto LABEL_27;
-      __asm { vucomiss xmm3, dword ptr [rbx+40h] }
-      if ( !v56 )
-LABEL_27:
-        Dvar_SetVec3FromSource(_RBX, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, DVAR_SOURCE_DEVGUI);
+      if ( latched.value != v2->latched.value || latched.vector.v[1] != v2->latched.vector.v[1] || latched.vector.v[2] != v2->latched.vector.v[2] )
+        Dvar_SetVec3FromSource(v2, latched.value, latched.vector.v[1], latched.vector.v[2], DVAR_SOURCE_DEVGUI);
       break;
     default:
-      LODWORD(axis) = type;
+      LODWORD(axis) = v2->type;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2343, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "invalid dvar type %i", axis) )
         __debugbreak();
       break;
-  }
-  __asm
-  {
-    vmovaps xmm9, [rsp+0C0h+var_50]
-    vmovaps xmm7, [rsp+0C0h+var_30]
-    vmovaps xmm6, [rsp+0C0h+var_20]
-    vmovaps xmm8, [rsp+0C0h+var_40]
   }
 }
 
@@ -6040,33 +4799,31 @@ LABEL_27:
 DevGui_UpdateGraph
 ==============
 */
-
-void __fastcall DevGui_UpdateGraph(LocalClientNum_t localClientNum, double deltaTime, double _XMM2_8)
+void DevGui_UpdateGraph(LocalClientNum_t localClientNum, float deltaTime)
 {
   DevMenuItem *Menu; 
   DevGraph *graph; 
-  unsigned int v14; 
+  int v5; 
   int selectedKnot; 
   void (__fastcall *eventCallback)(const DevGraph *, DevEventType, LocalClientNum_t); 
-  void (__fastcall *v17)(const DevGraph *, DevEventType, LocalClientNum_t); 
-  void (__fastcall *v18)(const DevGraph *, DevEventType, LocalClientNum_t); 
-  unsigned int v37; 
-  bool v44; 
-  bool v61; 
-  void (__fastcall *v73)(const DevGraph *, DevEventType, LocalClientNum_t); 
+  void (__fastcall *v8)(const DevGraph *, DevEventType, LocalClientNum_t); 
+  void (__fastcall *v9)(const DevGraph *, DevEventType, LocalClientNum_t); 
+  __int64 v10; 
+  float v11; 
+  float v12; 
+  double updated; 
+  float v14; 
+  double v15; 
+  __int64 v16; 
+  float v17; 
+  bool v18; 
+  double v19; 
+  double v20; 
+  void (__fastcall *v21)(const DevGraph *, DevEventType, LocalClientNum_t); 
   __int16 MenuScroll; 
-  int v81; 
-  int v82; 
-  float fmt; 
-  float fmta; 
-  float v85; 
-  float v86; 
+  int v23; 
+  int v24; 
 
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_88], xmm12
-    vmovaps xmm12, xmm1
-  }
   Menu = DevGui_GetMenu(devguiGlob.selectedMenu);
   if ( !Menu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2445, ASSERT_TYPE_ASSERT, "(menu)", (const char *)&queryFormat, "menu") )
     __debugbreak();
@@ -6083,11 +4840,11 @@ void __fastcall DevGui_UpdateGraph(LocalClientNum_t localClientNum, double delta
     __debugbreak();
   if ( !graph->knotCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2451, ASSERT_TYPE_ASSERT, "(graph->knotCountMax > 0)", (const char *)&queryFormat, "graph->knotCountMax > 0") )
     __debugbreak();
-  v14 = *graph->knotCount;
-  if ( (v14 < 2 || v14 > graph->knotCountMax) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2454, ASSERT_TYPE_ASSERT, "(currentKnotCount >= 2 && currentKnotCount <= graph->knotCountMax)", (const char *)&queryFormat, "currentKnotCount >= 2 && currentKnotCount <= graph->knotCountMax") )
+  v5 = *graph->knotCount;
+  if ( ((unsigned int)v5 < 2 || v5 > (unsigned int)graph->knotCountMax) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 2454, ASSERT_TYPE_ASSERT, "(currentKnotCount >= 2 && currentKnotCount <= graph->knotCountMax)", (const char *)&queryFormat, "currentKnotCount >= 2 && currentKnotCount <= graph->knotCountMax") )
     __debugbreak();
   selectedKnot = graph->selectedKnot;
-  if ( selectedKnot < 0 || selectedKnot >= (int)v14 )
+  if ( selectedKnot < 0 || selectedKnot >= v5 )
     graph->selectedKnot = 0;
   if ( DevGui_IsButtonPressed(INPUT_GRAPH_EDIT) )
     devguiGlob.editingKnot = !devguiGlob.editingKnot;
@@ -6095,193 +4852,86 @@ void __fastcall DevGui_UpdateGraph(LocalClientNum_t localClientNum, double delta
   {
     DevGui_AddGraphKnot(graph, localClientNum);
     devguiGlob.editingKnot = 0;
-    goto LABEL_59;
+    return;
   }
   if ( DevGui_IsButtonPressed(INPUT_GRAPH_REMOVE) )
   {
     DevGui_RemoveGraphKnot(graph, localClientNum);
     devguiGlob.editingKnot = 0;
-    goto LABEL_59;
+    return;
   }
   if ( DevGui_IsButtonPressed(INPUT_GRAPH_SAVE) )
   {
     eventCallback = graph->eventCallback;
     if ( eventCallback )
       eventCallback(graph, EVENT_SAVE, localClientNum);
-    goto LABEL_59;
   }
-  if ( DevGui_IsButtonPressed(INPUT_ACCEPT) )
+  else if ( DevGui_IsButtonPressed(INPUT_ACCEPT) )
   {
-    v17 = graph->eventCallback;
-    if ( v17 )
-      v17(graph, EVENT_ACCEPT, localClientNum);
-    goto LABEL_59;
+    v8 = graph->eventCallback;
+    if ( v8 )
+      v8(graph, EVENT_ACCEPT, localClientNum);
   }
-  if ( DevGui_IsButtonPressed(INPUT_REJECT) )
+  else if ( DevGui_IsButtonPressed(INPUT_REJECT) )
   {
-    v18 = graph->eventCallback;
-    if ( v18 )
-      v18(graph, EVENT_DEACTIVATE, localClientNum);
+    v9 = graph->eventCallback;
+    if ( v9 )
+      v9(graph, EVENT_DEACTIVATE, localClientNum);
     devguiGlob.editingMenuItem = 0;
-    goto LABEL_59;
   }
-  if ( devguiGlob.editingKnot )
+  else if ( devguiGlob.editingKnot )
   {
-    _RCX = graph->selectedKnot;
-    _RAX = graph->knots;
-    __asm
+    v10 = graph->selectedKnot;
+    v11 = graph->knots[v10].v[1];
+    v12 = graph->knots[v10].v[0];
+    updated = DevGui_UpdateFloatScroll(deltaTime, v12, 0.0, 1.0, 0.029999999, SCROLL_XAXIS, 0.0);
+    v14 = *(float *)&updated;
+    v15 = DevGui_UpdateFloatScroll(deltaTime, v11, 0.0, 1.0, 0.029999999, SCROLL_YAXIS, 0.0);
+    v16 = graph->selectedKnot;
+    if ( (int)v16 <= 0 || (int)v16 + 1 >= v5 )
     {
-      vmovaps [rsp+0C8h+var_28], xmm6
-      vmovss  xmm6, cs:__real@3cf5c28f
-      vmovaps [rsp+0C8h+var_38], xmm7
-      vmovss  xmm7, dword ptr [rax+rcx*8+4]
-      vmovaps [rsp+0C8h+var_48], xmm8
-      vmovaps [rsp+0C8h+var_58], xmm9
-      vmovss  xmm9, dword ptr [rax+rcx*8]
-      vmovaps [rsp+0C8h+var_68], xmm10
-      vmovss  xmm10, cs:__real@3f800000
-      vxorps  xmm8, xmm8, xmm8
-      vmovss  [rsp+0C8h+var_98], xmm8
-      vmovaps xmm3, xmm10; max
-      vmovaps xmm1, xmm9; value
-      vxorps  xmm2, xmm2, xmm2; min
-      vmovaps xmm0, xmm12; deltaTime
-      vmovss  dword ptr [rsp+0C8h+fmt], xmm6
-      vmovaps [rsp+0C8h+var_78], xmm11
-    }
-    *(double *)&_XMM0 = DevGui_UpdateFloatScroll(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, SCROLL_XAXIS, v85);
-    __asm
-    {
-      vmovaps xmm11, xmm0
-      vmovss  [rsp+0C8h+var_98], xmm8
-      vmovaps xmm0, xmm12; deltaTime
-      vmovaps xmm3, xmm10; max
-      vxorps  xmm2, xmm2, xmm2; min
-      vmovaps xmm1, xmm7; value
-      vmovss  dword ptr [rsp+0C8h+fmt], xmm6
-    }
-    *(double *)&_XMM0 = DevGui_UpdateFloatScroll(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, SCROLL_YAXIS, v86);
-    _RCX = graph->selectedKnot;
-    __asm { vmovaps xmm6, [rsp+0C8h+var_28] }
-    if ( (int)_RCX <= 0 || (v37 = _RCX + 1, (int)_RCX + 1 >= (int)v14) )
-    {
-      v61 = !graph->disableEditingEndPoints;
       if ( graph->disableEditingEndPoints )
-      {
-LABEL_58:
-        __asm
-        {
-          vmovaps xmm10, [rsp+0C8h+var_68]
-          vmovaps xmm9, [rsp+0C8h+var_58]
-          vmovaps xmm8, [rsp+0C8h+var_48]
-          vmovaps xmm7, [rsp+0C8h+var_38]
-          vmovaps xmm11, [rsp+0C8h+var_78]
-        }
-        goto LABEL_59;
-      }
-      _RAX = graph->knots;
-      __asm
-      {
-        vsubss  xmm1, xmm0, xmm7
-        vandps  xmm0, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm0, cs:__real@358637bd
-        vmulss  xmm0, xmm1, cs:__real@40800000
-        vaddss  xmm1, xmm0, dword ptr [rax+rcx*8+4]
-        vmovss  dword ptr [rax+rcx*8+4], xmm1
-      }
-      v44 = !v61;
+        return;
+      graph->knots[v16].v[1] = (float)((float)(*(float *)&v15 - v11) * 4.0) + graph->knots[v16].v[1];
+      v18 = COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v15 - v11) & _xmm) > 0.000001;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovss  xmm2, cs:__real@358637bd
-        vsubss  xmm4, xmm11, xmm9
-        vsubss  xmm3, xmm0, xmm7
-        vandps  xmm0, xmm4, xmm1
-        vcomiss xmm0, xmm2
-      }
-      if ( v37 > v14 )
-        goto LABEL_51;
-      __asm
-      {
-        vandps  xmm0, xmm3, xmm1
-        vcomiss xmm0, xmm2
-      }
-      if ( v37 > v14 )
-LABEL_51:
-        v44 = 1;
-      else
-        v44 = 0;
-      _RAX = graph->knots;
-      __asm
-      {
-        vmulss  xmm0, xmm4, cs:__real@40400000
-        vmovss  xmm4, cs:__real@3ba3d70a
-        vaddss  xmm1, xmm0, dword ptr [rax+rcx*8]
-        vmulss  xmm0, xmm3, cs:__real@40800000
-        vmovss  dword ptr [rax+rcx*8], xmm1
-      }
-      _RCX = graph->selectedKnot;
-      _RAX = graph->knots;
-      __asm
-      {
-        vaddss  xmm1, xmm0, dword ptr [rax+rcx*8+4]
-        vmovss  dword ptr [rax+rcx*8+4], xmm1
-      }
-      _RCX = graph->selectedKnot;
-      _RAX = graph->knots;
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rax+rcx*8+8]
-        vaddss  xmm1, xmm4, dword ptr [rax+rcx*8-8]; min
-        vmovss  xmm0, dword ptr [rax+rcx*8]; val
-        vsubss  xmm2, xmm3, xmm4; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      _RCX = graph->selectedKnot;
-      _RAX = graph->knots;
-      __asm { vmovss  dword ptr [rax+rcx*8], xmm0 }
+      v17 = *(float *)&v15 - v11;
+      v18 = COERCE_FLOAT(COERCE_UNSIGNED_INT(v14 - v12) & _xmm) > 0.000001 || COERCE_FLOAT(LODWORD(v17) & _xmm) > 0.000001;
+      graph->knots[v16].v[0] = (float)((float)(v14 - v12) * 3.0) + graph->knots[v16].v[0];
+      graph->knots[graph->selectedKnot].v[1] = (float)(v17 * 4.0) + graph->knots[graph->selectedKnot].v[1];
+      v19 = I_fclamp(graph->knots[graph->selectedKnot].v[0], graph->knots[graph->selectedKnot - 1].v[0] + 0.0049999999, graph->knots[graph->selectedKnot + 1].v[0] - 0.0049999999);
+      graph->knots[graph->selectedKnot].v[0] = *(float *)&v19;
     }
-    _RCX = graph->selectedKnot;
-    _RAX = graph->knots;
-    __asm
+    v20 = I_fclamp(graph->knots[graph->selectedKnot].v[1], 0.0, 1.0);
+    graph->knots[graph->selectedKnot].v[1] = *(float *)&v20;
+    if ( v18 )
     {
-      vmovaps xmm2, xmm10; max
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovss  xmm0, dword ptr [rax+rcx*8+4]; val
+      v21 = graph->eventCallback;
+      if ( v21 )
+        v21(graph, EVENT_UPDATE, localClientNum);
     }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    _RCX = graph->selectedKnot;
-    _RAX = graph->knots;
-    __asm { vmovss  dword ptr [rax+rcx*8+4], xmm0 }
-    if ( v44 )
-    {
-      v73 = graph->eventCallback;
-      if ( v73 )
-        v73(graph, EVENT_UPDATE, localClientNum);
-    }
-    goto LABEL_58;
-  }
-  MenuScroll = DevGui_GetMenuScroll(SCROLL_XAXIS);
-  if ( MenuScroll >= 0 || (v81 = graph->selectedKnot, v81 <= 0) )
-  {
-    if ( MenuScroll > 0 )
-    {
-      v82 = graph->selectedKnot + 1;
-      if ( (int)v14 > v82 )
-        graph->selectedKnot = v82;
-    }
-    DevGui_UpdateSelection();
   }
   else
   {
-    graph->selectedKnot = v81 - 1;
-    DevGui_UpdateSelection();
+    MenuScroll = DevGui_GetMenuScroll(SCROLL_XAXIS);
+    if ( MenuScroll >= 0 || (v23 = graph->selectedKnot, v23 <= 0) )
+    {
+      if ( MenuScroll > 0 )
+      {
+        v24 = graph->selectedKnot + 1;
+        if ( v5 > v24 )
+          graph->selectedKnot = v24;
+      }
+      DevGui_UpdateSelection();
+    }
+    else
+    {
+      graph->selectedKnot = v23 - 1;
+      DevGui_UpdateSelection();
+    }
   }
-LABEL_59:
-  __asm { vmovaps xmm12, [rsp+0C8h+var_88] }
 }
 
 /*
@@ -6433,130 +5083,80 @@ LABEL_52:
 DevGui_Vec3FromHSV
 ==============
 */
-
-void __fastcall DevGui_Vec3FromHSV(vec3_t *rgb, const vec3_t *hsv, double scale)
+void DevGui_Vec3FromHSV(vec3_t *rgb, const vec3_t *hsv, float scale)
 {
-  bool v18; 
-  bool v19; 
-  bool v22; 
-  double v48; 
-  double v49; 
-  double v50; 
-  double v51; 
-  double v52; 
-  double v53; 
-  double v54; 
-  double v55; 
-  double v56; 
-  char v58; 
-  void *retaddr; 
+  float v7; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RDI = hsv;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
-  _RBX = rgb;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm2, xmm7
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmm8, xmm2
-    vmovss  xmm0, dword ptr [rdi]
-    vcomiss xmm0, xmm7
-    vmovsd  xmm9, cs:__real@3ff0000000000000
-    vmovss  xmm6, cs:__real@3f800000
-    vxorpd  xmm10, xmm10, xmm10
-    vcomiss xmm0, xmm6
-    vmovsd  [rsp+98h+var_60], xmm9
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+98h+var_68], xmm10
-    vmovsd  [rsp+98h+var_70], xmm0
-  }
-  v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1211, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( hsv[0] ) && ( hsv[0] ) <= ( 1.0f )", "hsv[0] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v48, v51, v54);
-  v19 = !v18;
-  if ( v18 )
+  if ( scale <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1210, ASSERT_TYPE_ASSERT, "( ( scale > 0.0f ) )", "( scale ) = %g", scale) )
     __debugbreak();
-  __asm
+  v7 = hsv->v[0];
+  __asm { vxorpd  xmm10, xmm10, xmm10 }
+  if ( (hsv->v[0] < 0.0 || v7 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1211, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( hsv[0] ) && ( hsv[0] ) <= ( 1.0f )", "hsv[0] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v7, *(double *)&_XMM10, DOUBLE_1_0) )
+    __debugbreak();
+  v9 = hsv->v[1];
+  if ( (v9 < 0.0 || v9 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1212, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( hsv[1] ) && ( hsv[1] ) <= ( 1.0f )", "hsv[1] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v9, *(double *)&_XMM10, DOUBLE_1_0) )
+    __debugbreak();
+  v10 = hsv->v[2];
+  if ( (v10 < 0.0 || v10 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1213, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( hsv[2] ) && ( hsv[2] ) <= ( 1.0f )", "hsv[2] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v10, *(double *)&_XMM10, DOUBLE_1_0) )
+    __debugbreak();
+  v11 = hsv->v[1];
+  v12 = hsv->v[2];
+  v13 = (float)(1.0 - v11) * v12;
+  v14 = hsv->v[0] * 6.0;
+  if ( v14 >= 1.0 )
   {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vcomiss xmm0, xmm7
-    vcomiss xmm0, xmm6
-  }
-  if ( v18 )
-  {
-    __asm
+    if ( v14 >= 2.0 )
     {
-      vmovsd  [rsp+98h+var_60], xmm9
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+98h+var_68], xmm10
-      vmovsd  [rsp+98h+var_70], xmm0
+      if ( v14 >= 3.0 )
+      {
+        if ( v14 < 4.0 )
+        {
+          rgb->v[0] = v13;
+          rgb->v[1] = (float)(1.0 - (float)((float)(v14 - 3.0) * hsv->v[1])) * hsv->v[2];
+          v13 = hsv->v[2];
+          goto LABEL_28;
+        }
+        rgb->v[1] = v13;
+        if ( v14 < 5.0 )
+        {
+          rgb->v[0] = (float)(1.0 - (float)((float)(1.0 - (float)(v14 - 4.0)) * v11)) * v12;
+          v13 = hsv->v[2];
+          goto LABEL_28;
+        }
+        rgb->v[0] = v12;
+        v15 = v14 - 5.0;
+      }
+      else
+      {
+        rgb->v[0] = v13;
+        rgb->v[1] = hsv->v[2];
+        v15 = 1.0 - (float)(v14 - 2.0);
+      }
+      v13 = (float)(1.0 - (float)(v15 * hsv->v[1])) * hsv->v[2];
+      goto LABEL_28;
     }
-    v22 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1212, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( hsv[1] ) && ( hsv[1] ) <= ( 1.0f )", "hsv[1] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v49, v52, v55);
-    v19 = !v22;
-    if ( v22 )
-      __debugbreak();
+    rgb->v[0] = (float)(1.0 - (float)((float)(v14 - 1.0) * v11)) * v12;
+    rgb->v[1] = hsv->v[2];
   }
-  __asm
+  else
   {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vcomiss xmm0, xmm7
-    vcomiss xmm0, xmm6
+    rgb->v[0] = v12;
+    rgb->v[1] = (float)(1.0 - (float)((float)(1.0 - v14) * hsv->v[1])) * hsv->v[2];
   }
-  if ( !v19 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+98h+var_60], xmm9
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+98h+var_68], xmm10
-      vmovsd  [rsp+98h+var_70], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1213, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( hsv[2] ) && ( hsv[2] ) <= ( 1.0f )", "hsv[2] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v50, v53, v56) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rdi+4]
-    vmovss  xmm3, dword ptr [rdi+8]
-    vmovss  xmm1, dword ptr [rdi]
-    vsubss  xmm0, xmm6, xmm7
-    vmulss  xmm2, xmm0, xmm3
-    vmulss  xmm0, xmm1, cs:__real@40c00000
-    vcomiss xmm0, xmm6
-    vmovss  xmm1, cs:__real@40000000
-    vcomiss xmm0, xmm1
-    vmovss  xmm4, cs:__real@40400000
-    vcomiss xmm0, xmm4
-    vmovss  xmm5, cs:__real@40800000
-    vcomiss xmm0, xmm5
-    vmovss  dword ptr [rbx+4], xmm2
-    vmovss  xmm1, cs:__real@40a00000
-    vcomiss xmm0, xmm1
-    vmovss  dword ptr [rbx], xmm3
-    vsubss  xmm0, xmm0, xmm1
-    vmulss  xmm1, xmm0, dword ptr [rdi+4]
-    vsubss  xmm1, xmm6, xmm1
-    vmulss  xmm2, xmm1, dword ptr [rdi+8]
-    vmovss  dword ptr [rbx+8], xmm2
-    vmulss  xmm0, xmm8, dword ptr [rbx]
-    vmulss  xmm1, xmm8, dword ptr [rbx+4]
-    vmovaps xmm7, [rsp+98h+var_28]
-  }
-  _R11 = &v58;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovss  dword ptr [rbx], xmm0
-    vmulss  xmm0, xmm8, dword ptr [rbx+8]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  dword ptr [rbx+4], xmm1
-  }
+LABEL_28:
+  rgb->v[2] = v13;
+  v16 = scale * rgb->v[1];
+  rgb->v[0] = scale * rgb->v[0];
+  rgb->v[2] = scale * rgb->v[2];
+  rgb->v[1] = v16;
 }
 
 /*
@@ -6564,153 +5164,83 @@ void __fastcall DevGui_Vec3FromHSV(vec3_t *rgb, const vec3_t *hsv, double scale)
 DevGui_Vec3ToHSV
 ==============
 */
-
-void __fastcall DevGui_Vec3ToHSV(const vec3_t *rgb, vec3_t *hsv, double scale)
+void DevGui_Vec3ToHSV(const vec3_t *rgb, vec3_t *hsv, float scale)
 {
-  char v25; 
-  bool v26; 
-  bool v37; 
-  bool v40; 
-  double v50; 
-  double v51; 
-  double v52; 
-  double v53; 
-  double v54; 
-  double v55; 
-  double v56; 
-  double v57; 
-  double v58; 
-  char v59; 
-  void *retaddr; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v9; 
+  bool v10; 
+  __int128 v11; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v18; 
+  float v19; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RBX = hsv;
+  if ( scale <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1164, ASSERT_TYPE_ASSERT, "( ( scale > 0.0f ) )", "( scale ) = %g", scale) )
+    __debugbreak();
+  v6 = LODWORD(FLOAT_1_0);
+  *(float *)&v6 = 1.0 / scale;
+  v5 = v6;
+  *(float *)&v6 = (float)(1.0 / scale) * rgb->v[0];
+  _XMM7 = v6;
+  v9 = v5;
+  *(float *)&v9 = *(float *)&v5 * rgb->v[1];
+  _XMM6 = v9;
+  v10 = *(float *)&_XMM7 == *(float *)&v9;
+  v11 = v5;
+  *(float *)&v11 = *(float *)&v5 * rgb->v[2];
   __asm
   {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm2, xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmm6, xmm2
-    vmovss  xmm10, cs:__real@3f800000
-    vdivss  xmm0, xmm10, xmm6
-    vmulss  xmm7, xmm0, dword ptr [rdi]
-    vmulss  xmm6, xmm0, dword ptr [rdi+4]
-    vucomiss xmm7, xmm6
-    vmulss  xmm8, xmm0, dword ptr [rdi+8]
     vminss  xmm0, xmm6, xmm7
     vminss  xmm11, xmm0, xmm8
-    vcomiss xmm7, xmm6
-    vcomiss xmm7, xmm8
-    vsubss  xmm1, xmm6, xmm8
-    vsubss  xmm0, xmm7, xmm11
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm2, xmm1, cs:__real@3e2aaaab
-    vaddss  xmm0, xmm2, xmm10; X
-    vmovaps xmm1, xmm10; Y
   }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
+  if ( v10 && *(float *)&_XMM6 == *(float *)&v11 )
   {
-    vmovaps xmm6, xmm7
-    vmovss  dword ptr [rbx], xmm0
-    vucomiss xmm6, xmm9
-  }
-  _RDI = &_RBX->v[2];
-  _RAX = &_RBX->v[2];
-  __asm { vmovss  dword ptr [rax], xmm7 }
-  if ( v26 )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    hsv->v[0] = 0.0;
+    LODWORD(_XMM6) = _XMM7;
   }
   else
   {
-    __asm
+    if ( *(float *)&_XMM7 < *(float *)&_XMM6 || *(float *)&_XMM7 < *(float *)&v11 )
     {
-      vdivss  xmm0, xmm11, xmm6
-      vsubss  xmm0, xmm10, xmm0
+      if ( *(float *)&_XMM6 < *(float *)&_XMM7 || *(float *)&_XMM6 < *(float *)&v11 )
+      {
+        if ( (*(float *)&v11 < *(float *)&_XMM7 || *(float *)&v11 < *(float *)&_XMM6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1188, ASSERT_TYPE_ASSERT, "(scaledRgb[2] >= scaledRgb[0] && scaledRgb[2] >= scaledRgb[1])", (const char *)&queryFormat, "scaledRgb[2] >= scaledRgb[0] && scaledRgb[2] >= scaledRgb[1]") )
+          __debugbreak();
+        v14 = fmodf_0((float)((float)((float)(*(float *)&_XMM7 - *(float *)&_XMM6) / (float)(*(float *)&v11 - *(float *)&_XMM11)) * 0.16666667) + 1.6666666, 1.0);
+        LODWORD(_XMM6) = v11;
+        _XMM7 = v11;
+      }
+      else
+      {
+        v14 = fmodf_0((float)((float)((float)(*(float *)&v11 - *(float *)&_XMM7) / (float)(*(float *)&_XMM6 - *(float *)&_XMM11)) * 0.16666667) + 1.3333334, 1.0);
+        _XMM7 = _XMM6;
+      }
     }
-  }
-  __asm
-  {
-    vmovss  dword ptr [rbx+4], xmm0
-    vmovss  xmm0, dword ptr [rbx]
-    vcomiss xmm0, xmm9
-    vmovsd  xmm6, cs:__real@3ff0000000000000
-    vxorpd  xmm7, xmm7, xmm7
-  }
-  if ( v25 )
-    goto LABEL_17;
-  __asm { vcomiss xmm0, xmm10 }
-  if ( !(v25 | v26) )
-  {
-LABEL_17:
-    __asm
+    else
     {
-      vmovsd  [rsp+0A8h+var_70], xmm6
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+0A8h+var_78], xmm7
-      vmovsd  [rsp+0A8h+var_80], xmm0
+      v14 = fmodf_0((float)((float)((float)(*(float *)&_XMM6 - *(float *)&v11) / (float)(*(float *)&_XMM7 - *(float *)&_XMM11)) * 0.16666667) + 1.0, 1.0);
+      LODWORD(_XMM6) = _XMM7;
     }
-    v37 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1198, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( hsv[0] ) && ( hsv[0] ) <= ( 1.0f )", "hsv[0] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v50, v53, v56);
-    v25 = 0;
-    v26 = !v37;
-    if ( v37 )
-      __debugbreak();
+    hsv->v[0] = v14;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vcomiss xmm0, xmm9
-    vcomiss xmm0, xmm10
-  }
-  if ( !(v25 | v26) )
-  {
-    __asm
-    {
-      vmovsd  [rsp+0A8h+var_70], xmm6
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+0A8h+var_78], xmm7
-      vmovsd  [rsp+0A8h+var_80], xmm0
-    }
-    v40 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1199, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( hsv[1] ) && ( hsv[1] ) <= ( 1.0f )", "hsv[1] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v51, v54, v57);
-    v25 = 0;
-    v26 = !v40;
-    if ( v40 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vcomiss xmm0, xmm9
-    vcomiss xmm0, xmm10
-  }
-  if ( !(v25 | v26) )
-  {
-    __asm
-    {
-      vmovsd  [rsp+0A8h+var_70], xmm6
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+0A8h+var_78], xmm7
-      vmovsd  [rsp+0A8h+var_80], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1200, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( hsv[2] ) && ( hsv[2] ) <= ( 1.0f )", "hsv[2] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v52, v55, v58) )
-      __debugbreak();
-  }
-  _R11 = &v59;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  hsv->v[2] = *(float *)&_XMM7;
+  if ( *(float *)&_XMM6 == 0.0 )
+    v15 = 0.0;
+  else
+    v15 = 1.0 - (float)(*(float *)&_XMM11 / *(float *)&_XMM6);
+  hsv->v[1] = v15;
+  v16 = hsv->v[0];
+  __asm { vxorpd  xmm7, xmm7, xmm7 }
+  if ( (hsv->v[0] < 0.0 || v16 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1198, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( hsv[0] ) && ( hsv[0] ) <= ( 1.0f )", "hsv[0] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v16, *(double *)&_XMM7, DOUBLE_1_0) )
+    __debugbreak();
+  v18 = hsv->v[1];
+  if ( (v18 < 0.0 || v18 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1199, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( hsv[1] ) && ( hsv[1] ) <= ( 1.0f )", "hsv[1] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v18, *(double *)&_XMM7, DOUBLE_1_0) )
+    __debugbreak();
+  v19 = hsv->v[2];
+  if ( (v19 < 0.0 || v19 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\devgui\\devgui.cpp", 1200, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( hsv[2] ) && ( hsv[2] ) <= ( 1.0f )", "hsv[2] not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v19, *(double *)&_XMM7, DOUBLE_1_0) )
+    __debugbreak();
 }
 
 /*
@@ -6720,52 +5250,36 @@ DevGui_WrapDescription
 */
 __int64 DevGui_WrapDescription(const char *text, int wrapWidth, int x, int y, int rowHeight, bool draw)
 {
-  unsigned int v8; 
+  unsigned int v6; 
+  const char *i; 
+  const char *v11; 
   const char *v12; 
-  const char *v14; 
-  const char *v15; 
-  int v16; 
-  float v19; 
+  int v13; 
   char dest[256]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  v8 = 0;
-  v12 = text;
-  if ( *text )
+  v6 = 0;
+  for ( i = text; *i; ++v6 )
   {
-    __asm
+    v11 = R_TextLineWrapPosition(i, 256, wrapWidth, cls.consoleFont, 1.0);
+    v12 = v11;
+    if ( draw )
     {
-      vmovaps xmmword ptr [r11-58h], xmm6
-      vmovss  xmm6, cs:__real@3f800000
+      Core_strncpy(dest, 0x100ui64, i, v11 - i);
+      DevGui_DrawFont(x, y, (const unsigned __int8 *)&devgui_colorText->current, dest);
+      y += rowHeight;
     }
-    do
+    i = v12;
+    if ( isspace(*v12) )
     {
-      __asm { vmovss  [rsp+198h+var_178], xmm6 }
-      v14 = R_TextLineWrapPosition(v12, 256, wrapWidth, cls.consoleFont, v19);
-      v15 = v14;
-      if ( draw )
+      do
       {
-        Core_strncpy(dest, 0x100ui64, v12, v14 - v12);
-        DevGui_DrawFont(x, y, (const unsigned __int8 *)&devgui_colorText->current, dest);
-        y += rowHeight;
+        if ( *i == 10 )
+          break;
+        v13 = *++i;
       }
-      v12 = v15;
-      if ( isspace(*v15) )
-      {
-        do
-        {
-          if ( *v12 == 10 )
-            break;
-          v16 = *++v12;
-        }
-        while ( isspace(v16) );
-      }
-      ++v8;
+      while ( isspace(v13) );
     }
-    while ( *v12 );
-    __asm { vmovaps xmm6, [rsp+198h+var_58] }
   }
-  return v8;
+  return v6;
 }
 

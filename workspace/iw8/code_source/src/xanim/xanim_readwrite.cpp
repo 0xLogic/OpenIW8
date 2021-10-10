@@ -351,21 +351,22 @@ void XAnimReadAnimTreeForAntilag(DObj *obj, AntilagAnimInfo *antilagAnimInfo, co
   __int64 v6; 
   XAnimTree *tree; 
   unsigned __int16 children; 
-  int v13; 
+  XAnimInfo *v11; 
+  int v12; 
   unsigned __int16 *p_subTreeID; 
-  __int64 v15; 
-  unsigned __int16 *v16; 
-  XAnimInfo *v17; 
-  XAnimSubTreeID v18; 
+  __int64 v14; 
+  unsigned __int16 *v15; 
+  XAnimInfo *v16; 
+  XAnimSubTreeID v17; 
   const XAnim_s *SubTreeAnims; 
   const XAnimNodeTypeInfo *CustomNodeTypeInfo; 
   size_t nodeDataSize; 
   XAnimInfo *AnimInfo; 
+  unsigned __int16 v22; 
   unsigned __int16 v23; 
-  unsigned __int16 v24; 
+  XAnimInfo *v24; 
   XAnimInfo *v25; 
-  XAnimInfo *v26; 
-  unsigned __int16 v27; 
+  unsigned __int16 v26; 
 
   v6 = antilagAnimInfoCount;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 645, ASSERT_TYPE_ASSERT, "( obj )", (const char *)&queryFormat, "obj") )
@@ -374,63 +375,62 @@ void XAnimReadAnimTreeForAntilag(DObj *obj, AntilagAnimInfo *antilagAnimInfo, co
   if ( obj->tree )
   {
     children = tree->children;
-    v27 = children;
-    v26 = XAnimAllocInfo(obj, 0, XANIM_SUBTREE_DEFAULT, 0, 1);
-    _R14 = v26;
-    if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 629, ASSERT_TYPE_ASSERT, "( rootInfo )", (const char *)&queryFormat, "rootInfo") )
+    v26 = children;
+    v25 = XAnimAllocInfo(obj, 0, XANIM_SUBTREE_DEFAULT, 0, 1);
+    v11 = v25;
+    if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 629, ASSERT_TYPE_ASSERT, "( rootInfo )", (const char *)&queryFormat, "rootInfo") )
       __debugbreak();
-    __asm { vmovss  xmm0, [rsp+78h+weightScale] }
-    *(_QWORD *)&v26->state.currentAnimTime = 0i64;
-    v13 = 0;
-    *(_QWORD *)&v26->state.cycleCount = 0i64;
-    *(_QWORD *)&v26->state.goalWeight = 0i64;
-    *(_QWORD *)&v26->state.rate = 0i64;
-    *(_QWORD *)&v26->state.startWeight = 0i64;
-    v26->notifyName = 0;
-    *(_DWORD *)&v26->notifyChild = -65536;
-    v26->notifyType = 0;
-    v26->subTreeID = XANIM_SUBTREE_DEFAULT;
-    __asm { vmovss  dword ptr [r14+3Ch], xmm0 }
+    *(_QWORD *)&v25->state.currentAnimTime = 0i64;
+    v12 = 0;
+    *(_QWORD *)&v25->state.cycleCount = 0i64;
+    *(_QWORD *)&v25->state.goalWeight = 0i64;
+    *(_QWORD *)&v25->state.rate = 0i64;
+    *(_QWORD *)&v25->state.startWeight = 0i64;
+    v25->notifyName = 0;
+    *(_DWORD *)&v25->notifyChild = -65536;
+    v25->notifyType = 0;
+    v25->subTreeID = XANIM_SUBTREE_DEFAULT;
+    v25->state.weight = weightScale;
     if ( (_DWORD)v6 )
     {
       p_subTreeID = &antilagAnimInfo->subTreeID;
-      v15 = v6;
+      v14 = v6;
       do
       {
         if ( !obj->tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 479, ASSERT_TYPE_ASSERT, "( obj->tree )", (const char *)&queryFormat, "obj->tree") )
           __debugbreak();
-        v16 = p_subTreeID - 1;
+        v15 = p_subTreeID - 1;
         if ( p_subTreeID == (unsigned __int16 *)2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 480, ASSERT_TYPE_ASSERT, "( antilagInfo )", (const char *)&queryFormat, "antilagInfo") )
           __debugbreak();
-        if ( !*v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 481, ASSERT_TYPE_ASSERT, "( antilagInfo->animIndex != 0 )", (const char *)&queryFormat, "antilagInfo->animIndex != 0") )
+        if ( !*v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 481, ASSERT_TYPE_ASSERT, "( antilagInfo->animIndex != 0 )", (const char *)&queryFormat, "antilagInfo->animIndex != 0") )
           __debugbreak();
-        v17 = XAnimAllocInfo(obj, p_subTreeID[1], (const XAnimSubTreeID)*p_subTreeID, *v16, 1);
-        *(_QWORD *)&v17->state.currentAnimTime = 0i64;
-        *(_QWORD *)&v17->state.cycleCount = 0i64;
-        *(_QWORD *)&v17->state.goalWeight = 0i64;
-        *(_QWORD *)&v17->state.rate = 0i64;
-        *(_QWORD *)&v17->state.startWeight = 0i64;
-        v17->notifyName = 0;
-        *(_DWORD *)&v17->notifyChild = -65536;
-        v17->notifyType = 0;
-        v18 = *p_subTreeID;
-        v17->subTreeID = *p_subTreeID;
-        v17->state.currentAnimTime = *(float *)(p_subTreeID + 5);
-        v17->state.weight = *(float *)(p_subTreeID + 3);
-        SubTreeAnims = XAnimGetSubTreeAnims(tree, v18);
+        v16 = XAnimAllocInfo(obj, p_subTreeID[1], (const XAnimSubTreeID)*p_subTreeID, *v15, 1);
+        *(_QWORD *)&v16->state.currentAnimTime = 0i64;
+        *(_QWORD *)&v16->state.cycleCount = 0i64;
+        *(_QWORD *)&v16->state.goalWeight = 0i64;
+        *(_QWORD *)&v16->state.rate = 0i64;
+        *(_QWORD *)&v16->state.startWeight = 0i64;
+        v16->notifyName = 0;
+        *(_DWORD *)&v16->notifyChild = -65536;
+        v16->notifyType = 0;
+        v17 = *p_subTreeID;
+        v16->subTreeID = *p_subTreeID;
+        v16->state.currentAnimTime = *(float *)(p_subTreeID + 5);
+        v16->state.weight = *(float *)(p_subTreeID + 3);
+        SubTreeAnims = XAnimGetSubTreeAnims(tree, v17);
         if ( !SubTreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 673, ASSERT_TYPE_ASSERT, "( anims )", (const char *)&queryFormat, "anims") )
           __debugbreak();
-        if ( XAnimIsCustomNode(SubTreeAnims, v17) )
+        if ( XAnimIsCustomNode(SubTreeAnims, v16) )
         {
-          if ( !XAnimIsCustomNode(SubTreeAnims, v17) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 427, ASSERT_TYPE_ASSERT, "( XAnimIsCustomNode( anims, animInfo ) )", (const char *)&queryFormat, "XAnimIsCustomNode( anims, animInfo )") )
+          if ( !XAnimIsCustomNode(SubTreeAnims, v16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 427, ASSERT_TYPE_ASSERT, "( XAnimIsCustomNode( anims, animInfo ) )", (const char *)&queryFormat, "XAnimIsCustomNode( anims, animInfo )") )
             __debugbreak();
-          CustomNodeTypeInfo = XAnimGetCustomNodeTypeInfo(SubTreeAnims, v17);
+          CustomNodeTypeInfo = XAnimGetCustomNodeTypeInfo(SubTreeAnims, v16);
           if ( CustomNodeTypeInfo->functions.calc )
           {
             nodeDataSize = CustomNodeTypeInfo->nodeDataSize;
-            if ( (unsigned int)nodeDataSize <= antilagCustomNodeDataSize - v13 )
+            if ( (unsigned int)nodeDataSize <= antilagCustomNodeDataSize - v12 )
             {
-              memcpy_0((char *)v17 + CustomNodeTypeInfo->dataOffset, &antilagCustomNodeData[v13], nodeDataSize);
+              memcpy_0((char *)v16 + CustomNodeTypeInfo->dataOffset, &antilagCustomNodeData[v12], nodeDataSize);
             }
             else
             {
@@ -443,40 +443,40 @@ void XAnimReadAnimTreeForAntilag(DObj *obj, AntilagAnimInfo *antilagAnimInfo, co
           {
             LODWORD(nodeDataSize) = 0;
           }
-          v13 += nodeDataSize;
+          v12 += nodeDataSize;
         }
         p_subTreeID += 8;
-        --v15;
+        --v14;
       }
-      while ( v15 );
-      _R14 = v26;
-      children = v27;
+      while ( v14 );
+      v11 = v25;
+      children = v26;
     }
-    if ( v13 != antilagCustomNodeDataSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 684, ASSERT_TYPE_ASSERT, "( customNodeDataStart == antilagCustomNodeDataSize )", (const char *)&queryFormat, "customNodeDataStart == antilagCustomNodeDataSize") )
+    if ( v12 != antilagCustomNodeDataSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 684, ASSERT_TYPE_ASSERT, "( customNodeDataStart == antilagCustomNodeDataSize )", (const char *)&queryFormat, "customNodeDataStart == antilagCustomNodeDataSize") )
       __debugbreak();
     if ( children )
     {
       AnimInfo = GetAnimInfo(children);
       if ( !AnimInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 690, ASSERT_TYPE_ASSERT, "( existingRootInfo )", (const char *)&queryFormat, "existingRootInfo") )
         __debugbreak();
-      v23 = tree->children;
+      v22 = tree->children;
       tree->children = children;
-      _R14->parent = children;
-      v24 = AnimInfo->children;
-      if ( v24 )
+      v11->parent = children;
+      v23 = AnimInfo->children;
+      if ( v23 )
       {
-        v25 = GetAnimInfo(v24);
-        if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 705, ASSERT_TYPE_ASSERT, "( existingChildInfo )", (const char *)&queryFormat, "existingChildInfo") )
+        v24 = GetAnimInfo(v23);
+        if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 705, ASSERT_TYPE_ASSERT, "( existingChildInfo )", (const char *)&queryFormat, "existingChildInfo") )
           __debugbreak();
-        if ( v25->prev )
+        if ( v24->prev )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 706, ASSERT_TYPE_ASSERT, "( existingChildInfo->prev == 0 )", (const char *)&queryFormat, "existingChildInfo->prev == 0") )
             __debugbreak();
         }
-        v25->prev = v23;
-        _R14->next = v24;
+        v24->prev = v22;
+        v11->next = v23;
       }
-      AnimInfo->children = v23;
+      AnimInfo->children = v22;
     }
   }
 }
@@ -624,17 +624,16 @@ XAnimSaveAnimTreeForAntilag_r
 */
 char XAnimSaveAnimTreeForAntilag_r(const XAnimTree *tree, unsigned __int16 infoIndex, XAnimAntilagBuffers *buffers)
 {
-  bool v8; 
-  bool v9; 
+  XAnimInfo *AnimInfo; 
   const XAnim_s *SubTreeAnims; 
-  AntilagAnimInfo *animInfo; 
-  XAnimInfo *v13; 
+  AntilagAnimInfo *v8; 
+  XAnimInfo *v9; 
   unsigned __int8 *customNodeData; 
   unsigned int customNodeDataSize; 
   const XAnimNodeTypeInfo *CustomNodeTypeInfo; 
   unsigned int nodeDataSize; 
   unsigned __int16 children; 
-  XAnimInfo *v19; 
+  XAnimInfo *v15; 
 
   if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 504, ASSERT_TYPE_ASSERT, "( tree )", (const char *)&queryFormat, "tree") )
     __debugbreak();
@@ -642,66 +641,55 @@ char XAnimSaveAnimTreeForAntilag_r(const XAnimTree *tree, unsigned __int16 infoI
     __debugbreak();
   if ( buffers->animInfoSize )
   {
-    _RSI = GetAnimInfo(infoIndex);
-    if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 514, ASSERT_TYPE_ASSERT, "( info )", (const char *)&queryFormat, "info") )
+    AnimInfo = GetAnimInfo(infoIndex);
+    if ( !AnimInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 514, ASSERT_TYPE_ASSERT, "( info )", (const char *)&queryFormat, "info") )
       __debugbreak();
-    v8 = !_RSI->inuse;
-    if ( !_RSI->inuse )
-    {
-      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 516, ASSERT_TYPE_ASSERT, "( info->inuse )", (const char *)&queryFormat, "info->inuse");
-      v8 = !v9;
-      if ( v9 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rsi+3Ch]
-    }
-    if ( v8 )
+    if ( !AnimInfo->inuse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 516, ASSERT_TYPE_ASSERT, "( info->inuse )", (const char *)&queryFormat, "info->inuse") )
+      __debugbreak();
+    if ( AnimInfo->state.weight == 0.0 )
       return 1;
-    SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)_RSI->subTreeID);
+    SubTreeAnims = XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)AnimInfo->subTreeID);
     if ( !SubTreeAnims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 526, ASSERT_TYPE_ASSERT, "( anims )", (const char *)&queryFormat, "anims") )
       __debugbreak();
-    if ( XAnimIsClientOnlyNode(_RSI) )
+    if ( XAnimIsClientOnlyNode(AnimInfo) )
       return 1;
     if ( !tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 387, ASSERT_TYPE_ASSERT, "( tree )", (const char *)&queryFormat, "tree") )
       __debugbreak();
-    if ( !XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)_RSI->subTreeID) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 391, ASSERT_TYPE_ASSERT, "( anims )", (const char *)&queryFormat, "anims") )
+    if ( !XAnimGetSubTreeAnims(tree, (const XAnimSubTreeID)AnimInfo->subTreeID) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 391, ASSERT_TYPE_ASSERT, "( anims )", (const char *)&queryFormat, "anims") )
       __debugbreak();
-    if ( XAnimIsClientOnlyNode(_RSI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 393, ASSERT_TYPE_ASSERT, "( !XAnimIsClientOnlyNode( animInfo ) )", (const char *)&queryFormat, "!XAnimIsClientOnlyNode( animInfo )") )
+    if ( XAnimIsClientOnlyNode(AnimInfo) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 393, ASSERT_TYPE_ASSERT, "( !XAnimIsClientOnlyNode( animInfo ) )", (const char *)&queryFormat, "!XAnimIsClientOnlyNode( animInfo )") )
       __debugbreak();
-    animInfo = buffers->animInfo;
-    v13 = GetAnimInfo(infoIndex);
-    if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 453, ASSERT_TYPE_ASSERT, "( animInfo )", (const char *)&queryFormat, "animInfo") )
+    v8 = buffers->animInfo;
+    v9 = GetAnimInfo(infoIndex);
+    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 453, ASSERT_TYPE_ASSERT, "( animInfo )", (const char *)&queryFormat, "animInfo") )
       __debugbreak();
-    if ( !animInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 454, ASSERT_TYPE_ASSERT, "( outAntilagInfo )", (const char *)&queryFormat, "outAntilagInfo") )
+    if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 454, ASSERT_TYPE_ASSERT, "( outAntilagInfo )", (const char *)&queryFormat, "outAntilagInfo") )
       __debugbreak();
-    if ( !v13->animIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 455, ASSERT_TYPE_ASSERT, "( animInfo->animIndex != 0 )", (const char *)&queryFormat, "animInfo->animIndex != 0") )
+    if ( !v9->animIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 455, ASSERT_TYPE_ASSERT, "( animInfo->animIndex != 0 )", (const char *)&queryFormat, "animInfo->animIndex != 0") )
       __debugbreak();
-    animInfo->animIndex = v13->animIndex;
-    animInfo->subTreeID = v13->subTreeID;
-    animInfo->graftAnimIndex = XAnimGetGraftAnimIndex(infoIndex);
-    animInfo->time = v13->state.currentAnimTime;
-    animInfo->weight = v13->state.weight;
-    if ( !XAnimIsCustomNode(SubTreeAnims, _RSI) )
+    v8->animIndex = v9->animIndex;
+    v8->subTreeID = v9->subTreeID;
+    v8->graftAnimIndex = XAnimGetGraftAnimIndex(infoIndex);
+    v8->time = v9->state.currentAnimTime;
+    v8->weight = v9->state.weight;
+    if ( !XAnimIsCustomNode(SubTreeAnims, AnimInfo) )
     {
 LABEL_49:
       if ( !buffers->animInfoSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 553, ASSERT_TYPE_ASSERT, "(buffers->animInfoSize > 0)", (const char *)&queryFormat, "buffers->animInfoSize > 0") )
         __debugbreak();
       --buffers->animInfoSize;
       ++buffers->animInfo;
-      children = _RSI->children;
+      children = AnimInfo->children;
       if ( children )
       {
         while ( 1 )
         {
-          v19 = GetAnimInfo(children);
-          if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 560, ASSERT_TYPE_ASSERT, "( info )", (const char *)&queryFormat, "info") )
+          v15 = GetAnimInfo(children);
+          if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 560, ASSERT_TYPE_ASSERT, "( info )", (const char *)&queryFormat, "info") )
             __debugbreak();
           if ( !XAnimSaveAnimTreeForAntilag_r(tree, children, buffers) )
             break;
-          children = v19->next;
+          children = v15->next;
           if ( !children )
             return 1;
         }
@@ -711,9 +699,9 @@ LABEL_49:
     }
     customNodeData = buffers->customNodeData;
     customNodeDataSize = buffers->customNodeDataSize;
-    if ( !XAnimIsCustomNode(SubTreeAnims, _RSI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 401, ASSERT_TYPE_ASSERT, "( XAnimIsCustomNode( anims, animInfo ) )", (const char *)&queryFormat, "XAnimIsCustomNode( anims, animInfo )") )
+    if ( !XAnimIsCustomNode(SubTreeAnims, AnimInfo) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 401, ASSERT_TYPE_ASSERT, "( XAnimIsCustomNode( anims, animInfo ) )", (const char *)&queryFormat, "XAnimIsCustomNode( anims, animInfo )") )
       __debugbreak();
-    CustomNodeTypeInfo = XAnimGetCustomNodeTypeInfo(SubTreeAnims, _RSI);
+    CustomNodeTypeInfo = XAnimGetCustomNodeTypeInfo(SubTreeAnims, AnimInfo);
     if ( !CustomNodeTypeInfo->functions.calc )
     {
       nodeDataSize = 0;
@@ -722,7 +710,7 @@ LABEL_49:
     nodeDataSize = CustomNodeTypeInfo->nodeDataSize;
     if ( nodeDataSize <= customNodeDataSize )
     {
-      memcpy_0(customNodeData, (char *)_RSI + CustomNodeTypeInfo->dataOffset, CustomNodeTypeInfo->nodeDataSize);
+      memcpy_0(customNodeData, (char *)AnimInfo + CustomNodeTypeInfo->dataOffset, CustomNodeTypeInfo->nodeDataSize);
 LABEL_45:
       if ( buffers->customNodeDataSize < nodeDataSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_readwrite.cpp", 547, ASSERT_TYPE_ASSERT, "( buffers->customNodeDataSize ) >= ( customNodeDataSize )", "%s >= %s\n\t%i, %i", "buffers->customNodeDataSize", "customNodeDataSize", buffers->customNodeDataSize, nodeDataSize) )
         __debugbreak();

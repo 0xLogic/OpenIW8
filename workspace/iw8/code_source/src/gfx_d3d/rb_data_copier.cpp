@@ -662,14 +662,7 @@ RB_BackendDataCopier::GetCopyDataPerFrameBudget
 */
 __int64 RB_BackendDataCopier::GetCopyDataPerFrameBudget(RB_BackendDataCopier *this)
 {
-  _RAX = r_gpuCopyPerFrameBudgetMB;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmulss  xmm1, xmm0, cs:__real@49800000
-    vcvttss2si rax, xmm1
-  }
-  return (unsigned int)_RAX >> 1;
+  return (unsigned int)(int)(float)(r_gpuCopyPerFrameBudgetMB->current.value * 1048576.0) >> 1;
 }
 
 /*
@@ -755,16 +748,7 @@ RB_BackendDataCopier::GetPerFrameBudget
 */
 __int64 RB_BackendDataCopier::GetPerFrameBudget(RB_BackendDataCopier *this)
 {
-  __int64 result; 
-
-  _RAX = r_gpuCopyPerFrameBudgetMB;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmulss  xmm1, xmm0, cs:__real@49800000
-    vcvttss2si rax, xmm1
-  }
-  return result;
+  return (unsigned int)(int)(float)(r_gpuCopyPerFrameBudgetMB->current.value * 1048576.0);
 }
 
 /*
@@ -826,54 +810,51 @@ RB_BackendDataCopier::ProcessNextCommand
 */
 char RB_BackendDataCopier::ProcessNextCommand(RB_BackendDataCopier *this, ComputeCmdBufState *computeState, unsigned int queueIndex)
 {
+  int v3; 
   __int64 v4; 
   ComputeCmdBufState *v5; 
   __int64 v7; 
+  char *v8; 
   char result; 
   int v10; 
-  char v14; 
+  __int64 v11; 
+  char v12; 
   const GfxTexture *Resident; 
+  const GfxTexture *v14; 
+  const GfxTexture *v15; 
   const GfxTexture *v16; 
   const GfxTexture *v17; 
-  const GfxTexture *v18; 
-  const GfxTexture *v19; 
-  unsigned int v20; 
+  unsigned int v18; 
   unsigned int m_maxCommitWaitFrames; 
-  StreamerMemLoan *v22; 
-  _DWORD *v23; 
-  bool v24; 
-  signed __int32 v25[8]; 
+  StreamerMemLoan *v20; 
+  _DWORD *v21; 
+  bool v22; 
+  signed __int32 v23[8]; 
   GfxWrappedBuffer *dst[4]; 
   unsigned int dstOffset[4]; 
   ComputeCmdBufState *state; 
-  __int64 v29; 
+  __int64 v27; 
   StreamerMemLoan other; 
 
-  v29 = -2i64;
+  v27 = -2i64;
   v4 = queueIndex;
   v5 = computeState;
   state = computeState;
   if ( !Sys_IsBackendOwnerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_data_copier.cpp", 372, ASSERT_TYPE_ASSERT, "(Sys_IsBackendOwnerThread())", (const char *)&queryFormat, "Sys_IsBackendOwnerThread()") )
     __debugbreak();
   v7 = v4;
-  _R13 = (char *)this + 786448 * v4;
-  if ( *((_DWORD *)_R13 + 196613) == *((_DWORD *)_R13 + 196614) )
+  v8 = (char *)this + 786448 * v4;
+  if ( *((_DWORD *)v8 + 196613) == *((_DWORD *)v8 + 196614) )
     return 1;
   R_LockIfGfxImmediateContext(v5->device);
-  MPSCQueue<RB_BackendDataCopier::Cmd,16384>::CheckConsumerThread((MPSCQueue<RB_BackendDataCopier::Cmd,16384> *)(_R13 + 16));
-  v10 = *((_DWORD *)_R13 + 196614);
-  _InterlockedOr(v25, 0);
-  _RAX = 6i64 * (v10 & 0x3FFF);
-  __asm
-  {
-    vmovups ymm1, ymmword ptr [r13+rax*8+10h]
-    vmovups ymmword ptr [rbp+57h+dst], ymm1
-    vmovups xmm0, xmmword ptr [r13+rax*8+30h]
-    vmovups xmmword ptr [rbp+57h+dstOffset], xmm0
-  }
-  v14 = 1;
-  __asm { vmovd   eax, xmm1 }
-  switch ( (int)_RAX )
+  MPSCQueue<RB_BackendDataCopier::Cmd,16384>::CheckConsumerThread((MPSCQueue<RB_BackendDataCopier::Cmd,16384> *)(v8 + 16));
+  v10 = *((_DWORD *)v8 + 196614);
+  _InterlockedOr(v23, 0);
+  v11 = v10 & 0x3FFF;
+  *(__m256i *)dst = *(__m256i *)&v8[48 * v11 + 16];
+  *(_OWORD *)dstOffset = *(_OWORD *)&v8[48 * v11 + 48];
+  v12 = 1;
+  switch ( v3 )
   {
     case 0:
       R_CopyBufferData(v5, dst[3], dstOffset[0], dst[1], (unsigned int)dst[2], dstOffset[1]);
@@ -883,17 +864,17 @@ char RB_BackendDataCopier::ProcessNextCommand(RB_BackendDataCopier *this, Comput
       goto LABEL_26;
     case 2:
       Resident = R_Texture_GetResident((GfxTextureId)dst[1]);
-      v16 = R_Texture_GetResident(SHIDWORD(dst[2]));
-      R_CopyTextureRect(v5, v16, Resident, LOWORD(dst[3]), WORD1(dst[3]), WORD2(dst[3]), HIWORD(dst[3]), WORD2(dst[1]), HIWORD(dst[1]), LOWORD(dst[2]), WORD1(dst[2]), LOWORD(dstOffset[0]), HIWORD(dstOffset[0]));
-      v14 = 1;
+      v14 = R_Texture_GetResident(SHIDWORD(dst[2]));
+      R_CopyTextureRect(v5, v14, Resident, LOWORD(dst[3]), WORD1(dst[3]), WORD2(dst[3]), HIWORD(dst[3]), WORD2(dst[1]), HIWORD(dst[1]), LOWORD(dst[2]), WORD1(dst[2]), LOWORD(dstOffset[0]), HIWORD(dstOffset[0]));
+      v12 = 1;
       goto LABEL_26;
     case 3:
-      v17 = R_Texture_GetResident((GfxTextureId)dst[1]);
-      v18 = R_Texture_GetResident(SHIDWORD(dst[2]));
-      v19 = v17;
+      v15 = R_Texture_GetResident((GfxTextureId)dst[1]);
+      v16 = R_Texture_GetResident(SHIDWORD(dst[2]));
+      v17 = v15;
       v5 = state;
-      R_CopyTextureBox(state, v18, v19, LOWORD(dst[3]), WORD1(dst[3]), WORD2(dst[3]), HIWORD(dst[3]), WORD2(dst[1]), HIWORD(dst[1]), LOWORD(dst[2]), WORD1(dst[2]), LOWORD(dstOffset[0]), HIWORD(dstOffset[0]), LOWORD(dstOffset[1]));
-      v14 = 1;
+      R_CopyTextureBox(state, v16, v17, LOWORD(dst[3]), WORD1(dst[3]), WORD2(dst[3]), HIWORD(dst[3]), WORD2(dst[1]), HIWORD(dst[1]), LOWORD(dst[2]), WORD1(dst[2]), LOWORD(dstOffset[0]), HIWORD(dstOffset[0]), LOWORD(dstOffset[1]));
+      v12 = 1;
       goto LABEL_26;
     case 4:
       R_ComputeWaitForCompute(v5, PIPE_FLUSH_PARTIAL);
@@ -902,53 +883,53 @@ char RB_BackendDataCopier::ProcessNextCommand(RB_BackendDataCopier *this, Comput
       LODWORD(dst[1]->buffer) = dst[2];
       goto LABEL_26;
     case 6:
-      v20 = this->m_numCommitWatFrames[v7];
+      v18 = this->m_numCommitWatFrames[v7];
       m_maxCommitWaitFrames = this->m_maxCommitWaitFrames;
-      v22 = *(StreamerMemLoan **)&dstOffset[2];
+      v20 = *(StreamerMemLoan **)&dstOffset[2];
       if ( StreamerMemLoan::Ready(*(StreamerMemLoan **)&dstOffset[2]) )
       {
-        if ( v20 < m_maxCommitWaitFrames )
+        if ( v18 < m_maxCommitWaitFrames )
           goto LABEL_18;
       }
-      else if ( v20 < m_maxCommitWaitFrames )
+      else if ( v18 < m_maxCommitWaitFrames )
       {
         ++this->m_numCommitWatFrames[v7];
-        v14 = 0;
+        v12 = 0;
         goto LABEL_30;
       }
       R_WarnOncePerFrame(R_WARN_FORCE_COMMIT_IN_DATA_COPIER, this->m_maxCommitWaitFrames);
 LABEL_18:
       R_UnlockIfGfxImmediateContext(v5->device);
       Sys_ProfBeginNamedEvent(0xFF008008, "Mem_Paged_CommitMemory");
-      v23 = *(_DWORD **)dstOffset;
-      v24 = Mem_Paged_CommitMemoryPartial((unsigned __int8 *)dst[1], (unsigned __int8 *)dst[2], (unsigned __int8 *)dst[1], v22, *(Mem_PageRange **)dstOffset, (const char *)dst[3]);
+      v21 = *(_DWORD **)dstOffset;
+      v22 = Mem_Paged_CommitMemoryPartial((unsigned __int8 *)dst[1], (unsigned __int8 *)dst[2], (unsigned __int8 *)dst[1], v20, *(Mem_PageRange **)dstOffset, (const char *)dst[3]);
       Sys_ProfEndNamedEvent();
       R_LockIfGfxImmediateContext(v5->device);
       *(&other.mCookie + 1) = 0;
       other.mUpdateID = 0i64;
       other.mPages = 0i64;
       other.mCookie = -1061110033;
-      StreamerMemLoan::operator=(v22, &other);
+      StreamerMemLoan::operator=(v20, &other);
       StreamerMemLoan::~StreamerMemLoan(&other);
-      if ( (!v24 || *v23 == -1 || v23[1] == -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_data_copier.cpp", 443, ASSERT_TYPE_ASSERT, "(commited && ( cmd.memCommitCmd.outPageRange->firstPageID != MEM_PAGE_RANGE_INVALID.firstPageID ) && ( cmd.memCommitCmd.outPageRange->lastPageID != MEM_PAGE_RANGE_INVALID.lastPageID ))", (const char *)&queryFormat, "commited && ( cmd.memCommitCmd.outPageRange->firstPageID != MEM_PAGE_RANGE_INVALID.firstPageID ) && ( cmd.memCommitCmd.outPageRange->lastPageID != MEM_PAGE_RANGE_INVALID.lastPageID )") )
+      if ( (!v22 || *v21 == -1 || v21[1] == -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_data_copier.cpp", 443, ASSERT_TYPE_ASSERT, "(commited && ( cmd.memCommitCmd.outPageRange->firstPageID != MEM_PAGE_RANGE_INVALID.firstPageID ) && ( cmd.memCommitCmd.outPageRange->lastPageID != MEM_PAGE_RANGE_INVALID.lastPageID ))", (const char *)&queryFormat, "commited && ( cmd.memCommitCmd.outPageRange->firstPageID != MEM_PAGE_RANGE_INVALID.firstPageID ) && ( cmd.memCommitCmd.outPageRange->lastPageID != MEM_PAGE_RANGE_INVALID.lastPageID )") )
       {
         __debugbreak();
         this->m_numCommitWatFrames[v7] = 0;
-        v14 = 1;
+        v12 = 1;
       }
       else
       {
         this->m_numCommitWatFrames[v7] = 0;
-        v14 = 1;
+        v12 = 1;
       }
 LABEL_26:
-      MPSCQueue<RB_BackendDataCopier::Cmd,16384>::CheckConsumerThread((MPSCQueue<RB_BackendDataCopier::Cmd,16384> *)(_R13 + 16));
-      if ( *((_DWORD *)_R13 + 196613) == *((_DWORD *)_R13 + 196614) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\mpsc_queue.h", 102, ASSERT_TYPE_ASSERT, "(!Empty())", (const char *)&queryFormat, "!Empty()") )
+      MPSCQueue<RB_BackendDataCopier::Cmd,16384>::CheckConsumerThread((MPSCQueue<RB_BackendDataCopier::Cmd,16384> *)(v8 + 16));
+      if ( *((_DWORD *)v8 + 196613) == *((_DWORD *)v8 + 196614) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\mpsc_queue.h", 102, ASSERT_TYPE_ASSERT, "(!Empty())", (const char *)&queryFormat, "!Empty()") )
         __debugbreak();
-      ++*((_DWORD *)_R13 + 196614);
+      ++*((_DWORD *)v8 + 196614);
 LABEL_30:
       R_UnlockIfGfxImmediateContext(v5->device);
-      result = v14;
+      result = v12;
       break;
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_data_copier.cpp", 465, ASSERT_TYPE_ASSERT, "(false)", (const char *)&queryFormat, "false") )
@@ -1071,14 +1052,7 @@ RB_BackendDataCopier::ToggleFrame
 */
 void RB_BackendDataCopier::ToggleFrame(RB_BackendDataCopier *this)
 {
-  _RAX = r_gpuCopyPerFrameBudgetMB;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmulss  xmm1, xmm0, cs:__real@49800000
-    vcvttss2si rax, xmm1
-  }
-  this->m_copyBudget = _RAX;
+  this->m_copyBudget = (int)(float)(r_gpuCopyPerFrameBudgetMB->current.value * 1048576.0);
   this->m_commandsBudget = r_gpuCopyPerFrameCommandsBudget->current.unsignedInt;
 }
 

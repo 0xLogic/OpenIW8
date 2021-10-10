@@ -385,11 +385,7 @@ void Concurrency::cancellation_token_source::cancel(Concurrency::cancellation_to
   M_Impl = this->_M_Impl;
   if ( !_InterlockedCompareExchange((volatile signed __int32 *)&this->_M_Impl->_M_stateFlag, 1, 0) )
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+48h+ptr], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
     v4 = Mtx_lock_0((_Mtx_t)&M_Impl->_M_listLock);
     if ( v4 )
       std::_Throw_C_error(v4);

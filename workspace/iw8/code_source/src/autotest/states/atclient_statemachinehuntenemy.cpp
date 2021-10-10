@@ -38,20 +38,19 @@ ATClient_SelectTarget
 */
 bool ATClient_SelectTarget(LocalClientNum_t localClientNum, eTargetSelection selection)
 {
-  LocalClientNum_t v7; 
-  int v8; 
-  bool result; 
-  char v19; 
-  char v20; 
+  LocalClientNum_t v2; 
+  int v3; 
+  const dvar_t *v4; 
+  float value; 
+  const dvar_t *v6; 
+  float v7; 
+  float v8; 
+  float v10; 
+  float v11; 
   int ClosestEnemyToLocalPlayer; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  v7 = localClientNum;
-  __asm { vmovaps [rsp+78h+var_28], xmm7 }
-  v8 = -1;
-  __asm { vmovaps xmmword ptr [r11-38h], xmm8 }
+  v2 = localClientNum;
+  v3 = -1;
   if ( selection )
   {
     if ( selection == eTargetSelection_Random )
@@ -62,74 +61,42 @@ LABEL_17:
       ClosestEnemyToLocalPlayer = ATClient_GetClosestEnemyToLocalPlayer(localClientNum);
       goto LABEL_18;
     }
-LABEL_19:
-    ATClient_GetBlackboard(v7)->targetEnemyClientNum = v8;
-    result = v8 != -1;
-    goto LABEL_20;
   }
-  _RSI = DVARFLT_ATClient_ChanceHuntRandomEnemy;
-  if ( !DVARFLT_ATClient_ChanceHuntRandomEnemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_ChanceHuntRandomEnemy") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm8, dword ptr [rsi+28h] }
-  _RSI = DVARFLT_ATClient_ChanceHuntClosestEnemy;
-  if ( !DVARFLT_ATClient_ChanceHuntClosestEnemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_ChanceHuntClosestEnemy") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
+  else
   {
-    vmovss  xmm6, dword ptr [rsi+28h]
-    vaddss  xmm1, xmm6, xmm8
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  if ( !(v19 | v20) )
-  {
-    __asm
+    v4 = DVARFLT_ATClient_ChanceHuntRandomEnemy;
+    if ( !DVARFLT_ATClient_ChanceHuntRandomEnemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_ChanceHuntRandomEnemy") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v4);
+    value = v4->current.value;
+    v6 = DVARFLT_ATClient_ChanceHuntClosestEnemy;
+    if ( !DVARFLT_ATClient_ChanceHuntClosestEnemy && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_ChanceHuntClosestEnemy") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v6);
+    v7 = v6->current.value;
+    v8 = v7 + value;
+    if ( (float)(v7 + value) <= 0.0 )
+      return 1;
+    v10 = value * (float)(1.0 / v8);
+    v11 = (float)rand() * 0.000030518509;
+    if ( v11 <= v10 )
     {
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm7, xmm0, xmm1
-      vmulss  xmm8, xmm8, xmm7
-    }
-    rand();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm2, xmm0, cs:__real@38000100
-      vcomiss xmm2, xmm8
-    }
-    if ( v19 | v20 )
-    {
-      localClientNum = v7;
+      localClientNum = v2;
 LABEL_12:
       ClosestEnemyToLocalPlayer = ATClient_GetRandomEnemy(localClientNum);
 LABEL_18:
-      v8 = ClosestEnemyToLocalPlayer;
+      v3 = ClosestEnemyToLocalPlayer;
       goto LABEL_19;
     }
-    __asm
+    if ( v11 <= (float)((float)((float)(1.0 / v8) * v7) + v10) )
     {
-      vmulss  xmm0, xmm7, xmm6
-      vaddss  xmm1, xmm0, xmm8
-      vcomiss xmm2, xmm1
-    }
-    if ( v19 | v20 )
-    {
-      localClientNum = v7;
+      localClientNum = v2;
       goto LABEL_17;
     }
-    goto LABEL_19;
   }
-  result = 1;
-LABEL_20:
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
-  }
-  return result;
+LABEL_19:
+  ATClient_GetBlackboard(v2)->targetEnemyClientNum = v3;
+  return v3 != -1;
 }
 
 /*
@@ -211,9 +178,10 @@ void ATClient_StateMachineHuntEnemyUpdate(const LocalClientNum_t localClientNum,
   int targetEnemyClientNum; 
   const ClActiveClientMP *v12; 
   const entityState_t *RemotePlayerEntityState; 
-  vec3_t v22; 
-  __int64 v23; 
-  unsigned int v24; 
+  trajectory_t_secure *p_pos; 
+  float v15; 
+  vec3_t v16; 
+  vec3_t v17; 
 
   v2 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\autotest\\states\\atclient_statemachinehuntenemy.cpp", 101, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_durationMS ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_durationMS )\n\t%i not in [0, %i)", localClientNum, 2) )
@@ -254,55 +222,31 @@ void ATClient_StateMachineHuntEnemyUpdate(const LocalClientNum_t localClientNum,
       RemotePlayerEntityState = ATClient_GetRemotePlayerEntityState(v12, targetEnemyClientNum);
       if ( RemotePlayerEntityState )
       {
-        _RDI = &RemotePlayerEntityState->lerp.pos;
+        p_pos = &RemotePlayerEntityState->lerp.pos;
         if ( RemotePlayerEntityState == (const entityState_t *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", (_DWORD)RemotePlayerEntityState + 123, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
           __debugbreak();
-        if ( _RDI->trType == TR_LINEAR_STOP_SECURE )
+        if ( p_pos->trType == TR_LINEAR_STOP_SECURE )
         {
-          *(_QWORD *)v22.v = &v23;
-          v24 = LODWORD(_RDI->trBase.v[1]) ^ s_trbase_aab_Z ^ LODWORD(_RDI->trBase.v[2]);
-          HIDWORD(v23) = LODWORD(_RDI->trBase.v[0]) ^ LODWORD(_RDI->trBase.v[1]) ^ s_trbase_aab_Y;
-          LODWORD(v23) = LODWORD(_RDI->trBase.v[0]) ^ ~s_trbase_aab_X;
-          __asm { vmovss  xmm0, dword ptr [rsp+98h+var_48] }
-          memset(&v22, 0, 8ui64);
-          __asm { vmovss  dword ptr [rsp+98h+var_58], xmm0 }
-          if ( (LODWORD(v22.v[0]) & 0x7F800000) == 2139095040 )
-            goto LABEL_31;
-          __asm
+          *(_QWORD *)v16.v = &v17;
+          *(_QWORD *)&v17.y = *(_QWORD *)p_pos->trBase.v ^ __PAIR64__(s_trbase_aab_Z ^ LODWORD(p_pos->trBase.v[2]), LODWORD(p_pos->trBase.v[1]) ^ s_trbase_aab_Y);
+          LODWORD(v17.v[0]) = LODWORD(p_pos->trBase.v[0]) ^ ~s_trbase_aab_X;
+          memset(&v16, 0, 8ui64);
+          v16.v[0] = v17.v[0];
+          if ( (LODWORD(v17.v[0]) & 0x7F800000) == 2139095040 || (v16.v[0] = v17.v[1], (LODWORD(v17.v[1]) & 0x7F800000) == 2139095040) || (v16.v[0] = v17.v[2], (LODWORD(v17.v[2]) & 0x7F800000) == 2139095040) )
           {
-            vmovss  xmm0, dword ptr [rsp+98h+var_48+4]
-            vmovss  dword ptr [rsp+98h+var_58], xmm0
-          }
-          if ( (LODWORD(v22.v[0]) & 0x7F800000) == 2139095040 )
-            goto LABEL_31;
-          __asm
-          {
-            vmovss  xmm0, [rsp+98h+var_40]
-            vmovss  dword ptr [rsp+98h+var_58], xmm0
-          }
-          if ( (LODWORD(v22.v[0]) & 0x7F800000) == 2139095040 )
-          {
-LABEL_31:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
               __debugbreak();
           }
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+0Ch]
-            vmovss  xmm1, dword ptr [rdi+10h]
-            vmovss  dword ptr [rsp+98h+var_48], xmm0
-            vmovss  xmm0, dword ptr [rdi+14h]
-            vmovss  [rsp+98h+var_40], xmm0
-            vmovss  dword ptr [rsp+98h+var_48+4], xmm1
-          }
+          v15 = p_pos->trBase.v[1];
+          v17.v[0] = p_pos->trBase.v[0];
+          v17.v[2] = p_pos->trBase.v[2];
+          v17.v[1] = v15;
         }
-        __asm { vmovsd  xmm0, [rsp+98h+var_48] }
-        LODWORD(v22.v[2]) = v24;
-        __asm { vmovsd  [rsp+98h+var_58], xmm0 }
-        ATClient_WalkTo((const LocalClientNum_t)v2, &v22);
+        v16 = v17;
+        ATClient_WalkTo((const LocalClientNum_t)v2, &v16);
       }
     }
     s_timeSinceLastInputInMS_0[v2] = 0;

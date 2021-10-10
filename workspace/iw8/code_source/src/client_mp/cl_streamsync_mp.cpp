@@ -193,6 +193,9 @@ void CL_StreamSync_ClientSetup(const LocalClientNum_t localClientNum)
   __int64 v1; 
   StreamSyncClientType v2; 
   __int128 *v3; 
+  __int128 v4; 
+  double v5; 
+  ClStreamSyncData *v6; 
   char *fmt; 
   __int64 v8; 
   int v9; 
@@ -204,7 +207,7 @@ void CL_StreamSync_ClientSetup(const LocalClientNum_t localClientNum)
   int v15; 
   int v16; 
   __int128 v17; 
-  __int64 v18; 
+  double v18; 
 
   v1 = localClientNum;
   if ( Com_StreamSync_IsEnabled() )
@@ -229,7 +232,7 @@ void CL_StreamSync_ClientSetup(const LocalClientNum_t localClientNum)
     if ( !Com_StreamSync_IsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_streamsync_mp.cpp", 124, ASSERT_TYPE_ASSERT, "(Com_StreamSync_IsEnabled())", (const char *)&queryFormat, "Com_StreamSync_IsEnabled()") )
       __debugbreak();
     v16 = HIDWORD(v18);
-    v15 = v18;
+    v15 = LODWORD(v18);
     LODWORD(v11) = HIDWORD(v17);
     LODWORD(v8) = DWORD2(v17);
     LODWORD(fmt) = DWORD1(v17);
@@ -243,19 +246,13 @@ void CL_StreamSync_ClientSetup(const LocalClientNum_t localClientNum)
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_streamsync_mp.cpp", 73, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v10, v14) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovups xmm0, [rsp+88h+var_38]
-      vmovsd  xmm1, [rsp+88h+var_28]
-    }
+    v4 = v17;
+    v5 = v18;
     s_clientsStreamInfo[v1].isActive = 1;
-    _RCX = &s_clientsStreamInfo[v1];
-    __asm
-    {
-      vmovups xmmword ptr [rcx+0C018h], xmm0
-      vmovsd  qword ptr [rcx+0C028h], xmm1
-    }
-    memset_0(_RCX, 0, 0xC018ui64);
+    v6 = &s_clientsStreamInfo[v1];
+    *(_OWORD *)v6->maxPackageCount = v4;
+    *(double *)&v6->maxPackageCount[4] = v5;
+    memset_0(v6, 0, 0xC018ui64);
   }
   else
   {
@@ -280,12 +277,14 @@ _BOOL8 CL_StreamSync_DataList_BuildUpdatedList(const LocalClientNum_t localClien
   const ComSnapshotStreamSyncList *v5; 
   bool v9; 
   unsigned int v10; 
-  int v16; 
-  unsigned int v17; 
-  const dvar_t *v18; 
+  __int64 v11; 
+  char *v12; 
+  int v13; 
+  unsigned int v14; 
+  const dvar_t *v15; 
   CLStreamSyncItemState loadState; 
-  __int64 v21; 
-  __int64 v22; 
+  __int64 v18; 
+  __int64 v19; 
   unsigned int itemCount; 
   unsigned int MaxPackageCount; 
   char buf[512]; 
@@ -307,70 +306,64 @@ _BOOL8 CL_StreamSync_DataList_BuildUpdatedList(const LocalClientNum_t localClien
     {
       if ( v10 >= 0x40 )
       {
-        LODWORD(v22) = 64;
-        LODWORD(v21) = v10;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_streamsync_mp.cpp", 342, ASSERT_TYPE_ASSERT, "(unsigned)( requestItemIndex ) < (unsigned)( ( sizeof( *array_counter( requestList.items ) ) + 0 ) )", "requestItemIndex doesn't index requestList.items\n\t%i not in [0, %i)", v21, v22) )
+        LODWORD(v19) = 64;
+        LODWORD(v18) = v10;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_streamsync_mp.cpp", 342, ASSERT_TYPE_ASSERT, "(unsigned)( requestItemIndex ) < (unsigned)( ( sizeof( *array_counter( requestList.items ) ) + 0 ) )", "requestItemIndex doesn't index requestList.items\n\t%i not in [0, %i)", v18, v19) )
           __debugbreak();
       }
-      _RBX = (__int64)&v5->items[v10];
+      v11 = (__int64)&v5->items[v10];
       if ( updatedStreamList->itemCount >= 0x40 )
       {
-        LODWORD(v22) = 64;
-        LODWORD(v21) = updatedStreamList->itemCount;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_streamsync_mp.cpp", 345, ASSERT_TYPE_ASSERT, "(unsigned)( updatedStreamList.itemCount ) < (unsigned)( ( sizeof( *array_counter( updatedStreamList.items ) ) + 0 ) )", "updatedStreamList.itemCount doesn't index ARRAY_COUNT( updatedStreamList.items )\n\t%i not in [0, %i)", v21, v22) )
+        LODWORD(v19) = 64;
+        LODWORD(v18) = updatedStreamList->itemCount;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_streamsync_mp.cpp", 345, ASSERT_TYPE_ASSERT, "(unsigned)( updatedStreamList.itemCount ) < (unsigned)( ( sizeof( *array_counter( updatedStreamList.items ) ) + 0 ) )", "updatedStreamList.itemCount doesn't index ARRAY_COUNT( updatedStreamList.items )\n\t%i not in [0, %i)", v18, v19) )
           __debugbreak();
       }
-      __asm { vmovups ymm0, ymmword ptr [rbx] }
-      _R13 = (char *)updatedStreamList + 128 * (unsigned __int64)updatedStreamList->itemCount;
-      __asm
-      {
-        vmovups ymmword ptr [r13+4], ymm0
-        vmovups xmm1, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [r13+24h], xmm1
-        vmovsd  xmm0, qword ptr [rbx+30h]
-        vmovsd  qword ptr [r13+34h], xmm0
-      }
-      *((_DWORD *)_R13 + 15) = *(_DWORD *)(_RBX + 56);
-      v16 = *(unsigned __int8 *)(_RBX + 60);
-      v17 = 0;
-      *((_DWORD *)_R13 + 32) = v16;
+      v12 = (char *)updatedStreamList + 128 * (unsigned __int64)updatedStreamList->itemCount;
+      *(__m256i *)(v12 + 4) = *(__m256i *)v11;
+      *(_OWORD *)(v12 + 36) = *(_OWORD *)(v11 + 32);
+      *(double *)(v12 + 52) = *(double *)(v11 + 48);
+      *((_DWORD *)v12 + 15) = *(_DWORD *)(v11 + 56);
+      v13 = *(unsigned __int8 *)(v11 + 60);
+      v14 = 0;
+      *((_DWORD *)v12 + 32) = v13;
       if ( initialStreamList->itemCount )
       {
-        while ( !Com_StreamSyncEntry_AreEqual(&initialStreamList->items[(unsigned __int64)v17].streamSyncEntry, (const ComStreamSyncEntry *)(_R13 + 4), clientSyncType) )
+        while ( !Com_StreamSyncEntry_AreEqual(&initialStreamList->items[(unsigned __int64)v14].streamSyncEntry, (const ComStreamSyncEntry *)(v12 + 4), clientSyncType) )
         {
-          if ( ++v17 >= initialStreamList->itemCount )
+          if ( ++v14 >= initialStreamList->itemCount )
             goto LABEL_14;
         }
-        if ( v17 >= 0x40 )
+        if ( v14 >= 0x40 )
         {
-          LODWORD(v22) = 64;
-          LODWORD(v21) = v17;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_streamsync_mp.cpp", 353, ASSERT_TYPE_ASSERT, "(unsigned)( initialListIndex ) < (unsigned)( ( sizeof( *array_counter( initialStreamList.items ) ) + 0 ) )", "initialListIndex doesn't index ARRAY_COUNT( initialStreamList.items )\n\t%i not in [0, %i)", v21, v22) )
+          LODWORD(v19) = 64;
+          LODWORD(v18) = v14;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_streamsync_mp.cpp", 353, ASSERT_TYPE_ASSERT, "(unsigned)( initialListIndex ) < (unsigned)( ( sizeof( *array_counter( initialStreamList.items ) ) + 0 ) )", "initialListIndex doesn't index ARRAY_COUNT( initialStreamList.items )\n\t%i not in [0, %i)", v18, v19) )
             __debugbreak();
         }
-        if ( initialStreamList->items[(unsigned __int64)v17].loadState == CLS_ITEM_STATE_UNLOADED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_streamsync_mp.cpp", 354, ASSERT_TYPE_ASSERT, "(initialStreamList.items[initialListIndex].loadState != CLS_ITEM_STATE_UNLOADED)", "%s\n\tShould have processed loads on the same frame they were added", "initialStreamList.items[initialListIndex].loadState != CLS_ITEM_STATE_UNLOADED") )
+        if ( initialStreamList->items[(unsigned __int64)v14].loadState == CLS_ITEM_STATE_UNLOADED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_streamsync_mp.cpp", 354, ASSERT_TYPE_ASSERT, "(initialStreamList.items[initialListIndex].loadState != CLS_ITEM_STATE_UNLOADED)", "%s\n\tShould have processed loads on the same frame they were added", "initialStreamList.items[initialListIndex].loadState != CLS_ITEM_STATE_UNLOADED") )
           __debugbreak();
-        loadState = initialStreamList->items[(unsigned __int64)v17].loadState;
+        loadState = initialStreamList->items[(unsigned __int64)v14].loadState;
       }
       else
       {
 LABEL_14:
-        v18 = DCONST_DVARBOOL_cl_streamSync_devVerbose;
+        v15 = DCONST_DVARBOOL_cl_streamSync_devVerbose;
         if ( !DCONST_DVARBOOL_cl_streamSync_devVerbose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_streamSync_devVerbose") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v18);
-        if ( v18->current.enabled )
+        Dvar_CheckFrontendServerThread(v15);
+        if ( v15->current.enabled )
         {
-          Com_StreamSyncEntry_DebugPrint(buf, 0x200u, (const ComStreamSyncEntry *)(_R13 + 4), clientSyncType);
-          LODWORD(v22) = Sys_Milliseconds();
-          LODWORD(v21) = *((_DWORD *)_R13 + 32);
-          Com_Printf(14, "[%i] CL_StreamSync: New load request for model %d::%s{%d} at time %d\n", (unsigned int)localClientNum, (unsigned int)clientSyncType, buf, v21, v22);
+          Com_StreamSyncEntry_DebugPrint(buf, 0x200u, (const ComStreamSyncEntry *)(v12 + 4), clientSyncType);
+          LODWORD(v19) = Sys_Milliseconds();
+          LODWORD(v18) = *((_DWORD *)v12 + 32);
+          Com_Printf(14, "[%i] CL_StreamSync: New load request for model %d::%s{%d} at time %d\n", (unsigned int)localClientNum, (unsigned int)clientSyncType, buf, v18, v19);
         }
         v9 = 1;
         loadState = CLS_ITEM_STATE_UNLOADED;
       }
       v5 = requestList;
-      *((_DWORD *)_R13 + 31) = loadState;
+      *((_DWORD *)v12 + 31) = loadState;
       ++updatedStreamList->itemCount;
       ++v10;
     }
@@ -1275,23 +1268,27 @@ Cl_StreamSync_DataList_ParseRequiredData
 */
 __int64 Cl_StreamSync_DataList_ParseRequiredData(const LocalClientNum_t localClientNum, msg_t *msg, const ComSnapshotStreamSyncList *fromList, ComSnapshotStreamSyncList *newList, const StreamSyncClientType clientStreamType)
 {
+  double v5; 
   unsigned int Bits; 
   unsigned int v11; 
-  __int64 v16; 
-  unsigned __int8 v17; 
+  signed __int64 v12; 
+  ComSnapshotStreamSyncItem *items; 
+  __int64 v14; 
+  unsigned __int8 v15; 
   ComStreamSyncEntryType Type; 
-  int v22; 
+  Weapon *v17; 
+  __m256i v18; 
+  int v19; 
   unsigned int BitCount; 
   unsigned int ModelLimit; 
-  __int64 v28; 
+  __int64 v22; 
   char *fmt; 
-  __int64 v33; 
-  __int64 v34; 
+  __int64 v25; 
+  __int64 v26; 
   unsigned int itemCount; 
-  signed __int64 v37; 
-  _BYTE v38[32]; 
-  __int128 v39; 
-  __int64 v40; 
+  double v28; 
+  signed __int64 v29; 
+  __int128 v30; 
   Weapon result; 
   char buf[512]; 
 
@@ -1300,9 +1297,9 @@ __int64 Cl_StreamSync_DataList_ParseRequiredData(const LocalClientNum_t localCli
   Bits = MSG_ReadBits(msg, 6u);
   if ( msg->overflowed || Bits > Cl_StreamSync_GetMaxPackageCount(localClientNum, clientStreamType) )
   {
-    LODWORD(v33) = Cl_StreamSync_GetMaxPackageCount(localClientNum, clientStreamType);
+    LODWORD(v25) = Cl_StreamSync_GetMaxPackageCount(localClientNum, clientStreamType);
     LODWORD(fmt) = Bits;
-    Com_PrintError(14, "[%i] CL_StreamSync: Error parsing data, readCount is invalid (%i) (%i > %i)\n", (unsigned int)localClientNum, (unsigned int)clientStreamType, fmt, v33);
+    Com_PrintError(14, "[%i] CL_StreamSync: Error parsing data, readCount is invalid (%i) (%i > %i)\n", (unsigned int)localClientNum, (unsigned int)clientStreamType, fmt, v25);
     MSG_Discard(msg);
     return 0i64;
   }
@@ -1316,9 +1313,9 @@ __int64 Cl_StreamSync_DataList_ParseRequiredData(const LocalClientNum_t localCli
   newList->itemCount = Bits;
   if ( !Bits )
     return 1i64;
-  _RBP = (char *)fromList - (char *)newList;
-  _RDI = newList->items;
-  v37 = _RBP;
+  v12 = (char *)fromList - (char *)newList;
+  items = newList->items;
+  v29 = v12;
   while ( 1 )
   {
     if ( !MSG_ReadBit(msg) )
@@ -1330,24 +1327,19 @@ __int64 Cl_StreamSync_DataList_ParseRequiredData(const LocalClientNum_t localCli
         Com_PrintError(14, "[%i] CL_StreamSync: Error parsing data, out of range copy index (%u >= %u)\n", (unsigned int)localClientNum, v11, fmt);
         return 0i64;
       }
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi+rbp]
-        vmovups ymmword ptr [rdi], ymm0
-        vmovups xmm1, xmmword ptr [rdi+rbp+20h]
-        vmovups xmmword ptr [rdi+20h], xmm1
-        vmovsd  xmm0, qword ptr [rdi+rbp+30h]
-        vmovsd  qword ptr [rdi+30h], xmm0
-      }
-      *(_DWORD *)&_RDI->entry.weapon.weaponCamo = *(_DWORD *)&_RDI->entry.weapon.attachmentVariationIndices[_RBP + 29];
-      *(_WORD *)&_RDI->source = *(_WORD *)(&_RDI->source + _RBP);
+      *(__m256i *)&items->entry.singleModelIndex = *(__m256i *)((char *)&items->entry.singleModelIndex + v12);
+      *(_OWORD *)&items->entry.weapon.attachmentVariationIndices[5] = *(_OWORD *)&items->entry.weapon.attachmentVariationIndices[v12 + 5];
+      v5 = *(double *)&items->entry.weapon.attachmentVariationIndices[v12 + 21];
+      *(double *)&items->entry.weapon.attachmentVariationIndices[21] = v5;
+      *(_DWORD *)&items->entry.weapon.weaponCamo = *(_DWORD *)&items->entry.weapon.attachmentVariationIndices[v12 + 29];
+      *(_WORD *)&items->source = *(_WORD *)(&items->source + v12);
       goto LABEL_40;
     }
-    v16 = MSG_ReadBits(msg, 3u);
-    v17 = v16;
-    if ( (v16 < 0 || (unsigned __int64)v16 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,__int64>(__int64)", "unsigned", (unsigned __int8)v16, "signed", v16) )
+    v14 = MSG_ReadBits(msg, 3u);
+    v15 = v14;
+    if ( (v14 < 0 || (unsigned __int64)v14 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,__int64>(__int64)", "unsigned", (unsigned __int8)v14, "signed", v14) )
       __debugbreak();
-    _RDI->source = v17;
+    items->source = v15;
     Type = Com_StreamSyncEntry_GetType(clientStreamType);
     if ( Type )
     {
@@ -1357,70 +1349,41 @@ __int64 Cl_StreamSync_DataList_ParseRequiredData(const LocalClientNum_t localCli
         Com_PrintError(14, "[%i] CL_StreamSync: Error parsing data, syncModelType is invalid (%i, %i)\n", (unsigned int)localClientNum, (unsigned int)clientStreamType, fmt);
         return 0i64;
       }
-      _RAX = MSG_ReadWeapon(&result, msg);
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups ymm0, ymmword ptr [rax]
-      }
-      v22 = *(_DWORD *)&_RAX->weaponCamo;
-      __asm
-      {
-        vmovups [rsp+378h+var_2D0], xmm1
-        vmovsd  xmm1, qword ptr [rax+30h]
-        vmovd   eax, xmm0
-        vmovups [rsp+378h+var_2C0], ymm0
-        vmovsd  [rsp+378h+var_320], xmm1
-      }
-      if ( !(_WORD)_RAX )
+      v17 = MSG_ReadWeapon(&result, msg);
+      v18 = *(__m256i *)&v17->weaponIdx;
+      v19 = *(_DWORD *)&v17->weaponCamo;
+      v30 = *(_OWORD *)&v17->attachmentVariationIndices[5];
+      v28 = *(double *)&v17->attachmentVariationIndices[21];
+      if ( !LOWORD(v5) )
       {
         Com_PrintError(14, "[%i] CL_StreamSync: Error parsing data, weapon is invalid (%i)\n", (unsigned int)localClientNum, (unsigned int)clientStreamType);
         return 0i64;
       }
       if ( Com_StreamSyncEntry_GetType(clientStreamType) != WEAPON && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_streamsync_mp.h", 130, ASSERT_TYPE_ASSERT, "(Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::WEAPON)", (const char *)&queryFormat, "Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::WEAPON") )
         __debugbreak();
-      __asm
-      {
-        vmovups ymm0, [rsp+378h+var_2C0]
-        vmovups xmm1, [rsp+378h+var_2D0]
-        vmovups ymmword ptr [rdi], ymm0
-        vmovsd  xmm0, [rsp+378h+var_320]
-        vmovups xmmword ptr [rdi+20h], xmm1
-        vmovsd  qword ptr [rdi+30h], xmm0
-      }
-      *(_DWORD *)&_RDI->entry.weapon.weaponCamo = v22;
+      *(__m256i *)&items->entry.singleModelIndex = v18;
+      LOWORD(v5) = LOWORD(v28);
+      *(_OWORD *)&items->entry.weapon.attachmentVariationIndices[5] = v30;
+      *(double *)&items->entry.weapon.attachmentVariationIndices[21] = v28;
+      *(_DWORD *)&items->entry.weapon.weaponCamo = v19;
       goto LABEL_37;
     }
     BitCount = Com_StreamSync_GetBitCount(clientStreamType);
     ModelLimit = Com_StreamSync_GetModelLimit(clientStreamType);
-    v28 = MSG_ReadBits(msg, BitCount);
-    if ( (v28 < 0 || (unsigned __int64)v28 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,__int64>(__int64)", "unsigned", (unsigned int)v28, "signed", v28) )
+    v22 = MSG_ReadBits(msg, BitCount);
+    if ( (v22 < 0 || (unsigned __int64)v22 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,__int64>(__int64)", "unsigned", (unsigned int)v22, "signed", v22) )
       __debugbreak();
-    if ( (unsigned int)v28 > ModelLimit )
+    if ( (unsigned int)v22 > ModelLimit )
       break;
     if ( Com_StreamSyncEntry_GetType(clientStreamType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_streamsync_mp.h", 112, ASSERT_TYPE_ASSERT, "(Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL)", (const char *)&queryFormat, "Com_StreamSyncEntry_GetType( type ) == ComStreamSyncEntryType::SINGLEMODEL") )
       __debugbreak();
-    memset(v38, 0, sizeof(v38));
-    __asm
-    {
-      vmovups ymm0, [rsp+378h+var_310]
-      vmovups ymmword ptr [rdi], ymm0
-    }
-    v39 = 0ui64;
-    __asm
-    {
-      vmovups xmm1, [rsp+378h+var_2F0]
-      vmovups xmmword ptr [rdi+20h], xmm1
-    }
-    v40 = 0i64;
-    __asm
-    {
-      vmovsd  xmm0, [rsp+378h+var_2E0]
-      vmovsd  qword ptr [rdi+30h], xmm0
-    }
-    *(_DWORD *)&_RDI->entry.weapon.weaponCamo = 0;
-    _RBP = v37;
-    _RDI->entry.singleModelIndex = truncate_cast<unsigned short,unsigned int>(v28);
+    *(__m256i *)&items->entry.singleModelIndex = (__m256i)0;
+    *(_OWORD *)&items->entry.weapon.attachmentVariationIndices[5] = 0ui64;
+    LOWORD(v5) = 0;
+    *(double *)&items->entry.weapon.attachmentVariationIndices[21] = 0i64;
+    *(_DWORD *)&items->entry.weapon.weaponCamo = 0;
+    v12 = v29;
+    items->entry.singleModelIndex = truncate_cast<unsigned short,unsigned int>(v22);
 LABEL_37:
     if ( msg->overflowed )
     {
@@ -1429,20 +1392,20 @@ LABEL_37:
     }
     if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_cl_streamSync_devVerbose, "cl_streamSync_devVerbose") )
     {
-      Com_StreamSyncEntry_DebugPrint(buf, 0x200u, &_RDI->entry, clientStreamType);
-      LODWORD(v34) = _RDI->source;
+      Com_StreamSyncEntry_DebugPrint(buf, 0x200u, &items->entry, clientStreamType);
+      LODWORD(v26) = items->source;
       LODWORD(fmt) = Bits;
-      Com_Printf(15, "CL_StreamSync: ParseRequiredData: (%i::%i/%i) %s {%i}\n", (unsigned int)clientStreamType, v11, fmt, buf, v34);
+      Com_Printf(15, "CL_StreamSync: ParseRequiredData: (%i::%i/%i) %s {%i}\n", (unsigned int)clientStreamType, v11, fmt, buf, v26);
     }
 LABEL_40:
     ++v11;
-    ++_RDI;
+    ++items;
     if ( v11 >= Bits )
       return 1i64;
   }
-  LODWORD(v33) = ModelLimit;
-  LODWORD(fmt) = v28;
-  Com_PrintError(14, "[%i] CL_StreamSync: Error parsing data, model index is invalid (%i::%i > %i)\n", (unsigned int)localClientNum, (unsigned int)clientStreamType, fmt, v33);
+  LODWORD(v25) = ModelLimit;
+  LODWORD(fmt) = v22;
+  Com_PrintError(14, "[%i] CL_StreamSync: Error parsing data, model index is invalid (%i::%i > %i)\n", (unsigned int)localClientNum, (unsigned int)clientStreamType, fmt, v25);
   return 0i64;
 }
 

@@ -359,13 +359,13 @@ void BgTrajectory::EvaluateTrajectories(BgTrajectory *this, int atTime, vec3_t *
   unsigned int v13; 
   const DObj *DObj; 
   const LerpEntityState *v15; 
+  float v16; 
+  float v17; 
   vec3_t *outAngles; 
-  __int64 v23; 
+  __int64 v19; 
   vec3_t result; 
-  vec3_t v25; 
+  vec3_t v21; 
 
-  _RDI = outAng;
-  _RBP = outPos;
   if ( !this->m_es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 27, ASSERT_TYPE_ASSERT, "(m_es)", (const char *)&queryFormat, "m_es") )
     __debugbreak();
   trType = this->m_es->pos.trType;
@@ -382,16 +382,16 @@ void BgTrajectory::EvaluateTrajectories(BgTrajectory *this, int atTime, vec3_t *
         __debugbreak();
       if ( m_es >= 2 )
       {
-        LODWORD(v23) = 2;
+        LODWORD(v19) = 2;
         LODWORD(outAngles) = m_es;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", outAngles, v23) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", outAngles, v19) )
           __debugbreak();
       }
       v12 = 2533 * m_es + IsClient_low;
       if ( v12 >= 0x13CA )
       {
-        LODWORD(v23) = v12;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v23) )
+        LODWORD(v19) = v12;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v19) )
           __debugbreak();
       }
       v13 = clientObjMap[v12];
@@ -399,8 +399,8 @@ void BgTrajectory::EvaluateTrajectories(BgTrajectory *this, int atTime, vec3_t *
       {
         if ( v13 >= (unsigned int)s_objCount )
         {
-          LODWORD(v23) = v13;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v23) )
+          LODWORD(v19) = v13;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v19) )
             __debugbreak();
         }
         DObj = (const DObj *)s_objBuf[v13];
@@ -419,48 +419,38 @@ void BgTrajectory::EvaluateTrajectories(BgTrajectory *this, int atTime, vec3_t *
       __debugbreak();
     if ( v15->pos.trType == TR_ANIMATED_MOVER )
     {
-      BgTrajectory::GetAbsoluteAnimMovement(this, v15, DObj, atTime, &result, &v25);
+      BgTrajectory::GetAbsoluteAnimMovement(this, v15, DObj, atTime, &result, &v21);
     }
     else
     {
       BgTrajectory::EvaluateTrajectoryInternal(this, &v15->pos, atTime, &result);
-      BgTrajectory::EvaluateTrajectoryInternal(this, &v15->apos, atTime, &v25);
+      BgTrajectory::EvaluateTrajectoryInternal(this, &v15->apos, atTime, &v21);
     }
-    if ( _RBP )
+    if ( outPos )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0B8h+result]
-        vmovss  xmm1, dword ptr [rsp+0B8h+result+4]
-        vmovss  dword ptr [rbp+0], xmm0
-        vmovss  xmm0, dword ptr [rsp+0B8h+result+8]
-        vmovss  dword ptr [rbp+8], xmm0
-        vmovss  dword ptr [rbp+4], xmm1
-      }
+      v16 = result.v[1];
+      outPos->v[0] = result.v[0];
+      outPos->v[2] = result.v[2];
+      outPos->v[1] = v16;
     }
-    if ( _RDI )
+    if ( outAng )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0B8h+var_68]
-        vmovss  xmm1, dword ptr [rsp+0B8h+var_68+4]
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm0, dword ptr [rsp+0B8h+var_68+8]
-        vmovss  dword ptr [rdi+8], xmm0
-        vmovss  dword ptr [rdi+4], xmm1
-      }
+      v17 = v21.v[1];
+      outAng->v[0] = v21.v[0];
+      outAng->v[2] = v21.v[2];
+      outAng->v[1] = v17;
     }
   }
   else
   {
-    if ( _RBP )
+    if ( outPos )
     {
       if ( trType == TR_SLERP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 52, ASSERT_TYPE_ASSERT, "(m_es->pos.trType != TR_SLERP)", "%s\n\tTR_SLERP trajectories cannot be used for position.", "m_es->pos.trType != TR_SLERP") )
         __debugbreak();
-      BgTrajectory::EvaluateTrajectoryInternal(this, &this->m_es->pos, atTime, _RBP);
+      BgTrajectory::EvaluateTrajectoryInternal(this, &this->m_es->pos, atTime, outPos);
     }
-    if ( _RDI )
-      BgTrajectory::EvaluateTrajectoryInternal(this, &this->m_es->apos, atTime, _RDI);
+    if ( outAng )
+      BgTrajectory::EvaluateTrajectoryInternal(this, &this->m_es->apos, atTime, outAng);
   }
 }
 
@@ -471,80 +461,34 @@ BgTrajectory::EvaluateTrajectoryDeltaInternal
 */
 void BgTrajectory::EvaluateTrajectoryDeltaInternal(BgTrajectory *this, const trajectory_t_secure *tr, int atTime, vec3_t *result)
 {
-  float fmt; 
-  int v61; 
-  int v62; 
-  int v63; 
-  int v64; 
-  int v65; 
-  int v66; 
-  int v67; 
-  int v68; 
-  int v69; 
-  int v70; 
-  int v71; 
-  int v72; 
+  float v8; 
+  float v9; 
+  double Gravity; 
+  int trTime; 
+  int v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int64 v18; 
+  float v19; 
   vec3_t trBase; 
-  __int64 v74; 
+  __int64 v21; 
   vec4_t resulta; 
   vec4_t outQuat; 
 
-  v74 = -2i64;
-  __asm { vmovaps [rsp+0C8h+var_48], xmm6 }
-  _RDI = result;
-  _RBX = tr;
+  v21 = -2i64;
   Trajectory_GetTrBase(tr, &trBase);
-  __asm
+  v19 = trBase.v[0];
+  if ( (LODWORD(trBase.v[0]) & 0x7F800000) == 2139095040 || (v19 = trBase.v[1], (LODWORD(trBase.v[1]) & 0x7F800000) == 2139095040) || (v19 = trBase.v[2], (LODWORD(trBase.v[2]) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rsp+0C8h+trBase]
-    vmovss  [rsp+0C8h+var_98], xmm0
-  }
-  if ( (v61 & 0x7F800000) == 2139095040 )
-    goto LABEL_44;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0C8h+trBase+4]
-    vmovss  [rsp+0C8h+var_98], xmm0
-  }
-  if ( (v62 & 0x7F800000) == 2139095040 )
-    goto LABEL_44;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0C8h+trBase+8]
-    vmovss  [rsp+0C8h+var_98], xmm0
-  }
-  if ( (v63 & 0x7F800000) == 2139095040 )
-  {
-LABEL_44:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 512, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tmpTrBase )[0] ) && !IS_NAN( ( tmpTrBase )[1] ) && !IS_NAN( ( tmpTrBase )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tmpTrBase )[0] ) && !IS_NAN( ( tmpTrBase )[1] ) && !IS_NAN( ( tmpTrBase )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 512, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tmpTrBase )[0] ) && !IS_NAN( ( tmpTrBase )[1] ) && !IS_NAN( ( tmpTrBase )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tmpTrBase )[0] ) && !IS_NAN( ( tmpTrBase )[1] ) && !IS_NAN( ( tmpTrBase )[2] )", v19) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+18h]
-    vmovss  [rsp+0C8h+var_98], xmm0
-  }
-  if ( (v64 & 0x7F800000) == 2139095040 )
-    goto LABEL_45;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1Ch]
-    vmovss  [rsp+0C8h+var_98], xmm0
-  }
-  if ( (v65 & 0x7F800000) == 2139095040 )
-    goto LABEL_45;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+20h]
-    vmovss  [rsp+0C8h+var_98], xmm0
-  }
-  if ( (v66 & 0x7F800000) == 2139095040 )
-  {
-LABEL_45:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 513, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] )") )
-      __debugbreak();
-  }
-  switch ( _RBX->trType )
+  if ( ((LODWORD(tr->trDelta.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(tr->trDelta.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(tr->trDelta.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 513, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] )") )
+    __debugbreak();
+  switch ( tr->trType )
   {
     case TR_STATIONARY:
     case TR_INTERPOLATE:
@@ -553,8 +497,8 @@ LABEL_45:
     case TR_ANGLE_ALONG_VELOCITY:
     case TR_RAGDOLL_INTERPOLATE:
     case TR_RAGDOLL_INTERPOLATE_PLAYER_IMMEDIATE:
-      *(_QWORD *)_RDI->v = 0i64;
-      _RDI->v[2] = 0.0;
+      *(_QWORD *)result->v = 0i64;
+      result->v[2] = 0.0;
       goto LABEL_36;
     case TR_LINEAR:
     case TR_PHYSICS_SERVER_AUTH:
@@ -562,193 +506,91 @@ LABEL_45:
       goto $LN20_7;
     case TR_LINEAR_STOP:
     case TR_LINEAR_STOP_SECURE:
-      if ( atTime > _RBX->trTime + _RBX->trDuration )
+      if ( atTime > tr->trTime + tr->trDuration )
         goto LABEL_17;
 $LN20_7:
-      _RDI->v[0] = _RBX->trDelta.v[0];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+1Ch]
-        vmovss  dword ptr [rdi+4], xmm0
-        vmovss  xmm1, dword ptr [rbx+20h]
-        vmovss  dword ptr [rdi+8], xmm1
-      }
+      result->v[0] = tr->trDelta.v[0];
+      result->v[1] = tr->trDelta.v[1];
+      result->v[2] = tr->trDelta.v[2];
       goto LABEL_36;
     case TR_SINE:
-      _ESI = atTime - _RBX->trTime;
-      __asm
-      {
-        vmovd   xmm1, esi
-        vcvtdq2ps xmm1, xmm1
-        vmovd   xmm0, dword ptr [rbx+8]
-        vcvtdq2ps xmm0, xmm0
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm2, xmm1, cs:__real@40490fdb
-        vmulss  xmm0, xmm2, cs:__real@40000000; X
-      }
-      *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-      __asm { vmulss  xmm2, xmm0, cs:__real@3f000000 }
+      v8 = cosf_0((float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned int)(atTime - tr->trTime)).m128_f32[0] / _mm_cvtepi32_ps((__m128i)(unsigned int)tr->trDuration).m128_f32[0]) * 3.1415927) * 2.0) * 0.5;
       goto LABEL_15;
     case TR_GRAVITY:
     case TR_RAGDOLL_GRAVITY:
     case TR_RAGDOLL_GRAVITY_PLAYER_IMMEDIATE:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, esi
-        vmulss  xmm6, xmm0, cs:__real@3a83126f
-      }
-      *(double *)&_XMM0 = BG_GetGravity();
+      v9 = (float)(atTime - tr->trTime) * 0.001;
+      Gravity = BG_GetGravity();
       goto LABEL_19;
     case TR_LOW_GRAVITY:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, esi
-        vmulss  xmm6, xmm0, cs:__real@3a83126f
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
+      v9 = (float)(atTime - tr->trTime) * 0.001;
+      Gravity = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
 LABEL_19:
-      __asm
-      {
-        vmovaps xmm2, xmm0; scale
-        vmovss  dword ptr [rsp+0C8h+fmt], xmm6
-      }
-      BgTrajectory::UpdateTrajectoryGravityDelta(this, _RBX, *(float *)&_XMM2, _RDI, fmt);
+      BgTrajectory::UpdateTrajectoryGravityDelta(this, tr, *(float *)&Gravity, result, v9);
       goto LABEL_36;
     case TR_ACCELERATE:
-      if ( atTime > _RBX->trTime + _RBX->trDuration )
+      trTime = tr->trTime;
+      if ( atTime > trTime + tr->trDuration )
         goto LABEL_17;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, esi
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm2, xmm1, cs:__real@358637be
-      }
+      v8 = (float)((float)(atTime - trTime) * (float)(atTime - trTime)) * 0.0000010000001;
       goto LABEL_15;
     case TR_DECELERATE:
-      if ( atTime > _RBX->trTime + _RBX->trDuration )
+      v12 = tr->trTime;
+      if ( atTime > v12 + tr->trDuration )
       {
 LABEL_17:
-        *(_QWORD *)_RDI->v = 0i64;
-        _RDI->v[2] = 0.0;
+        *(_QWORD *)result->v = 0i64;
+        result->v[2] = 0.0;
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, esi
-          vmulss  xmm2, xmm0, cs:__real@3a83126f
-        }
+        v8 = (float)(atTime - v12) * 0.001;
 LABEL_15:
-        __asm
-        {
-          vmulss  xmm0, xmm2, dword ptr [rbx+18h]
-          vmovss  dword ptr [rdi], xmm0
-          vmulss  xmm1, xmm2, dword ptr [rbx+1Ch]
-          vmovss  dword ptr [rdi+4], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rbx+20h]
-          vmovss  dword ptr [rdi+8], xmm0
-        }
+        result->v[0] = v8 * tr->trDelta.v[0];
+        result->v[1] = v8 * tr->trDelta.v[1];
+        result->v[2] = v8 * tr->trDelta.v[2];
 LABEL_36:
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+18h]
-          vmovss  [rsp+0C8h+var_98], xmm0
-        }
-        if ( (v70 & 0x7F800000) == 2139095040 )
-          goto LABEL_46;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+1Ch]
-          vmovss  [rsp+0C8h+var_98], xmm0
-        }
-        if ( (v71 & 0x7F800000) == 2139095040 )
-          goto LABEL_46;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+20h]
-          vmovss  [rsp+0C8h+var_98], xmm0
-        }
-        if ( (v72 & 0x7F800000) == 2139095040 )
-        {
-LABEL_46:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 614, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] )") )
-            __debugbreak();
-        }
+        if ( ((LODWORD(tr->trDelta.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(tr->trDelta.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(tr->trDelta.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 614, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] )") )
+          __debugbreak();
       }
       memset(&trBase, 0, sizeof(trBase));
-      __asm { vmovaps xmm6, [rsp+0C8h+var_48] }
       return;
     case TR_SLERP:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, esi
-        vmulss  xmm6, xmm0, cs:__real@3ca3d70a
-      }
-      PackedQuatToUnitQuat(&_RBX->trDelta, &outQuat);
-      __asm { vmovaps xmm2, xmm6; frac }
-      QuatSlerp(&quat_identity, &outQuat, *(float *)&_XMM2, &resulta);
-      UnitQuatToAngles(&resulta, _RDI);
+      v13 = (float)(atTime - tr->trTime) * 0.02;
+      PackedQuatToUnitQuat(&tr->trDelta, &outQuat);
+      QuatSlerp(&quat_identity, &outQuat, v13, &resulta);
+      UnitQuatToAngles(&resulta, result);
       goto LABEL_36;
     default:
-      if ( (unsigned int)(_RBX->trType - 14) > 5 )
+      if ( (unsigned int)(tr->trType - 14) > 5 )
       {
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CD2410, 747i64);
       }
       else
       {
-        __asm
+        v14 = (float)(atTime - tr->trTime) * 0.001;
+        if ( v14 >= 0.001 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, esi
-          vmulss  xmm6, xmm0, cs:__real@3a83126f
-          vcomiss xmm6, cs:__real@3a83126f
-        }
-        if ( (unsigned int)atTime >= _RBX->trTime )
-        {
-          __asm { vmovaps xmm3, xmm6; deltaTime }
-          BgTrajectory::UpdateTrackedTrajectory(this, _RBX, (vec3_t *)&outQuat, *(float *)&_XMM3);
-          Trajectory_GetTrBase(_RBX, (vec3_t *)&resulta);
-          __asm
+          BgTrajectory::UpdateTrackedTrajectory(this, tr, (vec3_t *)&outQuat, v14);
+          Trajectory_GetTrBase(tr, (vec3_t *)&resulta);
+          v15 = outQuat.v[1] - resulta.v[1];
+          v16 = outQuat.v[2] - resulta.v[2];
+          v17 = (float)(outQuat.v[0] - resulta.v[0]) * (float)(1.0 / v14);
+          result->v[0] = v17;
+          result->v[1] = v15 * (float)(1.0 / v14);
+          result->v[2] = v16 * (float)(1.0 / v14);
+          *(float *)&v18 = v17;
+          if ( (LODWORD(v17) & 0x7F800000) == 2139095040 || (*(float *)&v18 = v15 * (float)(1.0 / v14), (v18 & 0x7F800000) == 2139095040) || (*(float *)&v18 = v16 * (float)(1.0 / v14), (v18 & 0x7F800000) == 2139095040) )
           {
-            vmovss  xmm0, dword ptr [rsp+0C8h+outQuat]
-            vsubss  xmm3, xmm0, dword ptr [rsp+0C8h+result]
-            vmovss  xmm1, dword ptr [rsp+0C8h+outQuat+4]
-            vsubss  xmm4, xmm1, dword ptr [rsp+0C8h+result+4]
-            vmovss  xmm0, dword ptr [rsp+0C8h+outQuat+8]
-            vsubss  xmm5, xmm0, dword ptr [rsp+0C8h+result+8]
-            vmovss  xmm1, cs:__real@3f800000
-            vdivss  xmm2, xmm1, xmm6
-            vmulss  xmm0, xmm3, xmm2
-            vmovss  dword ptr [rdi], xmm0
-            vmulss  xmm1, xmm4, xmm2
-            vmovss  dword ptr [rdi+4], xmm1
-            vmulss  xmm3, xmm5, xmm2
-            vmovss  dword ptr [rdi+8], xmm3
-            vmovss  [rsp+0C8h+var_98], xmm0
-          }
-          if ( (v67 & 0x7F800000) == 2139095040 )
-            goto LABEL_47;
-          __asm { vmovss  [rsp+0C8h+var_98], xmm1 }
-          if ( (v68 & 0x7F800000) == 2139095040 )
-            goto LABEL_47;
-          __asm { vmovss  [rsp+0C8h+var_98], xmm3 }
-          if ( (v69 & 0x7F800000) == 2139095040 )
-          {
-LABEL_47:
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 145, ASSERT_TYPE_SANITY, "( !IS_NAN( ( result )[0] ) && !IS_NAN( ( result )[1] ) && !IS_NAN( ( result )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( result )[0] ) && !IS_NAN( ( result )[1] ) && !IS_NAN( ( result )[2] )") )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 145, ASSERT_TYPE_SANITY, "( !IS_NAN( ( result )[0] ) && !IS_NAN( ( result )[1] ) && !IS_NAN( ( result )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( result )[0] ) && !IS_NAN( ( result )[1] ) && !IS_NAN( ( result )[2] )", v18) )
               __debugbreak();
           }
           memset(&resulta, 0, 0xCui64);
         }
         else
         {
-          *(_QWORD *)_RDI->v = 0i64;
-          _RDI->v[2] = 0.0;
+          *(_QWORD *)result->v = 0i64;
+          result->v[2] = 0.0;
         }
       }
       goto LABEL_36;
@@ -777,118 +619,73 @@ BgTrajectory::EvaluateTrajectoryInternal
 */
 void BgTrajectory::EvaluateTrajectoryInternal(BgTrajectory *this, const trajectory_t_secure *tr, int atTime, vec3_t *result)
 {
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
+  float v16; 
+  double Gravity; 
+  unsigned int trDuration; 
   int trTime; 
-  int v98; 
-  char v219; 
-  float fmt; 
-  __int64 v240; 
-  int v241; 
-  int v242; 
-  int v243; 
-  int v244; 
-  int v245; 
-  int v246; 
-  int v251; 
-  int v252; 
-  int v253; 
+  float v20; 
+  __int128 v21; 
+  __int128 v22; 
+  float v26; 
+  float v27; 
+  float v28; 
+  unsigned int v29; 
+  int v30; 
+  float v31; 
+  __int128 v32; 
+  __int128 v33; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  __int128 v42; 
+  __int128 v46; 
+  __int64 v50; 
+  float v51; 
   vec3_t trBase; 
-  __int64 v255; 
+  __int64 v53; 
   vec4_t to; 
   vec4_t quat; 
   vec4_t outQuat; 
   vec4_t resulta; 
-  char v260; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v255 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-    vmovaps xmmword ptr [rax-0C8h], xmm13
-    vmovaps xmmword ptr [rax-0D8h], xmm14
-  }
-  _RBX = result;
-  _RSI = tr;
+  v53 = -2i64;
   if ( tr->trType >= NUM_TRTYPES && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 361, ASSERT_TYPE_ASSERT, "( ( tr->trType < NUM_TRTYPES ) )", "( tr->trType ) = %i", tr->trType) )
     __debugbreak();
-  if ( _RSI->trType == TR_ANIMATED_MOVER )
+  if ( tr->trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 363, ASSERT_TYPE_ASSERT, "(!BgTrajectory::IsAnimatedTrajectory( tr ))", (const char *)&queryFormat, "!BgTrajectory::IsAnimatedTrajectory( tr )") )
       __debugbreak();
   }
-  Trajectory_GetTrBase(_RSI, &trBase);
-  __asm
+  Trajectory_GetTrBase(tr, &trBase);
+  v8 = trBase.v[0];
+  v51 = trBase.v[0];
+  if ( (LODWORD(trBase.v[0]) & 0x7F800000) == 2139095040 || (v9 = trBase.v[1], v51 = trBase.v[1], (LODWORD(trBase.v[1]) & 0x7F800000) == 2139095040) || (v10 = trBase.v[2], v51 = trBase.v[2], (LODWORD(trBase.v[2]) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm14, dword ptr [rsp+170h+trBase]
-    vmovss  [rsp+170h+var_140], xmm14
-  }
-  if ( (v241 & 0x7F800000) == 2139095040 )
-    goto LABEL_66;
-  __asm
-  {
-    vmovss  xmm12, dword ptr [rsp+170h+trBase+4]
-    vmovss  [rsp+170h+var_140], xmm12
-  }
-  if ( (v242 & 0x7F800000) == 2139095040 )
-    goto LABEL_66;
-  __asm
-  {
-    vmovss  xmm13, dword ptr [rsp+170h+trBase+8]
-    vmovss  [rsp+170h+var_140], xmm13
-  }
-  if ( (v243 & 0x7F800000) == 2139095040 )
-  {
-LABEL_66:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 368, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tmpTrBase )[0] ) && !IS_NAN( ( tmpTrBase )[1] ) && !IS_NAN( ( tmpTrBase )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tmpTrBase )[0] ) && !IS_NAN( ( tmpTrBase )[1] ) && !IS_NAN( ( tmpTrBase )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 368, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tmpTrBase )[0] ) && !IS_NAN( ( tmpTrBase )[1] ) && !IS_NAN( ( tmpTrBase )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tmpTrBase )[0] ) && !IS_NAN( ( tmpTrBase )[1] ) && !IS_NAN( ( tmpTrBase )[2] )", v51) )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm14, dword ptr [rsp+170h+trBase]
-      vmovss  xmm12, dword ptr [rsp+170h+trBase+4]
-      vmovss  xmm13, dword ptr [rsp+170h+trBase+8]
-    }
+    v8 = trBase.v[0];
+    v9 = trBase.v[1];
+    v10 = trBase.v[2];
   }
-  __asm
+  if ( (LODWORD(tr->trDelta.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(tr->trDelta.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(tr->trDelta.v[2]) & 0x7F800000) == 2139095040 )
   {
-    vmovss  xmm0, dword ptr [rsi+18h]
-    vmovss  [rsp+170h+var_140], xmm0
-  }
-  if ( (v244 & 0x7F800000) == 2139095040 )
-    goto LABEL_67;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+1Ch]
-    vmovss  [rsp+170h+var_140], xmm0
-  }
-  if ( (v245 & 0x7F800000) == 2139095040 )
-    goto LABEL_67;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+20h]
-    vmovss  [rsp+170h+var_140], xmm0
-  }
-  if ( (v246 & 0x7F800000) == 2139095040 )
-  {
-LABEL_67:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 369, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] )") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm14, dword ptr [rsp+170h+trBase]
-      vmovss  xmm12, dword ptr [rsp+170h+trBase+4]
-      vmovss  xmm13, dword ptr [rsp+170h+trBase+8]
-    }
+    v8 = trBase.v[0];
+    v9 = trBase.v[1];
+    v10 = trBase.v[2];
   }
-  switch ( _RSI->trType )
+  switch ( tr->trType )
   {
     case TR_STATIONARY:
     case TR_INTERPOLATE:
@@ -897,286 +694,127 @@ LABEL_67:
     case TR_LINKED:
     case TR_RAGDOLL_INTERPOLATE:
     case TR_RAGDOLL_INTERPOLATE_PLAYER_IMMEDIATE:
-      __asm
-      {
-        vmovss  dword ptr [rbx], xmm14; jumptable 000000014031FB1A cases 0,1,11-13,26,27
-        vmovss  dword ptr [rbx+4], xmm12
-        vmovss  dword ptr [rbx+8], xmm13
-      }
+      result->v[0] = v8;
+      result->v[1] = v9;
+      result->v[2] = v10;
       break;
     case TR_LINEAR:
     case TR_FIRST_RAGDOLL:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edi
-        vmulss  xmm2, xmm0, cs:__real@3a83126f
-        vmulss  xmm0, xmm2, dword ptr [rsi+18h]
-        vaddss  xmm1, xmm0, xmm14
-        vmovss  dword ptr [rbx], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rsi+1Ch]
-        vaddss  xmm1, xmm0, xmm12
-        vmovss  dword ptr [rbx+4], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rsi+20h]
-        vaddss  xmm1, xmm0, xmm13
-        vmovss  dword ptr [rbx+8], xmm1
-      }
+      v11 = (float)(atTime - tr->trTime) * 0.001;
+      result->v[0] = (float)(v11 * tr->trDelta.v[0]) + v8;
+      result->v[1] = (float)(v11 * tr->trDelta.v[1]) + v9;
+      result->v[2] = (float)(v11 * tr->trDelta.v[2]) + v10;
       break;
     case TR_LINEAR_STOP:
     case TR_LINEAR_STOP_SECURE:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edi
-        vmulss  xmm2, xmm0, cs:__real@3a83126f
-        vxorps  xmm1, xmm1, xmm1
-        vmaxss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm3, dword ptr [rsi+18h]
-        vaddss  xmm1, xmm0, xmm14
-        vmovss  dword ptr [rbx], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rsi+1Ch]
-        vaddss  xmm1, xmm0, xmm12
-        vmovss  dword ptr [rbx+4], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rsi+20h]
-        vaddss  xmm1, xmm0, xmm13
-        vmovss  dword ptr [rbx+8], xmm1
-      }
+      if ( atTime > tr->trTime + tr->trDuration )
+        atTime = tr->trTime + tr->trDuration;
+      v13 = 0i64;
+      *(float *)&v13 = (float)(atTime - tr->trTime) * 0.001;
+      _XMM2 = v13;
+      __asm { vmaxss  xmm3, xmm2, xmm1 }
+      result->v[0] = (float)(*(float *)&_XMM3 * tr->trDelta.v[0]) + v8;
+      result->v[1] = (float)(*(float *)&_XMM3 * tr->trDelta.v[1]) + v9;
+      result->v[2] = (float)(*(float *)&_XMM3 * tr->trDelta.v[2]) + v10;
       break;
     case TR_SINE:
-      _EDI = atTime - _RSI->trTime;
-      __asm
-      {
-        vmovd   xmm1, edi
-        vcvtdq2ps xmm1, xmm1
-        vmovd   xmm0, dword ptr [rsi+8]
-        vcvtdq2ps xmm0, xmm0
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm2, xmm1, cs:__real@40490fdb
-        vmulss  xmm0, xmm2, cs:__real@40000000; X
-      }
-      *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vmulss  xmm1, xmm0, dword ptr [rsi+18h]
-        vaddss  xmm2, xmm1, xmm14
-        vmovss  dword ptr [rbx], xmm2
-        vmulss  xmm1, xmm0, dword ptr [rsi+1Ch]
-        vaddss  xmm2, xmm1, xmm12
-        vmovss  dword ptr [rbx+4], xmm2
-        vmulss  xmm0, xmm0, dword ptr [rsi+20h]
-        vaddss  xmm1, xmm0, xmm13
-        vmovss  dword ptr [rbx+8], xmm1
-      }
+      v12 = sinf_0((float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned int)(atTime - tr->trTime)).m128_f32[0] / _mm_cvtepi32_ps((__m128i)(unsigned int)tr->trDuration).m128_f32[0]) * 3.1415927) * 2.0);
+      result->v[0] = (float)(v12 * tr->trDelta.v[0]) + v8;
+      result->v[1] = (float)(v12 * tr->trDelta.v[1]) + v9;
+      result->v[2] = (float)(v12 * tr->trDelta.v[2]) + v10;
       break;
     case TR_GRAVITY:
     case TR_RAGDOLL_GRAVITY:
     case TR_RAGDOLL_GRAVITY_PLAYER_IMMEDIATE:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edi
-        vmulss  xmm6, xmm0, cs:__real@3a83126f
-      }
-      *(double *)&_XMM0 = BG_GetGravity();
-      goto LABEL_28;
+      v16 = (float)(atTime - tr->trTime) * 0.001;
+      Gravity = BG_GetGravity();
+      goto LABEL_30;
     case TR_LOW_GRAVITY:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edi
-        vmulss  xmm6, xmm0, cs:__real@3a83126f
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
-LABEL_28:
-      __asm
-      {
-        vmovaps xmm2, xmm0; scale
-        vmovss  dword ptr [rsp+170h+fmt], xmm6
-      }
-      BgTrajectory::UpdateTrajectoryGravity(this, _RSI, *(float *)&_XMM2, _RBX, fmt);
+      v16 = (float)(atTime - tr->trTime) * 0.001;
+      Gravity = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_lowGravity, "bg_lowGravity");
+LABEL_30:
+      BgTrajectory::UpdateTrajectoryGravity(this, tr, *(float *)&Gravity, result, v16);
       break;
     case TR_ACCELERATE:
-      _EDX = _RSI->trDuration;
-      if ( _EDX )
+      trDuration = tr->trDuration;
+      if ( trDuration )
       {
-        trTime = _RSI->trTime;
-        if ( atTime > _EDX + trTime )
-          atTime = _EDX + trTime;
-        _EDI = atTime - trTime;
+        trTime = tr->trTime;
+        if ( atTime > (int)(trDuration + trTime) )
+          atTime = trDuration + trTime;
+        v20 = _mm_cvtepi32_ps((__m128i)(unsigned int)(atTime - trTime)).m128_f32[0] * 0.001;
+        v21 = LODWORD(tr->trDelta.v[0]);
+        v22 = v21;
+        *(float *)&v22 = fsqrt((float)((float)(*(float *)&v21 * *(float *)&v21) + (float)(tr->trDelta.v[1] * tr->trDelta.v[1])) + (float)(tr->trDelta.v[2] * tr->trDelta.v[2]));
+        _XMM3 = v22;
         __asm
         {
-          vmovd   xmm0, edi
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm8, xmm0, cs:__real@3a83126f
-          vmovss  xmm2, dword ptr [rsi+1Ch]
-          vmovss  xmm4, dword ptr [rsi+18h]
-          vmovss  xmm3, dword ptr [rsi+20h]
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm3, xmm2, xmm2
           vcmpless xmm0, xmm3, cs:__real@80000000
-          vmovss  xmm2, cs:__real@3f800000
           vblendvps xmm1, xmm3, xmm2, xmm0
-          vmovss  [rsp+170h+var_140], xmm1
-          vdivss  xmm0, xmm2, xmm1
-          vmulss  xmm6, xmm4, xmm0
-          vmovss  dword ptr [rbx], xmm6
-          vmulss  xmm7, xmm0, dword ptr [rsi+1Ch]
-          vmovss  dword ptr [rbx+4], xmm7
-          vmulss  xmm5, xmm0, dword ptr [rsi+20h]
-          vmovd   xmm1, edx
-          vcvtdq2ps xmm1, xmm1
-          vmovss  xmm0, cs:__real@43f9ffff
-          vdivss  xmm1, xmm0, xmm1
-          vmulss  xmm2, xmm1, xmm3
-          vmulss  xmm3, xmm2, xmm8
-          vmulss  xmm4, xmm3, xmm8
-          vmulss  xmm0, xmm6, xmm4
-          vaddss  xmm1, xmm0, xmm14
-          vmovss  dword ptr [rbx], xmm1
-          vmulss  xmm2, xmm7, xmm4
-          vaddss  xmm0, xmm2, xmm12
-          vmovss  dword ptr [rbx+4], xmm0
-          vmulss  xmm1, xmm5, xmm4
-          vaddss  xmm2, xmm1, xmm13
-          vmovss  dword ptr [rbx+8], xmm2
         }
+        v26 = *(float *)&v21 * (float)(1.0 / *(float *)&_XMM1);
+        result->v[0] = v26;
+        v27 = (float)(1.0 / *(float *)&_XMM1) * tr->trDelta.v[1];
+        result->v[1] = v27;
+        v28 = (float)(1.0 / *(float *)&_XMM1) * tr->trDelta.v[2];
+        *(float *)&v21 = (float)((float)((float)(499.99997 / _mm_cvtepi32_ps((__m128i)trDuration).m128_f32[0]) * *(float *)&v22) * v20) * v20;
+        result->v[0] = (float)(v26 * *(float *)&v21) + v8;
+        result->v[1] = (float)(v27 * *(float *)&v21) + v9;
+        result->v[2] = (float)(v28 * *(float *)&v21) + v10;
       }
       else
       {
-        __asm
-        {
-          vmovss  dword ptr [rbx], xmm14
-          vmovss  dword ptr [rbx+4], xmm12
-          vmovss  dword ptr [rbx+8], xmm13
-        }
+        result->v[0] = v8;
+        result->v[1] = v9;
+        result->v[2] = v10;
       }
       break;
     case TR_DECELERATE:
-      _EDX = _RSI->trDuration;
-      if ( _EDX )
+      v29 = tr->trDuration;
+      if ( v29 )
       {
-        v98 = _RSI->trTime;
-        if ( atTime > _EDX + v98 )
-          atTime = _EDX + v98;
-        _EDI = atTime - v98;
+        v30 = tr->trTime;
+        if ( atTime > (int)(v29 + v30) )
+          atTime = v29 + v30;
+        v31 = _mm_cvtepi32_ps((__m128i)(unsigned int)(atTime - v30)).m128_f32[0] * 0.001;
+        v32 = LODWORD(tr->trDelta.v[0]);
+        v33 = v32;
+        *(float *)&v33 = fsqrt((float)((float)(*(float *)&v32 * *(float *)&v32) + (float)(tr->trDelta.v[1] * tr->trDelta.v[1])) + (float)(tr->trDelta.v[2] * tr->trDelta.v[2]));
+        _XMM3 = v33;
         __asm
         {
-          vmovd   xmm0, edi
-          vcvtdq2ps xmm0, xmm0
-          vmulss  xmm11, xmm0, cs:__real@3a83126f
-          vmovss  xmm2, dword ptr [rsi+1Ch]
-          vmovss  xmm4, dword ptr [rsi+18h]
-          vmovss  xmm3, dword ptr [rsi+20h]
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm3, xmm2, xmm2
           vcmpless xmm0, xmm3, cs:__real@80000000
-          vmovss  xmm2, cs:__real@3f800000
           vblendvps xmm1, xmm3, xmm2, xmm0
-          vmovss  [rsp+170h+var_140], xmm1
-          vdivss  xmm0, xmm2, xmm1
-          vmulss  xmm9, xmm4, xmm0
-          vmovss  dword ptr [rbx], xmm9
-          vmulss  xmm10, xmm0, dword ptr [rsi+1Ch]
-          vmovss  dword ptr [rbx+4], xmm10
-          vmulss  xmm8, xmm0, dword ptr [rsi+20h]
-          vmovss  dword ptr [rbx+8], xmm8
-          vmulss  xmm0, xmm11, dword ptr [rsi+18h]
-          vaddss  xmm5, xmm0, xmm14
-          vmulss  xmm1, xmm11, dword ptr [rsi+1Ch]
-          vaddss  xmm6, xmm1, xmm12
-          vmulss  xmm0, xmm11, dword ptr [rsi+20h]
-          vaddss  xmm7, xmm0, xmm13
-          vmovd   xmm2, edx
-          vcvtdq2ps xmm2, xmm2
-          vmovss  xmm1, cs:__real@c3f9ffff
-          vdivss  xmm0, xmm1, xmm2
-          vmulss  xmm2, xmm0, xmm3
-          vmulss  xmm3, xmm2, xmm11
-          vmulss  xmm4, xmm3, xmm11
-          vmulss  xmm0, xmm4, xmm9
-          vaddss  xmm1, xmm0, xmm5
-          vmovss  dword ptr [rbx], xmm1
-          vmulss  xmm2, xmm4, xmm10
-          vaddss  xmm0, xmm2, xmm6
-          vmovss  dword ptr [rbx+4], xmm0
-          vmulss  xmm1, xmm4, xmm8
-          vaddss  xmm2, xmm1, xmm7
-          vmovss  dword ptr [rbx+8], xmm2
         }
+        v37 = *(float *)&v32 * (float)(1.0 / *(float *)&_XMM1);
+        result->v[0] = v37;
+        v38 = (float)(1.0 / *(float *)&_XMM1) * tr->trDelta.v[1];
+        result->v[1] = v38;
+        v39 = (float)(1.0 / *(float *)&_XMM1) * tr->trDelta.v[2];
+        result->v[2] = v39;
+        v40 = (float)(v31 * tr->trDelta.v[1]) + v9;
+        v41 = (float)(v31 * tr->trDelta.v[2]) + v10;
+        *(float *)&v32 = (float)((float)((float)(-499.99997 / _mm_cvtepi32_ps((__m128i)v29).m128_f32[0]) * *(float *)&v33) * v31) * v31;
+        result->v[0] = (float)(*(float *)&v32 * v37) + (float)((float)(v31 * tr->trDelta.v[0]) + v8);
+        result->v[1] = (float)(*(float *)&v32 * v38) + v40;
+        result->v[2] = (float)(*(float *)&v32 * v39) + v41;
       }
       else
       {
-        __asm
-        {
-          vmovss  dword ptr [rbx], xmm14
-          vmovss  dword ptr [rbx+4], xmm12
-          vmovss  dword ptr [rbx+8], xmm13
-        }
+        result->v[0] = v8;
+        result->v[1] = v9;
+        result->v[2] = v10;
       }
       break;
     case TR_SLERP:
       AnglesToQuat(&trBase, &quat);
-      PackedQuatToUnitQuat(&_RSI->trDelta, &outQuat);
-      __asm
-      {
-        vmovss  xmm12, dword ptr [rsp+170h+quat]
-        vmovss  xmm11, dword ptr [rsp+170h+outQuat+0Ch]
-        vmulss  xmm1, xmm12, xmm11
-        vmovss  xmm10, dword ptr [rsp+170h+outQuat]
-        vmovss  xmm7, dword ptr [rsp+170h+quat+0Ch]
-        vmulss  xmm0, xmm10, xmm7
-        vaddss  xmm2, xmm1, xmm0
-        vmovss  xmm8, dword ptr [rsp+170h+outQuat+4]
-        vmovss  xmm9, dword ptr [rsp+170h+quat+8]
-        vmulss  xmm0, xmm8, xmm9
-        vaddss  xmm1, xmm2, xmm0
-        vmovss  xmm6, dword ptr [rsp+170h+outQuat+8]
-        vmovss  xmm5, dword ptr [rsp+170h+quat+4]
-        vmulss  xmm0, xmm6, xmm5
-        vsubss  xmm1, xmm1, xmm0
-        vmovss  dword ptr [rsp+170h+to], xmm1
-        vmulss  xmm2, xmm5, xmm11
-        vmulss  xmm0, xmm9, xmm10
-        vsubss  xmm3, xmm2, xmm0
-        vmulss  xmm1, xmm8, xmm7
-        vaddss  xmm4, xmm3, xmm1
-        vmulss  xmm0, xmm6, xmm12
-        vaddss  xmm2, xmm4, xmm0
-        vmovss  dword ptr [rsp+170h+to+4], xmm2
-        vmulss  xmm1, xmm9, xmm11
-        vmulss  xmm0, xmm5, xmm10
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm8, xmm12
-        vsubss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm6, xmm7
-        vaddss  xmm2, xmm3, xmm0
-        vmovss  dword ptr [rsp+170h+to+8], xmm2
-        vmulss  xmm1, xmm11, xmm7
-        vmulss  xmm0, xmm12, xmm10
-        vsubss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, xmm8
-        vsubss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm6, xmm9
-        vsubss  xmm2, xmm3, xmm0
-        vmovss  dword ptr [rsp+170h+to+0Ch], xmm2
-      }
-      _EDI = atTime - _RSI->trTime;
-      __asm
-      {
-        vmovd   xmm0, edi
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm2, xmm0, cs:__real@3ca3d70a; frac
-      }
-      QuatSlerp(&quat, &to, *(float *)&_XMM2, &resulta);
-      UnitQuatToAngles(&resulta, _RBX);
+      PackedQuatToUnitQuat(&tr->trDelta, &outQuat);
+      to.v[0] = (float)((float)((float)(quat.v[0] * outQuat.v[3]) + (float)(outQuat.v[0] * quat.v[3])) + (float)(outQuat.v[1] * quat.v[2])) - (float)(outQuat.v[2] * quat.v[1]);
+      to.v[1] = (float)((float)((float)(quat.v[1] * outQuat.v[3]) - (float)(quat.v[2] * outQuat.v[0])) + (float)(outQuat.v[1] * quat.v[3])) + (float)(outQuat.v[2] * quat.v[0]);
+      to.v[2] = (float)((float)((float)(quat.v[2] * outQuat.v[3]) + (float)(quat.v[1] * outQuat.v[0])) - (float)(outQuat.v[1] * quat.v[0])) + (float)(outQuat.v[2] * quat.v[3]);
+      to.v[3] = (float)((float)((float)(outQuat.v[3] * quat.v[3]) - (float)(quat.v[0] * outQuat.v[0])) - (float)(quat.v[1] * outQuat.v[1])) - (float)(outQuat.v[2] * quat.v[2]);
+      QuatSlerp(&quat, &to, _mm_cvtepi32_ps((__m128i)(unsigned int)(atTime - tr->trTime)).m128_f32[0] * 0.02, &resulta);
+      UnitQuatToAngles(&resulta, result);
       break;
     case TR_TRACK_ANGLE:
       if ( this->GetTargetPos(this, (vec3_t *)&outQuat) )
@@ -1184,149 +822,65 @@ LABEL_28:
         if ( !this->m_es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 256, ASSERT_TYPE_ASSERT, "(m_es)", (const char *)&queryFormat, "m_es") )
           __debugbreak();
         Trajectory_GetTrBase(&this->m_es->pos, (vec3_t *)&to);
+        v42 = LODWORD(outQuat.v[1]);
+        *(float *)&v42 = fsqrt((float)((float)((float)(outQuat.v[1] - to.v[1]) * (float)(outQuat.v[1] - to.v[1])) + (float)((float)(outQuat.v[0] - to.v[0]) * (float)(outQuat.v[0] - to.v[0]))) + (float)((float)(outQuat.v[2] - to.v[2]) * (float)(outQuat.v[2] - to.v[2])));
+        _XMM1 = v42;
         __asm
         {
-          vmovss  xmm0, dword ptr [rsp+170h+outQuat]
-          vsubss  xmm4, xmm0, dword ptr [rsp+170h+to]
-          vmovss  xmm1, dword ptr [rsp+170h+outQuat+4]
-          vsubss  xmm5, xmm1, dword ptr [rsp+170h+to+4]
-          vmovss  xmm0, dword ptr [rsp+170h+outQuat+8]
-          vsubss  xmm6, xmm0, dword ptr [rsp+170h+to+8]
-          vmulss  xmm2, xmm5, xmm5
-          vmulss  xmm1, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm6, xmm6
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
           vcmpless xmm0, xmm1, cs:__real@80000000
-          vmovss  xmm2, cs:__real@3f800000
           vblendvps xmm1, xmm1, xmm2, xmm0
-          vmovss  [rsp+170h+var_140], xmm1
-          vdivss  xmm2, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm2
-          vmovss  dword ptr [rsp+170h+quat], xmm0
-          vmulss  xmm1, xmm5, xmm2
-          vmovss  dword ptr [rsp+170h+quat+4], xmm1
-          vmulss  xmm0, xmm6, xmm2
-          vmovss  dword ptr [rsp+170h+quat+8], xmm0
         }
-        vectoangles((const vec3_t *)&quat, _RBX);
+        quat.v[0] = (float)(outQuat.v[0] - to.v[0]) * (float)(1.0 / *(float *)&_XMM1);
+        quat.v[1] = (float)(outQuat.v[1] - to.v[1]) * (float)(1.0 / *(float *)&_XMM1);
+        quat.v[2] = (float)(outQuat.v[2] - to.v[2]) * (float)(1.0 / *(float *)&_XMM1);
+        vectoangles((const vec3_t *)&quat, result);
         memset(&to, 0, 0xCui64);
       }
       else
       {
-        Trajectory_GetTrBase(_RSI, _RBX);
+        Trajectory_GetTrBase(tr, result);
       }
       break;
     case TR_ANGLE_ALONG_VELOCITY:
       if ( !this->m_es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 280, ASSERT_TYPE_ASSERT, "(m_es)", (const char *)&queryFormat, "m_es") )
         __debugbreak();
       BgTrajectory::EvaluateTrajectoryDeltaInternal(this, &this->m_es->pos, atTime, (vec3_t *)&to);
+      v46 = LODWORD(to.v[0]);
+      *(float *)&v46 = fsqrt((float)((float)(*(float *)&v46 * *(float *)&v46) + (float)(to.v[1] * to.v[1])) + (float)(to.v[2] * to.v[2]));
+      _XMM3 = v46;
       __asm
       {
-        vmovss  xmm4, dword ptr [rsp+170h+to]
-        vmulss  xmm1, xmm4, xmm4
-        vmovss  xmm5, dword ptr [rsp+170h+to+4]
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmovss  xmm6, dword ptr [rsp+170h+to+8]
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm0, xmm2, xmm1
-        vsqrtss xmm3, xmm0, xmm0
         vcmpless xmm0, xmm3, cs:__real@80000000
-        vmovss  xmm2, cs:__real@3f800000
         vblendvps xmm1, xmm3, xmm2, xmm0
-        vmovss  [rsp+170h+var_140], xmm1
-        vdivss  xmm3, xmm2, xmm1
-        vmulss  xmm4, xmm4, xmm3
-        vmovss  dword ptr [rsp+170h+to], xmm4
-        vmulss  xmm0, xmm5, xmm3
-        vmovss  dword ptr [rsp+170h+to+4], xmm0
-        vmulss  xmm3, xmm6, xmm3
-        vmovss  dword ptr [rsp+170h+to+8], xmm3
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm0, xmm2, xmm2
-        vcomiss xmm0, cs:__real@3a83126f
       }
-      if ( v219 )
+      to.v[0] = to.v[0] * (float)(1.0 / *(float *)&_XMM1);
+      to.v[1] = to.v[1] * (float)(1.0 / *(float *)&_XMM1);
+      to.v[2] = to.v[2] * (float)(1.0 / *(float *)&_XMM1);
+      if ( fsqrt((float)((float)(to.v[1] * to.v[1]) + (float)(to.v[0] * to.v[0])) + (float)(to.v[2] * to.v[2])) < 0.001 )
       {
-        Trajectory_GetTrBase(_RSI, (vec3_t *)&quat);
+        Trajectory_GetTrBase(tr, (vec3_t *)&quat);
         AngleVectors((const vec3_t *)&quat, (vec3_t *)&to, NULL, NULL);
         memset(&quat, 0, 0xCui64);
       }
-      vectoangles((const vec3_t *)&to, _RBX);
+      vectoangles((const vec3_t *)&to, result);
       break;
     default:
-      if ( (unsigned int)(_RSI->trType - 14) > 5 )
+      if ( (unsigned int)(tr->trType - 14) > 5 )
       {
-        LODWORD(v240) = _RSI->trType;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 494, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "BG_EvaluateTrajectory: unknown trType: %i", v240) )
+        LODWORD(v50) = tr->trType;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 494, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "BG_EvaluateTrajectory: unknown trType: %i", v50) )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+170h+trBase]
-          vmovss  dword ptr [rbx], xmm0
-          vmovss  xmm1, dword ptr [rsp+170h+trBase+4]
-          vmovss  dword ptr [rbx+4], xmm1
-          vmovss  xmm0, dword ptr [rsp+170h+trBase+8]
-          vmovss  dword ptr [rbx+8], xmm0
-        }
+        *result = trBase;
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, edi
-          vmulss  xmm3, xmm0, cs:__real@3a83126f; deltaTime
-        }
-        BgTrajectory::UpdateTrackedTrajectory(this, _RSI, _RBX, *(float *)&_XMM3);
+        BgTrajectory::UpdateTrackedTrajectory(this, tr, result, (float)(atTime - tr->trTime) * 0.001);
       }
       break;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+18h]
-    vmovss  [rsp+170h+var_140], xmm0
-  }
-  if ( (v251 & 0x7F800000) == 2139095040 )
-    goto LABEL_68;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+1Ch]
-    vmovss  [rsp+170h+var_140], xmm0
-  }
-  if ( (v252 & 0x7F800000) == 2139095040 )
-    goto LABEL_68;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+20h]
-    vmovss  [rsp+170h+var_140], xmm0
-  }
-  if ( (v253 & 0x7F800000) == 2139095040 )
-  {
-LABEL_68:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 499, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(tr->trDelta.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(tr->trDelta.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(tr->trDelta.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 499, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tr->trDelta )[0] ) && !IS_NAN( ( tr->trDelta )[1] ) && !IS_NAN( ( tr->trDelta )[2] )") )
+    __debugbreak();
   memset(&trBase, 0, sizeof(trBase));
-  _R11 = &v260;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-  }
 }
 
 /*
@@ -1337,14 +891,15 @@ BgTrajectory::GetAbsoluteAnimMovement
 void BgTrajectory::GetAbsoluteAnimMovement(BgTrajectory *this, const LerpEntityState *tr, const DObj *obj, int atTime, vec3_t *outOrigin, vec3_t *outAngles)
 {
   const XAnimTree *Tree; 
-  const XAnimTree *v14; 
-  BOOL v21; 
+  const XAnimTree *v11; 
+  float trDuration; 
+  float v13; 
+  BOOL v14; 
   const XAnim_s *Anims; 
-  const XAnim_s *v28; 
+  double v16; 
+  const XAnim_s *v17; 
   trajectory_t_secure *p_pos; 
-  char v39; 
-  float fmt; 
-  __int64 v51; 
+  __int64 v19; 
   vec3_t trans; 
   vec4_t rot; 
   tmat43_t<vec3_t> axis; 
@@ -1360,13 +915,13 @@ void BgTrajectory::GetAbsoluteAnimMovement(BgTrajectory *this, const LerpEntityS
   if ( (this->m_flags & 2) != 0 )
     goto LABEL_13;
   Tree = DObjGetTree(obj);
-  v14 = Tree;
+  v11 = Tree;
   if ( !Tree )
     goto LABEL_13;
   if ( !XAnimIsSimpleTree(Tree) )
   {
-    LODWORD(v51) = obj->entnum - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 670, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Non simple tree used for entity %d, pos trajectory type %d, ang trajectory type %d, quietly and safely handling for ship.\n", v51, tr->pos.trType, tr->apos.trType) )
+    LODWORD(v19) = obj->entnum - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 670, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Non simple tree used for entity %d, pos trajectory type %d, ang trajectory type %d, quietly and safely handling for ship.\n", v19, tr->pos.trType, tr->apos.trType) )
       __debugbreak();
 LABEL_13:
     Trajectory_GetTrBase(&tr->pos, outOrigin);
@@ -1374,60 +929,21 @@ LABEL_14:
     *outAngles = tr->apos.trBase;
     return;
   }
-  __asm
-  {
-    vmovaps [rsp+148h+var_48], xmm6
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, dword ptr [rbx+0Ch]
-    vmovaps [rsp+148h+var_58], xmm7
-    vxorps  xmm7, xmm7, xmm7
-    vucomiss xmm1, xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r15d
-    vdivss  xmm6, xmm0, xmm1
-  }
-  v21 = XAnimIsSimpleBlendTree(v14) != 0;
-  Anims = XAnimGetAnims(v14);
-  if ( XAnimIsLooped(Anims, v21 + 1) )
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000; Y
-      vmovaps xmm0, xmm6; X
-    }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm6, xmm0 }
-  }
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f7fbe77; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm0, xmm6; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm6, xmm0 }
-  v28 = XAnimGetAnims(v14);
-  __asm { vmovss  dword ptr [rsp+148h+fmt], xmm6 }
-  XAnimGetAbsDelta(v28, v21 + 1, &rot, &trans, fmt);
+  trDuration = (float)tr->pos.trDuration;
+  if ( trDuration == 0.0 )
+    v13 = 0.0;
+  else
+    v13 = (float)(atTime - tr->pos.trTime) / trDuration;
+  v14 = XAnimIsSimpleBlendTree(v11) != 0;
+  Anims = XAnimGetAnims(v11);
+  if ( XAnimIsLooped(Anims, v14 + 1) )
+    v13 = fmodf_0(v13, 1.0);
+  v16 = I_fclamp(v13, 0.0, 0.99900001);
+  v17 = XAnimGetAnims(v11);
+  XAnimGetAbsDelta(v17, v14 + 1, &rot, &trans, *(float *)&v16);
   AnglesToAxis(&tr->apos.trBase, (tmat33_t<vec3_t> *)&axis);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+148h+trans]
-    vmovss  xmm1, dword ptr [rsp+148h+trans+4]
-    vmovaps xmm6, [rsp+148h+var_48]
-  }
   p_pos = &tr->pos;
-  __asm
-  {
-    vmulss  xmm2, xmm1, xmm1
-    vmulss  xmm3, xmm0, xmm0
-    vmovss  xmm0, dword ptr [rsp+148h+trans+8]
-    vmulss  xmm1, xmm0, xmm0
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vucomiss xmm2, xmm7
-  }
-  if ( v39 )
+  if ( (float)((float)((float)(trans.v[0] * trans.v[0]) + (float)(trans.v[1] * trans.v[1])) + (float)(trans.v[2] * trans.v[2])) == 0.0 )
   {
     Trajectory_GetTrBase(p_pos, outOrigin);
   }
@@ -1436,29 +952,8 @@ LABEL_14:
     Trajectory_GetTrBase(p_pos, &axis.m[3]);
     MatrixTransformVector43(&trans, &axis, outOrigin);
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+148h+rot]
-    vmovss  xmm1, dword ptr [rsp+148h+rot+4]
-    vmulss  xmm2, xmm1, xmm1
-    vmulss  xmm3, xmm0, xmm0
-    vmovss  xmm0, dword ptr [rsp+148h+rot+8]
-    vmulss  xmm1, xmm0, xmm0
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vucomiss xmm2, xmm7
-    vmovaps xmm7, [rsp+148h+var_58]
-  }
-  if ( v39 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+148h+rot+0Ch]
-      vucomiss xmm0, cs:__real@3f800000
-    }
-    if ( v39 )
-      goto LABEL_14;
-  }
+  if ( (float)((float)((float)(rot.v[0] * rot.v[0]) + (float)(rot.v[1] * rot.v[1])) + (float)(rot.v[2] * rot.v[2])) == 0.0 && rot.v[3] == 1.0 )
+    goto LABEL_14;
   QuatToAxis(&rot, &in1);
   MatrixMultiply(&in1, (const tmat33_t<vec3_t> *)&axis, &out);
   AxisToAngles(&out, outAngles);
@@ -1469,73 +964,59 @@ LABEL_14:
 BgTrajectory::GetPhysicsGravityDir
 ==============
 */
-
-void __fastcall BgTrajectory::GetPhysicsGravityDir(BgTrajectory *this, vec3_t *outGravityDir, __int64 a3, double _XMM3_8)
+void BgTrajectory::GetPhysicsGravityDir(BgTrajectory *this, vec3_t *outGravityDir)
 {
-  Physics_WorldId v5; 
-  char v19; 
-  __int64 v26; 
+  Physics_WorldId v3; 
+  float v4; 
+  float v5; 
+  hkVector4f v6; 
+  float v7; 
+  __m128 v8; 
+  __int64 v12; 
 
-  _RDI = outGravityDir;
-  v5 = this->GetPhysicsWorld(this);
-  if ( v5 == PHYSICS_WORLD_ID_INVALID )
+  v3 = this->GetPhysicsWorld(this);
+  if ( v3 == PHYSICS_WORLD_ID_INVALID )
   {
-    __asm { vmovss  xmm4, cs:__real@bf800000 }
-    _RDI->v[0] = 0.0;
-    __asm { vxorps  xmm3, xmm3, xmm3 }
+    v4 = FLOAT_N1_0;
+    outGravityDir->v[0] = 0.0;
+    v5 = 0.0;
   }
   else
   {
     if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 42, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Gravity when system is not initialized", "g_physicsInitialized") )
       __debugbreak();
-    if ( (unsigned int)v5 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
+    if ( (unsigned int)v3 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
     {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 43, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Gravity with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v5) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 43, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Gravity with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v3) )
         __debugbreak();
-      LODWORD(v26) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 95, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Gravity with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v26) )
+      LODWORD(v12) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 95, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Gravity with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v12) )
         __debugbreak();
     }
-    __asm { vmovss  xmm1, cs:__real@42000000 }
-    _RCX = HavokPhysics_GetConstWorld(v5)->world;
-    __asm
+    v6.m_quad = (__m128)HavokPhysics_GetConstWorld(v3)->world->m_gravity;
+    v7 = v6.m_quad.m128_f32[0] * 32.0;
+    v8 = _mm_shuffle_ps(v6.m_quad, v6.m_quad, 85);
+    v5 = v8.m128_f32[0] * 32.0;
+    v4 = _mm_shuffle_ps(v6.m_quad, v6.m_quad, 170).m128_f32[0] * 32.0;
+    v8.m128_f32[0] = (float)((float)(v5 * v5) + (float)(v7 * v7)) + (float)(v4 * v4);
+    outGravityDir->v[0] = v6.m_quad.m128_f32[0] * 32.0;
+    outGravityDir->v[1] = v5;
+    if ( v8.m128_f32[0] >= 0.001 )
     {
-      vmovups xmm2, xmmword ptr [rcx+0AC0h]
-      vmulss  xmm5, xmm2, xmm1
-      vshufps xmm0, xmm2, xmm2, 55h ; 'U'
-      vmulss  xmm3, xmm0, xmm1
-      vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-      vmulss  xmm4, xmm2, xmm1
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm0, xmm2, xmm1
-      vcomiss xmm0, cs:__real@3a83126f
-      vmovss  dword ptr [rdi], xmm5
-      vmovss  dword ptr [rdi+4], xmm3
-    }
-    if ( !v19 )
-    {
+      v8.m128_f32[0] = fsqrt(v8.m128_f32[0]);
+      _XMM2 = v8;
       __asm
       {
-        vmovss  xmm1, cs:__real@3f800000
-        vsqrtss xmm2, xmm0, xmm0
         vcmpless xmm0, xmm2, cs:__real@80000000
         vblendvps xmm0, xmm2, xmm1, xmm0
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm0, xmm5, xmm1
-        vmovss  dword ptr [rdi], xmm0
-        vmulss  xmm4, xmm4, xmm1
-        vmulss  xmm3, xmm3, xmm1
       }
+      outGravityDir->v[0] = v7 * (float)(1.0 / *(float *)&_XMM0);
+      v4 = v4 * (float)(1.0 / *(float *)&_XMM0);
+      v5 = v5 * (float)(1.0 / *(float *)&_XMM0);
     }
   }
-  __asm
-  {
-    vmovss  dword ptr [rdi+4], xmm3
-    vmovss  dword ptr [rdi+8], xmm4
-  }
+  outGravityDir->v[1] = v5;
+  outGravityDir->v[2] = v4;
 }
 
 /*
@@ -1597,215 +1078,128 @@ BgTrajectory::UpdateTrackedTrajectory
 
 void __fastcall BgTrajectory::UpdateTrackedTrajectory(BgTrajectory *this, const trajectory_t_secure *tr, vec3_t *result, double deltaTime)
 {
-  char v52; 
-  bool v60; 
-  bool v62; 
-  __int64 v101; 
-  int v102; 
-  int v104; 
+  float v4; 
+  vec3_t *p_trDelta; 
+  __int128 v8; 
+  __int128 v9; 
+  float v10; 
+  float v11; 
+  __int128 v12; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  double Float_Internal_DebugName; 
+  double v25; 
+  double v26; 
+  double v27; 
+  double v28; 
+  __int64 trType; 
+  float v30; 
+  double v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  __int64 v35; 
+  int v36[2]; 
+  float v37; 
   vec3_t trBase; 
-  __int64 v106; 
-  int v107[10]; 
-  char v108; 
-  void *retaddr; 
+  __int64 v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  int v43; 
+  int v44; 
+  int v45; 
+  int v46; 
+  int v47; 
 
-  _RAX = &retaddr;
-  v106 = -2i64;
-  __asm
+  v39 = -2i64;
+  v4 = *(float *)&deltaTime;
+  if ( !this->GetTargetPos(this, (vec3_t *)&v40) || *(float *)&deltaTime <= 0.0 || (p_trDelta = &tr->trDelta, VecNCompareCustomEpsilon(tr->trDelta.v, vec3_origin.v, 0.001, 3)) )
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-    vmovaps xmmword ptr [rax-0A8h], xmm14
-    vmovaps xmm9, xmm3
-  }
-  _RDI = result;
-  if ( !this->GetTargetPos(this, (vec3_t *)v107) )
-    goto LABEL_22;
-  __asm
-  {
-    vxorps  xmm10, xmm10, xmm10
-    vcomiss xmm9, xmm10
-  }
-  _RSI = &tr->trDelta;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3a83126f
-    vmovaps xmm2, xmm6; epsilon
-  }
-  if ( VecNCompareCustomEpsilon(tr->trDelta.v, vec3_origin.v, *(float *)&_XMM2, 3) )
-  {
-LABEL_22:
     Trajectory_GetTrBase(tr, &trBase);
-    __asm
-    {
-      vmulss  xmm0, xmm9, dword ptr [rbx+18h]
-      vaddss  xmm1, xmm0, dword ptr [rsp+138h+trBase]
-      vmovss  dword ptr [rdi], xmm1
-      vmulss  xmm0, xmm9, dword ptr [rbx+1Ch]
-      vaddss  xmm1, xmm0, dword ptr [rsp+138h+trBase+4]
-      vmovss  dword ptr [rdi+4], xmm1
-      vmulss  xmm0, xmm9, dword ptr [rbx+20h]
-      vaddss  xmm1, xmm0, dword ptr [rsp+138h+trBase+8]
-      vmovss  dword ptr [rdi+8], xmm1
-    }
+    result->v[0] = (float)(*(float *)&deltaTime * tr->trDelta.v[0]) + trBase.v[0];
+    result->v[1] = (float)(*(float *)&deltaTime * tr->trDelta.v[1]) + trBase.v[1];
+    result->v[2] = (float)(*(float *)&deltaTime * tr->trDelta.v[2]) + trBase.v[2];
   }
   else
   {
-    __asm { vmovaps xmm2, xmm6; epsilon }
-    if ( VecNCompareCustomEpsilon(tr->trDelta.v, vec3_origin.v, *(float *)&_XMM2, 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 168, ASSERT_TYPE_ASSERT, "(!Vec3CompareEpsilon( tr->trDelta, vec3_origin ))", (const char *)&queryFormat, "!Vec3CompareEpsilon( tr->trDelta, vec3_origin )") )
+    if ( VecNCompareCustomEpsilon(tr->trDelta.v, vec3_origin.v, 0.001, 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 168, ASSERT_TYPE_ASSERT, "(!Vec3CompareEpsilon( tr->trDelta, vec3_origin ))", (const char *)&queryFormat, "!Vec3CompareEpsilon( tr->trDelta, vec3_origin )") )
       __debugbreak();
-    __asm
-    {
-      vmulss  xmm8, xmm9, dword ptr [rsi]
-      vmulss  xmm7, xmm9, dword ptr [rsi+4]
-      vmulss  xmm6, xmm9, dword ptr [rsi+8]
-    }
+    v9 = *(_OWORD *)&deltaTime;
+    *(float *)&v9 = *(float *)&deltaTime * p_trDelta->v[0];
+    v8 = v9;
+    v10 = *(float *)&deltaTime * tr->trDelta.v[1];
+    *(float *)&v9 = *(float *)&deltaTime * tr->trDelta.v[2];
+    v11 = *(float *)&v9;
     Trajectory_GetTrBase(tr, &trBase);
+    result->v[0] = *(float *)&v8 + trBase.v[0];
+    result->v[1] = v10 + trBase.v[1];
+    result->v[2] = *(float *)&v9 + trBase.v[2];
+    v12 = v8;
+    *(float *)&v12 = fsqrt((float)((float)(*(float *)&v8 * *(float *)&v8) + (float)(v10 * v10)) + (float)(v11 * v11));
+    _XMM1 = v12;
     __asm
     {
-      vaddss  xmm0, xmm8, dword ptr [rsp+138h+trBase]
-      vmovss  dword ptr [rdi], xmm0
-      vaddss  xmm1, xmm7, dword ptr [rsp+138h+trBase+4]
-      vmovss  dword ptr [rdi+4], xmm1
-      vaddss  xmm0, xmm6, dword ptr [rsp+138h+trBase+8]
-      vmovss  dword ptr [rdi+8], xmm0
-      vmovss  xmm0, [rsp+138h+var_D8]
-      vsubss  xmm5, xmm0, dword ptr [rsp+138h+trBase]
-      vmovss  xmm1, [rsp+138h+var_D4]
-      vsubss  xmm4, xmm1, dword ptr [rsp+138h+trBase+4]
-      vmovss  xmm0, [rsp+138h+var_D0]
-      vsubss  xmm14, xmm0, dword ptr [rsp+138h+trBase+8]
-      vmulss  xmm2, xmm8, xmm8
-      vmulss  xmm1, xmm7, xmm7
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
       vcmpless xmm0, xmm1, cs:__real@80000000
-      vmovss  xmm11, cs:__real@3f800000
       vblendvps xmm1, xmm1, xmm11, xmm0
-      vmovss  [rsp+138h+var_F8], xmm1
-      vdivss  xmm0, xmm11, xmm1
-      vmulss  xmm3, xmm0, xmm8
-      vmulss  xmm7, xmm0, xmm7
-      vmulss  xmm8, xmm0, xmm6
-      vmulss  xmm1, xmm7, xmm4
-      vmulss  xmm0, xmm3, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm8, xmm14
-      vaddss  xmm6, xmm2, xmm1
-      vcomiss xmm6, cs:__real@3c23d70a
     }
-    if ( !v52 )
+    v37 = *(float *)&_XMM1;
+    v16 = (float)(1.0 / *(float *)&_XMM1) * *(float *)&v8;
+    v17 = (float)(1.0 / *(float *)&_XMM1) * v10;
+    v18 = (float)(1.0 / *(float *)&_XMM1) * v11;
+    v19 = (float)((float)(v17 * (float)(v41 - trBase.v[1])) + (float)(v16 * (float)(v40 - trBase.v[0]))) + (float)(v18 * (float)(v42 - trBase.v[2]));
+    if ( v19 >= 0.0099999998 )
     {
-      __asm
-      {
-        vmulss  xmm0, xmm3, xmm6
-        vmulss  xmm1, xmm7, xmm6
-        vmulss  xmm2, xmm8, xmm6
-        vsubss  xmm12, xmm5, xmm0
-        vsubss  xmm13, xmm4, xmm1
-        vsubss  xmm14, xmm14, xmm2
-        vmovaps xmm7, xmm11
-      }
-      v60 = tr->trType == TR_TRACK_FULL_LOCK;
+      v20 = (float)(v40 - trBase.v[0]) - (float)(v16 * v19);
+      v21 = (float)(v41 - trBase.v[1]) - (float)(v17 * v19);
+      v22 = (float)(v42 - trBase.v[2]) - (float)(v18 * v19);
+      v23 = FLOAT_1_0;
       if ( tr->trType != TR_TRACK_FULL_LOCK )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_trackTrajectory1, "trackTrajectory1");
-        __asm { vmovss  [rsp+138h+var_C8], xmm0 }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_trackTrajectory2, "trackTrajectory2");
-        __asm { vmovss  [rsp+138h+var_C4], xmm0 }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_trackTrajectory3, "trackTrajectory3");
-        __asm { vmovss  [rsp+138h+var_C0], xmm0 }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_trackTrajectory4, "trackTrajectory4");
-        __asm { vmovss  [rsp+138h+var_BC], xmm0 }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_trackTrajectory5, "trackTrajectory5");
-        __asm { vmovss  [rsp+138h+var_B8], xmm0 }
-        _RBX = tr->trType;
-        v60 = (_DWORD)_RBX == 19;
-        if ( (unsigned int)(_RBX - 14) >= 5 )
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_trackTrajectory1, "trackTrajectory1");
+        v43 = SLODWORD(Float_Internal_DebugName);
+        v25 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_trackTrajectory2, "trackTrajectory2");
+        v44 = SLODWORD(v25);
+        v26 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_trackTrajectory3, "trackTrajectory3");
+        v45 = SLODWORD(v26);
+        v27 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_trackTrajectory4, "trackTrajectory4");
+        v46 = SLODWORD(v27);
+        v28 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_trackTrajectory5, "trackTrajectory5");
+        v47 = SLODWORD(v28);
+        trType = tr->trType;
+        if ( (unsigned int)(trType - 14) >= 5 )
         {
-          v102 = 5;
-          LODWORD(v101) = _RBX - 14;
-          v62 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 218, ASSERT_TYPE_ASSERT, "(unsigned)( trackType ) < (unsigned)( 5 )", "trackType doesn't index TR_NUM_LOCK_STRENGTHS\n\t%i not in [0, %i)", v101, v102);
-          v60 = !v62;
-          if ( v62 )
+          LODWORD(v35) = trType - 14;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 218, ASSERT_TYPE_ASSERT, "(unsigned)( trackType ) < (unsigned)( 5 )", "trackType doesn't index TR_NUM_LOCK_STRENGTHS\n\t%i not in [0, %i)", v35, 5) )
             __debugbreak();
         }
-        __asm { vmovss  xmm7, [rsp+rbx*4+138h+var_100] }
+        v23 = *(float *)&v36[trType];
       }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi+4]
-        vmovss  xmm0, dword ptr [rsi]
-        vmovss  xmm3, dword ptr [rsi+8]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm8, xmm2, xmm2
-        vucomiss xmm8, xmm10
-      }
-      if ( v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 224, ASSERT_TYPE_ASSERT, "(speed)", (const char *)&queryFormat, "speed") )
+      v30 = fsqrt((float)((float)(p_trDelta->v[0] * p_trDelta->v[0]) + (float)(p_trDelta->v[1] * p_trDelta->v[1])) + (float)(p_trDelta->v[2] * p_trDelta->v[2]));
+      if ( v30 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 224, ASSERT_TYPE_ASSERT, "(speed)", (const char *)&queryFormat, "speed") )
         __debugbreak();
-      __asm
+      v31 = I_fclamp((float)((float)(v30 * v4) / v19) * (float)((float)(v30 * v4) / v19), 0.0, 1.0);
+      v32 = (float)(v20 * (float)(*(float *)&v31 * v23)) + result->v[0];
+      result->v[0] = v32;
+      v33 = (float)(v21 * (float)(*(float *)&v31 * v23)) + result->v[1];
+      result->v[1] = v33;
+      v34 = (float)(v22 * (float)(*(float *)&v31 * v23)) + result->v[2];
+      result->v[2] = v34;
+      v37 = v32;
+      if ( (LODWORD(v32) & 0x7F800000) == 2139095040 || (v37 = v33, (LODWORD(v33) & 0x7F800000) == 2139095040) || (v37 = v34, (LODWORD(v34) & 0x7F800000) == 2139095040) )
       {
-        vmulss  xmm0, xmm8, xmm9
-        vdivss  xmm3, xmm0, xmm6
-        vmulss  xmm0, xmm3, xmm3; val
-        vmovaps xmm2, xmm11; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm2, xmm0, xmm7
-        vmulss  xmm1, xmm12, xmm2
-        vaddss  xmm3, xmm1, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm3
-        vmulss  xmm0, xmm13, xmm2
-        vaddss  xmm4, xmm0, dword ptr [rdi+4]
-        vmovss  dword ptr [rdi+4], xmm4
-        vmulss  xmm1, xmm14, xmm2
-        vaddss  xmm0, xmm1, dword ptr [rdi+8]
-        vmovss  dword ptr [rdi+8], xmm0
-        vmovss  [rsp+138h+var_F8], xmm3
-      }
-      if ( (v104 & 0x7F800000) == 2139095040 )
-        goto LABEL_26;
-      __asm { vmovss  [rsp+138h+var_F8], xmm4 }
-      if ( (v104 & 0x7F800000) == 2139095040 )
-        goto LABEL_26;
-      __asm { vmovss  [rsp+138h+var_F8], xmm0 }
-      if ( (v104 & 0x7F800000) == 2139095040 )
-      {
-LABEL_26:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 239, ASSERT_TYPE_SANITY, "( !IS_NAN( ( result )[0] ) && !IS_NAN( ( result )[1] ) && !IS_NAN( ( result )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( result )[0] ) && !IS_NAN( ( result )[1] ) && !IS_NAN( ( result )[2] )") )
           __debugbreak();
       }
     }
   }
   memset(&trBase, 0, sizeof(trBase));
-  _R11 = &v108;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
 }
 
 /*
@@ -1815,43 +1209,31 @@ BgTrajectory::UpdateTrackedTrajectoryAngles
 */
 void BgTrajectory::UpdateTrackedTrajectoryAngles(BgTrajectory *this, const trajectory_t_secure *tr, vec3_t *result, float deltaTime)
 {
+  __int128 v7; 
   vec3_t trBase; 
-  __int64 v29; 
-  int v30[4]; 
+  __int64 v12; 
+  float v13; 
+  float v14; 
+  float v15; 
   vec3_t vec; 
 
-  v29 = -2i64;
-  __asm { vmovaps [rsp+0A8h+var_28], xmm6 }
-  if ( this->GetTargetPos(this, (vec3_t *)v30) )
+  v12 = -2i64;
+  if ( this->GetTargetPos(this, (vec3_t *)&v13) )
   {
     if ( !this->m_es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 256, ASSERT_TYPE_ASSERT, "(m_es)", (const char *)&queryFormat, "m_es") )
       __debugbreak();
     Trajectory_GetTrBase(&this->m_es->pos, &trBase);
+    v7 = LODWORD(v14);
+    *(float *)&v7 = fsqrt((float)((float)((float)(v14 - trBase.v[1]) * (float)(v14 - trBase.v[1])) + (float)((float)(v13 - trBase.v[0]) * (float)(v13 - trBase.v[0]))) + (float)((float)(v15 - trBase.v[2]) * (float)(v15 - trBase.v[2])));
+    _XMM1 = v7;
     __asm
     {
-      vmovss  xmm0, [rsp+0A8h+var_58]
-      vsubss  xmm4, xmm0, dword ptr [rsp+0A8h+trBase]
-      vmovss  xmm1, [rsp+0A8h+var_54]
-      vsubss  xmm5, xmm1, dword ptr [rsp+0A8h+trBase+4]
-      vmovss  xmm0, [rsp+0A8h+var_50]
-      vsubss  xmm6, xmm0, dword ptr [rsp+0A8h+trBase+8]
-      vmulss  xmm2, xmm5, xmm5
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
       vcmpless xmm0, xmm1, cs:__real@80000000
-      vmovss  xmm2, cs:__real@3f800000
       vblendvps xmm1, xmm1, xmm2, xmm0
-      vdivss  xmm2, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rsp+0A8h+vec], xmm0
-      vmulss  xmm1, xmm5, xmm2
-      vmovss  dword ptr [rsp+0A8h+vec+4], xmm1
-      vmulss  xmm0, xmm6, xmm2
-      vmovss  dword ptr [rsp+0A8h+vec+8], xmm0
     }
+    vec.v[0] = (float)(v13 - trBase.v[0]) * (float)(1.0 / *(float *)&_XMM1);
+    vec.v[1] = (float)(v14 - trBase.v[1]) * (float)(1.0 / *(float *)&_XMM1);
+    vec.v[2] = (float)(v15 - trBase.v[2]) * (float)(1.0 / *(float *)&_XMM1);
     vectoangles(&vec, result);
     memset(&trBase, 0, sizeof(trBase));
   }
@@ -1859,7 +1241,6 @@ void BgTrajectory::UpdateTrackedTrajectoryAngles(BgTrajectory *this, const traje
   {
     Trajectory_GetTrBase(tr, result);
   }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_28] }
 }
 
 /*
@@ -1867,58 +1248,42 @@ void BgTrajectory::UpdateTrackedTrajectoryAngles(BgTrajectory *this, const traje
 BgTrajectory::UpdateTrackedTrajectoryDelta
 ==============
 */
-
-void __fastcall BgTrajectory::UpdateTrackedTrajectoryDelta(BgTrajectory *this, const trajectory_t_secure *tr, vec3_t *result, double deltaTime)
+void BgTrajectory::UpdateTrackedTrajectoryDelta(BgTrajectory *this, const trajectory_t_secure *tr, vec3_t *result, float deltaTime)
 {
-  int v20; 
-  int v21; 
-  int v22; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
   vec3_t trBase; 
-  __int64 v24; 
+  __int64 v12; 
   vec3_t resulta; 
 
-  v24 = -2i64;
-  __asm
+  v12 = -2i64;
+  if ( deltaTime >= 0.001 )
   {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps xmm6, xmm3
+    BgTrajectory::UpdateTrackedTrajectory(this, tr, &resulta, deltaTime);
+    Trajectory_GetTrBase(tr, &trBase);
+    v6 = resulta.v[1] - trBase.v[1];
+    v7 = resulta.v[2] - trBase.v[2];
+    v8 = 1.0 / deltaTime;
+    v9 = (float)(1.0 / deltaTime) * (float)(resulta.v[0] - trBase.v[0]);
+    result->v[0] = v9;
+    result->v[1] = (float)(1.0 / deltaTime) * v6;
+    result->v[2] = (float)(1.0 / deltaTime) * v7;
+    v10 = v9;
+    if ( (LODWORD(v9) & 0x7F800000) == 2139095040 || (v10 = v8 * v6, (COERCE_UNSIGNED_INT(v8 * v6) & 0x7F800000) == 2139095040) || (v10 = v8 * v7, (COERCE_UNSIGNED_INT(v8 * v7) & 0x7F800000) == 2139095040) )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 145, ASSERT_TYPE_SANITY, "( !IS_NAN( ( result )[0] ) && !IS_NAN( ( result )[1] ) && !IS_NAN( ( result )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( result )[0] ) && !IS_NAN( ( result )[1] ) && !IS_NAN( ( result )[2] )", v10) )
+        __debugbreak();
+    }
+    memset(&trBase, 0, sizeof(trBase));
   }
-  _RDI = result;
-  __asm { vcomiss xmm3, cs:__real@3a83126f }
-  BgTrajectory::UpdateTrackedTrajectory(this, tr, &resulta, *(float *)&deltaTime);
-  Trajectory_GetTrBase(tr, &trBase);
-  __asm
+  else
   {
-    vmovss  xmm0, dword ptr [rsp+88h+result]
-    vsubss  xmm3, xmm0, dword ptr [rsp+88h+trBase]
-    vmovss  xmm1, dword ptr [rsp+88h+result+4]
-    vsubss  xmm4, xmm1, dword ptr [rsp+88h+trBase+4]
-    vmovss  xmm0, dword ptr [rsp+88h+result+8]
-    vsubss  xmm5, xmm0, dword ptr [rsp+88h+trBase+8]
-    vmovss  xmm1, cs:__real@3f800000
-    vdivss  xmm2, xmm1, xmm6
-    vmulss  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rdi], xmm0
-    vmulss  xmm3, xmm2, xmm4
-    vmovss  dword ptr [rdi+4], xmm3
-    vmulss  xmm1, xmm2, xmm5
-    vmovss  dword ptr [rdi+8], xmm1
-    vmovss  [rsp+88h+var_58], xmm0
+    *(_QWORD *)result->v = 0i64;
+    result->v[2] = 0.0;
   }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm { vmovss  [rsp+88h+var_58], xmm3 }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm { vmovss  [rsp+88h+var_58], xmm1 }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 145, ASSERT_TYPE_SANITY, "( !IS_NAN( ( result )[0] ) && !IS_NAN( ( result )[1] ) && !IS_NAN( ( result )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( result )[0] ) && !IS_NAN( ( result )[1] ) && !IS_NAN( ( result )[2] )") )
-      __debugbreak();
-  }
-  memset(&trBase, 0, sizeof(trBase));
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
 }
 
 /*
@@ -1939,53 +1304,33 @@ BgTrajectory::UpdateTrajectoryAnglesAlongVelocity
 */
 void BgTrajectory::UpdateTrajectoryAnglesAlongVelocity(BgTrajectory *this, const trajectory_t_secure *tr, int atTime, vec3_t *result)
 {
-  char v31; 
+  __int128 v8; 
   vec3_t trBase; 
-  __int64 v34; 
+  __int64 v13; 
   vec3_t resulta; 
 
-  v34 = -2i64;
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
+  v13 = -2i64;
   if ( !this->m_es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.cpp", 280, ASSERT_TYPE_ASSERT, "(m_es)", (const char *)&queryFormat, "m_es") )
     __debugbreak();
   BgTrajectory::EvaluateTrajectoryDeltaInternal(this, &this->m_es->pos, atTime, &resulta);
+  v8 = LODWORD(resulta.v[0]);
+  *(float *)&v8 = fsqrt((float)((float)(*(float *)&v8 * *(float *)&v8) + (float)(resulta.v[1] * resulta.v[1])) + (float)(resulta.v[2] * resulta.v[2]));
+  _XMM3 = v8;
   __asm
   {
-    vmovss  xmm4, dword ptr [rsp+0A8h+result]
-    vmulss  xmm1, xmm4, xmm4
-    vmovss  xmm5, dword ptr [rsp+0A8h+result+4]
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm6, dword ptr [rsp+0A8h+result+8]
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
-    vmovss  xmm2, cs:__real@3f800000
     vblendvps xmm1, xmm3, xmm2, xmm0
-    vdivss  xmm3, xmm2, xmm1
-    vmulss  xmm4, xmm4, xmm3
-    vmovss  dword ptr [rsp+0A8h+result], xmm4
-    vmulss  xmm0, xmm5, xmm3
-    vmovss  dword ptr [rsp+0A8h+result+4], xmm0
-    vmulss  xmm3, xmm6, xmm3
-    vmovss  dword ptr [rsp+0A8h+result+8], xmm3
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vcomiss xmm0, cs:__real@3a83126f
   }
-  if ( v31 )
+  resulta.v[0] = resulta.v[0] * (float)(1.0 / *(float *)&_XMM1);
+  resulta.v[1] = resulta.v[1] * (float)(1.0 / *(float *)&_XMM1);
+  resulta.v[2] = resulta.v[2] * (float)(1.0 / *(float *)&_XMM1);
+  if ( fsqrt((float)((float)(resulta.v[1] * resulta.v[1]) + (float)(resulta.v[0] * resulta.v[0])) + (float)(resulta.v[2] * resulta.v[2])) < 0.001 )
   {
     Trajectory_GetTrBase(tr, &trBase);
     AngleVectors(&trBase, &resulta, NULL, NULL);
     memset(&trBase, 0, sizeof(trBase));
   }
   vectoangles(&resulta, result);
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
 }
 
 /*
@@ -2004,64 +1349,35 @@ void BgTrajectory::UpdateTrajectoryDeltaAnglesAlongVelocity(BgTrajectory *this, 
 BgTrajectory::UpdateTrajectoryGravity
 ==============
 */
-
-void __fastcall BgTrajectory::UpdateTrajectoryGravity(BgTrajectory *this, const trajectory_t_secure *tr, double scale, vec3_t *result, float deltaTime)
+void BgTrajectory::UpdateTrajectoryGravity(BgTrajectory *this, const trajectory_t_secure *tr, float scale, vec3_t *result, float deltaTime)
 {
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec3_t trBase; 
-  __int64 v35; 
+  __int64 v15; 
   vec3_t outGravityDir; 
-  char v38; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v35 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  _RBX = result;
-  __asm { vmovaps xmm6, xmm2 }
+  v15 = -2i64;
   BgTrajectory::GetPhysicsGravityDir(this, &outGravityDir);
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@3f000000
-    vmovss  xmm9, [rsp+98h+deltaTime]
-    vmulss  xmm0, xmm0, xmm9
-    vmulss  xmm2, xmm0, xmm9
-    vmulss  xmm6, xmm2, dword ptr [rsp+98h+outGravityDir]
-    vmulss  xmm7, xmm2, dword ptr [rsp+98h+outGravityDir+4]
-    vmulss  xmm8, xmm2, dword ptr [rsp+98h+outGravityDir+8]
-  }
+  v7 = (float)((float)(scale * 0.5) * deltaTime) * deltaTime;
+  v8 = v7 * outGravityDir.v[0];
+  v9 = v7 * outGravityDir.v[1];
+  v10 = v7 * outGravityDir.v[2];
   Trajectory_GetTrBase(tr, &trBase);
-  __asm
-  {
-    vmulss  xmm0, xmm9, dword ptr [rdi+18h]
-    vaddss  xmm1, xmm0, dword ptr [rsp+98h+trBase]
-    vmovss  dword ptr [rbx], xmm1
-    vmulss  xmm0, xmm9, dword ptr [rdi+1Ch]
-    vaddss  xmm3, xmm0, dword ptr [rsp+98h+trBase+4]
-    vmovss  dword ptr [rbx+4], xmm3
-    vmulss  xmm0, xmm9, dword ptr [rdi+20h]
-    vaddss  xmm2, xmm0, dword ptr [rsp+98h+trBase+8]
-    vaddss  xmm1, xmm1, xmm6
-    vmovss  dword ptr [rbx], xmm1
-    vaddss  xmm0, xmm3, xmm7
-    vmovss  dword ptr [rbx+4], xmm0
-    vaddss  xmm1, xmm2, xmm8
-    vmovss  dword ptr [rbx+8], xmm1
-  }
+  v11 = (float)(deltaTime * tr->trDelta.v[0]) + trBase.v[0];
+  result->v[0] = v11;
+  v12 = (float)(deltaTime * tr->trDelta.v[1]) + trBase.v[1];
+  result->v[1] = v12;
+  v13 = (float)(deltaTime * tr->trDelta.v[2]) + trBase.v[2];
+  result->v[0] = v11 + v8;
+  result->v[1] = v12 + v9;
+  result->v[2] = v13 + v10;
   memset(&trBase, 0, sizeof(trBase));
-  _R11 = &v38;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
 }
 
 /*
@@ -2069,28 +1385,17 @@ void __fastcall BgTrajectory::UpdateTrajectoryGravity(BgTrajectory *this, const 
 BgTrajectory::UpdateTrajectoryGravityDelta
 ==============
 */
-
-void __fastcall BgTrajectory::UpdateTrajectoryGravityDelta(BgTrajectory *this, const trajectory_t_secure *tr, double scale, vec3_t *result)
+void BgTrajectory::UpdateTrajectoryGravityDelta(BgTrajectory *this, const trajectory_t_secure *tr, float scale, vec3_t *result, float deltaTime)
 {
+  float v7; 
+  float v8; 
   vec3_t outGravityDir; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RDI = result;
-  __asm { vmovaps xmm6, xmm2 }
   BgTrajectory::GetPhysicsGravityDir(this, &outGravityDir);
-  __asm
-  {
-    vmulss  xmm3, xmm6, [rsp+58h+deltaTime]
-    vmulss  xmm1, xmm3, dword ptr [rsp+58h+outGravityDir]
-    vaddss  xmm2, xmm1, dword ptr [rbx+18h]
-    vmulss  xmm1, xmm3, dword ptr [rsp+58h+outGravityDir+4]
-    vmovss  dword ptr [rdi], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rbx+1Ch]
-    vmulss  xmm1, xmm3, dword ptr [rsp+58h+outGravityDir+8]
-    vmovss  dword ptr [rdi+4], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rbx+20h]
-    vmovss  dword ptr [rdi+8], xmm2
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  v7 = (float)(scale * deltaTime) * outGravityDir.v[1];
+  result->v[0] = (float)((float)(scale * deltaTime) * outGravityDir.v[0]) + tr->trDelta.v[0];
+  v8 = (float)(scale * deltaTime) * outGravityDir.v[2];
+  result->v[1] = v7 + tr->trDelta.v[1];
+  result->v[2] = v8 + tr->trDelta.v[2];
 }
 

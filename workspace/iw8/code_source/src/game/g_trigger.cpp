@@ -445,157 +445,93 @@ G_Trigger_DamageCheckHit
 void G_Trigger_DamageCheckHit(const Physics_WorldId physicsWorld, gentity_s *pActivator, bool isFirstTrace, const vec3_t *vStart, const vec3_t *vEnd, int iDamage, int iMOD)
 {
   signed __int64 v7; 
-  void *v16; 
-  unsigned int v63; 
-  gentity_s *v72; 
+  void *v8; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  unsigned int i; 
+  gentity_s *v31; 
   unsigned int Instance; 
-  int entityNum; 
+  float v33; 
   PhysicsQuery_Collected<unsigned short> collectedEnts; 
   vec3_t *end; 
   vec3_t aabbMax; 
   vec3_t aabbMin; 
   vec3_t dir; 
   Bounds bounds; 
-  __int16 v87[2048]; 
+  __int16 v41[2048]; 
 
-  v16 = alloca(v7);
-  __asm { vmovaps [rsp+1170h+var_40], xmm6 }
-  _RSI = vStart;
-  _RBX = vEnd;
-  __asm
-  {
-    vmovaps [rsp+1170h+var_50], xmm7
-    vmovaps [rsp+1170h+var_60], xmm8
-    vmovaps [rsp+1170h+var_70], xmm9
-    vmovaps [rsp+1170h+var_80], xmm10
-    vmovaps [rsp+1170h+var_90], xmm11
-    vmovaps [rsp+1170h+var_A0], xmm12
-    vmovaps [rsp+1170h+var_B0], xmm13
-  }
+  v8 = alloca(v7);
   end = (vec3_t *)vEnd;
-  if ( (unsigned int)iMOD >= 0x19 )
-  {
-    entityNum = 25;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_trigger.cpp", 932, ASSERT_TYPE_ASSERT, "(unsigned)( iMOD ) < (unsigned)( MOD_NUM )", "iMOD doesn't index MOD_NUM\n\t%i not in [0, %i)", iMOD, entityNum) )
-      __debugbreak();
-  }
+  if ( (unsigned int)iMOD >= 0x19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_trigger.cpp", 932, ASSERT_TYPE_ASSERT, "(unsigned)( iMOD ) < (unsigned)( MOD_NUM )", "iMOD doesn't index MOD_NUM\n\t%i not in [0, %i)", iMOD, 25) )
+    __debugbreak();
   if ( !*g_combat_modNames[iMOD] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_trigger.cpp", 933, ASSERT_TYPE_ASSERT, "(*g_combat_modNames[iMOD] != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "*g_combat_modNames[iMOD] != NULL_SCR_STRING") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000
-    vmovss  xmm6, dword ptr [rsi+4]
-    vmovss  xmm3, dword ptr [rsi+8]
-    vmovss  xmm2, dword ptr [rbx+8]
-    vmovss  xmm7, dword ptr [rsi]
-    vmovss  xmm4, dword ptr [rbx]
-    vmovss  xmm5, dword ptr [rbx+4]
-    vaddss  xmm0, xmm7, xmm4
-    vmulss  xmm13, xmm0, xmm1
-    vaddss  xmm0, xmm6, xmm5
-    vmulss  xmm12, xmm0, xmm1
-    vaddss  xmm0, xmm3, xmm2
-    vmulss  xmm11, xmm0, xmm1
-    vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vsubss  xmm5, xmm5, xmm6
-    vsubss  xmm8, xmm3, xmm11
-    vandps  xmm8, xmm8, xmm1
-    vsubss  xmm4, xmm4, xmm7
-    vmulss  xmm0, xmm4, xmm4
-    vsubss  xmm9, xmm6, xmm12
-    vandps  xmm9, xmm9, xmm1
-    vsubss  xmm6, xmm2, xmm3
-  }
+  v12 = vStart->v[1];
+  v13 = vStart->v[2];
+  v14 = vEnd->v[2];
+  v15 = vStart->v[0];
+  v16 = vEnd->v[1];
+  v17 = (float)(vStart->v[0] + vEnd->v[0]) * 0.5;
+  v18 = (float)(v12 + v16) * 0.5;
+  v19 = (float)(v13 + v14) * 0.5;
+  v21 = LODWORD(v16);
+  v20 = v16 - v12;
+  LODWORD(v22) = COERCE_UNSIGNED_INT(v13 - v19) & _xmm;
+  v23 = vEnd->v[0] - vStart->v[0];
+  LODWORD(v24) = COERCE_UNSIGNED_INT(v12 - v18) & _xmm;
+  v25 = v14 - v13;
   collectedEnts.countMax = 2048;
-  collectedEnts.ids = (unsigned __int16 *)v87;
+  collectedEnts.ids = (unsigned __int16 *)v41;
+  LODWORD(v26) = COERCE_UNSIGNED_INT(v15 - v17) & _xmm;
+  *(float *)&v21 = fsqrt((float)((float)(v20 * v20) + (float)(v23 * v23)) + (float)(v25 * v25));
+  _XMM3 = v21;
   __asm
   {
-    vsubss  xmm10, xmm7, xmm13
-    vandps  xmm10, xmm10, xmm1
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rbp+1070h+dir], xmm0
-    vmulss  xmm0, xmm6, xmm2
-    vmovss  dword ptr [rbp+1070h+dir+8], xmm0
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [rbp+1070h+dir+4], xmm1
-    vsubss  xmm0, xmm12, xmm9
-    vsubss  xmm1, xmm13, xmm10
-    vmovss  dword ptr [rsp+1170h+aabbMin+4], xmm0
-    vmovss  dword ptr [rsp+1170h+aabbMin], xmm1
-    vaddss  xmm0, xmm10, xmm13
-    vsubss  xmm1, xmm11, xmm8
-    vmovss  dword ptr [rsp+1170h+aabbMax], xmm0
-    vmovss  dword ptr [rsp+1170h+aabbMin+8], xmm1
-    vaddss  xmm0, xmm8, xmm11
-    vaddss  xmm1, xmm9, xmm12
   }
+  dir.v[0] = v23 * (float)(1.0 / *(float *)&_XMM0);
+  dir.v[2] = v25 * (float)(1.0 / *(float *)&_XMM0);
+  dir.v[1] = v20 * (float)(1.0 / *(float *)&_XMM0);
+  aabbMin.v[1] = v18 - v24;
+  aabbMin.v[0] = v17 - v26;
+  aabbMax.v[0] = v26 + v17;
+  aabbMin.v[2] = v19 - v22;
   collectedEnts.count = 0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+1170h+aabbMax+8], xmm0
-    vmovss  dword ptr [rsp+1170h+aabbMax+4], xmm1
-  }
+  aabbMax.v[2] = v22 + v19;
+  aabbMax.v[1] = v24 + v18;
   PhysicsQuery_TriggerAABBBroadphaseQuery(physicsWorld, &aabbMin, &aabbMax, 0x400000, &collectedEnts, NULL);
-  v63 = 0;
-  __asm
+  for ( i = 0; i < collectedEnts.count; ++i )
   {
-    vmovaps xmm13, [rsp+1170h+var_B0]
-    vmovaps xmm12, [rsp+1170h+var_A0]
-    vmovaps xmm11, [rsp+1170h+var_90]
-    vmovaps xmm10, [rsp+1170h+var_80]
-    vmovaps xmm9, [rsp+1170h+var_70]
-    vmovaps xmm8, [rsp+1170h+var_60]
-    vmovaps xmm7, [rsp+1170h+var_50]
-  }
-  if ( collectedEnts.count )
-  {
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    do
+    v31 = &g_entities[(unsigned __int16)v41[i]];
+    if ( v31->classname == scr_const.trigger_damage )
     {
-      v72 = &g_entities[(unsigned __int16)v87[v63]];
-      if ( v72->classname == scr_const.trigger_damage )
+      Instance = G_PhysicsObject_GetInstance(physicsWorld, v31->s.number);
+      if ( PhysicsQuery_LegacyEntitySightTrace(physicsWorld, vStart, end, &bounds_origin, -1, Instance, v31->s.number) )
       {
-        Instance = G_PhysicsObject_GetInstance(physicsWorld, v72->s.number);
-        if ( PhysicsQuery_LegacyEntitySightTrace(physicsWorld, _RSI, end, &bounds_origin, -1, Instance, v72->s.number) )
+        if ( !isFirstTrace || (v33 = vStart->v[1], bounds.midPoint.v[0] = vStart->v[0], bounds.midPoint.v[2] = vStart->v[2], bounds.midPoint.v[1] = v33, bounds.halfSize.v[0] = 0.0, bounds.halfSize.v[1] = 0.0, bounds.halfSize.v[2] = 0.0, !PhysicsQuery_LegacyEntityContactCapsule(physicsWorld, &bounds, Instance, v31)) )
         {
-          if ( !isFirstTrace )
-            goto LABEL_13;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi]
-            vmovss  xmm1, dword ptr [rsi+4]
-            vmovss  dword ptr [rbp+1070h+bounds.midPoint], xmm0
-            vmovss  xmm0, dword ptr [rsi+8]
-            vmovss  dword ptr [rbp+1070h+bounds.midPoint+8], xmm0
-            vmovss  dword ptr [rbp+1070h+bounds.midPoint+4], xmm1
-            vmovss  dword ptr [rbp+1070h+bounds.halfSize], xmm6
-            vmovss  dword ptr [rbp+1070h+bounds.halfSize+4], xmm6
-            vmovss  dword ptr [rbp+1070h+bounds.halfSize+8], xmm6
-          }
-          if ( !PhysicsQuery_LegacyEntityContactCapsule(physicsWorld, &bounds, Instance, v72) )
-          {
-LABEL_13:
-            G_Combat_DamageNotifyNoWeapon(scr_const.damage, v72, pActivator, pActivator, &dir, NULL, iDamage, iMOD);
-            G_Trigger_ActivateDamage(v72, pActivator, iDamage, iMOD);
-            if ( !v72->c.item[0].clipAmmoCount[0] )
-              v72->health = 32000;
-          }
+          G_Combat_DamageNotifyNoWeapon(scr_const.damage, v31, pActivator, pActivator, &dir, NULL, iDamage, iMOD);
+          G_Trigger_ActivateDamage(v31, pActivator, iDamage, iMOD);
+          if ( !v31->c.item[0].clipAmmoCount[0] )
+            v31->health = 32000;
         }
       }
-      ++v63;
     }
-    while ( v63 < collectedEnts.count );
   }
-  __asm { vmovaps xmm6, [rsp+1170h+var_40] }
 }
 
 /*
@@ -617,128 +553,79 @@ G_Trigger_DamageGrenadeTouch
 */
 void G_Trigger_DamageGrenadeTouch(gentity_s *pActivator, const vec3_t *vStart, const vec3_t *vEnd, int iDamage, int iMOD)
 {
-  const vec3_t *v21; 
-  const vec3_t *v23; 
-  unsigned int v60; 
-  gentity_s *v68; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v13; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+  float v23; 
+  unsigned int i; 
+  gentity_s *v28; 
   unsigned int Instance; 
   PhysicsQuery_Collected<unsigned short> collectedEnts; 
   vec3_t aabbMax; 
   vec3_t aabbMin; 
   vec3_t dir; 
-  __int16 v74[2048]; 
+  __int16 v34[2048]; 
 
+  v5 = vStart->v[2];
+  v6 = vStart->v[1];
+  v7 = vEnd->v[2];
+  v8 = vEnd->v[1];
+  v9 = vStart->v[0];
+  v13 = vEnd->v[0] - vStart->v[0];
+  v15 = (float)(vStart->v[0] + vEnd->v[0]) * 0.5;
+  v16 = (float)(v6 + v8) * 0.5;
+  v17 = (float)(v5 + v7) * 0.5;
+  LODWORD(v18) = COERCE_UNSIGNED_INT(v5 - v17) & _xmm;
+  LODWORD(v19) = COERCE_UNSIGNED_INT(v6 - v16) & _xmm;
+  v21 = LODWORD(v8);
+  v20 = v8 - v6;
+  v22 = v7 - v5;
+  collectedEnts.ids = (unsigned __int16 *)v34;
+  LODWORD(v23) = COERCE_UNSIGNED_INT(v9 - v15) & _xmm;
+  *(float *)&v21 = fsqrt((float)((float)(v20 * v20) + (float)(v13 * v13)) + (float)(v22 * v22));
+  _XMM3 = v21;
   __asm
   {
-    vmovss  xmm2, dword ptr [rdx+8]
-    vmovss  xmm1, cs:__real@3f000000
-    vmovss  xmm4, dword ptr [rdx+4]
-    vmovss  xmm3, dword ptr [r8+8]
-    vmovss  xmm5, dword ptr [r8]
-    vmovaps [rsp+1158h+var_58], xmm6
-    vmovss  xmm6, dword ptr [r8+4]
-    vmovaps [rsp+1158h+var_68], xmm7
-    vmovss  xmm7, dword ptr [rdx]
-    vmovaps [rsp+1158h+var_78], xmm8
-    vmovaps [rsp+1158h+var_88], xmm9
-  }
-  v21 = vEnd;
-  __asm
-  {
-    vmovaps [rsp+1158h+var_98], xmm10
-    vaddss  xmm0, xmm7, xmm5
-    vmovaps [rsp+1158h+var_A8], xmm11
-  }
-  v23 = vStart;
-  __asm
-  {
-    vsubss  xmm5, xmm5, xmm7
-    vmovaps [rsp+1158h+var_B8], xmm12
-    vmovaps [rsp+1158h+var_C8], xmm13
-    vmulss  xmm13, xmm0, xmm1
-    vaddss  xmm0, xmm4, xmm6
-    vmulss  xmm12, xmm0, xmm1
-    vaddss  xmm0, xmm2, xmm3
-    vmulss  xmm11, xmm0, xmm1
-    vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vsubss  xmm8, xmm2, xmm11
-    vandps  xmm8, xmm8, xmm1
-    vmulss  xmm0, xmm5, xmm5
-    vsubss  xmm9, xmm4, xmm12
-    vandps  xmm9, xmm9, xmm1
-    vsubss  xmm4, xmm6, xmm4
-    vsubss  xmm6, xmm3, xmm2
-  }
-  collectedEnts.ids = (unsigned __int16 *)v74;
-  __asm
-  {
-    vsubss  xmm10, xmm7, xmm13
-    vandps  xmm10, xmm10, xmm1
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+1158h+dir], xmm0
-    vmulss  xmm0, xmm6, xmm2
-    vmovss  dword ptr [rsp+1158h+dir+8], xmm0
-    vmulss  xmm1, xmm4, xmm2
-    vmovss  dword ptr [rsp+1158h+dir+4], xmm1
-    vsubss  xmm0, xmm12, xmm9
-    vsubss  xmm1, xmm13, xmm10
-    vmovss  dword ptr [rsp+1158h+aabbMin+4], xmm0
-    vmovss  dword ptr [rsp+1158h+aabbMin], xmm1
-    vaddss  xmm0, xmm10, xmm13
-    vsubss  xmm1, xmm11, xmm8
-    vmovss  dword ptr [rsp+1158h+aabbMax], xmm0
-    vmovss  dword ptr [rsp+1158h+aabbMin+8], xmm1
-    vaddss  xmm0, xmm8, xmm11
-    vaddss  xmm1, xmm9, xmm12
   }
+  dir.v[0] = v13 * (float)(1.0 / *(float *)&_XMM0);
+  dir.v[2] = v22 * (float)(1.0 / *(float *)&_XMM0);
+  dir.v[1] = v20 * (float)(1.0 / *(float *)&_XMM0);
+  aabbMin.v[1] = v16 - v19;
+  aabbMin.v[0] = v15 - v23;
+  aabbMax.v[0] = v23 + v15;
+  aabbMin.v[2] = v17 - v18;
   collectedEnts.count = 0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+1158h+aabbMax+8], xmm0
-    vmovss  dword ptr [rsp+1158h+aabbMax+4], xmm1
-  }
+  aabbMax.v[2] = v18 + v17;
+  aabbMax.v[1] = v19 + v16;
   collectedEnts.countMax = 2048;
   PhysicsQuery_TriggerAABBBroadphaseQuery(PHYSICS_WORLD_ID_FIRST, &aabbMin, &aabbMax, 0x400000, &collectedEnts, NULL);
-  __asm { vmovaps xmm13, [rsp+1158h+var_C8] }
-  v60 = 0;
-  __asm
+  for ( i = 0; i < collectedEnts.count; ++i )
   {
-    vmovaps xmm12, [rsp+1158h+var_B8]
-    vmovaps xmm11, [rsp+1158h+var_A8]
-    vmovaps xmm10, [rsp+1158h+var_98]
-    vmovaps xmm9, [rsp+1158h+var_88]
-    vmovaps xmm8, [rsp+1158h+var_78]
-    vmovaps xmm7, [rsp+1158h+var_68]
-    vmovaps xmm6, [rsp+1158h+var_58]
-  }
-  if ( collectedEnts.count )
-  {
-    do
+    v28 = &g_entities[(unsigned __int16)v34[i]];
+    if ( v28->classname == scr_const.trigger_damage && (v28->flags.m_flags[0] & 0x2000) != 0 )
     {
-      v68 = &g_entities[(unsigned __int16)v74[v60]];
-      if ( v68->classname == scr_const.trigger_damage && (v68->flags.m_flags[0] & 0x2000) != 0 )
+      Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v28->s.number);
+      if ( PhysicsQuery_LegacyEntitySightTrace(PHYSICS_WORLD_ID_FIRST, vStart, vEnd, &bounds_origin, -1, Instance, v28->s.number) )
       {
-        Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v68->s.number);
-        if ( PhysicsQuery_LegacyEntitySightTrace(PHYSICS_WORLD_ID_FIRST, v23, v21, &bounds_origin, -1, Instance, v68->s.number) )
-        {
-          G_Combat_DamageNotifyNoWeapon(scr_const.damage, v68, pActivator, pActivator, &dir, NULL, iDamage, iMOD);
-          G_Trigger_ActivateDamage(v68, pActivator, iDamage, iMOD);
-          if ( !v68->c.item[0].clipAmmoCount[0] )
-            v68->health = 32000;
-        }
+        G_Combat_DamageNotifyNoWeapon(scr_const.damage, v28, pActivator, pActivator, &dir, NULL, iDamage, iMOD);
+        G_Trigger_ActivateDamage(v28, pActivator, iDamage, iMOD);
+        if ( !v28->c.item[0].clipAmmoCount[0] )
+          v28->health = 32000;
       }
-      ++v60;
     }
-    while ( v60 < collectedEnts.count );
   }
 }
 
@@ -759,8 +646,7 @@ void G_Trigger_DamagePain(gentity_s *pSelf, gentity_s *pAttacker, int iDamage, c
 G_Trigger_DamageSpawn
 ==============
 */
-
-void __fastcall G_Trigger_DamageSpawn(gentity_s *pSelf, double _XMM1_8)
+void G_Trigger_DamageSpawn(gentity_s *pSelf)
 {
   float out; 
 
@@ -769,15 +655,8 @@ void __fastcall G_Trigger_DamageSpawn(gentity_s *pSelf, double _XMM1_8)
   pSelf->health = 32000;
   GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&pSelf->s.lerp.eFlags, ACTIVE, 0x10u);
   pSelf->handler = 7;
-  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x499u, (const char *)&queryFormat.fmt + 3, &out) )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rsp+28h+out]
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-  }
+  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x499u, (const char *)&queryFormat.fmt + 3, &out) && out <= 0.0 )
+    pSelf->spawnflags |= 0x200u;
   if ( InitTrigger(pSelf) )
     SV_LinkEntity(pSelf);
 }
@@ -956,159 +835,94 @@ G_Trigger_MathTriggerAABBQuery
 */
 void G_Trigger_MathTriggerAABBQuery(const vec3_t *aabbMin, const vec3_t *aabbMax, int contents, unsigned int maxCollectedEnts, unsigned int *outNumCollectedEnts, unsigned __int16 *outCollectedEnts)
 {
-  __int64 v7; 
-  unsigned int v8; 
+  __int64 v6; 
+  unsigned int v7; 
   __int64 entNum; 
-  int modelType; 
-  bool v15; 
-  int v16; 
-  bool v17; 
-  int v18; 
+  gentity_s *v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v28; 
+  float v29; 
+  float v30; 
 
-  v7 = 0i64;
-  v8 = maxCollectedEnts;
-  _RSI = aabbMax;
-  _RDI = aabbMin;
-  if ( s_numMathTriggers )
+  v6 = 0i64;
+  v7 = maxCollectedEnts;
+  while ( (unsigned int)v6 < s_numMathTriggers )
   {
-    __asm
+    if ( *outNumCollectedEnts >= v7 )
+      return;
+    entNum = s_mathTriggers[v6].entNum;
+    v11 = &g_entities[entNum];
+    if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&v11->s.lerp.eFlags, ACTIVE, 0) && ((2 * (v11->c.trigger.flags & 4 | ((v11->c.trigger.flags & 2 | (4 * (v11->c.trigger.flags & 8 | ((v11->c.trigger.flags & 0x10) << 7)))) << 16))) & contents) != 0 )
     {
-      vmovaps [rsp+98h+var_48], xmm6
-      vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    }
-    while ( 1 )
-    {
-      if ( *outNumCollectedEnts >= v8 )
+      switch ( v11->r.modelType )
       {
-LABEL_24:
-        __asm { vmovaps xmm6, [rsp+98h+var_48] }
-        return;
-      }
-      entNum = s_mathTriggers[v7].entNum;
-      _RBX = &g_entities[entNum];
-      if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RBX->s.lerp.eFlags, ACTIVE, 0) && ((2 * (_RBX->c.trigger.flags & 4 | ((_RBX->c.trigger.flags & 2 | (4 * (_RBX->c.trigger.flags & 8 | ((_RBX->c.trigger.flags & 0x10) << 7)))) << 16))) & contents) != 0 )
-      {
-        modelType = _RBX->r.modelType;
-        v15 = modelType == 0;
-        v16 = modelType - 1;
-        if ( v16 )
-        {
-          v17 = v16 == 0;
-          v18 = v16 - 1;
-          if ( v18 )
-          {
-            if ( v18 == 1 )
-            {
-              __asm
-              {
-                vmovss  xmm1, dword ptr [rbx+10Ch]
-                vmovss  xmm2, dword ptr [rbx+130h]
-                vsubss  xmm0, xmm2, xmm1
-                vcomiss xmm0, dword ptr [rsi]
-                vaddss  xmm0, xmm2, xmm1
-                vcomiss xmm0, dword ptr [rdi]
-                vmovss  xmm2, dword ptr [rbx+134h]
-                vsubss  xmm0, xmm2, xmm1
-                vcomiss xmm0, dword ptr [rsi+4]
-                vaddss  xmm0, xmm2, xmm1
-                vcomiss xmm0, dword ptr [rdi+4]
-              }
-              goto LABEL_18;
-            }
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbx+104h]
-              vmaxss  xmm1, xmm0, dword ptr [rbx+100h]
-              vmovss  xmm0, dword ptr [rbx+110h]
-              vmaxss  xmm3, xmm1, dword ptr [rbx+108h]
-              vmaxss  xmm1, xmm0, dword ptr [rbx+10Ch]
-              vmaxss  xmm2, xmm1, dword ptr [rbx+114h]
-              vmovss  xmm5, dword ptr [rbx+130h]
-              vandps  xmm3, xmm3, xmm6
-              vaddss  xmm4, xmm3, xmm2
-              vsubss  xmm0, xmm5, xmm4
-              vcomiss xmm0, dword ptr [rsi]
-            }
-            if ( v17 || (unsigned __int8)v18 == 0 )
-            {
-              __asm
-              {
-                vaddss  xmm0, xmm5, xmm4
-                vcomiss xmm0, dword ptr [rdi]
-              }
-              if ( !v17 )
-              {
-                __asm
-                {
-                  vmovss  xmm1, dword ptr [rbx+134h]
-                  vsubss  xmm0, xmm1, xmm4
-                  vcomiss xmm0, dword ptr [rsi+4]
-                  vaddss  xmm0, xmm1, xmm4
-                  vcomiss xmm0, dword ptr [rdi+4]
-                  vmovss  xmm1, dword ptr [rbx+138h]
-                  vsubss  xmm0, xmm1, xmm4
-                  vcomiss xmm0, dword ptr [rsi+8]
-                  vaddss  xmm0, xmm1, xmm4
-                  vcomiss xmm0, dword ptr [rdi+8]
-                }
-                if ( !v17 )
-                  goto LABEL_18;
-              }
-            }
-          }
-        }
-        else
-        {
+        case 1u:
+          _XMM0 = LODWORD(v11->r.box.halfSize.v[1]);
           __asm
           {
-            vmovss  xmm0, dword ptr [rbx+110h]
             vmaxss  xmm1, xmm0, dword ptr [rbx+10Ch]
-            vmovss  xmm2, dword ptr [rbx+130h]
             vmaxss  xmm3, xmm1, dword ptr [rbx+114h]
-            vaddss  xmm4, xmm2, dword ptr [rbx+100h]
-            vsubss  xmm0, xmm4, xmm3
-            vcomiss xmm0, dword ptr [rsi]
           }
-          if ( v15 || (unsigned __int8)v16 == 0 )
+          v28 = v11->r.currentOrigin.v[0] + v11->r.box.midPoint.v[0];
+          if ( (float)(v28 - *(float *)&_XMM3) <= aabbMax->v[0] && (float)(v28 + *(float *)&_XMM3) >= aabbMin->v[0] )
           {
-            __asm
+            v29 = v11->r.currentOrigin.v[1] + v11->r.box.midPoint.v[1];
+            if ( (float)(v29 - *(float *)&_XMM3) <= aabbMax->v[1] && (float)(v29 + *(float *)&_XMM3) >= aabbMin->v[1] )
             {
-              vaddss  xmm0, xmm4, xmm3
-              vcomiss xmm0, dword ptr [rdi]
-            }
-            if ( !v15 )
-            {
-              __asm
+              v30 = v11->r.currentOrigin.v[2] + v11->r.box.midPoint.v[2];
+              if ( (float)(v30 - *(float *)&_XMM3) <= aabbMax->v[2] && (float)(v30 + *(float *)&_XMM3) >= aabbMin->v[2] )
               {
-                vmovss  xmm0, dword ptr [rbx+134h]
-                vaddss  xmm2, xmm0, dword ptr [rbx+104h]
-                vsubss  xmm1, xmm2, xmm3
-                vcomiss xmm1, dword ptr [rsi+4]
-                vaddss  xmm0, xmm2, xmm3
-                vcomiss xmm0, dword ptr [rdi+4]
-                vmovss  xmm0, dword ptr [rbx+138h]
-                vaddss  xmm2, xmm0, dword ptr [rbx+108h]
-                vsubss  xmm1, xmm2, xmm3
-                vcomiss xmm1, dword ptr [rsi+8]
-                vaddss  xmm0, xmm2, xmm3
-                vcomiss xmm0, dword ptr [rdi+8]
+LABEL_26:
+                if ( ((int)entNum < 0 || (unsigned int)entNum > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)entNum, "signed", entNum) )
+                  __debugbreak();
+                outCollectedEnts[(*outNumCollectedEnts)++] = entNum;
               }
-LABEL_18:
-              if ( ((int)entNum < 0 || (unsigned int)entNum > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)entNum, "signed", entNum) )
-                __debugbreak();
-              outCollectedEnts[(*outNumCollectedEnts)++] = entNum;
             }
           }
-        }
+          break;
+        case 2u:
+          _XMM0 = LODWORD(v11->r.box.midPoint.v[1]);
+          __asm { vmaxss  xmm1, xmm0, dword ptr [rbx+100h] }
+          _XMM0 = LODWORD(v11->r.box.halfSize.v[1]);
+          __asm
+          {
+            vmaxss  xmm3, xmm1, dword ptr [rbx+108h]
+            vmaxss  xmm1, xmm0, dword ptr [rbx+10Ch]
+            vmaxss  xmm2, xmm1, dword ptr [rbx+114h]
+          }
+          v21 = v11->r.currentOrigin.v[0];
+          v22 = COERCE_FLOAT(_XMM3 & _xmm) + *(float *)&_XMM2;
+          if ( (float)(v21 - v22) <= aabbMax->v[0] && (float)(v21 + v22) >= aabbMin->v[0] )
+          {
+            v23 = v11->r.currentOrigin.v[1];
+            if ( (float)(v23 - v22) <= aabbMax->v[1] && (float)(v23 + v22) >= aabbMin->v[1] )
+            {
+              v24 = v11->r.currentOrigin.v[2];
+              if ( (float)(v24 - v22) <= aabbMax->v[2] && (float)(v24 + v22) >= aabbMin->v[2] )
+                goto LABEL_26;
+            }
+          }
+          break;
+        case 3u:
+          v12 = v11->r.box.halfSize.v[0];
+          v13 = v11->r.currentOrigin.v[0];
+          if ( (float)(v13 - v12) <= aabbMax->v[0] && (float)(v13 + v12) >= aabbMin->v[0] )
+          {
+            v14 = v11->r.currentOrigin.v[1];
+            if ( (float)(v14 - v12) <= aabbMax->v[1] && (float)(v14 + v12) >= aabbMin->v[1] )
+              goto LABEL_26;
+          }
+          break;
       }
-      v8 = maxCollectedEnts;
-      v7 = (unsigned int)(v7 + 1);
-      if ( (unsigned int)v7 >= s_numMathTriggers )
-        goto LABEL_24;
     }
+    v7 = maxCollectedEnts;
+    v6 = (unsigned int)(v6 + 1);
   }
 }
 
@@ -1358,7 +1172,6 @@ InitTrigger
 char InitTrigger(gentity_s *self)
 {
   char result; 
-  __int64 v11; 
   vec3_t trBase; 
 
   if ( (self->spawnflags & 0x180) == 128 )
@@ -1378,19 +1191,7 @@ char InitTrigger(gentity_s *self)
   else
   {
     Trajectory_GetTrBase(&self->s.lerp.pos, &trBase);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+58h+trBase+8]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm3, dword ptr [rsp+58h+trBase+4]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm2, dword ptr [rsp+58h+trBase]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+58h+var_38], xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    Com_PrintError(1, "Killing trigger at (%f %f %f) because the brush model is invalid.\n", _R8, _R9, v11);
+    Com_PrintError(1, "Killing trigger at (%f %f %f) because the brush model is invalid.\n", trBase.v[0], trBase.v[1], trBase.v[2]);
     G_FreeEntity(self);
     result = 0;
     memset(&trBase, 0, sizeof(trBase));
@@ -1405,71 +1206,39 @@ SP_trigger_disk
 */
 void SP_trigger_disk(gentity_s *ent)
 {
-  int v2; 
-  unsigned __int16 v14; 
-  unsigned int v15; 
-  __int16 v16; 
-  char *fmt; 
-  __int64 v18; 
+  float v2; 
+  unsigned __int16 v3; 
+  unsigned int v4; 
+  __int16 v5; 
   float out; 
-  float v20; 
+  float v7; 
 
-  _RBX = ent;
-  v2 = G_SpawnFloat(0x30Eu, (const char *)&queryFormat.fmt + 3, &out);
-  if ( !v2 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+138h]
-      vmovss  xmm3, dword ptr [rbx+130h]
-      vmovss  xmm1, dword ptr [rbx+134h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+38h+var_10], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+38h+fmt], xmm1
-    }
-    Com_Error_impl((errorParm_t)((unsigned __int8)v2 + 1), (const ObfuscateErrorText)&stru_143FE7E80, 932i64, _R9, fmt, v18);
-  }
-  __asm
-  {
-    vmovss  xmm0, [rsp+38h+out]
-    vaddss  xmm1, xmm0, cs:__real@42800000
-  }
-  _RBX->handler = 4;
-  *(_QWORD *)_RBX->r.box.midPoint.v = 0i64;
-  _RBX->r.box.midPoint.v[2] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [rbx+10Ch], xmm1
-    vmovss  dword ptr [rbx+110h], xmm1
-  }
-  _RBX->r.box.halfSize.v[2] = 100000.0;
-  __asm { vmovss  [rsp+38h+out], xmm1 }
-  if ( _RBX->r.isLinked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_trigger.cpp", 576, ASSERT_TYPE_ASSERT, "(!ent->r.isLinked)", (const char *)&queryFormat, "!ent->r.isLinked") )
+  if ( !G_SpawnFloat(0x30Eu, (const char *)&queryFormat.fmt + 3, &out) )
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE7E80, 932i64, ent->r.currentOrigin.v[0], ent->r.currentOrigin.v[1], ent->r.currentOrigin.v[2]);
+  v2 = out + 64.0;
+  ent->handler = 4;
+  *(_QWORD *)ent->r.box.midPoint.v = 0i64;
+  ent->r.box.midPoint.v[2] = 0.0;
+  ent->r.box.halfSize.v[0] = v2;
+  ent->r.box.halfSize.v[1] = v2;
+  ent->r.box.halfSize.v[2] = 100000.0;
+  out = v2;
+  if ( ent->r.isLinked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_trigger.cpp", 576, ASSERT_TYPE_ASSERT, "(!ent->r.isLinked)", (const char *)&queryFormat, "!ent->r.isLinked") )
     __debugbreak();
-  *(_WORD *)&_RBX->r.modelType = 259;
-  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x499u, (const char *)&queryFormat.fmt + 3, &v20) )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rsp+38h+arg_8]
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-  }
-  InitSentientTrigger(_RBX);
-  v14 = truncate_cast<unsigned short,short>(_RBX->s.number);
-  v15 = s_numMathTriggers;
-  v16 = v14;
+  *(_WORD *)&ent->r.modelType = 259;
+  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x499u, (const char *)&queryFormat.fmt + 3, &v7) && v7 <= 0.0 )
+    ent->spawnflags |= 0x40u;
+  InitSentientTrigger(ent);
+  v3 = truncate_cast<unsigned short,short>(ent->s.number);
+  v4 = s_numMathTriggers;
+  v5 = v3;
   if ( s_numMathTriggers >= 0x200 )
   {
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE7980, 927i64, 512i64);
-    v15 = s_numMathTriggers;
+    v4 = s_numMathTriggers;
   }
-  s_numMathTriggers = v15 + 1;
-  s_mathTriggers[v15].entNum = v16;
+  s_numMathTriggers = v4 + 1;
+  s_mathTriggers[v4].entNum = v5;
 }
 
 /*
@@ -1477,21 +1246,13 @@ void SP_trigger_disk(gentity_s *ent)
 SP_trigger_multiple
 ==============
 */
-
-void __fastcall SP_trigger_multiple(gentity_s *ent, double _XMM1_8)
+void SP_trigger_multiple(gentity_s *ent)
 {
   float out; 
 
   ent->handler = 4;
-  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x499u, (const char *)&queryFormat.fmt + 3, &out) )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rsp+28h+out]
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-  }
+  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x499u, (const char *)&queryFormat.fmt + 3, &out) && out <= 0.0 )
+    ent->spawnflags |= 0x40u;
   if ( InitTrigger(ent) )
     InitSentientTrigger(ent);
 }
@@ -1503,106 +1264,59 @@ SP_trigger_radius
 */
 void SP_trigger_radius(gentity_s *ent)
 {
-  int v3; 
-  int v11; 
-  scrContext_t *v19; 
-  unsigned __int16 v25; 
-  unsigned int v26; 
-  __int16 v27; 
-  char *fmt; 
-  char *fmta; 
-  __int64 v30; 
-  __int64 v31; 
-  float v32; 
+  scrContext_t *v2; 
+  double Float; 
+  double v4; 
+  float v5; 
+  float v6; 
+  unsigned __int16 v7; 
+  unsigned int v8; 
+  __int16 v9; 
+  float v10; 
   float out; 
-  float v34; 
+  float v12; 
 
-  _RBX = ent;
   if ( level.spawnVar.spawnVarsValid )
   {
-    v3 = G_SpawnFloat(0x30Eu, (const char *)&queryFormat.fmt + 3, &out);
-    if ( !v3 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vmovss  xmm3, dword ptr [rbx+130h]
-        vmovss  xmm1, dword ptr [rbx+134h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+38h+var_10], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+38h+fmt], xmm1
-      }
-      Com_Error_impl((errorParm_t)((unsigned __int8)v3 + 1), (const ObfuscateErrorText)&stru_143FE7C00, 928i64, _R9, fmt, v30);
-    }
-    v11 = G_SpawnFloat(0x1E9u, (const char *)&queryFormat.fmt + 3, &v32);
-    if ( !v11 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vmovss  xmm3, dword ptr [rbx+130h]
-        vmovss  xmm1, dword ptr [rbx+134h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+38h+var_10], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+38h+fmt], xmm1
-      }
-      Com_Error_impl((errorParm_t)((unsigned __int8)v11 + 1), (const ObfuscateErrorText)&stru_143FE7C60, 929i64, _R9, fmta, v31);
-    }
+    if ( !G_SpawnFloat(0x30Eu, (const char *)&queryFormat.fmt + 3, &out) )
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE7C00, 928i64, ent->r.currentOrigin.v[0], ent->r.currentOrigin.v[1], ent->r.currentOrigin.v[2]);
+    if ( !G_SpawnFloat(0x1E9u, (const char *)&queryFormat.fmt + 3, &v10) )
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE7C60, 929i64, ent->r.currentOrigin.v[0], ent->r.currentOrigin.v[1], ent->r.currentOrigin.v[2]);
   }
   else
   {
-    v19 = ScriptContext_Server();
-    if ( Scr_GetNumParam(v19) < 5 )
-      Scr_Error(COM_ERR_3431, v19, "USAGE: spawn( \"trigger_radius\", <origin>, <spawnflags>, <radius>, <height> )");
-    *(double *)&_XMM0 = Scr_GetFloat(v19, 3u);
-    __asm { vmovss  [rsp+38h+out], xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(v19, 4u);
-    __asm { vmovss  [rsp+38h+arg_0], xmm0 }
+    v2 = ScriptContext_Server();
+    if ( Scr_GetNumParam(v2) < 5 )
+      Scr_Error(COM_ERR_3431, v2, "USAGE: spawn( \"trigger_radius\", <origin>, <spawnflags>, <radius>, <height> )");
+    Float = Scr_GetFloat(v2, 3u);
+    out = *(float *)&Float;
+    v4 = Scr_GetFloat(v2, 4u);
+    v10 = *(float *)&v4;
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+38h+arg_0]
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vmovss  xmm0, [rsp+38h+out]
-  }
-  _RBX->handler = 4;
-  __asm { vmovss  dword ptr [rbx+108h], xmm1 }
-  *(_QWORD *)_RBX->r.box.midPoint.v = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbx+10Ch], xmm0
-    vmovss  dword ptr [rbx+110h], xmm0
-    vmovss  dword ptr [rbx+114h], xmm1
-  }
-  if ( _RBX->r.isLinked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_trigger.cpp", 496, ASSERT_TYPE_ASSERT, "(!ent->r.isLinked)", (const char *)&queryFormat, "!ent->r.isLinked") )
+  v5 = v10 * 0.5;
+  v6 = out;
+  ent->handler = 4;
+  ent->r.box.midPoint.v[2] = v5;
+  *(_QWORD *)ent->r.box.midPoint.v = 0i64;
+  ent->r.box.halfSize.v[0] = v6;
+  ent->r.box.halfSize.v[1] = v6;
+  ent->r.box.halfSize.v[2] = v5;
+  if ( ent->r.isLinked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_trigger.cpp", 496, ASSERT_TYPE_ASSERT, "(!ent->r.isLinked)", (const char *)&queryFormat, "!ent->r.isLinked") )
     __debugbreak();
-  *(_WORD *)&_RBX->r.modelType = 257;
-  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x499u, (const char *)&queryFormat.fmt + 3, &v34) )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rsp+38h+arg_10]
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-  }
-  InitSentientTrigger(_RBX);
-  v25 = truncate_cast<unsigned short,short>(_RBX->s.number);
-  v26 = s_numMathTriggers;
-  v27 = v25;
+  *(_WORD *)&ent->r.modelType = 257;
+  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x499u, (const char *)&queryFormat.fmt + 3, &v12) && v12 <= 0.0 )
+    ent->spawnflags |= 0x40u;
+  InitSentientTrigger(ent);
+  v7 = truncate_cast<unsigned short,short>(ent->s.number);
+  v8 = s_numMathTriggers;
+  v9 = v7;
   if ( s_numMathTriggers >= 0x200 )
   {
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE7980, 927i64, 512i64);
-    v26 = s_numMathTriggers;
+    v8 = s_numMathTriggers;
   }
-  s_numMathTriggers = v26 + 1;
-  s_mathTriggers[v26].entNum = v27;
+  s_numMathTriggers = v8 + 1;
+  s_mathTriggers[v8].entNum = v9;
 }
 
 /*
@@ -1612,106 +1326,59 @@ SP_trigger_rotatable_radius
 */
 void SP_trigger_rotatable_radius(gentity_s *ent)
 {
-  int v3; 
-  int v11; 
-  scrContext_t *v19; 
-  unsigned __int16 v25; 
-  unsigned int v26; 
-  __int16 v27; 
-  char *fmt; 
-  char *fmta; 
-  __int64 v30; 
-  __int64 v31; 
-  float v32; 
+  scrContext_t *v2; 
+  double Float; 
+  double v4; 
+  float v5; 
+  float v6; 
+  unsigned __int16 v7; 
+  unsigned int v8; 
+  __int16 v9; 
+  float v10; 
   float out; 
-  float v34; 
+  float v12; 
 
-  _RBX = ent;
   if ( level.spawnVar.spawnVarsValid )
   {
-    v3 = G_SpawnFloat(0x30Eu, (const char *)&queryFormat.fmt + 3, &out);
-    if ( !v3 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vmovss  xmm3, dword ptr [rbx+130h]
-        vmovss  xmm1, dword ptr [rbx+134h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+38h+var_10], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+38h+fmt], xmm1
-      }
-      Com_Error_impl((errorParm_t)((unsigned __int8)v3 + 1), (const ObfuscateErrorText)&stru_143FE7D50, 930i64, _R9, fmt, v30);
-    }
-    v11 = G_SpawnFloat(0x1E9u, (const char *)&queryFormat.fmt + 3, &v32);
-    if ( !v11 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vmovss  xmm3, dword ptr [rbx+130h]
-        vmovss  xmm1, dword ptr [rbx+134h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+38h+var_10], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+38h+fmt], xmm1
-      }
-      Com_Error_impl((errorParm_t)((unsigned __int8)v11 + 1), (const ObfuscateErrorText)&stru_143FE7DB0, 931i64, _R9, fmta, v31);
-    }
+    if ( !G_SpawnFloat(0x30Eu, (const char *)&queryFormat.fmt + 3, &out) )
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE7D50, 930i64, ent->r.currentOrigin.v[0], ent->r.currentOrigin.v[1], ent->r.currentOrigin.v[2]);
+    if ( !G_SpawnFloat(0x1E9u, (const char *)&queryFormat.fmt + 3, &v10) )
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE7DB0, 931i64, ent->r.currentOrigin.v[0], ent->r.currentOrigin.v[1], ent->r.currentOrigin.v[2]);
   }
   else
   {
-    v19 = ScriptContext_Server();
-    if ( Scr_GetNumParam(v19) < 5 )
-      Scr_Error(COM_ERR_3432, v19, "USAGE: spawn( \"trigger_rotatable_radius\", <origin>, <spawnflags>, <radius>, <height> )");
-    *(double *)&_XMM0 = Scr_GetFloat(v19, 3u);
-    __asm { vmovss  [rsp+38h+out], xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(v19, 4u);
-    __asm { vmovss  [rsp+38h+arg_0], xmm0 }
+    v2 = ScriptContext_Server();
+    if ( Scr_GetNumParam(v2) < 5 )
+      Scr_Error(COM_ERR_3432, v2, "USAGE: spawn( \"trigger_rotatable_radius\", <origin>, <spawnflags>, <radius>, <height> )");
+    Float = Scr_GetFloat(v2, 3u);
+    out = *(float *)&Float;
+    v4 = Scr_GetFloat(v2, 4u);
+    v10 = *(float *)&v4;
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+38h+arg_0]
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vmovss  xmm0, [rsp+38h+out]
-  }
-  _RBX->handler = 4;
-  __asm { vmovss  dword ptr [rbx+108h], xmm1 }
-  *(_QWORD *)_RBX->r.box.midPoint.v = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbx+10Ch], xmm0
-    vmovss  dword ptr [rbx+110h], xmm0
-    vmovss  dword ptr [rbx+114h], xmm1
-  }
-  if ( _RBX->r.isLinked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_trigger.cpp", 539, ASSERT_TYPE_ASSERT, "(!ent->r.isLinked)", (const char *)&queryFormat, "!ent->r.isLinked") )
+  v5 = v10 * 0.5;
+  v6 = out;
+  ent->handler = 4;
+  ent->r.box.midPoint.v[2] = v5;
+  *(_QWORD *)ent->r.box.midPoint.v = 0i64;
+  ent->r.box.halfSize.v[0] = v6;
+  ent->r.box.halfSize.v[1] = v6;
+  ent->r.box.halfSize.v[2] = v5;
+  if ( ent->r.isLinked && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_trigger.cpp", 539, ASSERT_TYPE_ASSERT, "(!ent->r.isLinked)", (const char *)&queryFormat, "!ent->r.isLinked") )
     __debugbreak();
-  *(_WORD *)&_RBX->r.modelType = 258;
-  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x499u, (const char *)&queryFormat.fmt + 3, &v34) )
-  {
-    __asm
-    {
-      vmovss  xmm0, [rsp+38h+arg_10]
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-  }
-  InitSentientTrigger(_RBX);
-  v25 = truncate_cast<unsigned short,short>(_RBX->s.number);
-  v26 = s_numMathTriggers;
-  v27 = v25;
+  *(_WORD *)&ent->r.modelType = 258;
+  if ( level.spawnVar.spawnVarsValid && G_SpawnFloat(0x499u, (const char *)&queryFormat.fmt + 3, &v12) && v12 <= 0.0 )
+    ent->spawnflags |= 0x40u;
+  InitSentientTrigger(ent);
+  v7 = truncate_cast<unsigned short,short>(ent->s.number);
+  v8 = s_numMathTriggers;
+  v9 = v7;
   if ( s_numMathTriggers >= 0x200 )
   {
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE7980, 927i64, 512i64);
-    v26 = s_numMathTriggers;
+    v8 = s_numMathTriggers;
   }
-  s_numMathTriggers = v26 + 1;
-  s_mathTriggers[v26].entNum = v27;
+  s_numMathTriggers = v8 + 1;
+  s_mathTriggers[v8].entNum = v9;
 }
 
 /*
@@ -1775,98 +1442,65 @@ trigger_use_shared
 void trigger_use_shared(gentity_s *self)
 {
   entityType_s eType; 
-  unsigned int v14; 
-  unsigned int v15; 
-  unsigned int v16; 
-  char *fmt; 
+  unsigned int v3; 
+  unsigned int v4; 
+  unsigned int v5; 
   vec3_t trBase; 
-  __int64 v19; 
+  __int64 v7; 
 
-  _RBX = self;
   if ( self->s.eType == ET_MISSILE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_trigger.cpp", 1087, ASSERT_TYPE_ASSERT, "( self->s.eType != ET_MISSILE )", (const char *)&queryFormat, "self->s.eType != ET_MISSILE", -2i64) )
     __debugbreak();
   if ( !Com_GameMode_SupportsFeature((Com_GameMode_Feature)192) )
   {
-    eType = _RBX->s.eType;
+    eType = self->s.eType;
     if ( ((eType - 1) & 0xFFED) == 0 && eType != ET_ITEM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_trigger.cpp", 1088, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::TRIGGERS_SINGLEPLAYER ) || !BG_IsCharacterEntity( &self->s ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TRIGGERS_SINGLEPLAYER ) || !BG_IsCharacterEntity( &self->s )") )
       __debugbreak();
   }
-  if ( SV_Game_SetTriggerModel(_RBX) )
+  if ( SV_Game_SetTriggerModel(self) )
   {
-    G_PlayerUse_SetEntityUsable(_RBX, 1);
-    _RBX->c.trigger.flags |= 0x1Eu;
-    UpdateTriggerContents(_RBX);
-    SV_LinkEntity(_RBX);
-    _RBX->c.item[0].weapon.stickerIndices[1] = 2047;
-    _RBX->c.trigger.team = 0;
-    _RBX->s.lerp.pos.trType = TR_STATIONARY;
-    if ( _RBX == (gentity_s *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 82, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+    G_PlayerUse_SetEntityUsable(self, 1);
+    self->c.trigger.flags |= 0x1Eu;
+    UpdateTriggerContents(self);
+    SV_LinkEntity(self);
+    self->c.item[0].weapon.stickerIndices[1] = 2047;
+    self->c.trigger.team = 0;
+    self->s.lerp.pos.trType = TR_STATIONARY;
+    if ( self == (gentity_s *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 82, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
       __debugbreak();
-    if ( _RBX->s.lerp.pos.trType == TR_LINEAR_STOP_SECURE )
+    if ( self->s.lerp.pos.trType == TR_LINEAR_STOP_SECURE )
     {
-      __asm
+      *(float *)&v7 = self->r.currentOrigin.v[0];
+      if ( (v7 & 0x7F800000) == 2139095040 || (*(float *)&v7 = self->r.currentOrigin.v[1], (v7 & 0x7F800000) == 2139095040) || (*(float *)&v7 = self->r.currentOrigin.v[2], (v7 & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rbx+130h]
-        vmovss  dword ptr [rsp+58h+arg_0], xmm0
-      }
-      if ( (v19 & 0x7F800000) == 2139095040 )
-        goto LABEL_27;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+134h]
-        vmovss  dword ptr [rsp+58h+arg_0], xmm0
-      }
-      if ( (v19 & 0x7F800000) == 2139095040 )
-        goto LABEL_27;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vmovss  dword ptr [rsp+58h+arg_0], xmm0
-      }
-      if ( (v19 & 0x7F800000) == 2139095040 )
-      {
-LABEL_27:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 24, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
           __debugbreak();
       }
-      v14 = LODWORD(_RBX->r.currentOrigin.v[0]) ^ ~s_trbase_aab_X;
-      v15 = v14 ^ s_trbase_aab_Y ^ LODWORD(_RBX->r.currentOrigin.v[1]);
-      v16 = v15 ^ s_trbase_aab_Z ^ LODWORD(_RBX->r.currentOrigin.v[2]);
-      LODWORD(_RBX->s.lerp.pos.trBase.v[0]) = v14;
-      LODWORD(_RBX->s.lerp.pos.trBase.v[1]) = v15;
-      LODWORD(_RBX->s.lerp.pos.trBase.v[2]) = v16;
-      memset(&v19, 0, sizeof(v19));
+      v3 = LODWORD(self->r.currentOrigin.v[0]) ^ ~s_trbase_aab_X;
+      v4 = v3 ^ s_trbase_aab_Y ^ LODWORD(self->r.currentOrigin.v[1]);
+      v5 = v4 ^ s_trbase_aab_Z ^ LODWORD(self->r.currentOrigin.v[2]);
+      LODWORD(self->s.lerp.pos.trBase.v[0]) = v3;
+      LODWORD(self->s.lerp.pos.trBase.v[1]) = v4;
+      LODWORD(self->s.lerp.pos.trBase.v[2]) = v5;
+      memset(&v7, 0, sizeof(v7));
     }
     else
     {
-      _RBX->s.lerp.pos.trBase.v[0] = _RBX->r.currentOrigin.v[0];
-      _RBX->s.lerp.pos.trBase.v[1] = _RBX->r.currentOrigin.v[1];
-      _RBX->s.lerp.pos.trBase.v[2] = _RBX->r.currentOrigin.v[2];
+      self->s.lerp.pos.trBase.v[0] = self->r.currentOrigin.v[0];
+      self->s.lerp.pos.trBase.v[1] = self->r.currentOrigin.v[1];
+      self->s.lerp.pos.trBase.v[2] = self->r.currentOrigin.v[2];
     }
-    _RBX->r.svFlags = 1;
-    if ( !_RBX->model )
-      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&_RBX->s.lerp.eFlags, ACTIVE, 0xCu);
-    _RBX->handler = 0;
-    _RBX->hint.hintType = 1;
-    G_Trigger_SetHintFieldsForSpawn(_RBX);
+    self->r.svFlags = 1;
+    if ( !self->model )
+      GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&self->s.lerp.eFlags, ACTIVE, 0xCu);
+    self->handler = 0;
+    self->hint.hintType = 1;
+    G_Trigger_SetHintFieldsForSpawn(self);
   }
   else
   {
-    Trajectory_GetTrBase(&_RBX->s.lerp.pos, &trBase);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+58h+trBase+8]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm3, dword ptr [rsp+58h+trBase+4]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm2, dword ptr [rsp+58h+trBase]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+58h+fmt], xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    Com_PrintError(1, "Killing trigger_use_shared at (%f %f %f) because the brush model is invalid.\n", _R8, _R9, fmt);
-    G_FreeEntity(_RBX);
+    Trajectory_GetTrBase(&self->s.lerp.pos, &trBase);
+    Com_PrintError(1, "Killing trigger_use_shared at (%f %f %f) because the brush model is invalid.\n", trBase.v[0], trBase.v[1], trBase.v[2]);
+    G_FreeEntity(self);
     memset(&trBase, 0, sizeof(trBase));
   }
 }

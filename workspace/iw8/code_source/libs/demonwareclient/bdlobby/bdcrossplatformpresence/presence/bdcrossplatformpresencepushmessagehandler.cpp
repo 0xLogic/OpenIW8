@@ -266,37 +266,38 @@ __int64 UserPresenceUpdatedPushMessageCrossTitle::initFromMessage(UserPresenceUp
   unsigned int v5; 
   bool UInt32; 
   unsigned __int8 v7; 
-  __int64 v10; 
-  unsigned int v11; 
+  __int64 v8; 
+  __int64 v9; 
+  unsigned int v10; 
+  __int64 v11; 
   __int64 v12; 
-  __int64 v13; 
-  char *v14; 
-  __int64 v18; 
-  char *v19; 
+  char *v13; 
+  __int64 v14; 
+  __int64 v15; 
+  char *v16; 
   unsigned int titleID; 
   unsigned __int64 value; 
   bdJSONDeserializer deserializer; 
-  __int64 v24; 
-  __int64 v25; 
+  __int64 v21; 
+  __int64 v22; 
   bdUserDetails userDetails; 
   bdUserPresenceInfoV3 presence; 
-  bdUserPresenceV3 v28; 
+  bdUserPresenceV3 v25; 
   char accountType[8]; 
-  __int16 v30; 
+  __int16 v27; 
   char context[8]; 
-  __int64 v32; 
+  __int64 v29; 
 
-  v25 = -2i64;
-  _R13 = this;
+  v22 = -2i64;
   bdJSONDeserializer::bdJSONDeserializer(&deserializer);
   BodyAsJSON = bdDemonataPushMessage::getBodyAsJSON((bdDemonataPushMessage *)message, &deserializer);
   v5 = 0;
   value = 0i64;
   titleID = 0;
   *(_QWORD *)accountType = 0i64;
-  v30 = 0;
+  v27 = 0;
   *(_QWORD *)context = 0i64;
-  v32 = 0i64;
+  v29 = 0i64;
   if ( BodyAsJSON && bdJSONDeserializer::getUInt64(&deserializer, "userID", &value) && bdJSONDeserializer::getString(&deserializer, "accountType", accountType, 0xAu) && bdJSONDeserializer::getString(&deserializer, "context", context, 0x10u) )
   {
     UInt32 = 1;
@@ -313,66 +314,57 @@ __int64 UserPresenceUpdatedPushMessageCrossTitle::initFromMessage(UserPresenceUp
     v7 = 1;
     bdUserPresenceInfoV3::setTitleID(&presence, titleID);
     bdUserDetails::bdUserDetails(&userDetails, &value, accountType);
-    bdUserPresenceV3::bdUserPresenceV3(&v28, &userDetails, context, &presence);
-    v24 = _RAX;
-    __asm
+    bdUserPresenceV3::bdUserPresenceV3(&v25, &userDetails, context, &presence);
+    v21 = v8;
+    *(_OWORD *)this->m_userPresence.m_context.m_buffer = *(_OWORD *)v8;
+    this->m_userPresence.m_context.m_buffer[16] = *(_BYTE *)(v8 + 16);
+    v9 = v8 + 24;
+    if ( &this->m_userPresence.m_presences != (bdStructFixedSizeArray<bdUserPresenceInfoV3,3> *)(v8 + 24) )
     {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [r13+0], xmm0
-    }
-    _R13->m_userPresence.m_context.m_buffer[16] = *(_BYTE *)(_RAX + 16);
-    v10 = _RAX + 24;
-    if ( &_R13->m_userPresence.m_presences != (bdStructFixedSizeArray<bdUserPresenceInfoV3,3> *)(_RAX + 24) )
-    {
-      v11 = *(_DWORD *)(_RAX + 2040);
-      _R13->m_userPresence.m_presences.m_size = v11;
-      if ( v11 )
+      v10 = *(_DWORD *)(v8 + 2040);
+      this->m_userPresence.m_presences.m_size = v10;
+      if ( v10 )
       {
         do
         {
-          v12 = 672i64 * v5;
-          v13 = v12 + v10;
-          v14 = (char *)&_R13->m_userPresence.m_presences + v12;
-          *v14 = *(_BYTE *)(v12 + v10);
-          _RCX = (char *)(v12 + v10 + 1);
-          _RDX = v14 + 1;
-          if ( v14 + 1 != _RCX )
+          v11 = 672i64 * v5;
+          v12 = v11 + v9;
+          v13 = (char *)&this->m_userPresence.m_presences + v11;
+          *v13 = *(_BYTE *)(v11 + v9);
+          v14 = v11 + v9 + 1;
+          if ( v13 + 1 != (char *)v14 )
           {
-            *_RDX = *_RCX;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rcx+1]
-              vmovups xmmword ptr [rdx+1], xmm0
-            }
-            v14[18] = _RCX[17];
+            v13[1] = *(_BYTE *)v14;
+            *(_OWORD *)(v13 + 2) = *(_OWORD *)(v14 + 1);
+            v13[18] = *(_BYTE *)(v14 + 17);
           }
-          bdStructOptionalObject<bdLocalizationToken>::operator=((bdStructOptionalObject<bdLocalizationToken> *)(v14 + 24), (const bdStructOptionalObject<bdLocalizationToken> *)(v13 + 24));
-          bdStructOptionalObject<bdLocalizationToken>::operator=((bdStructOptionalObject<bdLocalizationToken> *)(v14 + 320), (const bdStructOptionalObject<bdLocalizationToken> *)(v13 + 320));
-          if ( v14 + 616 != (char *)(v13 + 616) )
+          bdStructOptionalObject<bdLocalizationToken>::operator=((bdStructOptionalObject<bdLocalizationToken> *)(v13 + 24), (const bdStructOptionalObject<bdLocalizationToken> *)(v12 + 24));
+          bdStructOptionalObject<bdLocalizationToken>::operator=((bdStructOptionalObject<bdLocalizationToken> *)(v13 + 320), (const bdStructOptionalObject<bdLocalizationToken> *)(v12 + 320));
+          if ( v13 + 616 != (char *)(v12 + 616) )
           {
-            v14[616] = *(_BYTE *)(v13 + 616);
-            *((_DWORD *)v14 + 155) = *(_DWORD *)(v13 + 620);
+            v13[616] = *(_BYTE *)(v12 + 616);
+            *((_DWORD *)v13 + 155) = *(_DWORD *)(v12 + 620);
           }
-          if ( v14 + 624 != (char *)(v13 + 624) )
+          if ( v13 + 624 != (char *)(v12 + 624) )
           {
-            v14[624] = *(_BYTE *)(v13 + 624);
-            bdCrossPlatformUserMetadata::operator=((bdCrossPlatformUserMetadata *)(v14 + 632), (const bdCrossPlatformUserMetadata *)(v13 + 632));
+            v13[624] = *(_BYTE *)(v12 + 624);
+            bdCrossPlatformUserMetadata::operator=((bdCrossPlatformUserMetadata *)(v13 + 632), (const bdCrossPlatformUserMetadata *)(v12 + 632));
           }
-          v18 = v13 + 656;
-          v19 = v14 + 656;
-          if ( v19 != (char *)v18 )
+          v15 = v12 + 656;
+          v16 = v13 + 656;
+          if ( v16 != (char *)v15 )
           {
-            *v19 = *(_BYTE *)v18;
-            *((_QWORD *)v19 + 1) = *(_QWORD *)(v18 + 8);
+            *v16 = *(_BYTE *)v15;
+            *((_QWORD *)v16 + 1) = *(_QWORD *)(v15 + 8);
           }
           ++v5;
         }
-        while ( v5 < _R13->m_userPresence.m_presences.m_size );
-        _RAX = v24;
+        while ( v5 < this->m_userPresence.m_presences.m_size );
+        v8 = v21;
       }
     }
-    bdUserDetails::operator=(&_R13->m_userPresence.m_userDetails, (const bdUserDetails *)(_RAX + 2048));
-    bdUserPresenceV3::~bdUserPresenceV3(&v28);
+    bdUserDetails::operator=(&this->m_userPresence.m_userDetails, (const bdUserDetails *)(v8 + 2048));
+    bdUserPresenceV3::~bdUserPresenceV3(&v25);
     bdUserDetails::~bdUserDetails((bdUserDetails *)&userDetails.gap79[7]);
     bdReferencable::~bdReferencable((bdReferencable *)&userDetails.gap79[7]);
   }

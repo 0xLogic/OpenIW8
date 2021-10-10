@@ -43,52 +43,43 @@ void Callstack_InitializeModuleAddressesCallback(HINSTANCE__ *const module, cons
 {
   int v3; 
   __int64 v4; 
+  AddressRange *v5; 
+  void **p_lpBaseOfDll; 
+  __m256i v7; 
+  __int128 v8; 
   void *lpBaseOfDll; 
-  __int64 v14; 
+  __int64 v10; 
 
   lpBaseOfDll = r_info->lpBaseOfDll;
-  LODWORD(v14) = r_info->SizeOfImage;
+  LODWORD(v10) = r_info->SizeOfImage;
   if ( !Sys_ModuleInfo_GetFilename(module, temp, 260) )
     Com_PrintError(0, "Sys_ModuleInfo_GetFilename %p failed\n", module);
-  Core_strcpy((char *)&v14 + 4, 0x104ui64, temp);
+  Core_strcpy((char *)&v10 + 4, 0x104ui64, temp);
   v3 = s_moduleAddressCount;
   if ( (unsigned __int64)s_moduleAddressCount >= 0x100 )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\callstack\\callstack_symbols_msvc.cpp", 669, ASSERT_TYPE_ASSERT, "(s_moduleAddressCount < ( sizeof( *array_counter( s_moduleAddresses ) ) + 0 ))", (const char *)&queryFormat, "s_moduleAddressCount < ARRAY_COUNT( s_moduleAddresses )", lpBaseOfDll, v14) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\callstack\\callstack_symbols_msvc.cpp", 669, ASSERT_TYPE_ASSERT, "(s_moduleAddressCount < ( sizeof( *array_counter( s_moduleAddresses ) ) + 0 ))", (const char *)&queryFormat, "s_moduleAddressCount < ARRAY_COUNT( s_moduleAddresses )", lpBaseOfDll, v10) )
       __debugbreak();
     v3 = s_moduleAddressCount;
   }
   v4 = 2i64;
-  _RDX = &s_moduleAddresses[v3];
-  _RAX = &lpBaseOfDll;
+  v5 = &s_moduleAddresses[v3];
+  p_lpBaseOfDll = &lpBaseOfDll;
   do
   {
-    _RDX = (AddressRange *)((char *)_RDX + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX += 16;
-    __asm
-    {
-      vmovups ymmword ptr [rdx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rdx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rdx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
+    v5 = (AddressRange *)((char *)v5 + 128);
+    v7 = *(__m256i *)p_lpBaseOfDll;
+    v8 = *((_OWORD *)p_lpBaseOfDll + 7);
+    p_lpBaseOfDll += 16;
+    *(__m256i *)&v5[-1].name[132] = v7;
+    *(__m256i *)&v5[-1].name[164] = *((__m256i *)p_lpBaseOfDll - 3);
+    *(__m256i *)&v5[-1].name[196] = *((__m256i *)p_lpBaseOfDll - 2);
+    *(_OWORD *)&v5[-1].name[228] = *((_OWORD *)p_lpBaseOfDll - 2);
+    *(_OWORD *)&v5[-1].name[244] = v8;
     --v4;
   }
   while ( v4 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rdx], xmm0
-  }
+  *(_OWORD *)&v5->base = *(_OWORD *)p_lpBaseOfDll;
   s_moduleAddressCount = v3 + 1;
 }
 

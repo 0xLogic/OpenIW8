@@ -93,13 +93,9 @@ void AIScriptedInterface::EnterProne(AIScriptedInterface *this, int iTransTime, 
   int IsProne; 
   ai_scripted_t *m_pAI; 
   int iProneTrans; 
-  char v11; 
+  double ActorProneFraction; 
   GHandler *handler; 
-  ai_scripted_t *v17; 
-  float fmt; 
-  float v30; 
 
-  _ESI = feetDirection;
   IsProne = BG_ActorIsProne(&this->m_pAI->ProneInfo, level.time);
   m_pAI = this->m_pAI;
   if ( IsProne )
@@ -107,23 +103,15 @@ void AIScriptedInterface::EnterProne(AIScriptedInterface *this, int iTransTime, 
     iProneTrans = m_pAI->ProneInfo.iProneTrans;
     if ( iProneTrans && iTransTime != iProneTrans )
     {
-      *(double *)&_XMM0 = BG_GetActorProneFraction(&m_pAI->ProneInfo, level.time);
-      __asm { vcomiss xmm0, cs:__real@3f800000 }
-      if ( v11 )
+      ActorProneFraction = BG_GetActorProneFraction(&m_pAI->ProneInfo, level.time);
+      if ( *(float *)&ActorProneFraction < 1.0 )
       {
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, edi
-          vmulss  xmm0, xmm1, xmm0
-          vcvttss2si eax, xmm0
-        }
-        this->m_pAI->ProneInfo.iProneTime = level.time - _EAX;
+        this->m_pAI->ProneInfo.iProneTime = level.time - (int)(float)((float)iTransTime * *(float *)&ActorProneFraction);
         if ( !this->m_pAI->ProneInfo.prone && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_actor_prone.cpp", 53, ASSERT_TYPE_ASSERT, "(m_pAI->ProneInfo.prone)", (const char *)&queryFormat, "m_pAI->ProneInfo.prone") )
           __debugbreak();
       }
       this->m_pAI->ProneInfo.iProneTrans = iTransTime;
-      this->m_pAI->prone.feetDirection = _ESI;
+      this->m_pAI->prone.feetDirection = feetDirection;
     }
   }
   else
@@ -133,26 +121,13 @@ void AIScriptedInterface::EnterProne(AIScriptedInterface *this, int iTransTime, 
     this->m_pAI->ProneInfo.prone = 1;
     this->m_pAI->ProneInfo.iProneTrans = iTransTime;
     this->m_pAI->Physics.prone = 1;
-    this->m_pAI->prone.feetDirection = _ESI;
+    this->m_pAI->prone.feetDirection = feetDirection;
     handler = GHandler::getHandler();
-    v17 = this->m_pAI;
-    _ER11 = 1;
-    __asm { vmovss  xmm2, cs:__real@42480000 }
-    _RCX = v17->ent;
-    __asm
-    {
-      vmovd   xmm1, r11d
-      vmovss  xmm4, dword ptr [rcx+140h]
-      vmovd   xmm0, esi
-      vpcmpeqd xmm3, xmm0, xmm1
-      vmovss  xmm1, cs:__real@41c80000
-      vblendvps xmm0, xmm1, xmm2, xmm3
-      vmovss  xmm3, cs:__real@42400000; fHeight
-      vmovss  xmm2, cs:__real@41700000; fSize
-      vmovss  [rsp+98h+var_30], xmm0
-      vmovss  dword ptr [rsp+98h+fmt], xmm4
-    }
-    v17->prone.bProneOK = BG_CheckProneValid(v17->ent->s.number, &v17->ent->r.currentOrigin, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt, &v17->ProneInfo.fTorsoPitch, &v17->ProneInfo.fWaistPitch, 0, 1, 1, handler, PHYSICS_WORLD_ID_FIRST, PCT_ACTOR, v30, _ESI, NULL, NULL);
+    _XMM0 = (unsigned int)feetDirection;
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    _XMM1 = LODWORD(FLOAT_25_0);
+    __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+    this->m_pAI->prone.bProneOK = BG_CheckProneValid(this->m_pAI->ent->s.number, &this->m_pAI->ent->r.currentOrigin, 15.0, 48.0, this->m_pAI->ent->r.currentAngles.v[1], &this->m_pAI->ProneInfo.fTorsoPitch, &this->m_pAI->ProneInfo.fWaistPitch, 0, 1, 1, handler, PHYSICS_WORLD_ID_FIRST, PCT_ACTOR, *(float *)&_XMM0, feetDirection, NULL, NULL);
   }
   if ( !BG_ActorGoalIsProne(&this->m_pAI->ProneInfo) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_actor_prone.cpp", 76, ASSERT_TYPE_ASSERT, "(BG_ActorGoalIsProne( &m_pAI->ProneInfo ))", (const char *)&queryFormat, "BG_ActorGoalIsProne( &m_pAI->ProneInfo )") )
     __debugbreak();
@@ -167,6 +142,7 @@ void AIScriptedInterface::ExitProne(AIScriptedInterface *this, int iTransTime)
 {
   ai_scripted_t *m_pAI; 
   int iProneTrans; 
+  double ActorProneFraction; 
 
   if ( BG_ActorIsProne(&this->m_pAI->ProneInfo, level.time) )
   {
@@ -178,15 +154,8 @@ void AIScriptedInterface::ExitProne(AIScriptedInterface *this, int iTransTime)
     }
     else
     {
-      BG_GetActorProneFraction(&m_pAI->ProneInfo, level.time);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, edi
-        vmulss  xmm0, xmm1, xmm0
-        vcvttss2si eax, xmm0
-      }
-      this->m_pAI->ProneInfo.iProneTime = level.time - _EAX;
+      ActorProneFraction = BG_GetActorProneFraction(&m_pAI->ProneInfo, level.time);
+      this->m_pAI->ProneInfo.iProneTime = level.time - (int)(float)((float)iTransTime * *(float *)&ActorProneFraction);
     }
     if ( !this->m_pAI->ProneInfo.prone && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_actor_prone.cpp", 97, ASSERT_TYPE_ASSERT, "(m_pAI->ProneInfo.prone)", (const char *)&queryFormat, "m_pAI->ProneInfo.prone") )
       __debugbreak();

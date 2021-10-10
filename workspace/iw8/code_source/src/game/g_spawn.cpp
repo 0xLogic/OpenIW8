@@ -498,15 +498,11 @@ __int64 G_SpawnFloat(unsigned int key, const char *defaultString, float *out)
   __int64 result; 
   char *outa; 
 
-  _RDI = out;
   v5 = Scr_SpawnString(&level.spawnVar, key, defaultString, (const char **)&outa);
   *(double *)&_XMM0 = atof(outa);
   result = v5;
-  __asm
-  {
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmovss  dword ptr [rdi], xmm1
-  }
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  *out = *(float *)&_XMM1;
   return result;
 }
 
@@ -551,12 +547,12 @@ G_Spawn_CallForEntity
 ==============
 */
 
-__int64 __fastcall G_Spawn_CallForEntity(gentity_s *ent, __int64 a2, double _XMM2_8)
+__int64 __fastcall G_Spawn_CallForEntity(gentity_s *ent, __int64 a2, double a3)
 {
   scr_string_t script_classname; 
   const char *v6; 
-  int v12; 
-  const SpawnFuncEntry *v13; 
+  int v7; 
+  const SpawnFuncEntry *v8; 
   const SpawnFuncEntry *Func; 
   __int16 EntityIndex; 
   Weapon result; 
@@ -577,19 +573,8 @@ __int64 __fastcall G_Spawn_CallForEntity(gentity_s *ent, __int64 a2, double _XMM
     }
     else
     {
-      _RAX = G_Spawn_GetItemForClassname(&result, v6);
-      __asm
-      {
-        vmovups ymm2, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0E8h+item.weaponIdx], ymm2
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rsp+0E8h+item.attachmentVariationIndices+5], xmm0
-        vmovsd  xmm1, qword ptr [rax+30h]
-        vmovd   edx, xmm2
-        vmovsd  qword ptr [rsp+0E8h+item.attachmentVariationIndices+15h], xmm1
-      }
-      *(_DWORD *)&item.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-      if ( (_WORD)_EDX )
+      item = *G_Spawn_GetItemForClassname(&result, v6);
+      if ( LOWORD(a3) )
       {
         ent->classname = Scr_NewString(v6);
         G_Items_Spawn(ent, &item);
@@ -597,15 +582,15 @@ __int64 __fastcall G_Spawn_CallForEntity(gentity_s *ent, __int64 a2, double _XMM
       }
       else
       {
-        v12 = 0;
-        v13 = s_bspOrDynamicSpawns;
-        while ( !IsParentClassname(v6, v13->classname) )
+        v7 = 0;
+        v8 = s_bspOrDynamicSpawns;
+        while ( !IsParentClassname(v6, v8->classname) )
         {
-          ++v12;
-          if ( (__int64)++v13 >= (__int64)s_bspOnlySpawns )
+          ++v7;
+          if ( (__int64)++v8 >= (__int64)s_bspOnlySpawns )
             goto LABEL_18;
         }
-        Func = &s_bspOrDynamicSpawns[v12];
+        Func = &s_bspOrDynamicSpawns[v7];
         if ( Func )
           goto LABEL_20;
 LABEL_18:
@@ -640,39 +625,46 @@ G_Spawn_Callspawn
 ==============
 */
 
-void __fastcall G_Spawn_Callspawn(bool updateDobjs, __int64 a2, double _XMM2_8)
+void __fastcall G_Spawn_Callspawn(bool updateDobjs, __int64 a2, double a3)
 {
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
   char *v7; 
   gentity_s *v8; 
-  gentity_s *v13; 
-  char *v14; 
-  const SpawnFuncEntry *v15; 
-  int v16; 
-  int v17; 
+  gentity_s *v9; 
+  char *v10; 
+  const SpawnFuncEntry *v11; 
+  int v12; 
+  int v13; 
   const SpawnFuncEntry *Func; 
-  char *v19; 
-  const SpawnFuncEntry *v20; 
-  int v21; 
+  char *v15; 
+  const SpawnFuncEntry *v16; 
+  int v17; 
+  gentity_s *v18; 
   int AnchorIndexFromName; 
-  unsigned int v24; 
+  unsigned int v20; 
   int entNum; 
-  int v26; 
-  int v27; 
+  int v22; 
+  int v23; 
   const char *classname; 
   unsigned __int16 model; 
-  int v30; 
-  XModel *v31; 
+  int v26; 
+  XModel *v27; 
   const char *ModelName; 
-  const char *v36; 
-  const char *v40; 
-  char *fmt; 
-  __int64 v47; 
+  double v29; 
+  double v30; 
+  double v31; 
+  const char *v32; 
   char *out; 
   char *compositeModelName; 
   char *anchorName; 
-  char *v51; 
+  char *v36; 
   Weapon result; 
   Weapon item; 
+  __int128 v39; 
+  __int128 v40; 
+  __int128 v41; 
 
   if ( !level.spawnVar.spawnVarsValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 689, ASSERT_TYPE_SANITY, "( level.spawnVar.spawnVarsValid )", (const char *)&queryFormat, "level.spawnVar.spawnVarsValid") )
     __debugbreak();
@@ -707,53 +699,42 @@ void __fastcall G_Spawn_Callspawn(bool updateDobjs, __int64 a2, double _XMM2_8)
   }
   else
   {
-    _RAX = G_Spawn_GetItemForClassname(&result, out);
-    __asm
+    item = *G_Spawn_GetItemForClassname(&result, out);
+    if ( LOWORD(a3) )
     {
-      vmovups ymm2, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+40h+item.weaponIdx], ymm2
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rbp+40h+item.attachmentVariationIndices+5], xmm0
-      vmovsd  xmm1, qword ptr [rax+30h]
-      vmovsd  qword ptr [rbp+40h+item.attachmentVariationIndices+15h], xmm1
-    }
-    *(_DWORD *)&item.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-    __asm { vmovd   eax, xmm2 }
-    if ( (_WORD)_RAX )
-    {
-      v13 = G_Utils_SpawnEntity();
-      G_Spawn_ParseEntityFields(v13, 0, out);
-      G_Items_Spawn(v13, &item);
+      v9 = G_Utils_SpawnEntity();
+      G_Spawn_ParseEntityFields(v9, 0, out);
+      G_Items_Spawn(v9, &item);
     }
     else
     {
-      v14 = out;
-      v15 = s_bspOrDynamicSpawns;
-      v16 = 0;
-      v17 = 0;
-      while ( !IsParentClassname(v14, v15->classname) )
+      v10 = out;
+      v11 = s_bspOrDynamicSpawns;
+      v12 = 0;
+      v13 = 0;
+      while ( !IsParentClassname(v10, v11->classname) )
       {
-        ++v17;
-        if ( (__int64)++v15 >= (__int64)s_bspOnlySpawns )
+        ++v13;
+        if ( (__int64)++v11 >= (__int64)s_bspOnlySpawns )
           goto LABEL_28;
       }
-      Func = &s_bspOrDynamicSpawns[v17];
+      Func = &s_bspOrDynamicSpawns[v13];
       if ( Func )
         goto LABEL_35;
 LABEL_28:
       Func = G_Spawn_FindFunc(out, s_gameModeSettings.bspOrDynamicSpawns, s_gameModeSettings.bspOrDynamicSpawnCount);
       if ( !Func )
       {
-        v19 = out;
-        v20 = s_bspOnlySpawns;
-        v21 = 0;
-        while ( !IsParentClassname(v19, v20->classname) )
+        v15 = out;
+        v16 = s_bspOnlySpawns;
+        v17 = 0;
+        while ( !IsParentClassname(v15, v16->classname) )
         {
-          ++v21;
-          if ( (__int64)++v20 >= (__int64)&unk_143E2C650 )
+          ++v17;
+          if ( (__int64)++v16 >= (__int64)&unk_143E2C650 )
             goto LABEL_34;
         }
-        Func = &s_bspOnlySpawns[v21];
+        Func = &s_bspOnlySpawns[v17];
         if ( Func )
           goto LABEL_35;
 LABEL_34:
@@ -765,7 +746,7 @@ LABEL_35:
       if ( Func->callback == G_FreeEntity )
         return;
 LABEL_36:
-      _RSI = G_Utils_SpawnEntity();
+      v18 = G_Utils_SpawnEntity();
       if ( CM_ClientAnchorCount() )
       {
         Scr_SpawnString(&level.spawnVar, 0x350u, (const char *)&queryFormat.fmt + 3, (const char **)&anchorName);
@@ -774,40 +755,40 @@ LABEL_36:
           if ( *anchorName )
           {
             AnchorIndexFromName = CM_FindAnchorIndexFromName(anchorName);
-            v24 = AnchorIndexFromName;
+            v20 = AnchorIndexFromName;
             if ( AnchorIndexFromName >= 0 )
             {
               entNum = cm.mapEnts->clientEntAnchors[AnchorIndexFromName].entNum;
-              if ( entNum && entNum != _RSI->s.number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 750, ASSERT_TYPE_ASSERT, "(cm.mapEnts->clientEntAnchors[anchorIndex].entNum == 0 || cm.mapEnts->clientEntAnchors[anchorIndex].entNum == ent->s.number)", "%s\n\tscript_parentname %s used with more than one entity.", "cm.mapEnts->clientEntAnchors[anchorIndex].entNum == 0 || cm.mapEnts->clientEntAnchors[anchorIndex].entNum == ent->s.number", anchorName) )
+              if ( entNum && entNum != v18->s.number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 750, ASSERT_TYPE_ASSERT, "(cm.mapEnts->clientEntAnchors[anchorIndex].entNum == 0 || cm.mapEnts->clientEntAnchors[anchorIndex].entNum == ent->s.number)", "%s\n\tscript_parentname %s used with more than one entity.", "cm.mapEnts->clientEntAnchors[anchorIndex].entNum == 0 || cm.mapEnts->clientEntAnchors[anchorIndex].entNum == ent->s.number", anchorName) )
                 __debugbreak();
-              CM_RegisterAnchorEntity(v24, _RSI->s.number);
+              CM_RegisterAnchorEntity(v20, v18->s.number);
             }
           }
         }
       }
-      Scr_SpawnString(&level.spawnVar, 0xF7u, "0", (const char **)&v51);
-      v26 = atoi(v51);
-      v27 = v26;
+      Scr_SpawnString(&level.spawnVar, 0xF7u, "0", (const char **)&v36);
+      v22 = atoi(v36);
+      v23 = v22;
       if ( Func )
         classname = Func->classname;
       else
         classname = NULL;
-      LOBYTE(v16) = v26 != 0;
-      G_Spawn_ParseEntityFields(_RSI, v16, classname);
-      if ( v27 )
+      LOBYTE(v12) = v22 != 0;
+      G_Spawn_ParseEntityFields(v18, v12, classname);
+      if ( v23 )
       {
         Scr_SpawnString(&level.spawnVar, 0x28Cu, NULL, (const char **)&compositeModelName);
         if ( !compositeModelName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 765, ASSERT_TYPE_ASSERT, "(compositeModelName)", (const char *)&queryFormat, "compositeModelName") )
           __debugbreak();
         if ( IsParentClassname(out, "script_model") )
         {
-          G_Utils_SetCompositeModel(_RSI, ET_SCRIPTMOVER, compositeModelName);
-          G_XCompositeModel_SetPosition(_RSI, ET_SCRIPTMOVER);
+          G_Utils_SetCompositeModel(v18, ET_SCRIPTMOVER, compositeModelName);
+          G_XCompositeModel_SetPosition(v18, ET_SCRIPTMOVER);
         }
         else if ( IsParentClassname(out, "script_vehicle") )
         {
-          G_Utils_SetCompositeModel(_RSI, ET_VEHICLE, compositeModelName);
-          G_XCompositeModel_SetPosition(_RSI, ET_VEHICLE);
+          G_Utils_SetCompositeModel(v18, ET_VEHICLE, compositeModelName);
+          G_XCompositeModel_SetPosition(v18, ET_VEHICLE);
         }
         else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 779, ASSERT_TYPE_ASSERT, "(false)", "%s\n\tAttempted to load compositemodel %s, but classname %s not supported", "false", compositeModelName, out) )
         {
@@ -816,59 +797,33 @@ LABEL_36:
       }
       if ( updateDobjs )
       {
-        if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 604, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+        if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 604, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
           __debugbreak();
-        model = _RSI->model;
+        model = v18->model;
         if ( model && G_Utils_IsModelBad(model) )
         {
-          v30 = _RSI->model;
-          __asm
-          {
-            vmovaps [rsp+140h+var_30], xmm6
-            vmovaps [rsp+140h+var_40], xmm7
-            vmovaps [rsp+140h+var_50], xmm8
-          }
-          v31 = G_Utils_GetModel(v30);
-          if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 613, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+          v26 = v18->model;
+          v41 = v3;
+          v40 = v4;
+          v39 = v5;
+          v27 = G_Utils_GetModel(v26);
+          if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 613, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
             __debugbreak();
-          if ( DB_IsXAssetTransient(ASSET_TYPE_XMODEL, v31->name) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 615, ASSERT_TYPE_ASSERT, "( ( !DB_IsXAssetTransient( ASSET_TYPE_XMODEL, model->name ) ) )", "( model->name ) = %s", v31->name) )
+          if ( DB_IsXAssetTransient(ASSET_TYPE_XMODEL, v27->name) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 615, ASSERT_TYPE_ASSERT, "( ( !DB_IsXAssetTransient( ASSET_TYPE_XMODEL, model->name ) ) )", "( model->name ) = %s", v27->name) )
             __debugbreak();
-          ModelName = G_CString_GetModelName(_RSI->model);
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rsi+138h]
-            vmovss  xmm7, dword ptr [rsi+134h]
-            vmovss  xmm8, dword ptr [rsi+130h]
-          }
-          v36 = ModelName;
-          __asm
-          {
-            vcvtss2sd xmm6, xmm6, xmm6
-            vcvtss2sd xmm7, xmm7, xmm7
-            vcvtss2sd xmm8, xmm8, xmm8
-          }
-          v40 = SL_ConvertToString(_RSI->classname);
-          __asm
-          {
-            vmovaps xmm3, xmm8
-            vmovq   r9, xmm3
-            vmovsd  [rsp+140h+var_118], xmm6
-            vmovsd  [rsp+140h+fmt], xmm7
-          }
-          Com_PrintError(1, "Error: '%s' at ( %.0f %.0f %.0f ) uses missing model '%s'\n", v40, _R9, fmt, v47, v36);
-          __asm
-          {
-            vmovaps xmm8, [rsp+140h+var_50]
-            vmovaps xmm7, [rsp+140h+var_40]
-            vmovaps xmm6, [rsp+140h+var_30]
-          }
+          ModelName = G_CString_GetModelName(v18->model);
+          v29 = v18->r.currentOrigin.v[2];
+          v30 = v18->r.currentOrigin.v[1];
+          v31 = v18->r.currentOrigin.v[0];
+          v32 = SL_ConvertToString(v18->classname);
+          Com_PrintError(1, "Error: '%s' at ( %.0f %.0f %.0f ) uses missing model '%s'\n", v32, v31, v30, v29, ModelName);
         }
         if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
           __debugbreak();
-        GUtils::ms_gUtils->DObjUpdate(GUtils::ms_gUtils, _RSI, 0);
+        GUtils::ms_gUtils->DObjUpdate(GUtils::ms_gUtils, v18, 0);
       }
       if ( Func )
-        Func->callback(_RSI);
+        Func->callback(v18);
     }
   }
 }
@@ -878,180 +833,141 @@ LABEL_36:
 G_Spawn_CreateFxStructs
 ==============
 */
-
-void __fastcall G_Spawn_CreateFxStructs(double _XMM0_8)
+void G_Spawn_CreateFxStructs()
 {
   GameScriptData *GameScriptDataCommon; 
   MapEnts *mapEnts; 
-  scrContext_t *v4; 
+  scrContext_t *v2; 
+  __int64 v3; 
+  ServerExploderDef *exploders; 
   unsigned int Object; 
-  unsigned int v18; 
-  const char *v19; 
+  const char *v6; 
   unsigned int CanonicalString; 
-  scrContext_t *v21; 
-  unsigned int v22; 
-  const char *v27; 
-  unsigned int v28; 
-  scrContext_t *v29; 
+  scrContext_t *v8; 
+  unsigned int v9; 
+  const char *v10; 
+  unsigned int v11; 
+  scrContext_t *v12; 
+  unsigned int v13; 
+  const char *v14; 
+  unsigned int v15; 
+  scrContext_t *v16; 
+  unsigned int v17; 
+  const char *v18; 
+  unsigned int v19; 
+  scrContext_t *v20; 
+  unsigned int v21; 
+  const char *v22; 
+  unsigned int v23; 
+  scrContext_t *v24; 
+  unsigned int v25; 
+  const char *v26; 
+  unsigned int v27; 
+  scrContext_t *v28; 
+  unsigned int v29; 
   unsigned int v30; 
-  const char *v34; 
-  unsigned int v35; 
-  scrContext_t *v36; 
-  unsigned int v37; 
-  const char *v41; 
-  unsigned int v42; 
-  scrContext_t *v43; 
-  unsigned int v44; 
-  const char *v45; 
-  unsigned int v46; 
-  scrContext_t *v47; 
-  unsigned int v48; 
-  const char *v49; 
-  unsigned int v50; 
-  scrContext_t *v51; 
-  unsigned int v52; 
-  unsigned int v53; 
-  scrContext_t *v54; 
-  unsigned int v55; 
+  scrContext_t *v31; 
+  unsigned int v32; 
   scr_string_t name; 
-  unsigned int v57; 
+  unsigned int v34; 
   scr_string_t earthquakeName; 
-  unsigned int v59; 
+  unsigned int v36; 
   scr_string_t rumbleName; 
-  unsigned int v61; 
-  int v64; 
-  GameScriptData *v65; 
+  unsigned int v38; 
+  int v39; 
+  GameScriptData *v40; 
 
   GameScriptDataCommon = GameScriptData::GetGameScriptDataCommon();
-  v65 = GameScriptDataCommon;
+  v40 = GameScriptDataCommon;
   if ( !GameScriptDataCommon->createstruct && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 312, ASSERT_TYPE_ASSERT, "(gScrData->createstruct)", (const char *)&queryFormat, "gScrData->createstruct") )
     __debugbreak();
   mapEnts = cm.mapEnts;
-  v4 = ScriptContext_Server();
-  ScriptContext_SetVarUsagePos(v4, "<spawn createfx structs>");
-  v64 = 0;
+  v2 = ScriptContext_Server();
+  ScriptContext_SetVarUsagePos(v2, "<spawn createfx structs>");
+  v39 = 0;
   if ( mapEnts->serverSideEffects.exploderCount )
   {
-    _RSI = 0i64;
-    __asm
-    {
-      vmovaps [rsp+78h+var_48], xmm6
-      vmovss  xmm6, cs:__real@3a83126f
-    }
+    v3 = 0i64;
     do
     {
-      _RBP = mapEnts->serverSideEffects.exploders;
-      Scr_AddExecThread(v4, GameScriptDataCommon->createstruct, 0);
-      Object = Scr_GetObject(v4, 0);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rsi+rbp+8]
-        vmovss  xmm2, dword ptr [rsi+rbp+4]
-        vmovss  xmm1, dword ptr [rsi+rbp]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      v18 = Object;
-      v19 = j_va("%f %f %f", _RDX, _R8, _R9);
+      exploders = mapEnts->serverSideEffects.exploders;
+      Scr_AddExecThread(v2, GameScriptDataCommon->createstruct, 0);
+      Object = Scr_GetObject(v2, 0);
+      v6 = j_va("%f %f %f", exploders[v3].origin.v[0], exploders[v3].origin.v[1], exploders[v3].origin.v[2]);
       CanonicalString = SL_GetCanonicalString("origin");
-      if ( v19 )
+      if ( v6 )
       {
-        v21 = ScriptContext_Server();
-        v22 = Scr_SetEntityScriptVariableType(v21, CanonicalString, v19);
-        if ( v22 )
-          Scr_SetStructField(v21, v18, v22);
+        v8 = ScriptContext_Server();
+        v9 = Scr_SetEntityScriptVariableType(v8, CanonicalString, v6);
+        if ( v9 )
+          Scr_SetStructField(v8, Object, v9);
       }
-      __asm
+      v10 = j_va("%f", (float)((float)exploders[v3].delayMsec * 0.001));
+      v11 = SL_GetCanonicalString("script_delay");
+      if ( v10 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rsi+rbp+0Ch]
-        vmulss  xmm1, xmm0, xmm6
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
+        v12 = ScriptContext_Server();
+        v13 = Scr_SetEntityScriptVariableType(v12, v11, v10);
+        if ( v13 )
+          Scr_SetStructField(v12, Object, v13);
       }
-      v27 = j_va("%f", _RDX);
-      v28 = SL_GetCanonicalString("script_delay");
-      if ( v27 )
+      v14 = j_va("%f", exploders[v3].damageAmount);
+      v15 = SL_GetCanonicalString("script_damage");
+      if ( v14 )
       {
-        v29 = ScriptContext_Server();
-        v30 = Scr_SetEntityScriptVariableType(v29, v28, v27);
-        if ( v30 )
-          Scr_SetStructField(v29, v18, v30);
+        v16 = ScriptContext_Server();
+        v17 = Scr_SetEntityScriptVariableType(v16, v15, v14);
+        if ( v17 )
+          Scr_SetStructField(v16, Object, v17);
       }
-      __asm
+      v18 = j_va("%f", exploders[v3].damageRadius);
+      v19 = SL_GetCanonicalString("script_radius");
+      if ( v18 )
       {
-        vmovss  xmm1, dword ptr [rsi+rbp+10h]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
+        v20 = ScriptContext_Server();
+        v21 = Scr_SetEntityScriptVariableType(v20, v19, v18);
+        if ( v21 )
+          Scr_SetStructField(v20, Object, v21);
       }
-      v34 = j_va("%f", _RDX);
-      v35 = SL_GetCanonicalString("script_damage");
-      if ( v34 )
+      v22 = j_va("%d", exploders[v3].damageDoOcclusionTraces);
+      v23 = SL_GetCanonicalString("script_trace");
+      if ( v22 )
       {
-        v36 = ScriptContext_Server();
-        v37 = Scr_SetEntityScriptVariableType(v36, v35, v34);
-        if ( v37 )
-          Scr_SetStructField(v36, v18, v37);
+        v24 = ScriptContext_Server();
+        v25 = Scr_SetEntityScriptVariableType(v24, v23, v22);
+        if ( v25 )
+          Scr_SetStructField(v24, Object, v25);
       }
-      __asm
+      v26 = j_va("%d", exploders[v3].damageEnvironmentOnly);
+      v27 = SL_GetCanonicalString("script_envonly");
+      if ( v26 )
       {
-        vmovss  xmm1, dword ptr [rsi+rbp+14h]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
+        v28 = ScriptContext_Server();
+        v29 = Scr_SetEntityScriptVariableType(v28, v27, v26);
+        if ( v29 )
+          Scr_SetStructField(v28, Object, v29);
       }
-      v41 = j_va("%f", _RDX);
-      v42 = SL_GetCanonicalString("script_radius");
-      if ( v41 )
-      {
-        v43 = ScriptContext_Server();
-        v44 = Scr_SetEntityScriptVariableType(v43, v42, v41);
-        if ( v44 )
-          Scr_SetStructField(v43, v18, v44);
-      }
-      v45 = j_va("%d", _RBP[_RSI].damageDoOcclusionTraces);
-      v46 = SL_GetCanonicalString("script_trace");
-      if ( v45 )
-      {
-        v47 = ScriptContext_Server();
-        v48 = Scr_SetEntityScriptVariableType(v47, v46, v45);
-        if ( v48 )
-          Scr_SetStructField(v47, v18, v48);
-      }
-      v49 = j_va("%d", _RBP[_RSI].damageEnvironmentOnly);
-      v50 = SL_GetCanonicalString("script_envonly");
-      if ( v49 )
-      {
-        v51 = ScriptContext_Server();
-        v52 = Scr_SetEntityScriptVariableType(v51, v50, v49);
-        if ( v52 )
-          Scr_SetStructField(v51, v18, v52);
-      }
-      v53 = SL_GetCanonicalString("script_delete");
-      v54 = ScriptContext_Server();
-      v55 = Scr_SetEntityScriptVariableType(v54, v53, "1");
-      if ( v55 )
-        Scr_SetStructField(v54, v18, v55);
-      name = _RBP[_RSI].name;
-      v57 = SL_GetCanonicalString("script_exploder");
-      G_Spawn_SetStructKeyStringPair(v18, v57, name);
-      earthquakeName = _RBP[_RSI].earthquakeName;
-      v59 = SL_GetCanonicalString("script_earthquake");
-      G_Spawn_SetStructKeyStringPair(v18, v59, earthquakeName);
-      rumbleName = _RBP[_RSI].rumbleName;
-      v61 = SL_GetCanonicalString("script_rumble");
-      G_Spawn_SetStructKeyStringPair(v18, v61, rumbleName);
-      ++_RSI;
-      GameScriptDataCommon = v65;
-      ++v64;
+      v30 = SL_GetCanonicalString("script_delete");
+      v31 = ScriptContext_Server();
+      v32 = Scr_SetEntityScriptVariableType(v31, v30, "1");
+      if ( v32 )
+        Scr_SetStructField(v31, Object, v32);
+      name = exploders[v3].name;
+      v34 = SL_GetCanonicalString("script_exploder");
+      G_Spawn_SetStructKeyStringPair(Object, v34, name);
+      earthquakeName = exploders[v3].earthquakeName;
+      v36 = SL_GetCanonicalString("script_earthquake");
+      G_Spawn_SetStructKeyStringPair(Object, v36, earthquakeName);
+      rumbleName = exploders[v3].rumbleName;
+      v38 = SL_GetCanonicalString("script_rumble");
+      G_Spawn_SetStructKeyStringPair(Object, v38, rumbleName);
+      ++v3;
+      GameScriptDataCommon = v40;
+      ++v39;
     }
-    while ( v64 < mapEnts->serverSideEffects.exploderCount );
-    __asm { vmovaps xmm6, [rsp+78h+var_48] }
+    while ( v39 < mapEnts->serverSideEffects.exploderCount );
   }
-  ScriptContext_SetVarUsagePos(v4, NULL);
+  ScriptContext_SetVarUsagePos(v2, NULL);
 }
 
 /*
@@ -1233,38 +1149,24 @@ G_Spawn_GetItemForClassname
 */
 Weapon *G_Spawn_GetItemForClassname(Weapon *result, const char *classname)
 {
+  Weapon *WeaponForName; 
+  __int128 v5; 
+  double v6; 
   Weapon resulta; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rcx], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [rcx+20h], xmm1
-    vmovsd  qword ptr [rcx+30h], xmm0
-  }
-  *(_DWORD *)&result->weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  _RBX = result;
+  *result = NULL_WEAPON;
   if ( !strncmp(classname, "weapon_", 7ui64) )
   {
-    _RAX = G_Weapon_GetWeaponForName(&resulta, classname + 7);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovsd  xmm0, qword ptr [rax+30h]
-    }
-    LODWORD(_RAX) = *(_DWORD *)&_RAX->weaponCamo;
-    __asm
-    {
-      vmovups xmmword ptr [rbx+20h], xmm1
-      vmovsd  qword ptr [rbx+30h], xmm0
-    }
-    *(_DWORD *)&_RBX->weaponCamo = (_DWORD)_RAX;
+    WeaponForName = G_Weapon_GetWeaponForName(&resulta, classname + 7);
+    v5 = *(_OWORD *)&WeaponForName->attachmentVariationIndices[5];
+    *(__m256i *)&result->weaponIdx = *(__m256i *)&WeaponForName->weaponIdx;
+    v6 = *(double *)&WeaponForName->attachmentVariationIndices[21];
+    LODWORD(WeaponForName) = *(_DWORD *)&WeaponForName->weaponCamo;
+    *(_OWORD *)&result->attachmentVariationIndices[5] = v5;
+    *(double *)&result->attachmentVariationIndices[21] = v6;
+    *(_DWORD *)&result->weaponCamo = (_DWORD)WeaponForName;
   }
-  return _RBX;
+  return result;
 }
 
 /*
@@ -1274,20 +1176,13 @@ G_Spawn_InitGameMode
 */
 void G_Spawn_InitGameMode(const SpawnGameModeSettings *settings)
 {
-  _RBX = settings;
   if ( !settings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 115, ASSERT_TYPE_ASSERT, "( settings )", (const char *)&queryFormat, "settings") )
     __debugbreak();
-  if ( !_RBX->entFieldCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 116, ASSERT_TYPE_ASSERT, "( settings->entFieldCount )", (const char *)&queryFormat, "settings->entFieldCount") )
+  if ( !settings->entFieldCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 116, ASSERT_TYPE_ASSERT, "( settings->entFieldCount )", (const char *)&queryFormat, "settings->entFieldCount") )
     __debugbreak();
-  if ( !_RBX->entFields && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 117, ASSERT_TYPE_ASSERT, "( settings->entFields )", (const char *)&queryFormat, "settings->entFields") )
+  if ( !settings->entFields && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 117, ASSERT_TYPE_ASSERT, "( settings->entFields )", (const char *)&queryFormat, "settings->entFields") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr cs:s_gameModeSettings.bspOrDynamicSpawns, ymm0
-    vmovups xmm1, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr cs:s_gameModeSettings.entFields, xmm1
-  }
+  s_gameModeSettings = *settings;
 }
 
 /*
@@ -1295,25 +1190,25 @@ void G_Spawn_InitGameMode(const SpawnGameModeSettings *settings)
 G_Spawn_LoadStructs
 ==============
 */
-void G_Spawn_LoadStructs(double a1)
+void G_Spawn_LoadStructs(void)
 {
   GameScriptData *GameScriptDataCommon; 
-  scrContext_t *v2; 
-  unsigned int v3; 
-  scrContext_t *v4; 
-  GameScriptData *v5; 
+  scrContext_t *v1; 
+  unsigned int v2; 
+  scrContext_t *v3; 
+  GameScriptData *v4; 
   unsigned int Object; 
   char *out; 
 
   GameScriptDataCommon = GameScriptData::GetGameScriptDataCommon();
   if ( !GameScriptDataCommon->initstructs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 1061, ASSERT_TYPE_ASSERT, "(gScrData->initstructs)", (const char *)&queryFormat, "gScrData->initstructs") )
     __debugbreak();
-  v2 = ScriptContext_Server();
+  v1 = ScriptContext_Server();
   ProfLoad_Begin("Init Structs Thread");
-  v3 = Scr_ExecThread(v2, GameScriptDataCommon->initstructs, 0);
+  v2 = Scr_ExecThread(v1, GameScriptDataCommon->initstructs, 0);
   ProfLoad_End();
   ProfLoad_Begin("Free Structs Thread");
-  Scr_FreeThread(v2, v3);
+  Scr_FreeThread(v1, v2);
   ProfLoad_End();
   ProfLoad_Begin("Scr_ParseSpawnVars2 loop");
   while ( Scr_ParseSpawnVars2(&level.spawnVar) )
@@ -1324,19 +1219,19 @@ void G_Spawn_LoadStructs(double a1)
       ProfLoad_Begin("G_SpawnStruct");
       if ( !level.spawnVar.spawnVarsValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 352, ASSERT_TYPE_ASSERT, "(level.spawnVar.spawnVarsValid)", (const char *)&queryFormat, "level.spawnVar.spawnVarsValid") )
         __debugbreak();
-      v4 = ScriptContext_Server();
-      v5 = GameScriptData::GetGameScriptDataCommon();
-      if ( !v5->createstruct && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 357, ASSERT_TYPE_ASSERT, "(gScrData->createstruct)", (const char *)&queryFormat, "gScrData->createstruct") )
+      v3 = ScriptContext_Server();
+      v4 = GameScriptData::GetGameScriptDataCommon();
+      if ( !v4->createstruct && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 357, ASSERT_TYPE_ASSERT, "(gScrData->createstruct)", (const char *)&queryFormat, "gScrData->createstruct") )
         __debugbreak();
-      Scr_AddExecThread(v4, v5->createstruct, 0);
-      Object = Scr_GetObject(v4, 0);
-      Scr_SetStructFields(v4, Object, &level.spawnVar);
+      Scr_AddExecThread(v3, v4->createstruct, 0);
+      Object = Scr_GetObject(v3, 0);
+      Scr_SetStructFields(v3, Object, &level.spawnVar);
       ProfLoad_End();
     }
   }
   ProfLoad_End();
   ProfLoad_Begin("G_Spawn_CreateFxStructs");
-  G_Spawn_CreateFxStructs(a1);
+  G_Spawn_CreateFxStructs();
   ProfLoad_End();
   ProfLoad_Begin("Scr_ResetEntityParsePoint");
   Scr_ResetEntityParsePoint();
@@ -1397,18 +1292,17 @@ G_Spawn_ParseEntityField_Internal
 */
 void G_Spawn_ParseEntityField_Internal(const ent_field_t *f, const char *value, gentity_s *ent, int ignoreModel)
 {
-  int v17; 
+  int v9; 
   int ServerTriggerIndex; 
-  unsigned int v19; 
-  scrContext_t *v20; 
+  unsigned int v11; 
+  scrContext_t *v12; 
   bool IsAlternate; 
   Weapon result; 
-  int v27; 
-  int v28; 
-  int v29; 
+  float v15; 
+  float v16; 
+  float v17; 
   Weapon r_weapon; 
 
-  _RDI = ent;
   switch ( f->type )
   {
     case F_INT:
@@ -1422,12 +1316,8 @@ void G_Spawn_ParseEntityField_Internal(const ent_field_t *f, const char *value, 
       break;
     case F_FLOAT:
       *(double *)&_XMM0 = atof(value);
-      _RAX = f->ofs;
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rdi+rax], xmm1
-      }
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      *(float *)((char *)&ent->s.number + f->ofs) = *(float *)&_XMM1;
       break;
     case F_STRING:
       if ( *(_DWORD *)((char *)&ent->s.number + f->ofs) )
@@ -1435,74 +1325,45 @@ void G_Spawn_ParseEntityField_Internal(const ent_field_t *f, const char *value, 
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 392, ASSERT_TYPE_ASSERT, "((*(scr_string_t *) (b + f->ofs)) == ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "(*(scr_string_t *) (b + f->ofs)) == NULL_SCR_STRING") )
           __debugbreak();
       }
-      Scr_SetString((scr_string_t *)((char *)_RDI + f->ofs), (scr_string_t)0);
-      *(_DWORD *)((char *)&_RDI->s.number + f->ofs) = Scr_NewString(value);
+      Scr_SetString((scr_string_t *)((char *)ent + f->ofs), (scr_string_t)0);
+      *(_DWORD *)((char *)&ent->s.number + f->ofs) = Scr_NewString(value);
       break;
     case F_VECTOR:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0; jumptable 0000000140CE7A95 case 7
-        vmovss  [rsp+0E8h+var_78], xmm0
-        vmovss  [rsp+0E8h+var_74], xmm0
-        vmovss  [rsp+0E8h+var_70], xmm0
-      }
-      j_sscanf(value, "%f %f %f", &v27, &v28, &v29);
-      _RAX = f->ofs;
-      __asm
-      {
-        vmovss  xmm0, [rsp+0E8h+var_78]
-        vmovss  dword ptr [rdi+rax], xmm0
-      }
-      _RAX = f->ofs;
-      __asm
-      {
-        vmovss  xmm1, [rsp+0E8h+var_74]
-        vmovss  dword ptr [rdi+rax+4], xmm1
-      }
-      _RAX = f->ofs;
-      __asm
-      {
-        vmovss  xmm0, [rsp+0E8h+var_70]
-        vmovss  dword ptr [rdi+rax+8], xmm0
-      }
+      v15 = 0.0;
+      v16 = 0.0;
+      v17 = 0.0;
+      j_sscanf(value, "%f %f %f", &v15, &v16, &v17);
+      *(float *)((char *)&ent->s.number + f->ofs) = v15;
+      *(float *)((char *)&ent->s.attackerEntityNum + f->ofs) = v16;
+      *(float *)((char *)&ent->s.eType + f->ofs) = v17;
       break;
     case F_WEAPON:
       if ( *(_DWORD *)((char *)&ent->s.number + f->ofs) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 444, ASSERT_TYPE_ASSERT, "(*reinterpret_cast<scr_weapon_t*>(b + f->ofs) == NULL_SCRIPT_WEAPON)", (const char *)&queryFormat, "*reinterpret_cast<scr_weapon_t*>(b + f->ofs) == NULL_SCRIPT_WEAPON") )
         __debugbreak();
-      v20 = ScriptContext_Server();
-      _RAX = GScr_Main_GetWeaponForName(&result, v20, value);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0E8h+r_weapon.weaponIdx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rsp+0E8h+r_weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rsp+0E8h+r_weapon.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+      v12 = ScriptContext_Server();
+      r_weapon = *GScr_Main_GetWeaponForName(&result, v12, value);
       IsAlternate = BG_IsAlternate(value);
-      GScr_Weapon_SetWeapon(v20, (scr_weapon_t *)((char *)_RDI + f->ofs), &r_weapon, IsAlternate);
+      GScr_Weapon_SetWeapon(v12, (scr_weapon_t *)((char *)ent + f->ofs), &r_weapon, IsAlternate);
       break;
     case F_MODEL:
       if ( !ignoreModel )
       {
         if ( *value == 42 )
         {
-          v17 = atoi(value + 1);
-          _RDI->s.index.brushModel = truncate_cast<unsigned short,int>(v17);
-          _RDI->r.modelType = 5;
+          v9 = atoi(value + 1);
+          ent->s.index.brushModel = truncate_cast<unsigned short,int>(v9);
+          ent->r.modelType = 5;
         }
         else if ( *value == 63 )
         {
           ServerTriggerIndex = CM_GetServerTriggerIndex(value);
-          _RDI->s.index.brushModel = truncate_cast<unsigned short,int>(ServerTriggerIndex);
+          ent->s.index.brushModel = truncate_cast<unsigned short,int>(ServerTriggerIndex);
           if ( Scr_ParsingAddonEntities() )
           {
-            v19 = CM_TriggerModelBaseCount();
-            _RDI->s.index.brushModel = truncate_cast<unsigned short,unsigned int>(_RDI->s.index.brushModel + v19);
+            v11 = CM_TriggerModelBaseCount();
+            ent->s.index.brushModel = truncate_cast<unsigned short,unsigned int>(ent->s.index.brushModel + v11);
           }
-          _RDI->r.modelType = 4;
+          ent->r.modelType = 4;
         }
         else
         {
@@ -1637,88 +1498,79 @@ G_Spawn_WorldSpawn
 ==============
 */
 
-char __fastcall G_Spawn_WorldSpawn(double _XMM0_8, double _XMM1_8)
+char __fastcall G_Spawn_WorldSpawn(double _XMM0_8)
 {
-  char *v2; 
-  const char *v3; 
-  __int64 v4; 
-  signed __int64 v5; 
-  int v6; 
-  __int64 v7; 
+  char *v1; 
+  const char *v2; 
+  __int64 v3; 
+  signed __int64 v4; 
+  int v5; 
+  __int64 v6; 
+  int v7; 
   int v8; 
   int v9; 
-  int v10; 
-  gentity_s *v15; 
+  gentity_s *v12; 
   unsigned __int16 number; 
-  __int64 v17; 
-  unsigned int v18; 
-  __int64 v19; 
+  __int64 v14; 
+  unsigned int v15; 
+  __int64 v16; 
   char result; 
-  __int64 v21; 
-  __int64 v22; 
+  __int64 v18; 
+  __int64 v19; 
   char *out; 
 
   Scr_SpawnString(&level.spawnVar, 0xD4u, (const char *)&queryFormat.fmt + 3, (const char **)&out);
-  v2 = out;
-  v3 = "worldspawn";
-  v4 = 0x7FFFFFFFi64;
+  v1 = out;
+  v2 = "worldspawn";
+  v3 = 0x7FFFFFFFi64;
   if ( !out && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
     __debugbreak();
-  v5 = v2 - "worldspawn";
+  v4 = v1 - "worldspawn";
   do
   {
-    v6 = (unsigned __int8)v3[v5];
-    v7 = v4;
-    v8 = *(unsigned __int8 *)v3++;
-    --v4;
-    if ( !v7 )
+    v5 = (unsigned __int8)v2[v4];
+    v6 = v3;
+    v7 = *(unsigned __int8 *)v2++;
+    --v3;
+    if ( !v6 )
       break;
-    if ( v6 != v8 )
+    if ( v5 != v7 )
     {
-      v9 = v6 + 32;
-      if ( (unsigned int)(v6 - 65) > 0x19 )
-        v9 = v6;
-      v6 = v9;
-      v10 = v8 + 32;
-      if ( (unsigned int)(v8 - 65) > 0x19 )
-        v10 = v8;
-      if ( v6 != v10 )
+      v8 = v5 + 32;
+      if ( (unsigned int)(v5 - 65) > 0x19 )
+        v8 = v5;
+      v5 = v8;
+      v9 = v7 + 32;
+      if ( (unsigned int)(v7 - 65) > 0x19 )
+        v9 = v7;
+      if ( v5 != v9 )
       {
         Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E2D620, 979i64);
         break;
       }
     }
   }
-  while ( v6 );
+  while ( v5 );
   if ( Com_GameMode_SupportsFeature(WEAPON_SPRINT_RAISE) )
   {
     Scr_SpawnString(&level.spawnVar, 0x1D1u, "800", (const char **)&out);
     _XMM0_8 = atof(out);
     __asm { vcvtsd2ss xmm1, xmm0, xmm0; value }
-    Dvar_SetFloat_Internal(DVARFLT_bg_gravity, *(float *)&_XMM1_8);
+    Dvar_SetFloat_Internal(DVARFLT_bg_gravity, *(float *)&_XMM1);
   }
   Scr_SpawnString(&level.spawnVar, 0x2B4u, (const char *)&queryFormat.fmt + 3, (const char **)&out);
   if ( *out )
   {
     SV_SetConfigstring(9u, out);
     _XMM0_8 = atof(out);
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm1, cs:__real@3c8efa35; radians
-    }
-    FastSinCos(*(const float *)&_XMM0, (float *)&level.compassNorth + 1, (float *)&level.compassNorth);
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    FastSinCos(*(float *)&_XMM1 * 0.017453292, (float *)&level.compassNorth + 1, (float *)&level.compassNorth);
   }
   else
   {
     SV_SetConfigstring(9u, "0");
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.compassNorth, xmm0; level_locals_t level
-      vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.compassNorth+4, xmm1; level_locals_t level
-    }
+    level.compassNorth.v[0] = FLOAT_1_0;
+    level.compassNorth.v[1] = 0.0;
   }
   Scr_SpawnString(&level.spawnVar, 0x39Du, "0", (const char **)&out);
   g_entities[2046].spawnflags = atoi(out);
@@ -1727,30 +1579,30 @@ char __fastcall G_Spawn_WorldSpawn(double _XMM0_8, double _XMM1_8)
   Scr_SetString(&g_entities[2046].script_classname, scr_const.worldspawn);
   g_entities[2046].r.isInUse = 1;
   g_entityIsInUse[2046] = 1;
-  v15 = g_entities;
+  v12 = g_entities;
   number = g_entities[2046].r.ownerNum.number;
   if ( number )
   {
-    v17 = number;
-    v18 = number - 1;
-    if ( v18 >= 0x800 )
+    v14 = number;
+    v15 = number - 1;
+    if ( v15 >= 0x800 )
     {
-      LODWORD(v21) = v18;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v21, 2048) )
+      LODWORD(v18) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v18, 2048) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
       __debugbreak();
-    v19 = v17 - 1;
-    if ( g_entities[v19].r.isInUse != g_entityIsInUse[v19] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+    v16 = v14 - 1;
+    if ( g_entities[v16].r.isInUse != g_entityIsInUse[v16] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
       __debugbreak();
-    if ( !g_entityIsInUse[v19] )
+    if ( !g_entityIsInUse[v16] )
     {
-      LODWORD(v22) = v15[2046].r.ownerNum.number - 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v22) )
+      LODWORD(v19) = v12[2046].r.ownerNum.number - 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v19) )
         __debugbreak();
     }
-    if ( v15[2046].r.ownerNum.number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 959, ASSERT_TYPE_ASSERT, "(!g_entities[ENTITYNUM_WORLD].r.ownerNum.isDefined())", (const char *)&queryFormat, "!g_entities[ENTITYNUM_WORLD].r.ownerNum.isDefined()") )
+    if ( v12[2046].r.ownerNum.number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 959, ASSERT_TYPE_ASSERT, "(!g_entities[ENTITYNUM_WORLD].r.ownerNum.isDefined())", (const char *)&queryFormat, "!g_entities[ENTITYNUM_WORLD].r.ownerNum.isDefined()") )
       __debugbreak();
   }
   result = Com_GameMode_SupportsFeature(WEAPON_CHARGING_IN);
@@ -1767,139 +1619,83 @@ G_Spawn_WorldSunSettings
 
 void __fastcall G_Spawn_WorldSunSettings(double _XMM0_8)
 {
-  char v5; 
-  char v6; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   char *out; 
-  int v35; 
-  int v36; 
-  int v37; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec3_t angles; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_18], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps [rsp+98h+var_38], xmm13
-  }
   if ( !Com_GameMode_SupportsFeature(WEAPON_CHARGING_IN) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 805, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::MAP_SUN_SETTINGS ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::MAP_SUN_SETTINGS )") )
     __debugbreak();
   Scr_SpawnString(&level.spawnVar, 0x3C9u, "1", (const char **)&out);
   _XMM0_8 = atof(out);
-  __asm
-  {
-    vcvtsd2ss xmm13, xmm0, xmm0
-    vmovss  cs:?level@@3Ulevel_locals_t@@A.worldspawnSunLight, xmm13; level_locals_t level
-  }
+  __asm { vcvtsd2ss xmm13, xmm0, xmm0 }
+  level.worldspawnSunLight = *(float *)&_XMM13;
   Scr_SpawnString(&level.spawnVar, 0x3C7u, "1 1 1", (const char **)&out);
-  j_sscanf(out, "%g %g %g", &v35, &v36, &v37);
-  __asm
+  j_sscanf(out, "%g %g %g", &v11, &v12, &v13);
+  if ( v11 > 0.039280001 )
   {
-    vmovss  xmm0, [rsp+98h+var_60]
-    vcomiss xmm0, cs:__real@3d20e411
-  }
-  if ( v5 | v6 )
-  {
-    __asm { vmulss  xmm6, xmm0, cs:__real@3d9e8391 }
+    v3 = (float)(v11 * 0.94786733) + 0.052132703;
+    powf_0(v3, 2.4000001);
+    v2 = v3;
   }
   else
   {
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@3f72a76f
-      vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-      vmovss  xmm1, cs:__real@4019999a; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm6, xmm0 }
+    v2 = v11 * 0.077399381;
   }
-  __asm
+  v11 = v2;
+  if ( v12 > 0.039280001 )
   {
-    vmovss  xmm0, [rsp+98h+var_5C]
-    vcomiss xmm0, cs:__real@3d20e411
-    vmovss  [rsp+98h+var_60], xmm6
-  }
-  if ( v5 | v6 )
-  {
-    __asm { vmulss  xmm7, xmm0, cs:__real@3d9e8391 }
+    v5 = (float)(v12 * 0.94786733) + 0.052132703;
+    powf_0(v5, 2.4000001);
+    v4 = v5;
   }
   else
   {
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@3f72a76f
-      vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-      vmovss  xmm1, cs:__real@4019999a; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm7, xmm0 }
+    v4 = v12 * 0.077399381;
   }
-  __asm
+  v12 = v4;
+  if ( v13 > 0.039280001 )
   {
-    vmovss  xmm0, [rsp+98h+var_58]
-    vcomiss xmm0, cs:__real@3d20e411
-    vmovss  [rsp+98h+var_5C], xmm7
-  }
-  if ( v5 | v6 )
-  {
-    __asm { vmulss  xmm4, xmm0, cs:__real@3d9e8391 }
+    v7 = (float)(v13 * 0.94786733) + 0.052132703;
+    powf_0(v7, 2.4000001);
+    v6 = v7;
   }
   else
   {
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@3f72a76f
-      vaddss  xmm0, xmm0, cs:__real@3d55891a; X
-      vmovss  xmm1, cs:__real@4019999a; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm4, xmm0 }
+    v6 = v13 * 0.077399381;
   }
-  __asm
+  v8 = (float)((float)(v2 * 0.21259999) + (float)(v4 * 0.71520001)) + (float)(v6 * 0.0722);
+  v13 = v6;
+  if ( v8 > 0.0 )
   {
-    vmulss  xmm2, xmm6, dword ptr cs:?luminanceCoefficientsBT709@@3Tvec3_t@@B; vec3_t const luminanceCoefficientsBT709
-    vmulss  xmm1, xmm7, dword ptr cs:?luminanceCoefficientsBT709@@3Tvec3_t@@B+4; vec3_t const luminanceCoefficientsBT709
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm2, xmm4, dword ptr cs:?luminanceCoefficientsBT709@@3Tvec3_t@@B+8; vec3_t const luminanceCoefficientsBT709
-    vaddss  xmm0, xmm3, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovss  [rsp+98h+var_58], xmm4
+    v9 = 1.0 / v8;
+    v2 = v9 * v2;
+    v4 = v9 * v4;
+    v6 = v9 * v6;
+    v11 = v2;
+    v12 = v4;
+    v13 = v6;
   }
-  if ( !(v5 | v6) )
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vdivss  xmm0, xmm1, xmm0
-      vmulss  xmm6, xmm0, xmm6
-      vmulss  xmm7, xmm0, xmm7
-      vmulss  xmm4, xmm0, xmm4
-      vmovss  [rsp+98h+var_60], xmm6
-      vmovss  [rsp+98h+var_5C], xmm7
-      vmovss  [rsp+98h+var_58], xmm4
-    }
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm13, cs:__real@3ea2f983
-    vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.mapSunColorAndIntensity+0Ch, xmm0; level_locals_t level
-    vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.overrideSunColorAndIntensity+0Ch, xmm0; level_locals_t level
-    vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.mapSunColorAndIntensity, xmm6; level_locals_t level
-    vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.mapSunColorAndIntensity+4, xmm7; level_locals_t level
-    vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.mapSunColorAndIntensity+8, xmm4; level_locals_t level
-    vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.overrideSunColorAndIntensity, xmm6; level_locals_t level
-    vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.overrideSunColorAndIntensity+4, xmm7; level_locals_t level
-    vmovss  dword ptr cs:?level@@3Ulevel_locals_t@@A.overrideSunColorAndIntensity+8, xmm4; level_locals_t level
-  }
+  level.mapSunColorAndIntensity.v[3] = *(float *)&_XMM13 * 0.31830987;
+  level.overrideSunColorAndIntensity.v[3] = *(float *)&_XMM13 * 0.31830987;
+  level.mapSunColorAndIntensity.v[0] = v2;
+  level.mapSunColorAndIntensity.v[1] = v4;
+  level.mapSunColorAndIntensity.v[2] = v6;
+  level.overrideSunColorAndIntensity.v[0] = v2;
+  level.overrideSunColorAndIntensity.v[1] = v4;
+  level.overrideSunColorAndIntensity.v[2] = v6;
   Scr_SpawnString(&level.spawnVar, 0x3C8u, "0 0 0", (const char **)&out);
   j_sscanf(out, "%g %g %g", &angles, &angles.y, &angles.z);
   AngleVectors(&angles, &level.mapSunDirection, NULL, NULL);
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm13, [rsp+98h+var_38]
-  }
 }
 
 /*
@@ -2131,11 +1927,9 @@ char Scr_GetGenericEnt(scrContext_t *scrContext, int offset, const char *key, sc
 Scr_GetGenericEntArray
 ==============
 */
-
-void __fastcall Scr_GetGenericEntArray(scrContext_t *scrContext, int qbOnlyScriptables, __int64 a3, double _XMM3_8)
+void Scr_GetGenericEntArray(scrContext_t *scrContext, int qbOnlyScriptables)
 {
-  __asm { vxorps  xmm3, xmm3, xmm3; radius }
-  Scr_GetGenericEntArray(scrContext, qbOnlyScriptables, NULL, *(float *)&_XMM3);
+  Scr_GetGenericEntArray(scrContext, qbOnlyScriptables, NULL, 0.0);
 }
 
 /*
@@ -2143,116 +1937,62 @@ void __fastcall Scr_GetGenericEntArray(scrContext_t *scrContext, int qbOnlyScrip
 Scr_GetGenericEntArray
 ==============
 */
-
-void __fastcall Scr_GetGenericEntArray(scrContext_t *scrContext, int qbOnlyScriptables, const vec3_t *fromOrigin, double radius)
+void Scr_GetGenericEntArray(scrContext_t *scrContext, int qbOnlyScriptables, const vec3_t *fromOrigin, float radius)
 {
-  bool v10; 
-  bool v11; 
-  const gentity_s *v13; 
-  int v14; 
+  float v7; 
+  const gentity_s *v8; 
+  int v9; 
+  __int64 v10; 
+  __int64 v11; 
+  float v12; 
+  float v13; 
+  float v14; 
   __int64 v15; 
   __int64 v16; 
-  __int64 v29; 
-  __int64 v30; 
-  int v31; 
-  int v32; 
-  int v33; 
 
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  _R14 = fromOrigin;
-  __asm { vmulss  xmm6, xmm3, xmm3 }
+  v7 = radius * radius;
   if ( fromOrigin )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r8]
-      vmovss  [rsp+88h+var_48], xmm0
-    }
-    if ( (v31 & 0x7F800000) == 2139095040 )
-      goto LABEL_31;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r8+4]
-      vmovss  [rsp+88h+var_48], xmm0
-    }
-    if ( (v32 & 0x7F800000) == 2139095040 )
-      goto LABEL_31;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r8+8]
-      vmovss  [rsp+88h+var_48], xmm0
-    }
-    v10 = (v33 & 0x7F800000u) < 0x7F800000;
-    if ( (v33 & 0x7F800000) == 2139095040 )
-    {
-LABEL_31:
-      v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 1211, ASSERT_TYPE_SANITY, "( !IS_NAN( ( *fromOrigin )[0] ) && !IS_NAN( ( *fromOrigin )[1] ) && !IS_NAN( ( *fromOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( *fromOrigin )[0] ) && !IS_NAN( ( *fromOrigin )[1] ) && !IS_NAN( ( *fromOrigin )[2] )");
-      v10 = 0;
-      if ( v11 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-    }
-    if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 1212, ASSERT_TYPE_ASSERT, "(radiusSq >= 0)", (const char *)&queryFormat, "radiusSq >= 0") )
+    if ( ((LODWORD(fromOrigin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(fromOrigin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(fromOrigin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 1211, ASSERT_TYPE_SANITY, "( !IS_NAN( ( *fromOrigin )[0] ) && !IS_NAN( ( *fromOrigin )[1] ) && !IS_NAN( ( *fromOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( *fromOrigin )[0] ) && !IS_NAN( ( *fromOrigin )[1] ) && !IS_NAN( ( *fromOrigin )[2] )") )
+      __debugbreak();
+    if ( (float)(radius * radius) < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 1212, ASSERT_TYPE_ASSERT, "(radiusSq >= 0)", (const char *)&queryFormat, "radiusSq >= 0") )
       __debugbreak();
   }
   Scr_MakeArray(scrContext);
-  v13 = g_entities;
-  v14 = 0;
+  v8 = g_entities;
+  v9 = 0;
   if ( level.num_entities > 0 )
   {
-    v15 = 0i64;
-    v16 = 0i64;
+    v10 = 0i64;
+    v11 = 0i64;
     do
     {
-      if ( (unsigned int)v14 >= 0x800 )
+      if ( (unsigned int)v9 >= 0x800 )
       {
-        LODWORD(v30) = 2048;
-        LODWORD(v29) = v14;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v29, v30) )
+        LODWORD(v16) = 2048;
+        LODWORD(v15) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v15, v16) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v16].r.isInUse != g_entityIsInUse[v15] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v11].r.isInUse != g_entityIsInUse[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( g_entityIsInUse[v15] && (!qbOnlyScriptables || ScriptableSv_GetScriptableIndexForEntity(v13) != -1) )
+      if ( g_entityIsInUse[v10] && (!qbOnlyScriptables || ScriptableSv_GetScriptableIndexForEntity(v8) != -1) )
       {
-        if ( _R14 )
+        if ( !fromOrigin || (v12 = fromOrigin->v[0] - g_entities[v11].r.currentOrigin.v[0], v13 = fromOrigin->v[1] - g_entities[v11].r.currentOrigin.v[1], v14 = fromOrigin->v[2] - g_entities[v11].r.currentOrigin.v[2], (float)((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v14 * v14)) <= v7) )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r14]
-            vmovss  xmm1, dword ptr [r14+4]
-            vsubss  xmm3, xmm0, dword ptr [rax+rbp+130h]
-            vsubss  xmm2, xmm1, dword ptr [rax+rbp+134h]
-            vmovss  xmm0, dword ptr [r14+8]
-            vsubss  xmm4, xmm0, dword ptr [rax+rbp+138h]
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm2, xmm3, xmm0
-            vcomiss xmm2, xmm6
-          }
-        }
-        else
-        {
-          GScr_AddEntity(v13);
+          GScr_AddEntity(v8);
           Scr_AddArray(scrContext);
         }
       }
-      ++v14;
-      ++v15;
-      ++v16;
-      ++v13;
+      ++v9;
+      ++v10;
+      ++v11;
+      ++v8;
     }
-    while ( v14 < level.num_entities );
+    while ( v9 < level.num_entities );
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
 }
 
 /*
@@ -2262,14 +2002,7 @@ Scr_GetGenericEntArray
 */
 void Scr_GetGenericEntArray(scrContext_t *scrContext, int offset, scr_string_t name, int qbOnlyScriptables)
 {
-  float v6; 
-
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+38h+var_10], xmm0
-  }
-  Scr_GetGenericEntArray(scrContext, offset, name, qbOnlyScriptables, NULL, v6);
+  Scr_GetGenericEntArray(scrContext, offset, name, qbOnlyScriptables, NULL, 0.0);
 }
 
 /*
@@ -2279,137 +2012,80 @@ Scr_GetGenericEntArray
 */
 void Scr_GetGenericEntArray(scrContext_t *scrContext, int offset, scr_string_t name, int qbOnlyScriptables, const vec3_t *fromOrigin, float radius)
 {
-  __int64 v10; 
-  bool v14; 
-  bool v15; 
-  const ent_field_t *v17; 
-  const gentity_s *v18; 
-  int v19; 
-  __int64 v20; 
-  __int64 v21; 
-  int v22; 
-  __int64 v35; 
-  __int64 v36; 
-  int v37; 
-  int v38; 
-  int v39; 
+  __int64 v8; 
+  const ent_field_t *v9; 
+  const gentity_s *v10; 
+  int v11; 
+  __int64 v12; 
+  __int64 v13; 
+  int v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int64 v18; 
+  __int64 v19; 
+  unsigned int v20; 
 
-  _R14 = fromOrigin;
-  __asm { vmovaps [rsp+98h+var_48], xmm6 }
-  v10 = offset;
-  __asm
-  {
-    vmovss  xmm0, [rsp+98h+radius]
-    vmulss  xmm6, xmm0, xmm0
-  }
+  v8 = offset;
   if ( fromOrigin )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14]
-      vmovss  [rsp+98h+var_58], xmm0
-    }
-    if ( (v37 & 0x7F800000) == 2139095040 )
-      goto LABEL_38;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+4]
-      vmovss  [rsp+98h+var_58], xmm0
-    }
-    if ( (v38 & 0x7F800000) == 2139095040 )
-      goto LABEL_38;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+8]
-      vmovss  [rsp+98h+var_58], xmm0
-    }
-    v14 = (v39 & 0x7F800000u) < 0x7F800000;
-    if ( (v39 & 0x7F800000) == 2139095040 )
-    {
-LABEL_38:
-      v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 1164, ASSERT_TYPE_SANITY, "( !IS_NAN( ( *fromOrigin )[0] ) && !IS_NAN( ( *fromOrigin )[1] ) && !IS_NAN( ( *fromOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( *fromOrigin )[0] ) && !IS_NAN( ( *fromOrigin )[1] ) && !IS_NAN( ( *fromOrigin )[2] )");
-      v14 = 0;
-      if ( v15 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-    }
-    if ( v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 1165, ASSERT_TYPE_ASSERT, "(radiusSq >= 0)", (const char *)&queryFormat, "radiusSq >= 0") )
+    if ( ((LODWORD(fromOrigin->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(fromOrigin->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(fromOrigin->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 1164, ASSERT_TYPE_SANITY, "( !IS_NAN( ( *fromOrigin )[0] ) && !IS_NAN( ( *fromOrigin )[1] ) && !IS_NAN( ( *fromOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( *fromOrigin )[0] ) && !IS_NAN( ( *fromOrigin )[1] ) && !IS_NAN( ( *fromOrigin )[2] )") )
+      __debugbreak();
+    if ( (float)(radius * radius) < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 1165, ASSERT_TYPE_ASSERT, "(radiusSq >= 0)", (const char *)&queryFormat, "radiusSq >= 0") )
       __debugbreak();
   }
-  if ( (unsigned int)v10 >= s_gameModeSettings.entFieldCount - 1 )
+  if ( (unsigned int)v8 >= s_gameModeSettings.entFieldCount - 1 )
   {
-    LODWORD(v35) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 1169, ASSERT_TYPE_ASSERT, "(unsigned)( offset ) < (unsigned)( s_gameModeSettings.entFieldCount - 1 )", "offset doesn't index s_gameModeSettings.entFieldCount - 1\n\t%i not in [0, %i)", v35, s_gameModeSettings.entFieldCount - 1) )
+    v20 = s_gameModeSettings.entFieldCount - 1;
+    LODWORD(v18) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_spawn.cpp", 1169, ASSERT_TYPE_ASSERT, "(unsigned)( offset ) < (unsigned)( s_gameModeSettings.entFieldCount - 1 )", "offset doesn't index s_gameModeSettings.entFieldCount - 1\n\t%i not in [0, %i)", v18, v20) )
       __debugbreak();
   }
-  v17 = &s_gameModeSettings.entFields[v10];
-  if ( v17->type != F_STRING )
+  v9 = &s_gameModeSettings.entFields[v8];
+  if ( v9->type != F_STRING )
     Scr_ParamError(COM_ERR_3590, scrContext, 1u, "key is not internally a string");
   Scr_MakeArray(scrContext);
-  v18 = g_entities;
-  v19 = 0;
+  v10 = g_entities;
+  v11 = 0;
   if ( level.num_entities > 0 )
   {
-    v20 = 0i64;
-    v21 = 0i64;
+    v12 = 0i64;
+    v13 = 0i64;
     do
     {
-      if ( (unsigned int)v19 >= 0x800 )
+      if ( (unsigned int)v11 >= 0x800 )
       {
-        LODWORD(v36) = 2048;
-        LODWORD(v35) = v19;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v35, v36) )
+        LODWORD(v19) = 2048;
+        LODWORD(v18) = v11;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v18, v19) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v21].r.isInUse != g_entityIsInUse[v20] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v13].r.isInUse != g_entityIsInUse[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( g_entityIsInUse[v20] )
+      if ( g_entityIsInUse[v12] )
       {
-        v22 = *(_DWORD *)((char *)&v18->s.number + v17->ofs);
-        if ( v22 )
+        v14 = *(_DWORD *)((char *)&v10->s.number + v9->ofs);
+        if ( v14 )
         {
-          if ( v22 == name && (!qbOnlyScriptables || ScriptableSv_GetScriptableIndexForEntity(v18) != -1) )
+          if ( v14 == name && (!qbOnlyScriptables || ScriptableSv_GetScriptableIndexForEntity(v10) != -1) )
           {
-            if ( fromOrigin )
+            if ( !fromOrigin || (v15 = fromOrigin->v[0] - g_entities[v13].r.currentOrigin.v[0], v16 = fromOrigin->v[1] - g_entities[v13].r.currentOrigin.v[1], v17 = fromOrigin->v[2] - g_entities[v13].r.currentOrigin.v[2], (float)((float)((float)(v16 * v16) + (float)(v15 * v15)) + (float)(v17 * v17)) <= (float)(radius * radius)) )
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [r14]
-                vmovss  xmm1, dword ptr [r14+4]
-                vsubss  xmm3, xmm0, dword ptr [rax+rbp+130h]
-                vsubss  xmm2, xmm1, dword ptr [rax+rbp+134h]
-                vmovss  xmm0, dword ptr [r14+8]
-                vsubss  xmm4, xmm0, dword ptr [rax+rbp+138h]
-                vmulss  xmm2, xmm2, xmm2
-                vmulss  xmm1, xmm3, xmm3
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm3, xmm2, xmm1
-                vaddss  xmm2, xmm3, xmm0
-                vcomiss xmm2, xmm6
-              }
-            }
-            else
-            {
-              GScr_AddEntity(v18);
+              GScr_AddEntity(v10);
               Scr_AddArray(scrContext);
             }
           }
         }
       }
-      ++v19;
-      ++v20;
-      ++v21;
-      ++v18;
+      ++v11;
+      ++v12;
+      ++v13;
+      ++v10;
     }
-    while ( v19 < level.num_entities );
+    while ( v11 < level.num_entities );
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
 }
 
 /*
@@ -2419,136 +2095,130 @@ Scr_GetGenericField
 */
 void Scr_GetGenericField(scrContext_t *scrContext, unsigned __int8 *b, fieldtype_t type, __int64 ofs)
 {
-  scr_string_t v8; 
-  const char *v9; 
-  const gentity_s *v13; 
-  unsigned __int8 *v14; 
-  int v15; 
-  __int64 v16; 
-  __int64 v17; 
-  const gentity_s **v18; 
-  SentientHandle *v19; 
-  sentient_s *v20; 
-  const pathnode_t *v21; 
+  scr_string_t v5; 
+  const char *v6; 
+  float v7; 
+  const gentity_s *v8; 
+  unsigned __int8 *v9; 
+  int v10; 
+  __int64 v11; 
+  __int64 v12; 
+  const gentity_s **v13; 
+  SentientHandle *v14; 
+  sentient_s *v15; 
+  const pathnode_t *v16; 
   const char *ModelName; 
-  unsigned int v23; 
-  __int64 v24; 
-  int v25; 
-  __int64 v26; 
-  int v27; 
+  unsigned int v18; 
+  __int64 v19; 
+  int v20; 
+  __int64 v21; 
+  int v22; 
   float value[4]; 
 
-  _R10 = ofs;
-  _R9 = b;
   switch ( type )
   {
     case F_INT:
-      Scr_AddInt(scrContext, *(_DWORD *)&b[_R10]);
+      Scr_AddInt(scrContext, *(_DWORD *)&b[ofs]);
       break;
     case F_SHORT:
-      Scr_AddInt(scrContext, *(__int16 *)&b[_R10]);
+      Scr_AddInt(scrContext, *(__int16 *)&b[ofs]);
       break;
     case F_USHORT:
-      Scr_AddInt(scrContext, *(unsigned __int16 *)&b[_R10]);
+      Scr_AddInt(scrContext, *(unsigned __int16 *)&b[ofs]);
       break;
     case F_BYTE:
-      Scr_AddInt(scrContext, b[_R10]);
+      Scr_AddInt(scrContext, b[ofs]);
       break;
     case F_FLOAT:
-      __asm { vmovss  xmm1, dword ptr [r10+r9]; jumptable 0000000140CE9C0B case 4 }
-      Scr_AddFloat(scrContext, *(float *)&_XMM1);
+      Scr_AddFloat(scrContext, *(float *)&b[ofs]);
       break;
     case F_STRING:
-      v8 = *(_DWORD *)&b[_R10];
-      if ( v8 )
-        Scr_AddConstString(scrContext, v8);
+      v5 = *(_DWORD *)&b[ofs];
+      if ( v5 )
+        Scr_AddConstString(scrContext, v5);
       break;
     case F_CSTRING:
-      v9 = *(const char **)&b[_R10];
-      if ( v9 && *v9 )
-        Scr_AddString(scrContext, v9);
+      v6 = *(const char **)&b[ofs];
+      if ( v6 && *v6 )
+        Scr_AddString(scrContext, v6);
       break;
     case F_VECTOR:
-      Scr_AddVector(scrContext, (const float *)&b[_R10]);
+      Scr_AddVector(scrContext, (const float *)&b[ofs]);
       break;
     case F_ENTITY:
-      v13 = *(const gentity_s **)&b[_R10];
-      if ( v13 )
-        GScr_AddEntity(v13);
+      v8 = *(const gentity_s **)&b[ofs];
+      if ( v8 )
+        GScr_AddEntity(v8);
       break;
     case F_ENTHANDLE:
-      v14 = &b[_R10];
-      if ( EntHandle::isDefined((EntHandle *)&b[_R10]) )
+      v9 = &b[ofs];
+      if ( EntHandle::isDefined((EntHandle *)&b[ofs]) )
       {
-        v15 = *(unsigned __int16 *)v14;
-        if ( (unsigned int)(v15 - 1) >= 0x7FF )
+        v10 = *(unsigned __int16 *)v9;
+        if ( (unsigned int)(v10 - 1) >= 0x7FF )
         {
-          v27 = 2047;
-          v25 = v15 - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v25, v27) )
+          v22 = 2047;
+          v20 = v10 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v20, v22) )
             __debugbreak();
         }
-        v16 = *(unsigned __int16 *)v14;
-        if ( (unsigned int)(v16 - 1) >= 0x800 )
+        v11 = *(unsigned __int16 *)v9;
+        if ( (unsigned int)(v11 - 1) >= 0x800 )
         {
-          LODWORD(v26) = 2048;
-          LODWORD(v24) = v16 - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v24, v26) )
+          LODWORD(v21) = 2048;
+          LODWORD(v19) = v11 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v19, v21) )
             __debugbreak();
         }
         if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
           __debugbreak();
-        v17 = v16 - 1;
-        if ( g_entities[v17].r.isInUse != g_entityIsInUse[v17] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+        v12 = v11 - 1;
+        if ( g_entities[v12].r.isInUse != g_entityIsInUse[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
           __debugbreak();
-        if ( !g_entityIsInUse[v17] )
+        if ( !g_entityIsInUse[v12] )
         {
-          LODWORD(v26) = *(unsigned __int16 *)v14 - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v26) )
+          LODWORD(v21) = *(unsigned __int16 *)v9 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v21) )
             __debugbreak();
         }
-        GScr_AddEntity(&g_entities[*(unsigned __int16 *)v14 - 1]);
+        GScr_AddEntity(&g_entities[*(unsigned __int16 *)v9 - 1]);
       }
       break;
     case F_SENTIENT:
-      v18 = *(const gentity_s ***)&b[_R10];
-      if ( v18 )
-        GScr_AddEntity(*v18);
+      v13 = *(const gentity_s ***)&b[ofs];
+      if ( v13 )
+        GScr_AddEntity(*v13);
       break;
     case F_SENTIENTHANDLE:
-      v19 = (SentientHandle *)&b[_R10];
-      if ( SentientHandle::isDefined((SentientHandle *)&b[_R10]) )
+      v14 = (SentientHandle *)&b[ofs];
+      if ( SentientHandle::isDefined((SentientHandle *)&b[ofs]) )
       {
-        v20 = SentientHandle::sentient(v19);
-        GScr_AddEntity(v20->ent);
+        v15 = SentientHandle::sentient(v14);
+        GScr_AddEntity(v15->ent);
       }
       break;
     case F_PATHNODE:
-      v21 = *(const pathnode_t **)&b[_R10];
-      if ( v21 )
-        Scr_AddPathnode(v21);
+      v16 = *(const pathnode_t **)&b[ofs];
+      if ( v16 )
+        Scr_AddPathnode(v16);
       break;
     case F_WEAPON:
-      Scr_AddEntityNum(scrContext, *(_DWORD *)&b[_R10], ENTITY_CLASS_SAVED_COUNT);
+      Scr_AddEntityNum(scrContext, *(_DWORD *)&b[ofs], ENTITY_CLASS_SAVED_COUNT);
       break;
     case F_ANGLES_YAW:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r10+r9]; jumptable 0000000140CE9C0B case 15
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  [rsp+78h+value], xmm1
-        vmovss  [rsp+78h+var_34], xmm0
-        vmovss  [rsp+78h+var_30], xmm1
-      }
+      v7 = *(float *)&b[ofs];
+      value[0] = 0.0;
+      value[1] = v7;
+      value[2] = 0.0;
       Scr_AddVector(scrContext, value);
       break;
     case F_OBJECT:
-      v23 = *(_DWORD *)&b[_R10];
-      if ( v23 )
-        Scr_AddObject(scrContext, v23);
+      v18 = *(_DWORD *)&b[ofs];
+      if ( v18 )
+        Scr_AddObject(scrContext, v18);
       break;
     case F_MODEL:
-      ModelName = G_CString_GetModelName(*(unsigned __int16 *)&b[_R10]);
+      ModelName = G_CString_GetModelName(*(unsigned __int16 *)&b[ofs]);
       Scr_AddString(scrContext, ModelName);
       break;
     default:
@@ -2820,13 +2490,15 @@ Scr_SetGenericField
 void Scr_SetGenericField(scrContext_t *scrContext, unsigned __int8 *b, fieldtype_t type, __int64 ofs)
 {
   scr_string_t ConstStringIncludeNull; 
+  float v8; 
   int Int; 
-  unsigned int v13; 
-  unsigned int v14; 
+  unsigned int v10; 
+  unsigned int v11; 
+  double Float; 
   const gentity_s *EntityAllowNull; 
-  gentity_s *v17; 
-  gentity_s *v18; 
-  SentientHandle *v19; 
+  gentity_s *v14; 
+  gentity_s *v15; 
+  SentientHandle *v16; 
   const char *String; 
   bool IsAlternate; 
   scr_entref_t EntityRef; 
@@ -2834,8 +2506,6 @@ void Scr_SetGenericField(scrContext_t *scrContext, unsigned __int8 *b, fieldtype
   vec3_t vectorValue; 
   Weapon r_weapon; 
 
-  _R14 = ofs;
-  _RSI = b;
   switch ( type )
   {
     case F_INT:
@@ -2845,61 +2515,56 @@ void Scr_SetGenericField(scrContext_t *scrContext, unsigned __int8 *b, fieldtype
       Int = Scr_GetInt(scrContext, 0);
       if ( (unsigned int)(Int + 0x8000) > 0xFFFF )
         Scr_Error(COM_ERR_3591, scrContext, "SetGenericField is attempting to truncate an invalid number into an F_SHORT");
-      *(_WORD *)&_RSI[_R14] = truncate_cast<short,int>(Int);
+      *(_WORD *)&b[ofs] = truncate_cast<short,int>(Int);
       break;
     case F_USHORT:
-      v13 = Scr_GetInt(scrContext, 0);
-      if ( v13 > 0xFFFF )
+      v10 = Scr_GetInt(scrContext, 0);
+      if ( v10 > 0xFFFF )
         Scr_Error(COM_ERR_3592, scrContext, "SetGenericField is attempting to truncate an invalid number into an F_USHORT (which is unsigned)");
-      *(_WORD *)&_RSI[_R14] = truncate_cast<unsigned short,int>(v13);
+      *(_WORD *)&b[ofs] = truncate_cast<unsigned short,int>(v10);
       break;
     case F_BYTE:
-      v14 = Scr_GetInt(scrContext, 0);
-      if ( v14 > 0xFF )
+      v11 = Scr_GetInt(scrContext, 0);
+      if ( v11 > 0xFF )
         Scr_Error(COM_ERR_3593, scrContext, "SetGenericField is attempting to truncate an invalid number into an F_BYTE (which is unsigned)");
-      _RSI[_R14] = truncate_cast<unsigned char,int>(v14);
+      b[ofs] = truncate_cast<unsigned char,int>(v11);
       break;
     case F_FLOAT:
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-      __asm { vmovss  dword ptr [r14+rsi], xmm0 }
+      Float = Scr_GetFloat(scrContext, 0);
+      *(float *)&b[ofs] = *(float *)&Float;
       break;
     case F_STRING:
       ConstStringIncludeNull = Scr_GetConstStringIncludeNull(scrContext, 0);
-      Scr_SetString((scr_string_t *)&_RSI[_R14], ConstStringIncludeNull);
+      Scr_SetString((scr_string_t *)&b[ofs], ConstStringIncludeNull);
       break;
     case F_VECTOR:
       Scr_GetVector(scrContext, 0, &vectorValue);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0D8h+vectorValue]
-        vmovss  xmm1, dword ptr [rsp+0D8h+vectorValue+4]
-        vmovss  dword ptr [r14+rsi], xmm0
-        vmovss  xmm0, dword ptr [rsp+0D8h+vectorValue+8]
-        vmovss  dword ptr [r14+rsi+8], xmm0
-        vmovss  dword ptr [r14+rsi+4], xmm1
-      }
+      v8 = vectorValue.v[1];
+      *(float *)&b[ofs] = vectorValue.v[0];
+      *(float *)&b[ofs + 8] = vectorValue.v[2];
+      *(float *)&b[ofs + 4] = v8;
       break;
     case F_ENTITY:
       *(_QWORD *)&b[ofs] = GScr_GetEntityAllowNull(0);
       break;
     case F_ENTHANDLE:
       EntityAllowNull = GScr_GetEntityAllowNull(0);
-      EntHandle::setEnt((EntHandle *)&_RSI[_R14], EntityAllowNull);
+      EntHandle::setEnt((EntHandle *)&b[ofs], EntityAllowNull);
       break;
     case F_SENTIENT:
-      v17 = GScr_GetEntityAllowNull(0);
-      if ( v17 )
-        *(_QWORD *)&_RSI[_R14] = v17->sentient;
+      v14 = GScr_GetEntityAllowNull(0);
+      if ( v14 )
+        *(_QWORD *)&b[ofs] = v14->sentient;
       else
-        *(_QWORD *)&_RSI[_R14] = 0i64;
+        *(_QWORD *)&b[ofs] = 0i64;
       break;
     case F_SENTIENTHANDLE:
-      v18 = GScr_GetEntityAllowNull(0);
-      v19 = (SentientHandle *)&_RSI[_R14];
-      if ( v18 )
-        SentientHandle::setSentient(v19, v18->sentient);
+      v15 = GScr_GetEntityAllowNull(0);
+      v16 = (SentientHandle *)&b[ofs];
+      if ( v15 )
+        SentientHandle::setSentient(v16, v15->sentient);
       else
-        SentientHandle::setSentient(v19, NULL);
+        SentientHandle::setSentient(v16, NULL);
       break;
     case F_PATHNODE:
       *(_QWORD *)&b[ofs] = Scr_GetPathnodeAllowNull(scrContext, 0);
@@ -2908,36 +2573,22 @@ void Scr_SetGenericField(scrContext_t *scrContext, unsigned __int8 *b, fieldtype
       if ( Scr_GetType(scrContext, 0) == VAR_STRING )
       {
         String = Scr_GetString(scrContext, 0);
-        _RAX = GScr_Main_GetWeaponForName(&result, scrContext, String);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rsp+0D8h+r_weapon.weaponIdx], ymm0
-          vmovups xmm1, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rsp+0D8h+r_weapon.attachmentVariationIndices+5], xmm1
-          vmovsd  xmm0, qword ptr [rax+30h]
-          vmovsd  qword ptr [rsp+0D8h+r_weapon.attachmentVariationIndices+15h], xmm0
-        }
-        *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+        r_weapon = *GScr_Main_GetWeaponForName(&result, scrContext, String);
         IsAlternate = BG_IsAlternate(String);
-        GScr_Weapon_SetWeapon(scrContext, (scr_weapon_t *)&_RSI[_R14], &r_weapon, IsAlternate);
+        GScr_Weapon_SetWeapon(scrContext, (scr_weapon_t *)&b[ofs], &r_weapon, IsAlternate);
       }
       else
       {
         EntityRef = Scr_GetEntityRef(scrContext, 0);
         if ( EntityRef.entclass == ENTITY_CLASS_SAVED_COUNT )
-          GScr_Weapon_Set(scrContext, (scr_weapon_t *)&_RSI[_R14], (const scr_weapon_t)EntityRef.entnum);
+          GScr_Weapon_Set(scrContext, (scr_weapon_t *)&b[ofs], (const scr_weapon_t)EntityRef.entnum);
         else
           Scr_ParamError(COM_ERR_3594, scrContext, 0, "Not a weapon object");
       }
       break;
     case F_ANGLES_YAW:
       Scr_GetVector(scrContext, 0, &vectorValue);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0D8h+vectorValue+4]
-        vmovss  dword ptr [r14+rsi], xmm0
-      }
+      *(float *)&b[ofs] = vectorValue.v[1];
       break;
     default:
       return;

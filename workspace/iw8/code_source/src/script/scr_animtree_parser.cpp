@@ -99,15 +99,16 @@ __int64 AnimTreeParser_ApplyConstantBindings(scrContext_t *scrContext, XAnim_s *
   unsigned int v11; 
   unsigned int i; 
   scr_string_t SiblingName; 
+  VariableUnion *VariableValueAddress; 
   __int16 v15; 
   bool v16; 
   __int64 uintValue; 
   unsigned __int16 v18; 
   __int64 intValue; 
+  scr_string_t v20; 
   scr_string_t v21; 
-  scr_string_t v22; 
-  const char *v23; 
-  const char *v25; 
+  const char *v22; 
+  const char *v24; 
   XAnimFieldType fmt; 
   XAnimFieldType outParameterType; 
   XAnimNodeTypeID NodeType; 
@@ -128,50 +129,49 @@ __int64 AnimTreeParser_ApplyConstantBindings(scrContext_t *scrContext, XAnim_s *
     SiblingName = GetSiblingName(scrContext, i);
     if ( !SiblingName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 1577, ASSERT_TYPE_ASSERT, "(nodeParamName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "nodeParamName != NULL_SCR_STRING") )
       __debugbreak();
-    _RDI = GetVariableValueAddress(scrContext, i);
+    VariableValueAddress = GetVariableValueAddress(scrContext, i);
     if ( XAnimFindCustomNodeParameter(v10, SiblingName, &outParameterType) )
     {
       v15 = outParameterType;
       switch ( (__int16)outParameterType )
       {
         case 1:
-          v16 = XAnimBindBoolToNodeParameter(anims, animIndex, SiblingName, _RDI->intValue != 0);
+          v16 = XAnimBindBoolToNodeParameter(anims, animIndex, SiblingName, VariableValueAddress->intValue != 0);
           goto LABEL_29;
         case 2:
-          uintValue = _RDI->uintValue;
+          uintValue = VariableValueAddress->uintValue;
           if ( (unsigned int)uintValue > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)uintValue, "unsigned", uintValue) )
             __debugbreak();
           v16 = XAnimBindByteToNodeParameter(anims, animIndex, SiblingName, uintValue);
           goto LABEL_29;
         case 3:
-          v16 = XAnimBindUInt32ToNodeParameter(anims, animIndex, SiblingName, _RDI->intValue);
+          v16 = XAnimBindUInt32ToNodeParameter(anims, animIndex, SiblingName, VariableValueAddress->intValue);
           goto LABEL_29;
         case 4:
-          v16 = XAnimBindInt32ToNodeParameter(anims, animIndex, SiblingName, _RDI->intValue);
+          v16 = XAnimBindInt32ToNodeParameter(anims, animIndex, SiblingName, VariableValueAddress->intValue);
           goto LABEL_29;
         case 5:
-          v18 = truncate_cast<unsigned short,unsigned int>(_RDI->intValue);
+          v18 = truncate_cast<unsigned short,unsigned int>(VariableValueAddress->intValue);
           v16 = XAnimBindUInt16ToNodeParameter(anims, animIndex, SiblingName, v18);
           goto LABEL_29;
         case 6:
-          intValue = _RDI->intValue;
+          intValue = VariableValueAddress->intValue;
           if ( (unsigned int)(intValue + 0x8000) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "short __cdecl truncate_cast_impl<short,int>(int)", "signed", (__int16)intValue, "signed", intValue) )
             __debugbreak();
           v16 = XAnimBindInt16ToNodeParameter(anims, animIndex, SiblingName, intValue);
           goto LABEL_29;
         case 7:
-          __asm { vmovss  xmm3, dword ptr [rdi]; jumptable 000000014151159B case 7 }
-          v16 = XAnimBindFloatToNodeParameter(anims, animIndex, SiblingName, *(float *)&_XMM3);
+          v16 = XAnimBindFloatToNodeParameter(anims, animIndex, SiblingName, VariableValueAddress->floatValue);
           goto LABEL_29;
         case 8:
-          v16 = XAnimBindVec2ToNodeParameter(anims, animIndex, SiblingName, (const vec2_t *)_RDI->vectorValue);
+          v16 = XAnimBindVec2ToNodeParameter(anims, animIndex, SiblingName, (const vec2_t *)VariableValueAddress->vectorValue);
           goto LABEL_29;
         case 9:
-          v16 = XAnimBindVec3ToNodeParameter(anims, animIndex, SiblingName, (const vec3_t *)_RDI->vectorValue);
+          v16 = XAnimBindVec3ToNodeParameter(anims, animIndex, SiblingName, (const vec3_t *)VariableValueAddress->vectorValue);
           goto LABEL_29;
         case 11:
-          v21 = truncate_cast<enum scr_string_t,unsigned int>(_RDI->intValue);
-          v16 = XAnimBindStringToNodeParameter(anims, animIndex, SiblingName, v21);
+          v20 = truncate_cast<enum scr_string_t,unsigned int>(VariableValueAddress->intValue);
+          v16 = XAnimBindStringToNodeParameter(anims, animIndex, SiblingName, v20);
           goto LABEL_29;
         case 12:
         case 13:
@@ -181,17 +181,17 @@ __int64 AnimTreeParser_ApplyConstantBindings(scrContext_t *scrContext, XAnim_s *
         case 17:
         case 18:
         case 19:
-          v22 = truncate_cast<enum scr_string_t,unsigned int>(_RDI->intValue);
+          v21 = truncate_cast<enum scr_string_t,unsigned int>(VariableValueAddress->intValue);
           LOWORD(fmt) = v15;
-          v16 = XAnimBindArrayToNodeParameter(anims, animIndex, SiblingName, v22, fmt);
+          v16 = XAnimBindArrayToNodeParameter(anims, animIndex, SiblingName, v21, fmt);
 LABEL_29:
           if ( !v16 )
             goto LABEL_30;
           goto LABEL_32;
         default:
 LABEL_30:
-          v23 = SL_ConvertToString(SiblingName);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 1644, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "failed to bind constant value to node parameter '%s'", v23) )
+          v22 = SL_ConvertToString(SiblingName);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 1644, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "failed to bind constant value to node parameter '%s'", v22) )
             __debugbreak();
 LABEL_32:
           v10 = NodeType;
@@ -200,8 +200,8 @@ LABEL_32:
     }
     else
     {
-      v25 = SL_ConvertToString(SiblingName);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 1649, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "cannot find node parameter '%s'", v25) )
+      v24 = SL_ConvertToString(SiblingName);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 1649, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "cannot find node parameter '%s'", v24) )
         __debugbreak();
     }
     ++v11;
@@ -307,7 +307,9 @@ XAnim_s *AnimTreeParser_CreateAnims(scrContext_t *scrContext, scr_string_t fileN
   unsigned int v26; 
   unsigned int ArraySize; 
   unsigned int v28; 
+  float *v29; 
   unsigned int v30; 
+  float floatValue; 
   __int64 maxPublicNodes; 
   void *(__fastcall *Alloc)(unsigned __int64); 
   unsigned int node[2]; 
@@ -404,23 +406,16 @@ LABEL_27:
       }
       if ( v28 )
       {
-        _RDI = lodDistances;
+        v29 = lodDistances;
         do
         {
           v30 = GetArrayVariable(scrContext, v26, v4);
-          _RAX = GetVariableValueAddressConst(scrContext, v30);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rax]
-            vmovss  dword ptr [rdi], xmm0
-          }
-          if ( v4 )
-          {
-            _RAX = v4 - 1;
-            __asm { vcomiss xmm0, [rbp+rax*4+57h+lodDistances] }
-          }
+          floatValue = GetVariableValueAddressConst(scrContext, v30)->floatValue;
+          *v29 = floatValue;
+          if ( v4 && floatValue < lodDistances[v4 - 1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 1924, ASSERT_TYPE_ASSERT, "(lodIndex == 0 || lodDistances[lodIndex] >= lodDistances[lodIndex - 1])", (const char *)&queryFormat, "lodIndex == 0 || lodDistances[lodIndex] >= lodDistances[lodIndex - 1]") )
+            __debugbreak();
           ++v4;
-          ++_RDI;
+          ++v29;
         }
         while ( v4 < v28 );
         AnimsWithParameters = *(XAnim_s **)node;
@@ -621,7 +616,7 @@ void AnimTreeParser_Parse(scrContext_t *scrContext, const char *text, unsigned i
   signed int String; 
   unsigned int ArrayVariable; 
   unsigned int Array; 
-  unsigned int v16; 
+  unsigned int v14; 
   XAnimSyncGroupID inheritedSyncGroup; 
   VariableValue value; 
   AnimTreeParser_State parser; 
@@ -656,15 +651,10 @@ void AnimTreeParser_Parse(scrContext_t *scrContext, const char *text, unsigned i
     {
       do
       {
-        _RCX = v10;
         value.type = VAR_FLOAT;
-        __asm
-        {
-          vmovss  xmm0, [rsp+rcx*4+0A8h+parser.lodDistances]
-          vmovss  dword ptr [rsp+0A8h+value.u], xmm0
-        }
-        v16 = GetArrayVariable(scrContext, Array, v10);
-        SetVariableValue(scrContext, v16, &value);
+        value.u.intValue = LODWORD(parser.lodDistances[v10]);
+        v14 = GetArrayVariable(scrContext, Array, v10);
+        SetVariableValue(scrContext, v14, &value);
         ++v10;
       }
       while ( v10 < parser.numLods );
@@ -680,24 +670,21 @@ AnimTreeParser_ParseConstantParameterValue
 */
 bool AnimTreeParser_ParseConstantParameterValue(scrContext_t *scrContext, const AnimTreeParser_State *parser, const char *token, XAnimFieldType nodeParameterType, VariableValue *outValue)
 {
-  __int16 v7; 
+  __int16 v6; 
   bool result; 
-  int v16; 
+  int v12; 
+  int v13; 
+  int v14; 
   unsigned int LowercaseString; 
-  int v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
+  float v16; 
   float v; 
-  int v27; 
-  int v28; 
+  float v18; 
+  float v19; 
 
-  _RBX = outValue;
-  v7 = nodeParameterType;
+  v6 = nodeParameterType;
   if ( !outValue && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 651, ASSERT_TYPE_ASSERT, "(outValue)", (const char *)&queryFormat, "outValue") )
     __debugbreak();
-  switch ( v7 )
+  switch ( v6 )
   {
     case 1:
       outValue->type = VAR_INTEGER;
@@ -731,70 +718,38 @@ bool AnimTreeParser_ParseConstantParameterValue(scrContext_t *scrContext, const 
     case 7:
       outValue->type = VAR_FLOAT;
       *(double *)&_XMM0 = atof(token);
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rbx], xmm1
-      }
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      outValue->u.floatValue = *(float *)&_XMM1;
       return 1;
     case 8:
-      if ( j_sscanf(token, "%f, %f", &v, &v27) != 2 )
+      if ( j_sscanf(token, "%f, %f", &v, &v18) != 2 )
       {
         AnimTreeParser_ParseError(COM_ERR_5988, scrContext, parser, "'%s' is not a valid vec3 value", token);
         return 0;
       }
-      __asm
-      {
-        vmovss  xmm1, [rsp+78h+v]
-        vmovss  [rsp+78h+var_48], xmm1
-      }
+      v16 = v;
+      v12 = LODWORD(v) & 0x7F800000;
       outValue->type = VAR_VECTOR;
-      __asm
+      v19 = 0.0;
+      if ( v12 != 2139095040 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+78h+var_38], xmm0
-      }
-      if ( (v21 & 0x7F800000) != 2139095040 )
-      {
-        __asm
-        {
-          vmovss  xmm0, [rsp+78h+var_3C]
-          vmovss  [rsp+78h+var_48], xmm0
-        }
-        if ( (v22 & 0x7F800000) != 2139095040 )
+        v16 = v18;
+        if ( (LODWORD(v18) & 0x7F800000) != 2139095040 )
           goto LABEL_21;
       }
-      v16 = 698;
+      v13 = 698;
       goto LABEL_19;
     case 9:
-      if ( j_sscanf(token, "%f, %f, %f", &v, &v27, &v28) == 3 )
+      if ( j_sscanf(token, "%f, %f, %f", &v, &v18, &v19) == 3 )
       {
-        __asm
-        {
-          vmovss  xmm0, [rsp+78h+v]
-          vmovss  [rsp+78h+var_48], xmm0
-        }
+        v16 = v;
+        v14 = LODWORD(v) & 0x7F800000;
         outValue->type = VAR_VECTOR;
-        if ( (v23 & 0x7F800000) == 2139095040 )
-          goto LABEL_27;
-        __asm
+        if ( v14 == 2139095040 || (v16 = v18, (LODWORD(v18) & 0x7F800000) == 2139095040) || (v16 = v19, (LODWORD(v19) & 0x7F800000) == 2139095040) )
         {
-          vmovss  xmm0, [rsp+78h+var_3C]
-          vmovss  [rsp+78h+var_48], xmm0
-        }
-        if ( (v24 & 0x7F800000) == 2139095040 )
-          goto LABEL_27;
-        __asm
-        {
-          vmovss  xmm0, [rsp+78h+var_38]
-          vmovss  [rsp+78h+var_48], xmm0
-        }
-        if ( (v25 & 0x7F800000) == 2139095040 )
-        {
-LABEL_27:
-          v16 = 709;
+          v13 = 709;
 LABEL_19:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", v16, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vec3Value )[0] ) && !IS_NAN( ( vec3Value )[1] ) && !IS_NAN( ( vec3Value )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vec3Value )[0] ) && !IS_NAN( ( vec3Value )[1] ) && !IS_NAN( ( vec3Value )[2] )") )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", v13, ASSERT_TYPE_SANITY, "( !IS_NAN( ( vec3Value )[0] ) && !IS_NAN( ( vec3Value )[1] ) && !IS_NAN( ( vec3Value )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( vec3Value )[0] ) && !IS_NAN( ( vec3Value )[1] ) && !IS_NAN( ( vec3Value )[2] )", v16) )
             __debugbreak();
         }
 LABEL_21:
@@ -1073,60 +1028,39 @@ AnimTreeParser_ParseLodDistances
 void AnimTreeParser_ParseLodDistances(scrContext_t *scrContext, AnimTreeParser_State *parser)
 {
   const char *nextToken; 
+  const char *v8; 
+  const char *v9; 
   const char *v11; 
   const char *v12; 
-  bool v14; 
-  bool v15; 
-  const char *v17; 
-  const char *v18; 
-  const char *v19; 
+  const char *v13; 
   char *fmt; 
-  char *fmta; 
-  __int64 v25; 
-  double v26; 
-  __int64 v27; 
+  __int64 v15; 
+  __int64 v16; 
 
   parser->numLods = 0;
-  _RDI = parser;
   AnimTreeParser_MatchToken(scrContext, parser, "(");
-  if ( _RDI->pos )
+  if ( parser->pos )
   {
-    __asm
+    __asm { vxorpd  xmm8, xmm8, xmm8 }
+    do
     {
-      vmovaps [rsp+98h+var_48], xmm7
-      vmovaps [rsp+98h+var_58], xmm8
-      vxorpd  xmm8, xmm8, xmm8
-      vmovaps [rsp+98h+var_38], xmm6
-      vxorps  xmm7, xmm7, xmm7
-    }
-    while ( 1 )
-    {
-      nextToken = _RDI->nextToken;
+      nextToken = parser->nextToken;
       if ( nextToken )
         goto LABEL_9;
-      v11 = Com_Parse(&_RDI->pos);
-      _RDI->nextToken = v11;
-      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 272, ASSERT_TYPE_ASSERT, "(p->nextToken != 0)", (const char *)&queryFormat, "p->nextToken != NULL") )
+      v8 = Com_Parse(&parser->pos);
+      parser->nextToken = v8;
+      if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 272, ASSERT_TYPE_ASSERT, "(p->nextToken != 0)", (const char *)&queryFormat, "p->nextToken != NULL") )
         __debugbreak();
-      nextToken = _RDI->nextToken;
+      nextToken = parser->nextToken;
       if ( nextToken )
       {
 LABEL_9:
         if ( *nextToken == 41 && !nextToken[1] )
-        {
-LABEL_41:
-          __asm
-          {
-            vmovaps xmm6, [rsp+98h+var_38]
-            vmovaps xmm7, [rsp+98h+var_48]
-            vmovaps xmm8, [rsp+98h+var_58]
-          }
           break;
-        }
       }
       else
       {
-        if ( !_RDI->pos )
+        if ( !parser->pos )
         {
           nextToken = NULL;
 LABEL_17:
@@ -1134,85 +1068,73 @@ LABEL_17:
             __debugbreak();
           goto LABEL_19;
         }
-        v12 = Com_Parse(&_RDI->pos);
-        _RDI->nextToken = v12;
-        if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 272, ASSERT_TYPE_ASSERT, "(p->nextToken != 0)", (const char *)&queryFormat, "p->nextToken != NULL") )
+        v9 = Com_Parse(&parser->pos);
+        parser->nextToken = v9;
+        if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 272, ASSERT_TYPE_ASSERT, "(p->nextToken != 0)", (const char *)&queryFormat, "p->nextToken != NULL") )
           __debugbreak();
-        nextToken = _RDI->nextToken;
+        nextToken = parser->nextToken;
         if ( !nextToken )
           goto LABEL_17;
       }
 LABEL_19:
       if ( (unsigned __int8)(*nextToken - 48) > 9u )
       {
-        AnimTreeParser_ParseError(COM_ERR_6008, scrContext, _RDI, "expected positive LOD distance value, found '%s' instead", nextToken);
+        AnimTreeParser_ParseError(COM_ERR_6008, scrContext, parser, "expected positive LOD distance value, found '%s' instead", nextToken);
       }
       else
       {
         *(double *)&_XMM0 = atof(nextToken);
         __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-        AnimTreeParser_GetNextToken(_RDI);
-        v14 = _RDI->numLods < 4;
-        v15 = _RDI->numLods == 4;
-        if ( _RDI->numLods >= 4 )
+        AnimTreeParser_GetNextToken(parser);
+        if ( parser->numLods >= 4 )
         {
           LODWORD(fmt) = 4;
-          AnimTreeParser_ParseError(COM_ERR_6006, scrContext, _RDI, "too many LOD levels (maximum is %d)", fmt);
+          AnimTreeParser_ParseError(COM_ERR_6006, scrContext, parser, "too many LOD levels (maximum is %d)", fmt);
         }
-        __asm { vcomiss xmm6, xmm7 }
-        if ( v14 || v15 )
+        if ( *(float *)&_XMM6 <= 0.0 )
         {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm6, xmm6
-            vmovsd  [rsp+98h+var_70], xmm8
-            vmovsd  [rsp+98h+fmt], xmm0
-          }
-          AnimTreeParser_ParseError(COM_ERR_6007, scrContext, _RDI, "LOD distance '%.2f' must be greater than previous (%.2f)", *(double *)&fmta, v26);
+          *((_QWORD *)&_XMM0 + 1) = *((_QWORD *)&_XMM6 + 1);
+          AnimTreeParser_ParseError(COM_ERR_6007, scrContext, parser, "LOD distance '%.2f' must be greater than previous (%.2f)", *(float *)&_XMM6, *(double *)&_XMM8);
         }
-        if ( _RDI->numLods >= 4 )
+        if ( parser->numLods >= 4 )
         {
-          LODWORD(v27) = 4;
-          LODWORD(v25) = _RDI->numLods;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 1405, ASSERT_TYPE_ASSERT, "(unsigned)( parser->numLods ) < (unsigned)( ( sizeof( *array_counter( parser->lodDistances ) ) + 0 ) )", "parser->numLods doesn't index parser->lodDistances\n\t%i not in [0, %i)", v25, v27) )
+          LODWORD(v16) = 4;
+          LODWORD(v15) = parser->numLods;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 1405, ASSERT_TYPE_ASSERT, "(unsigned)( parser->numLods ) < (unsigned)( ( sizeof( *array_counter( parser->lodDistances ) ) + 0 ) )", "parser->numLods doesn't index parser->lodDistances\n\t%i not in [0, %i)", v15, v16) )
             __debugbreak();
         }
-        _RAX = _RDI->numLods;
-        __asm { vmovss  dword ptr [rdi+rax*4+30h], xmm6 }
-        ++_RDI->numLods;
+        parser->lodDistances[parser->numLods++] = *(float *)&_XMM6;
       }
-      v17 = _RDI->nextToken;
-      if ( !v17 )
+      v11 = parser->nextToken;
+      if ( !v11 )
       {
-        if ( !_RDI->pos )
+        if ( !parser->pos )
           goto LABEL_37;
-        v18 = Com_Parse(&_RDI->pos);
-        _RDI->nextToken = v18;
-        if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 272, ASSERT_TYPE_ASSERT, "(p->nextToken != 0)", (const char *)&queryFormat, "p->nextToken != NULL") )
+        v12 = Com_Parse(&parser->pos);
+        parser->nextToken = v12;
+        if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_animtree_parser.cpp", 272, ASSERT_TYPE_ASSERT, "(p->nextToken != 0)", (const char *)&queryFormat, "p->nextToken != NULL") )
           __debugbreak();
-        v17 = _RDI->nextToken;
-        if ( !v17 )
-          goto LABEL_45;
+        v11 = parser->nextToken;
+        if ( !v11 )
+          goto LABEL_44;
       }
-      if ( I_stricmp(v17, ")") )
+      if ( I_stricmp(v11, ")") )
       {
-LABEL_45:
-        if ( _RDI->pos )
+LABEL_44:
+        if ( parser->pos )
         {
-          v19 = AnimTreeParser_GetNextToken(_RDI);
-          if ( I_stricmp(v19, ",") )
-            AnimTreeParser_ParseError(COM_ERR_5984, scrContext, _RDI, "expected '%s', found '%s' instead", ",", v19);
-          goto LABEL_40;
+          v13 = AnimTreeParser_GetNextToken(parser);
+          if ( I_stricmp(v13, ",") )
+            AnimTreeParser_ParseError(COM_ERR_5984, scrContext, parser, "expected '%s', found '%s' instead", ",", v13);
+          continue;
         }
 LABEL_37:
-        AnimTreeParser_ParseError(COM_ERR_5983, scrContext, _RDI, "expected '%s', but reached end of file", ",");
+        AnimTreeParser_ParseError(COM_ERR_5983, scrContext, parser, "expected '%s', but reached end of file", ",");
       }
-LABEL_40:
-      if ( !_RDI->pos )
-        goto LABEL_41;
     }
+    while ( parser->pos );
   }
-  AnimTreeParser_MatchToken(scrContext, _RDI, ")");
+  AnimTreeParser_MatchToken(scrContext, parser, ")");
 }
 
 /*

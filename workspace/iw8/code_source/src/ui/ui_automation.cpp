@@ -280,11 +280,8 @@ __int64 __fastcall UI_AutoNavigation_Clear_f(double _XMM0_8)
 
   result = 0i64;
   s_uiNavGlob.navCommands.cleared = 1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr cs:s_uiNavGlob.desiredDestinationNode, xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&s_uiNavGlob.desiredDestinationNode = _XMM0;
   s_uiNavGlob.currentPath.nodeCount = 0;
   *(_DWORD *)&s_uiNavGlob.navCommands.start = 0;
   s_uiNavGlob.currentWaitNavCommandEndTime = 0;
@@ -533,30 +530,31 @@ void UI_AutoNavigation_CreateInputSequence(const bdJSONDeserializer *connection,
 {
   int inputRecordCount; 
   AutomatedInput_Record *v7; 
-  signed int v11; 
+  bitarray_base<bitarray<224> > *p_keys; 
+  signed int v9; 
   unsigned int i; 
-  const char *v13; 
-  int v14; 
-  int v15; 
-  float v16; 
-  float v17; 
+  const char *v11; 
+  int v12; 
+  int v13; 
+  float v14; 
+  float v15; 
   bdJSONDeserializer value; 
-  bdJSONDeserializer v19; 
-  __int64 v20; 
-  const bdJSONDeserializer *v21; 
-  bdJSONDeserializer v22; 
+  bdJSONDeserializer v17; 
+  __int64 v18; 
+  const bdJSONDeserializer *v19; 
+  bdJSONDeserializer v20; 
   char str[1024]; 
-  char v24[1024]; 
+  char v22[1024]; 
 
-  v20 = -2i64;
-  v21 = inputList;
+  v18 = -2i64;
+  v19 = inputList;
   bdJSONDeserializer::bdJSONDeserializer(&value);
   inputRecordCount = s_uiNavGlob.inputRecordCount;
   if ( s_uiNavGlob.inputRecordCount >= 0x800u )
   {
-    v15 = 2048;
-    v14 = s_uiNavGlob.inputRecordCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_automation.cpp", 146, ASSERT_TYPE_ASSERT, "(unsigned)( s_uiNavGlob.inputRecordCount ) < (unsigned)( ( sizeof( *array_counter( s_uiNavGlob.inputRecords ) ) + 0 ) )", "s_uiNavGlob.inputRecordCount doesn't index s_uiNavGlob.inputRecords\n\t%i not in [0, %i)", v14, v15) )
+    v13 = 2048;
+    v12 = s_uiNavGlob.inputRecordCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_automation.cpp", 146, ASSERT_TYPE_ASSERT, "(unsigned)( s_uiNavGlob.inputRecordCount ) < (unsigned)( ( sizeof( *array_counter( s_uiNavGlob.inputRecords ) ) + 0 ) )", "s_uiNavGlob.inputRecordCount doesn't index s_uiNavGlob.inputRecords\n\t%i not in [0, %i)", v12, v13) )
       __debugbreak();
     inputRecordCount = s_uiNavGlob.inputRecordCount;
   }
@@ -573,59 +571,47 @@ void UI_AutoNavigation_CreateInputSequence(const bdJSONDeserializer *connection,
   bdJSONDeserializer::getChild((bdJSONDeserializer *)inputList, &value, NULL, 0);
   if ( value.m_parsed )
   {
-    _RDI = (bitarray_base<bitarray<224> > *)&v7->keys;
+    p_keys = (bitarray_base<bitarray<224> > *)&v7->keys;
     do
     {
-      bdJSONDeserializer::bdJSONDeserializer(&v22);
-      if ( bdJSONDeserializer::hasKey(&value, "delay") && bdJSONDeserializer::getFloat32(&value, "delay", &v16) )
+      bdJSONDeserializer::bdJSONDeserializer(&v20);
+      if ( bdJSONDeserializer::hasKey(&value, "delay") && bdJSONDeserializer::getFloat32(&value, "delay", &v14) )
+        *(float *)&p_keys[-8] = v14;
+      if ( bdJSONDeserializer::hasKey(&value, "hold") && bdJSONDeserializer::getFloat32(&value, "hold", &v15) )
+        *(float *)&p_keys[-4] = v15;
+      if ( bdJSONDeserializer::hasKey(&value, "keys") && bdJSONDeserializer::getArray(&value, "keys", &v20) )
       {
-        __asm
+        bdJSONDeserializer::bdJSONDeserializer(&v17);
+        bdJSONDeserializer::getChild(&v20, &v17, NULL, 0);
+        while ( v17.m_parsed )
         {
-          vmovss  xmm0, [rsp+8F0h+var_8B0]
-          vmovss  dword ptr [rdi-8], xmm0
-        }
-      }
-      if ( bdJSONDeserializer::hasKey(&value, "hold") && bdJSONDeserializer::getFloat32(&value, "hold", &v17) )
-      {
-        __asm
-        {
-          vmovss  xmm0, [rsp+8F0h+var_8AC]
-          vmovss  dword ptr [rdi-4], xmm0
-        }
-      }
-      if ( bdJSONDeserializer::hasKey(&value, "keys") && bdJSONDeserializer::getArray(&value, "keys", &v22) )
-      {
-        bdJSONDeserializer::bdJSONDeserializer(&v19);
-        bdJSONDeserializer::getChild(&v22, &v19, NULL, 0);
-        while ( v19.m_parsed )
-        {
-          if ( bdJSONDeserializer::getString(&v19, str, 0x400u) )
+          if ( bdJSONDeserializer::getString(&v17, str, 0x400u) )
           {
-            v11 = Com_Keys_StringToKeynum(str);
-            if ( v11 <= 0 )
+            v9 = Com_Keys_StringToKeynum(str);
+            if ( v9 <= 0 )
             {
-              if ( v11 )
+              if ( v9 )
               {
-                bdJSONDeserializer::getString((bdJSONDeserializer *)connection, (const char *const)&stru_143C9A1A4, v24, 0x400u);
-                Com_PrintWarning(13, "ui_nav: Connection '%s' has an unrecognized input key '%s'. Valid keys:\n", v24, str);
+                bdJSONDeserializer::getString((bdJSONDeserializer *)connection, (const char *const)&stru_143C9A1A4, v22, 0x400u);
+                Com_PrintWarning(13, "ui_nav: Connection '%s' has an unrecognized input key '%s'. Valid keys:\n", v22, str);
                 for ( i = 1; i < 0xDE; ++i )
                 {
-                  v13 = Com_Keys_KeynumToString(i);
-                  Com_Printf(13, "%s\n", v13);
+                  v11 = Com_Keys_KeynumToString(i);
+                  Com_Printf(13, "%s\n", v11);
                 }
               }
             }
             else
             {
-              bitarray_base<bitarray<224>>::setBit(_RDI, v11);
+              bitarray_base<bitarray<224>>::setBit(p_keys, v9);
             }
           }
-          bdJSONDeserializer::getNext(&v19, &v19, NULL, 0);
+          bdJSONDeserializer::getNext(&v17, &v17, NULL, 0);
         }
-        bdJSONDeserializer::~bdJSONDeserializer(&v19);
+        bdJSONDeserializer::~bdJSONDeserializer(&v17);
       }
-      _RDI += 52;
-      bdJSONDeserializer::~bdJSONDeserializer(&v22);
+      p_keys += 52;
+      bdJSONDeserializer::~bdJSONDeserializer(&v20);
       bdJSONDeserializer::getNext(&value, &value, NULL, 0);
     }
     while ( value.m_parsed );
@@ -799,19 +785,19 @@ void UI_AutoNavigation_CreateNodeConnections(const bdJSONDeserializer *node, con
   UINavNode *v17; 
   int connectionCount; 
   UINavConnection *v19; 
-  int v22; 
-  UINavConnection *v23; 
-  __int64 v24; 
-  __int64 v25; 
+  int v20; 
+  UINavConnection *v21; 
+  __int64 v22; 
+  __int64 v23; 
+  bdJSONDeserializer v24; 
+  bdJSONDeserializer v25; 
   bdJSONDeserializer v26; 
-  bdJSONDeserializer v27; 
-  bdJSONDeserializer v28; 
-  __int64 v29; 
+  __int64 v27; 
   bdJSONDeserializer value; 
-  bdJSONDeserializer v31; 
-  char v32[1024]; 
+  bdJSONDeserializer v29; 
+  char v30[1024]; 
 
-  v29 = -2i64;
+  v27 = -2i64;
   v3 = nodeIndex;
   bdJSONDeserializer::bdJSONDeserializer(&value);
   if ( bdJSONDeserializer::hasKey((bdJSONDeserializer *)node, "connections") && bdJSONDeserializer::getArray((bdJSONDeserializer *)node, "connections", &value) )
@@ -819,17 +805,17 @@ void UI_AutoNavigation_CreateNodeConnections(const bdJSONDeserializer *node, con
     if ( (unsigned int)v3 >= 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_automation.cpp", 260, ASSERT_TYPE_ASSERT, "(unsigned)( nodeIndex ) < (unsigned)( ( sizeof( *array_counter( s_uiNavGlob.nodes ) ) + 0 ) )", "nodeIndex doesn't index s_uiNavGlob.nodes\n\t%i not in [0, %i)", v3, 256) )
       __debugbreak();
     v6 = &s_uiNavGlob.nodes[v3];
-    bdJSONDeserializer::bdJSONDeserializer(&v26);
-    bdJSONDeserializer::getChild(&value, &v26, NULL, 0);
-    while ( v26.m_parsed )
+    bdJSONDeserializer::bdJSONDeserializer(&v24);
+    bdJSONDeserializer::getChild(&value, &v24, NULL, 0);
+    while ( v24.m_parsed )
     {
-      if ( bdJSONDeserializer::getString(&v26, (const char *const)&stru_143C9A1A4, v32, 0x400u) )
+      if ( bdJSONDeserializer::getString(&v24, (const char *const)&stru_143C9A1A4, v30, 0x400u) )
       {
         v7 = 5381;
-        v8 = v32[0];
-        if ( v32[0] )
+        v8 = v30[0];
+        if ( v30[0] )
         {
-          v9 = v32;
+          v9 = v30;
           do
           {
             v10 = v8;
@@ -865,21 +851,21 @@ void UI_AutoNavigation_CreateNodeConnections(const bdJSONDeserializer *node, con
         if ( v16 == p_m_endNodeBase )
         {
 LABEL_43:
-          Com_PrintWarning(13, "ui_nav: Could not find ui navigation screen: '%s'\n", v32);
+          Com_PrintWarning(13, "ui_nav: Could not find ui navigation screen: '%s'\n", v30);
         }
         else
         {
-          bdJSONDeserializer::bdJSONDeserializer(&v28);
-          bdJSONDeserializer::bdJSONDeserializer(&v27);
+          bdJSONDeserializer::bdJSONDeserializer(&v26);
+          bdJSONDeserializer::bdJSONDeserializer(&v25);
           if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\tree\\rb_tree.h", 87, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
           v17 = (UINavNode *)v16[1].mp_parent;
           connectionCount = s_uiNavGlob.connectionCount;
           if ( s_uiNavGlob.connectionCount >= 0x400u )
           {
-            LODWORD(v25) = 1024;
-            LODWORD(v24) = s_uiNavGlob.connectionCount;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_automation.cpp", 282, ASSERT_TYPE_ASSERT, "(unsigned)( s_uiNavGlob.connectionCount ) < (unsigned)( ( sizeof( *array_counter( s_uiNavGlob.connections ) ) + 0 ) )", "s_uiNavGlob.connectionCount doesn't index s_uiNavGlob.connections\n\t%i not in [0, %i)", v24, v25) )
+            LODWORD(v23) = 1024;
+            LODWORD(v22) = s_uiNavGlob.connectionCount;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_automation.cpp", 282, ASSERT_TYPE_ASSERT, "(unsigned)( s_uiNavGlob.connectionCount ) < (unsigned)( ( sizeof( *array_counter( s_uiNavGlob.connections ) ) + 0 ) )", "s_uiNavGlob.connectionCount doesn't index s_uiNavGlob.connections\n\t%i not in [0, %i)", v22, v23) )
               __debugbreak();
             connectionCount = s_uiNavGlob.connectionCount;
           }
@@ -888,56 +874,48 @@ LABEL_43:
           v19->next = v6->children;
           v6->children = v19;
           v19->dest = v17;
-          if ( bdJSONDeserializer::hasKey(&v26, "target") && bdJSONDeserializer::getArray(&v26, "target", &v27) && v27.m_count )
+          if ( bdJSONDeserializer::hasKey(&v24, "target") && bdJSONDeserializer::getArray(&v24, "target", &v25) && v25.m_count )
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rsp+530h+var_4D0.m_type]
-              vmovups [rbp+430h+var_460], ymm0
-            }
-            UI_AutoNavigation_AddTargetButton(&v31, v19);
+            v29 = v25;
+            UI_AutoNavigation_AddTargetButton(&v29, v19);
           }
-          else if ( bdJSONDeserializer::hasKey(&v26, "inputs") && bdJSONDeserializer::getArray(&v26, "inputs", &v28) && v28.m_count )
+          else if ( bdJSONDeserializer::hasKey(&v24, "inputs") && bdJSONDeserializer::getArray(&v24, "inputs", &v26) && v26.m_count )
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+430h+var_4B0.m_type]
-              vmovups [rbp+430h+var_460], ymm0
-            }
-            UI_AutoNavigation_CreateInputSequence(&v26, &v31, v19);
+            v29 = v26;
+            UI_AutoNavigation_CreateInputSequence(&v24, &v29, v19);
           }
           else
           {
-            bdJSONDeserializer::getString(&v26, (const char *const)&stru_143C9A1A4, v32, 0x400u);
-            Com_PrintWarning(13, "ui_nav: Connection '%s' doesn't have the 'inputs' or 'target' field.\n", v32);
+            bdJSONDeserializer::getString(&v24, (const char *const)&stru_143C9A1A4, v30, 0x400u);
+            Com_PrintWarning(13, "ui_nav: Connection '%s' doesn't have the 'inputs' or 'target' field.\n", v30);
           }
-          v22 = s_uiNavGlob.connectionCount;
+          v20 = s_uiNavGlob.connectionCount;
           if ( s_uiNavGlob.connectionCount >= 0x400u )
           {
-            LODWORD(v25) = 1024;
-            LODWORD(v24) = s_uiNavGlob.connectionCount;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_automation.cpp", 305, ASSERT_TYPE_ASSERT, "(unsigned)( s_uiNavGlob.connectionCount ) < (unsigned)( ( sizeof( *array_counter( s_uiNavGlob.connections ) ) + 0 ) )", "s_uiNavGlob.connectionCount doesn't index s_uiNavGlob.connections\n\t%i not in [0, %i)", v24, v25) )
+            LODWORD(v23) = 1024;
+            LODWORD(v22) = s_uiNavGlob.connectionCount;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_automation.cpp", 305, ASSERT_TYPE_ASSERT, "(unsigned)( s_uiNavGlob.connectionCount ) < (unsigned)( ( sizeof( *array_counter( s_uiNavGlob.connections ) ) + 0 ) )", "s_uiNavGlob.connectionCount doesn't index s_uiNavGlob.connections\n\t%i not in [0, %i)", v22, v23) )
               __debugbreak();
-            v22 = s_uiNavGlob.connectionCount;
+            v20 = s_uiNavGlob.connectionCount;
           }
-          v23 = &s_uiNavGlob.connections[v22];
-          s_uiNavGlob.connectionCount = v22 + 1;
-          v23->next = v17->parents;
-          v17->parents = v23;
-          v23->dest = v6;
-          bdJSONDeserializer::~bdJSONDeserializer(&v27);
-          bdJSONDeserializer::~bdJSONDeserializer(&v28);
+          v21 = &s_uiNavGlob.connections[v20];
+          s_uiNavGlob.connectionCount = v20 + 1;
+          v21->next = v17->parents;
+          v17->parents = v21;
+          v21->dest = v6;
+          bdJSONDeserializer::~bdJSONDeserializer(&v25);
+          bdJSONDeserializer::~bdJSONDeserializer(&v26);
         }
       }
       else
       {
-        v32[0] = 0;
-        bdJSONDeserializer::getString((bdJSONDeserializer *)node, (const char *const)&stru_143C9A1A4, v32, 0x400u);
-        Com_PrintWarning(13, "ui_nav: A connection on screen '%s' is missing the 'name' field.\n", v32);
+        v30[0] = 0;
+        bdJSONDeserializer::getString((bdJSONDeserializer *)node, (const char *const)&stru_143C9A1A4, v30, 0x400u);
+        Com_PrintWarning(13, "ui_nav: A connection on screen '%s' is missing the 'name' field.\n", v30);
       }
-      bdJSONDeserializer::getNext(&v26, &v26, NULL, 0);
+      bdJSONDeserializer::getNext(&v24, &v24, NULL, 0);
     }
-    bdJSONDeserializer::~bdJSONDeserializer(&v26);
+    bdJSONDeserializer::~bdJSONDeserializer(&v24);
   }
   bdJSONDeserializer::~bdJSONDeserializer(&value);
 }
@@ -959,32 +937,35 @@ void __fastcall UI_AutoNavigation_Frame(double _XMM0_8)
   char *v7; 
   char v8; 
   UINavNode *currentLocationNode; 
-  int v12; 
+  int v10; 
   UINavNode *nodes; 
-  int v14; 
-  bool v15; 
-  const dvar_t *v16; 
+  int v12; 
+  bool v13; 
+  const dvar_t *v14; 
   const char *string; 
   unsigned __int16 size; 
-  UINavCommand *v19; 
-  UINavCommand *v20; 
+  UINavCommand *v17; 
+  UINavCommand *v18; 
   UINavCommand::CommandType type; 
   unsigned int screenNameHash; 
-  UINavNode *v24; 
-  int v25; 
-  int v26; 
-  unsigned int v28; 
-  unsigned __int16 v29; 
-  UINavCommand::CommandType v31; 
-  int v34; 
+  UINavNode *v22; 
+  int v23; 
+  int v24; 
+  __m256i *v25; 
+  unsigned int v26; 
+  unsigned __int16 v27; 
+  int v28; 
+  __m256i *v29; 
+  int v30; 
   unsigned int i; 
-  const char *v38; 
-  UINavCommand::CommandType v39; 
-  const char *v40; 
-  const char *v41; 
-  char v42; 
-  int v43; 
-  char v44; 
+  const char *v32; 
+  UINavCommand::CommandType v33; 
+  const char *v34; 
+  const char *v35; 
+  char v36; 
+  int v37; 
+  char v38; 
+  __m256i v39; 
   AutomatedInput_Record records; 
   char outBuffer[1024]; 
 
@@ -1034,34 +1015,29 @@ void __fastcall UI_AutoNavigation_Frame(double _XMM0_8)
         j__Init_thread_header(&dword_14F7F4414);
         if ( dword_14F7F4414 == -1 )
         {
-          v44 = 101;
-          v41 = "error_popmenu";
+          v38 = 101;
+          v35 = "error_popmenu";
           do
           {
-            ++v41;
-            v42 = v44 | 0x20;
-            if ( (unsigned int)(v44 - 65) >= 0x1A )
-              v42 = v44;
-            v43 = 33 * v4 + v42;
-            v44 = *v41;
-            v4 = v43;
+            ++v35;
+            v36 = v38 | 0x20;
+            if ( (unsigned int)(v38 - 65) >= 0x1A )
+              v36 = v38;
+            v37 = 33 * v4 + v36;
+            v38 = *v35;
+            v4 = v37;
           }
-          while ( *v41 );
-          dword_14F7F4410 = v43;
+          while ( *v35 );
+          dword_14F7F4410 = v37;
           j__Init_thread_footer(&dword_14F7F4414);
         }
       }
       if ( v6 == -232846158 )
       {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f000000
-          vmovss  xmm1, cs:__real@3dcccccd
-        }
         memset(&records.keys.keyBits.array[1], 0, 40);
-        __asm { vmovss  [rsp+4D0h+records.deferTimeSeconds], xmm0 }
+        records.deferTimeSeconds = FLOAT_0_5;
         records.keys.keyBits.array[0] = 0x40000000;
-        __asm { vmovss  [rsp+4D0h+records.holdTimeSeconds], xmm1 }
+        records.holdTimeSeconds = FLOAT_0_1;
         CL_Input_AddAutomatedSequence(LOCAL_CLIENT_0, &records, 1);
         return;
       }
@@ -1071,7 +1047,7 @@ void __fastcall UI_AutoNavigation_Frame(double _XMM0_8)
         currentLocationNode = s_uiNavGlob.currentLocationNode;
         if ( !s_uiNavGlob.currentLocationNode || s_uiNavGlob.currentLocationNode->displayId != v6 )
         {
-          v12 = 0;
+          v10 = 0;
           if ( s_uiNavGlob.nodeCount <= 0 )
           {
 LABEL_28:
@@ -1082,12 +1058,12 @@ LABEL_28:
             nodes = s_uiNavGlob.nodes;
             while ( nodes->id != v6 )
             {
-              ++v12;
+              ++v10;
               ++nodes;
-              if ( v12 >= s_uiNavGlob.nodeCount )
+              if ( v10 >= s_uiNavGlob.nodeCount )
                 goto LABEL_28;
             }
-            currentLocationNode = &s_uiNavGlob.nodes[v12];
+            currentLocationNode = &s_uiNavGlob.nodes[v10];
           }
           s_uiNavGlob.currentLocationNode = currentLocationNode;
         }
@@ -1101,28 +1077,25 @@ LABEL_28:
           else
           {
             UI_AutoNavigation_BuildPath(v6, s_uiNavGlob.desiredDestinationNode->id);
-            v14 = 0;
+            v12 = 0;
             if ( s_uiNavGlob.currentPath.nodeCount )
             {
-              while ( s_uiNavGlob.currentPath.nodes[v14]->displayId != v6 )
+              while ( s_uiNavGlob.currentPath.nodes[v12]->displayId != v6 )
               {
-                if ( ++v14 >= s_uiNavGlob.currentPath.nodeCount )
+                if ( ++v12 >= s_uiNavGlob.currentPath.nodeCount )
                   goto LABEL_40;
               }
-              s_uiNavGlob.nextDestinationNode = s_uiNavGlob.currentPath.nodes[v14];
+              s_uiNavGlob.nextDestinationNode = s_uiNavGlob.currentPath.nodes[v12];
             }
           }
         }
 LABEL_40:
-        v15 = UI_AutoNavigation_TraversePath(v6);
-        v3 = !v15;
-        if ( !v15 && s_uiNavGlob.desiredDestinationNode )
+        v13 = UI_AutoNavigation_TraversePath(v6);
+        v3 = !v13;
+        if ( !v13 && s_uiNavGlob.desiredDestinationNode )
         {
-          __asm
-          {
-            vpxor   xmm0, xmm0, xmm0
-            vmovdqu xmmword ptr cs:s_uiNavGlob.desiredDestinationNode, xmm0
-          }
+          __asm { vpxor   xmm0, xmm0, xmm0 }
+          *(_OWORD *)&s_uiNavGlob.desiredDestinationNode = *(_OWORD *)&_XMM0_8;
           s_uiNavGlob.currentPath.nodeCount = 0;
         }
       }
@@ -1131,11 +1104,11 @@ LABEL_40:
       __debugbreak();
     if ( !s_uiNavGlob.navCommands.size )
     {
-      v16 = DVARSTR_uinav_deferred;
+      v14 = DVARSTR_uinav_deferred;
       if ( DVARSTR_uinav_deferred )
       {
         Dvar_CheckFrontendServerThread(DVARSTR_uinav_deferred);
-        string = v16->current.string;
+        string = v14->current.string;
         if ( string )
         {
           if ( *string )
@@ -1151,9 +1124,9 @@ LABEL_40:
                 if ( s_uiNavGlob.navCommands.size >= 0x100u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 115, ASSERT_TYPE_ASSERT, "(curSize < s_capacity)", (const char *)&queryFormat, "curSize < s_capacity") )
                   __debugbreak();
                 s_uiNavGlob.navCommands.size = size + 1;
-                v19 = IWStaticCircularQueue<UINavCommand,256,unsigned short>::Back(&s_uiNavGlob.navCommands);
-                v19->type = Test;
-                if ( !Core_strncpy_truncate((char *)v19, 0x20ui64, string, 0x20ui64) )
+                v17 = IWStaticCircularQueue<UINavCommand,256,unsigned short>::Back(&s_uiNavGlob.navCommands);
+                v17->type = Test;
+                if ( !Core_strncpy_truncate((char *)v17, 0x20ui64, string, 0x20ui64) )
                   Com_PrintWarning(13, "ui_nav: Target test config file '%s' has a name that's longer than %lu characters.\n", string, 32i64);
                 Dvar_SetString_Internal(DVARSTR_uinav_deferred, (const char *)&queryFormat.fmt + 3);
               }
@@ -1168,25 +1141,22 @@ LABEL_40:
         __debugbreak();
       if ( s_uiNavGlob.navCommands.size )
       {
-        v20 = IWStaticCircularQueue<UINavCommand,256,unsigned short>::Front(&s_uiNavGlob.navCommands);
-        type = v20->type;
+        v18 = IWStaticCircularQueue<UINavCommand,256,unsigned short>::Front(&s_uiNavGlob.navCommands);
+        type = v18->type;
         switch ( type )
         {
           case Screen:
-            screenNameHash = v20->screenNameHash;
+            screenNameHash = v18->screenNameHash;
             s_uiNavGlob.currentPath.nodeCount = 0;
-            __asm
-            {
-              vpxor   xmm0, xmm0, xmm0
-              vmovdqu xmmword ptr cs:s_uiNavGlob.desiredDestinationNode, xmm0
-            }
+            __asm { vpxor   xmm0, xmm0, xmm0 }
+            *(_OWORD *)&s_uiNavGlob.desiredDestinationNode = _XMM0;
             if ( s_uiNavGlob.nodeCount > 0 )
             {
-              v24 = s_uiNavGlob.nodes;
-              while ( v24->id != screenNameHash )
+              v22 = s_uiNavGlob.nodes;
+              while ( v22->id != screenNameHash )
               {
                 LODWORD(v2) = (_DWORD)v2 + 1;
-                ++v24;
+                ++v22;
                 if ( (int)v2 >= s_uiNavGlob.nodeCount )
                   goto LABEL_121;
               }
@@ -1196,7 +1166,7 @@ LABEL_40:
           case Wait:
             if ( !s_uiNavGlob.currentWaitNavCommandEndTime )
             {
-              s_uiNavGlob.currentWaitNavCommandEndTime = v20->screenNameHash + Sys_Milliseconds();
+              s_uiNavGlob.currentWaitNavCommandEndTime = v18->screenNameHash + Sys_Milliseconds();
               return;
             }
             if ( Sys_Milliseconds() > s_uiNavGlob.currentWaitNavCommandEndTime )
@@ -1204,78 +1174,68 @@ LABEL_40:
             goto LABEL_121;
           case Test:
             Core_strcpy((char *)&records, 0x2Cui64, "exec ");
-            I_strcat((char *)&records, 0x2Cui64, (const char *)v20);
+            I_strcat((char *)&records, 0x2Cui64, (const char *)v18);
             IWStaticCircularQueue<UINavCommand,256,unsigned short>::PopFront(&s_uiNavGlob.navCommands);
             if ( !s_uiNavGlob.navCommands.cleared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 36, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
               __debugbreak();
-            v25 = s_uiNavGlob.navCommands.size;
+            v23 = s_uiNavGlob.navCommands.size;
             if ( CL_Mgr_IsClientActive(LOCAL_CLIENT_0) )
               LODWORD(v2) = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
             Cbuf_ExecuteBufferInternal(LOCAL_CLIENT_0, (const int)v2, (const char *)&records, 0, 0);
             if ( !s_uiNavGlob.navCommands.cleared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 36, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
               __debugbreak();
-            v26 = s_uiNavGlob.navCommands.size - v25;
-            if ( s_uiNavGlob.navCommands.size != v25 )
+            v24 = s_uiNavGlob.navCommands.size - v23;
+            if ( s_uiNavGlob.navCommands.size != v23 )
             {
               do
               {
-                _R14 = IWStaticCircularQueue<UINavCommand,256,unsigned short>::Back(&s_uiNavGlob.navCommands);
+                v25 = (__m256i *)IWStaticCircularQueue<UINavCommand,256,unsigned short>::Back(&s_uiNavGlob.navCommands);
                 if ( !s_uiNavGlob.navCommands.cleared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 104, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
                   __debugbreak();
-                v28 = s_uiNavGlob.navCommands.size + 1;
-                v29 = (unsigned __int8)(LOBYTE(s_uiNavGlob.navCommands.start) - 1);
-                if ( v28 > 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 107, ASSERT_TYPE_ASSERT, "(curSize <= s_capacity)", (const char *)&queryFormat, "curSize <= s_capacity") )
+                v26 = s_uiNavGlob.navCommands.size + 1;
+                v27 = (unsigned __int8)(LOBYTE(s_uiNavGlob.navCommands.start) - 1);
+                if ( v26 > 0x100 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 107, ASSERT_TYPE_ASSERT, "(curSize <= s_capacity)", (const char *)&queryFormat, "curSize <= s_capacity") )
                   __debugbreak();
-                s_uiNavGlob.navCommands.start = v29;
-                s_uiNavGlob.navCommands.size = v28;
-                __asm { vmovups ymm0, ymmword ptr [r14] }
-                v31 = _R14->type;
-                __asm { vmovups [rsp+4D0h+var_490], ymm0 }
-                _RAX = IWStaticCircularQueue<UINavCommand,256,unsigned short>::Front(&s_uiNavGlob.navCommands);
-                __asm
-                {
-                  vmovups ymm0, [rsp+4D0h+var_490]
-                  vmovups ymmword ptr [rax], ymm0
-                }
-                _RAX->type = v31;
+                s_uiNavGlob.navCommands.start = v27;
+                s_uiNavGlob.navCommands.size = v26;
+                v28 = v25[1].m256i_i32[0];
+                v39 = *v25;
+                v29 = (__m256i *)IWStaticCircularQueue<UINavCommand,256,unsigned short>::Front(&s_uiNavGlob.navCommands);
+                *v29 = v39;
+                v29[1].m256i_i32[0] = v28;
                 if ( !s_uiNavGlob.navCommands.cleared && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 130, ASSERT_TYPE_ASSERT, "(this->cleared)", (const char *)&queryFormat, "this->cleared") )
                   __debugbreak();
                 if ( !s_uiNavGlob.navCommands.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\containers\\circular_queue.h", 131, ASSERT_TYPE_ASSERT, "(this->size > 0)", (const char *)&queryFormat, "this->size > 0") )
                   __debugbreak();
                 --s_uiNavGlob.navCommands.size;
-                --v26;
+                --v24;
               }
-              while ( v26 );
+              while ( v24 );
             }
             return;
           case Graph:
-            if ( !UI_AutoNavigation_LoadGraph((const char *)v20) )
+            if ( !UI_AutoNavigation_LoadGraph((const char *)v18) )
               return;
             goto LABEL_121;
           case Input:
-            v34 = Com_Keys_StringToKeynum((const char *)v20);
-            if ( v34 <= 0 )
+            v30 = Com_Keys_StringToKeynum((const char *)v18);
+            if ( v30 <= 0 )
             {
-              if ( v34 )
+              if ( v30 )
               {
-                Com_PrintWarning(13, "ui_nav: command ui_nav_input has an unrecognized input key '%s'. Valid keys:\n", (const char *)v20);
+                Com_PrintWarning(13, "ui_nav: command ui_nav_input has an unrecognized input key '%s'. Valid keys:\n", (const char *)v18);
                 for ( i = 1; i < 0xDE; ++i )
                 {
-                  v38 = Com_Keys_KeynumToString(i);
-                  Com_Printf(13, "%s\n", v38);
+                  v32 = Com_Keys_KeynumToString(i);
+                  Com_Printf(13, "%s\n", v32);
                 }
               }
             }
             else
             {
-              __asm
-              {
-                vmovss  xmm0, cs:__real@3f000000
-                vmovss  xmm1, cs:__real@3dcccccd
-                vmovss  [rsp+4D0h+records.deferTimeSeconds], xmm0
-                vmovss  [rsp+4D0h+records.holdTimeSeconds], xmm1
-              }
-              AutomatedInput_KeyBits::AutomatedInput_KeyBits(&records.keys, v34);
+              records.deferTimeSeconds = FLOAT_0_5;
+              records.holdTimeSeconds = FLOAT_0_1;
+              AutomatedInput_KeyBits::AutomatedInput_KeyBits(&records.keys, v30);
               records.moveStick = 0i64;
               records.lookStick = 0i64;
               CL_Input_AddAutomatedSequence(LOCAL_CLIENT_0, &records, 1);
@@ -1286,13 +1246,13 @@ LABEL_121:
         }
         if ( (unsigned int)(type - 2) > 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_automation.cpp", 1151, ASSERT_TYPE_ASSERT, "(command->type == UINavCommand::CommandType::Tab || command->type == UINavCommand::Button || command->type == UINavCommand::ButtonTry)", (const char *)&queryFormat, "command->type == UINavCommand::CommandType::Tab || command->type == UINavCommand::Button || command->type == UINavCommand::ButtonTry") )
           __debugbreak();
-        v39 = v20->type;
-        v40 = NULL;
-        if ( (unsigned int)(v39 - 2) <= 1 )
-          v40 = (const char *)v20;
-        if ( v39 == Tab )
-          v2 = v20;
-        if ( UI_AutoNavigation_TraversePathToTarget((const char *)v2, v40) || v20->type == ButtonTry )
+        v33 = v18->type;
+        v34 = NULL;
+        if ( (unsigned int)(v33 - 2) <= 1 )
+          v34 = (const char *)v18;
+        if ( v33 == Tab )
+          v2 = v18;
+        if ( UI_AutoNavigation_TraversePathToTarget((const char *)v2, v34) || v18->type == ButtonTry )
           goto LABEL_121;
       }
     }
@@ -1327,11 +1287,8 @@ char UI_AutoNavigation_LoadGraph(const char *filename)
   v18 = -2i64;
   memset_0(s_uiNavGlob.nodes, 0, 0xA000ui64);
   memset_0(s_uiNavGlob.inputRecords, 0, sizeof(s_uiNavGlob.inputRecords));
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr cs:s_uiNavGlob.nodeCount, xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&s_uiNavGlob.nodeCount = _XMM0;
   s_uiNavGlob.navGraph = NULL;
   RawFile = DB_ReadRawFile(filename, buf, 98304);
   if ( RawFile )
@@ -1573,54 +1530,50 @@ UI_AutoNavigation_TraversePathToTarget
 bool UI_AutoNavigation_TraversePathToTarget(const char *targetTabName, const char *targetButtonName)
 {
   int PathToElement; 
+  __int64 v3; 
   __int64 v4; 
-  __int64 v5; 
-  AutomatedInput_Record *v7; 
-  __int64 v8; 
+  AutomatedInput_Record *v5; 
+  __int64 v6; 
   bitarray_base<bitarray<224> > *p_keys; 
-  signed int v10; 
+  signed int v8; 
   int pathKeys[128]; 
   AutomatedInput_Record records; 
-  AutomatedInput_Record v14; 
+  AutomatedInput_Record v12; 
 
   PathToElement = LUI_GetPathToElement(LOCAL_CLIENT_0, targetTabName, targetButtonName, pathKeys, 128);
-  v4 = PathToElement;
+  v3 = PathToElement;
   if ( PathToElement > 0 )
   {
-    v5 = 0i64;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+1C58h+records.deferTimeSeconds], xmm0
-    }
+    v4 = 0i64;
+    records.deferTimeSeconds = 0.0;
     memset(&records.holdTimeSeconds, 0, 32);
     memset_0(&records.moveStick, 0, 0x19DCui64);
-    v7 = &v14;
-    v8 = 127i64;
+    v5 = &v12;
+    v6 = 127i64;
     do
     {
-      AutomatedInput_Record::AutomatedInput_Record(v7++);
-      --v8;
+      AutomatedInput_Record::AutomatedInput_Record(v5++);
+      --v6;
     }
-    while ( v8 );
-    if ( (int)v4 > 0 )
+    while ( v6 );
+    if ( (int)v3 > 0 )
     {
       p_keys = (bitarray_base<bitarray<224> > *)&records.keys;
       do
       {
-        v10 = pathKeys[v5];
+        v8 = pathKeys[v4];
         *(_DWORD *)&p_keys[-4] = 1036831949;
         *(_DWORD *)&p_keys[-8] = 1065353216;
-        if ( v10 > 0 )
-          bitarray_base<bitarray<224>>::setBit(p_keys, v10);
-        ++v5;
+        if ( v8 > 0 )
+          bitarray_base<bitarray<224>>::setBit(p_keys, v8);
+        ++v4;
         p_keys += 52;
       }
-      while ( v5 < v4 );
+      while ( v4 < v3 );
     }
-    CL_Input_AddAutomatedSequence(LOCAL_CLIENT_0, &records, v4);
+    CL_Input_AddAutomatedSequence(LOCAL_CLIENT_0, &records, v3);
   }
-  return (int)v4 >= 0;
+  return (int)v3 >= 0;
 }
 
 /*

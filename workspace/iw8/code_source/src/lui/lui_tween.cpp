@@ -292,86 +292,61 @@ void __fastcall LUI_Tween_ClearElementTweens(LUIElement *element, lua_State *lua
 LUIElement_UpdateTextTweenLayout
 ==============
 */
-
-void __fastcall LUIElement_UpdateTextTweenLayout(const LocalClientNum_t localClientNum, LUIElement *element, double unitScale, int deltaTime, lua_State *luaVM)
+void LUIElement_UpdateTextTweenLayout(const LocalClientNum_t localClientNum, LUIElement *element, float unitScale, int deltaTime, lua_State *luaVM)
 {
-  signed int v13; 
-  const char *v34; 
-  __int64 v35; 
-  char *v36; 
+  __int128 v5; 
+  unsigned int *customElementData; 
+  signed int v10; 
+  unsigned int v11; 
+  unsigned int v12; 
+  double v13; 
+  double v14; 
+  __int64 v15; 
+  const char *v16; 
+  __int64 v17; 
+  char *v18; 
   ConversionArguments arguments; 
   char dest[16]; 
   char outputString[24]; 
-  void *retaddr; 
+  __int128 v22; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmm7, xmm2
-  }
   if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  _RBX = (unsigned int *)element->customElementData;
-  v13 = _RBX[3];
-  _ECX = *_RBX;
-  if ( v13 >= (int)*_RBX )
+  customElementData = (unsigned int *)element->customElementData;
+  v10 = customElementData[3];
+  v11 = *customElementData;
+  if ( v10 >= (int)*customElementData )
   {
-    _R9 = _RBX[2];
+    v15 = customElementData[2];
   }
   else
   {
-    _EAX = deltaTime + v13;
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_38], xmm6
-      vmovss  xmm6, cs:__real@3f800000
-      vmovd   xmm1, eax
-      vcvtdq2ps xmm1, xmm1
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vdivss  xmm0, xmm1, xmm0; val
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovaps xmm2, xmm6; max
-    }
-    _RBX[3] = _EAX;
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    LUI_Tween_Ease(*(float *)&_XMM0, *((Easing *)_RBX + 16));
-    __asm
-    {
-      vmovd   xmm2, dword ptr [rbx+4]
-      vsubss  xmm1, xmm6, xmm0
-      vmovaps xmm6, [rsp+0F8h+var_38]
-      vcvtdq2ps xmm2, xmm2
-      vmulss  xmm3, xmm2, xmm1
-      vmovd   xmm2, dword ptr [rbx+8]
-      vcvtdq2ps xmm2, xmm2
-      vmulss  xmm0, xmm2, xmm0
-      vaddss  xmm1, xmm3, xmm0
-      vcvttss2si r9d, xmm1
-    }
+    v12 = deltaTime + v10;
+    v22 = v5;
+    customElementData[3] = v12;
+    v13 = I_fclamp(_mm_cvtepi32_ps((__m128i)v12).m128_f32[0] / _mm_cvtepi32_ps((__m128i)v11).m128_f32[0], 0.0, 1.0);
+    v14 = LUI_Tween_Ease(*(float *)&v13, (Easing)*((_BYTE *)customElementData + 16));
+    v15 = (unsigned int)(int)(float)((float)(_mm_cvtepi32_ps((__m128i)customElementData[1]).m128_f32[0] * (float)(1.0 - *(float *)&v14)) + (float)(_mm_cvtepi32_ps((__m128i)customElementData[2]).m128_f32[0] * *(float *)&v14));
   }
-  Com_sprintf(dest, 0xAui64, "%d", _R9);
-  v34 = (char *)_RBX + 17;
-  v35 = -1i64;
+  Com_sprintf(dest, 0xAui64, "%d", v15);
+  v16 = (char *)customElementData + 17;
+  v17 = -1i64;
   do
-    ++v35;
-  while ( v34[v35] );
-  if ( v35 )
+    ++v17;
+  while ( v16[v17] );
+  if ( v17 )
   {
     arguments.argCount = 1;
     arguments.args[0] = dest;
-    UI_ReplaceConversions(v34, &arguments, outputString, 0x14ui64);
-    v36 = outputString;
+    UI_ReplaceConversions(v16, &arguments, outputString, 0x14ui64);
+    v18 = outputString;
   }
   else
   {
-    v36 = dest;
+    v18 = dest;
   }
-  LUI_LUIElement_SetText(element, v36, luaVM);
-  __asm { vmovaps xmm2, xmm7; unitScale }
-  LUIElement_DefaultLayout(localClientNum, element, *(float *)&_XMM2, deltaTime, luaVM);
-  __asm { vmovaps xmm7, [rsp+0F8h+var_48] }
+  LUI_LUIElement_SetText(element, v18, luaVM);
+  LUIElement_DefaultLayout(localClientNum, element, unitScale, deltaTime, luaVM);
 }
 
 /*
@@ -486,104 +461,67 @@ LUI_Tween_AddFromQueue
 void LUI_Tween_AddFromQueue(LUIElement *element, lua_State *luaVM, LUITween *startingTween, bool *outInvalidatesLayout)
 {
   LUITween *activeTweens; 
+  LUITween *v9; 
   LUIElementUsageFlag usageFlags; 
-  bool i; 
-  char v24; 
+  LUITween *v11; 
+  float floatValue; 
+  float i; 
+  char v14; 
 
-  _RBX = element;
   if ( !outInvalidatesLayout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 785, ASSERT_TYPE_ASSERT, "(outInvalidatesLayout)", (const char *)&queryFormat, "outInvalidatesLayout") )
     __debugbreak();
-  if ( _RBX )
+  if ( element )
   {
-    if ( startingTween || (startingTween = _RBX->queuedTweens) != NULL )
+    if ( startingTween || (startingTween = element->queuedTweens) != NULL )
     {
-      __asm
-      {
-        vmovaps [rsp+58h+var_18], xmm6
-        vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovaps [rsp+58h+var_28], xmm7
-        vmovss  xmm7, cs:__real@3e4ccccd
-      }
       while ( 1 )
       {
-        activeTweens = _RBX->activeTweens;
+        activeTweens = element->activeTweens;
         if ( activeTweens )
           break;
-LABEL_11:
-        _RDI = startingTween;
+LABEL_10:
+        v9 = startingTween;
         startingTween = startingTween->nextTween;
-        LUI_Tween_UnlinkElementTween(_RDI);
-        LUI_Tween_SetStartValueInTween(_RBX, _RDI, luaVM);
-        usageFlags = _RBX->usageFlags;
-        if ( (usageFlags & 0x80u) != 0 && _RDI->targetProperty[0] == 3 )
+        LUI_Tween_UnlinkElementTween(v9);
+        LUI_Tween_SetStartValueInTween(element, v9, luaVM);
+        usageFlags = element->usageFlags;
+        if ( (usageFlags & 0x80u) != 0 && v9->targetProperty[0] == 3 && COERCE_FLOAT(COERCE_UNSIGNED_INT(v9->endValue.floatValue - v9->startValue.floatValue) & _xmm) > 0.2 )
+          element->usageFlags = usageFlags | 0x1000;
+        LUI_Tween_AddElementTweenNoInterrupt(element, v9, luaVM);
+        if ( (unsigned __int8)(v9->targetProperty[0] - 7) <= 7u )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+28h]
-            vsubss  xmm1, xmm0, dword ptr [rdi+18h]
-            vandps  xmm1, xmm1, xmm6
-            vcomiss xmm1, xmm7
-          }
-          if ( _RDI->targetProperty[0] > 3u )
-            _RBX->usageFlags = usageFlags | 0x1000;
-        }
-        LUI_Tween_AddElementTweenNoInterrupt(_RBX, _RDI, luaVM);
-        if ( (unsigned __int8)(_RDI->targetProperty[0] - 7) <= 7u )
-        {
-          LUI_LUIElement_InvalidateLayout(_RBX);
+          LUI_LUIElement_InvalidateLayout(element);
           *outInvalidatesLayout = 1;
         }
         if ( !startingTween )
         {
-          if ( SLOBYTE(_RBX->usageFlags) < 0 )
+          if ( SLOBYTE(element->usageFlags) < 0 )
           {
-            _RAX = _RBX->activeTweens;
-            __asm
+            v11 = element->activeTweens;
+            floatValue = element->currentAnimationState.position.y.offsets[0];
+            for ( i = element->currentAnimationState.position.y.offsets[1]; v11; v11 = v11->nextTween )
             {
-              vmovss  xmm2, dword ptr [rbx+18h]
-              vmovss  xmm3, dword ptr [rbx+1Ch]
-              vmovaps xmm0, xmm2
-              vmovaps xmm1, xmm3
-            }
-            for ( i = _RAX == NULL; _RAX; i = _RAX == NULL )
-            {
-              v24 = _RAX->targetProperty[0];
-              if ( v24 == 13 )
+              v14 = v11->targetProperty[0];
+              if ( v14 == 13 )
               {
-                __asm { vmovss  xmm0, dword ptr [rax+28h] }
+                floatValue = v11->endValue.floatValue;
               }
-              else if ( v24 == 14 )
+              else if ( v14 == 14 )
               {
-                __asm { vmovss  xmm1, dword ptr [rax+28h] }
+                i = v11->endValue.floatValue;
               }
-              _RAX = _RAX->nextTween;
             }
-            __asm
-            {
-              vsubss  xmm1, xmm1, xmm0
-              vsubss  xmm0, xmm3, xmm2
-              vdivss  xmm1, xmm1, xmm0
-              vsubss  xmm2, xmm1, cs:__real@3f800000
-              vandps  xmm2, xmm2, xmm6
-              vcomiss xmm2, xmm7
-            }
-            if ( !i )
-              _RBX->usageFlags |= 0x1000u;
+            if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(i - floatValue) / (float)(element->currentAnimationState.position.y.offsets[1] - element->currentAnimationState.position.y.offsets[0])) - 1.0) & _xmm) > 0.2 )
+              element->usageFlags |= 0x1000u;
           }
-          goto LABEL_27;
+          return;
         }
       }
       while ( activeTweens->targetProperty[0] != startingTween->targetProperty[0] )
       {
         activeTweens = activeTweens->nextTween;
         if ( !activeTweens )
-          goto LABEL_11;
-      }
-LABEL_27:
-      __asm
-      {
-        vmovaps xmm6, [rsp+58h+var_18]
-        vmovaps xmm7, [rsp+58h+var_28]
+          goto LABEL_10;
       }
     }
   }
@@ -660,61 +598,53 @@ LUI_Tween_ApplyElementTween
 _BOOL8 LUI_Tween_ApplyElementTween(LUIElement *element, LUITween *tween, int deltaTime, lua_State *luaVM)
 {
   int duration; 
-  char v22; 
+  int v9; 
+  double v10; 
+  double v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float floatValue; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  LUIStyledText *CustomElement; 
+  float v24; 
+  float v25; 
+  LUIStyledText *v26; 
+  float v27; 
+  float v28; 
   int timeElapsed; 
-  bool v233; 
-  LUISharedTextRefIndex v235; 
+  bool v30; 
+  LUISharedTextRefIndex v31; 
   LUISharedTextRefIndex glitchScanlinePitch; 
-  LUISharedTextRefIndex v237; 
-  const char *v238; 
+  LUISharedTextRefIndex v33; 
+  const char *v34; 
   LocalClientNum_t CurrentLocalClient; 
-  LUIHorizontalAlignment byteValue; 
+  signed __int8 v36; 
   LUIVerticalAlignment VerticalAlignment; 
-  LUIVerticalAlignment v242; 
+  signed __int8 v38; 
   LUIHorizontalAlignment HorizontalAlignment; 
-  LUISharedTextRefIndex v244; 
-  const char *v245; 
-  __int64 v249; 
+  LUISharedTextRefIndex v40; 
+  const char *v41; 
+  __int64 v45; 
   GfxFont *output_font; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_38], xmm6
-    vmovaps [rsp+88h+var_58], xmm8
-  }
-  _RBX = tween;
-  _RDI = element;
   if ( tween->owner != element && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 1035, ASSERT_TYPE_ASSERT, "(tween->owner == element)", (const char *)&queryFormat, "tween->owner == element") )
     __debugbreak();
-  duration = _RBX->duration;
-  __asm { vmovaps [rsp+88h+var_48], xmm7 }
-  _RBX->timeElapsed += deltaTime;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm8, xmm8, xmm8
-  }
+  duration = tween->duration;
+  v9 = deltaTime + tween->timeElapsed;
+  tween->timeElapsed = v9;
   if ( duration > 0 )
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, ecx
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm0, xmm1, xmm0; val
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovaps xmm2, xmm7; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  }
+    v10 = I_fclamp((float)v9 / (float)duration, 0.0, 1.0);
   else
-  {
-    __asm { vmovaps xmm0, xmm7 }
-  }
-  *(double *)&_XMM0 = LUI_Tween_Ease(*(float *)&_XMM0, _RBX->easing);
-  __asm { vmovaps xmm6, xmm0 }
-  switch ( _RBX->targetProperty[0] )
+    *(float *)&v10 = FLOAT_1_0;
+  v11 = LUI_Tween_Ease(*(float *)&v10, tween->easing);
+  switch ( tween->targetProperty[0] )
   {
     case 0:
     case 0x10:
@@ -729,659 +659,272 @@ _BOOL8 LUI_Tween_ApplyElementTween(LUIElement *element, LUITween *tween, int del
     case 0x37:
       break;
     case 1:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 1
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+44h], xmm0
-      }
+      element->currentAnimationState.alpha = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 2:
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rbx+2Ch]; jumptable 0000000142626D31 case 2
-        vsubss  xmm5, xmm7, xmm6
-        vmulss  xmm1, xmm5, dword ptr [rbx+1Ch]
-        vmulss  xmm2, xmm5, dword ptr [rbx+20h]
-        vaddss  xmm4, xmm1, xmm0
-        vmulss  xmm0, xmm6, dword ptr [rbx+30h]
-        vmulss  xmm1, xmm5, dword ptr [rbx+18h]
-        vaddss  xmm3, xmm2, xmm0
-        vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-        vaddss  xmm1, xmm1, xmm0
-        vmovss  dword ptr [rdi+38h], xmm1
-        vmovss  dword ptr [rdi+3Ch], xmm4
-        vmovss  dword ptr [rdi+40h], xmm3
-      }
+      v13 = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.colorValue.g) + (float)(*(float *)&v11 * tween->endValue.colorValue.g);
+      v14 = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.colorValue.b) + (float)(*(float *)&v11 * tween->endValue.colorValue.b);
+      element->currentAnimationState.red = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
+      element->currentAnimationState.green = v13;
+      element->currentAnimationState.blue = v14;
       break;
     case 3:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 3
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+34h], xmm0
-      }
+      element->currentAnimationState.scale = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 4:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 4
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+0E0h], xmm0
-      }
+      v12 = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
+      element->xRot = v12;
       goto LABEL_11;
     case 5:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 5
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+0E4h], xmm0
-      }
+      v12 = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
+      element->yRot = v12;
       goto LABEL_11;
     case 6:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 6
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+30h], xmm0
-      }
+      element->currentAnimationState.zRot = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 7:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 7
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+10h], xmm0
-      }
+      element->currentAnimationState.position.x.anchors[0] = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 8:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 8
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+14h], xmm0
-      }
+      element->currentAnimationState.position.x.anchors[1] = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 9:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 9
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+28h], xmm0
-      }
+      element->currentAnimationState.position.y.anchors[0] = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0xA:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 10
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+2Ch], xmm0
-      }
+      element->currentAnimationState.position.y.anchors[1] = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0xB:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 11
-        vmovss  xmm1, dword ptr [rbx+18h]
-        vucomiss xmm1, xmm3
-      }
-      if ( !v22 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm7, xmm6
-          vmulss  xmm2, xmm0, xmm1
-          vmulss  xmm1, xmm3, xmm6
-          vaddss  xmm1, xmm2, xmm1
-        }
-      }
-      __asm { vmovss  dword ptr [rdi], xmm1 }
+      floatValue = tween->endValue.floatValue;
+      v16 = tween->startValue.floatValue;
+      if ( v16 != floatValue )
+        v16 = (float)((float)(1.0 - *(float *)&v11) * v16) + (float)(floatValue * *(float *)&v11);
+      element->currentAnimationState.position.x.offsets[0] = v16;
       break;
     case 0xC:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 12
-        vmovss  xmm1, dword ptr [rbx+18h]
-        vucomiss xmm1, xmm3
-      }
-      if ( !v22 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm7, xmm6
-          vmulss  xmm2, xmm0, xmm1
-          vmulss  xmm1, xmm3, xmm6
-          vaddss  xmm1, xmm2, xmm1
-        }
-      }
-      __asm { vmovss  dword ptr [rdi+4], xmm1 }
+      v17 = tween->endValue.floatValue;
+      v18 = tween->startValue.floatValue;
+      if ( v18 != v17 )
+        v18 = (float)((float)(1.0 - *(float *)&v11) * v18) + (float)(v17 * *(float *)&v11);
+      element->currentAnimationState.position.x.offsets[1] = v18;
       break;
     case 0xD:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 13
-        vmovss  xmm1, dword ptr [rbx+18h]
-        vucomiss xmm1, xmm3
-      }
-      if ( !v22 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm7, xmm6
-          vmulss  xmm2, xmm0, xmm1
-          vmulss  xmm1, xmm3, xmm6
-          vaddss  xmm1, xmm2, xmm1
-        }
-      }
-      __asm { vmovss  dword ptr [rdi+18h], xmm1 }
+      v19 = tween->endValue.floatValue;
+      v20 = tween->startValue.floatValue;
+      if ( v20 != v19 )
+        v20 = (float)((float)(1.0 - *(float *)&v11) * v20) + (float)(v19 * *(float *)&v11);
+      element->currentAnimationState.position.y.offsets[0] = v20;
       break;
     case 0xE:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 14
-        vmovss  xmm1, dword ptr [rbx+18h]
-        vucomiss xmm1, xmm3
-      }
-      if ( !v22 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm7, xmm6
-          vmulss  xmm2, xmm0, xmm1
-          vmulss  xmm1, xmm3, xmm6
-          vaddss  xmm1, xmm2, xmm1
-        }
-      }
-      __asm { vmovss  dword ptr [rdi+1Ch], xmm1 }
+      v21 = tween->endValue.floatValue;
+      v22 = tween->startValue.floatValue;
+      if ( v22 != v21 )
+        v22 = (float)((float)(1.0 - *(float *)&v11) * v22) + (float)(v21 * *(float *)&v11);
+      element->currentAnimationState.position.y.offsets[1] = v22;
       break;
     case 0xF:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 15
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+0DCh], xmm0
-      }
+      v12 = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
+      element->depth = v12;
 LABEL_11:
-      __asm { vucomiss xmm0, xmm8 }
-      if ( !v22 )
-        LUI_LUIElement_FlagAs3D(_RDI);
+      if ( v12 != 0.0 )
+        LUI_LUIElement_FlagAs3D(element);
       break;
     case 0x13:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 19
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+118h], xmm0
-      }
+      element->imageData.uMin = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x14:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 20
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+11Ch], xmm0
-      }
+      element->imageData.uMax = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x15:
     case 0x20:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 cases 21,32
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+120h], xmm0
-      }
+      element->imageData.vMin = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x16:
     case 0x21:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 cases 22,33
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+124h], xmm0
-      }
+      element->imageData.vMax = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x17:
     case 0x33:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 cases 23,51
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+48h], xmm0
-      }
+      element->currentAnimationState.userData = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x18:
-      _RAX = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(_RDI, luaVM);
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rax+14h], xmm0
-      }
+      LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(element, luaVM)->glowStyle.glowMinDistance = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x19:
-      _RAX = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(_RDI, luaVM);
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rax+18h], xmm0
-      }
+      LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(element, luaVM)->glowStyle.glowMaxDistance = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x1A:
-      _RAX = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(_RDI, luaVM);
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rax+1Ch], xmm0
-      }
+      LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(element, luaVM)->glowStyle.glowUVOffset.v[0] = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x1B:
-      _RAX = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(_RDI, luaVM);
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rax+20h], xmm0
-      }
+      LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(element, luaVM)->glowStyle.glowUVOffset.v[1] = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x1C:
-      _RAX = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(_RDI, luaVM);
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rbx+2Ch]
-        vsubss  xmm5, xmm7, xmm6
-        vmulss  xmm1, xmm5, dword ptr [rbx+1Ch]
-        vmulss  xmm2, xmm5, dword ptr [rbx+20h]
-        vaddss  xmm4, xmm1, xmm0
-        vmulss  xmm0, xmm6, dword ptr [rbx+30h]
-        vmulss  xmm1, xmm5, dword ptr [rbx+18h]
-        vaddss  xmm3, xmm2, xmm0
-        vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-        vaddss  xmm1, xmm1, xmm0
-        vmovss  dword ptr [rax+24h], xmm1
-        vmovss  dword ptr [rax+28h], xmm4
-        vmovss  dword ptr [rax+2Ch], xmm3
-      }
+      CustomElement = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(element, luaVM);
+      v24 = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.colorValue.g) + (float)(*(float *)&v11 * tween->endValue.colorValue.g);
+      v25 = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.colorValue.b) + (float)(*(float *)&v11 * tween->endValue.colorValue.b);
+      CustomElement->glowStyle.glowColor.v[0] = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
+      CustomElement->glowStyle.glowColor.v[1] = v24;
+      CustomElement->glowStyle.glowColor.v[2] = v25;
       break;
     case 0x1D:
-      _RAX = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(_RDI, luaVM);
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rax+34h], xmm0
-      }
+      LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(element, luaVM)->glowStyle.outlineGlowMinDistance = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x1E:
-      _RAX = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(_RDI, luaVM);
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rax+38h], xmm0
-      }
+      LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(element, luaVM)->glowStyle.outlineGlowMaxDistance = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x1F:
-      _RAX = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(_RDI, luaVM);
-      __asm
-      {
-        vmulss  xmm0, xmm6, dword ptr [rbx+2Ch]
-        vsubss  xmm5, xmm7, xmm6
-        vmulss  xmm1, xmm5, dword ptr [rbx+1Ch]
-        vmulss  xmm2, xmm5, dword ptr [rbx+20h]
-        vaddss  xmm4, xmm1, xmm0
-        vmulss  xmm0, xmm6, dword ptr [rbx+30h]
-        vmulss  xmm1, xmm5, dword ptr [rbx+18h]
-        vaddss  xmm3, xmm2, xmm0
-        vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-        vaddss  xmm1, xmm1, xmm0
-        vmovss  dword ptr [rax+3Ch], xmm1
-        vmovss  dword ptr [rax+40h], xmm4
-        vmovss  dword ptr [rax+44h], xmm3
-      }
+      v26 = LUI_LUIElement_RetrieveCustomElementData<LUIStyledText>(element, luaVM);
+      v27 = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.colorValue.g) + (float)(*(float *)&v11 * tween->endValue.colorValue.g);
+      v28 = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.colorValue.b) + (float)(*(float *)&v11 * tween->endValue.colorValue.b);
+      v26->glowStyle.outlineGlowColor.v[0] = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
+      v26->glowStyle.outlineGlowColor.v[1] = v27;
+      v26->glowStyle.outlineGlowColor.v[2] = v28;
       break;
     case 0x27:
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm6
-        vaddss  xmm2, xmm2, xmm0
-        vcvttss2si eax, xmm2
-      }
-      _RDI->pixelGrid.blockWidth = _EAX;
+      element->pixelGrid.blockWidth = (int)(float)((float)((float)tween->startValue.byteValue * (float)(1.0 - *(float *)&v11)) + (float)((float)tween->endValue.byteValue * *(float *)&v11));
       break;
     case 0x28:
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm6
-        vaddss  xmm2, xmm2, xmm0
-        vcvttss2si eax, xmm2
-      }
-      _RDI->pixelGrid.blockHeight = _EAX;
+      element->pixelGrid.blockHeight = (int)(float)((float)((float)tween->startValue.byteValue * (float)(1.0 - *(float *)&v11)) + (float)((float)tween->endValue.byteValue * *(float *)&v11));
       break;
     case 0x29:
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm6
-        vaddss  xmm2, xmm2, xmm0
-        vcvttss2si eax, xmm2
-      }
-      _RDI->pixelGrid.gutterWidth = _EAX;
+      element->pixelGrid.gutterWidth = (int)(float)((float)((float)tween->startValue.byteValue * (float)(1.0 - *(float *)&v11)) + (float)((float)tween->endValue.byteValue * *(float *)&v11));
       break;
     case 0x2A:
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm6
-        vaddss  xmm2, xmm2, xmm0
-        vcvttss2si eax, xmm2
-      }
-      _RDI->pixelGrid.gutterHeight = _EAX;
+      element->pixelGrid.gutterHeight = (int)(float)((float)((float)tween->startValue.byteValue * (float)(1.0 - *(float *)&v11)) + (float)((float)tween->endValue.byteValue * *(float *)&v11));
       break;
     case 0x2B:
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm6
-        vaddss  xmm2, xmm2, xmm0
-        vcvttss2si eax, xmm2
-      }
-      _RDI->pixelGrid.contrast = _EAX;
+      element->pixelGrid.contrast = (int)(float)((float)((float)tween->startValue.byteValue * (float)(1.0 - *(float *)&v11)) + (float)((float)tween->endValue.byteValue * *(float *)&v11));
       break;
     case 0x2C:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 44
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+138h], xmm0
-      }
+      element->glitchAmount = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x2E:
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+28h]; jumptable 0000000142626D31 case 46
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm0, dword ptr [rbx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  dword ptr [rdi+12Ch], xmm0
-      }
+      element->colorOp.param = (float)((float)(1.0 - *(float *)&v11) * tween->startValue.floatValue) + (float)(*(float *)&v11 * tween->endValue.floatValue);
       break;
     case 0x2F:
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm6
-        vaddss  xmm2, xmm2, xmm0
-        vcvttss2si eax, xmm2
-      }
-      _RDI->currentAnimationState.userDataBytes[0] = _EAX;
+      element->currentAnimationState.userDataBytes[0] = (int)(float)((float)((float)tween->startValue.byteValue * (float)(1.0 - *(float *)&v11)) + (float)((float)tween->endValue.byteValue * *(float *)&v11));
       break;
     case 0x30:
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm6
-        vaddss  xmm2, xmm2, xmm0
-        vcvttss2si eax, xmm2
-      }
-      _RDI->currentAnimationState.userDataBytes[1] = _EAX;
+      element->currentAnimationState.userDataBytes[1] = (int)(float)((float)((float)tween->startValue.byteValue * (float)(1.0 - *(float *)&v11)) + (float)((float)tween->endValue.byteValue * *(float *)&v11));
       break;
     case 0x31:
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm6
-        vaddss  xmm2, xmm2, xmm0
-        vcvttss2si eax, xmm2
-      }
-      _RDI->currentAnimationState.userDataBytes[2] = _EAX;
+      element->currentAnimationState.userDataBytes[2] = (int)(float)((float)((float)tween->startValue.byteValue * (float)(1.0 - *(float *)&v11)) + (float)((float)tween->endValue.byteValue * *(float *)&v11));
       break;
     case 0x32:
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm6
-        vaddss  xmm2, xmm2, xmm0
-        vcvttss2si eax, xmm2
-      }
-      _RDI->currentAnimationState.userDataBytes[3] = _EAX;
+      element->currentAnimationState.userDataBytes[3] = (int)(float)((float)((float)tween->startValue.byteValue * (float)(1.0 - *(float *)&v11)) + (float)((float)tween->endValue.byteValue * *(float *)&v11));
       break;
     case 0x34:
     case 0x35:
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm6
-        vaddss  xmm2, xmm2, xmm0
-        vcvttss2si eax, xmm2
-      }
-      _RDI->currentAnimationState.dataSource = _EAX;
+      element->currentAnimationState.dataSource = (int)(float)((float)((float)tween->startValue.shortValue * (float)(1.0 - *(float *)&v11)) + (float)((float)tween->endValue.shortValue * *(float *)&v11));
       break;
     case 0x36:
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm0, xmm1, xmm6
-        vaddss  xmm2, xmm2, xmm0
-        vcvttss2si eax, xmm2
-      }
-      _RDI->currentAnimationState.userDataShorts[1] = _EAX;
+      element->currentAnimationState.userDataShorts[1] = (int)(float)((float)((float)tween->startValue.shortValue * (float)(1.0 - *(float *)&v11)) + (float)((float)tween->endValue.shortValue * *(float *)&v11));
       break;
     default:
-      LODWORD(v249) = (char)_RBX->targetProperty[0];
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 1372, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected tween property: %d", v249) )
+      LODWORD(v45) = (char)tween->targetProperty[0];
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 1372, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected tween property: %d", v45) )
         __debugbreak();
       break;
   }
-  timeElapsed = _RBX->timeElapsed;
-  __asm
+  timeElapsed = tween->timeElapsed;
+  v30 = timeElapsed >= tween->duration;
+  if ( timeElapsed >= tween->duration )
   {
-    vmovaps xmm8, [rsp+88h+var_58]
-    vmovaps xmm7, [rsp+88h+var_48]
-  }
-  v233 = timeElapsed >= _RBX->duration;
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
-  if ( timeElapsed >= _RBX->duration )
-  {
-    switch ( _RBX->targetProperty[0] )
+    switch ( tween->targetProperty[0] )
     {
       case 4:
       case 5:
       case 0xF:
-        LUI_LUIElement_CheckUnFlagAs3D(_RDI);
+        LUI_LUIElement_CheckUnFlagAs3D(element);
         break;
       case 0x10:
-        _RDI->imageData.image = _RBX->endValue.image;
+        element->imageData.image = tween->endValue.image;
         break;
       case 0x11:
-        _RDI->blendMode = _RBX->endValue.blendMode;
+        element->blendMode = tween->endValue.blendMode;
         break;
       case 0x12:
-        v235 = *(unsigned __int16 *)_RDI->textData.textRef;
-        if ( (_WORD)v235 != INVALID_INDEX )
-          LUI_SharedTextRef_RemoveRef(luaVM, v235);
-        *(_WORD *)_RDI->textData.textRef = _RBX->endValue.shortValue;
-        if ( !_RBX->looping )
+        v31 = *(unsigned __int16 *)element->textData.textRef;
+        if ( (_WORD)v31 != INVALID_INDEX )
+          LUI_SharedTextRef_RemoveRef(luaVM, v31);
+        *(_WORD *)element->textData.textRef = tween->endValue.shortValue;
+        if ( !tween->looping )
           goto LABEL_82;
-        glitchScanlinePitch = _RBX->endValue.glitchScanlinePitch;
+        glitchScanlinePitch = tween->endValue.glitchScanlinePitch;
         if ( (_WORD)glitchScanlinePitch == INVALID_INDEX )
           goto LABEL_82;
         LUI_SharedTextRef_AddRef(luaVM, glitchScanlinePitch);
         break;
       case 0x22:
-        byteValue = _RBX->endValue.byteValue;
-        VerticalAlignment = LUI_GetVerticalAlignment(_RDI->currentAnimationState.alignment);
-        _RDI->currentAnimationState.alignment = LUI_GetAlignment(byteValue, VerticalAlignment);
+        v36 = tween->endValue.stringRef[0];
+        VerticalAlignment = LUI_GetVerticalAlignment(element->currentAnimationState.alignment);
+        element->currentAnimationState.alignment = LUI_GetAlignment((LUIHorizontalAlignment)v36, VerticalAlignment);
         break;
       case 0x23:
-        v242 = _RBX->endValue.byteValue;
-        HorizontalAlignment = LUI_GetHorizontalAlignment(_RDI->currentAnimationState.alignment);
-        _RDI->currentAnimationState.alignment = LUI_GetAlignment(HorizontalAlignment, v242);
+        v38 = tween->endValue.stringRef[0];
+        HorizontalAlignment = LUI_GetHorizontalAlignment(element->currentAnimationState.alignment);
+        element->currentAnimationState.alignment = LUI_GetAlignment(HorizontalAlignment, (LUIVerticalAlignment)v38);
         break;
       case 0x24:
-        v244 = _RBX->endValue.glitchScanlinePitch;
-        if ( (_WORD)v244 != INVALID_INDEX )
+        v40 = tween->endValue.glitchScanlinePitch;
+        if ( (_WORD)v40 != INVALID_INDEX )
         {
-          LUI_SharedTextRef_PushRefOnStack(luaVM, v244);
+          LUI_SharedTextRef_PushRefOnStack(luaVM, v40);
           if ( !j_lua_isstring(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 1456, ASSERT_TYPE_ASSERT, "(lua_isstring( luaVM, -1 ))", (const char *)&queryFormat, "lua_isstring( luaVM, -1 )") )
             __debugbreak();
-          v245 = j_lua_tolstring(luaVM, -1, NULL);
-          LUI_Interface_RegisterFont(v245, &output_font);
-          _RDI->imageData.image = (const GfxImage *)output_font;
+          v41 = j_lua_tolstring(luaVM, -1, NULL);
+          LUI_Interface_RegisterFont(v41, &output_font);
+          element->imageData.image = (const GfxImage *)output_font;
           goto LABEL_80;
         }
         break;
       case 0x25:
-        if ( _RBX->endValue.intValue )
-          _RDI->usageFlags |= 0x100u;
+        if ( tween->endValue.intValue )
+          element->usageFlags |= 0x100u;
         else
-          _RDI->usageFlags &= ~0x100u;
+          element->usageFlags &= ~0x100u;
         break;
       case 0x26:
-        LUI_PutElementOnTopOfStack(_RDI, luaVM);
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2sd xmm1, xmm1, dword ptr [rbx+28h]; value
-        }
+        LUI_PutElementOnTopOfStack(element, luaVM);
+        _XMM1 = 0i64;
+        __asm { vcvtsi2sd xmm1, xmm1, dword ptr [rbx+28h]; value }
         LUI_SetTableNumber("m_textStyle", *(long double *)&_XMM1, luaVM);
         j_lua_settop(luaVM, -2);
         break;
       case 0x2D:
-        _RDI->colorOp.op = _RBX->endValue.byteValue;
+        element->colorOp.op = tween->endValue.byteValue;
         break;
       case 0x37:
-        v237 = _RBX->endValue.glitchScanlinePitch;
-        if ( (_WORD)v237 != INVALID_INDEX )
+        v33 = tween->endValue.glitchScanlinePitch;
+        if ( (_WORD)v33 != INVALID_INDEX )
         {
-          LUI_SharedTextRef_PushRefOnStack(luaVM, v237);
+          LUI_SharedTextRef_PushRefOnStack(luaVM, v33);
           if ( !j_lua_isstring(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 1412, ASSERT_TYPE_ASSERT, "(lua_isstring( luaVM, -1 ))", (const char *)&queryFormat, "lua_isstring( luaVM, -1 )") )
             __debugbreak();
-          v238 = j_lua_tolstring(luaVM, -1, NULL);
+          v34 = j_lua_tolstring(luaVM, -1, NULL);
           CurrentLocalClient = LUI_CoD_GetCurrentLocalClient();
           if ( CurrentLocalClient == LOCAL_CLIENT_INVALID )
             CurrentLocalClient = LOCAL_CLIENT_0;
           if ( LUI_Workers_IsRunningCmd() )
-            LUI_Workers_QueuePlaySound(CurrentLocalClient, v238);
+            LUI_Workers_QueuePlaySound(CurrentLocalClient, v34);
           else
-            UI_PlayLocalSoundAliasByName(CurrentLocalClient, v238);
+            UI_PlayLocalSoundAliasByName(CurrentLocalClient, v34);
 LABEL_80:
           j_lua_settop(luaVM, -2);
-          if ( !_RBX->looping )
+          if ( !tween->looping )
           {
-            LUI_SharedTextRef_RemoveRef(luaVM, (const LUISharedTextRefIndex)_RBX->endValue.glitchScanlinePitch);
+            LUI_SharedTextRef_RemoveRef(luaVM, (const LUISharedTextRefIndex)tween->endValue.glitchScanlinePitch);
 LABEL_82:
-            _RBX->endValue.shortValue = -1;
+            tween->endValue.shortValue = -1;
           }
         }
         break;
       default:
-        return v233;
+        return v30;
     }
   }
-  return v233;
+  return v30;
 }
 
 /*
@@ -1643,7 +1186,10 @@ LUITween *LUI_Tween_CreateFromTemporaryTween(lua_State *const luaVM, const LUITw
 {
   LUIElement *owner; 
   LUITween *v5; 
+  LUITween *v6; 
+  const LUITween *v7; 
   __int64 v8; 
+  __int128 v9; 
   LUITween *previousTween; 
   LUITween *nextTween; 
   LUITween *result; 
@@ -1660,49 +1206,31 @@ LUITween *LUI_Tween_CreateFromTemporaryTween(lua_State *const luaVM, const LUITw
   v5 = LUI_Tween_Allocate(luaVM, temporaryTween->owner);
   if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 634, ASSERT_TYPE_ASSERT, "(tween)", (const char *)&queryFormat, "tween") )
     __debugbreak();
-  _RAX = v5;
-  _RCX = temporaryTween;
+  v6 = v5;
+  v7 = temporaryTween;
   v8 = 8i64;
   do
   {
-    _RAX = (LUITween *)((char *)_RAX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
-    _RCX = (const LUITween *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    v6 = (LUITween *)((char *)v6 + 128);
+    v9 = *(_OWORD *)&v7->owner;
+    v7 = (const LUITween *)((char *)v7 + 128);
+    *(_OWORD *)&v6[-1].ownerIdCached[896] = v9;
+    *(_OWORD *)&v6[-1].ownerIdCached[912] = *(_OWORD *)&v7[-1].ownerIdCached[912];
+    *(_OWORD *)&v6[-1].ownerIdCached[928] = *(_OWORD *)&v7[-1].ownerIdCached[928];
+    *(_OWORD *)&v6[-1].ownerIdCached[944] = *(_OWORD *)&v7[-1].ownerIdCached[944];
+    *(_OWORD *)&v6[-1].ownerIdCached[960] = *(_OWORD *)&v7[-1].ownerIdCached[960];
+    *(_OWORD *)&v6[-1].ownerIdCached[976] = *(_OWORD *)&v7[-1].ownerIdCached[976];
+    *(_OWORD *)&v6[-1].ownerIdCached[992] = *(_OWORD *)&v7[-1].ownerIdCached[992];
+    *(_OWORD *)&v6[-1].ownerIdCached[1008] = *(_OWORD *)&v7[-1].ownerIdCached[1008];
     --v8;
   }
   while ( v8 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rax], xmm0
-    vmovups xmm1, xmmword ptr [rcx+10h]
-    vmovups xmmword ptr [rax+10h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+20h]
-    vmovups xmmword ptr [rax+20h], xmm0
-    vmovups xmm1, xmmword ptr [rcx+30h]
-    vmovups xmmword ptr [rax+30h], xmm1
-    vmovups xmm0, xmmword ptr [rcx+40h]
-    vmovups xmmword ptr [rax+40h], xmm0
-  }
-  v5->isUsedTempTween = v8;
+  *(_OWORD *)&v6->owner = *(_OWORD *)&v7->owner;
+  *(_OWORD *)&v6->nextTween = *(_OWORD *)&v7->nextTween;
+  *(LUITweenPropertyValue *)((char *)&v6->startValue + 8) = *(LUITweenPropertyValue *)((char *)&v7->startValue + 8);
+  *(LUITweenPropertyValue *)((char *)&v6->endValue + 8) = *(LUITweenPropertyValue *)((char *)&v7->endValue + 8);
+  *(_OWORD *)&v6->duration = *(_OWORD *)&v7->duration;
+  v5->isUsedTempTween = 0;
   LUI_Tween_CreateStrongReference(v5, luaVM);
   LUI_Tween_SetTweenMetatable(luaVM);
   previousTween = temporaryTween->previousTween;
@@ -1766,84 +1294,53 @@ LUI_Tween_DebugDraw
 */
 void LUI_Tween_DebugDraw(LocalClientNum_t localClientNum)
 {
-  __int64 v2; 
-  unsigned int v3; 
-  bool v4; 
-  const ScreenPlacement *v5; 
+  __int64 v1; 
+  unsigned int v2; 
+  bool v3; 
+  const ScreenPlacement *v4; 
+  const char *v5; 
   const char *v6; 
-  const char *v10; 
-  const char *v13; 
-  const char *v16; 
-  float v20; 
-  float v21; 
-  float v22; 
-  float v23; 
+  const char *v7; 
+  const char *v8; 
 
-  v2 = localClientNum;
+  v1 = localClientNum;
   if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_lui_showDebugTweenCounter, "lui_showDebugTweenCounter") )
   {
-    v3 = currentFrame;
-    __asm { vmovaps [rsp+68h+var_18], xmm6 }
+    v2 = currentFrame;
     if ( currentFrame >= 0xA )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 2182, ASSERT_TYPE_ASSERT, "(unsigned)( currentFrame ) < (unsigned)( ( sizeof( *array_counter( createdRunningBuf ) ) + 0 ) )", "currentFrame doesn't index createdRunningBuf\n\t%i not in [0, %i)", currentFrame, 10) )
         __debugbreak();
-      v3 = currentFrame;
+      v2 = currentFrame;
     }
-    createdRunningBuf[v3] = s_tweensCreated;
-    tempUsedRunningBuf[v3] = s_temporaryTweensUsed;
-    tempUpgradedRunningBuf[v3] = s_temporaryTweensUpgraded;
-    currentFrame = (v3 + 1) % 0xA;
+    createdRunningBuf[v2] = s_tweensCreated;
+    tempUsedRunningBuf[v2] = s_temporaryTweensUsed;
+    tempUpgradedRunningBuf[v2] = s_temporaryTweensUpgraded;
+    currentFrame = (v2 + 1) % 0xA;
     if ( activeScreenPlacementMode )
     {
       if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
       {
-        v5 = &scrPlaceViewDisplay[v2];
+        v4 = &scrPlaceViewDisplay[v1];
         goto LABEL_13;
       }
       if ( activeScreenPlacementMode == SCRMODE_INVALID )
-        v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+        v3 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
       else
-        v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-      if ( v4 )
+        v3 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+      if ( v3 )
         __debugbreak();
     }
-    v5 = &scrPlaceFull;
+    v4 = &scrPlaceFull;
 LABEL_13:
-    v6 = j_va("Tweens allocated: %d", (unsigned int)s_allocatedTweens);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@41000000
-      vmovss  [rsp+68h+var_30], xmm6
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v5, *(float *)&_XMM1, *(float *)&_XMM2, v6, &colorWhite, 0, 1, v20, 0);
-    v10 = j_va("Tweens created: %d (total), %d (avg over 10 frames)", s_tweensCreated, (s_tweensCreated - createdRunningBuf[currentFrame]) / 0xA);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@41800000; y
-      vmovss  [rsp+68h+var_30], xmm6
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v5, *(float *)&_XMM1, *(float *)&_XMM2, v10, &colorWhite, 0, 1, v21, 0);
-    v13 = j_va("Temp tweens used: %d (total), %d (avg over 10 frames)", s_temporaryTweensUsed, (s_temporaryTweensUsed - tempUsedRunningBuf[currentFrame]) / 0xA);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@41c00000; y
-      vmovss  [rsp+68h+var_30], xmm6
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v5, *(float *)&_XMM1, *(float *)&_XMM2, v13, &colorWhite, 0, 1, v22, 0);
-    v16 = j_va("Temp tweens upgraded: %d (total), %d (avg over 10 frames)", s_temporaryTweensUpgraded, (s_temporaryTweensUpgraded - tempUpgradedRunningBuf[currentFrame]) / 0xA);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42000000; y
-      vmovss  [rsp+68h+var_30], xmm6
-      vmovaps xmm1, xmm6; x
-    }
-    CG_DrawStringExt(v5, *(float *)&_XMM1, *(float *)&_XMM2, v16, &colorWhite, 0, 1, v23, 0);
-    __asm { vmovaps xmm6, [rsp+68h+var_18] }
+    v5 = j_va("Tweens allocated: %d", (unsigned int)s_allocatedTweens);
+    CG_DrawStringExt(v4, 8.0, 8.0, v5, &colorWhite, 0, 1, 8.0, 0);
+    v6 = j_va("Tweens created: %d (total), %d (avg over 10 frames)", s_tweensCreated, (s_tweensCreated - createdRunningBuf[currentFrame]) / 0xA);
+    CG_DrawStringExt(v4, 8.0, 16.0, v6, &colorWhite, 0, 1, 8.0, 0);
+    v7 = j_va("Temp tweens used: %d (total), %d (avg over 10 frames)", s_temporaryTweensUsed, (s_temporaryTweensUsed - tempUsedRunningBuf[currentFrame]) / 0xA);
+    CG_DrawStringExt(v4, 8.0, 24.0, v7, &colorWhite, 0, 1, 8.0, 0);
+    v8 = j_va("Temp tweens upgraded: %d (total), %d (avg over 10 frames)", s_temporaryTweensUpgraded, (s_temporaryTweensUpgraded - tempUpgradedRunningBuf[currentFrame]) / 0xA);
+    CG_DrawStringExt(v4, 8.0, 32.0, v8, &colorWhite, 0, 1, 8.0, 0);
   }
 }
 
@@ -1855,222 +1352,113 @@ LUI_Tween_Ease
 
 float __fastcall LUI_Tween_Ease(double t, Easing easing)
 {
-  __int64 v74; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  __int64 v11; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm0, xmm8
-    vmovaps xmm7, xmm0
-    vmovss  xmm6, cs:__real@3f800000
-    vcomiss xmm7, xmm6
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 80, ASSERT_TYPE_ASSERT, "(t <= 1.f)", (const char *)&queryFormat, "t <= 1.f") )
+  _XMM8 = 0i64;
+  _XMM7 = *(_OWORD *)&t;
+  if ( *(float *)&t < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 79, ASSERT_TYPE_ASSERT, "(t >= 0.f)", (const char *)&queryFormat, "t >= 0.f") )
+    __debugbreak();
+  if ( *(float *)&t > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 80, ASSERT_TYPE_ASSERT, "(t <= 1.f)", (const char *)&queryFormat, "t <= 1.f") )
     __debugbreak();
   switch ( easing )
   {
     case 0:
-      goto $LN10_168;
+      return *(float *)&t;
     case 1:
-      __asm { vmulss  xmm0, xmm7, xmm7; jumptable 0000000142628DE3 case 1 }
-      break;
+      *(float *)&t = *(float *)&t * *(float *)&t;
+      return *(float *)&t;
     case 2:
-      __asm
-      {
-        vmovss  xmm0, cs:__real@40000000; jumptable 0000000142628DE3 case 2
-        vsubss  xmm1, xmm0, xmm7
-        vmulss  xmm0, xmm1, xmm7
-      }
-      break;
+      v5 = 2.0 - *(float *)&t;
+      goto LABEL_10;
     case 3:
-      __asm
-      {
-        vcomiss xmm7, cs:__real@3f000000; jumptable 0000000142628DE3 case 3
-        vmulss  xmm1, xmm7, cs:__real@40000000
-        vmovss  xmm0, cs:__real@40800000
-        vsubss  xmm1, xmm0, xmm1
-        vmulss  xmm2, xmm1, xmm7
-        vsubss  xmm0, xmm2, xmm6
-      }
-      break;
+      v5 = *(float *)&t * 2.0;
+      if ( *(float *)&t < 0.5 )
+LABEL_10:
+        *(float *)&t = v5 * *(float *)&t;
+      else
+        *(float *)&t = (float)((float)(4.0 - (float)(*(float *)&t * 2.0)) * *(float *)&t) - 1.0;
+      return *(float *)&t;
     case 4:
-      __asm
-      {
-        vmulss  xmm0, xmm7, xmm7; jumptable 0000000142628DE3 case 4
-        vmulss  xmm0, xmm0, xmm7
-      }
-      break;
+      *(float *)&t = (float)(*(float *)&t * *(float *)&t) * *(float *)&t;
+      return *(float *)&t;
     case 5:
-      __asm
-      {
-        vsubss  xmm1, xmm7, xmm6; jumptable 0000000142628DE3 case 5
-        vmulss  xmm0, xmm1, xmm1
-        vmulss  xmm1, xmm0, xmm1
-        vaddss  xmm0, xmm1, xmm6
-      }
-      break;
+      *(float *)&t = (float)((float)((float)(*(float *)&t - 1.0) * (float)(*(float *)&t - 1.0)) * (float)(*(float *)&t - 1.0)) + 1.0;
+      return *(float *)&t;
     case 6:
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3f000000; jumptable 0000000142628DE3 case 6
-        vcomiss xmm7, xmm1
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm3, xmm0, cs:__real@40000000
-        vmulss  xmm1, xmm3, xmm1
-        vmulss  xmm2, xmm1, xmm3
-        vmulss  xmm0, xmm2, xmm3
-        vaddss  xmm0, xmm0, xmm6
-      }
-      break;
+      if ( *(float *)&t >= 0.5 )
+        *(float *)&t = (float)((float)((float)((float)((float)(*(float *)&t - 1.0) * 2.0) * 0.5) * (float)((float)(*(float *)&t - 1.0) * 2.0)) * (float)((float)(*(float *)&t - 1.0) * 2.0)) + 1.0;
+      else
+        *(float *)&t = (float)((float)(*(float *)&t * 4.0) * *(float *)&t) * *(float *)&t;
+      return *(float *)&t;
     case 7:
-      __asm
-      {
-        vmulss  xmm0, xmm7, xmm7; jumptable 0000000142628DE3 case 7
-        vmulss  xmm1, xmm0, xmm7
-        vmulss  xmm0, xmm1, xmm7
-      }
-      break;
+      *(float *)&t = (float)((float)(*(float *)&t * *(float *)&t) * *(float *)&t) * *(float *)&t;
+      return *(float *)&t;
     case 8:
-      __asm
-      {
-        vsubss  xmm2, xmm7, xmm6; jumptable 0000000142628DE3 case 8
-        vmulss  xmm0, xmm2, xmm2
-        vmulss  xmm1, xmm0, xmm2
-        vmulss  xmm2, xmm1, xmm2
-        vsubss  xmm0, xmm6, xmm2
-      }
-      break;
+      *(float *)&t = 1.0 - (float)((float)((float)((float)(*(float *)&t - 1.0) * (float)(*(float *)&t - 1.0)) * (float)(*(float *)&t - 1.0)) * (float)(*(float *)&t - 1.0));
+      return *(float *)&t;
     case 9:
-      __asm
-      {
-        vcomiss xmm7, cs:__real@3f000000; jumptable 0000000142628DE3 case 9
-        vsubss  xmm3, xmm7, xmm6
-        vmulss  xmm0, xmm3, cs:__real@41000000
-        vmulss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm3
-        vmulss  xmm3, xmm2, xmm3
-        vsubss  xmm0, xmm6, xmm3
-      }
-      break;
+      if ( *(float *)&t >= 0.5 )
+        *(float *)&t = 1.0 - (float)((float)((float)((float)((float)(*(float *)&t - 1.0) * 8.0) * (float)(*(float *)&t - 1.0)) * (float)(*(float *)&t - 1.0)) * (float)(*(float *)&t - 1.0));
+      else
+        *(float *)&t = (float)((float)((float)(*(float *)&t * 8.0) * *(float *)&t) * *(float *)&t) * *(float *)&t;
+      return *(float *)&t;
     case 10:
-      __asm
-      {
-        vmulss  xmm0, xmm7, xmm7; jumptable 0000000142628DE3 case 10
-        vmulss  xmm1, xmm0, xmm7
-        vmulss  xmm2, xmm1, xmm7
-        vmulss  xmm0, xmm2, xmm7
-      }
-      break;
+      *(float *)&t = (float)((float)((float)(*(float *)&t * *(float *)&t) * *(float *)&t) * *(float *)&t) * *(float *)&t;
+      return *(float *)&t;
     case 11:
-      __asm
-      {
-        vsubss  xmm3, xmm7, xmm6; jumptable 0000000142628DE3 case 11
-        vmulss  xmm0, xmm3, xmm3
-        vmulss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm3
-        vmulss  xmm3, xmm2, xmm3
-        vaddss  xmm0, xmm3, xmm6
-      }
-      break;
+      *(float *)&t = (float)((float)((float)((float)((float)(*(float *)&t - 1.0) * (float)(*(float *)&t - 1.0)) * (float)(*(float *)&t - 1.0)) * (float)(*(float *)&t - 1.0)) * (float)(*(float *)&t - 1.0)) + 1.0;
+      return *(float *)&t;
     case 12:
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3f000000; jumptable 0000000142628DE3 case 12
-        vcomiss xmm7, xmm1
-        vsubss  xmm0, xmm7, xmm6
-        vmulss  xmm4, xmm0, cs:__real@40000000
-        vmulss  xmm1, xmm4, xmm1
-        vmulss  xmm2, xmm1, xmm4
-        vmulss  xmm0, xmm2, xmm4
-        vmulss  xmm3, xmm0, xmm4
-        vmulss  xmm1, xmm3, xmm4
-        vaddss  xmm0, xmm1, xmm6
-      }
-      break;
+      if ( *(float *)&t >= 0.5 )
+        *(float *)&t = (float)((float)((float)((float)((float)((float)((float)(*(float *)&t - 1.0) * 2.0) * 0.5) * (float)((float)(*(float *)&t - 1.0) * 2.0)) * (float)((float)(*(float *)&t - 1.0) * 2.0)) * (float)((float)(*(float *)&t - 1.0) * 2.0)) * (float)((float)(*(float *)&t - 1.0) * 2.0)) + 1.0;
+      else
+        *(float *)&t = (float)((float)((float)((float)(*(float *)&t * 16.0) * *(float *)&t) * *(float *)&t) * *(float *)&t) * *(float *)&t;
+      return *(float *)&t;
     case 13:
-      __asm { vmulss  xmm0, xmm7, cs:__real@3fc90fdb; jumptable 0000000142628DE3 case 13 }
-      cosf_0(*(float *)&_XMM0);
-      __asm { vsubss  xmm0, xmm6, xmm0 }
-      break;
+      *(float *)&t = 1.0 - cosf_0(*(float *)&t * 1.5707964);
+      return *(float *)&t;
     case 14:
-      __asm { vmulss  xmm0, xmm7, cs:__real@3fc90fdb; jumptable 0000000142628DE3 case 14 }
-      *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-      break;
+      *(float *)&t = sinf_0(*(float *)&t * 1.5707964);
+      return *(float *)&t;
     case 15:
-      __asm { vmulss  xmm0, xmm7, cs:__real@40490fdb; jumptable 0000000142628DE3 case 15 }
-      cosf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vsubss  xmm0, xmm6, xmm0
-        vmulss  xmm0, xmm0, cs:__real@3f000000
-      }
-      break;
+      *(float *)&t = (float)(1.0 - cosf_0(*(float *)&t * 3.1415927)) * 0.5;
+      return *(float *)&t;
     case 16:
-      __asm
-      {
-        vmulss  xmm0, xmm7, xmm7; jumptable 0000000142628DE3 case 16
-        vmulss  xmm6, xmm0, xmm7
-        vmulss  xmm0, xmm7, cs:__real@40490fdb; X
-      }
-      goto LABEL_21;
+      v6 = (float)(*(float *)&t * *(float *)&t) * *(float *)&t;
+      v7 = *(float *)&t * 3.1415927;
+      goto LABEL_32;
     case 17:
-      __asm
-      {
-        vsubss  xmm7, xmm7, xmm6; jumptable 0000000142628DE3 case 17
-        vmulss  xmm0, xmm7, xmm7
-        vmulss  xmm1, xmm0, xmm7
-        vmulss  xmm0, xmm7, cs:__real@c0490fdb
-        vaddss  xmm6, xmm1, xmm6
-      }
-      goto LABEL_21;
+      *(float *)&_XMM7 = *(float *)&t - 1.0;
+      v7 = (float)(*(float *)&t - 1.0) * -3.1415927;
+      v6 = (float)((float)(*(float *)&_XMM7 * *(float *)&_XMM7) * *(float *)&_XMM7) + 1.0;
+      goto LABEL_32;
     case 18:
-      __asm
-      {
-        vmovss  xmm1, cs:__real@40000000; jumptable 0000000142628DE3 case 18
-        vmulss  xmm8, xmm7, xmm1
-        vcomiss xmm8, xmm6
-        vsubss  xmm7, xmm1, xmm8
-        vmulss  xmm0, xmm7, xmm7
-        vmulss  xmm1, xmm0, xmm7
-        vsubss  xmm1, xmm6, xmm1
-        vaddss  xmm0, xmm1, xmm6
-        vmulss  xmm6, xmm0, cs:__real@3f000000
-        vmulss  xmm0, xmm7, cs:__real@c0490fdb
-      }
-LABEL_21:
-      *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vmulss  xmm1, xmm7, cs:__real@3eb33333
-        vmulss  xmm0, xmm0, xmm1
-        vsubss  xmm0, xmm6, xmm0
-      }
-      break;
+      v8 = *(float *)&t * 2.0;
+      if ( (float)(*(float *)&t * 2.0) < 1.0 )
+        return (float)((float)((float)(*(float *)&t * *(float *)&t) * 2.0) * v8) - (float)(sinf_0(v8 * 3.1415927) * (float)(v8 * 0.34999999));
+      *(float *)&_XMM7 = 2.0 - v8;
+      v6 = (float)((float)(1.0 - (float)((float)(*(float *)&_XMM7 * *(float *)&_XMM7) * *(float *)&_XMM7)) + 1.0) * 0.5;
+      v7 = (float)(2.0 - v8) * -3.1415927;
+LABEL_32:
+      *(float *)&t = v6 - (float)(sinf_0(v7) * (float)(*(float *)&_XMM7 * 0.34999999));
+      return *(float *)&t;
     case 19:
       __asm
       {
         vcmpeqss xmm0, xmm7, xmm6; jumptable 0000000142628DE3 case 19
         vblendvps xmm0, xmm8, xmm6, xmm0
       }
-      break;
+      return *(float *)&t;
     default:
-      LODWORD(v74) = easing;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 184, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected easing mode: %d", v74) )
+      LODWORD(v11) = easing;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 184, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected easing mode: %d", v11) )
         __debugbreak();
-$LN10_168:
-      __asm { vmovaps xmm0, xmm7; jumptable 0000000142628DE3 case 0 }
-      break;
+      return *(float *)&t;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-  }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -2719,16 +2107,25 @@ LUI_Tween_SetEndValueInTween
 */
 void LUI_Tween_SetEndValueInTween(LUITween *tween, lua_State *luaVM)
 {
-  int v22; 
-  int v23; 
-  __int64 v26; 
+  double v4; 
+  double v5; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  int v11; 
+  int v12; 
+  int v13; 
+  double v14; 
+  double v15; 
+  __int64 v16; 
 
-  _RDI = tween;
   if ( !tween && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 1897, ASSERT_TYPE_ASSERT, "(tween)", (const char *)&queryFormat, "tween") )
     __debugbreak();
   if ( !luaVM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 1898, ASSERT_TYPE_ASSERT, "(luaVM)", (const char *)&queryFormat, "luaVM") )
     __debugbreak();
-  switch ( _RDI->targetProperty[0] )
+  switch ( tween->targetProperty[0] )
   {
     case 0:
       return;
@@ -2763,8 +2160,8 @@ void LUI_Tween_SetEndValueInTween(LUITween *tween, lua_State *luaVM)
     case 0x33:
       if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 1936, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
         __debugbreak();
-      *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-      __asm { vmovss  dword ptr [rdi+28h], xmm0 }
+      v4 = lui_tonumber32(luaVM, -1);
+      tween->endValue.floatValue = *(float *)&v4;
       return;
     case 2:
     case 0x1C:
@@ -2776,55 +2173,42 @@ void LUI_Tween_SetEndValueInTween(LUITween *tween, lua_State *luaVM)
         j_lua_getfield(luaVM, -1, "r");
         if ( j_lua_isnumber(luaVM, -1) )
         {
-          *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-          __asm { vmovss  dword ptr [rdi+28h], xmm0 }
+          v8 = lui_tonumber32(luaVM, -1);
+          tween->endValue.floatValue = *(float *)&v8;
         }
         j_lua_settop(luaVM, -2);
         j_lua_getfield(luaVM, -1, "g");
         if ( j_lua_isnumber(luaVM, -1) )
         {
-          *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-          __asm { vmovss  dword ptr [rdi+2Ch], xmm0 }
+          v9 = lui_tonumber32(luaVM, -1);
+          tween->endValue.colorValue.g = *(float *)&v9;
         }
         j_lua_settop(luaVM, -2);
         j_lua_getfield(luaVM, -1, "b");
         if ( j_lua_isnumber(luaVM, -1) )
         {
-          *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-          __asm { vmovss  dword ptr [rdi+30h], xmm0 }
+          v10 = lui_tonumber32(luaVM, -1);
+          tween->endValue.colorValue.b = *(float *)&v10;
         }
         j_lua_settop(luaVM, -2);
       }
       else
       {
-        lui_tointeger32(luaVM, -1);
-        __asm
-        {
-          vmovss  xmm2, cs:__real@3b808081
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ecx
-          vmulss  xmm0, xmm0, xmm2
-          vmovss  dword ptr [rdi+28h], xmm0
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ecx
-          vmulss  xmm1, xmm0, xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [rdi+2Ch], xmm1
-          vmulss  xmm1, xmm0, xmm2
-          vmovss  dword ptr [rdi+30h], xmm1
-        }
+        v11 = lui_tointeger32(luaVM, -1);
+        tween->endValue.floatValue = (float)BYTE2(v11) * 0.0039215689;
+        tween->endValue.colorValue.g = (float)BYTE1(v11) * 0.0039215689;
+        tween->endValue.colorValue.b = (float)(unsigned __int8)v11 * 0.0039215689;
       }
       return;
     case 0x10:
       if ( !j_lua_isuserdata(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 2035, ASSERT_TYPE_ASSERT, "(lua_isuserdata( luaVM, -1 ))", (const char *)&queryFormat, "lua_isuserdata( luaVM, -1 )") )
         __debugbreak();
-      _RDI->endValue.image = (const GfxImage *)j_lua_touserdata(luaVM, -1);
+      tween->endValue.image = (const GfxImage *)j_lua_touserdata(luaVM, -1);
       return;
     case 0x11:
       if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 2071, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
         __debugbreak();
-      _RDI->endValue.byteValue = lui_tointeger32(luaVM, -1);
+      tween->endValue.byteValue = lui_tointeger32(luaVM, -1);
       return;
     case 0x12:
     case 0x24:
@@ -2832,61 +2216,56 @@ void LUI_Tween_SetEndValueInTween(LUITween *tween, lua_State *luaVM)
       if ( !j_lua_isstring(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 2052, ASSERT_TYPE_ASSERT, "(lua_isstring( luaVM, -1 ))", (const char *)&queryFormat, "lua_isstring( luaVM, -1 )") )
         __debugbreak();
       j_lua_pushvalue(luaVM, -1);
-      _RDI->endValue.shortValue = LUI_SharedTextRef_CreateRef(luaVM);
+      tween->endValue.shortValue = LUI_SharedTextRef_CreateRef(luaVM);
       return;
     case 0x22:
     case 0x23:
     case 0x2D:
       if ( j_lua_isnumber(luaVM, -1) )
         goto LABEL_37;
-      v22 = 2043;
+      v12 = 2043;
       break;
     case 0x25:
       if ( j_lua_type(luaVM, -1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 2059, ASSERT_TYPE_ASSERT, "((lua_type(luaVM, (-1)) == 1))", (const char *)&queryFormat, "lua_isboolean( luaVM, -1 )") )
         __debugbreak();
-      _RDI->endValue.intValue = j_lua_toboolean(luaVM, -1);
+      tween->endValue.intValue = j_lua_toboolean(luaVM, -1);
       return;
     case 0x26:
       if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 2065, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
         __debugbreak();
-      _RDI->endValue.intValue = lua_tointeger32(luaVM, -1);
+      tween->endValue.intValue = lua_tointeger32(luaVM, -1);
       return;
     case 0x27:
       if ( j_lua_isnumber(luaVM, -1) )
         goto LABEL_37;
-      v22 = 1999;
+      v12 = 1999;
       break;
     case 0x28:
       if ( j_lua_isnumber(luaVM, -1) )
         goto LABEL_37;
-      v22 = 2005;
+      v12 = 2005;
       break;
     case 0x29:
       if ( j_lua_isnumber(luaVM, -1) )
         goto LABEL_37;
-      v22 = 2011;
+      v12 = 2011;
       break;
     case 0x2A:
       if ( j_lua_isnumber(luaVM, -1) )
         goto LABEL_37;
-      v22 = 2017;
+      v12 = 2017;
       break;
     case 0x2B:
       if ( j_lua_isnumber(luaVM, -1) )
         goto LABEL_37;
-      v22 = 2023;
+      v12 = 2023;
       break;
     case 0x2C:
       if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 2029, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
         __debugbreak();
-      *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rdi+28h], xmm0 }
+      v14 = lui_tonumber32(luaVM, -1);
+      v15 = I_fclamp(*(float *)&v14, 0.0, 1.0);
+      tween->endValue.floatValue = *(float *)&v15;
       return;
     case 0x2F:
     case 0x30:
@@ -2894,44 +2273,29 @@ void LUI_Tween_SetEndValueInTween(LUITween *tween, lua_State *luaVM)
     case 0x32:
       if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 1945, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
         __debugbreak();
-      *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@41233333
-        vcvttss2si eax, xmm1
-      }
-      _RDI->endValue.byteValue = _EAX;
+      v5 = lui_tonumber32(luaVM, -1);
+      tween->endValue.byteValue = (int)(float)(*(float *)&v5 * 10.2);
       return;
     case 0x34:
     case 0x35:
     case 0x36:
       if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 1954, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
         __debugbreak();
-      *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@46fffe00
-        vcvttss2si eax, xmm1
-      }
-      _RDI->endValue.shortValue = _EAX;
+      v6 = lui_tonumber32(luaVM, -1);
+      v7 = I_fclamp(*(float *)&v6, 0.0, 1.0);
+      tween->endValue.shortValue = (int)(float)(*(float *)&v7 * 32767.0);
       return;
     default:
-      LODWORD(v26) = (char)_RDI->targetProperty[0];
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 2077, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected tween property: %d", v26) )
+      LODWORD(v16) = (char)tween->targetProperty[0];
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", 2077, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected tween property: %d", v16) )
         __debugbreak();
       return;
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", v22, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_tween.cpp", v12, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
     __debugbreak();
 LABEL_37:
-  v23 = lui_tointeger32(luaVM, -1);
-  _RDI->endValue.byteValue = truncate_cast<unsigned char,int>(v23);
+  v13 = lui_tointeger32(luaVM, -1);
+  tween->endValue.byteValue = truncate_cast<unsigned char,int>(v13);
 }
 
 /*

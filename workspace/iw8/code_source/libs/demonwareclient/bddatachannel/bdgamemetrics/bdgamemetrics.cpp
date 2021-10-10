@@ -561,117 +561,91 @@ bool bdGameMetrics::timing(bdGameMetrics *this, unsigned __int64 timestamp, cons
 bdMetricsRingBuffer::writeMetric
 ==============
 */
-
-__int64 __fastcall bdMetricsRingBuffer::writeMetric(bdMetricsRingBuffer *this, unsigned __int64 timestamp, const char *const name, double value, unsigned __int64 metrictype)
+__int64 bdMetricsRingBuffer::writeMetric(bdMetricsRingBuffer *this, unsigned __int64 timestamp, const char *const name, long double value, unsigned __int64 metrictype)
 {
-  bdByteBuffer *v11; 
-  bdByteBuffer *v12; 
+  bdByteBuffer *v8; 
+  bdByteBuffer *v9; 
   unsigned __int8 *m_data; 
+  bool v11; 
+  unsigned int v12; 
+  void *v13; 
   bool v14; 
-  unsigned int v15; 
-  void *v16; 
-  char v18; 
   unsigned int WrittenSize; 
   __int64 m_activeRing; 
   bdStructSerializationOutputStream *p_metricStream; 
   bdByteBuffer *m_ptr; 
-  unsigned __int8 v23; 
-  __int64 result; 
-  char v26; 
-  bdByteBuffer *v27; 
+  unsigned __int8 v19; 
+  char v21; 
+  bdByteBuffer *v22; 
   bdReference<bdByteBuffer> buffer; 
-  __int64 v29; 
-  bdByteBuffer *v30; 
+  __int64 v24; 
+  bdByteBuffer *v25; 
   bdStructSerializationOutputStream stream; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v29 = -2i64;
-  __asm
+  v24 = -2i64;
+  v21 = 0;
+  v8 = (bdByteBuffer *)bdMemory::allocate(0x38ui64);
+  v9 = v8;
+  buffer.m_ptr = v8;
+  if ( v8 )
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmm6, xmm3
-  }
-  v26 = 0;
-  v11 = (bdByteBuffer *)bdMemory::allocate(0x38ui64);
-  v12 = v11;
-  buffer.m_ptr = v11;
-  if ( v11 )
-  {
-    v11->m_refCount.m_value._My_val = 0;
-    v11->__vftable = (bdByteBuffer_vtbl *)&bdByteBuffer::`vftable';
-    v11->m_size = 256;
-    v11->m_data = NULL;
-    *(_WORD *)&v11->m_typeChecked = 0;
-    v11->m_allocatedData = 0;
+    v8->m_refCount.m_value._My_val = 0;
+    v8->__vftable = (bdByteBuffer_vtbl *)&bdByteBuffer::`vftable';
+    v8->m_size = 256;
+    v8->m_data = NULL;
+    *(_WORD *)&v8->m_typeChecked = 0;
+    v8->m_allocatedData = 0;
     bdHandleAssert(1, "m_data == BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdbytebuffer.inl", "bdByteBuffer::init", 0x31u, "Buffer already allocated. init() called twice?");
-    v12->m_size = 256;
-    v12->allocateBuffer(v12);
-    m_data = v12->m_data;
-    v12->m_writePtr = m_data;
-    v12->m_readPtr = m_data;
+    v9->m_size = 256;
+    v9->allocateBuffer(v9);
+    m_data = v9->m_data;
+    v9->m_writePtr = m_data;
+    v9->m_readPtr = m_data;
   }
   else
   {
-    v12 = NULL;
+    v9 = NULL;
   }
-  v30 = v12;
-  if ( v12 )
-    _InterlockedExchangeAdd((volatile signed __int32 *)&v12->m_refCount, 1u);
+  v25 = v9;
+  if ( v9 )
+    _InterlockedExchangeAdd((volatile signed __int32 *)&v9->m_refCount, 1u);
   bdStructSerializationOutputStream::bdStructSerializationOutputStream(&stream);
-  buffer.m_ptr = v12;
-  if ( v12 )
-    _InterlockedExchangeAdd((volatile signed __int32 *)&v12->m_refCount, 1u);
+  buffer.m_ptr = v9;
+  if ( v9 )
+    _InterlockedExchangeAdd((volatile signed __int32 *)&v9->m_refCount, 1u);
   bdStructSerializationOutputStream::prepare(&stream, (bdReference<bdByteBuffer>)&buffer, 0x100u);
-  v14 = bdProtobufHelper::encodeTag(&stream, 1u, WIRETYPE_VARINT) && bdProtobufHelper::encodeVarInt(&stream, timestamp);
-  v15 = 128;
-  v16 = memchr_0(name, 0, 0x80ui64);
-  if ( v16 )
-    v15 = (_DWORD)v16 - (_DWORD)name;
-  if ( !v14 )
-    goto LABEL_22;
-  if ( !bdProtobufHelper::encodeTag(&stream, 2u, WIRETYPE_STRING) )
-    goto LABEL_22;
-  if ( !bdProtobufHelper::encodeString(&stream, name, v15) )
-    goto LABEL_22;
-  if ( !bdProtobufHelper::encodeTag(&stream, 3u, WIRETYPE_64BIT) )
-    goto LABEL_22;
-  __asm { vmovaps xmm1, xmm6; value }
-  if ( !bdProtobufHelper::encode64bits(&stream, *(long double *)&_XMM1) )
-    goto LABEL_22;
-  if ( bdProtobufHelper::encodeTag(&stream, 4u, WIRETYPE_VARINT) && bdProtobufHelper::encodeVarInt(&stream, metrictype) )
-    v18 = 1;
-  else
-LABEL_22:
-    v18 = 0;
+  v11 = bdProtobufHelper::encodeTag(&stream, 1u, WIRETYPE_VARINT) && bdProtobufHelper::encodeVarInt(&stream, timestamp);
+  v12 = 128;
+  v13 = memchr_0(name, 0, 0x80ui64);
+  if ( v13 )
+    v12 = (_DWORD)v13 - (_DWORD)name;
+  v14 = v11 && bdProtobufHelper::encodeTag(&stream, 2u, WIRETYPE_STRING) && bdProtobufHelper::encodeString(&stream, name, v12) && bdProtobufHelper::encodeTag(&stream, 3u, WIRETYPE_64BIT) && bdProtobufHelper::encode64bits(&stream, value) && bdProtobufHelper::encodeTag(&stream, 4u, WIRETYPE_VARINT) && bdProtobufHelper::encodeVarInt(&stream, metrictype);
   WrittenSize = bdStructSerializationOutputStream::getWrittenSize(&stream);
-  if ( !v18 || (m_activeRing = this->m_activeRing, this->m_ringBuffer[m_activeRing].metricStream.m_bufferSize <= WrittenSize) || !bdProtobufHelper::encodeTag(&this->m_ringBuffer[m_activeRing].metricStream, 1u, WIRETYPE_STRING) || !bdProtobufHelper::encodeVarInt(&this->m_ringBuffer[this->m_activeRing].metricStream, WrittenSize) )
+  if ( !v14 || (m_activeRing = this->m_activeRing, this->m_ringBuffer[m_activeRing].metricStream.m_bufferSize <= WrittenSize) || !bdProtobufHelper::encodeTag(&this->m_ringBuffer[m_activeRing].metricStream, 1u, WIRETYPE_STRING) || !bdProtobufHelper::encodeVarInt(&this->m_ringBuffer[this->m_activeRing].metricStream, WrittenSize) )
   {
-    m_ptr = v27;
+    m_ptr = v22;
 LABEL_32:
-    v23 = 0;
+    v19 = 0;
     goto LABEL_33;
   }
   p_metricStream = &this->m_ringBuffer[this->m_activeRing].metricStream;
   m_ptr = stream.m_buffer.m_ptr;
-  v27 = stream.m_buffer.m_ptr;
+  v22 = stream.m_buffer.m_ptr;
   if ( stream.m_buffer.m_ptr )
   {
     _InterlockedExchangeAdd((volatile signed __int32 *)&stream.m_buffer.m_ptr->m_refCount, 1u);
-    m_ptr = v27;
+    m_ptr = v22;
   }
-  v26 = 1;
+  v21 = 1;
   if ( !bdStructSerializationOutputStream::write(p_metricStream, m_ptr->m_data, WrittenSize) )
     goto LABEL_32;
-  v23 = 1;
+  v19 = 1;
 LABEL_33:
-  if ( (v26 & 1) != 0 && m_ptr && !_InterlockedDecrement((volatile signed __int32 *)&m_ptr->m_refCount) )
-    ((void (__fastcall *)(bdByteBuffer *, __int64))v27->~bdReferencable)(v27, 1i64);
+  if ( (v21 & 1) != 0 && m_ptr && !_InterlockedDecrement((volatile signed __int32 *)&m_ptr->m_refCount) )
+    ((void (__fastcall *)(bdByteBuffer *, __int64))v22->~bdReferencable)(v22, 1i64);
   bdStructSerializationOutputStream::~bdStructSerializationOutputStream(&stream);
-  if ( v12 && _InterlockedExchangeAdd((volatile signed __int32 *)&v12->m_refCount, 0xFFFFFFFF) == 1 )
-    ((void (__fastcall *)(bdByteBuffer *, __int64))v12->~bdReferencable)(v12, 1i64);
-  result = v23;
-  __asm { vmovaps xmm6, [rsp+80h+var_10] }
-  return result;
+  if ( v9 && _InterlockedExchangeAdd((volatile signed __int32 *)&v9->m_refCount, 0xFFFFFFFF) == 1 )
+    ((void (__fastcall *)(bdByteBuffer *, __int64))v9->~bdReferencable)(v9, 1i64);
+  return v19;
 }
 

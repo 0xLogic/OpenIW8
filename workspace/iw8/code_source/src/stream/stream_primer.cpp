@@ -531,24 +531,19 @@ __int64 Stream_Primer::AllocateMemory(Stream_Primer *this, Stream_Primer_AssetIn
 {
   StreamItemType StreamItemType; 
   Stream_Logger_Item item; 
-  ScopedCriticalSection v10; 
+  ScopedCriticalSection v8; 
   Stream_Logger_Item result; 
   streamer_handle_t handle; 
 
   Sys_ProfBeginNamedEvent(0xFF00FFFF, "StreamAlloc_Lock");
-  ScopedCriticalSection::ScopedCriticalSection(&v10, CRITSECT_STREAM_ALLOC, SCOPED_CRITSECT_NORMAL);
+  ScopedCriticalSection::ScopedCriticalSection(&v8, CRITSECT_STREAM_ALLOC, SCOPED_CRITSECT_NORMAL);
   Sys_ProfEndNamedEvent();
   Stream_Primer_AssetInfo::GetHandle(asset);
-  _RAX = Stream_Logger_MakeItem(&result, &handle);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+78h+item.___u0], xmm0
-  }
+  item = *Stream_Logger_MakeItem(&result, &handle);
   Stream_Logger_OnPrimerAllocate("Stream_Primer::AllocateMemory", NULL, &item, 0);
   StreamItemType = Stream_Primer_AssetInfo::GetStreamItemType(asset);
   LOBYTE(asset) = Stream_Alloc_Allocate(StreamItemType, asset->m_assetIndex, (StreamDistance)0x10000, NULL, updateId);
-  ScopedCriticalSection::~ScopedCriticalSection(&v10);
+  ScopedCriticalSection::~ScopedCriticalSection(&v8);
   return (unsigned __int8)asset;
 }
 
@@ -559,338 +554,337 @@ Stream_Primer::BuildAssetsToLoadList
 */
 void Stream_Primer::BuildAssetsToLoadList(Stream_Primer *this)
 {
-  Stream_Primer *v2; 
-  const dvar_t *v3; 
+  Stream_Primer *v1; 
+  const dvar_t *v2; 
   __int64 m_missingAssetsCount; 
-  unsigned __int64 v5; 
-  const dvar_t *v6; 
+  unsigned __int64 v4; 
+  const dvar_t *v5; 
+  unsigned int v6; 
   unsigned int v7; 
   unsigned int v8; 
-  unsigned int v9; 
   int *m_imagePartsToLoad; 
-  int v12; 
-  unsigned int v14; 
-  StreamFrontendGlob *v15; 
+  int v11; 
+  unsigned int v13; 
+  StreamFrontendGlob *v14; 
   unsigned int *mLoading; 
-  int v17; 
-  __int64 v18; 
+  int v16; 
+  __int64 v17; 
   GfxImage *GfxImageAtIndex; 
-  StreamFrontendGlob *v20; 
+  StreamFrontendGlob *v19; 
   unsigned int *mUse; 
+  unsigned int v21; 
   unsigned int v22; 
-  unsigned int v23; 
-  __int64 v24; 
-  StreamFrontendGlob *v25; 
+  __int64 v23; 
+  StreamFrontendGlob *v24; 
   unsigned int *mPriming; 
-  __int64 v27; 
-  StreamFrontendGlob *v28; 
+  __int64 v26; 
+  StreamFrontendGlob *v27; 
+  unsigned int *v28; 
   unsigned int *v29; 
-  unsigned int *v30; 
-  unsigned int v31; 
+  unsigned int v30; 
   unsigned int *m_meshSurfsToLoad; 
-  int v34; 
-  unsigned int v36; 
+  int v33; 
+  unsigned int v35; 
   XModelSurfs *XModelSurfsAtIndex; 
-  StreamFrontendGlob *v38; 
-  unsigned int *v39; 
-  int v40; 
+  StreamFrontendGlob *v37; 
+  unsigned int *v38; 
+  int v39; 
+  __int64 v40; 
   __int64 v41; 
-  __int64 v42; 
-  StreamFrontendGlob *v43; 
-  unsigned int *v44; 
-  StreamFrontendGlob *v45; 
+  StreamFrontendGlob *v42; 
+  unsigned int *v43; 
+  StreamFrontendGlob *v44; 
+  unsigned int *v45; 
   unsigned int *v46; 
-  unsigned int *v47; 
-  unsigned int v48; 
+  unsigned int v47; 
   unsigned int *m_genericsToLoad; 
-  int v51; 
-  unsigned int v53; 
+  int v50; 
+  unsigned int v52; 
   StreamKey *StreamKeyAtIndex; 
-  StreamFrontendGlob *v55; 
-  unsigned int *v56; 
-  int v57; 
+  StreamFrontendGlob *v54; 
+  unsigned int *v55; 
+  int v56; 
+  __int64 v57; 
   __int64 v58; 
-  __int64 v59; 
-  StreamFrontendGlob *v60; 
-  unsigned int *v61; 
-  StreamFrontendGlob *v62; 
+  StreamFrontendGlob *v59; 
+  unsigned int *v60; 
+  StreamFrontendGlob *v61; 
+  unsigned int *v62; 
   unsigned int *v63; 
-  unsigned int *v64; 
-  unsigned int v65; 
-  __int64 v66; 
-  __int64 v72; 
-  __int64 v73; 
+  unsigned int v64; 
+  __int64 v65; 
+  unsigned __int64 v66; 
+  float v67; 
+  float v68; 
+  __int64 v69; 
+  __int64 v70; 
+  unsigned int v71; 
+  unsigned int v72; 
+  unsigned int v73; 
   unsigned int v74; 
   unsigned int v75; 
-  unsigned int v76; 
-  unsigned int v77; 
-  unsigned int v78; 
   bool enabled; 
-  Stream_Primer::SortAssetsToLoadList::__l2::<lambda_6164c4c48f2e054ffb7da71ec7f12cdd> v80; 
+  Stream_Primer::SortAssetsToLoadList::__l2::<lambda_6164c4c48f2e054ffb7da71ec7f12cdd> v77; 
   __int64 inData[3]; 
-  __int128 v83; 
-  int v84; 
-  int v85; 
-  int v86; 
+  Stream_Logger_Item v80; 
+  int v81; 
+  int v82; 
+  int v83; 
   Stream_Logger_Item item; 
-  __int64 v88; 
-  ScopedCriticalSection v89; 
-  int v90[1408]; 
-  int v91[1410]; 
+  __int64 v85; 
+  ScopedCriticalSection v86; 
+  int v87[1408]; 
+  int v88[1410]; 
 
-  v88 = -2i64;
-  v2 = this;
+  v85 = -2i64;
+  v1 = this;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_Primer::BuildAssetsToLoadList");
   Stream_CheckFrontendUpdateLocks();
-  if ( v2->m_status != Primer_GrowingBookkeepingLoan && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 245, ASSERT_TYPE_SANITY, "( m_status == Primer_GrowingBookkeepingLoan )", (const char *)&queryFormat, "m_status == Primer_GrowingBookkeepingLoan") )
+  if ( v1->m_status != Primer_GrowingBookkeepingLoan && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 245, ASSERT_TYPE_SANITY, "( m_status == Primer_GrowingBookkeepingLoan )", (const char *)&queryFormat, "m_status == Primer_GrowingBookkeepingLoan") )
     __debugbreak();
-  v3 = DVARINT_stream_modelLodLimit;
+  v2 = DVARINT_stream_modelLodLimit;
   if ( !DVARINT_stream_modelLodLimit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_modelLodLimit") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( v3->current.integer )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.integer )
   {
-    inData[0] = (__int64)v90;
-    inData[1] = (__int64)v91;
+    inData[0] = (__int64)v87;
+    inData[1] = (__int64)v88;
     DB_EnumXAssets(ASSET_TYPE_XMODEL, _lambda_60f9a2cd64c70920df1310a8b2491be9_::_lambda_invoker_cdecl_, inData, 1);
   }
   Sys_ProfBeginNamedEvent(0xFF00FFFF, "StreamAlloc_Lock");
-  ScopedCriticalSection::ScopedCriticalSection(&v89, CRITSECT_STREAM_ALLOC, SCOPED_CRITSECT_NORMAL);
+  ScopedCriticalSection::ScopedCriticalSection(&v86, CRITSECT_STREAM_ALLOC, SCOPED_CRITSECT_NORMAL);
   Sys_ProfEndNamedEvent();
-  m_missingAssetsCount = v2->m_missingAssetsCount;
-  if ( !Stream_Primer::PrimerAssets::Empty(&v2->m_assetsToPrime) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 1395, ASSERT_TYPE_SANITY, "( Empty() )", (const char *)&queryFormat, "Empty()") )
+  m_missingAssetsCount = v1->m_missingAssetsCount;
+  if ( !Stream_Primer::PrimerAssets::Empty(&v1->m_assetsToPrime) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 1395, ASSERT_TYPE_SANITY, "( Empty() )", (const char *)&queryFormat, "Empty()") )
     __debugbreak();
-  v5 = 16 * m_missingAssetsCount + 8;
-  v2->m_assetsToPrime.m_assetsSize = v5;
-  v2->m_assetsToPrime.m_assets = (Stream_Primer_AssetInfo *)Stream_StreamerLoanHeap::Allocate(&v2->m_bookkeepingHeap, v5, 8ui64);
-  v2->m_assetsToPrime.m_count = m_missingAssetsCount;
-  v2->m_assetsToPrime.m_skipped = 0;
+  v4 = 16 * m_missingAssetsCount + 8;
+  v1->m_assetsToPrime.m_assetsSize = v4;
+  v1->m_assetsToPrime.m_assets = (Stream_Primer_AssetInfo *)Stream_StreamerLoanHeap::Allocate(&v1->m_bookkeepingHeap, v4, 8ui64);
+  v1->m_assetsToPrime.m_count = m_missingAssetsCount;
+  v1->m_assetsToPrime.m_skipped = 0;
   Stream_Defrag_LockDefragCount();
-  v6 = DCONST_DVARBOOL_stream_concurrentImagePartLoading;
+  v5 = DCONST_DVARBOOL_stream_concurrentImagePartLoading;
   if ( !DCONST_DVARBOOL_stream_concurrentImagePartLoading && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_concurrentImagePartLoading") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  enabled = v6->current.enabled;
-  v2->m_imagePrimerSize = 0i64;
+  Dvar_CheckFrontendServerThread(v5);
+  enabled = v5->current.enabled;
+  v1->m_imagePrimerSize = 0i64;
+  v6 = 0;
+  v71 = 0;
   v7 = 0;
-  v74 = 0;
+  v72 = 0;
   v8 = 0;
-  v75 = 0;
-  v9 = 0;
-  v76 = 0;
-  m_imagePartsToLoad = (int *)v2->m_imagePartsToLoad;
-  inData[0] = (__int64)v2->m_imagePartsToLoad;
+  v73 = 0;
+  m_imagePartsToLoad = (int *)v1->m_imagePartsToLoad;
+  inData[0] = (__int64)v1->m_imagePartsToLoad;
   do
   {
     _ECX = *m_imagePartsToLoad;
     if ( !_ECX )
       goto LABEL_78;
-    v12 = 32 * v9;
-    v86 = 32 * v9;
+    v11 = 32 * v8;
+    v83 = 32 * v8;
     do
     {
       __asm { tzcnt   eax, ecx }
-      v85 = _ECX & ~(1 << _EAX);
-      v14 = _EAX | v12;
-      v15 = streamFrontendGlob;
-      if ( StreamableBits::CheckInUse(&streamFrontendGlob->imageBits, _EAX | v12) )
+      v82 = _ECX & ~(1 << _EAX);
+      v13 = _EAX | v11;
+      v14 = streamFrontendGlob;
+      if ( StreamableBits::CheckInUse(&streamFrontendGlob->imageBits, _EAX | v11) )
         goto LABEL_74;
-      if ( v14 >= v15->imageBits.mBitCount )
+      if ( v13 >= v14->imageBits.mBitCount )
       {
-        LODWORD(v73) = v15->imageBits.mBitCount;
-        LODWORD(v72) = v14;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v72, v73) )
+        LODWORD(v70) = v14->imageBits.mBitCount;
+        LODWORD(v69) = v13;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v69, v70) )
           __debugbreak();
       }
-      mLoading = v15->imageBits.mLoading;
+      mLoading = v14->imageBits.mLoading;
       if ( !mLoading && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
         __debugbreak();
-      v17 = 1 << (v14 & 0x1F);
-      v84 = v17;
-      if ( (v17 & mLoading[(__int64)(int)v14 >> 5]) != 0 )
+      v16 = 1 << (v13 & 0x1F);
+      v81 = v16;
+      if ( (v16 & mLoading[(__int64)(int)v13 >> 5]) != 0 )
         goto LABEL_74;
-      v18 = v14 & 3;
-      GfxImageAtIndex = DB_GetGfxImageAtIndex(v14 >> 2);
+      v17 = v13 & 3;
+      GfxImageAtIndex = DB_GetGfxImageAtIndex(v13 >> 2);
       if ( (GfxImageAtIndex->flags & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 288, ASSERT_TYPE_SANITY, "( R_IsStreamedImage( image ) )", (const char *)&queryFormat, "R_IsStreamedImage( image )") )
         __debugbreak();
-      if ( (*((_DWORD *)&GfxImageAtIndex->streams[v18].xpakEntry + 6) & 0x200i64) == 0 )
+      if ( (*((_DWORD *)&GfxImageAtIndex->streams[v17].xpakEntry + 6) & 0x200i64) == 0 )
       {
-        v8 = v75;
-        v2 = this;
+        v7 = v72;
+        v1 = this;
 LABEL_74:
-        v75 = ++v8;
+        v72 = ++v7;
 LABEL_75:
-        v7 = v74;
+        v6 = v71;
         goto LABEL_76;
       }
-      if ( (v14 & 3) != 0 && !enabled )
+      if ( (v13 & 3) != 0 && !enabled )
       {
-        v20 = streamFrontendGlob;
-        if ( v14 - 1 >= streamFrontendGlob->imageBits.mBitCount )
+        v19 = streamFrontendGlob;
+        if ( v13 - 1 >= streamFrontendGlob->imageBits.mBitCount )
         {
-          LODWORD(v73) = streamFrontendGlob->imageBits.mBitCount;
-          LODWORD(v72) = v14 - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 371, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v72, v73) )
+          LODWORD(v70) = streamFrontendGlob->imageBits.mBitCount;
+          LODWORD(v69) = v13 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 371, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v69, v70) )
             __debugbreak();
         }
-        mUse = v20->imageBits.mUse;
+        mUse = v19->imageBits.mUse;
         if ( !mUse && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
           __debugbreak();
-        v22 = mUse[((int)v14 - 1i64) >> 5];
-        if ( !_bittest((const int *)&v22, ((_BYTE)v14 - 1) & 0x1F) )
+        v21 = mUse[((int)v13 - 1i64) >> 5];
+        if ( !_bittest((const int *)&v21, ((_BYTE)v13 - 1) & 0x1F) )
         {
-          v8 = ++v75;
-          StreamableBits::SetStaticForced(&streamFrontendGlob->imageBits, v14);
-          v2 = this;
+          v7 = ++v72;
+          StreamableBits::SetStaticForced(&streamFrontendGlob->imageBits, v13);
+          v1 = this;
           goto LABEL_75;
         }
-        v17 = v84;
+        v16 = v81;
       }
       if ( (GfxImageAtIndex->flags & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 201, ASSERT_TYPE_ASSERT, "(R_IsStreamedImage( image ))", (const char *)&queryFormat, "R_IsStreamedImage( image )") )
         __debugbreak();
-      if ( (unsigned int)v18 >= Image_GetStreamedPartCount(GfxImageAtIndex) )
+      if ( (unsigned int)v17 >= Image_GetStreamedPartCount(GfxImageAtIndex) )
       {
-        LODWORD(v73) = Image_GetStreamedPartCount(GfxImageAtIndex);
-        LODWORD(v72) = v14 & 3;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v72, v73) )
+        LODWORD(v70) = Image_GetStreamedPartCount(GfxImageAtIndex);
+        LODWORD(v69) = v13 & 3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_image_load_common.h", 202, ASSERT_TYPE_ASSERT, "(unsigned)( part ) < (unsigned)( Image_GetStreamedPartCount( image ) )", "part doesn't index Image_GetStreamedPartCount( image )\n\t%i not in [0, %i)", v69, v70) )
           __debugbreak();
       }
-      if ( (v14 & 3) != 0 )
-        v23 = ((unsigned int)GfxImageAtIndex->streams[v18].levelCountAndSize >> 4) - ((unsigned int)GfxImageAtIndex->streams[(unsigned int)(v18 - 1)].levelCountAndSize >> 4);
+      if ( (v13 & 3) != 0 )
+        v22 = ((unsigned int)GfxImageAtIndex->streams[v17].levelCountAndSize >> 4) - ((unsigned int)GfxImageAtIndex->streams[(unsigned int)(v17 - 1)].levelCountAndSize >> 4);
       else
-        v23 = (unsigned int)GfxImageAtIndex->streams[v18].levelCountAndSize >> 4;
-      v2 = this;
-      this->m_imagePrimerSize += v23;
-      v24 = v74;
-      this->m_assetsToPrime.m_assets[v24].m_leafType = 1 << v18;
-      this->m_assetsToPrime.m_assets[v24].m_assetIndex = v14;
-      this->m_assetsToPrime.m_assets[v24].m_loaded = 0;
-      this->m_assetsToPrime.m_assets[v24].m_data = NULL;
-      this->m_assetsToPrime.m_assets[v24].m_locked = 1;
-      v25 = streamFrontendGlob;
-      if ( v14 >= streamFrontendGlob->imageBits.mBitCount )
+        v22 = (unsigned int)GfxImageAtIndex->streams[v17].levelCountAndSize >> 4;
+      v1 = this;
+      this->m_imagePrimerSize += v22;
+      v23 = v71;
+      this->m_assetsToPrime.m_assets[v23].m_leafType = 1 << v17;
+      this->m_assetsToPrime.m_assets[v23].m_assetIndex = v13;
+      this->m_assetsToPrime.m_assets[v23].m_loaded = 0;
+      this->m_assetsToPrime.m_assets[v23].m_data = NULL;
+      this->m_assetsToPrime.m_assets[v23].m_locked = 1;
+      v24 = streamFrontendGlob;
+      if ( v13 >= streamFrontendGlob->imageBits.mBitCount )
       {
-        LODWORD(v73) = streamFrontendGlob->imageBits.mBitCount;
-        LODWORD(v72) = v14;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 547, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v72, v73) )
+        LODWORD(v70) = streamFrontendGlob->imageBits.mBitCount;
+        LODWORD(v69) = v13;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 547, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v69, v70) )
           __debugbreak();
       }
-      mPriming = v25->imageBits.mPriming;
+      mPriming = v24->imageBits.mPriming;
       if ( !mPriming && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
         __debugbreak();
-      v27 = (__int64)(int)v14 >> 5;
-      mPriming[v27] |= v17;
-      v28 = streamFrontendGlob;
+      v26 = (__int64)(int)v13 >> 5;
+      mPriming[v26] |= v16;
+      v27 = streamFrontendGlob;
       if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 275, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_ALLOC )") )
         __debugbreak();
-      if ( v14 >= v28->imageBits.mBitCount )
+      if ( v13 >= v27->imageBits.mBitCount )
       {
-        LODWORD(v73) = v28->imageBits.mBitCount;
-        LODWORD(v72) = v14;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 276, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v72, v73) )
+        LODWORD(v70) = v27->imageBits.mBitCount;
+        LODWORD(v69) = v13;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 276, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v69, v70) )
           __debugbreak();
       }
-      v29 = v28->imageBits.mLoading;
-      if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+      v28 = v27->imageBits.mLoading;
+      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
         __debugbreak();
-      if ( (v17 & v29[v27]) != 0 )
+      if ( (v16 & v28[v26]) != 0 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 333, ASSERT_TYPE_ASSERT, "(streamFrontendGlob->imageBits.SetLoadingConditional( index ))", (const char *)&queryFormat, "streamFrontendGlob->imageBits.SetLoadingConditional( index )") )
           __debugbreak();
       }
       else
       {
-        v30 = v28->imageBits.mLoading;
-        if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+        v29 = v27->imageBits.mLoading;
+        if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
           __debugbreak();
-        v30[v27] |= v17;
+        v29[v26] |= v16;
       }
-      BYTE8(v83) = 0;
-      *(_QWORD *)&v83 = GfxImageAtIndex;
-      __asm
-      {
-        vmovups xmm0, [rsp+2CF0h+var_2C80]
-        vmovdqa xmmword ptr [rbp+2BF0h+item.___u0], xmm0
-      }
+      v80.m_type = STREAM_ITEM_IMAGE;
+      v80.m_image = GfxImageAtIndex;
+      item = v80;
       Stream_Logger_OnPrimerLock("Stream_Primer::BuildAssetsToLoadList", NULL, &item);
-      v7 = ++v74;
-      v8 = v75;
+      v6 = ++v71;
+      v7 = v72;
 LABEL_76:
-      _ECX = v85;
-      v12 = v86;
+      _ECX = v82;
+      v11 = v83;
     }
-    while ( v85 );
-    v9 = v76;
+    while ( v82 );
+    v8 = v73;
 LABEL_78:
-    v76 = ++v9;
+    v73 = ++v8;
     m_imagePartsToLoad = (int *)(inData[0] + 4);
     inData[0] += 4i64;
   }
-  while ( v9 < 0x2800 );
-  v2->m_meshPrimerSize = 0i64;
-  v31 = 0;
-  v77 = 0;
-  m_meshSurfsToLoad = v2->m_meshSurfsToLoad;
-  inData[0] = (__int64)v2->m_meshSurfsToLoad;
+  while ( v8 < 0x2800 );
+  v1->m_meshPrimerSize = 0i64;
+  v30 = 0;
+  v74 = 0;
+  m_meshSurfsToLoad = v1->m_meshSurfsToLoad;
+  inData[0] = (__int64)v1->m_meshSurfsToLoad;
   while ( 2 )
   {
     _ER12 = *m_meshSurfsToLoad;
     if ( !*m_meshSurfsToLoad )
       goto LABEL_136;
-    v34 = 32 * v31;
+    v33 = 32 * v30;
     while ( 2 )
     {
       __asm { tzcnt   eax, r12d }
       _ER12 &= ~(1 << _EAX);
-      v36 = _EAX | v34;
-      if ( v7 >= v2->m_missingAssetsCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 351, ASSERT_TYPE_SANITY, "( assetIndex < m_missingAssetsCount )", (const char *)&queryFormat, "assetIndex < m_missingAssetsCount") )
+      v35 = _EAX | v33;
+      if ( v6 >= v1->m_missingAssetsCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 351, ASSERT_TYPE_SANITY, "( assetIndex < m_missingAssetsCount )", (const char *)&queryFormat, "assetIndex < m_missingAssetsCount") )
         __debugbreak();
-      XModelSurfsAtIndex = DB_GetXModelSurfsAtIndex(v36);
+      XModelSurfsAtIndex = DB_GetXModelSurfsAtIndex(v35);
       if ( (*((_DWORD *)&XModelSurfsAtIndex->xpakEntry + 6) & 0x200i64) == 0 )
         goto LABEL_133;
-      v38 = streamFrontendGlob;
-      if ( StreamableBits::CheckInUse(&streamFrontendGlob->meshBits, v36) )
+      v37 = streamFrontendGlob;
+      if ( StreamableBits::CheckInUse(&streamFrontendGlob->meshBits, v35) )
       {
 LABEL_132:
-        v7 = v74;
+        v6 = v71;
 LABEL_133:
-        v75 = ++v8;
+        v72 = ++v7;
         goto LABEL_134;
       }
-      if ( v36 >= v38->meshBits.mBitCount )
+      if ( v35 >= v37->meshBits.mBitCount )
       {
-        LODWORD(v73) = v38->meshBits.mBitCount;
-        LODWORD(v72) = v36;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v72, v73) )
+        LODWORD(v70) = v37->meshBits.mBitCount;
+        LODWORD(v69) = v35;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v69, v70) )
           __debugbreak();
       }
-      v39 = v38->meshBits.mLoading;
-      if ( !v39 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+      v38 = v37->meshBits.mLoading;
+      if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
         __debugbreak();
-      v40 = 1 << (v36 & 0x1F);
-      v41 = (__int64)(int)v36 >> 5;
-      if ( (v40 & v39[v41]) != 0 )
+      v39 = 1 << (v35 & 0x1F);
+      v40 = (__int64)(int)v35 >> 5;
+      if ( (v39 & v38[v40]) != 0 )
         goto LABEL_131;
-      if ( v36 >= 0xB000 )
+      if ( v35 >= 0xB000 )
       {
-        LODWORD(v73) = 45056;
-        LODWORD(v72) = v36;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 14, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v72, v73) )
+        LODWORD(v70) = 45056;
+        LODWORD(v69) = v35;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 14, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v69, v70) )
           __debugbreak();
       }
-      if ( (v40 & v90[v41]) != 0 )
+      if ( (v39 & v87[v40]) != 0 )
       {
-        if ( v36 >= 0xB000 )
+        if ( v35 >= 0xB000 )
         {
-          LODWORD(v73) = 45056;
-          LODWORD(v72) = v36;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 14, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v72, v73) )
+          LODWORD(v70) = 45056;
+          LODWORD(v69) = v35;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 14, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v69, v70) )
             __debugbreak();
         }
-        if ( (v40 & v91[v41]) == 0 )
+        if ( (v39 & v88[v40]) == 0 )
         {
 LABEL_131:
-          v8 = v75;
+          v7 = v72;
           goto LABEL_132;
         }
       }
@@ -899,231 +893,217 @@ LABEL_131:
       if ( (XModelSurfsAtIndex->shared->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 370, ASSERT_TYPE_SANITY, "( XModelSurfs_IsStreamed( mesh ) )", (const char *)&queryFormat, "XModelSurfs_IsStreamed( mesh )") )
         __debugbreak();
       this->m_meshPrimerSize += XModelSurfsAtIndex->shared->dataSize;
-      v42 = v74;
-      this->m_assetsToPrime.m_assets[v42].m_leafType = STREAM_LEAF_MESH;
-      this->m_assetsToPrime.m_assets[v42].m_assetIndex = v36;
-      this->m_assetsToPrime.m_assets[v42].m_loaded = 0;
-      this->m_assetsToPrime.m_assets[v42].m_data = NULL;
-      this->m_assetsToPrime.m_assets[v42].m_locked = 1;
-      v43 = streamFrontendGlob;
-      if ( v36 >= streamFrontendGlob->meshBits.mBitCount )
+      v41 = v71;
+      this->m_assetsToPrime.m_assets[v41].m_leafType = STREAM_LEAF_MESH;
+      this->m_assetsToPrime.m_assets[v41].m_assetIndex = v35;
+      this->m_assetsToPrime.m_assets[v41].m_loaded = 0;
+      this->m_assetsToPrime.m_assets[v41].m_data = NULL;
+      this->m_assetsToPrime.m_assets[v41].m_locked = 1;
+      v42 = streamFrontendGlob;
+      if ( v35 >= streamFrontendGlob->meshBits.mBitCount )
       {
-        LODWORD(v73) = streamFrontendGlob->meshBits.mBitCount;
-        LODWORD(v72) = v36;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 547, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v72, v73) )
+        LODWORD(v70) = streamFrontendGlob->meshBits.mBitCount;
+        LODWORD(v69) = v35;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 547, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v69, v70) )
           __debugbreak();
       }
-      v44 = v43->meshBits.mPriming;
-      if ( !v44 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+      v43 = v42->meshBits.mPriming;
+      if ( !v43 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
         __debugbreak();
-      v44[v41] |= v40;
-      v45 = streamFrontendGlob;
+      v43[v40] |= v39;
+      v44 = streamFrontendGlob;
       if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 275, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_ALLOC )") )
         __debugbreak();
-      if ( v36 >= v45->meshBits.mBitCount )
+      if ( v35 >= v44->meshBits.mBitCount )
       {
-        LODWORD(v73) = v45->meshBits.mBitCount;
-        LODWORD(v72) = v36;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 276, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v72, v73) )
+        LODWORD(v70) = v44->meshBits.mBitCount;
+        LODWORD(v69) = v35;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 276, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v69, v70) )
           __debugbreak();
       }
-      v46 = v45->meshBits.mLoading;
-      if ( !v46 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+      v45 = v44->meshBits.mLoading;
+      if ( !v45 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
         __debugbreak();
-      if ( (v40 & v46[v41]) != 0 )
+      if ( (v39 & v45[v40]) != 0 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 382, ASSERT_TYPE_ASSERT, "(streamFrontendGlob->meshBits.SetLoadingConditional( index ))", (const char *)&queryFormat, "streamFrontendGlob->meshBits.SetLoadingConditional( index )") )
           __debugbreak();
       }
       else
       {
-        v47 = v45->meshBits.mLoading;
-        if ( !v47 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+        v46 = v44->meshBits.mLoading;
+        if ( !v46 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
           __debugbreak();
-        v47[v41] |= v40;
+        v46[v40] |= v39;
       }
-      BYTE8(v83) = 1;
-      *(_QWORD *)&v83 = XModelSurfsAtIndex;
-      __asm
-      {
-        vmovups xmm0, [rsp+2CF0h+var_2C80]
-        vmovdqa xmmword ptr [rbp+2BF0h+item.___u0], xmm0
-      }
+      v80.m_type = STREAM_ITEM_MESH;
+      v80.m_image = (const GfxImage *)XModelSurfsAtIndex;
+      item = v80;
       Stream_Logger_OnPrimerLock("Stream_Primer::BuildAssetsToLoadList", NULL, &item);
-      v7 = ++v74;
-      v8 = v75;
+      v6 = ++v71;
+      v7 = v72;
 LABEL_134:
-      v2 = this;
+      v1 = this;
       if ( _ER12 )
         continue;
       break;
     }
-    v31 = v77;
+    v30 = v74;
     m_meshSurfsToLoad = (unsigned int *)inData[0];
 LABEL_136:
-    v77 = ++v31;
+    v74 = ++v30;
     inData[0] = (__int64)++m_meshSurfsToLoad;
-    if ( v31 < 0x580 )
+    if ( v30 < 0x580 )
       continue;
     break;
   }
-  v2->m_genericPrimerSize = 0i64;
-  v48 = 0;
-  v78 = 0;
-  m_genericsToLoad = v2->m_genericsToLoad;
-  inData[0] = (__int64)v2->m_genericsToLoad;
+  v1->m_genericPrimerSize = 0i64;
+  v47 = 0;
+  v75 = 0;
+  m_genericsToLoad = v1->m_genericsToLoad;
+  inData[0] = (__int64)v1->m_genericsToLoad;
   while ( 2 )
   {
     _ER12 = *m_genericsToLoad;
     if ( !*m_genericsToLoad )
       goto LABEL_182;
-    v51 = 32 * v48;
+    v50 = 32 * v47;
     while ( 2 )
     {
       __asm { tzcnt   eax, r12d }
       _ER12 &= ~(1 << _EAX);
-      v53 = _EAX | v51;
-      if ( v7 >= v2->m_missingAssetsCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 400, ASSERT_TYPE_SANITY, "( assetIndex < m_missingAssetsCount )", (const char *)&queryFormat, "assetIndex < m_missingAssetsCount") )
+      v52 = _EAX | v50;
+      if ( v6 >= v1->m_missingAssetsCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 400, ASSERT_TYPE_SANITY, "( assetIndex < m_missingAssetsCount )", (const char *)&queryFormat, "assetIndex < m_missingAssetsCount") )
         __debugbreak();
-      StreamKeyAtIndex = DB_GetStreamKeyAtIndex(v53);
-      v55 = streamFrontendGlob;
-      if ( StreamableBits::CheckInUse(&streamFrontendGlob->genericBits, v53) )
+      StreamKeyAtIndex = DB_GetStreamKeyAtIndex(v52);
+      v54 = streamFrontendGlob;
+      if ( StreamableBits::CheckInUse(&streamFrontendGlob->genericBits, v52) )
       {
 LABEL_179:
-        v75 = ++v8;
-        v7 = v74;
+        v72 = ++v7;
+        v6 = v71;
         goto LABEL_180;
       }
-      if ( v53 >= v55->genericBits.mBitCount )
+      if ( v52 >= v54->genericBits.mBitCount )
       {
-        LODWORD(v73) = v55->genericBits.mBitCount;
-        LODWORD(v72) = v53;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v72, v73) )
+        LODWORD(v70) = v54->genericBits.mBitCount;
+        LODWORD(v69) = v52;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 288, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v69, v70) )
           __debugbreak();
       }
-      v56 = v55->genericBits.mLoading;
-      if ( !v56 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+      v55 = v54->genericBits.mLoading;
+      if ( !v55 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
         __debugbreak();
-      v57 = 1 << (v53 & 0x1F);
-      v58 = (__int64)(int)v53 >> 5;
-      if ( (v57 & v56[v58]) != 0 || (*((_DWORD *)&StreamKeyAtIndex->xpakInfo + 6) & 0x200i64) == 0 )
+      v56 = 1 << (v52 & 0x1F);
+      v57 = (__int64)(int)v52 >> 5;
+      if ( (v56 & v55[v57]) != 0 || (*((_DWORD *)&StreamKeyAtIndex->xpakInfo + 6) & 0x200i64) == 0 )
       {
-        v8 = v75;
+        v7 = v72;
         goto LABEL_179;
       }
       if ( (StreamKeyAtIndex->flags & 2) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 414, ASSERT_TYPE_SANITY, "( !streamKey->Resident() )", (const char *)&queryFormat, "!streamKey->Resident()") )
         __debugbreak();
       this->m_genericPrimerSize += StreamKeyAtIndex->dataSize;
-      v59 = v74;
-      this->m_assetsToPrime.m_assets[v59].m_leafType = STREAM_LEAF_GENERIC;
-      this->m_assetsToPrime.m_assets[v59].m_assetIndex = v53;
-      this->m_assetsToPrime.m_assets[v59].m_loaded = 0;
-      this->m_assetsToPrime.m_assets[v59].m_data = NULL;
-      this->m_assetsToPrime.m_assets[v59].m_locked = 1;
-      v60 = streamFrontendGlob;
-      if ( v53 >= streamFrontendGlob->genericBits.mBitCount )
+      v58 = v71;
+      this->m_assetsToPrime.m_assets[v58].m_leafType = STREAM_LEAF_GENERIC;
+      this->m_assetsToPrime.m_assets[v58].m_assetIndex = v52;
+      this->m_assetsToPrime.m_assets[v58].m_loaded = 0;
+      this->m_assetsToPrime.m_assets[v58].m_data = NULL;
+      this->m_assetsToPrime.m_assets[v58].m_locked = 1;
+      v59 = streamFrontendGlob;
+      if ( v52 >= streamFrontendGlob->genericBits.mBitCount )
       {
-        LODWORD(v73) = streamFrontendGlob->genericBits.mBitCount;
-        LODWORD(v72) = v53;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 547, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v72, v73) )
+        LODWORD(v70) = streamFrontendGlob->genericBits.mBitCount;
+        LODWORD(v69) = v52;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 547, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v69, v70) )
           __debugbreak();
       }
-      v61 = v60->genericBits.mPriming;
-      if ( !v61 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+      v60 = v59->genericBits.mPriming;
+      if ( !v60 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
         __debugbreak();
-      v61[v58] |= v57;
-      v62 = streamFrontendGlob;
+      v60[v57] |= v56;
+      v61 = streamFrontendGlob;
       if ( !Sys_InCriticalSection(CRITSECT_STREAM_ALLOC) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 275, ASSERT_TYPE_ASSERT, "(Sys_InCriticalSection( CRITSECT_STREAM_ALLOC ))", (const char *)&queryFormat, "Sys_InCriticalSection( CRITSECT_STREAM_ALLOC )") )
         __debugbreak();
-      if ( v53 >= v62->genericBits.mBitCount )
+      if ( v52 >= v61->genericBits.mBitCount )
       {
-        LODWORD(v73) = v62->genericBits.mBitCount;
-        LODWORD(v72) = v53;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 276, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v72, v73) )
+        LODWORD(v70) = v61->genericBits.mBitCount;
+        LODWORD(v69) = v52;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 276, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v69, v70) )
           __debugbreak();
       }
-      v63 = v62->genericBits.mLoading;
-      if ( !v63 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+      v62 = v61->genericBits.mLoading;
+      if ( !v62 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 12, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
         __debugbreak();
-      if ( (v57 & v63[v58]) != 0 )
+      if ( (v56 & v62[v57]) != 0 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 426, ASSERT_TYPE_ASSERT, "(streamFrontendGlob->genericBits.SetLoadingConditional( index ))", (const char *)&queryFormat, "streamFrontendGlob->genericBits.SetLoadingConditional( index )") )
           __debugbreak();
       }
       else
       {
-        v64 = v62->genericBits.mLoading;
-        if ( !v64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+        v63 = v61->genericBits.mLoading;
+        if ( !v63 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
           __debugbreak();
-        v64[v58] |= v57;
+        v63[v57] |= v56;
       }
-      BYTE8(v83) = 2;
-      *(_QWORD *)&v83 = StreamKeyAtIndex;
-      __asm
-      {
-        vmovups xmm0, [rsp+2CF0h+var_2C80]
-        vmovdqa xmmword ptr [rbp+2BF0h+item.___u0], xmm0
-      }
+      v80.m_type = STREAM_ITEM_GENERIC;
+      v80.m_image = (const GfxImage *)StreamKeyAtIndex;
+      item = v80;
       Stream_Logger_OnPrimerLock("Stream_Primer::BuildAssetsToLoadList", NULL, &item);
-      v7 = ++v74;
-      v8 = v75;
+      v6 = ++v71;
+      v7 = v72;
 LABEL_180:
-      v2 = this;
+      v1 = this;
       if ( _ER12 )
         continue;
       break;
     }
-    v48 = v78;
+    v47 = v75;
     m_genericsToLoad = (unsigned int *)inData[0];
 LABEL_182:
-    v78 = ++v48;
+    v75 = ++v47;
     inData[0] = (__int64)++m_genericsToLoad;
-    if ( v48 < 0x4A0 )
+    if ( v47 < 0x4A0 )
       continue;
     break;
   }
   Stream_Defrag_UnlockDefragCount();
-  if ( v8 + v7 != v2->m_missingAssetsCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 438, ASSERT_TYPE_SANITY, "( assetIndex + skippedAssetCount == m_missingAssetsCount )", (const char *)&queryFormat, "assetIndex + skippedAssetCount == m_missingAssetsCount") )
+  if ( v7 + v6 != v1->m_missingAssetsCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 438, ASSERT_TYPE_SANITY, "( assetIndex + skippedAssetCount == m_missingAssetsCount )", (const char *)&queryFormat, "assetIndex + skippedAssetCount == m_missingAssetsCount") )
     __debugbreak();
-  v2->m_missingAssetsCount -= v8;
-  v65 = v2->m_missingAssetsCount;
-  v2->m_assetsToPrime.m_skipped = v8;
-  v2->m_assetsToPrime.m_count -= v8;
-  if ( v2->m_assetsToPrime.m_count != v65 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 442, ASSERT_TYPE_SANITY, "( m_assetsToPrime.m_count == m_missingAssetsCount )", (const char *)&queryFormat, "m_assetsToPrime.m_count == m_missingAssetsCount") )
+  v1->m_missingAssetsCount -= v7;
+  v64 = v1->m_missingAssetsCount;
+  v1->m_assetsToPrime.m_skipped = v7;
+  v1->m_assetsToPrime.m_count -= v7;
+  if ( v1->m_assetsToPrime.m_count != v64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 442, ASSERT_TYPE_SANITY, "( m_assetsToPrime.m_count == m_missingAssetsCount )", (const char *)&queryFormat, "m_assetsToPrime.m_count == m_missingAssetsCount") )
     __debugbreak();
-  if ( v2->m_missingAssetsCount )
+  if ( v1->m_missingAssetsCount )
   {
-    v66 = (unsigned int)(Sys_Milliseconds() - v2->m_startTime);
-    __asm
+    v65 = (unsigned int)(Sys_Milliseconds() - v1->m_startTime);
+    v66 = v1->m_genericPrimerSize + v1->m_meshPrimerSize;
+    v67 = (float)(__int64)(v1->m_imagePrimerSize + v66);
+    if ( (__int64)(v1->m_imagePrimerSize + v66) < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
+      v68 = (float)(__int64)(v1->m_imagePrimerSize + v66);
+      v67 = v68 + 1.8446744e19;
     }
-    if ( (__int64)(v2->m_imagePrimerSize + v2->m_genericPrimerSize + v2->m_meshPrimerSize) < 0 )
-      __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@35800000
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovq   rdx, xmm1
-    }
-    Streamer_StatusPrint("Stream_Primer - Priming %.2f MB of memory for %u assets. (%d ms)\n", _RDX, v2->m_assetsToPrime.m_count, v66);
-    std::_Sort_unchecked<Stream_Primer_AssetInfo *,_lambda_6164c4c48f2e054ffb7da71ec7f12cdd_>(v2->m_assetsToPrime.m_assets, &v2->m_assetsToPrime.m_assets[v2->m_assetsToPrime.m_count], v2->m_assetsToPrime.m_count, v80);
-    v2->m_reportBytesToLoad[0] = v2->m_imagePrimerSize;
-    v2->m_reportBytesToLoad[1] = v2->m_meshPrimerSize;
-    v2->m_reportBytesToLoad[2] = v2->m_genericPrimerSize;
-    if ( v2->m_status == Primer_Loading && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 1310, ASSERT_TYPE_ASSERT, "(newStatus != m_status || newStatus == Primer_Inactive)", (const char *)&queryFormat, "newStatus != m_status || newStatus == Primer_Inactive") )
+    Streamer_StatusPrint("Stream_Primer - Priming %.2f MB of memory for %u assets. (%d ms)\n", (float)(v67 * 0.00000095367432), v1->m_assetsToPrime.m_count, v65);
+    std::_Sort_unchecked<Stream_Primer_AssetInfo *,_lambda_6164c4c48f2e054ffb7da71ec7f12cdd_>(v1->m_assetsToPrime.m_assets, &v1->m_assetsToPrime.m_assets[v1->m_assetsToPrime.m_count], v1->m_assetsToPrime.m_count, v77);
+    v1->m_reportBytesToLoad[0] = v1->m_imagePrimerSize;
+    v1->m_reportBytesToLoad[1] = v1->m_meshPrimerSize;
+    v1->m_reportBytesToLoad[2] = v1->m_genericPrimerSize;
+    if ( v1->m_status == Primer_Loading && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 1310, ASSERT_TYPE_ASSERT, "(newStatus != m_status || newStatus == Primer_Inactive)", (const char *)&queryFormat, "newStatus != m_status || newStatus == Primer_Inactive") )
       __debugbreak();
-    if ( v2->m_requestStreamerToYield )
+    if ( v1->m_requestStreamerToYield )
       Stream_PushRequestYield();
-    v2->m_status = Primer_Loading;
+    v1->m_status = Primer_Loading;
   }
   else
   {
     Streamer_StatusPrint("Stream_Primer - BuildAssetsToLoadList found nothing to load. All assets potentially to be primed got skipped.\n");
-    Stream_Primer::ChangeStatus(v2, Primer_DoneLoading);
+    Stream_Primer::ChangeStatus(v1, Primer_DoneLoading);
   }
-  ScopedCriticalSection::~ScopedCriticalSection(&v89);
+  ScopedCriticalSection::~ScopedCriticalSection(&v86);
   Sys_ProfEndNamedEvent();
 }
 
@@ -1356,26 +1336,26 @@ void Stream_Primer::ClearLoadFlags(Stream_Primer *this)
   GfxImage *v6; 
   StreamLeafType v7; 
   streamer_handle_t v8; 
-  StreamLeafType v11; 
-  StreamItemType v12; 
+  StreamLeafType v9; 
+  StreamItemType v10; 
   unsigned int m_assetIndex; 
-  int v14; 
-  StreamLeafType v15; 
+  int v12; 
+  StreamLeafType v13; 
   XModelSurfs *XModelSurfsAtIndex; 
-  GfxImage *v17; 
-  StreamLeafType v18; 
-  streamer_handle_t v19; 
+  GfxImage *v15; 
+  StreamLeafType v16; 
+  streamer_handle_t v17; 
   StreamableBits *p_meshBits; 
-  __int64 v21; 
-  __int64 v22; 
+  __int64 v19; 
+  __int64 v20; 
   Stream_Logger_Item item; 
-  ScopedCriticalSection v24; 
+  ScopedCriticalSection v22; 
   Stream_Logger_Item result; 
   streamer_handle_t handle; 
 
-  v22 = -2i64;
+  v20 = -2i64;
   Sys_ProfBeginNamedEvent(0xFF00FFFF, "StreamAlloc_Lock");
-  ScopedCriticalSection::ScopedCriticalSection(&v24, CRITSECT_STREAM_ALLOC, SCOPED_CRITSECT_NORMAL);
+  ScopedCriticalSection::ScopedCriticalSection(&v22, CRITSECT_STREAM_ALLOC, SCOPED_CRITSECT_NORMAL);
   Sys_ProfEndNamedEvent();
   for ( i = 0; i < this->m_assetsToPrime.m_count; ++i )
   {
@@ -1394,7 +1374,7 @@ void Stream_Primer::ClearLoadFlags(Stream_Primer *this)
       }
       else
       {
-        if ( m_leafType != STREAM_LEAF_GENERIC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_loader.h", 68, ASSERT_TYPE_SANITY, "( m_leafType == STREAM_LEAF_GENERIC )", (const char *)&queryFormat, "m_leafType == STREAM_LEAF_GENERIC", v22) )
+        if ( m_leafType != STREAM_LEAF_GENERIC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_loader.h", 68, ASSERT_TYPE_SANITY, "( m_leafType == STREAM_LEAF_GENERIC )", (const char *)&queryFormat, "m_leafType == STREAM_LEAF_GENERIC", v20) )
           __debugbreak();
         GfxImageAtIndex = (XModelSurfs *)DB_GetStreamKeyAtIndex(v3->m_assetIndex);
       }
@@ -1415,82 +1395,77 @@ void Stream_Primer::ClearLoadFlags(Stream_Primer *this)
         v8.data = Stream_AddressSpace_GenericHandle((StreamKey *)v6).data;
       }
       handle.data = v8.data;
-      _RAX = Stream_Logger_MakeItem(&result, &handle);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+98h+item.___u0], xmm0
-      }
+      item = *Stream_Logger_MakeItem(&result, &handle);
       Stream_Logger_OnAbortPrimer("Stream_Primer::ClearLoadFlags", NULL, &item);
-      v11 = v3->m_leafType;
-      if ( (v11 & 0xF) != 0 )
+      v9 = v3->m_leafType;
+      if ( (v9 & 0xF) != 0 )
       {
-        v12 = STREAM_ITEM_IMAGE;
+        v10 = STREAM_ITEM_IMAGE;
       }
-      else if ( v11 == STREAM_LEAF_MESH )
+      else if ( v9 == STREAM_LEAF_MESH )
       {
-        v12 = STREAM_ITEM_MESH;
+        v10 = STREAM_ITEM_MESH;
       }
       else
       {
-        if ( v11 != STREAM_LEAF_GENERIC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_loader.h", 105, ASSERT_TYPE_SANITY, "( m_leafType == STREAM_LEAF_GENERIC )", (const char *)&queryFormat, "m_leafType == STREAM_LEAF_GENERIC") )
+        if ( v9 != STREAM_LEAF_GENERIC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_loader.h", 105, ASSERT_TYPE_SANITY, "( m_leafType == STREAM_LEAF_GENERIC )", (const char *)&queryFormat, "m_leafType == STREAM_LEAF_GENERIC") )
           __debugbreak();
-        v12 = STREAM_ITEM_GENERIC;
+        v10 = STREAM_ITEM_GENERIC;
       }
       m_assetIndex = v3->m_assetIndex;
       if ( v3->m_data )
       {
-        v14 = v3->m_assetIndex & 3;
-        if ( v12 )
-          v14 = 0;
-        v15 = v3->m_leafType;
-        if ( (v15 & 0xF) != 0 )
+        v12 = v3->m_assetIndex & 3;
+        if ( v10 )
+          v12 = 0;
+        v13 = v3->m_leafType;
+        if ( (v13 & 0xF) != 0 )
         {
           XModelSurfsAtIndex = (XModelSurfs *)DB_GetGfxImageAtIndex(m_assetIndex >> 2);
         }
-        else if ( v15 == STREAM_LEAF_MESH )
+        else if ( v13 == STREAM_LEAF_MESH )
         {
           XModelSurfsAtIndex = DB_GetXModelSurfsAtIndex(m_assetIndex);
         }
         else
         {
-          if ( v15 != STREAM_LEAF_GENERIC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_loader.h", 68, ASSERT_TYPE_SANITY, "( m_leafType == STREAM_LEAF_GENERIC )", (const char *)&queryFormat, "m_leafType == STREAM_LEAF_GENERIC") )
+          if ( v13 != STREAM_LEAF_GENERIC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_loader.h", 68, ASSERT_TYPE_SANITY, "( m_leafType == STREAM_LEAF_GENERIC )", (const char *)&queryFormat, "m_leafType == STREAM_LEAF_GENERIC") )
             __debugbreak();
           XModelSurfsAtIndex = (XModelSurfs *)DB_GetStreamKeyAtIndex(v3->m_assetIndex);
         }
-        v17 = (GfxImage *)XModelSurfsAtIndex;
-        v18 = v3->m_leafType;
-        if ( (v18 & 0xF) != 0 )
+        v15 = (GfxImage *)XModelSurfsAtIndex;
+        v16 = v3->m_leafType;
+        if ( (v16 & 0xF) != 0 )
         {
-          v19.data = Stream_AddressSpace_ImageHandle(v17).data;
+          v17.data = Stream_AddressSpace_ImageHandle(v15).data;
         }
-        else if ( v18 == STREAM_LEAF_MESH )
+        else if ( v16 == STREAM_LEAF_MESH )
         {
-          v19.data = Stream_AddressSpace_MeshHandle((XModelSurfs *)v17).data;
+          v17.data = Stream_AddressSpace_MeshHandle((XModelSurfs *)v15).data;
         }
         else
         {
-          if ( v18 != STREAM_LEAF_GENERIC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_loader.h", 88, ASSERT_TYPE_SANITY, "( m_leafType == STREAM_LEAF_GENERIC )", (const char *)&queryFormat, "m_leafType == STREAM_LEAF_GENERIC") )
+          if ( v16 != STREAM_LEAF_GENERIC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_loader.h", 88, ASSERT_TYPE_SANITY, "( m_leafType == STREAM_LEAF_GENERIC )", (const char *)&queryFormat, "m_leafType == STREAM_LEAF_GENERIC") )
             __debugbreak();
-          v19.data = Stream_AddressSpace_GenericHandle((StreamKey *)v17).data;
+          v17.data = Stream_AddressSpace_GenericHandle((StreamKey *)v15).data;
         }
-        Stream_AddressSpace_UnlockFrontendAddr(v19, v14);
+        Stream_AddressSpace_UnlockFrontendAddr(v17, v12);
       }
       p_meshBits = NULL;
-      if ( v12 )
+      if ( v10 )
       {
-        if ( v12 == STREAM_ITEM_MESH )
+        if ( v10 == STREAM_ITEM_MESH )
         {
           p_meshBits = &streamFrontendGlob->meshBits;
         }
-        else if ( v12 == STREAM_ITEM_GENERIC )
+        else if ( v10 == STREAM_ITEM_GENERIC )
         {
           p_meshBits = &streamFrontendGlob->genericBits;
         }
         else
         {
-          LODWORD(v21) = (unsigned __int8)v12;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 745, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp(745): unhandled case %d in switch statement", v21) )
+          LODWORD(v19) = (unsigned __int8)v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 745, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp(745): unhandled case %d in switch statement", v19) )
             __debugbreak();
         }
       }
@@ -1498,10 +1473,10 @@ void Stream_Primer::ClearLoadFlags(Stream_Primer *this)
       {
         p_meshBits = &streamFrontendGlob->imageBits;
       }
-      Stream_Primer::OnStreamedItemDone(this, p_meshBits, v12, m_assetIndex);
+      Stream_Primer::OnStreamedItemDone(this, p_meshBits, v10, m_assetIndex);
     }
   }
-  ScopedCriticalSection::~ScopedCriticalSection(&v24);
+  ScopedCriticalSection::~ScopedCriticalSection(&v22);
 }
 
 /*
@@ -1512,17 +1487,19 @@ Stream_Primer::ComputeAssetsToPrimeList
 void Stream_Primer::ComputeAssetsToPrimeList(Stream_Primer *this)
 {
   volatile unsigned __int64 *m_reportBytesLoadFailed; 
-  __int64 v4; 
-  const dvar_t *v5; 
-  const char *v6; 
+  __int64 v3; 
+  const dvar_t *v4; 
+  const char *v5; 
   __int64 m_missingAssetsCount; 
   unsigned int m_maxInFlightLoads; 
-  int v9; 
+  int v8; 
   signed __int64 m_bookkeepingSize; 
-  unsigned __int64 v15; 
+  float v10; 
+  float v11; 
+  unsigned __int64 v12; 
   char *fmt; 
-  ScopedCriticalSection v18; 
-  Stream_Primer::ComputeAssetsToPrimeList::__l2::<lambda_2900ff50ed533b4c1e55aba7cf205065> v19; 
+  ScopedCriticalSection v14; 
+  Stream_Primer::ComputeAssetsToPrimeList::__l2::<lambda_2900ff50ed533b4c1e55aba7cf205065> v15; 
 
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_Primer::ComputeAssetsToPrimeList");
   Stream_CheckFrontendUpdateLocks();
@@ -1538,41 +1515,41 @@ void Stream_Primer::ComputeAssetsToPrimeList(Stream_Primer *this)
   *(_QWORD *)&this->m_assetsProcessed = 0i64;
   this->m_lastFakeOutOfMemoryIndex = -1;
   m_reportBytesLoadFailed = this->m_reportBytesLoadFailed;
-  v4 = 3i64;
+  v3 = 3i64;
   do
   {
     *((_QWORD *)m_reportBytesLoadFailed - 3) = 0i64;
     *m_reportBytesLoadFailed = 0i64;
     *((_QWORD *)m_reportBytesLoadFailed++ - 6) = 0i64;
-    --v4;
+    --v3;
   }
-  while ( v4 );
+  while ( v3 );
   if ( DB_IsDoingTransientOnlyWork() )
   {
-    v5 = DVARINT_stream_primerMaxInFlightForTransients;
+    v4 = DVARINT_stream_primerMaxInFlightForTransients;
     if ( DVARINT_stream_primerMaxInFlightForTransients )
       goto LABEL_23;
-    v6 = "stream_primerMaxInFlightForTransients";
+    v5 = "stream_primerMaxInFlightForTransients";
   }
   else
   {
-    v5 = DVARINT_stream_primerMaxInFlight;
+    v4 = DVARINT_stream_primerMaxInFlight;
     if ( DVARINT_stream_primerMaxInFlight )
       goto LABEL_23;
-    v6 = "stream_primerMaxInFlight";
+    v5 = "stream_primerMaxInFlight";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v6) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v5) )
     __debugbreak();
 LABEL_23:
-  Dvar_CheckFrontendServerThread(v5);
-  this->m_maxInFlightLoads = v5->current.unsignedInt;
+  Dvar_CheckFrontendServerThread(v4);
+  this->m_maxInFlightLoads = v4->current.unsignedInt;
   Sys_ProfBeginNamedEvent(0xFF00FFFF, "StreamAlloc_Lock");
-  ScopedCriticalSection::ScopedCriticalSection(&v18, CRITSECT_STREAM_ALLOC, SCOPED_CRITSECT_NORMAL);
+  ScopedCriticalSection::ScopedCriticalSection(&v14, CRITSECT_STREAM_ALLOC, SCOPED_CRITSECT_NORMAL);
   Sys_ProfEndNamedEvent();
-  this->m_missingAssetsCount = _lambda_2900ff50ed533b4c1e55aba7cf205065_::operator()(&v19, this->m_requestedImageBits, 0x2800ui64, &streamFrontendGlob->imageBits, this->m_imagePartsToLoad);
-  this->m_missingAssetsCount += _lambda_2900ff50ed533b4c1e55aba7cf205065_::operator()(&v19, this->m_requestedMeshBits, 0x580ui64, &streamFrontendGlob->meshBits, this->m_meshSurfsToLoad);
-  this->m_missingAssetsCount += _lambda_2900ff50ed533b4c1e55aba7cf205065_::operator()(&v19, this->m_requestedGenericBits, 0x4A0ui64, &streamFrontendGlob->genericBits, this->m_genericsToLoad);
-  ScopedCriticalSection::~ScopedCriticalSection(&v18);
+  this->m_missingAssetsCount = _lambda_2900ff50ed533b4c1e55aba7cf205065_::operator()(&v15, this->m_requestedImageBits, 0x2800ui64, &streamFrontendGlob->imageBits, this->m_imagePartsToLoad);
+  this->m_missingAssetsCount += _lambda_2900ff50ed533b4c1e55aba7cf205065_::operator()(&v15, this->m_requestedMeshBits, 0x580ui64, &streamFrontendGlob->meshBits, this->m_meshSurfsToLoad);
+  this->m_missingAssetsCount += _lambda_2900ff50ed533b4c1e55aba7cf205065_::operator()(&v15, this->m_requestedGenericBits, 0x4A0ui64, &streamFrontendGlob->genericBits, this->m_genericsToLoad);
+  ScopedCriticalSection::~ScopedCriticalSection(&v14);
   m_missingAssetsCount = this->m_missingAssetsCount;
   if ( (_DWORD)m_missingAssetsCount )
   {
@@ -1582,27 +1559,20 @@ LABEL_23:
     this->m_maxInFlightLoads = m_maxInFlightLoads;
     this->m_bookkeepingSize = (16 * m_missingAssetsCount + 65559) & 0xFFFFFFFFFFFF0000ui64;
     this->m_bookkeepingSize += (StreamLoader::SizeNeeded(m_maxInFlightLoads) + 65551) & 0xFFFFFFFFFFFF0000ui64;
-    v9 = Sys_Milliseconds() - this->m_startTime;
+    v8 = Sys_Milliseconds() - this->m_startTime;
     m_bookkeepingSize = this->m_bookkeepingSize;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-    }
+    v10 = (float)m_bookkeepingSize;
     if ( m_bookkeepingSize < 0 )
-      __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-    __asm
     {
-      vmulss  xmm0, xmm0, cs:__real@35800000
-      vcvtss2sd xmm3, xmm0, xmm0
+      v11 = (float)m_bookkeepingSize;
+      v10 = v11 + 1.8446744e19;
     }
     if ( m_bookkeepingSize )
-      v15 = (unsigned __int64)(m_bookkeepingSize + 0xFFFF) >> 16;
+      v12 = (unsigned __int64)(m_bookkeepingSize + 0xFFFF) >> 16;
     else
-      LODWORD(v15) = 0;
-    LODWORD(fmt) = v9;
-    __asm { vmovq   r9, xmm3 }
-    Streamer_StatusPrint("Stream_Primer - Need to prime %u assets. Need a bookkeeping streamer loan of %u pages or %.2f MB (%d ms)\n", this->m_missingAssetsCount, (unsigned int)v15, *(double *)&_XMM3, fmt);
+      LODWORD(v12) = 0;
+    LODWORD(fmt) = v8;
+    Streamer_StatusPrint("Stream_Primer - Need to prime %u assets. Need a bookkeeping streamer loan of %u pages or %.2f MB (%d ms)\n", this->m_missingAssetsCount, (unsigned int)v12, (float)(v10 * 0.00000095367432), fmt);
     Stream_Primer::ChangeStatus(this, Primer_GrowingBookkeepingLoan);
     if ( StreamerMemLoan::Size(&this->m_bookkeepingHeap.m_loan) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 234, ASSERT_TYPE_ASSERT, "(m_bookkeepingHeap.UsedSize() == 0)", (const char *)&queryFormat, "m_bookkeepingHeap.UsedSize() == 0") )
       __debugbreak();
@@ -1655,6 +1625,8 @@ Stream_Primer::IssueNext
 */
 _BOOL8 Stream_Primer::IssueNext(Stream_Primer *this, StreamLoadCmd *loadCmd)
 {
+  StreamLoadCmd *v2; 
+  FastCriticalSection *p_m_readSchedulerCrit; 
   Stream_Primer_AssetInfo *v5; 
   const dvar_t *v6; 
   unsigned int unsignedInt; 
@@ -1668,27 +1640,27 @@ _BOOL8 Stream_Primer::IssueNext(Stream_Primer *this, StreamLoadCmd *loadCmd)
   __int64 v15; 
   StreamUpdateId v16; 
   void (__fastcall *m_ManagerFctPtr)(void *, const void *, stdext::inplace_function_operation); 
-  bool v19; 
+  bool v18; 
   volatile signed __int32 *p_writeCount; 
-  __int64 v23; 
-  unsigned __int64 v24; 
-  StreamUpdateId v25; 
+  __int64 v21; 
+  unsigned __int64 v22; 
+  StreamUpdateId v23; 
   TempThreadPriority tempPriority[2]; 
-  __int64 v27; 
-  FastCriticalSection *p_m_readSchedulerCrit; 
-  Stream_Primer::IssueNext::__l2::<lambda_dfc2ea59c07a43739260b3ae08ff2607> v29; 
-  StreamLoadCmd *v30; 
-  const XPakEntryInfo *v31; 
+  __int64 v25; 
+  FastCriticalSection *v26; 
+  Stream_Primer::IssueNext::__l2::<lambda_dfc2ea59c07a43739260b3ae08ff2607> v27; 
+  StreamLoadCmd *v28; 
+  const XPakEntryInfo *v29; 
   StreamUpdateId updateId; 
 
-  v30 = loadCmd;
-  v27 = -2i64;
-  _R15 = loadCmd;
+  v28 = loadCmd;
+  v25 = -2i64;
+  v2 = loadCmd;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_Primer::IssueNext");
   if ( !this->m_assetsToPrime.m_assets && !this->m_assetsToPrime.m_count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 833, ASSERT_TYPE_ASSERT, "(!m_assetsToPrime.Empty())", (const char *)&queryFormat, "!m_assetsToPrime.Empty()") )
     __debugbreak();
-  _RBP = &this->m_readSchedulerCrit;
   p_m_readSchedulerCrit = &this->m_readSchedulerCrit;
+  v26 = &this->m_readSchedulerCrit;
   if ( this == (Stream_Primer *)-52384i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 228, ASSERT_TYPE_ASSERT, "(cs)", (const char *)&queryFormat, "cs") )
     __debugbreak();
   Sys_LockWrite(&this->m_readSchedulerCrit);
@@ -1696,12 +1668,12 @@ _BOOL8 Stream_Primer::IssueNext(Stream_Primer *this, StreamLoadCmd *loadCmd)
     goto LABEL_54;
   if ( this->m_requestStreamerToYield && !Stream_IsYieldingRequested() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 847, ASSERT_TYPE_ASSERT, "(!m_requestStreamerToYield || Stream_IsYieldingRequested())", (const char *)&queryFormat, "!m_requestStreamerToYield || Stream_IsYieldingRequested()") )
     __debugbreak();
-  v29 = 0;
+  v27 = 0;
   updateId = 0i64;
   if ( this->m_assetsProcessed >= this->m_assetsToPrime.m_count )
   {
-    LODWORD(v23) = this->m_assetsProcessed;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 882, ASSERT_TYPE_ASSERT, "(unsigned)( m_assetsProcessed ) < (unsigned)( m_assetsToPrime.m_count )", "m_assetsProcessed doesn't index m_assetsToPrime.m_count\n\t%i not in [0, %i)", v23, this->m_assetsToPrime.m_count) )
+    LODWORD(v21) = this->m_assetsProcessed;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 882, ASSERT_TYPE_ASSERT, "(unsigned)( m_assetsProcessed ) < (unsigned)( m_assetsToPrime.m_count )", "m_assetsProcessed doesn't index m_assetsToPrime.m_count\n\t%i not in [0, %i)", v21, this->m_assetsToPrime.m_count) )
       __debugbreak();
   }
   v5 = &this->m_assetsToPrime.m_assets[this->m_assetsProcessed];
@@ -1719,7 +1691,7 @@ _BOOL8 Stream_Primer::IssueNext(Stream_Primer *this, StreamLoadCmd *loadCmd)
 LABEL_53:
       Streamer_StatusPrint("Stream_Primer::IssueNext: Memory allocation failed at %u\n", m_assetsProcessed);
 LABEL_54:
-      v19 = 0;
+      v18 = 0;
       goto LABEL_55;
     }
   }
@@ -1729,12 +1701,12 @@ LABEL_54:
     goto LABEL_53;
   }
   ++this->m_assetsProcessed;
-  tempPriority[0].threadHandle = &_R15->m_items;
-  v9 = _lambda_dfc2ea59c07a43739260b3ae08ff2607_::operator()(&v29, _R15->m_items._Elems, v5, 0i64);
+  tempPriority[0].threadHandle = &v2->m_items;
+  v9 = _lambda_dfc2ea59c07a43739260b3ae08ff2607_::operator()(&v27, v2->m_items._Elems, v5, 0i64);
   v10 = 1;
   XPakEntry = Stream_Primer_AssetInfo::GetXPakEntry(v5);
-  v31 = XPakEntry;
-  v24 = (XPakEntry->offset & 0xFFFFFFFFFFFF8000ui64) - XPakEntry->offset + 0x100000;
+  v29 = XPakEntry;
+  v22 = (XPakEntry->offset & 0xFFFFFFFFFFFF8000ui64) - XPakEntry->offset + 0x100000;
   if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_stream_primerReadPacked, "stream_primerReadPacked") )
   {
     v12 = this->m_assetsProcessed;
@@ -1746,29 +1718,29 @@ LABEL_54:
       v14 = Stream_Primer_AssetInfo::GetXPakEntry(&v5[v13]);
       if ( *((_BYTE *)XPakEntry + 24) != *((_BYTE *)v14 + 24) )
         break;
-      v15 = v14->offset - v31->offset - v9;
-      if ( v15 < 0 || (unsigned __int64)v15 > 0x8000 || v14->offset - v31->offset + v14->size > v24 )
+      v15 = v14->offset - v29->offset - v9;
+      if ( v15 < 0 || (unsigned __int64)v15 > 0x8000 || v14->offset - v29->offset + v14->size > v22 )
       {
-        XPakEntry = v31;
+        XPakEntry = v29;
         break;
       }
-      if ( Stream_Primer::AllocateMemory(this, &v5[v13], &v25) == TASK_LOGIC_FAIL )
+      if ( Stream_Primer::AllocateMemory(this, &v5[v13], &v23) == TASK_LOGIC_FAIL )
       {
-        XPakEntry = v31;
+        XPakEntry = v29;
         break;
       }
-      v16 = v25;
-      if ( updateId > (unsigned __int64)v25 )
+      v16 = v23;
+      if ( updateId > (unsigned __int64)v23 )
         v16 = updateId;
       updateId = v16;
-      v9 += _lambda_dfc2ea59c07a43739260b3ae08ff2607_::operator()(&v29, (StreamLoadItem *)((char *)tempPriority[0].threadHandle + v13 * 16), &v5[v13], (unsigned int)v15 + v9) + (unsigned __int64)(unsigned int)v15;
+      v9 += _lambda_dfc2ea59c07a43739260b3ae08ff2607_::operator()(&v27, (StreamLoadItem *)((char *)tempPriority[0].threadHandle + v13 * 16), &v5[v13], (unsigned int)v15 + v9) + (unsigned __int64)(unsigned int)v15;
       ++v10;
       v12 = ++this->m_assetsProcessed;
-      XPakEntry = v31;
+      XPakEntry = v29;
     }
     while ( v10 < 0x20 );
-    _RBP = &this->m_readSchedulerCrit;
-    _R15 = v30;
+    p_m_readSchedulerCrit = &this->m_readSchedulerCrit;
+    v2 = v28;
   }
   tempPriority[0].threadHandle = this;
   *(_QWORD *)&tempPriority[0].oldPriority = v5;
@@ -1778,43 +1750,35 @@ LABEL_54:
     __debugbreak();
   if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 983, ASSERT_TYPE_SANITY, "( numItems > 0 )", (const char *)&queryFormat, "numItems > 0") )
     __debugbreak();
-  _R15->m_loadCallback.m_InvokeFctPtr = stdext::inplace_function<void (bool),32,16>::DefaultFunction;
-  m_ManagerFctPtr = _R15->m_loadCallback.m_ManagerFctPtr;
+  v2->m_loadCallback.m_InvokeFctPtr = stdext::inplace_function<void (bool),32,16>::DefaultFunction;
+  m_ManagerFctPtr = v2->m_loadCallback.m_ManagerFctPtr;
   if ( m_ManagerFctPtr )
-    m_ManagerFctPtr(&_R15->m_loadCallback.m_Data, NULL, Destroy);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+0E8h+tempPriority.threadHandle]
-    vmovups ymmword ptr [r15+10h], ymm0
-  }
-  _R15->m_loadCallback.m_ManagerFctPtr = stdext::inplace_function<void (bool),32,16>::manage<_lambda_f0b3c22242f961c688baf40bfd3d831f_>;
-  _R15->m_loadCallback.m_InvokeFctPtr = stdext::inplace_function<void (bool),32,16>::invoke<_lambda_f0b3c22242f961c688baf40bfd3d831f_>;
-  _R15->m_updateId = updateId;
-  _R15->m_xpakOffset = XPakEntry->offset;
-  _R15->m_xpakIndex = *((unsigned __int8 *)XPakEntry + 24);
-  _R15->m_xpakSize = truncate_cast<unsigned int,unsigned __int64>(v9);
-  _R15->m_numItems = v10;
+    m_ManagerFctPtr(&v2->m_loadCallback.m_Data, NULL, Destroy);
+  v2->m_loadCallback.m_Data = *(std::_Aligned<32,16,double,0>::type *)&tempPriority[0].threadHandle;
+  v2->m_loadCallback.m_ManagerFctPtr = stdext::inplace_function<void (bool),32,16>::manage<_lambda_f0b3c22242f961c688baf40bfd3d831f_>;
+  v2->m_loadCallback.m_InvokeFctPtr = stdext::inplace_function<void (bool),32,16>::invoke<_lambda_f0b3c22242f961c688baf40bfd3d831f_>;
+  v2->m_updateId = updateId;
+  v2->m_xpakOffset = XPakEntry->offset;
+  v2->m_xpakIndex = *((unsigned __int8 *)XPakEntry + 24);
+  v2->m_xpakSize = truncate_cast<unsigned int,unsigned __int64>(v9);
+  v2->m_numItems = v10;
   Stream_Primer::PrintReadUpdate(this, 0, v5, v9, v10);
-  v19 = this->m_status == Primer_Loading && !this->m_abortActive;
+  v18 = this->m_status == Primer_Loading && !this->m_abortActive;
 LABEL_55:
-  p_writeCount = &_RBP->writeCount;
-  if ( _RBP->writeCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 184, ASSERT_TYPE_ASSERT, "( critSect->writeCount ) == ( 1 )", "%s == %s\n\t%i, %i", "critSect->writeCount", "1", *p_writeCount, 1) )
+  p_writeCount = &p_m_readSchedulerCrit->writeCount;
+  if ( p_m_readSchedulerCrit->writeCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 184, ASSERT_TYPE_ASSERT, "( critSect->writeCount ) == ( 1 )", "%s == %s\n\t%i, %i", "critSect->writeCount", "1", *p_writeCount, 1) )
     __debugbreak();
-  if ( _RBP->writeThreadId != Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 186, ASSERT_TYPE_ASSERT, "(critSect->writeThreadId == Sys_GetCurrentThreadId())", (const char *)&queryFormat, "critSect->writeThreadId == Sys_GetCurrentThreadId()") )
+  if ( p_m_readSchedulerCrit->writeThreadId != Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 186, ASSERT_TYPE_ASSERT, "(critSect->writeThreadId == Sys_GetCurrentThreadId())", (const char *)&queryFormat, "critSect->writeThreadId == Sys_GetCurrentThreadId()") )
     __debugbreak();
-  _RBP->writeThreadId = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+8]
-    vmovups xmmword ptr [rsp+0E8h+tempPriority.threadHandle], xmm0
-  }
-  if ( ((unsigned __int8)p_writeCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &_RBP->writeCount) )
+  p_m_readSchedulerCrit->writeThreadId = 0;
+  tempPriority[0] = p_m_readSchedulerCrit->tempPriority;
+  if ( ((unsigned __int8)p_writeCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &p_m_readSchedulerCrit->writeCount) )
     __debugbreak();
   if ( _InterlockedCompareExchange(p_writeCount, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 192, ASSERT_TYPE_ASSERT, "((Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 )) == (1))", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 ) == 1") )
     __debugbreak();
   Sys_TempThreadPriorityEnd(tempPriority);
   Sys_ProfEndNamedEvent();
-  return v19;
+  return v18;
 }
 
 /*
@@ -1844,31 +1808,31 @@ void Stream_Primer::OnLoadFinished(Stream_Primer *this, Stream_Primer_AssetInfo 
   unsigned int *mStaticForced; 
   Stream_Logger_Item *p_item; 
   XModelSurfs *XModelSurfsAtIndex; 
-  const XModelSurfs *v28; 
-  streamer_handle_t v29; 
-  const dvar_t *v30; 
-  StreamFrontendGlob *v31; 
-  __int64 v32; 
-  unsigned int *v33; 
+  const XModelSurfs *v27; 
+  streamer_handle_t v28; 
+  const dvar_t *v29; 
+  StreamFrontendGlob *v30; 
+  __int64 v31; 
+  unsigned int *v32; 
   XModelSurfs *StreamKeyAtIndex; 
-  const GfxImage *v36; 
-  unsigned int v37; 
-  streamer_handle_t v38; 
-  const dvar_t *v39; 
-  StreamFrontendGlob *v40; 
-  __int64 v41; 
-  unsigned int *v42; 
+  const GfxImage *v34; 
+  unsigned int v35; 
+  streamer_handle_t v36; 
+  const dvar_t *v37; 
+  StreamFrontendGlob *v38; 
+  __int64 v39; 
+  unsigned int *v40; 
   unsigned int m_count; 
   volatile unsigned __int64 *m_reportBytesLoaded; 
+  __int64 v43; 
+  __int64 v44; 
+  __int64 v45; 
   __int64 v46; 
-  __int64 v47; 
-  __int64 v48; 
-  __int64 v49; 
+  __int128 v47; 
+  __int128 v48; 
+  Stream_Logger_Item v49; 
   __int128 v50; 
   __int128 v51; 
-  __int128 v52; 
-  __int128 v53; 
-  __int128 v54; 
   Stream_Logger_Item item; 
 
   v6 = baseAsset;
@@ -1887,7 +1851,7 @@ void Stream_Primer::OnLoadFinished(Stream_Primer *this, Stream_Primer_AssetInfo 
   if ( numItems )
   {
     v10 = 0i64;
-    v49 = 0i64;
+    v46 = 0i64;
     do
     {
       v11 = &v6[v10];
@@ -1930,8 +1894,8 @@ void Stream_Primer::OnLoadFinished(Stream_Primer *this, Stream_Primer_AssetInfo 
                 __debugbreak();
               v17 = 2;
             }
-            LODWORD(v47) = v17;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 1138, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp(1138): unhandled case %d in switch statement", v47) )
+            LODWORD(v44) = v17;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 1138, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp(1138): unhandled case %d in switch statement", v44) )
               __debugbreak();
             goto LABEL_135;
           }
@@ -1982,9 +1946,9 @@ void Stream_Primer::OnLoadFinished(Stream_Primer *this, Stream_Primer_AssetInfo 
           m_assetIndex = (int)v11->m_assetIndex;
           if ( (unsigned int)m_assetIndex >= streamFrontendGlob->genericBits.mBitCount )
           {
-            LODWORD(v48) = streamFrontendGlob->genericBits.mBitCount;
-            LODWORD(v47) = v11->m_assetIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 582, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v47, v48) )
+            LODWORD(v45) = streamFrontendGlob->genericBits.mBitCount;
+            LODWORD(v44) = v11->m_assetIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 582, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v44, v45) )
               __debugbreak();
           }
           mStaticForced = v22->genericBits.mStaticForced;
@@ -1992,14 +1956,10 @@ void Stream_Primer::OnLoadFinished(Stream_Primer *this, Stream_Primer_AssetInfo 
             __debugbreak();
           mStaticForced[m_assetIndex >> 5] |= 1 << (m_assetIndex & 0x1F);
           Stream_Primer::OnStreamedItemDone(this, &streamFrontendGlob->genericBits, STREAM_ITEM_GENERIC, v11->m_assetIndex);
-          BYTE8(v50) = 2;
-          *(_QWORD *)&v50 = v19;
-          __asm
-          {
-            vmovups xmm0, [rsp+128h+var_C8]
-            vmovdqa [rsp+128h+var_78], xmm0
-          }
-          p_item = (Stream_Logger_Item *)&v53;
+          BYTE8(v47) = 2;
+          *(_QWORD *)&v47 = v19;
+          v50 = v47;
+          p_item = (Stream_Logger_Item *)&v50;
         }
         else
         {
@@ -2017,57 +1977,53 @@ void Stream_Primer::OnLoadFinished(Stream_Primer *this, Stream_Primer_AssetInfo 
               __debugbreak();
             XModelSurfsAtIndex = (XModelSurfs *)DB_GetStreamKeyAtIndex(v11->m_assetIndex);
           }
-          v28 = XModelSurfsAtIndex;
+          v27 = XModelSurfsAtIndex;
           if ( v11->m_data )
           {
-            v29.data = Stream_Primer_AssetInfo::GetHandle(v11).data;
-            Stream_AddressSpace_UnlockFrontendAddr(*(streamer_handle_t *)v29.data, 0);
+            v28.data = Stream_Primer_AssetInfo::GetHandle(v11).data;
+            Stream_AddressSpace_UnlockFrontendAddr(*(streamer_handle_t *)v28.data, 0);
           }
           if ( success )
           {
             if ( !v11->m_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 1075, ASSERT_TYPE_ASSERT, "(asset->m_data)", (const char *)&queryFormat, "asset->m_data") )
               __debugbreak();
-            Stream_Alloc_LoadedMesh(v28);
+            Stream_Alloc_LoadedMesh(v27);
             if ( !this->m_abortActive )
             {
               Sys_InterlockedExchangeAdd64((volatile __int64 *)&this->m_reportBytesLoaded[1], StreamItemSize);
               if ( this->m_reportBytesLoaded[1] > this->m_reportBytesToLoad[1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 1080, ASSERT_TYPE_SANITY, "( m_reportBytesLoaded[STREAM_ITEM_MESH] <= m_reportBytesToLoad[STREAM_ITEM_MESH] )", (const char *)&queryFormat, "m_reportBytesLoaded[STREAM_ITEM_MESH] <= m_reportBytesToLoad[STREAM_ITEM_MESH]") )
                 __debugbreak();
-              v30 = DCONST_DVARBOOL_stream_primerPrintAssetNameOnLoad;
+              v29 = DCONST_DVARBOOL_stream_primerPrintAssetNameOnLoad;
               if ( !DCONST_DVARBOOL_stream_primerPrintAssetNameOnLoad && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_primerPrintAssetNameOnLoad") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(v30);
-              if ( v30->current.enabled )
-                Streamer_StatusPrint("Stream_Primer loaded: Mesh: %s\n", v28->name);
+              Dvar_CheckFrontendServerThread(v29);
+              if ( v29->current.enabled )
+                Streamer_StatusPrint("Stream_Primer loaded: Mesh: %s\n", v27->name);
             }
           }
           else if ( !this->m_abortActive )
           {
             Sys_InterlockedExchangeAdd64((volatile __int64 *)&this->m_reportBytesLoadFailed[1], StreamItemSize);
-            Streamer_StatusPrint("Failed to load mesh surf for %s\n", v28->name);
+            Streamer_StatusPrint("Failed to load mesh surf for %s\n", v27->name);
           }
-          v31 = streamFrontendGlob;
-          v32 = (int)v11->m_assetIndex;
-          if ( (unsigned int)v32 >= streamFrontendGlob->meshBits.mBitCount )
+          v30 = streamFrontendGlob;
+          v31 = (int)v11->m_assetIndex;
+          if ( (unsigned int)v31 >= streamFrontendGlob->meshBits.mBitCount )
           {
-            LODWORD(v48) = streamFrontendGlob->meshBits.mBitCount;
-            LODWORD(v47) = v11->m_assetIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 582, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v47, v48) )
+            LODWORD(v45) = streamFrontendGlob->meshBits.mBitCount;
+            LODWORD(v44) = v11->m_assetIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 582, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v44, v45) )
               __debugbreak();
           }
-          v33 = v31->meshBits.mStaticForced;
-          if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+          v32 = v30->meshBits.mStaticForced;
+          if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
             __debugbreak();
-          v33[v32 >> 5] |= 1 << (v32 & 0x1F);
+          v32[v31 >> 5] |= 1 << (v31 & 0x1F);
           Stream_Primer::OnStreamedItemDone(this, &streamFrontendGlob->meshBits, STREAM_ITEM_MESH, v11->m_assetIndex);
-          BYTE8(v51) = 1;
-          *(_QWORD *)&v51 = v28;
-          __asm
-          {
-            vmovups xmm0, [rsp+128h+var_B8]
-            vmovdqa [rsp+128h+var_68], xmm0
-          }
-          p_item = (Stream_Logger_Item *)&v54;
+          BYTE8(v48) = 1;
+          *(_QWORD *)&v48 = v27;
+          v51 = v48;
+          p_item = (Stream_Logger_Item *)&v51;
         }
       }
       else
@@ -2086,57 +2042,53 @@ void Stream_Primer::OnLoadFinished(Stream_Primer *this, Stream_Primer_AssetInfo 
             __debugbreak();
           StreamKeyAtIndex = (XModelSurfs *)DB_GetStreamKeyAtIndex(v11->m_assetIndex);
         }
-        v36 = (const GfxImage *)StreamKeyAtIndex;
-        v37 = v11->m_assetIndex & 3;
+        v34 = (const GfxImage *)StreamKeyAtIndex;
+        v35 = v11->m_assetIndex & 3;
         if ( v11->m_data )
         {
-          v38.data = Stream_Primer_AssetInfo::GetHandle(v11).data;
-          Stream_AddressSpace_UnlockFrontendAddr(*(streamer_handle_t *)v38.data, v37);
+          v36.data = Stream_Primer_AssetInfo::GetHandle(v11).data;
+          Stream_AddressSpace_UnlockFrontendAddr(*(streamer_handle_t *)v36.data, v35);
         }
         if ( success )
         {
           if ( !v11->m_data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 1038, ASSERT_TYPE_ASSERT, "(asset->m_data)", (const char *)&queryFormat, "asset->m_data") )
             __debugbreak();
-          Stream_Alloc_LoadedImage(v36, v37);
+          Stream_Alloc_LoadedImage(v34, v35);
           if ( !this->m_abortActive )
           {
             Sys_InterlockedExchangeAdd64((volatile __int64 *)this->m_reportBytesLoaded, StreamItemSize);
             if ( this->m_reportBytesLoaded[0] > this->m_reportBytesToLoad[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 1043, ASSERT_TYPE_SANITY, "( m_reportBytesLoaded[STREAM_ITEM_IMAGE] <= m_reportBytesToLoad[STREAM_ITEM_IMAGE] )", (const char *)&queryFormat, "m_reportBytesLoaded[STREAM_ITEM_IMAGE] <= m_reportBytesToLoad[STREAM_ITEM_IMAGE]") )
               __debugbreak();
-            v39 = DCONST_DVARBOOL_stream_primerPrintAssetNameOnLoad;
+            v37 = DCONST_DVARBOOL_stream_primerPrintAssetNameOnLoad;
             if ( !DCONST_DVARBOOL_stream_primerPrintAssetNameOnLoad && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_primerPrintAssetNameOnLoad") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v39);
-            if ( v39->current.enabled )
-              Streamer_StatusPrint("Stream_Primer loaded: Image[part:%d]: %s\n", v37, v36->name);
+            Dvar_CheckFrontendServerThread(v37);
+            if ( v37->current.enabled )
+              Streamer_StatusPrint("Stream_Primer loaded: Image[part:%d]: %s\n", v35, v34->name);
           }
         }
         else if ( !this->m_abortActive )
         {
           Sys_InterlockedExchangeAdd64((volatile __int64 *)this->m_reportBytesLoadFailed, StreamItemSize);
-          Streamer_StatusPrint("Failed to load image part for %s (partIndex: %d )\n", v36->name, v37);
+          Streamer_StatusPrint("Failed to load image part for %s (partIndex: %d )\n", v34->name, v35);
         }
-        v40 = streamFrontendGlob;
-        v41 = (int)v11->m_assetIndex;
-        if ( (unsigned int)v41 >= streamFrontendGlob->imageBits.mBitCount )
+        v38 = streamFrontendGlob;
+        v39 = (int)v11->m_assetIndex;
+        if ( (unsigned int)v39 >= streamFrontendGlob->imageBits.mBitCount )
         {
-          LODWORD(v48) = streamFrontendGlob->imageBits.mBitCount;
-          LODWORD(v47) = v11->m_assetIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 582, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v47, v48) )
+          LODWORD(v45) = streamFrontendGlob->imageBits.mBitCount;
+          LODWORD(v44) = v11->m_assetIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_bits.h", 582, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( mBitCount )", "index doesn't index mBitCount\n\t%i not in [0, %i)", v44, v45) )
             __debugbreak();
         }
-        v42 = v40->imageBits.mStaticForced;
-        if ( !v42 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+        v40 = v38->imageBits.mStaticForced;
+        if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
           __debugbreak();
-        v42[v41 >> 5] |= 1 << (v41 & 0x1F);
+        v40[v39 >> 5] |= 1 << (v39 & 0x1F);
         Stream_Primer::OnStreamedItemDone(this, &streamFrontendGlob->imageBits, STREAM_ITEM_IMAGE, v11->m_assetIndex);
-        BYTE8(v52) = 0;
-        *(_QWORD *)&v52 = v36;
-        __asm
-        {
-          vmovups xmm0, [rsp+128h+var_A8]
-          vmovdqa xmmword ptr [rsp+128h+item.___u0], xmm0
-        }
+        v49.m_type = STREAM_ITEM_IMAGE;
+        v49.m_image = v34;
+        item = v49;
         p_item = &item;
       }
       v11->m_locked = 0;
@@ -2145,7 +2097,7 @@ void Stream_Primer::OnLoadFinished(Stream_Primer *this, Stream_Primer_AssetInfo 
 LABEL_135:
       ++this->m_assetsLoadFinished;
       ++v9;
-      v10 = ++v49;
+      v10 = ++v46;
     }
     while ( v9 < numItems );
   }
@@ -2160,15 +2112,15 @@ LABEL_135:
       if ( this->m_assetsProcessed != m_count && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 1154, ASSERT_TYPE_SANITY, "( m_assetsProcessed == m_assetsToPrime.m_count )", (const char *)&queryFormat, "m_assetsProcessed == m_assetsToPrime.m_count") )
         __debugbreak();
       m_reportBytesLoaded = this->m_reportBytesLoaded;
-      v46 = 3i64;
+      v43 = 3i64;
       do
       {
         if ( *m_reportBytesLoaded + *((_QWORD *)m_reportBytesLoaded + 3) != *((_QWORD *)m_reportBytesLoaded - 3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_primer.cpp", 1157, ASSERT_TYPE_SANITY, "( m_reportBytesLoaded[streamItemType] + m_reportBytesLoadFailed[streamItemType] == m_reportBytesToLoad[streamItemType] )", (const char *)&queryFormat, "m_reportBytesLoaded[streamItemType] + m_reportBytesLoadFailed[streamItemType] == m_reportBytesToLoad[streamItemType]") )
           __debugbreak();
         ++m_reportBytesLoaded;
-        --v46;
+        --v43;
       }
-      while ( v46 );
+      while ( v43 );
       Stream_Primer::ChangeStatus(this, Primer_DoneLoading);
     }
   }

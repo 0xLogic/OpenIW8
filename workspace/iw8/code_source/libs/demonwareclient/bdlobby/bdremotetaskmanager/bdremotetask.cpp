@@ -1043,43 +1043,27 @@ bdRemoteTask::getStatus
 */
 __int64 bdRemoteTask::getStatus(bdRemoteTask *this)
 {
-  char v4; 
+  double ElapsedTimeInSeconds; 
   bdByteBuffer *m_ptr; 
-  bdByteBuffer *v6; 
-  double v10; 
+  bdByteBuffer *v4; 
 
-  _RBX = this;
-  if ( this->m_status != BD_PENDING )
+  if ( this->m_status != BD_PENDING || this->m_timeout <= 0.0 )
     return (unsigned int)this->m_status;
-  __asm
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+  if ( *(float *)&ElapsedTimeInSeconds >= this->m_timeout )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rcx+18h]
-  }
-  if ( this->m_status )
-    return (unsigned int)this->m_status;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
-  __asm { vcomiss xmm0, dword ptr [rbx+18h] }
-  if ( !v4 )
-  {
-    _RBX->m_status = BD_TIMED_OUT;
-    m_ptr = _RBX->m_byteResults.m_ptr;
+    this->m_status = BD_TIMED_OUT;
+    m_ptr = this->m_byteResults.m_ptr;
     if ( m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
     {
-      v6 = _RBX->m_byteResults.m_ptr;
-      if ( v6 )
-        ((void (__fastcall *)(bdByteBuffer *, __int64))v6->~bdReferencable)(v6, 1i64);
+      v4 = this->m_byteResults.m_ptr;
+      if ( v4 )
+        ((void (__fastcall *)(bdByteBuffer *, __int64))v4->~bdReferencable)(v4, 1i64);
     }
-    _RBX->m_byteResults.m_ptr = NULL;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+48h+var_10], xmm0
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdRemoteTask", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdremotetaskmanager\\bdremotetask.cpp", "bdRemoteTask::getStatus", 0x100u, "Remote task timed out after %.3fs.", v10);
+    this->m_byteResults.m_ptr = NULL;
+    bdLogMessage(BD_LOG_INFO, "info/", "bdRemoteTask", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdremotetaskmanager\\bdremotetask.cpp", "bdRemoteTask::getStatus", 0x100u, "Remote task timed out after %.3fs.", this->m_timeout);
   }
-  return (unsigned int)_RBX->m_status;
+  return (unsigned int)this->m_status;
 }
 
 /*
@@ -1109,8 +1093,7 @@ bdRemoteTask::getTimeout
 */
 float bdRemoteTask::getTimeout(bdRemoteTask *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+18h] }
-  return *(float *)&_XMM0;
+  return this->m_timeout;
 }
 
 /*
@@ -1358,10 +1341,9 @@ void bdRemoteTask::setTaskResultProcessor(bdRemoteTask *this, bdTaskResultProces
 bdRemoteTask::setTimeout
 ==============
 */
-
-void __fastcall bdRemoteTask::setTimeout(bdRemoteTask *this, double timeout)
+void bdRemoteTask::setTimeout(bdRemoteTask *this, const float timeout)
 {
-  __asm { vmovss  dword ptr [rcx+18h], xmm1 }
+  this->m_timeout = timeout;
 }
 
 /*
@@ -1369,50 +1351,42 @@ void __fastcall bdRemoteTask::setTimeout(bdRemoteTask *this, double timeout)
 bdRemoteTask::start
 ==============
 */
-
-void __fastcall bdRemoteTask::start(bdRemoteTask *this, double timeout)
+void bdRemoteTask::start(bdRemoteTask *this, const float timeout)
 {
   bdByteBuffer *m_ptr; 
-  bdByteBuffer *v6; 
+  bdByteBuffer *v4; 
   unsigned __int8 m_taskId; 
   unsigned __int8 m_serviceId; 
   unsigned int LoResTimeStamp; 
   unsigned __int64 m_transactionID; 
-  unsigned int v11; 
-  __int64 v13; 
+  unsigned int v9; 
+  __int64 v10; 
 
-  _RSI = this;
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   bdStopwatch::start(&this->m_timer);
-  __asm { vmovss  dword ptr [rsi+18h], xmm6 }
-  _RSI->m_status = BD_PENDING;
-  m_ptr = _RSI->m_byteResults.m_ptr;
+  this->m_timeout = timeout;
+  this->m_status = BD_PENDING;
+  m_ptr = this->m_byteResults.m_ptr;
   if ( m_ptr )
   {
     if ( _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
     {
-      v6 = _RSI->m_byteResults.m_ptr;
-      if ( v6 )
-        ((void (__fastcall *)(bdByteBuffer *, __int64))v6->~bdReferencable)(v6, 1i64);
+      v4 = this->m_byteResults.m_ptr;
+      if ( v4 )
+        ((void (__fastcall *)(bdByteBuffer *, __int64))v4->~bdReferencable)(v4, 1i64);
     }
   }
-  _RSI->m_byteResults.m_ptr = NULL;
-  m_taskId = _RSI->m_taskId;
-  m_serviceId = _RSI->m_serviceId;
+  this->m_byteResults.m_ptr = NULL;
+  m_taskId = this->m_taskId;
+  m_serviceId = this->m_serviceId;
   LoResTimeStamp = bdPlatformTiming::getLoResTimeStamp();
-  m_transactionID = _RSI->m_transactionID;
-  v11 = LoResTimeStamp;
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  v13 = s_current_spot_to_use % 100;
+  m_transactionID = this->m_transactionID;
+  v9 = LoResTimeStamp;
+  v10 = s_current_spot_to_use % 100;
   ++s_current_spot_to_use;
-  s_last_n_transactions[v13].serviceid = m_serviceId;
-  s_last_n_transactions[v13].starttime = v11;
-  s_last_n_transactions[v13].transactionid = m_transactionID;
-  s_last_n_transactions[v13].taskid = m_taskId;
+  s_last_n_transactions[v10].serviceid = m_serviceId;
+  s_last_n_transactions[v10].starttime = v9;
+  s_last_n_transactions[v10].transactionid = m_transactionID;
+  s_last_n_transactions[v10].taskid = m_taskId;
 }
 
 /*

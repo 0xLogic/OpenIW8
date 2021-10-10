@@ -280,44 +280,43 @@ FenceManager_AreDependenciesMet
 */
 _BOOL8 FenceManager_AreDependenciesMet(int controllerIndex, FenceType fenceType)
 {
-  __int64 v4; 
-  FenceObject *v9; 
+  __int64 v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  unsigned int v7; 
+  FenceObject *v8; 
+  __int64 v10; 
   __int64 v11; 
-  __int64 v12; 
-  int v13; 
+  int v12; 
 
-  v4 = controllerIndex;
+  v3 = controllerIndex;
   if ( s_fenceManagerInitState != FENCE_MANAGER_INITED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 308, ASSERT_TYPE_ASSERT, "(s_fenceManagerInitState == FENCE_MANAGER_INITED)", (const char *)&queryFormat, "s_fenceManagerInitState == FENCE_MANAGER_INITED") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rbx
-  }
+  v4 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000; X }
-  *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-  __asm
   {
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si ebx, xmm1
+    v5 = (float)fenceType;
+    v4 = v5 + 1.8446744e19;
   }
-  if ( _EBX >= 0x1F )
+  v6 = log2f(v4);
+  v7 = (int)(float)(v6 + 0.5);
+  if ( v7 >= 0x1F )
   {
-    v13 = 31;
-    LODWORD(v11) = _EBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 311, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v11, v13) )
+    v12 = 31;
+    LODWORD(v10) = (int)(float)(v6 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 311, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v10, v12) )
       __debugbreak();
   }
-  v9 = s_fenceObjects[v4][_EBX];
-  if ( v9->m_controllerIndex >= 8u )
+  v8 = s_fenceObjects[v3][v7];
+  if ( v8->m_controllerIndex >= 8u )
   {
-    LODWORD(v12) = 8;
-    LODWORD(v11) = v9->m_controllerIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 247, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v11, v12) )
+    LODWORD(v11) = 8;
+    LODWORD(v10) = v8->m_controllerIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 247, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v10, v11) )
       __debugbreak();
   }
-  return v9->m_dependenciesMet;
+  return v8->m_dependenciesMet;
 }
 
 /*
@@ -327,49 +326,48 @@ FenceManager_AreDependenciesMetForAllControllers
 */
 char FenceManager_AreDependenciesMetForAllControllers(FenceType fenceType)
 {
-  __int64 v7; 
+  float v2; 
+  float v3; 
+  float v4; 
+  unsigned int v5; 
+  __int64 v6; 
   char *i; 
-  __int64 v9; 
+  __int64 v8; 
+  __int64 v10; 
   __int64 v11; 
-  __int64 v12; 
-  int v13; 
+  int v12; 
 
   if ( s_fenceManagerInitState != FENCE_MANAGER_INITED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 288, ASSERT_TYPE_ASSERT, "(s_fenceManagerInitState == FENCE_MANAGER_INITED)", (const char *)&queryFormat, "s_fenceManagerInitState == FENCE_MANAGER_INITED") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rbx
-  }
+  v2 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000; X }
-  *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-  __asm
   {
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si edi, xmm1
+    v3 = (float)fenceType;
+    v2 = v3 + 1.8446744e19;
   }
-  if ( _EDI >= 0x1F )
+  v4 = log2f(v2);
+  v5 = (int)(float)(v4 + 0.5);
+  if ( v5 >= 0x1F )
   {
-    v13 = 31;
-    LODWORD(v11) = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 291, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v11, v13) )
+    v12 = 31;
+    LODWORD(v10) = (int)(float)(v4 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 291, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v10, v12) )
       __debugbreak();
   }
-  v7 = 0i64;
-  for ( i = (char *)s_fenceObjects + 8 * (int)_EDI; ; i += 248 )
+  v6 = 0i64;
+  for ( i = (char *)s_fenceObjects + 8 * (int)v5; ; i += 248 )
   {
-    v9 = *(_QWORD *)i;
+    v8 = *(_QWORD *)i;
     if ( *(_DWORD *)(*(_QWORD *)i + 8i64) >= 8u )
     {
-      LODWORD(v12) = 8;
-      LODWORD(v11) = *(_DWORD *)(*(_QWORD *)i + 8i64);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 247, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v11, v12) )
+      LODWORD(v11) = 8;
+      LODWORD(v10) = *(_DWORD *)(*(_QWORD *)i + 8i64);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 247, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v10, v11) )
         __debugbreak();
     }
-    if ( !*(_BYTE *)(v9 + 12) )
+    if ( !*(_BYTE *)(v8 + 12) )
       break;
-    if ( ++v7 >= 8 )
+    if ( ++v6 >= 8 )
       return 1;
   }
   return 0;
@@ -382,134 +380,111 @@ FenceManager_DrawDebug
 */
 void FenceManager_DrawDebug(const int controllerIndex, const CgDrawDebug *drawDebug)
 {
-  __int64 v6; 
+  __int64 v2; 
   LocalClientNum_t ClientFromController; 
-  bool v9; 
-  const ScreenPlacement *v10; 
-  const char **v14; 
-  char *v15; 
-  __int64 v16; 
-  bool v17; 
-  unsigned int v18; 
-  unsigned int v19; 
+  bool v5; 
+  const ScreenPlacement *v6; 
+  __int128 v7; 
+  const char **v8; 
+  char *v9; 
+  __int64 v10; 
+  bool v11; 
+  unsigned int v12; 
+  unsigned int v13; 
   const vec4_t *color; 
-  __int64 (__fastcall *v21)(__int64); 
-  unsigned int v22; 
-  unsigned int v23; 
-  float fmt; 
+  __int64 (__fastcall *v15)(__int64); 
+  unsigned int v16; 
+  unsigned int v17; 
+  double v18; 
+  __int128 v19; 
   char *text; 
   char *label; 
   char dest[64]; 
-  char v34; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  v6 = controllerIndex;
+  v2 = controllerIndex;
   ClientFromController = CL_Mgr_GetClientFromController(controllerIndex);
   if ( activeScreenPlacementMode )
   {
     if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
     {
-      v10 = &scrPlaceViewDisplay[ClientFromController];
+      v6 = &scrPlaceViewDisplay[ClientFromController];
       goto LABEL_8;
     }
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v9 )
+      v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v5 )
       __debugbreak();
   }
-  v10 = &scrPlaceFull;
+  v6 = &scrPlaceFull;
 LABEL_8:
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41a00000
-    vmovss  xmm7, cs:__real@42480000
-    vmovss  xmm8, cs:__real@42960000
-  }
-  v14 = s_fenceNames;
-  v15 = (char *)s_fenceObjects + 248 * v6 - (_QWORD)s_fenceNames;
+  v7 = LODWORD(FLOAT_20_0);
+  v8 = s_fenceNames;
+  v9 = (char *)s_fenceObjects + 248 * v2 - (_QWORD)s_fenceNames;
   do
   {
-    v16 = *(__int64 *)((char *)v14 + (_QWORD)v15);
-    if ( *(_DWORD *)(v16 + 8) >= 8u )
+    v10 = *(__int64 *)((char *)v8 + (_QWORD)v9);
+    if ( *(_DWORD *)(v10 + 8) >= 8u )
     {
       LODWORD(label) = 8;
-      LODWORD(text) = *(_DWORD *)(v16 + 8);
+      LODWORD(text) = *(_DWORD *)(v10 + 8);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 253, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", text, label) )
         __debugbreak();
     }
-    v17 = *(_BYTE *)(v16 + 13) || *(_BYTE *)(v16 + 14);
-    v18 = *(_DWORD *)(v16 + 8);
-    if ( !v17 )
+    v11 = *(_BYTE *)(v10 + 13) || *(_BYTE *)(v10 + 14);
+    v12 = *(_DWORD *)(v10 + 8);
+    if ( !v11 )
     {
-      *(_DWORD *)(v16 + 72) = 0;
-      if ( v18 >= 8 )
+      *(_DWORD *)(v10 + 72) = 0;
+      if ( v12 >= 8 )
       {
         LODWORD(label) = 8;
-        LODWORD(text) = v18;
+        LODWORD(text) = v12;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 247, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", text, label) )
           __debugbreak();
       }
-      v21 = **(__int64 (__fastcall ***)(__int64))v16;
-      if ( *(_BYTE *)(v16 + 12) )
+      v15 = **(__int64 (__fastcall ***)(__int64))v10;
+      if ( *(_BYTE *)(v10 + 12) )
       {
-        v22 = v21(v16);
-        Com_sprintf<64>((char (*)[64])dest, "Active %d  ", v22);
+        v16 = v15(v10);
+        Com_sprintf<64>((char (*)[64])dest, "Active %d  ", v16);
         color = &colorGreen;
       }
       else
       {
-        v23 = v21(v16);
-        Com_sprintf<64>((char (*)[64])dest, "Pending %d  ", v23);
+        v17 = v15(v10);
+        Com_sprintf<64>((char (*)[64])dest, "Pending %d  ", v17);
         color = &colorWhite;
       }
       goto LABEL_33;
     }
-    if ( v18 >= 8 )
+    if ( v12 >= 8 )
     {
       LODWORD(label) = 8;
-      LODWORD(text) = *(_DWORD *)(v16 + 8);
+      LODWORD(text) = *(_DWORD *)(v10 + 8);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 265, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", text, label) )
         __debugbreak();
     }
-    if ( *(_BYTE *)(v16 + 14) )
+    if ( *(_BYTE *)(v10 + 14) )
     {
-      if ( !*(_DWORD *)(v16 + 72) )
-        *(_DWORD *)(v16 + 72) = Sys_Milliseconds();
-      if ( Sys_Milliseconds() - *(_DWORD *)(v16 + 72) < 5000 )
+      if ( !*(_DWORD *)(v10 + 72) )
+        *(_DWORD *)(v10 + 72) = Sys_Milliseconds();
+      if ( Sys_Milliseconds() - *(_DWORD *)(v10 + 72) < 5000 )
       {
-        v19 = (**(__int64 (__fastcall ***)(__int64))v16)(v16);
-        Com_sprintf<64>((char (*)[64])dest, "Failed %d  ", v19);
+        v13 = (**(__int64 (__fastcall ***)(__int64))v10)(v10);
+        Com_sprintf<64>((char (*)[64])dest, "Failed %d  ", v13);
         color = &colorRed;
 LABEL_33:
-        __asm
-        {
-          vmovaps xmm3, xmm6; posY
-          vmovaps xmm2, xmm8; posX
-          vmovss  dword ptr [rsp+0F8h+fmt], xmm7
-        }
-        CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, v10, *(float *)&_XMM2, *(float *)&_XMM3, fmt, dest, *v14, color);
-        __asm { vaddss  xmm6, xmm6, xmm0 }
+        v18 = CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, v6, 75.0, *(float *)&v7, 50.0, dest, *v8, color);
+        v19 = v7;
+        *(float *)&v19 = *(float *)&v7 + *(float *)&v18;
+        v7 = v19;
       }
     }
-    ++v14;
+    ++v8;
   }
-  while ( (__int64)v14 < (__int64)&unk_147806438 );
-  _R11 = &v34;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  while ( (__int64)v8 < (__int64)&unk_147806438 );
 }
 
 /*
@@ -752,36 +727,35 @@ FenceManager_GetErrorCode
 */
 __int64 FenceManager_GetErrorCode(int controllerIndex, FenceType fenceType)
 {
-  __int64 v4; 
-  FenceObject *v9; 
-  __int64 v11; 
-  int v12; 
+  __int64 v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  unsigned int v7; 
+  FenceObject *v8; 
+  __int64 v10; 
+  int v11; 
 
-  v4 = controllerIndex;
+  v3 = controllerIndex;
   if ( s_fenceManagerInitState != FENCE_MANAGER_INITED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 320, ASSERT_TYPE_ASSERT, "(s_fenceManagerInitState == FENCE_MANAGER_INITED)", (const char *)&queryFormat, "s_fenceManagerInitState == FENCE_MANAGER_INITED") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rbx
-  }
+  v4 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000; X }
-  *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-  __asm
   {
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si ebx, xmm1
+    v5 = (float)fenceType;
+    v4 = v5 + 1.8446744e19;
   }
-  if ( _EBX >= 0x1F )
+  v6 = log2f(v4);
+  v7 = (int)(float)(v6 + 0.5);
+  if ( v7 >= 0x1F )
   {
-    v12 = 31;
-    LODWORD(v11) = _EBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 323, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v11, v12) )
+    v11 = 31;
+    LODWORD(v10) = (int)(float)(v6 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 323, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v10, v11) )
       __debugbreak();
   }
-  v9 = s_fenceObjects[v4][_EBX];
-  return v9->GetErrorCode(v9);
+  v8 = s_fenceObjects[v3][v7];
+  return v8->GetErrorCode(v8);
 }
 
 /*
@@ -789,24 +763,18 @@ __int64 FenceManager_GetErrorCode(int controllerIndex, FenceType fenceType)
 FenceManager_GetFenceIndexForFenceType
 ==============
 */
-int FenceManager_GetFenceIndexForFenceType(FenceType fenceType)
+__int64 FenceManager_GetFenceIndexForFenceType(FenceType fenceType)
 {
-  int result; 
+  float v1; 
+  float v2; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-  }
+  v1 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000; X }
-  *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-  __asm
   {
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si eax, xmm1
+    v2 = (float)fenceType;
+    v1 = v2 + 1.8446744e19;
   }
-  return result;
+  return (unsigned int)(int)(float)(log2f(v1) + 0.5);
 }
 
 /*
@@ -898,108 +866,105 @@ FenceManager_GetRootFenceNotPassingForFenceType
 */
 __int64 FenceManager_GetRootFenceNotPassingForFenceType(int controllerIndex, FenceType fenceType)
 {
-  __int64 v3; 
+  __int64 v2; 
+  float v3; 
+  float v4; 
+  unsigned int v5; 
+  __int64 v6; 
+  __int64 v7; 
   __int64 v8; 
   __int64 v9; 
-  __int64 v10; 
-  __int64 v11; 
-  FenceObject *v12; 
+  FenceObject *v10; 
+  int v11; 
+  FenceObject **v12; 
   int v13; 
-  FenceObject **v14; 
-  int v15; 
-  __int64 v16; 
-  __int64 v17; 
-  int v18; 
+  __int64 v14; 
+  __int64 v15; 
+  int v16; 
   FenceObject **j; 
   unsigned __int64 m_fenceDependencies; 
-  FenceObject *v21; 
+  FenceObject *v19; 
   Online_ErrorReporting *InstancePtr; 
-  __int64 v24; 
-  __int64 v25; 
-  unsigned __int64 v26; 
+  __int64 v22; 
+  __int64 v23; 
+  unsigned __int64 v24; 
   FenceObject **i; 
 
-  v3 = controllerIndex;
+  v2 = controllerIndex;
   if ( s_fenceManagerInitState != FENCE_MANAGER_INITED )
     return 0xFFFFFFFFi64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-  }
+  v3 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000; X }
-  *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-  __asm
   {
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si r15d, xmm1
+    v4 = (float)fenceType;
+    v3 = v4 + 1.8446744e19;
   }
-  if ( _ER15 > 0x1E )
+  v5 = (int)(float)(log2f(v3) + 0.5);
+  if ( v5 > 0x1E )
     return 0xFFFFFFFFi64;
-  v8 = 31 * v3;
-  v9 = v3;
-  v10 = (int)_ER15;
-  v26 = 31 * v3;
-  v11 = 31 * v3 + (int)_ER15;
-  v12 = s_fenceObjects[0][v11];
-  if ( v12->m_controllerIndex >= 8u )
+  v6 = 31 * v2;
+  v7 = v2;
+  v8 = (int)v5;
+  v24 = 31 * v2;
+  v9 = 31 * v2 + (int)v5;
+  v10 = s_fenceObjects[0][v9];
+  if ( v10->m_controllerIndex >= 8u )
   {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 259, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v12->m_controllerIndex, 8) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 259, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v10->m_controllerIndex, 8) )
       __debugbreak();
-    v8 = v26;
+    v6 = v24;
   }
-  if ( v12->m_isPassing )
+  if ( v10->m_isPassing )
   {
     return (unsigned int)-1;
   }
   else
   {
-    v13 = 0;
-    if ( s_fenceObjects[0][v11]->m_fenceDependencies )
+    v11 = 0;
+    if ( s_fenceObjects[0][v9]->m_fenceDependencies )
     {
-      v14 = s_fenceObjects[v9];
-      for ( i = v14; ; v14 = i )
+      v12 = s_fenceObjects[v7];
+      for ( i = v12; ; v12 = i )
       {
-        v15 = 0;
-        v16 = v8 + v10;
-        v17 = 0i64;
-        v18 = v13;
-        for ( j = v14; ; ++j )
+        v13 = 0;
+        v14 = v6 + v8;
+        v15 = 0i64;
+        v16 = v11;
+        for ( j = v12; ; ++j )
         {
-          m_fenceDependencies = s_fenceObjects[0][v16]->m_fenceDependencies;
-          if ( _bittest64((const __int64 *)&m_fenceDependencies, (unsigned int)v15) )
+          m_fenceDependencies = s_fenceObjects[0][v14]->m_fenceDependencies;
+          if ( _bittest64((const __int64 *)&m_fenceDependencies, (unsigned int)v13) )
           {
-            v21 = *j;
+            v19 = *j;
             if ( (*j)->m_controllerIndex >= 8u )
             {
-              LODWORD(v25) = 8;
-              LODWORD(v24) = (*j)->m_controllerIndex;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 259, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v24, v25) )
+              LODWORD(v23) = 8;
+              LODWORD(v22) = (*j)->m_controllerIndex;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 259, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v22, v23) )
                 __debugbreak();
             }
-            if ( !v21->m_isPassing )
+            if ( !v19->m_isPassing )
               break;
           }
+          ++v13;
           ++v15;
-          ++v17;
-          if ( v15 >= 31 )
-            return _ER15;
+          if ( v13 >= 31 )
+            return v5;
         }
-        ++v13;
-        _ER15 = v15;
-        v10 = v17;
-        if ( v18 >= 31 )
+        ++v11;
+        v5 = v13;
+        v8 = v15;
+        if ( v16 >= 31 )
           break;
-        v8 = v26;
-        if ( !s_fenceObjects[v26 / 0x1F][v17]->m_fenceDependencies )
-          return _ER15;
+        v6 = v24;
+        if ( !s_fenceObjects[v24 / 0x1F][v15]->m_fenceDependencies )
+          return v5;
       }
       InstancePtr = Online_ErrorReporting::GetInstancePtr();
       Online_ErrorReporting::ReportError(InstancePtr, (Online_Error_CAT_DEFAULT_t)0x400000, NULL);
     }
   }
-  return _ER15;
+  return v5;
 }
 
 /*
@@ -1209,50 +1174,49 @@ FenceManager_IsFenceComplete
 */
 bool FenceManager_IsFenceComplete(int controllerIndex, FenceType fenceType)
 {
-  __int64 v4; 
-  __int64 v9; 
+  __int64 v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  int v7; 
+  __int64 v8; 
+  __int64 v10; 
   __int64 v11; 
-  __int64 v12; 
-  int v13; 
+  int v12; 
 
-  v4 = controllerIndex;
+  v3 = controllerIndex;
   if ( s_fenceManagerInitState != FENCE_MANAGER_INITED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 225, ASSERT_TYPE_ASSERT, "(s_fenceManagerInitState == FENCE_MANAGER_INITED)", (const char *)&queryFormat, "s_fenceManagerInitState == FENCE_MANAGER_INITED") )
     __debugbreak();
-  if ( (unsigned int)v4 >= 8 )
+  if ( (unsigned int)v3 >= 8 )
   {
-    v13 = 8;
-    LODWORD(v11) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 226, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v11, v13) )
+    v12 = 8;
+    LODWORD(v10) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 226, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v10, v12) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rbx
-  }
+  v4 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000; X }
-  *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-  __asm
   {
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si edi, xmm1
+    v5 = (float)fenceType;
+    v4 = v5 + 1.8446744e19;
   }
-  if ( _EDI >= 0x1F )
+  v6 = log2f(v4);
+  v7 = (int)(float)(v6 + 0.5);
+  if ( (unsigned int)v7 >= 0x1F )
   {
-    LODWORD(v12) = 31;
-    LODWORD(v11) = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 229, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v11, v12) )
+    LODWORD(v11) = 31;
+    LODWORD(v10) = (int)(float)(v6 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 229, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v10, v11) )
       __debugbreak();
   }
-  v9 = (int)_EDI + 31 * v4;
-  if ( !s_fenceObjects[0][v9] )
+  v8 = v7 + 31 * v3;
+  if ( !s_fenceObjects[0][v8] )
   {
-    LODWORD(v12) = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 231, ASSERT_TYPE_ASSERT, "(s_fenceObjects[controllerIndex][fenceIndex])", "%s\n\tFenceManager_IsFencePassing : Fence index %d (%s) is not registered with the fence manager", "s_fenceObjects[controllerIndex][fenceIndex]", v12, s_fenceNames[_EDI]) )
+    LODWORD(v11) = (int)(float)(v6 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 231, ASSERT_TYPE_ASSERT, "(s_fenceObjects[controllerIndex][fenceIndex])", "%s\n\tFenceManager_IsFencePassing : Fence index %d (%s) is not registered with the fence manager", "s_fenceObjects[controllerIndex][fenceIndex]", v11, s_fenceNames[v7]) )
       __debugbreak();
   }
-  return FenceObject::IsComplete(s_fenceObjects[0][v9]);
+  return FenceObject::IsComplete(s_fenceObjects[0][v8]);
 }
 
 /*
@@ -1262,59 +1226,58 @@ FenceManager_IsFenceFailed
 */
 _BOOL8 FenceManager_IsFenceFailed(int controllerIndex, FenceType fenceType)
 {
-  __int64 v4; 
-  __int64 v9; 
-  FenceObject *v10; 
+  __int64 v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  int v7; 
+  __int64 v8; 
+  FenceObject *v9; 
+  __int64 v11; 
   __int64 v12; 
-  __int64 v13; 
-  int v14; 
+  int v13; 
 
-  v4 = controllerIndex;
+  v3 = controllerIndex;
   if ( s_fenceManagerInitState != FENCE_MANAGER_INITED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 274, ASSERT_TYPE_ASSERT, "(s_fenceManagerInitState == FENCE_MANAGER_INITED)", (const char *)&queryFormat, "s_fenceManagerInitState == FENCE_MANAGER_INITED") )
     __debugbreak();
-  if ( (unsigned int)v4 >= 8 )
+  if ( (unsigned int)v3 >= 8 )
   {
-    v14 = 8;
-    LODWORD(v12) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 275, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v12, v14) )
+    v13 = 8;
+    LODWORD(v11) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 275, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v11, v13) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rbx
-  }
+  v4 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000; X }
-  *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-  __asm
   {
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si edi, xmm1
+    v5 = (float)fenceType;
+    v4 = v5 + 1.8446744e19;
   }
-  if ( _EDI >= 0x1F )
+  v6 = log2f(v4);
+  v7 = (int)(float)(v6 + 0.5);
+  if ( (unsigned int)v7 >= 0x1F )
   {
-    LODWORD(v13) = 31;
-    LODWORD(v12) = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 278, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v12, v13) )
+    LODWORD(v12) = 31;
+    LODWORD(v11) = (int)(float)(v6 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 278, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v11, v12) )
       __debugbreak();
   }
-  v9 = (int)_EDI + 31 * v4;
-  if ( !s_fenceObjects[0][v9] )
+  v8 = v7 + 31 * v3;
+  if ( !s_fenceObjects[0][v8] )
   {
-    LODWORD(v13) = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 280, ASSERT_TYPE_ASSERT, "(s_fenceObjects[controllerIndex][fenceIndex])", "%s\n\tFenceManager_IsFencePassing : Fence index %d (%s) is not registered with the fence manager", "s_fenceObjects[controllerIndex][fenceIndex]", v13, s_fenceNames[_EDI]) )
+    LODWORD(v12) = (int)(float)(v6 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 280, ASSERT_TYPE_ASSERT, "(s_fenceObjects[controllerIndex][fenceIndex])", "%s\n\tFenceManager_IsFencePassing : Fence index %d (%s) is not registered with the fence manager", "s_fenceObjects[controllerIndex][fenceIndex]", v12, s_fenceNames[v7]) )
       __debugbreak();
   }
-  v10 = s_fenceObjects[0][v9];
-  if ( v10->m_controllerIndex >= 8u )
+  v9 = s_fenceObjects[0][v8];
+  if ( v9->m_controllerIndex >= 8u )
   {
-    LODWORD(v13) = 8;
-    LODWORD(v12) = v10->m_controllerIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 265, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v12, v13) )
+    LODWORD(v12) = 8;
+    LODWORD(v11) = v9->m_controllerIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 265, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v11, v12) )
       __debugbreak();
   }
-  return v10->m_failed;
+  return v9->m_failed;
 }
 
 /*
@@ -1324,50 +1287,49 @@ FenceManager_IsFencePassing
 */
 bool FenceManager_IsFencePassing(int controllerIndex, FenceType fenceType)
 {
-  __int64 v4; 
-  __int64 v9; 
-  FenceObject *v10; 
+  __int64 v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  int v7; 
+  __int64 v8; 
+  FenceObject *v9; 
+  __int64 v11; 
   __int64 v12; 
-  __int64 v13; 
 
-  v4 = controllerIndex;
+  v3 = controllerIndex;
   if ( s_fenceManagerInitState != FENCE_MANAGER_INITED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 239, ASSERT_TYPE_ASSERT, "(s_fenceManagerInitState == FENCE_MANAGER_INITED)", (const char *)&queryFormat, "s_fenceManagerInitState == FENCE_MANAGER_INITED") )
     __debugbreak();
-  if ( (unsigned int)v4 >= 8 )
+  if ( (unsigned int)v3 >= 8 )
   {
-    LODWORD(v12) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 240, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v12, 8) )
+    LODWORD(v11) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 240, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v11, 8) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rbx
-  }
+  v4 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000; X }
-  *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-  __asm
   {
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si edi, xmm1
+    v5 = (float)fenceType;
+    v4 = v5 + 1.8446744e19;
   }
-  if ( _EDI >= 0x1F )
+  v6 = log2f(v4);
+  v7 = (int)(float)(v6 + 0.5);
+  if ( (unsigned int)v7 >= 0x1F )
   {
-    LODWORD(v13) = 31;
-    LODWORD(v12) = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 243, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v12, v13) )
+    LODWORD(v12) = 31;
+    LODWORD(v11) = (int)(float)(v6 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 243, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v11, v12) )
       __debugbreak();
   }
-  v9 = (int)_EDI + 31 * v4;
-  if ( !s_fenceObjects[0][v9] )
+  v8 = v7 + 31 * v3;
+  if ( !s_fenceObjects[0][v8] )
   {
-    LODWORD(v13) = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 245, ASSERT_TYPE_ASSERT, "(s_fenceObjects[controllerIndex][fenceIndex])", "%s\n\tFenceManager_IsFencePassing : Fence index %d (%s) is not registered with the fence manager", "s_fenceObjects[controllerIndex][fenceIndex]", v13, s_fenceNames[_EDI]) )
+    LODWORD(v12) = (int)(float)(v6 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 245, ASSERT_TYPE_ASSERT, "(s_fenceObjects[controllerIndex][fenceIndex])", "%s\n\tFenceManager_IsFencePassing : Fence index %d (%s) is not registered with the fence manager", "s_fenceObjects[controllerIndex][fenceIndex]", v12, s_fenceNames[v7]) )
       __debugbreak();
   }
-  v10 = s_fenceObjects[0][v9];
-  return v10 && FenceObject::IsPassing(v10);
+  v9 = s_fenceObjects[0][v8];
+  return v9 && FenceObject::IsPassing(v9);
 }
 
 /*
@@ -1375,97 +1337,71 @@ bool FenceManager_IsFencePassing(int controllerIndex, FenceType fenceType)
 FenceManager_IsFencePassingForAllControllers
 ==============
 */
-bool FenceManager_IsFencePassingForAllControllers(FenceType fenceType)
+char FenceManager_IsFencePassingForAllControllers(FenceType fenceType)
 {
-  bool v4; 
-  int v6; 
-  __int64 v10; 
-  __int64 v14; 
-  FenceObject *v15; 
-  bool result; 
-  __int64 v19; 
-  __int64 v20; 
-  void *retaddr; 
+  unsigned int v2; 
+  float v3; 
+  float v4; 
+  __int64 i; 
+  float v6; 
+  int v7; 
+  __int64 v8; 
+  FenceObject *v9; 
+  __int64 v11; 
+  __int64 v12; 
 
-  _RAX = &retaddr;
-  v4 = s_fenceManagerInitState == FENCE_MANAGER_INITED;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 258, ASSERT_TYPE_ASSERT, "(s_fenceManagerInitState == FENCE_MANAGER_INITED)", (const char *)&queryFormat, "s_fenceManagerInitState == FENCE_MANAGER_INITED") )
+  if ( s_fenceManagerInitState != FENCE_MANAGER_INITED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 258, ASSERT_TYPE_ASSERT, "(s_fenceManagerInitState == FENCE_MANAGER_INITED)", (const char *)&queryFormat, "s_fenceManagerInitState == FENCE_MANAGER_INITED") )
     __debugbreak();
-  v6 = 0;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, rbx
-  }
+  v2 = 0;
+  v3 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm6, xmm6, cs:__real@5f800000 }
-  __asm { vmovss  xmm7, cs:__real@3f000000 }
-  v10 = 0i64;
-  while ( 1 )
+  {
+    v4 = (float)fenceType;
+    v3 = v4 + 1.8446744e19;
+  }
+  for ( i = 0i64; ; i += 31i64 )
   {
     if ( s_fenceManagerInitState != FENCE_MANAGER_INITED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 239, ASSERT_TYPE_ASSERT, "(s_fenceManagerInitState == FENCE_MANAGER_INITED)", (const char *)&queryFormat, "s_fenceManagerInitState == FENCE_MANAGER_INITED") )
       __debugbreak();
-    if ( (unsigned int)v6 >= 8 )
+    if ( v2 >= 8 )
     {
-      LODWORD(v20) = 8;
-      LODWORD(v19) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 240, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v19, v20) )
+      LODWORD(v12) = 8;
+      LODWORD(v11) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 240, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v11, v12) )
         __debugbreak();
     }
-    __asm { vmovaps xmm0, xmm6; X }
-    *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-    __asm
+    v6 = log2f(v3);
+    v7 = (int)(float)(v6 + 0.5);
+    if ( (unsigned int)v7 >= 0x1F )
     {
-      vaddss  xmm1, xmm0, xmm7
-      vcvttss2si ebx, xmm1
-    }
-    if ( _EBX >= 0x1F )
-    {
-      LODWORD(v20) = 31;
-      LODWORD(v19) = _EBX;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 243, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v19, v20) )
+      LODWORD(v12) = 31;
+      LODWORD(v11) = (int)(float)(v6 + 0.5);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 243, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v11, v12) )
         __debugbreak();
     }
-    v14 = v10 + (int)_EBX;
-    if ( !s_fenceObjects[0][v14] )
+    v8 = i + v7;
+    if ( !s_fenceObjects[0][v8] )
     {
-      LODWORD(v20) = _EBX;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 245, ASSERT_TYPE_ASSERT, "(s_fenceObjects[controllerIndex][fenceIndex])", "%s\n\tFenceManager_IsFencePassing : Fence index %d (%s) is not registered with the fence manager", "s_fenceObjects[controllerIndex][fenceIndex]", v20, s_fenceNames[_EBX]) )
+      LODWORD(v12) = (int)(float)(v6 + 0.5);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 245, ASSERT_TYPE_ASSERT, "(s_fenceObjects[controllerIndex][fenceIndex])", "%s\n\tFenceManager_IsFencePassing : Fence index %d (%s) is not registered with the fence manager", "s_fenceObjects[controllerIndex][fenceIndex]", v12, s_fenceNames[v7]) )
         __debugbreak();
     }
-    v15 = s_fenceObjects[0][v14];
-    if ( !v15 )
+    v9 = s_fenceObjects[0][v8];
+    if ( !v9 )
       break;
-    if ( v15->m_controllerIndex >= 8u )
+    if ( v9->m_controllerIndex >= 8u )
     {
-      LODWORD(v20) = 8;
-      LODWORD(v19) = v15->m_controllerIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 259, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v19, v20) )
+      LODWORD(v12) = 8;
+      LODWORD(v11) = v9->m_controllerIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.h", 259, ASSERT_TYPE_ASSERT, "(unsigned)( m_controllerIndex ) < (unsigned)( 8 )", "m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v11, v12) )
         __debugbreak();
     }
-    if ( !v15->m_isPassing )
+    if ( !v9->m_isPassing )
       break;
-    ++v6;
-    v10 += 31i64;
-    if ( v6 >= 8 )
-    {
-      result = 1;
-      goto LABEL_27;
-    }
+    if ( (int)++v2 >= 8 )
+      return 1;
   }
-  result = 0;
-LABEL_27:
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_38]
-    vmovaps xmm7, [rsp+88h+var_48]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -1492,48 +1428,47 @@ FenceManager_RegisterFence
 */
 void FenceManager_RegisterFence(FenceType fenceType, FenceObject *fence)
 {
+  float v4; 
+  float v5; 
+  float v6; 
+  int v7; 
+  __int64 v8; 
   __int64 v9; 
   __int64 v10; 
-  __int64 v11; 
 
   if ( s_fenceManagerInitState < FENCE_MANAGER_INITING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 203, ASSERT_TYPE_ASSERT, "(s_fenceManagerInitState >= FENCE_MANAGER_INITING)", (const char *)&queryFormat, "s_fenceManagerInitState >= FENCE_MANAGER_INITING") )
     __debugbreak();
   if ( fence->m_controllerIndex >= 8u )
   {
-    LODWORD(v10) = fence->m_controllerIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 204, ASSERT_TYPE_ASSERT, "(unsigned)( fence->m_controllerIndex ) < (unsigned)( 8 )", "fence->m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v10, 8) )
+    LODWORD(v9) = fence->m_controllerIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 204, ASSERT_TYPE_ASSERT, "(unsigned)( fence->m_controllerIndex ) < (unsigned)( 8 )", "fence->m_controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v9, 8) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rbx
-  }
+  v4 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000; X }
-  *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-  __asm
   {
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si ebx, xmm1
+    v5 = (float)fenceType;
+    v4 = v5 + 1.8446744e19;
   }
-  if ( _EBX >= 0x1F )
+  v6 = log2f(v4);
+  v7 = (int)(float)(v6 + 0.5);
+  if ( (unsigned int)v7 >= 0x1F )
   {
-    LODWORD(v11) = 31;
-    LODWORD(v10) = _EBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 207, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v10, v11) )
+    LODWORD(v10) = 31;
+    LODWORD(v9) = (int)(float)(v6 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 207, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v9, v10) )
       __debugbreak();
   }
-  v9 = (int)_EBX + 31i64 * fence->m_controllerIndex;
-  if ( s_fenceObjects[0][v9] )
+  v8 = v7 + 31i64 * fence->m_controllerIndex;
+  if ( s_fenceObjects[0][v8] )
   {
-    LODWORD(v10) = _EBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 211, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "FenceManager_RegisterFence : fence index %d (%s) already has a registered object for controller %d\n", v10, s_fenceNames[_EBX], fence->m_controllerIndex) )
+    LODWORD(v9) = (int)(float)(v6 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 211, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "FenceManager_RegisterFence : fence index %d (%s) already has a registered object for controller %d\n", v9, s_fenceNames[v7], fence->m_controllerIndex) )
       __debugbreak();
   }
   else
   {
-    s_fenceObjects[0][v9] = fence;
+    s_fenceObjects[0][v8] = fence;
   }
 }
 
@@ -1544,89 +1479,79 @@ FenceManager_RegisterForFenceDependenciesUpdatesForAllControllers
 */
 void FenceManager_RegisterForFenceDependenciesUpdatesForAllControllers(FenceType fenceType, void (*callback)(int, bool))
 {
-  int v4; 
+  int v2; 
+  float v4; 
+  float v5; 
+  __int64 v6; 
+  float v7; 
+  int v8; 
   __int64 v9; 
-  __int64 v13; 
-  FenceObject *v14; 
-  int v15; 
-  __int64 v16; 
+  FenceObject *v10; 
+  int v11; 
+  __int64 v12; 
   void (__fastcall **m_callbacks)(int, bool); 
-  __int64 v20; 
-  __int64 v21; 
+  __int64 v14; 
+  __int64 v15; 
 
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  v4 = 0;
-  __asm
-  {
-    vmovaps [rsp+88h+var_48], xmm7
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, rcx
-  }
+  v2 = 0;
+  v4 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm6, xmm6, cs:__real@5f800000 }
-  __asm { vmovss  xmm7, cs:__real@3f000000 }
-  v9 = 0i64;
+  {
+    v5 = (float)fenceType;
+    v4 = v5 + 1.8446744e19;
+  }
+  v6 = 0i64;
   do
   {
     if ( s_fenceManagerInitState != FENCE_MANAGER_INITED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 180, ASSERT_TYPE_ASSERT, "(s_fenceManagerInitState == FENCE_MANAGER_INITED)", (const char *)&queryFormat, "s_fenceManagerInitState == FENCE_MANAGER_INITED") )
       __debugbreak();
-    if ( (unsigned int)v4 >= 8 )
+    if ( (unsigned int)v2 >= 8 )
     {
-      LODWORD(v21) = 8;
-      LODWORD(v20) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 181, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v20, v21) )
+      LODWORD(v15) = 8;
+      LODWORD(v14) = v2;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 181, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v14, v15) )
         __debugbreak();
     }
-    __asm { vmovaps xmm0, xmm6; X }
-    *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-    __asm
+    v7 = log2f(v4);
+    v8 = (int)(float)(v7 + 0.5);
+    if ( (unsigned int)v8 >= 0x1F )
     {
-      vaddss  xmm1, xmm0, xmm7
-      vcvttss2si edi, xmm1
-    }
-    if ( _EDI >= 0x1F )
-    {
-      LODWORD(v21) = 31;
-      LODWORD(v20) = _EDI;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 184, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v20, v21) )
+      LODWORD(v15) = 31;
+      LODWORD(v14) = (int)(float)(v7 + 0.5);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 184, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v14, v15) )
         __debugbreak();
     }
-    v13 = v9 + (int)_EDI;
-    if ( !s_fenceObjects[0][v13] )
+    v9 = v6 + v8;
+    if ( !s_fenceObjects[0][v9] )
     {
-      LODWORD(v21) = _EDI;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 185, ASSERT_TYPE_ASSERT, "(s_fenceObjects[controllerIndex][fenceIndex])", "%s\n\tFenceManager_RegisterForFenceDependenciesUpdatesForController: Fence index %d (%s) is not registered with the fence manager", "s_fenceObjects[controllerIndex][fenceIndex]", v21, s_fenceNames[_EDI]) )
+      LODWORD(v15) = (int)(float)(v7 + 0.5);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 185, ASSERT_TYPE_ASSERT, "(s_fenceObjects[controllerIndex][fenceIndex])", "%s\n\tFenceManager_RegisterForFenceDependenciesUpdatesForController: Fence index %d (%s) is not registered with the fence manager", "s_fenceObjects[controllerIndex][fenceIndex]", v15, s_fenceNames[v8]) )
         __debugbreak();
     }
-    v14 = s_fenceObjects[0][v13];
-    v15 = 0;
-    v16 = 0i64;
-    m_callbacks = v14->m_callbacks;
+    v10 = s_fenceObjects[0][v9];
+    v11 = 0;
+    v12 = 0i64;
+    m_callbacks = v10->m_callbacks;
     while ( *m_callbacks )
     {
-      ++v15;
-      ++v16;
+      ++v11;
+      ++v12;
       ++m_callbacks;
-      if ( v16 >= 4 )
+      if ( v12 >= 4 )
         goto LABEL_21;
     }
-    v14->m_callbacks[v16] = callback;
-    if ( v15 >= 0 )
+    v10->m_callbacks[v12] = callback;
+    if ( v11 >= 0 )
       goto LABEL_23;
 LABEL_21:
-    LODWORD(v20) = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 196, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "FenceManager_RegisterForFenceDependenciesUpdatesForController: No update callback slot found for fence index %d (%s)", v20, s_fenceNames[_EDI]) )
+    LODWORD(v14) = (int)(float)(v7 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 196, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "FenceManager_RegisterForFenceDependenciesUpdatesForController: No update callback slot found for fence index %d (%s)", v14, s_fenceNames[v8]) )
       __debugbreak();
 LABEL_23:
-    ++v4;
-    v9 += 31i64;
+    ++v2;
+    v6 += 31i64;
   }
-  while ( v4 < 8 );
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_38]
-    vmovaps xmm7, [rsp+88h+var_48]
-  }
+  while ( v2 < 8 );
 }
 
 /*
@@ -1636,71 +1561,70 @@ FenceManager_RegisterForFenceDependenciesUpdatesForController
 */
 void FenceManager_RegisterForFenceDependenciesUpdatesForController(int controllerIndex, FenceType fenceType, void (*callback)(int, bool))
 {
-  __int64 v6; 
-  __int64 v11; 
-  FenceObject *v12; 
-  int v13; 
-  __int64 v14; 
+  __int64 v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  int v9; 
+  __int64 v10; 
+  FenceObject *v11; 
+  int v12; 
+  __int64 v13; 
   void (__fastcall **m_callbacks)(int, bool); 
+  __int64 v15; 
   __int64 v16; 
-  __int64 v17; 
-  int v18; 
+  int v17; 
 
-  v6 = controllerIndex;
+  v5 = controllerIndex;
   if ( s_fenceManagerInitState != FENCE_MANAGER_INITED && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 180, ASSERT_TYPE_ASSERT, "(s_fenceManagerInitState == FENCE_MANAGER_INITED)", (const char *)&queryFormat, "s_fenceManagerInitState == FENCE_MANAGER_INITED") )
     __debugbreak();
-  if ( (unsigned int)v6 >= 8 )
+  if ( (unsigned int)v5 >= 8 )
   {
-    v18 = 8;
-    LODWORD(v16) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 181, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v16, v18) )
+    v17 = 8;
+    LODWORD(v15) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 181, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v15, v17) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rbx
-  }
+  v6 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000; X }
-  *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-  __asm
   {
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si esi, xmm1
+    v7 = (float)fenceType;
+    v6 = v7 + 1.8446744e19;
   }
-  if ( _ESI >= 0x1F )
+  v8 = log2f(v6);
+  v9 = (int)(float)(v8 + 0.5);
+  if ( (unsigned int)v9 >= 0x1F )
   {
-    LODWORD(v17) = 31;
-    LODWORD(v16) = _ESI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 184, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v16, v17) )
+    LODWORD(v16) = 31;
+    LODWORD(v15) = (int)(float)(v8 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 184, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v15, v16) )
       __debugbreak();
   }
-  v11 = (int)_ESI + 31 * v6;
-  if ( !s_fenceObjects[0][v11] )
+  v10 = v9 + 31 * v5;
+  if ( !s_fenceObjects[0][v10] )
   {
-    LODWORD(v17) = _ESI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 185, ASSERT_TYPE_ASSERT, "(s_fenceObjects[controllerIndex][fenceIndex])", "%s\n\tFenceManager_RegisterForFenceDependenciesUpdatesForController: Fence index %d (%s) is not registered with the fence manager", "s_fenceObjects[controllerIndex][fenceIndex]", v17, s_fenceNames[_ESI]) )
+    LODWORD(v16) = (int)(float)(v8 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 185, ASSERT_TYPE_ASSERT, "(s_fenceObjects[controllerIndex][fenceIndex])", "%s\n\tFenceManager_RegisterForFenceDependenciesUpdatesForController: Fence index %d (%s) is not registered with the fence manager", "s_fenceObjects[controllerIndex][fenceIndex]", v16, s_fenceNames[v9]) )
       __debugbreak();
   }
-  v12 = s_fenceObjects[0][v11];
-  v13 = 0;
-  v14 = 0i64;
-  m_callbacks = v12->m_callbacks;
+  v11 = s_fenceObjects[0][v10];
+  v12 = 0;
+  v13 = 0i64;
+  m_callbacks = v11->m_callbacks;
   while ( *m_callbacks )
   {
+    ++v12;
     ++v13;
-    ++v14;
     ++m_callbacks;
-    if ( v14 >= 4 )
+    if ( v13 >= 4 )
       goto LABEL_20;
   }
-  v12->m_callbacks[v13] = callback;
-  if ( v13 >= 0 )
+  v11->m_callbacks[v12] = callback;
+  if ( v12 >= 0 )
     return;
 LABEL_20:
-  LODWORD(v16) = _ESI;
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 196, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "FenceManager_RegisterForFenceDependenciesUpdatesForController: No update callback slot found for fence index %d (%s)", v16, s_fenceNames[_ESI]) )
+  LODWORD(v15) = (int)(float)(v8 + 0.5);
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 196, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "FenceManager_RegisterForFenceDependenciesUpdatesForController: No update callback slot found for fence index %d (%s)", v15, s_fenceNames[v9]) )
     __debugbreak();
 }
 
@@ -1782,30 +1706,29 @@ FenceManager_ResetFenceObjectForControllerByType
 */
 void FenceManager_ResetFenceObjectForControllerByType(int controllerIndex, FenceType fenceType, bool shouldClearCallbacks)
 {
-  unsigned int v10; 
-  int v11; 
+  float v5; 
+  float v6; 
+  float v7; 
+  unsigned int v8; 
+  int v9; 
+  int v10; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rdx
-  }
+  v5 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000; X }
-  *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-  __asm
   {
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si ebx, xmm1
+    v6 = (float)fenceType;
+    v5 = v6 + 1.8446744e19;
   }
-  if ( _EBX >= 0x1F )
+  v7 = log2f(v5);
+  v8 = (int)(float)(v7 + 0.5);
+  if ( v8 >= 0x1F )
   {
-    v11 = 31;
-    v10 = _EBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 148, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v10, v11) )
+    v10 = 31;
+    v9 = (int)(float)(v7 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 148, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v9, v10) )
       __debugbreak();
   }
-  FenceManager_ResetFenceObjectForControllerByIndex(controllerIndex, _EBX, shouldClearCallbacks);
+  FenceManager_ResetFenceObjectForControllerByIndex(controllerIndex, v8, shouldClearCallbacks);
 }
 
 /*
@@ -1815,32 +1738,31 @@ FenceManager_ResetFenceObjectForControllers
 */
 void FenceManager_ResetFenceObjectForControllers(FenceType fenceType, bool shouldClearCallbacks)
 {
+  float v3; 
+  float v4; 
+  float v5; 
+  unsigned int v6; 
   int i; 
-  unsigned int v9; 
-  int v10; 
+  int v8; 
+  int v9; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-  }
+  v3 = (float)fenceType;
   if ( fenceType < 0 )
-    __asm { vaddss  xmm0, xmm0, cs:__real@5f800000; X }
-  *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-  __asm
   {
-    vaddss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si edi, xmm1
+    v4 = (float)fenceType;
+    v3 = v4 + 1.8446744e19;
   }
-  if ( _EDI >= 0x1F )
+  v5 = log2f(v3);
+  v6 = (int)(float)(v5 + 0.5);
+  if ( v6 >= 0x1F )
   {
-    v10 = 31;
-    v9 = _EDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 127, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v9, v10) )
+    v9 = 31;
+    v8 = (int)(float)(v5 + 0.5);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\fence_manager.cpp", 127, ASSERT_TYPE_ASSERT, "(unsigned)( fenceIndex ) < (unsigned)( 31 )", "fenceIndex doesn't index FENCE_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
   for ( i = 0; i < 8; ++i )
-    FenceManager_ResetFenceObjectForControllerByIndex(i, _EDI, shouldClearCallbacks);
+    FenceManager_ResetFenceObjectForControllerByIndex(i, v6, shouldClearCallbacks);
 }
 
 /*

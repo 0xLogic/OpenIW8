@@ -192,48 +192,51 @@ AIScriptedInterface::AddEnemySuppressionLine
 */
 void AIScriptedInterface::AddEnemySuppressionLine(AIScriptedInterface *this, sentient_s *pSuppressor, const vec3_t *vStart, const vec3_t *vEnd, const vec3_t *vClosest)
 {
+  ai_scripted_t *m_pAI; 
+  __int128 suppressionMeter_low; 
   sentient_s *sentient; 
   pathnode_t *pClaimedNode; 
   unsigned int eTeam; 
   bitarray<224> *AllCombatTeamFlags; 
-  char v36; 
-  ai_scripted_t *m_pAI; 
-  int v46; 
-  int v49; 
-  __int64 v50; 
-  __int64 v52; 
+  float v17; 
+  float v18; 
+  __int128 v19; 
+  float v23; 
+  float v24; 
+  ai_scripted_t *v25; 
+  int v26; 
+  int v27; 
+  __int64 v28; 
+  float v29; 
+  __int64 v30; 
   int iTime; 
-  int v54; 
-  __int64 v55; 
-  int v56; 
-  ai_scripted_t *v60; 
-  ai_scripted_t *v61; 
-  vec2_t v63; 
+  int v32; 
+  __int64 v33; 
+  int v34; 
+  unsigned __int64 v35; 
+  ai_scripted_t *v36; 
+  ai_scripted_t *v37; 
+  ai_scripted_t *v38; 
+  vec2_t v39; 
   vec2_t forward; 
   vec3_t pos; 
 
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  _R12 = vStart;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 275, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !pSuppressor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 276, ASSERT_TYPE_ASSERT, "(pSuppressor)", (const char *)&queryFormat, "pSuppressor") )
     __debugbreak();
-  _RAX = this->m_pAI;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  xmm0, dword ptr [rax+53Ch]
-    vaddss  xmm1, xmm0, cs:__real@3e19999a
-    vminss  xmm1, xmm1, xmm6
-    vmovss  dword ptr [rax+53Ch], xmm1
-  }
+  m_pAI = this->m_pAI;
+  suppressionMeter_low = LODWORD(m_pAI->suppression.suppressionMeter);
+  *(float *)&suppressionMeter_low = m_pAI->suppression.suppressionMeter + 0.15000001;
+  _XMM1 = suppressionMeter_low;
+  __asm { vminss  xmm1, xmm1, xmm6 }
+  m_pAI->suppression.suppressionMeter = *(float *)&_XMM1;
   AIScriptedInterface::BulletWhizbyNotify(this, pSuppressor, vClosest);
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 96, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 97, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@42800000; dist }
-  if ( AICommonInterface::NearClaimNode(this, *(float *)&_XMM1) )
+  if ( AICommonInterface::NearClaimNode(this, 64.0) )
   {
     sentient = this->m_pAI->sentient;
     pClaimedNode = sentient->pClaimedNode;
@@ -249,108 +252,73 @@ void AIScriptedInterface::AddEnemySuppressionLine(AIScriptedInterface *this, sen
         if ( bitarray_base<bitarray<224>>::testBit(AllCombatTeamFlags, eTeam) )
           Path_ActorMarkNodeDangerous(pClaimedNode, this->m_pAI->sentient->eTeam);
         pathnode_t::GetForward(pClaimedNode, &forward);
+        v17 = vStart->v[0] - vEnd->v[0];
+        v19 = LODWORD(vStart->v[1]);
+        v18 = vStart->v[1] - vEnd->v[1];
+        *(float *)&v19 = fsqrt((float)(v18 * v18) + (float)(v17 * v17));
+        _XMM3 = v19;
         __asm
         {
-          vmovss  xmm0, dword ptr [r12]
-          vsubss  xmm5, xmm0, dword ptr [r15]
-          vmovss  xmm1, dword ptr [r12+4]
-          vsubss  xmm4, xmm1, dword ptr [r15+4]
-          vmulss  xmm0, xmm5, xmm5
-          vmulss  xmm2, xmm4, xmm4
-          vaddss  xmm1, xmm2, xmm0
-          vsqrtss xmm3, xmm1, xmm1
           vcmpless xmm0, xmm3, cs:__real@80000000
           vblendvps xmm0, xmm3, xmm6, xmm0
-          vdivss  xmm1, xmm6, xmm0
-          vmulss  xmm0, xmm4, xmm1
-          vmulss  xmm3, xmm0, dword ptr [rsp+0A8h+forward+4]
-          vmulss  xmm1, xmm5, xmm1
-          vmulss  xmm2, xmm1, dword ptr [rsp+0A8h+forward]
-          vaddss  xmm0, xmm3, xmm2
-          vcomiss xmm0, cs:__real@3f000000
         }
-        if ( !v36 )
+        if ( (float)((float)((float)(v18 * (float)(1.0 / *(float *)&_XMM0)) * forward.v[1]) + (float)((float)(v17 * (float)(1.0 / *(float *)&_XMM0)) * forward.v[0])) >= 0.5 )
         {
-          __asm { vmovaps [rsp+0A8h+var_48], xmm7 }
-          pathnode_t::GetForward(pClaimedNode, &v63);
+          pathnode_t::GetForward(pClaimedNode, &v39);
           if ( pClaimedNode->constant.type == 7 )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+0A8h+var_78+4]
-              vxorps  xmm6, xmm0, cs:__xmm@80000000800000008000000080000000
-              vmovss  xmm7, dword ptr [rsp+0A8h+var_78]
-            }
+            LODWORD(v23) = LODWORD(v39.v[1]) ^ _xmm;
+            v24 = v39.v[0];
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+0A8h+var_78]
-              vxorps  xmm7, xmm0, cs:__xmm@80000000800000008000000080000000
-              vmovss  xmm6, dword ptr [rsp+0A8h+var_78+4]
-            }
+            LODWORD(v24) = LODWORD(v39.v[0]) ^ _xmm;
+            v23 = v39.v[1];
           }
           pathnode_t::GetPos(pClaimedNode, &pos);
-          __asm
+          v25 = this->m_pAI;
+          v26 = 0;
+          v27 = 0;
+          v28 = 0i64;
+          v29 = (float)((float)((float)(v24 * 32.0) + pos.v[1]) * v24) + (float)((float)((float)(v23 * 32.0) + pos.v[0]) * v23);
+          v30 = 0i64;
+          while ( v25->Suppressant[v30].movementOnly )
           {
-            vmulss  xmm0, xmm7, cs:__real@42000000
-            vaddss  xmm1, xmm0, dword ptr [rsp+0A8h+pos+4]
-            vmulss  xmm2, xmm6, cs:__real@42000000
-            vaddss  xmm0, xmm2, dword ptr [rsp+0A8h+pos]
-          }
-          m_pAI = this->m_pAI;
-          v46 = 0;
-          __asm
-          {
-            vmulss  xmm3, xmm1, xmm7
-            vmulss  xmm1, xmm0, xmm6
-          }
-          v49 = 0;
-          v50 = 0i64;
-          __asm { vaddss  xmm4, xmm3, xmm1 }
-          v52 = 0i64;
-          while ( m_pAI->Suppressant[v52].movementOnly )
-          {
-            iTime = m_pAI->Suppressant[v52].iTime;
-            v54 = m_pAI->Suppressant[v50].iTime;
-            v55 = v52;
-            if ( iTime >= v54 )
-              v55 = v50;
-            v50 = v55;
-            v56 = v49;
-            if ( iTime >= v54 )
-              v56 = v46;
-            ++v49;
-            ++v52;
-            v46 = v56;
-            if ( v49 >= 4 )
+            iTime = v25->Suppressant[v30].iTime;
+            v32 = v25->Suppressant[v28].iTime;
+            v33 = v30;
+            if ( iTime >= v32 )
+              v33 = v28;
+            v28 = v33;
+            v34 = v27;
+            if ( iTime >= v32 )
+              v34 = v26;
+            ++v27;
+            ++v30;
+            v26 = v34;
+            if ( v27 >= 4 )
               goto LABEL_34;
           }
-          v46 = v49;
+          v26 = v27;
 LABEL_34:
-          _RCX = v46;
-          m_pAI->Suppressant[_RCX].iTime = level.time;
-          this->m_pAI->Suppressant[_RCX].pSuppressor = pSuppressor;
-          _RAX = this->m_pAI;
-          __asm
-          {
-            vmovss  dword ptr [rcx+rax+55Ch], xmm7
-            vmovaps xmm7, [rsp+0A8h+var_48]
-            vmovss  dword ptr [rcx+rax+558h], xmm6
-            vmovss  dword ptr [rcx+rax+560h], xmm4
-          }
-          v60 = this->m_pAI;
-          if ( v60->suppression.ignoreSuppression )
+          v35 = v26;
+          v25->Suppressant[v35].iTime = level.time;
+          this->m_pAI->Suppressant[v35].pSuppressor = pSuppressor;
+          v36 = this->m_pAI;
+          v36->Suppressant[v35].clipPlane.v[1] = v24;
+          v36->Suppressant[v35].clipPlane.v[0] = v23;
+          v36->Suppressant[v35].clipPlane.v[2] = v29;
+          v37 = this->m_pAI;
+          if ( v37->suppression.ignoreSuppression )
           {
             AIScriptedInterface::BulletWhizbyNotify(this, pSuppressor, vClosest);
           }
           else
           {
-            v60->Suppressant[_RCX].movementOnly = 0;
-            v61 = this->m_pAI;
-            if ( !v61->suppression.suppressionStartTime )
-              v61->suppression.suppressionStartTime = level.time;
+            v37->Suppressant[v35].movementOnly = 0;
+            v38 = this->m_pAI;
+            if ( !v38->suppression.suppressionStartTime )
+              v38->suppression.suppressionStartTime = level.time;
             GScr_AddEntity(pSuppressor->ent);
             GScr_Notify(this->m_pAI->ent, scr_const.suppression, 1u);
           }
@@ -358,7 +326,6 @@ LABEL_34:
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
 }
 
 /*
@@ -368,175 +335,137 @@ AIScriptedInterface::AddFriendlySuppressionLine
 */
 void AIScriptedInterface::AddFriendlySuppressionLine(AIScriptedInterface *this, sentient_s *pSuppressor, const vec3_t *vStart, const vec3_t *vEnd, const vec3_t *vClosest)
 {
+  __int128 v5; 
+  const dvar_t *v10; 
   const dvar_t *v11; 
-  char v13; 
-  bool v14; 
   ai_scripted_t *m_pAI; 
-  int v52; 
-  int v53; 
-  __int64 v54; 
-  __int64 v55; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  __int128 v17; 
+  gentity_s *ent; 
+  float v19; 
+  float v20; 
+  float v24; 
+  float v25; 
+  float v26; 
+  int v27; 
+  int v28; 
+  __int64 v29; 
+  __int64 v30; 
   int iTime; 
-  int v57; 
-  __int64 v58; 
-  int v59; 
-  AIWrapper v71; 
+  int v32; 
+  __int64 v33; 
+  int v34; 
+  __int64 v35; 
+  ai_scripted_t *v36; 
+  AIWrapper v37; 
   vec2_t planeNormal; 
   vec3_t vProj; 
+  __int128 v40; 
 
-  _R15 = vEnd;
-  _R14 = vStart;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 193, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !pSuppressor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 194, ASSERT_TYPE_ASSERT, "(pSuppressor)", (const char *)&queryFormat, "pSuppressor") )
     __debugbreak();
-  v11 = DVARINT_ai_friendlyFireBlockDuration;
+  v10 = DVARINT_ai_friendlyFireBlockDuration;
   if ( !DVARINT_ai_friendlyFireBlockDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_friendlyFireBlockDuration") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( v11->current.integer )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( v10->current.integer )
   {
-    AIWrapper::AIWrapper(&v71, pSuppressor->ent);
-    if ( v71.m_pAI )
+    AIWrapper::AIWrapper(&v37, pSuppressor->ent);
+    if ( v37.m_pAI )
     {
-      if ( this->m_pAI->suppression.ignoreSuppression || ((unsigned __int8 (*)(void))v71.m_pAI->IsMoving)() )
+      if ( this->m_pAI->suppression.ignoreSuppression || ((unsigned __int8 (*)(void))v37.m_pAI->IsMoving)() )
         return;
-      _RSI = DVARFLT_ai_friendlySuppressionDist;
+      v11 = DVARFLT_ai_friendlySuppressionDist;
       if ( !DVARFLT_ai_friendlySuppressionDist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_friendlySuppressionDist") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      _RCX = pSuppressor->ent;
+      Dvar_CheckFrontendServerThread(v11);
       m_pAI = this->m_pAI;
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rsi+28h]
-        vmovss  xmm0, dword ptr [rcx+130h]
-        vmovss  xmm1, dword ptr [rcx+134h]
-        vsubss  xmm3, xmm0, dword ptr [rax+130h]
-        vsubss  xmm2, xmm1, dword ptr [rax+134h]
-        vmovss  xmm0, dword ptr [rcx+138h]
-        vsubss  xmm4, xmm0, dword ptr [rax+138h]
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm2, xmm2, xmm2
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm4, xmm3, xmm0
-        vmulss  xmm1, xmm5, xmm5
-        vcomiss xmm4, xmm1
-      }
-      if ( !(v13 | v14) )
+      v13 = pSuppressor->ent->r.currentOrigin.v[0] - m_pAI->ent->r.currentOrigin.v[0];
+      v14 = pSuppressor->ent->r.currentOrigin.v[1] - m_pAI->ent->r.currentOrigin.v[1];
+      v15 = pSuppressor->ent->r.currentOrigin.v[2] - m_pAI->ent->r.currentOrigin.v[2];
+      if ( (float)((float)((float)(v14 * v14) + (float)(v13 * v13)) + (float)(v15 * v15)) > (float)(v11->current.value * v11->current.value) )
         return;
     }
     else
     {
       AIScriptedInterface::BulletWhizbyNotify(this, pSuppressor, vClosest);
       m_pAI = this->m_pAI;
-      v13 = 0;
-      v14 = !m_pAI->suppression.ignorePlayerSuppressionLines;
       if ( m_pAI->suppression.ignorePlayerSuppressionLines )
         return;
     }
+    v17 = LODWORD(vEnd->v[0]);
+    v16 = vEnd->v[0] - vStart->v[0];
+    ent = m_pAI->ent;
+    v40 = v5;
+    v19 = vStart->v[1];
+    v20 = v19 - vEnd->v[1];
+    *(float *)&v17 = fsqrt((float)(v16 * v16) + (float)(v20 * v20));
+    _XMM3 = v17;
     __asm
     {
-      vmovss  xmm0, dword ptr [r15]
-      vsubss  xmm5, xmm0, dword ptr [r14]
-      vmovaps [rsp+128h+var_58], xmm6
-      vmovaps [rsp+128h+var_68], xmm7
-      vmovss  xmm7, dword ptr [r14+4]
-      vsubss  xmm4, xmm7, dword ptr [r15+4]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm2, xmm5, xmm5
-      vaddss  xmm0, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vsqrtss xmm3, xmm0, xmm0
       vcmpless xmm0, xmm3, cs:__real@80000000
       vblendvps xmm0, xmm3, xmm1, xmm0
-      vdivss  xmm1, xmm1, xmm0
-      vmulss  xmm2, xmm4, xmm1
-      vmulss  xmm3, xmm5, xmm1
-      vmulss  xmm1, xmm2, dword ptr [r14]
-      vmulss  xmm0, xmm3, xmm7
-      vmovaps xmm7, [rsp+128h+var_68]
-      vaddss  xmm6, xmm1, xmm0
-      vmulss  xmm1, xmm3, dword ptr [rax+134h]
-      vmulss  xmm0, xmm2, dword ptr [rax+130h]
-      vaddss  xmm1, xmm1, xmm0
-      vcomiss xmm1, xmm6
-      vmovss  dword ptr [rsp+128h+planeNormal], xmm2
-      vmovss  dword ptr [rsp+128h+planeNormal+4], xmm3
     }
-    if ( !(v13 | v14) )
+    v24 = v20 * (float)(1.0 / *(float *)&_XMM0);
+    v25 = v16 * (float)(1.0 / *(float *)&_XMM0);
+    v26 = (float)(v24 * vStart->v[0]) + (float)(v25 * v19);
+    *(float *)&v17 = (float)(v25 * ent->r.currentOrigin.v[1]) + (float)(v24 * ent->r.currentOrigin.v[0]);
+    planeNormal.v[0] = v24;
+    planeNormal.v[1] = v25;
+    if ( *(float *)&v17 > v26 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:__xmm@80000000800000008000000080000000
-        vxorps  xmm2, xmm2, xmm0
-        vxorps  xmm3, xmm3, xmm0
-        vmovss  dword ptr [rsp+128h+planeNormal], xmm2
-        vmovss  dword ptr [rsp+128h+planeNormal+4], xmm3
-        vxorps  xmm6, xmm6, xmm0
-      }
+      LODWORD(v24) ^= _xmm;
+      LODWORD(v25) ^= _xmm;
+      planeNormal.v[0] = v24;
+      planeNormal.v[1] = v25;
+      LODWORD(v26) ^= _xmm;
     }
-    v52 = 0;
-    v53 = 0;
-    v54 = 0i64;
-    v55 = 0i64;
-    while ( m_pAI->Suppressant[v55].pSuppressor != pSuppressor )
+    v27 = 0;
+    v28 = 0;
+    v29 = 0i64;
+    v30 = 0i64;
+    while ( m_pAI->Suppressant[v30].pSuppressor != pSuppressor )
     {
-      iTime = m_pAI->Suppressant[v55].iTime;
-      v57 = m_pAI->Suppressant[v54].iTime;
-      v58 = v55;
-      if ( iTime >= v57 )
-        v58 = v54;
-      v54 = v58;
-      v59 = v53;
-      if ( iTime >= v57 )
-        v59 = v52;
-      ++v53;
-      ++v55;
-      v52 = v59;
-      if ( v53 >= 4 )
+      iTime = m_pAI->Suppressant[v30].iTime;
+      v32 = m_pAI->Suppressant[v29].iTime;
+      v33 = v30;
+      if ( iTime >= v32 )
+        v33 = v29;
+      v29 = v33;
+      v34 = v28;
+      if ( iTime >= v32 )
+        v34 = v27;
+      ++v28;
+      ++v30;
+      v27 = v34;
+      if ( v28 >= 4 )
         goto LABEL_31;
     }
-    v52 = v53;
+    v27 = v28;
 LABEL_31:
-    _RDX = v52;
-    this->m_pAI->Suppressant[_RDX].iTime = level.time;
-    this->m_pAI->Suppressant[_RDX].pSuppressor = pSuppressor;
-    _RAX = this->m_pAI;
-    __asm
-    {
-      vmovss  dword ptr [rdx+rax+558h], xmm2
-      vmovss  dword ptr [rdx+rax+55Ch], xmm3
-      vmovss  dword ptr [rdx+rax+560h], xmm6
-    }
-    this->m_pAI->Suppressant[_RDX].movementOnly = 1;
+    v35 = v27;
+    this->m_pAI->Suppressant[v35].iTime = level.time;
+    this->m_pAI->Suppressant[v35].pSuppressor = pSuppressor;
+    v36 = this->m_pAI;
+    v36->Suppressant[v35].clipPlane.v[0] = v24;
+    v36->Suppressant[v35].clipPlane.v[1] = v25;
+    v36->Suppressant[v35].clipPlane.v[2] = v26;
+    this->m_pAI->Suppressant[v35].movementOnly = 1;
     if ( this->m_pAI->eState[this->m_pAI->stateLevel] == AIS_BEHAVE && AICommonInterface::HasPath(this) )
     {
-      ProjectPointOntoVector(&this->m_pAI->ent->r.currentOrigin, _R14, _R15, &vProj, NULL);
-      __asm
+      ProjectPointOntoVector(&this->m_pAI->ent->r.currentOrigin, vStart, vEnd, &vProj, NULL);
+      if ( (float)((float)((float)(vProj.v[1] - this->m_pAI->ent->r.currentOrigin.v[1]) * (float)(vProj.v[1] - this->m_pAI->ent->r.currentOrigin.v[1])) + (float)((float)(vProj.v[0] - this->m_pAI->ent->r.currentOrigin.v[0]) * (float)(vProj.v[0] - this->m_pAI->ent->r.currentOrigin.v[0]))) > 576.0 && AIScriptedInterface::DoesPathCrossPlane(this, planeNormal, v26) )
       {
-        vmovss  xmm0, dword ptr [rsp+128h+vProj]
-        vmovss  xmm1, dword ptr [rsp+128h+vProj+4]
-        vsubss  xmm3, xmm1, dword ptr [rcx+134h]
-        vsubss  xmm5, xmm0, dword ptr [rcx+130h]
-        vmulss  xmm4, xmm3, xmm3
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm1, xmm4, xmm0
-        vcomiss xmm1, cs:__real@44100000
-      }
-      if ( !(v13 | v14) )
-      {
-        __asm { vmovaps xmm2, xmm6; planeDistance }
-        if ( AIScriptedInterface::DoesPathCrossPlane(this, planeNormal, *(float *)&_XMM2) )
-        {
-          if ( !this->m_pAI->pNavigator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 260, ASSERT_TYPE_ASSERT, "(m_pAI->pNavigator)", (const char *)&queryFormat, "m_pAI->pNavigator") )
-            __debugbreak();
-          AINavigator::PathSuppressed(this->m_pAI->pNavigator);
-        }
+        if ( !this->m_pAI->pNavigator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 260, ASSERT_TYPE_ASSERT, "(m_pAI->pNavigator)", (const char *)&queryFormat, "m_pAI->pNavigator") )
+          __debugbreak();
+        AINavigator::PathSuppressed(this->m_pAI->pNavigator);
       }
     }
-    __asm { vmovaps xmm6, [rsp+128h+var_58] }
   }
 }
 
@@ -560,43 +489,35 @@ AIScriptedInterface::BulletWhizbyNotify
 */
 void AIScriptedInterface::BulletWhizbyNotify(AIScriptedInterface *this, sentient_s *pSuppressor, const vec3_t *vClosest)
 {
-  scrContext_t *v16; 
+  ai_scripted_t *m_pAI; 
+  float v7; 
+  float v8; 
+  float v9; 
+  scrContext_t *v10; 
   team_t eTeam; 
 
-  _RBX = vClosest;
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 125, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   if ( !pSuppressor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 126, ASSERT_TYPE_ASSERT, "(pSuppressor)", (const char *)&queryFormat, "pSuppressor") )
     __debugbreak();
   if ( !this->IsInExecution(this) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmovaps [rsp+58h+var_28], xmm6
-      vsubss  xmm2, xmm1, dword ptr [rcx+134h]
-      vsubss  xmm4, xmm0, dword ptr [rcx+130h]
-      vmulss  xmm3, xmm2, xmm2
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm3, xmm0
-      vsqrtss xmm6, xmm1, xmm1
-      vmovaps xmm1, xmm6; value
-    }
-    v16 = ScriptContext_Server();
-    Scr_AddFloat(v16, *(float *)&_XMM1);
+    m_pAI = this->m_pAI;
+    v7 = vClosest->v[1] - m_pAI->ent->r.currentOrigin.v[1];
+    v8 = vClosest->v[0] - m_pAI->ent->r.currentOrigin.v[0];
+    v9 = fsqrt((float)(v7 * v7) + (float)(v8 * v8));
+    v10 = ScriptContext_Server();
+    Scr_AddFloat(v10, v9);
     GScr_AddEntity(pSuppressor->ent);
     GScr_Notify(this->m_pAI->ent, scr_const.bulletwhizby, 2u);
-    Scr_MakeArray(v16);
+    Scr_MakeArray(v10);
     GScr_AddEntity(pSuppressor->ent);
-    Scr_AddArray(v16);
-    __asm { vmovaps xmm1, xmm6; value }
-    Scr_AddFloat(v16, *(float *)&_XMM1);
-    Scr_AddArray(v16);
-    Scr_AddConstString(v16, scr_const.bulletwhizby);
+    Scr_AddArray(v10);
+    Scr_AddFloat(v10, v9);
+    Scr_AddArray(v10);
+    Scr_AddConstString(v10, scr_const.bulletwhizby);
     GScr_Notify(this->m_pAI->ent, scr_const.ai_notify, 2u);
     eTeam = pSuppressor->eTeam;
-    __asm { vmovaps xmm6, [rsp+58h+var_28] }
     if ( eTeam == TEAM_ZERO || eTeam != this->m_pAI->sentient->eTeam )
       AIScriptedInterface::UpdateWhizbyAnim(this);
   }
@@ -607,254 +528,210 @@ void AIScriptedInterface::BulletWhizbyNotify(AIScriptedInterface *this, sentient
 AIScriptedInterface::CalcSuppressSpot
 ==============
 */
-bool AIScriptedInterface::CalcSuppressSpot(AIScriptedInterface *this, const vec3_t *shootFromPos, const vec3_t *curEnemyPos, int numGoodTracesOverride, vec3_t *outShootPos)
+char AIScriptedInterface::CalcSuppressSpot(AIScriptedInterface *this, const vec3_t *shootFromPos, const vec3_t *curEnemyPos, int numGoodTracesOverride, vec3_t *outShootPos)
 {
-  char v83; 
+  ai_scripted_t *m_pAI; 
+  float v9; 
+  HavokPhysics_CollisionQueryResult *CollisionQueryResult; 
+  hkMemoryAllocator *v11; 
+  hkMemoryAllocator *v12; 
+  __int128 v13; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v18; 
+  __int128 v19; 
+  __int128 v20; 
+  __int128 v21; 
+  __int128 v22; 
+  float v23; 
+  float v24; 
+  __int128 v25; 
+  float v26; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  int v34; 
+  float v35; 
+  __int128 v36; 
+  __int128 v37; 
+  __int128 v38; 
+  __int128 v39; 
+  __int128 v40; 
+  __int128 v41; 
+  char v43; 
   bool bIgnoreFoliage; 
-  int v85; 
-  int v86; 
-  bool v91; 
-  bool result; 
-  int v124; 
-  int v125; 
-  float pos_8; 
+  int v45; 
+  int v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  bool v50; 
+  float v51; 
+  __int128 v52; 
+  __int128 v53; 
+  __int128 v54; 
+  float v55; 
+  float v56; 
+  int v58; 
+  int v59; 
+  Physics_RaycastExtendedData extendedData; 
+  HavokPhysics_IgnoreBodies v62; 
+  __int64 v63; 
+  vec3_t pos; 
   vec3_t endPos; 
-  char v132; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  _RBX = curEnemyPos;
-  _R14 = outShootPos;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8]
-    vmovss  dword ptr [rbp+0B0h+pos], xmm0
-    vmovss  xmm1, dword ptr [r8+4]
-    vmovss  dword ptr [rbp+0B0h+pos+4], xmm1
-    vmovss  xmm0, dword ptr [r8+8]
-    vmovss  dword ptr [rbp+0B0h+pos+8], xmm0
-  }
+  v63 = -2i64;
+  pos = *curEnemyPos;
   if ( !this->m_pAI->sight.lastEnemySightPosValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 367, ASSERT_TYPE_ASSERT, "(m_pAI->sight.lastEnemySightPosValid)", (const char *)&queryFormat, "m_pAI->sight.lastEnemySightPosValid") )
     __debugbreak();
-  _RAX = this->m_pAI;
+  m_pAI = this->m_pAI;
+  v9 = curEnemyPos->v[1] - m_pAI->sight.lastEnemySightPos.v[1];
+  if ( (float)((float)(v9 * v9) + (float)((float)(curEnemyPos->v[0] - m_pAI->sight.lastEnemySightPos.v[0]) * (float)(curEnemyPos->v[0] - m_pAI->sight.lastEnemySightPos.v[0]))) > 225.0 )
+  {
+    CollisionQueryResult = Physics_AllocateCollisionQueryResult(PHYSICS_WORLD_ID_FIRST, PHYSICS_COLLISIONQUERY_COLLECTION_TYPE_CLOSEST);
+    HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v62, 0, 0);
+    extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
+    extendedData.collisionBuffer = 0.0;
+    extendedData.phaseSelection = All;
+    extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
+    *(_WORD *)&extendedData.collectInsideHits = 256;
+    extendedData.contents = 8399137;
+    extendedData.ignoreBodies = &v62;
+    Physics_Raycast(PHYSICS_WORLD_ID_FIRST, &this->m_pAI->sight.lastEnemySightPos, curEnemyPos, &extendedData, CollisionQueryResult);
+    if ( HavokPhysics_CollisionQueryResult::HasHit(CollisionQueryResult) )
+      HavokPhysics_CollisionQueryResult::GetRaycastHitPosition(CollisionQueryResult, 0, &pos);
+    Physics_FreeCollisionQueryResult(CollisionQueryResult);
+    v11 = hkMemHeapAllocator();
+    v62.m_ignoreBodies.m_size = 0;
+    if ( v62.m_ignoreBodies.m_capacityAndFlags >= 0 )
+      hkMemoryAllocator::bufFree2(v11, v62.m_ignoreBodies.m_data, 4, v62.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+    v62.m_ignoreBodies.m_data = NULL;
+    v62.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+    v12 = hkMemHeapAllocator();
+    v62.m_ignoreEntities.m_size = 0;
+    if ( v62.m_ignoreEntities.m_capacityAndFlags >= 0 )
+      hkMemoryAllocator::bufFree2(v12, v62.m_ignoreEntities.m_data, 8, v62.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+    m_pAI = this->m_pAI;
+  }
+  v13 = LODWORD(m_pAI->sight.lastEnemySightPos.v[0]);
+  _XMM12 = LODWORD(pos.v[0]);
+  v16 = v13;
+  *(float *)&v16 = *(float *)&v13 - pos.v[0];
+  v15 = v16;
+  v17 = LODWORD(m_pAI->sight.lastEnemySightPos.v[1]);
+  v19 = v17;
+  *(float *)&v19 = *(float *)&v17 - pos.v[1];
+  v18 = v19;
+  v20 = LODWORD(m_pAI->sight.lastEnemySightPos.v[2]);
+  v22 = v20;
+  *(float *)&v22 = *(float *)&v20 - pos.v[2];
+  v21 = v22;
+  v23 = *(float *)&v13 - shootFromPos->v[0];
+  v25 = v17;
+  v24 = *(float *)&v17 - shootFromPos->v[1];
+  v26 = *(float *)&v20 - shootFromPos->v[2];
+  *(float *)&v25 = fsqrt((float)((float)(v24 * v24) + (float)(v23 * v23)) + (float)(v26 * v26));
+  _XMM3 = v25;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm4, xmm0, dword ptr [rax+0B8h]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vsubss  xmm2, xmm1, dword ptr [rax+0BCh]
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm1, xmm3, xmm0
-    vcomiss xmm1, cs:__real@43610000
-    vmovss  xmm2, dword ptr [rax+0B8h]
-    vmovss  xmm12, dword ptr [rbp+0B0h+pos]
-    vsubss  xmm10, xmm2, xmm12
-    vmovss  xmm1, dword ptr [rax+0BCh]
-    vmovss  xmm11, dword ptr [rbp+0B0h+pos+4]
-    vsubss  xmm9, xmm1, xmm11
-    vmovss  xmm0, dword ptr [rax+0C0h]
-    vsubss  xmm8, xmm0, dword ptr [rbp+0B0h+pos+8]
-    vsubss  xmm4, xmm2, dword ptr [r13+0]
-    vsubss  xmm5, xmm1, dword ptr [r13+4]
-    vsubss  xmm6, xmm0, dword ptr [r13+8]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
-    vmovss  xmm7, cs:__real@3f800000
     vblendvps xmm0, xmm3, xmm7, xmm0
-    vdivss  xmm1, xmm7, xmm0
-    vmulss  xmm13, xmm4, xmm1
-    vmulss  xmm14, xmm5, xmm1
-    vmulss  xmm15, xmm6, xmm1
-    vmulss  xmm1, xmm14, xmm9
-    vmulss  xmm0, xmm13, xmm10
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm15, xmm8
-    vaddss  xmm3, xmm2, xmm1
-    vxorps  xmm4, xmm3, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm0, xmm4, xmm13
-    vaddss  xmm5, xmm0, xmm10
-    vmulss  xmm1, xmm4, xmm14
-    vaddss  xmm2, xmm1, xmm9
-    vmulss  xmm0, xmm4, xmm15
-    vaddss  xmm4, xmm0, xmm8
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vmulss  xmm3, xmm1, cs:__real@3d4ccccd
-    vcvttss2si eax, xmm3
   }
-  if ( _EAX > 4 )
-    _EAX = 4;
-  if ( _EAX < 1 )
-    _EAX = 1;
-  v125 = _EAX;
-  _ECX = _EAX + 1;
-  __asm
-  {
-    vmovd   xmm0, ecx
-    vcvtdq2ps xmm0, xmm0
-    vdivss  xmm1, xmm7, xmm0
-    vmulss  xmm6, xmm10, xmm1
-    vmulss  xmm7, xmm9, xmm1
-    vmulss  xmm8, xmm8, xmm1
-    vunpcklps xmm0, xmm12, xmm11
-    vmovsd  qword ptr [rbp+0B0h+pos], xmm0
-    vmovsd  qword ptr [rbp+0B0h+endPos], xmm0
-  }
-  endPos.v[2] = pos_8;
-  v83 = 0;
+  v30 = v23 * (float)(1.0 / *(float *)&_XMM0);
+  v31 = v24 * (float)(1.0 / *(float *)&_XMM0);
+  v32 = v26 * (float)(1.0 / *(float *)&_XMM0);
+  LODWORD(v33) = COERCE_UNSIGNED_INT((float)((float)(v31 * *(float *)&v18) + (float)(v30 * *(float *)&v15)) + (float)(v32 * *(float *)&v21)) ^ _xmm;
+  v34 = (int)(float)(fsqrt((float)((float)((float)((float)(v33 * v31) + *(float *)&v18) * (float)((float)(v33 * v31) + *(float *)&v18)) + (float)((float)((float)(v33 * v30) + *(float *)&v15) * (float)((float)(v33 * v30) + *(float *)&v15))) + (float)((float)((float)(v33 * v32) + *(float *)&v21) * (float)((float)(v33 * v32) + *(float *)&v21))) * 0.050000001);
+  if ( v34 > 4 )
+    v34 = 4;
+  if ( v34 < 1 )
+    v34 = 1;
+  v59 = v34;
+  v35 = 1.0 / _mm_cvtepi32_ps((__m128i)(unsigned int)(v34 + 1)).m128_f32[0];
+  v37 = v15;
+  *(float *)&v37 = *(float *)&v15 * v35;
+  v36 = v37;
+  v39 = v18;
+  *(float *)&v39 = *(float *)&v18 * v35;
+  v38 = v39;
+  v41 = v21;
+  *(float *)&v41 = *(float *)&v21 * v35;
+  v40 = v41;
+  __asm { vunpcklps xmm0, xmm12, xmm11 }
+  *(double *)pos.v = *(double *)&_XMM0;
+  *(double *)endPos.v = *(double *)&_XMM0;
+  endPos.v[2] = pos.v[2];
+  v43 = 0;
   bIgnoreFoliage = 0;
-  v85 = 0;
-  v86 = 0;
-  v124 = _EAX + 3;
-  if ( _EAX + 3 <= 0 )
+  v45 = 0;
+  v46 = 0;
+  v58 = v34 + 3;
+  if ( v34 + 3 <= 0 )
+    return 0;
+  LODWORD(v47) = v34 + 3;
+  LODWORD(v48) = v34 + 3;
+  LODWORD(v49) = v34 + 3;
+  do
   {
-LABEL_23:
-    result = 0;
-  }
-  else
-  {
-    __asm
+    v50 = AIScriptedInterface::SightTracePassed(this, shootFromPos, &endPos, 2047, 2047, 1, bIgnoreFoliage, 0);
+    if ( v46 == v59 )
     {
-      vmovss  xmm12, cs:__real@3a83126f
-      vmovss  xmm9, [rsp+1B0h+var_170]
-      vmovss  xmm10, [rsp+1B0h+var_170]
-      vmovss  xmm11, [rsp+1B0h+var_170]
+      LODWORD(v51) = COERCE_UNSIGNED_INT((float)((float)(*(float *)&v38 * v31) + (float)(*(float *)&v36 * v30)) + (float)(v32 * *(float *)&v40)) ^ _xmm;
+      v52 = v36;
+      *(float *)&v52 = *(float *)&v36 + (float)(v30 * v51);
+      v36 = v52;
+      v53 = v38;
+      *(float *)&v53 = *(float *)&v38 + (float)(v31 * v51);
+      v38 = v53;
+      v54 = v40;
+      *(float *)&v54 = *(float *)&v40 + (float)(v32 * v51);
+      v40 = v54;
     }
-    do
+    v55 = endPos.v[2];
+    v56 = endPos.v[1];
+    if ( v50 )
     {
-      v91 = AIScriptedInterface::SightTracePassed(this, shootFromPos, &endPos, 2047, 2047, 1, bIgnoreFoliage, 0);
-      if ( v86 == v125 )
+      ++v45;
+      v49 = endPos.v[0];
+      v48 = endPos.v[1];
+      v47 = endPos.v[2];
+      v43 = 1;
+      if ( !v46 )
       {
-        __asm
-        {
-          vmulss  xmm1, xmm7, xmm14
-          vmulss  xmm0, xmm6, xmm13
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm15, xmm8
-          vaddss  xmm2, xmm2, xmm1
-          vxorps  xmm3, xmm2, cs:__xmm@80000000800000008000000080000000
-          vmulss  xmm0, xmm13, xmm3
-          vaddss  xmm6, xmm6, xmm0
-          vmulss  xmm1, xmm14, xmm3
-          vaddss  xmm7, xmm7, xmm1
-          vmulss  xmm0, xmm15, xmm3
-          vaddss  xmm8, xmm8, xmm0
-        }
+        outShootPos->v[0] = endPos.v[0];
+        outShootPos->v[1] = v56;
+        outShootPos->v[2] = v55;
+        return 1;
       }
-      __asm
+      if ( v45 >= 2 || v45 >= 0 && v45 >= numGoodTracesOverride )
       {
-        vmovss  xmm3, dword ptr [rbp+0B0h+endPos+8]
-        vmovss  xmm4, dword ptr [rbp+0B0h+endPos+4]
-        vmovss  xmm5, dword ptr [rbp+0B0h+endPos]
+        outShootPos->v[0] = endPos.v[0];
+        outShootPos->v[1] = v56;
+        outShootPos->v[2] = v55;
+        return 1;
       }
-      if ( v91 )
-      {
-        ++v85;
-        __asm
-        {
-          vmovaps xmm11, xmm5
-          vmovaps xmm10, xmm4
-          vmovaps xmm9, xmm3
-        }
-        v83 = 1;
-        if ( !v86 )
-        {
-          __asm
-          {
-            vmovss  dword ptr [r14], xmm5
-            vmovss  dword ptr [r14+4], xmm4
-            vmovss  dword ptr [r14+8], xmm3
-          }
-          result = 1;
-          goto LABEL_24;
-        }
-        if ( v85 >= 2 || v85 >= 0 && v85 >= numGoodTracesOverride )
-        {
-          __asm
-          {
-            vmovss  dword ptr [r14], xmm5
-            vmovss  dword ptr [r14+4], xmm4
-            vmovss  dword ptr [r14+8], xmm3
-          }
-          result = 1;
-          goto LABEL_24;
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm6, xmm6
-          vmulss  xmm0, xmm7, xmm7
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm8, xmm8
-          vaddss  xmm2, xmm2, xmm1
-          vcomiss xmm2, xmm12
-        }
-        v85 = 0;
-      }
-      bIgnoreFoliage = 1;
-      __asm
-      {
-        vaddss  xmm0, xmm5, xmm6
-        vmovss  dword ptr [rbp+0B0h+endPos], xmm0
-        vaddss  xmm1, xmm4, xmm7
-        vmovss  dword ptr [rbp+0B0h+endPos+4], xmm1
-        vaddss  xmm0, xmm3, xmm8
-        vmovss  dword ptr [rbp+0B0h+endPos+8], xmm0
-      }
-      ++v86;
     }
-    while ( v86 < v124 );
-    if ( !v83 )
-      goto LABEL_23;
-    __asm
+    else
     {
-      vmovss  dword ptr [r14], xmm11
-      vmovss  dword ptr [r14+4], xmm10
-      vmovss  dword ptr [r14+8], xmm9
+      if ( (float)((float)((float)(*(float *)&v36 * *(float *)&v36) + (float)(*(float *)&v38 * *(float *)&v38)) + (float)(*(float *)&v40 * *(float *)&v40)) < 0.001 && bIgnoreFoliage )
+        return 0;
+      v45 = 0;
     }
-    result = 1;
+    bIgnoreFoliage = 1;
+    endPos.v[0] = endPos.v[0] + *(float *)&v36;
+    endPos.v[1] = endPos.v[1] + *(float *)&v38;
+    endPos.v[2] = endPos.v[2] + *(float *)&v40;
+    ++v46;
   }
-LABEL_24:
-  _R11 = &v132;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return result;
+  while ( v46 < v58 );
+  if ( !v43 )
+    return 0;
+  outShootPos->v[0] = v49;
+  outShootPos->v[1] = v48;
+  outShootPos->v[2] = v47;
+  return 1;
 }
 
 /*
@@ -864,170 +741,151 @@ AIScriptedInterface::ClearAllSuppressionFromEnemySentient
 */
 void AIScriptedInterface::ClearAllSuppressionFromEnemySentient(AIScriptedInterface *this)
 {
-  AIIterator *v3; 
-  sentient_s *v4; 
+  AIIterator *v2; 
+  sentient_s *v3; 
   team_t eTeam; 
-  bool v6; 
-  unsigned int v10; 
-  const gentity_s *v11; 
-  AIAgentInterface *v13; 
+  bool v5; 
+  const bitarray<224> *AllCombatTeamFlags; 
+  __int128 v7; 
+  double v8; 
+  unsigned int v9; 
+  const gentity_s *i; 
+  AIAgentInterface *v11; 
   ai_agent_t *ScriptedAgentInfo; 
-  AIAgentInterface *v15; 
+  AIAgentInterface *v13; 
   actor_s *actor; 
-  __int64 v17; 
-  unsigned __int64 v18; 
-  char v20; 
-  __int64 v21; 
+  __int64 v15; 
+  unsigned __int64 v16; 
   ai_scripted_t *m_pAI; 
+  char v18; 
+  __int64 v19; 
+  ai_scripted_t *v20; 
+  __int64 v21; 
+  __int64 v22; 
   __int64 v23; 
-  __int64 v25; 
-  __int64 v26; 
   int suppressionStartTime; 
-  AIIterator *v28; 
-  AIActorInterface v29; 
-  AIAgentInterface v30; 
-  AIAgentInterface *v31; 
+  AIIterator *v25; 
+  AIActorInterface v26; 
+  AIAgentInterface v27; 
+  AIAgentInterface *v28; 
   bitarray<224> result; 
 
-  v3 = this->GetAIIterator(this);
-  v28 = v3;
-  v4 = this->GetSentient(this);
+  v2 = this->GetAIIterator(this);
+  v25 = v2;
+  v3 = this->GetSentient(this);
   eTeam = this->GetSentient(this)->eTeam;
   if ( level.teammode == TEAMMODE_FFA )
   {
-    v6 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
+    v5 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-      _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+      AllCombatTeamFlags = Com_TeamsSP_GetAllCombatTeamFlags();
     else
-      _RAX = Com_TeamsMP_GetAllTeamFlags();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovsd  xmm1, qword ptr [rax+10h]
-    }
-    v10 = _RAX->array[6] & 0xFFEFFFFF;
-    __asm
-    {
-      vmovups xmmword ptr [rsp+108h+result.array], xmm0
-      vmovsd  qword ptr [rsp+108h+result.array+10h], xmm1
-    }
-    if ( v6 )
+      AllCombatTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+    v7 = *(_OWORD *)AllCombatTeamFlags->array;
+    v8 = *(double *)&AllCombatTeamFlags->array[4];
+    v9 = AllCombatTeamFlags->array[6] & 0xFFEFFFFF;
+    *(_OWORD *)result.array = v7;
+    *(double *)&result.array[4] = v8;
+    if ( v5 )
       result.array[0] &= ~0x8000000u;
-    result.array[6] = v10 & 0xFF9FFFFF;
+    result.array[6] = v9 & 0xFF9FFFFF;
   }
   else
   {
     Com_Teams_GetEnemyTeamFlags(&result, eTeam);
   }
-  v11 = (const gentity_s *)v3->GetFirst(v3);
-  if ( v11 )
+  for ( i = (const gentity_s *)v2->GetFirst(v2); i; i = v2->GetNext(v2) )
   {
-    __asm
+    AIActorInterface::AIActorInterface(&v26);
+    AIAgentInterface::AIAgentInterface(&v27);
+    v27.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+    v11 = NULL;
+    v28 = NULL;
+    if ( i->agent )
     {
-      vmovaps [rsp+108h+var_38], xmm6
-      vxorps  xmm6, xmm6, xmm6
+      if ( SV_Agent_IsScripted(i->s.number) )
+      {
+        ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(i);
+        if ( !ScriptedAgentInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 97, ASSERT_TYPE_ASSERT, "( pInfo )", (const char *)&queryFormat, "pInfo") )
+          __debugbreak();
+        if ( !ScriptedAgentInfo->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 98, ASSERT_TYPE_ASSERT, "( pInfo->sentientInfo )", (const char *)&queryFormat, "pInfo->sentientInfo") )
+          __debugbreak();
+        AINewAgentInterface::SetAgent((AINewAgentInterface *)&v27, ScriptedAgentInfo);
+        v11 = &v27;
+        v28 = &v27;
+        v13 = &v27;
+        goto LABEL_26;
+      }
+      v11 = v28;
     }
-    while ( 1 )
+    actor = i->actor;
+    if ( actor )
     {
-      AIActorInterface::AIActorInterface(&v29);
-      AIAgentInterface::AIAgentInterface(&v30);
-      v30.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-      v13 = NULL;
-      v31 = NULL;
-      if ( v11->agent )
+      if ( !actor->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 105, ASSERT_TYPE_ASSERT, "( ent->actor->sentientInfo )", (const char *)&queryFormat, "ent->actor->sentientInfo") )
+        __debugbreak();
+      AIActorInterface::SetActor(&v26, i->actor);
+      v11 = (AIAgentInterface *)&v26;
+      v28 = (AIAgentInterface *)&v26;
+    }
+    v13 = v11;
+    if ( !v11 )
+      continue;
+LABEL_26:
+    v15 = (__int64)v11->GetSentient(v11);
+    if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 586, ASSERT_TYPE_ASSERT, "( pSentient )", (const char *)&queryFormat, "pSentient") )
+      __debugbreak();
+    v16 = *(unsigned int *)(v15 + 16);
+    if ( (unsigned int)v16 >= 0xE0 )
+    {
+      LODWORD(v23) = 224;
+      LODWORD(v22) = v16;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v22, v23) )
+        __debugbreak();
+    }
+    if ( ((0x80000000 >> (v16 & 0x1F)) & result.array[v16 >> 5]) == 0 )
+      continue;
+    if ( !v13->AIScriptedInterface::m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 633, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
+      __debugbreak();
+    m_pAI = v13->AIScriptedInterface::m_pAI;
+    if ( m_pAI->suppression.suppressionMeter <= 0.0 && m_pAI->suppression.suppressionStartTime <= 0 )
+      continue;
+    if ( !m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 543, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
+      __debugbreak();
+    if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 544, ASSERT_TYPE_ASSERT, "(pSuppressor)", (const char *)&queryFormat, "pSuppressor") )
+      __debugbreak();
+    v18 = 0;
+    v19 = 0i64;
+    suppressionStartTime = v13->AIScriptedInterface::m_pAI->suppression.suppressionStartTime;
+    do
+    {
+      v20 = v13->AIScriptedInterface::m_pAI;
+      v21 = (__int64)&v20->Suppressant[v19];
+      if ( v20->Suppressant[v19].pSuppressor == v3 )
       {
-        if ( SV_Agent_IsScripted(v11->s.number) )
-        {
-          ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(v11);
-          if ( !ScriptedAgentInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 97, ASSERT_TYPE_ASSERT, "( pInfo )", (const char *)&queryFormat, "pInfo") )
-            __debugbreak();
-          if ( !ScriptedAgentInfo->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 98, ASSERT_TYPE_ASSERT, "( pInfo->sentientInfo )", (const char *)&queryFormat, "pInfo->sentientInfo") )
-            __debugbreak();
-          AINewAgentInterface::SetAgent((AINewAgentInterface *)&v30, ScriptedAgentInfo);
-          v13 = &v30;
-          v31 = &v30;
-          v15 = &v30;
-          goto LABEL_27;
-        }
-        v13 = v31;
-      }
-      actor = v11->actor;
-      if ( actor )
-      {
-        if ( !actor->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 105, ASSERT_TYPE_ASSERT, "( ent->actor->sentientInfo )", (const char *)&queryFormat, "ent->actor->sentientInfo") )
+        if ( (ai_scripted_t *)((char *)v20 + v19 * 32) == (ai_scripted_t *)-1352i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 349, ASSERT_TYPE_ASSERT, "(suppressant)", (const char *)&queryFormat, "suppressant") )
           __debugbreak();
-        AIActorInterface::SetActor(&v29, v11->actor);
-        v13 = (AIAgentInterface *)&v29;
-        v31 = (AIAgentInterface *)&v29;
+        *(_DWORD *)v21 = 0;
+        *(_QWORD *)(v21 + 8) = 0i64;
+        *(_DWORD *)(v21 + 28) = 0;
       }
-      v15 = v13;
-      if ( !v13 )
-        goto LABEL_59;
-LABEL_27:
-      v17 = (__int64)v13->GetSentient(v13);
-      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 586, ASSERT_TYPE_ASSERT, "( pSentient )", (const char *)&queryFormat, "pSentient") )
-        __debugbreak();
-      v18 = *(unsigned int *)(v17 + 16);
-      if ( (unsigned int)v18 >= 0xE0 )
+      else if ( *(int *)v21 > 0 && !v20->Suppressant[v19].movementOnly )
       {
-        LODWORD(v26) = 224;
-        LODWORD(v25) = v18;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v25, v26) )
-          __debugbreak();
+        v18 = 1;
       }
-      if ( ((0x80000000 >> (v18 & 0x1F)) & result.array[v18 >> 5]) == 0 )
-        goto LABEL_59;
-      if ( !v15->AIScriptedInterface::m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 633, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
-        __debugbreak();
-      _RAX = v15->AIScriptedInterface::m_pAI;
-      __asm { vcomiss xmm6, dword ptr [rax+53Ch] }
-      if ( _RAX->suppression.suppressionStartTime <= 0 )
-        goto LABEL_59;
-      if ( !_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 543, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
-        __debugbreak();
-      if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 544, ASSERT_TYPE_ASSERT, "(pSuppressor)", (const char *)&queryFormat, "pSuppressor") )
-        __debugbreak();
-      v20 = 0;
-      v21 = 0i64;
-      suppressionStartTime = v15->AIScriptedInterface::m_pAI->suppression.suppressionStartTime;
-      do
-      {
-        m_pAI = v15->AIScriptedInterface::m_pAI;
-        v23 = (__int64)&m_pAI->Suppressant[v21];
-        if ( m_pAI->Suppressant[v21].pSuppressor == v4 )
-        {
-          if ( (ai_scripted_t *)((char *)m_pAI + v21 * 32) == (ai_scripted_t *)-1352i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 349, ASSERT_TYPE_ASSERT, "(suppressant)", (const char *)&queryFormat, "suppressant") )
-            __debugbreak();
-          *(_DWORD *)v23 = 0;
-          *(_QWORD *)(v23 + 8) = 0i64;
-          *(_DWORD *)(v23 + 28) = 0;
-        }
-        else if ( *(int *)v23 > 0 && !m_pAI->Suppressant[v21].movementOnly )
-        {
-          v20 = 1;
-        }
-        ++v21;
-      }
-      while ( v21 < 4 );
-      v3 = v28;
-      if ( suppressionStartTime <= 0 )
-      {
-        if ( !v20 )
-          goto LABEL_58;
-      }
-      else if ( !v20 )
-      {
-        GScr_Notify(v15->AIScriptedInterface::m_pAI->ent, scr_const.suppression_end, 0);
+      ++v19;
+    }
+    while ( v19 < 4 );
+    v2 = v25;
+    if ( suppressionStartTime <= 0 )
+    {
+      if ( !v18 )
+        goto LABEL_58;
+    }
+    else if ( !v18 )
+    {
+      GScr_Notify(v13->AIScriptedInterface::m_pAI->ent, scr_const.suppression_end, 0);
 LABEL_58:
-        v15->AIScriptedInterface::m_pAI->suppression.suppressionStartTime = 0;
-      }
-LABEL_59:
-      v11 = v3->GetNext(v3);
-      if ( !v11 )
-      {
-        __asm { vmovaps xmm6, [rsp+108h+var_38] }
-        return;
-      }
+      v13->AIScriptedInterface::m_pAI->suppression.suppressionStartTime = 0;
     }
   }
 }
@@ -1039,33 +897,28 @@ DebugDrawSuppression
 */
 void DebugDrawSuppression(ai_scripted_t *self)
 {
+  int *p_movementOnly; 
   vec3_t *p_clipPlane; 
-  __int64 v6; 
-  const vec4_t *v7; 
-  float v10; 
+  __int64 v4; 
+  const vec4_t *v5; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  _RBX = &self->Suppressant[0].movementOnly;
-  __asm { vmovss  xmm6, cs:__real@42c80000 }
+  p_movementOnly = &self->Suppressant[0].movementOnly;
   p_clipPlane = &self->Suppressant[0].clipPlane;
-  v6 = 4i64;
+  v4 = 4i64;
   do
   {
-    if ( *(_RBX - 7) )
+    if ( *(p_movementOnly - 7) )
     {
-      v7 = &colorRed;
-      __asm { vmovss  xmm1, dword ptr [rbx-4]; dist }
-      if ( *_RBX )
-        v7 = &colorCyan;
-      __asm { vmovss  [rsp+68h+var_48], xmm6 }
-      G_DebugPlane((const vec2_t *)p_clipPlane, *(float *)&_XMM1, &self->ent->r.currentOrigin, v7, v10, 0, 0);
+      v5 = &colorRed;
+      if ( *p_movementOnly )
+        v5 = &colorCyan;
+      G_DebugPlane((const vec2_t *)p_clipPlane, *((float *)p_movementOnly - 1), &self->ent->r.currentOrigin, v5, 100.0, 0, 0);
     }
     p_clipPlane = (vec3_t *)((char *)p_clipPlane + 32);
-    _RBX += 8;
-    --v6;
+    p_movementOnly += 8;
+    --v4;
   }
-  while ( v6 );
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
+  while ( v4 );
 }
 
 /*
@@ -1073,118 +926,116 @@ void DebugDrawSuppression(ai_scripted_t *self)
 AIScriptedInterface::DecaySuppressionLines
 ==============
 */
-
-void __fastcall AIScriptedInterface::DecaySuppressionLines(AIScriptedInterface *this, double _XMM1_8)
+void AIScriptedInterface::DecaySuppressionLines(AIScriptedInterface *this)
 {
   ai_scripted_t *m_pAI; 
-  char v5; 
+  char v3; 
+  ai_scripted_t *v4; 
+  __int128 suppressionMeter_low; 
   __int64 i; 
-  ai_scripted_t *v12; 
+  ai_scripted_t *v9; 
   int iTime; 
-  int v14; 
-  const dvar_t *v15; 
+  int v11; 
+  const dvar_t *v12; 
   int integer; 
-  __int64 v17; 
+  __int64 v14; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  const dvar_t *v17; 
   const dvar_t *v18; 
-  const dvar_t *v19; 
-  const dvar_t *v20; 
-  const dvar_t *v21; 
-  ai_scripted_t *v22; 
+  ai_scripted_t *v19; 
   int suppressionStartTime; 
 
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 480, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
   m_pAI = this->m_pAI;
-  v5 = 0;
+  v3 = 0;
   suppressionStartTime = m_pAI->suppression.suppressionStartTime;
   if ( !m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 491, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
     __debugbreak();
-  _RAX = this->m_pAI;
-  if ( _RAX->suppression.ignoreSuppression )
+  v4 = this->m_pAI;
+  if ( v4->suppression.ignoreSuppression )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(_XMM0) = 0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+53Ch]
-      vsubss  xmm2, xmm0, dword ptr [rax+540h]
-      vxorps  xmm1, xmm1, xmm1
-      vmaxss  xmm0, xmm2, xmm1
-    }
+    suppressionMeter_low = LODWORD(v4->suppression.suppressionMeter);
+    *(float *)&suppressionMeter_low = v4->suppression.suppressionMeter - v4->suppression.suppressionDecrement;
+    _XMM2 = suppressionMeter_low;
+    __asm { vmaxss  xmm0, xmm2, xmm1 }
   }
-  __asm { vmovss  dword ptr [rax+53Ch], xmm0 }
+  v4->suppression.suppressionMeter = *(float *)&_XMM0;
   for ( i = 0i64; i < 4; ++i )
   {
-    v12 = this->m_pAI;
-    iTime = v12->Suppressant[i].iTime;
+    v9 = this->m_pAI;
+    iTime = v9->Suppressant[i].iTime;
     if ( iTime > 0 )
     {
-      v14 = level.time - iTime;
-      if ( v12->Suppressant[i].movementOnly )
+      v11 = level.time - iTime;
+      if ( v9->Suppressant[i].movementOnly )
       {
-        v15 = DVARINT_ai_friendlyFireBlockDuration;
+        v12 = DVARINT_ai_friendlyFireBlockDuration;
         if ( !DVARINT_ai_friendlyFireBlockDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_friendlyFireBlockDuration") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v15);
-        integer = v15->current.integer;
-        v12 = this->m_pAI;
+        Dvar_CheckFrontendServerThread(v12);
+        integer = v12->current.integer;
+        v9 = this->m_pAI;
       }
       else
       {
         integer = 0;
-        if ( !v12->suppression.ignoreSuppression )
-          integer = v12->suppression.suppressionDuration;
+        if ( !v9->suppression.ignoreSuppression )
+          integer = v9->suppression.suppressionDuration;
       }
-      if ( v14 < integer )
+      if ( v11 < integer )
       {
-        if ( !v12->Suppressant[i].movementOnly )
-          v5 = 1;
+        if ( !v9->Suppressant[i].movementOnly )
+          v3 = 1;
       }
       else
       {
-        v17 = (__int64)&v12->Suppressant[i];
-        if ( (ai_scripted_t *)((char *)v12 + i * 32) == (ai_scripted_t *)-1352i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 349, ASSERT_TYPE_ASSERT, "(suppressant)", (const char *)&queryFormat, "suppressant") )
+        v14 = (__int64)&v9->Suppressant[i];
+        if ( (ai_scripted_t *)((char *)v9 + i * 32) == (ai_scripted_t *)-1352i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 349, ASSERT_TYPE_ASSERT, "(suppressant)", (const char *)&queryFormat, "suppressant") )
           __debugbreak();
-        *(_DWORD *)v17 = 0;
-        *(_QWORD *)(v17 + 8) = 0i64;
-        *(_DWORD *)(v17 + 28) = 0;
+        *(_DWORD *)v14 = 0;
+        *(_QWORD *)(v14 + 8) = 0i64;
+        *(_DWORD *)(v14 + 28) = 0;
       }
     }
   }
-  if ( !v5 )
+  if ( !v3 )
   {
     if ( suppressionStartTime > 0 )
       GScr_Notify(this->m_pAI->ent, scr_const.suppression_end, 0);
     this->m_pAI->suppression.suppressionStartTime = 0;
   }
-  v18 = DVARINT_ai_debugEntIndex;
+  v15 = DVARINT_ai_debugEntIndex;
   if ( !DVARINT_ai_debugEntIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugEntIndex") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  if ( v18->current.integer == this->m_pAI->ent->s.number )
+  Dvar_CheckFrontendServerThread(v15);
+  if ( v15->current.integer == this->m_pAI->ent->s.number )
   {
-    v19 = DVARINT_ai_showSuppression;
+    v16 = DVARINT_ai_showSuppression;
     if ( !DVARINT_ai_showSuppression && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showSuppression") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v19);
-    if ( v19->current.integer > 0 )
+    Dvar_CheckFrontendServerThread(v16);
+    if ( v16->current.integer > 0 )
       DebugDrawSuppression(this->m_pAI);
   }
-  v20 = DVARINT_ai_debugEntIndex;
+  v17 = DVARINT_ai_debugEntIndex;
   if ( !DVARINT_ai_debugEntIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_debugEntIndex") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  if ( v20->current.integer != this->m_pAI->ent->s.number )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( v17->current.integer != this->m_pAI->ent->s.number )
   {
-    v21 = DVARINT_ai_showSuppression;
+    v18 = DVARINT_ai_showSuppression;
     if ( !DVARINT_ai_showSuppression && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showSuppression") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
-    v22 = this->m_pAI;
-    if ( v21->current.integer == v22->ent->s.number )
-      DebugDrawSuppression(v22);
+    Dvar_CheckFrontendServerThread(v18);
+    v19 = this->m_pAI;
+    if ( v18->current.integer == v19->ent->s.number )
+      DebugDrawSuppression(v19);
   }
 }
 
@@ -1242,47 +1093,26 @@ AIScriptedInterface::GetCornerSuppressionPlane
 */
 void AIScriptedInterface::GetCornerSuppressionPlane(const pathnode_t *suppressedNode, vec3_t *outClipPlane)
 {
+  float v4; 
   vec2_t forward; 
   vec3_t pos; 
 
-  _RBX = outClipPlane;
   if ( !suppressedNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 165, ASSERT_TYPE_ASSERT, "(suppressedNode)", (const char *)&queryFormat, "suppressedNode") )
     __debugbreak();
   pathnode_t::GetForward((pathnode_t *)suppressedNode, &forward);
-  __asm { vmovss  xmm0, dword ptr [rsp+58h+forward+4] }
   if ( suppressedNode->constant.type == 7 )
   {
-    __asm
-    {
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm2, dword ptr [rsp+58h+forward]
-      vmovss  dword ptr [rbx], xmm1
-    }
+    v4 = forward.v[0];
+    outClipPlane->v[0] = COERCE_FLOAT(LODWORD(forward.v[1]) ^ _xmm);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsp+58h+forward]
-      vxorps  xmm2, xmm1, cs:__xmm@80000000800000008000000080000000
-      vmovss  dword ptr [rbx], xmm0
-    }
+    LODWORD(v4) = LODWORD(forward.v[0]) ^ _xmm;
+    outClipPlane->v[0] = forward.v[1];
   }
-  __asm { vmovss  dword ptr [rbx+4], xmm2 }
+  outClipPlane->v[1] = v4;
   pathnode_t::GetPos((pathnode_t *)suppressedNode, &pos);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+4]
-    vmulss  xmm0, xmm2, cs:__real@42000000
-    vaddss  xmm1, xmm0, dword ptr [rsp+58h+pos+4]
-    vmovss  xmm5, dword ptr [rbx]
-    vmulss  xmm4, xmm1, xmm2
-    vmulss  xmm2, xmm5, cs:__real@42000000
-    vaddss  xmm0, xmm2, dword ptr [rsp+58h+pos]
-    vmulss  xmm1, xmm0, xmm5
-    vaddss  xmm3, xmm4, xmm1
-    vmovss  dword ptr [rbx+8], xmm3
-  }
+  outClipPlane->v[2] = (float)((float)((float)(outClipPlane->v[1] * 32.0) + pos.v[1]) * outClipPlane->v[1]) + (float)((float)((float)(outClipPlane->v[0] * 32.0) + pos.v[0]) * outClipPlane->v[0]);
 }
 
 /*
@@ -1423,15 +1253,12 @@ AIScriptedInterface::IsSuppressed
 */
 _BOOL8 AIScriptedInterface::IsSuppressed(AIScriptedInterface *this)
 {
+  ai_scripted_t *m_pAI; 
+
   if ( !this->m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 633, ASSERT_TYPE_ASSERT, "(m_pAI)", (const char *)&queryFormat, "m_pAI") )
     __debugbreak();
-  _RAX = this->m_pAI;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rax+53Ch]
-  }
-  return _RAX->suppression.suppressionStartTime > 0;
+  m_pAI = this->m_pAI;
+  return m_pAI->suppression.suppressionMeter > 0.0 || m_pAI->suppression.suppressionStartTime > 0;
 }
 
 /*
@@ -1548,8 +1375,7 @@ pathnode_t *AIScriptedInterface::SuppressedCornerNode(AIScriptedInterface *this)
     __debugbreak();
   if ( !this->m_pAI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_suppression.cpp", 97, ASSERT_TYPE_ASSERT, "(m_pAI->sentient)", (const char *)&queryFormat, "m_pAI->sentient") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@42800000; dist }
-  if ( !AICommonInterface::NearClaimNode(this, *(float *)&_XMM1) )
+  if ( !AICommonInterface::NearClaimNode(this, 64.0) )
     return 0i64;
   result = this->m_pAI->sentient->pClaimedNode;
   if ( (unsigned int)result->constant.type - 6 > 1 )

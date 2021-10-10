@@ -80,23 +80,19 @@ __int64 LUI_CoD_LuaCall_IsConnectedToDW(lua_State *const luaVM)
 LUI_CoD_LuaCall_GetBandwidth
 ==============
 */
-
-__int64 __fastcall LUI_CoD_LuaCall_GetBandwidth(lua_State *const luaVM, double _XMM1_8)
+__int64 LUI_CoD_LuaCall_GetBandwidth(lua_State *const luaVM)
 {
-  unsigned int v5; 
+  unsigned int v4; 
 
   if ( !Live_BandwidthTestInProgress() )
     Online_GetUploadSpeed();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, edi; n
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, edi; n }
   j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   if ( j_lua_gettop(luaVM) < 1 )
   {
-    v5 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v5);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 1i64, v4);
   }
   return 1i64;
 }

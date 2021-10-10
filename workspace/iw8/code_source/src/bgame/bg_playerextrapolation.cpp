@@ -64,64 +64,58 @@ void BG_PlayerExtrap_RestorePlayerState(playerState_s *ps, const SavedPlayerStat
 {
   int commandTime; 
 
-  _RBX = savedState;
-  _RDI = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerextrapolation.cpp", 54, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerextrapolation.cpp", 55, ASSERT_TYPE_ASSERT, "(savedState)", (const char *)&queryFormat, "savedState") )
+  if ( !savedState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerextrapolation.cpp", 55, ASSERT_TYPE_ASSERT, "(savedState)", (const char *)&queryFormat, "savedState") )
     __debugbreak();
-  commandTime = _RBX->commandTime;
-  if ( _RBX->commandTime )
+  commandTime = savedState->commandTime;
+  if ( savedState->commandTime )
   {
-    _RDI->commandTime = commandTime;
-    _RDI->commandTimeInterpolated = commandTime;
-    _RDI->origin.v[0] = _RBX->origin.v[0];
-    _RDI->origin.v[1] = _RBX->origin.v[1];
-    _RDI->origin.v[2] = _RBX->origin.v[2];
-    _RDI->viewangles.v[0] = _RBX->angles.v[0];
-    _RDI->viewangles.v[1] = _RBX->angles.v[1];
-    _RDI->viewangles.v[2] = _RBX->angles.v[2];
-    _RDI->movementDir = _RBX->movementDir;
-    _RDI->movementDirPrecise = _RBX->movementDirPrecise;
-    _RDI->velocityClipDir = _RBX->velocityClipDir;
-    _RDI->moveSpeedForAnimBlend = _RBX->moveSpeedForAnimBlend;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+38h]
-      vmovsd  qword ptr [rdi+28h], xmm0
-    }
-    _RDI->weapCommon.weaponIdleTime = _RBX->weaponIdleTime;
-    _RDI->weapCommon.weaponIdleTime2 = _RBX->weaponIdleTime2;
-    _RDI->mountState.eyePoint.v[0] = _RBX->mountEyePos.v[0];
-    _RDI->mountState.eyePoint.v[1] = _RBX->mountEyePos.v[1];
-    _RDI->mountState.eyePoint.v[2] = _RBX->mountEyePos.v[2];
-    _RDI->mountState.eyePointMover.v[0] = _RBX->mountEyePosMover.v[0];
-    _RDI->mountState.eyePointMover.v[1] = _RBX->mountEyePosMover.v[1];
-    _RDI->mountState.eyePointMover.v[2] = _RBX->mountEyePosMover.v[2];
-    _RDI->mountState.mountFraction = _RBX->mountFraction;
-    _RDI->mountState.flags = _RBX->mountFlags;
-    _RDI->doorState[0].angle = _RBX->doorAngle[0];
-    _RDI->doorState[1].angle = _RBX->doorAngle[1];
-    _RDI->skydivePlayerState.pitch = _RBX->skydiveState.pitch;
-    _RDI->skydivePlayerState.roll = _RBX->skydiveState.roll;
-    _RDI->weapCommon.fWeaponPosFrac = _RBX->fWeaponPosFrac;
-    _RDI->weapCommon.fWeaponPosFracIn = _RBX->fWeaponPosFracIn;
-    _RDI->weapCommon.fWeaponPosFracMomentum = _RBX->fWeaponPosFracMomentum;
-    _RDI->weapCommon.fWeaponPosFracChangeTime = _RBX->fWeaponPosFracChangeTime;
-    _RDI->weapCommon.fWeaponPosFracChangeFracVel = _RBX->fWeaponPosFracChangeFracVel;
-    _RDI->viewHeightCurrent = _RBX->viewHeightCurrent;
-    _RDI->viewHeightLerpTime = _RBX->viewHeightLerpTime;
-    _RDI->viewHeightLerpTarget = _RBX->viewHeightLerpTarget;
-    _RDI->vehicleState.origin.v[0] = _RBX->vehicleOrigin.v[0];
-    _RDI->vehicleState.origin.v[1] = _RBX->vehicleOrigin.v[1];
-    _RDI->vehicleState.origin.v[2] = _RBX->vehicleOrigin.v[2];
-    _RDI->vehicleState.angles.v[0] = _RBX->vehicleAngles.v[0];
-    _RDI->vehicleState.angles.v[1] = _RBX->vehicleAngles.v[1];
-    _RDI->vehicleState.angles.v[2] = _RBX->vehicleAngles.v[2];
-    _RDI->vehicleState.gunAngles.v[0] = _RBX->vehicleGunAngles.v[0];
-    _RDI->vehicleState.gunAngles.v[1] = _RBX->vehicleGunAngles.v[1];
-    _RDI->vehicleState.tilt.v[0] = _RBX->vehicleTilt.v[0];
-    _RDI->vehicleState.tilt.v[1] = _RBX->vehicleTilt.v[1];
+    ps->commandTime = commandTime;
+    ps->commandTimeInterpolated = commandTime;
+    ps->origin.v[0] = savedState->origin.v[0];
+    ps->origin.v[1] = savedState->origin.v[1];
+    ps->origin.v[2] = savedState->origin.v[2];
+    ps->viewangles.v[0] = savedState->angles.v[0];
+    ps->viewangles.v[1] = savedState->angles.v[1];
+    ps->viewangles.v[2] = savedState->angles.v[2];
+    ps->movementDir = savedState->movementDir;
+    ps->movementDirPrecise = savedState->movementDirPrecise;
+    ps->velocityClipDir = savedState->velocityClipDir;
+    ps->moveSpeedForAnimBlend = savedState->moveSpeedForAnimBlend;
+    *(double *)ps->packedBobCycle = *(double *)savedState->packedBobCycle;
+    ps->weapCommon.weaponIdleTime = savedState->weaponIdleTime;
+    ps->weapCommon.weaponIdleTime2 = savedState->weaponIdleTime2;
+    ps->mountState.eyePoint.v[0] = savedState->mountEyePos.v[0];
+    ps->mountState.eyePoint.v[1] = savedState->mountEyePos.v[1];
+    ps->mountState.eyePoint.v[2] = savedState->mountEyePos.v[2];
+    ps->mountState.eyePointMover.v[0] = savedState->mountEyePosMover.v[0];
+    ps->mountState.eyePointMover.v[1] = savedState->mountEyePosMover.v[1];
+    ps->mountState.eyePointMover.v[2] = savedState->mountEyePosMover.v[2];
+    ps->mountState.mountFraction = savedState->mountFraction;
+    ps->mountState.flags = savedState->mountFlags;
+    ps->doorState[0].angle = savedState->doorAngle[0];
+    ps->doorState[1].angle = savedState->doorAngle[1];
+    ps->skydivePlayerState.pitch = savedState->skydiveState.pitch;
+    ps->skydivePlayerState.roll = savedState->skydiveState.roll;
+    ps->weapCommon.fWeaponPosFrac = savedState->fWeaponPosFrac;
+    ps->weapCommon.fWeaponPosFracIn = savedState->fWeaponPosFracIn;
+    ps->weapCommon.fWeaponPosFracMomentum = savedState->fWeaponPosFracMomentum;
+    ps->weapCommon.fWeaponPosFracChangeTime = savedState->fWeaponPosFracChangeTime;
+    ps->weapCommon.fWeaponPosFracChangeFracVel = savedState->fWeaponPosFracChangeFracVel;
+    ps->viewHeightCurrent = savedState->viewHeightCurrent;
+    ps->viewHeightLerpTime = savedState->viewHeightLerpTime;
+    ps->viewHeightLerpTarget = savedState->viewHeightLerpTarget;
+    ps->vehicleState.origin.v[0] = savedState->vehicleOrigin.v[0];
+    ps->vehicleState.origin.v[1] = savedState->vehicleOrigin.v[1];
+    ps->vehicleState.origin.v[2] = savedState->vehicleOrigin.v[2];
+    ps->vehicleState.angles.v[0] = savedState->vehicleAngles.v[0];
+    ps->vehicleState.angles.v[1] = savedState->vehicleAngles.v[1];
+    ps->vehicleState.angles.v[2] = savedState->vehicleAngles.v[2];
+    ps->vehicleState.gunAngles.v[0] = savedState->vehicleGunAngles.v[0];
+    ps->vehicleState.gunAngles.v[1] = savedState->vehicleGunAngles.v[1];
+    ps->vehicleState.tilt.v[0] = savedState->vehicleTilt.v[0];
+    ps->vehicleState.tilt.v[1] = savedState->vehicleTilt.v[1];
   }
 }
 
@@ -132,61 +126,55 @@ BG_PlayerExtrap_SavePlayerState
 */
 void BG_PlayerExtrap_SavePlayerState(const playerState_s *ps, SavedPlayerState *outSavedState)
 {
-  _RBX = outSavedState;
-  _RDI = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerextrapolation.cpp", 9, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerextrapolation.cpp", 10, ASSERT_TYPE_ASSERT, "(outSavedState)", (const char *)&queryFormat, "outSavedState") )
+  if ( !outSavedState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerextrapolation.cpp", 10, ASSERT_TYPE_ASSERT, "(outSavedState)", (const char *)&queryFormat, "outSavedState") )
     __debugbreak();
-  memset_0(_RBX, 0, sizeof(SavedPlayerState));
-  _RBX->commandTime = _RDI->commandTime;
-  _RBX->origin.v[0] = _RDI->origin.v[0];
-  _RBX->origin.v[1] = _RDI->origin.v[1];
-  _RBX->origin.v[2] = _RDI->origin.v[2];
-  _RBX->angles.v[0] = _RDI->viewangles.v[0];
-  _RBX->angles.v[1] = _RDI->viewangles.v[1];
-  _RBX->angles.v[2] = _RDI->viewangles.v[2];
-  _RBX->movementDir = _RDI->movementDir;
-  _RBX->movementDirPrecise = _RDI->movementDirPrecise;
-  _RBX->velocityClipDir = _RDI->velocityClipDir;
-  _RBX->moveSpeedForAnimBlend = _RDI->moveSpeedForAnimBlend;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi+28h]
-    vmovsd  qword ptr [rbx+38h], xmm0
-  }
-  _RBX->weaponIdleTime = _RDI->weapCommon.weaponIdleTime;
-  _RBX->weaponIdleTime2 = _RDI->weapCommon.weaponIdleTime2;
-  _RBX->mountEyePos.v[0] = _RDI->mountState.eyePoint.v[0];
-  _RBX->mountEyePos.v[1] = _RDI->mountState.eyePoint.v[1];
-  _RBX->mountEyePos.v[2] = _RDI->mountState.eyePoint.v[2];
-  _RBX->mountEyePosMover.v[0] = _RDI->mountState.eyePointMover.v[0];
-  _RBX->mountEyePosMover.v[1] = _RDI->mountState.eyePointMover.v[1];
-  _RBX->mountEyePosMover.v[2] = _RDI->mountState.eyePointMover.v[2];
-  _RBX->mountFraction = _RDI->mountState.mountFraction;
-  _RBX->mountFlags = _RDI->mountState.flags;
-  _RBX->doorAngle[0] = _RDI->doorState[0].angle;
-  _RBX->doorAngle[1] = _RDI->doorState[1].angle;
-  _RBX->skydiveState.pitch = _RDI->skydivePlayerState.pitch;
-  _RBX->skydiveState.roll = _RDI->skydivePlayerState.roll;
-  _RBX->fWeaponPosFrac = _RDI->weapCommon.fWeaponPosFrac;
-  _RBX->fWeaponPosFracIn = _RDI->weapCommon.fWeaponPosFracIn;
-  _RBX->fWeaponPosFracMomentum = _RDI->weapCommon.fWeaponPosFracMomentum;
-  _RBX->fWeaponPosFracChangeTime = _RDI->weapCommon.fWeaponPosFracChangeTime;
-  _RBX->fWeaponPosFracChangeFracVel = _RDI->weapCommon.fWeaponPosFracChangeFracVel;
-  _RBX->viewHeightCurrent = _RDI->viewHeightCurrent;
-  _RBX->viewHeightLerpTime = _RDI->viewHeightLerpTime;
-  _RBX->viewHeightLerpTarget = _RDI->viewHeightLerpTarget;
-  _RBX->vehicleOrigin.v[0] = _RDI->vehicleState.origin.v[0];
-  _RBX->vehicleOrigin.v[1] = _RDI->vehicleState.origin.v[1];
-  _RBX->vehicleOrigin.v[2] = _RDI->vehicleState.origin.v[2];
-  _RBX->vehicleAngles.v[0] = _RDI->vehicleState.angles.v[0];
-  _RBX->vehicleAngles.v[1] = _RDI->vehicleState.angles.v[1];
-  _RBX->vehicleAngles.v[2] = _RDI->vehicleState.angles.v[2];
-  _RBX->vehicleGunAngles.v[0] = _RDI->vehicleState.gunAngles.v[0];
-  _RBX->vehicleGunAngles.v[1] = _RDI->vehicleState.gunAngles.v[1];
-  _RBX->vehicleTilt.v[0] = _RDI->vehicleState.tilt.v[0];
-  _RBX->vehicleTilt.v[1] = _RDI->vehicleState.tilt.v[1];
+  memset_0(outSavedState, 0, sizeof(SavedPlayerState));
+  outSavedState->commandTime = ps->commandTime;
+  outSavedState->origin.v[0] = ps->origin.v[0];
+  outSavedState->origin.v[1] = ps->origin.v[1];
+  outSavedState->origin.v[2] = ps->origin.v[2];
+  outSavedState->angles.v[0] = ps->viewangles.v[0];
+  outSavedState->angles.v[1] = ps->viewangles.v[1];
+  outSavedState->angles.v[2] = ps->viewangles.v[2];
+  outSavedState->movementDir = ps->movementDir;
+  outSavedState->movementDirPrecise = ps->movementDirPrecise;
+  outSavedState->velocityClipDir = ps->velocityClipDir;
+  outSavedState->moveSpeedForAnimBlend = ps->moveSpeedForAnimBlend;
+  *(double *)outSavedState->packedBobCycle = *(double *)ps->packedBobCycle;
+  outSavedState->weaponIdleTime = ps->weapCommon.weaponIdleTime;
+  outSavedState->weaponIdleTime2 = ps->weapCommon.weaponIdleTime2;
+  outSavedState->mountEyePos.v[0] = ps->mountState.eyePoint.v[0];
+  outSavedState->mountEyePos.v[1] = ps->mountState.eyePoint.v[1];
+  outSavedState->mountEyePos.v[2] = ps->mountState.eyePoint.v[2];
+  outSavedState->mountEyePosMover.v[0] = ps->mountState.eyePointMover.v[0];
+  outSavedState->mountEyePosMover.v[1] = ps->mountState.eyePointMover.v[1];
+  outSavedState->mountEyePosMover.v[2] = ps->mountState.eyePointMover.v[2];
+  outSavedState->mountFraction = ps->mountState.mountFraction;
+  outSavedState->mountFlags = ps->mountState.flags;
+  outSavedState->doorAngle[0] = ps->doorState[0].angle;
+  outSavedState->doorAngle[1] = ps->doorState[1].angle;
+  outSavedState->skydiveState.pitch = ps->skydivePlayerState.pitch;
+  outSavedState->skydiveState.roll = ps->skydivePlayerState.roll;
+  outSavedState->fWeaponPosFrac = ps->weapCommon.fWeaponPosFrac;
+  outSavedState->fWeaponPosFracIn = ps->weapCommon.fWeaponPosFracIn;
+  outSavedState->fWeaponPosFracMomentum = ps->weapCommon.fWeaponPosFracMomentum;
+  outSavedState->fWeaponPosFracChangeTime = ps->weapCommon.fWeaponPosFracChangeTime;
+  outSavedState->fWeaponPosFracChangeFracVel = ps->weapCommon.fWeaponPosFracChangeFracVel;
+  outSavedState->viewHeightCurrent = ps->viewHeightCurrent;
+  outSavedState->viewHeightLerpTime = ps->viewHeightLerpTime;
+  outSavedState->viewHeightLerpTarget = ps->viewHeightLerpTarget;
+  outSavedState->vehicleOrigin.v[0] = ps->vehicleState.origin.v[0];
+  outSavedState->vehicleOrigin.v[1] = ps->vehicleState.origin.v[1];
+  outSavedState->vehicleOrigin.v[2] = ps->vehicleState.origin.v[2];
+  outSavedState->vehicleAngles.v[0] = ps->vehicleState.angles.v[0];
+  outSavedState->vehicleAngles.v[1] = ps->vehicleState.angles.v[1];
+  outSavedState->vehicleAngles.v[2] = ps->vehicleState.angles.v[2];
+  outSavedState->vehicleGunAngles.v[0] = ps->vehicleState.gunAngles.v[0];
+  outSavedState->vehicleGunAngles.v[1] = ps->vehicleState.gunAngles.v[1];
+  outSavedState->vehicleTilt.v[0] = ps->vehicleState.tilt.v[0];
+  outSavedState->vehicleTilt.v[1] = ps->vehicleState.tilt.v[1];
 }
 
 /*
@@ -198,59 +186,53 @@ void BG_PlayerExtrap_SetPlayerState(playerState_s *ps, const playerState_s *extr
 {
   int commandTime; 
 
-  _RBX = extrapolatedPlayerState;
-  _RDI = ps;
   if ( !extrapolatedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_playerextrapolation.cpp", 100, ASSERT_TYPE_ASSERT, "(extrapolatedPlayerState)", (const char *)&queryFormat, "extrapolatedPlayerState") )
     __debugbreak();
-  commandTime = _RBX->commandTime;
-  _RDI->commandTime = _RBX->commandTime;
-  _RDI->commandTimeInterpolated = commandTime;
-  _RDI->origin.v[0] = _RBX->origin.v[0];
-  _RDI->origin.v[1] = _RBX->origin.v[1];
-  _RDI->origin.v[2] = _RBX->origin.v[2];
-  _RDI->viewangles.v[0] = _RBX->viewangles.v[0];
-  _RDI->viewangles.v[1] = _RBX->viewangles.v[1];
-  _RDI->viewangles.v[2] = _RBX->viewangles.v[2];
-  _RDI->movementDir = _RBX->movementDir;
-  _RDI->movementDirPrecise = _RBX->movementDirPrecise;
-  _RDI->velocityClipDir = _RBX->velocityClipDir;
-  _RDI->moveSpeedForAnimBlend = _RBX->moveSpeedForAnimBlend;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbx+28h]
-    vmovsd  qword ptr [rdi+28h], xmm0
-  }
-  _RDI->weapCommon.weaponIdleTime = _RBX->weapCommon.weaponIdleTime;
-  _RDI->weapCommon.weaponIdleTime2 = _RBX->weapCommon.weaponIdleTime2;
-  _RDI->mountState.eyePoint.v[0] = _RBX->mountState.eyePoint.v[0];
-  _RDI->mountState.eyePoint.v[1] = _RBX->mountState.eyePoint.v[1];
-  _RDI->mountState.eyePoint.v[2] = _RBX->mountState.eyePoint.v[2];
-  _RDI->mountState.eyePointMover.v[0] = _RBX->mountState.eyePointMover.v[0];
-  _RDI->mountState.eyePointMover.v[1] = _RBX->mountState.eyePointMover.v[1];
-  _RDI->mountState.eyePointMover.v[2] = _RBX->mountState.eyePointMover.v[2];
-  _RDI->mountState.mountFraction = _RBX->mountState.mountFraction;
-  _RDI->mountState.flags = _RBX->mountState.flags;
-  _RDI->doorState[0].angle = _RBX->doorState[0].angle;
-  _RDI->doorState[1].angle = _RBX->doorState[1].angle;
-  _RDI->skydivePlayerState.pitch = _RBX->skydivePlayerState.pitch;
-  _RDI->skydivePlayerState.roll = _RBX->skydivePlayerState.roll;
-  _RDI->weapCommon.fWeaponPosFrac = _RBX->weapCommon.fWeaponPosFrac;
-  _RDI->weapCommon.fWeaponPosFracIn = _RBX->weapCommon.fWeaponPosFracIn;
-  _RDI->weapCommon.fWeaponPosFracMomentum = _RBX->weapCommon.fWeaponPosFracMomentum;
-  _RDI->weapCommon.fWeaponPosFracChangeTime = _RBX->weapCommon.fWeaponPosFracChangeTime;
-  _RDI->weapCommon.fWeaponPosFracChangeFracVel = _RBX->weapCommon.fWeaponPosFracChangeFracVel;
-  _RDI->viewHeightCurrent = _RBX->viewHeightCurrent;
-  _RDI->viewHeightLerpTime = _RBX->viewHeightLerpTime;
-  _RDI->viewHeightLerpTarget = _RBX->viewHeightLerpTarget;
-  _RDI->vehicleState.origin.v[0] = _RBX->vehicleState.origin.v[0];
-  _RDI->vehicleState.origin.v[1] = _RBX->vehicleState.origin.v[1];
-  _RDI->vehicleState.origin.v[2] = _RBX->vehicleState.origin.v[2];
-  _RDI->vehicleState.angles.v[0] = _RBX->vehicleState.angles.v[0];
-  _RDI->vehicleState.angles.v[1] = _RBX->vehicleState.angles.v[1];
-  _RDI->vehicleState.angles.v[2] = _RBX->vehicleState.angles.v[2];
-  _RDI->vehicleState.gunAngles.v[0] = _RBX->vehicleState.gunAngles.v[0];
-  _RDI->vehicleState.gunAngles.v[1] = _RBX->vehicleState.gunAngles.v[1];
-  _RDI->vehicleState.tilt.v[0] = _RBX->vehicleState.tilt.v[0];
-  _RDI->vehicleState.tilt.v[1] = _RBX->vehicleState.tilt.v[1];
+  commandTime = extrapolatedPlayerState->commandTime;
+  ps->commandTime = extrapolatedPlayerState->commandTime;
+  ps->commandTimeInterpolated = commandTime;
+  ps->origin.v[0] = extrapolatedPlayerState->origin.v[0];
+  ps->origin.v[1] = extrapolatedPlayerState->origin.v[1];
+  ps->origin.v[2] = extrapolatedPlayerState->origin.v[2];
+  ps->viewangles.v[0] = extrapolatedPlayerState->viewangles.v[0];
+  ps->viewangles.v[1] = extrapolatedPlayerState->viewangles.v[1];
+  ps->viewangles.v[2] = extrapolatedPlayerState->viewangles.v[2];
+  ps->movementDir = extrapolatedPlayerState->movementDir;
+  ps->movementDirPrecise = extrapolatedPlayerState->movementDirPrecise;
+  ps->velocityClipDir = extrapolatedPlayerState->velocityClipDir;
+  ps->moveSpeedForAnimBlend = extrapolatedPlayerState->moveSpeedForAnimBlend;
+  *(double *)ps->packedBobCycle = *(double *)extrapolatedPlayerState->packedBobCycle;
+  ps->weapCommon.weaponIdleTime = extrapolatedPlayerState->weapCommon.weaponIdleTime;
+  ps->weapCommon.weaponIdleTime2 = extrapolatedPlayerState->weapCommon.weaponIdleTime2;
+  ps->mountState.eyePoint.v[0] = extrapolatedPlayerState->mountState.eyePoint.v[0];
+  ps->mountState.eyePoint.v[1] = extrapolatedPlayerState->mountState.eyePoint.v[1];
+  ps->mountState.eyePoint.v[2] = extrapolatedPlayerState->mountState.eyePoint.v[2];
+  ps->mountState.eyePointMover.v[0] = extrapolatedPlayerState->mountState.eyePointMover.v[0];
+  ps->mountState.eyePointMover.v[1] = extrapolatedPlayerState->mountState.eyePointMover.v[1];
+  ps->mountState.eyePointMover.v[2] = extrapolatedPlayerState->mountState.eyePointMover.v[2];
+  ps->mountState.mountFraction = extrapolatedPlayerState->mountState.mountFraction;
+  ps->mountState.flags = extrapolatedPlayerState->mountState.flags;
+  ps->doorState[0].angle = extrapolatedPlayerState->doorState[0].angle;
+  ps->doorState[1].angle = extrapolatedPlayerState->doorState[1].angle;
+  ps->skydivePlayerState.pitch = extrapolatedPlayerState->skydivePlayerState.pitch;
+  ps->skydivePlayerState.roll = extrapolatedPlayerState->skydivePlayerState.roll;
+  ps->weapCommon.fWeaponPosFrac = extrapolatedPlayerState->weapCommon.fWeaponPosFrac;
+  ps->weapCommon.fWeaponPosFracIn = extrapolatedPlayerState->weapCommon.fWeaponPosFracIn;
+  ps->weapCommon.fWeaponPosFracMomentum = extrapolatedPlayerState->weapCommon.fWeaponPosFracMomentum;
+  ps->weapCommon.fWeaponPosFracChangeTime = extrapolatedPlayerState->weapCommon.fWeaponPosFracChangeTime;
+  ps->weapCommon.fWeaponPosFracChangeFracVel = extrapolatedPlayerState->weapCommon.fWeaponPosFracChangeFracVel;
+  ps->viewHeightCurrent = extrapolatedPlayerState->viewHeightCurrent;
+  ps->viewHeightLerpTime = extrapolatedPlayerState->viewHeightLerpTime;
+  ps->viewHeightLerpTarget = extrapolatedPlayerState->viewHeightLerpTarget;
+  ps->vehicleState.origin.v[0] = extrapolatedPlayerState->vehicleState.origin.v[0];
+  ps->vehicleState.origin.v[1] = extrapolatedPlayerState->vehicleState.origin.v[1];
+  ps->vehicleState.origin.v[2] = extrapolatedPlayerState->vehicleState.origin.v[2];
+  ps->vehicleState.angles.v[0] = extrapolatedPlayerState->vehicleState.angles.v[0];
+  ps->vehicleState.angles.v[1] = extrapolatedPlayerState->vehicleState.angles.v[1];
+  ps->vehicleState.angles.v[2] = extrapolatedPlayerState->vehicleState.angles.v[2];
+  ps->vehicleState.gunAngles.v[0] = extrapolatedPlayerState->vehicleState.gunAngles.v[0];
+  ps->vehicleState.gunAngles.v[1] = extrapolatedPlayerState->vehicleState.gunAngles.v[1];
+  ps->vehicleState.tilt.v[0] = extrapolatedPlayerState->vehicleState.tilt.v[0];
+  ps->vehicleState.tilt.v[1] = extrapolatedPlayerState->vehicleState.tilt.v[1];
 }
 

@@ -60,80 +60,68 @@ bdAuthHTTPUtility::deobfuscate
 */
 __int64 bdAuthHTTPUtility::deobfuscate(unsigned __int8 *dest, const unsigned __int8 *const source, const unsigned __int8 *const xorSource, unsigned int length)
 {
+  __int64 v4; 
   __int64 v7; 
   unsigned __int8 *v8; 
-  unsigned int v9; 
-  unsigned int v21; 
-  const unsigned __int8 *v22; 
-  __int64 v23; 
+  int v9; 
+  __int64 v12; 
+  __int64 v17; 
+  unsigned int v20; 
+  const unsigned __int8 *v21; 
+  __int64 v22; 
+  signed __int64 v23; 
   signed __int64 v24; 
-  signed __int64 v25; 
 
-  _R10 = 0i64;
-  _RBX = source;
-  _R11 = dest;
+  v4 = 0i64;
   if ( length )
   {
     if ( length >= 0x40 )
     {
       v7 = length - 1;
       v8 = &dest[v7];
-      if ( (dest > &xorSource[v7] || v8 < xorSource) && (dest > &_RBX[length - 1] || v8 < _RBX) )
+      if ( (dest > &xorSource[v7] || v8 < xorSource) && (dest > &source[length - 1] || v8 < source) )
       {
         v9 = 32;
         do
         {
-          __asm
-          {
-            vmovdqu xmm1, xmmword ptr [r10+rbx]
-            vpxor   xmm1, xmm1, xmmword ptr [r10+r8]
-            vmovdqu xmmword ptr [r10+r11], xmm1
-          }
-          _RAX = v9 - 16;
-          _R10 = (unsigned int)(_R10 + 64);
-          __asm
-          {
-            vmovdqu xmm1, xmmword ptr [rax+rbx]
-            vpxor   xmm1, xmm1, xmmword ptr [rax+r8]
-            vmovdqu xmmword ptr [rax+r11], xmm1
-          }
-          _RAX = v9;
-          __asm
-          {
-            vmovdqu xmm1, xmmword ptr [rax+rbx]
-            vpxor   xmm1, xmm1, xmmword ptr [rax+r8]
-            vmovdqu xmmword ptr [rax+r11], xmm1
-          }
-          _RAX = v9 + 16;
+          _XMM1 = *(_OWORD *)&source[v4];
+          __asm { vpxor   xmm1, xmm1, xmmword ptr [r10+r8] }
+          *(_OWORD *)&dest[v4] = _XMM1;
+          v12 = (unsigned int)(v9 - 16);
+          v4 = (unsigned int)(v4 + 64);
+          _XMM1 = *(_OWORD *)&source[v12];
+          __asm { vpxor   xmm1, xmm1, xmmword ptr [rax+r8] }
+          *(_OWORD *)&dest[v12] = _XMM1;
+          _XMM1 = *(_OWORD *)&source[v9];
+          __asm { vpxor   xmm1, xmm1, xmmword ptr [rax+r8] }
+          *(_OWORD *)&dest[v9] = _XMM1;
+          v17 = (unsigned int)(v9 + 16);
           v9 += 64;
-          __asm
-          {
-            vmovdqu xmm1, xmmword ptr [rax+rbx]
-            vpxor   xmm1, xmm1, xmmword ptr [rax+r8]
-            vmovdqu xmmword ptr [rax+r11], xmm1
-          }
+          _XMM1 = *(_OWORD *)&source[v17];
+          __asm { vpxor   xmm1, xmm1, xmmword ptr [rax+r8] }
+          *(_OWORD *)&dest[v17] = _XMM1;
         }
-        while ( (unsigned int)_R10 < (length & 0xFFFFFFC0) );
+        while ( (unsigned int)v4 < (length & 0xFFFFFFC0) );
       }
     }
-    if ( (unsigned int)_R10 < length )
+    if ( (unsigned int)v4 < length )
     {
-      v21 = length - _R10;
-      v22 = &xorSource[(unsigned int)_R10];
-      v23 = v21;
-      v24 = _RBX - xorSource;
-      v25 = _R11 - xorSource;
-      LODWORD(_R10) = v21 + _R10;
+      v20 = length - v4;
+      v21 = &xorSource[(unsigned int)v4];
+      v22 = v20;
+      v23 = source - xorSource;
+      v24 = dest - xorSource;
+      LODWORD(v4) = v20 + v4;
       do
       {
-        v22[v25] = *v22 ^ v22[v24];
-        ++v22;
-        --v23;
+        v21[v24] = *v21 ^ v21[v23];
+        ++v21;
+        --v22;
       }
-      while ( v23 );
+      while ( v22 );
     }
   }
-  return (unsigned int)_R10;
+  return (unsigned int)v4;
 }
 
 /*

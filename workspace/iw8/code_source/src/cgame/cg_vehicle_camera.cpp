@@ -261,200 +261,96 @@ void CG_VehicleCam_GetControllerAxis(LocalClientNum_t localClientNum, float *pit
 {
   cg_t *LocalClientGlobals; 
   CgVehicleSystem *VehicleSystem; 
-  char v19; 
+  double v10; 
+  double ClientLookInversion; 
+  float v12; 
+  double v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  int *v17; 
+  float v18; 
+  int v19; 
   bool v20; 
-  bool v27; 
-  bool v28; 
-  int v39; 
-  bool v41; 
-  bool v42; 
-  bool v43; 
-  __int64 v56; 
-  __int64 v57; 
-  int v58[2]; 
+  float v21; 
+  float v22; 
+  __int64 v23; 
+  __int64 v24; 
+  int v25[2]; 
 
-  _R14 = yawAxis;
-  _RSI = pitchAxis;
   if ( !pitchAxis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 406, ASSERT_TYPE_ASSERT, "(pitchAxis)", (const char *)&queryFormat, "pitchAxis") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 407, ASSERT_TYPE_ASSERT, "(yawAxis)", (const char *)&queryFormat, "yawAxis") )
+  if ( !yawAxis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 407, ASSERT_TYPE_ASSERT, "(yawAxis)", (const char *)&queryFormat, "yawAxis") )
     __debugbreak();
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 410, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.pm_flags, ACTIVE, 0x10u) )
   {
-    *_RSI = 0.0;
-    *_R14 = 0.0;
+    *pitchAxis = 0.0;
+    *yawAxis = 0.0;
   }
   else
   {
     VehicleSystem = CgVehicleSystem::GetVehicleSystem(localClientNum);
-    if ( !VehicleSystem->GetCameraSpectatorAxis(VehicleSystem, _RSI, _R14) )
+    if ( !VehicleSystem->GetCameraSpectatorAxis(VehicleSystem, pitchAxis, yawAxis) )
     {
-      __asm
-      {
-        vmovaps [rsp+0E8h+var_38], xmm6
-        vmovaps [rsp+0E8h+var_48], xmm7
-        vmovaps [rsp+0E8h+var_58], xmm8
-        vmovaps [rsp+0E8h+var_98], xmm12
-      }
-      *(double *)&_XMM0 = CL_GamepadAxisValue(localClientNum, 3);
-      __asm { vmovss  dword ptr [rsi], xmm0 }
-      *(double *)&_XMM0 = CL_Input_GetClientLookInversion(localClientNum);
-      __asm
-      {
-        vmulss  xmm0, xmm0, dword ptr [rsi]
-        vmovss  dword ptr [rsi], xmm0
-      }
-      *(double *)&_XMM0 = CL_GamepadAxisValue(localClientNum, 2);
-      __asm
-      {
-        vxorps  xmm6, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm12, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovss  xmm8, cs:__real@3f800000
-        vmovss  dword ptr [r14], xmm6
-        vmovss  xmm7, dword ptr [rsi]
-        vandps  xmm7, xmm7, xmm12
-        vcomiss xmm7, xmm8
-        vandps  xmm6, xmm6, xmm12
-      }
-      if ( !(v19 | v20) )
-      {
-        v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 434, ASSERT_TYPE_ASSERT, "(absPitchAxis <= 1.0f)", (const char *)&queryFormat, "absPitchAxis <= 1.0f");
-        v19 = 0;
-        v20 = !v27;
-        if ( v27 )
-          __debugbreak();
-      }
-      __asm { vcomiss xmm6, xmm8 }
-      if ( !(v19 | v20) )
-      {
-        v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 435, ASSERT_TYPE_ASSERT, "(absYawAxis <= 1.0f)", (const char *)&queryFormat, "absYawAxis <= 1.0f");
-        v19 = 0;
-        v20 = !v28;
-        if ( v28 )
-          __debugbreak();
-      }
-      __asm { vcomiss xmm7, xmm6 }
-      if ( v19 | v20 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm6, xmm7
-          vsubss  xmm0, xmm8, xmm0
-          vmulss  xmm1, xmm0, dword ptr [rsi]
-          vmovss  dword ptr [rsi], xmm1
-        }
-      }
+      v10 = CL_GamepadAxisValue(localClientNum, 3);
+      *pitchAxis = *(float *)&v10;
+      ClientLookInversion = CL_Input_GetClientLookInversion(localClientNum);
+      v12 = *(float *)&ClientLookInversion * *pitchAxis;
+      *pitchAxis = v12;
+      v13 = CL_GamepadAxisValue(localClientNum, 2);
+      *yawAxis = COERCE_FLOAT(LODWORD(v13) ^ _xmm);
+      LODWORD(v14) = *(_DWORD *)pitchAxis & _xmm;
+      LODWORD(v15) = (LODWORD(v12) ^ _xmm) & _xmm;
+      if ( v14 > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 434, ASSERT_TYPE_ASSERT, "(absPitchAxis <= 1.0f)", (const char *)&queryFormat, "absPitchAxis <= 1.0f") )
+        __debugbreak();
+      if ( v15 > 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 435, ASSERT_TYPE_ASSERT, "(absYawAxis <= 1.0f)", (const char *)&queryFormat, "absYawAxis <= 1.0f") )
+        __debugbreak();
+      if ( v14 <= v15 )
+        *pitchAxis = (float)(1.0 - (float)(v15 - v14)) * *pitchAxis;
       else
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm7, xmm6
-          vsubss  xmm0, xmm8, xmm0
-          vmulss  xmm1, xmm0, dword ptr [r14]
-          vmovss  dword ptr [r14], xmm1
-        }
-      }
+        *yawAxis = (float)(1.0 - (float)(v14 - v15)) * *yawAxis;
       if ( applyDeadzone )
       {
-        __asm
-        {
-          vmovss  xmm7, dword ptr [r14]
-          vmovss  xmm6, cs:__real@3e8a3d71
-          vmovaps [rsp+0E8h+var_68], xmm9
-        }
-        _RDI = v58;
-        __asm
-        {
-          vmovss  xmm9, dword ptr [rsi]
-          vmovaps [rsp+0E8h+var_78], xmm10
-          vmovss  xmm10, cs:__real@3f7d70a4
-        }
-        v39 = 0;
-        __asm
-        {
-          vmovaps [rsp+0E8h+var_88], xmm11
-          vmovss  xmm11, cs:__real@3fb1c71c
-          vmovss  [rsp+0E8h+var_A4], xmm9
-          vmovss  [rsp+0E8h+var_A8], xmm7
-        }
-        v41 = 1;
-        v42 = 1;
+        v16 = *yawAxis;
+        v17 = v25;
+        v18 = *pitchAxis;
+        v19 = 0;
+        v25[1] = *(int *)pitchAxis;
+        *(float *)v25 = v16;
+        v20 = 1;
         do
         {
-          if ( !v41 )
+          if ( !v20 )
           {
-            LODWORD(v57) = 2;
-            LODWORD(v56) = v39;
-            v43 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v56, v57);
-            v41 = 0;
-            v42 = !v43;
-            if ( v43 )
+            LODWORD(v24) = 2;
+            LODWORD(v23) = v19;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, v24) )
               __debugbreak();
           }
-          __asm
+          LODWORD(v21) = *v17 & _xmm;
+          if ( v21 >= 0.27000001 )
           {
-            vmovss  xmm0, dword ptr [rdi]
-            vandps  xmm0, xmm0, xmm12
-            vcomiss xmm0, xmm6
-          }
-          if ( v41 )
-          {
-            __asm { vxorps  xmm1, xmm1, xmm1 }
-          }
-          else
-          {
-            __asm { vcomiss xmm0, xmm10 }
-            if ( v42 )
-            {
-              __asm
-              {
-                vsubss  xmm0, xmm0, xmm6
-                vmulss  xmm1, xmm0, xmm11
-              }
-            }
+            if ( v21 <= 0.99000001 )
+              v22 = (float)(v21 - 0.27000001) * 1.3888888;
             else
-            {
-              __asm { vmovaps xmm1, xmm8 }
-            }
-          }
-          if ( v39 )
-          {
-            __asm
-            {
-              vmulss  xmm0, xmm9, xmm1
-              vmovss  dword ptr [rsi], xmm0
-            }
+              v22 = FLOAT_1_0;
           }
           else
           {
-            __asm
-            {
-              vmulss  xmm0, xmm7, xmm1
-              vmovss  dword ptr [r14], xmm0
-            }
+            v22 = 0.0;
           }
-          ++v39;
-          ++_RDI;
-          v41 = (unsigned int)v39 < 2;
-          v42 = (unsigned int)v39 <= 2;
+          if ( v19 )
+            *pitchAxis = v18 * v22;
+          else
+            *yawAxis = v16 * v22;
+          ++v19;
+          ++v17;
+          v20 = (unsigned int)v19 < 2;
         }
-        while ( v39 < 2 );
-        __asm
-        {
-          vmovaps xmm11, [rsp+0E8h+var_88]
-          vmovaps xmm10, [rsp+0E8h+var_78]
-          vmovaps xmm9, [rsp+0E8h+var_68]
-        }
-      }
-      __asm
-      {
-        vmovaps xmm8, [rsp+0E8h+var_58]
-        vmovaps xmm7, [rsp+0E8h+var_48]
-        vmovaps xmm6, [rsp+0E8h+var_38]
-        vmovaps xmm12, [rsp+0E8h+var_98]
+        while ( v19 < 2 );
       }
     }
   }
@@ -467,6 +363,7 @@ CG_VehicleCam_GetRemoteDriveFov
 */
 float CG_VehicleCam_GetRemoteDriveFov(LocalClientNum_t localClientNum)
 {
+  cg_t *LocalClientGlobals; 
   unsigned int entity; 
   int v4; 
   __int16 remoteEyesEnt; 
@@ -475,35 +372,36 @@ float CG_VehicleCam_GetRemoteDriveFov(LocalClientNum_t localClientNum)
   const VehicleClient *Client; 
   const VehicleDef *ClientDef; 
   __int64 v10; 
+  VehicleCamera *v11; 
+  __int64 v13; 
   __int64 v14; 
-  __int64 v15; 
 
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RBX->predictedPlayerState.otherFlags, ACTIVE, 1u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1037, ASSERT_TYPE_ASSERT, "(ps->otherFlags.TestFlag( POtherFlagsCommon::REMOTE_EYES ))", (const char *)&queryFormat, "ps->otherFlags.TestFlag( POtherFlagsCommon::REMOTE_EYES )") )
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, ACTIVE, 1u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1037, ASSERT_TYPE_ASSERT, "(ps->otherFlags.TestFlag( POtherFlagsCommon::REMOTE_EYES ))", (const char *)&queryFormat, "ps->otherFlags.TestFlag( POtherFlagsCommon::REMOTE_EYES )") )
     __debugbreak();
-  if ( _RBX->predictedPlayerState.vehicleState.entity == 2047 && _RBX->predictedPlayerState.remoteEyesEnt == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1038, ASSERT_TYPE_ASSERT, "(ps->vehicleState.entity != ENTITYNUM_NONE || ps->remoteEyesEnt != ENTITYNUM_NONE)", (const char *)&queryFormat, "ps->vehicleState.entity != ENTITYNUM_NONE || ps->remoteEyesEnt != ENTITYNUM_NONE") )
+  if ( LocalClientGlobals->predictedPlayerState.vehicleState.entity == 2047 && LocalClientGlobals->predictedPlayerState.remoteEyesEnt == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1038, ASSERT_TYPE_ASSERT, "(ps->vehicleState.entity != ENTITYNUM_NONE || ps->remoteEyesEnt != ENTITYNUM_NONE)", (const char *)&queryFormat, "ps->vehicleState.entity != ENTITYNUM_NONE || ps->remoteEyesEnt != ENTITYNUM_NONE") )
     __debugbreak();
-  entity = _RBX->predictedPlayerState.vehicleState.entity;
+  entity = LocalClientGlobals->predictedPlayerState.vehicleState.entity;
   if ( entity == 2047 )
   {
-    remoteEyesEnt = _RBX->predictedPlayerState.remoteEyesEnt;
+    remoteEyesEnt = LocalClientGlobals->predictedPlayerState.remoteEyesEnt;
     if ( (unsigned __int16)remoteEyesEnt >= 0x7FEu )
     {
-      LODWORD(v14) = remoteEyesEnt;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1047, ASSERT_TYPE_ASSERT, "(unsigned)( ps->remoteEyesEnt ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "ps->remoteEyesEnt doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v14, 2046) )
+      LODWORD(v13) = remoteEyesEnt;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1047, ASSERT_TYPE_ASSERT, "(unsigned)( ps->remoteEyesEnt ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "ps->remoteEyesEnt doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v13, 2046) )
         __debugbreak();
     }
-    v4 = _RBX->predictedPlayerState.remoteEyesEnt;
+    v4 = LocalClientGlobals->predictedPlayerState.remoteEyesEnt;
   }
   else
   {
     if ( entity >= 0x7FE )
     {
-      LODWORD(v14) = _RBX->predictedPlayerState.vehicleState.entity;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1042, ASSERT_TYPE_ASSERT, "(unsigned)( ps->vehicleState.entity ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "ps->vehicleState.entity doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v14, 2046) )
+      LODWORD(v13) = LocalClientGlobals->predictedPlayerState.vehicleState.entity;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1042, ASSERT_TYPE_ASSERT, "(unsigned)( ps->vehicleState.entity ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "ps->vehicleState.entity doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v13, 2046) )
         __debugbreak();
     }
-    v4 = _RBX->predictedPlayerState.vehicleState.entity;
+    v4 = LocalClientGlobals->predictedPlayerState.vehicleState.entity;
   }
   v6 = CG_GetEntity(localClientNum, v4);
   if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1051, ASSERT_TYPE_ASSERT, "(vehicleEnt)", (const char *)&queryFormat, "vehicleEnt") )
@@ -519,22 +417,21 @@ float CG_VehicleCam_GetRemoteDriveFov(LocalClientNum_t localClientNum)
   ClientDef = CgVehicleSystem::GetClientDef(Client);
   if ( !ClientDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1058, ASSERT_TYPE_ASSERT, "(vehicleDef)", (const char *)&queryFormat, "vehicleDef") )
     __debugbreak();
-  v10 = _RBX->localClientNum;
+  v10 = LocalClientGlobals->localClientNum;
   if ( (unsigned int)v10 >= 2 )
   {
-    LODWORD(v15) = 2;
-    LODWORD(v14) = _RBX->localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v14, v15) )
+    LODWORD(v14) = 2;
+    LODWORD(v13) = LocalClientGlobals->localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v13, v14) )
       __debugbreak();
   }
-  _RDI = &vehicleCameras[v10];
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1061, ASSERT_TYPE_ASSERT, "(vehicleCam)", (const char *)&queryFormat, "vehicleCam") )
+  v11 = &vehicleCameras[v10];
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1061, ASSERT_TYPE_ASSERT, "(vehicleCam)", (const char *)&queryFormat, "vehicleCam") )
     __debugbreak();
   if ( ClientDef->turretWeapon )
-    __asm { vmovss  xmm0, dword ptr [rbx+59EC4h] }
+    return LocalClientGlobals->turretFov;
   else
-    __asm { vmovss  xmm0, dword ptr [rdi+38h] }
-  return *(float *)&_XMM0;
+    return v11->fov;
 }
 
 /*
@@ -544,40 +441,31 @@ CG_VehicleCam_GetRemoteDriveViewAngles
 */
 void CG_VehicleCam_GetRemoteDriveViewAngles(LocalClientNum_t localClientNum, const playerState_s *playerState, const centity_t *vehicleEntity, vec3_t *outViewAngles)
 {
+  float v8; 
   CgVehicleSystem *VehicleSystem; 
   const VehicleClient *Client; 
   const VehicleDef *ClientDef; 
-  const VehicleDef *v16; 
+  const VehicleDef *v12; 
   vec3_t vehicleAngles; 
   vec3_t outVehiclePosition; 
 
-  __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
   if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1002, ASSERT_TYPE_ASSERT, "(playerState)", (const char *)&queryFormat, "playerState") )
     __debugbreak();
   if ( !vehicleEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1003, ASSERT_TYPE_ASSERT, "(vehicleEntity)", (const char *)&queryFormat, "vehicleEntity") )
     __debugbreak();
-  CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rax+65E4h]
-    vmulss  xmm6, xmm0, cs:__real@3a83126f
-  }
+  v8 = (float)CG_GetLocalClientGlobals(localClientNum)->frametime * 0.001;
   VehicleSystem = CgVehicleSystem::GetVehicleSystem(localClientNum);
   Client = CgVehicleSystem::GetClient(VehicleSystem, vehicleEntity);
   if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1011, ASSERT_TYPE_ASSERT, "(vehicleCl)", (const char *)&queryFormat, "vehicleCl") )
     __debugbreak();
   ClientDef = CgVehicleSystem::GetClientDef(Client);
-  v16 = ClientDef;
+  v12 = ClientDef;
   if ( (!ClientDef || !ClientDef->camRemoteDrive) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1015, ASSERT_TYPE_ASSERT, "(vehicleDef && vehicleDef->camRemoteDrive)", (const char *)&queryFormat, "vehicleDef && vehicleDef->camRemoteDrive") )
     __debugbreak();
-  __asm { vmovaps xmm3, xmm6; frameTime }
-  VehicleCam_GetRemoteDriveVehiclePosition(localClientNum, vehicleEntity, v16, *(const float *)&_XMM3, &outVehiclePosition, &vehicleAngles);
-  __asm { vmovaps xmm3, xmm6; frameTime }
-  VehicleCam_GetRemoteDriveUserAngles(localClientNum, playerState, v16, *(const float *)&_XMM3, outViewAngles);
-  BG_Vehicle_ApplyCameraInfluence(&playerState->vehicleState, v16, outViewAngles, &vehicleAngles, outViewAngles);
-  BG_Vehicle_ClampCameraUserAnglesToVehicleSpace(&vehicleAngles, outViewAngles, v16, outViewAngles);
-  __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
+  VehicleCam_GetRemoteDriveVehiclePosition(localClientNum, vehicleEntity, v12, v8, &outVehiclePosition, &vehicleAngles);
+  VehicleCam_GetRemoteDriveUserAngles(localClientNum, playerState, v12, v8, outViewAngles);
+  BG_Vehicle_ApplyCameraInfluence(&playerState->vehicleState, v12, outViewAngles, &vehicleAngles, outViewAngles);
+  BG_Vehicle_ClampCameraUserAnglesToVehicleSpace(&vehicleAngles, outViewAngles, v12, outViewAngles);
 }
 
 /*
@@ -590,25 +478,28 @@ void CG_VehicleCam_GetVehiclePosition(LocalClientNum_t localClientNum, const cen
   CgVehicleSystem *VehicleSystem; 
   const DObj *EntityDObj; 
   cg_t *LocalClientGlobals; 
+  const SuitDef *SuitDef; 
+  float viewheight_stand; 
+  float v13; 
+  float v14; 
   tmat33_t<vec3_t> outTagMat; 
 
-  _RSI = outOrigin;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 304, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   VehicleSystem = CgVehicleSystem::GetVehicleSystem(localClientNum);
   EntityDObj = CG_Vehicle_GetEntityDObj(VehicleSystem, cent);
   if ( !CgVehicleSystem::IsDobjValidForVehicle(EntityDObj) )
   {
-    CG_GetPoseOrigin(&cent->pose, _RSI);
+    CG_GetPoseOrigin(&cent->pose, outOrigin);
     if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 552, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
       __debugbreak();
     goto LABEL_11;
   }
   if ( (CgVehicleSystem::GetClient(VehicleSystem, cent)->flags & 1) != 0 )
   {
-    if ( !CG_DObjGetWorldTagMatrix(&cent->pose, EntityDObj, scr_const.tag_player, &outTagMat, _RSI) )
+    if ( !CG_DObjGetWorldTagMatrix(&cent->pose, EntityDObj, scr_const.tag_player, &outTagMat, outOrigin) )
     {
-      CG_GetPoseOrigin(&cent->pose, _RSI);
+      CG_GetPoseOrigin(&cent->pose, outOrigin);
 LABEL_11:
       outAngles->v[0] = cent->pose.angles.v[0];
       outAngles->v[1] = cent->pose.angles.v[1];
@@ -617,19 +508,19 @@ LABEL_11:
     }
     goto LABEL_13;
   }
-  if ( CG_DObjGetWorldTagMatrix(&cent->pose, EntityDObj, scr_const.tag_camera, &outTagMat, _RSI) )
+  if ( CG_DObjGetWorldTagMatrix(&cent->pose, EntityDObj, scr_const.tag_camera, &outTagMat, outOrigin) )
   {
 LABEL_13:
     AxisToAngles(&outTagMat, outAngles);
     return;
   }
-  if ( CG_DObjGetWorldTagMatrix(&cent->pose, EntityDObj, scr_const.tag_player, &outTagMat, _RSI) )
+  if ( CG_DObjGetWorldTagMatrix(&cent->pose, EntityDObj, scr_const.tag_player, &outTagMat, outOrigin) )
   {
     AxisToAngles(&outTagMat, outAngles);
   }
   else
   {
-    CG_GetPoseOrigin(&cent->pose, _RSI);
+    CG_GetPoseOrigin(&cent->pose, outOrigin);
     outAngles->v[0] = cent->pose.angles.v[0];
     outAngles->v[1] = cent->pose.angles.v[1];
     outAngles->v[2] = cent->pose.angles.v[2];
@@ -638,22 +529,15 @@ LABEL_13:
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 349, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( !BG_GetSuitDef(LocalClientGlobals->predictedPlayerState.suitIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 351, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+  SuitDef = BG_GetSuitDef(LocalClientGlobals->predictedPlayerState.suitIndex);
+  if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 351, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, dword ptr [rbx+200h]
-    vmulss  xmm0, xmm2, dword ptr [rsp+98h+outTagMat+18h]
-    vaddss  xmm1, xmm0, dword ptr [rsi]
-    vmulss  xmm0, xmm2, dword ptr [rsp+98h+outTagMat+1Ch]
-    vmovss  dword ptr [rsi], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsi+4]
-    vmulss  xmm0, xmm2, dword ptr [rsp+98h+outTagMat+20h]
-    vmovss  dword ptr [rsi+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rsi+8], xmm1
-  }
+  viewheight_stand = (float)SuitDef->viewheight_stand;
+  v13 = viewheight_stand * outTagMat.m[2].v[1];
+  outOrigin->v[0] = (float)(viewheight_stand * outTagMat.m[2].v[0]) + outOrigin->v[0];
+  v14 = viewheight_stand * outTagMat.m[2].v[2];
+  outOrigin->v[1] = v13 + outOrigin->v[1];
+  outOrigin->v[2] = v14 + outOrigin->v[2];
 }
 
 /*
@@ -928,17 +812,11 @@ bool CG_VehicleCam_IsRemoteDriveCam(LocalClientNum_t localClientNum)
 CG_VehicleCam_ScaleFov
 ==============
 */
-
-float __fastcall CG_VehicleCam_ScaleFov(const cg_t *cg, double fov)
+float CG_VehicleCam_ScaleFov(const cg_t *cg, float fov)
 {
-  LocalClientNum_t localClientNum; 
-  __int64 v9; 
+  __int64 localClientNum; 
+  __int64 v5; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !cg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1186, ASSERT_TYPE_ASSERT, "(cg)", (const char *)&queryFormat, "cg") )
     __debugbreak();
   if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cg->predictedPlayerState.eFlags, ACTIVE, 0xBu) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1190, ASSERT_TYPE_ASSERT, "(ps->eFlags.TestFlag( EntityStateFlagsCommon::VEHICLE_ACTIVE ))", (const char *)&queryFormat, "ps->eFlags.TestFlag( EntityStateFlagsCommon::VEHICLE_ACTIVE )") )
@@ -946,18 +824,13 @@ float __fastcall CG_VehicleCam_ScaleFov(const cg_t *cg, double fov)
   if ( cg->predictedPlayerState.viewlocked_entNum == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1191, ASSERT_TYPE_ASSERT, "(ps->viewlocked_entNum != ENTITYNUM_NONE)", (const char *)&queryFormat, "ps->viewlocked_entNum != ENTITYNUM_NONE") )
     __debugbreak();
   localClientNum = cg->localClientNum;
-  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
+  if ( (unsigned int)localClientNum >= 2 )
   {
-    LODWORD(v9) = localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v9, 2) )
+    LODWORD(v5) = localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v5, 2) )
       __debugbreak();
   }
-  __asm
-  {
-    vaddss  xmm0, xmm6, dword ptr [rcx+rax]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return fov + vehicleCameras[localClientNum].fov;
 }
 
 /*
@@ -967,33 +840,23 @@ CG_VehicleCam_SetClientViewAngles
 */
 void CG_VehicleCam_SetClientViewAngles(const cg_t *cg, const vec3_t *viewAngles)
 {
+  float v4; 
   ClActiveClient *Client; 
-  int v11; 
-  int v12; 
-  int v13; 
+  float v6; 
+  float v7; 
 
-  _RDI = viewAngles;
   if ( !cg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 162, ASSERT_TYPE_ASSERT, "(cg)", (const char *)&queryFormat, "cg") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm1, xmm0, dword ptr [rbx+0BCh]
-    vmovss  xmm2, dword ptr [rdi+4]
-    vsubss  xmm0, xmm2, dword ptr [rbx+0C0h]
-    vmovss  [rsp+58h+var_28], xmm1
-    vmovss  xmm1, dword ptr [rdi+8]
-    vsubss  xmm2, xmm1, dword ptr [rbx+0C4h]
-    vmovss  [rsp+58h+var_20], xmm2
-    vmovss  [rsp+58h+var_24], xmm0
-  }
+  v4 = viewAngles->v[1] - cg->predictedPlayerState.delta_angles.v[1];
+  v6 = viewAngles->v[0] - cg->predictedPlayerState.delta_angles.v[0];
+  v7 = viewAngles->v[2] - cg->predictedPlayerState.delta_angles.v[2];
   Client = ClActiveClient::GetClient((const LocalClientNum_t)cg->localClientNum);
   if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 225, ASSERT_TYPE_ASSERT, "(activeClient)", (const char *)&queryFormat, "activeClient") )
     __debugbreak();
   Client->clviewangles_aab += Client->clviewangles_set_aab;
-  LODWORD(Client->clViewangles.clViewangles.v[0]) = v11 ^ ((((_DWORD)Client + 428) ^ Client->clviewangles_aab) * ((((_DWORD)Client + 428) ^ Client->clviewangles_aab) + 2));
-  LODWORD(Client->clViewangles.clViewangles.v[1]) = v12 ^ ((Client->clviewangles_aab ^ ((_DWORD)Client + 432)) * ((Client->clviewangles_aab ^ ((_DWORD)Client + 432)) + 2));
-  LODWORD(Client->clViewangles.clViewangles.v[2]) = v13 ^ ((Client->clviewangles_aab ^ ((_DWORD)Client + 436)) * ((Client->clviewangles_aab ^ ((_DWORD)Client + 436)) + 2));
+  LODWORD(Client->clViewangles.clViewangles.v[0]) = LODWORD(v6) ^ ((((_DWORD)Client + 428) ^ Client->clviewangles_aab) * ((((_DWORD)Client + 428) ^ Client->clviewangles_aab) + 2));
+  LODWORD(Client->clViewangles.clViewangles.v[1]) = LODWORD(v4) ^ ((Client->clviewangles_aab ^ ((_DWORD)Client + 432)) * ((Client->clviewangles_aab ^ ((_DWORD)Client + 432)) + 2));
+  LODWORD(Client->clViewangles.clViewangles.v[2]) = LODWORD(v7) ^ ((Client->clviewangles_aab ^ ((_DWORD)Client + 436)) * ((Client->clviewangles_aab ^ ((_DWORD)Client + 436)) + 2));
 }
 
 /*
@@ -1066,37 +929,45 @@ CG_VehicleCam_UpdateRemoteDriveCam
 */
 void CG_VehicleCam_UpdateRemoteDriveCam(LocalClientNum_t localClientNum, const cg_t *cg, vec3_t *outViewOrigin, vec3_t *outViewAngles)
 {
+  float v8; 
+  float v9; 
   unsigned int entity; 
-  int v18; 
+  int v11; 
   __int16 remoteEyesEnt; 
-  centity_t *v20; 
+  centity_t *v13; 
   CgVehicleSystem *VehicleSystem; 
+  VehicleClient *Client; 
   const VehicleDef *ClientDef; 
-  __int64 v25; 
-  char v65; 
-  char v66; 
+  const VehicleDef *v17; 
+  __int64 v18; 
+  VehicleCamera *v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v28; 
+  float vehCam_offsetZ; 
+  float vehCam_offsetY; 
+  float camFovSpeed; 
+  double v33; 
+  float camFovIncrease; 
+  double v35; 
   vec3_t *outVehicleAngles; 
-  __int64 v79; 
+  __int64 v37; 
   vec3_t angles; 
   vec3_t userAngles; 
   vec3_t in1; 
   tmat43_t<vec3_t> axis; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-88h], xmm9 }
   if ( !cg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1093, ASSERT_TYPE_ASSERT, "(cg)", (const char *)&queryFormat, "cg") )
     __debugbreak();
   if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&cg->predictedPlayerState.otherFlags, ACTIVE, 1u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1096, ASSERT_TYPE_ASSERT, "(ps->otherFlags.TestFlag( POtherFlagsCommon::REMOTE_EYES ))", (const char *)&queryFormat, "ps->otherFlags.TestFlag( POtherFlagsCommon::REMOTE_EYES )") )
     __debugbreak();
   if ( cg->predictedPlayerState.vehicleState.entity == 2047 && cg->predictedPlayerState.remoteEyesEnt == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1097, ASSERT_TYPE_ASSERT, "(ps->vehicleState.entity != ENTITYNUM_NONE || ps->remoteEyesEnt != ENTITYNUM_NONE)", (const char *)&queryFormat, "ps->vehicleState.entity != ENTITYNUM_NONE || ps->remoteEyesEnt != ENTITYNUM_NONE") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [r14+65E4h]
-    vmulss  xmm9, xmm0, cs:__real@3a83126f
-  }
+  v9 = (float)cg->frametime * 0.001;
+  v8 = v9;
   outViewOrigin->v[0] = cg->predictedPlayerState.origin.v[0];
   outViewOrigin->v[1] = cg->predictedPlayerState.origin.v[1];
   outViewOrigin->v[2] = cg->predictedPlayerState.origin.v[2];
@@ -1113,7 +984,7 @@ void CG_VehicleCam_UpdateRemoteDriveCam(LocalClientNum_t localClientNum, const c
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1111, ASSERT_TYPE_ASSERT, "(unsigned)( ps->remoteEyesEnt ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "ps->remoteEyesEnt doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", outVehicleAngles, 2046) )
         __debugbreak();
     }
-    v18 = cg->predictedPlayerState.remoteEyesEnt;
+    v11 = cg->predictedPlayerState.remoteEyesEnt;
   }
   else
   {
@@ -1123,147 +994,87 @@ void CG_VehicleCam_UpdateRemoteDriveCam(LocalClientNum_t localClientNum, const c
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1106, ASSERT_TYPE_ASSERT, "(unsigned)( ps->vehicleState.entity ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "ps->vehicleState.entity doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", outVehicleAngles, 2046) )
         __debugbreak();
     }
-    v18 = cg->predictedPlayerState.vehicleState.entity;
+    v11 = cg->predictedPlayerState.vehicleState.entity;
   }
-  v20 = CG_GetEntity(localClientNum, v18);
-  if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1115, ASSERT_TYPE_ASSERT, "(vehicleEnt)", (const char *)&queryFormat, "vehicleEnt") )
+  v13 = CG_GetEntity(localClientNum, v11);
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1115, ASSERT_TYPE_ASSERT, "(vehicleEnt)", (const char *)&queryFormat, "vehicleEnt") )
     __debugbreak();
-  if ( (v20->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1116, ASSERT_TYPE_ASSERT, "(CENextValid( vehicleEnt ))", (const char *)&queryFormat, "CENextValid( vehicleEnt )") )
+  if ( (v13->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1116, ASSERT_TYPE_ASSERT, "(CENextValid( vehicleEnt ))", (const char *)&queryFormat, "CENextValid( vehicleEnt )") )
     __debugbreak();
-  if ( v20 == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1914, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  if ( v13 == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1914, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  if ( ((v20->nextState.eType - 12) & 0xFFFD) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1117, ASSERT_TYPE_ASSERT, "(BG_IsVehicleEntity( &vehicleEnt->nextState ))", (const char *)&queryFormat, "BG_IsVehicleEntity( &vehicleEnt->nextState )") )
+  if ( ((v13->nextState.eType - 12) & 0xFFFD) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1117, ASSERT_TYPE_ASSERT, "(BG_IsVehicleEntity( &vehicleEnt->nextState ))", (const char *)&queryFormat, "BG_IsVehicleEntity( &vehicleEnt->nextState )") )
     __debugbreak();
   VehicleSystem = CgVehicleSystem::GetVehicleSystem(localClientNum);
-  _R15 = CgVehicleSystem::GetClient(VehicleSystem, v20);
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1122, ASSERT_TYPE_ASSERT, "(vehicleCl)", (const char *)&queryFormat, "vehicleCl") )
+  Client = CgVehicleSystem::GetClient(VehicleSystem, v13);
+  if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1122, ASSERT_TYPE_ASSERT, "(vehicleCl)", (const char *)&queryFormat, "vehicleCl") )
     __debugbreak();
-  ClientDef = CgVehicleSystem::GetClientDef(_R15);
-  _RDI = ClientDef;
+  ClientDef = CgVehicleSystem::GetClientDef(Client);
+  v17 = ClientDef;
   if ( (!ClientDef || !ClientDef->camRemoteDrive) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1126, ASSERT_TYPE_ASSERT, "(vehicleDef && vehicleDef->camRemoteDrive)", (const char *)&queryFormat, "vehicleDef && vehicleDef->camRemoteDrive") )
     __debugbreak();
-  v25 = cg->localClientNum;
-  if ( (unsigned int)v25 >= 2 )
+  v18 = cg->localClientNum;
+  if ( (unsigned int)v18 >= 2 )
   {
-    LODWORD(v79) = 2;
+    LODWORD(v37) = 2;
     LODWORD(outVehicleAngles) = cg->localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", outVehicleAngles, v79) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", outVehicleAngles, v37) )
       __debugbreak();
   }
-  _RSI = &vehicleCameras[v25];
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1130, ASSERT_TYPE_ASSERT, "(vehicleCam)", (const char *)&queryFormat, "vehicleCam") )
+  v19 = &vehicleCameras[v18];
+  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 1130, ASSERT_TYPE_ASSERT, "(vehicleCam)", (const char *)&queryFormat, "vehicleCam") )
     __debugbreak();
-  __asm { vmovaps xmm3, xmm9; frameTime }
-  VehicleCam_GetRemoteDriveVehiclePosition(cg->localClientNum, v20, _RDI, *(const float *)&_XMM3, &axis.m[3], &angles);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+148h+angles]
-    vmovss  xmm1, dword ptr [rsp+148h+angles+4]
-    vmovss  dword ptr [rsi+28h], xmm0
-    vmovss  xmm0, dword ptr [rsp+148h+angles+8]
-    vmovss  dword ptr [rsi+30h], xmm0
-    vmovss  dword ptr [rsi+2Ch], xmm1
-  }
+  VehicleCam_GetRemoteDriveVehiclePosition(cg->localClientNum, v13, v17, v9, &axis.m[3], &angles);
+  v20 = angles.v[1];
+  v19->vehicleAngles.v[0] = angles.v[0];
+  v19->vehicleAngles.v[2] = angles.v[2];
+  v19->vehicleAngles.v[1] = v20;
   AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&axis);
-  if ( !_RSI->initialized )
+  if ( !v19->initialized )
   {
+    v21 = angles.v[2];
+    v22 = angles.v[0];
+    v19->initialized = 1;
+    v19->fov = v17->camFovIncrease;
+    v23 = (float)(v21 + v17->vehCam_anglesRoll) * 0.0027777778;
+    v24 = (float)(v22 + v17->vehCam_anglesPitch) * 0.0027777778;
+    _XMM7 = 0i64;
     __asm
     {
-      vmovss  xmm3, cs:__real@3b360b61
-      vmovss  xmm5, cs:__real@3f000000
-      vmovss  xmm4, cs:__real@43b40000
-      vmovss  xmm0, dword ptr [rsp+148h+angles+8]
-      vmovss  xmm2, dword ptr [rsp+148h+angles]
-    }
-    _RSI->initialized = 1;
-    _RSI->fov = _RDI->camFovIncrease;
-    __asm
-    {
-      vaddss  xmm1, xmm0, dword ptr [rdi+0C10h]
-      vmovss  xmm0, dword ptr [rsp+148h+angles+4]
-      vmovaps [rsp+148h+var_58], xmm6
-      vmovaps [rsp+148h+var_68], xmm7
-      vmovaps [rsp+148h+var_78], xmm8
-      vmulss  xmm8, xmm1, xmm3
-      vaddss  xmm1, xmm0, dword ptr [rdi+0C0Ch]
-      vaddss  xmm0, xmm2, dword ptr [rdi+0C08h]
-      vmulss  xmm6, xmm1, xmm3
-      vmulss  xmm3, xmm0, xmm3
-      vaddss  xmm1, xmm3, xmm5
-      vxorps  xmm7, xmm7, xmm7
       vroundss xmm2, xmm7, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vaddss  xmm2, xmm6, xmm5
       vroundss xmm3, xmm7, xmm2, 1
-      vsubss  xmm1, xmm6, xmm3
-      vmovaps xmm6, [rsp+148h+var_58]
-      vmulss  xmm0, xmm0, xmm4
-      vaddss  xmm2, xmm8, xmm5
-      vroundss xmm3, xmm7, xmm2, 1
-      vmovaps xmm7, [rsp+148h+var_68]
-      vmovss  dword ptr [rsi+1Ch], xmm0
-      vmulss  xmm0, xmm1, xmm4
-      vsubss  xmm1, xmm8, xmm3
-      vmovaps xmm8, [rsp+148h+var_78]
-      vmovss  dword ptr [rsi+20h], xmm0
-      vmulss  xmm0, xmm1, xmm4
-      vmovss  dword ptr [rsi+24h], xmm0
     }
+    v28 = (float)((float)(angles.v[1] + v17->vehCam_anglesYaw) * 0.0027777778) - *(float *)&_XMM3;
+    __asm { vroundss xmm3, xmm7, xmm2, 1 }
+    v19->userAngles.v[0] = (float)(v24 - *(float *)&_XMM2) * 360.0;
+    v19->userAngles.v[1] = v28 * 360.0;
+    v19->userAngles.v[2] = (float)(v23 - *(float *)&_XMM3) * 360.0;
   }
-  __asm { vmovaps xmm3, xmm9; frameTime }
-  VehicleCam_GetRemoteDriveUserAngles(localClientNum, &cg->predictedPlayerState, _RDI, *(const float *)&_XMM3, &userAngles);
-  BG_Vehicle_ApplyCameraInfluence(&cg->predictedPlayerState.vehicleState, _RDI, &userAngles, &angles, &userAngles);
-  BG_Vehicle_ClampCameraUserAnglesToVehicleSpace(&angles, &userAngles, _RDI, outViewAngles);
-  _RSI->userAngles.v[0] = outViewAngles->v[0];
-  _RSI->userAngles.v[1] = outViewAngles->v[1];
-  _RSI->userAngles.v[2] = outViewAngles->v[2];
+  VehicleCam_GetRemoteDriveUserAngles(localClientNum, &cg->predictedPlayerState, v17, v8, &userAngles);
+  BG_Vehicle_ApplyCameraInfluence(&cg->predictedPlayerState.vehicleState, v17, &userAngles, &angles, &userAngles);
+  BG_Vehicle_ClampCameraUserAnglesToVehicleSpace(&angles, &userAngles, v17, outViewAngles);
+  v19->userAngles.v[0] = outViewAngles->v[0];
+  v19->userAngles.v[1] = outViewAngles->v[1];
+  v19->userAngles.v[2] = outViewAngles->v[2];
   CG_VehicleCam_SetClientViewAngles(cg, outViewAngles);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+0C1Ch]
-    vmovss  xmm1, dword ptr [rdi+0C18h]
-    vmovss  xmm0, dword ptr [rdi+0C14h]
-    vmovss  dword ptr [rsp+148h+in1], xmm0
-    vmovss  dword ptr [rsp+148h+in1+4], xmm1
-    vmovss  dword ptr [rsp+148h+in1+8], xmm2
-  }
+  vehCam_offsetZ = v17->vehCam_offsetZ;
+  vehCam_offsetY = v17->vehCam_offsetY;
+  in1.v[0] = v17->vehCam_offsetX;
+  in1.v[1] = vehCam_offsetY;
+  in1.v[2] = vehCam_offsetZ;
   MatrixTransformVector43(&in1, &axis, outViewOrigin);
-  __asm
+  camFovSpeed = v17->camFovSpeed;
+  if ( camFovSpeed <= 0.0 )
   {
-    vmovss  xmm2, dword ptr [rdi+0BECh]
-    vxorps  xmm1, xmm1, xmm1; min
-    vcomiss xmm2, xmm1
-  }
-  if ( v65 | v66 )
-  {
-    __asm { vmovss  xmm0, dword ptr [rdi+0BE4h]; tgt }
+    camFovIncrease = v17->camFovIncrease;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [r15+30h]
-      vmovss  xmm0, cs:__real@3d68ba2e
-      vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vdivss  xmm2, xmm0, xmm2
-      vmulss  xmm0, xmm3, xmm2; val
-      vmovss  xmm2, cs:__real@3f800000; max
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmulss  xmm0, xmm0, dword ptr [rdi+0BE4h] }
+    v33 = I_fclamp(COERCE_FLOAT(LODWORD(Client->localSpeed.v[0]) & _xmm) * (float)(0.05681818 / camFovSpeed), 0.0, 1.0);
+    camFovIncrease = *(float *)&v33 * v17->camFovIncrease;
   }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+0BCCh]; rate
-    vmovss  xmm1, dword ptr [rsi+38h]; cur
-    vmovaps xmm3, xmm9; deltaTime
-  }
-  *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  dword ptr [rsi+38h], xmm0
-    vmovaps xmm9, [rsp+148h+var_88]
-  }
+  v35 = DiffTrack(camFovIncrease, v19->fov, v17->camLerp, v8);
+  v19->fov = *(float *)&v35;
 }
 
 /*
@@ -1273,125 +1084,83 @@ VehicleCam_GetCameraViewOrigin
 */
 void VehicleCam_GetCameraViewOrigin(LocalClientNum_t localClientNum, const playerState_s *ps, int useClientTrace, const vec3_t *vehicleOrigin, const tmat33_t<vec3_t> *vehicleAxis, const tmat33_t<vec3_t> *viewAxis, const vec3_t *camOffset, float camFovOffset, float camRadius, VehCamZOffsetMode zOffsetMode, int isThirdPerson, vec3_t *outViewOrigin)
 {
-  const dvar_t *v58; 
-  float startSolidOffset; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  const dvar_t *v26; 
+  float v27; 
   vec3_t start; 
 
-  __asm { vmovaps [rsp+88h+var_28], xmm6 }
-  _RBX = outViewOrigin;
-  _RSI = vehicleOrigin;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 495, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _R8 = camOffset;
-  __asm
-  {
-    vmovss  xmm0, [rsp+88h+camFovOffset]
-    vaddss  xmm1, xmm0, dword ptr [r8]
-    vmulss  xmm0, xmm1, dword ptr [rdx]
-    vaddss  xmm2, xmm0, dword ptr [rsi]
-    vmovss  dword ptr [rbx], xmm2
-    vmulss  xmm0, xmm1, dword ptr [rdx+4]
-    vaddss  xmm3, xmm0, dword ptr [rsi+4]
-    vmovss  dword ptr [rbx+4], xmm3
-    vmulss  xmm0, xmm1, dword ptr [rdx+8]
-    vaddss  xmm4, xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rbx+8], xmm4
-    vmovss  xmm1, dword ptr [r8+4]
-    vmulss  xmm0, xmm1, dword ptr [rdx+0Ch]
-    vaddss  xmm5, xmm0, xmm2
-    vmovss  dword ptr [rbx], xmm5
-    vmulss  xmm0, xmm1, dword ptr [rdx+10h]
-    vaddss  xmm6, xmm0, xmm3
-    vmovss  dword ptr [rbx+4], xmm6
-    vmulss  xmm0, xmm1, dword ptr [rdx+14h]
-    vaddss  xmm2, xmm0, xmm4
-    vmovss  dword ptr [rbx+8], xmm2
-  }
+  v15 = camFovOffset + camOffset->v[0];
+  v16 = (float)(v15 * vehicleAxis->m[0].v[0]) + vehicleOrigin->v[0];
+  outViewOrigin->v[0] = v16;
+  v17 = (float)(v15 * vehicleAxis->m[0].v[1]) + vehicleOrigin->v[1];
+  outViewOrigin->v[1] = v17;
+  v18 = (float)(v15 * vehicleAxis->m[0].v[2]) + vehicleOrigin->v[2];
+  outViewOrigin->v[2] = v18;
+  v19 = camOffset->v[1];
+  v20 = (float)(v19 * vehicleAxis->m[1].v[0]) + v16;
+  outViewOrigin->v[0] = v20;
+  v21 = (float)(v19 * vehicleAxis->m[1].v[1]) + v17;
+  outViewOrigin->v[1] = v21;
+  v22 = (float)(v19 * vehicleAxis->m[1].v[2]) + v18;
+  outViewOrigin->v[2] = v22;
   switch ( zOffsetMode )
   {
     case VEHCAM_ZMODE_WORLD:
-      __asm { vaddss  xmm4, xmm2, dword ptr [r8+8] }
+      v23 = v22 + camOffset->v[2];
       goto LABEL_13;
     case VEHCAM_ZMODE_VEHICLE:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r8+8]
-        vmulss  xmm0, xmm1, dword ptr [rdx+18h]
-        vaddss  xmm5, xmm0, xmm5
-        vmovss  dword ptr [rbx], xmm5
-        vmulss  xmm0, xmm1, dword ptr [rdx+1Ch]
-        vaddss  xmm6, xmm0, xmm6
-        vmovss  dword ptr [rbx+4], xmm6
-        vmulss  xmm0, xmm1, dword ptr [rdx+20h]
-        vaddss  xmm4, xmm0, xmm2
-      }
+      v25 = camOffset->v[2];
+      v20 = (float)(v25 * vehicleAxis->m[2].v[0]) + v20;
+      outViewOrigin->v[0] = v20;
+      v21 = (float)(v25 * vehicleAxis->m[2].v[1]) + v21;
+      outViewOrigin->v[1] = v21;
+      v23 = (float)(v25 * vehicleAxis->m[2].v[2]) + v22;
       goto LABEL_13;
     case VEHCAM_ZMODE_VIEW:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r8+8]
-        vmulss  xmm0, xmm1, dword ptr [rdi+18h]
-        vaddss  xmm5, xmm0, xmm5
-        vmovss  dword ptr [rbx], xmm5
-        vmulss  xmm0, xmm1, dword ptr [rdi+1Ch]
-        vaddss  xmm6, xmm0, xmm6
-        vmovss  dword ptr [rbx+4], xmm6
-        vmulss  xmm0, xmm1, dword ptr [rdi+20h]
-        vaddss  xmm4, xmm0, xmm2
-      }
+      v24 = camOffset->v[2];
+      v20 = (float)(v24 * viewAxis->m[2].v[0]) + v20;
+      outViewOrigin->v[0] = v20;
+      v21 = (float)(v24 * viewAxis->m[2].v[1]) + v21;
+      outViewOrigin->v[1] = v21;
+      v23 = (float)(v24 * viewAxis->m[2].v[2]) + v22;
 LABEL_13:
-      __asm { vmovss  dword ptr [rbx+8], xmm4 }
+      outViewOrigin->v[2] = v23;
       goto LABEL_14;
   }
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 512, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "VehicleCam_UpdateDriveCam: Unknown z offset mode") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbx]
-    vmovss  xmm6, dword ptr [rbx+4]
-    vmovss  xmm4, dword ptr [rbx+8]
-  }
+  v20 = outViewOrigin->v[0];
+  v21 = outViewOrigin->v[1];
+  v23 = outViewOrigin->v[2];
 LABEL_14:
-  __asm
-  {
-    vmovss  xmm0, [rsp+88h+camRadius]
-    vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm1, xmm3, dword ptr [rdi]
-    vaddss  xmm2, xmm1, xmm5
-    vmovss  dword ptr [rbx], xmm2
-    vmulss  xmm0, xmm3, dword ptr [rdi+4]
-    vaddss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rbx+4], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rdi+8]
-    vaddss  xmm1, xmm0, xmm4
-    vmovss  dword ptr [rbx+8], xmm1
-  }
+  outViewOrigin->v[0] = (float)(COERCE_FLOAT(LODWORD(camRadius) ^ _xmm) * viewAxis->m[0].v[0]) + v20;
+  outViewOrigin->v[1] = (float)(COERCE_FLOAT(LODWORD(camRadius) ^ _xmm) * viewAxis->m[0].v[1]) + v21;
+  outViewOrigin->v[2] = (float)(COERCE_FLOAT(LODWORD(camRadius) ^ _xmm) * viewAxis->m[0].v[2]) + v23;
   if ( isThirdPerson )
   {
-    __asm { vmovss  xmm0, dword ptr [rsi] }
-    v58 = DCONST_DVARFLT_bg_vehicle_sphere_bounds_offset_z;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+4]
-      vmovss  dword ptr [rsp+88h+start], xmm0
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmovss  dword ptr [rsp+88h+start+8], xmm0
-      vmovss  dword ptr [rsp+88h+start+4], xmm1
-    }
+    v26 = DCONST_DVARFLT_bg_vehicle_sphere_bounds_offset_z;
+    v27 = vehicleOrigin->v[1];
+    start.v[0] = vehicleOrigin->v[0];
+    start.v[2] = vehicleOrigin->v[2];
+    start.v[1] = v27;
     if ( !DCONST_DVARFLT_bg_vehicle_sphere_bounds_offset_z && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehicle_sphere_bounds_offset_z") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v58);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+88h+start+8]
-      vaddss  xmm1, xmm0, dword ptr [rdi+28h]
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+88h+startSolidOffset], xmm0
-      vmovss  dword ptr [rsp+88h+start+8], xmm1
-    }
-    CG_View_ThirdPersonViewTrace(localClientNum, ps, &start, outViewOrigin, 41968145, startSolidOffset, outViewOrigin);
+    Dvar_CheckFrontendServerThread(v26);
+    start.v[2] = start.v[2] + v26->current.value;
+    CG_View_ThirdPersonViewTrace(localClientNum, ps, &start, outViewOrigin, 41968145, 0.0, outViewOrigin);
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
 }
 
 /*
@@ -1402,24 +1171,29 @@ VehicleCam_GetMouseMoveViewAngles
 void VehicleCam_GetMouseMoveViewAngles(LocalClientNum_t localClientNum, const VehicleDef *vehDef, const VehicleCamera *vehicleCam, vec3_t *outViewAngles)
 {
   cg_t *LocalClientGlobals; 
+  ClActiveClient *Client; 
 
-  _RSI = vehDef;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 457, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( !ClActiveClient::GetClient(localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 460, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
+  Client = ClActiveClient::GetClient(localClientNum);
+  if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 460, ASSERT_TYPE_ASSERT, "(cl)", (const char *)&queryFormat, "cl") )
     __debugbreak();
   outViewAngles->v[0] = vehicleCam->userAngles.v[0];
   *(_QWORD *)&outViewAngles->y = LODWORD(vehicleCam->userAngles.v[1]);
   if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.pm_flags, ACTIVE, 0x10u) )
   {
-    __asm
+    if ( vehDef->vehCam_pitchTurnRate != 0.0 )
     {
-      vmovaps [rsp+58h+var_28], xmm6
-      vxorps  xmm6, xmm6, xmm6
-      vucomiss xmm6, dword ptr [rsi+0C28h]
-      vucomiss xmm6, dword ptr [rsi+0C30h]
-      vmovaps xmm6, [rsp+58h+var_28]
+      _XMM1 = 0i64;
+      __asm { vroundss xmm4, xmm1, xmm2, 1 }
+      outViewAngles->v[0] = (float)((float)((float)(Client->mouseViewDelta.v[0] + outViewAngles->v[0]) * 0.0027777778) - *(float *)&_XMM4) * 360.0;
+    }
+    if ( vehDef->vehCam_yawTurnRate != 0.0 )
+    {
+      _XMM1 = 0i64;
+      __asm { vroundss xmm4, xmm1, xmm2, 1 }
+      outViewAngles->v[1] = (float)((float)((float)(Client->mouseViewDelta.v[1] + outViewAngles->v[1]) * 0.0027777778) - *(float *)&_XMM4) * 360.0;
     }
   }
 }
@@ -1429,79 +1203,55 @@ void VehicleCam_GetMouseMoveViewAngles(LocalClientNum_t localClientNum, const Ve
 VehicleCam_GetRemoteDriveUserAngles
 ==============
 */
-
-void __fastcall VehicleCam_GetRemoteDriveUserAngles(LocalClientNum_t localClientNum, const playerState_s *playerState, const VehicleDef *vehicleDef, double frameTime, vec3_t *userAngles)
+void VehicleCam_GetRemoteDriveUserAngles(LocalClientNum_t localClientNum, const playerState_s *playerState, const VehicleDef *vehicleDef, const float frameTime, vec3_t *userAngles)
 {
-  __int64 v9; 
+  __int64 v6; 
   cg_t *LocalClientGlobals; 
-  VehicleCamera *v13; 
-  __int64 v36; 
-  void *retaddr; 
+  VehicleCamera *v9; 
+  vec3_t *v10; 
+  float v13; 
+  __int64 v15; 
   float pitchAxis; 
   float yawAxis; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm9 }
-  v9 = localClientNum;
-  __asm { vmovaps xmm9, xmm3 }
+  v6 = localClientNum;
   if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 938, ASSERT_TYPE_ASSERT, "(playerState)", (const char *)&queryFormat, "playerState") )
     __debugbreak();
   if ( !vehicleDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 939, ASSERT_TYPE_ASSERT, "(vehicleDef)", (const char *)&queryFormat, "vehicleDef") )
     __debugbreak();
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v9);
-  if ( (unsigned int)v9 >= 2 )
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v6);
+  if ( (unsigned int)v6 >= 2 )
   {
-    LODWORD(v36) = v9;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v36, 2) )
+    LODWORD(v15) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v15, 2) )
       __debugbreak();
   }
-  v13 = &vehicleCameras[v9];
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 944, ASSERT_TYPE_ASSERT, "(vehicleCam)", (const char *)&queryFormat, "vehicleCam") )
+  v9 = &vehicleCameras[v6];
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 944, ASSERT_TYPE_ASSERT, "(vehicleCam)", (const char *)&queryFormat, "vehicleCam") )
     __debugbreak();
-  if ( v13->initialized && !CG_View_IsKillCamView((const LocalClientNum_t)v9) && LocalClientGlobals->clientNum == playerState->clientNum )
+  if ( v9->initialized && !CG_View_IsKillCamView((const LocalClientNum_t)v6) && LocalClientGlobals->clientNum == playerState->clientNum )
   {
-    if ( CL_Input_IsGamepadEnabled((LocalClientNum_t)v9) )
+    if ( CL_Input_IsGamepadEnabled((LocalClientNum_t)v6) )
     {
-      __asm { vmovaps [rsp+88h+var_38], xmm8 }
       CG_VehicleCam_GetControllerAxis(LocalClientGlobals->localClientNum, &pitchAxis, &yawAxis, 1);
-      _RAX = userAngles;
-      __asm
-      {
-        vmovss  xmm0, [rsp+88h+pitchAxis]
-        vmulss  xmm1, xmm0, dword ptr [rbp+0C28h]
-        vmulss  xmm2, xmm1, xmm9
-        vaddss  xmm3, xmm2, dword ptr [rsi+1Ch]
-        vmulss  xmm4, xmm3, cs:__real@3b360b61
-        vaddss  xmm1, xmm4, cs:__real@3f000000
-        vxorps  xmm8, xmm8, xmm8
-        vroundss xmm2, xmm8, xmm1, 1
-        vsubss  xmm0, xmm4, xmm2
-        vmulss  xmm1, xmm0, cs:__real@43b40000
-        vmovss  xmm0, [rsp+88h+yawAxis]
-        vmovss  dword ptr [rax], xmm1
-        vmulss  xmm1, xmm0, dword ptr [rbp+0C30h]
-        vmulss  xmm2, xmm1, xmm9
-        vaddss  xmm3, xmm2, dword ptr [rsi+20h]
-        vmulss  xmm4, xmm3, cs:__real@3b360b61
-        vaddss  xmm1, xmm4, cs:__real@3f000000
-        vroundss xmm2, xmm8, xmm1, 1
-        vmovaps xmm8, [rsp+88h+var_38]
-        vsubss  xmm0, xmm4, xmm2
-        vmulss  xmm1, xmm0, cs:__real@43b40000
-        vmovss  dword ptr [rax+4], xmm1
-      }
-      _RAX->v[2] = 0.0;
+      v10 = userAngles;
+      _XMM8 = 0i64;
+      __asm { vroundss xmm2, xmm8, xmm1, 1 }
+      v13 = yawAxis;
+      userAngles->v[0] = (float)((float)((float)((float)((float)(pitchAxis * vehicleDef->vehCam_pitchTurnRate) * frameTime) + v9->userAngles.v[0]) * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+      __asm { vroundss xmm2, xmm8, xmm1, 1 }
+      v10->v[1] = (float)((float)((float)((float)((float)(v13 * vehicleDef->vehCam_yawTurnRate) * frameTime) + v9->userAngles.v[1]) * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+      v10->v[2] = 0.0;
     }
     else
     {
-      VehicleCam_GetMouseMoveViewAngles((LocalClientNum_t)v9, vehicleDef, &vehicleCameras[v9], userAngles);
+      VehicleCam_GetMouseMoveViewAngles((LocalClientNum_t)v6, vehicleDef, &vehicleCameras[v6], userAngles);
     }
   }
   else
   {
     *userAngles = playerState->viewangles;
   }
-  __asm { vmovaps xmm9, [rsp+88h+var_48] }
 }
 
 /*
@@ -1509,87 +1259,50 @@ void __fastcall VehicleCam_GetRemoteDriveUserAngles(LocalClientNum_t localClient
 VehicleCam_GetRemoteDriveVehiclePosition
 ==============
 */
-
-void __fastcall VehicleCam_GetRemoteDriveVehiclePosition(LocalClientNum_t localClientNum, const centity_t *vehicleEntity, const VehicleDef *vehicleDef, double frameTime, vec3_t *outVehiclePosition, vec3_t *outVehicleAngles)
+void VehicleCam_GetRemoteDriveVehiclePosition(LocalClientNum_t localClientNum, const centity_t *vehicleEntity, const VehicleDef *vehicleDef, const float frameTime, vec3_t *outVehiclePosition, vec3_t *outVehicleAngles)
 {
-  __int64 v10; 
-  char v14; 
-  char v15; 
-  __int64 v31; 
+  __int64 v8; 
+  VehicleCamera *v9; 
+  float camVehicleAnglePitchRate; 
+  double v11; 
+  float camVehicleAngleYawRate; 
+  double v13; 
+  float camVehicleAngleRollRate; 
+  double v15; 
+  __int64 v16; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  _RDI = vehicleDef;
-  __asm { vmovaps [rsp+68h+var_28], xmm7 }
-  v10 = localClientNum;
-  __asm { vmovaps xmm7, xmm3 }
+  v8 = localClientNum;
   if ( !vehicleEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 977, ASSERT_TYPE_ASSERT, "(vehicleEntity)", (const char *)&queryFormat, "vehicleEntity") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 978, ASSERT_TYPE_ASSERT, "(vehicleDef)", (const char *)&queryFormat, "vehicleDef") )
+  if ( !vehicleDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 978, ASSERT_TYPE_ASSERT, "(vehicleDef)", (const char *)&queryFormat, "vehicleDef") )
     __debugbreak();
-  if ( (unsigned int)v10 >= 2 )
+  if ( (unsigned int)v8 >= 2 )
   {
-    LODWORD(v31) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v31, 2) )
+    LODWORD(v16) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v16, 2) )
       __debugbreak();
   }
-  _RSI = &vehicleCameras[v10];
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 981, ASSERT_TYPE_ASSERT, "(vehicleCam)", (const char *)&queryFormat, "vehicleCam") )
+  v9 = &vehicleCameras[v8];
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 981, ASSERT_TYPE_ASSERT, "(vehicleCam)", (const char *)&queryFormat, "vehicleCam") )
     __debugbreak();
-  _RBX = outVehicleAngles;
-  CG_VehicleCam_GetVehiclePosition((LocalClientNum_t)v10, vehicleEntity, outVehiclePosition, outVehicleAngles);
-  __asm
+  CG_VehicleCam_GetVehiclePosition((LocalClientNum_t)v8, vehicleEntity, outVehiclePosition, outVehicleAngles);
+  camVehicleAnglePitchRate = vehicleDef->camVehicleAnglePitchRate;
+  if ( camVehicleAnglePitchRate > 0.0 )
   {
-    vmovss  xmm2, dword ptr [rdi+0BF8h]; rate
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm2, xmm6
+    v11 = DiffTrackAngle(outVehicleAngles->v[0], v9->vehicleAngles.v[0], camVehicleAnglePitchRate, frameTime);
+    outVehicleAngles->v[0] = *(float *)&v11;
   }
-  if ( !(v14 | v15) )
+  camVehicleAngleYawRate = vehicleDef->camVehicleAngleYawRate;
+  if ( camVehicleAngleYawRate > 0.0 )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+28h]; cur
-      vmovss  xmm0, dword ptr [rbx]; tgt
-      vmovaps xmm3, xmm7; deltaTime
-    }
-    *(double *)&_XMM0 = DiffTrackAngle(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm { vmovss  dword ptr [rbx], xmm0 }
+    v13 = DiffTrackAngle(outVehicleAngles->v[1], v9->vehicleAngles.v[1], camVehicleAngleYawRate, frameTime);
+    outVehicleAngles->v[1] = *(float *)&v13;
   }
-  __asm
+  camVehicleAngleRollRate = vehicleDef->camVehicleAngleRollRate;
+  if ( camVehicleAngleRollRate > 0.0 )
   {
-    vmovss  xmm2, dword ptr [rdi+0BFCh]; rate
-    vcomiss xmm2, xmm6
-  }
-  if ( !(v14 | v15) )
-  {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+2Ch]; cur
-      vmovss  xmm0, dword ptr [rbx+4]; tgt
-      vmovaps xmm3, xmm7; deltaTime
-    }
-    *(double *)&_XMM0 = DiffTrackAngle(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm { vmovss  dword ptr [rbx+4], xmm0 }
-  }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+0C00h]; rate
-    vcomiss xmm2, xmm6
-  }
-  if ( !(v14 | v15) )
-  {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+30h]; cur
-      vmovss  xmm0, dword ptr [rbx+8]; tgt
-      vmovaps xmm3, xmm7; deltaTime
-    }
-    *(double *)&_XMM0 = DiffTrackAngle(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm { vmovss  dword ptr [rbx+8], xmm0 }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
+    v15 = DiffTrackAngle(outVehicleAngles->v[2], v9->vehicleAngles.v[2], camVehicleAngleRollRate, frameTime);
+    outVehicleAngles->v[2] = *(float *)&v15;
   }
 }
 
@@ -1600,334 +1313,199 @@ VehicleCam_GetViewAnglesInternal
 */
 void VehicleCam_GetViewAnglesInternal(const LocalClientNum_t localClientNum, const centity_t *const vehicleEntity, const vec3_t *vehicleAngles, vec3_t *outUserAngles, vec3_t *outViewAngles)
 {
-  __int64 v19; 
+  __int64 v7; 
+  cg_t *LocalClientGlobals; 
+  float v9; 
   CgVehicleSystem *VehicleSystem; 
+  const VehicleDef *ClientDef; 
+  VehicleCamera *v12; 
   __int64 mode; 
-  char v135; 
-  char v136; 
-  __int64 v152; 
-  __int64 v153; 
+  VehicleCameraParams *v14; 
+  float v19; 
+  double v20; 
+  double v21; 
+  float v22; 
+  float v23; 
+  double v24; 
+  float v25; 
+  double v26; 
+  float v27; 
+  double v28; 
+  float v31; 
+  float v33; 
+  float v35; 
+  float v36; 
+  float v38; 
+  float v42; 
+  float v44; 
+  float camLerp; 
+  float v46; 
+  float v47; 
+  float v48; 
+  double v49; 
+  double v50; 
+  double v51; 
+  __int64 v52; 
+  __int64 v53; 
   float yawAxis; 
   float pitchAxis; 
   const VehicleClient *Client; 
-  const vec3_t *v157; 
+  const vec3_t *v57; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
-  char v166; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-88h], xmm10
-  }
-  _R12 = outViewAngles;
-  _RBX = outUserAngles;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-98h], xmm11
-    vmovaps xmmword ptr [r11-0A8h], xmm12
-  }
-  v157 = vehicleAngles;
-  v19 = localClientNum;
+  v57 = vehicleAngles;
+  v7 = localClientNum;
   if ( !vehicleEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 579, ASSERT_TYPE_ASSERT, "(vehicleEntity)", (const char *)&queryFormat, "vehicleEntity") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3a83126f
-    vxorps  xmm0, xmm0, xmm0
-  }
-  _R15 = CG_GetLocalClientGlobals((const LocalClientNum_t)v19);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, dword ptr [rax+65E4h]
-    vmulss  xmm10, xmm0, xmm8
-  }
-  VehicleSystem = CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)v19);
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+  v9 = (float)LocalClientGlobals->frametime * 0.001;
+  VehicleSystem = CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)v7);
   Client = CgVehicleSystem::GetClient(VehicleSystem, vehicleEntity);
   if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 587, ASSERT_TYPE_ASSERT, "(vehicleClient)", (const char *)&queryFormat, "vehicleClient") )
     __debugbreak();
-  _R14 = CgVehicleSystem::GetClientDef(Client);
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 589, ASSERT_TYPE_ASSERT, "(vehicleDef)", (const char *)&queryFormat, "vehicleDef") )
+  ClientDef = CgVehicleSystem::GetClientDef(Client);
+  if ( !ClientDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 589, ASSERT_TYPE_ASSERT, "(vehicleDef)", (const char *)&queryFormat, "vehicleDef") )
     __debugbreak();
-  if ( (unsigned int)v19 >= 2 )
+  if ( (unsigned int)v7 >= 2 )
   {
-    LODWORD(v152) = v19;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v152, 2) )
+    LODWORD(v52) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v52, 2) )
       __debugbreak();
   }
-  _RDI = &vehicleCameras[v19];
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 591, ASSERT_TYPE_ASSERT, "(vehicleCam)", (const char *)&queryFormat, "vehicleCam") )
+  v12 = &vehicleCameras[v7];
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 591, ASSERT_TYPE_ASSERT, "(vehicleCam)", (const char *)&queryFormat, "vehicleCam") )
     __debugbreak();
-  mode = _RDI->mode;
+  mode = v12->mode;
   if ( (unsigned int)mode >= 2 )
   {
-    LODWORD(v153) = 2;
-    LODWORD(v152) = _RDI->mode;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 84, ASSERT_TYPE_ASSERT, "(unsigned)( mode ) < (unsigned)( VEHCAM_MODE_COUNT )", "mode doesn't index VEHCAM_MODE_COUNT\n\t%i not in [0, %i)", v152, v153) )
+    LODWORD(v53) = 2;
+    LODWORD(v52) = v12->mode;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 84, ASSERT_TYPE_ASSERT, "(unsigned)( mode ) < (unsigned)( VEHCAM_MODE_COUNT )", "mode doesn't index VEHCAM_MODE_COUNT\n\t%i not in [0, %i)", v52, v53) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovaps [rsp+168h+var_B8], xmm13
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  [rsp+168h+pitchAxis], xmm7
-    vmovss  [rsp+168h+yawAxis], xmm7
-    vmovaps [rsp+168h+var_C8], xmm14
-  }
-  _RBP = &vehicleCameraModes[mode];
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3b360b61
-    vmovss  xmm11, cs:__real@3f000000
-    vmovss  xmm12, cs:__real@43b40000
-  }
+  pitchAxis = 0.0;
+  yawAxis = 0.0;
+  v14 = &vehicleCameraModes[mode];
   if ( VehicleSystem->IsCameraPlayerView(VehicleSystem) )
   {
-    if ( _R14->camLookEnabled )
+    if ( ClientDef->camLookEnabled )
     {
-      if ( !_RDI->initialized )
+      if ( !v12->initialized )
       {
-        __asm
-        {
-          vmulss  xmm3, xmm9, dword ptr [r15+178C0h]
-          vaddss  xmm1, xmm3, xmm11
-          vxorps  xmm4, xmm4, xmm4
-          vroundss xmm2, xmm4, xmm1, 1
-          vsubss  xmm0, xmm3, xmm2
-          vmulss  xmm1, xmm0, xmm12
-          vmovss  dword ptr [rbx], xmm1
-          vmulss  xmm3, xmm9, dword ptr [r15+178C4h]
-          vaddss  xmm1, xmm3, xmm11
-          vroundss xmm2, xmm4, xmm1, 1
-          vsubss  xmm0, xmm3, xmm2
-          vmulss  xmm1, xmm0, xmm12
-          vmovss  dword ptr [rbx+4], xmm1
-          vmulss  xmm3, xmm9, dword ptr [r15+178C8h]
-          vaddss  xmm1, xmm3, xmm11
-          vroundss xmm2, xmm4, xmm1, 1
-          vsubss  xmm0, xmm3, xmm2
-          vmulss  xmm1, xmm0, xmm12
-          vmovss  dword ptr [rbx+8], xmm1
-        }
+        _XMM4 = 0i64;
+        __asm { vroundss xmm2, xmm4, xmm1, 1 }
+        outUserAngles->v[0] = (float)((float)(0.0027777778 * LocalClientGlobals->refdefViewAngles.v[0]) - *(float *)&_XMM2) * 360.0;
+        __asm { vroundss xmm2, xmm4, xmm1, 1 }
+        outUserAngles->v[1] = (float)((float)(0.0027777778 * LocalClientGlobals->refdefViewAngles.v[1]) - *(float *)&_XMM2) * 360.0;
+        __asm { vroundss xmm2, xmm4, xmm1, 1 }
+        outUserAngles->v[2] = (float)((float)(0.0027777778 * LocalClientGlobals->refdefViewAngles.v[2]) - *(float *)&_XMM2) * 360.0;
       }
-      if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 531, ASSERT_TYPE_ASSERT, "(params)", (const char *)&queryFormat, "params") )
+      if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 531, ASSERT_TYPE_ASSERT, "(params)", (const char *)&queryFormat, "params") )
         __debugbreak();
-      if ( CL_Input_IsGamepadEnabled((LocalClientNum_t)v19) )
+      if ( CL_Input_IsGamepadEnabled((LocalClientNum_t)v7) )
       {
-        CG_VehicleCam_GetControllerAxis((LocalClientNum_t)v19, &pitchAxis, &yawAxis, 1);
-        __asm
-        {
-          vmovss  xmm0, [rsp+168h+pitchAxis]
-          vmulss  xmm1, xmm0, dword ptr [rbp+20h]
-          vmovss  xmm0, [rsp+168h+yawAxis]
-          vmulss  xmm2, xmm1, xmm10
-          vaddss  xmm3, xmm2, dword ptr [rdi+1Ch]
-          vmovss  dword ptr [rbx], xmm3
-          vmulss  xmm1, xmm0, dword ptr [rbp+28h]
-          vmulss  xmm2, xmm1, xmm10
-          vaddss  xmm3, xmm2, dword ptr [rdi+20h]
-          vmovss  dword ptr [rbx+4], xmm3
-        }
-        _RBX->v[2] = 0.0;
+        CG_VehicleCam_GetControllerAxis((LocalClientNum_t)v7, &pitchAxis, &yawAxis, 1);
+        v19 = yawAxis;
+        outUserAngles->v[0] = (float)((float)(pitchAxis * v14->pitchTurnRate) * v9) + v12->userAngles.v[0];
+        outUserAngles->v[1] = (float)((float)(v19 * v14->yawTurnRate) * v9) + v12->userAngles.v[1];
+        outUserAngles->v[2] = 0.0;
       }
       else
       {
-        VehicleCam_GetMouseMoveViewAngles((LocalClientNum_t)v19, _R14, &vehicleCameras[v19], _RBX);
+        VehicleCam_GetMouseMoveViewAngles((LocalClientNum_t)v7, ClientDef, &vehicleCameras[v7], outUserAngles);
       }
       if ( !VehicleSystem->IsCameraFreeLookEnabled(VehicleSystem) )
       {
-        __asm
+        v20 = BG_Vehicle_ClampCameraAngle(outUserAngles->v[0], v14->pitchClamp);
+        outUserAngles->v[0] = *(float *)&v20;
+        v21 = BG_Vehicle_ClampCameraAngle(outUserAngles->v[1], v14->yawClamp);
+        v22 = yawAxis;
+        v23 = pitchAxis;
+        outUserAngles->v[1] = *(float *)&v21;
+        if ( CL_Input_IsGamepadEnabled((LocalClientNum_t)v7) )
         {
-          vmovss  xmm1, dword ptr [rbp+24h]; clamp
-          vmovss  xmm0, dword ptr [rbx]; angle
+          if ( v23 != 0.0 || v22 != 0.0 )
+            goto LABEL_42;
         }
-        *(double *)&_XMM0 = BG_Vehicle_ClampCameraAngle(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
+        else if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(LocalClientGlobals->refdefViewAngles.v[0] - outUserAngles->v[0]) & _xmm) >= 0.001 || COERCE_FLOAT(COERCE_UNSIGNED_INT(LocalClientGlobals->refdefViewAngles.v[1] - outUserAngles->v[1]) & _xmm) >= 0.001 )
         {
-          vmovss  dword ptr [rbx], xmm0
-          vmovss  xmm1, dword ptr [rbp+2Ch]; clamp
-          vmovss  xmm0, dword ptr [rbx+4]; angle
+          goto LABEL_42;
         }
-        *(double *)&_XMM0 = BG_Vehicle_ClampCameraAngle(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
-        {
-          vmovss  xmm14, [rsp+168h+yawAxis]
-          vmovss  xmm13, [rsp+168h+pitchAxis]
-          vmovss  dword ptr [rbx+4], xmm0
-          vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        }
-        if ( CL_Input_IsGamepadEnabled((LocalClientNum_t)v19) )
-        {
-          __asm { vucomiss xmm13, xmm7 }
-        }
-        else
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r15+178C0h]
-            vsubss  xmm1, xmm0, dword ptr [rbx]
-            vandps  xmm1, xmm1, xmm6
-            vcomiss xmm1, xmm8
-          }
-        }
+        if ( ClientDef->camReturnSpeed == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 621, ASSERT_TYPE_ASSERT, "(vehicleDef->camReturnSpeed != 0.0f)", (const char *)&queryFormat, "vehicleDef->camReturnSpeed != 0.0f") )
+          __debugbreak();
+        v24 = I_fclamp(COERCE_FLOAT(LODWORD(Client->localSpeed.v[0]) & _xmm) / ClientDef->camReturnSpeed, 0.0, 1.0);
+        v25 = *(float *)&v24 * ClientDef->camReturnLerp;
+        v26 = DiffTrackAngle(0.0, outUserAngles->v[0], v25, v9);
+        v27 = outUserAngles->v[1];
+        outUserAngles->v[0] = *(float *)&v26;
+        v28 = DiffTrackAngle(0.0, v27, v25, v9);
+        outUserAngles->v[1] = *(float *)&v28;
       }
     }
     else
     {
-      *(_QWORD *)_RBX->v = 0i64;
-      _RBX->v[2] = 0.0;
+      *(_QWORD *)outUserAngles->v = 0i64;
+      outUserAngles->v[2] = 0.0;
     }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+1E0h]
-      vsubss  xmm1, xmm0, dword ptr [rbp+0]
-      vmovss  dword ptr [rbx], xmm1
-      vmovss  xmm2, dword ptr [r15+1E4h]
-      vsubss  xmm0, xmm2, dword ptr [rbp+4]
-      vmovss  dword ptr [rbx+4], xmm0
-      vmovss  xmm1, dword ptr [r15+1E8h]
-      vsubss  xmm2, xmm1, dword ptr [rbp+8]
-      vmovss  dword ptr [rbx+8], xmm2
-    }
+    outUserAngles->v[0] = LocalClientGlobals->predictedPlayerState.viewangles.v[0] - v14->angles.v[0];
+    outUserAngles->v[1] = LocalClientGlobals->predictedPlayerState.viewangles.v[1] - v14->angles.v[1];
+    outUserAngles->v[2] = LocalClientGlobals->predictedPlayerState.viewangles.v[2] - v14->angles.v[2];
   }
-  __asm
+LABEL_42:
+  _XMM8 = 0i64;
+  __asm { vroundss xmm2, xmm8, xmm1, 1 }
+  if ( v12->initialized )
   {
-    vmovaps xmm14, [rsp+168h+var_C8]
-    vmovaps xmm13, [rsp+168h+var_B8]
-    vmulss  xmm3, xmm9, dword ptr [rax]
-    vaddss  xmm1, xmm3, xmm11
-    vxorps  xmm8, xmm8, xmm8
-    vroundss xmm2, xmm8, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm1, xmm0, xmm12
-  }
-  if ( _RDI->initialized )
-  {
-    __asm
-    {
-      vmulss  xmm2, xmm1, dword ptr [r14+0BD8h]
-      vmulss  xmm4, xmm9, dword ptr [rax+4]
-      vmovss  dword ptr [rsp+168h+angles], xmm2
-      vaddss  xmm2, xmm4, xmm11
-      vroundss xmm3, xmm8, xmm2, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm4, xmm9, dword ptr [rax+8]
-      vmulss  xmm0, xmm1, xmm12
-      vmulss  xmm2, xmm0, dword ptr [r14+0BDCh]
-      vmovss  dword ptr [rsp+168h+angles+4], xmm2
-      vaddss  xmm2, xmm4, xmm11
-      vroundss xmm3, xmm8, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm12
-      vmulss  xmm2, xmm1, dword ptr [r14+0BE0h]
-      vmovss  dword ptr [rsp+168h+angles+8], xmm2
-    }
+    v36 = 0.0027777778 * v57->v[1];
+    angles.v[0] = (float)((float)((float)(0.0027777778 * v57->v[0]) - *(float *)&_XMM2) * 360.0) * ClientDef->camPitchInfluence;
+    __asm { vroundss xmm3, xmm8, xmm2, 1 }
+    v38 = 0.0027777778 * v57->v[2];
+    angles.v[1] = (float)((float)(v36 - *(float *)&_XMM3) * 360.0) * ClientDef->camYawInfluence;
+    __asm { vroundss xmm3, xmm8, xmm2, 1 }
+    v35 = (float)((float)(v38 - *(float *)&_XMM3) * 360.0) * ClientDef->camRollInfluence;
   }
   else
   {
-    __asm
-    {
-      vmulss  xmm3, xmm9, dword ptr [rax+4]
-      vmovss  dword ptr [rsp+168h+angles], xmm1
-      vaddss  xmm1, xmm3, xmm11
-      vroundss xmm2, xmm8, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm3, xmm9, dword ptr [rax+8]
-      vmulss  xmm1, xmm0, xmm12
-      vmovss  dword ptr [rsp+168h+angles+4], xmm1
-      vaddss  xmm1, xmm3, xmm11
-      vroundss xmm2, xmm8, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm0, xmm12
-      vmovss  dword ptr [rsp+168h+angles+8], xmm1
-    }
+    v31 = 0.0027777778 * v57->v[1];
+    angles.v[0] = (float)((float)(0.0027777778 * v57->v[0]) - *(float *)&_XMM2) * 360.0;
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    v33 = 0.0027777778 * v57->v[2];
+    angles.v[1] = (float)(v31 - *(float *)&_XMM2) * 360.0;
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    v35 = (float)(v33 - *(float *)&_XMM2) * 360.0;
   }
+  angles.v[2] = v35;
   AnglesToAxis(&angles, &axis);
   __asm
   {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vaddss  xmm1, xmm0, dword ptr [rbx]
-    vmulss  xmm4, xmm1, xmm9
-    vmovss  xmm1, dword ptr [rbx+4]
-    vaddss  xmm2, xmm4, xmm11
     vroundss xmm3, xmm8, xmm2, 1
-    vaddss  xmm2, xmm1, dword ptr [rbp+4]
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm4, xmm2, xmm9
-    vaddss  xmm3, xmm4, xmm11
     vroundss xmm2, xmm8, xmm3, 1
-    vmulss  xmm6, xmm0, xmm12
-    vsubss  xmm0, xmm4, xmm2
-    vaddss  xmm2, xmm1, dword ptr [rbp+8]
-    vmulss  xmm4, xmm2, xmm9
-    vmovaps xmm9, [rsp+168h+var_78]
-    vaddss  xmm3, xmm4, xmm11
-    vmovaps xmm11, [rsp+168h+var_98]
-    vroundss xmm2, xmm8, xmm3, 1
-    vmulss  xmm5, xmm0, xmm12
-    vsubss  xmm0, xmm4, xmm2
-    vmovss  xmm2, dword ptr [r14+0BCCh]; rate
-    vaddss  xmm4, xmm6, dword ptr [rsp+168h+angles]
-    vaddss  xmm6, xmm5, dword ptr [rsp+168h+angles+4]
-    vmulss  xmm3, xmm0, xmm12
-    vaddss  xmm8, xmm3, dword ptr [rsp+168h+angles+8]
-    vmovaps xmm12, [rsp+168h+var_A8]
-    vcomiss xmm2, xmm7
-    vmovaps xmm7, [rsp+168h+var_58]
   }
-  if ( v135 | v136 || !_RDI->initialized )
+  v42 = (float)((float)(outUserAngles->v[1] + v14->angles.v[1]) * 0.0027777778) - *(float *)&_XMM2;
+  __asm { vroundss xmm2, xmm8, xmm3, 1 }
+  v44 = (float)((float)(outUserAngles->v[2] + v14->angles.v[2]) * 0.0027777778) - *(float *)&_XMM2;
+  camLerp = ClientDef->camLerp;
+  v46 = (float)((float)((float)((float)(v14->angles.v[0] + outUserAngles->v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) + angles.v[0];
+  v47 = (float)(v42 * 360.0) + angles.v[1];
+  v48 = (float)(v44 * 360.0) + angles.v[2];
+  if ( camLerp > 0.0 && v12->initialized )
   {
-    __asm
-    {
-      vmovss  dword ptr [r12], xmm4
-      vmovss  dword ptr [r12+4], xmm6
-      vmovss  dword ptr [r12+8], xmm8
-    }
+    v49 = DiffTrackAngle(v46, v12->angles.v[0], camLerp, v9);
+    outViewAngles->v[0] = *(float *)&v49;
+    v50 = DiffTrackAngle(v47, v12->angles.v[1], ClientDef->camLerp, v9);
+    outViewAngles->v[1] = *(float *)&v50;
+    v51 = DiffTrackAngle(v48, v12->angles.v[2], ClientDef->camLerp, v9);
+    outViewAngles->v[2] = *(float *)&v51;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+4]; cur
-      vmovaps xmm3, xmm10; deltaTime
-      vmovaps xmm0, xmm4; tgt
-    }
-    *(double *)&_XMM0 = DiffTrackAngle(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm
-    {
-      vmovss  dword ptr [r12], xmm0
-      vmovss  xmm2, dword ptr [r14+0BCCh]; rate
-      vmovss  xmm1, dword ptr [rdi+8]; cur
-      vmovaps xmm0, xmm6; tgt
-      vmovaps xmm3, xmm10; deltaTime
-    }
-    *(double *)&_XMM0 = DiffTrackAngle(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm
-    {
-      vmovss  dword ptr [r12+4], xmm0
-      vmovss  xmm2, dword ptr [r14+0BCCh]; rate
-      vmovss  xmm1, dword ptr [rdi+0Ch]; cur
-      vmovaps xmm0, xmm8; tgt
-      vmovaps xmm3, xmm10; deltaTime
-    }
-    *(double *)&_XMM0 = DiffTrackAngle(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm { vmovss  dword ptr [r12+8], xmm0 }
-  }
-  _R11 = &v166;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-30h]
-    vmovaps xmm8, xmmword ptr [r11-50h]
-    vmovaps xmm10, xmmword ptr [r11-70h]
+    outViewAngles->v[0] = v46;
+    outViewAngles->v[1] = v47;
+    outViewAngles->v[2] = v48;
   }
 }
 
@@ -1938,257 +1516,170 @@ VehicleCam_UpdateCamInternal
 */
 void VehicleCam_UpdateCamInternal(LocalClientNum_t localClientNum, const cg_t *cg, const centity_t *cent, vec3_t *outViewOrigin, vec3_t *outViewAngles)
 {
-  __int64 v10; 
+  __int64 v7; 
   CgVehicleSystem *VehicleSystem; 
-  VehicleCamera *v13; 
-  const ClActiveClient *v14; 
+  __int64 v9; 
+  VehicleCamera *v10; 
+  const ClActiveClient *v11; 
   int isThirdPerson; 
   int CmdNumber; 
-  CgVehicleSystem *v17; 
-  VehicleClient *v18; 
-  int v19; 
+  CgVehicleSystem *v14; 
+  VehicleClient *v15; 
+  int v16; 
   __int64 mode; 
+  __int64 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
   vec3_t *p_angles; 
-  char v33; 
-  char v34; 
-  vec3_t *v81; 
+  float camLerp; 
+  float v24; 
+  vec3_t *p_offset; 
+  double v26; 
+  double v27; 
+  double v28; 
+  float radius; 
+  float v30; 
+  double v31; 
+  double v32; 
+  float *p_fovOffset; 
+  double v34; 
+  float v35; 
+  float v36; 
+  vec3_t *v37; 
   tmat33_t<vec3_t> *viewAxis; 
   vec3_t *camOffset; 
-  float v86; 
-  float v87; 
   VehicleDef *vehDef; 
   float targetFov; 
   float targetFovOffset; 
   const VehicleClient *Client; 
-  vec3_t *v92; 
+  vec3_t *v44; 
   vec3_t *viewAngles; 
   usercmd_s ucmd; 
-  usercmd_s v95; 
+  usercmd_s v47; 
   vec3_t outAngles; 
   vec3_t outOrigin; 
-  tmat33_t<vec3_t> v98; 
+  tmat33_t<vec3_t> v50; 
   tmat33_t<vec3_t> axis; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
   viewAngles = outViewAngles;
-  v92 = outViewOrigin;
-  v10 = localClientNum;
+  v44 = outViewOrigin;
+  v7 = localClientNum;
   if ( !cg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 685, ASSERT_TYPE_ASSERT, "(cg)", (const char *)&queryFormat, "cg") )
     __debugbreak();
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 686, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
-  VehicleSystem = CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)v10);
+  VehicleSystem = CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)v7);
   Client = CgVehicleSystem::GetClient(VehicleSystem, cent);
   if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 696, ASSERT_TYPE_ASSERT, "(vehicleClient)", (const char *)&queryFormat, "vehicleClient") )
     __debugbreak();
   vehDef = (VehicleDef *)CgVehicleSystem::GetClientDef(Client);
   if ( !vehDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 698, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
     __debugbreak();
-  if ( (unsigned int)v10 >= 2 )
+  if ( (unsigned int)v7 >= 2 )
   {
-    LODWORD(viewAxis) = v10;
+    LODWORD(viewAxis) = v7;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 77, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", viewAxis, 2) )
       __debugbreak();
   }
-  _RBX = v10;
-  v13 = &vehicleCameras[v10];
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 700, ASSERT_TYPE_ASSERT, "(cam)", (const char *)&queryFormat, "cam") )
+  v9 = v7;
+  v10 = &vehicleCameras[v7];
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 700, ASSERT_TYPE_ASSERT, "(cam)", (const char *)&queryFormat, "cam") )
     __debugbreak();
   if ( !cg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 257, ASSERT_TYPE_ASSERT, "(cg)", (const char *)&queryFormat, "cg") )
     __debugbreak();
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 258, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 259, ASSERT_TYPE_ASSERT, "(cam)", (const char *)&queryFormat, "cam") )
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 259, ASSERT_TYPE_ASSERT, "(cam)", (const char *)&queryFormat, "cam") )
     __debugbreak();
-  v14 = ClActiveClient::GetClient((const LocalClientNum_t)cg->localClientNum);
+  v11 = ClActiveClient::GetClient((const LocalClientNum_t)cg->localClientNum);
   isThirdPerson = 0;
-  CmdNumber = ClActiveClient_GetCmdNumber(v14);
+  CmdNumber = ClActiveClient_GetCmdNumber(v11);
   if ( CmdNumber > 1 )
   {
-    v17 = CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)v10);
-    v18 = CgVehicleSystem::GetClient(v17, cent);
+    v14 = CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)v7);
+    v15 = CgVehicleSystem::GetClient(v14, cent);
     CL_GetUserCmd(cg->localClientNum, CmdNumber - 1, &ucmd);
-    CL_GetUserCmd(cg->localClientNum, CmdNumber, &v95);
-    VehicleCam_UpdateModeParams((LocalClientNum_t)v10, cent);
-    if ( v13->mode )
+    CL_GetUserCmd(cg->localClientNum, CmdNumber, &v47);
+    VehicleCam_UpdateModeParams((LocalClientNum_t)v7, cent);
+    if ( v10->mode )
     {
-      if ( v13->mode == VEHCAM_MODE_3RD_PERSON && (v18->flags & 1) == 0 )
+      if ( v10->mode == VEHCAM_MODE_3RD_PERSON && (v15->flags & 1) == 0 )
       {
-        v19 = 0;
+        v16 = 0;
         goto LABEL_35;
       }
     }
-    else if ( (v18->flags & 1) != 0 )
+    else if ( (v15->flags & 1) != 0 )
     {
-      v19 = 1;
+      v16 = 1;
 LABEL_35:
-      v13->mode = v19;
-      *(_QWORD *)vehicleCameras[_RBX].userAngles.v = 0i64;
-      vehicleCameras[_RBX].userAngles.v[2] = 0.0;
-      vehicleCameras[_RBX].initialized = 0;
+      v10->mode = v16;
+      *(_QWORD *)vehicleCameras[v9].userAngles.v = 0i64;
+      vehicleCameras[v9].userAngles.v[2] = 0.0;
+      vehicleCameras[v9].initialized = 0;
     }
   }
-  mode = v13->mode;
+  mode = v10->mode;
   if ( (unsigned int)mode >= 2 )
   {
     LODWORD(camOffset) = 2;
-    LODWORD(viewAxis) = v13->mode;
+    LODWORD(viewAxis) = v10->mode;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 84, ASSERT_TYPE_ASSERT, "(unsigned)( mode ) < (unsigned)( VEHCAM_MODE_COUNT )", "mode doesn't index VEHCAM_MODE_COUNT\n\t%i not in [0, %i)", viewAxis, camOffset) )
       __debugbreak();
   }
-  _R12 = mode;
-  CG_VehicleCam_GetVehiclePosition((LocalClientNum_t)v10, cent, &outOrigin, &outAngles);
+  v18 = mode;
+  CG_VehicleCam_GetVehiclePosition((LocalClientNum_t)v7, cent, &outOrigin, &outAngles);
   AnglesToAxis(&outAngles, &axis);
-  _RAX = Client;
-  __asm
+  LODWORD(v19) = LODWORD(Client->localSpeed.v[0]) & _xmm;
+  v21 = (float)(v19 * vehicleCameraModes[v18].speedInfluence) + vehicleCameraModes[v18].radius;
+  v20 = v21;
+  p_angles = &vehicleCameras[v9].angles;
+  VehicleCam_GetViewAnglesInternal((const LocalClientNum_t)v7, cent, &outAngles, &vehicleCameras[v9].userAngles, &vehicleCameras[v9].angles);
+  BG_Vehicle_GetCameraTargetFovAndOffset(vehDef, v19, &targetFov, &targetFovOffset);
+  camLerp = vehDef->camLerp;
+  if ( camLerp > 0.0 && vehicleCameras[v9].initialized )
   {
-    vmovss  xmm6, dword ptr [rax+30h]
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm0, xmm6, dword ptr [r12+r13+112E445Ch]
-    vaddss  xmm7, xmm0, dword ptr [r12+r13+112E4458h]
-  }
-  p_angles = &vehicleCameras[_RBX].angles;
-  VehicleCam_GetViewAnglesInternal((const LocalClientNum_t)v10, cent, &outAngles, &vehicleCameras[_RBX].userAngles, &vehicleCameras[_RBX].angles);
-  _RBP = vehDef;
-  __asm { vmovaps xmm1, xmm6; absSpeed }
-  BG_Vehicle_GetCameraTargetFovAndOffset(vehDef, *(float *)&_XMM1, &targetFov, &targetFovOffset);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbp+0BCCh]; rate
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-  }
-  _RCX = 0x140000000ui64;
-  if ( v33 | v34 || !vehicleCameras[_RBX].initialized )
-  {
-    _RBP = &vehicleCameras[_RBX].offset;
-    __asm { vmovss  xmm0, [rsp+398h+targetFov] }
-    _RBP->v[0] = vehicleCameraModes[_R12].offset.v[0];
-    _RBP->v[1] = vehicleCameraModes[_R12].offset.v[1];
-    _RBP->v[2] = vehicleCameraModes[_R12].offset.v[2];
-    _RAX = &vehicleCameras[_RBX].radius;
-    __asm
-    {
-      vmovss  dword ptr [rbx+rcx+112E44E8h], xmm0
-      vmovss  xmm0, [rsp+398h+targetFovOffset]
-      vmovss  dword ptr [rax], xmm7
-    }
-    Client = (const VehicleClient *)&vehicleCameras[_RBX].radius;
-    vehicleCameras[_RBX].initialized = 1;
-    _RBX = &vehicleCameras[_RBX].fovOffset;
-    __asm { vmovss  dword ptr [rax], xmm0 }
+    v24 = (float)cg->frametime * 0.001;
+    p_offset = &vehicleCameras[v9].offset;
+    v26 = DiffTrack(vehicleCameraModes[v18].offset.v[0], vehicleCameras[v9].offset.v[0], camLerp, v24);
+    vehicleCameras[v9].offset.v[0] = *(float *)&v26;
+    v27 = DiffTrack(vehicleCameraModes[v18].offset.v[1], vehicleCameras[v9].offset.v[1], vehDef->camLerp, v24);
+    vehicleCameras[v9].offset.v[1] = *(float *)&v27;
+    v28 = DiffTrack(vehicleCameraModes[v18].offset.v[2], vehicleCameras[v9].offset.v[2], vehDef->camLerp, v24);
+    vehicleCameras[v9].offset.v[2] = *(float *)&v28;
+    radius = vehicleCameras[v9].radius;
+    v30 = vehDef->camLerp;
+    Client = (const VehicleClient *)&vehicleCameras[v9].radius;
+    v31 = DiffTrack(v20, radius, v30, v24);
+    Client->wheelSpinAngle[0] = *(float *)&v31;
+    v32 = DiffTrack(targetFov, vehicleCameras[v9].fov, vehDef->camLerp, v24);
+    vehicleCameras[v9].fov = *(float *)&v32;
+    p_fovOffset = &vehicleCameras[v9].fovOffset;
+    v34 = DiffTrack(targetFovOffset, *p_fovOffset, vehDef->camLerp, v24);
+    *p_fovOffset = *(float *)&v34;
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rsi+65E4h]
-      vmulss  xmm6, xmm0, cs:__real@3a83126f
-      vmovss  xmm0, dword ptr [r12+rcx+112E444Ch]; tgt
-    }
-    _RBP = &vehicleCameras[_RBX].offset;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbp+0]; cur
-      vmovaps xmm3, xmm6; deltaTime
-    }
-    *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    _RAX = vehDef;
-    __asm
-    {
-      vmovss  dword ptr [rbp+0], xmm0
-      vmovaps xmm3, xmm6; deltaTime
-      vmovss  xmm2, dword ptr [rax+0BCCh]; rate
-    }
-    _RAX = 0x140000000ui64;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+rax+112E44C4h]; cur
-      vmovss  xmm0, dword ptr [r12+rax+112E4450h]; tgt
-    }
-    *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    _RAX = vehDef;
-    _RCX = 0x140000000ui64;
-    __asm
-    {
-      vmovss  dword ptr [rbx+rcx+112E44C4h], xmm0
-      vmovss  xmm1, dword ptr [rbx+rcx+112E44C8h]; cur
-      vmovss  xmm0, dword ptr [r12+rcx+112E4454h]; tgt
-      vmovss  xmm2, dword ptr [rax+0BCCh]; rate
-      vmovaps xmm3, xmm6; deltaTime
-    }
-    *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    _RAX = 0x140000000ui64;
-    __asm { vmovss  dword ptr [rbx+rax+112E44C8h], xmm0 }
-    _RCX = &vehicleCameras[_RBX].radius;
-    _RAX = vehDef;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rcx]; cur
-      vmovaps xmm3, xmm6; deltaTime
-      vmovaps xmm0, xmm7; tgt
-      vmovss  xmm2, dword ptr [rax+0BCCh]; rate
-    }
-    Client = (const VehicleClient *)&vehicleCameras[_RBX].radius;
-    *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    _RAX = Client;
-    __asm
-    {
-      vmovaps xmm3, xmm6; deltaTime
-      vmovss  dword ptr [rax], xmm0
-    }
-    _RAX = vehDef;
-    __asm
-    {
-      vmovss  xmm0, [rsp+398h+targetFov]; tgt
-      vmovss  xmm2, dword ptr [rax+0BCCh]; rate
-    }
-    _RAX = 0x140000000ui64;
-    __asm { vmovss  xmm1, dword ptr [rbx+rax+112E44E8h]; cur }
-    *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    _RAX = 0x140000000ui64;
-    __asm
-    {
-      vmovss  dword ptr [rbx+rax+112E44E8h], xmm0
-      vmovss  xmm0, [rsp+398h+targetFovOffset]; tgt
-    }
-    _RBX = &vehicleCameras[_RBX].fovOffset;
-    _RAX = vehDef;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx]; cur
-      vmovaps xmm3, xmm6; deltaTime
-      vmovss  xmm2, dword ptr [rax+0BCCh]; rate
-    }
-    *(double *)&_XMM0 = DiffTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm { vmovss  dword ptr [rbx], xmm0 }
+    p_offset = &vehicleCameras[v9].offset;
+    v35 = targetFov;
+    p_offset->v[0] = vehicleCameraModes[v18].offset.v[0];
+    p_offset->v[1] = vehicleCameraModes[v18].offset.v[1];
+    p_offset->v[2] = vehicleCameraModes[v18].offset.v[2];
+    vehicleCameras[v9].fov = v35;
+    v36 = targetFovOffset;
+    vehicleCameras[v9].radius = v21;
+    Client = (const VehicleClient *)&vehicleCameras[v9].radius;
+    vehicleCameras[v9].initialized = 1;
+    p_fovOffset = &vehicleCameras[v9].fovOffset;
+    *p_fovOffset = v36;
   }
-  AnglesToAxis(p_angles, &v98);
-  __asm { vmovss  xmm1, dword ptr [rbx] }
-  LOBYTE(isThirdPerson) = v13->mode == VEHCAM_MODE_3RD_PERSON;
-  _RAX = Client;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  [rsp+398h+var_358], xmm0
-    vmovss  [rsp+398h+var_360], xmm1
-  }
-  VehicleCam_GetCameraViewOrigin((LocalClientNum_t)v10, &cg->predictedPlayerState, 1, &outOrigin, &axis, &v98, _RBP, v86, v87, vehicleCameraModes[_R12].zOffsetMode, isThirdPerson, v92);
-  v81 = viewAngles;
+  AnglesToAxis(p_angles, &v50);
+  LOBYTE(isThirdPerson) = v10->mode == VEHCAM_MODE_3RD_PERSON;
+  VehicleCam_GetCameraViewOrigin((LocalClientNum_t)v7, &cg->predictedPlayerState, 1, &outOrigin, &axis, &v50, p_offset, *p_fovOffset, Client->wheelSpinAngle[0], vehicleCameraModes[v18].zOffsetMode, isThirdPerson, v44);
+  v37 = viewAngles;
   *viewAngles = *p_angles;
-  CG_VehicleCam_SetClientViewAngles(cg, v81);
-  __asm
-  {
-    vmovaps xmm6, [rsp+398h+var_58]
-    vmovaps xmm7, [rsp+398h+var_68]
-  }
+  CG_VehicleCam_SetClientViewAngles(cg, v37);
 }
 
 /*
@@ -2200,222 +1691,217 @@ void VehicleCam_UpdateModeParams(LocalClientNum_t localClientNum, const centity_
 {
   CgVehicleSystem *VehicleSystem; 
   const VehicleClient *Client; 
+  const VehicleDef *ClientDef; 
+  float vehCam_anglesYaw; 
+  float vehCam_anglesRoll; 
+  float vehCam_offsetY; 
+  float vehCam_offsetZ; 
   VehCamZOffsetMode vehCam_zOffsetMode; 
-  const dvar_t *v40; 
+  const dvar_t *v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float v15; 
+  const dvar_t *v16; 
+  float value; 
+  const dvar_t *v18; 
+  float v19; 
+  const dvar_t *v20; 
+  float v21; 
+  const dvar_t *v22; 
+  float v23; 
+  const dvar_t *v24; 
+  float v25; 
+  const dvar_t *v26; 
+  float v27; 
+  const dvar_t *v28; 
+  float vehCam_anglesYaw3P; 
+  float vehCam_anglesRoll3P; 
+  float vehCam_offsetY3P; 
+  float vehCam_offsetZ3P; 
   VehCamZOffsetMode vehCam_zOffsetMode3P; 
-  const dvar_t *v74; 
+  const dvar_t *v34; 
+  float v35; 
+  const dvar_t *v36; 
+  float v37; 
+  const dvar_t *v38; 
+  float v39; 
+  const dvar_t *v40; 
+  float v41; 
+  const dvar_t *v42; 
+  float v43; 
+  const dvar_t *v44; 
+  float v45; 
+  const dvar_t *v46; 
+  float v47; 
+  const dvar_t *v48; 
+  float v49; 
+  const dvar_t *v50; 
 
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 178, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   VehicleSystem = CgVehicleSystem::GetVehicleSystem(localClientNum);
   Client = CgVehicleSystem::GetClient(VehicleSystem, cent);
-  _RDI = CgVehicleSystem::GetClientDef(Client);
+  ClientDef = CgVehicleSystem::GetClientDef(Client);
   if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 185, ASSERT_TYPE_ASSERT, "(veh)", (const char *)&queryFormat, "veh") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 186, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
+  if ( !ClientDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_camera.cpp", 186, ASSERT_TYPE_ASSERT, "(vehDef)", (const char *)&queryFormat, "vehDef") )
     __debugbreak();
   if ( VehicleSystem->UseGdtCamera(VehicleSystem, cent) )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+0C0Ch]
-      vmovss  xmm0, dword ptr [rdi+0C08h]
-      vmovss  xmm2, dword ptr [rdi+0C10h]
-      vmovss  dword ptr cs:vehicleCameraModes.angles, xmm0
-      vmovss  dword ptr cs:vehicleCameraModes.angles+4, xmm1
-      vmovss  dword ptr cs:vehicleCameraModes.angles+8, xmm2
-      vmovss  xmm1, dword ptr [rdi+0C18h]
-      vmovss  xmm0, dword ptr [rdi+0C14h]
-      vmovss  xmm3, dword ptr [rdi+0C1Ch]
-      vmovss  dword ptr cs:vehicleCameraModes.offset, xmm0
-      vmovss  dword ptr cs:vehicleCameraModes.offset+4, xmm1
-      vmovss  dword ptr cs:vehicleCameraModes.offset+8, xmm3
-      vmovss  xmm0, dword ptr [rdi+0C20h]
-      vmovss  cs:vehicleCameraModes.radius, xmm0
-      vmovss  xmm1, dword ptr [rdi+0C24h]
-      vmovss  cs:vehicleCameraModes.speedInfluence, xmm1
-      vmovss  xmm0, dword ptr [rdi+0C28h]
-      vmovss  cs:vehicleCameraModes.pitchTurnRate, xmm0
-      vmovss  xmm1, dword ptr [rdi+0C2Ch]
-      vmovss  cs:vehicleCameraModes.pitchClamp, xmm1
-      vmovss  xmm0, dword ptr [rdi+0C30h]
-      vmovss  cs:vehicleCameraModes.yawTurnRate, xmm0
-      vmovss  xmm1, dword ptr [rdi+0C34h]
-      vmovss  cs:vehicleCameraModes.yawClamp, xmm1
-    }
-    vehCam_zOffsetMode = _RDI->vehCam_zOffsetMode;
+    vehCam_anglesYaw = ClientDef->vehCam_anglesYaw;
+    vehCam_anglesRoll = ClientDef->vehCam_anglesRoll;
+    vehicleCameraModes[0].angles.v[0] = ClientDef->vehCam_anglesPitch;
+    vehicleCameraModes[0].angles.v[1] = vehCam_anglesYaw;
+    vehicleCameraModes[0].angles.v[2] = vehCam_anglesRoll;
+    vehCam_offsetY = ClientDef->vehCam_offsetY;
+    vehCam_offsetZ = ClientDef->vehCam_offsetZ;
+    vehicleCameraModes[0].offset.v[0] = ClientDef->vehCam_offsetX;
+    vehicleCameraModes[0].offset.v[1] = vehCam_offsetY;
+    vehicleCameraModes[0].offset.v[2] = vehCam_offsetZ;
+    vehicleCameraModes[0].radius = ClientDef->vehCam_radius;
+    vehicleCameraModes[0].speedInfluence = ClientDef->vehCam_speedInfluence;
+    vehicleCameraModes[0].pitchTurnRate = ClientDef->vehCam_pitchTurnRate;
+    vehicleCameraModes[0].pitchClamp = ClientDef->vehCam_pitchClamp;
+    vehicleCameraModes[0].yawTurnRate = ClientDef->vehCam_yawTurnRate;
+    vehicleCameraModes[0].yawClamp = ClientDef->vehCam_yawClamp;
+    vehCam_zOffsetMode = ClientDef->vehCam_zOffsetMode;
   }
   else
   {
-    _RBX = DVARVEC3_vehCam_angles;
+    v12 = DVARVEC3_vehCam_angles;
     if ( !DVARVEC3_vehCam_angles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_angles") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmovss  dword ptr cs:vehicleCameraModes.angles, xmm0
-      vmovss  xmm1, dword ptr [rbx+2Ch]
-      vmovss  dword ptr cs:vehicleCameraModes.angles+4, xmm1
-      vmovss  xmm0, dword ptr [rbx+30h]
-    }
-    _RBX = DVARVEC3_vehCam_offset;
-    __asm { vmovss  dword ptr cs:vehicleCameraModes.angles+8, xmm0 }
+    Dvar_CheckFrontendServerThread(v12);
+    *(_QWORD *)vehicleCameraModes[0].angles.v = v12->current.integer64;
+    v13 = v12->current.vector.v[2];
+    v14 = DVARVEC3_vehCam_offset;
+    vehicleCameraModes[0].angles.v[2] = v13;
     if ( !DVARVEC3_vehCam_offset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_offset") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmovss  dword ptr cs:vehicleCameraModes.offset, xmm0
-      vmovss  xmm1, dword ptr [rbx+2Ch]
-      vmovss  dword ptr cs:vehicleCameraModes.offset+4, xmm1
-      vmovss  xmm0, dword ptr [rbx+30h]
-    }
-    _RBX = DVARFLT_vehCam_radius;
-    __asm { vmovss  dword ptr cs:vehicleCameraModes.offset+8, xmm0 }
+    Dvar_CheckFrontendServerThread(v14);
+    *(_QWORD *)vehicleCameraModes[0].offset.v = v14->current.integer64;
+    v15 = v14->current.vector.v[2];
+    v16 = DVARFLT_vehCam_radius;
+    vehicleCameraModes[0].offset.v[2] = v15;
     if ( !DVARFLT_vehCam_radius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_radius") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_vehCam_speedInfluence;
-    __asm { vmovss  cs:vehicleCameraModes.radius, xmm0 }
+    Dvar_CheckFrontendServerThread(v16);
+    value = v16->current.value;
+    v18 = DVARFLT_vehCam_speedInfluence;
+    vehicleCameraModes[0].radius = value;
     if ( !DVARFLT_vehCam_speedInfluence && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_speedInfluence") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_vehCam_pitchTurnRate;
-    __asm { vmovss  cs:vehicleCameraModes.speedInfluence, xmm0 }
+    Dvar_CheckFrontendServerThread(v18);
+    v19 = v18->current.value;
+    v20 = DVARFLT_vehCam_pitchTurnRate;
+    vehicleCameraModes[0].speedInfluence = v19;
     if ( !DVARFLT_vehCam_pitchTurnRate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_pitchTurnRate") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_vehCam_pitchClamp;
-    __asm { vmovss  cs:vehicleCameraModes.pitchTurnRate, xmm0 }
+    Dvar_CheckFrontendServerThread(v20);
+    v21 = v20->current.value;
+    v22 = DVARFLT_vehCam_pitchClamp;
+    vehicleCameraModes[0].pitchTurnRate = v21;
     if ( !DVARFLT_vehCam_pitchClamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_pitchClamp") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_vehCam_yawTurnRate;
-    __asm { vmovss  cs:vehicleCameraModes.pitchClamp, xmm0 }
+    Dvar_CheckFrontendServerThread(v22);
+    v23 = v22->current.value;
+    v24 = DVARFLT_vehCam_yawTurnRate;
+    vehicleCameraModes[0].pitchClamp = v23;
     if ( !DVARFLT_vehCam_yawTurnRate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_yawTurnRate") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_vehCam_yawClamp;
-    __asm { vmovss  cs:vehicleCameraModes.yawTurnRate, xmm0 }
+    Dvar_CheckFrontendServerThread(v24);
+    v25 = v24->current.value;
+    v26 = DVARFLT_vehCam_yawClamp;
+    vehicleCameraModes[0].yawTurnRate = v25;
     if ( !DVARFLT_vehCam_yawClamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_yawClamp") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    v40 = DVARINT_vehCam_zOffsetMode;
-    __asm { vmovss  cs:vehicleCameraModes.yawClamp, xmm0 }
+    Dvar_CheckFrontendServerThread(v26);
+    v27 = v26->current.value;
+    v28 = DVARINT_vehCam_zOffsetMode;
+    vehicleCameraModes[0].yawClamp = v27;
     if ( !DVARINT_vehCam_zOffsetMode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_zOffsetMode") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v40);
-    vehCam_zOffsetMode = v40->current.integer;
+    Dvar_CheckFrontendServerThread(v28);
+    vehCam_zOffsetMode = v28->current.integer;
   }
   vehicleCameraModes[0].zOffsetMode = vehCam_zOffsetMode;
   if ( VehicleSystem->UseGdtCamera(VehicleSystem, cent) )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+0C40h]
-      vmovss  xmm0, dword ptr [rdi+0C3Ch]
-      vmovss  xmm2, dword ptr [rdi+0C44h]
-      vmovss  dword ptr cs:vehicleCameraModes.angles+34h, xmm0
-      vmovss  dword ptr cs:vehicleCameraModes.angles+38h, xmm1
-      vmovss  dword ptr cs:vehicleCameraModes.angles+3Ch, xmm2
-      vmovss  xmm1, dword ptr [rdi+0C4Ch]
-      vmovss  xmm0, dword ptr [rdi+0C48h]
-      vmovss  xmm3, dword ptr [rdi+0C50h]
-      vmovss  dword ptr cs:vehicleCameraModes.offset+34h, xmm0
-      vmovss  dword ptr cs:vehicleCameraModes.offset+38h, xmm1
-      vmovss  dword ptr cs:vehicleCameraModes.offset+3Ch, xmm3
-      vmovss  xmm0, dword ptr [rdi+0C54h]
-      vmovss  cs:vehicleCameraModes.radius+34h, xmm0
-      vmovss  xmm1, dword ptr [rdi+0C58h]
-      vmovss  cs:vehicleCameraModes.speedInfluence+34h, xmm1
-      vmovss  xmm0, dword ptr [rdi+0C5Ch]
-      vmovss  cs:vehicleCameraModes.pitchTurnRate+34h, xmm0
-      vmovss  xmm1, dword ptr [rdi+0C60h]
-      vmovss  cs:vehicleCameraModes.pitchClamp+34h, xmm1
-      vmovss  xmm0, dword ptr [rdi+0C64h]
-      vmovss  cs:vehicleCameraModes.yawTurnRate+34h, xmm0
-      vmovss  xmm1, dword ptr [rdi+0C68h]
-      vmovss  cs:vehicleCameraModes.yawClamp+34h, xmm1
-    }
-    vehCam_zOffsetMode3P = _RDI->vehCam_zOffsetMode3P;
+    vehCam_anglesYaw3P = ClientDef->vehCam_anglesYaw3P;
+    vehCam_anglesRoll3P = ClientDef->vehCam_anglesRoll3P;
+    vehicleCameraModes[1].angles.v[0] = ClientDef->vehCam_anglesPitch3P;
+    vehicleCameraModes[1].angles.v[1] = vehCam_anglesYaw3P;
+    vehicleCameraModes[1].angles.v[2] = vehCam_anglesRoll3P;
+    vehCam_offsetY3P = ClientDef->vehCam_offsetY3P;
+    vehCam_offsetZ3P = ClientDef->vehCam_offsetZ3P;
+    vehicleCameraModes[1].offset.v[0] = ClientDef->vehCam_offsetX3P;
+    vehicleCameraModes[1].offset.v[1] = vehCam_offsetY3P;
+    vehicleCameraModes[1].offset.v[2] = vehCam_offsetZ3P;
+    vehicleCameraModes[1].radius = ClientDef->vehCam_radius3P;
+    vehicleCameraModes[1].speedInfluence = ClientDef->vehCam_speedInfluence3P;
+    vehicleCameraModes[1].pitchTurnRate = ClientDef->vehCam_pitchTurnRate3P;
+    vehicleCameraModes[1].pitchClamp = ClientDef->vehCam_pitchClamp3P;
+    vehicleCameraModes[1].yawTurnRate = ClientDef->vehCam_yawTurnRate3P;
+    vehicleCameraModes[1].yawClamp = ClientDef->vehCam_yawClamp3P;
+    vehCam_zOffsetMode3P = ClientDef->vehCam_zOffsetMode3P;
   }
   else
   {
-    _RBX = DVARVEC3_vehCam_angles3P;
+    v34 = DVARVEC3_vehCam_angles3P;
     if ( !DVARVEC3_vehCam_angles3P && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_angles3P") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmovss  dword ptr cs:vehicleCameraModes.angles+34h, xmm0
-      vmovss  xmm1, dword ptr [rbx+2Ch]
-      vmovss  dword ptr cs:vehicleCameraModes.angles+38h, xmm1
-      vmovss  xmm0, dword ptr [rbx+30h]
-    }
-    _RBX = DVARVEC3_vehCam_offset3P;
-    __asm { vmovss  dword ptr cs:vehicleCameraModes.angles+3Ch, xmm0 }
+    Dvar_CheckFrontendServerThread(v34);
+    *(_QWORD *)vehicleCameraModes[1].angles.v = v34->current.integer64;
+    v35 = v34->current.vector.v[2];
+    v36 = DVARVEC3_vehCam_offset3P;
+    vehicleCameraModes[1].angles.v[2] = v35;
     if ( !DVARVEC3_vehCam_offset3P && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_offset3P") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmovss  dword ptr cs:vehicleCameraModes.offset+34h, xmm0
-      vmovss  xmm1, dword ptr [rbx+2Ch]
-      vmovss  dword ptr cs:vehicleCameraModes.offset+38h, xmm1
-      vmovss  xmm0, dword ptr [rbx+30h]
-    }
-    _RBX = DVARFLT_vehCam_radius3P;
-    __asm { vmovss  dword ptr cs:vehicleCameraModes.offset+3Ch, xmm0 }
+    Dvar_CheckFrontendServerThread(v36);
+    *(_QWORD *)vehicleCameraModes[1].offset.v = v36->current.integer64;
+    v37 = v36->current.vector.v[2];
+    v38 = DVARFLT_vehCam_radius3P;
+    vehicleCameraModes[1].offset.v[2] = v37;
     if ( !DVARFLT_vehCam_radius3P && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_radius3P") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_vehCam_speedInfluence3P;
-    __asm { vmovss  cs:vehicleCameraModes.radius+34h, xmm0 }
+    Dvar_CheckFrontendServerThread(v38);
+    v39 = v38->current.value;
+    v40 = DVARFLT_vehCam_speedInfluence3P;
+    vehicleCameraModes[1].radius = v39;
     if ( !DVARFLT_vehCam_speedInfluence3P && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_speedInfluence3P") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_vehCam_pitchTurnRate3P;
-    __asm { vmovss  cs:vehicleCameraModes.speedInfluence+34h, xmm0 }
+    Dvar_CheckFrontendServerThread(v40);
+    v41 = v40->current.value;
+    v42 = DVARFLT_vehCam_pitchTurnRate3P;
+    vehicleCameraModes[1].speedInfluence = v41;
     if ( !DVARFLT_vehCam_pitchTurnRate3P && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_pitchTurnRate3P") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_vehCam_pitchClamp3P;
-    __asm { vmovss  cs:vehicleCameraModes.pitchTurnRate+34h, xmm0 }
+    Dvar_CheckFrontendServerThread(v42);
+    v43 = v42->current.value;
+    v44 = DVARFLT_vehCam_pitchClamp3P;
+    vehicleCameraModes[1].pitchTurnRate = v43;
     if ( !DVARFLT_vehCam_pitchClamp3P && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_pitchClamp3P") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_vehCam_yawTurnRate3P;
-    __asm { vmovss  cs:vehicleCameraModes.pitchClamp+34h, xmm0 }
+    Dvar_CheckFrontendServerThread(v44);
+    v45 = v44->current.value;
+    v46 = DVARFLT_vehCam_yawTurnRate3P;
+    vehicleCameraModes[1].pitchClamp = v45;
     if ( !DVARFLT_vehCam_yawTurnRate3P && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_yawTurnRate3P") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    _RBX = DVARFLT_vehCam_yawClamp3P;
-    __asm { vmovss  cs:vehicleCameraModes.yawTurnRate+34h, xmm0 }
+    Dvar_CheckFrontendServerThread(v46);
+    v47 = v46->current.value;
+    v48 = DVARFLT_vehCam_yawClamp3P;
+    vehicleCameraModes[1].yawTurnRate = v47;
     if ( !DVARFLT_vehCam_yawClamp3P && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_yawClamp3P") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    v74 = DVARINT_vehCam_zOffsetMode3P;
-    __asm { vmovss  cs:vehicleCameraModes.yawClamp+34h, xmm0 }
+    Dvar_CheckFrontendServerThread(v48);
+    v49 = v48->current.value;
+    v50 = DVARINT_vehCam_zOffsetMode3P;
+    vehicleCameraModes[1].yawClamp = v49;
     if ( !DVARINT_vehCam_zOffsetMode3P && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "vehCam_zOffsetMode3P") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v74);
-    vehCam_zOffsetMode3P = v74->current.integer;
+    Dvar_CheckFrontendServerThread(v50);
+    vehCam_zOffsetMode3P = v50->current.integer;
   }
   vehicleCameraModes[1].zOffsetMode = vehCam_zOffsetMode3P;
 }

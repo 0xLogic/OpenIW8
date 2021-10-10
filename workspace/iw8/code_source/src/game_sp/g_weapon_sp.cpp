@@ -195,50 +195,38 @@ GWeaponSP::GetShieldCosOfAngleToPointForClient
 */
 char GWeaponSP::GetShieldCosOfAngleToPointForClient(GWeaponSP *this, const gentity_s *shieldHolder, vec3_t *outShieldForward, vec3_t *outShieldDown, vec3_t *outShieldOrigin, bool shieldOnBack)
 {
+  float v9; 
+  double v10; 
   GHandler *Handler; 
-  float v18; 
   vec3_t angles; 
-  WorldUpReferenceFrame v20; 
+  WorldUpReferenceFrame v16; 
 
-  _RBP = outShieldDown;
-  _RBX = shieldHolder;
   if ( !shieldHolder && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_weapon_sp.cpp", 94, ASSERT_TYPE_ASSERT, "( shieldHolder )", (const char *)&queryFormat, "shieldHolder") )
     __debugbreak();
-  if ( !_RBX->client )
+  if ( !shieldHolder->client )
     return 0;
-  if ( !shieldOnBack && !G_Weapon_PlayerIsUsingShield(_RBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_weapon_sp.cpp", 102, ASSERT_TYPE_ASSERT, "( G_Weapon_PlayerIsUsingShield( shieldHolder ) )", (const char *)&queryFormat, "G_Weapon_PlayerIsUsingShield( shieldHolder )") )
+  if ( !shieldOnBack && !G_Weapon_PlayerIsUsingShield(shieldHolder) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_weapon_sp.cpp", 102, ASSERT_TYPE_ASSERT, "( G_Weapon_PlayerIsUsingShield( shieldHolder ) )", (const char *)&queryFormat, "G_Weapon_PlayerIsUsingShield( shieldHolder )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+40h]
-    vmovss  xmm1, dword ptr [rbx+44h]
-    vmovss  dword ptr [rsp+0A8h+angles], xmm0
-    vmovss  xmm0, dword ptr [rbx+48h]
-    vmovss  dword ptr [rsp+0A8h+angles+8], xmm0
-    vmovss  dword ptr [rsp+0A8h+angles+4], xmm1
-  }
+  v9 = shieldHolder->s.lerp.apos.trBase.v[1];
+  angles.v[0] = shieldHolder->s.lerp.apos.trBase.v[0];
+  angles.v[2] = shieldHolder->s.lerp.apos.trBase.v[2];
+  angles.v[1] = v9;
   if ( shieldOnBack )
   {
-    __asm { vaddss  xmm0, xmm1, cs:__real@43340000; angle }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm { vmovss  dword ptr [rsp+0A8h+angles+4], xmm0 }
+    v10 = AngleNormalize360(v9 + 180.0);
+    angles.v[1] = *(float *)&v10;
   }
   Handler = GHandler::getHandler();
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v20, &_RBX->client->ps, Handler);
-  WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v20, &angles);
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v16, &shieldHolder->client->ps, Handler);
+  WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v16, &angles);
   AngleVectors(&angles, outShieldForward, NULL, NULL);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@bf800000
-    vxorps  xmm1, xmm1, xmm1
-    vunpcklps xmm1, xmm1, xmm1
-    vmovsd  qword ptr [rbp+0], xmm1
-    vmovss  [rsp+0A8h+var_70], xmm0
-  }
-  _RBP->v[2] = v18;
-  if ( !_RBX->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_weapon_sp.cpp", 126, ASSERT_TYPE_ASSERT, "( shieldHolder->client )", (const char *)&queryFormat, "shieldHolder->client") )
+  _XMM1 = 0i64;
+  __asm { vunpcklps xmm1, xmm1, xmm1 }
+  *(double *)outShieldDown->v = *(double *)&_XMM1;
+  outShieldDown->v[2] = FLOAT_N1_0;
+  if ( !shieldHolder->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_weapon_sp.cpp", 126, ASSERT_TYPE_ASSERT, "( shieldHolder->client )", (const char *)&queryFormat, "shieldHolder->client") )
     __debugbreak();
-  G_Client_GetEyePosition(&_RBX->client->ps, outShieldOrigin);
+  G_Client_GetEyePosition(&shieldHolder->client->ps, outShieldOrigin);
   return 1;
 }
 
@@ -316,34 +304,15 @@ GWeaponSP::MuzzlePointAddOffset
 */
 void GWeaponSP::MuzzlePointAddOffset(GWeaponSP *this, BgWeaponParms *wp, const gentity_s *attacker)
 {
-  _RDI = wp;
   if ( !wp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_weapon_sp.cpp", 44, ASSERT_TYPE_ASSERT, "( wp )", (const char *)&queryFormat, "wp") )
     __debugbreak();
   if ( !attacker && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_weapon_sp.cpp", 45, ASSERT_TYPE_ASSERT, "( attacker )", (const char *)&queryFormat, "attacker") )
     __debugbreak();
   if ( !attacker->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_weapon_sp.cpp", 46, ASSERT_TYPE_ASSERT, "( attacker->client )", (const char *)&queryFormat, "attacker->client") )
     __debugbreak();
-  _RAX = attacker->client;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+0B65Ch]
-    vaddss  xmm1, xmm0, dword ptr [rdi+24h]
-    vmovss  dword ptr [rdi+24h], xmm1
-  }
-  _RAX = attacker->client;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+0B660h]
-    vaddss  xmm1, xmm0, dword ptr [rdi+28h]
-    vmovss  dword ptr [rdi+28h], xmm1
-  }
-  _RAX = attacker->client;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+0B664h]
-    vaddss  xmm1, xmm0, dword ptr [rdi+2Ch]
-    vmovss  dword ptr [rdi+2Ch], xmm1
-  }
+  wp->muzzleTrace.v[0] = attacker->client->fGunXOfs + wp->muzzleTrace.v[0];
+  wp->muzzleTrace.v[1] = attacker->client->fGunYOfs + wp->muzzleTrace.v[1];
+  wp->muzzleTrace.v[2] = attacker->client->fGunZOfs + wp->muzzleTrace.v[2];
 }
 
 /*

@@ -221,177 +221,127 @@ StaticModels_Debug_Draw
 */
 void StaticModels_Debug_Draw(const ScreenPlacement *scrPlace)
 {
-  const dvar_t *v6; 
+  const dvar_t *v2; 
+  float integer; 
+  const dvar_t *v4; 
+  float v5; 
+  float v6; 
+  const dvar_t *v7; 
+  char v8; 
+  const dvar_t *v9; 
   const dvar_t *v10; 
-  const dvar_t *v14; 
-  char v15; 
-  const dvar_t *v19; 
-  const dvar_t *v22; 
-  const dvar_t *v23; 
-  const dvar_t *v24; 
-  int integer; 
-  const char *v27; 
-  const dvar_t *v35; 
-  const dvar_t *v37; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  float v13; 
+  int v14; 
+  const char *v15; 
+  const dvar_t *v16; 
+  const dvar_t *v17; 
   float x; 
   float y; 
 
-  v6 = DVARINT_staticModels_debugDisplayOffsetX;
-  __asm
-  {
-    vmovaps [rsp+90h+var_38+8], xmm6
-    vmovaps [rsp+90h+var_48+8], xmm7
-  }
+  v2 = DVARINT_staticModels_debugDisplayOffsetX;
   if ( !DVARINT_staticModels_debugDisplayOffsetX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "staticModels_debugDisplayOffsetX") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@41000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+28h]
-  }
-  v10 = DVARINT_staticModels_debugDisplayOffsetY;
-  __asm
-  {
-    vaddss  xmm6, xmm0, xmm7
-    vmovss  [rbp+57h+x], xmm6
-  }
+  Dvar_CheckFrontendServerThread(v2);
+  integer = (float)v2->current.integer;
+  v4 = DVARINT_staticModels_debugDisplayOffsetY;
+  v5 = integer + 8.0;
+  x = integer + 8.0;
   if ( !DVARINT_staticModels_debugDisplayOffsetY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "staticModels_debugDisplayOffsetY") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+28h]
-  }
-  v14 = DVARBOOL_staticModels_debugArchiveFullDetails;
-  v15 = 0;
-  __asm
-  {
-    vaddss  xmm1, xmm0, xmm7
-    vmovss  [rbp+57h+y], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v4);
+  v6 = (float)v4->current.integer;
+  v7 = DVARBOOL_staticModels_debugArchiveFullDetails;
+  v8 = 0;
+  y = v6 + 8.0;
   if ( !DVARBOOL_staticModels_debugArchiveFullDetails && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "staticModels_debugArchiveFullDetails") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  __asm { vmovss  xmm7, cs:__real@40c00000 }
-  if ( v14->current.enabled )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.enabled )
   {
     StaticModels_Debug_Draw_Archive_Summary(scrPlace, &x, &y);
-    __asm { vaddss  xmm0, xmm6, xmm7 }
-    v15 = 1;
-    __asm { vmovss  [rbp+57h+x], xmm0 }
+    v8 = 1;
+    x = v5 + 6.0;
     StaticModels_Debug_Draw_Archive_SectionSummary(scrPlace, &x, &y);
     StaticModels_Debug_Draw_Archive_FullDetails(scrPlace, &x, &y);
 LABEL_17:
-    __asm
-    {
-      vmovss  xmm0, [rbp+57h+x]
-      vaddss  xmm6, xmm0, cs:__real@c0c00000
-      vmovss  [rbp+57h+x], xmm6
-    }
+    v5 = x + -6.0;
+    x = x + -6.0;
     goto LABEL_23;
   }
-  v19 = DVARBOOL_staticModels_debugArchiveSectionSummary;
+  v9 = DVARBOOL_staticModels_debugArchiveSectionSummary;
   if ( !DVARBOOL_staticModels_debugArchiveSectionSummary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "staticModels_debugArchiveSectionSummary") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  if ( v19->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.enabled )
   {
     StaticModels_Debug_Draw_Archive_Summary(scrPlace, &x, &y);
-    __asm { vaddss  xmm0, xmm6, xmm7 }
-    v15 = 1;
-    __asm { vmovss  [rbp+57h+x], xmm0 }
+    v8 = 1;
+    x = v5 + 6.0;
     StaticModels_Debug_Draw_Archive_SectionSummary(scrPlace, &x, &y);
     goto LABEL_17;
   }
-  v22 = DVARBOOL_staticModels_debugArchiveSummary;
+  v10 = DVARBOOL_staticModels_debugArchiveSummary;
   if ( !DVARBOOL_staticModels_debugArchiveSummary && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "staticModels_debugArchiveSummary") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v22);
-  if ( v22->current.enabled )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( v10->current.enabled )
   {
     StaticModels_Debug_Draw_Archive_Summary(scrPlace, &x, &y);
-    v15 = 1;
+    v8 = 1;
   }
 LABEL_23:
-  v23 = DVARBOOL_staticModels_debugInstances;
+  v11 = DVARBOOL_staticModels_debugInstances;
   if ( !DVARBOOL_staticModels_debugInstances && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "staticModels_debugInstances") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  if ( v23->current.enabled )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.enabled )
   {
-    __asm { vmovaps [rsp+90h+var_58+8], xmm8 }
-    if ( !v15 )
+    if ( !v8 )
     {
       StaticModels_Debug_Draw_Archive_Summary(scrPlace, &x, &y);
-      v15 = 1;
+      v8 = 1;
     }
-    v24 = DVARINT_staticModels_debugTileIdx;
-    __asm { vaddss  xmm8, xmm6, xmm7 }
+    v12 = DVARINT_staticModels_debugTileIdx;
+    v13 = v5 + 6.0;
     if ( !DVARINT_staticModels_debugTileIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "staticModels_debugTileIdx") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v24);
-    integer = v24->current.integer;
-    v27 = j_va("Each tile has a shape instance budget of %iK for sim and %iK for detail", 8i64, 8i64);
-    __asm
-    {
-      vmovss  xmm2, [rbp+57h+y]; y
-      vmovaps xmm1, xmm8; x
-    }
-    StaticModels_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v27, &colorWhite);
-    __asm
-    {
-      vaddss  xmm0, xmm7, [rbp+57h+y]
-      vaddss  xmm1, xmm8, xmm7
-      vmovss  [rbp+57h+y], xmm0
-      vmovss  [rbp+57h+x], xmm1
-    }
-    StaticModels_Debug_Draw_InstancesHeatmap(scrPlace, &x, &y, integer);
-    __asm { vmovaps xmm8, [rsp+90h+var_58+8] }
-    if ( integer < 0 || (unsigned int)integer >= 0x400 )
+    Dvar_CheckFrontendServerThread(v12);
+    v14 = v12->current.integer;
+    v15 = j_va("Each tile has a shape instance budget of %iK for sim and %iK for detail", 8i64, 8i64);
+    StaticModels_Debug_DrawString(scrPlace, v13, y, v15, &colorWhite);
+    y = y + 6.0;
+    x = v13 + 6.0;
+    StaticModels_Debug_Draw_InstancesHeatmap(scrPlace, &x, &y, v14);
+    if ( v14 < 0 || (unsigned int)v14 >= 0x400 )
     {
       StaticModels_Debug_Draw_OverlyExpensiveInstances(scrPlace, &x, &y);
       StaticModels_Debug_Draw_NotRootTransformInstances(scrPlace, &x, &y);
     }
     else
     {
-      StaticModels_Debug_Draw_InstancesForTile(scrPlace, &x, &y, integer);
+      StaticModels_Debug_Draw_InstancesForTile(scrPlace, &x, &y, v14);
     }
-    __asm
-    {
-      vmovss  xmm0, [rbp+57h+x]
-      vsubss  xmm1, xmm0, xmm7
-      vsubss  xmm6, xmm1, xmm7
-      vmovss  [rbp+57h+x], xmm6
-    }
+    v5 = (float)(x - 6.0) - 6.0;
+    x = v5;
   }
-  v35 = DVARBOOL_staticModels_debugMemory;
+  v16 = DVARBOOL_staticModels_debugMemory;
   if ( !DVARBOOL_staticModels_debugMemory && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "staticModels_debugMemory") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v35);
-  if ( v35->current.enabled )
+  Dvar_CheckFrontendServerThread(v16);
+  if ( v16->current.enabled )
   {
-    if ( !v15 )
+    if ( !v8 )
       StaticModels_Debug_Draw_Archive_Summary(scrPlace, &x, &y);
-    __asm
-    {
-      vaddss  xmm0, xmm6, xmm7
-      vmovss  [rbp+57h+x], xmm0
-    }
+    x = v5 + 6.0;
     StaticModels_Debug_Draw_Memory(scrPlace, &x, &y);
   }
-  v37 = DVARBOOL_staticModels_debugDump;
-  __asm
-  {
-    vmovaps xmm7, [rsp+90h+var_48+8]
-    vmovaps xmm6, [rsp+90h+var_38+8]
-  }
+  v17 = DVARBOOL_staticModels_debugDump;
   if ( !DVARBOOL_staticModels_debugDump && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "staticModels_debugDump") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v37);
-  if ( v37->current.enabled )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( v17->current.enabled )
     Dvar_SetBool_Internal(DVARBOOL_staticModels_debugDump, 0);
 }
 
@@ -401,63 +351,42 @@ StaticModels_Debug_DrawString
 ==============
 */
 
-void __fastcall StaticModels_Debug_DrawString(const ScreenPlacement *scrPlace, double x, double y, const char *string)
+void __fastcall StaticModels_Debug_DrawString(const ScreenPlacement *scrPlace, double x, float y, const char *string, const vec4_t *setColor)
 {
-  const dvar_t *v11; 
-  const dvar_t *v12; 
-  char v16; 
-  char v17; 
+  __int128 v6; 
+  const dvar_t *v7; 
+  const dvar_t *v8; 
+  float v9; 
+  __int128 v10; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps xmm6, xmm1
-    vcomiss xmm2, cs:__real@44870000
-  }
-  v11 = DVARBOOL_staticModels_debugDump;
+  v6 = *(_OWORD *)&x;
+  if ( y > 0.0 && y < 1080.0 )
+    CG_DrawStringExt(scrPlace, *(float *)&x, y, string, setColor, 0, 1, 6.0, 0);
+  v7 = DVARBOOL_staticModels_debugDump;
   if ( !DVARBOOL_staticModels_debugDump && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "staticModels_debugDump") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( v11->current.enabled )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.enabled )
   {
-    v12 = DVARINT_staticModels_debugDisplayOffsetX;
-    __asm { vmovaps [rsp+88h+var_28], xmm7 }
+    v8 = DVARINT_staticModels_debugDisplayOffsetX;
     if ( !DVARINT_staticModels_debugDisplayOffsetX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "staticModels_debugDisplayOffsetX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    __asm
+    Dvar_CheckFrontendServerThread(v8);
+    v9 = (float)v8->current.integer + 8.0;
+    if ( *(float *)&x > v9 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-      vaddss  xmm7, xmm0, cs:__real@41000000
-      vcomiss xmm6, xmm7
-    }
-    if ( !(v16 | v17) )
-    {
-      __asm
-      {
-        vmovaps [rsp+88h+var_38], xmm8
-        vmovss  xmm8, cs:__real@c0c00000
-      }
       do
       {
         Com_Printf(14, " ");
-        __asm
-        {
-          vaddss  xmm6, xmm6, xmm8
-          vcomiss xmm6, xmm7
-        }
+        v10 = v6;
+        *(float *)&v10 = *(float *)&v6 + -6.0;
+        v6 = v10;
       }
-      while ( !(v16 | v17) );
-      __asm { vmovaps xmm8, [rsp+88h+var_38] }
+      while ( *(float *)&v10 > v9 );
     }
     Com_Printf(14, (const char *)&queryFormat, string);
     Com_Printf(14, "\n");
-    __asm { vmovaps xmm7, [rsp+88h+var_28] }
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
 }
 
 /*
@@ -467,247 +396,188 @@ StaticModels_Debug_Draw_Archive_FullDetails
 */
 void StaticModels_Debug_Draw_Archive_FullDetails(const ScreenPlacement *scrPlace, float *x, float *y)
 {
-  int v6; 
-  const ScreenPlacement *v7; 
+  float *v3; 
+  int v5; 
+  const ScreenPlacement *v6; 
   StaticModelCollisionModelList *staticModelCollisionModelLists; 
   __int64 numStaticModelCollisionModelLists; 
-  bool v10; 
+  bool v9; 
+  int v10; 
   int v11; 
-  int v12; 
-  const CollisionTile **v13; 
-  __int64 v14; 
+  const CollisionTile **v12; 
+  __int64 v13; 
   StaticModelCollisionCompressedModelList *staticModelCollision; 
   unsigned int numModels; 
-  int v17; 
-  const char *v21; 
-  unsigned int v25; 
-  StaticModelCollisionModelList *v26; 
-  unsigned int v27; 
-  __int64 v29; 
+  int v16; 
+  const char *v17; 
+  float v18; 
+  float v19; 
+  unsigned int v20; 
+  StaticModelCollisionModelList *v21; 
+  unsigned int v22; 
+  float v23; 
+  __int64 v24; 
   bool IsClipmapZoneLoaded; 
-  const char *v33; 
-  __int64 v37; 
+  vec4_t *v26; 
+  const char *v27; 
+  __int64 v28; 
   StaticModelCollisionModel *models; 
   const PhysicsAsset *physicsAsset; 
   unsigned int numInstances; 
   int PhysicsAssetBodyCount; 
   const XModelDetailCollision *detailCollision; 
   int DetailCollisionShapeCount; 
-  const char *v45; 
-  const char *v46; 
-  const char *v47; 
-  const char *v55; 
-  const char *v57; 
+  const char *v35; 
+  const char *v36; 
+  const char *v37; 
+  const char *v38; 
+  const char *v39; 
   vec4_t *setColor; 
   bool (__fastcall *hasCollisionFn)(const int); 
   int staticModelZoneIdx; 
-  int v68; 
-  unsigned int v69; 
-  __int64 v70; 
-  vec4_t v73; 
+  int v43; 
+  unsigned int v44; 
+  __int64 v45; 
+  vec4_t v48; 
   char zoneName[272]; 
 
-  __asm { vmovaps [rsp+1E8h+var_48], xmm6 }
-  _RSI = y;
-  _R12 = x;
-  v6 = 0;
-  v7 = scrPlace;
+  v3 = y;
+  v5 = 0;
+  v6 = scrPlace;
   if ( cm.numStaticModelCollisionModelLists )
   {
     staticModelCollisionModelLists = cm.staticModelCollisionModelLists;
     numStaticModelCollisionModelLists = cm.numStaticModelCollisionModelLists;
     do
     {
-      v10 = staticModelCollisionModelLists->numModels == 0;
-      v11 = v6 + 1;
+      v9 = staticModelCollisionModelLists->numModels == 0;
+      v10 = v5 + 1;
       ++staticModelCollisionModelLists;
-      if ( v10 )
-        v11 = v6;
-      v6 = v11;
+      if ( v9 )
+        v10 = v5;
+      v5 = v10;
       --numStaticModelCollisionModelLists;
     }
     while ( numStaticModelCollisionModelLists );
   }
-  v12 = 0;
-  v13 = g_staticModels_CollisionTiles;
-  v14 = 1024i64;
+  v11 = 0;
+  v12 = g_staticModels_CollisionTiles;
+  v13 = 1024i64;
   do
   {
-    if ( *v13 )
+    if ( *v12 )
     {
-      staticModelCollision = (*v13)->staticModelCollision;
+      staticModelCollision = (*v12)->staticModelCollision;
       if ( staticModelCollision )
       {
         numModels = staticModelCollision->numModels;
-        v17 = v12 + 1;
+        v16 = v11 + 1;
         if ( !numModels )
-          v17 = v12;
-        v12 = v17;
+          v16 = v11;
+        v11 = v16;
         if ( numModels )
-          v12 = v17;
+          v11 = v16;
       }
     }
-    ++v13;
-    --v14;
+    ++v12;
+    --v13;
   }
-  while ( v14 );
-  v68 = v12;
-  __asm { vmovss  xmm6, cs:__real@40c00000 }
-  if ( v6 )
+  while ( v13 );
+  v43 = v11;
+  if ( v5 )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [r12]; x
-    }
-    v21 = "Zones";
-    if ( v6 == 1 )
-      v21 = "Zone";
-    StaticModels_Debug_DrawString(v7, *(double *)&_XMM1, *(double *)&_XMM2, v21);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vmovss  xmm2, dword ptr [r12]
-      vaddss  xmm0, xmm2, xmm6
-      vmovss  dword ptr [r12], xmm0
-    }
-    v25 = cm.numStaticModelCollisionModelLists;
-    v26 = cm.staticModelCollisionModelLists;
-    v69 = cm.numStaticModelCollisionModelLists;
+    v17 = "Zones";
+    if ( v5 == 1 )
+      v17 = "Zone";
+    StaticModels_Debug_DrawString(v6, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *v3, v17, &colorWhite);
+    *v3 = *v3 + 6.0;
+    v18 = *x;
+    v19 = *x + 6.0;
+    *x = v19;
+    v20 = cm.numStaticModelCollisionModelLists;
+    v21 = cm.staticModelCollisionModelLists;
+    v44 = cm.numStaticModelCollisionModelLists;
     staticModelZoneIdx = 0;
     if ( cm.numStaticModelCollisionModelLists )
     {
-      v27 = 0;
-      __asm { vmovaps xmm1, xmm0 }
+      v22 = 0;
+      v23 = v18 + 6.0;
       do
       {
-        v29 = v26->numModels;
-        __asm { vmovaps xmm0, xmm1 }
-        if ( (_DWORD)v29 )
+        v24 = v21->numModels;
+        v19 = v23;
+        if ( (_DWORD)v24 )
         {
-          IsClipmapZoneLoaded = StaticModels_Debug_IsClipmapZoneLoaded(v27);
-          _RCX = &colorRed;
+          IsClipmapZoneLoaded = StaticModels_Debug_IsClipmapZoneLoaded(v22);
+          v26 = &colorRed;
           if ( IsClipmapZoneLoaded )
-            _RCX = &colorWhite;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rcx]
-            vmovups xmmword ptr [rsp+1E8h+var_180], xmm0
-          }
-          StaticModels_Debug_GetClipmapZoneName(v27, zoneName);
-          v33 = j_va((const char *)&queryFormat, zoneName);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rsi]; y
-            vmovss  xmm1, dword ptr [r12]; x
-          }
-          setColor = &v73;
-          StaticModels_Debug_DrawString(v7, *(double *)&_XMM1, *(double *)&_XMM2, v33);
-          __asm { vaddss  xmm1, xmm6, dword ptr [rsi] }
-          v37 = 0i64;
-          __asm
-          {
-            vmovss  dword ptr [rsi], xmm1
-            vaddss  xmm0, xmm6, dword ptr [r12]
-            vmovss  dword ptr [r12], xmm0
-          }
-          v70 = v29;
+            v26 = &colorWhite;
+          v48 = *v26;
+          StaticModels_Debug_GetClipmapZoneName(v22, zoneName);
+          v27 = j_va((const char *)&queryFormat, zoneName);
+          StaticModels_Debug_DrawString(v6, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *v3, v27, &v48);
+          v28 = 0i64;
+          *v3 = *v3 + 6.0;
+          *x = *x + 6.0;
+          v45 = v24;
           do
           {
-            models = v26->models;
-            physicsAsset = models[v37].physicsAsset;
-            numInstances = models[v37].numInstances;
+            models = v21->models;
+            physicsAsset = models[v28].physicsAsset;
+            numInstances = models[v28].numInstances;
             if ( physicsAsset )
               PhysicsAssetBodyCount = Physics_GetPhysicsAssetBodyCount(physicsAsset);
             else
               PhysicsAssetBodyCount = 0;
-            detailCollision = models[v37].detailCollision;
+            detailCollision = models[v28].detailCollision;
             if ( detailCollision )
               DetailCollisionShapeCount = Physics_GetDetailCollisionShapeCount(detailCollision);
             else
               DetailCollisionShapeCount = PhysicsAssetBodyCount;
-            v45 = SL_ConvertToString(models[v37].name);
+            v35 = SL_ConvertToString(models[v28].name);
             LODWORD(hasCollisionFn) = DetailCollisionShapeCount;
             LODWORD(setColor) = PhysicsAssetBodyCount;
-            v46 = (char *)&queryFormat.fmt + 3;
+            v36 = (char *)&queryFormat.fmt + 3;
             if ( numInstances != 1 )
-              v46 = "s";
-            v47 = j_va("%i instance%s of %s (Shape cost per instance: %i:Physics Asset %i:ColLod)", numInstances, v46, v45, setColor, hasCollisionFn);
-            _RSI = y;
-            __asm { vmovss  xmm1, dword ptr [r12]; x }
-            setColor = &v73;
-            __asm { vmovss  xmm2, dword ptr [rsi]; y }
-            StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v47);
-            __asm { vaddss  xmm1, xmm6, dword ptr [rsi] }
-            ++v37;
-            v10 = v70-- == 1;
-            __asm { vmovss  dword ptr [rsi], xmm1 }
+              v36 = "s";
+            v37 = j_va("%i instance%s of %s (Shape cost per instance: %i:Physics Asset %i:ColLod)", numInstances, v36, v35, setColor, hasCollisionFn);
+            v3 = y;
+            StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v37, &v48);
+            ++v28;
+            v9 = v45-- == 1;
+            *y = *y + 6.0;
           }
-          while ( !v10 );
-          __asm { vmovss  xmm0, dword ptr [r12] }
-          v27 = staticModelZoneIdx;
-          v7 = scrPlace;
-          v25 = v69;
-          __asm
-          {
-            vsubss  xmm0, xmm0, xmm6
-            vmovss  dword ptr [r12], xmm0
-            vmovaps xmm1, xmm0
-          }
+          while ( !v9 );
+          v22 = staticModelZoneIdx;
+          v6 = scrPlace;
+          v20 = v44;
+          v19 = *x - 6.0;
+          *x = v19;
+          v23 = v19;
         }
-        ++v27;
-        ++v26;
-        staticModelZoneIdx = v27;
+        ++v22;
+        ++v21;
+        staticModelZoneIdx = v22;
       }
-      while ( v27 < v25 );
-      v12 = v68;
+      while ( v22 < v20 );
+      v11 = v43;
     }
-    __asm
-    {
-      vsubss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [r12], xmm0
-    }
+    *x = v19 - 6.0;
   }
-  if ( v12 )
+  if ( v11 )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [r12]; x
-    }
-    v55 = "Tiles";
-    if ( v12 == 1 )
-      v55 = "Tile";
-    StaticModels_Debug_DrawString(v7, *(double *)&_XMM1, *(double *)&_XMM2, v55);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-    }
-    v57 = j_va("Tile Details");
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [r12]; x
-    }
-    StaticModels_Debug_DrawString(v7, *(double *)&_XMM1, *(double *)&_XMM2, v57);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vaddss  xmm0, xmm6, dword ptr [r12]
-      vmovss  dword ptr [r12], xmm0
-    }
-    StaticModels_Debug_Draw_CollisionTileDetails(v7, _R12, _RSI, 0x400u, g_staticModels_CollisionTiles, StaticModels_Debug_IsCollisionTileLoaded, StaticModels_Debug_GetCollisionTileName);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r12]
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [r12], xmm1
-    }
+    v38 = "Tiles";
+    if ( v11 == 1 )
+      v38 = "Tile";
+    StaticModels_Debug_DrawString(v6, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *v3, v38, &colorWhite);
+    *v3 = *v3 + 6.0;
+    v39 = j_va("Tile Details");
+    StaticModels_Debug_DrawString(v6, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *v3, v39, &colorWhite);
+    *v3 = *v3 + 6.0;
+    *x = *x + 6.0;
+    StaticModels_Debug_Draw_CollisionTileDetails(v6, x, v3, 0x400u, g_staticModels_CollisionTiles, StaticModels_Debug_IsCollisionTileLoaded, StaticModels_Debug_GetCollisionTileName);
+    *x = *x - 6.0;
   }
-  __asm { vmovaps xmm6, [rsp+1E8h+var_48] }
 }
 
 /*
@@ -717,117 +587,82 @@ StaticModels_Debug_Draw_Archive_SectionSummary
 */
 void StaticModels_Debug_Draw_Archive_SectionSummary(const ScreenPlacement *scrPlace, float *x, float *y)
 {
-  int v4; 
-  int v8; 
+  int v3; 
+  int v7; 
   StaticModelCollisionModelList *staticModelCollisionModelLists; 
   __int64 numStaticModelCollisionModelLists; 
-  bool v11; 
-  int v12; 
-  __int64 v13; 
-  const CollisionTile **v14; 
+  bool v10; 
+  int v11; 
+  __int64 v12; 
+  const CollisionTile **v13; 
   StaticModelCollisionCompressedModelList *staticModelCollision; 
   unsigned int numModels; 
-  int v17; 
-  const char *v21; 
-  const char *v28; 
+  int v16; 
+  const char *v17; 
+  const char *v18; 
 
-  v4 = 0;
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  _RSI = y;
-  _RDI = x;
-  v8 = 0;
+  v3 = 0;
+  v7 = 0;
   if ( cm.numStaticModelCollisionModelLists )
   {
     staticModelCollisionModelLists = cm.staticModelCollisionModelLists;
     numStaticModelCollisionModelLists = cm.numStaticModelCollisionModelLists;
     do
     {
-      v11 = staticModelCollisionModelLists->numModels == 0;
-      v12 = v8 + 1;
+      v10 = staticModelCollisionModelLists->numModels == 0;
+      v11 = v7 + 1;
       ++staticModelCollisionModelLists;
-      if ( v11 )
-        v12 = v8;
-      v8 = v12;
+      if ( v10 )
+        v11 = v7;
+      v7 = v11;
       --numStaticModelCollisionModelLists;
     }
     while ( numStaticModelCollisionModelLists );
   }
-  v13 = 1024i64;
-  v14 = g_staticModels_CollisionTiles;
+  v12 = 1024i64;
+  v13 = g_staticModels_CollisionTiles;
   do
   {
-    if ( *v14 )
+    if ( *v13 )
     {
-      staticModelCollision = (*v14)->staticModelCollision;
+      staticModelCollision = (*v13)->staticModelCollision;
       if ( staticModelCollision )
       {
         numModels = staticModelCollision->numModels;
-        v17 = v4 + 1;
+        v16 = v3 + 1;
         if ( !numModels )
-          v17 = v4;
-        v4 = v17;
+          v16 = v3;
+        v3 = v16;
         if ( numModels )
-          v4 = v17;
+          v3 = v16;
       }
     }
-    ++v14;
-    --v13;
+    ++v13;
+    --v12;
   }
-  while ( v13 );
-  __asm { vmovss  xmm6, cs:__real@40c00000 }
-  if ( v8 )
+  while ( v12 );
+  if ( v7 )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    v21 = "Zones";
-    if ( v8 == 1 )
-      v21 = "Zone";
-    StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v21);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vaddss  xmm0, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm0
-    }
-    StaticModels_Debug_Draw_ClipmapZoneSummary(scrPlace, _RDI, _RSI, cm.numStaticModelCollisionModelLists, cm.staticModelCollisionModelLists, StaticModels_Debug_IsClipmapZoneLoaded, StaticModels_Debug_GetClipmapZoneName);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rdi], xmm1
-    }
+    v17 = "Zones";
+    if ( v7 == 1 )
+      v17 = "Zone";
+    StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v17, &colorWhite);
+    *y = *y + 6.0;
+    *x = *x + 6.0;
+    StaticModels_Debug_Draw_ClipmapZoneSummary(scrPlace, x, y, cm.numStaticModelCollisionModelLists, cm.staticModelCollisionModelLists, StaticModels_Debug_IsClipmapZoneLoaded, StaticModels_Debug_GetClipmapZoneName);
+    *x = *x - 6.0;
   }
-  if ( v4 )
+  if ( v3 )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-    }
-    v28 = "Tiles";
-    if ( v4 == 1 )
-      v28 = "Tile";
-    StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v28);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vaddss  xmm0, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm0
-    }
-    StaticModels_Debug_Draw_CollisionTileSummary(scrPlace, _RDI, _RSI, 0x400u, g_staticModels_CollisionTiles, StaticModels_Debug_IsCollisionTileLoaded, StaticModels_Debug_GetCollisionTileName);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rdi], xmm1
-    }
+    v18 = "Tiles";
+    if ( v3 == 1 )
+      v18 = "Tile";
+    StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v18, &colorWhite);
+    *y = *y + 6.0;
+    *x = *x + 6.0;
+    StaticModels_Debug_Draw_CollisionTileSummary(scrPlace, x, y, 0x400u, g_staticModels_CollisionTiles, StaticModels_Debug_IsCollisionTileLoaded, StaticModels_Debug_GetCollisionTileName);
+    *x = *x - 6.0;
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
 }
 
 /*
@@ -845,43 +680,48 @@ void StaticModels_Debug_Draw_Archive_Summary(const ScreenPlacement *scrPlace, fl
   unsigned int numModels; 
   unsigned int v13; 
   __int64 v14; 
+  StaticModelCollisionModel *models; 
   int v16; 
+  __int64 v17; 
+  __int64 v23; 
   int v28; 
   int v29; 
-  StaticModelCollisionModel *models; 
+  StaticModelCollisionModel *v30; 
   __int64 v31; 
   unsigned int v32; 
   __int64 v33; 
-  int v38; 
-  const CollisionTile **v39; 
-  int v40; 
-  __int64 v41; 
-  int v42; 
+  int v37; 
+  const CollisionTile **v38; 
+  int v39; 
+  __int64 v40; 
+  int v41; 
   StaticModelCollisionCompressedModelList *staticModelCollision; 
-  unsigned int v46; 
-  int v47; 
-  unsigned int v48; 
-  int v50; 
-  __int64 v57; 
-  int v63; 
-  int v64; 
-  StaticModelCollisionCompressedModel *v65; 
+  unsigned int v45; 
+  int v46; 
+  unsigned int v47; 
+  StaticModelCollisionCompressedModel *v48; 
+  int v49; 
+  __int64 v50; 
+  __int64 v56; 
+  int v61; 
+  int v62; 
+  StaticModelCollisionCompressedModel *v63; 
+  __int64 v64; 
+  unsigned int v65; 
   __int64 v66; 
-  unsigned int v67; 
-  __int64 v68; 
-  const char *v76; 
-  unsigned int v82; 
-  unsigned int v83; 
-  int v84; 
-  int v85; 
-  __int64 v86; 
-  int v90; 
+  const char *v72; 
+  unsigned int v73; 
+  unsigned int v74; 
+  int v75; 
+  int v76; 
+  __int64 v77; 
+  int v81; 
 
   v5 = 0;
   v6 = 0;
-  v82 = 0;
+  v73 = 0;
   v7 = 0;
-  v90 = 0;
+  v81 = 0;
   if ( cm.numStaticModelCollisionModelLists )
   {
     staticModelCollisionModelLists = cm.staticModelCollisionModelLists;
@@ -898,31 +738,30 @@ void StaticModels_Debug_Draw_Archive_Summary(const ScreenPlacement *scrPlace, fl
       if ( !staticModelCollisionModelLists->numModels )
         v13 = v5;
       v14 = 0i64;
-      v83 = v13;
-      v84 = numModels + v6;
+      v74 = v13;
+      v75 = numModels + v6;
       v5 = v13;
       if ( numModels >= 8 )
       {
-        _RSI = staticModelCollisionModelLists->models;
+        models = staticModelCollisionModelLists->models;
         v16 = 2;
         do
         {
-          _RAX = 5 * v14;
+          v17 = v14;
           v14 = (unsigned int)(v14 + 8);
+          _XMM0 = models[v17].numInstances;
           __asm
           {
-            vmovd   xmm0, dword ptr [rsi+rax*8+18h]
             vpinsrd xmm0, xmm0, dword ptr [rsi+rdx*8+18h], 1
             vpinsrd xmm0, xmm0, dword ptr [rsi+r8*8+18h], 2
             vpinsrd xmm0, xmm0, dword ptr [rsi+r10*8+18h], 3
             vpaddd  xmm1, xmm0, xmm1
           }
-          _RAX = (unsigned int)(v16 + 2);
+          v23 = (unsigned int)(v16 + 2);
           v16 += 8;
-          _RAX *= 5i64;
+          _XMM0 = models[v23].numInstances;
           __asm
           {
-            vmovd   xmm0, dword ptr [rsi+rax*8+18h]
             vpinsrd xmm0, xmm0, dword ptr [rsi+rdx*8+18h], 1
             vpinsrd xmm0, xmm0, dword ptr [rsi+r8*8+18h], 2
             vpinsrd xmm0, xmm0, dword ptr [rsi+r9*8+18h], 3
@@ -930,8 +769,8 @@ void StaticModels_Debug_Draw_Archive_Summary(const ScreenPlacement *scrPlace, fl
           }
         }
         while ( (unsigned int)v14 < (numModels & 0xFFFFFFF8) );
-        v7 = v90;
-        v5 = v83;
+        v7 = v81;
+        v5 = v74;
       }
       v28 = 0;
       v29 = 0;
@@ -939,15 +778,15 @@ void StaticModels_Debug_Draw_Archive_Summary(const ScreenPlacement *scrPlace, fl
       {
         if ( numModels - (unsigned int)v14 >= 2 )
         {
-          models = staticModelCollisionModelLists->models;
+          v30 = staticModelCollisionModelLists->models;
           v31 = v14;
           v32 = ((numModels - (unsigned int)v14 - 2) >> 1) + 1;
           v33 = v32;
           v14 = (unsigned int)v14 + 2 * v32;
           do
           {
-            v28 += models[v31].numInstances;
-            v29 += models[v31 + 1].numInstances;
+            v28 += v30[v31].numInstances;
+            v29 += v30[v31 + 1].numInstances;
             v31 += 2i64;
             --v33;
           }
@@ -956,9 +795,9 @@ void StaticModels_Debug_Draw_Archive_Summary(const ScreenPlacement *scrPlace, fl
         if ( (unsigned int)v14 < numModels )
           v7 += staticModelCollisionModelLists->models[v14].numInstances;
         v7 += v29 + v28;
-        v90 = v7;
+        v81 = v7;
       }
-      v6 = v84;
+      v6 = v75;
       ++staticModelCollisionModelLists;
       --numStaticModelCollisionModelLists;
     }
@@ -970,16 +809,15 @@ void StaticModels_Debug_Draw_Archive_Summary(const ScreenPlacement *scrPlace, fl
       vpaddd  xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpaddd  xmm0, xmm2, xmm0
-      vmovd   eax, xmm0
     }
-    v82 = v5;
+    v73 = v5;
   }
-  v38 = 0;
-  v39 = g_staticModels_CollisionTiles;
-  v40 = 0;
-  v41 = 1024i64;
-  v42 = 0;
-  v86 = 1024i64;
+  v37 = 0;
+  v38 = g_staticModels_CollisionTiles;
+  v39 = 0;
+  v40 = 1024i64;
+  v41 = 0;
+  v77 = 1024i64;
   __asm
   {
     vpxor   xmm1, xmm1, xmm1
@@ -987,80 +825,79 @@ void StaticModels_Debug_Draw_Archive_Summary(const ScreenPlacement *scrPlace, fl
   }
   do
   {
-    if ( *v39 )
+    if ( *v38 )
     {
-      staticModelCollision = (*v39)->staticModelCollision;
+      staticModelCollision = (*v38)->staticModelCollision;
       if ( staticModelCollision )
       {
-        v46 = staticModelCollision->numModels;
-        v47 = v38 + 1;
+        v45 = staticModelCollision->numModels;
+        v46 = v37 + 1;
         if ( !staticModelCollision->numModels )
-          v47 = v38;
-        v48 = 0;
-        v85 = v46 + v40;
-        v38 = v47;
-        if ( v46 >= 8 )
+          v46 = v37;
+        v47 = 0;
+        v76 = v45 + v39;
+        v37 = v46;
+        if ( v45 >= 8 )
         {
-          _RSI = staticModelCollision->models;
-          v50 = 2;
+          v48 = staticModelCollision->models;
+          v49 = 2;
           do
           {
-            _RAX = 56i64 * v48;
-            v48 += 8;
+            v50 = v47;
+            v47 += 8;
+            _XMM0 = v48[v50].numInstances;
             __asm
             {
-              vmovd   xmm0, dword ptr [rax+rsi+2Ch]
               vpinsrd xmm0, xmm0, dword ptr [rdx+rsi+2Ch], 1
               vpinsrd xmm0, xmm0, dword ptr [r8+rsi+2Ch], 2
               vpinsrd xmm0, xmm0, dword ptr [r10+rsi+2Ch], 3
               vpaddd  xmm1, xmm0, xmm1
             }
-            v57 = (unsigned int)(v50 + 2);
-            v50 += 8;
-            _RAX = 56 * v57;
+            v56 = (unsigned int)(v49 + 2);
+            v49 += 8;
+            _XMM0 = v48[v56].numInstances;
             __asm
             {
-              vmovd   xmm0, dword ptr [rax+rsi+2Ch]
               vpinsrd xmm0, xmm0, dword ptr [rdx+rsi+2Ch], 1
               vpinsrd xmm0, xmm0, dword ptr [r8+rsi+2Ch], 2
               vpinsrd xmm0, xmm0, dword ptr [r9+rsi+2Ch], 3
               vpaddd  xmm2, xmm0, xmm2
             }
           }
-          while ( v48 < (v46 & 0xFFFFFFF8) );
-          v41 = v86;
+          while ( v47 < (v45 & 0xFFFFFFF8) );
+          v40 = v77;
         }
-        v63 = 0;
-        v64 = 0;
-        if ( v48 < v46 )
+        v61 = 0;
+        v62 = 0;
+        if ( v47 < v45 )
         {
-          if ( v46 - v48 >= 2 )
+          if ( v45 - v47 >= 2 )
           {
-            v65 = staticModelCollision->models;
-            v66 = v48;
-            v67 = ((v46 - v48 - 2) >> 1) + 1;
-            v68 = v67;
-            v48 += 2 * v67;
+            v63 = staticModelCollision->models;
+            v64 = v47;
+            v65 = ((v45 - v47 - 2) >> 1) + 1;
+            v66 = v65;
+            v47 += 2 * v65;
             do
             {
-              v63 += v65[v66].numInstances;
-              v64 += v65[v66 + 1].numInstances;
-              v66 += 2i64;
-              --v68;
+              v61 += v63[v64].numInstances;
+              v62 += v63[v64 + 1].numInstances;
+              v64 += 2i64;
+              --v66;
             }
-            while ( v68 );
+            while ( v66 );
           }
-          if ( v48 < v46 )
-            v42 += staticModelCollision->models[v48].numInstances;
-          v42 += v64 + v63;
+          if ( v47 < v45 )
+            v41 += staticModelCollision->models[v47].numInstances;
+          v41 += v62 + v61;
         }
-        v40 = v85;
+        v39 = v76;
       }
     }
-    ++v39;
-    v86 = --v41;
+    ++v38;
+    v77 = --v40;
   }
-  while ( v41 );
+  while ( v40 );
   __asm
   {
     vpaddd  xmm1, xmm2, xmm1
@@ -1068,23 +905,10 @@ void StaticModels_Debug_Draw_Archive_Summary(const ScreenPlacement *scrPlace, fl
     vpaddd  xmm2, xmm1, xmm0
     vpsrldq xmm0, xmm2, 4
     vpaddd  xmm0, xmm2, xmm0
-    vmovd   eax, xmm0
   }
-  _RBX = y;
-  v76 = j_va("Static Models - %i zone%s with %i instance%s of %i unique model%s - %i tile%s with %i instance%s of %i unique model%s", v82);
-  _RAX = x;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rax]; x
-  }
-  StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v76);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vaddss  xmm1, xmm0, cs:__real@40c00000
-    vmovss  dword ptr [rbx], xmm1
-  }
+  v72 = j_va("Static Models - %i zone%s with %i instance%s of %i unique model%s - %i tile%s with %i instance%s of %i unique model%s", v73);
+  StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v72, &colorWhite);
+  *y = *y + 6.0;
 }
 
 /*
@@ -1095,264 +919,246 @@ StaticModels_Debug_Draw_ClipmapZoneMemory
 void StaticModels_Debug_Draw_ClipmapZoneMemory(const ScreenPlacement *scrPlace, float *x, float *y, const unsigned int numZones, const StaticModelCollisionModelList *zones, bool (*hasCollisionFn)(const int), void (*zoneNameFn)(const int, char *), const bool drawTotals)
 {
   signed __int64 v8; 
-  void *v10; 
-  unsigned int v11; 
-  bool (__fastcall *v13)(const int); 
-  const ScreenPlacement *v14; 
+  void *v9; 
+  unsigned int v10; 
+  float *v11; 
+  bool (__fastcall *v12)(const int); 
+  const ScreenPlacement *v13; 
+  float *v14; 
+  unsigned int v16; 
   unsigned int v17; 
   unsigned int v18; 
   unsigned int v19; 
-  unsigned int v20; 
   StaticModelCollisionModel **p_models; 
+  unsigned int v21; 
+  bool v22; 
   unsigned int v23; 
-  bool v24; 
-  unsigned int v25; 
-  StaticModelCollisionModel *v27; 
+  vec4_t *v24; 
+  StaticModelCollisionModel *v25; 
+  __int64 v26; 
+  __int64 v27; 
   __int64 v28; 
-  __int64 v29; 
-  __int64 v30; 
   __int64 physicsAsset; 
-  unsigned int v33; 
-  __int64 *v34; 
-  unsigned int v35; 
-  __int64 *v36; 
-  __int64 v37; 
+  unsigned int v30; 
+  __int64 *v31; 
+  unsigned int v32; 
+  __int64 *v33; 
+  __int64 v34; 
   __int64 detailCollision; 
-  unsigned int v39; 
-  __int64 *v40; 
+  unsigned int v36; 
+  __int64 *v37; 
+  unsigned int v38; 
+  __int64 *v39; 
+  __int64 v40; 
   unsigned int v41; 
   __int64 *v42; 
   __int64 v43; 
-  unsigned int v44; 
-  __int64 *v45; 
-  __int64 v46; 
+  __int64 *v44; 
+  __int64 v45; 
+  const char *v46; 
   __int64 *v47; 
   __int64 v48; 
-  const char *v49; 
-  __int64 *v53; 
-  __int64 v54; 
-  __int64 v55; 
-  __int64 *v56; 
-  __int64 v57; 
-  __int64 v58; 
-  const char *v59; 
-  unsigned int v64; 
-  __int64 v69[15000]; 
-  __int64 v70[15000]; 
-  __int64 v71[16312]; 
-  __int64 v72[16312]; 
-  char v73[272]; 
+  __int64 v49; 
+  __int64 *v50; 
+  __int64 v51; 
+  __int64 v52; 
+  const char *v53; 
+  unsigned int v54; 
+  vec4_t setColor; 
+  __int64 v59[15000]; 
+  __int64 v60[15000]; 
+  __int64 v61[16312]; 
+  __int64 v62[16312]; 
+  char v63[272]; 
 
-  v10 = alloca(v8);
-  __asm { vmovaps [rsp+7A6D8h+var_48], xmm6 }
-  v11 = 0;
-  _R12 = x;
-  v13 = hasCollisionFn;
-  v14 = scrPlace;
-  _RBX = y;
+  v9 = alloca(v8);
+  v10 = 0;
+  v11 = x;
+  v12 = hasCollisionFn;
+  v13 = scrPlace;
+  v14 = y;
+  v16 = 0;
   v17 = 0;
   v18 = 0;
+  v54 = 0;
   v19 = 0;
-  v64 = 0;
-  v20 = 0;
-  __asm { vmovss  xmm6, cs:__real@40c00000 }
   if ( numZones )
   {
     p_models = &zones->models;
     do
     {
-      v23 = *((_DWORD *)p_models - 2);
-      if ( v23 )
+      v21 = *((_DWORD *)p_models - 2);
+      if ( v21 )
       {
-        v24 = v13(v20);
-        v25 = *((_DWORD *)p_models + 2);
-        _RCX = &colorRed;
-        v27 = *p_models;
-        v28 = 0i64;
-        if ( v24 )
-          _RCX = &colorWhite;
-        v29 = 0i64;
-        v64 += v25;
-        v30 = v23;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx]
-          vmovups xmmword ptr [rsp+7A6D8h+var_7A678], xmm0
-        }
+        v22 = v12(v19);
+        v23 = *((_DWORD *)p_models + 2);
+        v24 = &colorRed;
+        v25 = *p_models;
+        v26 = 0i64;
+        if ( v22 )
+          v24 = &colorWhite;
+        v27 = 0i64;
+        v54 += v23;
+        v28 = v21;
+        setColor = *v24;
         do
         {
-          physicsAsset = (__int64)v27->physicsAsset;
+          physicsAsset = (__int64)v25->physicsAsset;
           if ( physicsAsset )
           {
-            v33 = 0;
-            if ( (_DWORD)v28 )
+            v30 = 0;
+            if ( (_DWORD)v26 )
             {
-              v34 = v69;
-              while ( *v34 != physicsAsset )
+              v31 = v59;
+              while ( *v31 != physicsAsset )
               {
-                ++v33;
-                ++v34;
-                if ( v33 >= (unsigned int)v28 )
+                ++v30;
+                ++v31;
+                if ( v30 >= (unsigned int)v26 )
                   goto LABEL_12;
               }
             }
             else
             {
 LABEL_12:
-              v69[v28] = physicsAsset;
-              v28 = (unsigned int)(v28 + 1);
+              v59[v26] = physicsAsset;
+              v26 = (unsigned int)(v26 + 1);
             }
-            v35 = 0;
-            if ( v18 )
+            v32 = 0;
+            if ( v17 )
             {
-              v36 = v70;
-              while ( *v36 != physicsAsset )
+              v33 = v60;
+              while ( *v33 != physicsAsset )
               {
-                ++v35;
-                ++v36;
-                if ( v35 >= v18 )
+                ++v32;
+                ++v33;
+                if ( v32 >= v17 )
                   goto LABEL_17;
               }
             }
             else
             {
 LABEL_17:
-              v37 = v18++;
-              v70[v37] = physicsAsset;
+              v34 = v17++;
+              v60[v34] = physicsAsset;
             }
           }
-          detailCollision = (__int64)v27->detailCollision;
+          detailCollision = (__int64)v25->detailCollision;
           if ( detailCollision )
           {
-            v39 = 0;
-            if ( (_DWORD)v29 )
+            v36 = 0;
+            if ( (_DWORD)v27 )
             {
-              v40 = v71;
-              while ( *v40 != detailCollision )
+              v37 = v61;
+              while ( *v37 != detailCollision )
               {
-                ++v39;
-                ++v40;
-                if ( v39 >= (unsigned int)v29 )
+                ++v36;
+                ++v37;
+                if ( v36 >= (unsigned int)v27 )
                   goto LABEL_23;
               }
             }
             else
             {
 LABEL_23:
-              v71[v29] = detailCollision;
-              v29 = (unsigned int)(v29 + 1);
+              v61[v27] = detailCollision;
+              v27 = (unsigned int)(v27 + 1);
             }
-            v41 = 0;
-            if ( v19 )
+            v38 = 0;
+            if ( v18 )
             {
-              v42 = v72;
-              while ( *v42 != detailCollision )
+              v39 = v62;
+              while ( *v39 != detailCollision )
               {
-                ++v41;
-                ++v42;
-                if ( v41 >= v19 )
+                ++v38;
+                ++v39;
+                if ( v38 >= v18 )
                   goto LABEL_28;
               }
             }
             else
             {
 LABEL_28:
-              v43 = v19++;
-              v72[v43] = detailCollision;
+              v40 = v18++;
+              v62[v40] = detailCollision;
             }
           }
-          ++v27;
-          --v30;
+          ++v25;
+          --v28;
         }
-        while ( v30 );
-        v44 = 0;
-        if ( (_DWORD)v28 )
+        while ( v28 );
+        v41 = 0;
+        if ( (_DWORD)v26 )
         {
-          v45 = v69;
+          v42 = v59;
           do
           {
-            v46 = *v45++;
-            v44 += *(_DWORD *)(v46 + 16) + 88;
-            --v28;
+            v43 = *v42++;
+            v41 += *(_DWORD *)(v43 + 16) + 88;
+            --v26;
           }
-          while ( v28 );
+          while ( v26 );
         }
-        if ( (_DWORD)v29 )
+        if ( (_DWORD)v27 )
         {
-          v47 = v71;
+          v44 = v61;
           do
           {
-            v48 = *v47++;
-            v44 += *(_DWORD *)(v48 + 8) + 40;
-            --v29;
+            v45 = *v44++;
+            v41 += *(_DWORD *)(v45 + 8) + 40;
+            --v27;
           }
-          while ( v29 );
+          while ( v27 );
         }
-        zoneNameFn(v20, v73);
-        v49 = j_va("%s %i bytes of Structure, referencing %i bytes in assets", v73, v25, v44);
-        _RBX = y;
-        _R12 = x;
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbx]; y
-          vmovss  xmm1, dword ptr [r12]; x
-        }
-        StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v49);
-        __asm { vaddss  xmm1, xmm6, dword ptr [rbx] }
-        v13 = hasCollisionFn;
-        __asm { vmovss  dword ptr [rbx], xmm1 }
+        zoneNameFn(v19, v63);
+        v46 = j_va("%s %i bytes of Structure, referencing %i bytes in assets", v63, v23, v41);
+        v14 = y;
+        v11 = x;
+        StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v46, &setColor);
+        v12 = hasCollisionFn;
+        *y = *y + 6.0;
       }
       else
       {
-        _RBX = y;
+        v14 = y;
       }
-      ++v20;
+      ++v19;
       p_models += 3;
     }
-    while ( v20 < numZones );
-    v17 = v64;
-    v14 = scrPlace;
+    while ( v19 < numZones );
+    v16 = v54;
+    v13 = scrPlace;
   }
   if ( drawTotals )
   {
+    if ( v17 )
+    {
+      v47 = v60;
+      v48 = v17;
+      do
+      {
+        v49 = *v47++;
+        v10 += *(_DWORD *)(v49 + 16) + 88;
+        --v48;
+      }
+      while ( v48 );
+    }
     if ( v18 )
     {
-      v53 = v70;
-      v54 = v18;
+      v50 = v62;
+      v51 = v18;
       do
       {
-        v55 = *v53++;
-        v11 += *(_DWORD *)(v55 + 16) + 88;
-        --v54;
+        v52 = *v50++;
+        v10 += *(_DWORD *)(v52 + 8) + 40;
+        --v51;
       }
-      while ( v54 );
+      while ( v51 );
     }
-    if ( v19 )
-    {
-      v56 = v72;
-      v57 = v19;
-      do
-      {
-        v58 = *v56++;
-        v11 += *(_DWORD *)(v58 + 8) + 40;
-        --v57;
-      }
-      while ( v57 );
-    }
-    v59 = j_va("Zone Total %i bytes of Structure, referencing %i bytes in assets", v17, v11);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [r12]; x
-    }
-    StaticModels_Debug_DrawString(v14, *(double *)&_XMM1, *(double *)&_XMM2, v59);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-    }
+    v53 = j_va("Zone Total %i bytes of Structure, referencing %i bytes in assets", v16, v10);
+    StaticModels_Debug_DrawString(v13, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)v11), *v14, v53, &colorWhite);
+    *v14 = *v14 + 6.0;
   }
-  __asm { vmovaps xmm6, [rsp+7A6D8h+var_48] }
 }
 
 /*
@@ -1362,110 +1168,103 @@ StaticModels_Debug_Draw_ClipmapZoneSummary
 */
 void StaticModels_Debug_Draw_ClipmapZoneSummary(const ScreenPlacement *scrPlace, float *x, float *y, const unsigned int numZones, const StaticModelCollisionModelList *zones, bool (*hasCollisionFn)(const int), void (*zoneNameFn)(const int, char *))
 {
-  bool (__fastcall *v10)(const int); 
-  unsigned int v11; 
-  const ScreenPlacement *v15; 
+  bool (__fastcall *v8)(const int); 
+  unsigned int v9; 
+  float *v12; 
+  const ScreenPlacement *v13; 
   unsigned int numModels; 
   unsigned int numInstances; 
-  __int64 v20; 
-  int v24; 
-  __int64 v36; 
-  __int64 v37; 
+  __int64 v17; 
   StaticModelCollisionModel *models; 
-  __int64 v39; 
-  unsigned int v40; 
-  __int64 v41; 
-  unsigned int v48; 
-  char v49; 
-  const char *v50; 
-  const char *v51; 
-  const char *v52; 
-  char *v53; 
-  const char *v55; 
-  __int64 v61; 
-  char v65[272]; 
-  void *retaddr; 
+  int v20; 
+  __int64 v21; 
+  __int64 v27; 
+  __int64 v32; 
+  __int64 v33; 
+  StaticModelCollisionModel *v34; 
+  __int64 v35; 
+  unsigned int v36; 
+  __int64 v37; 
+  unsigned int v43; 
+  char v44; 
+  const char *v45; 
+  const char *v46; 
+  const char *v47; 
+  const char *v48; 
+  const vec4_t *setColor; 
+  __int64 v50; 
+  char v54[272]; 
+  __int128 v55; 
 
-  _R11 = &retaddr;
-  v10 = hasCollisionFn;
-  v11 = 0;
-  _RSI = y;
-  v15 = scrPlace;
+  v8 = hasCollisionFn;
+  v9 = 0;
+  v12 = y;
+  v13 = scrPlace;
   if ( numZones )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovss  xmm7, cs:__real@40c00000
-      vpxor   xmm6, xmm6, xmm6
-    }
+    v55 = _XMM6;
+    __asm { vpxor   xmm6, xmm6, xmm6 }
     do
     {
       numModels = zones->numModels;
       numInstances = 0;
-      v20 = 0i64;
-      __asm
-      {
-        vmovdqu xmm1, xmm6
-        vmovdqu xmm2, xmm6
-      }
+      v17 = 0i64;
+      _XMM2 = _XMM6;
       if ( zones->numModels >= 8 )
       {
-        _RSI = zones->models;
-        v24 = 2;
+        models = zones->models;
+        v20 = 2;
         do
         {
-          _RAX = 5 * v20;
-          v20 = (unsigned int)(v20 + 8);
+          v21 = v17;
+          v17 = (unsigned int)(v17 + 8);
+          _XMM0 = models[v21].numInstances;
           __asm
           {
-            vmovd   xmm0, dword ptr [rsi+rax*8+18h]
             vpinsrd xmm0, xmm0, dword ptr [rsi+rdx*8+18h], 1
             vpinsrd xmm0, xmm0, dword ptr [rsi+r8*8+18h], 2
             vpinsrd xmm0, xmm0, dword ptr [rsi+r10*8+18h], 3
             vpaddd  xmm1, xmm0, xmm1
           }
-          _RAX = (unsigned int)(v24 + 2);
-          v24 += 8;
-          _RAX *= 5i64;
+          v27 = (unsigned int)(v20 + 2);
+          v20 += 8;
+          _XMM0 = models[v27].numInstances;
           __asm
           {
-            vmovd   xmm0, dword ptr [rsi+rax*8+18h]
             vpinsrd xmm0, xmm0, dword ptr [rsi+rdx*8+18h], 1
             vpinsrd xmm0, xmm0, dword ptr [rsi+r8*8+18h], 2
             vpinsrd xmm0, xmm0, dword ptr [rsi+r9*8+18h], 3
             vpaddd  xmm2, xmm0, xmm2
           }
         }
-        while ( (unsigned int)v20 < (numModels & 0xFFFFFFF8) );
-        _RSI = y;
-        v15 = scrPlace;
-        v10 = hasCollisionFn;
+        while ( (unsigned int)v17 < (numModels & 0xFFFFFFF8) );
+        v12 = y;
+        v13 = scrPlace;
+        v8 = hasCollisionFn;
       }
-      v36 = 0i64;
-      v37 = 0i64;
-      if ( (unsigned int)v20 < numModels )
+      v32 = 0i64;
+      v33 = 0i64;
+      if ( (unsigned int)v17 < numModels )
       {
-        if ( numModels - (unsigned int)v20 >= 2 )
+        if ( numModels - (unsigned int)v17 >= 2 )
         {
-          models = zones->models;
-          v39 = v20;
-          v40 = ((numModels - (unsigned int)v20 - 2) >> 1) + 1;
-          v41 = v40;
-          v20 = (unsigned int)v20 + 2 * v40;
+          v34 = zones->models;
+          v35 = v17;
+          v36 = ((numModels - (unsigned int)v17 - 2) >> 1) + 1;
+          v37 = v36;
+          v17 = (unsigned int)v17 + 2 * v36;
           do
           {
-            v36 = (unsigned int)(models[v39].numInstances + v36);
-            v37 = (unsigned int)(models[v39 + 1].numInstances + v37);
-            v39 += 2i64;
-            --v41;
+            v32 = (unsigned int)(v34[v35].numInstances + v32);
+            v33 = (unsigned int)(v34[v35 + 1].numInstances + v33);
+            v35 += 2i64;
+            --v37;
           }
-          while ( v41 );
+          while ( v37 );
         }
-        if ( (unsigned int)v20 < numModels )
-          numInstances = zones->models[v20].numInstances;
-        numInstances += v37 + v36;
+        if ( (unsigned int)v17 < numModels )
+          numInstances = zones->models[v17].numInstances;
+        numInstances += v33 + v32;
       }
       __asm
       {
@@ -1474,45 +1273,34 @@ void StaticModels_Debug_Draw_ClipmapZoneSummary(const ScreenPlacement *scrPlace,
         vpaddd  xmm2, xmm1, xmm0
         vpsrldq xmm0, xmm2, 4
         vpaddd  xmm0, xmm2, xmm0
-        vmovd   eax, xmm0
       }
-      v48 = _EAX + numInstances;
+      v43 = _XMM0 + numInstances;
       if ( numModels )
       {
-        v49 = ((__int64 (__fastcall *)(_QWORD, __int64, __int64))v10)(v11, v36, v37);
-        zoneNameFn(v11, v65);
-        v50 = (char *)&queryFormat.fmt + 3;
+        v44 = ((__int64 (__fastcall *)(_QWORD, __int64, __int64))v8)(v9, v32, v33);
+        zoneNameFn(v9, v54);
+        v45 = (char *)&queryFormat.fmt + 3;
         if ( numModels != 1 )
-          v50 = "s";
-        v51 = (char *)&queryFormat.fmt + 3;
-        v52 = "Unloaded";
-        LODWORD(v61) = numModels;
-        if ( v48 != 1 )
-          v51 = "s";
-        if ( v49 )
-          v52 = "Loaded";
-        v53 = j_va("%s (%s) has %i instance%s of %i unique model%s", v65, v52, v48, v51, v61, v50);
-        __asm { vmovss  xmm2, dword ptr [rsi]; y }
-        v55 = v53;
-        _RAX = x;
-        __asm { vmovss  xmm1, dword ptr [rax]; x }
-        StaticModels_Debug_DrawString(v15, *(double *)&_XMM1, *(double *)&_XMM2, v55);
-        __asm
-        {
-          vaddss  xmm1, xmm7, dword ptr [rsi]
-          vmovss  dword ptr [rsi], xmm1
-        }
+          v45 = "s";
+        v46 = (char *)&queryFormat.fmt + 3;
+        v47 = "Unloaded";
+        LODWORD(v50) = numModels;
+        if ( v43 != 1 )
+          v46 = "s";
+        if ( v44 )
+          v47 = "Loaded";
+        v48 = j_va("%s (%s) has %i instance%s of %i unique model%s", v54, v47, v43, v46, v50, v45);
+        setColor = &colorRed;
+        if ( v44 )
+          setColor = &colorWhite;
+        StaticModels_Debug_DrawString(v13, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *v12, v48, setColor);
+        *v12 = *v12 + 6.0;
       }
-      v10 = hasCollisionFn;
-      ++v11;
+      v8 = hasCollisionFn;
+      ++v9;
       ++zones;
     }
-    while ( v11 < numZones );
-    __asm
-    {
-      vmovaps xmm7, [rsp+1E8h+var_58]
-      vmovaps xmm6, [rsp+1E8h+var_48]
-    }
+    while ( v9 < numZones );
   }
 }
 
@@ -1523,147 +1311,105 @@ StaticModels_Debug_Draw_CollisionTileDetails
 */
 void StaticModels_Debug_Draw_CollisionTileDetails(const ScreenPlacement *scrPlace, float *x, float *y, const unsigned int numTiles, const CollisionTile **collisionTiles, bool (*hasCollisionFn)(const int), void (*tileNameFn)(const int, char *))
 {
-  const CollisionTile **v9; 
-  unsigned int v10; 
-  void (__fastcall *v11)(const int, char *); 
-  bool (__fastcall *v13)(const int); 
-  const ScreenPlacement *v15; 
+  const CollisionTile **v7; 
+  unsigned int v8; 
+  void (__fastcall *v9)(const int, char *); 
+  bool (__fastcall *v11)(const int); 
+  const ScreenPlacement *v13; 
   StaticModelCollisionCompressedModelList *staticModelCollision; 
   __int64 numModels; 
-  bool v19; 
-  const char *v22; 
-  __int64 v27; 
+  bool v16; 
+  vec4_t *v17; 
+  const char *v18; 
+  __int64 v19; 
   StaticModelCollisionCompressedModel *models; 
   const PhysicsAsset *physicsAsset; 
   unsigned int numInstances; 
   int PhysicsAssetBodyCount; 
   const XModelDetailCollision *detailCollision; 
   int DetailCollisionShapeCount; 
-  const char *v34; 
-  const char *v35; 
-  const char *v36; 
-  bool v40; 
+  const char *v26; 
+  const char *v27; 
+  const char *v28; 
+  bool v29; 
   vec4_t *setColor; 
-  __int64 v45; 
-  unsigned int v46; 
-  unsigned int v47; 
-  __int64 v48; 
-  const CollisionTile **v49; 
-  vec4_t v51; 
-  char v52[272]; 
-  void *retaddr; 
+  __int64 v31; 
+  unsigned int i; 
+  unsigned int v33; 
+  __int64 v34; 
+  const CollisionTile **v35; 
+  vec4_t v37; 
+  char v38[272]; 
 
-  _R11 = &retaddr;
-  v9 = collisionTiles;
-  v10 = 0;
-  v11 = tileNameFn;
-  _R12 = x;
-  v13 = hasCollisionFn;
-  _R13 = y;
-  v15 = scrPlace;
-  v47 = numTiles;
-  v49 = collisionTiles;
-  v46 = 0;
-  if ( numTiles )
+  v7 = collisionTiles;
+  v8 = 0;
+  v9 = tileNameFn;
+  v11 = hasCollisionFn;
+  v13 = scrPlace;
+  v33 = numTiles;
+  v35 = collisionTiles;
+  for ( i = 0; v8 < numTiles; v35 = v7 )
   {
-    __asm
+    if ( *v7 )
     {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovss  xmm6, cs:__real@40c00000
-    }
-    do
-    {
-      if ( *v9 )
+      staticModelCollision = (*v7)->staticModelCollision;
+      if ( staticModelCollision )
       {
-        staticModelCollision = (*v9)->staticModelCollision;
-        if ( staticModelCollision )
+        numModels = staticModelCollision->numModels;
+        if ( (_DWORD)numModels )
         {
-          numModels = staticModelCollision->numModels;
-          if ( (_DWORD)numModels )
+          v16 = v11(v8);
+          v17 = &colorRed;
+          if ( v16 )
+            v17 = &colorWhite;
+          v37 = *v17;
+          v9(v8, v38);
+          v18 = j_va((const char *)&queryFormat, v38);
+          StaticModels_Debug_DrawString(v13, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v18, &v37);
+          *y = *y + 6.0;
+          *x = *x + 6.0;
+          v19 = 0i64;
+          v34 = numModels;
+          do
           {
-            v19 = v13(v10);
-            _RCX = &colorRed;
-            if ( v19 )
-              _RCX = &colorWhite;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rcx]
-              vmovups xmmword ptr [rsp+1D8h+var_178], xmm0
-            }
-            v11(v10, v52);
-            v22 = j_va((const char *)&queryFormat, v52);
-            __asm
-            {
-              vmovss  xmm2, dword ptr [r13+0]; y
-              vmovss  xmm1, dword ptr [r12]; x
-            }
-            setColor = &v51;
-            StaticModels_Debug_DrawString(v15, *(double *)&_XMM1, *(double *)&_XMM2, v22);
-            __asm
-            {
-              vaddss  xmm1, xmm6, dword ptr [r13+0]
-              vmovss  dword ptr [r13+0], xmm1
-              vaddss  xmm0, xmm6, dword ptr [r12]
-              vmovss  dword ptr [r12], xmm0
-            }
-            v27 = 0i64;
-            v48 = numModels;
-            do
-            {
-              models = staticModelCollision->models;
-              physicsAsset = models[v27].physicsAsset;
-              numInstances = models[v27].numInstances;
-              if ( physicsAsset )
-                PhysicsAssetBodyCount = Physics_GetPhysicsAssetBodyCount(physicsAsset);
-              else
-                PhysicsAssetBodyCount = 0;
-              detailCollision = models[v27].detailCollision;
-              if ( detailCollision )
-                DetailCollisionShapeCount = Physics_GetDetailCollisionShapeCount(detailCollision);
-              else
-                DetailCollisionShapeCount = PhysicsAssetBodyCount;
-              v34 = SL_ConvertToString(models[v27].name);
-              LODWORD(v45) = DetailCollisionShapeCount;
-              LODWORD(setColor) = PhysicsAssetBodyCount;
-              v35 = (char *)&queryFormat.fmt + 3;
-              if ( numInstances != 1 )
-                v35 = "s";
-              v36 = j_va("%i instance%s of %s (Shape cost per instance: %i:Physics Asset %i:ColLod)", numInstances, v35, v34, setColor, v45);
-              v15 = scrPlace;
-              __asm
-              {
-                vmovss  xmm2, dword ptr [r13+0]; y
-                vmovss  xmm1, dword ptr [r12]; x
-              }
-              setColor = &v51;
-              StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v36);
-              __asm { vaddss  xmm1, xmm6, dword ptr [r13+0] }
-              ++v27;
-              v40 = v48-- == 1;
-              __asm { vmovss  dword ptr [r13+0], xmm1 }
-            }
-            while ( !v40 );
-            __asm { vmovss  xmm0, dword ptr [r12] }
-            v10 = v46;
-            v9 = v49;
-            numTiles = v47;
-            v13 = hasCollisionFn;
-            v11 = tileNameFn;
-            __asm
-            {
-              vsubss  xmm1, xmm0, xmm6
-              vmovss  dword ptr [r12], xmm1
-            }
+            models = staticModelCollision->models;
+            physicsAsset = models[v19].physicsAsset;
+            numInstances = models[v19].numInstances;
+            if ( physicsAsset )
+              PhysicsAssetBodyCount = Physics_GetPhysicsAssetBodyCount(physicsAsset);
+            else
+              PhysicsAssetBodyCount = 0;
+            detailCollision = models[v19].detailCollision;
+            if ( detailCollision )
+              DetailCollisionShapeCount = Physics_GetDetailCollisionShapeCount(detailCollision);
+            else
+              DetailCollisionShapeCount = PhysicsAssetBodyCount;
+            v26 = SL_ConvertToString(models[v19].name);
+            LODWORD(v31) = DetailCollisionShapeCount;
+            LODWORD(setColor) = PhysicsAssetBodyCount;
+            v27 = (char *)&queryFormat.fmt + 3;
+            if ( numInstances != 1 )
+              v27 = "s";
+            v28 = j_va("%i instance%s of %s (Shape cost per instance: %i:Physics Asset %i:ColLod)", numInstances, v27, v26, setColor, v31);
+            v13 = scrPlace;
+            StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v28, &v37);
+            ++v19;
+            v29 = v34-- == 1;
+            *y = *y + 6.0;
           }
+          while ( !v29 );
+          v8 = i;
+          v7 = v35;
+          numTiles = v33;
+          v11 = hasCollisionFn;
+          v9 = tileNameFn;
+          *x = *x - 6.0;
         }
       }
-      ++v10;
-      ++v9;
-      v46 = v10;
-      v49 = v9;
     }
-    while ( v10 < numTiles );
-    __asm { vmovaps xmm6, [rsp+1D8h+var_48] }
+    ++v8;
+    ++v7;
+    i = v8;
   }
 }
 
@@ -1675,69 +1421,71 @@ StaticModels_Debug_Draw_CollisionTileMemory
 void StaticModels_Debug_Draw_CollisionTileMemory(const ScreenPlacement *scrPlace, float *x, float *y, const unsigned int numTiles, const CollisionTile **collisionTiles, bool (*hasCollisionFn)(const int), void (*tileNameFn)(const int, char *), const bool drawTotals)
 {
   signed __int64 v8; 
-  void *v10; 
-  unsigned int v12; 
-  bool (__fastcall *v14)(const int); 
-  const ScreenPlacement *v15; 
-  unsigned int v16; 
+  void *v9; 
+  unsigned int v11; 
+  float *v12; 
+  bool (__fastcall *v13)(const int); 
+  const ScreenPlacement *v14; 
+  unsigned int v15; 
+  float *v16; 
+  unsigned int v17; 
   unsigned int v18; 
   unsigned int v19; 
   unsigned int v20; 
-  unsigned int v21; 
   StaticModelCollisionCompressedModelList *staticModelCollision; 
   unsigned int numModels; 
-  bool v25; 
-  __int64 v26; 
+  bool v23; 
+  __int64 v24; 
+  __int64 v25; 
+  vec4_t *v26; 
   __int64 v27; 
-  __int64 v29; 
   unsigned int structureMemoryCost; 
   StaticModelCollisionCompressedModel *models; 
   __int64 physicsAsset; 
-  unsigned int v34; 
-  __int64 *v35; 
-  unsigned int v36; 
-  __int64 *v37; 
-  __int64 v38; 
+  unsigned int v31; 
+  __int64 *v32; 
+  unsigned int v33; 
+  __int64 *v34; 
+  __int64 v35; 
   __int64 detailCollision; 
-  unsigned int v40; 
-  __int64 *v41; 
+  unsigned int v37; 
+  __int64 *v38; 
+  unsigned int v39; 
+  __int64 *v40; 
+  __int64 v41; 
   unsigned int v42; 
   __int64 *v43; 
   __int64 v44; 
-  unsigned int v45; 
-  __int64 *v46; 
-  __int64 v47; 
+  __int64 *v45; 
+  __int64 v46; 
+  const char *v47; 
   __int64 *v48; 
   __int64 v49; 
-  const char *v50; 
-  __int64 *v54; 
-  __int64 v55; 
-  __int64 v56; 
-  __int64 *v57; 
-  __int64 v58; 
-  __int64 v59; 
-  const char *v60; 
-  unsigned int v65; 
-  __int64 v71[15000]; 
-  __int64 v72[15000]; 
-  __int64 v73[16312]; 
-  __int64 v74[16312]; 
-  char v75[272]; 
+  __int64 v50; 
+  __int64 *v51; 
+  __int64 v52; 
+  __int64 v53; 
+  const char *v54; 
+  unsigned int v55; 
+  vec4_t setColor; 
+  __int64 v61[15000]; 
+  __int64 v62[15000]; 
+  __int64 v63[16312]; 
+  __int64 v64[16312]; 
+  char v65[272]; 
 
-  v10 = alloca(v8);
-  __asm { vmovaps [rsp+7A6E8h+var_48], xmm6 }
-  v12 = 0;
-  _R13 = x;
-  v14 = hasCollisionFn;
-  v15 = scrPlace;
-  v16 = numTiles;
-  _RBX = y;
+  v9 = alloca(v8);
+  v11 = 0;
+  v12 = x;
+  v13 = hasCollisionFn;
+  v14 = scrPlace;
+  v15 = numTiles;
+  v16 = y;
+  v17 = 0;
   v18 = 0;
   v19 = 0;
   v20 = 0;
-  v21 = 0;
-  v65 = 0;
-  __asm { vmovss  xmm6, cs:__real@40c00000 }
+  v55 = 0;
   if ( numTiles )
   {
     while ( 1 )
@@ -1750,201 +1498,181 @@ void StaticModels_Debug_Draw_CollisionTileMemory(const ScreenPlacement *scrPlace
           numModels = staticModelCollision->numModels;
           if ( staticModelCollision->numModels )
           {
-            v25 = !v14(v21);
-            v26 = 0i64;
-            v27 = 0i64;
-            _RCX = &colorRed;
-            v29 = numModels;
-            if ( !v25 )
-              _RCX = &colorWhite;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rcx]
-              vmovups xmmword ptr [rsp+7A6E8h+var_7A680], xmm0
-            }
+            v23 = !v13(v20);
+            v24 = 0i64;
+            v25 = 0i64;
+            v26 = &colorRed;
+            v27 = numModels;
+            if ( !v23 )
+              v26 = &colorWhite;
+            setColor = *v26;
             structureMemoryCost = staticModelCollision->structureMemoryCost;
-            v65 += structureMemoryCost;
+            v55 += structureMemoryCost;
             models = staticModelCollision->models;
             do
             {
               physicsAsset = (__int64)models->physicsAsset;
               if ( physicsAsset )
               {
-                v34 = 0;
-                if ( (_DWORD)v26 )
+                v31 = 0;
+                if ( (_DWORD)v24 )
                 {
-                  v35 = v71;
-                  while ( *v35 != physicsAsset )
+                  v32 = v61;
+                  while ( *v32 != physicsAsset )
                   {
-                    ++v34;
-                    ++v35;
-                    if ( v34 >= (unsigned int)v26 )
+                    ++v31;
+                    ++v32;
+                    if ( v31 >= (unsigned int)v24 )
                       goto LABEL_13;
                   }
                 }
                 else
                 {
 LABEL_13:
-                  v71[v26] = physicsAsset;
-                  v26 = (unsigned int)(v26 + 1);
+                  v61[v24] = physicsAsset;
+                  v24 = (unsigned int)(v24 + 1);
                 }
-                v36 = 0;
-                if ( v19 )
+                v33 = 0;
+                if ( v18 )
                 {
-                  v37 = v72;
-                  while ( *v37 != physicsAsset )
+                  v34 = v62;
+                  while ( *v34 != physicsAsset )
                   {
-                    ++v36;
-                    ++v37;
-                    if ( v36 >= v19 )
+                    ++v33;
+                    ++v34;
+                    if ( v33 >= v18 )
                       goto LABEL_18;
                   }
                 }
                 else
                 {
 LABEL_18:
-                  v38 = v19++;
-                  v72[v38] = physicsAsset;
+                  v35 = v18++;
+                  v62[v35] = physicsAsset;
                 }
               }
               detailCollision = (__int64)models->detailCollision;
               if ( detailCollision )
               {
-                v40 = 0;
-                if ( (_DWORD)v27 )
+                v37 = 0;
+                if ( (_DWORD)v25 )
                 {
-                  v41 = v73;
-                  while ( *v41 != detailCollision )
+                  v38 = v63;
+                  while ( *v38 != detailCollision )
                   {
-                    ++v40;
-                    ++v41;
-                    if ( v40 >= (unsigned int)v27 )
+                    ++v37;
+                    ++v38;
+                    if ( v37 >= (unsigned int)v25 )
                       goto LABEL_24;
                   }
                 }
                 else
                 {
 LABEL_24:
-                  v73[v27] = detailCollision;
-                  v27 = (unsigned int)(v27 + 1);
+                  v63[v25] = detailCollision;
+                  v25 = (unsigned int)(v25 + 1);
                 }
-                v42 = 0;
-                if ( v20 )
+                v39 = 0;
+                if ( v19 )
                 {
-                  v43 = v74;
-                  while ( *v43 != detailCollision )
+                  v40 = v64;
+                  while ( *v40 != detailCollision )
                   {
-                    ++v42;
-                    ++v43;
-                    if ( v42 >= v20 )
+                    ++v39;
+                    ++v40;
+                    if ( v39 >= v19 )
                       goto LABEL_29;
                   }
                 }
                 else
                 {
 LABEL_29:
-                  v44 = v20++;
-                  v74[v44] = detailCollision;
+                  v41 = v19++;
+                  v64[v41] = detailCollision;
                 }
               }
               ++models;
-              --v29;
+              --v27;
             }
-            while ( v29 );
-            v45 = 0;
-            if ( (_DWORD)v26 )
+            while ( v27 );
+            v42 = 0;
+            if ( (_DWORD)v24 )
             {
-              v46 = v71;
+              v43 = v61;
               do
               {
-                v47 = *v46++;
-                v45 += *(_DWORD *)(v47 + 16) + 88;
-                --v26;
+                v44 = *v43++;
+                v42 += *(_DWORD *)(v44 + 16) + 88;
+                --v24;
               }
-              while ( v26 );
+              while ( v24 );
             }
-            if ( (_DWORD)v27 )
+            if ( (_DWORD)v25 )
             {
-              v48 = v73;
+              v45 = v63;
               do
               {
-                v49 = *v48++;
-                v45 += *(_DWORD *)(v49 + 8) + 40;
-                --v27;
+                v46 = *v45++;
+                v42 += *(_DWORD *)(v46 + 8) + 40;
+                --v25;
               }
-              while ( v27 );
+              while ( v25 );
             }
-            tileNameFn(v21, v75);
-            v50 = j_va("%s %i bytes of Structure, referencing %i bytes in assets", v75, structureMemoryCost, v45);
-            _RBX = y;
-            _R13 = x;
-            v15 = scrPlace;
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rbx]; y
-              vmovss  xmm1, dword ptr [r13+0]; x
-            }
-            StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v50);
-            __asm { vaddss  xmm1, xmm6, dword ptr [rbx] }
-            v16 = numTiles;
-            v14 = hasCollisionFn;
-            __asm { vmovss  dword ptr [rbx], xmm1 }
+            tileNameFn(v20, v65);
+            v47 = j_va("%s %i bytes of Structure, referencing %i bytes in assets", v65, structureMemoryCost, v42);
+            v16 = y;
+            v12 = x;
+            v14 = scrPlace;
+            StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v47, &setColor);
+            v15 = numTiles;
+            v13 = hasCollisionFn;
+            *y = *y + 6.0;
             goto LABEL_40;
           }
-          v15 = scrPlace;
+          v14 = scrPlace;
         }
       }
-      _RBX = y;
+      v16 = y;
 LABEL_40:
-      ++v21;
+      ++v20;
       ++collisionTiles;
-      if ( v21 >= v16 )
+      if ( v20 >= v15 )
       {
-        v18 = v65;
+        v17 = v55;
         break;
       }
     }
   }
   if ( drawTotals )
   {
+    if ( v18 )
+    {
+      v48 = v62;
+      v49 = v18;
+      do
+      {
+        v50 = *v48++;
+        v11 += *(_DWORD *)(v50 + 16) + 88;
+        --v49;
+      }
+      while ( v49 );
+    }
     if ( v19 )
     {
-      v54 = v72;
-      v55 = v19;
+      v51 = v64;
+      v52 = v19;
       do
       {
-        v56 = *v54++;
-        v12 += *(_DWORD *)(v56 + 16) + 88;
-        --v55;
+        v53 = *v51++;
+        v11 += *(_DWORD *)(v53 + 8) + 40;
+        --v52;
       }
-      while ( v55 );
+      while ( v52 );
     }
-    if ( v20 )
-    {
-      v57 = v74;
-      v58 = v20;
-      do
-      {
-        v59 = *v57++;
-        v12 += *(_DWORD *)(v59 + 8) + 40;
-        --v58;
-      }
-      while ( v58 );
-    }
-    v60 = j_va("Tile Total %i bytes of Structure, referencing %i bytes in assets", v18, v12);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [r13+0]; x
-    }
-    StaticModels_Debug_DrawString(v15, *(double *)&_XMM1, *(double *)&_XMM2, v60);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm1
-    }
+    v54 = j_va("Tile Total %i bytes of Structure, referencing %i bytes in assets", v17, v11);
+    StaticModels_Debug_DrawString(v14, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)v12), *v16, v54, &colorWhite);
+    *v16 = *v16 + 6.0;
   }
-  __asm { vmovaps xmm6, [rsp+7A6E8h+var_48] }
 }
 
 /*
@@ -1954,160 +1682,147 @@ StaticModels_Debug_Draw_CollisionTileSummary
 */
 void StaticModels_Debug_Draw_CollisionTileSummary(const ScreenPlacement *scrPlace, float *x, float *y, const unsigned int numTiles, const CollisionTile **collisionTiles, bool (*hasCollisionFn)(const int), void (*tileNameFn)(const int, char *))
 {
-  bool (__fastcall *v11)(const int); 
-  unsigned int v12; 
-  unsigned int v13; 
+  bool (__fastcall *v9)(const int); 
+  unsigned int v10; 
+  unsigned int v11; 
+  float *i; 
   StaticModelCollisionCompressedModelList *staticModelCollision; 
   unsigned int numModels; 
   unsigned int numInstances; 
-  unsigned int v20; 
-  int v24; 
-  __int64 v31; 
-  __int64 v37; 
-  __int64 v38; 
+  unsigned int v17; 
   StaticModelCollisionCompressedModel *models; 
-  __int64 v40; 
-  unsigned int v41; 
-  __int64 v42; 
-  unsigned int v47; 
-  char v48; 
-  const char *v49; 
-  const char *v50; 
-  const char *v51; 
-  char *v52; 
-  const char *v53; 
-  __int64 v57; 
-  char v62[272]; 
-  void *retaddr; 
+  int v21; 
+  __int64 v22; 
+  __int64 v28; 
+  __int64 v33; 
+  __int64 v34; 
+  StaticModelCollisionCompressedModel *v35; 
+  __int64 v36; 
+  unsigned int v37; 
+  __int64 v38; 
+  unsigned int v42; 
+  char v43; 
+  const char *v44; 
+  const char *v45; 
+  const char *v46; 
+  const char *v47; 
+  const vec4_t *setColor; 
+  __int128 v49; 
+  __int64 v50; 
+  char v55[272]; 
 
-  _R11 = &retaddr;
-  v11 = hasCollisionFn;
-  v12 = 0;
-  v13 = numTiles;
-  _R15 = y;
-  if ( numTiles )
+  v9 = hasCollisionFn;
+  v10 = 0;
+  v11 = numTiles;
+  for ( i = y; v10 < v11; ++collisionTiles )
   {
-    __asm
+    if ( *collisionTiles )
     {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovss  xmm6, cs:__real@40c00000
-    }
-    do
-    {
-      if ( *collisionTiles )
+      staticModelCollision = (*collisionTiles)->staticModelCollision;
+      if ( staticModelCollision )
       {
-        staticModelCollision = (*collisionTiles)->staticModelCollision;
-        if ( staticModelCollision )
+        numModels = staticModelCollision->numModels;
+        numInstances = 0;
+        v17 = 0;
+        __asm
         {
-          numModels = staticModelCollision->numModels;
-          numInstances = 0;
-          v20 = 0;
-          __asm
+          vpxor   xmm1, xmm1, xmm1
+          vpxor   xmm2, xmm2, xmm2
+        }
+        if ( staticModelCollision->numModels >= 8 )
+        {
+          models = staticModelCollision->models;
+          v21 = 2;
+          do
           {
-            vpxor   xmm1, xmm1, xmm1
-            vpxor   xmm2, xmm2, xmm2
-          }
-          if ( staticModelCollision->numModels >= 8 )
-          {
-            _RSI = staticModelCollision->models;
-            v24 = 2;
-            do
-            {
-              _RAX = 56i64 * v20;
-              v20 += 8;
-              __asm
-              {
-                vmovd   xmm0, dword ptr [rax+rsi+2Ch]
-                vpinsrd xmm0, xmm0, dword ptr [rdx+rsi+2Ch], 1
-                vpinsrd xmm0, xmm0, dword ptr [r8+rsi+2Ch], 2
-                vpinsrd xmm0, xmm0, dword ptr [r10+rsi+2Ch], 3
-                vpaddd  xmm1, xmm0, xmm1
-              }
-              v31 = (unsigned int)(v24 + 2);
-              v24 += 8;
-              _RAX = 56 * v31;
-              __asm
-              {
-                vmovd   xmm0, dword ptr [rax+rsi+2Ch]
-                vpinsrd xmm0, xmm0, dword ptr [rdx+rsi+2Ch], 1
-                vpinsrd xmm0, xmm0, dword ptr [r8+rsi+2Ch], 2
-                vpinsrd xmm0, xmm0, dword ptr [r9+rsi+2Ch], 3
-                vpaddd  xmm2, xmm0, xmm2
-              }
-            }
-            while ( v20 < (numModels & 0xFFFFFFF8) );
-            v13 = numTiles;
-            _R15 = y;
-            v11 = hasCollisionFn;
-          }
-          v37 = 0i64;
-          v38 = 0i64;
-          if ( v20 < numModels )
-          {
-            if ( numModels - v20 >= 2 )
-            {
-              models = staticModelCollision->models;
-              v40 = v20;
-              v41 = ((numModels - v20 - 2) >> 1) + 1;
-              v42 = v41;
-              v20 += 2 * v41;
-              do
-              {
-                v37 = (unsigned int)(models[v40].numInstances + v37);
-                v38 = (unsigned int)(models[v40 + 1].numInstances + v38);
-                v40 += 2i64;
-                --v42;
-              }
-              while ( v42 );
-            }
-            if ( v20 < numModels )
-              numInstances = staticModelCollision->models[v20].numInstances;
-            numInstances += v38 + v37;
-          }
-          __asm
-          {
-            vpaddd  xmm1, xmm2, xmm1
-            vpsrldq xmm0, xmm1, 8
-            vpaddd  xmm2, xmm1, xmm0
-            vpsrldq xmm0, xmm2, 4
-            vpaddd  xmm0, xmm2, xmm0
-            vmovd   eax, xmm0
-          }
-          v47 = _EAX + numInstances;
-          if ( numModels )
-          {
-            v48 = ((__int64 (__fastcall *)(_QWORD, __int64, __int64))v11)(v12, v37, v38);
-            tileNameFn(v12, v62);
-            v49 = (char *)&queryFormat.fmt + 3;
-            if ( numModels != 1 )
-              v49 = "s";
-            v50 = (char *)&queryFormat.fmt + 3;
-            v51 = "Unloaded";
-            LODWORD(v57) = numModels;
-            if ( v47 != 1 )
-              v50 = "s";
-            if ( v48 )
-              v51 = "Loaded";
-            v52 = j_va("%s (%s) has %i instance%s of %i unique model%s", v62, v51, v47, v50, v57, v49);
-            __asm { vmovss  xmm2, dword ptr [r15]; y }
-            v53 = v52;
-            _RAX = x;
-            __asm { vmovss  xmm1, dword ptr [rax]; x }
-            StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v53);
+            v22 = v17;
+            v17 += 8;
+            _XMM0 = models[v22].numInstances;
             __asm
             {
-              vaddss  xmm1, xmm6, dword ptr [r15]
-              vmovss  dword ptr [r15], xmm1
+              vpinsrd xmm0, xmm0, dword ptr [rdx+rsi+2Ch], 1
+              vpinsrd xmm0, xmm0, dword ptr [r8+rsi+2Ch], 2
+              vpinsrd xmm0, xmm0, dword ptr [r10+rsi+2Ch], 3
+              vpaddd  xmm1, xmm0, xmm1
+            }
+            v28 = (unsigned int)(v21 + 2);
+            v21 += 8;
+            _XMM0 = models[v28].numInstances;
+            __asm
+            {
+              vpinsrd xmm0, xmm0, dword ptr [rdx+rsi+2Ch], 1
+              vpinsrd xmm0, xmm0, dword ptr [r8+rsi+2Ch], 2
+              vpinsrd xmm0, xmm0, dword ptr [r9+rsi+2Ch], 3
+              vpaddd  xmm2, xmm0, xmm2
             }
           }
+          while ( v17 < (numModels & 0xFFFFFFF8) );
+          v11 = numTiles;
+          i = y;
+          v9 = hasCollisionFn;
+        }
+        v33 = 0i64;
+        v34 = 0i64;
+        if ( v17 < numModels )
+        {
+          if ( numModels - v17 >= 2 )
+          {
+            v35 = staticModelCollision->models;
+            v36 = v17;
+            v37 = ((numModels - v17 - 2) >> 1) + 1;
+            v38 = v37;
+            v17 += 2 * v37;
+            do
+            {
+              v33 = (unsigned int)(v35[v36].numInstances + v33);
+              v34 = (unsigned int)(v35[v36 + 1].numInstances + v34);
+              v36 += 2i64;
+              --v38;
+            }
+            while ( v38 );
+          }
+          if ( v17 < numModels )
+            numInstances = staticModelCollision->models[v17].numInstances;
+          numInstances += v34 + v33;
+        }
+        __asm
+        {
+          vpaddd  xmm1, xmm2, xmm1
+          vpsrldq xmm0, xmm1, 8
+          vpaddd  xmm2, xmm1, xmm0
+          vpsrldq xmm0, xmm2, 4
+          vpaddd  xmm0, xmm2, xmm0
+        }
+        v42 = _XMM0 + numInstances;
+        if ( numModels )
+        {
+          v43 = ((__int64 (__fastcall *)(_QWORD, __int64, __int64))v9)(v10, v33, v34);
+          tileNameFn(v10, v55);
+          v44 = (char *)&queryFormat.fmt + 3;
+          if ( numModels != 1 )
+            v44 = "s";
+          v45 = (char *)&queryFormat.fmt + 3;
+          v46 = "Unloaded";
+          LODWORD(v50) = numModels;
+          if ( v42 != 1 )
+            v45 = "s";
+          if ( v43 )
+            v46 = "Loaded";
+          v47 = j_va("%s (%s) has %i instance%s of %i unique model%s", v55, v46, v42, v45, v50, v44);
+          _XMM2 = *(unsigned int *)i;
+          setColor = &colorRed;
+          if ( v43 )
+            setColor = &colorWhite;
+          StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *(float *)&_XMM2, v47, setColor);
+          v49 = LODWORD(FLOAT_6_0);
+          *(float *)&v49 = *i + 6.0;
+          _XMM1 = v49;
+          *i = *(float *)&v49;
         }
       }
-      v11 = hasCollisionFn;
-      ++v12;
-      ++collisionTiles;
     }
-    while ( v12 < v13 );
-    __asm { vmovaps xmm6, [rsp+1D8h+var_48] }
+    v9 = hasCollisionFn;
+    ++v10;
   }
 }
 
@@ -2122,6 +1837,7 @@ void StaticModels_Debug_Draw_GetTileColor(int tileIdx, vec4_t *color)
   unsigned int v3; 
   __int64 v4; 
   unsigned int v5; 
+  float v6; 
 
   v2 = g_staticModels_CollisionTiles[tileIdx];
   if ( v2 )
@@ -2136,36 +1852,33 @@ void StaticModels_Debug_Draw_GetTileColor(int tileIdx, vec4_t *color)
   {
     v3 = 0;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?colorMdGreen@@3Tvec4_t@@B; vec4_t const colorMdGreen
-    vmovss  dword ptr [rdx], xmm0
-    vmovss  xmm1, dword ptr cs:?colorMdGreen@@3Tvec4_t@@B+4; vec4_t const colorMdGreen
-    vmovss  dword ptr [rdx+4], xmm1
-    vmovss  xmm0, dword ptr cs:?colorMdGreen@@3Tvec4_t@@B+8; vec4_t const colorMdGreen
-    vmovss  dword ptr [rdx+8], xmm0
-  }
+  color->v[0] = colorMdGreen.v[0];
+  color->v[1] = colorMdGreen.v[1];
+  color->v[2] = colorMdGreen.v[2];
   if ( v3 <= 0x2000 )
   {
-    __asm
+    v6 = (float)v3;
+    if ( v6 <= 7372.7998 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vcomiss xmm0, cs:__real@45e66666
-      vcomiss xmm0, cs:__real@45c00000
+      if ( v6 > 6144.0 )
+      {
+        color->v[0] = colorGreen.v[0];
+        color->v[1] = colorGreen.v[1];
+        color->v[2] = colorGreen.v[2];
+      }
+    }
+    else
+    {
+      color->v[0] = colorYellow.v[0];
+      color->v[1] = colorYellow.v[1];
+      color->v[2] = colorYellow.v[2];
     }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-      vmovss  dword ptr [rdx], xmm0
-      vmovss  xmm1, dword ptr cs:?colorRed@@3Tvec4_t@@B+4; vec4_t const colorRed
-      vmovss  dword ptr [rdx+4], xmm1
-      vmovss  xmm0, dword ptr cs:?colorRed@@3Tvec4_t@@B+8; vec4_t const colorRed
-      vmovss  dword ptr [rdx+8], xmm0
-    }
+    color->v[0] = colorRed.v[0];
+    color->v[1] = colorRed.v[1];
+    color->v[2] = colorRed.v[2];
   }
 }
 
@@ -2176,66 +1889,71 @@ StaticModels_Debug_Draw_InstancesForTile
 */
 void StaticModels_Debug_Draw_InstancesForTile(const ScreenPlacement *scrPlace, float *x, float *y, int tileIdx)
 {
-  const ScreenPlacement *v13; 
+  float *v7; 
+  const ScreenPlacement *v9; 
+  const CollisionTile *v10; 
   StaticModelCollisionCompressedModelList *staticModelCollision; 
+  int v12; 
   __int64 numModels; 
-  unsigned int v18; 
-  int v20; 
-  __int64 v29; 
-  int v41; 
-  int v42; 
+  unsigned int v14; 
   StaticModelCollisionCompressedModel *models; 
-  __int64 v44; 
-  unsigned int v45; 
-  __int64 v46; 
-  const char *v53; 
-  const char *v58; 
-  __int64 v64; 
-  StaticModelCollisionCompressedModel *v67; 
-  const char *v68; 
+  int v16; 
+  __int64 v19; 
+  __int64 v25; 
+  int v36; 
+  int v37; 
+  StaticModelCollisionCompressedModel *v38; 
+  __int64 v39; 
+  unsigned int v40; 
+  __int64 v41; 
+  const char *v42; 
+  const char *v43; 
+  float v44; 
+  __int64 v45; 
+  StaticModelCollisionCompressedModel *v46; 
+  const char *v47; 
   const PhysicsAsset *physicsAsset; 
   unsigned int PhysicsAssetBodyCount; 
   const XModelDetailCollision *detailCollision; 
   unsigned int DetailCollisionShapeCount; 
-  char v73; 
-  char v74; 
-  bool v76; 
-  const XModelDetailCollision *v78; 
-  bool v80; 
-  unsigned int v82; 
-  bool v83; 
-  const char *v85; 
-  const char *v87; 
-  const char *v88; 
-  bool v93; 
-  __int64 v98; 
+  char v52; 
+  char v53; 
+  bool v54; 
+  const XModelDetailCollision *v55; 
+  bool v56; 
+  unsigned int v57; 
+  bool v58; 
+  vec4_t *v59; 
+  const char *v60; 
+  vec4_t v61; 
+  const char *v62; 
+  const char *v63; 
+  bool v64; 
+  __int64 v65; 
   unsigned int numInstances; 
-  __int64 v102; 
-  const char *v103; 
+  __int64 v69; 
+  const char *v70; 
   vec3_t bodyPosition; 
   vec3_t shapePosition; 
   vec4_t bodyOrientationAsQuat; 
   vec4_t shapeOrientationAsQuat; 
-  void *retaddr; 
+  vec4_t setColor; 
 
-  _R11 = &retaddr;
-  _RBP = y;
-  _R13 = x;
-  v13 = scrPlace;
-  _R14 = g_staticModels_CollisionTiles[tileIdx];
-  if ( _R14 )
+  v7 = y;
+  v9 = scrPlace;
+  v10 = g_staticModels_CollisionTiles[tileIdx];
+  if ( v10 )
   {
-    staticModelCollision = _R14->staticModelCollision;
+    staticModelCollision = v10->staticModelCollision;
     if ( staticModelCollision )
     {
-      _EBX = 0;
+      v12 = 0;
       numModels = staticModelCollision->numModels;
-      __asm { vmovaps xmmword ptr [r11-78h], xmm8 }
-      v18 = 0;
+      v14 = 0;
       if ( (unsigned int)numModels >= 8 )
       {
-        _RSI = staticModelCollision->models;
-        v20 = 2;
+        models = staticModelCollision->models;
+        v16 = 2;
         __asm
         {
           vpxor   xmm1, xmm1, xmm1
@@ -2243,31 +1961,30 @@ void StaticModels_Debug_Draw_InstancesForTile(const ScreenPlacement *scrPlace, f
         }
         do
         {
-          _RAX = 56i64 * v18;
-          v18 += 8;
+          v19 = v14;
+          v14 += 8;
+          _XMM0 = models[v19].numInstances;
           __asm
           {
-            vmovd   xmm0, dword ptr [rax+rsi+2Ch]
             vpinsrd xmm0, xmm0, dword ptr [rdx+rsi+2Ch], 1
             vpinsrd xmm0, xmm0, dword ptr [r8+rsi+2Ch], 2
             vpinsrd xmm0, xmm0, dword ptr [r10+rsi+2Ch], 3
             vpaddd  xmm1, xmm0, xmm1
           }
-          v29 = (unsigned int)(v20 + 2);
-          v20 += 8;
-          _RAX = 56 * v29;
+          v25 = (unsigned int)(v16 + 2);
+          v16 += 8;
+          _XMM0 = models[v25].numInstances;
           __asm
           {
-            vmovd   xmm0, dword ptr [rax+rsi+2Ch]
             vpinsrd xmm0, xmm0, dword ptr [rdx+rsi+2Ch], 1
             vpinsrd xmm0, xmm0, dword ptr [r8+rsi+2Ch], 2
             vpinsrd xmm0, xmm0, dword ptr [r9+rsi+2Ch], 3
             vpaddd  xmm2, xmm0, xmm2
           }
         }
-        while ( v18 < ((unsigned int)numModels & 0xFFFFFFF8) );
-        _RBP = y;
-        v13 = scrPlace;
+        while ( v14 < ((unsigned int)numModels & 0xFFFFFFF8) );
+        v7 = y;
+        v9 = scrPlace;
         __asm
         {
           vpaddd  xmm1, xmm2, xmm1
@@ -2275,159 +1992,102 @@ void StaticModels_Debug_Draw_InstancesForTile(const ScreenPlacement *scrPlace, f
           vpaddd  xmm2, xmm1, xmm0
           vpsrldq xmm0, xmm2, 4
           vpaddd  xmm0, xmm2, xmm0
-          vmovd   ebx, xmm0
         }
+        v12 = _XMM0;
       }
-      v41 = 0;
-      v42 = 0;
-      if ( v18 < (unsigned int)numModels )
+      v36 = 0;
+      v37 = 0;
+      if ( v14 < (unsigned int)numModels )
       {
-        if ( (unsigned int)numModels - v18 >= 2 )
+        if ( (unsigned int)numModels - v14 >= 2 )
         {
-          models = staticModelCollision->models;
-          v44 = v18;
-          v45 = (((unsigned int)numModels - v18 - 2) >> 1) + 1;
-          v46 = v45;
-          v18 += 2 * v45;
+          v38 = staticModelCollision->models;
+          v39 = v14;
+          v40 = (((unsigned int)numModels - v14 - 2) >> 1) + 1;
+          v41 = v40;
+          v14 += 2 * v40;
           do
           {
-            v41 += models[v44].numInstances;
-            v42 += models[v44 + 1].numInstances;
-            v44 += 2i64;
-            --v46;
+            v36 += v38[v39].numInstances;
+            v37 += v38[v39 + 1].numInstances;
+            v39 += 2i64;
+            --v41;
           }
-          while ( v46 );
+          while ( v41 );
         }
-        if ( v18 < (unsigned int)numModels )
-          _EBX += staticModelCollision->models[v18].numInstances;
-        _EBX += v42 + v41;
+        if ( v14 < (unsigned int)numModels )
+          v12 += staticModelCollision->models[v14].numInstances;
+        v12 += v37 + v36;
       }
-      __asm
-      {
-        vmovss  xmm3, dword ptr [r14+14h]
-        vmovss  xmm2, dword ptr [r14+10h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-      }
-      v53 = j_va("Tile %i at position %.2f, %.2f has %i instances of %i models", (unsigned int)tileIdx, _R8, _R9, _EBX, numModels);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+0]; y
-        vmovss  xmm1, dword ptr [r13+0]; x
-      }
-      StaticModels_Debug_DrawString(v13, *(double *)&_XMM1, *(double *)&_XMM2, v53);
-      __asm
-      {
-        vmovss  xmm8, cs:__real@40c00000
-        vaddss  xmm0, xmm8, dword ptr [rbp+0]
-        vmovss  dword ptr [rbp+0], xmm0
-      }
-      v58 = j_va("We list models that generate more than one shape instance or don't have origin as their collision root transform in red - these should be fixed");
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+0]; y
-        vmovss  xmm1, dword ptr [r13+0]; x
-      }
-      StaticModels_Debug_DrawString(v13, *(double *)&_XMM1, *(double *)&_XMM2, v58);
-      __asm
-      {
-        vaddss  xmm1, xmm8, dword ptr [rbp+0]
-        vmovss  dword ptr [rbp+0], xmm1
-        vmovss  xmm2, dword ptr [r13+0]
-        vaddss  xmm0, xmm2, xmm8
-        vmovss  dword ptr [r13+0], xmm0
-      }
+      v42 = j_va("Tile %i at position %.2f, %.2f has %i instances of %i models", (unsigned int)tileIdx, v10->origin.v[0], v10->origin.v[1], v12, numModels);
+      StaticModels_Debug_DrawString(v9, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *v7, v42, &colorWhite);
+      *v7 = *v7 + 6.0;
+      v43 = j_va("We list models that generate more than one shape instance or don't have origin as their collision root transform in red - these should be fixed");
+      StaticModels_Debug_DrawString(v9, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *v7, v43, &colorRed);
+      *v7 = *v7 + 6.0;
+      v44 = *x + 6.0;
+      *x = v44;
       if ( (_DWORD)numModels )
       {
-        __asm { vmovaps [rsp+138h+var_58], xmm6 }
-        v64 = 0i64;
-        __asm
-        {
-          vmovss  xmm6, cs:__real@3dcccccd
-          vmovaps [rsp+138h+var_68], xmm7
-          vmovss  xmm7, cs:__real@3a83126f
-        }
-        v102 = numModels;
+        v45 = 0i64;
+        v69 = numModels;
         do
         {
-          v67 = staticModelCollision->models;
-          numInstances = v67[v64].numInstances;
-          v68 = SL_ConvertToString(v67[v64].name);
-          physicsAsset = v67[v64].physicsAsset;
-          v103 = v68;
+          v46 = staticModelCollision->models;
+          numInstances = v46[v45].numInstances;
+          v47 = SL_ConvertToString(v46[v45].name);
+          physicsAsset = v46[v45].physicsAsset;
+          v70 = v47;
           if ( physicsAsset )
             PhysicsAssetBodyCount = Physics_GetPhysicsAssetBodyCount(physicsAsset);
           else
             PhysicsAssetBodyCount = 0;
-          detailCollision = v67[v64].detailCollision;
+          detailCollision = v46[v45].detailCollision;
           if ( detailCollision )
             DetailCollisionShapeCount = Physics_GetDetailCollisionShapeCount(detailCollision);
           else
             DetailCollisionShapeCount = PhysicsAssetBodyCount;
-          v73 = 1;
-          v74 = 1;
+          v52 = 1;
+          v53 = 1;
           if ( PhysicsAssetBodyCount )
           {
-            Physics_GetPhysicsAssetBodyTransform(v67[v64].physicsAsset, 0, &bodyPosition, &bodyOrientationAsQuat);
-            __asm { vmovaps xmm2, xmm6; epsilon }
-            v76 = VecNCompareCustomEpsilon(bodyPosition.v, vec3_origin.v, *(float *)&_XMM2, 3);
-            __asm { vmovaps xmm2, xmm7; epsilon }
-            v73 = VecNCompareCustomEpsilon(bodyOrientationAsQuat.v, quat_identity.v, *(float *)&_XMM2, 4) && v76;
+            Physics_GetPhysicsAssetBodyTransform(v46[v45].physicsAsset, 0, &bodyPosition, &bodyOrientationAsQuat);
+            v54 = VecNCompareCustomEpsilon(bodyPosition.v, vec3_origin.v, 0.1, 3);
+            v52 = VecNCompareCustomEpsilon(bodyOrientationAsQuat.v, quat_identity.v, 0.001, 4) && v54;
           }
-          v78 = v67[v64].detailCollision;
-          if ( v78 && DetailCollisionShapeCount )
+          v55 = v46[v45].detailCollision;
+          if ( v55 && DetailCollisionShapeCount )
           {
-            Physics_GetDetailCollisionShapeTransform(v78, 0, &shapePosition, &shapeOrientationAsQuat);
-            __asm { vmovaps xmm2, xmm6; epsilon }
-            v80 = VecNCompareCustomEpsilon(shapePosition.v, vec3_origin.v, *(float *)&_XMM2, 3);
-            __asm { vmovaps xmm2, xmm7; epsilon }
-            v74 = VecNCompareCustomEpsilon(shapeOrientationAsQuat.v, quat_identity.v, *(float *)&_XMM2, 4) && v80;
+            Physics_GetDetailCollisionShapeTransform(v55, 0, &shapePosition, &shapeOrientationAsQuat);
+            v56 = VecNCompareCustomEpsilon(shapePosition.v, vec3_origin.v, 0.1, 3);
+            v53 = VecNCompareCustomEpsilon(shapeOrientationAsQuat.v, quat_identity.v, 0.001, 4) && v56;
           }
-          v82 = DetailCollisionShapeCount;
+          v57 = DetailCollisionShapeCount;
           if ( PhysicsAssetBodyCount > DetailCollisionShapeCount )
-            v82 = PhysicsAssetBodyCount;
-          v83 = v82 > 1 || !v73 || !v74;
-          _RAX = &colorWhite;
-          if ( v83 )
-            _RAX = &colorRed;
-          v85 = "isn't";
-          if ( v74 )
-            v85 = "is";
-          __asm { vmovups xmm0, xmmword ptr [rax] }
-          v87 = "isn't";
-          if ( v73 )
-            v87 = "is";
-          LODWORD(v98) = DetailCollisionShapeCount;
-          __asm { vmovups xmmword ptr [rsp+138h+var_90], xmm0 }
-          v88 = j_va("%i instances of %s, using %i physics asset shape instances (root: %s origin) and %i detail shape instances (root: %s origin)", numInstances, v103, PhysicsAssetBodyCount, v87, v98, v85);
-          _RBX = y;
-          __asm
-          {
-            vmovss  xmm1, dword ptr [r13+0]; x
-            vmovss  xmm2, dword ptr [rbx]; y
-          }
-          StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v88);
-          __asm { vaddss  xmm1, xmm8, dword ptr [rbx] }
-          ++v64;
-          v93 = v102-- == 1;
-          __asm { vmovss  dword ptr [rbx], xmm1 }
+            v57 = PhysicsAssetBodyCount;
+          v58 = v57 > 1 || !v52 || !v53;
+          v59 = &colorWhite;
+          if ( v58 )
+            v59 = &colorRed;
+          v60 = "isn't";
+          if ( v53 )
+            v60 = "is";
+          v61 = *v59;
+          v62 = "isn't";
+          if ( v52 )
+            v62 = "is";
+          LODWORD(v65) = DetailCollisionShapeCount;
+          setColor = v61;
+          v63 = j_va("%i instances of %s, using %i physics asset shape instances (root: %s origin) and %i detail shape instances (root: %s origin)", numInstances, v70, PhysicsAssetBodyCount, v62, v65, v60);
+          StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v63, &setColor);
+          ++v45;
+          v64 = v69-- == 1;
+          *y = *y + 6.0;
         }
-        while ( !v93 );
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r13+0]
-          vmovaps xmm7, [rsp+138h+var_68]
-          vmovaps xmm6, [rsp+138h+var_58]
-        }
+        while ( !v64 );
+        v44 = *x;
       }
-      __asm
-      {
-        vsubss  xmm0, xmm0, xmm8
-        vmovaps xmm8, [rsp+138h+var_78]
-        vmovss  dword ptr [r13+0], xmm0
-      }
+      *x = v44 - 6.0;
     }
   }
 }
@@ -2439,236 +2099,130 @@ StaticModels_Debug_Draw_InstancesHeatmap
 */
 void StaticModels_Debug_Draw_InstancesHeatmap(const ScreenPlacement *scrPlace, float *x, float *y, int selectedTileIdx)
 {
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
   cg_t *LocalClientGlobals; 
+  float v15; 
+  float v16; 
   unsigned int i; 
-  const CollisionTile *v47; 
-  __int64 v48; 
-  unsigned int v49; 
-  unsigned int v57; 
-  const CollisionTile *v67; 
-  __int64 v68; 
-  unsigned int v69; 
-  int v70; 
-  const char *v72; 
-  cg_t *v75; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  const CollisionTile *v22; 
+  __int64 v23; 
+  unsigned int v24; 
+  unsigned int j; 
+  float v26; 
+  double v27; 
+  double v28; 
+  float v29; 
+  const CollisionTile *v30; 
+  __int64 v31; 
+  unsigned int v32; 
+  int v33; 
+  vec4_t *p_color; 
+  const char *v35; 
+  cg_t *v36; 
   RefdefView *p_view; 
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
-  float setColor; 
-  float setColora; 
-  float setColorb; 
-  float setColorc; 
-  float setColord; 
-  float color; 
-  float v104; 
-  float v105; 
-  float v106; 
-  float v107; 
-  vec4_t v108; 
+  vec4_t color; 
+  vec4_t setColor; 
+  __int128 v42; 
+  __int128 v43; 
+  __int128 v44; 
+  __int128 v45; 
+  __int128 v46; 
+  __int128 v47; 
 
-  _RBP = y;
-  _R14 = x;
   LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
   if ( LocalClientGlobals )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+0]; y
-      vmovss  xmm1, dword ptr [r14]; x
-      vmovaps [rsp+178h+var_48], xmm6
-      vmovaps [rsp+178h+var_58], xmm7
-      vmovaps [rsp+178h+var_68], xmm8
-      vmovaps [rsp+178h+var_78], xmm9
-      vmovaps [rsp+178h+var_88], xmm10
-      vmovaps [rsp+178h+var_98], xmm11
-      vmovaps [rsp+178h+var_A8], xmm12
-      vmovaps [rsp+178h+var_B8], xmm13
-      vmovss  xmm13, cs:__real@43c00000
-      vmovaps xmm3, xmm13; width
-      vmovss  dword ptr [rsp+178h+setColor], xmm13
-      vmovaps [rsp+178h+var_C8], xmm14
-    }
-    UI_FillRect(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColor, 1, 1, &colorBlack);
-    __asm
-    {
-      vmovss  xmm14, cs:__real@43400000
-      vmovss  xmm12, cs:__real@3f800000
-    }
+    v15 = *y;
+    v16 = *x;
+    v47 = v4;
+    v46 = v5;
+    v45 = v6;
+    v44 = v7;
+    v43 = v8;
+    v42 = v9;
+    UI_FillRect(scrPlace, v16, v15, 384.0, 384.0, 1, 1, &colorBlack);
     if ( LocalClientGlobals->compassMapMaterial )
-    {
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3ac00000
-        vmulss  xmm0, xmm3, dword ptr [rbx+4A018h]
-        vmulss  xmm4, xmm3, dword ptr [rbx+4A024h]
-        vmulss  xmm5, xmm3, dword ptr [rbx+4A020h]
-        vaddss  xmm1, xmm0, xmm14
-        vmulss  xmm0, xmm3, dword ptr [rbx+4A01Ch]
-        vaddss  xmm1, xmm1, dword ptr [r14]; x
-        vsubss  xmm0, xmm14, xmm0
-        vaddss  xmm2, xmm0, dword ptr [rbp+0]; y
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+178h+var_120], xmm0
-        vmovss  [rsp+178h+var_128], xmm12
-        vmovss  [rsp+178h+var_130], xmm12
-        vmovss  [rsp+178h+var_138], xmm0
-        vmovss  dword ptr [rsp+178h+color], xmm0
-        vmovaps xmm3, xmm5; w
-        vmovss  dword ptr [rsp+178h+setColor], xmm4
-      }
-      CL_DrawRotatedStretchPicWithoutSplitScreenScaling(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColora, 1, 1, color, v104, v105, v106, v107, 0, &colorWhite, LocalClientGlobals->compassMapMaterial);
-    }
-    __asm
-    {
-      vmovss  xmm6, cs:__real@41400000
-      vmovss  xmm11, cs:__real@3e99999a
-      vmovss  xmm9, cs:__real@3f000000
-      vmovss  xmm10, cs:__real@41300000
-    }
+      CL_DrawRotatedStretchPicWithoutSplitScreenScaling(scrPlace, (float)((float)(0.0014648438 * LocalClientGlobals->compassMapUpperLeft.v[0]) + 192.0) + *x, (float)(192.0 - (float)(0.0014648438 * LocalClientGlobals->compassMapUpperLeft.v[1])) + *y, 0.0014648438 * LocalClientGlobals->compassMapWorldSize.v[0], 0.0014648438 * LocalClientGlobals->compassMapWorldSize.v[1], 1, 1, 0.0, 0.0, 1.0, 1.0, 0.0, 0, &colorWhite, LocalClientGlobals->compassMapMaterial);
     for ( i = 0; i < 0x400; ++i )
     {
-      __asm
+      v18 = (float)(i & 0x1F);
+      v19 = (float)(v18 * 12.0) + *x;
+      v20 = (float)(31 - (i >> 5));
+      v21 = (float)(v20 * 12.0) + *y;
+      v22 = g_staticModels_CollisionTiles[i];
+      if ( v22 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm7, xmm1, dword ptr [r14]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm8, xmm1, dword ptr [rbp+0]
-      }
-      v47 = g_staticModels_CollisionTiles[i];
-      if ( v47 )
-      {
-        v48 = v47->gridId[1] + 32i64 * v47->gridId[0];
-        v49 = s_staticModels_Debug_NumTileShapeDetailInstances[0][v48];
-        if ( s_staticModels_Debug_NumTileShapeSimulationInstances[0][v48] > v49 )
-          v49 = s_staticModels_Debug_NumTileShapeSimulationInstances[0][v48];
-        if ( v49 )
+        v23 = v22->gridId[1] + 32i64 * v22->gridId[0];
+        v24 = s_staticModels_Debug_NumTileShapeDetailInstances[0][v23];
+        if ( s_staticModels_Debug_NumTileShapeSimulationInstances[0][v23] > v24 )
+          v24 = s_staticModels_Debug_NumTileShapeSimulationInstances[0][v23];
+        if ( v24 )
           goto LABEL_10;
       }
       if ( i == selectedTileIdx )
       {
 LABEL_10:
-        __asm { vmovss  dword ptr [rsp+178h+var_F8+0Ch], xmm11 }
-        StaticModels_Debug_Draw_GetTileColor(i, &v108);
+        color.v[3] = FLOAT_0_30000001;
+        StaticModels_Debug_Draw_GetTileColor(i, &color);
         if ( i == selectedTileIdx )
-        {
-          __asm
-          {
-            vmovaps xmm3, xmm6; width
-            vmovaps xmm2, xmm8; y
-            vmovaps xmm1, xmm7; x
-            vmovss  dword ptr [rsp+178h+setColor], xmm6
-          }
-          UI_FillRect(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorb, 1, 1, &colorWhite);
-        }
-        __asm
-        {
-          vaddss  xmm2, xmm8, xmm9; y
-          vaddss  xmm1, xmm7, xmm9; x
-          vmovaps xmm3, xmm10; width
-          vmovss  dword ptr [rsp+178h+setColor], xmm10
-        }
-        UI_FillRect(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorc, 1, 1, &v108);
+          UI_FillRect(scrPlace, v19, v21, 12.0, 12.0, 1, 1, &colorWhite);
+        UI_FillRect(scrPlace, v19 + 0.5, v21 + 0.5, 11.0, 11.0, 1, 1, &color);
       }
     }
-    __asm { vmovaps xmm11, [rsp+178h+var_98] }
-    v57 = 0;
-    __asm
+    for ( j = 0; j < 0x400; ++j )
     {
-      vmovaps xmm10, [rsp+178h+var_88]
-      vmovaps xmm9, [rsp+178h+var_78]
-    }
-    do
-    {
-      __asm
+      HIDWORD(v28) = 0;
+      v26 = (float)(j & 0x1F);
+      *(float *)&v28 = (float)(v26 * 12.0) + *x;
+      v27 = v28;
+      *(float *)&v28 = (float)(31 - (j >> 5));
+      v29 = (float)(*(float *)&v28 * 12.0) + *y;
+      v30 = g_staticModels_CollisionTiles[j];
+      if ( v30 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm7, xmm1, dword ptr [r14]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm8, xmm1, dword ptr [rbp+0]
-      }
-      v67 = g_staticModels_CollisionTiles[v57];
-      if ( v67 )
-      {
-        v68 = v67->gridId[1] + 32i64 * v67->gridId[0];
-        v69 = s_staticModels_Debug_NumTileShapeDetailInstances[0][v68];
-        if ( s_staticModels_Debug_NumTileShapeSimulationInstances[0][v68] > v69 )
-          v69 = s_staticModels_Debug_NumTileShapeSimulationInstances[0][v68];
-        if ( v69 )
+        v31 = v30->gridId[1] + 32i64 * v30->gridId[0];
+        v32 = s_staticModels_Debug_NumTileShapeDetailInstances[0][v31];
+        if ( s_staticModels_Debug_NumTileShapeSimulationInstances[0][v31] > v32 )
+          v32 = s_staticModels_Debug_NumTileShapeSimulationInstances[0][v31];
+        if ( v32 )
           goto LABEL_20;
       }
-      if ( v57 == selectedTileIdx )
+      if ( j == selectedTileIdx )
       {
 LABEL_20:
-        __asm { vmovss  dword ptr [rsp+178h+var_F8+0Ch], xmm12 }
-        StaticModels_Debug_Draw_GetTileColor(v57, &v108);
-        _RAX = &v108;
-        if ( v57 == selectedTileIdx )
-          _RAX = &colorWhite;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rsp+178h+var_E8], xmm0
-        }
-        v72 = j_va("%iK", (unsigned int)(v70 + 1023) >> 10);
-        __asm
-        {
-          vmovaps xmm2, xmm8; y
-          vmovaps xmm1, xmm7; x
-        }
-        StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v72);
+        color.v[3] = FLOAT_1_0;
+        StaticModels_Debug_Draw_GetTileColor(j, &color);
+        p_color = &color;
+        if ( j == selectedTileIdx )
+          p_color = &colorWhite;
+        setColor = *p_color;
+        v35 = j_va("%iK", (unsigned int)(v33 + 1023) >> 10);
+        StaticModels_Debug_DrawString(scrPlace, v27, v29, v35, &setColor);
       }
-      ++v57;
     }
-    while ( v57 < 0x400 );
-    v75 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-    __asm
-    {
-      vmovaps xmm12, [rsp+178h+var_A8]
-      vmovaps xmm8, [rsp+178h+var_68]
-      vmovaps xmm7, [rsp+178h+var_58]
-    }
-    p_view = &v75->refdef.view;
-    if ( v75 == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
+    v36 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
+    p_view = &v36->refdef.view;
+    if ( v36 == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
       __debugbreak();
     refdefViewOrg_aab = p_view->refdefViewOrg_aab;
     v = (_DWORD *)p_view->org.org.v;
     if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
       __debugbreak();
-    __asm { vmovss  xmm3, cs:__real@39000000 }
-    LODWORD(v108.v[0]) = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
-    LODWORD(v108.v[1]) = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
-    __asm
-    {
-      vmulss  xmm1, xmm3, dword ptr [rsp+178h+var_F8+4]
-      vmulss  xmm2, xmm1, xmm6
-      vsubss  xmm0, xmm14, xmm2
-      vaddss  xmm1, xmm0, dword ptr [rbp+0]
-      vsubss  xmm2, xmm1, cs:__real@40000000; y
-      vmulss  xmm1, xmm3, dword ptr [rsp+178h+var_F8]
-      vmulss  xmm3, xmm1, xmm6
-      vaddss  xmm4, xmm3, xmm14
-      vaddss  xmm0, xmm4, dword ptr [r14]
-      vmovss  xmm3, cs:__real@40800000; width
-      vsubss  xmm1, xmm0, cs:__real@40000000; x
-      vmovss  dword ptr [rsp+178h+setColor], xmm3
-    }
-    UI_FillRect(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColord, 1, 1, &colorBlue);
-    __asm
-    {
-      vaddss  xmm1, xmm13, dword ptr [rbp+0]
-      vmovaps xmm14, [rsp+178h+var_C8]
-      vmovaps xmm13, [rsp+178h+var_B8]
-      vmovaps xmm6, [rsp+178h+var_48]
-      vmovss  dword ptr [rbp+0], xmm1
-    }
+    LODWORD(color.v[0]) = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
+    LODWORD(color.v[1]) = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
+    UI_FillRect(scrPlace, (float)((float)((float)((float)(0.00012207031 * color.v[0]) * 12.0) + 192.0) + *x) - 2.0, (float)((float)(192.0 - (float)((float)(0.00012207031 * color.v[1]) * 12.0)) + *y) - 2.0, 4.0, 4.0, 1, 1, &colorBlue);
+    *y = *y + 384.0;
   }
 }
 
@@ -2679,130 +2233,86 @@ StaticModels_Debug_Draw_Memory
 */
 void StaticModels_Debug_Draw_Memory(const ScreenPlacement *scrPlace, float *x, float *y)
 {
-  unsigned int v4; 
-  unsigned int v8; 
+  unsigned int v3; 
+  unsigned int v7; 
   StaticModelCollisionModelList *staticModelCollisionModelLists; 
   __int64 numStaticModelCollisionModelLists; 
-  bool v11; 
-  unsigned int v12; 
-  __int64 v13; 
-  const CollisionTile **v14; 
+  bool v10; 
+  unsigned int v11; 
+  __int64 v12; 
+  const CollisionTile **v13; 
   StaticModelCollisionCompressedModelList *staticModelCollision; 
   unsigned int numModels; 
-  unsigned int v17; 
-  const char *v21; 
-  const char *v28; 
-  const char *v30; 
+  unsigned int v16; 
+  const char *v17; 
+  const char *v18; 
+  const char *v19; 
 
-  v4 = 0;
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  _RBP = y;
-  _RSI = x;
-  v8 = 0;
+  v3 = 0;
+  v7 = 0;
   if ( cm.numStaticModelCollisionModelLists )
   {
     staticModelCollisionModelLists = cm.staticModelCollisionModelLists;
     numStaticModelCollisionModelLists = cm.numStaticModelCollisionModelLists;
     do
     {
-      v11 = staticModelCollisionModelLists->numModels == 0;
-      v12 = v8 + 1;
+      v10 = staticModelCollisionModelLists->numModels == 0;
+      v11 = v7 + 1;
       ++staticModelCollisionModelLists;
-      if ( v11 )
-        v12 = v8;
-      v8 = v12;
+      if ( v10 )
+        v11 = v7;
+      v7 = v11;
       --numStaticModelCollisionModelLists;
     }
     while ( numStaticModelCollisionModelLists );
   }
-  v13 = 1024i64;
-  v14 = g_staticModels_CollisionTiles;
+  v12 = 1024i64;
+  v13 = g_staticModels_CollisionTiles;
   do
   {
-    if ( *v14 )
+    if ( *v13 )
     {
-      staticModelCollision = (*v14)->staticModelCollision;
+      staticModelCollision = (*v13)->staticModelCollision;
       if ( staticModelCollision )
       {
         numModels = staticModelCollision->numModels;
-        v17 = v4 + 1;
+        v16 = v3 + 1;
         if ( !numModels )
-          v17 = v4;
-        v4 = v17;
+          v16 = v3;
+        v3 = v16;
         if ( numModels )
-          v4 = v17;
+          v3 = v16;
       }
     }
-    ++v14;
-    --v13;
+    ++v13;
+    --v12;
   }
-  while ( v13 );
-  __asm { vmovss  xmm6, cs:__real@40c00000 }
-  if ( v8 )
+  while ( v12 );
+  if ( v7 )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+0]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    v21 = "Zones";
-    if ( v8 == 1 )
-      v21 = "Zone";
-    StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v21);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rbp+0]
-      vmovss  dword ptr [rbp+0], xmm1
-      vaddss  xmm0, xmm6, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm0
-    }
-    StaticModels_Debug_Draw_ClipmapZoneMemory(scrPlace, _RSI, _RBP, cm.numStaticModelCollisionModelLists, cm.staticModelCollisionModelLists, StaticModels_Debug_IsClipmapZoneLoaded, StaticModels_Debug_GetClipmapZoneName, v8 > 1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rsi], xmm1
-    }
+    v17 = "Zones";
+    if ( v7 == 1 )
+      v17 = "Zone";
+    StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v17, &colorWhite);
+    *y = *y + 6.0;
+    *x = *x + 6.0;
+    StaticModels_Debug_Draw_ClipmapZoneMemory(scrPlace, x, y, cm.numStaticModelCollisionModelLists, cm.staticModelCollisionModelLists, StaticModels_Debug_IsClipmapZoneLoaded, StaticModels_Debug_GetClipmapZoneName, v7 > 1);
+    *x = *x - 6.0;
   }
-  if ( v4 )
+  if ( v3 )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+0]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    v28 = "Tiles";
-    if ( v4 == 1 )
-      v28 = "Tile";
-    StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v28);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rbp+0]
-      vmovss  dword ptr [rbp+0], xmm1
-    }
-    v30 = j_va("Tile Details");
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbp+0]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v30);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rbp+0]
-      vmovss  dword ptr [rbp+0], xmm1
-      vaddss  xmm0, xmm6, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm0
-    }
-    StaticModels_Debug_Draw_CollisionTileMemory(scrPlace, _RSI, _RBP, 0x400u, g_staticModels_CollisionTiles, StaticModels_Debug_IsCollisionTileLoaded, StaticModels_Debug_GetCollisionTileName, v4 > 1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rsi], xmm1
-    }
+    v18 = "Tiles";
+    if ( v3 == 1 )
+      v18 = "Tile";
+    StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v18, &colorWhite);
+    *y = *y + 6.0;
+    v19 = j_va("Tile Details");
+    StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v19, &colorWhite);
+    *y = *y + 6.0;
+    *x = *x + 6.0;
+    StaticModels_Debug_Draw_CollisionTileMemory(scrPlace, x, y, 0x400u, g_staticModels_CollisionTiles, StaticModels_Debug_IsCollisionTileLoaded, StaticModels_Debug_GetCollisionTileName, v3 > 1);
+    *x = *x - 6.0;
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
 }
 
 /*
@@ -2813,222 +2323,164 @@ StaticModels_Debug_Draw_NotRootTransformInstances
 void StaticModels_Debug_Draw_NotRootTransformInstances(const ScreenPlacement *scrPlace, float *x, float *y)
 {
   signed __int64 v3; 
-  void *v6; 
-  __int64 v7; 
-  unsigned int v8; 
-  const CollisionTile **v11; 
-  __int64 v12; 
-  const CollisionTile *v13; 
+  void *v4; 
+  __int64 v5; 
+  unsigned int v6; 
+  const CollisionTile **v7; 
+  __int64 v8; 
+  const CollisionTile *v9; 
   StaticModelCollisionCompressedModelList *staticModelCollision; 
-  __int64 v15; 
+  __int64 v11; 
   StaticModelCollisionCompressedModel *models; 
   const PhysicsAsset *physicsAsset; 
   int PhysicsAssetBodyCount; 
   const XModelDetailCollision *detailCollision; 
   int DetailCollisionShapeCount; 
-  char v21; 
-  char v22; 
-  bool v24; 
-  const XModelDetailCollision *v26; 
-  bool v28; 
-  int v30; 
-  __int64 v31; 
-  const char *v32; 
-  const char *v39; 
-  __int64 v45; 
-  const char *v46; 
-  const char *v47; 
-  const char *v48; 
-  const char *v49; 
+  char v17; 
+  char v18; 
+  bool v19; 
+  const XModelDetailCollision *v20; 
+  bool v21; 
+  int v22; 
+  __int64 v23; 
+  const char *v24; 
+  const char *v25; 
+  __int64 v26; 
+  const char *v27; 
+  const char *v28; 
+  const char *v29; 
+  const char *v30; 
   __int64 numModels; 
-  const CollisionTile **v59; 
-  __int64 v60; 
-  StaticModelCollisionCompressedModelList *v61; 
+  const CollisionTile **v32; 
+  __int64 v33; 
+  StaticModelCollisionCompressedModelList *v34; 
   vec3_t bodyPosition; 
   vec3_t shapePosition; 
   vec4_t bodyOrientationAsQuat; 
   vec4_t shapeOrientationAsQuat; 
-  int v69[24576]; 
+  int v42[24576]; 
   scr_string_t stringValue[24576]; 
-  char v71[24576]; 
-  char v72[24576]; 
-  char v75; 
+  char v44[24576]; 
+  char v45[24576]; 
 
-  v6 = alloca(v3);
-  __asm
-  {
-    vmovaps [rsp+3C118h+var_48], xmm6
-    vmovaps [rsp+3C118h+var_58], xmm7
-  }
-  v7 = 0i64;
-  v8 = 0;
+  v4 = alloca(v3);
+  v5 = 0i64;
+  v6 = 0;
   memset_0(stringValue, 0, sizeof(stringValue));
-  memset_0(v69, 0, sizeof(v69));
-  memset_0(v72, 0, sizeof(v72));
-  memset_0(v71, 0, sizeof(v71));
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3dcccccd
-    vmovss  xmm7, cs:__real@3a83126f
-  }
-  v11 = g_staticModels_CollisionTiles;
-  v12 = 1024i64;
-  v59 = g_staticModels_CollisionTiles;
-  v60 = 1024i64;
+  memset_0(v42, 0, sizeof(v42));
+  memset_0(v45, 0, sizeof(v45));
+  memset_0(v44, 0, sizeof(v44));
+  v7 = g_staticModels_CollisionTiles;
+  v8 = 1024i64;
+  v32 = g_staticModels_CollisionTiles;
+  v33 = 1024i64;
   do
   {
-    v13 = *v11;
-    if ( v13 )
+    v9 = *v7;
+    if ( v9 )
     {
-      staticModelCollision = v13->staticModelCollision;
-      v61 = staticModelCollision;
+      staticModelCollision = v9->staticModelCollision;
+      v34 = staticModelCollision;
       if ( staticModelCollision )
       {
         if ( staticModelCollision->numModels )
         {
-          v15 = 0i64;
+          v11 = 0i64;
           numModels = staticModelCollision->numModels;
           do
           {
             models = staticModelCollision->models;
-            physicsAsset = models[v15].physicsAsset;
+            physicsAsset = models[v11].physicsAsset;
             if ( physicsAsset )
               PhysicsAssetBodyCount = Physics_GetPhysicsAssetBodyCount(physicsAsset);
             else
               PhysicsAssetBodyCount = 0;
-            detailCollision = models[v15].detailCollision;
+            detailCollision = models[v11].detailCollision;
             if ( detailCollision )
               DetailCollisionShapeCount = Physics_GetDetailCollisionShapeCount(detailCollision);
             else
               DetailCollisionShapeCount = PhysicsAssetBodyCount;
-            v21 = 1;
-            v22 = 1;
+            v17 = 1;
+            v18 = 1;
             if ( PhysicsAssetBodyCount )
             {
-              Physics_GetPhysicsAssetBodyTransform(models[v15].physicsAsset, 0, &bodyPosition, &bodyOrientationAsQuat);
-              __asm { vmovaps xmm2, xmm6; epsilon }
-              v24 = VecNCompareCustomEpsilon(bodyPosition.v, vec3_origin.v, *(float *)&_XMM2, 3);
-              __asm { vmovaps xmm2, xmm7; epsilon }
-              v21 = VecNCompareCustomEpsilon(bodyOrientationAsQuat.v, quat_identity.v, *(float *)&_XMM2, 4) && v24;
+              Physics_GetPhysicsAssetBodyTransform(models[v11].physicsAsset, 0, &bodyPosition, &bodyOrientationAsQuat);
+              v19 = VecNCompareCustomEpsilon(bodyPosition.v, vec3_origin.v, 0.1, 3);
+              v17 = VecNCompareCustomEpsilon(bodyOrientationAsQuat.v, quat_identity.v, 0.001, 4) && v19;
             }
-            v26 = models[v15].detailCollision;
-            if ( v26 && DetailCollisionShapeCount )
+            v20 = models[v11].detailCollision;
+            if ( v20 && DetailCollisionShapeCount )
             {
-              Physics_GetDetailCollisionShapeTransform(v26, 0, &shapePosition, &shapeOrientationAsQuat);
-              __asm { vmovaps xmm2, xmm6; epsilon }
-              v28 = VecNCompareCustomEpsilon(shapePosition.v, vec3_origin.v, *(float *)&_XMM2, 3);
-              __asm { vmovaps xmm2, xmm7; epsilon }
-              v22 = VecNCompareCustomEpsilon(shapeOrientationAsQuat.v, quat_identity.v, *(float *)&_XMM2, 4) && v28;
+              Physics_GetDetailCollisionShapeTransform(v20, 0, &shapePosition, &shapeOrientationAsQuat);
+              v21 = VecNCompareCustomEpsilon(shapePosition.v, vec3_origin.v, 0.1, 3);
+              v18 = VecNCompareCustomEpsilon(shapeOrientationAsQuat.v, quat_identity.v, 0.001, 4) && v21;
             }
-            if ( !v21 || !v22 )
+            if ( !v17 || !v18 )
             {
-              v30 = 0;
-              if ( v8 )
+              v22 = 0;
+              if ( v6 )
               {
-                while ( stringValue[v30] != models[v15].name )
+                while ( stringValue[v22] != models[v11].name )
                 {
-                  if ( ++v30 >= v8 )
+                  if ( ++v22 >= v6 )
                     goto LABEL_22;
                 }
-                v69[v30] += models[v15].numInstances;
+                v42[v22] += models[v11].numInstances;
               }
               else
               {
 LABEL_22:
-                if ( v8 >= 0x6000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels_debug.cpp", 1469, ASSERT_TYPE_ASSERT, "(numBadModels < (24064 + 512))", (const char *)&queryFormat, "numBadModels < XMODEL_POOL_SIZE") )
+                if ( v6 >= 0x6000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels_debug.cpp", 1469, ASSERT_TYPE_ASSERT, "(numBadModels < (24064 + 512))", (const char *)&queryFormat, "numBadModels < XMODEL_POOL_SIZE") )
                   __debugbreak();
-                v31 = v8++;
-                stringValue[v31] = models[v15].name;
-                v69[v31] = models[v15].numInstances;
-                v72[v31] = v21 ^ 1;
-                v71[v31] = v22 ^ 1;
+                v23 = v6++;
+                stringValue[v23] = models[v11].name;
+                v42[v23] = models[v11].numInstances;
+                v45[v23] = v17 ^ 1;
+                v44[v23] = v18 ^ 1;
               }
             }
-            staticModelCollision = v61;
-            ++v15;
+            staticModelCollision = v34;
+            ++v11;
             --numModels;
           }
           while ( numModels );
-          v12 = v60;
+          v8 = v33;
         }
       }
     }
-    v11 = v59 + 1;
-    --v12;
-    ++v59;
-    v60 = v12;
+    v7 = v32 + 1;
+    --v8;
+    ++v32;
+    v33 = v8;
   }
-  while ( v12 );
-  if ( v8 )
+  while ( v8 );
+  if ( v6 )
   {
-    v32 = j_va("%i static models have collision data at offset transforms", v8);
-    _RSI = y;
-    _RBP = x;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [rbp+0]; x
-    }
-    StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v32);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@40c00000
-      vaddss  xmm0, xmm6, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm0
-    }
-    v39 = j_va("Assets flagged as bad normally have their root pivot not at the origin in Max/Maya.");
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [rbp+0]; x
-    }
-    StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v39);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vmovss  xmm2, dword ptr [rbp+0]
-      vaddss  xmm0, xmm2, xmm6
-      vmovss  dword ptr [rbp+0], xmm0
-    }
-    v45 = v8;
+    v24 = j_va("%i static models have collision data at offset transforms", v6);
+    StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v24, &colorRed);
+    *y = *y + 6.0;
+    v25 = j_va("Assets flagged as bad normally have their root pivot not at the origin in Max/Maya.");
+    StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v25, &colorRed);
+    *y = *y + 6.0;
+    *x = *x + 6.0;
+    v26 = v6;
     do
     {
-      v46 = SL_ConvertToString(stringValue[v7]);
-      v47 = "Good";
-      v48 = "Good";
-      if ( v71[v7] )
-        v47 = "Bad";
-      if ( v72[v7] )
-        v48 = "Bad";
-      v49 = j_va("%i instances of %s, where physics asset is %s and detail collision is %s", (unsigned int)v69[v7], v46, v48, v47);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi]; y
-        vmovss  xmm1, dword ptr [rbp+0]; x
-      }
-      StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v49);
-      ++v7;
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rsi]
-        vmovss  dword ptr [rsi], xmm1
-      }
-      --v45;
+      v27 = SL_ConvertToString(stringValue[v5]);
+      v28 = "Good";
+      v29 = "Good";
+      if ( v44[v5] )
+        v28 = "Bad";
+      if ( v45[v5] )
+        v29 = "Bad";
+      v30 = j_va("%i instances of %s, where physics asset is %s and detail collision is %s", (unsigned int)v42[v5], v27, v29, v28);
+      StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v30, &colorRed);
+      ++v5;
+      *y = *y + 6.0;
+      --v26;
     }
-    while ( v45 );
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vsubss  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rbp+0], xmm0
-    }
-  }
-  _R11 = &v75;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    while ( v26 );
+    *x = *x - 6.0;
   }
 }
 
@@ -3039,184 +2491,134 @@ StaticModels_Debug_Draw_OverlyExpensiveInstances
 */
 void StaticModels_Debug_Draw_OverlyExpensiveInstances(const ScreenPlacement *scrPlace, float *x, float *y)
 {
+  __int64 v3; 
   __int64 v4; 
-  __int64 v5; 
-  const CollisionTile **v6; 
-  __int64 v7; 
-  const CollisionTile *v8; 
+  const CollisionTile **v5; 
+  __int64 v6; 
+  const CollisionTile *v7; 
   StaticModelCollisionCompressedModelList *staticModelCollision; 
-  __int64 v10; 
+  __int64 v9; 
   __int64 numModels; 
   StaticModelCollisionCompressedModel *models; 
   const PhysicsAsset *physicsAsset; 
   unsigned int PhysicsAssetBodyCount; 
   const XModelDetailCollision *detailCollision; 
   unsigned int DetailCollisionShapeCount; 
-  unsigned int v17; 
-  int v18; 
+  unsigned int v16; 
+  int v17; 
+  const char *v18; 
   const char *v19; 
-  const char *v26; 
-  const char *v30; 
-  const char *v36; 
-  const char *v37; 
+  const char *v20; 
+  const char *v21; 
+  const char *v22; 
   char *fmt; 
-  const CollisionTile **v45; 
-  __int64 v46; 
-  int v50[24576]; 
+  const CollisionTile **v24; 
+  __int64 v25; 
+  int v29[24576]; 
   scr_string_t stringValue[24576]; 
-  int v52[24576]; 
-  int v53[24576]; 
+  int v31[24576]; 
+  int v32[24576]; 
 
+  v3 = 0i64;
   v4 = 0i64;
-  v5 = 0i64;
   memset_0(stringValue, 0, sizeof(stringValue));
-  memset_0(v50, 0, sizeof(v50));
-  memset_0(v53, 0, sizeof(v53));
-  memset_0(v52, 0, sizeof(v52));
-  v6 = g_staticModels_CollisionTiles;
-  v7 = 1024i64;
-  v45 = g_staticModels_CollisionTiles;
-  v46 = 1024i64;
+  memset_0(v29, 0, sizeof(v29));
+  memset_0(v32, 0, sizeof(v32));
+  memset_0(v31, 0, sizeof(v31));
+  v5 = g_staticModels_CollisionTiles;
+  v6 = 1024i64;
+  v24 = g_staticModels_CollisionTiles;
+  v25 = 1024i64;
   do
   {
-    v8 = *v6;
-    if ( v8 )
+    v7 = *v5;
+    if ( v7 )
     {
-      staticModelCollision = v8->staticModelCollision;
+      staticModelCollision = v7->staticModelCollision;
       if ( staticModelCollision )
       {
         if ( staticModelCollision->numModels )
         {
-          v10 = 0i64;
+          v9 = 0i64;
           numModels = staticModelCollision->numModels;
           do
           {
             models = staticModelCollision->models;
-            physicsAsset = models[v10].physicsAsset;
+            physicsAsset = models[v9].physicsAsset;
             if ( physicsAsset )
               PhysicsAssetBodyCount = Physics_GetPhysicsAssetBodyCount(physicsAsset);
             else
               PhysicsAssetBodyCount = 0;
-            detailCollision = models[v10].detailCollision;
+            detailCollision = models[v9].detailCollision;
             if ( detailCollision )
               DetailCollisionShapeCount = Physics_GetDetailCollisionShapeCount(detailCollision);
             else
               DetailCollisionShapeCount = PhysicsAssetBodyCount;
-            v17 = DetailCollisionShapeCount;
+            v16 = DetailCollisionShapeCount;
             if ( PhysicsAssetBodyCount > DetailCollisionShapeCount )
-              v17 = PhysicsAssetBodyCount;
-            if ( v17 > 1 )
+              v16 = PhysicsAssetBodyCount;
+            if ( v16 > 1 )
             {
-              v18 = 0;
-              if ( (_DWORD)v5 )
+              v17 = 0;
+              if ( (_DWORD)v4 )
               {
-                while ( stringValue[v18] != models[v10].name )
+                while ( stringValue[v17] != models[v9].name )
                 {
-                  if ( ++v18 >= (unsigned int)v5 )
+                  if ( ++v17 >= (unsigned int)v4 )
                     goto LABEL_18;
                 }
-                v50[v18] += models[v10].numInstances;
+                v29[v17] += models[v9].numInstances;
               }
               else
               {
 LABEL_18:
-                if ( (unsigned int)v5 >= 0x6000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels_debug.cpp", 1334, ASSERT_TYPE_ASSERT, "(numBadModels < (24064 + 512))", (const char *)&queryFormat, "numBadModels < XMODEL_POOL_SIZE") )
+                if ( (unsigned int)v4 >= 0x6000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\staticmodels\\staticmodels_debug.cpp", 1334, ASSERT_TYPE_ASSERT, "(numBadModels < (24064 + 512))", (const char *)&queryFormat, "numBadModels < XMODEL_POOL_SIZE") )
                   __debugbreak();
-                stringValue[v5] = models[v10].name;
-                v50[v5] = models[v10].numInstances;
-                v53[v5] = PhysicsAssetBodyCount;
-                v52[v5] = DetailCollisionShapeCount;
-                v5 = (unsigned int)(v5 + 1);
+                stringValue[v4] = models[v9].name;
+                v29[v4] = models[v9].numInstances;
+                v32[v4] = PhysicsAssetBodyCount;
+                v31[v4] = DetailCollisionShapeCount;
+                v4 = (unsigned int)(v4 + 1);
               }
             }
-            ++v10;
+            ++v9;
             --numModels;
           }
           while ( numModels );
-          v7 = v46;
+          v6 = v25;
         }
       }
     }
-    v6 = v45 + 1;
-    --v7;
-    ++v45;
-    v46 = v7;
+    v5 = v24 + 1;
+    --v6;
+    ++v24;
+    v25 = v6;
   }
-  while ( v7 );
-  if ( (_DWORD)v5 )
+  while ( v6 );
+  if ( (_DWORD)v4 )
   {
-    __asm { vmovaps [rsp+600B8h+var_48], xmm6 }
-    v19 = j_va("%i static models are creating more shape instances than they need to", (unsigned int)v5);
-    _RDI = y;
-    _RSI = x;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v19);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@40c00000
-      vaddss  xmm0, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm0
-    }
-    v26 = j_va("Physics Asset counts above 1 indicate that there is >1 rigid body and this was not intended to be a static model.");
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v26);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-    }
-    v30 = j_va("XModel Detail collision counts above 1 indicate that this model was intended to be animated.");
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-    }
-    fmt = (char *)&colorRed;
-    StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v30);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm2, dword ptr [rsi]
-      vaddss  xmm0, xmm2, xmm6
-      vmovss  dword ptr [rsi], xmm0
-    }
+    v18 = j_va("%i static models are creating more shape instances than they need to", (unsigned int)v4);
+    StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v18, &colorRed);
+    *y = *y + 6.0;
+    v19 = j_va("Physics Asset counts above 1 indicate that there is >1 rigid body and this was not intended to be a static model.");
+    StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v19, &colorRed);
+    *y = *y + 6.0;
+    v20 = j_va("XModel Detail collision counts above 1 indicate that this model was intended to be animated.");
+    StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v20, &colorRed);
+    *y = *y + 6.0;
+    *x = *x + 6.0;
     do
     {
-      v36 = SL_ConvertToString(stringValue[v4]);
-      LODWORD(fmt) = v52[v4];
-      v37 = j_va("%i instances of %s, using %i physics asset shape instances and %i detail shape instances", (unsigned int)v50[v4], v36, (unsigned int)v53[v4], fmt);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi]; y
-        vmovss  xmm1, dword ptr [rsi]; x
-      }
-      fmt = (char *)&colorRed;
-      StaticModels_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v37);
-      ++v4;
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rdi]
-        vmovss  dword ptr [rdi], xmm1
-      }
-      --v5;
+      v21 = SL_ConvertToString(stringValue[v3]);
+      LODWORD(fmt) = v31[v3];
+      v22 = j_va("%i instances of %s, using %i physics asset shape instances and %i detail shape instances", (unsigned int)v29[v3], v21, (unsigned int)v32[v3], fmt);
+      StaticModels_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v22, &colorRed);
+      ++v3;
+      *y = *y + 6.0;
+      --v4;
     }
-    while ( v5 );
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm0, xmm0, xmm6
-      vmovaps xmm6, [rsp+600B8h+var_48]
-      vmovss  dword ptr [rsi], xmm0
-    }
+    while ( v4 );
+    *x = *x - 6.0;
   }
 }
 

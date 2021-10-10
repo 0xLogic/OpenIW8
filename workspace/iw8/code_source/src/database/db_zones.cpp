@@ -1989,22 +1989,19 @@ DB_Zones_GpuTempMemoryAllocTransferOwnership
 */
 XZoneMemoryAllocation *DB_Zones_GpuTempMemoryAllocTransferOwnership(XZoneMemoryAllocation *result, int zoneIndex)
 {
-  XZoneMemoryAllocation *v6; 
+  DB_Zone *ZoneFromIndex; 
+  double v4; 
+  XZoneMemoryAllocation *v5; 
 
-  _RBX = result;
-  _RAX = DB_Zones_GetZoneFromIndex(zoneIndex);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+0D8h]
-    vmovsd  xmm1, qword ptr [rax+0E8h]
-    vmovups xmmword ptr [rbx], xmm0
-  }
-  _RAX->mem.alloc[5].pageRange = (Mem_PageRange)-1i64;
-  _RAX->mem.alloc[5].alloc = NULL;
-  _RAX->mem.alloc[5].size = 0i64;
-  v6 = _RBX;
-  __asm { vmovsd  qword ptr [rbx+10h], xmm1 }
-  return v6;
+  ZoneFromIndex = DB_Zones_GetZoneFromIndex(zoneIndex);
+  v4 = *(double *)&ZoneFromIndex->mem.alloc[5].size;
+  *(_OWORD *)&result->pageRange.firstPageID = *(_OWORD *)&ZoneFromIndex->mem.alloc[5].pageRange.firstPageID;
+  ZoneFromIndex->mem.alloc[5].pageRange = (Mem_PageRange)-1i64;
+  ZoneFromIndex->mem.alloc[5].alloc = NULL;
+  ZoneFromIndex->mem.alloc[5].size = 0i64;
+  v5 = result;
+  *(double *)&result->size = v4;
+  return v5;
 }
 
 /*
@@ -3122,11 +3119,13 @@ void DB_Zones_ProcessPendingUnloadFrees(bool forceFree)
   signed __int64 v7; 
   __int64 v8; 
   unsigned __int16 *v9; 
+  char *v10; 
   bool v11; 
-  __int64 v23; 
-  __int64 v24; 
-  __int64 v25; 
-  __int64 v26; 
+  ntl::fixed_vector<DB_ZoneUnloadGPUWait,1956,0> *v12; 
+  __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
+  __int64 v16; 
 
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "DB_Zones_ProcessPendingUnloadFrees");
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_zones.cpp", 1705, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
@@ -3145,25 +3144,25 @@ void DB_Zones_ProcessPendingUnloadFrees(bool forceFree)
           __debugbreak();
         if ( (unsigned int)v4 >= 0x300 )
         {
-          LODWORD(v24) = 768;
-          LODWORD(v23) = v4;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v23, v24) )
+          LODWORD(v14) = 768;
+          LODWORD(v13) = v4;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v13, v14) )
             __debugbreak();
         }
         v5 = 0x80000000 >> (v4 & 0x1F);
         v6 = &s_GfxWorldTransientZoneDeferredReleaseWaitList.freeList.array[v4 >> 5];
         if ( (v5 & *v6) == 0 )
         {
-          LODWORD(v23) = v4;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_zones.cpp", 187, ASSERT_TYPE_ASSERT, "( ( freeList.testBit( index ) ) )", "( index ) = %u", v23) )
+          LODWORD(v13) = v4;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_zones.cpp", 187, ASSERT_TYPE_ASSERT, "( ( freeList.testBit( index ) ) )", "( index ) = %u", v13) )
             __debugbreak();
         }
         --s_GfxWorldTransientZoneDeferredReleaseWaitList.numPointers;
         if ( (unsigned int)v4 >= 0x300 )
         {
-          LODWORD(v26) = 768;
-          LODWORD(v25) = v4;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v25, v26) )
+          LODWORD(v16) = 768;
+          LODWORD(v15) = v4;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v15, v16) )
             __debugbreak();
         }
         *v6 &= ~v5;
@@ -3183,51 +3182,38 @@ void DB_Zones_ProcessPendingUnloadFrees(bool forceFree)
       if ( s_zones.gpuUnloadWaitList.m_size )
         p_gpuUnloadWaitList = (ntl::fixed_vector<DB_ZoneUnloadGPUWait,1956,0> *)&s_zones.worldTransientZoneIndices[84 * (v7 / 168) - 164308];
       v9 = &s_zones.worldTransientZoneIndices[84 * s_zones.gpuUnloadWaitList.m_size - 164308];
-      _RBX = &p_gpuUnloadWaitList->m_data.m_buffer[168];
+      v10 = &p_gpuUnloadWaitList->m_data.m_buffer[168];
       if ( &p_gpuUnloadWaitList->m_data.m_buffer[168] == (char *)p_gpuUnloadWaitList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
         __debugbreak();
       if ( v9 == (unsigned __int16 *)p_gpuUnloadWaitList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
         __debugbreak();
-      v11 = _RBX < (char *)v9;
-      if ( _RBX > (char *)v9 )
+      v11 = v10 < (char *)v9;
+      if ( v10 > (char *)v9 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
           __debugbreak();
-        v11 = _RBX < (char *)v9;
+        v11 = v10 < (char *)v9;
       }
       if ( v11 )
       {
-        _RDX = p_gpuUnloadWaitList;
+        v12 = p_gpuUnloadWaitList;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx]
-            vmovups xmmword ptr [rdx], xmm0
-            vmovups xmm1, xmmword ptr [rbx+10h]
-            vmovups xmmword ptr [rdx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rbx+20h]
-            vmovups xmmword ptr [rdx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rbx+30h]
-            vmovups xmmword ptr [rdx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rbx+40h]
-            vmovups xmmword ptr [rdx+40h], xmm0
-            vmovups xmm1, xmmword ptr [rbx+50h]
-            vmovups xmmword ptr [rdx+50h], xmm1
-            vmovups xmm0, xmmword ptr [rbx+60h]
-            vmovups xmmword ptr [rdx+60h], xmm0
-            vmovups xmm1, xmmword ptr [rbx+70h]
-            vmovups xmmword ptr [rdx+70h], xmm1
-            vmovups xmm0, xmmword ptr [rbx+80h]
-            vmovups xmmword ptr [rdx+80h], xmm0
-            vmovups xmm1, xmmword ptr [rbx+90h]
-            vmovups xmmword ptr [rdx+90h], xmm1
-          }
-          *(_QWORD *)&_RDX->m_data.m_buffer[160] = *((_QWORD *)_RBX + 20);
-          _RBX += 168;
-          _RDX = (ntl::fixed_vector<DB_ZoneUnloadGPUWait,1956,0> *)((char *)_RDX + 168);
+          *(_OWORD *)v12->m_data.m_buffer = *(_OWORD *)v10;
+          *(_OWORD *)&v12->m_data.m_buffer[16] = *((_OWORD *)v10 + 1);
+          *(_OWORD *)&v12->m_data.m_buffer[32] = *((_OWORD *)v10 + 2);
+          *(_OWORD *)&v12->m_data.m_buffer[48] = *((_OWORD *)v10 + 3);
+          *(_OWORD *)&v12->m_data.m_buffer[64] = *((_OWORD *)v10 + 4);
+          *(_OWORD *)&v12->m_data.m_buffer[80] = *((_OWORD *)v10 + 5);
+          *(_OWORD *)&v12->m_data.m_buffer[96] = *((_OWORD *)v10 + 6);
+          *(_OWORD *)&v12->m_data.m_buffer[112] = *((_OWORD *)v10 + 7);
+          *(_OWORD *)&v12->m_data.m_buffer[128] = *((_OWORD *)v10 + 8);
+          *(_OWORD *)&v12->m_data.m_buffer[144] = *((_OWORD *)v10 + 9);
+          *(_QWORD *)&v12->m_data.m_buffer[160] = *((_QWORD *)v10 + 20);
+          v10 += 168;
+          v12 = (ntl::fixed_vector<DB_ZoneUnloadGPUWait,1956,0> *)((char *)v12 + 168);
         }
-        while ( _RBX < (char *)v9 );
+        while ( v10 < (char *)v9 );
       }
       --s_zones.gpuUnloadWaitList.m_size;
     }
@@ -3346,33 +3332,43 @@ DB_Zones_UnloadAndFreeZone
 void DB_Zones_UnloadAndFreeZone(int zoneIndex, bool freeGpuWait)
 {
   unsigned int v4; 
+  DB_Zone *ZoneFromIndex; 
   XZoneTemporaryLoadData *tempData; 
   DB_AsyncIWFileLoad *residentLoader; 
   unsigned int i; 
   DB_AsyncIWFileLoad *p_asyncFileLoad; 
-  unsigned int v17; 
-  unsigned int v18; 
-  GfxWorldTransientZoneDeferredReleaseWaitList *v19; 
-  unsigned int v20; 
-  __int64 v34; 
+  unsigned int v10; 
+  unsigned int v11; 
+  GfxWorldTransientZoneDeferredReleaseWaitList *v12; 
+  unsigned int v13; 
+  GfxWrappedBuffer auxBuffer; 
+  __int64 v15; 
+  __m256i v16; 
+  __int128 v17; 
+  GfxReflectionProbeTransientData *reflectionProbes; 
+  __m256i *v19; 
   int LogChannel; 
   unsigned __int16 worldTransientIndex; 
-  const dvar_t *v37; 
+  const dvar_t *v22; 
   DB_Zone *zones; 
-  __int64 v39; 
-  __int64 v40; 
-  __int64 v41; 
-  __int64 v42; 
-  char v43[160]; 
-  __int64 v44; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  __m256i v28; 
+  __m256i v29; 
+  __m256i v30; 
+  __m256i v31; 
+  __m256i v32; 
+  __int64 j; 
   GfxWorldTransientZoneDeferredReleasePointers dstPointers; 
   GfxWorldTransientZoneDeferredReleasePointers pointers; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_zones.cpp", 1609, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   v4 = 0;
-  _R15 = DB_Zones_GetZoneFromIndex(zoneIndex);
-  tempData = _R15->mem.tempData;
+  ZoneFromIndex = DB_Zones_GetZoneFromIndex(zoneIndex);
+  tempData = ZoneFromIndex->mem.tempData;
   if ( tempData )
   {
     residentLoader = tempData->residentLoader;
@@ -3385,141 +3381,105 @@ void DB_Zones_UnloadAndFreeZone(int zoneIndex, bool freeGpuWait)
         DB_AsyncIWFileLoad::Shutdown(p_asyncFileLoad);
     }
   }
-  DB_CloseAllFileHandles(&_R15->mem);
+  DB_CloseAllFileHandles(&ZoneFromIndex->mem);
   DB_Zones_RemoveFromHashTable(zoneIndex);
   if ( freeGpuWait )
   {
-    __asm
+    v28 = *(__m256i *)&ZoneFromIndex->mem.alloc[0].pageRange.firstPageID;
+    v29 = *(__m256i *)&ZoneFromIndex->mem.alloc[1].alloc;
+    v30 = *(__m256i *)&ZoneFromIndex->mem.alloc[2].size;
+    v31 = *(__m256i *)&ZoneFromIndex->mem.alloc[4].pageRange.firstPageID;
+    v32 = *(__m256i *)&ZoneFromIndex->mem.alloc[5].alloc;
+    for ( j = (unsigned int)g_gpuSwapFrame | 0x30000000000i64; GfxWorldTransientZoneDeferredRelease_TakeOwnership(&dstPointers, zoneIndex); s_GfxWorldTransientZoneDeferredReleaseWaitList.pointers[v15].reflectionProbes = reflectionProbes )
     {
-      vmovups ymm0, ymmword ptr [r15+60h]
-      vmovups ymm1, ymmword ptr [r15+0E0h]
-    }
-    _RAX = v43;
-    __asm
-    {
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm0, ymmword ptr [r15+80h]
-      vmovups ymmword ptr [rax+20h], ymm0
-      vmovups ymm0, ymmword ptr [r15+0A0h]
-      vmovups ymmword ptr [rax+40h], ymm0
-      vmovups ymm0, ymmword ptr [r15+0C0h]
-      vmovups ymmword ptr [rax+60h], ymm0
-      vmovups ymmword ptr [rax+80h], ymm1
-    }
-    v44 = (unsigned int)g_gpuSwapFrame | 0x30000000000i64;
-    if ( GfxWorldTransientZoneDeferredRelease_TakeOwnership(&dstPointers, zoneIndex) )
-    {
-      _RSI = &s_GfxWorldTransientZoneDeferredReleaseWaitList;
-      do
+      if ( s_GfxWorldTransientZoneDeferredReleaseWaitList.numPointers < 0x300 )
       {
-        if ( s_GfxWorldTransientZoneDeferredReleaseWaitList.numPointers < 0x300 )
+        v10 = 0;
+        v11 = 0;
+        v12 = &s_GfxWorldTransientZoneDeferredReleaseWaitList;
+        do
         {
-          v17 = 0;
-          v18 = 0;
-          v19 = &s_GfxWorldTransientZoneDeferredReleaseWaitList;
-          do
-          {
-            v20 = __lzcnt(~v19->freeList.array[0]);
-            v17 += v20;
-            if ( v20 < 0x20 )
-              break;
-            ++v18;
-            v19 = (GfxWorldTransientZoneDeferredReleaseWaitList *)((char *)v19 + 4);
-          }
-          while ( v18 < 0x18 );
-          if ( v17 >= 0x300 )
-          {
-            LODWORD(v42) = 768;
-            LODWORD(v41) = v17;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v41, v42) )
-              __debugbreak();
-          }
-          s_GfxWorldTransientZoneDeferredReleaseWaitList.freeList.array[(unsigned __int64)v17 >> 5] |= 0x80000000 >> (v17 & 0x1F);
-          ++s_GfxWorldTransientZoneDeferredReleaseWaitList.numPointers;
+          v13 = __lzcnt(~v12->freeList.array[0]);
+          v10 += v13;
+          if ( v13 < 0x20 )
+            break;
+          ++v11;
+          v12 = (GfxWorldTransientZoneDeferredReleaseWaitList *)((char *)v12 + 4);
         }
-        else
+        while ( v11 < 0x18 );
+        if ( v10 >= 0x300 )
         {
-          Sys_Error((const ObfuscateErrorText)&stru_143E017E0);
-          v17 = 0;
+          LODWORD(v27) = 768;
+          LODWORD(v26) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v26, v27) )
+            __debugbreak();
         }
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+238h+dstPointers.posBuffer.baseclass_0.buffer]
-          vmovups ymm1, ymmword ptr [rsp+238h+dstPointers.auxBuffer.baseclass_0.buffer]
-        }
-        _RCX = 120i64 * v17;
-        HIDWORD(v44) = v17;
-        __asm
-        {
-          vmovups ymmword ptr [rcx+rsi+68h], ymm0
-          vmovups ymm0, ymmword ptr [rsp+238h+dstPointers.indexBuffer]
-          vmovups ymmword ptr [rcx+rsi+88h], ymm1
-          vmovups xmm1, xmmword ptr [rsp+238h+dstPointers.SMLGppZone]
-          vmovups ymmword ptr [rcx+rsi+0A8h], ymm0
-          vmovsd  xmm0, [rsp+238h+dstPointers.reflectionProbes]
-          vmovups xmmword ptr [rcx+rsi+0C8h], xmm1
-          vmovsd  qword ptr [rcx+rsi+0D8h], xmm0
-        }
+        s_GfxWorldTransientZoneDeferredReleaseWaitList.freeList.array[(unsigned __int64)v10 >> 5] |= 0x80000000 >> (v10 & 0x1F);
+        ++s_GfxWorldTransientZoneDeferredReleaseWaitList.numPointers;
       }
-      while ( GfxWorldTransientZoneDeferredRelease_TakeOwnership(&dstPointers, zoneIndex) );
+      else
+      {
+        Sys_Error((const ObfuscateErrorText)&stru_143E017E0);
+        v10 = 0;
+      }
+      auxBuffer = dstPointers.auxBuffer;
+      v15 = v10;
+      HIDWORD(j) = v10;
+      s_GfxWorldTransientZoneDeferredReleaseWaitList.pointers[v15].posBuffer = dstPointers.posBuffer;
+      v16 = *(__m256i *)&dstPointers.indexBuffer;
+      s_GfxWorldTransientZoneDeferredReleaseWaitList.pointers[v15].auxBuffer = auxBuffer;
+      v17 = *(_OWORD *)&dstPointers.SMLGppZone;
+      *(__m256i *)&s_GfxWorldTransientZoneDeferredReleaseWaitList.pointers[v15].indexBuffer = v16;
+      reflectionProbes = dstPointers.reflectionProbes;
+      *(_OWORD *)&s_GfxWorldTransientZoneDeferredReleaseWaitList.pointers[v15].SMLGppZone = v17;
     }
     if ( s_zones.gpuUnloadWaitList.m_size >= 0x7A4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
       __debugbreak();
-    _RCX = &s_zones.gpuUnloadWaitList.m_data.m_buffer[168 * s_zones.gpuUnloadWaitList.m_size];
-    _RAX = v43;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymm0, ymmword ptr [rax+80h]
-    }
-    v34 = v44;
-    __asm { vmovups ymmword ptr [rcx+80h], ymm0 }
-    *((_QWORD *)_RCX + 20) = v34;
+    v19 = (__m256i *)((char *)&s_zones.gpuUnloadWaitList + 168 * s_zones.gpuUnloadWaitList.m_size);
+    *v19 = v28;
+    v19[1] = v29;
+    v19[2] = v30;
+    v19[3] = v31;
+    v19[4] = v32;
+    v19[5].m256i_i64[0] = j;
     ++s_zones.gpuUnloadWaitList.m_size;
   }
   else
   {
     while ( GfxWorldTransientZoneDeferredRelease_TakeOwnership(&pointers, zoneIndex) )
       GfxWorldTransientZoneDeferredRelease_Release(&pointers);
-    DB_FreeXZoneMemory(&_R15->mem);
+    DB_FreeXZoneMemory(&ZoneFromIndex->mem);
   }
   LogChannel = DB_GetLogChannel();
-  Com_Printf(LogChannel, "Unloaded fastfile %s\n", _R15->name);
-  worldTransientIndex = _R15->worldTransientIndex;
+  Com_Printf(LogChannel, "Unloaded fastfile %s\n", ZoneFromIndex->name);
+  worldTransientIndex = ZoneFromIndex->worldTransientIndex;
   if ( worldTransientIndex )
   {
     if ( worldTransientIndex >= 0x600u )
     {
-      LODWORD(v40) = 1536;
-      LODWORD(v39) = worldTransientIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_zones.cpp", 1678, ASSERT_TYPE_ASSERT, "(unsigned)( r_zone.worldTransientIndex ) < (unsigned)( ( sizeof( *array_counter( s_zones.worldTransientZoneIndices ) ) + 0 ) )", "r_zone.worldTransientIndex doesn't index ARRAY_COUNT( s_zones.worldTransientZoneIndices )\n\t%i not in [0, %i)", v39, v40) )
+      LODWORD(v25) = 1536;
+      LODWORD(v24) = worldTransientIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_zones.cpp", 1678, ASSERT_TYPE_ASSERT, "(unsigned)( r_zone.worldTransientIndex ) < (unsigned)( ( sizeof( *array_counter( s_zones.worldTransientZoneIndices ) ) + 0 ) )", "r_zone.worldTransientIndex doesn't index ARRAY_COUNT( s_zones.worldTransientZoneIndices )\n\t%i not in [0, %i)", v24, v25) )
         __debugbreak();
     }
-    s_zones.worldTransientZoneIndices[_R15->worldTransientIndex] = 0;
+    s_zones.worldTransientZoneIndices[ZoneFromIndex->worldTransientIndex] = 0;
   }
-  DB_UnloadHashLookupData(_R15->name);
-  memset_0(_R15, 0, sizeof(DB_Zone));
-  v37 = DCONST_DVARBOOL_db_comprehensiveSanityChecks;
+  DB_UnloadHashLookupData(ZoneFromIndex->name);
+  memset_0(ZoneFromIndex, 0, sizeof(DB_Zone));
+  v22 = DCONST_DVARBOOL_db_comprehensiveSanityChecks;
   if ( !DCONST_DVARBOOL_db_comprehensiveSanityChecks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "db_comprehensiveSanityChecks") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v37);
-  if ( v37->current.enabled )
+  Dvar_CheckFrontendServerThread(v22);
+  if ( v22->current.enabled )
   {
     zones = s_zones.zones;
     do
     {
       if ( zones->name[0] && DB_Zones_GetZoneIndexFromName(s_zones.zones[v4].name) != v4 )
       {
-        LODWORD(v42) = v4;
-        LODWORD(v41) = DB_Zones_GetZoneIndexFromName(s_zones.zones[v4].name);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_zones.cpp", 340, ASSERT_TYPE_ASSERT, "( DB_Zones_GetZoneIndexFromName( s_zones.zones[i].name ) ) == ( i )", "%s == %s\n\t%u, %u", "DB_Zones_GetZoneIndexFromName( s_zones.zones[i].name )", "i", v41, v42) )
+        LODWORD(v27) = v4;
+        LODWORD(v26) = DB_Zones_GetZoneIndexFromName(s_zones.zones[v4].name);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_zones.cpp", 340, ASSERT_TYPE_ASSERT, "( DB_Zones_GetZoneIndexFromName( s_zones.zones[i].name ) ) == ( i )", "%s == %s\n\t%u, %u", "DB_Zones_GetZoneIndexFromName( s_zones.zones[i].name )", "i", v26, v27) )
           __debugbreak();
       }
       ++v4;

@@ -465,11 +465,8 @@ __int64 R_RT_DXResource_CreateRenderTargetView(const R_RT_DXResource_ViewSource 
   m_sampleCount = viewSource->m_sampleCount;
   if ( optionalMipLevel < 0 )
     optionalMipLevel = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rsp+88h+var_48], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v21 = _XMM0;
   v19 = format;
   if ( m_arraySliceCount == 1 )
   {
@@ -556,11 +553,8 @@ GfxShaderTextureView *R_RT_DXResource_CreateShaderTextureView(GfxShaderTextureVi
   v11 = optionalMipLevel;
   if ( optionalMipLevel < 0 )
     v11 = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+98h+viewDesc+0Ch], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)(&viewDesc.Shader4ComponentMapping + 1) = _XMM0;
   *(_QWORD *)&viewDesc.TextureCubeArray.NumCubes = 0i64;
   viewDesc.Texture2DArray.ResourceMinLODClamp = 0.0;
   viewDesc.Format = format;
@@ -851,53 +845,57 @@ R_RT_DXResource_LayoutKey::Result *R_RT_DXResource_GetLayout(R_RT_DXResource_Lay
   __int64 v24; 
   unsigned int v26; 
   enum XG_TILE_MODE v27; 
-  enum XG_TILE_MODE v33; 
-  HRESULT v34; 
-  const char *v35; 
-  HRESULT v36; 
-  const char *v37; 
+  R_RT_DXResource_LayoutKey *p_m_resourceKey; 
+  R_RT_DXResource_LayoutKey::Result *v29; 
+  __m256i v30; 
+  __int128 v31; 
+  enum XG_TILE_MODE v32; 
+  HRESULT v33; 
+  const char *v34; 
+  HRESULT v35; 
+  const char *v36; 
   unsigned int Planes; 
+  XG_PLANE_LAYOUT *v38; 
   XG_PLANE_LAYOUT *v39; 
   XG_PLANE_LAYOUT *v40; 
   XG_PLANE_LAYOUT *v41; 
   XG_PLANE_LAYOUT *v42; 
-  XG_PLANE_LAYOUT *v43; 
-  unsigned __int64 v44; 
-  unsigned int v45; 
-  __int64 v46; 
+  unsigned __int64 v43; 
+  unsigned int v44; 
+  __int64 v45; 
   unsigned __int64 BankRotationAddressBitMask; 
-  unsigned __int32 v48; 
+  unsigned __int32 v47; 
+  unsigned __int64 v48; 
   unsigned __int64 v49; 
-  unsigned __int64 v50; 
-  int v51; 
+  int v50; 
+  unsigned int v51; 
   unsigned int v52; 
   unsigned int v53; 
   unsigned int v54; 
   unsigned int v55; 
-  unsigned int v56; 
   __int64 TileMode; 
-  XG_PLANE_LAYOUT *v58; 
-  unsigned __int64 v61; 
-  XG_PLANE_LAYOUT *v63; 
-  XG_PLANE_LAYOUT *v64; 
-  unsigned int v65; 
-  enum XG_TILE_MODE v66[2]; 
-  enum XG_TILE_MODE v67; 
-  unsigned int v68; 
-  unsigned __int64 v69; 
-  unsigned __int64 v70; 
+  XG_PLANE_LAYOUT *v57; 
+  unsigned __int64 v59; 
+  XG_PLANE_LAYOUT *v61; 
+  XG_PLANE_LAYOUT *v62; 
+  unsigned int v63; 
+  enum XG_TILE_MODE v64[2]; 
+  enum XG_TILE_MODE v65; 
+  unsigned int v66; 
+  unsigned __int64 v67; 
+  unsigned __int64 v68; 
   unsigned int hash; 
-  XG_PLANE_LAYOUT *v72; 
-  R_RT_DXResource_LayoutKey::Result *v73; 
-  __int64 v74; 
-  struct XG_TEXTURE2D_DESC v75; 
+  XG_PLANE_LAYOUT *v70; 
+  R_RT_DXResource_LayoutKey::Result *v71; 
+  __int64 v72; 
+  struct XG_TEXTURE2D_DESC v73; 
   R_RT_DXResource_LayoutKey resourceKey; 
-  struct XG_RESOURCE_LAYOUT v77; 
+  struct XG_RESOURCE_LAYOUT v75; 
   unsigned __int32 formata; 
 
-  v74 = -2i64;
-  v68 = depth;
-  v73 = result;
+  v72 = -2i64;
+  v66 = depth;
+  v71 = result;
   DXGIFormatForPixelFormat = R_D3D_GetDXGIFormatForPixelFormat(format);
   resourceKey.m_info.m_width = truncate_cast<unsigned short,unsigned int>(width);
   v17 = truncate_cast<unsigned short,unsigned int>(height);
@@ -942,15 +940,15 @@ R_RT_DXResource_LayoutKey::Result *R_RT_DXResource_GetLayout(R_RT_DXResource_Lay
   }
   IWDoublyLinkedList<unsigned short,R_RT_DXResource_HashNode<R_RT_DXResource_LayoutKey>,R_RT_DXResource_HashNode<R_RT_DXResource_LayoutKey>::ListNodeAccessor>::Erase(&s_R_RT_DXResource.layoutTable.lruList, s_R_RT_DXResource.layoutTable.allocator.blocks, headNodeIndex, 0x1000u);
   IWDoublyLinkedList<unsigned short,R_RT_DXResource_HashNode<R_RT_DXResource_LayoutKey>,R_RT_DXResource_HashNode<R_RT_DXResource_LayoutKey>::ListNodeAccessor>::PushBack(&s_R_RT_DXResource.layoutTable.lruList, s_R_RT_DXResource.layoutTable.allocator.blocks, headNodeIndex, 0x1000u);
-  _R8 = &s_R_RT_DXResource.layoutTable.allocator.blocks[headNodeIndex].m_resourceKey;
-  if ( !_R8 )
+  p_m_resourceKey = &s_R_RT_DXResource.layoutTable.allocator.blocks[headNodeIndex].m_resourceKey;
+  if ( !p_m_resourceKey )
   {
 LABEL_31:
     Profile_Begin(122);
     if ( isDepth )
     {
-      v67 = XG_TILE_MODE_INVALID;
-      v66[0] = XG_TILE_MODE_INVALID;
+      v65 = XG_TILE_MODE_INVALID;
+      v64[0] = XG_TILE_MODE_INVALID;
       if ( DXGIFormatForPixelFormat == 40 || DXGIFormatForPixelFormat == 55 )
       {
         v27 = XG_TILE_MODE_COMP_DEPTH_4;
@@ -959,13 +957,13 @@ LABEL_31:
       else
       {
         v26 = width;
-        XGComputeOptimalDepthStencilTileModes((enum XG_FORMAT)DXGIFormatForPixelFormat, width, height, arraySliceCount, sampleCount, 1, 0, 0, &v67, v66);
-        v27 = v67;
-        if ( v67 != v66[0] )
+        XGComputeOptimalDepthStencilTileModes((enum XG_FORMAT)DXGIFormatForPixelFormat, width, height, arraySliceCount, sampleCount, 1, 0, 0, &v65, v64);
+        v27 = v65;
+        if ( v65 != v64[0] )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1084, ASSERT_TYPE_ASSERT, "(dwTileModeDepth == dwTileModeStencil)", (const char *)&queryFormat, "dwTileModeDepth == dwTileModeStencil") )
             __debugbreak();
-          v27 = v67;
+          v27 = v65;
         }
       }
     }
@@ -982,87 +980,87 @@ LABEL_31:
       }
       else
       {
-        if ( v68 <= 1 )
-          v33 = XGComputeOptimalTileMode(XG_RESOURCE_DIMENSION_TEXTURE2D, (enum XG_FORMAT)DXGIFormatForPixelFormat, width, height, arraySliceCount, sampleCount, bindFlags, miscFlags);
+        if ( v66 <= 1 )
+          v32 = XGComputeOptimalTileMode(XG_RESOURCE_DIMENSION_TEXTURE2D, (enum XG_FORMAT)DXGIFormatForPixelFormat, width, height, arraySliceCount, sampleCount, bindFlags, miscFlags);
         else
-          v33 = XGComputeOptimalTileMode(XG_RESOURCE_DIMENSION_TEXTURE3D, (enum XG_FORMAT)DXGIFormatForPixelFormat, width, height, v68, sampleCount, bindFlags, miscFlags);
-        v27 = v33;
+          v32 = XGComputeOptimalTileMode(XG_RESOURCE_DIMENSION_TEXTURE3D, (enum XG_FORMAT)DXGIFormatForPixelFormat, width, height, v66, sampleCount, bindFlags, miscFlags);
+        v27 = v32;
       }
     }
-    if ( v68 <= 1 )
+    if ( v66 <= 1 )
     {
-      *(_QWORD *)&v75.ESRAMOffsetBytes = 0i64;
-      v75.Pitch = 0;
-      v75.Width = v26;
-      v75.Height = height;
-      v75.MipLevels = mipCount;
-      v75.ArraySize = arraySliceCount;
-      v75.SampleDesc.Count = sampleCount;
+      *(_QWORD *)&v73.ESRAMOffsetBytes = 0i64;
+      v73.Pitch = 0;
+      v73.Width = v26;
+      v73.Height = height;
+      v73.MipLevels = mipCount;
+      v73.ArraySize = arraySliceCount;
+      v73.SampleDesc.Count = sampleCount;
       if ( sampleCount <= 1 )
-        v75.SampleDesc.Quality = 0;
+        v73.SampleDesc.Quality = 0;
       else
-        v75.SampleDesc.Quality = 31 - __lzcnt(sampleCount);
-      v75.Format = DXGIFormatForPixelFormat;
-      v75.MiscFlags = miscFlags;
-      v75.Usage = XG_USAGE_DEFAULT;
-      v75.BindFlags = bindFlags;
-      v75.CPUAccessFlags = 0;
-      v75.TileMode = v27;
-      v36 = XGComputeTexture2DLayout(&v75, &v77);
-      if ( v36 < 0 )
+        v73.SampleDesc.Quality = 31 - __lzcnt(sampleCount);
+      v73.Format = DXGIFormatForPixelFormat;
+      v73.MiscFlags = miscFlags;
+      v73.Usage = XG_USAGE_DEFAULT;
+      v73.BindFlags = bindFlags;
+      v73.CPUAccessFlags = 0;
+      v73.TileMode = v27;
+      v35 = XGComputeTexture2DLayout(&v73, &v75);
+      if ( v35 < 0 )
       {
-        v37 = R_ErrorDescription(v36);
-        Sys_Error((const ObfuscateErrorText)&stru_14442A3B0, 1135i64, v37);
+        v36 = R_ErrorDescription(v35);
+        Sys_Error((const ObfuscateErrorText)&stru_14442A3B0, 1135i64, v36);
       }
     }
     else
     {
       if ( isDepth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1104, ASSERT_TYPE_ASSERT, "(!isDepth)", (const char *)&queryFormat, "!isDepth") )
         __debugbreak();
-      *(_QWORD *)&v75.CPUAccessFlags = 0i64;
-      v75.ESRAMUsageBytes = 0;
-      v75.Width = v26;
-      v75.Height = height;
-      v75.MipLevels = v68;
-      v75.ArraySize = mipCount;
-      v75.Format = DXGIFormatForPixelFormat;
-      v75.BindFlags = miscFlags;
-      v75.SampleDesc.Count = 0;
-      v75.SampleDesc.Quality = bindFlags;
-      v75.Usage = XG_USAGE_DEFAULT;
-      v75.ESRAMOffsetBytes = v27;
-      v34 = XGComputeTexture3DLayout((const struct XG_TEXTURE3D_DESC *)&v75, &v77);
-      if ( v34 < 0 )
+      *(_QWORD *)&v73.CPUAccessFlags = 0i64;
+      v73.ESRAMUsageBytes = 0;
+      v73.Width = v26;
+      v73.Height = height;
+      v73.MipLevels = v66;
+      v73.ArraySize = mipCount;
+      v73.Format = DXGIFormatForPixelFormat;
+      v73.BindFlags = miscFlags;
+      v73.SampleDesc.Count = 0;
+      v73.SampleDesc.Quality = bindFlags;
+      v73.Usage = XG_USAGE_DEFAULT;
+      v73.ESRAMOffsetBytes = v27;
+      v33 = XGComputeTexture3DLayout((const struct XG_TEXTURE3D_DESC *)&v73, &v75);
+      if ( v33 < 0 )
       {
-        v35 = R_ErrorDescription(v34);
-        Sys_Error((const ObfuscateErrorText)"c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h (%i) XGComputeTexture3DLayout( &texture3DDescX, &xgLayout ) failed: %s\n", 1117i64, v35);
+        v34 = R_ErrorDescription(v33);
+        Sys_Error((const ObfuscateErrorText)"c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h (%i) XGComputeTexture3DLayout( &texture3DDescX, &xgLayout ) failed: %s\n", 1117i64, v34);
       }
     }
-    Planes = v77.Planes;
-    if ( !v77.Planes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1138, ASSERT_TYPE_ASSERT, "(planeCount > 0)", (const char *)&queryFormat, "planeCount > 0") )
+    Planes = v75.Planes;
+    if ( !v75.Planes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1138, ASSERT_TYPE_ASSERT, "(planeCount > 0)", (const char *)&queryFormat, "planeCount > 0") )
       __debugbreak();
+    v38 = NULL;
+    v70 = NULL;
     v39 = NULL;
-    v72 = NULL;
     v40 = NULL;
+    v62 = NULL;
     v41 = NULL;
-    v64 = NULL;
+    v61 = NULL;
     v42 = NULL;
-    v63 = NULL;
-    v43 = NULL;
-    *(_QWORD *)v66 = 0i64;
-    v44 = 0i64;
-    v61 = 0i64;
-    v69 = 0i64;
-    v70 = 0i64;
+    *(_QWORD *)v64 = 0i64;
+    v43 = 0i64;
+    v59 = 0i64;
+    v67 = 0i64;
+    v68 = 0i64;
     formata = rtFlags ^ format;
-    v45 = 0;
+    v44 = 0;
     if ( Planes )
     {
       while ( 2 )
       {
-        v46 = v45;
-        v43 = &v77.Plane[v46];
-        switch ( v77.Plane[v46].Usage )
+        v45 = v44;
+        v42 = &v75.Plane[v45];
+        switch ( v75.Plane[v45].Usage )
         {
           case XG_PLANE_USAGE_UNUSED:
           case XG_PLANE_USAGE_LUMA:
@@ -1071,108 +1069,108 @@ LABEL_31:
             goto $LN518;
           case XG_PLANE_USAGE_DEFAULT:
           case XG_PLANE_USAGE_DEPTH:
-            if ( v39 )
+            if ( v38 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1155, ASSERT_TYPE_ASSERT, "(!textureLayout)", (const char *)&queryFormat, "!textureLayout") )
                 __debugbreak();
-              v44 = v61;
+              v43 = v59;
             }
-            v39 = &v77.Plane[v46];
-            v72 = &v77.Plane[v46];
-            if ( v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1158, ASSERT_TYPE_ASSERT, "(bankAddressOffset[0] == 0)", (const char *)&queryFormat, "bankAddressOffset[0] == 0") )
+            v38 = &v75.Plane[v45];
+            v70 = &v75.Plane[v45];
+            if ( v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1158, ASSERT_TYPE_ASSERT, "(bankAddressOffset[0] == 0)", (const char *)&queryFormat, "bankAddressOffset[0] == 0") )
               __debugbreak();
-            v44 = 0i64;
-            v61 = 0i64;
-            if ( v45 >= v77.Planes )
+            v43 = 0i64;
+            v59 = 0i64;
+            if ( v44 >= v75.Planes )
               goto LABEL_111;
-            if ( !v77.MipLevels )
+            if ( !v75.MipLevels )
               goto LABEL_111;
-            BankRotationAddressBitMask = v77.Plane[v45].MipLayout[0].BankRotationAddressBitMask;
+            BankRotationAddressBitMask = v75.Plane[v44].MipLayout[0].BankRotationAddressBitMask;
             if ( !BankRotationAddressBitMask )
               goto LABEL_111;
-            v48 = formata;
-            v44 = (formata * v77.Plane[v45].MipLayout[0].BankRotationBytesPerSlice) & BankRotationAddressBitMask;
-            v61 = v44;
-            if ( v69 || v70 )
+            v47 = formata;
+            v43 = (formata * v75.Plane[v44].MipLayout[0].BankRotationBytesPerSlice) & BankRotationAddressBitMask;
+            v59 = v43;
+            if ( v67 || v68 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1161, ASSERT_TYPE_ASSERT, "(bankAddressOffset[1] == 0 && bankAddressOffset[2] == 0)", (const char *)&queryFormat, "bankAddressOffset[1] == 0 && bankAddressOffset[2] == 0") )
                 __debugbreak();
-              v48 = formata;
-              v44 = v61;
+              v47 = formata;
+              v43 = v59;
             }
-            v69 = 0i64;
-            if ( v45 < v77.Planes )
+            v67 = 0i64;
+            if ( v44 < v75.Planes )
             {
-              if ( v77.MipLevels )
+              if ( v75.MipLevels )
               {
-                v49 = v77.Plane[v45].MipLayout[0].BankRotationAddressBitMask;
-                if ( v49 )
-                  v69 = ((v48 + 1) * v77.Plane[v45].MipLayout[0].BankRotationBytesPerSlice) & v49;
+                v48 = v75.Plane[v44].MipLayout[0].BankRotationAddressBitMask;
+                if ( v48 )
+                  v67 = ((v47 + 1) * v75.Plane[v44].MipLayout[0].BankRotationBytesPerSlice) & v48;
               }
             }
-            v70 = 0i64;
-            if ( v45 < v77.Planes && v77.MipLevels )
+            v68 = 0i64;
+            if ( v44 < v75.Planes && v75.MipLevels )
             {
-              v50 = v77.Plane[v45].MipLayout[0].BankRotationAddressBitMask;
-              v43 = *(XG_PLANE_LAYOUT **)v66;
-              if ( v50 )
-                v70 = ((v48 + 2) * v77.Plane[v45].MipLayout[0].BankRotationBytesPerSlice) & v50;
-              v42 = v63;
+              v49 = v75.Plane[v44].MipLayout[0].BankRotationAddressBitMask;
+              v42 = *(XG_PLANE_LAYOUT **)v64;
+              if ( v49 )
+                v68 = ((v47 + 2) * v75.Plane[v44].MipLayout[0].BankRotationBytesPerSlice) & v49;
+              v41 = v61;
             }
             else
             {
 LABEL_111:
-              v42 = v63;
+              v41 = v61;
 $LN518:
-              v43 = *(XG_PLANE_LAYOUT **)v66;
+              v42 = *(XG_PLANE_LAYOUT **)v64;
             }
 LABEL_113:
-            v41 = v64;
+            v40 = v62;
 LABEL_114:
-            if ( ++v45 == Planes )
+            if ( ++v44 == Planes )
               break;
             continue;
           case XG_PLANE_USAGE_COLOR_MASK:
-            if ( v64 )
+            if ( v62 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1168, ASSERT_TYPE_ASSERT, "(!cmaskLayout)", (const char *)&queryFormat, "!cmaskLayout") )
                 __debugbreak();
-              v44 = v61;
-              v42 = v63;
+              v43 = v59;
+              v41 = v61;
             }
-            v41 = &v77.Plane[v46];
-            v64 = v43;
-            v43 = *(XG_PLANE_LAYOUT **)v66;
+            v40 = &v75.Plane[v45];
+            v62 = v42;
+            v42 = *(XG_PLANE_LAYOUT **)v64;
             goto LABEL_114;
           case XG_PLANE_USAGE_FRAGMENT_MASK:
-            if ( v42 )
+            if ( v41 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1176, ASSERT_TYPE_ASSERT, "(!fmaskLayout)", (const char *)&queryFormat, "!fmaskLayout") )
                 __debugbreak();
-              v44 = v61;
+              v43 = v59;
             }
-            v42 = &v77.Plane[v46];
-            v63 = &v77.Plane[v46];
+            v41 = &v75.Plane[v45];
+            v61 = &v75.Plane[v45];
             goto $LN518;
           case XG_PLANE_USAGE_HTILE:
-            if ( v40 )
+            if ( v39 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1172, ASSERT_TYPE_ASSERT, "(!htileLayout)", (const char *)&queryFormat, "!htileLayout") )
                 __debugbreak();
-              v44 = v61;
-              v42 = v63;
+              v43 = v59;
+              v41 = v61;
             }
-            v40 = &v77.Plane[v46];
+            v39 = &v75.Plane[v45];
             goto $LN518;
           case XG_PLANE_USAGE_STENCIL:
-            if ( *(_QWORD *)v66 )
+            if ( *(_QWORD *)v64 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1180, ASSERT_TYPE_ASSERT, "(!stencilLayout)", (const char *)&queryFormat, "!stencilLayout") )
                 __debugbreak();
-              v44 = v61;
-              v42 = v63;
+              v43 = v59;
+              v41 = v61;
             }
-            *(_QWORD *)v66 = &v77.Plane[v46];
+            *(_QWORD *)v64 = &v75.Plane[v45];
             goto LABEL_113;
           default:
             CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1190, ASSERT_TYPE_ASSERT, "(( 0, ( 0 ) ))", (const char *)&queryFormat, "C4127_DISABLE( 0 )");
@@ -1181,58 +1179,58 @@ LABEL_114:
         break;
       }
     }
-    v51 = 1;
+    v50 = 1;
     if ( isDepth )
-      v51 = 7;
-    if ( v39->Usage != v51 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1194, ASSERT_TYPE_ASSERT, "(textureLayout->Usage == ( isDepth ? XG_PLANE_USAGE_DEPTH : XG_PLANE_USAGE_DEFAULT ))", (const char *)&queryFormat, "textureLayout->Usage == ( isDepth ? XG_PLANE_USAGE_DEPTH : XG_PLANE_USAGE_DEFAULT )") )
+      v50 = 7;
+    if ( v38->Usage != v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1194, ASSERT_TYPE_ASSERT, "(textureLayout->Usage == ( isDepth ? XG_PLANE_USAGE_DEPTH : XG_PLANE_USAGE_DEFAULT ))", (const char *)&queryFormat, "textureLayout->Usage == ( isDepth ? XG_PLANE_USAGE_DEPTH : XG_PLANE_USAGE_DEFAULT )") )
       __debugbreak();
-    v68 = truncate_cast<unsigned int,unsigned __int64>(v39->BaseOffsetBytes);
-    v67 = truncate_cast<unsigned int,unsigned __int64>(v39->SizeBytes);
-    v66[0] = XG_TILE_MODE_COMP_DEPTH_0;
-    v65 = 0;
-    if ( v40 )
+    v66 = truncate_cast<unsigned int,unsigned __int64>(v38->BaseOffsetBytes);
+    v65 = truncate_cast<unsigned int,unsigned __int64>(v38->SizeBytes);
+    v64[0] = XG_TILE_MODE_COMP_DEPTH_0;
+    v63 = 0;
+    if ( v39 )
     {
       if ( !isDepth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1205, ASSERT_TYPE_ASSERT, "(isDepth)", (const char *)&queryFormat, "isDepth") )
         __debugbreak();
-      if ( v40->Usage != XG_PLANE_USAGE_HTILE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1206, ASSERT_TYPE_ASSERT, "(htileLayout->Usage == XG_PLANE_USAGE_HTILE)", (const char *)&queryFormat, "htileLayout->Usage == XG_PLANE_USAGE_HTILE") )
+      if ( v39->Usage != XG_PLANE_USAGE_HTILE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1206, ASSERT_TYPE_ASSERT, "(htileLayout->Usage == XG_PLANE_USAGE_HTILE)", (const char *)&queryFormat, "htileLayout->Usage == XG_PLANE_USAGE_HTILE") )
         __debugbreak();
-      v66[0] = truncate_cast<unsigned int,unsigned __int64>(v40->BaseOffsetBytes);
-      v65 = truncate_cast<unsigned int,unsigned __int64>(v40->SizeBytes);
+      v64[0] = truncate_cast<unsigned int,unsigned __int64>(v39->BaseOffsetBytes);
+      v63 = truncate_cast<unsigned int,unsigned __int64>(v39->SizeBytes);
     }
     else if ( isDepth && (miscFlags & 0x100000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1212, ASSERT_TYPE_ASSERT, "(!isDepth || ( ( miscFlags & XG_RESOURCE_MISC_NO_DEPTH_COMPRESSION ) != 0 ))", (const char *)&queryFormat, "!isDepth || ( ( miscFlags & XG_RESOURCE_MISC_NO_DEPTH_COMPRESSION ) != 0 )") )
     {
       __debugbreak();
     }
+    v51 = 0;
     v52 = 0;
-    v53 = 0;
-    if ( v43 )
+    if ( v42 )
     {
       if ( !isDepth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1219, ASSERT_TYPE_ASSERT, "(isDepth)", (const char *)&queryFormat, "isDepth") )
         __debugbreak();
-      if ( v43->Usage != XG_PLANE_USAGE_STENCIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1220, ASSERT_TYPE_ASSERT, "(stencilLayout->Usage == XG_PLANE_USAGE_STENCIL)", (const char *)&queryFormat, "stencilLayout->Usage == XG_PLANE_USAGE_STENCIL") )
+      if ( v42->Usage != XG_PLANE_USAGE_STENCIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1220, ASSERT_TYPE_ASSERT, "(stencilLayout->Usage == XG_PLANE_USAGE_STENCIL)", (const char *)&queryFormat, "stencilLayout->Usage == XG_PLANE_USAGE_STENCIL") )
         __debugbreak();
-      v52 = truncate_cast<unsigned int,unsigned __int64>(v43->BaseOffsetBytes);
-      v53 = truncate_cast<unsigned int,unsigned __int64>(v43->SizeBytes);
+      v51 = truncate_cast<unsigned int,unsigned __int64>(v42->BaseOffsetBytes);
+      v52 = truncate_cast<unsigned int,unsigned __int64>(v42->SizeBytes);
     }
+    v53 = 0;
     v54 = 0;
-    v55 = 0;
-    if ( v41 )
+    if ( v40 )
     {
       if ( isDepth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1229, ASSERT_TYPE_ASSERT, "(!isDepth)", (const char *)&queryFormat, "!isDepth") )
         __debugbreak();
       if ( (miscFlags & 0x80000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1230, ASSERT_TYPE_ASSERT, "(( miscFlags & XG_RESOURCE_MISC_NO_COLOR_COMPRESSION ) == 0)", (const char *)&queryFormat, "( miscFlags & XG_RESOURCE_MISC_NO_COLOR_COMPRESSION ) == 0") )
         __debugbreak();
-      if ( v41->Usage != XG_PLANE_USAGE_COLOR_MASK && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1231, ASSERT_TYPE_ASSERT, "(cmaskLayout->Usage == XG_PLANE_USAGE_COLOR_MASK)", (const char *)&queryFormat, "cmaskLayout->Usage == XG_PLANE_USAGE_COLOR_MASK") )
+      if ( v40->Usage != XG_PLANE_USAGE_COLOR_MASK && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1231, ASSERT_TYPE_ASSERT, "(cmaskLayout->Usage == XG_PLANE_USAGE_COLOR_MASK)", (const char *)&queryFormat, "cmaskLayout->Usage == XG_PLANE_USAGE_COLOR_MASK") )
         __debugbreak();
-      v54 = truncate_cast<unsigned int,unsigned __int64>(v41->BaseOffsetBytes);
-      v55 = truncate_cast<unsigned int,unsigned __int64>(v41->SizeBytes);
+      v53 = truncate_cast<unsigned int,unsigned __int64>(v40->BaseOffsetBytes);
+      v54 = truncate_cast<unsigned int,unsigned __int64>(v40->SizeBytes);
     }
     else if ( !isDepth && (miscFlags & 0x80000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1237, ASSERT_TYPE_ASSERT, "(isDepth || ( ( miscFlags & XG_RESOURCE_MISC_NO_COLOR_COMPRESSION ) != 0 ))", (const char *)&queryFormat, "isDepth || ( ( miscFlags & XG_RESOURCE_MISC_NO_COLOR_COMPRESSION ) != 0 )") )
     {
       __debugbreak();
     }
-    v56 = 0;
-    if ( v63 )
+    v55 = 0;
+    if ( v61 )
     {
       if ( isDepth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1244, ASSERT_TYPE_ASSERT, "(!isDepth)", (const char *)&queryFormat, "!isDepth") )
         __debugbreak();
@@ -1240,72 +1238,61 @@ LABEL_114:
         __debugbreak();
       if ( (miscFlags & 0x80000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1246, ASSERT_TYPE_ASSERT, "(( miscFlags & XG_RESOURCE_MISC_NO_COLOR_COMPRESSION ) == 0)", (const char *)&queryFormat, "( miscFlags & XG_RESOURCE_MISC_NO_COLOR_COMPRESSION ) == 0") )
         __debugbreak();
-      if ( v63->Usage != XG_PLANE_USAGE_FRAGMENT_MASK && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1247, ASSERT_TYPE_ASSERT, "(fmaskLayout->Usage == XG_PLANE_USAGE_FRAGMENT_MASK)", (const char *)&queryFormat, "fmaskLayout->Usage == XG_PLANE_USAGE_FRAGMENT_MASK") )
+      if ( v61->Usage != XG_PLANE_USAGE_FRAGMENT_MASK && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1247, ASSERT_TYPE_ASSERT, "(fmaskLayout->Usage == XG_PLANE_USAGE_FRAGMENT_MASK)", (const char *)&queryFormat, "fmaskLayout->Usage == XG_PLANE_USAGE_FRAGMENT_MASK") )
         __debugbreak();
-      v20 = truncate_cast<unsigned int,unsigned __int64>(v63->BaseOffsetBytes);
-      v56 = truncate_cast<unsigned int,unsigned __int64>(v63->SizeBytes);
+      v20 = truncate_cast<unsigned int,unsigned __int64>(v61->BaseOffsetBytes);
+      v55 = truncate_cast<unsigned int,unsigned __int64>(v61->SizeBytes);
     }
     else if ( sampleCount != 1 && !isDepth && (miscFlags & 0x80000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1253, ASSERT_TYPE_ASSERT, "(sampleCount == 1 || isDepth || ( (miscFlags & XG_RESOURCE_MISC_NO_COLOR_COMPRESSION) != 0 ))", (const char *)&queryFormat, "sampleCount == 1 || isDepth || ( (miscFlags & XG_RESOURCE_MISC_NO_COLOR_COMPRESSION) != 0 )") )
     {
       __debugbreak();
     }
-    if ( !v77.MipLevels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1257, ASSERT_TYPE_ASSERT, "(baseMipIndex < xgLayout.MipLevels)", (const char *)&queryFormat, "baseMipIndex < xgLayout.MipLevels") )
+    if ( !v75.MipLevels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1257, ASSERT_TYPE_ASSERT, "(baseMipIndex < xgLayout.MipLevels)", (const char *)&queryFormat, "baseMipIndex < xgLayout.MipLevels") )
       __debugbreak();
-    TileMode = v72->MipLayout[0].TileMode;
-    if ( truncate_cast<unsigned int,unsigned __int64>(v77.BaseAlignmentBytes) > g_R_RT_surfaceMemoryAlignMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1261, ASSERT_TYPE_ASSERT, "(align <= g_R_RT_surfaceMemoryAlignMin)", (const char *)&queryFormat, "align <= g_R_RT_surfaceMemoryAlignMin") )
+    TileMode = v70->MipLayout[0].TileMode;
+    if ( truncate_cast<unsigned int,unsigned __int64>(v75.BaseAlignmentBytes) > g_R_RT_surfaceMemoryAlignMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_dxresource_impl.h", 1261, ASSERT_TYPE_ASSERT, "(align <= g_R_RT_surfaceMemoryAlignMin)", (const char *)&queryFormat, "align <= g_R_RT_surfaceMemoryAlignMin") )
       __debugbreak();
-    resourceKey.m_result.m_size = truncate_cast<unsigned int,unsigned __int64>(v77.SizeBytes);
-    resourceKey.m_result.m_align = truncate_cast<unsigned int,unsigned __int64>(v77.BaseAlignmentBytes);
-    resourceKey.m_result.m_textureOffset = v68;
-    resourceKey.m_result.m_textureSize = v67;
-    resourceKey.m_result.m_htileOffset = v66[0];
-    resourceKey.m_result.m_htileSize = v65;
-    resourceKey.m_result.m_stencilOffset = v52;
-    resourceKey.m_result.m_stencilSize = v53;
-    resourceKey.m_result.m_cmaskOffset = v54;
-    resourceKey.m_result.m_cmaskSize = v55;
+    resourceKey.m_result.m_size = truncate_cast<unsigned int,unsigned __int64>(v75.SizeBytes);
+    resourceKey.m_result.m_align = truncate_cast<unsigned int,unsigned __int64>(v75.BaseAlignmentBytes);
+    resourceKey.m_result.m_textureOffset = v66;
+    resourceKey.m_result.m_textureSize = v65;
+    resourceKey.m_result.m_htileOffset = v64[0];
+    resourceKey.m_result.m_htileSize = v63;
+    resourceKey.m_result.m_stencilOffset = v51;
+    resourceKey.m_result.m_stencilSize = v52;
+    resourceKey.m_result.m_cmaskOffset = v53;
+    resourceKey.m_result.m_cmaskSize = v54;
     resourceKey.m_result.m_fmaskOffset = v20;
-    resourceKey.m_result.m_fmaskSize = v56;
-    v58 = v72;
-    resourceKey.m_result.m_mip0TileCountX = truncate_cast<unsigned short,unsigned int>((v72->MipLayout[0].PaddedWidthElements + 7) >> 3);
-    resourceKey.m_result.m_mip0TileCountY = truncate_cast<unsigned short,unsigned int>((v58->MipLayout[0].PaddedHeightElements + 7) >> 3);
+    resourceKey.m_result.m_fmaskSize = v55;
+    v57 = v70;
+    resourceKey.m_result.m_mip0TileCountX = truncate_cast<unsigned short,unsigned int>((v70->MipLayout[0].PaddedWidthElements + 7) >> 3);
+    resourceKey.m_result.m_mip0TileCountY = truncate_cast<unsigned short,unsigned int>((v57->MipLayout[0].PaddedHeightElements + 7) >> 3);
     if ( (unsigned int)(TileMode + 128) > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "signed char __cdecl truncate_cast_impl<signed char,enum XG_TILE_MODE>(enum XG_TILE_MODE)", "signed", (char)TileMode, "signed", TileMode) )
       __debugbreak();
     resourceKey.m_result.m_tileMode = TileMode;
-    resourceKey.m_result.m_bankOffsets[0] = v61;
-    resourceKey.m_result.m_bankOffsets[1] = v69;
-    resourceKey.m_result.m_bankOffsets[2] = v70;
+    resourceKey.m_result.m_bankOffsets[0] = v59;
+    resourceKey.m_result.m_bankOffsets[1] = v67;
+    resourceKey.m_result.m_bankOffsets[2] = v68;
     resourceKey.m_result.m_curBankIdx = 0;
     R_RT_DXResource_Insert_R_RT_DXResource_Table_R_RT_DXResource_LayoutKey_4096__R_RT_DXResource_LayoutKey_(&s_R_RT_DXResource.layoutTable, hash, &resourceKey);
     Profile_EndInternal(NULL);
-    __asm { vmovups ymm0, ymmword ptr [rbp+17E0h+resourceKey.m_result.m_bankOffsets] }
-    _RAX = v73;
-    __asm
-    {
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm1, ymmword ptr [rbp+17E0h+resourceKey.m_result.m_textureOffset]
-      vmovups xmm0, xmmword ptr [rbp+17E0h+resourceKey.m_result.m_fmaskOffset]
-    }
+    v29 = v71;
+    *(__m256i *)v71->m_bankOffsets = *(__m256i *)resourceKey.m_result.m_bankOffsets;
+    v30 = *(__m256i *)&resourceKey.m_result.m_textureOffset;
+    v31 = *(_OWORD *)&resourceKey.m_result.m_fmaskOffset;
   }
   else
   {
     if ( rotateBank )
-      _R8->m_result.m_curBankIdx = ((unsigned __int64)_R8->m_result.m_curBankIdx + 1) % 3;
-    __asm { vmovups ymm0, ymmword ptr [r8+18h] }
-    _RAX = v73;
-    __asm
-    {
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm1, ymmword ptr [r8+38h]
-      vmovups xmm0, xmmword ptr [r8+58h]
-    }
+      p_m_resourceKey->m_result.m_curBankIdx = ((unsigned __int64)p_m_resourceKey->m_result.m_curBankIdx + 1) % 3;
+    v29 = v71;
+    *(__m256i *)v71->m_bankOffsets = *(__m256i *)p_m_resourceKey->m_result.m_bankOffsets;
+    v30 = *(__m256i *)&p_m_resourceKey->m_result.m_textureOffset;
+    v31 = *(_OWORD *)&p_m_resourceKey->m_result.m_fmaskOffset;
   }
-  __asm
-  {
-    vmovups ymmword ptr [rax+20h], ymm1
-    vmovups xmmword ptr [rax+40h], xmm0
-  }
-  return _RAX;
+  *(__m256i *)&v29->m_textureOffset = v30;
+  *(_OWORD *)&v29->m_fmaskOffset = v31;
+  return v29;
 }
 
 /*

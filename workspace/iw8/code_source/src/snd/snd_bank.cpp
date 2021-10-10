@@ -1387,6 +1387,7 @@ SNDL_SwapBank
 */
 void SNDL_SwapBank(SndBank *fromBank, SndBank *toBank)
 {
+  SndBank *v3; 
   char v4; 
   SndBankInfo **bankStack; 
   unsigned int v6; 
@@ -1400,22 +1401,32 @@ void SNDL_SwapBank(SndBank *fromBank, SndBank *toBank)
   __int64 v14; 
   SndMusicAssetInstance *musicPlaybacks; 
   SndBankInfo **v16; 
+  char *v17; 
   __int64 v18; 
+  SndBank *v19; 
   __int64 v20; 
-  __int64 v27; 
-  SndBankInfo *v43; 
+  __m256i v21; 
+  __int128 v22; 
+  SndBank *v23; 
+  __int64 v24; 
+  __int128 v25; 
+  char *v26; 
+  SndBank *v27; 
+  __m256i v28; 
+  SndBankStreamInfo v29; 
+  SndBankInfo *v30; 
   StreamKey *loadedStreamKey; 
-  __int64 v45; 
-  char v46[520]; 
+  __int64 v32; 
+  char v33[520]; 
 
-  _R12 = fromBank;
+  v3 = fromBank;
   Sys_EnterCriticalSection(CRITSECT_SOUND_UPDATE);
   Sys_EnterCriticalSection(CRITSECT_SOUND_BANK);
-  if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_bank.cpp", 801, ASSERT_TYPE_ASSERT, "(fromBank)", (const char *)&queryFormat, "fromBank") )
+  if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_bank.cpp", 801, ASSERT_TYPE_ASSERT, "(fromBank)", (const char *)&queryFormat, "fromBank") )
     __debugbreak();
   if ( !toBank && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_bank.cpp", 802, ASSERT_TYPE_ASSERT, "(toBank)", (const char *)&queryFormat, "toBank") )
     __debugbreak();
-  SND_AssertBankIndexValid(_R12);
+  SND_AssertBankIndexValid(v3);
   SND_AssertBankIndexValid(toBank);
   v4 = 0;
   bankStack = g_sb.bankStack;
@@ -1476,7 +1487,7 @@ void SNDL_SwapBank(SndBank *fromBank, SndBank *toBank)
       ++v8;
     }
     while ( v8 < toBank->musicSetCount );
-    _R12 = fromBank;
+    v3 = fromBank;
     v4 = 1;
     v6 = v7;
   }
@@ -1486,83 +1497,55 @@ void SNDL_SwapBank(SndBank *fromBank, SndBank *toBank)
   memset_0(&(*v16)->load, 0, sizeof((*v16)->load));
   (*v16)->load.bank = toBank;
 LABEL_32:
-  _RCX = v46;
+  v17 = v33;
   v18 = 4i64;
-  _RAX = _R12;
+  v19 = v3;
   v20 = 4i64;
   do
   {
-    _RCX += 128;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX = (SndBank *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rcx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rcx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rcx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    v17 += 128;
+    v21 = *(__m256i *)&v19->name;
+    v22 = *(_OWORD *)&v19->soundTable.ambientEvents;
+    v19 = (SndBank *)((char *)v19 + 128);
+    *((__m256i *)v17 - 4) = v21;
+    *((__m256i *)v17 - 3) = *(__m256i *)&v19[-1].lpfCurveCount;
+    *((__m256i *)v17 - 2) = *(__m256i *)&v19[-1].rvbCurveCount;
+    *((_OWORD *)v17 - 2) = *(_OWORD *)&v19[-1].futzCount;
+    *((_OWORD *)v17 - 1) = v22;
     --v20;
   }
   while ( v20 );
-  _RAX = toBank;
-  v27 = 4i64;
+  v23 = toBank;
+  v24 = 4i64;
   do
   {
-    _R12 = (SndBank *)((char *)_R12 + 128);
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX = (SndBank *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [r12-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [r12-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [r12-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [r12-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [r12-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [r12-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [r12-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [r12-10h], xmm1
-    }
-    --v27;
+    v3 = (SndBank *)((char *)v3 + 128);
+    v25 = *(_OWORD *)&v23->name;
+    v23 = (SndBank *)((char *)v23 + 128);
+    *(_OWORD *)&v3[-1].focusConeCount = v25;
+    *(_OWORD *)&v3[-1].vfCurveCount = *(_OWORD *)&v23[-1].vfCurveCount;
+    *(_OWORD *)&v3[-1].lpfCurveCount = *(_OWORD *)&v23[-1].lpfCurveCount;
+    *(_OWORD *)&v3[-1].hpfCurveCount = *(_OWORD *)&v23[-1].hpfCurveCount;
+    *(_OWORD *)&v3[-1].rvbCurveCount = *(_OWORD *)&v23[-1].rvbCurveCount;
+    *(_OWORD *)&v3[-1].speakerMapCount = *(_OWORD *)&v23[-1].speakerMapCount;
+    *(_OWORD *)&v3[-1].futzCount = *(_OWORD *)&v23[-1].futzCount;
+    v3[-1].streamInfo = v23[-1].streamInfo;
+    --v24;
   }
-  while ( v27 );
-  _RCX = v46;
-  _RAX = toBank;
+  while ( v24 );
+  v26 = v33;
+  v27 = toBank;
   do
   {
-    _RAX = (SndBank *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups xmm1, xmmword ptr [rcx+70h]
-    }
-    _RCX += 128;
-    __asm
-    {
-      vmovups ymmword ptr [rax-80h], ymm0
-      vmovups ymm0, ymmword ptr [rcx-60h]
-      vmovups ymmword ptr [rax-60h], ymm0
-      vmovups ymm0, ymmword ptr [rcx-40h]
-      vmovups ymmword ptr [rax-40h], ymm0
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    v27 = (SndBank *)((char *)v27 + 128);
+    v28 = *(__m256i *)v26;
+    v29 = (SndBankStreamInfo)*((_OWORD *)v26 + 7);
+    v26 += 128;
+    *(__m256i *)&v27[-1].focusConeCount = v28;
+    *(__m256i *)&v27[-1].lpfCurveCount = *((__m256i *)v26 - 3);
+    *(__m256i *)&v27[-1].rvbCurveCount = *((__m256i *)v26 - 2);
+    *(_OWORD *)&v27[-1].futzCount = *((_OWORD *)v26 - 2);
+    v27[-1].streamInfo = v29;
     --v18;
   }
   while ( v18 );
@@ -1570,28 +1553,28 @@ LABEL_32:
   {
     if ( v6 >= 0x320 )
     {
-      LODWORD(v45) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_bank.cpp", 871, ASSERT_TYPE_ASSERT, "(unsigned)( bankIndex ) < (unsigned)( ( 32 + 768 ) )", "bankIndex doesn't index SND_MAX_BANKS\n\t%i not in [0, %i)", v45, 800) )
+      LODWORD(v32) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_bank.cpp", 871, ASSERT_TYPE_ASSERT, "(unsigned)( bankIndex ) < (unsigned)( ( 32 + 768 ) )", "bankIndex doesn't index SND_MAX_BANKS\n\t%i not in [0, %i)", v32, 800) )
         __debugbreak();
     }
-    v43 = g_sb.bankStack[v6];
+    v30 = g_sb.bankStack[v6];
     loadedStreamKey = toBank->streamInfo.loadedStreamKey;
     if ( loadedStreamKey )
     {
       if ( !loadedStreamKey->assetHash )
       {
-        loadedStreamKey->assetHash = (unsigned __int64)v43;
-        v43->bankActive = 0;
-        v43->load.state = SND_BANK_STATE_NEW;
-        *(_WORD *)&v43->load.loadAssetBank.indicesLoaded = 0;
-        *(_WORD *)&v43->load.streamAssetBank.indicesLoaded = 0;
-        *(_WORD *)&v43->load.streamAssetPatchBank.indicesLoaded = 0;
+        loadedStreamKey->assetHash = (unsigned __int64)v30;
+        v30->bankActive = 0;
+        v30->load.state = SND_BANK_STATE_NEW;
+        *(_WORD *)&v30->load.loadAssetBank.indicesLoaded = 0;
+        *(_WORD *)&v30->load.streamAssetBank.indicesLoaded = 0;
+        *(_WORD *)&v30->load.streamAssetPatchBank.indicesLoaded = 0;
       }
     }
     else
     {
       Com_PrintError(9, "SOUND ERROR: fast file data does not contain a streamKey for sound bank %s\n", toBank->name);
-      v43->load.state = SND_BANK_STATE_ERROR;
+      v30->load.state = SND_BANK_STATE_ERROR;
     }
   }
   Sys_LeaveCriticalSection(CRITSECT_SOUND_BANK);
@@ -2264,25 +2247,19 @@ SND_BankDetailStreaming_RemoveBankRequest
 void SND_BankDetailStreaming_RemoveBankRequest(const SndBankTransient *detailBank)
 {
   int v2; 
+  SndBankDetailStreamingRequest *i; 
 
   if ( !detailBank && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_bank.cpp", 2565, ASSERT_TYPE_ASSERT, "(detailBank)", (const char *)&queryFormat, "detailBank") )
     __debugbreak();
   v2 = 0;
   if ( g_sb.numDetailStreamRequests > 0 )
   {
-    _R8 = g_sb.detailStreamRequests;
-    for ( _RDX = g_sb.detailStreamRequests; _RDX->detailBank != detailBank; ++_RDX )
+    for ( i = g_sb.detailStreamRequests; i->detailBank != detailBank; ++i )
     {
       if ( ++v2 >= g_sb.numDetailStreamRequests )
         return;
     }
-    _RCX = 32i64 * (g_sb.numDetailStreamRequests - 1);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+r8]
-      vmovups ymmword ptr [rdx], ymm0
-    }
-    --g_sb.numDetailStreamRequests;
+    *i = g_sb.detailStreamRequests[--g_sb.numDetailStreamRequests];
   }
 }
 
@@ -2294,25 +2271,19 @@ SND_BankDetailStreaming_RemoveScriptBankRequest
 void SND_BankDetailStreaming_RemoveScriptBankRequest(const unsigned int detailBankName)
 {
   int v2; 
+  SndBankDetailStreamingRequest *i; 
 
   if ( !detailBankName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_bank.cpp", 2628, ASSERT_TYPE_ASSERT, "(detailBankName != static_cast< SndStringHash >( 0 ))", (const char *)&queryFormat, "detailBankName != SND_INVALID_HASH") )
     __debugbreak();
   v2 = 0;
   if ( g_sb.numScriptDetailStreamRequests > 0 )
   {
-    _R8 = g_sb.scriptDetailStreamRequests;
-    for ( _RDX = g_sb.scriptDetailStreamRequests; _RDX->detailBankName != detailBankName; ++_RDX )
+    for ( i = g_sb.scriptDetailStreamRequests; i->detailBankName != detailBankName; ++i )
     {
       if ( ++v2 >= g_sb.numScriptDetailStreamRequests )
         return;
     }
-    _RCX = 32i64 * (g_sb.numScriptDetailStreamRequests - 1);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx+r8]
-      vmovups ymmword ptr [rdx], ymm0
-    }
-    --g_sb.numScriptDetailStreamRequests;
+    *i = g_sb.scriptDetailStreamRequests[--g_sb.numScriptDetailStreamRequests];
   }
 }
 
@@ -2768,10 +2739,10 @@ void SND_BankInit(void)
   SndBankInfo **bankStack; 
   SndBankInfo *bankInfos; 
   __int64 v2; 
-  __m256i v6; 
-  __m256i v7; 
-  __int64 v8; 
-  StreamKeyBehavior v9; 
+  __m256i v3; 
+  __m256i v4; 
+  double v5; 
+  StreamKeyBehavior v6; 
 
   memset_0(&g_sb.bankCount, 0, 0x13EAB4ui64);
   bankStack = g_sb.bankStack;
@@ -2784,29 +2755,20 @@ void SND_BankInit(void)
     --v2;
   }
   while ( v2 );
-  LOBYTE(v8) = 1;
-  v6.m256i_i64[1] = 0i64;
-  v6.m256i_i64[3] = 0i64;
-  v7.m256i_i64[3] = 0i64;
-  v6.m256i_i64[0] = (__int64)SND_StreamedBankLoadedFrontend;
-  v6.m256i_i64[2] = (__int64)SND_StreamedBankUnloadedFrontend;
-  __asm { vmovups ymm0, [rsp+0C8h+var_A8] }
-  v7.m256i_i64[1] = (__int64)SND_StreamedBankPtrFixupNewBackend;
-  v7.m256i_i64[2] = (__int64)SND_StreamedBankPtrFixupRelocateBackend;
-  v7.m256i_i64[0] = (__int64)SND_StreamedBankDBPreRelease;
-  __asm
-  {
-    vmovups ymm1, [rsp+0C8h+var_88]
-    vmovups [rsp+0C8h+var_58], ymm0
-  }
-  HIDWORD(v8) = 4096;
-  __asm
-  {
-    vmovsd  xmm0, [rsp+0C8h+var_68]
-    vmovups [rsp+0C8h+var_38], ymm1
-    vmovsd  [rsp+0C8h+var_18], xmm0
-  }
-  StreamKey_SetBehavior(SKBI_SOUND, &v9);
+  LOBYTE(v5) = 1;
+  v3.m256i_i64[1] = 0i64;
+  v3.m256i_i64[3] = 0i64;
+  v4.m256i_i64[3] = 0i64;
+  v3.m256i_i64[0] = (__int64)SND_StreamedBankLoadedFrontend;
+  v3.m256i_i64[2] = (__int64)SND_StreamedBankUnloadedFrontend;
+  v4.m256i_i64[1] = (__int64)SND_StreamedBankPtrFixupNewBackend;
+  v4.m256i_i64[2] = (__int64)SND_StreamedBankPtrFixupRelocateBackend;
+  v4.m256i_i64[0] = (__int64)SND_StreamedBankDBPreRelease;
+  *(__m256i *)&v6.loadedFrontend = v3;
+  HIDWORD(v5) = 4096;
+  *(__m256i *)&v6.dbPreRelease = v4;
+  *(double *)&v6.forceFixedRegion = v5;
+  StreamKey_SetBehavior(SKBI_SOUND, &v6);
 }
 
 /*

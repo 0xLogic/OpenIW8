@@ -80,6 +80,8 @@ bdClansGroupFile *bdClansUploadGroupFileResponse::getFile(bdClansUploadGroupFile
 {
   bdClansUploadGroupFileResponse_vtbl **v3; 
   __int64 v4; 
+  bdStructFixedSizeString<255> *p_m_fileName; 
+  _OWORD *v6; 
 
   v3 = &this->__vftable + 2;
   *((_QWORD *)&result->__vftable + 1) = &bdClansGroupFile::`vbtable';
@@ -97,34 +99,20 @@ bdClansGroupFile *bdClansUploadGroupFileResponse::getFile(bdClansUploadGroupFile
   *(_QWORD *)&result->m_group[8] = v3[5];
   *(_WORD *)&result->m_group[16] = *((_WORD *)v3 + 24);
   *(_QWORD *)&result->m_group[24] = v3[7];
-  _RCX = &result->m_fileName;
-  _RAX = v3 + 10;
+  p_m_fileName = &result->m_fileName;
+  v6 = v3 + 10;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (bdStructFixedSizeString<255> *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX += 16;
+    *(_OWORD *)p_m_fileName->m_buffer = *v6;
+    *(_OWORD *)&p_m_fileName->m_buffer[16] = v6[1];
+    *(_OWORD *)&p_m_fileName->m_buffer[32] = v6[2];
+    *(_OWORD *)&p_m_fileName->m_buffer[48] = v6[3];
+    *(_OWORD *)&p_m_fileName->m_buffer[64] = v6[4];
+    *(_OWORD *)&p_m_fileName->m_buffer[80] = v6[5];
+    *(_OWORD *)&p_m_fileName->m_buffer[96] = v6[6];
+    p_m_fileName = (bdStructFixedSizeString<255> *)((char *)p_m_fileName + 128);
+    *(_OWORD *)&p_m_fileName[-1].m_buffer[240] = v6[7];
+    v6 += 8;
     --v4;
   }
   while ( v4 );

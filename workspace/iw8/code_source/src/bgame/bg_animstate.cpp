@@ -247,31 +247,16 @@ BG_AnimationState_ApplyBlends
 */
 void BG_AnimationState_ApplyBlends(const entityState_t *es, XAnimTree *pAnimTree, characterAnimState_t *charAnimState, DObj *obj, const float blendTime)
 {
-  characterAnimState_t *v9; 
+  characterAnimState_t *v6; 
   unsigned __int16 animAimRoot; 
   scr_string_t AnimsetName; 
   AnimsetState *AimSet; 
   unsigned int index; 
   unsigned int numAnimAliases; 
-  unsigned int v20; 
-  __int64 v21; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float goalTime; 
-  float goalTimea; 
-  float v30; 
-  float v31; 
-  float v32; 
-  float notifyName; 
-  float notifyType; 
+  unsigned int v14; 
+  __int64 v15; 
 
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_48], xmm6
-    vmovaps [rsp+0C8h+var_58], xmm7
-  }
-  v9 = charAnimState;
+  v6 = charAnimState;
   if ( !charAnimState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 288, ASSERT_TYPE_ASSERT, "(charAnimState)", (const char *)&queryFormat, "charAnimState") )
     __debugbreak();
   if ( !pAnimTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 289, ASSERT_TYPE_ASSERT, "(pAnimTree)", (const char *)&queryFormat, "pAnimTree") )
@@ -282,66 +267,37 @@ void BG_AnimationState_ApplyBlends(const entityState_t *es, XAnimTree *pAnimTree
     __debugbreak();
   if ( !es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 1052, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  __asm { vmovss  xmm6, [rsp+0C8h+blendTime] }
-  animAimRoot = v9->animAimRoot;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
+  animAimRoot = v6->animAimRoot;
   if ( animAimRoot )
   {
-    __asm
-    {
-      vmovss  [rsp+0C8h+var_98], xmm7
-      vmovss  [rsp+0C8h+goalTime], xmm6
-      vmovss  dword ptr [rsp+0C8h+fmt], xmm7
-    }
-    XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, animAimRoot, fmt, goalTime, v30, (scr_string_t)0, 0, 0, LINEAR, NULL);
-    __asm { vmovss  dword ptr [rsp+0C8h+fmt], xmm6 }
-    XAnimClearChildGoalWeights(pAnimTree, 0, XANIM_SUBTREE_DEFAULT, v9->animAimRoot, fmta, LINEAR);
-    v9->animAimRoot = 0;
+    XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, animAimRoot, 0.0, blendTime, 0.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+    XAnimClearChildGoalWeights(pAnimTree, 0, XANIM_SUBTREE_DEFAULT, v6->animAimRoot, blendTime, LINEAR);
+    v6->animAimRoot = 0;
   }
   AnimsetName = BG_AnimationState_GetAnimsetName(es);
   AimSet = BG_AnimationState_GetAimSet(AnimsetName, es);
   if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&es->lerp.eFlags, ACTIVE, 0x11u) && AimSet )
   {
     index = AimSet->aimsetRootAnim.index;
-    __asm
-    {
-      vmovss  [rsp+0C8h+var_98], xmm7
-      vmovaps [rsp+0C8h+var_68], xmm8
-      vmovss  xmm8, cs:__real@3f800000
-      vmovss  [rsp+0C8h+goalTime], xmm6
-      vmovss  dword ptr [rsp+0C8h+fmt], xmm8
-    }
-    XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, index, fmtb, goalTimea, v31, (scr_string_t)0, 0, 0, LINEAR, NULL);
+    XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, index, 1.0, blendTime, 0.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
     numAnimAliases = AimSet->numAnimAliases;
-    v20 = 0;
+    v14 = 0;
     if ( numAnimAliases )
     {
       do
       {
-        v21 = (__int64)&AimSet->animAliases[v20];
-        if ( *(_DWORD *)(v21 + 16) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 317, ASSERT_TYPE_ASSERT, "(pAlias->numAnims == 1)", "%s\n\tCannot support aimset alias with multiple anims.  Makes no sense.", "pAlias->numAnims == 1") )
+        v15 = (__int64)&AimSet->animAliases[v14];
+        if ( *(_DWORD *)(v15 + 16) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 317, ASSERT_TYPE_ASSERT, "(pAlias->numAnims == 1)", "%s\n\tCannot support aimset alias with multiple anims.  Makes no sense.", "pAlias->numAnims == 1") )
           __debugbreak();
-        __asm
-        {
-          vmovss  [rsp+0C8h+notifyType], xmm7
-          vmovss  [rsp+0C8h+notifyName], xmm6
-          vmovss  [rsp+0C8h+var_98], xmm8
-        }
-        XAnimSetGoalWeightKnobAll(obj, 0, XANIM_SUBTREE_DEFAULT, *(unsigned __int16 *)(*(_QWORD *)(v21 + 8) + 16i64), XANIM_SUBTREE_DEFAULT, index, v32, notifyName, notifyType, (scr_string_t)0, 0, LINEAR);
+        XAnimSetGoalWeightKnobAll(obj, 0, XANIM_SUBTREE_DEFAULT, *(unsigned __int16 *)(*(_QWORD *)(v15 + 8) + 16i64), XANIM_SUBTREE_DEFAULT, index, 1.0, blendTime, 0.0, (scr_string_t)0, 0, LINEAR);
         numAnimAliases = AimSet->numAnimAliases;
-        ++v20;
+        ++v14;
       }
-      while ( v20 < numAnimAliases );
-      v9 = charAnimState;
+      while ( v14 < numAnimAliases );
+      v6 = charAnimState;
     }
-    __asm { vmovaps xmm8, [rsp+0C8h+var_68] }
     if ( numAnimAliases != 5 )
-      v9->animAimRoot = index;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0C8h+var_48]
-    vmovaps xmm7, [rsp+0C8h+var_58]
+      v6->animAimRoot = index;
   }
 }
 
@@ -353,90 +309,91 @@ BG_AnimationState_ApplyState
 void BG_AnimationState_ApplyState(const entityState_t *es, characterAnimState_t *charAnimState, int *pTreeDirty, const int flags)
 {
   signed __int64 v4; 
-  void *v12; 
-  char v13; 
+  void *v5; 
+  char v6; 
+  const entityState_t *v8; 
   const BgStatic *ActiveStatics; 
   DObj *DObj; 
-  const BgAnimStatic *v18; 
-  int v19; 
+  const BgAnimStatic *v11; 
+  int v12; 
   scr_string_t AnimsetName; 
   scr_string_t String; 
-  int v22; 
+  int v15; 
   int animClass; 
-  char *v27; 
-  int v30; 
-  scr_string_t v31; 
-  const char *v32; 
+  int animTime; 
+  float v18; 
+  char *v19; 
+  float animRate; 
+  int v21; 
+  scr_string_t v22; 
+  const char *v23; 
   scr_string_t StateNameFromIndex; 
-  const char *v34; 
-  bool v35; 
+  const char *v25; 
+  bool v26; 
   scr_string_t animEntryMap; 
-  const char *v39; 
+  float v28; 
+  const char *v29; 
   const XAnim_s *SubTreeAnims; 
-  unsigned int v42; 
+  unsigned int v31; 
   scr_string_t AnimTree; 
-  const char *v44; 
-  const char *v45; 
+  const char *v33; 
+  const char *v34; 
   int IsLeafNode; 
-  char v47; 
+  double Length; 
   const char *AnimDebugName; 
-  unsigned int v52; 
+  double v38; 
+  float v39; 
+  unsigned int v42; 
   unsigned int animData; 
-  int v54; 
-  characterAnimState_t *v55; 
+  int v44; 
+  characterAnimState_t *v45; 
   int animState; 
-  int v57; 
+  int v47; 
   int animEntry; 
-  int v59; 
-  bool v60; 
-  DObj *v61; 
-  DObj *v62; 
-  int v63; 
-  int v64; 
-  unsigned int v66; 
-  int v67; 
-  Animset *v68; 
+  int v49; 
+  bool v50; 
+  DObj *v51; 
+  DObj *v52; 
+  int v53; 
+  int v54; 
+  unsigned int v55; 
+  int v56; 
+  Animset *v57; 
+  unsigned int v58; 
+  unsigned int v59; 
+  unsigned int v60; 
+  __int64 v61; 
+  unsigned int v62; 
+  char *v63; 
+  scr_string_t Notify; 
+  int v65; 
+  XAnimCurveID v66; 
+  unsigned int v67; 
+  int v68; 
   unsigned int v69; 
   unsigned int v70; 
   unsigned int v71; 
   __int64 v72; 
   unsigned int v73; 
-  char *v75; 
-  scr_string_t Notify; 
-  int v77; 
-  XAnimCurveID v78; 
-  unsigned int v80; 
-  int v81; 
-  unsigned int v82; 
-  unsigned int v83; 
-  unsigned int v84; 
-  __int64 v85; 
-  unsigned int v86; 
-  unsigned int v87; 
-  char v89; 
-  int v90; 
-  unsigned int v91; 
-  unsigned int v92; 
-  XAnimTree *v93; 
-  characterAnimState_t *v94; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
+  unsigned int v74; 
+  char v75; 
+  int v76; 
+  unsigned int v77; 
+  unsigned int v78; 
+  XAnimTree *v79; 
+  characterAnimState_t *v80; 
   XAnimSubTreeID *pOutAnimSubtreeID; 
-  float pOutAnimSubtreeIDa; 
   XAnimCurveID *pOutAnimCurveID; 
-  float pOutAnimCurveIDa; 
-  XAnimCurveID v109; 
+  XAnimCurveID v83; 
   XAnimCurveID curveID; 
-  bool v111; 
-  XAnimSubTreeID v112; 
-  bool v113; 
+  bool v85; 
+  XAnimSubTreeID v86; 
+  bool v87; 
   AnimsetState *outState; 
-  XAnimSubTreeID v115; 
+  XAnimSubTreeID v89; 
   XAnimTree *tree; 
-  int v117; 
-  int v118; 
+  int v91; 
+  int v92; 
   DObj *obj; 
   char *outName; 
   unsigned int animIndex; 
@@ -448,47 +405,38 @@ void BG_AnimationState_ApplyState(const entityState_t *es, characterAnimState_t 
   int bRestart; 
   AnimsetAnim *ppOutAnim; 
   characterAnimState_t *charAnimStatea; 
-  const entityState_t *v130; 
-  const XAnim_s *v131; 
-  int *v132; 
-  __int64 v133; 
+  const entityState_t *v104; 
+  const XAnim_s *v105; 
+  int *v106; 
+  __int64 v107; 
   XModelNameMap pModelNameMap; 
-  char v140; 
 
-  v12 = alloca(v4);
-  v133 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+3190h+var_40], xmm6
-    vmovaps [rsp+3190h+var_50], xmm7
-    vmovaps [rsp+3190h+var_60], xmm8
-    vmovaps [rsp+3190h+var_70], xmm9
-    vmovaps [rsp+3190h+var_80], xmm10
-  }
-  v13 = flags;
-  v132 = pTreeDirty;
+  v5 = alloca(v4);
+  v107 = -2i64;
+  v6 = flags;
+  v106 = pTreeDirty;
   charAnimStatea = charAnimState;
-  _RSI = es;
-  v130 = es;
+  v8 = es;
+  v104 = es;
   BG_CheckThread();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 547, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 547, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
   if ( !charAnimState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 548, ASSERT_TYPE_ASSERT, "(charAnimState)", (const char *)&queryFormat, "charAnimState") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808080, "BG_Animstate_ApplyState");
   ActiveStatics = BgStatic::GetActiveStatics();
-  DObj = BG_GetDObj(ActiveStatics, _RSI->number);
+  DObj = BG_GetDObj(ActiveStatics, v8->number);
   obj = DObj;
   if ( DObj )
   {
     tree = DObjGetTree(DObj);
     if ( tree )
     {
-      v18 = ActiveStatics->GetAnimStatics(ActiveStatics);
-      if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 563, ASSERT_TYPE_ASSERT, "(bgameAnim)", (const char *)&queryFormat, "bgameAnim") )
+      v11 = ActiveStatics->GetAnimStatics(ActiveStatics);
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 563, ASSERT_TYPE_ASSERT, "(bgameAnim)", (const char *)&queryFormat, "bgameAnim") )
         __debugbreak();
-      v19 = v18->time - v18->deltaTime;
-      AnimsetName = BG_AnimationState_GetAnimsetName(_RSI);
+      v12 = v11->time - v11->deltaTime;
+      AnimsetName = BG_AnimationState_GetAnimsetName(v8);
       if ( NetConstStrings_GetNameFromIndex(NETCONSTSTRINGTYPE_ANIMSET, charAnimState->animClass, (const char **)&outName) )
         String = SL_FindString(outName);
       else
@@ -496,224 +444,203 @@ void BG_AnimationState_ApplyState(const entityState_t *es, characterAnimState_t 
       outName = (char *)Animset_Find(AnimsetName);
       pAnimset = Animset_Find(String);
       pOutGraftNode = 0;
-      v112 = XANIM_SUBTREE_DEFAULT;
+      v86 = XANIM_SUBTREE_DEFAULT;
       curveID = LINEAR;
-      v22 = (_RSI->animInfo.animData >> 18) & 0x3F;
-      v118 = v22;
+      v15 = (v8->animInfo.animData >> 18) & 0x3F;
+      v92 = v15;
       animClass = charAnimState->animClass;
-      v117 = animClass;
-      __asm { vxorps  xmm8, xmm8, xmm8 }
-      if ( v19 >= _RSI->animInfo.animTime )
+      v91 = animClass;
+      animTime = v8->animInfo.animTime;
+      if ( v12 >= animTime )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ebx
-          vmulss  xmm7, xmm0, cs:__real@3a83126f
-        }
+        v18 = (float)(v12 - animTime) * 0.001;
       }
       else
       {
-        if ( (v13 & 1) == 0 && animClass == v22 && tree->children )
-          goto LABEL_126;
-        __asm { vxorps  xmm7, xmm7, xmm7 }
+        if ( (v6 & 1) == 0 && animClass == v15 && tree->children )
+          goto LABEL_127;
+        v18 = 0.0;
       }
       BG_CheckThread();
-      v27 = outName;
+      v19 = outName;
       if ( !outName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 152, ASSERT_TYPE_ASSERT, "(pAnimset)", (const char *)&queryFormat, "pAnimset") )
         __debugbreak();
-      BG_Animset_GetAnimIndexFromStateIndexAndEntry((const Animset *)v27, (_RSI->animInfo.animData >> 1) & 0x3FF, (_RSI->animInfo.animData >> 11) & 0x7F, &pOutAnimIndex, &pOutGraftNode, &v112, NULL);
-      __asm { vmovss  xmm9, cs:__real@3f800000 }
-      if ( _RSI->eType == ET_AGENT )
-        __asm { vmovss  xmm10, dword ptr [rsi+0C8h] }
+      BG_Animset_GetAnimIndexFromStateIndexAndEntry((const Animset *)v19, (v8->animInfo.animData >> 1) & 0x3FF, (v8->animInfo.animData >> 11) & 0x7F, &pOutAnimIndex, &pOutGraftNode, &v86, NULL);
+      if ( v8->eType == ET_AGENT )
+        animRate = v8->un.animRate;
       else
-        __asm { vmovaps xmm10, xmm9 }
-      if ( (v13 & 8) != 0 )
+        animRate = FLOAT_1_0;
+      if ( (v6 & 8) != 0 )
         goto LABEL_33;
-      v30 = (_RSI->animInfo.animData >> 1) & 0x3FF;
+      v21 = (v8->animInfo.animData >> 1) & 0x3FF;
       outState = NULL;
-      v31 = BG_AnimationState_GetAnimsetName(_RSI);
-      BG_Animset_GetStateInfoByIndex(v31, v30, &outState);
+      v22 = BG_AnimationState_GetAnimsetName(v8);
+      BG_Animset_GetStateInfoByIndex(v22, v21, &outState);
       if ( !outState )
       {
-        v32 = SL_ConvertToString(v31);
-        StateNameFromIndex = BG_Animset_GetStateNameFromIndex(v31, v30);
-        v34 = SL_ConvertToString(StateNameFromIndex);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 174, ASSERT_TYPE_ASSERT, "(pState)", "%s\n\tunable to find state %s in animset %s", "pState", v34, v32) )
+        v23 = SL_ConvertToString(v22);
+        StateNameFromIndex = BG_Animset_GetStateNameFromIndex(v22, v21);
+        v25 = SL_ConvertToString(StateNameFromIndex);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 174, ASSERT_TYPE_ASSERT, "(pState)", "%s\n\tunable to find state %s in animset %s", "pState", v25, v23) )
           __debugbreak();
-        v27 = outName;
+        v19 = outName;
       }
-      v35 = !outState->restart;
+      v26 = !outState->restart;
       bRestart = 0;
-      if ( !v35 )
+      if ( !v26 )
 LABEL_33:
         bRestart = 1;
-      if ( (v13 & 4) != 0 )
+      if ( (v6 & 4) != 0 )
       {
-        __asm { vxorps  xmm6, xmm6, xmm6 }
+        v28 = 0.0;
       }
       else
       {
-        if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 212, ASSERT_TYPE_ASSERT, "(pAnimset)", (const char *)&queryFormat, "pAnimset") )
+        if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 212, ASSERT_TYPE_ASSERT, "(pAnimset)", (const char *)&queryFormat, "pAnimset") )
           __debugbreak();
         outState = NULL;
         ppOutAnim = NULL;
-        BG_Animset_GetAliasAndAnimFromStateIndexAndEntry((const Animset *)v27, (_RSI->animInfo.animData >> 1) & 0x3FF, (_RSI->animInfo.animData >> 11) & 0x7F, (const AnimsetAlias **)&outState, (const AnimsetAnim **)&ppOutAnim);
-        _RAX = outState;
+        BG_Animset_GetAliasAndAnimFromStateIndexAndEntry((const Animset *)v19, (v8->animInfo.animData >> 1) & 0x3FF, (v8->animInfo.animData >> 11) & 0x7F, (const AnimsetAlias **)&outState, (const AnimsetAnim **)&ppOutAnim);
         animEntryMap = (scr_string_t)outState->animEntryMap;
         if ( animEntryMap )
         {
           curveID = XAnimCurve_GetIDFromPrimitiveCurveName(animEntryMap);
           if ( curveID == CURVE_ASSET_END )
           {
-            v39 = SL_ConvertToString((scr_string_t)LODWORD(outState->animEntryMap));
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 223, ASSERT_TYPE_ASSERT, "(*pOutCurveID != XAnimCurveID::MAX)", "%s\n\tInvalid xanim curve name %s", "*pOutCurveID != XAnimCurveID::MAX", v39) )
+            v29 = SL_ConvertToString((scr_string_t)LODWORD(outState->animEntryMap));
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 223, ASSERT_TYPE_ASSERT, "(*pOutCurveID != XAnimCurveID::MAX)", "%s\n\tInvalid xanim curve name %s", "*pOutCurveID != XAnimCurveID::MAX", v29) )
               __debugbreak();
           }
-          _RAX = outState;
-          __asm { vmovss  xmm6, dword ptr [rax+3Ch] }
+          v28 = *((float *)&outState->numAnims + 1);
         }
         else
         {
           curveID = LINEAR;
-          __asm { vmovss  xmm6, dword ptr [rax+3Ch] }
+          v28 = *((float *)&outState->numAnims + 1);
         }
       }
       pModelNameMap.initialized = 0;
-      SubTreeAnims = XAnimGetSubTreeAnims(tree, v112);
-      v131 = SubTreeAnims;
-      v42 = (unsigned __int16)pOutAnimIndex;
+      SubTreeAnims = XAnimGetSubTreeAnims(tree, v86);
+      v105 = SubTreeAnims;
+      v31 = (unsigned __int16)pOutAnimIndex;
       if ( (unsigned __int16)pOutAnimIndex >= SubTreeAnims->size )
       {
         AnimTree = BG_Animset_GetAnimTree(AnimsetName);
-        v44 = SL_ConvertToString(AnimTree);
-        v45 = SL_ConvertToString(AnimsetName);
-        Com_Printf(18, "BG_AnimationState_ApplyState: Bad anim index.  entnum = %d  animset = (%s) animtree = (%s)\n", (unsigned int)_RSI->number, v45, v44);
+        v33 = SL_ConvertToString(AnimTree);
+        v34 = SL_ConvertToString(AnimsetName);
+        Com_Printf(18, "BG_AnimationState_ApplyState: Bad anim index.  entnum = %d  animset = (%s) animtree = (%s)\n", (unsigned int)v8->number, v34, v33);
       }
-      IsLeafNode = XAnimIsLeafNode(SubTreeAnims, v42);
-      v113 = IsLeafNode != 0;
+      IsLeafNode = XAnimIsLeafNode(SubTreeAnims, v31);
+      v87 = IsLeafNode != 0;
       if ( IsLeafNode )
       {
-        *(double *)&_XMM0 = XAnimGetLength(SubTreeAnims, v42);
-        __asm { vcomiss xmm0, xmm8 }
-        if ( v47 | v35 )
+        Length = XAnimGetLength(SubTreeAnims, v31);
+        if ( *(float *)&Length <= 0.0 )
         {
-          AnimDebugName = XAnimGetAnimDebugName(SubTreeAnims, v42);
+          AnimDebugName = XAnimGetAnimDebugName(SubTreeAnims, v31);
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 629, ASSERT_TYPE_ASSERT, "( XAnimGetLength( animTreeAnims, animIndex ) > 0.0f )", "%s is missing or is not a valid xanim", AnimDebugName) )
             __debugbreak();
         }
-        XAnimGetLength(SubTreeAnims, v42);
-        __asm
+        v38 = XAnimGetLength(SubTreeAnims, v31);
+        v39 = v18 / *(float *)&v38;
+        v18 = v39;
+        if ( v39 >= 1.0 )
         {
-          vdivss  xmm7, xmm7, xmm0
-          vcomiss xmm7, xmm9
-        }
-        if ( !v47 )
-        {
-          if ( XAnimIsLooped(SubTreeAnims, v42) )
+          if ( XAnimIsLooped(SubTreeAnims, v31) )
           {
-            __asm
-            {
-              vmovaps xmm1, xmm7
-              vxorps  xmm2, xmm2, xmm2
-              vroundss xmm0, xmm2, xmm1, 1
-              vsubss  xmm7, xmm7, xmm0
-            }
+            _XMM2 = 0i64;
+            __asm { vroundss xmm0, xmm2, xmm1, 1 }
+            v18 = v39 - *(float *)&_XMM0;
           }
           else
           {
-            __asm { vxorps  xmm7, xmm7, xmm7 }
+            v18 = 0.0;
           }
         }
       }
-      v52 = 0;
-      if ( !v18->anim_user )
-        v52 = 3;
-      notifyType = v52;
-      animData = _RSI->animInfo.animData;
-      v54 = (animData >> 1) & 0x3FF;
-      v55 = charAnimStatea;
+      v42 = 0;
+      if ( !v11->anim_user )
+        v42 = 3;
+      notifyType = v42;
+      animData = v8->animInfo.animData;
+      v44 = (animData >> 1) & 0x3FF;
+      v45 = charAnimStatea;
       animState = charAnimStatea->animState;
       LODWORD(ppOutAnim) = animState;
-      v57 = (animData >> 11) & 0x7F;
+      v47 = (animData >> 11) & 0x7F;
       animEntry = charAnimStatea->animEntry;
-      v59 = v13 & 0xB;
-      v60 = !tree->children || animState == v54 && _RSI->animInfo.animTime != charAnimStatea->animTime || v59;
-      v111 = v60;
+      v49 = v6 & 0xB;
+      v50 = !tree->children || animState == v44 && v8->animInfo.animTime != charAnimStatea->animTime || v49;
+      v85 = v50;
       animIndex = 0;
       graftAnimIndex = 0;
-      v115 = XANIM_SUBTREE_DEFAULT;
-      if ( animState != v54 || animEntry != v57 || v60 )
+      v89 = XANIM_SUBTREE_DEFAULT;
+      if ( animState != v44 || animEntry != v47 || v50 )
       {
-        v61 = obj;
+        v51 = obj;
         XAnimSetIntGameParameterByName(obj, scr_const.animclass, (animData >> 18) & 0x3F);
-        XAnimSetIntGameParameterByName(v61, scr_const.animstate, (_RSI->animInfo.animData >> 1) & 0x3FF);
-        XAnimSetIntGameParameterByName(v61, scr_const.animentry, (_RSI->animInfo.animData >> 11) & 0x7F);
+        XAnimSetIntGameParameterByName(v51, scr_const.animstate, (v8->animInfo.animData >> 1) & 0x3FF);
+        XAnimSetIntGameParameterByName(v51, scr_const.animentry, (v8->animInfo.animData >> 11) & 0x7F);
         animState = (int)ppOutAnim;
       }
       if ( tree->children )
       {
-        if ( !v59 )
+        if ( !v49 )
         {
-          if ( v117 == v118 && animState == v54 )
-            BG_Animset_GetAnimIndexFromStateIndexAndEntry(pAnimset, v55->animState, v55->animEntry, &animIndex, &graftAnimIndex, &v115, NULL);
+          if ( v91 == v92 && animState == v44 )
+            BG_Animset_GetAnimIndexFromStateIndexAndEntry(pAnimset, v45->animState, v45->animEntry, &animIndex, &graftAnimIndex, &v89, NULL);
           else
             animIndex = BG_Animset_GetClearKnob(pAnimset);
         }
-        v62 = obj;
-        __asm { vmovss  dword ptr [rsp+3190h+fmt], xmm6 }
-        XAnimClearTreeGoalWeights(tree, graftAnimIndex, v115, animIndex, fmt, 1, obj, curveID);
-        if ( animState != v54 || (v63 = v118, v64 = v117, v117 != v118) )
+        v52 = obj;
+        XAnimClearTreeGoalWeights(tree, graftAnimIndex, v89, animIndex, v28, 1, obj, curveID);
+        if ( animState != v44 || (v53 = v92, v54 = v91, v91 != v92) )
         {
-          __asm { vmovaps xmm3, xmm6; blendTime }
-          BG_AnimationState_ClearGraftTrees(v62, pAnimset, v55->animState, *(float *)&_XMM3, curveID);
-          v63 = v118;
-          v64 = v117;
+          BG_AnimationState_ClearGraftTrees(v52, pAnimset, v45->animState, v28, curveID);
+          v53 = v92;
+          v54 = v91;
         }
-        if ( animState != v54 || v64 != v63 || animEntry != v57 )
+        if ( animState != v44 || v54 != v53 || animEntry != v47 )
         {
-          v66 = v55->animEntry;
-          v67 = v55->animState;
-          v68 = pAnimset;
-          if ( v66 >= BG_Animset_GetNumEntriesForStateIndex(pAnimset, v67) )
+          v55 = v45->animEntry;
+          v56 = v45->animState;
+          v57 = pAnimset;
+          if ( v55 >= BG_Animset_GetNumEntriesForStateIndex(pAnimset, v56) )
           {
-            LODWORD(pOutAnimCurveID) = BG_Animset_GetNumEntriesForStateIndex(v68, v67);
-            LODWORD(pOutAnimSubtreeID) = v66;
+            LODWORD(pOutAnimCurveID) = BG_Animset_GetNumEntriesForStateIndex(v57, v56);
+            LODWORD(pOutAnimSubtreeID) = v55;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 460, ASSERT_TYPE_ASSERT, "(unsigned)( entryIndex ) < (unsigned)( BG_Animset_GetNumEntriesForStateIndex( pAnimset, stateIndex ) )", "entryIndex doesn't index BG_Animset_GetNumEntriesForStateIndex( pAnimset, stateIndex )\n\t%i not in [0, %i)", pOutAnimSubtreeID, pOutAnimCurveID) )
               __debugbreak();
           }
           obj = NULL;
-          if ( BG_Animset_GetStateInfoByIndex(v68, v67, (AnimsetState **)&obj) )
+          if ( BG_Animset_GetStateInfoByIndex(v57, v56, (AnimsetState **)&obj) )
           {
-            v69 = 0;
-            v70 = 0;
-            v71 = *(_DWORD *)&obj->numBones;
-            if ( v71 )
+            v58 = 0;
+            v59 = 0;
+            v60 = *(_DWORD *)&obj->numBones;
+            if ( v60 )
             {
               while ( 1 )
               {
-                v72 = *(_QWORD *)&obj->duplicateParts + 80i64 * v70;
-                v69 += *(_DWORD *)(v72 + 16);
-                if ( v69 > v66 )
+                v61 = *(_QWORD *)&obj->duplicateParts + 80i64 * v59;
+                v58 += *(_DWORD *)(v61 + 16);
+                if ( v58 > v55 )
                   break;
-                if ( ++v70 >= v71 )
+                if ( ++v59 >= v60 )
                   goto LABEL_93;
               }
-              v73 = 0;
-              if ( *(_DWORD *)(v72 + 48) )
+              v62 = 0;
+              if ( *(_DWORD *)(v61 + 48) )
               {
                 do
                 {
                   pAnimset = NULL;
-                  if ( BG_Animset_GetStateInfoByName(v68, *(const scr_string_t *)(*(_QWORD *)(v72 + 40) + 4i64 * v73), (AnimsetState **)&pAnimset, (int *)&outState) )
-                  {
-                    __asm { vmovaps xmm3, xmm6; blendTime }
-                    BG_AnimationState_ClearGraftTrees(v62, v68, (int)outState, *(float *)&_XMM3, curveID);
-                  }
-                  ++v73;
+                  if ( BG_Animset_GetStateInfoByName(v57, *(const scr_string_t *)(*(_QWORD *)(v61 + 40) + 4i64 * v62), (AnimsetState **)&pAnimset, (int *)&outState) )
+                    BG_AnimationState_ClearGraftTrees(v52, v57, (int)outState, v28, curveID);
+                  ++v62;
                 }
-                while ( v73 < *(_DWORD *)(v72 + 48) );
-                _RSI = v130;
+                while ( v62 < *(_DWORD *)(v61 + 48) );
+                v8 = v104;
               }
             }
           }
@@ -721,125 +648,90 @@ LABEL_33:
       }
       else
       {
-        v62 = obj;
+        v52 = obj;
       }
 LABEL_93:
-      v75 = outName;
-      Notify = BG_AnimationState_GetNotify((const Animset *)outName, _RSI);
-      v77 = (int)ppOutAnim;
-      if ( (_DWORD)ppOutAnim != v54 || v111 || v117 != v118 )
-        BG_AnimationState_UpdateAlwaysOn(v62, (const Animset *)v75, (_RSI->animInfo.animData >> 1) & 0x3FF, _RSI->eType == ET_AGENT_CORPSE, &pModelNameMap);
-      if ( v77 == v54 && !v111 )
+      v63 = outName;
+      Notify = BG_AnimationState_GetNotify((const Animset *)outName, v8);
+      v65 = (int)ppOutAnim;
+      if ( (_DWORD)ppOutAnim != v44 || v85 || v91 != v92 )
+        BG_AnimationState_UpdateAlwaysOn(v52, (const Animset *)v63, (v8->animInfo.animData >> 1) & 0x3FF, v8->eType == ET_AGENT_CORPSE, &pModelNameMap);
+      if ( v65 == v44 && !v85 )
       {
-        v78 = curveID;
+        v66 = curveID;
       }
       else
       {
-        v78 = curveID;
-        __asm { vmovaps xmm3, xmm6; blendTime }
-        BG_AnimationState_GraftTrees(v62, (const Animset *)v75, (_RSI->animInfo.animData >> 1) & 0x3FF, *(float *)&_XMM3, curveID, Notify, notifyType, &pModelNameMap);
+        v66 = curveID;
+        BG_AnimationState_GraftTrees(v52, (const Animset *)v63, (v8->animInfo.animData >> 1) & 0x3FF, v28, curveID, Notify, notifyType, &pModelNameMap);
       }
-      v80 = (_RSI->animInfo.animData >> 11) & 0x7F;
-      v81 = (_RSI->animInfo.animData >> 1) & 0x3FF;
-      if ( v80 >= BG_Animset_GetNumEntriesForStateIndex((const Animset *)v75, v81) )
+      v67 = (v8->animInfo.animData >> 11) & 0x7F;
+      v68 = (v8->animInfo.animData >> 1) & 0x3FF;
+      if ( v67 >= BG_Animset_GetNumEntriesForStateIndex((const Animset *)v63, v68) )
       {
-        LODWORD(pOutAnimCurveID) = BG_Animset_GetNumEntriesForStateIndex((const Animset *)v75, v81);
-        LODWORD(pOutAnimSubtreeID) = v80;
+        LODWORD(pOutAnimCurveID) = BG_Animset_GetNumEntriesForStateIndex((const Animset *)v63, v68);
+        LODWORD(pOutAnimSubtreeID) = v67;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 497, ASSERT_TYPE_ASSERT, "(unsigned)( entryIndex ) < (unsigned)( BG_Animset_GetNumEntriesForStateIndex( pAnimset, stateIndex ) )", "entryIndex doesn't index BG_Animset_GetNumEntriesForStateIndex( pAnimset, stateIndex )\n\t%i not in [0, %i)", pOutAnimSubtreeID, pOutAnimCurveID) )
           __debugbreak();
       }
       obj = NULL;
-      if ( BG_Animset_GetStateInfoByIndex((const Animset *)v75, v81, (AnimsetState **)&obj) )
+      if ( BG_Animset_GetStateInfoByIndex((const Animset *)v63, v68, (AnimsetState **)&obj) )
       {
-        v82 = 0;
-        v83 = 0;
-        v84 = *(_DWORD *)&obj->numBones;
-        if ( v84 )
+        v69 = 0;
+        v70 = 0;
+        v71 = *(_DWORD *)&obj->numBones;
+        if ( v71 )
         {
           while ( 1 )
           {
-            v85 = *(_QWORD *)&obj->duplicateParts + 80i64 * v83;
-            v82 += *(_DWORD *)(v85 + 16);
-            if ( v82 > v80 )
+            v72 = *(_QWORD *)&obj->duplicateParts + 80i64 * v70;
+            v69 += *(_DWORD *)(v72 + 16);
+            if ( v69 > v67 )
               break;
-            if ( ++v83 >= v84 )
+            if ( ++v70 >= v71 )
               goto LABEL_115;
           }
-          v86 = 0;
-          if ( *(_DWORD *)(v85 + 48) )
+          v73 = 0;
+          if ( *(_DWORD *)(v72 + 48) )
           {
-            v87 = notifyType;
+            v74 = notifyType;
             do
             {
               outName = NULL;
-              if ( BG_Animset_GetStateInfoByName((const Animset *)v75, *(const scr_string_t *)(*(_QWORD *)(v85 + 40) + 4i64 * v86), (AnimsetState **)&outName, (int *)&outState) )
-              {
-                __asm { vmovaps xmm3, xmm6; blendTime }
-                BG_AnimationState_GraftTrees(v62, (const Animset *)v75, (int)outState, *(float *)&_XMM3, v78, Notify, v87, &pModelNameMap);
-              }
-              ++v86;
+              if ( BG_Animset_GetStateInfoByName((const Animset *)v63, *(const scr_string_t *)(*(_QWORD *)(v72 + 40) + 4i64 * v73), (AnimsetState **)&outName, (int *)&outState) )
+                BG_AnimationState_GraftTrees(v52, (const Animset *)v63, (int)outState, v28, v66, Notify, v74, &pModelNameMap);
+              ++v73;
             }
-            while ( v86 < *(_DWORD *)(v85 + 48) );
-            _RSI = v130;
+            while ( v73 < *(_DWORD *)(v72 + 48) );
+            v8 = v104;
           }
         }
       }
 LABEL_115:
-      v89 = v113;
-      if ( !v113 && !XAnimIsCustomNodeType(v131->entries[(unsigned __int16)pOutAnimIndex].nodeType) )
-        goto LABEL_120;
-      Sys_ProfBeginNamedEvent(0xFFFFFFFF, "SetCompleteGoalWeight");
-      v109 = v78;
-      v90 = bRestart;
-      __asm
+      v75 = v87;
+      if ( (v87 || XAnimIsCustomNodeType(v105->entries[(unsigned __int16)pOutAnimIndex].nodeType)) && (Sys_ProfBeginNamedEvent(0xFFFFFFFF, "SetCompleteGoalWeight"), v83 = v66, v76 = bRestart, v77 = (unsigned __int16)pOutAnimIndex, XAnimSetCompleteGoalWeight(v52, pOutGraftNode, v86, (unsigned __int16)pOutAnimIndex, 1.0, v28, animRate, Notify, notifyType, bRestart, v83, &pModelNameMap), Sys_ProfEndNamedEvent(), v75) && v18 >= 0.0 && v76 )
       {
-        vmovss  dword ptr [rsp+3190h+pOutAnimCurveID], xmm10
-        vmovss  dword ptr [rsp+3190h+pOutAnimSubtreeID], xmm6
-        vmovss  dword ptr [rsp+3190h+fmt], xmm9
-      }
-      v91 = (unsigned __int16)pOutAnimIndex;
-      XAnimSetCompleteGoalWeight(v62, pOutGraftNode, v112, (unsigned __int16)pOutAnimIndex, fmta, pOutAnimSubtreeIDa, pOutAnimCurveIDa, Notify, notifyType, bRestart, v109, &pModelNameMap);
-      Sys_ProfEndNamedEvent();
-      if ( !v89 )
-        goto LABEL_120;
-      __asm { vcomiss xmm7, xmm8 }
-      if ( v90 )
-      {
-        __asm { vmovss  dword ptr [rsp+3190h+fmt], xmm7 }
-        v92 = v91;
-        v93 = tree;
-        XAnimSetTime(tree, pOutGraftNode, v112, v92, fmtb);
+        v78 = v77;
+        v79 = tree;
+        XAnimSetTime(tree, pOutGraftNode, v86, v78, v18);
       }
       else
       {
-LABEL_120:
-        v93 = tree;
+        v79 = tree;
       }
-      v94 = charAnimStatea;
-      if ( _RSI->eType != ET_ACTOR )
-      {
-        __asm { vmovss  dword ptr [rsp+3190h+fmt], xmm6 }
-        BG_AnimationState_ApplyBlends(_RSI, v93, charAnimStatea, v62, fmtc);
-      }
-      if ( v132 )
-        *v132 = 0;
-      v94->animClass = (_RSI->animInfo.animData >> 18) & 0x3F;
-      v94->animState = (_RSI->animInfo.animData >> 1) & 0x3FF;
-      v94->animEntry = (_RSI->animInfo.animData >> 11) & 0x7F;
-      v94->animTime = _RSI->animInfo.animTime;
+      v80 = charAnimStatea;
+      if ( v8->eType != ET_ACTOR )
+        BG_AnimationState_ApplyBlends(v8, v79, charAnimStatea, v52, v28);
+      if ( v106 )
+        *v106 = 0;
+      v80->animClass = (v8->animInfo.animData >> 18) & 0x3F;
+      v80->animState = (v8->animInfo.animData >> 1) & 0x3FF;
+      v80->animEntry = (v8->animInfo.animData >> 11) & 0x7F;
+      v80->animTime = v8->animInfo.animTime;
     }
   }
-LABEL_126:
+LABEL_127:
   Sys_ProfEndNamedEvent();
-  _R11 = &v140;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
 }
 
 /*
@@ -847,64 +739,55 @@ LABEL_126:
 BG_AnimationState_ClearGraftTrees
 ==============
 */
-
-void __fastcall BG_AnimationState_ClearGraftTrees(DObj *obj, const Animset *pAnimset, int stateIndex, double blendTime, XAnimCurveID curveID)
+void BG_AnimationState_ClearGraftTrees(DObj *obj, const Animset *pAnimset, int stateIndex, float blendTime, XAnimCurveID curveID)
 {
-  unsigned int v10; 
-  AnimsetState *v11; 
-  XAnimCurveID v12; 
+  unsigned int v8; 
+  AnimsetState *v9; 
+  XAnimCurveID v10; 
+  __int64 v11; 
+  __int64 v12; 
   __int64 v13; 
-  __int64 v14; 
-  __int64 v15; 
-  XAnimSubTreeID v16; 
-  unsigned int v17; 
-  float fmt; 
+  XAnimSubTreeID v14; 
+  unsigned int v15; 
   AnimsetState *outState; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 393, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  v10 = 0;
+  v8 = 0;
   outState = NULL;
   if ( BG_Animset_GetStateInfoByIndex(pAnimset, stateIndex, &outState) )
   {
-    v11 = outState;
+    v9 = outState;
     if ( outState->numBlendtreeAliases )
     {
-      v12 = curveID;
+      v10 = curveID;
       do
       {
-        v13 = (__int64)&v11->blendtreeAliases[v10];
-        if ( *(_DWORD *)(v13 + 4) )
+        v11 = (__int64)&v9->blendtreeAliases[v8];
+        if ( *(_DWORD *)(v11 + 4) )
         {
-          v14 = *(_QWORD *)(v13 + 40);
-          v15 = *(_QWORD *)(v13 + 32);
-          __asm { vmovss  dword ptr [rsp+48h+fmt], xmm6 }
-          if ( v14 )
+          v12 = *(_QWORD *)(v11 + 40);
+          v13 = *(_QWORD *)(v11 + 32);
+          if ( v12 )
           {
-            v16 = *(_WORD *)(v14 + 60);
-            v17 = 1;
-            LODWORD(v15) = (unsigned __int16)v15;
+            v14 = *(_WORD *)(v12 + 60);
+            v15 = 1;
+            LODWORD(v13) = (unsigned __int16)v13;
           }
           else
           {
-            v16 = XANIM_SUBTREE_DEFAULT;
-            v17 = (unsigned __int16)v15;
-            LODWORD(v15) = 0;
+            v14 = XANIM_SUBTREE_DEFAULT;
+            v15 = (unsigned __int16)v13;
+            LODWORD(v13) = 0;
           }
-          XAnimClearGoalWeight(obj->tree, v15, v16, v17, fmt, v12);
-          v11 = outState;
+          XAnimClearGoalWeight(obj->tree, v13, v14, v15, blendTime, v10);
+          v9 = outState;
         }
-        ++v10;
+        ++v8;
       }
-      while ( v10 < v11->numBlendtreeAliases );
+      while ( v8 < v9->numBlendtreeAliases );
     }
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -1240,99 +1123,73 @@ scr_string_t BG_AnimationState_GetStateName(const entityState_t *es, const int s
 BG_AnimationState_GraftTrees
 ==============
 */
-
-void __fastcall BG_AnimationState_GraftTrees(DObj *obj, const Animset *pAnimset, int stateIndex, double blendTime, XAnimCurveID curveID, const scr_string_t notifyName, unsigned int notifyType, XModelNameMap *pModelNameMap)
+void BG_AnimationState_GraftTrees(DObj *obj, const Animset *pAnimset, int stateIndex, float blendTime, XAnimCurveID curveID, const scr_string_t notifyName, unsigned int notifyType, XModelNameMap *pModelNameMap)
 {
-  unsigned int v15; 
-  AnimsetState *v16; 
+  unsigned int v11; 
+  AnimsetState *v12; 
   XModelNameMap *cachedModelNameMap; 
+  unsigned int v14; 
+  scr_string_t v15; 
+  XAnimCurveID v16; 
+  __int64 v17; 
   unsigned int v18; 
-  scr_string_t v19; 
-  XAnimCurveID v20; 
-  __int64 v22; 
+  __int64 v19; 
+  char v20; 
+  scr_string_t v21; 
+  unsigned int v22; 
   unsigned int v23; 
-  __int64 v24; 
-  char v25; 
-  scr_string_t v26; 
-  unsigned int v27; 
-  unsigned int v28; 
-  XAnimSubTreeID v29; 
-  float fmt; 
-  float goalTime; 
-  float v35; 
-  char v37; 
-  void *retaddr; 
+  XAnimSubTreeID v24; 
   AnimsetState *outState; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmm7, xmm3
-  }
   Sys_ProfBeginNamedEvent(0xFF808080, "BG_Animstate_GraftTrees");
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 425, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   outState = NULL;
   if ( BG_Animset_GetStateInfoByIndex(pAnimset, stateIndex, &outState) )
   {
-    v15 = 0;
-    v16 = outState;
+    v11 = 0;
+    v12 = outState;
     if ( outState->numBlendtreeAliases )
     {
       cachedModelNameMap = pModelNameMap;
-      v18 = notifyType;
-      v19 = notifyName;
-      v20 = curveID;
-      __asm { vmovss  xmm6, cs:__real@3f800000 }
+      v14 = notifyType;
+      v15 = notifyName;
+      v16 = curveID;
       do
       {
-        v22 = (__int64)&v16->blendtreeAliases[v15];
-        if ( *(_DWORD *)(v22 + 4) )
+        v17 = (__int64)&v12->blendtreeAliases[v11];
+        if ( *(_DWORD *)(v17 + 4) )
         {
-          LOWORD(v23) = *(_WORD *)(v22 + 32);
-          v24 = *(_QWORD *)(v22 + 40);
-          v25 = *(_BYTE *)(v22 + 48);
-          v26 = 0;
-          if ( v25 )
-            v26 = v19;
-          v27 = 0;
-          if ( v25 )
-            v27 = v18;
-          __asm
+          LOWORD(v18) = *(_WORD *)(v17 + 32);
+          v19 = *(_QWORD *)(v17 + 40);
+          v20 = *(_BYTE *)(v17 + 48);
+          v21 = 0;
+          if ( v20 )
+            v21 = v15;
+          v22 = 0;
+          if ( v20 )
+            v22 = v14;
+          if ( v19 )
           {
-            vmovss  [rsp+0A8h+var_78], xmm6
-            vmovss  [rsp+0A8h+goalTime], xmm7
-            vmovss  dword ptr [rsp+0A8h+fmt], xmm6
-          }
-          if ( v24 )
-          {
-            v23 = (unsigned __int16)v23;
-            v28 = 1;
-            v29 = *(_WORD *)(v24 + 60);
+            v18 = (unsigned __int16)v18;
+            v23 = 1;
+            v24 = *(_WORD *)(v19 + 60);
           }
           else
           {
-            v28 = (unsigned __int16)v23;
-            v29 = XANIM_SUBTREE_DEFAULT;
-            v23 = 0;
+            v23 = (unsigned __int16)v18;
+            v24 = XANIM_SUBTREE_DEFAULT;
+            v18 = 0;
           }
-          XAnimSetCompleteGoalWeight(obj, v23, v29, v28, fmt, goalTime, v35, v26, v27, 1, v20, cachedModelNameMap);
-          v16 = outState;
+          XAnimSetCompleteGoalWeight(obj, v18, v24, v23, 1.0, blendTime, 1.0, v21, v22, 1, v16, cachedModelNameMap);
+          v12 = outState;
         }
-        ++v15;
+        ++v11;
       }
-      while ( v15 < v16->numBlendtreeAliases );
+      while ( v11 < v12->numBlendtreeAliases );
     }
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v37;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+0A8h+var_38]
-  }
 }
 
 /*
@@ -1342,42 +1199,28 @@ BG_AnimationState_LerpControllers
 */
 __int64 BG_AnimationState_LerpControllers(const entityState_t *es, characterInfo_t *characterInfo, int frametime)
 {
-  __int64 v6; 
+  __int64 v5; 
+  float v6; 
+  float v7; 
   clientControllers_t *p_control; 
-  __int64 result; 
   clientControllers_t control; 
 
   if ( !BG_AnimationState_UpdateControllers(es, characterInfo, &control) )
     return 0i64;
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_28], xmm6
-    vmovaps [rsp+0E8h+var_38], xmm7
-  }
-  v6 = 4i64;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm7, xmm7, ebx
-    vmulss  xmm6, xmm7, cs:__real@3eb851ec
-  }
+  v5 = 4i64;
+  v6 = (float)frametime;
+  v7 = (float)frametime * 0.36000001;
   p_control = &control;
   do
   {
-    __asm { vmovaps xmm1, xmm6; maxAngleChange }
-    BG_LerpAngles(p_control->angles, *(float *)&_XMM1, (vec3_t *)((char *)&p_control[23].tag_origin_angles.v[1] + (char *)characterInfo - (char *)&control));
+    BG_LerpAngles(p_control->angles, v7, (vec3_t *)((char *)&p_control[23].tag_origin_angles.v[1] + (char *)characterInfo - (char *)&control));
     p_control = (clientControllers_t *)((char *)p_control + 12);
-    --v6;
+    --v5;
   }
-  while ( v6 );
-  __asm { vmovaps xmm1, xmm6; maxAngleChange }
-  BG_LerpAngles(&control.tag_origin_angles, *(float *)&_XMM1, &characterInfo->control.tag_origin_angles);
-  __asm { vmulss  xmm1, xmm7, cs:__real@3dcccccd; maxOffsetChange }
-  BG_LerpOffset(&control.tag_origin_offset, *(float *)&_XMM1, &characterInfo->control.tag_origin_offset);
-  __asm { vmovaps xmm7, [rsp+0E8h+var_38] }
-  result = 1i64;
-  __asm { vmovaps xmm6, [rsp+0E8h+var_28] }
-  return result;
+  while ( v5 );
+  BG_LerpAngles(&control.tag_origin_angles, v7, &characterInfo->control.tag_origin_angles);
+  BG_LerpOffset(&control.tag_origin_offset, v6 * 0.1, &characterInfo->control.tag_origin_offset);
+  return 1i64;
 }
 
 /*
@@ -1564,88 +1407,29 @@ void BG_AnimationState_Update(const entityState_t *es, characterInfo_t *characte
 BG_AnimationState_UpdateAimAnim
 ==============
 */
-
-void __fastcall BG_AnimationState_UpdateAimAnim(DObj *obj, XAnimTree *pXAnimTree, unsigned int animIndex, double time, float weight, float lerpRate)
+void BG_AnimationState_UpdateAimAnim(DObj *obj, XAnimTree *pXAnimTree, unsigned int animIndex, float time, float weight, float lerpRate)
 {
-  char v20; 
-  char v21; 
-  float v44; 
-  float v45; 
-  float v46; 
-  float v47; 
-  char v48; 
-  void *retaddr; 
+  double v9; 
+  float v10; 
+  double v11; 
+  float v12; 
+  float v13; 
 
-  _RAX = &retaddr;
-  __asm
+  v9 = XAnimGetTime(pXAnimTree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
+  v10 = *(float *)&v9;
+  v11 = XAnimGetWeight(pXAnimTree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
+  if ( weight > 0.0 || *(float *)&v11 > 0.0 )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmm11, xmm3
-  }
-  *(double *)&_XMM0 = XAnimGetTime(pXAnimTree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
-  __asm { vmovaps xmm12, xmm0 }
-  *(double *)&_XMM0 = XAnimGetWeight(pXAnimTree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
-  __asm
-  {
-    vmovss  xmm10, [rsp+0D8h+weight]
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm10, xmm8
-    vmovaps xmm9, xmm0
-  }
-  if ( !(v20 | v21) )
-    goto LABEL_4;
-  __asm { vcomiss xmm0, xmm8 }
-  if ( v20 | v21 )
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vmovss  xmm6, [rsp+0D8h+lerpRate]
-      vsubss  xmm7, xmm1, xmm6
-    }
+    v12 = lerpRate;
+    v13 = 1.0 - lerpRate;
+    XAnimSetTime(pXAnimTree, 0, XANIM_SUBTREE_DEFAULT, animIndex, (float)((float)(1.0 - lerpRate) * v10) + (float)(time * lerpRate));
   }
   else
   {
-LABEL_4:
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  xmm6, [rsp+0D8h+lerpRate]
-      vsubss  xmm7, xmm0, xmm6
-      vmulss  xmm1, xmm7, xmm12
-      vmulss  xmm0, xmm11, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  [rsp+0D8h+var_B8], xmm2
-    }
-    XAnimSetTime(pXAnimTree, 0, XANIM_SUBTREE_DEFAULT, animIndex, v44);
+    v12 = lerpRate;
+    v13 = 1.0 - lerpRate;
   }
-  __asm
-  {
-    vmulss  xmm1, xmm7, xmm9
-    vmulss  xmm0, xmm10, xmm6
-    vmovss  [rsp+0D8h+var_A8], xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  [rsp+0D8h+var_B0], xmm8
-    vmovss  [rsp+0D8h+var_B8], xmm2
-  }
-  XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, animIndex, v45, v46, v47, (scr_string_t)0, 0, 0, LINEAR, NULL);
-  _R11 = &v48;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
+  XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, animIndex, (float)(v13 * *(float *)&v11) + (float)(weight * v12), 0.0, 0.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
 }
 
 /*
@@ -1655,25 +1439,10 @@ BG_AnimationState_UpdateAimAnim_5Point
 */
 void BG_AnimationState_UpdateAimAnim_5Point(DObj *obj, XAnimTree *pXAnimTree, unsigned int animIndex, float time, float weight, float lerpRate)
 {
-  float v16; 
-  float v17; 
-  float v18; 
+  double v8; 
 
-  *(double *)&_XMM0 = XAnimGetWeight(pXAnimTree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vmovss  xmm2, [rsp+68h+lerpRate]
-    vsubss  xmm1, xmm1, xmm2
-    vmulss  xmm2, xmm2, [rsp+68h+weight]
-    vmulss  xmm3, xmm1, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+68h+var_38], xmm0
-    vaddss  xmm1, xmm3, xmm2
-    vmovss  [rsp+68h+var_40], xmm0
-    vmovss  [rsp+68h+var_48], xmm1
-  }
-  XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, animIndex, v16, v17, v18, (scr_string_t)0, 0, 0, LINEAR, NULL);
+  v8 = XAnimGetWeight(pXAnimTree, 0, XANIM_SUBTREE_DEFAULT, animIndex);
+  XAnimSetGoalWeight(obj, 0, XANIM_SUBTREE_DEFAULT, animIndex, (float)((float)(1.0 - lerpRate) * *(float *)&v8) + (float)(lerpRate * weight), 0.0, 0.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
 }
 
 /*
@@ -1685,22 +1454,19 @@ void BG_AnimationState_UpdateAimSet_5Point(const AnimsetState *animAimSet, const
 {
   const BgStatic *ActiveStatics; 
   DObj *DObj; 
-  char v17; 
-  char v18; 
-  char v24; 
-  char v25; 
+  double v10; 
+  float v11; 
+  float v12; 
+  double v13; 
+  float v14; 
+  float v15; 
   scr_string_t AnimsetName; 
-  int v29; 
+  unsigned int i; 
   AnimsetAlias *animAliases; 
   scr_string_t name; 
   unsigned int numAnimAliases; 
-  int v35; 
-  AnimsetAlias *v41; 
-  float fmt; 
-  float fmta; 
-  float lerpRate; 
-  float lerpRatea; 
-  float v48; 
+  int v21; 
+  AnimsetAlias *v22; 
   AnimsetState *outState; 
 
   BG_CheckThread();
@@ -1712,142 +1478,77 @@ void BG_AnimationState_UpdateAimSet_5Point(const AnimsetState *animAimSet, const
   DObj = BG_GetDObj(ActiveStatics, es->number);
   if ( !DObj )
     return;
-  __asm
-  {
-    vmovaps [rsp+0D8h+var_28], xmm6
-    vmovaps [rsp+0D8h+var_38], xmm7
-    vmovaps [rsp+0D8h+var_48], xmm8
-  }
   if ( animAimSet->numAnimAliases != 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 773, ASSERT_TYPE_ASSERT, "(animAimSet->numAnimAliases == 5)", (const char *)&queryFormat, "animAimSet->numAnimAliases == AIMSET_ENTRY_COUNT_5POINT") )
     __debugbreak();
   if ( es->eType == ET_AGENT_CORPSE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 776, ASSERT_TYPE_ASSERT, "(es->eType != ET_AGENT_CORPSE)", (const char *)&queryFormat, "es->eType != ET_AGENT_CORPSE") )
     __debugbreak();
-  __asm
+  v10 = BG_AnimationMP_UnpackPitch(es->lerp.u.player.waistPitchPacked);
+  if ( *(float *)&v10 < 0.0 )
   {
-    vmovaps [rsp+0D8h+var_68], xmm10
-    vmovaps [rsp+0D8h+var_78], xmm11
-  }
-  *(double *)&_XMM0 = BG_AnimationMP_UnpackPitch(es->lerp.u.player.waistPitchPacked);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@bcb60b61
-    vmovss  xmm8, cs:__real@3cb60b61
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-  }
-  if ( v17 )
-  {
-    __asm { vmulss  xmm11, xmm0, xmm7 }
+    v11 = *(float *)&v10 * -0.022222223;
 LABEL_16:
-    __asm { vxorps  xmm10, xmm10, xmm10 }
+    v12 = 0.0;
     goto LABEL_17;
   }
-  __asm { vxorps  xmm11, xmm11, xmm11 }
-  if ( v17 | v18 )
+  v11 = 0.0;
+  if ( *(float *)&v10 <= 0.0 )
     goto LABEL_16;
-  __asm { vmulss  xmm10, xmm0, xmm8 }
+  v12 = *(float *)&v10 * 0.022222223;
 LABEL_17:
-  __asm { vmovaps [rsp+0D8h+var_58], xmm9 }
-  *(double *)&_XMM0 = BG_AnimationMP_UnpackPitch(es->lerp.u.player.torsoPitchPacked);
-  __asm { vcomiss xmm0, xmm6 }
-  if ( v24 )
+  v13 = BG_AnimationMP_UnpackPitch(es->lerp.u.player.torsoPitchPacked);
+  if ( *(float *)&v13 >= 0.0 )
   {
-    __asm { vmulss  xmm9, xmm0, xmm7 }
-LABEL_19:
-    __asm { vxorps  xmm8, xmm8, xmm8 }
-    goto LABEL_20;
+    v14 = 0.0;
+    if ( *(float *)&v13 > 0.0 )
+    {
+      v15 = *(float *)&v13 * 0.022222223;
+      goto LABEL_20;
+    }
   }
-  __asm { vxorps  xmm9, xmm9, xmm9 }
-  if ( v24 | v25 )
-    goto LABEL_19;
-  __asm { vmulss  xmm8, xmm0, xmm8 }
+  else
+  {
+    v14 = *(float *)&v13 * -0.022222223;
+  }
+  v15 = 0.0;
 LABEL_20:
   outState = NULL;
   AnimsetName = BG_AnimationState_GetAnimsetName(es);
   if ( BG_Animset_GetStateInfoByName(AnimsetName, (const scr_string_t)scr_const.knobs, &outState, NULL) )
   {
-    v29 = 0;
-    if ( outState->numAnimAliases )
+    for ( i = 0; i < outState->numAnimAliases; ++i )
     {
-      __asm { vmovss  xmm7, cs:__real@3e4ccccd }
-      while ( 1 )
+      animAliases = outState->animAliases;
+      name = animAliases[i].name;
+      if ( name == scr_const.aim_2 )
       {
-        animAliases = outState->animAliases;
-        name = animAliases[v29].name;
-        if ( name == scr_const.aim_2 )
-          break;
-        if ( name == scr_const.aim_8 )
-        {
-          __asm
-          {
-            vmovss  [rsp+0D8h+lerpRate], xmm7
-            vmovss  dword ptr [rsp+0D8h+fmt], xmm11
-          }
-          goto LABEL_35;
-        }
-        if ( name == scr_const.aim_4 )
-        {
-          __asm
-          {
-            vmovss  [rsp+0D8h+lerpRate], xmm7
-            vmovss  dword ptr [rsp+0D8h+fmt], xmm8
-          }
-          goto LABEL_35;
-        }
-        if ( name == scr_const.aim_6 )
-        {
-          __asm
-          {
-            vmovss  [rsp+0D8h+lerpRate], xmm7
-            vmovss  dword ptr [rsp+0D8h+fmt], xmm9
-          }
-          goto LABEL_35;
-        }
-LABEL_36:
-        if ( ++v29 >= outState->numAnimAliases )
-          goto LABEL_37;
+        BG_AnimationState_UpdateAimAnim_5Point(DObj, pAnimTree, animAliases[i].anims->anim.index, 0.0, v12, 0.2);
       }
-      __asm
+      else if ( name == scr_const.aim_8 )
       {
-        vmovss  [rsp+0D8h+lerpRate], xmm7
-        vmovss  dword ptr [rsp+0D8h+fmt], xmm10
+        BG_AnimationState_UpdateAimAnim_5Point(DObj, pAnimTree, animAliases[i].anims->anim.index, 0.0, v11, 0.2);
       }
-LABEL_35:
-      __asm { vmovaps xmm3, xmm6; time }
-      BG_AnimationState_UpdateAimAnim_5Point(DObj, pAnimTree, animAliases[v29].anims->anim.index, *(float *)&_XMM3, fmt, lerpRate);
-      goto LABEL_36;
+      else if ( name == scr_const.aim_4 )
+      {
+        BG_AnimationState_UpdateAimAnim_5Point(DObj, pAnimTree, animAliases[i].anims->anim.index, 0.0, v15, 0.2);
+      }
+      else if ( name == scr_const.aim_6 )
+      {
+        BG_AnimationState_UpdateAimAnim_5Point(DObj, pAnimTree, animAliases[i].anims->anim.index, 0.0, v14, 0.2);
+      }
     }
   }
-LABEL_37:
   numAnimAliases = animAimSet->numAnimAliases;
-  v35 = 0;
-  __asm
-  {
-    vmovaps xmm11, [rsp+0D8h+var_78]
-    vmovaps xmm10, [rsp+0D8h+var_68]
-    vmovaps xmm9, [rsp+0D8h+var_58]
-    vmovaps xmm8, [rsp+0D8h+var_48]
-    vmovaps xmm7, [rsp+0D8h+var_38]
-  }
+  v21 = 0;
   if ( numAnimAliases )
   {
-    v41 = animAimSet->animAliases;
-    while ( v41[v35].name != scr_const.aim_5 )
+    v22 = animAimSet->animAliases;
+    while ( v22[v21].name != scr_const.aim_5 )
     {
-      if ( ++v35 >= numAnimAliases )
-        goto LABEL_43;
+      if ( ++v21 >= numAnimAliases )
+        return;
     }
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+0D8h+var_A8], xmm6
-      vmovss  [rsp+0D8h+lerpRate], xmm6
-      vmovss  dword ptr [rsp+0D8h+fmt], xmm0
-    }
-    XAnimSetCompleteGoalWeight(DObj, 0, XANIM_SUBTREE_DEFAULT, v41[v35].anims->anim.index, fmta, lerpRatea, v48, (scr_string_t)0, 0, 0, LINEAR, NULL);
+    XAnimSetCompleteGoalWeight(DObj, 0, XANIM_SUBTREE_DEFAULT, v22[v21].anims->anim.index, 1.0, 0.0, 0.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
   }
-LABEL_43:
-  __asm { vmovaps xmm6, [rsp+0D8h+var_28] }
 }
 
 /*
@@ -1857,34 +1558,27 @@ BG_AnimationState_UpdateAimSet_9Point
 */
 void BG_AnimationState_UpdateAimSet_9Point(const AnimsetState *animAimSet, const entityState_t *es, XAnimTree *pAnimTree, characterAnimState_t *charAnimState)
 {
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
   const BgStatic *ActiveStatics; 
   DObj *DObj; 
-  bool v16; 
+  bool v14; 
   unsigned __int16 torsoPitchPacked; 
-  char v20; 
-  __int64 v30; 
-  AnimsetAlias *v34; 
+  __int128 v18; 
+  __int128 v21; 
+  __int128 v23; 
+  __int128 v26; 
+  __int64 i; 
+  AnimsetAlias *v28; 
   scr_string_t name; 
-  const char *v52; 
-  const char *v53; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
-  float lerpRate; 
-  float lerpRatea; 
-  float lerpRateb; 
-  float lerpRatec; 
-  float lerpRated; 
-  float lerpRatee; 
-  float lerpRatef; 
-  float lerpRateg; 
+  const char *v30; 
+  const char *v31; 
   aimAnimValues_t values; 
+  __int128 v33; 
+  __int128 v34; 
+  __int128 v35; 
 
   BG_CheckThread();
   if ( !es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 873, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
@@ -1895,184 +1589,94 @@ void BG_AnimationState_UpdateAimSet_9Point(const AnimsetState *animAimSet, const
   DObj = BG_GetDObj(ActiveStatics, es->number);
   if ( DObj && charAnimState->animAimRoot )
   {
-    v16 = animAimSet->numAnimAliases == 8;
-    __asm
-    {
-      vmovaps [rsp+108h+var_48], xmm6
-      vmovaps [rsp+108h+var_68], xmm10
-      vmovaps [rsp+108h+var_78], xmm11
-    }
-    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 885, ASSERT_TYPE_ASSERT, "(animAimSet->numAnimAliases == 8)", (const char *)&queryFormat, "animAimSet->numAnimAliases == AIMSET_ENTRY_COUNT_9POINT") )
+    v14 = animAimSet->numAnimAliases == 8;
+    v34 = v6;
+    v33 = v7;
+    if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 885, ASSERT_TYPE_ASSERT, "(animAimSet->numAnimAliases == 8)", (const char *)&queryFormat, "animAimSet->numAnimAliases == AIMSET_ENTRY_COUNT_9POINT") )
       __debugbreak();
     if ( es->eType == ET_AGENT_CORPSE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 888, ASSERT_TYPE_ASSERT, "(es->eType != ET_AGENT_CORPSE)", (const char *)&queryFormat, "es->eType != ET_AGENT_CORPSE") )
       __debugbreak();
     torsoPitchPacked = es->lerp.u.player.torsoPitchPacked;
-    __asm { vmovaps [rsp+108h+var_58], xmm7 }
-    *(double *)&_XMM0 = BG_AnimationMP_UnpackPitch(torsoPitchPacked);
-    __asm
+    v35 = v5;
+    *(double *)&v4 = BG_AnimationMP_UnpackPitch(torsoPitchPacked);
+    LODWORD(_XMM6) = 0;
+    if ( *(float *)&v4 >= 0.0 )
     {
-      vmovss  xmm7, cs:__real@3f800000
-      vxorps  xmm6, xmm6, xmm6
-      vcomiss xmm0, xmm6
-    }
-    if ( v20 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@bc6a0ea1
-        vminss  xmm11, xmm0, xmm7
-        vxorps  xmm10, xmm10, xmm10
-      }
+      v21 = v4;
+      *(float *)&v21 = *(float *)&v4 * 0.014285714;
+      _XMM0 = v21;
+      __asm { vminss  xmm10, xmm0, xmm7 }
+      LODWORD(_XMM11) = 0;
     }
     else
     {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@3c6a0ea1
-        vminss  xmm10, xmm0, xmm7
-        vxorps  xmm11, xmm11, xmm11
-      }
+      v18 = v4;
+      *(float *)&v18 = *(float *)&v4 * -0.014285714;
+      _XMM0 = v18;
+      __asm { vminss  xmm11, xmm0, xmm7 }
+      LODWORD(_XMM10) = 0;
     }
     *(double *)&_XMM0 = BG_AnimationMP_UnpackPitch(es->lerp.u.player.waistPitchPacked);
-    __asm { vcomiss xmm0, xmm6 }
-    if ( v20 )
+    if ( *(float *)&_XMM0 >= 0.0 )
     {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@bc6a0ea1
-        vminss  xmm6, xmm0, xmm7
-        vxorps  xmm1, xmm1, xmm1
-      }
+      v26 = _XMM0;
+      *(float *)&v26 = *(float *)&_XMM0 * 0.014285714;
+      _XMM0 = v26;
+      __asm { vminss  xmm1, xmm0, xmm7; fAimFactor2 }
     }
     else
     {
-      __asm
+      v23 = _XMM0;
+      *(float *)&v23 = *(float *)&_XMM0 * -0.014285714;
+      _XMM0 = v23;
+      __asm { vminss  xmm6, xmm0, xmm7 }
+      LODWORD(_XMM1) = 0;
+    }
+    BG_CalculateAimAnimValues(&values, *(float *)&_XMM1, *(float *)&_XMM10, *(float *)&_XMM11, *(float *)&_XMM6);
+    for ( i = 0i64; (unsigned int)i < animAimSet->numAnimAliases; i = (unsigned int)(i + 1) )
+    {
+      v28 = &animAimSet->animAliases[i];
+      name = v28->name;
+      if ( v28->name == scr_const.aim_1 )
       {
-        vmulss  xmm0, xmm0, cs:__real@3c6a0ea1
-        vminss  xmm1, xmm0, xmm7; fAimFactor2
+        BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v28->anims->anim.index, values.fTime1, values.fStrength1, 0.2);
+      }
+      else if ( name == scr_const.aim_2 )
+      {
+        BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v28->anims->anim.index, values.fTime2, values.fStrength2, 0.2);
+      }
+      else if ( name == scr_const.aim_3 )
+      {
+        BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v28->anims->anim.index, values.fTime3, values.fStrength3, 0.2);
+      }
+      else if ( name == scr_const.aim_4 )
+      {
+        BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v28->anims->anim.index, values.fTime4, values.fStrength4, 0.2);
+      }
+      else if ( name == scr_const.aim_6 )
+      {
+        BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v28->anims->anim.index, values.fTime6, values.fStrength6, 0.2);
+      }
+      else if ( name == scr_const.aim_7 )
+      {
+        BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v28->anims->anim.index, values.fTime7, values.fStrength7, 0.2);
+      }
+      else if ( name == scr_const.aim_8 )
+      {
+        BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v28->anims->anim.index, values.fTime8, values.fStrength8, 0.2);
+      }
+      else if ( name == scr_const.aim_9 )
+      {
+        BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v28->anims->anim.index, values.fTime9, values.fStrength9, 0.2);
+      }
+      else
+      {
+        v30 = SL_ConvertToString(animAimSet->name);
+        v31 = SL_ConvertToString(name);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 937, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unexpected alias %s in aim set %s", v31, v30) )
+          __debugbreak();
       }
     }
-    __asm
-    {
-      vmovaps xmm3, xmm11; fAimFactor6
-      vmovaps xmm2, xmm10; fAimFactor4
-      vmovss  dword ptr [rsp+108h+fmt], xmm6
-    }
-    BG_CalculateAimAnimValues(&values, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt);
-    __asm { vmovaps xmm11, [rsp+108h+var_78] }
-    v30 = 0i64;
-    __asm
-    {
-      vmovaps xmm10, [rsp+108h+var_68]
-      vmovaps xmm7, [rsp+108h+var_58]
-    }
-    if ( animAimSet->numAnimAliases )
-    {
-      __asm { vmovss  xmm6, cs:__real@3e4ccccd }
-      do
-      {
-        v34 = &animAimSet->animAliases[v30];
-        name = v34->name;
-        if ( v34->name == scr_const.aim_1 )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rsp+108h+values.fStrength1]
-            vmovss  xmm3, [rsp+108h+values.fTime1]; time
-            vmovss  [rsp+108h+lerpRate], xmm6
-            vmovss  dword ptr [rsp+108h+fmt], xmm0
-          }
-          BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v34->anims->anim.index, *(double *)&_XMM3, fmta, lerpRate);
-        }
-        else if ( name == scr_const.aim_2 )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rsp+108h+values.fStrength2]
-            vmovss  xmm3, [rsp+108h+values.fTime2]; time
-            vmovss  [rsp+108h+lerpRate], xmm6
-            vmovss  dword ptr [rsp+108h+fmt], xmm0
-          }
-          BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v34->anims->anim.index, *(double *)&_XMM3, fmtb, lerpRatea);
-        }
-        else if ( name == scr_const.aim_3 )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rsp+108h+values.fStrength3]
-            vmovss  xmm3, [rsp+108h+values.fTime3]; time
-            vmovss  [rsp+108h+lerpRate], xmm6
-            vmovss  dword ptr [rsp+108h+fmt], xmm0
-          }
-          BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v34->anims->anim.index, *(double *)&_XMM3, fmtc, lerpRateb);
-        }
-        else if ( name == scr_const.aim_4 )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rsp+108h+values.fStrength4]
-            vmovss  xmm3, [rsp+108h+values.fTime4]; time
-            vmovss  [rsp+108h+lerpRate], xmm6
-            vmovss  dword ptr [rsp+108h+fmt], xmm0
-          }
-          BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v34->anims->anim.index, *(double *)&_XMM3, fmtd, lerpRatec);
-        }
-        else if ( name == scr_const.aim_6 )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rsp+108h+values.fStrength6]
-            vmovss  xmm3, [rsp+108h+values.fTime6]; time
-            vmovss  [rsp+108h+lerpRate], xmm6
-            vmovss  dword ptr [rsp+108h+fmt], xmm0
-          }
-          BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v34->anims->anim.index, *(double *)&_XMM3, fmte, lerpRated);
-        }
-        else if ( name == scr_const.aim_7 )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rsp+108h+values.fStrength7]
-            vmovss  xmm3, [rsp+108h+values.fTime7]; time
-            vmovss  [rsp+108h+lerpRate], xmm6
-            vmovss  dword ptr [rsp+108h+fmt], xmm0
-          }
-          BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v34->anims->anim.index, *(double *)&_XMM3, fmtf, lerpRatee);
-        }
-        else if ( name == scr_const.aim_8 )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rsp+108h+values.fStrength8]
-            vmovss  xmm3, [rsp+108h+values.fTime8]; time
-            vmovss  [rsp+108h+lerpRate], xmm6
-            vmovss  dword ptr [rsp+108h+fmt], xmm0
-          }
-          BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v34->anims->anim.index, *(double *)&_XMM3, fmtg, lerpRatef);
-        }
-        else if ( name == scr_const.aim_9 )
-        {
-          __asm
-          {
-            vmovss  xmm0, [rsp+108h+values.fStrength9]
-            vmovss  xmm3, [rsp+108h+values.fTime9]; time
-            vmovss  [rsp+108h+lerpRate], xmm6
-            vmovss  dword ptr [rsp+108h+fmt], xmm0
-          }
-          BG_AnimationState_UpdateAimAnim(DObj, pAnimTree, v34->anims->anim.index, *(double *)&_XMM3, fmth, lerpRateg);
-        }
-        else
-        {
-          v52 = SL_ConvertToString(animAimSet->name);
-          v53 = SL_ConvertToString(name);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 937, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unexpected alias %s in aim set %s", v53, v52) )
-            __debugbreak();
-        }
-        v30 = (unsigned int)(v30 + 1);
-      }
-      while ( (unsigned int)v30 < animAimSet->numAnimAliases );
-    }
-    __asm { vmovaps xmm6, [rsp+108h+var_48] }
   }
 }
 
@@ -2083,115 +1687,80 @@ BG_AnimationState_UpdateAlwaysOn
 */
 void BG_AnimationState_UpdateAlwaysOn(DObj *obj, const Animset *pAnimset, int stateIndex, bool bCorpse, XModelNameMap *pModelNameMap)
 {
-  bool v11; 
-  bool v12; 
-  char v13; 
+  bool v9; 
+  bool v10; 
+  char v11; 
   bool AlwaysOnState; 
   XModelNameMap *cachedModelNameMap; 
-  int v18; 
+  int v14; 
   int NumEntriesForStateIndex; 
-  int v20; 
+  int v16; 
   int i; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float pOutAnimSubtreeID; 
-  float pOutAnimSubtreeIDa; 
-  float pOutAnimCurveID; 
-  float pOutAnimCurveIDa; 
-  XAnimSubTreeID v31[2]; 
+  XAnimSubTreeID pOutAnimSubtreeID[2]; 
   int pOutAlwaysOnState; 
   unsigned int pOutAnimIndex; 
   unsigned int pOutGraftNode; 
   int pOutAlwaysOnInDeathState; 
   AnimsetState *outState; 
-  XAnimCurveID curveID; 
+  XAnimCurveID pOutAnimCurveID; 
 
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 332, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   outState = NULL;
   if ( BG_Animset_GetStateInfoByIndex(pAnimset, stateIndex, &outState) )
   {
-    __asm
-    {
-      vmovaps [rsp+0C0h+var_30], xmm6
-      vmovaps [rsp+0C0h+var_40], xmm7
-    }
     if ( !outState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_animstate.cpp", 336, ASSERT_TYPE_ASSERT, "(pState)", (const char *)&queryFormat, "pState") )
       __debugbreak();
-    v11 = !outState->clearAlwaysOn;
+    v9 = !outState->clearAlwaysOn;
     pOutAlwaysOnInDeathState = -1;
-    v12 = v11;
-    v13 = 0;
+    v10 = v9;
+    v11 = 0;
     if ( bCorpse && BG_Animset_GetAlwaysOnInDeathState(pAnimset, &pOutAlwaysOnInDeathState) )
     {
-      v12 = 0;
-      v13 = 1;
+      v10 = 0;
+      v11 = 1;
     }
     AlwaysOnState = BG_Animset_GetAlwaysOnState(pAnimset, &pOutAlwaysOnState);
     cachedModelNameMap = pModelNameMap;
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3f800000
-      vmovss  xmm7, cs:__real@3e4ccccd
-    }
     if ( AlwaysOnState )
     {
-      v18 = 0;
+      v14 = 0;
       NumEntriesForStateIndex = BG_Animset_GetNumEntriesForStateIndex(pAnimset, pOutAlwaysOnState);
       if ( NumEntriesForStateIndex > 0 )
       {
-        if ( v12 )
+        if ( v10 )
         {
           do
           {
-            BG_Animset_GetAnimIndexFromStateIndexAndEntry(pAnimset, pOutAlwaysOnState, v18, &pOutAnimIndex, &pOutGraftNode, v31, &curveID);
-            __asm
-            {
-              vmovss  dword ptr [rsp+0C0h+pOutAnimCurveID], xmm6
-              vmovss  dword ptr [rsp+0C0h+pOutAnimSubtreeID], xmm7
-              vmovss  dword ptr [rsp+0C0h+fmt], xmm6
-            }
-            XAnimSetCompleteGoalWeight(obj, pOutGraftNode, v31[0], pOutAnimIndex, fmt, pOutAnimSubtreeID, pOutAnimCurveID, (scr_string_t)0, 0, 0, curveID, cachedModelNameMap);
-            ++v18;
+            BG_Animset_GetAnimIndexFromStateIndexAndEntry(pAnimset, pOutAlwaysOnState, v14, &pOutAnimIndex, &pOutGraftNode, pOutAnimSubtreeID, &pOutAnimCurveID);
+            XAnimSetCompleteGoalWeight(obj, pOutGraftNode, pOutAnimSubtreeID[0], pOutAnimIndex, 1.0, 0.2, 1.0, (scr_string_t)0, 0, 0, pOutAnimCurveID, cachedModelNameMap);
+            ++v14;
           }
-          while ( v18 < NumEntriesForStateIndex );
+          while ( v14 < NumEntriesForStateIndex );
         }
         else
         {
           do
           {
-            BG_Animset_GetAnimIndexFromStateIndexAndEntry(pAnimset, pOutAlwaysOnState, v18, &pOutAnimIndex, &pOutGraftNode, v31, &curveID);
-            __asm { vmovss  dword ptr [rsp+0C0h+fmt], xmm7 }
-            XAnimClearTreeGoalWeights(obj->tree, pOutGraftNode, v31[0], pOutAnimIndex, fmta, 1, NULL, curveID);
-            ++v18;
+            BG_Animset_GetAnimIndexFromStateIndexAndEntry(pAnimset, pOutAlwaysOnState, v14, &pOutAnimIndex, &pOutGraftNode, pOutAnimSubtreeID, &pOutAnimCurveID);
+            XAnimClearTreeGoalWeights(obj->tree, pOutGraftNode, pOutAnimSubtreeID[0], pOutAnimIndex, 0.2, 1, NULL, pOutAnimCurveID);
+            ++v14;
           }
-          while ( v18 < NumEntriesForStateIndex );
+          while ( v14 < NumEntriesForStateIndex );
         }
       }
     }
-    if ( v13 )
+    if ( v11 )
     {
       if ( !outState->clearAlwaysOn )
       {
-        v20 = BG_Animset_GetNumEntriesForStateIndex(pAnimset, pOutAlwaysOnInDeathState);
-        for ( i = 0; i < v20; ++i )
+        v16 = BG_Animset_GetNumEntriesForStateIndex(pAnimset, pOutAlwaysOnInDeathState);
+        for ( i = 0; i < v16; ++i )
         {
-          BG_Animset_GetAnimIndexFromStateIndexAndEntry(pAnimset, pOutAlwaysOnInDeathState, i, &pOutGraftNode, &pOutAnimIndex, v31, &curveID);
-          __asm
-          {
-            vmovss  dword ptr [rsp+0C0h+pOutAnimCurveID], xmm6
-            vmovss  dword ptr [rsp+0C0h+pOutAnimSubtreeID], xmm7
-            vmovss  dword ptr [rsp+0C0h+fmt], xmm6
-          }
-          XAnimSetCompleteGoalWeight(obj, pOutAnimIndex, v31[0], pOutGraftNode, fmtb, pOutAnimSubtreeIDa, pOutAnimCurveIDa, (scr_string_t)0, 0, 0, curveID, cachedModelNameMap);
+          BG_Animset_GetAnimIndexFromStateIndexAndEntry(pAnimset, pOutAlwaysOnInDeathState, i, &pOutGraftNode, &pOutAnimIndex, pOutAnimSubtreeID, &pOutAnimCurveID);
+          XAnimSetCompleteGoalWeight(obj, pOutAnimIndex, pOutAnimSubtreeID[0], pOutGraftNode, 1.0, 0.2, 1.0, (scr_string_t)0, 0, 0, pOutAnimCurveID, cachedModelNameMap);
         }
       }
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+0C0h+var_30]
-      vmovaps xmm7, [rsp+0C0h+var_40]
     }
   }
 }

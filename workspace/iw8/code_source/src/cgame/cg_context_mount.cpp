@@ -113,217 +113,167 @@ void __fastcall CG_ContextMount_TryDrawMountIndicator(LocalClientNum_t localClie
 CG_ContextMount_CalcVisibilityMode
 ==============
 */
-
-void __fastcall CG_ContextMount_CalcVisibilityMode(const LocalClientNum_t localClientNum, double _XMM1_8)
+void CG_ContextMount_CalcVisibilityMode(const LocalClientNum_t localClientNum)
 {
-  __int64 v12; 
-  const dvar_t *v13; 
-  char v16; 
-  const dvar_t *v17; 
+  __int64 v1; 
+  const dvar_t *v2; 
+  cg_t *LocalClientGlobals; 
+  const dvar_t *v4; 
   int integer; 
+  double Float_Internal_DebugName; 
   unsigned int EdgeIndex; 
-  __int64 v28; 
-  int *v29; 
-  int v30; 
-  __int64 v84; 
-  __int64 v85; 
-  __int64 v86[2]; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int64 v14; 
+  int *v15; 
+  int v16; 
+  int v17; 
+  float *v18; 
+  float v19; 
+  __int128 v20; 
+  __int128 v21; 
+  __int128 v22; 
+  float v23; 
+  __int128 v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  __int128 v29; 
+  float v31; 
+  float v32; 
+  float v33; 
+  __int64 v34; 
+  __int64 v35; 
+  double v36[2]; 
   vec3_t outOrg; 
-  __int64 v88; 
-  __int64 v89; 
+  __int64 v38; 
+  __int64 v39; 
   vec3_t outEdgePoint; 
   vec3_t outNormal; 
   vec3_t outBelow; 
   vec3_t outParallel; 
-  char v94; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v89 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-  }
-  v12 = localClientNum;
-  v13 = DCONST_DVARMPBOOL_mount_enable;
+  v39 = -2i64;
+  v1 = localClientNum;
+  v2 = DCONST_DVARMPBOOL_mount_enable;
   if ( !DCONST_DVARMPBOOL_mount_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_enable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  if ( v13->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
-    _RSI = CG_GetLocalClientGlobals((const LocalClientNum_t)v12);
-    __asm
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
+    if ( LocalClientGlobals->predictedPlayerState.mountState.mountFraction > 0.0 )
     {
-      vxorps  xmm12, xmm12, xmm12
-      vcomiss xmm12, dword ptr [rax+4C8h]
-    }
-    if ( v16 )
-    {
-      v17 = DCONST_DVARINT_mount_tuning_visibility_query_mode;
+      v4 = DCONST_DVARINT_mount_tuning_visibility_query_mode;
       if ( !DCONST_DVARINT_mount_tuning_visibility_query_mode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_tuning_visibility_query_mode") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v17);
-      integer = v17->current.integer;
-      LODWORD(v88) = integer;
+      Dvar_CheckFrontendServerThread(v4);
+      integer = v4->current.integer;
+      LODWORD(v38) = integer;
       if ( integer )
       {
         if ( integer == 1 )
         {
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mount_tuning_visibility_query_min_distance, "mount_tuning_visibility_query_min_distance");
-          __asm { vmovss  dword ptr [rsi+698Ch], xmm0 }
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mount_tuning_visibility_query_min_distance, "mount_tuning_visibility_query_min_distance");
+          LocalClientGlobals->refdef.view.visibilityQueryDistance = *(float *)&Float_Internal_DebugName;
         }
         else
         {
           if ( (unsigned int)(integer - 2) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 537, ASSERT_TYPE_ASSERT, "((mode == ContextMountVisQueryMode::OFFSET) || (mode == ContextMountVisQueryMode::VISIBILITY_OFFSET))", (const char *)&queryFormat, "(mode == ContextMountVisQueryMode::OFFSET) || (mode == ContextMountVisQueryMode::VISIBILITY_OFFSET)") )
             __debugbreak();
-          EdgeIndex = EdgeId::GetEdgeIndex(&_RSI->predictedPlayerState.mountState.surface.id);
+          EdgeIndex = EdgeId::GetEdgeIndex(&LocalClientGlobals->predictedPlayerState.mountState.surface.id);
           if ( MapEdgeList_IsLoaded(EdgeIndex) )
           {
             Sys_ProfBeginNamedEvent(0xFF808080, "CG_ContextMount_CalcVisibilityMode");
-            RefdefView_GetOrg(&_RSI->refdef.view, &outOrg);
-            __asm { vmovss  xmm2, dword ptr [rsi+498h]; fraction }
-            Edge_CalculatePoint(&_RSI->m_bgHandler, _RSI->predictedPlayerState.mountState.surface.id, *(float *)&_XMM2, &outEdgePoint);
-            __asm { vmovss  xmm2, dword ptr [rsi+498h]; fraction }
-            Edge_CalculateVectors(&_RSI->m_bgHandler, _RSI->predictedPlayerState.mountState.surface.id, *(float *)&_XMM2, _RSI->predictedPlayerState.mountState.surface.normalFaceIndex, &outNormal, &outParallel, &outBelow);
-            __asm
+            RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
+            Edge_CalculatePoint(&LocalClientGlobals->m_bgHandler, LocalClientGlobals->predictedPlayerState.mountState.surface.id, LocalClientGlobals->predictedPlayerState.mountState.surface.fraction, &outEdgePoint);
+            Edge_CalculateVectors(&LocalClientGlobals->m_bgHandler, LocalClientGlobals->predictedPlayerState.mountState.surface.id, LocalClientGlobals->predictedPlayerState.mountState.surface.fraction, LocalClientGlobals->predictedPlayerState.mountState.surface.normalFaceIndex, &outNormal, &outParallel, &outBelow);
+            v8 = 0i64;
+            v9 = 0i64;
+            v10 = 0i64;
+            v11 = 0.0;
+            v12 = 0.0;
+            v13 = 0.0;
+            if ( LocalClientGlobals->predictedPlayerState.mountState.surface.type == MOUNT_TYPE_TOP && Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_mount_tuning_visibility_query_lateral_traces, "mount_tuning_visibility_query_lateral_traces") )
             {
-              vxorps  xmm6, xmm6, xmm6
-              vxorps  xmm7, xmm7, xmm7
-              vxorps  xmm8, xmm8, xmm8
-              vxorps  xmm9, xmm9, xmm9
-              vxorps  xmm10, xmm10, xmm10
-              vxorps  xmm13, xmm13, xmm13
-            }
-            if ( _RSI->predictedPlayerState.mountState.surface.type == MOUNT_TYPE_TOP && Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_mount_tuning_visibility_query_lateral_traces, "mount_tuning_visibility_query_lateral_traces") )
-            {
-              v28 = v12;
-              v29 = &s_mountUmbraResultCount[v12];
-              if ( *v29 > 0 )
+              v14 = v1;
+              v15 = &s_mountUmbraResultCount[v1];
+              if ( *v15 > 0 )
               {
-                if ( *v29 != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 562, ASSERT_TYPE_ASSERT, "( s_mountUmbraResultCount[localClientNum] ) == ( 2 )", "%s == %s\n\t%i, %i", "s_mountUmbraResultCount[localClientNum]", "2", *v29, 2) )
+                if ( *v15 != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 562, ASSERT_TYPE_ASSERT, "( s_mountUmbraResultCount[localClientNum] ) == ( 2 )", "%s == %s\n\t%i, %i", "s_mountUmbraResultCount[localClientNum]", "2", *v15, 2) )
                   __debugbreak();
                 Sys_WaitWorkerCmdsOnlyOfType(WRKCMD_TRACE_MOUNT_UMBRA);
-                v30 = 0;
-                if ( *v29 > 0 )
+                v16 = 0;
+                v17 = *v15;
+                if ( *v15 > 0 )
                 {
-                  _RDI = &s_mountUmbraResults[v28][0].start.v[1];
+                  v18 = &s_mountUmbraResults[v14][0].start.v[1];
                   do
                   {
-                    if ( *((_DWORD *)_RDI - 2) != 2 )
+                    if ( *((_DWORD *)v18 - 2) != 2 )
                     {
-                      LODWORD(v85) = 2;
-                      *(float *)&v84 = *(_RDI - 2);
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 569, ASSERT_TYPE_ASSERT, "( result->state ) == ( WORKER_TRACE_FINISHED )", "%s == %s\n\t%i, %i", "result->state", "WORKER_TRACE_FINISHED", v84, v85) )
+                      LODWORD(v35) = 2;
+                      *(float *)&v34 = *(v18 - 2);
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 569, ASSERT_TYPE_ASSERT, "( result->state ) == ( WORKER_TRACE_FINISHED )", "%s == %s\n\t%i, %i", "result->state", "WORKER_TRACE_FINISHED", v34, v35) )
                         __debugbreak();
                     }
-                    if ( !*((_BYTE *)_RDI - 31) && !*((_BYTE *)_RDI - 32) )
+                    if ( !*((_BYTE *)v18 - 31) && !*((_BYTE *)v18 - 32) )
                     {
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [rdi+8]
-                        vsubss  xmm2, xmm0, dword ptr [rdi-4]
-                        vmovss  xmm1, dword ptr [rdi+0Ch]
-                        vsubss  xmm4, xmm1, dword ptr [rdi]
-                        vmovss  xmm0, dword ptr [rdi+10h]
-                        vsubss  xmm3, xmm0, dword ptr [rdi+4]
-                        vmovss  xmm1, dword ptr [rdi-60h]
-                        vmulss  xmm2, xmm1, xmm2
-                        vmulss  xmm0, xmm1, xmm4
-                        vmulss  xmm3, xmm1, xmm3
-                        vaddss  xmm6, xmm6, xmm2
-                        vaddss  xmm7, xmm7, xmm0
-                        vaddss  xmm8, xmm8, xmm3
-                      }
+                      v19 = *(v18 - 24);
+                      v20 = v8;
+                      *(float *)&v20 = *(float *)&v8 + (float)(v19 * (float)(v18[2] - *(v18 - 1)));
+                      v8 = v20;
+                      v21 = v9;
+                      *(float *)&v21 = *(float *)&v9 + (float)(v19 * (float)(v18[3] - *v18));
+                      v9 = v21;
+                      v22 = v10;
+                      *(float *)&v22 = *(float *)&v10 + (float)(v19 * (float)(v18[4] - v18[1]));
+                      v10 = v22;
                     }
-                    ++v30;
-                    _RDI += 32;
+                    ++v16;
+                    v18 += 32;
+                    v17 = *v15;
                   }
-                  while ( v30 < *v29 );
-                  integer = v88;
+                  while ( v16 < *v15 );
+                  integer = v38;
                 }
-                __asm
-                {
-                  vxorps  xmm1, xmm1, xmm1
-                  vcvtsi2ss xmm1, xmm1, eax
-                  vmovss  xmm0, cs:__real@3f800000
-                  vdivss  xmm2, xmm0, xmm1
-                  vmulss  xmm9, xmm6, xmm2
-                  vmulss  xmm10, xmm7, xmm2
-                  vmulss  xmm13, xmm8, xmm2
-                }
+                v23 = 1.0 / (float)v17;
+                v11 = *(float *)&v8 * v23;
+                v12 = *(float *)&v9 * v23;
+                v13 = *(float *)&v10 * v23;
               }
             }
-            __asm
-            {
-              vmovsd  xmm0, qword ptr [rsp+170h+outOrg]
-              vmovsd  qword ptr [rsp+170h+var_120], xmm0
-              vaddss  xmm9, xmm9, dword ptr [rsp+170h+outOrg]
-              vmovss  [rsp+170h+var_120], xmm9
-              vaddss  xmm10, xmm10, [rsp+170h+var_11C]
-              vmovss  [rsp+170h+var_11C], xmm10
-              vaddss  xmm8, xmm13, dword ptr [rsp+170h+var_118]
-              vmovss  dword ptr [rsp+170h+var_118], xmm8
-            }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mount_tuning_visibility_query_min_distance, "mount_tuning_visibility_query_min_distance");
-            __asm
-            {
-              vsubss  xmm3, xmm9, dword ptr [rbp+70h+outEdgePoint]
-              vsubss  xmm1, xmm10, dword ptr [rbp+70h+outEdgePoint+4]
-              vsubss  xmm4, xmm8, dword ptr [rbp+70h+outEdgePoint+8]
-              vmulss  xmm2, xmm1, dword ptr [rbp+70h+outNormal+4]
-              vmulss  xmm1, xmm3, dword ptr [rbp+70h+outNormal]
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm2, xmm4, dword ptr [rbp+70h+outNormal+8]
-              vaddss  xmm1, xmm3, xmm2
-              vsubss  xmm0, xmm0, xmm1
-              vmaxss  xmm2, xmm0, xmm12
-              vmulss  xmm3, xmm2, dword ptr [rbp+70h+outNormal+4]
-              vmulss  xmm4, xmm2, dword ptr [rbp+70h+outNormal+8]
-              vmulss  xmm0, xmm2, dword ptr [rbp+70h+outNormal]
-              vaddss  xmm1, xmm0, xmm9
-              vsubss  xmm5, xmm1, dword ptr [rsp+170h+outOrg]
-              vmovss  dword ptr [rsi+6980h], xmm5
-              vaddss  xmm0, xmm3, xmm10
-              vsubss  xmm2, xmm0, dword ptr [rsp+170h+outOrg+4]
-              vmovss  dword ptr [rsi+6984h], xmm2
-              vaddss  xmm1, xmm4, xmm8
-              vsubss  xmm4, xmm1, dword ptr [rsp+170h+outOrg+8]
-              vmovss  dword ptr [rsi+6988h], xmm4
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm0, xmm5, xmm5
-              vaddss  xmm3, xmm2, xmm0
-              vmulss  xmm1, xmm4, xmm4
-              vaddss  xmm2, xmm3, xmm1
-              vsqrtss xmm0, xmm2, xmm2
-              vmovss  dword ptr [rsi+698Ch], xmm0
-            }
-            _RSI->refdef.view.visibilityOffsetApplyToRefPoint = integer == 2;
-            memset(v86, 0, 0xCui64);
+            v24 = *(unsigned __int64 *)outOrg.v;
+            v36[0] = *(double *)outOrg.v;
+            v25 = v11 + outOrg.v[0];
+            v26 = v12 + *((float *)v36 + 1);
+            v27 = v13 + outOrg.v[2];
+            *(double *)&v24 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_mount_tuning_visibility_query_min_distance, "mount_tuning_visibility_query_min_distance");
+            v29 = v24;
+            *(float *)&v29 = *(float *)&v24 - (float)((float)((float)((float)(v26 - outEdgePoint.v[1]) * outNormal.v[1]) + (float)((float)(v25 - outEdgePoint.v[0]) * outNormal.v[0])) + (float)((float)(v27 - outEdgePoint.v[2]) * outNormal.v[2]));
+            _XMM0 = v29;
+            __asm { vmaxss  xmm2, xmm0, xmm12 }
+            *(float *)&v29 = *(float *)&_XMM2 * outNormal.v[1];
+            v31 = *(float *)&_XMM2 * outNormal.v[2];
+            v32 = (float)((float)(*(float *)&_XMM2 * outNormal.v[0]) + v25) - outOrg.v[0];
+            LocalClientGlobals->refdef.view.visibilityOffset.v[0] = v32;
+            *(float *)&v29 = (float)(*(float *)&v29 + v26) - outOrg.v[1];
+            LocalClientGlobals->refdef.view.visibilityOffset.v[1] = *(float *)&v29;
+            v33 = (float)(v31 + v27) - outOrg.v[2];
+            LocalClientGlobals->refdef.view.visibilityOffset.v[2] = v33;
+            LocalClientGlobals->refdef.view.visibilityQueryDistance = fsqrt((float)((float)(*(float *)&v29 * *(float *)&v29) + (float)(v32 * v32)) + (float)(v33 * v33));
+            LocalClientGlobals->refdef.view.visibilityOffsetApplyToRefPoint = integer == 2;
+            memset(v36, 0, 0xCui64);
             memset(&outOrg, 0, sizeof(outOrg));
             Sys_ProfEndNamedEvent();
           }
         }
       }
     }
-  }
-  _R11 = &v94;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
   }
 }
 
@@ -334,12 +284,11 @@ CG_ContextMount_CanEmitMountButton
 */
 bool CG_ContextMount_CanEmitMountButton(const LocalClientNum_t localClientNum, const unsigned __int64 cmdButtons)
 {
-  __int16 v3; 
+  __int16 v2; 
   int MountButton; 
   bool result; 
-  bool v9; 
 
-  v3 = cmdButtons;
+  v2 = cmdButtons;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 236, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( LOCAL_CLIENT_COUNT )", "localClientNum doesn't index LOCAL_CLIENT_COUNT\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
   if ( CL_Input_IsGamepadEnabled(localClientNum) )
@@ -358,16 +307,10 @@ bool CG_ContextMount_CanEmitMountButton(const LocalClientNum_t localClientNum, c
       break;
     case 3:
     case 4:
-      result = (v3 & 0x200) != 0i64;
+      result = (v2 & 0x200) != 0i64;
       break;
     case 10:
-      _RAX = CG_GetLocalClientGlobals(localClientNum);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm0, dword ptr [rax+738h]
-      }
-      result = v9;
+      result = CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState.weapCommon.fWeaponPosFrac > 0.0;
       break;
     default:
       result = 0;
@@ -381,113 +324,78 @@ bool CG_ContextMount_CanEmitMountButton(const LocalClientNum_t localClientNum, c
 CG_ContextMount_DrawHint
 ==============
 */
-
-void __fastcall CG_ContextMount_DrawHint(const LocalClientNum_t localClientNum, const rectDef_s *const rect, GfxFont *const font, double scale, const int textStyle)
+void CG_ContextMount_DrawHint(const LocalClientNum_t localClientNum, const rectDef_s *const rect, GfxFont *const font, const float scale, const int textStyle)
 {
-  const dvar_t *v10; 
-  __int64 v12; 
-  char *v17; 
-  char *v18; 
-  const char *v19; 
-  const char *v21; 
+  const dvar_t *v5; 
+  __int64 v7; 
+  cg_t *LocalClientGlobals; 
+  char *v10; 
+  char *v11; 
+  const char *v12; 
+  const char *v13; 
   int vertAlign; 
   int horzAlign; 
-  bool v36; 
-  const ScreenPlacement *v37; 
-  float fmt; 
   float y; 
-  float v43; 
+  float v19; 
+  bool v20; 
+  const ScreenPlacement *v21; 
   char *outCommands; 
   char *outMountPrompt; 
   char dstString[256]; 
 
-  __asm { vmovaps [rsp+1E8h+var_48], xmm6 }
-  v10 = DCONST_DVARMPBOOL_mount_hint_enable;
-  v12 = localClientNum;
-  _RBP = rect;
-  __asm { vmovaps xmm6, xmm3 }
+  v5 = DCONST_DVARMPBOOL_mount_hint_enable;
+  v7 = localClientNum;
   if ( !DCONST_DVARMPBOOL_mount_hint_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_hint_enable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
   {
-    _RAX = CG_GetLocalClientGlobals((const LocalClientNum_t)v12);
-    if ( _RAX->mountHint.reticleIconType )
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+    if ( LocalClientGlobals->mountHint.reticleIconType )
     {
-      __asm
+      if ( LocalClientGlobals->predictedPlayerState.mountState.mountFraction <= 0.0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm0, dword ptr [rax+4C8h]
-      }
-      outCommands = NULL;
-      outMountPrompt = NULL;
-      if ( CG_ContextMount_GetPromptInfo((const LocalClientNum_t)v12, 0, (const char **)&outCommands, (const char **)&outMountPrompt) )
-      {
-        v17 = outCommands;
-        __asm
+        outCommands = NULL;
+        outMountPrompt = NULL;
+        if ( CG_ContextMount_GetPromptInfo((const LocalClientNum_t)v7, 0, (const char **)&outCommands, (const char **)&outMountPrompt) )
         {
-          vmovaps [rsp+1E8h+var_58], xmm7
-          vmovaps [rsp+1E8h+var_68], xmm8
-        }
-        if ( !outCommands && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 197, ASSERT_TYPE_ASSERT, "(commands != nullptr)", (const char *)&queryFormat, "commands != nullptr") )
-          __debugbreak();
-        UI_ReplaceDirective((LocalClientNum_t)v12, v17, dstString, 0x100ui64, 0);
-        v18 = outMountPrompt;
-        if ( !outMountPrompt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 200, ASSERT_TYPE_ASSERT, "(mountPrompt != nullptr)", (const char *)&queryFormat, "mountPrompt != nullptr") )
-          __debugbreak();
-        v19 = UI_SafeTranslateString(v18);
-        __asm { vmovaps xmm3, xmm6; scale }
-        v21 = UI_ReplaceConversionString(v19, dstString);
-        UI_TextWidth(v21, 0, font, *(float *)&_XMM3);
-        vertAlign = _RBP->vertAlign;
-        horzAlign = _RBP->horzAlign;
-        __asm
-        {
-          vmovss  xmm8, dword ptr [rbp+4]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm0, xmm0, cs:__real@3f000000
-          vaddss  xmm2, xmm0, cs:__real@3f000000
-          vxorps  xmm0, xmm0, xmm0
-          vroundss xmm4, xmm0, xmm2, 1
-          vmovss  xmm0, dword ptr [rbp+0]
-          vcvttss2si eax, xmm4
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vsubss  xmm7, xmm0, xmm1
-        }
-        if ( activeScreenPlacementMode )
-        {
-          if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
-          {
-            v37 = &scrPlaceViewDisplay[v12];
-            goto LABEL_20;
-          }
-          if ( activeScreenPlacementMode == SCRMODE_INVALID )
-            v36 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
-          else
-            v36 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-          if ( v36 )
+          v10 = outCommands;
+          if ( !outCommands && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 197, ASSERT_TYPE_ASSERT, "(commands != nullptr)", (const char *)&queryFormat, "commands != nullptr") )
             __debugbreak();
-        }
-        v37 = &scrPlaceFull;
-LABEL_20:
-        __asm
-        {
-          vmovss  [rsp+1E8h+var_1A8], xmm6
-          vmovss  [rsp+1E8h+y], xmm8
-          vmovss  dword ptr [rsp+1E8h+fmt], xmm7
-        }
-        UI_DrawText(v37, v21, 0x7FFFFFFF, font, fmt, y, horzAlign, vertAlign, v43, &colorWhite, textStyle);
-        __asm
-        {
-          vmovaps xmm8, [rsp+1E8h+var_68]
-          vmovaps xmm7, [rsp+1E8h+var_58]
+          UI_ReplaceDirective((LocalClientNum_t)v7, v10, dstString, 0x100ui64, 0);
+          v11 = outMountPrompt;
+          if ( !outMountPrompt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 200, ASSERT_TYPE_ASSERT, "(mountPrompt != nullptr)", (const char *)&queryFormat, "mountPrompt != nullptr") )
+            __debugbreak();
+          v12 = UI_SafeTranslateString(v11);
+          v13 = UI_ReplaceConversionString(v12, dstString);
+          UI_TextWidth(v13, 0, font, scale);
+          vertAlign = rect->vertAlign;
+          horzAlign = rect->horzAlign;
+          y = rect->y;
+          _XMM0 = 0i64;
+          __asm { vroundss xmm4, xmm0, xmm2, 1 }
+          v19 = rect->x - (float)(int)*(float *)&_XMM4;
+          if ( activeScreenPlacementMode )
+          {
+            if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
+            {
+              v21 = &scrPlaceViewDisplay[v7];
+              goto LABEL_21;
+            }
+            if ( activeScreenPlacementMode == SCRMODE_INVALID )
+              v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+            else
+              v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+            if ( v20 )
+              __debugbreak();
+          }
+          v21 = &scrPlaceFull;
+LABEL_21:
+          UI_DrawText(v21, v13, 0x7FFFFFFF, font, v19, y, horzAlign, vertAlign, scale, &colorWhite, textStyle);
         }
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+1E8h+var_48] }
 }
 
 /*
@@ -497,33 +405,26 @@ CG_ContextMount_GetPromptInfo
 */
 bool CG_ContextMount_GetPromptInfo(const LocalClientNum_t localClientNum, const bool displayInWorldHint, const char **outCommands, const char **outMountPrompt)
 {
-  char v11; 
-  char v12; 
+  bool v8; 
   bool IsToggleAdsEnabled; 
-  const dvar_t *v14; 
-  bool v15; 
+  const dvar_t *v10; 
+  bool v11; 
   int MountButton; 
   bool result; 
-  const char *v18; 
+  const char *v14; 
 
   if ( !outCommands && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 82, ASSERT_TYPE_ASSERT, "(outCommands)", (const char *)&queryFormat, "outCommands") )
     __debugbreak();
   if ( !outMountPrompt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 83, ASSERT_TYPE_ASSERT, "(outMountPrompt)", (const char *)&queryFormat, "outMountPrompt") )
     __debugbreak();
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rax+738h]
-  }
-  v12 = v11;
+  v8 = CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState.weapCommon.fWeaponPosFrac > 0.0;
   IsToggleAdsEnabled = CL_Input_IsToggleAdsEnabled(localClientNum);
-  v14 = DCONST_DVARMPBOOL_mount_enable;
-  v15 = IsToggleAdsEnabled;
+  v10 = DCONST_DVARMPBOOL_mount_enable;
+  v11 = IsToggleAdsEnabled;
   if ( !DCONST_DVARMPBOOL_mount_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_enable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( !v14->current.enabled )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( !v10->current.enabled )
     return 0;
   if ( CL_Input_IsGamepadEnabled(localClientNum) )
     MountButton = GamerProfile_GetMountButton(localClientNum);
@@ -536,41 +437,41 @@ bool CG_ContextMount_GetPromptInfo(const LocalClientNum_t localClientNum, const 
       *outMountPrompt = "PLATFORM/MOUNT_HINT_DOUBLE";
       return 1;
     case 3:
-      if ( !v12 && !displayInWorldHint )
+      if ( !v8 && !displayInWorldHint )
         return 0;
-      v18 = "[{+melee,+melee_zoom,+melee_breath}]";
+      v14 = "[{+melee,+melee_zoom,+melee_breath}]";
       goto LABEL_33;
     case 4:
-      if ( !v12 && !displayInWorldHint )
+      if ( !v8 && !displayInWorldHint )
         return 0;
-      v18 = "[{+sprint,+sprint_zoom,+breath_sprint}]";
+      v14 = "[{+sprint,+sprint_zoom,+breath_sprint}]";
       goto LABEL_33;
     case 5:
-      v18 = "[{+smoke}]";
+      v14 = "[{+smoke}]";
       goto LABEL_33;
     case 6:
       *outCommands = "[{+smoke}]";
       *outMountPrompt = "PLATFORM/MOUNT_HINT_HOLD";
       return 1;
     case 7:
-      if ( v15 && v12 && !displayInWorldHint )
+      if ( v11 && v8 && !displayInWorldHint )
         return 0;
       *outCommands = "[{+speed_throw,+ads_akimbo_accessible}]";
       *outMountPrompt = "PLATFORM/MOUNT_HINT_HOLD";
       return 1;
     case 8:
-      v18 = "[{+mount}]";
+      v14 = "[{+mount}]";
       goto LABEL_33;
     case 9:
       *outCommands = "[{+mount}]";
       *outMountPrompt = "PLATFORM/MOUNT_HINT_HOLD";
       return 1;
     case 10:
-      if ( !v12 && !displayInWorldHint )
+      if ( !v8 && !displayInWorldHint )
         return 0;
-      v18 = "[{+activate}]";
+      v14 = "[{+activate}]";
 LABEL_33:
-      *outCommands = v18;
+      *outCommands = v14;
       *outMountPrompt = "PLATFORM/MOUNT_HINT";
       result = 1;
       break;
@@ -587,41 +488,32 @@ CG_ContextMount_HasPlayerElapsedPullAwayDelayKBM
 */
 char CG_ContextMount_HasPlayerElapsedPullAwayDelayKBM(LocalClientNum_t localClientNum, usercmd_s *cmd)
 {
+  cg_t *LocalClientGlobals; 
   int ControllerFromClient; 
   int mountPullAwayStartTime; 
-  bool v8; 
-  int v9; 
+  bool v7; 
+  int v8; 
 
-  _RDI = CG_GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-  if ( (cmd->buttons & 0x80000000000000i64) != 0 )
-    goto LABEL_11;
-  if ( (cmd->stateFlags & 8) != 0 )
-    goto LABEL_11;
-  __asm
+  if ( (cmd->buttons & 0x80000000000000i64) != 0 || (cmd->stateFlags & 8) != 0 || LocalClientGlobals->predictedPlayerState.mountState.mountFraction < 1.0 || !cmd->forwardmove && !cmd->rightmove )
   {
-    vmovss  xmm0, cs:__real@3f800000
-    vcomiss xmm0, dword ptr [rdi+4C8h]
-  }
-  if ( (cmd->stateFlags & 8) != 0 || !cmd->forwardmove && !cmd->rightmove )
-  {
-LABEL_11:
-    _RDI->mountPullAwayStartTime = 0;
+    LocalClientGlobals->mountPullAwayStartTime = 0;
   }
   else
   {
-    mountPullAwayStartTime = _RDI->mountPullAwayStartTime;
-    v8 = mountPullAwayStartTime <= 0;
+    mountPullAwayStartTime = LocalClientGlobals->mountPullAwayStartTime;
+    v7 = mountPullAwayStartTime <= 0;
     if ( !mountPullAwayStartTime )
     {
-      mountPullAwayStartTime = _RDI->time;
-      v8 = mountPullAwayStartTime <= 0;
-      _RDI->mountPullAwayStartTime = mountPullAwayStartTime;
+      mountPullAwayStartTime = LocalClientGlobals->time;
+      v7 = mountPullAwayStartTime <= 0;
+      LocalClientGlobals->mountPullAwayStartTime = mountPullAwayStartTime;
     }
-    if ( !v8 )
+    if ( !v7 )
     {
-      v9 = _RDI->time - mountPullAwayStartTime;
-      if ( v9 >= GamerProfile_GetMountPullAwayDelayKBM(ControllerFromClient) )
+      v8 = LocalClientGlobals->time - mountPullAwayStartTime;
+      if ( v8 >= GamerProfile_GetMountPullAwayDelayKBM(ControllerFromClient) )
         return 1;
     }
   }
@@ -635,192 +527,166 @@ CG_ContextMount_RefineMountHintOrigin
 */
 void CG_ContextMount_RefineMountHintOrigin(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v9; 
-  const dvar_t *v11; 
+  const dvar_t *v2; 
+  cg_t *LocalClientGlobals; 
+  const dvar_t *v4; 
   EdgeId edgeId; 
   CgHandler *Handler; 
-  int v48; 
-  char v53; 
-  const dvar_t *v68; 
-  hkMemoryAllocator *v69; 
-  hkMemoryAllocator *v70; 
+  __int128 v7; 
+  float v11; 
+  float v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float v15; 
+  int v16; 
+  char v17; 
+  const dvar_t *v18; 
+  float value; 
+  hknpShape *ShapeSphere; 
+  char v23; 
+  const vec3_t *p_start; 
+  float fraction; 
+  const dvar_t *v26; 
+  hkMemoryAllocator *v27; 
+  hkMemoryAllocator *v28; 
   int skipEntities; 
   HavokPhysics_IgnoreBodies ignoreBodies; 
-  __int64 v80; 
-  vec3_t v81; 
+  Physics_ShapecastExtendedData extendedData; 
+  __int64 v32; 
+  vec3_t origin; 
   vec3_t end; 
+  vec3_t start; 
   vec3_t outNormal1; 
   vec3_t outNormal0; 
   trace_t hit; 
-  char v86; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v80 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-  }
-  v9 = DCONST_DVARMPBOOL_mount_indicator_inworld;
+  v32 = -2i64;
+  v2 = DCONST_DVARMPBOOL_mount_indicator_inworld;
   if ( !DCONST_DVARMPBOOL_mount_indicator_inworld && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_indicator_inworld") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( v9->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
-    _RDI = CG_GetLocalClientGlobals(localClientNum);
-    if ( _RDI->mountHint.type )
+    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+    if ( LocalClientGlobals->mountHint.type )
     {
-      v11 = DCONST_DVARBOOL_mount_indicator_debug;
+      v4 = DCONST_DVARBOOL_mount_indicator_debug;
       if ( !DCONST_DVARBOOL_mount_indicator_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_indicator_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v11);
-      if ( v11->current.enabled )
-        goto LABEL_11;
-      __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-      if ( !VecNCompareCustomEpsilon(_RDI->mountHint.origin.v, _RDI->mountHint.lastOriginUsedForRefined.v, *(float *)&_XMM2, 3) )
+      Dvar_CheckFrontendServerThread(v4);
+      if ( v4->current.enabled || !VecNCompareCustomEpsilon(LocalClientGlobals->mountHint.origin.v, LocalClientGlobals->mountHint.lastOriginUsedForRefined.v, 0.001, 3) )
       {
-LABEL_11:
-        _RDI->mountHint.refinedOrigin.v[0] = _RDI->mountHint.origin.v[0];
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+59F30h]
-          vmovss  dword ptr [rdi+59F3Ch], xmm0
-          vmovss  xmm1, dword ptr [rdi+59F34h]
-          vmovss  dword ptr [rdi+59F40h], xmm1
-        }
-        edgeId = _RDI->mountHint.edgeId;
-        Handler = CgHandler::getHandler(_RDI->localClientNum);
+        LocalClientGlobals->mountHint.refinedOrigin.v[0] = LocalClientGlobals->mountHint.origin.v[0];
+        LocalClientGlobals->mountHint.refinedOrigin.v[1] = LocalClientGlobals->mountHint.origin.v[1];
+        LocalClientGlobals->mountHint.refinedOrigin.v[2] = LocalClientGlobals->mountHint.origin.v[2];
+        edgeId = LocalClientGlobals->mountHint.edgeId;
+        Handler = CgHandler::getHandler(LocalClientGlobals->localClientNum);
         Edge_CalculateNormals(Handler, edgeId, &outNormal0, &outNormal1);
+        v7 = LODWORD(outNormal1.v[1]);
+        *(float *)&v7 = fsqrt((float)((float)((float)(outNormal1.v[1] + outNormal0.v[1]) * (float)(outNormal1.v[1] + outNormal0.v[1])) + (float)((float)(outNormal1.v[0] + outNormal0.v[0]) * (float)(outNormal1.v[0] + outNormal0.v[0]))) + (float)((float)(outNormal1.v[2] + outNormal0.v[2]) * (float)(outNormal1.v[2] + outNormal0.v[2])));
+        _XMM1 = v7;
         __asm
         {
-          vmovss  xmm0, dword ptr [rbp+130h+outNormal1]
-          vaddss  xmm6, xmm0, dword ptr [rbp+130h+outNormal0]
-          vmovss  xmm1, dword ptr [rbp+130h+outNormal1+4]
-          vaddss  xmm5, xmm1, dword ptr [rbp+130h+outNormal0+4]
-          vmovss  xmm0, dword ptr [rbp+130h+outNormal1+8]
-          vaddss  xmm4, xmm0, dword ptr [rbp+130h+outNormal0+8]
-          vmulss  xmm2, xmm5, xmm5
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
           vcmpless xmm0, xmm1, cs:__real@80000000
-          vmovss  xmm11, cs:__real@3f800000
           vblendvps xmm1, xmm1, xmm11, xmm0
-          vmovss  [rsp+230h+skipEntities], xmm1
-          vdivss  xmm0, xmm11, xmm1
-          vmulss  xmm8, xmm6, xmm0
-          vmulss  xmm9, xmm5, xmm0
-          vmulss  xmm10, xmm4, xmm0
-          vmovss  xmm0, dword ptr [rdi+59F2Ch]
-          vmovss  dword ptr [rbp+130h+var_140], xmm0
-          vmovss  xmm1, dword ptr [rdi+59F30h]
-          vmovss  dword ptr [rbp+130h+var_140+4], xmm1
-          vmovss  xmm0, dword ptr [rdi+59F34h]
-          vmovss  dword ptr [rbp+130h+var_140+8], xmm0
         }
-        _RBX = DCONST_DVARFLT_mount_indicator_raylength;
+        skipEntities = _XMM1;
+        v11 = (float)(outNormal1.v[0] + outNormal0.v[0]) * (float)(1.0 / *(float *)&_XMM1);
+        v12 = (float)(outNormal1.v[1] + outNormal0.v[1]) * (float)(1.0 / *(float *)&_XMM1);
+        v13 = (float)(outNormal1.v[2] + outNormal0.v[2]) * (float)(1.0 / *(float *)&_XMM1);
+        origin = LocalClientGlobals->mountHint.origin;
+        v14 = DCONST_DVARFLT_mount_indicator_raylength;
         if ( !DCONST_DVARFLT_mount_indicator_raylength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_indicator_raylength") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-          vmulss  xmm1, xmm8, xmm3
-          vaddss  xmm2, xmm1, dword ptr [rbp+130h+var_140]
-          vmovss  dword ptr [rbp+130h+end], xmm2
-          vmulss  xmm0, xmm9, xmm3
-          vaddss  xmm1, xmm0, dword ptr [rbp+130h+var_140+4]
-          vmovss  dword ptr [rbp+130h+end+4], xmm1
-          vmulss  xmm2, xmm10, xmm3
-          vaddss  xmm0, xmm2, dword ptr [rbp+130h+var_140+8]
-          vmovss  dword ptr [rbp+130h+end+8], xmm0
-        }
+        Dvar_CheckFrontendServerThread(v14);
+        LODWORD(v15) = v14->current.integer ^ _xmm;
+        end.v[0] = (float)(v11 * v15) + origin.v[0];
+        end.v[1] = (float)(v12 * v15) + origin.v[1];
+        end.v[2] = (float)(v13 * v15) + origin.v[2];
         HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&ignoreBodies, 1, 0);
         HavokPhysics_IgnoreBodies::Reset(&ignoreBodies);
-        PhysicsQuery_AddEntityChainToIgnoreList(_RDI->clientNum, &ignoreBodies, 1, 1, 0, 1, 1);
-        v48 = 3 * _RDI->localClientNum + 4;
-        _RBX = DCONST_DVARFLT_mount_indicator_sphereradius;
+        PhysicsQuery_AddEntityChainToIgnoreList(LocalClientGlobals->clientNum, &ignoreBodies, 1, 1, 0, 1, 1);
+        v16 = 3 * LocalClientGlobals->localClientNum + 4;
+        v17 = 1;
+        v18 = DCONST_DVARFLT_mount_indicator_sphereradius;
         if ( !DCONST_DVARFLT_mount_indicator_sphereradius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_indicator_sphereradius") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
+        Dvar_CheckFrontendServerThread(v18);
+        value = v18->current.value;
+        if ( value <= 0.0 )
+          goto LABEL_30;
+        start.v[0] = (float)(v11 * value) + origin.v[0];
+        start.v[1] = (float)(v12 * value) + origin.v[1];
+        start.v[2] = (float)(v13 * value) + origin.v[2];
+        extendedData.startTolerance = 0.0;
+        _XMM0 = LODWORD(FLOAT_0_016000001);
+        extendedData.accuracy = FLOAT_0_016000001;
+        extendedData.simplifyStart = 0;
+        extendedData.collisionBuffer = 0.0;
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&extendedData.nonBrushShape = _XMM0;
+        extendedData.phaseSelection = All;
+        extendedData.contents = 41969971;
+        extendedData.ignoreBodies = &ignoreBodies;
+        extendedData.permitOutwardTrace = 0;
+        ShapeSphere = Physics_CreateShapeSphere(&vec3_origin, value, NULL, 0);
+        if ( !ShapeSphere && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 330, ASSERT_TYPE_ASSERT, "( shape ) != ( nullptr )", "%s != %s\n\t%p, %p", "shape", "nullptr", NULL, NULL) )
+          __debugbreak();
+        PhysicsQuery_ImmediateShapecastClosest((Physics_WorldId)v16, ShapeSphere, &start, &end, &quat_identity, &extendedData, (PhysicsQuery_ShapecastHit *)&hit);
+        Physics_ReleaseShape((Physics_WorldId)v16, ShapeSphere, 1);
+        if ( LOBYTE(hit.fraction) && hit.position.v[0] > 0.0 )
         {
-          vmovss  xmm6, dword ptr [rbx+28h]
-          vxorps  xmm7, xmm7, xmm7
-          vcomiss xmm6, xmm7
+          v23 = 1;
+          LocalClientGlobals->mountHint.refinedOrigin.v[0] = hit.position.v[1];
+          LocalClientGlobals->mountHint.refinedOrigin.v[1] = hit.position.v[2];
+          LocalClientGlobals->mountHint.refinedOrigin.v[2] = hit.normal.v[0];
+          v17 = 0;
         }
-        skipEntities = _RDI->clientNum;
-        PhysicsQuery_LegacyMPCGWeaponSimTrace((Physics_WorldId)v48, &hit, &v81, &end, &bounds_origin, &skipEntities, 1, 0, 41969971, 1, NULL, All, 0);
-        __asm
+        else
         {
-          vmovss  xmm6, [rbp+130h+hit.fraction]
-          vcomiss xmm6, xmm11
+          v23 = 0;
         }
-        if ( v53 )
+        if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_mount_indicator_debug, "mount_indicator_debug") )
         {
-          __asm
+          p_start = (const vec3_t *)&hit.normal.v[1];
+          if ( !v23 )
+            p_start = &start;
+          CG_DebugSphere(p_start, value, &colorGreen, 1, 0);
+        }
+        if ( v17 )
+        {
+LABEL_30:
+          skipEntities = LocalClientGlobals->clientNum;
+          PhysicsQuery_LegacyMPCGWeaponSimTrace((Physics_WorldId)v16, &hit, &origin, &end, &bounds_origin, &skipEntities, 1, 0, 41969971, 1, NULL, All, 0);
+          fraction = hit.fraction;
+          if ( hit.fraction < 1.0 )
           {
-            vmovss  xmm0, dword ptr [rbp+130h+end]
-            vsubss  xmm1, xmm0, dword ptr [rbp+130h+var_140]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rbp+130h+var_140]
-            vmovss  dword ptr [rdi+59F38h], xmm3
-            vmovss  xmm0, dword ptr [rbp+130h+end+4]
-            vsubss  xmm1, xmm0, dword ptr [rbp+130h+var_140+4]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rbp+130h+var_140+4]
-            vmovss  dword ptr [rdi+59F3Ch], xmm3
-            vmovss  xmm0, dword ptr [rbp+130h+end+8]
-            vsubss  xmm1, xmm0, dword ptr [rbp+130h+var_140+8]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rbp+130h+var_140+8]
-            vmovss  dword ptr [rdi+59F40h], xmm3
+            LocalClientGlobals->mountHint.refinedOrigin.v[0] = (float)((float)(end.v[0] - origin.v[0]) * hit.fraction) + origin.v[0];
+            LocalClientGlobals->mountHint.refinedOrigin.v[1] = (float)((float)(end.v[1] - origin.v[1]) * fraction) + origin.v[1];
+            LocalClientGlobals->mountHint.refinedOrigin.v[2] = (float)((float)(end.v[2] - origin.v[2]) * fraction) + origin.v[2];
           }
         }
-        _RDI->mountHint.lastOriginUsedForRefined.v[0] = _RDI->mountHint.origin.v[0];
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+59F30h]
-          vmovss  dword ptr [rdi+59F50h], xmm0
-          vmovss  xmm1, dword ptr [rdi+59F34h]
-          vmovss  dword ptr [rdi+59F54h], xmm1
-        }
-        v68 = DCONST_DVARBOOL_mount_indicator_debug;
+        LocalClientGlobals->mountHint.lastOriginUsedForRefined.v[0] = LocalClientGlobals->mountHint.origin.v[0];
+        LocalClientGlobals->mountHint.lastOriginUsedForRefined.v[1] = LocalClientGlobals->mountHint.origin.v[1];
+        LocalClientGlobals->mountHint.lastOriginUsedForRefined.v[2] = LocalClientGlobals->mountHint.origin.v[2];
+        v26 = DCONST_DVARBOOL_mount_indicator_debug;
         if ( !DCONST_DVARBOOL_mount_indicator_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_indicator_debug") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v68);
-        if ( v68->current.enabled )
-          CG_DebugLine(&v81, &end, &colorBlue, 1, 0);
-        v69 = hkMemHeapAllocator();
+        Dvar_CheckFrontendServerThread(v26);
+        if ( v26->current.enabled )
+          CG_DebugLine(&origin, &end, &colorBlue, 1, 0);
+        v27 = hkMemHeapAllocator();
         ignoreBodies.m_ignoreBodies.m_size = 0;
         if ( ignoreBodies.m_ignoreBodies.m_capacityAndFlags >= 0 )
-          hkMemoryAllocator::bufFree2(v69, ignoreBodies.m_ignoreBodies.m_data, 4, ignoreBodies.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+          hkMemoryAllocator::bufFree2(v27, ignoreBodies.m_ignoreBodies.m_data, 4, ignoreBodies.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
         ignoreBodies.m_ignoreBodies.m_data = NULL;
         ignoreBodies.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-        v70 = hkMemHeapAllocator();
+        v28 = hkMemHeapAllocator();
         ignoreBodies.m_ignoreEntities.m_size = 0;
         if ( ignoreBodies.m_ignoreEntities.m_capacityAndFlags >= 0 )
-          hkMemoryAllocator::bufFree2(v70, ignoreBodies.m_ignoreEntities.m_data, 8, ignoreBodies.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+          hkMemoryAllocator::bufFree2(v28, ignoreBodies.m_ignoreEntities.m_data, 8, ignoreBodies.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
       }
     }
-  }
-  _R11 = &v86;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
   }
 }
 
@@ -831,38 +697,29 @@ CG_ContextMount_TryDrawMountIndicator
 */
 void CG_ContextMount_TryDrawMountIndicator(LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, const vec2_t *drawSize, const vec2_t *spread, const float centerX, const float centerY, const vec4_t *color, float scale, int horzAlign, int vertAlign)
 {
-  const dvar_t *v14; 
+  const dvar_t *v10; 
   cg_t *LocalClientGlobals; 
-  const dvar_t *v34; 
-  float fmt; 
-  float v48; 
-  vec4_t v49; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  const dvar_t *v20; 
+  float v21; 
+  float v22; 
+  vec4_t v23; 
 
-  v14 = DCONST_DVARBOOL_mount_indicator_enable;
+  v10 = DCONST_DVARBOOL_mount_indicator_enable;
   if ( !DCONST_DVARBOOL_mount_indicator_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_indicator_enable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( v14->current.enabled )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( v10->current.enabled )
   {
-    __asm
-    {
-      vmovaps [rsp+0D8h+var_38], xmm6
-      vmovaps [rsp+0D8h+var_48], xmm7
-      vmovaps [rsp+0D8h+var_58], xmm8
-      vmovaps [rsp+0D8h+var_68], xmm9
-    }
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     if ( LocalClientGlobals->mountHint.reticleIconType == MOUNT_ICON_TYPE_UP )
     {
-      __asm
-      {
-        vmovss  xmm0, [rsp+0D8h+centerY]
-        vsubss  xmm1, xmm0, dword ptr [rsi+4]
-        vsubss  xmm2, xmm1, dword ptr [rdi+4]
-        vmovss  xmm6, cs:__real@3f800000
-        vmovss  xmm7, cs:__real@42b40000
-        vsubss  xmm9, xmm2, xmm6
-      }
+      v16 = FLOAT_1_0;
+      v19 = FLOAT_90_0;
+      v17 = (float)((float)(centerY - drawSize->v[1]) - spread->v[1]) - 1.0;
     }
     else
     {
@@ -870,82 +727,39 @@ void CG_ContextMount_TryDrawMountIndicator(LocalClientNum_t localClientNum, cons
       {
         if ( LocalClientGlobals->mountHint.reticleIconType == MOUNT_ICON_TYPE_RIGHT )
         {
-          __asm
-          {
-            vmovss  xmm0, [rsp+0D8h+centerX]
-            vaddss  xmm1, xmm0, dword ptr [rsi]
-            vaddss  xmm2, xmm1, dword ptr [rdi]
-            vmovss  xmm6, cs:__real@3f800000
-            vmovss  xmm7, cs:__real@43340000
-            vmovss  xmm9, [rsp+0D8h+centerY]
-            vaddss  xmm8, xmm2, xmm6
-          }
+          v16 = FLOAT_1_0;
+          v19 = FLOAT_180_0;
+          v17 = centerY;
+          v18 = (float)((float)(centerX + drawSize->v[0]) + spread->v[0]) + 1.0;
         }
         else
         {
           if ( LocalClientGlobals->mountHint.reticleIconType != MOUNT_ICON_TYPE_LEFT )
-          {
-LABEL_18:
-            __asm
-            {
-              vmovaps xmm8, [rsp+0D8h+var_58]
-              vmovaps xmm7, [rsp+0D8h+var_48]
-              vmovaps xmm6, [rsp+0D8h+var_38]
-              vmovaps xmm9, [rsp+0D8h+var_68]
-            }
             return;
-          }
-          __asm
-          {
-            vmovss  xmm0, [rsp+0D8h+centerX]
-            vsubss  xmm1, xmm0, dword ptr [rsi]
-            vsubss  xmm2, xmm1, dword ptr [rdi]
-            vmovss  xmm6, cs:__real@3f800000
-            vmovss  xmm9, [rsp+0D8h+centerY]
-            vsubss  xmm8, xmm2, xmm6
-            vxorps  xmm7, xmm7, xmm7
-          }
+          v16 = FLOAT_1_0;
+          v17 = centerY;
+          v18 = (float)((float)(centerX - drawSize->v[0]) - spread->v[0]) - 1.0;
+          v19 = 0.0;
         }
-LABEL_14:
-        v34 = DCONST_DVARFLT_mount_indicator_size;
-        if ( !DCONST_DVARFLT_mount_indicator_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_indicator_size") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v34);
-        __asm
-        {
-          vmovss  xmm0, [rsp+0D8h+scale]
-          vmulss  xmm3, xmm0, dword ptr [rbx+28h]; width
-          vmulss  xmm1, xmm3, cs:__real@3f000000
-        }
-        _RAX = color;
-        __asm
-        {
-          vsubss  xmm4, xmm8, xmm1
-          vsubss  xmm2, xmm9, xmm1; y
-          vmovaps xmm1, xmm4; x
-          vmovss  xmm0, dword ptr [rax+0Ch]
-          vmovss  [rsp+0D8h+var_A0], xmm7
-          vmovss  dword ptr [rsp+0D8h+fmt], xmm3
-          vmovss  dword ptr [rsp+0D8h+var_88], xmm6
-          vmovss  dword ptr [rsp+0D8h+var_88+4], xmm6
-          vmovss  dword ptr [rsp+0D8h+var_88+8], xmm6
-          vmovss  dword ptr [rsp+0D8h+var_88+0Ch], xmm0
-        }
-        CG_DrawRotatedPic(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, horzAlign, vertAlign, v48, &v49, cgMedia.leanReticleHint);
-        goto LABEL_18;
+        goto LABEL_14;
       }
-      __asm
-      {
-        vmovss  xmm0, [rsp+0D8h+centerY]
-        vaddss  xmm1, xmm0, dword ptr [rsi+4]
-        vaddss  xmm2, xmm1, dword ptr [rdi+4]
-        vmovss  xmm6, cs:__real@3f800000
-        vmovss  xmm7, cs:__real@c2b40000
-        vaddss  xmm9, xmm2, xmm6
-      }
+      v16 = FLOAT_1_0;
+      v19 = FLOAT_N90_0;
+      v17 = (float)((float)(centerY + drawSize->v[1]) + spread->v[1]) + 1.0;
     }
-    __asm { vmovss  xmm8, [rsp+0D8h+centerX] }
-    goto LABEL_14;
+    v18 = centerX;
+LABEL_14:
+    v20 = DCONST_DVARFLT_mount_indicator_size;
+    if ( !DCONST_DVARFLT_mount_indicator_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_indicator_size") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v20);
+    v21 = scale * v20->current.value;
+    v22 = color->v[3];
+    v23.v[0] = v16;
+    v23.v[1] = v16;
+    v23.v[2] = v16;
+    v23.v[3] = v22;
+    CG_DrawRotatedPic(scrPlace, v18 - (float)(v21 * 0.5), v17 - (float)(v21 * 0.5), v21, v21, horzAlign, vertAlign, v19, &v23, cgMedia.leanReticleHint);
   }
 }
 
@@ -983,210 +797,153 @@ CG_ContextMount_UmbraOffsetTrace_StartWorkers
 */
 void CG_ContextMount_UmbraOffsetTrace_StartWorkers(const LocalClientNum_t localClientNum)
 {
-  __int64 v13; 
-  const dvar_t *v14; 
-  char v18; 
+  __int64 v1; 
+  const dvar_t *v2; 
+  cg_t *LocalClientGlobals; 
+  cg_t *v4; 
   unsigned int EdgeIndex; 
   CgHandler *Handler; 
-  float v23; 
-  __int64 v35; 
-  workerTrace_t *v37; 
-  __int64 v62; 
-  __int64 v64; 
-  int v65; 
+  double v7; 
+  int v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  double v13; 
+  double v14; 
+  __int128 v15; 
+  const dvar_t *v16; 
+  __int128 unsignedInt; 
+  __int64 v18; 
+  __int64 v19; 
+  workerTrace_t *v20; 
+  __int128 v25; 
+  __int64 v28; 
+  __int64 v29; 
   vec3_t outOrg; 
-  int v67[3]; 
-  __int64 v68; 
+  double v31[4]; 
   TraceWorkerCmd cmd; 
   vec3_t outParallel; 
+  __int128 v34; 
+  double v35; 
   vec3_t outBelow; 
   vec3_t outNormal; 
   MountSurfaceProperties mount; 
-  char v76; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v68 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  v13 = localClientNum;
-  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
-  {
-    v65 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 626, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_mountUmbraResultCount ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_mountUmbraResultCount )\n\t%i not in [0, %i)", localClientNum, v65) )
-      __debugbreak();
-  }
-  s_mountUmbraResultCount[v13] = 0;
-  v14 = DCONST_DVARMPBOOL_mount_tuning_visibility_query_lateral_traces;
+  v31[3] = NAN;
+  v1 = localClientNum;
+  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 626, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_mountUmbraResultCount ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_mountUmbraResultCount )\n\t%i not in [0, %i)", localClientNum, 2) )
+    __debugbreak();
+  s_mountUmbraResultCount[v1] = 0;
+  v2 = DCONST_DVARMPBOOL_mount_tuning_visibility_query_lateral_traces;
   if ( !DCONST_DVARMPBOOL_mount_tuning_visibility_query_lateral_traces && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_tuning_visibility_query_lateral_traces") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( v14->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
-    _RAX = (EdgeId *)CG_GetLocalClientGlobals((const LocalClientNum_t)v13);
-    _RSI = _RAX;
-    __asm
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
+    v4 = LocalClientGlobals;
+    if ( LocalClientGlobals->predictedPlayerState.mountState.mountFraction > 0.0 && LocalClientGlobals->predictedPlayerState.mountState.surface.type == MOUNT_TYPE_TOP && EdgeId::IsValid(&LocalClientGlobals->predictedPlayerState.mountState.surface.id) )
     {
-      vxorps  xmm6, xmm6, xmm6
-      vcomiss xmm6, dword ptr [rax+4C8h]
-    }
-    if ( v18 )
-    {
-      if ( _RAX[145].m_entityIndex == 1 && EdgeId::IsValid(_RAX + 146) )
+      EdgeIndex = EdgeId::GetEdgeIndex(&v4->predictedPlayerState.mountState.surface.id);
+      if ( MapEdgeList_IsLoaded(EdgeIndex) )
       {
-        EdgeIndex = EdgeId::GetEdgeIndex(_RSI + 146);
-        if ( MapEdgeList_IsLoaded(EdgeIndex) )
+        RefdefView_GetOrg(&v4->refdef.view, &outOrg);
+        Handler = CgHandler::getHandler((LocalClientNum_t)v1);
+        MountSurfaceProperties::Initialize(&mount, Handler, &v4->predictedPlayerState.mountState.surface);
+        BG_ContextMount_CalcMountVectors(Handler, &mount, &outNormal, &outParallel, &outBelow);
+        v7 = BG_ContextMount_CalcCameraMinDistToPlayerClip();
+        *(float *)&v34 = 0.0;
+        *((float *)&v34 + 1) = 0.0;
+        *((float *)&v34 + 2) = 0.0;
+        *((float *)&v34 + 3) = *(float *)&v7;
+        *(float *)&v35 = *(float *)&v7;
+        *((float *)&v35 + 1) = *(float *)&v7;
+        v8 = 0;
+        v9 = outOrg.v[2];
+        v10 = outOrg.v[2];
+        v11 = outOrg.v[1];
+        v12 = outOrg.v[0];
+        v13 = *(double *)outOrg.v;
+        v14 = v35;
+        v15 = v34;
+        do
         {
-          RefdefView_GetOrg((const RefdefView *)&_RSI[3366], &outOrg);
-          Handler = CgHandler::getHandler((LocalClientNum_t)v13);
-          MountSurfaceProperties::Initialize(&mount, Handler, (const MountSurfaceAbbreviatedProperties *)&_RSI[145].m_entityIndex);
-          BG_ContextMount_CalcMountVectors(Handler, &mount, &outNormal, &outParallel, &outBelow);
-          *(double *)&_XMM0 = BG_ContextMount_CalcCameraMinDistToPlayerClip();
-          __asm
+          v16 = DCONST_DVARFLT_mount_tuning_visibility_query_min_distance;
+          if ( !DCONST_DVARFLT_mount_tuning_visibility_query_min_distance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_tuning_visibility_query_min_distance") )
+            __debugbreak();
+          Dvar_CheckFrontendServerThread(v16);
+          unsignedInt = v16->current.unsignedInt;
+          *(float *)&unsignedInt = (float)(v16->current.value * v4->predictedPlayerState.mountState.mountFraction) * 2.0;
+          if ( (unsigned int)v1 >= 2 )
           {
-            vmovss  dword ptr [rbp+1E0h+var_140], xmm6
-            vmovss  dword ptr [rbp+1E0h+var_140+4], xmm6
-            vmovss  dword ptr [rbp+1E0h+var_140+8], xmm6
-            vmovss  dword ptr [rbp+1E0h+var_140+0Ch], xmm0
-            vmovss  dword ptr [rbp+1E0h+var_130], xmm0
-            vmovss  dword ptr [rbp+1E0h+var_130+4], xmm0
-          }
-          _ER15 = 0;
-          __asm { vmovss  xmm10, dword ptr [rsp+2E0h+outOrg+8] }
-          v23 = outOrg.v[2];
-          __asm
-          {
-            vmovss  xmm11, dword ptr [rsp+2E0h+outOrg+4]
-            vmovss  xmm12, dword ptr [rsp+2E0h+outOrg]
-            vmovsd  xmm9, qword ptr [rsp+2E0h+outOrg]
-            vmovsd  xmm13, [rbp+1E0h+var_130]
-            vmovups xmm14, [rbp+1E0h+var_140]
-            vmovss  xmm15, dword ptr cs:__xmm@80000000800000008000000080000000
-            vmovss  xmm8, cs:__real@40000000
-          }
-          do
-          {
-            _RDI = DCONST_DVARFLT_mount_tuning_visibility_query_min_distance;
-            if ( !DCONST_DVARFLT_mount_tuning_visibility_query_min_distance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_tuning_visibility_query_min_distance") )
+            LODWORD(v29) = 2;
+            LODWORD(v28) = v1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 681, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_mountUmbraResultCount ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_mountUmbraResultCount )\n\t%i not in [0, %i)", v28, v29) )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(_RDI);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+28h]
-              vmulss  xmm0, xmm0, dword ptr [rsi+4C8h]
-              vmulss  xmm6, xmm0, xmm8
-            }
-            if ( (unsigned int)v13 >= 2 )
-            {
-              LODWORD(v64) = 2;
-              LODWORD(v62) = v13;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 681, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_mountUmbraResultCount ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_mountUmbraResultCount )\n\t%i not in [0, %i)", v62, v64) )
-                __debugbreak();
-            }
-            v35 = s_mountUmbraResultCount[v13];
-            s_mountUmbraResultCount[v13] = v35 + 1;
-            if ( (unsigned int)_ER15 >= 2 )
-            {
-              LODWORD(v64) = 2;
-              LODWORD(v62) = _ER15;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 685, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( s_mountUmbraResults[localClientNum] ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( s_mountUmbraResults[localClientNum] )\n\t%i not in [0, %i)", v62, v64) )
-                __debugbreak();
-            }
-            _RAX = (v35 + 2 * v13) << 7;
-            v37 = (workerTrace_t *)((char *)s_mountUmbraResults[0] + _RAX);
-            *(volatile unsigned int *)((char *)&s_mountUmbraResults[0][0].state + _RAX) = 1;
-            __asm { vxorps  xmm3, xmm6, xmm15 }
-            LODWORD(_RAX) = 0;
-            __asm
-            {
-              vmovd   xmm1, eax
-              vmovd   xmm0, r15d
-              vpcmpeqd xmm2, xmm0, xmm1
-              vblendvps xmm4, xmm3, xmm6, xmm2
-              vmulss  xmm1, xmm4, dword ptr [rbp+1E0h+outParallel]
-              vaddss  xmm7, xmm1, xmm12
-              vmovss  [rsp+2E0h+var_290], xmm7
-              vmulss  xmm1, xmm4, dword ptr [rbp+1E0h+outParallel+4]
-              vaddss  xmm6, xmm1, xmm11
-              vmovss  [rsp+2E0h+var_28C], xmm6
-              vmulss  xmm1, xmm4, dword ptr [rbp+1E0h+outParallel+8]
-              vaddss  xmm2, xmm1, xmm10
-              vmovss  [rsp+2E0h+var_288], xmm2
-            }
-            CG_InitTraceCmd((const LocalClientNum_t)v13, &cmd);
-            cmd.localClientNum = v13;
-            cmd.phaseSelection = All;
-            cmd.results = v37;
-            cmd.tracemask = 1;
-            cmd.brushmask = 65553;
-            __asm { vmovsd  qword ptr [rsp+2E0h+cmd.start], xmm9 }
-            cmd.start.v[2] = v23;
-            __asm
-            {
-              vunpcklps xmm1, xmm7, xmm6
-              vmovsd  qword ptr [rsp+2E0h+var_290], xmm1
-              vmovsd  qword ptr [rbp+1E0h+cmd.end], xmm1
-            }
-            LODWORD(cmd.end.v[2]) = v67[2];
-            __asm
-            {
-              vmovups xmmword ptr [rbp+1E0h+cmd.bounds.midPoint], xmm14
-              vmovsd  qword ptr [rbp+1E0h+cmd.bounds.halfSize+4], xmm13
-            }
-            cmd.boundsCylinder = 0;
-            __asm
-            {
-              vmovsd  xmm0, qword ptr [rsi+699Ch]
-              vmovsd  qword ptr [rbp+1E0h+cmd.viewOffset], xmm0
-            }
-            LODWORD(cmd.viewOffset.v[2]) = _RSI[3380].m_entityIndex;
-            cmd.skelTimeStamp = 0;
-            *(_QWORD *)&cmd.entIndex = -1i64;
-            cmd.ps = (const playerState_s *)&_RSI[1];
-            *(_QWORD *)&cmd.pointTrace.bLocational = 0i64;
-            cmd.pointTrace.contentmask = 65553;
-            cmd.pointTrace.ignoreEnts[0] = _RSI[58].m_entityIndex;
-            cmd.pointTrace.ignoreEntCount = 1;
-            cmd.pointTrace.priorityMap = NULL;
-            __asm { vmovsd  qword ptr [rbp+1E0h+cmd.pointTrace.extents.start], xmm9 }
-            cmd.pointTrace.extents.start.v[2] = v23;
-            __asm { vmovsd  qword ptr [rbp+1E0h+cmd.pointTrace.extents.end], xmm1 }
-            LODWORD(cmd.pointTrace.extents.end.v[2]) = v67[2];
-            CM_CalcTraceExtents(&cmd.pointTrace.extents);
-            Sys_AddWorkerCmd(WRKCMD_TRACE_MOUNT_UMBRA, &cmd);
-            memset(v67, 0, sizeof(v67));
-            ++_ER15;
           }
-          while ( _ER15 < 2 );
-          memset(&outOrg, 0, sizeof(outOrg));
+          v18 = s_mountUmbraResultCount[v1];
+          s_mountUmbraResultCount[v1] = v18 + 1;
+          if ( (unsigned int)v8 >= 2 )
+          {
+            LODWORD(v29) = 2;
+            LODWORD(v28) = v8;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 685, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( s_mountUmbraResults[localClientNum] ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( s_mountUmbraResults[localClientNum] )\n\t%i not in [0, %i)", v28, v29) )
+              __debugbreak();
+          }
+          v19 = (v18 + 2 * v1) << 7;
+          v20 = (workerTrace_t *)((char *)s_mountUmbraResults[0] + v19);
+          *(volatile unsigned int *)((char *)&s_mountUmbraResults[0][0].state + v19) = 1;
+          _XMM3 = unsignedInt ^ (unsigned int)_xmm;
+          _XMM0 = (unsigned int)v8;
+          __asm
+          {
+            vpcmpeqd xmm2, xmm0, xmm1
+            vblendvps xmm4, xmm3, xmm6, xmm2
+          }
+          v25 = _XMM4;
+          *(float *)&v25 = (float)(*(float *)&_XMM4 * outParallel.v[0]) + v12;
+          _XMM7 = v25;
+          *(float *)v31 = *(float *)&v25;
+          *((float *)v31 + 1) = (float)(*(float *)&_XMM4 * outParallel.v[1]) + v11;
+          *(float *)&v31[1] = (float)(*(float *)&_XMM4 * outParallel.v[2]) + v9;
+          CG_InitTraceCmd((const LocalClientNum_t)v1, &cmd);
+          cmd.localClientNum = v1;
+          cmd.phaseSelection = All;
+          cmd.results = v20;
+          cmd.tracemask = 1;
+          cmd.brushmask = 65553;
+          *(double *)cmd.start.v = v13;
+          cmd.start.v[2] = v10;
+          __asm { vunpcklps xmm1, xmm7, xmm6 }
+          v31[0] = *(double *)&_XMM1;
+          *(double *)cmd.end.v = *(double *)&_XMM1;
+          cmd.end.v[2] = *(float *)&v31[1];
+          *(_OWORD *)cmd.bounds.midPoint.v = v15;
+          *(double *)&cmd.bounds.halfSize.y = v14;
+          cmd.boundsCylinder = 0;
+          cmd.viewOffset = v4->refdef.viewOffset;
+          cmd.skelTimeStamp = 0;
+          *(_QWORD *)&cmd.entIndex = -1i64;
+          cmd.ps = &v4->predictedPlayerState;
+          *(_QWORD *)&cmd.pointTrace.bLocational = 0i64;
+          cmd.pointTrace.contentmask = 65553;
+          cmd.pointTrace.ignoreEnts[0] = v4->predictedPlayerState.clientNum;
+          cmd.pointTrace.ignoreEntCount = 1;
+          cmd.pointTrace.priorityMap = NULL;
+          *(double *)cmd.pointTrace.extents.start.v = v13;
+          cmd.pointTrace.extents.start.v[2] = v10;
+          *(double *)cmd.pointTrace.extents.end.v = *(double *)&_XMM1;
+          cmd.pointTrace.extents.end.v[2] = *(float *)&v31[1];
+          CM_CalcTraceExtents(&cmd.pointTrace.extents);
+          Sys_AddWorkerCmd(WRKCMD_TRACE_MOUNT_UMBRA, &cmd);
+          memset(v31, 0, 0xCui64);
+          ++v8;
         }
+        while ( v8 < 2 );
+        memset(&outOrg, 0, sizeof(outOrg));
       }
     }
-  }
-  _R11 = &v76;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -1197,20 +954,16 @@ CG_ContextMount_UpdateAdsButtonPressed
 */
 void CG_ContextMount_UpdateAdsButtonPressed(LocalClientNum_t localClientNum, usercmd_s *cmd)
 {
-  _RDI = CG_GetLocalClientGlobals(localClientNum);
-  if ( CL_Input_IsGamepadEnabled(localClientNum) )
+  cg_t *LocalClientGlobals; 
+
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( CL_Input_IsGamepadEnabled(localClientNum) || LocalClientGlobals->predictedPlayerState.mountState.mountFraction < 1.0 )
   {
-    _RDI->mountAdsButtonPressed = 0;
+    LocalClientGlobals->mountAdsButtonPressed = 0;
   }
-  else
+  else if ( (cmd->buttons & 0x200) != 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vcomiss xmm0, dword ptr [rdi+4C8h]
-    }
-    if ( (cmd->buttons & 0x200) != 0 )
-      _RDI->mountAdsButtonPressed = 1;
+    LocalClientGlobals->mountAdsButtonPressed = 1;
   }
 }
 
@@ -1221,46 +974,49 @@ CG_ContextMount_UpdateHintIcon
 */
 void CG_ContextMount_UpdateHintIcon(LocalClientNum_t localClientNum)
 {
-  __int64 v2; 
+  __int64 v1; 
   ContextMountType type; 
+  cg_t *LocalClientGlobals; 
   int commandTime; 
-  const dvar_t *v6; 
-  int v7; 
-  char v8; 
-  BgWeaponMap *v9; 
+  const dvar_t *v5; 
+  int v6; 
+  char v7; 
+  BgWeaponMap *v8; 
   CgHandler *Handler; 
   ClActiveClient *Client; 
   const Weapon *Weapon; 
+  float v12; 
+  float v13; 
   MountSurfaceDetailedProperties *outMountProperties; 
-  __int64 v18; 
+  __int64 v15; 
   EdgeId id; 
   ContextMountIconType outIconType; 
   BgWeaponMap *weaponMap; 
   vec3_t outMountPoint; 
-  MountSurfaceDetailedProperties v23; 
-  WorldUpReferenceFrame v24; 
+  MountSurfaceDetailedProperties v20; 
+  WorldUpReferenceFrame v21; 
   MountFailureResult outResults; 
   MountPlayerProperties outPlayerProperties; 
 
-  v2 = localClientNum;
+  v1 = localClientNum;
   type = MOUNT_TYPE_NONE;
-  _RDI = CG_GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   id = 0i64;
-  commandTime = _RDI->predictedPlayerState.commandTime;
-  CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
-  CL_Input_IsToggleAdsEnabled((const LocalClientNum_t)v2);
-  v6 = DCONST_DVARMPBOOL_mount_enable;
+  commandTime = LocalClientGlobals->predictedPlayerState.commandTime;
+  CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
+  CL_Input_IsToggleAdsEnabled((const LocalClientNum_t)v1);
+  v5 = DCONST_DVARMPBOOL_mount_enable;
   if ( !DCONST_DVARMPBOOL_mount_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_enable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( !v6->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( !v5->current.enabled )
     goto LABEL_16;
-  v7 = CL_Input_IsGamepadEnabled((LocalClientNum_t)v2) ? GamerProfile_GetMountButton(v2) : GamerProfile_GetMountButtonKBM(v2);
-  switch ( v7 )
+  v6 = CL_Input_IsGamepadEnabled((LocalClientNum_t)v1) ? GamerProfile_GetMountButton(v1) : GamerProfile_GetMountButtonKBM(v1);
+  switch ( v6 )
   {
     case 2:
       id = (EdgeId)"PLATFORM/MOUNT_HINT_DOUBLE";
-      v8 = 1;
+      v7 = 1;
       break;
     case 3:
     case 4:
@@ -1268,96 +1024,85 @@ void CG_ContextMount_UpdateHintIcon(LocalClientNum_t localClientNum)
     case 8:
     case 10:
       id = (EdgeId)"PLATFORM/MOUNT_HINT";
-      v8 = 1;
+      v7 = 1;
       break;
     case 6:
       id = (EdgeId)"PLATFORM/MOUNT_HINT_HOLD";
-      v8 = 1;
+      v7 = 1;
       break;
     case 7:
       id = (EdgeId)"PLATFORM/MOUNT_HINT_HOLD";
-      v8 = 1;
+      v7 = 1;
       break;
     case 9:
       id = (EdgeId)"PLATFORM/MOUNT_HINT_HOLD";
-      v8 = 1;
+      v7 = 1;
       break;
     default:
-      v8 = 0;
+      v7 = 0;
       break;
   }
-  if ( v8 )
+  if ( v7 )
   {
-    if ( _RDI->mountHint.commandTime != commandTime && !BG_ContextMount_IsActive(&_RDI->predictedPlayerState) )
+    if ( LocalClientGlobals->mountHint.commandTime != commandTime && !BG_ContextMount_IsActive(&LocalClientGlobals->predictedPlayerState) )
     {
-      if ( !CgWeaponMap::ms_instance[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+      if ( !CgWeaponMap::ms_instance[v1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
         __debugbreak();
-      weaponMap = CgWeaponMap::ms_instance[v2];
-      v9 = weaponMap;
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      weaponMap = CgWeaponMap::ms_instance[v1];
+      v8 = weaponMap;
       outIconType = MOUNT_ICON_TYPE_NONE;
-      __asm
-      {
-        vmovss  dword ptr [rsp+270h+outMountPoint], xmm0
-        vmovss  dword ptr [rsp+270h+outMountPoint+4], xmm0
-        vmovss  dword ptr [rsp+270h+outMountPoint+8], xmm0
-      }
-      Handler = CgHandler::getHandler((LocalClientNum_t)v2);
+      outMountPoint.v[0] = 0.0;
+      outMountPoint.v[1] = 0.0;
+      outMountPoint.v[2] = 0.0;
+      Handler = CgHandler::getHandler((LocalClientNum_t)v1);
       EdgeId::Clear(&id);
       MountFailureResult::MountFailureResult(&outResults);
-      if ( BG_ContextMount_IsValidMountState(v9, &_RDI->predictedPlayerState, &outResults) )
+      if ( BG_ContextMount_IsValidMountState(v8, &LocalClientGlobals->predictedPlayerState, &outResults) )
       {
-        Client = ClActiveClient::GetClient((const LocalClientNum_t)v2);
-        WorldUpReferenceFrame::WorldUpReferenceFrame(&v24, &_RDI->predictedPlayerState, Handler);
-        Weapon = BG_ContextMount_GetWeapon(weaponMap, &_RDI->predictedPlayerState, &Client->cgameUserCmdWeapon);
+        Client = ClActiveClient::GetClient((const LocalClientNum_t)v1);
+        WorldUpReferenceFrame::WorldUpReferenceFrame(&v21, &LocalClientGlobals->predictedPlayerState, Handler);
+        Weapon = BG_ContextMount_GetWeapon(weaponMap, &LocalClientGlobals->predictedPlayerState, &Client->cgameUserCmdWeapon);
         MountPlayerProperties::MountPlayerProperties(&outPlayerProperties);
-        MountSurfaceDetailedProperties::MountSurfaceDetailedProperties(&v23);
-        if ( BG_ContextMount_FindMountEdge(Handler, &_RDI->predictedPlayerState, &v24.m_axis, Weapon, &outPlayerProperties, &v23) )
+        MountSurfaceDetailedProperties::MountSurfaceDetailedProperties(&v20);
+        if ( BG_ContextMount_FindMountEdge(Handler, &LocalClientGlobals->predictedPlayerState, &v21.m_axis, Weapon, &outPlayerProperties, &v20) )
         {
-          BG_ContextMount_CalcMountPoint(Handler, &v23.mount, &outMountPoint);
-          type = v23.mount.type;
-          id = v23.mount.id;
-          BG_ContextMount_CalcIconType(&_RDI->predictedPlayerState, weaponMap, Handler, (const ContextMountType)v23.mount.type, &outMountPoint, &outIconType);
+          BG_ContextMount_CalcMountPoint(Handler, &v20.mount, &outMountPoint);
+          type = v20.mount.type;
+          id = v20.mount.id;
+          BG_ContextMount_CalcIconType(&LocalClientGlobals->predictedPlayerState, weaponMap, Handler, (const ContextMountType)v20.mount.type, &outMountPoint, &outIconType);
         }
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+270h+outMountPoint]
-        vmovss  xmm1, dword ptr [rsp+270h+outMountPoint+4]
-      }
-      _RDI->mountHint.reticleIconType = outIconType;
-      _RDI->mountHint.edgeId = id;
-      _RDI->mountHint.type = type;
-      __asm
-      {
-        vmovss  dword ptr [rdi+59F2Ch], xmm0
-        vmovss  xmm0, dword ptr [rsp+270h+outMountPoint+8]
-        vmovss  dword ptr [rdi+59F34h], xmm0
-        vmovss  dword ptr [rdi+59F30h], xmm1
-      }
-      _RDI->mountHint.commandTime = commandTime;
+      v12 = outMountPoint.v[0];
+      v13 = outMountPoint.v[1];
+      LocalClientGlobals->mountHint.reticleIconType = outIconType;
+      LocalClientGlobals->mountHint.edgeId = id;
+      LocalClientGlobals->mountHint.type = type;
+      LocalClientGlobals->mountHint.origin.v[0] = v12;
+      LocalClientGlobals->mountHint.origin.v[2] = outMountPoint.v[2];
+      LocalClientGlobals->mountHint.origin.v[1] = v13;
+      LocalClientGlobals->mountHint.commandTime = commandTime;
     }
-    if ( _RDI->mountHint.type >= (unsigned int)COUNT_MOUNT_TYPE )
+    if ( LocalClientGlobals->mountHint.type >= (unsigned int)COUNT_MOUNT_TYPE )
     {
-      LODWORD(v18) = 4;
-      LODWORD(outMountProperties) = _RDI->mountHint.type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 444, ASSERT_TYPE_ASSERT, "(unsigned)( cgameGlob->mountHint.type ) < (unsigned)( COUNT_MOUNT_TYPE )", "cgameGlob->mountHint.type doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", outMountProperties, v18) )
+      LODWORD(v15) = 4;
+      LODWORD(outMountProperties) = LocalClientGlobals->mountHint.type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 444, ASSERT_TYPE_ASSERT, "(unsigned)( cgameGlob->mountHint.type ) < (unsigned)( COUNT_MOUNT_TYPE )", "cgameGlob->mountHint.type doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", outMountProperties, v15) )
         __debugbreak();
     }
-    if ( _RDI->mountHint.reticleIconType >= (unsigned int)COUNT_MOUNT_ICON_TYPE )
+    if ( LocalClientGlobals->mountHint.reticleIconType >= (unsigned int)COUNT_MOUNT_ICON_TYPE )
     {
-      LODWORD(v18) = 5;
-      LODWORD(outMountProperties) = _RDI->mountHint.reticleIconType;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 445, ASSERT_TYPE_ASSERT, "(unsigned)( cgameGlob->mountHint.reticleIconType ) < (unsigned)( COUNT_MOUNT_ICON_TYPE )", "cgameGlob->mountHint.reticleIconType doesn't index COUNT_MOUNT_ICON_TYPE\n\t%i not in [0, %i)", outMountProperties, v18) )
+      LODWORD(v15) = 5;
+      LODWORD(outMountProperties) = LocalClientGlobals->mountHint.reticleIconType;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 445, ASSERT_TYPE_ASSERT, "(unsigned)( cgameGlob->mountHint.reticleIconType ) < (unsigned)( COUNT_MOUNT_ICON_TYPE )", "cgameGlob->mountHint.reticleIconType doesn't index COUNT_MOUNT_ICON_TYPE\n\t%i not in [0, %i)", outMountProperties, v15) )
         __debugbreak();
     }
-    CG_ContextMount_RefineMountHintOrigin((LocalClientNum_t)v2);
+    CG_ContextMount_RefineMountHintOrigin((LocalClientNum_t)v1);
   }
   else
   {
 LABEL_16:
-    *(_QWORD *)&_RDI->mountHint.type = 0i64;
-    _RDI->mountHint.commandTime = commandTime;
+    *(_QWORD *)&LocalClientGlobals->mountHint.type = 0i64;
+    LocalClientGlobals->mountHint.commandTime = commandTime;
   }
 }
 
@@ -1368,47 +1113,27 @@ CG_ContextMount_UpdateViewAngles
 */
 void CG_ContextMount_UpdateViewAngles(const playerState_s *const ps, vec3_t *inOutViewAngles)
 {
-  bool v4; 
-  bool v5; 
+  const dvar_t *v4; 
+  __int128 unsignedInt; 
 
-  _RSI = inOutViewAngles;
-  _RBX = ps;
-  v4 = ps == NULL;
-  if ( !ps )
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 212, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    __debugbreak();
+  if ( ps->mountState.mountFraction > 0.000001 && (unsigned int)(ps->mountState.surface.type - 2) <= 1 )
   {
-    v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_context_mount.cpp", 212, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps");
-    v4 = !v5;
-    if ( v5 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4C0h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( !v4 && (unsigned int)(_RBX->mountState.surface.type - 2) <= 1 )
-  {
-    _RDI = DCONST_DVARFLT_mount_side_view_roll;
+    v4 = DCONST_DVARFLT_mount_side_view_roll;
     if ( !DCONST_DVARFLT_mount_side_view_roll && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "mount_side_view_roll") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
+    Dvar_CheckFrontendServerThread(v4);
+    unsignedInt = v4->current.unsignedInt;
+    *(float *)&unsignedInt = v4->current.value * ps->mountState.mountFraction;
+    _XMM4 = unsignedInt;
+    _XMM0 = (unsigned int)ps->mountState.surface.type;
     __asm
     {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmulss  xmm4, xmm0, dword ptr [rbx+4C0h]
-      vmovd   xmm0, dword ptr [rbx+484h]
-      vxorps  xmm3, xmm4, cs:__xmm@80000000800000008000000080000000
-    }
-    _EAX = 2;
-    __asm
-    {
-      vmovd   xmm1, eax
       vpcmpeqd xmm2, xmm0, xmm1
       vblendvps xmm1, xmm4, xmm3, xmm2
-      vaddss  xmm0, xmm1, dword ptr [rsi+8]
-      vmovss  dword ptr [rsi+8], xmm0
     }
+    inOutViewAngles->v[2] = *(float *)&_XMM1 + inOutViewAngles->v[2];
   }
 }
 

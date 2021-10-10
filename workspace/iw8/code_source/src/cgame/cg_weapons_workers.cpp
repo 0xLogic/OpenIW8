@@ -121,14 +121,14 @@ void CgSimBulletFirePellet_AddToDelayedEvents(const LocalClientNum_t localClient
   ntl::internal::list_head_base<ntl::internal::list_node<CgSimBulletFirePellet_MainThreadEvent> > *p_m_listHead; 
   ntl::internal::list_node_base *mp_next; 
   ntl::internal::pool_allocator_freelist<176> *p_m_freelist; 
-  int v21; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v9; 
+  int v11; 
 
   v2 = localClientNum;
-  _RDI = event;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v21 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons_workers.cpp", 200, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v21) )
+    v11 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons_workers.cpp", 200, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v11) )
       __debugbreak();
   }
   v4 = v2;
@@ -156,34 +156,21 @@ LABEL_8:
     }
     if ( (ntl::internal::pool_allocator_freelist<176> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0xB0ui64, 0x100ui64) )
       __debugbreak();
-    _R8 = (ntl::internal::list_node<CgSimBulletFirePellet_MainThreadEvent> *)p_m_freelist->m_head.mp_next;
+    v9 = p_m_freelist->m_head.mp_next;
     p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-    _R8->mp_prev = NULL;
-    _R8->mp_next = NULL;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [r8+10h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+10h]
-      vmovups xmmword ptr [r8+20h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+20h]
-      vmovups xmmword ptr [r8+30h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+30h]
-      vmovups xmmword ptr [r8+40h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+40h]
-      vmovups xmmword ptr [r8+50h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+50h]
-      vmovups xmmword ptr [r8+60h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+60h]
-      vmovups xmmword ptr [r8+70h], xmm0
-      vmovups xmm0, xmmword ptr [rdi+70h]
-      vmovups xmmword ptr [r8+80h], xmm0
-      vmovups xmm1, xmmword ptr [rdi+80h]
-      vmovups xmmword ptr [r8+90h], xmm1
-      vmovups xmm0, xmmword ptr [rdi+90h]
-      vmovups xmmword ptr [r8+0A0h], xmm0
-    }
-    ntl::internal::list_head_base<ntl::internal::list_node<CgSimBulletFirePellet_MainThreadEvent>>::insert_before(&s_delayedImpactEvents[v4].m_listHead, (ntl::internal::list_node<CgSimBulletFirePellet_MainThreadEvent> *)&s_delayedImpactEvents[v4].m_listHead, _R8);
+    v9->mp_next = NULL;
+    v9[1].mp_next = NULL;
+    *(_OWORD *)&v9[2].mp_next = *(_OWORD *)&event->type;
+    *(_OWORD *)&v9[4].mp_next = *(_OWORD *)&event->spawnTracer.inflictorEntNum;
+    *(_OWORD *)&v9[6].mp_next = *(_OWORD *)&event->spawnTracer.sourcePrimaryTagName;
+    *(_OWORD *)&v9[8].mp_next = *(_OWORD *)&event->spawnTracer.tracerStart.z;
+    *(_OWORD *)&v9[10].mp_next = *(_OWORD *)&event->spawnTracer.r_weapon.weaponIdx;
+    *(_OWORD *)&v9[12].mp_next = *(_OWORD *)&event->spawnTracer.r_weapon.weaponAttachments[2];
+    *(_OWORD *)&v9[14].mp_next = *(_OWORD *)&event->spawnTracer.r_weapon.attachmentVariationIndices[5];
+    *(_OWORD *)&v9[16].mp_next = *(_OWORD *)&event->spawnTracer.r_weapon.attachmentVariationIndices[21];
+    *(_OWORD *)&v9[18].mp_next = *(_OWORD *)&event->spawnTracer.spawnDelay;
+    *(_OWORD *)&v9[20].mp_next = *(_OWORD *)((char *)&event->spawnTracer + 136);
+    ntl::internal::list_head_base<ntl::internal::list_node<CgSimBulletFirePellet_MainThreadEvent>>::insert_before(&s_delayedImpactEvents[v4].m_listHead, (ntl::internal::list_node<CgSimBulletFirePellet_MainThreadEvent> *)&s_delayedImpactEvents[v4].m_listHead, (ntl::internal::list_node<CgSimBulletFirePellet_MainThreadEvent> *)v9);
   }
   else
   {
@@ -247,14 +234,12 @@ void CgSimBulletFirePellet_ExecuteQueueEntry(LocalClientNum_t localClientNum, Cg
   int time; 
   int spawnDelay; 
   bool isAlternate; 
-  const TagPair *v9; 
-  float normal; 
-  TagPair v11; 
+  const TagPair *v8; 
+  TagPair v9; 
 
-  _RSI = entry;
   if ( !entry && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons_workers.cpp", 215, ASSERT_TYPE_ASSERT, "(entry)", (const char *)&queryFormat, "entry") )
     __debugbreak();
-  if ( !_RSI->valid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons_workers.cpp", 216, ASSERT_TYPE_ASSERT, "(entry->valid)", (const char *)&queryFormat, "entry->valid") )
+  if ( !entry->valid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons_workers.cpp", 216, ASSERT_TYPE_ASSERT, "(entry->valid)", (const char *)&queryFormat, "entry->valid") )
     __debugbreak();
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons_workers.cpp", 217, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
@@ -262,61 +247,56 @@ void CgSimBulletFirePellet_ExecuteQueueEntry(LocalClientNum_t localClientNum, Cg
   if ( !WeaponSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons_workers.cpp", 221, ASSERT_TYPE_ASSERT, "(weaponSystem)", (const char *)&queryFormat, "weaponSystem") )
     __debugbreak();
   time = CG_GetLocalClientGlobals(localClientNum)->time;
-  switch ( _RSI->event.type )
+  switch ( entry->event.type )
   {
     case CgSimBulletFirePellet_EventType_HitEffect:
-      if ( _RSI->event.eventTriggerTime > time )
+      if ( entry->event.eventTriggerTime > time )
         goto LABEL_16;
       Sys_ProfBeginNamedEvent(0xFF008080, "HitEffect");
-      CgWeaponSystem::TrySimulateBulletFire_HitEffect(WeaponSystem, _RSI->event.eventTriggerTime, 0, _RSI->event.hitEffect.sourceEntityNum, _RSI->event.hitEffect.targetEntityNum, _RSI->event.hitEffect.targetScriptableIndex, _RSI->event.hitEffect.knownHitClientNum, &_RSI->event.hitEffect.weapon, _RSI->event.hitEffect.isAlternate, &_RSI->event.hitEffect.initialShootingPos, &_RSI->event.hitEffect.startPos, &_RSI->event.hitEffect.position, &_RSI->event.hitEffect.normal, _RSI->event.hitEffect.surfType, _RSI->event.hitEffect.meansOfDeath, _RSI->event.hitEffect.impactEffects, _RSI->event.hitEffect.hitContents, _RSI->event.hitEffect.forceClientSideHandling);
+      CgWeaponSystem::TrySimulateBulletFire_HitEffect(WeaponSystem, entry->event.eventTriggerTime, 0, entry->event.hitEffect.sourceEntityNum, entry->event.hitEffect.targetEntityNum, entry->event.hitEffect.targetScriptableIndex, entry->event.hitEffect.knownHitClientNum, &entry->event.hitEffect.weapon, entry->event.hitEffect.isAlternate, &entry->event.hitEffect.initialShootingPos, &entry->event.hitEffect.startPos, &entry->event.hitEffect.position, &entry->event.hitEffect.normal, entry->event.hitEffect.surfType, entry->event.hitEffect.meansOfDeath, entry->event.hitEffect.impactEffects, entry->event.hitEffect.hitContents, entry->event.hitEffect.forceClientSideHandling);
       Sys_ProfEndNamedEvent();
       break;
     case CgSimBulletFirePellet_EventType_MissEffect:
-      if ( _RSI->event.eventTriggerTime > time )
+      if ( entry->event.eventTriggerTime > time )
         goto LABEL_16;
       Sys_ProfBeginNamedEvent(0xFF008080, "MissEffect");
-      CgWeaponSystem::TrySimulateBulletFire_MissEffect(WeaponSystem, _RSI->event.eventTriggerTime, 0, _RSI->event.hitEffect.sourceEntityNum, &_RSI->event.missEffect.weapon, _RSI->event.missEffect.isAlternate, &_RSI->event.missEffect.initialShootingPos, &_RSI->event.hitEffect.initialShootingPos, &_RSI->event.hitEffect.startPos, _RSI->event.missEffect.surfType);
+      CgWeaponSystem::TrySimulateBulletFire_MissEffect(WeaponSystem, entry->event.eventTriggerTime, 0, entry->event.hitEffect.sourceEntityNum, &entry->event.missEffect.weapon, entry->event.missEffect.isAlternate, &entry->event.missEffect.initialShootingPos, &entry->event.hitEffect.initialShootingPos, &entry->event.hitEffect.startPos, entry->event.missEffect.surfType);
       Sys_ProfEndNamedEvent();
       break;
     case CgSimBulletFirePellet_EventType_BulletScriptableImpact:
-      if ( _RSI->event.eventTriggerTime > time )
+      if ( entry->event.eventTriggerTime > time )
       {
 LABEL_16:
-        CgSimBulletFirePellet_AddToDelayedEvents(localClientNum, &_RSI->event);
+        CgSimBulletFirePellet_AddToDelayedEvents(localClientNum, &entry->event);
       }
       else
       {
         Sys_ProfBeginNamedEvent(0xFF008080, "BulletScriptableImpact");
-        CgWeaponSystem::TryBulletScriptableImpact(WeaponSystem, _RSI->event.eventTriggerTime, 0, _RSI->event.bulletScriptableImpact.inflictorEntNum, _RSI->event.bulletScriptableImpact.targetEntityNum, &_RSI->event.bulletScriptableImpact.weapon, _RSI->event.bulletScriptableImpact.isAlternate, (const meansOfDeath_t)_RSI->event.bulletScriptableImpact.mod, &_RSI->event.bulletScriptableImpact.start, &_RSI->event.bulletScriptableImpact.hitPos, (const scr_string_t)_RSI->event.bulletScriptableImpact.hitPartName);
+        CgWeaponSystem::TryBulletScriptableImpact(WeaponSystem, entry->event.eventTriggerTime, 0, entry->event.bulletScriptableImpact.inflictorEntNum, entry->event.bulletScriptableImpact.targetEntityNum, &entry->event.bulletScriptableImpact.weapon, entry->event.bulletScriptableImpact.isAlternate, (const meansOfDeath_t)entry->event.bulletScriptableImpact.mod, &entry->event.bulletScriptableImpact.start, &entry->event.bulletScriptableImpact.hitPos, (const scr_string_t)entry->event.bulletScriptableImpact.hitPartName);
         Sys_ProfEndNamedEvent();
       }
       break;
     case CgSimBulletFirePellet_EventType_TrackingLaserAdd:
       Sys_ProfBeginNamedEvent(0xFF008080, "TrackingLaserAdd");
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+84h]
-        vmovss  dword ptr [rsp+98h+normal], xmm0
-      }
-      CgWeaponSystem::TryCG_TrackingLaserBeamAdd(WeaponSystem, 0, (const LocalClientNum_t)_RSI->event.trackingLaserAdd.localClientNum, &_RSI->event.trackingLaserAdd.start, &_RSI->event.trackingLaserAdd.end, _RSI->event.trackingLaserAdd.owner, &_RSI->event.trackingLaserAdd.weapon, _RSI->event.trackingLaserAdd.isAlternate, _RSI->event.trackingLaserAdd.shotIndex, _RSI->event.trackingLaserAdd.trackedEntNum, (const scr_string_t)_RSI->event.trackingLaserAdd.autoTargetEntTag, &_RSI->event.trackingLaserAdd.tagOffset, normal);
+      CgWeaponSystem::TryCG_TrackingLaserBeamAdd(WeaponSystem, 0, (const LocalClientNum_t)entry->event.trackingLaserAdd.localClientNum, &entry->event.trackingLaserAdd.start, &entry->event.trackingLaserAdd.end, entry->event.trackingLaserAdd.owner, &entry->event.trackingLaserAdd.weapon, entry->event.trackingLaserAdd.isAlternate, entry->event.trackingLaserAdd.shotIndex, entry->event.trackingLaserAdd.trackedEntNum, (const scr_string_t)entry->event.trackingLaserAdd.autoTargetEntTag, &entry->event.trackingLaserAdd.tagOffset, entry->event.hitEffect.normal.v[2]);
       Sys_ProfEndNamedEvent();
       break;
     case CgSimBulletFirePellet_EventType_LaserAdd:
       Sys_ProfBeginNamedEvent(0xFF008080, "LaserAdd");
-      CgWeaponSystem::TryCG_LaserBeamAdd(WeaponSystem, 0, (const LocalClientNum_t)_RSI->event.trackingLaserAdd.localClientNum, &_RSI->event.trackingLaserAdd.start, &_RSI->event.trackingLaserAdd.end, _RSI->event.laserAdd.owner, &_RSI->event.laserAdd.weapon, _RSI->event.laserAdd.isAlternate);
+      CgWeaponSystem::TryCG_LaserBeamAdd(WeaponSystem, 0, (const LocalClientNum_t)entry->event.trackingLaserAdd.localClientNum, &entry->event.trackingLaserAdd.start, &entry->event.trackingLaserAdd.end, entry->event.laserAdd.owner, &entry->event.laserAdd.weapon, entry->event.laserAdd.isAlternate);
       Sys_ProfEndNamedEvent();
       break;
     case CgSimBulletFirePellet_EventType_BreakGlass:
       Sys_ProfBeginNamedEvent(0xFF008080, "BreakGlass");
-      CgWeaponSystem::TryCG_Glass_BreakGlass(WeaponSystem, 0, _RSI->event.trackingLaserAdd.localClientNum, &_RSI->event.trackingLaserAdd.start, _RSI->event.hitEffect.weapon.weaponIdx, &_RSI->event.breakGlass.hitPosition, &_RSI->event.breakGlass.hitDirection);
+      CgWeaponSystem::TryCG_Glass_BreakGlass(WeaponSystem, 0, entry->event.trackingLaserAdd.localClientNum, &entry->event.trackingLaserAdd.start, entry->event.hitEffect.weapon.weaponIdx, &entry->event.breakGlass.hitPosition, &entry->event.breakGlass.hitDirection);
       Sys_ProfEndNamedEvent();
       break;
     case CgSimBulletFirePellet_EventType_SpawnTracer:
       Sys_ProfBeginNamedEvent(0xFF008080, "SpawnTracer");
-      spawnDelay = _RSI->event.spawnTracer.spawnDelay;
-      isAlternate = _RSI->event.spawnTracer.isAlternate;
-      TagPair::TagPair(&v11, _RSI->event.spawnTracer.sourcePrimaryTagName, _RSI->event.spawnTracer.sourceFallbackTagName);
-      CgWeaponSystem::TrySpawnTracer(WeaponSystem, _RSI->event.hitEffect.sourceEntityNum, 0, _RSI->event.spawnTracer.blendFromViewmodel, _RSI->event.spawnTracer.inflictorEntNum, &_RSI->event.spawnTracer.inflictorPerks, _RSI->event.spawnTracer.hand, *v9, &_RSI->event.breakGlass.hitDirection, &_RSI->event.spawnTracer.tracerEnd, &_RSI->event.spawnTracer.r_weapon, isAlternate, spawnDelay);
+      spawnDelay = entry->event.spawnTracer.spawnDelay;
+      isAlternate = entry->event.spawnTracer.isAlternate;
+      TagPair::TagPair(&v9, entry->event.spawnTracer.sourcePrimaryTagName, entry->event.spawnTracer.sourceFallbackTagName);
+      CgWeaponSystem::TrySpawnTracer(WeaponSystem, entry->event.hitEffect.sourceEntityNum, 0, entry->event.spawnTracer.blendFromViewmodel, entry->event.spawnTracer.inflictorEntNum, &entry->event.spawnTracer.inflictorPerks, entry->event.spawnTracer.hand, *v8, &entry->event.breakGlass.hitDirection, &entry->event.spawnTracer.tracerEnd, &entry->event.spawnTracer.r_weapon, isAlternate, spawnDelay);
       Sys_ProfEndNamedEvent();
       break;
     default:
@@ -567,9 +547,12 @@ char CgSimBulletFirePellet_TryToPrepareWorker(LocalClientNum_t localClientNum, S
   const dvar_t *v3; 
   unsigned int v5; 
   __int64 v6; 
-  __int64 v15; 
+  ConeTargetHitResults *p_m_hitResults; 
+  SimulateBulletFirePelletData *v8; 
+  ConeTargetHitResults *v9; 
+  __int64 v10; 
+  __int128 v11; 
 
-  _RDI = pelletData;
   if ( !s_cgSimBulletFirePelletWorkersEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons_workers.cpp", 74, ASSERT_TYPE_ASSERT, "(CgSimBulletFirePellet_AreWorkersEnabled())", (const char *)&queryFormat, "CgSimBulletFirePellet_AreWorkersEnabled()") )
     __debugbreak();
   if ( s_cgSimBulletFirePelletWorkersRunning && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons_workers.cpp", 75, ASSERT_TYPE_ASSERT, "(!s_cgSimBulletFirePelletWorkersRunning)", "%s\n\tAttempted to add work while simulate bullet fire worker commands are running.", "!s_cgSimBulletFirePelletWorkersRunning") )
@@ -614,100 +597,69 @@ LABEL_31:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons_workers.cpp", 100, ASSERT_TYPE_ASSERT, "(dataIndex < MAX_SIM_BULLET_FIRE_PELLET_WORKERS)", (const char *)&queryFormat, "dataIndex < MAX_SIM_BULLET_FIRE_PELLET_WORKERS") )
       __debugbreak();
 LABEL_33:
-    _RDX = &_RDI->assistTarget.m_hitResults;
+    p_m_hitResults = &pelletData->assistTarget.m_hitResults;
     s_cgSimBulletFirePelletWorkersDataInUse[v5] = 1;
-    _R8 = &s_cgSimBulletFirePelletWorkersData[v5];
-    _R8->bulletId = _RDI->bulletId;
-    _RCX = &_R8->assistTarget.m_hitResults;
-    _R8->shotIndex = _RDI->shotIndex;
-    _R8->inflictorEnt = _RDI->inflictorEnt;
-    _R8->knownHitClientNum = _RDI->knownHitClientNum;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+14h]
-      vmovups ymmword ptr [r8+14h], ymm0
-      vmovups xmm1, xmmword ptr [rdi+34h]
-      vmovups xmmword ptr [r8+34h], xmm1
-      vmovsd  xmm0, qword ptr [rdi+44h]
-      vmovsd  qword ptr [r8+44h], xmm0
-    }
-    *(_DWORD *)&_R8->weapon.weaponCamo = *(_DWORD *)&_RDI->weapon.weaponCamo;
-    _R8->isAlternate = _RDI->isAlternate;
-    _R8->primaryTagName = _RDI->primaryTagName;
-    _R8->fallbackTagName = _RDI->fallbackTagName;
-    _R8->randSeed = _RDI->randSeed;
-    _R8->isPlayerWeaponView = _RDI->isPlayerWeaponView;
-    _R8->bulletRange = _RDI->bulletRange;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+68h]
-      vmovups ymmword ptr [r8+68h], ymm0
-      vmovups xmm1, xmmword ptr [rdi+88h]
-      vmovups xmmword ptr [r8+88h], xmm1
-    }
-    _R8->meansOfDeath = _RDI->meansOfDeath;
-    _R8->attackerPerks = _RDI->attackerPerks;
-    _R8->hand = _RDI->hand;
-    _R8->aimSpreadAmount = _RDI->aimSpreadAmount;
-    _R8->spreadMin = _RDI->spreadMin;
-    _R8->spreadMax = _RDI->spreadMax;
-    _R8->angleMin = _RDI->angleMin;
-    _R8->angleMax = _RDI->angleMax;
-    _R8->distributePellets = _RDI->distributePellets;
-    _R8->ignoreTargetEvaluation = _RDI->ignoreTargetEvaluation;
-    _R8->targetEvaluator = _RDI->targetEvaluator;
-    _R8->targetCount = _RDI->targetCount;
-    _R8->targetAssistOnlyTargets = _RDI->targetAssistOnlyTargets;
-    _R8->targetAssistDirectDamage = _RDI->targetAssistDirectDamage;
-    _R8->targetAssistBeam = _RDI->targetAssistBeam;
-    v15 = 6i64;
+    v8 = &s_cgSimBulletFirePelletWorkersData[v5];
+    v8->bulletId = pelletData->bulletId;
+    v9 = &v8->assistTarget.m_hitResults;
+    v8->shotIndex = pelletData->shotIndex;
+    v8->inflictorEnt = pelletData->inflictorEnt;
+    v8->knownHitClientNum = pelletData->knownHitClientNum;
+    *(__m256i *)&v8->weapon.weaponIdx = *(__m256i *)&pelletData->weapon.weaponIdx;
+    *(_OWORD *)&v8->weapon.attachmentVariationIndices[5] = *(_OWORD *)&pelletData->weapon.attachmentVariationIndices[5];
+    *(double *)&v8->weapon.attachmentVariationIndices[21] = *(double *)&pelletData->weapon.attachmentVariationIndices[21];
+    *(_DWORD *)&v8->weapon.weaponCamo = *(_DWORD *)&pelletData->weapon.weaponCamo;
+    v8->isAlternate = pelletData->isAlternate;
+    v8->primaryTagName = pelletData->primaryTagName;
+    v8->fallbackTagName = pelletData->fallbackTagName;
+    v8->randSeed = pelletData->randSeed;
+    v8->isPlayerWeaponView = pelletData->isPlayerWeaponView;
+    v8->bulletRange = pelletData->bulletRange;
+    *(__m256i *)v8->orient.origin.v = *(__m256i *)pelletData->orient.origin.v;
+    *(_OWORD *)&v8->orient.axis.row1.z = *(_OWORD *)&pelletData->orient.axis.row1.z;
+    v8->meansOfDeath = pelletData->meansOfDeath;
+    v8->attackerPerks = pelletData->attackerPerks;
+    v8->hand = pelletData->hand;
+    v8->aimSpreadAmount = pelletData->aimSpreadAmount;
+    v8->spreadMin = pelletData->spreadMin;
+    v8->spreadMax = pelletData->spreadMax;
+    v8->angleMin = pelletData->angleMin;
+    v8->angleMax = pelletData->angleMax;
+    v8->distributePellets = pelletData->distributePellets;
+    v8->ignoreTargetEvaluation = pelletData->ignoreTargetEvaluation;
+    v8->targetEvaluator = pelletData->targetEvaluator;
+    v8->targetCount = pelletData->targetCount;
+    v8->targetAssistOnlyTargets = pelletData->targetAssistOnlyTargets;
+    v8->targetAssistDirectDamage = pelletData->targetAssistDirectDamage;
+    v8->targetAssistBeam = pelletData->targetAssistBeam;
+    v10 = 6i64;
     do
     {
-      _RCX = (ConeTargetHitResults *)((char *)_RCX + 128);
-      __asm { vmovups xmm0, xmmword ptr [rdx] }
-      _RDX = (ConeTargetHitResults *)((char *)_RDX + 128);
-      __asm
-      {
-        vmovups xmmword ptr [rcx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rdx-70h]
-        vmovups xmmword ptr [rcx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rdx-60h]
-        vmovups xmmword ptr [rcx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rdx-50h]
-        vmovups xmmword ptr [rcx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rdx-40h]
-        vmovups xmmword ptr [rcx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rdx-30h]
-        vmovups xmmword ptr [rcx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rdx-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rdx-10h]
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
-      --v15;
+      v9 = (ConeTargetHitResults *)((char *)v9 + 128);
+      v11 = *(_OWORD *)p_m_hitResults->hits[0].tagWorldPos.v;
+      p_m_hitResults = (ConeTargetHitResults *)((char *)p_m_hitResults + 128);
+      *(_OWORD *)&v9[-1].hits[10].tagWorldRot.row0.z = v11;
+      *(_OWORD *)v9[-1].hits[10].tagWorldRot.row2.v = *(_OWORD *)p_m_hitResults[-1].hits[10].tagWorldRot.row2.v;
+      *(_OWORD *)&v9[-1].hits[10].hitLocation = *(_OWORD *)&p_m_hitResults[-1].hits[10].hitLocation;
+      *(_OWORD *)v9[-1].hits[11].tagWorldPos.v = *(_OWORD *)p_m_hitResults[-1].hits[11].tagWorldPos.v;
+      *(_OWORD *)&v9[-1].hits[11].tagWorldRot.row0.y = *(_OWORD *)&p_m_hitResults[-1].hits[11].tagWorldRot.row0.y;
+      *(_OWORD *)&v9[-1].hits[11].tagWorldRot.row1.z = *(_OWORD *)&p_m_hitResults[-1].hits[11].tagWorldRot.row1.z;
+      *(_OWORD *)&v9[-1].hits[11].tagName = *(_OWORD *)&p_m_hitResults[-1].hits[11].tagName;
+      *(_OWORD *)&v9[-1].hits[11].priority = *(_OWORD *)&p_m_hitResults[-1].hits[11].priority;
+      --v10;
     }
-    while ( v15 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdx]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rdx+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rdx+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-    }
-    *(_QWORD *)&_RCX->hits[0].tagName = *(_QWORD *)&_RDX->hits[0].tagName;
-    _RCX->hits[0].modelIndex = _RDX->hits[0].modelIndex;
-    _R8->assistTarget.m_target = _RDI->assistTarget.m_target;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rdi+420h]
-      vmovsd  qword ptr [r8+420h], xmm0
-    }
-    _R8->tracerStart.v[2] = _RDI->tracerStart.v[2];
-    _R8->shouldSpawnTracer = _RDI->shouldSpawnTracer;
-    _R8->shouldPredictCharacterImpacts = _RDI->shouldPredictCharacterImpacts;
-    _R8->localClientNum = _RDI->localClientNum;
+    while ( v10 );
+    *(_OWORD *)v9->hits[0].tagWorldPos.v = *(_OWORD *)p_m_hitResults->hits[0].tagWorldPos.v;
+    *(_OWORD *)&v9->hits[0].tagWorldRot.row0.y = *(_OWORD *)&p_m_hitResults->hits[0].tagWorldRot.row0.y;
+    *(_OWORD *)&v9->hits[0].tagWorldRot.row1.z = *(_OWORD *)&p_m_hitResults->hits[0].tagWorldRot.row1.z;
+    *(_QWORD *)&v9->hits[0].tagName = *(_QWORD *)&p_m_hitResults->hits[0].tagName;
+    v9->hits[0].modelIndex = p_m_hitResults->hits[0].modelIndex;
+    v8->assistTarget.m_target = pelletData->assistTarget.m_target;
+    *(double *)v8->tracerStart.v = *(double *)pelletData->tracerStart.v;
+    v8->tracerStart.v[2] = pelletData->tracerStart.v[2];
+    v8->shouldSpawnTracer = pelletData->shouldSpawnTracer;
+    v8->shouldPredictCharacterImpacts = pelletData->shouldPredictCharacterImpacts;
+    v8->localClientNum = pelletData->localClientNum;
     return 1;
   }
   else

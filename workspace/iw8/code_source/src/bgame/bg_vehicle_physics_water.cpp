@@ -454,155 +454,83 @@ void __fastcall BgVehiclePhysicsWaterBuoyancy::AfterPhysicsWorldStep(BgVehiclePh
 BgVehiclePhysicsZodiac::ApplyEngine
 ==============
 */
-
-void __fastcall BgVehiclePhysicsZodiac::ApplyEngine(BgVehiclePhysicsZodiac *this, double deltaTime)
+void BgVehiclePhysicsZodiac::ApplyEngine(BgVehiclePhysicsZodiac *this, float deltaTime)
 {
-  BOOL v7; 
-  bool v8; 
-  char v31; 
-  char v33; 
+  BOOL v3; 
+  bool v4; 
+  __int128 v5; 
+  double v11; 
+  float v12; 
+  float v13; 
+  bool v14; 
   vec3_t impulseWs; 
   vec3_t outPointWs; 
 
-  __asm
+  v3 = Com_BitCheckAssert(this->m_controls.playerEnabledBits, 4, 4);
+  v4 = Com_BitCheckAssert(this->m_controls.externalEnabledBits, 4, 4);
+  v5 = LODWORD(this->m_controls.playerValues[4]);
+  _XMM3 = LODWORD(this->m_controls.externalValues[4]);
+  if ( v3 + 3 * v4 == 1 )
   {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-  }
-  _RDI = this;
-  __asm { vmovaps xmm8, xmm1 }
-  v7 = Com_BitCheckAssert(this->m_controls.playerEnabledBits, 4, 4);
-  v8 = Com_BitCheckAssert(_RDI->m_controls.externalEnabledBits, 4, 4);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rdi+0D8h]
-    vmovss  xmm3, dword ptr [rdi+0F8h]
-    vmovss  xmm5, cs:__real@3f800000
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( v7 + 3 * v8 == 1 )
-  {
-    __asm { vmovaps xmm3, xmm4 }
+    *(float *)&_XMM3 = this->m_controls.playerValues[4];
     goto LABEL_16;
   }
-  if ( v7 + 3 * v8 != 3 )
+  if ( v3 + 3 * v4 != 3 )
   {
-    if ( v7 + 3 * v8 != 4 )
+    if ( v3 + 3 * v4 != 4 )
       goto LABEL_14;
-    switch ( _RDI->m_controls.valuePolicy[4] )
+    switch ( this->m_controls.valuePolicy[4] )
     {
       case VP_MAXABS:
+        _XMM0 = _XMM3 & _xmm;
         __asm
         {
-          vandps  xmm0, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vandps  xmm2, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
           vcmpltss xmm2, xmm0, xmm2
           vblendvps xmm3, xmm3, xmm4, xmm2
         }
         goto LABEL_16;
       case VP_MINABS:
+        _XMM2 = v5 & _xmm;
         __asm
         {
-          vandps  xmm0, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vandps  xmm2, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
           vcmpltss xmm2, xmm2, xmm0
           vblendvps xmm3, xmm3, xmm4, xmm2
         }
         goto LABEL_16;
       case VP_AVERAGE:
-        __asm
-        {
-          vaddss  xmm0, xmm3, xmm4
-          vmulss  xmm3, xmm0, cs:__real@3f000000
-        }
+        *(float *)&_XMM3 = (float)(*(float *)&_XMM3 + *(float *)&v5) * 0.5;
         goto LABEL_16;
       case VP_AVERAGE_WEIGHT_PLAYER:
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rdi+118h]
-          vsubss  xmm0, xmm5, xmm1
-          vmulss  xmm2, xmm0, xmm3
-          vmulss  xmm1, xmm1, xmm4
-          vaddss  xmm3, xmm2, xmm1
-        }
+        *(float *)&_XMM3 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&_XMM3) + (float)(this->m_controls.policyWeight * *(float *)&v5);
         goto LABEL_16;
     }
-    if ( _RDI->m_controls.valuePolicy[4] != VP_AVERAGE_WEIGHT_EXTERNAL )
+    if ( this->m_controls.valuePolicy[4] != VP_AVERAGE_WEIGHT_EXTERNAL )
     {
 LABEL_14:
-      __asm { vxorps  xmm3, xmm3, xmm3 }
+      LODWORD(_XMM3) = 0;
       goto LABEL_16;
     }
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+118h]
-      vsubss  xmm0, xmm5, xmm1
-      vmulss  xmm2, xmm0, xmm4
-      vmulss  xmm1, xmm1, xmm3
-      vaddss  xmm3, xmm2, xmm1
-    }
+    *(float *)&_XMM3 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&v5) + (float)(this->m_controls.policyWeight * *(float *)&_XMM3);
   }
 LABEL_16:
-  __asm
+  v11 = I_fclamp(*(float *)&_XMM3, -0.5, 1.0);
+  if ( *(float *)&v11 > 0.0 || (float)((float)((float)(this->m_transform.m[0].v[1] * this->m_linearVelocityWs.v[1]) + (float)(this->m_linearVelocityWs.v[0] * this->m_transform.m[0].v[0])) + (float)(this->m_transform.m[0].v[2] * this->m_linearVelocityWs.v[2])) >= -0.001 )
   {
-    vmovss  xmm1, cs:__real@bf000000; min
-    vmovaps xmm2, xmm5; max
-    vmovaps xmm0, xmm3; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vcomiss xmm0, xmm7
-    vmovaps xmm6, xmm0
-  }
-  if ( !(v31 | v33) )
-    goto LABEL_18;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+178h]
-    vmovss  xmm2, dword ptr [rdi+1A4h]
-    vmulss  xmm3, xmm2, dword ptr [rdi+174h]
-    vmulss  xmm4, xmm1, dword ptr [rdi+1A8h]
-    vmovss  xmm1, dword ptr [rdi+17Ch]
-    vmulss  xmm2, xmm1, dword ptr [rdi+1ACh]
-    vaddss  xmm5, xmm4, xmm3
-    vaddss  xmm3, xmm5, xmm2
-    vcomiss xmm3, cs:__real@ba83126f
-  }
-  if ( !v31 )
-  {
-LABEL_18:
-    __asm
+    v12 = (float)((float)(this->m_engine.m_accelForce * 1550.0032) * deltaTime) * *(float *)&v11;
+    v13 = v12 * this->m_transform.m[0].v[0];
+    impulseWs.v[1] = v12 * this->m_transform.m[0].v[1];
+    v14 = this->m_timeSinceLastCollision > 0.1;
+    impulseWs.v[0] = v13;
+    impulseWs.v[2] = v12 * this->m_transform.m[0].v[2];
+    if ( v14 )
     {
-      vmovss  xmm0, dword ptr [rdi+788h]
-      vmulss  xmm1, xmm0, cs:__real@44c1c01a
-      vmulss  xmm2, xmm1, xmm8
-      vmulss  xmm3, xmm2, xmm6
-      vmulss  xmm1, xmm3, dword ptr [rdi+178h]
-      vmulss  xmm0, xmm3, dword ptr [rdi+174h]
-      vmovss  dword ptr [rsp+88h+impulseWs+4], xmm1
-      vmovss  xmm1, cs:__real@3dcccccd
-      vcomiss xmm1, dword ptr [rdi+2B0h]
-      vmovss  dword ptr [rsp+88h+impulseWs], xmm0
-      vmulss  xmm0, xmm3, dword ptr [rdi+17Ch]
-      vmovss  dword ptr [rsp+88h+impulseWs+8], xmm0
-    }
-    if ( v31 )
-    {
-      BgVehiclePhysics::ComputePointWorldSpace(_RDI, &_RDI->m_engine.m_offsetPointLs, &outPointWs);
-      BgVehiclePhysics::AccumulateImpulse(_RDI, &impulseWs, &outPointWs);
+      BgVehiclePhysics::ComputePointWorldSpace(this, &this->m_engine.m_offsetPointLs, &outPointWs);
+      BgVehiclePhysics::AccumulateImpulse(this, &impulseWs, &outPointWs);
     }
     else
     {
-      BgVehiclePhysics::AccumulateOnlyLinearImpulse(_RDI, &impulseWs);
+      BgVehiclePhysics::AccumulateOnlyLinearImpulse(this, &impulseWs);
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
   }
 }
 
@@ -611,35 +539,24 @@ LABEL_18:
 BgVehiclePhysicsZodiac::ApplyExtraGravity
 ==============
 */
-
-void __fastcall BgVehiclePhysicsZodiac::ApplyExtraGravity(BgVehiclePhysicsZodiac *this, double deltaTime)
+void BgVehiclePhysicsZodiac::ApplyExtraGravity(BgVehiclePhysicsZodiac *this, float deltaTime)
 {
+  const dvar_t *v4; 
+  float value; 
   vec3_t impulseWs; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( this->m_playerControlled )
   {
-    _RBX = DCONST_DVARFLT_bg_vehZoscarExtraGrav;
+    v4 = DCONST_DVARFLT_bg_vehZoscarExtraGrav;
     if ( !DCONST_DVARFLT_bg_vehZoscarExtraGrav && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarExtraGrav") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+28h]
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+78h+impulseWs], xmm0
-      vmovss  dword ptr [rsp+78h+impulseWs+4], xmm0
-      vmulss  xmm0, xmm1, cs:__real@447a0000
-      vmulss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rsp+78h+impulseWs+8], xmm1
-    }
+    Dvar_CheckFrontendServerThread(v4);
+    value = v4->current.value;
+    impulseWs.v[0] = 0.0;
+    impulseWs.v[1] = 0.0;
+    impulseWs.v[2] = (float)(value * 1000.0) * deltaTime;
     BgVehiclePhysics::AccumulateOnlyLinearImpulse(this, &impulseWs);
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -647,155 +564,110 @@ void __fastcall BgVehiclePhysicsZodiac::ApplyExtraGravity(BgVehiclePhysicsZodiac
 BgVehiclePhysicsZodiac::ApplySteering
 ==============
 */
-
-void __fastcall BgVehiclePhysicsZodiac::ApplySteering(BgVehiclePhysicsZodiac *this, double deltaTime)
+void BgVehiclePhysicsZodiac::ApplySteering(BgVehiclePhysicsZodiac *this, float deltaTime)
 {
-  BOOL v11; 
-  bool v12; 
+  BOOL v5; 
+  bool v6; 
+  __int128 v7; 
+  const dvar_t *v12; 
+  float value; 
+  const dvar_t *v14; 
+  float v15; 
+  __int128 v16; 
+  const dvar_t *v17; 
+  __int128 v23; 
   vec3_t outVelLs; 
-  char v54; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  _RDI = this;
-  __asm { vmovaps xmm10, xmm1 }
   BgVehiclePhysics::ComputeVelocityLocalSpace(this, &this->m_angularVelocityWs, &outVelLs);
-  v11 = Com_BitCheckAssert(_RDI->m_controls.playerEnabledBits, 2, 4);
-  v12 = Com_BitCheckAssert(_RDI->m_controls.externalEnabledBits, 2, 4);
-  __asm
+  v5 = Com_BitCheckAssert(this->m_controls.playerEnabledBits, 2, 4);
+  v6 = Com_BitCheckAssert(this->m_controls.externalEnabledBits, 2, 4);
+  v7 = LODWORD(this->m_controls.playerValues[2]);
+  _XMM7 = LODWORD(this->m_controls.externalValues[2]);
+  if ( v5 + 3 * v6 == 1 )
   {
-    vmovss  xmm3, dword ptr [rdi+0D0h]
-    vmovss  xmm7, dword ptr [rdi+0F0h]
-    vmovss  xmm8, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm9, cs:__real@3f800000
-  }
-  if ( v11 + 3 * v12 == 1 )
-  {
-    __asm { vmovaps xmm7, xmm3 }
+    *(float *)&_XMM7 = this->m_controls.playerValues[2];
     goto LABEL_16;
   }
-  if ( v11 + 3 * v12 != 3 )
+  if ( v5 + 3 * v6 != 3 )
   {
-    if ( v11 + 3 * v12 != 4 )
+    if ( v5 + 3 * v6 != 4 )
       goto LABEL_14;
-    switch ( _RDI->m_controls.valuePolicy[2] )
+    switch ( this->m_controls.valuePolicy[2] )
     {
       case VP_MAXABS:
+        _XMM0 = _XMM7 & (unsigned int)_xmm;
         __asm
         {
-          vandps  xmm0, xmm7, xmm8
-          vandps  xmm1, xmm3, xmm8
           vcmpltss xmm1, xmm0, xmm1
           vblendvps xmm7, xmm7, xmm3, xmm1
         }
         goto LABEL_16;
       case VP_MINABS:
+        *((_QWORD *)&_XMM0 + 1) = 0i64;
+        _XMM1 = v7 & (unsigned int)_xmm;
         __asm
         {
-          vandps  xmm0, xmm7, xmm8
-          vandps  xmm1, xmm3, xmm8
           vcmpltss xmm1, xmm1, xmm0
           vblendvps xmm7, xmm7, xmm3, xmm1
         }
         goto LABEL_16;
       case VP_AVERAGE:
-        __asm
-        {
-          vaddss  xmm0, xmm7, xmm3
-          vmulss  xmm7, xmm0, cs:__real@3f000000
-        }
+        *((_QWORD *)&_XMM0 + 1) = 0i64;
+        *(float *)&_XMM7 = (float)(*(float *)&_XMM7 + *(float *)&v7) * 0.5;
         goto LABEL_16;
       case VP_AVERAGE_WEIGHT_PLAYER:
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rdi+118h]
-          vsubss  xmm0, xmm9, xmm1
-          vmulss  xmm2, xmm0, xmm7
-          vmulss  xmm1, xmm1, xmm3
-          vaddss  xmm7, xmm2, xmm1
-        }
+        *((_QWORD *)&_XMM0 + 1) = 0i64;
+        *(float *)&_XMM7 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&_XMM7) + (float)(this->m_controls.policyWeight * *(float *)&v7);
         goto LABEL_16;
     }
-    if ( _RDI->m_controls.valuePolicy[2] != VP_AVERAGE_WEIGHT_EXTERNAL )
+    if ( this->m_controls.valuePolicy[2] != VP_AVERAGE_WEIGHT_EXTERNAL )
     {
 LABEL_14:
-      __asm { vxorps  xmm7, xmm7, xmm7 }
+      LODWORD(_XMM7) = 0;
       goto LABEL_16;
     }
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+118h]
-      vsubss  xmm0, xmm9, xmm1
-      vmulss  xmm2, xmm0, xmm3
-      vmulss  xmm1, xmm1, xmm7
-      vaddss  xmm7, xmm2, xmm1
-    }
+    *((_QWORD *)&_XMM0 + 1) = 0i64;
+    *(float *)&_XMM7 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&v7) + (float)(this->m_controls.policyWeight * *(float *)&_XMM7);
   }
 LABEL_16:
-  _RBX = DCONST_DVARFLT_bg_vehZoscarSteering;
+  v12 = DCONST_DVARFLT_bg_vehZoscarSteering;
   if ( !DCONST_DVARFLT_bg_vehZoscarSteering && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarSteering") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  *(double *)&_XMM0 = BgVehiclePhysics::GetNormalSpeedPlane(_RDI);
-  __asm
-  {
-    vmulss  xmm0, xmm0, cs:__real@3fa00000; val
-    vmovaps xmm2, xmm9; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  _RBX = DCONST_DVARFLT_bg_vehZoscarYawMaxSpeed;
-  __asm
-  {
-    vmulss  xmm1, xmm7, xmm6
-    vmulss  xmm2, xmm1, xmm10
-    vmulss  xmm9, xmm0, xmm2
-  }
+  Dvar_CheckFrontendServerThread(v12);
+  value = v12->current.value;
+  *(double *)&_XMM0 = BgVehiclePhysics::GetNormalSpeedPlane(this);
+  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0 * 1.25, 0.0, 1.0);
+  v14 = DCONST_DVARFLT_bg_vehZoscarYawMaxSpeed;
+  v16 = _XMM0;
+  *(float *)&v16 = *(float *)&_XMM0 * (float)((float)(*(float *)&_XMM7 * value) * deltaTime);
+  v15 = *(float *)&v16;
   if ( !DCONST_DVARFLT_bg_vehZoscarYawMaxSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarYawMaxSpeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_bg_vehZoscarRollMaxSpeed;
-  __asm { vandps  xmm7, xmm7, xmm8 }
+  Dvar_CheckFrontendServerThread(v14);
+  v17 = DCONST_DVARFLT_bg_vehZoscarRollMaxSpeed;
   if ( !DCONST_DVARFLT_bg_vehZoscarRollMaxSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarRollMaxSpeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
+  Dvar_CheckFrontendServerThread(v17);
+  _XMM3 = LODWORD(outVelLs.v[2]);
+  _XMM5 = LODWORD(outVelLs.v[0]);
+  *(float *)&v16 = *(float *)&v16 + outVelLs.v[2];
+  _XMM0 = v16 & (unsigned int)_xmm;
   __asm
   {
-    vmovss  xmm3, dword ptr [rsp+0C8h+outVelLs+8]
-    vmovss  xmm5, dword ptr [rsp+0C8h+outVelLs]
-    vmovss  xmm6, dword ptr [rbx+28h]
-    vaddss  xmm2, xmm9, xmm3
-    vandps  xmm0, xmm2, xmm8
     vcmpless xmm1, xmm0, xmm7
     vblendvps xmm0, xmm3, xmm2, xmm1
-    vsubss  xmm4, xmm5, xmm9
-    vmovss  dword ptr [rsp+0C8h+outVelLs+8], xmm0
-    vandps  xmm2, xmm4, xmm8
-    vandps  xmm6, xmm6, xmm8
-    vcmpless xmm0, xmm2, xmm6
-    vblendvps xmm0, xmm5, xmm4, xmm0
-    vmovss  dword ptr [rsp+0C8h+outVelLs], xmm0
   }
-  BgVehiclePhysics::ComputeVelocityWorldSpace(_RDI, &outVelLs, &_RDI->m_angularVelocityWs);
-  _R11 = &v54;
+  v23 = LODWORD(outVelLs.v[0]);
+  *(float *)&v23 = outVelLs.v[0] - v15;
+  outVelLs.v[2] = *(float *)&_XMM0;
+  _XMM2 = v23 & (unsigned int)_xmm;
   __asm
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    vcmpless xmm0, xmm2, xmm6
+    vblendvps xmm0, xmm5, xmm4, xmm0
   }
+  outVelLs.v[0] = *(float *)&_XMM0;
+  BgVehiclePhysics::ComputeVelocityWorldSpace(this, &outVelLs, &this->m_angularVelocityWs);
 }
 
 /*
@@ -833,55 +705,77 @@ void __fastcall BgVehiclePhysicsWaterBuoyancy::CollisionImpulseCallback(BgVehicl
 BgVehiclePhysicsWaterBuoyancy::ComputeBuoyancySphereSingle
 ==============
 */
-
-void __fastcall BgVehiclePhysicsWaterBuoyancy::ComputeBuoyancySphereSingle(BgVehiclePhysicsWaterBuoyancy *this, double deltaTime, BgVehiclePhysicsWaterBuoyancy::BuoyancySphere *bsph)
+void BgVehiclePhysicsWaterBuoyancy::ComputeBuoyancySphereSingle(BgVehiclePhysicsWaterBuoyancy *this, float deltaTime, BgVehiclePhysicsWaterBuoyancy::BuoyancySphere *bsph)
 {
-  bool v7; 
+  float m_radius; 
+  float v6; 
+  float v7; 
+  float m_volumeCap; 
+  float v9; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
+  float value; 
+  float v13; 
+  float v14; 
+  double v15; 
+  const dvar_t *v16; 
+  float v17; 
+  vec3_t impulseWs; 
 
-  __asm { vmovaps [rsp+0B8h+var_58], xmm8 }
-  _RDI = bsph;
-  __asm { vmovaps xmm8, xmm1 }
-  v7 = !this->m_waterPlaneFound;
   if ( this->m_waterPlaneFound )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+774h]
-      vmulss  xmm3, xmm0, dword ptr [r8+10h]
-      vmovss  xmm1, dword ptr [r8+0Ch]
-      vmulss  xmm2, xmm1, dword ptr [rcx+770h]
-      vmovss  xmm0, dword ptr [rcx+778h]
-      vmulss  xmm1, xmm0, dword ptr [r8+14h]
-      vaddss  xmm4, xmm3, xmm2
-      vmovss  xmm3, dword ptr [r8+18h]
-      vaddss  xmm2, xmm4, xmm1
-      vsubss  xmm5, xmm2, dword ptr [rcx+77Ch]
-      vcomiss xmm5, xmm3
-    }
+    m_radius = bsph->m_radius;
+    v6 = (float)((float)((float)(this->m_waterPlane.v[1] * bsph->m_pointWs.v[1]) + (float)(bsph->m_pointWs.v[0] * this->m_waterPlane.v[0])) + (float)(this->m_waterPlane.v[2] * bsph->m_pointWs.v[2])) - this->m_waterPlane.v[3];
     bsph->m_distUnderwater = 0.0;
     bsph->m_fullySubmerged = 0;
-    if ( v7 )
+    if ( v6 <= m_radius )
     {
-      __asm
+      LODWORD(v7) = LODWORD(v6) & _xmm;
+      if ( v6 >= COERCE_FLOAT(LODWORD(m_radius) ^ _xmm) )
       {
-        vxorps  xmm0, xmm3, cs:__xmm@80000000800000008000000080000000
-        vcomiss xmm5, xmm0
-        vandps  xmm4, xmm5, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovaps [rsp+0B8h+var_38], xmm6
-        vxorps  xmm6, xmm6, xmm6
-        vcomiss xmm4, cs:__real@3a83126f
-        vcomiss xmm5, xmm6
-        vmulss  xmm0, xmm3, cs:__real@40400000
-        vsubss  xmm1, xmm3, xmm4
-        vsubss  xmm2, xmm0, xmm1
-        vmulss  xmm1, xmm1, xmm1
-        vmulss  xmm2, xmm2, xmm1
-        vmulss  xmm4, xmm2, cs:__real@3f860a92
-        vmovss  dword ptr [r8+1Ch], xmm4
-        vcomiss xmm4, xmm6
-        vmovss  xmm2, dword ptr [rdi+1Ch]
-        vcomiss xmm2, xmm6
-        vmovaps xmm6, [rsp+0B8h+var_38]
+        if ( v7 < 0.001 )
+          bsph->m_volumeCap = (float)((float)(m_radius * m_radius) * m_radius) * 2.0943952;
+        v9 = (float)((float)((float)(m_radius * 3.0) - (float)(m_radius - v7)) * (float)((float)(m_radius - v7) * (float)(m_radius - v7))) * 1.0471976;
+        bsph->m_volumeCap = v9;
+        if ( v6 < 0.0 )
+        {
+          v9 = (float)((float)((float)(m_radius * m_radius) * m_radius) * 4.1887903) - v9;
+          bsph->m_volumeCap = v9;
+        }
+        if ( v9 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_water.cpp", 462, ASSERT_TYPE_ASSERT, "(bsph.m_volumeCap >= 0.0f)", (const char *)&queryFormat, "bsph.m_volumeCap >= 0.0f") )
+          __debugbreak();
+        m_volumeCap = bsph->m_volumeCap;
+      }
+      else
+      {
+        m_volumeCap = (float)((float)(m_radius * m_radius) * m_radius) * 4.1887903;
+        bsph->m_volumeCap = m_volumeCap;
+        bsph->m_distUnderwater = v7 - m_radius;
+        bsph->m_fullySubmerged = 1;
+      }
+      if ( m_volumeCap > 0.0 )
+      {
+        v10 = DCONST_DVARFLT_bg_vehZoscarFluidGrav;
+        if ( !DCONST_DVARFLT_bg_vehZoscarFluidGrav && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarFluidGrav") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v10);
+        v11 = DCONST_DVARFLT_bg_vehZoscarFluidDensity;
+        value = v10->current.value;
+        v13 = bsph->m_volumeCap;
+        if ( !DCONST_DVARFLT_bg_vehZoscarFluidDensity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarFluidDensity") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v11);
+        v14 = (float)((float)(value * v11->current.value) * 0.0014225717) * v13;
+        v15 = PhysicsVehicle_ComputeProjectedPointVelocity(&this->m_centerOfMassWs, &this->m_angularVelocityWs, &this->m_linearVelocityWs, &bsph->m_pointWs, GLOBAL_UP_0);
+        v16 = DCONST_DVARFLT_bg_vehZoscarFluidDamp;
+        if ( !DCONST_DVARFLT_bg_vehZoscarFluidDamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarFluidDamp") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v16);
+        v17 = (float)(v14 - (float)((float)(*(float *)&v15 * v16->current.value) * bsph->m_dampK)) * deltaTime;
+        impulseWs.v[0] = v17 * GLOBAL_UP_0->v[0];
+        impulseWs.v[1] = v17 * GLOBAL_UP_0->v[1];
+        impulseWs.v[2] = v17 * GLOBAL_UP_0->v[2];
+        BgVehiclePhysics::AccumulateImpulse(this, &impulseWs, &bsph->m_pointWs);
       }
     }
     else
@@ -893,7 +787,6 @@ void __fastcall BgVehiclePhysicsWaterBuoyancy::ComputeBuoyancySphereSingle(BgVeh
   {
     *(_QWORD *)&bsph->m_volumeCap = 0i64;
   }
-  __asm { vmovaps xmm8, [rsp+0B8h+var_58] }
 }
 
 /*
@@ -901,112 +794,103 @@ void __fastcall BgVehiclePhysicsWaterBuoyancy::ComputeBuoyancySphereSingle(BgVeh
 BgVehiclePhysicsWaterBuoyancy::ComputeBuoyancySpheres
 ==============
 */
-
-void __fastcall BgVehiclePhysicsWaterBuoyancy::ComputeBuoyancySpheres(BgVehiclePhysicsWaterBuoyancy *this, double deltaTime)
+void BgVehiclePhysicsWaterBuoyancy::ComputeBuoyancySpheres(BgVehiclePhysicsWaterBuoyancy *this, float deltaTime)
 {
-  int v15; 
-  bool v24; 
-  void *retaddr; 
+  int v3; 
+  float *p_m_distUnderwater; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  const dvar_t *v10; 
+  float value; 
+  const dvar_t *v12; 
+  float v13; 
+  float v14; 
+  double v15; 
+  const dvar_t *v16; 
+  float v17; 
+  vec3_t impulseWs; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps [rsp+128h+var_B8], xmm14 }
-  _RDI = this;
-  __asm { vmovaps xmm14, xmm1 }
   if ( this->m_waterPlaneFound )
   {
-    v15 = 0;
+    v3 = 0;
     if ( this->m_buoyancySphereCount > 0 )
     {
-      _RBX = &this->m_buoyancySpheres[0].m_distUnderwater;
-      __asm
-      {
-        vmovaps xmmword ptr [r11-58h], xmm8
-        vmovaps xmmword ptr [r11-68h], xmm9
-        vmovss  xmm9, cs:__real@40860a92
-        vmovaps xmmword ptr [r11-78h], xmm10
-        vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovaps xmmword ptr [r11-88h], xmm11
-        vmovss  xmm11, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovaps xmmword ptr [r11-98h], xmm12
-        vmovss  xmm12, cs:__real@40400000
-        vmovaps xmmword ptr [r11-0A8h], xmm13
-        vmovss  xmm13, cs:__real@3f860a92
-        vmovaps [rsp+128h+var_C8], xmm15
-        vmovss  xmm15, cs:__real@3aba7596
-        vmovaps xmmword ptr [r11-38h], xmm6
-        vmovaps xmmword ptr [r11-48h], xmm7
-        vxorps  xmm8, xmm8, xmm8
-      }
+      p_m_distUnderwater = &this->m_buoyancySpheres[0].m_distUnderwater;
       do
       {
-        BgVehiclePhysics::ComputePointWorldSpace(_RDI, (const vec3_t *)(_RBX - 8), (vec3_t *)(_RBX - 5));
-        v24 = !_RDI->m_waterPlaneFound;
-        if ( _RDI->m_waterPlaneFound )
+        BgVehiclePhysics::ComputePointWorldSpace(this, (const vec3_t *)(p_m_distUnderwater - 8), (vec3_t *)(p_m_distUnderwater - 5));
+        if ( this->m_waterPlaneFound )
         {
-          __asm
+          v5 = *(p_m_distUnderwater - 2);
+          v6 = (float)((float)((float)(*(p_m_distUnderwater - 4) * this->m_waterPlane.v[1]) + (float)(this->m_waterPlane.v[0] * *(p_m_distUnderwater - 5))) + (float)(this->m_waterPlane.v[2] * *(p_m_distUnderwater - 3))) - this->m_waterPlane.v[3];
+          *p_m_distUnderwater = 0.0;
+          *((_BYTE *)p_m_distUnderwater + 8) = 0;
+          if ( v6 <= v5 )
           {
-            vmovss  xmm0, dword ptr [rbx-10h]
-            vmulss  xmm3, xmm0, dword ptr [rdi+774h]
-            vmovss  xmm1, dword ptr [rdi+770h]
-            vmulss  xmm2, xmm1, dword ptr [rbx-14h]
-            vmovss  xmm0, dword ptr [rdi+778h]
-            vmulss  xmm1, xmm0, dword ptr [rbx-0Ch]
-            vaddss  xmm4, xmm3, xmm2
-            vmovss  xmm3, dword ptr [rbx-8]
-            vaddss  xmm2, xmm4, xmm1
-            vsubss  xmm5, xmm2, dword ptr [rdi+77Ch]
-            vcomiss xmm5, xmm3
-          }
-          *_RBX = 0.0;
-          *((_BYTE *)_RBX + 8) = 0;
-          if ( v24 )
-          {
-            __asm
+            LODWORD(v7) = LODWORD(v6) & _xmm;
+            if ( v6 >= COERCE_FLOAT(LODWORD(v5) ^ _xmm) )
             {
-              vxorps  xmm0, xmm3, xmm10
-              vcomiss xmm5, xmm0
-              vandps  xmm2, xmm5, xmm11
-              vcomiss xmm5, xmm8
-              vsubss  xmm1, xmm3, xmm2
-              vmulss  xmm0, xmm3, xmm12
-              vsubss  xmm2, xmm0, xmm1
-              vmulss  xmm1, xmm1, xmm1
-              vmulss  xmm2, xmm2, xmm1
-              vmulss  xmm4, xmm2, xmm13
-              vmovss  dword ptr [rbx-4], xmm4
-              vcomiss xmm4, xmm8
-              vmovss  xmm4, dword ptr [rbx-4]
-              vcomiss xmm4, xmm8
+              v9 = (float)((float)((float)(v5 * 3.0) - (float)(v5 - v7)) * (float)((float)(v5 - v7) * (float)(v5 - v7))) * 1.0471976;
+              *(p_m_distUnderwater - 1) = v9;
+              if ( v6 < 0.0 )
+              {
+                v9 = (float)((float)((float)(v5 * v5) * v5) * 4.1887903) - v9;
+                *(p_m_distUnderwater - 1) = v9;
+              }
+              if ( v9 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_water.cpp", 462, ASSERT_TYPE_ASSERT, "(bsph.m_volumeCap >= 0.0f)", (const char *)&queryFormat, "bsph.m_volumeCap >= 0.0f") )
+                __debugbreak();
+              v8 = *(p_m_distUnderwater - 1);
+            }
+            else
+            {
+              v8 = (float)((float)(v5 * v5) * v5) * 4.1887903;
+              *(p_m_distUnderwater - 1) = v8;
+              *p_m_distUnderwater = v7 - v5;
+              *((_BYTE *)p_m_distUnderwater + 8) = 1;
+            }
+            if ( v8 > 0.0 )
+            {
+              v10 = DCONST_DVARFLT_bg_vehZoscarFluidGrav;
+              if ( !DCONST_DVARFLT_bg_vehZoscarFluidGrav && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarFluidGrav") )
+                __debugbreak();
+              Dvar_CheckFrontendServerThread(v10);
+              value = v10->current.value;
+              v12 = DCONST_DVARFLT_bg_vehZoscarFluidDensity;
+              v13 = *(p_m_distUnderwater - 1);
+              if ( !DCONST_DVARFLT_bg_vehZoscarFluidDensity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarFluidDensity") )
+                __debugbreak();
+              Dvar_CheckFrontendServerThread(v12);
+              v14 = (float)((float)(value * v12->current.value) * 0.0014225717) * v13;
+              v15 = PhysicsVehicle_ComputeProjectedPointVelocity(&this->m_centerOfMassWs, &this->m_angularVelocityWs, &this->m_linearVelocityWs, (const vec3_t *)(p_m_distUnderwater - 5), GLOBAL_UP_0);
+              v16 = DCONST_DVARFLT_bg_vehZoscarFluidDamp;
+              if ( !DCONST_DVARFLT_bg_vehZoscarFluidDamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarFluidDamp") )
+                __debugbreak();
+              Dvar_CheckFrontendServerThread(v16);
+              v17 = (float)(v14 - (float)((float)(*(float *)&v15 * v16->current.value) * p_m_distUnderwater[1])) * deltaTime;
+              impulseWs.v[0] = v17 * GLOBAL_UP_0->v[0];
+              impulseWs.v[1] = v17 * GLOBAL_UP_0->v[1];
+              impulseWs.v[2] = v17 * GLOBAL_UP_0->v[2];
+              BgVehiclePhysics::AccumulateImpulse(this, &impulseWs, (const vec3_t *)(p_m_distUnderwater - 5));
             }
           }
           else
           {
-            *(_RBX - 1) = 0.0;
+            *(p_m_distUnderwater - 1) = 0.0;
           }
         }
         else
         {
-          *(_QWORD *)(_RBX - 1) = 0i64;
+          *(_QWORD *)(p_m_distUnderwater - 1) = 0i64;
         }
-        ++v15;
-        _RBX += 11;
+        ++v3;
+        p_m_distUnderwater += 11;
       }
-      while ( v15 < _RDI->m_buoyancySphereCount );
-      __asm
-      {
-        vmovaps xmm15, [rsp+128h+var_C8]
-        vmovaps xmm13, [rsp+128h+var_A8]
-        vmovaps xmm12, [rsp+128h+var_98]
-        vmovaps xmm11, [rsp+128h+var_88]
-        vmovaps xmm10, [rsp+128h+var_78]
-        vmovaps xmm9, [rsp+128h+var_68]
-        vmovaps xmm8, [rsp+128h+var_58]
-        vmovaps xmm7, [rsp+128h+var_48]
-        vmovaps xmm6, [rsp+128h+var_38]
-      }
+      while ( v3 < this->m_buoyancySphereCount );
     }
   }
-  __asm { vmovaps xmm14, [rsp+128h+var_B8] }
 }
 
 /*
@@ -1016,39 +900,40 @@ BgVehiclePhysicsWaterBuoyancy::ComputeVolumeSphereCap
 */
 void BgVehiclePhysicsWaterBuoyancy::ComputeVolumeSphereCap(BgVehiclePhysicsWaterBuoyancy *this, BgVehiclePhysicsWaterBuoyancy::BuoyancySphere *bsph, const vec4_t *plane)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+774h]
-    vmulss  xmm3, xmm0, dword ptr [rdx+10h]
-    vmovss  xmm1, dword ptr [rcx+770h]
-    vmulss  xmm2, xmm1, dword ptr [rdx+0Ch]
-    vmovss  xmm0, dword ptr [rcx+778h]
-    vmulss  xmm1, xmm0, dword ptr [rdx+14h]
-    vaddss  xmm4, xmm3, xmm2
-    vmovss  xmm3, dword ptr [rdx+18h]
-    vaddss  xmm2, xmm4, xmm1
-    vsubss  xmm5, xmm2, dword ptr [rcx+77Ch]
-    vcomiss xmm5, xmm3
-  }
+  float m_radius; 
+  float v4; 
+  float v5; 
+  float v6; 
+
+  m_radius = bsph->m_radius;
+  v4 = (float)((float)((float)(this->m_waterPlane.v[1] * bsph->m_pointWs.v[1]) + (float)(this->m_waterPlane.v[0] * bsph->m_pointWs.v[0])) + (float)(this->m_waterPlane.v[2] * bsph->m_pointWs.v[2])) - this->m_waterPlane.v[3];
   bsph->m_distUnderwater = 0.0;
   bsph->m_fullySubmerged = 0;
-  __asm
+  if ( v4 <= m_radius )
   {
-    vxorps  xmm0, xmm3, cs:__xmm@80000000800000008000000080000000
-    vcomiss xmm5, xmm0
-    vandps  xmm4, xmm5, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm0, xmm3, cs:__real@40400000
-    vsubss  xmm1, xmm3, xmm4
-    vsubss  xmm2, xmm0, xmm1
-    vmulss  xmm1, xmm1, xmm1
-    vmulss  xmm2, xmm2, xmm1
-    vmulss  xmm4, xmm2, cs:__real@3f860a92
-    vmovaps [rsp+48h+var_18], xmm6
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm5, xmm6
-    vmovss  dword ptr [rdx+1Ch], xmm4
-    vcomiss xmm4, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
+    LODWORD(v5) = LODWORD(v4) & _xmm;
+    if ( v4 >= COERCE_FLOAT(LODWORD(m_radius) ^ _xmm) )
+    {
+      v6 = (float)((float)((float)(m_radius * 3.0) - (float)(m_radius - v5)) * (float)((float)(m_radius - v5) * (float)(m_radius - v5))) * 1.0471976;
+      bsph->m_volumeCap = v6;
+      if ( v4 < 0.0 )
+      {
+        v6 = (float)((float)((float)(m_radius * m_radius) * m_radius) * 4.1887903) - v6;
+        bsph->m_volumeCap = v6;
+      }
+      if ( v6 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_water.cpp", 462, ASSERT_TYPE_ASSERT, "(bsph.m_volumeCap >= 0.0f)", (const char *)&queryFormat, "bsph.m_volumeCap >= 0.0f") )
+        __debugbreak();
+    }
+    else
+    {
+      bsph->m_volumeCap = (float)((float)(m_radius * m_radius) * m_radius) * 4.1887903;
+      bsph->m_distUnderwater = v5 - m_radius;
+      bsph->m_fullySubmerged = 1;
+    }
+  }
+  else
+  {
+    bsph->m_volumeCap = 0.0;
   }
 }
 
@@ -1059,145 +944,103 @@ BgVehiclePhysicsWaterBuoyancy::ComputeWaterPlane
 */
 void BgVehiclePhysicsWaterBuoyancy::ComputeWaterPlane(BgVehiclePhysicsWaterBuoyancy *this, float deltaTime)
 {
-  unsigned int v10; 
-  char v15; 
-  int v20; 
-  char m_waterPlaneFound; 
+  const vec3_t *v2; 
+  unsigned int v3; 
+  double v5; 
+  bool v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  int v10; 
+  bool m_waterPlaneFound; 
+  float *p_m_radius; 
   int m_entityNumber; 
   Physics_WorldId m_worldId; 
-  float v54; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
   unsigned int outSurfFlags; 
   float outFrac; 
   vec3_t outPointWs; 
   vec3_t end; 
   vec3_t outHitNormal; 
   vec3_t outHitPos; 
-  char v61; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-  }
-  _RAX = GLOBAL_UP_0;
-  v10 = 0;
-  __asm
-  {
-    vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm10, cs:__real@c0200000
-  }
+  v2 = GLOBAL_UP_0;
+  v3 = 0;
   this->m_waterPlaneFound = 0;
-  _RBX = this;
-  __asm { vmovsd  xmm0, qword ptr [rax] }
-  *(float *)&_RAX = _RAX->v[2];
-  v15 = 0;
-  __asm
-  {
-    vmovsd  qword ptr [rbp+57h+outPointWs], xmm0
-    vmovss  xmm7, dword ptr [rbp+57h+outPointWs+4]
-    vmovss  xmm8, dword ptr [rbp+57h+outPointWs]
-  }
-  LODWORD(outPointWs.v[2]) = (_DWORD)_RAX;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbp+57h+outPointWs+8]
-    vxorps  xmm11, xmm11, xmm11
-  }
+  v5 = *(double *)v2->v;
+  *(float *)&v2 = v2->v[2];
+  v6 = 0;
+  *(double *)outPointWs.v = v5;
+  v7 = outPointWs.v[1];
+  v8 = outPointWs.v[0];
+  LODWORD(outPointWs.v[2]) = (_DWORD)v2;
+  v9 = *(float *)&v2;
   do
   {
-    if ( v10 >= 2 )
+    if ( v3 >= 2 )
       break;
-    v20 = 0;
-    m_waterPlaneFound = v15;
-    _RSI = &_RBX->m_buoyancySpheres[0].m_radius;
+    v10 = 0;
+    m_waterPlaneFound = v6;
+    p_m_radius = &this->m_buoyancySpheres[0].m_radius;
     do
     {
-      if ( v20 >= _RBX->m_buoyancySphereCount )
+      if ( v10 >= this->m_buoyancySphereCount )
         break;
-      BgVehiclePhysics::ComputePointWorldSpace(_RBX, &_RBX->m_buoyancySpheres[v20].m_pointLs, &outPointWs);
-      __asm { vmovss  xmm3, dword ptr [rsi] }
-      m_entityNumber = _RBX->m_entityNumber;
-      m_worldId = _RBX->m_worldId;
-      __asm
+      BgVehiclePhysics::ComputePointWorldSpace(this, &this->m_buoyancySpheres[v10].m_pointLs, &outPointWs);
+      m_entityNumber = this->m_entityNumber;
+      m_worldId = this->m_worldId;
+      v15 = (float)(v7 * *p_m_radius) + outPointWs.v[1];
+      v16 = (float)(v9 * *p_m_radius) + outPointWs.v[2];
+      v17 = *p_m_radius * -2.5;
+      v18 = (float)(v8 * v17) + (float)((float)(v8 * *p_m_radius) + outPointWs.v[0]);
+      outPointWs.v[0] = (float)(v8 * *p_m_radius) + outPointWs.v[0];
+      end.v[0] = v18;
+      end.v[2] = (float)(v9 * v17) + v16;
+      outPointWs.v[1] = v15;
+      outPointWs.v[2] = v16;
+      end.v[1] = (float)(v7 * v17) + v15;
+      if ( PhysicsVehicle_BuoyancyCast(m_worldId, m_entityNumber, &outPointWs, &end, 0.0, &outFrac, &outHitPos, &outHitNormal, &outSurfFlags) )
       {
-        vmulss  xmm1, xmm8, xmm3
-        vaddss  xmm2, xmm1, dword ptr [rbp+57h+outPointWs]
-        vmulss  xmm1, xmm7, xmm3
-        vaddss  xmm5, xmm1, dword ptr [rbp+57h+outPointWs+4]
-        vmulss  xmm1, xmm6, xmm3
-        vaddss  xmm4, xmm1, dword ptr [rbp+57h+outPointWs+8]
-        vmulss  xmm3, xmm3, xmm10
-        vmulss  xmm0, xmm8, xmm3
-        vaddss  xmm1, xmm0, xmm2
-        vmovss  dword ptr [rbp+57h+outPointWs], xmm2
-        vmulss  xmm2, xmm7, xmm3
-        vaddss  xmm0, xmm2, xmm5
-        vmovss  dword ptr [rbp+57h+end], xmm1
-        vmulss  xmm1, xmm6, xmm3
-        vaddss  xmm2, xmm1, xmm4
-        vmovss  dword ptr [rbp+57h+end+8], xmm2
-        vmovss  dword ptr [rbp+57h+outPointWs+4], xmm5
-        vmovss  dword ptr [rbp+57h+outPointWs+8], xmm4
-        vmovss  dword ptr [rbp+57h+end+4], xmm0
-        vmovss  dword ptr [rsp+110h+var_F0], xmm11
-      }
-      if ( PhysicsVehicle_BuoyancyCast(m_worldId, m_entityNumber, &outPointWs, &end, v54, &outFrac, &outHitPos, &outHitNormal, &outSurfFlags) )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbp+57h+var_98]
-          vmovss  xmm2, dword ptr [rbp+57h+var_98+4]
-          vmovss  xmm5, dword ptr [rbp+57h+var_98+8]
-          vmulss  xmm3, xmm1, dword ptr [rbp+57h+var_88]
-          vmovss  dword ptr [rbx+774h], xmm2
-          vmulss  xmm2, xmm2, dword ptr [rbp+57h+var_88+4]
-          vmovss  dword ptr [rbx+770h], xmm1
-          vmulss  xmm1, xmm5, dword ptr [rbp+57h+var_88+8]
-          vmovss  dword ptr [rbx+778h], xmm5
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-          vmovss  dword ptr [rbx+77Ch], xmm2
-        }
-        _RBX->m_waterPlaneFound = 1;
+        v19 = outHitNormal.v[0];
+        v20 = outHitNormal.v[1];
+        v21 = outHitNormal.v[2];
+        v22 = outHitNormal.v[0] * outHitPos.v[0];
+        this->m_waterPlane.v[1] = outHitNormal.v[1];
+        v23 = v20 * outHitPos.v[1];
+        this->m_waterPlane.v[0] = v19;
+        v24 = v21 * outHitPos.v[2];
+        this->m_waterPlane.v[2] = v21;
+        this->m_waterPlane.v[3] = (float)(v22 + v23) + v24;
+        this->m_waterPlaneFound = 1;
         m_waterPlaneFound = 1;
       }
       else
       {
-        m_waterPlaneFound = _RBX->m_waterPlaneFound;
+        m_waterPlaneFound = this->m_waterPlaneFound;
       }
-      ++v20;
-      _RSI += 11;
+      ++v10;
+      p_m_radius += 11;
     }
     while ( !m_waterPlaneFound );
-    ++v10;
-    v15 = m_waterPlaneFound;
-    if ( !m_waterPlaneFound && v10 < 2 )
+    ++v3;
+    v6 = m_waterPlaneFound;
+    if ( !m_waterPlaneFound && v3 < 2 )
     {
-      __asm
-      {
-        vxorps  xmm8, xmm8, xmm9
-        vxorps  xmm7, xmm7, xmm9
-        vxorps  xmm6, xmm6, xmm9
-      }
+      LODWORD(v8) ^= _xmm;
+      LODWORD(v7) ^= _xmm;
+      LODWORD(v9) ^= _xmm;
     }
   }
   while ( !m_waterPlaneFound );
-  _R11 = &v61;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
 }
 
 /*
@@ -1227,131 +1070,53 @@ char BgVehiclePhysicsZodiac::CreatePhysics(BgVehiclePhysicsZodiac *this, const V
 BgVehiclePhysicsZodiac::DampVelocities
 ==============
 */
-
-void __fastcall BgVehiclePhysicsZodiac::DampVelocities(BgVehiclePhysicsZodiac *this, double deltaTime)
+void BgVehiclePhysicsZodiac::DampVelocities(BgVehiclePhysicsZodiac *this, float deltaTime)
 {
-  char v24; 
-  char v25; 
-  char v28; 
-  char v29; 
+  const dvar_t *v3; 
+  const dvar_t *v4; 
+  float value; 
+  double NormalSpeedPlane; 
+  const dvar_t *v7; 
+  float v8; 
+  float v9; 
+  const dvar_t *v10; 
+  float v11; 
   vec3_t outVelLs; 
-  char v46; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmm11, xmm1
-  }
   BgVehiclePhysics::ComputeVelocityLocalSpace(this, &this->m_linearVelocityWs, &outVelLs);
-  _RDI = DCONST_DVARFLT_bg_vehZoscarLateralDamp;
+  v3 = DCONST_DVARFLT_bg_vehZoscarLateralDamp;
   if ( !DCONST_DVARFLT_bg_vehZoscarLateralDamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarLateralDamp") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+28h]; speed
-    vmovaps xmm2, xmm11; frameTime
-    vxorps  xmm1, xmm1, xmm1; dst
-    vxorps  xmm9, xmm9, xmm9
-  }
-  BgVehiclePhysics::DampLerp(&outVelLs.v[1], *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
+  Dvar_CheckFrontendServerThread(v3);
+  BgVehiclePhysics::DampLerp(&outVelLs.v[1], 0.0, deltaTime, v3->current.value);
   BgVehiclePhysics::ComputeVelocityWorldSpace(this, &outVelLs, &this->m_linearVelocityWs);
-  _RDI = DCONST_DVARFLT_bg_vehZoscarYawDamp;
+  v4 = DCONST_DVARFLT_bg_vehZoscarYawDamp;
   if ( !DCONST_DVARFLT_bg_vehZoscarYawDamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarYawDamp") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  BgVehiclePhysics::GetNormalSpeedPlane(this);
-  __asm { vmovss  xmm1, cs:__real@3f800000 }
-  _RDI = DCONST_DVARFLT_bg_vehZoscarPitchDamp;
-  __asm
-  {
-    vsubss  xmm0, xmm1, xmm0
-    vmulss  xmm10, xmm0, xmm6
-  }
+  Dvar_CheckFrontendServerThread(v4);
+  value = v4->current.value;
+  NormalSpeedPlane = BgVehiclePhysics::GetNormalSpeedPlane(this);
+  v7 = DCONST_DVARFLT_bg_vehZoscarPitchDamp;
+  v8 = (float)(1.0 - *(float *)&NormalSpeedPlane) * value;
   if ( !DCONST_DVARFLT_bg_vehZoscarPitchDamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarPitchDamp") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm8, dword ptr [rdi+28h] }
-  _RDI = DCONST_DVARFLT_bg_vehZoscarRollDamp;
+  Dvar_CheckFrontendServerThread(v7);
+  v9 = v7->current.value;
+  v10 = DCONST_DVARFLT_bg_vehZoscarRollDamp;
   if ( !DCONST_DVARFLT_bg_vehZoscarRollDamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarRollDamp") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
+  Dvar_CheckFrontendServerThread(v10);
+  v11 = v10->current.value;
+  if ( v8 > 0.001 || v9 > 0.001 || v11 > 0.001 )
   {
-    vmovss  xmm6, cs:__real@3a83126f
-    vcomiss xmm10, xmm6
-    vmovss  xmm7, dword ptr [rdi+28h]
-  }
-  if ( !(v24 | v25) )
-    goto LABEL_16;
-  __asm { vcomiss xmm8, xmm6 }
-  if ( !(v24 | v25) )
-    goto LABEL_16;
-  __asm { vcomiss xmm7, xmm6 }
-  if ( !(v24 | v25) )
-  {
-LABEL_16:
     BgVehiclePhysics::ComputeVelocityLocalSpace(this, &this->m_angularVelocityWs, &outVelLs);
-    __asm { vcomiss xmm10, xmm6 }
-    if ( !(v28 | v29) )
-    {
-      __asm
-      {
-        vmovaps xmm3, xmm10; speed
-        vmovaps xmm2, xmm11; frameTime
-        vxorps  xmm1, xmm1, xmm1; dst
-      }
-      BgVehiclePhysics::DampLerp(&outVelLs.v[2], *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    }
-    __asm { vcomiss xmm8, xmm6 }
-    if ( !(v28 | v29) )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0D8h+outVelLs+4]
-        vcomiss xmm0, xmm9
-      }
-      if ( v28 )
-      {
-        __asm
-        {
-          vmovaps xmm3, xmm8; speed
-          vmovaps xmm2, xmm11; frameTime
-          vxorps  xmm1, xmm1, xmm1; dst
-        }
-        BgVehiclePhysics::DampLerp(&outVelLs.v[1], *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-      }
-    }
-    __asm { vcomiss xmm7, xmm6 }
-    if ( !(v28 | v29) )
-    {
-      __asm
-      {
-        vmovaps xmm3, xmm7; speed
-        vmovaps xmm2, xmm11; frameTime
-        vxorps  xmm1, xmm1, xmm1; dst
-      }
-      BgVehiclePhysics::DampLerp(outVelLs.v, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    }
+    if ( v8 > 0.001 )
+      BgVehiclePhysics::DampLerp(&outVelLs.v[2], 0.0, deltaTime, v8);
+    if ( v9 > 0.001 && outVelLs.v[1] < 0.0 )
+      BgVehiclePhysics::DampLerp(&outVelLs.v[1], 0.0, deltaTime, v9);
+    if ( v11 > 0.001 )
+      BgVehiclePhysics::DampLerp(outVelLs.v, 0.0, deltaTime, v11);
     BgVehiclePhysics::ComputeVelocityWorldSpace(this, &outVelLs, &this->m_angularVelocityWs);
-  }
-  _R11 = &v46;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
   }
 }
 
@@ -1362,44 +1127,28 @@ BgVehiclePhysicsWaterBuoyancy::DebugDraw
 */
 void BgVehiclePhysicsWaterBuoyancy::DebugDraw(BgVehiclePhysicsWaterBuoyancy *this, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  int v10; 
-  float fmt; 
-  float v17; 
+  int v7; 
+  BgVehiclePhysicsWaterBuoyancy::BuoyancySphere *m_buoyancySpheres; 
   vec3_t outPointWs; 
 
-  __asm
-  {
-    vmovss  xmm0, [rsp+88h+charHeight]
-    vmovss  xmm1, [rsp+88h+tabWidth]
-    vmovss  dword ptr [rsp+88h+var_60], xmm0
-    vmovss  dword ptr [rsp+88h+fmt], xmm1
-  }
-  BgVehiclePhysics::DebugDraw(this, scrPlace, x, y, fmt, v17);
+  BgVehiclePhysics::DebugDraw(this, scrPlace, x, y, tabWidth, charHeight);
   if ( (BgVehiclePhysics::GetPhysicsBodyId(this) & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_water.cpp", 599, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( GetPhysicsBodyId() ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( GetPhysicsBodyId() )") )
     __debugbreak();
   if ( !this->m_pmoveObject && BgVehiclePhysics::IsDynamic(this) )
   {
-    v10 = 0;
+    v7 = 0;
     if ( this->m_buoyancySphereCount > 0 )
     {
-      _RDI = this->m_buoyancySpheres;
-      __asm
-      {
-        vmovaps [rsp+88h+var_38], xmm6
-        vmovss  xmm6, cs:__real@3f800000
-      }
+      m_buoyancySpheres = this->m_buoyancySpheres;
       do
       {
-        BgVehiclePhysics::ComputePointWorldSpace(this, &_RDI->m_pointLs, &outPointWs);
-        __asm { vmovaps xmm1, xmm6; radius }
-        CG_DebugSphere(&outPointWs, *(float *)&_XMM1, &colorRed, 0, 0);
-        __asm { vmovss  xmm1, dword ptr [rdi+18h]; radius }
-        CG_DebugSphere(&outPointWs, *(float *)&_XMM1, &colorCyan, 0, 0);
-        ++v10;
-        ++_RDI;
+        BgVehiclePhysics::ComputePointWorldSpace(this, &m_buoyancySpheres->m_pointLs, &outPointWs);
+        CG_DebugSphere(&outPointWs, 1.0, &colorRed, 0, 0);
+        CG_DebugSphere(&outPointWs, m_buoyancySpheres->m_radius, &colorCyan, 0, 0);
+        ++v7;
+        ++m_buoyancySpheres;
       }
-      while ( v10 < this->m_buoyancySphereCount );
-      __asm { vmovaps xmm6, [rsp+88h+var_38] }
+      while ( v7 < this->m_buoyancySphereCount );
     }
   }
 }
@@ -1445,52 +1194,29 @@ Helpers::GetInputCharValueWithThreshold
 */
 float Helpers::GetInputCharValueWithThreshold(char value, char threshold)
 {
-  char v16; 
+  __int128 v2; 
+  float v3; 
+  double v5; 
+  float v6; 
+  __int128 v8; 
 
+  v2 = 0i64;
+  *(float *)&v2 = (float)value;
+  LODWORD(v3) = v2 & _xmm;
+  _XMM6 = 0i64;
+  v5 = I_fclamp((float)threshold, 0.0, 126.0);
+  v6 = *(float *)&v5;
+  if ( COERCE_FLOAT(v2 & _xmm) < *(float *)&v5 )
+    return 0.0;
+  v8 = v2 & _xmm;
+  *(float *)&v8 = v3 - *(float *)&v5;
+  _XMM1 = v8 ^ _xmm;
   __asm
   {
-    vmovss  xmm2, cs:__real@42fc0000; max
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm8, xmm8, xmm8
-    vcvtsi2ss xmm8, xmm8, eax
-    vandps  xmm7, xmm8, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcvtsi2ss xmm0, xmm0, eax; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vxorps  xmm6, xmm6, xmm6
+    vcmpless xmm0, xmm6, xmm8
+    vblendvps xmm2, xmm1, xmm2, xmm0
   }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vcomiss xmm7, xmm0
-    vmovaps xmm3, xmm0
-  }
-  if ( v16 )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  else
-  {
-    __asm
-    {
-      vsubss  xmm2, xmm7, xmm3
-      vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000
-      vcmpless xmm0, xmm6, xmm8
-      vblendvps xmm2, xmm1, xmm2, xmm0
-      vmovss  xmm0, cs:__real@42fe0000
-      vsubss  xmm1, xmm0, xmm3
-      vdivss  xmm0, xmm2, xmm1
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovaps xmm8, [rsp+58h+var_38]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&_XMM2 / (float)(127.0 - v6);
 }
 
 /*
@@ -1500,57 +1226,29 @@ BgVehiclePhysicsWaterBuoyancy::GetSoundValues
 */
 void BgVehiclePhysicsWaterBuoyancy::GetSoundValues(BgVehiclePhysicsWaterBuoyancy *this, const int clientNum, int time, float *outThrottle, float *outBrake, float *outRpmNormal, int *outGear, float *outMph)
 {
-  _RDI = outThrottle;
-  _RBX = this;
+  double v10; 
+  double v11; 
+
   if ( this->m_clientGeoLoaded && Physics_IsPredictiveWorld(this->m_worldId) )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vmovss  xmm0, dword ptr [rbx+70Ch]; val
-      vmovaps [rsp+38h+var_18], xmm6
-      vxorps  xmm1, xmm1, xmm1; min
-      vxorps  xmm6, xmm6, xmm6
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm0, dword ptr [rbx+710h]; val
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    _RAX = outBrake;
-    __asm { vmovss  dword ptr [rax], xmm0 }
-    _RAX = outMph;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+714h]
-      vmaxss  xmm0, xmm1, xmm6
-      vmovss  dword ptr [rax], xmm0
-      vmovss  xmm2, cs:__real@3f800000; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *outGear = I_clamp(abs32(_RBX->m_revSound.m_gear), 1, 6);
-    __asm { vmovss  xmm0, dword ptr [rbx+704h]; val }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    _RAX = outRpmNormal;
-    __asm
-    {
-      vmovss  dword ptr [rax], xmm0
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    v10 = I_fclamp(this->m_revSound.m_throttle, 0.0, 1.0);
+    *outThrottle = *(float *)&v10;
+    v11 = I_fclamp(this->m_revSound.m_brake, 0.0, 1.0);
+    *outBrake = *(float *)&v11;
+    _XMM1 = LODWORD(this->m_revSound.m_mph);
+    __asm { vmaxss  xmm0, xmm1, xmm6 }
+    *outMph = *(float *)&_XMM0;
+    *outGear = I_clamp(abs32(this->m_revSound.m_gear), 1, 6);
+    *(double *)&_XMM0 = I_fclamp(this->m_revSound.m_rpm, 0.0, 1.0);
+    *outRpmNormal = *(float *)&_XMM0;
   }
   else
   {
-    *_RDI = 0.0;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    *outThrottle = 0.0;
     *outBrake = 0.0;
     *outGear = 1;
     *outMph = 0.0;
-    _RAX = outRpmNormal;
-    __asm { vmovss  dword ptr [rax], xmm0 }
+    *outRpmNormal = 0;
   }
 }
 
@@ -1919,44 +1617,36 @@ void __fastcall BgVehiclePhysicsWaterBuoyancy::StartPlayerControlling(BgVehicleP
 BgVehiclePhysicsWaterBuoyancy::Step
 ==============
 */
-
-bool __fastcall BgVehiclePhysicsWaterBuoyancy::Step(BgVehiclePhysicsWaterBuoyancy *this, double deltaTime)
+bool BgVehiclePhysicsWaterBuoyancy::Step(BgVehiclePhysicsWaterBuoyancy *this, float deltaTime)
 {
+  bool v3; 
+  float m_timeInAir; 
   bool v5; 
-  bool v7; 
   bool result; 
+  __int128 v8; 
+  __int128 m_timeInAir_low; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RBX = this;
-  __asm { vmovaps xmm6, xmm1 }
-  BgVehiclePhysics::Step(this, *(float *)&deltaTime);
-  Physics_IsPredictiveWorld(_RBX->m_worldId);
-  v5 = _RBX->IsInAir(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+76Ch] }
-  v7 = !v5;
+  BgVehiclePhysics::Step(this, deltaTime);
+  Physics_IsPredictiveWorld(this->m_worldId);
+  v3 = this->IsInAir(this);
+  m_timeInAir = this->m_timeInAir;
+  v5 = !v3;
   result = 1;
-  if ( v7 )
+  if ( v5 )
   {
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-      vxorps  xmm0, xmm0, xmm0
-      vminss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rbx+76Ch], xmm1
-    }
+    m_timeInAir_low = LODWORD(this->m_timeInAir);
+    *(float *)&m_timeInAir_low = m_timeInAir - deltaTime;
+    _XMM1 = m_timeInAir_low;
+    __asm { vminss  xmm1, xmm1, xmm0 }
   }
   else
   {
-    __asm
-    {
-      vaddss  xmm1, xmm0, xmm6
-      vxorps  xmm0, xmm0, xmm0
-      vmaxss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rbx+76Ch], xmm1
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    v8 = LODWORD(this->m_timeInAir);
+    *(float *)&v8 = m_timeInAir + deltaTime;
+    _XMM1 = v8;
+    __asm { vmaxss  xmm1, xmm1, xmm0 }
   }
+  this->m_timeInAir = *(float *)&_XMM1;
   return result;
 }
 
@@ -1965,83 +1655,52 @@ bool __fastcall BgVehiclePhysicsWaterBuoyancy::Step(BgVehiclePhysicsWaterBuoyanc
 BgVehiclePhysicsZodiac::Step
 ==============
 */
-
-bool __fastcall BgVehiclePhysicsZodiac::Step(BgVehiclePhysicsZodiac *this, double deltaTime)
+char BgVehiclePhysicsZodiac::Step(BgVehiclePhysicsZodiac *this, float deltaTime)
 {
-  bool v6; 
-  bool result; 
+  bool v4; 
+  float m_timeInAir; 
+  __int128 m_timeInAir_low; 
+  __int128 v10; 
+  const dvar_t *v11; 
   vec3_t impulseWs; 
 
-  __asm
+  BgVehiclePhysics::Step(this, deltaTime);
+  Physics_IsPredictiveWorld(this->m_worldId);
+  v4 = this->IsInAir(this);
+  m_timeInAir = this->m_timeInAir;
+  if ( v4 )
   {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps xmm6, xmm1
-  }
-  _RBX = this;
-  BgVehiclePhysics::Step(this, *(float *)&deltaTime);
-  Physics_IsPredictiveWorld(_RBX->m_worldId);
-  v6 = _RBX->IsInAir(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+76Ch]
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( v6 )
-  {
-    __asm
-    {
-      vaddss  xmm0, xmm0, xmm6
-      vmaxss  xmm1, xmm0, xmm7
-    }
+    m_timeInAir_low = LODWORD(this->m_timeInAir);
+    *(float *)&m_timeInAir_low = m_timeInAir + deltaTime;
+    _XMM0 = m_timeInAir_low;
+    __asm { vmaxss  xmm1, xmm0, xmm7 }
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm0, xmm0, xmm6
-      vminss  xmm1, xmm0, xmm7
-    }
+    v10 = LODWORD(this->m_timeInAir);
+    *(float *)&v10 = m_timeInAir - deltaTime;
+    _XMM0 = v10;
+    __asm { vminss  xmm1, xmm0, xmm7 }
   }
-  __asm
+  this->m_timeInAir = *(float *)&_XMM1;
+  BgVehiclePhysicsWaterBuoyancy::ComputeWaterPlane(this, deltaTime);
+  BgVehiclePhysicsWaterBuoyancy::ComputeBuoyancySpheres(this, deltaTime);
+  BgVehiclePhysicsZodiac::ApplyEngine(this, deltaTime);
+  BgVehiclePhysicsZodiac::ApplySteering(this, deltaTime);
+  BgVehiclePhysicsZodiac::DampVelocities(this, deltaTime);
+  if ( this->m_playerControlled )
   {
-    vmovss  dword ptr [rbx+76Ch], xmm1
-    vmovaps xmm1, xmm6; deltaTime
-  }
-  BgVehiclePhysicsWaterBuoyancy::ComputeWaterPlane(_RBX, *(float *)&_XMM1);
-  __asm { vmovaps xmm1, xmm6; deltaTime }
-  BgVehiclePhysicsWaterBuoyancy::ComputeBuoyancySpheres(_RBX, *(float *)&_XMM1);
-  __asm { vmovaps xmm1, xmm6; deltaTime }
-  BgVehiclePhysicsZodiac::ApplyEngine(_RBX, *(float *)&_XMM1);
-  __asm { vmovaps xmm1, xmm6; deltaTime }
-  BgVehiclePhysicsZodiac::ApplySteering(_RBX, *(float *)&_XMM1);
-  __asm { vmovaps xmm1, xmm6; deltaTime }
-  BgVehiclePhysicsZodiac::DampVelocities(_RBX, *(float *)&_XMM1);
-  if ( _RBX->m_playerControlled )
-  {
-    _RDI = DCONST_DVARFLT_bg_vehZoscarExtraGrav;
+    v11 = DCONST_DVARFLT_bg_vehZoscarExtraGrav;
     if ( !DCONST_DVARFLT_bg_vehZoscarExtraGrav && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarExtraGrav") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmulss  xmm0, xmm0, cs:__real@447a0000
-      vmulss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rsp+88h+impulseWs+8], xmm1
-      vmovss  dword ptr [rsp+88h+impulseWs], xmm7
-      vmovss  dword ptr [rsp+88h+impulseWs+4], xmm7
-    }
-    BgVehiclePhysics::AccumulateOnlyLinearImpulse(_RBX, &impulseWs);
+    Dvar_CheckFrontendServerThread(v11);
+    impulseWs.v[2] = (float)(v11->current.value * 1000.0) * deltaTime;
+    impulseWs.v[0] = 0.0;
+    impulseWs.v[1] = 0.0;
+    BgVehiclePhysics::AccumulateOnlyLinearImpulse(this, &impulseWs);
   }
-  BgVehiclePhysicsZodiac::UpdateSetup(_RBX);
-  result = 1;
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-  }
-  return result;
+  BgVehiclePhysicsZodiac::UpdateSetup(this);
+  return 1;
 }
 
 /*
@@ -2082,213 +1741,123 @@ BgVehiclePhysicsWaterBuoyancy::UpdatePlayerInputControls
 */
 void BgVehiclePhysicsWaterBuoyancy::UpdatePlayerInputControls(BgVehiclePhysicsWaterBuoyancy *this, const usercmd_s *cmd, const playerState_s *ps)
 {
-  BOOL v15; 
-  bool v16; 
-  BOOL v39; 
-  bool v40; 
-  char v70; 
+  float InputCharValueWithThreshold; 
+  BOOL v11; 
+  bool v12; 
+  __int128 v13; 
+  BOOL v19; 
+  bool v20; 
+  __int128 v21; 
+  float v27; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps [rsp+78h+var_38], xmm7
-  }
-  _RDI = this;
-  __asm
-  {
-    vmovaps [rsp+78h+var_48], xmm8
-    vmovaps [rsp+78h+var_58], xmm9
-  }
   BgVehiclePhysics::UpdatePlayerInputControls(this, cmd, ps);
-  *(float *)&_XMM0 = Helpers::GetInputCharValueWithThreshold(-cmd->remoteControlMove[1], 8);
-  __asm { vmovaps xmm6, xmm0 }
+  InputCharValueWithThreshold = Helpers::GetInputCharValueWithThreshold(-cmd->remoteControlMove[1], 8);
   *(float *)&_XMM0 = Helpers::GetInputCharValueWithThreshold(cmd->remoteControlMove[0], 0);
-  __asm
-  {
-    vmovss  dword ptr [rdi+0D0h], xmm6
-    vxorps  xmm7, xmm7, xmm7
-    vmaxss  xmm1, xmm0, xmm7
-    vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmaxss  xmm0, xmm0, xmm7
-    vmovss  dword ptr [rdi+0C8h], xmm1
-    vmovss  dword ptr [rdi+0CCh], xmm0
-  }
-  v15 = Com_BitCheckAssert(_RDI->m_controls.playerEnabledBits, 1, 4);
-  v16 = Com_BitCheckAssert(_RDI->m_controls.externalEnabledBits, 1, 4);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+0CCh]
-    vmovss  xmm6, dword ptr [rdi+0ECh]
-    vmovss  xmm8, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm9, cs:__real@3f800000
-  }
-  switch ( v15 + 3 * v16 )
+  this->m_controls.playerValues[2] = InputCharValueWithThreshold;
+  LODWORD(_XMM7) = 0;
+  __asm { vmaxss  xmm1, xmm0, xmm7 }
+  _XMM0 = _XMM0 ^ _xmm;
+  __asm { vmaxss  xmm0, xmm0, xmm7 }
+  this->m_controls.playerValues[0] = *(float *)&_XMM1;
+  this->m_controls.playerValues[1] = *(float *)&_XMM0;
+  v11 = Com_BitCheckAssert(this->m_controls.playerEnabledBits, 1, 4);
+  v12 = Com_BitCheckAssert(this->m_controls.externalEnabledBits, 1, 4);
+  v13 = LODWORD(this->m_controls.playerValues[1]);
+  _XMM6 = LODWORD(this->m_controls.externalValues[1]);
+  switch ( v11 + 3 * v12 )
   {
     case 1:
-      __asm { vmovaps xmm6, xmm3 }
+      *(float *)&_XMM6 = this->m_controls.playerValues[1];
       break;
     case 3:
       break;
     case 4:
-      switch ( _RDI->m_controls.valuePolicy[1] )
+      switch ( this->m_controls.valuePolicy[1] )
       {
         case VP_MAXABS:
+          _XMM0 = _XMM6 & (unsigned int)_xmm;
           __asm
           {
-            vandps  xmm0, xmm6, xmm8
-            vandps  xmm1, xmm3, xmm8
             vcmpltss xmm1, xmm0, xmm1
             vblendvps xmm6, xmm6, xmm3, xmm1
           }
           goto LABEL_16;
         case VP_MINABS:
+          _XMM1 = v13 & (unsigned int)_xmm;
           __asm
           {
-            vandps  xmm0, xmm6, xmm8
-            vandps  xmm1, xmm3, xmm8
             vcmpltss xmm1, xmm1, xmm0
             vblendvps xmm6, xmm6, xmm3, xmm1
           }
           goto LABEL_16;
         case VP_AVERAGE:
-          __asm
-          {
-            vaddss  xmm0, xmm6, xmm3
-            vmulss  xmm6, xmm0, cs:__real@3f000000
-          }
+          *(float *)&_XMM6 = (float)(*(float *)&_XMM6 + *(float *)&v13) * 0.5;
           goto LABEL_16;
         case VP_AVERAGE_WEIGHT_PLAYER:
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rdi+118h]
-            vsubss  xmm0, xmm9, xmm1
-            vmulss  xmm2, xmm0, xmm6
-            vmulss  xmm1, xmm1, xmm3
-            vaddss  xmm6, xmm2, xmm1
-          }
+          *(float *)&_XMM6 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&_XMM6) + (float)(this->m_controls.policyWeight * *(float *)&v13);
           goto LABEL_16;
         case VP_AVERAGE_WEIGHT_EXTERNAL:
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rdi+118h]
-            vsubss  xmm0, xmm9, xmm1
-            vmulss  xmm2, xmm0, xmm3
-            vmulss  xmm1, xmm1, xmm6
-            vaddss  xmm6, xmm2, xmm1
-          }
+          *(float *)&_XMM6 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&v13) + (float)(this->m_controls.policyWeight * *(float *)&_XMM6);
           goto LABEL_16;
       }
     default:
-      __asm { vxorps  xmm6, xmm6, xmm6 }
+      LODWORD(_XMM6) = 0;
       break;
   }
 LABEL_16:
-  v39 = Com_BitCheckAssert(_RDI->m_controls.playerEnabledBits, 0, 4);
-  v40 = Com_BitCheckAssert(_RDI->m_controls.externalEnabledBits, 0, 4);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+0C8h]
-    vmovss  xmm4, dword ptr [rdi+0E8h]
-  }
-  switch ( v39 + 3 * v40 )
+  v19 = Com_BitCheckAssert(this->m_controls.playerEnabledBits, 0, 4);
+  v20 = Com_BitCheckAssert(this->m_controls.externalEnabledBits, 0, 4);
+  v21 = LODWORD(this->m_controls.playerValues[0]);
+  _XMM4 = LODWORD(this->m_controls.externalValues[0]);
+  switch ( v19 + 3 * v20 )
   {
     case 1:
-      __asm { vmovaps xmm7, xmm3 }
+      *(float *)&_XMM7 = this->m_controls.playerValues[0];
       break;
     case 3:
-      __asm { vmovaps xmm7, xmm4 }
+      *(float *)&_XMM7 = this->m_controls.externalValues[0];
       break;
     case 4:
-      if ( _RDI->m_controls.valuePolicy[0] )
+      if ( this->m_controls.valuePolicy[0] )
       {
-        switch ( _RDI->m_controls.valuePolicy[0] )
+        switch ( this->m_controls.valuePolicy[0] )
         {
           case VP_MINABS:
+            _XMM1 = v21 & (unsigned int)_xmm;
             __asm
             {
-              vandps  xmm1, xmm3, xmm8
-              vandps  xmm0, xmm4, xmm8
               vcmpltss xmm1, xmm1, xmm0
               vblendvps xmm7, xmm4, xmm3, xmm1
             }
             break;
           case VP_AVERAGE:
-            __asm
-            {
-              vaddss  xmm0, xmm4, xmm3
-              vmulss  xmm7, xmm0, cs:__real@3f000000
-            }
+            *(float *)&_XMM7 = (float)(*(float *)&_XMM4 + *(float *)&v21) * 0.5;
             break;
           case VP_AVERAGE_WEIGHT_PLAYER:
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rdi+118h]
-              vsubss  xmm0, xmm9, xmm1
-              vmulss  xmm2, xmm0, xmm4
-              vmulss  xmm1, xmm1, xmm3
-              vaddss  xmm7, xmm2, xmm1
-            }
+            *(float *)&_XMM7 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&_XMM4) + (float)(this->m_controls.policyWeight * *(float *)&v21);
             break;
           case VP_AVERAGE_WEIGHT_EXTERNAL:
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rdi+118h]
-              vsubss  xmm0, xmm9, xmm1
-              vmulss  xmm2, xmm0, xmm3
-              vmulss  xmm1, xmm1, xmm4
-              vaddss  xmm7, xmm2, xmm1
-            }
+            *(float *)&_XMM7 = (float)((float)(1.0 - this->m_controls.policyWeight) * *(float *)&v21) + (float)(this->m_controls.policyWeight * *(float *)&_XMM4);
             break;
         }
       }
       else
       {
+        _XMM0 = _XMM4 & (unsigned int)_xmm;
         __asm
         {
-          vandps  xmm1, xmm3, xmm8
-          vandps  xmm0, xmm4, xmm8
           vcmpltss xmm1, xmm0, xmm1
           vblendvps xmm7, xmm4, xmm3, xmm1
         }
       }
       break;
   }
-  __asm
-  {
-    vsubss  xmm0, xmm7, xmm6
-    vmovss  dword ptr [rdi+0D8h], xmm0
-    vxorps  xmm0, xmm0, xmm0
-  }
+  this->m_controls.playerValues[4] = *(float *)&_XMM7 - *(float *)&_XMM6;
   if ( (cmd->buttons & 0x8000000000000i64) != 0 )
-  {
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3c010204
-    }
-  }
+    v27 = (float)cmd->remoteControlMove[2] * 0.0078740157;
   else
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm0, xmm0, ecx
-      vcvtsi2ss xmm1, xmm1, eax
-      vsubss  xmm1, xmm1, xmm0
-    }
-  }
-  __asm
-  {
-    vmovss  dword ptr [rdi+0DCh], xmm1
-    vmovaps xmm6, [rsp+78h+var_28]
-  }
-  _R11 = &v70;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+78h+var_38]
-  }
+    v27 = (float)((cmd->buttons >> 45) & 1) - (float)((cmd->buttons >> 29) & 1);
+  this->m_controls.playerValues[5] = v27;
 }
 
 /*
@@ -2298,265 +1867,186 @@ BgVehiclePhysicsZodiac::UpdateSetup
 */
 void BgVehiclePhysicsZodiac::UpdateSetup(BgVehiclePhysicsZodiac *this)
 {
-  const dvar_t *v13; 
-  const dvar_t *v15; 
-  const dvar_t *v20; 
+  const dvar_t *v1; 
+  const dvar_t *v3; 
+  const dvar_t *v4; 
+  __int128 unsignedInt; 
+  float v6; 
+  float v7; 
+  const dvar_t *v8; 
   int integer; 
+  int v10; 
+  const dvar_t *v11; 
+  float m_simulationFrame; 
+  int v13; 
+  float *p_m_dampK; 
+  float v15; 
+  float v16; 
+  const dvar_t *v17; 
+  float value; 
+  __int128 v20; 
   int v22; 
-  int v49; 
-  int v50; 
-  int v62; 
-  int v63; 
-  int v77; 
-  int v78; 
-  const dvar_t *v92; 
-  int v96; 
-  void *retaddr; 
+  int v23; 
+  int v24; 
+  double PerlinNoise2dValue; 
+  double v26; 
+  __int64 v27; 
+  __int128 v29; 
+  int v31; 
+  int v32; 
+  int v33; 
+  double v34; 
+  double v35; 
+  __int128 v37; 
+  int v39; 
+  int v40; 
+  int v41; 
+  double v42; 
+  double v43; 
+  __int128 v44; 
+  const dvar_t *v45; 
+  int v46; 
+  float v47; 
 
-  _RAX = &retaddr;
-  v13 = DCONST_DVARFLT_bg_vehZoscarEngineForce;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-  }
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarEngineForce") )
+  v1 = DCONST_DVARFLT_bg_vehZoscarEngineForce;
+  if ( !DCONST_DVARFLT_bg_vehZoscarEngineForce && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarEngineForce") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  LODWORD(this->m_engine.m_accelForce) = v13->current.integer;
-  v15 = DCONST_DVARVEC3_bg_vehZoscarEngineOffsetPoint;
+  Dvar_CheckFrontendServerThread(v1);
+  LODWORD(this->m_engine.m_accelForce) = v1->current.integer;
+  v3 = DCONST_DVARVEC3_bg_vehZoscarEngineOffsetPoint;
   if ( !DCONST_DVARVEC3_bg_vehZoscarEngineOffsetPoint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarEngineOffsetPoint") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  LODWORD(this->m_engine.m_offsetPointLs.v[0]) = v15->current.integer;
-  this->m_engine.m_offsetPointLs.v[1] = v15->current.vector.v[1];
-  this->m_engine.m_offsetPointLs.v[2] = v15->current.vector.v[2];
-  _RBX = DCONST_DVARVEC3_bg_vehZoscarHalfsize;
+  Dvar_CheckFrontendServerThread(v3);
+  LODWORD(this->m_engine.m_offsetPointLs.v[0]) = v3->current.integer;
+  this->m_engine.m_offsetPointLs.v[1] = v3->current.vector.v[1];
+  this->m_engine.m_offsetPointLs.v[2] = v3->current.vector.v[2];
+  v4 = DCONST_DVARVEC3_bg_vehZoscarHalfsize;
   if ( !DCONST_DVARVEC3_bg_vehZoscarHalfsize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarHalfsize") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rbx+28h]
-    vmovss  xmm10, dword ptr [rbx+2Ch]
-    vmovss  xmm9, dword ptr [rbx+30h]
-  }
-  v20 = DCONST_DVARINT_bg_vehZoscarBuoyancySpheres;
+  Dvar_CheckFrontendServerThread(v4);
+  unsignedInt = v4->current.unsignedInt;
+  v6 = v4->current.vector.v[1];
+  v7 = v4->current.vector.v[2];
+  v8 = DCONST_DVARINT_bg_vehZoscarBuoyancySpheres;
   if ( !DCONST_DVARINT_bg_vehZoscarBuoyancySpheres && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarBuoyancySpheres") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  integer = v20->current.integer;
+  Dvar_CheckFrontendServerThread(v8);
+  integer = v8->current.integer;
   if ( integer > 24 )
     integer = 24;
-  v22 = 0;
+  v10 = 0;
   if ( integer < 0 )
     integer = 0;
   this->m_buoyancySphereCount = integer;
   if ( integer > 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+118h+var_58], xmm8
-      vmovaps [rsp+118h+var_98], xmm12
-    }
     if ( (integer & 1) != 0 )
-      this->m_buoyancySphereCount = integer + 1;
-    __asm { vmulss  xmm1, xmm7, cs:__real@40000000 }
-    _RBX = DCONST_DVARVEC3_bg_vehZoscarNoiseParms;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm0, xmm1, xmm0
-      vmovss  [rsp+118h+var_D4], xmm0
-    }
+      this->m_buoyancySphereCount = ++integer;
+    v11 = DCONST_DVARVEC3_bg_vehZoscarNoiseParms;
+    v47 = (float)(*(float *)&unsignedInt * 2.0) / (float)(integer / 2 - 1);
     if ( !DCONST_DVARVEC3_bg_vehZoscarNoiseParms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarNoiseParms") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm12, dword ptr [rbx+2Ch]
-      vmovss  xmm8, dword ptr [rbx+30h]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, dword ptr [rbx+28h]
-      vcvttss2si r13d, xmm1
-    }
+    Dvar_CheckFrontendServerThread(v11);
+    m_simulationFrame = (float)this->m_simulationFrame;
+    v13 = (int)(float)(m_simulationFrame * v11->current.value);
     if ( this->m_buoyancySphereCount / 2 > 0 )
     {
-      __asm { vmovaps [rsp+118h+var_38], xmm6 }
-      _RDI = &this->m_buoyancySpheres[0].m_dampK;
-      __asm
-      {
-        vmovaps [rsp+118h+var_88], xmm11
-        vmovss  xmm11, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovaps [rsp+118h+var_A8], xmm13
-        vmovaps [rsp+118h+var_B8], xmm14
-        vmovss  xmm14, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovaps [rsp+118h+var_C8], xmm15
-        vmovss  xmm15, cs:__real@3f800000
-        vxorps  xmm13, xmm10, xmm14
-        vandps  xmm12, xmm12, xmm11
-        vandps  xmm8, xmm8, xmm11
-      }
-      v96 = _ER13 + 24;
+      p_m_dampK = &this->m_buoyancySpheres[0].m_dampK;
+      LODWORD(v15) = LODWORD(v11->current.vector.v[1]) & _xmm;
+      LODWORD(v16) = LODWORD(v11->current.vector.v[2]) & _xmm;
+      v46 = v13 + 24;
       do
       {
-        __asm
-        {
-          vmovss  dword ptr [rdi-24h], xmm7
-          vmovss  dword ptr [rdi-20h], xmm10
-          vmovss  dword ptr [rdi-1Ch], xmm9
-          vmovss  dword ptr [rdi+8], xmm7
-          vmovss  dword ptr [rdi+0Ch], xmm13
-          vmovss  dword ptr [rdi+10h], xmm9
-        }
-        _RBX = DCONST_DVARFLT_bg_vehZoscarBuoyancySphereRadius;
+        *(p_m_dampK - 9) = *(float *)&unsignedInt;
+        *(p_m_dampK - 8) = v6;
+        *(p_m_dampK - 7) = v7;
+        p_m_dampK[2] = *(float *)&unsignedInt;
+        p_m_dampK[3] = COERCE_FLOAT(LODWORD(v6) ^ _xmm);
+        p_m_dampK[4] = v7;
+        v17 = DCONST_DVARFLT_bg_vehZoscarBuoyancySphereRadius;
         if ( !DCONST_DVARFLT_bg_vehZoscarBuoyancySphereRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarBuoyancySphereRadius") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vmovss  dword ptr [rdi+20h], xmm0
-          vmovss  dword ptr [rdi-0Ch], xmm0
-        }
-        _RDI[11] = 1.0;
-        *_RDI = 1.0;
-        __asm
-        {
-          vmovss  xmm0, dword ptr cs:?cm@@3UclipMap_t@@A.broadphaseMax+4; clipMap_t cm
-          vmovss  xmm1, dword ptr cs:?cm@@3UclipMap_t@@A.broadphaseMax; clipMap_t cm
-          vsubss  xmm3, xmm0, dword ptr cs:?cm@@3UclipMap_t@@A.broadphaseMin+4; clipMap_t cm
-          vsubss  xmm2, xmm1, dword ptr cs:?cm@@3UclipMap_t@@A.broadphaseMin; clipMap_t cm
-          vmaxss  xmm0, xmm3, xmm2
-          vcvttss2si ebx, xmm0
-        }
-        if ( _EBX <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_water.cpp", 88, ASSERT_TYPE_ASSERT, "(maxExtentComp > 0)", (const char *)&queryFormat, "maxExtentComp > 0") )
+        Dvar_CheckFrontendServerThread(v17);
+        value = v17->current.value;
+        p_m_dampK[8] = value;
+        *(p_m_dampK - 3) = value;
+        p_m_dampK[11] = 1.0;
+        *p_m_dampK = 1.0;
+        v20 = LODWORD(cm.broadphaseMax.v[1]);
+        *(float *)&v20 = cm.broadphaseMax.v[1] - cm.broadphaseMin.v[1];
+        _XMM3 = v20;
+        __asm { vmaxss  xmm0, xmm3, xmm2 }
+        v22 = (int)*(float *)&_XMM0;
+        if ( (int)*(float *)&_XMM0 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_water.cpp", 88, ASSERT_TYPE_ASSERT, "(maxExtentComp > 0)", (const char *)&queryFormat, "maxExtentComp > 0") )
           __debugbreak();
-        v49 = _ER13 % _EBX;
-        v50 = _ER13 / _EBX % _EBX;
-        if ( _EBX <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 644, ASSERT_TYPE_ASSERT, "(gridSide > 0)", "%s\n\tPhysics: Trying to get Perlin Noise 2D with an invalid Grid Side", "gridSide > 0") )
+        v23 = v13 % v22;
+        v24 = v13 / v22 % v22;
+        if ( v22 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 644, ASSERT_TYPE_ASSERT, "(gridSide > 0)", "%s\n\tPhysics: Trying to get Perlin Noise 2D with an invalid Grid Side", "gridSide > 0") )
           __debugbreak();
-        if ( (v49 < 0 || v49 >= _EBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 645, ASSERT_TYPE_ASSERT, "(x >= 0 && x < gridSide)", "%s\n\tPhysics: Trying to get Perlin Noise 2D out of bounds for X. It must be 0..GridSide-1", "x >= 0 && x < gridSide") )
+        if ( (v23 < 0 || v23 >= v22) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 645, ASSERT_TYPE_ASSERT, "(x >= 0 && x < gridSide)", "%s\n\tPhysics: Trying to get Perlin Noise 2D out of bounds for X. It must be 0..GridSide-1", "x >= 0 && x < gridSide") )
           __debugbreak();
-        if ( (v50 < 0 || v50 >= _EBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 646, ASSERT_TYPE_ASSERT, "(y >= 0 && y < gridSide)", "%s\n\tPhysics: Trying to get Perlin Noise 2D out of bounds for Y. It must be 0..GridSide-1", "y >= 0 && y < gridSide") )
+        if ( (v24 < 0 || v24 >= v22) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 646, ASSERT_TYPE_ASSERT, "(y >= 0 && y < gridSide)", "%s\n\tPhysics: Trying to get Perlin Noise 2D out of bounds for Y. It must be 0..GridSide-1", "y >= 0 && y < gridSide") )
           __debugbreak();
-        *(double *)&_XMM0 = HavokPhysics_GetPerlinNoise2dValue(7, _EBX, v49, v50);
-        __asm
-        {
-          vxorps  xmm1, xmm12, xmm14; min
-          vmulss  xmm0, xmm0, xmm12; val
-          vmovaps xmm2, xmm12; max
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        _RAX = 32i64;
-        if ( (_ER13 & 1) == 0 )
-          _RAX = -12i64;
-        __asm
-        {
-          vaddss  xmm0, xmm0, dword ptr [rax+rdi]
-          vmovss  dword ptr [rax+rdi], xmm0
-          vmovss  xmm1, dword ptr cs:?cm@@3UclipMap_t@@A.broadphaseMax+4; clipMap_t cm
-          vmovss  xmm0, dword ptr cs:?cm@@3UclipMap_t@@A.broadphaseMax; clipMap_t cm
-          vsubss  xmm3, xmm1, dword ptr cs:?cm@@3UclipMap_t@@A.broadphaseMin+4; clipMap_t cm
-          vsubss  xmm2, xmm0, dword ptr cs:?cm@@3UclipMap_t@@A.broadphaseMin; clipMap_t cm
-          vmaxss  xmm1, xmm3, xmm2
-          vcvttss2si ebx, xmm1
-        }
-        if ( _EBX <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_water.cpp", 88, ASSERT_TYPE_ASSERT, "(maxExtentComp > 0)", (const char *)&queryFormat, "maxExtentComp > 0") )
+        PerlinNoise2dValue = HavokPhysics_GetPerlinNoise2dValue(7, v22, v23, v24);
+        v26 = I_fclamp(*(float *)&PerlinNoise2dValue * v15, COERCE_FLOAT(LODWORD(v15) ^ _xmm), v15);
+        v27 = 8i64;
+        if ( (v13 & 1) == 0 )
+          v27 = 0x3FFFFFFFFFFFFFFDi64;
+        p_m_dampK[v27] = *(float *)&v26 + p_m_dampK[v27];
+        v29 = LODWORD(cm.broadphaseMax.v[1]);
+        *(float *)&v29 = cm.broadphaseMax.v[1] - cm.broadphaseMin.v[1];
+        _XMM3 = v29;
+        __asm { vmaxss  xmm1, xmm3, xmm2 }
+        v31 = (int)*(float *)&_XMM1;
+        if ( (int)*(float *)&_XMM1 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_water.cpp", 88, ASSERT_TYPE_ASSERT, "(maxExtentComp > 0)", (const char *)&queryFormat, "maxExtentComp > 0") )
           __debugbreak();
-        v62 = _ER13 % _EBX;
-        v63 = _ER13 / _EBX % _EBX;
-        if ( _EBX <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 644, ASSERT_TYPE_ASSERT, "(gridSide > 0)", "%s\n\tPhysics: Trying to get Perlin Noise 2D with an invalid Grid Side", "gridSide > 0") )
+        v32 = v13 % v31;
+        v33 = v13 / v31 % v31;
+        if ( v31 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 644, ASSERT_TYPE_ASSERT, "(gridSide > 0)", "%s\n\tPhysics: Trying to get Perlin Noise 2D with an invalid Grid Side", "gridSide > 0") )
           __debugbreak();
-        if ( (v62 < 0 || v62 >= _EBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 645, ASSERT_TYPE_ASSERT, "(x >= 0 && x < gridSide)", "%s\n\tPhysics: Trying to get Perlin Noise 2D out of bounds for X. It must be 0..GridSide-1", "x >= 0 && x < gridSide") )
+        if ( (v32 < 0 || v32 >= v31) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 645, ASSERT_TYPE_ASSERT, "(x >= 0 && x < gridSide)", "%s\n\tPhysics: Trying to get Perlin Noise 2D out of bounds for X. It must be 0..GridSide-1", "x >= 0 && x < gridSide") )
           __debugbreak();
-        if ( (v63 < 0 || v63 >= _EBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 646, ASSERT_TYPE_ASSERT, "(y >= 0 && y < gridSide)", "%s\n\tPhysics: Trying to get Perlin Noise 2D out of bounds for Y. It must be 0..GridSide-1", "y >= 0 && y < gridSide") )
+        if ( (v33 < 0 || v33 >= v31) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 646, ASSERT_TYPE_ASSERT, "(y >= 0 && y < gridSide)", "%s\n\tPhysics: Trying to get Perlin Noise 2D out of bounds for Y. It must be 0..GridSide-1", "y >= 0 && y < gridSide") )
           __debugbreak();
-        *(double *)&_XMM0 = HavokPhysics_GetPerlinNoise2dValue(7, _EBX, v62, v63);
-        __asm
-        {
-          vxorps  xmm6, xmm8, xmm14
-          vmovaps xmm1, xmm6; min
-          vmulss  xmm0, xmm0, xmm8; val
-          vmovaps xmm2, xmm8; max
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vandps  xmm0, xmm0, xmm11
-          vsubss  xmm0, xmm15, xmm0
-          vmulss  xmm1, xmm0, dword ptr [rdi]
-          vmovss  dword ptr [rdi], xmm1
-          vmovss  xmm0, dword ptr cs:?cm@@3UclipMap_t@@A.broadphaseMax+4; clipMap_t cm
-          vmovss  xmm1, dword ptr cs:?cm@@3UclipMap_t@@A.broadphaseMax; clipMap_t cm
-          vsubss  xmm3, xmm0, dword ptr cs:?cm@@3UclipMap_t@@A.broadphaseMin+4; clipMap_t cm
-          vsubss  xmm2, xmm1, dword ptr cs:?cm@@3UclipMap_t@@A.broadphaseMin; clipMap_t cm
-          vmaxss  xmm0, xmm3, xmm2
-          vcvttss2si ebx, xmm0
-        }
-        if ( _EBX <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_water.cpp", 88, ASSERT_TYPE_ASSERT, "(maxExtentComp > 0)", (const char *)&queryFormat, "maxExtentComp > 0") )
+        v34 = HavokPhysics_GetPerlinNoise2dValue(7, v31, v32, v33);
+        v35 = I_fclamp(*(float *)&v34 * v16, COERCE_FLOAT(LODWORD(v16) ^ _xmm), v16);
+        *p_m_dampK = (float)(1.0 - COERCE_FLOAT(LODWORD(v35) & _xmm)) * *p_m_dampK;
+        v37 = LODWORD(cm.broadphaseMax.v[1]);
+        *(float *)&v37 = cm.broadphaseMax.v[1] - cm.broadphaseMin.v[1];
+        _XMM3 = v37;
+        __asm { vmaxss  xmm0, xmm3, xmm2 }
+        v39 = (int)*(float *)&_XMM0;
+        if ( (int)*(float *)&_XMM0 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_water.cpp", 88, ASSERT_TYPE_ASSERT, "(maxExtentComp > 0)", (const char *)&queryFormat, "maxExtentComp > 0") )
           __debugbreak();
-        v77 = v96 % _EBX;
-        v78 = v96 / _EBX % _EBX;
-        if ( _EBX <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 644, ASSERT_TYPE_ASSERT, "(gridSide > 0)", "%s\n\tPhysics: Trying to get Perlin Noise 2D with an invalid Grid Side", "gridSide > 0") )
+        v40 = v46 % v39;
+        v41 = v46 / v39 % v39;
+        if ( v39 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 644, ASSERT_TYPE_ASSERT, "(gridSide > 0)", "%s\n\tPhysics: Trying to get Perlin Noise 2D with an invalid Grid Side", "gridSide > 0") )
           __debugbreak();
-        if ( (v77 < 0 || v77 >= _EBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 645, ASSERT_TYPE_ASSERT, "(x >= 0 && x < gridSide)", "%s\n\tPhysics: Trying to get Perlin Noise 2D out of bounds for X. It must be 0..GridSide-1", "x >= 0 && x < gridSide") )
+        if ( (v40 < 0 || v40 >= v39) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 645, ASSERT_TYPE_ASSERT, "(x >= 0 && x < gridSide)", "%s\n\tPhysics: Trying to get Perlin Noise 2D out of bounds for X. It must be 0..GridSide-1", "x >= 0 && x < gridSide") )
           __debugbreak();
-        if ( (v78 < 0 || v78 >= _EBX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 646, ASSERT_TYPE_ASSERT, "(y >= 0 && y < gridSide)", "%s\n\tPhysics: Trying to get Perlin Noise 2D out of bounds for Y. It must be 0..GridSide-1", "y >= 0 && y < gridSide") )
+        if ( (v41 < 0 || v41 >= v39) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 646, ASSERT_TYPE_ASSERT, "(y >= 0 && y < gridSide)", "%s\n\tPhysics: Trying to get Perlin Noise 2D out of bounds for Y. It must be 0..GridSide-1", "y >= 0 && y < gridSide") )
           __debugbreak();
-        *(double *)&_XMM0 = HavokPhysics_GetPerlinNoise2dValue(7, _EBX, v77, v78);
-        __asm
-        {
-          vmulss  xmm0, xmm0, xmm8; val
-          vmovaps xmm2, xmm8; max
-          vmovaps xmm1, xmm6; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vsubss  xmm7, xmm7, [rsp+118h+var_D4]
-          vandps  xmm0, xmm0, xmm11
-          vsubss  xmm0, xmm15, xmm0
-          vmulss  xmm1, xmm0, dword ptr [rdi+2Ch]
-          vmovss  dword ptr [rdi+2Ch], xmm1
-        }
-        ++v96;
-        ++_ER13;
-        ++v22;
-        _RDI += 22;
+        v42 = HavokPhysics_GetPerlinNoise2dValue(7, v39, v40, v41);
+        v43 = I_fclamp(*(float *)&v42 * v16, COERCE_FLOAT(LODWORD(v16) ^ _xmm), v16);
+        v44 = unsignedInt;
+        *(float *)&v44 = *(float *)&unsignedInt - v47;
+        unsignedInt = v44;
+        p_m_dampK[11] = (float)(1.0 - COERCE_FLOAT(LODWORD(v43) & _xmm)) * p_m_dampK[11];
+        ++v46;
+        ++v13;
+        ++v10;
+        p_m_dampK += 22;
       }
-      while ( v22 < this->m_buoyancySphereCount / 2 );
-      __asm
-      {
-        vmovaps xmm15, [rsp+118h+var_C8]
-        vmovaps xmm14, [rsp+118h+var_B8]
-        vmovaps xmm13, [rsp+118h+var_A8]
-        vmovaps xmm11, [rsp+118h+var_88]
-        vmovaps xmm6, [rsp+118h+var_38]
-      }
-    }
-    __asm
-    {
-      vmovaps xmm8, [rsp+118h+var_58]
-      vmovaps xmm12, [rsp+118h+var_98]
+      while ( v10 < this->m_buoyancySphereCount / 2 );
     }
   }
-  v92 = DCONST_DVARVEC3_bg_vehZoscarCoMLs;
-  __asm
-  {
-    vmovaps xmm10, [rsp+118h+var_78]
-    vmovaps xmm9, [rsp+118h+var_68]
-    vmovaps xmm7, [rsp+118h+var_48]
-  }
+  v45 = DCONST_DVARVEC3_bg_vehZoscarCoMLs;
   if ( !DCONST_DVARVEC3_bg_vehZoscarCoMLs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehZoscarCoMLs") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v92);
-  LODWORD(this->m_centerOfMassOffsetOriginalLs.v[0]) = v92->current.integer;
-  this->m_centerOfMassOffsetOriginalLs.v[1] = v92->current.vector.v[1];
-  this->m_centerOfMassOffsetOriginalLs.v[2] = v92->current.vector.v[2];
+  Dvar_CheckFrontendServerThread(v45);
+  LODWORD(this->m_centerOfMassOffsetOriginalLs.v[0]) = v45->current.integer;
+  this->m_centerOfMassOffsetOriginalLs.v[1] = v45->current.vector.v[1];
+  this->m_centerOfMassOffsetOriginalLs.v[2] = v45->current.vector.v[2];
   BgVehiclePhysics::OffsetCenterOfMass(this, &this->m_centerOfMassOffsetOriginalLs, 0);
 }
 
@@ -2565,40 +2055,29 @@ void BgVehiclePhysicsZodiac::UpdateSetup(BgVehiclePhysicsZodiac *this)
 BgVehiclePhysicsWaterBuoyancy::UpdateTimeInAir
 ==============
 */
-
-void __fastcall BgVehiclePhysicsWaterBuoyancy::UpdateTimeInAir(BgVehiclePhysicsWaterBuoyancy *this, double deltaTime)
+void BgVehiclePhysicsWaterBuoyancy::UpdateTimeInAir(BgVehiclePhysicsWaterBuoyancy *this, float deltaTime)
 {
-  bool v5; 
+  bool v3; 
+  float m_timeInAir; 
+  __int128 m_timeInAir_low; 
+  __int128 v9; 
 
-  _RBX = this;
-  __asm
+  v3 = this->IsInAir(this);
+  m_timeInAir = this->m_timeInAir;
+  if ( v3 )
   {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v5 = this->IsInAir(this);
-  __asm { vmovss  xmm0, dword ptr [rbx+76Ch] }
-  if ( v5 )
-  {
-    __asm
-    {
-      vaddss  xmm1, xmm0, xmm6
-      vxorps  xmm0, xmm0, xmm0
-      vmaxss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rbx+76Ch], xmm1
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    m_timeInAir_low = LODWORD(this->m_timeInAir);
+    *(float *)&m_timeInAir_low = m_timeInAir + deltaTime;
+    _XMM1 = m_timeInAir_low;
+    __asm { vmaxss  xmm1, xmm1, xmm0 }
   }
   else
   {
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-      vxorps  xmm0, xmm0, xmm0
-      vminss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rbx+76Ch], xmm1
-    }
+    v9 = LODWORD(this->m_timeInAir);
+    *(float *)&v9 = m_timeInAir - deltaTime;
+    _XMM1 = v9;
+    __asm { vminss  xmm1, xmm1, xmm0 }
   }
+  this->m_timeInAir = *(float *)&_XMM1;
 }
 

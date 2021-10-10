@@ -201,70 +201,66 @@ FX_SpawnParticleSystem
 */
 __int64 FX_SpawnParticleSystem(LocalClientNum_t localClientNum, const vec3_t *origin, const tmat33_t<vec3_t> *axis, int fxEntNum, int fxTriggerTime, int spawnTimeMsec, const FXRegisteredDef *def, int dobjHandle, int boneIndex, const orientation_t *boltOffset, const FxCamera *pCamera, const FxMarkSpawnData *pMarkSpawnData, ParticleSystemFlags initSpawnFlags)
 {
+  float v13; 
+  vec4_t v15; 
   __int64 v18; 
   __int64 v19; 
-  ParticleSystemHandle v21; 
-  __int64 v22; 
-  ParticleSystemHandle v23; 
-  ParticleSystem *v24; 
-  __int64 v25; 
+  ParticleSystemHandle v20; 
+  __int64 v21; 
+  ParticleSystemHandle v22; 
+  ParticleSystem *v23; 
+  __int64 v24; 
   centity_t *Entity; 
-  __int64 v28; 
+  __int64 v27; 
   ParticleSystemFlags particleSystemFlags; 
   vec4_t out; 
   float4 emitterOrientationQuat; 
   float4 emitterPos; 
 
-  __asm { vmovss  xmm0, dword ptr [rdx] }
+  v13 = origin->v[0];
   out.v[3] = 0.0;
+  v15 = out;
+  v15.v[0] = v13;
+  _XMM3 = v15;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+60h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rdx+4], 10h
     vinsertps xmm3, xmm3, dword ptr [rdx+8], 20h ; ' '
   }
   v18 = localClientNum;
   v19 = fxEntNum;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+0E8h+out], xmm3
-    vmovups xmmword ptr [rsp+0E8h+emitterPos.v], xmm3
-  }
+  out = _XMM3;
+  emitterPos.v = (__m128)_XMM3;
   AxisToQuat(axis, &out);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+0E8h+out]
-    vmovups xmmword ptr [rsp+0E8h+emitterOrientationQuat.v], xmm0
-  }
+  emitterOrientationQuat.v = (__m128)out;
   if ( (unsigned int)v18 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 866, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v18, 2) )
     __debugbreak();
-  v21 = ParticleManager::AddSystem(&g_particleManager[v18], (LocalClientNum_t)v18, def->m_particleSystemDef, &emitterPos, &emitterOrientationQuat, spawnTimeMsec, (ParticleSystemFlags)(initSpawnFlags | 8), dobjHandle, boneIndex, boltOffset, pCamera, pMarkSpawnData);
-  v22 = (v21 & 0xFFF) + (v18 << 12);
-  v23 = v21;
-  if ( g_particleSystemsGeneration[v22].__all32 != v21 && v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 933, ASSERT_TYPE_ASSERT, "(g_particleSystemsGeneration[localClientNum][handleImpl._index].__all32 == handleImpl.__all32 || particleSystemHandle == PARTICLE_SYSTEM_INVALID_HANDLE)", (const char *)&queryFormat, "g_particleSystemsGeneration[localClientNum][handleImpl._index].__all32 == handleImpl.__all32 || particleSystemHandle == PARTICLE_SYSTEM_INVALID_HANDLE") )
+  v20 = ParticleManager::AddSystem(&g_particleManager[v18], (LocalClientNum_t)v18, def->m_particleSystemDef, &emitterPos, &emitterOrientationQuat, spawnTimeMsec, (ParticleSystemFlags)(initSpawnFlags | 8), dobjHandle, boneIndex, boltOffset, pCamera, pMarkSpawnData);
+  v21 = (v20 & 0xFFF) + (v18 << 12);
+  v22 = v20;
+  if ( g_particleSystemsGeneration[v21].__all32 != v20 && v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 933, ASSERT_TYPE_ASSERT, "(g_particleSystemsGeneration[localClientNum][handleImpl._index].__all32 == handleImpl.__all32 || particleSystemHandle == PARTICLE_SYSTEM_INVALID_HANDLE)", (const char *)&queryFormat, "g_particleSystemsGeneration[localClientNum][handleImpl._index].__all32 == handleImpl.__all32 || particleSystemHandle == PARTICLE_SYSTEM_INVALID_HANDLE") )
     __debugbreak();
-  v24 = g_particleSystems[0][v22];
-  if ( v24 && (int)v19 >= 0 )
+  v23 = g_particleSystems[0][v21];
+  if ( v23 && (int)v19 >= 0 )
   {
     if ( (_DWORD)v19 == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlesystem.h", 213, ASSERT_TYPE_ASSERT, "(fxEnt != ENTITYNUM_NONE)", (const char *)&queryFormat, "fxEnt != ENTITYNUM_NONE") )
       __debugbreak();
-    if ( SLOBYTE(v24->m_flags) < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlesystem.h", 214, ASSERT_TYPE_ASSERT, "(!HasFlag( PARTICLE_SYSTEM_FLAG_HAS_FX_ENT ))", (const char *)&queryFormat, "!HasFlag( PARTICLE_SYSTEM_FLAG_HAS_FX_ENT )") )
+    if ( SLOBYTE(v23->m_flags) < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlesystem.h", 214, ASSERT_TYPE_ASSERT, "(!HasFlag( PARTICLE_SYSTEM_FLAG_HAS_FX_ENT ))", (const char *)&queryFormat, "!HasFlag( PARTICLE_SYSTEM_FLAG_HAS_FX_ENT )") )
       __debugbreak();
-    v24->m_flags |= 0x80ui64;
-    v24->m_fxEnt = v19;
+    v23->m_flags |= 0x80ui64;
+    v23->m_fxEnt = v19;
     if ( Com_GameMode_SupportsFeature(WEAPON_DETONATING) )
     {
       if ( (unsigned int)v19 >= 0x500 )
       {
         LODWORD(particleSystemFlags) = 1280;
-        LODWORD(v28) = v19;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_spawn.cpp", 50, ASSERT_TYPE_ASSERT, "(unsigned)( fxEntNum ) < (unsigned)( 1280 )", "fxEntNum doesn't index FX_ENTITY_MAX\n\t%i not in [0, %i)", v28, particleSystemFlags) )
+        LODWORD(v27) = v19;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_spawn.cpp", 50, ASSERT_TYPE_ASSERT, "(unsigned)( fxEntNum ) < (unsigned)( 1280 )", "fxEntNum doesn't index FX_ENTITY_MAX\n\t%i not in [0, %i)", v27, particleSystemFlags) )
           __debugbreak();
       }
-      v25 = v19;
-      cg_fxEntitiesArray[v25].triggerTime = fxTriggerTime;
-      cg_fxEntitiesArray[v25].particleSystem = v23;
+      v24 = v19;
+      cg_fxEntitiesArray[v24].triggerTime = fxTriggerTime;
+      cg_fxEntitiesArray[v24].particleSystem = v22;
     }
     else
     {
@@ -272,9 +268,9 @@ __int64 FX_SpawnParticleSystem(LocalClientNum_t localClientNum, const vec3_t *or
       if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_spawn.cpp", 57, ASSERT_TYPE_ASSERT, "(cent != 0)", (const char *)&queryFormat, "cent != NULL") )
         __debugbreak();
       Entity->pose.coverWall.coverGrid[0] = fxTriggerTime;
-      Entity->pose.coverWall.coverGrid[1] = v23;
+      Entity->pose.coverWall.coverGrid[1] = v22;
     }
   }
-  return (unsigned int)v23;
+  return (unsigned int)v22;
 }
 

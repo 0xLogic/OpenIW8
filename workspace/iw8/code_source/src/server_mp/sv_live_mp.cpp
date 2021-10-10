@@ -174,10 +174,10 @@ void SV_Live_AddConnectingClient(const int clientNum)
   const XUID *Xuid; 
   int MemberNatType; 
   NetConnection *MemberConnection; 
-  const PartyData *v11; 
-  int v12; 
-  __int64 v13; 
-  unsigned int v14; 
+  const PartyData *v9; 
+  int v10; 
+  __int64 v11; 
+  unsigned int v12; 
   XUID result; 
   BG_SynchronizedPlayerInfo playerInfo; 
 
@@ -185,9 +185,9 @@ void SV_Live_AddConnectingClient(const int clientNum)
   XUID::XUID(&playerInfo.xuid);
   if ( clientNum >= SvClient::ms_clientCount )
   {
-    v14 = SvClient::ms_clientCount;
-    v12 = clientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_live_mp.cpp", 146, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( SvClient::GetClientCount() )", "clientNum doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", v12, v14) )
+    v12 = SvClient::ms_clientCount;
+    v10 = clientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_live_mp.cpp", 146, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( SvClient::GetClientCount() )", "clientNum doesn't index SvClient::GetClientCount()\n\t%i not in [0, %i)", v10, v12) )
       __debugbreak();
   }
   if ( BYTE1(SvGameGlobals::ms_allocatedType) != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_persistent_globals_mp.h", 166, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
@@ -224,21 +224,16 @@ void SV_Live_AddConnectingClient(const int clientNum)
     playerInfo.natType = MemberNatType;
     if ( (unsigned int)(MemberNatType - 1) > 2 )
     {
-      LODWORD(v13) = MemberNatType;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_live_mp.cpp", 178, ASSERT_TYPE_ASSERT, "( ( serverPlayerInfo.natType > 0 && serverPlayerInfo.natType <= XONLINE_NAT_STRICT ) )", "%s\n\t( serverPlayerInfo.natType ) = %i", "( serverPlayerInfo.natType > 0 && serverPlayerInfo.natType <= XONLINE_NAT_STRICT )", v13) )
+      LODWORD(v11) = MemberNatType;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_live_mp.cpp", 178, ASSERT_TYPE_ASSERT, "( ( serverPlayerInfo.natType > 0 && serverPlayerInfo.natType <= XONLINE_NAT_STRICT ) )", "%s\n\t( serverPlayerInfo.natType ) = %i", "( serverPlayerInfo.natType > 0 && serverPlayerInfo.natType <= XONLINE_NAT_STRICT )", v11) )
         __debugbreak();
     }
     MemberConnection = (NetConnection *)Party_GetMemberConnection(v5, clientNum);
     playerInfo.localNetId = NetConnection::GetNetId(MemberConnection);
-    _RAX = SV_ClientMP_GetPrivatePartyId(clientNum);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax]
-      vmovsd  qword ptr [rsp+0E8h+playerInfo.partyId.ab], xmm0
-    }
+    playerInfo.partyId = *SV_ClientMP_GetPrivatePartyId(clientNum);
     playerInfo.isGuestAccount = Party_IsMemberGuestAccount(v5, clientNum) != 0;
-    v11 = Lobby_GetPartyData();
-    playerInfo.isHeadless = Party_IsMemberHeadless(v11, clientNum);
+    v9 = Lobby_GetPartyData();
+    playerInfo.isHeadless = Party_IsMemberHeadless(v9, clientNum);
     SV_Live_SetPlayerInfo_Internal(clientNum, &playerInfo, 1);
   }
   bdSecurityID::~bdSecurityID(&playerInfo.partyId);
@@ -375,15 +370,15 @@ SV_Live_SetPlayerInfo_Internal
 void SV_Live_SetPlayerInfo_Internal(const int clientNum, const BG_SynchronizedPlayerInfo *playerInfo, const bool allowBroadcast)
 {
   __int64 v3; 
+  BG_SynchronizedPlayerInfo *v6; 
   bool IsValid; 
-  bool v12; 
-  SvGameGlobals *v13; 
-  __int64 v14; 
+  bool v8; 
+  SvGameGlobals *v9; 
+  __int64 v10; 
   msg_t buf; 
   unsigned __int8 data[256]; 
 
   v3 = clientNum;
-  _RSI = playerInfo;
   if ( clientNum >= (int)SvClient::ms_clientCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_live_mp.cpp", 72, ASSERT_TYPE_ASSERT, "(clientNum < SvClient::GetClientCount( ))", (const char *)&queryFormat, "clientNum < SvClient::GetClientCount( )") )
     __debugbreak();
   if ( (_BYTE)SvClient::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 991, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
@@ -392,39 +387,32 @@ void SV_Live_SetPlayerInfo_Internal(const int clientNum, const BG_SynchronizedPl
     __debugbreak();
   if ( (unsigned int)v3 >= SvClient::ms_clientCount )
   {
-    LODWORD(v14) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 993, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( ms_clientCount )", "clientNum doesn't index ms_clientCount\n\t%i not in [0, %i)", v14, SvClient::ms_clientCount) )
+    LODWORD(v10) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_client_mp.h", 993, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( ms_clientCount )", "clientNum doesn't index ms_clientCount\n\t%i not in [0, %i)", v10, SvClient::ms_clientCount) )
       __debugbreak();
   }
-  _RBX = SvClientMP::ms_playerInfos[(unsigned int)v3];
-  if ( !BG_SynchronizedPlayerInfo::Equals(_RBX, _RSI) )
+  v6 = SvClientMP::ms_playerInfos[(unsigned int)v3];
+  if ( !BG_SynchronizedPlayerInfo::Equals(v6, playerInfo) )
   {
-    IsValid = XUID::IsValid(&_RSI->xuid);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymm1, ymmword ptr [rsi+20h]
-      vmovups ymmword ptr [rbx+20h], ymm1
-      vmovups ymm0, ymmword ptr [rsi+40h]
-      vmovups ymmword ptr [rbx+40h], ymm0
-      vmovups ymm1, ymmword ptr [rsi+60h]
-      vmovups ymmword ptr [rbx+60h], ymm1
-    }
-    v12 = IsValid;
+    IsValid = XUID::IsValid(&playerInfo->xuid);
+    *(__m256i *)v6->xnaddr.addrBuff = *(__m256i *)playerInfo->xnaddr.addrBuff;
+    *(__m256i *)&v6->xnaddr.addrBuff[32] = *(__m256i *)&playerInfo->xnaddr.addrBuff[32];
+    *(__m256i *)&v6->xnaddr.addrBuff[64] = *(__m256i *)&playerInfo->xnaddr.addrBuff[64];
+    *(__m256i *)&v6->xuid.m_id = *(__m256i *)&playerInfo->xuid.m_id;
+    v8 = IsValid;
     if ( !(_BYTE)SvGameGlobals::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game_globals.h", 98, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tAttempting to access server global data outside of an active server context", "ms_allocatedType != GameModeType::NONE") )
       __debugbreak();
     if ( !SvGameGlobals::ms_svGameGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_game_globals.h", 99, ASSERT_TYPE_ASSERT, "( ms_svGameGlobals )", (const char *)&queryFormat, "ms_svGameGlobals") )
       __debugbreak();
-    v13 = SvGameGlobals::ms_svGameGlobals;
-    if ( allowBroadcast && (SV_Loaded() || v13->restarting) )
+    v9 = SvGameGlobals::ms_svGameGlobals;
+    if ( allowBroadcast && (SV_Loaded() || v9->restarting) )
     {
       MSG_Init(&buf, data, 256);
       MSG_WriteByte(&buf, 86i64);
       MSG_WriteByte(&buf, v3);
-      MSG_WriteBool(&buf, v12);
-      if ( v12 )
-        BG_SynchronizedPlayerInfo::Serialize(_RBX, &buf);
+      MSG_WriteBool(&buf, v8);
+      if ( v8 )
+        BG_SynchronizedPlayerInfo::Serialize(v6, &buf);
       if ( buf.overflowed )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_live_mp.cpp", 102, ASSERT_TYPE_ASSERT, "(!MSG_IsOverflowed( &msg ))", (const char *)&queryFormat, "!MSG_IsOverflowed( &msg )") )

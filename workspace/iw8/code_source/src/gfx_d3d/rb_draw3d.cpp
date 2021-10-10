@@ -711,46 +711,42 @@ void RB_AddComputeCmdsTransitions(GfxCmdBufState *gfxState, const GfxBackEndData
 {
   D3D12_RESOURCE_STATES v6; 
   const GfxWrappedRWBuffer *ClusterBuffer; 
+  _BOOL8 v8; 
   _BOOL8 v9; 
-  _BOOL8 v10; 
-  D3D12_RESOURCE_STATES v11; 
+  D3D12_RESOURCE_STATES v10; 
   D3D12_RESOURCE_STATES after; 
   const GfxWrappedBuffer *ReactiveMotionPivotsBuffer; 
   D3D12_RESOURCE_STATES before; 
-  D3D12_RESOURCE_STATES v15[4]; 
-  int v16; 
-  D3D12_RESOURCE_STATES v17[4]; 
-  D3D12_RESOURCE_STATES v18[2]; 
+  D3D12_RESOURCE_STATES v14[4]; 
+  int v15; 
+  D3D12_RESOURCE_STATES v16[4]; 
+  D3D12_RESOURCE_STATES v17[2]; 
 
   if ( data->frameCount || (v6 = D3D12_RESOURCE_STATE_GENERIC_READ, !begin) )
     v6 = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@000000080000008100000008000000c0
-    vmovdqu xmmword ptr [rsp+0A8h+var_74], xmm0
-  }
+  *(_OWORD *)v14 = _xmm;
   before = v6;
-  v16 = 1;
+  v15 = 1;
+  v16[0] = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+  v16[1] = D3D12_RESOURCE_STATE_PREDICATION|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_INDEX_BUFFER;
+  v16[2] = v6;
+  v16[3] = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
   v17[0] = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-  v17[1] = D3D12_RESOURCE_STATE_PREDICATION|D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_INDEX_BUFFER;
-  v17[2] = v6;
-  v17[3] = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-  v18[0] = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-  v18[1] = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+  v17[1] = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
   ClusterBuffer = R_ReflectionProbe_GetClusterBuffer();
-  v9 = begin;
-  v10 = !begin;
-  R_HW_AddResourceTransition(gfxState, ClusterBuffer, 0xFFFFFFFF, v15[v10 - 1], v15[v9 - 1], D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v11 = v15[v10 + 1];
-  after = v15[v9 + 1];
-  R_HW_AddResourceTransition(gfxState, &data->skinnedCacheVb->buffer, 0xFFFFFFFF, v11, after, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  R_HW_AddResourceTransition(gfxState, &data->subdivCacheVb->buffer, 0xFFFFFFFF, v11, after, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  R_HW_AddResourceTransition(gfxState, &data->subdivCacheVbPrevFrame->buffer, 0xFFFFFFFF, v11, after, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  R_HW_AddResourceTransition(gfxState, &data->skinnedCacheVbPrevFrame->buffer, 0xFFFFFFFF, v11, after, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v8 = begin;
+  v9 = !begin;
+  R_HW_AddResourceTransition(gfxState, ClusterBuffer, 0xFFFFFFFF, v14[v9 - 1], v14[v8 - 1], D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v10 = v14[v9 + 1];
+  after = v14[v8 + 1];
+  R_HW_AddResourceTransition(gfxState, &data->skinnedCacheVb->buffer, 0xFFFFFFFF, v10, after, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_HW_AddResourceTransition(gfxState, &data->subdivCacheVb->buffer, 0xFFFFFFFF, v10, after, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_HW_AddResourceTransition(gfxState, &data->subdivCacheVbPrevFrame->buffer, 0xFFFFFFFF, v10, after, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_HW_AddResourceTransition(gfxState, &data->skinnedCacheVbPrevFrame->buffer, 0xFFFFFFFF, v10, after, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   ReactiveMotionPivotsBuffer = R_GetReactiveMotionPivotsBuffer(data->reactiveMotionIndex);
-  R_HW_AddResourceTransition(gfxState, ReactiveMotionPivotsBuffer, 0xFFFFFFFF, v11, after, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  R_HW_AddResourceTransition(gfxState, &data->tessFactorsBuffer->wrappedBuffer, 0xFFFFFFFF, v17[v10], v17[v9], D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  R_HW_AddResourceTransition(gfxState, &data->mayhemChannelsVb->buffer, 0xFFFFFFFF, v18[v10], v18[v9], D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_HW_AddResourceTransition(gfxState, ReactiveMotionPivotsBuffer, 0xFFFFFFFF, v10, after, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_HW_AddResourceTransition(gfxState, &data->tessFactorsBuffer->wrappedBuffer, 0xFFFFFFFF, v16[v9], v16[v8], D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_HW_AddResourceTransition(gfxState, &data->mayhemChannelsVb->buffer, 0xFFFFFFFF, v17[v9], v17[v8], D3D12_RESOURCE_BARRIER_FLAG_NONE);
 }
 
 /*
@@ -820,62 +816,47 @@ char RB_Async2D_ReceivePPFXFinished(void *userData)
 RB_BlitDebugOverlay
 ==============
 */
-
-void __fastcall RB_BlitDebugOverlay(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, double _XMM2_8, double _XMM3_8)
+void RB_BlitDebugOverlay(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
-  bool v13; 
+  R_RT_ColorHandle *p_debugOverlay; 
+  R_RT_Handle v6; 
+  bool v8; 
   GfxCmdBufSourceState *source; 
-  const char *m_location; 
   GfxCmdBufState *state; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
+  GfxCmdBufContext v13; 
+  GfxCmdBufSourceState *v14; 
+  GfxCmdBufSourceState *v15; 
   R_RT_Image *p_m_image; 
-  __int64 v43; 
-  float fmt; 
-  float v53; 
-  float v54; 
-  float v55; 
-  float v56; 
-  float v57; 
-  float v58; 
-  float v59; 
-  R_RT_Handle v60; 
-  R_RT_Handle v61; 
+  GfxCmdBufInput *p_input; 
+  float v18; 
+  float width; 
+  R_RT_Handle v20; 
+  R_RT_Handle v21; 
   R_RT_Handle result; 
-  R_RT_Group v63; 
+  R_RT_Group v23; 
   GfxViewport viewport[2]; 
-  R_RT_Group v65; 
+  R_RT_Group v25; 
 
-  _RDI = &viewInfo->debugOverlay;
-  _R14 = gfxContext;
-  _R13 = viewInfo;
+  p_debugOverlay = &viewInfo->debugOverlay;
   if ( R_RT_Handle::IsValid(&viewInfo->debugOverlay) )
   {
-    __asm
+    v21 = p_debugOverlay->R_RT_Handle;
+    v6 = *R_RT_GetGlobal(&result, R_RENDERTARGET_DISPLAY_BUFFER);
+    *(R_RT_Handle *)&viewport[0].x = v6;
+    v20 = v6;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovaps [rsp+2E0h+var_40], xmm6
-      vmovups ymmword ptr [rbp+1E0h+var_250.m_surfaceID], ymm0
-    }
-    _RAX = R_RT_GetGlobal(&result, R_RENDERTARGET_DISPLAY_BUFFER);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+1E0h+viewport.x], ymm0
-      vmovups ymmword ptr [rsp+2E0h+var_270.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v60);
-      if ( (R_RT_Handle::GetSurface(&v60)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v20);
+      if ( (R_RT_Handle::GetSurface(&v20)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+2E0h+var_270.m_surfaceID] }
+        v6 = v20;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+2E0h+var_270.m_surfaceID] }
+        v6 = v20;
       }
     }
     else
@@ -883,134 +864,59 @@ void __fastcall RB_BlitDebugOverlay(GfxCmdBufContext *gfxContext, const GfxViewI
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+1E0h+viewport.x] }
-        if ( v13 )
+        v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v6 = *(R_RT_Handle *)&viewport[0].x;
+        if ( v8 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rsp+2E0h+var_270.m_surfaceID], ymm0 }
-    R_RT_Group::AssignColor(&v63, (R_RT_ColorHandle *)&v60);
-    source = _R14->source;
-    _RCX = &v65;
-    _RAX = &v63;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymm1, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymmword ptr [rcx+80h], ymm1
-      vmovups ymm1, ymmword ptr [rax+0A0h]
-    }
-    m_location = v63.m_vrsRt.m_tracking.m_location;
-    __asm { vmovups ymmword ptr [rcx+0A0h], ymm1 }
-    v65.m_vrsRt.m_tracking.m_location = m_location;
-    R_InitCmdBufSourceState(source, &_R13->input);
-    state = _R14->state;
+    v20 = v6;
+    R_RT_Group::AssignColor(&v23, (R_RT_ColorHandle *)&v20);
+    source = gfxContext->source;
+    v25 = v23;
+    R_InitCmdBufSourceState(source, &viewInfo->input);
+    state = gfxContext->state;
     R_InitLocalCmdBufState(state, &source->input);
     R_ProfBeginNamedEvent(state, "Debug Overlay");
-    _RAX = R_RT_Group::GetValidRt(&v65, &result);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+2E0h+var_270.m_surfaceID], ymm0
-    }
-    height = R_RT_Handle::GetSurface(&v60)->m_image.m_base.height;
-    Surface = R_RT_Handle::GetSurface(&v60);
+    v20 = *R_RT_Group::GetValidRt(&v25, &result);
+    height = R_RT_Handle::GetSurface(&v20)->m_image.m_base.height;
+    Surface = R_RT_Handle::GetSurface(&v20);
     R_SetRenderTargetSize(source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-    R_BeginViewInternal(source, &_R13->sceneDef, (const GfxViewParms *)_R13, &_R13->viewParmsSet.frames[1].viewParms);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups xmmword ptr [rbp+1E0h+viewport.x], xmm0
-    }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)viewport, &v65, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1052)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+1E0h+var_250.m_surfaceID]
-      vmovups xmm6, xmmword ptr [r14]
-      vmovups ymmword ptr [rbp+1E0h+var_250.m_surfaceID], ymm0
-      vmovups xmm0, xmmword ptr [r13+4B0h]
-      vmovq   rbx, xmm6
-      vmovups xmmword ptr [rbp+1E0h+viewport.x], xmm0
-    }
-    R_SetViewportStruct((GfxCmdBufSourceState *)_RBX, viewport);
-    R_Set2D((GfxCmdBufSourceState *)_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vmovss  dword ptr [rbx+0AB0h], xmm0
-      vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+4; vec4_t const colorWhite
-      vmovss  dword ptr [rbx+0AB4h], xmm1
-      vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B+8; vec4_t const colorWhite
-      vmovss  dword ptr [rbx+0AB8h], xmm0
-      vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+0Ch; vec4_t const colorWhite
-      vmovss  dword ptr [rbx+0ABCh], xmm1
-    }
-    ++*(_WORD *)(_RBX + 10282);
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?colorBlackBlank@@3Tvec4_t@@B; vec4_t const colorBlackBlank
-      vmovss  dword ptr [rbx+0AC0h], xmm0
-      vmovss  xmm1, dword ptr cs:?colorBlackBlank@@3Tvec4_t@@B+4; vec4_t const colorBlackBlank
-      vmovss  dword ptr [rbx+0AC4h], xmm1
-      vmovss  xmm0, dword ptr cs:?colorBlackBlank@@3Tvec4_t@@B+8; vec4_t const colorBlackBlank
-      vmovss  dword ptr [rbx+0AC8h], xmm0
-      vmovss  xmm1, dword ptr cs:?colorBlackBlank@@3Tvec4_t@@B+0Ch; vec4_t const colorBlackBlank
-      vmovss  dword ptr [rbx+0ACCh], xmm1
-    }
-    ++*(_WORD *)(_RBX + 10284);
-    *(_QWORD *)(_RBX + 2772) = 2139095039i64;
-    *(_DWORD *)(_RBX + 2768) = 0;
-    *(_DWORD *)(_RBX + 2780) = 0;
-    ++*(_WORD *)(_RBX + 10286);
-    p_m_image = &R_RT_Handle::GetSurface(&v61)->m_image;
-    v43 = _RBX + 1792;
-    if ( !v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    R_BeginViewInternal(source, &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
+    viewport[0] = *(GfxViewport *)gfxContext;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)viewport, &v25, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1052)");
+    v13 = *gfxContext;
+    v14 = gfxContext->source;
+    v15 = gfxContext->source;
+    viewport[0] = viewInfo->displayViewport;
+    R_SetViewportStruct(v15, viewport);
+    R_Set2D(v14);
+    v14->input.consts[59] = colorWhite;
+    ++v14->constVersions[59];
+    v14->input.consts[60] = colorBlackBlank;
+    ++v14->constVersions[60];
+    *(_QWORD *)&v14->input.consts[61].xyz.y = 2139095039i64;
+    v14->input.consts[61].v[0] = 0.0;
+    v14->input.consts[61].v[3] = 0.0;
+    ++v14->constVersions[61];
+    p_m_image = &R_RT_Handle::GetSurface(&v21)->m_image;
+    p_input = &v14->input;
+    if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm3, xmm3, xmm3
-      vcvtsi2ss xmm3, xmm3, rax
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, rax
-    }
-    *(_QWORD *)(v43 + 6176) = p_m_image;
-    __asm
-    {
-      vmovss  [rsp+2E0h+var_288], xmm0
-      vmovss  [rsp+2E0h+var_290], xmm0
-      vmovss  [rsp+2E0h+var_298], xmm1
-      vmovss  [rsp+2E0h+var_2A0], xmm1
-      vmovss  [rsp+2E0h+var_2A8], xmm3
-      vmovss  [rsp+2E0h+var_2B0], xmm2
-      vmovss  dword ptr [rsp+2E0h+var_2B8], xmm1
-      vmovss  dword ptr [rsp+2E0h+fmt], xmm1
-      vmovdqa xmmword ptr [rsp+2E0h+var_270.m_surfaceID], xmm6
-    }
-    RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&v60, rgp.feedbackBlendBackbufferMaterial, 0xFFFFFFFF, viewport, fmt, v53, v54, v55, v56, v57, v58, v59, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1032)");
+    v18 = (float)viewport[0].height;
+    width = (float)viewport[0].width;
+    p_input->codeImages[4] = &p_m_image->m_base;
+    *(GfxCmdBufContext *)&v20.m_surfaceID = v13;
+    RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&v20, rgp.feedbackBlendBackbufferMaterial, 0xFFFFFFFF, viewport, 0.0, 0.0, width, v18, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1032)");
     R_ProfEndNamedEvent(state);
     R_ShutdownLocalCmdBufState(state, &source->input);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rbp+1E0h+var_250.m_surfaceID], ymm0
-      vmovups xmmword ptr [rsp+2E0h+var_270.m_surfaceID], xmm6
-    }
-    R_RT_Destroy((GfxCmdBufContext *)&v60, (R_RT_ColorHandle *)&v61);
-    __asm { vmovaps xmm6, [rsp+2E0h+var_40] }
-    _RDI->m_surfaceID = 0;
-    _RDI->m_tracking.m_allocCounter = 0;
-    _RDI->m_tracking.m_name = NULL;
-    _RDI->m_tracking.m_location = NULL;
+    v21 = p_debugOverlay->R_RT_Handle;
+    *(GfxCmdBufContext *)&v20.m_surfaceID = v13;
+    R_RT_Destroy((GfxCmdBufContext *)&v20, (R_RT_ColorHandle *)&v21);
+    p_debugOverlay->m_surfaceID = 0;
+    p_debugOverlay->m_tracking.m_allocCounter = 0;
+    p_debugOverlay->m_tracking.m_name = NULL;
+    p_debugOverlay->m_tracking.m_location = NULL;
   }
 }
 
@@ -1021,84 +927,43 @@ RB_ClearDepthForScopeStencil
 */
 void RB_ClearDepthForScopeStencil(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  bool v8; 
   GfxCmdBufSourceState *source; 
   GfxCmdBufState *state; 
-  const GfxViewport *p_sceneViewport; 
+  GfxViewport *p_sceneViewport; 
+  __m256i m_mainSceneEntityIDVelocityRt; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
-  float v26; 
-  float v27; 
-  float v28; 
-  float v29; 
-  float v30; 
-  float v31; 
-  float v32; 
-  float v33; 
-  R_RT_Handle v34; 
-  R_RT_DepthHandle v35; 
-  R_RT_ColorHandle v36; 
+  float v11; 
+  float width; 
+  R_RT_Handle m_mainSceneColorRt; 
+  R_RT_DepthHandle m_mainSceneDepthRt; 
+  __m256i v15; 
 
-  _RBX = viewInfo;
-  _R15 = gfxContext;
-  if ( data->scope.scopeUseDualFov )
+  if ( data->scope.scopeUseDualFov && (!data->scope.adsSmoothFade || data->scope.scopeFadeInfo[0].fadeInFrac != 0.0) )
   {
-    v8 = !data->scope.adsSmoothFade;
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_28], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
-    if ( !v8 )
-      __asm { vucomiss xmm6, dword ptr [r8+75A870h] }
     source = gfxContext->source;
     R_InitCmdBufSourceState(gfxContext->source, &viewInfo->input);
-    state = _R15->state;
+    state = gfxContext->state;
     R_InitLocalCmdBufState(state, &source->input);
     R_ProfBeginNamedEvent(state, "Scope Depth Clear");
-    R_BeginViewInternal(source, &_RBX->sceneDef, (const GfxViewParms *)_RBX, &_RBX->viewParmsSet.frames[1].viewParms);
-    p_sceneViewport = &_RBX->sceneViewport;
-    R_SetViewportStruct(source, &_RBX->sceneViewport);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+31A0h]
-      vmovups ymm1, ymmword ptr [rbx+3140h]
-      vmovups [rsp+0F8h+var_68], ymm0
-      vmovups xmm0, xmmword ptr [r15]
-      vmovups xmmword ptr [rsp+0F8h+var_88.m_surfaceID], xmm0
-      vmovups [rsp+0F8h+var_48], ymm1
-    }
-    R_SetRenderTargetsInternal_ColorDepth((GfxCmdBufContext *)&v34, &v36, &v35, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5500)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+30C0h]
-      vmovups ymmword ptr [rsp+0F8h+var_88.m_surfaceID], ymm0
-    }
-    height = R_RT_Handle::GetSurface(&v34)->m_image.m_base.height;
-    Surface = R_RT_Handle::GetSurface(&v34);
+    R_BeginViewInternal(source, &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
+    p_sceneViewport = &viewInfo->sceneViewport;
+    R_SetViewportStruct(source, &viewInfo->sceneViewport);
+    m_mainSceneEntityIDVelocityRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneEntityIDVelocityRt;
+    m_mainSceneDepthRt = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+    *(GfxCmdBufContext *)&m_mainSceneColorRt.m_surfaceID = *gfxContext;
+    v15 = m_mainSceneEntityIDVelocityRt;
+    R_SetRenderTargetsInternal_ColorDepth((GfxCmdBufContext *)&m_mainSceneColorRt, (R_RT_ColorHandle *)&v15, &m_mainSceneDepthRt, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5500)");
+    m_mainSceneColorRt = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneColorRt;
+    height = R_RT_Handle::GetSurface(&m_mainSceneColorRt)->m_image.m_base.height;
+    Surface = R_RT_Handle::GetSurface(&m_mainSceneColorRt);
     R_SetRenderTargetSize(source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15]
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, rax
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vmovups xmmword ptr [rsp+0F8h+var_88.m_surfaceID], xmm0
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+0F8h+var_A0], xmm0
-      vmovss  [rsp+0F8h+var_A8], xmm0
-      vmovss  [rsp+0F8h+var_B0], xmm6
-      vmovss  [rsp+0F8h+var_B8], xmm6
-      vmovss  [rsp+0F8h+var_C0], xmm2
-      vmovss  [rsp+0F8h+var_C8], xmm1
-      vmovss  [rsp+0F8h+var_D0], xmm6
-      vmovss  [rsp+0F8h+var_D8], xmm6
-    }
-    RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&v34, rgp.scopeUIDepthClear, 0xFFFFFFFF, p_sceneViewport, v26, v27, v28, v29, v30, v31, v32, v33, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5504)");
+    v11 = (float)p_sceneViewport->height;
+    width = (float)p_sceneViewport->width;
+    *(GfxCmdBufContext *)&m_mainSceneColorRt.m_surfaceID = *gfxContext;
+    RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&m_mainSceneColorRt, rgp.scopeUIDepthClear, 0xFFFFFFFF, p_sceneViewport, 0.0, 0.0, width, v11, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5504)");
     R_ProfEndNamedEvent(state);
     R_ShutdownLocalCmdBufState(state, &source->input);
-    __asm { vmovaps xmm6, [rsp+0F8h+var_28] }
   }
 }
 
@@ -1109,117 +974,91 @@ RB_DecommitEmissiveRTs
 */
 void RB_DecommitEmissiveRTs(GfxCmdBufContext *gfxContext, const GfxBackEndData *data, const GfxViewInfo *viewInfo)
 {
-  GfxCmdBufContext v21; 
-  R_RT_ColorHandle v22; 
+  GfxCmdBufContext v5; 
+  GfxCmdBufContext v6; 
+  GfxCmdBufContext v7; 
+  GfxCmdBufContext v8; 
+  GfxCmdBufContext v9; 
+  GfxCmdBufContext v10; 
+  GfxCmdBufContext v11; 
+  GfxCmdBufContext v12; 
+  GfxCmdBufContext v13; 
+  R_RT_ColorHandle m_msaaSceneColorRt; 
 
-  _RBX = viewInfo;
-  _RDI = gfxContext;
   R_LockGfxImmediateContext();
   if ( rg.vrsEmissiveOnly )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+31C0h]
-      vmovups xmm1, xmmword ptr [rdi]
-      vmovups [rbp+var_20], ymm0
-      vmovups [rbp+var_30], xmm1
-    }
-    R_RT_Destroy(&v21, &v22);
-    __asm { vmovups xmm1, xmmword ptr [rdi] }
-    _RBX->sceneRtInput.m_msaaSceneColorRt.m_surfaceID = 0;
-    _RBX->sceneRtInput.m_msaaSceneColorRt.m_tracking.m_allocCounter = 0;
-    _RBX->sceneRtInput.m_msaaSceneColorRt.m_tracking.m_name = NULL;
-    _RBX->sceneRtInput.m_msaaSceneColorRt.m_tracking.m_location = NULL;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+31E0h]
-      vmovups [rbp+var_20], ymm0
-      vmovups [rbp+var_30], xmm1
-    }
-    R_RT_Destroy(&v21, &v22);
-    __asm { vmovups xmm1, xmmword ptr [rdi] }
-    _RBX->sceneRtInput.m_msaaSceneAlphaRt.m_surfaceID = 0;
-    _RBX->sceneRtInput.m_msaaSceneAlphaRt.m_tracking.m_allocCounter = 0;
-    _RBX->sceneRtInput.m_msaaSceneAlphaRt.m_tracking.m_name = NULL;
-    _RBX->sceneRtInput.m_msaaSceneAlphaRt.m_tracking.m_location = NULL;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+3200h]
-      vmovups [rbp+var_20], ymm0
-      vmovups [rbp+var_30], xmm1
-    }
-    R_RT_Destroy(&v21, (R_RT_DepthHandle *)&v22);
-    _RBX->sceneRtInput.m_msaaSceneDepthRt.m_surfaceID = 0;
-    _RBX->sceneRtInput.m_msaaSceneDepthRt.m_tracking.m_allocCounter = 0;
-    _RBX->sceneRtInput.m_msaaSceneDepthRt.m_tracking.m_name = NULL;
-    _RBX->sceneRtInput.m_msaaSceneDepthRt.m_tracking.m_location = NULL;
+    v5 = *gfxContext;
+    m_msaaSceneColorRt = viewInfo->sceneRtInput.m_msaaSceneColorRt;
+    v13 = v5;
+    R_RT_Destroy(&v13, &m_msaaSceneColorRt);
+    v6 = *gfxContext;
+    viewInfo->sceneRtInput.m_msaaSceneColorRt.m_surfaceID = 0;
+    viewInfo->sceneRtInput.m_msaaSceneColorRt.m_tracking.m_allocCounter = 0;
+    viewInfo->sceneRtInput.m_msaaSceneColorRt.m_tracking.m_name = NULL;
+    viewInfo->sceneRtInput.m_msaaSceneColorRt.m_tracking.m_location = NULL;
+    m_msaaSceneColorRt = viewInfo->sceneRtInput.m_msaaSceneAlphaRt;
+    v13 = v6;
+    R_RT_Destroy(&v13, &m_msaaSceneColorRt);
+    v7 = *gfxContext;
+    viewInfo->sceneRtInput.m_msaaSceneAlphaRt.m_surfaceID = 0;
+    viewInfo->sceneRtInput.m_msaaSceneAlphaRt.m_tracking.m_allocCounter = 0;
+    viewInfo->sceneRtInput.m_msaaSceneAlphaRt.m_tracking.m_name = NULL;
+    viewInfo->sceneRtInput.m_msaaSceneAlphaRt.m_tracking.m_location = NULL;
+    m_msaaSceneColorRt = (R_RT_ColorHandle)viewInfo->sceneRtInput.m_msaaSceneDepthRt;
+    v13 = v7;
+    R_RT_Destroy(&v13, (R_RT_DepthHandle *)&m_msaaSceneColorRt);
+    viewInfo->sceneRtInput.m_msaaSceneDepthRt.m_surfaceID = 0;
+    viewInfo->sceneRtInput.m_msaaSceneDepthRt.m_tracking.m_allocCounter = 0;
+    viewInfo->sceneRtInput.m_msaaSceneDepthRt.m_tracking.m_name = NULL;
+    viewInfo->sceneRtInput.m_msaaSceneDepthRt.m_tracking.m_location = NULL;
   }
   if ( rg.halfResEmissive )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+3220h]
-      vmovups xmm1, xmmword ptr [rdi]
-      vmovups [rbp+var_20], ymm0
-      vmovups [rbp+var_30], xmm1
-    }
-    R_RT_Destroy(&v21, &v22);
-    __asm { vmovups xmm1, xmmword ptr [rdi] }
-    _RBX->sceneRtInput.m_halfSceneColorRt.m_surfaceID = 0;
-    _RBX->sceneRtInput.m_halfSceneColorRt.m_tracking.m_allocCounter = 0;
-    _RBX->sceneRtInput.m_halfSceneColorRt.m_tracking.m_name = NULL;
-    _RBX->sceneRtInput.m_halfSceneColorRt.m_tracking.m_location = NULL;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+3240h]
-      vmovups [rbp+var_20], ymm0
-      vmovups [rbp+var_30], xmm1
-    }
-    R_RT_Destroy(&v21, &v22);
-    __asm { vmovups xmm1, xmmword ptr [rdi] }
-    _RBX->sceneRtInput.m_halfSceneAlphaRt.m_surfaceID = 0;
-    _RBX->sceneRtInput.m_halfSceneAlphaRt.m_tracking.m_allocCounter = 0;
-    _RBX->sceneRtInput.m_halfSceneAlphaRt.m_tracking.m_name = NULL;
-    _RBX->sceneRtInput.m_halfSceneAlphaRt.m_tracking.m_location = NULL;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+3260h]
-      vmovups [rbp+var_20], ymm0
-      vmovups [rbp+var_30], xmm1
-    }
-    R_RT_Destroy(&v21, (R_RT_DepthHandle *)&v22);
-    _RBX->sceneRtInput.m_halfSceneDepthRt.m_surfaceID = 0;
-    _RBX->sceneRtInput.m_halfSceneDepthRt.m_tracking.m_allocCounter = 0;
-    _RBX->sceneRtInput.m_halfSceneDepthRt.m_tracking.m_name = NULL;
-    _RBX->sceneRtInput.m_halfSceneDepthRt.m_tracking.m_location = NULL;
+    v8 = *gfxContext;
+    m_msaaSceneColorRt = viewInfo->sceneRtInput.m_halfSceneColorRt;
+    v13 = v8;
+    R_RT_Destroy(&v13, &m_msaaSceneColorRt);
+    v9 = *gfxContext;
+    viewInfo->sceneRtInput.m_halfSceneColorRt.m_surfaceID = 0;
+    viewInfo->sceneRtInput.m_halfSceneColorRt.m_tracking.m_allocCounter = 0;
+    viewInfo->sceneRtInput.m_halfSceneColorRt.m_tracking.m_name = NULL;
+    viewInfo->sceneRtInput.m_halfSceneColorRt.m_tracking.m_location = NULL;
+    m_msaaSceneColorRt = viewInfo->sceneRtInput.m_halfSceneAlphaRt;
+    v13 = v9;
+    R_RT_Destroy(&v13, &m_msaaSceneColorRt);
+    v10 = *gfxContext;
+    viewInfo->sceneRtInput.m_halfSceneAlphaRt.m_surfaceID = 0;
+    viewInfo->sceneRtInput.m_halfSceneAlphaRt.m_tracking.m_allocCounter = 0;
+    viewInfo->sceneRtInput.m_halfSceneAlphaRt.m_tracking.m_name = NULL;
+    viewInfo->sceneRtInput.m_halfSceneAlphaRt.m_tracking.m_location = NULL;
+    m_msaaSceneColorRt = (R_RT_ColorHandle)viewInfo->sceneRtInput.m_halfSceneDepthRt;
+    v13 = v10;
+    R_RT_Destroy(&v13, (R_RT_DepthHandle *)&m_msaaSceneColorRt);
+    viewInfo->sceneRtInput.m_halfSceneDepthRt.m_surfaceID = 0;
+    viewInfo->sceneRtInput.m_halfSceneDepthRt.m_tracking.m_allocCounter = 0;
+    viewInfo->sceneRtInput.m_halfSceneDepthRt.m_tracking.m_name = NULL;
+    viewInfo->sceneRtInput.m_halfSceneDepthRt.m_tracking.m_location = NULL;
   }
   if ( rg.debugTextureOverlay != 11 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+3428h]
-      vmovups xmm1, xmmword ptr [rdi]
-      vmovups [rbp+var_20], ymm0
-      vmovups [rbp+var_30], xmm1
-    }
-    R_RT_Destroy(&v21, &v22);
-    _RBX->sceneRtInput.m_ssrRt.m_surfaceID = 0;
-    _RBX->sceneRtInput.m_ssrRt.m_tracking.m_allocCounter = 0;
-    _RBX->sceneRtInput.m_ssrRt.m_tracking.m_name = NULL;
-    _RBX->sceneRtInput.m_ssrRt.m_tracking.m_location = NULL;
+    v11 = *gfxContext;
+    m_msaaSceneColorRt = viewInfo->sceneRtInput.m_ssrRt;
+    v13 = v11;
+    R_RT_Destroy(&v13, &m_msaaSceneColorRt);
+    viewInfo->sceneRtInput.m_ssrRt.m_surfaceID = 0;
+    viewInfo->sceneRtInput.m_ssrRt.m_tracking.m_allocCounter = 0;
+    viewInfo->sceneRtInput.m_ssrRt.m_tracking.m_name = NULL;
+    viewInfo->sceneRtInput.m_ssrRt.m_tracking.m_location = NULL;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+3448h]
-    vmovups xmm1, xmmword ptr [rdi]
-    vmovups [rbp+var_20], ymm0
-    vmovups [rbp+var_30], xmm1
-  }
-  R_RT_Destroy(&v21, &v22);
-  _RBX->sceneRtInput.m_ssrMaskRt.m_surfaceID = 0;
-  _RBX->sceneRtInput.m_ssrMaskRt.m_tracking.m_allocCounter = 0;
-  _RBX->sceneRtInput.m_ssrMaskRt.m_tracking.m_name = NULL;
-  _RBX->sceneRtInput.m_ssrMaskRt.m_tracking.m_location = NULL;
+  v12 = *gfxContext;
+  m_msaaSceneColorRt = viewInfo->sceneRtInput.m_ssrMaskRt;
+  v13 = v12;
+  R_RT_Destroy(&v13, &m_msaaSceneColorRt);
+  viewInfo->sceneRtInput.m_ssrMaskRt.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_ssrMaskRt.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_ssrMaskRt.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_ssrMaskRt.m_tracking.m_location = NULL;
   R_FlushImmediateContext();
   R_UnlockGfxImmediateContext();
 }
@@ -1231,156 +1070,116 @@ RB_DecommitSceneRTs
 */
 void RB_DecommitSceneRTs(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
+  GfxCmdBufContext v4; 
+  GfxCmdBufContext v5; 
+  GfxCmdBufContext v6; 
+  GfxCmdBufContext v7; 
+  GfxCmdBufContext v8; 
+  GfxCmdBufContext v9; 
+  GfxCmdBufContext v10; 
+  GfxCmdBufContext v11; 
   unsigned int debugTextureOverlay; 
-  GfxCmdBufContext v27; 
-  R_RT_ColorHandle v28; 
+  GfxCmdBufContext v13; 
+  GfxCmdBufContext v14; 
+  GfxCmdBufContext v15; 
+  R_RT_ColorHandle m_waterFloatZRt; 
 
-  _RBX = viewInfo;
-  _RDI = gfxContext;
   R_LockGfxImmediateContext();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rbp+var_30], xmm0
-  }
-  RB_ReProjFloatZ_RotateRTs(&v27, _RBX);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+33A0h]
-    vmovups xmm1, xmmword ptr [rdi]
-    vmovups [rbp+var_20], ymm0
-    vmovups [rbp+var_30], xmm1
-  }
-  R_RT_Destroy(&v27, &v28);
-  __asm { vmovups xmm1, xmmword ptr [rdi] }
-  _RBX->sceneRtInput.m_waterFloatZRt.m_surfaceID = 0;
-  _RBX->sceneRtInput.m_waterFloatZRt.m_tracking.m_allocCounter = 0;
-  _RBX->sceneRtInput.m_waterFloatZRt.m_tracking.m_name = NULL;
-  _RBX->sceneRtInput.m_waterFloatZRt.m_tracking.m_location = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+3140h]
-    vmovups [rbp+var_20], ymm0
-    vmovups [rbp+var_30], xmm1
-  }
-  R_RT_Destroy(&v27, &v28);
-  __asm { vmovups xmm1, xmmword ptr [rdi] }
-  _RBX->sceneRtInput.m_mainSceneEntityIDVelocityRt.m_surfaceID = 0;
-  _RBX->sceneRtInput.m_mainSceneEntityIDVelocityRt.m_tracking.m_allocCounter = 0;
-  _RBX->sceneRtInput.m_mainSceneEntityIDVelocityRt.m_tracking.m_name = NULL;
-  _RBX->sceneRtInput.m_mainSceneEntityIDVelocityRt.m_tracking.m_location = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+3160h]
-    vmovups [rbp+var_20], ymm0
-    vmovups [rbp+var_30], xmm1
-  }
-  R_RT_Destroy(&v27, &v28);
-  __asm { vmovups xmm1, xmmword ptr [rdi] }
-  _RBX->sceneRtInput.m_mainSceneTangentFrameRt.m_surfaceID = 0;
-  _RBX->sceneRtInput.m_mainSceneTangentFrameRt.m_tracking.m_allocCounter = 0;
-  _RBX->sceneRtInput.m_mainSceneTangentFrameRt.m_tracking.m_name = NULL;
-  _RBX->sceneRtInput.m_mainSceneTangentFrameRt.m_tracking.m_location = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+30C0h]
-    vmovups [rbp+var_20], ymm0
-    vmovups [rbp+var_30], xmm1
-  }
-  R_RT_Destroy(&v27, &v28);
-  __asm { vmovups xmm1, xmmword ptr [rdi] }
-  _RBX->sceneRtInput.m_mainSceneColorRt.m_surfaceID = 0;
-  _RBX->sceneRtInput.m_mainSceneColorRt.m_tracking.m_allocCounter = 0;
-  _RBX->sceneRtInput.m_mainSceneColorRt.m_tracking.m_name = NULL;
-  _RBX->sceneRtInput.m_mainSceneColorRt.m_tracking.m_location = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+30E0h]
-    vmovups [rbp+var_20], ymm0
-    vmovups [rbp+var_30], xmm1
-  }
-  R_RT_Destroy(&v27, &v28);
-  __asm { vmovups xmm1, xmmword ptr [rdi] }
-  _RBX->sceneRtInput.m_mainSceneAlphaRt.m_surfaceID = 0;
-  _RBX->sceneRtInput.m_mainSceneAlphaRt.m_tracking.m_allocCounter = 0;
-  _RBX->sceneRtInput.m_mainSceneAlphaRt.m_tracking.m_name = NULL;
-  _RBX->sceneRtInput.m_mainSceneAlphaRt.m_tracking.m_location = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+3180h]
-    vmovups [rbp+var_20], ymm0
-    vmovups [rbp+var_30], xmm1
-  }
-  R_RT_Destroy(&v27, &v28);
-  __asm { vmovups xmm1, xmmword ptr [rdi] }
-  _RBX->sceneRtInput.m_mainSceneOverdrawRt.m_surfaceID = 0;
-  _RBX->sceneRtInput.m_mainSceneOverdrawRt.m_tracking.m_allocCounter = 0;
-  _RBX->sceneRtInput.m_mainSceneOverdrawRt.m_tracking.m_name = NULL;
-  _RBX->sceneRtInput.m_mainSceneOverdrawRt.m_tracking.m_location = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+3648h]
-    vmovups [rbp+var_20], ymm0
-    vmovups [rbp+var_30], xmm1
-  }
-  R_RT_Destroy(&v27, &v28);
-  __asm { vmovups xmm1, xmmword ptr [rdi] }
-  _RBX->sceneRtInput.m_halfVelocityMBlurRt.m_surfaceID = 0;
-  _RBX->sceneRtInput.m_halfVelocityMBlurRt.m_tracking.m_allocCounter = 0;
-  _RBX->sceneRtInput.m_halfVelocityMBlurRt.m_tracking.m_name = NULL;
-  _RBX->sceneRtInput.m_halfVelocityMBlurRt.m_tracking.m_location = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+3668h]
-    vmovups [rbp+var_20], ymm0
-    vmovups [rbp+var_30], xmm1
-  }
-  R_RT_Destroy(&v27, &v28);
-  _RBX->sceneRtInput.m_dofTile0Handle.m_surfaceID = 0;
-  _RBX->sceneRtInput.m_dofTile0Handle.m_tracking.m_allocCounter = 0;
-  _RBX->sceneRtInput.m_dofTile0Handle.m_tracking.m_name = NULL;
-  _RBX->sceneRtInput.m_dofTile0Handle.m_tracking.m_location = NULL;
+  v15 = *gfxContext;
+  RB_ReProjFloatZ_RotateRTs(&v15, viewInfo);
+  v4 = *gfxContext;
+  m_waterFloatZRt = viewInfo->sceneRtInput.m_waterFloatZRt;
+  v15 = v4;
+  R_RT_Destroy(&v15, &m_waterFloatZRt);
+  v5 = *gfxContext;
+  viewInfo->sceneRtInput.m_waterFloatZRt.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_waterFloatZRt.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_waterFloatZRt.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_waterFloatZRt.m_tracking.m_location = NULL;
+  m_waterFloatZRt = viewInfo->sceneRtInput.m_mainSceneEntityIDVelocityRt;
+  v15 = v5;
+  R_RT_Destroy(&v15, &m_waterFloatZRt);
+  v6 = *gfxContext;
+  viewInfo->sceneRtInput.m_mainSceneEntityIDVelocityRt.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_mainSceneEntityIDVelocityRt.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_mainSceneEntityIDVelocityRt.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_mainSceneEntityIDVelocityRt.m_tracking.m_location = NULL;
+  m_waterFloatZRt = viewInfo->sceneRtInput.m_mainSceneTangentFrameRt;
+  v15 = v6;
+  R_RT_Destroy(&v15, &m_waterFloatZRt);
+  v7 = *gfxContext;
+  viewInfo->sceneRtInput.m_mainSceneTangentFrameRt.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_mainSceneTangentFrameRt.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_mainSceneTangentFrameRt.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_mainSceneTangentFrameRt.m_tracking.m_location = NULL;
+  m_waterFloatZRt = viewInfo->sceneRtInput.m_mainSceneColorRt;
+  v15 = v7;
+  R_RT_Destroy(&v15, &m_waterFloatZRt);
+  v8 = *gfxContext;
+  viewInfo->sceneRtInput.m_mainSceneColorRt.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_mainSceneColorRt.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_mainSceneColorRt.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_mainSceneColorRt.m_tracking.m_location = NULL;
+  m_waterFloatZRt = viewInfo->sceneRtInput.m_mainSceneAlphaRt;
+  v15 = v8;
+  R_RT_Destroy(&v15, &m_waterFloatZRt);
+  v9 = *gfxContext;
+  viewInfo->sceneRtInput.m_mainSceneAlphaRt.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_mainSceneAlphaRt.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_mainSceneAlphaRt.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_mainSceneAlphaRt.m_tracking.m_location = NULL;
+  m_waterFloatZRt = viewInfo->sceneRtInput.m_mainSceneOverdrawRt;
+  v15 = v9;
+  R_RT_Destroy(&v15, &m_waterFloatZRt);
+  v10 = *gfxContext;
+  viewInfo->sceneRtInput.m_mainSceneOverdrawRt.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_mainSceneOverdrawRt.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_mainSceneOverdrawRt.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_mainSceneOverdrawRt.m_tracking.m_location = NULL;
+  m_waterFloatZRt = viewInfo->sceneRtInput.m_halfVelocityMBlurRt;
+  v15 = v10;
+  R_RT_Destroy(&v15, &m_waterFloatZRt);
+  v11 = *gfxContext;
+  viewInfo->sceneRtInput.m_halfVelocityMBlurRt.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_halfVelocityMBlurRt.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_halfVelocityMBlurRt.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_halfVelocityMBlurRt.m_tracking.m_location = NULL;
+  m_waterFloatZRt = viewInfo->sceneRtInput.m_dofTile0Handle;
+  v15 = v11;
+  R_RT_Destroy(&v15, &m_waterFloatZRt);
+  viewInfo->sceneRtInput.m_dofTile0Handle.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_dofTile0Handle.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_dofTile0Handle.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_dofTile0Handle.m_tracking.m_location = NULL;
   debugTextureOverlay = rg.debugTextureOverlay;
   if ( rg.debugTextureOverlay == 10 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups [rbp+var_30], xmm0
-    }
-    RB_SSAO_DecommitRTs(&v27, _RBX);
+    v15 = *gfxContext;
+    RB_SSAO_DecommitRTs(&v15, viewInfo);
     debugTextureOverlay = rg.debugTextureOverlay;
   }
   if ( debugTextureOverlay == 11 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+3428h]
-      vmovups xmm1, xmmword ptr [rdi]
-      vmovups [rbp+var_20], ymm0
-      vmovups [rbp+var_30], xmm1
-    }
-    R_RT_Destroy(&v27, &v28);
-    _RBX->sceneRtInput.m_ssrRt.m_surfaceID = 0;
-    _RBX->sceneRtInput.m_ssrRt.m_tracking.m_allocCounter = 0;
-    _RBX->sceneRtInput.m_ssrRt.m_tracking.m_name = NULL;
-    _RBX->sceneRtInput.m_ssrRt.m_tracking.m_location = NULL;
+    v13 = *gfxContext;
+    m_waterFloatZRt = viewInfo->sceneRtInput.m_ssrRt;
+    v15 = v13;
+    R_RT_Destroy(&v15, &m_waterFloatZRt);
+    viewInfo->sceneRtInput.m_ssrRt.m_surfaceID = 0;
+    viewInfo->sceneRtInput.m_ssrRt.m_tracking.m_allocCounter = 0;
+    viewInfo->sceneRtInput.m_ssrRt.m_tracking.m_name = NULL;
+    viewInfo->sceneRtInput.m_ssrRt.m_tracking.m_location = NULL;
     debugTextureOverlay = rg.debugTextureOverlay;
   }
   if ( debugTextureOverlay == 14 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+3770h]
-      vmovups xmm1, xmmword ptr [rdi]
-      vmovups [rbp+var_20], ymm0
-      vmovups [rbp+var_30], xmm1
-    }
-    R_RT_Destroy(&v27, &v28);
-    _RBX->sceneRtInput.m_transMask.m_surfaceID = 0;
-    _RBX->sceneRtInput.m_transMask.m_tracking.m_allocCounter = 0;
-    _RBX->sceneRtInput.m_transMask.m_tracking.m_name = NULL;
-    _RBX->sceneRtInput.m_transMask.m_tracking.m_location = NULL;
+    v14 = *gfxContext;
+    m_waterFloatZRt = viewInfo->sceneRtInput.m_transMask;
+    v15 = v14;
+    R_RT_Destroy(&v15, &m_waterFloatZRt);
+    viewInfo->sceneRtInput.m_transMask.m_surfaceID = 0;
+    viewInfo->sceneRtInput.m_transMask.m_tracking.m_allocCounter = 0;
+    viewInfo->sceneRtInput.m_transMask.m_tracking.m_name = NULL;
+    viewInfo->sceneRtInput.m_transMask.m_tracking.m_location = NULL;
   }
   R_FlushImmediateContext();
   R_UnlockGfxImmediateContext();
@@ -1393,93 +1192,80 @@ RB_DecommitSpotShadowRTs
 */
 void RB_DecommitSpotShadowRTs(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
+  R_RT_Tracking_HandleInfo *p_m_tracking; 
   __int64 v5; 
   unsigned __int16 v6; 
+  __int128 v7; 
+  double v8; 
+  R_RT_Handle v9; 
   bool v10; 
-  int v12; 
-  __m256i v14; 
-  R_RT_Handle v15; 
-  R_RT_Handle v16; 
+  R_RT_Handle v11; 
+  R_RT_Handle v12; 
+  R_RT_Handle v13; 
 
-  _RBP = gfxContext;
   R_LockGfxImmediateContext();
-  _RBX = &viewInfo->sceneRtInput.m_spotShadowRts[0].m_tracking;
+  p_m_tracking = &viewInfo->sceneRtInput.m_spotShadowRts[0].m_tracking;
   v5 = 8i64;
   do
   {
-    v6 = (__int64)_RBX[-1].m_location & 0x7FFF;
+    v6 = (__int64)p_m_tracking[-1].m_location & 0x7FFF;
     if ( !v6 )
       v6 = 0;
-    v15.m_surfaceID = v6;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovsd  xmm1, qword ptr [rbx+10h]
-      vmovups xmmword ptr [rsp+0B8h+var_68.m_tracking.m_allocCounter], xmm0
-      vmovsd  [rsp+0B8h+var_68.m_tracking.m_location], xmm1
-      vmovups ymm0, ymmword ptr [rsp+0B8h+var_68.m_surfaceID]
-      vmovups [rsp+0B8h+var_88], ymm0
-      vmovups ymmword ptr [rsp+0B8h+var_48.m_surfaceID], ymm0
-    }
+    v12.m_surfaceID = v6;
+    v7 = *(_OWORD *)&p_m_tracking->m_allocCounter;
+    v8 = *(double *)&p_m_tracking->m_location;
+    *(_OWORD *)&v12.m_tracking.m_allocCounter = *(_OWORD *)&p_m_tracking->m_allocCounter;
+    *(double *)&v12.m_tracking.m_location = v8;
+    v9 = v12;
+    v11 = v12;
+    v13 = v12;
     if ( v6 )
     {
-      R_RT_Handle::GetSurface(&v16);
-      if ( (R_RT_Handle::GetSurface(&v16)->m_rtFlagsInternal & 0x10) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
+      R_RT_Handle::GetSurface(&v13);
+      if ( (R_RT_Handle::GetSurface(&v13)->m_rtFlagsInternal & 0x10) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+0B8h+var_48.m_surfaceID]
-          vmovups [rsp+0B8h+var_88], ymm0
-        }
+        v9 = v13;
+        v11 = v13;
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+0B8h+var_48.m_surfaceID]
-          vmovups [rsp+0B8h+var_88], ymm0
-        }
+        v9 = v13;
+        v11 = v13;
         __debugbreak();
       }
     }
-    else if ( v15.m_tracking.m_allocCounter )
+    else if ( v12.m_tracking.m_allocCounter )
     {
       v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-      __asm { vmovups ymm0, [rsp+0B8h+var_88] }
+      v9 = v11;
       if ( v10 )
         __debugbreak();
     }
-    LOWORD(_RBX[-1].m_location) = 0;
-    __asm { vmovd   eax, xmm0 }
-    v12 = (unsigned __int16)_EAX;
-    _RBX->m_allocCounter = 0;
-    _RBX->m_name = NULL;
-    _RBX->m_location = NULL;
-    __asm { vmovups ymmword ptr [rsp+0B8h+var_68.m_surfaceID], ymm0 }
-    if ( (_WORD)_EAX )
+    LOWORD(p_m_tracking[-1].m_location) = 0;
+    p_m_tracking->m_allocCounter = 0;
+    p_m_tracking->m_name = NULL;
+    p_m_tracking->m_location = NULL;
+    v12 = v9;
+    if ( (_WORD)v7 )
     {
-      R_RT_Handle::GetSurface(&v15);
+      R_RT_Handle::GetSurface(&v12);
     }
     else
     {
-      if ( !v16.m_tracking.m_allocCounter )
+      if ( !v13.m_tracking.m_allocCounter )
         goto LABEL_18;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
-    __asm { vmovups ymm0, [rsp+0B8h+var_88] }
+    v9 = v11;
 LABEL_18:
-    if ( v12 )
+    if ( (_WORD)v7 )
     {
-      __asm
-      {
-        vmovups ymmword ptr [rsp+0B8h+var_48.m_surfaceID], ymm0
-        vmovups xmm0, xmmword ptr [rbp+0]
-        vmovups xmmword ptr [rsp+0B8h+var_88], xmm0
-      }
-      R_RT_Destroy((GfxCmdBufContext *)&v14, (R_RT_DepthHandle *)&v16);
+      v13 = v9;
+      *(GfxCmdBufContext *)&v11.m_surfaceID = *gfxContext;
+      R_RT_Destroy((GfxCmdBufContext *)&v11, (R_RT_DepthHandle *)&v13);
     }
-    _RBX = (R_RT_Tracking_HandleInfo *)((char *)_RBX + 32);
+    p_m_tracking = (R_RT_Tracking_HandleInfo *)((char *)p_m_tracking + 32);
     --v5;
   }
   while ( v5 );
@@ -1498,100 +1284,69 @@ void RB_DecommitSunShadowRTs(GfxCmdBufContext *gfxContext, const GfxBackEndData 
   GfxCmdBufState *state; 
   ComputeCmdBufState *GfxComputeCmdBufState; 
   unsigned int i; 
-  R_RT_ColorHandle v24; 
-  R_RT_DepthHandle v25; 
+  R_RT_ColorHandle *v10; 
+  GfxCmdBufContext v11; 
+  GfxCmdBufContext v12; 
+  GfxCmdBufContext v13; 
+  R_RT_ColorHandle m_sunShadowCascade0ForViewmodel; 
+  R_RT_DepthHandle v15; 
   R_RT_DepthHandle result; 
 
-  _RSI = viewInfo;
-  _R14 = gfxContext;
   R_LockGfxImmediateContext();
   R_SunShadowMapDebug_CreateRTDraw3D();
-  if ( (unsigned int)(sm_showOverlay->current.integer - 1) <= 3 && (*((_BYTE *)&_RSI->viewportFeatures + 44) & 4) != 0 )
+  if ( (unsigned int)(sm_showOverlay->current.integer - 1) <= 3 && (*((_BYTE *)&viewInfo->viewportFeatures + 44) & 4) != 0 )
   {
     v6 = 0;
     if ( data->sunShadow.opaqueCascadeCount )
     {
-      state = _R14->state;
+      state = gfxContext->state;
       do
       {
-        _RAX = 32 * (v6 + 404i64);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax+rsi]
-          vmovups [rsp+0B8h+var_78], ymm0
-        }
+        v15 = viewInfo->sceneRtInput.m_sunShadowCascades[v6];
         R_SunShadowMapDebug_GetRTDraw3D(&result, v6);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+0B8h+result.baseclass_0.m_surfaceID]
-          vmovups [rsp+0B8h+var_98], ymm0
-        }
+        m_sunShadowCascade0ForViewmodel = (R_RT_ColorHandle)result;
         GfxComputeCmdBufState = R_GetGfxComputeCmdBufState(state);
-        __asm
-        {
-          vmovups ymm0, [rsp+0B8h+var_78]
-          vmovups [rsp+0B8h+var_78], ymm0
-          vmovups ymm0, [rsp+0B8h+var_98]
-          vmovups [rsp+0B8h+var_98], ymm0
-        }
-        R_CopyDepthStencilRT(GfxComputeCmdBufState, (R_RT_DepthHandle *)&v24, &v25);
+        R_CopyDepthStencilRT(GfxComputeCmdBufState, (R_RT_DepthHandle *)&m_sunShadowCascade0ForViewmodel, &v15);
         ++v6;
       }
       while ( v6 < data->sunShadow.opaqueCascadeCount );
     }
   }
-  for ( i = 0; i < data->sunShadow.opaqueCascadeCount; _RBX->m_tracking.m_location = NULL )
+  for ( i = 0; i < data->sunShadow.opaqueCascadeCount; v10->m_tracking.m_location = NULL )
   {
-    __asm { vmovups xmm1, xmmword ptr [r14] }
-    _RBX = &_RSI->sceneRtInput.m_sunShadowCascades[i];
-    __asm
-    {
-      vmovups xmmword ptr [rsp+0B8h+result.baseclass_0.m_surfaceID], xmm1
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups [rsp+0B8h+var_98], ymm0
-    }
-    R_RT_Destroy((GfxCmdBufContext *)&result, (R_RT_DepthHandle *)&v24);
-    _RBX->m_surfaceID = 0;
+    v10 = (R_RT_ColorHandle *)&viewInfo->sceneRtInput.m_sunShadowCascades[i];
+    *(GfxCmdBufContext *)&result.m_surfaceID = *gfxContext;
+    m_sunShadowCascade0ForViewmodel = *v10;
+    R_RT_Destroy((GfxCmdBufContext *)&result, (R_RT_DepthHandle *)&m_sunShadowCascade0ForViewmodel);
+    v10->m_surfaceID = 0;
     ++i;
-    _RBX->m_tracking.m_allocCounter = 0;
-    _RBX->m_tracking.m_name = NULL;
+    v10->m_tracking.m_allocCounter = 0;
+    v10->m_tracking.m_name = NULL;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+32E0h]
-    vmovups xmm1, xmmword ptr [r14]
-    vmovups [rsp+0B8h+var_98], ymm0
-    vmovups xmmword ptr [rsp+0B8h+result.baseclass_0.m_surfaceID], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&result, (R_RT_DepthHandle *)&v24);
-  __asm { vmovups xmm1, xmmword ptr [r14] }
-  _RSI->sceneRtInput.m_sunShadowCascade0ForViewmodel.m_surfaceID = 0;
-  _RSI->sceneRtInput.m_sunShadowCascade0ForViewmodel.m_tracking.m_allocCounter = 0;
-  _RSI->sceneRtInput.m_sunShadowCascade0ForViewmodel.m_tracking.m_name = NULL;
-  _RSI->sceneRtInput.m_sunShadowCascade0ForViewmodel.m_tracking.m_location = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+3320h]
-    vmovups [rsp+0B8h+var_98], ymm0
-    vmovups xmmword ptr [rsp+0B8h+result.baseclass_0.m_surfaceID], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&result, &v24);
-  __asm { vmovups xmm1, xmmword ptr [r14] }
-  _RSI->sceneRtInput.m_sunVisibilityRt.m_surfaceID = 0;
-  _RSI->sceneRtInput.m_sunVisibilityRt.m_tracking.m_allocCounter = 0;
-  _RSI->sceneRtInput.m_sunVisibilityRt.m_tracking.m_name = NULL;
-  _RSI->sceneRtInput.m_sunVisibilityRt.m_tracking.m_location = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+3300h]
-    vmovups [rsp+0B8h+var_98], ymm0
-    vmovups xmmword ptr [rsp+0B8h+result.baseclass_0.m_surfaceID], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&result, &v24);
-  _RSI->sceneRtInput.m_translucentShadowRt.m_surfaceID = 0;
-  _RSI->sceneRtInput.m_translucentShadowRt.m_tracking.m_allocCounter = 0;
-  _RSI->sceneRtInput.m_translucentShadowRt.m_tracking.m_name = NULL;
-  _RSI->sceneRtInput.m_translucentShadowRt.m_tracking.m_location = NULL;
+  v11 = *gfxContext;
+  m_sunShadowCascade0ForViewmodel = (R_RT_ColorHandle)viewInfo->sceneRtInput.m_sunShadowCascade0ForViewmodel;
+  *(GfxCmdBufContext *)&result.m_surfaceID = v11;
+  R_RT_Destroy((GfxCmdBufContext *)&result, (R_RT_DepthHandle *)&m_sunShadowCascade0ForViewmodel);
+  v12 = *gfxContext;
+  viewInfo->sceneRtInput.m_sunShadowCascade0ForViewmodel.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_sunShadowCascade0ForViewmodel.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_sunShadowCascade0ForViewmodel.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_sunShadowCascade0ForViewmodel.m_tracking.m_location = NULL;
+  m_sunShadowCascade0ForViewmodel = viewInfo->sceneRtInput.m_sunVisibilityRt;
+  *(GfxCmdBufContext *)&result.m_surfaceID = v12;
+  R_RT_Destroy((GfxCmdBufContext *)&result, &m_sunShadowCascade0ForViewmodel);
+  v13 = *gfxContext;
+  viewInfo->sceneRtInput.m_sunVisibilityRt.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_sunVisibilityRt.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_sunVisibilityRt.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_sunVisibilityRt.m_tracking.m_location = NULL;
+  m_sunShadowCascade0ForViewmodel = viewInfo->sceneRtInput.m_translucentShadowRt;
+  *(GfxCmdBufContext *)&result.m_surfaceID = v13;
+  R_RT_Destroy((GfxCmdBufContext *)&result, &m_sunShadowCascade0ForViewmodel);
+  viewInfo->sceneRtInput.m_translucentShadowRt.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_translucentShadowRt.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_translucentShadowRt.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_translucentShadowRt.m_tracking.m_location = NULL;
   R_FlushImmediateContext();
   R_UnlockGfxImmediateContext();
 }
@@ -1605,11 +1360,8 @@ void RB_DisableMSEmissive(GfxCmdBufContext *context, const GfxViewInfo *viewInfo
 {
   char v4[128]; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vpextrq rbx, xmm0, 1
-  }
+  _XMM0 = *context;
+  __asm { vpextrq rbx, xmm0, 1 }
   if ( !R_IsLockedIfGfxImmediateContext(*(const GfxDevice **)(_RBX + 1360)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 29, ASSERT_TYPE_ASSERT, "(R_IsLockedIfGfxImmediateContext( device ))", (const char *)&queryFormat, "R_IsLockedIfGfxImmediateContext( device )") )
     __debugbreak();
   memset_0(v4, 0, sizeof(v4));
@@ -1628,19 +1380,18 @@ void RB_Draw2D_BeforePostFX(GfxCmdBufContext *gfxContext, const GfxViewInfo *vie
   GfxCmdBufState *state; 
   GfxCmdBufInput *p_input; 
   const GfxImage *Image; 
-  const GfxBackEndData *v10; 
-  const void *v14; 
-  GfxCmdBufContext v15; 
-  GfxCmdBufContext v16; 
-  R_RT_DepthHandle v17; 
-  R_RT_ColorHandle v18; 
-  const GfxBackEndData *v19; 
+  const GfxBackEndData *v9; 
+  __m256i m_mainSceneColorRt; 
+  const void *v11; 
+  GfxCmdBufContext v12; 
+  GfxCmdBufContext v13; 
+  R_RT_DepthHandle m_mainSceneDepthRt; 
+  __m256i v15; 
+  const GfxBackEndData *v16; 
   const GfxBackEndData *timeoutUserData; 
   GfxDevice *device; 
 
   timeoutUserData = data;
-  _RDI = viewInfo;
-  _R14 = gfxContext;
   if ( viewInfo->displayCmds[0] )
   {
     Sys_ProfBeginNamedEvent(0xFFFFA500, "wait hud2D ready");
@@ -1648,45 +1399,40 @@ void RB_Draw2D_BeforePostFX(GfxCmdBufContext *gfxContext, const GfxViewInfo *vie
     Sys_ProfEndNamedEvent();
     if ( !timeoutUserData->abortReady )
     {
-      if ( _RDI->displayCmds[3] )
+      if ( viewInfo->displayCmds[3] )
       {
         Sys_ProfBeginNamedEvent(0xFFFFD700, "exec cmds before postFX");
-        source = _R14->source;
-        R_InitCmdBufSourceState(_R14->source, &_RDI->input);
-        state = _R14->state;
+        source = gfxContext->source;
+        R_InitCmdBufSourceState(gfxContext->source, &viewInfo->input);
+        state = gfxContext->state;
         p_input = &source->input;
         R_InitLocalCmdBufState(state, &source->input);
         R_ProfBeginNamedEvent(state, "2D (before postFX)");
         R_GPU_BeginTimer(GPU_TIMER_2D);
-        Image = R_UniversalClut_GetImage(_RDI->clientIndex, MOVEMENT);
-        __asm { vmovups ymm0, ymmword ptr [rdi+31A0h] }
-        v10 = timeoutUserData;
-        __asm
+        Image = R_UniversalClut_GetImage(viewInfo->clientIndex, MOVEMENT);
+        v9 = timeoutUserData;
+        m_mainSceneColorRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneColorRt;
+        m_mainSceneDepthRt = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+        v12 = *gfxContext;
+        v15 = m_mainSceneColorRt;
+        RB_InitClient2DReceivePPFXContext(&v12, viewInfo, timeoutUserData, (R_RT_ColorHandle *)&v15, &m_mainSceneDepthRt, Image);
+        if ( v9->async2D.renderReceivePPFXPending )
         {
-          vmovups ymm1, ymmword ptr [rdi+30C0h]
-          vmovups [rsp+0B8h+var_68], ymm0
-          vmovups xmm0, xmmword ptr [r14]
-          vmovups [rsp+0B8h+var_88], xmm0
-          vmovups [rsp+0B8h+var_48], ymm1
-        }
-        RB_InitClient2DReceivePPFXContext(&v15, _RDI, timeoutUserData, &v18, &v17, Image);
-        if ( v10->async2D.renderReceivePPFXPending )
-        {
-          v19 = v10;
+          v16 = v9;
           Sys_ProfBeginNamedEvent(0xFF008008, "wait LUI render");
           R_UnlockGfxImmediateContext();
-          Sys_ProcessWorkerCmdsWithTimeout((bool (__fastcall *)(void *))RB_Async2D_ReceivePPFXFinished, &v19);
+          Sys_ProcessWorkerCmdsWithTimeout((bool (__fastcall *)(void *))RB_Async2D_ReceivePPFXFinished, &v16);
           R_LockGfxImmediateContext();
           Sys_ProfEndNamedEvent();
         }
-        if ( v10->async2D.receivePPFXCmdBuf.device )
+        if ( v9->async2D.receivePPFXCmdBuf.device )
         {
-          if ( !v10->async2D.renderFailed )
+          if ( !v9->async2D.renderFailed )
           {
             R_FlushImmediateContext();
-            device = v10->async2D.receivePPFXCmdBuf.device;
+            device = v9->async2D.receivePPFXCmdBuf.device;
             ((void (__fastcall *)(ID3D12CommandQueue *, __int64, GfxDevice **))g_dx.immediateCommandQueue.commandQueue->m_pFunction[3].AddRef)(g_dx.immediateCommandQueue.commandQueue, 1i64, &device);
-            v10->async2D.receivePPFXCmdBuf.device = NULL;
+            v9->async2D.receivePPFXCmdBuf.device = NULL;
 LABEL_11:
             R_GPU_EndTimer();
             R_ProfEndNamedEvent(state);
@@ -1694,12 +1440,11 @@ LABEL_11:
             Sys_ProfEndNamedEvent();
             return;
           }
-          v10->async2D.receivePPFXCmdBuf.device = NULL;
+          v9->async2D.receivePPFXCmdBuf.device = NULL;
         }
-        __asm { vmovups xmm0, xmmword ptr [r14] }
-        v14 = _RDI->displayCmds[3];
-        __asm { vmovups [rsp+0B8h+var_78], xmm0 }
-        RB_ExecuteRenderCommandsLoop(&v16, v14, NULL);
+        v11 = viewInfo->displayCmds[3];
+        v13 = *gfxContext;
+        RB_ExecuteRenderCommandsLoop(&v13, v11, NULL);
         goto LABEL_11;
       }
     }
@@ -1715,50 +1460,34 @@ void RB_Draw2D_Hud(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, co
 {
   GfxCmdBufSourceState *source; 
   const GfxImage *Image; 
-  const GfxImage *v16; 
   R_RT_Image *p_m_image; 
   const GfxWrappedBuffer *ConstantBuffer; 
-  R_RT_Handle v24; 
-  R_RT_ColorHandle v25; 
+  GfxCmdBufContext v12; 
+  R_RT_Handle m_resolvedSceneRt; 
+  R_RT_Handle v14; 
   R_RT_Handle result; 
 
-  _RSI = viewInfo;
-  _R14 = gfxContext;
   if ( viewInfo->displayCmds[0] )
   {
     Sys_ProfBeginNamedEvent(0xFFFFD700, "exec cmds display");
-    source = _R14->source;
-    R_InitCmdBufSourceState(_R14->source, &_RSI->input);
-    R_InitLocalCmdBufState(_R14->state, &source->input);
-    R_ProfBeginNamedEvent(_R14->state, "2D (View)");
+    source = gfxContext->source;
+    R_InitCmdBufSourceState(gfxContext->source, &viewInfo->input);
+    R_InitLocalCmdBufState(gfxContext->state, &source->input);
+    R_ProfBeginNamedEvent(gfxContext->state, "2D (View)");
     R_GPU_BeginTimer(GPU_TIMER_2D);
-    _RAX = R_RT_GetGlobal(&result, R_RENDERTARGET_DISPLAY_BUFFER);
-    __asm
+    v14 = *R_RT_GetGlobal(&result, R_RENDERTARGET_DISPLAY_BUFFER);
+    m_resolvedSceneRt = v14;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rsp+0B8h+var_58], ymm0
-      vmovups ymmword ptr [rsp+0B8h+var_78.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v24);
-      if ( (R_RT_Handle::GetSurface(&v24)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&m_resolvedSceneRt);
+      if ( (R_RT_Handle::GetSurface(&m_resolvedSceneRt)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+0B8h+var_78.m_surfaceID]
-          vmovups [rsp+0B8h+var_58], ymm0
-        }
+        v14 = m_resolvedSceneRt;
         __debugbreak();
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+0B8h+var_78.m_surfaceID]
-          vmovups [rsp+0B8h+var_58], ymm0
-        }
+        v14 = m_resolvedSceneRt;
       }
     }
     else
@@ -1767,49 +1496,32 @@ void RB_Draw2D_Hud(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, co
       if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
-    Image = R_UniversalClut_GetImage(_RSI->clientIndex, MOVEMENT);
-    __asm
+    Image = R_UniversalClut_GetImage(viewInfo->clientIndex, MOVEMENT);
+    m_resolvedSceneRt = (R_RT_Handle)viewInfo->sceneRtInput.m_resolvedSceneRt;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rsi+33E0h]
-      vmovd   r8d, xmm0
-    }
-    v16 = Image;
-    __asm { vmovups ymmword ptr [rsp+0B8h+var_78.m_surfaceID], ymm0 }
-    if ( (_WORD)_ER8 )
-    {
-      R_RT_Handle::GetSurface(&v24);
-      p_m_image = &R_RT_Handle::GetSurface(&v24)->m_image;
+      R_RT_Handle::GetSurface(&m_resolvedSceneRt);
+      p_m_image = &R_RT_Handle::GetSurface(&m_resolvedSceneRt)->m_image;
     }
     else
     {
-      if ( v24.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+      if ( m_resolvedSceneRt.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
       p_m_image = (R_RT_Image *)rgp.blackImage;
     }
-    ConstantBuffer = R_Tonemap_GetConstantBuffer(_RSI);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+33C0h]
-      vmovups ymm1, [rsp+0B8h+var_58]
-      vmovups ymmword ptr [rsp+0B8h+result.m_surfaceID], ymm0
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups xmmword ptr [rsp+0B8h+var_78.m_surfaceID], xmm0
-      vmovups [rsp+0B8h+var_58], ymm1
-    }
-    R_Draw2D_Hud((GfxCmdBufContext *)&v24, _RSI, data, &v25, &result, v16, &p_m_image->m_base, ConstantBuffer);
+    ConstantBuffer = R_Tonemap_GetConstantBuffer(viewInfo);
+    result = (R_RT_Handle)viewInfo->sceneRtInput.m_packedStencilRt;
+    *(GfxCmdBufContext *)&m_resolvedSceneRt.m_surfaceID = *gfxContext;
+    R_Draw2D_Hud((GfxCmdBufContext *)&m_resolvedSceneRt, viewInfo, data, (R_RT_ColorHandle *)&v14, &result, Image, &p_m_image->m_base, ConstantBuffer);
     R_GPU_EndTimer();
-    R_ProfEndNamedEvent(_R14->state);
-    R_ShutdownLocalCmdBufState(_R14->state, &_R14->source->input);
+    R_ProfEndNamedEvent(gfxContext->state);
+    R_ShutdownLocalCmdBufState(gfxContext->state, &gfxContext->source->input);
     Sys_ProfEndNamedEvent();
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+33C0h]
-    vmovups xmm1, xmmword ptr [r14]
-    vmovups ymmword ptr [rsp+0B8h+result.m_surfaceID], ymm0
-    vmovups xmmword ptr [rsp+0B8h+var_78.m_surfaceID], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&v24, (R_RT_ColorHandle *)&result);
+  v12 = *gfxContext;
+  result = (R_RT_Handle)viewInfo->sceneRtInput.m_packedStencilRt;
+  *(GfxCmdBufContext *)&m_resolvedSceneRt.m_surfaceID = v12;
+  R_RT_Destroy((GfxCmdBufContext *)&m_resolvedSceneRt, (R_RT_ColorHandle *)&result);
 }
 
 /*
@@ -1820,150 +1532,118 @@ RB_Draw3DOverlays
 void RB_Draw3DOverlays(GfxCmdBufContext *gfxContext, const GfxBackEndData *data)
 {
   int integer; 
-  char v7; 
-  unsigned int v8; 
-  bool v12; 
-  int v13; 
+  char v6; 
+  unsigned int v7; 
+  R_RT_Handle *v8; 
+  __m256i *RTDraw3D; 
+  bool v10; 
+  int v11; 
   int IsOverlayEnabled; 
-  int v15; 
+  int v13; 
+  GfxViewInfo *v14; 
+  GfxCmdBufState *state; 
   GfxCmdBufSourceState *source; 
-  GfxCmdBufSourceState *v20; 
+  GfxCmdBufSourceState *v17; 
+  R_RT_Handle v19; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
-  GfxCmdBufSourceState *v38; 
-  const char *m_location; 
+  GfxCmdBufSourceState *v23; 
+  const R_RT_ColorHandle *ColorArrayRtDraw3D; 
+  R_RT_Handle v27; 
+  GfxCmdBufContext v28; 
+  R_RT_Handle v29; 
+  GfxCmdBufContext v30; 
   GfxImage *umbraOcclusionScene; 
-  __int64 v63; 
+  GfxCmdBufSourceState *v32; 
+  GfxCmdBufInput *p_input; 
+  float value; 
+  float v35; 
+  float v36; 
   unsigned int reflectionProbeFrameIndex; 
-  GfxCmdBufSourceState *v84; 
-  bool v88; 
-  unsigned int v89; 
-  const R_RT_Surface *v90; 
-  GfxCmdBufSourceState *v91; 
-  const char *v101; 
-  float fmt; 
-  __int64 v116; 
-  float v117; 
-  float v118; 
-  float v119; 
-  float v120; 
-  float v121; 
+  GfxViewInfo *viewInfo; 
+  GfxCmdBufSourceState *v39; 
+  R_RT_Handle v40; 
+  bool v42; 
+  unsigned int v43; 
+  const R_RT_Surface *v44; 
+  GfxCmdBufSourceState *v45; 
+  const R_RT_ColorHandle *v48; 
+  R_RT_Handle v49; 
+  GfxCmdBufContext v50; 
+  R_RT_Handle v51; 
+  __int64 v52; 
   bool enabled; 
-  __m256i v123; 
-  R_RT_Handle v124; 
-  int v125; 
-  int v126; 
-  R_RT_Handle v127; 
-  signed int v128; 
-  int v129; 
-  int v130; 
-  R_RT_BufferHandle v131; 
-  R_RT_Group v132; 
+  __m256i v54; 
+  R_RT_Handle v55; 
+  int v56; 
+  int v57; 
+  R_RT_Handle v58; 
+  signed int v59; 
+  int v60; 
+  int v61; 
+  __m256i v62; 
+  R_RT_Group v63; 
   R_RT_DepthHandle result; 
-  R_RT_ColorHandle v134; 
-  R_RT_DepthHandle v135; 
-  R_RT_Group v136; 
-  R_RT_Group v137; 
-  R_RT_Handle v138[3]; 
+  R_RT_ColorHandle v65; 
+  R_RT_DepthHandle v66; 
+  R_RT_Group v67; 
+  R_RT_Group rtGroup; 
+  R_RT_Handle v69[3]; 
 
-  _RSI = gfxContext;
   integer = sm_showOverlay->current.integer;
-  v7 = integer != 0;
+  v6 = integer != 0;
   if ( data->viewInfoCount )
-    v7 &= ~BYTE1(*((_DWORD *)&data->viewInfo[data->viewInfoIndex].viewportFeatures + 11));
-  if ( v7 )
+    v6 &= ~BYTE1(*((_DWORD *)&data->viewInfo[data->viewInfoIndex].viewportFeatures + 11));
+  if ( v6 )
   {
-    v8 = 0;
-    _RDI = v138;
+    v7 = 0;
+    v8 = v69;
     do
     {
-      _RAX = R_SunShadowMapDebug_GetRTDraw3D(&result, v8++);
-      ++_RDI;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rdi-20h], ymm0
-      }
+      RTDraw3D = (__m256i *)R_SunShadowMapDebug_GetRTDraw3D(&result, v7++);
+      ++v8;
+      v8[-1] = *(R_RT_Handle *)RTDraw3D;
     }
-    while ( v8 < 3 );
+    while ( v7 < 3 );
   }
-  __asm { vmovaps [rsp+490h+var_40], xmm6 }
   enabled = r_umbraShowOverlay->current.enabled;
-  v12 = Physics_RenderDebugEnabled();
-  v13 = r_decalVolumesShowAtlas->current.integer;
-  v129 = v13;
-  v125 = r_showHeightmap->current.integer;
-  v126 = r_showFogSpline->current.integer;
+  v10 = Physics_RenderDebugEnabled();
+  v11 = r_decalVolumesShowAtlas->current.integer;
+  v60 = v11;
+  v56 = r_showHeightmap->current.integer;
+  v57 = r_showFogSpline->current.integer;
   IsOverlayEnabled = RB_ReflectionProbe_IsOverlayEnabled();
-  v130 = IsOverlayEnabled;
-  v15 = r_showLightmap->current.integer;
-  v128 = v15;
+  v61 = IsOverlayEnabled;
+  v13 = r_showLightmap->current.integer;
+  v59 = v13;
   if ( data->viewInfoCount )
   {
-    _R13 = &data->viewInfo[data->viewInfoIndex];
-    if ( v7 || enabled || v12 || r_showPIPTexture->current.enabled || v15 >= 0 || v125 || v13 > 0 || v126 >= 0 || IsOverlayEnabled >= 0 )
+    v14 = &data->viewInfo[data->viewInfoIndex];
+    if ( v6 || enabled || v10 || r_showPIPTexture->current.enabled || v13 >= 0 || v56 || v11 > 0 || v57 >= 0 || IsOverlayEnabled >= 0 )
     {
-      _RDI = _RSI->state;
-      _RDX = &v137;
-      source = _RSI->source;
-      v20 = _RSI->source;
-      __asm
+      state = gfxContext->state;
+      source = gfxContext->source;
+      v17 = gfxContext->source;
+      rtGroup = state->rtGroup;
+      _XMM0 = *(_OWORD *)&rtGroup.m_depthRt.m_tracking.m_location;
+      R_InitCmdBufSourceState(v17, &v14->input);
+      R_InitLocalCmdBufState(state, &source->input);
+      v19 = *R_RT_GetGlobal(&result, R_RENDERTARGET_DISPLAY_BUFFER);
+      v54 = (__m256i)v19;
+      v55 = v19;
+      if ( (_WORD)_XMM0 )
       {
-        vmovups xmm0, xmmword ptr [rdi+0A28h]
-        vmovups xmmword ptr [rdx], xmm0
-        vmovups xmm1, xmmword ptr [rdi+0A38h]
-        vmovups xmmword ptr [rdx+10h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+0A48h]
-        vmovups xmmword ptr [rdx+20h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+0A58h]
-        vmovups xmmword ptr [rdx+30h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+0A68h]
-        vmovups xmmword ptr [rdx+40h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+0A78h]
-        vmovups xmmword ptr [rdx+50h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+0A88h]
-        vmovups xmmword ptr [rdx+60h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+0A98h]
-        vmovups xmmword ptr [rdx+70h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+0AA8h]
-        vmovups xmmword ptr [rdx+80h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+0AB8h]
-        vmovups xmmword ptr [rdx+90h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+0AC8h]
-        vmovups xmmword ptr [rdx+0A0h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+0AD8h]
-        vmovups xmmword ptr [rdx+0B0h], xmm1
-      }
-      v137.m_vrsRt.m_tracking.m_location = _RDI->rtGroup.m_vrsRt.m_tracking.m_location;
-      R_InitCmdBufSourceState(v20, &_R13->input);
-      R_InitLocalCmdBufState(_RDI, &source->input);
-      _RAX = R_RT_GetGlobal(&result, R_RENDERTARGET_DISPLAY_BUFFER);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovd   eax, xmm0
-        vmovups [rsp+490h+var_420], ymm0
-        vmovups ymmword ptr [rbp+390h+var_400.m_surfaceID], ymm0
-      }
-      if ( (_WORD)_RAX )
-      {
-        R_RT_Handle::GetSurface(&v124);
-        if ( (R_RT_Handle::GetSurface(&v124)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+        R_RT_Handle::GetSurface(&v55);
+        if ( (R_RT_Handle::GetSurface(&v55)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+390h+var_400.m_surfaceID]
-            vmovups [rsp+490h+var_420], ymm0
-          }
+          v19 = v55;
+          v54 = (__m256i)v55;
           __debugbreak();
         }
         else
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+390h+var_400.m_surfaceID]
-            vmovups [rsp+490h+var_420], ymm0
-          }
+          v19 = v55;
+          v54 = (__m256i)v55;
         }
       }
       else
@@ -1971,240 +1651,146 @@ void RB_Draw3DOverlays(GfxCmdBufContext *gfxContext, const GfxBackEndData *data)
         __asm { vpextrd rax, xmm0, 2 }
         if ( (_DWORD)_RAX )
         {
-          __asm { vmovups ymm0, [rsp+490h+var_420] }
+          v19 = (R_RT_Handle)v54;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
             __debugbreak();
         }
       }
-      __asm { vmovups ymmword ptr [rbp+390h+var_400.m_surfaceID], ymm0 }
-      height = R_RT_Handle::GetSurface(&v124)->m_image.m_base.height;
-      Surface = R_RT_Handle::GetSurface(&v124);
-      v38 = _RSI->source;
-      R_SetRenderTargetSize(_RSI->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-      __asm
-      {
-        vmovups ymm0, [rsp+490h+var_420]
-        vmovups ymmword ptr [rbp+390h+var_3D0.m_surfaceID], ymm0
-      }
-      R_RT_Group::AssignColor(&v132, (R_RT_ColorHandle *)&v127);
-      _RCX = &v136;
-      _RAX = &v132;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups ymm0, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rcx+20h], ymm0
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups ymmword ptr [rcx+40h], ymm0
-        vmovups ymm0, ymmword ptr [rax+60h]
-        vmovups ymmword ptr [rcx+60h], ymm0
-        vmovups ymm0, ymmword ptr [rax+80h]
-        vmovups ymmword ptr [rcx+80h], ymm0
-        vmovups ymm0, ymmword ptr [rax+0A0h]
-      }
-      m_location = v132.m_vrsRt.m_tracking.m_location;
-      __asm
-      {
-        vmovups ymmword ptr [rcx+0A0h], ymm0
-        vmovups xmm0, xmmword ptr [rsi]
-      }
-      v136.m_vrsRt.m_tracking.m_location = m_location;
-      __asm { vmovups xmmword ptr [rsp+490h+var_420], xmm0 }
-      R_SetRenderTargetsInternal((GfxCmdBufContext *)&v123, &v136, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5353)");
-      R_BeginViewInternal(v38, &_R13->sceneDef, (const GfxViewParms *)_R13, &_R13->viewParmsSet.frames[1].viewParms);
-      R_SetViewportStruct(v38, &_R13->displayViewport);
-      R_Set2D(v38);
-      if ( v7 )
+      v55 = v19;
+      height = R_RT_Handle::GetSurface(&v55)->m_image.m_base.height;
+      Surface = R_RT_Handle::GetSurface(&v55);
+      v23 = gfxContext->source;
+      R_SetRenderTargetSize(gfxContext->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
+      v58 = (R_RT_Handle)v54;
+      R_RT_Group::AssignColor(&v63, (R_RT_ColorHandle *)&v58);
+      *(__m256i *)&v67.m_colorRtCount = *(__m256i *)&v63.m_colorRtCount;
+      *(__m256i *)&v67.m_colorRts[0].m_tracking.m_location = *(__m256i *)&v63.m_colorRts[0].m_tracking.m_location;
+      *(__m256i *)&v67.m_colorRts[1].m_tracking.m_location = *(__m256i *)&v63.m_colorRts[1].m_tracking.m_location;
+      *(__m256i *)&v67.m_colorRts[2].m_tracking.m_location = *(__m256i *)&v63.m_colorRts[2].m_tracking.m_location;
+      *(__m256i *)&v67.m_colorRts[3].m_tracking.m_location = *(__m256i *)&v63.m_colorRts[3].m_tracking.m_location;
+      *(__m256i *)&v67.m_depthRt.m_tracking.m_location = *(__m256i *)&v63.m_depthRt.m_tracking.m_location;
+      _XMM0 = *gfxContext;
+      v67.m_vrsRt.m_tracking.m_location = v63.m_vrsRt.m_tracking.m_location;
+      *(GfxCmdBufContext *)v54.m256i_i8 = _XMM0;
+      R_SetRenderTargetsInternal((GfxCmdBufContext *)&v54, &v67, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5353)");
+      R_BeginViewInternal(v23, &v14->sceneDef, (const GfxViewParms *)v14, &v14->viewParmsSet.frames[1].viewParms);
+      R_SetViewportStruct(v23, &v14->displayViewport);
+      R_Set2D(v23);
+      if ( v6 )
       {
         __asm { vpxor   xmm0, xmm0, xmm0 }
-        v124.m_surfaceID = 0;
-        v124.m_tracking.m_allocCounter = 0;
-        __asm { vmovdqu xmmword ptr [rbp+390h+var_400.m_tracking.m_name], xmm0 }
-        v123.m256i_i16[0] = 0;
-        v123.m256i_i32[2] = 0;
-        __asm { vmovdqu xmmword ptr [rbp+390h+var_420+10h], xmm0 }
-        _RAX = R_SunShadowCache_GetDepthArrayRtDraw3D(&v135);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rbp+390h+result.baseclass_0.m_surfaceID], ymm0
-        }
-        _RAX = R_SpotShadow_StaleCacheEntry::GetColorArrayRtDraw3D(&v134);
-        __asm
-        {
-          vmovups ymm2, [rbp+390h+var_B0]
-          vmovups xmm6, xmmword ptr [rsi]
-          vmovups ymmword ptr [rbp+390h+var_3D0.m_surfaceID], ymm2
-          vmovups ymm1, ymmword ptr [rax]
-          vmovups [rbp+390h+var_3A0], ymm1
-        }
+        v55.m_surfaceID = 0;
+        v55.m_tracking.m_allocCounter = 0;
+        *(_OWORD *)&v55.m_tracking.m_name = _XMM0;
+        v54.m256i_i16[0] = 0;
+        v54.m256i_i32[2] = 0;
+        *(_OWORD *)&v54.m256i_u64[2] = _XMM0;
+        result = *R_SunShadowCache_GetDepthArrayRtDraw3D(&v66);
+        ColorArrayRtDraw3D = R_SpotShadow_StaleCacheEntry::GetColorArrayRtDraw3D(&v65);
+        v27 = v69[0];
+        v28 = *gfxContext;
+        v58 = v69[0];
+        v29 = ColorArrayRtDraw3D->R_RT_Handle;
+        v62 = *(__m256i *)ColorArrayRtDraw3D;
         if ( (unsigned int)(integer - 1) > 6 )
         {
-          LODWORD(v116) = integer;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 4818, ASSERT_TYPE_ASSERT, "( ( overlayStyle >= GFX_SM_OVERLAY_SUN && overlayStyle < GFX_SM_OVERLAY_COUNT ) )", "( overlayStyle ) = %i", v116) )
+          LODWORD(v52) = integer;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 4818, ASSERT_TYPE_ASSERT, "( ( overlayStyle >= GFX_SM_OVERLAY_SUN && overlayStyle < GFX_SM_OVERLAY_COUNT ) )", "( overlayStyle ) = %i", v52) )
             __debugbreak();
-          __asm
-          {
-            vmovups ymm2, ymmword ptr [rbp+390h+var_3D0.m_surfaceID]
-            vmovups ymm1, [rbp+390h+var_3A0]
-          }
+          v27 = v58;
+          v29 = (R_RT_Handle)v62;
         }
         if ( integer > 4 )
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [r13+6420h]
-            vmovups ymmword ptr [rbp+390h+result.baseclass_0.m_surfaceID], ymm0
-            vmovups ymmword ptr [rbp+390h+var_3D0.m_surfaceID], ymm1
-            vmovdqa xmmword ptr [rsp+490h+var_420], xmm6
-          }
-          R_SpotShadow_DrawOverlay((GfxCmdBufContext *)&v123, integer, (const R_RT_ColorHandle *)&v127, &result);
+          result = v14->spotshadowActiveCache;
+          v58 = v29;
+          *(GfxCmdBufContext *)v54.m256i_i8 = v28;
+          R_SpotShadow_DrawOverlay((GfxCmdBufContext *)&v54, integer, (const R_RT_ColorHandle *)&v58, &result);
         }
         else
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+390h+var_400.m_surfaceID]
-            vmovups ymm1, ymmword ptr [rbp+390h+result.baseclass_0.m_surfaceID]
-            vmovups ymmword ptr [rbp+390h+var_3D0.m_surfaceID], ymm0
-            vmovups ymm0, [rsp+490h+var_420]
-            vmovups [rbp+390h+var_3A0], ymm0
-            vmovups ymmword ptr [rbp+390h+result.baseclass_0.m_surfaceID], ymm1
-            vmovups ymmword ptr [rbp+390h+var_400.m_surfaceID], ymm2
-            vmovdqa xmmword ptr [rsp+490h+var_420], xmm6
-          }
-          R_Sunshadow_DrawOverlay((GfxCmdBufContext *)&v123, _R13, integer, v138, 3u, &v124, &result, NULL, &v131, &v127);
+          v58 = v55;
+          v62 = v54;
+          v55 = v27;
+          *(GfxCmdBufContext *)v54.m256i_i8 = v28;
+          R_Sunshadow_DrawOverlay((GfxCmdBufContext *)&v54, v14, integer, v69, 3u, &v55, &result, NULL, (R_RT_BufferHandle *)&v62, &v58);
         }
       }
       if ( enabled )
       {
-        __asm { vmovups xmm6, xmmword ptr [rsi] }
+        v30 = *gfxContext;
         umbraOcclusionScene = rgp.umbraOcclusionScene;
-        __asm { vmovq   rbx, xmm6 }
-        if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+        v32 = gfxContext->source;
+        if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
           __debugbreak();
-        v63 = _RBX + 1792;
-        if ( !v63 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+        p_input = &v32->input;
+        if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
           __debugbreak();
-        *(_QWORD *)(v63 + 6176) = umbraOcclusionScene;
-        _RAX = r_umbraShowOverlayDisplaySizeScale;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  xmm2, dword ptr [rax+28h]
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm4, xmm0, xmm2
-          vmovss  xmm0, cs:__real@3f800000
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vmulss  xmm3, xmm1, xmm2
-          vmovss  xmm2, cs:__real@42800000
-          vxorps  xmm1, xmm1, xmm1
-          vmovss  dword ptr [rsp+490h+var_448], xmm1
-          vmovss  dword ptr [rsp+490h+var_450], xmm0
-          vmovss  dword ptr [rsp+490h+var_458], xmm0
-          vmovss  dword ptr [rsp+490h+var_460], xmm1
-          vmovss  dword ptr [rsp+490h+var_468], xmm4
-          vmovss  dword ptr [rsp+490h+fmt], xmm3
-          vmovaps xmm3, xmm2
-          vmovdqa xmmword ptr [rsp+490h+var_420], xmm6
-        }
-        RB_DrawStretchPic((GfxCmdBufContext *)&v123, rgp.feedbackReplaceBackbufferMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v117, v118, v119, v120, v121, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
-        __asm { vmovdqa xmmword ptr [rsp+490h+var_420], xmm6 }
-        RB_EndTessSurfaceInternal((GfxCmdBufContext *)&v123, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4771)");
+        p_input->codeImages[4] = umbraOcclusionScene;
+        value = r_umbraShowOverlayDisplaySizeScale->current.value;
+        v35 = (float)umbraOcclusionScene->height * value;
+        v36 = (float)umbraOcclusionScene->width * value;
+        *(GfxCmdBufContext *)v54.m256i_i8 = v30;
+        RB_DrawStretchPic((GfxCmdBufContext *)&v54, rgp.feedbackReplaceBackbufferMaterial, 64.0, 64.0, v36, v35, 0.0, 1.0, 1.0, 0.0, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
+        *(GfxCmdBufContext *)v54.m256i_i8 = v30;
+        RB_EndTessSurfaceInternal((GfxCmdBufContext *)&v54, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4771)");
       }
-      __asm
+      *(GfxCmdBufContext *)v54.m256i_i8 = *gfxContext;
+      Physics_RenderDebugOverlays((GfxCmdBufContext *)&v54);
+      if ( v59 >= 0 )
       {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups xmmword ptr [rsp+490h+var_420], xmm0
+        *(GfxCmdBufContext *)v54.m256i_i8 = *gfxContext;
+        RB_DrawLightmapOverlap((GfxCmdBufContext *)&v54, data, v59);
       }
-      Physics_RenderDebugOverlays((GfxCmdBufContext *)&v123);
-      if ( v128 >= 0 )
+      if ( v56 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups xmmword ptr [rsp+490h+var_420], xmm0
-        }
-        RB_DrawLightmapOverlap((GfxCmdBufContext *)&v123, data, v128);
+        *(GfxCmdBufContext *)v54.m256i_i8 = *gfxContext;
+        RB_DrawHeightmapOverlay((GfxCmdBufContext *)&v54);
       }
-      if ( v125 )
+      if ( v60 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups xmmword ptr [rsp+490h+var_420], xmm0
-        }
-        RB_DrawHeightmapOverlay((GfxCmdBufContext *)&v123);
+        *(GfxCmdBufContext *)v54.m256i_i8 = *gfxContext;
+        RB_DecalVolumes_ShowAtlas((GfxCmdBufContext *)&v54, v60);
       }
-      if ( v129 )
+      if ( v57 >= 0 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups xmmword ptr [rsp+490h+var_420], xmm0
-        }
-        RB_DecalVolumes_ShowAtlas((GfxCmdBufContext *)&v123, v129);
+        *(GfxCmdBufContext *)v54.m256i_i8 = *gfxContext;
+        RB_DrawFogSplineOverlap((GfxCmdBufContext *)&v54, v14, v57);
       }
-      if ( v126 >= 0 )
+      if ( v61 >= 0 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups xmmword ptr [rsp+490h+var_420], xmm0
-        }
-        RB_DrawFogSplineOverlap((GfxCmdBufContext *)&v123, _R13, v126);
-      }
-      if ( v130 >= 0 )
-      {
-        __asm { vmovups xmm0, xmmword ptr [rsi] }
         reflectionProbeFrameIndex = data->reflectionProbeFrameIndex;
-        __asm { vmovups xmmword ptr [rsp+490h+var_420], xmm0 }
-        RB_ReflectionProbe_Overlay((GfxCmdBufContext *)&v123, reflectionProbeFrameIndex, v130);
+        *(GfxCmdBufContext *)v54.m256i_i8 = *gfxContext;
+        RB_ReflectionProbe_Overlay((GfxCmdBufContext *)&v54, reflectionProbeFrameIndex, v61);
       }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups xmmword ptr [rsp+490h+var_420], xmm0
-      }
-      R_SetRenderTargetsInternal((GfxCmdBufContext *)&v123, &v137, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5417)");
-      R_ShutdownLocalCmdBufState(_RSI->state, &_RSI->source->input);
+      _XMM0 = *gfxContext;
+      *(GfxCmdBufContext *)v54.m256i_i8 = *gfxContext;
+      R_SetRenderTargetsInternal((GfxCmdBufContext *)&v54, &rtGroup, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5417)");
+      R_ShutdownLocalCmdBufState(gfxContext->state, &gfxContext->source->input);
     }
   }
   if ( data->pipInfoCount )
   {
-    _R15 = data->viewInfo;
-    v84 = _RSI->source;
-    R_InitCmdBufSourceState(_RSI->source, &_R15[5].input);
-    R_InitLocalCmdBufState(_RSI->state, &v84->input);
-    _RAX = R_RT_GetGlobal(&v134, R_RENDERTARGET_DISPLAY_BUFFER);
-    __asm
+    viewInfo = data->viewInfo;
+    v39 = gfxContext->source;
+    R_InitCmdBufSourceState(gfxContext->source, &viewInfo[5].input);
+    R_InitLocalCmdBufState(gfxContext->state, &v39->input);
+    v40 = *R_RT_GetGlobal(&v65, R_RENDERTARGET_DISPLAY_BUFFER);
+    v54 = (__m256i)v40;
+    v55 = v40;
+    if ( LOWORD(_XMM0.source) )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rsp+490h+var_420], ymm0
-      vmovups ymmword ptr [rbp+390h+var_400.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v124);
-      if ( (R_RT_Handle::GetSurface(&v124)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v55);
+      if ( (R_RT_Handle::GetSurface(&v55)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+390h+var_400.m_surfaceID]
-          vmovups [rsp+490h+var_420], ymm0
-        }
+        v40 = v55;
+        v54 = (__m256i)v55;
         __debugbreak();
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+390h+var_400.m_surfaceID]
-          vmovups [rsp+490h+var_420], ymm0
-        }
+        v40 = v55;
+        v54 = (__m256i)v55;
       }
     }
     else
@@ -2212,119 +1798,74 @@ void RB_Draw3DOverlays(GfxCmdBufContext *gfxContext, const GfxBackEndData *data)
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v88 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rsp+490h+var_420] }
-        if ( v88 )
+        v42 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v40 = (R_RT_Handle)v54;
+        if ( v42 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rbp+390h+var_3D0.m_surfaceID], ymm0 }
-    v89 = R_RT_Handle::GetSurface(&v127)->m_image.m_base.height;
-    v90 = R_RT_Handle::GetSurface(&v127);
-    v91 = _RSI->source;
-    R_SetRenderTargetSize(_RSI->source, v90->m_image.m_base.width, v89, GFX_USE_VIEWPORT_FOR_VIEW);
-    __asm
-    {
-      vmovups ymm0, [rsp+490h+var_420]
-      vmovups ymmword ptr [rbp+390h+result.baseclass_0.m_surfaceID], ymm0
-    }
-    R_RT_Group::AssignColor(&v137, (R_RT_ColorHandle *)&result);
-    _RCX = &v136;
-    _RAX = &v137;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymm0, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx+80h], ymm0
-      vmovups ymm0, ymmword ptr [rax+0A0h]
-    }
-    v101 = v137.m_vrsRt.m_tracking.m_location;
-    __asm
-    {
-      vmovups ymmword ptr [rcx+0A0h], ymm0
-      vmovups xmm0, xmmword ptr [rsi]
-    }
-    v136.m_vrsRt.m_tracking.m_location = v101;
-    __asm { vmovups xmmword ptr [rsp+490h+var_420], xmm0 }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v123, &v136, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5432)");
-    R_BeginViewInternal(v91, &_R15[5].sceneDef, (const GfxViewParms *)&_R15[5], &_R15[5].viewParmsSet.frames[1].viewParms);
-    R_SetViewportStruct(v91, &_R15[5].displayViewport);
-    R_Set2D(v91);
-    if ( v7 )
+    v58 = v40;
+    v43 = R_RT_Handle::GetSurface(&v58)->m_image.m_base.height;
+    v44 = R_RT_Handle::GetSurface(&v58);
+    v45 = gfxContext->source;
+    R_SetRenderTargetSize(gfxContext->source, v44->m_image.m_base.width, v43, GFX_USE_VIEWPORT_FOR_VIEW);
+    result = (R_RT_DepthHandle)v54;
+    R_RT_Group::AssignColor(&rtGroup, (R_RT_ColorHandle *)&result);
+    *(__m256i *)&v67.m_colorRtCount = *(__m256i *)&rtGroup.m_colorRtCount;
+    *(__m256i *)&v67.m_colorRts[0].m_tracking.m_location = *(__m256i *)&rtGroup.m_colorRts[0].m_tracking.m_location;
+    *(__m256i *)&v67.m_colorRts[1].m_tracking.m_location = *(__m256i *)&rtGroup.m_colorRts[1].m_tracking.m_location;
+    *(__m256i *)&v67.m_colorRts[2].m_tracking.m_location = *(__m256i *)&rtGroup.m_colorRts[2].m_tracking.m_location;
+    *(__m256i *)&v67.m_colorRts[3].m_tracking.m_location = *(__m256i *)&rtGroup.m_colorRts[3].m_tracking.m_location;
+    *(__m256i *)&v67.m_depthRt.m_tracking.m_location = *(__m256i *)&rtGroup.m_depthRt.m_tracking.m_location;
+    _XMM0 = *gfxContext;
+    v67.m_vrsRt.m_tracking.m_location = rtGroup.m_vrsRt.m_tracking.m_location;
+    *(GfxCmdBufContext *)v54.m256i_i8 = _XMM0;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v54, &v67, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5432)");
+    R_BeginViewInternal(v45, &viewInfo[5].sceneDef, (const GfxViewParms *)&viewInfo[5], &viewInfo[5].viewParmsSet.frames[1].viewParms);
+    R_SetViewportStruct(v45, &viewInfo[5].displayViewport);
+    R_Set2D(v45);
+    if ( v6 )
     {
       __asm { vpxor   xmm0, xmm0, xmm0 }
-      v124.m_surfaceID = 0;
-      __asm
-      {
-        vmovdqu xmmword ptr [rbp+390h+var_400.m_tracking.m_name], xmm0
-        vmovdqu xmmword ptr [rbp+390h+var_420+10h], xmm0
-      }
-      v124.m_tracking.m_allocCounter = 0;
-      v123.m256i_i16[0] = 0;
-      v123.m256i_i32[2] = 0;
-      _RAX = R_SunShadowCache_GetDepthArrayRtDraw3D((R_RT_DepthHandle *)&v134);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+390h+result.baseclass_0.m_surfaceID], ymm0
-      }
-      _RAX = R_SpotShadow_StaleCacheEntry::GetColorArrayRtDraw3D((const R_RT_ColorHandle *)&v135);
-      __asm
-      {
-        vmovups ymm2, [rbp+390h+var_B0]
-        vmovups xmm6, xmmword ptr [rsi]
-        vmovups [rbp+390h+var_3A0], ymm2
-        vmovups ymm1, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+390h+var_3D0.m_surfaceID], ymm1
-      }
+      v55.m_surfaceID = 0;
+      *(_OWORD *)&v55.m_tracking.m_name = _XMM0;
+      *(_OWORD *)&v54.m256i_u64[2] = _XMM0;
+      v55.m_tracking.m_allocCounter = 0;
+      v54.m256i_i16[0] = 0;
+      v54.m256i_i32[2] = 0;
+      result = *R_SunShadowCache_GetDepthArrayRtDraw3D((R_RT_DepthHandle *)&v65);
+      v48 = R_SpotShadow_StaleCacheEntry::GetColorArrayRtDraw3D((const R_RT_ColorHandle *)&v66);
+      v49 = v69[0];
+      v50 = *gfxContext;
+      v62 = (__m256i)v69[0];
+      v51 = v48->R_RT_Handle;
+      v58 = v48->R_RT_Handle;
       if ( integer < 1 || integer >= 8 )
       {
-        LODWORD(v116) = integer;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 4818, ASSERT_TYPE_ASSERT, "( ( overlayStyle >= GFX_SM_OVERLAY_SUN && overlayStyle < GFX_SM_OVERLAY_COUNT ) )", "( overlayStyle ) = %i", v116) )
+        LODWORD(v52) = integer;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 4818, ASSERT_TYPE_ASSERT, "( ( overlayStyle >= GFX_SM_OVERLAY_SUN && overlayStyle < GFX_SM_OVERLAY_COUNT ) )", "( overlayStyle ) = %i", v52) )
           __debugbreak();
-        __asm
-        {
-          vmovups ymm2, [rbp+390h+var_3A0]
-          vmovups ymm1, ymmword ptr [rbp+390h+var_3D0.m_surfaceID]
-        }
+        v49 = (R_RT_Handle)v62;
+        v51 = v58;
       }
       if ( integer > 4 )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [r15+25AF0h]
-          vmovups ymmword ptr [rbp+390h+result.baseclass_0.m_surfaceID], ymm0
-          vmovups ymmword ptr [rbp+390h+var_3D0.m_surfaceID], ymm1
-          vmovdqa xmmword ptr [rsp+490h+var_420], xmm6
-        }
-        R_SpotShadow_DrawOverlay((GfxCmdBufContext *)&v123, integer, (const R_RT_ColorHandle *)&v127, &result);
+        result = viewInfo[5].spotshadowActiveCache;
+        v58 = v51;
+        *(GfxCmdBufContext *)v54.m256i_i8 = v50;
+        R_SpotShadow_DrawOverlay((GfxCmdBufContext *)&v54, integer, (const R_RT_ColorHandle *)&v58, &result);
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+390h+var_400.m_surfaceID]
-          vmovups ymm1, ymmword ptr [rbp+390h+result.baseclass_0.m_surfaceID]
-          vmovups ymmword ptr [rbp+390h+var_3D0.m_surfaceID], ymm0
-          vmovups ymm0, [rsp+490h+var_420]
-          vmovups [rbp+390h+var_3A0], ymm0
-          vmovups ymmword ptr [rbp+390h+result.baseclass_0.m_surfaceID], ymm1
-          vmovups ymmword ptr [rbp+390h+var_400.m_surfaceID], ymm2
-          vmovdqa xmmword ptr [rsp+490h+var_420], xmm6
-        }
-        R_Sunshadow_DrawOverlay((GfxCmdBufContext *)&v123, _R15 + 5, integer, v138, 3u, &v124, &result, NULL, &v131, &v127);
+        v58 = v55;
+        v62 = v54;
+        v55 = v49;
+        *(GfxCmdBufContext *)v54.m256i_i8 = v50;
+        R_Sunshadow_DrawOverlay((GfxCmdBufContext *)&v54, viewInfo + 5, integer, v69, 3u, &v55, &result, NULL, (R_RT_BufferHandle *)&v62, &v58);
       }
     }
-    R_ShutdownLocalCmdBufState(_RSI->state, &v91->input);
+    R_ShutdownLocalCmdBufState(gfxContext->state, &v45->input);
   }
-  __asm { vmovaps xmm6, [rsp+490h+var_40] }
 }
 
 /*
@@ -2332,216 +1873,250 @@ void RB_Draw3DOverlays(GfxCmdBufContext *gfxContext, const GfxBackEndData *data)
 RB_Draw3DScene
 ==============
 */
-void RB_Draw3DScene(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, double a4)
+void RB_Draw3DScene(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  signed __int64 v4; 
-  void *v7; 
-  const GfxBackEndData *v11; 
+  signed __int64 v3; 
+  void *v5; 
+  GfxCmdBufContext v8; 
+  const GfxBackEndData *v9; 
+  GfxCmdBufState *v10; 
+  int v11; 
+  R_RT_BufferHandle *v12; 
+  GfxBackEndData *v13; 
   GfxCmdBufState *v14; 
-  int v20; 
-  GfxBackEndData *v36; 
-  GfxCmdBufState *v43; 
-  __int64 v56; 
-  GfxBackEndData *v74; 
-  char v80; 
-  const dvar_t *v83; 
-  R_RT_Flags v84; 
+  GfxCmdBufContext v15; 
+  GfxCmdBufContext v16; 
+  __int64 v17; 
+  GfxCmdBufContext v18; 
+  GfxCmdBufContext v19; 
+  GfxCmdBufContext v20; 
+  GfxCmdBufContext v21; 
+  GfxCmdBufContext v22; 
+  GfxCmdBufContext v23; 
+  GfxCmdBufContext v24; 
+  GfxCmdBufContext v25; 
+  GfxCmdBufContext v26; 
+  GfxBackEndData *v27; 
+  char v30; 
+  GfxCmdBufContext v31; 
+  const dvar_t *v32; 
+  R_RT_Flags v33; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
-  bool v90; 
+  R_RT_Handle v36; 
+  bool v38; 
   ComputeCmdBufState *GfxComputeCmdBufState; 
-  GfxCmdBufSourceState *v96; 
-  GfxCmdBufState *v102; 
-  bool v110; 
-  GfxCmdBufSourceState *v162; 
-  GfxCmdBufState *v163; 
+  GfxCmdBufSourceState *v41; 
+  GfxCmdBufContext v42; 
+  GfxCmdBufContext v43; 
+  GfxCmdBufState *v44; 
+  __m256i v45; 
+  bool v47; 
+  __m256i m_floatZFullRt; 
+  __m256i v50; 
+  __m256i v51; 
+  __m256i v53; 
+  GfxCmdBufContext v54; 
+  GfxCmdBufContext v55; 
+  GfxCmdBufContext v56; 
+  __m256i v59; 
+  R_RT_Handle v63; 
+  GfxCmdBufContext v65; 
+  GfxCmdBufContext v66; 
+  GfxCmdBufSourceState *v67; 
+  GfxCmdBufState *v68; 
   const GfxImage *Image; 
-  GfxBackEndData *v166; 
-  const void *v170; 
-  GfxCmdBufState *v173; 
-  char v184; 
-  GfxBackEndData *v196; 
+  GfxBackEndData *v70; 
+  __m256i v71; 
+  const void *v72; 
+  GfxCmdBufState *v73; 
+  GfxCmdBufContext v74; 
+  GfxCmdBufContext v75; 
+  GfxCmdBufContext v76; 
+  GfxCmdBufContext v77; 
+  const GfxViewInfo *v78; 
+  GfxViewParms *p_viewParms; 
+  __m256i v80; 
+  vec4_t v81; 
+  GfxBackEndData *v82; 
   volatile int *p_inCmdCount; 
   int *cmdBufValid; 
   __int64 rtFlagsInternal; 
   GfxBackEndData *dataa; 
-  bool v202; 
+  bool v87; 
   GfxBackEndData *timeoutUserData; 
-  GfxBackEndData *v204; 
+  GfxBackEndData *v89; 
   GfxCmdBufInput *input; 
   GfxImage *extinction; 
   GfxImage *scattering; 
-  __m256i v208; 
+  R_RT_ColorHandle v93; 
   ID3D12Resource *buffers; 
-  GfxBackEndData *v210; 
+  GfxBackEndData *v95; 
   ID3D12Resource *buffer; 
-  ID3D12Resource *v212; 
-  ID3D12Resource *v213; 
-  ID3D12Resource *v214; 
-  ID3D12Resource *v215; 
-  GfxBackEndData *v216; 
+  ID3D12Resource *v97; 
+  ID3D12Resource *v98; 
+  ID3D12Resource *v99; 
+  ID3D12Resource *v100; 
+  GfxBackEndData *v101; 
   GfxDevice *device; 
   GfxCmdBufSourceState *source[2]; 
+  __m256i v104; 
+  R_RT_Handle v105; 
+  R_RT_Handle v106; 
+  R_RT_Handle v107; 
+  __m256i v108; 
+  GfxImage *visibility; 
+  GfxCmdBufContext v110; 
+  GfxCmdBufContext v111; 
+  GfxCmdBufContext v112; 
+  GfxCmdBufContext v113; 
+  GfxCmdBufContext v114; 
+  GfxCmdBufContext v115; 
+  GfxCmdBufContext v116; 
+  GfxCmdBufContext v117; 
+  GfxCmdBufContext v118; 
+  GfxCmdBufContext v119; 
+  GfxCmdBufContext v120; 
+  GfxCmdBufContext v121; 
+  GfxCmdBufContext v122; 
+  GfxCmdBufContext v123; 
+  GfxCmdBufContext v124; 
+  GfxCmdBufContext v125; 
+  GfxCmdBufContext v126; 
+  GfxCmdBufContext v127; 
+  GfxCmdBufContext v128; 
+  GfxCmdBufContext v129; 
+  GfxCmdBufContext v130; 
+  GfxCmdBufContext v131; 
+  GfxCmdBufContext v132; 
+  GfxCmdBufContext v133; 
+  GfxCmdBufContext v134; 
+  GfxCmdBufContext v135; 
+  GfxCmdBufContext v136; 
+  GfxCmdBufContext v137; 
+  GfxCmdBufContext v138; 
+  GfxCmdBufContext v139; 
+  GfxCmdBufContext v140; 
+  GfxCmdBufContext v141; 
+  GfxCmdBufContext v142; 
+  GfxCmdBufContext v143; 
+  GfxCmdBufContext v144; 
+  GfxCmdBufContext v145; 
+  GfxCmdBufContext v146; 
+  GfxCmdBufContext v147; 
+  GfxCmdBufContext v148; 
+  GfxCmdBufContext v149; 
+  GfxCmdBufContext v150; 
+  GfxCmdBufContext v151; 
+  GfxCmdBufContext v152; 
+  GfxCmdBufContext v153; 
+  GfxCmdBufContext v154; 
+  GfxCmdBufContext v155; 
+  GfxCmdBufContext v156; 
+  GfxCmdBufContext v157; 
+  GfxCmdBufContext v158; 
+  GfxCmdBufContext v159; 
+  GfxCmdBufContext v160; 
+  GfxCmdBufContext v161; 
+  GfxCmdBufContext v162; 
+  GfxCmdBufContext v163; 
+  GfxCmdBufContext v164; 
+  GfxCmdBufContext v165; 
+  GfxCmdBufContext v166; 
+  GfxCmdBufContext v167; 
+  GfxCmdBufContext v168; 
+  GfxCmdBufContext v169; 
+  GfxCmdBufContext v170; 
+  GfxCmdBufContext v171; 
+  R_RT_ColorHandle v172; 
+  R_RT_ColorHandle v173; 
+  R_RT_Handle v174; 
+  R_RT_ColorHandle m_ssaoRt; 
+  R_RT_BufferHandle m_gpIndexBuffer; 
+  R_RT_BufferHandle m_gpIndirectArgsBuffer; 
+  R_RT_ColorHandle m_mainSceneColorRt; 
+  R_RT_ColorHandle m_mainSceneAlphaRt; 
+  R_RT_ColorHandle m_mainSceneEntityIDVelocityRt; 
+  R_RT_ColorHandle m_mainSceneTangentFrameRt; 
+  R_RT_DepthHandle m_mainSceneDepthRt; 
+  R_RT_BufferHandle m_gpSubMeshCountBuffer; 
+  R_RT_ColorHandle m_mdaoRt; 
+  R_RT_ColorHandle v185; 
+  R_RT_ColorHandle v186; 
+  R_RT_DepthHandle v187; 
+  R_RT_ColorHandle v188; 
+  R_RT_DepthHandle v189; 
+  R_RT_BufferHandle m_gpBatchSubMeshOffsetsBuffer; 
+  R_RT_BufferHandle m_gpSubMeshWorkgroupArgsBuffer; 
+  R_RT_BufferHandle m_gpPerSurfDataBuffer; 
+  R_RT_BufferHandle m_gpClusterPassIndirectArgsBuffer; 
+  R_RT_BufferHandle m_gpClusterPPSumIndirectArgsBuffer; 
+  R_RT_BufferHandle m_gpPrevCulledSubMeshBuffer; 
+  R_RT_BufferHandle m_gpPrevSubMeshClusterOffsetsBuffer; 
+  R_RT_BufferHandle m_gpPrevCulledTriClusterBuffer; 
+  R_RT_ColorHandle v198; 
+  R_RT_Handle v199; 
+  R_RT_ColorHandle m_mainSceneSSSAlbedoRt; 
+  R_RT_ColorHandle m_mainSceneSSSDiffuseRt; 
+  R_RT_ColorHandle v202; 
+  R_RT_ColorHandle v203; 
+  R_RT_ColorHandle v204; 
+  R_RT_ColorHandle v205; 
+  R_RT_ColorHandle v206; 
+  R_RT_ColorHandle v207; 
+  __m256i v208; 
+  R_RT_ColorHandle v209; 
+  __m256i v210; 
+  __m256i v211; 
+  __m256i v212; 
+  R_RT_ColorHandle v213; 
+  __m256i v214; 
+  R_RT_ColorHandle v215; 
+  R_RT_ColorHandle v216; 
+  R_RT_DepthHandle v217; 
+  R_RT_DepthHandle v218; 
   __m256i v219; 
   R_RT_Handle v220; 
   R_RT_Handle v221; 
-  __m256i v222; 
-  __m256i v223; 
-  GfxImage *visibility; 
-  GfxCmdBufContext v225; 
-  GfxCmdBufContext v226; 
-  GfxCmdBufContext v227; 
-  GfxCmdBufContext v228; 
-  GfxCmdBufContext v229; 
-  GfxCmdBufContext v230; 
-  GfxCmdBufContext v231; 
-  GfxCmdBufContext v232; 
-  GfxCmdBufContext v233; 
-  GfxCmdBufContext v234; 
-  GfxCmdBufContext v235; 
-  GfxCmdBufContext v236; 
-  GfxCmdBufContext v237; 
-  GfxCmdBufContext v238; 
-  GfxCmdBufContext v239; 
-  GfxCmdBufContext v240; 
-  GfxCmdBufContext v241; 
-  GfxCmdBufContext v242; 
-  GfxCmdBufContext v243; 
-  GfxCmdBufContext v244; 
-  GfxCmdBufContext v245; 
-  GfxCmdBufContext v246; 
-  GfxCmdBufContext v247; 
-  GfxCmdBufContext v248; 
-  GfxCmdBufContext v249; 
-  GfxCmdBufContext v250; 
-  GfxCmdBufContext v251; 
-  GfxCmdBufContext v252; 
-  GfxCmdBufContext v253; 
-  GfxCmdBufContext v254; 
-  GfxCmdBufContext v255; 
-  GfxCmdBufContext v256; 
-  GfxCmdBufContext v257; 
-  GfxCmdBufContext v258; 
-  GfxCmdBufContext v259; 
-  GfxCmdBufContext v260; 
-  GfxCmdBufContext v261; 
-  GfxCmdBufContext v262; 
-  GfxCmdBufContext v263; 
-  GfxCmdBufContext v264; 
-  GfxCmdBufContext v265; 
-  GfxCmdBufContext v266; 
-  GfxCmdBufContext v267; 
-  GfxCmdBufContext v268; 
-  GfxCmdBufContext v269; 
-  GfxCmdBufContext v270; 
-  GfxCmdBufContext v271; 
-  GfxCmdBufContext v272; 
-  GfxCmdBufContext v273; 
-  GfxCmdBufContext v274; 
-  GfxCmdBufContext v275; 
-  GfxCmdBufContext v276; 
-  GfxCmdBufContext v277; 
-  GfxCmdBufContext v278; 
-  GfxCmdBufContext v279; 
-  GfxCmdBufContext v280; 
-  GfxCmdBufContext v281; 
-  GfxCmdBufContext v282; 
-  GfxCmdBufContext v283; 
-  GfxCmdBufContext v284; 
-  GfxCmdBufContext v285; 
-  GfxCmdBufContext v286; 
-  __m256i v287; 
-  __m256i v288; 
-  R_RT_Handle v289; 
-  R_RT_ColorHandle v290; 
-  R_RT_BufferHandle v291; 
-  R_RT_BufferHandle v292; 
-  R_RT_ColorHandle v293; 
-  R_RT_ColorHandle v294; 
-  R_RT_ColorHandle v295; 
-  R_RT_ColorHandle v296; 
-  R_RT_DepthHandle v297; 
-  R_RT_BufferHandle v298; 
-  R_RT_ColorHandle v299; 
-  R_RT_ColorHandle v300; 
-  R_RT_ColorHandle v301; 
-  R_RT_DepthHandle v302; 
-  R_RT_ColorHandle v303; 
-  R_RT_DepthHandle v304; 
-  R_RT_BufferHandle v305; 
-  R_RT_BufferHandle v306; 
-  R_RT_BufferHandle v307; 
-  R_RT_BufferHandle v308; 
-  R_RT_BufferHandle v309; 
-  R_RT_BufferHandle v310; 
-  R_RT_BufferHandle v311; 
-  R_RT_BufferHandle v312; 
-  R_RT_ColorHandle v313; 
-  R_RT_ColorHandle v314; 
-  R_RT_ColorHandle v315; 
-  R_RT_ColorHandle v316; 
-  R_RT_ColorHandle v317; 
-  R_RT_ColorHandle v318; 
-  R_RT_ColorHandle v319; 
-  R_RT_ColorHandle v320; 
-  R_RT_ColorHandle v321; 
-  R_RT_ColorHandle v322; 
-  R_RT_ColorHandle v323; 
-  R_RT_ColorHandle v324; 
-  R_RT_ColorHandle v325; 
-  R_RT_ColorHandle v326; 
-  R_RT_ColorHandle v327; 
-  R_RT_ColorHandle v328; 
-  R_RT_ColorHandle v329; 
-  R_RT_ColorHandle v330; 
-  R_RT_ColorHandle v331; 
-  R_RT_DepthHandle v332; 
-  R_RT_DepthHandle v333; 
-  R_RT_ColorHandle v334; 
-  __m256i v335; 
-  R_RT_Handle v336; 
-  R_RT_ColorHandle v337; 
-  R_RT_ColorHandle v338; 
-  R_RT_DepthHandle v339; 
-  R_RT_ColorHandle v340; 
-  R_RT_DepthHandle v341; 
-  R_RT_ColorHandle v342; 
-  R_RT_ColorHandle v343; 
-  R_RT_DepthHandle v344; 
-  R_RT_Handle v345; 
-  R_RT_Handle v346; 
-  GfxGPConfig v347; 
-  GfxGPConfig v348; 
-  GfxGPConfig v349; 
+  R_RT_ColorHandle m_lightGridVolumeData3D; 
+  R_RT_ColorHandle m_lightGridVolumeHighBandsData3D; 
+  R_RT_DepthHandle v224; 
+  __m256i v225; 
+  R_RT_DepthHandle v226; 
+  R_RT_ColorHandle v227; 
+  R_RT_ColorHandle v228; 
+  R_RT_DepthHandle v229; 
+  R_RT_Handle v230; 
+  R_RT_Handle v231; 
+  GfxGPConfig v232; 
+  GfxGPConfig v233; 
+  GfxGPConfig v234; 
   R_RT_BufferHandle result; 
-  R_RT_BufferHandle v351; 
-  R_RT_BufferHandle v352; 
-  R_RT_BufferHandle v353; 
-  R_RT_BufferHandle v354; 
-  R_RT_BufferHandle v355; 
-  R_RT_BufferHandle v356; 
-  R_RT_BufferHandle v357; 
+  R_RT_BufferHandle v236; 
+  R_RT_BufferHandle v237; 
+  R_RT_BufferHandle v238; 
+  R_RT_BufferHandle v239; 
+  R_RT_BufferHandle v240; 
+  R_RT_BufferHandle v241; 
+  R_RT_BufferHandle v242; 
   R_RT_Group rtGroup; 
   ComputeCmdBufState state; 
-  ComputeCmdBufState v360; 
+  ComputeCmdBufState v245; 
   ComputeCmdBufState computeState; 
-  ComputeCmdBufState v362; 
-  ComputeCmdBufState v363; 
-  ComputeCmdBufState v364; 
+  ComputeCmdBufState v247; 
+  ComputeCmdBufState v248; 
+  ComputeCmdBufState v249; 
 
-  v7 = alloca(v4);
-  __asm { vmovaps [rsp+4B60h+var_40], xmm6 }
-  _RSI = gfxContext;
+  v5 = alloca(v3);
   dataa = (GfxBackEndData *)data;
-  _RDI = viewInfo;
   R_RT_BackendPassBegin(viewInfo->sceneRtInput.m_pass);
-  __asm { vmovups xmm6, xmmword ptr [rsi] }
+  v8 = *gfxContext;
   timeoutUserData = dataa;
   Profile2_UpdateEntry(48);
   if ( ((unsigned __int8)&dword_14FDE8090 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8090) )
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE8090);
-  v11 = timeoutUserData;
+  v9 = timeoutUserData;
   if ( !timeoutUserData->compute.smpEnabled )
   {
     Sys_ProfBeginNamedEvent(0xFFFFA500, "wait compute ready");
@@ -2549,201 +2124,109 @@ void RB_Draw3DScene(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, c
     Sys_WaitWorkerCmdsOfType(WRKCMD_UGB_MAKE_XSURFS_RESIDENT_DISPATCH);
     Sys_WaitWorkerCmdsOfType(WRKCMD_INIT_UGB_BACKEND);
     Sys_ProfEndNamedEvent();
-    v11 = timeoutUserData;
+    v9 = timeoutUserData;
   }
-  __asm { vmovdqa [rbp+4A40h+var_4950], xmm6 }
-  R_FinishComputeCmdList(&v225, v11);
+  v110 = v8;
+  R_FinishComputeCmdList(&v110, v9);
   Profile2_UpdateEntry(48);
   if ( ((unsigned __int64)&dword_14FDE8090 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8090) )
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE8090);
   Profile_BeginCSV(23);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4940], xmm0
-  }
-  RB_StartDraw3DScene(&v226, _RDI, dataa);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4930], xmm0
-  }
-  R_ClearGlobalRTsAsRequired(&v227, _RDI);
-  v14 = _RSI->state;
-  RB_AddComputeCmdsTransitions(v14, dataa, 1);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+30C0h]
-    vmovups [rbp+4A40h+var_44B0], ymm0
-  }
-  R_AddRenderTargetTransition(v14, &v293, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+30E0h]
-    vmovups [rbp+4A40h+var_4490], ymm0
-  }
-  R_AddRenderTargetTransition(v14, &v294, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+3140h]
-    vmovups [rbp+4A40h+var_4470], ymm0
-  }
-  R_AddRenderTargetTransition(v14, &v295, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+3160h]
-    vmovups [rbp+4A40h+var_4450], ymm0
-  }
-  R_AddRenderTargetTransition(v14, &v296, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+31A0h]
-    vmovups [rbp+4A40h+var_4430], ymm0
-  }
-  R_AddDepthStencilTransition(v14, &v297, DEPTHSTENCIL_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  R_FlushResourceTransitions(v14);
-  v20 = 0;
-  _RAX = R_RT_CreateBufferInternal(&result, 4u, 0x4001u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Batch SubMesh Offsets Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3993)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdi+3548h], ymm0
-  }
-  _RAX = R_RT_CreateBufferInternal(&v351, 4u, 0x10000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "SubMesh Workgroup Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3994)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdi+3568h], ymm0
-  }
-  _RAX = R_RT_CreateBufferInternal(&v352, 4u, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "SubMesh Count Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3995)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdi+3588h], ymm0
-  }
-  _RAX = R_RT_CreateBufferInternal(&v353, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, "Cluster Pass Indirect Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3996)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdi+35A8h], ymm0
-  }
-  _RAX = R_RT_CreateBufferInternal(&v354, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, "Cluster Pass PPSum Indirect Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3997)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdi+35C8h], ymm0
-  }
-  _RAX = R_RT_CreateBufferInternal(&v355, 8u, 0x10000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferStructured|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Prev Culled SubMesh Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3998)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdi+35E8h], ymm0
-  }
-  _RAX = R_RT_CreateBufferInternal(&v356, 4u, 0x10001u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Prev SubMesh Cluster Offsets Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3999)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdi+3608h], ymm0
-  }
-  _RAX = R_RT_CreateBufferInternal(&v357, 8u, 0x40000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferStructured|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Prev Culled Tri Cluster Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4000)");
-  v36 = dataa;
-  v349.passIndex = GFX_GP_PASS_SHADOWS;
-  *(_WORD *)&v349.occlusionPass = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rdi+3628h], ymm0
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4920], xmm0
-  }
-  v349.reusePrepassVisData = 0;
-  RB_GP_ProcessSurfs(&v228, _RDI, v36, &v349);
+  v111 = *gfxContext;
+  RB_StartDraw3DScene(&v111, viewInfo, dataa);
+  v112 = *gfxContext;
+  R_ClearGlobalRTsAsRequired(&v112, viewInfo);
+  v10 = gfxContext->state;
+  RB_AddComputeCmdsTransitions(v10, dataa, 1);
+  m_mainSceneColorRt = viewInfo->sceneRtInput.m_mainSceneColorRt;
+  R_AddRenderTargetTransition(v10, &m_mainSceneColorRt, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  m_mainSceneAlphaRt = viewInfo->sceneRtInput.m_mainSceneAlphaRt;
+  R_AddRenderTargetTransition(v10, &m_mainSceneAlphaRt, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  m_mainSceneEntityIDVelocityRt = viewInfo->sceneRtInput.m_mainSceneEntityIDVelocityRt;
+  R_AddRenderTargetTransition(v10, &m_mainSceneEntityIDVelocityRt, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  m_mainSceneTangentFrameRt = viewInfo->sceneRtInput.m_mainSceneTangentFrameRt;
+  R_AddRenderTargetTransition(v10, &m_mainSceneTangentFrameRt, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  m_mainSceneDepthRt = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+  R_AddDepthStencilTransition(v10, &m_mainSceneDepthRt, DEPTHSTENCIL_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_FlushResourceTransitions(v10);
+  v11 = 0;
+  viewInfo->sceneRtInput.m_gpBatchSubMeshOffsetsBuffer = *R_RT_CreateBufferInternal(&result, 4u, 0x4001u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Batch SubMesh Offsets Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3993)");
+  viewInfo->sceneRtInput.m_gpSubMeshWorkgroupArgsBuffer = *R_RT_CreateBufferInternal(&v236, 4u, 0x10000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "SubMesh Workgroup Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3994)");
+  viewInfo->sceneRtInput.m_gpSubMeshCountBuffer = *R_RT_CreateBufferInternal(&v237, 4u, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "SubMesh Count Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3995)");
+  viewInfo->sceneRtInput.m_gpClusterPassIndirectArgsBuffer = *R_RT_CreateBufferInternal(&v238, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, "Cluster Pass Indirect Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3996)");
+  viewInfo->sceneRtInput.m_gpClusterPPSumIndirectArgsBuffer = *R_RT_CreateBufferInternal(&v239, 0xCu, 1u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferIndirectArgs|R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT, "Cluster Pass PPSum Indirect Args Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3997)");
+  viewInfo->sceneRtInput.m_gpPrevCulledSubMeshBuffer = *R_RT_CreateBufferInternal(&v240, 8u, 0x10000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferStructured|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Prev Culled SubMesh Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3998)");
+  viewInfo->sceneRtInput.m_gpPrevSubMeshClusterOffsetsBuffer = *R_RT_CreateBufferInternal(&v241, 4u, 0x10001u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferRaw|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Prev SubMesh Cluster Offsets Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3999)");
+  v12 = R_RT_CreateBufferInternal(&v242, 8u, 0x40000u, GFX_DATA_FORMAT_R32_UINT, R_RT_Flag_BufferStructured|R_RT_Flag_RWView, R_RT_FlagInternal_None, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Prev Culled Tri Cluster Buffer", 0, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4000)");
+  v13 = dataa;
+  v234.passIndex = GFX_GP_PASS_SHADOWS;
+  *(_WORD *)&v234.occlusionPass = 0;
+  viewInfo->sceneRtInput.m_gpPrevCulledTriClusterBuffer = *v12;
+  v113 = *gfxContext;
+  v234.reusePrepassVisData = 0;
+  RB_GP_ProcessSurfs(&v113, viewInfo, v13, &v234);
   R_InitComputeCmdBufState(&state, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
   buffers = dataa->globalSceneConstantBuffer->buffer;
   R_SetComputeConstantBuffers(&state, 7, 1, &buffers);
-  R_ComputeWaitForGraphics(&state, v14);
-  RB_VOL_EvaluateLightgrid(&state, _RDI, dataa);
-  RB_ReflectionProbe_ProcessView(&state, _RDI, dataa);
+  R_ComputeWaitForGraphics(&state, v10);
+  RB_VOL_EvaluateLightgrid(&state, viewInfo, dataa);
+  RB_ReflectionProbe_ProcessView(&state, viewInfo, dataa);
   if ( rg.useLightGridVolumes )
-    RB_LGV_SampleLighting(&state, dataa, _RDI);
+    RB_LGV_SampleLighting(&state, dataa, viewInfo);
   R_LockGfxImmediateContext();
   R_ComputeWaitForCompute(&state, PIPE_FLUSH_PARTIAL);
-  RB_ReProjFloatZ_Resources(&state, _RDI);
-  RB_VOL_Cluster(&state, _RDI, dataa);
-  RB_UniversalClut_Generate(&state, _RDI, dataa);
+  RB_ReProjFloatZ_Resources(&state, viewInfo);
+  RB_VOL_Cluster(&state, viewInfo, dataa);
+  RB_UniversalClut_Generate(&state, viewInfo, dataa);
   R_UnlockGfxImmediateContext();
   R_ShutdownComputeCmdBufState(&state);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4910], xmm0
-  }
-  RB_StandardDrawCommands_Shadows(&v229, _RDI, dataa);
-  R_InitCmdBufSourceState(_RSI->source, &_RDI->input);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4900], xmm0
-  }
-  R_SetAndClearSceneTarget(&v230, _RDI);
-  v210 = dataa;
+  v114 = *gfxContext;
+  RB_StandardDrawCommands_Shadows(&v114, viewInfo, dataa);
+  R_InitCmdBufSourceState(gfxContext->source, &viewInfo->input);
+  v115 = *gfxContext;
+  R_SetAndClearSceneTarget(&v115, viewInfo);
+  v95 = dataa;
   Profile2_UpdateEntry(51);
   if ( ((unsigned __int8)&dword_14FDE809C & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE809C) )
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE809C);
   Sys_ProfBeginNamedEvent(0xFFFFA500, "wait opaque ready");
-  Sys_ProcessWorkerCmdsWithTimeout(RB_IsOpaqueReady, &v210);
+  Sys_ProcessWorkerCmdsWithTimeout(RB_IsOpaqueReady, &v95);
   Sys_ProfEndNamedEvent();
   Profile2_UpdateEntry(51);
   if ( ((unsigned __int64)&dword_14FDE809C & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE809C) )
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE809C);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_48F0], xmm0
-  }
-  RB_SetupFrustumLights(&v231, _RDI, dataa);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_48E0], xmm0
-  }
-  RB_RenderFrustumLightsCluster(&v232, _RDI, dataa);
-  v43 = _RSI->state;
-  R_WaitAsyncCompute(v43, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND, 0);
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  v348.passIndex = GFX_GP_PASS_CAMERA;
-  *(_WORD *)&v348.occlusionPass = 0;
-  __asm { vmovups [rbp+4A40h+var_48D0], xmm0 }
-  v348.reusePrepassVisData = 0;
-  RB_GP_ProcessSurfs(&v233, _RDI, dataa, &v348);
+  v116 = *gfxContext;
+  RB_SetupFrustumLights(&v116, viewInfo, dataa);
+  v117 = *gfxContext;
+  RB_RenderFrustumLightsCluster(&v117, viewInfo, dataa);
+  v14 = gfxContext->state;
+  R_WaitAsyncCompute(v14, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND, 0);
+  v15 = *gfxContext;
+  v233.passIndex = GFX_GP_PASS_CAMERA;
+  *(_WORD *)&v233.occlusionPass = 0;
+  v118 = v15;
+  v233.reusePrepassVisData = 0;
+  RB_GP_ProcessSurfs(&v118, viewInfo, dataa, &v233);
   R_InitComputeCmdBufState(&computeState, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
   buffer = dataa->globalSceneConstantBuffer->buffer;
   R_SetComputeConstantBuffers(&computeState, 7, 1, &buffer);
   R_LockGfxImmediateContext();
   R_ComputeWaitForCompute(&computeState, PIPE_FLUSH_PARTIAL);
-  R_ComputeWaitForGraphics(&computeState, v43);
-  if ( R_GetSSAOMode(_RDI) )
+  R_ComputeWaitForGraphics(&computeState, v14);
+  if ( R_GetSSAOMode(viewInfo) )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+3408h]
-      vmovups [rbp+4A40h+var_4510], ymm0
-    }
-    R_ClearColorTargetAsync(&computeState, &v290);
+    m_ssaoRt = viewInfo->sceneRtInput.m_ssaoRt;
+    R_ClearColorTargetAsync(&computeState, &m_ssaoRt);
   }
-  if ( (R_GetSSAOMode(_RDI) & 2) != 0 )
+  if ( (R_GetSSAOMode(viewInfo) & 2) != 0 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+3488h]
-      vmovups [rbp+4A40h+var_43F0], ymm0
-    }
-    R_ClearColorTargetAsync(&computeState, &v299);
+    m_mdaoRt = viewInfo->sceneRtInput.m_mdaoRt;
+    R_ClearColorTargetAsync(&computeState, &m_mdaoRt);
   }
-  RB_LightSensor_Process(&computeState, _RDI, dataa);
+  RB_LightSensor_Process(&computeState, viewInfo, dataa);
   R_UnlockGfxImmediateContext();
   R_ShutdownComputeCmdBufState(&computeState);
   Sys_ProfBeginNamedEvent(0xFFFFD700, "exec cmds opaque");
@@ -2752,253 +2235,165 @@ void RB_Draw3DScene(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, c
   if ( ((unsigned __int8)&dword_14FDE80A0 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80A0) )
   {
     __debugbreak();
-    v43 = _RSI->state;
+    v14 = gfxContext->state;
   }
   _InterlockedIncrement(&dword_14FDE80A0);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_48C0], xmm0
-  }
-  RB_DrawPrepass(&v234, _RDI, dataa);
+  v119 = *gfxContext;
+  RB_DrawPrepass(&v119, viewInfo, dataa);
   R_LockGfxImmediateContext();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_48B0], xmm0
-  }
-  RB_ResolveFloatZFull(&v235, _RDI);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+3160h]
-    vmovups [rbp+4A40h+var_43D0], ymm0
-  }
-  R_AddRenderTargetTransition(v43, &v300, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+3140h]
-    vmovups [rbp+4A40h+var_43B0], ymm0
-  }
-  R_AddRenderTargetTransition(v43, &v301, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+31A0h]
-    vmovups [rbp+4A40h+var_4390], ymm0
-  }
-  R_AddDepthStencilTransition(v43, &v302, DEPTHSTENCIL_TRANSITION_MODE_READ_PRESERVE_DEPTH_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  R_FlushResourceTransitions(v43);
+  v120 = *gfxContext;
+  RB_ResolveFloatZFull(&v120, viewInfo);
+  v185 = viewInfo->sceneRtInput.m_mainSceneTangentFrameRt;
+  R_AddRenderTargetTransition(v14, &v185, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v186 = viewInfo->sceneRtInput.m_mainSceneEntityIDVelocityRt;
+  R_AddRenderTargetTransition(v14, &v186, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v187 = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+  R_AddDepthStencilTransition(v14, &v187, DEPTHSTENCIL_TRANSITION_MODE_READ_PRESERVE_DEPTH_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_FlushResourceTransitions(v14);
   R_UnlockGfxImmediateContext();
-  if ( (R_GetSSAOMode(_RDI) & 2) != 0 )
+  if ( (R_GetSSAOMode(viewInfo) & 2) != 0 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+3488h]
-      vmovups xmm1, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_4370], ymm0
-      vmovups [rbp+4A40h+var_48A0], xmm1
-    }
-    RB_MDAO_DrawVolumeOccluders(&v236, _RDI, dataa, &v303);
+    v16 = *gfxContext;
+    v188 = viewInfo->sceneRtInput.m_mdaoRt;
+    v121 = v16;
+    RB_MDAO_DrawVolumeOccluders(&v121, viewInfo, dataa, &v188);
   }
-  R_InitComputeCmdBufState(&v360, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
-  v212 = dataa->globalSceneConstantBuffer->buffer;
-  R_SetComputeConstantBuffers(&v360, 7, 1, &v212);
+  R_InitComputeCmdBufState(&v245, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
+  v97 = dataa->globalSceneConstantBuffer->buffer;
+  R_SetComputeConstantBuffers(&v245, 7, 1, &v97);
   R_LockGfxImmediateContext();
-  R_ComputeWaitForGraphics(&v360, v43);
-  RB_VOL_EvaluateVolumetricsScattering(&v360, _RDI, dataa);
-  RB_CompositeStaticVelocity(&v360, _RDI);
-  if ( (R_GetSSAOMode(_RDI) & 2) != 0 )
-    RB_MDAO_Generate(&v360, _RDI, dataa);
-  if ( (R_GetSSAOMode(_RDI) & 1) != 0 )
-    RB_SSAO_Generate(&v360, _RDI, dataa, _RDI->ssao.splitZones ? SSAO_ZONE_SCENE : SSAO_ZONE_ALL);
-  if ( !_RDI->ssao.splitZones )
+  R_ComputeWaitForGraphics(&v245, v14);
+  RB_VOL_EvaluateVolumetricsScattering(&v245, viewInfo, dataa);
+  RB_CompositeStaticVelocity(&v245, viewInfo);
+  if ( (R_GetSSAOMode(viewInfo) & 2) != 0 )
+    RB_MDAO_Generate(&v245, viewInfo, dataa);
+  if ( (R_GetSSAOMode(viewInfo) & 1) != 0 )
+    RB_SSAO_Generate(&v245, viewInfo, dataa, viewInfo->ssao.splitZones ? SSAO_ZONE_SCENE : SSAO_ZONE_ALL);
+  if ( !viewInfo->ssao.splitZones )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_4890], xmm0
-    }
-    RB_SSAO_RotateRTs(&v237, _RDI);
+    v122 = *gfxContext;
+    RB_SSAO_RotateRTs(&v122, viewInfo);
   }
-  RB_MayhemSelfVis_UpdateAnimBuffer(&v360, dataa);
-  if ( (unsigned __int8)R_GetSSRMode(_RDI) >= GFX_SSR_DEFERRED_LQ )
-    RB_SSR_DeferredTrace(&v360, _RDI, dataa);
+  RB_MayhemSelfVis_UpdateAnimBuffer(&v245, dataa);
+  if ( (unsigned __int8)R_GetSSRMode(viewInfo) >= GFX_SSR_DEFERRED_LQ )
+    RB_SSR_DeferredTrace(&v245, viewInfo, dataa);
   R_UnlockGfxImmediateContext();
-  R_ShutdownComputeCmdBufState(&v360);
-  __asm { vmovups ymm0, ymmword ptr [rdi+31A0h] }
-  v56 = 3i64;
-  __asm { vmovups [rbp+4A40h+var_4350], ymm0 }
-  R_AddDepthStencilTransition(v43, &v304, DEPTHSTENCIL_TRANSITION_MODE_WRITE_PRESERVE_DEPTH_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  R_FlushResourceTransitions(v43);
+  R_ShutdownComputeCmdBufState(&v245);
+  v17 = 3i64;
+  v189 = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+  R_AddDepthStencilTransition(v14, &v189, DEPTHSTENCIL_TRANSITION_MODE_WRITE_PRESERVE_DEPTH_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_FlushResourceTransitions(v14);
   if ( rg.gpuCullOcclusion )
   {
-    __asm { vmovups xmm0, xmmword ptr [rsi] }
-    v347.reusePrepassVisData = rg.gpuCullReusePrepassVisData;
-    __asm { vmovups [rbp+4A40h+var_4880], xmm0 }
-    v347.passIndex = GFX_GP_PASS_CAMERA;
-    *(_WORD *)&v347.occlusionPass = 257;
-    RB_GP_ProcessSurfs(&v238, _RDI, dataa, &v347);
+    v18 = *gfxContext;
+    v232.reusePrepassVisData = rg.gpuCullReusePrepassVisData;
+    v123 = v18;
+    v232.passIndex = GFX_GP_PASS_CAMERA;
+    *(_WORD *)&v232.occlusionPass = 257;
+    RB_GP_ProcessSurfs(&v123, viewInfo, dataa, &v232);
   }
-  __asm
+  v19 = *gfxContext;
+  m_gpBatchSubMeshOffsetsBuffer = viewInfo->sceneRtInput.m_gpBatchSubMeshOffsetsBuffer;
+  v124 = v19;
+  R_RT_Destroy(&v124, &m_gpBatchSubMeshOffsetsBuffer);
+  v20 = *gfxContext;
+  m_gpSubMeshWorkgroupArgsBuffer = viewInfo->sceneRtInput.m_gpSubMeshWorkgroupArgsBuffer;
+  v125 = v20;
+  R_RT_Destroy(&v125, &m_gpSubMeshWorkgroupArgsBuffer);
+  v21 = *gfxContext;
+  m_gpSubMeshCountBuffer = viewInfo->sceneRtInput.m_gpSubMeshCountBuffer;
+  v126 = v21;
+  R_RT_Destroy(&v126, &m_gpSubMeshCountBuffer);
+  v22 = *gfxContext;
+  m_gpClusterPassIndirectArgsBuffer = viewInfo->sceneRtInput.m_gpClusterPassIndirectArgsBuffer;
+  v127 = v22;
+  R_RT_Destroy(&v127, &m_gpClusterPassIndirectArgsBuffer);
+  v23 = *gfxContext;
+  m_gpClusterPPSumIndirectArgsBuffer = viewInfo->sceneRtInput.m_gpClusterPPSumIndirectArgsBuffer;
+  v128 = v23;
+  R_RT_Destroy(&v128, &m_gpClusterPPSumIndirectArgsBuffer);
+  v24 = *gfxContext;
+  m_gpPrevCulledSubMeshBuffer = viewInfo->sceneRtInput.m_gpPrevCulledSubMeshBuffer;
+  v129 = v24;
+  R_RT_Destroy(&v129, &m_gpPrevCulledSubMeshBuffer);
+  v25 = *gfxContext;
+  m_gpPrevSubMeshClusterOffsetsBuffer = viewInfo->sceneRtInput.m_gpPrevSubMeshClusterOffsetsBuffer;
+  v130 = v25;
+  R_RT_Destroy(&v130, &m_gpPrevSubMeshClusterOffsetsBuffer);
+  v26 = *gfxContext;
+  m_gpPrevCulledTriClusterBuffer = viewInfo->sceneRtInput.m_gpPrevCulledTriClusterBuffer;
+  v131 = v26;
+  R_RT_Destroy(&v131, &m_gpPrevCulledTriClusterBuffer);
+  v27 = dataa;
+  if ( dataa->activePrimarySunLight && (*((_BYTE *)&viewInfo->viewportFeatures + 44) & 4) != 0 )
   {
-    vmovups ymm0, ymmword ptr [rdi+3548h]
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4330], ymm0
-    vmovups [rbp+4A40h+var_4870], xmm1
+    v132 = *gfxContext;
+    RB_SunShadow_GenerateFullScreenVisibility(&v132, viewInfo, dataa);
+    v27 = dataa;
   }
-  R_RT_Destroy(&v239, &v305);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+3568h]
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4310], ymm0
-    vmovups [rbp+4A40h+var_4860], xmm1
-  }
-  R_RT_Destroy(&v240, &v306);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+3588h]
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4410], ymm0
-    vmovups [rbp+4A40h+var_4850], xmm1
-  }
-  R_RT_Destroy(&v241, &v298);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+35A8h]
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_42D0], ymm0
-    vmovups [rbp+4A40h+var_4840], xmm1
-  }
-  R_RT_Destroy(&v242, &v308);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+35C8h]
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_42B0], ymm0
-    vmovups [rbp+4A40h+var_4830], xmm1
-  }
-  R_RT_Destroy(&v243, &v309);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+35E8h]
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4290], ymm0
-    vmovups [rbp+4A40h+var_4820], xmm1
-  }
-  R_RT_Destroy(&v244, &v310);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+3608h]
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4270], ymm0
-    vmovups [rbp+4A40h+var_4810], xmm1
-  }
-  R_RT_Destroy(&v245, &v311);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+3628h]
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4250], ymm0
-    vmovups [rbp+4A40h+var_4800], xmm1
-  }
-  R_RT_Destroy(&v246, &v312);
-  v74 = dataa;
-  if ( dataa->activePrimarySunLight && (*((_BYTE *)&_RDI->viewportFeatures + 44) & 4) != 0 )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_47F0], xmm0
-    }
-    RB_SunShadow_GenerateFullScreenVisibility(&v247, _RDI, dataa);
-    v74 = dataa;
-  }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_47E0], xmm0
-  }
-  RB_FillFrustumGrid(&v248, _RDI, v74);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_47D0], xmm0
-  }
-  RB_DecalVolumes_UpdateAtlas(&v249, dataa);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_47C0], xmm0
-  }
-  RB_RenderFrustumLightsTile(&v250, _RDI, dataa);
-  R_WaitAsyncCompute(v43, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND, 0);
+  v133 = *gfxContext;
+  RB_FillFrustumGrid(&v133, viewInfo, v27);
+  v134 = *gfxContext;
+  RB_DecalVolumes_UpdateAtlas(&v134, dataa);
+  _XMM0 = *gfxContext;
+  v135 = *gfxContext;
+  RB_RenderFrustumLightsTile(&v135, viewInfo, dataa);
+  R_WaitAsyncCompute(v14, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND, 0);
   __asm { vpxor   xmm0, xmm0, xmm0 }
-  v202 = R_SSS_Enabled(_RDI);
-  __asm { vmovdqu xmmword ptr [rbp+4A40h+var_4A80+10h], xmm0 }
-  v80 = v202;
-  v208.m256i_i16[0] = 0;
-  v208.m256i_i32[2] = 0;
-  R_InitComputeCmdBufState(&v362, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
-  v213 = dataa->globalSceneConstantBuffer->buffer;
-  R_SetComputeConstantBuffers(&v362, 7, 1, &v213);
+  v87 = R_SSS_Enabled(viewInfo);
+  *(GfxCmdBufContext *)&v93.m_tracking.m_name = _XMM0;
+  v30 = v87;
+  v93.m_surfaceID = 0;
+  v93.m_tracking.m_allocCounter = 0;
+  R_InitComputeCmdBufState(&v247, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
+  v98 = dataa->globalSceneConstantBuffer->buffer;
+  R_SetComputeConstantBuffers(&v247, 7, 1, &v98);
   R_LockGfxImmediateContext();
-  R_ComputeWaitForGraphics(&v362, v43);
-  R_SetComputeLimitsAbsolute(&v362, COMPUTECMD_SIMD_WALK_DEFAULT, 0, 5u, 0);
-  if ( _RDI->ssao.splitZones )
+  R_ComputeWaitForGraphics(&v247, v14);
+  R_SetComputeLimitsAbsolute(&v247, COMPUTECMD_SIMD_WALK_DEFAULT, 0, 5u, 0);
+  if ( viewInfo->ssao.splitZones )
   {
-    if ( (R_GetSSAOMode(_RDI) & 1) != 0 )
-      RB_SSAO_Generate(&v362, _RDI, dataa, SSAO_ZONE_VIEW_MODEL);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_47B0], xmm0
-    }
-    RB_SSAO_RotateRTs(&v251, _RDI);
+    if ( (R_GetSSAOMode(viewInfo) & 1) != 0 )
+      RB_SSAO_Generate(&v247, viewInfo, dataa, SSAO_ZONE_VIEW_MODEL);
+    _XMM0 = *gfxContext;
+    v136 = *gfxContext;
+    RB_SSAO_RotateRTs(&v136, viewInfo);
   }
-  if ( (R_GetSSAOMode(_RDI) & 2) != 0 )
+  if ( (R_GetSSAOMode(viewInfo) & 2) != 0 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+3488h]
-      vmovups xmm1, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_4230], ymm0
-      vmovups [rbp+4A40h+var_47A0], xmm1
-    }
-    R_RT_Destroy(&v252, &v313);
+    v31 = *gfxContext;
+    v198 = viewInfo->sceneRtInput.m_mdaoRt;
+    v137 = v31;
+    R_RT_Destroy(&v137, &v198);
   }
-  if ( v202 )
+  if ( v87 )
   {
     if ( Dvar_GetBool_Internal(r_deviceDebug) )
       goto LABEL_51;
-    v83 = DCONST_DVARBOOL_r_esramPostFX;
+    v32 = DCONST_DVARBOOL_r_esramPostFX;
     if ( !DCONST_DVARBOOL_r_esramPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v83);
-    v84 = R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_PreferESRAM;
-    if ( !v83->current.enabled )
+    Dvar_CheckFrontendServerThread(v32);
+    v33 = R_RT_Flag_RWView|R_RT_Flag_RTView|R_RT_Flag_PreferESRAM;
+    if ( !v32->current.enabled )
 LABEL_51:
-      v84 = R_RT_Flag_RWView|R_RT_Flag_RTView;
-    height = R_RT_Handle::GetSurface(&_RDI->sceneRtInput.m_mainSceneColorRt)->m_image.m_base.height;
-    Surface = R_RT_Handle::GetSurface(&_RDI->sceneRtInput.m_mainSceneColorRt);
-    _RAX = R_RT_CreateInternal(&v345, Surface->m_image.m_base.width, height, Surface->m_image.m_base.width, height, 1u, 1u, 1u, g_R_RT_renderTargetFmts[3], v84, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "ssss ping pong", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4346)");
-    __asm
+      v33 = R_RT_Flag_RWView|R_RT_Flag_RTView;
+    height = R_RT_Handle::GetSurface(&viewInfo->sceneRtInput.m_mainSceneColorRt)->m_image.m_base.height;
+    Surface = R_RT_Handle::GetSurface(&viewInfo->sceneRtInput.m_mainSceneColorRt);
+    v36 = *R_RT_CreateInternal(&v230, Surface->m_image.m_base.width, height, Surface->m_image.m_base.width, height, 1u, 1u, 1u, g_R_RT_renderTargetFmts[3], v33, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "ssss ping pong", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4346)");
+    v93 = (R_RT_ColorHandle)v36;
+    v106 = v36;
+    if ( LOWORD(_XMM0.source) )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rbp+4A40h+var_4A80], ymm0
-      vmovups ymmword ptr [rbp+4A40h+var_49C0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v221);
-      if ( (R_RT_Handle::GetSurface(&v221)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v106);
+      if ( (R_RT_Handle::GetSurface(&v106)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+4A40h+var_49C0.m_surfaceID] }
+        v36 = v106;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+4A40h+var_49C0.m_surfaceID] }
+        v36 = v106;
       }
     }
     else
@@ -3006,85 +2401,56 @@ LABEL_51:
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v90 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rbp+4A40h+var_4A80] }
-        if ( v90 )
+        v38 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v36 = (R_RT_Handle)v93;
+        if ( v38 )
           __debugbreak();
       }
     }
-    __asm
-    {
-      vmovups [rbp+4A40h+var_4A80], ymm0
-      vmovups [rbp+4A40h+var_4210], ymm0
-    }
-    R_ClearColorTargetAsync(&v362, &v314);
-    v43 = _RSI->state;
-    v80 = v202;
+    v93 = (R_RT_ColorHandle)v36;
+    v199 = v36;
+    R_ClearColorTargetAsync(&v247, (R_RT_ColorHandle *)&v199);
+    v14 = gfxContext->state;
+    v30 = v87;
   }
   R_UnlockGfxImmediateContext();
-  R_ShutdownComputeCmdBufState(&v362);
-  if ( v80 )
+  R_ShutdownComputeCmdBufState(&v247);
+  if ( v30 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+3100h]
-      vmovups [rbp+4A40h+var_41F0], ymm0
-    }
-    R_AddRenderTargetTransition(v43, &v315, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+3120h]
-      vmovups [rbp+4A40h+var_41D0], ymm0
-    }
-    R_AddRenderTargetTransition(v43, &v316, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(v43);
+    m_mainSceneSSSAlbedoRt = viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt;
+    R_AddRenderTargetTransition(v14, &m_mainSceneSSSAlbedoRt, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    m_mainSceneSSSDiffuseRt = viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt;
+    R_AddRenderTargetTransition(v14, &m_mainSceneSSSDiffuseRt, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(v14);
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4790], xmm0
-  }
-  RB_DrawForward_Opaque(&v253, _RDI, dataa);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4780], xmm0
-  }
-  R_DecalVolumes_Show3DDebug2(&v254, _RDI, dataa);
+  v138 = *gfxContext;
+  RB_DrawForward_Opaque(&v138, viewInfo, dataa);
+  _XMM0 = *gfxContext;
+  v139 = *gfxContext;
+  R_DecalVolumes_Show3DDebug2(&v139, viewInfo, dataa);
   R_LockGfxImmediateContext();
   if ( rg.debugTextureOverlay != 10 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_4770], xmm0
-    }
-    RB_SSAO_DecommitRTs(&v255, _RDI);
+    _XMM0 = *gfxContext;
+    v140 = *gfxContext;
+    RB_SSAO_DecommitRTs(&v140, viewInfo);
   }
   R_FlushImmediateContext();
   R_UnlockGfxImmediateContext();
-  GfxComputeCmdBufState = R_GetGfxComputeCmdBufState(v43);
-  RB_ReflectionProbeRelighting_Update(GfxComputeCmdBufState, _RDI, dataa);
-  v96 = _RSI->source;
-  R_InitCmdBufSourceState(_RSI->source, &_RDI->input);
-  R_InitLocalCmdBufState(v43, &v96->input);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+30C0h]
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_41B0], ymm0
-    vmovups [rbp+4A40h+var_4760], xmm1
-  }
-  R_Resolve_EliminateFastClear(&v256, &v317, 0);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+30E0h]
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4190], ymm0
-    vmovups [rbp+4A40h+var_4750], xmm1
-  }
-  R_Resolve_EliminateFastClear(&v257, &v318, 1);
-  R_ShutdownLocalCmdBufState(v43, &v96->input);
+  GfxComputeCmdBufState = R_GetGfxComputeCmdBufState(v14);
+  RB_ReflectionProbeRelighting_Update(GfxComputeCmdBufState, viewInfo, dataa);
+  v41 = gfxContext->source;
+  R_InitCmdBufSourceState(gfxContext->source, &viewInfo->input);
+  R_InitLocalCmdBufState(v14, &v41->input);
+  v42 = *gfxContext;
+  v202 = viewInfo->sceneRtInput.m_mainSceneColorRt;
+  v141 = v42;
+  R_Resolve_EliminateFastClear(&v141, &v202, 0);
+  v43 = *gfxContext;
+  v203 = viewInfo->sceneRtInput.m_mainSceneAlphaRt;
+  v142 = v43;
+  R_Resolve_EliminateFastClear(&v142, &v203, 1);
+  R_ShutdownLocalCmdBufState(v14, &v41->input);
   Profile2_UpdateEntry(52);
   if ( input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80A0) )
     __debugbreak();
@@ -3094,65 +2460,46 @@ LABEL_51:
   if ( ((unsigned int)&dword_14FDE80B4 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80B4) )
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE80B4);
-  R_InitCmdBufSourceState(_RSI->source, &_RDI->input);
-  if ( v202 )
+  R_InitCmdBufSourceState(gfxContext->source, &viewInfo->input);
+  if ( v87 )
   {
-    __asm { vmovups ymm0, ymmword ptr [rdi+3100h] }
-    v102 = _RSI->state;
-    __asm { vmovups [rbp+4A40h+var_4170], ymm0 }
-    R_AddRenderTargetTransition(v102, &v319, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+3120h]
-      vmovups [rbp+4A40h+var_4150], ymm0
-    }
-    R_AddRenderTargetTransition(v102, &v320, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(v102);
-    R_WaitAsyncCompute(v102, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND, 0);
-    __asm
-    {
-      vmovups ymm0, [rbp+4A40h+var_4A80]
-      vmovups [rbp+4A40h+var_4130], ymm0
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_4740], xmm0
-    }
-    RB_SSS_Apply(&v258, dataa, _RDI, &v321);
-    __asm
-    {
-      vmovups ymm0, [rbp+4A40h+var_4A80]
-      vmovups [rbp+4A40h+var_4110], ymm0
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_4730], xmm0
-    }
-    R_RT_Destroy(&v259, &v322);
+    v44 = gfxContext->state;
+    v204 = viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt;
+    R_AddRenderTargetTransition(v44, &v204, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v205 = viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt;
+    R_AddRenderTargetTransition(v44, &v205, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(v44);
+    R_WaitAsyncCompute(v44, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND, 0);
+    v206 = v93;
+    v143 = *gfxContext;
+    RB_SSS_Apply(&v143, dataa, viewInfo, &v206);
+    v207 = v93;
+    _XMM0 = *gfxContext;
+    v144 = *gfxContext;
+    R_RT_Destroy(&v144, &v207);
   }
-  R_InitComputeCmdBufState(&v363, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
-  v214 = dataa->globalSceneConstantBuffer->buffer;
-  R_SetComputeConstantBuffers(&v363, 7, 1, &v214);
+  R_InitComputeCmdBufState(&v248, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
+  v99 = dataa->globalSceneConstantBuffer->buffer;
+  R_SetComputeConstantBuffers(&v248, 7, 1, &v99);
   R_LockGfxImmediateContext();
-  R_ComputeWaitForGraphics(&v363, _RSI->state);
-  R_VOL_GetAccumImages(_RDI, (const GfxImage **)&scattering, (const GfxImage **)&extinction, (const GfxImage **)&visibility);
-  if ( R_PostAAHasTemporalSupersampling(_RDI->postAA.mode) && _RDI->postAA.smaaTransMask )
+  R_ComputeWaitForGraphics(&v248, gfxContext->state);
+  R_VOL_GetAccumImages(viewInfo, (const GfxImage **)&scattering, (const GfxImage **)&extinction, (const GfxImage **)&visibility);
+  if ( R_PostAAHasTemporalSupersampling(viewInfo->postAA.mode) && viewInfo->postAA.smaaTransMask )
   {
-    _RAX = R_RT_CreateInternal(&v346, _RDI->sceneRtInput.sceneRtWidth >> 2, _RDI->sceneRtInput.sceneRtHeight >> 2, _RDI->sceneRtInput.maxSceneRtWidth >> 2, _RDI->sceneRtInput.maxSceneRtHeight >> 2, 1u, 1u, 1u, g_R_RT_renderTargetFmts[58], R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Post Opaque Luma", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4464)");
-    __asm
+    v45 = *(__m256i *)R_RT_CreateInternal(&v231, viewInfo->sceneRtInput.sceneRtWidth >> 2, viewInfo->sceneRtInput.sceneRtHeight >> 2, viewInfo->sceneRtInput.maxSceneRtWidth >> 2, viewInfo->sceneRtInput.maxSceneRtHeight >> 2, 1u, 1u, 1u, g_R_RT_renderTargetFmts[58], R_RT_Flag_RWView|R_RT_Flag_RTView, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, "Post Opaque Luma", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4464)");
+    v104 = v45;
+    v105 = (R_RT_Handle)v45;
+    if ( (_WORD)_XMM2 )
     {
-      vmovups ymm2, ymmword ptr [rax]
-      vmovd   eax, xmm2
-      vmovups [rbp+4A40h+var_4A00], ymm2
-      vmovups ymmword ptr [rbp+4A40h+var_49E0.m_surfaceID], ymm2
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v220);
-      if ( (R_RT_Handle::GetSurface(&v220)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v105);
+      if ( (R_RT_Handle::GetSurface(&v105)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm2, ymmword ptr [rbp+4A40h+var_49E0.m_surfaceID] }
+        v45 = (__m256i)v105;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm2, ymmword ptr [rbp+4A40h+var_49E0.m_surfaceID] }
+        v45 = (__m256i)v105;
       }
     }
     else
@@ -3160,207 +2507,128 @@ LABEL_51:
       __asm { vpextrd rax, xmm2, 2 }
       if ( (_DWORD)_RAX )
       {
-        v110 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm2, [rbp+4A40h+var_4A00] }
-        if ( v110 )
+        v47 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v45 = v104;
+        if ( v47 )
           __debugbreak();
       }
     }
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rdi+3340h]
-      vpxor   xmm0, xmm0, xmm0
-      vmovups ymmword ptr [rdi+3750h], ymm2
-      vmovdqu xmmword ptr [rbp+4A40h+var_4570+10h], xmm0
-      vmovups [rbp+4A40h+var_40F0], ymm1
-      vmovups ymm1, ymmword ptr [rdi+30C0h]
-    }
-    v287.m256i_i16[0] = 0;
-    v287.m256i_i32[2] = 0;
-    __asm
-    {
-      vmovups ymm0, [rbp+4A40h+var_4570]
-      vmovups [rbp+4A40h+var_40D0], ymm0
-      vmovups [rbp+4A40h+var_40B0], ymm1
-      vmovups [rbp+4A40h+var_4090], ymm2
-    }
-    R_RunPostOpaqueProcessesLuma(&v363, _RDI, &v326, &v325, &v324, &v323, scattering, extinction, rgp.blackImage);
+    m_floatZFullRt = (__m256i)viewInfo->sceneRtInput.m_floatZFullRt;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    viewInfo->sceneRtInput.m_postOpaqueLuma = (R_RT_ColorHandle)v45;
+    *(_OWORD *)&v172.m_tracking.m_name = _XMM0;
+    v208 = m_floatZFullRt;
+    v50 = (__m256i)viewInfo->sceneRtInput.m_mainSceneColorRt;
+    v172.m_surfaceID = 0;
+    v172.m_tracking.m_allocCounter = 0;
+    v209 = v172;
+    v210 = v50;
+    v211 = v45;
+    R_RunPostOpaqueProcessesLuma(&v248, viewInfo, (R_RT_ColorHandle *)&v211, (R_RT_ColorHandle *)&v210, &v209, (R_RT_ColorHandle *)&v208, scattering, extinction, rgp.blackImage);
   }
   else
   {
-    __asm
-    {
-      vmovups ymm1, ymmword ptr [rdi+3340h]
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+4A40h+var_4550+10h], xmm0
-      vmovups [rbp+4A40h+var_4070], ymm1
-      vmovups ymm1, ymmword ptr [rdi+30C0h]
-    }
-    v288.m256i_i16[0] = 0;
-    v288.m256i_i32[2] = 0;
-    __asm
-    {
-      vmovups ymm0, [rbp+4A40h+var_4550]
-      vmovups [rbp+4A40h+var_4050], ymm0
-      vmovups [rbp+4A40h+var_4030], ymm1
-    }
-    R_RunPostOpaqueProcesses(&v363, _RDI, &v329, &v328, &v327, scattering, extinction, rgp.blackImage);
+    v51 = (__m256i)viewInfo->sceneRtInput.m_floatZFullRt;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v173.m_tracking.m_name = _XMM0;
+    v212 = v51;
+    v53 = (__m256i)viewInfo->sceneRtInput.m_mainSceneColorRt;
+    v173.m_surfaceID = 0;
+    v173.m_tracking.m_allocCounter = 0;
+    v213 = v173;
+    v214 = v53;
+    R_RunPostOpaqueProcesses(&v248, viewInfo, (R_RT_ColorHandle *)&v214, &v213, (R_RT_ColorHandle *)&v212, scattering, extinction, rgp.blackImage);
   }
   R_UnlockGfxImmediateContext();
-  R_ShutdownComputeCmdBufState(&v363);
+  R_ShutdownComputeCmdBufState(&v248);
   R_LockGfxImmediateContext();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+3100h]
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4010], ymm0
-    vmovups [rbp+4A40h+var_4720], xmm1
-  }
-  R_RT_Destroy(&v260, &v330);
-  __asm { vmovups xmm1, xmmword ptr [rsi] }
-  _RDI->sceneRtInput.m_mainSceneSSSAlbedoRt.m_surfaceID = 0;
-  _RDI->sceneRtInput.m_mainSceneSSSAlbedoRt.m_tracking.m_allocCounter = 0;
-  _RDI->sceneRtInput.m_mainSceneSSSAlbedoRt.m_tracking.m_name = NULL;
-  _RDI->sceneRtInput.m_mainSceneSSSAlbedoRt.m_tracking.m_location = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+3120h]
-    vmovups [rbp+4A40h+var_3FF0], ymm0
-    vmovups [rbp+4A40h+var_4710], xmm1
-  }
-  R_RT_Destroy(&v261, &v331);
-  _RDI->sceneRtInput.m_mainSceneSSSDiffuseRt.m_surfaceID = 0;
-  _RDI->sceneRtInput.m_mainSceneSSSDiffuseRt.m_tracking.m_allocCounter = 0;
-  _RDI->sceneRtInput.m_mainSceneSSSDiffuseRt.m_tracking.m_name = NULL;
-  _RDI->sceneRtInput.m_mainSceneSSSDiffuseRt.m_tracking.m_location = NULL;
+  v54 = *gfxContext;
+  v215 = viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt;
+  v145 = v54;
+  R_RT_Destroy(&v145, &v215);
+  v55 = *gfxContext;
+  viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt.m_tracking.m_location = NULL;
+  v216 = viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt;
+  v146 = v55;
+  R_RT_Destroy(&v146, &v216);
+  viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt.m_tracking.m_location = NULL;
   R_FlushImmediateContext();
   R_UnlockGfxImmediateContext();
-  __asm
+  v147 = *gfxContext;
+  RB_DrawForward_Trans(&v147, viewInfo, dataa);
+  if ( viewInfo->ssrWaterTrace )
   {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4700], xmm0
-  }
-  RB_DrawForward_Trans(&v262, _RDI, dataa);
-  if ( _RDI->ssrWaterTrace )
-  {
-    R_InitComputeCmdBufState(&v364, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
-    v215 = dataa->globalSceneConstantBuffer->buffer;
-    R_SetComputeConstantBuffers(&v364, 7, 1, &v215);
+    R_InitComputeCmdBufState(&v249, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND);
+    v100 = dataa->globalSceneConstantBuffer->buffer;
+    R_SetComputeConstantBuffers(&v249, 7, 1, &v100);
     R_LockGfxImmediateContext();
-    R_ComputeWaitForGraphics(&v364, _RSI->state);
-    if ( (unsigned __int8)R_GetSSRMode(_RDI) >= GFX_SSR_DEFERRED_LQ )
-      RB_SSR_DeferredWaterTrace(&v364, _RDI, dataa);
+    R_ComputeWaitForGraphics(&v249, gfxContext->state);
+    if ( (unsigned __int8)R_GetSSRMode(viewInfo) >= GFX_SSR_DEFERRED_LQ )
+      RB_SSR_DeferredWaterTrace(&v249, viewInfo, dataa);
     R_UnlockGfxImmediateContext();
-    R_ShutdownComputeCmdBufState(&v364);
+    R_ShutdownComputeCmdBufState(&v249);
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups xmmword ptr [rbp+4A40h+var_4A00], xmm0
-  }
-  R_SSR_RotateRTs((GfxCmdBufContext *)&v219, _RDI);
-  if ( RB_HaveAnyOcclusionQueries(_RDI->clientIndex) && (*((_DWORD *)&_RDI->viewportFeatures + 10) & 0x10000) != 0 )
+  *(GfxCmdBufContext *)v104.m256i_i8 = *gfxContext;
+  R_SSR_RotateRTs((GfxCmdBufContext *)&v104, viewInfo);
+  if ( RB_HaveAnyOcclusionQueries(viewInfo->clientIndex) && (*((_DWORD *)&viewInfo->viewportFeatures + 10) & 0x10000) != 0 )
   {
     R_GPU_BeginTimer(GPU_TIMER_OCCLUSION_QUERIES);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_46F0], xmm0
-    }
-    RB_StandardDrawCommands_PreDrawOcclusionQueriesAndSun(&v263, _RDI, "OccQueries");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+31A0h]
-      vmovups xmm1, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_3FD0], ymm0
-      vmovups [rbp+4A40h+var_46E0], xmm1
-    }
-    R_SetRenderTargetsInternal_DepthOnly(&v264, &v332, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2322)");
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_46D0], xmm0
-    }
-    RB_DrawOcclusionQueries(&v265, _RDI);
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rsi]
-      vpextrq rbx, xmm6, 1
-    }
+    v148 = *gfxContext;
+    RB_StandardDrawCommands_PreDrawOcclusionQueriesAndSun(&v148, viewInfo, "OccQueries");
+    v56 = *gfxContext;
+    v217 = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+    v149 = v56;
+    R_SetRenderTargetsInternal_DepthOnly(&v149, &v217, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2322)");
+    v150 = *gfxContext;
+    RB_DrawOcclusionQueries(&v150, viewInfo);
+    _XMM6 = *gfxContext;
+    __asm { vpextrq rbx, xmm6, 1 }
     R_ProfEndNamedEvent(_RBX);
-    __asm { vmovq   rdx, xmm6 }
-    R_ShutdownLocalCmdBufState(_RBX, (GfxCmdBufInput *)(_RDX + 1792));
+    R_ShutdownLocalCmdBufState(_RBX, &_XMM6.source->input);
     R_GPU_EndTimer();
   }
   if ( RB_IsSunEnabled() )
   {
     R_GPU_BeginTimer(GPU_TIMER_SUN_QUERY);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_46C0], xmm0
-    }
-    RB_StandardDrawCommands_PreDrawOcclusionQueriesAndSun(&v266, _RDI, "Sun");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+31A0h]
-      vmovups ymm1, ymmword ptr [rdi+30C0h]
-      vmovups [rbp+4A40h+var_3FB0], ymm0
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_46B0], xmm0
-      vmovups [rbp+4A40h+var_3F90], ymm1
-    }
-    R_SetRenderTargetsInternal_ColorDepth(&v267, &v334, &v333, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2332)");
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_46A0], xmm0
-    }
-    RB_DrawSun(&v268, _RDI);
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rsi]
-      vpextrq rbx, xmm6, 1
-    }
+    v151 = *gfxContext;
+    RB_StandardDrawCommands_PreDrawOcclusionQueriesAndSun(&v151, viewInfo, "Sun");
+    v59 = (__m256i)viewInfo->sceneRtInput.m_mainSceneColorRt;
+    v218 = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+    v152 = *gfxContext;
+    v219 = v59;
+    R_SetRenderTargetsInternal_ColorDepth(&v152, (R_RT_ColorHandle *)&v219, &v218, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2332)");
+    v153 = *gfxContext;
+    RB_DrawSun(&v153, viewInfo);
+    _XMM6 = *gfxContext;
+    __asm { vpextrq rbx, xmm6, 1 }
     R_ProfEndNamedEvent(_RBX);
-    __asm { vmovq   rdx, xmm6 }
-    R_ShutdownLocalCmdBufState(_RBX, (GfxCmdBufInput *)(_RDX + 1792));
+    R_ShutdownLocalCmdBufState(_RBX, &_XMM6.source->input);
     R_GPU_EndTimer();
   }
   Profile2_UpdateEntry(57);
   if ( ((unsigned __int64)&dword_14FDE80B4 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80B4) )
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE80B4);
-  __asm
+  v154 = *gfxContext;
+  RB_DrawEmissive(&v154, viewInfo, dataa);
+  v155 = *gfxContext;
+  _XMM0 = v155;
+  RB_DecommitEmissiveRTs(&v155, dataa, viewInfo);
+  v63 = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneColorRt;
+  v108 = (__m256i)viewInfo->sceneRtInput.m_mainSceneDepthRt;
+  v174 = (R_RT_Handle)v108;
+  v107 = v63;
+  v220 = v63;
+  if ( LOWORD(_XMM0.source) )
   {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4690], xmm0
-  }
-  RB_DrawEmissive(&v269, _RDI, dataa);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4680], xmm0
-  }
-  RB_DecommitEmissiveRTs(&v270, dataa, _RDI);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+31A0h]
-    vmovups ymm1, ymmword ptr [rdi+30C0h]
-    vmovd   eax, xmm0
-    vmovups [rbp+4A40h+var_4980], ymm0
-    vmovups ymmword ptr [rbp+4A40h+var_4530.m_surfaceID], ymm0
-    vmovups [rbp+4A40h+var_49A0], ymm1
-    vmovups [rbp+4A40h+var_3F70], ymm1
-  }
-  if ( (_WORD)_EAX )
-  {
-    R_RT_Handle::GetSurface(&v289);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+4A40h+var_4530.m_surfaceID]
-      vmovups [rbp+4A40h+var_4980], ymm0
-    }
+    R_RT_Handle::GetSurface(&v174);
+    v108 = (__m256i)v174;
   }
   else
   {
@@ -3370,99 +2638,57 @@ LABEL_51:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 463, ASSERT_TYPE_ASSERT, "(depthRt)", (const char *)&queryFormat, "depthRt") )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups ymm0, [rbp+4A40h+var_49A0]
-    vmovd   eax, xmm0
-  }
   rtGroup.m_colorRtCount = 1;
-  __asm { vmovups ymmword ptr [rbp+4A40h+var_3F50.m_surfaceID], ymm0 }
-  if ( (_WORD)_EAX )
+  v221 = v107;
+  if ( LOWORD(_XMM0.source) )
   {
-    R_RT_Handle::GetSurface(&v336);
+    R_RT_Handle::GetSurface(&v221);
   }
   else
   {
-    if ( v335.m256i_i32[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+    if ( v220.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       __debugbreak();
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups ymm0, [rbp+4A40h+var_49A0]
-    vmovups ymmword ptr [rbp+4A40h+rtGroup.m_colorRts.baseclass_0.m_surfaceID], ymm0
-    vmovups ymm0, [rbp+4A40h+var_4980]
-    vmovups ymmword ptr [rbp+4A40h+rtGroup.m_depthRt.baseclass_0.m_surfaceID], ymm0
-  }
-  RB_RunDrawList(_RDI, dataa, &rtGroup, DRAWLIST_DEPTH_HACK_TRANS);
+  rtGroup.m_colorRts[0] = (R_RT_ColorHandle)v107;
+  rtGroup.m_depthRt = (R_RT_DepthHandle)v108;
+  RB_RunDrawList(viewInfo, dataa, &rtGroup, DRAWLIST_DEPTH_HACK_TRANS);
   R_LockGfxImmediateContext();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4670], xmm0
-  }
-  RB_StandardDrawCommands_DrawFlaresPostEmissive(&v271, _RDI, dataa);
+  v156 = *gfxContext;
+  RB_StandardDrawCommands_DrawFlaresPostEmissive(&v156, viewInfo, dataa);
   R_UnlockGfxImmediateContext();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4660], xmm0
-  }
-  RB_DecommitSunShadowRTs(&v272, dataa, _RDI);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4650], xmm0
-  }
-  RB_LGV_DrawProbes(&v273, _RDI);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4640], xmm0
-  }
-  RB_ReflectionProbe_DrawSH(&v274, _RDI);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_4630], xmm0
-  }
-  RB_GpuLightGrid_DebugDrawVolumes(&v275, _RDI);
+  v157 = *gfxContext;
+  RB_DecommitSunShadowRTs(&v157, dataa, viewInfo);
+  v158 = *gfxContext;
+  RB_LGV_DrawProbes(&v158, viewInfo);
+  v159 = *gfxContext;
+  RB_ReflectionProbe_DrawSH(&v159, viewInfo);
+  v160 = *gfxContext;
+  RB_GpuLightGrid_DebugDrawVolumes(&v160, viewInfo);
   R_LockGfxImmediateContext();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+34A8h]
-    vmovups xmm1, xmmword ptr [rsi]
-    vmovups [rbp+4A40h+var_3F30], ymm0
-    vmovups xmmword ptr [rbp+4A40h+var_4980], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&v223, &v337);
-  __asm { vmovups xmm1, xmmword ptr [rsi] }
-  _RDI->sceneRtInput.m_lightGridVolumeData3D.m_surfaceID = 0;
-  _RDI->sceneRtInput.m_lightGridVolumeData3D.m_tracking.m_allocCounter = 0;
-  _RDI->sceneRtInput.m_lightGridVolumeData3D.m_tracking.m_name = NULL;
-  _RDI->sceneRtInput.m_lightGridVolumeData3D.m_tracking.m_location = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+34C8h]
-    vmovups [rbp+4A40h+var_3F10], ymm0
-    vmovups xmmword ptr [rbp+4A40h+var_49A0], xmm1
-  }
-  R_RT_Destroy((GfxCmdBufContext *)&v222, &v338);
-  _RDI->sceneRtInput.m_lightGridVolumeHighBandsData3D.m_surfaceID = 0;
-  _RDI->sceneRtInput.m_lightGridVolumeHighBandsData3D.m_tracking.m_allocCounter = 0;
-  _RDI->sceneRtInput.m_lightGridVolumeHighBandsData3D.m_tracking.m_name = NULL;
-  _RDI->sceneRtInput.m_lightGridVolumeHighBandsData3D.m_tracking.m_location = NULL;
+  v65 = *gfxContext;
+  m_lightGridVolumeData3D = viewInfo->sceneRtInput.m_lightGridVolumeData3D;
+  *(GfxCmdBufContext *)v108.m256i_i8 = v65;
+  R_RT_Destroy((GfxCmdBufContext *)&v108, &m_lightGridVolumeData3D);
+  v66 = *gfxContext;
+  viewInfo->sceneRtInput.m_lightGridVolumeData3D.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_lightGridVolumeData3D.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_lightGridVolumeData3D.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_lightGridVolumeData3D.m_tracking.m_location = NULL;
+  m_lightGridVolumeHighBandsData3D = viewInfo->sceneRtInput.m_lightGridVolumeHighBandsData3D;
+  *(GfxCmdBufContext *)&v107.m_surfaceID = v66;
+  R_RT_Destroy((GfxCmdBufContext *)&v107, &m_lightGridVolumeHighBandsData3D);
+  viewInfo->sceneRtInput.m_lightGridVolumeHighBandsData3D.m_surfaceID = 0;
+  viewInfo->sceneRtInput.m_lightGridVolumeHighBandsData3D.m_tracking.m_allocCounter = 0;
+  viewInfo->sceneRtInput.m_lightGridVolumeHighBandsData3D.m_tracking.m_name = NULL;
+  viewInfo->sceneRtInput.m_lightGridVolumeHighBandsData3D.m_tracking.m_location = NULL;
   R_FlushImmediateContext();
   R_UnlockGfxImmediateContext();
-  if ( _RDI->volumeLightScatter.enabled )
+  if ( viewInfo->volumeLightScatter.enabled )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_4620], xmm0
-    }
-    RB_PerformVolumeLightScatter(&v276, _RDI, dataa);
+    v161 = *gfxContext;
+    RB_PerformVolumeLightScatter(&v161, viewInfo, dataa);
   }
   R_LockGfxImmediateContext();
   dataa->endFence = R_FlushImmediateContext();
@@ -3480,60 +2706,51 @@ LABEL_51:
   _InterlockedDecrement(&dword_14FDE80C4);
   if ( dataa->finishReady )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups xmmword ptr [rbp+4A40h+source], xmm0
-    }
-    v204 = dataa;
-    if ( !_RDI->displayCmds[0] )
+    *(GfxCmdBufContext *)source = *gfxContext;
+    v89 = dataa;
+    if ( !viewInfo->displayCmds[0] )
       goto LABEL_131;
     Sys_ProfBeginNamedEvent(0xFFFFA500, "wait hud2D ready");
-    Sys_ProcessWorkerCmdsWithTimeout(RB_IsHud2DReady, &v204);
+    Sys_ProcessWorkerCmdsWithTimeout(RB_IsHud2DReady, &v89);
     Sys_ProfEndNamedEvent();
-    if ( v204->abortReady || !_RDI->displayCmds[3] )
+    if ( v89->abortReady || !viewInfo->displayCmds[3] )
       goto LABEL_131;
     Sys_ProfBeginNamedEvent(0xFFFFD700, "exec cmds before postFX");
-    v162 = source[0];
-    R_InitCmdBufSourceState(source[0], &_RDI->input);
-    v163 = (GfxCmdBufState *)source[1];
-    input = &v162->input;
-    R_InitLocalCmdBufState((GfxCmdBufState *)source[1], &v162->input);
-    R_ProfBeginNamedEvent(v163, "2D (before postFX)");
+    v67 = source[0];
+    R_InitCmdBufSourceState(source[0], &viewInfo->input);
+    v68 = (GfxCmdBufState *)source[1];
+    input = &v67->input;
+    R_InitLocalCmdBufState((GfxCmdBufState *)source[1], &v67->input);
+    R_ProfBeginNamedEvent(v68, "2D (before postFX)");
     R_GPU_BeginTimer(GPU_TIMER_2D);
-    Image = R_UniversalClut_GetImage(_RDI->clientIndex, MOVEMENT);
-    __asm { vmovups ymm0, ymmword ptr [rdi+31A0h] }
-    v166 = v204;
-    __asm
+    Image = R_UniversalClut_GetImage(viewInfo->clientIndex, MOVEMENT);
+    v70 = v89;
+    v71 = (__m256i)viewInfo->sceneRtInput.m_mainSceneColorRt;
+    v224 = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+    v162 = *gfxContext;
+    v225 = v71;
+    RB_InitClient2DReceivePPFXContext(&v162, viewInfo, v89, (R_RT_ColorHandle *)&v225, &v224, Image);
+    if ( v70->async2D.renderReceivePPFXPending )
     {
-      vmovups ymm1, ymmword ptr [rdi+30C0h]
-      vmovups [rbp+4A40h+var_3EF0], ymm0
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rbp+4A40h+var_4610], xmm0
-      vmovups [rbp+4A40h+var_3ED0], ymm1
-    }
-    RB_InitClient2DReceivePPFXContext(&v277, _RDI, v204, &v340, &v339, Image);
-    if ( v166->async2D.renderReceivePPFXPending )
-    {
-      v216 = v166;
+      v101 = v70;
       Sys_ProfBeginNamedEvent(0xFF008008, "wait LUI render");
       R_UnlockGfxImmediateContext();
-      Sys_ProcessWorkerCmdsWithTimeout((bool (__fastcall *)(void *))RB_Async2D_ReceivePPFXFinished, &v216);
+      Sys_ProcessWorkerCmdsWithTimeout((bool (__fastcall *)(void *))RB_Async2D_ReceivePPFXFinished, &v101);
       R_LockGfxImmediateContext();
       Sys_ProfEndNamedEvent();
     }
-    if ( v166->async2D.receivePPFXCmdBuf.device )
+    if ( v70->async2D.receivePPFXCmdBuf.device )
     {
-      if ( !v166->async2D.renderFailed )
+      if ( !v70->async2D.renderFailed )
       {
         R_FlushImmediateContext();
-        device = v166->async2D.receivePPFXCmdBuf.device;
+        device = v70->async2D.receivePPFXCmdBuf.device;
         ((void (__fastcall *)(ID3D12CommandQueue *, __int64, GfxDevice **))g_dx.immediateCommandQueue.commandQueue->m_pFunction[3].AddRef)(g_dx.immediateCommandQueue.commandQueue, 1i64, &device);
-        v166->async2D.receivePPFXCmdBuf.device = NULL;
+        v70->async2D.receivePPFXCmdBuf.device = NULL;
 LABEL_130:
         R_GPU_EndTimer();
-        R_ProfEndNamedEvent(v163);
-        R_ShutdownLocalCmdBufState(v163, input);
+        R_ProfEndNamedEvent(v68);
+        R_ShutdownLocalCmdBufState(v68, input);
         Sys_ProfEndNamedEvent();
 LABEL_131:
         Sys_ProfBeginNamedEvent(0xFFFFD700, "exec post3d");
@@ -3541,159 +2758,100 @@ LABEL_131:
         if ( ((unsigned int)&dword_14FDE80C8 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80C8) )
           __debugbreak();
         _InterlockedIncrement(&dword_14FDE80C8);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups [rbp+4A40h+var_45F0], xmm0
-        }
-        RB_DrawDebugPrimitives(&v279, _RDI);
-        __asm { vmovups ymm0, ymmword ptr [rdi+31A0h] }
-        v173 = _RSI->state;
-        __asm { vmovups [rbp+4A40h+var_3EB0], ymm0 }
-        R_AddDepthStencilTransition(v173, &v341, DEPTHSTENCIL_TRANSITION_MODE_READ_PRESERVE_DEPTH_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi+30C0h]
-          vmovups [rbp+4A40h+var_3E90], ymm0
-        }
-        R_AddRenderTargetTransition(v173, &v342, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi+30E0h]
-          vmovups [rbp+4A40h+var_3E70], ymm0
-        }
-        R_AddRenderTargetTransition(v173, &v343, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-        R_FlushResourceTransitions(v173);
+        v164 = *gfxContext;
+        RB_DrawDebugPrimitives(&v164, viewInfo);
+        v73 = gfxContext->state;
+        v226 = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+        R_AddDepthStencilTransition(v73, &v226, DEPTHSTENCIL_TRANSITION_MODE_READ_PRESERVE_DEPTH_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        v227 = viewInfo->sceneRtInput.m_mainSceneColorRt;
+        R_AddRenderTargetTransition(v73, &v227, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        v228 = viewInfo->sceneRtInput.m_mainSceneAlphaRt;
+        R_AddRenderTargetTransition(v73, &v228, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        R_FlushResourceTransitions(v73);
         R_LockGfxImmediateContext();
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi+31A0h]
-          vmovups xmm1, xmmword ptr [rsi]
-          vmovups [rbp+4A40h+var_3E50], ymm0
-          vmovups [rbp+4A40h+var_45E0], xmm1
-        }
-        R_RT_Destroy(&v280, &v344);
-        __asm { vmovups xmm1, xmmword ptr [rsi] }
-        _RDI->sceneRtInput.m_mainSceneDepthRt.m_surfaceID = 0;
-        _RDI->sceneRtInput.m_mainSceneDepthRt.m_tracking.m_allocCounter = 0;
-        _RDI->sceneRtInput.m_mainSceneDepthRt.m_tracking.m_name = NULL;
-        _RDI->sceneRtInput.m_mainSceneDepthRt.m_tracking.m_location = NULL;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi+34E8h]
-          vmovups [rbp+4A40h+var_44F0], ymm0
-          vmovups [rbp+4A40h+var_45D0], xmm1
-        }
-        R_RT_Destroy(&v281, &v291);
-        __asm { vmovups xmm1, xmmword ptr [rsi] }
-        _RDI->sceneRtInput.m_gpIndexBuffer.m_surfaceID = 0;
-        _RDI->sceneRtInput.m_gpIndexBuffer.m_tracking.m_allocCounter = 0;
-        _RDI->sceneRtInput.m_gpIndexBuffer.m_tracking.m_name = NULL;
-        _RDI->sceneRtInput.m_gpIndexBuffer.m_tracking.m_location = NULL;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi+3508h]
-          vmovups [rbp+4A40h+var_44D0], ymm0
-          vmovups [rbp+4A40h+var_45C0], xmm1
-        }
-        R_RT_Destroy(&v282, &v292);
-        __asm { vmovups xmm1, xmmword ptr [rsi] }
-        _RDI->sceneRtInput.m_gpIndirectArgsBuffer.m_surfaceID = 0;
-        _RDI->sceneRtInput.m_gpIndirectArgsBuffer.m_tracking.m_allocCounter = 0;
-        _RDI->sceneRtInput.m_gpIndirectArgsBuffer.m_tracking.m_name = NULL;
-        _RDI->sceneRtInput.m_gpIndirectArgsBuffer.m_tracking.m_location = NULL;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdi+3528h]
-          vmovups [rbp+4A40h+var_42F0], ymm0
-          vmovups [rbp+4A40h+var_45B0], xmm1
-        }
-        R_RT_Destroy(&v283, &v307);
-        _RDI->sceneRtInput.m_gpPerSurfDataBuffer.m_surfaceID = 0;
-        _RDI->sceneRtInput.m_gpPerSurfDataBuffer.m_tracking.m_allocCounter = 0;
-        _RDI->sceneRtInput.m_gpPerSurfDataBuffer.m_tracking.m_name = NULL;
-        _RDI->sceneRtInput.m_gpPerSurfDataBuffer.m_tracking.m_location = NULL;
+        v74 = *gfxContext;
+        v229 = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+        v165 = v74;
+        R_RT_Destroy(&v165, &v229);
+        v75 = *gfxContext;
+        viewInfo->sceneRtInput.m_mainSceneDepthRt.m_surfaceID = 0;
+        viewInfo->sceneRtInput.m_mainSceneDepthRt.m_tracking.m_allocCounter = 0;
+        viewInfo->sceneRtInput.m_mainSceneDepthRt.m_tracking.m_name = NULL;
+        viewInfo->sceneRtInput.m_mainSceneDepthRt.m_tracking.m_location = NULL;
+        m_gpIndexBuffer = viewInfo->sceneRtInput.m_gpIndexBuffer;
+        v166 = v75;
+        R_RT_Destroy(&v166, &m_gpIndexBuffer);
+        v76 = *gfxContext;
+        viewInfo->sceneRtInput.m_gpIndexBuffer.m_surfaceID = 0;
+        viewInfo->sceneRtInput.m_gpIndexBuffer.m_tracking.m_allocCounter = 0;
+        viewInfo->sceneRtInput.m_gpIndexBuffer.m_tracking.m_name = NULL;
+        viewInfo->sceneRtInput.m_gpIndexBuffer.m_tracking.m_location = NULL;
+        m_gpIndirectArgsBuffer = viewInfo->sceneRtInput.m_gpIndirectArgsBuffer;
+        v167 = v76;
+        R_RT_Destroy(&v167, &m_gpIndirectArgsBuffer);
+        v77 = *gfxContext;
+        viewInfo->sceneRtInput.m_gpIndirectArgsBuffer.m_surfaceID = 0;
+        viewInfo->sceneRtInput.m_gpIndirectArgsBuffer.m_tracking.m_allocCounter = 0;
+        viewInfo->sceneRtInput.m_gpIndirectArgsBuffer.m_tracking.m_name = NULL;
+        viewInfo->sceneRtInput.m_gpIndirectArgsBuffer.m_tracking.m_location = NULL;
+        m_gpPerSurfDataBuffer = viewInfo->sceneRtInput.m_gpPerSurfDataBuffer;
+        v168 = v77;
+        R_RT_Destroy(&v168, &m_gpPerSurfDataBuffer);
+        viewInfo->sceneRtInput.m_gpPerSurfDataBuffer.m_surfaceID = 0;
+        viewInfo->sceneRtInput.m_gpPerSurfDataBuffer.m_tracking.m_allocCounter = 0;
+        viewInfo->sceneRtInput.m_gpPerSurfDataBuffer.m_tracking.m_name = NULL;
+        viewInfo->sceneRtInput.m_gpPerSurfDataBuffer.m_tracking.m_location = NULL;
         R_FlushImmediateContext();
         R_UnlockGfxImmediateContext();
-        R_WaitAsyncCompute(v173, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND, 0);
-        __asm
+        R_WaitAsyncCompute(v73, dataa, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND, 0);
+        if ( viewInfo->viewParmsSet.frames[0].viewParms.subpixelOffset.v[0] != 0.0 || viewInfo->viewParmsSet.frames[0].viewParms.subpixelOffset.v[1] != 0.0 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vucomiss xmm0, dword ptr [rdi+168h]
-        }
-        if ( !v184 )
-          goto LABEL_136;
-        __asm { vucomiss xmm0, dword ptr [rdi+16Ch] }
-        if ( !v184 )
-        {
-LABEL_136:
-          _RAX = _RDI;
-          _RCX = &_RDI->viewParmsSet.frames[2].viewParms;
+          v78 = viewInfo;
+          p_viewParms = &viewInfo->viewParmsSet.frames[2].viewParms;
           do
           {
-            _RAX = (const GfxViewInfo *)((char *)_RAX + 128);
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rcx]
-              vmovups xmm1, xmmword ptr [rcx+70h]
-            }
-            _RCX = (GfxViewParms *)((char *)_RCX + 128);
-            __asm
-            {
-              vmovups ymmword ptr [rax-80h], ymm0
-              vmovups ymm0, ymmword ptr [rcx-60h]
-              vmovups ymmword ptr [rax-60h], ymm0
-              vmovups ymm0, ymmword ptr [rcx-40h]
-              vmovups ymmword ptr [rax-40h], ymm0
-              vmovups xmm0, xmmword ptr [rcx-20h]
-              vmovups xmmword ptr [rax-20h], xmm0
-              vmovups xmmword ptr [rax-10h], xmm1
-            }
-            --v56;
+            v78 = (const GfxViewInfo *)((char *)v78 + 128);
+            v80 = *(__m256i *)p_viewParms->viewMatrix.m.m[0].v;
+            v81 = p_viewParms->projectionMatrix.m.m[3];
+            p_viewParms = (GfxViewParms *)((char *)p_viewParms + 128);
+            *(__m256i *)&v78[-1].drawList[64].superTerrainSurfList.surfs = v80;
+            *(__m256i *)&v78[-1].spotshadowActiveCache.m_tracking.m_name = *(__m256i *)&p_viewParms[-1].camera.axis.row1.z;
+            v78[-1].sunshadowCacheRt = *(R_RT_DepthHandle *)p_viewParms[-1].camera.zPlanes;
+            *(_OWORD *)&v78[-1].sunShadowCacheBeforeState = *(_OWORD *)&p_viewParms[-1].camera.visibilityQueryDistance;
+            *(vec4_t *)&v78[-1].shellShock.enabled = v81;
+            --v17;
           }
-          while ( v56 );
+          while ( v17 );
         }
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups [rbp+4A40h+var_45A0], xmm0
-        }
-        RB_ApplyPostEffects(&v284, _RDI, dataa);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups [rbp+4A40h+var_4590], xmm0
-        }
-        RB_BlitDebugOverlay(&v285, _RDI, *(double *)&_XMM2, a4);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups [rbp+4A40h+var_4580], xmm0
-        }
-        RB_DecommitSceneRTs(&v286, _RDI);
-        RB_AddComputeCmdsTransitions(v173, dataa, 0);
-        R_FlushResourceTransitions(v173);
-        v196 = dataa;
+        v169 = *gfxContext;
+        RB_ApplyPostEffects(&v169, viewInfo, dataa);
+        v170 = *gfxContext;
+        RB_BlitDebugOverlay(&v170, viewInfo);
+        v171 = *gfxContext;
+        RB_DecommitSceneRTs(&v171, viewInfo);
+        RB_AddComputeCmdsTransitions(v73, dataa, 0);
+        R_FlushResourceTransitions(v73);
+        v82 = dataa;
         Sys_ProfBeginNamedEvent(0xFFFFA500, "wait skipped draw workers");
-        p_inCmdCount = &v196->drawOutput[0].inCmdCount;
-        cmdBufValid = v196->cmdBufValid;
+        p_inCmdCount = &v82->drawOutput[0].inCmdCount;
+        cmdBufValid = v82->cmdBufValid;
         do
         {
           if ( *cmdBufValid && *((_DWORD *)p_inCmdCount - 1) )
           {
             if ( *p_inCmdCount )
             {
-              LODWORD(rtFlagsInternal) = v20;
+              LODWORD(rtFlagsInternal) = v11;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 1283, ASSERT_TYPE_ASSERT, "( ( !data->drawOutput[drawListType].inCmdCount ) )", "( drawListType ) = %i", rtFlagsInternal) )
                 __debugbreak();
             }
-            R_WaitDrawWorkerCmdsOfType(v196, (const GfxDrawListType)v20);
+            R_WaitDrawWorkerCmdsOfType(v82, (const GfxDrawListType)v11);
           }
-          ++v20;
+          ++v11;
           ++cmdBufValid;
           p_inCmdCount += 2284;
         }
-        while ( v20 < 89 );
+        while ( v11 < 89 );
         Sys_ProfEndNamedEvent();
         Profile2_UpdateEntry(62);
         if ( ((unsigned __int64)&dword_14FDE80C8 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80C8) )
@@ -3702,17 +2860,15 @@ LABEL_136:
         Sys_ProfEndNamedEvent();
         goto LABEL_150;
       }
-      v166->async2D.receivePPFXCmdBuf.device = NULL;
+      v70->async2D.receivePPFXCmdBuf.device = NULL;
     }
-    __asm { vmovups xmm0, xmmword ptr [rsi] }
-    v170 = _RDI->displayCmds[3];
-    __asm { vmovups [rbp+4A40h+var_4600], xmm0 }
-    RB_ExecuteRenderCommandsLoop(&v278, v170, NULL);
+    v72 = viewInfo->displayCmds[3];
+    v163 = *gfxContext;
+    RB_ExecuteRenderCommandsLoop(&v163, v72, NULL);
     goto LABEL_130;
   }
 LABEL_150:
   Profile_EndCSV(23);
-  __asm { vmovaps xmm6, [rsp+4B60h+var_40] }
 }
 
 /*
@@ -3744,65 +2900,59 @@ RB_DrawDebugPrimitives
 ==============
 */
 
-void __fastcall RB_DrawDebugPrimitives(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, __int64 a3, double _XMM3_8)
+void __fastcall RB_DrawDebugPrimitives(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, __int64 a3, double a4)
 {
+  __int16 v5; 
   const dvar_t *v6; 
   GfxCmdBufSourceState *source; 
   GfxCmdBufState *state; 
-  __int64 v28; 
-  bool v30; 
+  R_RT_Handle m_mainSceneColorRt; 
+  R_RT_Handle v13; 
+  bool v14; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
-  bool v39; 
-  const char *v55; 
-  GfxCmdBufState *v57; 
-  unsigned int v60; 
-  const R_RT_Surface *v61; 
-  GfxCmdBufSourceState *v62; 
-  R_RT_Handle v67; 
-  R_RT_Handle v68; 
-  R_RT_Handle v69; 
+  R_RT_Handle v17; 
+  bool v19; 
+  R_RT_Handle v20; 
+  GfxCmdBufState *v21; 
+  unsigned int v22; 
+  const R_RT_Surface *v23; 
+  GfxCmdBufSourceState *v24; 
+  R_RT_Handle m_mainSceneDepthRt; 
+  R_RT_Handle v26; 
+  R_RT_Handle v27; 
   R_RT_Handle result; 
-  R_RT_Handle v71; 
-  char v72; 
-  __m256i v73; 
-  const char *v75; 
-  char v76; 
-  __m256i v77; 
-  __int64 v78; 
-  R_RT_Group v79; 
+  R_RT_Handle v29; 
+  R_RT_Group v30; 
+  __m256i v31; 
+  __m256i v32; 
+  __m256i v33; 
+  __m256i v34; 
+  _BYTE v35[64]; 
+  const char *m_location; 
+  R_RT_Group v37; 
 
   v6 = DCONST_DVARINT_developer;
-  _R14 = viewInfo;
-  _R15 = gfxContext;
   if ( !DCONST_DVARINT_developer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "developer") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v6);
   if ( v6->current.integer && (Physics_RenderDebugEnabled() || CG_Edge_DrawDebugEnabled() || RB_Stream_TreeDebugDrawEnabled() || RB_Stream_XModelTreeDebugDrawEnabled() || RB_NeedDrawDebug()) )
   {
-    source = _R15->source;
-    R_InitCmdBufSourceState(_R15->source, &_R14->input);
-    state = _R15->state;
+    source = gfxContext->source;
+    R_InitCmdBufSourceState(gfxContext->source, &viewInfo->input);
+    state = gfxContext->state;
     R_InitLocalCmdBufState(state, &source->input);
     R_ProfBeginNamedEvent(state, "Debug");
-    __asm
+    m_mainSceneColorRt = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneColorRt;
+    m_mainSceneDepthRt = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneDepthRt;
+    v26 = m_mainSceneDepthRt;
+    v27 = m_mainSceneColorRt;
+    v29 = m_mainSceneColorRt;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [r14+31A0h]
-      vmovups ymm1, ymmword ptr [r14+30C0h]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+2D0h+var_350.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+2D0h+var_330.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+2D0h+var_310.m_surfaceID], ymm1
-      vmovups ymmword ptr [rbp+2D0h+var_2D0.m_surfaceID], ymm1
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v68);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+2D0h+var_330.m_surfaceID]
-        vmovups ymmword ptr [rbp+2D0h+var_350.m_surfaceID], ymm0
-      }
+      R_RT_Handle::GetSurface(&v26);
+      v13 = v26;
+      m_mainSceneDepthRt = v26;
     }
     else
     {
@@ -3811,111 +2961,68 @@ void __fastcall RB_DrawDebugPrimitives(GfxCmdBufContext *gfxContext, const GfxVi
         __debugbreak();
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 463, ASSERT_TYPE_ASSERT, "(depthRt)", (const char *)&queryFormat, "depthRt") )
         __debugbreak();
-      __asm { vmovups ymm0, ymmword ptr [rbp+2D0h+var_350.m_surfaceID] }
+      v13 = m_mainSceneDepthRt;
     }
-    __asm
+    result = v13;
+    v30.m_colorRtCount = 1;
+    v26 = v27;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymmword ptr [rbp+2D0h+result.m_surfaceID], ymm0
-      vmovups ymm0, ymmword ptr [rbp+2D0h+var_310.m_surfaceID]
-      vmovd   eax, xmm0
-    }
-    v72 = 1;
-    __asm { vmovups ymmword ptr [rbp+2D0h+var_330.m_surfaceID], ymm0 }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v68);
+      R_RT_Handle::GetSurface(&v26);
     }
     else
     {
-      if ( v71.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+      if ( v29.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
         __debugbreak();
     }
-    _RAX = &v72;
-    _RCX = &v76;
-    __asm
+    v30.m_colorRts[0] = (R_RT_ColorHandle)v27;
+    v30.m_depthRt = (R_RT_DepthHandle)m_mainSceneDepthRt;
+    v31 = *(__m256i *)&v30.m_colorRtCount;
+    v32 = *(__m256i *)&v30.m_colorRts[0].m_tracking.m_location;
+    v33 = *(__m256i *)&v30.m_colorRts[1].m_tracking.m_location;
+    v34 = *(__m256i *)&v30.m_colorRts[2].m_tracking.m_location;
+    *(__m256i *)v35 = *(__m256i *)&v30.m_colorRts[3].m_tracking.m_location;
+    *(__m256i *)&v35[32] = *(__m256i *)&v30.m_depthRt.m_tracking.m_location;
+    m_location = v30.m_vrsRt.m_tracking.m_location;
+    m_mainSceneDepthRt = v27;
+    if ( LOWORD(a4) )
     {
-      vmovups ymm3, ymmword ptr [rbp+2D0h+var_310.m_surfaceID]
-      vmovups ymm2, ymmword ptr [rbp+2D0h+var_350.m_surfaceID]
-      vmovups ymmword ptr [rbp+2D0h+var_2A8], ymm3
-      vmovups [rbp+2D0h+var_228], ymm2
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymm1, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymmword ptr [rcx+80h], ymm1
-      vmovups ymm1, ymmword ptr [rax+0A0h]
-    }
-    v28 = (__int64)v75;
-    __asm { vmovups ymmword ptr [rcx+0A0h], ymm1 }
-    v78 = v28;
-    __asm
-    {
-      vmovd   eax, xmm3
-      vmovups ymmword ptr [rbp+2D0h+var_350.m_surfaceID], ymm3
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v67);
-      if ( (R_RT_Handle::GetSurface(&v67)->m_rtFlagsInternal & 0x18) != 0 )
+      R_RT_Handle::GetSurface(&m_mainSceneDepthRt);
+      if ( (R_RT_Handle::GetSurface(&m_mainSceneDepthRt)->m_rtFlagsInternal & 0x18) != 0 )
       {
-        v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 396, ASSERT_TYPE_ASSERT, "(!colorRt.IsValid() || colorRt.IsColor())", (const char *)&queryFormat, "!colorRt.IsValid() || colorRt.IsColor()");
+        v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 396, ASSERT_TYPE_ASSERT, "(!colorRt.IsValid() || colorRt.IsColor())", (const char *)&queryFormat, "!colorRt.IsValid() || colorRt.IsColor()");
 LABEL_30:
-        if ( v30 )
+        if ( v14 )
           __debugbreak();
       }
     }
-    else if ( v73.m256i_i32[2] )
+    else if ( v30.m_colorRts[0].m_tracking.m_allocCounter )
     {
-      v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", (unsigned __int16)_EAX + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+      v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", LOWORD(a4) + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
       goto LABEL_30;
     }
-    __asm
+    v29 = m_mainSceneDepthRt;
+    v27 = m_mainSceneDepthRt;
+    height = R_RT_Handle::GetSurface(&v27)->m_image.m_base.height;
+    Surface = R_RT_Handle::GetSurface(&v27);
+    v17 = *R_RT_CreateInternal(&result, Surface->m_image.m_base.width, height, Surface->m_image.m_base.width, height, 1u, 1u, 1u, g_R_RT_renderTargetFmts[1], R_RT_Flag_RTView, R_RT_FlagInternal_None, &colorBlackBlank, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Debug Overlay", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(975)");
+    m_mainSceneDepthRt = v17;
+    v26 = v17;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rbp+2D0h+var_350.m_surfaceID]
-      vmovups ymmword ptr [rbp+2D0h+var_2D0.m_surfaceID], ymm0
-    }
-    _RAX = &v71;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+2D0h+var_310.m_surfaceID], ymm0
-    }
-    height = R_RT_Handle::GetSurface(&v69)->m_image.m_base.height;
-    Surface = R_RT_Handle::GetSurface(&v69);
-    _RAX = R_RT_CreateInternal(&result, Surface->m_image.m_base.width, height, Surface->m_image.m_base.width, height, 1u, 1u, 1u, g_R_RT_renderTargetFmts[1], R_RT_Flag_RTView, R_RT_FlagInternal_None, &colorBlackBlank, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "Debug Overlay", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(975)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+2D0h+var_350.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+2D0h+var_330.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v68);
-      if ( (R_RT_Handle::GetSurface(&v68)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v26);
+      if ( (R_RT_Handle::GetSurface(&v26)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+2D0h+var_330.m_surfaceID]
-          vmovups ymmword ptr [rbp+2D0h+var_350.m_surfaceID], ymm0
-        }
+        v17 = v26;
+        m_mainSceneDepthRt = v26;
         __debugbreak();
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+2D0h+var_330.m_surfaceID]
-          vmovups ymmword ptr [rbp+2D0h+var_350.m_surfaceID], ymm0
-        }
+        v17 = v26;
+        m_mainSceneDepthRt = v26;
       }
     }
     else
@@ -3923,46 +3030,32 @@ LABEL_30:
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v39 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+2D0h+var_350.m_surfaceID] }
-        if ( v39 )
+        v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v17 = m_mainSceneDepthRt;
+        if ( v19 )
           __debugbreak();
       }
     }
-    __asm
+    v26 = *(R_RT_Handle *)&v35[8];
+    v27 = *(R_RT_Handle *)&v35[8];
+    result = v17;
+    if ( v5 )
     {
-      vmovups ymm1, ymmword ptr [rbp+2D0h+var_158]
-      vmovd   eax, xmm1
-      vmovups ymmword ptr [rbp+2D0h+var_330.m_surfaceID], ymm1
-      vmovups ymmword ptr [rbp+2D0h+var_310.m_surfaceID], ymm1
-      vmovups ymmword ptr [rbp+2D0h+result.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v69);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+2D0h+var_310.m_surfaceID]
-        vmovups ymmword ptr [rbp+2D0h+var_330.m_surfaceID], ymm0
-      }
+      R_RT_Handle::GetSurface(&v27);
+      v26 = v27;
     }
     else
     {
-      if ( v77.m256i_i32[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+      if ( *(_DWORD *)&v35[16] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 463, ASSERT_TYPE_ASSERT, "(depthRt)", (const char *)&queryFormat, "depthRt") )
         __debugbreak();
     }
-    __asm
+    v30.m_colorRtCount = 1;
+    v29 = m_mainSceneDepthRt;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rbp+2D0h+var_350.m_surfaceID]
-      vmovd   eax, xmm0
-    }
-    v72 = 1;
-    __asm { vmovups ymmword ptr [rbp+2D0h+var_2D0.m_surfaceID], ymm0 }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v71);
+      R_RT_Handle::GetSurface(&v29);
     }
     else
     {
@@ -3971,84 +3064,37 @@ LABEL_30:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
         __debugbreak();
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+2D0h+var_350.m_surfaceID]
-      vmovups ymm1, ymmword ptr [rbp+2D0h+var_330.m_surfaceID]
-      vmovups ymmword ptr [rbp+2D0h+var_2A8], ymm0
-      vmovups [rbp+2D0h+var_228], ymm1
-    }
-    _RCX = &v79;
-    _RAX = &v72;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymm0, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx+80h], ymm0
-      vmovups ymm0, ymmword ptr [rax+0A0h]
-    }
-    v55 = v75;
-    __asm { vmovups ymmword ptr [rcx+0A0h], ymm0 }
-    v79.m_vrsRt.m_tracking.m_location = v55;
-    if ( R_RT_Handle::IsValid(&_R14->debugOverlay) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 978, ASSERT_TYPE_ASSERT, "(!viewInfo->debugOverlay)", (const char *)&queryFormat, "!viewInfo->debugOverlay") )
+    v30.m_colorRts[0] = (R_RT_ColorHandle)m_mainSceneDepthRt;
+    v30.m_depthRt = (R_RT_DepthHandle)v26;
+    v37 = v30;
+    if ( R_RT_Handle::IsValid(&viewInfo->debugOverlay) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 978, ASSERT_TYPE_ASSERT, "(!viewInfo->debugOverlay)", (const char *)&queryFormat, "!viewInfo->debugOverlay") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [rbp+2D0h+var_350.m_surfaceID] }
-    v57 = _R15->state;
-    __asm
-    {
-      vmovups ymmword ptr [r14+3790h], ymm0
-      vmovups ymmword ptr [rbp+2D0h+result.m_surfaceID], ymm0
-    }
-    R_AddRenderTargetTransition(v57, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(v57);
-    _RAX = R_RT_Group::GetValidRt(&v79, &result);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+2D0h+var_310.m_surfaceID], ymm0
-    }
-    v60 = R_RT_Handle::GetSurface(&v69)->m_image.m_base.height;
-    v61 = R_RT_Handle::GetSurface(&v69);
-    v62 = _R15->source;
-    R_SetRenderTargetSize(_R15->source, v61->m_image.m_base.width, v60, GFX_USE_VIEWPORT_FOR_VIEW);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15]
-      vmovups xmmword ptr [rbp+2D0h+var_330.m_surfaceID], xmm0
-    }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v68, &v79, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(985)");
-    R_ClearScreen(v57, 0xFu, 0);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15]
-      vmovups xmmword ptr [rbp+2D0h+var_330.m_surfaceID], xmm0
-    }
-    RB_UniversalClut_SetParameters((const GfxCmdBufContext *)&v68, _R14);
-    R_BeginViewInternal(v62, &_R14->sceneDef, &_R14->viewParmsSet.frames[2].viewParms, NULL);
-    R_SetViewportStruct(v62, &_R14->sceneViewport);
-    R_Set3D(v62);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15]
-      vmovups xmmword ptr [rbp+2D0h+var_330.m_surfaceID], xmm0
-    }
-    RB_DrawDebug((GfxCmdBufContext *)&v68, &v62->viewParms, _R14);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+2D0h+var_350.m_surfaceID]
-      vmovups ymmword ptr [rbp+2D0h+result.m_surfaceID], ymm0
-    }
-    R_AddRenderTargetTransition(v57, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(v57);
-    R_ProfEndNamedEvent(v57);
-    R_ShutdownLocalCmdBufState(v57, &v62->input);
+    v20 = m_mainSceneDepthRt;
+    v21 = gfxContext->state;
+    viewInfo->debugOverlay = (R_RT_ColorHandle)m_mainSceneDepthRt;
+    result = v20;
+    R_AddRenderTargetTransition(v21, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(v21);
+    v27 = *R_RT_Group::GetValidRt(&v37, &result);
+    v22 = R_RT_Handle::GetSurface(&v27)->m_image.m_base.height;
+    v23 = R_RT_Handle::GetSurface(&v27);
+    v24 = gfxContext->source;
+    R_SetRenderTargetSize(gfxContext->source, v23->m_image.m_base.width, v22, GFX_USE_VIEWPORT_FOR_VIEW);
+    *(GfxCmdBufContext *)&v26.m_surfaceID = *gfxContext;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v26, &v37, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(985)");
+    R_ClearScreen(v21, 0xFu, 0);
+    *(GfxCmdBufContext *)&v26.m_surfaceID = *gfxContext;
+    RB_UniversalClut_SetParameters((const GfxCmdBufContext *)&v26, viewInfo);
+    R_BeginViewInternal(v24, &viewInfo->sceneDef, &viewInfo->viewParmsSet.frames[2].viewParms, NULL);
+    R_SetViewportStruct(v24, &viewInfo->sceneViewport);
+    R_Set3D(v24);
+    *(GfxCmdBufContext *)&v26.m_surfaceID = *gfxContext;
+    RB_DrawDebug((GfxCmdBufContext *)&v26, &v24->viewParms, viewInfo);
+    result = m_mainSceneDepthRt;
+    R_AddRenderTargetTransition(v21, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(v21);
+    R_ProfEndNamedEvent(v21);
+    R_ShutdownLocalCmdBufState(v21, &v24->input);
   }
 }
 
@@ -4059,46 +3105,52 @@ RB_DrawEmissive
 */
 void RB_DrawEmissive(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
+  __int128 v3; 
   GfxCmdBufState *v6; 
-  ComputeContextType v8; 
-  GfxCmdBufInput *p_input; 
-  const GfxBackEndData *v13; 
+  ComputeContextType v7; 
+  const GfxBackEndData *v10; 
+  __m256i m_mainSceneDepthRt; 
   int integer; 
-  const GfxBackEndData *v37; 
+  __m256i m_mainSceneAlphaRt; 
+  __m256i v17; 
+  __m256i v18; 
+  const GfxBackEndData *v20; 
+  R_RT_Handle v21; 
   GfxBackEndData *timeoutUserData; 
   ID3D12Resource *buffers; 
   GfxCmdBufInput *input[2]; 
-  GfxCmdBufContext v50; 
-  GfxCmdBufContext v51; 
-  GfxCmdBufContext v52; 
-  GfxCmdBufContext v53; 
-  GfxCmdBufContext v54; 
-  GfxCmdBufContext v55; 
-  GfxCmdBufContext v56; 
-  R_RT_Handle v57; 
-  R_RT_ColorHandle v60; 
-  R_RT_ColorHandle v61; 
-  R_RT_DepthHandle v62; 
-  R_RT_DepthHandle v63; 
-  R_RT_DepthHandle v64; 
-  R_RT_DepthHandle v65; 
-  R_RT_DepthHandle v66; 
-  R_RT_ColorHandle v67; 
-  R_RT_ColorHandle v68; 
-  R_RT_ColorHandle v69; 
-  R_RT_ColorHandle v70; 
-  R_RT_ColorHandle v71; 
-  R_RT_ColorHandle v72; 
-  __m256i v73; 
-  R_RT_Handle v74; 
-  R_RT_Group v75; 
-  char v76[128]; 
+  GfxCmdBufContext v26; 
+  GfxCmdBufContext v27; 
+  GfxCmdBufContext v28; 
+  GfxCmdBufContext v29; 
+  GfxCmdBufContext v30; 
+  GfxCmdBufContext v31; 
+  GfxCmdBufContext v32; 
+  R_RT_Handle v33; 
+  R_RT_Handle v34; 
+  __m256i v35; 
+  R_RT_ColorHandle m_msaaSceneColorRt; 
+  R_RT_ColorHandle m_msaaSceneAlphaRt; 
+  R_RT_DepthHandle m_msaaSceneDepthRt; 
+  R_RT_DepthHandle v39; 
+  __m256i v40; 
+  R_RT_DepthHandle v41; 
+  R_RT_DepthHandle v42; 
+  __m256i v43; 
+  R_RT_ColorHandle m_mainSceneColorRt; 
+  __m256i v45; 
+  __m256i v46; 
+  R_RT_ColorHandle v47; 
+  R_RT_ColorHandle v48; 
+  R_RT_Handle v49; 
+  R_RT_Handle v50; 
+  R_RT_Group v51; 
+  char v52[128]; 
   R_RT_Group rtGroup; 
-  R_RT_Group v78; 
+  R_RT_Group v54; 
   ComputeCmdBufState state; 
+  __int128 v56; 
 
-  _RSI = viewInfo;
-  _R14 = gfxContext;
   timeoutUserData = (GfxBackEndData *)data;
   Profile2_UpdateEntry(58);
   if ( ((unsigned __int8)&dword_14FDE80B8 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80B8) )
@@ -4111,212 +3163,144 @@ void RB_DrawEmissive(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, 
   if ( ((unsigned __int64)&dword_14FDE80B8 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80B8) )
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE80B8);
-  v6 = _R14->state;
+  v6 = gfxContext->state;
   R_LockIfGfxImmediateContext(v6->device);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups [rsp+1030h+var_FE0], xmm0
-  }
-  RB_StandardDrawCommands_DrawSunPost(&v50, _RSI, timeoutUserData);
+  v26 = *gfxContext;
+  RB_StandardDrawCommands_DrawSunPost(&v26, viewInfo, timeoutUserData);
   Sys_ProfBeginNamedEvent(0xFFFFD700, "exec cmds emissive");
   Profile2_UpdateEntry(60);
   if ( ((unsigned __int8)&dword_14FDE80C0 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80C0) )
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE80C0);
-  v8 = COMPUTE_CONTEXT_TYPE_GFX;
+  v7 = COMPUTE_CONTEXT_TYPE_GFX;
   if ( r_effectLightingAsync->current.enabled )
-    v8 = COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND;
-  R_InitComputeCmdBufState(&state, v6, timeoutUserData, v8);
+    v7 = COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND;
+  R_InitComputeCmdBufState(&state, v6, timeoutUserData, v7);
   buffers = timeoutUserData->globalSceneConstantBuffer->buffer;
   R_SetComputeConstantBuffers(&state, 7, 1, &buffers);
-  RB_EffectLighting(&state, _RSI);
+  RB_EffectLighting(&state, viewInfo);
   R_ShutdownComputeCmdBufState(&state);
   if ( r_effectLightingAsync->current.enabled )
     R_WaitAsyncCompute(v6, timeoutUserData, COMPUTE_CONTEXT_TYPE_ASYNC_BACKEND, 0);
-  __asm { vmovaps [rsp+1030h+var_40], xmm6 }
+  v56 = v3;
   if ( rg.vrsEmissiveOnly )
   {
-    __asm { vmovups xmm6, xmmword ptr [r14] }
+    _XMM6 = *gfxContext;
     R_GPU_BeginTimer(GPU_TIMER_EMISSIVE_COPY);
-    __asm { vmovq   rbx, xmm6 }
-    R_InitCmdBufSourceState(_RBX, &_RSI->input);
-    p_input = &_RBX->input;
+    R_InitCmdBufSourceState(_XMM6.source, &viewInfo->input);
     __asm { vpextrq rbx, xmm6, 1 }
-    R_InitLocalCmdBufState(_RBX, p_input);
-    v13 = _RSI->input.data;
-    __asm { vmovups [rsp+1030h+var_FD0], xmm6 }
-    R_HW_EnableMultiSample(&v51, v13->frameCount);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+31C0h]
-      vmovups [rbp+0F30h+var_F10], ymm0
-    }
-    R_AddRenderTargetTransition(_RBX, &v60, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+31E0h]
-      vmovups [rbp+0F30h+var_EF0], ymm0
-    }
-    R_AddRenderTargetTransition(_RBX, &v61, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+3200h]
-      vmovups [rbp+0F30h+var_ED0], ymm0
-    }
-    R_AddDepthStencilTransition(_RBX, &v62, DEPTHSTENCIL_TRANSITION_MODE_WRITE_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_InitLocalCmdBufState(_RBX, &_XMM6.source->input);
+    v10 = viewInfo->input.data;
+    v27 = _XMM6;
+    R_HW_EnableMultiSample(&v27, v10->frameCount);
+    m_msaaSceneColorRt = viewInfo->sceneRtInput.m_msaaSceneColorRt;
+    R_AddRenderTargetTransition(_RBX, &m_msaaSceneColorRt, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    m_msaaSceneAlphaRt = viewInfo->sceneRtInput.m_msaaSceneAlphaRt;
+    R_AddRenderTargetTransition(_RBX, &m_msaaSceneAlphaRt, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    m_msaaSceneDepthRt = viewInfo->sceneRtInput.m_msaaSceneDepthRt;
+    R_AddDepthStencilTransition(_RBX, &m_msaaSceneDepthRt, DEPTHSTENCIL_TRANSITION_MODE_WRITE_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(_RBX);
     if ( r_halfResEmissivePSCopy->current.enabled )
     {
       R_ProfBeginNamedEvent(_RBX, "R_Resolve_CopyDepthTo4xMS");
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsi+3200h]
-        vmovups ymm1, ymmword ptr [rsi+31A0h]
-        vmovups [rbp+0F30h+var_EB0], ymm0
-        vmovups [rbp+0F30h+var_E90], ymm1
-        vmovups [rsp+1030h+var_FC0], xmm6
-      }
-      R_Resolve_CopyDepthTo4xMS(&v52, &v64, &v63);
+      m_mainSceneDepthRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneDepthRt;
+      v39 = viewInfo->sceneRtInput.m_msaaSceneDepthRt;
+      v40 = m_mainSceneDepthRt;
+      v28 = _XMM6;
+      R_Resolve_CopyDepthTo4xMS(&v28, (R_RT_DepthHandle *)&v40, &v39);
       R_ProfEndNamedEvent(_RBX);
     }
-    R_ShutdownLocalCmdBufState(_RBX, p_input);
+    R_ShutdownLocalCmdBufState(_RBX, &_XMM6.source->input);
     R_GPU_EndTimer();
   }
   else if ( rg.halfResEmissive )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+0F30h+var_FB0], xmm0
-    }
-    RB_HalfResEmissive_DownsampleDepth(&v53, _RSI);
+    v29 = *gfxContext;
+    RB_HalfResEmissive_DownsampleDepth(&v29, viewInfo);
   }
   R_UnlockIfGfxImmediateContext(v6->device);
   if ( !rg.debugShaderEnabled )
   {
-    R_Draw_GetRtGroup(_RSI, DRAWLIST_PREPASS_COUNT, &rtGroup);
-    RB_RunDrawList(_RSI, timeoutUserData, &rtGroup, DRAWLIST_PREPASS_COUNT);
-    RB_RunDrawList(_RSI, timeoutUserData, &rtGroup, DRAWLIST_DEPTH_HACK_EMISSIVE);
+    R_Draw_GetRtGroup(viewInfo, DRAWLIST_PREPASS_COUNT, &rtGroup);
+    RB_RunDrawList(viewInfo, timeoutUserData, &rtGroup, DRAWLIST_PREPASS_COUNT);
+    RB_RunDrawList(viewInfo, timeoutUserData, &rtGroup, DRAWLIST_DEPTH_HACK_EMISSIVE);
   }
   R_LockIfGfxImmediateContext(v6->device);
   integer = 5;
   if ( rg.vrsEmissiveOnly )
   {
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [r14]
-      vpextrq r12, xmm6, 1
-    }
+    _XMM6 = *gfxContext;
+    __asm { vpextrq r12, xmm6, 1 }
     R_GPU_BeginTimer(GPU_TIMER_EMISSIVE_COPY);
-    __asm { vmovq   rbx, xmm6 }
-    R_InitCmdBufSourceState(_RBX, &_RSI->input);
-    input[0] = &_RBX->input;
-    R_InitLocalCmdBufState(_R12, &_RBX->input);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+3200h]
-      vmovups [rbp+0F30h+var_E70], ymm0
-    }
-    R_AddDepthStencilTransition(_R12, &v65, DEPTHSTENCIL_TRANSITION_MODE_READ_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_InitCmdBufSourceState(_XMM6.source, &viewInfo->input);
+    input[0] = &_XMM6.source->input;
+    R_InitLocalCmdBufState(_R12, &_XMM6.source->input);
+    v41 = viewInfo->sceneRtInput.m_msaaSceneDepthRt;
+    R_AddDepthStencilTransition(_R12, &v41, DEPTHSTENCIL_TRANSITION_MODE_READ_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     __asm { vpextrq rbx, xmm6, 1 }
     if ( !R_IsLockedIfGfxImmediateContext(*(const GfxDevice **)(_RBX + 1360)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 29, ASSERT_TYPE_ASSERT, "(R_IsLockedIfGfxImmediateContext( device ))", (const char *)&queryFormat, "R_IsLockedIfGfxImmediateContext( device )") )
     {
       __debugbreak();
-      v6 = _R14->state;
+      v6 = gfxContext->state;
     }
-    memset_0(v76, 0, sizeof(v76));
-    (*(void (__fastcall **)(_QWORD, char *, void *, void *))(**(_QWORD **)(_RBX + 1360) + 640i64))(*(_QWORD *)(_RBX + 1360), v76, &`R_HW_DisableMultiSample'::`2'::s_samplePriorities1xMS, &`R_HW_DisableMultiSample'::`2'::s_eqaa1xMS);
+    memset_0(v52, 0, sizeof(v52));
+    (*(void (__fastcall **)(_QWORD, char *, void *, void *))(**(_QWORD **)(_RBX + 1360) + 640i64))(*(_QWORD *)(_RBX + 1360), v52, &`R_HW_DisableMultiSample'::`2'::s_samplePriorities1xMS, &`R_HW_DisableMultiSample'::`2'::s_eqaa1xMS);
     (*(void (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)(_RBX + 1360) + 512i64))(*(_QWORD *)(_RBX + 1360), 0i64);
     R_ProfBeginNamedEvent(_R12, "R_Resolve_CopyFrom4xMS");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+31A0h]
-      vmovups ymm1, ymmword ptr [rsi+30E0h]
-      vmovups [rbp+0F30h+var_E50], ymm0
-      vmovups ymm0, ymmword ptr [rsi+30C0h]
-      vmovups [rbp+0F30h+var_E10], ymm0
-      vmovups ymm0, ymmword ptr [rsi+31C0h]
-      vmovups [rbp+0F30h+var_E30], ymm1
-      vmovups ymm1, ymmword ptr [rsi+31E0h]
-      vmovups [rbp+0F30h+var_DD0], ymm0
-      vmovups [rbp+0F30h+var_DF0], ymm1
-      vmovdqa [rbp+0F30h+var_FA0], xmm6
-    }
-    RB_Resolve_CopyFrom4xMS(&v54, &v70, &v69, &v68, &v67, &v66);
+    m_mainSceneAlphaRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneAlphaRt;
+    v42 = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+    m_mainSceneColorRt = viewInfo->sceneRtInput.m_mainSceneColorRt;
+    v17 = (__m256i)viewInfo->sceneRtInput.m_msaaSceneColorRt;
+    v43 = m_mainSceneAlphaRt;
+    v18 = (__m256i)viewInfo->sceneRtInput.m_msaaSceneAlphaRt;
+    v46 = v17;
+    v45 = v18;
+    v30 = _XMM6;
+    RB_Resolve_CopyFrom4xMS(&v30, (R_RT_ColorHandle *)&v46, (R_RT_ColorHandle *)&v45, &m_mainSceneColorRt, (R_RT_ColorHandle *)&v43, &v42);
     R_ProfEndNamedEvent(_R12);
     R_ShutdownLocalCmdBufState(_R12, input[0]);
     R_GPU_EndTimer();
   }
   else if ( rg.halfResEmissive )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+0F30h+var_F90], xmm0
-    }
-    RB_HalfRes_Upsample(&v55, _RSI);
+    v31 = *gfxContext;
+    RB_HalfRes_Upsample(&v31, viewInfo);
   }
-  __asm { vmovaps xmm6, [rsp+1030h+var_40] }
-  if ( (_RSI->matRenderFeatures & 2) != 0 )
+  if ( (viewInfo->matRenderFeatures & 2) != 0 )
   {
     R_GPU_BeginTimer(GPU_TIMER_RESOLVE_DISTORTION_1);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+30C0h]
-      vmovups [rbp+0F30h+var_DB0], ymm0
-    }
-    R_AddRenderTargetTransition(v6, &v71, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v47 = viewInfo->sceneRtInput.m_mainSceneColorRt;
+    R_AddRenderTargetTransition(v6, &v47, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(v6);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+0F30h+var_F80], xmm0
-    }
-    RB_ResolveDistortion(&v56, _RSI);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+30C0h]
-      vmovups [rbp+0F30h+var_D90], ymm0
-    }
-    R_AddRenderTargetTransition(v6, &v72, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v32 = *gfxContext;
+    RB_ResolveDistortion(&v32, viewInfo);
+    v48 = viewInfo->sceneRtInput.m_mainSceneColorRt;
+    R_AddRenderTargetTransition(v6, &v48, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(v6);
     R_GPU_EndTimer();
   }
   R_UnlockIfGfxImmediateContext(v6->device);
   if ( !rg.debugShaderEnabled )
   {
-    R_Draw_GetRtGroup(_RSI, DRAWLIST_DISTORT_EMISSIVE, &v78);
-    RB_RunDrawList(_RSI, timeoutUserData, &v78, DRAWLIST_DISTORT_EMISSIVE);
+    R_Draw_GetRtGroup(viewInfo, DRAWLIST_DISTORT_EMISSIVE, &v54);
+    RB_RunDrawList(viewInfo, timeoutUserData, &v54, DRAWLIST_DISTORT_EMISSIVE);
   }
   R_LockIfGfxImmediateContext(v6->device);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups xmmword ptr [rsp+1030h+input], xmm0
-  }
-  RB_FL_RenderDebugProxies((GfxCmdBufContext *)input, _RSI);
-  v37 = timeoutUserData;
+  _XMM0 = *gfxContext;
+  *(GfxCmdBufContext *)input = *gfxContext;
+  RB_FL_RenderDebugProxies((GfxCmdBufContext *)input, viewInfo);
+  v20 = timeoutUserData;
   if ( particle_show_tris->current.enabled || (integer = r_showTris->current.integer) != 0 )
   {
-    __asm
+    v21 = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneColorRt;
+    v35 = (__m256i)viewInfo->sceneRtInput.m_mainSceneDepthRt;
+    v33 = (R_RT_Handle)v35;
+    v34 = v21;
+    v49 = v21;
+    if ( LOWORD(_XMM0.source) )
     {
-      vmovups ymm0, ymmword ptr [rsi+31A0h]
-      vmovups ymm1, ymmword ptr [rsi+30C0h]
-      vmovd   eax, xmm0
-      vmovups [rbp+0F30h+var_F30], ymm0
-      vmovups ymmword ptr [rbp+0F30h+var_F70.m_surfaceID], ymm0
-      vmovups [rbp+0F30h+var_F50], ymm1
-      vmovups [rbp+0F30h+var_D70], ymm1
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v57);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+0F30h+var_F70.m_surfaceID]
-        vmovups [rbp+0F30h+var_F30], ymm0
-      }
+      R_RT_Handle::GetSurface(&v33);
+      v35 = (__m256i)v33;
     }
     else
     {
@@ -4326,34 +3310,24 @@ void RB_DrawEmissive(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, 
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 463, ASSERT_TYPE_ASSERT, "(depthRt)", (const char *)&queryFormat, "depthRt") )
         __debugbreak();
     }
-    __asm
+    v51.m_colorRtCount = 1;
+    v50 = v34;
+    if ( LOWORD(_XMM0.source) )
     {
-      vmovups ymm0, [rbp+0F30h+var_F50]
-      vmovd   eax, xmm0
-    }
-    v75.m_colorRtCount = 1;
-    __asm { vmovups ymmword ptr [rbp+0F30h+var_D50.m_surfaceID], ymm0 }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v74);
+      R_RT_Handle::GetSurface(&v50);
     }
     else
     {
-      if ( v73.m256i_i32[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+      if ( v49.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
         __debugbreak();
     }
-    __asm
-    {
-      vmovups ymm0, [rbp+0F30h+var_F50]
-      vmovups ymmword ptr [rbp+0F30h+var_D30.m_colorRts.baseclass_0.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+0F30h+var_F30]
-      vmovups ymmword ptr [rbp+0F30h+var_D30.m_depthRt.baseclass_0.m_surfaceID], ymm0
-    }
-    R_ShowTris_Draw(_RSI, v37, &v75, (R_SHOW_TRIS)integer);
+    v51.m_colorRts[0] = (R_RT_ColorHandle)v34;
+    v51.m_depthRt = (R_RT_DepthHandle)v35;
+    R_ShowTris_Draw(viewInfo, v20, &v51, (R_SHOW_TRIS)integer);
   }
-  R_UnlockIfGfxImmediateContext(_R14->state->device);
+  R_UnlockIfGfxImmediateContext(gfxContext->state->device);
   Profile2_UpdateEntry(60);
   if ( ((unsigned __int64)&dword_14FDE80C0 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80C0) )
     __debugbreak();
@@ -4388,173 +3362,87 @@ RB_DrawFogSplineOverlap
 */
 void RB_DrawFogSplineOverlap(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, int drawFogSpline)
 {
-  int v17; 
-  int v18; 
-  GfxFogSplineBlendEntry *v21; 
-  __int64 v23; 
+  int v5; 
+  int v6; 
+  GfxFogSplineBlendEntry *v8; 
+  __int64 v9; 
   GfxImage *zero1DImage; 
+  int v11; 
   GfxCmdBufSourceState *source; 
+  float v13; 
+  float v14; 
   GfxCmdBufInput *p_input; 
+  GfxCmdBufContext v16; 
   GfxFont *debugFont; 
-  const char *v43; 
-  float fmt; 
-  float fmta; 
-  float v65; 
-  float v66; 
-  float v67; 
-  float v68; 
-  float v69; 
-  GfxCmdBufContext v70; 
-  char v81; 
+  const char *v18; 
+  __int128 v21; 
+  GfxCmdBufContext v22; 
 
-  __asm
-  {
-    vmovaps [rsp+138h+var_78], xmm10
-    vmovaps [rsp+138h+var_88], xmm11
-  }
-  _R12 = gfxContext;
-  v17 = -1;
+  v5 = -1;
   if ( drawFogSpline >= 2 )
-    v17 = drawFogSpline - 2;
-  v18 = 8;
+    v5 = drawFogSpline - 2;
+  v6 = 8;
   if ( drawFogSpline != 1 )
-    v18 = v17 + 1;
-  __asm
+    v6 = v5 + 1;
+  _XMM11 = 0i64;
+  if ( v5 < (__int64)v6 )
   {
-    vxorps  xmm10, xmm10, xmm10
-    vxorps  xmm11, xmm11, xmm11
-  }
-  if ( v17 < (__int64)v18 )
-  {
-    __asm { vmovaps [rsp+138h+var_58], xmm8 }
-    v21 = &viewInfo->fog.fogSplineBlendEntry[v17];
-    __asm
+    v8 = &viewInfo->fog.fogSplineBlendEntry[v5];
+    v9 = v6 - (__int64)v5;
+    while ( v5 >= 0 && (unsigned int)v5 < 8 )
     {
-      vmovss  xmm8, cs:__real@41400000
-      vmovaps [rsp+138h+var_68], xmm9
-    }
-    v23 = v18 - (__int64)v17;
-    __asm
-    {
-      vmovss  xmm9, cs:__real@41c00000
-      vmovaps [rsp+138h+var_98], xmm12
-      vmovss  xmm12, cs:__real@41000000
-      vmovaps [rsp+138h+var_A8], xmm13
-      vmovss  xmm13, cs:__real@3f800000
-      vmovaps [rsp+138h+var_B8], xmm14
-      vmovss  xmm14, cs:__real@3f400000
-      vmovaps [rsp+138h+var_C8], xmm15
-      vmovss  xmm15, cs:__real@41800000
-      vmovaps [rsp+138h+var_38], xmm6
-      vmovaps [rsp+138h+var_48], xmm7
-    }
-    while ( v17 >= 0 && (unsigned int)v17 < 8 )
-    {
-      if ( v17 < viewInfo->fog.fogSplineBlendCount )
+      if ( v5 < viewInfo->fog.fogSplineBlendCount )
       {
         zero1DImage = rgp.zero1DImage;
-        if ( v21->image )
-          zero1DImage = (GfxImage *)v21->image;
+        if ( v8->image )
+          zero1DImage = (GfxImage *)v8->image;
         goto LABEL_14;
       }
-LABEL_22:
-      ++v17;
-      ++v21;
-      if ( !--v23 )
-      {
-        __asm
-        {
-          vmovaps xmm15, [rsp+138h+var_C8]
-          vmovaps xmm14, [rsp+138h+var_B8]
-          vmovaps xmm13, [rsp+138h+var_A8]
-          vmovaps xmm12, [rsp+138h+var_98]
-          vmovaps xmm9, [rsp+138h+var_68]
-          vmovaps xmm8, [rsp+138h+var_58]
-          vmovaps xmm7, [rsp+138h+var_48]
-          vmovaps xmm6, [rsp+138h+var_38]
-        }
-        goto LABEL_24;
-      }
+LABEL_25:
+      ++v5;
+      ++v8;
+      if ( !--v9 )
+        return;
     }
     zero1DImage = (GfxImage *)RB_FogSpline_GetImage(&viewInfo->fog, viewInfo->clientIndex);
 LABEL_14:
     if ( zero1DImage )
     {
-      source = _R12->source;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vmulss  xmm6, xmm1, xmm9
-        vmulss  xmm7, xmm0, xmm8
-      }
-      if ( !_R12->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+      LOWORD(v11) = zero1DImage->width;
+      if ( (_WORD)v11 == 1 )
+        v11 = 128;
+      else
+        v11 = (unsigned __int16)v11;
+      source = gfxContext->source;
+      v13 = (float)zero1DImage->height * 24.0;
+      v14 = (float)v11 * 12.0;
+      if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
         __debugbreak();
       p_input = &source->input;
       if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
         __debugbreak();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r12]
-        vmovss  [rsp+138h+var_F0], xmm13
-        vmovss  [rsp+138h+var_F8], xmm13
-        vmovss  [rsp+138h+var_100], xmm10
-        vmovss  [rsp+138h+var_108], xmm10
-      }
+      v16 = *gfxContext;
       p_input->codeImages[4] = zero1DImage;
-      __asm
-      {
-        vmovss  dword ptr [rsp+138h+var_110], xmm6
-        vaddss  xmm3, xmm11, xmm12
-        vmovaps xmm2, xmm12
-        vmovss  dword ptr [rsp+138h+fmt], xmm7
-        vmovups [rsp+138h+var_D8], xmm0
-      }
-      RB_DrawStretchPic(&v70, rgp.feedbackReplaceBackbufferMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v65, v66, v67, v68, v69, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r12]
-        vmovups [rsp+138h+var_D8], xmm0
-      }
-      RB_EndTessSurfaceInternal(&v70, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5255)");
+      v22 = v16;
+      RB_DrawStretchPic(&v22, rgp.feedbackReplaceBackbufferMaterial, 8.0, *(float *)&_XMM11 + 8.0, v14, v13, 0.0, 0.0, 1.0, 1.0, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
+      v22 = *gfxContext;
+      RB_EndTessSurfaceInternal(&v22, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5255)");
       debugFont = backEnd.debugFont;
-      v43 = j_va((const char *)&queryFormat, zero1DImage->name);
+      v18 = j_va((const char *)&queryFormat, zero1DImage->name);
+      v22 = *gfxContext;
+      RB_DrawText(&v22, v18, debugFont, v14 + 16.0, (float)((float)(v13 * 0.75) + *(float *)&_XMM11) + 8.0, (const GfxColor)-1);
+      v22 = *gfxContext;
+      RB_EndTessSurfaceInternal(&v22, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5258)");
       __asm
       {
-        vmovups xmm0, xmmword ptr [r12]
-        vmulss  xmm1, xmm6, xmm14
-        vaddss  xmm2, xmm1, xmm11
-        vmovups [rsp+138h+var_D8], xmm0
-        vaddss  xmm0, xmm2, xmm12
-        vaddss  xmm3, xmm7, xmm15
-        vmovss  dword ptr [rsp+138h+fmt], xmm0
-      }
-      RB_DrawText(&v70, v43, debugFont, *(float *)&_XMM3, fmta, (const GfxColor)-1);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r12]
-        vmovups [rsp+138h+var_D8], xmm0
-      }
-      RB_EndTessSurfaceInternal(&v70, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5258)");
-      __asm
-      {
-        vmovss  xmm1, cs:__real@40c00000
         vcmpeqss xmm0, xmm11, xmm10
         vblendvps xmm2, xmm11, xmm1, xmm0
-        vaddss  xmm1, xmm6, cs:__real@40400000
-        vaddss  xmm11, xmm2, xmm1
       }
+      v21 = _XMM2;
+      *(float *)&v21 = *(float *)&_XMM2 + (float)(v13 + 3.0);
+      _XMM11 = v21;
     }
-    goto LABEL_22;
-  }
-LABEL_24:
-  _R11 = &v81;
-  __asm
-  {
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
+    goto LABEL_25;
   }
 }
 
@@ -4632,121 +3520,78 @@ void RB_DrawForward_Trans(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewI
   GfxCmdBufState *state; 
   const R_RT_Surface *Surface; 
   const GfxTexture *Resident; 
-  const char *m_location; 
-  D3D12_RESOURCE_STATES v23; 
-  const R_RT_Surface *v25; 
-  const GfxTexture *v26; 
-  GfxCmdBufContext v30; 
-  __m256i v31; 
-  R_RT_Handle v32; 
-  R_RT_ColorHandle v33; 
-  R_RT_ColorHandle v34; 
-  R_RT_ColorHandle v35; 
-  R_RT_Handle v36; 
-  R_RT_ColorHandle v37; 
-  R_RT_ColorHandle v38; 
-  R_RT_Group v39; 
+  GfxCmdBufContext v9; 
+  D3D12_RESOURCE_STATES v10; 
+  const R_RT_Surface *v11; 
+  const GfxTexture *v12; 
+  GfxCmdBufContext v13; 
+  R_RT_Handle m_waterFloatZRt; 
+  R_RT_Handle v15; 
+  R_RT_ColorHandle m_mainSceneColorRt; 
+  R_RT_ColorHandle m_mainSceneAlphaRt; 
+  R_RT_Handle v18; 
+  R_RT_Handle v19; 
+  R_RT_ColorHandle v20; 
+  R_RT_ColorHandle v21; 
+  R_RT_Group v22; 
   R_RT_Group rtGroup; 
-  R_RT_Group v41; 
+  R_RT_Group v24; 
 
-  _RBX = viewInfo;
-  _R15 = gfxContext;
   if ( &data->viewInfo[data->viewInfoIndex] != viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 5640, ASSERT_TYPE_ASSERT, "(&data->viewInfo[data->viewInfoIndex] == viewInfo)", (const char *)&queryFormat, "&data->viewInfo[data->viewInfoIndex] == viewInfo") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rbx+30C0h] }
-  state = _R15->state;
-  __asm { vmovups [rbp+300h+var_370], ymm0 }
-  R_AddRenderTargetTransition(state, &v33, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+30E0h]
-    vmovups [rbp+300h+var_350], ymm0
-  }
-  R_AddRenderTargetTransition(state, &v34, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  state = gfxContext->state;
+  m_mainSceneColorRt = viewInfo->sceneRtInput.m_mainSceneColorRt;
+  R_AddRenderTargetTransition(state, &m_mainSceneColorRt, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  m_mainSceneAlphaRt = viewInfo->sceneRtInput.m_mainSceneAlphaRt;
+  R_AddRenderTargetTransition(state, &m_mainSceneAlphaRt, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  R_Draw_GetRtGroup(_RBX, DRAWLIST_LIT_TRANS, &rtGroup);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+33A0h]
-    vmovups [rsp+400h+var_3B0], ymm0
-    vmovups ymmword ptr [rsp+400h+var_390.m_surfaceID], ymm0
-  }
-  Surface = R_RT_Handle::GetSurface(&v32);
+  R_Draw_GetRtGroup(viewInfo, DRAWLIST_LIT_TRANS, &rtGroup);
+  m_waterFloatZRt = (R_RT_Handle)viewInfo->sceneRtInput.m_waterFloatZRt;
+  v15 = m_waterFloatZRt;
+  Surface = R_RT_Handle::GetSurface(&v15);
   Resident = R_Texture_GetResident(Surface->m_image.m_base.textureId);
   R_HW_AddResourceTransition(state, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm
+  v18 = m_waterFloatZRt;
+  R_RT_Group::AssignColor(&v22, (R_RT_ColorHandle *)&v18);
+  *(__m256i *)&v24.m_colorRtCount = *(__m256i *)&v22.m_colorRtCount;
+  *(__m256i *)&v24.m_colorRts[0].m_tracking.m_location = *(__m256i *)&v22.m_colorRts[0].m_tracking.m_location;
+  *(__m256i *)&v24.m_colorRts[1].m_tracking.m_location = *(__m256i *)&v22.m_colorRts[1].m_tracking.m_location;
+  *(__m256i *)&v24.m_colorRts[2].m_tracking.m_location = *(__m256i *)&v22.m_colorRts[2].m_tracking.m_location;
+  v9 = *gfxContext;
+  *(__m256i *)&v24.m_colorRts[3].m_tracking.m_location = *(__m256i *)&v22.m_colorRts[3].m_tracking.m_location;
+  *(__m256i *)&v24.m_depthRt.m_tracking.m_location = *(__m256i *)&v22.m_depthRt.m_tracking.m_location;
+  v24.m_vrsRt.m_tracking.m_location = v22.m_vrsRt.m_tracking.m_location;
+  v13 = v9;
+  R_ClearRenderTarget(&v13, &v24, 0xFu, 0);
+  v10 = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+  if ( (viewInfo->matRenderFeatures & 4) != 0 )
   {
-    vmovups ymm0, [rsp+400h+var_3B0]
-    vmovups [rbp+300h+var_330], ymm0
-  }
-  R_RT_Group::AssignColor(&v39, &v35);
-  _RCX = &v41;
-  _RAX = &v39;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups xmm0, xmmword ptr [r15]
-    vmovups ymmword ptr [rcx+80h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-  }
-  m_location = v39.m_vrsRt.m_tracking.m_location;
-  __asm { vmovups ymmword ptr [rcx+0A0h], ymm1 }
-  v41.m_vrsRt.m_tracking.m_location = m_location;
-  __asm { vmovups [rsp+400h+var_3C0], xmm0 }
-  R_ClearRenderTarget(&v30, &v41, 0xFu, 0);
-  v23 = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
-  if ( (_RBX->matRenderFeatures & 4) != 0 )
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+400h+var_390.m_surfaceID]
-      vmovups [rbp+300h+var_310], ymm0
-    }
-    R_HW_AddResourceTransition(state, &v36, 0xFFFFFFFF, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v19 = v15;
+    R_HW_AddResourceTransition(state, &v19, 0xFFFFFFFF, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
   }
-  RB_RunDrawList(_RBX, data, &rtGroup, DRAWLIST_LIT_TRANS);
-  if ( (_RBX->matRenderFeatures & 4) == 0 )
-    v23 = D3D12_RESOURCE_STATE_RENDER_TARGET;
-  v25 = R_RT_Handle::GetSurface(&v32);
-  v26 = R_Texture_GetResident(v25->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(state, v26, 0xFFFFFFFF, v23, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_LIT_TRANS);
+  if ( (viewInfo->matRenderFeatures & 4) == 0 )
+    v10 = D3D12_RESOURCE_STATE_RENDER_TARGET;
+  v11 = R_RT_Handle::GetSurface(&v15);
+  v12 = R_Texture_GetResident(v11->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(state, v12, 0xFFFFFFFF, v10, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  if ( (_RBX->matRenderFeatures & 1) != 0 )
+  if ( (viewInfo->matRenderFeatures & 1) != 0 )
   {
     R_GPU_BeginTimer(GPU_TIMER_RESOLVE_DISTORTION_0);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+30C0h]
-      vmovups [rbp+300h+var_2F0], ymm0
-    }
-    R_AddRenderTargetTransition(state, &v37, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v20 = viewInfo->sceneRtInput.m_mainSceneColorRt;
+    R_AddRenderTargetTransition(state, &v20, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15]
-      vmovups xmmword ptr [rsp+400h+var_3B0], xmm0
-    }
-    RB_ResolveDistortion((GfxCmdBufContext *)&v31, _RBX);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+30C0h]
-      vmovups [rbp+300h+var_2D0], ymm0
-    }
-    R_AddRenderTargetTransition(state, &v38, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    *(GfxCmdBufContext *)&m_waterFloatZRt.m_surfaceID = *gfxContext;
+    RB_ResolveDistortion((GfxCmdBufContext *)&m_waterFloatZRt, viewInfo);
+    v21 = viewInfo->sceneRtInput.m_mainSceneColorRt;
+    R_AddRenderTargetTransition(state, &v21, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
     R_GPU_EndTimer();
   }
-  RB_RunDrawList(_RBX, data, &rtGroup, DRAWLIST_LIT_TRANS1);
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_LIT_TRANS1);
 }
 
 /*
@@ -4756,278 +3601,136 @@ RB_DrawHeightmapOverlay
 */
 void RB_DrawHeightmapOverlay(GfxCmdBufContext *gfxContext)
 {
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
   __int64 viewInfoIndex; 
   GfxViewInfo *viewInfo; 
   __int64 voxelTreeZoneIndex; 
-  GfxWorld *world; 
-  char v40; 
-  char v41; 
-  char v66; 
-  char v67; 
+  GfxHeightfield *v11; 
+  GfxCmdBufSourceState *source; 
+  float v13; 
+  float v14; 
+  float v15; 
+  __int64 renderTargetWidth; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float renderTargetHeight; 
+  float v29; 
+  GfxFont *v30; 
+  const char *v31; 
+  const char *v32; 
   GfxFont *debugFont; 
-  const char *v91; 
-  const char *v95; 
-  GfxFont *v96; 
-  const char *v97; 
-  float v106; 
-  double v107; 
-  float v108; 
-  float v109; 
-  float v110; 
-  double v111; 
-  float v112; 
-  double v113; 
-  float v114; 
-  double v115; 
-  float v116; 
-  float v117; 
-  GfxCmdBufContext v118; 
+  const char *v34; 
+  GfxCmdBufContext v35; 
+  float v36; 
+  float v37; 
   vec4_t out; 
-  void *retaddr; 
+  __int128 v39; 
+  __int128 v40; 
+  __int128 v41; 
+  __int128 v42; 
+  __int128 v43; 
+  __int128 v44; 
 
-  _R11 = &retaddr;
-  _RDI = gfxContext;
   viewInfoIndex = backEndData->viewInfoIndex;
   viewInfo = backEndData->viewInfo;
   voxelTreeZoneIndex = (int)viewInfo[viewInfoIndex].input.voxelTreeZoneIndex;
-  if ( (int)voxelTreeZoneIndex >= 0 )
+  if ( (int)voxelTreeZoneIndex >= 0 && (int)voxelTreeZoneIndex < rgp.world->heightfieldCount )
   {
-    world = rgp.world;
-    if ( (int)voxelTreeZoneIndex < rgp.world->heightfieldCount )
+    v44 = v1;
+    v43 = v2;
+    v42 = v3;
+    v41 = v4;
+    v40 = v5;
+    v11 = &rgp.world->heightfields[voxelTreeZoneIndex];
+    v39 = v6;
+    MatrixTransformPos44(&viewInfo[viewInfoIndex].viewParmsSet.frames[0].viewParms.camera.origin, &v11->lookupMatrix, &out);
+    source = gfxContext->source;
+    v13 = out.v[2];
+    v14 = out.v[1];
+    source->input.consts[38].v[0] = out.v[0];
+    source->input.consts[38].v[1] = v14;
+    source->input.consts[38].v[2] = v13;
+    source->input.consts[38].v[3] = 0.0;
+    ++source->constVersions[38];
+    v15 = 1.0 / r_showHeightmapScale->current.value;
+    renderTargetWidth = source->renderTargetWidth;
+    v17 = (float)(1.0 - v15) * out.v[1];
+    v18 = (float)(1.0 - v15) * out.v[0];
+    v37 = v18 + v15;
+    v19 = v11->bounds.halfSize.v[1] / v11->bounds.halfSize.v[0];
+    v36 = v17 + v15;
+    v21 = 0i64;
+    v20 = (float)renderTargetWidth;
+    *(float *)&v21 = v20 * 0.125;
+    _XMM0 = v21;
+    __asm { vmaxss  xmm10, xmm0, cs:__real@43800000 }
+    *(float *)&_XMM0 = sinf_0((float)((float)(source->sceneDef.floatTime * 3.1415927) * 2.0) * 2.0);
+    v24 = (float)((float)((float)((float)(1.0 - (float)((float)(*(float *)&_XMM0 + 1.0) * 0.5)) * 0.5) + (float)((float)(*(float *)&_XMM0 + 1.0) * 0.5)) * (float)(8.0 / *(float *)&_XMM10)) * v15;
+    v25 = *(float *)&_XMM10;
+    v26 = *(float *)&_XMM10;
+    v27 = *(float *)&_XMM10 * v19;
+    if ( v19 <= 1.0 )
     {
-      __asm
+      v26 = *(float *)&_XMM10 * v19;
+      if ( v27 > (float)(v20 * 0.75) )
       {
-        vmovaps xmmword ptr [r11-18h], xmm6
-        vmovaps xmmword ptr [r11-28h], xmm7
-        vmovaps xmmword ptr [r11-38h], xmm8
-        vmovaps xmmword ptr [r11-48h], xmm9
-        vmovaps xmmword ptr [r11-58h], xmm10
-        vmovaps xmmword ptr [r11-68h], xmm11
-        vmovaps xmmword ptr [r11-78h], xmm12
-        vmovaps xmmword ptr [r11-88h], xmm13
-        vmovaps xmmword ptr [r11-98h], xmm14
+        v26 = v20 * 0.75;
+        v25 = (float)((float)(v20 * 0.75) / v27) * *(float *)&_XMM10;
       }
-      _RBP = (__int64)&world->heightfields[voxelTreeZoneIndex];
-      __asm { vmovaps xmmword ptr [r11-0A8h], xmm15 }
-      MatrixTransformPos44(&viewInfo[viewInfoIndex].viewParmsSet.frames[0].viewParms.camera.origin, (const tmat44_t<vec4_t> *)(_RBP + 24), &out);
-      _RBX = _RDI->source;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsp+138h+out+8]
-        vmovss  xmm1, dword ptr [rsp+138h+out+4]
-        vmovss  xmm0, dword ptr [rsp+138h+out]
-        vmovss  xmm8, cs:__real@3f800000
-        vmovss  xmm12, cs:__real@40000000
-        vmovss  dword ptr [rbx+960h], xmm0
-        vmovss  dword ptr [rbx+964h], xmm1
-        vmovss  dword ptr [rbx+968h], xmm2
-      }
-      _RBX->input.consts[38].v[3] = 0.0;
-      ++_RBX->constVersions[38];
-      __asm
-      {
-        vxorps  xmm13, xmm13, xmm13
-        vdivss  xmm6, xmm8, dword ptr [rax+28h]
-        vsubss  xmm0, xmm8, xmm6
-        vmulss  xmm14, xmm0, dword ptr [rsp+138h+out+4]
-        vmulss  xmm15, xmm0, dword ptr [rsp+138h+out]
-        vaddss  xmm1, xmm14, xmm6
-        vaddss  xmm0, xmm15, xmm6
-        vmovss  [rsp+138h+var_C4], xmm0
-        vmovss  xmm0, dword ptr [rbp+10h]
-        vdivss  xmm11, xmm0, dword ptr [rbp+0Ch]
-        vmovss  [rsp+138h+var_C8], xmm1
-        vmovss  xmm1, dword ptr [rbx+2CE8h]
-        vmulss  xmm2, xmm1, cs:__real@40490fdb
-        vcvtsi2ss xmm13, xmm13, rax
-        vmulss  xmm0, xmm13, cs:__real@3e000000
-        vmaxss  xmm10, xmm0, cs:__real@43800000
-        vmulss  xmm0, xmm2, xmm12
-        vmulss  xmm0, xmm0, xmm12; X
-      }
-      *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vcomiss xmm11, xmm8
-        vmovss  xmm9, cs:__real@41000000
-        vaddss  xmm1, xmm0, xmm8
-        vmulss  xmm3, xmm1, cs:__real@3f000000
-        vsubss  xmm0, xmm8, xmm3
-        vmulss  xmm1, xmm0, cs:__real@3f000000
-        vaddss  xmm4, xmm1, xmm3
-        vdivss  xmm0, xmm9, xmm10
-        vmulss  xmm1, xmm4, xmm0
-        vmulss  xmm3, xmm1, xmm6
-        vmovaps xmm6, xmm10
-        vmovaps xmm7, xmm10
-        vmulss  xmm2, xmm10, xmm11
-      }
-      if ( v40 | v41 )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm13, cs:__real@3f400000
-          vcomiss xmm2, xmm0
-          vmovaps xmm7, xmm2
-        }
-        if ( !(v40 | v41) )
-        {
-          __asm
-          {
-            vmovaps xmm7, xmm0
-            vdivss  xmm0, xmm0, xmm2
-            vmulss  xmm6, xmm0, xmm10
-          }
-        }
-        __asm { vmovss  dword ptr [rbx+970h], xmm11 }
-        _RBX->input.consts[39].v[1] = 1.0;
-      }
-      else
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, cs:__real@3f400000
-          vcomiss xmm2, xmm1
-          vmovaps xmm6, xmm2
-        }
-        if ( !(v40 | v41) )
-        {
-          __asm
-          {
-            vdivss  xmm0, xmm1, xmm2
-            vmulss  xmm7, xmm0, xmm10
-            vmovaps xmm6, xmm1
-          }
-        }
-        __asm { vmovss  dword ptr [rbx+974h], xmm11 }
-        _RBX->input.consts[39].v[0] = 1.0;
-      }
-      __asm { vmovss  dword ptr [rbx+978h], xmm3 }
-      _RBX->input.consts[39].v[3] = 0.0;
-      ++_RBX->constVersions[39];
-      R_SetCodeImageTextureInternal(_RBX, 4u, *(const GfxImage **)(_RBP + 88), "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5079)");
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovss  xmm1, [rsp+138h+var_C4]
-        vmovups [rsp+138h+var_D8], xmm0
-        vmovss  xmm0, [rsp+138h+var_C8]
-        vmovss  [rsp+138h+var_F0], xmm0
-        vmovss  [rsp+138h+var_F8], xmm1
-        vmovss  dword ptr [rsp+138h+var_100], xmm14
-        vmovss  dword ptr [rsp+138h+var_108], xmm15
-        vmovss  dword ptr [rsp+138h+var_110], xmm6
-        vmovaps xmm3, xmm9
-        vmovaps xmm2, xmm9
-        vmovss  dword ptr [rsp+138h+var_118], xmm7
-      }
-      RB_DrawStretchPic(&v118, rgp.showHeightmap, *(float *)&_XMM2, *(float *)&_XMM3, v106, v110, v112, v114, v116, v117, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups [rsp+138h+var_D8], xmm0
-      }
-      RB_EndTessSurfaceInternal(&v118, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5081)");
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsp+138h+out]
-        vmovaps xmm15, [rsp+138h+var_A8]
-        vmovaps xmm14, [rsp+138h+var_98]
-        vmovaps xmm13, [rsp+138h+var_88]
-        vmovaps xmm11, [rsp+138h+var_68]
-        vmovaps xmm10, [rsp+138h+var_58]
-        vmovaps xmm7, [rsp+138h+var_28]
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm1, xmm0
-      }
-      if ( v66 )
-        goto LABEL_17;
-      __asm { vcomiss xmm1, xmm8 }
-      if ( !(v66 | v67) )
-        goto LABEL_17;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsp+138h+out+4]
-        vcomiss xmm1, xmm0
-        vcomiss xmm1, xmm8
-      }
-      if ( !(v66 | v67) )
-        goto LABEL_17;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsp+138h+out+8]
-        vcomiss xmm1, xmm0
-        vcomiss xmm1, xmm8
-      }
-      if ( v66 | v67 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0Ch]
-          vmovss  xmm1, dword ptr [rbp+10h]
-        }
-        _RAX = r_showHeightmapScale;
-        debugFont = backEnd.debugFont;
-        __asm
-        {
-          vmulss  xmm5, xmm0, xmm12
-          vmovss  xmm0, dword ptr [rbp+14h]
-          vmulss  xmm2, xmm0, xmm12
-          vmovss  xmm0, dword ptr [rax+28h]
-          vmulss  xmm3, xmm1, xmm12
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+138h+var_100], xmm0
-          vcvtss2sd xmm1, xmm2, xmm2
-          vmovsd  [rsp+138h+var_108], xmm1
-          vcvtss2sd xmm4, xmm3, xmm3
-          vcvtss2sd xmm5, xmm5, xmm5
-          vmovsd  [rsp+138h+var_110], xmm4
-          vmovsd  [rsp+138h+var_118], xmm5
-        }
-        v91 = j_va("zone%d image=%dx%d bound=%3.0fx%3.0fx%3.0f zoom=%4.1f", (unsigned int)voxelTreeZoneIndex, *(unsigned __int16 *)(*(_QWORD *)(_RBP + 88) + 36i64), *(unsigned __int16 *)(*(_QWORD *)(_RBP + 88) + 38i64), v107, v111, v113, v115);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi]
-          vaddss  xmm1, xmm6, cs:__real@41e00000
-          vmovaps xmm3, xmm9
-          vmovss  dword ptr [rsp+138h+var_118], xmm1
-          vmovups [rsp+138h+var_D8], xmm0
-        }
-        RB_DrawText(&v118, v91, debugFont, *(float *)&_XMM3, v108, (const GfxColor)-1);
-        v95 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5095)";
-      }
-      else
-      {
-LABEL_17:
-        v96 = backEnd.debugFont;
-        v97 = j_va("camera is outside zone%d heightmap coverage", (unsigned int)voxelTreeZoneIndex);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi]
-          vaddss  xmm1, xmm6, cs:__real@41e00000
-          vmovaps xmm3, xmm9
-          vmovss  dword ptr [rsp+138h+var_118], xmm1
-          vmovups [rsp+138h+var_D8], xmm0
-        }
-        RB_DrawText(&v118, v97, v96, *(float *)&_XMM3, v109, (const GfxColor)-16776961);
-        v95 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5103)";
-      }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups [rsp+138h+var_D8], xmm0
-      }
-      RB_EndTessSurfaceInternal(&v118, v95);
-      __asm
-      {
-        vmovaps xmm9, [rsp+138h+var_48]
-        vmovaps xmm8, [rsp+138h+var_38]
-        vmovaps xmm6, [rsp+138h+var_18]
-        vmovaps xmm12, [rsp+138h+var_78]
-      }
+      source->input.consts[39].v[0] = v19;
+      source->input.consts[39].v[1] = 1.0;
     }
+    else
+    {
+      renderTargetHeight = (float)source->renderTargetHeight;
+      v29 = renderTargetHeight * 0.75;
+      v25 = *(float *)&_XMM10 * v19;
+      if ( v27 > v29 )
+      {
+        v26 = (float)(v29 / v27) * *(float *)&_XMM10;
+        v25 = v29;
+      }
+      source->input.consts[39].v[1] = v19;
+      source->input.consts[39].v[0] = 1.0;
+    }
+    source->input.consts[39].v[2] = v24;
+    source->input.consts[39].v[3] = 0.0;
+    ++source->constVersions[39];
+    R_SetCodeImageTextureInternal(source, 4u, v11->image, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5079)");
+    v35 = *gfxContext;
+    RB_DrawStretchPic(&v35, rgp.showHeightmap, 8.0, 8.0, v26, v25, v18, v17, v37, v36, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
+    v35 = *gfxContext;
+    RB_EndTessSurfaceInternal(&v35, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5081)");
+    if ( out.v[0] < 0.0 || out.v[0] > 1.0 || out.v[1] < 0.0 || out.v[1] > 1.0 || out.v[2] < 0.0 || out.v[2] > 1.0 )
+    {
+      debugFont = backEnd.debugFont;
+      v34 = j_va("camera is outside zone%d heightmap coverage", (unsigned int)voxelTreeZoneIndex);
+      v35 = *gfxContext;
+      RB_DrawText(&v35, v34, debugFont, 8.0, v25 + 28.0, (const GfxColor)-16776961);
+      v32 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5103)";
+    }
+    else
+    {
+      v30 = backEnd.debugFont;
+      v31 = j_va("zone%d image=%dx%d bound=%3.0fx%3.0fx%3.0f zoom=%4.1f", (unsigned int)voxelTreeZoneIndex, v11->image->width, v11->image->height, (float)(v11->bounds.halfSize.v[0] * 2.0), (float)(v11->bounds.halfSize.v[1] * 2.0), (float)(v11->bounds.halfSize.v[2] * 2.0), r_showHeightmapScale->current.value);
+      v35 = *gfxContext;
+      RB_DrawText(&v35, v31, v30, 8.0, v25 + 28.0, (const GfxColor)-1);
+      v32 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5095)";
+    }
+    v35 = *gfxContext;
+    RB_EndTessSurfaceInternal(&v35, v32);
   }
 }
 
@@ -5039,327 +3742,224 @@ RB_DrawLightmapOverlap
 void RB_DrawLightmapOverlap(GfxCmdBufContext *gfxContext, const GfxBackEndData *data, unsigned int drawLightmap)
 {
   signed __int64 v3; 
-  void *v15; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  void *v11; 
+  GfxCmdBufContext *v13; 
   GfxLightmapType lightmapType; 
-  unsigned int v21; 
-  unsigned int v33; 
+  unsigned int v15; 
+  unsigned int v16; 
+  float v17; 
+  __int128 v19; 
+  float displayHeight; 
+  __int128 v22; 
+  float v23; 
+  GfxCmdBufContext v24; 
+  unsigned int v25; 
+  GfxCmdBufSourceState *source; 
+  __int128 v27; 
+  float v28; 
   const GfxImage *LightmapAtlasTexture; 
-  __int64 *v43; 
-  int v45; 
-  signed int v46; 
-  const GfxImage *v53; 
+  __int128 v30; 
+  __int128 v31; 
+  __int64 *v32; 
+  unsigned int v33; 
+  signed int v34; 
+  __int128 v35; 
+  float v36; 
+  const GfxImage *v37; 
   GfxFont *debugFont; 
-  const char *v68; 
-  GfxFont *v71; 
-  const char *v81; 
+  const char *v39; 
+  GfxFont *v40; 
+  float v41; 
+  const char *v42; 
+  __int128 v43; 
   unsigned int LightmapAtlasLightmapsCount; 
-  XZoneHandleUnique *p_worldIndex; 
-  unsigned int v91; 
+  XZoneHandleUnique *worldIndex; 
+  GfxCmdBufContext *v46; 
+  unsigned int v47; 
   unsigned __int16 *p_m_zoneIndex; 
-  __int64 v93; 
+  __int64 v49; 
   const char *ZoneNameFromIndex; 
-  GfxFont *v95; 
-  const char *v96; 
-  GfxFont *v99; 
-  unsigned int v104; 
-  const char *v105; 
-  const char *v106; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float worldIndex; 
-  float zone; 
-  float v121; 
-  float v122; 
-  float v123; 
-  GfxCmdBufContext v124; 
-  RB_DrawLightmapOverlap::__l2::<lambda_4b68385f17aa2fbc2ee34f13383fa2c0> v125; 
-  unsigned int v126; 
+  GfxFont *v51; 
+  const char *v52; 
+  GfxFont *v53; 
+  __int128 v54; 
+  unsigned int v55; 
+  const char *v56; 
+  const char *v57; 
+  GfxCmdBufContext v58; 
+  RB_DrawLightmapOverlap::__l2::<lambda_4b68385f17aa2fbc2ee34f13383fa2c0> v59; 
+  unsigned int v60; 
   unsigned int NumLightmapAtlasSlices; 
-  GfxCmdBufContext *v128; 
-  __int64 v129; 
+  GfxCmdBufContext *v62; 
+  __int64 v63; 
   RB_DrawLightmapOverlap::__l2::DebugLightmapDesc _Last[1024]; 
+  __int128 v65; 
+  __int128 v66; 
+  __int128 v67; 
+  __int128 v68; 
+  __int128 v69; 
+  __int128 v70; 
+  __int128 v71; 
 
-  v15 = alloca(v3);
-  __asm
-  {
-    vmovaps [rsp+4170h+var_40], xmm6
-    vmovaps [rsp+4170h+var_50], xmm7
-  }
-  _R15 = gfxContext;
+  v11 = alloca(v3);
+  v13 = gfxContext;
   lightmapType = g_worldDraw->lightmapType;
-  __asm
-  {
-    vmovaps [rsp+4170h+var_60], xmm8
-    vmovaps [rsp+4170h+var_70], xmm9
-  }
-  v128 = gfxContext;
-  __asm
-  {
-    vmovaps [rsp+4170h+var_90], xmm11
-    vmovaps [rsp+4170h+var_C0], xmm14
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm14, cs:__real@41000000
-  }
-  v21 = 0;
+  v71 = v4;
+  v70 = v5;
+  v62 = gfxContext;
+  v68 = v7;
+  v65 = v10;
+  v15 = 0;
   NumLightmapAtlasSlices = RB_GetNumLightmapAtlasSlices(data, lightmapType);
-  v126 = 0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vdivss  xmm0, xmm8, xmm0
-    vminss  xmm2, xmm0, cs:__real@3e4ccccd
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rcx
-    vmulss  xmm9, xmm2, xmm1
-    vmovaps xmm11, xmm14
-  }
+  v16 = 0;
+  v60 = 0;
+  v17 = (float)NumLightmapAtlasSlices;
+  v19 = LODWORD(FLOAT_1_0);
+  *(float *)&v19 = 1.0 / v17;
+  _XMM0 = v19;
+  __asm { vminss  xmm2, xmm0, cs:__real@3e4ccccd }
+  displayHeight = (float)vidConfig.displayHeight;
+  v22 = LODWORD(FLOAT_8_0);
   if ( NumLightmapAtlasSlices )
   {
-    __asm
-    {
-      vmovaps [rsp+4170h+var_80], xmm10
-      vmovaps [rsp+4170h+var_A0], xmm12
-      vmovaps [rsp+4170h+var_B0], xmm13
-      vaddss  xmm12, xmm9, xmm8
-      vxorps  xmm10, xmm10, xmm10
-    }
+    v69 = v6;
+    v67 = v8;
+    v66 = v9;
+    v23 = (float)(*(float *)&_XMM2 * displayHeight) + 1.0;
     do
     {
-      __asm { vmovups xmm7, xmmword ptr [r15] }
-      v33 = 0;
-      __asm
-      {
-        vxorps  xmm13, xmm13, xmm13
-        vmovups [rsp+4170h+var_4110], xmm7
-      }
-      _RBX = v124.source;
-      __asm
-      {
-        vmovaps xmm6, xmm14
-        vcvtsi2ss xmm13, xmm13, rax
-      }
+      v24 = *v13;
+      v25 = 0;
+      v58 = *v13;
+      source = v58.source;
+      v27 = LODWORD(FLOAT_8_0);
       do
       {
-        LightmapAtlasTexture = R_GetLightmapAtlasTexture(data, g_worldDraw->lightmapType, v33);
-        if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+        LightmapAtlasTexture = R_GetLightmapAtlasTexture(data, g_worldDraw->lightmapType, v25);
+        if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
           __debugbreak();
-        if ( _RBX == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+        if ( source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
           __debugbreak();
-        __asm
-        {
-          vmovss  [rsp+4170h+var_4128], xmm8
-          vmovss  [rsp+4170h+var_4130], xmm8
-          vmovss  [rsp+4170h+var_4138], xmm10
-          vmovss  dword ptr [rbx+1050h], xmm13
-        }
-        _RBX->input.codeImages[4] = LightmapAtlasTexture;
-        *(_QWORD *)&_RBX->input.consts[149].xyz.y = 0i64;
-        _RBX->input.consts[149].v[3] = 0.0;
-        ++_RBX->constVersions[149];
-        __asm
-        {
-          vmovss  dword ptr [rsp+4170h+zone], xmm10
-          vmovss  dword ptr [rsp+4170h+worldIndex], xmm9
-          vmovaps xmm3, xmm6
-          vmovaps xmm2, xmm11
-          vmovss  dword ptr [rsp+4170h+fmt], xmm9
-          vmovdqa [rsp+4170h+var_4110], xmm7
-        }
-        RB_DrawStretchPic(&v124, rgp.lightmapAtlasDebugMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, worldIndex, zone, v121, v122, v123, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
-        __asm { vmovdqa [rsp+4170h+var_4110], xmm7 }
-        RB_EndTessSurfaceInternal(&v124, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4883)");
-        ++v33;
-        __asm { vaddss  xmm6, xmm6, xmm12 }
+        v28 = (float)v16;
+        source->input.consts[149].v[0] = v28;
+        source->input.codeImages[4] = LightmapAtlasTexture;
+        *(_QWORD *)&source->input.consts[149].xyz.y = 0i64;
+        source->input.consts[149].v[3] = 0.0;
+        ++source->constVersions[149];
+        v58 = v24;
+        RB_DrawStretchPic(&v58, rgp.lightmapAtlasDebugMaterial, *(float *)&v22, *(float *)&v27, *(float *)&_XMM2 * displayHeight, *(float *)&_XMM2 * displayHeight, 0.0, 0.0, 1.0, 1.0, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
+        v58 = v24;
+        RB_EndTessSurfaceInternal(&v58, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4883)");
+        ++v25;
+        v30 = v27;
+        *(float *)&v30 = *(float *)&v27 + v23;
+        v27 = v30;
       }
-      while ( v33 < 3 );
-      _R15 = v128;
-      __asm { vaddss  xmm11, xmm11, xmm12 }
-      ++v126;
+      while ( v25 < 3 );
+      v13 = v62;
+      v16 = v60 + 1;
+      v31 = v22;
+      *(float *)&v31 = *(float *)&v22 + v23;
+      v22 = v31;
+      v60 = v16;
     }
-    while ( v126 < NumLightmapAtlasSlices );
-    __asm
-    {
-      vmovaps xmm13, [rsp+4170h+var_B0]
-      vmovaps xmm12, [rsp+4170h+var_A0]
-      vmovaps xmm10, [rsp+4170h+var_80]
-    }
+    while ( v16 < NumLightmapAtlasSlices );
   }
-  v43 = &v129;
-  __asm { vmovaps xmm9, [rsp+4170h+var_70] }
-  v45 = 0;
-  v46 = 0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rax+8]
-    vaddss  xmm6, xmm0, xmm14
-    vmovaps xmm14, [rsp+4170h+var_C0]
-    vaddss  xmm7, xmm11, xmm8
-    vmovaps xmm11, [rsp+4170h+var_90]
-  }
+  v32 = &v63;
+  v33 = 0;
+  v34 = 0;
+  v35 = 0i64;
+  *(float *)&v35 = (float)backEnd.debugFont->pixelHeight + 8.0;
+  v36 = *(float *)&v22 + 1.0;
   do
   {
-    v53 = R_GetLightmapAtlasTexture(data, g_worldDraw->lightmapType, v46++);
-    *v43++ = (__int64)v53;
-    v45 += v53->totalSize;
+    v37 = R_GetLightmapAtlasTexture(data, g_worldDraw->lightmapType, v34++);
+    *v32++ = (__int64)v37;
+    v33 += v37->totalSize;
   }
-  while ( v46 < 3 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vmovaps xmm3, xmm7
-    vmovups [rsp+4170h+var_4110], xmm0
-    vmovss  dword ptr [rsp+4170h+fmt], xmm6
-  }
-  RB_DrawText(&v124, "Lightmap atlas stats", backEnd.debugFont, *(float *)&_XMM3, fmta, (const GfxColor)-1);
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [r15]
-    vmovss  xmm8, cs:__real@40400000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [r8+8]
-    vaddss  xmm0, xmm0, xmm8
-    vaddss  xmm6, xmm6, xmm0
-    vmovaps xmm3, xmm7
-    vmovss  dword ptr [rsp+4170h+fmt], xmm6
-    vmovups [rsp+4170h+var_4110], xmm1
-  }
-  RB_DrawText(&v124, "--------------------", backEnd.debugFont, *(float *)&_XMM3, fmtb, (const GfxColor)-1);
+  while ( v34 < 3 );
+  v58 = *v13;
+  RB_DrawText(&v58, "Lightmap atlas stats", backEnd.debugFont, *(float *)&v22 + 1.0, *(float *)&v35, (const GfxColor)-1);
+  *(float *)&v35 = *(float *)&v35 + (float)((float)backEnd.debugFont->pixelHeight + 3.0);
+  v58 = *v13;
+  RB_DrawText(&v58, "--------------------", backEnd.debugFont, v36, *(float *)&v35, (const GfxColor)-1);
   debugFont = backEnd.debugFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+8]
-    vaddss  xmm1, xmm0, xmm8
-    vaddss  xmm6, xmm6, xmm1
-  }
-  v68 = j_va("Size: %dx%d, num slices %d", *(unsigned __int16 *)(v129 + 36), *(unsigned __int16 *)(v129 + 38), NumLightmapAtlasSlices);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vmovaps xmm3, xmm7
-    vmovups [rsp+4170h+var_4110], xmm0
-    vmovss  dword ptr [rsp+4170h+fmt], xmm6
-  }
-  RB_DrawText(&v124, v68, debugFont, *(float *)&_XMM3, fmtc, (const GfxColor)-1);
-  v71 = backEnd.debugFont;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rbx+8]
-    vaddss  xmm1, xmm0, xmm8
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vaddss  xmm6, xmm6, xmm1
-    vmulss  xmm1, xmm0, cs:__real@35800000
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  v81 = j_va("Setup type: %s, atlas memory %.2f MB", lightmapTypeNames[g_worldDraw->lightmapType], _R8);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vmovaps xmm3, xmm7
-    vmovups [rsp+4170h+var_4110], xmm0
-    vmovss  dword ptr [rsp+4170h+fmt], xmm6
-  }
-  RB_DrawText(&v124, v81, v71, *(float *)&_XMM3, fmtd, (const GfxColor)-1);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rax+8]
-    vaddss  xmm1, xmm0, xmm8
-    vaddss  xmm6, xmm6, xmm1
-  }
+  *(float *)&v35 = *(float *)&v35 + (float)((float)backEnd.debugFont->pixelHeight + 3.0);
+  v39 = j_va("Size: %dx%d, num slices %d", *(unsigned __int16 *)(v63 + 36), *(unsigned __int16 *)(v63 + 38), NumLightmapAtlasSlices);
+  v58 = *v13;
+  RB_DrawText(&v58, v39, debugFont, v36, *(float *)&v35, (const GfxColor)-1);
+  v40 = backEnd.debugFont;
+  v41 = (float)v33;
+  *(float *)&v35 = *(float *)&v35 + (float)((float)backEnd.debugFont->pixelHeight + 3.0);
+  v42 = j_va("Setup type: %s, atlas memory %.2f MB", lightmapTypeNames[g_worldDraw->lightmapType], (float)(v41 * 0.00000095367432));
+  v58 = *v13;
+  RB_DrawText(&v58, v42, v40, v36, *(float *)&v35, (const GfxColor)-1);
+  *(float *)&v35 = *(float *)&v35 + (float)((float)backEnd.debugFont->pixelHeight + 3.0);
+  v43 = v35;
   LightmapAtlasLightmapsCount = RB_Debug_GetLightmapAtlasLightmapsCount(data, g_worldDraw->lightmapType);
   if ( LightmapAtlasLightmapsCount > 0x400 )
     LightmapAtlasLightmapsCount = 1024;
   if ( LightmapAtlasLightmapsCount )
   {
-    p_worldIndex = (XZoneHandleUnique *)&_Last[0].worldIndex;
+    worldIndex = (XZoneHandleUnique *)&_Last[0].worldIndex;
     do
     {
-      RB_Debug_GetLightmapAtlasLightmapDesc(data, g_worldDraw->lightmapType, v21++, &p_worldIndex[-2].m_packed, &p_worldIndex[-1].m_packed, &p_worldIndex->m_packed, p_worldIndex + 1);
-      p_worldIndex += 4;
+      RB_Debug_GetLightmapAtlasLightmapDesc(data, g_worldDraw->lightmapType, v15++, &worldIndex[-2].m_packed, &worldIndex[-1].m_packed, &worldIndex->m_packed, worldIndex + 1);
+      worldIndex += 4;
     }
-    while ( v21 < LightmapAtlasLightmapsCount );
+    while ( v15 < LightmapAtlasLightmapsCount );
   }
-  std::_Sort_unchecked__RB_DrawLightmapOverlap_::_2_::DebugLightmapDesc____lambda_4b68385f17aa2fbc2ee34f13383fa2c0___(_Last, &_Last[LightmapAtlasLightmapsCount], LightmapAtlasLightmapsCount, v125);
-  _R12 = v128;
-  v91 = 20;
+  std::_Sort_unchecked__RB_DrawLightmapOverlap_::_2_::DebugLightmapDesc____lambda_4b68385f17aa2fbc2ee34f13383fa2c0___(_Last, &_Last[LightmapAtlasLightmapsCount], LightmapAtlasLightmapsCount, v59);
+  v46 = v62;
+  v47 = 20;
   if ( LightmapAtlasLightmapsCount < 0x14 )
-    v91 = LightmapAtlasLightmapsCount;
-  if ( v91 )
+    v47 = LightmapAtlasLightmapsCount;
+  if ( v47 )
   {
     p_m_zoneIndex = &_Last[0].zone.m_zoneIndex;
-    v93 = v91;
+    v49 = v47;
     do
     {
       if ( DB_Zones_IsValidZoneIndex(*p_m_zoneIndex) )
         ZoneNameFromIndex = DB_Zones_GetZoneNameFromIndex(*p_m_zoneIndex);
       else
         ZoneNameFromIndex = "<unloading>";
-      v95 = backEnd.debugFont;
-      v96 = j_va("Lightmap %03d, %dx%d, zone %s", *(unsigned int *)(p_m_zoneIndex - 3), *(unsigned int *)(p_m_zoneIndex - 7), *(unsigned int *)(p_m_zoneIndex - 5), ZoneNameFromIndex);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r12]
-        vmovaps xmm3, xmm7
-        vmovups [rsp+4170h+var_4110], xmm0
-        vmovss  dword ptr [rsp+4170h+fmt], xmm6
-      }
-      RB_DrawText(&v124, v96, v95, *(float *)&_XMM3, fmte, (const GfxColor)-1);
-      v99 = backEnd.debugFont;
+      v51 = backEnd.debugFont;
+      v52 = j_va("Lightmap %03d, %dx%d, zone %s", *(unsigned int *)(p_m_zoneIndex - 3), *(unsigned int *)(p_m_zoneIndex - 7), *(unsigned int *)(p_m_zoneIndex - 5), ZoneNameFromIndex);
+      v58 = *v46;
+      RB_DrawText(&v58, v52, v51, v36, *(float *)&v43, (const GfxColor)-1);
+      v53 = backEnd.debugFont;
       p_m_zoneIndex += 8;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rbx+8]
-        vaddss  xmm1, xmm0, xmm8
-        vaddss  xmm6, xmm6, xmm1
-      }
-      --v93;
+      v54 = v43;
+      *(float *)&v54 = *(float *)&v43 + (float)((float)backEnd.debugFont->pixelHeight + 3.0);
+      v43 = v54;
+      --v49;
     }
-    while ( v93 );
+    while ( v49 );
   }
   else
   {
-    v99 = backEnd.debugFont;
+    v53 = backEnd.debugFont;
   }
-  __asm { vmovaps xmm8, [rsp+4170h+var_60] }
-  if ( v91 < LightmapAtlasLightmapsCount )
+  if ( v47 < LightmapAtlasLightmapsCount )
   {
-    v104 = LightmapAtlasLightmapsCount - v91;
-    v105 = "s";
-    if ( v104 == 1 )
-      v105 = (char *)&queryFormat.fmt + 3;
-    v106 = j_va("...and %d more, smaller one%s", v104, v105);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r12]
-      vmovaps xmm3, xmm7
-      vmovups [rsp+4170h+var_4110], xmm0
-      vmovss  dword ptr [rsp+4170h+fmt], xmm6
-    }
-    RB_DrawText(&v124, v106, v99, *(float *)&_XMM3, fmtf, (const GfxColor)-1);
+    v55 = LightmapAtlasLightmapsCount - v47;
+    v56 = "s";
+    if ( v55 == 1 )
+      v56 = (char *)&queryFormat.fmt + 3;
+    v57 = j_va("...and %d more, smaller one%s", v55, v56);
+    v58 = *v46;
+    RB_DrawText(&v58, v57, v53, v36, *(float *)&v43, (const GfxColor)-1);
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r12]
-    vmovups [rsp+4170h+var_4110], xmm0
-  }
-  RB_EndTessSurfaceInternal(&v124, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5016)");
-  __asm
-  {
-    vmovaps xmm6, [rsp+4170h+var_40]
-    vmovaps xmm7, [rsp+4170h+var_50]
-  }
+  v58 = *v46;
+  RB_EndTessSurfaceInternal(&v58, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5016)");
 }
 
 /*
@@ -5369,103 +3969,92 @@ RB_DrawPrepass
 */
 void RB_DrawPrepass(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
+  __int128 v3; 
   unsigned __int16 m_surfaceID; 
-  __int16 v10; 
-  __int16 v11; 
-  bool v15; 
-  __int64 v17; 
-  unsigned __int64 v24; 
+  __m256i m_mainSceneTangentFrameRt; 
+  __int16 v8; 
+  __int16 v9; 
+  GfxCmdBufSourceState *m_location; 
+  bool v12; 
+  __int64 v13; 
+  __int64 v14; 
+  GfxCmdBufContext *v16; 
+  unsigned __int64 v17; 
+  GfxCmdBufContext v18; 
+  __m256i m_mainSceneEntityIDVelocityRt; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
-  const R_RT_Surface *v43; 
+  float v22; 
+  float width; 
+  const R_RT_Surface *v24; 
   const GfxTexture *Resident; 
   CmdBufState *state; 
-  const char *m_location; 
+  GfxCmdBufContext v27; 
   GfxDrawListType i; 
-  float fmt; 
-  float flag; 
-  float v61; 
-  float v62; 
-  float v63; 
-  float v64; 
-  float v65; 
-  float v66; 
   GfxCmdBufSourceState *source[4]; 
-  unsigned __int64 v69; 
-  GfxCmdBufContext v70; 
-  GfxCmdBufContext v71; 
-  GfxCmdBufContext v72; 
-  R_RT_Handle v73; 
-  R_RT_Handle v74; 
-  R_RT_Handle v76; 
-  R_RT_DepthHandle v77; 
-  R_RT_ColorHandle v78; 
-  R_RT_ColorHandle v79; 
-  R_RT_Handle v80; 
-  R_RT_Group v81; 
+  unsigned __int64 v31; 
+  GfxCmdBufContext v32; 
+  GfxCmdBufContext v33; 
+  GfxCmdBufContext v34; 
+  R_RT_Handle v35; 
+  R_RT_Handle m_mainSceneColorRt; 
+  __m256i m_ssrMaskRt; 
+  R_RT_Handle v38; 
+  R_RT_DepthHandle m_mainSceneDepthRt; 
+  __m256i v40; 
+  __m256i v41; 
+  __m256i v42; 
+  R_RT_Group v43; 
   R_RT_Group rtGroup; 
-  R_RT_Group v83; 
+  R_RT_Group v45; 
+  _BYTE v46[64]; 
+  __int128 v47; 
 
-  _R12 = data;
-  _R13 = viewInfo;
   Profile2_UpdateEntry(54);
-  v69 = (unsigned __int64)&dword_14FDE80A8 & 3;
+  v31 = (unsigned __int64)&dword_14FDE80A8 & 3;
   if ( ((unsigned __int8)&dword_14FDE80A8 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80A8) )
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE80A8);
-  m_surfaceID = _R13->sceneRtInput.m_mainSceneDepthRt.m_surfaceID;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r13+3140h]
-    vmovups ymm1, ymmword ptr [r13+3160h]
-    vmovups [rbp+3E0h+var_90], ymm0
-    vmovups [rbp+3E0h+var_70], ymm1
-  }
-  v10 = m_surfaceID & 0x7FFF;
-  if ( v10 )
-    v11 = v10 | 0x8000;
+  m_surfaceID = viewInfo->sceneRtInput.m_mainSceneDepthRt.m_surfaceID;
+  m_mainSceneTangentFrameRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneTangentFrameRt;
+  *(R_RT_ColorHandle *)v46 = viewInfo->sceneRtInput.m_mainSceneEntityIDVelocityRt;
+  *(__m256i *)&v46[32] = m_mainSceneTangentFrameRt;
+  v8 = m_surfaceID & 0x7FFF;
+  if ( v8 )
+    v9 = v8 | 0x8000;
   else
-    v11 = 0;
-  LOWORD(source[0]) = v11;
-  __asm
+    v9 = 0;
+  LOWORD(source[0]) = v9;
+  _XMM0 = *(_OWORD *)&viewInfo->sceneRtInput.m_mainSceneDepthRt.m_tracking.m_allocCounter;
+  m_location = (GfxCmdBufSourceState *)viewInfo->sceneRtInput.m_mainSceneDepthRt.m_tracking.m_location;
+  *(_OWORD *)&source[1] = _XMM0;
+  source[3] = m_location;
+  v35 = *(R_RT_Handle *)source;
+  if ( v9 )
   {
-    vmovups xmm0, xmmword ptr [r13+31A8h]
-    vmovsd  xmm1, qword ptr [r13+31B8h]
-    vmovups xmmword ptr [rbp+3E0h+source+8], xmm0
-    vmovsd  [rbp+3E0h+source+18h], xmm1
-    vmovups ymm0, ymmword ptr [rbp+3E0h+source]
-    vmovups ymmword ptr [rbp+3E0h+var_400.m_surfaceID], ymm0
-  }
-  if ( v11 )
-  {
-    R_RT_Handle::GetSurface(&v73);
-    if ( (R_RT_Handle::GetSurface(&v73)->m_rtFlagsInternal & 0x10) != 0 )
+    R_RT_Handle::GetSurface(&v35);
+    if ( (R_RT_Handle::GetSurface(&v35)->m_rtFlagsInternal & 0x10) != 0 )
       goto LABEL_14;
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()");
+    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()");
   }
   else
   {
     if ( !LODWORD(source[1]) )
       goto LABEL_14;
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
   }
-  if ( v15 )
+  if ( v12 )
     __debugbreak();
 LABEL_14:
-  _RBX = 0i64;
+  v13 = 0i64;
   rtGroup.m_colorRtCount = 2;
-  v17 = 2i64;
+  v14 = 2i64;
   do
   {
-    __asm
+    v38 = *(R_RT_Handle *)&v46[v13 * 32];
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, [rbp+rbx+3E0h+var_90]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+3E0h+var_3A0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v76);
+      R_RT_Handle::GetSurface(&v38);
     }
     else
     {
@@ -5475,168 +4064,98 @@ LABEL_14:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
         __debugbreak();
     }
-    __asm
-    {
-      vmovups ymm0, [rbp+rbx+3E0h+var_90]
-      vmovups ymmword ptr [rbp+rbx+3E0h+rtGroup.m_colorRts.baseclass_0.m_surfaceID], ymm0
-    }
-    _RBX += 32i64;
-    --v17;
+    rtGroup.m_colorRts[v13] = *(R_RT_ColorHandle *)&v46[v13 * 32];
+    ++v13;
+    --v14;
   }
-  while ( v17 );
-  __asm
+  while ( v14 );
+  rtGroup.m_depthRt = (R_RT_DepthHandle)v35;
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_FRONTEND_COUNT);
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_PREPASS_DEPTH_HACK_SSS);
+  v16 = gfxContext;
+  v17 = v31;
+  v18 = *gfxContext;
+  *(GfxCmdBufContext *)source = *gfxContext;
+  if ( data->scope.scopeUseDualFov )
   {
-    vmovups ymm0, ymmword ptr [rbp+3E0h+var_400.m_surfaceID]
-    vmovups ymmword ptr [rbp+3E0h+rtGroup.m_depthRt.baseclass_0.m_surfaceID], ymm0
-  }
-  RB_RunDrawList(_R13, _R12, &rtGroup, (GfxDrawListType)((unsigned __int8)v17 + 65));
-  RB_RunDrawList(_R13, _R12, &rtGroup, (GfxDrawListType)((unsigned __int8)v17 + 66));
-  _R14 = gfxContext;
-  v24 = v69;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups xmmword ptr [rbp+3E0h+source], xmm0
-  }
-  if ( _R12->scope.scopeUseDualFov != (_BYTE)v17 )
-  {
-    __asm
+    v47 = v3;
+    if ( !data->scope.adsSmoothFade || data->scope.scopeFadeInfo[0].fadeInFrac != 0.0 )
     {
-      vmovaps [rsp+4E0h+var_48+8], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
-    if ( !_R12->scope.adsSmoothFade )
-      goto LABEL_26;
-    __asm { vucomiss xmm6, dword ptr [r12+75A870h] }
-    if ( _R12->scope.adsSmoothFade )
-    {
-LABEL_26:
-      R_InitCmdBufSourceState(source[0], &_R13->input);
+      R_InitCmdBufSourceState(source[0], &viewInfo->input);
       R_InitLocalCmdBufState((GfxCmdBufState *)source[1], &source[0]->input);
       R_ProfBeginNamedEvent((CmdBufState *)source[1], "Scope Depth Clear");
-      R_BeginViewInternal(source[0], &_R13->sceneDef, (const GfxViewParms *)_R13, &_R13->viewParmsSet.frames[1].viewParms);
-      R_SetViewportStruct(source[0], &_R13->sceneViewport);
-      __asm { vmovups ymm0, ymmword ptr [r13+31A0h] }
-      _RAX = gfxContext;
-      __asm
-      {
-        vmovups ymm1, ymmword ptr [r13+3140h]
-        vmovups [rbp+3E0h+var_380], ymm0
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups [rbp+3E0h+var_430], xmm0
-        vmovups [rbp+3E0h+var_360], ymm1
-      }
-      R_SetRenderTargetsInternal_ColorDepth(&v70, &v78, &v77, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5500)");
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r13+30C0h]
-        vmovups ymmword ptr [rbp+3E0h+var_3E0.m_surfaceID], ymm0
-      }
-      height = R_RT_Handle::GetSurface(&v74)->m_image.m_base.height;
-      Surface = R_RT_Handle::GetSurface(&v74);
+      R_BeginViewInternal(source[0], &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
+      R_SetViewportStruct(source[0], &viewInfo->sceneViewport);
+      m_mainSceneEntityIDVelocityRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneEntityIDVelocityRt;
+      m_mainSceneDepthRt = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+      v32 = *gfxContext;
+      v40 = m_mainSceneEntityIDVelocityRt;
+      R_SetRenderTargetsInternal_ColorDepth(&v32, (R_RT_ColorHandle *)&v40, &m_mainSceneDepthRt, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5500)");
+      m_mainSceneColorRt = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneColorRt;
+      height = R_RT_Handle::GetSurface(&m_mainSceneColorRt)->m_image.m_base.height;
+      Surface = R_RT_Handle::GetSurface(&m_mainSceneColorRt);
       R_SetRenderTargetSize(source[0], Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-      _RAX = gfxContext;
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2
-        vxorps  xmm1, xmm1, xmm1
-        vmovups xmm0, xmmword ptr [rax]
-        vcvtsi2ss xmm2, xmm2, rax
-        vcvtsi2ss xmm1, xmm1, rax
-        vmovups [rbp+3E0h+var_420], xmm0
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  [rsp+4E0h+var_488], xmm0
-        vmovss  [rsp+4E0h+var_490], xmm0
-        vmovss  [rsp+4E0h+var_498], xmm6
-        vmovss  [rsp+4E0h+var_4A0], xmm6
-        vmovss  [rsp+4E0h+var_4A8], xmm2
-        vmovss  [rsp+4E0h+var_4B0], xmm1
-        vmovss  [rsp+4E0h+flag], xmm6
-        vmovss  dword ptr [rsp+4E0h+fmt], xmm6
-      }
-      RB_ViewportFilterDirectInternal(&v71, rgp.scopeUIDepthClear, 0xFFFFFFFF, &_R13->sceneViewport, fmt, flag, v61, v62, v63, v64, v65, v66, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5504)");
+      v22 = (float)viewInfo->sceneViewport.height;
+      width = (float)viewInfo->sceneViewport.width;
+      v33 = *gfxContext;
+      LOWORD(v18.source) = LOWORD(FLOAT_1_0);
+      RB_ViewportFilterDirectInternal(&v33, rgp.scopeUIDepthClear, 0xFFFFFFFF, &viewInfo->sceneViewport, 0.0, 0.0, width, v22, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5504)");
       R_ProfEndNamedEvent((CmdBufState *)source[1]);
       R_ShutdownLocalCmdBufState((GfxCmdBufState *)source[1], &source[0]->input);
-      v24 = v69;
-      _R14 = gfxContext;
+      v17 = v31;
+      v16 = gfxContext;
     }
-    __asm { vmovaps xmm6, [rsp+4E0h+var_48+8] }
   }
-  RB_RunDrawList(_R13, _R12, &rtGroup, DRAWLIST_PREPASS_PRE_OPAQUE);
-  RB_RunDrawList(_R13, _R12, &rtGroup, DRAWLIST_PREPASS_PRE_SSS);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r13+3448h]
-    vmovd   eax, xmm0
-    vmovups [rbp+3E0h+var_3C0], ymm0
-    vmovups ymmword ptr [rbp+3E0h+source], ymm0
-  }
-  if ( (_WORD)_EAX )
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_PREPASS_PRE_OPAQUE);
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_PREPASS_PRE_SSS);
+  m_ssrMaskRt = (__m256i)viewInfo->sceneRtInput.m_ssrMaskRt;
+  *(__m256i *)source = m_ssrMaskRt;
+  if ( LOWORD(v18.source) )
   {
     R_RT_Handle::GetSurface((R_RT_Handle *)source);
-    v43 = R_RT_Handle::GetSurface((R_RT_Handle *)source);
-    Resident = R_Texture_GetResident(v43->m_image.m_base.textureId);
-    state = _R14->state;
+    v24 = R_RT_Handle::GetSurface((R_RT_Handle *)source);
+    Resident = R_Texture_GetResident(v24->m_image.m_base.textureId);
+    state = v16->state;
     R_HW_AddResourceTransition(state, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
-    __asm
-    {
-      vmovups ymm0, [rbp+3E0h+var_3C0]
-      vmovups [rbp+3E0h+var_340], ymm0
-    }
-    R_RT_Group::AssignColor(&v81, &v79);
-    _RCX = &v83;
-    _RAX = &v81;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymm1, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups ymmword ptr [rcx+80h], ymm1
-      vmovups ymm1, ymmword ptr [rax+0A0h]
-    }
-    m_location = v81.m_vrsRt.m_tracking.m_location;
-    __asm { vmovups ymmword ptr [rcx+0A0h], ymm1 }
-    v83.m_vrsRt.m_tracking.m_location = m_location;
-    __asm { vmovups [rbp+3E0h+var_410], xmm0 }
-    R_ClearRenderTarget(&v72, &v83, 0xFu, 0);
-    __asm
-    {
-      vmovups ymm0, [rbp+3E0h+var_3C0]
-      vmovups [rbp+3E0h+var_320], ymm0
-    }
-    R_HW_AddResourceTransition(state, &v80, 0xFFFFFFFF, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v41 = m_ssrMaskRt;
+    R_RT_Group::AssignColor(&v43, (R_RT_ColorHandle *)&v41);
+    *(__m256i *)&v45.m_colorRtCount = *(__m256i *)&v43.m_colorRtCount;
+    *(__m256i *)&v45.m_colorRts[0].m_tracking.m_location = *(__m256i *)&v43.m_colorRts[0].m_tracking.m_location;
+    *(__m256i *)&v45.m_colorRts[1].m_tracking.m_location = *(__m256i *)&v43.m_colorRts[1].m_tracking.m_location;
+    *(__m256i *)&v45.m_colorRts[2].m_tracking.m_location = *(__m256i *)&v43.m_colorRts[2].m_tracking.m_location;
+    v27 = *v16;
+    *(__m256i *)&v45.m_colorRts[3].m_tracking.m_location = *(__m256i *)&v43.m_colorRts[3].m_tracking.m_location;
+    *(__m256i *)&v45.m_depthRt.m_tracking.m_location = *(__m256i *)&v43.m_depthRt.m_tracking.m_location;
+    v45.m_vrsRt.m_tracking.m_location = v43.m_vrsRt.m_tracking.m_location;
+    v34 = v27;
+    R_ClearRenderTarget(&v34, &v45, 0xFu, 0);
+    v42 = m_ssrMaskRt;
+    R_HW_AddResourceTransition(state, (R_RT_Handle *)&v42, 0xFFFFFFFF, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
   }
   else if ( LODWORD(source[1]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
   {
     __debugbreak();
   }
-  if ( (*((_BYTE *)&_R13->input + 7920) & 2) != 0 )
+  if ( (*((_BYTE *)&viewInfo->input + 7920) & 2) != 0 )
   {
     for ( i = DRAWLIST_PREPASS_LIT_OPAQUE; i != DRAWLIST_PREPASS_LIT_OPAQUE_END; ++i )
-      RB_RunDrawList(_R13, _R12, &rtGroup, i);
+      RB_RunDrawList(viewInfo, data, &rtGroup, i);
   }
   else
   {
-    RB_RunDrawList(_R13, _R12, &rtGroup, DRAWLIST_PREPASS_LIT_OPAQUE);
+    RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_PREPASS_LIT_OPAQUE);
   }
-  RB_RunDrawList(_R13, _R12, &rtGroup, DRAWLIST_PREPASS_LIT_OPAQUE_END);
-  RB_RunDrawList(_R13, _R12, &rtGroup, DRAWLIST_PREPASS_EID_ONLY);
-  RB_RunDrawList(_R13, _R12, &rtGroup, DRAWLIST_PREPASS_LIT_OPAQUE_GLASS);
-  RB_RunDrawList(_R13, _R12, &rtGroup, DRAWLIST_PREPASS_LIT_DECAL);
-  RB_RunDrawList(_R13, _R12, &rtGroup, DRAWLIST_PREPASS_LIT_TRANS);
-  RB_RunDrawList(_R13, _R12, &rtGroup, DRAWLIST_PREPASS_LIT_TRANS1);
-  RB_RunDrawList(_R13, _R12, &rtGroup, DRAWLIST_PREPASS_DEPTH_HACK_TRANS);
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_PREPASS_LIT_OPAQUE_END);
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_PREPASS_EID_ONLY);
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_PREPASS_LIT_OPAQUE_GLASS);
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_PREPASS_LIT_DECAL);
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_PREPASS_LIT_TRANS);
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_PREPASS_LIT_TRANS1);
+  RB_RunDrawList(viewInfo, data, &rtGroup, DRAWLIST_PREPASS_DEPTH_HACK_TRANS);
   Profile2_UpdateEntry(54);
-  if ( v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80A8) )
+  if ( v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80A8) )
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE80A8);
 }
@@ -5646,206 +4165,124 @@ LABEL_26:
 RB_DrawRttOverlay
 ==============
 */
-
-void __fastcall RB_DrawRttOverlay(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, unsigned int drawRttOverlay, double _XMM3_8)
+void RB_DrawRttOverlay(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, unsigned int drawRttOverlay)
 {
-  const GfxBackEndData *v12; 
-  __int64 v13; 
-  unsigned int v14; 
+  __int64 v3; 
+  unsigned int v4; 
   LocalClientNum_t clientIndex; 
-  __int64 v18; 
-  unsigned int v19; 
-  __int64 v20; 
-  unsigned int v22; 
-  __int64 v23; 
+  __int128 v6; 
+  __int64 v7; 
+  unsigned int v8; 
+  int v9; 
+  __int64 v10; 
+  unsigned int v11; 
+  __int64 v12; 
+  __int64 v13; 
   unsigned int UpdateCount; 
-  const GfxImage *v34; 
-  const char *v35; 
-  unsigned int v36; 
+  const GfxImage *v15; 
+  const char *v16; 
+  unsigned int v17; 
+  float v18; 
+  int v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __int128 v23; 
   const GfxImage *Image; 
   GfxImage *blackImage; 
   const char *Name; 
-  unsigned int v52; 
-  unsigned int v56; 
-  float v72; 
-  float v73; 
-  float v74; 
-  float v75; 
-  float v76; 
-  float v77; 
-  float v78; 
-  float v79; 
-  float v80; 
-  float v81; 
-  GfxCmdBufContext v82[2]; 
-  char v86; 
-  void *retaddr; 
-  int v90; 
+  unsigned int v27; 
+  float width; 
+  int height; 
+  __int128 v31; 
+  GfxCmdBufContext v33; 
+  int v36; 
 
-  _RAX = &retaddr;
-  v12 = backEndData;
-  v13 = 0i64;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm7 }
-  v14 = drawRttOverlay;
-  __asm { vmovaps [rsp+0E8h+var_88], xmm10 }
-  if ( v12->viewInfoCount )
-    clientIndex = v12->viewInfo[v12->viewInfoIndex].clientIndex;
+  v3 = 0i64;
+  v4 = drawRttOverlay;
+  if ( backEndData->viewInfoCount )
+    clientIndex = backEndData->viewInfo[backEndData->viewInfoIndex].clientIndex;
   else
     clientIndex = LOCAL_CLIENT_0;
-  __asm
+  v6 = LODWORD(FLOAT_8_0);
+  v7 = clientIndex;
+  v36 = Sys_MillisecondsRaw();
+  v8 = 1;
+  v9 = v36 - s_timeUpdated[clientIndex];
+  v10 = 8i64;
+  if ( v9 > 1000 )
   {
-    vmovss  xmm10, cs:__real@41000000
-    vmovaps xmm7, xmm10
-    vmovaps [rsp+0E8h+var_48], xmm6
-  }
-  v18 = clientIndex;
-  v90 = Sys_MillisecondsRaw();
-  v19 = 1;
-  v20 = 8i64;
-  if ( v90 - s_timeUpdated[clientIndex] > 1000 )
-  {
-    __asm { vmovss  xmm6, cs:__real@4479ffff }
-    v22 = 1;
-    v23 = 8i64;
-    _RBX = 8i64 * (int)clientIndex;
-    _R15 = 0x140000000ui64;
+    v11 = 1;
+    v12 = 8i64;
+    v13 = 8i64 * (int)clientIndex;
     do
     {
-      if ( RB_RTT_GetImage(clientIndex, v22) )
+      if ( RB_RTT_GetImage(clientIndex, v11) )
       {
-        RB_RTT_GetUpdateCount(clientIndex, v22);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm0, xmm0, r13d
-          vdivss  xmm0, xmm6, xmm0
-          vcvtsi2ss xmm1, xmm1, eax
-          vmulss  xmm1, xmm1, xmm0
-          vmovss  dword ptr [rbx+r15+14496880h], xmm1
-        }
-        UpdateCount = RB_RTT_GetUpdateCount(clientIndex, v22);
+        s_fps[0][v13] = (float)(int)(RB_RTT_GetUpdateCount(clientIndex, v11) - s_updateCount[0][v13]) * (float)(999.99994 / (float)v9);
+        UpdateCount = RB_RTT_GetUpdateCount(clientIndex, v11);
       }
       else
       {
-        s_fps[0][_RBX] = 0.0;
+        s_fps[0][v13] = 0.0;
         UpdateCount = 0;
       }
-      s_updateCount[0][_RBX] = UpdateCount;
-      ++v22;
-      ++_RBX;
-      --v23;
+      s_updateCount[0][v13] = UpdateCount;
+      ++v11;
+      ++v13;
+      --v12;
     }
-    while ( v23 );
-    v14 = drawRttOverlay;
-    v20 = 8i64;
-    v18 = clientIndex;
-    s_timeUpdated[clientIndex] = v90;
+    while ( v12 );
+    v4 = drawRttOverlay;
+    v10 = 8i64;
+    v7 = clientIndex;
+    s_timeUpdated[clientIndex] = v36;
   }
-  if ( v14 )
+  if ( v4 )
   {
-    if ( v14 <= 8 )
+    if ( v4 <= 8 )
     {
-      Image = RB_RTT_GetImage(clientIndex, v14);
+      Image = RB_RTT_GetImage(clientIndex, v4);
       blackImage = rgp.blackImage;
       if ( Image )
         blackImage = (GfxImage *)Image;
-      Name = R_RTT_GetName(v14);
-      v52 = RB_RTT_GetUpdateCount(clientIndex, v14);
-      _RDX = 0x140000000ui64;
-      __asm { vmovss  xmm0, cs:__real@43800000 }
-      _R13 = gfxContext;
-      v56 = v52;
-      __asm
-      {
-        vxorps  xmm3, xmm3, xmm3
-        vcvtsi2ss xmm3, xmm3, ecx
-        vdivss  xmm1, xmm0, xmm3
-        vmaxss  xmm2, xmm1, cs:__real@3f800000
-        vmovups xmm0, xmmword ptr [r13+0]
-        vmovups [rsp+0E8h+var_98], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ecx
-        vmulss  xmm0, xmm1, xmm2
-        vmovss  [rsp+0E8h+var_A8], xmm0
-      }
-      _RAX = v14 - 1 + 8 * v18;
-      __asm
-      {
-        vmovss  xmm0, rva s_fps[rdx+rax*4]
-        vmulss  xmm3, xmm3, xmm2
-        vmovss  [rsp+0E8h+var_B0], xmm3
-        vmovss  [rsp+0E8h+var_B8], xmm10
-        vmovss  [rsp+0E8h+var_C0], xmm10
-        vmovss  [rsp+0E8h+var_C8], xmm0
-      }
-      RB_DrawRttOverlaySingle(v82, Name, blackImage, v56, v73, v75, v77, v79, v81);
+      Name = R_RTT_GetName(v4);
+      v27 = RB_RTT_GetUpdateCount(clientIndex, v4);
+      width = (float)blackImage->width;
+      height = blackImage->height;
+      v31 = LODWORD(FLOAT_256_0);
+      *(float *)&v31 = 256.0 / width;
+      _XMM1 = v31;
+      __asm { vmaxss  xmm2, xmm1, cs:__real@3f800000 }
+      v33 = *gfxContext;
+      RB_DrawRttOverlaySingle(&v33, Name, blackImage, v27, s_fps[v7 - 1][v4 + 7], 8.0, 8.0, width * *(float *)&_XMM2, (float)height * *(float *)&_XMM2);
     }
   }
   else
   {
-    _R13 = gfxContext;
-    __asm
-    {
-      vmovaps [rsp+0E8h+var_68], xmm8
-      vmovss  xmm8, cs:__real@43800000
-      vmovaps [rsp+0E8h+var_78], xmm9
-      vmovss  xmm9, cs:__real@40000000
-    }
     do
     {
-      v34 = RB_RTT_GetImage(clientIndex, v19);
-      if ( v34 )
+      v15 = RB_RTT_GetImage(clientIndex, v8);
+      if ( v15 )
       {
-        v35 = s_rttAlias_0[v13];
-        v36 = RB_RTT_GetUpdateCount(clientIndex, v19);
-        _RDX = 0x140000000ui64;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, ecx
-          vdivss  xmm2, xmm8, xmm0
-          vmulss  xmm6, xmm0, xmm2
-          vmovups xmm0, xmmword ptr [r13+0]
-          vmovups [rsp+0E8h+var_98], xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, ecx
-          vmulss  xmm0, xmm1, xmm2
-          vmovss  [rsp+0E8h+var_A8], xmm0
-          vmovss  [rsp+0E8h+var_B0], xmm6
-        }
-        _RCX = v13 + 8 * v18;
-        __asm
-        {
-          vmovss  xmm0, rva s_fps[rdx+rcx*4]
-          vmovss  [rsp+0E8h+var_B8], xmm10
-          vmovss  [rsp+0E8h+var_C0], xmm7
-          vmovss  [rsp+0E8h+var_C8], xmm0
-        }
-        RB_DrawRttOverlaySingle(v82, v35, v34, v36, v72, v74, v76, v78, v80);
-        __asm
-        {
-          vaddss  xmm0, xmm6, xmm9
-          vaddss  xmm7, xmm7, xmm0
-        }
+        v16 = s_rttAlias_0[v3];
+        v17 = RB_RTT_GetUpdateCount(clientIndex, v8);
+        v18 = (float)v15->width;
+        v19 = v15->height;
+        v20 = 256.0 / v18;
+        v21 = v18 * (float)(256.0 / v18);
+        v33 = *gfxContext;
+        RB_DrawRttOverlaySingle(&v33, v16, v15, v17, s_fps[v7][v3], *(float *)&v6, 8.0, v21, (float)v19 * v20);
+        v22 = v21 + 2.0;
+        v23 = v6;
+        *(float *)&v23 = *(float *)&v6 + v22;
+        v6 = v23;
       }
-      ++v19;
-      ++v13;
-      --v20;
+      ++v8;
+      ++v3;
+      --v10;
     }
-    while ( v20 );
-    __asm
-    {
-      vmovaps xmm9, [rsp+0E8h+var_78]
-      vmovaps xmm8, [rsp+0E8h+var_68]
-    }
-  }
-  __asm { vmovaps xmm6, [rsp+0E8h+var_48] }
-  _R11 = &v86;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    while ( v10 );
   }
 }
 
@@ -5859,161 +4296,50 @@ void RB_DrawRttOverlaySingle(GfxCmdBufContext *gfxContext, const char *name, con
   GfxCmdBufSourceState *source; 
   GfxCmdBufInput *p_input; 
   GfxFont *debugFont; 
-  const char *v38; 
-  GfxFont *v43; 
-  const char *v44; 
-  GfxFont *v48; 
-  const char *v49; 
-  GfxFont *v54; 
-  const char *v57; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float v73; 
-  float v74; 
-  float v75; 
-  float v76; 
-  float v77; 
-  GfxCmdBufContext v78[5]; 
-  char v79; 
-  void *retaddr; 
+  const char *v16; 
+  GfxFont *v17; 
+  const char *v18; 
+  GfxFont *v19; 
+  const char *v20; 
+  GfxFont *v21; 
+  const char *v22; 
+  GfxCmdBufContext v23[5]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovaps xmmword ptr [rax-28h], xmm6
-  }
-  _RDI = gfxContext;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovups xmmword ptr [rax-68h], xmm0
-  }
-  RB_SetUIColorimetryParams(v78);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovss  xmm6, [rsp+0C8h+arg_40]
-    vmovss  xmm10, [rsp+0C8h+arg_38]
-    vmovss  xmm8, [rsp+0C8h+arg_30]
-    vmovss  xmm7, [rsp+0C8h+arg_28]
-    vmovups [rsp+0C8h+var_68], xmm0
-    vaddss  xmm0, xmm6, cs:__real@42a00000
-    vmovaps xmm3, xmm10
-    vmovaps xmm2, xmm8
-    vmovaps xmm1, xmm7
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm0
-  }
-  RB_DrawRect2D(v78, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, (const GfxColor)-8355712);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+0C8h+var_68], xmm0
-  }
-  RB_EndTessSurfaceInternal(v78, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5120)");
-  source = _RDI->source;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v23[0] = *gfxContext;
+  RB_SetUIColorimetryParams(v23);
+  v23[0] = *gfxContext;
+  RB_DrawRect2D(v23, x0, y0, w, h + 80.0, (const GfxColor)-8355712);
+  v23[0] = *gfxContext;
+  RB_EndTessSurfaceInternal(v23, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5120)");
+  source = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vxorps  xmm1, xmm1, xmm1
-    vmovups [rsp+0C8h+var_68], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+0C8h+var_80], xmm0
-    vmovss  [rsp+0C8h+var_88], xmm0
-    vmovss  [rsp+0C8h+var_90], xmm1
-    vmovss  [rsp+0C8h+var_98], xmm1
-  }
+  v23[0] = *gfxContext;
   p_input->codeImages[4] = image;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0C8h+var_A0], xmm6
-    vmovaps xmm3, xmm8
-    vmovaps xmm2, xmm7
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm10
-  }
-  RB_DrawStretchPic(v78, rgp.iconMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v73, v74, v75, v76, v77, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+0C8h+var_68], xmm0
-  }
-  RB_EndTessSurfaceInternal(v78, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5125)");
+  RB_DrawStretchPic(v23, rgp.iconMaterial, x0, y0, w, h, 0.0, 0.0, 1.0, 1.0, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
+  v23[0] = *gfxContext;
+  RB_EndTessSurfaceInternal(v23, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5125)");
   debugFont = backEnd.debugFont;
-  v38 = j_va((const char *)&queryFormat, name);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vaddss  xmm6, xmm8, xmm6
-    vaddss  xmm1, xmm6, cs:__real@41a00000
-    vmovaps xmm3, xmm7
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm1
-    vmovups [rsp+0C8h+var_68], xmm0
-  }
-  RB_DrawText(v78, v38, debugFont, *(float *)&_XMM3, fmtb, (const GfxColor)-1);
-  v43 = backEnd.debugFont;
-  v44 = j_va("%dx%d", image->width, image->height);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vaddss  xmm1, xmm6, cs:__real@42200000
-    vmovaps xmm3, xmm7
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm1
-    vmovups [rsp+0C8h+var_68], xmm0
-  }
-  RB_DrawText(v78, v44, v43, *(float *)&_XMM3, fmtc, (const GfxColor)-1);
-  v48 = backEnd.debugFont;
-  v49 = j_va("updated:%d", updateCount);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vaddss  xmm1, xmm6, cs:__real@42700000
-    vmovaps xmm3, xmm7
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm1
-    vmovups [rsp+0C8h+var_68], xmm0
-  }
-  RB_DrawText(v78, v49, v48, *(float *)&_XMM3, fmtd, (const GfxColor)-1);
-  __asm { vmovss  xmm1, [rsp+0C8h+arg_20] }
-  v54 = backEnd.debugFont;
-  __asm
-  {
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovq   rdx, xmm1
-  }
-  v57 = j_va("fps:%.2f", _RDX);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vaddss  xmm1, xmm6, cs:__real@42a00000
-    vmovss  dword ptr [rsp+0C8h+fmt], xmm1
-    vmovups [rsp+0C8h+var_68], xmm0
-    vmovaps xmm3, xmm7
-  }
-  RB_DrawText(v78, v57, v54, *(float *)&_XMM3, fmte, (const GfxColor)-1);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+0C8h+var_68], xmm0
-  }
-  RB_EndTessSurfaceInternal(v78, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5134)");
-  _R11 = &v79;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-  }
+  v16 = j_va((const char *)&queryFormat, name);
+  v23[0] = *gfxContext;
+  RB_DrawText(v23, v16, debugFont, x0, (float)(y0 + h) + 20.0, (const GfxColor)-1);
+  v17 = backEnd.debugFont;
+  v18 = j_va("%dx%d", image->width, image->height);
+  v23[0] = *gfxContext;
+  RB_DrawText(v23, v18, v17, x0, (float)(y0 + h) + 40.0, (const GfxColor)-1);
+  v19 = backEnd.debugFont;
+  v20 = j_va("updated:%d", updateCount);
+  v23[0] = *gfxContext;
+  RB_DrawText(v23, v20, v19, x0, (float)(y0 + h) + 60.0, (const GfxColor)-1);
+  v21 = backEnd.debugFont;
+  v22 = j_va("fps:%.2f", fps);
+  v23[0] = *gfxContext;
+  RB_DrawText(v23, v22, v21, x0, (float)(y0 + h) + 80.0, (const GfxColor)-1);
+  v23[0] = *gfxContext;
+  RB_EndTessSurfaceInternal(v23, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(5134)");
 }
 
 /*
@@ -6031,59 +4357,27 @@ void RB_DrawScreenshot2DHud(GfxCmdBufContext *gfxContext, const GfxViewInfo *vie
 RB_DrawUmbraOverlays
 ==============
 */
-
-void __fastcall RB_DrawUmbraOverlays(GfxCmdBufContext *gfxContext, double _XMM1_8)
+void RB_DrawUmbraOverlays(GfxCmdBufContext *gfxContext)
 {
   GfxCmdBufSourceState *source; 
   GfxImage *umbraOcclusionScene; 
   GfxCmdBufInput *p_input; 
-  float fmt; 
-  float v21; 
-  float v22; 
-  float v23; 
-  float v24; 
-  float v25; 
-  GfxCmdBufContext v26; 
+  GfxCmdBufContext v5; 
+  GfxCmdBufContext v6; 
 
   source = gfxContext->source;
   umbraOcclusionScene = rgp.umbraOcclusionScene;
-  _RDI = gfxContext;
   if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
+  v5 = *gfxContext;
   p_input->codeImages[4] = umbraOcclusionScene;
-  _RAX = r_umbraShowOverlayDisplaySizeScale;
-  __asm
-  {
-    vmovups [rsp+78h+var_18], xmm0
-    vmovss  xmm2, dword ptr [rax+28h]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm4, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm3, xmm0, xmm2
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  xmm2, cs:__real@42800000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  [rsp+78h+var_30], xmm1
-    vmovss  [rsp+78h+var_38], xmm0
-    vmovss  [rsp+78h+var_40], xmm0
-    vmovss  [rsp+78h+var_48], xmm1
-    vmovss  dword ptr [rsp+78h+var_50], xmm4
-    vmovss  dword ptr [rsp+78h+fmt], xmm3
-    vmovaps xmm3, xmm2
-  }
-  RB_DrawStretchPic(&v26, rgp.feedbackReplaceBackbufferMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v21, v22, v23, v24, v25, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+78h+var_18], xmm0
-  }
-  RB_EndTessSurfaceInternal(&v26, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4771)");
+  v6 = v5;
+  RB_DrawStretchPic(&v6, rgp.feedbackReplaceBackbufferMaterial, 64.0, 64.0, (float)umbraOcclusionScene->width * r_umbraShowOverlayDisplaySizeScale->current.value, (float)umbraOcclusionScene->height * r_umbraShowOverlayDisplaySizeScale->current.value, 0.0, 1.0, 1.0, 0.0, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
+  v6 = *gfxContext;
+  RB_EndTessSurfaceInternal(&v6, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4771)");
 }
 
 /*
@@ -6094,12 +4388,11 @@ RB_EnableMSEmissive
 void RB_EnableMSEmissive(GfxCmdBufContext *context, const GfxViewInfo *viewInfo)
 {
   const GfxBackEndData *data; 
-  GfxCmdBufContext v4; 
+  GfxCmdBufContext v3; 
 
-  __asm { vmovups xmm0, xmmword ptr [rcx] }
   data = viewInfo->input.data;
-  __asm { vmovups xmmword ptr [rsp+38h+var_18.source], xmm0 }
-  R_HW_EnableMultiSample(&v4, data->frameCount);
+  v3 = *context;
+  R_HW_EnableMultiSample(&v3, data->frameCount);
 }
 
 /*
@@ -6110,11 +4403,10 @@ RB_FinishComputeCmds
 void RB_FinishComputeCmds(GfxCmdBufContext *gfxContext, const GfxBackEndData *data)
 {
   const GfxBackEndData *v3; 
-  GfxCmdBufContext v5; 
+  GfxCmdBufContext v4; 
   const GfxBackEndData *timeoutUserData; 
 
   timeoutUserData = data;
-  _RDI = gfxContext;
   Profile2_UpdateEntry(48);
   if ( ((unsigned __int8)&dword_14FDE8090 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8090) )
     __debugbreak();
@@ -6129,12 +4421,8 @@ void RB_FinishComputeCmds(GfxCmdBufContext *gfxContext, const GfxBackEndData *da
     Sys_ProfEndNamedEvent();
     v3 = timeoutUserData;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsp+48h+var_18.source], xmm0
-  }
-  R_FinishComputeCmdList(&v5, v3);
+  v4 = *gfxContext;
+  R_FinishComputeCmdList(&v4, v3);
   Profile2_UpdateEntry(48);
   if ( ((unsigned __int64)&dword_14FDE8090 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8090) )
     __debugbreak();
@@ -6146,140 +4434,80 @@ void RB_FinishComputeCmds(GfxCmdBufContext *gfxContext, const GfxBackEndData *da
 RB_HalfResEmissive_DownsampleDepth
 ==============
 */
-
-void __fastcall RB_HalfResEmissive_DownsampleDepth(GfxCmdBufContext *context, const GfxViewInfo *viewInfo, double _XMM2_8, double _XMM3_8)
+void RB_HalfResEmissive_DownsampleDepth(GfxCmdBufContext *context, const GfxViewInfo *viewInfo)
 {
   GfxCmdBufSourceState *source; 
   GfxCmdBufState *state; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
+  GfxCmdBufContext v8; 
+  GfxCmdBufContext v9; 
+  GfxCmdBufContext v10; 
   R_RT_Image *p_m_image; 
-  R_RT_Image *v29; 
-  float fmt; 
-  __int64 v35; 
-  float v36; 
-  float v37; 
-  float v38; 
-  float v39; 
-  float v40; 
-  float v41; 
-  float v42; 
-  R_RT_Handle v43; 
-  R_RT_Handle v44; 
-  char v45; 
-  void *retaddr; 
+  float v12; 
+  float width; 
+  R_RT_Image *v14; 
+  __int64 v15; 
+  R_RT_Handle m_halfSceneDepthRt; 
+  R_RT_Handle m_mainSceneDepthRt; 
 
-  _RAX = &retaddr;
   source = context->source;
-  _RDI = context;
   state = context->state;
-  _RBP = viewInfo;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   R_GPU_BeginTimer(GPU_TIMER_EMISSIVE_COPY);
-  R_InitCmdBufSourceState(source, &_RBP->input);
+  R_InitCmdBufSourceState(source, &viewInfo->input);
   R_InitLocalCmdBufState(state, &source->input);
   R_ProfBeginNamedEvent(state, "downsample depth");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+3260h]
-    vmovups ymmword ptr [rsp+0E8h+var_78.m_surfaceID], ymm0
-  }
-  R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&v43, DEPTHSTENCIL_TRANSITION_MODE_WRITE_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  m_halfSceneDepthRt = (R_RT_Handle)viewInfo->sceneRtInput.m_halfSceneDepthRt;
+  R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&m_halfSceneDepthRt, DEPTHSTENCIL_TRANSITION_MODE_WRITE_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+3260h]
-    vmovups ymmword ptr [rsp+0E8h+var_78.m_surfaceID], ymm0
-  }
-  height = R_RT_Handle::GetSurface(&v43)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v43);
+  m_halfSceneDepthRt = (R_RT_Handle)viewInfo->sceneRtInput.m_halfSceneDepthRt;
+  height = R_RT_Handle::GetSurface(&m_halfSceneDepthRt)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface(&m_halfSceneDepthRt);
   R_SetRenderTargetSize(source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-  R_BeginViewInternal(source, &_RBP->sceneDef, (const GfxViewParms *)_RBP, &_RBP->viewParmsSet.frames[1].viewParms);
-  R_SetViewportStruct(source, &_RBP->sceneEmissiveViewport);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+31A0h]
-    vmovups xmm1, xmmword ptr [rdi]
-    vmovups ymmword ptr [rsp+0E8h+var_58.m_surfaceID], ymm0
-    vmovups xmmword ptr [rsp+0E8h+var_78.m_surfaceID], xmm1
-  }
-  R_SetRenderTargetsInternal_DepthOnly((GfxCmdBufContext *)&v43, (R_RT_DepthHandle *)&v44, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3036)");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsp+0E8h+var_78.m_surfaceID], xmm0
-  }
-  R_ResolveDepth((GfxCmdBufContext *)&v43);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+3260h]
-    vmovups xmm1, xmmword ptr [rdi]
-    vmovups ymmword ptr [rsp+0E8h+var_58.m_surfaceID], ymm0
-    vmovups xmmword ptr [rsp+0E8h+var_78.m_surfaceID], xmm1
-  }
-  R_SetRenderTargetsInternal_DepthOnly((GfxCmdBufContext *)&v43, (R_RT_DepthHandle *)&v44, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3039)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+31A0h]
-    vmovups xmm6, xmmword ptr [rdi]
-    vmovups ymmword ptr [rsp+0E8h+var_58.m_surfaceID], ymm0
-    vmovq   rbx, xmm6
-  }
-  p_m_image = &R_RT_Handle::GetSurface(&v44)->m_image;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  R_BeginViewInternal(source, &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
+  R_SetViewportStruct(source, &viewInfo->sceneEmissiveViewport);
+  v8 = *context;
+  m_mainSceneDepthRt = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneDepthRt;
+  *(GfxCmdBufContext *)&m_halfSceneDepthRt.m_surfaceID = v8;
+  R_SetRenderTargetsInternal_DepthOnly((GfxCmdBufContext *)&m_halfSceneDepthRt, (R_RT_DepthHandle *)&m_mainSceneDepthRt, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3036)");
+  *(GfxCmdBufContext *)&m_halfSceneDepthRt.m_surfaceID = *context;
+  R_ResolveDepth((GfxCmdBufContext *)&m_halfSceneDepthRt);
+  v9 = *context;
+  m_mainSceneDepthRt = (R_RT_Handle)viewInfo->sceneRtInput.m_halfSceneDepthRt;
+  *(GfxCmdBufContext *)&m_halfSceneDepthRt.m_surfaceID = v9;
+  R_SetRenderTargetsInternal_DepthOnly((GfxCmdBufContext *)&m_halfSceneDepthRt, (R_RT_DepthHandle *)&m_mainSceneDepthRt, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3039)");
+  v10 = *context;
+  m_mainSceneDepthRt = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneDepthRt;
+  p_m_image = &R_RT_Handle::GetSurface(&m_mainSceneDepthRt)->m_image;
+  if ( !v10.source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  if ( _RBX == -1792 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  if ( v10.source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  *(_QWORD *)(_RBX + 7936) = p_m_image;
-  R_Set2D((GfxCmdBufSourceState *)_RBX);
-  if ( *(_DWORD *)(_RBX + 11488) != 2 )
+  v10.source->input.codeImages[0] = &p_m_image->m_base;
+  R_Set2D(v10.source);
+  if ( v10.source->viewMode != VIEW_MODE_2D )
   {
-    LODWORD(v35) = *(_DWORD *)(_RBX + 11488);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 2990, ASSERT_TYPE_ASSERT, "( ( source->viewMode == VIEW_MODE_2D ) )", "( source->viewMode ) = %i", v35) )
+    LODWORD(v15) = v10.source->viewMode;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 2990, ASSERT_TYPE_ASSERT, "( ( source->viewMode == VIEW_MODE_2D ) )", "( source->viewMode ) = %i", v15) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, rax
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rax
-    vmovss  [rsp+0E8h+var_90], xmm0
-    vmovss  [rsp+0E8h+var_98], xmm0
-    vmovss  [rsp+0E8h+var_A0], xmm1
-    vmovss  [rsp+0E8h+var_A8], xmm1
-    vmovss  [rsp+0E8h+var_B0], xmm3
-    vmovss  [rsp+0E8h+var_B8], xmm2
-    vmovss  dword ptr [rsp+0E8h+var_C0], xmm1
-    vmovss  dword ptr [rsp+0E8h+fmt], xmm1
-    vmovdqa xmmword ptr [rsp+0E8h+var_78.m_surfaceID], xmm6
-  }
-  RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&v43, rgp.floatZWriteDepthDownsampleMaterial, 0xFFFFFFFF, &_RBP->sceneEmissiveViewport, fmt, v36, v37, v38, v39, v40, v41, v42, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2992)");
-  v29 = &R_RT_Handle::GetSurface(&_RBP->sceneRtInput.m_floatZFullRt)->m_image;
+  v12 = (float)viewInfo->sceneEmissiveViewport.height;
+  width = (float)viewInfo->sceneEmissiveViewport.width;
+  *(GfxCmdBufContext *)&m_halfSceneDepthRt.m_surfaceID = v10;
+  RB_ViewportFilterDirectInternal((GfxCmdBufContext *)&m_halfSceneDepthRt, rgp.floatZWriteDepthDownsampleMaterial, 0xFFFFFFFF, &viewInfo->sceneEmissiveViewport, 0.0, 0.0, width, v12, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2992)");
+  v14 = &R_RT_Handle::GetSurface(&viewInfo->sceneRtInput.m_floatZFullRt)->m_image;
   if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   if ( source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  source->input.codeImages[0] = &v29->m_base;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+31A0h]
-    vmovups ymmword ptr [rsp+0E8h+var_58.m_surfaceID], ymm0
-  }
-  R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&v44, DEPTHSTENCIL_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+3260h]
-    vmovups ymmword ptr [rsp+0E8h+var_58.m_surfaceID], ymm0
-  }
-  R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&v44, DEPTHSTENCIL_TRANSITION_MODE_READ_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  source->input.codeImages[0] = &v14->m_base;
+  m_mainSceneDepthRt = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneDepthRt;
+  R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&m_mainSceneDepthRt, DEPTHSTENCIL_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  m_mainSceneDepthRt = (R_RT_Handle)viewInfo->sceneRtInput.m_halfSceneDepthRt;
+  R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&m_mainSceneDepthRt, DEPTHSTENCIL_TRANSITION_MODE_READ_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
   R_ProfEndNamedEvent(state);
   R_ShutdownLocalCmdBufState(state, &source->input);
-  _R11 = &v45;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
   R_GPU_EndTimer();
 }
 
@@ -6290,61 +4518,57 @@ RB_HalfRes_Upsample
 */
 void RB_HalfRes_Upsample(GfxCmdBufContext *context, const GfxViewInfo *viewInfo)
 {
+  R_RT_Handle v5; 
+  unsigned __int16 m_surfaceID; 
+  bool v8; 
+  __int16 v9; 
+  __int16 v10; 
   bool v12; 
-  __int16 v13; 
-  __int16 v14; 
-  bool v18; 
   GfxCmdBufSourceState *source; 
-  GfxCmdBufSourceState *v21; 
+  GfxCmdBufSourceState *v14; 
+  GfxCmdBufContext v15; 
+  GfxCmdBufContext v16; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
-  __int64 v32; 
-  GfxCmdBufSourceState *v40; 
+  __m256i v19; 
+  __m256i m_mainSceneAlphaRt; 
+  __int64 v22; 
+  __int64 v23; 
+  GfxCmdBufSourceState *v25; 
   GfxCmdBufState *state; 
-  __int64 v47; 
-  R_RT_Handle v48; 
-  __m256i v49; 
-  R_RT_Handle v50; 
-  R_RT_Handle v51; 
-  R_RT_Handle v52; 
-  R_RT_Handle v53; 
-  R_RT_Handle v54; 
-  R_RT_Group v55; 
+  __int64 v27; 
+  R_RT_Handle m_mainSceneColorRt; 
+  R_RT_Handle v29; 
+  R_RT_Handle m_floatZFullRt; 
+  R_RT_Handle v31; 
+  R_RT_Handle m_halfSceneAlphaRt; 
+  R_RT_Handle m_halfSceneColorRt; 
+  R_RT_Handle v34; 
+  R_RT_Group v35; 
+  _BYTE v36[64]; 
 
-  __asm
+  m_halfSceneColorRt = (R_RT_Handle)viewInfo->sceneRtInput.m_halfSceneColorRt;
+  m_halfSceneAlphaRt = (R_RT_Handle)viewInfo->sceneRtInput.m_halfSceneAlphaRt;
+  m_floatZFullRt = (R_RT_Handle)viewInfo->sceneRtInput.m_floatZFullRt;
+  v5 = *R_RT_GetViewInternal(&v31, &m_floatZFullRt, 0, 1);
+  m_surfaceID = _XMM0;
+  m_floatZFullRt = v5;
+  m_mainSceneColorRt = v5;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rdx+3220h]
-    vmovups [rbp+160h+var_190], ymm0
-    vmovups ymm0, ymmword ptr [rdx+3240h]
-    vmovups [rbp+160h+var_1B0], ymm0
-    vmovups ymm0, ymmword ptr [rdx+3340h]
-  }
-  _R14 = viewInfo;
-  _R13 = context;
-  __asm { vmovups ymmword ptr [rsp+260h+var_1F0.m_surfaceID], ymm0 }
-  _RAX = R_RT_GetViewInternal(&v51, &v50, 0, 1);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   ebx, xmm0
-    vmovups ymmword ptr [rsp+260h+var_1F0.m_surfaceID], ymm0
-    vmovups ymmword ptr [rsp+260h+var_230.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_EBX )
-  {
-    R_RT_Handle::GetSurface(&v48);
-    if ( (R_RT_Handle::GetSurface(&v48)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&m_mainSceneColorRt);
+    if ( (R_RT_Handle::GetSurface(&m_mainSceneColorRt)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      LODWORD(_RDI) = v48.m_tracking.m_allocCounter;
-      LOWORD(_EBX) = v48.m_surfaceID;
-      __asm { vmovups ymm0, ymmword ptr [rsp+260h+var_230.m_surfaceID] }
+      LODWORD(_RDI) = m_mainSceneColorRt.m_tracking.m_allocCounter;
+      m_surfaceID = m_mainSceneColorRt.m_surfaceID;
+      v5 = m_mainSceneColorRt;
       __debugbreak();
     }
     else
     {
-      LODWORD(_RDI) = v48.m_tracking.m_allocCounter;
-      LOWORD(_EBX) = v48.m_surfaceID;
-      __asm { vmovups ymm0, ymmword ptr [rsp+260h+var_230.m_surfaceID] }
+      LODWORD(_RDI) = m_mainSceneColorRt.m_tracking.m_allocCounter;
+      m_surfaceID = m_mainSceneColorRt.m_surfaceID;
+      v5 = m_mainSceneColorRt;
     }
   }
   else
@@ -6352,112 +4576,82 @@ void RB_HalfRes_Upsample(GfxCmdBufContext *context, const GfxViewInfo *viewInfo)
     __asm { vpextrd rdi, xmm0, 2 }
     if ( (_DWORD)_RDI )
     {
-      v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-      __asm { vmovups ymm0, ymmword ptr [rsp+260h+var_1F0.m_surfaceID] }
-      if ( v12 )
+      v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+      v5 = m_floatZFullRt;
+      if ( v8 )
         __debugbreak();
     }
   }
-  __asm { vmovups ymmword ptr [rbp+160h+var_170.m_surfaceID], ymm0 }
-  v13 = _EBX & 0x7FFF;
-  if ( v13 )
+  v34 = v5;
+  v9 = m_surfaceID & 0x7FFF;
+  if ( v9 )
   {
-    v14 = v13 | 0x8000;
-    v49.m256i_i16[0] = v14;
+    v10 = v9 | 0x8000;
+    v29.m_surfaceID = v10;
   }
   else
   {
-    v14 = 0;
-    v49.m256i_i16[0] = 0;
+    v10 = 0;
+    v29.m_surfaceID = 0;
   }
-  __asm
+  _XMM0 = *(_OWORD *)&m_mainSceneColorRt.m_tracking.m_allocCounter;
+  v29.m_tracking = m_mainSceneColorRt.m_tracking;
+  m_floatZFullRt = v29;
+  if ( v10 )
   {
-    vmovups xmm0, xmmword ptr [rsp+260h+var_230.m_tracking.m_allocCounter]
-    vmovsd  xmm1, [rsp+260h+var_230.m_tracking.m_location]
-    vmovups xmmword ptr [rsp+260h+var_210+8], xmm0
-    vmovsd  qword ptr [rsp+260h+var_210+18h], xmm1
-    vmovups ymm0, [rsp+260h+var_210]
-    vmovups ymmword ptr [rsp+260h+var_1F0.m_surfaceID], ymm0
-  }
-  if ( v14 )
-  {
-    R_RT_Handle::GetSurface(&v50);
-    if ( (R_RT_Handle::GetSurface(&v50)->m_rtFlagsInternal & 0x18) == 0 )
+    R_RT_Handle::GetSurface(&m_floatZFullRt);
+    if ( (R_RT_Handle::GetSurface(&m_floatZFullRt)->m_rtFlagsInternal & 0x18) == 0 )
       goto LABEL_19;
-    v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()");
+    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()");
   }
   else
   {
     if ( !(_DWORD)_RDI )
       goto LABEL_19;
-    v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
   }
-  if ( v18 )
+  if ( v12 )
     __debugbreak();
 LABEL_19:
-  __asm { vmovups ymm0, ymmword ptr [r14+3340h] }
-  source = _R13->source;
-  v21 = _R13->source;
-  __asm { vmovups [rbp+160h+var_1D0], ymm0 }
-  R_InitCmdBufSourceState(v21, &_R14->input);
-  R_InitLocalCmdBufState(_R13->state, &source->input);
+  source = context->source;
+  v14 = context->source;
+  v31 = (R_RT_Handle)viewInfo->sceneRtInput.m_floatZFullRt;
+  R_InitCmdBufSourceState(v14, &viewInfo->input);
+  R_InitLocalCmdBufState(context->state, &source->input);
   R_GPU_BeginTimer(GPU_TIMER_EMISSIVE_COPY);
-  R_ProfBeginNamedEvent(_R13->state, "upsample half res");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14+3220h]
-    vmovups xmm1, xmmword ptr [r13+0]
-    vmovups ymmword ptr [rsp+260h+var_230.m_surfaceID], ymm0
-    vmovups xmmword ptr [rsp+260h+var_210], xmm1
-  }
-  R_Resolve_EliminateFastClear((GfxCmdBufContext *)&v49, (R_RT_ColorHandle *)&v48, 0);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14+3240h]
-    vmovups xmm1, xmmword ptr [r13+0]
-    vmovups ymmword ptr [rsp+260h+var_230.m_surfaceID], ymm0
-    vmovups xmmword ptr [rsp+260h+var_210], xmm1
-  }
-  R_Resolve_EliminateFastClear((GfxCmdBufContext *)&v49, (R_RT_ColorHandle *)&v48, 1);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14+30C0h]
-    vmovups ymmword ptr [rsp+260h+var_230.m_surfaceID], ymm0
-  }
-  height = R_RT_Handle::GetSurface(&v48)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v48);
+  R_ProfBeginNamedEvent(context->state, "upsample half res");
+  v15 = *context;
+  m_mainSceneColorRt = (R_RT_Handle)viewInfo->sceneRtInput.m_halfSceneColorRt;
+  *(GfxCmdBufContext *)&v29.m_surfaceID = v15;
+  R_Resolve_EliminateFastClear((GfxCmdBufContext *)&v29, (R_RT_ColorHandle *)&m_mainSceneColorRt, 0);
+  v16 = *context;
+  m_mainSceneColorRt = (R_RT_Handle)viewInfo->sceneRtInput.m_halfSceneAlphaRt;
+  *(GfxCmdBufContext *)&v29.m_surfaceID = v16;
+  R_Resolve_EliminateFastClear((GfxCmdBufContext *)&v29, (R_RT_ColorHandle *)&m_mainSceneColorRt, 1);
+  m_mainSceneColorRt = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneColorRt;
+  height = R_RT_Handle::GetSurface(&m_mainSceneColorRt)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface(&m_mainSceneColorRt);
   R_SetRenderTargetSize(source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-  R_BeginViewInternal(source, &_R14->sceneDef, (const GfxViewParms *)_R14, &_R14->viewParmsSet.frames[1].viewParms);
-  v49.m256i_i64[0] = (__int64)&_R14->sceneViewport;
-  R_SetViewportStruct(source, &_R14->sceneViewport);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14+30C0h]
-    vmovups ymm1, ymmword ptr [r14+30E0h]
-  }
-  v55.m_colorRtCount = 2;
-  __asm
-  {
-    vmovups [rbp+160h+var_80], ymm0
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+260h+var_230.m_tracking.m_name], xmm0
-  }
-  v32 = 2i64;
-  v48.m_surfaceID = 0;
-  __asm { vmovups [rbp+160h+var_60], ymm1 }
-  v48.m_tracking.m_allocCounter = 0;
-  _RDI = 0i64;
+  R_BeginViewInternal(source, &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
+  *(_QWORD *)&v29.m_surfaceID = &viewInfo->sceneViewport;
+  R_SetViewportStruct(source, &viewInfo->sceneViewport);
+  v19 = (__m256i)viewInfo->sceneRtInput.m_mainSceneColorRt;
+  m_mainSceneAlphaRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneAlphaRt;
+  v35.m_colorRtCount = 2;
+  *(__m256i *)v36 = v19;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&m_mainSceneColorRt.m_tracking.m_name = _XMM0;
+  v22 = 2i64;
+  m_mainSceneColorRt.m_surfaceID = 0;
+  *(__m256i *)&v36[32] = m_mainSceneAlphaRt;
+  m_mainSceneColorRt.m_tracking.m_allocCounter = 0;
+  v23 = 0i64;
   do
   {
-    __asm
+    v34 = *(R_RT_Handle *)&v36[v23 * 32];
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, [rbp+rdi+160h+var_80]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+160h+var_170.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v54);
+      R_RT_Handle::GetSurface(&v34);
     }
     else
     {
@@ -6467,61 +4661,41 @@ LABEL_19:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
         __debugbreak();
     }
-    __asm
-    {
-      vmovups ymm0, [rbp+rdi+160h+var_80]
-      vmovups [rbp+rdi+160h+var_148], ymm0
-    }
-    _RDI += 32i64;
-    --v32;
+    v35.m_colorRts[v23] = *(R_RT_ColorHandle *)&v36[v23 * 32];
+    ++v23;
+    --v22;
   }
-  while ( v32 );
-  __asm
+  while ( v22 );
+  v35.m_depthRt = (R_RT_DepthHandle)m_mainSceneColorRt;
+  *(GfxCmdBufContext *)&m_mainSceneColorRt.m_surfaceID = *context;
+  R_SetRenderTargetsInternal((GfxCmdBufContext *)&m_mainSceneColorRt, &v35, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3088)");
+  v25 = context->source;
+  R_Set2D(context->source);
+  state = context->state;
+  if ( v25->viewMode != VIEW_MODE_2D )
   {
-    vmovups ymm0, ymmword ptr [rsp+260h+var_230.m_surfaceID]
-    vmovups [rbp+160h+var_C8], ymm0
-    vmovups xmm0, xmmword ptr [r13+0]
-    vmovups xmmword ptr [rsp+260h+var_230.m_surfaceID], xmm0
-  }
-  R_SetRenderTargetsInternal((GfxCmdBufContext *)&v48, &v55, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3088)");
-  v40 = _R13->source;
-  R_Set2D(_R13->source);
-  state = _R13->state;
-  if ( v40->viewMode != VIEW_MODE_2D )
-  {
-    LODWORD(v47) = v40->viewMode;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 3092, ASSERT_TYPE_ASSERT, "( ( source->viewMode == VIEW_MODE_2D ) )", "( source->viewMode ) = %i", v47) )
+    LODWORD(v27) = v25->viewMode;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 3092, ASSERT_TYPE_ASSERT, "( ( source->viewMode == VIEW_MODE_2D ) )", "( source->viewMode ) = %i", v27) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups ymm0, [rbp+160h+var_1D0]
-    vmovups ymm1, [rbp+160h+var_1B0]
-    vmovups [rbp+160h+var_1D0], ymm0
-    vmovups ymm0, ymmword ptr [rsp+260h+var_1F0.m_surfaceID]
-    vmovups ymmword ptr [rbp+160h+var_170.m_surfaceID], ymm0
-    vmovups ymm0, [rbp+160h+var_190]
-    vmovups [rbp+160h+var_190], ymm0
-    vmovups xmm0, xmmword ptr [r13+0]
-    vmovups xmmword ptr [rsp+260h+var_230.m_surfaceID], xmm0
-    vmovups [rbp+160h+var_1B0], ymm1
-  }
-  R_HalfRes_Upsample((GfxCmdBufContext *)&v48, &v53, &v52, &v54, &v51, (const GfxViewport *)v49.m256i_i64[0]);
-  if ( v40 == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v34 = m_floatZFullRt;
+  *(GfxCmdBufContext *)&m_mainSceneColorRt.m_surfaceID = *context;
+  R_HalfRes_Upsample((GfxCmdBufContext *)&m_mainSceneColorRt, &m_halfSceneColorRt, &m_halfSceneAlphaRt, &v34, &v31, *(const GfxViewport **)&v29.m_surfaceID);
+  if ( v25 == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v40->input.codeImages[22] = NULL;
-  if ( v40 == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v25->input.codeImages[22] = NULL;
+  if ( v25 == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v40->input.codeImages[23] = NULL;
-  if ( v40 == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v25->input.codeImages[23] = NULL;
+  if ( v25 == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v40->input.codeImages[24] = NULL;
-  if ( v40 == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v25->input.codeImages[24] = NULL;
+  if ( v25 == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v40->input.codeImages[25] = NULL;
+  v25->input.codeImages[25] = NULL;
   R_ProfEndNamedEvent(state);
   R_GPU_EndTimer();
-  R_ShutdownLocalCmdBufState(state, &v40->input);
+  R_ShutdownLocalCmdBufState(state, &v25->input);
 }
 
 /*
@@ -6531,102 +4705,76 @@ RB_InitClient2DContext
 */
 void RB_InitClient2DContext(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, R_RT_ColorHandle *colorRt, R_RT_Handle *packedStencil, const GfxImage *universalClut, const GfxImage *resolvedScene, const GfxWrappedBuffer *exposureBuffer)
 {
+  __m256i v9; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
   GfxCmdBufSourceState *source; 
-  const char *m_location; 
+  GfxCmdBufContext v16; 
   R_RT_Image *p_m_image; 
+  unsigned int v18; 
+  unsigned __int16 v19; 
+  int width; 
+  float v21; 
+  float v22; 
   GfxCmdBufInput *p_input; 
   GfxImage *blackImage; 
-  GfxCmdBufSourceState *v40; 
-  GfxCmdBufInput *v41; 
-  GfxCmdBufSourceState *v42; 
-  GfxImage *v43; 
-  GfxCmdBufInput *v44; 
-  GfxCmdBufSourceState *v45; 
-  __int64 v47; 
+  GfxCmdBufSourceState *v25; 
+  GfxCmdBufInput *v26; 
+  GfxCmdBufSourceState *v27; 
+  GfxImage *v28; 
+  GfxCmdBufInput *v29; 
+  GfxCmdBufSourceState *v30; 
+  GfxCmdBufSourceState *v31; 
+  GfxCmdBufInput *v32; 
   GfxWrappedBuffer *p_dummyBuffer; 
   GfxImage *Image; 
-  GfxCmdBufInput *v54; 
-  const GfxImage *v56; 
-  R_RT_Handle v61; 
-  const GfxImage *v62; 
-  R_RT_Group v63; 
+  GfxCmdBufInput *v35; 
+  GfxCmdBufContext v36; 
+  const GfxImage *v37; 
+  __m256i v38; 
+  const GfxImage *v39; 
+  R_RT_Group v40; 
   GfxViewport viewport; 
-  R_RT_Group v65; 
-  void *retaddr; 
+  R_RT_Group v42; 
 
-  _RAX = &retaddr;
-  __asm
+  v9 = *(__m256i *)colorRt;
+  v39 = universalClut;
+  v38 = v9;
+  height = R_RT_Handle::GetSurface((R_RT_Handle *)&v38)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface((R_RT_Handle *)&v38);
+  source = gfxContext->source;
+  R_SetRenderTargetSize(gfxContext->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
+  v38 = *(__m256i *)colorRt;
+  R_RT_Group::AssignColor(&v40, (R_RT_ColorHandle *)&v38);
+  *(__m256i *)&v42.m_colorRtCount = *(__m256i *)&v40.m_colorRtCount;
+  *(__m256i *)&v42.m_colorRts[0].m_tracking.m_location = *(__m256i *)&v40.m_colorRts[0].m_tracking.m_location;
+  *(__m256i *)&v42.m_colorRts[1].m_tracking.m_location = *(__m256i *)&v40.m_colorRts[1].m_tracking.m_location;
+  *(__m256i *)&v42.m_colorRts[2].m_tracking.m_location = *(__m256i *)&v40.m_colorRts[2].m_tracking.m_location;
+  v16 = *gfxContext;
+  *(__m256i *)&v42.m_colorRts[3].m_tracking.m_location = *(__m256i *)&v40.m_colorRts[3].m_tracking.m_location;
+  *(__m256i *)&v42.m_depthRt.m_tracking.m_location = *(__m256i *)&v40.m_depthRt.m_tracking.m_location;
+  v42.m_vrsRt.m_tracking.m_location = v40.m_vrsRt.m_tracking.m_location;
+  *(GfxCmdBufContext *)v38.m256i_i8 = v16;
+  R_SetRenderTargetsInternal((GfxCmdBufContext *)&v38, &v42, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2134)");
+  v38 = *(__m256i *)packedStencil;
+  if ( LOWORD(v16.source) )
   {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
-  _R14 = gfxContext;
-  __asm { vmovups ymm0, ymmword ptr [r9] }
-  _RSI = packedStencil;
-  v62 = universalClut;
-  _RDI = colorRt;
-  __asm { vmovups ymmword ptr [rsp+270h+var_248.m_tracking.m_allocCounter], ymm0 }
-  _R13 = viewInfo;
-  height = R_RT_Handle::GetSurface(&v61)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v61);
-  source = _R14->source;
-  R_SetRenderTargetSize(_R14->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+270h+var_248.m_tracking.m_allocCounter], ymm0
-  }
-  R_RT_Group::AssignColor(&v63, (R_RT_ColorHandle *)&v61);
-  _RCX = &v65;
-  _RAX = &v63;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups ymmword ptr [rcx+80h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-  }
-  m_location = v63.m_vrsRt.m_tracking.m_location;
-  __asm { vmovups ymmword ptr [rcx+0A0h], ymm1 }
-  v65.m_vrsRt.m_tracking.m_location = m_location;
-  __asm { vmovups xmmword ptr [rsp+270h+var_248.m_tracking.m_allocCounter], xmm0 }
-  R_SetRenderTargetsInternal((GfxCmdBufContext *)&v61, &v65, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2134)");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+270h+var_248.m_tracking.m_allocCounter], ymm0
-  }
-  if ( (_WORD)_EAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    R_RT_Handle::GetSurface(&v61);
-    R_RT_Handle::GetSurface(&v61);
-    p_m_image = &R_RT_Handle::GetSurface(&v61)->m_image;
+    R_RT_Handle::GetSurface((R_RT_Handle *)&v38);
+    width = R_RT_Handle::GetSurface((R_RT_Handle *)&v38)->m_image.m_base.width;
+    v19 = R_RT_Handle::GetSurface((R_RT_Handle *)&v38)->m_image.m_base.height;
+    p_m_image = &R_RT_Handle::GetSurface((R_RT_Handle *)&v38)->m_image;
+    v18 = 2 * width;
   }
   else
   {
-    if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+    if ( v38.m256i_i32[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", v38.m256i_i64[0]) )
       __debugbreak();
     p_m_image = (R_RT_Image *)rgp.blackImage;
+    v18 = rgp.blackImage->width;
+    v19 = rgp.blackImage->height;
   }
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm6, xmm6, rcx
-    vcvtsi2ss xmm7, xmm7, rdx
-  }
+  v21 = (float)v18;
+  v22 = (float)v19;
   if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   p_input = &source->input;
@@ -6634,80 +4782,57 @@ void RB_InitClient2DContext(GfxCmdBufContext *gfxContext, const GfxViewInfo *vie
     __debugbreak();
   p_input->codeImages[79] = &p_m_image->m_base;
   blackImage = rgp.blackImage;
-  v40 = _R14->source;
+  v25 = gfxContext->source;
   if ( resolvedScene )
     blackImage = (GfxImage *)resolvedScene;
-  if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v41 = &v40->input;
-  if ( !v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v26 = &v25->input;
+  if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v41->codeImages[6] = blackImage;
-  v42 = _R14->source;
-  v43 = rgp.blackImage;
-  if ( !_R14->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v26->codeImages[6] = blackImage;
+  v27 = gfxContext->source;
+  v28 = rgp.blackImage;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v44 = &v42->input;
-  if ( !v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v29 = &v27->input;
+  if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v44->codeImages[80] = v43;
-  v45 = _R14->source;
-  _RDI = _R14->source;
-  v47 = (__int64)&_R14->source->input;
-  if ( _R14->source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1494, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v29->codeImages[80] = v28;
+  v30 = gfxContext->source;
+  v31 = gfxContext->source;
+  v32 = &gfxContext->source->input;
+  if ( gfxContext->source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1494, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@3f800000 }
   p_dummyBuffer = &gfxBuf.dummyBuffer;
-  __asm
-  {
-    vdivss  xmm0, xmm1, xmm6
-    vdivss  xmm1, xmm1, xmm7
-  }
   if ( exposureBuffer )
     p_dummyBuffer = (GfxWrappedBuffer *)exposureBuffer;
-  *(_QWORD *)(v47 + 7424) = p_dummyBuffer;
-  __asm
-  {
-    vmovss  dword ptr [rdi+750h], xmm6
-    vmovss  dword ptr [rdi+754h], xmm7
-    vmovss  dword ptr [rdi+758h], xmm0
-    vmovss  dword ptr [rdi+75Ch], xmm1
-  }
-  ++_RDI->constVersions[5];
-  __asm { vmovss  xmm1, cs:?vidConfig@@3UvidConfig_t@@A.windowAspectRatio; aspect }
-  R_SetRenderTargetAspect(_RDI, *(float *)&_XMM1);
+  v32->codeBuffers[32] = p_dummyBuffer;
+  v31->input.consts[5].v[0] = v21;
+  v31->input.consts[5].v[1] = v22;
+  v31->input.consts[5].v[2] = 1.0 / v21;
+  v31->input.consts[5].v[3] = 1.0 / v22;
+  ++v31->constVersions[5];
+  R_SetRenderTargetAspect(v31, vidConfig.windowAspectRatio);
   Image = FontCache_GetImage();
-  v54 = &_RDI->input;
-  if ( !v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v35 = &v31->input;
+  if ( !v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
   {
     __debugbreak();
-    v45 = _R14->source;
+    v30 = gfxContext->source;
   }
-  __asm { vmovups xmm0, xmmword ptr [r14] }
-  v56 = v62;
-  v54->codeImages[32] = Image;
-  __asm { vmovups xmmword ptr [rsp+270h+var_248.m_tracking.m_allocCounter], xmm0 }
-  RB_SetDefaultUIState((GfxCmdBufContext *)&v61, data, v56);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups xmmword ptr [rsp+270h+var_248.m_tracking.m_allocCounter], xmm0
-  }
-  RB_SetupUIWhiteBalanceParams((GfxCmdBufContext *)&v61, _R13);
-  R_SetMovieImages(&v45->input);
-  R_BeginViewInternal(v45, &_R13->sceneDef, (const GfxViewParms *)_R13, &_R13->viewParmsSet.frames[1].viewParms);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r13+4B0h]
-    vmovups xmmword ptr [rbp+170h+viewport.x], xmm0
-  }
-  R_SetViewportStruct(v45, &viewport);
-  R_SetViewportAndScissorSeparate(_R14->state, &viewport, &viewport);
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [rsp+270h+var_58+8]
-    vmovaps xmm7, [rsp+270h+var_68+8]
-  }
+  v36 = *gfxContext;
+  v37 = v39;
+  v35->codeImages[32] = Image;
+  *(GfxCmdBufContext *)v38.m256i_i8 = v36;
+  RB_SetDefaultUIState((GfxCmdBufContext *)&v38, data, v37);
+  *(GfxCmdBufContext *)v38.m256i_i8 = *gfxContext;
+  RB_SetupUIWhiteBalanceParams((GfxCmdBufContext *)&v38, viewInfo);
+  R_SetMovieImages(&v30->input);
+  R_BeginViewInternal(v30, &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
+  viewport = viewInfo->displayViewport;
+  R_SetViewportStruct(v30, &viewport);
+  R_SetViewportAndScissorSeparate(gfxContext->state, &viewport, &viewport);
 }
 
 /*
@@ -6717,71 +4842,51 @@ RB_InitClient2DContext_CopyScopeReticle
 */
 void RB_InitClient2DContext_CopyScopeReticle(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
+  GfxCmdBufState *state; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
+  GfxCmdBufSourceState *source; 
+  float width; 
+  float v11; 
   GfxImage *Image; 
-  R_RT_Handle v25; 
-  R_RT_Handle v26; 
+  GfxCmdBufContext v13; 
+  R_RT_Handle v14; 
+  R_RT_Handle v15; 
   GfxViewport viewport; 
 
-  __asm { vmovaps [rsp+0D8h+var_48], xmm6 }
-  _RBX = gfxContext->state;
-  _RDI = gfxContext;
-  if ( _RBX->rtGroup.m_colorRtCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
+  state = gfxContext->state;
+  if ( state->rtGroup.m_colorRtCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+0A30h]
-    vmovups ymmword ptr [rsp+0D8h+var_88.m_surfaceID], ymm0
-    vmovups ymmword ptr [rsp+0D8h+var_A8.m_surfaceID], ymm0
-  }
-  height = R_RT_Handle::GetSurface(&v25)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v25);
-  _RSI = _RDI->source;
-  R_SetRenderTargetSize(_RDI->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-  R_RT_Handle::GetSurface(&v26);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, ecx
-  }
-  R_RT_Handle::GetSurface(&v26);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vdivss  xmm0, xmm1, xmm6
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, ecx
-    vdivss  xmm1, xmm1, xmm2
-    vmovss  dword ptr [rsi+75Ch], xmm1
-    vmovss  dword ptr [rsi+750h], xmm6
-    vmovss  dword ptr [rsi+754h], xmm2
-    vmovss  dword ptr [rsi+758h], xmm0
-  }
-  ++_RSI->constVersions[5];
-  __asm { vmovss  xmm1, cs:?vidConfig@@3UvidConfig_t@@A.windowAspectRatio; aspect }
-  R_SetRenderTargetAspect(_RSI, *(float *)&_XMM1);
+  v15 = (R_RT_Handle)state->rtGroup.m_colorRts[0];
+  v14 = v15;
+  height = R_RT_Handle::GetSurface(&v14)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface(&v14);
+  source = gfxContext->source;
+  R_SetRenderTargetSize(gfxContext->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
+  width = (float)R_RT_Handle::GetSurface(&v15)->m_image.m_base.width;
+  v11 = (float)R_RT_Handle::GetSurface(&v15)->m_image.m_base.height;
+  source->input.consts[5].v[3] = 1.0 / v11;
+  source->input.consts[5].v[0] = width;
+  source->input.consts[5].v[1] = v11;
+  source->input.consts[5].v[2] = 1.0 / width;
+  ++source->constVersions[5];
+  R_SetRenderTargetAspect(source, vidConfig.windowAspectRatio);
   Image = FontCache_GetImage();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  if ( _RSI == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  if ( source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
-  _RSI->input.codeImages[32] = Image;
-  __asm { vmovups xmmword ptr [rsp+0D8h+var_A8.m_surfaceID], xmm0 }
-  RB_SetDefaultUIState((GfxCmdBufContext *)&v25, data, NULL);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsp+0D8h+var_A8.m_surfaceID], xmm0
-  }
-  RB_SetupUIWhiteBalanceParams((GfxCmdBufContext *)&v25, viewInfo);
+  v13 = *gfxContext;
+  source->input.codeImages[32] = Image;
+  *(GfxCmdBufContext *)&v14.m_surfaceID = v13;
+  RB_SetDefaultUIState((GfxCmdBufContext *)&v14, data, NULL);
+  *(GfxCmdBufContext *)&v14.m_surfaceID = *gfxContext;
+  RB_SetupUIWhiteBalanceParams((GfxCmdBufContext *)&v14, viewInfo);
   *(_QWORD *)&viewport.x = 0i64;
-  viewport.width = R_RT_Handle::GetSurface(&v26)->m_image.m_base.width;
-  viewport.height = R_RT_Handle::GetSurface(&v26)->m_image.m_base.height;
-  R_SetViewportStruct(_RSI, &viewport);
-  R_Set2D(_RSI);
-  __asm { vmovaps xmm6, [rsp+0D8h+var_48] }
+  viewport.width = R_RT_Handle::GetSurface(&v15)->m_image.m_base.width;
+  viewport.height = R_RT_Handle::GetSurface(&v15)->m_image.m_base.height;
+  R_SetViewportStruct(source, &viewport);
+  R_Set2D(source);
 }
 
 /*
@@ -6791,93 +4896,74 @@ RB_InitClient2DContext_ReceivePostFXLite
 */
 void RB_InitClient2DContext_ReceivePostFXLite(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, R_RT_ColorHandle *sceneRt, const GfxImage *packedStencil, const GfxImage *scopeBuffer)
 {
-  R_RT_ColorHandle *v10; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
   GfxCmdBufSourceState *source; 
   GfxImage *Image; 
   GfxCmdBufInput *p_input; 
-  GfxCmdBufInput *v29; 
-  GfxCmdBufSourceState *v30; 
-  GfxCmdBufInput *v31; 
-  const R_RT_Surface *v32; 
-  GfxCmdBufSourceState *v33; 
-  R_RT_Handle v35; 
+  GfxCmdBufContext v15; 
+  float width; 
+  const R_RT_Surface *v17; 
+  GfxCmdBufSourceState *v18; 
+  int v19; 
+  float v20; 
+  GfxCmdBufInput *v21; 
+  GfxCmdBufSourceState *v22; 
+  GfxCmdBufInput *v23; 
+  const R_RT_Surface *v24; 
+  GfxCmdBufSourceState *v25; 
+  R_RT_Handle v26; 
   GfxViewport viewport; 
 
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_58], xmm6
-    vmovups ymm0, ymmword ptr [r9]
-  }
-  _RDI = gfxContext;
-  v10 = sceneRt;
-  __asm { vmovups ymmword ptr [rsp+0C8h+var_98.m_surfaceID], ymm0 }
-  height = R_RT_Handle::GetSurface(&v35)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v35);
-  source = _RDI->source;
-  R_SetRenderTargetSize(_RDI->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
+  v26 = sceneRt->R_RT_Handle;
+  height = R_RT_Handle::GetSurface(&v26)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface(&v26);
+  source = gfxContext->source;
+  R_SetRenderTargetSize(gfxContext->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
   Image = FontCache_GetImage();
   if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
+  v15 = *gfxContext;
   p_input->codeImages[32] = Image;
-  __asm { vmovups xmmword ptr [rsp+0C8h+var_98.m_surfaceID], xmm0 }
-  RB_SetDefaultUIState((GfxCmdBufContext *)&v35, data, rgp.blackImage3D);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsp+0C8h+var_98.m_surfaceID], xmm0
-  }
-  RB_SetupUIWhiteBalanceParams((GfxCmdBufContext *)&v35, viewInfo);
-  R_RT_Handle::GetSurface(v10);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, ecx
-  }
-  R_RT_Handle::GetSurface(v10);
-  _RBX = _RDI->source;
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vdivss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rbx+750h], xmm6
-    vmovss  dword ptr [rbx+758h], xmm0
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, ecx
-    vdivss  xmm1, xmm1, xmm2
-    vmovss  dword ptr [rbx+75Ch], xmm1
-    vmovss  dword ptr [rbx+754h], xmm2
-  }
-  ++_RBX->constVersions[5];
-  __asm { vmovss  xmm1, cs:?vidConfig@@3UvidConfig_t@@A.windowAspectRatio; aspect }
-  R_SetRenderTargetAspect(_RBX, *(float *)&_XMM1);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  *(GfxCmdBufContext *)&v26.m_surfaceID = v15;
+  RB_SetDefaultUIState((GfxCmdBufContext *)&v26, data, rgp.blackImage3D);
+  *(GfxCmdBufContext *)&v26.m_surfaceID = *gfxContext;
+  RB_SetupUIWhiteBalanceParams((GfxCmdBufContext *)&v26, viewInfo);
+  width = (float)R_RT_Handle::GetSurface(sceneRt)->m_image.m_base.width;
+  v17 = R_RT_Handle::GetSurface(sceneRt);
+  v18 = gfxContext->source;
+  v19 = v17->m_image.m_base.height;
+  v18->input.consts[5].v[0] = width;
+  v18->input.consts[5].v[2] = 1.0 / width;
+  v20 = (float)v19;
+  v18->input.consts[5].v[3] = 1.0 / v20;
+  v18->input.consts[5].v[1] = v20;
+  ++v18->constVersions[5];
+  R_SetRenderTargetAspect(v18, vidConfig.windowAspectRatio);
+  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v29 = &_RBX->input;
-  if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v21 = &v18->input;
+  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v29->codeImages[79] = packedStencil;
-  v30 = _RDI->source;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v21->codeImages[79] = packedStencil;
+  v22 = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v31 = &v30->input;
-  if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v23 = &v22->input;
+  if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v31->codeImages[80] = scopeBuffer;
+  v23->codeImages[80] = scopeBuffer;
   *(_QWORD *)&viewport.x = 0i64;
-  viewport.width = R_RT_Handle::GetSurface(v10)->m_image.m_base.width;
-  v32 = R_RT_Handle::GetSurface(v10);
-  v33 = _RDI->source;
-  viewport.height = v32->m_image.m_base.height;
-  R_SetViewportStruct(v33, &viewport);
-  R_Set2D(v33);
-  R_ForceSet2D(v33, &viewInfo->displayViewport);
-  __asm { vmovaps xmm6, [rsp+0C8h+var_58] }
+  viewport.width = R_RT_Handle::GetSurface(sceneRt)->m_image.m_base.width;
+  v24 = R_RT_Handle::GetSurface(sceneRt);
+  v25 = gfxContext->source;
+  viewport.height = v24->m_image.m_base.height;
+  R_SetViewportStruct(v25, &viewport);
+  R_Set2D(v25);
+  R_ForceSet2D(v25, &viewInfo->displayViewport);
 }
 
 /*
@@ -6887,95 +4973,64 @@ RB_InitClient2DReceivePPFXContext
 */
 void RB_InitClient2DReceivePPFXContext(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, R_RT_ColorHandle *sceneRt, R_RT_DepthHandle *depthRt, const GfxImage *universalClut)
 {
+  R_RT_ColorHandle v6; 
+  GfxCmdBufSourceState *source; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
+  float width; 
+  float v15; 
   GfxImage *blackImage; 
   GfxImage *Image; 
-  GfxCmdBufSourceState *source; 
-  GfxImage *v32; 
+  GfxCmdBufSourceState *v18; 
+  GfxImage *v19; 
   GfxCmdBufInput *p_input; 
-  R_RT_Handle v38; 
-  R_RT_DepthHandle v39; 
-  R_RT_ColorHandle v40; 
-  char v41; 
-  void *retaddr; 
+  GfxCmdBufContext v21; 
+  R_RT_Handle v22; 
+  R_RT_DepthHandle v23; 
+  __m256i v24; 
 
-  _R11 = &retaddr;
-  __asm { vmovups ymm1, ymmword ptr [r9] }
-  _RAX = depthRt;
-  _RDI = sceneRt;
-  __asm { vmovaps xmmword ptr [r11-38h], xmm6 }
-  _RSI = gfxContext;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rsp+0C8h+var_78], ymm0
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+0C8h+var_98.m_surfaceID], xmm0
-    vmovups ymmword ptr [rsp+0C8h+var_58.baseclass_0.m_surfaceID], ymm1
-  }
-  R_SetRenderTargetsInternal_ColorDepth((GfxCmdBufContext *)&v38, &v40, &v39, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3572)");
-  _R14 = _RSI->source;
-  R_SetViewportStruct(_RSI->source, &viewInfo->sceneGeoViewport);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+0C8h+var_98.m_surfaceID], ymm0
-  }
-  height = R_RT_Handle::GetSurface(&v38)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v38);
-  R_SetRenderTargetSize(_R14, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-  R_BeginViewInternal(_R14, &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
-  R_RT_Handle::GetSurface(_RDI);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, ecx
-  }
-  R_RT_Handle::GetSurface(_RDI);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vdivss  xmm0, xmm1, xmm6
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, ecx
-    vdivss  xmm1, xmm1, xmm2
-    vmovss  dword ptr [r14+75Ch], xmm1
-    vmovss  dword ptr [r14+750h], xmm6
-    vmovss  dword ptr [r14+754h], xmm2
-    vmovss  dword ptr [r14+758h], xmm0
-  }
-  ++_R14->constVersions[5];
-  __asm { vmovss  xmm1, cs:?vidConfig@@3UvidConfig_t@@A.windowAspectRatio; aspect }
-  R_SetRenderTargetAspect(_R14, *(float *)&_XMM1);
+  v6 = *sceneRt;
+  v23 = *depthRt;
+  *(GfxCmdBufContext *)&v22.m_surfaceID = *gfxContext;
+  v24 = (__m256i)v6;
+  R_SetRenderTargetsInternal_ColorDepth((GfxCmdBufContext *)&v22, (R_RT_ColorHandle *)&v24, &v23, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3572)");
+  source = gfxContext->source;
+  R_SetViewportStruct(gfxContext->source, &viewInfo->sceneGeoViewport);
+  v22 = sceneRt->R_RT_Handle;
+  height = R_RT_Handle::GetSurface(&v22)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface(&v22);
+  R_SetRenderTargetSize(source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
+  R_BeginViewInternal(source, &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
+  width = (float)R_RT_Handle::GetSurface(sceneRt)->m_image.m_base.width;
+  v15 = (float)R_RT_Handle::GetSurface(sceneRt)->m_image.m_base.height;
+  source->input.consts[5].v[3] = 1.0 / v15;
+  source->input.consts[5].v[0] = width;
+  source->input.consts[5].v[1] = v15;
+  source->input.consts[5].v[2] = 1.0 / width;
+  ++source->constVersions[5];
+  R_SetRenderTargetAspect(source, vidConfig.windowAspectRatio);
   blackImage = rgp.blackImage;
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  if ( _R14 == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  if ( source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  _R14->input.codeImages[80] = blackImage;
+  source->input.codeImages[80] = blackImage;
   Image = FontCache_GetImage();
-  source = _RSI->source;
-  v32 = Image;
-  if ( !_RSI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v18 = gfxContext->source;
+  v19 = Image;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  p_input = &source->input;
+  p_input = &v18->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  p_input->codeImages[32] = v32;
-  __asm { vmovups xmmword ptr [rsp+0C8h+var_98.m_surfaceID], xmm0 }
-  RB_SetDefaultUIState((GfxCmdBufContext *)&v38, data, universalClut);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups xmmword ptr [rsp+0C8h+var_98.m_surfaceID], xmm0
-  }
-  RB_SetupUIWhiteBalanceParams((GfxCmdBufContext *)&v38, viewInfo);
-  R_Set2D(_RSI->source);
-  _R11 = &v41;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  R_ForceSet2D(_RSI->source, &viewInfo->displayViewport);
+  v21 = *gfxContext;
+  p_input->codeImages[32] = v19;
+  *(GfxCmdBufContext *)&v22.m_surfaceID = v21;
+  RB_SetDefaultUIState((GfxCmdBufContext *)&v22, data, universalClut);
+  *(GfxCmdBufContext *)&v22.m_surfaceID = *gfxContext;
+  RB_SetupUIWhiteBalanceParams((GfxCmdBufContext *)&v22, viewInfo);
+  R_Set2D(gfxContext->source);
+  R_ForceSet2D(gfxContext->source, &viewInfo->displayViewport);
 }
 
 /*
@@ -6992,12 +5047,12 @@ void RB_InitClient2D_RTT(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewIn
   GfxCmdBufSourceState *v10; 
   GfxImage *v11; 
   GfxCmdBufInput *v12; 
-  GfxCmdBufSourceState *v15; 
-  GfxCmdBufContext v16[3]; 
+  GfxCmdBufContext v13; 
+  GfxCmdBufSourceState *v14; 
+  GfxCmdBufContext v15[3]; 
 
   source = gfxContext->source;
   blackImage = rgp.blackImage;
-  _RBX = gfxContext;
   if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   p_input = &source->input;
@@ -7005,26 +5060,22 @@ void RB_InitClient2D_RTT(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewIn
     __debugbreak();
   p_input->codeImages[80] = blackImage;
   Image = FontCache_GetImage();
-  v10 = _RBX->source;
+  v10 = gfxContext->source;
   v11 = Image;
-  if ( !_RBX->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   v12 = &v10->input;
   if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
+  v13 = *gfxContext;
   v12->codeImages[32] = v11;
-  __asm { vmovups [rsp+68h+var_38], xmm0 }
-  RB_SetDefaultUIState(v16, data, NULL);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups [rsp+68h+var_38], xmm0
-  }
-  RB_SetupUIWhiteBalanceParams(v16, viewInfo);
-  v15 = _RBX->source;
-  R_Set2D(v15);
-  R_ForceSet2D(v15, &viewInfo->displayViewport);
+  v15[0] = v13;
+  RB_SetDefaultUIState(v15, data, NULL);
+  v15[0] = *gfxContext;
+  RB_SetupUIWhiteBalanceParams(v15, viewInfo);
+  v14 = gfxContext->source;
+  R_Set2D(v14);
+  R_ForceSet2D(v14, &viewInfo->displayViewport);
 }
 
 /*
@@ -7124,718 +5175,473 @@ RB_PerformVolumeLightScatter
 */
 void RB_PerformVolumeLightScatter(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  bool v14; 
-  const char *v97; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  __int64 activePrimarySunLight; 
+  float v13; 
+  __int128 v14; 
+  __int128 v19; 
+  __int128 v22; 
+  __int128 v23; 
+  R_RT_Handle m_mainSceneColorRt; 
+  __int128 v26; 
+  R_RT_Handle m_mainSceneDepthRt; 
+  GfxCmdBufSourceState *source; 
   GfxCmdBufState *state; 
-  unsigned int v101; 
+  unsigned int v31; 
   unsigned int height; 
-  unsigned int v103; 
-  int v104; 
-  int v105; 
+  unsigned int v33; 
+  int v34; 
+  int v35; 
   int rtFlags; 
-  bool v110; 
-  bool v114; 
-  GfxCmdBufState *v147; 
-  unsigned int v166; 
+  R_RT_Handle v37; 
+  bool v39; 
+  R_RT_Handle v40; 
+  bool v42; 
+  __int64 x; 
+  __int64 y; 
+  unsigned int v45; 
+  unsigned int v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  unsigned int v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  unsigned int v64; 
+  GfxCmdBufState *v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  R_RT_Handle v77; 
+  unsigned int v78; 
   const R_RT_Surface *Surface; 
-  const R_RT_Surface *v172; 
+  const R_RT_Surface *v80; 
   const GfxImage *p_m_base; 
-  unsigned int v178; 
-  const R_RT_Surface *v179; 
+  unsigned int v82; 
+  const R_RT_Surface *v83; 
   Material *feedbackReplaceScenebufferMaterial; 
-  const char *v182; 
-  unsigned int v185; 
-  const R_RT_Surface *v186; 
-  const R_RT_Surface *v191; 
-  const GfxImage *v193; 
-  unsigned int v196; 
-  const R_RT_Surface *v197; 
-  unsigned int v201; 
-  const R_RT_Surface *v202; 
-  unsigned int v210; 
-  const R_RT_Surface *v211; 
+  const char *v85; 
+  R_RT_Handle v86; 
+  unsigned int v87; 
+  const R_RT_Surface *v88; 
+  const R_RT_Surface *v89; 
+  const GfxImage *v90; 
+  unsigned int v91; 
+  const R_RT_Surface *v92; 
+  unsigned int v93; 
+  const R_RT_Surface *v94; 
+  unsigned int v95; 
+  const R_RT_Surface *v96; 
   int integer; 
-  char v214; 
-  char v219; 
-  R_RT_Handle v239; 
-  unsigned int v240; 
-  R_RT_Handle v241; 
+  float v98; 
+  float v99; 
+  float v100; 
+  float v101; 
+  float v104; 
+  R_RT_Handle v105; 
+  unsigned int v106; 
+  R_RT_Handle v107; 
+  R_RT_Handle v108; 
   R_RT_Handle result; 
   unsigned int width; 
+  float v111; 
+  float v112; 
+  float v113; 
+  float v114; 
+  float v115; 
+  float v116; 
   GfxCmdBufInput *input; 
-  R_RT_ColorHandle v252; 
-  R_RT_Handle v253; 
-  char v254; 
-  const char *v257; 
-  R_RT_Group v258; 
-  void *retaddr; 
+  R_RT_Handle v118; 
+  R_RT_Handle v119; 
+  R_RT_Group v120; 
+  R_RT_Group v121; 
 
-  _R11 = &retaddr;
-  v14 = (*((_BYTE *)&viewInfo->viewportFeatures + 40) & 0x40) == 0;
-  _RSI = viewInfo;
-  _R14 = gfxContext;
   if ( (*((_BYTE *)&viewInfo->viewportFeatures + 40) & 0x40) != 0 )
   {
-    _RAX = rgp.world;
-    __asm
+    v6 = rgp.world->sun.sunFxPosition.v[1];
+    v7 = rgp.world->sun.sunFxPosition.v[0];
+    v8 = rgp.world->sun.sunFxPosition.v[2];
+    if ( (float)((float)((float)(v6 * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[1]) + (float)(v7 * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[0])) + (float)(v8 * viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[2])) > 0.0 )
     {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-0A8h], xmm12
-      vxorps  xmm12, xmm12, xmm12
-      vmovss  xmm5, dword ptr [rax+3ADCh]
-      vmulss  xmm1, xmm5, dword ptr [rdx+110h]
-      vmovss  xmm4, dword ptr [rax+3AD8h]
-      vmulss  xmm0, xmm4, dword ptr [rdx+10Ch]
-      vmovss  xmm6, dword ptr [rax+3AE0h]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, dword ptr [rdx+114h]
-      vaddss  xmm0, xmm2, xmm1
-      vcomiss xmm0, xmm12
-    }
-    if ( !v14 )
-    {
-      __asm
+      v9 = 1.0 / (float)((float)((float)(v7 * viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m.m[0].v[3]) + (float)(v6 * viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m.m[1].v[3])) + (float)(v8 * viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m.m[2].v[3]));
+      v10 = (float)((float)((float)(v6 * viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m.m[1].v[0]) + (float)(v7 * viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m.m[0].v[0])) + (float)(v8 * viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m.m[2].v[0])) * v9;
+      v11 = (float)((float)((float)(v7 * viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m.m[0].v[1]) + (float)(v6 * viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m.m[1].v[1])) + (float)(v8 * viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m.m[2].v[1])) * v9;
+      if ( COERCE_FLOAT(LODWORD(v10) & _xmm) <= 1.0 && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v7 * viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m.m[0].v[1]) + (float)(v6 * viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m.m[1].v[1])) + (float)(v8 * viewInfo->viewParmsSet.frames[0].viewParms.viewProjectionMatrix.m.m[2].v[1])) * v9) & _xmm) <= 1.0 )
       {
-        vmulss  xmm1, xmm4, dword ptr [rdx+8Ch]
-        vmulss  xmm0, xmm5, dword ptr [rdx+9Ch]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, dword ptr [rdx+0ACh]
-        vaddss  xmm0, xmm2, xmm1
-        vmulss  xmm1, xmm5, dword ptr [rdx+90h]
-        vmovaps xmmword ptr [r11-58h], xmm7
-        vmovaps xmmword ptr [r11-68h], xmm8
-        vmovaps xmmword ptr [r11-88h], xmm10
-        vmovss  xmm10, cs:__real@3f800000
-        vdivss  xmm3, xmm10, xmm0
-        vmulss  xmm0, xmm4, dword ptr [rdx+80h]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, dword ptr [rdx+0A0h]
-        vaddss  xmm0, xmm2, xmm1
-        vmulss  xmm1, xmm4, dword ptr [rdx+84h]
-        vmulss  xmm8, xmm0, xmm3
-        vmulss  xmm0, xmm5, dword ptr [rdx+94h]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, dword ptr [rdx+0A4h]
-        vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vaddss  xmm0, xmm2, xmm1
-        vmulss  xmm7, xmm0, xmm3
-        vandps  xmm0, xmm8, xmm6
-        vcomiss xmm0, xmm10
-      }
-      if ( v14 )
-      {
-        __asm
+        activePrimarySunLight = data->activePrimarySunLight;
+        if ( (_DWORD)activePrimarySunLight )
         {
-          vandps  xmm0, xmm7, xmm6
-          vcomiss xmm0, xmm10
-        }
-        if ( v14 )
-        {
-          if ( data->activePrimarySunLight )
+          Sys_ProfBeginNamedEvent(0xFFFF7F50, "VolumeLightScatter");
+          v13 = viewInfo->volumeLightScatter.attenuation.v[2];
+          v111 = (float)(v10 * 0.5) + 0.5;
+          v14 = LODWORD(FLOAT_0_5);
+          _XMM0 = LODWORD(viewInfo->volumeLightScatter.backgroundDistance);
+          __asm { vmaxss  xmm1, xmm0, cs:__real@34000000 }
+          v113 = 1.0 / *(float *)&_XMM1;
+          *(float *)&v14 = (float)(0.5 - (float)(v11 * 0.5)) - 0.5;
+          _XMM0 = v14 & (unsigned int)_xmm;
+          __asm { vmaxss  xmm0, xmm0, xmm2 }
+          v19 = _XMM0;
+          *(float *)&v19 = (float)(*(float *)&_XMM0 - v13) / (float)(0.5 - v13);
+          _XMM0 = v19;
+          __asm { vmaxss  xmm3, xmm0, xmm12 }
+          v22 = LODWORD(FLOAT_1_0);
+          *(float *)&v22 = (float)((float)(1.0 - (float)((float)(3.0 - (float)(*(float *)&_XMM3 * 2.0)) * (float)(*(float *)&_XMM3 * *(float *)&_XMM3))) * r_volumeLightScatterScriptIntensity->current.value) * data->sceneLights[activePrimarySunLight].intensity;
+          v23 = v22;
+          *(float *)&_XMM0 = (float)(*(float *)&v22 * viewInfo->volumeLightScatter.lightColor.v[0]) * data->sceneLights[activePrimarySunLight].colorLinearSrgb.v[0];
+          *(float *)&v22 = *(float *)&v22 * viewInfo->volumeLightScatter.lightColor.v[1];
+          v114 = *(float *)&_XMM0;
+          m_mainSceneColorRt = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneColorRt;
+          v115 = *(float *)&v22 * data->sceneLights[activePrimarySunLight].colorLinearSrgb.v[1];
+          v26 = v23;
+          *(float *)&v26 = (float)(*(float *)&v23 * viewInfo->volumeLightScatter.lightColor.v[2]) * data->sceneLights[activePrimarySunLight].colorLinearSrgb.v[2];
+          _XMM0 = v26;
+          v116 = *(float *)&v26;
+          m_mainSceneDepthRt = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneDepthRt;
+          v112 = 0.5 - (float)(v11 * 0.5);
+          v105 = m_mainSceneDepthRt;
+          v107 = m_mainSceneDepthRt;
+          v108 = m_mainSceneColorRt;
+          v118 = m_mainSceneColorRt;
+          if ( (_WORD)v26 )
           {
-            __asm
-            {
-              vmovaps xmmword ptr [r11-78h], xmm9
-              vmovaps xmmword ptr [r11-98h], xmm11
-              vmovaps xmmword ptr [r11-0B8h], xmm13
-              vmovaps xmmword ptr [r11-0C8h], xmm14
-              vmovaps xmmword ptr [r11-0D8h], xmm15
-            }
-            Sys_ProfBeginNamedEvent(0xFFFF7F50, "VolumeLightScatter");
-            __asm
-            {
-              vmovss  xmm11, cs:__real@3f000000
-              vmovss  xmm3, dword ptr [rsi+2E58h]
-              vmulss  xmm2, xmm8, xmm11
-              vaddss  xmm0, xmm2, xmm11
-              vmovss  [rbp+300h+var_2EC], xmm0
-              vandps  xmm2, xmm2, xmm6
-              vmulss  xmm0, xmm7, xmm11
-              vsubss  xmm4, xmm11, xmm0
-              vmovss  xmm0, dword ptr [rsi+2E64h]
-              vmaxss  xmm1, xmm0, cs:__real@34000000
-              vdivss  xmm0, xmm10, xmm1
-              vmovss  [rbp+300h+var_2E4], xmm0
-              vsubss  xmm1, xmm11, xmm3
-              vsubss  xmm0, xmm4, xmm11
-              vandps  xmm0, xmm0, xmm6
-              vmaxss  xmm0, xmm0, xmm2
-              vsubss  xmm2, xmm0, xmm3
-              vdivss  xmm0, xmm2, xmm1
-              vmaxss  xmm3, xmm0, xmm12
-              vmulss  xmm1, xmm3, cs:__real@40000000
-              vmovss  xmm0, cs:__real@40400000
-              vsubss  xmm2, xmm0, xmm1
-              vmulss  xmm1, xmm3, xmm3
-              vmulss  xmm3, xmm2, xmm1
-              vsubss  xmm0, xmm10, xmm3
-              vmulss  xmm0, xmm0, dword ptr [rax+28h]
-              vmulss  xmm2, xmm0, dword ptr [rcx+rbx+53A010h]
-              vmulss  xmm0, xmm2, dword ptr [rsi+2E44h]
-              vmulss  xmm0, xmm0, dword ptr [rcx+rbx+53A014h]
-              vmulss  xmm1, xmm2, dword ptr [rsi+2E48h]
-              vmovss  [rbp+300h+var_2E0], xmm0
-              vmulss  xmm0, xmm1, dword ptr [rcx+rbx+53A018h]
-              vmovups ymm1, ymmword ptr [rsi+30C0h]
-              vmovss  [rbp+300h+var_2DC], xmm0
-              vmulss  xmm0, xmm2, dword ptr [rsi+2E4Ch]
-              vmulss  xmm0, xmm0, dword ptr [rcx+rbx+53A01Ch]
-              vmovss  [rbp+300h+var_2D8], xmm0
-              vmovups ymm0, ymmword ptr [rsi+31A0h]
-              vmovd   eax, xmm0
-              vmovss  [rbp+300h+var_2E8], xmm4
-              vmovups ymmword ptr [rbp+300h+var_380.m_surfaceID], ymm0
-              vmovups ymmword ptr [rbp+300h+var_350.m_surfaceID], ymm0
-              vmovups [rbp+300h+var_330], ymm1
-              vmovups [rbp+300h+var_2C0], ymm1
-            }
-            if ( (_WORD)_EAX )
-            {
-              R_RT_Handle::GetSurface(&v241);
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+300h+var_350.m_surfaceID]
-                vmovups ymmword ptr [rbp+300h+var_380.m_surfaceID], ymm0
-              }
-            }
-            else
-            {
-              __asm { vpextrd rax, xmm0, 2 }
-              if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
-                __debugbreak();
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 463, ASSERT_TYPE_ASSERT, "(depthRt)", (const char *)&queryFormat, "depthRt") )
-                __debugbreak();
-            }
-            __asm
-            {
-              vmovups ymm0, [rbp+300h+var_330]
-              vmovd   eax, xmm0
-            }
-            v254 = 1;
-            __asm { vmovups ymmword ptr [rbp+300h+var_350.m_surfaceID], ymm0 }
-            if ( (_WORD)_EAX )
-            {
-              R_RT_Handle::GetSurface(&v241);
-            }
-            else
-            {
-              if ( v252.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
-                __debugbreak();
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
-                __debugbreak();
-            }
-            __asm
-            {
-              vmovups ymm0, [rbp+300h+var_330]
-              vmovups [rbp+300h+var_278], ymm0
-              vmovups ymm0, ymmword ptr [rbp+300h+var_380.m_surfaceID]
-            }
-            _RCX = &v258;
-            __asm { vmovups [rbp+300h+var_1F8], ymm0 }
-            _RAX = &v254;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovups ymm1, ymmword ptr [rax+80h]
-              vmovups ymmword ptr [rcx], ymm0
-              vmovups ymm0, ymmword ptr [rax+20h]
-              vmovups ymmword ptr [rcx+20h], ymm0
-              vmovups ymm0, ymmword ptr [rax+40h]
-              vmovups ymmword ptr [rcx+40h], ymm0
-              vmovups ymm0, ymmword ptr [rax+60h]
-              vmovups ymmword ptr [rcx+60h], ymm0
-              vmovups ymmword ptr [rcx+80h], ymm1
-              vmovups ymm1, ymmword ptr [rax+0A0h]
-            }
-            v97 = v257;
-            __asm { vmovups ymmword ptr [rcx+0A0h], ymm1 }
-            v258.m_vrsRt.m_tracking.m_location = v97;
-            R_GPU_BeginTimer(GPU_TIMER_VOLUME_LIGHT_SCATTER);
-            _RDI = _R14->source;
-            R_InitCmdBufSourceState(_R14->source, &_RSI->input);
-            state = _R14->state;
-            input = &_RDI->input;
-            R_InitLocalCmdBufState(state, &_RDI->input);
-            if ( v258.m_colorRtCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
+            R_RT_Handle::GetSurface(&v107);
+            v105 = v107;
+          }
+          else
+          {
+            __asm { vpextrd rax, xmm0, 2 }
+            if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
               __debugbreak();
-            __asm
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 463, ASSERT_TYPE_ASSERT, "(depthRt)", (const char *)&queryFormat, "depthRt") )
+              __debugbreak();
+          }
+          v120.m_colorRtCount = 1;
+          v107 = v108;
+          if ( (_WORD)v26 )
+          {
+            R_RT_Handle::GetSurface(&v107);
+          }
+          else
+          {
+            if ( v118.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+              __debugbreak();
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
+              __debugbreak();
+          }
+          v120.m_colorRts[0] = (R_RT_ColorHandle)v108;
+          v120.m_depthRt = (R_RT_DepthHandle)v105;
+          v121 = v120;
+          R_GPU_BeginTimer(GPU_TIMER_VOLUME_LIGHT_SCATTER);
+          source = gfxContext->source;
+          R_InitCmdBufSourceState(gfxContext->source, &viewInfo->input);
+          state = gfxContext->state;
+          input = &source->input;
+          R_InitLocalCmdBufState(state, &source->input);
+          if ( v121.m_colorRtCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
+            __debugbreak();
+          v107 = (R_RT_Handle)v121.m_colorRts[0];
+          width = R_RT_Handle::GetSurface(&v107)->m_image.m_base.width;
+          v31 = width >> 1;
+          height = R_RT_Handle::GetSurface(&v107)->m_image.m_base.height;
+          if ( !v31 )
+            v31 = 1;
+          v106 = height;
+          v33 = height >> 1;
+          if ( !(height >> 1) )
+            v33 = 1;
+          if ( Dvar_GetBool_Internal(r_deviceDebug) || (v34 = 64, !Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_r_esramPostFX, "r_esramPostFX")) )
+            v34 = 0;
+          v35 = 2048;
+          if ( Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_r_dccPostFX, "r_dccPostFX") == 1 )
+            v35 = 2056;
+          rtFlags = v34 | v35;
+          v37 = *R_RT_CreateInternal(&result, v31, v33, v31, v33, 1u, 1u, 1u, g_R_RT_renderTargetFmts[27], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_DEPTH_BLUR_0", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1139)");
+          v108 = v37;
+          v107 = v37;
+          if ( (_WORD)v26 )
+          {
+            R_RT_Handle::GetSurface(&v107);
+            if ( (R_RT_Handle::GetSurface(&v107)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
             {
-              vmovups ymm0, ymmword ptr [rbp+300h+var_1B0.m_colorRts.baseclass_0.m_surfaceID]
-              vmovups ymmword ptr [rbp+300h+var_350.m_surfaceID], ymm0
-            }
-            width = R_RT_Handle::GetSurface(&v241)->m_image.m_base.width;
-            v101 = width >> 1;
-            height = R_RT_Handle::GetSurface(&v241)->m_image.m_base.height;
-            if ( !v101 )
-              v101 = 1;
-            v240 = height;
-            v103 = height >> 1;
-            if ( !(height >> 1) )
-              v103 = 1;
-            if ( Dvar_GetBool_Internal(r_deviceDebug) || (v104 = 64, !Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_r_esramPostFX, "r_esramPostFX")) )
-              v104 = 0;
-            v105 = 2048;
-            if ( Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_r_dccPostFX, "r_dccPostFX") == 1 )
-              v105 = 2056;
-            rtFlags = v104 | v105;
-            _RAX = R_RT_CreateInternal(&result, v101, v103, v101, v103, 1u, 1u, 1u, g_R_RT_renderTargetFmts[27], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_DEPTH_BLUR_0", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1139)");
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovd   eax, xmm0
-              vmovups [rbp+300h+var_330], ymm0
-              vmovups ymmword ptr [rbp+300h+var_350.m_surfaceID], ymm0
-            }
-            if ( (_WORD)_RAX )
-            {
-              R_RT_Handle::GetSurface(&v241);
-              if ( (R_RT_Handle::GetSurface(&v241)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
-              {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rbp+300h+var_350.m_surfaceID]
-                  vmovups [rbp+300h+var_330], ymm0
-                }
-                __debugbreak();
-              }
-              else
-              {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rbp+300h+var_350.m_surfaceID]
-                  vmovups [rbp+300h+var_330], ymm0
-                }
-              }
-            }
-            else
-            {
-              __asm { vpextrd rax, xmm0, 2 }
-              if ( (_DWORD)_RAX )
-              {
-                v110 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-                __asm { vmovups ymm0, [rbp+300h+var_330] }
-                if ( v110 )
-                  __debugbreak();
-              }
-            }
-            __asm { vmovups ymmword ptr [rbp+300h+var_2A0.m_surfaceID], ymm0 }
-            _RAX = R_RT_CreateInternal(&result, v101, v103, v101, v103, 1u, 1u, 1u, g_R_RT_renderTargetFmts[27], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_DEPTH_BLUR_1", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1140)");
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovd   eax, xmm0
-              vmovups ymmword ptr [rbp+300h+var_350.m_surfaceID], ymm0
-              vmovups ymmword ptr [rbp+300h+var_380.m_surfaceID], ymm0
-            }
-            if ( (_WORD)_RAX )
-            {
-              R_RT_Handle::GetSurface(&v239);
-              if ( (R_RT_Handle::GetSurface(&v239)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
-              {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rbp+300h+var_380.m_surfaceID]
-                  vmovups ymmword ptr [rbp+300h+var_350.m_surfaceID], ymm0
-                }
-                __debugbreak();
-              }
-              else
-              {
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rbp+300h+var_380.m_surfaceID]
-                  vmovups ymmword ptr [rbp+300h+var_350.m_surfaceID], ymm0
-                }
-              }
+              v37 = v107;
+              v108 = v107;
+              __debugbreak();
             }
             else
             {
-              __asm { vpextrd rax, xmm0, 2 }
-              if ( (_DWORD)_RAX )
-              {
-                v114 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-                __asm { vmovups ymm0, ymmword ptr [rbp+300h+var_350.m_surfaceID] }
-                if ( v114 )
-                  __debugbreak();
-              }
+              v37 = v107;
+              v108 = v107;
             }
-            __asm
+          }
+          else
+          {
+            __asm { vpextrd rax, xmm0, 2 }
+            if ( (_DWORD)_RAX )
             {
-              vmovups ymmword ptr [rbp+300h+result.m_surfaceID], ymm0
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, rax
-              vdivss  xmm3, xmm10, xmm0
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, r8
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, r13
-              vdivss  xmm2, xmm10, xmm1
-              vaddss  xmm1, xmm0, xmm11
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, r9
-              vmulss  xmm9, xmm1, xmm2
-              vaddss  xmm1, xmm0, xmm11
-              vxorps  xmm0, xmm0, xmm0
-              vmulss  xmm8, xmm1, xmm3
-              vcvtsi2ss xmm0, xmm0, rax
-              vsubss  xmm1, xmm0, xmm11
-              vxorps  xmm0, xmm0, xmm0
-              vmulss  xmm7, xmm1, xmm2
-              vcvtsi2ss xmm0, xmm0, rcx
-              vsubss  xmm1, xmm0, xmm11
-              vxorps  xmm0, xmm0, xmm0
-              vmulss  xmm6, xmm1, xmm3
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm0, xmm0, rcx
-              vdivss  xmm3, xmm10, xmm0
-              vcvtsi2ss xmm1, xmm1, rcx
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, rcx
-              vdivss  xmm2, xmm10, xmm1
-              vaddss  xmm1, xmm0, xmm11
-              vxorps  xmm0, xmm0, xmm0
+              v39 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+              v37 = v108;
+              if ( v39 )
+                __debugbreak();
             }
-            v147 = _R14->state;
-            __asm
+          }
+          v119 = v37;
+          v40 = *R_RT_CreateInternal(&result, v31, v33, v31, v33, 1u, 1u, 1u, g_R_RT_renderTargetFmts[27], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_DEPTH_BLUR_1", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1140)");
+          v107 = v40;
+          v105 = v40;
+          if ( (_WORD)v26 )
+          {
+            R_RT_Handle::GetSurface(&v105);
+            if ( (R_RT_Handle::GetSurface(&v105)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
             {
-              vmulss  xmm13, xmm1, xmm2
-              vcvtsi2ss xmm0, xmm0, rcx
-              vaddss  xmm1, xmm0, xmm11
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, rcx
-              vmulss  xmm14, xmm1, xmm3
-              vsubss  xmm1, xmm0, xmm11
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, rcx
-              vmulss  xmm15, xmm1, xmm2
-              vsubss  xmm1, xmm0, xmm11
-              vmulss  xmm11, xmm1, xmm3
+              v40 = v105;
+              v107 = v105;
+              __debugbreak();
             }
-            R_ProfBeginNamedEvent(v147, "VolumeLightScatter");
-            __asm
+            else
             {
-              vmovss  xmm0, dword ptr [rsi+2E50h]
-              vmovss  xmm1, [rbp+300h+var_2EC]
-              vmovss  xmm2, [rbp+300h+var_2E4]
-              vmovss  dword ptr [rdi+0D40h], xmm1
-              vmovss  xmm1, [rbp+300h+var_2E8]
-              vmovss  dword ptr [rdi+0D4Ch], xmm0
-              vmovups ymm0, [rbp+300h+var_330]
-              vmovss  dword ptr [rdi+0D44h], xmm1
-              vmovss  dword ptr [rdi+0D48h], xmm2
+              v40 = v105;
+              v107 = v105;
             }
-            ++_RDI->constVersions[100];
-            __asm
+          }
+          else
+          {
+            __asm { vpextrd rax, xmm0, 2 }
+            if ( (_DWORD)_RAX )
             {
-              vmovss  dword ptr [rdi+0D50h], xmm9
-              vmovss  dword ptr [rdi+0D54h], xmm8
-              vmovss  dword ptr [rdi+0D58h], xmm7
-              vmovss  dword ptr [rdi+0D5Ch], xmm6
+              v42 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+              v40 = v107;
+              if ( v42 )
+                __debugbreak();
             }
-            ++_RDI->constVersions[101];
-            __asm { vmovups [rbp+300h+var_2C0], ymm0 }
-            R_AddRenderTargetTransition(v147, &v252, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-            R_FlushResourceTransitions(v147);
-            R_SetViewportStruct(_RDI, &_RSI->sceneViewport);
-            __asm
+          }
+          x = viewInfo->sceneViewport.x;
+          y = viewInfo->sceneViewport.y;
+          v45 = viewInfo->sceneViewport.height;
+          v46 = x + viewInfo->sceneViewport.width;
+          result = v40;
+          v47 = (float)v106;
+          v48 = 1.0 / v47;
+          v49 = (float)x;
+          v50 = (float)width;
+          v51 = (float)y;
+          v52 = (float)(v49 + 0.5) * (float)(1.0 / v50);
+          v53 = (float)(v51 + 0.5) * v48;
+          v54 = y + v45;
+          v55 = (float)v46;
+          v56 = (float)(v55 - 0.5) * (float)(1.0 / v50);
+          v57 = (float)v54;
+          v58 = (float)(v57 - 0.5) * v48;
+          v59 = (float)v33;
+          v60 = 1.0 / v59;
+          v61 = (float)v31;
+          v62 = (float)(v31 * (unsigned int)x / width);
+          v63 = 1.0 / v61;
+          v64 = v31 * v46;
+          v65 = gfxContext->state;
+          v66 = (float)(v62 + 0.5) * (float)(1.0 / v61);
+          v67 = (float)(v33 * (unsigned int)y / v106);
+          v68 = (float)(v64 / width);
+          v69 = (float)(v67 + 0.5) * v60;
+          v70 = v68 - 0.5;
+          v71 = (float)(v33 * v54 / v106);
+          v72 = v70 * v63;
+          v73 = (float)(v71 - 0.5) * v60;
+          R_ProfBeginNamedEvent(v65, "VolumeLightScatter");
+          v74 = viewInfo->volumeLightScatter.attenuation.v[0];
+          v75 = v113;
+          source->input.consts[100].v[0] = v111;
+          v76 = v112;
+          source->input.consts[100].v[3] = v74;
+          v77 = v108;
+          source->input.consts[100].v[1] = v76;
+          source->input.consts[100].v[2] = v75;
+          ++source->constVersions[100];
+          source->input.consts[101].v[0] = v52;
+          source->input.consts[101].v[1] = v53;
+          source->input.consts[101].v[2] = v56;
+          source->input.consts[101].v[3] = v58;
+          ++source->constVersions[101];
+          v118 = v77;
+          R_AddRenderTargetTransition(v65, (R_RT_ColorHandle *)&v118, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          R_FlushResourceTransitions(v65);
+          R_SetViewportStruct(source, &viewInfo->sceneViewport);
+          v105 = v108;
+          v78 = R_RT_Handle::GetSurface(&v105)->m_image.m_base.height;
+          Surface = R_RT_Handle::GetSurface(&v105);
+          R_SetRenderTargetSize(source, Surface->m_image.m_base.width, v78, GFX_USE_VIEWPORT_FULL);
+          v118 = v108;
+          *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+          R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v105, (R_RT_ColorHandle *)&v118, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1160)");
+          *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+          RB_FullScreenFilterInternal((GfxCmdBufContext *)&v105, rgp.volumeLightScatterBlur0Material, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1161)");
+          v118 = v108;
+          R_AddRenderTargetTransition(v65, (R_RT_ColorHandle *)&v118, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+          R_FlushResourceTransitions(v65);
+          v80 = R_RT_Handle::GetSurface(&v119);
+          *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+          p_m_base = &v80->m_image.m_base;
+          R_Resolve((GfxCmdBufContext *)&v105, &v80->m_image.m_base);
+          if ( r_volumeLightScatterDebug->current.integer == 1 )
+          {
+            v105 = *R_RT_Group::GetValidRt(&v121, &result);
+            v82 = R_RT_Handle::GetSurface(&v105)->m_image.m_base.height;
+            v83 = R_RT_Handle::GetSurface(&v105);
+            R_SetRenderTargetSize(source, v83->m_image.m_base.width, v82, GFX_USE_VIEWPORT_FOR_VIEW);
+            *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+            R_SetRenderTargetsInternal((GfxCmdBufContext *)&v105, &v121, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1173)");
+            R_SetCodeImageTextureInternal(source, 4u, p_m_base, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1174)");
+            feedbackReplaceScenebufferMaterial = rgp.feedbackReplaceScenebufferMaterial;
+            v85 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1175)";
+          }
+          else
+          {
+            v119 = v107;
+            R_AddRenderTargetTransition(v65, (R_RT_ColorHandle *)&v119, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+            R_FlushResourceTransitions(v65);
+            R_SetCodeImageTextureInternal(source, 0x1Bu, p_m_base, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1183)");
+            v86 = v107;
+            source->input.consts[101].v[0] = v66;
+            source->input.consts[101].v[1] = v69;
+            source->input.consts[101].v[2] = v72;
+            source->input.consts[101].v[3] = v73;
+            ++source->constVersions[101];
+            v105 = v86;
+            v87 = R_RT_Handle::GetSurface(&v105)->m_image.m_base.height;
+            v88 = R_RT_Handle::GetSurface(&v105);
+            R_SetRenderTargetSize(source, v88->m_image.m_base.width, v87, GFX_USE_VIEWPORT_FULL);
+            v119 = v107;
+            *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+            R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v105, (R_RT_ColorHandle *)&v119, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1186)");
+            *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+            RB_FullScreenFilterInternal((GfxCmdBufContext *)&v105, rgp.volumeLightScatterBlur1Material, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1187)");
+            v119 = v107;
+            R_AddRenderTargetTransition(v65, (R_RT_ColorHandle *)&v119, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+            R_FlushResourceTransitions(v65);
+            v89 = R_RT_Handle::GetSurface(&result);
+            *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+            v90 = &v89->m_image.m_base;
+            R_Resolve((GfxCmdBufContext *)&v105, &v89->m_image.m_base);
+            if ( r_volumeLightScatterDebug->current.integer == 2 )
             {
-              vmovups ymm0, [rbp+300h+var_330]
-              vmovups ymmword ptr [rbp+300h+var_380.m_surfaceID], ymm0
-            }
-            v166 = R_RT_Handle::GetSurface(&v239)->m_image.m_base.height;
-            Surface = R_RT_Handle::GetSurface(&v239);
-            R_SetRenderTargetSize(_RDI, Surface->m_image.m_base.width, v166, GFX_USE_VIEWPORT_FULL);
-            __asm
-            {
-              vmovups ymm0, [rbp+300h+var_330]
-              vmovups [rbp+300h+var_2C0], ymm0
-              vmovups xmm0, xmmword ptr [r14]
-              vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-            }
-            R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v239, &v252, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1160)");
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [r14]
-              vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-            }
-            RB_FullScreenFilterInternal((GfxCmdBufContext *)&v239, rgp.volumeLightScatterBlur0Material, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1161)");
-            __asm
-            {
-              vmovups ymm0, [rbp+300h+var_330]
-              vmovups [rbp+300h+var_2C0], ymm0
-            }
-            R_AddRenderTargetTransition(v147, &v252, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-            R_FlushResourceTransitions(v147);
-            v172 = R_RT_Handle::GetSurface(&v253);
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [r14]
-              vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-            }
-            p_m_base = &v172->m_image.m_base;
-            R_Resolve((GfxCmdBufContext *)&v239, &v172->m_image.m_base);
-            __asm { vmovaps xmm9, [rsp+420h+var_78+8] }
-            if ( r_volumeLightScatterDebug->current.integer == 1 )
-            {
-              _RAX = R_RT_Group::GetValidRt(&v258, &result);
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rax]
-                vmovups ymmword ptr [rbp+300h+var_380.m_surfaceID], ymm0
-              }
-              v178 = R_RT_Handle::GetSurface(&v239)->m_image.m_base.height;
-              v179 = R_RT_Handle::GetSurface(&v239);
-              R_SetRenderTargetSize(_RDI, v179->m_image.m_base.width, v178, GFX_USE_VIEWPORT_FOR_VIEW);
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [r14]
-                vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-              }
-              R_SetRenderTargetsInternal((GfxCmdBufContext *)&v239, &v258, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1173)");
-              R_SetCodeImageTextureInternal(_RDI, 4u, p_m_base, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1174)");
+              v105 = *R_RT_Group::GetValidRt(&v121, &result);
+              v91 = R_RT_Handle::GetSurface(&v105)->m_image.m_base.height;
+              v92 = R_RT_Handle::GetSurface(&v105);
+              R_SetRenderTargetSize(source, v92->m_image.m_base.width, v91, GFX_USE_VIEWPORT_FOR_VIEW);
+              *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+              R_SetRenderTargetsInternal((GfxCmdBufContext *)&v105, &v121, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1199)");
+              R_SetCodeImageTextureInternal(source, 4u, v90, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1200)");
               feedbackReplaceScenebufferMaterial = rgp.feedbackReplaceScenebufferMaterial;
-              v182 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1175)";
+              v85 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1201)";
             }
             else
             {
-              __asm
+              result = v108;
+              R_AddRenderTargetTransition(v65, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+              R_FlushResourceTransitions(v65);
+              R_SetCodeImageTextureInternal(source, 0x1Cu, v90, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1210)");
+              v105 = v108;
+              v93 = R_RT_Handle::GetSurface(&v105)->m_image.m_base.height;
+              v94 = R_RT_Handle::GetSurface(&v105);
+              R_SetRenderTargetSize(source, v94->m_image.m_base.width, v93, GFX_USE_VIEWPORT_FULL);
+              result = v108;
+              *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+              R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v105, (R_RT_ColorHandle *)&result, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1212)");
+              *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+              RB_FullScreenFilterInternal((GfxCmdBufContext *)&v105, rgp.volumeLightScatterBlur2Material, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1213)");
+              result = v108;
+              R_AddRenderTargetTransition(v65, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+              R_FlushResourceTransitions(v65);
+              *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+              R_Resolve((GfxCmdBufContext *)&v105, p_m_base);
+              v105 = *R_RT_Group::GetValidRt(&v121, &result);
+              v95 = R_RT_Handle::GetSurface(&v105)->m_image.m_base.height;
+              v96 = R_RT_Handle::GetSurface(&v105);
+              R_SetRenderTargetSize(source, v96->m_image.m_base.width, v95, GFX_USE_VIEWPORT_FOR_VIEW);
+              *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+              R_SetRenderTargetsInternal((GfxCmdBufContext *)&v105, &v121, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1221)");
+              integer = r_volumeLightScatterDebug->current.integer;
+              if ( integer == 3 )
               {
-                vmovups ymm0, ymmword ptr [rbp+300h+var_350.m_surfaceID]
-                vmovups ymmword ptr [rbp+300h+var_2A0.m_surfaceID], ymm0
-              }
-              R_AddRenderTargetTransition(v147, (R_RT_ColorHandle *)&v253, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-              R_FlushResourceTransitions(v147);
-              R_SetCodeImageTextureInternal(_RDI, 0x1Bu, p_m_base, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1183)");
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+300h+var_350.m_surfaceID]
-                vmovss  dword ptr [rdi+0D50h], xmm13
-                vmovss  dword ptr [rdi+0D54h], xmm14
-                vmovss  dword ptr [rdi+0D58h], xmm15
-                vmovss  dword ptr [rdi+0D5Ch], xmm11
-              }
-              ++_RDI->constVersions[101];
-              __asm { vmovups ymmword ptr [rbp+300h+var_380.m_surfaceID], ymm0 }
-              v185 = R_RT_Handle::GetSurface(&v239)->m_image.m_base.height;
-              v186 = R_RT_Handle::GetSurface(&v239);
-              R_SetRenderTargetSize(_RDI, v186->m_image.m_base.width, v185, GFX_USE_VIEWPORT_FULL);
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+300h+var_350.m_surfaceID]
-                vmovups ymmword ptr [rbp+300h+var_2A0.m_surfaceID], ymm0
-                vmovups xmm0, xmmword ptr [r14]
-                vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-              }
-              R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v239, (R_RT_ColorHandle *)&v253, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1186)");
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [r14]
-                vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-              }
-              RB_FullScreenFilterInternal((GfxCmdBufContext *)&v239, rgp.volumeLightScatterBlur1Material, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1187)");
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rbp+300h+var_350.m_surfaceID]
-                vmovups ymmword ptr [rbp+300h+var_2A0.m_surfaceID], ymm0
-              }
-              R_AddRenderTargetTransition(v147, (R_RT_ColorHandle *)&v253, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-              R_FlushResourceTransitions(v147);
-              v191 = R_RT_Handle::GetSurface(&result);
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [r14]
-                vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-              }
-              v193 = &v191->m_image.m_base;
-              R_Resolve((GfxCmdBufContext *)&v239, &v191->m_image.m_base);
-              if ( r_volumeLightScatterDebug->current.integer == 2 )
-              {
-                _RAX = R_RT_Group::GetValidRt(&v258, &result);
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rax]
-                  vmovups ymmword ptr [rbp+300h+var_380.m_surfaceID], ymm0
-                }
-                v196 = R_RT_Handle::GetSurface(&v239)->m_image.m_base.height;
-                v197 = R_RT_Handle::GetSurface(&v239);
-                R_SetRenderTargetSize(_RDI, v197->m_image.m_base.width, v196, GFX_USE_VIEWPORT_FOR_VIEW);
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [r14]
-                  vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-                }
-                R_SetRenderTargetsInternal((GfxCmdBufContext *)&v239, &v258, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1199)");
-                R_SetCodeImageTextureInternal(_RDI, 4u, v193, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1200)");
+                R_SetCodeImageTextureInternal(source, 4u, p_m_base, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1225)");
                 feedbackReplaceScenebufferMaterial = rgp.feedbackReplaceScenebufferMaterial;
-                v182 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1201)";
+                v85 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1226)";
               }
               else
               {
-                __asm
+                if ( integer == 4 )
+                  R_ClearScreen(v65, 0xFu, 0);
+                R_SetCodeImageTextureInternal(source, 0x1Bu, p_m_base, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1236)");
+                v98 = viewInfo->volumeLightScatter.attenuation.v[1];
+                v99 = v115;
+                v100 = v116;
+                source->input.consts[101].v[0] = v114;
+                source->input.consts[101].v[1] = v99;
+                source->input.consts[101].v[2] = v100;
+                source->input.consts[101].v[3] = v98;
+                ++source->constVersions[101];
+                v101 = viewInfo->volumeLightScatter.depthAttenuation.v[0];
+                _XMM0 = LODWORD(viewInfo->volumeLightScatter.depthAttenuation.v[1]);
+                __asm { vmaxss  xmm1, xmm0, xmm2 }
+                if ( *(float *)&_XMM1 <= 0.0 || *(float *)&_XMM0 < v101 )
                 {
-                  vmovups ymm0, [rbp+300h+var_330]
-                  vmovups ymmword ptr [rbp+300h+result.m_surfaceID], ymm0
-                }
-                R_AddRenderTargetTransition(v147, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-                R_FlushResourceTransitions(v147);
-                R_SetCodeImageTextureInternal(_RDI, 0x1Cu, v193, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1210)");
-                __asm
-                {
-                  vmovups ymm0, [rbp+300h+var_330]
-                  vmovups ymmword ptr [rbp+300h+var_380.m_surfaceID], ymm0
-                }
-                v201 = R_RT_Handle::GetSurface(&v239)->m_image.m_base.height;
-                v202 = R_RT_Handle::GetSurface(&v239);
-                R_SetRenderTargetSize(_RDI, v202->m_image.m_base.width, v201, GFX_USE_VIEWPORT_FULL);
-                __asm
-                {
-                  vmovups ymm0, [rbp+300h+var_330]
-                  vmovups ymmword ptr [rbp+300h+result.m_surfaceID], ymm0
-                  vmovups xmm0, xmmword ptr [r14]
-                  vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-                }
-                R_SetRenderTargetsInternal_ColorOnly((GfxCmdBufContext *)&v239, (R_RT_ColorHandle *)&result, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1212)");
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [r14]
-                  vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-                }
-                RB_FullScreenFilterInternal((GfxCmdBufContext *)&v239, rgp.volumeLightScatterBlur2Material, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1213)");
-                __asm
-                {
-                  vmovups ymm0, [rbp+300h+var_330]
-                  vmovups ymmword ptr [rbp+300h+result.m_surfaceID], ymm0
-                }
-                R_AddRenderTargetTransition(v147, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-                R_FlushResourceTransitions(v147);
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [r14]
-                  vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-                }
-                R_Resolve((GfxCmdBufContext *)&v239, p_m_base);
-                _RAX = R_RT_Group::GetValidRt(&v258, &result);
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rax]
-                  vmovups ymmword ptr [rbp+300h+var_380.m_surfaceID], ymm0
-                }
-                v210 = R_RT_Handle::GetSurface(&v239)->m_image.m_base.height;
-                v211 = R_RT_Handle::GetSurface(&v239);
-                R_SetRenderTargetSize(_RDI, v211->m_image.m_base.width, v210, GFX_USE_VIEWPORT_FOR_VIEW);
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [r14]
-                  vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-                }
-                R_SetRenderTargetsInternal((GfxCmdBufContext *)&v239, &v258, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1221)");
-                integer = r_volumeLightScatterDebug->current.integer;
-                if ( integer == 3 )
-                {
-                  R_SetCodeImageTextureInternal(_RDI, 4u, p_m_base, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1225)");
-                  feedbackReplaceScenebufferMaterial = rgp.feedbackReplaceScenebufferMaterial;
-                  v182 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1226)";
+                  feedbackReplaceScenebufferMaterial = rgp.volumeLightScatterApplyMaterial;
+                  v85 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1248)";
                 }
                 else
                 {
-                  if ( integer == 4 )
-                    R_ClearScreen(v147, 0xFu, 0);
-                  R_SetCodeImageTextureInternal(_RDI, 0x1Bu, p_m_base, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1236)");
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rsi+2E54h]
-                    vmovss  xmm1, [rbp+300h+var_2E0]
-                    vmovss  xmm2, [rbp+300h+var_2DC]
-                    vmovss  xmm3, [rbp+300h+var_2D8]
-                    vmovss  dword ptr [rdi+0D50h], xmm1
-                    vmovss  dword ptr [rdi+0D54h], xmm2
-                    vmovss  dword ptr [rdi+0D58h], xmm3
-                    vmovss  dword ptr [rdi+0D5Ch], xmm0
-                  }
-                  v219 = v214 | (_RDI->constVersions[101]++ == 0xFFFF);
-                  __asm
-                  {
-                    vmovss  xmm2, dword ptr [rsi+2E5Ch]
-                    vmovss  xmm0, dword ptr [rsi+2E60h]
-                    vmaxss  xmm1, xmm0, xmm2
-                    vcomiss xmm1, xmm12
-                  }
-                  if ( v219 )
-                    goto LABEL_59;
-                  __asm { vcomiss xmm0, xmm2 }
-                  if ( v214 )
-                  {
-LABEL_59:
-                    feedbackReplaceScenebufferMaterial = rgp.volumeLightScatterApplyMaterial;
-                    v182 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1248)";
-                  }
+                  if ( *(float *)&_XMM0 <= v101 )
+                    v104 = FLOAT_10000_0;
                   else
-                  {
-                    __asm
-                    {
-                      vsubss  xmm0, xmm0, xmm2
-                      vdivss  xmm1, xmm10, xmm0
-                    }
-                    v182 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1244)";
-                    *(_QWORD *)&_RDI->input.consts[102].xyz.z = 0i64;
-                    __asm
-                    {
-                      vmovss  dword ptr [rdi+0D60h], xmm2
-                      vmovss  dword ptr [rdi+0D64h], xmm1
-                    }
-                    ++_RDI->constVersions[102];
-                    feedbackReplaceScenebufferMaterial = rgp.volumeLightScatterApplyWithDepthAttenMaterial;
-                  }
+                    v104 = 1.0 / (float)(*(float *)&_XMM0 - v101);
+                  v85 = "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1244)";
+                  *(_QWORD *)&source->input.consts[102].xyz.z = 0i64;
+                  source->input.consts[102].v[0] = v101;
+                  source->input.consts[102].v[1] = v104;
+                  ++source->constVersions[102];
+                  feedbackReplaceScenebufferMaterial = rgp.volumeLightScatterApplyWithDepthAttenMaterial;
                 }
               }
             }
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [r14]
-              vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-            }
-            RB_FullScreenFilterInternal((GfxCmdBufContext *)&v239, feedbackReplaceScenebufferMaterial, v182);
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+300h+var_350.m_surfaceID]
-              vmovups ymmword ptr [rbp+300h+result.m_surfaceID], ymm0
-              vmovups xmm0, xmmword ptr [r14]
-              vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-            }
-            R_RT_Destroy((GfxCmdBufContext *)&v239, (R_RT_ColorHandle *)&result);
-            __asm
-            {
-              vmovups ymm0, [rbp+300h+var_330]
-              vmovups ymmword ptr [rbp+300h+result.m_surfaceID], ymm0
-              vmovups xmm0, xmmword ptr [r14]
-              vmovups xmmword ptr [rbp+300h+var_380.m_surfaceID], xmm0
-            }
-            R_RT_Destroy((GfxCmdBufContext *)&v239, (R_RT_ColorHandle *)&result);
-            R_GPU_EndTimer();
-            R_ProfEndNamedEvent(v147);
-            R_ShutdownLocalCmdBufState(v147, input);
-            Sys_ProfEndNamedEvent();
-            __asm
-            {
-              vmovaps xmm15, [rsp+420h+var_D8+8]
-              vmovaps xmm14, [rsp+420h+var_C8+8]
-              vmovaps xmm13, [rsp+420h+var_B8+8]
-              vmovaps xmm11, [rsp+420h+var_98+8]
-            }
           }
+          *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+          RB_FullScreenFilterInternal((GfxCmdBufContext *)&v105, feedbackReplaceScenebufferMaterial, v85);
+          result = v107;
+          *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+          R_RT_Destroy((GfxCmdBufContext *)&v105, (R_RT_ColorHandle *)&result);
+          result = v108;
+          *(GfxCmdBufContext *)&v105.m_surfaceID = *gfxContext;
+          R_RT_Destroy((GfxCmdBufContext *)&v105, (R_RT_ColorHandle *)&result);
+          R_GPU_EndTimer();
+          R_ProfEndNamedEvent(v65);
+          R_ShutdownLocalCmdBufState(v65, input);
+          Sys_ProfEndNamedEvent();
         }
       }
-      __asm
-      {
-        vmovaps xmm8, [rsp+420h+var_68+8]
-        vmovaps xmm7, [rsp+420h+var_58+8]
-        vmovaps xmm10, [rsp+420h+var_88+8]
-      }
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+420h+var_48+8]
-      vmovaps xmm12, [rsp+420h+var_A8+8]
     }
   }
 }
@@ -7868,38 +5674,32 @@ RB_ResolveDistortion
 void RB_ResolveDistortion(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
   GfxCmdBufSourceState *source; 
-  GfxCmdBufContext v8; 
-  R_RT_ColorHandle v9; 
-  R_RT_ColorHandle v10; 
+  __m256i m_mainSceneColorRt; 
+  GfxCmdBufContext v6; 
+  R_RT_ColorHandle m_resolvedSceneRt; 
+  __m256i v8; 
 
   source = gfxContext->source;
-  _RBX = gfxContext;
-  _RBP = viewInfo;
   Profile2_UpdateEntry(59);
   if ( ((unsigned __int8)&dword_14FDE80BC & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80BC) )
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE80BC);
-  R_InitCmdBufSourceState(source, &_RBP->input);
-  R_InitLocalCmdBufState(_RBX->state, &source->input);
+  R_InitCmdBufSourceState(source, &viewInfo->input);
+  R_InitLocalCmdBufState(gfxContext->state, &source->input);
   Profile_Begin(104);
-  R_ProfBeginNamedEvent(_RBX->state, "Resolve Distortion");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+33E0h]
-    vmovups ymm1, ymmword ptr [rbp+30C0h]
-    vmovups [rsp+98h+var_58], ymm0
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups [rsp+98h+var_68], xmm0
-    vmovups [rsp+98h+var_38], ymm1
-  }
-  RB_Perceptual_ScatterBlurScene(&v8, _RBP, &v10, &v9, 1);
-  R_ProfEndNamedEvent(_RBX->state);
+  R_ProfBeginNamedEvent(gfxContext->state, "Resolve Distortion");
+  m_mainSceneColorRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneColorRt;
+  m_resolvedSceneRt = viewInfo->sceneRtInput.m_resolvedSceneRt;
+  v6 = *gfxContext;
+  v8 = m_mainSceneColorRt;
+  RB_Perceptual_ScatterBlurScene(&v6, viewInfo, (R_RT_ColorHandle *)&v8, &m_resolvedSceneRt, 1);
+  R_ProfEndNamedEvent(gfxContext->state);
   Profile_EndInternal(NULL);
   Profile2_UpdateEntry(59);
   if ( ((unsigned __int64)&dword_14FDE80BC & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE80BC) )
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE80BC);
-  R_ShutdownLocalCmdBufState(_RBX->state, &source->input);
+  R_ShutdownLocalCmdBufState(gfxContext->state, &source->input);
 }
 
 /*
@@ -7910,83 +5710,79 @@ RB_ResolveFloatZFull
 void RB_ResolveFloatZFull(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
   GfxCmdBufState *state; 
-  bool v14; 
-  __int16 v15; 
-  unsigned __int16 v16; 
-  bool v20; 
-  bool v26; 
-  __int16 v27; 
-  unsigned __int16 v28; 
+  R_RT_Handle v6; 
+  unsigned __int16 m_surfaceID; 
+  bool v9; 
+  __int16 v10; 
+  unsigned __int16 v11; 
+  bool v13; 
+  R_RT_Handle v14; 
+  unsigned __int16 v15; 
+  bool v17; 
+  __int16 v18; 
+  unsigned __int16 v19; 
+  const char *v21; 
+  int v22; 
+  const char *v23; 
+  R_RT_Handle v24; 
+  unsigned __int16 v25; 
+  bool v27; 
+  __int16 v28; 
+  unsigned __int16 v29; 
+  const char *v30; 
+  int v31; 
   const char *v32; 
-  int v33; 
-  const char *v34; 
-  bool v40; 
-  __int16 v41; 
-  unsigned __int16 v42; 
-  const char *v46; 
-  int v47; 
-  const char *v48; 
   GfxCmdBufSourceState *source; 
   const R_RT_Surface *Surface; 
   const GfxTexture *Resident; 
-  const R_RT_Surface *v54; 
-  const GfxTexture *v55; 
+  const R_RT_Surface *v36; 
+  const GfxTexture *v37; 
   ComputeCmdBufState *GfxComputeCmdBufState; 
-  ComputeCmdBufState *v61; 
-  unsigned int v67; 
+  unsigned int v39; 
   unsigned int levelCount; 
-  const R_RT_Surface *v71; 
-  const GfxTexture *v72; 
-  const R_RT_Surface *v73; 
-  const GfxTexture *v74; 
-  R_RT_Handle v76; 
-  R_RT_Handle v77; 
-  R_RT_Handle v78; 
-  R_RT_Handle v79; 
-  R_RT_Handle v80; 
-  R_RT_ColorHandle v82; 
-  R_RT_ColorHandle v83; 
-  R_RT_DepthHandle v84; 
-  R_RT_Handle v87; 
-  R_RT_ColorHandle v88; 
+  const R_RT_Surface *v41; 
+  const GfxTexture *v42; 
+  const R_RT_Surface *v43; 
+  const GfxTexture *v44; 
+  R_RT_Handle v45; 
+  R_RT_Handle v46; 
+  R_RT_Handle v47; 
+  R_RT_Handle v48; 
+  __m256i v49; 
+  __m256i m_mainSceneDepthRt; 
+  __m256i v51; 
+  R_RT_ColorHandle m_packedStencilRt; 
+  R_RT_DepthHandle m_msaaSceneDepthRt; 
+  __m256i m_floatZEighthMipMinRt; 
+  R_RT_Handle m_floatZFullRt; 
+  R_RT_Handle v56; 
+  R_RT_Handle v57; 
 
-  __asm { vmovups ymm0, ymmword ptr [rdx+31A0h] }
   state = gfxContext->state;
-  _R13 = viewInfo;
-  __asm
+  m_mainSceneDepthRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneDepthRt;
+  m_floatZFullRt = (R_RT_Handle)viewInfo->sceneRtInput.m_floatZFullRt;
+  v56 = m_floatZFullRt;
+  m_floatZEighthMipMinRt = (__m256i)viewInfo->sceneRtInput.m_floatZEighthMipMinRt;
+  v48 = (R_RT_Handle)viewInfo->sceneRtInput.m_floatZFullRt;
+  v6 = *R_RT_GetViewInternal((R_RT_Handle *)&v49, &v48, 0, 1);
+  m_surfaceID = _XMM0;
+  v48 = v6;
+  v45 = v6;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups [rbp+140h+var_140], ymm0
-    vmovups ymm0, ymmword ptr [rdx+3340h]
-    vmovups [rbp+140h+var_A0], ymm0
-    vmovups ymmword ptr [rbp+140h+var_80.m_surfaceID], ymm0
-    vmovups ymm0, ymmword ptr [rdx+3360h]
-    vmovups [rbp+140h+var_C0], ymm0
-    vmovups ymm0, ymmword ptr [rdx+3340h]
-    vmovups ymmword ptr [rbp+140h+var_180.m_surfaceID], ymm0
-  }
-  _RAX = R_RT_GetViewInternal(&v80, &v79, 0, 1);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   ebx, xmm0
-    vmovups ymmword ptr [rbp+140h+var_180.m_surfaceID], ymm0
-    vmovups ymmword ptr [rsp+240h+var_1E0.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_EBX )
-  {
-    R_RT_Handle::GetSurface(&v76);
-    if ( (R_RT_Handle::GetSurface(&v76)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v45);
+    if ( (R_RT_Handle::GetSurface(&v45)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      LODWORD(_RDI) = v76.m_tracking.m_allocCounter;
-      LOWORD(_EBX) = v76.m_surfaceID;
-      __asm { vmovups ymm0, ymmword ptr [rsp+240h+var_1E0.m_surfaceID] }
+      LODWORD(_RDI) = v45.m_tracking.m_allocCounter;
+      m_surfaceID = v45.m_surfaceID;
+      v6 = v45;
       __debugbreak();
     }
     else
     {
-      LODWORD(_RDI) = v76.m_tracking.m_allocCounter;
-      LOWORD(_EBX) = v76.m_surfaceID;
-      __asm { vmovups ymm0, ymmword ptr [rsp+240h+var_1E0.m_surfaceID] }
+      LODWORD(_RDI) = v45.m_tracking.m_allocCounter;
+      m_surfaceID = v45.m_surfaceID;
+      v6 = v45;
     }
   }
   else
@@ -7994,77 +5790,63 @@ void RB_ResolveFloatZFull(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewI
     __asm { vpextrd rdi, xmm0, 2 }
     if ( (_DWORD)_RDI )
     {
-      v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-      __asm { vmovups ymm0, ymmword ptr [rbp+140h+var_180.m_surfaceID] }
-      if ( v14 )
+      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+      v6 = v48;
+      if ( v9 )
         __debugbreak();
     }
   }
-  __asm { vmovups [rbp+140h+var_60], ymm0 }
-  v15 = _EBX & 0x7FFF;
-  if ( v15 )
+  v57 = v6;
+  v10 = m_surfaceID & 0x7FFF;
+  if ( v10 )
   {
-    v16 = v15 | 0x8000;
-    v77.m_surfaceID = v16;
+    v11 = v10 | 0x8000;
+    v46.m_surfaceID = v11;
   }
   else
   {
-    v16 = 0;
-    v77.m_surfaceID = 0;
+    v11 = 0;
+    v46.m_surfaceID = 0;
   }
-  __asm
+  _XMM0 = *(_OWORD *)&v45.m_tracking.m_allocCounter;
+  v46.m_tracking = v45.m_tracking;
+  v48 = v46;
+  if ( v11 )
   {
-    vmovups xmm0, xmmword ptr [rsp+240h+var_1E0.m_tracking.m_allocCounter]
-    vmovsd  xmm1, [rsp+240h+var_1E0.m_tracking.m_location]
-    vmovups xmmword ptr [rbp+140h+var_1C0.m_tracking.m_allocCounter], xmm0
-    vmovsd  [rbp+140h+var_1C0.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+140h+var_1C0.m_surfaceID]
-    vmovups ymmword ptr [rbp+140h+var_180.m_surfaceID], ymm0
-  }
-  if ( v16 )
-  {
-    R_RT_Handle::GetSurface(&v79);
-    if ( (R_RT_Handle::GetSurface(&v79)->m_rtFlagsInternal & 0x18) == 0 )
+    R_RT_Handle::GetSurface(&v48);
+    if ( (R_RT_Handle::GetSurface(&v48)->m_rtFlagsInternal & 0x18) == 0 )
       goto LABEL_19;
-    v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()");
+    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()");
   }
   else
   {
     if ( !(_DWORD)_RDI )
       goto LABEL_19;
-    v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
   }
-  if ( v20 )
+  if ( v13 )
     __debugbreak();
 LABEL_19:
-  __asm
+  v47 = (R_RT_Handle)viewInfo->sceneRtInput.m_floatZFullRt;
+  v14 = *R_RT_GetViewInternal((R_RT_Handle *)&v49, &v47, 0, 2);
+  v15 = _XMM0;
+  v47 = v14;
+  v45 = v14;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [r13+3340h]
-    vmovups ymmword ptr [rbp+140h+var_1A0.m_surfaceID], ymm0
-  }
-  _RAX = R_RT_GetViewInternal(&v80, &v78, 0, 2);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   ebx, xmm0
-    vmovups ymmword ptr [rbp+140h+var_1A0.m_surfaceID], ymm0
-    vmovups ymmword ptr [rsp+240h+var_1E0.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_EBX )
-  {
-    R_RT_Handle::GetSurface(&v76);
-    if ( (R_RT_Handle::GetSurface(&v76)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v45);
+    if ( (R_RT_Handle::GetSurface(&v45)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      LODWORD(_RDI) = v76.m_tracking.m_allocCounter;
-      LOWORD(_EBX) = v76.m_surfaceID;
-      __asm { vmovups ymm0, ymmword ptr [rsp+240h+var_1E0.m_surfaceID] }
+      LODWORD(_RDI) = v45.m_tracking.m_allocCounter;
+      v15 = v45.m_surfaceID;
+      v14 = v45;
       __debugbreak();
     }
     else
     {
-      LODWORD(_RDI) = v76.m_tracking.m_allocCounter;
-      LOWORD(_EBX) = v76.m_surfaceID;
-      __asm { vmovups ymm0, ymmword ptr [rsp+240h+var_1E0.m_surfaceID] }
+      LODWORD(_RDI) = v45.m_tracking.m_allocCounter;
+      v15 = v45.m_surfaceID;
+      v14 = v45;
     }
   }
   else
@@ -8072,81 +5854,67 @@ LABEL_19:
     __asm { vpextrd rdi, xmm0, 2 }
     if ( (_DWORD)_RDI )
     {
-      v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-      __asm { vmovups ymm0, ymmword ptr [rbp+140h+var_1A0.m_surfaceID] }
-      if ( v26 )
+      v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+      v14 = v47;
+      if ( v17 )
         __debugbreak();
     }
   }
-  __asm { vmovups [rbp+140h+var_60], ymm0 }
-  v27 = _EBX & 0x7FFF;
-  if ( v27 )
+  v57 = v14;
+  v18 = v15 & 0x7FFF;
+  if ( v18 )
   {
-    v28 = v27 | 0x8000;
-    v77.m_surfaceID = v28;
+    v19 = v18 | 0x8000;
+    v46.m_surfaceID = v19;
   }
   else
   {
-    v28 = 0;
-    v77.m_surfaceID = 0;
+    v19 = 0;
+    v46.m_surfaceID = 0;
   }
-  __asm
+  _XMM0 = *(_OWORD *)&v45.m_tracking.m_allocCounter;
+  v46.m_tracking = v45.m_tracking;
+  v47 = v46;
+  if ( v19 )
   {
-    vmovups xmm0, xmmword ptr [rsp+240h+var_1E0.m_tracking.m_allocCounter]
-    vmovsd  xmm1, [rsp+240h+var_1E0.m_tracking.m_location]
-    vmovups xmmword ptr [rbp+140h+var_1C0.m_tracking.m_allocCounter], xmm0
-    vmovsd  [rbp+140h+var_1C0.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+140h+var_1C0.m_surfaceID]
-    vmovups ymmword ptr [rbp+140h+var_1A0.m_surfaceID], ymm0
-  }
-  if ( v28 )
-  {
-    R_RT_Handle::GetSurface(&v78);
-    if ( (R_RT_Handle::GetSurface(&v78)->m_rtFlagsInternal & 0x18) == 0 )
+    R_RT_Handle::GetSurface(&v47);
+    if ( (R_RT_Handle::GetSurface(&v47)->m_rtFlagsInternal & 0x18) == 0 )
       goto LABEL_37;
-    v32 = "!unionHandle.IsValid() || unionHandle.IsColor()";
-    v33 = 217;
-    v34 = "(!unionHandle.IsValid() || unionHandle.IsColor())";
+    v21 = "!unionHandle.IsValid() || unionHandle.IsColor()";
+    v22 = 217;
+    v23 = "(!unionHandle.IsValid() || unionHandle.IsColor())";
   }
   else
   {
     if ( !(_DWORD)_RDI )
       goto LABEL_37;
-    v32 = "!this->m_tracking.m_allocCounter";
-    v33 = 100;
-    v34 = "(!this->m_tracking.m_allocCounter)";
+    v21 = "!this->m_tracking.m_allocCounter";
+    v22 = 100;
+    v23 = "(!this->m_tracking.m_allocCounter)";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v33, ASSERT_TYPE_ASSERT, v34, (const char *)&queryFormat, v32) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v22, ASSERT_TYPE_ASSERT, v23, (const char *)&queryFormat, v21) )
     __debugbreak();
 LABEL_37:
-  __asm
+  v46 = (R_RT_Handle)viewInfo->sceneRtInput.m_floatZFullRt;
+  v24 = *R_RT_GetViewInternal((R_RT_Handle *)&v49, &v46, 0, 3);
+  v25 = _XMM0;
+  v46 = v24;
+  v45 = v24;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [r13+3340h]
-    vmovups ymmword ptr [rbp+140h+var_1C0.m_surfaceID], ymm0
-  }
-  _RAX = R_RT_GetViewInternal(&v80, &v77, 0, 3);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovd   ebx, xmm0
-    vmovups ymmword ptr [rbp+140h+var_1C0.m_surfaceID], ymm0
-    vmovups ymmword ptr [rsp+240h+var_1E0.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_EBX )
-  {
-    R_RT_Handle::GetSurface(&v76);
-    if ( (R_RT_Handle::GetSurface(&v76)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+    R_RT_Handle::GetSurface(&v45);
+    if ( (R_RT_Handle::GetSurface(&v45)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
     {
-      LODWORD(_RDI) = v76.m_tracking.m_allocCounter;
-      LOWORD(_EBX) = v76.m_surfaceID;
-      __asm { vmovups ymm0, ymmword ptr [rsp+240h+var_1E0.m_surfaceID] }
+      LODWORD(_RDI) = v45.m_tracking.m_allocCounter;
+      v25 = v45.m_surfaceID;
+      v24 = v45;
       __debugbreak();
     }
     else
     {
-      LODWORD(_RDI) = v76.m_tracking.m_allocCounter;
-      LOWORD(_EBX) = v76.m_surfaceID;
-      __asm { vmovups ymm0, ymmword ptr [rsp+240h+var_1E0.m_surfaceID] }
+      LODWORD(_RDI) = v45.m_tracking.m_allocCounter;
+      v25 = v45.m_surfaceID;
+      v24 = v45;
     }
   }
   else
@@ -8154,134 +5922,88 @@ LABEL_37:
     __asm { vpextrd rdi, xmm0, 2 }
     if ( (_DWORD)_RDI )
     {
-      v40 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-      __asm { vmovups ymm0, ymmword ptr [rbp+140h+var_1C0.m_surfaceID] }
-      if ( v40 )
+      v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+      v24 = v46;
+      if ( v27 )
         __debugbreak();
     }
   }
-  __asm { vmovups [rbp+140h+var_60], ymm0 }
-  v41 = _EBX & 0x7FFF;
-  if ( v41 )
+  v57 = v24;
+  v28 = v25 & 0x7FFF;
+  if ( v28 )
   {
-    v42 = v41 | 0x8000;
-    v77.m_surfaceID = v42;
+    v29 = v28 | 0x8000;
+    v46.m_surfaceID = v29;
   }
   else
   {
-    v42 = 0;
-    v77.m_surfaceID = 0;
+    v29 = 0;
+    v46.m_surfaceID = 0;
   }
-  __asm
+  v46.m_tracking = v45.m_tracking;
+  if ( v29 )
   {
-    vmovups xmm0, xmmword ptr [rsp+240h+var_1E0.m_tracking.m_allocCounter]
-    vmovsd  xmm1, [rsp+240h+var_1E0.m_tracking.m_location]
-    vmovups xmmword ptr [rbp+140h+var_1C0.m_tracking.m_allocCounter], xmm0
-    vmovsd  [rbp+140h+var_1C0.m_tracking.m_location], xmm1
-    vmovups ymm0, ymmword ptr [rbp+140h+var_1C0.m_surfaceID]
-    vmovups ymmword ptr [rbp+140h+var_1C0.m_surfaceID], ymm0
-  }
-  if ( v42 )
-  {
-    R_RT_Handle::GetSurface(&v77);
-    if ( (R_RT_Handle::GetSurface(&v77)->m_rtFlagsInternal & 0x18) == 0 )
+    R_RT_Handle::GetSurface(&v46);
+    if ( (R_RT_Handle::GetSurface(&v46)->m_rtFlagsInternal & 0x18) == 0 )
       goto LABEL_55;
-    v46 = "!unionHandle.IsValid() || unionHandle.IsColor()";
-    v47 = 217;
-    v48 = "(!unionHandle.IsValid() || unionHandle.IsColor())";
+    v30 = "!unionHandle.IsValid() || unionHandle.IsColor()";
+    v31 = 217;
+    v32 = "(!unionHandle.IsValid() || unionHandle.IsColor())";
   }
   else
   {
     if ( !(_DWORD)_RDI )
       goto LABEL_55;
-    v46 = "!this->m_tracking.m_allocCounter";
-    v47 = 100;
-    v48 = "(!this->m_tracking.m_allocCounter)";
+    v30 = "!this->m_tracking.m_allocCounter";
+    v31 = 100;
+    v32 = "(!this->m_tracking.m_allocCounter)";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v47, ASSERT_TYPE_ASSERT, v48, (const char *)&queryFormat, v46) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v31, ASSERT_TYPE_ASSERT, v32, (const char *)&queryFormat, v30) )
     __debugbreak();
 LABEL_55:
-  __asm { vmovups ymm0, ymmword ptr [r13+33C0h] }
   source = gfxContext->source;
-  __asm
-  {
-    vmovups [rbp+140h+var_100], ymm0
-    vmovups ymmword ptr [rsp+240h+var_1E0.m_surfaceID], ymm0
-    vmovups ymm0, ymmword ptr [r13+3200h]
-    vmovups [rbp+140h+var_E0], ymm0
-  }
+  m_packedStencilRt = viewInfo->sceneRtInput.m_packedStencilRt;
+  v45 = (R_RT_Handle)m_packedStencilRt;
+  m_msaaSceneDepthRt = viewInfo->sceneRtInput.m_msaaSceneDepthRt;
   R_InitLocalCmdBufState(state, &source->input);
   R_ProfBeginNamedEvent(state, "Resolve FloatZ");
   R_GPU_BeginTimer(GPU_TIMER_RESOLVE_FLOAT_Z_MULTI);
-  Surface = R_RT_Handle::GetSurface(&v87);
+  Surface = R_RT_Handle::GetSurface(&v56);
   Resident = R_Texture_GetResident(Surface->m_image.m_base.textureId);
   R_HW_AddResourceTransition(state, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v54 = R_RT_Handle::GetSurface(&v76);
-  v55 = R_Texture_GetResident(v54->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(state, v55, 0xFFFFFFFF, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, [rbp+140h+var_140]
-    vmovups [rbp+140h+var_120], ymm0
-  }
-  R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&v82, DEPTHSTENCIL_TRANSITION_MODE_READ_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v36 = R_RT_Handle::GetSurface(&v45);
+  v37 = R_Texture_GetResident(v36->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(state, v37, 0xFFFFFFFF, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v51 = m_mainSceneDepthRt;
+  R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&v51, DEPTHSTENCIL_TRANSITION_MODE_READ_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(state);
   GfxComputeCmdBufState = R_GetGfxComputeCmdBufState(state);
-  __asm
-  {
-    vmovups ymm0, [rbp+140h+var_100]
-    vmovups ymm1, [rbp+140h+var_C0]
-    vmovups [rbp+140h+var_100], ymm0
-    vmovups ymm0, [rbp+140h+var_E0]
-  }
-  v61 = GfxComputeCmdBufState;
-  __asm
-  {
-    vmovups [rbp+140h+var_E0], ymm0
-    vmovups ymm0, ymmword ptr [rbp+140h+var_1C0.m_surfaceID]
-    vmovups ymmword ptr [rbp+140h+var_1C0.m_surfaceID], ymm0
-    vmovups ymm0, ymmword ptr [rbp+140h+var_1A0.m_surfaceID]
-    vmovups ymmword ptr [rbp+140h+var_1A0.m_surfaceID], ymm0
-    vmovups ymm0, ymmword ptr [rbp+140h+var_180.m_surfaceID]
-    vmovups ymmword ptr [rbp+140h+var_180.m_surfaceID], ymm0
-    vmovups ymm0, [rbp+140h+var_A0]
-    vmovups [rbp+140h+var_60], ymm0
-    vmovups ymm0, [rbp+140h+var_140]
-    vmovups [rbp+140h+var_160], ymm0
-    vmovups [rbp+140h+var_120], ymm1
-  }
-  R_ResolveFloatZDownsample(GfxComputeCmdBufState, _R13, (R_RT_DepthHandle *)&v80, &v88, (R_RT_ColorHandle *)&v79, (R_RT_ColorHandle *)&v78, (R_RT_ColorHandle *)&v77, &v82, &v84, &v83, NULL);
-  R_ComputeWaitForCompute(v61, PIPE_FLUSH_PARTIAL);
-  v67 = 4;
-  levelCount = R_RT_Handle::GetSurface(&_R13->sceneRtInput.m_floatZFullRt)->m_image.m_base.levelCount;
+  v57 = m_floatZFullRt;
+  v49 = m_mainSceneDepthRt;
+  v51 = m_floatZEighthMipMinRt;
+  R_ResolveFloatZDownsample(GfxComputeCmdBufState, viewInfo, (R_RT_DepthHandle *)&v49, (R_RT_ColorHandle *)&v57, (R_RT_ColorHandle *)&v48, (R_RT_ColorHandle *)&v47, (R_RT_ColorHandle *)&v46, (R_RT_ColorHandle *)&v51, &m_msaaSceneDepthRt, &m_packedStencilRt, NULL);
+  R_ComputeWaitForCompute(GfxComputeCmdBufState, PIPE_FLUSH_PARTIAL);
+  v39 = 4;
+  levelCount = R_RT_Handle::GetSurface(&viewInfo->sceneRtInput.m_floatZFullRt)->m_image.m_base.levelCount;
   if ( levelCount > 4 )
   {
     do
     {
-      __asm
-      {
-        vmovups ymm0, [rbp+140h+var_C0]
-        vmovups [rbp+140h+var_160], ymm0
-        vmovups ymm0, [rbp+140h+var_A0]
-        vmovups [rbp+140h+var_60], ymm0
-      }
-      R_ResolveFloatZDownsampleCS(v61, &v88, (R_RT_ColorHandle *)&v80, v67 - 1, 0, 0);
-      v67 += 4;
+      v49 = m_floatZEighthMipMinRt;
+      v57 = m_floatZFullRt;
+      R_ResolveFloatZDownsampleCS(GfxComputeCmdBufState, (R_RT_ColorHandle *)&v57, (R_RT_ColorHandle *)&v49, v39 - 1, 0, 0);
+      v39 += 4;
     }
-    while ( v67 < levelCount );
+    while ( v39 < levelCount );
   }
-  v71 = R_RT_Handle::GetSurface(&v87);
-  v72 = R_Texture_GetResident(v71->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(state, v72, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  v73 = R_RT_Handle::GetSurface(&v76);
-  v74 = R_Texture_GetResident(v73->m_image.m_base.textureId);
-  R_HW_AddResourceTransition(state, v74, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  __asm
-  {
-    vmovups ymm0, [rbp+140h+var_140]
-    vmovups [rbp+140h+var_160], ymm0
-  }
-  R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&v80, DEPTHSTENCIL_TRANSITION_MODE_WRITE_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v41 = R_RT_Handle::GetSurface(&v56);
+  v42 = R_Texture_GetResident(v41->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(state, v42, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v43 = R_RT_Handle::GetSurface(&v45);
+  v44 = R_Texture_GetResident(v43->m_image.m_base.textureId);
+  R_HW_AddResourceTransition(state, v44, 0xFFFFFFFF, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  v49 = m_mainSceneDepthRt;
+  R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&v49, DEPTHSTENCIL_TRANSITION_MODE_WRITE_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_HW_FlushResourceTransitions(state);
   R_HW_FlushResourceTransitions(state);
   R_GPU_EndTimer();
@@ -8324,71 +6046,62 @@ void RB_StandardDrawCommands_DrawFlaresPostEmissive(GfxCmdBufContext *gfxContext
   GfxCmdBufSourceState *source; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
+  __m256i v9; 
   GfxImage *blackImage; 
-  GfxCmdBufSourceState *v14; 
-  GfxImage *v15; 
+  GfxCmdBufSourceState *v11; 
+  GfxImage *v12; 
   GfxCmdBufInput *p_input; 
-  GfxCmdBufSourceState *v17; 
+  GfxCmdBufSourceState *v14; 
   GfxImage *defaultFogLightmapImage; 
-  GfxCmdBufInput *v19; 
-  R_RT_Handle v21; 
-  R_RT_DepthHandle v22; 
-  R_RT_ColorHandle v23; 
+  GfxCmdBufInput *v16; 
+  GfxCmdBufContext v17; 
+  R_RT_Handle m_mainSceneColorRt; 
+  R_RT_DepthHandle m_mainSceneDepthRt; 
+  __m256i v20; 
 
-  _RSI = viewInfo;
-  _RDI = gfxContext;
   if ( r_flareDrawOrder->current.integer )
   {
     Sys_ProfBeginNamedEvent(0xFFFFD700, "exec cmds flares post emissive");
-    source = _RDI->source;
-    R_InitCmdBufSourceState(_RDI->source, &_RSI->input);
-    R_InitLocalCmdBufState(_RDI->state, &source->input);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+30C0h]
-      vmovups ymmword ptr [rsp+0B8h+var_88.m_surfaceID], ymm0
-    }
-    height = R_RT_Handle::GetSurface(&v21)->m_image.m_base.height;
-    Surface = R_RT_Handle::GetSurface(&v21);
+    source = gfxContext->source;
+    R_InitCmdBufSourceState(gfxContext->source, &viewInfo->input);
+    R_InitLocalCmdBufState(gfxContext->state, &source->input);
+    m_mainSceneColorRt = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneColorRt;
+    height = R_RT_Handle::GetSurface(&m_mainSceneColorRt)->m_image.m_base.height;
+    Surface = R_RT_Handle::GetSurface(&m_mainSceneColorRt);
     R_SetRenderTargetSize(source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-    R_BeginViewInternal(source, &_RSI->sceneDef, (const GfxViewParms *)_RSI, &_RSI->viewParmsSet.frames[1].viewParms);
-    R_SetViewportStruct(source, &_RSI->sceneViewport);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi+31A0h]
-      vmovups ymm1, ymmword ptr [rsi+30C0h]
-      vmovups [rsp+0B8h+var_68], ymm0
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rsp+0B8h+var_88.m_surfaceID], xmm0
-      vmovups [rsp+0B8h+var_48], ymm1
-    }
-    R_SetRenderTargetsInternal_ColorDepth((GfxCmdBufContext *)&v21, &v23, &v22, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2390)");
+    R_BeginViewInternal(source, &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
+    R_SetViewportStruct(source, &viewInfo->sceneViewport);
+    v9 = (__m256i)viewInfo->sceneRtInput.m_mainSceneColorRt;
+    m_mainSceneDepthRt = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+    *(GfxCmdBufContext *)&m_mainSceneColorRt.m_surfaceID = *gfxContext;
+    v20 = v9;
+    R_SetRenderTargetsInternal_ColorDepth((GfxCmdBufContext *)&m_mainSceneColorRt, (R_RT_ColorHandle *)&v20, &m_mainSceneDepthRt, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2390)");
     blackImage = rgp.blackImage;
     if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
     if ( source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
     source->input.codeImages[36] = blackImage;
-    v14 = _RDI->source;
-    v15 = rgp.blackImage;
-    if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    v11 = gfxContext->source;
+    v12 = rgp.blackImage;
+    if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
-    p_input = &v14->input;
+    p_input = &v11->input;
     if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    p_input->codeImages[37] = v15;
-    v17 = _RDI->source;
+    p_input->codeImages[37] = v12;
+    v14 = gfxContext->source;
     defaultFogLightmapImage = rgp.defaultFogLightmapImage;
-    if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
-    v19 = &v17->input;
-    if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    v16 = &v14->input;
+    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    v19->codeImages[38] = defaultFogLightmapImage;
-    __asm { vmovups xmmword ptr [rsp+0B8h+var_88.m_surfaceID], xmm0 }
-    RB_Flare_Draw((GfxCmdBufContext *)&v21, _RSI, data);
-    R_ShutdownLocalCmdBufState(_RDI->state, &_RDI->source->input);
+    v17 = *gfxContext;
+    v16->codeImages[38] = defaultFogLightmapImage;
+    *(GfxCmdBufContext *)&m_mainSceneColorRt.m_surfaceID = v17;
+    RB_Flare_Draw((GfxCmdBufContext *)&m_mainSceneColorRt, viewInfo, data);
+    R_ShutdownLocalCmdBufState(gfxContext->state, &gfxContext->source->input);
     Sys_ProfEndNamedEvent();
   }
 }
@@ -8400,89 +6113,68 @@ RB_StandardDrawCommands_DrawSunPost
 */
 void RB_StandardDrawCommands_DrawSunPost(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
+  __m256i m_mainSceneColorRt; 
   GfxCmdBufSourceState *source; 
   GfxImage *blackImage; 
   GfxCmdBufInput *p_input; 
+  GfxCmdBufSourceState *v10; 
+  GfxImage *v11; 
+  GfxCmdBufInput *v12; 
   GfxCmdBufSourceState *v13; 
-  GfxImage *v14; 
-  GfxCmdBufInput *v15; 
-  GfxCmdBufSourceState *v16; 
   GfxImage *defaultFogLightmapImage; 
-  GfxCmdBufInput *v18; 
-  GfxCmdBufContext v23; 
-  R_RT_DepthHandle v24; 
-  R_RT_ColorHandle v25; 
+  GfxCmdBufInput *v15; 
+  GfxCmdBufContext v18; 
+  R_RT_DepthHandle m_mainSceneDepthRt; 
+  __m256i v20; 
 
-  _RBP = viewInfo;
-  _RDI = gfxContext;
   Sys_ProfBeginNamedEvent(0xFFFFD700, "exec cmds sunpost");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+0A8h+var_78], xmm0
-  }
-  RB_StandardDrawCommands_PreDrawOcclusionQueriesAndSun(&v23, _RBP, "SunPost");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+31A0h]
-    vmovups ymm1, ymmword ptr [rbp+30C0h]
-    vmovups [rsp+0A8h+var_68], ymm0
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+0A8h+var_78], xmm0
-    vmovups [rsp+0A8h+var_48], ymm1
-  }
-  R_SetRenderTargetsInternal_ColorDepth(&v23, &v25, &v24, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2345)");
-  source = _RDI->source;
+  v18 = *gfxContext;
+  RB_StandardDrawCommands_PreDrawOcclusionQueriesAndSun(&v18, viewInfo, "SunPost");
+  m_mainSceneColorRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneColorRt;
+  m_mainSceneDepthRt = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+  v18 = *gfxContext;
+  v20 = m_mainSceneColorRt;
+  R_SetRenderTargetsInternal_ColorDepth(&v18, (R_RT_ColorHandle *)&v20, &m_mainSceneDepthRt, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2345)");
+  source = gfxContext->source;
   blackImage = rgp.blackImage;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codeImages[36] = blackImage;
-  v13 = _RDI->source;
-  v14 = rgp.blackImage;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v10 = gfxContext->source;
+  v11 = rgp.blackImage;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    __debugbreak();
+  v12 = &v10->input;
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    __debugbreak();
+  v12->codeImages[37] = v11;
+  v13 = gfxContext->source;
+  defaultFogLightmapImage = rgp.defaultFogLightmapImage;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   v15 = &v13->input;
   if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v15->codeImages[37] = v14;
-  v16 = _RDI->source;
-  defaultFogLightmapImage = rgp.defaultFogLightmapImage;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
-    __debugbreak();
-  v18 = &v16->input;
-  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
-    __debugbreak();
-  v18->codeImages[38] = defaultFogLightmapImage;
+  v15->codeImages[38] = defaultFogLightmapImage;
   if ( RB_IsSunEnabled() )
   {
     R_GPU_BeginTimer(GPU_TIMER_SUN_POST);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups [rsp+0A8h+var_78], xmm0
-    }
-    RB_DrawSunPostEffects(&v23, _RBP);
+    v18 = *gfxContext;
+    RB_DrawSunPostEffects(&v18, viewInfo);
     R_GPU_EndTimer();
   }
   if ( !r_flareDrawOrder->current.integer )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups [rsp+0A8h+var_78], xmm0
-    }
-    RB_Flare_Draw(&v23, _RBP, data);
+    v18 = *gfxContext;
+    RB_Flare_Draw(&v18, viewInfo, data);
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vpextrq rbx, xmm0, 1
-  }
+  _XMM0 = *gfxContext;
+  __asm { vpextrq rbx, xmm0, 1 }
   R_ProfEndNamedEvent(_RBX);
-  R_ShutdownLocalCmdBufState(_RBX, &_RDI->source->input);
+  R_ShutdownLocalCmdBufState(_RBX, &gfxContext->source->input);
   Sys_ProfEndNamedEvent();
 }
 
@@ -8496,25 +6188,20 @@ void RB_StandardDrawCommands_PreDrawOcclusionQueriesAndSun(GfxCmdBufContext *gfx
   GfxCmdBufSourceState *source; 
   GfxCmdBufState *state; 
   const R_RT_Surface *Surface; 
-  R_RT_Handle v10; 
+  R_RT_Handle m_mainSceneColorRt; 
 
-  _RBP = viewInfo;
   Sys_ProfBeginNamedEvent(0xFFFFD700, "exec cmds occqueries sun");
   source = gfxContext->source;
-  R_InitCmdBufSourceState(gfxContext->source, &_RBP->input);
+  R_InitCmdBufSourceState(gfxContext->source, &viewInfo->input);
   state = gfxContext->state;
   R_InitLocalCmdBufState(state, &source->input);
   R_ProfBeginNamedEvent(state, pass);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+30C0h]
-    vmovups ymmword ptr [rsp+48h+var_28.m_surfaceID], ymm0
-  }
-  LODWORD(state) = R_RT_Handle::GetSurface(&v10)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v10);
+  m_mainSceneColorRt = (R_RT_Handle)viewInfo->sceneRtInput.m_mainSceneColorRt;
+  LODWORD(state) = R_RT_Handle::GetSurface(&m_mainSceneColorRt)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface(&m_mainSceneColorRt);
   R_SetRenderTargetSize(source, Surface->m_image.m_base.width, (unsigned int)state, GFX_USE_VIEWPORT_FOR_VIEW);
-  R_BeginViewInternal(source, &_RBP->sceneDef, (const GfxViewParms *)_RBP, &_RBP->viewParmsSet.frames[1].viewParms);
-  R_SetViewportStruct(source, &_RBP->sceneViewport);
+  R_BeginViewInternal(source, &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
+  R_SetViewportStruct(source, &viewInfo->sceneViewport);
   Sys_ProfEndNamedEvent();
 }
 
@@ -8526,34 +6213,33 @@ RB_StandardDrawCommands_Shadows
 void RB_StandardDrawCommands_Shadows(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
   GfxCmdBufState *state; 
-  GfxCmdBufState *v8; 
+  GfxCmdBufState *v6; 
   unsigned int i; 
-  GfxCmdBufState *v14; 
-  unsigned int v15; 
-  __int64 v23; 
-  unsigned __int16 v24; 
-  bool v28; 
-  int v30; 
-  GfxCmdBufState *v31; 
-  R_RT_DepthHandle v33; 
-  R_RT_Handle v34; 
-  R_RT_Handle v35; 
-  GfxCmdBufContext v36; 
-  GfxCmdBufContext v37; 
-  GfxCmdBufContext v38; 
-  R_RT_DepthHandle v39; 
-  R_RT_DepthHandle v40; 
-  R_RT_ColorHandle v41; 
-  R_RT_DepthHandle v42; 
-  R_RT_ColorHandle v43; 
-  void *retaddr; 
+  GfxCmdBufState *v8; 
+  unsigned int v9; 
+  GfxCmdBufContext v10; 
+  R_RT_Tracking_HandleInfo *p_m_tracking; 
+  __int64 v12; 
+  unsigned __int16 v13; 
+  __int128 v14; 
+  double v15; 
+  R_RT_Handle v16; 
+  bool v17; 
+  GfxCmdBufState *v18; 
+  R_RT_Handle v19; 
+  R_RT_Handle v20; 
+  R_RT_Handle v21; 
+  GfxCmdBufContext v22; 
+  GfxCmdBufContext v23; 
+  GfxCmdBufContext v24; 
+  R_RT_DepthHandle v25; 
+  R_RT_DepthHandle m_sunShadowCascade0ForViewmodel; 
+  R_RT_ColorHandle m_translucentShadowRt; 
+  R_RT_DepthHandle v28; 
+  R_RT_ColorHandle v29; 
   const GfxBackEndData *timeoutUserData; 
 
-  _RAX = &retaddr;
   timeoutUserData = data;
-  _R13 = gfxContext;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  _RBX = viewInfo;
   Profile2_UpdateEntry(49);
   if ( ((unsigned __int8)&dword_14FDE8094 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8094) )
     __debugbreak();
@@ -8566,180 +6252,135 @@ void RB_StandardDrawCommands_Shadows(GfxCmdBufContext *gfxContext, const GfxView
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE8094);
   Sys_ProfBeginNamedEvent(0xFFFFD700, "exec cmds shadow");
-  state = _R13->state;
+  state = gfxContext->state;
   R_ProfBeginNamedEvent(state, "exec cmds shadow");
   Profile2_UpdateEntry(50);
-  v8 = state;
+  v6 = state;
   if ( ((unsigned __int8)&dword_14FDE8098 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8098) )
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE8098);
-  if ( (*((_BYTE *)&_RBX->viewportFeatures + 44) & 4) != 0 )
+  if ( (*((_BYTE *)&viewInfo->viewportFeatures + 44) & 4) != 0 )
   {
     for ( i = 0; i < timeoutUserData->sunShadow.opaqueCascadeCount; ++i )
     {
-      _RAX = 32 * (i + 404i64);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax+rbx]
-        vmovups [rbp+0A0h+var_E0], ymm0
-      }
-      R_AddDepthStencilTransition(state, &v39, DEPTHSTENCIL_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      v25 = viewInfo->sceneRtInput.m_sunShadowCascades[i];
+      R_AddDepthStencilTransition(state, &v25, DEPTHSTENCIL_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+32E0h]
-      vmovups [rbp+0A0h+var_C0], ymm0
-    }
-    R_AddDepthStencilTransition(state, &v40, DEPTHSTENCIL_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    v8 = state;
+    m_sunShadowCascade0ForViewmodel = viewInfo->sceneRtInput.m_sunShadowCascade0ForViewmodel;
+    R_AddDepthStencilTransition(state, &m_sunShadowCascade0ForViewmodel, DEPTHSTENCIL_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v6 = state;
     if ( rg.useTransSunShadow )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx+3300h]
-        vmovups [rbp+0A0h+var_A0], ymm0
-      }
-      R_AddRenderTargetTransition(state, &v41, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      m_translucentShadowRt = viewInfo->sceneRtInput.m_translucentShadowRt;
+      R_AddRenderTargetTransition(state, &m_translucentShadowRt, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     }
   }
-  v14 = v8;
+  v8 = v6;
   if ( timeoutUserData->spotShadowUpdateCount )
   {
-    v15 = 0;
+    v9 = 0;
     do
     {
-      _RAX = 32 * (v15 + 382i64);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax+rbx]
-        vmovups [rbp+0A0h+var_80], ymm0
-      }
-      R_AddDepthStencilTransition(v8, &v42, DEPTHSTENCIL_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-      ++v15;
+      v28 = viewInfo->sceneRtInput.m_spotShadowRts[v9];
+      R_AddDepthStencilTransition(v6, &v28, DEPTHSTENCIL_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+      ++v9;
     }
-    while ( v15 < timeoutUserData->spotShadowUpdateCount );
-    v14 = state;
+    while ( v9 < timeoutUserData->spotShadowUpdateCount );
+    v8 = state;
   }
-  R_FlushResourceTransitions(v14);
-  if ( (*((_BYTE *)&_RBX->viewportFeatures + 44) & 4) != 0 )
+  R_FlushResourceTransitions(v8);
+  if ( (*((_BYTE *)&viewInfo->viewportFeatures + 44) & 4) != 0 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r13+0]
-      vmovups [rbp+0A0h+var_110], xmm0
-    }
-    RB_DrawSunshadow(&v36, timeoutUserData, _RBX);
+    v22 = *gfxContext;
+    RB_DrawSunshadow(&v22, timeoutUserData, viewInfo);
   }
   if ( timeoutUserData->spotShadowUpdateCount )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r13+0]
-      vmovups [rbp+0A0h+var_100], xmm0
-    }
-    RB_SpotShadowMaps(&v37, timeoutUserData, _RBX);
+    v23 = *gfxContext;
+    RB_SpotShadowMaps(&v23, timeoutUserData, viewInfo);
   }
-  if ( (*((_BYTE *)&_RBX->viewportFeatures + 44) & 4) != 0 && rg.useTransSunShadow )
+  if ( (*((_BYTE *)&viewInfo->viewportFeatures + 44) & 4) != 0 && rg.useTransSunShadow )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+3300h]
-      vmovups [rbp+0A0h+var_60], ymm0
-    }
-    R_AddRenderTargetTransition(v14, &v43, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(v14);
+    v29 = viewInfo->sceneRtInput.m_translucentShadowRt;
+    R_AddRenderTargetTransition(v8, &v29, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(v8);
   }
-  __asm { vmovups xmm6, xmmword ptr [r13+0] }
+  v10 = *gfxContext;
   R_LockGfxImmediateContext();
-  _RBX = &_RBX->sceneRtInput.m_spotShadowRts[0].m_tracking;
-  v23 = 8i64;
+  p_m_tracking = &viewInfo->sceneRtInput.m_spotShadowRts[0].m_tracking;
+  v12 = 8i64;
   do
   {
-    v24 = (__int64)_RBX[-1].m_location & 0x7FFF;
-    if ( !v24 )
-      v24 = 0;
-    v34.m_surfaceID = v24;
-    __asm
+    v13 = (__int64)p_m_tracking[-1].m_location & 0x7FFF;
+    if ( !v13 )
+      v13 = 0;
+    v20.m_surfaceID = v13;
+    v14 = *(_OWORD *)&p_m_tracking->m_allocCounter;
+    v15 = *(double *)&p_m_tracking->m_location;
+    *(_OWORD *)&v20.m_tracking.m_allocCounter = *(_OWORD *)&p_m_tracking->m_allocCounter;
+    *(double *)&v20.m_tracking.m_location = v15;
+    v16 = v20;
+    v19 = v20;
+    v21 = v20;
+    if ( v13 )
     {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovsd  xmm1, qword ptr [rbx+10h]
-      vmovups xmmword ptr [rsp+1A0h+var_150.m_tracking.m_allocCounter], xmm0
-      vmovsd  [rsp+1A0h+var_150.m_tracking.m_location], xmm1
-      vmovups ymm0, ymmword ptr [rsp+1A0h+var_150.m_surfaceID]
-      vmovups [rsp+1A0h+var_170], ymm0
-      vmovups ymmword ptr [rsp+1A0h+var_130.m_surfaceID], ymm0
-    }
-    if ( v24 )
-    {
-      R_RT_Handle::GetSurface(&v35);
-      if ( (R_RT_Handle::GetSurface(&v35)->m_rtFlagsInternal & 0x10) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
+      R_RT_Handle::GetSurface(&v21);
+      if ( (R_RT_Handle::GetSurface(&v21)->m_rtFlagsInternal & 0x10) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+1A0h+var_130.m_surfaceID]
-          vmovups [rsp+1A0h+var_170], ymm0
-        }
+        v16 = v21;
+        v19 = v21;
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+1A0h+var_130.m_surfaceID]
-          vmovups [rsp+1A0h+var_170], ymm0
-        }
+        v16 = v21;
+        v19 = v21;
         __debugbreak();
       }
     }
-    else if ( v34.m_tracking.m_allocCounter )
+    else if ( v20.m_tracking.m_allocCounter )
     {
-      v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-      __asm { vmovups ymm0, [rsp+1A0h+var_170] }
-      if ( v28 )
+      v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+      v16 = v19;
+      if ( v17 )
         __debugbreak();
     }
-    LOWORD(_RBX[-1].m_location) = 0;
-    __asm { vmovd   eax, xmm0 }
-    v30 = (unsigned __int16)_EAX;
-    _RBX->m_allocCounter = 0;
-    _RBX->m_name = NULL;
-    _RBX->m_location = NULL;
-    __asm { vmovups ymmword ptr [rsp+1A0h+var_150.m_surfaceID], ymm0 }
-    if ( (_WORD)_EAX )
+    LOWORD(p_m_tracking[-1].m_location) = 0;
+    p_m_tracking->m_allocCounter = 0;
+    p_m_tracking->m_name = NULL;
+    p_m_tracking->m_location = NULL;
+    v20 = v16;
+    if ( (_WORD)v14 )
     {
-      R_RT_Handle::GetSurface(&v34);
+      R_RT_Handle::GetSurface(&v20);
     }
     else
     {
-      if ( !v35.m_tracking.m_allocCounter )
+      if ( !v21.m_tracking.m_allocCounter )
         goto LABEL_43;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
-    __asm { vmovups ymm0, [rsp+1A0h+var_170] }
+    v16 = v19;
 LABEL_43:
-    if ( v30 )
+    if ( (_WORD)v14 )
     {
-      __asm
-      {
-        vmovups [rsp+1A0h+var_170], ymm0
-        vmovdqa [rbp+0A0h+var_F0], xmm6
-      }
-      R_RT_Destroy(&v38, &v33);
+      v19 = v16;
+      v24 = v10;
+      R_RT_Destroy(&v24, (R_RT_DepthHandle *)&v19);
     }
-    _RBX = (R_RT_Tracking_HandleInfo *)((char *)_RBX + 32);
-    --v23;
+    p_m_tracking = (R_RT_Tracking_HandleInfo *)((char *)p_m_tracking + 32);
+    --v12;
   }
-  while ( v23 );
+  while ( v12 );
   R_FlushImmediateContext();
   R_UnlockGfxImmediateContext();
   Profile2_UpdateEntry(50);
   if ( ((unsigned __int64)&dword_14FDE8098 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8098) )
     __debugbreak();
-  v31 = gfxContext->state;
+  v18 = gfxContext->state;
   _InterlockedDecrement(&dword_14FDE8098);
-  R_ProfEndNamedEvent(v31);
+  R_ProfEndNamedEvent(v18);
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+1A0h+var_40] }
 }
 
 /*
@@ -8752,19 +6393,14 @@ void RB_StartDraw3DScene(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewIn
   unsigned int maxSpotShadowIndex; 
   __int64 voxelTreeZoneIndex; 
   GfxCmdBufState *state; 
-  GfxCmdBufContext v10; 
+  GfxCmdBufContext v9; 
 
-  _R14 = gfxContext;
   if ( data != backEndData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 3495, ASSERT_TYPE_ASSERT, "(data == backEndData)", (const char *)&queryFormat, "data == backEndData") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups xmmword ptr [rsp+48h+var_18.source], xmm0
-  }
-  if ( !RB_IsBackendCmdBufContext(&v10) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 3496, ASSERT_TYPE_ASSERT, "(RB_IsBackendCmdBufContext( gfxContext ))", (const char *)&queryFormat, "RB_IsBackendCmdBufContext( gfxContext )") )
+  v9 = *gfxContext;
+  if ( !RB_IsBackendCmdBufContext(&v9) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 3496, ASSERT_TYPE_ASSERT, "(RB_IsBackendCmdBufContext( gfxContext ))", (const char *)&queryFormat, "RB_IsBackendCmdBufContext( gfxContext )") )
     __debugbreak();
-  _R14->source->input.data = data;
+  gfxContext->source->input.data = data;
   Physics_SetDebugCameras(viewInfo);
   Profile_Begin(110);
   R_LockGfxImmediateContext();
@@ -8779,7 +6415,7 @@ void RB_StartDraw3DScene(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewIn
   R_UnlockGfxImmediateContext();
   Profile_EndInternal(NULL);
   RB_CG_Wind_UpdateWindGridBuffers();
-  state = _R14->state;
+  state = gfxContext->state;
   RB_UploadReactiveMotionData(state, data);
   RB_UpdateSceneConstantBuffer(data, viewInfo);
   RB_UpdatePersistentTables(viewInfo, data, PERSISTENT_TABLE_SCENE);
@@ -8912,82 +6548,37 @@ R_BlitDebugOverlay
 */
 void R_BlitDebugOverlay(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, R_RT_ColorHandle *outputRt, R_RT_ColorHandle *debugOverlayRt)
 {
+  GfxCmdBufSourceState *source; 
   R_RT_Image *p_m_image; 
   GfxCmdBufInput *p_input; 
-  float fmt; 
-  float v29; 
-  float v30; 
-  float v31; 
-  float v32; 
-  float v33; 
-  float v34; 
-  float v35; 
-  GfxCmdBufContext v36; 
-  GfxViewport v37; 
+  GfxCmdBufContext v9; 
+  float height; 
+  float width; 
+  GfxCmdBufContext v12; 
+  GfxViewport displayViewport; 
 
-  __asm { vmovups xmm0, xmmword ptr [rdx+4B0h] }
-  _RDX = &v37;
-  _RSI = gfxContext;
-  _RBX = gfxContext->source;
-  __asm { vmovups xmmword ptr [r11-38h], xmm0 }
-  R_SetViewportStruct(_RBX, &v37);
-  R_Set2D(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-    vmovss  dword ptr [rbx+0AB0h], xmm0
-    vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+4; vec4_t const colorWhite
-    vmovss  dword ptr [rbx+0AB4h], xmm1
-    vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B+8; vec4_t const colorWhite
-    vmovss  dword ptr [rbx+0AB8h], xmm0
-    vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+0Ch; vec4_t const colorWhite
-    vmovss  dword ptr [rbx+0ABCh], xmm1
-  }
-  ++_RBX->constVersions[59];
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?colorBlackBlank@@3Tvec4_t@@B; vec4_t const colorBlackBlank
-    vmovss  dword ptr [rbx+0AC0h], xmm0
-    vmovss  xmm1, dword ptr cs:?colorBlackBlank@@3Tvec4_t@@B+4; vec4_t const colorBlackBlank
-    vmovss  dword ptr [rbx+0AC4h], xmm1
-    vmovss  xmm0, dword ptr cs:?colorBlackBlank@@3Tvec4_t@@B+8; vec4_t const colorBlackBlank
-    vmovss  dword ptr [rbx+0AC8h], xmm0
-    vmovss  xmm1, dword ptr cs:?colorBlackBlank@@3Tvec4_t@@B+0Ch; vec4_t const colorBlackBlank
-    vmovss  dword ptr [rbx+0ACCh], xmm1
-  }
-  ++_RBX->constVersions[60];
-  _RBX->input.consts[61].v[0] = 0.0;
-  *(_QWORD *)&_RBX->input.consts[61].xyz.y = 2139095039i64;
-  _RBX->input.consts[61].v[3] = 0.0;
-  ++_RBX->constVersions[61];
+  source = gfxContext->source;
+  displayViewport = viewInfo->displayViewport;
+  R_SetViewportStruct(source, &displayViewport);
+  R_Set2D(source);
+  source->input.consts[59] = colorWhite;
+  ++source->constVersions[59];
+  source->input.consts[60] = colorBlackBlank;
+  ++source->constVersions[60];
+  source->input.consts[61].v[0] = 0.0;
+  *(_QWORD *)&source->input.consts[61].xyz.y = 2139095039i64;
+  source->input.consts[61].v[3] = 0.0;
+  ++source->constVersions[61];
   p_m_image = &R_RT_Handle::GetSurface(debugOverlayRt)->m_image;
-  p_input = &_RBX->input;
+  p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vxorps  xmm1, xmm1, xmm1
-  }
+  v9 = *gfxContext;
   p_input->codeImages[4] = &p_m_image->m_base;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, rax
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rax
-    vmovups [rsp+0B8h+var_48], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+0B8h+var_60], xmm0
-    vmovss  [rsp+0B8h+var_68], xmm0
-    vmovss  [rsp+0B8h+var_70], xmm1
-    vmovss  [rsp+0B8h+var_78], xmm1
-    vmovss  [rsp+0B8h+var_80], xmm3
-    vmovss  [rsp+0B8h+var_88], xmm2
-    vmovss  dword ptr [rsp+0B8h+var_90], xmm1
-    vmovss  dword ptr [rsp+0B8h+fmt], xmm1
-  }
-  RB_ViewportFilterDirectInternal(&v36, rgp.feedbackBlendBackbufferMaterial, 0xFFFFFFFF, &v37, fmt, v29, v30, v31, v32, v33, v34, v35, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1032)");
+  height = (float)displayViewport.height;
+  width = (float)displayViewport.width;
+  v12 = v9;
+  RB_ViewportFilterDirectInternal(&v12, rgp.feedbackBlendBackbufferMaterial, 0xFFFFFFFF, &displayViewport, 0.0, 0.0, width, height, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1032)");
 }
 
 /*
@@ -9042,113 +6633,98 @@ void R_ClearGlobalRTsAsRequired(GfxCmdBufContext *gfxContext, const GfxViewInfo 
 {
   GfxCmdBufSourceState *source; 
   int i; 
+  R_RT_Handle *v7; 
   unsigned __int16 m_surfaceID; 
   const char *LastKnownName; 
-  unsigned __int16 v12; 
+  unsigned __int16 v10; 
+  GfxCmdBufContext v11; 
+  R_RT_Handle *v12; 
   GfxCmdBufState *state; 
-  bool v21; 
-  const char *m_location; 
-  bool v36; 
-  __int64 v37; 
-  __int64 v38; 
-  R_RT_Handle v39; 
-  R_RT_Handle v40; 
-  const GfxViewInfo *v41; 
-  R_RT_Group v42; 
-  R_RT_Group v43; 
+  R_RT_Handle v14; 
+  bool v16; 
+  R_RT_Handle v18; 
+  bool v20; 
+  __int64 v21; 
+  __int64 v22; 
+  R_RT_Handle v23; 
+  __m256i v24; 
+  __m256i *v25; 
+  R_RT_Group v26; 
+  R_RT_Group v27; 
 
-  v41 = viewInfo;
-  _R15 = gfxContext;
+  v25 = (__m256i *)viewInfo;
   Sys_ProfBeginNamedEvent(0xFF800000, "R_ClearGlobalRTsAsRequired");
-  source = _R15->source;
-  R_InitCmdBufSourceState(_R15->source, &viewInfo->input);
-  R_InitLocalCmdBufState(_R15->state, &source->input);
-  R_ProfBeginNamedEvent(_R15->state, "R_ClearGlobalRTsAsRequired");
+  source = gfxContext->source;
+  R_InitCmdBufSourceState(gfxContext->source, &viewInfo->input);
+  R_InitLocalCmdBufState(gfxContext->state, &source->input);
+  R_ProfBeginNamedEvent(gfxContext->state, "R_ClearGlobalRTsAsRequired");
   R_GPU_BeginTimer(GPU_TIMER_CLEAR_SCREEN);
   for ( i = 0; i != 10; ++i )
   {
     if ( (unsigned __int8)i >= 0xAu )
     {
-      LODWORD(v38) = 10;
-      LODWORD(v37) = (unsigned __int8)i;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 65, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<uint>( rtId ) ) < (unsigned)( ( sizeof( *array_counter( g_R_RT_globals ) ) + 0 ) )", "static_cast<uint>( rtId ) doesn't index ARRAY_COUNT( g_R_RT_globals )\n\t%i not in [0, %i)", v37, v38) )
+      LODWORD(v22) = 10;
+      LODWORD(v21) = (unsigned __int8)i;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 65, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<uint>( rtId ) ) < (unsigned)( ( sizeof( *array_counter( g_R_RT_globals ) ) + 0 ) )", "static_cast<uint>( rtId ) doesn't index ARRAY_COUNT( g_R_RT_globals )\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    _RDI = &g_R_RT_globals[(unsigned __int8)i];
-    if ( R_RT_Handle::IsValid(_RDI) )
+    v7 = &g_R_RT_globals[(unsigned __int8)i];
+    if ( R_RT_Handle::IsValid(v7) )
     {
       if ( (unsigned __int8)i >= 0xAu )
       {
-        LODWORD(v38) = 10;
-        LODWORD(v37) = (unsigned __int8)i;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 72, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<uint>( rtId ) ) < (unsigned)( ( sizeof( *array_counter( g_R_RT_globals ) ) + 0 ) )", "static_cast<uint>( rtId ) doesn't index ARRAY_COUNT( g_R_RT_globals )\n\t%i not in [0, %i)", v37, v38) )
+        LODWORD(v22) = 10;
+        LODWORD(v21) = (unsigned __int8)i;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 72, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<uint>( rtId ) ) < (unsigned)( ( sizeof( *array_counter( g_R_RT_globals ) ) + 0 ) )", "static_cast<uint>( rtId ) doesn't index ARRAY_COUNT( g_R_RT_globals )\n\t%i not in [0, %i)", v21, v22) )
           __debugbreak();
       }
-      m_surfaceID = _RDI->m_surfaceID;
-      if ( _RDI->m_surfaceID )
+      m_surfaceID = v7->m_surfaceID;
+      if ( v7->m_surfaceID )
       {
-        R_RT_Handle::GetSurface(_RDI);
+        R_RT_Handle::GetSurface(v7);
       }
-      else if ( _RDI->m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+      else if ( v7->m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       {
         __debugbreak();
       }
       if ( !m_surfaceID )
       {
-        LastKnownName = R_RT_Handle::DebugGetLastKnownName(_RDI);
-        LODWORD(v38) = (unsigned __int8)i;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 73, ASSERT_TYPE_ASSERT, "(g_R_RT_globals[rtId].IsValid())", "%s\n\trtId=%u(%s), last-known name=%s", "g_R_RT_globals[rtId].IsValid()", v38, g_R_RT_globalSlotNames[(unsigned __int8)i], LastKnownName) )
+        LastKnownName = R_RT_Handle::DebugGetLastKnownName(v7);
+        LODWORD(v22) = (unsigned __int8)i;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 73, ASSERT_TYPE_ASSERT, "(g_R_RT_globals[rtId].IsValid())", "%s\n\trtId=%u(%s), last-known name=%s", "g_R_RT_globals[rtId].IsValid()", v22, g_R_RT_globalSlotNames[(unsigned __int8)i], LastKnownName) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovd   eax, xmm0
-        vmovups [rsp+270h+var_200], ymm0
-      }
-      v12 = _EAX & 0x7FFF;
-      if ( !v12 )
-        v12 = 0;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+270h+var_200+8]
-        vmovsd  xmm1, qword ptr [rbp+170h+var_200+18h]
-        vmovups xmmword ptr [rsp+270h+var_220.m_tracking.m_allocCounter], xmm0
-        vmovsd  [rsp+270h+var_220.m_tracking.m_location], xmm1
-        vmovups xmm1, xmmword ptr [r15]
-      }
-      v39.m_surfaceID = v12;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+270h+var_220.m_surfaceID]
-        vmovups [rsp+270h+var_200], ymm0
-        vmovups xmmword ptr [rsp+270h+var_220.m_surfaceID], xmm1
-      }
-      R_SetAndClearIfRequired((GfxCmdBufContext *)&v39, &v40);
+      v24 = *(__m256i *)v7;
+      v10 = _XMM0 & 0x7FFF;
+      if ( (_XMM0 & 0x7FFF) == 0 )
+        v10 = 0;
+      _XMM0 = *(_OWORD *)&v24.m256i_u64[1];
+      v23.m_tracking = *(R_RT_Tracking_HandleInfo *)&v24.m256i_u64[1];
+      v11 = *gfxContext;
+      v23.m_surfaceID = v10;
+      v24 = (__m256i)v23;
+      *(GfxCmdBufContext *)&v23.m_surfaceID = v11;
+      R_SetAndClearIfRequired((GfxCmdBufContext *)&v23, (R_RT_Handle *)&v24);
     }
   }
-  _R13 = v41;
-  state = _R15->state;
-  if ( v41->sceneRtInput.m_resolvedSceneRtNeedsClear )
+  v12 = (R_RT_Handle *)v25;
+  state = gfxContext->state;
+  if ( v25[416].m256i_i32[0] )
   {
-    __asm
+    v14 = (R_RT_Handle)v25[415];
+    v24 = (__m256i)v14;
+    v23 = v14;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [r13+33E0h]
-      vmovd   eax, xmm0
-      vmovups [rsp+270h+var_200], ymm0
-      vmovups ymmword ptr [rsp+270h+var_220.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v39);
-      if ( (R_RT_Handle::GetSurface(&v39)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v23);
+      if ( (R_RT_Handle::GetSurface(&v23)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+270h+var_220.m_surfaceID] }
+        v14 = v23;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+270h+var_220.m_surfaceID] }
+        v14 = v23;
       }
     }
     else
@@ -9156,62 +6732,42 @@ void R_ClearGlobalRTsAsRequired(GfxCmdBufContext *gfxContext, const GfxViewInfo 
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rsp+270h+var_200] }
-        if ( v21 )
+        v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v14 = (R_RT_Handle)v24;
+        if ( v16 )
           __debugbreak();
       }
     }
-    __asm { vmovups [rsp+270h+var_200], ymm0 }
-    R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&v40, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v24 = (__m256i)v14;
+    R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&v24, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r13+33E0h]
-      vmovups [rsp+270h+var_200], ymm0
-    }
-    R_RT_Group::AssignColor(&v42, (R_RT_ColorHandle *)&v40);
-    _RDX = &v43;
-    _RAX = &v42;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymm1, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rdx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rdx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rdx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rdx+60h], ymm0
-      vmovups xmm0, xmmword ptr [r15]
-      vmovups ymmword ptr [rdx+80h], ymm1
-      vmovups ymm1, ymmword ptr [rax+0A0h]
-    }
-    m_location = v42.m_vrsRt.m_tracking.m_location;
-    __asm { vmovups ymmword ptr [rdx+0A0h], ymm1 }
-    v43.m_vrsRt.m_tracking.m_location = m_location;
-    __asm { vmovups xmmword ptr [rsp+270h+var_220.m_surfaceID], xmm0 }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v39, &v43, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(495)");
+    v24 = (__m256i)v12[415];
+    R_RT_Group::AssignColor(&v26, (R_RT_ColorHandle *)&v24);
+    *(__m256i *)&v27.m_colorRtCount = *(__m256i *)&v26.m_colorRtCount;
+    *(__m256i *)&v27.m_colorRts[0].m_tracking.m_location = *(__m256i *)&v26.m_colorRts[0].m_tracking.m_location;
+    *(__m256i *)&v27.m_colorRts[1].m_tracking.m_location = *(__m256i *)&v26.m_colorRts[1].m_tracking.m_location;
+    *(__m256i *)&v27.m_colorRts[2].m_tracking.m_location = *(__m256i *)&v26.m_colorRts[2].m_tracking.m_location;
+    _XMM0 = *gfxContext;
+    *(__m256i *)&v27.m_colorRts[3].m_tracking.m_location = *(__m256i *)&v26.m_colorRts[3].m_tracking.m_location;
+    *(__m256i *)&v27.m_depthRt.m_tracking.m_location = *(__m256i *)&v26.m_depthRt.m_tracking.m_location;
+    v27.m_vrsRt.m_tracking.m_location = v26.m_vrsRt.m_tracking.m_location;
+    *(GfxCmdBufContext *)&v23.m_surfaceID = _XMM0;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v23, &v27, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(495)");
     R_ClearScreen(state, 0xFu, 0);
-    __asm
+    v18 = v12[415];
+    v24 = (__m256i)v18;
+    v23 = v18;
+    if ( LOWORD(_XMM0.source) )
     {
-      vmovups ymm0, ymmword ptr [r13+33E0h]
-      vmovd   eax, xmm0
-      vmovups [rsp+270h+var_200], ymm0
-      vmovups ymmword ptr [rsp+270h+var_220.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v39);
-      if ( (R_RT_Handle::GetSurface(&v39)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v23);
+      if ( (R_RT_Handle::GetSurface(&v23)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+270h+var_220.m_surfaceID] }
+        v18 = v23;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rsp+270h+var_220.m_surfaceID] }
+        v18 = v23;
       }
     }
     else
@@ -9219,14 +6775,14 @@ void R_ClearGlobalRTsAsRequired(GfxCmdBufContext *gfxContext, const GfxViewInfo 
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v36 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rsp+270h+var_200] }
-        if ( v36 )
+        v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v18 = (R_RT_Handle)v24;
+        if ( v20 )
           __debugbreak();
       }
     }
-    __asm { vmovups [rsp+270h+var_200], ymm0 }
-    R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&v40, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    v24 = (__m256i)v18;
+    R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&v24, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
     R_FlushImmediateContext();
   }
@@ -9234,7 +6790,7 @@ void R_ClearGlobalRTsAsRequired(GfxCmdBufContext *gfxContext, const GfxViewInfo 
   R_FlushImmediateContext();
   R_GPU_EndTimer();
   R_ProfEndNamedEvent(state);
-  R_ShutdownLocalCmdBufState(state, &_R15->source->input);
+  R_ShutdownLocalCmdBufState(state, &gfxContext->source->input);
   Sys_ProfEndNamedEvent();
 }
 
@@ -9249,29 +6805,19 @@ void R_ClearRenderTarget(GfxCmdBufContext *gfxContext, const R_RT_Group *rtGroup
   GfxCmdBufState *state; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
-  R_RT_Handle v15; 
+  R_RT_Handle v12; 
   R_RT_Handle result; 
 
   source = gfxContext->source;
   state = gfxContext->state;
-  _RSI = gfxContext;
   R_InitLocalCmdBufState(state, &gfxContext->source->input);
   R_ProfBeginNamedEvent(state, "R_ClearRenderTarget");
-  _RAX = R_RT_Group::GetValidRt((R_RT_Group *)rtGroup, &result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+88h+var_68.m_surfaceID], ymm0
-  }
-  height = R_RT_Handle::GetSurface(&v15)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v15);
+  v12 = *R_RT_Group::GetValidRt((R_RT_Group *)rtGroup, &result);
+  height = R_RT_Handle::GetSurface(&v12)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface(&v12);
   R_SetRenderTargetSize(source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups xmmword ptr [rsp+88h+var_68.m_surfaceID], xmm0
-  }
-  R_SetRenderTargetsInternal((GfxCmdBufContext *)&v15, rtGroup, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1368)");
+  *(GfxCmdBufContext *)&v12.m_surfaceID = *gfxContext;
+  R_SetRenderTargetsInternal((GfxCmdBufContext *)&v12, rtGroup, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1368)");
   R_GPU_BeginTimer(GPU_TIMER_CLEAR_SCREEN);
   R_ClearScreen(state, whichToClear, stencil);
   R_GPU_EndTimer();
@@ -9302,14 +6848,10 @@ R_Draw2D_BackupScopeReticle
 */
 void R_Draw2D_BackupScopeReticle(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, const GfxImage *sceneSrc, const GfxImage *scopeBuffer)
 {
-  GfxCmdBufContext v6; 
+  GfxCmdBufContext v5; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+48h+var_18.source], xmm0
-  }
-  R_Draw2D_CopyScopeReticle(&v6, viewInfo, data, sceneSrc, scopeBuffer);
+  v5 = *gfxContext;
+  R_Draw2D_CopyScopeReticle(&v5, viewInfo, data, sceneSrc, scopeBuffer);
 }
 
 /*
@@ -9319,25 +6861,17 @@ R_Draw2D_BeforePostFX
 */
 void R_Draw2D_BeforePostFX(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, R_RT_ColorHandle *sceneRt, R_RT_DepthHandle *depthRt, const GfxImage *universalClut)
 {
-  const void *v14; 
-  GfxCmdBufContext v15; 
-  GfxCmdBufContext v16; 
-  R_RT_DepthHandle v17; 
-  R_RT_ColorHandle v18; 
+  const void *v9; 
+  GfxCmdBufContext v10; 
+  GfxCmdBufContext v11; 
+  R_RT_DepthHandle v12; 
+  R_RT_ColorHandle v13; 
   GfxDevice *device; 
 
-  __asm { vmovups ymm1, ymmword ptr [r9] }
-  _RAX = depthRt;
-  _RSI = gfxContext;
-  __asm
-  {
-    vmovups [rsp+98h+var_28], ymm1
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rsp+98h+var_48], ymm0
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups [rsp+98h+var_68], xmm0
-  }
-  RB_InitClient2DReceivePPFXContext(&v15, viewInfo, data, &v18, &v17, universalClut);
+  v13 = *sceneRt;
+  v12 = *depthRt;
+  v10 = *gfxContext;
+  RB_InitClient2DReceivePPFXContext(&v10, viewInfo, data, &v13, &v12, universalClut);
   if ( data->async2D.renderReceivePPFXPending )
   {
     depthRt = (R_RT_DepthHandle *)data;
@@ -9359,10 +6893,9 @@ void R_Draw2D_BeforePostFX(GfxCmdBufContext *gfxContext, const GfxViewInfo *view
     }
     data->async2D.receivePPFXCmdBuf.device = NULL;
   }
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  v14 = viewInfo->displayCmds[3];
-  __asm { vmovups [rsp+98h+var_58], xmm0 }
-  RB_ExecuteRenderCommandsLoop(&v16, v14, NULL);
+  v9 = viewInfo->displayCmds[3];
+  v11 = *gfxContext;
+  RB_ExecuteRenderCommandsLoop(&v11, v9, NULL);
 }
 
 /*
@@ -9384,46 +6917,40 @@ void R_Draw2D_CopyScopeReticle(GfxCmdBufContext *gfxContext, const GfxViewInfo *
 {
   GfxCmdBufSourceState *source; 
   GfxCmdBufInput *p_input; 
-  GfxCmdBufSourceState *v11; 
-  GfxCmdBufInput *v12; 
-  GfxCmdBufSourceState *v13; 
-  const void *v15; 
-  GfxCmdBufContext v16[2]; 
+  GfxCmdBufSourceState *v10; 
+  GfxCmdBufInput *v11; 
+  GfxCmdBufSourceState *v12; 
+  const void *v13; 
+  GfxCmdBufContext v14[2]; 
 
-  _RBX = gfxContext;
   if ( viewInfo->displayCmds[4] )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups [rsp+58h+var_28], xmm0
-    }
-    RB_InitClient2DContext_CopyScopeReticle(v16, viewInfo, data);
-    source = _RBX->source;
-    if ( !_RBX->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    v14[0] = *gfxContext;
+    RB_InitClient2DContext_CopyScopeReticle(v14, viewInfo, data);
+    source = gfxContext->source;
+    if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
     p_input = &source->input;
     if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
     p_input->codeImages[80] = scopeBuffer;
-    v11 = _RBX->source;
-    if ( !_RBX->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    v10 = gfxContext->source;
+    if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
-    v12 = &v11->input;
-    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    v11 = &v10->input;
+    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    v12->codeImages[24] = sceneSrc;
-    v13 = _RBX->source;
-    R_ForceSet2D(_RBX->source, &viewInfo->displayViewport);
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    v15 = viewInfo->displayCmds[4];
-    __asm { vmovups [rsp+58h+var_28], xmm0 }
-    RB_ExecuteRenderCommandsLoop(v16, v15, rgp.reticleCopyScreen);
-    if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    v11->codeImages[24] = sceneSrc;
+    v12 = gfxContext->source;
+    R_ForceSet2D(gfxContext->source, &viewInfo->displayViewport);
+    v13 = viewInfo->displayCmds[4];
+    v14[0] = *gfxContext;
+    RB_ExecuteRenderCommandsLoop(v14, v13, rgp.reticleCopyScreen);
+    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
-    if ( v13 == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    if ( v12 == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    v13->input.codeImages[24] = NULL;
+    v12->input.codeImages[24] = NULL;
   }
 }
 
@@ -9434,48 +6961,40 @@ R_Draw2D_Hud
 */
 void R_Draw2D_Hud(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, R_RT_ColorHandle *colorRt, R_RT_Handle *packedStencil, const GfxImage *universalClut, const GfxImage *resolvedScene, const GfxWrappedBuffer *exposureBuffer)
 {
-  const void *v18; 
-  _WORD *v19; 
-  bool v20; 
+  R_RT_Handle *v12; 
+  const void *v13; 
+  _WORD *v14; 
+  bool v15; 
   const char *LastKnownName; 
   GfxCmdBufSourceState *source; 
-  const void *v27; 
-  const void *v29; 
-  __int64 v30; 
-  GfxCmdBufContext v31; 
-  GfxCmdBufContext v32; 
-  GfxCmdBufContext v33; 
-  GfxCmdBufContext v34; 
-  GfxCmdBufContext v35; 
-  R_RT_Handle v36; 
-  R_RT_ColorHandle v37; 
-  R_RT_Handle v38; 
-  R_RT_ColorHandle v39; 
-  void *retaddr; 
+  R_RT_ColorHandle v18; 
+  GfxCmdBufContext v19; 
+  const void *v20; 
+  const void *v21; 
+  __int64 v22; 
+  GfxCmdBufContext v23; 
+  GfxCmdBufContext v24; 
+  GfxCmdBufContext v25; 
+  GfxCmdBufContext v26; 
+  GfxCmdBufContext v27; 
+  R_RT_Handle v28; 
+  R_RT_ColorHandle v29; 
+  R_RT_Handle v30; 
+  R_RT_ColorHandle v31; 
   const GfxBackEndData *timeoutUserData; 
 
-  _RAX = &retaddr;
-  _R12 = colorRt;
-  _R15 = gfxContext;
   if ( viewInfo->displayCmds[0] )
   {
-    __asm { vmovups ymm1, ymmword ptr [r9] }
-    _R13 = packedStencil;
-    __asm
-    {
-      vmovups ymmword ptr [rax-88h], ymm1
-      vmovups ymm0, ymmword ptr [r13+0]
-      vmovups ymmword ptr [rax-0A8h], ymm0
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovups [rsp+148h+var_F8], xmm0
-    }
-    RB_InitClient2DContext(&v31, viewInfo, data, &v37, &v36, universalClut, resolvedScene, exposureBuffer);
-    __asm { vmovups xmm0, xmmword ptr [r15] }
-    v18 = viewInfo->displayCmds[0];
-    __asm { vmovups [rsp+148h+var_E8], xmm0 }
-    RB_ExecuteRenderCommandsLoop(&v32, v18, NULL);
-    v19 = viewInfo->displayCmds[2];
-    v20 = v19 && *v19;
+    v12 = packedStencil;
+    v29 = *colorRt;
+    v28 = *packedStencil;
+    v23 = *gfxContext;
+    RB_InitClient2DContext(&v23, viewInfo, data, &v29, &v28, universalClut, resolvedScene, exposureBuffer);
+    v13 = viewInfo->displayCmds[0];
+    v24 = *gfxContext;
+    RB_ExecuteRenderCommandsLoop(&v24, v13, NULL);
+    v14 = viewInfo->displayCmds[2];
+    v15 = v14 && *v14;
     if ( viewInfo->displayCmds[1] )
     {
       if ( g_R_RT_globals[0].m_surfaceID )
@@ -9487,8 +7006,8 @@ void R_Draw2D_Hud(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, con
         if ( g_R_RT_globals[0].m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
         LastKnownName = R_RT_Handle::DebugGetLastKnownName(g_R_RT_globals);
-        LODWORD(v30) = 0;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 73, ASSERT_TYPE_ASSERT, "(g_R_RT_globals[rtId].IsValid())", "%s\n\trtId=%u(%s), last-known name=%s", "g_R_RT_globals[rtId].IsValid()", v30, g_R_RT_globalSlotNames[0], LastKnownName) )
+        LODWORD(v22) = 0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_globals.h", 73, ASSERT_TYPE_ASSERT, "(g_R_RT_globals[rtId].IsValid())", "%s\n\trtId=%u(%s), last-known name=%s", "g_R_RT_globals[rtId].IsValid()", v22, g_R_RT_globalSlotNames[0], LastKnownName) )
           __debugbreak();
       }
       if ( ((g_R_RT_globals[0].m_surfaceID ^ (unsigned __int16)*(_DWORD *)&data->displayRtDebug.m_surfaceID) & 0xFFFF7FFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 2193, ASSERT_TYPE_ASSERT, "(data->displayRtDebug == R_RT_GetGlobal( R_RENDERTARGET_DISPLAY_BUFFER ))", (const char *)&queryFormat, "data->displayRtDebug == R_RT_GetGlobal( R_RENDERTARGET_DISPLAY_BUFFER )") )
@@ -9504,36 +7023,30 @@ void R_Draw2D_Hud(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, con
       }
       if ( RB_Async2D_ExecCmdBuf(&data->async2D.cmdBuf, data->async2D.renderFailed) )
       {
-        if ( !v20 )
+        if ( !v15 )
           return;
-        source = _R15->source;
-        R_ShutdownLocalCmdBufState(_R15->state, &_R15->source->input);
-        R_InitLocalCmdBufState(_R15->state, &source->input);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [r13+0]
-          vmovups ymm1, ymmword ptr [r12]
-          vmovups [rsp+148h+var_68], ymm0
-          vmovups xmm0, xmmword ptr [r15]
-          vmovups [rsp+148h+var_48], ymm1
-          vmovups [rsp+148h+var_D8], xmm0
-        }
-        RB_InitClient2DContext(&v33, viewInfo, data, &v39, &v38, universalClut, resolvedScene, exposureBuffer);
+        source = gfxContext->source;
+        R_ShutdownLocalCmdBufState(gfxContext->state, &gfxContext->source->input);
+        R_InitLocalCmdBufState(gfxContext->state, &source->input);
+        v18 = *colorRt;
+        v30 = *v12;
+        v19 = *gfxContext;
+        v31 = v18;
+        v25 = v19;
+        RB_InitClient2DContext(&v25, viewInfo, data, &v31, &v30, universalClut, resolvedScene, exposureBuffer);
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [r15] }
-        v27 = viewInfo->displayCmds[1];
-        __asm { vmovups [rsp+148h+var_C8], xmm0 }
-        RB_ExecuteRenderCommandsLoop(&v34, v27, NULL);
+        v20 = viewInfo->displayCmds[1];
+        v26 = *gfxContext;
+        RB_ExecuteRenderCommandsLoop(&v26, v20, NULL);
       }
     }
-    if ( v20 )
+    if ( v15 )
     {
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v29 = viewInfo->displayCmds[2];
-      __asm { vmovups [rsp+148h+var_B8], xmm0 }
-      RB_ExecuteRenderCommandsLoop(&v35, v29, NULL);
+      v21 = viewInfo->displayCmds[2];
+      v27 = *gfxContext;
+      RB_ExecuteRenderCommandsLoop(&v27, v21, NULL);
     }
   }
 }
@@ -9545,49 +7058,43 @@ R_Draw2D_RTT
 */
 void R_Draw2D_RTT(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
-  unsigned int v7; 
-  const void **v8; 
-  __int64 v9; 
+  unsigned int v6; 
+  const void **v7; 
+  __int64 v8; 
   const char *Name; 
-  const void *v12; 
-  GfxCmdBufContext v13; 
+  const void *v10; 
+  GfxCmdBufContext v11; 
   R_RT_ColorHandle result; 
 
-  _R15 = gfxContext;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 3826, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vmovups [rsp+98h+var_68], xmm0
-  }
-  RB_InitClient2D_RTT(&v13, viewInfo, data);
-  v7 = 1;
-  v8 = &viewInfo->displayCmds[8];
-  v9 = 8i64;
+  v11 = *gfxContext;
+  RB_InitClient2D_RTT(&v11, viewInfo, data);
+  v6 = 1;
+  v7 = &viewInfo->displayCmds[8];
+  v8 = 8i64;
   do
   {
-    if ( *v8 )
+    if ( *v7 )
     {
-      RB_RTT_GetSurface(&result, viewInfo->clientIndex, &data->rttContext, v7);
+      RB_RTT_GetSurface(&result, viewInfo->clientIndex, &data->rttContext, v6);
       if ( (result.m_surfaceID & 0x7FFF) != 0 )
       {
-        __asm { vmovups xmm0, xmmword ptr [r15] }
-        v12 = *v8;
-        __asm { vmovups [rsp+98h+var_68], xmm0 }
-        RB_ExecuteRenderCommandsLoop(&v13, v12, NULL);
+        v10 = *v7;
+        v11 = *gfxContext;
+        RB_ExecuteRenderCommandsLoop(&v11, v10, NULL);
       }
       else
       {
-        Name = R_RTT_GetName(v7);
+        Name = R_RTT_GetName(v6);
         Com_Printf(8, "ERROR: RTT %s is not allocated, skipping update\n", Name);
       }
     }
-    ++v8;
     ++v7;
-    --v9;
+    ++v6;
+    --v8;
   }
-  while ( v9 );
+  while ( v8 );
 }
 
 /*
@@ -9595,24 +7102,18 @@ void R_Draw2D_RTT(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, con
 R_Draw2D_RTT_Overlay
 ==============
 */
-void R_Draw2D_RTT_Overlay(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, double a4)
+void R_Draw2D_RTT_Overlay(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
   unsigned int unsignedInt; 
-  GfxCmdBufContext v9; 
+  GfxCmdBufContext v6; 
 
-  __asm { vmovups xmm0, xmmword ptr [rcx] }
-  _RDI = gfxContext;
-  __asm { vmovups xmmword ptr [rsp+38h+var_18.source], xmm0 }
+  v6 = *gfxContext;
   unsignedInt = r_rtt_showOverlay->current.unsignedInt;
-  RB_InitClient2D_RTT(&v9, viewInfo, data);
+  RB_InitClient2D_RTT(&v6, viewInfo, data);
   if ( unsignedInt <= 8 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rsp+38h+var_18.source], xmm0
-    }
-    RB_DrawRttOverlay(&v9, viewInfo, unsignedInt, a4);
+    v6 = *gfxContext;
+    RB_DrawRttOverlay(&v6, viewInfo, unsignedInt);
   }
 }
 
@@ -9623,25 +7124,20 @@ R_Draw2D_ReceivePostFXComposite
 */
 void R_Draw2D_ReceivePostFXComposite(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, R_RT_ColorHandle *sceneRt, const GfxImage *packedStencil, const GfxImage *scopeBuffer)
 {
-  const void *v11; 
-  GfxCmdBufContext v12; 
-  R_RT_ColorHandle v13; 
+  GfxCmdBufContext v8; 
+  const void *v9; 
+  GfxCmdBufContext v10; 
+  R_RT_ColorHandle v11; 
 
-  _RDI = gfxContext;
   if ( viewInfo->displayCmds[5] )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r9]
-      vmovups xmm1, xmmword ptr [rcx]
-      vmovups ymmword ptr [rsp+68h+var_28.baseclass_0.m_surfaceID], ymm0
-      vmovups [rsp+68h+var_38], xmm1
-    }
-    RB_InitClient2DContext_ReceivePostFXLite(&v12, viewInfo, data, &v13, packedStencil, scopeBuffer);
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    v11 = viewInfo->displayCmds[5];
-    __asm { vmovups [rsp+68h+var_38], xmm0 }
-    RB_ExecuteRenderCommandsLoop(&v12, v11, NULL);
+    v8 = *gfxContext;
+    v11 = *sceneRt;
+    v10 = v8;
+    RB_InitClient2DContext_ReceivePostFXLite(&v10, viewInfo, data, &v11, packedStencil, scopeBuffer);
+    v9 = viewInfo->displayCmds[5];
+    v10 = *gfxContext;
+    RB_ExecuteRenderCommandsLoop(&v10, v9, NULL);
   }
 }
 
@@ -9662,25 +7158,20 @@ R_Draw2D_ReceivePostFXLite
 */
 void R_Draw2D_ReceivePostFXLite(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, R_RT_ColorHandle *sceneRt, const GfxImage *packedStencil, const GfxImage *scopeBuffer)
 {
-  const void *v11; 
-  GfxCmdBufContext v12; 
-  R_RT_ColorHandle v13; 
+  GfxCmdBufContext v8; 
+  const void *v9; 
+  GfxCmdBufContext v10; 
+  R_RT_ColorHandle v11; 
 
-  _RDI = gfxContext;
   if ( viewInfo->displayCmds[4] )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r9]
-      vmovups xmm1, xmmword ptr [rcx]
-      vmovups ymmword ptr [rsp+68h+var_28.baseclass_0.m_surfaceID], ymm0
-      vmovups [rsp+68h+var_38], xmm1
-    }
-    RB_InitClient2DContext_ReceivePostFXLite(&v12, viewInfo, data, &v13, packedStencil, scopeBuffer);
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    v11 = viewInfo->displayCmds[4];
-    __asm { vmovups [rsp+68h+var_38], xmm0 }
-    RB_ExecuteRenderCommandsLoop(&v12, v11, NULL);
+    v8 = *gfxContext;
+    v11 = *sceneRt;
+    v10 = v8;
+    RB_InitClient2DContext_ReceivePostFXLite(&v10, viewInfo, data, &v11, packedStencil, scopeBuffer);
+    v9 = viewInfo->displayCmds[4];
+    v10 = *gfxContext;
+    RB_ExecuteRenderCommandsLoop(&v10, v9, NULL);
   }
 }
 
@@ -9701,14 +7192,10 @@ R_Draw2D_RestoreScopeReticle
 */
 void R_Draw2D_RestoreScopeReticle(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, const GfxImage *sceneBackup, const GfxImage *scopeBuffer)
 {
-  GfxCmdBufContext v6; 
+  GfxCmdBufContext v5; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+48h+var_18.source], xmm0
-  }
-  R_Draw2D_CopyScopeReticle(&v6, viewInfo, data, sceneBackup, scopeBuffer);
+  v5 = *gfxContext;
+  R_Draw2D_CopyScopeReticle(&v5, viewInfo, data, sceneBackup, scopeBuffer);
 }
 
 /*
@@ -9742,19 +7229,14 @@ R_DrawDebugPrimitives
 void R_DrawDebugPrimitives(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
   GfxCmdBufSourceState *source; 
-  GfxCmdBufContext v6; 
+  GfxCmdBufContext v5; 
 
   source = gfxContext->source;
-  _RBX = gfxContext;
   R_BeginViewInternal(gfxContext->source, &viewInfo->sceneDef, &viewInfo->viewParmsSet.frames[2].viewParms, NULL);
   R_SetViewportStruct(source, &viewInfo->sceneViewport);
   R_Set3D(source);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rsp+38h+var_18.source], xmm0
-  }
-  RB_DrawDebug(&v6, &source->viewParms, viewInfo);
+  v5 = *gfxContext;
+  RB_DrawDebug(&v5, &source->viewParms, viewInfo);
 }
 
 /*
@@ -9783,24 +7265,16 @@ void R_FontCache_DebugDisplay(void)
 R_HalfRes_DownsampleDepth
 ==============
 */
-
-void __fastcall R_HalfRes_DownsampleDepth(GfxCmdBufContext *context, R_RT_Handle *fullResDepth, const GfxViewport *viewport, double _XMM3_8)
+void R_HalfRes_DownsampleDepth(GfxCmdBufContext *context, R_RT_Handle *fullResDepth, const GfxViewport *viewport)
 {
   GfxCmdBufSourceState *source; 
   R_RT_Image *p_m_image; 
-  float fmt; 
-  __int64 v18; 
-  float v19; 
-  float v20; 
-  float v21; 
-  float v22; 
-  float v23; 
-  float v24; 
-  float v25; 
-  GfxCmdBufContext v26; 
+  float height; 
+  float width; 
+  __int64 v9; 
+  GfxCmdBufContext v10; 
 
   source = context->source;
-  _R14 = context;
   p_m_image = &R_RT_Handle::GetSurface(fullResDepth)->m_image;
   if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
@@ -9810,30 +7284,14 @@ void __fastcall R_HalfRes_DownsampleDepth(GfxCmdBufContext *context, R_RT_Handle
   R_Set2D(source);
   if ( source->viewMode != VIEW_MODE_2D )
   {
-    LODWORD(v18) = source->viewMode;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 2990, ASSERT_TYPE_ASSERT, "( ( source->viewMode == VIEW_MODE_2D ) )", "( source->viewMode ) = %i", v18) )
+    LODWORD(v9) = source->viewMode;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 2990, ASSERT_TYPE_ASSERT, "( ( source->viewMode == VIEW_MODE_2D ) )", "( source->viewMode ) = %i", v9) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, rax
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rax
-    vmovups [rsp+98h+var_28], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+98h+var_40], xmm0
-    vmovss  [rsp+98h+var_48], xmm0
-    vmovss  [rsp+98h+var_50], xmm1
-    vmovss  [rsp+98h+var_58], xmm1
-    vmovss  [rsp+98h+var_60], xmm3
-    vmovss  [rsp+98h+var_68], xmm2
-    vmovss  dword ptr [rsp+98h+var_70], xmm1
-    vmovss  dword ptr [rsp+98h+fmt], xmm1
-  }
-  RB_ViewportFilterDirectInternal(&v26, rgp.floatZWriteDepthDownsampleMaterial, 0xFFFFFFFF, viewport, fmt, v19, v20, v21, v22, v23, v24, v25, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2992)");
+  height = (float)viewport->height;
+  width = (float)viewport->width;
+  v10 = *context;
+  RB_ViewportFilterDirectInternal(&v10, rgp.floatZWriteDepthDownsampleMaterial, 0xFFFFFFFF, viewport, 0.0, 0.0, width, height, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(2992)");
 }
 
 /*
@@ -9846,21 +7304,15 @@ void R_HalfRes_Upsample(GfxCmdBufContext *context, R_RT_Handle *halfResColor, R_
   GfxCmdBufSourceState *source; 
   R_RT_Image *p_m_image; 
   GfxCmdBufInput *p_input; 
-  R_RT_Image *v16; 
-  R_RT_Image *v17; 
-  R_RT_Image *v18; 
-  float fmt; 
-  float v27; 
-  float v28; 
-  float v29; 
-  float v30; 
-  float v31; 
-  float v32; 
-  float v33; 
-  GfxCmdBufContext v34; 
+  R_RT_Image *v13; 
+  R_RT_Image *v14; 
+  R_RT_Image *v15; 
+  GfxCmdBufContext v16; 
+  float height; 
+  float width; 
+  GfxCmdBufContext v19; 
 
   source = context->source;
-  _R14 = context;
   R_Set2D(context->source);
   if ( source->viewMode != VIEW_MODE_2D && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 3002, ASSERT_TYPE_ASSERT, "( ( source->viewMode == VIEW_MODE_2D ) )", "( source->viewMode ) = %i", source->viewMode) )
     __debugbreak();
@@ -9869,41 +7321,23 @@ void R_HalfRes_Upsample(GfxCmdBufContext *context, R_RT_Handle *halfResColor, R_
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codeImages[22] = &p_m_image->m_base;
-  v16 = &R_RT_Handle::GetSurface(halfResAlpha)->m_image;
+  v13 = &R_RT_Handle::GetSurface(halfResAlpha)->m_image;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codeImages[23] = &v16->m_base;
-  v17 = &R_RT_Handle::GetSurface(halfResDepth)->m_image;
+  p_input->codeImages[23] = &v13->m_base;
+  v14 = &R_RT_Handle::GetSurface(halfResDepth)->m_image;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codeImages[24] = &v17->m_base;
-  v18 = &R_RT_Handle::GetSurface(fullResDepth)->m_image;
+  p_input->codeImages[24] = &v14->m_base;
+  v15 = &R_RT_Handle::GetSurface(fullResDepth)->m_image;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vxorps  xmm1, xmm1, xmm1
-  }
-  p_input->codeImages[25] = &v18->m_base;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, rax
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rax
-    vmovups [rsp+98h+var_28], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+98h+var_40], xmm0
-    vmovss  [rsp+98h+var_48], xmm0
-    vmovss  [rsp+98h+var_50], xmm1
-    vmovss  [rsp+98h+var_58], xmm1
-    vmovss  [rsp+98h+var_60], xmm3
-    vmovss  [rsp+98h+var_68], xmm2
-    vmovss  dword ptr [rsp+98h+var_70], xmm1
-    vmovss  dword ptr [rsp+98h+fmt], xmm1
-  }
-  RB_ViewportFilterDirectInternal(&v34, rgp.bilateralUpsampleMaterial, 0xFFFFFFFF, viewport, fmt, v27, v28, v29, v30, v31, v32, v33, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3009)");
+  v16 = *context;
+  p_input->codeImages[25] = &v15->m_base;
+  height = (float)viewport->height;
+  width = (float)viewport->width;
+  v19 = v16;
+  RB_ViewportFilterDirectInternal(&v19, rgp.bilateralUpsampleMaterial, 0xFFFFFFFF, viewport, 0.0, 0.0, width, height, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(3009)");
 }
 
 /*
@@ -10059,65 +7493,75 @@ R_SetAndClearSceneTarget
 */
 void R_SetAndClearSceneTarget(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
+  const GfxViewInfo *v3; 
   GfxCmdBufState *state; 
-  __int64 v10; 
-  unsigned int v16; 
-  GfxCmdBufState *v19; 
+  __int64 v6; 
+  __m256i m_msaaSceneAlphaRt; 
+  __int64 v8; 
+  __int64 v9; 
+  unsigned int v11; 
+  R_RT_Handle m_depthRt; 
+  GfxCmdBufState *v13; 
+  GfxCmdBufSourceState *source; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
   unsigned int i; 
-  __int64 v38; 
-  unsigned int v43; 
-  GfxCmdBufState *v46; 
-  unsigned int v54; 
-  const R_RT_Surface *v55; 
+  __m256i m_halfSceneAlphaRt; 
+  __int64 v21; 
+  __int64 v22; 
+  unsigned int v24; 
+  R_RT_Handle v25; 
+  GfxCmdBufState *v26; 
+  GfxCmdBufSourceState *v28; 
+  unsigned int v30; 
+  const R_RT_Surface *v31; 
   unsigned int j; 
-  unsigned int v69; 
-  const R_RT_Surface *v70; 
-  __int64 v76; 
-  unsigned int v90; 
-  const R_RT_Surface *v91; 
-  float fmt; 
+  GfxCmdBufSourceState *v34; 
+  unsigned int v36; 
+  const R_RT_Surface *v37; 
+  __m256i m_mainSceneAlphaRt; 
+  R_RT_Handle m_mainSceneDepthRt; 
+  __m256i m_mainSceneTangentFrameRt; 
+  __int64 v41; 
+  GfxCmdBufSourceState *v46; 
+  unsigned int v48; 
+  const R_RT_Surface *v49; 
   R_RT_Handle result; 
-  R_RT_Handle v97; 
-  const GfxViewInfo *v98; 
-  R_RT_Group v99; 
+  R_RT_Handle m_halfSceneDepthRt; 
+  const GfxViewInfo *v53; 
+  R_RT_Group v54; 
+  __m256i m_msaaSceneColorRt; 
+  __m256i v56; 
+  __m256i m_mainSceneEntityIDVelocityRt; 
+  __m256i v58; 
   vec4_t unpackedRgba; 
+  __m256i v60; 
+  vec4_t v61; 
 
-  v98 = viewInfo;
-  _R13 = viewInfo;
+  v53 = viewInfo;
+  v3 = viewInfo;
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 1423, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo") )
     __debugbreak();
   R_LockGfxImmediateContext();
   state = gfxContext->state;
   R_ProfBeginNamedEvent(state, "R_SetAndClearSceneTarget");
   R_ResetRenderTargets(state);
-  _R12 = 0i64;
+  v6 = 0i64;
   if ( rg.vrsEmissiveOnly )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r13+31C0h]
-      vmovups ymm1, ymmword ptr [r13+31E0h]
-      vmovups [rbp+160h+var_100], ymm0
-      vmovups ymm0, ymmword ptr [r13+3200h]
-      vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0
-      vmovups [rbp+160h+var_E0], ymm1
-    }
-    v99.m_colorRtCount = 2;
-    v10 = 2i64;
-    _RBX = 0i64;
+    m_msaaSceneAlphaRt = (__m256i)v3->sceneRtInput.m_msaaSceneAlphaRt;
+    m_msaaSceneColorRt = (__m256i)v3->sceneRtInput.m_msaaSceneColorRt;
+    result = (R_RT_Handle)v3->sceneRtInput.m_msaaSceneDepthRt;
+    v56 = m_msaaSceneAlphaRt;
+    v54.m_colorRtCount = 2;
+    v8 = 2i64;
+    v9 = 0i64;
     do
     {
-      __asm
+      m_halfSceneDepthRt = *(R_RT_Handle *)((char *)&m_msaaSceneColorRt + v9 * 32);
+      if ( LOWORD(_XMM0.source) )
       {
-        vmovups ymm0, [rbp+rbx+160h+var_100]
-        vmovd   eax, xmm0
-        vmovups ymmword ptr [rsp+260h+var_200.m_surfaceID], ymm0
-      }
-      if ( (_WORD)_EAX )
-      {
-        R_RT_Handle::GetSurface(&v97);
+        R_RT_Handle::GetSurface(&m_halfSceneDepthRt);
       }
       else
       {
@@ -10127,113 +7571,69 @@ void R_SetAndClearSceneTarget(GfxCmdBufContext *gfxContext, const GfxViewInfo *v
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups ymm0, [rbp+rbx+160h+var_100]
-        vmovups ymmword ptr [rbp+rbx+160h+var_1D0.m_colorRts.baseclass_0.m_surfaceID], ymm0
-      }
-      _RBX += 32i64;
-      --v10;
+      v54.m_colorRts[v9] = *(R_RT_ColorHandle *)((char *)&m_msaaSceneColorRt + v9 * 32);
+      ++v9;
+      --v8;
     }
-    while ( v10 );
-    v16 = 0;
-    _RSI = gfxContext;
-    __asm
+    while ( v8 );
+    v11 = 0;
+    m_depthRt = result;
+    v54.m_depthRt = (R_RT_DepthHandle)result;
+    if ( v54.m_colorRtCount )
     {
-      vmovups ymm0, ymmword ptr [rsp+260h+result.m_surfaceID]
-      vmovups ymmword ptr [rbp+160h+var_1D0.m_depthRt.baseclass_0.m_surfaceID], ymm0
-    }
-    if ( v99.m_colorRtCount )
-    {
-      v19 = gfxContext->state;
+      v13 = gfxContext->state;
       do
       {
-        _RAX = 32i64 * v16;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+rax+160h+var_1D0.m_colorRts.baseclass_0.m_surfaceID]
-          vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0
-        }
-        R_AddRenderTargetTransition(v19, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-        ++v16;
+        result = (R_RT_Handle)v54.m_colorRts[v11];
+        R_AddRenderTargetTransition(v13, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        ++v11;
       }
-      while ( v16 < v99.m_colorRtCount );
-      __asm { vmovups ymm0, ymmword ptr [rbp+160h+var_1D0.m_depthRt.baseclass_0.m_surfaceID] }
+      while ( v11 < v54.m_colorRtCount );
+      m_depthRt = (R_RT_Handle)v54.m_depthRt;
     }
     state = gfxContext->state;
-    __asm { vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0 }
+    result = m_depthRt;
     R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&result, DEPTHSTENCIL_TRANSITION_MODE_WRITE_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovq   rdi, xmm0
-      vpextrq rsi, xmm0, 1
-    }
-    R_InitLocalCmdBufState(_RSI, &_RDI->input);
+    _XMM0 = *gfxContext;
+    source = gfxContext->source;
+    __asm { vpextrq rsi, xmm0, 1 }
+    R_InitLocalCmdBufState(_RSI, &gfxContext->source->input);
     R_ProfBeginNamedEvent(_RSI, "R_ClearRenderTarget");
-    _RAX = R_RT_Group::GetValidRt(&v99, &result);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+260h+var_200.m_surfaceID], ymm0
-    }
-    height = R_RT_Handle::GetSurface(&v97)->m_image.m_base.height;
-    Surface = R_RT_Handle::GetSurface(&v97);
-    R_SetRenderTargetSize(_RDI, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-    _RAX = gfxContext;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+260h+var_200.m_surfaceID], xmm0
-    }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v97, &v99, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1368)");
+    m_halfSceneDepthRt = *R_RT_Group::GetValidRt(&v54, &result);
+    height = R_RT_Handle::GetSurface(&m_halfSceneDepthRt)->m_image.m_base.height;
+    Surface = R_RT_Handle::GetSurface(&m_halfSceneDepthRt);
+    R_SetRenderTargetSize(source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
+    _XMM0 = *gfxContext;
+    *(GfxCmdBufContext *)&m_halfSceneDepthRt.m_surfaceID = *gfxContext;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&m_halfSceneDepthRt, &v54, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1368)");
     R_GPU_BeginTimer(GPU_TIMER_CLEAR_SCREEN);
     R_ClearScreen(_RSI, 0x3Fu, 0);
     R_GPU_EndTimer();
     R_ProfEndNamedEvent(_RSI);
-    R_ShutdownLocalCmdBufState(_RSI, &_RDI->input);
-    for ( i = 0; i < v99.m_colorRtCount; ++i )
+    R_ShutdownLocalCmdBufState(_RSI, &source->input);
+    for ( i = 0; i < v54.m_colorRtCount; ++i )
     {
-      _RAX = 32i64 * i;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+rax+160h+var_1D0.m_colorRts.baseclass_0.m_surfaceID]
-        vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0
-      }
+      result = (R_RT_Handle)v54.m_colorRts[i];
       R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+160h+var_1D0.m_depthRt.baseclass_0.m_surfaceID]
-      vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0
-    }
+    result = (R_RT_Handle)v54.m_depthRt;
     R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&result, DEPTHSTENCIL_TRANSITION_MODE_READ_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
   }
   if ( rg.halfResEmissive )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r13+3220h]
-      vmovups ymm1, ymmword ptr [r13+3240h]
-      vmovups [rbp+160h+var_100], ymm0
-      vmovups ymm0, ymmword ptr [r13+3260h]
-      vmovups ymmword ptr [rsp+260h+var_200.m_surfaceID], ymm0
-      vmovups [rbp+160h+var_E0], ymm1
-    }
-    v99.m_colorRtCount = 2;
-    _RBX = 0i64;
-    v38 = 2i64;
+    m_halfSceneAlphaRt = (__m256i)v3->sceneRtInput.m_halfSceneAlphaRt;
+    m_msaaSceneColorRt = (__m256i)v3->sceneRtInput.m_halfSceneColorRt;
+    m_halfSceneDepthRt = (R_RT_Handle)v3->sceneRtInput.m_halfSceneDepthRt;
+    v56 = m_halfSceneAlphaRt;
+    v54.m_colorRtCount = 2;
+    v21 = 0i64;
+    v22 = 2i64;
     do
     {
-      __asm
-      {
-        vmovups ymm0, [rbp+rbx+160h+var_100]
-        vmovd   eax, xmm0
-        vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0
-      }
-      if ( (_WORD)_EAX )
+      result = *(R_RT_Handle *)((char *)&m_msaaSceneColorRt + v21 * 32);
+      if ( LOWORD(_XMM0.source) )
       {
         R_RT_Handle::GetSurface(&result);
       }
@@ -10245,157 +7645,96 @@ void R_SetAndClearSceneTarget(GfxCmdBufContext *gfxContext, const GfxViewInfo *v
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
           __debugbreak();
       }
-      __asm
-      {
-        vmovups ymm0, [rbp+rbx+160h+var_100]
-        vmovups ymmword ptr [rbp+rbx+160h+var_1D0.m_colorRts.baseclass_0.m_surfaceID], ymm0
-      }
-      _RBX += 32i64;
-      --v38;
+      v54.m_colorRts[v21] = *(R_RT_ColorHandle *)((char *)&m_msaaSceneColorRt + v21 * 32);
+      ++v21;
+      --v22;
     }
-    while ( v38 );
-    v43 = 0;
-    _R13 = v98;
-    __asm { vmovups ymm0, ymmword ptr [rsp+260h+var_200.m_surfaceID] }
-    _RSI = gfxContext;
-    __asm { vmovups ymmword ptr [rbp+160h+var_1D0.m_depthRt.baseclass_0.m_surfaceID], ymm0 }
-    if ( v99.m_colorRtCount )
+    while ( v22 );
+    v24 = 0;
+    v3 = v53;
+    v25 = m_halfSceneDepthRt;
+    v54.m_depthRt = (R_RT_DepthHandle)m_halfSceneDepthRt;
+    if ( v54.m_colorRtCount )
     {
-      v46 = gfxContext->state;
+      v26 = gfxContext->state;
       do
       {
-        _RAX = 32i64 * v43;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+rax+160h+var_1D0.m_colorRts.baseclass_0.m_surfaceID]
-          vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0
-        }
-        R_AddRenderTargetTransition(v46, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-        ++v43;
+        result = (R_RT_Handle)v54.m_colorRts[v24];
+        R_AddRenderTargetTransition(v26, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+        ++v24;
       }
-      while ( v43 < v99.m_colorRtCount );
-      __asm { vmovups ymm0, ymmword ptr [rbp+160h+var_1D0.m_depthRt.baseclass_0.m_surfaceID] }
+      while ( v24 < v54.m_colorRtCount );
+      v25 = (R_RT_Handle)v54.m_depthRt;
     }
     state = gfxContext->state;
-    __asm { vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0 }
+    result = v25;
     R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&result, DEPTHSTENCIL_TRANSITION_MODE_WRITE_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovq   rdi, xmm0
-      vpextrq rsi, xmm0, 1
-    }
-    R_InitLocalCmdBufState(_RSI, &_RDI->input);
+    _XMM0 = *gfxContext;
+    v28 = gfxContext->source;
+    __asm { vpextrq rsi, xmm0, 1 }
+    R_InitLocalCmdBufState(_RSI, &gfxContext->source->input);
     R_ProfBeginNamedEvent(_RSI, "R_ClearRenderTarget");
-    _RAX = R_RT_Group::GetValidRt(&v99, &result);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+260h+var_200.m_surfaceID], ymm0
-    }
-    v54 = R_RT_Handle::GetSurface(&v97)->m_image.m_base.height;
-    v55 = R_RT_Handle::GetSurface(&v97);
-    R_SetRenderTargetSize(_RDI, v55->m_image.m_base.width, v54, GFX_USE_VIEWPORT_FOR_VIEW);
-    _RAX = gfxContext;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+260h+var_200.m_surfaceID], xmm0
-    }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v97, &v99, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1368)");
+    m_halfSceneDepthRt = *R_RT_Group::GetValidRt(&v54, &result);
+    v30 = R_RT_Handle::GetSurface(&m_halfSceneDepthRt)->m_image.m_base.height;
+    v31 = R_RT_Handle::GetSurface(&m_halfSceneDepthRt);
+    R_SetRenderTargetSize(v28, v31->m_image.m_base.width, v30, GFX_USE_VIEWPORT_FOR_VIEW);
+    _XMM0 = *gfxContext;
+    *(GfxCmdBufContext *)&m_halfSceneDepthRt.m_surfaceID = *gfxContext;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&m_halfSceneDepthRt, &v54, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1368)");
     R_GPU_BeginTimer(GPU_TIMER_CLEAR_SCREEN);
     R_ClearScreen(_RSI, 0x3Fu, 0);
     R_GPU_EndTimer();
     R_ProfEndNamedEvent(_RSI);
-    R_ShutdownLocalCmdBufState(_RSI, &_RDI->input);
-    for ( j = 0; j < v99.m_colorRtCount; ++j )
+    R_ShutdownLocalCmdBufState(_RSI, &v28->input);
+    for ( j = 0; j < v54.m_colorRtCount; ++j )
     {
-      _RAX = 32i64 * j;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbp+rax+160h+var_1D0.m_colorRts.baseclass_0.m_surfaceID]
-        vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0
-      }
+      result = (R_RT_Handle)v54.m_colorRts[j];
       R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+160h+var_1D0.m_depthRt.baseclass_0.m_surfaceID]
-      vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0
-    }
+    result = (R_RT_Handle)v54.m_depthRt;
     R_AddDepthStencilTransition(state, (R_RT_DepthHandle *)&result, DEPTHSTENCIL_TRANSITION_MODE_READ_PRESERVE_COMPRESSION, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
   }
   if ( rg.debugOverdrawOverlay )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r13+3180h]
-      vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0
-    }
+    result = (R_RT_Handle)v3->sceneRtInput.m_mainSceneOverdrawRt;
     R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
     R_FlushResourceTransitions(state);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r13+3180h]
-      vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0
-    }
-    R_RT_Group::AssignColor(&v99, (R_RT_ColorHandle *)&result);
-    _R15 = gfxContext;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15]
-      vmovq   rdi, xmm0
-      vpextrq rsi, xmm0, 1
-    }
-    R_InitLocalCmdBufState(_RSI, &_RDI->input);
+    result = (R_RT_Handle)v3->sceneRtInput.m_mainSceneOverdrawRt;
+    R_RT_Group::AssignColor(&v54, (R_RT_ColorHandle *)&result);
+    _XMM0 = *gfxContext;
+    v34 = gfxContext->source;
+    __asm { vpextrq rsi, xmm0, 1 }
+    R_InitLocalCmdBufState(_RSI, &gfxContext->source->input);
     R_ProfBeginNamedEvent(_RSI, "R_ClearRenderTarget");
-    _RAX = R_RT_Group::GetValidRt(&v99, &result);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+260h+var_200.m_surfaceID], ymm0
-    }
-    v69 = R_RT_Handle::GetSurface(&v97)->m_image.m_base.height;
-    v70 = R_RT_Handle::GetSurface(&v97);
-    R_SetRenderTargetSize(_RDI, v70->m_image.m_base.width, v69, GFX_USE_VIEWPORT_FOR_VIEW);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15]
-      vmovups xmmword ptr [rsp+260h+var_200.m_surfaceID], xmm0
-    }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v97, &v99, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1368)");
+    m_halfSceneDepthRt = *R_RT_Group::GetValidRt(&v54, &result);
+    v36 = R_RT_Handle::GetSurface(&m_halfSceneDepthRt)->m_image.m_base.height;
+    v37 = R_RT_Handle::GetSurface(&m_halfSceneDepthRt);
+    R_SetRenderTargetSize(v34, v37->m_image.m_base.width, v36, GFX_USE_VIEWPORT_FOR_VIEW);
+    _XMM0 = *gfxContext;
+    *(GfxCmdBufContext *)&m_halfSceneDepthRt.m_surfaceID = *gfxContext;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&m_halfSceneDepthRt, &v54, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1368)");
     R_GPU_BeginTimer(GPU_TIMER_CLEAR_SCREEN);
     R_ClearScreen(_RSI, 0xFu, 0);
     R_GPU_EndTimer();
     R_ProfEndNamedEvent(_RSI);
-    R_ShutdownLocalCmdBufState(_RSI, &_RDI->input);
+    R_ShutdownLocalCmdBufState(_RSI, &v34->input);
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r13+30C0h]
-    vmovups ymm1, ymmword ptr [r13+30E0h]
-    vmovups [rbp+160h+var_100], ymm0
-    vmovups ymm0, ymmword ptr [r13+3140h]
-    vmovups [rbp+160h+var_C0], ymm0
-    vmovups ymm0, ymmword ptr [r13+31A0h]
-    vmovups [rbp+160h+var_E0], ymm1
-    vmovups ymm1, ymmword ptr [r13+3160h]
-    vmovups ymmword ptr [rsp+260h+var_200.m_surfaceID], ymm0
-    vmovups [rbp+160h+var_A0], ymm1
-  }
-  v99.m_colorRtCount = 4;
-  v76 = 4i64;
+  m_mainSceneAlphaRt = (__m256i)v3->sceneRtInput.m_mainSceneAlphaRt;
+  m_msaaSceneColorRt = (__m256i)v3->sceneRtInput.m_mainSceneColorRt;
+  m_mainSceneEntityIDVelocityRt = (__m256i)v3->sceneRtInput.m_mainSceneEntityIDVelocityRt;
+  m_mainSceneDepthRt = (R_RT_Handle)v3->sceneRtInput.m_mainSceneDepthRt;
+  v56 = m_mainSceneAlphaRt;
+  m_mainSceneTangentFrameRt = (__m256i)v3->sceneRtInput.m_mainSceneTangentFrameRt;
+  m_halfSceneDepthRt = m_mainSceneDepthRt;
+  v58 = m_mainSceneTangentFrameRt;
+  v54.m_colorRtCount = 4;
+  v41 = 4i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, [rbp+r12+160h+var_100]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+260h+result.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
+    result = *(R_RT_Handle *)((char *)&m_msaaSceneColorRt + v6 * 32);
+    if ( LOWORD(_XMM0.source) )
     {
       R_RT_Handle::GetSurface(&result);
     }
@@ -10407,59 +7746,33 @@ void R_SetAndClearSceneTarget(GfxCmdBufContext *gfxContext, const GfxViewInfo *v
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
         __debugbreak();
     }
-    __asm
-    {
-      vmovups ymm0, [rbp+r12+160h+var_100]
-      vmovups ymmword ptr [rbp+r12+160h+var_1D0.m_colorRts.baseclass_0.m_surfaceID], ymm0
-    }
-    _R12 += 32i64;
-    --v76;
+    v54.m_colorRts[v6] = *(R_RT_ColorHandle *)((char *)&m_msaaSceneColorRt + v6 * 32);
+    ++v6;
+    --v41;
   }
-  while ( v76 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+260h+var_200.m_surfaceID]
-    vmovups ymmword ptr [rbp+160h+var_1D0.m_depthRt.baseclass_0.m_surfaceID], ymm0
-  }
-  R_GetClearColor(_R13, &unpackedRgba);
-  __asm { vmovups xmm0, xmmword ptr cs:?colorZero@@3Tvec4_t@@B; vec4_t const colorZero }
-  _R15 = gfxContext;
-  __asm
-  {
-    vinsertf128 ymm0, ymm0, xmm0, 1
-    vmovups [rbp+160h+var_70], ymm0
-    vmovups [rbp+160h+var_50], xmm0
-    vmovups xmm1, xmmword ptr [r15]
-    vmovq   rdi, xmm1
-    vpextrq rsi, xmm1, 1
-  }
-  R_InitLocalCmdBufState(_RSI, &_RDI->input);
+  while ( v41 );
+  v54.m_depthRt = (R_RT_DepthHandle)m_halfSceneDepthRt;
+  R_GetClearColor(v3, &unpackedRgba);
+  _YMM0 = (__m256i)(unsigned __int128)colorZero;
+  __asm { vinsertf128 ymm0, ymm0, xmm0, 1 }
+  v60 = _YMM0;
+  v61 = colorZero;
+  _XMM1 = *gfxContext;
+  v46 = gfxContext->source;
+  __asm { vpextrq rsi, xmm1, 1 }
+  R_InitLocalCmdBufState(_RSI, &gfxContext->source->input);
   R_ProfBeginNamedEvent(_RSI, "R_ClearRenderTargetLegacySlow");
-  _RAX = R_RT_Group::GetValidRt(&v99, &result);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+260h+var_200.m_surfaceID], ymm0
-  }
-  v90 = R_RT_Handle::GetSurface(&v97)->m_image.m_base.height;
-  v91 = R_RT_Handle::GetSurface(&v97);
-  R_SetRenderTargetSize(_RDI, v91->m_image.m_base.width, v90, GFX_USE_VIEWPORT_FOR_VIEW);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vmovups xmmword ptr [rsp+260h+var_200.m_surfaceID], xmm0
-  }
-  R_SetRenderTargetsInternal((GfxCmdBufContext *)&v97, &v99, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1410)");
+  m_halfSceneDepthRt = *R_RT_Group::GetValidRt(&v54, &result);
+  v48 = R_RT_Handle::GetSurface(&m_halfSceneDepthRt)->m_image.m_base.height;
+  v49 = R_RT_Handle::GetSurface(&m_halfSceneDepthRt);
+  R_SetRenderTargetSize(v46, v49->m_image.m_base.width, v48, GFX_USE_VIEWPORT_FOR_VIEW);
+  *(GfxCmdBufContext *)&m_halfSceneDepthRt.m_surfaceID = *gfxContext;
+  R_SetRenderTargetsInternal((GfxCmdBufContext *)&m_halfSceneDepthRt, &v54, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(1410)");
   R_GPU_BeginTimer(GPU_TIMER_CLEAR_SCREEN);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+260h+fmt], xmm0
-  }
-  R_ClearScreenLegacySlow(_RSI, 0x3Fu, &unpackedRgba, 4u, fmt, 0);
+  R_ClearScreenLegacySlow(_RSI, 0x3Fu, &unpackedRgba, 4u, 0.0, 0);
   R_GPU_EndTimer();
   R_ProfEndNamedEvent(_RSI);
-  R_ShutdownLocalCmdBufState(_RSI, &_RDI->input);
+  R_ShutdownLocalCmdBufState(_RSI, &v46->input);
   R_ProfEndNamedEvent(gfxContext->state);
   R_UnlockGfxImmediateContext();
 }
@@ -10485,56 +7798,31 @@ R_Shadow_DrawOverlay
 */
 void R_Shadow_DrawOverlay(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, int overlayStyle, const R_RT_Handle *shadowCascades, unsigned int cascadeCount, const R_RT_Handle *viewmodelShadowCascade, const R_RT_ColorHandle *spotshadowsStaleCacheRt, const R_RT_DepthHandle *sunshadowCacheRt, R_RT_BufferHandle *compressedSunCascades, R_RT_BufferHandle *csmPrepass, const R_RT_ColorHandle *sunshadowTranslucentMask)
 {
-  GfxCmdBufContext v29; 
-  R_RT_ColorHandle v30; 
-  R_RT_Handle v31; 
-  R_RT_Handle v32; 
-  R_RT_BufferHandle v33; 
+  GfxCmdBufContext v15; 
+  GfxCmdBufContext v17; 
+  R_RT_ColorHandle v18; 
+  R_RT_Handle spotshadowActiveCache; 
+  R_RT_Handle v20; 
+  R_RT_BufferHandle v21; 
 
-  _RDI = viewInfo;
-  _RSI = gfxContext;
   if ( (unsigned int)(overlayStyle - 1) > 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 4818, ASSERT_TYPE_ASSERT, "( ( overlayStyle >= GFX_SM_OVERLAY_SUN && overlayStyle < GFX_SM_OVERLAY_COUNT ) )", "( overlayStyle ) = %i", overlayStyle) )
     __debugbreak();
   if ( overlayStyle > 4 )
   {
-    __asm { vmovups ymm0, ymmword ptr [rdi+6420h] }
-    _RAX = spotshadowsStaleCacheRt;
-    __asm
-    {
-      vmovups [rsp+0E8h+var_68], ymm0
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups ymm1, ymmword ptr [rax]
-      vmovups [rsp+0E8h+var_88], ymm1
-      vmovups [rsp+0E8h+var_98], xmm0
-    }
-    R_SpotShadow_DrawOverlay(&v29, overlayStyle, &v30, (const R_RT_DepthHandle *)&v31);
+    spotshadowActiveCache = (R_RT_Handle)viewInfo->spotshadowActiveCache;
+    v15 = *gfxContext;
+    v18 = *spotshadowsStaleCacheRt;
+    v17 = v15;
+    R_SpotShadow_DrawOverlay(&v17, overlayStyle, &v18, (const R_RT_DepthHandle *)&spotshadowActiveCache);
   }
   else
   {
-    _RAX = sunshadowTranslucentMask;
-    __asm { vmovups ymm0, ymmword ptr [rax] }
-    _RAX = csmPrepass;
-    __asm
-    {
-      vmovups [rsp+0E8h+var_48], ymm0
-      vmovups ymm1, ymmword ptr [rax]
-    }
-    _RAX = sunshadowCacheRt;
-    __asm
-    {
-      vmovups [rsp+0E8h+var_28], ymm1
-      vmovups ymm0, ymmword ptr [rax]
-    }
-    _RAX = viewmodelShadowCascade;
-    __asm
-    {
-      vmovups [rsp+0E8h+var_88], ymm0
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+0E8h+var_98], xmm0
-      vmovups ymm1, ymmword ptr [rax]
-      vmovups [rsp+0E8h+var_68], ymm1
-    }
-    R_Sunshadow_DrawOverlay(&v29, _RDI, overlayStyle, shadowCascades, cascadeCount, &v31, (const R_RT_DepthHandle *)&v30, compressedSunCascades, &v33, &v32);
+    v20 = sunshadowTranslucentMask->R_RT_Handle;
+    v21 = *csmPrepass;
+    v18 = *(R_RT_ColorHandle *)sunshadowCacheRt;
+    v17 = *gfxContext;
+    spotshadowActiveCache = *viewmodelShadowCascade;
+    R_Sunshadow_DrawOverlay(&v17, viewInfo, overlayStyle, shadowCascades, cascadeCount, &spotshadowActiveCache, (const R_RT_DepthHandle *)&v18, compressedSunCascades, &v21, &v20);
   }
 }
 
@@ -10656,74 +7944,61 @@ R_ShowTris_Draw
 void R_ShowTris_Draw(const GfxViewInfo *viewInfo, const GfxBackEndData *data, const R_RT_Group *rtGroup, R_SHOW_TRIS showTris)
 {
   signed __int64 v4; 
-  void *v6; 
+  void *v5; 
+  __int128 v10; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
   unsigned int mtlFlagsFilter; 
   GfxDrawListType i; 
-  unsigned int v19; 
-  R_RT_Handle v21; 
-  __int64 v22; 
+  unsigned int v15; 
+  R_RT_Handle v16; 
+  __int64 v17; 
   R_RT_Handle result; 
   GfxDrawListIter drawListIter; 
   GfxCmdBufStateLocal state; 
-  GfxCmdBufSourceStateLocal v26; 
+  GfxCmdBufSourceStateLocal v21; 
   GfxDrawCallOutput cmdBuf; 
 
-  v6 = alloca(v4);
-  v22 = -2i64;
-  __asm { vmovaps [rsp+7730h+var_30], xmm6 }
+  v5 = alloca(v4);
+  v17 = -2i64;
   if ( showTris == R_SHOW_TRIS_NONE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 777, ASSERT_TYPE_ASSERT, "(showTris != R_SHOW_TRIS_NONE)", (const char *)&queryFormat, "showTris != R_SHOW_TRIS_NONE") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFC0C0C0, "ShowTris");
   cmdBuf.empty = 0;
   R_InitContext(data, &cmdBuf.cmdBuf);
-  GfxCmdBufSourceStateLocal::GfxCmdBufSourceStateLocal(&v26);
+  GfxCmdBufSourceStateLocal::GfxCmdBufSourceStateLocal(&v21);
   GfxCmdBufStateLocal::GfxCmdBufStateLocal(&state);
-  if ( R_DrawListStart(&state, &v26, viewInfo, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms, &cmdBuf) )
+  if ( R_DrawListStart(&state, &v21, viewInfo, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms, &cmdBuf) )
   {
-    *(_QWORD *)&v21.m_surfaceID = &v26;
-    *(_QWORD *)&v21.m_tracking.m_allocCounter = &state;
+    *(_QWORD *)&v16.m_surfaceID = &v21;
+    *(_QWORD *)&v16.m_tracking.m_allocCounter = &state;
     R_ProfBeginNamedEvent(&state, "ShowTris");
-    R_GP_SetScenePassIndex(&v26, viewInfo->input.data, 0);
-    v26.viewStatsTarget = GFX_VIEW_STATS_EMISSIVE;
-    __asm
-    {
-      vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-      vmovups xmmword ptr [rbp+7630h+var_51A0.baseclass_0.input.consts+0E0h], xmm0
-    }
-    ++v26.constVersions[14];
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rsp+7730h+var_7700.m_surfaceID]
-      vmovdqa xmmword ptr [rsp+7730h+var_7700.m_surfaceID], xmm6
-    }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v21, rtGroup, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(803)");
-    _RAX = R_RT_Group::GetValidRt((R_RT_Group *)rtGroup, &result);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+7730h+var_7700.m_surfaceID], ymm0
-    }
-    height = R_RT_Handle::GetSurface(&v21)->m_image.m_base.height;
-    Surface = R_RT_Handle::GetSurface(&v21);
-    R_SetRenderTargetSize(&v26, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-    R_SetViewportStruct(&v26, &viewInfo->sceneGeoViewport);
-    R_Set3D(&v26);
-    __asm { vmovdqa xmmword ptr [rsp+7730h+var_7700.m_surfaceID], xmm6 }
-    R_HW_EnableScissor((GfxCmdBufContext *)&v21, &viewInfo->scissorGeoViewport);
+    R_GP_SetScenePassIndex(&v21, viewInfo->input.data, 0);
+    v21.viewStatsTarget = GFX_VIEW_STATS_EMISSIVE;
+    v21.input.consts[14] = (vec4_t)_xmm;
+    ++v21.constVersions[14];
+    v10 = *(_OWORD *)&v16.m_surfaceID;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v16, rtGroup, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(803)");
+    v16 = *R_RT_Group::GetValidRt((R_RT_Group *)rtGroup, &result);
+    height = R_RT_Handle::GetSurface(&v16)->m_image.m_base.height;
+    Surface = R_RT_Handle::GetSurface(&v16);
+    R_SetRenderTargetSize(&v21, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
+    R_SetViewportStruct(&v21, &viewInfo->sceneGeoViewport);
+    R_Set3D(&v21);
+    *(_OWORD *)&v16.m_surfaceID = v10;
+    R_HW_EnableScissor((GfxCmdBufContext *)&v16, &viewInfo->scissorGeoViewport);
     if ( showTris == R_SHOW_TRIS_CAMERA_NEEDS_REFRACTION )
     {
-      v26.mtlFlagsFilter = 1;
+      v21.mtlFlagsFilter = 1;
     }
     else
     {
-      mtlFlagsFilter = v26.mtlFlagsFilter;
+      mtlFlagsFilter = v21.mtlFlagsFilter;
       if ( showTris == R_SHOW_TRIS_CAMERA_NEEDS_SSR_FX_DISTORT )
         mtlFlagsFilter = 2;
-      v26.mtlFlagsFilter = mtlFlagsFilter;
+      v21.mtlFlagsFilter = mtlFlagsFilter;
     }
-    R_SetInputWorldDefaults(&v26.input);
+    R_SetInputWorldDefaults(&v21.input);
     RB_UpdatePersistentTables(viewInfo, data, PERSISTENT_TABLE_SHOWTRIS);
     R_SetGfxDescriptorTable(&state, (const GfxDescriptorTable *)data->globalPersistentBufferTable + 1, 0xBu);
     R_SetGfxDescriptorTable(&state, (const GfxDescriptorTable *)data->globalPersistentTextureTable + 1, 0xCu);
@@ -10752,28 +8027,27 @@ void R_ShowTris_Draw(const GfxViewInfo *viewInfo, const GfxBackEndData *data, co
           case DRAWLIST_PREPASS_PRE_DEPTH_HACK_SSS_STENCIL:
             if ( state.depthRangeType != GFX_DEPTH_RANGE_VIEWMODEL )
               R_ChangeDepthRange(&state, GFX_DEPTH_RANGE_VIEWMODEL);
-            v19 = 1;
+            v15 = 1;
             break;
           default:
             if ( state.depthRangeType )
               R_ChangeDepthRange(&state, GFX_DEPTH_RANGE_SCENE);
-            v19 = 0;
+            v15 = 0;
             break;
         }
-        R_ChangeDepthHackNearClip(&v26, v19);
-        __asm { vmovdqa xmmword ptr [rsp+7730h+var_7700.m_surfaceID], xmm6 }
-        R_DrawSurfs_Unsorted((GfxCmdBufContext *)&v21, &drawListIter, TECHNIQUE_WIREFRAME_SOLID, i);
+        R_ChangeDepthHackNearClip(&v21, v15);
+        *(_OWORD *)&v16.m_surfaceID = v10;
+        R_DrawSurfs_Unsorted((GfxCmdBufContext *)&v16, &drawListIter, TECHNIQUE_WIREFRAME_SOLID, i);
       }
     }
     R_HW_DisableScissor(&state);
     R_ProfEndNamedEvent(&state);
-    __asm { vmovdqa xmmword ptr [rsp+7730h+var_7700.m_surfaceID], xmm6 }
-    R_DrawListEnd((GfxCmdBufContext *)&v21, &cmdBuf);
+    *(_OWORD *)&v16.m_surfaceID = v10;
+    R_DrawListEnd((GfxCmdBufContext *)&v16, &cmdBuf);
   }
   Sys_ProfEndNamedEvent();
   GfxCmdBufStateLocal::~GfxCmdBufStateLocal(&state);
-  GfxCmdBufSourceStateLocal::~GfxCmdBufSourceStateLocal(&v26);
-  __asm { vmovaps xmm6, [rsp+7730h+var_30] }
+  GfxCmdBufSourceStateLocal::~GfxCmdBufSourceStateLocal(&v21);
 }
 
 /*
@@ -10796,88 +8070,48 @@ R_Umbra_ShowOcclusion
 */
 void R_Umbra_ShowOcclusion(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const GfxBackEndData *data, const GfxImage *umbraFloatZ)
 {
-  CmdBufState *state; 
-  __int64 v24; 
-  float fmt; 
-  float v32; 
-  float v33; 
-  float v34; 
-  float v35; 
-  float v36; 
-  GfxCmdBufContext v37; 
+  GfxCmdBufState *state; 
+  float v8; 
+  float v9; 
+  GfxCmdBufContext v10; 
+  GfxCmdBufSourceState *source; 
+  float renderTargetWidth; 
+  float renderTargetHeight; 
+  bool v14; 
+  float tanHalfFovY; 
+  GfxCmdBufInput *p_input; 
+  GfxCmdBufContext v17; 
 
-  _RSI = viewInfo;
-  _RDI = gfxContext;
   if ( r_umbraShowOverlayNDC->current.integer >= 1 && R_Umbra_GetOcclusionImageCameraView(data) )
   {
-    state = _RDI->state;
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_18], xmm6
-      vmovaps [rsp+0A8h+var_28], xmm7
-      vmovaps [rsp+0A8h+var_38], xmm8
-    }
+    state = gfxContext->state;
     R_ProfBeginNamedEvent(state, "Umbra Occlusion");
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi+148h]
-      vmovss  xmm3, dword ptr [rsi+14Ch]
-      vmovups xmm6, xmmword ptr [rdi]
-      vmovq   rdx, xmm6
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm7, xmm7, xmm7
-      vcvtsi2ss xmm7, xmm7, rax
-      vxorps  xmm8, xmm8, xmm8
-      vcvtsi2ss xmm8, xmm8, rax
-    }
-    *(_QWORD *)(_RDX + 4180) = 0i64;
-    *(_DWORD *)(_RDX + 4188) = 1061158912;
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, ecx
-      vmovss  dword ptr [rdx+1050h], xmm0
-    }
-    ++*(_WORD *)(_RDX + 10462);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+134h]
-      vmovss  xmm0, dword ptr [rsi+130h]
-      vmovss  dword ptr [rdx+1068h], xmm0
-      vmovss  dword ptr [rdx+106Ch], xmm1
-      vmovss  dword ptr [rdx+1060h], xmm2
-      vmovss  dword ptr [rdx+1064h], xmm3
-    }
-    ++*(_WORD *)(_RDX + 10464);
-    v24 = _RDX + 1792;
-    if ( _RDX == -1792 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    v8 = viewInfo->viewParmsSet.frames[0].viewParms.camera.zPlanes[2];
+    v9 = viewInfo->viewParmsSet.frames[0].viewParms.camera.zPlanes[3];
+    v10 = *gfxContext;
+    source = gfxContext->source;
+    renderTargetWidth = (float)gfxContext->source->renderTargetWidth;
+    renderTargetHeight = (float)gfxContext->source->renderTargetHeight;
+    v14 = r_umbraShowOverlayNDC->current.integer == 1;
+    *(_QWORD *)&source->input.consts[149].xyz.y = 0i64;
+    source->input.consts[149].v[3] = 0.75;
+    source->input.consts[149].v[0] = (float)!v14;
+    ++source->constVersions[149];
+    tanHalfFovY = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovY;
+    source->input.consts[150].v[2] = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovX;
+    source->input.consts[150].v[3] = tanHalfFovY;
+    source->input.consts[150].v[0] = v8;
+    source->input.consts[150].v[1] = v9;
+    ++source->constVersions[150];
+    p_input = &source->input;
+    if ( source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+0A8h+var_60], xmm0
-      vmovss  [rsp+0A8h+var_68], xmm0
-      vxorps  xmm2, xmm2, xmm2
-      vmovss  [rsp+0A8h+var_70], xmm2
-      vmovss  [rsp+0A8h+var_78], xmm2
-    }
-    *(_QWORD *)(v24 + 6176) = umbraFloatZ;
-    __asm
-    {
-      vmovss  dword ptr [rsp+0A8h+var_80], xmm8
-      vxorps  xmm3, xmm3, xmm3
-      vmovss  dword ptr [rsp+0A8h+fmt], xmm7
-      vmovdqa [rsp+0A8h+var_48], xmm6
-    }
-    RB_DrawStretchPic(&v37, rgp.umbraOverlay3d, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v32, v33, v34, v35, v36, 0xFFFFFFFF, GFX_PRIM_STATS_CODE);
-    __asm { vmovdqa [rsp+0A8h+var_48], xmm6 }
-    RB_EndTessSurfaceInternal(&v37, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4718)");
+    p_input->codeImages[4] = umbraFloatZ;
+    v17 = v10;
+    RB_DrawStretchPic(&v17, rgp.umbraOverlay3d, 0.0, 0.0, renderTargetWidth, renderTargetHeight, 0.0, 0.0, 1.0, 1.0, 0xFFFFFFFF, GFX_PRIM_STATS_CODE);
+    v17 = v10;
+    RB_EndTessSurfaceInternal(&v17, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp(4718)");
     R_ProfEndNamedEvent(state);
-    __asm
-    {
-      vmovaps xmm8, [rsp+0A8h+var_38]
-      vmovaps xmm7, [rsp+0A8h+var_28]
-      vmovaps xmm6, [rsp+0A8h+var_18]
-    }
   }
 }
 
@@ -10903,357 +8137,211 @@ R_UpdatePackedSceneLightConstants
 */
 void R_UpdatePackedSceneLightConstants(GfxBackEndData *data, const GfxViewInfo *viewInfo)
 {
-  unsigned int v25; 
+  double v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  unsigned int v9; 
   GfxWorld *world; 
-  char v37; 
-  int v38; 
-  bool v39; 
+  __int64 v11; 
+  GfxPackedLightConstants *v12; 
+  float v13; 
+  float v14; 
+  bool v15; 
+  int v16; 
   bool IsModifiedLight; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float tonemappingScaleFactor; 
+  float v27; 
+  float v28; 
   unsigned int flags; 
+  float v30; 
+  float v31; 
+  float heatIntensity; 
   unsigned int type; 
-  int v68; 
-  unsigned int v69; 
-  unsigned int v70; 
-  char v71; 
-  unsigned int v72; 
-  unsigned __int8 v91; 
-  bool v93; 
-  double v121; 
-  double v122; 
-  char v130; 
-  void *retaddr; 
+  int v34; 
+  unsigned int v35; 
+  unsigned int v36; 
+  float radius; 
+  float v38; 
+  GfxLightDef *def; 
+  float coordOffset; 
+  float coordScale; 
+  double v42; 
+  int v43; 
+  double v44; 
+  unsigned __int8 v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float cosHalfFovInner; 
+  float cosHalfFovOuter; 
+  float v52; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps [rsp+138h+var_C8], xmm15
-  }
-  _RAX = r_lightIntensityAutoScaleMax;
-  _R15 = viewInfo;
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vdivss  xmm0, xmm9, dword ptr [rdx+3858h]; val
-  }
-  _RSI = data;
-  __asm { vmovss  xmm2, dword ptr [rax+28h]; max }
-  _RAX = r_lightIntensityAutoScaleMin;
-  __asm { vmovss  xmm1, dword ptr [rax+28h]; min }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmulss  xmm15, xmm0, dword ptr [rax+28h] }
-  if ( !_RSI->packedSceneLightsUpdateCount )
-    memset_0(_RSI->packedSceneLights, 0, 96i64 * rgp.world->primaryLightCount);
-  __asm
-  {
-    vmovss  xmm12, dword ptr [r15+100h]
-    vmovss  xmm13, dword ptr [r15+104h]
-    vmovss  xmm14, dword ptr [r15+108h]
-  }
-  v25 = 1;
-  if ( _RSI->sceneLightCount > 1 )
+  v4 = I_fclamp(1.0 / viewInfo->tonemap.staticExposureLinear, r_lightIntensityAutoScaleMin->current.value, r_lightIntensityAutoScaleMax->current.value);
+  v5 = *(float *)&v4 * r_lightIntensityAutoScale->current.value;
+  if ( !data->packedSceneLightsUpdateCount )
+    memset_0(data->packedSceneLights, 0, 96i64 * rgp.world->primaryLightCount);
+  v6 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0];
+  v7 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1];
+  v8 = viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2];
+  v9 = 1;
+  if ( data->sceneLightCount > 1 )
   {
     world = rgp.world;
-    __asm
-    {
-      vmovaps [rsp+138h+var_38], xmm6
-      vmovaps [rsp+138h+var_88], xmm11
-      vmovss  xmm11, cs:__real@477fff00
-      vmovaps [rsp+138h+var_48], xmm7
-      vmovaps [rsp+138h+var_58], xmm8
-      vmovaps [rsp+138h+var_78], xmm10
-      vxorps  xmm6, xmm6, xmm6
-    }
     while ( 1 )
     {
-      if ( v25 >= world->firstMovingScriptablePrimaryLight && v25 < world->primaryLightCount )
+      if ( v9 >= world->firstMovingScriptablePrimaryLight && v9 < world->primaryLightCount )
         goto LABEL_47;
-      _RBP = v25;
-      _RDI = (__int64)&_RSI->packedSceneLights[v25];
-      if ( v25 >= world->primaryLightCount || R_IsPrimaryLightLoaded(_RSI, v25) )
+      v11 = v9;
+      v12 = &data->packedSceneLights[v9];
+      if ( v9 >= world->primaryLightCount || R_IsPrimaryLightLoaded(data, v9) )
       {
-        __asm
+        v13 = data->sceneLights[v11].origin.v[1];
+        v14 = data->sceneLights[v11].origin.v[2];
+        v12->pos.v[0] = data->sceneLights[v11].origin.v[0] - v6;
+        v12->pos.v[2] = v14 - v8;
+        v12->pos.v[1] = v13 - v7;
+        LOBYTE(v12->packed) = 0;
+        v15 = 1;
+        v16 = v12->packed | 0xFF;
+        v12->packed = v16;
+        if ( v9 < rgp.world->primaryLightCount )
         {
-          vmovss  xmm0, dword ptr [rsi+rbp+53A038h]
-          vmovss  xmm1, dword ptr [rsi+rbp+53A03Ch]
-          vsubss  xmm4, xmm0, xmm12
-          vmovss  xmm0, dword ptr [rsi+rbp+53A040h]
-          vmovss  dword ptr [rdi+30h], xmm4
-          vsubss  xmm2, xmm0, xmm14
-          vmovss  dword ptr [rdi+38h], xmm2
-          vsubss  xmm3, xmm1, xmm13
-          vmovss  dword ptr [rdi+34h], xmm3
+          IsModifiedLight = R_RadiantLive_IsModifiedLight(v9);
+          v15 = (v16 & 0x300) == 0 || IsModifiedLight;
         }
-        *(_BYTE *)(_RDI + 28) = 0;
-        v37 = 1;
-        v38 = *(_DWORD *)(_RDI + 28) | 0xFF;
-        *(_DWORD *)(_RDI + 28) = v38;
-        v39 = v25 <= rgp.world->primaryLightCount;
-        if ( v25 < rgp.world->primaryLightCount )
+        _XMM1 = LODWORD(data->sceneLights[v11].cosHalfFovCollimation);
+        __asm { vmaxss  xmm10, xmm1, cs:__real@3ae4c389 }
+        _XMM0 = LODWORD(data->sceneLights[v11].bulbRadius);
+        __asm { vmaxss  xmm8, xmm0, xmm9 }
+        v22 = (float)(data->sceneLights[v11].intensity / (float)((float)(1.0 - *(float *)&_XMM10) * (float)(1.0 - *(float *)&_XMM10))) * rg.diffuseColorScale;
+        *(float *)&_XMM1 = v22 * data->sceneLights[v11].colorLinearSrgb.v[0];
+        v23 = (float)(1.0 / *(float *)&_XMM8) * (float)(1.0 / *(float *)&_XMM8);
+        v24 = (float)(v22 * data->sceneLights[v11].colorLinearSrgb.v[1]) * v23;
+        v25 = (float)(v22 * data->sceneLights[v11].colorLinearSrgb.v[2]) * v23;
+        tonemappingScaleFactor = data->sceneLights[v11].tonemappingScaleFactor;
+        v27 = *(float *)&_XMM1 * v23;
+        if ( tonemappingScaleFactor > 0.0 )
         {
-          IsModifiedLight = R_RadiantLive_IsModifiedLight(v25);
-          v39 = (v38 & 0x300) == 0;
-          if ( (v38 & 0x300) == 0 || (v39 = !IsModifiedLight, IsModifiedLight) )
-          {
-            v37 = 1;
-          }
-          else
-          {
-            v37 = 0;
-            v39 = 1;
-          }
+          v28 = (float)(tonemappingScaleFactor * v5) + (float)(1.0 - tonemappingScaleFactor);
+          v27 = v28 * v27;
+          v24 = v28 * v24;
+          v25 = v28 * v25;
         }
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsi+rbp+53A088h]
-          vmaxss  xmm10, xmm1, cs:__real@3ae4c389
-          vmovss  xmm0, dword ptr [rsi+rbp+53A050h]
-          vmovss  xmm7, cs:?rg@@3Ur_globals_t@@A.diffuseColorScale; r_globals_t rg
-          vmaxss  xmm8, xmm0, xmm9
-          vsubss  xmm0, xmm9, xmm10
-          vmulss  xmm1, xmm0, xmm0
-          vmovss  xmm0, dword ptr [rsi+rbp+53A010h]
-          vdivss  xmm1, xmm0, xmm1
-          vmulss  xmm3, xmm1, xmm7
-          vmulss  xmm1, xmm3, dword ptr [rsi+rbp+53A014h]
-          vdivss  xmm0, xmm9, xmm8
-          vmulss  xmm2, xmm0, xmm0
-          vmulss  xmm0, xmm3, dword ptr [rsi+rbp+53A018h]
-          vmulss  xmm5, xmm0, xmm2
-          vmulss  xmm0, xmm3, dword ptr [rsi+rbp+53A01Ch]
-          vmulss  xmm3, xmm0, xmm2
-          vmovss  xmm0, dword ptr [rsi+rbp+53A070h]
-          vcomiss xmm0, xmm6
-          vmulss  xmm4, xmm1, xmm2
-        }
-        if ( !v39 )
-        {
-          __asm
-          {
-            vmulss  xmm1, xmm0, xmm15
-            vsubss  xmm0, xmm9, xmm0
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm4, xmm2, xmm4
-            vmulss  xmm5, xmm2, xmm5
-            vmulss  xmm3, xmm2, xmm3
-          }
-        }
-        flags = _RSI->sceneLights[_RBP].flags;
-        __asm
-        {
-          vmulss  xmm0, xmm7, dword ptr [rsi+rbp+53A004h]
-          vmulss  xmm1, xmm7, dword ptr [rsi+rbp+53A008h]
-          vmovss  xmm2, dword ptr [rsi+rbp+53A00Ch]
-        }
+        flags = data->sceneLights[v11].flags;
+        v30 = rg.diffuseColorScale * data->sceneLights[v11].uvIntensity;
+        v31 = rg.diffuseColorScale * data->sceneLights[v11].irIntensity;
+        heatIntensity = data->sceneLights[v11].heatIntensity;
         if ( (flags & 0x10) != 0 )
         {
-          __asm
-          {
-            vmovaps xmm4, xmm6
-            vmovaps xmm5, xmm6
-            vmovaps xmm3, xmm6
-            vmovaps xmm0, xmm6
-            vmovaps xmm1, xmm6
-            vmovaps xmm2, xmm6
-          }
+          v27 = 0.0;
+          v24 = 0.0;
+          v25 = 0.0;
+          v30 = 0.0;
+          v31 = 0.0;
+          heatIntensity = 0.0;
         }
         if ( (flags & 0x4000) == 0 )
-          __asm { vmulss  xmm0, xmm0, dword ptr [r15+0D6Ch] }
-        __asm
-        {
-          vmovss  dword ptr [rdi], xmm4
-          vmovss  dword ptr [rdi+4], xmm5
-          vmovss  dword ptr [rdi+8], xmm3
-          vmovss  dword ptr [rdi+50h], xmm0
-          vmovss  dword ptr [rdi+54h], xmm1
-          vmovss  dword ptr [rdi+58h], xmm2
-        }
-        if ( v37 )
+          v30 = v30 * viewInfo->lightUVIntensityScale;
+        v12->diffuse.v[0] = v27;
+        v12->diffuse.v[1] = v24;
+        v12->diffuse.v[2] = v25;
+        v12->intensityUvIrHeat.v[0] = v30;
+        v12->intensityUvIrHeat.v[1] = v31;
+        v12->intensityUvIrHeat.v[2] = heatIntensity;
+        if ( v15 )
           break;
       }
 LABEL_46:
       world = rgp.world;
 LABEL_47:
-      if ( ++v25 >= _RSI->sceneLightCount )
-      {
-        __asm
-        {
-          vmovaps xmm11, [rsp+138h+var_88]
-          vmovaps xmm10, [rsp+138h+var_78]
-          vmovaps xmm8, [rsp+138h+var_58]
-          vmovaps xmm7, [rsp+138h+var_48]
-          vmovaps xmm6, [rsp+138h+var_38]
-        }
-        goto LABEL_49;
-      }
+      if ( ++v9 >= data->sceneLightCount )
+        goto LABEL_48;
     }
-    type = _RSI->sceneLights[_RBP].type;
+    type = data->sceneLights[v11].type;
     if ( type > 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.h", 107, ASSERT_TYPE_ASSERT, "(inType <= 3)", (const char *)&queryFormat, "inType <= 3") )
       __debugbreak();
-    v68 = 0;
-    v69 = (type << 8) | *(_DWORD *)(_RDI + 28) & 0xFFFFFCFF;
-    *(_DWORD *)(_RDI + 28) = v69;
-    if ( v25 >= rgp.world->primaryLightCount )
-      v68 = 0x20000000;
-    v70 = v69 & 0xDFFFFFFF | v68;
-    *(_DWORD *)(_RDI + 28) = v70;
-    v71 = -_RSI->sceneLights[_RBP].isVolumetric;
-    v72 = v70 & 0xBFFFFFFF;
-    *(_DWORD *)(_RDI + 28) = v72 | (_RSI->sceneLights[_RBP].isVolumetric != 0 ? 0x40000000 : 0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+rbp+53A044h]
-      vcomiss xmm0, xmm6
-    }
-    if ( v72 | (v71 != 0 ? 0x40000000 : 0) )
-      __asm { vdivss  xmm7, xmm9, xmm0 }
+    v34 = 0;
+    v35 = (type << 8) | v12->packed & 0xFFFFFCFF;
+    v12->packed = v35;
+    if ( v9 >= rgp.world->primaryLightCount )
+      v34 = 0x20000000;
+    v36 = v35 & 0xDFFFFFFF | v34;
+    v12->packed = v36;
+    v12->packed = v36 & 0xBFFFFFFF | (data->sceneLights[v11].isVolumetric != 0 ? 0x40000000 : 0);
+    radius = data->sceneLights[v11].radius;
+    if ( radius <= 0.0 )
+      v38 = 0.0;
     else
-      __asm { vmovaps xmm7, xmm6 }
-    __asm { vucomiss xmm8, xmm6 }
-    if ( !(v72 | (v71 != 0 ? 0x40000000 : 0)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.h", 126, ASSERT_TYPE_ASSERT, "(inBulbRadius != 0.0f)", (const char *)&queryFormat, "inBulbRadius != 0.0f") )
+      v38 = 1.0 / radius;
+    if ( *(float *)&_XMM8 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.h", 126, ASSERT_TYPE_ASSERT, "(inBulbRadius != 0.0f)", (const char *)&queryFormat, "inBulbRadius != 0.0f") )
       __debugbreak();
-    *(float *)(_RDI + 32) = _RSI->sceneLights[_RBP].bulbLength.v[0];
-    *(float *)(_RDI + 36) = _RSI->sceneLights[_RBP].bulbLength.v[1];
-    *(float *)(_RDI + 40) = _RSI->sceneLights[_RBP].bulbLength.v[2];
-    __asm
+    v12->bulbDir.v[0] = data->sceneLights[v11].bulbLength.v[0];
+    v12->bulbDir.v[1] = data->sceneLights[v11].bulbLength.v[1];
+    v12->bulbDir.v[2] = data->sceneLights[v11].bulbLength.v[2];
+    v12->bulbRadius = *(float *)&_XMM8;
+    v12->pos.v[3] = v38;
+    v12->dir.v[0] = data->sceneLights[v11].dir.v[0];
+    v12->dir.v[1] = data->sceneLights[v11].dir.v[1];
+    v12->dir.v[2] = data->sceneLights[v11].dir.v[2];
+    v12->collimationOffset = (float)(*(float *)&_XMM10 * *(float *)&_XMM8) / fsqrt(1.0 - (float)(*(float *)&_XMM10 * *(float *)&_XMM10));
+    def = data->sceneLights[v11].def;
+    coordOffset = 0.0;
+    coordScale = 0.0;
+    if ( def && def->iesProfile )
     {
-      vmovss  dword ptr [rdi+2Ch], xmm8
-      vmovss  dword ptr [rdi+3Ch], xmm7
+      coordOffset = def->coordOffset;
+      coordScale = def->coordScale;
     }
-    *(float *)(_RDI + 16) = _RSI->sceneLights[_RBP].dir.v[0];
-    *(float *)(_RDI + 20) = _RSI->sceneLights[_RBP].dir.v[1];
-    *(float *)(_RDI + 24) = _RSI->sceneLights[_RBP].dir.v[2];
-    __asm
-    {
-      vmulss  xmm0, xmm10, xmm10
-      vsubss  xmm0, xmm9, xmm0
-      vsqrtss xmm1, xmm0, xmm0
-      vmulss  xmm2, xmm10, xmm8
-      vdivss  xmm2, xmm2, xmm1
-      vmovss  dword ptr [rdi+0Ch], xmm2
-    }
-    _RAX = _RSI->sceneLights[_RBP].def;
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm7, xmm6
-    }
-    if ( _RAX && _RAX->iesProfile )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+14h]
-        vmovss  xmm7, dword ptr [rax+18h]
-      }
-    }
-    __asm
-    {
-      vmulss  xmm0, xmm0, xmm11; val
-      vmovaps xmm2, xmm11; max
-      vmovaps xmm1, xmm6; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vcvttss2si ebx, xmm0
-      vmulss  xmm0, xmm7, xmm11; val
-      vmovaps xmm2, xmm11; max
-      vmovaps xmm1, xmm6; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vcvttss2si eax, xmm0 }
-    *(_DWORD *)(_RDI + 92) = (unsigned __int16)_EBX | ((unsigned __int16)_EAX << 16);
-    v91 = _RSI->sceneLights[_RBP].type;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovups [rsp+138h+var_E8], xmm0
-    }
-    v93 = v91 <= 2u;
-    if ( v91 == 2 )
+    v42 = I_fclamp(coordOffset * 65535.0, 0.0, 65535.0);
+    v43 = (int)*(float *)&v42;
+    v44 = I_fclamp(coordScale * 65535.0, 0.0, 65535.0);
+    v12->iesLookup = (unsigned __int16)v43 | ((unsigned __int16)(int)*(float *)&v44 << 16);
+    v45 = data->sceneLights[v11].type;
+    if ( v45 == 2 )
       goto LABEL_40;
-    if ( v91 != 3 )
+    if ( v45 != 3 )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsp+138h+var_E8+0Ch]
-        vmovss  xmm0, dword ptr [rsp+138h+var_E8+8]
-        vmovss  xmm5, dword ptr [rsp+138h+var_E8+4]
-        vmovss  xmm4, dword ptr [rsp+138h+var_E8]
-      }
+      v49 = 0.0;
+      v48 = 0.0;
+      v47 = 0.0;
+      v46 = 0.0;
 LABEL_45:
-      __asm
-      {
-        vmovss  dword ptr [rdi+40h], xmm4
-        vmovss  dword ptr [rdi+44h], xmm5
-        vmovss  dword ptr [rdi+48h], xmm0
-        vmovss  dword ptr [rdi+4Ch], xmm1
-      }
+      v12->spotFactors.v[0] = v46;
+      v12->spotFactors.v[1] = v47;
+      v12->spotFactors.v[2] = v48;
+      v12->spotFactors.v[3] = v49;
       goto LABEL_46;
     }
-    v93 = _RSI->sceneLights[_RBP].canUseShadowMap == 0;
-    if ( _RSI->sceneLights[_RBP].canUseShadowMap )
+    if ( data->sceneLights[v11].canUseShadowMap )
     {
 LABEL_40:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi+rbp+53A064h]
-        vmovss  xmm0, dword ptr [rsi+rbp+53A060h]
-        vcomiss xmm1, xmm0
-      }
-      if ( v93 )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+138h+var_F8], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+138h+var_100], xmm1
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 2694, ASSERT_TYPE_ASSERT, "( gfxLight->cosHalfFovInner ) > ( gfxLight->cosHalfFovOuter )", "%s > %s\n\t%g, %g", "gfxLight->cosHalfFovInner", "gfxLight->cosHalfFovOuter", v121, v122) )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rsi+rbp+53A060h]
-        vmovss  xmm0, dword ptr [rsi+rbp+53A064h]
-        vmulss  xmm2, xmm3, dword ptr [rsi+rbp+53A050h]
-        vsubss  xmm1, xmm0, xmm3
-        vdivss  xmm4, xmm9, xmm1
-        vmulss  xmm0, xmm4, xmm3
-        vxorps  xmm5, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm0, xmm3, xmm3
-        vsubss  xmm0, xmm9, xmm0
-        vsqrtss xmm1, xmm0, xmm0
-        vdivss  xmm0, xmm2, xmm1
-      }
+      cosHalfFovInner = data->sceneLights[v11].cosHalfFovInner;
+      cosHalfFovOuter = data->sceneLights[v11].cosHalfFovOuter;
+      if ( cosHalfFovInner <= cosHalfFovOuter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 2694, ASSERT_TYPE_ASSERT, "( gfxLight->cosHalfFovInner ) > ( gfxLight->cosHalfFovOuter )", "%s > %s\n\t%g, %g", "gfxLight->cosHalfFovInner", "gfxLight->cosHalfFovOuter", cosHalfFovInner, cosHalfFovOuter) )
+        __debugbreak();
+      v52 = data->sceneLights[v11].cosHalfFovOuter;
+      v46 = 1.0 / (float)(data->sceneLights[v11].cosHalfFovInner - v52);
+      LODWORD(v47) = COERCE_UNSIGNED_INT(v46 * v52) ^ _xmm;
+      v48 = (float)(v52 * data->sceneLights[v11].bulbRadius) / fsqrt(1.0 - (float)(v52 * v52));
     }
     else
     {
-      __asm
-      {
-        vmovaps xmm4, xmm6
-        vmovaps xmm5, xmm6
-        vmovaps xmm0, xmm6
-      }
+      v46 = 0.0;
+      v47 = 0.0;
+      v48 = 0.0;
     }
-    __asm { vdivss  xmm1, xmm9, dword ptr [rsi+rbp+53A084h] }
+    v49 = 1.0 / data->sceneLights[v11].distanceFalloff;
     goto LABEL_45;
   }
-LABEL_49:
-  ++_RSI->packedSceneLightsUpdateCount;
-  _R11 = &v130;
-  __asm
-  {
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, [rsp+138h+var_C8]
-  }
+LABEL_48:
+  ++data->packedSceneLightsUpdateCount;
 }
 
 /*
@@ -11263,187 +8351,96 @@ R_UpdatePackedSpotShadowConstants
 */
 void R_UpdatePackedSpotShadowConstants(GfxBackEndData *data, const GfxViewInfo *viewInfo)
 {
-  __int64 v19; 
+  const dvar_t *v2; 
+  float v5; 
+  __int64 v8; 
+  __m128 *v9; 
   __int64 sceneLightIndex; 
   __int64 cacheIndex; 
-  __int64 v27; 
-  __int64 v28; 
+  __int64 v12; 
+  __int64 v13; 
   unsigned int maxSpotShadowIndex; 
-  char v44; 
-  __int64 v82; 
-  double v83; 
-  __int64 v84; 
+  __m128 v15; 
+  __m256i v16; 
+  __m128 v17; 
+  float radius; 
+  float shadowSoftness; 
+  float shadowBias; 
+  float v21; 
+  __int64 v22; 
+  float zNear; 
+  float v24; 
+  __m128 v; 
+  int MapSize; 
+  signed int arraySliceIndex; 
+  __int64 v28; 
+  __int64 v29; 
   float4 result; 
   tmat44_t<vec4_t> in; 
   tmat44_t<vec4_t> out; 
 
-  __asm
-  {
-    vmovaps [rsp+1B8h+var_98], xmm12
-    vmovaps [rsp+1B8h+var_B8], xmm14
-  }
-  _RDI = r_spotLightShadowsPolygonOffset;
-  _RSI = viewInfo;
-  _RBX = data;
+  v2 = r_spotLightShadowsPolygonOffset;
   if ( !r_spotLightShadowsPolygonOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
+  Dvar_CheckFrontendServerThread(v2);
+  v5 = v2->current.value * 0.001;
+  _XMM0 = *(_OWORD *)viewInfo->viewParms.camera.origin.v;
+  __asm { vinsertps xmm14, xmm0, dword ptr cs:__xmm@3f8000003f8000003f8000003f800000+0Ch, 30h ; '0' }
+  v8 = 0i64;
+  for ( data->maxSpotShadowIndex = 0; (unsigned int)v8 < data->spotShadowCount; data->packedShadowLights[v22].params0.v[3] = (float)arraySliceIndex + _mm_shuffle_ps(v, v, 170).m128_f32[0] )
   {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmulss  xmm12, xmm0, cs:__real@3a83126f
-    vmovups xmm0, xmmword ptr [rsi+100h]
-    vinsertps xmm14, xmm0, dword ptr cs:__xmm@3f8000003f8000003f8000003f800000+0Ch, 30h ; '0'
-  }
-  v19 = 0i64;
-  _RBX->maxSpotShadowIndex = 0;
-  if ( _RBX->spotShadowCount )
-  {
-    __asm
+    v9 = (__m128 *)&data->spotShadows[v8];
+    sceneLightIndex = data->spotShadows[v8].sceneLightIndex;
+    if ( (unsigned int)sceneLightIndex >= data->sceneLightCount )
     {
-      vmovaps [rsp+1B8h+var_38], xmm6
-      vmovaps [rsp+1B8h+var_48], xmm7
-      vmovaps [rsp+1B8h+var_58], xmm8
-      vmovaps [rsp+1B8h+var_68], xmm9
-      vmovss  xmm9, cs:__real@3f800000
-      vmovaps [rsp+1B8h+var_78], xmm10
-      vmovaps [rsp+1B8h+var_88], xmm11
-      vmovaps [rsp+1B8h+var_A8], xmm13
-      vmovss  xmm13, cs:__real@34000000
-      vmovaps [rsp+1B8h+var_C8], xmm15
-      vmovss  xmm15, dword ptr cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm11, xmm11, xmm11
-    }
-    do
-    {
-      _RSI = (__int64)&_RBX->spotShadows[v19];
-      sceneLightIndex = _RBX->spotShadows[v19].sceneLightIndex;
-      if ( (unsigned int)sceneLightIndex >= _RBX->sceneLightCount )
-      {
-        LODWORD(v84) = _RBX->sceneLightCount;
-        LODWORD(v82) = _RBX->spotShadows[v19].sceneLightIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 2732, ASSERT_TYPE_ASSERT, "(unsigned)( sceneLightIndex ) < (unsigned)( data->sceneLightCount )", "sceneLightIndex doesn't index data->sceneLightCount\n\t%i not in [0, %i)", v82, v84) )
-          __debugbreak();
-      }
-      cacheIndex = _RBX->spotShadows[v19].cacheIndex;
-      v27 = sceneLightIndex;
-      v28 = sceneLightIndex;
-      if ( (unsigned int)cacheIndex > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.h", 79, ASSERT_TYPE_ASSERT, "(inIndex <= 0xff)", (const char *)&queryFormat, "inIndex <= 0xff") )
+      LODWORD(v29) = data->sceneLightCount;
+      LODWORD(v28) = data->spotShadows[v8].sceneLightIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_draw3d.cpp", 2732, ASSERT_TYPE_ASSERT, "(unsigned)( sceneLightIndex ) < (unsigned)( data->sceneLightCount )", "sceneLightIndex doesn't index data->sceneLightCount\n\t%i not in [0, %i)", v28, v29) )
         __debugbreak();
-      LOBYTE(_RBX->packedSceneLights[v28].packed) = 0;
-      _RBX->packedSceneLights[v28].packed |= cacheIndex;
-      maxSpotShadowIndex = cacheIndex;
-      __asm { vshufps xmm2, xmm14, xmm14, 0 }
-      if ( _RBX->maxSpotShadowIndex > (unsigned int)cacheIndex )
-        maxSpotShadowIndex = _RBX->maxSpotShadowIndex;
-      _RBX->maxSpotShadowIndex = maxSpotShadowIndex;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsi]
-        vmovups ymm1, ymmword ptr [rsi+20h]
-        vmovups ymmword ptr [rsp+1B8h+in+20h], ymm1
-      }
-      in.row2 = *(vec4_t *)_RT0.m256i_i8;
-      __asm
-      {
-        vmulps  xmm1, xmm2, xmmword ptr [rsi]
-        vmovups ymmword ptr [rsp+1B8h+in], ymm0
-        vshufps xmm4, xmm14, xmm14, 0AAh ; 'ª'
-        vmulps  xmm0, xmm4, xmmword ptr [rsi+20h]
-        vaddps  xmm2, xmm0, xmm1
-        vshufps xmm3, xmm14, xmm14, 55h ; 'U'
-        vmulps  xmm3, xmm3, xmmword ptr [rsi+10h]
-        vshufps xmm5, xmm14, xmm14, 0FFh
-        vmulps  xmm0, xmm5, xmmword ptr [rsi+30h]
-        vaddps  xmm1, xmm0, xmm3
-        vaddps  xmm2, xmm1, xmm2
-        vmovups xmmword ptr [rsp+1B8h+in+30h], xmm2
-      }
-      MatrixTranspose44Aligned(&in, &out);
-      _RAX = 152 * v27;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+rbx+53A044h]
-        vcomiss xmm0, xmm11
-        vmovss  xmm8, dword ptr [rax+rbx+53A078h]
-        vmovss  xmm10, dword ptr [rax+rbx+53A07Ch]
-      }
-      if ( ((unsigned __int128)(152 * (__int128)v27) >> 64 != 0) | v44 )
-        __asm { vmovaps xmm7, xmm11 }
-      else
-        __asm { vdivss  xmm7, xmm12, xmm0 }
-      R_SpotShadow_GetAtlasUVOffsetAndScale(&result, &_RBX->spotShadows[v19]);
-      __asm { vmovups ymm0, ymmword ptr [rsp+1B8h+out] }
-      _RDI = 96 * cacheIndex;
-      __asm
-      {
-        vmovups ymmword ptr [rdi+rbx+759028h], ymm0
-        vmovups ymm1, ymmword ptr [rsp+1B8h+out+20h]
-        vmovups ymmword ptr [rdi+rbx+759048h], ymm1
-        vmovss  xmm6, dword ptr [rsi+50h]
-        vcomiss xmm6, xmm13
-      }
-      if ( __CFSHL__(3 * cacheIndex, 5) )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  [rsp+1B8h+var_190], xmm0
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.h", 196, ASSERT_TYPE_ASSERT, "( ( zNear >= 1.192092896e-07F ) )", "( zNear ) = %g", v83) )
-          __debugbreak();
-      }
-      __asm
-      {
-        vdivss  xmm0, xmm9, xmm6
-        vmovss  dword ptr [rdi+rbx+759024h], xmm0
-        vsubss  xmm1, xmm9, xmm8
-        vmulss  xmm0, xmm1, cs:__real@42b00000
-        vaddss  xmm2, xmm0, xmm8
-        vmovss  dword ptr [rdi+rbx+759018h], xmm2
-        vsubss  xmm0, xmm9, xmm10
-        vdivss  xmm1, xmm9, xmm0
-        vmovss  dword ptr [rdi+rbx+75901Ch], xmm1
-        vmulss  xmm0, xmm1, xmm10
-        vxorps  xmm1, xmm0, xmm15
-        vmovss  dword ptr [rdi+rbx+759020h], xmm1
-        vmovss  dword ptr [rdi+rbx+759008h], xmm7
-        vmovups xmm7, xmmword ptr [rsp+1B8h+result.v]
-        vshufps xmm8, xmm7, xmm7, 0AAh ; 'ª'
-        vshufps xmm6, xmm7, xmm7, 55h ; 'U'
-      }
-      R_SpotShadow_GetMapSize();
-      __asm
-      {
-        vmovss  dword ptr [rdi+rbx+75900Ch], xmm7
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vaddss  xmm1, xmm0, xmm6
-        vmovss  dword ptr [rdi+rbx+759010h], xmm1
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, ecx
-        vaddss  xmm0, xmm2, xmm8
-      }
-      v19 = (unsigned int)(v19 + 1);
-      __asm { vmovss  dword ptr [rdi+rbx+759014h], xmm0 }
     }
-    while ( (unsigned int)v19 < _RBX->spotShadowCount );
-    __asm
-    {
-      vmovaps xmm15, [rsp+1B8h+var_C8]
-      vmovaps xmm13, [rsp+1B8h+var_A8]
-      vmovaps xmm11, [rsp+1B8h+var_88]
-      vmovaps xmm10, [rsp+1B8h+var_78]
-      vmovaps xmm9, [rsp+1B8h+var_68]
-      vmovaps xmm8, [rsp+1B8h+var_58]
-      vmovaps xmm7, [rsp+1B8h+var_48]
-      vmovaps xmm6, [rsp+1B8h+var_38]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm12, [rsp+1B8h+var_98]
-    vmovaps xmm14, [rsp+1B8h+var_B8]
+    cacheIndex = data->spotShadows[v8].cacheIndex;
+    v12 = sceneLightIndex;
+    v13 = sceneLightIndex;
+    if ( (unsigned int)cacheIndex > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.h", 79, ASSERT_TYPE_ASSERT, "(inIndex <= 0xff)", (const char *)&queryFormat, "inIndex <= 0xff") )
+      __debugbreak();
+    LOBYTE(data->packedSceneLights[v13].packed) = 0;
+    data->packedSceneLights[v13].packed |= cacheIndex;
+    maxSpotShadowIndex = cacheIndex;
+    v15 = _mm_shuffle_ps(_XMM14, _XMM14, 0);
+    if ( data->maxSpotShadowIndex > (unsigned int)cacheIndex )
+      maxSpotShadowIndex = data->maxSpotShadowIndex;
+    data->maxSpotShadowIndex = maxSpotShadowIndex;
+    v16 = *(__m256i *)v9->m128_f32;
+    *(__m256i *)in.row2.v = *(__m256i *)data->spotShadows[v8].lookupMatrix.m.row2.v;
+    v17 = _mm128_mul_ps(v15, *v9);
+    *(__m256i *)in.m[0].v = v16;
+    in.m[3] = (vec4_t)_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM14, _XMM14, 255), (__m128)data->spotShadows[v8].lookupMatrix.m.m[3]), _mm128_mul_ps(_mm_shuffle_ps(_XMM14, _XMM14, 85), (__m128)data->spotShadows[v8].lookupMatrix.m.m[1])), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM14, _XMM14, 170), (__m128)data->spotShadows[v8].lookupMatrix.m.m[2]), v17));
+    MatrixTranspose44Aligned(&in, &out);
+    radius = data->sceneLights[v12].radius;
+    shadowSoftness = data->sceneLights[v12].shadowSoftness;
+    shadowBias = data->sceneLights[v12].shadowBias;
+    if ( radius <= 0.0 )
+      v21 = 0.0;
+    else
+      v21 = v5 / radius;
+    R_SpotShadow_GetAtlasUVOffsetAndScale(&result, &data->spotShadows[v8]);
+    v22 = cacheIndex;
+    data->packedShadowLights[cacheIndex].lookupMatrix = out;
+    zNear = data->spotShadows[v8].zNear;
+    if ( zNear < 0.00000011920929 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.h", 196, ASSERT_TYPE_ASSERT, "( ( zNear >= 1.192092896e-07F ) )", "( zNear ) = %g", zNear) )
+      __debugbreak();
+    data->packedShadowLights[v22].params1.v[3] = 1.0 / zNear;
+    data->packedShadowLights[v22].params1.v[0] = (float)((float)(1.0 - shadowSoftness) * 88.0) + shadowSoftness;
+    v24 = 1.0 / (float)(1.0 - shadowBias);
+    data->packedShadowLights[v22].params1.v[1] = v24;
+    data->packedShadowLights[v22].params1.v[2] = COERCE_FLOAT(COERCE_UNSIGNED_INT(v24 * shadowBias) ^ _xmm);
+    data->packedShadowLights[v22].params0.v[0] = v21;
+    v = result.v;
+    MapSize = R_SpotShadow_GetMapSize();
+    arraySliceIndex = data->spotShadows[v8].arraySliceIndex;
+    data->packedShadowLights[v22].params0.v[1] = v.m128_f32[0];
+    data->packedShadowLights[v22].params0.v[2] = (float)MapSize + _mm_shuffle_ps(v, v, 85).m128_f32[0];
+    v8 = (unsigned int)(v8 + 1);
   }
 }
 

@@ -692,7 +692,8 @@ void StreamLogger::Dump(StreamLogger *this, StreamLogger::ObjectOfInterest *obje
   unsigned int v9; 
   unsigned int v10; 
   unsigned int v11; 
-  unsigned int v15; 
+  double *v12; 
+  unsigned int v13; 
 
   v4 = FS_FOpenFileWriteCurrentThread((fileHandle_t *)&stru_144146DB0, (const char *)objectOfInterest);
   if ( v4 == (fileHandle_t *)-1i64 )
@@ -746,24 +747,19 @@ void StreamLogger::Dump(StreamLogger *this, StreamLogger::ObjectOfInterest *obje
       v11 = 0;
       this->m_fileCacheUsed = 0;
     }
-    __asm { vmovups xmm0, xmmword ptr cs:aStreamLoggerFu; "Stream logger full dump:\n" }
-    _RCX = &this->m_fileCache._Elems[v11];
-    __asm
-    {
-      vmovups xmmword ptr [rcx], xmm0
-      vmovsd  xmm1, qword ptr cs:aStreamLoggerFu+10h; "ll dump:\n"
-      vmovsd  qword ptr [rcx+10h], xmm1
-    }
-    _RCX[24] = aStreamLoggerFu[24];
+    v12 = (double *)&this->m_fileCache._Elems[v11];
+    *(_OWORD *)v12 = *(_OWORD *)"Stream logger full dump:\n";
+    v12[2] = *(double *)"ll dump:\n";
+    *((_BYTE *)v12 + 24) = aStreamLoggerFu[24];
     this->m_fileCacheUsed += 25;
   }
   StreamLogger::DumpEvents(this, (fileHandle_t)v4, objectOfInterest, 0);
   if ( v4 != (fileHandle_t *)-1i64 )
   {
-    v15 = this->m_fileCacheUsed;
-    if ( v15 )
+    v13 = this->m_fileCacheUsed;
+    if ( v13 )
     {
-      FS_Write(&this->m_fileCache, v15, (fileHandle_t)v4);
+      FS_Write(&this->m_fileCache, v13, (fileHandle_t)v4);
       this->m_fileCacheUsed = 0;
     }
     FS_FCloseFile((fileHandle_t)v4);
@@ -1457,7 +1453,7 @@ Stream_Logger_Init
 void Stream_Logger_Init(void)
 {
   unsigned __int8 *m_entriesBufferAddress; 
-  __int128 v2; 
+  gsl::span<StreamLoggerEvent,-1> v1; 
   unsigned int outPageDeficitOrCommitCount; 
 
   if ( s_streamLogger.m_events.storage_.size_ && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_logger.cpp", 144, ASSERT_TYPE_ASSERT, "(m_events.empty())", (const char *)&queryFormat, "m_events.empty()") )
@@ -1478,15 +1474,11 @@ void Stream_Logger_Init(void)
   outPageDeficitOrCommitCount = 0;
   if ( !Mem_Paged_CommitSubPageMemory(m_entriesBufferAddress, &m_entriesBufferAddress[s_streamLogger.m_entriesBufferSize], NULL, &outPageDeficitOrCommitCount, "StreamLogger") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_logger.cpp", 154, ASSERT_TYPE_ASSERT, "(Mem_Paged_CommitSubPageMemory( m_entriesBufferAddress, m_entriesBufferAddress + m_entriesBufferSize, nullptr, &commitPageCount , \"StreamLogger\" ))", (const char *)&queryFormat, "Mem_Paged_CommitSubPageMemory( m_entriesBufferAddress, m_entriesBufferAddress + m_entriesBufferSize, nullptr, &commitPageCount MEM_TRACK_ARGS( \"StreamLogger\" ) )") )
     __debugbreak();
-  *(_QWORD *)&v2 = 153600i64;
-  *((_QWORD *)&v2 + 1) = s_streamLogger.m_entriesBufferAddress;
+  v1.storage_.size_ = 153600i64;
+  v1.storage_.data_ = (StreamLoggerEvent *)s_streamLogger.m_entriesBufferAddress;
   if ( !s_streamLogger.m_entriesBufferAddress && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\gsl\\span", 546, ASSERT_TYPE_SANITY, "( (!data && ExtentType::size() == 0) || (data && ExtentType::size() >= 0) )", (const char *)&queryFormat, "(!data && ExtentType::size() == 0) || (data && ExtentType::size() >= 0)") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, [rsp+48h+var_18]
-    vmovups xmmword ptr cs:s_streamLogger.m_events.storage_.baseclass_0.size_, xmm0
-  }
+  s_streamLogger.m_events = v1;
 }
 
 /*
@@ -1575,11 +1567,7 @@ void Stream_Logger_OnAliasedImage(const char *caller, const GfxBackEndData *data
   {
     objectOfInterest.m_address = (const unsigned __int8 *)image;
     LOBYTE(objectOfInterest.m_itemAddress) = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+68h+objectOfInterest.m_address]
-      vmovdqa xmmword ptr [rsp+68h+item.___u0], xmm0
-    }
+    item = (Stream_Logger_Item)objectOfInterest;
     StreamLogger::AllocEvent(&s_streamLogger, StreamLogger_AliasedImage, data, &item, caller)->m_details.m_partIndex = mipOffset;
   }
 }
@@ -1610,11 +1598,7 @@ void Stream_Logger_OnCopyFinishedFenceCheck(const char *caller, const GfxBackEnd
   else
   {
     LOBYTE(objectOfInterest.m_itemAddress) = 3;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+58h+objectOfInterest.m_address]
-      vmovdqa xmmword ptr [rsp+58h+item.___u0], xmm0
-    }
+    item = (Stream_Logger_Item)objectOfInterest;
     StreamLogger::AllocEvent(&s_streamLogger, StreamLogger_CopyFinishedFenceCheck, data, &item, caller)->m_details.m_fenceDoneValue = fenceDoneValue;
   }
 }
@@ -1709,11 +1693,7 @@ void Stream_Logger_OnDefragFrame(const char *caller, const GfxBackEndData *data,
   else
   {
     LOBYTE(objectOfInterest.m_itemAddress) = 3;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+58h+objectOfInterest.m_address]
-      vmovdqa xmmword ptr [rsp+58h+item.___u0], xmm0
-    }
+    item = (Stream_Logger_Item)objectOfInterest;
     StreamLogger::AllocEvent(&s_streamLogger, StreamLogger_DefragFrame, data, &item, caller)->m_details.m_fileStreamStatus[0] = frameOpen;
   }
 }
@@ -1772,11 +1752,7 @@ void Stream_Logger_OnDefragOp(const char *caller, const GfxBackEndData *data)
   else
   {
     LOBYTE(objectOfInterest.m_itemAddress) = 3;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+58h+objectOfInterest.m_address]
-      vmovdqa xmmword ptr [rsp+58h+item.___u0], xmm0
-    }
+    item = (Stream_Logger_Item)objectOfInterest;
     StreamLogger::AllocEvent(&s_streamLogger, StreamLogger_DefragOp, data, &item, caller);
   }
 }
@@ -1924,11 +1900,7 @@ void Stream_Logger_OnInsertCopyFinishedFence(const char *caller, const GfxBackEn
   else
   {
     LOBYTE(objectOfInterest.m_itemAddress) = 3;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+58h+objectOfInterest.m_address]
-      vmovdqa xmmword ptr [rsp+58h+item.___u0], xmm0
-    }
+    item = (Stream_Logger_Item)objectOfInterest;
     StreamLogger::AllocEvent(&s_streamLogger, StreamLogger_InsertCopyFinishedFence, data, &item, caller)->m_details.m_fenceDoneValue = fenceDoneValue;
   }
 }
@@ -2364,7 +2336,7 @@ Stream_Logger_OnStreamAssetLoaded
 void Stream_Logger_OnStreamAssetLoaded(const char *caller, const GfxBackEndData *data, const unsigned __int8 *address, int bytes, unsigned int result)
 {
   const unsigned __int8 *m_gpuPageFaultAddress; 
-  StreamLoggerEvent *v9; 
+  StreamLoggerEvent *v8; 
   StreamLogger::ObjectOfInterest objectOfInterest; 
   Stream_Logger_Item item; 
 
@@ -2383,15 +2355,11 @@ void Stream_Logger_OnStreamAssetLoaded(const char *caller, const GfxBackEndData 
   else
   {
     LOBYTE(objectOfInterest.m_itemAddress) = 3;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+68h+objectOfInterest.m_address]
-      vmovdqa xmmword ptr [rsp+68h+item.___u0], xmm0
-    }
-    v9 = StreamLogger::AllocEvent(&s_streamLogger, StreamLogger_StreamAssetLoaded, data, &item, caller);
-    v9->m_address1 = address;
-    v9->m_size = bytes;
-    v9->m_details.m_partIndex = result;
+    item = (Stream_Logger_Item)objectOfInterest;
+    v8 = StreamLogger::AllocEvent(&s_streamLogger, StreamLogger_StreamAssetLoaded, data, &item, caller);
+    v8->m_address1 = address;
+    v8->m_size = bytes;
+    v8->m_details.m_partIndex = result;
   }
 }
 
@@ -2450,11 +2418,7 @@ void Stream_Logger_OnUpdateImageClamp(const char *caller, const GfxBackEndData *
   {
     objectOfInterest.m_address = (const unsigned __int8 *)image;
     LOBYTE(objectOfInterest.m_itemAddress) = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+68h+objectOfInterest.m_address]
-      vmovdqa xmmword ptr [rsp+68h+item.___u0], xmm0
-    }
+    item = (Stream_Logger_Item)objectOfInterest;
     StreamLogger::AllocEvent(&s_streamLogger, StreamLogger_UpdateImageClamp, data, &item, caller)->m_details.m_partIndex = levelCount;
   }
 }
@@ -2662,11 +2626,8 @@ void __fastcall Stream_Logger_Shutdown(double _XMM0_8)
 {
   StreamerMemLoan result; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovups xmmword ptr cs:s_streamLogger.m_events.storage_.baseclass_0.size_, xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  s_streamLogger.m_events = _XMM0;
   Mem_Paged_DecommitSubPageMemory(&result, s_streamLogger.m_entriesBufferAddress, &s_streamLogger.m_entriesBufferAddress[s_streamLogger.m_entriesBufferSize]);
   StreamerMemLoan::~StreamerMemLoan(&result);
   s_streamLogger.m_entriesBufferAddress = NULL;

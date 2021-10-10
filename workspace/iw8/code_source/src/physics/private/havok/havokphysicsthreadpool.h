@@ -44,10 +44,8 @@ void HavokPhysicsThreadPool::operator delete(void *p, unsigned __int64 nbytes)
 HavokPhysicsThreadPool::HavokPhysicsThreadPoolUsageData::HavokPhysicsThreadPoolUsageData
 ==============
 */
-
-void __fastcall HavokPhysicsThreadPool::HavokPhysicsThreadPoolUsageData::HavokPhysicsThreadPoolUsageData(HavokPhysicsThreadPool::HavokPhysicsThreadPoolUsageData *this, double _XMM1_8)
+void HavokPhysicsThreadPool::HavokPhysicsThreadPoolUsageData::HavokPhysicsThreadPoolUsageData(HavokPhysicsThreadPool::HavokPhysicsThreadPoolUsageData *this)
 {
-  _RBX = this;
   this->m_stopwatch.m_name = NULL;
   this->m_stopwatch.m_ticks_at_start = 0i64;
   this->m_stopwatch.m_ticks_total = 0i64;
@@ -55,21 +53,13 @@ void __fastcall HavokPhysicsThreadPool::HavokPhysicsThreadPoolUsageData::HavokPh
   this->m_stopwatch.m_split_total = 0i64;
   this->m_stopwatch.m_running_flag.m_bool = 0;
   this->m_stopwatch.m_num_timings = 0;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2sd xmm1, xmm1, rax
-  }
+  _XMM1 = 0i64;
+  __asm { vcvtsi2sd xmm1, xmm1, rax }
   if ( (hkStopwatch::getTicksPerSecond() & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm1, xmm1, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmovsd  xmm0, cs:__real@3ff0000000000000
-    vdivsd  xmm1, xmm0, xmm1
-    vmovsd  qword ptr [rbx+28h], xmm1
-  }
-  _RBX->m_numThreads = 0;
-  *(_QWORD *)&_RBX->m_lastTimeInMSAverage = 0i64;
-  _RBX->m_currentSampleId = 0;
+    *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
+  this->m_stopwatch.m_inv_ticks_per_second = 1.0 / *(double *)&_XMM1;
+  this->m_numThreads = 0;
+  *(_QWORD *)&this->m_lastTimeInMSAverage = 0i64;
+  this->m_currentSampleId = 0;
 }
 

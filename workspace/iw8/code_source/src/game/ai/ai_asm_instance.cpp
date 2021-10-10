@@ -471,10 +471,10 @@ void Ai_Asm::InstanceMap_Init(Ai_Asm *this)
   ntl::red_black_tree_node_base *mp_parent; 
   ntl::red_black_tree_node_base *mp_left; 
   ntl::internal::pool_allocator_freelist<48> *p_m_freelist; 
-  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v5; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v4; 
+  ntl::red_black_tree_node_base *v5; 
   ntl::red_black_tree_node_base *v6; 
-  ntl::red_black_tree_node_base *v7; 
-  __int128 v8; 
+  ntl::internal::buffer_memory_block<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> > > v7; 
 
   if ( Ai_Asm::ms_asmInstanceMap.m_size )
   {
@@ -505,39 +505,35 @@ void Ai_Asm::InstanceMap_Init(Ai_Asm *this)
   Ai_Asm::ms_asmInstanceMap.m_endNodeBase.mp_right = &Ai_Asm::ms_asmInstanceMap.m_endNodeBase;
   Ai_Asm::ms_asmInstanceMap.ntl::red_black_tree<int,ntl::pair<int,ASM_Instance *>,ntl::pool_allocator<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> >,ntl::solitary_buffer_allocator>,ntl::return_pair_first<int,ASM_Instance *>,ntl::less<int,int> >::ntl::internal::container_with_allocator<ntl::pool_allocator<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> >,ntl::solitary_buffer_allocator> >::ntl::pool_allocator<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> >,ntl::solitary_buffer_allocator>::ntl::internal::container_with_allocator<ntl::solitary_buffer_allocator>::ntl::solitary_buffer_allocator::m_data.m_buffer = (char *)Ai_Asm::ms_asmInstanceMapBuffer;
   Ai_Asm::ms_asmInstanceMap.ntl::red_black_tree<int,ntl::pair<int,ASM_Instance *>,ntl::pool_allocator<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> >,ntl::solitary_buffer_allocator>,ntl::return_pair_first<int,ASM_Instance *>,ntl::less<int,int> >::ntl::internal::container_with_allocator<ntl::pool_allocator<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> >,ntl::solitary_buffer_allocator> >::ntl::pool_allocator<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> >,ntl::solitary_buffer_allocator>::ntl::internal::container_with_allocator<ntl::solitary_buffer_allocator>::ntl::solitary_buffer_allocator::m_data.m_size = 12288i64;
-  *(_QWORD *)&v8 = Ai_Asm::ms_asmInstanceMapBuffer;
-  *((_QWORD *)&v8 + 1) = 256i64;
-  __asm
-  {
-    vmovups xmm0, [rsp+58h+var_20]
-    vmovups xmmword ptr cs:?ms_asmInstanceMap@Ai_Asm@@0V?$map@HPEAUASM_Instance@@V?$pool_allocator@U?$red_black_tree_node@U?$pair@HPEAUASM_Instance@@@ntl@@@ntl@@Vsolitary_buffer_allocator@2@@ntl@@U?$less@HH@3@@ntl@@A.baseclass_0.baseclass_0.baseclass_0.baseclass_0.m_data.m_buffer, xmm0; ntl::map<int,ASM_Instance *,ntl::pool_allocator<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *>>,ntl::solitary_buffer_allocator>,ntl::less<int,int>> Ai_Asm::ms_asmInstanceMap
-  }
+  v7.m_buffer = (ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> > *)Ai_Asm::ms_asmInstanceMapBuffer;
+  v7.m_size = 256i64;
+  Ai_Asm::ms_asmInstanceMap.ntl::red_black_tree<int,ntl::pair<int,ASM_Instance *>,ntl::pool_allocator<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> >,ntl::solitary_buffer_allocator>,ntl::return_pair_first<int,ASM_Instance *>,ntl::less<int,int> >::ntl::internal::container_with_allocator<ntl::pool_allocator<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> >,ntl::solitary_buffer_allocator> >::ntl::pool_allocator<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> >,ntl::solitary_buffer_allocator>::ntl::internal::pool_allocator_impl<ntl::internal::buffer_memory_block<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> > >,48>::m_data = v7;
   p_m_freelist = &Ai_Asm::ms_asmInstanceMap.m_freelist;
-  v5 = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)&VFX_RAY_CAST_REST_VELOCITY_SQ_FLOAT4_238;
+  v4 = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)&VFX_RAY_CAST_REST_VELOCITY_SQ_FLOAT4_238;
   do
   {
-    v5 -= 6;
-    v5->mp_next = &p_m_freelist->m_head;
-    p_m_freelist = (ntl::internal::pool_allocator_freelist<48> *)v5;
+    v4 -= 6;
+    v4->mp_next = &p_m_freelist->m_head;
+    p_m_freelist = (ntl::internal::pool_allocator_freelist<48> *)v4;
   }
-  while ( v5 > (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)Ai_Asm::ms_asmInstanceMapBuffer );
-  Ai_Asm::ms_asmInstanceMap.m_freelist.m_head.mp_next = v5;
-  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+  while ( v4 > (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)Ai_Asm::ms_asmInstanceMapBuffer );
+  Ai_Asm::ms_asmInstanceMap.m_freelist.m_head.mp_next = v4;
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
     __debugbreak();
   if ( Ai_Asm::ms_asmInstanceMap.m_size )
   {
-    v6 = Ai_Asm::ms_asmInstanceMap.m_endNodeBase.mp_parent;
+    v5 = Ai_Asm::ms_asmInstanceMap.m_endNodeBase.mp_parent;
     if ( Ai_Asm::ms_asmInstanceMap.m_endNodeBase.mp_parent )
     {
       do
       {
-        ntl::red_black_tree<int,ntl::pair<int,ASM_Instance *>,ntl::pool_allocator<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *>>,ntl::solitary_buffer_allocator>,ntl::return_pair_first<int,ASM_Instance *>,ntl::less<int,int>>::erase_tree(&Ai_Asm::ms_asmInstanceMap, (ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> > *)v6->mp_right);
-        v7 = v6->mp_left;
-        *(_QWORD *)&v6->m_color = Ai_Asm::ms_asmInstanceMap.m_freelist.m_head.mp_next;
-        Ai_Asm::ms_asmInstanceMap.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v6;
-        v6 = v7;
+        ntl::red_black_tree<int,ntl::pair<int,ASM_Instance *>,ntl::pool_allocator<ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *>>,ntl::solitary_buffer_allocator>,ntl::return_pair_first<int,ASM_Instance *>,ntl::less<int,int>>::erase_tree(&Ai_Asm::ms_asmInstanceMap, (ntl::red_black_tree_node<ntl::pair<int,ASM_Instance *> > *)v5->mp_right);
+        v6 = v5->mp_left;
+        *(_QWORD *)&v5->m_color = Ai_Asm::ms_asmInstanceMap.m_freelist.m_head.mp_next;
+        Ai_Asm::ms_asmInstanceMap.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v5;
+        v5 = v6;
       }
-      while ( v7 );
+      while ( v6 );
     }
     Ai_Asm::ms_asmInstanceMap.m_endNodeBase.mp_parent = NULL;
     Ai_Asm::ms_asmInstanceMap.m_endNodeBase.mp_left = &Ai_Asm::ms_asmInstanceMap.m_endNodeBase;

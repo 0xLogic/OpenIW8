@@ -716,72 +716,37 @@ void G_PlayerUse_ChangeActiveValue(gentity_s *playerEnt, GClientTaskQueue *outpu
 G_PlayerUse_CheckAutoUse
 ==============
 */
-bool G_PlayerUse_CheckAutoUse(const gentity_s *const player, const UsableRef *ref)
+char G_PlayerUse_CheckAutoUse(const gentity_s *const player, const UsableRef *ref)
 {
   unsigned int useData; 
   unsigned int useIndex; 
-  unsigned int v8; 
-  bool v10; 
-  bool v11; 
-  char v27; 
-  char v28; 
-  bool result; 
+  const ScriptableStateUsableDef *PartStateUsableDef; 
+  float useRadiusAuto; 
+  bool v8; 
+  double Float_Internal_DebugName; 
   vec3_t out_usePosition; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
-  _RSI = player;
   if ( !player->client || ref->useClass != USE_CLASS_SCRIPTABLE || !ScriptableSv_GetInstanceInUse(ref->useIndex) )
-    goto LABEL_14;
+    return 0;
   useData = ref->useData;
   useIndex = ref->useIndex;
-  v8 = ref->useIndex;
-  __asm { vmovaps [rsp+98h+var_38], xmm7 }
-  if ( ScriptableSv_GetPartStateType(v8, useData) != Scriptable_StateType_Usable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2274, ASSERT_TYPE_ASSERT, "( ScriptableSv_GetPartStateType( scriptableIndex, useData ) == Scriptable_StateType_Usable )", (const char *)&queryFormat, "ScriptableSv_GetPartStateType( scriptableIndex, useData ) == Scriptable_StateType_Usable") )
+  if ( ScriptableSv_GetPartStateType(ref->useIndex, useData) != Scriptable_StateType_Usable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2274, ASSERT_TYPE_ASSERT, "( ScriptableSv_GetPartStateType( scriptableIndex, useData ) == Scriptable_StateType_Usable )", (const char *)&queryFormat, "ScriptableSv_GetPartStateType( scriptableIndex, useData ) == Scriptable_StateType_Usable") )
     __debugbreak();
-  _RBX = ScriptableSv_GetPartStateUsableDef(useIndex, useData);
-  v10 = _RBX == NULL;
-  if ( !_RBX )
+  PartStateUsableDef = ScriptableSv_GetPartStateUsableDef(useIndex, useData);
+  if ( !PartStateUsableDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2276, ASSERT_TYPE_ASSERT, "( ( stateUsableDef != nullptr ) )", "%s\n\t( stateUsableDef ) = %p", "( stateUsableDef != nullptr )", NULL) )
+    __debugbreak();
+  useRadiusAuto = PartStateUsableDef->useRadiusAuto;
+  v8 = useRadiusAuto <= 0.0;
+  if ( useRadiusAuto < 0.0 )
   {
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2276, ASSERT_TYPE_ASSERT, "( ( stateUsableDef != nullptr ) )", "%s\n\t( stateUsableDef ) = %p", "( stateUsableDef != nullptr )", NULL);
-    v10 = !v11;
-    if ( v11 )
-      __debugbreak();
+    Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARMPFLT_player_itemAutoUseRadius, "player_itemAutoUseRadius");
+    useRadiusAuto = *(float *)&Float_Internal_DebugName;
+    v8 = *(float *)&Float_Internal_DebugName <= 0.0;
   }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+20h]
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-    vmovaps xmm7, [rsp+98h+var_38]
-  }
-  if ( v10 )
-    goto LABEL_14;
-  ScriptableSv_GetPartUsePosition(useIndex, useData, &out_usePosition);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+130h]
-    vsubss  xmm3, xmm0, dword ptr [rsp+98h+out_usePosition]
-    vmovss  xmm1, dword ptr [rsi+134h]
-    vsubss  xmm2, xmm1, dword ptr [rsp+98h+out_usePosition+4]
-    vmovss  xmm0, dword ptr [rsi+138h]
-    vsubss  xmm4, xmm0, dword ptr [rsp+98h+out_usePosition+8]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vcomiss xmm4, xmm1
-  }
-  if ( !(v27 | v28) )
-    goto LABEL_14;
-  if ( !G_CalloutMarkerPing_IsScriptablePingedByPlayer(_RSI->s.number, useIndex) )
-    result = 1;
+  if ( !v8 && (ScriptableSv_GetPartUsePosition(useIndex, useData, &out_usePosition), (float)((float)((float)((float)(player->r.currentOrigin.v[1] - out_usePosition.v[1]) * (float)(player->r.currentOrigin.v[1] - out_usePosition.v[1])) + (float)((float)(player->r.currentOrigin.v[0] - out_usePosition.v[0]) * (float)(player->r.currentOrigin.v[0] - out_usePosition.v[0]))) + (float)((float)(player->r.currentOrigin.v[2] - out_usePosition.v[2]) * (float)(player->r.currentOrigin.v[2] - out_usePosition.v[2]))) <= (float)(useRadiusAuto * useRadiusAuto)) && !G_CalloutMarkerPing_IsScriptablePingedByPlayer(player->s.number, useIndex) )
+    return 1;
   else
-LABEL_14:
-    result = 0;
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
-  return result;
+    return 0;
 }
 
 /*
@@ -791,70 +756,15 @@ G_PlayerUse_CheckDisplayFOV
 */
 bool G_PlayerUse_CheckDisplayFOV(const UsableRef *ref, const vec3_t *useDir, const vec3_t *viewForward, const playerState_s *const ps, const float displayFOV, float *outDot)
 {
-  char v42; 
-  char v43; 
+  float v8; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  xmm2, dword ptr [rdx+4]
-    vmovss  xmm3, dword ptr [rdx+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vaddss  xmm3, xmm2, xmm1
-    vsubss  xmm0, xmm3, xmm6
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3b03126f
-  }
-  _RBX = viewForward;
-  _RDI = useDir;
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1255, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( useDir ) )", (const char *)&queryFormat, "Vec3IsNormalized( useDir )") )
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(useDir->v[0] * useDir->v[0]) + (float)(useDir->v[1] * useDir->v[1])) + (float)(useDir->v[2] * useDir->v[2])) - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1255, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( useDir ) )", (const char *)&queryFormat, "Vec3IsNormalized( useDir )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vmovss  xmm3, dword ptr [rbx+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsubss  xmm0, xmm2, xmm6
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3b03126f
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1256, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( viewForward ) )", (const char *)&queryFormat, "Vec3IsNormalized( viewForward )") )
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(viewForward->v[0] * viewForward->v[0]) + (float)(viewForward->v[1] * viewForward->v[1])) + (float)(viewForward->v[2] * viewForward->v[2])) - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1256, ASSERT_TYPE_ASSERT, "( Vec3IsNormalized( viewForward ) )", (const char *)&queryFormat, "Vec3IsNormalized( viewForward )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmulss  xmm2, xmm1, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rdi]
-    vmulss  xmm3, xmm0, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmulss  xmm1, xmm0, dword ptr [rdi+8]
-  }
-  _RAX = outDot;
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+displayFOV]
-    vmulss  xmm0, xmm0, cs:__real@3c0efa35; X
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm6, xmm4, xmm1
-    vmovss  dword ptr [rax], xmm6
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return v42 | v43;
+  v8 = (float)((float)(useDir->v[0] * viewForward->v[0]) + (float)(viewForward->v[1] * useDir->v[1])) + (float)(viewForward->v[2] * useDir->v[2]);
+  *outDot = v8;
+  return cosf_0(displayFOV * 0.0087266462) <= v8;
 }
 
 /*
@@ -864,77 +774,23 @@ G_PlayerUse_CheckDistance
 */
 char G_PlayerUse_CheckDistance(const UsableRef *ref, const vec3_t *usePos, const vec3_t *viewOrigin, const playerState_s *const ps, const float displayRadius, const float minimizedDisplayDistFrac, vec3_t *outUseDir, float *outDistSq)
 {
-  bool v17; 
-  bool v18; 
-  bool v19; 
-  int outUseDira; 
-  int outUseDirb; 
-  int outUseDirc; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float outUseDira; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm1, xmm0, dword ptr [r8]
-  }
-  _RBX = outUseDir;
-  __asm
-  {
-    vmovss  dword ptr [rsp+38h+outUseDir], xmm1
-    vmovss  dword ptr [rbx], xmm1
-    vmovss  xmm0, dword ptr [rdx+4]
-    vsubss  xmm2, xmm0, dword ptr [r8+4]
-    vmovss  dword ptr [rbx+4], xmm2
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm3, xmm0, dword ptr [r8+8]
-    vmovss  dword ptr [rbx+8], xmm3
-  }
-  if ( (outUseDira & 0x7F800000) == 2139095040 )
-    goto LABEL_12;
-  __asm { vmovss  dword ptr [rsp+38h+outUseDir], xmm2 }
-  if ( (outUseDirb & 0x7F800000) == 2139095040 )
-    goto LABEL_12;
-  __asm { vmovss  dword ptr [rsp+38h+outUseDir], xmm3 }
-  v17 = (outUseDirc & 0x7F800000u) < 0x7F800000;
-  v18 = (outUseDirc & 0x7F800000u) <= 0x7F800000;
-  if ( (outUseDirc & 0x7F800000) == 2139095040 )
-  {
-LABEL_12:
-    v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1232, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outUseDir )[0] ) && !IS_NAN( ( outUseDir )[1] ) && !IS_NAN( ( outUseDir )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outUseDir )[0] ) && !IS_NAN( ( outUseDir )[1] ) && !IS_NAN( ( outUseDir )[2] )");
-    v17 = 0;
-    v18 = !v19;
-    if ( v19 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vmovss  xmm3, dword ptr [rbx+8]
-  }
-  _RAX = outDistSq;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm0, [rsp+38h+displayRadius]
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm1, xmm0, [rsp+38h+minimizedDisplayDistFrac]
-    vmulss  xmm2, xmm1, xmm1
-    vcomiss xmm4, xmm2
-    vmovss  dword ptr [rax], xmm4
-  }
-  if ( v18 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm4, xmm4
-      vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-    }
-    if ( !v17 )
-      return 1;
-  }
+  outUseDira = usePos->v[0] - viewOrigin->v[0];
+  outUseDir->v[0] = outUseDira;
+  v11 = usePos->v[1] - viewOrigin->v[1];
+  outUseDir->v[1] = v11;
+  v12 = usePos->v[2] - viewOrigin->v[2];
+  outUseDir->v[2] = v12;
+  if ( ((LODWORD(outUseDira) & 0x7F800000) == 2139095040 || (LODWORD(v11) & 0x7F800000) == 2139095040 || (LODWORD(v12) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1232, ASSERT_TYPE_SANITY, "( !IS_NAN( ( outUseDir )[0] ) && !IS_NAN( ( outUseDir )[1] ) && !IS_NAN( ( outUseDir )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( outUseDir )[0] ) && !IS_NAN( ( outUseDir )[1] ) && !IS_NAN( ( outUseDir )[2] )") )
+    __debugbreak();
+  v13 = (float)((float)(outUseDir->v[0] * outUseDir->v[0]) + (float)(outUseDir->v[1] * outUseDir->v[1])) + (float)(outUseDir->v[2] * outUseDir->v[2]);
+  *outDistSq = v13;
+  if ( v13 <= (float)((float)(displayRadius * minimizedDisplayDistFrac) * (float)(displayRadius * minimizedDisplayDistFrac)) && v13 >= 0.000001 )
+    return 1;
   UsableRef_DebugDraw(ps->clientNum, ref, 0, 0, (PlayerUseDebugMessage)5);
   return 0;
 }
@@ -944,32 +800,34 @@ LABEL_12:
 G_PlayerUse_CheckEntity
 ==============
 */
-bool G_PlayerUse_CheckEntity(UsableList *useList, const gentity_s *playerEnt, int prevHintEntIndex, const vec3_t *viewOrigin, const vec3_t *viewForward, const playerState_s *ps, const Bounds *playerAbsBox, const PlayerUseDvarFeatures *dvars, const unsigned int *key)
+char G_PlayerUse_CheckEntity(UsableList *useList, const gentity_s *playerEnt, int prevHintEntIndex, const vec3_t *viewOrigin, const vec3_t *viewForward, const playerState_s *ps, const Bounds *playerAbsBox, const PlayerUseDvarFeatures *dvars, const unsigned int *key)
 {
-  ntl::vector_map<unsigned int,UsableRef,NtlHunkUserAllocator<ntl::pair<unsigned int,UsableRef> >,ntl::less<unsigned int,unsigned int> > *v16; 
-  PlayerUseDataMap *v17; 
+  ntl::vector_map<unsigned int,UsableRef,NtlHunkUserAllocator<ntl::pair<unsigned int,UsableRef> >,ntl::less<unsigned int,unsigned int> > *v11; 
+  PlayerUseDataMap *v12; 
   unsigned __int64 m_size; 
   ntl::pair<unsigned int,UsableRef> *m_buffer; 
-  ntl::pair<unsigned int,UsableRef> *v20; 
-  __int64 v21; 
-  __int64 v22; 
-  ntl::pair<unsigned int,UsableRef> *v23; 
-  ntl::pair<unsigned int,UsableRef> *v24; 
+  ntl::pair<unsigned int,UsableRef> *v15; 
+  __int64 v16; 
+  __int64 v17; 
+  ntl::pair<unsigned int,UsableRef> *v18; 
+  ntl::pair<unsigned int,UsableRef> *v19; 
   const UsableRef *p_second; 
   gentity_s *Entity; 
-  bool result; 
   int priority; 
-  UsableListItem *v30; 
+  double Float_Internal_DebugName; 
+  UsableListItem *v25; 
   const PlayerUseData *EntityData; 
+  const PlayerUseData *v27; 
+  __int128 v28; 
   char flags; 
-  char v63; 
-  char v65; 
-  bool v66; 
+  float v33; 
+  int v34; 
+  bool v35; 
+  bool v36; 
+  bool v37; 
   bool ignored; 
-  UsableListItem *v73; 
+  UsableListItem *v39; 
   float fmt; 
-  float fmta; 
-  float inDisplayFov; 
   int prevHintEntIndexa; 
   int outPriority; 
   float outScore; 
@@ -979,48 +837,48 @@ bool G_PlayerUse_CheckEntity(UsableList *useList, const gentity_s *playerEnt, in
   *(_QWORD *)bounds.v = playerAbsBox;
   prevHintEntIndexa = prevHintEntIndex;
   list = useList;
-  v16 = UsableWorldCollection_Get();
-  v17 = PlayerUseDataMap_Get();
-  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1289, ASSERT_TYPE_ASSERT, "( ( usableWorld != nullptr ) )", "%s\n\t( usableWorld ) = %p", "( usableWorld != nullptr )", NULL) )
+  v11 = UsableWorldCollection_Get();
+  v12 = PlayerUseDataMap_Get();
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1289, ASSERT_TYPE_ASSERT, "( ( usableWorld != nullptr ) )", "%s\n\t( usableWorld ) = %p", "( usableWorld != nullptr )", NULL) )
     __debugbreak();
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1290, ASSERT_TYPE_ASSERT, "( ( playerUseDataMap != nullptr ) )", "%s\n\t( playerUseDataMap ) = %p", "( playerUseDataMap != nullptr )", NULL) )
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1290, ASSERT_TYPE_ASSERT, "( ( playerUseDataMap != nullptr ) )", "%s\n\t( playerUseDataMap ) = %p", "( playerUseDataMap != nullptr )", NULL) )
     __debugbreak();
-  m_size = v16->m_size;
-  m_buffer = v16->m_data.m_buffer;
-  v20 = v16->m_data.m_buffer;
-  v21 = m_size;
-  v22 = (__int64)(12 * m_size) / 12;
-  if ( v22 > 0 )
+  m_size = v11->m_size;
+  m_buffer = v11->m_data.m_buffer;
+  v15 = v11->m_data.m_buffer;
+  v16 = m_size;
+  v17 = (__int64)(12 * m_size) / 12;
+  if ( v17 > 0 )
   {
     do
     {
-      if ( v20[v22 >> 1].first >= *key )
+      if ( v15[v17 >> 1].first >= *key )
       {
-        v22 >>= 1;
+        v17 >>= 1;
       }
       else
       {
-        v20 += (v22 >> 1) + 1;
-        v22 += -1 - (v22 >> 1);
+        v15 += (v17 >> 1) + 1;
+        v17 += -1 - (v17 >> 1);
       }
     }
-    while ( v22 > 0 );
-    m_size = v16->m_size;
+    while ( v17 > 0 );
+    m_size = v11->m_size;
   }
-  v23 = &m_buffer[m_size];
-  if ( v20 == v23 )
-    goto LABEL_60;
-  v24 = &m_buffer[v21];
-  if ( *key >= v20->first )
-    v24 = v20;
-  v20 = v24;
-  if ( v24 == v23 )
+  v18 = &m_buffer[m_size];
+  if ( v15 == v18 )
+    goto LABEL_68;
+  v19 = &m_buffer[v16];
+  if ( *key >= v15->first )
+    v19 = v15;
+  v15 = v19;
+  if ( v19 == v18 )
   {
-LABEL_60:
+LABEL_68:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1293, ASSERT_TYPE_ASSERT, "( usableWorldIter != usableWorld->end() )", (const char *)&queryFormat, "usableWorldIter != usableWorld->end()") )
       __debugbreak();
   }
-  p_second = &v20->second;
+  p_second = &v15->second;
   Entity = UsableRef_GetEntity(p_second);
   if ( !UsableEntity_IsUsableBy(Entity, playerEnt, prevHintEntIndexa) )
   {
@@ -1035,14 +893,13 @@ LABEL_60:
     if ( !UsableEntity_IsTouching(Entity, *(const Bounds **)bounds.v) || UsableEntity_IsLookAtNeeded(Entity) && !UsableRef_IsLookingAt(p_second, viewOrigin, viewForward) )
       return 0;
     priority = Entity->hint.priority;
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_player_useRadius, "player_useRadius");
-    __asm { vmulss  xmm2, xmm0, cs:__real@c0000000; score }
+    Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_player_useRadius, "player_useRadius");
     if ( priority > -100 )
       priority = -100;
-    v30 = UsableList_Add(list, p_second, *(float *)&_XMM2, priority, 1, 1, 0);
-    if ( !v30 )
+    v25 = UsableList_Add(list, p_second, *(float *)&Float_Internal_DebugName * -2.0, priority, 1, 1, 0);
+    if ( !v25 )
       return 0;
-    v30->flags |= 1u;
+    v25->flags |= 1u;
     return 0;
   }
   else
@@ -1052,133 +909,54 @@ LABEL_60:
       UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, SUCCESS);
       return 0;
     }
-    EntityData = PlayerUseDataMap_GetEntityData(v17, key, Entity);
-    _RBP = EntityData;
+    EntityData = PlayerUseDataMap_GetEntityData(v12, key, Entity);
+    v27 = EntityData;
     if ( EntityData )
     {
-      __asm { vmovss  xmm1, dword ptr [rbp+0Ch] }
-      _RSI = dvars;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+10h]
-        vmovss  dword ptr [rsp+0F8h+inDisplayFov], xmm0
-        vmovss  dword ptr [rsp+0F8h+fmt], xmm1
-      }
-      if ( !G_PlayerUse_CheckDistance(p_second, &EntityData->m_usePos, viewOrigin, ps, fmt, inDisplayFov, &bounds, (float *)&prevHintEntIndexa) )
+      if ( !G_PlayerUse_CheckDistance(p_second, &EntityData->m_usePos, viewOrigin, ps, EntityData->m_displayRadius, dvars->minimizedDisplayDistFrac, &bounds, (float *)&prevHintEntIndexa) )
       {
         UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, TASK_CREATE_FAIL|TASK_LOGIC_FAIL);
         return 0;
       }
+      v28 = LODWORD(bounds.v[0]);
+      *(float *)&v28 = fsqrt((float)((float)(*(float *)&v28 * *(float *)&v28) + (float)(bounds.v[1] * bounds.v[1])) + (float)(bounds.v[2] * bounds.v[2]));
+      _XMM6 = v28;
       __asm
       {
-        vmovss  xmm4, dword ptr [rsp+0F8h+bounds]
-        vmovss  xmm5, dword ptr [rsp+0F8h+bounds+4]
-        vmovss  xmm3, [rsp+0F8h+var_98]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm0, xmm2, xmm1
-        vmovaps [rsp+0F8h+var_58], xmm6
-        vsqrtss xmm6, xmm0, xmm0
         vcmpless xmm0, xmm6, cs:__real@80000000
-        vmovaps [rsp+0F8h+var_88], xmm9
-        vmovss  xmm9, cs:__real@3f800000
         vblendvps xmm0, xmm6, xmm9, xmm0
-        vdivss  xmm2, xmm9, xmm0
-        vmulss  xmm0, xmm4, xmm2
-        vmovss  dword ptr [rsp+0F8h+bounds], xmm0
-        vmulss  xmm0, xmm3, xmm2
-        vmovss  [rsp+0F8h+var_98], xmm0
-        vmovss  xmm0, dword ptr [rbp+10h]
-        vmulss  xmm1, xmm5, xmm2
-        vmovss  dword ptr [rsp+0F8h+fmt], xmm0
-        vmovss  dword ptr [rsp+0F8h+bounds+4], xmm1
       }
-      if ( G_PlayerUse_CheckDisplayFOV(p_second, &bounds, viewForward, ps, fmta, (float *)&prevHintEntIndexa) )
+      bounds.v[0] = bounds.v[0] * (float)(1.0 / *(float *)&_XMM0);
+      bounds.v[2] = bounds.v[2] * (float)(1.0 / *(float *)&_XMM0);
+      fmt = v27->m_displayFOV;
+      bounds.v[1] = bounds.v[1] * (float)(1.0 / *(float *)&_XMM0);
+      if ( G_PlayerUse_CheckDisplayFOV(p_second, &bounds, viewForward, ps, fmt, (float *)&prevHintEntIndexa) )
       {
-        __asm { vmovss  xmm1, dword ptr [rsi+14h] }
         flags = Entity->hint.flags;
-        __asm
-        {
-          vsubss  xmm0, xmm9, xmm1
-          vmulss  xmm2, xmm0, dword ptr [rbp+0]
-          vmovss  xmm0, dword ptr [rsi+4]
-          vcomiss xmm0, dword ptr [rsi+8]
-          vmulss  xmm1, xmm1, dword ptr [rbp+0Ch]
-          vmovaps [rsp+0F8h+var_68], xmm7
-          vmovaps [rsp+0F8h+var_78], xmm8
-          vaddss  xmm8, xmm2, xmm1
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1363, ASSERT_TYPE_ASSERT, "( dvars.minDirectLookInnerDot > dvars.minDirectLookOuterDot )", (const char *)&queryFormat, "dvars.minDirectLookInnerDot > dvars.minDirectLookOuterDot") )
+        v33 = (float)((float)(1.0 - dvars->buttonHintShortRadius) * v27->m_useRadius) + (float)(dvars->buttonHintShortRadius * v27->m_displayRadius);
+        if ( dvars->minDirectLookOuterDot >= dvars->minDirectLookInnerDot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1363, ASSERT_TYPE_ASSERT, "( dvars.minDirectLookInnerDot > dvars.minDirectLookOuterDot )", (const char *)&queryFormat, "dvars.minDirectLookInnerDot > dvars.minDirectLookOuterDot") )
           __debugbreak();
-        __asm { vmovss  xmm7, [rsp+0F8h+prevHintEntIndex] }
-        if ( flags >= 0 )
+        v34 = prevHintEntIndexa;
+        v35 = flags >= 0 && *(float *)&prevHintEntIndexa >= dvars->minDirectLookOuterDot && *(float *)&_XMM6 < dvars->minDirectLookOuterDist;
+        v36 = flags >= 0 && *(float *)&prevHintEntIndexa >= dvars->minDirectLookInnerDot && *(float *)&_XMM6 < dvars->minDirectLookInnerDist;
+        v37 = *(float *)&v34 > cosf_0(v27->m_useFOV * 0.0087266462) && *(float *)&_XMM6 < v27->m_useRadius;
+        I_fclamp(*(float *)&v34, -1.0, 1.0);
+        ignored = UsableRef_GetUseScoreAndPriority(p_second, &outScore, &outPriority, *(float *)&v34, v35, v36, v37, ps);
+        v39 = UsableList_Add(list, p_second, outScore, outPriority, *(float *)&_XMM6 <= v27->m_displayRadius, 1, ignored);
+        if ( v39 )
         {
-          __asm
-          {
-            vcomiss xmm7, dword ptr [rsi+4]
-            vcomiss xmm6, dword ptr [rsi]
-          }
+          if ( v33 > *(float *)&_XMM6 )
+            v39->flags |= 2u;
+          if ( v37 )
+            v39->flags |= 1u;
         }
-        if ( flags >= 0 )
-        {
-          __asm
-          {
-            vcomiss xmm7, dword ptr [rsi+8]
-            vcomiss xmm6, dword ptr [rsi+0Ch]
-          }
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+4]
-          vmulss  xmm0, xmm0, cs:__real@3c0efa35; X
-          vcomiss xmm8, xmm6
-        }
-        *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-        __asm
-        {
-          vcomiss xmm7, xmm0
-          vmovaps xmm8, [rsp+0F8h+var_78]
-        }
-        if ( v63 | v65 )
-          goto LABEL_52;
-        __asm { vcomiss xmm6, dword ptr [rbp+0] }
-        if ( !v63 )
-LABEL_52:
-          v66 = 0;
-        else
-          v66 = 1;
-        __asm
-        {
-          vmovss  xmm1, cs:__real@bf800000; min
-          vmovaps xmm2, xmm9; max
-          vmovaps xmm0, xmm7; val
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovaps xmm3, xmm0; dot }
-        ignored = UsableRef_GetUseScoreAndPriority(p_second, &outScore, &outPriority, *(float *)&_XMM3, 0, 0, v66, ps);
-        __asm
-        {
-          vcomiss xmm6, dword ptr [rbp+0Ch]
-          vmovss  xmm2, [rsp+0F8h+outScore]; score
-        }
-        v73 = UsableList_Add(list, p_second, *(float *)&_XMM2, outPriority, v63 | v65, 1, ignored);
-        __asm { vmovaps xmm7, [rsp+0F8h+var_68] }
-        if ( v73 && v66 )
-          v73->flags |= 1u;
-        UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, TASK_LOGIC_FAIL);
-        result = 1;
+        UsableRef_DebugDraw(ps->clientNum, p_second, v35, v36, TASK_LOGIC_FAIL);
+        return 1;
       }
       else
       {
         UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, (PlayerUseDebugMessage)6);
-        result = 0;
-      }
-      __asm
-      {
-        vmovaps xmm6, [rsp+0F8h+var_58]
-        vmovaps xmm9, [rsp+0F8h+var_88]
+        return 0;
       }
     }
     else
@@ -1189,7 +967,6 @@ LABEL_52:
       return 0;
     }
   }
-  return result;
 }
 
 /*
@@ -1197,36 +974,42 @@ LABEL_52:
 G_PlayerUse_CheckScriptable
 ==============
 */
-bool G_PlayerUse_CheckScriptable(UsableList *useList, const gentity_s *playerEnt, const vec3_t *viewOrigin, const vec3_t *viewForward, const playerState_s *ps, const Bounds *playerAbsBox, const PlayerUseDvarFeatures *dvars, const unsigned int *key)
+char G_PlayerUse_CheckScriptable(UsableList *useList, const gentity_s *playerEnt, const vec3_t *viewOrigin, const vec3_t *viewForward, const playerState_s *ps, const Bounds *playerAbsBox, const PlayerUseDvarFeatures *dvars, const unsigned int *key)
 {
-  ntl::vector_map<unsigned int,UsableRef,NtlHunkUserAllocator<ntl::pair<unsigned int,UsableRef> >,ntl::less<unsigned int,unsigned int> > *v15; 
-  PlayerUseDataMap *v17; 
+  ntl::vector_map<unsigned int,UsableRef,NtlHunkUserAllocator<ntl::pair<unsigned int,UsableRef> >,ntl::less<unsigned int,unsigned int> > *v9; 
+  PlayerUseDataMap *v10; 
   unsigned __int64 m_size; 
   ntl::pair<unsigned int,UsableRef> *m_buffer; 
-  ntl::pair<unsigned int,UsableRef> *v20; 
-  __int64 v21; 
-  __int64 v22; 
-  ntl::pair<unsigned int,UsableRef> *v23; 
-  ntl::pair<unsigned int,UsableRef> *v24; 
+  ntl::pair<unsigned int,UsableRef> *v13; 
+  __int64 v14; 
+  __int64 v15; 
+  ntl::pair<unsigned int,UsableRef> *v16; 
+  ntl::pair<unsigned int,UsableRef> *v17; 
   unsigned int useIndex; 
   UsableRef *p_second; 
   bool IsDoor; 
   const PlayerUseData *ScriptableData; 
-  bool result; 
+  const PlayerUseData *v22; 
   const ClientBits *m_clientMask; 
   unsigned __int64 clientNum; 
-  bool v59; 
-  bool v61; 
-  char v72; 
-  bool v73; 
-  char v74; 
-  bool v79; 
-  bool v80; 
+  __int128 v28; 
+  float v34; 
+  float v35; 
+  float v36; 
+  bool v37; 
+  char v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  bool v42; 
+  double v43; 
+  bool v44; 
+  bool v45; 
+  bool v46; 
+  bool v47; 
   bool UseScoreAndPriority; 
-  float fmt; 
-  float fmta; 
+  UsableListItem *v49; 
   __int64 minimizedDisplayDistFrac; 
-  float minimizedDisplayDistFraca; 
   vec3_t *outUseDir; 
   float outScore; 
   float outDot; 
@@ -1239,236 +1022,163 @@ bool G_PlayerUse_CheckScriptable(UsableList *useList, const gentity_s *playerEnt
   viewForwarda = (vec3_t *)viewForward;
   player = (gentity_s *)playerEnt;
   list = useList;
-  v15 = UsableWorldCollection_Get();
-  _ER13 = 0;
-  v17 = PlayerUseDataMap_Get();
-  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1407, ASSERT_TYPE_ASSERT, "( ( usableWorld != nullptr ) )", "%s\n\t( usableWorld ) = %p", "( usableWorld != nullptr )", NULL) )
+  v9 = UsableWorldCollection_Get();
+  v10 = PlayerUseDataMap_Get();
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1407, ASSERT_TYPE_ASSERT, "( ( usableWorld != nullptr ) )", "%s\n\t( usableWorld ) = %p", "( usableWorld != nullptr )", NULL) )
     __debugbreak();
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1408, ASSERT_TYPE_ASSERT, "( ( playerUseDataMap != nullptr ) )", "%s\n\t( playerUseDataMap ) = %p", "( playerUseDataMap != nullptr )", NULL) )
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1408, ASSERT_TYPE_ASSERT, "( ( playerUseDataMap != nullptr ) )", "%s\n\t( playerUseDataMap ) = %p", "( playerUseDataMap != nullptr )", NULL) )
     __debugbreak();
-  m_size = v15->m_size;
-  m_buffer = v15->m_data.m_buffer;
-  v20 = v15->m_data.m_buffer;
-  v21 = m_size;
-  v22 = (__int64)(12 * m_size) / 12;
-  if ( v22 > 0 )
+  m_size = v9->m_size;
+  m_buffer = v9->m_data.m_buffer;
+  v13 = v9->m_data.m_buffer;
+  v14 = m_size;
+  v15 = (__int64)(12 * m_size) / 12;
+  if ( v15 > 0 )
   {
     do
     {
-      if ( v20[v22 >> 1].first >= *key )
+      if ( v13[v15 >> 1].first >= *key )
       {
-        v22 >>= 1;
+        v15 >>= 1;
       }
       else
       {
-        v20 += (v22 >> 1) + 1;
-        v22 += -1 - (v22 >> 1);
+        v13 += (v15 >> 1) + 1;
+        v15 += -1 - (v15 >> 1);
       }
     }
-    while ( v22 > 0 );
-    m_size = v15->m_size;
+    while ( v15 > 0 );
+    m_size = v9->m_size;
   }
-  v23 = &m_buffer[m_size];
-  if ( v20 == v23 )
-    goto LABEL_54;
-  v24 = &m_buffer[v21];
-  if ( *key >= v20->first )
-    v24 = v20;
-  v20 = v24;
-  if ( v24 == v23 )
+  v16 = &m_buffer[m_size];
+  if ( v13 == v16 )
+    goto LABEL_67;
+  v17 = &m_buffer[v14];
+  if ( *key >= v13->first )
+    v17 = v13;
+  v13 = v17;
+  if ( v17 == v16 )
   {
-LABEL_54:
+LABEL_67:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1411, ASSERT_TYPE_ASSERT, "( usableWorldIter != usableWorld->end() )", (const char *)&queryFormat, "usableWorldIter != usableWorld->end()") )
       __debugbreak();
   }
-  useIndex = v20->second.useIndex;
-  p_second = &v20->second;
+  useIndex = v13->second.useIndex;
+  p_second = &v13->second;
   IsDoor = G_Door_ScriptableIsDoor(useIndex);
   if ( p_second->useClass != USE_CLASS_SCRIPTABLE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1415, ASSERT_TYPE_ASSERT, "( ref.useClass == USE_CLASS_SCRIPTABLE )", (const char *)&queryFormat, "ref.useClass == USE_CLASS_SCRIPTABLE") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+118h+var_48], xmm6
-    vmovaps [rsp+118h+var_58], xmm7
-    vmovaps [rsp+118h+var_68], xmm9
-    vmovaps [rsp+118h+var_78], xmm10
-    vmovaps [rsp+118h+var_88], xmm11
-    vmovaps [rsp+118h+var_98], xmm12
-  }
-  ScriptableData = PlayerUseDataMap_GetScriptableData(v17, key, p_second);
-  _RDI = ScriptableData;
+  ScriptableData = PlayerUseDataMap_GetScriptableData(v10, key, p_second);
+  v22 = ScriptableData;
   if ( !ScriptableData )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1421, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "PlayerUse failed to cache data -- a usable may have been processed in duplicate") )
     {
       __debugbreak();
-      result = 0;
-      goto LABEL_51;
+      return 0;
     }
-LABEL_27:
-    result = 0;
-    goto LABEL_51;
+    return 0;
   }
   if ( ScriptableData->m_disabled )
   {
     UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, TASK_CREATE_FAIL|TASK_LOGIC_FAIL);
-    goto LABEL_27;
+    return 0;
   }
   m_clientMask = ScriptableData->m_clientMask;
-  if ( m_clientMask )
+  if ( !m_clientMask )
+    goto LABEL_68;
+  clientNum = (unsigned int)ps->clientNum;
+  if ( (unsigned int)clientNum >= 0xE0 )
   {
-    clientNum = (unsigned int)ps->clientNum;
-    if ( (unsigned int)clientNum >= 0xE0 )
+    LODWORD(outUseDir) = 224;
+    LODWORD(minimizedDisplayDistFrac) = ps->clientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", minimizedDisplayDistFrac, outUseDir) )
+      __debugbreak();
+  }
+  if ( ((0x80000000 >> (clientNum & 0x1F)) & m_clientMask->array[clientNum >> 5]) != 0 )
+  {
+LABEL_68:
+    if ( !G_PlayerUse_CheckDistance(p_second, &v22->m_usePos, viewOrigin, ps, v22->m_displayRadius, dvars->minimizedDisplayDistFrac, &useDir, &outDot) )
     {
-      LODWORD(outUseDir) = 224;
-      LODWORD(minimizedDisplayDistFrac) = ps->clientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", minimizedDisplayDistFrac, outUseDir) )
+      UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, (PlayerUseDebugMessage)5);
+      if ( !IsDoor )
+        return 0;
+    }
+    _XMM0 = v22->m_use2DFOV;
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    v28 = LODWORD(useDir.v[0]);
+    _XMM6 = 0i64;
+    __asm { vblendvps xmm5, xmm6, xmm2, xmm3 }
+    *(float *)&v28 = fsqrt((float)((float)(*(float *)&v28 * *(float *)&v28) + (float)(useDir.v[1] * useDir.v[1])) + (float)(*(float *)&_XMM5 * *(float *)&_XMM5));
+    _XMM7 = v28;
+    __asm
+    {
+      vcmpless xmm0, xmm7, cs:__real@80000000
+      vblendvps xmm0, xmm7, xmm9, xmm0
+    }
+    v34 = useDir.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    v35 = useDir.v[1] * (float)(1.0 / *(float *)&_XMM0);
+    v36 = *(float *)&_XMM5 * (float)(1.0 / *(float *)&_XMM0);
+    useDir.v[0] = v34;
+    useDir.v[1] = v35;
+    useDir.v[2] = v36;
+    v37 = 1;
+    if ( *(float *)&_XMM7 >= 0.000001 )
+    {
+      if ( !G_PlayerUse_CheckDisplayFOV(p_second, &useDir, viewForwarda, ps, v22->m_displayFOV, &outDot) )
+      {
+        UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, (PlayerUseDebugMessage)6);
+        v37 = 0;
+        v38 = G_PlayerUse_CheckAutoUse(player, p_second);
+        if ( !IsDoor && !v38 )
+          return 0;
+      }
+      if ( v22->m_faceFOV <= 0.0 )
+        goto LABEL_47;
+      if ( IsDoor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1492, ASSERT_TYPE_ASSERT, "(!isDoor)", (const char *)&queryFormat, "!isDoor") )
         __debugbreak();
+      v39 = COERCE_FLOAT(COERCE_UNSIGNED_INT(v36 * v22->m_useForward.v[2]) ^ _xmm) - (float)((float)(v35 * v22->m_useForward.v[1]) + (float)(v34 * v22->m_useForward.v[0]));
+      if ( v39 > cosf_0(v22->m_faceFOV * 0.0087266462) )
+      {
+LABEL_47:
+        v40 = (float)((float)(1.0 - dvars->buttonHintShortRadius) * v22->m_useRadius) + (float)(dvars->buttonHintShortRadius * v22->m_displayRadius);
+        v41 = cosf_0(v22->m_useFOV * 0.0087266462);
+        v42 = outDot > v41;
+        v43 = I_fclamp(outDot, -1.0, 1.0);
+        v44 = *(float *)&v43 < dvars->minDirectLookOuterDot;
+        outScore = 0.5 - (float)(*(float *)&v43 * 0.5);
+        v45 = !v44 && *(float *)&_XMM7 < dvars->minDirectLookOuterDist;
+        v46 = *(float *)&v43 >= dvars->minDirectLookInnerDot && *(float *)&_XMM7 < dvars->minDirectLookInnerDist;
+        v47 = v42 && *(float *)&_XMM7 < v22->m_useRadius;
+        UseScoreAndPriority = UsableRef_GetUseScoreAndPriority(p_second, &outScore, &outPriority, *(float *)&v43, v45, v46, v47, ps);
+        v49 = UsableList_Add(list, p_second, outScore, outPriority, *(float *)&_XMM7 <= v22->m_displayRadius, v37, UseScoreAndPriority);
+        if ( v49 )
+        {
+          if ( *(float *)&_XMM7 < v40 )
+            v49->flags |= 2u;
+          if ( v47 )
+            v49->flags |= 1u;
+        }
+        UsableRef_DebugDraw(ps->clientNum, p_second, v45, v46, TASK_LOGIC_FAIL);
+        return 1;
+      }
+      else
+      {
+        UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, TASK_CREATE_FAIL|TASK_LOGIC_FAIL|0x4);
+        return 0;
+      }
     }
-    if ( ((0x80000000 >> (clientNum & 0x1F)) & m_clientMask->array[clientNum >> 5]) == 0 )
+    else
     {
-      UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, (PlayerUseDebugMessage)4);
-      result = 0;
-      goto LABEL_51;
+      UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, (PlayerUseDebugMessage)5);
+      return 0;
     }
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+0Ch] }
-  _RBP = dvars;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+10h]
-    vmovss  [rsp+118h+minimizedDisplayDistFrac], xmm0
-    vmovss  dword ptr [rsp+118h+fmt], xmm1
-  }
-  if ( !G_PlayerUse_CheckDistance(p_second, &_RDI->m_usePos, viewOrigin, ps, fmt, minimizedDisplayDistFraca, &useDir, &outDot) )
-  {
-    UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, (PlayerUseDebugMessage)5);
-    if ( !IsDoor )
-      goto LABEL_27;
-  }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsp+118h+useDir+8]
-    vmovss  xmm4, dword ptr [rsp+118h+useDir]
-    vmovss  xmm9, cs:__real@3f800000
-  }
-  _EAX = _RDI->m_use2DFOV;
-  __asm
-  {
-    vmovd   xmm1, r13d
-    vmovd   xmm0, eax
-    vpcmpeqd xmm3, xmm0, xmm1
-    vmulss  xmm1, xmm4, xmm4
-    vxorps  xmm6, xmm6, xmm6
-    vblendvps xmm5, xmm6, xmm2, xmm3
-    vmovss  xmm3, dword ptr [rsp+118h+useDir+4]
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm1, xmm2, xmm0
-    vsqrtss xmm7, xmm1, xmm1
-    vcmpless xmm0, xmm7, cs:__real@80000000
-    vblendvps xmm0, xmm7, xmm9, xmm0
-    vdivss  xmm1, xmm9, xmm0
-    vcvtss2sd xmm0, xmm7, xmm7
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-    vmulss  xmm10, xmm4, xmm1
-    vmulss  xmm11, xmm3, xmm1
-    vmulss  xmm12, xmm5, xmm1
-    vmovss  dword ptr [rsp+118h+useDir], xmm10
-    vmovss  dword ptr [rsp+118h+useDir+4], xmm11
-    vmovss  dword ptr [rsp+118h+useDir+8], xmm12
-  }
-  v59 = 1;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+10h]
-    vmovss  dword ptr [rsp+118h+fmt], xmm0
-  }
-  if ( !G_PlayerUse_CheckDisplayFOV(p_second, &useDir, viewForwarda, ps, fmta, &outDot) )
-  {
-    UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, (PlayerUseDebugMessage)6);
-    v59 = 0;
-    v61 = G_PlayerUse_CheckAutoUse(player, p_second);
-    if ( !IsDoor && !v61 )
-      goto LABEL_27;
-  }
-  __asm
-  {
-    vcomiss xmm6, dword ptr [rdi+8]
-    vmovss  xmm1, dword ptr [rbp+14h]
-    vsubss  xmm0, xmm9, xmm1
-    vmulss  xmm3, xmm0, dword ptr [rdi]
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmulss  xmm1, xmm1, dword ptr [rdi+0Ch]
-    vmulss  xmm0, xmm0, cs:__real@3c0efa35; X
-    vaddss  xmm6, xmm3, xmm1
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  xmm3, [rsp+118h+outDot]
-    vmovss  xmm1, cs:__real@bf800000; min
-    vcomiss xmm3, xmm0
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm0, xmm3; val
-  }
-  v73 = !(v74 | v72);
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vcomiss xmm0, dword ptr [rbp+4]
-    vmovss  xmm2, cs:__real@3f000000
-    vmulss  xmm1, xmm0, xmm2
-    vsubss  xmm1, xmm2, xmm1
-    vmovss  [rsp+118h+outScore], xmm1
-  }
-  if ( v74 )
-    goto LABEL_42;
-  __asm { vcomiss xmm7, dword ptr [rbp+0] }
-  if ( !v74 )
-  {
-LABEL_42:
-    v79 = 0;
-    v74 = 0;
-  }
   else
   {
-    v79 = 1;
+    UsableRef_DebugDraw(ps->clientNum, p_second, 0, 0, (PlayerUseDebugMessage)4);
+    return 0;
   }
-  __asm
-  {
-    vcomiss xmm0, dword ptr [rbp+8]
-    vcomiss xmm7, dword ptr [rbp+0Ch]
-  }
-  if ( v74 )
-    v80 = 1;
-  else
-    v80 = 0;
-  if ( v73 )
-    __asm { vcomiss xmm7, dword ptr [rdi] }
-  __asm { vmovaps xmm3, xmm0; dot }
-  UseScoreAndPriority = UsableRef_GetUseScoreAndPriority(p_second, &outScore, &outPriority, *(float *)&_XMM3, v79, v80, 0, ps);
-  __asm
-  {
-    vcomiss xmm7, dword ptr [rdi+0Ch]
-    vmovss  xmm2, [rsp+118h+outScore]; score
-  }
-  if ( UsableList_Add(list, p_second, *(float *)&_XMM2, outPriority, v74 | v72, v59, UseScoreAndPriority) )
-    __asm { vcomiss xmm7, xmm6 }
-  UsableRef_DebugDraw(ps->clientNum, p_second, v79, v80, TASK_LOGIC_FAIL);
-  result = 1;
-LABEL_51:
-  __asm
-  {
-    vmovaps xmm12, [rsp+118h+var_98]
-    vmovaps xmm11, [rsp+118h+var_88]
-    vmovaps xmm10, [rsp+118h+var_78]
-    vmovaps xmm9, [rsp+118h+var_68]
-    vmovaps xmm7, [rsp+118h+var_58]
-    vmovaps xmm6, [rsp+118h+var_48]
-  }
-  return result;
 }
 
 /*
@@ -2007,92 +1717,65 @@ G_PlayerUse_GetUseList
 */
 __int64 G_PlayerUse_GetUseList(gentity_s *ent, UsableList *useList, int prevHintEntIndex)
 {
-  UsableList *v7; 
-  const dvar_t *v9; 
+  UsableList *v4; 
+  const dvar_t *v6; 
   playerState_s *EntityPlayerState; 
   EffectiveStance EffectiveStance; 
+  const Bounds *Bounds; 
   GWeaponMap *Instance; 
   GHandler *Handler; 
   unsigned int NumRigidBodys; 
-  __int16 v31; 
-  unsigned __int16 v32; 
+  __int16 v13; 
+  unsigned __int16 v14; 
+  UsableListItem *v15; 
   HavokPhysics_CollisionQueryResult *AnyResult; 
   UsableClass useClass; 
-  hkMemoryAllocator *v38; 
-  hkMemoryAllocator *v39; 
+  hkMemoryAllocator *v18; 
+  hkMemoryAllocator *v19; 
   __int64 useIndex; 
   unsigned int scriptableCollisionMain; 
   ScriptableLinkType linkedObjectType; 
   ScriptableInstanceContext *InstanceCommonContext; 
-  unsigned int v44; 
+  unsigned int v24; 
   hknpBodyId *RigidBodyID; 
-  hkMemoryAllocator *v46; 
-  hkMemoryAllocator *v47; 
-  __int64 itemCount; 
+  hkMemoryAllocator *v26; 
+  hkMemoryAllocator *v27; 
   __int64 ignoreArbitraryUp; 
   Bounds *playerAbsBox; 
-  int v55; 
-  int v56; 
-  int v57; 
-  int v58; 
-  int v59; 
-  int v60; 
-  unsigned __int16 v61; 
-  __int16 v62; 
-  HavokPhysics_IgnoreBodies v63; 
+  unsigned __int16 i; 
+  __int16 v32; 
+  HavokPhysics_IgnoreBodies v33; 
   Physics_RaycastExtendedData extendedData; 
   hknpBodyId result; 
-  UsableListItem *v66; 
-  playerState_s *v67; 
-  UsableList *v68; 
-  HavokPhysics_CollisionQueryResult *v69; 
-  __int64 v70; 
+  UsableListItem *v36; 
+  playerState_s *v37; 
+  UsableList *v38; 
+  HavokPhysics_CollisionQueryResult *v39; 
+  __int64 v40; 
   vec3_t outOrigin; 
   vec3_t forward; 
-  Bounds v73; 
+  Bounds v43; 
   vec3_t outUsePos; 
-  char v75; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v70 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  v7 = useList;
-  v68 = useList;
-  v9 = DVARBOOL_g_debugUsables;
+  v40 = -2i64;
+  v4 = useList;
+  v38 = useList;
+  v6 = DVARBOOL_g_debugUsables;
   if ( !DVARBOOL_g_debugUsables && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_debugUsables") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( v9->current.enabled )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.enabled )
     UsableWorld_DebugDrawAll();
   EntityPlayerState = G_GetEntityPlayerState(ent);
-  v67 = EntityPlayerState;
+  v37 = EntityPlayerState;
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1703, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   EffectiveStance = PM_GetEffectiveStance(EntityPlayerState);
-  _RAX = BG_Suit_GetBounds(EntityPlayerState->suitIndex, EffectiveStance);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vaddss  xmm1, xmm0, dword ptr [r15+30h]
-    vmovss  dword ptr [rbp+80h+var_88.midPoint], xmm1
-    vmovss  xmm2, dword ptr [rax+4]
-    vaddss  xmm0, xmm2, dword ptr [r15+34h]
-    vmovss  dword ptr [rbp+80h+var_88.midPoint+4], xmm0
-    vmovss  xmm1, dword ptr [rax+8]
-    vaddss  xmm2, xmm1, dword ptr [r15+38h]
-    vmovss  dword ptr [rbp+80h+var_88.midPoint+8], xmm2
-    vmovss  xmm0, dword ptr [rax+0Ch]
-    vmovss  dword ptr [rbp+80h+var_88.halfSize], xmm0
-    vmovss  xmm1, dword ptr [rax+10h]
-    vmovss  dword ptr [rbp+80h+var_88.halfSize+4], xmm1
-    vmovss  xmm0, dword ptr [rax+14h]
-    vmovss  dword ptr [rbp+80h+var_88.halfSize+8], xmm0
-  }
+  Bounds = BG_Suit_GetBounds(EntityPlayerState->suitIndex, EffectiveStance);
+  v43.midPoint.v[0] = Bounds->midPoint.v[0] + EntityPlayerState->origin.v[0];
+  v43.midPoint.v[1] = Bounds->midPoint.v[1] + EntityPlayerState->origin.v[1];
+  v43.midPoint.v[2] = Bounds->midPoint.v[2] + EntityPlayerState->origin.v[2];
+  v43.halfSize = Bounds->halfSize;
   Instance = GWeaponMap::GetInstance();
   if ( BG_IsThirdPersonMode(Instance, EntityPlayerState) )
     G_Client_GetEyePosition(EntityPlayerState, &outOrigin);
@@ -2100,219 +1783,152 @@ __int64 G_PlayerUse_GetUseList(gentity_s *ent, UsableList *useList, int prevHint
     G_Client_GetViewOrigin(EntityPlayerState, &outOrigin);
   Handler = GHandler::getHandler();
   BG_GetPlayerViewDirection(EntityPlayerState, &forward, NULL, NULL, Handler, 0);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+80h+outOrigin]
-    vmovss  [rsp+180h+var_140], xmm0
-  }
-  if ( (v55 & 0x7F800000) == 2139095040 )
-    goto LABEL_72;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+80h+outOrigin+4]
-    vmovss  [rsp+180h+var_140], xmm0
-  }
-  if ( (v56 & 0x7F800000) == 2139095040 )
-    goto LABEL_72;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+80h+outOrigin+8]
-    vmovss  [rsp+180h+var_140], xmm0
-  }
-  if ( (v57 & 0x7F800000) == 2139095040 )
-  {
-LABEL_72:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1720, ASSERT_TYPE_SANITY, "( !IS_NAN( ( viewOrigin )[0] ) && !IS_NAN( ( viewOrigin )[1] ) && !IS_NAN( ( viewOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( viewOrigin )[0] ) && !IS_NAN( ( viewOrigin )[1] ) && !IS_NAN( ( viewOrigin )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+80h+forward]
-    vmovss  [rsp+180h+var_140], xmm0
-  }
-  if ( (v58 & 0x7F800000) == 2139095040 )
-    goto LABEL_73;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+80h+forward+4]
-    vmovss  [rsp+180h+var_140], xmm0
-  }
-  if ( (v59 & 0x7F800000) == 2139095040 )
-    goto LABEL_73;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+80h+forward+8]
-    vmovss  [rsp+180h+var_140], xmm0
-  }
-  if ( (v60 & 0x7F800000) == 2139095040 )
-  {
-LABEL_73:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1721, ASSERT_TYPE_SANITY, "( !IS_NAN( ( viewForward )[0] ) && !IS_NAN( ( viewForward )[1] ) && !IS_NAN( ( viewForward )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( viewForward )[0] ) && !IS_NAN( ( viewForward )[1] ) && !IS_NAN( ( viewForward )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(outOrigin.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(outOrigin.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(outOrigin.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1720, ASSERT_TYPE_SANITY, "( !IS_NAN( ( viewOrigin )[0] ) && !IS_NAN( ( viewOrigin )[1] ) && !IS_NAN( ( viewOrigin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( viewOrigin )[0] ) && !IS_NAN( ( viewOrigin )[1] ) && !IS_NAN( ( viewOrigin )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(forward.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(forward.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(forward.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1721, ASSERT_TYPE_SANITY, "( !IS_NAN( ( viewForward )[0] ) && !IS_NAN( ( viewForward )[1] ) && !IS_NAN( ( viewForward )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( viewForward )[0] ) && !IS_NAN( ( viewForward )[1] ) && !IS_NAN( ( viewForward )[2] )") )
+    __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_PlayerUse_GetUseList - Phase 1");
-  G_PlayerUse_GetUseList_Entities(v7, ent, prevHintEntIndex, &outOrigin, &forward, EntityPlayerState, &v73);
-  G_PlayerUse_GetUseList_Scriptables(v7, ent, &outOrigin, &forward, EntityPlayerState, &v73);
-  G_PlayerUse_GetUseList_LargeRadiusUsables(v7, ent, prevHintEntIndex, &outOrigin, &forward, EntityPlayerState, &v73);
-  UsableList_Sort(v7);
+  G_PlayerUse_GetUseList_Entities(v4, ent, prevHintEntIndex, &outOrigin, &forward, EntityPlayerState, &v43);
+  G_PlayerUse_GetUseList_Scriptables(v4, ent, &outOrigin, &forward, EntityPlayerState, &v43);
+  G_PlayerUse_GetUseList_LargeRadiusUsables(v4, ent, prevHintEntIndex, &outOrigin, &forward, EntityPlayerState, &v43);
+  UsableList_Sort(v4);
   Sys_ProfEndNamedEvent();
   NumRigidBodys = 0;
-  v31 = 0;
-  v62 = 0;
-  Sys_ProfBeginNamedEvent(0xFFFF0000, "G_PlayerUse_GetUseList - Phase 2");
+  v13 = 0;
   v32 = 0;
-  v61 = 0;
-  if ( v7->itemCount )
+  Sys_ProfBeginNamedEvent(0xFFFF0000, "G_PlayerUse_GetUseList - Phase 2");
+  v14 = 0;
+  for ( i = 0; v14 < v4->itemCount; i = v14 )
   {
-    __asm
+    v15 = &v4->items[v14];
+    v36 = v15;
+    if ( UsableRef_IsTraceNeeded(&v15->ref) )
     {
-      vxorps  xmm6, xmm6, xmm6
-      vmovss  xmm7, cs:__real@461c4000
-    }
-    do
-    {
-      _RDI = &v7->items[v32];
-      v66 = _RDI;
-      if ( UsableRef_IsTraceNeeded(&_RDI->ref) )
+      UsableRef_GetUseTracePos(&v4->items[v14].ref, &outUsePos);
+      AnyResult = PhysicsQuery_GetAnyResult(PHYSICS_WORLD_ID_FIRST);
+      v39 = AnyResult;
+      HavokPhysics_CollisionQueryResult::Reset(AnyResult, 1);
+      extendedData.contents = -1;
+      extendedData.ignoreBodies = NULL;
+      extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
+      extendedData.collisionBuffer = 0.0;
+      extendedData.phaseSelection = All;
+      extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
+      *(_WORD *)&extendedData.collectInsideHits = 256;
+      useClass = v15->ref.useClass;
+      if ( useClass )
       {
-        UsableRef_GetUseTracePos(&v7->items[v32].ref, &outUsePos);
-        AnyResult = PhysicsQuery_GetAnyResult(PHYSICS_WORLD_ID_FIRST);
-        v69 = AnyResult;
-        HavokPhysics_CollisionQueryResult::Reset(AnyResult, 1);
-        extendedData.contents = -1;
-        extendedData.ignoreBodies = NULL;
-        extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-        __asm { vmovss  [rbp+80h+extendedData.collisionBuffer], xmm6 }
-        extendedData.phaseSelection = All;
-        extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
-        *(_WORD *)&extendedData.collectInsideHits = 256;
-        useClass = _RDI->ref.useClass;
-        if ( useClass )
+        if ( useClass != USE_CLASS_SCRIPTABLE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1776, ASSERT_TYPE_ASSERT, "(ref.useClass == USE_CLASS_SCRIPTABLE)", (const char *)&queryFormat, "ref.useClass == USE_CLASS_SCRIPTABLE") )
+          __debugbreak();
+        useIndex = v15->ref.useIndex;
+        if ( !g_scriptableSv_instanceContexts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 90, ASSERT_TYPE_ASSERT, "( g_scriptableSv_instanceContexts )", (const char *)&queryFormat, "g_scriptableSv_instanceContexts") )
+          __debugbreak();
+        ScriptableCommon_AssertCountsInitialized();
+        if ( (unsigned int)useIndex >= g_scriptableWorldCounts.serverInstanceCount )
         {
-          if ( useClass != USE_CLASS_SCRIPTABLE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1776, ASSERT_TYPE_ASSERT, "(ref.useClass == USE_CLASS_SCRIPTABLE)", (const char *)&queryFormat, "ref.useClass == USE_CLASS_SCRIPTABLE") )
-            __debugbreak();
-          useIndex = _RDI->ref.useIndex;
-          if ( !g_scriptableSv_instanceContexts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 90, ASSERT_TYPE_ASSERT, "( g_scriptableSv_instanceContexts )", (const char *)&queryFormat, "g_scriptableSv_instanceContexts") )
-            __debugbreak();
           ScriptableCommon_AssertCountsInitialized();
-          if ( (unsigned int)useIndex >= g_scriptableWorldCounts.serverInstanceCount )
+          LODWORD(playerAbsBox) = g_scriptableWorldCounts.serverInstanceCount;
+          LODWORD(ignoreArbitraryUp) = useIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 91, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", ignoreArbitraryUp, playerAbsBox) )
+            __debugbreak();
+        }
+        scriptableCollisionMain = g_scriptableSv_instanceContexts[useIndex].collisionContext.scriptableCollisionMain;
+        if ( scriptableCollisionMain != -1 )
+          NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, scriptableCollisionMain);
+        linkedObjectType = ScriptableSv_GetInstanceCommonContext(v15->ref.useIndex)->linkedObjectType;
+        HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v33, (linkedObjectType == SCRIPTABLE_LINK_ENTITY) + 1, NumRigidBodys);
+        HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v33, 0, EntityPlayerState->clientNum, 1, 1, 0, 1, 1);
+        if ( linkedObjectType == SCRIPTABLE_LINK_ENTITY )
+        {
+          InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(v15->ref.useIndex);
+          HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v33, 1, InstanceCommonContext->linkedObjectIndex, 1, 1, 0, 1, 1);
+        }
+        v24 = 0;
+        if ( NumRigidBodys )
+        {
+          do
           {
-            ScriptableCommon_AssertCountsInitialized();
-            LODWORD(playerAbsBox) = g_scriptableWorldCounts.serverInstanceCount;
-            LODWORD(ignoreArbitraryUp) = useIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_server_utility.h", 91, ASSERT_TYPE_ASSERT, "(unsigned)( scriptableIndex ) < (unsigned)( ScriptableCommon_GetServerInstanceCount() )", "scriptableIndex doesn't index ScriptableCommon_GetServerInstanceCount()\n\t%i not in [0, %i)", ignoreArbitraryUp, playerAbsBox) )
+            if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
               __debugbreak();
-          }
-          scriptableCollisionMain = g_scriptableSv_instanceContexts[useIndex].collisionContext.scriptableCollisionMain;
-          if ( scriptableCollisionMain != -1 )
-            NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, scriptableCollisionMain);
-          linkedObjectType = ScriptableSv_GetInstanceCommonContext(_RDI->ref.useIndex)->linkedObjectType;
-          HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v63, (linkedObjectType == SCRIPTABLE_LINK_ENTITY) + 1, NumRigidBodys);
-          HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v63, 0, EntityPlayerState->clientNum, 1, 1, 0, 1, 1);
-          if ( linkedObjectType == SCRIPTABLE_LINK_ENTITY )
-          {
-            InstanceCommonContext = ScriptableSv_GetInstanceCommonContext(_RDI->ref.useIndex);
-            HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v63, 1, InstanceCommonContext->linkedObjectIndex, 1, 1, 0, 1, 1);
-          }
-          v44 = 0;
-          if ( NumRigidBodys )
-          {
-            do
+            if ( scriptableCollisionMain == -1 )
             {
-              if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
+              LODWORD(playerAbsBox) = 0;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", playerAbsBox) )
                 __debugbreak();
-              if ( scriptableCollisionMain == -1 )
-              {
-                LODWORD(playerAbsBox) = 0;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", playerAbsBox) )
-                  __debugbreak();
-              }
-              if ( !g_physicsServerWorldsCreated )
-              {
-                LODWORD(playerAbsBox) = 0;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", playerAbsBox) )
-                  __debugbreak();
-              }
-              RigidBodyID = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_FIRST, scriptableCollisionMain, v44);
-              HavokPhysics_IgnoreBodies::SetIgnoreBody(&v63, v44++, RigidBodyID->m_serialAndIndex);
             }
-            while ( v44 < NumRigidBodys );
-            _RDI = v66;
-            EntityPlayerState = v67;
-            v7 = v68;
-            AnyResult = v69;
+            if ( !g_physicsServerWorldsCreated )
+            {
+              LODWORD(playerAbsBox) = 0;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", playerAbsBox) )
+                __debugbreak();
+            }
+            RigidBodyID = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_FIRST, scriptableCollisionMain, v24);
+            HavokPhysics_IgnoreBodies::SetIgnoreBody(&v33, v24++, RigidBodyID->m_serialAndIndex);
           }
-          extendedData.ignoreBodies = &v63;
-          extendedData.contents = 536905745;
-          Physics_Raycast(PHYSICS_WORLD_ID_FIRST, &outOrigin, &outUsePos, &extendedData, AnyResult);
-          v46 = hkMemHeapAllocator();
-          NumRigidBodys = 0;
-          v63.m_ignoreBodies.m_size = 0;
-          if ( v63.m_ignoreBodies.m_capacityAndFlags >= 0 )
-            hkMemoryAllocator::bufFree2(v46, v63.m_ignoreBodies.m_data, 4, v63.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-          v63.m_ignoreBodies.m_data = NULL;
-          v63.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-          v47 = hkMemHeapAllocator();
-          v63.m_ignoreEntities.m_size = 0;
-          if ( v63.m_ignoreEntities.m_capacityAndFlags >= 0 )
-            hkMemoryAllocator::bufFree2(v47, v63.m_ignoreEntities.m_data, 8, v63.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
-          v32 = v61;
-          v31 = v62;
+          while ( v24 < NumRigidBodys );
+          v15 = v36;
+          EntityPlayerState = v37;
+          v4 = v38;
+          AnyResult = v39;
         }
-        else
-        {
-          HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v63, 2, 0);
-          HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v63, 0, _RDI->ref.useIndex, 1, 1, 0, 1, 1);
-          HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v63, 1, EntityPlayerState->clientNum, 1, 1, 0, 1, 1);
-          extendedData.ignoreBodies = &v63;
-          extendedData.contents = 536905745;
-          Physics_Raycast(PHYSICS_WORLD_ID_FIRST, &outOrigin, &outUsePos, &extendedData, AnyResult);
-          v38 = hkMemHeapAllocator();
-          v63.m_ignoreBodies.m_size = 0;
-          if ( v63.m_ignoreBodies.m_capacityAndFlags >= 0 )
-            hkMemoryAllocator::bufFree2(v38, v63.m_ignoreBodies.m_data, 4, v63.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-          v63.m_ignoreBodies.m_data = NULL;
-          v63.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-          v39 = hkMemHeapAllocator();
-          v63.m_ignoreEntities.m_size = 0;
-          if ( v63.m_ignoreEntities.m_capacityAndFlags >= 0 )
-            hkMemoryAllocator::bufFree2(v39, v63.m_ignoreEntities.m_data, 8, v63.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
-        }
-        if ( HavokPhysics_CollisionQueryResult::HasHit(AnyResult) )
-          _RDI->flags |= 4u;
-        else
-          _RDI->flags &= ~4u;
-        if ( HavokPhysics_CollisionQueryResult::HasHit(AnyResult) && UsableRef_ShouldHideOnObstruction(&_RDI->ref) )
-        {
-          __asm
-          {
-            vaddss  xmm1, xmm7, dword ptr [rdi+0Ch]
-            vmovss  dword ptr [rdi+0Ch], xmm1
-          }
-          _RDI->priority = 0x7FFFFFFF;
-          v62 = ++v31;
-          UsableRef_DebugDraw(EntityPlayerState->clientNum, &_RDI->ref, 0, 0, TASK_CREATE_FAIL);
-        }
+        extendedData.ignoreBodies = &v33;
+        extendedData.contents = 536905745;
+        Physics_Raycast(PHYSICS_WORLD_ID_FIRST, &outOrigin, &outUsePos, &extendedData, AnyResult);
+        v26 = hkMemHeapAllocator();
+        NumRigidBodys = 0;
+        v33.m_ignoreBodies.m_size = 0;
+        if ( v33.m_ignoreBodies.m_capacityAndFlags >= 0 )
+          hkMemoryAllocator::bufFree2(v26, v33.m_ignoreBodies.m_data, 4, v33.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+        v33.m_ignoreBodies.m_data = NULL;
+        v33.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+        v27 = hkMemHeapAllocator();
+        v33.m_ignoreEntities.m_size = 0;
+        if ( v33.m_ignoreEntities.m_capacityAndFlags >= 0 )
+          hkMemoryAllocator::bufFree2(v27, v33.m_ignoreEntities.m_data, 8, v33.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+        v14 = i;
+        v13 = v32;
       }
       else
       {
-        _RDI->flags &= ~4u;
+        HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v33, 2, 0);
+        HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v33, 0, v15->ref.useIndex, 1, 1, 0, 1, 1);
+        HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v33, 1, EntityPlayerState->clientNum, 1, 1, 0, 1, 1);
+        extendedData.ignoreBodies = &v33;
+        extendedData.contents = 536905745;
+        Physics_Raycast(PHYSICS_WORLD_ID_FIRST, &outOrigin, &outUsePos, &extendedData, AnyResult);
+        v18 = hkMemHeapAllocator();
+        v33.m_ignoreBodies.m_size = 0;
+        if ( v33.m_ignoreBodies.m_capacityAndFlags >= 0 )
+          hkMemoryAllocator::bufFree2(v18, v33.m_ignoreBodies.m_data, 4, v33.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+        v33.m_ignoreBodies.m_data = NULL;
+        v33.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+        v19 = hkMemHeapAllocator();
+        v33.m_ignoreEntities.m_size = 0;
+        if ( v33.m_ignoreEntities.m_capacityAndFlags >= 0 )
+          hkMemoryAllocator::bufFree2(v19, v33.m_ignoreEntities.m_data, 8, v33.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
       }
-      v61 = ++v32;
+      if ( HavokPhysics_CollisionQueryResult::HasHit(AnyResult) )
+        v15->flags |= 4u;
+      else
+        v15->flags &= ~4u;
+      if ( HavokPhysics_CollisionQueryResult::HasHit(AnyResult) && UsableRef_ShouldHideOnObstruction(&v15->ref) )
+      {
+        v15->score = v15->score + 10000.0;
+        v15->priority = 0x7FFFFFFF;
+        v32 = ++v13;
+        UsableRef_DebugDraw(EntityPlayerState->clientNum, &v15->ref, 0, 0, TASK_CREATE_FAIL);
+      }
     }
-    while ( v32 < v7->itemCount );
+    else
+    {
+      v15->flags &= ~4u;
+    }
+    ++v14;
   }
-  UsableList_Sort(v7);
-  v7->itemCount -= v31;
+  UsableList_Sort(v4);
+  v4->itemCount -= v13;
   Sys_ProfEndNamedEvent();
-  itemCount = v7->itemCount;
-  _R11 = &v75;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return itemCount;
+  return v4->itemCount;
 }
 
 /*
@@ -2322,103 +1938,91 @@ G_PlayerUse_GetUseList_Entities
 */
 void G_PlayerUse_GetUseList_Entities(UsableList *useList, const gentity_s *playerEnt, int prevHintEntIndex, const vec3_t *viewOrigin, const vec3_t *viewForward, const playerState_s *ps, const Bounds *playerAbsBox)
 {
-  DenseGrid *v25; 
-  DenseGrid *v36; 
+  const dvar_t *v7; 
+  float value; 
+  const dvar_t *v13; 
+  float v14; 
+  const dvar_t *v15; 
+  float v16; 
+  const dvar_t *v17; 
+  float v18; 
+  const dvar_t *v19; 
+  float v20; 
+  const dvar_t *v21; 
+  DenseGrid *v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  DenseGrid *v26; 
   unsigned int Keys; 
   unsigned int *key; 
-  __int64 v39; 
+  __int64 v29; 
   PlayerUseDvarFeatures dvars; 
-  Bounds *v41; 
-  playerState_s *v42; 
-  DenseGrid *v43; 
+  Bounds *v31; 
+  playerState_s *v32; 
+  DenseGrid *v33; 
   DenseGrid::PageIterator iter; 
   DenseGrid::CellIterator outIter; 
   vec2_t max; 
+  float v37; 
   vec2_t min; 
+  float v39; 
   unsigned int outKeys[32]; 
 
-  _RBX = DCONST_DVARMPFLT_g_useDirectLookOuterDistance;
-  _RSI = viewOrigin;
-  v42 = (playerState_s *)ps;
-  v41 = (Bounds *)playerAbsBox;
+  v7 = DCONST_DVARMPFLT_g_useDirectLookOuterDistance;
+  v32 = (playerState_s *)ps;
+  v31 = (Bounds *)playerAbsBox;
   if ( !DCONST_DVARMPFLT_g_useDirectLookOuterDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useDirectLookOuterDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARMPFLT_g_useDirectLookOuterAngle;
-  __asm { vmovss  [rsp+1A0h+var_150.minDirectLookOuterDist], xmm0 }
+  Dvar_CheckFrontendServerThread(v7);
+  value = v7->current.value;
+  v13 = DCONST_DVARMPFLT_g_useDirectLookOuterAngle;
+  dvars.minDirectLookOuterDist = value;
   if ( !DCONST_DVARMPFLT_g_useDirectLookOuterAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useDirectLookOuterAngle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; X
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  _RBX = DCONST_DVARMPFLT_g_useDirectLookInnerAngle;
-  __asm { vmovss  [rsp+1A0h+var_150.minDirectLookOuterDot], xmm0 }
+  Dvar_CheckFrontendServerThread(v13);
+  v14 = cosf_0(v13->current.value * 0.017453292);
+  v15 = DCONST_DVARMPFLT_g_useDirectLookInnerAngle;
+  dvars.minDirectLookOuterDot = v14;
   if ( !DCONST_DVARMPFLT_g_useDirectLookInnerAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useDirectLookInnerAngle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; X
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  _RBX = DCONST_DVARMPFLT_g_useDirectLookInnerDistance;
-  __asm { vmovss  [rsp+1A0h+var_150.minDirectLookInnerDot], xmm0 }
+  Dvar_CheckFrontendServerThread(v15);
+  v16 = cosf_0(v15->current.value * 0.017453292);
+  v17 = DCONST_DVARMPFLT_g_useDirectLookInnerDistance;
+  dvars.minDirectLookInnerDot = v16;
   if ( !DCONST_DVARMPFLT_g_useDirectLookInnerDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useDirectLookInnerDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARMPFLT_bg_minimizedPromptFadeInDistanceMult;
-  __asm { vmovss  [rsp+1A0h+var_150.minDirectLookInnerDist], xmm0 }
+  Dvar_CheckFrontendServerThread(v17);
+  v18 = v17->current.value;
+  v19 = DCONST_DVARMPFLT_bg_minimizedPromptFadeInDistanceMult;
+  dvars.minDirectLookInnerDist = v18;
   if ( !DCONST_DVARMPFLT_bg_minimizedPromptFadeInDistanceMult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_minimizedPromptFadeInDistanceMult") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_player_buttonHintShortRadius;
-  __asm { vmovss  [rsp+1A0h+var_150.minimizedDisplayDistFrac], xmm0 }
+  Dvar_CheckFrontendServerThread(v19);
+  v20 = v19->current.value;
+  v21 = DVARFLT_player_buttonHintShortRadius;
+  dvars.minimizedDisplayDistFrac = v20;
   if ( !DVARFLT_player_buttonHintShortRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_buttonHintShortRadius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  [rsp+1A0h+var_150.buttonHintShortRadius], xmm0
-  }
-  v25 = UsableEntityDenseGrid_Get();
-  __asm
-  {
-    vmovss  xmm5, cs:__real@43700000
-    vmovss  xmm4, dword ptr [rsi]
-    vmovss  xmm3, dword ptr [rsi+4]
-    vmovss  xmm2, dword ptr [rsi+8]
-    vsubss  xmm0, xmm4, xmm5
-    vsubss  xmm1, xmm3, xmm5
-    vmovss  dword ptr [rbp+0A0h+min], xmm0
-    vmovss  dword ptr [rbp+0A0h+min+4], xmm1
-    vsubss  xmm0, xmm2, xmm5
-    vaddss  xmm1, xmm4, xmm5
-    vmovss  [rbp+0A0h+var_D8], xmm0
-    vmovss  dword ptr [rbp+0A0h+max], xmm1
-    vaddss  xmm0, xmm3, xmm5
-    vaddss  xmm1, xmm2, xmm5
-  }
-  v43 = v25;
-  v36 = v25;
-  __asm
-  {
-    vmovss  dword ptr [rbp+0A0h+max+4], xmm0
-    vmovss  [rbp+0A0h+var_E8], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v21);
+  LODWORD(dvars.buttonHintShortRadius) = v21->current.integer;
+  v22 = UsableEntityDenseGrid_Get();
+  v23 = viewOrigin->v[0];
+  v24 = viewOrigin->v[1];
+  v25 = viewOrigin->v[2];
+  min.v[0] = viewOrigin->v[0] - 240.0;
+  min.v[1] = v24 - 240.0;
+  v39 = v25 - 240.0;
+  max.v[0] = v23 + 240.0;
+  v33 = v22;
+  v26 = v22;
+  max.v[1] = v24 + 240.0;
+  v37 = v25 + 240.0;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_PlayerUse_GetUseList_Entities");
-  DenseGrid::FindInAABB(v36, &min, &max, &outIter);
+  DenseGrid::FindInAABB(v26, &min, &max, &outIter);
   while ( DenseGrid::CellIterator::Advance(&outIter) )
   {
-    DenseGrid::PageIterator::Init(&iter, v36, outIter.m_currentCellIndex);
+    DenseGrid::PageIterator::Init(&iter, v26, outIter.m_currentCellIndex);
     if ( DenseGrid::PageIterator::Advance(&iter) )
     {
       do
@@ -2427,17 +2031,17 @@ void G_PlayerUse_GetUseList_Entities(UsableList *useList, const gentity_s *playe
         if ( Keys )
         {
           key = outKeys;
-          v39 = Keys;
+          v29 = Keys;
           do
           {
-            G_PlayerUse_CheckEntity(useList, playerEnt, prevHintEntIndex, _RSI, viewForward, v42, v41, &dvars, key++);
-            --v39;
+            G_PlayerUse_CheckEntity(useList, playerEnt, prevHintEntIndex, viewOrigin, viewForward, v32, v31, &dvars, key++);
+            --v29;
           }
-          while ( v39 );
+          while ( v29 );
         }
       }
       while ( DenseGrid::PageIterator::Advance(&iter) );
-      v36 = v43;
+      v26 = v33;
     }
   }
   Sys_ProfEndNamedEvent();
@@ -2451,119 +2055,116 @@ G_PlayerUse_GetUseList_LargeRadiusUsables
 void G_PlayerUse_GetUseList_LargeRadiusUsables(UsableList *useList, const gentity_s *playerEnt, int prevHintEntIndex, const vec3_t *viewOrigin, const vec3_t *viewForward, const playerState_s *ps, const Bounds *playerAbsBox)
 {
   ntl::vector_map<unsigned int,UsableRef,NtlHunkUserAllocator<ntl::pair<unsigned int,UsableRef> >,ntl::less<unsigned int,unsigned int> > *v9; 
+  const dvar_t *v10; 
+  float value; 
+  const dvar_t *v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float v15; 
+  const dvar_t *v16; 
+  float v17; 
+  const dvar_t *v18; 
+  float v19; 
+  const dvar_t *v20; 
   const ntl::fixed_vector<unsigned int,2048,0> *key; 
   unsigned __int64 m_size; 
-  const char *v26; 
+  const char *v23; 
   const ntl::fixed_vector<unsigned int,2048,0> *i; 
-  unsigned __int64 v28; 
+  unsigned __int64 v25; 
   ntl::pair<unsigned int,UsableRef> *m_buffer; 
+  ntl::pair<unsigned int,UsableRef> *v27; 
+  __int64 v28; 
+  __int64 v29; 
   ntl::pair<unsigned int,UsableRef> *v30; 
-  __int64 v31; 
-  __int64 v32; 
-  ntl::pair<unsigned int,UsableRef> *v33; 
-  ntl::pair<unsigned int,UsableRef> *v34; 
-  ntl::vector_map<unsigned int,UsableRef,NtlHunkUserAllocator<ntl::pair<unsigned int,UsableRef> >,ntl::less<unsigned int,unsigned int> > *v35; 
+  ntl::pair<unsigned int,UsableRef> *v31; 
+  ntl::vector_map<unsigned int,UsableRef,NtlHunkUserAllocator<ntl::pair<unsigned int,UsableRef> >,ntl::less<unsigned int,unsigned int> > *v32; 
   PlayerUseDvarFeatures dvars; 
 
   v9 = UsableWorldCollection_Get();
-  _RBX = DCONST_DVARMPFLT_g_useDirectLookOuterDistance;
-  v35 = v9;
+  v10 = DCONST_DVARMPFLT_g_useDirectLookOuterDistance;
+  v32 = v9;
   if ( !DCONST_DVARMPFLT_g_useDirectLookOuterDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useDirectLookOuterDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARMPFLT_g_useDirectLookOuterAngle;
-  __asm { vmovss  [rsp+0A8h+var_50.minDirectLookOuterDist], xmm0 }
+  Dvar_CheckFrontendServerThread(v10);
+  value = v10->current.value;
+  v12 = DCONST_DVARMPFLT_g_useDirectLookOuterAngle;
+  dvars.minDirectLookOuterDist = value;
   if ( !DCONST_DVARMPFLT_g_useDirectLookOuterAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useDirectLookOuterAngle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; X
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  _RBX = DCONST_DVARMPFLT_g_useDirectLookInnerAngle;
-  __asm { vmovss  [rsp+0A8h+var_50.minDirectLookOuterDot], xmm0 }
+  Dvar_CheckFrontendServerThread(v12);
+  v13 = cosf_0(v12->current.value * 0.017453292);
+  v14 = DCONST_DVARMPFLT_g_useDirectLookInnerAngle;
+  dvars.minDirectLookOuterDot = v13;
   if ( !DCONST_DVARMPFLT_g_useDirectLookInnerAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useDirectLookInnerAngle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; X
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  _RBX = DCONST_DVARMPFLT_g_useDirectLookInnerDistance;
-  __asm { vmovss  [rsp+0A8h+var_50.minDirectLookInnerDot], xmm0 }
+  Dvar_CheckFrontendServerThread(v14);
+  v15 = cosf_0(v14->current.value * 0.017453292);
+  v16 = DCONST_DVARMPFLT_g_useDirectLookInnerDistance;
+  dvars.minDirectLookInnerDot = v15;
   if ( !DCONST_DVARMPFLT_g_useDirectLookInnerDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useDirectLookInnerDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARMPFLT_bg_minimizedPromptFadeInDistanceMult;
-  __asm { vmovss  [rsp+0A8h+var_50.minDirectLookInnerDist], xmm0 }
+  Dvar_CheckFrontendServerThread(v16);
+  v17 = v16->current.value;
+  v18 = DCONST_DVARMPFLT_bg_minimizedPromptFadeInDistanceMult;
+  dvars.minDirectLookInnerDist = v17;
   if ( !DCONST_DVARMPFLT_bg_minimizedPromptFadeInDistanceMult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_minimizedPromptFadeInDistanceMult") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_player_buttonHintShortRadius;
-  __asm { vmovss  [rsp+0A8h+var_50.minimizedDisplayDistFrac], xmm0 }
+  Dvar_CheckFrontendServerThread(v18);
+  v19 = v18->current.value;
+  v20 = DVARFLT_player_buttonHintShortRadius;
+  dvars.minimizedDisplayDistFrac = v19;
   if ( !DVARFLT_player_buttonHintShortRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_buttonHintShortRadius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  [rsp+0A8h+var_50.buttonHintShortRadius], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v20);
+  LODWORD(dvars.buttonHintShortRadius) = v20->current.integer;
   key = UsableWorld_GetLargeRadiusList();
   m_size = key->m_size;
   if ( m_size > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)m_size, "unsigned", m_size) )
     __debugbreak();
-  v26 = j_va("G_PlayerUse_GetUseList_LargeRadiusUsables - %u", (unsigned int)m_size);
-  Sys_ProfBeginNamedEvent(0xFFFF0000, v26);
+  v23 = j_va("G_PlayerUse_GetUseList_LargeRadiusUsables - %u", (unsigned int)m_size);
+  Sys_ProfBeginNamedEvent(0xFFFF0000, v23);
   for ( i = (const ntl::fixed_vector<unsigned int,2048,0> *)((char *)key + 4 * key->m_size); key != i; key = (const ntl::fixed_vector<unsigned int,2048,0> *)((char *)key + 4) )
   {
     if ( !key && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1664, ASSERT_TYPE_ASSERT, "( ( key != nullptr ) )", "%s\n\t( key ) = %p", "( key != nullptr )", NULL) )
       __debugbreak();
-    v28 = v35->m_size;
-    m_buffer = v35->m_data.m_buffer;
-    v30 = v35->m_data.m_buffer;
-    v31 = v28;
-    v32 = (__int64)(12 * v28) / 12;
-    if ( v32 > 0 )
+    v25 = v32->m_size;
+    m_buffer = v32->m_data.m_buffer;
+    v27 = v32->m_data.m_buffer;
+    v28 = v25;
+    v29 = (__int64)(12 * v25) / 12;
+    if ( v29 > 0 )
     {
       do
       {
-        if ( v30[v32 >> 1].first >= *(_DWORD *)key->m_data.m_buffer )
+        if ( v27[v29 >> 1].first >= *(_DWORD *)key->m_data.m_buffer )
         {
-          v32 >>= 1;
+          v29 >>= 1;
         }
         else
         {
-          v30 += (v32 >> 1) + 1;
-          v32 += -1 - (v32 >> 1);
+          v27 += (v29 >> 1) + 1;
+          v29 += -1 - (v29 >> 1);
         }
       }
-      while ( v32 > 0 );
-      v28 = v35->m_size;
+      while ( v29 > 0 );
+      v25 = v32->m_size;
     }
-    v33 = &m_buffer[v28];
-    if ( v30 == v33 )
+    v30 = &m_buffer[v25];
+    if ( v27 == v30 )
       goto LABEL_46;
-    v34 = &m_buffer[v31];
-    if ( *(_DWORD *)key->m_data.m_buffer >= v30->first )
-      v34 = v30;
-    v30 = v34;
-    if ( v34 == v33 )
+    v31 = &m_buffer[v28];
+    if ( *(_DWORD *)key->m_data.m_buffer >= v27->first )
+      v31 = v27;
+    v27 = v31;
+    if ( v31 == v30 )
     {
 LABEL_46:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 1666, ASSERT_TYPE_ASSERT, "( usableWorldIter != usableWorld->end() )", (const char *)&queryFormat, "usableWorldIter != usableWorld->end()") )
         __debugbreak();
     }
-    if ( v30->second.useClass )
+    if ( v27->second.useClass )
     {
-      if ( v30->second.useClass == USE_CLASS_SCRIPTABLE )
+      if ( v27->second.useClass == USE_CLASS_SCRIPTABLE )
         G_PlayerUse_CheckScriptable(useList, playerEnt, viewOrigin, viewForward, ps, playerAbsBox, &dvars, (const unsigned int *)key);
     }
     else
@@ -2581,108 +2182,96 @@ G_PlayerUse_GetUseList_Scriptables
 */
 void G_PlayerUse_GetUseList_Scriptables(UsableList *useList, const gentity_s *playerEnt, const vec3_t *viewOrigin, const vec3_t *viewForward, const playerState_s *ps, const Bounds *playerAbsBox)
 {
+  const dvar_t *v6; 
   unsigned int v7; 
-  DenseGrid *v25; 
-  DenseGrid *v36; 
+  float value; 
+  const dvar_t *v13; 
+  float v14; 
+  const dvar_t *v15; 
+  float v16; 
+  const dvar_t *v17; 
+  float v18; 
+  const dvar_t *v19; 
+  float v20; 
+  const dvar_t *v21; 
+  DenseGrid *v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  DenseGrid *v26; 
   unsigned int Keys; 
-  __int64 v38; 
+  __int64 v28; 
   unsigned int *key; 
-  const char *v40; 
-  unsigned int v41; 
+  const char *v30; 
+  unsigned int v31; 
   PlayerUseDvarFeatures dvars; 
-  playerState_s *v43; 
-  DenseGrid *v44; 
+  playerState_s *v33; 
+  DenseGrid *v34; 
   DenseGrid::PageIterator iter; 
   DenseGrid::CellIterator outIter; 
   vec2_t max; 
+  float v38; 
   vec2_t min; 
+  float v40; 
   unsigned int outKeys[32]; 
 
-  _RDI = DCONST_DVARMPFLT_g_useDirectLookOuterDistance;
+  v6 = DCONST_DVARMPFLT_g_useDirectLookOuterDistance;
   v7 = 0;
-  v43 = (playerState_s *)ps;
-  v41 = 0;
-  _R14 = viewOrigin;
+  v33 = (playerState_s *)ps;
+  v31 = 0;
   if ( !DCONST_DVARMPFLT_g_useDirectLookOuterDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useDirectLookOuterDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm0, dword ptr [rdi+28h] }
-  _RDI = DCONST_DVARMPFLT_g_useDirectLookOuterAngle;
-  __asm { vmovss  [rsp+180h+var_138.minDirectLookOuterDist], xmm0 }
+  Dvar_CheckFrontendServerThread(v6);
+  value = v6->current.value;
+  v13 = DCONST_DVARMPFLT_g_useDirectLookOuterAngle;
+  dvars.minDirectLookOuterDist = value;
   if ( !DCONST_DVARMPFLT_g_useDirectLookOuterAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useDirectLookOuterAngle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; X
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  _RDI = DCONST_DVARMPFLT_g_useDirectLookInnerAngle;
-  __asm { vmovss  [rsp+180h+var_138.minDirectLookOuterDot], xmm0 }
+  Dvar_CheckFrontendServerThread(v13);
+  v14 = cosf_0(v13->current.value * 0.017453292);
+  v15 = DCONST_DVARMPFLT_g_useDirectLookInnerAngle;
+  dvars.minDirectLookOuterDot = v14;
   if ( !DCONST_DVARMPFLT_g_useDirectLookInnerAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useDirectLookInnerAngle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmulss  xmm0, xmm0, cs:__real@3c8efa35; X
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  _RDI = DCONST_DVARMPFLT_g_useDirectLookInnerDistance;
-  __asm { vmovss  [rsp+180h+var_138.minDirectLookInnerDot], xmm0 }
+  Dvar_CheckFrontendServerThread(v15);
+  v16 = cosf_0(v15->current.value * 0.017453292);
+  v17 = DCONST_DVARMPFLT_g_useDirectLookInnerDistance;
+  dvars.minDirectLookInnerDot = v16;
   if ( !DCONST_DVARMPFLT_g_useDirectLookInnerDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useDirectLookInnerDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm0, dword ptr [rdi+28h] }
-  _RDI = DCONST_DVARMPFLT_bg_minimizedPromptFadeInDistanceMult;
-  __asm { vmovss  [rsp+180h+var_138.minDirectLookInnerDist], xmm0 }
+  Dvar_CheckFrontendServerThread(v17);
+  v18 = v17->current.value;
+  v19 = DCONST_DVARMPFLT_bg_minimizedPromptFadeInDistanceMult;
+  dvars.minDirectLookInnerDist = v18;
   if ( !DCONST_DVARMPFLT_bg_minimizedPromptFadeInDistanceMult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_minimizedPromptFadeInDistanceMult") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm0, dword ptr [rdi+28h] }
-  _RDI = DVARFLT_player_buttonHintShortRadius;
-  __asm { vmovss  [rsp+180h+var_138.minimizedDisplayDistFrac], xmm0 }
+  Dvar_CheckFrontendServerThread(v19);
+  v20 = v19->current.value;
+  v21 = DVARFLT_player_buttonHintShortRadius;
+  dvars.minimizedDisplayDistFrac = v20;
   if ( !DVARFLT_player_buttonHintShortRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_buttonHintShortRadius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  [rsp+180h+var_138.buttonHintShortRadius], xmm0
-  }
-  v25 = UsableScriptableDenseGrid_Get();
-  __asm
-  {
-    vmovss  xmm5, cs:__real@43700000
-    vmovss  xmm4, dword ptr [r14]
-    vmovss  xmm3, dword ptr [r14+4]
-    vmovss  xmm2, dword ptr [r14+8]
-    vsubss  xmm0, xmm4, xmm5
-    vsubss  xmm1, xmm3, xmm5
-    vmovss  dword ptr [rbp+80h+min], xmm0
-    vmovss  dword ptr [rbp+80h+min+4], xmm1
-    vsubss  xmm0, xmm2, xmm5
-    vaddss  xmm1, xmm4, xmm5
-    vmovss  [rbp+80h+var_C8], xmm0
-    vmovss  dword ptr [rbp+80h+max], xmm1
-    vaddss  xmm0, xmm3, xmm5
-    vaddss  xmm1, xmm2, xmm5
-  }
-  v44 = v25;
-  v36 = v25;
-  __asm
-  {
-    vmovss  dword ptr [rbp+80h+max+4], xmm0
-    vmovss  [rbp+80h+var_D8], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v21);
+  LODWORD(dvars.buttonHintShortRadius) = v21->current.integer;
+  v22 = UsableScriptableDenseGrid_Get();
+  v23 = viewOrigin->v[0];
+  v24 = viewOrigin->v[1];
+  v25 = viewOrigin->v[2];
+  min.v[0] = viewOrigin->v[0] - 240.0;
+  min.v[1] = v24 - 240.0;
+  v40 = v25 - 240.0;
+  max.v[0] = v23 + 240.0;
+  v34 = v22;
+  v26 = v22;
+  max.v[1] = v24 + 240.0;
+  v38 = v25 + 240.0;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_PlayerUse_GetUseList_Scriptables");
-  DenseGrid::FindInAABB(v36, &min, &max, &outIter);
+  DenseGrid::FindInAABB(v26, &min, &max, &outIter);
   if ( DenseGrid::CellIterator::Advance(&outIter) )
   {
     do
     {
-      DenseGrid::PageIterator::Init(&iter, v36, outIter.m_currentCellIndex);
+      DenseGrid::PageIterator::Init(&iter, v26, outIter.m_currentCellIndex);
       if ( DenseGrid::PageIterator::Advance(&iter) )
       {
         do
@@ -2690,26 +2279,26 @@ void G_PlayerUse_GetUseList_Scriptables(UsableList *useList, const gentity_s *pl
           Keys = DenseGrid::PageIterator::GetKeys(&iter, 0x20u, outKeys);
           if ( Keys )
           {
-            v38 = Keys;
+            v28 = Keys;
             key = outKeys;
-            v41 += Keys;
+            v31 += Keys;
             do
             {
-              G_PlayerUse_CheckScriptable(useList, playerEnt, _R14, viewForward, v43, playerAbsBox, &dvars, key++);
-              --v38;
+              G_PlayerUse_CheckScriptable(useList, playerEnt, viewOrigin, viewForward, v33, playerAbsBox, &dvars, key++);
+              --v28;
             }
-            while ( v38 );
+            while ( v28 );
           }
         }
         while ( DenseGrid::PageIterator::Advance(&iter) );
-        v36 = v44;
+        v26 = v34;
       }
     }
     while ( DenseGrid::CellIterator::Advance(&outIter) );
-    v7 = v41;
+    v7 = v31;
   }
-  v40 = j_va("G_PlayerUse_GetUseList_Scriptables Count %i", v7);
-  Sys_ProfSetMarker(0xFFFF0000, v40);
+  v30 = j_va("G_PlayerUse_GetUseList_Scriptables Count %i", v7);
+  Sys_ProfSetMarker(0xFFFF0000, v30);
   Sys_ProfEndNamedEvent();
 }
 
@@ -2827,25 +2416,27 @@ void G_PlayerUse_ProcessAutoUseEntities(gentity_s *const player)
   __int64 v5; 
   __int64 v6; 
   __int64 v7; 
+  const dvar_t *v8; 
+  float value; 
   __int64 v10; 
-  char v12; 
+  char v11; 
+  int v12; 
   int v13; 
-  int v15; 
-  __int64 v16; 
-  _DWORD *v17; 
-  unsigned int v18; 
-  unsigned __int8 v19; 
+  int v14; 
+  __int64 v15; 
+  _DWORD *v16; 
+  unsigned int v17; 
+  unsigned __int8 v18; 
   unsigned int InstanceUseCount; 
-  unsigned int v21; 
-  unsigned __int8 v22; 
-  unsigned int v23; 
-  gclient_s *v24; 
-  _BOOL8 v25; 
+  unsigned int v20; 
+  unsigned __int8 v21; 
+  unsigned int v22; 
+  gclient_s *v23; 
+  _BOOL8 v24; 
+  __int64 v25; 
   __int64 v26; 
-  __int64 v27; 
-  int v28; 
   int *p_count; 
-  gclient_s *v30; 
+  gclient_s *v28; 
 
   if ( !player && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2605, ASSERT_TYPE_ASSERT, "(player)", (const char *)&queryFormat, rowName) )
     __debugbreak();
@@ -2855,92 +2446,90 @@ void G_PlayerUse_ProcessAutoUseEntities(gentity_s *const player)
     toggleIndex = client->autoUseDelayInfo.toggleIndex;
     if ( (unsigned int)toggleIndex >= 2 )
     {
-      LODWORD(v26) = client->autoUseDelayInfo.toggleIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2613, ASSERT_TYPE_ASSERT, "(unsigned)( currentIndex ) < (unsigned)( 2 )", "currentIndex doesn't index 2\n\t%i not in [0, %i)", v26, 2) )
+      LODWORD(v25) = client->autoUseDelayInfo.toggleIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2613, ASSERT_TYPE_ASSERT, "(unsigned)( currentIndex ) < (unsigned)( 2 )", "currentIndex doesn't index 2\n\t%i not in [0, %i)", v25, 2) )
         __debugbreak();
     }
     v4 = player->client;
     v5 = 0i64;
     v6 = toggleIndex;
-    v30 = v4;
+    v28 = v4;
     if ( !(_DWORD)toggleIndex )
       v5 = 1i64;
     v7 = (__int64)&v4->autoUseDelayInfo + v6 * 196;
     p_count = &v4->autoUseDelayInfo.arrays[v6].count;
     if ( (unsigned int)*p_count >= 0x10 )
     {
-      LODWORD(v27) = 16;
-      LODWORD(v26) = *p_count;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2618, ASSERT_TYPE_ASSERT, "(unsigned)( currentArray->count ) < (unsigned)( 16 )", "currentArray->count doesn't index MAX_SIMULTANEOUS_AUTOUSE_ELEMENTS\n\t%i not in [0, %i)", v26, v27) )
+      LODWORD(v26) = 16;
+      LODWORD(v25) = *p_count;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2618, ASSERT_TYPE_ASSERT, "(unsigned)( currentArray->count ) < (unsigned)( 16 )", "currentArray->count doesn't index MAX_SIMULTANEOUS_AUTOUSE_ELEMENTS\n\t%i not in [0, %i)", v25, v26) )
         __debugbreak();
     }
     if ( v4->autoUseDelayInfo.arrays[v5].count >= 0x10u )
     {
-      LODWORD(v27) = 16;
-      LODWORD(v26) = v4->autoUseDelayInfo.arrays[v5].count;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2619, ASSERT_TYPE_ASSERT, "(unsigned)( prevArray->count ) < (unsigned)( 16 )", "prevArray->count doesn't index MAX_SIMULTANEOUS_AUTOUSE_ELEMENTS\n\t%i not in [0, %i)", v26, v27) )
+      LODWORD(v26) = 16;
+      LODWORD(v25) = v4->autoUseDelayInfo.arrays[v5].count;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2619, ASSERT_TYPE_ASSERT, "(unsigned)( prevArray->count ) < (unsigned)( 16 )", "prevArray->count doesn't index MAX_SIMULTANEOUS_AUTOUSE_ELEMENTS\n\t%i not in [0, %i)", v25, v26) )
         __debugbreak();
     }
-    _RBX = DCONST_DVARMPFLT_player_itemAutoUseDelaySeconds;
+    v8 = DCONST_DVARMPFLT_player_itemAutoUseDelaySeconds;
     if ( !DCONST_DVARMPFLT_player_itemAutoUseDelaySeconds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_itemAutoUseDelaySeconds") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v8);
+    value = v8->current.value;
     v10 = 0i64;
-    __asm { vmulss  xmm1, xmm0, cs:__real@447a0000 }
+    v11 = 0;
     v12 = 0;
-    v13 = 0;
-    __asm { vcvttss2si r10d, xmm1 }
-    v15 = -1;
-    v28 = _ER10;
+    v13 = (int)(float)(value * 1000.0);
+    v14 = -1;
     if ( *p_count <= 0 )
       goto LABEL_36;
     do
     {
-      v16 = 0i64;
+      v15 = 0i64;
       if ( v4->autoUseDelayInfo.arrays[v5].count > 0 )
       {
-        v17 = (_DWORD *)((char *)&v4->autoUseDelayInfo + v5 * 196);
-        while ( *(_DWORD *)v7 != *v17 )
+        v16 = (_DWORD *)((char *)&v4->autoUseDelayInfo + v5 * 196);
+        while ( *(_DWORD *)v7 != *v16 )
         {
-          ++v16;
-          v17 += 3;
-          if ( v16 >= v4->autoUseDelayInfo.arrays[v5].count )
+          ++v15;
+          v16 += 3;
+          if ( v15 >= v4->autoUseDelayInfo.arrays[v5].count )
             goto LABEL_26;
         }
-        *(_DWORD *)(v7 + 8) += v17[2];
+        *(_DWORD *)(v7 + 8) += v16[2];
       }
 LABEL_26:
-      if ( *(_DWORD *)(v7 + 8) > _ER10 )
+      if ( *(_DWORD *)(v7 + 8) > v13 )
       {
-        if ( ++v15 == player->client->autoUseDelayInfo.useIndex )
+        if ( ++v14 == player->client->autoUseDelayInfo.useIndex )
         {
-          v18 = *(_DWORD *)v7;
-          v19 = *(_BYTE *)(v7 + 4);
+          v17 = *(_DWORD *)v7;
+          v18 = *(_BYTE *)(v7 + 4);
           InstanceUseCount = ScriptableSv_GetInstanceUseCount(*(_DWORD *)v7);
-          G_PlayerUse_UseScriptable(player, v18, v19, InstanceUseCount, 1);
-          _ER10 = v28;
-          v12 = 1;
-          v4 = v30;
+          G_PlayerUse_UseScriptable(player, v17, v18, InstanceUseCount, 1);
+          v13 = (int)(float)(value * 1000.0);
+          v11 = 1;
+          v4 = v28;
           *(_DWORD *)(v7 + 8) = 0;
         }
-        else if ( !v12 && !v10 )
+        else if ( !v11 && !v10 )
         {
           v10 = v7;
         }
       }
-      ++v13;
+      ++v12;
       v7 += 12i64;
     }
-    while ( v13 < *p_count );
-    if ( v12 )
+    while ( v12 < *p_count );
+    if ( v11 )
       goto LABEL_37;
     if ( v10 )
     {
-      v21 = *(_DWORD *)v10;
-      v22 = *(_BYTE *)(v10 + 4);
-      v23 = ScriptableSv_GetInstanceUseCount(*(_DWORD *)v10);
-      G_PlayerUse_UseScriptable(player, v21, v22, v23, 1);
+      v20 = *(_DWORD *)v10;
+      v21 = *(_BYTE *)(v10 + 4);
+      v22 = ScriptableSv_GetInstanceUseCount(*(_DWORD *)v10);
+      G_PlayerUse_UseScriptable(player, v20, v21, v22, 1);
       *(_DWORD *)(v10 + 8) = 0;
       player->client->autoUseDelayInfo.useIndex = 0;
     }
@@ -2950,12 +2539,12 @@ LABEL_36:
       player->client->autoUseDelayInfo.useIndex = -1;
     }
 LABEL_37:
-    v24 = player->client;
-    if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2582, ASSERT_TYPE_ASSERT, "(client)", (const char *)&queryFormat, "client") )
+    v23 = player->client;
+    if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2582, ASSERT_TYPE_ASSERT, "(client)", (const char *)&queryFormat, "client") )
       __debugbreak();
-    v25 = v24->autoUseDelayInfo.toggleIndex == 0;
-    v24->autoUseDelayInfo.toggleIndex = v25;
-    v24->autoUseDelayInfo.arrays[v25].count = 0;
+    v24 = v23->autoUseDelayInfo.toggleIndex == 0;
+    v23->autoUseDelayInfo.toggleIndex = v24;
+    v23->autoUseDelayInfo.arrays[v24].count = 0;
     ++player->client->autoUseDelayInfo.useIndex;
   }
 }
@@ -3598,26 +3187,16 @@ LABEL_24:
 G_PlayerUse_SetUseRadius
 ==============
 */
-
-bool __fastcall G_PlayerUse_SetUseRadius(unsigned int useIndex, UsableClass useClass, unsigned __int8 useData, double useRadius)
+bool G_PlayerUse_SetUseRadius(unsigned int useIndex, UsableClass useClass, unsigned __int8 useData, const float useRadius)
 {
-  bool result; 
   UsableRef ref; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( useIndex > 0x3FFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 167, ASSERT_TYPE_ASSERT, "(useIndex <= ( 0x3FFFFF ))", (const char *)&queryFormat, "useIndex <= USABLEKEY_INDEX_MASK") )
     __debugbreak();
-  __asm { vmovaps xmm1, xmm6; useRadius }
   ref.useIndex = useIndex;
   ref.useClass = useClass;
   ref.useData = useData;
-  result = UsableWorld_SetUseRadius(&ref, *(float *)&_XMM1);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  return UsableWorld_SetUseRadius(&ref, useRadius);
 }
 
 /*
@@ -3867,8 +3446,8 @@ void G_PlayerUse_UpdateCursorControlLock(gentity_s *player)
 {
   gclient_s *client; 
   int pm_type; 
-  char v10; 
-  char v11; 
+  const dvar_t *v4; 
+  float v5; 
 
   if ( !player && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 2701, ASSERT_TYPE_ASSERT, "( player )", (const char *)&queryFormat, rowName) )
     __debugbreak();
@@ -3878,25 +3457,14 @@ void G_PlayerUse_UpdateCursorControlLock(gentity_s *player)
     pm_type = client->ps.pm_type;
     if ( pm_type != 1 && pm_type != 8 )
     {
-      _RSI = DCONST_DVARMPFLT_cursorHintControlLockExitTimeout;
-      __asm
-      {
-        vmovaps [rsp+58h+var_18], xmm6
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm6, xmm0, cs:__real@3a83126f
-      }
+      v4 = DCONST_DVARMPFLT_cursorHintControlLockExitTimeout;
+      v5 = (float)(level.time - client->lastTimeInUseRange) * 0.001;
       if ( !DCONST_DVARMPFLT_cursorHintControlLockExitTimeout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cursorHintControlLockExitTimeout") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm
-      {
-        vcomiss xmm6, dword ptr [rsi+28h]
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
+      Dvar_CheckFrontendServerThread(v4);
       if ( client->ps.cursorHintRange || client->ps.cursorHint == HINT_NONE )
       {
-        if ( v10 | v11 )
+        if ( v5 <= v4->current.value )
           return;
       }
       else if ( (player->client->sess.cmd.buttons & 0x40000028) != 0 )
@@ -3934,6 +3502,7 @@ G_PlayerUse_UpdateScriptableVehiclesCollect
 __int64 G_PlayerUse_UpdateScriptableVehiclesCollect(const gentity_s *const player, unsigned __int16 *vehicleList, const unsigned __int8 vehicleListCapacitiy)
 {
   unsigned __int8 v6; 
+  gclient_s *client; 
   vec3_t searchMax; 
   vec3_t searchMin; 
 
@@ -3947,26 +3516,13 @@ __int64 G_PlayerUse_UpdateScriptableVehiclesCollect(const gentity_s *const playe
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_PlayerUse_UpdateVehicles");
   if ( G_Vehicle_CanPlayerEnterVehicle(player) )
   {
-    _RAX = player->client;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+30h]
-      vmovss  xmm3, cs:__real@43960000
-      vsubss  xmm0, xmm0, xmm3
-      vmovss  dword ptr [rsp+88h+searchMin], xmm0
-      vmovss  xmm1, dword ptr [rax+34h]
-      vsubss  xmm2, xmm1, xmm3
-      vmovss  dword ptr [rsp+88h+searchMin+4], xmm2
-      vmovss  xmm0, dword ptr [rax+38h]
-      vsubss  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rsp+88h+searchMin+8], xmm1
-      vaddss  xmm1, xmm3, dword ptr [rax+30h]
-      vmovss  dword ptr [rsp+88h+searchMax], xmm1
-      vaddss  xmm0, xmm3, dword ptr [rax+34h]
-      vmovss  dword ptr [rsp+88h+searchMax+4], xmm0
-      vaddss  xmm2, xmm3, dword ptr [rax+38h]
-      vmovss  dword ptr [rsp+88h+searchMax+8], xmm2
-    }
+    client = player->client;
+    searchMin.v[0] = client->ps.origin.v[0] - 300.0;
+    searchMin.v[1] = client->ps.origin.v[1] - 300.0;
+    searchMin.v[2] = client->ps.origin.v[2] - 300.0;
+    searchMax.v[0] = client->ps.origin.v[0] + 300.0;
+    searchMax.v[1] = client->ps.origin.v[1] + 300.0;
+    searchMax.v[2] = client->ps.origin.v[2] + 300.0;
     v6 = G_PlayerUse_CollectNearbyUsableVehicles(player, vehicleList, vehicleListCapacitiy, &searchMin, &searchMax);
   }
   else
@@ -4020,19 +3576,19 @@ G_PlayerUse_UseEntity
 */
 void G_PlayerUse_UseEntity(gentity_s *playerEnt, gentity_s *useEnt)
 {
-  signed __int64 v5; 
+  signed __int64 v4; 
   GameScriptData *GameScriptDataCommon; 
   entityType_s eType; 
   void (__fastcall *use)(gentity_s *, gentity_s *, gentity_s *); 
   void (__fastcall *touch)(gentity_s *, gentity_s *, int); 
   __int16 EntityIndex; 
-  scrContext_t *v11; 
-  unsigned int v12; 
+  scrContext_t *v10; 
+  unsigned int v11; 
   playerState_s *EntityPlayerState; 
-  gentity_s *v15; 
+  gentity_s *v13; 
   unsigned __int64 clientNum; 
-  __int64 v17; 
-  __int64 v18; 
+  __int64 v15; 
+  __int64 v16; 
   vec3_t origin; 
 
   if ( !playerEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 342, ASSERT_TYPE_ASSERT, "( playerEnt )", (const char *)&queryFormat, "playerEnt") )
@@ -4041,26 +3597,26 @@ void G_PlayerUse_UseEntity(gentity_s *playerEnt, gentity_s *useEnt)
     __debugbreak();
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 196, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v5 = useEnt - g_entities;
-  if ( (unsigned int)v5 >= 0x800 )
+  v4 = useEnt - g_entities;
+  if ( (unsigned int)v4 >= 0x800 )
   {
-    LODWORD(v17) = useEnt - g_entities;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v17, 2048) )
+    LODWORD(v15) = useEnt - g_entities;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v15, 2048) )
       __debugbreak();
   }
-  v5 = (__int16)v5;
-  if ( (unsigned int)(__int16)v5 >= 0x800 )
+  v4 = (__int16)v4;
+  if ( (unsigned int)(__int16)v4 >= 0x800 )
   {
-    LODWORD(v18) = 2048;
-    LODWORD(v17) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v17, v18) )
+    LODWORD(v16) = 2048;
+    LODWORD(v15) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v15, v16) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  if ( g_entities[v5].r.isInUse != g_entityIsInUse[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+  if ( g_entities[v4].r.isInUse != g_entityIsInUse[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
     __debugbreak();
-  if ( !g_entityIsInUse[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 344, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( G_GetEntityIndex( useEnt ) ) )", (const char *)&queryFormat, "G_IsEntityInUse( G_GetEntityIndex( useEnt ) )") )
+  if ( !g_entityIsInUse[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 344, ASSERT_TYPE_ASSERT, "( G_IsEntityInUse( G_GetEntityIndex( useEnt ) ) )", (const char *)&queryFormat, "G_IsEntityInUse( G_GetEntityIndex( useEnt ) )") )
     __debugbreak();
   GameScriptDataCommon = GameScriptData::GetGameScriptDataCommon();
   if ( !GameScriptDataCommon && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\player_use.cpp", 347, ASSERT_TYPE_ASSERT, "( gScrData )", (const char *)&queryFormat, "gScrData") )
@@ -4094,31 +3650,27 @@ void G_PlayerUse_UseEntity(gentity_s *playerEnt, gentity_s *useEnt)
   EntityIndex = G_GetEntityIndex(useEnt);
   if ( G_IsEntityInUse(EntityIndex) )
   {
-    v11 = ScriptContext_Server();
+    v10 = ScriptContext_Server();
     GScr_AddEntity(playerEnt);
     GScr_AddEntity(useEnt);
-    v12 = Scr_ExecThread(v11, GameScriptDataCommon->entity_used, 2u);
-    if ( Scr_IsThreadAlive(v11, v12) )
+    v11 = Scr_ExecThread(v10, GameScriptDataCommon->entity_used, 2u);
+    if ( Scr_IsThreadAlive(v10, v11) )
       Com_PrintError(1, "entity_used failed to terminate. No waits allowed in this callback tree.\n");
-    Scr_FreeThread(v11, v12);
+    Scr_FreeThread(v10, v11);
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+88h+origin], xmm0
-    vmovss  dword ptr [rsp+88h+origin+4], xmm0
-    vmovss  dword ptr [rsp+88h+origin+8], xmm0
-  }
+  origin.v[0] = 0.0;
+  origin.v[1] = 0.0;
+  origin.v[2] = 0.0;
   EntityPlayerState = G_GetEntityPlayerState(playerEnt);
-  v15 = G_Utils_SpawnEventEntity(&origin, 218);
-  *(_QWORD *)v15->clientMask.array = -1i64;
-  *(_QWORD *)&v15->clientMask.array[2] = -1i64;
-  *(_QWORD *)&v15->clientMask.array[4] = -1i64;
-  v15->clientMask.array[6] = -1;
+  v13 = G_Utils_SpawnEventEntity(&origin, 218);
+  *(_QWORD *)v13->clientMask.array = -1i64;
+  *(_QWORD *)&v13->clientMask.array[2] = -1i64;
+  *(_QWORD *)&v13->clientMask.array[4] = -1i64;
+  v13->clientMask.array[6] = -1;
   clientNum = (unsigned int)EntityPlayerState->clientNum;
   if ( (unsigned int)clientNum >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", clientNum, 224) )
     __debugbreak();
-  v15->clientMask.array[clientNum >> 5] &= ~(0x80000000 >> (clientNum & 0x1F));
+  v13->clientMask.array[clientNum >> 5] &= ~(0x80000000 >> (clientNum & 0x1F));
 }
 
 /*

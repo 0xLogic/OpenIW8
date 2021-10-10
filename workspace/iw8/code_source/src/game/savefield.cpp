@@ -290,40 +290,45 @@ G_SaveField_ReadFieldCommon
 */
 const char *G_SaveField_ReadFieldCommon(const saveField_t *field, unsigned __int8 *base, SaveGame *save, void (*readStructCallback)(const saveField_t *, unsigned __int8 *, int, SaveGame *))
 {
+  unsigned __int8 *v8; 
   MemoryFile *MemoryFile; 
   const char *CString; 
-  int v12; 
+  int v11; 
   int WeaponNameSize; 
-  MemoryFile *v16; 
-  int v21; 
-  MemoryFile *v22; 
+  MemoryFile *v13; 
+  Weapon *WeaponForName; 
+  __m256i v15; 
+  __int128 v16; 
+  double v17; 
+  int v18; 
+  MemoryFile *v19; 
   GWeaponMap *Instance; 
-  MemoryFile *v28; 
-  const char *v29; 
-  scrContext_t *v34; 
-  const char *v35; 
-  __int64 v36; 
-  char v37; 
-  __int64 v38; 
-  char v39; 
-  bool v40; 
-  scr_weapon_t v41; 
-  unsigned __int64 v43; 
-  __int64 v44; 
-  __int64 v45; 
-  __int64 v46; 
-  scrContext_t *v47; 
-  __int64 v48; 
-  unsigned int v49; 
-  const scrContext_t *v50; 
+  MemoryFile *v21; 
+  const char *v22; 
+  scrContext_t *v23; 
+  const char *v24; 
+  __int64 v25; 
+  char v26; 
+  __int64 v27; 
+  char v28; 
+  bool v29; 
+  scr_weapon_t v30; 
+  unsigned __int64 v32; 
+  __int64 v33; 
+  __int64 v34; 
+  __int64 v35; 
+  scrContext_t *v36; 
+  __int64 v37; 
+  unsigned int v38; 
+  const scrContext_t *v39; 
   XAnim_s *Anims; 
-  unsigned __int8 *v52; 
-  unsigned __int8 *v53; 
+  unsigned __int8 *v41; 
+  unsigned __int8 *v42; 
   Weapon result; 
-  Weapon v57; 
-  Weapon v58; 
+  Weapon v44; 
+  Weapon v45; 
   Weapon r_weapon; 
-  Weapon v60; 
+  Weapon v47; 
   char psz[512]; 
   char name[512]; 
 
@@ -335,199 +340,162 @@ const char *G_SaveField_ReadFieldCommon(const saveField_t *field, unsigned __int
     __debugbreak();
   if ( !readStructCallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\savefield.cpp", 492, ASSERT_TYPE_ASSERT, "( readStructCallback )", (const char *)&queryFormat, "readStructCallback") )
     __debugbreak();
-  _RDI = &base[field->ofs];
+  v8 = &base[field->ofs];
   switch ( field->type )
   {
     case 1u:
-      if ( *(_DWORD *)_RDI )
+      if ( *(_DWORD *)v8 )
       {
         MemoryFile = SaveMemory_GetMemoryFile(save);
         CString = MemFile_ReadCString(MemoryFile);
-        *(_DWORD *)_RDI = SL_GetString(CString, 0);
+        *(_DWORD *)v8 = SL_GetString(CString, 0);
       }
       return 0i64;
     case 2u:
-      v44 = *(unsigned int *)_RDI;
-      if ( (unsigned int)v44 > 0x800 )
-        return j_va("entity out of range (%i)", v44);
-      if ( (_DWORD)v44 )
-        *(_QWORD *)_RDI = &g_entities[(int)v44 - 1];
+      v33 = *(unsigned int *)v8;
+      if ( (unsigned int)v33 > 0x800 )
+        return j_va("entity out of range (%i)", v33);
+      if ( (_DWORD)v33 )
+        *(_QWORD *)v8 = &g_entities[(int)v33 - 1];
       else
-        *(_QWORD *)_RDI = 0i64;
+        *(_QWORD *)v8 = 0i64;
       return 0i64;
     case 3u:
-      v44 = *(unsigned int *)_RDI;
-      if ( (unsigned int)v44 > 0x800 )
-        return j_va("entity out of range (%i)", v44);
-      *(_DWORD *)_RDI = 0;
-      if ( (_DWORD)v44 )
-        EntHandle::setEnt((EntHandle *)_RDI, &g_entities[(int)v44 - 1]);
+      v33 = *(unsigned int *)v8;
+      if ( (unsigned int)v33 > 0x800 )
+        return j_va("entity out of range (%i)", v33);
+      *(_DWORD *)v8 = 0;
+      if ( (_DWORD)v33 )
+        EntHandle::setEnt((EntHandle *)v8, &g_entities[(int)v33 - 1]);
       return 0i64;
     case 4u:
-      UsableHandle::readFromSave((UsableHandle *)_RDI, *(_DWORD *)_RDI);
+      UsableHandle::readFromSave((UsableHandle *)v8, *(_DWORD *)v8);
       return 0i64;
     case 5u:
-      v45 = *(unsigned int *)_RDI;
-      if ( (int)v45 > level.maxclients || (int)v45 < 0 )
-        return j_va("client out of range (%i)", v45);
-      if ( (_DWORD)v45 )
-        *(_QWORD *)_RDI = &level.clients[(int)v45 - 1];
+      v34 = *(unsigned int *)v8;
+      if ( (int)v34 > level.maxclients || (int)v34 < 0 )
+        return j_va("client out of range (%i)", v34);
+      if ( (_DWORD)v34 )
+        *(_QWORD *)v8 = &level.clients[(int)v34 - 1];
       else
-        *(_QWORD *)_RDI = 0i64;
+        *(_QWORD *)v8 = 0i64;
       return 0i64;
     case 6u:
-      v46 = *(unsigned int *)_RDI;
-      if ( (unsigned int)v46 > 0x80 )
-        return j_va("vehicle out of range (%i)", v46);
-      if ( (_DWORD)v46 )
-        *(_QWORD *)_RDI = &level.vehicles[(int)v46 - 1];
+      v35 = *(unsigned int *)v8;
+      if ( (unsigned int)v35 > 0x80 )
+        return j_va("vehicle out of range (%i)", v35);
+      if ( (_DWORD)v35 )
+        *(_QWORD *)v8 = &level.vehicles[(int)v35 - 1];
       else
-        *(_QWORD *)_RDI = 0i64;
+        *(_QWORD *)v8 = 0i64;
       return 0i64;
     case 7u:
-      v47 = ScriptContext_Server();
-      *(_DWORD *)_RDI = Scr_ConvertThreadFromLoad(v47, *(_DWORD *)_RDI);
+      v36 = ScriptContext_Server();
+      *(_DWORD *)v8 = Scr_ConvertThreadFromLoad(v36, *(_DWORD *)v8);
       return 0i64;
     case 8u:
-      v48 = *(unsigned int *)_RDI;
-      if ( (int)v48 > (int)level.maxSentients || (int)v48 < 0 )
-        return j_va("sentient out of range (%i)", v48);
-      if ( (_DWORD)v48 )
-        *(_QWORD *)_RDI = &level.sentients[(int)v48 - 1];
+      v37 = *(unsigned int *)v8;
+      if ( (int)v37 > (int)level.maxSentients || (int)v37 < 0 )
+        return j_va("sentient out of range (%i)", v37);
+      if ( (_DWORD)v37 )
+        *(_QWORD *)v8 = &level.sentients[(int)v37 - 1];
       else
-        *(_QWORD *)_RDI = 0i64;
+        *(_QWORD *)v8 = 0i64;
       return 0i64;
     case 9u:
-      v48 = *(unsigned int *)_RDI;
-      if ( (int)v48 > (int)level.maxSentients || (int)v48 < 0 )
-        return j_va("sentient out of range (%i)", v48);
-      *(_DWORD *)_RDI = 0;
-      if ( (_DWORD)v48 )
-        SentientHandle::setSentient((SentientHandle *)_RDI, &level.sentients[(int)v48 - 1]);
+      v37 = *(unsigned int *)v8;
+      if ( (int)v37 > (int)level.maxSentients || (int)v37 < 0 )
+        return j_va("sentient out of range (%i)", v37);
+      *(_DWORD *)v8 = 0;
+      if ( (_DWORD)v37 )
+        SentientHandle::setSentient((SentientHandle *)v8, &level.sentients[(int)v37 - 1]);
       return 0i64;
     case 0xAu:
-      *(_QWORD *)_RDI = Path_LoadNode(*(_WORD *)_RDI);
+      *(_QWORD *)v8 = Path_LoadNode(*(_WORD *)v8);
       return 0i64;
     case 0xBu:
-      v49 = *(_DWORD *)_RDI;
-      if ( *(_DWORD *)_RDI )
+      v38 = *(_DWORD *)v8;
+      if ( *(_DWORD *)v8 )
       {
-        v50 = ScriptContext_Server();
-        Anims = Scr_GetAnims(v50, v49);
+        v39 = ScriptContext_Server();
+        Anims = Scr_GetAnims(v39, v38);
         if ( !Anims && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\savefield.cpp", 653, ASSERT_TYPE_ASSERT, "(anims)", (const char *)&queryFormat, "anims") )
           __debugbreak();
-        *(_QWORD *)_RDI = Com_XAnimCreateSmallTree(Anims, MOVEMENT);
+        *(_QWORD *)v8 = Com_XAnimCreateSmallTree(Anims, MOVEMENT);
       }
       else
       {
-        *(_QWORD *)_RDI = 0i64;
+        *(_QWORD *)v8 = 0i64;
       }
       return 0i64;
     case 0xCu:
-      if ( *(_DWORD *)_RDI )
+      if ( *(_DWORD *)v8 )
       {
-        v52 = (unsigned __int8 *)G_AllocTagInfoMem();
-        *(_QWORD *)_RDI = v52;
-        readStructCallback(tagInfoFields, v52, 128, save);
+        v41 = (unsigned __int8 *)G_AllocTagInfoMem();
+        *(_QWORD *)v8 = v41;
+        readStructCallback(tagInfoFields, v41, 128, save);
       }
       return 0i64;
     case 0xDu:
-      if ( *(_DWORD *)_RDI )
+      if ( *(_DWORD *)v8 )
       {
-        v53 = (unsigned __int8 *)MT_Alloc(0x60ui64, 18);
-        *(_QWORD *)_RDI = v53;
-        readStructCallback(animscriptedFields, v53, 96, save);
+        v42 = (unsigned __int8 *)MT_Alloc(0x60ui64, 18);
+        *(_QWORD *)v8 = v42;
+        readStructCallback(animscriptedFields, v42, 96, save);
       }
       return 0i64;
     case 0xEu:
-      __asm { vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON }
-      v12 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-      __asm
-      {
-        vmovups ymmword ptr [rsp+5D8h+r_weapon.weaponIdx], ymm0
-        vmovups xmm0, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-        vmovups [rsp+5D8h+var_5A0], xmm0
-        vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-        vmovsd  [rsp+5D8h+var_5A8], xmm0
-      }
+      v11 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+      *(__m256i *)&r_weapon.weaponIdx = *(__m256i *)&NULL_WEAPON.weaponIdx;
       WeaponNameSize = GSave::GetWeaponNameSize();
-      v16 = SaveMemory_GetMemoryFile(save);
-      G_SaveField_ReadCStyleString(psz, WeaponNameSize, v16);
+      v13 = SaveMemory_GetMemoryFile(save);
+      G_SaveField_ReadCStyleString(psz, WeaponNameSize, v13);
       if ( psz[0] )
       {
-        _RAX = G_Weapon_GetWeaponForName(&result, psz);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+20h]
-          vmovsd  xmm2, qword ptr [rax+30h]
-        }
-        v12 = *(_DWORD *)&_RAX->weaponCamo;
+        WeaponForName = G_Weapon_GetWeaponForName(&result, psz);
+        v15 = *(__m256i *)&WeaponForName->weaponIdx;
+        v16 = *(_OWORD *)&WeaponForName->attachmentVariationIndices[5];
+        v17 = *(double *)&WeaponForName->attachmentVariationIndices[21];
+        v11 = *(_DWORD *)&WeaponForName->weaponCamo;
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+5D8h+r_weapon.weaponIdx]
-          vmovups xmm1, [rsp+5D8h+var_5A0]
-          vmovsd  xmm2, [rsp+5D8h+var_5A8]
-        }
+        v15 = *(__m256i *)&r_weapon.weaponIdx;
+        v16 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+        v17 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
       }
-      __asm
-      {
-        vmovups ymmword ptr [rdi], ymm0
-        vmovups xmmword ptr [rdi+20h], xmm1
-        vmovsd  qword ptr [rdi+30h], xmm2
-      }
-      *((_DWORD *)_RDI + 14) = v12;
+      *(__m256i *)v8 = v15;
+      *((_OWORD *)v8 + 2) = v16;
+      *((double *)v8 + 6) = v17;
+      *((_DWORD *)v8 + 14) = v11;
       return 0i64;
     case 0xFu:
-      if ( *(_DWORD *)_RDI )
+      if ( *(_DWORD *)v8 )
       {
-        v21 = GSave::GetWeaponNameSize();
-        *(_DWORD *)_RDI = 0;
-        v22 = SaveMemory_GetMemoryFile(save);
-        G_SaveField_ReadCStyleString(name, v21, v22);
+        v18 = GSave::GetWeaponNameSize();
+        *(_DWORD *)v8 = 0;
+        v19 = SaveMemory_GetMemoryFile(save);
+        G_SaveField_ReadCStyleString(name, v18, v19);
         if ( name[0] )
         {
-          _RAX = G_Weapon_GetWeaponForName(&v57, name);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups ymmword ptr [rsp+5D8h+r_weapon.weaponIdx], ymm0
-            vmovups xmm1, xmmword ptr [rax+20h]
-            vmovups xmmword ptr [rsp+5D8h+r_weapon.attachmentVariationIndices+5], xmm1
-            vmovsd  xmm0, qword ptr [rax+30h]
-            vmovsd  qword ptr [rsp+5D8h+r_weapon.attachmentVariationIndices+15h], xmm0
-          }
-          *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+          r_weapon = *G_Weapon_GetWeaponForName(&v44, name);
           Instance = GWeaponMap::GetInstance();
-          GWeaponMap::SetWeapon(Instance, (BgWeaponHandle *)_RDI, &r_weapon);
+          GWeaponMap::SetWeapon(Instance, (BgWeaponHandle *)v8, &r_weapon);
         }
       }
       return 0i64;
     case 0x10u:
-      if ( !*(_DWORD *)_RDI )
+      if ( !*(_DWORD *)v8 )
         return 0i64;
-      v28 = SaveMemory_GetMemoryFile(save);
-      v29 = MemFile_ReadCString(v28);
-      _RAX = G_Weapon_GetWeaponForName(&v58, v29);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+5D8h+var_490.weaponIdx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rsp+5D8h+var_490.attachmentVariationIndices+5], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rsp+5D8h+var_490.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&v60.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-      v34 = ScriptContext_Server();
-      if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1138, ASSERT_TYPE_ASSERT, "(weaponName)", (const char *)&queryFormat, "weaponName") )
+      v21 = SaveMemory_GetMemoryFile(save);
+      v22 = MemFile_ReadCString(v21);
+      v47 = *G_Weapon_GetWeaponForName(&v45, v22);
+      v23 = ScriptContext_Server();
+      if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1138, ASSERT_TYPE_ASSERT, "(weaponName)", (const char *)&queryFormat, "weaponName") )
         __debugbreak();
-      v35 = "none";
-      v36 = 4i64;
-      if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+      v24 = "none";
+      v25 = 4i64;
+      if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
       break;
     default:
@@ -537,34 +505,34 @@ const char *G_SaveField_ReadFieldCommon(const saveField_t *field, unsigned __int
   }
   while ( 1 )
   {
-    v37 = v35[v29 - "none"];
-    v38 = v36;
-    v39 = *v35++;
-    --v36;
-    if ( !v38 )
+    v26 = v24[v22 - "none"];
+    v27 = v25;
+    v28 = *v24++;
+    --v25;
+    if ( !v27 )
       goto LABEL_33;
-    if ( v37 != v39 )
+    if ( v26 != v28 )
       break;
-    if ( !v37 )
+    if ( !v26 )
       goto LABEL_33;
   }
-  v43 = -1i64;
+  v32 = -1i64;
   do
-    ++v43;
-  while ( v29[v43] );
-  if ( v43 <= 4 || *v29 != 97 || v29[1] != 108 || v29[2] != 116 || v29[3] != 95 )
+    ++v32;
+  while ( v22[v32] );
+  if ( v32 <= 4 || *v22 != 97 || v22[1] != 108 || v22[2] != 116 || v22[3] != 95 )
   {
 LABEL_33:
-    v40 = 0;
+    v29 = 0;
     goto LABEL_34;
   }
-  v40 = 1;
+  v29 = 1;
 LABEL_34:
-  v41 = GScr_Weapon_Create(v34, &v60, v40);
-  *(_DWORD *)_RDI = v41;
-  if ( !v41 )
+  v30 = GScr_Weapon_Create(v23, &v47, v29);
+  *(_DWORD *)v8 = v30;
+  if ( !v30 )
     return "Invalid weapon read from save file";
-  GScr_Weapon_AddReference(v34, v41);
+  GScr_Weapon_AddReference(v23, v30);
   return 0i64;
 }
 
@@ -693,25 +661,34 @@ G_SaveField_WriteFieldCommon
 */
 void G_SaveField_WriteFieldCommon(const saveField_t *field, const unsigned __int8 *base, MemoryFile *memFile, void (*writeStructCallback)(const saveField_t *, const unsigned __int8 *, unsigned __int8 *, int, MemoryFile *))
 {
+  __int16 v4; 
+  const unsigned __int8 *v9; 
   unsigned __int64 UsedSize; 
   const char *v11; 
   int WeaponNameSize; 
+  __m256i v13; 
   int v14; 
+  __int128 v15; 
+  double v16; 
   const char *WeaponName; 
   GWeaponMap *Instance; 
   const Weapon *Weapon; 
-  int v21; 
-  unsigned __int64 v22; 
-  const scrContext_t *v23; 
-  const Weapon *v24; 
+  int v20; 
+  unsigned __int64 v21; 
+  const scrContext_t *v22; 
+  const Weapon *v23; 
   bool IsAlternate; 
   const char *WeaponNameComplete; 
+  __m256i *v26; 
+  unsigned __int64 v27; 
+  __int64 v28; 
+  const saveField_t *v29; 
+  __m256i *v30; 
+  unsigned __int64 v31; 
   unsigned __int64 v32; 
-  __int64 v33; 
-  const saveField_t *v34; 
-  unsigned __int64 v39; 
-  unsigned __int64 v40; 
   char r_weapon[64]; 
+  __m256i v34; 
+  __m256i v35; 
   char output[512]; 
 
   if ( !field && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\savefield.cpp", 366, ASSERT_TYPE_ASSERT, "( field )", (const char *)&queryFormat, "field") )
@@ -720,74 +697,54 @@ void G_SaveField_WriteFieldCommon(const saveField_t *field, const unsigned __int
     __debugbreak();
   if ( !writeStructCallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\savefield.cpp", 368, ASSERT_TYPE_ASSERT, "( writeStructCallback )", (const char *)&queryFormat, "writeStructCallback") )
     __debugbreak();
-  _RSI = (BgWeaponHandle *)&base[field->ofs];
+  v9 = &base[field->ofs];
   switch ( field->type )
   {
     case 1u:
       UsedSize = MemFile_GetUsedSize(memFile);
       ProfMem_Begin("string", UsedSize);
-      if ( _RSI->m_mapEntryId )
+      if ( *(_DWORD *)v9 )
       {
-        v11 = SL_ConvertToString((scr_string_t)_RSI->m_mapEntryId);
+        v11 = SL_ConvertToString((scr_string_t)*(_DWORD *)v9);
         MemFile_WriteCString(memFile, v11);
       }
       goto LABEL_25;
     case 0xCu:
-      _RAX = *(_QWORD *)&_RSI->m_mapEntryId;
-      if ( !*(_QWORD *)&_RSI->m_mapEntryId )
+      v26 = *(__m256i **)v9;
+      if ( !*(_QWORD *)v9 )
         return;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+2E8h+r_weapon], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+2E8h+r_weapon+20h], ymm1
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups [rsp+2E8h+var_278], ymm0
-        vmovups ymm1, ymmword ptr [rax+60h]
-        vmovups [rsp+2E8h+var_258], ymm1
-      }
-      v32 = MemFile_GetUsedSize(memFile);
-      ProfMem_Begin("tagInfo", v32);
-      v33 = 128i64;
-      v34 = tagInfoFields;
+      *(__m256i *)r_weapon = *v26;
+      *(__m256i *)&r_weapon[32] = v26[1];
+      v34 = v26[2];
+      v35 = v26[3];
+      v27 = MemFile_GetUsedSize(memFile);
+      ProfMem_Begin("tagInfo", v27);
+      v28 = 128i64;
+      v29 = tagInfoFields;
       break;
     case 0xDu:
-      _RAX = *(_QWORD *)&_RSI->m_mapEntryId;
-      if ( !*(_QWORD *)&_RSI->m_mapEntryId )
+      v30 = *(__m256i **)v9;
+      if ( !*(_QWORD *)v9 )
         return;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+2E8h+r_weapon], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+2E8h+r_weapon+20h], ymm1
-        vmovups ymm0, ymmword ptr [rax+40h]
-        vmovups [rsp+2E8h+var_278], ymm0
-      }
-      v39 = MemFile_GetUsedSize(memFile);
-      ProfMem_Begin("animscripted", v39);
-      v33 = 96i64;
-      v34 = animscriptedFields;
+      *(__m256i *)r_weapon = *v30;
+      *(__m256i *)&r_weapon[32] = v30[1];
+      v34 = v30[2];
+      v31 = MemFile_GetUsedSize(memFile);
+      ProfMem_Begin("animscripted", v31);
+      v28 = 96i64;
+      v29 = animscriptedFields;
       break;
     case 0xEu:
       WeaponNameSize = GSave::GetWeaponNameSize();
-      __asm { vmovups ymm2, ymmword ptr [rsi] }
+      v13 = *(__m256i *)v9;
       v14 = WeaponNameSize;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi+20h]
-        vmovsd  xmm1, qword ptr [rsi+30h]
-      }
-      *(BgWeaponHandle *)&r_weapon[56] = _RSI[14];
-      __asm
-      {
-        vmovd   ecx, xmm2
-        vmovups ymmword ptr [rsp+2E8h+r_weapon], ymm2
-        vmovups xmmword ptr [rsp+2E8h+r_weapon+20h], xmm0
-        vmovsd  qword ptr [rsp+2E8h+r_weapon+30h], xmm1
-      }
-      if ( (_WORD)_ECX )
+      v15 = *((_OWORD *)v9 + 2);
+      v16 = *((double *)v9 + 6);
+      *(_DWORD *)&r_weapon[56] = *((_DWORD *)v9 + 14);
+      *(__m256i *)r_weapon = v13;
+      *(_OWORD *)&r_weapon[32] = v15;
+      *(double *)&r_weapon[48] = v16;
+      if ( v4 )
       {
         WeaponName = BG_GetWeaponName((const Weapon *)r_weapon, output, 0x200u);
         G_SaveField_WriteCStyleString(WeaponName, v14, memFile);
@@ -798,34 +755,34 @@ void G_SaveField_WriteFieldCommon(const saveField_t *field, const unsigned __int
       }
       return;
     case 0xFu:
-      if ( _RSI->m_mapEntryId )
+      if ( *(_DWORD *)v9 )
       {
         Instance = GWeaponMap::GetInstance();
-        Weapon = BgWeaponMap::GetWeapon(Instance, (BgWeaponHandle)_RSI->m_mapEntryId);
+        Weapon = BgWeaponMap::GetWeapon(Instance, *(BgWeaponHandle *)v9);
         BG_GetWeaponName(Weapon, output, 0x200u);
-        v21 = GSave::GetWeaponNameSize();
-        G_SaveField_WriteCStyleString(output, v21, memFile);
+        v20 = GSave::GetWeaponNameSize();
+        G_SaveField_WriteCStyleString(output, v20, memFile);
       }
       return;
     case 0x10u:
-      v22 = MemFile_GetUsedSize(memFile);
-      ProfMem_Begin("weapon", v22);
-      if ( _RSI->m_mapEntryId )
+      v21 = MemFile_GetUsedSize(memFile);
+      ProfMem_Begin("weapon", v21);
+      if ( *(_DWORD *)v9 )
       {
-        v23 = ScriptContext_Server();
-        v24 = GScr_Weapon_GetWeapon(v23, (const scr_weapon_t)_RSI->m_mapEntryId);
-        IsAlternate = GScr_Weapon_IsAlternate(v23, (const scr_weapon_t)_RSI->m_mapEntryId);
-        WeaponNameComplete = BG_GetWeaponNameComplete(v24, IsAlternate, output, 0x200u);
+        v22 = ScriptContext_Server();
+        v23 = GScr_Weapon_GetWeapon(v22, (const scr_weapon_t)*(_DWORD *)v9);
+        IsAlternate = GScr_Weapon_IsAlternate(v22, *(const scr_weapon_t *)v9);
+        WeaponNameComplete = BG_GetWeaponNameComplete(v23, IsAlternate, output, 0x200u);
         MemFile_WriteCString(memFile, WeaponNameComplete);
       }
       goto LABEL_25;
     default:
       return;
   }
-  writeStructCallback(v34, *(const unsigned __int8 **)&_RSI->m_mapEntryId, (unsigned __int8 *)r_weapon, v33, memFile);
+  writeStructCallback(v29, *(const unsigned __int8 **)v9, (unsigned __int8 *)r_weapon, v28, memFile);
 LABEL_25:
-  v40 = MemFile_GetUsedSize(memFile);
-  ProfMem_End(v40);
+  v32 = MemFile_GetUsedSize(memFile);
+  ProfMem_End(v32);
 }
 
 /*

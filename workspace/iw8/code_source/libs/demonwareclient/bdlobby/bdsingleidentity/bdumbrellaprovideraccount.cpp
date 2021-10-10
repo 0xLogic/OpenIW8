@@ -60,51 +60,38 @@ bdUmbrellaProviderAccount::bdUmbrellaProviderAccount
 */
 void bdUmbrellaProviderAccount::bdUmbrellaProviderAccount(bdUmbrellaProviderAccount *this, const bdUmbrellaProviderAccount *__that)
 {
-  const bdUmbrellaProviderAccount *v2; 
   __int64 v3; 
-  char v5; 
+  char v4; 
+  char *m_username; 
+  char *v6; 
+  __int128 v7; 
 
-  v2 = __that;
   this->__vftable = (bdUmbrellaProviderAccount_vtbl *)&bdUmbrellaProviderAccount::`vftable';
   v3 = 2i64;
   this->m_linkedAccountID = __that->m_linkedAccountID;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdx+10h]
-    vmovsd  qword ptr [rcx+10h], xmm0
-  }
+  *(double *)this->m_provider = *(double *)__that->m_provider;
   *(_WORD *)&this->m_provider[8] = *(_WORD *)&__that->m_provider[8];
-  v5 = __that->m_provider[10];
-  _RDX = this->m_username;
-  this->m_provider[10] = v5;
-  _RAX = v2->m_username;
+  v4 = __that->m_provider[10];
+  m_username = this->m_username;
+  this->m_provider[10] = v4;
+  v6 = __that->m_username;
   do
   {
-    _RDX += 128;
-    __asm { vmovups xmm0, xmmword ptr [rax] }
-    _RAX += 128;
-    __asm
-    {
-      vmovups xmmword ptr [rdx-80h], xmm0
-      vmovups xmm1, xmmword ptr [rax-70h]
-      vmovups xmmword ptr [rdx-70h], xmm1
-      vmovups xmm0, xmmword ptr [rax-60h]
-      vmovups xmmword ptr [rdx-60h], xmm0
-      vmovups xmm1, xmmword ptr [rax-50h]
-      vmovups xmmword ptr [rdx-50h], xmm1
-      vmovups xmm0, xmmword ptr [rax-40h]
-      vmovups xmmword ptr [rdx-40h], xmm0
-      vmovups xmm1, xmmword ptr [rax-30h]
-      vmovups xmmword ptr [rdx-30h], xmm1
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rdx-20h], xmm0
-      vmovups xmm1, xmmword ptr [rax-10h]
-      vmovups xmmword ptr [rdx-10h], xmm1
-    }
+    m_username += 128;
+    v7 = *(_OWORD *)v6;
+    v6 += 128;
+    *((_OWORD *)m_username - 8) = v7;
+    *((_OWORD *)m_username - 7) = *((_OWORD *)v6 - 7);
+    *((_OWORD *)m_username - 6) = *((_OWORD *)v6 - 6);
+    *((_OWORD *)m_username - 5) = *((_OWORD *)v6 - 5);
+    *((_OWORD *)m_username - 4) = *((_OWORD *)v6 - 4);
+    *((_OWORD *)m_username - 3) = *((_OWORD *)v6 - 3);
+    *((_OWORD *)m_username - 2) = *((_OWORD *)v6 - 2);
+    *((_OWORD *)m_username - 1) = *((_OWORD *)v6 - 1);
     --v3;
   }
   while ( v3 );
-  this->m_authorized = v2->m_authorized;
+  this->m_authorized = __that->m_authorized;
 }
 
 /*

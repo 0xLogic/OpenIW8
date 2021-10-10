@@ -14,116 +14,64 @@ void __fastcall GScr_ComputeDropBagPositions(scrContext_t *scrContext)
 ComputeDropBagPosition_AddNewPairPosition
 ==============
 */
-
-dropBagPairPosition_t *__fastcall ComputeDropBagPosition_AddNewPairPosition(dropBagContext_t *dropBagContext, const vec3_t *spotBetween, double _XMM2_8)
+dropBagPairPosition_t *ComputeDropBagPosition_AddNewPairPosition(dropBagContext_t *dropBagContext, const vec3_t *spotBetween)
 {
-  bool v8; 
-  int v11; 
-  __int64 v13; 
-  int v14; 
-  __int64 v16; 
-  __int64 v17; 
-  __int64 v18; 
-  dropBagPairPosition_t *result; 
-  __int128 v41; 
-  __int128 v42; 
-  char v45; 
+  signed int v4; 
+  dropBagPairPosition_t *v5; 
+  __int64 v6; 
+  signed int v7; 
+  __int64 v8; 
+  __int64 v9; 
+  __int64 v10; 
+  __int64 v11; 
+  double v12; 
+  float v13; 
+  float spotDistanceFromCenter; 
 
-  v8 = dropBagContext->numPairPositions < 0xC7;
-  __asm
-  {
-    vmovaps [rsp+98h+var_58], xmm8
-    vmovaps [rsp+98h+var_68], xmm9
-  }
-  _RDI = dropBagContext;
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_br.cpp", 740, ASSERT_TYPE_ASSERT, "(dropBagContext.numPairPositions < ( sizeof( *array_counter( dropBagContext.pairPositions ) ) + 0 ) - 1)", (const char *)&queryFormat, "dropBagContext.numPairPositions < ARRAY_COUNT( dropBagContext.pairPositions ) - 1", v41, v42) )
+  if ( dropBagContext->numPairPositions >= 0xC7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_br.cpp", 740, ASSERT_TYPE_ASSERT, "(dropBagContext.numPairPositions < ( sizeof( *array_counter( dropBagContext.pairPositions ) ) + 0 ) - 1)", (const char *)&queryFormat, "dropBagContext.numPairPositions < ARRAY_COUNT( dropBagContext.pairPositions ) - 1") )
     __debugbreak();
-  if ( _RDI->spotsPerCluster < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_br.cpp", 741, ASSERT_TYPE_ASSERT, "(dropBagContext.spotsPerCluster >= 2)", (const char *)&queryFormat, "dropBagContext.spotsPerCluster >= 2") )
+  if ( dropBagContext->spotsPerCluster < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_br.cpp", 741, ASSERT_TYPE_ASSERT, "(dropBagContext.spotsPerCluster >= 2)", (const char *)&queryFormat, "dropBagContext.spotsPerCluster >= 2") )
     __debugbreak();
-  v11 = 0;
-  _RBX = &_RDI->pairPositions[(unsigned __int64)_RDI->numPairPositions++];
-  _RBX->origin.v[0] = spotBetween->v[0];
-  _RBX->origin.v[1] = spotBetween->v[1];
-  _RBX->origin.v[2] = spotBetween->v[2];
-  _RBX->numSlotsInUse = 0;
-  _RBX->numSlotsRemaining = _RDI->spotsPerCluster;
-  if ( _RBX->slotList.m_size >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 180, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
+  v4 = 0;
+  v5 = &dropBagContext->pairPositions[(unsigned __int64)dropBagContext->numPairPositions++];
+  v5->origin.v[0] = spotBetween->v[0];
+  v5->origin.v[1] = spotBetween->v[1];
+  v5->origin.v[2] = spotBetween->v[2];
+  v5->numSlotsInUse = 0;
+  v5->numSlotsRemaining = dropBagContext->spotsPerCluster;
+  if ( v5->slotList.m_size >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 180, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
     __debugbreak();
-  v13 = 3 * _RBX->slotList.m_size;
-  *(_QWORD *)&_RBX->slotList.m_data.m_buffer[4 * v13] = 0i64;
-  *(_DWORD *)&_RBX->slotList.m_data.m_buffer[4 * v13 + 8] = 0;
-  ++_RBX->slotList.m_size;
-  *(float *)&_RBX->slotList.m_data.m_buffer[4 * v13] = spotBetween->v[0];
-  *(float *)&_RBX->slotList.m_data.m_buffer[4 * v13 + 4] = spotBetween->v[1];
-  *(float *)&_RBX->slotList.m_data.m_buffer[4 * v13 + 8] = spotBetween->v[2];
-  v14 = _RDI->spotsPerCluster - 1;
-  *(double *)&_XMM0 = G_random();
-  __asm
+  v6 = 3 * v5->slotList.m_size;
+  *(_QWORD *)&v5->slotList.m_data.m_buffer[4 * v6] = 0i64;
+  *(_DWORD *)&v5->slotList.m_data.m_buffer[4 * v6 + 8] = 0;
+  ++v5->slotList.m_size;
+  *(float *)&v5->slotList.m_data.m_buffer[4 * v6] = spotBetween->v[0];
+  *(float *)&v5->slotList.m_data.m_buffer[4 * v6 + 4] = spotBetween->v[1];
+  *(float *)&v5->slotList.m_data.m_buffer[4 * v6 + 8] = spotBetween->v[2];
+  v7 = dropBagContext->spotsPerCluster - 1;
+  G_random();
+  if ( v7 > 0 )
   {
-    vmulss  xmm1, xmm0, cs:__real@40490fdb
-    vmovss  xmm0, cs:__real@40c90fdb
-    vmulss  xmm8, xmm1, cs:__real@40000000
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, r14d
-    vdivss  xmm9, xmm0, xmm2
-  }
-  if ( v14 > 0 )
-  {
-    __asm
-    {
-      vmovaps [rsp+98h+var_38], xmm6
-      vmovaps [rsp+98h+var_48], xmm7
-    }
     do
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebp
-        vmulss  xmm1, xmm0, xmm9
-        vaddss  xmm0, xmm1, xmm8
-      }
-      *(double *)&_XMM0 = j___libm_sse2_sincosf_(v16, _RDX, v17, v18);
-      __asm
-      {
-        vmovups xmm6, xmm0
-        vshufps xmm7, xmm0, xmm0, 1
-      }
-      if ( _RBX->slotList.m_size >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 180, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
+      v12 = j___libm_sse2_sincosf_(v9, v8, v10, v11);
+      LODWORD(v13) = _mm_shuffle_ps((__m128)*(unsigned __int64 *)&v12, (__m128)*(unsigned __int64 *)&v12, 1).m128_u32[0];
+      if ( v5->slotList.m_size >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 180, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
         __debugbreak();
-      ++v11;
-      _RDX = 3 * _RBX->slotList.m_size;
-      *(_QWORD *)&_RBX->slotList.m_data.m_buffer[4 * _RDX] = 0i64;
-      *(_DWORD *)&_RBX->slotList.m_data.m_buffer[4 * _RDX + 8] = 0;
-      ++_RBX->slotList.m_size;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rdi+45260h]
-        vmulss  xmm0, xmm7, xmm2
-        vaddss  xmm1, xmm0, dword ptr [rsi]
-        vmovss  dword ptr [rbx+rdx*4+10h], xmm1
-        vmulss  xmm2, xmm6, xmm2
-        vaddss  xmm0, xmm2, dword ptr [rsi+4]
-        vmovss  dword ptr [rbx+rdx*4+14h], xmm0
-      }
-      v16 = LODWORD(spotBetween->v[2]);
-      *(_DWORD *)&_RBX->slotList.m_data.m_buffer[4 * _RDX + 8] = v16;
+      ++v4;
+      v8 = 3 * v5->slotList.m_size;
+      *(_QWORD *)&v5->slotList.m_data.m_buffer[4 * v8] = 0i64;
+      *(_DWORD *)&v5->slotList.m_data.m_buffer[4 * v8 + 8] = 0;
+      ++v5->slotList.m_size;
+      spotDistanceFromCenter = dropBagContext->spotDistanceFromCenter;
+      *(float *)&v5->slotList.m_data.m_buffer[4 * v8] = (float)(v13 * spotDistanceFromCenter) + spotBetween->v[0];
+      *(float *)&v5->slotList.m_data.m_buffer[4 * v8 + 4] = (float)(*(float *)&v12 * spotDistanceFromCenter) + spotBetween->v[1];
+      v9 = LODWORD(spotBetween->v[2]);
+      *(_DWORD *)&v5->slotList.m_data.m_buffer[4 * v8 + 8] = v9;
     }
-    while ( v11 < v14 );
-    __asm
-    {
-      vmovaps xmm7, [rsp+98h+var_48]
-      vmovaps xmm6, [rsp+98h+var_38]
-    }
+    while ( v4 < v7 );
   }
-  _R11 = &v45;
-  result = _RBX;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
+  return v5;
 }
 
 /*
@@ -133,60 +81,183 @@ ComputeDropBagPosition_AttemptToFindSpotBetweenTwoPlayers
 */
 bool ComputeDropBagPosition_AttemptToFindSpotBetweenTwoPlayers(dropBagContext_t *dropBagContext, dropBagPlayerInfo_t *playerInfo1, dropBagPlayerInfo_t *playerInfo2, vec3_t *outPos)
 {
-  bool result; 
-  char v50; 
-  void *retaddr; 
+  float minRadius; 
+  float v9; 
+  float v10; 
+  float v11; 
+  __int128 v12; 
+  float v14; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float maxRadius; 
+  float v24; 
+  float v25; 
+  __int128 v26; 
+  float v27; 
+  float v28; 
+  __int128 v29; 
+  float v30; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  __int128 v46; 
+  float v47; 
+  float v51; 
+  float v52; 
+  float v53; 
+  __int128 v54; 
+  float v55; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  double v68; 
+  float v69; 
+  float c; 
+  float s; 
+  float v73; 
+  float v74; 
 
-  _RAX = &retaddr;
+  minRadius = dropBagContext->minRadius;
+  v9 = playerInfo2->origin.v[0] - playerInfo1->origin.v[0];
+  v10 = playerInfo1->origin.v[1];
+  v12 = LODWORD(playerInfo2->origin.v[1]);
+  v11 = playerInfo2->origin.v[1] - v10;
+  *(float *)&v12 = fsqrt((float)(v11 * v11) + (float)(v9 * v9));
+  _XMM3 = v12;
+  v14 = *(float *)&v12 * 0.5;
   __asm
   {
-    vmovss  xmm0, dword ptr [r8]
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovss  xmm7, dword ptr [rcx+45244h]
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovss  xmm8, cs:__real@3f800000
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovss  xmm9, dword ptr [rdx]
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vsubss  xmm5, xmm0, xmm9
-    vmovss  xmm0, dword ptr [r8+4]
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps [rsp+0E8h+var_88], xmm12
-    vmovss  xmm12, dword ptr [rdx+4]
-    vsubss  xmm4, xmm0, xmm12
-    vmulss  xmm1, xmm5, xmm5
-    vmovaps [rsp+0E8h+var_98], xmm13
-    vmulss  xmm2, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vmovaps [rsp+0E8h+var_A8], xmm14
-    vmovaps [rsp+0E8h+var_B8], xmm15
-    vmovss  xmm15, cs:__real@80000000
-    vsqrtss xmm3, xmm0, xmm0
-    vmulss  xmm6, xmm3, cs:__real@3f000000
-    vcomiss xmm6, dword ptr [rcx+45250h]
     vcmpless xmm0, xmm3, xmm15
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm1, xmm8, xmm0
-    vmulss  xmm10, xmm5, xmm1
-    vmulss  xmm11, xmm4, xmm1
   }
-  result = 0;
-  __asm { vmovaps xmm14, [rsp+0E8h+var_A8] }
-  _R11 = &v50;
+  v17 = v9 * (float)(1.0 / *(float *)&_XMM0);
+  v18 = v11 * (float)(1.0 / *(float *)&_XMM0);
+  if ( (float)(*(float *)&v12 * 0.5) >= dropBagContext->maxRadius )
+    return 0;
+  v19 = (float)((float)(v11 * (float)(1.0 / *(float *)&_XMM0)) * v14) + v10;
+  v20 = (float)(v17 * v14) + playerInfo1->origin.v[0];
+  v73 = v19;
+  v21 = 0.0;
+  if ( v14 < minRadius )
+  {
+    v22 = cosf_0(v14 / minRadius);
+    v21 = sinf_0(v22) * minRadius;
+  }
+  maxRadius = dropBagContext->maxRadius;
+  v24 = cosf_0(v14 / maxRadius);
+  v25 = sinf_0(v24);
+  v26 = LODWORD(dropBagContext->circleOrigin.v[1]);
+  v74 = v25 * maxRadius;
+  v27 = dropBagContext->circleOrigin.v[0] - v20;
+  v29 = v26;
+  v28 = *(float *)&v26 - v19;
+  v30 = FLOAT_1_5707964;
+  *(float *)&v29 = fsqrt((float)(v28 * v28) + (float)(v27 * v27));
+  _XMM3 = v29;
   __asm
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm15, [rsp+0E8h+var_B8]
+    vcmpless xmm0, xmm3, xmm15
+    vblendvps xmm0, xmm3, xmm8, xmm0
   }
-  return result;
+  v34 = v27 * (float)(1.0 / *(float *)&_XMM0);
+  v35 = v28 * (float)(1.0 / *(float *)&_XMM0);
+  FastSinCos(1.5707964, &s, &c);
+  v36 = (float)(v17 * c) - (float)(v18 * s);
+  v37 = (float)(v18 * c) + (float)(v17 * s);
+  if ( (float)((float)(v36 * v34) + (float)(v37 * v35)) < 0.0 )
+  {
+    v30 = FLOAT_N1_5707964;
+    FastSinCos(-1.5707964, &c, &s);
+    v36 = (float)(v17 * s) - (float)(v18 * c);
+    v37 = (float)(v18 * s) + (float)(v17 * c);
+  }
+  v38 = (float)(v36 * v21) + v20;
+  v39 = (float)(v36 * v74) + v20;
+  v40 = playerInfo1->origin.v[1];
+  v41 = (float)(v37 * v21) + v73;
+  v42 = v37 * v74;
+  v43 = dropBagContext->circleOrigin.v[0];
+  v44 = playerInfo1->origin.v[0];
+  s = v39;
+  c = v42 + v73;
+  v46 = LODWORD(dropBagContext->circleOrigin.v[1]);
+  *(float *)&v46 = dropBagContext->circleOrigin.v[1] - v40;
+  v45 = *(float *)&v46;
+  v47 = v43 - v44;
+  if ( (float)((float)(*(float *)&v46 * v18) + (float)((float)(v43 - v44) * v17)) >= 0.0 )
+  {
+    v44 = playerInfo2->origin.v[0];
+    v40 = playerInfo2->origin.v[1];
+    v54 = LODWORD(dropBagContext->circleOrigin.v[1]);
+    v53 = dropBagContext->circleOrigin.v[1] - v40;
+    v55 = v43 - playerInfo2->origin.v[0];
+    *(float *)&v54 = fsqrt((float)(v53 * v53) + (float)(v55 * v55));
+    _XMM2 = v54;
+    __asm
+    {
+      vcmpless xmm1, xmm2, xmm15
+      vblendvps xmm1, xmm2, xmm8, xmm1
+    }
+    v51 = v55 * (float)(1.0 / *(float *)&_XMM1);
+    v52 = v53 * (float)(1.0 / *(float *)&_XMM1);
+  }
+  else
+  {
+    v30 = v30 + 3.1415927;
+    *(float *)&v46 = fsqrt((float)(*(float *)&v46 * *(float *)&v46) + (float)(v47 * v47));
+    _XMM2 = v46;
+    __asm
+    {
+      vcmpless xmm0, xmm2, xmm15
+      vblendvps xmm0, xmm2, xmm8, xmm0
+    }
+    v51 = v47 * (float)(1.0 / *(float *)&_XMM0);
+    v52 = v45 * (float)(1.0 / *(float *)&_XMM0);
+  }
+  FastSinCos(v30, &v73, &v74);
+  v59 = (float)(v51 * v74) - (float)(v52 * v73);
+  v60 = c - v41;
+  LODWORD(v61) = COERCE_UNSIGNED_INT((float)(v51 * v73) + (float)(v52 * v74)) ^ _xmm;
+  v62 = v44 - v38;
+  v63 = v40 - v41;
+  v64 = s;
+  v65 = s - v38;
+  v66 = (float)(v61 * (float)(s - v38)) + (float)(v59 * (float)(c - v41));
+  if ( v66 < 0.000099999997 )
+    return 0;
+  v67 = (float)((float)(v61 * v62) + (float)(v59 * v63)) * (float)(1.0 / v66);
+  if ( v67 > 1.0 )
+    return 0;
+  if ( (float)((float)((float)(v65 * v63) - (float)(v60 * v62)) * (float)(1.0 / v66)) >= 0.0 && v67 >= 0.0 && v67 <= 1.0 )
+  {
+    v38 = v38 + (float)(v65 * v67);
+    v41 = v41 + (float)(v60 * v67);
+  }
+  v68 = G_random();
+  v69 = c;
+  outPos->v[0] = (float)((float)(v64 - v38) * *(float *)&v68) + v38;
+  outPos->v[1] = (float)((float)(v69 - v41) * *(float *)&v68) + v41;
+  outPos->v[2] = (float)(playerInfo1->origin.v[2] + playerInfo2->origin.v[2]) * 0.5;
+  return !ComputeDropBagPositions_IsPointWithRadiusOutsideCircle(dropBagContext, outPos, dropBagContext->spotDistanceFromCenter);
 }
 
 /*
@@ -202,22 +273,25 @@ void ComputeDropBagPositions_DoClusterPairsPass(dropBagContext_t *dropBagContext
   __int64 v5; 
   dropBagClusterInfo_t *v6; 
   dropBagClusterInfo_t **v7; 
+  dropBagClusterInfo_t *v8; 
   ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *p_potentialPlayers; 
   ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *v10; 
   unsigned __int64 m_size; 
+  __int64 v12; 
   char *v13; 
   ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *v14; 
-  __int64 v18; 
+  __int64 v15; 
+  __int64 v16; 
   unsigned __int64 numSlotsInUse; 
-  unsigned __int64 v22; 
-  ntl::random_access_iterator_tag v23; 
-  dropBagClusterInfo_t **v24; 
+  unsigned __int64 v18; 
+  ntl::random_access_iterator_tag v19; 
+  dropBagClusterInfo_t **v20; 
   dropBagClusterInfo_t *first[512]; 
-  unsigned __int64 v27; 
+  unsigned __int64 v23; 
 
   v2 = 0i64;
   v3 = 0i64;
-  v27 = 0i64;
+  v23 = 0i64;
   for ( i = 0; i < dropBagContext->numClusterInfos; ++i )
   {
     v5 = i;
@@ -228,36 +302,36 @@ void ComputeDropBagPositions_DoClusterPairsPass(dropBagContext_t *dropBagContext
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
           __debugbreak();
-        v3 = v27;
+        v3 = v23;
       }
       first[v3] = v6;
-      v3 = ++v27;
+      v3 = ++v23;
     }
   }
-  ntl::sort<dropBagClusterInfo_t * *,ClusterPotentialPlayersPredicate>(first, &first[v3], (ClusterPotentialPlayersPredicate)v23.ntl::input_iterator_tag, v23);
+  ntl::sort<dropBagClusterInfo_t * *,ClusterPotentialPlayersPredicate>(first, &first[v3], (ClusterPotentialPlayersPredicate)v19.ntl::input_iterator_tag, v19);
   v7 = first;
-  v24 = first;
-  if ( first != &first[v27] )
+  v20 = first;
+  if ( first != &first[v23] )
   {
     do
     {
-      _RDI = *v7;
+      v8 = *v7;
       if ( (*v7)->invalid )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_br.cpp", 517, ASSERT_TYPE_ASSERT, "(!clusterInfo->invalid)", (const char *)&queryFormat, "!clusterInfo->invalid") )
           __debugbreak();
-        v7 = v24;
+        v7 = v20;
       }
-      if ( _RDI->numSlotsRemaining >= 2 )
+      if ( v8->numSlotsRemaining >= 2 )
       {
-        p_potentialPlayers = &_RDI->potentialPlayers;
-        v10 = &_RDI->potentialPlayers;
-        m_size = _RDI->potentialPlayers.m_size;
-        if ( &_RDI->potentialPlayers != (ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *)((char *)&_RDI->potentialPlayers + 8 * m_size) )
+        p_potentialPlayers = &v8->potentialPlayers;
+        v10 = &v8->potentialPlayers;
+        m_size = v8->potentialPlayers.m_size;
+        if ( &v8->potentialPlayers != (ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *)((char *)&v8->potentialPlayers + 8 * m_size) )
         {
           do
           {
-            _R15 = *(_QWORD *)v10->m_data.m_buffer;
+            v12 = *(_QWORD *)v10->m_data.m_buffer;
             if ( !*(_BYTE *)(*(_QWORD *)v10->m_data.m_buffer + 12i64) )
             {
               v13 = &v10->m_data.m_buffer[8];
@@ -266,74 +340,64 @@ void ComputeDropBagPositions_DoClusterPairsPass(dropBagContext_t *dropBagContext
               {
                 while ( 1 )
                 {
-                  _RBX = *(_QWORD *)v13;
+                  v15 = *(_QWORD *)v13;
                   if ( !*(_BYTE *)(*(_QWORD *)v13 + 12i64) )
                     break;
                   v13 += 8;
                   if ( v13 == (char *)v14 )
                     goto LABEL_40;
                 }
-                *(_BYTE *)(_R15 + 12) = 1;
-                *(float *)(_R15 + 36) = _RDI->origin.v[0];
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rdi+4]
-                  vmovss  dword ptr [r15+28h], xmm0
-                  vmovss  xmm1, dword ptr [rdi+8]
-                  vmovss  dword ptr [r15+2Ch], xmm1
-                }
-                v18 = ((char *)_RDI - (char *)dropBagContext - 89608) / 328;
-                if ( (unsigned __int64)(v18 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v18, "signed", v18) )
+                *(_BYTE *)(v12 + 12) = 1;
+                *(float *)(v12 + 36) = v8->origin.v[0];
+                *(float *)(v12 + 40) = v8->origin.v[1];
+                *(float *)(v12 + 44) = v8->origin.v[2];
+                v16 = ((char *)v8 - (char *)dropBagContext - 89608) / 328;
+                if ( (unsigned __int64)(v16 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v16, "signed", v16) )
                   __debugbreak();
-                *(_DWORD *)(_RBX + 16) = v18;
-                numSlotsInUse = _RDI->numSlotsInUse;
-                if ( numSlotsInUse >= _RDI->slotList.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+                *(_DWORD *)(v15 + 16) = v16;
+                numSlotsInUse = v8->numSlotsInUse;
+                if ( numSlotsInUse >= v8->slotList.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
                   __debugbreak();
                 if ( numSlotsInUse >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
                   __debugbreak();
-                *(_DWORD *)(_RBX + 20) = *(_DWORD *)&_RDI->slotList.m_data.m_buffer[4 * numSlotsInUse];
-                ++_RDI->numSlotsInUse;
-                --_RDI->numSlotsRemaining;
-                *(_BYTE *)(_RBX + 12) = 1;
-                *(float *)(_RBX + 36) = _RDI->origin.v[0];
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rdi+4]
-                  vmovss  dword ptr [rbx+28h], xmm0
-                  vmovss  xmm1, dword ptr [rdi+8]
-                  vmovss  dword ptr [rbx+2Ch], xmm1
-                }
-                if ( (unsigned __int64)(v18 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v18, "signed", v18) )
+                *(_DWORD *)(v15 + 20) = *(_DWORD *)&v8->slotList.m_data.m_buffer[4 * numSlotsInUse];
+                ++v8->numSlotsInUse;
+                --v8->numSlotsRemaining;
+                *(_BYTE *)(v15 + 12) = 1;
+                *(float *)(v15 + 36) = v8->origin.v[0];
+                *(float *)(v15 + 40) = v8->origin.v[1];
+                *(float *)(v15 + 44) = v8->origin.v[2];
+                if ( (unsigned __int64)(v16 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v16, "signed", v16) )
                   __debugbreak();
-                *(_DWORD *)(_RBX + 16) = v18;
-                v22 = _RDI->numSlotsInUse;
-                if ( v22 >= _RDI->slotList.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+                *(_DWORD *)(v15 + 16) = v16;
+                v18 = v8->numSlotsInUse;
+                if ( v18 >= v8->slotList.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
                   __debugbreak();
-                if ( v22 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+                if ( v18 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
                   __debugbreak();
-                *(_DWORD *)(_RBX + 20) = *(_DWORD *)&_RDI->slotList.m_data.m_buffer[4 * v22];
-                ++_RDI->numSlotsInUse;
-                --_RDI->numSlotsRemaining;
-                *(_DWORD *)(_R15 + 32) = 1;
-                *(_DWORD *)(_RBX + 32) = 1;
+                *(_DWORD *)(v15 + 20) = *(_DWORD *)&v8->slotList.m_data.m_buffer[4 * v18];
+                ++v8->numSlotsInUse;
+                --v8->numSlotsRemaining;
+                *(_DWORD *)(v12 + 32) = 1;
+                *(_DWORD *)(v15 + 32) = 1;
               }
 LABEL_40:
-              if ( _RDI->numSlotsRemaining < 2 )
+              if ( v8->numSlotsRemaining < 2 )
                 break;
             }
             v10 = (ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *)((char *)v10 + 8);
-            m_size = _RDI->potentialPlayers.m_size;
+            m_size = v8->potentialPlayers.m_size;
           }
           while ( v10 != (ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *)((char *)p_potentialPlayers + 8 * m_size) );
-          v7 = v24;
+          v7 = v20;
         }
       }
-      v24 = ++v7;
+      v20 = ++v7;
     }
-    while ( v7 != &first[v27] );
+    while ( v7 != &first[v23] );
     v2 = 0i64;
   }
-  if ( v27 )
+  if ( v23 )
   {
     do
     {
@@ -341,7 +405,7 @@ LABEL_40:
         __debugbreak();
       ++v2;
     }
-    while ( v2 < v27 );
+    while ( v2 < v23 );
   }
 }
 
@@ -355,21 +419,23 @@ void ComputeDropBagPositions_DoClusterSinglesPass(dropBagContext_t *dropBagConte
   dropBagContext_t *v1; 
   unsigned __int64 v2; 
   unsigned int i; 
+  dropBagPlayerInfo_t *v4; 
   unsigned __int64 j; 
   char *m_buffer; 
   __int64 v7; 
   unsigned __int64 v8; 
-  __int64 v12; 
-  unsigned __int64 v13; 
-  ntl::fixed_vector<dropBagClusterInfo_t *,32,0> v15; 
+  __int64 v9; 
+  __int64 v10; 
+  unsigned __int64 v11; 
+  ntl::fixed_vector<dropBagClusterInfo_t *,32,0> v13; 
 
   v1 = dropBagContext;
   v2 = 0i64;
-  v15.m_size = 0i64;
+  v13.m_size = 0i64;
   for ( i = 0; i < v1->numPlayerInfos; ++i )
   {
-    _RBP = &v1->playerInfos[i];
-    if ( !_RBP->hasChosenSpot )
+    v4 = &v1->playerInfos[i];
+    if ( !v4->hasChosenSpot )
     {
       for ( j = 0i64; j < v2; ++j )
       {
@@ -377,9 +443,9 @@ void ComputeDropBagPositions_DoClusterSinglesPass(dropBagContext_t *dropBagConte
           __debugbreak();
       }
       v2 = 0i64;
-      v15.m_size = 0i64;
-      m_buffer = _RBP->potentialClusters.m_data.m_buffer;
-      if ( &_RBP->potentialClusters != (ntl::fixed_vector<dropBagClusterInfo_t *,32,0> *)((char *)&_RBP->potentialClusters + 8 * _RBP->potentialClusters.m_size) )
+      v13.m_size = 0i64;
+      m_buffer = v4->potentialClusters.m_data.m_buffer;
+      if ( &v4->potentialClusters != (ntl::fixed_vector<dropBagClusterInfo_t *,32,0> *)((char *)&v4->potentialClusters + 8 * v4->potentialClusters.m_size) )
       {
         do
         {
@@ -388,12 +454,12 @@ void ComputeDropBagPositions_DoClusterSinglesPass(dropBagContext_t *dropBagConte
           {
             if ( v2 >= 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
               __debugbreak();
-            *(_QWORD *)&v15.m_data.m_buffer[8 * v2] = v7;
-            v2 = ++v15.m_size;
+            *(_QWORD *)&v13.m_data.m_buffer[8 * v2] = v7;
+            v2 = ++v13.m_size;
           }
           m_buffer += 8;
         }
-        while ( m_buffer != (char *)&_RBP->potentialClusters + 8 * _RBP->potentialClusters.m_size );
+        while ( m_buffer != (char *)&v4->potentialClusters + 8 * v4->potentialClusters.m_size );
         v1 = dropBagContext;
         if ( v2 )
         {
@@ -404,34 +470,29 @@ void ComputeDropBagPositions_DoClusterSinglesPass(dropBagContext_t *dropBagConte
             __debugbreak();
           if ( v8 >= 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
             __debugbreak();
-          _RDI = *(_QWORD *)&v15.m_data.m_buffer[8 * v8];
-          _RBP->hasChosenSpot = 1;
-          _RBP->chosenSpot.origin.v[0] = *(float *)_RDI;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+4]
-            vmovss  dword ptr [rbp+28h], xmm0
-            vmovss  xmm1, dword ptr [rdi+8]
-            vmovss  dword ptr [rbp+2Ch], xmm1
-          }
-          v12 = (_RDI - (__int64)dropBagContext - 89608) / 328;
-          if ( (unsigned __int64)(v12 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v12, "signed", (_RDI - (__int64)dropBagContext - 89608) / 328) )
+          v9 = *(_QWORD *)&v13.m_data.m_buffer[8 * v8];
+          v4->hasChosenSpot = 1;
+          v4->chosenSpot.origin.v[0] = *(float *)v9;
+          v4->chosenSpot.origin.v[1] = *(float *)(v9 + 4);
+          v4->chosenSpot.origin.v[2] = *(float *)(v9 + 8);
+          v10 = (v9 - (__int64)dropBagContext - 89608) / 328;
+          if ( (unsigned __int64)(v10 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v10, "signed", (v9 - (__int64)dropBagContext - 89608) / 328) )
             __debugbreak();
-          _RBP->chosenSpot.clusterIndex = v12;
-          v13 = *(int *)(_RDI + 320);
-          if ( v13 >= *(_QWORD *)(_RDI + 312) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+          v4->chosenSpot.clusterIndex = v10;
+          v11 = *(int *)(v9 + 320);
+          if ( v11 >= *(_QWORD *)(v9 + 312) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
             __debugbreak();
-          if ( v13 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+          if ( v11 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
             __debugbreak();
-          _RBP->chosenSpot.clusterSlot = *(_DWORD *)(_RDI + 4 * v13 + 280);
-          ++*(_DWORD *)(_RDI + 320);
-          --*(_DWORD *)(_RDI + 324);
-          _RBP->chosenSpot.stageChoice = 5;
+          v4->chosenSpot.clusterSlot = *(_DWORD *)(v9 + 4 * v11 + 280);
+          ++*(_DWORD *)(v9 + 320);
+          --*(_DWORD *)(v9 + 324);
+          v4->chosenSpot.stageChoice = 5;
         }
       }
     }
   }
-  ntl::fixed_vector<dropBagClusterInfo_t *,32,0>::~fixed_vector<dropBagClusterInfo_t *,32,0>(&v15);
+  ntl::fixed_vector<dropBagClusterInfo_t *,32,0>::~fixed_vector<dropBagClusterInfo_t *,32,0>(&v13);
 }
 
 /*
@@ -444,25 +505,27 @@ void ComputeDropBagPositions_DoClusterStragglersPass(dropBagContext_t *dropBagCo
   unsigned __int64 v2; 
   unsigned int v3; 
   __int64 v4; 
+  dropBagClusterInfo_t *v5; 
   unsigned __int64 v6; 
   ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *p_potentialPlayers; 
   __int64 v8; 
   unsigned __int64 v9; 
+  __int64 v10; 
   unsigned __int64 v11; 
   __int64 v12; 
   unsigned __int64 m_size; 
-  __int64 v16; 
+  __int64 v14; 
   unsigned __int64 numSlotsInUse; 
   unsigned int i; 
-  ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> v19; 
+  ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> v17; 
 
   v2 = 0i64;
-  v19.m_size = 0i64;
+  v17.m_size = 0i64;
   v3 = 0;
   for ( i = 0; v3 < dropBagContext->numClusterInfos; i = v3 )
   {
     v4 = v3;
-    _R15 = &dropBagContext->clusterInfos[v4];
+    v5 = &dropBagContext->clusterInfos[v4];
     if ( !dropBagContext->clusterInfos[v4].invalid && dropBagContext->clusterInfos[v4].numSlotsInUse && dropBagContext->clusterInfos[v4].numSlotsRemaining )
     {
       v6 = 0i64;
@@ -478,9 +541,9 @@ void ComputeDropBagPositions_DoClusterStragglersPass(dropBagContext_t *dropBagCo
         v3 = i;
       }
       v2 = 0i64;
-      v19.m_size = 0i64;
-      p_potentialPlayers = &_R15->potentialPlayers;
-      if ( &_R15->potentialPlayers != (ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *)((char *)&_R15->potentialPlayers + 8 * _R15->potentialPlayers.m_size) )
+      v17.m_size = 0i64;
+      p_potentialPlayers = &v5->potentialPlayers;
+      if ( &v5->potentialPlayers != (ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *)((char *)&v5->potentialPlayers + 8 * v5->potentialPlayers.m_size) )
       {
         do
         {
@@ -489,18 +552,18 @@ void ComputeDropBagPositions_DoClusterStragglersPass(dropBagContext_t *dropBagCo
           {
             if ( v2 >= 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
               __debugbreak();
-            *(_QWORD *)&v19.m_data.m_buffer[8 * v2] = v8;
-            v2 = ++v19.m_size;
+            *(_QWORD *)&v17.m_data.m_buffer[8 * v2] = v8;
+            v2 = ++v17.m_size;
           }
           p_potentialPlayers = (ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *)((char *)p_potentialPlayers + 8);
         }
-        while ( p_potentialPlayers != (ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *)((char *)&_R15->potentialPlayers + 8 * _R15->potentialPlayers.m_size) );
+        while ( p_potentialPlayers != (ntl::fixed_vector<dropBagPlayerInfo_t *,32,0> *)((char *)&v5->potentialPlayers + 8 * v5->potentialPlayers.m_size) );
         v3 = i;
         if ( v2 )
         {
           do
           {
-            if ( _R15->numSlotsRemaining <= 0 )
+            if ( v5->numSlotsRemaining <= 0 )
               break;
             if ( (v2 > 0x7FFFFFFFFFFFFFFFi64 || v2 + 0x80000000 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned __int64>(unsigned __int64)", "signed", (int)v2, "unsigned", v2) )
               __debugbreak();
@@ -509,45 +572,40 @@ void ComputeDropBagPositions_DoClusterStragglersPass(dropBagContext_t *dropBagCo
               __debugbreak();
             if ( v9 >= 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
               __debugbreak();
-            _RBP = *(_QWORD *)&v19.m_data.m_buffer[8 * v9];
+            v10 = *(_QWORD *)&v17.m_data.m_buffer[8 * v9];
             v11 = v2 - 1;
             if ( v2 - 1 >= v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
               __debugbreak();
             if ( v11 >= 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
               __debugbreak();
-            v12 = *(_QWORD *)&v19.m_data.m_buffer[8 * v11];
+            v12 = *(_QWORD *)&v17.m_data.m_buffer[8 * v11];
             if ( v9 >= v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
               __debugbreak();
             if ( v9 >= 0x20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
               __debugbreak();
-            *(_QWORD *)&v19.m_data.m_buffer[8 * v9] = v12;
-            m_size = v19.m_size;
-            if ( !v19.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 204, ASSERT_TYPE_ASSERT, "( !empty() )", "Vector is empty, nothing to pop!") )
+            *(_QWORD *)&v17.m_data.m_buffer[8 * v9] = v12;
+            m_size = v17.m_size;
+            if ( !v17.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 204, ASSERT_TYPE_ASSERT, "( !empty() )", "Vector is empty, nothing to pop!") )
               __debugbreak();
             v2 = m_size - 1;
-            v19.m_size = v2;
-            *(_BYTE *)(_RBP + 12) = 1;
-            *(float *)(_RBP + 36) = _R15->origin.v[0];
-            __asm
-            {
-              vmovss  xmm0, dword ptr [r15+4]
-              vmovss  dword ptr [rbp+28h], xmm0
-              vmovss  xmm1, dword ptr [r15+8]
-              vmovss  dword ptr [rbp+2Ch], xmm1
-            }
-            v16 = ((char *)_R15 - (char *)dropBagContext - 89608) / 328;
-            if ( (unsigned __int64)(v16 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v16, "signed", ((char *)_R15 - (char *)dropBagContext - 89608) / 328) )
+            v17.m_size = v2;
+            *(_BYTE *)(v10 + 12) = 1;
+            *(float *)(v10 + 36) = v5->origin.v[0];
+            *(float *)(v10 + 40) = v5->origin.v[1];
+            *(float *)(v10 + 44) = v5->origin.v[2];
+            v14 = ((char *)v5 - (char *)dropBagContext - 89608) / 328;
+            if ( (unsigned __int64)(v14 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v14, "signed", ((char *)v5 - (char *)dropBagContext - 89608) / 328) )
               __debugbreak();
-            *(_DWORD *)(_RBP + 16) = v16;
-            numSlotsInUse = _R15->numSlotsInUse;
-            if ( numSlotsInUse >= _R15->slotList.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+            *(_DWORD *)(v10 + 16) = v14;
+            numSlotsInUse = v5->numSlotsInUse;
+            if ( numSlotsInUse >= v5->slotList.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
               __debugbreak();
             if ( numSlotsInUse >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
               __debugbreak();
-            *(_DWORD *)(_RBP + 20) = *(_DWORD *)&_R15->slotList.m_data.m_buffer[4 * numSlotsInUse];
-            ++_R15->numSlotsInUse;
-            --_R15->numSlotsRemaining;
-            *(_DWORD *)(_RBP + 32) = 2;
+            *(_DWORD *)(v10 + 20) = *(_DWORD *)&v5->slotList.m_data.m_buffer[4 * numSlotsInUse];
+            ++v5->numSlotsInUse;
+            --v5->numSlotsRemaining;
+            *(_DWORD *)(v10 + 32) = 2;
           }
           while ( v2 );
           v3 = i;
@@ -556,7 +614,7 @@ void ComputeDropBagPositions_DoClusterStragglersPass(dropBagContext_t *dropBagCo
     }
     ++v3;
   }
-  ntl::fixed_vector<dropBagPlayerInfo_t *,32,0>::~fixed_vector<dropBagPlayerInfo_t *,32,0>(&v19);
+  ntl::fixed_vector<dropBagPlayerInfo_t *,32,0>::~fixed_vector<dropBagPlayerInfo_t *,32,0>(&v17);
 }
 
 /*
@@ -564,251 +622,251 @@ void ComputeDropBagPositions_DoClusterStragglersPass(dropBagContext_t *dropBagCo
 ComputeDropBagPositions_DoNonClusterPairsPass
 ==============
 */
-void ComputeDropBagPositions_DoNonClusterPairsPass(dropBagContext_t *dropBagContext, __int64 a2, double a3)
+void ComputeDropBagPositions_DoNonClusterPairsPass(dropBagContext_t *dropBagContext)
 {
-  dropBagContext_t *v3; 
-  unsigned __int64 v4; 
-  unsigned int v5; 
-  dropBagPlayerInfo_t *v6; 
+  dropBagContext_t *v1; 
+  unsigned __int64 v2; 
+  unsigned int v3; 
+  dropBagPlayerInfo_t *v4; 
   ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *p_potentialPartners; 
-  unsigned __int64 v8; 
+  unsigned __int64 v6; 
   unsigned __int64 m_size; 
-  __int64 v10; 
+  __int64 v8; 
+  unsigned __int64 v9; 
+  _QWORD *v10; 
   unsigned __int64 v11; 
   _QWORD *v12; 
   unsigned __int64 v13; 
-  _QWORD *v14; 
+  unsigned __int64 v14; 
   unsigned __int64 v15; 
-  unsigned __int64 v16; 
-  unsigned __int64 v17; 
-  dropBagPlayerInfo_t **v18; 
-  dropBagPlayerInfo_t *v19; 
-  unsigned __int64 v20; 
-  ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *v21; 
-  __int64 v22; 
+  dropBagPlayerInfo_t **v16; 
+  dropBagPlayerInfo_t *v17; 
+  unsigned __int64 v18; 
+  ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *v19; 
+  __int64 v20; 
+  unsigned __int64 v21; 
+  dropBagPlayerInfo_t *v22; 
   unsigned __int64 v23; 
-  dropBagPlayerInfo_t *v24; 
+  __int64 v24; 
   unsigned __int64 v25; 
-  __int64 v26; 
-  unsigned __int64 v27; 
-  dropBagPairPosition_t *v28; 
+  dropBagPairPosition_t *v26; 
   int *p_numSlotsRemaining; 
   ntl::fixed_vector<vec3_t,8,0> *p_slotList; 
   int *p_numSlotsInUse; 
   unsigned __int64 numSlotsInUse; 
-  __int64 v33; 
-  unsigned __int64 v34; 
-  ntl::random_access_iterator_tag v35; 
-  unsigned int v36; 
+  __int64 v31; 
+  unsigned __int64 v32; 
+  ntl::random_access_iterator_tag v33; 
+  unsigned int v34; 
   dropBagPlayerInfo_t **i; 
-  dropBagPlayerInfo_t *v39; 
+  dropBagPlayerInfo_t *v37; 
   vec3_t outPos; 
   ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> playerInfo2; 
   dropBagPlayerInfo_t *first[200]; 
-  unsigned __int64 v43; 
+  unsigned __int64 v41; 
 
-  v3 = dropBagContext;
-  v4 = 0i64;
-  v43 = 0i64;
-  v5 = 0;
-  v36 = 0;
+  v1 = dropBagContext;
+  v2 = 0i64;
+  v41 = 0i64;
+  v3 = 0;
+  v34 = 0;
   if ( dropBagContext->numPlayerInfos )
   {
     do
     {
-      v6 = &v3->playerInfos[v5];
-      if ( !v6->hasChosenSpot )
+      v4 = &v1->playerInfos[v3];
+      if ( !v4->hasChosenSpot )
       {
-        p_potentialPartners = &v6->potentialPartners;
-        v8 = (unsigned __int64)&v6->potentialPartners;
-        m_size = v6->potentialPartners.m_size;
-        if ( &v6->potentialPartners != (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)((char *)&v6->potentialPartners + 8 * m_size) )
+        p_potentialPartners = &v4->potentialPartners;
+        v6 = (unsigned __int64)&v4->potentialPartners;
+        m_size = v4->potentialPartners.m_size;
+        if ( &v4->potentialPartners != (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)((char *)&v4->potentialPartners + 8 * m_size) )
         {
           do
           {
-            if ( *(_BYTE *)(*(_QWORD *)v8 + 12i64) )
+            if ( *(_BYTE *)(*(_QWORD *)v6 + 12i64) )
             {
               if ( !m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 341, ASSERT_TYPE_ASSERT, "( empty() == false )", (const char *)&queryFormat, "empty() == false") )
                 __debugbreak();
-              if ( (v8 < (unsigned __int64)p_potentialPartners || v8 > (unsigned __int64)p_potentialPartners + 8 * v6->potentialPartners.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+              if ( (v6 < (unsigned __int64)p_potentialPartners || v6 > (unsigned __int64)p_potentialPartners + 8 * v4->potentialPartners.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
                 __debugbreak();
-              v10 = v8 - (_QWORD)p_potentialPartners;
-              if ( (((_BYTE)v8 - (_BYTE)p_potentialPartners) & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+              v8 = v6 - (_QWORD)p_potentialPartners;
+              if ( (((_BYTE)v6 - (_BYTE)p_potentialPartners) & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
                 __debugbreak();
-              if ( (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)v8 == (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)((char *)p_potentialPartners + 8 * v6->potentialPartners.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
+              if ( (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)v6 == (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)((char *)p_potentialPartners + 8 * v4->potentialPartners.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
                 __debugbreak();
-              v8 = (unsigned __int64)&v6->potentialPartners;
-              v11 = v6->potentialPartners.m_size;
-              if ( v11 )
-                v8 = (unsigned __int64)p_potentialPartners + 8 * (v10 >> 3);
-              v12 = (_QWORD *)v8;
-              v13 = (unsigned __int64)p_potentialPartners + 8 * v11;
-              v14 = (_QWORD *)(v8 + 8);
-              if ( v8 + 8 == v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+              v6 = (unsigned __int64)&v4->potentialPartners;
+              v9 = v4->potentialPartners.m_size;
+              if ( v9 )
+                v6 = (unsigned __int64)p_potentialPartners + 8 * (v8 >> 3);
+              v10 = (_QWORD *)v6;
+              v11 = (unsigned __int64)p_potentialPartners + 8 * v9;
+              v12 = (_QWORD *)(v6 + 8);
+              if ( v6 + 8 == v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
                 __debugbreak();
-              if ( v13 == v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+              if ( v11 == v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
                 __debugbreak();
-              if ( v13 < (unsigned __int64)v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
+              if ( v11 < (unsigned __int64)v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
                 __debugbreak();
-              v15 = 0i64;
-              v16 = (v13 - (unsigned __int64)v14 + 7) >> 3;
-              if ( (unsigned __int64)v14 > v13 )
-                v16 = 0i64;
-              if ( v16 )
+              v13 = 0i64;
+              v14 = (v11 - (unsigned __int64)v12 + 7) >> 3;
+              if ( (unsigned __int64)v12 > v11 )
+                v14 = 0i64;
+              if ( v14 )
               {
                 do
                 {
-                  *v12++ = *v14++;
-                  ++v15;
+                  *v10++ = *v12++;
+                  ++v13;
                 }
-                while ( v15 < v16 );
+                while ( v13 < v14 );
               }
-              m_size = --v6->potentialPartners.m_size;
+              m_size = --v4->potentialPartners.m_size;
             }
             else
             {
-              v8 += 8i64;
+              v6 += 8i64;
             }
           }
-          while ( (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)v8 != (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)((char *)p_potentialPartners + 8 * m_size) );
-          v5 = v36;
-          v3 = dropBagContext;
+          while ( (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)v6 != (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)((char *)p_potentialPartners + 8 * m_size) );
+          v3 = v34;
+          v1 = dropBagContext;
         }
-        if ( v43 >= 0xC8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
+        if ( v41 >= 0xC8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
           __debugbreak();
-        first[v43++] = v6;
+        first[v41++] = v4;
       }
-      v36 = ++v5;
+      v34 = ++v3;
     }
-    while ( v5 < v3->numPlayerInfos );
-    v4 = 0i64;
+    while ( v3 < v1->numPlayerInfos );
+    v2 = 0i64;
   }
-  ntl::sort<dropBagPlayerInfo_t * *,PlayerPotentialPartnersPredicate>(first, &first[v43], (PlayerPotentialPartnersPredicate)v35.ntl::input_iterator_tag, v35);
-  v17 = 0i64;
+  ntl::sort<dropBagPlayerInfo_t * *,PlayerPotentialPartnersPredicate>(first, &first[v41], (PlayerPotentialPartnersPredicate)v33.ntl::input_iterator_tag, v33);
+  v15 = 0i64;
   playerInfo2.m_size = 0i64;
-  v18 = first;
-  for ( i = first; v18 != &first[v43]; i = v18 )
+  v16 = first;
+  for ( i = first; v16 != &first[v41]; i = v16 )
   {
-    v19 = *v18;
-    v39 = *v18;
-    if ( !(*v18)->hasChosenSpot )
+    v17 = *v16;
+    v37 = *v16;
+    if ( !(*v16)->hasChosenSpot )
     {
-      v20 = 0i64;
-      if ( v17 )
+      v18 = 0i64;
+      if ( v15 )
       {
         do
         {
-          if ( v20 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+          if ( v18 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
             __debugbreak();
-          ++v20;
+          ++v18;
         }
-        while ( v20 < v17 );
-        v18 = i;
+        while ( v18 < v15 );
+        v16 = i;
       }
-      v17 = 0i64;
+      v15 = 0i64;
       playerInfo2.m_size = 0i64;
-      v21 = &v19->potentialPartners;
-      if ( &v19->potentialPartners != (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)((char *)&v19->potentialPartners + 8 * v19->potentialPartners.m_size) )
+      v19 = &v17->potentialPartners;
+      if ( &v17->potentialPartners != (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)((char *)&v17->potentialPartners + 8 * v17->potentialPartners.m_size) )
       {
         do
         {
-          v22 = *(_QWORD *)v21->m_data.m_buffer;
-          if ( !*(_BYTE *)(*(_QWORD *)v21->m_data.m_buffer + 12i64) )
+          v20 = *(_QWORD *)v19->m_data.m_buffer;
+          if ( !*(_BYTE *)(*(_QWORD *)v19->m_data.m_buffer + 12i64) )
           {
-            if ( v17 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
+            if ( v15 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
               __debugbreak();
-            *(_QWORD *)&playerInfo2.m_data.m_buffer[8 * v17] = v22;
-            v17 = ++playerInfo2.m_size;
+            *(_QWORD *)&playerInfo2.m_data.m_buffer[8 * v15] = v20;
+            v15 = ++playerInfo2.m_size;
           }
-          v21 = (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)((char *)v21 + 8);
+          v19 = (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)((char *)v19 + 8);
         }
-        while ( v21 != (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)((char *)&v19->potentialPartners + 8 * v19->potentialPartners.m_size) );
-        if ( v17 )
+        while ( v19 != (ntl::fixed_vector<dropBagPlayerInfo_t *,16,0> *)((char *)&v17->potentialPartners + 8 * v17->potentialPartners.m_size) );
+        if ( v15 )
         {
           while ( 1 )
           {
-            if ( (v17 > 0x7FFFFFFFFFFFFFFFi64 || v17 + 0x80000000 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned __int64>(unsigned __int64)", "signed", (int)v17, "unsigned", v17) )
+            if ( (v15 > 0x7FFFFFFFFFFFFFFFi64 || v15 + 0x80000000 > 0xFFFFFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned __int64>(unsigned __int64)", "signed", (int)v15, "unsigned", v15) )
               __debugbreak();
-            v23 = G_irand(0, v17);
-            if ( v23 >= v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+            v21 = G_irand(0, v15);
+            if ( v21 >= v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
               __debugbreak();
-            if ( v23 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+            if ( v21 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
               __debugbreak();
-            v24 = *(dropBagPlayerInfo_t **)&playerInfo2.m_data.m_buffer[8 * v23];
-            v25 = v17 - 1;
-            if ( v17 - 1 >= v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
-              __debugbreak();
-            if ( v25 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
-              __debugbreak();
-            v26 = *(_QWORD *)&playerInfo2.m_data.m_buffer[8 * v25];
-            if ( v23 >= v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+            v22 = *(dropBagPlayerInfo_t **)&playerInfo2.m_data.m_buffer[8 * v21];
+            v23 = v15 - 1;
+            if ( v15 - 1 >= v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
               __debugbreak();
             if ( v23 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
               __debugbreak();
-            *(_QWORD *)&playerInfo2.m_data.m_buffer[8 * v23] = v26;
-            v27 = playerInfo2.m_size;
+            v24 = *(_QWORD *)&playerInfo2.m_data.m_buffer[8 * v23];
+            if ( v21 >= v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+              __debugbreak();
+            if ( v21 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+              __debugbreak();
+            *(_QWORD *)&playerInfo2.m_data.m_buffer[8 * v21] = v24;
+            v25 = playerInfo2.m_size;
             if ( !playerInfo2.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 204, ASSERT_TYPE_ASSERT, "( !empty() )", "Vector is empty, nothing to pop!") )
               __debugbreak();
-            v17 = v27 - 1;
-            playerInfo2.m_size = v17;
-            if ( ComputeDropBagPosition_AttemptToFindSpotBetweenTwoPlayers(dropBagContext, v19, v24, &outPos) )
+            v15 = v25 - 1;
+            playerInfo2.m_size = v15;
+            if ( ComputeDropBagPosition_AttemptToFindSpotBetweenTwoPlayers(dropBagContext, v17, v22, &outPos) )
               break;
-            if ( !v17 )
+            if ( !v15 )
               goto LABEL_112;
           }
-          v28 = ComputeDropBagPosition_AddNewPairPosition(dropBagContext, &outPos, a3);
-          if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_br.cpp", 841, ASSERT_TYPE_ASSERT, "(newPairPos)", (const char *)&queryFormat, "newPairPos") )
+          v26 = ComputeDropBagPosition_AddNewPairPosition(dropBagContext, &outPos);
+          if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_br.cpp", 841, ASSERT_TYPE_ASSERT, "(newPairPos)", (const char *)&queryFormat, "newPairPos") )
             __debugbreak();
-          p_numSlotsRemaining = &v28->numSlotsRemaining;
-          if ( v28->numSlotsRemaining < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_br.cpp", 842, ASSERT_TYPE_ASSERT, "(newPairPos->numSlotsRemaining >= 2)", (const char *)&queryFormat, "newPairPos->numSlotsRemaining >= 2") )
+          p_numSlotsRemaining = &v26->numSlotsRemaining;
+          if ( v26->numSlotsRemaining < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_br.cpp", 842, ASSERT_TYPE_ASSERT, "(newPairPos->numSlotsRemaining >= 2)", (const char *)&queryFormat, "newPairPos->numSlotsRemaining >= 2") )
             __debugbreak();
-          v19->hasChosenSpot = 1;
-          p_slotList = &v28->slotList;
-          p_numSlotsInUse = &v28->numSlotsInUse;
-          numSlotsInUse = v28->numSlotsInUse;
-          if ( numSlotsInUse >= v28->slotList.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+          v17->hasChosenSpot = 1;
+          p_slotList = &v26->slotList;
+          p_numSlotsInUse = &v26->numSlotsInUse;
+          numSlotsInUse = v26->numSlotsInUse;
+          if ( numSlotsInUse >= v26->slotList.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
             __debugbreak();
           if ( numSlotsInUse >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
             __debugbreak();
-          ComputeDropBagPositions_ValidatePosition(dropBagContext, (const vec3_t *)p_slotList + numSlotsInUse, &v39->chosenSpot.origin);
-          v33 = ((char *)v28 - (char *)dropBagContext - 257552) >> 7;
-          if ( (unsigned __int64)(v33 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v33, "signed", v33) )
+          ComputeDropBagPositions_ValidatePosition(dropBagContext, (const vec3_t *)p_slotList + numSlotsInUse, &v37->chosenSpot.origin);
+          v31 = ((char *)v26 - (char *)dropBagContext - 257552) >> 7;
+          if ( (unsigned __int64)(v31 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v31, "signed", v31) )
             __debugbreak();
-          v39->chosenSpot.pairIndex = v33;
-          v39->chosenSpot.pairSlot = (*p_numSlotsInUse)++;
+          v37->chosenSpot.pairIndex = v31;
+          v37->chosenSpot.pairSlot = (*p_numSlotsInUse)++;
           --*p_numSlotsRemaining;
-          v24->hasChosenSpot = 1;
-          v34 = *p_numSlotsInUse;
-          if ( v34 >= p_slotList->m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+          v22->hasChosenSpot = 1;
+          v32 = *p_numSlotsInUse;
+          if ( v32 >= p_slotList->m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
             __debugbreak();
-          if ( v34 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+          if ( v32 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
             __debugbreak();
-          ComputeDropBagPositions_ValidatePosition(dropBagContext, (const vec3_t *)p_slotList + v34, &v24->chosenSpot.origin);
-          if ( (unsigned __int64)(v33 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v33, "signed", v33) )
+          ComputeDropBagPositions_ValidatePosition(dropBagContext, (const vec3_t *)p_slotList + v32, &v22->chosenSpot.origin);
+          if ( (unsigned __int64)(v31 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v31, "signed", v31) )
             __debugbreak();
-          v24->chosenSpot.pairIndex = v33;
-          v24->chosenSpot.pairSlot = (*p_numSlotsInUse)++;
+          v22->chosenSpot.pairIndex = v31;
+          v22->chosenSpot.pairSlot = (*p_numSlotsInUse)++;
           --*p_numSlotsRemaining;
-          v39->chosenSpot.stageChoice = 3;
-          v24->chosenSpot.stageChoice = 3;
+          v37->chosenSpot.stageChoice = 3;
+          v22->chosenSpot.stageChoice = 3;
         }
 LABEL_112:
-        v18 = i;
-        v4 = 0i64;
+        v16 = i;
+        v2 = 0i64;
       }
     }
-    ++v18;
+    ++v16;
   }
   ntl::fixed_vector<dropBagPlayerInfo_t *,16,0>::~fixed_vector<dropBagPlayerInfo_t *,16,0>(&playerInfo2);
-  if ( v43 )
+  if ( v41 )
   {
     do
     {
-      if ( v4 >= 0xC8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+      if ( v2 >= 0xC8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
         __debugbreak();
-      ++v4;
+      ++v2;
     }
-    while ( v4 < v43 );
+    while ( v2 < v41 );
   }
 }
 
@@ -819,166 +877,88 @@ ComputeDropBagPositions_DoNonClusterSinglesPass
 */
 void ComputeDropBagPositions_DoNonClusterSinglesPass(dropBagContext_t *dropBagContext)
 {
-  unsigned int v13; 
-  __int64 v46; 
-  __int64 v47; 
-  __int64 v48; 
-  __int64 v49; 
-  bool v50; 
+  unsigned int i; 
+  dropBagPlayerInfo_t *v3; 
+  float v4; 
+  __int128 v5; 
+  double v9; 
+  float v10; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
+  __int64 v14; 
+  double v15; 
+  bool v16; 
+  float v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float spotDistanceFromCenter; 
+  float circleRadius; 
+  float v24; 
+  __int128 v25; 
+  float v29; 
   vec3_t inPos; 
   vec2_t vec; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  v13 = 0;
-  _RDI = dropBagContext;
-  if ( dropBagContext->numPlayerInfos )
+  for ( i = 0; i < dropBagContext->numPlayerInfos; ++i )
   {
-    __asm
+    v3 = &dropBagContext->playerInfos[i];
+    if ( !v3->hasChosenSpot )
     {
-      vmovaps xmmword ptr [r11-58h], xmm10
-      vmovss  xmm10, cs:__real@3f800000
-      vmovaps xmmword ptr [r11-68h], xmm11
-      vmovss  xmm11, cs:__real@40490fdb
-      vmovaps [rsp+0E8h+var_88], xmm13
-      vmovss  xmm13, cs:__real@40000000
-      vmovaps [rsp+0E8h+var_98], xmm14
-      vmovss  xmm14, cs:__real@80000000
-      vmovaps [rsp+0E8h+var_A8], xmm15
-      vmovss  xmm15, cs:__real@3c8efa35
-      vmovaps xmmword ptr [r11-18h], xmm6
-      vmovaps xmmword ptr [r11-28h], xmm7
-      vmovaps xmmword ptr [r11-38h], xmm8
-      vmovaps xmmword ptr [r11-48h], xmm9
-      vmovaps xmmword ptr [r11-78h], xmm12
-    }
-    do
-    {
-      _RBX = &_RDI->playerInfos[v13];
-      if ( !_RBX->hasChosenSpot )
+      if ( dropBagContext->usingCircleData )
       {
-        if ( _RDI->usingCircleData )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+45230h]
-            vsubss  xmm4, xmm0, dword ptr [rbx]
-            vmovss  xmm1, dword ptr [rdi+45234h]
-            vsubss  xmm5, xmm1, dword ptr [rbx+4]
-            vmulss  xmm0, xmm4, xmm4
-            vmulss  xmm2, xmm5, xmm5
-            vaddss  xmm1, xmm2, xmm0
-            vsqrtss xmm3, xmm1, xmm1
-            vcmpless xmm0, xmm3, xmm14
-            vblendvps xmm0, xmm3, xmm10, xmm0
-            vdivss  xmm1, xmm10, xmm0
-            vmulss  xmm0, xmm1, xmm4
-            vmulss  xmm1, xmm1, xmm5
-            vmovss  dword ptr [rsp+0E8h+vec+4], xmm1
-            vmovss  dword ptr [rsp+0E8h+vec], xmm0
-          }
-          *(double *)&_XMM0 = vectosignedyaw(&vec);
-          __asm { vmulss  xmm6, xmm0, xmm15 }
-          *(double *)&_XMM0 = G_random();
-          __asm
-          {
-            vmulss  xmm1, xmm0, xmm11
-            vmulss  xmm2, xmm1, cs:__real@3f000000
-            vaddss  xmm3, xmm2, xmm6
-            vsubss  xmm7, xmm3, cs:__real@3f490fdb
-          }
-        }
-        else
-        {
-          *(double *)&_XMM0 = G_random();
-          __asm
-          {
-            vmulss  xmm1, xmm0, xmm11
-            vmulss  xmm7, xmm1, xmm13
-          }
-        }
-        *(double *)&_XMM0 = G_random();
+        v4 = dropBagContext->circleOrigin.v[0] - v3->origin.v[0];
+        v5 = LODWORD(dropBagContext->circleOrigin.v[1]);
+        *(float *)&v5 = dropBagContext->circleOrigin.v[1] - v3->origin.v[1];
+        *(float *)&v5 = fsqrt((float)(*(float *)&v5 * *(float *)&v5) + (float)(v4 * v4));
+        _XMM3 = v5;
         __asm
         {
-          vsubss  xmm1, xmm10, xmm0
-          vmulss  xmm2, xmm1, dword ptr [rdi+45244h]
-          vmulss  xmm0, xmm0, dword ptr [rdi+45250h]
-          vaddss  xmm6, xmm2, xmm0
-          vmovaps xmm2, xmm7
-          vxorps  xmm1, xmm1, xmm1
-          vmovss  xmm0, xmm1, xmm2
+          vcmpless xmm0, xmm3, xmm14
+          vblendvps xmm0, xmm3, xmm10, xmm0
         }
-        *(double *)&_XMM0 = j___libm_sse2_sincosf_(v47, v46, v48, v49);
-        v50 = !_RDI->usingCircleData;
-        __asm
+        vec.v[1] = (float)(1.0 / *(float *)&_XMM0) * (float)(dropBagContext->circleOrigin.v[1] - v3->origin.v[1]);
+        vec.v[0] = (float)(1.0 / *(float *)&_XMM0) * v4;
+        vectosignedyaw(&vec);
+      }
+      G_random();
+      v9 = G_random();
+      v10 = (float)((float)(1.0 - *(float *)&v9) * dropBagContext->minRadius) + (float)(*(float *)&v9 * dropBagContext->maxRadius);
+      v15 = j___libm_sse2_sincosf_(v12, v11, v13, v14);
+      v16 = !dropBagContext->usingCircleData;
+      v17 = v3->origin.v[0];
+      v18 = LODWORD(v3->origin.v[1]);
+      v19 = (float)(_mm_shuffle_ps((__m128)*(unsigned __int64 *)&v15, (__m128)*(unsigned __int64 *)&v15, 1).m128_f32[0] * v10) + v3->origin.v[0];
+      inPos.v[2] = v3->origin.v[2];
+      inPos.v[0] = v19;
+      inPos.v[1] = (float)(*(float *)&v15 * v10) + *(float *)&v18;
+      if ( !v16 )
+      {
+        v20 = dropBagContext->circleOrigin.v[1];
+        v21 = dropBagContext->circleOrigin.v[0];
+        spotDistanceFromCenter = dropBagContext->spotDistanceFromCenter;
+        circleRadius = dropBagContext->circleRadius;
+        if ( (float)(fsqrt((float)((float)((float)((float)(*(float *)&v15 * v10) + *(float *)&v18) - v20) * (float)((float)((float)(*(float *)&v15 * v10) + *(float *)&v18) - v20)) + (float)((float)(v19 - v21) * (float)(v19 - v21))) + spotDistanceFromCenter) > circleRadius )
         {
-          vmovss  xmm5, dword ptr [rbx]
-          vmovss  xmm12, dword ptr [rbx+4]
-          vshufps xmm1, xmm0, xmm0, 1
-          vmulss  xmm1, xmm1, xmm6
-          vaddss  xmm2, xmm1, xmm5
-          vmovss  xmm1, dword ptr [rbx+8]
-          vmulss  xmm0, xmm0, xmm6
-          vaddss  xmm3, xmm0, xmm12
-          vmovss  dword ptr [rsp+0E8h+inPos+8], xmm1
-          vmovss  dword ptr [rsp+0E8h+inPos], xmm2
-          vmovss  dword ptr [rsp+0E8h+inPos+4], xmm3
-        }
-        if ( !v50 )
-        {
+          v24 = v17 - v21;
+          v25 = v18;
+          *(float *)&v25 = fsqrt((float)((float)(*(float *)&v18 - v20) * (float)(*(float *)&v18 - v20)) + (float)(v24 * v24));
+          _XMM2 = v25;
           __asm
           {
-            vmovss  xmm8, dword ptr [rdi+45234h]
-            vmovss  xmm7, dword ptr [rdi+45230h]
-            vmovss  xmm4, dword ptr [rdi+45260h]
-            vmovss  xmm9, dword ptr [rdi+4523Ch]
-            vsubss  xmm0, xmm3, xmm8
-            vmulss  xmm1, xmm0, xmm0
-            vsubss  xmm2, xmm2, xmm7
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm1, xmm1, xmm0
-            vsqrtss xmm2, xmm1, xmm1
-            vaddss  xmm3, xmm2, xmm4
-            vcomiss xmm3, xmm9
-            vsubss  xmm5, xmm5, xmm7
-            vmulss  xmm0, xmm5, xmm5
-            vsubss  xmm6, xmm12, xmm8
-            vmulss  xmm1, xmm6, xmm6
-            vaddss  xmm1, xmm1, xmm0
-            vsqrtss xmm2, xmm1, xmm1
             vcmpless xmm0, xmm2, xmm14
             vblendvps xmm0, xmm2, xmm10, xmm0
-            vdivss  xmm3, xmm10, xmm0
-            vmulss  xmm0, xmm3, xmm5
-            vsubss  xmm4, xmm9, xmm4
-            vmulss  xmm1, xmm0, xmm4
-            vaddss  xmm2, xmm1, xmm7
-            vmulss  xmm0, xmm3, xmm6
-            vmulss  xmm1, xmm0, xmm4
-            vmovss  dword ptr [rsp+0E8h+inPos], xmm2
-            vaddss  xmm2, xmm1, xmm8
-            vmovss  dword ptr [rsp+0E8h+inPos+4], xmm2
           }
+          v29 = circleRadius - spotDistanceFromCenter;
+          inPos.v[0] = (float)((float)((float)(1.0 / *(float *)&_XMM0) * v24) * v29) + v21;
+          inPos.v[1] = (float)((float)((float)(1.0 / *(float *)&_XMM0) * (float)(*(float *)&v18 - v20)) * v29) + v20;
         }
-        _RBX->hasChosenSpot = 1;
-        ComputeDropBagPositions_ValidatePosition(_RDI, &inPos, &_RBX->chosenSpot.origin);
-        _RBX->chosenSpot.stageChoice = 6;
       }
-      ++v13;
-    }
-    while ( v13 < _RDI->numPlayerInfos );
-    __asm
-    {
-      vmovaps xmm15, [rsp+0E8h+var_A8]
-      vmovaps xmm14, [rsp+0E8h+var_98]
-      vmovaps xmm13, [rsp+0E8h+var_88]
-      vmovaps xmm12, [rsp+0E8h+var_78]
-      vmovaps xmm11, [rsp+0E8h+var_68]
-      vmovaps xmm10, [rsp+0E8h+var_58]
-      vmovaps xmm9, [rsp+0E8h+var_48]
-      vmovaps xmm8, [rsp+0E8h+var_38]
-      vmovaps xmm7, [rsp+0E8h+var_28]
-      vmovaps xmm6, [rsp+0E8h+var_18]
+      v3->hasChosenSpot = 1;
+      ComputeDropBagPositions_ValidatePosition(dropBagContext, &inPos, &v3->chosenSpot.origin);
+      v3->chosenSpot.stageChoice = 6;
     }
   }
 }
@@ -990,72 +970,63 @@ ComputeDropBagPositions_DoPairsStragglersPass
 */
 void ComputeDropBagPositions_DoPairsStragglersPass(dropBagContext_t *dropBagContext)
 {
-  unsigned int v5; 
   unsigned int i; 
-  void *retaddr; 
+  unsigned __int64 v3; 
+  float v4; 
+  float v5; 
+  bool v6; 
+  unsigned int j; 
+  dropBagPlayerInfo_t *v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  unsigned __int64 v13; 
 
-  _RAX = &retaddr;
-  v5 = 0;
-  _RBX = dropBagContext;
-  if ( dropBagContext->numPairPositions )
+  for ( i = 0; i < dropBagContext->numPairPositions; ++i )
   {
-    __asm
+    v3 = (unsigned __int64)i << 7;
+    if ( *(int *)((char *)&dropBagContext->pairPositions[0].numSlotsRemaining + v3) > 0 )
     {
-      vmovaps xmmword ptr [rax-38h], xmm6
-      vmovaps xmmword ptr [rax-48h], xmm7
-      vmovaps xmmword ptr [rax-58h], xmm8
-      vxorps  xmm8, xmm8, xmm8
-    }
-    do
-    {
-      _RDI = (unsigned __int64)v5 << 7;
-      if ( *(int *)((char *)&dropBagContext->pairPositions[0].numSlotsRemaining + _RDI) > 0 )
+      if ( dropBagContext->usingCircleData )
       {
-        if ( dropBagContext->usingCircleData )
+        v4 = *(float *)((char *)&dropBagContext->pairPositions[0].origin.v[1] + v3) - dropBagContext->circleOrigin.v[1];
+        v5 = *(float *)((char *)dropBagContext->pairPositions[0].origin.v + v3) - dropBagContext->circleOrigin.v[0];
+        v6 = (float)((float)(v4 * v4) + (float)(v5 * v5)) > dropBagContext->circleRadiusSq;
+      }
+      else
+      {
+        v6 = 0;
+      }
+      for ( j = 0; j < dropBagContext->numPlayerInfos; ++j )
+      {
+        v8 = &dropBagContext->playerInfos[j];
+        if ( !v8->hasChosenSpot )
         {
-          __asm
+          v9 = *(float *)((char *)dropBagContext->pairPositions[0].origin.v + v3);
+          v10 = v8->origin.v[1];
+          v11 = *(float *)((char *)&dropBagContext->pairPositions[0].origin.v[1] + v3);
+          v12 = (float)((float)(v10 - v11) * (float)(v10 - v11)) + (float)((float)(v8->origin.v[0] - v9) * (float)(v8->origin.v[0] - v9));
+          if ( v12 > dropBagContext->minRadiusSq && v12 < dropBagContext->maxRadiusSq && (!v6 || (float)((float)((float)(dropBagContext->circleOrigin.v[1] - v10) * (float)(v11 - v10)) + (float)((float)(v9 - v8->origin.v[0]) * (float)(dropBagContext->circleOrigin.v[0] - v8->origin.v[0]))) >= 0.0) )
           {
-            vmovss  xmm0, dword ptr [rdi+rbx+3EE10h]
-            vmovss  xmm1, dword ptr [rdi+rbx+3EE14h]
-            vsubss  xmm2, xmm1, dword ptr [rbx+45234h]
-            vsubss  xmm4, xmm0, dword ptr [rbx+45230h]
-            vmulss  xmm3, xmm2, xmm2
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm1, xmm3, xmm0
-            vcomiss xmm1, dword ptr [rbx+45240h]
-          }
-        }
-        for ( i = 0; i < dropBagContext->numPlayerInfos; ++i )
-        {
-          _RSI = &dropBagContext->playerInfos[i];
-          if ( !_RSI->hasChosenSpot )
-          {
-            __asm
-            {
-              vmovss  xmm5, dword ptr [rsi]
-              vmovss  xmm6, dword ptr [rdi+rbx+3EE10h]
-              vmovss  xmm4, dword ptr [rsi+4]
-              vmovss  xmm7, dword ptr [rdi+rbx+3EE14h]
-              vsubss  xmm1, xmm5, xmm6
-              vsubss  xmm0, xmm4, xmm7
-              vmulss  xmm2, xmm0, xmm0
-              vmulss  xmm1, xmm1, xmm1
-              vaddss  xmm3, xmm2, xmm1
-              vcomiss xmm3, dword ptr [rbx+45248h]
-            }
-            if ( _RSI->hasChosenSpot )
-              __asm { vcomiss xmm3, dword ptr [rbx+45254h] }
+            v8->hasChosenSpot = 1;
+            v13 = *(int *)((char *)&dropBagContext->pairPositions[0].numSlotsInUse + v3);
+            if ( v13 >= *(unsigned __int64 *)((char *)&dropBagContext->pairPositions[0].slotList.m_size + v3) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 243, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+              __debugbreak();
+            if ( v13 >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+              __debugbreak();
+            ComputeDropBagPositions_ValidatePosition(dropBagContext, (const vec3_t *)((char *)&dropBagContext->pairPositions[0].slotList + 12 * v13 + v3), &v8->chosenSpot.origin);
+            if ( i > 0x7FFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,unsigned int>(unsigned int)", "signed", (int)i, "unsigned", i) )
+              __debugbreak();
+            v8->chosenSpot.pairIndex = i;
+            v8->chosenSpot.pairSlot = (*(int *)((char *)&dropBagContext->pairPositions[0].numSlotsInUse + v3))++;
+            --*(int *)((char *)&dropBagContext->pairPositions[0].numSlotsRemaining + v3);
+            v8->chosenSpot.stageChoice = 4;
+            if ( *(int *)((char *)&dropBagContext->pairPositions[0].numSlotsRemaining + v3) <= 0 )
+              break;
           }
         }
       }
-      ++v5;
-    }
-    while ( v5 < dropBagContext->numPairPositions );
-    __asm
-    {
-      vmovaps xmm8, [rsp+0A8h+var_58]
-      vmovaps xmm7, [rsp+0A8h+var_48]
-      vmovaps xmm6, [rsp+0A8h+var_38]
     }
   }
 }
@@ -1065,40 +1036,14 @@ void ComputeDropBagPositions_DoPairsStragglersPass(dropBagContext_t *dropBagCont
 ComputeDropBagPositions_IsPointWithRadiusOutsideCircle
 ==============
 */
-
-bool __fastcall ComputeDropBagPositions_IsPointWithRadiusOutsideCircle(const dropBagContext_t *dropBagContext, const vec3_t *inPos, double radius)
+bool ComputeDropBagPositions_IsPointWithRadiusOutsideCircle(const dropBagContext_t *dropBagContext, const vec3_t *inPos, const float radius)
 {
-  bool result; 
+  float v3; 
 
-  __asm
-  {
-    vmovaps [rsp+18h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  if ( dropBagContext->usingCircleData )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx]
-      vmovss  xmm1, dword ptr [rdx+4]
-      vsubss  xmm3, xmm1, dword ptr [rcx+45234h]
-      vsubss  xmm5, xmm0, dword ptr [rcx+45230h]
-      vmulss  xmm4, xmm3, xmm3
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm1, xmm4, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vaddss  xmm3, xmm2, xmm6
-      vcomiss xmm3, dword ptr [rcx+4523Ch]
-    }
-    result = dropBagContext->usingCircleData;
-    __asm { vmovaps xmm6, [rsp+18h+var_18] }
-  }
-  else
-  {
-    __asm { vmovaps xmm6, [rsp+18h+var_18] }
+  if ( !dropBagContext->usingCircleData )
     return 0;
-  }
-  return result;
+  v3 = inPos->v[1] - dropBagContext->circleOrigin.v[1];
+  return (float)(fsqrt((float)(v3 * v3) + (float)((float)(inPos->v[0] - dropBagContext->circleOrigin.v[0]) * (float)(inPos->v[0] - dropBagContext->circleOrigin.v[0]))) + radius) > dropBagContext->circleRadius;
 }
 
 /*
@@ -1108,149 +1053,41 @@ ComputeDropBagPositions_Log
 */
 void ComputeDropBagPositions_Log(dropBagContext_t *dropBagContext, int elapsedMS)
 {
-  unsigned int v17; 
+  unsigned int v3; 
   unsigned int i; 
   unsigned int j; 
-  double v60; 
-  double v61; 
-  double v62; 
-  double v63; 
-  double v64; 
-  double v65; 
-  double v66; 
-  double v67; 
-  double v68; 
-  double v69; 
-  double v70; 
-  __int64 v71; 
-  double v72; 
-  __int64 v73; 
-  __int64 v74; 
-  __int64 v75; 
-  double v76; 
-  double v77; 
-  double v78; 
-  __int64 v79; 
+  dropBagPlayerInfo_t *v6; 
+  __int64 v7; 
+  __int64 v8; 
+  __int64 v9; 
+  __int64 v10; 
+  __int64 v11; 
 
-  _RBX = dropBagContext;
   Com_Printf(24, "\nComputeDropBag finished in %dms\n", (unsigned int)elapsedMS);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+45228h]
-    vmovss  xmm1, dword ptr [rbx+45224h]
-    vmovss  xmm4, dword ptr [rbx+45220h]
-    vmovss  xmm3, dword ptr [rbx+45218h]
-    vmovss  xmm2, dword ptr [rbx+45214h]
-    vmovss  xmm5, dword ptr [rbx+4521Ch]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+78h+var_40], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+78h+var_48], xmm1
-    vcvtss2sd xmm4, xmm4, xmm4
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm5, xmm5, xmm5
-    vmovsd  [rsp+78h+var_50], xmm4
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+78h+var_58], xmm5
-  }
-  Com_Printf(24, "ComputeDropBag map bounds (%.2f,%.2f,%.2f) (%.2f,%.2f,%.2f)\n", *(double *)&_XMM2, *(double *)&_XMM3, v60, v65, v70, v72);
-  Com_Printf(24, "ComputeDropBag clusters[%d]\n", _RBX->numClusterInfos);
-  v17 = 0;
-  for ( i = 0; i < _RBX->numClusterInfos; ++i )
-  {
-    _RCX = 328i64 * i;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+rbx+15E10h]
-      vmovss  xmm3, dword ptr [rcx+rbx+15E08h]
-      vmovss  xmm1, dword ptr [rcx+rbx+15E0Ch]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+78h+var_50], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+78h+var_58], xmm1
-    }
-    Com_Printf(24, "ComputeDropBag cluster[%d] (%.2f,%.2f,%.2f)\n", i, *(double *)&_XMM3, v61, v66);
-  }
-  Com_Printf(24, "ComputeDropBag pairs[%d]\n", _RBX->numPairPositions);
-  for ( j = 0; j < _RBX->numPairPositions; ++j )
-  {
-    _RAX = (unsigned __int64)j << 7;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+rbx+3EE18h]
-      vmovss  xmm3, dword ptr [rax+rbx+3EE10h]
-      vmovss  xmm1, dword ptr [rax+rbx+3EE14h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+78h+var_50], xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+78h+var_58], xmm1
-    }
-    Com_Printf(24, "ComputeDropBag pair[%d] (%.2f,%.2f,%.2f)\n", j, *(double *)&_XMM3, v62, v67);
-  }
-  Com_Printf(24, "ComputeDropBag players[%d]\n", _RBX->numPlayerInfos);
-  if ( _RBX->numPlayerInfos )
+  Com_Printf(24, "ComputeDropBag map bounds (%.2f,%.2f,%.2f) (%.2f,%.2f,%.2f)\n", dropBagContext->mapBounds.mins.v[0], dropBagContext->mapBounds.mins.v[1], dropBagContext->mapBounds.mins.v[2], dropBagContext->mapBounds.maxs.v[0], dropBagContext->mapBounds.maxs.v[1], dropBagContext->mapBounds.maxs.v[2]);
+  Com_Printf(24, "ComputeDropBag clusters[%d]\n", dropBagContext->numClusterInfos);
+  v3 = 0;
+  for ( i = 0; i < dropBagContext->numClusterInfos; ++i )
+    Com_Printf(24, "ComputeDropBag cluster[%d] (%.2f,%.2f,%.2f)\n", i, dropBagContext->clusterInfos[i].origin.v[0], dropBagContext->clusterInfos[i].origin.v[1], dropBagContext->clusterInfos[i].origin.v[2]);
+  Com_Printf(24, "ComputeDropBag pairs[%d]\n", dropBagContext->numPairPositions);
+  for ( j = 0; j < dropBagContext->numPairPositions; ++j )
+    Com_Printf(24, "ComputeDropBag pair[%d] (%.2f,%.2f,%.2f)\n", j, dropBagContext->pairPositions[(unsigned __int64)j].origin.v[0], dropBagContext->pairPositions[(unsigned __int64)j].origin.v[1], dropBagContext->pairPositions[(unsigned __int64)j].origin.v[2]);
+  Com_Printf(24, "ComputeDropBag players[%d]\n", dropBagContext->numPlayerInfos);
+  if ( dropBagContext->numPlayerInfos )
   {
     do
     {
-      _RCX = (_DWORD *)_RBX->playerInfos[v17].origin.v;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+2Ch]
-        vmovss  xmm1, dword ptr [rcx+28h]
-        vmovss  xmm2, dword ptr [rcx+24h]
-        vmovss  xmm4, dword ptr [rcx+8]
-        vmovss  xmm3, dword ptr [rcx]
-        vmovss  xmm5, dword ptr [rcx+4]
-      }
-      LODWORD(v79) = _RCX[8];
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+78h+var_18], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+78h+var_20], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  [rsp+78h+var_28], xmm2
-      }
-      LODWORD(v75) = _RCX[7];
-      LODWORD(v74) = _RCX[6];
-      LODWORD(v73) = _RCX[5];
-      LODWORD(v71) = _RCX[4];
-      __asm
-      {
-        vcvtss2sd xmm4, xmm4, xmm4
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+78h+var_50], xmm4
-        vmovq   r9, xmm3
-        vmovsd  [rsp+78h+var_58], xmm5
-      }
-      Com_Printf(24, "ComputeDropBag player[%d] (%.2f,%.2f,%.2f) clusterIndex=%d clusterSlot=%d pairIndex=%d pairSlot=%d (%.2f,%.2f,%.2f) stageChoice=%d\n", v17++, *(double *)&_XMM3, v63, v68, v71, v73, v74, v75, v76, v77, v78, v79);
+      v6 = &dropBagContext->playerInfos[v3];
+      LODWORD(v11) = v6->chosenSpot.stageChoice;
+      LODWORD(v10) = v6->chosenSpot.pairSlot;
+      LODWORD(v9) = v6->chosenSpot.pairIndex;
+      LODWORD(v8) = v6->chosenSpot.clusterSlot;
+      LODWORD(v7) = v6->chosenSpot.clusterIndex;
+      Com_Printf(24, "ComputeDropBag player[%d] (%.2f,%.2f,%.2f) clusterIndex=%d clusterSlot=%d pairIndex=%d pairSlot=%d (%.2f,%.2f,%.2f) stageChoice=%d\n", v3++, v6->origin.v[0], v6->origin.v[1], v6->origin.v[2], v7, v8, v9, v10, v6->chosenSpot.origin.v[0], v6->chosenSpot.origin.v[1], v6->chosenSpot.origin.v[2], v11);
     }
-    while ( v17 < _RBX->numPlayerInfos );
+    while ( v3 < dropBagContext->numPlayerInfos );
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4523Ch]
-    vmovss  xmm3, dword ptr [rbx+45234h]
-    vmovss  xmm2, dword ptr [rbx+45230h]
-    vmovss  xmm1, dword ptr [rbx+45238h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+78h+var_50], xmm0
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+78h+var_58], xmm1
-  }
-  Com_Printf(24, "ComputeDropBag circle (%.2f,%.2f,%.2f) radius=%.2f\n", *(double *)&_XMM2, *(double *)&_XMM3, v64, v69);
+  Com_Printf(24, "ComputeDropBag circle (%.2f,%.2f,%.2f) radius=%.2f\n", dropBagContext->circleOrigin.v[0], dropBagContext->circleOrigin.v[1], dropBagContext->circleOrigin.v[2], dropBagContext->circleRadius);
 }
 
 /*
@@ -1500,63 +1337,36 @@ ComputeDropBagPositions_ValidatePosition
 */
 void ComputeDropBagPositions_ValidatePosition(const dropBagContext_t *dropBagContext, const vec3_t *inPos, vec3_t *outPos)
 {
+  double v6; 
+  float v7; 
+  float v8; 
+  double v9; 
+  float v10; 
+  float v11; 
   vec3_t targetPos; 
 
-  __asm
+  v6 = I_fclamp(inPos->v[0], dropBagContext->mapBounds.mins.v[0], dropBagContext->mapBounds.maxs.v[0]);
+  v7 = dropBagContext->mapBounds.maxs.v[1];
+  v8 = dropBagContext->mapBounds.mins.v[1];
+  targetPos.v[0] = *(float *)&v6;
+  v9 = I_fclamp(inPos->v[1], v8, v7);
+  targetPos.v[1] = *(float *)&v9;
+  targetPos.v[2] = inPos->v[2];
+  if ( Nav_MeshLoaded() && Nav_GetClosestVerticalPosDefault(&targetPos, outPos, NULL) )
   {
-    vmovss  xmm2, dword ptr [rcx+45220h]; max
-    vmovss  xmm1, dword ptr [rcx+45214h]; min
-    vmovss  xmm0, dword ptr [rdx]; val
-  }
-  _RSI = outPos;
-  _RDI = inPos;
-  _RBX = dropBagContext;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+45224h]; max
-    vmovss  xmm1, dword ptr [rbx+45218h]; min
-    vmovss  dword ptr [rsp+48h+targetPos], xmm0
-    vmovss  xmm0, dword ptr [rdi+4]; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsp+48h+targetPos+4], xmm0
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+48h+targetPos+8], xmm0
-  }
-  if ( Nav_MeshLoaded() && Nav_GetClosestVerticalPosDefault(&targetPos, _RSI, NULL) )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vmovss  xmm1, dword ptr [rsi+4]
-      vmovss  xmm4, dword ptr [rsp+48h+targetPos]
-      vmovss  xmm5, dword ptr [rsp+48h+targetPos+4]
-      vsubss  xmm3, xmm0, xmm4
-      vsubss  xmm0, xmm1, xmm5
-      vmulss  xmm2, xmm0, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, cs:__real@49742400
-    }
+    v10 = targetPos.v[0];
+    v11 = targetPos.v[1];
+    if ( (float)((float)((float)(outPos->v[1] - targetPos.v[1]) * (float)(outPos->v[1] - targetPos.v[1])) + (float)((float)(outPos->v[0] - targetPos.v[0]) * (float)(outPos->v[0] - targetPos.v[0]))) < 1000000.0 )
+      return;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rsp+48h+targetPos+4]
-      vmovss  xmm4, dword ptr [rsp+48h+targetPos]
-    }
+    v11 = targetPos.v[1];
+    v10 = targetPos.v[0];
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+48h+targetPos+8]
-    vmovss  dword ptr [rsi+8], xmm0
-    vmovss  dword ptr [rsi], xmm4
-    vmovss  dword ptr [rsi+4], xmm5
-  }
+  outPos->v[2] = targetPos.v[2];
+  outPos->v[0] = v10;
+  outPos->v[1] = v11;
 }
 
 /*
@@ -1564,373 +1374,312 @@ void ComputeDropBagPositions_ValidatePosition(const dropBagContext_t *dropBagCon
 GScr_ComputeDropBagPositions
 ==============
 */
-
-void __fastcall GScr_ComputeDropBagPositions(scrContext_t *scrContext, __int64 a2, double _XMM2_8)
+void GScr_ComputeDropBagPositions(scrContext_t *scrContext)
 {
-  signed __int64 v3; 
-  void *v5; 
-  scrContext_t *v6; 
-  int v7; 
+  signed __int64 v1; 
+  void *v2; 
+  scrContext_t *v3; 
+  int v4; 
   unsigned int NumParam; 
-  const char *v9; 
-  ComErrorCode v10; 
+  const char *v6; 
+  ComErrorCode v7; 
   unsigned int ArrayObject; 
-  unsigned int v14; 
+  unsigned int v9; 
   unsigned int i; 
   unsigned int ArrayVariable; 
+  double Float; 
+  double v25; 
+  double v26; 
   int Int; 
-  __int64 v35; 
-  unsigned int v36; 
-  unsigned int v40; 
+  __int64 v28; 
+  unsigned int v29; 
+  double v30; 
+  double v31; 
+  int v32; 
   unsigned int numPlayerInfos; 
-  unsigned int v51; 
-  unsigned int v61; 
-  dropBagPlayerInfo_t *v62; 
-  unsigned int v63; 
-  unsigned int v71; 
-  unsigned int v72; 
-  __int64 v80; 
+  float v34; 
+  int v35; 
+  float v36; 
+  float v37; 
+  unsigned int v38; 
+  dropBagPlayerInfo_t *v39; 
+  unsigned int v40; 
+  dropBagPlayerInfo_t *v41; 
+  float v42; 
+  unsigned int v43; 
+  dropBagPlayerInfo_t *v44; 
+  unsigned int v45; 
+  dropBagClusterInfo_t *v46; 
+  float v47; 
+  float v48; 
   int clusterIndex; 
-  unsigned int v82; 
+  unsigned int v50; 
   unsigned int CanonicalString; 
-  unsigned int v84; 
-  unsigned int v85; 
-  int v86; 
+  unsigned int v52; 
+  unsigned int v53; 
+  int v54; 
   dropBagContext_t ptr; 
-  char v92; 
 
-  v5 = alloca(v3);
-  __asm { vmovaps [rsp+45320h+var_30], xmm6 }
-  v6 = scrContext;
+  v2 = alloca(v1);
+  v3 = scrContext;
   Sys_ProfBeginNamedEvent(0xFF808080, "GScr_ComputeDropBagPositions");
-  v7 = Sys_Milliseconds();
+  v4 = Sys_Milliseconds();
   `eh vector constructor iterator'(&ptr, 0x1C0ui64, 0xC8ui64, (void (__fastcall *)(void *))dropBagPlayerInfo_t::dropBagPlayerInfo_t, (void (__fastcall *)(void *))dropBagPlayerInfo_t::~dropBagPlayerInfo_t);
   `eh vector constructor iterator'(ptr.clusterInfos, 0x148ui64, 0x200ui64, (void (__fastcall *)(void *))dropBagClusterInfo_t::dropBagClusterInfo_t, (void (__fastcall *)(void *))dropBagClusterInfo_t::~dropBagClusterInfo_t);
   `eh vector constructor iterator'(ptr.pairPositions, 0x80ui64, 0xC8ui64, (void (__fastcall *)(void *))dropBagPairPosition_t::dropBagPairPosition_t, (void (__fastcall *)(void *))dropBagPairPosition_t::~dropBagPairPosition_t);
-  NumParam = Scr_GetNumParam(v6);
+  NumParam = Scr_GetNumParam(v3);
   if ( ((NumParam - 8) & 0xFFFFFFFD) != 0 )
   {
-    Scr_Error(COM_ERR_6588, v6, "Usage: ComputeDropBagPositions( <playerList>, <clusterList>, <mapBounds>, <minDist>, <maxDist>, <invalidateRadius>, <spotsPerCluster>, <spotDistanceFromCenter>, [circleOrigin], [circleRadius] );");
-    goto LABEL_64;
+    Scr_Error(COM_ERR_6588, v3, "Usage: ComputeDropBagPositions( <playerList>, <clusterList>, <mapBounds>, <minDist>, <maxDist>, <invalidateRadius>, <spotsPerCluster>, <spotDistanceFromCenter>, [circleOrigin], [circleRadius] );");
+    goto LABEL_68;
   }
-  if ( ComputeDropBagPositions_RetrievePlayerOrigins(v6, 0, &ptr) && ComputeDropBagPositions_RetrieveClusterInfo(v6, 1, &ptr) )
+  if ( ComputeDropBagPositions_RetrievePlayerOrigins(v3, 0, &ptr) && ComputeDropBagPositions_RetrieveClusterInfo(v3, 1, &ptr) )
   {
-    if ( Scr_GetPointerType(v6, 2u) != VAR_ARRAY )
+    if ( Scr_GetPointerType(v3, 2u) != VAR_ARRAY )
     {
-      v9 = "<mapBounds> must be an array";
-      v10 = COM_ERR_6585;
-LABEL_63:
-      Scr_ParamError(v10, v6, 2u, v9);
-      goto LABEL_64;
+      v6 = "<mapBounds> must be an array";
+      v7 = COM_ERR_6585;
+LABEL_67:
+      Scr_ParamError(v7, v3, 2u, v6);
+      goto LABEL_68;
     }
-    ArrayObject = BGScr_Main_GetArrayObject(v6, 2u);
-    if ( GetArraySize(v6, ArrayObject) != 2 )
+    ArrayObject = BGScr_Main_GetArrayObject(v3, 2u);
+    if ( GetArraySize(v3, ArrayObject) != 2 )
     {
-      v10 = COM_ERR_6586;
-LABEL_62:
-      v9 = "<mapBounds> must be an array of 2 vectors";
-      goto LABEL_63;
+      v7 = COM_ERR_6586;
+LABEL_66:
+      v6 = "<mapBounds> must be an array of 2 vectors";
+      goto LABEL_67;
     }
-    __asm
-    {
-      vmovss  xmm0, cs:__real@7f7fffff
-      vmovss  [rbp+45220h+var_9C], xmm0
-      vmovss  [rbp+45220h+var_98], xmm0
-      vmovss  [rbp+45220h+var_94], xmm0
-      vmovss  xmm1, cs:__real@ff7fffff
-      vmovss  [rbp+45220h+var_90], xmm1
-      vmovss  [rbp+45220h+var_8C], xmm1
-      vmovss  [rbp+45220h+var_88], xmm1
-    }
-    v14 = 0;
+    ptr.mapBounds.mins.v[0] = FLOAT_3_4028235e38;
+    ptr.mapBounds.mins.v[1] = FLOAT_3_4028235e38;
+    ptr.mapBounds.mins.v[2] = FLOAT_3_4028235e38;
+    ptr.mapBounds.maxs.v[0] = FLOAT_N3_4028235e38;
+    ptr.mapBounds.maxs.v[1] = FLOAT_N3_4028235e38;
+    ptr.mapBounds.maxs.v[2] = FLOAT_N3_4028235e38;
+    v9 = 0;
     for ( i = 0; i < 2; ++i )
     {
-      ArrayVariable = GetArrayVariable(v6, ArrayObject, i);
-      if ( GetValueType(v6, ArrayVariable) != VAR_VECTOR )
+      ArrayVariable = GetArrayVariable(v3, ArrayObject, i);
+      if ( GetValueType(v3, ArrayVariable) != VAR_VECTOR )
       {
-        v10 = COM_ERR_6587;
-        goto LABEL_62;
+        v7 = COM_ERR_6587;
+        goto LABEL_66;
       }
-      GetVariableValueAddressConst(v6, ArrayVariable);
-      __asm
-      {
-        vmovss  xmm0, [rbp+45220h+var_9C]
-        vminss  xmm1, xmm0, dword ptr [rcx]
-        vmovss  [rbp+45220h+var_9C], xmm1
-        vmovss  xmm0, [rbp+45220h+var_90]
-        vmaxss  xmm1, xmm0, dword ptr [rcx]
-        vmovss  [rbp+45220h+var_90], xmm1
-        vmovss  xmm0, [rbp+45220h+var_98]
-        vminss  xmm1, xmm0, dword ptr [rcx+4]
-        vmovss  [rbp+45220h+var_98], xmm1
-        vmovss  xmm0, [rbp+45220h+var_8C]
-        vmaxss  xmm1, xmm0, dword ptr [rcx+4]
-        vmovss  [rbp+45220h+var_8C], xmm1
-        vmovss  xmm0, [rbp+45220h+var_94]
-        vminss  xmm1, xmm0, dword ptr [rcx+8]
-        vmovss  [rbp+45220h+var_94], xmm1
-        vmovss  xmm0, [rbp+45220h+var_88]
-        vmaxss  xmm1, xmm0, dword ptr [rcx+8]
-        vmovss  [rbp+45220h+var_88], xmm1
-      }
+      GetVariableValueAddressConst(v3, ArrayVariable);
+      _XMM0 = LODWORD(ptr.mapBounds.mins.v[0]);
+      __asm { vminss  xmm1, xmm0, dword ptr [rcx] }
+      ptr.mapBounds.mins.v[0] = *(float *)&_XMM1;
+      _XMM0 = LODWORD(ptr.mapBounds.maxs.v[0]);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rcx] }
+      ptr.mapBounds.maxs.v[0] = *(float *)&_XMM1;
+      _XMM0 = LODWORD(ptr.mapBounds.mins.v[1]);
+      __asm { vminss  xmm1, xmm0, dword ptr [rcx+4] }
+      ptr.mapBounds.mins.v[1] = *(float *)&_XMM1;
+      _XMM0 = LODWORD(ptr.mapBounds.maxs.v[1]);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rcx+4] }
+      ptr.mapBounds.maxs.v[1] = *(float *)&_XMM1;
+      _XMM0 = LODWORD(ptr.mapBounds.mins.v[2]);
+      __asm { vminss  xmm1, xmm0, dword ptr [rcx+8] }
+      ptr.mapBounds.mins.v[2] = *(float *)&_XMM1;
+      _XMM0 = LODWORD(ptr.mapBounds.maxs.v[2]);
+      __asm { vmaxss  xmm1, xmm0, dword ptr [rcx+8] }
+      ptr.mapBounds.maxs.v[2] = *(float *)&_XMM1;
     }
-    *(double *)&_XMM0 = Scr_GetFloat(v6, 3u);
-    __asm
-    {
-      vmovss  [rbp+45220h+var_6C], xmm0
-      vmulss  xmm1, xmm0, xmm0
-      vmovss  [rbp+45220h+var_68], xmm1
-      vmulss  xmm0, xmm1, cs:__real@40800000
-      vmovss  [rbp+45220h+var_64], xmm0
-    }
-    *(double *)&_XMM0 = Scr_GetFloat(v6, 4u);
-    __asm
-    {
-      vmovss  [rbp+45220h+var_60], xmm0
-      vmulss  xmm1, xmm0, xmm0
-      vmovss  [rbp+45220h+var_5C], xmm1
-      vmulss  xmm0, xmm1, cs:__real@40800000
-      vmovss  [rbp+45220h+var_58], xmm0
-    }
-    *(double *)&_XMM0 = Scr_GetFloat(v6, 5u);
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm0
-      vmovss  [rbp+45220h+var_54], xmm1
-    }
-    Int = Scr_GetInt(v6, 6u);
-    v35 = (unsigned int)Int;
+    Float = Scr_GetFloat(v3, 3u);
+    ptr.minRadius = *(float *)&Float;
+    ptr.minRadiusSq = *(float *)&Float * *(float *)&Float;
+    ptr.minRadiusX2Sq = (float)(*(float *)&Float * *(float *)&Float) * 4.0;
+    v25 = Scr_GetFloat(v3, 4u);
+    ptr.maxRadius = *(float *)&v25;
+    ptr.maxRadiusSq = *(float *)&v25 * *(float *)&v25;
+    ptr.maxRadiusX2Sq = (float)(*(float *)&v25 * *(float *)&v25) * 4.0;
+    v26 = Scr_GetFloat(v3, 5u);
+    ptr.invalidateRadiusSq = *(float *)&v26 * *(float *)&v26;
+    Int = Scr_GetInt(v3, 6u);
+    v28 = (unsigned int)Int;
     if ( Int >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_scr_br.cpp", 1146, ASSERT_TYPE_ASSERT, "(spotsPerCluster < 8)", (const char *)&queryFormat, "spotsPerCluster < MAX_SLOTS_PER_CLUSTER") )
       __debugbreak();
-    if ( (int)v35 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,int>(int)", "unsigned", v35, "signed", (int)v35) )
+    if ( (int)v28 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,int>(int)", "unsigned", v28, "signed", (int)v28) )
       __debugbreak();
-    ptr.spotsPerCluster = v35;
-    v36 = 0;
+    ptr.spotsPerCluster = v28;
+    v29 = 0;
     if ( ptr.numClusterInfos )
     {
       while ( 1 )
       {
-        InitDropBagClusterSlots(&ptr.clusterInfos[v36++], v35);
-        if ( v36 >= ptr.numClusterInfos )
+        InitDropBagClusterSlots(&ptr.clusterInfos[v29++], v28);
+        if ( v29 >= ptr.numClusterInfos )
           break;
-        LODWORD(v35) = ptr.spotsPerCluster;
+        LODWORD(v28) = ptr.spotsPerCluster;
       }
     }
-    *(double *)&_XMM0 = Scr_GetFloat(v6, 7u);
-    __asm { vmovss  [rbp+45220h+var_50], xmm0 }
-    if ( NumParam > 8 && Scr_GetType(v6, 8u) )
+    v30 = Scr_GetFloat(v3, 7u);
+    ptr.spotDistanceFromCenter = *(float *)&v30;
+    if ( NumParam > 8 && Scr_GetType(v3, 8u) )
     {
       ptr.usingCircleData = 1;
-      Scr_GetVector(v6, 8u, &ptr.circleOrigin);
-      *(double *)&_XMM0 = Scr_GetFloat(v6, 9u);
-      __asm
-      {
-        vmovss  dword ptr [rbp+45220h+var_80+0Ch], xmm0
-        vmulss  xmm0, xmm0, xmm0
-        vmovss  [rbp+45220h+var_70], xmm0
-      }
+      Scr_GetVector(v3, 8u, &ptr.circleOrigin);
+      v31 = Scr_GetFloat(v3, 9u);
+      ptr.circleRadius = *(float *)&v31;
+      ptr.circleRadiusSq = *(float *)&v31 * *(float *)&v31;
     }
     else
     {
       ptr.usingCircleData = 0;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovups [rbp+45220h+var_80], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  [rbp+45220h+var_70], xmm1
-      }
+      *(_OWORD *)ptr.circleOrigin.v = 0i64;
+      ptr.circleRadiusSq = 0.0;
     }
     ptr.numPairPositions = 0;
-    v40 = 0;
+    v32 = 0;
     numPlayerInfos = ptr.numPlayerInfos;
     if ( ptr.numClusterInfos )
     {
       while ( 1 )
       {
-        _R9 = 328i64 * v40;
         if ( ptr.usingCircleData )
-          break;
-        v51 = 0;
+        {
+          v34 = ptr.clusterInfos[v32].origin.v[0] - ptr.circleOrigin.v[0];
+          if ( (float)(fsqrt((float)((float)(ptr.clusterInfos[v32].origin.v[1] - ptr.circleOrigin.v[1]) * (float)(ptr.clusterInfos[v32].origin.v[1] - ptr.circleOrigin.v[1])) + (float)(v34 * v34)) + ptr.spotDistanceFromCenter) > ptr.circleRadius )
+            break;
+        }
+        v35 = 0;
         if ( numPlayerInfos )
         {
-          __asm
-          {
-            vmovss  xmm5, dword ptr [rbp+r9+45220h+clusterInfo.origin]
-            vmovss  xmm6, dword ptr [rbp+r9+45220h+clusterInfo.origin+4]
-          }
           while ( 1 )
           {
-            _RCX = 448i64 * v51;
-            __asm
-            {
-              vmovss  xmm0, [rsp+rcx+45320h+ptr]
-              vsubss  xmm4, xmm0, xmm5
-              vmovss  xmm1, [rsp+rcx+45320h+var_452AC]
-              vsubss  xmm2, xmm1, xmm6
-              vmulss  xmm3, xmm2, xmm2
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm1, xmm3, xmm0
-              vcomiss xmm1, [rbp+45220h+var_54]
-            }
-            if ( !is_mul_ok(0x1C0ui64, v51) )
+            v36 = ptr.playerInfos[v35].origin.v[0] - ptr.clusterInfos[v32].origin.v[0];
+            v37 = ptr.playerInfos[v35].origin.v[1] - ptr.clusterInfos[v32].origin.v[1];
+            if ( (float)((float)(v37 * v37) + (float)(v36 * v36)) < ptr.invalidateRadiusSq )
               break;
-            if ( ++v51 >= numPlayerInfos )
+            if ( ++v35 >= numPlayerInfos )
               goto LABEL_35;
           }
-          ptr.clusterInfos[v40].invalid = 1;
+          ptr.clusterInfos[v32].invalid = 1;
           goto LABEL_34;
         }
 LABEL_35:
-        if ( ++v40 >= ptr.numClusterInfos )
+        if ( ++v32 >= ptr.numClusterInfos )
           goto LABEL_36;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+r9+45220h+clusterInfo.origin]
-        vsubss  xmm4, xmm0, dword ptr [rbp+45220h+var_80]
-        vmovss  xmm1, dword ptr [rbp+r9+45220h+clusterInfo.origin+4]
-        vsubss  xmm2, xmm1, dword ptr [rbp+45220h+var_80+4]
-        vmulss  xmm3, xmm2, xmm2
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm1, xmm3, xmm0
-        vsqrtss xmm2, xmm1, xmm1
-        vaddss  xmm3, xmm2, [rbp+45220h+var_50]
-        vcomiss xmm3, dword ptr [rbp+45220h+var_80+0Ch]
-      }
-      ptr.clusterInfos[v40].invalid = 1;
+      ptr.clusterInfos[v32].invalid = 1;
 LABEL_34:
       numPlayerInfos = ptr.numPlayerInfos;
       goto LABEL_35;
     }
 LABEL_36:
-    v61 = 0;
+    v38 = 0;
     if ( numPlayerInfos )
     {
       do
       {
-        v62 = &ptr.playerInfos[v61++];
-        v63 = v61;
-        if ( v61 >= numPlayerInfos )
+        v39 = &ptr.playerInfos[v38++];
+        v40 = v38;
+        if ( v38 >= numPlayerInfos )
           break;
         do
         {
-          _RBX = &ptr.playerInfos[v63];
-          __asm
+          v41 = &ptr.playerInfos[v40];
+          v42 = v41->origin.v[1] - v39->origin.v[1];
+          if ( (float)((float)(v42 * v42) + (float)((float)(v41->origin.v[0] - v39->origin.v[0]) * (float)(v41->origin.v[0] - v39->origin.v[0]))) < ptr.maxRadiusX2Sq )
           {
-            vmovss  xmm0, dword ptr [rbx]
-            vsubss  xmm4, xmm0, dword ptr [rdi]
-            vmovss  xmm1, dword ptr [rbx+4]
-            vsubss  xmm2, xmm1, dword ptr [rdi+4]
-            vmulss  xmm3, xmm2, xmm2
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm1, xmm3, xmm0
-            vcomiss xmm1, [rbp+45220h+var_58]
-          }
-          if ( !is_mul_ok(0x1C0ui64, v63) )
-          {
-            if ( v62->potentialPartners.m_size < 0x10 )
+            if ( v39->potentialPartners.m_size < 0x10 )
             {
-              *(_QWORD *)&v62->potentialPartners.m_data.m_buffer[8 * v62->potentialPartners.m_size++] = _RBX;
+              *(_QWORD *)&v39->potentialPartners.m_data.m_buffer[8 * v39->potentialPartners.m_size++] = v41;
               numPlayerInfos = ptr.numPlayerInfos;
             }
-            if ( _RBX->potentialPartners.m_size < 0x10 )
+            if ( v41->potentialPartners.m_size < 0x10 )
             {
-              *(_QWORD *)&_RBX->potentialPartners.m_data.m_buffer[8 * _RBX->potentialPartners.m_size++] = v62;
+              *(_QWORD *)&v41->potentialPartners.m_data.m_buffer[8 * v41->potentialPartners.m_size++] = v39;
               numPlayerInfos = ptr.numPlayerInfos;
             }
           }
-          ++v63;
+          ++v40;
         }
-        while ( v63 < numPlayerInfos );
+        while ( v40 < numPlayerInfos );
       }
-      while ( v61 < numPlayerInfos );
-      v6 = scrContext;
+      while ( v38 < numPlayerInfos );
+      v3 = scrContext;
     }
-    v71 = 0;
+    v43 = 0;
     if ( numPlayerInfos )
     {
       do
       {
-        v72 = 0;
+        v44 = &ptr.playerInfos[v43];
+        v45 = 0;
         if ( ptr.numClusterInfos )
         {
           do
           {
-            _RBX = &ptr.clusterInfos[v72];
-            if ( !_RBX->invalid )
+            v46 = &ptr.clusterInfos[v45];
+            if ( !v46->invalid )
             {
-              __asm
+              v47 = v46->origin.v[1] - v44->origin.v[1];
+              v48 = (float)(v47 * v47) + (float)((float)(v46->origin.v[0] - v44->origin.v[0]) * (float)(v46->origin.v[0] - v44->origin.v[0]));
+              if ( v48 > ptr.minRadiusSq && v48 < ptr.maxRadiusSq )
               {
-                vmovss  xmm0, dword ptr [rbx]
-                vsubss  xmm4, xmm0, dword ptr [rdi]
-                vmovss  xmm1, dword ptr [rbx+4]
-                vsubss  xmm2, xmm1, dword ptr [rdi+4]
-                vmulss  xmm3, xmm2, xmm2
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm1, xmm3, xmm0
-                vcomiss xmm1, [rbp+45220h+var_68]
+                if ( v44->potentialClusters.m_size < 0x20 )
+                  *(_QWORD *)&v44->potentialClusters.m_data.m_buffer[8 * v44->potentialClusters.m_size++] = v46;
+                if ( v46->potentialPlayers.m_size < 0x20 )
+                  *(_QWORD *)&v46->potentialPlayers.m_data.m_buffer[8 * v46->potentialPlayers.m_size++] = v44;
               }
-              if ( _RBX->invalid )
-                __asm { vcomiss xmm1, [rbp+45220h+var_5C] }
             }
-            ++v72;
+            ++v45;
           }
-          while ( v72 < ptr.numClusterInfos );
+          while ( v45 < ptr.numClusterInfos );
           numPlayerInfos = ptr.numPlayerInfos;
         }
-        ++v71;
+        ++v43;
       }
-      while ( v71 < numPlayerInfos );
-      v6 = scrContext;
+      while ( v43 < numPlayerInfos );
+      v3 = scrContext;
     }
     ComputeDropBagPositions_DoClusterPairsPass(&ptr);
     ComputeDropBagPositions_DoClusterStragglersPass(&ptr);
-    ComputeDropBagPositions_DoNonClusterPairsPass(&ptr, v80, _XMM2_8);
+    ComputeDropBagPositions_DoNonClusterPairsPass(&ptr);
     ComputeDropBagPositions_DoPairsStragglersPass(&ptr);
     ComputeDropBagPositions_DoClusterSinglesPass(&ptr);
     ComputeDropBagPositions_DoNonClusterSinglesPass(&ptr);
-    Scr_MakeArray(v6);
+    Scr_MakeArray(v3);
     if ( ptr.numPlayerInfos )
     {
       do
       {
-        Scr_MakeStruct(v6);
-        clusterIndex = ptr.playerInfos[v14].chosenSpot.clusterIndex;
+        Scr_MakeStruct(v3);
+        clusterIndex = ptr.playerInfos[v9].chosenSpot.clusterIndex;
         if ( clusterIndex == -1 )
         {
-          Scr_AddUndefined(v6);
+          Scr_AddUndefined(v3);
           CanonicalString = SL_GetCanonicalString("node");
-          Scr_AddStructField(v6, CanonicalString);
-          Scr_AddUndefined(v6);
+          Scr_AddStructField(v3, CanonicalString);
+          Scr_AddUndefined(v3);
         }
         else
         {
-          Scr_AddInt(v6, clusterIndex);
-          v82 = SL_GetCanonicalString("node");
-          Scr_AddStructField(v6, v82);
-          Scr_AddInt(v6, ptr.playerInfos[v14].chosenSpot.clusterSlot);
+          Scr_AddInt(v3, clusterIndex);
+          v50 = SL_GetCanonicalString("node");
+          Scr_AddStructField(v3, v50);
+          Scr_AddInt(v3, ptr.playerInfos[v9].chosenSpot.clusterSlot);
         }
-        v84 = SL_GetCanonicalString("index");
-        Scr_AddStructField(v6, v84);
-        Scr_AddVector(v6, ptr.playerInfos[v14].chosenSpot.origin.v);
-        v85 = SL_GetCanonicalString("origin");
-        Scr_AddStructField(v6, v85);
-        Scr_AddArray(v6);
-        ++v14;
+        v52 = SL_GetCanonicalString("index");
+        Scr_AddStructField(v3, v52);
+        Scr_AddVector(v3, ptr.playerInfos[v9].chosenSpot.origin.v);
+        v53 = SL_GetCanonicalString("origin");
+        Scr_AddStructField(v3, v53);
+        Scr_AddArray(v3);
+        ++v9;
       }
-      while ( v14 < ptr.numPlayerInfos );
+      while ( v9 < ptr.numPlayerInfos );
     }
-    v86 = Sys_Milliseconds();
-    ComputeDropBagPositions_Log(&ptr, v86 - v7);
+    v54 = Sys_Milliseconds();
+    ComputeDropBagPositions_Log(&ptr, v54 - v4);
   }
-LABEL_64:
+LABEL_68:
   `eh vector destructor iterator'(ptr.pairPositions, 0x80ui64, 0xC8ui64, (void (__fastcall *)(void *))dropBagPairPosition_t::~dropBagPairPosition_t);
   `eh vector destructor iterator'(ptr.clusterInfos, 0x148ui64, 0x200ui64, (void (__fastcall *)(void *))dropBagClusterInfo_t::~dropBagClusterInfo_t);
   `eh vector destructor iterator'(&ptr, 0x1C0ui64, 0xC8ui64, (void (__fastcall *)(void *))dropBagPlayerInfo_t::~dropBagPlayerInfo_t);
   Sys_ProfEndNamedEvent();
-  _R11 = &v92;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*

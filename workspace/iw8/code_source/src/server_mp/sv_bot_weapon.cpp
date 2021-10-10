@@ -822,66 +822,44 @@ Bot_GetAdjustedMaxRange
 
 float __fastcall Bot_GetAdjustedMaxRange(const playerState_s *ps, const Weapon *weapon, double currentMaxRange, int ignoreAttachments)
 {
-  const WeaponDef *v12; 
-  void *retaddr; 
-  int v25; 
-  int v26; 
+  const WeaponDef *v8; 
+  float MaxRangeAdjustmentFromFOV; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmm6, xmm2
-  }
+  _XMM6 = *(_OWORD *)&currentMaxRange;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1782, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !weapon->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1783, ASSERT_TYPE_ASSERT, "( !Bot_Weap_IsNone( weapon ) )", (const char *)&queryFormat, "!Bot_Weap_IsNone( weapon )") )
     __debugbreak();
-  v12 = Bot_Weap_WeaponDef(ps, weapon);
+  v8 = Bot_Weap_WeaponDef(ps, weapon);
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1350, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovss  xmm7, cs:__real@44fa0000 }
   if ( weapon->weaponIdx && Bot_Weap_Class(ps, weapon) == WEAPCLASS_ROCKETLAUNCHER )
   {
-    if ( v12->bProjImpactExplode )
+    if ( v8->bProjImpactExplode )
       __asm { vminss  xmm6, xmm6, cs:__real@45bb8000 }
     else
       __asm { vminss  xmm6, xmm6, xmm7 }
   }
   if ( BG_UsingAlternate(ps) )
   {
+    _XMM0 = LODWORD(FLOAT_4000_0);
     __asm
     {
-      vmovss  xmm0, cs:__real@457a0000
       vcmpltss xmm1, xmm0, xmm6
       vblendvps xmm0, xmm6, xmm7, xmm1
-      vmovaps xmm6, xmm0
-      vmovss  [rsp+68h+arg_10], xmm0
     }
+    LODWORD(_XMM6) = _XMM0;
   }
   if ( !ignoreAttachments )
   {
-    *(float *)&_XMM0 = Bot_Weap_GetMaxRangeAdjustmentFromFOV(ps, weapon);
-    __asm
-    {
-      vmovss  [rsp+68h+arg_10], xmm0
-      vmovaps xmm7, xmm0
-    }
-    if ( (v25 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1805, ASSERT_TYPE_ASSERT, "( !IS_NAN( attachmentAdjustedRange ) )", (const char *)&queryFormat, "!IS_NAN( attachmentAdjustedRange )") )
+    MaxRangeAdjustmentFromFOV = Bot_Weap_GetMaxRangeAdjustmentFromFOV(ps, weapon);
+    if ( (LODWORD(MaxRangeAdjustmentFromFOV) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1805, ASSERT_TYPE_ASSERT, "( !IS_NAN( attachmentAdjustedRange ) )", (const char *)&queryFormat, "!IS_NAN( attachmentAdjustedRange )") )
       __debugbreak();
-    __asm { vmulss  xmm6, xmm6, xmm7 }
+    *(float *)&_XMM6 = *(float *)&_XMM6 * MaxRangeAdjustmentFromFOV;
   }
-  __asm { vmovss  [rsp+68h+arg_10], xmm6 }
-  if ( (v26 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1809, ASSERT_TYPE_ASSERT, "( !IS_NAN( maxRange ) )", (const char *)&queryFormat, "!IS_NAN( maxRange )") )
+  if ( (_XMM6 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1809, ASSERT_TYPE_ASSERT, "( !IS_NAN( maxRange ) )", (const char *)&queryFormat, "!IS_NAN( maxRange )") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm7, [rsp+68h+var_38]
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+68h+var_28]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&_XMM6;
 }
 
 /*
@@ -944,14 +922,7 @@ int Bot_Weap_AmmoInClip(const playerState_s *ps, const Weapon *weapon, PlayerHan
   v7 = BG_UsingAlternate(ps);
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1248, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BG_AmmoStoreForWeapon(&result, weapon, v7);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0E8h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+0E8h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_clipIndex = *BG_AmmoStoreForWeapon(&result, weapon, v7);
   return BG_GetAmmoInClipForClipType(ps, &r_clipIndex, hand);
 }
 
@@ -964,8 +935,8 @@ __int64 Bot_Weap_AmmoNotInClip(const playerState_s *ps, const Weapon *weapon)
 {
   const dvar_t *v2; 
   bool v5; 
-  unsigned int v9; 
-  int v10; 
+  unsigned int v6; 
+  int v7; 
   AmmoStore result; 
   AmmoStore r_ammo2; 
 
@@ -978,26 +949,19 @@ __int64 Bot_Weap_AmmoNotInClip(const playerState_s *ps, const Weapon *weapon)
   v5 = BG_UsingAlternate(ps);
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1322, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BG_AmmoStoreForWeapon(&result, weapon, v5);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0E8h+r_ammo2.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+0E8h+r_ammo2.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_ammo2 = *BG_AmmoStoreForWeapon(&result, weapon, v5);
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1304, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v9 = 0;
-  v10 = 0;
-  while ( !BG_IsAmmoCompatible(&ps->weapCommon.ammoNotInClip[v10].ammoType, &r_ammo2) )
+  v6 = 0;
+  v7 = 0;
+  while ( !BG_IsAmmoCompatible(&ps->weapCommon.ammoNotInClip[v7].ammoType, &r_ammo2) )
   {
-    if ( (unsigned int)++v10 >= 0xF )
+    if ( (unsigned int)++v7 >= 0xF )
       return 0i64;
   }
-  if ( (const playerState_s *)((char *)ps + 68 * v10) != (const playerState_s *)-1912i64 )
-    return (unsigned int)ps->weapCommon.ammoNotInClip[v10].ammoCount;
-  return v9;
+  if ( (const playerState_s *)((char *)ps + 68 * v7) != (const playerState_s *)-1912i64 )
+    return (unsigned int)ps->weapCommon.ammoNotInClip[v7].ammoCount;
+  return v6;
 }
 
 /*
@@ -1064,40 +1028,34 @@ __int64 Bot_Weap_AvailableWeapOfTypeOrClass(const bot_data_t *botData, unsigned 
 Bot_Weap_BotFacingScriptedGrenadeTarget
 ==============
 */
-__int64 Bot_Weap_BotFacingScriptedGrenadeTarget(const bot_data_t *botData)
+_BOOL8 Bot_Weap_BotFacingScriptedGrenadeTarget(const bot_data_t *botData)
 {
+  gentity_s *ent; 
+  __int128 v3; 
+  float v4; 
+  __int128 v5; 
+  float v6; 
   vec3_t forward; 
 
-  _RBX = botData;
   if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1101, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
-  if ( (*((_BYTE *)&_RBX->scriptedAgentInfo + 28228) & 2) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1102, ASSERT_TYPE_ASSERT, "( botData->botInfo.grenadeFlags & ( 1 << 1 ) )", (const char *)&queryFormat, "botData->botInfo.grenadeFlags & BOT_FLAG_GRENADE_SCRIPTED_GRENADE") )
+  if ( (*((_BYTE *)&botData->scriptedAgentInfo + 28228) & 2) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1102, ASSERT_TYPE_ASSERT, "( botData->botInfo.grenadeFlags & ( 1 << 1 ) )", (const char *)&queryFormat, "botData->botInfo.grenadeFlags & BOT_FLAG_GRENADE_SCRIPTED_GRENADE") )
     __debugbreak();
-  AngleVectors(&_RBX->botInfo.ent->r.currentAngles, &forward, NULL, NULL);
+  AngleVectors(&botData->botInfo.ent->r.currentAngles, &forward, NULL, NULL);
+  ent = botData->botInfo.ent;
+  v3 = LODWORD(botData->botInfo.scriptedGrenadeTarget.v[1]);
+  forward.v[2] = 0.0;
+  v5 = v3;
+  v4 = *(float *)&v3 - ent->r.currentOrigin.v[1];
+  v6 = botData->botInfo.scriptedGrenadeTarget.v[0] - ent->r.currentOrigin.v[0];
+  *(float *)&v5 = fsqrt((float)(v4 * v4) + (float)(v6 * v6));
+  _XMM3 = v5;
   __asm
   {
-    vmovss  xmm1, dword ptr [rbx+2328h]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+58h+forward+8], xmm0
-    vsubss  xmm4, xmm1, dword ptr [rax+134h]
-    vmovss  xmm0, dword ptr [rbx+2324h]
-    vsubss  xmm5, xmm0, dword ptr [rax+130h]
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm2, xmm4, xmm4
-    vaddss  xmm1, xmm2, xmm0
-    vsqrtss xmm3, xmm1, xmm1
     vcmpless xmm0, xmm3, cs:__real@80000000
-    vmovss  xmm1, cs:__real@3f800000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm0, xmm4, xmm1
-    vmulss  xmm3, xmm0, dword ptr [rsp+58h+forward+4]
-    vmulss  xmm1, xmm5, xmm1
-    vmulss  xmm2, xmm1, dword ptr [rsp+58h+forward]
-    vaddss  xmm0, xmm3, xmm2
-    vcomiss xmm0, cs:__real@3f7eb852
   }
-  return 1i64;
+  return (float)((float)((float)(v4 * (float)(1.0 / *(float *)&_XMM0)) * forward.v[1]) + (float)((float)(v6 * (float)(1.0 / *(float *)&_XMM0)) * forward.v[0])) >= 0.995;
 }
 
 /*
@@ -1105,134 +1063,58 @@ __int64 Bot_Weap_BotFacingScriptedGrenadeTarget(const bot_data_t *botData)
 Bot_Weap_CanDamageEnemy
 ==============
 */
-
-__int64 __fastcall Bot_Weap_CanDamageEnemy(const bot_data_t *botData, const Weapon *weapon, double maxRangeScalar)
+_BOOL8 Bot_Weap_CanDamageEnemy(const bot_data_t *botData, const Weapon *weapon, float maxRangeScalar)
 {
-  bool v9; 
-  bool v10; 
-  const playerState_s *playerState; 
-  char v15; 
-  bool v16; 
+  float v6; 
+  playerState_s *playerState; 
   const Weapon *PrimaryWeapon; 
-  bool v18; 
+  bool isAlternate; 
   GWeaponMap *Instance; 
-  __int64 result; 
-  bool v26; 
-  double isAlternate; 
-  float *minDamageRange; 
-  int v34; 
-  int v35; 
+  bool v13; 
   float maxDamageRange; 
-  float v37; 
+  float minDamageRange; 
 
-  __asm
+  if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2106, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
+    __debugbreak();
+  v6 = 0.0;
+  if ( maxRangeScalar <= 0.0 )
   {
-    vmovaps [rsp+98h+var_48], xmm6
-    vmovaps [rsp+98h+var_58], xmm7
-  }
-  _RBP = botData;
-  __asm { vmovaps xmm7, xmm2 }
-  v9 = botData == NULL;
-  if ( !botData )
-  {
-    v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2106, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData");
-    v9 = !v10;
-    if ( v10 )
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2107, ASSERT_TYPE_ASSERT, "( maxRangeScalar ) > ( 0.0f )", "maxRangeScalar > 0.0f\n\t%g, %g", maxRangeScalar, *(double *)&_XMM0) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm7, xmm6
-  }
-  if ( v9 )
-  {
-    __asm
-    {
-      vxorpd  xmm0, xmm0, xmm0
-      vmovsd  [rsp+98h+minDamageRange], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  qword ptr [rsp+98h+isAlternate], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2107, ASSERT_TYPE_ASSERT, "( maxRangeScalar ) > ( 0.0f )", "maxRangeScalar > 0.0f\n\t%g, %g", isAlternate, *(double *)&minDamageRange) )
-      __debugbreak();
-  }
-  playerState = _RBP->botInfo.playerState;
+  playerState = botData->botInfo.playerState;
   if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2111, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !weapon->weaponIdx )
-    goto LABEL_32;
+    return 0i64;
   if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1963, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v15 = 0;
-  v16 = weapon->weaponIdx == 0;
   if ( weapon->weaponIdx )
   {
     PrimaryWeapon = Bot_Weap_GetPrimaryWeapon(playerState, weapon);
-    v15 = 0;
-    v16 = PrimaryWeapon->weaponIdx == 0;
     if ( PrimaryWeapon->weaponIdx )
     {
-      v18 = BG_UsingAlternate(playerState);
+      isAlternate = BG_UsingAlternate(playerState);
       Instance = GWeaponMap::GetInstance();
-      BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, playerState, &playerState->perks, PrimaryWeapon, v18, &v37, &maxDamageRange);
-      __asm
-      {
-        vmovss  xmm0, [rsp+98h+arg_10]
-        vmovss  [rsp+98h+arg_0], xmm0
-      }
-      if ( (v34 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1977, ASSERT_TYPE_ASSERT, "( !IS_NAN( minDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( minDamageRange )") )
+      BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, playerState, &playerState->perks, PrimaryWeapon, isAlternate, &minDamageRange, &maxDamageRange);
+      if ( (LODWORD(minDamageRange) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1977, ASSERT_TYPE_ASSERT, "( !IS_NAN( minDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( minDamageRange )") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, [rsp+98h+arg_8]
-        vmovss  [rsp+98h+arg_0], xmm0
-      }
-      if ( (v35 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1978, ASSERT_TYPE_ASSERT, "( !IS_NAN( maxDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( maxDamageRange )") )
+      if ( (LODWORD(maxDamageRange) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1978, ASSERT_TYPE_ASSERT, "( !IS_NAN( maxDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( maxDamageRange )") )
         __debugbreak();
-      __asm { vmovss  xmm2, [rsp+98h+arg_10]; currentMaxRange }
-      *(float *)&_XMM0 = Bot_GetAdjustedMaxRange(playerState, PrimaryWeapon, *(double *)&_XMM2, 0);
-      __asm
-      {
-        vmovaps xmm3, xmm0; maxRange
-        vxorps  xmm2, xmm2, xmm2; minRange
-        vmovss  [rsp+98h+arg_10], xmm0
-      }
-      Bot_Weap_VerifyWeaponDamageRanges(playerState, PrimaryWeapon, *(float *)&_XMM2, *(float *)&_XMM3);
-      __asm { vmovss  xmm6, [rsp+98h+arg_10] }
+      minDamageRange = Bot_GetAdjustedMaxRange(playerState, PrimaryWeapon, COERCE_DOUBLE((unsigned __int64)LODWORD(minDamageRange)), 0);
+      Bot_Weap_VerifyWeaponDamageRanges(playerState, PrimaryWeapon, 0.0, minDamageRange);
+      v6 = minDamageRange;
     }
   }
-  __asm { vcomiss xmm6, dword ptr [rbp+2394h] }
-  if ( v15 | v16 )
-  {
-    if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1350, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
-      __debugbreak();
-    if ( !weapon->weaponIdx || Bot_Weap_Class(playerState, weapon) != WEAPCLASS_SPREAD )
-    {
-      v26 = BG_UsingAlternate(playerState);
-      if ( BG_GetMinDamage(WEAP_DMG_CALC_TYPE_DEFAULT, weapon, v26) > 0 )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm7
-          vcomiss xmm0, dword ptr [rbp+2394h]
-        }
-        result = 0i64;
-        goto LABEL_33;
-      }
-    }
-LABEL_32:
-    result = 0i64;
-    goto LABEL_33;
-  }
-  result = 1i64;
-LABEL_33:
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_48]
-    vmovaps xmm7, [rsp+98h+var_58]
-  }
-  return result;
+  if ( v6 > botData->botInfo.enemyTrack.lastDist )
+    return 1i64;
+  if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1350, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
+    __debugbreak();
+  if ( weapon->weaponIdx && Bot_Weap_Class(playerState, weapon) == WEAPCLASS_SPREAD )
+    return 0i64;
+  v13 = BG_UsingAlternate(playerState);
+  return BG_GetMinDamage(WEAP_DMG_CALC_TYPE_DEFAULT, weapon, v13) > 0 && (float)(v6 * maxRangeScalar) > botData->botInfo.enemyTrack.lastDist;
 }
 
 /*
@@ -1280,33 +1162,13 @@ void Bot_Weap_ClearCmd(usercmd_s *cmd, const playerState_s *ps)
 {
   GWeaponMap *Instance; 
 
-  _RBX = cmd;
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 710, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 711, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   Instance = GWeaponMap::GetInstance();
-  _RAX = BG_GetCurrentWeaponForPlayer(Instance, ps);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbx+24h], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rbx+44h], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rbx+54h], xmm0
-  }
-  *(_DWORD *)&_RBX->weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rbx+60h], ymm0
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [rbx+80h], xmm1
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rbx+90h], xmm0
-  }
-  *(_DWORD *)&_RBX->offHand.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+  cmd->weapon = *BG_GetCurrentWeaponForPlayer(Instance, ps);
+  cmd->offHand = NULL_WEAPON;
 }
 
 /*
@@ -1314,57 +1176,22 @@ void Bot_Weap_ClearCmd(usercmd_s *cmd, const playerState_s *ps)
 Bot_Weap_CurrentWeapCanDamageEnemy
 ==============
 */
-
-int __fastcall Bot_Weap_CurrentWeapCanDamageEnemy(const bot_data_t *botData, double maxRangeScalar)
+int Bot_Weap_CurrentWeapCanDamageEnemy(const bot_data_t *botData, float maxRangeScalar)
 {
-  bool v6; 
-  bool v7; 
   playerState_s *playerState; 
   GWeaponMap *Instance; 
   const Weapon *ViewmodelWeapon; 
-  double v16; 
-  double v17; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2093, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
-  v6 = botData->botInfo.playerState == NULL;
-  if ( !botData->botInfo.playerState )
-  {
-    v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2094, ASSERT_TYPE_ASSERT, "( botData->botInfo.playerState )", (const char *)&queryFormat, "botData->botInfo.playerState");
-    v6 = !v7;
-    if ( v7 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v6 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+58h+var_28], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+58h+var_30], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2095, ASSERT_TYPE_ASSERT, "( maxRangeScalar ) > ( 0.0f )", "maxRangeScalar > 0.0f\n\t%g, %g", v16, v17) )
-      __debugbreak();
-  }
+  if ( !botData->botInfo.playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2094, ASSERT_TYPE_ASSERT, "( botData->botInfo.playerState )", (const char *)&queryFormat, "botData->botInfo.playerState") )
+    __debugbreak();
+  if ( maxRangeScalar <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2095, ASSERT_TYPE_ASSERT, "( maxRangeScalar ) > ( 0.0f )", "maxRangeScalar > 0.0f\n\t%g, %g", maxRangeScalar, 0.0) )
+    __debugbreak();
   playerState = botData->botInfo.playerState;
   Instance = GWeaponMap::GetInstance();
   ViewmodelWeapon = BG_GetViewmodelWeapon(Instance, playerState);
-  __asm
-  {
-    vmovaps xmm2, xmm6; maxRangeScalar
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return Bot_Weap_CanDamageEnemy(botData, ViewmodelWeapon, *(float *)&_XMM2);
+  return Bot_Weap_CanDamageEnemy(botData, ViewmodelWeapon, maxRangeScalar);
 }
 
 /*
@@ -1377,56 +1204,43 @@ void Bot_Weap_EffectiveRange(const playerState_s *ps, const Weapon *weapon, floa
   const Weapon *PrimaryWeapon; 
   bool isAlternate; 
   GWeaponMap *Instance; 
-  char v15; 
-  int v17; 
+  double v12; 
+  double v13; 
+  int v14; 
+  float AdjustedMaxRange; 
   float minDamageRange; 
   float maxDamageRange; 
 
-  _RDI = max;
-  _R14 = min;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1819, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1820, ASSERT_TYPE_ASSERT, "( min )", (const char *)&queryFormat, "min") )
+  if ( !min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1820, ASSERT_TYPE_ASSERT, "( min )", (const char *)&queryFormat, "min") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1821, ASSERT_TYPE_ASSERT, "( max )", (const char *)&queryFormat, "max") )
+  if ( !max && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1821, ASSERT_TYPE_ASSERT, "( max )", (const char *)&queryFormat, "max") )
     __debugbreak();
   if ( weapon->weaponIdx && (PrimaryWeapon = Bot_Weap_GetPrimaryWeapon(ps, weapon), PrimaryWeapon->weaponIdx) )
   {
     isAlternate = BG_UsingAlternate(ps);
     Instance = GWeaponMap::GetInstance();
     BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, PrimaryWeapon, isAlternate, &minDamageRange, &maxDamageRange);
-    __asm
+    *(_QWORD *)&v13 = LODWORD(minDamageRange);
+    *(float *)&v13 = minDamageRange * 0.75;
+    v12 = v13;
+    if ( minDamageRange != maxDamageRange )
     {
-      vmovss  xmm0, [rsp+58h+arg_0]
-      vmovss  xmm3, [rsp+58h+arg_8]
-      vucomiss xmm0, xmm3
-      vmulss  xmm2, xmm0, cs:__real@3f400000
+      *(float *)&v13 = (float)(*(float *)&v13 * 0.89999998) + (float)(maxDamageRange * 0.1);
+      v12 = v13;
     }
-    if ( !v15 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm2, cs:__real@3f666666
-        vmulss  xmm0, xmm3, cs:__real@3dcccccd
-        vaddss  xmm2, xmm1, xmm0; currentMaxRange
-      }
-    }
-    v17 = ignoreAttachments;
-    __asm { vmovss  dword ptr [rdi], xmm2 }
-    *(float *)&_XMM0 = Bot_GetAdjustedMaxRange(ps, PrimaryWeapon, *(double *)&_XMM2, v17);
-    __asm
-    {
-      vmulss  xmm2, xmm0, cs:__real@3e800000; minRange
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  dword ptr [r14], xmm2
-      vmovss  xmm3, dword ptr [rdi]; maxRange
-    }
-    Bot_Weap_VerifyWeaponDamageRanges(ps, PrimaryWeapon, *(float *)&_XMM2, *(float *)&_XMM3);
+    v14 = ignoreAttachments;
+    *max = *(float *)&v12;
+    AdjustedMaxRange = Bot_GetAdjustedMaxRange(ps, PrimaryWeapon, v12, v14);
+    *max = AdjustedMaxRange;
+    *min = AdjustedMaxRange * 0.25;
+    Bot_Weap_VerifyWeaponDamageRanges(ps, PrimaryWeapon, AdjustedMaxRange * 0.25, *max);
   }
   else
   {
-    *_R14 = 0.0;
-    *_RDI = 0.0;
+    *min = 0.0;
+    *max = 0.0;
   }
 }
 
@@ -1499,37 +1313,33 @@ Bot_Weap_FireWaitArcCos
 */
 float Bot_Weap_FireWaitArcCos(const playerState_s *ps, const Weapon *weapon)
 {
+  float result; 
+
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1501, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( weapon->weaponIdx )
+  if ( !weapon->weaponIdx )
+    return FLOAT_N1_0;
+  switch ( Bot_Weap_Class(ps, weapon) )
   {
-    switch ( Bot_Weap_Class(ps, weapon) )
-    {
-      case WEAPCLASS_RIFLE:
-      case WEAPCLASS_PISTOL:
-      case WEAPCLASS_ROCKETLAUNCHER:
-        __asm { vmovss  xmm0, cs:__real@3f7851ec; jumptable 0000000141650BB6 cases 0,5,7 }
-        break;
-      case WEAPCLASS_SNIPER:
-        __asm { vmovss  xmm0, cs:__real@3f7ae148; jumptable 0000000141650BB6 case 1 }
-        break;
-      case WEAPCLASS_MG:
-      case WEAPCLASS_TURRET:
-        __asm { vmovss  xmm0, cs:__real@3f5eb852; jumptable 0000000141650BB6 cases 2,8 }
-        break;
-      case WEAPCLASS_SMG:
-        __asm { vmovss  xmm0, cs:__real@3f70a3d7; jumptable 0000000141650BB6 case 3 }
-        break;
-      default:
-        goto LABEL_10;
-    }
+    case WEAPCLASS_RIFLE:
+    case WEAPCLASS_PISTOL:
+    case WEAPCLASS_ROCKETLAUNCHER:
+      result = FLOAT_0_97000003;
+      break;
+    case WEAPCLASS_SNIPER:
+      result = FLOAT_0_98000002;
+      break;
+    case WEAPCLASS_MG:
+    case WEAPCLASS_TURRET:
+      result = FLOAT_0_87;
+      break;
+    case WEAPCLASS_SMG:
+      result = FLOAT_0_94;
+      break;
+    default:
+      return FLOAT_N1_0;
   }
-  else
-  {
-LABEL_10:
-    __asm { vmovss  xmm0, cs:__real@bf800000; jumptable 0000000141650BB6 default case, cases 4,6 }
-  }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -1541,35 +1351,32 @@ _BOOL8 Bot_Weap_FirstAvailableOfType(const playerState_s *ps, bot_grenade_type_t
 {
   GWeaponMap *Instance; 
   int v7; 
+  __m256i v8; 
+  __int128 v9; 
+  double v10; 
   OffhandSlot v11; 
+  const Weapon *OffHandWeaponForSlot; 
 
-  _RBX = offHand;
   Instance = GWeaponMap::GetInstance();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 939, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( (unsigned int)(typeDesired - 1) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 940, ASSERT_TYPE_ASSERT, "( (typeDesired == BOT_GRENADE_TYPE_LETHAL) || (typeDesired == BOT_GRENADE_TYPE_TACTICAL) )", (const char *)&queryFormat, "(typeDesired == BOT_GRENADE_TYPE_LETHAL) || (typeDesired == BOT_GRENADE_TYPE_TACTICAL)") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 941, ASSERT_TYPE_ASSERT, "( offHand )", (const char *)&queryFormat, "offHand") )
+  if ( !offHand && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 941, ASSERT_TYPE_ASSERT, "( offHand )", (const char *)&queryFormat, "offHand") )
     __debugbreak();
   v7 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovsd  xmm2, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-  }
+  v8 = *(__m256i *)&NULL_WEAPON.weaponIdx;
+  v9 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+  v10 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   if ( typeDesired == BOT_GRENADE_TYPE_LETHAL )
   {
     v11 = OFFHAND_SLOT_PRIMARY;
 LABEL_14:
-    _RAX = PM_Weapon_GetOffHandWeaponForSlot(Instance, ps, v11);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovsd  xmm2, qword ptr [rax+30h]
-    }
-    v7 = *(_DWORD *)&_RAX->weaponCamo;
+    OffHandWeaponForSlot = PM_Weapon_GetOffHandWeaponForSlot(Instance, ps, v11);
+    v8 = *(__m256i *)&OffHandWeaponForSlot->weaponIdx;
+    v9 = *(_OWORD *)&OffHandWeaponForSlot->attachmentVariationIndices[5];
+    v10 = *(double *)&OffHandWeaponForSlot->attachmentVariationIndices[21];
+    v7 = *(_DWORD *)&OffHandWeaponForSlot->weaponCamo;
     goto LABEL_15;
   }
   if ( typeDesired == BOT_GRENADE_TYPE_TACTICAL )
@@ -1578,14 +1385,11 @@ LABEL_14:
     goto LABEL_14;
   }
 LABEL_15:
-  __asm
-  {
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmmword ptr [rbx+20h], xmm1
-    vmovsd  qword ptr [rbx+30h], xmm2
-  }
-  *(_DWORD *)&_RBX->weaponCamo = v7;
-  return _RBX->weaponIdx != 0;
+  *(__m256i *)&offHand->weaponIdx = v8;
+  *(_OWORD *)&offHand->attachmentVariationIndices[5] = v9;
+  *(double *)&offHand->attachmentVariationIndices[21] = v10;
+  *(_DWORD *)&offHand->weaponCamo = v7;
+  return offHand->weaponIdx != 0;
 }
 
 /*
@@ -1599,46 +1403,28 @@ float Bot_Weap_GetAbsoluteMaxRange(const playerState_s *ps, const Weapon *weapon
   bool isAlternate; 
   GWeaponMap *Instance; 
   float minDamageRange; 
-  int v18; 
+  float v11; 
   float maxDamageRange; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1963, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( weapon->weaponIdx && (PrimaryWeapon = Bot_Weap_GetPrimaryWeapon(ps, weapon), PrimaryWeapon->weaponIdx) )
-  {
-    isAlternate = BG_UsingAlternate(ps);
-    Instance = GWeaponMap::GetInstance();
-    BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, PrimaryWeapon, isAlternate, &minDamageRange, &maxDamageRange);
-    __asm
-    {
-      vmovss  xmm0, [rsp+68h+arg_0]
-      vmovss  [rsp+68h+arg_8], xmm0
-    }
-    if ( (v18 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1977, ASSERT_TYPE_ASSERT, "( !IS_NAN( minDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( minDamageRange )") )
-      __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, [rsp+68h+arg_18]
-      vmovss  [rsp+68h+arg_8], xmm0
-    }
-    if ( (v18 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1978, ASSERT_TYPE_ASSERT, "( !IS_NAN( maxDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( maxDamageRange )") )
-      __debugbreak();
-    __asm { vmovss  xmm2, [rsp+68h+arg_0]; currentMaxRange }
-    *(float *)&_XMM0 = Bot_GetAdjustedMaxRange(ps, PrimaryWeapon, *(double *)&_XMM2, ignoreAttachments);
-    __asm
-    {
-      vmovaps xmm3, xmm0; maxRange
-      vxorps  xmm2, xmm2, xmm2; minRange
-      vmovss  [rsp+68h+arg_0], xmm0
-    }
-    Bot_Weap_VerifyWeaponDamageRanges(ps, PrimaryWeapon, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm { vmovss  xmm0, [rsp+68h+arg_0] }
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  if ( !weapon->weaponIdx )
+    return 0.0;
+  PrimaryWeapon = Bot_Weap_GetPrimaryWeapon(ps, weapon);
+  if ( !PrimaryWeapon->weaponIdx )
+    return 0.0;
+  isAlternate = BG_UsingAlternate(ps);
+  Instance = GWeaponMap::GetInstance();
+  BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, PrimaryWeapon, isAlternate, &minDamageRange, &maxDamageRange);
+  v11 = minDamageRange;
+  if ( (LODWORD(minDamageRange) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1977, ASSERT_TYPE_ASSERT, "( !IS_NAN( minDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( minDamageRange )") )
+    __debugbreak();
+  v11 = maxDamageRange;
+  if ( (LODWORD(maxDamageRange) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1978, ASSERT_TYPE_ASSERT, "( !IS_NAN( maxDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( maxDamageRange )") )
+    __debugbreak();
+  minDamageRange = Bot_GetAdjustedMaxRange(ps, PrimaryWeapon, COERCE_DOUBLE((unsigned __int64)LODWORD(minDamageRange)), ignoreAttachments);
+  Bot_Weap_VerifyWeaponDamageRanges(ps, PrimaryWeapon, 0.0, minDamageRange);
+  return minDamageRange;
 }
 
 /*
@@ -1704,7 +1490,11 @@ _BOOL8 Bot_Weap_GetGrenadeForButton(const bot_info_t *botInfo, bot_grenade_type_
   playerState_s *playerState; 
   GWeaponMap *Instance; 
   int v8; 
+  __m256i v9; 
+  __int128 v10; 
+  double v11; 
   OffhandSlot v12; 
+  const Weapon *OffHandWeaponForSlot; 
   playerState_s *v14; 
   int v15; 
   const WeaponDef *v16; 
@@ -1714,14 +1504,13 @@ _BOOL8 Bot_Weap_GetGrenadeForButton(const bot_info_t *botInfo, bot_grenade_type_
   playerState_s *v20; 
   BOOL v21; 
 
-  _RDI = offHand;
   if ( !botInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 965, ASSERT_TYPE_ASSERT, "( botInfo )", (const char *)&queryFormat, "botInfo") )
     __debugbreak();
   if ( !botInfo->playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 966, ASSERT_TYPE_ASSERT, "( botInfo->playerState )", (const char *)&queryFormat, "botInfo->playerState") )
     __debugbreak();
   if ( (unsigned int)(typeDesired - 1) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 967, ASSERT_TYPE_ASSERT, "( (typeDesired == BOT_GRENADE_TYPE_LETHAL) || (typeDesired == BOT_GRENADE_TYPE_TACTICAL) )", (const char *)&queryFormat, "(typeDesired == BOT_GRENADE_TYPE_LETHAL) || (typeDesired == BOT_GRENADE_TYPE_TACTICAL)") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 968, ASSERT_TYPE_ASSERT, "( offHand )", (const char *)&queryFormat, "offHand") )
+  if ( !offHand && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 968, ASSERT_TYPE_ASSERT, "( offHand )", (const char *)&queryFormat, "offHand") )
     __debugbreak();
   playerState = botInfo->playerState;
   Instance = GWeaponMap::GetInstance();
@@ -1729,27 +1518,21 @@ _BOOL8 Bot_Weap_GetGrenadeForButton(const bot_info_t *botInfo, bot_grenade_type_
     __debugbreak();
   if ( (unsigned int)(typeDesired - 1) > 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 940, ASSERT_TYPE_ASSERT, "( (typeDesired == BOT_GRENADE_TYPE_LETHAL) || (typeDesired == BOT_GRENADE_TYPE_TACTICAL) )", (const char *)&queryFormat, "(typeDesired == BOT_GRENADE_TYPE_LETHAL) || (typeDesired == BOT_GRENADE_TYPE_TACTICAL)") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 941, ASSERT_TYPE_ASSERT, "( offHand )", (const char *)&queryFormat, "offHand") )
+  if ( !offHand && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 941, ASSERT_TYPE_ASSERT, "( offHand )", (const char *)&queryFormat, "offHand") )
     __debugbreak();
   v8 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovsd  xmm2, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-  }
+  v9 = *(__m256i *)&NULL_WEAPON.weaponIdx;
+  v10 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+  v11 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   if ( typeDesired == BOT_GRENADE_TYPE_LETHAL )
   {
     v12 = OFFHAND_SLOT_PRIMARY;
 LABEL_26:
-    _RAX = PM_Weapon_GetOffHandWeaponForSlot(Instance, playerState, v12);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovsd  xmm2, qword ptr [rax+30h]
-    }
-    v8 = *(_DWORD *)&_RAX->weaponCamo;
+    OffHandWeaponForSlot = PM_Weapon_GetOffHandWeaponForSlot(Instance, playerState, v12);
+    v9 = *(__m256i *)&OffHandWeaponForSlot->weaponIdx;
+    v10 = *(_OWORD *)&OffHandWeaponForSlot->attachmentVariationIndices[5];
+    v11 = *(double *)&OffHandWeaponForSlot->attachmentVariationIndices[21];
+    v8 = *(_DWORD *)&OffHandWeaponForSlot->weaponCamo;
     goto LABEL_27;
   }
   if ( typeDesired == BOT_GRENADE_TYPE_TACTICAL )
@@ -1758,29 +1541,26 @@ LABEL_26:
     goto LABEL_26;
   }
 LABEL_27:
-  __asm
-  {
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups xmmword ptr [rdi+20h], xmm1
-    vmovsd  qword ptr [rdi+30h], xmm2
-  }
-  *(_DWORD *)&_RDI->weaponCamo = v8;
-  if ( !_RDI->weaponIdx )
+  *(__m256i *)&offHand->weaponIdx = v9;
+  *(_OWORD *)&offHand->attachmentVariationIndices[5] = v10;
+  *(double *)&offHand->attachmentVariationIndices[21] = v11;
+  *(_DWORD *)&offHand->weaponCamo = v8;
+  if ( !offHand->weaponIdx )
     return 0i64;
   v14 = botInfo->playerState;
   v15 = botInfo->grenadeFlags & 2;
   if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 798, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !_RDI->weaponIdx )
+  if ( !offHand->weaponIdx )
     goto LABEL_44;
-  v16 = Bot_Weap_WeaponDef(v14, _RDI);
+  v16 = Bot_Weap_WeaponDef(v14, offHand);
   if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1350, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( _RDI->weaponIdx && Bot_Weap_Class(v14, _RDI) == WEAPCLASS_GRENADE )
+  if ( offHand->weaponIdx && Bot_Weap_Class(v14, offHand) == WEAPCLASS_GRENADE )
     goto LABEL_42;
   if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1350, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( _RDI->weaponIdx && Bot_Weap_Class(v14, _RDI) == WEAPCLASS_THROWINGKNIFE )
+  if ( offHand->weaponIdx && Bot_Weap_Class(v14, offHand) == WEAPCLASS_THROWINGKNIFE )
   {
 LABEL_42:
     offhandClass = v16->offhandClass;
@@ -1798,10 +1578,10 @@ LABEL_44:
   v20 = botInfo->playerState;
   if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1367, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v21 = _RDI->weaponIdx && Bot_Weap_WeaponDef(v20, _RDI)->offhandClass == OFFHAND_CLASS_THROWINGKNIFE;
+  v21 = offHand->weaponIdx && Bot_Weap_WeaponDef(v20, offHand)->offhandClass == OFFHAND_CLASS_THROWINGKNIFE;
   if ( v19 && !v21 )
     v18 = 1;
-  return Bot_Weap_Ammo(botInfo->playerState, _RDI) > 0 && (v18 || v15);
+  return Bot_Weap_Ammo(botInfo->playerState, offHand) > 0 && (v18 || v15);
 }
 
 /*
@@ -1811,124 +1591,81 @@ Bot_Weap_GetIdealFiringRange
 */
 float Bot_Weap_GetIdealFiringRange(const playerState_s *ps, const Weapon *weapon)
 {
-  const Weapon *v7; 
+  const Weapon *PrimaryWeapon; 
   bool isAlternate; 
   GWeaponMap *Instance; 
-  const Weapon *PrimaryWeapon; 
-  bool v18; 
-  GWeaponMap *v19; 
-  char v23; 
+  float v8; 
+  float v9; 
+  const Weapon *v10; 
+  bool v11; 
+  GWeaponMap *v12; 
+  double v13; 
+  double v14; 
+  float AdjustedMaxRange; 
   float maxDamageRange; 
   float minDamageRange; 
-  int v37; 
+  float v18; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2021, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( weapon->weaponIdx && (v7 = Bot_Weap_GetPrimaryWeapon(ps, weapon), v7->weaponIdx) )
+  if ( !weapon->weaponIdx )
+    return 0.0;
+  PrimaryWeapon = Bot_Weap_GetPrimaryWeapon(ps, weapon);
+  if ( !PrimaryWeapon->weaponIdx )
+    return 0.0;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1350, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
+    __debugbreak();
+  if ( PrimaryWeapon->weaponIdx && Bot_Weap_Class(ps, PrimaryWeapon) == WEAPCLASS_SPREAD )
   {
-    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1350, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
+    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1998, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( v7->weaponIdx && Bot_Weap_Class(ps, v7) == WEAPCLASS_SPREAD )
+    if ( PrimaryWeapon->weaponIdx )
     {
-      if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1998, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
+      isAlternate = BG_UsingAlternate(ps);
+      Instance = GWeaponMap::GetInstance();
+      BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, PrimaryWeapon, isAlternate, &minDamageRange, &maxDamageRange);
+      v18 = minDamageRange;
+      if ( (LODWORD(minDamageRange) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2005, ASSERT_TYPE_ASSERT, "( !IS_NAN( minDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( minDamageRange )") )
         __debugbreak();
-      if ( v7->weaponIdx )
-      {
-        isAlternate = BG_UsingAlternate(ps);
-        Instance = GWeaponMap::GetInstance();
-        BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, v7, isAlternate, &minDamageRange, &maxDamageRange);
-        __asm
-        {
-          vmovss  xmm0, [rsp+88h+arg_8]
-          vmovss  [rsp+88h+arg_10], xmm0
-        }
-        if ( (v37 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2005, ASSERT_TYPE_ASSERT, "( !IS_NAN( minDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( minDamageRange )") )
-          __debugbreak();
-        __asm
-        {
-          vmovss  xmm0, [rsp+88h+arg_0]
-          vmovss  [rsp+88h+arg_10], xmm0
-        }
-        if ( (v37 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2006, ASSERT_TYPE_ASSERT, "( !IS_NAN( maxDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( maxDamageRange )") )
-          __debugbreak();
-        __asm
-        {
-          vmovss  xmm0, [rsp+88h+arg_0]
-          vmulss  xmm0, xmm0, cs:__real@3f666666
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmulss  xmm0, xmm0, cs:__real@3f666666
-        }
-      }
+      v18 = maxDamageRange;
+      if ( (LODWORD(maxDamageRange) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2006, ASSERT_TYPE_ASSERT, "( !IS_NAN( maxDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( maxDamageRange )") )
+        __debugbreak();
+      return maxDamageRange * 0.89999998;
     }
     else
     {
-      __asm
-      {
-        vmovaps [rsp+88h+var_38], xmm6
-        vmovaps [rsp+88h+var_48], xmm7
-      }
-      if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1819, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
-        __debugbreak();
-      if ( v7->weaponIdx && (PrimaryWeapon = Bot_Weap_GetPrimaryWeapon(ps, v7), PrimaryWeapon->weaponIdx) )
-      {
-        v18 = BG_UsingAlternate(ps);
-        v19 = GWeaponMap::GetInstance();
-        BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, v19, ps, &ps->perks, PrimaryWeapon, v18, &maxDamageRange, &minDamageRange);
-        __asm
-        {
-          vmovss  xmm0, [rsp+88h+arg_0]
-          vmovss  xmm3, [rsp+88h+arg_8]
-          vucomiss xmm0, xmm3
-          vmulss  xmm2, xmm0, cs:__real@3f400000
-        }
-        if ( !v23 )
-        {
-          __asm
-          {
-            vmulss  xmm1, xmm2, cs:__real@3f666666
-            vmulss  xmm0, xmm3, cs:__real@3dcccccd
-            vaddss  xmm2, xmm1, xmm0; currentMaxRange
-          }
-        }
-        *(float *)&_XMM0 = Bot_GetAdjustedMaxRange(ps, PrimaryWeapon, *(double *)&_XMM2, 0);
-        __asm
-        {
-          vmulss  xmm7, xmm0, cs:__real@3e800000
-          vmovaps xmm2, xmm7; minRange
-          vmovaps xmm3, xmm0; maxRange
-          vmovaps xmm6, xmm0
-        }
-        Bot_Weap_VerifyWeaponDamageRanges(ps, PrimaryWeapon, *(float *)&_XMM2, *(float *)&_XMM3);
-      }
-      else
-      {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vxorps  xmm7, xmm7, xmm7
-        }
-      }
-      __asm
-      {
-        vsubss  xmm0, xmm6, xmm7
-        vmulss  xmm1, xmm0, cs:__real@3f000000
-        vmovaps xmm6, [rsp+88h+var_38]
-        vaddss  xmm0, xmm1, xmm7
-        vmovaps xmm7, [rsp+88h+var_48]
-      }
+      return 0.0 * 0.89999998;
     }
   }
   else
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1819, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
+      __debugbreak();
+    if ( PrimaryWeapon->weaponIdx && (v10 = Bot_Weap_GetPrimaryWeapon(ps, PrimaryWeapon), v10->weaponIdx) )
+    {
+      v11 = BG_UsingAlternate(ps);
+      v12 = GWeaponMap::GetInstance();
+      BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, v12, ps, &ps->perks, v10, v11, &maxDamageRange, &minDamageRange);
+      *(_QWORD *)&v14 = LODWORD(maxDamageRange);
+      *(float *)&v14 = maxDamageRange * 0.75;
+      v13 = v14;
+      if ( maxDamageRange != minDamageRange )
+      {
+        *(float *)&v14 = (float)(*(float *)&v14 * 0.89999998) + (float)(minDamageRange * 0.1);
+        v13 = v14;
+      }
+      AdjustedMaxRange = Bot_GetAdjustedMaxRange(ps, v10, v13, 0);
+      v9 = AdjustedMaxRange * 0.25;
+      v8 = AdjustedMaxRange;
+      Bot_Weap_VerifyWeaponDamageRanges(ps, v10, AdjustedMaxRange * 0.25, AdjustedMaxRange);
+    }
+    else
+    {
+      v8 = 0.0;
+      v9 = 0.0;
+    }
+    return (float)((float)(v8 - v9) * 0.5) + v9;
   }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -1955,36 +1692,22 @@ float Bot_Weap_GetMaxDamageRange(const playerState_s *ps, const Weapon *weapon)
   GWeaponMap *Instance; 
   float maxDamageRange; 
   float minDamageRange; 
-  int v13; 
+  float v9; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1998, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( weapon->weaponIdx )
-  {
-    isAlternate = BG_UsingAlternate(ps);
-    Instance = GWeaponMap::GetInstance();
-    BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, weapon, isAlternate, &minDamageRange, &maxDamageRange);
-    __asm
-    {
-      vmovss  xmm0, [rsp+58h+arg_8]
-      vmovss  [rsp+58h+arg_10], xmm0
-    }
-    if ( (v13 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2005, ASSERT_TYPE_ASSERT, "( !IS_NAN( minDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( minDamageRange )") )
-      __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, [rsp+58h+arg_0]
-      vmovss  [rsp+58h+arg_10], xmm0
-    }
-    if ( (v13 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2006, ASSERT_TYPE_ASSERT, "( !IS_NAN( maxDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( maxDamageRange )") )
-      __debugbreak();
-    __asm { vmovss  xmm0, [rsp+58h+arg_0] }
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  if ( !weapon->weaponIdx )
+    return 0.0;
+  isAlternate = BG_UsingAlternate(ps);
+  Instance = GWeaponMap::GetInstance();
+  BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, weapon, isAlternate, &minDamageRange, &maxDamageRange);
+  v9 = minDamageRange;
+  if ( (LODWORD(minDamageRange) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2005, ASSERT_TYPE_ASSERT, "( !IS_NAN( minDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( minDamageRange )") )
+    __debugbreak();
+  v9 = maxDamageRange;
+  if ( (LODWORD(maxDamageRange) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2006, ASSERT_TYPE_ASSERT, "( !IS_NAN( maxDamageRange ) )", (const char *)&queryFormat, "!IS_NAN( maxDamageRange )") )
+    __debugbreak();
+  return maxDamageRange;
 }
 
 /*
@@ -1997,7 +1720,9 @@ float Bot_Weap_GetMaxRange(const playerState_s *ps, const Weapon *weapon)
   const Weapon *PrimaryWeapon; 
   bool isAlternate; 
   GWeaponMap *Instance; 
-  char v12; 
+  double v7; 
+  double v8; 
+  float result; 
   float minDamageRange; 
   float maxDamageRange; 
 
@@ -2008,47 +1733,25 @@ float Bot_Weap_GetMaxRange(const playerState_s *ps, const Weapon *weapon)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1819, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
   }
-  if ( weapon->weaponIdx && (PrimaryWeapon = Bot_Weap_GetPrimaryWeapon(ps, weapon), PrimaryWeapon->weaponIdx) )
+  if ( !weapon->weaponIdx )
+    return 0.0;
+  PrimaryWeapon = Bot_Weap_GetPrimaryWeapon(ps, weapon);
+  if ( !PrimaryWeapon->weaponIdx )
+    return 0.0;
+  isAlternate = BG_UsingAlternate(ps);
+  Instance = GWeaponMap::GetInstance();
+  BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, PrimaryWeapon, isAlternate, &minDamageRange, &maxDamageRange);
+  *(_QWORD *)&v8 = LODWORD(minDamageRange);
+  *(float *)&v8 = minDamageRange * 0.75;
+  v7 = v8;
+  if ( minDamageRange != maxDamageRange )
   {
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
-    isAlternate = BG_UsingAlternate(ps);
-    Instance = GWeaponMap::GetInstance();
-    BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, PrimaryWeapon, isAlternate, &minDamageRange, &maxDamageRange);
-    __asm
-    {
-      vmovss  xmm0, [rsp+68h+arg_0]
-      vmovss  xmm3, [rsp+68h+arg_8]
-      vucomiss xmm0, xmm3
-      vmulss  xmm2, xmm0, cs:__real@3f400000
-    }
-    if ( !v12 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm2, cs:__real@3f666666
-        vmulss  xmm0, xmm3, cs:__real@3dcccccd
-        vaddss  xmm2, xmm1, xmm0; currentMaxRange
-      }
-    }
-    *(float *)&_XMM0 = Bot_GetAdjustedMaxRange(ps, PrimaryWeapon, *(double *)&_XMM2, 0);
-    __asm
-    {
-      vmulss  xmm2, xmm0, cs:__real@3e800000; minRange
-      vmovaps xmm3, xmm0; maxRange
-      vmovaps xmm6, xmm0
-    }
-    Bot_Weap_VerifyWeaponDamageRanges(ps, PrimaryWeapon, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+68h+var_28]
-    }
+    *(float *)&v8 = (float)(*(float *)&v8 * 0.89999998) + (float)(maxDamageRange * 0.1);
+    v7 = v8;
   }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  result = Bot_GetAdjustedMaxRange(ps, PrimaryWeapon, v7, 0);
+  Bot_Weap_VerifyWeaponDamageRanges(ps, PrimaryWeapon, result * 0.25, result);
+  return result;
 }
 
 /*
@@ -2058,26 +1761,25 @@ Bot_Weap_GetMaxRangeAdjustmentFromFOV
 */
 float Bot_Weap_GetMaxRangeAdjustmentFromFOV(const playerState_s *ps, const Weapon *weapon)
 {
+  __int128 v2; 
+  float turretFovADS; 
   GWeaponMap *Instance; 
   BgHybridScopeFraction *p_hybridScopeFractionInfo; 
-  bool v18; 
-  GWeaponMap *v19; 
-  bool v21; 
-  char v28; 
-  char v29; 
-  bool v32; 
+  bool v11; 
+  GWeaponMap *v12; 
+  __int64 ADSZoomLevel; 
+  bool v14; 
+  const WeaponCompleteDef *v15; 
+  float v16; 
+  bool v17; 
   GHandler *Handler; 
-  double v44; 
-  double v45; 
-  double v46; 
-  double v47; 
-  double v48; 
-  double v49; 
-  double v50; 
+  double v19; 
   BgHybridScopeFraction hybridScopeFractionInfo; 
-  __int64 v52; 
+  __int64 v21; 
   BgAdsZoomInfo outZoomInfo; 
   char output[256]; 
+  __int128 v24; 
+  __int128 v25; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1722, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
@@ -2086,43 +1788,16 @@ float Bot_Weap_GetMaxRangeAdjustmentFromFOV(const playerState_s *ps, const Weapo
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1350, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( weapon->weaponIdx && Bot_Weap_Class(ps, weapon) == WEAPCLASS_SNIPER )
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-    return *(float *)&_XMM0;
-  }
-  __asm
-  {
-    vmovaps [rsp+228h+var_38], xmm6
-    vmovaps [rsp+228h+var_48], xmm7
-    vmovaps [rsp+228h+var_58], xmm8
-    vmovaps [rsp+228h+var_68], xmm9
-    vmovaps [rsp+228h+var_78], xmm10
-  }
+    return FLOAT_1_0;
+  v25 = v2;
+  v24 = _XMM10;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1350, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vxorpd  xmm10, xmm10, xmm10
-  }
+  __asm { vxorpd  xmm10, xmm10, xmm10 }
   if ( weapon->weaponIdx && Bot_Weap_Class(ps, weapon) == WEAPCLASS_TURRET )
   {
-    _RAX = Bot_Weap_WeaponDef(ps, weapon);
-    __asm
-    {
-      vxorps  xmm9, xmm9, xmm9
-      vmovss  xmm8, dword ptr [rax+0DBCh]
-      vcomiss xmm8, xmm9
-    }
-    if ( !(v28 | v29) )
-      goto LABEL_27;
-    __asm
-    {
-      vcvtss2sd xmm0, xmm8, xmm8
-      vmovsd  [rsp+228h+var_1F8], xmm10
-      vmovsd  [rsp+228h+var_200], xmm0
-    }
-    if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1738, ASSERT_TYPE_ASSERT, "( baseFOV ) > ( 0 )", "baseFOV > 0\n\t%g, %g", v44, v46) )
+    turretFovADS = Bot_Weap_WeaponDef(ps, weapon)->turretFovADS;
+    if ( turretFovADS > 0.0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1738, ASSERT_TYPE_ASSERT, "( baseFOV ) > ( 0 )", "baseFOV > 0\n\t%g, %g", turretFovADS, *(double *)&_XMM10) )
       goto LABEL_27;
   }
   else
@@ -2131,43 +1806,26 @@ float Bot_Weap_GetMaxRangeAdjustmentFromFOV(const playerState_s *ps, const Weapo
     memset(&outZoomInfo, 0, sizeof(outZoomInfo));
     if ( BG_IsUsingHybridScope(Instance, ps, weapon) )
     {
-      __asm { vmovss  [rsp+228h+hybridScopeFractionInfo.fraction], xmm7 }
+      hybridScopeFractionInfo.fraction = FLOAT_1_0;
       hybridScopeFractionInfo.increasing = 1;
       p_hybridScopeFractionInfo = &hybridScopeFractionInfo;
     }
     else
     {
-      v52 = 0i64;
-      p_hybridScopeFractionInfo = (BgHybridScopeFraction *)&v52;
+      v21 = 0i64;
+      p_hybridScopeFractionInfo = (BgHybridScopeFraction *)&v21;
     }
-    v18 = BG_UsingAlternate(ps);
-    BG_GetADSZoomInfo(Instance, weapon, v18, p_hybridScopeFractionInfo, &outZoomInfo);
-    v19 = GWeaponMap::GetInstance();
-    _RBP = BG_GetADSZoomLevel(v19, ps, weapon, outZoomInfo.zoomCount);
-    v21 = BG_UsingAlternate(ps);
-    __asm { vxorps  xmm9, xmm9, xmm9 }
-    _RBX = BG_WeaponCompleteDef(weapon, v21);
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rax+rbp*4+144h]
-      vcomiss xmm8, xmm9
-    }
-    if ( !(v28 | v29) )
+    v11 = BG_UsingAlternate(ps);
+    BG_GetADSZoomInfo(Instance, weapon, v11, p_hybridScopeFractionInfo, &outZoomInfo);
+    v12 = GWeaponMap::GetInstance();
+    ADSZoomLevel = BG_GetADSZoomLevel(v12, ps, weapon, outZoomInfo.zoomCount);
+    v14 = BG_UsingAlternate(ps);
+    v15 = BG_WeaponCompleteDef(weapon, v14);
+    turretFovADS = v15->zoomSettings.scene.adsZoomFov[ADSZoomLevel];
+    if ( turretFovADS > 0.0 )
       goto LABEL_27;
     BG_GetWeaponName(weapon, output, 0x100u);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+14Ch]
-      vmovss  xmm1, dword ptr [rbx+148h]
-      vmovss  xmm2, dword ptr [rbx+144h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+228h+var_1E0], xmm0
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+228h+var_1E8], xmm1
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+228h+var_1F0], xmm2
-    }
-    if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1764, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "baseFov for weapon %s needs to be greater than 0. Current adsZoomLevel for weapon: %i, adsZoomFov[%f, %f, %f]", output, _RBP, v48, v49, v50) )
+    if ( !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1764, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "baseFov for weapon %s needs to be greater than 0. Current adsZoomLevel for weapon: %i, adsZoomFov[%f, %f, %f]", output, ADSZoomLevel, v15->zoomSettings.scene.adsZoomFov[0], v15->zoomSettings.scene.adsZoomFov[1], v15->zoomSettings.scene.adsZoomFov[2]) )
       goto LABEL_27;
   }
   __debugbreak();
@@ -2181,44 +1839,18 @@ LABEL_27:
   }
   if ( weapon->weaponIdx && Bot_Weap_Class(ps, weapon) == WEAPCLASS_TURRET )
   {
-    _RAX = Bot_Weap_WeaponDef(ps, weapon);
-    __asm { vmovss  xmm6, dword ptr [rax+0DBCh] }
+    v16 = Bot_Weap_WeaponDef(ps, weapon)->turretFovADS;
   }
   else
   {
-    v32 = BG_UsingAlternate(ps);
+    v17 = BG_UsingAlternate(ps);
     Handler = GHandler::getHandler();
-    *(double *)&_XMM0 = BG_ADSZoomFov(Handler, ps, weapon, v32);
-    __asm { vmovaps xmm6, xmm0 }
+    v19 = BG_ADSZoomFov(Handler, ps, weapon, v17);
+    v16 = *(float *)&v19;
   }
-  __asm
-  {
-    vcomiss xmm6, xmm9
-    vmovaps xmm9, [rsp+228h+var_68]
-  }
-  if ( v28 | v29 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+228h+var_1F8], xmm10
-      vmovsd  [rsp+228h+var_200], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1771, ASSERT_TYPE_ASSERT, "( adjustedFOV ) > ( 0 )", "adjustedFOV > 0\n\t%g, %g", v45, v47) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovaps xmm10, [rsp+228h+var_78]
-    vdivss  xmm0, xmm8, xmm6
-    vmovaps xmm8, [rsp+228h+var_58]
-    vmovaps xmm6, [rsp+228h+var_38]
-    vsubss  xmm1, xmm0, xmm7
-    vmulss  xmm2, xmm1, cs:__real@3ecccccd
-    vaddss  xmm0, xmm2, xmm7
-    vmovaps xmm7, [rsp+228h+var_48]
-  }
-  return *(float *)&_XMM0;
+  if ( v16 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1771, ASSERT_TYPE_ASSERT, "( adjustedFOV ) > ( 0 )", "adjustedFOV > 0\n\t%g, %g", v16, *(double *)&_XMM10) )
+    __debugbreak();
+  return (float)((float)((float)(turretFovADS / v16) - 1.0) * 0.40000001) + 1.0;
 }
 
 /*
@@ -2231,7 +1863,9 @@ float Bot_Weap_GetMaxRangeBase(const playerState_s *ps, const Weapon *weapon)
   const Weapon *PrimaryWeapon; 
   bool isAlternate; 
   GWeaponMap *Instance; 
-  char v12; 
+  double v7; 
+  double v8; 
+  float result; 
   float minDamageRange; 
   float maxDamageRange; 
 
@@ -2242,47 +1876,25 @@ float Bot_Weap_GetMaxRangeBase(const playerState_s *ps, const Weapon *weapon)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1819, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
   }
-  if ( weapon->weaponIdx && (PrimaryWeapon = Bot_Weap_GetPrimaryWeapon(ps, weapon), PrimaryWeapon->weaponIdx) )
+  if ( !weapon->weaponIdx )
+    return 0.0;
+  PrimaryWeapon = Bot_Weap_GetPrimaryWeapon(ps, weapon);
+  if ( !PrimaryWeapon->weaponIdx )
+    return 0.0;
+  isAlternate = BG_UsingAlternate(ps);
+  Instance = GWeaponMap::GetInstance();
+  BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, PrimaryWeapon, isAlternate, &minDamageRange, &maxDamageRange);
+  *(_QWORD *)&v8 = LODWORD(minDamageRange);
+  *(float *)&v8 = minDamageRange * 0.75;
+  v7 = v8;
+  if ( minDamageRange != maxDamageRange )
   {
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
-    isAlternate = BG_UsingAlternate(ps);
-    Instance = GWeaponMap::GetInstance();
-    BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, PrimaryWeapon, isAlternate, &minDamageRange, &maxDamageRange);
-    __asm
-    {
-      vmovss  xmm0, [rsp+68h+arg_0]
-      vmovss  xmm3, [rsp+68h+arg_8]
-      vucomiss xmm0, xmm3
-      vmulss  xmm2, xmm0, cs:__real@3f400000
-    }
-    if ( !v12 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm2, cs:__real@3f666666
-        vmulss  xmm0, xmm3, cs:__real@3dcccccd
-        vaddss  xmm2, xmm1, xmm0; currentMaxRange
-      }
-    }
-    *(float *)&_XMM0 = Bot_GetAdjustedMaxRange(ps, PrimaryWeapon, *(double *)&_XMM2, 1);
-    __asm
-    {
-      vmulss  xmm2, xmm0, cs:__real@3e800000; minRange
-      vmovaps xmm3, xmm0; maxRange
-      vmovaps xmm6, xmm0
-    }
-    Bot_Weap_VerifyWeaponDamageRanges(ps, PrimaryWeapon, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+68h+var_28]
-    }
+    *(float *)&v8 = (float)(*(float *)&v8 * 0.89999998) + (float)(maxDamageRange * 0.1);
+    v7 = v8;
   }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  result = Bot_GetAdjustedMaxRange(ps, PrimaryWeapon, v7, 1);
+  Bot_Weap_VerifyWeaponDamageRanges(ps, PrimaryWeapon, result * 0.25, result);
+  return result;
 }
 
 /*
@@ -2308,7 +1920,9 @@ float Bot_Weap_GetMinRange(const playerState_s *ps, const Weapon *weapon)
   const Weapon *PrimaryWeapon; 
   bool isAlternate; 
   GWeaponMap *Instance; 
-  char v12; 
+  double v7; 
+  double v8; 
+  float AdjustedMaxRange; 
   float minDamageRange; 
   float maxDamageRange; 
 
@@ -2319,47 +1933,25 @@ float Bot_Weap_GetMinRange(const playerState_s *ps, const Weapon *weapon)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1819, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
   }
-  if ( weapon->weaponIdx && (PrimaryWeapon = Bot_Weap_GetPrimaryWeapon(ps, weapon), PrimaryWeapon->weaponIdx) )
+  if ( !weapon->weaponIdx )
+    return 0.0;
+  PrimaryWeapon = Bot_Weap_GetPrimaryWeapon(ps, weapon);
+  if ( !PrimaryWeapon->weaponIdx )
+    return 0.0;
+  isAlternate = BG_UsingAlternate(ps);
+  Instance = GWeaponMap::GetInstance();
+  BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, PrimaryWeapon, isAlternate, &minDamageRange, &maxDamageRange);
+  *(_QWORD *)&v8 = LODWORD(minDamageRange);
+  *(float *)&v8 = minDamageRange * 0.75;
+  v7 = v8;
+  if ( minDamageRange != maxDamageRange )
   {
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
-    isAlternate = BG_UsingAlternate(ps);
-    Instance = GWeaponMap::GetInstance();
-    BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, Instance, ps, &ps->perks, PrimaryWeapon, isAlternate, &minDamageRange, &maxDamageRange);
-    __asm
-    {
-      vmovss  xmm0, [rsp+68h+arg_0]
-      vmovss  xmm3, [rsp+68h+arg_8]
-      vucomiss xmm0, xmm3
-      vmulss  xmm2, xmm0, cs:__real@3f400000
-    }
-    if ( !v12 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm2, cs:__real@3f666666
-        vmulss  xmm0, xmm3, cs:__real@3dcccccd
-        vaddss  xmm2, xmm1, xmm0; currentMaxRange
-      }
-    }
-    *(float *)&_XMM0 = Bot_GetAdjustedMaxRange(ps, PrimaryWeapon, *(double *)&_XMM2, 0);
-    __asm
-    {
-      vmulss  xmm6, xmm0, cs:__real@3e800000
-      vmovaps xmm2, xmm6; minRange
-      vmovaps xmm3, xmm0; maxRange
-    }
-    Bot_Weap_VerifyWeaponDamageRanges(ps, PrimaryWeapon, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+68h+var_28]
-    }
+    *(float *)&v8 = (float)(*(float *)&v8 * 0.89999998) + (float)(maxDamageRange * 0.1);
+    v7 = v8;
   }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  AdjustedMaxRange = Bot_GetAdjustedMaxRange(ps, PrimaryWeapon, v7, 0);
+  Bot_Weap_VerifyWeaponDamageRanges(ps, PrimaryWeapon, AdjustedMaxRange * 0.25, AdjustedMaxRange);
+  return AdjustedMaxRange * 0.25;
 }
 
 /*
@@ -2415,7 +2007,8 @@ Bot_Weap_GetWeaponFOV
 */
 double Bot_Weap_GetWeaponFOV(const playerState_s *ps, const Weapon *weapon)
 {
-  bool v6; 
+  double result; 
+  bool v5; 
   GHandler *Handler; 
 
   if ( !ps )
@@ -2427,16 +2020,15 @@ double Bot_Weap_GetWeaponFOV(const playerState_s *ps, const Weapon *weapon)
   }
   if ( weapon->weaponIdx && Bot_Weap_Class(ps, weapon) == WEAPCLASS_TURRET )
   {
-    _RAX = Bot_Weap_WeaponDef(ps, weapon);
-    __asm { vmovss  xmm0, dword ptr [rax+0DBCh] }
+    *(_QWORD *)&result = LODWORD(Bot_Weap_WeaponDef(ps, weapon)->turretFovADS);
   }
   else
   {
-    v6 = BG_UsingAlternate(ps);
+    v5 = BG_UsingAlternate(ps);
     Handler = GHandler::getHandler();
-    *(double *)&_XMM0 = BG_ADSZoomFov(Handler, ps, weapon, v6);
+    return BG_ADSZoomFov(Handler, ps, weapon, v5);
   }
-  return *(double *)&_XMM0;
+  return result;
 }
 
 /*
@@ -2509,418 +2101,257 @@ Bot_Weap_GrenadeInRange
 __int64 Bot_Weap_GrenadeInRange(const bot_data_t *botData, const Weapon *weapon, float *outPitch, vec3_t *outLaunchVel)
 {
   gentity_s *ent; 
-  char v38; 
-  const playerState_s *playerState; 
-  const gentity_s *v40; 
-  bool v50; 
-  char v101; 
-  __int64 result; 
-  int iProjectileSpeedForward; 
-  int v209; 
-  int v210; 
-  float outSpeedUpScale; 
+  float v9; 
+  __int128 v10; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
+  playerState_s *playerState; 
+  gentity_s *v18; 
+  const WeaponDef *v19; 
+  int iProjectileSpeed; 
+  int iProjectileSpeedUp; 
+  int v22; 
+  int v23; 
+  gagent_s *agent; 
+  float grenadeThrowSpeedUpScale; 
+  float grenadeThrowSpeedScale; 
+  gclient_s *client; 
+  float v28; 
+  float v29; 
+  __int128 v30; 
+  __int128 v31; 
+  float v32; 
+  float v33; 
+  __int128 v34; 
+  float v37; 
+  float v38; 
+  __int128 v39; 
+  __m128 v43; 
+  float v47; 
+  gentity_s *v48; 
+  __int128 v49; 
+  float v50; 
+  playerState_s *v51; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v65; 
+  __int128 v66; 
+  __int128 v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  __int64 v78; 
   float outSpeedScale; 
-  float *v213; 
-  vec3_t v214; 
-  vec3_t v215; 
+  float *v80; 
+  vec3_t v81; 
+  vec3_t v82; 
   vec3_t forward; 
   vec3_t vec; 
-  vec3_t v218; 
+  vec3_t v85; 
   vec3_t angles; 
   vec3_t up; 
 
-  __asm
-  {
-    vmovaps [rsp+1A0h+var_60], xmm7
-    vmovaps [rsp+1A0h+var_B0], xmm12
-    vmovaps [rsp+1A0h+var_D0], xmm14
-  }
-  v213 = outPitch;
-  _R13 = outLaunchVel;
-  _RSI = botData;
+  v80 = outPitch;
   if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 991, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
-  if ( !_RSI->botInfo.ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 992, ASSERT_TYPE_ASSERT, "( botData->botInfo.ent )", (const char *)&queryFormat, "botData->botInfo.ent") )
+  if ( !botData->botInfo.ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 992, ASSERT_TYPE_ASSERT, "( botData->botInfo.ent )", (const char *)&queryFormat, "botData->botInfo.ent") )
     __debugbreak();
   if ( Com_GameMode_SupportsFeature(WEAPON_SPRINT_RAISE) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 994, ASSERT_TYPE_ASSERT, "( !Com_GameMode_SupportsFeature( Com_GameMode_Feature::GRAVITY_CHANGE_ALLOWED ) )", (const char *)&queryFormat, "!Com_GameMode_SupportsFeature( Com_GameMode_Feature::GRAVITY_CHANGE_ALLOWED )") )
     __debugbreak();
   if ( !outPitch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 997, ASSERT_TYPE_ASSERT, "( outPitch )", (const char *)&queryFormat, "outPitch") )
     __debugbreak();
-  ent = _RSI->botInfo.ent;
-  __asm
+  AngleVectors(&botData->botInfo.ent->r.currentAngles, &forward, NULL, &up);
+  if ( (*((_BYTE *)&botData->scriptedAgentInfo + 28228) & 2) != 0 )
   {
-    vmovaps [rsp+1A0h+var_50], xmm6
-    vmovaps [rsp+1A0h+var_70], xmm8
-    vmovaps [rsp+1A0h+var_80], xmm9
-    vmovaps [rsp+1A0h+var_90], xmm10
-    vmovaps [rsp+1A0h+var_A0], xmm11
-    vmovaps [rsp+1A0h+var_C0], xmm13
-    vmovaps [rsp+1A0h+var_E0], xmm15
-  }
-  AngleVectors(&ent->r.currentAngles, &forward, NULL, &up);
-  __asm
-  {
-    vmovss  xmm14, cs:__real@80000000
-    vmovss  xmm12, cs:__real@3f800000
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( (*((_BYTE *)&_RSI->scriptedAgentInfo + 28228) & 2) != 0 )
-  {
-    AngleVectors(&_RSI->botInfo.ent->r.currentAngles, &v215, NULL, NULL);
+    AngleVectors(&botData->botInfo.ent->r.currentAngles, &v82, NULL, NULL);
+    ent = botData->botInfo.ent;
+    v9 = botData->botInfo.scriptedGrenadeTarget.v[0];
+    v10 = LODWORD(botData->botInfo.scriptedGrenadeTarget.v[1]);
+    v82.v[2] = 0.0;
+    v11 = v9 - ent->r.currentOrigin.v[0];
+    v13 = v10;
+    v12 = *(float *)&v10 - ent->r.currentOrigin.v[1];
+    *(float *)&v13 = fsqrt((float)(v12 * v12) + (float)(v11 * v11));
+    _XMM3 = v13;
     __asm
     {
-      vmovss  xmm0, dword ptr [rsi+2324h]
-      vmovss  xmm1, dword ptr [rsi+2328h]
-      vmovss  dword ptr [rsp+1A0h+var_148+8], xmm7
-      vsubss  xmm5, xmm0, dword ptr [rax+130h]
-      vsubss  xmm4, xmm1, dword ptr [rax+134h]
-      vmulss  xmm0, xmm5, xmm5
-      vmulss  xmm2, xmm4, xmm4
-      vaddss  xmm1, xmm2, xmm0
-      vsqrtss xmm3, xmm1, xmm1
       vcmpless xmm0, xmm3, xmm14
       vblendvps xmm0, xmm3, xmm12, xmm0
-      vdivss  xmm1, xmm12, xmm0
-      vmulss  xmm0, xmm4, xmm1
-      vmulss  xmm3, xmm0, dword ptr [rsp+1A0h+var_148+4]
-      vmulss  xmm1, xmm5, xmm1
-      vmulss  xmm2, xmm1, dword ptr [rsp+1A0h+var_148]
-      vaddss  xmm0, xmm3, xmm2
-      vcomiss xmm0, cs:__real@3f7eb852
     }
-    if ( v38 )
-      goto LABEL_51;
+    if ( (float)((float)((float)(v12 * (float)(1.0 / *(float *)&_XMM0)) * v82.v[1]) + (float)((float)(v11 * (float)(1.0 / *(float *)&_XMM0)) * v82.v[0])) < 0.995 )
+      return 0i64;
   }
-  playerState = _RSI->botInfo.playerState;
-  v40 = _RSI->botInfo.ent;
+  playerState = botData->botInfo.playerState;
+  v18 = botData->botInfo.ent;
   if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2198, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2199, ASSERT_TYPE_ASSERT, "( launchingEnt )", (const char *)&queryFormat, "launchingEnt") )
+  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2199, ASSERT_TYPE_ASSERT, "( launchingEnt )", (const char *)&queryFormat, "launchingEnt") )
     __debugbreak();
   if ( !weapon->weaponIdx )
-    goto LABEL_51;
-  iProjectileSpeedForward = Bot_Weap_WeaponDef(playerState, weapon)->iProjectileSpeedForward;
-  __asm
-  {
-    vmovss  [rsp+1A0h+outSpeedScale], xmm12
-    vmovss  [rsp+1A0h+outSpeedUpScale], xmm12
-  }
-  G_Missile_GetScriptSpeedScale(v40, weapon, 0, &outSpeedScale, &outSpeedUpScale);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebx
-    vmulss  xmm1, xmm0, [rsp+1A0h+outSpeedScale]
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, edi
-    vmulss  xmm0, xmm2, [rsp+1A0h+outSpeedUpScale]
-    vcvttss2si edi, xmm0
-    vcvttss2si ebx, xmm1
-  }
+    return 0i64;
+  v19 = Bot_Weap_WeaponDef(playerState, weapon);
+  iProjectileSpeed = v19->iProjectileSpeed;
+  iProjectileSpeedUp = v19->iProjectileSpeedUp;
+  LODWORD(v78) = v19->iProjectileSpeedForward;
+  outSpeedScale = FLOAT_1_0;
+  *((float *)&v78 + 1) = FLOAT_1_0;
+  G_Missile_GetScriptSpeedScale(v18, weapon, 0, &outSpeedScale, (float *)&v78 + 1);
+  v22 = (int)(float)((float)iProjectileSpeedUp * *((float *)&v78 + 1));
+  v23 = (int)(float)((float)iProjectileSpeed * outSpeedScale);
   if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1350, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !weapon->weaponIdx || Bot_Weap_Class(playerState, weapon) != WEAPCLASS_GRENADE )
     goto LABEL_38;
-  if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2171, ASSERT_TYPE_ASSERT, "( launchingEnt )", (const char *)&queryFormat, "launchingEnt") )
+  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2171, ASSERT_TYPE_ASSERT, "( launchingEnt )", (const char *)&queryFormat, "launchingEnt") )
     __debugbreak();
-  _RAX = v40->agent;
-  v50 = _RAX == NULL;
-  if ( _RAX )
+  agent = v18->agent;
+  if ( agent )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rax+0D20Ch]
-      vmovss  xmm1, dword ptr [rax+0D208h]
-    }
+    grenadeThrowSpeedUpScale = agent->grenadeThrowSpeedUpScale;
+    grenadeThrowSpeedScale = agent->grenadeThrowSpeedScale;
   }
   else
   {
-    _RAX = v40->client;
-    v50 = _RAX == NULL;
-    if ( !_RAX )
+    client = v18->client;
+    if ( !client )
       goto LABEL_38;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rax+5FB8h]
-      vmovss  xmm1, dword ptr [rax+5FB4h]
-    }
+    grenadeThrowSpeedUpScale = client->grenadeThrowSpeedUpScale;
+    grenadeThrowSpeedScale = client->grenadeThrowSpeedScale;
   }
-  __asm { vcomiss xmm1, xmm7 }
-  if ( !v50 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vmulss  xmm1, xmm0, xmm1
-      vcvttss2si ebx, xmm1
-    }
-  }
-  __asm { vcomiss xmm2, xmm7 }
-  if ( !v50 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edi
-      vmulss  xmm1, xmm0, xmm2
-      vcvttss2si edi, xmm1
-    }
-  }
+  if ( grenadeThrowSpeedScale > 0.0 )
+    v23 = (int)(float)((float)v23 * grenadeThrowSpeedScale);
+  if ( grenadeThrowSpeedUpScale > 0.0 )
+    v22 = (int)(float)((float)v22 * grenadeThrowSpeedUpScale);
 LABEL_38:
+  v28 = forward.v[0];
+  v29 = forward.v[1];
+  v30 = 0i64;
+  *(float *)&v30 = (float)v23 * forward.v[2];
+  v31 = v30;
+  v32 = forward.v[0] * (float)v23;
+  v33 = forward.v[1] * (float)v23;
+  if ( (_DWORD)v78 )
+  {
+    v34 = LODWORD(forward.v[0]);
+    *(float *)&v34 = (float)(forward.v[0] * forward.v[0]) + (float)(forward.v[1] * forward.v[1]);
+    if ( *(float *)&v34 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
+      __debugbreak();
+    _XMM1 = v34;
+    __asm { vrsqrtss xmm2, xmm1, xmm1 }
+    v37 = _mm_cvtepi32_ps((__m128i)(unsigned int)v78).m128_f32[0];
+    v33 = (float)((float)(v29 * *(float *)&_XMM2) * v37) + v33;
+    v32 = (float)((float)(v28 * *(float *)&_XMM2) * v37) + v32;
+  }
+  v38 = (float)(v33 * v33) + (float)(v32 * v32);
+  v39 = v31;
+  *(float *)&v39 = fsqrt((float)(*(float *)&v31 * *(float *)&v31) + v38);
+  _XMM3 = v39;
   __asm
   {
-    vmovss  xmm6, dword ptr [rsp+1A0h+forward]
-    vmovss  xmm8, dword ptr [rsp+1A0h+forward+4]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, ebx
-  }
-  _EBX = iProjectileSpeedForward;
-  __asm
-  {
-    vmulss  xmm13, xmm1, dword ptr [rsp+1A0h+forward+8]
-    vmulss  xmm9, xmm6, xmm1
-    vmulss  xmm10, xmm8, xmm1
-  }
-  if ( iProjectileSpeedForward )
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm6, xmm6
-      vmulss  xmm0, xmm8, xmm8
-      vaddss  xmm11, xmm1, xmm0
-      vcomiss xmm11, xmm7
-      vmovaps xmm1, xmm11
-      vrsqrtss xmm2, xmm1, xmm1
-      vmulss  xmm0, xmm6, xmm2
-      vmovd   xmm3, ebx
-      vcvtdq2ps xmm3, xmm3
-      vmulss  xmm1, xmm0, xmm3
-      vmulss  xmm2, xmm8, xmm2
-      vmulss  xmm0, xmm2, xmm3
-      vaddss  xmm10, xmm0, xmm10
-      vaddss  xmm9, xmm1, xmm9
-    }
-  }
-  __asm
-  {
-    vmulss  xmm1, xmm10, xmm10
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm4, xmm1, xmm0
-    vmulss  xmm1, xmm13, xmm13
-    vaddss  xmm2, xmm1, xmm4
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, xmm14
     vblendvps xmm0, xmm3, xmm12, xmm0
-    vdivss  xmm2, xmm12, xmm0
-    vmulss  xmm0, xmm2, xmm9
-    vmovss  dword ptr [rsp+1A0h+vec], xmm0
-    vmulss  xmm0, xmm2, xmm13
-    vmovss  dword ptr [rbp+0A0h+vec+8], xmm0
-    vmulss  xmm1, xmm2, xmm10
-    vmovss  dword ptr [rsp+1A0h+vec+4], xmm1
-    vmovd   xmm0, edi
-    vcvtdq2ps xmm0, xmm0
-    vaddss  xmm3, xmm0, xmm13
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm0, xmm1, xmm4
-    vsqrtss xmm2, xmm0, xmm0
+  }
+  vec.v[0] = (float)(1.0 / *(float *)&_XMM0) * v32;
+  vec.v[2] = (float)(1.0 / *(float *)&_XMM0) * *(float *)&v31;
+  vec.v[1] = (float)(1.0 / *(float *)&_XMM0) * v33;
+  v43 = _mm_cvtepi32_ps((__m128i)(unsigned int)v22);
+  *(float *)&_XMM3 = v43.m128_f32[0] + *(float *)&v31;
+  v43.m128_f32[0] = fsqrt((float)(*(float *)&_XMM3 * *(float *)&_XMM3) + v38);
+  _XMM2 = v43;
+  __asm
+  {
     vcmpless xmm0, xmm2, xmm14
     vblendvps xmm0, xmm2, xmm12, xmm0
-    vdivss  xmm2, xmm12, xmm0
-    vmulss  xmm0, xmm2, xmm9
-    vmovss  dword ptr [rbp+0A0h+var_118], xmm0
-    vmulss  xmm0, xmm2, xmm3
-    vmulss  xmm1, xmm10, xmm2
-    vmovss  dword ptr [rbp+0A0h+var_118+8], xmm0
-    vmovss  dword ptr [rsp+1A0h+var_158], xmm9
-    vmovss  dword ptr [rsp+1A0h+var_158+4], xmm10
-    vmovss  dword ptr [rsp+1A0h+var_158+8], xmm3
-    vmovss  dword ptr [rbp+0A0h+var_118+4], xmm1
   }
+  v85.v[0] = (float)(1.0 / *(float *)&_XMM0) * v32;
+  v85.v[2] = (float)(1.0 / *(float *)&_XMM0) * *(float *)&_XMM3;
+  v81.v[0] = v32;
+  v81.v[1] = v33;
+  v81.v[2] = *(float *)&_XMM3;
+  v85.v[1] = v33 * (float)(1.0 / *(float *)&_XMM0);
   *(double *)&_XMM0 = vectopitch(&vec);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = vectopitch(&v218);
-  _RCX = _RSI->botInfo.ent;
-  __asm
+  v47 = *(float *)&_XMM0;
+  *(double *)&_XMM0 = vectopitch(&v85);
+  v48 = botData->botInfo.ent;
+  v49 = LODWORD(v81.v[1]);
+  v50 = v81.v[0];
+  v51 = botData->botInfo.playerState;
+  _XMM9 = 0i64;
+  __asm { vroundss xmm2, xmm9, xmm1, 1 }
+  *((float *)&v78 + 1) = (float)((float)((float)(*(float *)&_XMM0 - v47) * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+  v54 = v51->viewHeightCurrent + v48->r.currentOrigin.v[2];
+  v55 = (float)((float)(*(float *)&v49 * *(float *)&v49) + (float)(v50 * v50)) + (float)(v81.v[2] * v81.v[2]);
+  v43.m128_f32[0] = v48->r.currentOrigin.v[1] - botData->botInfo.grenadeThrowTarget.v[1];
+  *(float *)&_XMM3 = v48->r.currentOrigin.v[0] - botData->botInfo.grenadeThrowTarget.v[0];
+  v56 = (float)((float)(v43.m128_f32[0] * v43.m128_f32[0]) + (float)(*(float *)&_XMM3 * *(float *)&_XMM3)) + (float)((float)(v54 - botData->botInfo.grenadeThrowTarget.v[2]) * (float)(v54 - botData->botInfo.grenadeThrowTarget.v[2]));
+  v57 = (float)(v55 * v55) - (float)((float)((float)((float)(botData->botInfo.grenadeThrowTarget.v[2] - v54) * 1600.0) * v55) + (float)(v56 * 640000.0));
+  if ( v57 < 0.0 )
+    return 0i64;
+  v58 = fsqrt(v56) * 800.0;
+  v59 = v55 - fsqrt(v57);
+  if ( v58 == 0.0 )
+    return 0i64;
+  *(float *)&v78 = v59;
+  if ( (LODWORD(v59) & 0x7F800000) == 2139095040 )
   {
-    vmovss  xmm4, dword ptr [rsp+1A0h+var_158+8]
-    vmovss  xmm10, dword ptr [rsp+1A0h+var_158+4]
-    vmovss  xmm11, dword ptr [rsp+1A0h+var_158]
-  }
-  _RAX = _RSI->botInfo.playerState;
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm6
-    vmulss  xmm3, xmm1, cs:__real@3b360b61
-    vaddss  xmm1, xmm3, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, xmm0, xmm1
-    vxorps  xmm9, xmm9, xmm9
-    vroundss xmm2, xmm9, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm0, xmm0, cs:__real@43b40000
-    vmovss  [rsp+1A0h+outSpeedUpScale], xmm0
-    vmulss  xmm0, xmm11, xmm11
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm0, dword ptr [rax+1E8h]
-    vaddss  xmm6, xmm0, dword ptr [rcx+138h]
-    vmovss  xmm0, dword ptr [rcx+134h]
-    vmulss  xmm1, xmm4, xmm4
-    vsubss  xmm4, xmm6, dword ptr [rsi+6DE0h]
-    vaddss  xmm15, xmm2, xmm1
-    vsubss  xmm2, xmm0, dword ptr [rsi+6DDCh]
-    vmovss  xmm1, dword ptr [rcx+130h]
-    vsubss  xmm3, xmm1, dword ptr [rsi+6DD8h]
-    vmulss  xmm1, xmm2, xmm2
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm3, xmm1, xmm0
-    vmovss  xmm0, dword ptr [rsi+6DE0h]
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm1
-    vsubss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, cs:__real@44c80000
-    vmulss  xmm0, xmm4, cs:__real@491c4000
-    vmulss  xmm3, xmm2, xmm15
-    vaddss  xmm1, xmm3, xmm0
-    vmulss  xmm5, xmm15, xmm15
-    vsubss  xmm2, xmm5, xmm1
-    vcomiss xmm2, xmm7
-  }
-  if ( v38 )
-    goto LABEL_51;
-  __asm
-  {
-    vsqrtss xmm1, xmm4, xmm4
-    vmulss  xmm8, xmm1, cs:__real@44480000
-    vucomiss xmm8, xmm7
-    vsqrtss xmm0, xmm2, xmm2
-    vsubss  xmm6, xmm15, xmm0
-  }
-  if ( v101 )
-  {
-LABEL_51:
-    result = 0i64;
-    goto LABEL_52;
-  }
-  __asm { vmovss  [rsp+1A0h+var_170], xmm6 }
-  if ( (v209 & 0x7F800000) == 2139095040 )
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1073, ASSERT_TYPE_ASSERT, "(!IS_NAN( numerator ))", (const char *)&queryFormat, "!IS_NAN( numerator )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1073, ASSERT_TYPE_ASSERT, "(!IS_NAN( numerator ))", (const char *)&queryFormat, "!IS_NAN( numerator )", v78) )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm11, dword ptr [rsp+1A0h+var_158]
-      vmovss  xmm10, dword ptr [rsp+1A0h+var_158+4]
-    }
+    v50 = v81.v[0];
+    v49 = LODWORD(v81.v[1]);
   }
-  __asm { vdivss  xmm0, xmm6, xmm8; X }
-  *(float *)&_XMM0 = atanf_0(*(float *)&_XMM0);
-  __asm
+  v60 = v59 / v58;
+  *(float *)&v78 = atanf_0(v60);
+  v61 = v60;
+  if ( (v78 & 0x7F800000) == 2139095040 )
   {
-    vmovss  [rsp+1A0h+var_170], xmm0
-    vmovaps xmm13, xmm0
-  }
-  if ( (v210 & 0x7F800000) == 2139095040 )
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1075, ASSERT_TYPE_ASSERT, "(!IS_NAN( launchAngleRad ))", (const char *)&queryFormat, "!IS_NAN( launchAngleRad )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1075, ASSERT_TYPE_ASSERT, "(!IS_NAN( launchAngleRad ))", (const char *)&queryFormat, "!IS_NAN( launchAngleRad )", v78) )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm11, dword ptr [rsp+1A0h+var_158]
-      vmovss  xmm10, dword ptr [rsp+1A0h+var_158+4]
-    }
+    v50 = v81.v[0];
+    v49 = LODWORD(v81.v[1]);
   }
+  __asm { vroundss xmm2, xmm9, xmm1, 1 }
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm1, 1 }
+  v65 = v81.v[2];
+  *v80 = (float)((float)((float)((float)((float)((float)(v60 * -0.15915494) - *(float *)&_XMM2) * 360.0) - *((float *)&v78 + 1)) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+  v66 = v49;
+  *(float *)&v66 = fsqrt((float)((float)(*(float *)&v49 * *(float *)&v49) + (float)(v50 * v50)) + (float)(v65 * v65));
+  _XMM8 = v66;
   __asm
   {
-    vmulss  xmm3, xmm13, cs:__real@be22f983
-    vaddss  xmm1, xmm3, cs:__real@3f000000
-  }
-  _RAX = v213;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, xmm0, xmm1
-    vroundss xmm2, xmm9, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm9, xmm0, cs:__real@43b40000
-    vsubss  xmm1, xmm9, [rsp+1A0h+outSpeedUpScale]
-    vmulss  xmm4, xmm1, cs:__real@3b360b61
-    vaddss  xmm2, xmm4, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, xmm0, xmm2
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm1, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vmovss  xmm4, dword ptr [rsp+1A0h+var_158+8]
-    vmovss  dword ptr [rax], xmm1
-    vmulss  xmm2, xmm10, xmm10
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm11, xmm11
-    vaddss  xmm3, xmm2, xmm0
-    vaddss  xmm2, xmm3, xmm1
-    vsqrtss xmm8, xmm2, xmm2
     vcmpless xmm1, xmm8, xmm14
     vblendvps xmm1, xmm8, xmm12, xmm1
-    vdivss  xmm2, xmm12, xmm1
-    vmovaps xmm0, xmm13; X
-    vmulss  xmm6, xmm2, xmm11
-    vmulss  xmm7, xmm2, xmm10
   }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
+  v70 = LODWORD(FLOAT_1_0);
+  v71 = (float)(1.0 / *(float *)&_XMM1) * v50;
+  v72 = (float)(1.0 / *(float *)&_XMM1) * *(float *)&v49;
+  v73 = sinf_0(v61);
+  *(float *)&v70 = fsqrt((float)((float)(v72 * v72) + (float)(v71 * v71)) + (float)(v73 * v73));
+  _XMM4 = v70;
   __asm
   {
-    vmulss  xmm1, xmm6, xmm6
-    vmovaps xmm5, xmm0
-    vmulss  xmm2, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm2, xmm0, xmm0
-    vaddss  xmm3, xmm3, xmm2
-    vsqrtss xmm4, xmm3, xmm3
     vcmpless xmm1, xmm4, xmm14
     vblendvps xmm1, xmm4, xmm12, xmm1
-    vdivss  xmm3, xmm12, xmm1
-    vmulss  xmm0, xmm3, xmm6
-    vmulss  xmm1, xmm0, xmm8
-    vmulss  xmm2, xmm3, xmm7
-    vmulss  xmm0, xmm2, xmm8
-    vmovss  dword ptr [r13+0], xmm1
-    vmulss  xmm1, xmm3, xmm5
-    vmulss  xmm2, xmm1, xmm8
-    vmovss  dword ptr [r13+8], xmm2
-    vmovss  dword ptr [r13+4], xmm0
   }
-  vectoangles(&v214, &angles);
-  __asm { vmovss  dword ptr [rbp+0A0h+angles], xmm9 }
-  AngleVectors(&angles, _R13, NULL, NULL);
-  __asm
-  {
-    vsqrtss xmm2, xmm15, xmm15
-    vmulss  xmm0, xmm2, dword ptr [r13+0]
-    vmulss  xmm1, xmm2, dword ptr [r13+4]
-    vmovss  dword ptr [r13+0], xmm0
-    vmulss  xmm0, xmm2, dword ptr [r13+8]
-    vmovss  dword ptr [r13+8], xmm0
-    vmovss  dword ptr [r13+4], xmm1
-  }
-  result = 1i64;
-LABEL_52:
-  __asm
-  {
-    vmovaps xmm15, [rsp+1A0h+var_E0]
-    vmovaps xmm13, [rsp+1A0h+var_C0]
-    vmovaps xmm11, [rsp+1A0h+var_A0]
-    vmovaps xmm10, [rsp+1A0h+var_90]
-    vmovaps xmm9, [rsp+1A0h+var_80]
-    vmovaps xmm8, [rsp+1A0h+var_70]
-    vmovaps xmm6, [rsp+1A0h+var_50]
-    vmovaps xmm7, [rsp+1A0h+var_60]
-    vmovaps xmm12, [rsp+1A0h+var_B0]
-    vmovaps xmm14, [rsp+1A0h+var_D0]
-  }
-  return result;
+  outLaunchVel->v[0] = (float)((float)(1.0 / *(float *)&_XMM1) * v71) * *(float *)&_XMM8;
+  outLaunchVel->v[2] = (float)((float)(1.0 / *(float *)&_XMM1) * v61) * *(float *)&_XMM8;
+  outLaunchVel->v[1] = (float)((float)(1.0 / *(float *)&_XMM1) * v72) * *(float *)&_XMM8;
+  vectoangles(&v81, &angles);
+  angles.v[0] = (float)((float)(v61 * -0.15915494) - *(float *)&_XMM2) * 360.0;
+  AngleVectors(&angles, outLaunchVel, NULL, NULL);
+  *(float *)&v70 = fsqrt(v55);
+  *(float *)&_XMM1 = *(float *)&v70 * outLaunchVel->v[1];
+  outLaunchVel->v[0] = *(float *)&v70 * outLaunchVel->v[0];
+  outLaunchVel->v[2] = *(float *)&v70 * outLaunchVel->v[2];
+  outLaunchVel->v[1] = *(float *)&_XMM1;
+  return 1i64;
 }
 
 /*
@@ -2933,16 +2364,20 @@ int Bot_Weap_GrenadePick(const bot_info_t *botInfo, const playerState_s *ps, Wea
   bot_grenade_type_t scriptedGrenadeType; 
   int GrenadeForButton; 
   int v8; 
-  int v11; 
-  int v15; 
+  __int128 v9; 
+  int v10; 
+  double v11; 
+  __int128 v12; 
+  int v13; 
+  double v14; 
   GWeaponMap *Instance; 
   const Weapon *ViewmodelWeapon; 
-  GWeaponMap *v20; 
-  GWeaponMap *v21; 
+  GWeaponMap *v18; 
+  GWeaponMap *v19; 
+  const Weapon *v20; 
   Weapon offHand; 
   Weapon weapon; 
 
-  _RBX = offHandOut;
   scriptedGrenadeType = botInfo->scriptedGrenadeType;
   if ( (unsigned int)(scriptedGrenadeType - 1) <= 1 )
     return Bot_Weap_GetGrenadeForButton(botInfo, scriptedGrenadeType, offHandOut);
@@ -2980,56 +2415,36 @@ int Bot_Weap_GrenadePick(const bot_info_t *botInfo, const playerState_s *ps, Wea
       ViewmodelWeapon = BG_GetViewmodelWeapon(Instance, ps);
       if ( !Bot_Weap_HasUnderBarrelGL(ps) )
         return 0;
-      v20 = GWeaponMap::GetInstance();
-      if ( BG_WeaponAmmo(v20, ps, ViewmodelWeapon, 1) <= 0 )
+      v18 = GWeaponMap::GetInstance();
+      if ( BG_WeaponAmmo(v18, ps, ViewmodelWeapon, 1) <= 0 )
         return 0;
-      v21 = GWeaponMap::GetInstance();
-      _RAX = BG_GetViewmodelWeapon(v21, ps);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rbx+20h], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rbx+30h], xmm0
-      }
-      v15 = *(_DWORD *)&_RAX->weaponCamo;
+      v19 = GWeaponMap::GetInstance();
+      v20 = BG_GetViewmodelWeapon(v19, ps);
+      *(__m256i *)&offHandOut->weaponIdx = *(__m256i *)&v20->weaponIdx;
+      *(_OWORD *)&offHandOut->attachmentVariationIndices[5] = *(_OWORD *)&v20->attachmentVariationIndices[5];
+      *(double *)&offHandOut->attachmentVariationIndices[21] = *(double *)&v20->attachmentVariationIndices[21];
+      v13 = *(_DWORD *)&v20->weaponCamo;
       goto LABEL_28;
     }
 LABEL_27:
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+0E8h+weapon.weaponIdx]
-      vmovups xmm1, xmmword ptr [rsp+0E8h+weapon.attachmentVariationIndices+5]
-    }
-    v15 = *(_DWORD *)&weapon.weaponCamo;
-    __asm
-    {
-      vmovups ymmword ptr [rbx], ymm0
-      vmovsd  xmm0, qword ptr [rsp+0E8h+weapon.attachmentVariationIndices+15h]
-      vmovups xmmword ptr [rbx+20h], xmm1
-      vmovsd  qword ptr [rbx+30h], xmm0
-    }
+    v12 = *(_OWORD *)&weapon.attachmentVariationIndices[5];
+    v13 = *(_DWORD *)&weapon.weaponCamo;
+    *(__m256i *)&offHandOut->weaponIdx = *(__m256i *)&weapon.weaponIdx;
+    v14 = *(double *)&weapon.attachmentVariationIndices[21];
+    *(_OWORD *)&offHandOut->attachmentVariationIndices[5] = v12;
+    *(double *)&offHandOut->attachmentVariationIndices[21] = v14;
 LABEL_28:
-    *(_DWORD *)&_RBX->weaponCamo = v15;
+    *(_DWORD *)&offHandOut->weaponCamo = v13;
     return 1;
   }
 LABEL_25:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+0E8h+offHand.weaponIdx]
-    vmovups xmm1, xmmword ptr [rsp+0E8h+offHand.attachmentVariationIndices+5]
-  }
-  v11 = *(_DWORD *)&offHand.weaponCamo;
-  __asm
-  {
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm0, qword ptr [rsp+0E8h+offHand.attachmentVariationIndices+15h]
-    vmovups xmmword ptr [rbx+20h], xmm1
-    vmovsd  qword ptr [rbx+30h], xmm0
-  }
-  *(_DWORD *)&_RBX->weaponCamo = v11;
+  v9 = *(_OWORD *)&offHand.attachmentVariationIndices[5];
+  v10 = *(_DWORD *)&offHand.weaponCamo;
+  *(__m256i *)&offHandOut->weaponIdx = *(__m256i *)&offHand.weaponIdx;
+  v11 = *(double *)&offHand.attachmentVariationIndices[21];
+  *(_OWORD *)&offHandOut->attachmentVariationIndices[5] = v9;
+  *(double *)&offHandOut->attachmentVariationIndices[21] = v11;
+  *(_DWORD *)&offHandOut->weaponCamo = v10;
   return 1;
 }
 
@@ -3358,56 +2773,42 @@ _BOOL8 Bot_Weap_IsDoingADS(const bot_data_t *botData)
 Bot_Weap_IsEntInGrenadeRadius
 ==============
 */
-__int64 Bot_Weap_IsEntInGrenadeRadius(const gentity_s *selfEnt, const gentity_s *checkEnt, const gentity_s *grenadeEnt)
+_BOOL8 Bot_Weap_IsEntInGrenadeRadius(const gentity_s *selfEnt, const gentity_s *checkEnt, const gentity_s *grenadeEnt)
 {
   GWeaponMap *Instance; 
   const playerState_s *EntityPlayerStateConst; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
   const Weapon *Weapon; 
-  const WeaponDef *v21; 
+  const WeaponDef *v13; 
+  float v14; 
+  float v15; 
+  float v16; 
 
-  __asm { vmovaps [rsp+68h+var_38], xmm6 }
-  _RBX = grenadeEnt;
   if ( !selfEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 825, ASSERT_TYPE_ASSERT, "( selfEnt )", (const char *)&queryFormat, "selfEnt") )
     __debugbreak();
   if ( !checkEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 826, ASSERT_TYPE_ASSERT, "( checkEnt )", (const char *)&queryFormat, "checkEnt") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 827, ASSERT_TYPE_ASSERT, "( grenadeEnt )", (const char *)&queryFormat, "grenadeEnt") )
+  if ( !grenadeEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 827, ASSERT_TYPE_ASSERT, "( grenadeEnt )", (const char *)&queryFormat, "grenadeEnt") )
     __debugbreak();
   Instance = GWeaponMap::GetInstance();
   EntityPlayerStateConst = G_GetEntityPlayerStateConst(selfEnt);
   if ( !EntityPlayerStateConst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 831, ASSERT_TYPE_ASSERT, "( psSelf )", (const char *)&queryFormat, "psSelf") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+130h]
-    vsubss  xmm3, xmm0, dword ptr [rsi+130h]
-    vmovss  xmm1, dword ptr [rbx+134h]
-    vmovss  xmm0, dword ptr [rbx+138h]
-    vsubss  xmm2, xmm1, dword ptr [rsi+134h]
-    vsubss  xmm4, xmm0, dword ptr [rsi+138h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm6, xmm3, xmm0
-  }
-  Weapon = BgWeaponMap::GetWeapon(Instance, _RBX->s.weaponHandle);
-  v21 = Bot_Weap_WeaponDef(EntityPlayerStateConst, Weapon);
-  BG_ExplosionRadius(Weapon, 0);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm0
-  }
-  if ( selfEnt == checkEnt && v21->offhandClass == OFFHAND_CLASS_FLASH_GRENADE )
-    __asm { vmulss  xmm1, xmm1, cs:__real@3e800000 }
-  __asm
-  {
-    vcomiss xmm1, xmm6
-    vmovaps xmm6, [rsp+68h+var_38]
-  }
-  return 1i64;
+  v8 = grenadeEnt->r.currentOrigin.v[0] - checkEnt->r.currentOrigin.v[0];
+  v9 = grenadeEnt->r.currentOrigin.v[1] - checkEnt->r.currentOrigin.v[1];
+  v10 = grenadeEnt->r.currentOrigin.v[2] - checkEnt->r.currentOrigin.v[2];
+  v11 = (float)((float)(v9 * v9) + (float)(v8 * v8)) + (float)(v10 * v10);
+  Weapon = BgWeaponMap::GetWeapon(Instance, grenadeEnt->s.weaponHandle);
+  v13 = Bot_Weap_WeaponDef(EntityPlayerStateConst, Weapon);
+  v14 = (float)BG_ExplosionRadius(Weapon, 0);
+  v16 = v14 * v14;
+  v15 = v16;
+  if ( selfEnt == checkEnt && v13->offhandClass == OFFHAND_CLASS_FLASH_GRENADE )
+    v15 = v16 * 0.25;
+  return v15 >= v11;
 }
 
 /*
@@ -3418,11 +2819,15 @@ Bot_Weap_IsHighRecoil
 bool Bot_Weap_IsHighRecoil(const bot_data_t *botData, const Weapon *r_weapon)
 {
   playerState_s *playerState; 
-  bool v8; 
+  bool v5; 
   int ShotCountForRecoil; 
   GWeaponMap *Instance; 
-  bool v18; 
-  bool result; 
+  float v8; 
+  float v9; 
+  bool v10; 
+  bool v11; 
+  float v13; 
+  float v14; 
   float hipAngularViewKickStrengthMax; 
   float adsAngularViewKickPitchScale; 
   float adsAngularViewKickDev; 
@@ -3430,76 +2835,44 @@ bool Bot_Weap_IsHighRecoil(const bot_data_t *botData, const Weapon *r_weapon)
   float hipAngularViewKickPitchScale; 
   float hipAngularViewKickDev; 
   float hipAngularViewKickDir; 
-  char v40; 
   float adsAngularViewKickStrengthMin; 
   float adsAngularViewKickStrengthMax; 
   float hipAngularViewKickStrengthMin; 
 
-  __asm { vmovaps [rsp+100h+var_60], xmm9 }
   if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1158, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
   playerState = botData->botInfo.playerState;
   if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1161, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+100h+var_40], xmm7
-    vmovaps [rsp+100h+var_50], xmm8
-  }
-  v8 = BG_UsingAlternate(playerState);
+  v5 = BG_UsingAlternate(playerState);
   ShotCountForRecoil = BG_GetShotCountForRecoil(playerState);
   Instance = GWeaponMap::GetInstance();
-  __asm { vmovss  xmm9, cs:__real@3f000000 }
-  if ( BG_UseAngularGunKick(Instance, playerState, r_weapon, v8) )
+  if ( BG_UseAngularGunKick(Instance, playerState, r_weapon, v5) )
   {
-    BG_GetAngularGunKickSettings(Instance, playerState, r_weapon, v8, ShotCountForRecoil, &hipAngularViewKickDir, &hipAngularViewKickDev, &hipAngularViewKickStrengthMin, &hipAngularViewKickStrengthMax, &hipAngularViewKickPitchScale, &adsAngularViewKickDir, &adsAngularViewKickDev, &adsAngularViewKickStrengthMin, &adsAngularViewKickStrengthMax, &adsAngularViewKickPitchScale);
-    __asm
-    {
-      vmovss  xmm0, [rbp+57h+adsAngularViewKickStrengthMin]
-      vaddss  xmm1, xmm0, [rbp+57h+adsAngularViewKickStrengthMax]
-      vmovss  xmm2, [rbp+57h+hipAngularViewKickStrengthMin]
-      vaddss  xmm0, xmm2, [rbp+57h+hipAngularViewKickStrengthMax]
-      vmulss  xmm8, xmm0, xmm9
-      vmulss  xmm7, xmm1, xmm9
-    }
+    BG_GetAngularGunKickSettings(Instance, playerState, r_weapon, v5, ShotCountForRecoil, &hipAngularViewKickDir, &hipAngularViewKickDev, &hipAngularViewKickStrengthMin, &hipAngularViewKickStrengthMax, &hipAngularViewKickPitchScale, &adsAngularViewKickDir, &adsAngularViewKickDev, &adsAngularViewKickStrengthMin, &adsAngularViewKickStrengthMax, &adsAngularViewKickPitchScale);
+    v8 = (float)(hipAngularViewKickStrengthMin + hipAngularViewKickStrengthMax) * 0.5;
+    v9 = (float)(adsAngularViewKickStrengthMin + adsAngularViewKickStrengthMax) * 0.5;
     if ( Bot_Weap_IsDoingADS(botData) )
-      __asm { vcomiss xmm7, cs:__real@41c80000 }
+      v10 = v9 < 25.0;
     else
-      __asm { vcomiss xmm8, cs:__real@420c0000 }
-    v18 = 1;
-    goto LABEL_12;
+      v10 = v8 < 35.0;
+    v11 = !v10;
+    if ( !v10 )
+      return v11;
   }
-  v18 = 0;
-  if ( !BG_UseAngularViewKick(Instance, playerState, r_weapon, v8) )
-  {
-LABEL_12:
-    result = v18;
-    goto LABEL_13;
-  }
-  BG_GetAngularViewKickSettings(Instance, playerState, r_weapon, v8, ShotCountForRecoil, &hipAngularViewKickDir, &hipAngularViewKickDev, &hipAngularViewKickStrengthMin, &hipAngularViewKickStrengthMax, &hipAngularViewKickPitchScale, &adsAngularViewKickDir, &adsAngularViewKickDev, &adsAngularViewKickStrengthMin, &adsAngularViewKickStrengthMax, &adsAngularViewKickPitchScale);
-  __asm
-  {
-    vmovss  xmm0, [rbp+57h+adsAngularViewKickStrengthMin]
-    vaddss  xmm1, xmm0, [rbp+57h+adsAngularViewKickStrengthMax]
-    vmovss  xmm2, [rbp+57h+hipAngularViewKickStrengthMin]
-    vaddss  xmm0, xmm2, [rbp+57h+hipAngularViewKickStrengthMax]
-    vmulss  xmm7, xmm0, xmm9
-    vmulss  xmm8, xmm1, xmm9
-  }
-  if ( Bot_Weap_IsDoingADS(botData) )
-    __asm { vcomiss xmm8, cs:__real@41c80000 }
   else
-    __asm { vcomiss xmm7, cs:__real@425c0000 }
-  result = 1;
-LABEL_13:
-  __asm { vmovaps xmm8, [rsp+100h+var_50] }
-  _R11 = &v40;
-  __asm
   {
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+100h+var_40]
+    v11 = 0;
   }
-  return result;
+  if ( !BG_UseAngularViewKick(Instance, playerState, r_weapon, v5) )
+    return v11;
+  BG_GetAngularViewKickSettings(Instance, playerState, r_weapon, v5, ShotCountForRecoil, &hipAngularViewKickDir, &hipAngularViewKickDev, &hipAngularViewKickStrengthMin, &hipAngularViewKickStrengthMax, &hipAngularViewKickPitchScale, &adsAngularViewKickDir, &adsAngularViewKickDev, &adsAngularViewKickStrengthMin, &adsAngularViewKickStrengthMax, &adsAngularViewKickPitchScale);
+  v13 = (float)(hipAngularViewKickStrengthMin + hipAngularViewKickStrengthMax) * 0.5;
+  v14 = (float)(adsAngularViewKickStrengthMin + adsAngularViewKickStrengthMax) * 0.5;
+  if ( Bot_Weap_IsDoingADS(botData) )
+    return v14 >= 25.0;
+  else
+    return v13 >= 55.0;
 }
 
 /*
@@ -3749,24 +3122,35 @@ Bot_Weap_PickBest
 */
 Weapon *Bot_Weap_PickBest(Weapon *result, bot_data_t *botData, const gentity_s *pEnemy, int ignoreAmmo)
 {
+  __int16 v4; 
+  Weapon *v6; 
   GWeaponMap *Instance; 
   playerState_s *playerState; 
   BgWeaponMap *v9; 
-  int v16; 
-  unsigned int v17; 
+  int v10; 
+  unsigned int v11; 
   BgWeaponHandle *weaponsEquipped; 
-  __int16 v19; 
-  unsigned int v21; 
-  int v23; 
-  int v29; 
+  unsigned __int16 weaponIdx; 
+  const Weapon *Weapon; 
+  unsigned int v15; 
+  int v16; 
+  __m256i v17; 
+  __int128 v18; 
+  __int64 v19; 
+  int v20; 
   int *usableFallback; 
-  __int64 v33; 
-  int v34; 
-  int v35; 
-  __m256i v41; 
-  int v43; 
+  __int64 v23; 
+  int v24; 
+  int v25; 
+  __int64 v26; 
+  __int64 v27; 
+  __int128 v28; 
+  __int128 v29; 
+  __m256i v30; 
+  __m256i v31; 
+  int v33; 
 
-  _RDI = result;
+  v6 = result;
   if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 586, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
   Instance = GWeaponMap::GetInstance();
@@ -3776,132 +3160,86 @@ Weapon *Bot_Weap_PickBest(Weapon *result, bot_data_t *botData, const gentity_s *
     __debugbreak();
   if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&playerState->weapCommon.weapFlags, ACTIVE, 0xAu) )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovups ymmword ptr [rdi], ymm0
-      vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-      vmovups xmmword ptr [rdi+20h], xmm1
-      vmovsd  qword ptr [rdi+30h], xmm0
-    }
-    *(_DWORD *)&_RDI->weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+    *v6 = NULL_WEAPON;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm2, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-      vmovups xmm3, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovsd  xmm1, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    }
-    v16 = 0;
-    v17 = 0;
+    v10 = 0;
+    v11 = 0;
     weaponsEquipped = playerState->weaponsEquipped;
-    __asm { vmovups [rsp+128h+var_90], ymm2 }
-    v19 = v41.m256i_i16[0];
-    __asm
-    {
-      vmovups [rsp+128h+var_B0], ymm2
-      vmovups [rsp+128h+var_D0], xmm3
-      vmovsd  [rsp+128h+var_E0], xmm1
-    }
-    v43 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-    __asm
-    {
-      vmovups [rsp+128h+var_C0], xmm3
-      vmovsd  [rsp+128h+var_D8], xmm1
-    }
-    v34 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+    v31 = *(__m256i *)&NULL_WEAPON.weaponIdx;
+    weaponIdx = NULL_WEAPON.weaponIdx;
+    v30 = *(__m256i *)&NULL_WEAPON.weaponIdx;
+    v28 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+    v26 = *(__int64 *)&NULL_WEAPON.attachmentVariationIndices[21];
+    v33 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+    v29 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+    v27 = *(__int64 *)&NULL_WEAPON.attachmentVariationIndices[21];
+    v24 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
     do
     {
       if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
         __debugbreak();
       if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 840, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      if ( (unsigned int)v16 >= 0xF )
+      if ( (unsigned int)v10 >= 0xF )
       {
-        LODWORD(v33) = 15;
-        LODWORD(usableFallback) = v16;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", usableFallback, v33) )
+        LODWORD(v23) = 15;
+        LODWORD(usableFallback) = v10;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", usableFallback, v23) )
           __debugbreak();
       }
-      _RBX = BgWeaponMap::GetWeapon(v9, (BgWeaponHandle)weaponsEquipped->m_mapEntryId);
-      if ( !_RBX->weaponIdx )
+      Weapon = BgWeaponMap::GetWeapon(v9, (BgWeaponHandle)weaponsEquipped->m_mapEntryId);
+      if ( !Weapon->weaponIdx )
         goto LABEL_25;
-      v21 = Bot_Weap_Score(botData, _RBX, playerState, pEnemy, ignoreAmmo, &v35);
-      if ( v35 && !v19 )
+      v15 = Bot_Weap_Score(botData, Weapon, playerState, pEnemy, ignoreAmmo, &v25);
+      if ( v25 && !weaponIdx )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbx] }
-        v23 = *(_DWORD *)&_RBX->weaponCamo;
-        __asm
-        {
-          vmovups [rsp+128h+var_90], ymm0
-          vmovups xmm0, xmmword ptr [rbx+20h]
-        }
-        v19 = v41.m256i_i16[0];
-        __asm
-        {
-          vmovups [rsp+128h+var_C0], xmm0
-          vmovsd  xmm0, qword ptr [rbx+30h]
-          vmovsd  [rsp+128h+var_D8], xmm0
-        }
-        v34 = v23;
+        v16 = *(_DWORD *)&Weapon->weaponCamo;
+        v31 = *(__m256i *)&Weapon->weaponIdx;
+        weaponIdx = v31.m256i_i16[0];
+        v29 = *(_OWORD *)&Weapon->attachmentVariationIndices[5];
+        v27 = *(__int64 *)&Weapon->attachmentVariationIndices[21];
+        v24 = v16;
       }
-      if ( v21 > v17 )
+      if ( v15 > v11 )
       {
-        __asm
-        {
-          vmovups ymm2, ymmword ptr [rbx]
-          vmovups xmm3, xmmword ptr [rbx+20h]
-          vmovsd  xmm4, qword ptr [rbx+30h]
-        }
-        v29 = *(_DWORD *)&_RBX->weaponCamo;
-        v17 = v21;
-        __asm
-        {
-          vmovups [rsp+128h+var_B0], ymm2
-          vmovups [rsp+128h+var_D0], xmm3
-          vmovsd  [rsp+128h+var_E0], xmm4
-        }
-        v43 = v29;
+        v17 = *(__m256i *)&Weapon->weaponIdx;
+        v18 = *(_OWORD *)&Weapon->attachmentVariationIndices[5];
+        v19 = *(__int64 *)&Weapon->attachmentVariationIndices[21];
+        v20 = *(_DWORD *)&Weapon->weaponCamo;
+        v11 = v15;
+        v30 = *(__m256i *)&Weapon->weaponIdx;
+        v28 = v18;
+        v26 = v19;
+        v33 = v20;
       }
       else
       {
 LABEL_25:
-        v29 = v43;
-        __asm
-        {
-          vmovsd  xmm4, [rsp+128h+var_E0]
-          vmovups xmm3, [rsp+128h+var_D0]
-          vmovups ymm2, [rsp+128h+var_B0]
-        }
+        v20 = v33;
+        v19 = v26;
+        v18 = v28;
+        v17 = v30;
       }
-      ++v16;
+      ++v10;
       ++weaponsEquipped;
     }
-    while ( v16 < 15 );
-    _RDI = result;
-    __asm { vmovd   eax, xmm2 }
-    if ( !(_WORD)_EAX && v19 )
+    while ( v10 < 15 );
+    v6 = result;
+    if ( !v4 && weaponIdx )
     {
-      __asm
-      {
-        vmovups ymm2, [rsp+128h+var_90]
-        vmovups xmm3, [rsp+128h+var_C0]
-        vmovsd  xmm4, [rsp+128h+var_D8]
-      }
-      v29 = v34;
+      v17 = v31;
+      v18 = v29;
+      v19 = v27;
+      v20 = v24;
     }
-    __asm
-    {
-      vmovups ymmword ptr [rdi], ymm2
-      vmovups xmmword ptr [rdi+20h], xmm3
-      vmovsd  qword ptr [rdi+30h], xmm4
-    }
-    *(_DWORD *)&result->weaponCamo = v29;
+    *(__m256i *)&result->weaponIdx = v17;
+    *(_OWORD *)&result->attachmentVariationIndices[5] = v18;
+    *(double *)&result->attachmentVariationIndices[21] = *(double *)&v19;
+    *(_DWORD *)&result->weaponCamo = v20;
   }
-  return _RDI;
+  return v6;
 }
 
 /*
@@ -3984,7 +3322,7 @@ Bot_Weap_ProjectileDirectTarget
 _BOOL8 Bot_Weap_ProjectileDirectTarget(const gentity_s *launchingEnt, const playerState_s *ps, const Weapon *weapon)
 {
   BOOL bProjImpactExplode; 
-  bool v9; 
+  bool v8; 
   float outSpeedUpScale; 
   float outSpeedScale; 
 
@@ -3998,13 +3336,9 @@ _BOOL8 Bot_Weap_ProjectileDirectTarget(const gentity_s *launchingEnt, const play
     __debugbreak();
   if ( weapon->weaponIdx )
   {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
     bProjImpactExplode = Bot_Weap_WeaponDef(ps, weapon)->bProjImpactExplode;
-    __asm
-    {
-      vmovss  [rsp+68h+outSpeedScale], xmm0
-      vmovss  [rsp+68h+outSpeedUpScale], xmm0
-    }
+    outSpeedScale = FLOAT_1_0;
+    outSpeedUpScale = FLOAT_1_0;
     G_Missile_GetScriptSpeedScale(launchingEnt, weapon, 0, &outSpeedScale, &outSpeedUpScale);
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1350, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
@@ -4013,8 +3347,8 @@ _BOOL8 Bot_Weap_ProjectileDirectTarget(const gentity_s *launchingEnt, const play
     if ( bProjImpactExplode )
       return 1i64;
   }
-  v9 = BG_UsingAlternate(ps);
-  return (unsigned int)(BG_WeaponStickinessType(weapon, v9) - 1) <= 1;
+  v8 = BG_UsingAlternate(ps);
+  return (unsigned int)(BG_WeaponStickinessType(weapon, v8) - 1) <= 1;
 }
 
 /*
@@ -4024,9 +3358,13 @@ Bot_Weap_ProjectileInfo
 */
 __int64 Bot_Weap_ProjectileInfo(const gentity_s *launchingEnt, const playerState_s *ps, const Weapon *weapon, int *impactExplode, int *speedAim, int *speedFwd, int *speedUp)
 {
-  const WeaponDef *v13; 
+  const WeaponDef *v12; 
+  int *v13; 
   int *v14; 
-  int *v15; 
+  gagent_s *agent; 
+  float grenadeThrowSpeedUpScale; 
+  float grenadeThrowSpeedScale; 
+  gclient_s *client; 
   float outSpeedScale; 
   float outSpeedUpScale; 
 
@@ -4036,104 +3374,51 @@ __int64 Bot_Weap_ProjectileInfo(const gentity_s *launchingEnt, const playerState
     __debugbreak();
   if ( !weapon->weaponIdx )
     return 0i64;
-  v13 = Bot_Weap_WeaponDef(ps, weapon);
+  v12 = Bot_Weap_WeaponDef(ps, weapon);
   if ( impactExplode )
-    *impactExplode = v13->bProjImpactExplode;
-  v14 = speedAim;
+    *impactExplode = v12->bProjImpactExplode;
+  v13 = speedAim;
   if ( speedAim )
-    *speedAim = v13->iProjectileSpeed;
+    *speedAim = v12->iProjectileSpeed;
   if ( speedFwd )
-    *speedFwd = v13->iProjectileSpeedForward;
-  v15 = speedUp;
+    *speedFwd = v12->iProjectileSpeedForward;
+  v14 = speedUp;
   if ( speedUp )
-    *speedUp = v13->iProjectileSpeedUp;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+78h+outSpeedScale], xmm0
-    vmovss  [rsp+78h+outSpeedUpScale], xmm0
-  }
+    *speedUp = v12->iProjectileSpeedUp;
+  outSpeedScale = FLOAT_1_0;
+  outSpeedUpScale = FLOAT_1_0;
   G_Missile_GetScriptSpeedScale(launchingEnt, weapon, 0, &outSpeedScale, &outSpeedUpScale);
+  if ( v13 )
+    *v13 = (int)(float)((float)*v13 * outSpeedScale);
   if ( v14 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdi]
-      vmulss  xmm1, xmm0, [rsp+78h+outSpeedScale]
-      vcvttss2si eax, xmm1
-    }
-    *v14 = _EAX;
-  }
-  if ( v15 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx]
-      vmulss  xmm1, xmm0, [rsp+78h+outSpeedUpScale]
-      vcvttss2si eax, xmm1
-    }
-    *v15 = _EAX;
-  }
+    *v14 = (int)(float)((float)*v14 * outSpeedUpScale);
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1350, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( weapon->weaponIdx && Bot_Weap_Class(ps, weapon) == WEAPCLASS_GRENADE )
   {
-    __asm
-    {
-      vmovaps [rsp+78h+var_48], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
     if ( !launchingEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2171, ASSERT_TYPE_ASSERT, "( launchingEnt )", (const char *)&queryFormat, "launchingEnt") )
       __debugbreak();
-    if ( launchingEnt->agent )
+    agent = launchingEnt->agent;
+    if ( agent )
     {
-      __asm
+      grenadeThrowSpeedUpScale = agent->grenadeThrowSpeedUpScale;
+      grenadeThrowSpeedScale = agent->grenadeThrowSpeedScale;
+      goto LABEL_33;
+    }
+    client = launchingEnt->client;
+    if ( client )
+    {
+      grenadeThrowSpeedUpScale = client->grenadeThrowSpeedUpScale;
+      grenadeThrowSpeedScale = client->grenadeThrowSpeedScale;
+LABEL_33:
+      if ( v13 && grenadeThrowSpeedScale > 0.0 )
+        *v13 = (int)(float)((float)*v13 * grenadeThrowSpeedScale);
+      if ( v14 )
       {
-        vmovss  xmm2, dword ptr [rax+0D20Ch]
-        vmovss  xmm1, dword ptr [rax+0D208h]
+        if ( grenadeThrowSpeedUpScale > 0.0 )
+          *v14 = (int)(float)((float)*v14 * grenadeThrowSpeedUpScale);
       }
     }
-    else
-    {
-      if ( !launchingEnt->client )
-      {
-LABEL_39:
-        __asm { vmovaps xmm6, [rsp+78h+var_48] }
-        return 1i64;
-      }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rax+5FB8h]
-        vmovss  xmm1, dword ptr [rax+5FB4h]
-      }
-    }
-    if ( v14 )
-    {
-      __asm
-      {
-        vcomiss xmm1, xmm6
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rdi]
-        vmulss  xmm1, xmm0, xmm1
-        vcvttss2si eax, xmm1
-      }
-      *v14 = _EAX;
-    }
-    if ( v15 )
-    {
-      __asm
-      {
-        vcomiss xmm2, xmm6
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rbx]
-        vmulss  xmm1, xmm0, xmm2
-        vcvttss2si eax, xmm1
-      }
-      *v15 = _EAX;
-    }
-    goto LABEL_39;
   }
   return 1i64;
 }
@@ -4152,8 +3437,8 @@ __int64 Bot_Weap_ReloadTime(const playerState_s *ps, const Weapon *weapon)
   bool isDualWielding; 
   int AmmoInClipForClipType; 
   GHandler *Handler; 
-  unsigned int v14; 
-  int v15; 
+  unsigned int v11; 
+  int v12; 
   bool hasFastReloadOverride; 
   AmmoStore result; 
   AmmoStore r_clipIndex; 
@@ -4180,14 +3465,7 @@ __int64 Bot_Weap_ReloadTime(const playerState_s *ps, const Weapon *weapon)
     v7 = 0;
     isDualWielding = ps->weapCommon.lastWeaponHand == WEAPON_HAND_LEFT;
   }
-  _RAX = BG_AmmoStoreForWeapon(&result, weapon, v6);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+108h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+108h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_clipIndex = *BG_AmmoStoreForWeapon(&result, weapon, v6);
   AmmoInClipForClipType = BG_GetAmmoInClipForClipType(ps, &r_clipIndex, WeaponHandForViewWeapon);
   if ( !AmmoInClipForClipType && BG_GetWeaponType(weapon, v6) == WEAPTYPE_BULLET )
     v7 = 1;
@@ -4195,21 +3473,21 @@ __int64 Bot_Weap_ReloadTime(const playerState_s *ps, const Weapon *weapon)
   Handler = GHandler::getHandler();
   if ( v7 )
   {
-    v14 = BG_ReloadEmptyTime(ps, Handler, WeaponHandForViewWeapon, weapon, v6, isDualWielding, &hasFastReloadOverride);
-    v15 = BG_ReloadEmptyAddTime(ps, weapon, v6, isDualWielding, AmmoInClipForClipType, &hasFastReloadOverride);
-    if ( v15 )
+    v11 = BG_ReloadEmptyTime(ps, Handler, WeaponHandForViewWeapon, weapon, v6, isDualWielding, &hasFastReloadOverride);
+    v12 = BG_ReloadEmptyAddTime(ps, weapon, v6, isDualWielding, AmmoInClipForClipType, &hasFastReloadOverride);
+    if ( v12 )
       goto LABEL_21;
   }
   else
   {
-    v14 = BG_ReloadTime(ps, Handler, WeaponHandForViewWeapon, weapon, v6, isDualWielding, AmmoInClipForClipType, &hasFastReloadOverride);
+    v11 = BG_ReloadTime(ps, Handler, WeaponHandForViewWeapon, weapon, v6, isDualWielding, AmmoInClipForClipType, &hasFastReloadOverride);
   }
-  v15 = BG_ReloadAddTime(ps, weapon, v6, isDualWielding, AmmoInClipForClipType, 0, &hasFastReloadOverride);
+  v12 = BG_ReloadAddTime(ps, weapon, v6, isDualWielding, AmmoInClipForClipType, 0, &hasFastReloadOverride);
 LABEL_21:
   if ( BG_GetReloadType(weapon, v6) == RELOAD_TYPE_SEGMENTED )
-    return (unsigned int)(v15 * (BG_GetClipSize(ps, weapon, v6) - AmmoInClipForClipType));
+    return (unsigned int)(v12 * (BG_GetClipSize(ps, weapon, v6) - AmmoInClipForClipType));
   else
-    return v14;
+    return v11;
 }
 
 /*
@@ -4219,6 +3497,7 @@ Bot_Weap_Score
 */
 __int64 Bot_Weap_Score(bot_data_t *botData, const Weapon *weap, const playerState_s *ps, const gentity_s *pEnemy, int ignoreAmmo, int *usableFallback)
 {
+  __int16 v6; 
   GWeaponMap *Instance; 
   PlayerHandIndex WeaponHandForViewWeapon; 
   GWeaponMap *v13; 
@@ -4229,39 +3508,39 @@ __int64 Bot_Weap_Score(bot_data_t *botData, const Weapon *weap, const playerStat
   char v18; 
   bool v19; 
   int v20; 
-  int v29; 
+  int v21; 
   sentient_s *sentient; 
-  GWeaponMap *v31; 
-  const Weapon *v32; 
-  bool v33; 
-  int v34; 
-  int v35; 
-  int v36; 
-  const Weapon *v37; 
-  int v39; 
-  int v40; 
+  GWeaponMap *v23; 
+  const Weapon *v24; 
+  bool v25; 
+  int v26; 
+  int v27; 
+  int v28; 
+  const Weapon *v29; 
+  int v31; 
+  int v32; 
   int i; 
   const Weapon *EquippedWeaponForPlayer; 
-  const Weapon *v44; 
-  const WeaponDef *v45; 
-  unsigned int v46; 
-  unsigned int v47; 
-  unsigned int v48; 
-  int v49; 
-  int v50; 
-  int v51; 
+  const Weapon *v35; 
+  const WeaponDef *v36; 
+  unsigned int v37; 
+  unsigned int v38; 
+  unsigned int v39; 
+  int v40; 
+  int v41; 
+  int v42; 
   unsigned int WeaponClass; 
-  int v53; 
+  int v44; 
   weapType_t WeaponType; 
-  int v55; 
-  int v56; 
+  int v46; 
+  int v47; 
   BOOL IsRiotShield; 
   weapInventoryType_t inventoryType; 
   int CanFireOnEnemy; 
   PlayerHandIndex hand; 
   GWeaponMap *weaponMap; 
-  const WeaponDef *v63; 
-  const Weapon *v64; 
+  const WeaponDef *v54; 
+  const Weapon *v55; 
   Weapon Buf2; 
 
   if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 337, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
@@ -4273,8 +3552,8 @@ __int64 Bot_Weap_Score(bot_data_t *botData, const Weapon *weap, const playerStat
   if ( !weap->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 340, ASSERT_TYPE_ASSERT, "( !Bot_Weap_IsNone( weap ) )", (const char *)&queryFormat, "!Bot_Weap_IsNone( weap )") )
     __debugbreak();
   weaponMap = GWeaponMap::GetInstance();
-  v63 = Bot_Weap_WeaponDef(ps, weap);
-  inventoryType = v63->inventoryType;
+  v54 = Bot_Weap_WeaponDef(ps, weap);
+  inventoryType = v54->inventoryType;
   WeaponClass = BG_GetWeaponClass(weap, 0);
   WeaponType = BG_GetWeaponType(weap, 0);
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2496, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
@@ -4285,60 +3564,37 @@ __int64 Bot_Weap_Score(bot_data_t *botData, const Weapon *weap, const playerStat
   v13 = GWeaponMap::GetInstance();
   ViewmodelWeapon = BG_GetViewmodelWeapon(v13, ps);
   v15 = 0;
-  v64 = ViewmodelWeapon;
+  v55 = ViewmodelWeapon;
   v16 = 1;
   if ( ViewmodelWeapon->weaponIdx )
   {
     v18 = Bot_Weap_Class(ps, ViewmodelWeapon);
-    ViewmodelWeapon = v64;
+    ViewmodelWeapon = v55;
     v17 = 1 << v18;
   }
   else
   {
     v17 = 0;
   }
-  v49 = Bot_Weap_AmmoInClip(ps, ViewmodelWeapon, WeaponHandForViewWeapon);
+  v40 = Bot_Weap_AmmoInClip(ps, ViewmodelWeapon, WeaponHandForViewWeapon);
   v19 = BG_UsingAlternate(ps);
   IsRiotShield = BG_IsRiotShield(weap, v19);
   if ( level.time - botData->botInfo.weaponRiotShieldTime >= 1000 || (v20 = 1, !Bot_Weap_PlayerHasRiotShield(ps)) )
     v20 = 0;
-  _RAX = Bot_Weap_GetEquippedTypeClass(ps, WEAPINVENTORY_PRIMARY, 0x101Du);
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rax]
-    vmovups [rsp+128h+Buf2], ymm2
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups [rsp+128h+var_78], xmm0
-    vmovsd  xmm1, qword ptr [rax+30h]
-    vmovsd  [rsp+128h+var_68], xmm1
-  }
-  *(_DWORD *)&Buf2.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  if ( !(_WORD)_RAX )
-  {
-    _RAX = Bot_Weap_GetEquippedTypeClass(ps, WEAPINVENTORY_PRIMARY, 0x103Du);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups [rsp+128h+Buf2], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups [rsp+128h+var_78], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  [rsp+128h+var_68], xmm0
-    }
-    *(_DWORD *)&Buf2.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  }
-  v55 = 4;
-  v56 = 16;
-  if ( !pEnemy || (v29 = 1, !Bot_IsVehicleEnt(pEnemy)) )
-    v29 = 0;
-  v51 = v29;
+  Buf2 = *Bot_Weap_GetEquippedTypeClass(ps, WEAPINVENTORY_PRIMARY, 0x101Du);
+  if ( !v6 )
+    Buf2 = *Bot_Weap_GetEquippedTypeClass(ps, WEAPINVENTORY_PRIMARY, 0x103Du);
+  v46 = 4;
+  v47 = 16;
+  if ( !pEnemy || (v21 = 1, !Bot_IsVehicleEnt(pEnemy)) )
+    v21 = 0;
+  v42 = v21;
   if ( !pEnemy || !pEnemy->turretHandle.m_objIndex )
     v16 = 0;
-  if ( !pEnemy || (sentient = pEnemy->sentient) == NULL || (v53 = 1, !Bot_IsHighAerialSentient(sentient)) )
-    v53 = 0;
+  if ( !pEnemy || (sentient = pEnemy->sentient) == NULL || (v44 = 1, !Bot_IsHighAerialSentient(sentient)) )
+    v44 = 0;
   CanFireOnEnemy = Bot_CanSeeAndCanFireOnEnemy(botData);
-  if ( v29 && v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 384, ASSERT_TYPE_ASSERT, "( !(enemyIsVehicle && enemyIsTurret) )", (const char *)&queryFormat, "!(enemyIsVehicle && enemyIsTurret)") )
+  if ( v21 && v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 384, ASSERT_TYPE_ASSERT, "( !(enemyIsVehicle && enemyIsTurret) )", (const char *)&queryFormat, "!(enemyIsVehicle && enemyIsTurret)") )
     __debugbreak();
   if ( !usableFallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 386, ASSERT_TYPE_ASSERT, "( usableFallback )", (const char *)&queryFormat, "usableFallback") )
     __debugbreak();
@@ -4347,30 +3603,30 @@ __int64 Bot_Weap_Score(bot_data_t *botData, const Weapon *weap, const playerStat
   {
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1333, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    v31 = GWeaponMap::GetInstance();
-    v32 = BG_GetViewmodelWeapon(v31, ps);
-    v33 = !memcmp_0(v32, &Buf2, 0x3Cui64) && BG_UsingAlternate(ps);
-    v34 = 1 << BG_GetWeaponClass(&Buf2, v33);
+    v23 = GWeaponMap::GetInstance();
+    v24 = BG_GetViewmodelWeapon(v23, ps);
+    v25 = !memcmp_0(v24, &Buf2, 0x3Cui64) && BG_UsingAlternate(ps);
+    v26 = 1 << BG_GetWeaponClass(&Buf2, v25);
   }
   else
   {
-    v34 = 0;
+    v26 = 0;
   }
-  if ( !CanFireOnEnemy || (v34 & v17) == 0 || (v35 = 1, !v49) )
-    v35 = 0;
-  v36 = 4101;
+  if ( !CanFireOnEnemy || (v26 & v17) == 0 || (v27 = 1, !v40) )
+    v27 = 0;
+  v28 = 4101;
   if ( botData->botMatchData.personality != BOT_PERSONALITY_CAMPER )
-    v36 = 4125;
-  if ( Bot_PreferWeaponOverLongRange(botData, &Buf2) || v35 )
+    v28 = 4125;
+  if ( Bot_PreferWeaponOverLongRange(botData, &Buf2) || v27 )
   {
-    v36 |= v34;
+    v28 |= v26;
   }
   else if ( botData->botMatchData.personality == BOT_PERSONALITY_CAMPER )
   {
-    v36 |= 2u;
+    v28 |= 2u;
   }
-  v37 = weap;
-  v50 = v36;
+  v29 = weap;
+  v41 = v28;
   if ( !weap->weaponIdx || !BG_PlayerHasWeapon(weaponMap, ps, weap) || !ignoreAmmo && !BG_UsingAlternate(ps) && Bot_Weap_WeaponUsesAmmo(ps, weap) && !Bot_Weap_Ammo(ps, weap) && !Dvar_GetBool_Internal_DebugName(DVARBOOL_bot_SimulateNoAmmo, "bot_SimulateNoAmmo") )
     return 0i64;
   if ( IsRiotShield )
@@ -4379,77 +3635,67 @@ __int64 Bot_Weap_Score(bot_data_t *botData, const Weapon *weap, const playerStat
       return 10i64;
     return 0i64;
   }
-  if ( v20 || WeaponType == WEAPTYPE_GRENADE || (unsigned int)(WeaponType - 6) <= 4 || WeaponClass == 8 || (unsigned int)(inventoryType - 3) <= 1 || v63->requireLockonToFire && !v51 || v53 && WeaponClass == 7 && !v63->bProjImpactExplode )
+  if ( v20 || WeaponType == WEAPTYPE_GRENADE || (unsigned int)(WeaponType - 6) <= 4 || WeaponClass == 8 || (unsigned int)(inventoryType - 3) <= 1 || v54->requireLockonToFire && !v42 || v44 && WeaponClass == 7 && !v54->bProjImpactExplode )
     return 0i64;
   if ( Bot_Weap_IsMelee(ps, weap) )
   {
     *usableFallback = 1;
     return 0i64;
   }
-  if ( v51 )
+  if ( v42 )
   {
     if ( !v16 )
-      v36 &= 0xFFFFFFC7;
+      v28 &= 0xFFFFFFC7;
     goto LABEL_89;
   }
   if ( v16 )
   {
 LABEL_89:
-    v55 = 16;
-    v39 = v36 | 0x80;
-    v56 = 4;
+    v46 = 16;
+    v31 = v28 | 0x80;
+    v47 = 4;
     if ( v16 )
-      v39 = v36;
-    v36 = v39;
-    v50 = v39;
+      v31 = v28;
+    v28 = v31;
+    v41 = v31;
   }
   if ( (botData->botMatchData.flags & 0x40) != 0 )
   {
-    if ( WeaponClass != 5 || (v40 = 1, inventoryType) )
-      v40 = 0;
-    if ( CanFireOnEnemy )
+    if ( WeaponClass != 5 || (v32 = 1, inventoryType) )
+      v32 = 0;
+    if ( CanFireOnEnemy && v32 && Bot_Weap_Ammo(ps, weap) && Bot_Weap_CanDamageEnemy(botData, weap, 2.0) )
     {
-      if ( v40 )
+      for ( i = 0; i < 15; ++i )
       {
-        if ( Bot_Weap_Ammo(ps, weap) )
+        EquippedWeaponForPlayer = BG_GetEquippedWeaponForPlayer(weaponMap, ps, i);
+        v35 = EquippedWeaponForPlayer;
+        if ( EquippedWeaponForPlayer->weaponIdx )
         {
-          __asm { vmovss  xmm2, cs:__real@40000000; maxRangeScalar }
-          if ( Bot_Weap_CanDamageEnemy(botData, weap, *(float *)&_XMM2) )
-          {
-            for ( i = 0; i < 15; ++i )
-            {
-              EquippedWeaponForPlayer = BG_GetEquippedWeaponForPlayer(weaponMap, ps, i);
-              v44 = EquippedWeaponForPlayer;
-              if ( EquippedWeaponForPlayer->weaponIdx )
-              {
-                if ( !BG_PlayerHasWeapon(weaponMap, ps, EquippedWeaponForPlayer) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 533, ASSERT_TYPE_ASSERT, "( BG_PlayerHasWeapon( weaponMap, ps, weaponInInventory ) )", (const char *)&queryFormat, "BG_PlayerHasWeapon( weaponMap, ps, weaponInInventory )") )
-                  __debugbreak();
-                v45 = Bot_Weap_WeaponDef(ps, v44);
-                if ( v44->weaponIdx && BG_PlayerHasWeapon(weaponMap, ps, v44) && v45->inventoryType == WEAPINVENTORY_PRIMARY && memcmp_0(v44, weap, 0x3Cui64) && Bot_Weap_AmmoInClip(ps, v44, hand) <= 0 && Bot_Weap_WeaponUsesAmmo(ps, v44) )
-                  v15 += 10;
-              }
-            }
-            v36 = v50;
-            v37 = weap;
-          }
+          if ( !BG_PlayerHasWeapon(weaponMap, ps, EquippedWeaponForPlayer) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 533, ASSERT_TYPE_ASSERT, "( BG_PlayerHasWeapon( weaponMap, ps, weaponInInventory ) )", (const char *)&queryFormat, "BG_PlayerHasWeapon( weaponMap, ps, weaponInInventory )") )
+            __debugbreak();
+          v36 = Bot_Weap_WeaponDef(ps, v35);
+          if ( v35->weaponIdx && BG_PlayerHasWeapon(weaponMap, ps, v35) && v36->inventoryType == WEAPINVENTORY_PRIMARY && memcmp_0(v35, weap, 0x3Cui64) && Bot_Weap_AmmoInClip(ps, v35, hand) <= 0 && Bot_Weap_WeaponUsesAmmo(ps, v35) )
+            v15 += 10;
         }
       }
+      v28 = v41;
+      v29 = weap;
     }
   }
-  if ( WeaponClass == 2 && v63->noAmmoPickup && v63->blocksProne )
+  if ( WeaponClass == 2 && v54->noAmmoPickup && v54->blocksProne )
     v15 += 3;
-  v46 = v15 + 3;
-  if ( !_bittest(&v36, WeaponClass) )
-    v46 = v15;
-  v47 = v46 + 3;
-  if ( ((1 << WeaponType) & v55) == 0 )
-    v47 = v46;
-  v48 = v47 + 1;
-  if ( ((1 << WeaponType) & v56) == 0 )
-    v48 = v47;
-  if ( !memcmp_0(v37, v64, 0x3Cui64) )
-    ++v48;
-  return v48;
+  v37 = v15 + 3;
+  if ( !_bittest(&v28, WeaponClass) )
+    v37 = v15;
+  v38 = v37 + 3;
+  if ( ((1 << WeaponType) & v46) == 0 )
+    v38 = v37;
+  v39 = v38 + 1;
+  if ( ((1 << WeaponType) & v47) == 0 )
+    v39 = v38;
+  if ( !memcmp_0(v29, v55, 0x3Cui64) )
+    ++v39;
+  return v39;
 }
 
 /*
@@ -4481,7 +3727,7 @@ Bot_Weap_Update
 void Bot_Weap_Update(bot_data_t *botData, usercmd_s *cmd)
 {
   GWeaponMap *Instance; 
-  const playerState_s *playerState; 
+  playerState_s *playerState; 
   const BgWeaponMap *v6; 
   gentity_s *Enemy; 
   playerState_s *v8; 
@@ -4489,25 +3735,28 @@ void Bot_Weap_Update(bot_data_t *botData, usercmd_s *cmd)
   int WeaponStateForViewWeapon; 
   unsigned __int16 weaponIdx; 
   unsigned __int64 v12; 
+  const Weapon *v13; 
   BOOL v14; 
   __int64 v15; 
   char v16; 
   bool IsUseButtonPressed; 
-  int v36; 
+  Weapon *v18; 
+  __int128 v19; 
+  double v20; 
+  int v21; 
   Weapon result; 
-  bool v39; 
+  bool v23; 
   gentity_s *pEnemy; 
 
-  _RBP = botData;
   if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 636, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
   if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 637, ASSERT_TYPE_ASSERT, "( cmd )", (const char *)&queryFormat, "cmd") )
     __debugbreak();
   Instance = GWeaponMap::GetInstance();
-  playerState = _RBP->botInfo.playerState;
+  playerState = botData->botInfo.playerState;
   v6 = Instance;
-  Enemy = Bot_GetEnemy(_RBP);
-  v8 = _RBP->botInfo.playerState;
+  Enemy = Bot_GetEnemy(botData);
+  v8 = botData->botInfo.playerState;
   pEnemy = Enemy;
   if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2152, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
@@ -4524,98 +3773,50 @@ void Bot_Weap_Update(bot_data_t *botData, usercmd_s *cmd)
     else
     {
       WeaponStateForViewWeapon = Bot_Weap_GetWeaponStateForViewWeapon(playerState);
-      weaponIdx = _RBP->botInfo.scriptWeapon.weaponIdx;
+      weaponIdx = botData->botInfo.scriptWeapon.weaponIdx;
       v12 = WeaponStateForViewWeapon;
-      _RSI = BG_HighPriorityWeapon_Get(v6, playerState);
-      v14 = _RSI->weaponIdx && BG_HighPriorityWeapon_MustSwitch(v6, playerState);
-      if ( weaponIdx || v14 || ((unsigned int)v12 > 0x3B || (v15 = 0xC01001C01C3003Fi64, !_bittest64(&v15, v12)) ? (v16 = 0) : (v16 = 1), (v39 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBP->botInfo.playerState->pm_flags, ACTIVE, 5u), IsUseButtonPressed = Bot_IsUseButtonPressed(_RBP), v16) && !v39 && !IsUseButtonPressed) )
+      v13 = BG_HighPriorityWeapon_Get(v6, playerState);
+      v14 = v13->weaponIdx && BG_HighPriorityWeapon_MustSwitch(v6, playerState);
+      if ( weaponIdx || v14 || ((unsigned int)v12 > 0x3B || (v15 = 0xC01001C01C3003Fi64, !_bittest64(&v15, v12)) ? (v16 = 0) : (v16 = 1), (v23 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&botData->botInfo.playerState->pm_flags, ACTIVE, 5u), IsUseButtonPressed = Bot_IsUseButtonPressed(botData), v16) && !v23 && !IsUseButtonPressed) )
       {
-        _RAX = BG_GetCurrentWeaponForPlayer(v6, playerState);
-        _RBX = cmd;
-        __asm
+        cmd->weapon = *BG_GetCurrentWeaponForPlayer(v6, playerState);
+        if ( v14 && BG_PlayerHasWeapon(v6, playerState, v13) )
         {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rbx+24h], ymm0
-          vmovups xmm1, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rbx+44h], xmm1
-          vmovsd  xmm0, qword ptr [rax+30h]
-          vmovsd  qword ptr [rbx+54h], xmm0
-        }
-        *(_DWORD *)&cmd->weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-        if ( v14 && BG_PlayerHasWeapon(v6, playerState, _RSI) )
-        {
-          if ( memcmp_0(&cmd->weapon, _RSI, 0x3Cui64) )
+          if ( memcmp_0(&cmd->weapon, v13, 0x3Cui64) )
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rsi]
-              vmovups ymmword ptr [rbx+24h], ymm0
-              vmovups xmm1, xmmword ptr [rsi+20h]
-              vmovups xmmword ptr [rbx+44h], xmm1
-              vmovsd  xmm0, qword ptr [rsi+30h]
-              vmovsd  qword ptr [rbx+54h], xmm0
-            }
-            *(_DWORD *)&cmd->weapon.weaponCamo = *(_DWORD *)&_RSI->weaponCamo;
+            *(__m256i *)&cmd->weapon.weaponIdx = *(__m256i *)&v13->weaponIdx;
+            *(_OWORD *)&cmd->weapon.attachmentVariationIndices[5] = *(_OWORD *)&v13->attachmentVariationIndices[5];
+            *(double *)&cmd->weapon.attachmentVariationIndices[21] = *(double *)&v13->attachmentVariationIndices[21];
+            *(_DWORD *)&cmd->weapon.weaponCamo = *(_DWORD *)&v13->weaponCamo;
           }
         }
-        else if ( weaponIdx && BG_PlayerHasWeapon(v6, playerState, &_RBP->botInfo.scriptWeapon) )
+        else if ( weaponIdx && BG_PlayerHasWeapon(v6, playerState, &botData->botInfo.scriptWeapon) )
         {
-          if ( memcmp_0(&cmd->weapon, (char *)&_RBP->scriptedAgentInfo + 27964, 0x3Cui64) )
+          if ( memcmp_0(&cmd->weapon, (char *)&botData->scriptedAgentInfo + 27964, 0x3Cui64) )
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+6D44h]
-              vmovups ymmword ptr [rbx+24h], ymm0
-              vmovups xmm1, xmmword ptr [rbp+6D64h]
-              vmovups xmmword ptr [rbx+44h], xmm1
-              vmovsd  xmm0, qword ptr [rbp+6D74h]
-              vmovsd  qword ptr [rbx+54h], xmm0
-            }
-            *(_DWORD *)&cmd->weapon.weaponCamo = *((_DWORD *)&_RBP->scriptedAgentInfo + 7005);
+            *(__m256i *)&cmd->weapon.weaponIdx = *(__m256i *)((char *)&botData->scriptedAgentInfo + 27964);
+            *(_OWORD *)&cmd->weapon.attachmentVariationIndices[5] = *(_OWORD *)((char *)&botData->scriptedAgentInfo + 27996);
+            *(double *)&cmd->weapon.attachmentVariationIndices[21] = *(double *)((char *)&botData->scriptedAgentInfo + 28012);
+            *(_DWORD *)&cmd->weapon.weaponCamo = *((_DWORD *)&botData->scriptedAgentInfo + 7005);
           }
         }
         else if ( !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&playerState->weapCommon.weapFlags, ACTIVE, 0xEu) || !cmd->weapon.weaponIdx )
         {
-          __asm
+          botData->botInfo.scriptWeapon = NULL_WEAPON;
+          v18 = Bot_Weap_PickBest(&result, botData, pEnemy, 0);
+          v19 = *(_OWORD *)&v18->attachmentVariationIndices[5];
+          v20 = *(double *)&v18->attachmentVariationIndices[21];
+          v21 = *(_DWORD *)&v18->weaponCamo;
+          if ( *(_WORD *)&NULL_WEAPON.attachmentVariationIndices[21] )
           {
-            vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-            vmovups ymmword ptr [rbp+6D44h], ymm0
-            vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-            vmovups xmmword ptr [rbp+6D64h], xmm1
-            vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-            vmovsd  qword ptr [rbp+6D74h], xmm0
+            *(__m256i *)&cmd->weapon.weaponIdx = *(__m256i *)&v18->weaponIdx;
+            *(_OWORD *)&cmd->weapon.attachmentVariationIndices[5] = v19;
+            *(double *)&cmd->weapon.attachmentVariationIndices[21] = v20;
+            *(_DWORD *)&cmd->weapon.weaponCamo = v21;
           }
-          *((_DWORD *)&_RBP->scriptedAgentInfo + 7005) = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-          _RAX = Bot_Weap_PickBest(&result, _RBP, pEnemy, 0);
-          __asm
+          else
           {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups xmm1, xmmword ptr [rax+20h]
-            vmovsd  xmm2, qword ptr [rax+30h]
-          }
-          v36 = *(_DWORD *)&_RAX->weaponCamo;
-          __asm { vmovd   eax, xmm0 }
-          if ( (_WORD)_RAX )
-            goto LABEL_44;
-          _RAX = Bot_Weap_PickBest(&result, _RBP, pEnemy, 1);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups xmm1, xmmword ptr [rax+20h]
-            vmovsd  xmm2, qword ptr [rax+30h]
-          }
-          v36 = *(_DWORD *)&_RAX->weaponCamo;
-          __asm { vmovd   eax, xmm0 }
-          if ( (_WORD)_RAX )
-          {
-LABEL_44:
-            __asm
-            {
-              vmovups ymmword ptr [rbx+24h], ymm0
-              vmovups xmmword ptr [rbx+44h], xmm1
-              vmovsd  qword ptr [rbx+54h], xmm2
-            }
-            *(_DWORD *)&cmd->weapon.weaponCamo = v36;
+            Bot_Weap_PickBest(&result, botData, pEnemy, 1);
           }
         }
       }
@@ -4633,36 +3834,48 @@ __int64 Bot_Weap_UpdateReload(const bot_data_t *botData, usercmd_s *cmd)
   GWeaponMap *Instance; 
   playerState_s *playerState; 
   const Weapon *ViewmodelWeapon; 
-  GWeaponMap *v12; 
-  int v13; 
+  GWeaponMap *v6; 
+  int v7; 
   int WeaponStateForViewWeapon; 
-  const dvar_t *v15; 
-  unsigned __int64 v16; 
-  int v17; 
+  const dvar_t *v9; 
+  unsigned __int64 v10; 
+  int v11; 
   int ammoCount; 
-  bool v19; 
-  int v23; 
-  __int64 v24; 
-  bool v25; 
+  bool v13; 
+  int v14; 
+  __int64 v15; 
+  bool v16; 
   int IsClipOnly; 
-  __int64 v27; 
-  bool v32; 
-  int v33; 
-  int v34; 
-  bool v35; 
+  bool v19; 
+  int ClipLowAmmo; 
+  int v21; 
+  int v22; 
+  int v23; 
+  bool v24; 
   int ClipSize; 
-  int v37; 
-  char v49; 
-  char v50; 
+  int v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  double ReloadTimeScale; 
+  float v31; 
   int time; 
-  __int64 v54; 
+  __int64 v33; 
+  int v34; 
+  int v35; 
+  double v36; 
   int IsForcedFiring; 
-  BOOL v62; 
+  BOOL v38; 
   int CanFireOnEnemy; 
   PlayerHandIndex hand; 
   BgWeaponMap *weaponMap; 
   AmmoStore result; 
   AmmoStore r_ammo2; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
 
   if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1384, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
@@ -4672,211 +3885,151 @@ __int64 Bot_Weap_UpdateReload(const bot_data_t *botData, usercmd_s *cmd)
   ViewmodelWeapon = BG_GetViewmodelWeapon(Instance, playerState);
   if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2496, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+178h+var_48], xmm6
-    vmovaps [rsp+178h+var_58], xmm7
-    vmovaps [rsp+178h+var_68], xmm8
-    vmovaps [rsp+178h+var_78], xmm9
-  }
-  v12 = GWeaponMap::GetInstance();
-  hand = BG_PlayerLastWeaponHandForViewWeapon(v12, playerState);
+  v6 = GWeaponMap::GetInstance();
+  hand = BG_PlayerLastWeaponHandForViewWeapon(v6, playerState);
   if ( !ViewmodelWeapon->weaponIdx )
-    goto LABEL_34;
+    return 0i64;
   if ( !Bot_Weap_WeaponUsesAmmo(playerState, ViewmodelWeapon) )
-    goto LABEL_34;
-  v13 = 1;
+    return 0i64;
+  v7 = 1;
   if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&playerState->weapCommon.weapFlags, ACTIVE, 0x1Au) )
-    goto LABEL_34;
+    return 0i64;
   WeaponStateForViewWeapon = Bot_Weap_GetWeaponStateForViewWeapon(playerState);
-  v15 = DVARBOOL_bot_SimulateNoAmmo;
-  v16 = WeaponStateForViewWeapon;
+  v9 = DVARBOOL_bot_SimulateNoAmmo;
+  v10 = WeaponStateForViewWeapon;
   if ( !DVARBOOL_bot_SimulateNoAmmo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_SimulateNoAmmo") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( v15->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.enabled )
   {
-    v17 = 0;
+    v11 = 0;
     ammoCount = 0;
   }
   else if ( Bot_Weap_IsMelee(playerState, ViewmodelWeapon) )
   {
-    v17 = 0;
+    v11 = 0;
     ammoCount = 0;
   }
   else
   {
-    v19 = BG_UsingAlternate(playerState);
+    v13 = BG_UsingAlternate(playerState);
     if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1322, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    _RAX = BG_AmmoStoreForWeapon(&result, ViewmodelWeapon, v19);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+178h+r_ammo2.weapon.weaponIdx], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rsp+178h+r_ammo2.weapon.attachmentVariationIndices+5], ymm1
-    }
+    r_ammo2 = *BG_AmmoStoreForWeapon(&result, ViewmodelWeapon, v13);
     if ( !playerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1304, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    v17 = 0;
-    v23 = 0;
-    while ( !BG_IsAmmoCompatible(&playerState->weapCommon.ammoNotInClip[v23].ammoType, &r_ammo2) )
+    v11 = 0;
+    v14 = 0;
+    while ( !BG_IsAmmoCompatible(&playerState->weapCommon.ammoNotInClip[v14].ammoType, &r_ammo2) )
     {
-      if ( (unsigned int)++v23 >= 0xF )
+      if ( (unsigned int)++v14 >= 0xF )
         goto LABEL_26;
     }
-    if ( (playerState_s *)((char *)playerState + 68 * v23) == (playerState_s *)-1912i64 )
+    if ( (playerState_s *)((char *)playerState + 68 * v14) == (playerState_s *)-1912i64 )
     {
 LABEL_26:
       ammoCount = 0;
       goto LABEL_27;
     }
-    ammoCount = playerState->weapCommon.ammoNotInClip[v23].ammoCount;
+    ammoCount = playerState->weapCommon.ammoNotInClip[v14].ammoCount;
 LABEL_27:
-    v13 = 1;
+    v7 = 1;
   }
-  if ( (unsigned int)v16 > 0x3B || (v24 = 0xC01000001C30001i64, !_bittest64(&v24, v16)) )
-    v13 = 0;
+  if ( (unsigned int)v10 > 0x3B || (v15 = 0xC01000001C30001i64, !_bittest64(&v15, v10)) )
+    v7 = 0;
   CanFireOnEnemy = Bot_CanSeeAndCanFireOnEnemy(botData);
   IsForcedFiring = Bot_IsForcedFiring(botData);
-  v25 = BG_UsingAlternate(playerState);
-  IsClipOnly = BG_WeaponIsClipOnly(ViewmodelWeapon, v25);
+  v16 = BG_UsingAlternate(playerState);
+  IsClipOnly = BG_WeaponIsClipOnly(ViewmodelWeapon, v16);
   if ( BG_CanSprintReload(playerState) )
   {
-    if ( !v13 && (unsigned int)(v16 - 34) > 2 )
-      goto LABEL_34;
+    if ( !v7 && (unsigned int)(v10 - 34) > 2 )
+      return 0i64;
   }
-  else if ( !v13 )
+  else if ( !v7 )
   {
-    goto LABEL_34;
+    return 0i64;
   }
   if ( !IsClipOnly && ammoCount && !CanFireOnEnemy && !IsForcedFiring )
   {
-    v62 = Bot_Weap_ReloadTime(playerState, ViewmodelWeapon) > 3000;
-    v32 = BG_UsingAlternate(playerState);
-    BG_GetClipLowAmmo(playerState, ViewmodelWeapon, v32);
-    v33 = Bot_Weap_AmmoInClip(playerState, ViewmodelWeapon, hand);
-    v34 = 999;
-    if ( v33 < 999 )
-      v34 = v33;
-    v35 = BG_UsingAlternate(playerState);
-    ClipSize = BG_GetClipSize(playerState, ViewmodelWeapon, v35);
-    v37 = 999;
-    __asm { vxorps  xmm7, xmm7, xmm7 }
+    v38 = Bot_Weap_ReloadTime(playerState, ViewmodelWeapon) > 3000;
+    v19 = BG_UsingAlternate(playerState);
+    ClipLowAmmo = BG_GetClipLowAmmo(playerState, ViewmodelWeapon, v19);
+    v21 = Bot_Weap_AmmoInClip(playerState, ViewmodelWeapon, hand);
+    v22 = 999;
+    v23 = 999;
+    if ( v21 < 999 )
+      v23 = v21;
+    v24 = BG_UsingAlternate(playerState);
+    ClipSize = BG_GetClipSize(playerState, ViewmodelWeapon, v24);
+    v26 = 999;
     if ( ClipSize < 999 )
-      v37 = ClipSize;
-    __asm
+      v26 = ClipSize;
+    v27 = (float)v26;
+    if ( v26 <= 0 )
     {
-      vcvtsi2ss xmm7, xmm7, r14d
-      vxorps  xmm9, xmm9, xmm9
-    }
-    if ( v37 <= 0 )
-    {
-      __asm { vxorps  xmm1, xmm1, xmm1 }
+      v28 = 0.0;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edi
-        vdivss  xmm1, xmm0, xmm7
-      }
+      if ( ClipLowAmmo < 999 )
+        v22 = ClipLowAmmo;
+      v28 = (float)v22 / v27;
     }
-    if ( v34 < v37 )
+    if ( v23 < v26 )
     {
-      __asm
+      v45 = FLOAT_0_1;
+      if ( v38 )
       {
-        vmovss  xmm0, cs:__real@3dcccccd
-        vmulss  xmm2, xmm1, cs:__real@3fc00000
-        vmovss  [rsp+178h+var_98], xmm0
-      }
-      if ( v62 )
-      {
-        __asm
-        {
-          vmovss  [rsp+178h+var_94], xmm0
-          vmovss  xmm0, cs:__real@3f800000
-          vmovss  [rsp+178h+var_90], xmm1
-          vmovss  [rsp+178h+var_8C], xmm2
-        }
+        v46 = FLOAT_0_1;
+        v29 = FLOAT_1_0;
+        v47 = v28;
+        v48 = v28 * 1.5;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vmovss  [rsp+178h+var_8C], xmm0
-          vmovss  [rsp+178h+var_94], xmm1
-          vmovss  [rsp+178h+var_90], xmm2
-        }
+        v29 = FLOAT_1_0;
+        v48 = FLOAT_1_0;
+        v46 = v28;
+        v47 = v28 * 1.5;
       }
-      __asm { vmovss  [rsp+178h+var_88], xmm0 }
-      *(double *)&_XMM0 = BG_GetReloadTimeScale(weaponMap, playerState, ViewmodelWeapon, 0, v34, 0);
-      __asm
-      {
-        vcomiss xmm0, xmm9
-        vmovaps xmm8, xmm0
-        vmovaps xmm6, xmm7
-      }
-      if ( v49 | v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1470, ASSERT_TYPE_ASSERT, "(reloadTimeScaler > 0.0f)", (const char *)&queryFormat, "reloadTimeScaler > 0.0f") )
+      v49 = v29;
+      ReloadTimeScale = BG_GetReloadTimeScale(weaponMap, playerState, ViewmodelWeapon, 0, v23, 0);
+      v31 = *(float *)&ReloadTimeScale;
+      if ( *(float *)&ReloadTimeScale <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1470, ASSERT_TYPE_ASSERT, "(reloadTimeScaler > 0.0f)", (const char *)&queryFormat, "reloadTimeScaler > 0.0f") )
         __debugbreak();
-      if ( !v62 )
-        __asm { vmulss  xmm8, xmm8, dword ptr [rbp+8048h] }
-      __asm { vmovss  xmm7, cs:__real@3d4ccccd }
+      if ( !v38 )
+        v31 = *(float *)&ReloadTimeScale * botData->botMatchData.intelligentReload;
       time = level.time;
-      v54 = 0i64;
+      v33 = 0i64;
       do
       {
-        __asm
+        v34 = (int)(float)(v27 * *(float *)((char *)&v45 + v33 * 4));
+        if ( v26 < v34 )
+          v34 = v26;
+        if ( v34 < 1 )
+          v34 = 1;
+        if ( v23 < v34 )
         {
-          vmulss  xmm0, xmm6, [rsp+rdi+178h+var_98]
-          vcvttss2si eax, xmm0
-        }
-        if ( v37 < _EAX )
-          _EAX = v37;
-        if ( _EAX < 1 )
-          _EAX = 1;
-        if ( v34 < _EAX )
-        {
-          __asm
+          v35 = (int)(float)((float)RELOAD_THRESHOLD_TIME[v33] * v31);
+          if ( time - botData->botInfo.enemyTrack.lastVisTime > v35 && time - botData->botInfo.enemyTrack.awareTime > v35 )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rdi+rsi]
-            vmulss  xmm1, xmm0, xmm8
-            vcvttss2si edx, xmm1
-          }
-          if ( time - botData->botInfo.enemyTrack.lastVisTime > _EDX && time - botData->botInfo.enemyTrack.awareTime > _EDX )
-          {
-            *(double *)&_XMM0 = G_random();
-            __asm { vcomiss xmm0, xmm7 }
-            if ( v49 )
+            v36 = G_random();
+            if ( *(float *)&v36 < 0.050000001 )
             {
               cmd->buttons |= 0x10ui64;
-              v27 = 1i64;
-              goto LABEL_35;
+              return 1i64;
             }
             time = level.time;
           }
         }
-        ++v17;
-        v54 += 4i64;
+        ++v11;
+        ++v33;
       }
-      while ( v17 < 5 );
+      while ( v11 < 5 );
     }
   }
-LABEL_34:
-  v27 = 0i64;
-LABEL_35:
-  __asm
-  {
-    vmovaps xmm9, [rsp+178h+var_78]
-    vmovaps xmm8, [rsp+178h+var_68]
-    vmovaps xmm7, [rsp+178h+var_58]
-    vmovaps xmm6, [rsp+178h+var_48]
-  }
-  return v27;
+  return 0i64;
 }
 
 /*
@@ -4884,64 +4037,68 @@ LABEL_35:
 Bot_Weap_VerifyWeaponDamageRanges
 ==============
 */
-
-void __fastcall Bot_Weap_VerifyWeaponDamageRanges(const playerState_s *ps, const Weapon *weapon, double minRange, double maxRange)
+void Bot_Weap_VerifyWeaponDamageRanges(const playerState_s *ps, const Weapon *weapon, float minRange, float maxRange)
 {
-  bool v11; 
-  bool v12; 
+  GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *p_weapFlags; 
   __int64 weaponIdx; 
-  __int64 v19; 
-  double v20; 
-  double v21; 
+  __int64 v10; 
+  __int64 v11; 
+  __int64 v12; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_48], xmm7
-    vmovaps [rsp+98h+var_38], xmm6
-    vmovaps xmm6, xmm2
-    vmovaps xmm7, xmm3
-  }
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1703, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v11 = weapon->weaponIdx == 0;
-  if ( !weapon->weaponIdx )
+  if ( !weapon->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1704, ASSERT_TYPE_ASSERT, "( !Bot_Weap_IsNone( weapon ) )", (const char *)&queryFormat, "!Bot_Weap_IsNone( weapon )") )
+    __debugbreak();
+  _XMM0 = 0i64;
+  if ( minRange < 0.0 )
   {
-    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1704, ASSERT_TYPE_ASSERT, "( !Bot_Weap_IsNone( weapon ) )", (const char *)&queryFormat, "!Bot_Weap_IsNone( weapon )");
-    v11 = !v12;
-    if ( v12 )
-      __debugbreak();
+    if ( ps )
+    {
+      p_weapFlags = &ps->weapCommon.weapFlags;
+      if ( GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x22u) )
+      {
+LABEL_15:
+        weaponIdx = weapon->weaponIdx;
+        if ( (unsigned int)weaponIdx > bg_lastParsedWeaponIndex )
+        {
+          LODWORD(v11) = weapon->weaponIdx;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v11, bg_lastParsedWeaponIndex) )
+            __debugbreak();
+        }
+        if ( !bg_weaponCompleteDefs[weaponIdx] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
+          __debugbreak();
+        __asm { vxorpd  xmm0, xmm0, xmm0 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1711, ASSERT_TYPE_ASSERT, "(minRange >= MIN_DMG_RANGE)", "%s\n\tInvalid min damage range for weapon '%s'. Range: %g, should be >= %g", "minRange >= MIN_DMG_RANGE", bg_weaponCompleteDefs[weaponIdx]->szInternalName, minRange, *(double *)&_XMM0) )
+          __debugbreak();
+        goto LABEL_23;
+      }
+    }
+    else
+    {
+      p_weapFlags = (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *)1832;
+    }
+    if ( ps && !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(p_weapFlags, ACTIVE, 0x11u) )
+      GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(p_weapFlags, ACTIVE, 0x1Bu);
+    goto LABEL_15;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vcomiss xmm7, cs:__real@46ea6000
-    vmovaps xmm6, [rsp+98h+var_38]
-  }
-  if ( !v11 )
+LABEL_23:
+  if ( maxRange > 30000.0 )
   {
     if ( ps && !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x22u) && !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x11u) )
       GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x1Bu);
-    weaponIdx = weapon->weaponIdx;
-    if ( (unsigned int)weaponIdx > bg_lastParsedWeaponIndex )
+    v10 = weapon->weaponIdx;
+    if ( (unsigned int)v10 > bg_lastParsedWeaponIndex )
     {
-      LODWORD(v19) = weapon->weaponIdx;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v19, bg_lastParsedWeaponIndex) )
+      LODWORD(v12) = bg_lastParsedWeaponIndex;
+      LODWORD(v11) = weapon->weaponIdx;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v11, v12) )
         __debugbreak();
     }
-    if ( !bg_weaponCompleteDefs[weaponIdx] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
+    if ( !bg_weaponCompleteDefs[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
       __debugbreak();
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@40dd4c0000000000
-      vmovsd  [rsp+98h+var_58], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+98h+var_60], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1712, ASSERT_TYPE_ASSERT, "(maxRange <= MAX_DMG_RANGE)", "%s\n\tInvalid max damage range for weapon '%s'. Range: %g, should be <= %g", "maxRange <= MAX_DMG_RANGE", bg_weaponCompleteDefs[weaponIdx]->szInternalName, v20, v21) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 1712, ASSERT_TYPE_ASSERT, "(maxRange <= MAX_DMG_RANGE)", "%s\n\tInvalid max damage range for weapon '%s'. Range: %g, should be <= %g", "maxRange <= MAX_DMG_RANGE", bg_weaponCompleteDefs[v10]->szInternalName, maxRange, DOUBLE_30000_0) )
       __debugbreak();
   }
-  __asm { vmovaps xmm7, [rsp+98h+var_48] }
 }
 
 /*
@@ -4982,35 +4139,34 @@ WeaponDef *Bot_Weap_WeaponDef(const playerState_s *ps, const Weapon *weapon)
 Bot_Weap_WeaponDoesSplashDamage
 ==============
 */
-
-bool __fastcall Bot_Weap_WeaponDoesSplashDamage(const bot_data_t *const botData, double _XMM1_8)
+bool Bot_Weap_WeaponDoesSplashDamage(const bot_data_t *const botData)
 {
   playerState_s *playerState; 
   GWeaponMap *Instance; 
   const Weapon *ViewmodelWeapon; 
-  const Weapon *v7; 
-  bool v8; 
-  char v10; 
-  char v11; 
+  const Weapon *v5; 
+  bool v6; 
+  double ExplRadius; 
+  bool result; 
 
   if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_weapon.cpp", 2435, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
   playerState = botData->botInfo.playerState;
   Instance = GWeaponMap::GetInstance();
   ViewmodelWeapon = BG_GetViewmodelWeapon(Instance, playerState);
-  v7 = ViewmodelWeapon;
-  if ( !ViewmodelWeapon->weaponIdx )
-    return 0;
-  if ( !Bot_Weap_WeaponDef(botData->botInfo.playerState, ViewmodelWeapon)->bBulletExplosiveDamage )
-    return 0;
-  v8 = BG_UsingAlternate(botData->botInfo.playerState);
-  *(double *)&_XMM0 = BG_WeaponBulletFire_GetExplRadius(v7, v8);
-  __asm
+  v5 = ViewmodelWeapon;
+  result = 0;
+  if ( ViewmodelWeapon->weaponIdx )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
+    if ( Bot_Weap_WeaponDef(botData->botInfo.playerState, ViewmodelWeapon)->bBulletExplosiveDamage )
+    {
+      v6 = BG_UsingAlternate(botData->botInfo.playerState);
+      ExplRadius = BG_WeaponBulletFire_GetExplRadius(v5, v6);
+      if ( *(float *)&ExplRadius > 0.0 )
+        return 1;
+    }
   }
-  return !(v10 | v11);
+  return result;
 }
 
 /*
@@ -5020,25 +4176,20 @@ Bot_Weap_WeaponForName
 */
 Weapon *Bot_Weap_WeaponForName(Weapon *result, const char *name)
 {
+  Weapon *WeaponForName; 
+  __int128 v4; 
+  double v5; 
   Weapon resulta; 
 
-  _RBX = result;
-  _RAX = G_Weapon_GetWeaponForName(&resulta, name);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups ymmword ptr [rbx], ymm0
-    vmovsd  xmm0, qword ptr [rax+30h]
-  }
-  LODWORD(_RAX) = *(_DWORD *)&_RAX->weaponCamo;
-  __asm
-  {
-    vmovups xmmword ptr [rbx+20h], xmm1
-    vmovsd  qword ptr [rbx+30h], xmm0
-  }
-  *(_DWORD *)&_RBX->weaponCamo = (_DWORD)_RAX;
-  return _RBX;
+  WeaponForName = G_Weapon_GetWeaponForName(&resulta, name);
+  v4 = *(_OWORD *)&WeaponForName->attachmentVariationIndices[5];
+  *(__m256i *)&result->weaponIdx = *(__m256i *)&WeaponForName->weaponIdx;
+  v5 = *(double *)&WeaponForName->attachmentVariationIndices[21];
+  LODWORD(WeaponForName) = *(_DWORD *)&WeaponForName->weaponCamo;
+  *(_OWORD *)&result->attachmentVariationIndices[5] = v4;
+  *(double *)&result->attachmentVariationIndices[21] = v5;
+  *(_DWORD *)&result->weaponCamo = (_DWORD)WeaponForName;
+  return result;
 }
 
 /*

@@ -913,18 +913,19 @@ void GUtilsSP::EntDetachAll(GUtilsSP *this, gentity_s *ent)
   __int64 v4; 
   __int64 v5; 
   __int64 v6; 
+  Weapon *attachWeapons; 
   __int64 v8; 
   const DObj *ServerDObjForEnt; 
-  const DObj *v13; 
-  unsigned int v14; 
+  const DObj *v10; 
+  unsigned int v11; 
   const XModel *Model; 
   unsigned int numBones; 
-  unsigned __int64 v17; 
-  char v18; 
-  unsigned __int64 v19; 
-  DObj *v20; 
-  __int64 v21; 
-  __int64 v22; 
+  unsigned __int64 v14; 
+  char v15; 
+  unsigned __int64 v16; 
+  DObj *v17; 
+  __int64 v18; 
+  __int64 v19; 
   int finalBoneCount; 
   int firstModelBoneCount; 
   DObjPartBits partBits; 
@@ -943,64 +944,55 @@ void GUtilsSP::EntDetachAll(GUtilsSP *this, gentity_s *ent)
   }
   while ( v5 );
   v6 = 0i64;
-  _RBX = ent->attachWeapons;
+  attachWeapons = ent->attachWeapons;
   v8 = 4i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovups xmmword ptr [rbx+20h], xmm1
-      vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-      vmovsd  qword ptr [rbx+30h], xmm0
-    }
-    *(_DWORD *)&_RBX->weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+    *attachWeapons = NULL_WEAPON;
     Scr_SetString(&ent->attachWeaponTagNames[v6++], (scr_string_t)0);
-    ++_RBX;
+    ++attachWeapons;
     --v8;
   }
   while ( v8 );
   ent->attachIgnoreCollision = 0;
   ent->attachModelIsOnBack = 0;
   ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
-  v13 = ServerDObjForEnt;
+  v10 = ServerDObjForEnt;
   if ( ServerDObjForEnt )
   {
     DObjGetHidePartBits(ServerDObjForEnt, &partBits);
-    v14 = DObjNumBones(v13);
-    Model = DObjGetModel(v13, 0);
+    v11 = DObjNumBones(v10);
+    Model = DObjGetModel(v10, 0);
     if ( !Model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 136, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
       __debugbreak();
     numBones = Model->numBones;
-    if ( numBones < v14 )
+    if ( numBones < v11 )
     {
-      v17 = numBones;
+      v14 = numBones;
       do
       {
         if ( numBones >= 0x100 )
         {
-          LODWORD(v22) = 256;
-          LODWORD(v21) = numBones;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v21, v22) )
+          LODWORD(v19) = 256;
+          LODWORD(v18) = numBones;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v18, v19) )
             __debugbreak();
         }
-        v18 = numBones & 0x1F;
-        v19 = v17 >> 5;
+        v15 = numBones & 0x1F;
+        v16 = v14 >> 5;
         ++numBones;
-        ++v17;
-        partBits.array[v19] &= ~(0x80000000 >> v18);
+        ++v14;
+        partBits.array[v16] &= ~(0x80000000 >> v15);
       }
-      while ( numBones < v14 );
+      while ( numBones < v11 );
     }
   }
   G_UtilsSP_DObjUpdateInternal(ent, ent->r.isLinked, weaponModelStartIndexes, &firstModelBoneCount, &finalBoneCount);
-  if ( v13 )
+  if ( v10 )
   {
-    v20 = Com_GetServerDObjForEnt(ent);
-    if ( v20 )
-      DObjSetHidePartBits(v20, &partBits);
+    v17 = Com_GetServerDObjForEnt(ent);
+    if ( v17 )
+      DObjSetHidePartBits(v17, &partBits);
   }
   Profile_EndInternal(NULL);
 }
@@ -1013,21 +1005,20 @@ GUtilsSP::EntityStateSetPartBits
 void GUtilsSP::EntityStateSetPartBits(GUtilsSP *this, gentity_s *ent, const DObjPartBits *partBits)
 {
   unsigned int v5; 
+  DObjPartBits *p_partBits; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 763, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
   v5 = 0;
-  _RDI = &ent->s.partBits;
+  p_partBits = &ent->s.partBits;
   __asm { vpxor   xmm6, xmm6, xmm6 }
   do
   {
-    __asm { vmovdqu xmmword ptr [rdi], xmm6 }
-    _RDI = (DObjPartBits *)((char *)_RDI + 16);
+    *(_OWORD *)p_partBits->array = _XMM6;
+    p_partBits = (DObjPartBits *)((char *)p_partBits + 16);
     ++v5;
   }
   while ( v5 < 2 );
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -1051,14 +1042,15 @@ void GUtilsSP::FreeEntity(GUtilsSP *this, gentity_s *ed)
   Ai_Asm *v15; 
   actor_s *actor; 
   sentient_s *sentient; 
+  const bitarray<224> *v18; 
   actor_s *j; 
   entityType_s eType; 
   int useCount; 
-  const char *v24; 
+  const char *v22; 
+  AIActorInterface v23; 
+  AIActorInterface *v24; 
   AIActorInterface v25; 
   AIActorInterface *v26; 
-  AIActorInterface v27; 
-  AIActorInterface *v28; 
 
   if ( !ed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 1146, ASSERT_TYPE_ASSERT, "( ed )", (const char *)&queryFormat, "ed") )
     __debugbreak();
@@ -1127,11 +1119,11 @@ void GUtilsSP::FreeEntity(GUtilsSP *this, gentity_s *ed)
   actor = ed->actor;
   if ( actor )
   {
-    AIActorInterface::AIActorInterface(&v27);
-    v28 = NULL;
-    AIActorInterface::SetActor(&v27, actor);
-    v28 = &v27;
-    v27.Free(&v27);
+    AIActorInterface::AIActorInterface(&v25);
+    v26 = NULL;
+    AIActorInterface::SetActor(&v25, actor);
+    v26 = &v25;
+    v25.Free(&v25);
     if ( ed->actor )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 1230, ASSERT_TYPE_ASSERT, "(ed->actor == 0)", (const char *)&queryFormat, "ed->actor == NULL") )
@@ -1154,24 +1146,19 @@ void GUtilsSP::FreeEntity(GUtilsSP *this, gentity_s *ed)
     __debugbreak();
   if ( (ed->flags.m_flags[1] & 0x10) != 0 )
   {
-    _RAX = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) ? Com_TeamsSP_GetAllTeamFlags() : Com_TeamsMP_GetAllTeamFlags();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+0D8h+var_60.baseclass_0.baseclass_0.__vftable], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  [rsp+0D8h+var_60.baseclass_0.m_pAI], xmm1
-    }
-    LODWORD(v27.m_pAI) = _RAX->array[6];
-    for ( j = AIActorInterface::FirstActor((const bitarray<224> *)&v27); j; j = AIActorInterface::NextActor(j, (const bitarray<224> *)&v27) )
+    v18 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) ? Com_TeamsSP_GetAllTeamFlags() : Com_TeamsMP_GetAllTeamFlags();
+    v25.AICommonInterface = *(AICommonInterface *)v18->array;
+    v25.AIScriptedInterface::m_pAI = *(ai_scripted_t **)&v18->array[4];
+    LODWORD(v25.m_pAI) = v18->array[6];
+    for ( j = AIActorInterface::FirstActor((const bitarray<224> *)&v25); j; j = AIActorInterface::NextActor(j, (const bitarray<224> *)&v25) )
     {
       if ( j->turret.pTurret == ed )
       {
-        AIActorInterface::AIActorInterface(&v25);
-        v26 = NULL;
-        AIActorInterface::SetActor(&v25, j);
-        v26 = &v25;
-        v25.StopUseTurret(&v25);
+        AIActorInterface::AIActorInterface(&v23);
+        v24 = NULL;
+        AIActorInterface::SetActor(&v23, j);
+        v24 = &v23;
+        v23.StopUseTurret(&v23);
         if ( j->turret.pTurret )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 1255, ASSERT_TYPE_ASSERT, "(pActor->turret.pTurret == 0)", (const char *)&queryFormat, "pActor->turret.pTurret == NULL") )
@@ -1239,8 +1226,8 @@ void GUtilsSP::FreeEntity(GUtilsSP *this, gentity_s *ed)
   g_entityIsInUse[number] = 0;
   if ( !Com_ErrorEntered() && SND_SV_CheckAndClearEntityHasParams(number) )
   {
-    v24 = j_va("sfreeent %d", (unsigned int)number);
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v24);
+    v22 = j_va("sfreeent %d", (unsigned int)number);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v22);
   }
   Profile_EndInternal(NULL);
 }
@@ -2088,13 +2075,13 @@ __int64 G_UtilsSP_DObjUpdateServerTime(gentity_s *ent, int bNotify)
 {
   unsigned int updated; 
   int ServerNotifyList; 
-  __int64 v10; 
-  Ai_Asm *v11; 
+  __int64 v6; 
+  Ai_Asm *v7; 
   bool ShouldProcessNotetracks; 
   unsigned int ScriptableIndexForEntity; 
-  bool v14; 
-  __int64 v16; 
-  __int64 v17; 
+  bool v10; 
+  __int64 v12; 
+  __int64 v13; 
   XAnimNotifySV *notifyList; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 1069, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
@@ -2104,36 +2091,30 @@ __int64 G_UtilsSP_DObjUpdateServerTime(gentity_s *ent, int bNotify)
   ent->flags.m_flags[1] &= ~2u;
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmulss  xmm1, xmm0, cs:__real@3a83126f; dtime
-  }
-  updated = SV_Game_DObjUpdateServerTime(ent, *(float *)&_XMM1, bNotify);
+  updated = SV_Game_DObjUpdateServerTime(ent, (float)level.frameDuration * 0.001, bNotify);
   ServerNotifyList = DObjGetServerNotifyList(&notifyList);
-  v10 = ServerNotifyList;
+  v6 = ServerNotifyList;
   if ( !ServerNotifyList )
     return updated;
-  v11 = Ai_Asm::Singleton();
-  ShouldProcessNotetracks = Ai_Asm::ShouldProcessNotetracks(v11, ent->s.number);
+  v7 = Ai_Asm::Singleton();
+  ShouldProcessNotetracks = Ai_Asm::ShouldProcessNotetracks(v7, ent->s.number);
   ScriptableIndexForEntity = ScriptableSv_GetScriptableIndexForEntity(ent);
-  v14 = ScriptableIndexForEntity != -1;
+  v10 = ScriptableIndexForEntity != -1;
   if ( ScriptableIndexForEntity == -1 && !ShouldProcessNotetracks )
     return updated;
-  v16 = v10;
-  if ( (int)v10 > 0 )
+  v12 = v6;
+  if ( (int)v6 > 0 )
   {
-    v17 = 0i64;
+    v13 = 0i64;
     do
     {
-      if ( v14 )
-        ScriptableSv_AnimNotetrackEvent(ent, notifyList[v17].noteName, notifyList[v17].notifyName);
+      if ( v10 )
+        ScriptableSv_AnimNotetrackEvent(ent, notifyList[v13].noteName, notifyList[v13].notifyName);
       if ( ShouldProcessNotetracks )
-        Ai_Asm::ProcessNotetrack(v11, ent->s.number, notifyList[v17].notifyName, notifyList[v17].noteName);
-      ++v17;
+        Ai_Asm::ProcessNotetrack(v7, ent->s.number, notifyList[v13].notifyName, notifyList[v13].noteName);
+      ++v13;
     }
-    while ( v17 < v16 );
+    while ( v13 < v12 );
   }
   return updated;
 }
@@ -2176,24 +2157,24 @@ __int64 G_UtilsSP_GetNumHandIKMarkers(const gentity_s *ent, const Weapon *weapon
   unsigned int v10; 
   bool (__fastcall **p_checkOverrideCallback)(const XAnimIKTagRequest *); 
   bool IsRoboticIKEnabled; 
-  unsigned int v14; 
-  const XModel **v17; 
-  const XModel *v18; 
-  __int64 v19; 
-  unsigned int v20; 
-  bool (__fastcall **v21)(const XAnimIKTagRequest *); 
-  char v22; 
-  bool v23; 
+  unsigned int v13; 
+  const XModel **v14; 
+  const XModel *v15; 
+  __int64 v16; 
+  unsigned int v17; 
+  bool (__fastcall **v18)(const XAnimIKTagRequest *); 
+  char v19; 
+  bool v20; 
+  int v21; 
+  unsigned int v22; 
+  unsigned int v23; 
   int v24; 
-  unsigned int v25; 
-  unsigned int v26; 
-  int v27; 
   XAnimIKTagRequest result; 
-  _BYTE v32[64]; 
+  XAnimIKTagRequest v29; 
 
   v5 = ent;
   v6 = models;
-  v26 = 0;
+  v23 = 0;
   v8 = weapon;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 121, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
@@ -2202,72 +2183,65 @@ __int64 G_UtilsSP_GetNumHandIKMarkers(const gentity_s *ent, const Weapon *weapon
   {
     v10 = numModels;
     p_checkOverrideCallback = &g_IKTagTable[0][0].checkOverrideCallback;
-    v27 = 0;
+    v24 = 0;
     do
     {
       IsRoboticIKEnabled = G_Utils_IsRoboticIKEnabled(v5);
-      _RAX = XAnimIKSetupTagRequest(&result, v8, 0, IsRoboticIKEnabled, 0, 0);
-      v14 = 0;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups [rsp+118h+var_88], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups [rsp+118h+var_68], ymm1
-      }
+      v13 = 0;
+      v29 = *XAnimIKSetupTagRequest(&result, v8, 0, IsRoboticIKEnabled, 0, 0);
       if ( v10 )
       {
-        v17 = v6;
+        v14 = v6;
         do
         {
-          v18 = *v17;
-          v19 = 0i64;
-          if ( (*v17)->numBones )
+          v15 = *v14;
+          v16 = 0i64;
+          if ( (*v14)->numBones )
           {
             while ( 2 )
             {
-              v20 = 0;
-              v21 = p_checkOverrideCallback;
+              v17 = 0;
+              v18 = p_checkOverrideCallback;
               do
               {
-                if ( v18->boneNames[v19] == *(_DWORD *)*(v21 - 1) && (!*v21 || (*v21)((const XAnimIKTagRequest *)v32) || !*v21) )
+                if ( v15->boneNames[v16] == *(_DWORD *)*(v18 - 1) && (!*v18 || (*v18)(&v29) || !*v18) )
                 {
                   v10 = numModels;
-                  v22 = 1;
+                  v19 = 1;
                   goto LABEL_19;
                 }
-                ++v20;
-                v21 += 3;
+                ++v17;
+                v18 += 3;
               }
-              while ( v20 < 6 );
-              v19 = (unsigned int)(v19 + 1);
-              if ( (unsigned int)v19 < v18->numBones )
+              while ( v17 < 6 );
+              v16 = (unsigned int)(v16 + 1);
+              if ( (unsigned int)v16 < v15->numBones )
                 continue;
               break;
             }
             v10 = numModels;
           }
+          ++v13;
           ++v14;
-          ++v17;
         }
-        while ( v14 < v10 );
+        while ( v13 < v10 );
       }
-      v22 = 0;
+      v19 = 0;
 LABEL_19:
-      v23 = v22 == 0;
-      v24 = v27;
+      v20 = v19 == 0;
+      v21 = v24;
       v6 = models;
       v5 = ent;
       v8 = weapon;
-      v25 = v26 + 1;
-      if ( v23 )
-        v25 = v26;
+      v22 = v23 + 1;
+      if ( v20 )
+        v22 = v23;
       p_checkOverrideCallback += 18;
-      v26 = v25;
-      ++v27;
+      v23 = v22;
+      ++v24;
     }
-    while ( (unsigned int)(v24 + 1) < 2 );
-    return v25;
+    while ( (unsigned int)(v21 + 1) < 2 );
+    return v22;
   }
   return v9;
 }
@@ -2284,30 +2258,35 @@ void G_UtilsSP_PlaceHandIKMarker(const XAnimIKType hand, XModel *tagIKTargetMode
   __int64 v11; 
   IK_TAG_PRIORITIES priority; 
   bool IsRoboticIKEnabled; 
+  __m256i *v14; 
   int v15; 
-  __int64 v18; 
-  int *v19; 
-  __int64 v20; 
-  const IKTagTableType (*v21)[6]; 
-  __int64 v22; 
-  const XModel *v23; 
-  __int64 v24; 
-  const IKTagTableType *v25; 
+  __m256i v16; 
+  __int64 v17; 
+  int *v18; 
+  __int64 v19; 
+  const IKTagTableType (*v20)[6]; 
+  __int64 v21; 
+  const XModel *v22; 
+  __int64 v23; 
+  const IKTagTableType *v24; 
   bool (__fastcall *checkOverrideCallback)(const XAnimIKTagRequest *); 
-  __int64 v27; 
-  __int64 v29; 
+  __int64 v26; 
+  DObjModel *v27; 
+  __int64 v28; 
+  __m256i v29; 
+  __int128 v30; 
+  __int64 v31; 
+  int *v32; 
   __int64 v33; 
-  int *v34; 
-  __int64 v35; 
-  int v36; 
-  int v37; 
+  int v34; 
+  int v35; 
   scr_string_t boneName; 
-  int v39; 
-  int v40; 
-  int *v42; 
-  __int64 v43; 
+  int v37; 
+  int v38; 
+  int *v40; 
+  __int64 v41; 
   XAnimIKTagRequest result; 
-  _BYTE v46[64]; 
+  _BYTE v44[64]; 
 
   v9 = hand;
   if ( hand >= XANIM_IK_ACTOR_LEFT_FOOT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 151, ASSERT_TYPE_ASSERT, "(hand < XANIM_IK_NUM_HAND_TYPES)", (const char *)&queryFormat, "hand < XANIM_IK_NUM_HAND_TYPES") )
@@ -2324,129 +2303,121 @@ void G_UtilsSP_PlaceHandIKMarker(const XAnimIKType hand, XModel *tagIKTargetMode
     __debugbreak();
   attachWeaponTagNames = ent->attachWeaponTagNames;
   v11 = 0i64;
-  v39 = 0;
+  v37 = 0;
   priority = NUM_IK_PRIORITIES;
   boneName = scr_const.tag_ik_loc_le;
-  v37 = -1;
+  v35 = -1;
   while ( *attachWeaponTagNames != scr_const.tag_weapon_right )
   {
     v11 = (unsigned int)(v11 + 1);
     ++attachWeaponTagNames;
-    v39 = v11;
+    v37 = v11;
     if ( (unsigned int)v11 >= 4 )
       return;
   }
   IsRoboticIKEnabled = G_Utils_IsRoboticIKEnabled(ent);
-  _RAX = XAnimIKSetupTagRequest(&result, &ent->attachWeapons[v11], 0, IsRoboticIKEnabled, 0, 0);
+  v14 = (__m256i *)XAnimIKSetupTagRequest(&result, &ent->attachWeapons[v11], 0, IsRoboticIKEnabled, 0, 0);
   v15 = 0;
-  v36 = 0;
-  __asm
+  v34 = 0;
+  *(__m256i *)v44 = *v14;
+  v16 = v14[1];
+  v17 = 4 * v11;
+  v18 = &weaponModelCount[v11];
+  v41 = v17;
+  *(__m256i *)&v44[32] = v16;
+  v40 = v18;
+  if ( *v18 > 0 )
   {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups [rsp+158h+var_98], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-  }
-  v18 = 4 * v11;
-  v19 = &weaponModelCount[v11];
-  v43 = v18;
-  __asm { vmovups [rsp+158h+var_78], ymm1 }
-  v42 = v19;
-  if ( *v19 > 0 )
-  {
-    v20 = v9;
-    v21 = g_IKTagTable;
+    v19 = v9;
+    v20 = g_IKTagTable;
     do
     {
       if ( priority == AKIMBO_IK_PRIORITY )
         break;
-      v22 = 0i64;
-      v40 = v15 + *(int *)((char *)weaponModelStartIndexes + v18);
-      v23 = dobjModels[v40].model;
-      if ( v23->numBones )
+      v21 = 0i64;
+      v38 = v15 + *(int *)((char *)weaponModelStartIndexes + v17);
+      v22 = dobjModels[v38].model;
+      if ( v22->numBones )
       {
         do
         {
           if ( priority == AKIMBO_IK_PRIORITY )
             break;
-          v24 = 0i64;
-          v25 = g_IKTagTable[v20];
+          v23 = 0i64;
+          v24 = g_IKTagTable[v19];
           while ( 1 )
           {
-            if ( v23->boneNames[v22] == *v25->tagName && priority > v25->priority )
+            if ( v22->boneNames[v21] == *v24->tagName && priority > v24->priority )
             {
-              checkOverrideCallback = v25->checkOverrideCallback;
-              if ( !checkOverrideCallback || ((unsigned __int8 (__fastcall *)(_BYTE *, const IKTagTableType (*)[6]))checkOverrideCallback)(v46, v21) )
+              checkOverrideCallback = v24->checkOverrideCallback;
+              if ( !checkOverrideCallback || ((unsigned __int8 (__fastcall *)(_BYTE *, const IKTagTableType (*)[6]))checkOverrideCallback)(v44, v20) )
                 break;
             }
-            v24 = (unsigned int)(v24 + 1);
-            ++v25;
-            if ( (unsigned int)v24 >= 6 )
+            v23 = (unsigned int)(v23 + 1);
+            ++v24;
+            if ( (unsigned int)v23 >= 6 )
             {
-              v21 = g_IKTagTable;
+              v20 = g_IKTagTable;
               goto LABEL_35;
             }
           }
-          v21 = g_IKTagTable;
-          v37 = v40;
-          v35 = v24 + 6 * v20;
-          priority = g_IKTagTable[0][v35].priority;
-          boneName = *g_IKTagTable[0][v35].tagName;
+          v20 = g_IKTagTable;
+          v35 = v38;
+          v33 = v23 + 6 * v19;
+          priority = g_IKTagTable[0][v33].priority;
+          boneName = *g_IKTagTable[0][v33].tagName;
 LABEL_35:
-          v22 = (unsigned int)(v22 + 1);
+          v21 = (unsigned int)(v21 + 1);
         }
-        while ( (unsigned int)v22 < v23->numBones );
-        v15 = v36;
-        v19 = v42;
+        while ( (unsigned int)v21 < v22->numBones );
+        v15 = v34;
+        v18 = v40;
       }
-      v18 = v43;
-      v36 = ++v15;
+      v17 = v41;
+      v34 = ++v15;
     }
-    while ( v15 < *v19 );
+    while ( v15 < *v18 );
     if ( priority < NUM_IK_PRIORITIES )
     {
       if ( (unsigned int)*numModels + 1 >= 0xFE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 200, ASSERT_TYPE_ASSERT, "(*numModels + 1 < ( DOBJ_MAX_PARTS ))", (const char *)&queryFormat, "*numModels + 1 < DOBJ_MAX_SUBMODELS") )
         __debugbreak();
-      if ( v37 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 201, ASSERT_TYPE_ASSERT, "(bestModelIndex >= 0)", (const char *)&queryFormat, "bestModelIndex >= 0") )
+      if ( v35 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 201, ASSERT_TYPE_ASSERT, "(bestModelIndex >= 0)", (const char *)&queryFormat, "bestModelIndex >= 0") )
         __debugbreak();
-      v27 = *numModels;
-      if ( v27 > v37 )
+      v26 = *numModels;
+      if ( v26 > v35 )
       {
-        _RAX = &dobjModels[v27];
-        v29 = v27 - v37;
+        v27 = &dobjModels[v26];
+        v28 = v26 - v35;
         do
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups ymm1, ymmword ptr [rax+20h]
-            vmovups ymmword ptr [rax+50h], ymm0
-            vmovups xmm0, xmmword ptr [rax+40h]
-            vmovups ymmword ptr [rax+70h], ymm1
-            vmovups xmmword ptr [rax+90h], xmm0
-          }
-          --_RAX;
-          --v29;
+          v29 = *(__m256i *)&v27->quat.xyz.y;
+          *(__m256i *)&v27[1].model = *(__m256i *)&v27->model;
+          v30 = *(_OWORD *)&v27->camoParams.materialOverrideDstWhitelist;
+          *(__m256i *)&v27[1].quat.xyz.y = v29;
+          *(_OWORD *)&v27[1].camoParams.materialOverrideDstWhitelist = v30;
+          --v27;
+          --v28;
         }
-        while ( v29 );
+        while ( v28 );
       }
-      DObjInitModel(tagIKTargetModel, boneName, 1, 0, NULL, &dobjModels[v37 + 1]);
+      DObjInitModel(tagIKTargetModel, boneName, 1, 0, NULL, &dobjModels[v35 + 1]);
       ++*numModels;
-      ++*v19;
-      v33 = (unsigned int)(v39 + 1);
-      if ( (unsigned int)v33 < 4 )
+      ++*v18;
+      v31 = (unsigned int)(v37 + 1);
+      if ( (unsigned int)v31 < 4 )
       {
-        v34 = &weaponModelStartIndexes[v33];
+        v32 = &weaponModelStartIndexes[v31];
         do
         {
-          if ( *v34 < 0 )
+          if ( *v32 < 0 )
             break;
-          if ( *v34 <= v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 222, ASSERT_TYPE_ASSERT, "(weaponModelStartIndexes[curWeapon] > bestModelIndex)", (const char *)&queryFormat, "weaponModelStartIndexes[curWeapon] > bestModelIndex") )
+          if ( *v32 <= v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 222, ASSERT_TYPE_ASSERT, "(weaponModelStartIndexes[curWeapon] > bestModelIndex)", (const char *)&queryFormat, "weaponModelStartIndexes[curWeapon] > bestModelIndex") )
             __debugbreak();
-          ++*v34;
-          LODWORD(v33) = v33 + 1;
-          ++v34;
+          ++*v32;
+          LODWORD(v31) = v31 + 1;
+          ++v32;
         }
-        while ( (unsigned int)v33 < 4 );
+        while ( (unsigned int)v31 < 4 );
       }
     }
   }
@@ -2459,87 +2430,60 @@ G_UtilsSP_RegisterSoundWait
 */
 void G_UtilsSP_RegisterSoundWait(scrContext_t *scrContext, gentity_s *ent, unsigned __int16 index, scr_string_t notifyString, int stoppable)
 {
-  int v12; 
-  unsigned int v13; 
-  unsigned int v14; 
+  unsigned int v9; 
+  unsigned int v10; 
   int time; 
-  const char *v16; 
-  const char *v17; 
+  const char *v12; 
+  const char *v13; 
   scr_string_t targetname; 
-  const char *v25; 
-  const char *v26; 
-  const char *v27; 
-  char *fmt; 
-  double v32; 
-  double v33; 
+  double v15; 
+  double v16; 
+  double v17; 
+  const char *v18; 
+  const char *v19; 
+  const char *v20; 
   scr_string_t to; 
-  const char *v35; 
-  char v36[1024]; 
+  const char *v22; 
+  char v23[1024]; 
   char buffer[1024]; 
 
-  _RBX = ent;
   if ( !index && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 1395, ASSERT_TYPE_ASSERT, "(index)", (const char *)&queryFormat, "index") )
     __debugbreak();
   to = 0;
   Scr_SetString(&to, notifyString);
-  if ( _RBX->snd_wait.notifyString )
+  if ( ent->snd_wait.notifyString )
   {
-    if ( !_RBX->snd_wait.index && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 1402, ASSERT_TYPE_ASSERT, "(ent->snd_wait.index)", (const char *)&queryFormat, "ent->snd_wait.index") )
+    if ( !ent->snd_wait.index && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 1402, ASSERT_TYPE_ASSERT, "(ent->snd_wait.index)", (const char *)&queryFormat, "ent->snd_wait.index") )
       __debugbreak();
-    GScr_Notify(_RBX, _RBX->snd_wait.notifyString, 0);
-    if ( !_RBX->snd_wait.stoppable || !stoppable )
+    GScr_Notify(ent, ent->snd_wait.notifyString, 0);
+    if ( !ent->snd_wait.stoppable || !stoppable )
     {
-      v12 = _RBX->snd_wait.index;
-      __asm
-      {
-        vmovaps [rsp+8F8h+var_58], xmm6
-        vmovaps [rsp+8F8h+var_68], xmm7
-        vmovaps [rsp+8F8h+var_78], xmm8
-      }
-      v13 = BG_ConfigStrings_ConfigStringOffset(0x96Eu, v12);
-      SV_GetConfigstring(v13, buffer, 1024);
-      v14 = BG_ConfigStrings_ConfigStringOffset(0x96Eu, index);
-      SV_GetConfigstring(v14, v36, 1024);
+      v9 = BG_ConfigStrings_ConfigStringOffset(0x96Eu, ent->snd_wait.index);
+      SV_GetConfigstring(v9, buffer, 1024);
+      v10 = BG_ConfigStrings_ConfigStringOffset(0x96Eu, index);
+      SV_GetConfigstring(v10, v23, 1024);
       Scr_SetString(&to, (scr_string_t)0);
       time = level.time;
-      v16 = SL_ConvertToString(to);
-      v17 = SL_ConvertToString(_RBX->snd_wait.notifyString);
-      targetname = _RBX->targetname;
-      v35 = v17;
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbx+138h]
-        vmovss  xmm7, dword ptr [rbx+134h]
-        vmovss  xmm8, dword ptr [rbx+130h]
-        vcvtss2sd xmm6, xmm6, xmm6
-        vcvtss2sd xmm7, xmm7, xmm7
-        vcvtss2sd xmm8, xmm8, xmm8
-      }
+      v12 = SL_ConvertToString(to);
+      v13 = SL_ConvertToString(ent->snd_wait.notifyString);
+      targetname = ent->targetname;
+      v22 = v13;
+      v15 = ent->r.currentOrigin.v[2];
+      v16 = ent->r.currentOrigin.v[1];
+      v17 = ent->r.currentOrigin.v[0];
       if ( targetname )
-        v25 = SL_ConvertToString(targetname);
+        v18 = SL_ConvertToString(targetname);
       else
-        v25 = "<undefined>";
-      v26 = SL_ConvertToString(_RBX->classname);
-      __asm
-      {
-        vmovsd  [rsp+8F8h+var_8C8], xmm6
-        vmovsd  [rsp+8F8h+var_8D0], xmm7
-        vmovsd  [rsp+8F8h+fmt], xmm8
-      }
-      v27 = j_va("issued a second playsound with notification string before the first finished on entity %i classname %s targetname %s location %g %g %g old string %s alias %s new string %s alias %s at time %i\n", (unsigned int)_RBX->s.number, v26, v25, *(double *)&fmt, v32, v33, v35, buffer, v16, v36, time);
-      Scr_Error(COM_ERR_3684, scrContext, v27);
-      __asm
-      {
-        vmovaps xmm8, [rsp+8F8h+var_78]
-        vmovaps xmm7, [rsp+8F8h+var_68]
-        vmovaps xmm6, [rsp+8F8h+var_58]
-      }
+        v18 = "<undefined>";
+      v19 = SL_ConvertToString(ent->classname);
+      v20 = j_va("issued a second playsound with notification string before the first finished on entity %i classname %s targetname %s location %g %g %g old string %s alias %s new string %s alias %s at time %i\n", (unsigned int)ent->s.number, v19, v18, v17, v16, v15, v22, buffer, v12, v23, time);
+      Scr_Error(COM_ERR_3684, scrContext, v20);
     }
   }
-  Scr_SetString((scr_string_t *)&_RBX->snd_wait, to);
+  Scr_SetString((scr_string_t *)&ent->snd_wait, to);
   Scr_SetString(&to, (scr_string_t)0);
-  _RBX->snd_wait.index = index;
-  _RBX->snd_wait.stoppable = stoppable;
+  ent->snd_wait.index = index;
+  ent->snd_wait.stoppable = stoppable;
 }
 
 /*
@@ -2556,16 +2500,21 @@ void G_UtilsSP_UpdateWeaponBones(gentity_s *ent, DObj *obj, int *weaponModelStar
   scr_string_t *attachWeaponTagNames; 
   int stowedWeaponIndex; 
   int heldWeaponIndex; 
-  int v15; 
-  scr_string_t *v16; 
+  int v12; 
+  scr_string_t *v13; 
   __int64 j; 
   int k; 
+  __int64 v16; 
+  __int128 v17; 
+  double v18; 
+  __int64 v19; 
+  __int128 v20; 
+  double v21; 
   Weapon *attachWeapons; 
   Weapon r_stowedWeapon; 
   Weapon r_heldWeapon; 
 
   v3 = weaponModelStartIndexes;
-  _RBP = ent;
   if ( !weaponModelStartIndexes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 287, ASSERT_TYPE_ASSERT, "(weaponModelStartIndexes)", (const char *)&queryFormat, "weaponModelStartIndexes") )
     __debugbreak();
   v6 = 0;
@@ -2573,45 +2522,34 @@ void G_UtilsSP_UpdateWeaponBones(gentity_s *ent, DObj *obj, int *weaponModelStar
   for ( i = 0; i < 4; ++i )
   {
     if ( *v7 >= 0 )
-      BG_UpdatedWeaponBones(&_RBP->attachWeapons[i], obj, *v7);
+      BG_UpdatedWeaponBones(&ent->attachWeapons[i], obj, *v7);
     ++v7;
   }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 233, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 234, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
+  if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 234, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
   if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_utils_sp.cpp", 235, ASSERT_TYPE_ASSERT, "(weaponModelStartIndexes)", (const char *)&queryFormat, "weaponModelStartIndexes") )
     __debugbreak();
-  if ( BG_IsCharacterEntity(&_RBP->s) || BG_IsCorpseEntity(&_RBP->s) )
+  if ( BG_IsCharacterEntity(&ent->s) || BG_IsCorpseEntity(&ent->s) )
   {
-    attachWeaponTagNames = _RBP->attachWeaponTagNames;
-    __asm
-    {
-      vmovups ymm2, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    }
+    attachWeaponTagNames = ent->attachWeaponTagNames;
     stowedWeaponIndex = -1;
     *(_DWORD *)&r_stowedWeapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
     heldWeaponIndex = -1;
     *(_DWORD *)&r_heldWeapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-    v15 = 0;
-    __asm
-    {
-      vmovups ymmword ptr [rsp+118h+r_stowedWeapon.weaponIdx], ymm2
-      vmovups xmmword ptr [rsp+118h+r_stowedWeapon.attachmentVariationIndices+5], xmm1
-      vmovsd  qword ptr [rsp+118h+r_stowedWeapon.attachmentVariationIndices+15h], xmm0
-      vmovups ymmword ptr [rsp+118h+r_heldWeapon.weaponIdx], ymm2
-      vmovups xmmword ptr [rsp+118h+r_heldWeapon.attachmentVariationIndices+5], xmm1
-      vmovsd  qword ptr [rsp+118h+r_heldWeapon.attachmentVariationIndices+15h], xmm0
-    }
-    v16 = _RBP->attachWeaponTagNames;
+    v12 = 0;
+    memset(&r_stowedWeapon, 0, 48);
+    *(double *)&r_stowedWeapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
+    memset(&r_heldWeapon, 0, 48);
+    *(double *)&r_heldWeapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
+    v13 = ent->attachWeaponTagNames;
     for ( j = 0i64; j < 4; ++j )
     {
-      if ( *v16 == scr_const.tag_weapon_right )
+      if ( *v13 == scr_const.tag_weapon_right )
         break;
-      ++v15;
-      ++v16;
+      ++v12;
+      ++v13;
     }
     for ( k = 0; k < 4; ++k )
     {
@@ -2621,45 +2559,37 @@ void G_UtilsSP_UpdateWeaponBones(gentity_s *ent, DObj *obj, int *weaponModelStar
         break;
       ++attachWeaponTagNames;
     }
-    if ( v15 < 4 )
+    if ( v12 < 4 )
     {
-      _RAX = 60i64 * v15;
-      heldWeaponIndex = v3[v15];
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax+rbp+4A8h]
-        vmovups xmm1, xmmword ptr [rax+rbp+4C8h]
-        vmovups ymmword ptr [rsp+118h+r_heldWeapon.weaponIdx], ymm0
-        vmovsd  xmm0, qword ptr [rax+rbp+4D8h]
-      }
-      LODWORD(_RAX) = *(_DWORD *)&_RBP->attachWeapons[0].attachmentVariationIndices[_RAX + 29];
-      __asm { vmovsd  qword ptr [rsp+118h+r_heldWeapon.attachmentVariationIndices+15h], xmm0 }
-      *(_DWORD *)&r_heldWeapon.weaponCamo = _RAX;
-      __asm { vmovups xmmword ptr [rsp+118h+r_heldWeapon.attachmentVariationIndices+5], xmm1 }
+      v16 = 60i64 * v12;
+      heldWeaponIndex = v3[v12];
+      v17 = *(_OWORD *)&ent->attachWeapons[0].attachmentVariationIndices[v16 + 5];
+      *(__m256i *)&r_heldWeapon.weaponIdx = *(__m256i *)((char *)&ent->attachWeapons[0].weaponIdx + v16);
+      v18 = *(double *)&ent->attachWeapons[0].attachmentVariationIndices[v16 + 21];
+      LODWORD(v16) = *(_DWORD *)&ent->attachWeapons[0].attachmentVariationIndices[v16 + 29];
+      *(double *)&r_heldWeapon.attachmentVariationIndices[21] = v18;
+      *(_DWORD *)&r_heldWeapon.weaponCamo = v16;
+      *(_OWORD *)&r_heldWeapon.attachmentVariationIndices[5] = v17;
     }
     if ( k < 4 )
     {
-      _RAX = 60i64 * k;
+      v19 = 60i64 * k;
       stowedWeaponIndex = v3[k];
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax+rbp+4A8h]
-        vmovups xmm1, xmmword ptr [rax+rbp+4C8h]
-        vmovups ymmword ptr [rsp+118h+r_stowedWeapon.weaponIdx], ymm0
-        vmovsd  xmm0, qword ptr [rax+rbp+4D8h]
-      }
-      LODWORD(_RAX) = *(_DWORD *)&_RBP->attachWeapons[0].attachmentVariationIndices[_RAX + 29];
-      __asm { vmovsd  qword ptr [rsp+118h+r_stowedWeapon.attachmentVariationIndices+15h], xmm0 }
-      *(_DWORD *)&r_stowedWeapon.weaponCamo = _RAX;
-      __asm { vmovups xmmword ptr [rsp+118h+r_stowedWeapon.attachmentVariationIndices+5], xmm1 }
+      v20 = *(_OWORD *)&ent->attachWeapons[0].attachmentVariationIndices[v19 + 5];
+      *(__m256i *)&r_stowedWeapon.weaponIdx = *(__m256i *)((char *)&ent->attachWeapons[0].weaponIdx + v19);
+      v21 = *(double *)&ent->attachWeapons[0].attachmentVariationIndices[v19 + 21];
+      LODWORD(v19) = *(_DWORD *)&ent->attachWeapons[0].attachmentVariationIndices[v19 + 29];
+      *(double *)&r_stowedWeapon.attachmentVariationIndices[21] = v21;
+      *(_DWORD *)&r_stowedWeapon.weaponCamo = v19;
+      *(_OWORD *)&r_stowedWeapon.attachmentVariationIndices[5] = v20;
     }
-    BG_UpdateVisibilitySlingBones(&_RBP->s, obj, _RBP->s.eType == ET_ACTOR_CORPSE, &r_heldWeapon, &r_stowedWeapon, heldWeaponIndex, stowedWeaponIndex, 0, 1);
+    BG_UpdateVisibilitySlingBones(&ent->s, obj, ent->s.eType == ET_ACTOR_CORPSE, &r_heldWeapon, &r_stowedWeapon, heldWeaponIndex, stowedWeaponIndex, 0, 1);
   }
-  attachWeapons = _RBP->attachWeapons;
+  attachWeapons = ent->attachWeapons;
   do
   {
     if ( attachWeapons->weaponIdx )
-      BG_UpdateWeaponHidePartBitsForDObj(obj, &_RBP->attachWeapons[v6], 0, *v3);
+      BG_UpdateWeaponHidePartBitsForDObj(obj, &ent->attachWeapons[v6], 0, *v3);
     ++v6;
     ++attachWeapons;
     ++v3;

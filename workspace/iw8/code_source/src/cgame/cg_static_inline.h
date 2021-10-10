@@ -84,10 +84,10 @@ void CgStatic::GetOrigin(CgStatic *this, int entIndex, vec3_t *outOrigin)
   CgEntitySystem *v6; 
   const cpose_t *p_pose; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v12; 
   __int64 v22; 
   __int64 v23; 
 
-  _RBP = outOrigin;
   m_localClientNum = this->m_localClientNum;
   v5 = entIndex;
   if ( !(_BYTE)CgEntitySystem::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", this->m_localClientNum) )
@@ -124,28 +124,33 @@ void CgStatic::GetOrigin(CgStatic *this, int entIndex, vec3_t *outOrigin)
   if ( !p_pose->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
     __debugbreak();
   FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(p_pose->origin.Get_origin, p_pose);
-  FunctionPointer_origin(&p_pose->origin.origin.origin, _RBP);
+  FunctionPointer_origin(&p_pose->origin.origin.origin, outOrigin);
   if ( p_pose->isPosePrecise )
   {
+    _XMM0 = LODWORD(outOrigin->v[0]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v12 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM0 = v12;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    _XMM0 = LODWORD(outOrigin->v[1]);
+    __asm { vcvtdq2pd xmm0, xmm0 }
+    outOrigin->v[0] = *(float *)&_XMM1;
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v12 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM1 = v12;
+    _XMM0 = LODWORD(outOrigin->v[2]);
     __asm
     {
-      vmovsd  xmm3, cs:__real@3f30000000000000
-      vmovd   xmm0, dword ptr [rbp+0]
-      vcvtdq2pd xmm0, xmm0
-      vmulsd  xmm0, xmm0, xmm3
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovd   xmm0, dword ptr [rbp+4]
-      vcvtdq2pd xmm0, xmm0
-      vmovss  dword ptr [rbp+0], xmm1
-      vmulsd  xmm1, xmm0, xmm3
-      vmovd   xmm0, dword ptr [rbp+8]
       vcvtsd2ss xmm2, xmm1, xmm1
       vcvtdq2pd xmm0, xmm0
-      vmulsd  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rbp+4], xmm2
-      vcvtsd2ss xmm2, xmm1, xmm1
-      vmovss  dword ptr [rbp+8], xmm2
     }
+    *((_QWORD *)&v12 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v12 = *(double *)&_XMM0 * 0.000244140625;
+    _XMM1 = v12;
+    outOrigin->v[1] = *(float *)&_XMM2;
+    __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+    outOrigin->v[2] = *(float *)&_XMM2;
   }
 }
 

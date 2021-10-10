@@ -122,30 +122,28 @@ CG_GetTriggerTransform
 */
 void CG_GetTriggerTransform(LocalClientNum_t localClientNum, unsigned int trigIndex, tmat43_t<vec3_t> *outTransform)
 {
-  __int64 v9; 
+  __int64 v4; 
   MapEnts *mapEnts; 
+  vec3_t *origins; 
+  float v8; 
+  float v9; 
+  float v10; 
+  ClientEntityLinkToDef *v11; 
   int AnchorEntNum; 
-  __int64 v34; 
-  __int64 v35; 
-  vec3_t v36; 
+  centity_t *Entity; 
+  float v14; 
+  float v15; 
+  __int64 v16; 
+  __int64 v17; 
+  vec3_t v18; 
   vec3_t angles; 
   vec3_t outOrigin; 
   tmat43_t<vec3_t> axis; 
-  tmat43_t<vec3_t> v40; 
-  tmat43_t<vec3_t> v41; 
+  tmat43_t<vec3_t> v22; 
+  tmat43_t<vec3_t> v23; 
   tmat43_t<vec3_t> out; 
-  char v43; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
-  _RBX = outTransform;
-  v9 = trigIndex;
+  v4 = trigIndex;
   mapEnts = cm.mapEnts;
   if ( trigIndex >= cm.mapEnts->clientTrigger.trigger.count )
   {
@@ -153,89 +151,53 @@ void CG_GetTriggerTransform(LocalClientNum_t localClientNum, unsigned int trigIn
       __debugbreak();
     mapEnts = cm.mapEnts;
   }
-  _RAX = mapEnts->clientTrigger.origins;
-  _RCX = 3 * v9;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm6, dword ptr [rax+rcx*4]
-    vmovss  xmm7, dword ptr [rax+rcx*4+4]
-    vmovss  xmm8, dword ptr [rax+rcx*4+8]
-    vmovss  dword ptr [rsp+180h+var_140], xmm0
-    vmovss  dword ptr [rsp+180h+var_140+4], xmm0
-    vmovss  dword ptr [rsp+180h+var_140+8], xmm0
-  }
-  _RDI = mapEnts->clientTrigger.linkTo[v9];
-  if ( !_RDI || !mapEnts->clientEntAnchors )
+  origins = mapEnts->clientTrigger.origins;
+  v8 = origins[v4].v[0];
+  v9 = origins[v4].v[1];
+  v10 = origins[v4].v[2];
+  v18.v[0] = 0.0;
+  v18.v[1] = 0.0;
+  v18.v[2] = 0.0;
+  v11 = mapEnts->clientTrigger.linkTo[v4];
+  if ( !v11 || !mapEnts->clientEntAnchors )
     goto LABEL_13;
-  if ( _RDI->anchorIndex >= CM_ClientAnchorCount() )
+  if ( v11->anchorIndex >= CM_ClientAnchorCount() )
   {
-    LODWORD(v35) = CM_ClientAnchorCount();
-    LODWORD(v34) = _RDI->anchorIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 584, ASSERT_TYPE_ASSERT, "(unsigned)( linkTo->anchorIndex ) < (unsigned)( CM_ClientAnchorCount() )", "linkTo->anchorIndex doesn't index CM_ClientAnchorCount()\n\t%i not in [0, %i)", v34, v35) )
+    LODWORD(v17) = CM_ClientAnchorCount();
+    LODWORD(v16) = v11->anchorIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 584, ASSERT_TYPE_ASSERT, "(unsigned)( linkTo->anchorIndex ) < (unsigned)( CM_ClientAnchorCount() )", "linkTo->anchorIndex doesn't index CM_ClientAnchorCount()\n\t%i not in [0, %i)", v16, v17) )
       __debugbreak();
   }
-  AnchorEntNum = CM_GetAnchorEntNum(_RDI->anchorIndex);
-  _RAX = CG_GetEntity(localClientNum, AnchorEntNum);
-  if ( _RAX && (_RAX->flags & 1) != 0 )
+  AnchorEntNum = CM_GetAnchorEntNum(v11->anchorIndex);
+  Entity = CG_GetEntity(localClientNum, AnchorEntNum);
+  if ( Entity && (Entity->flags & 1) != 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+48h]
-      vmovss  xmm1, dword ptr [rax+4Ch]
-      vmovss  dword ptr [rsp+180h+angles], xmm0
-      vmovss  xmm0, dword ptr [rax+50h]
-      vmovss  dword ptr [rsp+180h+angles+8], xmm0
-      vmovss  dword ptr [rsp+180h+angles+4], xmm1
-    }
-    CG_GetPoseOrigin(&_RAX->pose, &outOrigin);
+    v14 = Entity->pose.angles.v[1];
+    angles.v[0] = Entity->pose.angles.v[0];
+    angles.v[2] = Entity->pose.angles.v[2];
+    angles.v[1] = v14;
+    CG_GetPoseOrigin(&Entity->pose, &outOrigin);
     AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&axis);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+180h+outOrigin]
-      vmovss  xmm1, dword ptr [rsp+180h+outOrigin+4]
-      vmovss  [rbp+80h+var_EC], xmm0
-      vmovss  xmm0, dword ptr [rsp+180h+outOrigin+8]
-      vmovss  [rbp+80h+var_E4], xmm0
-      vmovss  [rbp+80h+var_E8], xmm1
-    }
-    AnglesToAxis(&_RDI->angleOffset, (tmat33_t<vec3_t> *)&v40);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmovss  xmm1, dword ptr [rdi+8]
-      vmovss  [rbp+80h+var_BC], xmm0
-      vmovss  xmm0, dword ptr [rdi+0Ch]
-      vmovss  [rbp+80h+var_B4], xmm0
-      vmovss  [rbp+80h+var_B8], xmm1
-    }
-    AnglesToAxis(&v36, (tmat33_t<vec3_t> *)&v41);
-    __asm
-    {
-      vmovss  [rbp+80h+var_8C], xmm6
-      vmovss  [rbp+80h+var_88], xmm7
-      vmovss  [rbp+80h+var_84], xmm8
-    }
-    MatrixMultiply43(&v40, &axis, &out);
-    MatrixMultiply43(&v41, &out, _RBX);
+    axis.m[3] = outOrigin;
+    AnglesToAxis(&v11->angleOffset, (tmat33_t<vec3_t> *)&v22);
+    v15 = v11->originOffset.v[1];
+    v22.m[3].v[0] = v11->originOffset.v[0];
+    v22.m[3].v[2] = v11->originOffset.v[2];
+    v22.m[3].v[1] = v15;
+    AnglesToAxis(&v18, (tmat33_t<vec3_t> *)&v23);
+    v23.m[3].v[0] = v8;
+    v23.m[3].v[1] = v9;
+    v23.m[3].v[2] = v10;
+    MatrixMultiply43(&v22, &axis, &out);
+    MatrixMultiply43(&v23, &out, outTransform);
   }
   else
   {
 LABEL_13:
-    AnglesToAxis(&v36, (tmat33_t<vec3_t> *)_RBX);
-    __asm
-    {
-      vmovss  dword ptr [rbx+2Ch], xmm8
-      vmovss  dword ptr [rbx+28h], xmm7
-      vmovss  dword ptr [rbx+24h], xmm6
-    }
-  }
-  _R11 = &v43;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
+    AnglesToAxis(&v18, (tmat33_t<vec3_t> *)outTransform);
+    outTransform->m[3].v[2] = v10;
+    outTransform->m[3].v[1] = v9;
+    outTransform->m[3].v[0] = v8;
   }
 }
 
@@ -246,133 +208,51 @@ CG_SetupTriggerTest
 */
 bool CG_SetupTriggerTest(const vec3_t *bakedTriggerOrigin, const Bounds *bounds, const vec3_t *relativeOrigin, const vec3_t *angles, TriggerCapsuleTest *capsuleOut, tmat33_t<vec3_t> *axisOut)
 {
-  bool v10; 
-  bool v11; 
-  bool v16; 
-  bool v21; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
   bool result; 
-  double v47; 
-  double v48; 
-  double v49; 
-  double v50; 
 
-  _RSI = angles;
-  _RBX = bounds;
   if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 211, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
-  _RDI = capsuleOut;
-  v10 = capsuleOut == NULL;
-  if ( !capsuleOut )
-  {
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 212, ASSERT_TYPE_ASSERT, "(capsuleOut)", (const char *)&queryFormat, "capsuleOut");
-    v10 = !v11;
-    if ( v11 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+0Ch]
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vucomiss xmm1, xmm0
-  }
-  if ( !v10 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+68h+var_28], xmm0
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+68h+var_30], xmm1
-    }
-    v16 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 213, ASSERT_TYPE_ASSERT, "( bounds->halfSize[0] ) == ( bounds->halfSize[1] )", "%s == %s\n\t%g, %g", "bounds->halfSize[0]", "bounds->halfSize[1]", v47, v49);
-    v10 = !v16;
-    if ( v16 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+0Ch]
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vcomiss xmm1, xmm0
-  }
-  if ( !v10 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+68h+var_28], xmm0
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+68h+var_30], xmm1
-    }
-    v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 214, ASSERT_TYPE_ASSERT, "( bounds->halfSize[0] ) <= ( bounds->halfSize[2] )", "%s <= %s\n\t%g, %g", "bounds->halfSize[0]", "bounds->halfSize[2]", v48, v50);
-    v10 = !v21;
-    if ( v21 )
-      __debugbreak();
-  }
+  if ( !capsuleOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 212, ASSERT_TYPE_ASSERT, "(capsuleOut)", (const char *)&queryFormat, "capsuleOut") )
+    __debugbreak();
+  v10 = bounds->halfSize.v[0];
+  v11 = bounds->halfSize.v[1];
+  if ( v10 != v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 213, ASSERT_TYPE_ASSERT, "( bounds->halfSize[0] ) == ( bounds->halfSize[1] )", "%s == %s\n\t%g, %g", "bounds->halfSize[0]", "bounds->halfSize[1]", v10, v11) )
+    __debugbreak();
+  v12 = bounds->halfSize.v[0];
+  v13 = bounds->halfSize.v[2];
+  if ( v12 > v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 214, ASSERT_TYPE_ASSERT, "( bounds->halfSize[0] ) <= ( bounds->halfSize[2] )", "%s <= %s\n\t%g, %g", "bounds->halfSize[0]", "bounds->halfSize[2]", v12, v13) )
+    __debugbreak();
   capsuleOut->relativeOrigin = *relativeOrigin;
-  __asm
+  capsuleOut->triggerSpaceBounds.midPoint.v[0] = bounds->midPoint.v[0] - bakedTriggerOrigin->v[0];
+  capsuleOut->triggerSpaceBounds.midPoint.v[1] = bounds->midPoint.v[1] - bakedTriggerOrigin->v[1];
+  capsuleOut->triggerSpaceBounds.midPoint.v[2] = bounds->midPoint.v[2] - bakedTriggerOrigin->v[2];
+  v14 = bounds->halfSize.v[0];
+  capsuleOut->radius = v14;
+  v15 = bounds->halfSize.v[2] - v14;
+  capsuleOut->halfHeight = v15;
+  if ( angles->v[0] == 0.0 && angles->v[1] == 0.0 && angles->v[2] == 0.0 || v15 == 0.0 )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm1, xmm0, dword ptr [rbp+0]
-    vmovss  dword ptr [rdi], xmm1
-    vmovss  xmm2, dword ptr [rbx+4]
-    vsubss  xmm0, xmm2, dword ptr [rbp+4]
-    vmovss  dword ptr [rdi+4], xmm0
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm2, xmm1, dword ptr [rbp+8]
-    vmovss  dword ptr [rdi+8], xmm2
-    vmovss  xmm1, dword ptr [rbx+0Ch]
-    vmovss  dword ptr [rdi+24h], xmm1
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vsubss  xmm2, xmm0, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rdi+28h], xmm2
-    vucomiss xmm0, dword ptr [rsi]
-  }
-  if ( v10 )
-  {
-    __asm { vucomiss xmm0, dword ptr [rsi+4] }
-    if ( v10 )
-    {
-      __asm { vucomiss xmm0, dword ptr [rsi+8] }
-      if ( v10 )
-        goto LABEL_18;
-    }
-  }
-  __asm { vucomiss xmm2, xmm0 }
-  if ( v10 )
-  {
-LABEL_18:
-    __asm { vmovss  dword ptr [rdi+0Ch], xmm1 }
+    capsuleOut->triggerSpaceBounds.halfSize.v[0] = v14;
     capsuleOut->triggerSpaceBounds.halfSize.v[1] = capsuleOut->radius;
     result = 0;
-    __asm { vaddss  xmm1, xmm1, xmm2 }
+    v16 = v14 + v15;
   }
   else
   {
-    _RBX = axisOut;
-    AnglesToAxis(_RSI, axisOut);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vmovss  xmm3, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vandps  xmm0, xmm0, xmm3
-      vmulss  xmm0, xmm0, dword ptr [rdi+28h]
-      vaddss  xmm1, xmm0, dword ptr [rdi+24h]
-      vmovss  dword ptr [rdi+0Ch], xmm1
-      vmovss  xmm2, dword ptr [rbx+1Ch]
-      vandps  xmm2, xmm2, xmm3
-      vmulss  xmm0, xmm2, dword ptr [rdi+28h]
-      vaddss  xmm1, xmm0, dword ptr [rdi+24h]
-      vmovss  dword ptr [rdi+10h], xmm1
-      vmovss  xmm2, dword ptr [rbx+20h]
-      vandps  xmm2, xmm2, xmm3
-      vmulss  xmm0, xmm2, dword ptr [rdi+28h]
-      vaddss  xmm1, xmm0, dword ptr [rdi+24h]
-    }
+    AnglesToAxis(angles, axisOut);
+    capsuleOut->triggerSpaceBounds.halfSize.v[0] = (float)(COERCE_FLOAT(LODWORD(axisOut->m[2].v[0]) & _xmm) * capsuleOut->halfHeight) + capsuleOut->radius;
+    capsuleOut->triggerSpaceBounds.halfSize.v[1] = (float)(COERCE_FLOAT(LODWORD(axisOut->m[2].v[1]) & _xmm) * capsuleOut->halfHeight) + capsuleOut->radius;
+    v16 = (float)(COERCE_FLOAT(LODWORD(axisOut->m[2].v[2]) & _xmm) * capsuleOut->halfHeight) + capsuleOut->radius;
     result = 1;
   }
-  __asm { vmovss  dword ptr [rdi+14h], xmm1 }
+  capsuleOut->triggerSpaceBounds.halfSize.v[2] = v16;
   return result;
 }
 
@@ -521,143 +401,68 @@ bool CG_TestTriggerTouch(const Bounds *bounds, unsigned int tmodelIndex, const v
 CG_TestTriggerTouch_Point
 ==============
 */
-bool CG_TestTriggerTouch_Point(unsigned int tmodelIndex, const vec3_t *origin)
+char CG_TestTriggerTouch_Point(unsigned int tmodelIndex, const vec3_t *origin)
 {
   MapEnts *mapEnts; 
   ClientTriggers *p_clientTrigger; 
-  __int64 v10; 
-  __int64 v11; 
+  __int64 v5; 
+  vec3_t *origins; 
+  __int64 v7; 
   ClientTriggerModel *models; 
-  int v20; 
-  __int64 v21; 
-  bool v22; 
-  bool v24; 
-  unsigned int v31; 
-  unsigned int v32; 
-  bool v33; 
-  bool result; 
-  char v51; 
-  void *retaddr; 
+  float v9; 
+  float v10; 
+  float v11; 
+  int v12; 
+  __int64 v13; 
+  int v14; 
+  int v15; 
+  TriggerSlab *slabs; 
 
-  _RAX = &retaddr;
   mapEnts = cm.mapEnts;
-  _RDI = origin;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  p_clientTrigger = &mapEnts->clientTrigger;
-  __asm
+  p_clientTrigger = &cm.mapEnts->clientTrigger;
+  v5 = tmodelIndex;
+  if ( tmodelIndex >= cm.mapEnts->clientTrigger.trigger.count )
   {
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
-  v10 = tmodelIndex;
-  if ( tmodelIndex >= mapEnts->clientTrigger.trigger.count )
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 356, ASSERT_TYPE_ASSERT, "(unsigned)( tmodelIndex ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "tmodelIndex doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", tmodelIndex, mapEnts->clientTrigger.trigger.count) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 356, ASSERT_TYPE_ASSERT, "(unsigned)( tmodelIndex ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "tmodelIndex doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", tmodelIndex, cm.mapEnts->clientTrigger.trigger.count) )
       __debugbreak();
     mapEnts = cm.mapEnts;
   }
-  v11 = v10;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rdi+4]
-  }
+  origins = mapEnts->clientTrigger.origins;
+  v7 = v5;
   models = mapEnts->clientTrigger.trigger.models;
-  __asm
-  {
-    vsubss  xmm7, xmm0, dword ptr [rax+rbp*4]
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm9, xmm0, dword ptr [rax+rbp*4+8]
-    vsubss  xmm8, xmm1, dword ptr [rax+rbp*4+4]
-    vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  v20 = 0;
+  v9 = origin->v[0] - origins[v5].v[0];
+  v10 = origin->v[2] - origins[v5].v[2];
+  v11 = origin->v[1] - origins[v5].v[1];
+  v12 = 0;
   do
   {
-    v21 = v20 + models[v11].firstHull;
-    v22 = __CFADD__(p_clientTrigger->trigger.hulls, v21 * 32) || &p_clientTrigger->trigger.hulls[v21] == NULL;
-    _RBX = (__int64)&p_clientTrigger->trigger.hulls[v21];
-    if ( !_RBX )
+    v13 = (__int64)&p_clientTrigger->trigger.hulls[v12 + models[v7].firstHull];
+    if ( !v13 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 331, ASSERT_TYPE_ASSERT, "(thull)", (const char *)&queryFormat, "thull") )
         __debugbreak();
-      v24 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 522, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds");
-      v22 = !v24;
-      if ( v24 )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 522, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
         __debugbreak();
     }
-    __asm
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v9 - *(float *)v13) & _xmm) <= *(float *)(v13 + 12) && COERCE_FLOAT(COERCE_UNSIGNED_INT(v11 - *(float *)(v13 + 4)) & _xmm) <= *(float *)(v13 + 16) && COERCE_FLOAT(COERCE_UNSIGNED_INT(v10 - *(float *)(v13 + 8)) & _xmm) <= *(float *)(v13 + 20) )
     {
-      vsubss  xmm0, xmm7, dword ptr [rbx]
-      vandps  xmm0, xmm0, xmm6
-      vcomiss xmm0, dword ptr [rbx+0Ch]
-    }
-    if ( v22 )
-    {
-      __asm
+      v14 = 0;
+      if ( !*(_WORD *)(v13 + 24) )
+        return 1;
+      while ( 1 )
       {
-        vsubss  xmm0, xmm8, dword ptr [rbx+4]
-        vandps  xmm0, xmm0, xmm6
-        vcomiss xmm0, dword ptr [rbx+10h]
-      }
-      if ( v22 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm9, dword ptr [rbx+8]
-          vandps  xmm0, xmm0, xmm6
-          vcomiss xmm0, dword ptr [rbx+14h]
-        }
-        if ( v22 )
-        {
-          v31 = *(unsigned __int16 *)(_RBX + 24);
-          v32 = 0;
-          v33 = v31 == 0;
-          if ( !*(_WORD *)(_RBX + 24) )
-          {
-LABEL_18:
-            result = 1;
-            goto LABEL_21;
-          }
-          _R8 = p_clientTrigger->trigger.slabs;
-          while ( 1 )
-          {
-            _RAX = 5i64 * (*(_DWORD *)(_RBX + 28) + v32);
-            __asm
-            {
-              vmulss  xmm1, xmm8, dword ptr [r8+rax*4+4]
-              vmulss  xmm0, xmm7, dword ptr [r8+rax*4]
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm9, dword ptr [r8+rax*4+8]
-              vaddss  xmm0, xmm2, xmm1
-              vsubss  xmm2, xmm0, dword ptr [r8+rax*4+0Ch]
-              vandps  xmm2, xmm2, xmm6
-              vcomiss xmm2, dword ptr [r8+rax*4+10h]
-            }
-            if ( !v33 )
-              break;
-            v33 = ++v32 <= v31;
-            if ( v32 >= v31 )
-              goto LABEL_18;
-          }
-        }
+        slabs = p_clientTrigger->trigger.slabs;
+        v15 = *(_DWORD *)(v13 + 28);
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v11 * slabs[v15 + v14].dir.v[1]) + (float)(v9 * slabs[v15 + v14].dir.v[0])) + (float)(v10 * slabs[v15 + v14].dir.v[2])) - slabs[v15 + v14].midPoint) & _xmm) > slabs[v15 + v14].halfSize )
+          break;
+        if ( ++v14 >= (unsigned int)*(unsigned __int16 *)(v13 + 24) )
+          return 1;
       }
     }
-    ++v20;
+    ++v12;
   }
-  while ( v20 != models[v11].hullCount );
-  result = 0;
-LABEL_21:
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  _R11 = &v51;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-  }
-  return result;
+  while ( v12 != models[v7].hullCount );
+  return 0;
 }
 
 /*
@@ -665,130 +470,67 @@ LABEL_21:
 CG_TestTriggerTouch_Rotated
 ==============
 */
-bool CG_TestTriggerTouch_Rotated(const ClientMapTriggers *triggers, const ClientTriggerModel *tmodel, const tmat33_t<vec3_t> *axis, const TriggerCapsuleTest *test)
+char CG_TestTriggerTouch_Rotated(const ClientMapTriggers *triggers, const ClientTriggerModel *tmodel, const tmat33_t<vec3_t> *axis, const TriggerCapsuleTest *test)
 {
-  const ClientTriggerModel *v13; 
-  int v16; 
-  bool result; 
-  char v65; 
-  char v67; 
-  void *retaddr; 
+  const ClientTriggerModel *v6; 
+  int v8; 
+  ClientTriggerHull *v9; 
+  int v10; 
+  TriggerSlab *v11; 
+  float v12; 
+  float v13; 
+  float halfSize; 
+  float midPoint; 
+  float v16; 
+  float v17; 
+  float v18; 
+  char v21; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps [rsp+0D8h+var_88], xmm11
-  }
-  v13 = tmodel;
+  v6 = tmodel;
   if ( !triggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 284, ASSERT_TYPE_ASSERT, "(triggers)", (const char *)&queryFormat, "triggers") )
     __debugbreak();
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 285, ASSERT_TYPE_ASSERT, "(tmodel)", (const char *)&queryFormat, "tmodel") )
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 285, ASSERT_TYPE_ASSERT, "(tmodel)", (const char *)&queryFormat, "tmodel") )
     __debugbreak();
   if ( !test && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 286, ASSERT_TYPE_ASSERT, "(test)", (const char *)&queryFormat, "test") )
     __debugbreak();
-  __asm { vmovss  xmm11, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-  v16 = 0;
+  v8 = 0;
   do
   {
-    _RBX = &triggers->hulls[v16 + v13->firstHull];
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 244, ASSERT_TYPE_ASSERT, "(thull)", (const char *)&queryFormat, "thull") )
+    v9 = &triggers->hulls[v8 + v6->firstHull];
+    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 244, ASSERT_TYPE_ASSERT, "(thull)", (const char *)&queryFormat, "thull") )
       __debugbreak();
     if ( !test && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 245, ASSERT_TYPE_ASSERT, "(test)", (const char *)&queryFormat, "test") )
       __debugbreak();
-    __asm
+    if ( CG_TestTriggerTouch_Slab(test, axis->m, v9->triggerSpaceBounds.midPoint.v[0], v9->triggerSpaceBounds.halfSize.v[0]) && CG_TestTriggerTouch_Slab(test, &axis->m[1], v9->triggerSpaceBounds.midPoint.v[1], v9->triggerSpaceBounds.halfSize.v[1]) && CG_TestTriggerTouch_Slab(test, &axis->m[2], v9->triggerSpaceBounds.midPoint.v[2], v9->triggerSpaceBounds.halfSize.v[2]) )
     {
-      vmovss  xmm3, dword ptr [rbx+0Ch]; halfSize
-      vmovss  xmm2, dword ptr [rbx]; midPoint
-    }
-    if ( CG_TestTriggerTouch_Slab(test, axis->m, *(float *)&_XMM2, *(float *)&_XMM3) )
-    {
-      __asm
+      v10 = 0;
+      if ( !v9->slabCount )
+        return 1;
+      while ( 1 )
       {
-        vmovss  xmm3, dword ptr [rbx+10h]; halfSize
-        vmovss  xmm2, dword ptr [rbx+4]; midPoint
-      }
-      if ( CG_TestTriggerTouch_Slab(test, &axis->m[1], *(float *)&_XMM2, *(float *)&_XMM3) )
-      {
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rbx+14h]; halfSize
-          vmovss  xmm2, dword ptr [rbx+8]; midPoint
-        }
-        if ( CG_TestTriggerTouch_Slab(test, &axis->m[2], *(float *)&_XMM2, *(float *)&_XMM3) )
-        {
-          if ( !_RBX->slabCount )
-          {
-            result = 1;
-            goto LABEL_31;
-          }
-          _RBP = (char *)&triggers->slabs[_RBX->firstSlab];
-          if ( _RBP == &v65 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1777, ASSERT_TYPE_SANITY, "( &in != &out )", (const char *)&queryFormat, "&in != &out") )
-            __debugbreak();
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rbp+8]
-            vmovss  xmm5, dword ptr [rbp+4]
-            vmovss  xmm4, dword ptr [rbp+0]
-            vmulss  xmm1, xmm4, dword ptr [r14]
-            vmulss  xmm0, xmm5, dword ptr [r14+4]
-            vmulss  xmm3, xmm4, dword ptr [r14+0Ch]
-            vmovss  xmm9, dword ptr [rbp+10h]
-            vmovss  xmm10, dword ptr [rbp+0Ch]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm6, dword ptr [r14+8]
-            vmulss  xmm0, xmm5, dword ptr [r14+10h]
-            vaddss  xmm7, xmm2, xmm1
-            vmulss  xmm1, xmm6, dword ptr [r14+14h]
-            vaddss  xmm2, xmm3, xmm0
-            vmulss  xmm0, xmm4, dword ptr [r14+18h]
-            vaddss  xmm8, xmm2, xmm1
-            vmulss  xmm2, xmm5, dword ptr [r14+1Ch]
-            vmulss  xmm1, xmm6, dword ptr [r14+20h]
-            vaddss  xmm3, xmm2, xmm0
-            vaddss  xmm6, xmm3, xmm1
-          }
-          if ( !test && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 145, ASSERT_TYPE_ASSERT, "(test)", (const char *)&queryFormat, "test") )
-            __debugbreak();
-          __asm
-          {
-            vmulss  xmm1, xmm8, dword ptr [rdi+1Ch]
-            vmulss  xmm0, xmm7, dword ptr [rdi+18h]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm6, dword ptr [rdi+20h]
-            vaddss  xmm2, xmm2, xmm1
-            vsubss  xmm3, xmm2, xmm10
-            vandps  xmm6, xmm6, xmm11
-            vmulss  xmm0, xmm6, dword ptr [rdi+28h]
-            vaddss  xmm1, xmm0, dword ptr [rdi+24h]
-            vaddss  xmm2, xmm1, xmm9
-            vandps  xmm3, xmm3, xmm11
-            vcomiss xmm3, xmm2
-          }
-        }
+        v11 = &triggers->slabs[v10 + v9->firstSlab];
+        if ( v11 == (TriggerSlab *)&v21 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1777, ASSERT_TYPE_SANITY, "( &in != &out )", (const char *)&queryFormat, "&in != &out") )
+          __debugbreak();
+        v12 = v11->dir.v[2];
+        v13 = v11->dir.v[1];
+        halfSize = v11->halfSize;
+        midPoint = v11->midPoint;
+        v16 = (float)((float)(v11->dir.v[0] * axis->m[0].v[0]) + (float)(v13 * axis->m[0].v[1])) + (float)(v12 * axis->m[0].v[2]);
+        v17 = (float)((float)(v11->dir.v[0] * axis->m[1].v[0]) + (float)(v13 * axis->m[1].v[1])) + (float)(v12 * axis->m[1].v[2]);
+        v18 = (float)((float)(v13 * axis->m[2].v[1]) + (float)(v11->dir.v[0] * axis->m[2].v[0])) + (float)(v12 * axis->m[2].v[2]);
+        if ( !test && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 145, ASSERT_TYPE_ASSERT, "(test)", (const char *)&queryFormat, "test") )
+          __debugbreak();
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v17 * test->relativeOrigin.v[1]) + (float)(v16 * test->relativeOrigin.v[0])) + (float)(v18 * test->relativeOrigin.v[2])) - midPoint) & _xmm) >= (float)((float)((float)(COERCE_FLOAT(LODWORD(v18) & _xmm) * test->halfHeight) + test->radius) + halfSize) )
+          break;
+        if ( ++v10 >= (unsigned int)v9->slabCount )
+          return 1;
       }
     }
-    v13 = tmodel;
-    ++v16;
+    v6 = tmodel;
+    ++v8;
   }
-  while ( v16 != tmodel->hullCount );
-  result = 0;
-LABEL_31:
-  _R11 = &v67;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
-  return result;
+  while ( v8 != tmodel->hullCount );
+  return 0;
 }
 
 /*
@@ -796,40 +538,11 @@ LABEL_31:
 CG_TestTriggerTouch_Slab
 ==============
 */
-
-bool __fastcall CG_TestTriggerTouch_Slab(const TriggerCapsuleTest *test, const vec3_t *dir, double midPoint, double halfSize)
+bool CG_TestTriggerTouch_Slab(const TriggerCapsuleTest *test, const vec3_t *dir, float midPoint, float halfSize)
 {
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RDI = dir;
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm3
-  }
   if ( !test && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 145, ASSERT_TYPE_ASSERT, "(test)", (const char *)&queryFormat, "test") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmulss  xmm3, xmm0, dword ptr [rbx+1Ch]
-    vmovss  xmm1, dword ptr [rdi]
-    vmulss  xmm2, xmm1, dword ptr [rbx+18h]
-    vmovss  xmm5, dword ptr [rdi+8]
-    vmulss  xmm0, xmm5, dword ptr [rbx+20h]
-    vandps  xmm5, xmm5, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm3, xmm3, xmm2
-    vaddss  xmm1, xmm3, xmm0
-    vmulss  xmm0, xmm5, dword ptr [rbx+28h]
-    vsubss  xmm4, xmm1, xmm7
-    vaddss  xmm1, xmm0, dword ptr [rbx+24h]
-    vandps  xmm4, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps xmm7, [rsp+58h+var_28]
-    vaddss  xmm2, xmm1, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vcomiss xmm4, xmm2
-  }
-  return 0;
+  return COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(dir->v[1] * test->relativeOrigin.v[1]) + (float)(dir->v[0] * test->relativeOrigin.v[0])) + (float)(dir->v[2] * test->relativeOrigin.v[2])) - midPoint) & _xmm) < (float)((float)((float)(COERCE_FLOAT(LODWORD(dir->v[2]) & _xmm) * test->halfHeight) + test->radius) + halfSize);
 }
 
 /*
@@ -837,64 +550,54 @@ bool __fastcall CG_TestTriggerTouch_Slab(const TriggerCapsuleTest *test, const v
 CG_TestTriggerTouch_Unrotated
 ==============
 */
-bool CG_TestTriggerTouch_Unrotated(const ClientMapTriggers *triggers, const ClientTriggerModel *tmodel, const TriggerCapsuleTest *test)
+char CG_TestTriggerTouch_Unrotated(const ClientMapTriggers *triggers, const ClientTriggerModel *tmodel, const TriggerCapsuleTest *test)
 {
-  int v13; 
-  bool result; 
-  char v29; 
-  void *retaddr; 
+  int v6; 
+  ClientTriggerHull *v7; 
+  unsigned __int16 slabCount; 
+  int v9; 
+  TriggerSlab *slabs; 
+  unsigned int i; 
+  float v12; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-  }
   if ( !triggers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 188, ASSERT_TYPE_ASSERT, "(triggers)", (const char *)&queryFormat, "triggers") )
     __debugbreak();
   if ( !tmodel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 189, ASSERT_TYPE_ASSERT, "(tmodel)", (const char *)&queryFormat, "tmodel") )
     __debugbreak();
   if ( !test && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 190, ASSERT_TYPE_ASSERT, "(test)", (const char *)&queryFormat, "test") )
     __debugbreak();
-  __asm { vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-  v13 = 0;
+  v6 = 0;
   do
   {
-    _RBX = &triggers->hulls[v13 + tmodel->firstHull];
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 163, ASSERT_TYPE_ASSERT, "(thull)", (const char *)&queryFormat, "thull") )
+    v7 = &triggers->hulls[v6 + tmodel->firstHull];
+    if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 163, ASSERT_TYPE_ASSERT, "(thull)", (const char *)&queryFormat, "thull") )
       __debugbreak();
     if ( !test && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 164, ASSERT_TYPE_ASSERT, "(test)", (const char *)&queryFormat, "test") )
       __debugbreak();
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 592, ASSERT_TYPE_ASSERT, "(b0)", (const char *)&queryFormat, "b0") )
+    if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 592, ASSERT_TYPE_ASSERT, "(b0)", (const char *)&queryFormat, "b0") )
       __debugbreak();
     if ( !test && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 593, ASSERT_TYPE_ASSERT, "(b1)", (const char *)&queryFormat, "b1") )
       __debugbreak();
-    __asm
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v7->triggerSpaceBounds.midPoint.v[0] - test->triggerSpaceBounds.midPoint.v[0]) & _xmm) < (float)(v7->triggerSpaceBounds.halfSize.v[0] + test->triggerSpaceBounds.halfSize.v[0]) && COERCE_FLOAT(COERCE_UNSIGNED_INT(v7->triggerSpaceBounds.midPoint.v[1] - test->triggerSpaceBounds.midPoint.v[1]) & _xmm) < (float)(v7->triggerSpaceBounds.halfSize.v[1] + test->triggerSpaceBounds.halfSize.v[1]) && COERCE_FLOAT(COERCE_UNSIGNED_INT(v7->triggerSpaceBounds.midPoint.v[2] - test->triggerSpaceBounds.midPoint.v[2]) & _xmm) < (float)(v7->triggerSpaceBounds.halfSize.v[2] + test->triggerSpaceBounds.halfSize.v[2]) )
     {
-      vmovss  xmm0, dword ptr [rbx]
-      vsubss  xmm2, xmm0, dword ptr [rdi]
-      vmovss  xmm1, dword ptr [rbx+0Ch]
-      vaddss  xmm0, xmm1, dword ptr [rdi+0Ch]
-      vandps  xmm2, xmm2, xmm6
-      vcomiss xmm2, xmm0
+      slabCount = v7->slabCount;
+      v9 = 0;
+      if ( !slabCount )
+        return 1;
+      slabs = triggers->slabs;
+      for ( i = v7->firstSlab; ; ++i )
+      {
+        v12 = slabs[i].dir.v[2];
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(test->relativeOrigin.v[1] * slabs[i].dir.v[1]) + (float)(test->relativeOrigin.v[0] * slabs[i].dir.v[0])) + (float)(test->relativeOrigin.v[2] * v12)) - slabs[i].midPoint) & _xmm) >= (float)((float)((float)(COERCE_FLOAT(LODWORD(v12) & _xmm) * test->halfHeight) + test->radius) + slabs[i].halfSize) )
+          break;
+        if ( ++v9 >= (unsigned int)slabCount )
+          return 1;
+      }
     }
-    ++v13;
+    ++v6;
   }
-  while ( v13 != tmodel->hullCount );
-  result = 0;
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  _R11 = &v29;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-  }
-  return result;
+  while ( v6 != tmodel->hullCount );
+  return 0;
 }
 
 /*
@@ -931,103 +634,66 @@ CG_TriggerCalcMovingPlatformPosFromAnchor
 */
 void CG_TriggerCalcMovingPlatformPosFromAnchor(LocalClientNum_t localClientNum, const ClientEntityLinkToDef *const linkTo, const vec3_t *inPos, vec3_t *outPos)
 {
-  const vec3_t *v6; 
-  unsigned int v11; 
+  unsigned int anchorIndex; 
   unsigned int AnchorEntNum; 
-  unsigned int v13; 
+  unsigned int v10; 
   centity_t *Entity; 
   const cpose_t *p_pose; 
-  __int64 v36; 
-  int anchorIndex; 
-  unsigned int v38; 
-  int v39; 
+  float v13; 
+  float v14; 
+  __int64 v15; 
+  unsigned int v16; 
   vec3_t outOrigin; 
-  __int64 v41; 
+  __int64 v18; 
   vec4_t quat; 
   vec3_t out; 
 
-  v41 = -2i64;
-  __asm { vmovaps [rsp+0B8h+var_38], xmm6 }
-  _RSI = outPos;
-  v6 = inPos;
-  outPos->v[0] = inPos->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+4]
-    vmovss  dword ptr [r9+4], xmm0
-    vmovss  xmm1, dword ptr [r8+8]
-    vmovss  dword ptr [r9+8], xmm1
-  }
+  v18 = -2i64;
+  *outPos = *inPos;
   if ( linkTo && cm.mapEnts->clientEntAnchors )
   {
     if ( linkTo->anchorIndex >= CM_ClientAnchorCount() )
     {
-      v38 = CM_ClientAnchorCount();
-      anchorIndex = linkTo->anchorIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 384, ASSERT_TYPE_ASSERT, "(unsigned)( linkTo->anchorIndex ) < (unsigned)( CM_ClientAnchorCount() )", "linkTo->anchorIndex doesn't index CM_ClientAnchorCount()\n\t%i not in [0, %i)", anchorIndex, v38) )
+      v16 = CM_ClientAnchorCount();
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 384, ASSERT_TYPE_ASSERT, "(unsigned)( linkTo->anchorIndex ) < (unsigned)( CM_ClientAnchorCount() )", "linkTo->anchorIndex doesn't index CM_ClientAnchorCount()\n\t%i not in [0, %i)", linkTo->anchorIndex, v16) )
         __debugbreak();
     }
-    v11 = linkTo->anchorIndex;
-    if ( v11 < CM_ClientAnchorCount() )
+    anchorIndex = linkTo->anchorIndex;
+    if ( anchorIndex < CM_ClientAnchorCount() )
     {
-      AnchorEntNum = CM_GetAnchorEntNum(v11);
-      v13 = AnchorEntNum;
+      AnchorEntNum = CM_GetAnchorEntNum(anchorIndex);
+      v10 = AnchorEntNum;
       if ( AnchorEntNum > 0x7FF )
       {
-        v39 = 2047;
-        LODWORD(v36) = AnchorEntNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 392, ASSERT_TYPE_ASSERT, "( 0 ) <= ( entIndex ) && ( entIndex ) <= ( ( 2048 ) - 1 )", "entIndex not in [0, MAX_GENTITIES - 1]\n\t%i not in [%i, %i]", v36, 0i64, v39) )
+        LODWORD(v15) = AnchorEntNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 392, ASSERT_TYPE_ASSERT, "( 0 ) <= ( entIndex ) && ( entIndex ) <= ( ( 2048 ) - 1 )", "entIndex not in [0, MAX_GENTITIES - 1]\n\t%i not in [%i, %i]", v15, 0i64, 2047) )
           __debugbreak();
       }
-      if ( v13 <= 0x7FE )
+      if ( v10 <= 0x7FE )
       {
-        Entity = CG_GetEntity(localClientNum, v13);
+        Entity = CG_GetEntity(localClientNum, v10);
         p_pose = &Entity->pose;
         if ( Entity )
         {
           if ( (Entity->flags & 1) != 0 )
           {
             AnglesToQuat(&Entity->pose.angles, &quat);
-            __asm
-            {
-              vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-              vmovss  xmm0, dword ptr [rsp+0B8h+quat]
-              vxorps  xmm1, xmm0, xmm6
-              vmovss  dword ptr [rsp+0B8h+quat], xmm1
-              vmovss  xmm2, dword ptr [rsp+0B8h+quat+4]
-              vxorps  xmm0, xmm2, xmm6
-              vmovss  dword ptr [rsp+0B8h+quat+4], xmm0
-              vmovss  xmm1, dword ptr [rsp+0B8h+quat+8]
-              vxorps  xmm2, xmm1, xmm6
-              vmovss  dword ptr [rsp+0B8h+quat+8], xmm2
-            }
+            LODWORD(quat.v[0]) ^= _xmm;
+            LODWORD(quat.v[1]) ^= _xmm;
+            LODWORD(quat.v[2]) ^= _xmm;
             CG_GetPoseOrigin(p_pose, &outOrigin);
-            VectorRotateQuatAroundPoint(v6, &quat, &outOrigin, &out);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+0B8h+outOrigin]
-              vaddss  xmm4, xmm0, dword ptr [rbx+4]
-              vmovss  xmm1, dword ptr [rsp+0B8h+outOrigin+4]
-              vaddss  xmm3, xmm1, dword ptr [rbx+8]
-              vmovss  xmm0, dword ptr [rsp+0B8h+outOrigin+8]
-              vaddss  xmm2, xmm0, dword ptr [rbx+0Ch]
-              vxorps  xmm1, xmm4, xmm6
-              vxorps  xmm5, xmm3, xmm6
-              vxorps  xmm4, xmm2, xmm6
-              vaddss  xmm0, xmm1, dword ptr [rsp+0B8h+out]
-              vmovss  dword ptr [rsi], xmm0
-              vaddss  xmm2, xmm5, dword ptr [rsp+0B8h+out+4]
-              vmovss  dword ptr [rsi+4], xmm2
-              vaddss  xmm1, xmm4, dword ptr [rsp+0B8h+out+8]
-              vmovss  dword ptr [rsi+8], xmm1
-            }
+            VectorRotateQuatAroundPoint(inPos, &quat, &outOrigin, &out);
+            v13 = outOrigin.v[1] + linkTo->originOffset.v[1];
+            LODWORD(v14) = COERCE_UNSIGNED_INT(outOrigin.v[2] + linkTo->originOffset.v[2]) ^ _xmm;
+            outPos->v[0] = COERCE_FLOAT(COERCE_UNSIGNED_INT(outOrigin.v[0] + linkTo->originOffset.v[0]) ^ _xmm) + out.v[0];
+            outPos->v[1] = COERCE_FLOAT(LODWORD(v13) ^ _xmm) + out.v[1];
+            outPos->v[2] = v14 + out.v[2];
             memset(&outOrigin, 0, sizeof(outOrigin));
           }
         }
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+0B8h+var_38] }
 }
 
 /*
@@ -1066,133 +732,88 @@ CG_TriggerLerpTriggers
 */
 void CG_TriggerLerpTriggers(LocalClientNum_t localClientNum, const unsigned int blendTrigger, const vec3_t *viewPos, unsigned int *trigA, unsigned int *trigB, float *lerpAmount)
 {
-  __int64 v16; 
+  __int64 v8; 
   MapEnts *mapEnts; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int64 v14; 
+  ClientTriggerBlendNode *blendNodes; 
+  float v16; 
+  float v17; 
+  float v18; 
+  double v19; 
+  __int64 v20; 
   __int64 v22; 
-  __int64 v54; 
-  __int64 v56; 
-  int v57; 
+  int v23; 
   vec3_t outPos; 
-  char v61; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps [rsp+0F8h+var_88], xmm10
-    vmovaps [rsp+0F8h+var_98], xmm11
-  }
-  _R15 = lerpAmount;
-  _RDI = viewPos;
-  v16 = blendTrigger;
+  v8 = blendTrigger;
   if ( blendTrigger >= 0x4000 )
   {
-    v57 = 0x4000;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 434, ASSERT_TYPE_ASSERT, "(unsigned)( triggerIndex ) < (unsigned)( (16*1024) )", "triggerIndex doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", blendTrigger, v57) )
+    v23 = 0x4000;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 434, ASSERT_TYPE_ASSERT, "(unsigned)( triggerIndex ) < (unsigned)( (16*1024) )", "triggerIndex doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", blendTrigger, v23) )
       __debugbreak();
   }
   mapEnts = cm.mapEnts;
-  __asm
+  v11 = viewPos->v[0];
+  v12 = viewPos->v[1];
+  v13 = viewPos->v[2];
+  outPos.v[0] = viewPos->v[0];
+  outPos.v[1] = v12;
+  outPos.v[2] = v13;
+  if ( cm.mapEnts && (unsigned int)v8 < cm.mapEnts->clientTrigger.trigger.count )
   {
-    vmovss  xmm9, dword ptr [rdi]
-    vmovss  xmm10, dword ptr [rdi+4]
-    vmovss  xmm11, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+0F8h+outPos], xmm9
-    vmovss  dword ptr [rsp+0F8h+outPos+4], xmm10
-    vmovss  dword ptr [rsp+0F8h+outPos+8], xmm11
-  }
-  if ( cm.mapEnts && (unsigned int)v16 < cm.mapEnts->clientTrigger.trigger.count )
-  {
-    CG_TriggerCalcMovingPlatformPosFromAnchor(localClientNum, cm.mapEnts->clientTrigger.linkTo[v16], _RDI, &outPos);
+    CG_TriggerCalcMovingPlatformPosFromAnchor(localClientNum, cm.mapEnts->clientTrigger.linkTo[v8], viewPos, &outPos);
     mapEnts = cm.mapEnts;
-    __asm
-    {
-      vmovss  xmm11, dword ptr [rsp+0F8h+outPos+8]
-      vmovss  xmm10, dword ptr [rsp+0F8h+outPos+4]
-      vmovss  xmm9, dword ptr [rsp+0F8h+outPos]
-    }
+    v13 = outPos.v[2];
+    v12 = outPos.v[1];
+    v11 = outPos.v[0];
   }
-  v22 = mapEnts->clientTrigger.blendLookup[v16];
-  if ( (unsigned int)v22 >= mapEnts->clientTriggerBlend.numClientTriggerBlendNodes )
+  v14 = mapEnts->clientTrigger.blendLookup[v8];
+  if ( (unsigned int)v14 >= mapEnts->clientTriggerBlend.numClientTriggerBlendNodes )
   {
-    LODWORD(v56) = mapEnts->clientTriggerBlend.numClientTriggerBlendNodes;
-    LODWORD(v54) = v22;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 767, ASSERT_TYPE_ASSERT, "(unsigned)( blendIndex ) < (unsigned)( cm.mapEnts->clientTriggerBlend.numClientTriggerBlendNodes )", "blendIndex doesn't index cm.mapEnts->clientTriggerBlend.numClientTriggerBlendNodes\n\t%i not in [0, %i)", v54, v56) )
+    LODWORD(v22) = mapEnts->clientTriggerBlend.numClientTriggerBlendNodes;
+    LODWORD(v20) = v14;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 767, ASSERT_TYPE_ASSERT, "(unsigned)( blendIndex ) < (unsigned)( cm.mapEnts->clientTriggerBlend.numClientTriggerBlendNodes )", "blendIndex doesn't index cm.mapEnts->clientTriggerBlend.numClientTriggerBlendNodes\n\t%i not in [0, %i)", v20, v22) )
       __debugbreak();
     mapEnts = cm.mapEnts;
   }
-  _RDX = 28 * v22;
-  *trigA = mapEnts->clientTriggerBlend.blendNodes[v22].triggerA;
-  *trigB = cm.mapEnts->clientTriggerBlend.blendNodes[v22].triggerB;
-  _RCX = cm.mapEnts->clientTriggerBlend.blendNodes;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+rdx+0Ch]
-    vsubss  xmm8, xmm0, dword ptr [rcx+rdx]
-    vmovss  xmm1, dword ptr [rcx+rdx+10h]
-    vsubss  xmm6, xmm1, dword ptr [rcx+rdx+4]
-    vmovss  xmm0, dword ptr [rcx+rdx+14h]
-    vsubss  xmm7, xmm0, dword ptr [rcx+rdx+8]
-    vsubss  xmm1, xmm10, dword ptr [rcx+rdx+4]
-    vsubss  xmm0, xmm9, dword ptr [rcx+rdx]
-    vmulss  xmm3, xmm1, xmm6
-    vsubss  xmm1, xmm11, dword ptr [rcx+rdx+8]
-    vmulss  xmm2, xmm0, xmm8
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm0, xmm1, xmm7
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm5, xmm4, xmm0
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm0
-    vdivss  xmm0, xmm5, xmm2; val
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovss  dword ptr [r15], xmm0 }
+  *trigA = mapEnts->clientTriggerBlend.blendNodes[v14].triggerA;
+  *trigB = cm.mapEnts->clientTriggerBlend.blendNodes[v14].triggerB;
+  blendNodes = cm.mapEnts->clientTriggerBlend.blendNodes;
+  v16 = blendNodes[v14].pointB.v[0] - blendNodes[v14].pointA.v[0];
+  v17 = blendNodes[v14].pointB.v[1] - blendNodes[v14].pointA.v[1];
+  v18 = blendNodes[v14].pointB.v[2] - blendNodes[v14].pointA.v[2];
+  v19 = I_fclamp((float)((float)((float)((float)(v12 - blendNodes[v14].pointA.v[1]) * v17) + (float)((float)(v11 - blendNodes[v14].pointA.v[0]) * v16)) + (float)((float)(v13 - blendNodes[v14].pointA.v[2]) * v18)) / (float)((float)((float)(v17 * v17) + (float)(v16 * v16)) + (float)(v18 * v18)), 0.0, 1.0);
+  *lerpAmount = *(float *)&v19;
   if ( *trigA >= 0x4000 )
   {
-    LODWORD(v56) = 0x4000;
-    LODWORD(v54) = *trigA;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 778, ASSERT_TYPE_ASSERT, "(unsigned)( *trigA ) < (unsigned)( (16*1024) )", "*trigA doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", v54, v56) )
+    LODWORD(v22) = 0x4000;
+    LODWORD(v20) = *trigA;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 778, ASSERT_TYPE_ASSERT, "(unsigned)( *trigA ) < (unsigned)( (16*1024) )", "*trigA doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", v20, v22) )
       __debugbreak();
   }
   if ( *trigA >= cm.mapEnts->clientTrigger.trigger.count )
   {
-    LODWORD(v56) = cm.mapEnts->clientTrigger.trigger.count;
-    LODWORD(v54) = *trigA;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 779, ASSERT_TYPE_ASSERT, "(unsigned)( *trigA ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "*trigA doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", v54, v56) )
+    LODWORD(v22) = cm.mapEnts->clientTrigger.trigger.count;
+    LODWORD(v20) = *trigA;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 779, ASSERT_TYPE_ASSERT, "(unsigned)( *trigA ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "*trigA doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", v20, v22) )
       __debugbreak();
   }
   if ( *trigB >= 0x4000 )
   {
-    LODWORD(v56) = 0x4000;
-    LODWORD(v54) = *trigB;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 781, ASSERT_TYPE_ASSERT, "(unsigned)( *trigB ) < (unsigned)( (16*1024) )", "*trigB doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", v54, v56) )
+    LODWORD(v22) = 0x4000;
+    LODWORD(v20) = *trigB;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 781, ASSERT_TYPE_ASSERT, "(unsigned)( *trigB ) < (unsigned)( (16*1024) )", "*trigB doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", v20, v22) )
       __debugbreak();
   }
   if ( *trigB >= cm.mapEnts->clientTrigger.trigger.count )
   {
-    LODWORD(v56) = cm.mapEnts->clientTrigger.trigger.count;
-    LODWORD(v54) = *trigB;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 782, ASSERT_TYPE_ASSERT, "(unsigned)( *trigB ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "*trigB doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", v54, v56) )
+    LODWORD(v22) = cm.mapEnts->clientTrigger.trigger.count;
+    LODWORD(v20) = *trigB;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 782, ASSERT_TYPE_ASSERT, "(unsigned)( *trigB ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "*trigB doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", v20, v22) )
       __debugbreak();
-  }
-  _R11 = &v61;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
   }
 }
 
@@ -1203,117 +824,89 @@ CG_TriggerTransformPointOnMovingPlatform
 */
 void CG_TriggerTransformPointOnMovingPlatform(const LocalClientNum_t localClientNum, const unsigned int triggerIndex, const vec3_t *origin, vec3_t *outOffset, tmat33_t<vec3_t> *outAxis)
 {
-  __int64 v11; 
-  ClientEntityLinkToDef *v15; 
+  __int64 v7; 
+  ClientEntityLinkToDef *v9; 
   unsigned int anchorIndex; 
   unsigned int AnchorEntNum; 
-  unsigned int v18; 
+  unsigned int v12; 
   centity_t *Entity; 
-  const vec3_t *v20; 
-  __int64 v37; 
-  __int64 v39; 
-  int v40; 
-  int v41; 
+  const vec3_t *v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int64 v18; 
+  __int64 v20; 
+  int v21; 
+  int v22; 
   vec3_t outOrigin; 
-  __int64 v43; 
+  __int64 v24; 
   vec3_t vOrigin; 
   vec3_t out; 
   vec4_t quat; 
-  char v47; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v43 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  _RSI = outOffset;
-  _R14 = origin;
-  v11 = triggerIndex;
+  v24 = -2i64;
+  v7 = triggerIndex;
   if ( triggerIndex >= 0x4000 )
   {
-    v40 = 0x4000;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 476, ASSERT_TYPE_ASSERT, "(unsigned)( triggerIndex ) < (unsigned)( (16*1024) )", "triggerIndex doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", triggerIndex, v40) )
+    v21 = 0x4000;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 476, ASSERT_TYPE_ASSERT, "(unsigned)( triggerIndex ) < (unsigned)( (16*1024) )", "triggerIndex doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", triggerIndex, v21) )
       __debugbreak();
   }
-  _RSI->v[0] = _R14->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  dword ptr [rsi+4], xmm0
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  dword ptr [rsi+8], xmm1
-  }
+  outOffset->v[0] = origin->v[0];
+  outOffset->v[1] = origin->v[1];
+  outOffset->v[2] = origin->v[2];
   if ( outAxis )
     AxisClear(outAxis);
   if ( cm.mapEnts )
   {
-    if ( (unsigned int)v11 < cm.mapEnts->clientTrigger.trigger.count )
+    if ( (unsigned int)v7 < cm.mapEnts->clientTrigger.trigger.count )
     {
-      v15 = cm.mapEnts->clientTrigger.linkTo[v11];
-      if ( v15 )
+      v9 = cm.mapEnts->clientTrigger.linkTo[v7];
+      if ( v9 )
       {
         if ( cm.mapEnts->clientEntAnchors )
         {
-          if ( v15->anchorIndex >= CM_ClientAnchorCount() )
+          if ( v9->anchorIndex >= CM_ClientAnchorCount() )
           {
-            LODWORD(v39) = CM_ClientAnchorCount();
-            LODWORD(v37) = v15->anchorIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 494, ASSERT_TYPE_ASSERT, "(unsigned)( linkTo->anchorIndex ) < (unsigned)( CM_ClientAnchorCount() )", "linkTo->anchorIndex doesn't index CM_ClientAnchorCount()\n\t%i not in [0, %i)", v37, v39) )
+            LODWORD(v20) = CM_ClientAnchorCount();
+            LODWORD(v18) = v9->anchorIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 494, ASSERT_TYPE_ASSERT, "(unsigned)( linkTo->anchorIndex ) < (unsigned)( CM_ClientAnchorCount() )", "linkTo->anchorIndex doesn't index CM_ClientAnchorCount()\n\t%i not in [0, %i)", v18, v20) )
               __debugbreak();
           }
-          anchorIndex = v15->anchorIndex;
+          anchorIndex = v9->anchorIndex;
           if ( anchorIndex < CM_ClientAnchorCount() )
           {
             AnchorEntNum = CM_GetAnchorEntNum(anchorIndex);
-            v18 = AnchorEntNum;
+            v12 = AnchorEntNum;
             if ( AnchorEntNum > 0x7FF )
             {
-              v41 = 2047;
-              LODWORD(v37) = AnchorEntNum;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 502, ASSERT_TYPE_ASSERT, "( 0 ) <= ( entIndex ) && ( entIndex ) <= ( ( 2048 )-1 )", "entIndex not in [0, MAX_GENTITIES-1]\n\t%i not in [%i, %i]", v37, 0i64, v41) )
+              v22 = 2047;
+              LODWORD(v18) = AnchorEntNum;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 502, ASSERT_TYPE_ASSERT, "( 0 ) <= ( entIndex ) && ( entIndex ) <= ( ( 2048 )-1 )", "entIndex not in [0, MAX_GENTITIES-1]\n\t%i not in [%i, %i]", v18, 0i64, v22) )
                 __debugbreak();
             }
-            if ( v18 <= 0x7FE )
+            if ( v12 <= 0x7FE )
             {
-              Entity = CG_GetEntity(localClientNum, v18);
-              v20 = (const vec3_t *)Entity;
+              Entity = CG_GetEntity(localClientNum, v12);
+              v14 = (const vec3_t *)Entity;
               if ( Entity )
               {
                 if ( (Entity->flags & 1) != 0 )
                 {
                   CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rsp+0F8h+outOrigin]
-                    vaddss  xmm6, xmm0, dword ptr [rdi+4]
-                    vmovss  xmm1, dword ptr [rsp+0F8h+outOrigin+4]
-                    vaddss  xmm7, xmm1, dword ptr [rdi+8]
-                    vmovss  xmm2, dword ptr [rsp+0F8h+outOrigin+8]
-                    vaddss  xmm8, xmm2, dword ptr [rdi+0Ch]
-                    vsubss  xmm0, xmm0, xmm6
-                    vmovss  dword ptr [rsp+0F8h+vOrigin], xmm0
-                    vsubss  xmm1, xmm1, xmm7
-                    vmovss  dword ptr [rsp+0F8h+vOrigin+4], xmm1
-                    vsubss  xmm0, xmm2, xmm8
-                    vmovss  dword ptr [rsp+0F8h+vOrigin+8], xmm0
-                  }
-                  AnglesToQuat(v20 + 6, &quat);
+                  v15 = outOrigin.v[0] + v9->originOffset.v[0];
+                  v16 = outOrigin.v[1] + v9->originOffset.v[1];
+                  v17 = outOrigin.v[2] + v9->originOffset.v[2];
+                  vOrigin.v[0] = outOrigin.v[0] - v15;
+                  vOrigin.v[1] = outOrigin.v[1] - v16;
+                  vOrigin.v[2] = outOrigin.v[2] - v17;
+                  AnglesToQuat(v14 + 6, &quat);
                   if ( outAxis )
-                    AnglesToAxis(v20 + 6, outAxis);
-                  VectorRotateQuatAroundPoint(_R14, &quat, &vOrigin, &out);
-                  __asm
-                  {
-                    vaddss  xmm1, xmm6, dword ptr [rsp+0F8h+out]
-                    vmovss  dword ptr [rsi], xmm1
-                    vaddss  xmm0, xmm7, dword ptr [rsp+0F8h+out+4]
-                    vmovss  dword ptr [rsi+4], xmm0
-                    vaddss  xmm2, xmm8, dword ptr [rsp+0F8h+out+8]
-                    vmovss  dword ptr [rsi+8], xmm2
-                  }
+                    AnglesToAxis(v14 + 6, outAxis);
+                  VectorRotateQuatAroundPoint(origin, &quat, &vOrigin, &out);
+                  outOffset->v[0] = v15 + out.v[0];
+                  outOffset->v[1] = v16 + out.v[1];
+                  outOffset->v[2] = v17 + out.v[2];
                   memset(&outOrigin, 0, sizeof(outOrigin));
                 }
               }
@@ -1322,13 +915,6 @@ void CG_TriggerTransformPointOnMovingPlatform(const LocalClientNum_t localClient
         }
       }
     }
-  }
-  _R11 = &v47;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
   }
 }
 
@@ -1351,300 +937,273 @@ CG_TriggerUpdateForCameraBounds
 void CG_TriggerUpdateForCameraBounds(LocalClientNum_t localClientNum)
 {
   signed __int64 v1; 
-  void *v12; 
-  unsigned int v14; 
-  unsigned int v15; 
-  __int64 v17; 
-  unsigned int v18; 
+  void *v2; 
+  unsigned __int64 v3; 
+  unsigned int v4; 
+  unsigned int v5; 
+  float v6; 
+  __int64 v7; 
+  unsigned int v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  unsigned int v11; 
+  cg_t *v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  int v16; 
+  int v17; 
+  MapEnts *mapEnts; 
   unsigned int v19; 
   unsigned int v20; 
   unsigned int v21; 
-  int v26; 
-  int v28; 
-  MapEnts *mapEnts; 
-  unsigned int v33; 
-  unsigned int v34; 
-  unsigned int v35; 
-  MapEnts *v36; 
-  unsigned __int16 v38; 
-  unsigned int v42; 
-  unsigned int v43; 
-  const dvar_t *v44; 
-  const vec4_t *v45; 
-  bool v48; 
-  __int64 v60; 
+  MapEnts *v22; 
+  unsigned __int16 v23; 
+  MapEnts *v24; 
+  float *priority; 
+  float v26; 
+  unsigned int v27; 
+  unsigned int v28; 
+  const dvar_t *v29; 
+  const vec4_t *v30; 
+  ClientTriggerModel *models; 
+  ClientTriggerHull *hulls; 
+  float *v; 
+  vec3_t *origins; 
+  float *v35; 
+  bool v36; 
+  __int64 v37; 
   vec3_t *viewPos; 
-  __int64 v62; 
-  char v63[4464]; 
-  char v74; 
+  __int64 v39; 
+  char v40[4464]; 
 
-  v12 = alloca(v1);
-  __asm
+  v2 = alloca(v1);
+  v3 = (unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(v3 + 4448) = (unsigned __int64)&v37 ^ _security_cookie;
+  v4 = cg_t::ms_allocatedCount;
+  v5 = 0x4000;
+  v6 = FLOAT_N1_0;
+  v7 = localClientNum;
+  v8 = 0x4000;
+  *(_DWORD *)v3 = 0x4000;
+  v9 = 0x4000;
+  *(_DWORD *)(v3 + 12) = 0x4000;
+  v10 = 0x4000;
+  *(_DWORD *)(v3 + 16) = 0x4000;
+  v11 = 0x4000;
+  *(_DWORD *)(v3 + 8) = 0x4000;
+  if ( localClientNum >= v4 )
   {
-    vmovaps [rsp+1298h+var_38], xmm6
-    vmovaps [rsp+1298h+var_48], xmm7
-    vmovaps [rsp+1298h+var_58], xmm8
-    vmovaps [rsp+1298h+var_68], xmm9
-    vmovaps [rsp+1298h+var_78], xmm10
-    vmovaps [rsp+1298h+var_88], xmm11
-    vmovaps [rsp+1298h+var_98], xmm12
-    vmovaps [rsp+1298h+var_A8], xmm13
-    vmovaps [rsp+1298h+var_B8], xmm14
-    vmovaps [rsp+1298h+var_C8], xmm15
-  }
-  _RBP = (unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(_RBP + 4448) = (unsigned __int64)&v60 ^ _security_cookie;
-  v14 = cg_t::ms_allocatedCount;
-  v15 = 0x4000;
-  __asm { vmovss  xmm14, cs:__real@bf800000 }
-  v17 = localClientNum;
-  v18 = 0x4000;
-  *(_DWORD *)_RBP = 0x4000;
-  v19 = 0x4000;
-  *(_DWORD *)(_RBP + 12) = 0x4000;
-  v20 = 0x4000;
-  *(_DWORD *)(_RBP + 16) = 0x4000;
-  v21 = 0x4000;
-  *(_DWORD *)(_RBP + 8) = 0x4000;
-  if ( localClientNum >= v14 )
-  {
-    LODWORD(v62) = v14;
+    LODWORD(v39) = v4;
     LODWORD(viewPos) = localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", viewPos, v62) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", viewPos, v39) )
       __debugbreak();
   }
-  if ( !cg_t::ms_cgArray[v17] )
+  if ( !cg_t::ms_cgArray[v7] )
   {
-    LODWORD(v62) = v17;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v62) )
+    LODWORD(v39) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v39) )
       __debugbreak();
   }
   if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
   {
-    LODWORD(v62) = v17;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v62) )
+    LODWORD(v39) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v39) )
       __debugbreak();
   }
-  _RAX = cg_t::ms_cgArray[v17];
-  if ( !_RAX->renderingThirdPerson || _RAX->playerTeleported )
+  v12 = cg_t::ms_cgArray[v7];
+  if ( !v12->renderingThirdPerson || v12->playerTeleported )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+699Ch]
-      vmovss  dword ptr [rbp+18h], xmm0
-      vmovss  xmm1, dword ptr [rax+69A0h]
-      vmovss  dword ptr [rbp+1Ch], xmm1
-      vmovss  xmm2, dword ptr [rax+69A4h]
-    }
+    v13 = v12->refdef.viewOffset.v[0];
+    *(float *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = v13;
+    v14 = v12->refdef.viewOffset.v[1];
+    *(float *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C) = v14;
+    v15 = v12->refdef.viewOffset.v[2];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+59680h]
-      vmovss  dword ptr [rbp+18h], xmm0
-      vmovss  xmm1, dword ptr [rax+59684h]
-      vmovss  dword ptr [rbp+1Ch], xmm1
-      vmovss  xmm2, dword ptr [rax+59688h]
-    }
+    v13 = v12->lastFrameViewPos.v[0];
+    *(float *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = v13;
+    v14 = v12->lastFrameViewPos.v[1];
+    *(float *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C) = v14;
+    v15 = v12->lastFrameViewPos.v[2];
   }
-  __asm { vmovss  dword ptr [rbp+4], xmm0 }
-  v26 = *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 4) & 0x7F800000;
-  __asm { vmovss  dword ptr [rbp+20h], xmm2 }
-  if ( v26 == 2139095040 )
-    goto LABEL_89;
-  __asm { vmovss  dword ptr [rbp+4], xmm1 }
-  if ( (*(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 4) & 0x7F800000) == 2139095040 )
-    goto LABEL_89;
-  __asm { vmovss  dword ptr [rbp+4], xmm2 }
-  if ( (*(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 4) & 0x7F800000) == 2139095040 )
-    goto LABEL_89;
-  __asm { vmovsd  xmm0, qword ptr [rbp+18h] }
-  v28 = *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
+  *(float *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = v13;
+  v16 = *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 4) & 0x7F800000;
+  *(float *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20) = v15;
+  if ( v16 == 2139095040 )
+    return;
+  *(float *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = v14;
+  if ( (*(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 4) & 0x7F800000) == 2139095040 )
+    return;
+  *(float *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = v15;
+  if ( (*(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 4) & 0x7F800000) == 2139095040 )
+    return;
+  v17 = *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
   mapEnts = cm.mapEnts;
-  __asm
-  {
-    vmovsd  qword ptr [rbp+50h], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-  }
-  *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x58) = v28;
-  __asm
-  {
-    vmovss  dword ptr [rbp+5Ch], xmm0
-    vmovss  dword ptr [rbp+60h], xmm0
-    vmovss  dword ptr [rbp+64h], xmm0
-  }
-  *(_QWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x140) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x148) = 0;
-  *(_QWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x150) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x158) = 0i64;
-  SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(_RBP + 128), mapEnts->clientTrigger.spatialTree, (const Bounds *)(_RBP + 80));
-  if ( !SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 128)) )
-    goto LABEL_88;
-  __asm
-  {
-    vmovss  xmm13, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm15, cs:__real@3a83126f
-  }
+  *(double *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x50) = *(double *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+  *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x58) = v17;
+  *(const float *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x5C) = FLOAT_1_0;
+  *(const float *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x60) = FLOAT_1_0;
+  *(const float *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x64) = FLOAT_1_0;
+  *(_QWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x140) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x148) = 0;
+  *(_QWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x150) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x158) = 0i64;
+  SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(v3 + 128), mapEnts->clientTrigger.spatialTree, (const Bounds *)(v3 + 80));
+  if ( !SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(v3 + 128)) )
+    goto LABEL_96;
   do
   {
-    if ( !*(_QWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x150) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
+    if ( !*(_QWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x150) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 16, ASSERT_TYPE_ASSERT, "(m_spatialTree)", (const char *)&queryFormat, "m_spatialTree") )
       __debugbreak();
-    v33 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x150) + 20i64);
-    v34 = *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x148);
-    if ( v34 == v33 )
+    v19 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x150) + 20i64);
+    v20 = *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x148);
+    if ( v20 == v19 )
     {
-      if ( !*(_QWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x158) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
+      if ( !*(_QWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x158) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 19, ASSERT_TYPE_ASSERT, "(m_currentNode)", (const char *)&queryFormat, "m_currentNode") )
         __debugbreak();
-      if ( (**(_BYTE **)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x158) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
+      if ( (**(_BYTE **)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x158) & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 20, ASSERT_TYPE_ASSERT, "(m_currentNode->containsLeaves)", (const char *)&queryFormat, "m_currentNode->containsLeaves") )
         __debugbreak();
-      if ( *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x140) >= **(unsigned __int8 **)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x158) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
+      if ( *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x140) >= **(unsigned __int8 **)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x158) >> 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 21, ASSERT_TYPE_ASSERT, "(m_leafIndex < m_currentNode->childCount)", (const char *)&queryFormat, "m_leafIndex < m_currentNode->childCount") )
         __debugbreak();
-      v35 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x158) + 4i64 * *(unsigned int *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x140) + 4);
+      v21 = *(_DWORD *)(*(_QWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x158) + 4i64 * *(unsigned int *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x140) + 4);
     }
     else
     {
-      if ( v34 >= v33 )
+      if ( v20 >= v19 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree.h", 26, ASSERT_TYPE_ASSERT, "(m_alwaysIndex < m_spatialTree->alwaysListLength)", (const char *)&queryFormat, "m_alwaysIndex < m_spatialTree->alwaysListLength") )
           __debugbreak();
-        v34 = *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x148);
+        v20 = *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x148);
       }
-      v35 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x150) + 8i64) + 4i64 * v34);
+      v21 = *(_DWORD *)(*(_QWORD *)(*(_QWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x150) + 8i64) + 4i64 * v20);
     }
-    v36 = cm.mapEnts;
-    if ( v35 >= cm.mapEnts->clientTrigger.trigger.count )
+    v22 = cm.mapEnts;
+    if ( v21 >= cm.mapEnts->clientTrigger.trigger.count )
     {
-      LODWORD(v62) = cm.mapEnts->clientTrigger.trigger.count;
-      LODWORD(viewPos) = v35;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 839, ASSERT_TYPE_ASSERT, "(unsigned)( trigIndex ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "trigIndex doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", viewPos, v62) )
+      LODWORD(v39) = cm.mapEnts->clientTrigger.trigger.count;
+      LODWORD(viewPos) = v21;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 839, ASSERT_TYPE_ASSERT, "(unsigned)( trigIndex ) < (unsigned)( cm.mapEnts->clientTrigger.trigger.count )", "trigIndex doesn't index cm.mapEnts->clientTrigger.trigger.count\n\t%i not in [0, %i)", viewPos, v39) )
         __debugbreak();
-      v36 = cm.mapEnts;
+      v22 = cm.mapEnts;
     }
-    _R14 = v35;
-    v38 = v36->clientTrigger.triggerType[v35];
-    if ( v35 >= 0x4000 )
+    v23 = v22->clientTrigger.triggerType[v21];
+    if ( v21 >= 0x4000 )
     {
-      LODWORD(v62) = 0x4000;
-      LODWORD(viewPos) = v35;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 434, ASSERT_TYPE_ASSERT, "(unsigned)( triggerIndex ) < (unsigned)( (16*1024) )", "triggerIndex doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", viewPos, v62) )
+      LODWORD(v39) = 0x4000;
+      LODWORD(viewPos) = v21;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 434, ASSERT_TYPE_ASSERT, "(unsigned)( triggerIndex ) < (unsigned)( (16*1024) )", "triggerIndex doesn't index MAX_CLIENT_TRIGGERS\n\t%i not in [0, %i)", viewPos, v39) )
         __debugbreak();
-      v36 = cm.mapEnts;
+      v22 = cm.mapEnts;
     }
-    *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48) = *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
-    __asm
+    *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x48) = *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
+    *(double *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x40) = *(double *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+    if ( v22 && v21 < v22->clientTrigger.trigger.count )
+      CG_TriggerCalcMovingPlatformPosFromAnchor((LocalClientNum_t)v7, v22->clientTrigger.linkTo[v21], (const vec3_t *)(v3 + 24), (vec3_t *)(v3 + 64));
+    if ( CG_TestTriggerTouch_Point(v21, (const vec3_t *)(v3 + 64)) )
     {
-      vmovsd  xmm0, qword ptr [rbp+18h]
-      vmovsd  qword ptr [rbp+40h], xmm0
-    }
-    if ( v36 && v35 < v36->clientTrigger.trigger.count )
-      CG_TriggerCalcMovingPlatformPosFromAnchor((LocalClientNum_t)v17, v36->clientTrigger.linkTo[v35], (const vec3_t *)(_RBP + 24), (vec3_t *)(_RBP + 64));
-    if ( CG_TestTriggerTouch_Point(v35, (const vec3_t *)(_RBP + 64)) )
-    {
-      if ( (v38 & 1) != 0 && v35 < v15 )
-        v15 = v35;
-      if ( (v38 & 2) != 0 && !g_audioTriggerDisabled[v35] )
+      if ( (v23 & 1) != 0 && v21 < v5 )
+        v5 = v21;
+      if ( (v23 & 2) == 0 || g_audioTriggerDisabled[v21] )
+        goto LABEL_57;
+      v24 = cm.mapEnts;
+      priority = cm.mapEnts->clientTrigger.priority;
+      v26 = priority[v21];
+      if ( v26 <= v6 )
       {
-        _RAX = cm.mapEnts->clientTrigger.priority;
-        __asm
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v26 - v6) & _xmm) < 0.001 )
         {
-          vmovss  xmm0, dword ptr [rax+r14*4]
-          vcomiss xmm0, xmm14
-        }
-        if ( g_audioTriggerDisabled[v35] )
-        {
-          __asm { vmovaps xmm14, xmm0 }
-          v18 = v35;
-        }
-        else
-        {
-          __asm
+          if ( v8 == 0x4000 )
           {
-            vsubss  xmm0, xmm0, xmm14
-            vandps  xmm0, xmm0, xmm13
-            vcomiss xmm0, xmm15
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_trigger.cpp", 872, ASSERT_TYPE_ASSERT, "(audioTrigger != (16*1024))", (const char *)&queryFormat, "audioTrigger != MAX_CLIENT_TRIGGERS") )
+              __debugbreak();
+            v24 = cm.mapEnts;
           }
-        }
-        v19 = *(_DWORD *)_RBP;
-      }
-      if ( (v38 & 8) != 0 )
-      {
-        if ( !g_audioTriggerDisabled[v35] )
-          v19 = v35;
-        *(_DWORD *)_RBP = v19;
-      }
-      v42 = v35;
-      v43 = v35;
-      if ( (v38 & 0x2000) == 0 )
-        v42 = *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
-      *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v42;
-      if ( (v38 & 4) == 0 )
-        v43 = *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
-      *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = v43;
-      if ( (v38 & 0x40) != 0 )
-      {
-        *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = v35;
-        *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v42;
-        *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = v43;
-      }
-    }
-    v44 = DVARBOOL_cg_trigger_draw;
-    if ( !DVARBOOL_cg_trigger_draw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_trigger_draw") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v44);
-    if ( v44->current.enabled )
-    {
-      if ( (v38 & 1) != 0 )
-      {
-        v45 = &colorBlue;
-      }
-      else if ( (v38 & 2) == 0 || g_audioTriggerDisabled[v35] )
-      {
-        if ( (v38 & 4) != 0 )
-        {
-          v45 = &colorLtBlue;
-        }
-        else if ( (v38 & 8) == 0 || g_audioTriggerDisabled[v35] )
-        {
-          if ( (v38 & 0x2000) == 0 )
-            goto LABEL_86;
-          v45 = &colorYellow;
-        }
-        else
-        {
-          v45 = &colorLtGreen;
+          models = v24->clientTrigger.trigger.models;
+          hulls = v24->clientTrigger.trigger.hulls;
+          v = hulls[models[v21].firstHull].triggerSpaceBounds.midPoint.v;
+          origins = v24->clientTrigger.origins;
+          v35 = hulls[models[v8].firstHull].triggerSpaceBounds.midPoint.v;
+          if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(origins[v8].v[0] + *v35) - (float)(origins[v21].v[0] + *v)) & _xmm) <= (float)(v35[3] - v[3]) )
+          {
+            v9 = *(_DWORD *)v3;
+            if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(origins[v8].v[1] + v35[1]) - (float)(origins[v21].v[1] + v[1])) & _xmm) <= (float)(v35[4] - v[4]) && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(origins[v8].v[2] + v35[2]) - (float)(origins[v21].v[2] + v[2])) & _xmm) <= (float)(v35[5] - v[5]) )
+              v8 = v21;
+            goto LABEL_57;
+          }
         }
       }
       else
       {
-        v45 = &colorGreen;
+        v6 = priority[v21];
+        v8 = v21;
       }
-      CG_TriggerDraw((LocalClientNum_t)v17, v35, v45, 1);
+      v9 = *(_DWORD *)v3;
+LABEL_57:
+      if ( (v23 & 8) != 0 )
+      {
+        if ( !g_audioTriggerDisabled[v21] )
+          v9 = v21;
+        *(_DWORD *)v3 = v9;
+      }
+      v27 = v21;
+      v28 = v21;
+      if ( (v23 & 0x2000) == 0 )
+        v27 = *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+      *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v27;
+      if ( (v23 & 4) == 0 )
+        v28 = *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
+      *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = v28;
+      if ( (v23 & 0x40) != 0 )
+      {
+        *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = v21;
+        *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v27;
+        *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = v28;
+      }
     }
-LABEL_86:
-    v48 = SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(_RBP + 128));
-    v19 = *(_DWORD *)_RBP;
+    v29 = DVARBOOL_cg_trigger_draw;
+    if ( !DVARBOOL_cg_trigger_draw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_trigger_draw") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v29);
+    if ( v29->current.enabled )
+    {
+      if ( (v23 & 1) != 0 )
+      {
+        v30 = &colorBlue;
+      }
+      else if ( (v23 & 2) == 0 || g_audioTriggerDisabled[v21] )
+      {
+        if ( (v23 & 4) != 0 )
+        {
+          v30 = &colorLtBlue;
+        }
+        else if ( (v23 & 8) == 0 || g_audioTriggerDisabled[v21] )
+        {
+          if ( (v23 & 0x2000) == 0 )
+            goto LABEL_94;
+          v30 = &colorYellow;
+        }
+        else
+        {
+          v30 = &colorLtGreen;
+        }
+      }
+      else
+      {
+        v30 = &colorGreen;
+      }
+      CG_TriggerDraw((LocalClientNum_t)v7, v21, v30, 1);
+    }
+LABEL_94:
+    v36 = SpatialPartition_Tree_AABBIterator::Advance((SpatialPartition_Tree_AABBIterator *)(v3 + 128));
+    v9 = *(_DWORD *)v3;
   }
-  while ( v48 );
-  v21 = *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
-  v20 = *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
-LABEL_88:
-  CG_TriggerUpdateVision((LocalClientNum_t)v17, *(_DWORD *)(((unsigned __int64)v63 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC), v15, (const vec3_t *)(_RBP + 24));
-  CG_TriggerUpdateAudio((LocalClientNum_t)v17, v19, v18, v20, v21, (const vec3_t *)(_RBP + 24));
-LABEL_89:
-  _R11 = &v74;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  while ( v36 );
+  v11 = *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+  v10 = *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+LABEL_96:
+  CG_TriggerUpdateVision((LocalClientNum_t)v7, *(_DWORD *)(((unsigned __int64)v40 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC), v5, (const vec3_t *)(v3 + 24));
+  CG_TriggerUpdateAudio((LocalClientNum_t)v7, v9, v8, v10, v11, (const vec3_t *)(v3 + 24));
 }
 

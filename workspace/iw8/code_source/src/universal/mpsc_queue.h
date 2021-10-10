@@ -254,30 +254,24 @@ void MPSCQueue<RB_BackendDataCopier::Cmd,16384>::Push(MPSCQueue<RB_BackendDataCo
   volatile int *p_m_allocPtr; 
   signed __int32 v6; 
   volatile int *p_m_writePtr; 
-  int v11; 
+  __int64 v8; 
+  int v9; 
 
   m_readPtr = this->m_readPtr;
   p_m_allocPtr = &this->m_allocPtr;
-  _R14 = item;
-  _RSI = this;
   if ( ((unsigned __int8)this & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)p_m_allocPtr) )
     __debugbreak();
   v6 = _InterlockedExchangeAdd(p_m_allocPtr, 1u);
   if ( (unsigned int)(v6 - m_readPtr) >= 0x4000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\mpsc_queue.h", 85, ASSERT_TYPE_ASSERT, "(( writeSlot - readSlot ) < QUEUED_ITEMS_MAX)", (const char *)&queryFormat, "( writeSlot - readSlot ) < QUEUED_ITEMS_MAX") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [r14] }
-  p_m_writePtr = &_RSI->m_writePtr;
-  _RAX = 6i64 * (v6 & 0x3FFF);
-  __asm
-  {
-    vmovups ymmword ptr [rsi+rax*8], ymm0
-    vmovups xmm1, xmmword ptr [r14+20h]
-    vmovups xmmword ptr [rsi+rax*8+20h], xmm1
-  }
-  v11 = ((_BYTE)_RSI + 4) & 3;
+  p_m_writePtr = &this->m_writePtr;
+  v8 = v6 & 0x3FFF;
+  *(__m256i *)&this->m_items[v8].cmdType = *(__m256i *)&item->cmdType;
+  *(_OWORD *)&this->m_items[v8].memCommitCmd.outPageRange = *(_OWORD *)&item->memCommitCmd.outPageRange;
+  v9 = ((_BYTE)this + 4) & 3;
   while ( 1 )
   {
-    if ( v11 )
+    if ( v9 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)p_m_writePtr) )
         __debugbreak();

@@ -82,40 +82,42 @@ RB_SSS_Apply
 */
 void RB_SSS_Apply(GfxCmdBufContext *gfxContext, const GfxBackEndData *data, const GfxViewInfo *viewInfo, const R_RT_ColorHandle *pingPongRenderTarget)
 {
+  GfxCmdBufSourceState *source; 
   R_RT_Image *p_m_image; 
   GfxCmdBufState *state; 
+  float tanHalfFovY; 
+  float tanHalfFovX; 
+  const vec2_t *MatchingDynamicResolutionTable; 
+  GfxCmdBufContext v14; 
+  unsigned int height; 
   const R_RT_Surface *Surface; 
+  __m256i m_mainSceneDepthRt; 
+  R_RT_Group *v18; 
+  GfxCmdBufContext v19; 
   GfxImage *blackImage; 
-  const R_RT_Surface *v50; 
-  const R_RT_Surface *v72; 
-  const R_RT_Surface *v73; 
-  const R_RT_Surface *v74; 
-  R_RT_Group v84; 
+  const R_RT_Surface *v21; 
+  __m256i m_mainSceneColorRt; 
+  R_RT_Group *v23; 
+  GfxCmdBufContext v24; 
+  const R_RT_Surface *v25; 
+  const R_RT_Surface *v26; 
+  const R_RT_Surface *v27; 
+  R_RT_Group v31; 
   GfxCmdBufContext result[2]; 
   float scaleParams[8]; 
-  R_RT_Group v87; 
-  char v88; 
-  void *retaddr; 
+  R_RT_Group v34; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _R13 = gfxContext->source;
-  _R15 = gfxContext;
-  _R14 = viewInfo;
+  source = gfxContext->source;
   p_m_image = &R_RT_Handle::GetSurface(&viewInfo->sceneRtInput.m_floatZFullRt)->m_image;
-  if ( !R_RT_Handle::IsValid(&_R14->sceneRtInput.m_mainSceneSSSAlbedoRt) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sss.cpp", 112, ASSERT_TYPE_ASSERT, "(viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt)", "%s\n\tSubsurface Scattering albedo render target has not been allocated.", "viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt") )
+  if ( !R_RT_Handle::IsValid(&viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sss.cpp", 112, ASSERT_TYPE_ASSERT, "(viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt)", "%s\n\tSubsurface Scattering albedo render target has not been allocated.", "viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt") )
     __debugbreak();
-  if ( !R_RT_Handle::IsValid(&_R14->sceneRtInput.m_mainSceneSSSDiffuseRt) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sss.cpp", 113, ASSERT_TYPE_ASSERT, "(viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt)", "%s\n\tSubsurface Scattering specular render target has not been allocated.", "viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt") )
+  if ( !R_RT_Handle::IsValid(&viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sss.cpp", 113, ASSERT_TYPE_ASSERT, "(viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt)", "%s\n\tSubsurface Scattering specular render target has not been allocated.", "viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFF7F50, "Screen-Space SSS");
   R_GPU_BeginTimer(GPU_TIMER_SSS_FILTER);
-  R_InitCmdBufSourceState(_R13, &_R14->input);
-  state = _R15->state;
-  if ( (*((_BYTE *)&_R13->input + 7920) & 1) != 0 )
+  R_InitCmdBufSourceState(source, &viewInfo->input);
+  state = gfxContext->state;
+  if ( (*((_BYTE *)&source->input + 7920) & 1) != 0 )
   {
     R_LockIfGfxImmediateContext(state->device);
     R_InitCmdBufState(state);
@@ -123,204 +125,106 @@ void RB_SSS_Apply(GfxCmdBufContext *gfxContext, const GfxBackEndData *data, cons
   else
   {
     R_LockGfxImmediateContext();
-    _RAX = RB_GetBackendCmdBufContext(result);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vpextrq rdx, xmm0, 1; in
-    }
+    _XMM0 = (__int128)*RB_GetBackendCmdBufContext(result);
+    __asm { vpextrq rdx, xmm0, 1; in }
     if ( state != _RDX )
       GfxCmdBufState::Copy(state, _RDX);
   }
   memset_0(state->perPrimConstantState, 255, sizeof(state->perPrimConstantState));
   memset_0(state->perObjectConstantState, 255, sizeof(state->perObjectConstantState));
   memset_0(state->stableConstantState, 255, sizeof(state->stableConstantState));
-  state->data = _R13->input.data;
+  state->data = source->input.data;
   R_ProfBeginNamedEvent(state, "Screen-Space SSS");
-  __asm
-  {
-    vmovss  xmm7, dword ptr [r14+134h]
-    vmovss  xmm6, dword ptr [r14+130h]
-  }
-  _RAX = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
-  __asm
-  {
-    vdivss  xmm0, xmm6, xmm7
-    vmovss  xmm1, dword ptr [rax]
-    vdivss  xmm2, xmm1, dword ptr [rax+4]
-    vmulss  xmm3, xmm0, dword ptr [rax+rdx*8]
-    vmulss  xmm0, xmm2, dword ptr [rax+rdx*8+4]
-    vmovss  xmm1, dword ptr [r14+134h]; tanHalfFovY
-    vdivss  xmm2, xmm3, xmm0; aspectRatio
-  }
-  SSSSCalculateScaleParams(&_R14->sss.profile, *(float *)&_XMM1, *(float *)&_XMM2, scaleParams);
-  SSSSCalculateProfileParams(&_R14->sss.profile, (float *)result);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+180h+scaleParams]
-    vmovups xmmword ptr [r13+1020h], xmm0
-    vmovups xmm0, xmmword ptr [rbp+180h+result.source]
-  }
-  ++_R13->constVersions[146];
-  __asm { vmovups xmmword ptr [r13+1030h], xmm0 }
-  ++_R13->constVersions[147];
-  R_BeginViewInternal(_R13, &_R14->sceneDef, (const GfxViewParms *)_R14, &_R14->viewParmsSet.frames[1].viewParms);
-  R_SetViewportStruct(_R13, &_R14->sceneViewport);
-  _RBX = pingPongRenderTarget;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rbp+180h+result.source], ymm0
-  }
+  tanHalfFovY = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovY;
+  tanHalfFovX = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovX;
+  MatchingDynamicResolutionTable = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
+  SSSSCalculateScaleParams(&viewInfo->sss.profile, viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovY, (float)((float)(tanHalfFovX / tanHalfFovY) * MatchingDynamicResolutionTable[(unsigned __int8)viewInfo->input.resolution.step].v[0]) / (float)((float)(MatchingDynamicResolutionTable->v[0] / MatchingDynamicResolutionTable->v[1]) * MatchingDynamicResolutionTable[(unsigned __int8)viewInfo->input.resolution.step].v[1]), scaleParams);
+  SSSSCalculateProfileParams(&viewInfo->sss.profile, (float *)result);
+  source->input.consts[146] = *(vec4_t *)scaleParams;
+  v14 = result[0];
+  ++source->constVersions[146];
+  source->input.consts[147] = (vec4_t)v14;
+  ++source->constVersions[147];
+  R_BeginViewInternal(source, &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
+  R_SetViewportStruct(source, &viewInfo->sceneViewport);
+  *(__m256i *)&result[0].source = *(__m256i *)pingPongRenderTarget;
   R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rbp+180h+result.source], ymm0
-  }
-  LODWORD(_RBX) = R_RT_Handle::GetSurface((R_RT_Handle *)result)->m_image.m_base.height;
+  *(__m256i *)&result[0].source = *(__m256i *)pingPongRenderTarget;
+  height = R_RT_Handle::GetSurface((R_RT_Handle *)result)->m_image.m_base.height;
   Surface = R_RT_Handle::GetSurface((R_RT_Handle *)result);
-  R_SetRenderTargetSize(_R13, Surface->m_image.m_base.width, (unsigned int)_RBX, GFX_USE_VIEWPORT_FULL);
-  _RAX = pingPongRenderTarget;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14+31A0h]
-    vmovups ymm1, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+180h+scaleParams], ymm1
-    vmovups ymmword ptr [rbp+180h+result.source], ymm0
-  }
-  _RAX = R_RT_Group::ConstructColorDepth(&v84, (R_RT_ColorHandle *)scaleParams, (R_RT_DepthHandle *)result);
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  _RCX = &v87;
-  __asm
-  {
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rcx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rax+30h]
-    vmovups xmmword ptr [rcx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rax+40h]
-    vmovups xmmword ptr [rcx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rax+50h]
-    vmovups xmmword ptr [rcx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rax+60h]
-    vmovups xmmword ptr [rcx+60h], xmm0
-    vmovups xmm1, xmmword ptr [rax+70h]
-    vmovups xmmword ptr [rcx+70h], xmm1
-    vmovups xmm0, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rcx+80h], xmm0
-    vmovups xmm1, xmmword ptr [rax+90h]
-    vmovups xmmword ptr [rcx+90h], xmm1
-    vmovups xmm0, xmmword ptr [rax+0A0h]
-    vmovups xmmword ptr [rcx+0A0h], xmm0
-    vmovups xmm1, xmmword ptr [rax+0B0h]
-    vmovups xmm0, xmmword ptr [r15]
-    vmovups xmmword ptr [rcx+0B0h], xmm1
-  }
-  v87.m_vrsRt.m_tracking.m_location = _RAX->m_vrsRt.m_tracking.m_location;
-  __asm { vmovups xmmword ptr [rbp+180h+result.source], xmm0 }
-  R_SetRenderTargetsInternal(result, &v87, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sss.cpp(132)");
+  R_SetRenderTargetSize(source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FULL);
+  m_mainSceneDepthRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneDepthRt;
+  *(__m256i *)scaleParams = *(__m256i *)pingPongRenderTarget;
+  *(__m256i *)&result[0].source = m_mainSceneDepthRt;
+  v18 = R_RT_Group::ConstructColorDepth(&v31, (R_RT_ColorHandle *)scaleParams, (R_RT_DepthHandle *)result);
+  *(_OWORD *)&v34.m_colorRtCount = *(_OWORD *)&v18->m_colorRtCount;
+  *(_OWORD *)&v34.m_colorRts[0].m_tracking.m_allocCounter = *(_OWORD *)&v18->m_colorRts[0].m_tracking.m_allocCounter;
+  *(_OWORD *)&v34.m_colorRts[0].m_tracking.m_location = *(_OWORD *)&v18->m_colorRts[0].m_tracking.m_location;
+  *(_OWORD *)&v34.m_colorRts[1].m_tracking.m_allocCounter = *(_OWORD *)&v18->m_colorRts[1].m_tracking.m_allocCounter;
+  *(_OWORD *)&v34.m_colorRts[1].m_tracking.m_location = *(_OWORD *)&v18->m_colorRts[1].m_tracking.m_location;
+  *(_OWORD *)&v34.m_colorRts[2].m_tracking.m_allocCounter = *(_OWORD *)&v18->m_colorRts[2].m_tracking.m_allocCounter;
+  *(_OWORD *)&v34.m_colorRts[2].m_tracking.m_location = *(_OWORD *)&v18->m_colorRts[2].m_tracking.m_location;
+  *(_OWORD *)&v34.m_colorRts[3].m_tracking.m_allocCounter = *(_OWORD *)&v18->m_colorRts[3].m_tracking.m_allocCounter;
+  *(_OWORD *)&v34.m_colorRts[3].m_tracking.m_location = *(_OWORD *)&v18->m_colorRts[3].m_tracking.m_location;
+  *(_OWORD *)&v34.m_depthRt.m_tracking.m_allocCounter = *(_OWORD *)&v18->m_depthRt.m_tracking.m_allocCounter;
+  *(_OWORD *)&v34.m_depthRt.m_tracking.m_location = *(_OWORD *)&v18->m_depthRt.m_tracking.m_location;
+  v19 = *gfxContext;
+  v34.m_vrsRt.m_tracking = v18->m_vrsRt.m_tracking;
+  result[0] = v19;
+  R_SetRenderTargetsInternal(result, &v34, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sss.cpp(132)");
   blackImage = rgp.blackImage;
-  v50 = R_RT_Handle::GetSurface(&_R14->sceneRtInput.m_mainSceneColorRt);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vmovups xmmword ptr [rbp+180h+result.source], xmm0
-  }
-  R_SSS_BlurX(result, _R14, &v50->m_image.m_base, &p_m_image->m_base, blackImage);
-  if ( _R13 == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v21 = R_RT_Handle::GetSurface(&viewInfo->sceneRtInput.m_mainSceneColorRt);
+  result[0] = *gfxContext;
+  R_SSS_BlurX(result, viewInfo, &v21->m_image.m_base, &p_m_image->m_base, blackImage);
+  if ( source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  _R13->input.codeImages[6] = NULL;
+  source->input.codeImages[6] = NULL;
   R_ClearResourceBuffers(state);
   R_FlushResourceBuffers(state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14+30C0h]
-    vmovups ymmword ptr [rbp+180h+result.source], ymm0
-  }
+  *(R_RT_ColorHandle *)&result[0].source = viewInfo->sceneRtInput.m_mainSceneColorRt;
   R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  _RAX = pingPongRenderTarget;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+180h+result.source], ymm0
-  }
+  *(__m256i *)&result[0].source = *(__m256i *)pingPongRenderTarget;
   R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14+31A0h]
-    vmovups ymm1, ymmword ptr [r14+30C0h]
-    vmovups ymmword ptr [rbp+180h+result.source], ymm0
-    vmovups ymmword ptr [rbp+180h+scaleParams], ymm1
-  }
-  _RAX = R_RT_Group::ConstructColorDepth(&v84, (R_RT_ColorHandle *)scaleParams, (R_RT_DepthHandle *)result);
-  _RDX = &v87;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rdx], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rdx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rdx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rax+30h]
-    vmovups xmmword ptr [rdx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rax+40h]
-    vmovups xmmword ptr [rdx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rax+50h]
-    vmovups xmmword ptr [rdx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rax+60h]
-    vmovups xmmword ptr [rdx+60h], xmm0
-    vmovups xmm1, xmmword ptr [rax+70h]
-    vmovups xmmword ptr [rdx+70h], xmm1
-    vmovups xmm0, xmmword ptr [rax+80h]
-    vmovups xmmword ptr [rdx+80h], xmm0
-    vmovups xmm1, xmmword ptr [rax+90h]
-    vmovups xmmword ptr [rdx+90h], xmm1
-    vmovups xmm0, xmmword ptr [rax+0A0h]
-    vmovups xmmword ptr [rdx+0A0h], xmm0
-    vmovups xmm1, xmmword ptr [rax+0B0h]
-    vmovups xmm0, xmmword ptr [r15]
-    vmovups xmmword ptr [rdx+0B0h], xmm1
-  }
-  v87.m_vrsRt.m_tracking.m_location = _RAX->m_vrsRt.m_tracking.m_location;
-  __asm { vmovups xmmword ptr [rbp+180h+result.source], xmm0 }
-  R_SetRenderTargetsInternal(result, &v87, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sss.cpp(147)");
-  v72 = R_RT_Handle::GetSurface(&_R14->sceneRtInput.m_mainSceneSSSAlbedoRt);
-  v73 = R_RT_Handle::GetSurface(&_R14->sceneRtInput.m_mainSceneSSSDiffuseRt);
-  v74 = R_RT_Handle::GetSurface(&pingPongRenderTarget->R_RT_Handle);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15]
-    vmovups xmmword ptr [rbp+180h+result.source], xmm0
-  }
-  R_SSS_BlurY(result, _R14, &v72->m_image.m_base, &v73->m_image.m_base, &v74->m_image.m_base, &p_m_image->m_base, rgp.blackImage);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14+30C0h]
-    vmovups ymmword ptr [rbp+180h+result.source], ymm0
-  }
+  m_mainSceneColorRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneColorRt;
+  *(R_RT_DepthHandle *)&result[0].source = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+  *(__m256i *)scaleParams = m_mainSceneColorRt;
+  v23 = R_RT_Group::ConstructColorDepth(&v31, (R_RT_ColorHandle *)scaleParams, (R_RT_DepthHandle *)result);
+  *(_OWORD *)&v34.m_colorRtCount = *(_OWORD *)&v23->m_colorRtCount;
+  *(_OWORD *)&v34.m_colorRts[0].m_tracking.m_allocCounter = *(_OWORD *)&v23->m_colorRts[0].m_tracking.m_allocCounter;
+  *(_OWORD *)&v34.m_colorRts[0].m_tracking.m_location = *(_OWORD *)&v23->m_colorRts[0].m_tracking.m_location;
+  *(_OWORD *)&v34.m_colorRts[1].m_tracking.m_allocCounter = *(_OWORD *)&v23->m_colorRts[1].m_tracking.m_allocCounter;
+  *(_OWORD *)&v34.m_colorRts[1].m_tracking.m_location = *(_OWORD *)&v23->m_colorRts[1].m_tracking.m_location;
+  *(_OWORD *)&v34.m_colorRts[2].m_tracking.m_allocCounter = *(_OWORD *)&v23->m_colorRts[2].m_tracking.m_allocCounter;
+  *(_OWORD *)&v34.m_colorRts[2].m_tracking.m_location = *(_OWORD *)&v23->m_colorRts[2].m_tracking.m_location;
+  *(_OWORD *)&v34.m_colorRts[3].m_tracking.m_allocCounter = *(_OWORD *)&v23->m_colorRts[3].m_tracking.m_allocCounter;
+  *(_OWORD *)&v34.m_colorRts[3].m_tracking.m_location = *(_OWORD *)&v23->m_colorRts[3].m_tracking.m_location;
+  *(_OWORD *)&v34.m_depthRt.m_tracking.m_allocCounter = *(_OWORD *)&v23->m_depthRt.m_tracking.m_allocCounter;
+  *(_OWORD *)&v34.m_depthRt.m_tracking.m_location = *(_OWORD *)&v23->m_depthRt.m_tracking.m_location;
+  v24 = *gfxContext;
+  v34.m_vrsRt.m_tracking = v23->m_vrsRt.m_tracking;
+  result[0] = v24;
+  R_SetRenderTargetsInternal(result, &v34, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sss.cpp(147)");
+  v25 = R_RT_Handle::GetSurface(&viewInfo->sceneRtInput.m_mainSceneSSSAlbedoRt);
+  v26 = R_RT_Handle::GetSurface(&viewInfo->sceneRtInput.m_mainSceneSSSDiffuseRt);
+  v27 = R_RT_Handle::GetSurface(&pingPongRenderTarget->R_RT_Handle);
+  result[0] = *gfxContext;
+  R_SSS_BlurY(result, viewInfo, &v25->m_image.m_base, &v26->m_image.m_base, &v27->m_image.m_base, &p_m_image->m_base, rgp.blackImage);
+  *(R_RT_ColorHandle *)&result[0].source = viewInfo->sceneRtInput.m_mainSceneColorRt;
   R_AddRenderTargetTransition(state, (R_RT_ColorHandle *)result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
   R_FlushResourceTransitions(state);
   R_ProfEndNamedEvent(state);
   R_ResetRenderTargets(state);
-  if ( (*((_BYTE *)&_R13->input + 7920) & 1) != 0 )
+  if ( (*((_BYTE *)&source->input + 7920) & 1) != 0 )
   {
     R_ShutdownCmdBufState(state);
     R_UnlockIfGfxImmediateContext(state->device);
   }
   else
   {
-    _RAX = RB_GetBackendCmdBufContext(result);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vpextrq rcx, xmm0, 1; out
-    }
+    _XMM0 = (__int128)*RB_GetBackendCmdBufContext(result);
+    __asm { vpextrq rcx, xmm0, 1; out }
     if ( state != _RCX )
     {
       GfxCmdBufState::Copy(_RCX, state);
@@ -330,12 +234,6 @@ void RB_SSS_Apply(GfxCmdBufContext *gfxContext, const GfxBackEndData *data, cons
   }
   Sys_ProfEndNamedEvent();
   R_GPU_EndTimer();
-  _R11 = &v88;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
 }
 
 /*
@@ -345,47 +243,25 @@ R_SSS_Bind
 */
 void R_SSS_Bind(GfxCmdBufSourceState *gfxSource, const GfxViewInfo *viewInfo)
 {
+  float tanHalfFovY; 
+  float tanHalfFovX; 
+  const vec2_t *MatchingDynamicResolutionTable; 
+  vec4_t v7; 
   float scaleParams[4]; 
   float profileParams[4]; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovss  xmm7, dword ptr [rdx+134h]
-    vmovss  xmm6, dword ptr [rdx+130h]
-  }
-  _RSI = viewInfo;
-  _RDI = gfxSource;
-  _RAX = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
-  __asm
-  {
-    vdivss  xmm0, xmm6, xmm7
-    vmovss  xmm1, dword ptr [rax]
-    vdivss  xmm2, xmm1, dword ptr [rax+4]
-    vmulss  xmm3, xmm0, dword ptr [rax+rdx*8]
-    vmulss  xmm0, xmm2, dword ptr [rax+rdx*8+4]
-    vmovss  xmm1, dword ptr [rsi+134h]; tanHalfFovY
-    vdivss  xmm2, xmm3, xmm0; aspectRatio
-  }
-  SSSSCalculateScaleParams(&_RSI->sss.profile, *(float *)&_XMM1, *(float *)&_XMM2, scaleParams);
-  SSSSCalculateProfileParams(&_RSI->sss.profile, profileParams);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+78h+scaleParams]
-    vmovups xmmword ptr [rdi+1020h], xmm0
-    vmovups xmm0, xmmword ptr [rsp+78h+profileParams]
-  }
-  ++_RDI->constVersions[146];
-  __asm { vmovups xmmword ptr [rdi+1030h], xmm0 }
-  ++_RDI->constVersions[147];
-  R_BeginViewInternal(_RDI, &_RSI->sceneDef, (const GfxViewParms *)_RSI, &_RSI->viewParmsSet.frames[1].viewParms);
-  R_SetViewportStruct(_RDI, &_RSI->sceneViewport);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
+  tanHalfFovY = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovY;
+  tanHalfFovX = viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovX;
+  MatchingDynamicResolutionTable = R_RT_FindMatchingDynamicResolutionTable(vidConfig.sceneWidth, vidConfig.sceneHeight);
+  SSSSCalculateScaleParams(&viewInfo->sss.profile, viewInfo->viewParmsSet.frames[0].viewParms.camera.tanHalfFovY, (float)((float)(tanHalfFovX / tanHalfFovY) * MatchingDynamicResolutionTable[(unsigned __int8)viewInfo->input.resolution.step].v[0]) / (float)((float)(MatchingDynamicResolutionTable->v[0] / MatchingDynamicResolutionTable->v[1]) * MatchingDynamicResolutionTable[(unsigned __int8)viewInfo->input.resolution.step].v[1]), scaleParams);
+  SSSSCalculateProfileParams(&viewInfo->sss.profile, profileParams);
+  gfxSource->input.consts[146] = *(vec4_t *)scaleParams;
+  v7 = *(vec4_t *)profileParams;
+  ++gfxSource->constVersions[146];
+  gfxSource->input.consts[147] = v7;
+  ++gfxSource->constVersions[147];
+  R_BeginViewInternal(gfxSource, &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
+  R_SetViewportStruct(gfxSource, &viewInfo->sceneViewport);
 }
 
 /*
@@ -399,36 +275,19 @@ void R_SSS_BlurX(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, cons
   BOOL cinematic; 
   BOOL vrs; 
   GfxCmdBufInput *p_input; 
-  GfxCmdBufSourceState *v22; 
-  GfxCmdBufInput *v23; 
-  GfxCmdBufSourceState *v24; 
-  GfxCmdBufInput *v25; 
-  float fmt; 
-  float v35; 
-  float v36; 
-  float v37; 
-  float v38; 
-  float v39; 
-  float v40; 
-  float v41; 
-  GfxCmdBufContext v42; 
-  char v43; 
-  void *retaddr; 
+  GfxCmdBufSourceState *v17; 
+  GfxCmdBufInput *v18; 
+  GfxCmdBufSourceState *v19; 
+  GfxCmdBufInput *v20; 
+  GfxCmdBufContext v21; 
+  float height; 
+  float width; 
+  GfxCmdBufContext v24; 
 
-  _RAX = &retaddr;
-  _RDI = gfxContext;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  LODWORD(_RAX) = rg.vrs;
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
   source = gfxContext->source;
-  _ER15 = 0;
-  __asm
-  {
-    vmovd   xmm1, ecx
-    vmovd   xmm0, eax
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm0, cs:__real@40000000
-  }
+  _XMM0 = rg.vrs;
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM0 = LODWORD(FLOAT_2_0);
   cinematic = rg.cinematic;
   __asm { vblendvps xmm1, xmm0, xmm6, xmm2; msScale }
   vrs = rg.vrs;
@@ -439,41 +298,25 @@ void R_SSS_BlurX(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, cons
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codeImages[6] = sceneColor;
-  v22 = _RDI->source;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v17 = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v23 = &v22->input;
-  if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v18 = &v17->input;
+  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v23->codeImages[0] = floatZfull;
-  v24 = _RDI->source;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v18->codeImages[0] = floatZfull;
+  v19 = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v25 = &v24->input;
-  if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v20 = &v19->input;
+  if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
-  v25->codeImages[85] = targetRW;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rax
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmovups [rsp+0B8h+var_48], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0B8h+var_60], xmm6
-    vmovss  [rsp+0B8h+var_68], xmm6
-    vmovss  [rsp+0B8h+var_70], xmm0
-    vmovss  [rsp+0B8h+var_78], xmm0
-    vmovss  [rsp+0B8h+var_80], xmm2
-    vmovss  [rsp+0B8h+var_88], xmm1
-    vmovss  dword ptr [rsp+0B8h+var_90], xmm0
-    vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-  }
-  RB_ViewportFilterDirectInternal(&v42, rgp.sssMaterials[0][cinematic][vrs], 0xFFFFFFFF, &viewInfo->sceneGeoViewport, fmt, v35, v36, v37, v38, v39, v40, v41, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sss.cpp(84)");
-  _R11 = &v43;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  v21 = *gfxContext;
+  v20->codeImages[85] = targetRW;
+  height = (float)viewInfo->sceneGeoViewport.height;
+  width = (float)viewInfo->sceneGeoViewport.width;
+  v24 = v21;
+  RB_ViewportFilterDirectInternal(&v24, rgp.sssMaterials[0][cinematic][vrs], 0xFFFFFFFF, &viewInfo->sceneGeoViewport, 0.0, 0.0, width, height, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sss.cpp(84)");
 }
 
 /*
@@ -487,40 +330,23 @@ void R_SSS_BlurY(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, cons
   BOOL cinematic; 
   BOOL vrs; 
   GfxCmdBufInput *p_input; 
-  GfxCmdBufSourceState *v24; 
-  GfxCmdBufInput *v25; 
-  GfxCmdBufSourceState *v26; 
-  GfxCmdBufInput *v27; 
-  GfxCmdBufSourceState *v28; 
-  GfxCmdBufInput *v29; 
-  GfxCmdBufSourceState *v30; 
-  GfxCmdBufInput *v31; 
-  float fmt; 
-  float v41; 
-  float v42; 
-  float v43; 
-  float v44; 
-  float v45; 
-  float v46; 
-  float v47; 
-  GfxCmdBufContext v48; 
-  char v49; 
-  void *retaddr; 
+  GfxCmdBufSourceState *v19; 
+  GfxCmdBufInput *v20; 
+  GfxCmdBufSourceState *v21; 
+  GfxCmdBufInput *v22; 
+  GfxCmdBufSourceState *v23; 
+  GfxCmdBufInput *v24; 
+  GfxCmdBufSourceState *v25; 
+  GfxCmdBufInput *v26; 
+  GfxCmdBufContext v27; 
+  float height; 
+  float width; 
+  GfxCmdBufContext v30; 
 
-  _RAX = &retaddr;
-  _RDI = gfxContext;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  LODWORD(_RAX) = rg.vrs;
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
   source = gfxContext->source;
-  _ER15 = 0;
-  __asm
-  {
-    vmovd   xmm1, ecx
-    vmovd   xmm0, eax
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm0, cs:__real@40000000
-  }
+  _XMM0 = rg.vrs;
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM0 = LODWORD(FLOAT_2_0);
   cinematic = rg.cinematic;
   __asm { vblendvps xmm1, xmm0, xmm6, xmm2; msScale }
   vrs = rg.vrs;
@@ -531,55 +357,39 @@ void R_SSS_BlurY(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, cons
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codeImages[33] = albedo;
-  v24 = _RDI->source;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v19 = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v25 = &v24->input;
-  if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v20 = &v19->input;
+  if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v25->codeImages[35] = diffuse;
-  v26 = _RDI->source;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v20->codeImages[35] = diffuse;
+  v21 = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v27 = &v26->input;
-  if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v22 = &v21->input;
+  if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v27->codeImages[6] = pingPong;
-  v28 = _RDI->source;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v22->codeImages[6] = pingPong;
+  v23 = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v29 = &v28->input;
-  if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v24 = &v23->input;
+  if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v29->codeImages[0] = floatZfull;
-  v30 = _RDI->source;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v24->codeImages[0] = floatZfull;
+  v25 = gfxContext->source;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v31 = &v30->input;
-  if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v26 = &v25->input;
+  if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
-  v31->codeImages[80] = scopeBuffer;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rax
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmovups [rsp+0B8h+var_48], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0B8h+var_60], xmm6
-    vmovss  [rsp+0B8h+var_68], xmm6
-    vmovss  [rsp+0B8h+var_70], xmm0
-    vmovss  [rsp+0B8h+var_78], xmm0
-    vmovss  [rsp+0B8h+var_80], xmm2
-    vmovss  [rsp+0B8h+var_88], xmm1
-    vmovss  dword ptr [rsp+0B8h+var_90], xmm0
-    vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-  }
-  RB_ViewportFilterDirectInternal(&v48, rgp.sssMaterials[1][cinematic][vrs], 0xFFFFFFFF, &viewInfo->sceneGeoViewport, fmt, v41, v42, v43, v44, v45, v46, v47, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sss.cpp(102)");
-  _R11 = &v49;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  v27 = *gfxContext;
+  v26->codeImages[80] = scopeBuffer;
+  height = (float)viewInfo->sceneGeoViewport.height;
+  width = (float)viewInfo->sceneGeoViewport.width;
+  v30 = v27;
+  RB_ViewportFilterDirectInternal(&v30, rgp.sssMaterials[1][cinematic][vrs], 0xFFFFFFFF, &viewInfo->sceneGeoViewport, 0.0, 0.0, width, height, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_sss.cpp(102)");
 }
 
 /*
@@ -635,46 +445,13 @@ bool R_SSS_Enabled(const GfxViewInfo *viewInfo)
 R_SSS_Init
 ==============
 */
-
-void __fastcall R_SSS_Init(__int64 a1, __int64 a2, double _XMM2_8)
+void R_SSS_Init(void)
 {
-  const dvar_t *v6; 
-  const dvar_t *v10; 
-  float flags; 
-  float description; 
-
   Dvar_BeginPermanentRegistration();
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm1, cs:?SSSSProfileDefault@@3USSSSProfile@@B.maxRadius; value
-  }
   r_sssEnable = Dvar_RegisterBool("LNOSSNSNTK", 1, 4u, "Enables the subsurface scattering effect (note that disabling SSS will not prevent the filter from running)");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v6 = Dvar_RegisterFloat("OTTRLMNPT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x44u, "Controls the maximum radius (in inches)");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm2, cs:__real@3f000000; min
-    vmovss  xmm1, cs:?SSSSProfileDefault@@3USSSSProfile@@B.falloff; value
-  }
-  r_sssMaxRadius = v6;
-  v10 = Dvar_RegisterFloat("MKOLPSNSMN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x44u, "Controls the blend between far scattering (zero) and near scattering (one)");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3a83126f
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  xmm3, cs:?SSSSProfileDefault@@3USSSSProfile@@B.radius+8; z
-    vmovss  xmm2, cs:?SSSSProfileDefault@@3USSSSProfile@@B.radius+4; y
-  }
-  r_sssFalloff = v10;
-  __asm
-  {
-    vmovss  dword ptr [rsp+48h+description], xmm0
-    vmovss  [rsp+48h+flags], xmm1
-    vmovss  xmm1, cs:?SSSSProfileDefault@@3USSSSProfile@@B.radius; x
-  }
-  r_sssRadius = Dvar_RegisterVec3("MQNOQNKRP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flags, description, 0x44u, "Controls the far scattering radius (relative to the maximum radius)");
+  r_sssMaxRadius = Dvar_RegisterFloat("OTTRLMNPT", 0.51999998, 0.0, 10.0, 0x44u, "Controls the maximum radius (in inches)");
+  r_sssFalloff = Dvar_RegisterFloat("MKOLPSNSMN", 2.5, 0.5, 10.0, 0x44u, "Controls the blend between far scattering (zero) and near scattering (one)");
+  r_sssRadius = Dvar_RegisterVec3("MQNOQNKRP", 1.0, 0.30000001, 0.15000001, 0.001, 1.0, 0x44u, "Controls the far scattering radius (relative to the maximum radius)");
   Dvar_EndPermanentRegistration();
 }
 
@@ -683,47 +460,30 @@ void __fastcall R_SSS_Init(__int64 a1, __int64 a2, double _XMM2_8)
 R_SSS_SetInfo
 ==============
 */
-
-void __fastcall R_SSS_SetInfo(GfxViewInfo *viewInfo, __int64 a2, double _XMM2_8)
+void R_SSS_SetInfo(GfxViewInfo *viewInfo)
 {
   bool enabled; 
-  float v9; 
+  float value; 
+  const dvar_t *v4; 
 
-  _RDX = viewInfo;
   enabled = r_sssEnable->current.enabled;
   viewInfo->sss.enabled = enabled;
   if ( enabled )
-  {
-    _RAX = r_sssMaxRadius;
-    __asm { vmovss  xmm0, dword ptr [rax+28h] }
-  }
+    value = r_sssMaxRadius->current.value;
   else
-  {
-    __asm { vmovss  xmm0, cs:__real@34000000 }
-  }
-  __asm
-  {
-    vmovss  dword ptr [rcx+387Ch], xmm0
-    vxorps  xmm2, xmm2, xmm2
-  }
+    value = FLOAT_1_1920929eN7;
+  viewInfo->sss.profile.maxRadius = value;
   LODWORD(viewInfo->sss.profile.falloff) = r_sssFalloff->current.integer;
-  _RCX = r_sssRadius;
-  LODWORD(_RDX->sss.profile.radius[0]) = r_sssRadius->current.integer;
-  _RDX->sss.profile.radius[1] = _RCX->current.vector.v[1];
-  v9 = _RCX->current.vector.v[2];
-  LODWORD(_RCX) = 0;
-  _RDX->sss.profile.radius[2] = v9;
-  __asm { vmovd   xmm1, ecx }
-  _EAX = enabled;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vpcmpeqd xmm3, xmm0, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vblendvps xmm0, xmm1, xmm2, xmm3
-    vmovss  dword ptr [rdx+18B0h], xmm0
-  }
-  *(_QWORD *)&_RDX->input.sceneConstants.ssssMaterialParams.xyz.y = 0i64;
-  _RDX->input.sceneConstants.ssssMaterialParams.v[3] = 0.0;
+  v4 = r_sssRadius;
+  LODWORD(viewInfo->sss.profile.radius[0]) = r_sssRadius->current.integer;
+  viewInfo->sss.profile.radius[1] = v4->current.vector.v[1];
+  viewInfo->sss.profile.radius[2] = v4->current.vector.v[2];
+  _XMM0 = enabled;
+  __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_1_0);
+  __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+  viewInfo->input.sceneConstants.ssssMaterialParams.v[0] = *(float *)&_XMM0;
+  *(_QWORD *)&viewInfo->input.sceneConstants.ssssMaterialParams.xyz.y = 0i64;
+  viewInfo->input.sceneConstants.ssssMaterialParams.v[3] = 0.0;
 }
 

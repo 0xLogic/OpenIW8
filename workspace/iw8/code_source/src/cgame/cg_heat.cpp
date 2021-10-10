@@ -107,93 +107,68 @@ CG_Heat_IsBoltOpenViewmodel
 */
 bool CG_Heat_IsBoltOpenViewmodel(LocalClientNum_t localClientNum, const playerState_s *ps, const Weapon *r_weapon, bool isAlternate, PlayerHandIndex handIndex, const WeaponHand *viewmodelHand)
 {
-  PlayerHandIndex v13; 
-  int v16; 
-  int v17; 
+  PlayerHandIndex v9; 
+  int v10; 
+  int v11; 
   CgWeaponMap *Instance; 
-  signed int v19; 
-  bool v20; 
+  signed int v13; 
+  bool v14; 
   const XAnimParts *AnimParts; 
+  double NotetrackTimeFromParts; 
+  float v17; 
   XAnimTree *tree; 
-  char v24; 
-  char v25; 
-  bool v27; 
-  __int64 v30; 
+  double Time; 
+  __int64 v22; 
   CgHandler *pmoveHandler; 
   AmmoStore result; 
   AmmoStore r_clip2; 
 
-  __asm { vmovaps [rsp+148h+var_58], xmm6 }
-  v30 = handIndex;
+  v22 = handIndex;
   pmoveHandler = CgHandler::getHandler(localClientNum);
-  if ( ps->weapState[v30].weaponState != 16 )
+  if ( ps->weapState[v22].weaponState != 16 )
   {
     if ( BG_WeaponDef(r_weapon, isAlternate)->heatIsOpenBolt )
-      goto LABEL_31;
+      return 1;
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1248, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    _RAX = BG_AmmoStoreForWeapon(&result, r_weapon, isAlternate);
-    v13 = handIndex;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+148h+r_clip2.weapon.weaponIdx], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rsp+148h+r_clip2.weapon.attachmentVariationIndices+5], ymm1
-    }
+    v9 = handIndex;
+    r_clip2 = *BG_AmmoStoreForWeapon(&result, r_weapon, isAlternate);
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1229, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    v16 = 0;
+    v10 = 0;
     if ( BG_HasLadderHand(ps) && handIndex == WEAPON_HAND_LEFT )
-      v13 = WEAPON_HAND_DEFAULT;
-    while ( !BG_IsClipCompatible(&ps->weapCommon.ammoInClip[v16].clipIndex, &r_clip2) )
+      v9 = WEAPON_HAND_DEFAULT;
+    while ( !BG_IsClipCompatible(&ps->weapCommon.ammoInClip[v10].clipIndex, &r_clip2) )
     {
-      if ( (unsigned int)++v16 >= 0xF )
+      if ( (unsigned int)++v10 >= 0xF )
         goto LABEL_16;
     }
-    if ( ps->weapCommon.ammoInClip[v16].ammoCount[v13] > 0 )
-      goto LABEL_28;
+    if ( ps->weapCommon.ammoInClip[v10].ammoCount[v9] > 0 )
+      return 0;
 LABEL_16:
-    v17 = ps->weapState[v30].weapAnim & 0xFFFFFF7F;
+    v11 = ps->weapState[v22].weapAnim & 0xFFFFFF7F;
     Instance = CgWeaponMap::GetInstance(localClientNum);
-    v19 = BG_MapWeaponAnimStateToAnimIndex(Instance, ps, v17, 0, r_weapon, isAlternate, handIndex, pmoveHandler);
-    v20 = v19 == 237 || (unsigned int)(v19 - 335) <= 1;
-    if ( (unsigned int)(ps->weapState[v30].weaponState - 18) <= 3 )
+    v13 = BG_MapWeaponAnimStateToAnimIndex(Instance, ps, v11, 0, r_weapon, isAlternate, handIndex, pmoveHandler);
+    v14 = v13 == 237 || (unsigned int)(v13 - 335) <= 1;
+    if ( (unsigned int)(ps->weapState[v22].weaponState - 18) <= 3 )
     {
-      AnimParts = BG_WeaponGetAnimParts(ps, handIndex, isAlternate, (weapAnimFiles_t)v19, pmoveHandler);
+      AnimParts = BG_WeaponGetAnimParts(ps, handIndex, isAlternate, (weapAnimFiles_t)v13, pmoveHandler);
       if ( !AnimParts )
-        goto LABEL_28;
-      *(double *)&_XMM0 = XAnimGetNotetrackTimeFromParts(AnimParts, scr_const.close_bolt);
-      __asm { vmovaps xmm6, xmm0 }
+        return 0;
+      NotetrackTimeFromParts = XAnimGetNotetrackTimeFromParts(AnimParts, scr_const.close_bolt);
+      v17 = *(float *)&NotetrackTimeFromParts;
       if ( !viewmodelHand->viewModelDObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_heat.cpp", 305, ASSERT_TYPE_ASSERT, "(viewmodelHand->viewModelDObj)", (const char *)&queryFormat, "viewmodelHand->viewModelDObj") )
         __debugbreak();
       tree = viewmodelHand->viewModelDObj->tree;
       if ( !tree )
-        goto LABEL_28;
-      *(double *)&_XMM0 = XAnimGetTime(tree, 0, XANIM_SUBTREE_DEFAULT, v19);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcomiss xmm6, xmm1
-      }
-      if ( !v24 )
-      {
-        __asm { vcomiss xmm6, xmm0 }
-        if ( v24 | v25 )
-          goto LABEL_28;
-      }
-LABEL_31:
-      v27 = 1;
-      goto LABEL_29;
+        return 0;
+      Time = XAnimGetTime(tree, 0, XANIM_SUBTREE_DEFAULT, v13);
+      return v17 < 0.0 || v17 > *(float *)&Time;
     }
-    if ( v20 )
-      goto LABEL_31;
+    if ( v14 )
+      return 1;
   }
-LABEL_28:
-  v27 = 0;
-LABEL_29:
-  __asm { vmovaps xmm6, [rsp+148h+var_58] }
-  return v27;
+  return 0;
 }
 
 /*
@@ -210,18 +185,20 @@ ParticleSystemHandle CG_Heat_PlaySmokeEffect(LocalClientNum_t localClientNum, DO
   const characterInfo_t *CharacterInfo; 
   bool TagNameAndBoneIndexForCharacter; 
   unsigned __int8 NextBoneIndex; 
+  __m128 v19; 
+  __m128 v; 
   scr_string_t *outTagName; 
   unsigned __int8 outBoneIndex[4]; 
   scr_string_t name; 
   CharacterModelType modelTypesToSearch[2]; 
-  ParticleManager *v32; 
+  ParticleManager *v28; 
   float4 emitterPos; 
   vector3 emitterOrientationMat; 
-  TagPair v35; 
+  TagPair v31; 
 
-  v35 = tagPair;
+  v31 = tagPair;
   v9 = particleSystemDef;
-  v32 = particleManager;
+  v28 = particleManager;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_heat.cpp", 330, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_heat.cpp", 331, ASSERT_TYPE_ASSERT, "(particleSystemDef)", (const char *)&queryFormat, "particleSystemDef") )
@@ -257,9 +234,9 @@ ParticleSystemHandle CG_Heat_PlaySmokeEffect(LocalClientNum_t localClientNum, DO
   modelTypesToSearch[0] = CHAR_MODEL_WEAPON_HELD;
   modelTypesToSearch[1] = CHAR_MODEL_WEAPON_HELD_LEFT;
   if ( CharacterInfo )
-    TagNameAndBoneIndexForCharacter = TagPair::GetTagNameAndBoneIndexForCharacter(&v35, obj, CharacterInfo, modelTypesToSearch, 2, &name, outBoneIndex);
+    TagNameAndBoneIndexForCharacter = TagPair::GetTagNameAndBoneIndexForCharacter(&v31, obj, CharacterInfo, modelTypesToSearch, 2, &name, outBoneIndex);
   else
-    TagNameAndBoneIndexForCharacter = TagPair::GetTagNameAndBoneIndex(&v35, obj, &name, outBoneIndex);
+    TagNameAndBoneIndexForCharacter = TagPair::GetTagNameAndBoneIndex(&v31, obj, &name, outBoneIndex);
   if ( !TagNameAndBoneIndexForCharacter )
     return 0;
   if ( useSecondBone )
@@ -273,27 +250,21 @@ ParticleSystemHandle CG_Heat_PlaySmokeEffect(LocalClientNum_t localClientNum, DO
   {
     NextBoneIndex = outBoneIndex[0];
   }
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-  }
+  v19 = (__m128)LODWORD(FLOAT_1_0);
   emitterPos.v.m128_i32[3] = 0;
+  v = emitterPos.v;
+  v.m128_f32[0] = 0.0;
+  _XMM3 = v;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rbp+37h+emitterPos.v]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4, 10h; vec3_t const vec3_origin
     vinsertps xmm3, xmm3, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8, 20h ; ' '; vec3_t const vec3_origin
-    vshufps xmm0, xmm1, xmm1, 51h ; 'Q'
-    vmovdqa xmmword ptr [rbp+37h+emitterOrientationMat.x.v], xmm1
-    vshufps xmm1, xmm1, xmm1, 45h ; 'E'
-    vmovups xmmword ptr [rbp+37h+emitterPos.v], xmm3
-    vmovups xmmword ptr [rbp+37h+emitterPos.v], xmm3
-    vmovups xmmword ptr [rbp+37h+emitterOrientationMat.y.v], xmm0
-    vmovups xmmword ptr [rbp+37h+emitterOrientationMat.z.v], xmm1
   }
-  return ParticleManager::AddSystem(v32, localClientNum, v9, &emitterPos, &emitterOrientationMat, time, PARTICLE_SYSTEM_FLAG_NO_SAVE, dobjHandle, NextBoneIndex, NULL, NULL, NULL);
+  emitterOrientationMat.x = (float4)LODWORD(FLOAT_1_0);
+  emitterPos.v = _XMM3;
+  emitterOrientationMat.y.v = _mm_shuffle_ps(v19, v19, 81);
+  emitterOrientationMat.z.v = _mm_shuffle_ps(v19, v19, 69);
+  return ParticleManager::AddSystem(v28, localClientNum, v9, &emitterPos, &emitterOrientationMat, time, PARTICLE_SYSTEM_FLAG_NO_SAVE, dobjHandle, NextBoneIndex, NULL, NULL, NULL);
 }
 
 /*
@@ -303,98 +274,83 @@ CG_Heat_UpdateViewmodel
 */
 void CG_Heat_UpdateViewmodel(LocalClientNum_t localClientNum)
 {
-  __int64 v9; 
+  __int64 v2; 
   playerState_s *p_predictedPlayerState; 
-  __int64 v11; 
+  __int64 v4; 
   const Weapon *ViewmodelWeapon; 
   __int64 p_weapFlags; 
-  bool v14; 
-  ParticleManager *v15; 
+  bool v7; 
+  ParticleManager *v8; 
   cg_t *LocalClientGlobals; 
   PlayerHandIndex WeaponHand; 
-  __int64 v18; 
-  PlayerHandIndex v19; 
+  __int64 v11; 
+  PlayerHandIndex v12; 
   int *p_weaponState; 
   const WeaponHand *m_weaponHand; 
   ParticleSystemHandle *p_ejectionPort; 
-  __int64 v23; 
-  WeaponHeat *v29; 
-  ParticleSystemHandle v30; 
-  __int64 v31; 
+  __int64 v16; 
+  WeaponHeat *v18; 
+  ParticleSystemHandle v19; 
+  __int64 v20; 
+  unsigned int v21; 
+  unsigned __int64 v22; 
+  unsigned __int64 v23; 
+  bool v24; 
+  char v25; 
+  unsigned int v26; 
+  unsigned __int64 v27; 
+  unsigned __int64 v28; 
+  bool v29; 
+  LocalClientNum_t v30; 
+  bool v31; 
   unsigned int v32; 
   unsigned __int64 v33; 
   unsigned __int64 v34; 
   bool v35; 
-  char v36; 
-  unsigned int v37; 
-  unsigned __int64 v38; 
-  unsigned __int64 v39; 
-  bool v40; 
-  LocalClientNum_t v41; 
-  bool v42; 
-  unsigned int v43; 
-  unsigned __int64 v44; 
-  unsigned __int64 v45; 
-  bool v46; 
   const ParticleSystemDef *particleSystemDef; 
-  int v48; 
-  const TagPair *v49; 
-  char v50; 
-  char v51; 
-  unsigned int v55; 
-  unsigned __int64 v56; 
-  unsigned __int64 v57; 
-  unsigned int v58; 
-  unsigned __int64 v59; 
-  unsigned __int64 v60; 
-  unsigned int v61; 
-  unsigned __int64 v62; 
-  unsigned __int64 v63; 
+  int v37; 
+  const TagPair *v38; 
+  double Heat; 
+  int v40; 
+  unsigned int v41; 
+  unsigned __int64 v42; 
+  unsigned __int64 v43; 
+  unsigned int v44; 
+  unsigned __int64 v45; 
+  unsigned __int64 v46; 
+  unsigned int v47; 
+  unsigned __int64 v48; 
+  unsigned __int64 v49; 
   FxCombinedDef *ejectionPortSmoke; 
-  FxCombinedDef *ejectionPortSmokea; 
   __int64 time; 
-  double timea; 
-  double dobjHandle; 
-  cg_t *v76; 
+  cg_t *v52; 
   playerState_s *ps; 
-  __int64 v78; 
+  __int64 v54; 
   FxCombinedDef muzzleSmoke; 
   FxCombinedDef barrelSmoke; 
   WeaponHeat *playerWeaponHeat; 
   CgHandler *Handler; 
   TagPair result; 
   TagPair tagPair; 
-  FxCombinedDef v85; 
-  __int64 v86; 
-  TagPair v87; 
-  char v88; 
-  void *retaddr; 
-  bool v91; 
-  int *v92; 
-  __int64 v93; 
+  FxCombinedDef v61; 
+  __int64 v62; 
+  TagPair v63; 
+  bool v65; 
+  int *v66; 
+  __int64 v67; 
 
-  _RAX = &retaddr;
-  v86 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-  }
-  v9 = localClientNum;
+  v62 = -2i64;
+  v2 = localClientNum;
   Sys_ProfBeginNamedEvent(0xFF000000, "CG_Heat_UpdateViewmodel");
-  Handler = CgHandler::getHandler((LocalClientNum_t)v9);
-  p_predictedPlayerState = &CG_GetLocalClientGlobals((const LocalClientNum_t)v9)->predictedPlayerState;
+  Handler = CgHandler::getHandler((LocalClientNum_t)v2);
+  p_predictedPlayerState = &CG_GetLocalClientGlobals((const LocalClientNum_t)v2)->predictedPlayerState;
   ps = p_predictedPlayerState;
   Handler->PlayerWeaponHeatIterate(Handler, p_predictedPlayerState, BG_Heat_UpdateFlags);
-  v11 = v9;
-  v78 = v9;
-  if ( !CgWeaponMap::ms_instance[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  v4 = v2;
+  v54 = v2;
+  if ( !CgWeaponMap::ms_instance[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  ViewmodelWeapon = BG_GetViewmodelWeapon(CgWeaponMap::ms_instance[v9], p_predictedPlayerState);
+  ViewmodelWeapon = BG_GetViewmodelWeapon(CgWeaponMap::ms_instance[v2], p_predictedPlayerState);
   if ( p_predictedPlayerState )
   {
     p_weapFlags = (__int64)&p_predictedPlayerState->weapCommon.weapFlags;
@@ -407,232 +363,192 @@ void CG_Heat_UpdateViewmodel(LocalClientNum_t localClientNum)
   }
   if ( p_predictedPlayerState && (GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal((GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *)p_weapFlags, ACTIVE, 0x11u) || GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal((GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64> *)p_weapFlags, ACTIVE, 0x1Bu)) )
   {
-    v14 = 1;
+    v7 = 1;
     goto LABEL_7;
   }
 LABEL_6:
-  v14 = 0;
+  v7 = 0;
 LABEL_7:
-  v91 = v14;
-  BG_HeatSmokeEffect(ViewmodelWeapon, v14, 1, &muzzleSmoke, &barrelSmoke, &v85);
-  if ( (unsigned int)v9 >= 2 )
+  v65 = v7;
+  BG_HeatSmokeEffect(ViewmodelWeapon, v7, 1, &muzzleSmoke, &barrelSmoke, &v61);
+  if ( (unsigned int)v2 >= 2 )
   {
-    LODWORD(ejectionPortSmoke) = v9;
+    LODWORD(ejectionPortSmoke) = v2;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 866, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", ejectionPortSmoke, 2) )
       __debugbreak();
   }
-  v15 = &g_particleManager[v9];
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v9);
-  v76 = LocalClientGlobals;
-  if ( !CgWeaponMap::ms_instance[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  v8 = &g_particleManager[v2];
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
+  v52 = LocalClientGlobals;
+  if ( !CgWeaponMap::ms_instance[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  WeaponHand = BG_PlayerLastWeaponHand(CgWeaponMap::ms_instance[v11], p_predictedPlayerState);
-  v18 = WeaponHand;
+  WeaponHand = BG_PlayerLastWeaponHand(CgWeaponMap::ms_instance[v4], p_predictedPlayerState);
+  v11 = WeaponHand;
   if ( (unsigned int)WeaponHand > WEAPON_HAND_LEFT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_heat.cpp", 65, ASSERT_TYPE_ASSERT, "(lastHand >= 0 && lastHand < NUM_WEAPON_HANDS)", (const char *)&queryFormat, "lastHand >= 0 && lastHand < NUM_WEAPON_HANDS") )
     __debugbreak();
-  v19 = WEAPON_HAND_DEFAULT;
-  if ( (int)v18 >= 0 )
+  v12 = WEAPON_HAND_DEFAULT;
+  if ( (int)v11 >= 0 )
   {
     p_weaponState = &p_predictedPlayerState->weapState[0].weaponState;
-    v92 = &p_predictedPlayerState->weapState[0].weaponState;
+    v66 = &p_predictedPlayerState->weapState[0].weaponState;
     m_weaponHand = LocalClientGlobals->m_weaponHand;
     p_ejectionPort = &LocalClientGlobals->viewmodelSmokeInfo[0].ejectionPort;
-    v23 = v18 + 1;
-    v93 = v18 + 1;
-    __asm
-    {
-      vxorps  xmm8, xmm8, xmm8
-      vmovss  xmm7, cs:__real@3f800000
-      vmovsd  xmm9, cs:__real@3ff0000000000000
-      vxorpd  xmm10, xmm10, xmm10
-      vmovss  xmm11, cs:__real@437f0000
-    }
+    v16 = v11 + 1;
+    v67 = v11 + 1;
+    __asm { vxorpd  xmm10, xmm10, xmm10 }
     do
     {
-      if ( (unsigned int)v19 >= NUM_WEAPON_HANDS )
+      if ( (unsigned int)v12 >= NUM_WEAPON_HANDS )
       {
         LODWORD(time) = 2;
-        LODWORD(ejectionPortSmoke) = v19;
+        LODWORD(ejectionPortSmoke) = v12;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1200, ASSERT_TYPE_ASSERT, "(unsigned)( handIndex ) < (unsigned)( NUM_WEAPON_HANDS )", "handIndex doesn't index NUM_WEAPON_HANDS\n\t%i not in [0, %i)", ejectionPortSmoke, time) )
           __debugbreak();
-        v23 = v93;
-        p_weaponState = v92;
+        v16 = v67;
+        p_weaponState = v66;
       }
       if ( !m_weaponHand->viewModelDObj )
         goto LABEL_104;
-      v29 = Handler->GetPlayerWeaponHeat(Handler, p_predictedPlayerState, ViewmodelWeapon, v19);
-      playerWeaponHeat = v29;
-      v30 = *((_DWORD *)p_ejectionPort - 2);
-      v31 = v11 << 12;
+      v18 = Handler->GetPlayerWeaponHeat(Handler, p_predictedPlayerState, ViewmodelWeapon, v12);
+      playerWeaponHeat = v18;
+      v19 = *((_DWORD *)p_ejectionPort - 2);
+      v20 = v4 << 12;
+      v21 = 0;
+      if ( g_particleSystemsGeneration[v20 + (v19 & 0xFFF)].__all32 == v19 )
+        v21 = *(p_ejectionPort - 2) & 0xFFF;
+      v22 = *((_QWORD *)&g_particleSystems[0][v20] + v21);
+      v23 = 0i64;
+      if ( v22 >= 0x1000 )
+        v23 = v22;
+      v24 = v23 && (*(_BYTE *)(v23 + 416) & 0x10) == 0;
+      if ( *v66 != 16 )
+      {
+        if ( BG_Heat_GetIsSmoking(v18, ViewmodelWeapon) )
+        {
+          v25 = 1;
+          if ( !v24 && muzzleSmoke.particleSystemDef )
+          {
+            BG_GetWeaponFlashTagname(&result, ViewmodelWeapon, v65, 0);
+            *((_DWORD *)p_ejectionPort - 2) = CG_Heat_PlaySmokeEffect(localClientNum, m_weaponHand->viewModelDObj, result, 0, v8, muzzleSmoke.particleSystemDef, v52->time, v12 + 2048);
+          }
+          goto LABEL_44;
+        }
+        v19 = *((_DWORD *)p_ejectionPort - 2);
+      }
+      v25 = 0;
+      if ( v24 )
+      {
+        ParticleManager::StopSystem(v8, v19);
+        *((_DWORD *)p_ejectionPort - 2) = 0;
+      }
+LABEL_44:
+      v26 = 0;
+      if ( g_particleSystemsGeneration[v20 + (*(p_ejectionPort - 1) & 0xFFF)].__all32 == *((_DWORD *)p_ejectionPort - 1) )
+        v26 = *(p_ejectionPort - 1) & 0xFFF;
+      v27 = *((_QWORD *)&g_particleSystems[0][v20] + v26);
+      v28 = 0i64;
+      if ( v27 >= 0x1000 )
+        v28 = v27;
+      v29 = v28 && (*(_BYTE *)(v28 + 416) & 0x10) == 0;
+      if ( !BG_Heat_GetIsSmoking(playerWeaponHeat, ViewmodelWeapon) )
+      {
+        if ( v29 )
+        {
+          ParticleManager::StopSystem(v8, *(p_ejectionPort - 1));
+          *((_DWORD *)p_ejectionPort - 1) = 0;
+        }
+LABEL_55:
+        v30 = localClientNum;
+        goto LABEL_56;
+      }
+      if ( v29 || !barrelSmoke.particleSystemDef )
+        goto LABEL_55;
+      BG_GetWeaponFlashTagname(&tagPair, ViewmodelWeapon, v65, 0);
+      v30 = localClientNum;
+      *((_DWORD *)p_ejectionPort - 1) = CG_Heat_PlaySmokeEffect(localClientNum, m_weaponHand->viewModelDObj, tagPair, 0, v8, barrelSmoke.particleSystemDef, v52->time, v12 + 2048);
+LABEL_56:
+      v31 = v25 && CG_Heat_IsBoltOpenViewmodel(v30, ps, ViewmodelWeapon, v65, v12, m_weaponHand);
       v32 = 0;
-      if ( g_particleSystemsGeneration[v31 + (v30 & 0xFFF)].__all32 == v30 )
-        v32 = *(p_ejectionPort - 2) & 0xFFF;
-      v33 = *((_QWORD *)&g_particleSystems[0][v31] + v32);
+      if ( g_particleSystemsGeneration[v20 + (*p_ejectionPort & 0xFFF)].__all32 == *p_ejectionPort )
+        v32 = *p_ejectionPort & 0xFFF;
+      v33 = *((_QWORD *)&g_particleSystems[0][v20] + v32);
       v34 = 0i64;
       if ( v33 >= 0x1000 )
         v34 = v33;
       v35 = v34 && (*(_BYTE *)(v34 + 416) & 0x10) == 0;
-      if ( *v92 != 16 )
+      if ( v31 )
       {
-        if ( BG_Heat_GetIsSmoking(v29, ViewmodelWeapon) )
+        if ( !v35 )
         {
-          v36 = 1;
-          if ( !v35 && muzzleSmoke.particleSystemDef )
+          particleSystemDef = v61.particleSystemDef;
+          if ( v61.particleSystemDef )
           {
-            BG_GetWeaponFlashTagname(&result, ViewmodelWeapon, v91, 0);
-            *((_DWORD *)p_ejectionPort - 2) = CG_Heat_PlaySmokeEffect(localClientNum, m_weaponHand->viewModelDObj, result, 0, v15, muzzleSmoke.particleSystemDef, v76->time, v19 + 2048);
-          }
-          goto LABEL_44;
-        }
-        v30 = *((_DWORD *)p_ejectionPort - 2);
-      }
-      v36 = 0;
-      if ( v35 )
-      {
-        ParticleManager::StopSystem(v15, v30);
-        *((_DWORD *)p_ejectionPort - 2) = 0;
-      }
-LABEL_44:
-      v37 = 0;
-      if ( g_particleSystemsGeneration[v31 + (*(p_ejectionPort - 1) & 0xFFF)].__all32 == *((_DWORD *)p_ejectionPort - 1) )
-        v37 = *(p_ejectionPort - 1) & 0xFFF;
-      v38 = *((_QWORD *)&g_particleSystems[0][v31] + v37);
-      v39 = 0i64;
-      if ( v38 >= 0x1000 )
-        v39 = v38;
-      v40 = v39 && (*(_BYTE *)(v39 + 416) & 0x10) == 0;
-      if ( !BG_Heat_GetIsSmoking(playerWeaponHeat, ViewmodelWeapon) )
-      {
-        if ( v40 )
-        {
-          ParticleManager::StopSystem(v15, *(p_ejectionPort - 1));
-          *((_DWORD *)p_ejectionPort - 1) = 0;
-        }
-LABEL_55:
-        v41 = localClientNum;
-        goto LABEL_56;
-      }
-      if ( v40 || !barrelSmoke.particleSystemDef )
-        goto LABEL_55;
-      BG_GetWeaponFlashTagname(&tagPair, ViewmodelWeapon, v91, 0);
-      v41 = localClientNum;
-      *((_DWORD *)p_ejectionPort - 1) = CG_Heat_PlaySmokeEffect(localClientNum, m_weaponHand->viewModelDObj, tagPair, 0, v15, barrelSmoke.particleSystemDef, v76->time, v19 + 2048);
-LABEL_56:
-      v42 = v36 && CG_Heat_IsBoltOpenViewmodel(v41, ps, ViewmodelWeapon, v91, v19, m_weaponHand);
-      v43 = 0;
-      if ( g_particleSystemsGeneration[v31 + (*p_ejectionPort & 0xFFF)].__all32 == *p_ejectionPort )
-        v43 = *p_ejectionPort & 0xFFF;
-      v44 = *((_QWORD *)&g_particleSystems[0][v31] + v43);
-      v45 = 0i64;
-      if ( v44 >= 0x1000 )
-        v45 = v44;
-      v46 = v45 && (*(_BYTE *)(v45 + 416) & 0x10) == 0;
-      if ( v42 )
-      {
-        if ( !v46 )
-        {
-          particleSystemDef = v85.particleSystemDef;
-          if ( v85.particleSystemDef )
-          {
-            v48 = v76->time;
-            TagPair::TagPair(&v87, scr_const.tag_brass, (scr_string_t)0);
-            *p_ejectionPort = CG_Heat_PlaySmokeEffect(localClientNum, m_weaponHand->viewModelDObj, *v49, 0, v15, particleSystemDef, v48, v19 + 2048);
+            v37 = v52->time;
+            TagPair::TagPair(&v63, scr_const.tag_brass, (scr_string_t)0);
+            *p_ejectionPort = CG_Heat_PlaySmokeEffect(localClientNum, m_weaponHand->viewModelDObj, *v38, 0, v8, particleSystemDef, v37, v12 + 2048);
           }
         }
       }
-      else if ( v46 )
+      else if ( v35 )
       {
-        ParticleManager::StopSystem(v15, *p_ejectionPort);
+        ParticleManager::StopSystem(v8, *p_ejectionPort);
         *p_ejectionPort = PARTICLE_SYSTEM_INVALID_HANDLE;
       }
       if ( *((_DWORD *)p_ejectionPort - 2) || *((_DWORD *)p_ejectionPort - 1) || *p_ejectionPort )
       {
         p_predictedPlayerState = ps;
-        *(double *)&_XMM0 = BG_Heat_GetHeat(playerWeaponHeat, ViewmodelWeapon, 0, ps->serverTime);
-        __asm
-        {
-          vmovaps xmm6, xmm0
-          vcomiss xmm0, xmm8
-        }
-        if ( v50 )
-          goto LABEL_108;
-        __asm { vcomiss xmm0, xmm7 }
-        if ( !(v50 | v51) )
-        {
-LABEL_108:
-          __asm
-          {
-            vcvtss2sd xmm1, xmm6, xmm6
-            vmovsd  qword ptr [rsp+158h+dobjHandle], xmm9
-            vmovsd  qword ptr [rsp+158h+time], xmm10
-            vmovsd  [rsp+158h+ejectionPortSmoke], xmm1
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_heat.cpp", 127, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( heat ) && ( heat ) <= ( 1.0f )", "heat not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&ejectionPortSmokea, timea, dobjHandle) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm11
-          vcvttss2si r9d, xmm0
-        }
-        v55 = 0;
-        if ( g_particleSystemsGeneration[v31 + (*(p_ejectionPort - 2) & 0xFFF)].__all32 == *((_DWORD *)p_ejectionPort - 2) )
-          v55 = *(p_ejectionPort - 2) & 0xFFF;
-        v56 = *((_QWORD *)&g_particleSystems[0][v31] + v55);
-        v57 = 0i64;
-        if ( v56 >= 0x1000 )
-          v57 = v56;
-        if ( v57 )
-          *(_BYTE *)(v57 + 550) = _ER9;
-        v58 = 0;
-        if ( g_particleSystemsGeneration[v31 + (*(p_ejectionPort - 1) & 0xFFF)].__all32 == *((_DWORD *)p_ejectionPort - 1) )
-          v58 = *(p_ejectionPort - 1) & 0xFFF;
-        v59 = *((_QWORD *)&g_particleSystems[0][v31] + v58);
-        v60 = 0i64;
-        if ( v59 >= 0x1000 )
-          v60 = v59;
-        if ( v60 )
-          *(_BYTE *)(v60 + 550) = _ER9;
-        v61 = 0;
-        if ( g_particleSystemsGeneration[v31 + (*p_ejectionPort & 0xFFF)].__all32 == *p_ejectionPort )
-          v61 = *p_ejectionPort & 0xFFF;
-        v62 = *((_QWORD *)&g_particleSystems[0][v31] + v61);
-        v63 = 0i64;
-        if ( v62 >= 0x1000 )
-          v63 = v62;
-        p_weaponState = v92;
-        v11 = v78;
-        if ( v63 )
-          *(_BYTE *)(v63 + 550) = _ER9;
+        Heat = BG_Heat_GetHeat(playerWeaponHeat, ViewmodelWeapon, 0, ps->serverTime);
+        if ( (*(float *)&Heat < 0.0 || *(float *)&Heat > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_heat.cpp", 127, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( heat ) && ( heat ) <= ( 1.0f )", "heat not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&Heat, *(double *)&_XMM10, DOUBLE_1_0) )
+          __debugbreak();
+        v40 = (int)(float)(*(float *)&Heat * 255.0);
+        v41 = 0;
+        if ( g_particleSystemsGeneration[v20 + (*(p_ejectionPort - 2) & 0xFFF)].__all32 == *((_DWORD *)p_ejectionPort - 2) )
+          v41 = *(p_ejectionPort - 2) & 0xFFF;
+        v42 = *((_QWORD *)&g_particleSystems[0][v20] + v41);
+        v43 = 0i64;
+        if ( v42 >= 0x1000 )
+          v43 = v42;
+        if ( v43 )
+          *(_BYTE *)(v43 + 550) = v40;
+        v44 = 0;
+        if ( g_particleSystemsGeneration[v20 + (*(p_ejectionPort - 1) & 0xFFF)].__all32 == *((_DWORD *)p_ejectionPort - 1) )
+          v44 = *(p_ejectionPort - 1) & 0xFFF;
+        v45 = *((_QWORD *)&g_particleSystems[0][v20] + v44);
+        v46 = 0i64;
+        if ( v45 >= 0x1000 )
+          v46 = v45;
+        if ( v46 )
+          *(_BYTE *)(v46 + 550) = v40;
+        v47 = 0;
+        if ( g_particleSystemsGeneration[v20 + (*p_ejectionPort & 0xFFF)].__all32 == *p_ejectionPort )
+          v47 = *p_ejectionPort & 0xFFF;
+        v48 = *((_QWORD *)&g_particleSystems[0][v20] + v47);
+        v49 = 0i64;
+        if ( v48 >= 0x1000 )
+          v49 = v48;
+        p_weaponState = v66;
+        v4 = v54;
+        if ( v49 )
+          *(_BYTE *)(v49 + 550) = v40;
       }
       else
       {
         p_predictedPlayerState = ps;
-        p_weaponState = v92;
-        v11 = v78;
+        p_weaponState = v66;
+        v4 = v54;
       }
-      v23 = v93;
+      v16 = v67;
 LABEL_104:
-      ++v19;
+      ++v12;
       p_ejectionPort += 4;
       ++m_weaponHand;
       p_weaponState += 20;
-      v92 = p_weaponState;
-      v93 = --v23;
+      v66 = p_weaponState;
+      v67 = --v16;
     }
-    while ( v23 );
+    while ( v16 );
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v88;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-  }
 }
 
 /*

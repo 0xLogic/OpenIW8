@@ -206,14 +206,14 @@ Cloth_Update_ApplyBulletImpact
 */
 void Cloth_Update_ApplyBulletImpact(const unsigned int globalWorldId, const unsigned int instanceId, const unsigned int clothInstanceIdx, const unsigned int shapeKey, const vec3_t *start, const vec3_t *hitPos)
 {
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
-  hkVector4f v33; 
-  hkVector4f v34; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int64 v14; 
+  float v15; 
+  hkVector4f v16; 
+  hkVector4f v17; 
 
   if ( !Cloth_IsInitialized() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 256, ASSERT_TYPE_ASSERT, "(Cloth_IsInitialized())", (const char *)&queryFormat, "Cloth_IsInitialized()") )
     __debugbreak();
@@ -221,78 +221,31 @@ void Cloth_Update_ApplyBulletImpact(const unsigned int globalWorldId, const unsi
     __debugbreak();
   if ( instanceId == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 258, ASSERT_TYPE_ASSERT, "(instanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != CLOTH_INSTANCEID_INVALID") )
     __debugbreak();
-  _RDI = start;
-  __asm
+  v15 = start->v[0];
+  if ( (LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (v15 = start->v[1], (LODWORD(v15) & 0x7F800000) == 2139095040) || (v15 = start->v[2], (LODWORD(v15) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-  {
-LABEL_23:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 259, ASSERT_TYPE_ASSERT, "(!IS_NAN( start[0] ) && !IS_NAN( start[1] ) && !IS_NAN( start[2] ))", (const char *)&queryFormat, "!IS_NAN( start[0] ) && !IS_NAN( start[1] ) && !IS_NAN( start[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 259, ASSERT_TYPE_ASSERT, "(!IS_NAN( start[0] ) && !IS_NAN( start[1] ) && !IS_NAN( start[2] ))", (const char *)&queryFormat, "!IS_NAN( start[0] ) && !IS_NAN( start[1] ) && !IS_NAN( start[2] )", v15) )
       __debugbreak();
   }
-  _RBX = hitPos;
-  __asm
+  *(float *)&v14 = hitPos->v[0];
+  if ( (LODWORD(hitPos->v[0]) & 0x7F800000) == 2139095040 || (*(float *)&v14 = hitPos->v[1], (v14 & 0x7F800000) == 2139095040) || (*(float *)&v14 = hitPos->v[2], (v14 & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+0A8h+var_78], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-  {
-LABEL_24:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 260, ASSERT_TYPE_ASSERT, "(!IS_NAN( hitPos[0] ) && !IS_NAN( hitPos[1] ) && !IS_NAN( hitPos[2] ))", (const char *)&queryFormat, "!IS_NAN( hitPos[0] ) && !IS_NAN( hitPos[1] ) && !IS_NAN( hitPos[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 260, ASSERT_TYPE_ASSERT, "(!IS_NAN( hitPos[0] ) && !IS_NAN( hitPos[1] ) && !IS_NAN( hitPos[2] ))", (const char *)&queryFormat, "!IS_NAN( hitPos[0] ) && !IS_NAN( hitPos[1] ) && !IS_NAN( hitPos[2] )", v14) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm4, cs:__real@3d000000
-    vmulss  xmm0, xmm4, dword ptr [rdi]
-    vmulss  xmm2, xmm4, dword ptr [rdi+4]
-    vmulss  xmm1, xmm4, dword ptr [rdi+8]
-    vxorps  xmm3, xmm3, xmm3
-    vmovss  dword ptr [rsp+0A8h+var_58.m_quad], xmm0
-    vmulss  xmm0, xmm4, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+0A8h+var_58.m_quad+4], xmm2
-    vmulss  xmm2, xmm4, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+0A8h+var_58.m_quad+8], xmm1
-    vmulss  xmm1, xmm4, dword ptr [rbx]
-    vmovss  dword ptr [rsp+0A8h+var_68.m_quad], xmm1
-    vmovss  dword ptr [rsp+0A8h+var_68.m_quad+4], xmm0
-    vmovss  dword ptr [rsp+0A8h+var_68.m_quad+8], xmm2
-    vmovss  dword ptr [rsp+0A8h+var_58.m_quad+0Ch], xmm3
-    vmovss  dword ptr [rsp+0A8h+var_68.m_quad+0Ch], xmm3
-  }
-  HavokCloth_Update_ApplyBulletImpact(globalWorldId, instanceId, clothInstanceIdx, (const hkHandle<unsigned int,4294967295,hknpShapeKeyDiscriminant>)shapeKey, &v34, &v33);
+  v10 = 0.03125 * start->v[1];
+  v11 = 0.03125 * start->v[2];
+  v17.m_quad.m128_f32[0] = 0.03125 * start->v[0];
+  v12 = 0.03125 * hitPos->v[1];
+  v17.m_quad.m128_f32[1] = v10;
+  v13 = 0.03125 * hitPos->v[2];
+  v17.m_quad.m128_f32[2] = v11;
+  v16.m_quad.m128_f32[0] = 0.03125 * hitPos->v[0];
+  v16.m_quad.m128_f32[1] = v12;
+  v16.m_quad.m128_f32[2] = v13;
+  v17.m_quad.m128_f32[3] = 0.0;
+  v16.m_quad.m128_f32[3] = 0.0;
+  HavokCloth_Update_ApplyBulletImpact(globalWorldId, instanceId, clothInstanceIdx, (const hkHandle<unsigned int,4294967295,hknpShapeKeyDiscriminant>)shapeKey, &v17, &v16);
 }
 
 /*
@@ -300,38 +253,26 @@ LABEL_24:
 Cloth_Update_FrameFlip
 ==============
 */
-
-void __fastcall Cloth_Update_FrameFlip(const unsigned int globalWorldId, double timeStep, const vec3_t *focusPosition)
+void Cloth_Update_FrameFlip(const unsigned int globalWorldId, const float timeStep, const vec3_t *focusPosition)
 {
+  float v5; 
+  float v6; 
   hkVector4f focusPositiona; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !Cloth_IsInitialized() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 126, ASSERT_TYPE_ASSERT, "(Cloth_IsInitialized())", (const char *)&queryFormat, "Cloth_IsInitialized()") )
     __debugbreak();
   if ( globalWorldId > Cloth_GetMaxSupportedGlobalWorlds() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 127, ASSERT_TYPE_ASSERT, "(globalWorldId <= Cloth_GetMaxSupportedGlobalWorlds())", (const char *)&queryFormat, "globalWorldId <= Cloth_GetMaxSupportedGlobalWorlds()") )
     __debugbreak();
   if ( Cloth_HasErrorFlag() )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_14431CCB8, 305i64);
-  __asm
-  {
-    vmovss  xmm4, cs:__real@3d000000
-    vmulss  xmm3, xmm4, dword ptr [rdi+4]
-    vmulss  xmm0, xmm4, dword ptr [rdi]
-    vmulss  xmm2, xmm4, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+68h+focusPosition.m_quad+4], xmm3
-    vxorps  xmm3, xmm3, xmm3
-    vmovaps xmm1, xmm6; timeStep
-    vmovss  dword ptr [rsp+68h+focusPosition.m_quad+0Ch], xmm3
-    vmovss  dword ptr [rsp+68h+focusPosition.m_quad], xmm0
-    vmovss  dword ptr [rsp+68h+focusPosition.m_quad+8], xmm2
-  }
-  HavokCloth_Update_FrameFlip(globalWorldId, *(const float *)&_XMM1, &focusPositiona);
+  v5 = 0.03125 * focusPosition->v[0];
+  v6 = 0.03125 * focusPosition->v[2];
+  focusPositiona.m_quad.m128_f32[1] = 0.03125 * focusPosition->v[1];
+  focusPositiona.m_quad.m128_f32[3] = 0.0;
+  focusPositiona.m_quad.m128_f32[0] = v5;
+  focusPositiona.m_quad.m128_f32[2] = v6;
+  HavokCloth_Update_FrameFlip(globalWorldId, timeStep, &focusPositiona);
   Cloth_Debug_Perf_FlipBuffer(globalWorldId);
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
 }
 
 /*
@@ -586,95 +527,40 @@ Cloth_Update_SetInstanceTransform
 */
 void Cloth_Update_SetInstanceTransform(const unsigned int globalWorldId, const unsigned int instanceId, const vec3_t *origin, const vec4_t *orientationAsQuat)
 {
-  int v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
+  float v8; 
+  float v9; 
+  __m128 v10; 
+  __int64 v11; 
+  float v12; 
   hkQuaternionf orientation; 
   hkVector4f origina; 
 
-  _RBX = orientationAsQuat;
-  _RDI = origin;
   if ( !Cloth_IsInitialized() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 76, ASSERT_TYPE_ASSERT, "(Cloth_IsInitialized())", (const char *)&queryFormat, "Cloth_IsInitialized()") )
     __debugbreak();
   if ( globalWorldId > Cloth_GetMaxSupportedGlobalWorlds() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 77, ASSERT_TYPE_ASSERT, "(globalWorldId <= Cloth_GetMaxSupportedGlobalWorlds())", (const char *)&queryFormat, "globalWorldId <= Cloth_GetMaxSupportedGlobalWorlds()") )
     __debugbreak();
   if ( instanceId == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 78, ASSERT_TYPE_ASSERT, "(instanceId != CLOTH_INSTANCEID_INVALID)", (const char *)&queryFormat, "instanceId != CLOTH_INSTANCEID_INVALID") )
     __debugbreak();
-  __asm
+  v12 = origin->v[0];
+  if ( (LODWORD(origin->v[0]) & 0x7F800000) == 2139095040 || (v12 = origin->v[1], (LODWORD(v12) & 0x7F800000) == 2139095040) || (v12 = origin->v[2], (LODWORD(v12) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-  {
-LABEL_24:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 79, ASSERT_TYPE_ASSERT, "(!IS_NAN( origin[0] ) && !IS_NAN( origin[1] ) && !IS_NAN( origin[2] ))", (const char *)&queryFormat, "!IS_NAN( origin[0] ) && !IS_NAN( origin[1] ) && !IS_NAN( origin[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 79, ASSERT_TYPE_ASSERT, "(!IS_NAN( origin[0] ) && !IS_NAN( origin[1] ) && !IS_NAN( origin[2] ))", (const char *)&queryFormat, "!IS_NAN( origin[0] ) && !IS_NAN( origin[1] ) && !IS_NAN( origin[2] )", v12) )
       __debugbreak();
   }
-  __asm
+  *(float *)&v11 = orientationAsQuat->v[0];
+  if ( (LODWORD(orientationAsQuat->v[0]) & 0x7F800000) == 2139095040 || (*(float *)&v11 = orientationAsQuat->v[1], (v11 & 0x7F800000) == 2139095040) || (*(float *)&v11 = orientationAsQuat->v[2], (v11 & 0x7F800000) == 2139095040) || (*(float *)&v11 = orientationAsQuat->v[3], (v11 & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_25;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_25;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_25;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-  {
-LABEL_25:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 80, ASSERT_TYPE_ASSERT, "(!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] ))", (const char *)&queryFormat, "!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cloth\\private\\core\\clothupdate.cpp", 80, ASSERT_TYPE_ASSERT, "(!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] ))", (const char *)&queryFormat, "!IS_NAN( orientationAsQuat[0] ) && !IS_NAN( orientationAsQuat[1] ) && !IS_NAN( orientationAsQuat[2] ) && !IS_NAN( orientationAsQuat[3] )", v11) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3d000000
-    vmulss  xmm0, xmm3, dword ptr [rdi]
-    vmulss  xmm2, xmm3, dword ptr [rdi+4]
-    vmulss  xmm1, xmm3, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+88h+origin.m_quad], xmm0
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovss  dword ptr [rsp+88h+origin.m_quad+4], xmm2
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  dword ptr [rsp+88h+origin.m_quad+0Ch], xmm2
-    vmovaps xmmword ptr [rsp+88h+orientation.m_vec.m_quad], xmm0
-    vmovss  dword ptr [rsp+88h+origin.m_quad+8], xmm1
-  }
+  v8 = 0.03125 * origin->v[1];
+  v9 = 0.03125 * origin->v[2];
+  origina.m_quad.m128_f32[0] = 0.03125 * origin->v[0];
+  v10 = *(__m128 *)orientationAsQuat;
+  origina.m_quad.m128_f32[1] = v8;
+  origina.m_quad.m128_f32[3] = 0.0;
+  orientation.m_vec.m_quad = v10;
+  origina.m_quad.m128_f32[2] = v9;
   HavokCloth_Update_SetInstanceTransform(globalWorldId, instanceId, &origina, &orientation);
 }
 

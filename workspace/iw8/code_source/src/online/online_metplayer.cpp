@@ -489,12 +489,7 @@ Online_MetPlayer::OutputCurrentState
 void Online_MetPlayer::OutputCurrentState(Online_MetPlayer *this, const int controllerIndex)
 {
   Com_Printf(25, "METPLAYER DUMP START controllerIndex %d\n", (unsigned int)controllerIndex);
-  __asm
-  {
-    vmovsd  xmm3, cs:__real@3ff0800000000000
-    vmovq   r9, xmm3
-  }
-  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, *(double *)&_XMM3);
+  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, DOUBLE_1_03125);
   Com_Printf(25, "METPLAYER DUMP END\n");
 }
 

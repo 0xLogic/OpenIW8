@@ -407,39 +407,37 @@ lj_cf_select
 */
 __int64 lj_cf_select(lua_State *L)
 {
+  TValue *top; 
   TValue *base; 
-  __int64 v5; 
+  __int64 v4; 
   __int64 u64; 
-  int v10; 
+  int v9; 
 
-  _RCX = L->top;
+  top = L->top;
   base = L->base;
-  v5 = _RCX - base;
-  if ( (int)v5 >= 1 && (u64 = base->u64, (unsigned int)(u64 >> 47) == -5) && *(_BYTE *)((u64 & 0x7FFFFFFFFFFFi64) + 0x18) == 35 )
+  v4 = top - base;
+  if ( (int)v4 >= 1 && (u64 = base->u64, (unsigned int)(u64 >> 47) == -5) && *(_BYTE *)((u64 & 0x7FFFFFFFFFFFi64) + 0x18) == 35 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, eax
-      vmovsd  qword ptr [rcx-8], xmm0
-    }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, eax }
+    top[-1].u64 = *(unsigned __int64 *)&_XMM0;
     return 1i64;
   }
   else
   {
-    v10 = j_lj_lib_checkint(L, 1);
-    if ( v10 >= 0 )
+    v9 = j_lj_lib_checkint(L, 1);
+    if ( v9 >= 0 )
     {
-      if ( v10 > (int)v5 )
-        v10 = v5;
+      if ( v9 > (int)v4 )
+        v9 = v4;
     }
     else
     {
-      v10 += v5;
+      v9 += v4;
     }
-    if ( v10 < 1 )
+    if ( v9 < 1 )
       j_lj_err_arg(L, 1, LJ_ERR_IDXRNG);
-    return (unsigned int)(v5 - v10);
+    return (unsigned int)(v4 - v9);
   }
 }
 
@@ -450,43 +448,39 @@ lj_ffh_tonumber
 */
 __int64 lj_ffh_tonumber(lua_State *L)
 {
-  int v3; 
-  TValue *v4; 
-  __int64 v5; 
-  TValue v6; 
+  int v2; 
+  TValue *v3; 
+  __int64 v4; 
+  TValue v5; 
+  __int64 v6; 
   __int64 v7; 
-  __int64 v8; 
-  GCstr *v10; 
+  GCstr *v9; 
+  char *v10; 
   char *v11; 
-  char *v12; 
   char *EndPtr; 
 
-  v3 = j_lj_lib_optint(L, 2, 10);
-  if ( v3 != 10 )
+  v2 = j_lj_lib_optint(L, 2, 10);
+  if ( v2 != 10 )
   {
-    v10 = j_lj_lib_checkstr(L, 1);
-    v11 = (char *)&v10[1];
-    if ( (unsigned int)(v3 - 2) > 0x22 )
+    v9 = j_lj_lib_checkstr(L, 1);
+    v10 = (char *)&v9[1];
+    if ( (unsigned int)(v2 - 2) > 0x22 )
       j_lj_err_arg(L, 2, LJ_ERR_BASERNG);
-    strtoul((const char *)&v10[1], &EndPtr, v3);
-    v12 = EndPtr;
-    if ( v11 != EndPtr )
+    strtoul((const char *)&v9[1], &EndPtr, v2);
+    v11 = EndPtr;
+    if ( v10 != EndPtr )
     {
       if ( (lj_char_bits[(unsigned __int8)*EndPtr + 1] & 2) != 0 )
       {
         do
-          EndPtr = ++v12;
-        while ( (lj_char_bits[(unsigned __int8)*v12 + 1] & 2) != 0 );
+          EndPtr = ++v11;
+        while ( (lj_char_bits[(unsigned __int8)*v11 + 1] & 2) != 0 );
       }
-      if ( !*v12 )
+      if ( !*v11 )
       {
-        _RAX = L->base;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2sd xmm0, xmm0, r8
-          vmovsd  qword ptr [rax-10h], xmm0
-        }
+        _XMM0 = 0i64;
+        __asm { vcvtsi2sd xmm0, xmm0, r8 }
+        L->base[-2].n = *(double *)&_XMM0;
         return 2i64;
       }
     }
@@ -494,17 +488,17 @@ LABEL_17:
     L->base[-2].u64 = -1i64;
     return 2i64;
   }
-  v4 = j_lj_lib_checkany(L, 1);
-  v5 = v4->it64 >> 47;
-  if ( (unsigned int)v5 > 0xFFFFFFF2 && ((_DWORD)v5 != -5 || !j_lj_strscan_num((GCstr *)(v4->u64 & 0x7FFFFFFFFFFFi64), v4)) )
+  v3 = j_lj_lib_checkany(L, 1);
+  v4 = v3->it64 >> 47;
+  if ( (unsigned int)v4 > 0xFFFFFFF2 && ((_DWORD)v4 != -5 || !j_lj_strscan_num((GCstr *)(v3->u64 & 0x7FFFFFFFFFFFi64), v3)) )
     goto LABEL_17;
-  v6.u64 = v4->u64;
-  v7 = v4->it64 >> 47;
-  L->base[-2].u64 = v4->u64;
-  if ( (unsigned int)(v7 + 4) > 0xFFFFFFF6 )
+  v5.u64 = v3->u64;
+  v6 = v3->it64 >> 47;
+  L->base[-2].u64 = v3->u64;
+  if ( (unsigned int)(v6 + 4) > 0xFFFFFFF6 )
   {
-    v8 = v6.u64 & 0x7FFFFFFFFFFFi64;
-    if ( ~(_DWORD)v7 != *(unsigned __int8 *)(v8 + 9) || (*(_BYTE *)(v8 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
+    v7 = v5.u64 & 0x7FFFFFFFFFFFi64;
+    if ( ~(_DWORD)v6 != *(unsigned __int8 *)(v7 + 9) || (*(_BYTE *)(v7 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 925, "!((((uint32_t)((o1)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1))) || ((~((uint32_t)((o1)->it64 >> 47)) == ((GCobj *)((((o1)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->gch.gct) && !((((GCobj *)((((o1)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1))))->gch.marked & ((((global_State *)(void *)(L->glref).ptr64))->gc.currentwhite ^ (0x01 | 0x02)) & (0x01 | 0x02)))") )
         __debugbreak();
@@ -818,17 +812,15 @@ lj_cf_gcinfo
 */
 __int64 lj_cf_gcinfo(lua_State *L)
 {
+  TValue *top; 
   __int64 result; 
 
-  _RDX = L->top;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  L->top = _RDX + 1;
+  top = L->top;
+  _XMM0 = 0i64;
+  L->top = top + 1;
   result = 1i64;
-  __asm
-  {
-    vcvtsi2sd xmm0, xmm0, ecx
-    vmovsd  qword ptr [rdx], xmm0
-  }
+  __asm { vcvtsi2sd xmm0, xmm0, ecx }
+  top->u64 = *(unsigned __int64 *)&_XMM0;
   return result;
 }
 
@@ -839,44 +831,32 @@ lj_cf_collectgarbage
 */
 __int64 lj_cf_collectgarbage(lua_State *L)
 {
+  int v2; 
   int v3; 
-  int v4; 
-  int v9; 
+  int v6; 
 
-  v3 = j_lj_lib_checkopt(L, 1, 2, &lst);
-  v4 = j_lj_lib_optint(L, 2, 0);
-  if ( v3 == 3 )
+  v2 = j_lj_lib_checkopt(L, 1, 2, &lst);
+  v3 = j_lj_lib_optint(L, 2, 0);
+  if ( v2 == 3 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rdx
-    }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rdx }
     if ( *(__int64 *)(L->glref.ptr64 + 48) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    _RCX = L->top;
-    __asm
-    {
-      vmulsd  xmm0, xmm0, cs:__real@3f50000000000000
-      vmovsd  qword ptr [rcx], xmm0
-    }
+      *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+    *(double *)&L->top->u64 = *(double *)&_XMM0 * 0.0009765625;
   }
   else
   {
-    v9 = j_lua_gc(L, v3, v4);
-    if ( ((v3 - 5) & 0xFFFFFFFB) != 0 )
+    v6 = j_lua_gc(L, v2, v3);
+    if ( ((v2 - 5) & 0xFFFFFFFB) != 0 )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, eax
-      }
-      _RAX = L->top;
-      __asm { vmovsd  qword ptr [rax], xmm0 }
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, eax }
+      L->top->u64 = *(unsigned __int64 *)&_XMM0;
     }
     else
     {
-      L->top->u64 = ~((__int64)(v9 + 1) << 47);
+      L->top->u64 = ~((__int64)(v6 + 1) << 47);
     }
   }
   ++L->top;

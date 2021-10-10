@@ -175,222 +175,135 @@ void Tracer_AdvanceDrawCounter(const LocalClientNum_t localClientNum, const bita
 Tracer_Draw_Legacy
 ==============
 */
-
-void __fastcall Tracer_Draw_Legacy(const vec3_t *start, const vec3_t *finish, const vec3_t *dir, double alphaScale, const TracerDrawFlags drawFlags, TracerInfo *const tracer)
+void Tracer_Draw_Legacy(const vec3_t *start, const vec3_t *finish, const vec3_t *dir, const float alphaScale, const TracerDrawFlags drawFlags, TracerInfo *const tracer)
 {
-  const dvar_t *v27; 
-  bool v28; 
-  bool v29; 
-  const dvar_t *v48; 
-  char v49; 
-  bool v50; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  float v9; 
+  float v10; 
+  const dvar_t *v14; 
+  float v15; 
+  __m128 v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  __m128 v20; 
+  float v21; 
+  const dvar_t *v23; 
+  const dvar_t *v24; 
   Material *tracerThermalOverrideMat; 
-  unsigned __int8 v62; 
-  __int64 v78; 
-  double v79; 
+  int v27; 
+  unsigned __int8 v28; 
+  bool v29; 
+  const dvar_t *v31; 
+  __m256i v33; 
+  __m128 v34; 
+  __int64 v35; 
   FxBeam beam; 
-  void *retaddr; 
+  __int128 v37; 
+  __int128 v38; 
+  __int128 v39; 
 
-  _R11 = &retaddr;
-  __asm
+  v9 = finish->v[1] - start->v[1];
+  v10 = finish->v[2] - start->v[2];
+  if ( (float)((float)((float)(v9 * v9) + (float)((float)(finish->v[0] - start->v[0]) * (float)(finish->v[0] - start->v[0]))) + (float)(v10 * v10)) > 0.000001 )
   {
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm5, xmm0, dword ptr [rcx]
-    vmovss  xmm0, dword ptr [rdx+4]
-    vsubss  xmm1, xmm0, dword ptr [rcx+4]
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm4, xmm0, dword ptr [rcx+8]
-  }
-  _RBX = tracer;
-  _R14 = finish;
-  __asm
-  {
-    vmulss  xmm2, xmm1, xmm1
-    vmulss  xmm1, xmm5, xmm5
-    vmovaps xmm9, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vcvtss2sd xmm1, xmm2, xmm2
-    vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  _RSI = start;
-  if ( (unsigned __int64)&v78 != _security_cookie )
-  {
-    v27 = DVARBOOL_tracer_debugDraw;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovaps xmmword ptr [r11-68h], xmm8
-    }
-    if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "tracer_debugDraw") )
+    v14 = DVARBOOL_tracer_debugDraw;
+    v39 = v6;
+    v38 = v7;
+    v37 = v8;
+    if ( !DVARBOOL_tracer_debugDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "tracer_debugDraw") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v27);
-    if ( v27->current.enabled )
-      CG_DebugLine(_RSI, _R14, &colorRed, 1, 1);
-    v28 = tracer == NULL;
-    if ( !tracer )
-    {
-      v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 234, ASSERT_TYPE_ASSERT, "(tracer)", (const char *)&queryFormat, "tracer");
-      v28 = !v29;
-      if ( v29 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+4]
-      vmovss  xmm2, dword ptr [r14]
-      vmovss  xmm1, dword ptr [r14+8]
-      vmovss  xmm4, dword ptr [rsi+4]
-      vmovss  xmm3, dword ptr [rsi+8]
-      vmovss  xmm5, dword ptr [rsi]
-      vmovss  dword ptr [rsp+140h+beam.end], xmm2
-      vsubss  xmm2, xmm2, xmm5
-      vmovss  dword ptr [rsp+140h+beam.end+4], xmm0
-      vsubss  xmm0, xmm0, xmm4
-      vmovss  dword ptr [rsp+140h+beam.end+8], xmm1
-      vmovss  dword ptr [rsp+140h+beam.begin+8], xmm3
-      vsubss  xmm3, xmm1, xmm3
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm8, xmm2, xmm2
-      vxorps  xmm7, xmm7, xmm7
-      vcomiss xmm8, xmm7
-      vmovss  dword ptr [rsp+140h+beam.begin], xmm5
-      vmovss  dword ptr [rsp+140h+beam.begin+4], xmm4
-    }
+    Dvar_CheckFrontendServerThread(v14);
+    if ( v14->current.enabled )
+      CG_DebugLine(start, finish, &colorRed, 1, 1);
+    if ( !tracer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 234, ASSERT_TYPE_ASSERT, "(tracer)", (const char *)&queryFormat, "tracer") )
+      __debugbreak();
+    v15 = finish->v[1];
+    v16 = (__m128)LODWORD(finish->v[2]);
+    v17 = start->v[1];
+    v18 = start->v[2];
+    v19 = start->v[0];
+    beam.end.v[0] = finish->v[0];
+    beam.end.v[1] = v15;
+    beam.end.v[2] = v16.m128_f32[0];
+    beam.begin.v[2] = v18;
+    v20 = v16;
+    v20.m128_f32[0] = v16.m128_f32[0] - v18;
+    v21 = fsqrt((float)((float)((float)(v15 - v17) * (float)(v15 - v17)) + (float)((float)(beam.end.v[0] - v19) * (float)(beam.end.v[0] - v19))) + (float)(v20.m128_f32[0] * v20.m128_f32[0]));
+    beam.begin.v[0] = v19;
+    beam.begin.v[1] = v17;
     *(_WORD *)&beam.type = 0;
-    if ( v28 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm8, xmm8
-        vmovsd  [rsp+140h+var_118], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 243, ASSERT_TYPE_SANITY, "( ( length > 0.f ) )", "( length ) = %g", v79) )
-        __debugbreak();
-    }
-    __asm { vmovss  xmm6, dword ptr [rbx+74h] }
+    if ( v21 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 243, ASSERT_TYPE_SANITY, "( ( length > 0.f ) )", "( length ) = %g", v21) )
+      __debugbreak();
+    *(float *)&_XMM6 = tracer->width;
     if ( (drawFlags & 1) != 0 )
     {
-      v48 = DVARFLT_tracer_thermalWidthMult;
+      v23 = DVARFLT_tracer_thermalWidthMult;
       if ( !DVARFLT_tracer_thermalWidthMult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "tracer_thermalWidthMult") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v48);
-      __asm { vmulss  xmm6, xmm6, dword ptr [rdi+28h] }
+      Dvar_CheckFrontendServerThread(v23);
+      *(float *)&_XMM6 = *(float *)&_XMM6 * v23->current.value;
     }
-    v49 = 0;
-    v50 = tracer->isClientEmitter == 0;
     if ( tracer->isClientEmitter )
     {
-      _RDI = DVARFLT_tracer_firstPersonMaxWidth;
+      v24 = DVARFLT_tracer_firstPersonMaxWidth;
       if ( !DVARFLT_tracer_firstPersonMaxWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "tracer_firstPersonMaxWidth") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vminss  xmm6, xmm0, xmm6
-      }
+      Dvar_CheckFrontendServerThread(v24);
+      _XMM0 = v24->current.unsignedInt;
+      __asm { vminss  xmm6, xmm0, xmm6 }
     }
-    __asm { vcomiss xmm6, xmm7 }
-    if ( v49 | v50 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+140h+var_118], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 257, ASSERT_TYPE_SANITY, "( ( width > 0.f ) )", "( width ) = %g", v79) )
-        __debugbreak();
-    }
+    if ( *(float *)&_XMM6 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 257, ASSERT_TYPE_SANITY, "( ( width > 0.f ) )", "( width ) = %g", *(float *)&_XMM6) )
+      __debugbreak();
     tracerThermalOverrideMat = cgMedia.tracerThermalOverrideMat;
-    __asm
-    {
-      vmovss  [rsp+140h+beam.radius], xmm6
-      vmovaps xmm6, [rsp+140h+var_48+8]
-    }
+    beam.radius = *(float *)&_XMM6;
     if ( (drawFlags & 1) == 0 )
       tracerThermalOverrideMat = tracer->material;
     beam.material = tracerThermalOverrideMat;
     if ( !tracerThermalOverrideMat && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 263, ASSERT_TYPE_SANITY, "( beam.material )", (const char *)&queryFormat, "beam.material") )
       __debugbreak();
-    __asm
-    {
-      vcomiss xmm7, dword ptr [rbx+78h]
-      vmovaps xmm7, [rsp+140h+var_58+8]
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 265, ASSERT_TYPE_ASSERT, "(tracer->screwDist > 0.0f)", (const char *)&queryFormat, "tracer->screwDist > 0.0f") )
+    if ( tracer->screwDist <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 265, ASSERT_TYPE_ASSERT, "(tracer->screwDist > 0.0f)", (const char *)&queryFormat, "tracer->screwDist > 0.0f") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, cs:__real@41000000
-      vdivss  xmm1, xmm0, dword ptr [rbx+78h]
-      vmulss  xmm2, xmm1, xmm8
-      vmovaps xmm8, [rsp+140h+var_68+8]
-      vcvttss2si eax, xmm2
-    }
-    if ( _EAX > 255 )
-      _EAX = 255;
-    v62 = _EAX;
-    if ( _EAX < 1 )
-      v62 = 1;
-    beam.segmentCount = v62;
-    if ( !v62 )
-    {
-      LODWORD(v79) = 0;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 268, ASSERT_TYPE_SANITY, "( ( beam.segmentCount > 0 ) )", "( beam.segmentCount ) = %i", v79) )
-        __debugbreak();
-    }
-    v28 = tracer->isClientEmitter == 0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+7Ch]
-      vmovss  dword ptr [rbp+40h+beam.___u9], xmm0
-    }
+    v27 = (int)(float)((float)(8.0 / tracer->screwDist) * v21);
+    if ( v27 > 255 )
+      v27 = 255;
+    v28 = v27;
+    if ( v27 < 1 )
+      v28 = 1;
+    beam.segmentCount = v28;
     if ( !v28 )
     {
-      _RDI = DVARFLT_tracer_firstPersonMaxScrewRadius;
+      LODWORD(v35) = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 268, ASSERT_TYPE_SANITY, "( ( beam.segmentCount > 0 ) )", "( beam.segmentCount ) = %i", v35) )
+        __debugbreak();
+    }
+    v29 = tracer->isClientEmitter == 0;
+    _XMM0 = (__m128)LODWORD(tracer->screwRadius);
+    beam.tracer.wiggleDist = tracer->screwRadius;
+    if ( !v29 )
+    {
+      v31 = DVARFLT_tracer_firstPersonMaxScrewRadius;
       if ( !DVARFLT_tracer_firstPersonMaxScrewRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "tracer_firstPersonMaxScrewRadius") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+28h]
-        vminss  xmm1, xmm0, dword ptr [rbp+40h+beam.___u9]
-        vmovss  dword ptr [rbp+40h+beam.___u9], xmm1
-      }
+      Dvar_CheckFrontendServerThread(v31);
+      _XMM0 = (__m128)v31->current.unsignedInt;
+      __asm { vminss  xmm1, xmm0, dword ptr [rbp+40h+beam.___u9] }
+      beam.tracer.wiggleDist = *(float *)&_XMM1;
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+80h]
-      vmovups ymm3, ymmword ptr [rbx+0A0h]
-      vmovups xmm4, xmmword ptr [rbx+0C0h]
-      vmovups ymmword ptr [rsp+140h+beam.colors], ymm0
-      vmulss  xmm2, xmm9, dword ptr [rsp+140h+beam.colors+1Ch]
-      vmovups ymmword ptr [rbp+40h+beam.colors+20h], ymm3
-      vshufps xmm0, xmm0, xmm0, 0FFh
-      vmulss  xmm0, xmm0, xmm9
-      vmovss  dword ptr [rsp+140h+beam.colors+0Ch], xmm0
-      vmovups xmmword ptr [rbp+40h+beam.colors+40h], xmm4
-      vshufps xmm3, xmm3, xmm3, 0FFh
-      vmulss  xmm0, xmm3, xmm9
-      vshufps xmm4, xmm4, xmm4, 0FFh
-      vmovss  dword ptr [rbp+40h+beam.colors+2Ch], xmm0
-      vmovss  dword ptr [rsp+140h+beam.colors+1Ch], xmm2
-      vmulss  xmm2, xmm9, dword ptr [rbp+40h+beam.colors+3Ch]
-      vmulss  xmm0, xmm4, xmm9
-      vmovss  dword ptr [rbp+40h+beam.colors+4Ch], xmm0
-      vmovss  dword ptr [rbp+40h+beam.colors+3Ch], xmm2
-    }
+    v33 = *(__m256i *)tracer->colors[2].v;
+    v34 = (__m128)tracer->colors[4];
+    *(__m256i *)beam.colors[0].v = *(__m256i *)tracer->colors[0].v;
+    *(__m256i *)beam.colors[2].v = v33;
+    beam.colors[0].v[3] = _mm_shuffle_ps(_XMM0, _XMM0, 255).m128_f32[0] * alphaScale;
+    beam.colors[4] = (vec4_t)v34;
+    beam.colors[2].v[3] = _mm_shuffle_ps(v20, v20, 255).m128_f32[0] * alphaScale;
+    beam.colors[1].v[3] = alphaScale * beam.colors[1].v[3];
+    beam.colors[4].v[3] = _mm_shuffle_ps(v34, v34, 255).m128_f32[0] * alphaScale;
+    beam.colors[3].v[3] = alphaScale * beam.colors[3].v[3];
     FX_Beam_Add(&beam);
   }
-  __asm { vmovaps xmm9, [rsp+140h+var_78+8] }
 }
 
 /*
@@ -400,35 +313,68 @@ Tracer_Draw_ParticleSystem
 */
 void Tracer_Draw_ParticleSystem(const vec3_t *start, const vec3_t *finish, const vec3_t *dir, const float alphaScale, const TracerDrawFlags drawFlags, TracerInfo *const tracer, void *data)
 {
-  __int64 v10; 
+  __int64 v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  __m128 v14; 
+  __m128 v18; 
+  float v21; 
+  __m128 v23; 
+  vec4_t v27; 
+  vec4_t v31; 
+  vec4_t v35; 
   cg_t *LocalClientGlobals; 
-  ParticleSystemHandle v53; 
-  unsigned int v54; 
-  ParticleSystem *v55; 
-  __int64 v56; 
-  __int64 v57; 
-  __int64 v58; 
-  unsigned __int32 v59; 
-  __int64 v61; 
-  __int128 v130; 
-  __int128 v131; 
-  __int128 v132; 
-  __int128 v133; 
-  __int128 v134; 
-  __int128 v135; 
-  __int128 v136; 
-  __int128 v137; 
-  __int128 v138; 
+  ParticleSystemHandle v39; 
+  unsigned int v40; 
+  ParticleSystem *v41; 
+  __int64 v42; 
+  ParticleSystemHandle particleSystem; 
+  __int64 v44; 
+  __int64 v45; 
+  unsigned __int32 v46; 
+  ParticleSystem *v47; 
+  __int64 v48; 
+  __m128 v50; 
+  __m128 v53; 
+  __m128 v; 
+  __m128 v59; 
+  __m128 v60; 
+  __m128 v61; 
+  __m128 v62; 
+  float v63; 
+  float v64; 
+  __m128 v66; 
+  vec4_t v70; 
+  vec4_t v74; 
+  vec4_t v78; 
+  __m256i v81; 
+  __m128 v82; 
+  __m128 v83; 
+  __m128 v84; 
+  __m128 v85; 
+  __m128 v86; 
+  __m256i v87; 
+  __m128 v89; 
+  __m128 v90; 
+  vec4_t v91; 
+  vec4_t v92; 
+  vec4_t v93; 
+  __m128 v94; 
+  vec4_t v95; 
+  vec4_t v96; 
+  vec4_t v97; 
   vec3_t forward; 
   vec3_t left; 
   vec3_t up; 
-  char emitterOrientationMat[64]; 
+  float v101; 
+  float v102; 
+  float v103; 
+  tmat44_t<vec4_t> emitterOrientationMat; 
   float4 emitterPos; 
   float4 endPos; 
   float4 startPos; 
 
-  _RSI = finish;
-  _R13 = start;
   if ( !tracer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 293, ASSERT_TYPE_ASSERT, "(tracer)", (const char *)&queryFormat, "tracer") )
     __debugbreak();
   if ( !tracer->particleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 294, ASSERT_TYPE_ASSERT, "(tracer->particleSystemDef != nullptr)", (const char *)&queryFormat, "tracer->particleSystemDef != nullptr") )
@@ -437,276 +383,234 @@ void Tracer_Draw_ParticleSystem(const vec3_t *start, const vec3_t *finish, const
     __debugbreak();
   if ( *((_BYTE *)data + 301138) )
   {
-    v10 = *((int *)data + 75283);
+    v9 = *((int *)data + 75283);
     if ( (drawFlags & 2) == 0 && tracer->particleSystem == PARTICLE_SYSTEM_INVALID_HANDLE )
     {
+      v10 = finish->v[0];
+      v11 = finish->v[1];
+      v12 = finish->v[2];
+      v89.m128_i32[3] = 0;
+      v14 = v89;
+      v14.m128_f32[0] = start->v[0];
+      _XMM3 = v14;
       __asm
       {
-        vmovss  xmm0, dword ptr [r13+0]
-        vmovss  xmm2, dword ptr [rsi]
-        vmovss  xmm4, dword ptr [rsi+4]
-        vmovss  xmm5, dword ptr [rsi+8]
-      }
-      HIDWORD(v130) = 0;
-      __asm
-      {
-        vmovups xmm3, xmmword ptr [rsp+60h]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [r13+4], 10h
         vinsertps xmm3, xmm3, dword ptr [r13+8], 20h ; ' '
-        vmovups xmmword ptr [rsp+60h], xmm3
       }
-      HIDWORD(v131) = 0;
+      v90 = _XMM3;
+      v90.m128_i32[3] = 0;
+      v18 = v90;
+      v18.m128_f32[0] = finish->v[0];
+      _XMM0 = v18;
       __asm
       {
-        vmovups xmm0, xmmword ptr [rsp+60h]
-        vmovss  xmm0, xmm0, xmm2
         vinsertps xmm0, xmm0, xmm4, 10h
         vinsertps xmm0, xmm0, xmm5, 20h ; ' '
-        vmovups xmmword ptr [rsp+60h], xmm0
-        vmovups xmmword ptr [rsp+158h+endPos.v], xmm0
-        vmovdqa xmmword ptr [rsp+158h+emitterPos.v], xmm0
-        vmovups xmmword ptr [rsp+158h+startPos.v], xmm3
       }
+      v89 = _XMM0;
+      endPos.v = _XMM0;
+      emitterPos.v = _XMM0;
+      startPos.v = _XMM3;
       if ( tracer->isInstantaneousBeam )
       {
-        __asm
-        {
-          vmovups ymm1, ymmword ptr cs:?identityMatrix44@@3T?$tmat44_t@Tvec4_t@@@@B+20h; tmat44_t<vec4_t> const identityMatrix44
-          vmovdqa xmmword ptr [rsp+158h+emitterPos.v], xmm3
-          vmovups ymm3, ymmword ptr cs:?identityMatrix44@@3T?$tmat44_t@Tvec4_t@@@@B; tmat44_t<vec4_t> const identityMatrix44
-          vmovups ymmword ptr [rsp+158h+emitterOrientationMat], ymm3
-          vmovups ymmword ptr [rsp+158h+emitterOrientationMat+20h], ymm1
-        }
+        emitterPos.v = _XMM3;
+        emitterOrientationMat = identityMatrix44;
       }
       else
       {
-        _RAX = dir;
-        __asm
-        {
-          vmovss  [rsp+158h+var_C4], xmm2
-          vmovss  xmm0, dword ptr [rax]
-          vmovss  xmm1, dword ptr [rax+4]
-          vmovss  dword ptr [rsp+158h+forward], xmm0
-          vmovss  xmm0, dword ptr [rax+8]
-          vmovss  dword ptr [rsp+158h+forward+8], xmm0
-          vmovss  dword ptr [rsp+158h+forward+4], xmm1
-          vmovss  [rsp+158h+var_C0], xmm4
-          vmovss  [rsp+158h+var_BC], xmm5
-        }
+        v101 = v10;
+        v21 = dir->v[1];
+        forward.v[0] = dir->v[0];
+        forward.v[2] = dir->v[2];
+        forward.v[1] = v21;
+        v102 = v11;
+        v103 = v12;
         Vec3Basis_RightHanded(&forward, &left, &up);
-        __asm { vmovss  xmm0, dword ptr [rsp+158h+forward] }
-        HIDWORD(v130) = 0;
+        v89.m128_i32[3] = 0;
+        v23 = v89;
+        v23.m128_f32[0] = forward.v[0];
+        _XMM3 = v23;
         __asm
         {
-          vmovups xmm3, xmmword ptr [rsp+60h]
-          vmovss  xmm3, xmm3, xmm0
           vinsertps xmm3, xmm3, dword ptr [rsp+158h+forward+4], 10h
           vinsertps xmm3, xmm3, dword ptr [rsp+158h+forward+8], arg_18
-          vmovss  xmm0, dword ptr [rsp+158h+left]
-          vmovups xmmword ptr [rsp+60h], xmm3
-          vmovups xmmword ptr [rsp+158h+emitterOrientationMat], xmm3
         }
-        HIDWORD(v132) = 0;
+        v91 = _XMM3;
+        emitterOrientationMat.m[0] = _XMM3;
+        v91.v[3] = 0.0;
+        v27 = v91;
+        v27.v[0] = left.v[0];
+        _XMM3 = v27;
         __asm
         {
-          vmovups xmm3, xmmword ptr [rsp+60h]
-          vmovss  xmm3, xmm3, xmm0
           vinsertps xmm3, xmm3, dword ptr [rsp+158h+left+4], 10h
           vinsertps xmm3, xmm3, dword ptr [rsp+158h+left+8], arg_18
-          vmovss  xmm0, dword ptr [rsp+158h+up]
-          vmovups xmmword ptr [rsp+60h], xmm3
-          vmovups xmmword ptr [rsp+158h+emitterOrientationMat+10h], xmm3
         }
-        HIDWORD(v133) = 0;
+        v92 = _XMM3;
+        emitterOrientationMat.m[1] = _XMM3;
+        v92.v[3] = 0.0;
+        v31 = v92;
+        v31.v[0] = up.v[0];
+        _XMM3 = v31;
         __asm
         {
-          vmovups xmm3, xmmword ptr [rsp+60h]
-          vmovss  xmm3, xmm3, xmm0
           vinsertps xmm3, xmm3, dword ptr [rsp+158h+up+4], 10h
           vinsertps xmm3, xmm3, dword ptr [rsp+158h+up+8], arg_18
-          vmovss  xmm0, [rsp+158h+var_C4]
-          vmovups xmmword ptr [rsp+60h], xmm3
-          vmovups xmmword ptr [rsp+158h+emitterOrientationMat+20h], xmm3
         }
-        HIDWORD(v134) = 0;
+        v93 = _XMM3;
+        emitterOrientationMat.m[2] = _XMM3;
+        v93.v[3] = 0.0;
+        v35 = v93;
+        v35.v[0] = v101;
+        _XMM3 = v35;
         __asm
         {
-          vmovups xmm3, xmmword ptr [rsp+60h]
-          vmovss  xmm3, xmm3, xmm0
           vinsertps xmm3, xmm3, [rsp+158h+var_C0], 10h
           vinsertps xmm3, xmm3, [rsp+158h+var_BC], arg_18
-          vxorps  xmm0, xmm3, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-          vandps  xmm1, xmm0, xmmword ptr cs:?g_keepW@@3Ufloat4@@B.v; float4 const g_keepW
-          vxorps  xmm2, xmm1, xmm3
-          vmovups xmmword ptr [rsp+158h+emitterOrientationMat+30h], xmm2
-          vmovups xmmword ptr [rsp+60h], xmm3
         }
+        emitterOrientationMat.row3 = (vec4_t)((*(_OWORD *)&_XMM3 ^ *(_OWORD *)&g_one.v) & *(_OWORD *)&g_keepW.v ^ *(_OWORD *)&_XMM3);
+        v89 = _XMM3;
       }
-      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v10);
-      v53 = ParticleManager::AddSystem((ParticleManager *)data, (LocalClientNum_t)v10, tracer->particleSystemDef, &emitterPos, (const vector3 *)emitterOrientationMat, LocalClientGlobals->time, PARTICLE_SYSTEM_FLAG_NONE, NULL, NULL);
-      tracer->particleSystem = v53;
+      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v9);
+      v39 = ParticleManager::AddSystem((ParticleManager *)data, (LocalClientNum_t)v9, tracer->particleSystemDef, &emitterPos, (const vector3 *)&emitterOrientationMat, LocalClientGlobals->time, PARTICLE_SYSTEM_FLAG_NONE, NULL, NULL);
+      tracer->particleSystem = v39;
       if ( tracer->isInstantaneousBeam )
       {
-        v54 = v53 & 0xFFF;
-        v55 = NULL;
-        if ( g_particleSystemsGeneration[4096 * v10 + (v53 & 0xFFF)].__all32 != v53 )
-          v54 = 0;
-        v56 = (v10 << 12) + v54;
-        if ( g_particleSystems[0][v56] >= (ParticleSystem *)0x1000 )
-          v55 = g_particleSystems[0][v56];
-        if ( v55 )
-          ParticleSystem::SetBeamPos(v55, &startPos, &endPos);
+        v40 = v39 & 0xFFF;
+        v41 = NULL;
+        if ( g_particleSystemsGeneration[4096 * v9 + (v39 & 0xFFF)].__all32 != v39 )
+          v40 = 0;
+        v42 = (v9 << 12) + v40;
+        if ( g_particleSystems[0][v42] >= (ParticleSystem *)0x1000 )
+          v41 = g_particleSystems[0][v42];
+        if ( v41 )
+          ParticleSystem::SetBeamPos(v41, &startPos, &endPos);
       }
     }
-    v57 = v10 << 12;
-    v58 = (v10 << 12) + (tracer->particleSystem & 0xFFF);
-    v59 = 0;
-    _R12 = NULL;
-    if ( g_particleSystemsGeneration[v58].__all32 == tracer->particleSystem )
-      v59 = tracer->particleSystem & 0xFFF;
-    v61 = v57 + v59;
-    if ( g_particleSystems[0][v61] >= (ParticleSystem *)0x1000 )
-      _R12 = g_particleSystems[0][v61];
-    if ( _R12 && !tracer->isInstantaneousBeam )
+    particleSystem = tracer->particleSystem;
+    v44 = v9 << 12;
+    v45 = (v9 << 12) + (particleSystem & 0xFFF);
+    v46 = 0;
+    v47 = NULL;
+    if ( g_particleSystemsGeneration[v45].__all32 == particleSystem )
+      v46 = tracer->particleSystem & 0xFFF;
+    v48 = v44 + v46;
+    if ( g_particleSystems[0][v48] >= (ParticleSystem *)0x1000 )
+      v47 = g_particleSystems[0][v48];
+    if ( v47 && !tracer->isInstantaneousBeam )
     {
+      v89.m128_i32[3] = 0;
+      v50 = v89;
+      v50.m128_f32[0] = finish->v[0];
+      _XMM6 = v50;
       __asm
       {
-        vmovss  xmm0, dword ptr [rsi]
-        vmovaps [rsp+158h+var_38], xmm6
-      }
-      HIDWORD(v130) = 0;
-      __asm
-      {
-        vmovups xmm6, xmmword ptr [rsp+60h]
-        vmovss  xmm6, xmm6, xmm0
         vinsertps xmm6, xmm6, dword ptr [rsi+4], 10h
         vinsertps xmm6, xmm6, dword ptr [rsi+8], 20h ; ' '
-        vmovups xmmword ptr [rsp+60h], xmm6
       }
+      v94 = _XMM6;
       if ( (drawFlags & 2) != 0 )
       {
+        v53 = _mm128_sub_ps(_XMM6, v47->m_systemTransform.w.v);
+        _XMM2 = _mm128_mul_ps(v53, v53);
         __asm
         {
-          vsubps  xmm1, xmm6, xmmword ptr [r12+30h]
-          vmulps  xmm2, xmm1, xmm1
           vinsertps xmm0, xmm2, xmm2, 8
           vhaddps xmm1, xmm0, xmm0
           vhaddps xmm2, xmm1, xmm1
-          vcomiss xmm2, cs:stopThresholdSq
+        }
+        if ( *(float *)&_XMM2 <= stopThresholdSq )
+        {
+          ParticleManager::StopSystem((ParticleManager *)data, particleSystem);
+          tracer->particleSystem = PARTICLE_SYSTEM_INVALID_HANDLE;
         }
       }
-      _RAX = dir;
-      __asm
-      {
-        vmovups xmmword ptr [r12+30h], xmm6
-        vmovups xmm1, xmmword ptr [r12+20h]
-        vshufps xmm4, xmm1, xmmword ptr [r12+30h], 44h ; 'D'
-        vshufps xmm5, xmm1, xmmword ptr [r12+30h], 0EEh ; 'î'
-        vmovups xmm3, xmmword ptr [r12]
-        vshufps xmm6, xmm3, xmmword ptr [r12+10h], 44h ; 'D'
-        vshufps xmm2, xmm3, xmmword ptr [r12+10h], 0EEh ; 'î'
-        vshufps xmm0, xmm6, xmm4, 88h ; 'ˆ'
-        vmovups xmmword ptr [rsp+158h+emitterOrientationMat], xmm0
-        vshufps xmm1, xmm6, xmm4, 0DDh ; 'Ý'
-        vmovups xmmword ptr [rsp+158h+emitterOrientationMat+10h], xmm1
-        vshufps xmm0, xmm2, xmm5, 88h ; 'ˆ'
-        vmovups xmmword ptr [rsp+158h+emitterOrientationMat+20h], xmm0
-        vmovups ymm0, ymmword ptr [rsp+158h+emitterOrientationMat]
-        vmovups ymmword ptr [r12+40h], ymm0
-        vshufps xmm1, xmm2, xmm5, 0DDh ; 'Ý'
-        vmovups xmmword ptr [rsp+158h+emitterOrientationMat+30h], xmm1
-        vmovups ymm1, ymmword ptr [rsp+158h+emitterOrientationMat+20h]
-        vmovups ymmword ptr [r12+60h], ymm1
-        vmovss  xmm0, dword ptr [rax]
-        vmovss  xmm1, dword ptr [rax+4]
-        vmovss  dword ptr [rsp+158h+forward], xmm0
-        vmovss  xmm0, dword ptr [rax+8]
-        vmovss  dword ptr [rsp+158h+forward+4], xmm1
-        vmovss  xmm1, dword ptr [rsi]
-        vmovss  dword ptr [rsp+158h+forward+8], xmm0
-        vmovss  xmm0, dword ptr [rsi+4]
-        vmovss  [rsp+158h+var_C4], xmm1
-        vmovss  xmm1, dword ptr [rsi+8]
-        vmovss  [rsp+158h+var_C0], xmm0
-        vmovss  [rsp+158h+var_BC], xmm1
-      }
+      v47->m_systemTransform.w.v = _XMM6;
+      v = v47->m_systemTransform.z.v;
+      v59 = _mm_shuffle_ps(v, v47->m_systemTransform.w.v, 68);
+      v60 = _mm_shuffle_ps(v, v47->m_systemTransform.w.v, 238);
+      v61 = _mm_shuffle_ps(v47->m_systemTransform.x.v, v47->m_systemTransform.y.v, 68);
+      v62 = _mm_shuffle_ps(v47->m_systemTransform.x.v, v47->m_systemTransform.y.v, 238);
+      emitterOrientationMat.m[0] = (vec4_t)_mm_shuffle_ps(v61, v59, 136);
+      emitterOrientationMat.m[1] = (vec4_t)_mm_shuffle_ps(v61, v59, 221);
+      emitterOrientationMat.m[2] = (vec4_t)_mm_shuffle_ps(v62, v60, 136);
+      *(__m256i *)v47->m_systemTransformTranspose.x.v.m128_f32 = *(__m256i *)emitterOrientationMat.m[0].v;
+      emitterOrientationMat.m[3] = (vec4_t)_mm_shuffle_ps(v62, v60, 221);
+      *(__m256i *)v47->m_systemTransformTranspose.z.v.m128_f32 = *(__m256i *)emitterOrientationMat.row2.v;
+      v.m128_i32[0] = LODWORD(dir->v[1]);
+      forward.v[0] = dir->v[0];
+      v63 = dir->v[2];
+      forward.v[1] = v.m128_f32[0];
+      v.m128_i32[0] = LODWORD(finish->v[0]);
+      forward.v[2] = v63;
+      v64 = finish->v[1];
+      v101 = v.m128_f32[0];
+      v.m128_i32[0] = LODWORD(finish->v[2]);
+      v102 = v64;
+      v103 = v.m128_f32[0];
       Vec3Basis_RightHanded(&forward, &left, &up);
-      __asm { vmovss  xmm0, dword ptr [rsp+158h+forward] }
-      HIDWORD(v135) = 0;
+      v94.m128_i32[3] = 0;
+      v66 = v94;
+      v66.m128_f32[0] = forward.v[0];
+      _XMM3 = v66;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rsp+60h]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [rsp+158h+forward+4], 10h
         vinsertps xmm3, xmm3, dword ptr [rsp+158h+forward+8], arg_18
-        vmovss  xmm0, dword ptr [rsp+158h+left]
-        vmovups xmmword ptr [rsp+60h], xmm3
-        vmovups xmmword ptr [rsp+158h+emitterOrientationMat], xmm3
       }
-      HIDWORD(v136) = 0;
+      v95 = _XMM3;
+      emitterOrientationMat.m[0] = _XMM3;
+      v95.v[3] = 0.0;
+      v70 = v95;
+      v70.v[0] = left.v[0];
+      _XMM3 = v70;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rsp+60h]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [rsp+158h+left+4], 10h
         vinsertps xmm3, xmm3, dword ptr [rsp+158h+left+8], arg_18
-        vmovss  xmm0, dword ptr [rsp+158h+up]
-        vmovups xmmword ptr [rsp+60h], xmm3
-        vmovups xmmword ptr [rsp+158h+emitterOrientationMat+10h], xmm3
       }
-      HIDWORD(v137) = 0;
+      v96 = _XMM3;
+      emitterOrientationMat.m[1] = _XMM3;
+      v96.v[3] = 0.0;
+      v74 = v96;
+      v74.v[0] = up.v[0];
+      _XMM3 = v74;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rsp+60h]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [rsp+158h+up+4], 10h
         vinsertps xmm3, xmm3, dword ptr [rsp+158h+up+8], arg_18
-        vmovss  xmm0, [rsp+158h+var_C4]
-        vmovups xmmword ptr [rsp+60h], xmm3
-        vmovups xmmword ptr [rsp+158h+emitterOrientationMat+20h], xmm3
       }
-      HIDWORD(v138) = 0;
+      v97 = _XMM3;
+      emitterOrientationMat.m[2] = _XMM3;
+      v97.v[3] = 0.0;
+      v78 = v97;
+      v78.v[0] = v101;
+      _XMM3 = v78;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rsp+60h]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, [rsp+158h+var_C0], 10h
         vinsertps xmm3, xmm3, [rsp+158h+var_BC], arg_18
-        vxorps  xmm0, xmm3, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-        vandps  xmm1, xmm0, xmmword ptr cs:?g_keepW@@3Ufloat4@@B.v; float4 const g_keepW
-        vxorps  xmm2, xmm1, xmm3
-        vmovups xmmword ptr [rsp+158h+emitterOrientationMat+30h], xmm2
       }
-      Particle_AssertFloat4IsNormalized((const float4 *)emitterOrientationMat);
-      Particle_AssertFloat4IsNormalized((const float4 *)&emitterOrientationMat[16]);
-      Particle_AssertFloat4IsNormalized((const float4 *)&emitterOrientationMat[32]);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+158h+emitterOrientationMat]
-        vmovups ymm1, ymmword ptr [rsp+158h+emitterOrientationMat+20h]
-        vmovups ymmword ptr [r12], ymm0
-        vmovups ymmword ptr [r12+20h], ymm1
-        vmovups xmm1, xmmword ptr [r12+20h]
-        vshufps xmm4, xmm1, xmmword ptr [r12+30h], 44h ; 'D'
-        vshufps xmm5, xmm1, xmmword ptr [r12+30h], 0EEh ; 'î'
-        vmovups xmm3, xmmword ptr [r12]
-        vshufps xmm6, xmm3, xmmword ptr [r12+10h], 44h ; 'D'
-        vshufps xmm2, xmm3, xmmword ptr [r12+10h], 0EEh ; 'î'
-        vshufps xmm0, xmm6, xmm4, 88h ; 'ˆ'
-        vshufps xmm1, xmm6, xmm4, 0DDh ; 'Ý'
-        vmovaps xmm6, [rsp+158h+var_38]
-        vmovups xmmword ptr [rsp+158h+emitterOrientationMat+10h], xmm1
-        vmovups xmmword ptr [rsp+158h+emitterOrientationMat], xmm0
-        vshufps xmm0, xmm2, xmm5, 88h ; 'ˆ'
-        vshufps xmm1, xmm2, xmm5, 0DDh ; 'Ý'
-        vmovups xmmword ptr [rsp+158h+emitterOrientationMat+20h], xmm0
-        vmovups ymm0, ymmword ptr [rsp+158h+emitterOrientationMat]
-        vmovups xmmword ptr [rsp+158h+emitterOrientationMat+30h], xmm1
-        vmovups ymm1, ymmword ptr [rsp+158h+emitterOrientationMat+20h]
-        vmovups ymmword ptr [r12+40h], ymm0
-        vmovups ymmword ptr [r12+60h], ymm1
-      }
+      emitterOrientationMat.row3 = (vec4_t)((_XMM3 ^ *(_OWORD *)&g_one.v) & *(_OWORD *)&g_keepW.v ^ _XMM3);
+      Particle_AssertFloat4IsNormalized((const float4 *)&emitterOrientationMat);
+      Particle_AssertFloat4IsNormalized((const float4 *)&emitterOrientationMat.row1);
+      Particle_AssertFloat4IsNormalized((const float4 *)&emitterOrientationMat.row2);
+      v81 = *(__m256i *)emitterOrientationMat.row2.v;
+      *(__m256i *)v47->m_systemTransform.x.v.m128_f32 = *(__m256i *)emitterOrientationMat.m[0].v;
+      *(__m256i *)v47->m_systemTransform.z.v.m128_f32 = v81;
+      v82 = v47->m_systemTransform.z.v;
+      v83 = _mm_shuffle_ps(v82, v47->m_systemTransform.w.v, 68);
+      v84 = _mm_shuffle_ps(v82, v47->m_systemTransform.w.v, 238);
+      v85 = _mm_shuffle_ps(v47->m_systemTransform.x.v, v47->m_systemTransform.y.v, 68);
+      v86 = _mm_shuffle_ps(v47->m_systemTransform.x.v, v47->m_systemTransform.y.v, 238);
+      emitterOrientationMat.m[1] = (vec4_t)_mm_shuffle_ps(v85, v83, 221);
+      emitterOrientationMat.m[0] = (vec4_t)_mm_shuffle_ps(v85, v83, 136);
+      emitterOrientationMat.m[2] = (vec4_t)_mm_shuffle_ps(v86, v84, 136);
+      emitterOrientationMat.m[3] = (vec4_t)_mm_shuffle_ps(v86, v84, 221);
+      v87 = *(__m256i *)emitterOrientationMat.row2.v;
+      *(__m256i *)v47->m_systemTransformTranspose.x.v.m128_f32 = *(__m256i *)emitterOrientationMat.m[0].v;
+      *(__m256i *)v47->m_systemTransformTranspose.z.v.m128_f32 = v87;
     }
   }
   else
@@ -869,353 +773,233 @@ Tracer_Spawn
 */
 void Tracer_Spawn(LocalClientNum_t localClientNum, const int bulletId, const bitarray<64> *r_perks, const vec3_t *pstart, const vec3_t *pend, const int instigatorEntNum, const Weapon *weapon, bool isAlternate, int spawnDelay)
 {
-  __int64 v19; 
-  int v20; 
+  __int64 v10; 
+  int v11; 
   cg_t *LocalClientGlobals; 
   int clientNum; 
-  char v23; 
-  char v47; 
-  bool v48; 
-  const char *v50; 
-  __int64 v60; 
-  WeaponDef *v61; 
-  const char *v63; 
+  char v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  __int128 v21; 
+  float v24; 
+  float v25; 
+  float v26; 
+  const dvar_t *v27; 
+  const char *v28; 
+  float v29; 
+  __int64 v30; 
+  WeaponDef *v31; 
+  const dvar_t *v32; 
+  const char *v33; 
+  TracerDef *tracerDefault; 
   const char *WeaponName; 
+  localEntity_s *v36; 
   Material *material; 
   const ParticleSystemDef *particleSystemDef; 
   int *p_lastRenderTime; 
-  signed __int64 v71; 
-  __int64 v72; 
-  bool v73; 
+  signed __int64 v40; 
+  __int64 v41; 
   int time; 
-  const dvar_t *v95; 
-  __int64 v105; 
-  __int64 v106; 
-  int v108; 
-  int v109; 
-  int v110; 
-  int v111; 
-  int v112; 
-  int v113; 
+  int v43; 
+  float speed; 
+  const dvar_t *v45; 
+  __int64 v46; 
+  __int64 v47; 
   vec3_t start; 
   char output[1024]; 
-  char v118; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-  }
-  _RDI = pstart;
-  v19 = localClientNum;
+  v10 = localClientNum;
   if ( (unsigned int)instigatorEntNum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 85, ASSERT_TYPE_ASSERT, "(unsigned)( instigatorEntNum ) < (unsigned)( ( 2048 ) )", "instigatorEntNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", instigatorEntNum, 2048) )
     __debugbreak();
-  v20 = 0;
+  v11 = 0;
   if ( spawnDelay < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 86, ASSERT_TYPE_ASSERT, "( 0 ) <= ( spawnDelay )", "%s <= %s\n\t%i, %i", "0", "spawnDelay", 0i64, spawnDelay) )
     __debugbreak();
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v19);
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v10);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 89, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   clientNum = LocalClientGlobals->predictedPlayerState.clientNum;
   if ( instigatorEntNum != clientNum )
     goto LABEL_17;
-  if ( !CgWeaponMap::ms_instance[v19] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  if ( !CgWeaponMap::ms_instance[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  if ( BG_IsThirdPersonMode(CgWeaponMap::ms_instance[v19], &LocalClientGlobals->predictedPlayerState) || LocalClientGlobals->renderingThirdPerson )
+  if ( BG_IsThirdPersonMode(CgWeaponMap::ms_instance[v10], &LocalClientGlobals->predictedPlayerState) || LocalClientGlobals->renderingThirdPerson )
 LABEL_17:
-    v23 = 0;
+    v14 = 0;
   else
-    v23 = 1;
-  _RAX = pend;
+    v14 = 1;
+  v15 = pstart->v[1];
+  v16 = pstart->v[2];
+  v17 = pend->v[0] - pstart->v[0];
+  v21 = LODWORD(pend->v[1]);
+  v18 = pend->v[1] - v15;
+  v19 = pend->v[2] - v16;
+  *(float *)&v21 = fsqrt((float)((float)(v18 * v18) + (float)(v17 * v17)) + (float)(v19 * v19));
+  _XMM10 = v21;
   __asm
   {
-    vmovss  xmm9, dword ptr [rdi]
-    vmovss  xmm8, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  xmm7, dword ptr [rdi+8]
-    vsubss  xmm6, xmm0, xmm9
-    vmovss  xmm0, dword ptr [rax+4]
-    vsubss  xmm5, xmm0, xmm8
-    vmovss  xmm0, dword ptr [rax+8]
-    vsubss  xmm4, xmm0, xmm7
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm10, xmm2, xmm2
     vcmpless xmm0, xmm10, cs:__real@80000000
     vblendvps xmm0, xmm10, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm11, xmm6, xmm1
-    vmulss  xmm12, xmm5, xmm1
-    vmulss  xmm13, xmm4, xmm1
-    vmovss  dword ptr [rsp+558h+start], xmm9
-    vmovss  dword ptr [rsp+558h+start+4], xmm8
-    vmovss  dword ptr [rsp+558h+start+8], xmm7
   }
-  v47 = 0;
-  v48 = spawnDelay == 0;
+  v24 = v17 * (float)(1.0 / *(float *)&_XMM0);
+  v25 = v18 * (float)(1.0 / *(float *)&_XMM0);
+  v26 = v19 * (float)(1.0 / *(float *)&_XMM0);
+  start.v[0] = pstart->v[0];
+  start.v[1] = v15;
+  start.v[2] = v16;
   if ( spawnDelay <= 0 )
   {
-    if ( v23 )
+    if ( v14 )
     {
-      _RBX = DCONST_DVARFLT_tracer_muzzleOffsetViewmodel;
+      v27 = DCONST_DVARFLT_tracer_muzzleOffsetViewmodel;
       if ( !DCONST_DVARFLT_tracer_muzzleOffsetViewmodel )
       {
-        v50 = "tracer_muzzleOffsetViewmodel";
+        v28 = "tracer_muzzleOffsetViewmodel";
         goto LABEL_24;
       }
     }
     else
     {
-      _RBX = DCONST_DVARFLT_tracer_muzzleOffsetWorldmodel;
+      v27 = DCONST_DVARFLT_tracer_muzzleOffsetWorldmodel;
       if ( !DCONST_DVARFLT_tracer_muzzleOffsetWorldmodel )
       {
-        v50 = "tracer_muzzleOffsetWorldmodel";
+        v28 = "tracer_muzzleOffsetWorldmodel";
 LABEL_24:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v50) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v28) )
           __debugbreak();
       }
     }
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vsubss  xmm10, xmm10, xmm0
-      vxorps  xmm3, xmm10, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm11, xmm3
-      vaddss  xmm1, xmm0, dword ptr [rax]
-      vmulss  xmm2, xmm12, xmm3
-      vaddss  xmm0, xmm2, dword ptr [rax+4]
-      vmovss  dword ptr [rsp+558h+start], xmm1
-      vmulss  xmm1, xmm13, xmm3
-      vaddss  xmm2, xmm1, dword ptr [rax+8]
-      vmovss  dword ptr [rsp+558h+start+8], xmm2
-      vmovss  dword ptr [rsp+558h+start+4], xmm0
-    }
+    Dvar_CheckFrontendServerThread(v27);
+    *(float *)&_XMM10 = *(float *)&v21 - v27->current.value;
+    v29 = (float)(v25 * COERCE_FLOAT(_XMM10 ^ _xmm)) + pend->v[1];
+    start.v[0] = (float)(v24 * COERCE_FLOAT(_XMM10 ^ _xmm)) + pend->v[0];
+    start.v[2] = (float)(v26 * COERCE_FLOAT(_XMM10 ^ _xmm)) + pend->v[2];
+    start.v[1] = v29;
   }
-  __asm
+  if ( *(float *)&_XMM10 <= 0.0 )
+    return;
+  LODWORD(v30) = weapon->weaponIdx;
+  if ( (unsigned int)v30 > bg_lastParsedWeaponIndex )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm10, xmm6
-  }
-  if ( v47 | v48 )
-    goto LABEL_87;
-  LODWORD(v60) = weapon->weaponIdx;
-  if ( (unsigned int)v60 > bg_lastParsedWeaponIndex )
-  {
-    LODWORD(v106) = bg_lastParsedWeaponIndex;
-    LODWORD(v105) = weapon->weaponIdx;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v105, v106) )
+    LODWORD(v47) = bg_lastParsedWeaponIndex;
+    LODWORD(v46) = weapon->weaponIdx;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v46, v47) )
       __debugbreak();
   }
-  v60 = (unsigned __int16)v60;
-  if ( !bg_weaponDefs[(unsigned __int16)v60] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+  v30 = (unsigned __int16)v30;
+  if ( !bg_weaponDefs[(unsigned __int16)v30] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
     __debugbreak();
-  v61 = bg_weaponDefs[v60];
-  if ( !v61 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 114, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
+  v31 = bg_weaponDefs[v30];
+  if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 114, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
-  if ( !v61->ignoreMinTracerSpawnDistance )
+  if ( !v31->ignoreMinTracerSpawnDistance )
   {
-    if ( v23 )
+    if ( v14 )
     {
-      _RBX = DCONST_DVARFLT_tracer_minimumTravelViewmodel;
+      v32 = DCONST_DVARFLT_tracer_minimumTravelViewmodel;
       if ( DCONST_DVARFLT_tracer_minimumTravelViewmodel )
         goto LABEL_45;
-      v63 = "tracer_minimumTravelViewmodel";
+      v33 = "tracer_minimumTravelViewmodel";
     }
     else
     {
-      _RBX = DCONST_DVARFLT_tracer_minimumTravelWorldmodel;
+      v32 = DCONST_DVARFLT_tracer_minimumTravelWorldmodel;
       if ( DCONST_DVARFLT_tracer_minimumTravelWorldmodel )
         goto LABEL_45;
-      v63 = "tracer_minimumTravelWorldmodel";
+      v33 = "tracer_minimumTravelWorldmodel";
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v63) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v33) )
       __debugbreak();
 LABEL_45:
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vcomiss xmm10, xmm0
-    }
-    if ( v47 )
-      goto LABEL_87;
+    Dvar_CheckFrontendServerThread(v32);
+    if ( *(float *)&_XMM10 < v32->current.value )
+      return;
   }
-  _RDI = BG_TracerType(*r_perks, weapon, isAlternate);
-  if ( !_RDI )
+  tracerDefault = BG_TracerType(*r_perks, weapon, isAlternate);
+  if ( !tracerDefault )
   {
     WeaponName = BG_GetWeaponName(weapon, output, 0x400u);
     Com_PrintWarning(17, "WARNING: Tracer_Spawn using default Tracer for weapon \"%s\".\n", WeaponName);
-    _RDI = cgMedia.tracerDefault;
+    tracerDefault = cgMedia.tracerDefault;
     if ( !cgMedia.tracerDefault && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 141, (AssertType)(LODWORD(cgMedia.tracerDefault) + 1), "( tracerDef )", (const char *)&queryFormat, "tracerDef") )
       __debugbreak();
   }
-  _RBX = CG_AllocLocalEntity(localClientNum);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 144, ASSERT_TYPE_SANITY, "( le )", (const char *)&queryFormat, "le") )
+  v36 = CG_AllocLocalEntity(localClientNum);
+  if ( !v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 144, ASSERT_TYPE_SANITY, "( le )", (const char *)&queryFormat, "le") )
     __debugbreak();
-  _RBX->leType = LE_MOVING_TRACER;
-  __asm { vmovss  dword ptr [rbx+0B4h], xmm10 }
-  LOBYTE(v20) = instigatorEntNum == clientNum;
-  _RBX->u.tracer.isClientEmitter = v20;
-  _RBX->u.tracer.length = _RDI->beamLength;
-  _RBX->u.tracer.width = _RDI->beamWidth;
-  _RBX->u.tracer.screwDist = _RDI->screwDist;
-  _RBX->u.laser.cache.lastTrackedEntNum = LODWORD(_RDI->screwRadius);
-  _RBX->u.tracer.bulletId = bulletId;
-  _RBX->u.tracer.ballistics.isBallistic = 0;
-  material = _RDI->material;
-  _RBX->u.tracer.material = material;
-  if ( !material && _RDI->drawLegacyTracer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 158, ASSERT_TYPE_SANITY, "( le->u.tracer.material || !tracerDef->drawLegacyTracer )", (const char *)&queryFormat, "le->u.tracer.material || !tracerDef->drawLegacyTracer") )
+  v36->leType = LE_MOVING_TRACER;
+  v36->u.tracer.clipDist = *(float *)&_XMM10;
+  LOBYTE(v11) = instigatorEntNum == clientNum;
+  v36->u.tracer.isClientEmitter = v11;
+  v36->u.tracer.length = tracerDefault->beamLength;
+  v36->u.tracer.width = tracerDefault->beamWidth;
+  v36->u.tracer.screwDist = tracerDefault->screwDist;
+  v36->u.laser.cache.lastTrackedEntNum = LODWORD(tracerDefault->screwRadius);
+  v36->u.tracer.bulletId = bulletId;
+  v36->u.tracer.ballistics.isBallistic = 0;
+  material = tracerDefault->material;
+  v36->u.tracer.material = material;
+  if ( !material && tracerDefault->drawLegacyTracer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 158, ASSERT_TYPE_SANITY, "( le->u.tracer.material || !tracerDef->drawLegacyTracer )", (const char *)&queryFormat, "le->u.tracer.material || !tracerDef->drawLegacyTracer") )
     __debugbreak();
-  particleSystemDef = _RDI->effect.particleSystemDef;
-  _RBX->u.tracer.particleSystemDef = particleSystemDef;
-  if ( v23 )
+  particleSystemDef = tracerDefault->effect.particleSystemDef;
+  v36->u.tracer.particleSystemDef = particleSystemDef;
+  if ( v14 )
   {
-    if ( _RDI->viewmodelEffect.particleSystemDef )
-      particleSystemDef = _RDI->viewmodelEffect.particleSystemDef;
-    _RBX->u.tracer.particleSystemDef = particleSystemDef;
+    if ( tracerDefault->viewmodelEffect.particleSystemDef )
+      particleSystemDef = tracerDefault->viewmodelEffect.particleSystemDef;
+    v36->u.tracer.particleSystemDef = particleSystemDef;
   }
-  p_lastRenderTime = &_RBX->u.laser.cache.lastRenderTime;
-  _RBX->u.tracer.drawLegacyTracer = _RDI->drawLegacyTracer;
-  v71 = (char *)_RDI - (char *)_RBX;
-  v72 = 5i64;
+  p_lastRenderTime = &v36->u.laser.cache.lastRenderTime;
+  v36->u.tracer.drawLegacyTracer = tracerDefault->drawLegacyTracer;
+  v40 = (char *)tracerDefault - (char *)v36;
+  v41 = 5i64;
   do
   {
-    *(p_lastRenderTime - 1) = *(int *)((char *)p_lastRenderTime + v71 - 140);
-    *p_lastRenderTime = *(int *)((char *)p_lastRenderTime + v71 - 136);
-    p_lastRenderTime[1] = *(int *)((char *)p_lastRenderTime + v71 - 132);
-    p_lastRenderTime[2] = *(int *)((char *)p_lastRenderTime + v71 - 128);
+    *(p_lastRenderTime - 1) = *(int *)((char *)p_lastRenderTime + v40 - 140);
+    *p_lastRenderTime = *(int *)((char *)p_lastRenderTime + v40 - 136);
+    p_lastRenderTime[1] = *(int *)((char *)p_lastRenderTime + v40 - 132);
+    p_lastRenderTime[2] = *(int *)((char *)p_lastRenderTime + v40 - 128);
     p_lastRenderTime += 4;
-    v73 = v72-- == 0;
+    --v41;
   }
-  while ( v72 );
-  __asm { vcomiss xmm6, dword ptr [rdi+1Ch] }
-  if ( !v73 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 173, ASSERT_TYPE_ASSERT, "(tracerDef->speed > 0.0f)", (const char *)&queryFormat, "tracerDef->speed > 0.0f") )
+  while ( v41 );
+  if ( tracerDefault->speed <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 173, ASSERT_TYPE_ASSERT, "(tracerDef->speed > 0.0f)", (const char *)&queryFormat, "tracerDef->speed > 0.0f") )
     __debugbreak();
   time = LocalClientGlobals->time;
-  if ( _RDI->fadeOverTime )
+  if ( tracerDefault->fadeOverTime )
   {
-    _RBX->u.tracer.isInstantaneousBeam = 1;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+24h]
-      vmulss  xmm1, xmm0, cs:__real@c47a0000
-      vcvttss2si eax, xmm1
-    }
+    v36->u.tracer.isInstantaneousBeam = 1;
+    v43 = (int)(float)(tracerDefault->fadeTime * -1000.0);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@c47a0000
-      vdivss  xmm1, xmm0, dword ptr [rdi+1Ch]
-      vaddss  xmm2, xmm10, dword ptr [rdi+30h]
-      vmulss  xmm2, xmm2, xmm1
-      vcvttss2si eax, xmm2
-    }
+    v43 = (int)(float)((float)(*(float *)&_XMM10 + tracerDefault->beamLength) * (float)(-1000.0 / tracerDefault->speed));
     time += spawnDelay;
   }
-  _RBX->endTime = time - _EAX;
-  if ( _RBX->u.tracer.particleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 186, ASSERT_TYPE_ASSERT, "(le->u.tracer.particleSystem == PARTICLE_SYSTEM_INVALID_HANDLE)", (const char *)&queryFormat, "le->u.tracer.particleSystem == PARTICLE_SYSTEM_INVALID_HANDLE") )
+  v36->endTime = time - v43;
+  if ( v36->u.tracer.particleSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 186, ASSERT_TYPE_ASSERT, "(le->u.tracer.particleSystem == PARTICLE_SYSTEM_INVALID_HANDLE)", (const char *)&queryFormat, "le->u.tracer.particleSystem == PARTICLE_SYSTEM_INVALID_HANDLE") )
     __debugbreak();
-  _RBX->addTime = LocalClientGlobals->time;
-  _RBX->pos.trType = TR_LINEAR;
-  _RBX->pos.trTime = time;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+558h+start]
-    vmovss  dword ptr [rbx+20h], xmm0
-    vmovss  xmm1, dword ptr [rsp+558h+start+4]
-    vmovss  dword ptr [rbx+24h], xmm1
-    vmovss  xmm0, dword ptr [rsp+558h+start+8]
-    vmovss  dword ptr [rbx+28h], xmm0
-    vmovss  xmm2, dword ptr [rdi+1Ch]
-    vmulss  xmm0, xmm11, xmm2
-    vmovss  dword ptr [rbx+2Ch], xmm0
-    vmulss  xmm1, xmm12, xmm2
-    vmulss  xmm0, xmm13, xmm2
-    vmovss  dword ptr [rbx+34h], xmm0
-    vmovss  dword ptr [rbx+30h], xmm1
-    vmovss  xmm1, dword ptr [rbx+20h]
-    vmovss  [rsp+558h+var_508], xmm1
-  }
-  if ( (v108 & 0x7F800000) == 2139095040 )
-    goto LABEL_90;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+24h]
-    vmovss  [rsp+558h+var_508], xmm0
-  }
-  if ( (v109 & 0x7F800000) == 2139095040 )
-    goto LABEL_90;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  [rsp+558h+var_508], xmm0
-  }
-  if ( (v110 & 0x7F800000) == 2139095040 )
-  {
-LABEL_90:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 193, ASSERT_TYPE_SANITY, "( !IS_NAN( ( le->pos.trBase )[0] ) && !IS_NAN( ( le->pos.trBase )[1] ) && !IS_NAN( ( le->pos.trBase )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( le->pos.trBase )[0] ) && !IS_NAN( ( le->pos.trBase )[1] ) && !IS_NAN( ( le->pos.trBase )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+2Ch]
-    vmovss  [rsp+558h+var_508], xmm0
-  }
-  if ( (v111 & 0x7F800000) == 2139095040 )
-    goto LABEL_91;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+30h]
-    vmovss  [rsp+558h+var_508], xmm0
-  }
-  if ( (v112 & 0x7F800000) == 2139095040 )
-    goto LABEL_91;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+34h]
-    vmovss  [rsp+558h+var_508], xmm0
-  }
-  if ( (v113 & 0x7F800000) == 2139095040 )
-  {
-LABEL_91:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 194, ASSERT_TYPE_SANITY, "( !IS_NAN( ( le->pos.trDelta )[0] ) && !IS_NAN( ( le->pos.trDelta )[1] ) && !IS_NAN( ( le->pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( le->pos.trDelta )[0] ) && !IS_NAN( ( le->pos.trDelta )[1] ) && !IS_NAN( ( le->pos.trDelta )[2] )") )
-      __debugbreak();
-  }
-  Tracer_Spawn_ApplyOverrides(localClientNum, instigatorEntNum, weapon, isAlternate, &_RBX->u.tracer);
-  v95 = DVARBOOL_tracer_debugDraw;
+  v36->addTime = LocalClientGlobals->time;
+  v36->pos.trType = TR_LINEAR;
+  v36->pos.trTime = time;
+  v36->pos.trBase = start;
+  speed = tracerDefault->speed;
+  v36->pos.trDelta.v[0] = v24 * speed;
+  v36->pos.trDelta.v[2] = v26 * speed;
+  v36->pos.trDelta.v[1] = v25 * speed;
+  if ( ((LODWORD(v36->pos.trBase.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v36->pos.trBase.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v36->pos.trBase.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 193, ASSERT_TYPE_SANITY, "( !IS_NAN( ( le->pos.trBase )[0] ) && !IS_NAN( ( le->pos.trBase )[1] ) && !IS_NAN( ( le->pos.trBase )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( le->pos.trBase )[0] ) && !IS_NAN( ( le->pos.trBase )[1] ) && !IS_NAN( ( le->pos.trBase )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(v36->pos.trDelta.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v36->pos.trDelta.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v36->pos.trDelta.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\tracers\\tracer.cpp", 194, ASSERT_TYPE_SANITY, "( !IS_NAN( ( le->pos.trDelta )[0] ) && !IS_NAN( ( le->pos.trDelta )[1] ) && !IS_NAN( ( le->pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( le->pos.trDelta )[0] ) && !IS_NAN( ( le->pos.trDelta )[1] ) && !IS_NAN( ( le->pos.trDelta )[2] )") )
+    __debugbreak();
+  Tracer_Spawn_ApplyOverrides(localClientNum, instigatorEntNum, weapon, isAlternate, &v36->u.tracer);
+  v45 = DVARBOOL_tracer_debugDraw;
   if ( !DVARBOOL_tracer_debugDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "tracer_debugDraw") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v95);
-  if ( v95->current.enabled )
+  Dvar_CheckFrontendServerThread(v45);
+  if ( v45->current.enabled )
     CG_DebugLine(&start, pend, &colorYellow, 0, 300);
-LABEL_87:
-  _R11 = &v118;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
 }
 
 /*

@@ -123,6 +123,8 @@ __int64 AIScriptedInterface::CustomAnim_Think(AIScriptedInterface *this)
   const ASM_Instance *InstanceIfExists; 
   Ai_Asm *v11; 
   int FrameDuration; 
+  gentity_s *ent; 
+  double v14; 
   vec3_t v15; 
 
   if ( !this->m_pAI->AnimScriptSpecific.func && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_animscripted.cpp", 187, ASSERT_TYPE_ASSERT, "( m_pAI->AnimScriptSpecific.func )", (const char *)&queryFormat, "m_pAI->AnimScriptSpecific.func") )
@@ -160,10 +162,10 @@ __int64 AIScriptedInterface::CustomAnim_Think(AIScriptedInterface *this)
     {
       v11 = Ai_Asm::Singleton();
       FrameDuration = G_Level_GetFrameDuration();
-      _RDX = this->m_pAI->ent;
-      __asm { vmovsd  xmm0, qword ptr [rdx+130h] }
-      v15.v[2] = _RDX->r.currentOrigin.v[2];
-      __asm { vmovsd  [rsp+48h+var_18], xmm0 }
+      ent = this->m_pAI->ent;
+      v14 = *(double *)ent->r.currentOrigin.v;
+      v15.v[2] = ent->r.currentOrigin.v[2];
+      *(double *)v15.v = v14;
       Ai_Asm::DebugRender(v11, InstanceIfExists, &v15, FrameDuration);
     }
     return 0i64;
@@ -243,29 +245,33 @@ AIScriptedInterface::ScriptedAnim_Think
 */
 __int64 AIScriptedInterface::ScriptedAnim_Think(AIScriptedInterface *this)
 {
-  int IsAnimScriptAlive; 
   ai_scripted_t *m_pAI; 
-  __int64 result; 
+  float v3; 
+  float v4; 
+  float v5; 
+  int IsAnimScriptAlive; 
+  ai_scripted_t *v7; 
   gentity_s *ent; 
-  AIScriptedInterface_vtbl *v13; 
-  bool v14; 
+  AIScriptedInterface_vtbl *v10; 
+  bool v11; 
+  ai_scripted_t *v12; 
   ai_orient_mode_t eMode; 
-  AIScriptedInterface_vtbl *v17; 
-  bool v18; 
-  bool v41; 
+  AIScriptedInterface_vtbl *v14; 
+  bool v15; 
+  gentity_s *v16; 
+  ai_scripted_t *v17; 
+  ai_scripted_t *v18; 
+  float v19; 
+  bool v20; 
   int number; 
-  Ai_Asm *v43; 
+  Ai_Asm *v22; 
   const ASM_Instance *InstanceIfExists; 
-  Ai_Asm *v45; 
+  Ai_Asm *v24; 
   int FrameDuration; 
-  vec3_t v52; 
+  gentity_s *v26; 
+  double v27; 
+  vec3_t v28; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-  }
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_animscripted.cpp", 80, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION )") )
     __debugbreak();
   this->SetDebugInfo(this, "animscripted");
@@ -279,19 +285,16 @@ __int64 AIScriptedInterface::ScriptedAnim_Think(AIScriptedInterface *this)
   AIScriptedInterface::AnimScripted(this);
   this->m_pAI->pushable = 0;
   AIScriptedInterface::Physics_UpdatePrevGround(&this->m_pAI->Physics);
-  _RCX = this->m_pAI->ent;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rcx+130h]
-    vmovss  xmm7, dword ptr [rcx+134h]
-    vmovss  xmm8, dword ptr [rcx+138h]
-  }
-  IsAnimScriptAlive = AIScriptedInterface::IsAnimScriptAlive(this);
   m_pAI = this->m_pAI;
+  v3 = m_pAI->ent->r.currentOrigin.v[0];
+  v4 = m_pAI->ent->r.currentOrigin.v[1];
+  v5 = m_pAI->ent->r.currentOrigin.v[2];
+  IsAnimScriptAlive = AIScriptedInterface::IsAnimScriptAlive(this);
+  v7 = this->m_pAI;
   if ( IsAnimScriptAlive )
   {
-    ent = m_pAI->ent;
-    if ( !m_pAI->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_animscripted.cpp", 112, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
+    ent = v7->ent;
+    if ( !v7->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_animscripted.cpp", 112, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
       __debugbreak();
     G_Animscripted_Think(ent);
     Nav_Teleport(this->m_pAI->pNavigator, &this->m_pAI->ent->r.currentOrigin);
@@ -299,99 +302,65 @@ __int64 AIScriptedInterface::ScriptedAnim_Think(AIScriptedInterface *this)
     {
       AIScriptedInterface::PreThink(this);
       AIScriptedInterface::ScriptedAnim_Orient(this);
-      v13 = this->__vftable;
-      v14 = this->Is3D(this);
-      v13->SetDesiredBodyAngles(this, &this->m_pAI->CodeOrient, &ent->r.currentAngles, v14);
-      _RCX = this->m_pAI;
-      eMode = _RCX->ScriptOrient.eMode;
+      v10 = this->__vftable;
+      v11 = this->Is3D(this);
+      v10->SetDesiredBodyAngles(this, &this->m_pAI->CodeOrient, &ent->r.currentAngles, v11);
+      v12 = this->m_pAI;
+      eMode = v12->ScriptOrient.eMode;
       if ( eMode == AI_ORIENT_DONT_CHANGE_RELATIVE || eMode == AI_ORIENT_DONT_CHANGE )
       {
-        _RCX->ScriptOrient.eMode = AI_ORIENT_DONT_CHANGE_RELATIVE;
-        v17 = this->__vftable;
-        v18 = this->Is3D(this);
-        v17->SetDesiredBodyAngles(this, &this->m_pAI->ScriptOrient, &this->m_pAI->ent->r.currentAngles, v18);
-        _RCX = this->m_pAI;
+        v12->ScriptOrient.eMode = AI_ORIENT_DONT_CHANGE_RELATIVE;
+        v14 = this->__vftable;
+        v15 = this->Is3D(this);
+        v14->SetDesiredBodyAngles(this, &this->m_pAI->ScriptOrient, &this->m_pAI->ent->r.currentAngles, v15);
+        v12 = this->m_pAI;
       }
-      _RAX = _RCX->ent;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+130h]
-        vsubss  xmm1, xmm0, xmm6
-        vmovss  dword ptr [rcx+888h], xmm1
-        vmovss  xmm2, dword ptr [rax+134h]
-        vsubss  xmm0, xmm2, xmm7
-        vmovss  dword ptr [rcx+88Ch], xmm0
-        vmovss  xmm1, dword ptr [rax+138h]
-        vsubss  xmm2, xmm1, xmm8
-        vmovss  dword ptr [rcx+890h], xmm2
-      }
-      _RAX = this->m_pAI;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+888h]
-        vsubss  xmm1, xmm0, dword ptr [rax+87Ch]
-        vmovss  dword ptr [rax+888h], xmm1
-        vmovss  xmm2, dword ptr [rax+88Ch]
-        vsubss  xmm0, xmm2, dword ptr [rax+880h]
-        vmovss  dword ptr [rax+88Ch], xmm0
-        vmovss  xmm1, dword ptr [rax+890h]
-        vsubss  xmm2, xmm1, dword ptr [rax+884h]
-        vmovss  xmm0, cs:__real@447a0000
-        vmovss  dword ptr [rax+890h], xmm2
-      }
-      _RAX = this->m_pAI;
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, dword ptr [rax+8B0h]
-        vdivss  xmm2, xmm0, xmm1
-        vmulss  xmm0, xmm2, dword ptr [rax+888h]
-        vmovss  dword ptr [rax+838h], xmm0
-        vmulss  xmm1, xmm2, dword ptr [rax+88Ch]
-        vmovss  dword ptr [rax+83Ch], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rax+890h]
-        vmovss  dword ptr [rax+840h], xmm0
-      }
-      v41 = AI_ASM_Tick(this->m_pAI->ent->s.number, 0);
+      v16 = v12->ent;
+      v12->Physics.vWishDelta.v[0] = v12->ent->r.currentOrigin.v[0] - v3;
+      v12->Physics.vWishDelta.v[1] = v16->r.currentOrigin.v[1] - v4;
+      v12->Physics.vWishDelta.v[2] = v16->r.currentOrigin.v[2] - v5;
+      v17 = this->m_pAI;
+      v17->Physics.vWishDelta.v[0] = v17->Physics.vWishDelta.v[0] - v17->Physics.appliedGroundDelta.v[0];
+      v17->Physics.vWishDelta.v[1] = v17->Physics.vWishDelta.v[1] - v17->Physics.appliedGroundDelta.v[1];
+      v17->Physics.vWishDelta.v[2] = v17->Physics.vWishDelta.v[2] - v17->Physics.appliedGroundDelta.v[2];
+      v18 = this->m_pAI;
+      v19 = 1000.0 / (float)v18->Physics.iMsec;
+      v18->Physics.vVelocity.v[0] = v19 * v18->Physics.vWishDelta.v[0];
+      v18->Physics.vVelocity.v[1] = v19 * v18->Physics.vWishDelta.v[1];
+      v18->Physics.vVelocity.v[2] = v19 * v18->Physics.vWishDelta.v[2];
+      v20 = AI_ASM_Tick(this->m_pAI->ent->s.number, 0);
       AIScriptedInterface::UpdateLookAtPos(this);
       AIScriptedInterface::UpdateLookAtTracking(this);
       AIScriptedInterface::UpdateGunPose(this);
-      this->UpdateAnimGameParams(this, v41);
+      this->UpdateAnimGameParams(this, v20);
       number = this->m_pAI->ent->s.number;
-      v43 = Ai_Asm::Singleton();
-      InstanceIfExists = Ai_Asm::GetInstanceIfExists(v43, NULL, number);
+      v22 = Ai_Asm::Singleton();
+      InstanceIfExists = Ai_Asm::GetInstanceIfExists(v22, NULL, number);
       if ( InstanceIfExists )
       {
-        v45 = Ai_Asm::Singleton();
+        v24 = Ai_Asm::Singleton();
         FrameDuration = G_Level_GetFrameDuration();
-        _RDX = this->m_pAI->ent;
-        __asm { vmovsd  xmm0, qword ptr [rdx+130h] }
-        v52.v[2] = _RDX->r.currentOrigin.v[2];
-        __asm { vmovsd  [rsp+78h+var_48], xmm0 }
-        Ai_Asm::DebugRender(v45, InstanceIfExists, &v52, FrameDuration);
+        v26 = this->m_pAI->ent;
+        v27 = *(double *)v26->r.currentOrigin.v;
+        v28.v[2] = v26->r.currentOrigin.v[2];
+        *(double *)v28.v = v27;
+        Ai_Asm::DebugRender(v24, InstanceIfExists, &v28, FrameDuration);
       }
-      result = 0i64;
+      return 0i64;
     }
     else
     {
       AIScriptedInterface::PopState(this);
-      result = 1i64;
+      return 1i64;
     }
   }
   else
   {
-    if ( m_pAI->eSimulatedState[m_pAI->simulatedStateLevel] != AIS_SCRIPTEDANIM && m_pAI->eState[m_pAI->stateLevel] != AIS_DEATH && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_animscripted.cpp", 101, ASSERT_TYPE_ASSERT, "( m_pAI->eSimulatedState[m_pAI->simulatedStateLevel] == AIS_SCRIPTEDANIM || m_pAI->eState[m_pAI->stateLevel] == AIS_DEATH )", (const char *)&queryFormat, "m_pAI->eSimulatedState[m_pAI->simulatedStateLevel] == AIS_SCRIPTEDANIM || m_pAI->eState[m_pAI->stateLevel] == AIS_DEATH") )
+    if ( v7->eSimulatedState[v7->simulatedStateLevel] != AIS_SCRIPTEDANIM && v7->eState[v7->stateLevel] != AIS_DEATH && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_animscripted.cpp", 101, ASSERT_TYPE_ASSERT, "( m_pAI->eSimulatedState[m_pAI->simulatedStateLevel] == AIS_SCRIPTEDANIM || m_pAI->eState[m_pAI->stateLevel] == AIS_DEATH )", (const char *)&queryFormat, "m_pAI->eSimulatedState[m_pAI->simulatedStateLevel] == AIS_SCRIPTEDANIM || m_pAI->eState[m_pAI->stateLevel] == AIS_DEATH") )
       __debugbreak();
     if ( this->m_pAI->eSimulatedState[this->m_pAI->simulatedStateLevel] == AIS_SCRIPTEDANIM )
       AIScriptedInterface::PopState(this);
-    result = 1i64;
+    return 1i64;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
-  }
-  return result;
 }
 

@@ -348,28 +348,19 @@ PackedUnitVec __fastcall Vec3PackUnitVecWithAlpha(const vec3_t *unitVec, float a
 FloatPack10F
 ==============
 */
-
-__int64 __fastcall FloatPack10F(double v, double _XMM1_8)
+__int64 FloatPack10F(float v)
 {
-  char v2; 
-  int v4; 
-  int v6; 
+  int v1; 
 
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovss  [rsp+arg_0], xmm0
-  }
-  if ( v2 )
+  if ( v < 0.0 )
     return 0i64;
-  v4 = (v6 >> 23) - 112;
-  if ( v4 > 30 )
+  v1 = (SLODWORD(v) >> 23) - 112;
+  if ( v1 > 30 )
     return 991i64;
-  if ( v4 < 1 )
+  if ( v1 < 1 )
     return 0i64;
   else
-    return (v6 >> 18) & 0x1F | (unsigned int)(32 * v4);
+    return (SLODWORD(v) >> 18) & 0x1F | (unsigned int)(32 * v1);
 }
 
 /*
@@ -377,29 +368,23 @@ __int64 __fastcall FloatPack10F(double v, double _XMM1_8)
 FloatPack10FHQ
 ==============
 */
-
-__int64 __fastcall FloatPack10FHQ(double v)
+__int64 FloatPack10FHQ(float v)
 {
-  char v1; 
+  int v2; 
   int v3; 
   unsigned int v4; 
-  unsigned int v5; 
-  unsigned int v6; 
 
-  __asm { vcomiss xmm0, cs:__real@35800000 }
-  if ( v1 )
+  if ( v < 0.00000095367432 )
     return 0i64;
-  __asm { vcomiss xmm0, cs:__real@477a0000 }
-  if ( !v1 )
+  if ( v >= 64000.0 )
     return 991i64;
-  __asm { vmovss  [rsp+arg_0], xmm0 }
-  v3 = v6 & 0x7FFFFF;
-  v4 = v6 >> 23;
-  if ( v6 >> 23 >= 0x71 )
-    v5 = v3 | ((v4 - 112) << 23);
+  v2 = LODWORD(v) & 0x7FFFFF;
+  v3 = LODWORD(v) >> 23;
+  if ( LODWORD(v) >> 23 >= 0x71 )
+    v4 = v2 | ((v3 - 112) << 23);
   else
-    v5 = (v3 | 0x800000u) >> (113 - v4);
-  return (v5 + 0x20000) >> 18;
+    v4 = (v2 | 0x800000u) >> (113 - v3);
+  return (v4 + 0x20000) >> 18;
 }
 
 /*
@@ -407,28 +392,19 @@ __int64 __fastcall FloatPack10FHQ(double v)
 FloatPack11F
 ==============
 */
-
-__int64 __fastcall FloatPack11F(double v, double _XMM1_8)
+__int64 FloatPack11F(float v)
 {
-  char v2; 
-  int v4; 
-  int v6; 
+  int v1; 
 
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovss  [rsp+arg_0], xmm0
-  }
-  if ( v2 )
+  if ( v < 0.0 )
     return 0i64;
-  v4 = (v6 >> 23) - 112;
-  if ( v4 > 30 )
+  v1 = (SLODWORD(v) >> 23) - 112;
+  if ( v1 > 30 )
     return 1983i64;
-  if ( v4 < 1 )
+  if ( v1 < 1 )
     return 0i64;
   else
-    return (v6 >> 17) & 0x3F | (unsigned int)(v4 << 6);
+    return (SLODWORD(v) >> 17) & 0x3F | (unsigned int)(v1 << 6);
 }
 
 /*
@@ -436,29 +412,23 @@ __int64 __fastcall FloatPack11F(double v, double _XMM1_8)
 FloatPack11FHQ
 ==============
 */
-
-__int64 __fastcall FloatPack11FHQ(double v)
+__int64 FloatPack11FHQ(float v)
 {
-  char v1; 
+  int v2; 
   int v3; 
   unsigned int v4; 
-  unsigned int v5; 
-  unsigned int v6; 
 
-  __asm { vcomiss xmm0, cs:__real@35000000 }
-  if ( v1 )
+  if ( v < 0.00000047683716 )
     return 0i64;
-  __asm { vcomiss xmm0, cs:__real@477d0000 }
-  if ( !v1 )
+  if ( v >= 64768.0 )
     return 1983i64;
-  __asm { vmovss  [rsp+arg_0], xmm0 }
-  v3 = v6 & 0x7FFFFF;
-  v4 = v6 >> 23;
-  if ( v6 >> 23 >= 0x71 )
-    v5 = v3 | ((v4 - 112) << 23);
+  v2 = LODWORD(v) & 0x7FFFFF;
+  v3 = LODWORD(v) >> 23;
+  if ( LODWORD(v) >> 23 >= 0x71 )
+    v4 = v2 | ((v3 - 112) << 23);
   else
-    v5 = (v3 | 0x800000u) >> (113 - v4);
-  return (v5 + 0x10000) >> 17;
+    v4 = (v2 | 0x800000u) >> (113 - v3);
+  return (v4 + 0x10000) >> 17;
 }
 
 /*
@@ -468,20 +438,14 @@ FloatUnpack10F
 */
 float FloatUnpack10F(const unsigned int packedInt)
 {
-  unsigned int v5; 
+  float result; 
 
   if ( (packedInt & 0xFFFFFC00) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_pack.cpp", 607, ASSERT_TYPE_ASSERT, "(!( packedInt & 0xFFFFFC00UL ))", (const char *)&queryFormat, "!( packedInt & 0xFFFFFC00UL )") )
     __debugbreak();
-  if ( packedInt >> 5 )
-  {
-    v5 = ((packedInt & 0x1F) << 18) | (((packedInt >> 5) + 112) << 23);
-    __asm { vmovss  xmm0, [rsp+38h+arg_0] }
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  if ( !(packedInt >> 5) )
+    return 0.0;
+  LODWORD(result) = ((packedInt & 0x1F) << 18) | (((packedInt >> 5) + 112) << 23);
+  return result;
 }
 
 /*
@@ -494,29 +458,17 @@ float FloatUnpack10FHQ(const unsigned int packedInt)
   unsigned int v2; 
   unsigned int v3; 
   unsigned int v4; 
-  unsigned int v8; 
-  int v9; 
+  float result; 
 
   if ( (packedInt & 0xFFFFFC00) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_pack.cpp", 441, ASSERT_TYPE_ASSERT, "(!( packedInt & 0xFFFFFC00UL ))", (const char *)&queryFormat, "!( packedInt & 0xFFFFFC00UL )") )
     __debugbreak();
   v2 = packedInt;
   v3 = packedInt & 0x1F;
   v4 = v2 >> 5;
-  if ( v4 )
-  {
-    v9 = (v3 << 18) | ((v4 + 112) << 23);
-    __asm { vmovss  xmm0, [rsp+38h+arg_0] }
-  }
-  else
-  {
-    v8 = v3 + 1098907648;
-    __asm
-    {
-      vmovss  xmm0, [rsp+38h+arg_0]
-      vsubss  xmm0, xmm0, cs:__real@41800000
-    }
-  }
-  return *(float *)&_XMM0;
+  if ( !v4 )
+    return COERCE_FLOAT(v3 + 1098907648) - 16.0;
+  LODWORD(result) = (v3 << 18) | ((v4 + 112) << 23);
+  return result;
 }
 
 /*
@@ -526,20 +478,14 @@ FloatUnpack11F
 */
 float FloatUnpack11F(const unsigned int packedInt)
 {
-  unsigned int v5; 
+  float result; 
 
   if ( (packedInt & 0xFFFFF800) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_pack.cpp", 627, ASSERT_TYPE_ASSERT, "(!( packedInt & 0xFFFFF800UL ))", (const char *)&queryFormat, "!( packedInt & 0xFFFFF800UL )") )
     __debugbreak();
-  if ( packedInt >> 6 )
-  {
-    v5 = ((packedInt & 0x3F) << 17) | (((packedInt >> 6) + 112) << 23);
-    __asm { vmovss  xmm0, [rsp+38h+arg_0] }
-  }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  if ( !(packedInt >> 6) )
+    return 0.0;
+  LODWORD(result) = ((packedInt & 0x3F) << 17) | (((packedInt >> 6) + 112) << 23);
+  return result;
 }
 
 /*
@@ -552,29 +498,17 @@ float FloatUnpack11FHQ(const unsigned int packedInt)
   unsigned int v2; 
   unsigned int v3; 
   unsigned int v4; 
-  unsigned int v8; 
-  int v9; 
+  float result; 
 
   if ( (packedInt & 0xFFFFF800) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_pack.cpp", 412, ASSERT_TYPE_ASSERT, "(!( packedInt & 0xFFFFF800UL ))", (const char *)&queryFormat, "!( packedInt & 0xFFFFF800UL )") )
     __debugbreak();
   v2 = packedInt;
   v3 = packedInt & 0x3F;
   v4 = v2 >> 6;
-  if ( v4 )
-  {
-    v9 = (v3 << 17) | ((v4 + 112) << 23);
-    __asm { vmovss  xmm0, [rsp+38h+arg_0] }
-  }
-  else
-  {
-    v8 = v3 + 1090519040;
-    __asm
-    {
-      vmovss  xmm0, [rsp+38h+arg_0]
-      vsubss  xmm0, xmm0, cs:__real@41000000
-    }
-  }
-  return *(float *)&_XMM0;
+  if ( !v4 )
+    return COERCE_FLOAT(v3 + 1090519040) - 8.0;
+  LODWORD(result) = (v3 << 17) | ((v4 + 112) << 23);
+  return result;
 }
 
 /*
@@ -584,39 +518,35 @@ PackBounds
 */
 PackedBounds *PackBounds(PackedBounds *result, const Bounds *in)
 {
-  unsigned int v7; 
-  unsigned int v17; 
-  unsigned int v18; 
-  unsigned int v19; 
+  unsigned int v6; 
+  unsigned int v16; 
 
+  _XMM0 = 0i64;
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vinsertps xmm0, xmm0, dword ptr [rdx], 0
     vinsertps xmm0, xmm0, dword ptr [rdx+4], 10h
     vcvtps2ph xmm0, xmm0, 0
-    vmovss  [rsp+arg_0], xmm0
   }
-  v7 = v17;
+  v6 = _XMM0;
+  _XMM0 = 0i64;
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vinsertps xmm0, xmm0, dword ptr [rdx+8], 0
     vinsertps xmm0, xmm0, dword ptr [rdx+0Ch], 10h
     vcvtps2ph xmm0, xmm0, 0
-    vmovss  [rsp+arg_0], xmm0
-    vxorps  xmm0, xmm0, xmm0
+  }
+  v16 = _XMM0;
+  _XMM0 = 0i64;
+  __asm
+  {
     vinsertps xmm0, xmm0, dword ptr [rdx+10h], 0
     vinsertps xmm0, xmm0, dword ptr [rdx+14h], 10h
   }
-  result->packed[0] = v7;
-  result->packed[1] = v18;
-  __asm
-  {
-    vcvtps2ph xmm0, xmm0, 0
-    vmovss  [rsp+arg_0], xmm0
-  }
-  result->packed[2] = v19;
+  result->packed[0] = v6;
+  result->packed[1] = v16;
+  __asm { vcvtps2ph xmm0, xmm0, 0 }
+  result->packed[2] = _XMM0;
   return result;
 }
 
@@ -625,91 +555,52 @@ PackedBounds *PackBounds(PackedBounds *result, const Bounds *in)
 UnpackBounds
 ==============
 */
-
-Bounds *__fastcall UnpackBounds(Bounds *result, const PackedBounds *in, double _XMM2_8)
+Bounds *UnpackBounds(Bounds *result, const PackedBounds *in)
 {
-  unsigned int v8; 
-  unsigned int v10; 
-  int v11; 
-  unsigned int v13; 
-  unsigned int v17; 
-  unsigned int v18; 
-  unsigned int v19; 
-  unsigned int v20; 
-  unsigned int v21; 
-  unsigned int v22; 
+  float v2; 
+  float v3; 
+  unsigned int v4; 
+  float v5; 
+  unsigned int v6; 
+  int v7; 
+  float v8; 
+  unsigned int v9; 
+  float v10; 
+  float v11; 
 
-  _R8 = result;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  v2 = 0.0;
   if ( (unsigned __int16)in->packed[0] )
-  {
-    v17 = ((in->packed[0] & 0x8000) << 16) | (((((in->packed[0] & 0x3FFF) << 14) - (~((unsigned __int16)in->packed[0] << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-    __asm { vmovss  xmm2, [rsp+arg_0] }
-  }
+    LODWORD(v3) = ((in->packed[0] & 0x8000) << 16) | (((((in->packed[0] & 0x3FFF) << 14) - (~((unsigned __int16)in->packed[0] << 14) & 0x10000000)) ^ 0x80000001) >> 1);
   else
-  {
-    __asm { vxorps  xmm2, xmm2, xmm2 }
-  }
-  v8 = HIWORD(in->packed[0]);
-  if ( v8 )
-  {
-    v18 = ((v8 & 0xFFFF8000) << 16) | (((((v8 & 0x3FFF) << 14) - (~(v8 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-    __asm { vmovss  xmm1, [rsp+arg_0] }
-  }
+    v3 = 0.0;
+  v4 = HIWORD(in->packed[0]);
+  if ( v4 )
+    LODWORD(v5) = ((v4 & 0xFFFF8000) << 16) | (((((v4 & 0x3FFF) << 14) - (~(v4 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
   else
-  {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-  }
-  v10 = in->packed[1];
-  v11 = (unsigned __int16)v10;
-  __asm
-  {
-    vmovss  dword ptr [r8], xmm2
-    vmovss  dword ptr [r8+4], xmm1
-  }
-  if ( (_WORD)v10 )
-  {
-    v19 = ((v10 & 0x8000) << 16) | (((((v10 & 0x3FFF) << 14) - (~((unsigned __int16)v10 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-    __asm { vmovss  xmm2, [rsp+arg_0] }
-  }
+    v5 = 0.0;
+  v6 = in->packed[1];
+  v7 = (unsigned __int16)v6;
+  result->midPoint.v[0] = v3;
+  result->midPoint.v[1] = v5;
+  if ( (_WORD)v6 )
+    LODWORD(v8) = ((v6 & 0x8000) << 16) | (((((v6 & 0x3FFF) << 14) - (~((unsigned __int16)v6 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
   else
-  {
-    __asm { vxorps  xmm2, xmm2, xmm2 }
-  }
-  v13 = HIWORD(v10);
-  if ( v13 )
-  {
-    v20 = ((v13 & 0xFFFF8000) << 16) | (((((v13 & 0x3FFF) << 14) - (~(v13 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-    __asm { vmovss  xmm1, [rsp+arg_0] }
-  }
+    v8 = 0.0;
+  v9 = HIWORD(v6);
+  if ( v9 )
+    LODWORD(v10) = ((v9 & 0xFFFF8000) << 16) | (((((v9 & 0x3FFF) << 14) - (~(v9 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
   else
-  {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-  }
-  __asm
-  {
-    vmovss  dword ptr [r8+8], xmm2
-    vmovss  dword ptr [r8+0Ch], xmm1
-  }
-  if ( v11 )
-  {
-    v21 = ((v11 & 0xFFFF8000) << 16) | (((((v11 & 0x3FFF) << 14) - (~(v11 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-    __asm { vmovss  xmm1, [rsp+arg_0] }
-  }
+    v10 = 0.0;
+  result->midPoint.v[2] = v8;
+  result->halfSize.v[0] = v10;
+  if ( v7 )
+    LODWORD(v11) = ((v7 & 0xFFFF8000) << 16) | (((((v7 & 0x3FFF) << 14) - (~(v7 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
   else
-  {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-  }
-  if ( v13 )
-  {
-    v22 = ((v13 & 0xFFFF8000) << 16) | (((((v13 & 0x3FFF) << 14) - (~(v13 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-    __asm { vmovss  xmm0, [rsp+arg_0] }
-  }
-  __asm
-  {
-    vmovss  dword ptr [r8+10h], xmm1
-    vmovss  dword ptr [r8+14h], xmm0
-  }
+    v11 = 0.0;
+  if ( v9 )
+    LODWORD(v2) = ((v9 & 0xFFFF8000) << 16) | (((((v9 & 0x3FFF) << 14) - (~(v9 << 14) & 0x10000000)) ^ 0x80000001) >> 1);
+  result->halfSize.v[1] = v11;
+  result->halfSize.v[2] = v2;
   return result;
 }
 
@@ -720,13 +611,10 @@ UnpackUnitVecAlpha
 */
 float UnpackUnitVecAlpha(PackedUnitVec in)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, cs:__real@3eaaaaab
-  }
-  return *(float *)&_XMM0;
+  float v1; 
+
+  v1 = (float)(in.packed >> 30);
+  return v1 * 0.33333334;
 }
 
 /*
@@ -734,88 +622,32 @@ float UnpackUnitVecAlpha(PackedUnitVec in)
 Vec2PackLmapCoords
 ==============
 */
-
-__int64 __fastcall Vec2PackLmapCoords(const vec2_t *in, double _XMM1_8, __int64 a3, double _XMM3_8)
+__int64 Vec2PackLmapCoords(const vec2_t *in)
 {
-  int v28; 
-  __int64 result; 
+  float v1; 
+  unsigned int v4; 
+  int v7; 
+  unsigned int v8; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]; val
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rcx+4]
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovss  xmm7, cs:__real@3f800000
-    vmovaps xmm2, xmm7; max
-    vmovaps [rsp+68h+var_38], xmm8
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps [rsp+68h+var_48], xmm9
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@477fff00
-    vmovss  xmm8, cs:__real@3f000000
-    vmulss  xmm1, xmm0, xmm9
-    vaddss  xmm2, xmm1, xmm8
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm0, xmm6; val
-    vcvttss2si rdi, xmm3
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm9
-    vaddss  xmm2, xmm1, xmm8
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vcvttss2si rcx, xmm3; val
-  }
-  v28 = truncate_cast<unsigned short,unsigned int>(_RCX) << 16;
-  __asm
-  {
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vxorps  xmm0, xmm0, xmm0; val
-  }
-  LODWORD(_RDI) = v28 | truncate_cast<unsigned short,unsigned int>(_RDI);
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vxorps  xmm0, xmm0, xmm0; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm9
-    vaddss  xmm2, xmm1, xmm8
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vmulss  xmm0, xmm6, xmm9
-    vxorps  xmm2, xmm2, xmm2
-    vaddss  xmm1, xmm0, xmm8
-    vroundss xmm2, xmm2, xmm1, 1
-    vcvttss2si rcx, xmm2; val
-    vcvttss2si rbx, xmm3
-  }
-  truncate_cast<unsigned short,unsigned int>(_RCX);
-  truncate_cast<unsigned short,unsigned int>(_RBX);
-  result = (unsigned int)_RDI;
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-    vmovaps xmm9, [rsp+68h+var_48]
-  }
-  return result;
+  v1 = in->v[1];
+  I_fclamp(in->v[0], 0.0, 1.0);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  v4 = (int)*(float *)&_XMM3;
+  I_fclamp(v1, 0.0, 1.0);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  v7 = truncate_cast<unsigned short,unsigned int>((int)*(float *)&_XMM3) << 16;
+  v8 = v7 | truncate_cast<unsigned short,unsigned int>(v4);
+  I_fclamp(0.0, 0.0, 1.0);
+  I_fclamp(0.0, 0.0, 1.0);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  truncate_cast<unsigned short,unsigned int>((int)*(float *)&_XMM2);
+  truncate_cast<unsigned short,unsigned int>((int)*(float *)&_XMM3);
+  return v8;
 }
 
 /*
@@ -825,17 +657,14 @@ Vec2PackTexCoords
 */
 __int64 Vec2PackTexCoords(const vec2_t *in)
 {
-  unsigned int v7; 
-
+  _XMM0 = 0i64;
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vinsertps xmm0, xmm0, dword ptr [rcx], 0
     vinsertps xmm0, xmm0, dword ptr [rcx+4], 10h
     vcvtps2ph xmm0, xmm0, 0
-    vmovss  [rsp+arg_0], xmm0
   }
-  return v7;
+  return (unsigned int)_XMM0;
 }
 
 /*
@@ -843,70 +672,34 @@ __int64 Vec2PackTexCoords(const vec2_t *in)
 Vec2UnpackLmapCoords
 ==============
 */
-
-vec2_t __fastcall Vec2UnpackLmapCoords(const PackedLmapCoords *in, double _XMM1_8, __int64 a3, double _XMM3_8)
+vec2_t Vec2UnpackLmapCoords(const PackedLmapCoords *in)
 {
-  vec2_t result; 
-  vec2_t v38; 
+  unsigned int packed; 
+  float v2; 
+  double v3; 
+  float v4; 
+  float v5; 
+  double v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  __int64 v11; 
+  unsigned int v12; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovss  xmm9, cs:__real@37800080
-    vmovss  xmm8, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, xmm9; val
-    vmovaps xmm2, xmm8; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovaps xmm7, xmm0
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm0, xmm1, xmm9; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm8; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, rax
-    vmovaps xmm6, xmm0
-    vmulss  xmm0, xmm3, xmm9; val
-    vmovaps xmm2, xmm8; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, rax
-    vmulss  xmm0, xmm3, xmm9; val
-    vmovaps xmm2, xmm8; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsp+78h+var_58], xmm7
-    vmovss  dword ptr [rsp+78h+var_58+4], xmm6
-  }
-  result = v38;
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmovaps xmm9, [rsp+78h+var_48]
-  }
-  return result;
+  packed = in->packed;
+  v2 = (float)(unsigned __int16)in->packed;
+  v3 = I_fclamp(v2 * 0.000015259022, 0.0, 1.0);
+  v4 = *(float *)&v3;
+  v5 = (float)HIWORD(packed);
+  v6 = I_fclamp(v5 * 0.000015259022, 0.0, 1.0);
+  v7 = (float)(unsigned __int16)v12;
+  v8 = *(float *)&v6;
+  I_fclamp(v7 * 0.000015259022, 0.0, 1.0);
+  v9 = (float)HIWORD(v12);
+  I_fclamp(v9 * 0.000015259022, 0.0, 1.0);
+  *(float *)&v11 = v4;
+  *((float *)&v11 + 1) = v8;
+  return (vec2_t)v11;
 }
 
 /*
@@ -937,52 +730,40 @@ Vec3PackR11G11B10F
 */
 __int64 Vec3PackR11G11B10F(const vec3_t *vec)
 {
+  unsigned int v2; 
   unsigned int v3; 
+  float v4; 
   unsigned int v5; 
-  char v6; 
+  int v6; 
   unsigned int v7; 
-  unsigned int v9; 
-  unsigned int v10; 
-  unsigned int v11; 
-  unsigned int v12; 
-  unsigned int v14; 
+  int v8; 
 
-  __asm { vmovss  xmm0, dword ptr [rcx]; v }
-  _RBX = vec;
-  v3 = FloatPack11FHQ(*(float *)&_XMM0);
-  __asm { vmovss  xmm0, dword ptr [rbx+4]; v }
-  v5 = v3;
-  v7 = FloatPack11FHQ(*(float *)&_XMM0);
-  __asm
+  v2 = FloatPack11FHQ(vec->v[0]);
+  v3 = FloatPack11FHQ(vec->v[1]);
+  v4 = vec->v[2];
+  if ( v4 >= 0.00000095367432 )
   {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vcomiss xmm0, cs:__real@35800000
-  }
-  if ( v6 )
-  {
-    v9 = 0;
-  }
-  else
-  {
-    __asm { vcomiss xmm0, cs:__real@477a0000 }
-    if ( v6 )
+    if ( v4 < 64000.0 )
     {
-      __asm { vmovss  [rsp+28h+arg_0], xmm0 }
-      v10 = 0;
-      v11 = v14 & 0x7FFFFF;
-      v12 = v14 >> 23;
-      if ( v14 >> 23 >= 0x71 )
-        v10 = v12 - 112;
+      v6 = 0;
+      v7 = LODWORD(v4) & 0x7FFFFF;
+      v8 = LODWORD(v4) >> 23;
+      if ( LODWORD(v4) >> 23 >= 0x71 )
+        v6 = v8 - 112;
       else
-        v11 = (v11 | 0x800000) >> (113 - v12);
-      v9 = ((v11 | (v10 << 23)) + 0x20000) >> 18;
+        v7 = (v7 | 0x800000) >> (113 - v8);
+      v5 = ((v7 | (v6 << 23)) + 0x20000) >> 18;
     }
     else
     {
-      v9 = 991;
+      v5 = 991;
     }
   }
-  return v5 | ((v7 | (v9 << 11)) << 11);
+  else
+  {
+    v5 = 0;
+  }
+  return v2 | ((v3 | (v5 << 11)) << 11);
 }
 
 /*
@@ -990,105 +771,51 @@ __int64 Vec3PackR11G11B10F(const vec3_t *vec)
 Vec3PackR9G9B9E5SharedExp
 ==============
 */
-
-__int64 __fastcall Vec3PackR9G9B9E5SharedExp(const vec3_t *vec, double _XMM1_8)
+__int64 Vec3PackR9G9B9E5SharedExp(const vec3_t *vec)
 {
-  char v18; 
-  __int64 result; 
-  int v22; 
-  int v23; 
-  int v24; 
-  unsigned int v25; 
-  int v26; 
-  unsigned int v27; 
-  int v28; 
-  unsigned int v29; 
-  int v30; 
-  int v35; 
-  int v36; 
-  int v37; 
-  int v38; 
+  double v2; 
+  int v3; 
+  __int128 v4; 
+  double v6; 
+  int v10; 
+  unsigned int v11; 
+  int v12; 
+  unsigned int v13; 
+  int v14; 
+  int v15; 
+  int v16; 
 
-  __asm
-  {
-    vmovss  xmm2, cs:__real@477f8000; max
-    vmovss  xmm0, dword ptr [rcx]; val
-    vmovaps [rsp+48h+var_18], xmm7
-  }
-  _RBX = vec;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps [rsp+48h+var_28], xmm8
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@477f8000; max
-    vmovaps xmm7, xmm0
-    vmovss  xmm0, dword ptr [rbx+4]; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@477f8000; max
-    vmovaps xmm8, xmm0
-    vmovss  xmm0, dword ptr [rbx+8]; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+  v2 = I_fclamp(vec->v[0], 0.0, 65408.0);
+  v3 = LODWORD(v2);
+  v4 = LODWORD(vec->v[1]);
+  *(double *)&v4 = I_fclamp(*(float *)&v4, 0.0, 65408.0);
+  _XMM8 = v4;
+  v6 = I_fclamp(vec->v[2], 0.0, 65408.0);
   __asm
   {
     vmaxss  xmm1, xmm8, xmm7
     vmaxss  xmm2, xmm1, xmm0
-    vcomiss xmm2, cs:__real@33000000
   }
-  if ( v18 )
-  {
-    result = 0i64;
-    __asm
-    {
-      vmovaps xmm7, [rsp+48h+var_18]
-      vmovaps xmm8, [rsp+48h+var_28]
-    }
-  }
+  if ( *(float *)&_XMM2 < 0.000000029802322 )
+    return 0i64;
+  v10 = (unsigned __int8)((unsigned int)(_XMM2 + 0x4000) >> 23) - 126;
+  if ( v10 < -15 )
+    v10 = -15;
+  v11 = 0;
+  v12 = v10 - (unsigned __int8)(v3 >> 23) + 126;
+  if ( v12 < 31 )
+    v13 = (((v3 & 0x7FFFFF | 0x800000u) >> v12) + 0x4000) >> 15;
   else
-  {
-    __asm { vmovss  [rsp+48h+arg_0], xmm2 }
-    v22 = (unsigned __int8)((unsigned int)(v35 + 0x4000) >> 23) - 126;
-    __asm { vmovss  [rsp+48h+arg_0], xmm8 }
-    if ( v22 < -15 )
-      v22 = -15;
-    v23 = v36 & 0x7FFFFF;
-    v24 = (unsigned __int8)(v36 >> 23);
-    __asm
-    {
-      vmovss  [rsp+48h+arg_0], xmm0
-      vmovss  [rsp+48h+arg_8], xmm7
-    }
-    v25 = 0;
-    v26 = v22 - (unsigned __int8)(v38 >> 23) + 126;
-    if ( v26 < 31 )
-      v27 = (((v38 & 0x7FFFFF | 0x800000u) >> v26) + 0x4000) >> 15;
-    else
-      v27 = 0;
-    v28 = v22 - v24 + 126;
-    if ( v28 < 31 )
-      v29 = (((v23 | 0x800000u) >> v28) + 0x4000) >> 15;
-    else
-      v29 = 0;
-    v30 = v22 - (unsigned __int8)(v37 >> 23) + 126;
-    if ( v30 < 31 )
-      v25 = (((v37 & 0x7FFFFF | 0x800000u) >> v30) + 0x4000) >> 15;
-    __asm
-    {
-      vmovaps xmm7, [rsp+48h+var_18]
-      vmovaps xmm8, [rsp+48h+var_28]
-    }
-    return v27 | ((v22 + 15) << 27) | ((v29 | (v25 << 9)) << 9);
-  }
-  return result;
+    v13 = 0;
+  v14 = v10 - (unsigned __int8)((int)_XMM8 >> 23) + 126;
+  if ( v14 < 31 )
+    v15 = (((unsigned __int128)(_XMM8 & 0x7FFFFF | 0x800000) >> v14) + 0x4000) >> 15;
+  else
+    v15 = 0;
+  v16 = v10 - (unsigned __int8)(SLODWORD(v6) >> 23) + 126;
+  if ( v16 < 31 )
+    v11 = (((LODWORD(v6) & 0x7FFFFF | 0x800000u) >> v16) + 0x4000) >> 15;
+  return v13 | ((v10 + 15) << 27) | ((v15 | (v11 << 9)) << 9);
 }
 
 /*
@@ -1096,59 +823,21 @@ __int64 __fastcall Vec3PackR9G9B9E5SharedExp(const vec3_t *vec, double _XMM1_8)
 Vec3PackUnitVec
 ==============
 */
-
-__int64 __fastcall Vec3PackUnitVec(const vec3_t *unitVec, __int64 a2, __int64 a3, double _XMM3_8)
+__int64 Vec3PackUnitVec(const vec3_t *unitVec)
 {
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovss  xmm0, dword ptr [rcx]; val
-    vmovaps [rsp+48h+var_18], xmm8
-  }
-  _RBX = unitVec;
-  __asm { vmovaps [rsp+48h+var_28], xmm9 }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovaps xmm9, xmm0
-    vmovss  xmm0, dword ptr [rbx+4]; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovaps xmm8, xmm0
-    vmovss  xmm0, dword ptr [rbx+8]; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm5, cs:__real@43ffc000
-    vmovss  xmm4, cs:__real@44000000
-    vmulss  xmm1, xmm0, xmm5
-    vaddss  xmm2, xmm1, xmm4
-    vmulss  xmm0, xmm8, xmm5
-    vmovaps xmm8, [rsp+48h+var_18]
-    vaddss  xmm1, xmm0, xmm4
-    vmulss  xmm0, xmm9, xmm5
-    vmovaps xmm9, [rsp+48h+var_28]
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 1
-    vcvttss2si rcx, xmm2
-    vcvttss2si rax, xmm3
-    vxorps  xmm2, xmm2, xmm2
-    vaddss  xmm1, xmm0, xmm4
-    vroundss xmm2, xmm2, xmm1, 1
-  }
-  LODWORD(_RAX) = ((unsigned int)_RCX | (((unsigned int)_RAX | 0xFFFFFC00) << 10)) << 10;
-  __asm { vcvttss2si rcx, xmm2 }
-  return (unsigned int)_RCX | (unsigned int)_RAX;
+  unsigned int v6; 
+
+  I_fclamp(unitVec->v[0], -1.0, 1.0);
+  I_fclamp(unitVec->v[1], -1.0, 1.0);
+  I_fclamp(unitVec->v[2], -1.0, 1.0);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  v6 = (int)*(float *)&_XMM2 | (((int)*(float *)&_XMM3 | 0xFFFFFC00) << 10);
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  return (int)*(float *)&_XMM2 | (v6 << 10);
 }
 
 /*
@@ -1156,73 +845,26 @@ __int64 __fastcall Vec3PackUnitVec(const vec3_t *unitVec, __int64 a2, __int64 a3
 Vec3PackUnitVecWithAlpha
 ==============
 */
-
-__int64 __fastcall Vec3PackUnitVecWithAlpha(const vec3_t *unitVec, double alpha, __int64 a3, double _XMM3_8)
+__int64 Vec3PackUnitVecWithAlpha(const vec3_t *unitVec, float alpha)
 {
+  int v9; 
+
+  I_fclamp(unitVec->v[0], -1.0, 1.0);
+  I_fclamp(unitVec->v[1], -1.0, 1.0);
+  I_fclamp(unitVec->v[2], -1.0, 1.0);
+  _XMM0 = 0i64;
+  _XMM3 = 0i64;
   __asm
   {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vmovss  xmm0, dword ptr [rcx]; val
-    vmovaps [rsp+58h+var_18], xmm8
-  }
-  _RBX = unitVec;
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm9
-    vmovaps xmm9, xmm1
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovaps [rsp+58h+var_38], xmm10
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovaps xmm10, xmm0
-    vmovss  xmm0, dword ptr [rbx+4]; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovaps xmm8, xmm0
-    vmovss  xmm0, dword ptr [rbx+8]; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm5, cs:__real@43ffc000
-    vmovss  xmm4, cs:__real@44000000
-    vmulss  xmm1, xmm0, xmm5
-    vaddss  xmm2, xmm1, xmm4
-    vmulss  xmm1, xmm9, cs:__real@40400000
-    vmovaps xmm9, [rsp+58h+var_28]
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm3, xmm3, xmm3
     vroundss xmm3, xmm3, xmm2, 1
-    vaddss  xmm2, xmm1, cs:__real@3f000000
     vroundss xmm0, xmm0, xmm2, 1
-    vcvttss2si rax, xmm0
-    vmulss  xmm0, xmm8, xmm5
-    vmovaps xmm8, [rsp+58h+var_18]
-    vaddss  xmm1, xmm0, xmm4
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm1, 1
-    vcvttss2si rcx, xmm2
-    vmulss  xmm0, xmm10, xmm5
-    vmovaps xmm10, [rsp+58h+var_38]
-    vcvttss2si rdx, xmm3
   }
-  LODWORD(_RAX) = _RCX | (((unsigned int)_RDX | ((_DWORD)_RAX << 10)) << 10);
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vaddss  xmm1, xmm0, xmm4
-    vroundss xmm2, xmm2, xmm1, 1
-    vcvttss2si rcx, xmm2
-  }
-  return (unsigned int)_RCX | ((_DWORD)_RAX << 10);
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  v9 = (int)*(float *)&_XMM2 | (((int)*(float *)&_XMM3 | ((int)*(float *)&_XMM0 << 10)) << 10);
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  return (int)*(float *)&_XMM2 | (unsigned int)(v9 << 10);
 }
 
 /*
@@ -1232,41 +874,25 @@ Vec3UnpackR11G11B10F
 */
 void Vec3UnpackR11G11B10F(const unsigned int rgb, vec3_t *vec)
 {
-  unsigned int v4; 
-  unsigned int v6; 
-  int v7; 
-  unsigned int v8; 
-  int v12; 
-  int v13; 
+  unsigned int v3; 
+  double v5; 
+  double v6; 
+  unsigned int v7; 
+  int v8; 
+  unsigned int v9; 
 
-  v4 = rgb >> 22;
-  _RSI = vec;
-  *(double *)&_XMM0 = FloatUnpack11FHQ(rgb & 0x7FF);
-  __asm { vmovss  dword ptr [rsi], xmm0 }
-  *(double *)&_XMM0 = FloatUnpack11FHQ((rgb >> 11) & 0x7FF);
-  v6 = v4;
-  v7 = v4 & 0x1F;
-  v8 = v6 >> 5;
-  __asm { vmovss  dword ptr [rsi+4], xmm0 }
-  if ( v8 )
-  {
-    v13 = (v7 << 18) | ((v8 + 112) << 23);
-    __asm
-    {
-      vmovss  xmm0, [rsp+28h+arg_0]
-      vmovss  dword ptr [rsi+8], xmm0
-    }
-  }
+  v3 = rgb >> 22;
+  v5 = FloatUnpack11FHQ(rgb & 0x7FF);
+  vec->v[0] = *(float *)&v5;
+  v6 = FloatUnpack11FHQ((rgb >> 11) & 0x7FF);
+  v7 = v3;
+  v8 = v3 & 0x1F;
+  v9 = v7 >> 5;
+  vec->v[1] = *(float *)&v6;
+  if ( v9 )
+    vec->v[2] = COERCE_FLOAT((v8 << 18) | ((v9 + 112) << 23));
   else
-  {
-    v12 = v7 + 1098907648;
-    __asm
-    {
-      vmovss  xmm0, [rsp+28h+arg_0]
-      vsubss  xmm1, xmm0, cs:__real@41800000
-      vmovss  dword ptr [rsi+8], xmm1
-    }
-  }
+    vec->v[2] = COERCE_FLOAT(v8 + 1098907648) - 16.0;
 }
 
 /*
@@ -1276,31 +902,22 @@ Vec3UnpackR9G9B9E5SharedExp
 */
 void Vec3UnpackR9G9B9E5SharedExp(const unsigned int in, vec3_t *out)
 {
-  _RDI = out;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vsubss  xmm1, xmm0, cs:__real@41c00000; Y
-    vmovss  xmm0, cs:__real@40000000; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm2, xmm1, xmm0
-    vmovaps xmm3, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmovss  dword ptr [rdi], xmm2
-    vmulss  xmm2, xmm1, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rdi+8], xmm1
-    vmovss  dword ptr [rdi+4], xmm2
-  }
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+
+  v4 = (float)(in >> 27);
+  v5 = (float)(in & 0x1FF);
+  v6 = powf_0(2.0, v4 - 24.0);
+  v7 = (float)((in >> 9) & 0x1FF);
+  out->v[0] = v5 * v6;
+  v8 = v7 * v6;
+  v9 = (float)((in >> 18) & 0x1FF);
+  out->v[2] = v9 * v6;
+  out->v[1] = v8;
 }
 
 /*
@@ -1313,14 +930,11 @@ void Vec3UnpackUnitVec(const PackedUnitVec in, vec3_t *out)
   unsigned int packed; 
 
   packed = in.packed;
+  __asm { vbroadcastss xmm0, [rsp+18h+var_18] }
+  _XMM2 = _mm128_mul_ps(_mm128_add_ps(_mm_cvtepi32_ps((__m128i)(_XMM0 & *(_OWORD *)&g_packMask1010102.v)), g_packAdd1010102.v), g_packMul1010102.v);
+  out->v[0] = _XMM2.m128_f32[0];
   __asm
   {
-    vbroadcastss xmm0, [rsp+18h+var_18]
-    vandps  xmm1, xmm0, xmmword ptr cs:?g_packMask1010102@@3Ufloat4@@B.v; float4 const g_packMask1010102
-    vcvtdq2ps xmm1, xmm1
-    vaddps  xmm0, xmm1, xmmword ptr cs:?g_packAdd1010102@@3Ufloat4@@B.v; float4 const g_packAdd1010102
-    vmulps  xmm2, xmm0, xmmword ptr cs:?g_packMul1010102@@3Ufloat4@@B.v; float4 const g_packMul1010102
-    vmovss  dword ptr [rdx], xmm2
     vextractps dword ptr [rdx+4], xmm2, 1
     vextractps dword ptr [rdx+8], xmm2, 2
   }
@@ -1333,33 +947,21 @@ Vec3UnpackUnitVecWithAlpha
 */
 void Vec3UnpackUnitVecWithAlpha(const PackedUnitVec in, vec3_t *out, float *alpha)
 {
-  __asm
-  {
-    vmovss  xmm5, cs:__real@40000000
-    vmovss  xmm4, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3a802008
-    vmulss  xmm2, xmm1, xmm5
-    vsubss  xmm0, xmm2, xmm4
-    vmovss  dword ptr [rdx], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3a802008
-    vmulss  xmm2, xmm1, xmm5
-    vxorps  xmm0, xmm0, xmm0
-    vsubss  xmm3, xmm2, xmm4
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3a802008
-    vmulss  xmm2, xmm1, xmm5
-    vmovss  dword ptr [rdx+4], xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3eaaaaab
-    vsubss  xmm3, xmm2, xmm4
-    vmovss  dword ptr [rdx+8], xmm3
-    vmovss  dword ptr [r8], xmm1
-  }
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+
+  v3 = (float)(in.packed & 0x3FF);
+  out->v[0] = (float)((float)(v3 * 0.00097751711) * 2.0) - 1.0;
+  v4 = (float)((in.packed >> 10) & 0x3FF);
+  v5 = (float)((in.packed >> 20) & 0x3FF);
+  v6 = (float)(v5 * 0.00097751711) * 2.0;
+  out->v[1] = (float)((float)(v4 * 0.00097751711) * 2.0) - 1.0;
+  v7 = (float)(in.packed >> 30);
+  out->v[2] = v6 - 1.0;
+  *alpha = v7 * 0.33333334;
 }
 
 /*
@@ -1367,40 +969,25 @@ void Vec3UnpackUnitVecWithAlpha(const PackedUnitVec in, vec3_t *out, float *alph
 Vec4PackNormalTransform
 ==============
 */
-
-__int64 __fastcall Vec4PackNormalTransform(const vec4_t *in, __int64 a2, __int64 a3, double _XMM3_8)
+__int64 Vec4PackNormalTransform(const vec4_t *in)
 {
+  int v5; 
+  int v8; 
+
+  _XMM3 = 0i64;
+  _XMM0 = 0i64;
   __asm
   {
-    vmovss  xmm5, cs:__real@42ff0000
-    vmulss  xmm1, xmm5, dword ptr [rcx+8]
-    vmovss  xmm4, cs:__real@43000000
-    vaddss  xmm2, xmm1, xmm4
-    vmulss  xmm1, xmm5, dword ptr [rcx+0Ch]
-    vxorps  xmm3, xmm3, xmm3
-    vxorps  xmm0, xmm0, xmm0
     vroundss xmm0, xmm0, xmm2, 1
-    vaddss  xmm2, xmm1, xmm4
-    vmulss  xmm1, xmm5, dword ptr [r8+4]
     vroundss xmm3, xmm3, xmm2, 1
-    vcvttss2si rcx, xmm3
-    vxorps  xmm3, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm4
-    vmulss  xmm1, xmm5, dword ptr [r8]
-    vroundss xmm3, xmm3, xmm2, 1
-    vcvttss2si rax, xmm0
   }
-  LODWORD(_RAX) = ((_DWORD)_RCX << 8) | (unsigned __int8)_RAX;
-  __asm { vcvttss2si rcx, xmm3 }
-  LODWORD(_RAX) = (unsigned __int8)_RCX | ((_DWORD)_RAX << 8);
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm4
-    vroundss xmm3, xmm3, xmm2, 1
-    vcvttss2si rcx, xmm3
-  }
-  return (unsigned int)(unsigned __int8)_RCX | ((_DWORD)_RAX << 8);
+  v5 = (int)*(float *)&_XMM3;
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  v8 = (unsigned __int8)(int)*(float *)&_XMM3 | (((v5 << 8) | (unsigned __int8)(int)*(float *)&_XMM0) << 8);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  return (unsigned __int8)(int)*(float *)&_XMM3 | (unsigned int)(v8 << 8);
 }
 
 /*
@@ -1408,94 +995,31 @@ __int64 __fastcall Vec4PackNormalTransform(const vec4_t *in, __int64 a2, __int64
 Vec4PackUnisgnedUnitVecToUint2
 ==============
 */
-
-base_vec2_t<unsigned int> __fastcall Vec4PackUnisgnedUnitVecToUint2(const vec4_t *unitVec, double _XMM1_8, __int64 a3, double _XMM3_8)
+base_vec2_t<unsigned int> Vec4PackUnisgnedUnitVecToUint2(const vec4_t *unitVec)
 {
-  int v28; 
-  unsigned __int16 v29; 
-  int v47; 
-  base_vec2_t<unsigned int> result; 
-  base_vec2_t<unsigned int> v54; 
-  char v59; 
+  unsigned int v4; 
+  int v7; 
+  int v12; 
+  __int64 v14; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm0, dword ptr [rcx]; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  _RSI = unitVec;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@477fff00
-    vmovss  xmm8, cs:__real@3f000000
-    vmulss  xmm1, xmm0, xmm9
-    vaddss  xmm2, xmm1, xmm8
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm0, xmm0, xmm2, 1
-    vcvttss2si rdi, xmm0
-    vmovss  xmm0, dword ptr [rsi+4]; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm9
-    vaddss  xmm2, xmm1, xmm8
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vcvttss2si rcx, xmm3; val
-  }
-  v28 = truncate_cast<unsigned short,unsigned int>(_RCX) << 16;
-  v29 = truncate_cast<unsigned short,unsigned int>(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  v54.v[0] = v28 | v29;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmovss  xmm0, dword ptr [rsi+0Ch]; val
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm9
-    vaddss  xmm2, xmm1, xmm8
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vmulss  xmm0, xmm6, xmm9
-    vxorps  xmm2, xmm2, xmm2
-    vaddss  xmm1, xmm0, xmm8
-    vroundss xmm2, xmm2, xmm1, 1
-    vcvttss2si rcx, xmm2; val
-    vcvttss2si rdi, xmm3
-  }
-  v47 = truncate_cast<unsigned short,unsigned int>(_RCX);
-  v54.v[1] = v47 | (truncate_cast<unsigned short,unsigned int>(_RDI) << 16);
-  result = v54;
-  _R11 = &v59;
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
+  I_fclamp(unitVec->v[0], 0.0, 1.0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm0, xmm0, xmm2, 1 }
+  v4 = (int)*(float *)&_XMM0;
+  I_fclamp(unitVec->v[1], 0.0, 1.0);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  v7 = truncate_cast<unsigned short,unsigned int>((int)*(float *)&_XMM3) << 16;
+  LODWORD(v14) = v7 | truncate_cast<unsigned short,unsigned int>(v4);
+  I_fclamp(unitVec->v[2], 0.0, 1.0);
+  I_fclamp(unitVec->v[3], 0.0, 1.0);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  v12 = truncate_cast<unsigned short,unsigned int>((int)*(float *)&_XMM2);
+  HIDWORD(v14) = v12 | (truncate_cast<unsigned short,unsigned int>((int)*(float *)&_XMM3) << 16);
+  return (base_vec2_t<unsigned int>)v14;
 }
 
 /*
@@ -1503,99 +1027,31 @@ base_vec2_t<unsigned int> __fastcall Vec4PackUnisgnedUnitVecToUint2(const vec4_t
 Vec4PackUnitVecToUint2
 ==============
 */
-
-base_vec2_t<unsigned int> __fastcall Vec4PackUnitVecToUint2(const vec4_t *unitVec, __int64 a2, __int64 a3, double _XMM3_8)
+base_vec2_t<unsigned int> Vec4PackUnitVecToUint2(const vec4_t *unitVec)
 {
-  int v31; 
-  unsigned __int16 v32; 
-  int v50; 
-  base_vec2_t<unsigned int> result; 
-  base_vec2_t<unsigned int> v58; 
-  char v61; 
-  void *retaddr; 
+  unsigned int v4; 
+  int v7; 
+  int v12; 
+  __int64 v14; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm7, cs:__real@bf800000
-    vmovss  xmm0, dword ptr [rcx]; val
-    vmovaps xmm2, xmm8; max
-    vmovaps xmm1, xmm7; min
-  }
-  _RSI = unitVec;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm10, cs:__real@46ffff00
-    vmovss  xmm9, cs:__real@47000000
-    vmulss  xmm1, xmm0, xmm10
-    vaddss  xmm2, xmm1, xmm9
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm0, xmm0, xmm2, 1
-    vcvttss2si rdi, xmm0
-    vmovss  xmm0, dword ptr [rsi+4]; val
-    vmovaps xmm2, xmm8; max
-    vmovaps xmm1, xmm7; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm10
-    vaddss  xmm2, xmm1, xmm9
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vcvttss2si rcx, xmm3; val
-  }
-  v31 = truncate_cast<unsigned short,unsigned int>(_RCX) << 16;
-  v32 = truncate_cast<unsigned short,unsigned int>(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]; val
-    vmovaps xmm2, xmm8; max
-    vmovaps xmm1, xmm7; min
-  }
-  v58.v[0] = v31 | v32;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmovss  xmm0, dword ptr [rsi+0Ch]; val
-    vmovaps xmm2, xmm8; max
-    vmovaps xmm1, xmm7; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm10
-    vaddss  xmm2, xmm1, xmm9
-    vxorps  xmm3, xmm3, xmm3
-    vroundss xmm3, xmm3, xmm2, 1
-    vmulss  xmm0, xmm6, xmm10
-    vxorps  xmm2, xmm2, xmm2
-    vaddss  xmm1, xmm0, xmm9
-    vroundss xmm2, xmm2, xmm1, 1
-    vcvttss2si rcx, xmm2; val
-    vcvttss2si rdi, xmm3
-  }
-  v50 = truncate_cast<unsigned short,unsigned int>(_RCX);
-  v58.v[1] = v50 | (truncate_cast<unsigned short,unsigned int>(_RDI) << 16);
-  result = v58;
-  _R11 = &v61;
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return result;
+  I_fclamp(unitVec->v[0], -1.0, 1.0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm0, xmm0, xmm2, 1 }
+  v4 = (int)*(float *)&_XMM0;
+  I_fclamp(unitVec->v[1], -1.0, 1.0);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  v7 = truncate_cast<unsigned short,unsigned int>((int)*(float *)&_XMM3) << 16;
+  LODWORD(v14) = v7 | truncate_cast<unsigned short,unsigned int>(v4);
+  I_fclamp(unitVec->v[2], -1.0, 1.0);
+  I_fclamp(unitVec->v[3], -1.0, 1.0);
+  _XMM3 = 0i64;
+  __asm { vroundss xmm3, xmm3, xmm2, 1 }
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  v12 = truncate_cast<unsigned short,unsigned int>((int)*(float *)&_XMM2);
+  HIDWORD(v14) = v12 | (truncate_cast<unsigned short,unsigned int>((int)*(float *)&_XMM3) << 16);
+  return (base_vec2_t<unsigned int>)v14;
 }
 
 /*
@@ -1605,38 +1061,21 @@ Vec4UnpackNormalTransform
 */
 void Vec4UnpackNormalTransform(const PackedNormalTransform in, vec4_t *out)
 {
-  __asm
-  {
-    vmovss  xmm5, cs:__real@40000000
-    vmovss  xmm4, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovaps [rsp+18h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3b808081
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm5
-    vsubss  xmm0, xmm2, xmm4
-    vmovss  dword ptr [rdx], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm5
-    vsubss  xmm3, xmm2, xmm4
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vmulss  xmm2, xmm1, xmm5
-    vmovss  dword ptr [rdx+4], xmm3
-    vsubss  xmm3, xmm2, xmm4
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm6
-    vmovaps xmm6, [rsp+18h+var_18]
-    vmulss  xmm2, xmm1, xmm5
-    vmovss  dword ptr [rdx+8], xmm3
-    vsubss  xmm3, xmm2, xmm4
-    vmovss  dword ptr [rdx+0Ch], xmm3
-  }
+  float packed_low; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float packed_high; 
+
+  packed_low = (float)LOBYTE(in.packed);
+  out->v[0] = (float)((float)(packed_low * 0.0039215689) * 2.0) - 1.0;
+  v3 = (float)BYTE1(in.packed);
+  v4 = (float)((float)(v3 * 0.0039215689) * 2.0) - 1.0;
+  v5 = (float)BYTE2(in.packed);
+  out->v[1] = v4;
+  packed_high = (float)HIBYTE(in.packed);
+  out->v[2] = (float)((float)(v5 * 0.0039215689) * 2.0) - 1.0;
+  out->v[3] = (float)((float)(packed_high * 0.0039215689) * 2.0) - 1.0;
 }
 
 /*
@@ -1646,59 +1085,31 @@ Vec4UnpackUnisgnedUnitVecFromUint2
 */
 void Vec4UnpackUnisgnedUnitVecFromUint2(const base_vec2_t<unsigned int> in, vec4_t *out)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-  }
-  _RSI = out;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovss  xmm7, cs:__real@37800080
-    vmulss  xmm0, xmm0, xmm7; val
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsi], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, xmm7; val
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsi+4], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, xmm7; val
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsi+8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, xmm7; val
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-    vmovss  dword ptr [rsi+0Ch], xmm0
-  }
+  float v3; 
+  unsigned int v4; 
+  unsigned int v5; 
+  double v6; 
+  float v7; 
+  double v8; 
+  float v9; 
+  double v10; 
+  float v11; 
+  double v12; 
+
+  v3 = (float)LOWORD(in.v[0]);
+  v4 = in.v[0];
+  v5 = in.v[1];
+  v6 = I_fclamp(v3 * 0.000015259022, 0.0, 1.0);
+  out->v[0] = *(float *)&v6;
+  v7 = (float)HIWORD(v4);
+  v8 = I_fclamp(v7 * 0.000015259022, 0.0, 1.0);
+  out->v[1] = *(float *)&v8;
+  v9 = (float)(unsigned __int16)v5;
+  v10 = I_fclamp(v9 * 0.000015259022, 0.0, 1.0);
+  out->v[2] = *(float *)&v10;
+  v11 = (float)HIWORD(v5);
+  v12 = I_fclamp(v11 * 0.000015259022, 0.0, 1.0);
+  out->v[3] = *(float *)&v12;
 }
 
 /*
@@ -1708,75 +1119,30 @@ Vec4UnpackUnitVecFromUint2
 */
 void Vec4UnpackUnitVecFromUint2(const base_vec2_t<unsigned int> in, vec4_t *out)
 {
-  char v49; 
+  unsigned int v3; 
+  float v4; 
+  unsigned int v5; 
+  double v6; 
+  float v7; 
+  double v8; 
+  float v9; 
+  double v10; 
+  float v11; 
+  double v12; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovss  xmm6, cs:__real@bf800000
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  _RSI = out;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@40000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovss  xmm8, cs:__real@3f800000
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovaps [rsp+68h+var_48], xmm9
-    vmovss  xmm9, cs:__real@37800080
-    vmulss  xmm1, xmm0, xmm9
-    vmulss  xmm2, xmm1, xmm7
-    vsubss  xmm0, xmm2, xmm8; val
-    vmovaps xmm2, xmm8; max
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsi], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm9
-    vmulss  xmm2, xmm1, xmm7
-    vsubss  xmm0, xmm2, xmm8; val
-    vmovaps xmm2, xmm8; max
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsi+4], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm9
-    vmulss  xmm3, xmm1, xmm7
-    vsubss  xmm0, xmm3, xmm8; val
-    vmovaps xmm2, xmm8; max
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsi+8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm3, xmm0, xmm9
-    vmulss  xmm4, xmm3, xmm7
-    vsubss  xmm0, xmm4, xmm8; val
-    vmovaps xmm2, xmm8; max
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
-  _R11 = &v49;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovss  dword ptr [rsi+0Ch], xmm0
-  }
+  v3 = in.v[0];
+  v4 = (float)LOWORD(in.v[0]);
+  v5 = in.v[1];
+  v6 = I_fclamp((float)((float)(v4 * 0.000015259022) * 2.0) - 1.0, -1.0, 1.0);
+  out->v[0] = *(float *)&v6;
+  v7 = (float)HIWORD(v3);
+  v8 = I_fclamp((float)((float)(v7 * 0.000015259022) * 2.0) - 1.0, -1.0, 1.0);
+  out->v[1] = *(float *)&v8;
+  v9 = (float)(unsigned __int16)v5;
+  v10 = I_fclamp((float)((float)(v9 * 0.000015259022) * 2.0) - 1.0, -1.0, 1.0);
+  out->v[2] = *(float *)&v10;
+  v11 = (float)HIWORD(v5);
+  v12 = I_fclamp((float)((float)(v11 * 0.000015259022) * 2.0) - 1.0, -1.0, 1.0);
+  out->v[3] = *(float *)&v12;
 }
 

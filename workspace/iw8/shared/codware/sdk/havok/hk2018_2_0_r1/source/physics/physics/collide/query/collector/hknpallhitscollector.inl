@@ -38,29 +38,23 @@ hknpAllHitsCollector::~hknpAllHitsCollector
 */
 void hknpAllHitsCollector::~hknpAllHitsCollector(hknpAllHitsCollector *this)
 {
-  hknpAllHitsCollector *v1; 
-  hkMemoryAllocator *v3; 
+  hkMemoryAllocator *v2; 
   int m_capacityAndFlags; 
 
-  v1 = this;
   this->__vftable = (hknpAllHitsCollector_vtbl *)hknpAllHitsCollector::`vftable';
   this->m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rcx+10h], xmm0
-  }
+  this->m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   this->m_earlyOut.m_bool = 0;
   this->m_hits.m_size = 0;
-  v3 = hkMemHeapAllocator();
-  v1->m_hits.m_size = 0;
-  m_capacityAndFlags = v1->m_hits.m_capacityAndFlags;
+  v2 = hkMemHeapAllocator();
+  this->m_hits.m_size = 0;
+  m_capacityAndFlags = this->m_hits.m_capacityAndFlags;
   if ( m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v3, v1->m_hits.m_data, 112, m_capacityAndFlags & 0x3FFFFFFF);
-  v1->m_hits.m_data = NULL;
-  v1->m_hits.m_capacityAndFlags = 0x80000000;
-  v1->__vftable = (hknpAllHitsCollector_vtbl *)hknpCollisionQueryCollector::`vftable';
-  hkBaseObject::~hkBaseObject(v1);
+    hkMemoryAllocator::bufFree2(v2, this->m_hits.m_data, 112, m_capacityAndFlags & 0x3FFFFFFF);
+  this->m_hits.m_data = NULL;
+  this->m_hits.m_capacityAndFlags = 0x80000000;
+  this->__vftable = (hknpAllHitsCollector_vtbl *)hknpCollisionQueryCollector::`vftable';
+  hkBaseObject::~hkBaseObject(this);
 }
 
 /*
@@ -81,11 +75,7 @@ hknpAllHitsCollector::reset
 void hknpAllHitsCollector::reset(hknpAllHitsCollector *this)
 {
   this->m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rcx+10h], xmm0
-  }
+  this->m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   this->m_earlyOut.m_bool = 0;
   this->m_hits.m_size = 0;
 }

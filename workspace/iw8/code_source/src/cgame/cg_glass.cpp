@@ -216,32 +216,33 @@ CG_Glass_ApplyChanges
 */
 void CG_Glass_ApplyChanges(LocalClientNum_t localClientNum)
 {
-  float v3; 
+  float v2; 
   cg_t *LocalClientGlobals; 
   __int64 i; 
-  __int64 v7; 
+  __int64 v5; 
   CG_GlassPiece *glassPieces; 
   unsigned __int8 state; 
   const FxGlassSystem *SystemForInitialPiece; 
+  double InitialPieceAreaX2; 
   __int64 j; 
-  __int64 v12; 
-  CG_GlassPiece *v13; 
-  FxGlassSystem *v14; 
+  __int64 v11; 
+  CG_GlassPiece *v12; 
+  FxGlassSystem *v13; 
+  __int64 v14; 
   __int64 v15; 
-  __int64 v16; 
   unsigned int outLocalInitialPieceIndex; 
   Glass_BreakData breakData; 
 
   if ( cg_glassInited )
   {
-    v3 = cl_maxLocalClients;
+    v2 = cl_maxLocalClients;
     if ( (unsigned int)localClientNum >= LODWORD(cl_maxLocalClients) )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 352, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, cl_maxLocalClients) )
         __debugbreak();
-      v3 = cl_maxLocalClients;
+      v2 = cl_maxLocalClients;
     }
-    if ( v3 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 336, ASSERT_TYPE_ASSERT, "(cl_maxLocalClients)", "%s\n\tMust be called after client allocation", "cl_maxLocalClients") )
+    if ( v2 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 336, ASSERT_TYPE_ASSERT, "(cl_maxLocalClients)", "%s\n\tMust be called after client allocation", "cl_maxLocalClients") )
       __debugbreak();
     if ( cls.m_localClientsActive.activeCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_static.h", 353, ASSERT_TYPE_ASSERT, "(GetGameLocalClientActiveCount() > 0)", "%s\n\tClient active data has not been setup", "GetGameLocalClientActiveCount() > 0") )
       __debugbreak();
@@ -252,66 +253,61 @@ void CG_Glass_ApplyChanges(LocalClientNum_t localClientNum)
       cg_glassData.soundsThisFrame = 0;
       CG_Glass_Enter();
       LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-      __asm { vxorps  xmm0, xmm0, xmm0 }
       breakData.brokenPieceCount = 0;
-      __asm { vmovss  [rsp+88h+breakData.totalAreaX2], xmm0 }
+      breakData.totalAreaX2 = 0.0;
       RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &breakData.playerOrigin);
       for ( i = 0i64; (unsigned int)i < cg_glassData.glassChangeCount; i = (unsigned int)(i + 1) )
       {
-        v7 = cg_glassData.glassChangeIndices[i];
-        if ( (unsigned int)v7 >= cg_glassData.pieceLimit )
+        v5 = cg_glassData.glassChangeIndices[i];
+        if ( (unsigned int)v5 >= cg_glassData.pieceLimit )
         {
-          LODWORD(v16) = cg_glassData.pieceLimit;
-          LODWORD(v15) = cg_glassData.glassChangeIndices[i];
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 51, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", v15, v16) )
+          LODWORD(v15) = cg_glassData.pieceLimit;
+          LODWORD(v14) = cg_glassData.glassChangeIndices[i];
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 51, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", v14, v15) )
             __debugbreak();
         }
         glassPieces = cg_glassData.glassPieces;
-        if ( (unsigned int)v7 >= cg_glassData.pieceLimit )
+        if ( (unsigned int)v5 >= cg_glassData.pieceLimit )
         {
-          LODWORD(v16) = cg_glassData.pieceLimit;
-          LODWORD(v15) = v7;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 58, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", v15, v16) )
+          LODWORD(v15) = cg_glassData.pieceLimit;
+          LODWORD(v14) = v5;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 58, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", v14, v15) )
             __debugbreak();
         }
-        state = cg_glassData.glassChanges[v7].state;
-        if ( state > glassPieces[v7].state && state == 2 )
+        state = cg_glassData.glassChanges[v5].state;
+        if ( state > glassPieces[v5].state && state == 2 )
         {
-          SystemForInitialPiece = Glass_GetSystemForInitialPiece(v7, &outLocalInitialPieceIndex);
+          SystemForInitialPiece = Glass_GetSystemForInitialPiece(v5, &outLocalInitialPieceIndex);
           if ( SystemForInitialPiece )
           {
             ++breakData.brokenPieceCount;
-            *(double *)&_XMM0 = Glass_GetInitialPieceAreaX2(SystemForInitialPiece, outLocalInitialPieceIndex);
-            __asm
-            {
-              vaddss  xmm0, xmm0, [rsp+88h+breakData.totalAreaX2]
-              vmovss  [rsp+88h+breakData.totalAreaX2], xmm0
-            }
+            InitialPieceAreaX2 = Glass_GetInitialPieceAreaX2(SystemForInitialPiece, outLocalInitialPieceIndex);
+            breakData.totalAreaX2 = *(float *)&InitialPieceAreaX2 + breakData.totalAreaX2;
           }
         }
       }
       for ( j = 0i64; (unsigned int)j < cg_glassData.glassChangeCount; j = (unsigned int)(j + 1) )
       {
-        v12 = cg_glassData.glassChangeIndices[j];
-        if ( (unsigned int)v12 >= cg_glassData.pieceLimit )
+        v11 = cg_glassData.glassChangeIndices[j];
+        if ( (unsigned int)v11 >= cg_glassData.pieceLimit )
         {
-          LODWORD(v16) = cg_glassData.pieceLimit;
-          LODWORD(v15) = cg_glassData.glassChangeIndices[j];
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 51, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", v15, v16) )
+          LODWORD(v15) = cg_glassData.pieceLimit;
+          LODWORD(v14) = cg_glassData.glassChangeIndices[j];
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 51, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", v14, v15) )
             __debugbreak();
         }
-        v13 = cg_glassData.glassPieces;
-        if ( (unsigned int)v12 >= cg_glassData.pieceLimit )
+        v12 = cg_glassData.glassPieces;
+        if ( (unsigned int)v11 >= cg_glassData.pieceLimit )
         {
-          LODWORD(v16) = cg_glassData.pieceLimit;
-          LODWORD(v15) = v12;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 58, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", v15, v16) )
+          LODWORD(v15) = cg_glassData.pieceLimit;
+          LODWORD(v14) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 58, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", v14, v15) )
             __debugbreak();
         }
-        if ( cg_glassData.glassChanges[v12].state > v13[v12].state )
+        if ( cg_glassData.glassChanges[v11].state > v12[v11].state )
         {
-          v14 = Glass_GetSystemForInitialPiece(v12, &outLocalInitialPieceIndex);
-          CG_Glass_ApplyChangesToPiece(localClientNum, v12, &breakData, v14, outLocalInitialPieceIndex);
+          v13 = Glass_GetSystemForInitialPiece(v11, &outLocalInitialPieceIndex);
+          CG_Glass_ApplyChangesToPiece(localClientNum, v11, &breakData, v13, outLocalInitialPieceIndex);
         }
       }
       memset_0(cg_glassData.glassChanges, 0, 4i64 * cg_glassData.pieceLimit);
@@ -334,26 +330,28 @@ CG_Glass_ApplyChangesToPiece
 void CG_Glass_ApplyChangesToPiece(LocalClientNum_t localClientNum, unsigned int glassPieceIndex, Glass_BreakData *breakData, FxGlassSystem *glassSys, unsigned int localInitialPieceIndex)
 {
   unsigned int pieceLimit; 
-  __int64 v7; 
-  LocalClientNum_t v9; 
+  __int64 v6; 
+  LocalClientNum_t v8; 
   CG_GlassPiece *glassPieces; 
-  __int64 v11; 
+  __int64 v10; 
   CG_GlassPieceChange *glassChanges; 
   unsigned __int8 state; 
-  unsigned __int8 v14; 
+  unsigned __int8 v13; 
   SndAliasList *DamagedSound; 
-  SndAliasList *v16; 
+  SndAliasList *v15; 
   SndAliasList *DestroyedQuietSound; 
-  __int64 v42; 
-  __int64 v43; 
+  float v17; 
+  float v18; 
+  __int64 v19; 
+  __int64 v20; 
   vec3_t outCenter; 
   vec3_t impactPos; 
   vec3_t dir; 
   tmat33_t<vec3_t> outAxis; 
 
   pieceLimit = cg_glassData.pieceLimit;
-  v7 = (int)glassPieceIndex;
-  v9 = localClientNum;
+  v6 = (int)glassPieceIndex;
+  v8 = localClientNum;
   if ( glassPieceIndex >= cg_glassData.pieceLimit )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 51, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", glassPieceIndex, cg_glassData.pieceLimit) )
@@ -361,110 +359,81 @@ void CG_Glass_ApplyChangesToPiece(LocalClientNum_t localClientNum, unsigned int 
     pieceLimit = cg_glassData.pieceLimit;
   }
   glassPieces = cg_glassData.glassPieces;
-  v11 = v7;
-  if ( (unsigned int)v7 >= pieceLimit )
+  v10 = v6;
+  if ( (unsigned int)v6 >= pieceLimit )
   {
-    LODWORD(v43) = pieceLimit;
-    LODWORD(v42) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 58, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", v42, v43) )
+    LODWORD(v20) = pieceLimit;
+    LODWORD(v19) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 58, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", v19, v20) )
       __debugbreak();
   }
   glassChanges = cg_glassData.glassChanges;
-  state = glassPieces[v7].state;
-  v14 = cg_glassData.glassChanges[v7].state;
-  if ( state < v14 )
+  state = glassPieces[v6].state;
+  v13 = cg_glassData.glassChanges[v6].state;
+  if ( state < v13 )
   {
     if ( glassSys )
     {
-      if ( v14 == 3 )
+      if ( v13 == 3 )
       {
         Glass_DeleteInitialPiece(glassSys, localInitialPieceIndex);
       }
       else
       {
-        if ( v14 )
+        if ( v13 )
         {
           if ( !state )
           {
             Glass_DamageInitialPiece(glassSys, localInitialPieceIndex);
-            if ( glassChanges[v7].state == 1 )
+            if ( glassChanges[v6].state == 1 )
             {
-              DamagedSound = Glass_GetDamagedSound(v7);
+              DamagedSound = Glass_GetDamagedSound(v6);
               if ( DamagedSound )
               {
                 Glass_GetInitialPieceCenter(glassSys, localInitialPieceIndex, &outCenter);
-                v16 = DamagedSound;
-                v9 = localClientNum;
-                CG_Glass_PlaySoundAtPos(localClientNum, &outCenter, v16);
+                v15 = DamagedSound;
+                v8 = localClientNum;
+                CG_Glass_PlaySoundAtPos(localClientNum, &outCenter, v15);
               }
               else
               {
-                v9 = localClientNum;
+                v8 = localClientNum;
               }
             }
           }
         }
-        if ( glassChanges[v7].state >= 2u )
+        if ( glassChanges[v6].state >= 2u )
         {
           Glass_GetInitialPieceCenter(glassSys, localInitialPieceIndex, &outCenter);
-          if ( glassChanges[v7].impactDir == 0xFF )
+          if ( glassChanges[v6].impactDir == 0xFF )
           {
-            DestroyedQuietSound = Glass_GetDestroyedQuietSound(v7);
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vmovss  dword ptr [rbp+4Fh+dir], xmm0
-              vmovss  dword ptr [rbp+4Fh+dir+4], xmm0
-              vmovss  dword ptr [rbp+4Fh+dir+8], xmm0
-              vmovsd  xmm0, qword ptr [rbp+4Fh+outCenter]
-              vmovsd  qword ptr [rbp+4Fh+impactPos], xmm0
-            }
-            impactPos.v[2] = outCenter.v[2];
+            DestroyedQuietSound = Glass_GetDestroyedQuietSound(v6);
+            dir.v[0] = 0.0;
+            dir.v[1] = 0.0;
+            dir.v[2] = 0.0;
+            impactPos = outCenter;
           }
           else
           {
-            DestroyedQuietSound = Glass_GetDestroyedSound(v7);
+            DestroyedQuietSound = Glass_GetDestroyedSound(v6);
             Glass_GetInitialPieceAxis(glassSys, localInitialPieceIndex, &outAxis);
-            ByteToDir(glassChanges[v11].impactDir, &dir);
-            _EAX = glassChanges[v11].impactPos[0];
-            __asm { vmovd   xmm0, eax }
-            _EAX = glassChanges[v11].impactPos[1];
-            __asm
-            {
-              vcvtdq2ps xmm0, xmm0
-              vsubss  xmm1, xmm0, cs:__real@41fc0000
-              vmulss  xmm5, xmm1, cs:__real@41020821
-              vmulss  xmm2, xmm5, dword ptr [rbp+4Fh+outAxis]
-              vaddss  xmm3, xmm2, dword ptr [rbp+4Fh+outCenter]
-              vmulss  xmm2, xmm5, dword ptr [rbp+4Fh+outAxis+4]
-              vmovd   xmm0, eax
-              vcvtdq2ps xmm0, xmm0
-              vsubss  xmm1, xmm0, cs:__real@41fc0000
-              vmulss  xmm4, xmm1, cs:__real@41020821
-              vmulss  xmm0, xmm4, dword ptr [rbp+4Fh+outAxis+0Ch]
-              vaddss  xmm1, xmm3, xmm0
-              vaddss  xmm3, xmm2, dword ptr [rbp+4Fh+outCenter+4]
-              vmulss  xmm0, xmm4, dword ptr [rbp+4Fh+outAxis+10h]
-              vmulss  xmm2, xmm5, dword ptr [rbp+4Fh+outAxis+8]
-              vmovss  dword ptr [rbp+4Fh+impactPos], xmm1
-              vaddss  xmm1, xmm3, xmm0
-              vaddss  xmm3, xmm2, dword ptr [rbp+4Fh+outCenter+8]
-              vmulss  xmm0, xmm4, dword ptr [rbp+4Fh+outAxis+14h]
-              vmovss  dword ptr [rbp+4Fh+impactPos+4], xmm1
-              vaddss  xmm1, xmm3, xmm0
-              vmovss  dword ptr [rbp+4Fh+impactPos+8], xmm1
-            }
+            ByteToDir(glassChanges[v10].impactDir, &dir);
+            v17 = (float)(_mm_cvtepi32_ps((__m128i)glassChanges[v10].impactPos[0]).m128_f32[0] - 31.5) * 8.1269846;
+            v18 = (float)(_mm_cvtepi32_ps((__m128i)glassChanges[v10].impactPos[1]).m128_f32[0] - 31.5) * 8.1269846;
+            impactPos.v[0] = (float)((float)(v17 * outAxis.m[0].v[0]) + outCenter.v[0]) + (float)(v18 * outAxis.m[1].v[0]);
+            impactPos.v[1] = (float)((float)(v17 * outAxis.m[0].v[1]) + outCenter.v[1]) + (float)(v18 * outAxis.m[1].v[1]);
+            impactPos.v[2] = (float)((float)(v17 * outAxis.m[0].v[2]) + outCenter.v[2]) + (float)(v18 * outAxis.m[1].v[2]);
           }
           if ( DestroyedQuietSound )
-            CG_Glass_PlaySoundAtPos(v9, &outCenter, DestroyedQuietSound);
+            CG_Glass_PlaySoundAtPos(v8, &outCenter, DestroyedQuietSound);
           Glass_DestroyInitialPiece(glassSys, localInitialPieceIndex, &impactPos, &dir, breakData);
         }
       }
-      glassPieces[v11] = (CG_GlassPiece)glassChanges[v11].state;
+      glassPieces[v10] = (CG_GlassPiece)glassChanges[v10].state;
     }
     else
     {
-      glassPieces[v7].state = v14;
+      glassPieces[v6].state = v13;
     }
   }
 }
@@ -479,16 +448,20 @@ void CG_Glass_BreakGlass(LocalClientNum_t localClientNum, const vec3_t *cameraPo
   __int64 v6; 
   unsigned __int8 state; 
   FxGlassSystem *SystemForInitialPiece; 
-  CG_GlassPiece *v18; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  CG_GlassPiece *v15; 
   SndAliasList *DestroyedSound; 
+  double InitialPieceAreaX2; 
+  float v18; 
   unsigned int outLocalInitialPieceIndex; 
   vec3_t pos; 
   vec3_t impactDir; 
   Glass_BreakData breakData; 
 
-  _RBP = hitPosition;
   v6 = glassPieceIndex;
-  _R14 = cameraPosition;
   if ( glassPieceIndex >= cg_glassData.pieceLimit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 51, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", glassPieceIndex, cg_glassData.pieceLimit) )
     __debugbreak();
   state = cg_glassData.glassPieces[v6].state;
@@ -497,42 +470,31 @@ void CG_Glass_BreakGlass(LocalClientNum_t localClientNum, const vec3_t *cameraPo
     SystemForInitialPiece = Glass_GetSystemForInitialPiece(v6, &outLocalInitialPieceIndex);
     if ( SystemForInitialPiece )
     {
-      _RAX = hitDirection;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0]
-        vmovss  xmm1, dword ptr [rbp+4]
-        vmovss  dword ptr [rsp+0B8h+pos], xmm0
-        vmovss  xmm0, dword ptr [rbp+8]
-        vmovss  dword ptr [rsp+0B8h+pos+4], xmm1
-        vmovss  xmm1, dword ptr [rax]
-        vmovss  dword ptr [rsp+0B8h+impactDir], xmm1
-        vmovss  xmm1, dword ptr [rax+8]
-        vmovss  dword ptr [rsp+0B8h+pos+8], xmm0
-        vmovss  xmm0, dword ptr [rax+4]
-        vmovss  dword ptr [rsp+0B8h+impactDir+8], xmm1
-        vmovss  dword ptr [rsp+0B8h+impactDir+4], xmm0
-      }
+      v11 = hitPosition->v[1];
+      pos.v[0] = hitPosition->v[0];
+      v12 = hitPosition->v[2];
+      pos.v[1] = v11;
+      impactDir.v[0] = hitDirection->v[0];
+      v13 = hitDirection->v[2];
+      pos.v[2] = v12;
+      v14 = hitDirection->v[1];
+      impactDir.v[2] = v13;
+      impactDir.v[1] = v14;
       if ( !state )
         Glass_DamageInitialPiece(SystemForInitialPiece, outLocalInitialPieceIndex);
-      v18 = CG_GlassPieceFromIndex(v6);
+      v15 = CG_GlassPieceFromIndex(v6);
       DestroyedSound = Glass_GetDestroyedSound(v6);
       if ( DestroyedSound )
         CG_Glass_PlaySoundAtPos(localClientNum, &pos, DestroyedSound);
       breakData.brokenPieceCount = 1;
-      *(double *)&_XMM0 = Glass_GetInitialPieceAreaX2(SystemForInitialPiece, outLocalInitialPieceIndex);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r14+4]
-        vmovss  [rsp+0B8h+breakData.totalAreaX2], xmm0
-        vmovss  xmm0, dword ptr [r14]
-        vmovss  dword ptr [rsp+0B8h+breakData.playerOrigin], xmm0
-        vmovss  xmm0, dword ptr [r14+8]
-        vmovss  dword ptr [rsp+0B8h+breakData.playerOrigin+8], xmm0
-        vmovss  dword ptr [rsp+0B8h+breakData.playerOrigin+4], xmm1
-      }
+      InitialPieceAreaX2 = Glass_GetInitialPieceAreaX2(SystemForInitialPiece, outLocalInitialPieceIndex);
+      v18 = cameraPosition->v[1];
+      breakData.totalAreaX2 = *(float *)&InitialPieceAreaX2;
+      breakData.playerOrigin.v[0] = cameraPosition->v[0];
+      breakData.playerOrigin.v[2] = cameraPosition->v[2];
+      breakData.playerOrigin.v[1] = v18;
       Glass_DestroyInitialPiece(SystemForInitialPiece, outLocalInitialPieceIndex, &pos, &impactDir, &breakData);
-      v18->state = 2;
+      v15->state = 2;
     }
     else
     {
@@ -605,11 +567,8 @@ CG_Glass_FreeMemory
 
 void __fastcall CG_Glass_FreeMemory(double _XMM0_8)
 {
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr cs:cg_glassData.glassPieces, xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&cg_glassData.glassPieces = _XMM0;
   cg_glassData.glassChangeIndices = NULL;
   *(_QWORD *)&cg_glassData.pieceLimit = 0i64;
   Glass_FreeClientMemory();
@@ -682,122 +641,104 @@ CG_Glass_MeleeEvent
 */
 void CG_Glass_MeleeEvent(LocalClientNum_t localClientNum, int sourceEntityNum)
 {
+  __int64 v2; 
   __int64 v3; 
-  __int64 v4; 
   centity_t *Entity; 
-  CgWeaponMap *v6; 
+  CgWeaponMap *v5; 
   const Weapon *Weapon; 
   cg_t *LocalClientGlobals; 
   CgStatic *LocalClientStatics; 
-  cg_t *v17; 
+  cg_t *v9; 
   const characterInfo_t *CharacterInfo; 
   int meleeChargeEnt; 
   int PerkNetworkPriorityIndex; 
-  unsigned __int64 v21; 
-  bool v22; 
-  bool v23; 
-  bool v24; 
+  unsigned __int64 v13; 
+  bool v14; 
+  bool v15; 
+  bool v16; 
+  double MeleeRangeByWeapon; 
   __int64 isSliding; 
-  __int64 v32; 
+  __int64 v19; 
   vec3_t outOrg; 
-  __int64 v34; 
+  __int64 v21; 
   vec3_t outEyePos; 
   vec3_t outForward; 
   vec3_t end; 
   vec3_t outUp; 
   vec3_t outRight; 
 
-  v34 = -2i64;
-  v3 = sourceEntityNum;
-  v4 = localClientNum;
+  v21 = -2i64;
+  v2 = sourceEntityNum;
+  v3 = localClientNum;
   Entity = CG_GetEntity(localClientNum, sourceEntityNum);
   if ( (Entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 349, ASSERT_TYPE_ASSERT, "(CENextValid( attacker ))", (const char *)&queryFormat, "CENextValid( attacker )") )
     __debugbreak();
-  if ( !CgWeaponMap::ms_instance[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  if ( !CgWeaponMap::ms_instance[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  v6 = CgWeaponMap::ms_instance[v4];
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+  v5 = CgWeaponMap::ms_instance[v3];
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   if ( Entity == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 439, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  Weapon = BgWeaponMap::GetWeapon(v6, Entity->nextState.weaponHandle);
+  Weapon = BgWeaponMap::GetWeapon(v5, Entity->nextState.weaponHandle);
   if ( Weapon->weaponIdx )
   {
-    CG_CalcEyePoint((LocalClientNum_t)v4, v3, &outEyePos);
-    if ( CG_GetViewDirection((LocalClientNum_t)v4, v3, &outForward, &outRight, &outUp) )
+    CG_CalcEyePoint((LocalClientNum_t)v3, v2, &outEyePos);
+    if ( CG_GetViewDirection((LocalClientNum_t)v3, v2, &outForward, &outRight, &outUp) )
     {
       if ( Entity == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1969, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
         __debugbreak();
       if ( ((Entity->nextState.eType - 1) & 0xFFEF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 359, ASSERT_TYPE_ASSERT, "(BG_IsPlayerOrAgentEntity( &attacker->nextState ))", (const char *)&queryFormat, "BG_IsPlayerOrAgentEntity( &attacker->nextState )") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm4, cs:__real@c1200000
-        vmulss  xmm2, xmm4, dword ptr [rbp+57h+outForward]
-        vaddss  xmm2, xmm2, dword ptr [rbp+57h+outEyePos]
-        vmovss  dword ptr [rbp+57h+outEyePos], xmm2
-        vmulss  xmm3, xmm4, dword ptr [rbp+57h+outForward+4]
-        vaddss  xmm2, xmm3, dword ptr [rbp+57h+outEyePos+4]
-        vmovss  dword ptr [rbp+57h+outEyePos+4], xmm2
-        vmulss  xmm3, xmm4, dword ptr [rbp+57h+outForward+8]
-        vaddss  xmm2, xmm3, dword ptr [rbp+57h+outEyePos+8]
-        vmovss  dword ptr [rbp+57h+outEyePos+8], xmm2
-      }
-      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v4);
-      LocalClientStatics = CgStatic::GetLocalClientStatics((const LocalClientNum_t)v4);
-      v17 = CG_GetLocalClientGlobals((const LocalClientNum_t)LocalClientStatics->m_localClientNum);
-      if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+      outEyePos.v[0] = (float)(-10.0 * outForward.v[0]) + outEyePos.v[0];
+      outEyePos.v[1] = (float)(-10.0 * outForward.v[1]) + outEyePos.v[1];
+      outEyePos.v[2] = (float)(-10.0 * outForward.v[2]) + outEyePos.v[2];
+      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v3);
+      LocalClientStatics = CgStatic::GetLocalClientStatics((const LocalClientNum_t)v3);
+      v9 = CG_GetLocalClientGlobals((const LocalClientNum_t)LocalClientStatics->m_localClientNum);
+      if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
         __debugbreak();
-      if ( v17->IsMP(v17) )
+      if ( v9->IsMP(v9) )
       {
-        if ( (unsigned int)v3 >= v17[1].predictedPlayerState.rxvOmnvars[64].timeModified )
+        if ( (unsigned int)v2 >= v9[1].predictedPlayerState.rxvOmnvars[64].timeModified )
         {
-          LODWORD(isSliding) = v3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", isSliding, v17[1].predictedPlayerState.rxvOmnvars[64].timeModified) )
+          LODWORD(isSliding) = v2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", isSliding, v9[1].predictedPlayerState.rxvOmnvars[64].timeModified) )
             __debugbreak();
         }
-        CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&v17[1].predictedPlayerState.rxvOmnvars[62] + 14792 * v3);
+        CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&v9[1].predictedPlayerState.rxvOmnvars[62] + 14792 * v2);
       }
       else
       {
-        CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v17, v3);
+        CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v9, v2);
       }
       if ( CharacterInfo )
         meleeChargeEnt = CharacterInfo->meleeChargeEnt;
       else
         meleeChargeEnt = LocalClientGlobals->predictedPlayerState.meleeChargeEnt;
       PerkNetworkPriorityIndex = BG_GetPerkNetworkPriorityIndex(0x14u);
-      v21 = (unsigned int)PerkNetworkPriorityIndex;
+      v13 = (unsigned int)PerkNetworkPriorityIndex;
       if ( PerkNetworkPriorityIndex >= 0 )
       {
         if ( (unsigned int)PerkNetworkPriorityIndex >= 0x40 )
         {
-          LODWORD(v32) = 64;
+          LODWORD(v19) = 64;
           LODWORD(isSliding) = PerkNetworkPriorityIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", isSliding, v32) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", isSliding, v19) )
             __debugbreak();
         }
-        v22 = ((0x80000000 >> (v21 & 0x1F)) & LocalClientGlobals->predictedPlayerState.perks.array[v21 >> 5]) != 0;
+        v14 = ((0x80000000 >> (v13 & 0x1F)) & LocalClientGlobals->predictedPlayerState.perks.array[v13 >> 5]) != 0;
       }
       else
       {
-        v22 = 0;
+        v14 = 0;
       }
-      v23 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&Entity->nextState.lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Du);
-      v24 = meleeChargeEnt >= 0 && (unsigned int)meleeChargeEnt <= 0x7FE;
-      *(double *)&_XMM0 = BG_GetMeleeRangeByWeapon(Weapon, Entity->nextState.inAltWeaponMode, v24, v22, PM_EFF_STANCE_DEFAULT, v23);
-      __asm
-      {
-        vmulss  xmm2, xmm0, dword ptr [rbp+57h+outForward]
-        vaddss  xmm3, xmm2, dword ptr [rbp+57h+outEyePos]
-        vmovss  dword ptr [rbp+57h+end], xmm3
-        vmulss  xmm2, xmm0, dword ptr [rbp+57h+outForward+4]
-        vaddss  xmm3, xmm2, dword ptr [rbp+57h+outEyePos+4]
-        vmovss  dword ptr [rbp+57h+end+4], xmm3
-        vmulss  xmm0, xmm0, dword ptr [rbp+57h+outForward+8]
-        vaddss  xmm2, xmm0, dword ptr [rbp+57h+outEyePos+8]
-        vmovss  dword ptr [rbp+57h+end+8], xmm2
-      }
+      v15 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&Entity->nextState.lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Du);
+      v16 = meleeChargeEnt >= 0 && (unsigned int)meleeChargeEnt <= 0x7FE;
+      MeleeRangeByWeapon = BG_GetMeleeRangeByWeapon(Weapon, Entity->nextState.inAltWeaponMode, v16, v14, PM_EFF_STANCE_DEFAULT, v15);
+      end.v[0] = (float)(*(float *)&MeleeRangeByWeapon * outForward.v[0]) + outEyePos.v[0];
+      end.v[1] = (float)(*(float *)&MeleeRangeByWeapon * outForward.v[1]) + outEyePos.v[1];
+      end.v[2] = (float)(*(float *)&MeleeRangeByWeapon * outForward.v[2]) + outEyePos.v[2];
       RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
       Glass_TraceLine(&fxWorld.glassSys, &outEyePos, &end, &outOrg);
       memset(&outOrg, 0, sizeof(outOrg));
@@ -832,164 +773,119 @@ CG_Glass_PlayerBreakEvent
 void CG_Glass_PlayerBreakEvent(LocalClientNum_t localClientNum, int sourceEntityNum)
 {
   cg_t *LocalClientGlobals; 
+  float v4; 
+  __int128 v5; 
+  float v6; 
+  __int128 v7; 
+  float v11; 
+  float v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float value; 
   CgHandler *Handler; 
-  Physics_WorldId v35; 
+  Physics_WorldId v17; 
   CgPlayerTraceInfo *PlayerTraceInfo; 
   int clientNum; 
   EffectiveStance EffectiveStance; 
-  const Bounds *v39; 
-  char v41; 
-  __int64 v42; 
+  const Bounds *v21; 
+  __int64 v22; 
   const FxGlassSystem *SystemForInitialPiece; 
   unsigned __int8 state; 
-  FxGlassSystem *v45; 
-  CG_GlassPiece *v47; 
+  FxGlassSystem *v25; 
+  CG_GlassPiece *v26; 
   SndAliasList *DestroyedSound; 
+  double InitialPieceAreaX2; 
   Bounds *bounds; 
   __int64 passEntityNum; 
   unsigned int pieceIndex; 
   unsigned int outLocalInitialPieceIndex; 
   vec3_t outOrg; 
-  __int64 v62; 
-  BgTrace v63; 
+  __int64 v34; 
+  BgTrace v35; 
   vec3_t end; 
   vec3_t impactDir; 
   vec3_t pos; 
   Glass_BreakData breakData; 
   vec3_t outCenter; 
   trace_t results; 
-  char v70; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v62 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
+  v34 = -2i64;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  _R14 = &LocalClientGlobals->predictedPlayerState;
   if ( LocalClientGlobals == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 387, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
+  v4 = LocalClientGlobals->predictedPlayerState.velocity.v[1];
+  v5 = LODWORD(LocalClientGlobals->predictedPlayerState.velocity.v[0]);
+  v6 = LocalClientGlobals->predictedPlayerState.velocity.v[2];
+  v7 = v5;
+  *(float *)&v7 = fsqrt((float)((float)(*(float *)&v5 * *(float *)&v5) + (float)(v4 * v4)) + (float)(v6 * v6));
+  _XMM3 = v7;
   __asm
   {
-    vmovss  xmm6, dword ptr [r14+40h]
-    vmovss  xmm4, dword ptr [r14+3Ch]
-    vmovss  xmm5, dword ptr [r14+44h]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
-    vmovss  xmm7, cs:__real@3f800000
     vblendvps xmm1, xmm3, xmm7, xmm0
-    vmovss  [rsp+1C0h+outLocalInitialPieceIndex], xmm1
-    vdivss  xmm0, xmm7, xmm1
-    vmulss  xmm8, xmm4, xmm0
-    vmulss  xmm6, xmm6, xmm0
-    vmulss  xmm9, xmm5, xmm0
   }
-  _RDI = DCONST_DVARFLT_player_glassBreakDistance;
+  outLocalInitialPieceIndex = _XMM1;
+  v11 = *(float *)&v5 * (float)(1.0 / *(float *)&_XMM1);
+  v12 = v4 * (float)(1.0 / *(float *)&_XMM1);
+  v13 = v6 * (float)(1.0 / *(float *)&_XMM1);
+  v14 = DCONST_DVARFLT_player_glassBreakDistance;
   if ( !DCONST_DVARFLT_player_glassBreakDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_glassBreakDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+28h]
-    vmulss  xmm0, xmm8, xmm3
-    vaddss  xmm1, xmm0, dword ptr [rsi]
-    vmovss  dword ptr [rbp+0C0h+end], xmm1
-    vmulss  xmm2, xmm6, xmm3
-    vaddss  xmm0, xmm2, dword ptr [rsi+4]
-    vmovss  dword ptr [rbp+0C0h+end+4], xmm0
-    vmulss  xmm1, xmm9, xmm3
-    vaddss  xmm2, xmm1, dword ptr [rsi+8]
-    vmovss  dword ptr [rbp+0C0h+end+8], xmm2
-  }
+  Dvar_CheckFrontendServerThread(v14);
+  value = v14->current.value;
+  end.v[0] = (float)(v11 * value) + LocalClientGlobals->predictedPlayerState.origin.v[0];
+  end.v[1] = (float)(v12 * value) + LocalClientGlobals->predictedPlayerState.origin.v[1];
+  end.v[2] = (float)(v13 * value) + LocalClientGlobals->predictedPlayerState.origin.v[2];
   Handler = CgHandler::getHandler(localClientNum);
-  v35 = Handler->GetPhysicsWorldId(Handler);
+  v17 = Handler->GetPhysicsWorldId(Handler);
   PlayerTraceInfo = CgPlayerTraceInfo::GetPlayerTraceInfo(localClientNum);
-  BgTrace::BgTrace(&v63, PlayerTraceInfo);
+  BgTrace::BgTrace(&v35, PlayerTraceInfo);
   clientNum = LocalClientGlobals->predictedPlayerState.clientNum;
-  EffectiveStance = PM_GetEffectiveStance(_R14);
-  v39 = BG_Suit_GetBounds(LocalClientGlobals->predictedPlayerState.suitIndex, EffectiveStance);
-  BgTrace::LegacyTraceHandler(&v63, v35, &results, &LocalClientGlobals->predictedPlayerState.origin, &end, v39, clientNum, 16, &LocalClientGlobals->predictedPlayerState);
-  __asm
+  EffectiveStance = PM_GetEffectiveStance(&LocalClientGlobals->predictedPlayerState);
+  v21 = BG_Suit_GetBounds(LocalClientGlobals->predictedPlayerState.suitIndex, EffectiveStance);
+  BgTrace::LegacyTraceHandler(&v35, v17, &results, &LocalClientGlobals->predictedPlayerState.origin, &end, v21, clientNum, 16, &LocalClientGlobals->predictedPlayerState);
+  if ( results.fraction < 1.0 && BG_Glass_CanBreakGlass(&results) )
   {
-    vmovss  xmm0, [rbp+0C0h+results.fraction]
-    vcomiss xmm0, xmm7
-  }
-  if ( v41 && BG_Glass_CanBreakGlass(&results) )
-  {
-    v42 = (unsigned __int16)(Trace_GetGlassHitId(&results) - 1);
-    SystemForInitialPiece = Glass_GetSystemForInitialPiece(v42, &outLocalInitialPieceIndex);
+    v22 = (unsigned __int16)(Trace_GetGlassHitId(&results) - 1);
+    SystemForInitialPiece = Glass_GetSystemForInitialPiece(v22, &outLocalInitialPieceIndex);
     Glass_GetInitialPieceCenter(SystemForInitialPiece, outLocalInitialPieceIndex, &outCenter);
     RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-    if ( (unsigned int)v42 >= cg_glassData.pieceLimit )
+    if ( (unsigned int)v22 >= cg_glassData.pieceLimit )
     {
       LODWORD(passEntityNum) = cg_glassData.pieceLimit;
-      LODWORD(bounds) = v42;
+      LODWORD(bounds) = v22;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_glass.cpp", 51, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( cg_glassData.pieceLimit )", "pieceIndex doesn't index cg_glassData.pieceLimit\n\t%i not in [0, %i)", bounds, passEntityNum) )
         __debugbreak();
     }
-    state = cg_glassData.glassPieces[v42].state;
+    state = cg_glassData.glassPieces[v22].state;
     if ( state < 2u )
     {
-      v45 = Glass_GetSystemForInitialPiece(v42, &pieceIndex);
-      if ( v45 )
+      v25 = Glass_GetSystemForInitialPiece(v22, &pieceIndex);
+      if ( v25 )
       {
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rbp+0C0h+outCenter]
-          vmovsd  qword ptr [rbp+0C0h+pos], xmm0
-        }
-        pos.v[2] = outCenter.v[2];
-        __asm
-        {
-          vmovss  dword ptr [rbp+0C0h+impactDir], xmm8
-          vmovss  dword ptr [rbp+0C0h+impactDir+4], xmm6
-          vmovss  dword ptr [rbp+0C0h+impactDir+8], xmm9
-        }
+        pos = outCenter;
+        impactDir.v[0] = v11;
+        impactDir.v[1] = v12;
+        impactDir.v[2] = v13;
         if ( !state )
-          Glass_DamageInitialPiece(v45, pieceIndex);
-        v47 = CG_GlassPieceFromIndex(v42);
-        DestroyedSound = Glass_GetDestroyedSound(v42);
+          Glass_DamageInitialPiece(v25, pieceIndex);
+        v26 = CG_GlassPieceFromIndex(v22);
+        DestroyedSound = Glass_GetDestroyedSound(v22);
         if ( DestroyedSound )
           CG_Glass_PlaySoundAtPos(localClientNum, &pos, DestroyedSound);
         breakData.brokenPieceCount = 1;
-        *(double *)&_XMM0 = Glass_GetInitialPieceAreaX2(v45, pieceIndex);
-        __asm
-        {
-          vmovss  [rbp+0C0h+breakData.totalAreaX2], xmm0
-          vmovss  xmm0, dword ptr [rsp+1C0h+outOrg]
-          vmovss  dword ptr [rbp+0C0h+breakData.playerOrigin], xmm0
-          vmovss  xmm1, dword ptr [rsp+1C0h+outOrg+4]
-          vmovss  dword ptr [rbp+0C0h+breakData.playerOrigin+4], xmm1
-          vmovss  xmm0, dword ptr [rsp+1C0h+outOrg+8]
-          vmovss  dword ptr [rbp+0C0h+breakData.playerOrigin+8], xmm0
-        }
-        Glass_DestroyInitialPiece(v45, pieceIndex, &pos, &impactDir, &breakData);
-        v47->state = 2;
+        InitialPieceAreaX2 = Glass_GetInitialPieceAreaX2(v25, pieceIndex);
+        breakData.totalAreaX2 = *(float *)&InitialPieceAreaX2;
+        breakData.playerOrigin = outOrg;
+        Glass_DestroyInitialPiece(v25, pieceIndex, &pos, &impactDir, &breakData);
+        v26->state = 2;
       }
       else
       {
-        CG_GlassPieceFromIndex(v42)->state = 2;
+        CG_GlassPieceFromIndex(v22)->state = 2;
       }
     }
     memset(&outOrg, 0, sizeof(outOrg));
-  }
-  _R11 = &v70;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 

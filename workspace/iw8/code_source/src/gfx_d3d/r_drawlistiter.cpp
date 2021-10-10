@@ -232,54 +232,46 @@ R_DrawSurfs_InsertionSortHeadIterator
 */
 void R_DrawSurfs_InsertionSortHeadIterator(GfxSurfsIterator *iterators, unsigned int iteratorCount)
 {
-  unsigned int v7; 
-  __m256i v13; 
+  __m256i v3; 
+  __int128 v4; 
+  __int128 v5; 
+  unsigned int v6; 
+  GfxSurfsIterator *v7; 
+  __m256i v8; 
+  __int128 v9; 
+  __int64 v10; 
+  __int64 v11; 
+  __m256i v12; 
 
   if ( iteratorCount > 1 && iterators->key.packed > iterators[1].key.packed )
   {
-    __asm
-    {
-      vmovups ymm2, ymmword ptr [rcx]
-      vmovups xmm3, xmmword ptr [rcx+20h]
-      vmovups ymm0, ymmword ptr [rcx+30h]
-      vmovups xmm1, xmmword ptr [rcx+50h]
-    }
-    v7 = 2;
-    __asm
-    {
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups xmmword ptr [rcx+20h], xmm1
-      vmovups [rsp+38h+var_38], ymm2
-    }
+    v3 = *(__m256i *)&iterators->key.fields.spliceIndex;
+    v4 = *(_OWORD *)&iterators->SaveMarkCallback;
+    v5 = *(_OWORD *)&iterators[1].SaveMarkCallback;
+    v6 = 2;
+    *(__m256i *)&iterators->key.fields.spliceIndex = *(__m256i *)&iterators[1].key.fields.spliceIndex;
+    *(_OWORD *)&iterators->SaveMarkCallback = v5;
+    v12 = v3;
     if ( iteratorCount > 2 )
     {
-      _RDX = iterators + 2;
+      v7 = iterators + 2;
       do
       {
-        if ( v13.m256i_i64[0] <= _RDX->key.packed )
+        if ( v12.m256i_i64[0] <= v7->key.packed )
           break;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdx]
-          vmovups xmm1, xmmword ptr [rdx+20h]
-        }
-        ++_RDX;
-        _RAX = 3i64 * (v7++ - 1);
-        _RAX *= 2i64;
-        __asm
-        {
-          vmovups ymmword ptr [rcx+rax*8], ymm0
-          vmovups xmmword ptr [rcx+rax*8+20h], xmm1
-        }
+        v8 = *(__m256i *)&v7->key.fields.spliceIndex;
+        v9 = *(_OWORD *)&v7->SaveMarkCallback;
+        ++v7;
+        v10 = 3i64 * (v6++ - 1);
+        v10 *= 2i64;
+        *(__m256i *)(&iterators->key.fields.spliceIndex + 2 * v10) = v8;
+        *(_OWORD *)(&iterators->SaveMarkCallback + v10) = v9;
       }
-      while ( v7 < iteratorCount );
+      while ( v6 < iteratorCount );
     }
-    _RAX = 6i64 * (v7 - 1);
-    __asm
-    {
-      vmovups ymmword ptr [rcx+rax*8], ymm2
-      vmovups xmmword ptr [rcx+rax*8+20h], xmm3
-    }
+    v11 = v6 - 1;
+    *(__m256i *)&iterators[v11].key.fields.spliceIndex = v3;
+    *(_OWORD *)&iterators[v11].SaveMarkCallback = v4;
   }
 }
 
@@ -354,60 +346,53 @@ void R_DrawSurfs_SortIterators(GfxSurfsIterator *iterators, unsigned int iterato
 {
   __int64 i; 
   unsigned int v4; 
-  unsigned int v10; 
-  __m256i v16; 
+  GfxSurfsIterator *v5; 
+  __m256i v6; 
+  __int128 v7; 
+  __int128 v8; 
+  unsigned int v9; 
+  GfxSurfsIterator *v10; 
+  __m256i v11; 
+  __int128 v12; 
+  __int64 v13; 
+  __int64 v14; 
+  __m256i v15; 
 
   if ( iteratorCount > 1 )
   {
     for ( i = iteratorCount - 2; ; i = (unsigned int)(i - 1) )
     {
       v4 = iteratorCount - i;
-      _RAX = &iterators[i];
-      if ( iteratorCount - (unsigned int)i > 1 && _RAX->key.packed > _RAX[1].key.packed )
+      v5 = &iterators[i];
+      if ( iteratorCount - (unsigned int)i > 1 && v5->key.packed > v5[1].key.packed )
       {
-        __asm
-        {
-          vmovups ymm2, ymmword ptr [rax]
-          vmovups xmm3, xmmword ptr [rax+20h]
-          vmovups ymm0, ymmword ptr [rax+30h]
-          vmovups xmm1, xmmword ptr [rax+50h]
-        }
-        v10 = 2;
-        __asm
-        {
-          vmovups ymmword ptr [rax], ymm0
-          vmovups xmmword ptr [rax+20h], xmm1
-          vmovups [rsp+38h+var_38], ymm2
-        }
+        v6 = *(__m256i *)&v5->key.fields.spliceIndex;
+        v7 = *(_OWORD *)&v5->SaveMarkCallback;
+        v8 = *(_OWORD *)&v5[1].SaveMarkCallback;
+        v9 = 2;
+        *(__m256i *)&v5->key.fields.spliceIndex = *(__m256i *)&v5[1].key.fields.spliceIndex;
+        *(_OWORD *)&v5->SaveMarkCallback = v8;
+        v15 = v6;
         if ( v4 > 2 )
         {
-          _R8 = &_RAX[2].key;
+          v10 = v5 + 2;
           do
           {
-            if ( v16.m256i_i64[0] <= _R8->packed )
+            if ( v15.m256i_i64[0] <= v10->key.packed )
               break;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [r8]
-              vmovups xmm1, xmmword ptr [r8+20h]
-            }
-            _R8 += 6;
-            _RCX = 3i64 * (v10++ - 1);
-            _RCX *= 2i64;
-            __asm
-            {
-              vmovups ymmword ptr [rax+rcx*8], ymm0
-              vmovups xmmword ptr [rax+rcx*8+20h], xmm1
-            }
+            v11 = *(__m256i *)&v10->key.fields.spliceIndex;
+            v12 = *(_OWORD *)&v10->SaveMarkCallback;
+            ++v10;
+            v13 = 3i64 * (v9++ - 1);
+            v13 *= 2i64;
+            *(__m256i *)(&v5->key.fields.spliceIndex + 2 * v13) = v11;
+            *(_OWORD *)(&v5->SaveMarkCallback + v13) = v12;
           }
-          while ( v10 < v4 );
+          while ( v9 < v4 );
         }
-        _RCX = 6i64 * (v10 - 1);
-        __asm
-        {
-          vmovups ymmword ptr [rax+rcx*8], ymm2
-          vmovups xmmword ptr [rax+rcx*8+20h], xmm3
-        }
+        v14 = v9 - 1;
+        *(__m256i *)&v5[v14].key.fields.spliceIndex = v6;
+        *(_OWORD *)&v5[v14].SaveMarkCallback = v7;
       }
       if ( !(_DWORD)i )
         break;
@@ -422,14 +407,10 @@ R_DrawSurfs_Sorted
 */
 void R_DrawSurfs_Sorted(GfxCmdBufContext *context, GfxDrawListIter *drawListIter, MaterialTechniqueType baseTechType, GfxDrawListType drawListType)
 {
-  GfxCmdBufContext v5; 
+  GfxCmdBufContext v4; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+38h+var_18.source], xmm0
-  }
-  R_DrawSurfs_1_(&v5, drawListIter, baseTechType, drawListType);
+  v4 = *context;
+  R_DrawSurfs_1_(&v4, drawListIter, baseTechType, drawListType);
 }
 
 /*
@@ -439,14 +420,10 @@ R_DrawSurfs_Unsorted
 */
 void R_DrawSurfs_Unsorted(GfxCmdBufContext *context, GfxDrawListIter *drawListIter, MaterialTechniqueType baseTechType, GfxDrawListType drawListType)
 {
-  GfxCmdBufContext v5; 
+  GfxCmdBufContext v4; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rsp+38h+var_18.source], xmm0
-  }
-  R_DrawSurfs_0_(&v5, drawListIter, baseTechType, drawListType);
+  v4 = *context;
+  R_DrawSurfs_0_(&v4, drawListIter, baseTechType, drawListType);
 }
 
 /*
@@ -456,191 +433,177 @@ R_SplitIterGroup
 */
 void R_SplitIterGroup(GfxDrawListIter *iterGroup, unsigned int iterCount)
 {
+  GfxDrawListIter *v4; 
+  char *v5; 
   __int64 v6; 
+  __m256i v7; 
+  __int128 v8; 
+  __int128 v9; 
   const unsigned __int64 *mark; 
-  unsigned int v14; 
-  GfxSurfsIterator *v15; 
-  unsigned int v16; 
-  __int64 v17; 
-  unsigned int v18; 
+  unsigned int v11; 
+  GfxSurfsIterator *v12; 
+  unsigned int v13; 
+  __int64 v14; 
+  unsigned int v15; 
   unsigned int *p_iteratorCount; 
+  __int64 v17; 
+  __int64 v18; 
+  unsigned int v19; 
   __int64 v20; 
-  __int64 v21; 
-  unsigned int v22; 
-  void (__fastcall **v24)(__int64, __int64); 
-  __int64 v25; 
-  __int64 v34; 
-  __int64 v35; 
+  void (__fastcall **v21)(__int64, __int64); 
+  __int64 v22; 
+  unsigned int *v23; 
+  unsigned int *v24; 
+  __m256i v25; 
+  __int128 v26; 
+  __int128 v27; 
+  __int64 v28; 
+  __int64 v29; 
+  __int64 v30; 
+  __int64 v31; 
   unsigned int count; 
-  char v41[224]; 
-  int v42; 
+  char v33[224]; 
+  int v34; 
   unsigned int iteratorCount; 
   GfxSurfsIterator iterators[9]; 
 
   if ( iterCount <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlistiter.cpp", 580, ASSERT_TYPE_ASSERT, "( ( iterCount > 1 ) )", "( iterCount ) = %i", iterCount) )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFF7F50, "split iter");
-  _RAX = iterGroup;
-  _RCX = v41;
+  v4 = iterGroup;
+  v5 = v33;
   v6 = 5i64;
   do
   {
-    _RCX += 128;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RAX = (GfxDrawListIter *)((char *)_RAX + 128);
-    __asm
-    {
-      vmovups ymmword ptr [rcx-80h], ymm0
-      vmovups ymm0, ymmword ptr [rax-60h]
-      vmovups ymmword ptr [rcx-60h], ymm0
-      vmovups ymm0, ymmword ptr [rax-40h]
-      vmovups ymmword ptr [rcx-40h], ymm0
-      vmovups xmm0, xmmword ptr [rax-20h]
-      vmovups xmmword ptr [rcx-20h], xmm0
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
+    v5 += 128;
+    v7 = *(__m256i *)&v4->bspSurfIter.current;
+    v8 = *(_OWORD *)&v4->smodelSubdivPatchSurfIter.visData;
+    v4 = (GfxDrawListIter *)((char *)v4 + 128);
+    *((__m256i *)v5 - 4) = v7;
+    *((__m256i *)v5 - 3) = *(__m256i *)&v4[-1].iteratorPool[7].key.fields.spliceIndex;
+    *((__m256i *)v5 - 2) = *(__m256i *)&v4[-1].iteratorPool[7].SaveMarkCallback;
+    *((_OWORD *)v5 - 2) = *(_OWORD *)&v4[-1].iteratorPool[8].RenderDrawGroupCallback;
+    *((_OWORD *)v5 - 1) = v8;
     --v6;
   }
   while ( v6 );
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  mark = _RAX->bspSurfIter.mark;
-  v14 = 0;
-  __asm { vmovups xmmword ptr [rcx], xmm0 }
-  *((_QWORD *)_RCX + 2) = mark;
+  v9 = *(_OWORD *)&v4->bspSurfIter.current;
+  mark = v4->bspSurfIter.mark;
+  v11 = 0;
+  *(_OWORD *)v5 = v9;
+  *((_QWORD *)v5 + 2) = mark;
   if ( iteratorCount )
   {
-    v15 = &iterators[v42];
+    v12 = &iterators[v34];
     if ( iteratorCount <= 1 )
     {
 LABEL_17:
-      if ( ++v14 )
+      if ( ++v11 )
       {
-        while ( v15->SkipDrawGroupCallback((GfxDrawListIter *)v41) )
+        while ( v12->SkipDrawGroupCallback((GfxDrawListIter *)v33) )
         {
-          if ( !++v14 )
+          if ( !++v11 )
             goto LABEL_22;
         }
-        ++v42;
+        ++v34;
         --iteratorCount;
       }
     }
     else
     {
       R_DrawSurfs_SortIterators(iterators, iteratorCount);
-      v14 = 1;
+      v11 = 1;
       do
       {
-        if ( v15->SkipDrawGroupCallback((GfxDrawListIter *)v41) )
+        if ( v12->SkipDrawGroupCallback((GfxDrawListIter *)v33) )
         {
-          v16 = v15->GetSortKeyCallback((GfxDrawListIter *)v41);
-          if ( v15->key.fields.sortKey > v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlistiter.cpp", 537, ASSERT_TYPE_ASSERT, "(iterators[0].key.fields.sortKey <= newSortKey)", (const char *)&queryFormat, "iterators[0].key.fields.sortKey <= newSortKey") )
+          v13 = v12->GetSortKeyCallback((GfxDrawListIter *)v33);
+          if ( v12->key.fields.sortKey > v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawlistiter.cpp", 537, ASSERT_TYPE_ASSERT, "(iterators[0].key.fields.sortKey <= newSortKey)", (const char *)&queryFormat, "iterators[0].key.fields.sortKey <= newSortKey") )
             __debugbreak();
-          v15->key.fields.sortKey = v16;
-          R_DrawSurfs_InsertionSortHeadIterator(v15, iteratorCount);
+          v12->key.fields.sortKey = v13;
+          R_DrawSurfs_InsertionSortHeadIterator(v12, iteratorCount);
         }
         else
         {
-          ++v15;
-          ++v42;
+          ++v12;
+          ++v34;
           if ( --iteratorCount == 1 )
             goto LABEL_17;
         }
-        ++v14;
+        ++v11;
       }
-      while ( v14 );
+      while ( v11 );
     }
   }
 LABEL_22:
-  v17 = v14 % iterCount;
-  count = v14 / iterCount + 1;
-  v18 = iterCount - 1;
-  if ( v18 )
+  v14 = v11 % iterCount;
+  count = v11 / iterCount + 1;
+  v15 = iterCount - 1;
+  if ( v15 )
   {
     p_iteratorCount = &iterGroup->iteratorCount;
-    v20 = v18;
+    v17 = v15;
     do
     {
-      v21 = *(p_iteratorCount - 1);
-      v22 = *p_iteratorCount;
-      _R14 = (__int64)&p_iteratorCount[12 * v21 + 1];
+      v18 = *(p_iteratorCount - 1);
+      v19 = *p_iteratorCount;
+      v20 = (__int64)&p_iteratorCount[12 * v18 + 1];
       if ( *p_iteratorCount )
       {
-        v24 = (void (__fastcall **)(__int64, __int64))&p_iteratorCount[12 * v21 + 9];
-        v25 = v22;
+        v21 = (void (__fastcall **)(__int64, __int64))&p_iteratorCount[12 * v18 + 9];
+        v22 = v19;
         do
         {
-          (*v24)((__int64)(p_iteratorCount - 57), v17);
-          v24 += 6;
-          --v25;
+          (*v21)((__int64)(p_iteratorCount - 57), v14);
+          v21 += 6;
+          --v22;
         }
-        while ( v25 );
+        while ( v22 );
       }
       R_DrawSurfs_Iterate_Sorted_NoRender((GfxDrawListIter *)(p_iteratorCount - 57), count);
-      _RCX = p_iteratorCount + 109;
-      v17 = 5i64;
-      _RAX = p_iteratorCount - 57;
+      v23 = p_iteratorCount + 109;
+      v14 = 5i64;
+      v24 = p_iteratorCount - 57;
       do
       {
-        _RCX += 32;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+70h]
-        }
-        _RAX += 32;
-        __asm
-        {
-          vmovups ymmword ptr [rcx-80h], ymm0
-          vmovups ymm0, ymmword ptr [rax-60h]
-          vmovups ymmword ptr [rcx-60h], ymm0
-          vmovups ymm0, ymmword ptr [rax-40h]
-          vmovups ymmword ptr [rcx-40h], ymm0
-          vmovups xmm0, xmmword ptr [rax-20h]
-          vmovups xmmword ptr [rcx-20h], xmm0
-          vmovups xmmword ptr [rcx-10h], xmm1
-        }
-        --v17;
+        v23 += 32;
+        v25 = *(__m256i *)v24;
+        v26 = *((_OWORD *)v24 + 7);
+        v24 += 32;
+        *((__m256i *)v23 - 4) = v25;
+        *((__m256i *)v23 - 3) = *((__m256i *)v24 - 3);
+        *((__m256i *)v23 - 2) = *((__m256i *)v24 - 2);
+        *((_OWORD *)v23 - 2) = *((_OWORD *)v24 - 2);
+        *((_OWORD *)v23 - 1) = v26;
+        --v14;
       }
-      while ( v17 );
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      v34 = *((_QWORD *)_RAX + 2);
-      v35 = 0i64;
-      *(p_iteratorCount - 1) = v21;
-      *p_iteratorCount = v22;
-      __asm { vmovups xmmword ptr [rcx], xmm0 }
-      *((_QWORD *)_RCX + 2) = v34;
-      if ( v22 )
+      while ( v14 );
+      v27 = *(_OWORD *)v24;
+      v28 = *((_QWORD *)v24 + 2);
+      v29 = 0i64;
+      *(p_iteratorCount - 1) = v18;
+      *p_iteratorCount = v19;
+      *(_OWORD *)v23 = v27;
+      *((_QWORD *)v23 + 2) = v28;
+      while ( (unsigned int)v29 < *p_iteratorCount )
       {
-        do
+        v30 = v20 + 48 * v29;
+        if ( (*(unsigned __int8 (__fastcall **)(unsigned int *))(v30 + 40))(p_iteratorCount - 57) )
         {
-          _RBX = _R14 + 48 * v35;
-          if ( (*(unsigned __int8 (__fastcall **)(unsigned int *))(_RBX + 40))(p_iteratorCount - 57) )
-          {
-            *(_DWORD *)(_RBX + 4) = (*(__int64 (__fastcall **)(unsigned int *))(_RBX + 8))(p_iteratorCount - 57);
-            v35 = (unsigned int)(v35 + 1);
-          }
-          else
-          {
-            _RCX = 6i64 * --*p_iteratorCount;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [r14+rcx*8]
-              vmovups ymmword ptr [rbx], ymm0
-              vmovups xmm1, xmmword ptr [r14+rcx*8+20h]
-              vmovups xmmword ptr [rbx+20h], xmm1
-            }
-          }
+          *(_DWORD *)(v30 + 4) = (*(__int64 (__fastcall **)(unsigned int *))(v30 + 8))(p_iteratorCount - 57);
+          v29 = (unsigned int)(v29 + 1);
         }
-        while ( (unsigned int)v35 < *p_iteratorCount );
+        else
+        {
+          v31 = --*p_iteratorCount;
+          *(__m256i *)v30 = *(__m256i *)(v20 + 48 * v31);
+          *(_OWORD *)(v30 + 32) = *(_OWORD *)(v20 + 48 * v31 + 32);
+        }
       }
       p_iteratorCount += 166;
-      --v20;
+      --v17;
     }
-    while ( v20 );
+    while ( v17 );
   }
   Sys_ProfEndNamedEvent();
 }

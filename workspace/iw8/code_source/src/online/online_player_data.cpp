@@ -179,7 +179,7 @@ bool Online_PlayerData_GetBool(const int controllerIndex, StatsGroup statsGroup,
     return 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rsp+78h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.offset = 0;
   state.arrayIndex = -1;
   LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, statsGroup);
@@ -210,7 +210,7 @@ char Online_PlayerData_GetFavoriteFriends(const int controllerIndex, XUID *favor
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+98h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, STATSGROUP_NONGAME);
   RawHash = j_SL_GetRawHash(scr_const.favoriteUsers);
   if ( !DDL_MoveToNameByHash(&state, &state, RawHash, NULL) )
@@ -224,7 +224,7 @@ char Online_PlayerData_GetFavoriteFriends(const int controllerIndex, XUID *favor
     toState.isValid = 0;
     toState.offset = 0;
     toState.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rsp+98h+toState.member], xmm0 }
+    *(_OWORD *)&toState.member = _XMM0;
     DDL_MoveToIndex(&state, &toState, i);
     UInt64 = DDL_GetUInt64(&toState, &context);
     v10 = XUID::FromUInt64(&result, UInt64);
@@ -254,7 +254,7 @@ __int64 Online_PlayerData_GetFavoriteFriendsNextFreeSlot(const int controllerInd
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+98h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, STATSGROUP_NONGAME);
   RawHash = j_SL_GetRawHash(scr_const.favoriteUsers);
   if ( !DDL_MoveToNameByHash(&state, &state, RawHash, NULL) )
@@ -269,7 +269,7 @@ __int64 Online_PlayerData_GetFavoriteFriendsNextFreeSlot(const int controllerInd
     toState.isValid = 0;
     toState.offset = 0;
     toState.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rsp+98h+toState.member], xmm0 }
+    *(_OWORD *)&toState.member = _XMM0;
     DDL_MoveToIndex(&state, &toState, v6);
     if ( !DDL_GetUInt64(&toState, &context) )
       break;
@@ -306,7 +306,7 @@ __int64 Online_PlayerData_GetIndexForXuidInFavoriteFriends(const int controllerI
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+98h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, STATSGROUP_NONGAME);
   RawHash = j_SL_GetRawHash(scr_const.favoriteUsers);
   v7 = DDL_MoveToNameByHash(&state, &state, RawHash, NULL);
@@ -328,7 +328,7 @@ __int64 Online_PlayerData_GetIndexForXuidInFavoriteFriends(const int controllerI
     toState.isValid = 0;
     toState.offset = 0;
     toState.arrayIndex = -1;
-    __asm { vmovdqu xmmword ptr [rsp+98h+toState.member], xmm0 }
+    *(_OWORD *)&toState.member = _XMM0;
     DDL_MoveToIndex(&state, &toState, v10);
     UInt64 = DDL_GetUInt64(&toState, &context);
     if ( UInt64 == XUID::ToUint64(&v16) )
@@ -466,7 +466,7 @@ int Online_PlayerData_GetPrivatePartySetting(const int controllerIndex)
     return 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rsp+78h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.offset = 0;
   state.arrayIndex = -1;
   LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, STATSGROUP_NONGAME);
@@ -516,7 +516,7 @@ bool Online_PlayerData_IsInCohort(const int controllerIndex)
     return bCachedValue;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rsp+78h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.offset = 0;
   state.arrayIndex = -1;
   LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, STATSGROUP_COMMON);
@@ -544,7 +544,7 @@ bool Online_PlayerData_SetBool(const int controllerIndex, StatsGroup statsGroup,
     return 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   state.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rsp+78h+state.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
   state.offset = 0;
   state.arrayIndex = -1;
   LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, statsGroup);
@@ -585,7 +585,7 @@ char Online_PlayerData_SetFavoriteFriends(const int controllerIndex, const XUID 
   {
     __asm { vpxor   xmm0, xmm0, xmm0 }
     state.isValid = 0;
-    __asm { vmovdqu xmmword ptr [rsp+0A8h+state.member], xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     state.offset = 0;
     state.arrayIndex = -1;
     LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, STATSGROUP_NONGAME);
@@ -596,7 +596,7 @@ char Online_PlayerData_SetFavoriteFriends(const int controllerIndex, const XUID 
       toState.isValid = 0;
       toState.offset = 0;
       toState.arrayIndex = -1;
-      __asm { vmovdqu xmmword ptr [rsp+0A8h+toState.member], xmm0 }
+      *(_OWORD *)&toState.member = _XMM0;
       if ( DDL_MoveToIndex(&state, &toState, index) )
       {
         v9 = XUID::ToUint64(&v14);
@@ -660,7 +660,7 @@ void Online_PlayerData_SetPrivatePartySetting(const int controllerIndex, const P
   {
     __asm { vpxor   xmm0, xmm0, xmm0 }
     state.isValid = 0;
-    __asm { vmovdqu xmmword ptr [rsp+88h+state.member], xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     state.offset = 0;
     state.arrayIndex = -1;
     LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, STATSGROUP_NONGAME);
@@ -688,115 +688,72 @@ Online_PlayerData_StartCohortSampling
 
 void __fastcall Online_PlayerData_StartCohortSampling(const int controllerIndex, double percentOfPopulation)
 {
-  bool v7; 
+  __int128 v3; 
+  bool v5; 
   StatsSource ActiveStatsSource; 
-  bool DDLBuffer; 
-  bool v10; 
-  bool v11; 
-  bool Bool; 
-  bool v13; 
-  bool v17; 
-  unsigned __int64 v19; 
-  bool v23; 
-  bool v24; 
+  bool v9; 
+  unsigned __int64 v10; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
+  bool v15; 
+  bool v16; 
   DDLState state; 
   unsigned int resultSize[2]; 
   XUID result; 
   DDLContext context; 
-  __int64 v30; 
+  __int64 v21; 
   DDLState toState; 
   unsigned __int8 data[8]; 
-  int v33; 
-  void *retaddr; 
+  int v24; 
+  unsigned __int64 m_id; 
 
-  _RAX = &retaddr;
-  v30 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmm6, xmm1
-  }
-  v7 = 0;
+  v21 = -2i64;
+  v3 = *(_OWORD *)&percentOfPopulation;
+  v5 = 0;
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
-  DDLBuffer = CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_COMMON);
-  v10 = !DDLBuffer;
-  if ( DDLBuffer )
+  if ( CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_COMMON) )
   {
     state.isValid = 0;
     state.offset = 0;
     state.arrayIndex = -1;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+1F0h+state.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, STATSGROUP_COMMON);
-    v11 = DDL_MoveToName(&state, &state, "shouldCheckCohortSampling");
-    v10 = !v11;
-    if ( v11 )
+    if ( DDL_MoveToName(&state, &state, "shouldCheckCohortSampling") && DDL_GetBool(&state, &context) && Online_PlayerData_IsInCohort(controllerIndex) )
     {
-      Bool = DDL_GetBool(&state, &context);
-      v10 = !Bool;
-      if ( Bool )
-      {
-        v13 = Online_PlayerData_IsInCohort(controllerIndex);
-        v10 = !v13;
-        if ( v13 )
-        {
-LABEL_21:
-          Online_PlayerData_IsInCohort(controllerIndex);
-          goto LABEL_22;
-        }
-      }
+LABEL_22:
+      Online_PlayerData_IsInCohort(controllerIndex);
+      return;
     }
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vcomiss xmm6, cs:__real@3f800000
-  }
-  if ( v10 )
+  if ( *(float *)&percentOfPopulation >= 0.0 && *(float *)&percentOfPopulation <= 1.0 )
   {
     Live_GetXuid(&result, controllerIndex);
     bdHashSHA1::bdHashSHA1((bdHashSHA1 *)&state);
     resultSize[0] = 20;
-    __asm
+    *(double *)data = *(double *)"infinityward";
+    v24 = *(_DWORD *)"ward";
+    _XMM0 = result.m_id;
+    m_id = result.m_id;
+    v9 = bdHashSHA1::hash((bdHashSHA1 *)&state, data, 0x14u, (unsigned __int8 *)&toState, resultSize);
+    if ( v9 )
     {
-      vmovsd  xmm0, qword ptr cs:publisher; "infinityward"
-      vmovsd  qword ptr [rbp+0F0h+data], xmm0
-    }
-    v33 = *(_DWORD *)"ward";
-    __asm
-    {
-      vmovsd  xmm0, [rsp+1F0h+result.m_id]
-      vmovsd  [rbp+0F0h+var_124], xmm0
-    }
-    v17 = bdHashSHA1::hash((bdHashSHA1 *)&state, data, 0x14u, (unsigned __int8 *)&toState, resultSize);
-    if ( v17 )
-    {
-      __asm
+      result.m_id = *(unsigned __int64 *)&toState.isValid;
+      v10 = XUID::ToUint64(&result);
+      v11 = (float)(v10 % 0x64);
+      if ( ((v10 % 0x64) & 0x8000000000000000ui64) != 0i64 )
       {
-        vmovsd  xmm0, qword ptr [rbp+0F0h+toState.isValid]
-        vmovsd  [rsp+1F0h+result.m_id], xmm0
+        v12 = (float)(v10 % 0x64);
+        v11 = v12 + 1.8446744e19;
       }
-      v19 = XUID::ToUint64(&result);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, r8
-      }
-      if ( ((v19 % 0x64) & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm1, xmm1, cs:__real@5f800000 }
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:__real@42c80000
-        vcomiss xmm0, xmm1
-      }
-      v7 = v19 >= 100 * (v19 / 0x64);
+      v13 = v3;
+      *(float *)&v13 = *(float *)&v3 * 100.0;
+      _XMM0 = v13;
+      v5 = (float)(*(float *)&v3 * 100.0) >= v11;
     }
     bdHashSHA1::~bdHashSHA1((bdHashSHA1 *)&state);
-    if ( v17 )
+    if ( v9 )
     {
       if ( LiveStorage_GetActiveStatsSource(controllerIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_player_data.cpp", 486, ASSERT_TYPE_ASSERT, "(LiveStorage_GetActiveStatsSource( controllerIndex ) == STATS_ONLINE)", (const char *)&queryFormat, "LiveStorage_GetActiveStatsSource( controllerIndex ) == STATS_ONLINE") )
         __debugbreak();
@@ -805,32 +762,27 @@ LABEL_21:
         state.isValid = 0;
         state.offset = 0;
         state.arrayIndex = -1;
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rsp+1F0h+state.member], xmm0
-        }
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&state.member = _XMM0;
         toState.isValid = 0;
         toState.offset = 0;
         toState.arrayIndex = -1;
-        __asm { vmovdqu xmmword ptr [rbp+0F0h+toState.member], xmm0 }
+        *(_OWORD *)&toState.member = _XMM0;
         LiveStorage_InitializeDDLStateForStatsGroup(context.def, &state, STATSGROUP_COMMON);
-        v23 = DDL_MoveToName(&state, &toState, "shouldCheckCohortSampling");
-        if ( v23 )
+        v15 = DDL_MoveToName(&state, &toState, "shouldCheckCohortSampling");
+        if ( v15 )
           DDL_SetBool(&state, &context, 1);
-        v24 = DDL_MoveToName(&state, &toState, "shouldLogCohortData") && v23;
-        if ( v24 )
-          DDL_SetBool(&state, &context, v7);
-        if ( DDL_MoveToName(&state, &toState, "loggingCohort") && v24 )
+        v16 = DDL_MoveToName(&state, &toState, "shouldLogCohortData") && v15;
+        if ( v16 )
+          DDL_SetBool(&state, &context, v5);
+        if ( DDL_MoveToName(&state, &toState, "loggingCohort") && v16 )
         {
           DDL_SetString(&state, &context, "base");
           LiveStorage_RequestOnlineStatsUpload(controllerIndex);
         }
       }
-      goto LABEL_21;
+      goto LABEL_22;
     }
   }
-LABEL_22:
-  __asm { vmovaps xmm6, xmmword ptr [rsp+1F0h+var_28+8] }
 }
 

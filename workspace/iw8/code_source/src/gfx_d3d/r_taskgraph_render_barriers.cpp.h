@@ -11,28 +11,33 @@ void RB_TG_IssueEndBarriers(CmdBufState *state, const GfxTaskGraph *taskGraph, u
   unsigned int v10; 
   unsigned int v11; 
   unsigned int v12; 
+  R_RT_Handle *v13; 
   __int64 resourceIndex; 
   R_TG_AttachmentFlags flags; 
-  bool v20; 
-  __int64 v24; 
+  GfxTaskResource *v16; 
+  __m256i *RotatedHandle; 
+  __m256i v18; 
+  bool v19; 
+  R_RT_Handle *v21; 
+  __int64 v22; 
   unsigned __int16 m_surfaceID; 
-  _DWORD *v27; 
-  signed int v28; 
-  D3D12_RESOURCE_STATES v29; 
+  _DWORD *v24; 
+  signed int v25; 
+  D3D12_RESOURCE_STATES v26; 
   D3D12_RESOURCE_STATES stateAfter; 
   __int64 temporalIndex; 
   signed int temporalIndexa; 
   __int64 pingPongIndex; 
-  char *v34; 
+  char *v31; 
   R_RT_Handle result; 
-  R_RT_Handle v38; 
+  R_RT_Handle v35; 
 
   v7 = state;
   v8 = permutationIndex;
   if ( permutationIndex >= taskGraph->permutationCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_render_barriers.cpp.h", 169, ASSERT_TYPE_ASSERT, "(unsigned)( permutationIndex ) < (unsigned)( taskGraph.permutationCount )", "permutationIndex doesn't index taskGraph.permutationCount\n\t%i not in [0, %i)", permutationIndex, taskGraph->permutationCount) )
     __debugbreak();
   v9 = (char *)taskGraph + 48 * v8;
-  v34 = v9;
+  v31 = v9;
   v10 = *((_DWORD *)v9 + 99205) - *((_DWORD *)v9 + 99204);
   if ( v10 >= 0x140 )
   {
@@ -40,81 +45,72 @@ void RB_TG_IssueEndBarriers(CmdBufState *state, const GfxTaskGraph *taskGraph, u
     LODWORD(temporalIndex) = *((_DWORD *)v9 + 99205) - *((_DWORD *)v9 + 99204);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_taskgraph_render_barriers.cpp.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( barrierCount ) < (unsigned)( tg::resourceLimit )", "barrierCount doesn't index tg::resourceLimit\n\t%i not in [0, %i)", temporalIndex, pingPongIndex) )
       __debugbreak();
-    v9 = v34;
+    v9 = v31;
   }
   v11 = 0;
   v12 = 0;
   if ( v10 )
   {
-    _RDI = &v38;
+    v13 = &v35;
     do
     {
       resourceIndex = taskGraph->endBarrierAttachments[v12 + *((_DWORD *)v9 + 99204)].resourceIndex;
       flags = taskGraph->endBarrierAttachments[v12 + *((_DWORD *)v9 + 99204)].flags;
-      _RBP = &taskGraph->resources[resourceIndex];
+      v16 = &taskGraph->resources[resourceIndex];
       if ( (flags & 0x18) != 0 )
       {
-        _RAX = R_TG_GetRotatedHandle(&result, taskGraph, viewInfo, resourceIndex, flags, taskGraph->endBarrierAttachments[v12 + *((_DWORD *)v9 + 99204)].temporalIndex, taskGraph->endBarrierAttachments[v12 + *((_DWORD *)v9 + 99204)].pingPongIndex);
-        v9 = v34;
-        __asm { vmovups ymm0, ymmword ptr [rax] }
+        RotatedHandle = (__m256i *)R_TG_GetRotatedHandle(&result, taskGraph, viewInfo, resourceIndex, flags, taskGraph->endBarrierAttachments[v12 + *((_DWORD *)v9 + 99204)].temporalIndex, taskGraph->endBarrierAttachments[v12 + *((_DWORD *)v9 + 99204)].pingPongIndex);
+        v9 = v31;
+        v18 = *RotatedHandle;
       }
       else
       {
-        _RAX = 32 * (viewInfo->stepIndex + 9i64);
-        __asm { vmovups ymm0, ymmword ptr [rax+rbp] }
+        v18 = (__m256i)v16->handle[viewInfo->stepIndex];
       }
-      v20 = _RBP->desc.conditionType == eCondition_RenderTime;
-      __asm { vmovups ymmword ptr [rdi], ymm0 }
-      if ( v20 && (conditionDisable & _RBP->desc.conditionFlag) != 0 )
+      v19 = v16->desc.conditionType == eCondition_RenderTime;
+      *(__m256i *)v13 = v18;
+      if ( v19 && (conditionDisable & v16->desc.conditionFlag) != 0 )
       {
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rsp+28C8h+result.m_tracking.m_name], xmm0
-        }
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&result.m_tracking.m_name = _XMM0;
         result.m_surfaceID = 0;
         result.m_tracking.m_allocCounter = 0;
-        __asm
-        {
-          vmovups ymm1, ymmword ptr [rsp+28C8h+result.m_surfaceID]
-          vmovups ymmword ptr [rdi], ymm1
-        }
+        *v13 = result;
       }
       ++v12;
-      ++_RDI;
+      ++v13;
     }
     while ( v12 < v10 );
     v7 = state;
-    _RDI = &v38;
+    v21 = &v35;
     do
     {
-      v24 = v11 + *((_DWORD *)v9 + 99204);
+      v22 = v11 + *((_DWORD *)v9 + 99204);
       if ( state->resourceTransitionCount == 32 )
         R_HW_FlushResourceTransitions(state);
-      m_surfaceID = _RDI->m_surfaceID;
-      if ( _RDI->m_surfaceID )
+      m_surfaceID = v21->m_surfaceID;
+      if ( v21->m_surfaceID )
       {
-        R_RT_Handle::GetSurface(_RDI);
+        R_RT_Handle::GetSurface(v21);
       }
-      else if ( _RDI->m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+      else if ( v21->m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
       {
         __debugbreak();
       }
       if ( m_surfaceID )
       {
-        __asm { vmovups ymm0, ymmword ptr [rdi] }
-        v27 = (_DWORD *)((char *)taskGraph + 20 * v24);
-        v28 = v27[184448];
-        v29 = v27[184444];
-        LODWORD(v27) = v27[184447];
-        temporalIndexa = v28;
-        stateAfter = taskGraph->endBarriers[v24].stateAfter;
-        __asm { vmovups ymmword ptr [rsp+28C8h+result.m_surfaceID], ymm0 }
-        R_HW_AddResourceTransition(state, &result, (unsigned int)v27, v29, stateAfter, (D3D12_RESOURCE_BARRIER_FLAGS)temporalIndexa);
+        v24 = (_DWORD *)((char *)taskGraph + 20 * v22);
+        v25 = v24[184448];
+        v26 = v24[184444];
+        LODWORD(v24) = v24[184447];
+        temporalIndexa = v25;
+        stateAfter = taskGraph->endBarriers[v22].stateAfter;
+        result = *v21;
+        R_HW_AddResourceTransition(state, &result, (unsigned int)v24, v26, stateAfter, (D3D12_RESOURCE_BARRIER_FLAGS)temporalIndexa);
       }
-      v9 = v34;
+      v9 = v31;
       ++v11;
-      ++_RDI;
+      ++v21;
     }
     while ( v11 < v10 );
   }
@@ -223,86 +219,67 @@ RB_TG_IssueTaskTransitionBarriers
 void RB_TG_IssueTaskTransitionBarriers(CmdBufState *state, const GfxTaskInfo *task, unsigned int begin, unsigned int end)
 {
   __int64 v7; 
-  __int64 i; 
+  __int64 v8; 
   const R_TG_Barrier *v9; 
   R_TG_BarrierType type; 
-  int v16; 
+  R_RT_Handle m_depthRt; 
   D3D12_RESOURCE_STATES stateBefore; 
   unsigned int subresource; 
   D3D12_RESOURCE_STATES fmt; 
   D3D12_RESOURCE_BARRIER_FLAGS flag; 
-  R_RT_Handle v23; 
+  R_RT_Handle v17; 
 
   if ( begin < end )
   {
-    _RDI = task;
     v7 = end - begin;
-    for ( i = begin; ; ++i )
+    v8 = begin;
+    do
     {
-      v9 = &_RDI->barriers[i];
+      v9 = &task->barriers[v8];
       type = v9->type;
       if ( type == R_TG_BarrierType_None )
       {
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu xmmword ptr [rsp+98h+var_48.m_tracking.m_name], xmm0
-        }
-        v23.m_surfaceID = 0;
-        v23.m_tracking.m_allocCounter = 0;
-        __asm { vmovups ymm0, ymmword ptr [rsp+98h+var_48.m_surfaceID] }
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(_OWORD *)&v17.m_tracking.m_name = _XMM0;
+        v17.m_surfaceID = 0;
+        v17.m_tracking.m_allocCounter = 0;
+        m_depthRt = v17;
       }
       else if ( type )
       {
         if ( type == R_TG_BarrierType_Depth )
-        {
-          __asm { vmovups ymm0, ymmword ptr [rdi+0B8h] }
-        }
+          m_depthRt = (R_RT_Handle)task->rtGroup.m_depthRt;
         else
-        {
-          _RAX = _RDI->attachments;
-          _RCX = 32i64 * v9->index;
-          __asm { vmovups ymm0, ymmword ptr [rcx+rax] }
-        }
+          m_depthRt = task->attachments[v9->index];
       }
       else
       {
-        _RAX = 32i64 * v9->index;
-        __asm { vmovups ymm0, ymmword ptr [rax+rdi+38h] }
+        m_depthRt = (R_RT_Handle)task->rtGroup.m_colorRts[v9->index];
       }
-      __asm { vmovd   eax, xmm0 }
-      v16 = (unsigned __int16)_EAX;
-      __asm
+      v17 = m_depthRt;
+      if ( (_WORD)_XMM0 )
       {
-        vmovups ymmword ptr [rsp+98h+var_48.m_surfaceID], ymm0
-        vmovups [rsp+98h+var_68], ymm0
+        R_RT_Handle::GetSurface(&v17);
       }
-      if ( (_WORD)_EAX )
-        break;
-      __asm { vpextrd rax, xmm0, 2 }
-      if ( (_DWORD)_RAX )
+      else
       {
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", v16 + 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
+        __asm { vpextrd rax, xmm0, 2 }
+        if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
-        goto LABEL_15;
       }
-LABEL_16:
-      if ( v16 )
+      if ( (_WORD)_XMM0 )
       {
         stateBefore = v9->stateBefore;
         subresource = v9->subresource;
         flag = v9->flag;
         fmt = v9->stateAfter;
-        __asm { vmovups ymmword ptr [rsp+98h+var_48.m_surfaceID], ymm0 }
-        R_HW_AddResourceTransition(state, &v23, subresource, stateBefore, fmt, flag);
+        v17 = m_depthRt;
+        R_HW_AddResourceTransition(state, &v17, subresource, stateBefore, fmt, flag);
       }
-      if ( !--v7 )
-        return;
+      ++v8;
+      --v7;
     }
-    R_RT_Handle::GetSurface(&v23);
-LABEL_15:
-    __asm { vmovups ymm0, [rsp+98h+var_68] }
-    goto LABEL_16;
+    while ( v7 );
   }
 }
 

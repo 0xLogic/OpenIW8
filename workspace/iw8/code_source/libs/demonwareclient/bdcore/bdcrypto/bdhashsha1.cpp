@@ -177,17 +177,17 @@ __int64 bdHashSHA1::hash(bdHashSHA1 *this, const unsigned __int8 *data, const un
   NTSTATUS Hash_0; 
   NTSTATUS v14; 
   NTSTATUS v15; 
+  __int128 v16; 
   int v17; 
   NTSTATUS v18; 
   unsigned __int8 pbOutput[16]; 
   int v21; 
 
-  _RSI = result;
   v9 = 0;
   bdHandleAssert(data != NULL, "(data != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashsha1.cpp", "bdHashSHA1::hash", 0xA6u, "SHA1 input cannot be NULL");
-  bdHandleAssert(_RSI != NULL, "(result != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashsha1.cpp", "bdHashSHA1::hash", 0xA7u, "SHA1 digest buffer cannot be NULL");
+  bdHandleAssert(result != NULL, "(result != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashsha1.cpp", "bdHashSHA1::hash", 0xA7u, "SHA1 digest buffer cannot be NULL");
   bdHandleAssert(*resultSize >= 0x14, "(resultSize >= BD_SHA1_HASH_SIZE)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashsha1.cpp", "bdHashSHA1::hash", 0xA8u, "SHA1 requires digest buffer >= 20 bytes");
-  if ( data && _RSI && *resultSize >= 0x14 )
+  if ( data && result && *resultSize >= 0x14 )
   {
     v10 = bdHashSHA1::s_provider;
     if ( bdHashSHA1::s_provider )
@@ -215,12 +215,12 @@ LABEL_13:
             }
             else
             {
-              __asm { vmovups xmm0, xmmword ptr [rsp+98h+pbOutput] }
+              v16 = *(_OWORD *)pbOutput;
               v17 = v21;
               v9 = 1;
               *resultSize = 20;
-              __asm { vmovups xmmword ptr [rsi], xmm0 }
-              *((_DWORD *)_RSI + 4) = v17;
+              *(_OWORD *)result = v16;
+              *((_DWORD *)result + 4) = v17;
             }
           }
           return v9;

@@ -661,15 +661,18 @@ bdSocketRouter::bdSocketRouter
 void bdSocketRouter::bdSocketRouter(bdSocketRouter *this)
 {
   unsigned int PowerOf2; 
-  bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **v10; 
+  float v3; 
+  bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **v4; 
+  unsigned int v5; 
+  float v6; 
+  bdHashMap<unsigned short,bdLinkedList<bdReference<bdDTLSAssociation> > *,bdHashingClass>::Node **v7; 
+  unsigned int v8; 
+  float v9; 
+  bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **v10; 
   unsigned int v11; 
-  bdHashMap<unsigned short,bdLinkedList<bdReference<bdDTLSAssociation> > *,bdHashingClass>::Node **v16; 
-  unsigned int v17; 
-  bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **v22; 
-  unsigned int v23; 
-  bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **v28; 
+  float v12; 
+  bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **v13; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   bdNATTravListener::bdNATTravListener(this);
   this->bdNATTravListener::__vftable = (bdSocketRouter_vtbl *)&bdSocketRouter::`vftable'{for `bdNATTravListener'};
   this->bdSecurityKeyMapListener::__vftable = (bdSecurityKeyMapListener_vtbl *)&bdSocketRouter::`vftable'{for `bdSecurityKeyMapListener'};
@@ -692,73 +695,47 @@ void bdSocketRouter::bdSocketRouter(bdSocketRouter *this)
   PowerOf2 = bdBitOperations::nextPowerOf2(4u);
   this->m_endpointToDtlsMap.m_capacity = PowerOf2;
   this->m_endpointToDtlsMap.m_loadFactor = 0.75;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmovss  xmm6, cs:__real@3f400000
-    vmulss  xmm0, xmm0, xmm6
-    vcvttss2si rcx, xmm0
-  }
-  this->m_endpointToDtlsMap.m_threshold = _RCX;
-  v10 = (bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-  this->m_endpointToDtlsMap.m_map = v10;
-  memset_0(v10, 0, 8i64 * this->m_endpointToDtlsMap.m_capacity);
+  v3 = (float)PowerOf2;
+  this->m_endpointToDtlsMap.m_threshold = (int)(float)(v3 * 0.75);
+  v4 = (bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  this->m_endpointToDtlsMap.m_map = v4;
+  memset_0(v4, 0, 8i64 * this->m_endpointToDtlsMap.m_capacity);
   this->m_vtagToDtlsMap.m_numIterators.m_value._My_val = 0;
   this->m_vtagToDtlsMap.m_size = 0;
-  v11 = bdBitOperations::nextPowerOf2(4u);
-  this->m_vtagToDtlsMap.m_capacity = v11;
+  v5 = bdBitOperations::nextPowerOf2(4u);
+  this->m_vtagToDtlsMap.m_capacity = v5;
   this->m_vtagToDtlsMap.m_loadFactor = 0.75;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rcx, xmm1
-  }
-  this->m_vtagToDtlsMap.m_threshold = _RCX;
-  v16 = (bdHashMap<unsigned short,bdLinkedList<bdReference<bdDTLSAssociation> > *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * v11);
-  this->m_vtagToDtlsMap.m_map = v16;
-  memset_0(v16, 0, 8i64 * this->m_vtagToDtlsMap.m_capacity);
+  v6 = (float)v5;
+  this->m_vtagToDtlsMap.m_threshold = (int)(float)(v6 * 0.75);
+  v7 = (bdHashMap<unsigned short,bdLinkedList<bdReference<bdDTLSAssociation> > *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * v5);
+  this->m_vtagToDtlsMap.m_map = v7;
+  memset_0(v7, 0, 8i64 * this->m_vtagToDtlsMap.m_capacity);
   this->m_migratingDtlsMap.m_numIterators.m_value._My_val = 0;
   this->m_migratingDtlsMap.m_size = 0;
-  v17 = bdBitOperations::nextPowerOf2(4u);
-  this->m_migratingDtlsMap.m_capacity = v17;
+  v8 = bdBitOperations::nextPowerOf2(4u);
+  this->m_migratingDtlsMap.m_capacity = v8;
   this->m_migratingDtlsMap.m_loadFactor = 0.75;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rcx, xmm1
-  }
-  this->m_migratingDtlsMap.m_threshold = _RCX;
-  v22 = (bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * v17);
-  this->m_migratingDtlsMap.m_map = v22;
-  memset_0(v22, 0, 8i64 * this->m_migratingDtlsMap.m_capacity);
+  v9 = (float)v8;
+  this->m_migratingDtlsMap.m_threshold = (int)(float)(v9 * 0.75);
+  v10 = (bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * v8);
+  this->m_migratingDtlsMap.m_map = v10;
+  memset_0(v10, 0, 8i64 * this->m_migratingDtlsMap.m_capacity);
   this->m_sendtoBuffer = NULL;
   bdQoSProbe::bdQoSProbe(&this->m_qosProber);
   this->m_endpointToAddrMap.m_numIterators.m_value._My_val = 0;
   this->m_endpointToAddrMap.m_size = 0;
-  v23 = bdBitOperations::nextPowerOf2(4u);
-  this->m_endpointToAddrMap.m_capacity = v23;
+  v11 = bdBitOperations::nextPowerOf2(4u);
+  this->m_endpointToAddrMap.m_capacity = v11;
   this->m_endpointToAddrMap.m_loadFactor = 0.75;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rcx, xmm1
-  }
-  this->m_endpointToAddrMap.m_threshold = _RCX;
-  v28 = (bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **)bdMemory::allocate(8i64 * v23);
-  this->m_endpointToAddrMap.m_map = v28;
-  memset_0(v28, 0, 8i64 * this->m_endpointToAddrMap.m_capacity);
+  v12 = (float)v11;
+  this->m_endpointToAddrMap.m_threshold = (int)(float)(v12 * 0.75);
+  v13 = (bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **)bdMemory::allocate(8i64 * v11);
+  this->m_endpointToAddrMap.m_map = v13;
+  memset_0(v13, 0, 8i64 * this->m_endpointToAddrMap.m_capacity);
   bdSharedMutex::bdSharedMutex(&this->m_endpointToDTLSMutex);
   bdSharedMutex::bdSharedMutex(&this->m_endpointToAddrMutex);
   bdSharedMutex::bdSharedMutex(&this->m_vtagToDTLSMutex);
   bdSharedMutex::bdSharedMutex(&this->m_migratingDtlsMutex);
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -1560,11 +1537,7 @@ bdSocketRouter::getConfig
 */
 void bdSocketRouter::getConfig(bdSocketRouter *this, bdSocketRouterConfig *config)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rcx+38h]
-    vmovups ymmword ptr [rdx], ymm0
-  }
+  *config = this->m_config;
 }
 
 /*
@@ -1837,19 +1810,18 @@ bdDTLSAssociationTelemetry *bdSocketRouter::getTelemetry(bdSocketRouter *this, b
   bool v7; 
   bdDTLSAssociation *v8; 
   bdReference<bdDTLSAssociation> value; 
-  bdSharedMutex *v25; 
-  __int64 v26; 
+  bdSharedMutex *v11; 
+  __int64 v12; 
   bdAddrHandle *m_ptr; 
   bdDTLSAssociationTelemetry resulta; 
 
-  v26 = -2i64;
-  _RBP = result;
+  v12 = -2i64;
   m_ptr = addrHandle.m_ptr;
   bdDTLSAssociationTelemetry::bdDTLSAssociationTelemetry(result);
   if ( bdAddrHandle::isResolved((bdAddrHandle *)addrHandle.m_ptr->__vftable) )
   {
     p_m_endpointToDTLSMutex = &this->m_endpointToDTLSMutex;
-    v25 = &this->m_endpointToDTLSMutex;
+    v11 = &this->m_endpointToDTLSMutex;
     bdSharedMutex::lock_shared(&this->m_endpointToDTLSMutex);
     value.m_ptr = NULL;
     v7 = bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::get(&this->m_endpointToDtlsMap, (const bdEndpoint *)&addrHandle.m_ptr->__vftable[2], &value);
@@ -1857,42 +1829,13 @@ bdDTLSAssociationTelemetry *bdSocketRouter::getTelemetry(bdSocketRouter *this, b
     if ( v7 && value.m_ptr )
     {
       bdDTLSAssociation::updateTelemetry(value.m_ptr);
-      _RAX = bdDTLSAssociation::getTelemetry(v8, &resulta);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rbp+0], xmm0
-        vmovups xmm1, xmmword ptr [rax+10h]
-        vmovups xmmword ptr [rbp+10h], xmm1
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rbp+20h], xmm0
-        vmovups xmm1, xmmword ptr [rax+30h]
-        vmovups xmmword ptr [rbp+30h], xmm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rbp+40h], xmm0
-        vmovups xmm1, xmmword ptr [rax+50h]
-        vmovups xmmword ptr [rbp+50h], xmm1
-        vmovups xmm0, xmmword ptr [rax+60h]
-        vmovups xmmword ptr [rbp+60h], xmm0
-        vmovups xmm0, xmmword ptr [rax+70h]
-        vmovups xmmword ptr [rbp+70h], xmm0
-        vmovups xmm1, xmmword ptr [rax+80h]
-        vmovups xmmword ptr [rbp+80h], xmm1
-        vmovups xmm0, xmmword ptr [rax+90h]
-        vmovups xmmword ptr [rbp+90h], xmm0
-        vmovups xmm1, xmmword ptr [rax+0A0h]
-        vmovups xmmword ptr [rbp+0A0h], xmm1
-        vmovups xmm0, xmmword ptr [rax+0B0h]
-        vmovups xmmword ptr [rbp+0B0h], xmm0
-        vmovups xmm1, xmmword ptr [rax+0C0h]
-        vmovups xmmword ptr [rbp+0C0h], xmm1
-      }
+      *result = *bdDTLSAssociation::getTelemetry(v8, &resulta);
     }
     if ( v8 )
     {
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v8->m_refCount, 0xFFFFFFFF) == 1 )
         ((void (__fastcall *)(bdDTLSAssociation *, __int64))value.m_ptr->~bdReferencable)(value.m_ptr, 1i64);
-      p_m_endpointToDTLSMutex = v25;
+      p_m_endpointToDTLSMutex = v11;
     }
     bdSharedMutex::unlock_shared(p_m_endpointToDTLSMutex);
   }
@@ -1902,7 +1845,7 @@ bdDTLSAssociationTelemetry *bdSocketRouter::getTelemetry(bdSocketRouter *this, b
       (*(void (__fastcall **)(bdAddrHandle_vtbl *, __int64))addrHandle.m_ptr->~bdReferencable)(addrHandle.m_ptr->__vftable, 1i64);
     addrHandle.m_ptr->__vftable = NULL;
   }
-  return _RBP;
+  return result;
 }
 
 /*
@@ -1923,7 +1866,6 @@ _BOOL8 bdSocketRouter::init(bdSocketRouter *this, bdSocket *socket, const bdRefe
   bdCommonAddr *m_ptr; 
 
   m_ptr = localCommonAddr.m_ptr;
-  _R13 = config;
   if ( this->m_status )
   {
     format = "init() called multiple times.";
@@ -1974,16 +1916,11 @@ LABEL_23:
     v12 = NULL;
   bdSocketRouter::registerInterceptor(this, v12);
   bdSecurityKeyMap::registerListener(&this->m_keyStore, &this->bdSecurityKeyMapListener);
-  bdNATTravClient::setSimulateNAT(&this->m_natTrav, _R13->m_simulateNAT);
-  if ( _R13->m_simulateNAT )
+  bdNATTravClient::setSimulateNAT(&this->m_natTrav, config->m_simulateNAT);
+  if ( config->m_simulateNAT )
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::init", 0x71u, "Using NAT simulation. This will affect connectivity between clients, and should be used for testing purposes only!");
-  _RCX = &this->m_config;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r13+0]
-    vmovups ymmword ptr [rcx], ymm0
-  }
-  this->m_relayManager = _R13->m_relayManager;
+  this->m_config = *config;
+  this->m_relayManager = config->m_relayManager;
   v10 = bdSocketRouterConfig::sanityCheckConfig(&this->m_config);
   if ( !v10 )
     goto LABEL_23;
@@ -2029,6 +1966,7 @@ void bdSocketRouter::onNATAddrDiscovery(bdSocketRouter *this, bdReference<bdComm
   bdEndpoint *p_m_endpoint; 
   bdDTLSAssociation *v14; 
   unsigned __int16 cypherSuite; 
+  float m_DTLSAssociationReceiveTimeout; 
   bdCommonAddr *v17; 
   bdDTLSAssociation *v18; 
   bdDTLSAssociation *v19; 
@@ -2039,67 +1977,65 @@ void bdSocketRouter::onNATAddrDiscovery(bdSocketRouter *this, bdReference<bdComm
   __int64 v24; 
   bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **v25; 
   bdCommonAddr *v26; 
-  float v27; 
-  char v28; 
-  bdAddrHandle *v29; 
+  char v27; 
+  bdAddrHandle *v28; 
   bdReference<bdDTLSAssociation> value; 
   void *iterator; 
   bdAddr *realAddra; 
-  bdCommonAddr *v33; 
+  bdCommonAddr *v32; 
   bdReference<bdCommonAddr> localCommonAddr; 
   bdReference<bdAddrHandle> addrHandle; 
   bdReference<bdCommonAddr> addr; 
-  bdReference<bdDTLSAssociation> v37; 
+  bdReference<bdDTLSAssociation> v36; 
+  bdReference<bdCommonAddr> v37; 
   bdReference<bdCommonAddr> v38; 
-  bdReference<bdCommonAddr> v39; 
-  bdSharedMutex *v40; 
+  bdSharedMutex *v39; 
   bdSharedMutex *p_m_endpointToAddrMutex; 
-  bdDTLSAssociation *v42; 
-  __int64 v43; 
+  bdDTLSAssociation *v41; 
+  __int64 v42; 
+  bdCommonAddr *v43; 
   bdCommonAddr *v44; 
-  bdCommonAddr *v45; 
   bdSharedMutex *p_m_endpointToDTLSMutex; 
   char buffer[24]; 
-  char v48[24]; 
+  char v47[24]; 
   char str[24]; 
   char buf[1024]; 
-  char v51[1024]; 
+  char v50[1024]; 
   char format[1024]; 
 
-  v43 = -2i64;
+  v42 = -2i64;
   realAddra = (bdAddr *)realAddr;
   m_ptr = (const bdCommonAddr **)remote.m_ptr;
-  v33 = remote.m_ptr;
-  _RSI = this;
-  v44 = remote.m_ptr;
-  v29 = NULL;
+  v32 = remote.m_ptr;
+  v43 = remote.m_ptr;
+  v28 = NULL;
   if ( this->m_status != BD_SOCKET_ROUTER_INITIALIZED )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onNATAddrDiscovery", 0x5C3u, "Cannot react to NAT addr discovery event before class has been initialized");
     goto LABEL_63;
   }
-  v28 = 0;
+  v27 = 0;
   p_m_endpointToAddrMutex = &this->m_endpointToAddrMutex;
   bdSharedMutex::lock(&this->m_endpointToAddrMutex);
-  if ( !_RSI->m_endpointToAddrMap.m_size )
+  if ( !this->m_endpointToAddrMap.m_size )
     goto LABEL_59;
   v5 = 0i64;
-  m_capacity = _RSI->m_endpointToAddrMap.m_capacity;
+  m_capacity = this->m_endpointToAddrMap.m_capacity;
   if ( m_capacity )
   {
     do
     {
-      if ( _RSI->m_endpointToAddrMap.m_map[v5] )
+      if ( this->m_endpointToAddrMap.m_map[v5] )
         break;
       v5 = (unsigned int)(v5 + 1);
     }
     while ( (unsigned int)v5 < m_capacity );
   }
-  m_map = _RSI->m_endpointToAddrMap.m_map;
+  m_map = this->m_endpointToAddrMap.m_map;
   if ( m_map[v5] )
   {
-    _InterlockedExchangeAdd((volatile signed __int32 *)&_RSI->m_endpointToAddrMap.m_numIterators, 1u);
-    m_map = _RSI->m_endpointToAddrMap.m_map;
+    _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_endpointToAddrMap.m_numIterators, 1u);
+    m_map = this->m_endpointToAddrMap.m_map;
   }
   iterator = m_map[v5];
   if ( !iterator )
@@ -2107,17 +2043,17 @@ void bdSocketRouter::onNATAddrDiscovery(bdSocketRouter *this, bdReference<bdComm
   while ( 1 )
   {
     v8 = (const bdEndpoint *)((char *)iterator + 8);
-    if ( iterator != &v29 )
+    if ( iterator != &v28 )
     {
-      if ( v29 && _InterlockedExchangeAdd((volatile signed __int32 *)&v29->m_refCount, 0xFFFFFFFF) == 1 )
-        ((void (__fastcall *)(bdAddrHandle *, __int64))v29->~bdReferencable)(v29, 1i64);
+      if ( v28 && _InterlockedExchangeAdd((volatile signed __int32 *)&v28->m_refCount, 0xFFFFFFFF) == 1 )
+        ((void (__fastcall *)(bdAddrHandle *, __int64))v28->~bdReferencable)(v28, 1i64);
       v9 = *(bdAddrHandle **)iterator;
-      v29 = v9;
+      v28 = v9;
       if ( v9 )
         _InterlockedExchangeAdd((volatile signed __int32 *)&v9->m_refCount, 1u);
     }
     v10 = v8->m_ca.m_ptr;
-    v45 = v10;
+    v44 = v10;
     if ( v10 )
       _InterlockedExchangeAdd((volatile signed __int32 *)&v10->m_refCount, 1u);
     v11 = bdCommonAddr::operator==(v10, *m_ptr);
@@ -2125,15 +2061,15 @@ void bdSocketRouter::onNATAddrDiscovery(bdSocketRouter *this, bdReference<bdComm
       ((void (__fastcall *)(bdCommonAddr *, __int64))v10->~bdReferencable)(v10, 1i64);
     if ( v11 )
     {
-      v28 = 1;
-      v12 = v29;
-      bdAddrHandle::setRealAddr(v29, realAddra);
+      v27 = 1;
+      v12 = v28;
+      bdAddrHandle::setRealAddr(v28, realAddra);
       p_m_endpoint = &v12->m_endpoint;
       value.m_ptr = NULL;
-      p_m_endpointToDTLSMutex = &_RSI->m_endpointToDTLSMutex;
-      bdSharedMutex::lock_shared(&_RSI->m_endpointToDTLSMutex);
-      LOBYTE(v12) = bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::get(&_RSI->m_endpointToDtlsMap, &v12->m_endpoint, &value);
-      bdSharedMutex::unlock_shared(&_RSI->m_endpointToDTLSMutex);
+      p_m_endpointToDTLSMutex = &this->m_endpointToDTLSMutex;
+      bdSharedMutex::lock_shared(&this->m_endpointToDTLSMutex);
+      LOBYTE(v12) = bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::get(&this->m_endpointToDtlsMap, &v12->m_endpoint, &value);
+      bdSharedMutex::unlock_shared(&this->m_endpointToDTLSMutex);
       if ( (_BYTE)v12 )
       {
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onNATAddrDiscovery", 0x617u, "already connected.");
@@ -2143,20 +2079,19 @@ void bdSocketRouter::onNATAddrDiscovery(bdSocketRouter *this, bdReference<bdComm
         bdAddr::toString(realAddra, str, 0x16ui64);
         bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onNATAddrDiscovery", 0x5E2u, "Address lookup succeeded. Creating DTLS conn to %s.", str);
         v14 = (bdDTLSAssociation *)bdMemory::allocate(0x4B8ui64);
-        v42 = v14;
+        v41 = v14;
         if ( v14 )
         {
-          cypherSuite = _RSI->m_config.m_cypherSuite;
-          __asm { vmovss  xmm0, dword ptr [rsi+3Ch] }
-          v17 = _RSI->m_localCommonAddr.m_ptr;
+          cypherSuite = this->m_config.m_cypherSuite;
+          m_DTLSAssociationReceiveTimeout = this->m_config.m_DTLSAssociationReceiveTimeout;
+          v17 = this->m_localCommonAddr.m_ptr;
           localCommonAddr.m_ptr = v17;
           if ( v17 )
             _InterlockedExchangeAdd((volatile signed __int32 *)&v17->m_refCount, 1u);
-          addrHandle.m_ptr = v29;
-          if ( v29 )
-            _InterlockedExchangeAdd((volatile signed __int32 *)&v29->m_refCount, 1u);
-          __asm { vmovss  [rsp+0D70h+var_D30], xmm0 }
-          bdDTLSAssociation::bdDTLSAssociation(v14, &_RSI->m_routingLayer, &_RSI->m_keyStore, &_RSI->m_ECCKey, realAddra, (bdReference<bdAddrHandle>)&addrHandle, (bdReference<bdCommonAddr>)&localCommonAddr, &_RSI->m_addrMap, v27, cypherSuite);
+          addrHandle.m_ptr = v28;
+          if ( v28 )
+            _InterlockedExchangeAdd((volatile signed __int32 *)&v28->m_refCount, 1u);
+          bdDTLSAssociation::bdDTLSAssociation(v14, &this->m_routingLayer, &this->m_keyStore, &this->m_ECCKey, realAddra, (bdReference<bdAddrHandle>)&addrHandle, (bdReference<bdCommonAddr>)&localCommonAddr, &this->m_addrMap, m_DTLSAssociationReceiveTimeout, cypherSuite);
           v19 = v18;
         }
         else
@@ -2169,24 +2104,24 @@ void bdSocketRouter::onNATAddrDiscovery(bdSocketRouter *this, bdReference<bdComm
         if ( v19 )
           _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_refCount, 1u);
         bdDTLSAssociation::connect(v19);
-        v40 = &_RSI->m_endpointToDTLSMutex;
-        bdSharedMutex::lock(&_RSI->m_endpointToDTLSMutex);
-        if ( bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::put(&_RSI->m_endpointToDtlsMap, v8, &value) )
+        v39 = &this->m_endpointToDTLSMutex;
+        bdSharedMutex::lock(&this->m_endpointToDTLSMutex);
+        if ( bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::put(&this->m_endpointToDtlsMap, v8, &value) )
         {
-          v37.m_ptr = v19;
+          v36.m_ptr = v19;
           if ( v19 )
             _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_refCount, 1u);
-          if ( !bdSocketRouter::addToVtagToDtlsMap(_RSI, (bdReference<bdDTLSAssociation>)&v37) )
+          if ( !bdSocketRouter::addToVtagToDtlsMap(this, (bdReference<bdDTLSAssociation>)&v36) )
           {
             v21 = p_m_endpoint->m_ca.m_ptr;
-            v38.m_ptr = v21;
+            v37.m_ptr = v21;
             if ( v21 )
               _InterlockedExchangeAdd((volatile signed __int32 *)&v21->m_refCount, 1u);
-            bdCommonAddrInfo::getInfo((const bdReference<bdCommonAddr>)&v38, v51, 0x400u);
-            bdSecurityInfo::toString(&p_m_endpoint->m_secID, v48, 0x12u);
-            bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onNATAddrDiscovery", 0x60Bu, "New DTLS with secID %s NOT added to the list.", v48);
-            bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onNATAddrDiscovery", 0x60Cu, "Address: %s", v51);
-            bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::remove(&_RSI->m_endpointToDtlsMap, v8);
+            bdCommonAddrInfo::getInfo((const bdReference<bdCommonAddr>)&v37, v50, 0x400u);
+            bdSecurityInfo::toString(&p_m_endpoint->m_secID, v47, 0x12u);
+            bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onNATAddrDiscovery", 0x60Bu, "New DTLS with secID %s NOT added to the list.", v47);
+            bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onNATAddrDiscovery", 0x60Cu, "Address: %s", v50);
+            bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::remove(&this->m_endpointToDtlsMap, v8);
           }
         }
         else
@@ -2200,12 +2135,12 @@ void bdSocketRouter::onNATAddrDiscovery(bdSocketRouter *this, bdReference<bdComm
           bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onNATAddrDiscovery", 0x5FAu, "New DTLS with secID %s NOT added to the list.", buffer);
           bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onNATAddrDiscovery", 0x5FBu, "Address: %s", buf);
         }
-        bdSharedMutex::unlock(v40);
+        bdSharedMutex::unlock(v39);
       }
-      bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::remove(&_RSI->m_endpointToAddrMap, &iterator);
+      bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::remove(&this->m_endpointToAddrMap, &iterator);
       if ( value.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&value.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
         ((void (__fastcall *)(bdDTLSAssociation *, __int64))value.m_ptr->~bdReferencable)(value.m_ptr, 1i64);
-      m_ptr = (const bdCommonAddr **)v33;
+      m_ptr = (const bdCommonAddr **)v32;
       goto LABEL_73;
     }
     if ( !*((_QWORD *)iterator + 3) )
@@ -2215,12 +2150,12 @@ LABEL_73:
     if ( !iterator )
       goto LABEL_58;
   }
-  Hash = bdEndpointHashingClass::getHash(&_RSI->m_endpointToAddrMap.m_hashClass, v8);
-  v23 = _RSI->m_endpointToAddrMap.m_capacity;
+  Hash = bdEndpointHashingClass::getHash(&this->m_endpointToAddrMap.m_hashClass, v8);
+  v23 = this->m_endpointToAddrMap.m_capacity;
   v24 = (Hash & (v23 - 1)) + 1;
   if ( (unsigned int)v24 < v23 )
   {
-    v25 = _RSI->m_endpointToAddrMap.m_map;
+    v25 = this->m_endpointToAddrMap.m_map;
     while ( !v25[v24] )
     {
       v24 = (unsigned int)(v24 + 1);
@@ -2231,23 +2166,23 @@ LABEL_73:
     goto LABEL_73;
   }
 LABEL_57:
-  _InterlockedExchangeAdd((volatile signed __int32 *)&_RSI->m_endpointToAddrMap.m_numIterators, 0xFFFFFFFF);
+  _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_endpointToAddrMap.m_numIterators, 0xFFFFFFFF);
 LABEL_58:
-  if ( !v28 )
+  if ( !v27 )
   {
 LABEL_59:
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onNATAddrDiscovery", 0x625u, "Address lookup failed.");
     v26 = (bdCommonAddr *)*m_ptr;
-    v39.m_ptr = v26;
+    v38.m_ptr = v26;
     if ( v26 )
       _InterlockedExchangeAdd((volatile signed __int32 *)&v26->m_refCount, 1u);
-    bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v39, format, 0x400u);
+    bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v38, format, 0x400u);
     bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onNATAddrDiscovery", 0x628u, format);
   }
   bdSharedMutex::unlock(p_m_endpointToAddrMutex);
 LABEL_63:
-  if ( v29 && _InterlockedExchangeAdd((volatile signed __int32 *)&v29->m_refCount, 0xFFFFFFFF) == 1 )
-    ((void (__fastcall *)(bdAddrHandle *, __int64))v29->~bdReferencable)(v29, 1i64);
+  if ( v28 && _InterlockedExchangeAdd((volatile signed __int32 *)&v28->m_refCount, 0xFFFFFFFF) == 1 )
+    ((void (__fastcall *)(bdAddrHandle *, __int64))v28->~bdReferencable)(v28, 1i64);
   if ( *m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&(*m_ptr)->m_refCount, 0xFFFFFFFF) == 1 )
   {
     if ( *m_ptr )
@@ -2677,6 +2612,7 @@ void bdSocketRouter::onRelayConnectionSuccess(bdSocketRouter *this, const bdRefe
   bdEndpoint *p_m_endpoint; 
   bdDTLSAssociation *v13; 
   unsigned __int16 cypherSuite; 
+  float v15; 
   bdCommonAddr *m_listener; 
   bdDTLSAssociation *v17; 
   bdDTLSAssociation *v18; 
@@ -2692,56 +2628,54 @@ void bdSocketRouter::onRelayConnectionSuccess(bdSocketRouter *this, const bdRefe
   __int64 v28; 
   __int64 v29; 
   bdCommonAddr *v30; 
-  float v31; 
-  char v32; 
+  char v31; 
   bdReference<bdDTLSAssociation> dtls; 
   void *iterator; 
-  bdAddrHandle *v35; 
+  bdAddrHandle *v34; 
   bdReference<bdDTLSAssociation> value; 
-  bdReference<bdAddrHandle> v37; 
+  bdReference<bdAddrHandle> v36; 
   bdAddr *addr; 
   bdReference<bdCommonAddr> localCommonAddr; 
   bdReference<bdAddrHandle> addrHandle; 
-  bdReference<bdDTLSAssociation> v41; 
-  bdReference<bdCommonAddr> v42; 
+  bdReference<bdDTLSAssociation> v40; 
+  bdReference<bdCommonAddr> v41; 
   bdReference<bdAddrHandle> result; 
-  bdReference<bdCommonAddr> v44; 
+  bdReference<bdCommonAddr> v43; 
   bdSharedMutex *p_m_vtagToDTLSMutex; 
   bdSharedMutex *p_m_map; 
   bdSharedMutex *p_m_endpointToDTLSMutex; 
-  bdDTLSAssociation *v48; 
-  __int64 v49; 
+  bdDTLSAssociation *v47; 
+  __int64 v48; 
   bdCommonAddr *m_ptr; 
-  bdCommonAddr *v51; 
+  bdCommonAddr *v50; 
   bdEndpoint oldEndpoint; 
-  bdAddr v53; 
+  bdAddr v52; 
   char buffer[24]; 
   char str[24]; 
   char buf[1024]; 
   char format[1024]; 
 
-  v49 = -2i64;
+  v48 = -2i64;
   v3 = realAddr;
   addr = (bdAddr *)realAddr;
-  _RSI = this;
   m_ptr = remote.m_ptr;
   bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onRelayConnectionSuccess", 0x689u, "onRelayConnectionSuccess");
-  v35 = NULL;
-  if ( LODWORD(_RSI->m_interceptors.m_data) != 1 )
+  v34 = NULL;
+  if ( LODWORD(this->m_interceptors.m_data) != 1 )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onRelayConnectionSuccess", 0x68Eu, "Cannot react to relay connection success event before class has been initialized");
     goto LABEL_83;
   }
   dtls.m_ptr = NULL;
-  p_m_vtagToDTLSMutex = &_RSI->m_vtagToDTLSMutex;
-  bdSharedMutex::lock(&_RSI->m_vtagToDTLSMutex);
-  if ( LODWORD(_RSI->m_vtagToDtlsMap.m_map) )
+  p_m_vtagToDTLSMutex = &this->m_vtagToDTLSMutex;
+  bdSharedMutex::lock(&this->m_vtagToDTLSMutex);
+  if ( LODWORD(this->m_vtagToDtlsMap.m_map) )
   {
-    for ( i = *(_QWORD *)(*(_QWORD *)&_RSI->m_migratingDtlsMap.m_size + 8i64 * ((HIBYTE(remote.m_ptr->__vftable) ^ (16777619 * (BYTE6(remote.m_ptr->__vftable) ^ (16777619 * (BYTE5(remote.m_ptr->__vftable) ^ (16777619 * (BYTE4(remote.m_ptr->__vftable) ^ (16777619 * (BYTE3(remote.m_ptr->__vftable) ^ (16777619 * (BYTE2(remote.m_ptr->__vftable) ^ (16777619 * ((16777619 * LOBYTE(remote.m_ptr->__vftable)) ^ BYTE1(remote.m_ptr->__vftable)))))))))))))) & (unsigned int)(HIDWORD(_RSI->m_vtagToDtlsMap.m_map) - 1))); i; i = *(_QWORD *)(i + 16) )
+    for ( i = *(_QWORD *)(*(_QWORD *)&this->m_migratingDtlsMap.m_size + 8i64 * ((HIBYTE(remote.m_ptr->__vftable) ^ (16777619 * (BYTE6(remote.m_ptr->__vftable) ^ (16777619 * (BYTE5(remote.m_ptr->__vftable) ^ (16777619 * (BYTE4(remote.m_ptr->__vftable) ^ (16777619 * (BYTE3(remote.m_ptr->__vftable) ^ (16777619 * (BYTE2(remote.m_ptr->__vftable) ^ (16777619 * ((16777619 * LOBYTE(remote.m_ptr->__vftable)) ^ BYTE1(remote.m_ptr->__vftable)))))))))))))) & (unsigned int)(HIDWORD(this->m_vtagToDtlsMap.m_map) - 1))); i; i = *(_QWORD *)(i + 16) )
     {
       if ( remote.m_ptr->__vftable == *(bdCommonAddr_vtbl **)(i + 8) )
       {
-        _InterlockedExchangeAdd((volatile signed __int32 *)&_RSI->m_migratingDtlsMap.m_threshold, 1u);
+        _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_migratingDtlsMap.m_threshold, 1u);
         if ( (bdReference<bdDTLSAssociation> *)i != &dtls )
         {
           v19 = *(bdDTLSAssociation **)i;
@@ -2749,26 +2683,26 @@ void bdSocketRouter::onRelayConnectionSuccess(bdSocketRouter *this, const bdRefe
           if ( v19 )
             _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_refCount, 1u);
         }
-        bdHandleAssert(_RSI->m_migratingDtlsMap.m_threshold != 0, "m_numIterators != 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdReference<class bdCommonAddr>,class bdReference<class bdDTLSAssociation>,class bdHashingClass>::releaseIterator", 0x18Au, "bdHashMap::releaseIterator Iterator count reached 0, can't release iterator");
-        _InterlockedExchangeAdd((volatile signed __int32 *)&_RSI->m_migratingDtlsMap.m_threshold, 0xFFFFFFFF);
+        bdHandleAssert(this->m_migratingDtlsMap.m_threshold != 0, "m_numIterators != 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdReference<class bdCommonAddr>,class bdReference<class bdDTLSAssociation>,class bdHashingClass>::releaseIterator", 0x18Au, "bdHashMap::releaseIterator Iterator count reached 0, can't release iterator");
+        _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_migratingDtlsMap.m_threshold, 0xFFFFFFFF);
         RelayID = bdRelayRoute::getRelayID(&v3->m_relayRoute);
         v21 = bdDTLSAssociation::getAddrHandle(dtls.m_ptr, &result);
-        v22 = bdAddrHandle::getRealAddr(v21->m_ptr, &v53);
+        v22 = bdAddrHandle::getRealAddr(v21->m_ptr, &v52);
         v23 = bdRelayRoute::getRelayID(&v22->m_relayRoute);
         bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onRelayConnectionSuccess", 0x69Au, "Migrating DTLS association from relay %u to relay %u.", v23, RelayID);
         if ( result.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&result.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && result.m_ptr )
           ((void (__fastcall *)(bdAddrHandle *, __int64))result.m_ptr->~bdReferencable)(result.m_ptr, 1i64);
-        v24 = (const bdEndpoint **)bdDTLSAssociation::getAddrHandle(dtls.m_ptr, &v37);
+        v24 = (const bdEndpoint **)bdDTLSAssociation::getAddrHandle(dtls.m_ptr, &v36);
         bdEndpoint::bdEndpoint(&oldEndpoint, *v24 + 1);
-        if ( v37.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v37.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+        if ( v36.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v36.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
         {
-          if ( v37.m_ptr )
-            ((void (__fastcall *)(bdAddrHandle *, __int64))v37.m_ptr->~bdReferencable)(v37.m_ptr, 1i64);
-          v37.m_ptr = NULL;
+          if ( v36.m_ptr )
+            ((void (__fastcall *)(bdAddrHandle *, __int64))v36.m_ptr->~bdReferencable)(v36.m_ptr, 1i64);
+          v36.m_ptr = NULL;
         }
         bdDTLSAssociation::migrate(dtls.m_ptr, (const bdReference<bdCommonAddr> *)remote.m_ptr, v3);
-        bdSocketRouter::updateDtls((bdSocketRouter *)((char *)_RSI - 16), &oldEndpoint, &dtls);
-        bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::remove((bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass> *)&_RSI->m_vtagToDtlsMap.m_map, (const bdReference<bdCommonAddr> *)remote.m_ptr);
+        bdSocketRouter::updateDtls((bdSocketRouter *)((char *)this - 16), &oldEndpoint, &dtls);
+        bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::remove((bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass> *)&this->m_vtagToDtlsMap.m_map, (const bdReference<bdCommonAddr> *)remote.m_ptr);
         bdSecurityID::~bdSecurityID(&oldEndpoint.m_secID);
         if ( oldEndpoint.m_ca.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&oldEndpoint.m_ca.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
         {
@@ -2789,17 +2723,17 @@ void bdSocketRouter::onRelayConnectionSuccess(bdSocketRouter *this, const bdRefe
       }
     }
   }
-  p_m_endpointToDTLSMutex = &_RSI->m_endpointToDTLSMutex;
-  bdSharedMutex::lock(&_RSI->m_endpointToDTLSMutex);
-  v32 = 0;
-  iterator = bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::getIterator((bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass> *)&_RSI->m_qosProber.m_statsPerSession.m_capacity);
+  p_m_endpointToDTLSMutex = &this->m_endpointToDTLSMutex;
+  bdSharedMutex::lock(&this->m_endpointToDTLSMutex);
+  v31 = 0;
+  iterator = bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::getIterator((bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass> *)&this->m_qosProber.m_statsPerSession.m_capacity);
   if ( !iterator )
     goto LABEL_79;
   while ( 1 )
   {
     v7 = (const bdEndpoint *)((char *)iterator + 8);
     v8 = (bdCommonAddr *)*((_QWORD *)iterator + 1);
-    v51 = v8;
+    v50 = v8;
     if ( v8 )
       _InterlockedExchangeAdd((volatile signed __int32 *)&v8->m_refCount, 1u);
     v9 = bdCommonAddr::operator==(v8, (const bdCommonAddr *)remote.m_ptr->__vftable);
@@ -2807,23 +2741,23 @@ void bdSocketRouter::onRelayConnectionSuccess(bdSocketRouter *this, const bdRefe
       ((void (__fastcall *)(bdCommonAddr *, __int64))v8->~bdReferencable)(v8, 1i64);
     if ( v9 )
     {
-      v32 = 1;
-      if ( iterator != &v35 )
+      v31 = 1;
+      if ( iterator != &v34 )
       {
-        if ( v35 && _InterlockedExchangeAdd((volatile signed __int32 *)&v35->m_refCount, 0xFFFFFFFF) == 1 )
-          ((void (__fastcall *)(bdAddrHandle *, __int64))v35->~bdReferencable)(v35, 1i64);
+        if ( v34 && _InterlockedExchangeAdd((volatile signed __int32 *)&v34->m_refCount, 0xFFFFFFFF) == 1 )
+          ((void (__fastcall *)(bdAddrHandle *, __int64))v34->~bdReferencable)(v34, 1i64);
         v10 = *(bdAddrHandle **)iterator;
-        v35 = v10;
+        v34 = v10;
         if ( v10 )
           _InterlockedExchangeAdd((volatile signed __int32 *)&v10->m_refCount, 1u);
       }
-      v11 = v35;
-      bdAddrHandle::setRealAddr(v35, v3);
+      v11 = v34;
+      bdAddrHandle::setRealAddr(v34, v3);
       p_m_endpoint = &v11->m_endpoint;
-      p_m_map = (bdSharedMutex *)&_RSI->m_endpointToAddrMap.m_map;
-      bdSharedMutex::lock((bdSharedMutex *)&_RSI->m_endpointToAddrMap.m_map);
+      p_m_map = (bdSharedMutex *)&this->m_endpointToAddrMap.m_map;
+      bdSharedMutex::lock((bdSharedMutex *)&this->m_endpointToAddrMap.m_map);
       value.m_ptr = NULL;
-      if ( bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::get((bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass> *)&_RSI->m_ECCKey.m_key.k, &v11->m_endpoint, &value) )
+      if ( bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::get((bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass> *)&this->m_ECCKey.m_key.k, &v11->m_endpoint, &value) )
       {
         bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onRelayConnectionSuccess", 0x6E1u, "Already connected.");
       }
@@ -2832,20 +2766,19 @@ void bdSocketRouter::onRelayConnectionSuccess(bdSocketRouter *this, const bdRefe
         bdAddr::toString(addr, str, 0x16ui64);
         bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onRelayConnectionSuccess", 0x6BBu, "Address lookup succeeded. Creating DTLS conn to %s.", str);
         v13 = (bdDTLSAssociation *)bdMemory::allocate(0x4B8ui64);
-        v48 = v13;
+        v47 = v13;
         if ( v13 )
         {
-          cypherSuite = *((_WORD *)&_RSI->m_status + 3);
-          __asm { vmovss  xmm0, dword ptr [rsi+2Ch] }
-          m_listener = (bdCommonAddr *)_RSI->m_config.m_listener;
+          cypherSuite = *((_WORD *)&this->m_status + 3);
+          v15 = *(float *)&this->m_interceptors.m_size;
+          m_listener = (bdCommonAddr *)this->m_config.m_listener;
           localCommonAddr.m_ptr = m_listener;
           if ( m_listener )
             _InterlockedExchangeAdd((volatile signed __int32 *)&m_listener->m_refCount, 1u);
-          addrHandle.m_ptr = v35;
-          if ( v35 )
-            _InterlockedExchangeAdd((volatile signed __int32 *)&v35->m_refCount, 1u);
-          __asm { vmovss  dword ptr [rsp+0A10h+var_9D0], xmm0 }
-          bdDTLSAssociation::bdDTLSAssociation(v13, (bdRoutingLayer *)&_RSI->m_keyStore.m_mutex, (bdSecurityKeyMap *)&_RSI->m_addrMap.m_mutex, (bdECCKey *)&_RSI->m_natTrav.m_natTravTimeout, addr, (bdReference<bdAddrHandle>)&addrHandle, (bdReference<bdCommonAddr>)&localCommonAddr, (bdAddressMap *)&_RSI->m_config.m_relayManager, v31, cypherSuite);
+          addrHandle.m_ptr = v34;
+          if ( v34 )
+            _InterlockedExchangeAdd((volatile signed __int32 *)&v34->m_refCount, 1u);
+          bdDTLSAssociation::bdDTLSAssociation(v13, (bdRoutingLayer *)&this->m_keyStore.m_mutex, (bdSecurityKeyMap *)&this->m_addrMap.m_mutex, (bdECCKey *)&this->m_natTrav.m_natTravTimeout, addr, (bdReference<bdAddrHandle>)&addrHandle, (bdReference<bdCommonAddr>)&localCommonAddr, (bdAddressMap *)&this->m_config.m_relayManager, v15, cypherSuite);
           v18 = v17;
         }
         else
@@ -2858,26 +2791,26 @@ void bdSocketRouter::onRelayConnectionSuccess(bdSocketRouter *this, const bdRefe
         if ( v18 )
           _InterlockedExchangeAdd((volatile signed __int32 *)&v18->m_refCount, 1u);
         bdDTLSAssociation::connect(v18);
-        if ( bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::put((bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass> *)&_RSI->m_ECCKey.m_key.k, v7, &value) )
+        if ( bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::put((bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass> *)&this->m_ECCKey.m_key.k, v7, &value) )
         {
-          v41.m_ptr = v18;
+          v40.m_ptr = v18;
           if ( v18 )
             _InterlockedExchangeAdd((volatile signed __int32 *)&v18->m_refCount, 1u);
-          if ( bdSocketRouter::addToVtagToDtlsMap((bdSocketRouter *)((char *)_RSI - 16), (bdReference<bdDTLSAssociation>)&v41) )
+          if ( bdSocketRouter::addToVtagToDtlsMap((bdSocketRouter *)((char *)this - 16), (bdReference<bdDTLSAssociation>)&v40) )
             goto LABEL_67;
-          bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::remove((bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass> *)&_RSI->m_ECCKey.m_key.k, v7);
+          bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::remove((bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass> *)&this->m_ECCKey.m_key.k, v7);
         }
         v25 = p_m_endpoint->m_ca.m_ptr;
-        v42.m_ptr = v25;
+        v41.m_ptr = v25;
         if ( v25 )
           _InterlockedExchangeAdd((volatile signed __int32 *)&v25->m_refCount, 1u);
-        bdCommonAddrInfo::getInfo((const bdReference<bdCommonAddr>)&v42, buf, 0x400u);
+        bdCommonAddrInfo::getInfo((const bdReference<bdCommonAddr>)&v41, buf, 0x400u);
         bdSecurityInfo::toString(&p_m_endpoint->m_secID, buffer, 0x12u);
         bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onRelayConnectionSuccess", 0x6DBu, "New DTLS with secID %s NOT added to the list.", buffer);
         bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onRelayConnectionSuccess", 0x6DCu, "Address: %s", buf);
       }
 LABEL_67:
-      bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::remove((bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass> *)&_RSI->m_qosProber.m_statsPerSession.m_capacity, &iterator);
+      bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::remove((bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass> *)&this->m_qosProber.m_statsPerSession.m_capacity, &iterator);
       if ( value.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&value.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
         ((void (__fastcall *)(bdDTLSAssociation *, __int64))value.m_ptr->~bdReferencable)(value.m_ptr, 1i64);
       bdSharedMutex::unlock(p_m_map);
@@ -2891,12 +2824,12 @@ LABEL_89:
     if ( !iterator )
       goto LABEL_78;
   }
-  Hash = bdEndpointHashingClass::getHash((bdEndpointHashingClass *)&_RSI->m_endpointToAddrMap.m_loadFactor, v7);
-  m_size = _RSI->m_qosProber.m_statsPerSession.m_size;
+  Hash = bdEndpointHashingClass::getHash((bdEndpointHashingClass *)&this->m_endpointToAddrMap.m_loadFactor, v7);
+  m_size = this->m_qosProber.m_statsPerSession.m_size;
   v28 = (Hash & (m_size - 1)) + 1;
   if ( (unsigned int)v28 < m_size )
   {
-    v29 = *(_QWORD *)&_RSI->m_endpointToAddrMap.m_size;
+    v29 = *(_QWORD *)&this->m_endpointToAddrMap.m_size;
     while ( !*(_QWORD *)(v29 + 8 * v28) )
     {
       v28 = (unsigned int)(v28 + 1);
@@ -2907,26 +2840,26 @@ LABEL_89:
     goto LABEL_89;
   }
 LABEL_77:
-  _InterlockedExchangeAdd((volatile signed __int32 *)&_RSI->m_endpointToAddrMap.m_threshold, 0xFFFFFFFF);
+  _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_endpointToAddrMap.m_threshold, 0xFFFFFFFF);
 LABEL_78:
-  if ( !v32 )
+  if ( !v31 )
   {
 LABEL_79:
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onRelayConnectionSuccess", 0x6EFu, "Address lookup failed.");
     v30 = (bdCommonAddr *)remote.m_ptr->__vftable;
-    v44.m_ptr = v30;
+    v43.m_ptr = v30;
     if ( v30 )
       _InterlockedExchangeAdd((volatile signed __int32 *)&v30->m_refCount, 1u);
-    bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v44, format, 0x400u);
+    bdCommonAddrInfo::getBriefInfo((const bdReference<bdCommonAddr>)&v43, format, 0x400u);
     bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::onRelayConnectionSuccess", 0x6F2u, format);
   }
   bdSharedMutex::unlock(p_m_endpointToDTLSMutex);
   bdSharedMutex::unlock(p_m_vtagToDTLSMutex);
 LABEL_83:
-  if ( v35 )
+  if ( v34 )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v35->m_refCount, 0xFFFFFFFF) == 1 )
-      ((void (__fastcall *)(bdAddrHandle *, __int64))v35->~bdReferencable)(v35, 1i64);
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v34->m_refCount, 0xFFFFFFFF) == 1 )
+      ((void (__fastcall *)(bdAddrHandle *, __int64))v34->~bdReferencable)(v34, 1i64);
   }
   bdReference<bdCommonAddr>::~bdReference<bdCommonAddr>((bdReference<bdCommonAddr> *)remote.m_ptr);
 }
@@ -3347,288 +3280,278 @@ __int64 bdSocketRouter::processPacket(bdSocketRouter *this, bdReference<bdAddrHa
   unsigned int v12; 
   bool v13; 
   unsigned __int16 cypherSuite; 
+  float m_DTLSAssociationReceiveTimeout; 
   bdCommonAddr *m_ptr; 
   unsigned __int16 m_cypherSuite; 
-  bdCommonAddr *v21; 
-  unsigned __int16 v22; 
-  bdCommonAddr *v24; 
-  bdDTLSAssociation *v25; 
-  unsigned __int16 v26; 
-  bdCommonAddr *v28; 
-  bdDTLSAssociation *v29; 
-  bdDTLSAssociation *v30; 
-  bdAddrHandle *v31; 
-  bdCommonAddr *v32; 
-  unsigned int v34; 
-  bdPacketInterceptor *v35; 
+  float v18; 
+  bdCommonAddr *v19; 
+  unsigned __int16 v20; 
+  float v21; 
+  bdCommonAddr *v22; 
+  bdDTLSAssociation *v23; 
+  unsigned __int16 v24; 
+  float v25; 
+  bdCommonAddr *v26; 
+  bdDTLSAssociation *v27; 
+  bdDTLSAssociation *v28; 
+  bdAddrHandle *v29; 
+  bdCommonAddr *v30; 
+  unsigned int v32; 
+  bdPacketInterceptor *v33; 
   bool (__fastcall *acceptPacket)(bdPacketInterceptor *, bdSocket *, bdAddr, void *, const unsigned int, const unsigned __int8); 
-  __int64 v37; 
+  __int64 v35; 
   int expectedCypherSuite; 
-  float v39; 
-  float v40; 
-  float v41; 
-  float v42; 
   unsigned int val; 
-  char v44; 
+  char v38; 
   bdSharedMutex *p_m_endpointToDTLSMutex; 
   unsigned int newOffset; 
-  unsigned int v47; 
-  unsigned int v48; 
-  unsigned int v49; 
-  unsigned int v50; 
-  bdReference<bdCommonAddr> v51; 
+  unsigned int v41; 
+  unsigned int v42; 
+  unsigned int v43; 
+  unsigned int v44; 
+  bdReference<bdCommonAddr> v45; 
   bdReference<bdAddrHandle> addrHandlea; 
-  bdReference<bdAddrHandle> v53; 
+  bdReference<bdAddrHandle> v47; 
   bdReference<bdAddrHandle> result; 
-  bdReference<bdAddrHandle> v55; 
-  bdReference<bdDTLSAssociation> v56; 
+  bdReference<bdAddrHandle> v49; 
+  bdReference<bdDTLSAssociation> v50; 
   bdReference<bdCommonAddr> addr; 
   bdReference<bdDTLSAssociation> value; 
-  bdDTLSAssociation *v59; 
+  bdDTLSAssociation *v53; 
   bdReference<bdCommonAddr> localCommonAddr; 
-  bdReference<bdCommonAddr> v61; 
-  bdReference<bdCommonAddr> v62; 
-  bdReference<bdAddrHandle> v63; 
-  bool *v64; 
-  __int64 v65; 
-  bdAddr v66; 
+  bdReference<bdCommonAddr> v55; 
+  bdReference<bdCommonAddr> v56; 
+  bdReference<bdAddrHandle> v57; 
+  bool *v58; 
+  __int64 v59; 
+  bdAddr v60; 
   bdSecurityID secID; 
-  bdSecurityID v68; 
-  bdSecurityID v69; 
-  bdSecurityID v70; 
-  bdSecurityID v71; 
-  bdSecurityID v72; 
-  bdDTLSError v73; 
-  bdDTLSInit v74; 
-  bdDTLSCookieAck v75; 
-  bdDTLSInitAck v76; 
-  bdDTLSCookieEcho v77; 
-  bdDTLSAssociation v78; 
-  bdDTLSAssociation v79; 
-  bdDTLSAssociation v80; 
+  bdSecurityID v62; 
+  bdSecurityID v63; 
+  bdSecurityID v64; 
+  bdSecurityID v65; 
+  bdSecurityID v66; 
+  bdDTLSError v67; 
+  bdDTLSInit v68; 
+  bdDTLSCookieAck v69; 
+  bdDTLSInitAck v70; 
+  bdDTLSCookieEcho v71; 
+  bdDTLSAssociation v72; 
+  bdDTLSAssociation v73; 
+  bdDTLSAssociation v74; 
   char buffer[24]; 
   char str[24]; 
   char buf[1024]; 
 
-  v65 = -2i64;
-  _RSI = this;
+  v59 = -2i64;
   v11 = receiving;
-  v64 = receiving;
+  v58 = receiving;
   v12 = bytesTransferred;
   val = bytesTransferred;
-  v44 = *(_BYTE *)data;
+  v38 = *(_BYTE *)data;
   v13 = 0;
-  switch ( v44 )
+  switch ( v38 )
   {
     case 1:
-      bdDTLSInit::bdDTLSInit(&v74);
+      bdDTLSInit::bdDTLSInit(&v68);
       newOffset = 0;
-      if ( bdDTLSInit::deserialize(&v74, data, v12, 0, &newOffset, _RSI->m_config.m_cypherSuite) )
+      if ( bdDTLSInit::deserialize(&v68, data, v12, 0, &newOffset, this->m_config.m_cypherSuite) )
       {
         bdSecurityID::bdSecurityID(&secID);
-        bdDTLSInit::getSecID(&v74, &secID);
-        if ( bdSocketRouter::tryToFindConnection(_RSI, data, &size, &secID, realAddr, addrHandle, (int *)&val) )
+        bdDTLSInit::getSecID(&v68, &secID);
+        if ( bdSocketRouter::tryToFindConnection(this, data, &size, &secID, realAddr, addrHandle, (int *)&val) )
         {
           v12 = val;
         }
         else
         {
-          cypherSuite = _RSI->m_config.m_cypherSuite;
-          __asm { vmovss  xmm0, dword ptr [rsi+3Ch] }
-          m_ptr = _RSI->m_localCommonAddr.m_ptr;
+          cypherSuite = this->m_config.m_cypherSuite;
+          m_DTLSAssociationReceiveTimeout = this->m_config.m_DTLSAssociationReceiveTimeout;
+          m_ptr = this->m_localCommonAddr.m_ptr;
           localCommonAddr.m_ptr = m_ptr;
           if ( m_ptr )
             _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
           addrHandlea.m_ptr = NULL;
-          __asm { vmovss  [rsp+1870h+var_1830], xmm0 }
-          bdDTLSAssociation::bdDTLSAssociation(&v78, &_RSI->m_routingLayer, &_RSI->m_keyStore, &_RSI->m_ECCKey, realAddr, (bdReference<bdAddrHandle>)&addrHandlea, (bdReference<bdCommonAddr>)&localCommonAddr, &_RSI->m_addrMap, v39, cypherSuite);
-          v12 = bdDTLSAssociation::receiveFrom(&v78, realAddr, data, val, addrHandle, data, size);
+          bdDTLSAssociation::bdDTLSAssociation(&v72, &this->m_routingLayer, &this->m_keyStore, &this->m_ECCKey, realAddr, (bdReference<bdAddrHandle>)&addrHandlea, (bdReference<bdCommonAddr>)&localCommonAddr, &this->m_addrMap, m_DTLSAssociationReceiveTimeout, cypherSuite);
+          v12 = bdDTLSAssociation::receiveFrom(&v72, realAddr, data, val, addrHandle, data, size);
           val = v12;
-          v13 = bdDTLSAssociation::getStatus(&v78) == BD_SOCKET_CONNECTED;
-          bdDTLSAssociation::~bdDTLSAssociation(&v78);
+          v13 = bdDTLSAssociation::getStatus(&v72) == BD_SOCKET_CONNECTED;
+          bdDTLSAssociation::~bdDTLSAssociation(&v72);
         }
         bdSecurityID::~bdSecurityID(&secID);
       }
-      bdDTLSInit::~bdDTLSInit(&v74);
+      bdDTLSInit::~bdDTLSInit(&v68);
       goto LABEL_26;
     case 2:
-      bdDTLSInitAck::bdDTLSInitAck(&v76);
-      v49 = 0;
-      if ( bdDTLSInitAck::deserialize(&v76, data, v12, 0, &v49, _RSI->m_config.m_cypherSuite) )
+      bdDTLSInitAck::bdDTLSInitAck(&v70);
+      v43 = 0;
+      if ( bdDTLSInitAck::deserialize(&v70, data, v12, 0, &v43, this->m_config.m_cypherSuite) )
       {
-        bdSecurityID::bdSecurityID(&v70);
-        bdDTLSInitAck::getSecID(&v76, &v70);
-        bdSocketRouter::tryDecryptPacket(_RSI, data, &size, &v70, realAddr, addrHandle, (int *)&val, 1);
-        bdSecurityID::~bdSecurityID(&v70);
+        bdSecurityID::bdSecurityID(&v64);
+        bdDTLSInitAck::getSecID(&v70, &v64);
+        bdSocketRouter::tryDecryptPacket(this, data, &size, &v64, realAddr, addrHandle, (int *)&val, 1);
+        bdSecurityID::~bdSecurityID(&v64);
         v12 = val;
       }
-      bdDTLSInitAck::~bdDTLSInitAck(&v76);
+      bdDTLSInitAck::~bdDTLSInitAck(&v70);
       return v12;
     case 3:
-      bdDTLSCookieEcho::bdDTLSCookieEcho(&v77);
-      v47 = 0;
-      if ( bdDTLSCookieEcho::deserialize(&v77, data, v12, 0, &v47, _RSI->m_config.m_cypherSuite) )
+      bdDTLSCookieEcho::bdDTLSCookieEcho(&v71);
+      v41 = 0;
+      if ( bdDTLSCookieEcho::deserialize(&v71, data, v12, 0, &v41, this->m_config.m_cypherSuite) )
       {
-        bdSecurityID::bdSecurityID(&v68);
-        _RAX = bdDTLSCookieEcho::getSecID(&v77);
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rax]
-          vmovsd  qword ptr [rbp+1770h+var_16E0.ab], xmm0
-        }
-        if ( bdSocketRouter::tryToFindConnection(_RSI, data, &size, &v68, realAddr, addrHandle, (int *)&val) )
+        bdSecurityID::bdSecurityID(&v62);
+        v62 = *(bdSecurityID *)bdDTLSCookieEcho::getSecID(&v71);
+        if ( bdSocketRouter::tryToFindConnection(this, data, &size, &v62, realAddr, addrHandle, (int *)&val) )
         {
           v12 = val;
         }
         else
         {
-          m_cypherSuite = _RSI->m_config.m_cypherSuite;
-          __asm { vmovss  xmm0, dword ptr [rsi+3Ch] }
-          v21 = _RSI->m_localCommonAddr.m_ptr;
-          v61.m_ptr = v21;
-          if ( v21 )
-            _InterlockedExchangeAdd((volatile signed __int32 *)&v21->m_refCount, 1u);
-          v55.m_ptr = NULL;
-          __asm { vmovss  [rsp+1870h+var_1830], xmm0 }
-          bdDTLSAssociation::bdDTLSAssociation(&v79, &_RSI->m_routingLayer, &_RSI->m_keyStore, &_RSI->m_ECCKey, realAddr, (bdReference<bdAddrHandle>)&v55, (bdReference<bdCommonAddr>)&v61, &_RSI->m_addrMap, v40, m_cypherSuite);
-          v12 = bdDTLSAssociation::receiveFrom(&v79, realAddr, data, val, addrHandle, data, size);
+          m_cypherSuite = this->m_config.m_cypherSuite;
+          v18 = this->m_config.m_DTLSAssociationReceiveTimeout;
+          v19 = this->m_localCommonAddr.m_ptr;
+          v55.m_ptr = v19;
+          if ( v19 )
+            _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_refCount, 1u);
+          v49.m_ptr = NULL;
+          bdDTLSAssociation::bdDTLSAssociation(&v73, &this->m_routingLayer, &this->m_keyStore, &this->m_ECCKey, realAddr, (bdReference<bdAddrHandle>)&v49, (bdReference<bdCommonAddr>)&v55, &this->m_addrMap, v18, m_cypherSuite);
+          v12 = bdDTLSAssociation::receiveFrom(&v73, realAddr, data, val, addrHandle, data, size);
           val = v12;
-          v13 = bdDTLSAssociation::getStatus(&v79) == BD_SOCKET_CONNECTED;
-          bdDTLSAssociation::~bdDTLSAssociation(&v79);
+          v13 = bdDTLSAssociation::getStatus(&v73) == BD_SOCKET_CONNECTED;
+          bdDTLSAssociation::~bdDTLSAssociation(&v73);
         }
-        bdSecurityID::~bdSecurityID(&v68);
+        bdSecurityID::~bdSecurityID(&v62);
       }
-      bdDTLSCookieEcho::~bdDTLSCookieEcho(&v77);
+      bdDTLSCookieEcho::~bdDTLSCookieEcho(&v71);
       goto LABEL_26;
     case 4:
-      bdDTLSCookieAck::bdDTLSCookieAck(&v75);
-      v50 = 0;
-      if ( bdDTLSCookieAck::deserialize(&v75, data, v12, 0, &v50) )
+      bdDTLSCookieAck::bdDTLSCookieAck(&v69);
+      v44 = 0;
+      if ( bdDTLSCookieAck::deserialize(&v69, data, v12, 0, &v44) )
       {
-        bdSecurityID::bdSecurityID(&v71);
-        bdDTLSCookieAck::getSecID(&v75, &v71);
-        bdSocketRouter::tryDecryptPacket(_RSI, data, &size, &v71, realAddr, addrHandle, (int *)&val, 1);
-        bdSecurityID::~bdSecurityID(&v71);
+        bdSecurityID::bdSecurityID(&v65);
+        bdDTLSCookieAck::getSecID(&v69, &v65);
+        bdSocketRouter::tryDecryptPacket(this, data, &size, &v65, realAddr, addrHandle, (int *)&val, 1);
+        bdSecurityID::~bdSecurityID(&v65);
         v12 = val;
       }
-      bdDTLSCookieAck::~bdDTLSCookieAck(&v75);
+      bdDTLSCookieAck::~bdDTLSCookieAck(&v69);
       return v12;
     case 5:
-      bdDTLSError::bdDTLSError(&v73);
-      v48 = 0;
-      if ( bdDTLSError::deserialize(&v73, data, v12, 0, &v48) )
+      bdDTLSError::bdDTLSError(&v67);
+      v42 = 0;
+      if ( bdDTLSError::deserialize(&v67, data, v12, 0, &v42) )
       {
-        bdSecurityID::bdSecurityID(&v69);
-        bdDTLSError::getSecID(&v73, &v69);
-        if ( bdSocketRouter::tryToFindConnection(_RSI, data, &size, &v69, realAddr, addrHandle, (int *)&val) )
+        bdSecurityID::bdSecurityID(&v63);
+        bdDTLSError::getSecID(&v67, &v63);
+        if ( bdSocketRouter::tryToFindConnection(this, data, &size, &v63, realAddr, addrHandle, (int *)&val) )
         {
           v12 = val;
         }
         else
         {
-          v22 = _RSI->m_config.m_cypherSuite;
-          __asm { vmovss  xmm0, dword ptr [rsi+3Ch] }
-          v24 = _RSI->m_localCommonAddr.m_ptr;
-          v62.m_ptr = v24;
-          if ( v24 )
-            _InterlockedExchangeAdd((volatile signed __int32 *)&v24->m_refCount, 1u);
-          v53.m_ptr = NULL;
-          __asm { vmovss  [rsp+1870h+var_1830], xmm0 }
-          bdDTLSAssociation::bdDTLSAssociation(&v80, &_RSI->m_routingLayer, &_RSI->m_keyStore, &_RSI->m_ECCKey, realAddr, (bdReference<bdAddrHandle>)&v53, (bdReference<bdCommonAddr>)&v62, &_RSI->m_addrMap, v41, v22);
-          v12 = bdDTLSAssociation::receiveFrom(&v80, realAddr, data, val, addrHandle, data, size);
+          v20 = this->m_config.m_cypherSuite;
+          v21 = this->m_config.m_DTLSAssociationReceiveTimeout;
+          v22 = this->m_localCommonAddr.m_ptr;
+          v56.m_ptr = v22;
+          if ( v22 )
+            _InterlockedExchangeAdd((volatile signed __int32 *)&v22->m_refCount, 1u);
+          v47.m_ptr = NULL;
+          bdDTLSAssociation::bdDTLSAssociation(&v74, &this->m_routingLayer, &this->m_keyStore, &this->m_ECCKey, realAddr, (bdReference<bdAddrHandle>)&v47, (bdReference<bdCommonAddr>)&v56, &this->m_addrMap, v21, v20);
+          v12 = bdDTLSAssociation::receiveFrom(&v74, realAddr, data, val, addrHandle, data, size);
           val = v12;
-          v13 = bdDTLSAssociation::getStatus(&v80) == BD_SOCKET_CONNECTED;
-          bdDTLSAssociation::~bdDTLSAssociation(&v80);
+          v13 = bdDTLSAssociation::getStatus(&v74) == BD_SOCKET_CONNECTED;
+          bdDTLSAssociation::~bdDTLSAssociation(&v74);
         }
-        bdSecurityID::~bdSecurityID(&v69);
+        bdSecurityID::~bdSecurityID(&v63);
       }
-      bdDTLSError::~bdDTLSError(&v73);
+      bdDTLSError::~bdDTLSError(&v67);
 LABEL_26:
       if ( !v13 )
         return v12;
-      v25 = (bdDTLSAssociation *)bdMemory::allocate(0x4B8ui64);
-      v59 = v25;
-      if ( v25 )
+      v23 = (bdDTLSAssociation *)bdMemory::allocate(0x4B8ui64);
+      v53 = v23;
+      if ( v23 )
       {
-        v26 = _RSI->m_config.m_cypherSuite;
-        __asm { vmovss  xmm0, dword ptr [rsi+3Ch] }
-        v28 = _RSI->m_localCommonAddr.m_ptr;
-        v51.m_ptr = v28;
-        if ( v28 )
+        v24 = this->m_config.m_cypherSuite;
+        v25 = this->m_config.m_DTLSAssociationReceiveTimeout;
+        v26 = this->m_localCommonAddr.m_ptr;
+        v45.m_ptr = v26;
+        if ( v26 )
         {
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v28->m_refCount, 1u);
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v26->m_refCount, 1u);
           v12 = val;
         }
-        v63.m_ptr = NULL;
-        __asm { vmovss  [rsp+1870h+var_1830], xmm0 }
-        bdDTLSAssociation::bdDTLSAssociation(v25, &_RSI->m_routingLayer, &_RSI->m_keyStore, &_RSI->m_ECCKey, realAddr, (bdReference<bdAddrHandle>)&v63, (bdReference<bdCommonAddr>)&v51, &_RSI->m_addrMap, v42, v26);
-        v30 = v29;
+        v57.m_ptr = NULL;
+        bdDTLSAssociation::bdDTLSAssociation(v23, &this->m_routingLayer, &this->m_keyStore, &this->m_ECCKey, realAddr, (bdReference<bdAddrHandle>)&v57, (bdReference<bdCommonAddr>)&v45, &this->m_addrMap, v25, v24);
+        v28 = v27;
       }
       else
       {
-        v30 = NULL;
+        v28 = NULL;
       }
-      value.m_ptr = v30;
-      if ( v30 )
+      value.m_ptr = v28;
+      if ( v28 )
       {
-        _InterlockedExchangeAdd((volatile signed __int32 *)&v30->m_refCount, 1u);
+        _InterlockedExchangeAdd((volatile signed __int32 *)&v28->m_refCount, 1u);
         v12 = val;
       }
-      val = v30->receiveFrom(v30, realAddr, data, v12, addrHandle, data, size);
+      val = v28->receiveFrom(v28, realAddr, data, v12, addrHandle, data, size);
       bdAddr::toString(realAddr, str, 0x16ui64);
       bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::processPacket", 0x52Du, "New incoming DTLS connection from %s.", str);
-      p_m_endpointToDTLSMutex = &_RSI->m_endpointToDTLSMutex;
-      bdSharedMutex::lock(&_RSI->m_endpointToDTLSMutex);
-      v31 = bdDTLSAssociation::getAddrHandle(v30, &result)->m_ptr;
+      p_m_endpointToDTLSMutex = &this->m_endpointToDTLSMutex;
+      bdSharedMutex::lock(&this->m_endpointToDTLSMutex);
+      v29 = bdDTLSAssociation::getAddrHandle(v28, &result)->m_ptr;
       if ( result.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&result.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
       {
         if ( result.m_ptr )
           ((void (__fastcall *)(bdAddrHandle *, __int64))result.m_ptr->~bdReferencable)(result.m_ptr, 1i64);
         result.m_ptr = NULL;
       }
-      if ( !bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::put(&_RSI->m_endpointToDtlsMap, &v31->m_endpoint, &value) )
+      if ( !bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::put(&this->m_endpointToDtlsMap, &v29->m_endpoint, &value) )
         goto LABEL_42;
-      v56.m_ptr = v30;
-      _InterlockedExchangeAdd((volatile signed __int32 *)&v30->m_refCount, 1u);
-      if ( !bdSocketRouter::addToVtagToDtlsMap(_RSI, (bdReference<bdDTLSAssociation>)&v56) )
+      v50.m_ptr = v28;
+      _InterlockedExchangeAdd((volatile signed __int32 *)&v28->m_refCount, 1u);
+      if ( !bdSocketRouter::addToVtagToDtlsMap(this, (bdReference<bdDTLSAssociation>)&v50) )
       {
-        bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::remove(&_RSI->m_endpointToDtlsMap, &v31->m_endpoint);
+        bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::remove(&this->m_endpointToDtlsMap, &v29->m_endpoint);
 LABEL_42:
-        v32 = v31->m_endpoint.m_ca.m_ptr;
-        addr.m_ptr = v32;
-        if ( v32 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v32->m_refCount, 1u);
+        v30 = v29->m_endpoint.m_ca.m_ptr;
+        addr.m_ptr = v30;
+        if ( v30 )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v30->m_refCount, 1u);
         bdCommonAddrInfo::getInfo((const bdReference<bdCommonAddr>)&addr, buf, 0x400u);
-        bdSecurityInfo::toString(&v31->m_endpoint.m_secID, buffer, 0x12u);
+        bdSecurityInfo::toString(&v29->m_endpoint.m_secID, buffer, 0x12u);
         bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::processPacket", 0x545u, "New DTLS with secID %s NOT added to the list.", buffer);
         bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::processPacket", 0x546u, "addrString %s", buf);
       }
       if ( (val & 0x80000000) == 0 )
-        *v64 = 0;
+        *v58 = 0;
       bdSharedMutex::unlock(p_m_endpointToDTLSMutex);
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v30->m_refCount, 0xFFFFFFFF) != 1 )
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v28->m_refCount, 0xFFFFFFFF) != 1 )
         return val;
-      ((void (__fastcall *)(bdDTLSAssociation *, __int64))v30->~bdReferencable)(v30, 1i64);
+      ((void (__fastcall *)(bdDTLSAssociation *, __int64))v28->~bdReferencable)(v28, 1i64);
       return val;
     case 6:
-      bdSecurityID::bdSecurityID(&v72);
-      *v11 = !bdSocketRouter::tryDecryptPacket(_RSI, data, &size, &v72, realAddr, addrHandle, (int *)&val, 0);
-      bdSecurityID::~bdSecurityID(&v72);
+      bdSecurityID::bdSecurityID(&v66);
+      *v11 = !bdSocketRouter::tryDecryptPacket(this, data, &size, &v66, realAddr, addrHandle, (int *)&val, 0);
+      bdSecurityID::~bdSecurityID(&v66);
       return val;
     default:
-      v34 = 0;
+      v32 = 0;
       do
       {
-        if ( v34 >= _RSI->m_interceptors.m_size )
+        if ( v32 >= this->m_interceptors.m_size )
           break;
-        bdHandleAssert(v34 < _RSI->m_interceptors.m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdfastarray.inl", "bdFastArray<class bdPacketInterceptor *>::operator []", 0x50u, "bdFastArray<T>::operator[], rangecheck failed");
-        v35 = _RSI->m_interceptors.m_data[v34];
-        acceptPacket = v35->acceptPacket;
-        bdAddr::bdAddr(&v66, realAddr);
-        LOBYTE(expectedCypherSuite) = v44;
-        ++v34;
+        bdHandleAssert(v32 < this->m_interceptors.m_size, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdfastarray.inl", "bdFastArray<class bdPacketInterceptor *>::operator []", 0x50u, "bdFastArray<T>::operator[], rangecheck failed");
+        v33 = this->m_interceptors.m_data[v32];
+        acceptPacket = v33->acceptPacket;
+        bdAddr::bdAddr(&v60, realAddr);
+        LOBYTE(expectedCypherSuite) = v38;
+        ++v32;
       }
-      while ( !((unsigned __int8 (__fastcall *)(bdPacketInterceptor *, bdSocket *, __int64, void *, unsigned int, int))acceptPacket)(v35, _RSI->m_socket, v37, data, v12, expectedCypherSuite) );
+      while ( !((unsigned __int8 (__fastcall *)(bdPacketInterceptor *, bdSocket *, __int64, void *, unsigned int, int))acceptPacket)(v33, this->m_socket, v35, data, v12, expectedCypherSuite) );
       return v12;
   }
 }
@@ -4043,18 +3966,17 @@ bdSocketRouter::registerInterceptor
 void bdSocketRouter::registerInterceptor(bdSocketRouter *this, bdPacketInterceptor *const interceptor)
 {
   unsigned int m_size; 
+  bdPacketInterceptor **m_data; 
   int v5; 
   unsigned int m_capacity; 
   unsigned int v7; 
   unsigned int v8; 
   unsigned int v9; 
-  bdPacketInterceptor *v12; 
 
-  v12 = interceptor;
   if ( this->m_status == BD_SOCKET_ROUTER_INITIALIZED )
   {
     m_size = this->m_interceptors.m_size;
-    _RDI = NULL;
+    m_data = NULL;
     v5 = 0;
     if ( m_size )
     {
@@ -4075,26 +3997,20 @@ LABEL_7:
       v8 = m_capacity + v7;
       if ( m_capacity + v7 )
       {
-        _RDI = (bdPacketInterceptor **)bdMemory::allocate(8i64 * v8);
+        m_data = (bdPacketInterceptor **)bdMemory::allocate(8i64 * v8);
         v9 = this->m_interceptors.m_size;
         if ( v9 )
-          memcpy_0(_RDI, this->m_interceptors.m_data, 8i64 * v9);
+          memcpy_0(m_data, this->m_interceptors.m_data, 8i64 * v9);
       }
       bdMemory::deallocate(this->m_interceptors.m_data);
-      this->m_interceptors.m_data = _RDI;
+      this->m_interceptors.m_data = m_data;
       this->m_interceptors.m_capacity = v8;
     }
     else
     {
-      _RDI = this->m_interceptors.m_data;
+      m_data = this->m_interceptors.m_data;
     }
-    _RAX = this->m_interceptors.m_size;
-    __asm
-    {
-      vmovsd  xmm0, [rsp+48h+arg_8]
-      vmovsd  qword ptr [rdi+rax*8], xmm0
-    }
-    ++this->m_interceptors.m_size;
+    m_data[this->m_interceptors.m_size++] = interceptor;
   }
   else
   {
@@ -4193,22 +4109,24 @@ __int64 bdSocketRouter::sendPreparedData(bdSocketRouter *this, bdSocketRouterDat
 {
   unsigned int v8; 
   __int64 v9; 
-  bdMsgHdr *p_msgVec; 
+  bdMsgHdr *v10; 
   __int64 v11; 
+  __int128 v12; 
+  double v13; 
+  __int64 v14; 
   int v15; 
   unsigned int v16; 
   unsigned int numSent[4]; 
-  bdMsgHdr msgVec; 
+  bdMsgHdr msgVec[128]; 
 
-  _RDI = preparedData;
   v8 = 128;
   bdHandleAssert(preparedDataLength <= 0x80, "(preparedDataLength <= BD_SOCKETROUTER_SEND_PREPARED_DATA_MAX)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::sendPreparedData", 0x42Du, "sendPreparedData(): Too many packets to send [%u]", preparedDataLength);
   v9 = 0i64;
-  p_msgVec = &msgVec;
+  v10 = msgVec;
   v11 = 128i64;
   do
   {
-    bdMsgHdr::`default constructor closure'(p_msgVec++);
+    bdMsgHdr::`default constructor closure'(v10++);
     --v11;
   }
   while ( v11 );
@@ -4218,24 +4136,18 @@ __int64 bdSocketRouter::sendPreparedData(bdSocketRouter *this, bdSocketRouterDat
   {
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovsd  xmm1, qword ptr [rdi+10h]
-      }
-      _RCX = 3 * v9;
+      v12 = *(_OWORD *)&preparedData->m_msgHdr.m_addr;
+      v13 = *(double *)&preparedData->m_msgHdr.m_dataLen;
+      v14 = v9;
       v9 = (unsigned int)(v9 + 1);
-      ++_RDI;
-      __asm
-      {
-        vmovups xmmword ptr [rsp+rcx*8+0C98h+msgVec.m_addr], xmm0
-        vmovsd  qword ptr [rsp+rcx*8+0C98h+msgVec.m_dataLen], xmm1
-      }
+      ++preparedData;
+      *(_OWORD *)&msgVec[v14].m_addr = v12;
+      *(double *)&msgVec[v14].m_dataLen = v13;
     }
     while ( (unsigned int)v9 < v8 );
   }
   numSent[0] = 0;
-  v15 = bdRoutingLayer::sendMMsgRaw(&this->m_routingLayer, &msgVec, v9, numSent);
+  v15 = bdRoutingLayer::sendMMsgRaw(&this->m_routingLayer, msgVec, v9, numSent);
   if ( v15 < 0 || (v16 = numSent[0], numSent[0] < preparedDataLength) )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdSocket/bdSocketRouter", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsocketrouter.cpp", "bdSocketRouter::sendPreparedData", 0x442u, "sendPreparedData(): Not all packets sent");

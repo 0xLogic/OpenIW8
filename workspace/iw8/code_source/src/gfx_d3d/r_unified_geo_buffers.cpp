@@ -800,89 +800,91 @@ UGBWCRing::Allocate
 __int64 UGBWCRing::Allocate(UGBWCRing *this, ComputeCmdBufState *state, unsigned int byteSize)
 {
   unsigned int nextCPUWritePos; 
-  unsigned int v9; 
-  unsigned int v10; 
+  unsigned int v7; 
+  unsigned int v8; 
+  __int64 bufSize; 
+  __int64 pendingSize; 
+  float v11; 
+  float v12; 
   unsigned __int64 computeFenceCounter; 
+  float v14; 
   ComputeContextType computeContextType; 
-  ComputeContextType v18; 
+  ComputeContextType v16; 
   GfxDevice *device; 
-  unsigned __int64 v20; 
+  unsigned __int64 v18; 
   volatile unsigned __int64 *computeFenceAddr; 
-  bool v22; 
-  int v23; 
+  bool v20; 
+  int v21; 
   __int64 result; 
 
   if ( byteSize >= this->bufSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_unified_geo_buffers.cpp", 893, ASSERT_TYPE_ASSERT, "(byteSize < bufSize)", (const char *)&queryFormat, "byteSize < bufSize") )
     __debugbreak();
   nextCPUWritePos = this->nextCPUWritePos;
-  v9 = (byteSize + 63) & 0xFFFFFFC0;
-  v10 = this->nextCPUWritePos + v9;
+  v7 = (byteSize + 63) & 0xFFFFFFC0;
+  v8 = this->nextCPUWritePos + v7;
   if ( (this->nextCPUWritePos & 0x3F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_unified_geo_buffers.cpp", 900, ASSERT_TYPE_ASSERT, "(IsAligned( allocOffset, 64 ))", (const char *)&queryFormat, "IsAligned( allocOffset, UGB_WC_RING_ALIGNMENT )") )
     __debugbreak();
-  if ( (v10 & 0x3F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_unified_geo_buffers.cpp", 901, ASSERT_TYPE_ASSERT, "(IsAligned( allocEnd, 64 ))", (const char *)&queryFormat, "IsAligned( allocEnd, UGB_WC_RING_ALIGNMENT )") )
+  if ( (v8 & 0x3F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_unified_geo_buffers.cpp", 901, ASSERT_TYPE_ASSERT, "(IsAligned( allocEnd, 64 ))", (const char *)&queryFormat, "IsAligned( allocEnd, UGB_WC_RING_ALIGNMENT )") )
     __debugbreak();
-  if ( v10 <= this->bufSize )
+  bufSize = this->bufSize;
+  if ( v8 <= (unsigned int)bufSize )
   {
-    this->pendingSize += v9;
+    this->pendingSize += v7;
+    pendingSize = this->pendingSize;
   }
   else
   {
     nextCPUWritePos = 0;
+    pendingSize = 0xFFFFFFFFi64;
     this->pendingSize = -1;
-    v10 = v9;
+    v8 = v7;
     this->nextCPUWritePos = 0;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, cs:__real@3e800000
-    vxorps  xmm2, xmm2, xmm2
-  }
+  v11 = (float)bufSize;
+  v12 = v11 * 0.25;
   computeFenceCounter = 0i64;
-  __asm
+  v14 = (float)pendingSize;
+  if ( v14 >= v12 )
   {
-    vcvtsi2ss xmm2, xmm2, rax
-    vcomiss xmm2, xmm1
-  }
-  computeContextType = state->computeContextType;
-  if ( computeContextType != COMPUTE_CONTEXT_TYPE_GFX && computeContextType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_unified_geo_buffers.cpp", 765, ASSERT_TYPE_ASSERT, "(state->computeContextType == COMPUTE_CONTEXT_TYPE_GFX || state->computeContextType == COMPUTE_CONTEXT_TYPE_ASYNC_FRONTEND)", (const char *)&queryFormat, "state->computeContextType == COMPUTE_CONTEXT_TYPE_GFX || state->computeContextType == COMPUTE_CONTEXT_TYPE_ASYNC_FRONTEND") )
-    __debugbreak();
-  v18 = state->computeContextType;
-  if ( v18 == COMPUTE_CONTEXT_TYPE_GFX )
-  {
-    computeFenceCounter = R_FlushImmediateContext();
-    if ( state->device == g_dx.immediateContext && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_unified_geo_buffers.cpp", 771, ASSERT_TYPE_ASSERT, "(state->device != g_dx.immediateContext)", (const char *)&queryFormat, "state->device != g_dx.immediateContext") )
+    computeContextType = state->computeContextType;
+    if ( computeContextType != COMPUTE_CONTEXT_TYPE_GFX && computeContextType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_unified_geo_buffers.cpp", 765, ASSERT_TYPE_ASSERT, "(state->computeContextType == COMPUTE_CONTEXT_TYPE_GFX || state->computeContextType == COMPUTE_CONTEXT_TYPE_ASYNC_FRONTEND)", (const char *)&queryFormat, "state->computeContextType == COMPUTE_CONTEXT_TYPE_GFX || state->computeContextType == COMPUTE_CONTEXT_TYPE_ASYNC_FRONTEND") )
       __debugbreak();
-    state->device = g_dx.immediateContext;
+    v16 = state->computeContextType;
+    if ( v16 == COMPUTE_CONTEXT_TYPE_GFX )
+    {
+      computeFenceCounter = R_FlushImmediateContext();
+      if ( state->device == g_dx.immediateContext && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_unified_geo_buffers.cpp", 771, ASSERT_TYPE_ASSERT, "(state->device != g_dx.immediateContext)", (const char *)&queryFormat, "state->device != g_dx.immediateContext") )
+        __debugbreak();
+      state->device = g_dx.immediateContext;
+    }
+    else if ( v16 == COMPUTE_CONTEXT_TYPE_ASYNC_FRONTEND )
+    {
+      device = state->device;
+      v18 = this->computeFenceCounter + 1;
+      computeFenceAddr = this->computeFenceAddr;
+      this->computeFenceCounter = v18;
+      ((void (__fastcall *)(GfxDevice *, volatile unsigned __int64 *, unsigned __int64, _QWORD, _DWORD))device->m_pFunction[23].AddRef)(device, computeFenceAddr, v18, 0i64, 0);
+      R_FlushCompute(state);
+      computeFenceCounter = this->computeFenceCounter;
+    }
+    if ( this->pendingSize )
+    {
+      v20 = this->nextCPUWritePos == 0;
+      this->pendingSize = 0;
+      if ( v20 )
+        ++this->cpuWriteLoopCount;
+      this->pos[this->cpuWritePosIndex].fence = computeFenceCounter;
+      this->pos[this->cpuWritePosIndex].bufferPos = this->nextCPUWritePos;
+      v21 = ((unsigned __int8)this->cpuWritePosIndex + 1) & 0x7F;
+      if ( v21 == this->gpuReadPosIndex )
+        UGBWCRing::WaitFence(this, state);
+      this->cpuWritePosIndex = v21;
+    }
   }
-  else if ( v18 == COMPUTE_CONTEXT_TYPE_ASYNC_FRONTEND )
-  {
-    device = state->device;
-    v20 = this->computeFenceCounter + 1;
-    computeFenceAddr = this->computeFenceAddr;
-    this->computeFenceCounter = v20;
-    ((void (__fastcall *)(GfxDevice *, volatile unsigned __int64 *, unsigned __int64, _QWORD, _DWORD))device->m_pFunction[23].AddRef)(device, computeFenceAddr, v20, 0i64, 0);
-    R_FlushCompute(state);
-    computeFenceCounter = this->computeFenceCounter;
-  }
-  if ( this->pendingSize )
-  {
-    v22 = this->nextCPUWritePos == 0;
-    this->pendingSize = 0;
-    if ( v22 )
-      ++this->cpuWriteLoopCount;
-    this->pos[this->cpuWritePosIndex].fence = computeFenceCounter;
-    this->pos[this->cpuWritePosIndex].bufferPos = this->nextCPUWritePos;
-    v23 = ((unsigned __int8)this->cpuWritePosIndex + 1) & 0x7F;
-    if ( v23 == this->gpuReadPosIndex )
-      UGBWCRing::WaitFence(this, state);
-    this->cpuWritePosIndex = v23;
-  }
-  while ( !UGBWCRing::IsAllocMemValidForCPUWrite(this, v10) )
+  while ( !UGBWCRing::IsAllocMemValidForCPUWrite(this, v8) )
     UGBWCRing::WaitFence(this, state);
   result = nextCPUWritePos;
-  this->nextCPUWritePos = v10;
+  this->nextCPUWritePos = v8;
   return result;
 }
 
@@ -1911,14 +1913,10 @@ void RB_UGB_UploadPages(GfxCmdBufContext *gfxContext, const GfxBackEndData *data
 {
   ComputeCmdBufState state; 
 
-  _RBX = gfxContext;
   Sys_ProfBeginNamedEvent(0xFFFFA500, "RB_UGB_UploadPages");
   R_LockGfxImmediateContext();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vpextrq rdx, xmm0, 1; refGfxState
-  }
+  _XMM0 = *gfxContext;
+  __asm { vpextrq rdx, xmm0, 1; refGfxState }
   R_InitGfxComputeCmdBufState(&state, _RDX);
   R_UGB_UploadPagesCompute(&state, data);
   R_ShutdownGfxComputeCmdBufState(&state);
@@ -1969,17 +1967,21 @@ void RB_UIB_UploadPageArg(unsigned int smpFrame, const UGBPageArgs *pageArg, uns
   unsigned __int8 *v14; 
   unsigned __int8 *data; 
   unsigned __int8 *v16; 
+  __int64 v17; 
   unsigned int sharedTriClusterDataOffset; 
   unsigned __int8 *v19; 
-  __int64 v25; 
-  __int64 v26; 
-  signed int v27; 
+  unsigned __int8 *v20; 
+  UIBPageArgsGPU *pageArgsGPU; 
+  double v22; 
+  __int64 v23; 
+  __int64 v24; 
+  signed int v25; 
 
   v3 = smpFrame;
   xsurfUGBID = pageArg->xsurfUGBID;
   v7 = &s_uibBuf.backend[v3].surfInfo[xsurfUGBID];
   v8 = pageArg->virtPageID - v7->vpageStart;
-  v27 = v8;
+  v25 = v8;
   v9 = s_ugbBackendGlob[v3].xsurfaces[xsurfUGBID];
   if ( (v8 < 0 || v8 >= v7->vpageCount) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_unified_geo_buffers.cpp", 1991, ASSERT_TYPE_ASSERT, "(localPageIndex >= 0 && localPageIndex < surfInfo.vpageCount)", (const char *)&queryFormat, "localPageIndex >= 0 && localPageIndex < surfInfo.vpageCount") )
     __debugbreak();
@@ -2000,8 +2002,8 @@ void RB_UIB_UploadPageArg(unsigned int smpFrame, const UGBPageArgs *pageArg, uns
   v14 = &s_uibBuf.stagingBufferGPU[384 * passArgIndex];
   if ( sharedIndexDataOffset >= shared->dataSize )
   {
-    LODWORD(v25) = v9->sharedIndexDataOffset;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_xsurface.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( surface->sharedIndexDataOffset ) < (unsigned)( surface->shared->dataSize )", "surface->sharedIndexDataOffset doesn't index surface->shared->dataSize\n\t%i not in [0, %i)", v25, shared->dataSize) )
+    LODWORD(v23) = v9->sharedIndexDataOffset;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_xsurface.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( surface->sharedIndexDataOffset ) < (unsigned)( surface->shared->dataSize )", "surface->sharedIndexDataOffset doesn't index surface->shared->dataSize\n\t%i not in [0, %i)", v23, shared->dataSize) )
       __debugbreak();
   }
   if ( (shared->flags & 1) != 0 )
@@ -2017,15 +2019,15 @@ void RB_UIB_UploadPageArg(unsigned int smpFrame, const UGBPageArgs *pageArg, uns
   memcpy_0(v14, &v16[6 * v10], 6 * v11);
   if ( v11 < 64 )
     memset_0(&v14[6 * v11], 0, 6 * (64 - v11));
-  _RSI = passArgIndex;
-  s_uibBuf.pageArgsGPU[_RSI].physPageID = pageArg->physPageID;
-  s_uibBuf.pageArgsGPU[_RSI].virtPageID = pageArg->virtPageID;
+  v17 = passArgIndex;
+  s_uibBuf.pageArgsGPU[v17].physPageID = pageArg->physPageID;
+  s_uibBuf.pageArgsGPU[v17].virtPageID = pageArg->virtPageID;
   sharedTriClusterDataOffset = v9->sharedTriClusterDataOffset;
   if ( sharedTriClusterDataOffset >= shared->dataSize )
   {
-    LODWORD(v26) = shared->dataSize;
-    LODWORD(v25) = v9->sharedTriClusterDataOffset;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_xsurface.h", 168, ASSERT_TYPE_ASSERT, "(unsigned)( surface->sharedTriClusterDataOffset ) < (unsigned)( surface->shared->dataSize )", "surface->sharedTriClusterDataOffset doesn't index surface->shared->dataSize\n\t%i not in [0, %i)", v25, v26) )
+    LODWORD(v24) = shared->dataSize;
+    LODWORD(v23) = v9->sharedTriClusterDataOffset;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_xsurface.h", 168, ASSERT_TYPE_ASSERT, "(unsigned)( surface->sharedTriClusterDataOffset ) < (unsigned)( surface->shared->dataSize )", "surface->sharedTriClusterDataOffset doesn't index surface->shared->dataSize\n\t%i not in [0, %i)", v23, v24) )
     {
       __debugbreak();
       shared = v9->shared;
@@ -2035,16 +2037,11 @@ void RB_UIB_UploadPageArg(unsigned int smpFrame, const UGBPageArgs *pageArg, uns
     v19 = Stream_AddressSpace_ResolveHandle(&shared->data.streamedDataHandle);
   else
     v19 = (unsigned __int8 *)shared->data.streamedDataHandle.data;
-  _RDX = 3i64 * v27;
-  _RCX = &v19[sharedTriClusterDataOffset];
-  _RAX = s_uibBuf.pageArgsGPU;
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rcx+rdx*8]
-    vmovsd  xmm0, qword ptr [rcx+rdx*8+10h]
-    vmovups xmmword ptr [rsi+rax+8], xmm1
-    vmovsd  qword ptr [rsi+rax+18h], xmm0
-  }
+  v20 = &v19[sharedTriClusterDataOffset];
+  pageArgsGPU = s_uibBuf.pageArgsGPU;
+  v22 = *(double *)&v20[24 * v25 + 16];
+  *(_OWORD *)s_uibBuf.pageArgsGPU[v17].triCluster.bounds.packed = *(_OWORD *)&v20[24 * v25];
+  *(double *)&pageArgsGPU[v17].triCluster.t = v22;
 }
 
 /*
@@ -2846,9 +2843,9 @@ R_UGB_GetPhysicalMemoryUsageRatio
 */
 float R_UGB_GetPhysicalMemoryUsageRatio()
 {
+  _XMM0 = LODWORD(s_uobBuf.usageRatio);
   __asm
   {
-    vmovss  xmm0, cs:?s_uobBuf@@3U?$UGBVirtualBuffer@$0EA@$0EAAA@$0KAAAA@$0CAA@$0BA@UUGBPageArgsGPU@@UUGBPageData@@@@A.usageRatio; UGBVirtualBuffer<64,16384,655360,512,16,UGBPageArgsGPU,UGBPageData> s_uobBuf
     vmaxss  xmm1, xmm0, cs:?s_uvbBuf@@3U?$UGBVirtualBuffer@$0EA@$0MPAA@$0BEAAAA@$0CAA@$0BE@UUGBPageArgsGPU@@UUGBPageData@@@@A.usageRatio; UGBVirtualBuffer<64,52992,1310720,512,20,UGBPageArgsGPU,UGBPageData> s_uvbBuf
     vmaxss  xmm0, xmm1, cs:?s_uibBuf@@3U?$UGBVirtualBuffer@$0EA@$0MAAA@$0BCIAAA@$0IAA@$05UUIBPageArgsGPU@@UUIBPageData@@@@A.usageRatio; UGBVirtualBuffer<64,49152,1212416,2048,6,UIBPageArgsGPU,UIBPageData> s_uibBuf
   }
@@ -3221,56 +3218,50 @@ R_UGB_MakeXSurfsResident
 */
 void R_UGB_MakeXSurfsResident(const GfxBackEndData *data)
 {
+  __int64 v1; 
+  unsigned int *i; 
   unsigned int *xsurfResidentBits; 
-  __int64 v7; 
-  __int64 v8; 
-  int v9; 
+  __int64 v4; 
+  __int64 v5; 
+  int v6; 
   unsigned int *xsurfDeltaResidencyBits; 
   int xsurfCount; 
   int dataa; 
-  const GfxBackEndData *v13; 
+  const GfxBackEndData *v10; 
 
-  _R9 = &s_ugbGlob;
-  v13 = data;
-  for ( _R8 = 0i64; (unsigned int)_R8 < s_ugbGlob.xsurfDWordCount; _R8 = (unsigned int)(_R8 + 4) )
-  {
-    _RAX = s_ugbGlob.xsurfResidentBits;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax+r8*4]
-      vxorps  xmm0, xmm0, xmmword ptr [rdx+r8*4]
-      vmovups xmmword ptr [r9+r8*4+4000h], xmm0
-    }
-  }
+  v10 = data;
+  v1 = 0i64;
+  for ( i = s_ugbGlob.xsurfHistoryResidentBits[s_ugbGlob.historyIndex ^ 1i64]; (unsigned int)v1 < s_ugbGlob.xsurfDWordCount; v1 = (unsigned int)(v1 + 4) )
+    *(_OWORD *)&s_ugbGlob.xsurfDeltaResidencyBits[v1] = *(_OWORD *)&s_ugbGlob.xsurfResidentBits[v1] ^ *(_OWORD *)&i[v1];
   if ( rg.stats && r_gpShowStats->current.integer )
   {
     xsurfResidentBits = s_ugbGlob.xsurfResidentBits;
-    v7 = 2048i64;
-    v8 = 2048i64;
-    v9 = 0;
+    v4 = 2048i64;
+    v5 = 2048i64;
+    v6 = 0;
     do
     {
-      v9 += __popcnt(*xsurfResidentBits++);
-      --v8;
+      v6 += __popcnt(*xsurfResidentBits++);
+      --v5;
     }
-    while ( v8 );
+    while ( v5 );
     xsurfDeltaResidencyBits = s_ugbGlob.xsurfDeltaResidencyBits;
     do
     {
-      LODWORD(v8) = __popcnt(*xsurfDeltaResidencyBits++) + v8;
-      --v7;
+      LODWORD(v5) = __popcnt(*xsurfDeltaResidencyBits++) + v5;
+      --v4;
     }
-    while ( v7 );
+    while ( v4 );
     xsurfCount = s_ugbGlob.xsurfCount;
-    rg.stats->ugbXSurfResidentCount = v9;
-    rg.stats->ugbXSurfDeltaResidencyCount = v8;
+    rg.stats->ugbXSurfResidentCount = v6;
+    rg.stats->ugbXSurfDeltaResidencyCount = v5;
     rg.stats->ugbXSurfCount = xsurfCount;
   }
   dataa = 0;
   Sys_AddWorkerCmd(WRKCMD_UVB_MAKE_XSURFS_RESIDENT, &dataa);
   Sys_AddWorkerCmd(WRKCMD_UIB_MAKE_XSURFS_RESIDENT, &dataa);
   Sys_AddWorkerCmd(WRKCMD_UOB_MAKE_XSURFS_RESIDENT, &dataa);
-  Sys_AddWorkerCmd(WRKCMD_INIT_UGB_BACKEND, &v13);
+  Sys_AddWorkerCmd(WRKCMD_INIT_UGB_BACKEND, &v10);
 }
 
 /*
@@ -3280,49 +3271,43 @@ R_UGB_MakeXSurfsResident_Dispatch
 */
 void R_UGB_MakeXSurfsResident_Dispatch(const void *const cmd)
 {
+  __int64 v1; 
+  unsigned int *v2; 
   unsigned int *xsurfResidentBits; 
-  __int64 v7; 
-  __int64 v8; 
-  int v9; 
+  __int64 v4; 
+  __int64 v5; 
+  int v6; 
   unsigned int *xsurfDeltaResidencyBits; 
   int xsurfCount; 
   int data; 
   __int64 i; 
 
-  _R9 = &s_ugbGlob;
-  _RDX = 0i64;
-  for ( i = *(_QWORD *)cmd; (unsigned int)_RDX < s_ugbGlob.xsurfDWordCount; _RDX = (unsigned int)(_RDX + 4) )
-  {
-    _RAX = s_ugbGlob.xsurfResidentBits;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax+rdx*4]
-      vxorps  xmm0, xmm0, xmmword ptr [r8+rdx*4]
-      vmovups xmmword ptr [r9+rdx*4+4000h], xmm0
-    }
-  }
+  v1 = 0i64;
+  v2 = s_ugbGlob.xsurfHistoryResidentBits[s_ugbGlob.historyIndex ^ 1i64];
+  for ( i = *(_QWORD *)cmd; (unsigned int)v1 < s_ugbGlob.xsurfDWordCount; v1 = (unsigned int)(v1 + 4) )
+    *(_OWORD *)&s_ugbGlob.xsurfDeltaResidencyBits[v1] = *(_OWORD *)&s_ugbGlob.xsurfResidentBits[v1] ^ *(_OWORD *)&v2[v1];
   if ( rg.stats && r_gpShowStats->current.integer )
   {
     xsurfResidentBits = s_ugbGlob.xsurfResidentBits;
-    v7 = 2048i64;
-    v8 = 2048i64;
-    v9 = 0;
+    v4 = 2048i64;
+    v5 = 2048i64;
+    v6 = 0;
     do
     {
-      v9 += __popcnt(*xsurfResidentBits++);
-      --v8;
+      v6 += __popcnt(*xsurfResidentBits++);
+      --v5;
     }
-    while ( v8 );
+    while ( v5 );
     xsurfDeltaResidencyBits = s_ugbGlob.xsurfDeltaResidencyBits;
     do
     {
-      LODWORD(v8) = __popcnt(*xsurfDeltaResidencyBits++) + v8;
-      --v7;
+      LODWORD(v5) = __popcnt(*xsurfDeltaResidencyBits++) + v5;
+      --v4;
     }
-    while ( v7 );
+    while ( v4 );
     xsurfCount = s_ugbGlob.xsurfCount;
-    rg.stats->ugbXSurfResidentCount = v9;
-    rg.stats->ugbXSurfDeltaResidencyCount = v8;
+    rg.stats->ugbXSurfResidentCount = v6;
+    rg.stats->ugbXSurfDeltaResidencyCount = v5;
     rg.stats->ugbXSurfCount = xsurfCount;
   }
   data = 0;
@@ -3699,43 +3684,42 @@ __int64 R_UIB_GetSurfVirtPageStart(unsigned __int16 ugbID)
 R_UIB_MakeXSurfsResident
 ==============
 */
-
-UGBPagingBackendData<49152> *__fastcall R_UIB_MakeXSurfsResident(double _XMM0_8)
+UGBPagingBackendData<49152> *R_UIB_MakeXSurfsResident()
 {
   unsigned int xsurfDWordCount; 
-  int v3; 
-  __int64 v4; 
-  unsigned int v5; 
+  int v2; 
+  __int64 v3; 
+  unsigned int v4; 
   unsigned int *physPageInUseBits; 
-  __int64 v8; 
+  __int64 v7; 
   unsigned int *virtPageInUseBits; 
-  int v10; 
-  __int64 v11; 
+  int v9; 
+  __int64 v10; 
   unsigned int pageArgUploadCount; 
-  int v13; 
-  unsigned int *v14; 
-  __int64 v15; 
+  int v12; 
+  unsigned int *v13; 
+  __int64 v14; 
   UGBPagingBackendData<49152> *result; 
 
   Sys_ProfBeginNamedEvent(0xFF708090, "UIB Mark Surfs resident");
   xsurfDWordCount = s_ugbGlob.xsurfDWordCount;
   _EDI = s_ugbGlob.xsurfDeltaResidencyBits[0];
-  v3 = 0;
-  LODWORD(v4) = 0;
-  v5 = 0;
+  v2 = 0;
+  LODWORD(v3) = 0;
+  v4 = 0;
   while ( _EDI )
   {
 LABEL_5:
     __asm { tzcnt   edx, edi }
     _EDI &= ~(1 << _EDX);
-    R_UIB_MarkXSurfPagesResident(_EDX + 32 * v4, v5++);
+    R_UIB_MarkXSurfPagesResident(_EDX + 32 * v3, v4++);
   }
   while ( 1 )
   {
-    v4 = (unsigned int)(v4 + 1);
-    if ( (unsigned int)v4 >= xsurfDWordCount )
+    v3 = (unsigned int)(v3 + 1);
+    if ( (unsigned int)v3 >= xsurfDWordCount )
       break;
-    _EDI = s_ugbGlob.xsurfDeltaResidencyBits[v4];
+    _EDI = s_ugbGlob.xsurfDeltaResidencyBits[v3];
     if ( _EDI )
       goto LABEL_5;
   }
@@ -3745,50 +3729,44 @@ LABEL_5:
   UGBVirtualBuffer<64,49152,1212416,2048,6,UIBPageArgsGPU,UIBPageData>::MakeVirtualPagesResident(&s_uibBuf);
   Sys_ProfEndNamedEvent();
   physPageInUseBits = s_uibBuf.pageMan.physPageInUseBits;
-  v8 = 1536i64;
+  v7 = 1536i64;
   if ( rg.stats && r_gpShowStats->current.integer )
   {
     virtPageInUseBits = s_uibBuf.pageMan.virtPageInUseBits;
-    v10 = 0;
-    v11 = 37888i64;
+    v9 = 0;
+    v10 = 37888i64;
     pageArgUploadCount = s_uibBuf.curBackEnd->pageArgUploadCount;
     do
     {
-      v10 += __popcnt(*virtPageInUseBits++);
-      --v11;
+      v9 += __popcnt(*virtPageInUseBits++);
+      --v10;
     }
-    while ( v11 );
-    v13 = 0;
-    v14 = s_uibBuf.pageMan.physPageInUseBits;
-    v15 = 1536i64;
+    while ( v10 );
+    v12 = 0;
+    v13 = s_uibBuf.pageMan.physPageInUseBits;
+    v14 = 1536i64;
     do
     {
-      v13 += __popcnt(*v14++);
-      --v15;
+      v12 += __popcnt(*v13++);
+      --v14;
     }
-    while ( v15 );
+    while ( v14 );
     rg.stats->ugbVirtPageAllocatedCount[s_uibBuf.type] = s_uibBuf.allocedVirtPageCount;
     rg.stats->ugbVirtPageToPageInCount[s_uibBuf.type] = pageArgUploadCount;
-    rg.stats->ugbVirtPageInUseCount[s_uibBuf.type] = v10;
-    rg.stats->ugbPhysPageInUseCount[s_uibBuf.type] = v13;
-    rg.stats->ugbMemoryInUse[s_uibBuf.type] = 384 * v13;
+    rg.stats->ugbVirtPageInUseCount[s_uibBuf.type] = v9;
+    rg.stats->ugbPhysPageInUseCount[s_uibBuf.type] = v12;
+    rg.stats->ugbMemoryInUse[s_uibBuf.type] = 384 * v12;
     rg.stats->ugbPhysPageWatermark[s_uibBuf.type] = s_uibBuf.physPageWatermark;
     rg.stats->ugbMemWatermark[s_uibBuf.type] = 384 * s_uibBuf.physPageWatermark;
   }
   do
   {
-    v3 += __popcnt(*physPageInUseBits++);
-    --v8;
+    v2 += __popcnt(*physPageInUseBits++);
+    --v7;
   }
-  while ( v8 );
+  while ( v7 );
   result = s_uibBuf.curBackEnd;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebp
-    vmulss  xmm1, xmm0, cs:__real@37aaaaab
-    vmovss  cs:?s_uibBuf@@3U?$UGBVirtualBuffer@$0EA@$0MAAA@$0BCIAAA@$0IAA@$05UUIBPageArgsGPU@@UUIBPageData@@@@A.usageRatio, xmm1; UGBVirtualBuffer<64,49152,1212416,2048,6,UIBPageArgsGPU,UIBPageData> s_uibBuf
-  }
+  s_uibBuf.usageRatio = (float)v2 * 0.000020345053;
   s_uibBuf.curBackEnd->backendReady = 1;
   return result;
 }
@@ -3801,9 +3779,7 @@ R_UIB_MakeXSurfsResident_Worker
 
 void __fastcall R_UIB_MakeXSurfsResident_Worker(const void *const cmd)
 {
-  double _XMM0_8; 
-
-  R_UIB_MakeXSurfsResident(_XMM0_8);
+  R_UIB_MakeXSurfsResident();
 }
 
 /*
@@ -4003,22 +3979,21 @@ __int64 R_UOB_GetSurfVirtPageStart(unsigned __int16 ugbID)
 R_UOB_MakeXSurfsResident
 ==============
 */
-
-UGBPagingBackendData<16384> *__fastcall R_UOB_MakeXSurfsResident(double _XMM0_8)
+UGBPagingBackendData<16384> *R_UOB_MakeXSurfsResident()
 {
   unsigned int xsurfDWordCount; 
-  int v3; 
-  __int64 v4; 
-  unsigned int v5; 
+  int v2; 
+  __int64 v3; 
+  unsigned int v4; 
   unsigned int *physPageInUseBits; 
-  __int64 v8; 
+  __int64 v7; 
   unsigned int *virtPageInUseBits; 
-  int v10; 
-  __int64 v11; 
+  int v9; 
+  __int64 v10; 
   unsigned int pageArgUploadCount; 
-  int v13; 
-  unsigned int *v14; 
-  __int64 v15; 
+  int v12; 
+  unsigned int *v13; 
+  __int64 v14; 
   UGBPagingBackendData<16384> *result; 
 
   if ( s_uobBuf.allocedVirtPageCount )
@@ -4026,22 +4001,22 @@ UGBPagingBackendData<16384> *__fastcall R_UOB_MakeXSurfsResident(double _XMM0_8)
     Sys_ProfBeginNamedEvent(0xFF708090, "UOB Mark Surfs resident");
     xsurfDWordCount = s_ugbGlob.xsurfDWordCount;
     _EDI = s_ugbGlob.xsurfDeltaResidencyBits[0];
-    v3 = 0;
-    LODWORD(v4) = 0;
-    v5 = 0;
+    v2 = 0;
+    LODWORD(v3) = 0;
+    v4 = 0;
     while ( _EDI )
     {
 LABEL_6:
       __asm { tzcnt   edx, edi }
       _EDI &= ~(1 << _EDX);
-      R_UOB_MarkXSurfPagesResident(_EDX + 32 * v4, v5++);
+      R_UOB_MarkXSurfPagesResident(_EDX + 32 * v3, v4++);
     }
     while ( 1 )
     {
-      v4 = (unsigned int)(v4 + 1);
-      if ( (unsigned int)v4 >= xsurfDWordCount )
+      v3 = (unsigned int)(v3 + 1);
+      if ( (unsigned int)v3 >= xsurfDWordCount )
         break;
-      _EDI = s_ugbGlob.xsurfDeltaResidencyBits[v4];
+      _EDI = s_ugbGlob.xsurfDeltaResidencyBits[v3];
       if ( _EDI )
         goto LABEL_6;
     }
@@ -4051,50 +4026,44 @@ LABEL_6:
     UGBVirtualBuffer<64,16384,655360,512,16,UGBPageArgsGPU,UGBPageData>::MakeVirtualPagesResident(&s_uobBuf);
     Sys_ProfEndNamedEvent();
     physPageInUseBits = s_uobBuf.pageMan.physPageInUseBits;
-    v8 = 512i64;
+    v7 = 512i64;
     if ( rg.stats && r_gpShowStats->current.integer )
     {
       virtPageInUseBits = s_uobBuf.pageMan.virtPageInUseBits;
-      v10 = 0;
-      v11 = 20480i64;
+      v9 = 0;
+      v10 = 20480i64;
       pageArgUploadCount = s_uobBuf.curBackEnd->pageArgUploadCount;
       do
       {
-        v10 += __popcnt(*virtPageInUseBits++);
-        --v11;
+        v9 += __popcnt(*virtPageInUseBits++);
+        --v10;
       }
-      while ( v11 );
-      v13 = 0;
-      v14 = s_uobBuf.pageMan.physPageInUseBits;
-      v15 = 512i64;
+      while ( v10 );
+      v12 = 0;
+      v13 = s_uobBuf.pageMan.physPageInUseBits;
+      v14 = 512i64;
       do
       {
-        v13 += __popcnt(*v14++);
-        --v15;
+        v12 += __popcnt(*v13++);
+        --v14;
       }
-      while ( v15 );
+      while ( v14 );
       rg.stats->ugbVirtPageAllocatedCount[s_uobBuf.type] = s_uobBuf.allocedVirtPageCount;
       rg.stats->ugbVirtPageToPageInCount[s_uobBuf.type] = pageArgUploadCount;
-      rg.stats->ugbVirtPageInUseCount[s_uobBuf.type] = v10;
-      rg.stats->ugbPhysPageInUseCount[s_uobBuf.type] = v13;
-      rg.stats->ugbMemoryInUse[s_uobBuf.type] = v13 << 10;
+      rg.stats->ugbVirtPageInUseCount[s_uobBuf.type] = v9;
+      rg.stats->ugbPhysPageInUseCount[s_uobBuf.type] = v12;
+      rg.stats->ugbMemoryInUse[s_uobBuf.type] = v12 << 10;
       rg.stats->ugbPhysPageWatermark[s_uobBuf.type] = s_uobBuf.physPageWatermark;
       rg.stats->ugbMemWatermark[s_uobBuf.type] = s_uobBuf.physPageWatermark << 10;
     }
     do
     {
-      v3 += __popcnt(*physPageInUseBits++);
-      --v8;
+      v2 += __popcnt(*physPageInUseBits++);
+      --v7;
     }
-    while ( v8 );
+    while ( v7 );
     result = s_uobBuf.curBackEnd;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebp
-      vmulss  xmm1, xmm0, cs:__real@38800000
-      vmovss  cs:?s_uobBuf@@3U?$UGBVirtualBuffer@$0EA@$0EAAA@$0KAAAA@$0CAA@$0BA@UUGBPageArgsGPU@@UUGBPageData@@@@A.usageRatio, xmm1; UGBVirtualBuffer<64,16384,655360,512,16,UGBPageArgsGPU,UGBPageData> s_uobBuf
-    }
+    s_uobBuf.usageRatio = (float)v2 * 0.000061035156;
     s_uobBuf.curBackEnd->backendReady = 1;
   }
   return result;
@@ -4108,9 +4077,7 @@ R_UOB_MakeXSurfsResident_Worker
 
 void __fastcall R_UOB_MakeXSurfsResident_Worker(const void *const cmd)
 {
-  double _XMM0_8; 
-
-  R_UOB_MakeXSurfsResident(_XMM0_8);
+  R_UOB_MakeXSurfsResident();
 }
 
 /*
@@ -4139,43 +4106,42 @@ __int64 R_UVB_GetSurfVirtPageStart(unsigned __int16 ugbID)
 R_UVB_MakeXSurfsResident
 ==============
 */
-
-UGBPagingBackendData<52992> *__fastcall R_UVB_MakeXSurfsResident(double _XMM0_8)
+UGBPagingBackendData<52992> *R_UVB_MakeXSurfsResident()
 {
   unsigned int xsurfDWordCount; 
-  int v3; 
-  __int64 v4; 
-  unsigned int v5; 
+  int v2; 
+  __int64 v3; 
+  unsigned int v4; 
   unsigned int *physPageInUseBits; 
-  __int64 v8; 
+  __int64 v7; 
   unsigned int *virtPageInUseBits; 
-  int v10; 
-  __int64 v11; 
+  int v9; 
+  __int64 v10; 
   unsigned int pageArgUploadCount; 
-  int v13; 
-  unsigned int *v14; 
-  __int64 v15; 
+  int v12; 
+  unsigned int *v13; 
+  __int64 v14; 
   UGBPagingBackendData<52992> *result; 
 
   Sys_ProfBeginNamedEvent(0xFF708090, "UVB Mark Surfs resident");
   xsurfDWordCount = s_ugbGlob.xsurfDWordCount;
   _EDI = s_ugbGlob.xsurfDeltaResidencyBits[0];
-  v3 = 0;
-  LODWORD(v4) = 0;
-  v5 = 0;
+  v2 = 0;
+  LODWORD(v3) = 0;
+  v4 = 0;
   while ( _EDI )
   {
 LABEL_5:
     __asm { tzcnt   edx, edi }
     _EDI &= ~(1 << _EDX);
-    R_UVB_MarkXSurfPagesResident(_EDX + 32 * v4, v5++);
+    R_UVB_MarkXSurfPagesResident(_EDX + 32 * v3, v4++);
   }
   while ( 1 )
   {
-    v4 = (unsigned int)(v4 + 1);
-    if ( (unsigned int)v4 >= xsurfDWordCount )
+    v3 = (unsigned int)(v3 + 1);
+    if ( (unsigned int)v3 >= xsurfDWordCount )
       break;
-    _EDI = s_ugbGlob.xsurfDeltaResidencyBits[v4];
+    _EDI = s_ugbGlob.xsurfDeltaResidencyBits[v3];
     if ( _EDI )
       goto LABEL_5;
   }
@@ -4185,50 +4151,44 @@ LABEL_5:
   UGBVirtualBuffer<64,52992,1310720,512,20,UGBPageArgsGPU,UGBPageData>::MakeVirtualPagesResident(&s_uvbBuf);
   Sys_ProfEndNamedEvent();
   physPageInUseBits = s_uvbBuf.pageMan.physPageInUseBits;
-  v8 = 1656i64;
+  v7 = 1656i64;
   if ( rg.stats && r_gpShowStats->current.integer )
   {
     virtPageInUseBits = s_uvbBuf.pageMan.virtPageInUseBits;
-    v10 = 0;
-    v11 = 40960i64;
+    v9 = 0;
+    v10 = 40960i64;
     pageArgUploadCount = s_uvbBuf.curBackEnd->pageArgUploadCount;
     do
     {
-      v10 += __popcnt(*virtPageInUseBits++);
-      --v11;
+      v9 += __popcnt(*virtPageInUseBits++);
+      --v10;
     }
-    while ( v11 );
-    v13 = 0;
-    v14 = s_uvbBuf.pageMan.physPageInUseBits;
-    v15 = 1656i64;
+    while ( v10 );
+    v12 = 0;
+    v13 = s_uvbBuf.pageMan.physPageInUseBits;
+    v14 = 1656i64;
     do
     {
-      v13 += __popcnt(*v14++);
-      --v15;
+      v12 += __popcnt(*v13++);
+      --v14;
     }
-    while ( v15 );
+    while ( v14 );
     rg.stats->ugbVirtPageAllocatedCount[s_uvbBuf.type] = s_uvbBuf.allocedVirtPageCount;
     rg.stats->ugbVirtPageToPageInCount[s_uvbBuf.type] = pageArgUploadCount;
-    rg.stats->ugbVirtPageInUseCount[s_uvbBuf.type] = v10;
-    rg.stats->ugbPhysPageInUseCount[s_uvbBuf.type] = v13;
-    rg.stats->ugbMemoryInUse[s_uvbBuf.type] = 1280 * v13;
+    rg.stats->ugbVirtPageInUseCount[s_uvbBuf.type] = v9;
+    rg.stats->ugbPhysPageInUseCount[s_uvbBuf.type] = v12;
+    rg.stats->ugbMemoryInUse[s_uvbBuf.type] = 1280 * v12;
     rg.stats->ugbPhysPageWatermark[s_uvbBuf.type] = s_uvbBuf.physPageWatermark;
     rg.stats->ugbMemWatermark[s_uvbBuf.type] = 1280 * s_uvbBuf.physPageWatermark;
   }
   do
   {
-    v3 += __popcnt(*physPageInUseBits++);
-    --v8;
+    v2 += __popcnt(*physPageInUseBits++);
+    --v7;
   }
-  while ( v8 );
+  while ( v7 );
   result = s_uvbBuf.curBackEnd;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebp
-    vmulss  xmm1, xmm0, cs:__real@379e4cad
-    vmovss  cs:?s_uvbBuf@@3U?$UGBVirtualBuffer@$0EA@$0MPAA@$0BEAAAA@$0CAA@$0BE@UUGBPageArgsGPU@@UUGBPageData@@@@A.usageRatio, xmm1; UGBVirtualBuffer<64,52992,1310720,512,20,UGBPageArgsGPU,UGBPageData> s_uvbBuf
-  }
+  s_uvbBuf.usageRatio = (float)v2 * 0.000018870773;
   s_uvbBuf.curBackEnd->backendReady = 1;
   return result;
 }
@@ -4241,9 +4201,7 @@ R_UVB_MakeXSurfsResident_Worker
 
 void __fastcall R_UVB_MakeXSurfsResident_Worker(const void *const cmd)
 {
-  double _XMM0_8; 
-
-  R_UVB_MakeXSurfsResident(_XMM0_8);
+  R_UVB_MakeXSurfsResident();
 }
 
 /*

@@ -378,10 +378,10 @@ Dummy *hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::
   __int64 v11; 
   hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::Pair *v12; 
   __int64 v13; 
+  HavokPhysicsShapeViewer::GroupKey *p_key; 
   hkMemoryAllocator alloca; 
 
   m_hashMod = this->m_hashMod;
-  _RDI = key;
   v8 = m_hashMod;
   if ( 2 * this->m_numElems > m_hashMod )
   {
@@ -390,12 +390,12 @@ Dummy *hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::
     v8 = m_hashMod;
   }
   m_elem = this->m_elem;
-  v10 = v8 & (-1640531535 * (unsigned int)((unsigned __int64)_RDI->m_shape >> 4));
+  v10 = v8 & (-1640531535 * (unsigned int)((unsigned __int64)key->m_shape >> 4));
   v11 = v10;
   v12 = &this->m_elem[v10];
   if ( v12->key.m_shape )
   {
-    while ( v12->key.m_shape != _RDI->m_shape || v12->key.m_color != _RDI->m_color )
+    while ( v12->key.m_shape != key->m_shape || v12->key.m_color != key->m_color )
     {
       v10 = m_hashMod & (unsigned int)(v10 + 1);
       v11 = (unsigned int)v10;
@@ -409,14 +409,9 @@ Dummy *hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::
 LABEL_7:
     v13 = v10;
     v11 = (unsigned int)v10;
-    if ( &m_elem[v10] )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups xmmword ptr [rcx], xmm0
-      }
-    }
+    p_key = &m_elem[v10].key;
+    if ( p_key )
+      *p_key = *key;
     this->m_elem[v13].val = *val;
     ++this->m_numElems;
   }
@@ -547,19 +542,16 @@ __int64 hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer:
   int EmptyPositionInternal; 
   hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::Pair *m_elem; 
   __int64 v9; 
+  hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::Pair *v10; 
   unsigned int wasNewKeyOut; 
 
-  _RDI = key;
   EmptyPositionInternal = hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::_findEmptyPositionInternal(this, alloc, key, &wasNewKeyOut);
   m_elem = this->m_elem;
   v9 = EmptyPositionInternal;
-  if ( &this->m_elem[v9] )
+  v10 = &this->m_elem[v9];
+  if ( v10 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rax], xmm0
-    }
+    v10->key = *key;
     m_elem = this->m_elem;
   }
   m_elem[v9].val = *val;
@@ -847,9 +839,9 @@ __int64 hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer:
   int EmptyPositionInternal; 
   hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::Pair *m_elem; 
   __int64 v14; 
+  hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::Pair *v15; 
   hkMemoryAllocator alloca; 
 
-  _RDI = key;
   if ( 2 * this->m_numElems <= this->m_hashMod )
   {
     res->m_code = 0;
@@ -862,16 +854,13 @@ __int64 hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer:
     if ( v10 < 0 )
       return 0i64;
   }
-  EmptyPositionInternal = hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::_findEmptyPositionInternal(this, alloc, _RDI, (unsigned int *)&alloca);
+  EmptyPositionInternal = hkMapBase<HavokPhysicsShapeViewer::GroupKey,int,HavokPhysicsShapeViewer::GroupKey::MapOps>::_findEmptyPositionInternal(this, alloc, key, (unsigned int *)&alloca);
   m_elem = this->m_elem;
   v14 = EmptyPositionInternal;
-  if ( &this->m_elem[v14] )
+  v15 = &this->m_elem[v14];
+  if ( v15 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rax], xmm0
-    }
+    v15->key = *key;
     m_elem = this->m_elem;
   }
   m_elem[v14].val = *val;

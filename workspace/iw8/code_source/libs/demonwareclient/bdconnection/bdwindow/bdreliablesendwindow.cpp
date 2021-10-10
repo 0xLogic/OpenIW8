@@ -606,22 +606,22 @@ bdReliableSendWindow::getDataToSend
 */
 void bdReliableSendWindow::getDataToSend(bdReliableSendWindow *this, bdPacket *packet)
 {
-  bdPacket *v3; 
+  bdPacket *v2; 
+  char v4; 
   char v5; 
-  char v6; 
+  __int64 v6; 
   __int64 v7; 
-  __int64 v8; 
   bdDataChunk *m_ptr; 
   unsigned __int16 SequenceNumber; 
   int Value; 
-  bdDataChunk *v12; 
-  __int64 v13; 
-  char v14; 
-  char v15; 
-  __int64 v16; 
+  bdDataChunk *v11; 
+  __int64 v12; 
+  double ElapsedTimeInSeconds; 
+  __int64 v14; 
   __int64 m_congestionWindow; 
-  __int64 v18; 
-  __int64 v19; 
+  __int64 v16; 
+  __int64 v17; 
+  __int128 v20; 
   char v23; 
   __int64 v24; 
   __int64 v25; 
@@ -634,181 +634,182 @@ void bdReliableSendWindow::getDataToSend(bdReliableSendWindow *this, bdPacket *p
   char v32; 
   bdDataChunk *v33; 
   bdStopwatch *p_m_timer; 
-  __int64 v35; 
-  __int64 v36; 
+  double v35; 
+  double v36; 
   __int64 v37; 
-  bdDataChunk *v38; 
+  __int64 v38; 
+  __int64 v39; 
+  bdDataChunk *v40; 
   bdSequenceNumber other; 
-  bdSequenceNumber v40; 
-  bdSequenceNumber v41; 
+  bdSequenceNumber v42; 
+  bdSequenceNumber v43; 
   bdReference<bdChunk> chunk; 
-  bdReference<bdChunk> v43; 
-  bdReference<bdChunk> v44; 
   bdReference<bdChunk> v45; 
-  bdSequenceNumber v46; 
-  bdSequenceNumber v47; 
-  __int64 v48; 
-  char v49; 
+  bdReference<bdChunk> v46; 
+  bdReference<bdChunk> v47; 
+  bdSequenceNumber v48; 
+  bdSequenceNumber v49; 
+  __int64 v50; 
+  char v51; 
   bdSequenceNumber result; 
-  bdSequenceNumber v52; 
+  bdSequenceNumber v54; 
 
-  v48 = -2i64;
-  v3 = packet;
-  _RSI = this;
+  v50 = -2i64;
+  v2 = packet;
+  v4 = 0;
   v5 = 0;
-  v6 = 0;
-  v49 = 0;
+  v51 = 0;
   bdSequenceNumber::bdSequenceNumber(&other, 1);
-  bdSequenceNumber::operator+(&_RSI->m_lastAcked, &result, &other);
-  if ( bdSequenceNumber::operator<(&result, &_RSI->m_nextFree) )
+  bdSequenceNumber::operator+(&this->m_lastAcked, &result, &other);
+  if ( bdSequenceNumber::operator<(&result, &this->m_nextFree) )
   {
     while ( 1 )
     {
-      v7 = bdSequenceNumber::getValue(&result) & 0x7F;
-      v8 = v7;
-      m_ptr = _RSI->m_frame[v7].m_chunk.m_ptr;
+      v6 = bdSequenceNumber::getValue(&result) & 0x7F;
+      v7 = v6;
+      m_ptr = this->m_frame[v6].m_chunk.m_ptr;
       if ( !m_ptr )
         goto LABEL_12;
       SequenceNumber = bdDataChunk::getSequenceNumber(m_ptr);
-      bdSequenceNumber::bdSequenceNumber(&v40, &_RSI->m_lastAcked, SequenceNumber, 0x10u);
-      Value = bdSequenceNumber::getValue(&v40);
+      bdSequenceNumber::bdSequenceNumber(&v42, &this->m_lastAcked, SequenceNumber, 0x10u);
+      Value = bdSequenceNumber::getValue(&v42);
       if ( Value != bdSequenceNumber::getValue(&result) )
         bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::getDataToSend", 0x5Au, "Window error");
-      v12 = _RSI->m_frame[v8].m_chunk.m_ptr;
-      if ( !v12 )
+      v11 = this->m_frame[v7].m_chunk.m_ptr;
+      if ( !v11 )
         goto LABEL_12;
-      v13 = (int)v12->getSerializedSize(v12);
-      if ( !_RSI->m_frame[v8].m_sendCount )
+      v12 = (int)v11->getSerializedSize(v11);
+      if ( !this->m_frame[v7].m_sendCount )
         goto LABEL_13;
-      if ( _RSI->m_frame[v8].m_missingCount >= _RSI->m_retransmitCountThreshold )
+      if ( this->m_frame[v7].m_missingCount >= this->m_retransmitCountThreshold )
         break;
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RSI->m_frame[v8].m_timer);
-      __asm { vcomiss xmm0, dword ptr [rsi+8] }
-      if ( !(v14 | v15) )
+      ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_frame[v7].m_timer);
+      if ( *(float *)&ElapsedTimeInSeconds > this->m_timeoutPeriod )
       {
-        v5 = 1;
+        v4 = 1;
         goto LABEL_11;
       }
 LABEL_12:
-      bdSequenceNumber::operator++(&result, &v46, 0);
-      if ( !bdSequenceNumber::operator<(&result, &_RSI->m_nextFree) )
+      bdSequenceNumber::operator++(&result, &v48, 0);
+      if ( !bdSequenceNumber::operator<(&result, &this->m_nextFree) )
       {
 LABEL_13:
-        v16 = 2576i64;
-        v3 = packet;
-        if ( v6 )
-        {
-          m_congestionWindow = _RSI->m_congestionWindow;
-          if ( m_congestionWindow < 5154 )
-            v18 = 2576i64;
-          else
-            v18 = m_congestionWindow / 2;
-          _RSI->m_slowStartThresh = v18;
-          _RSI->m_congestionWindow = v18;
-          _RSI->m_partialBytesAcked = 0i64;
-        }
+        v14 = 2576i64;
+        v2 = packet;
         if ( v5 )
         {
-          v19 = _RSI->m_congestionWindow;
-          if ( v19 >= 5154 )
-            v16 = v19 / 2;
-          _RSI->m_slowStartThresh = v16;
-          _RSI->m_congestionWindow = 1288i64;
-          _RSI->m_partialBytesAcked = 0i64;
+          m_congestionWindow = this->m_congestionWindow;
+          if ( m_congestionWindow < 5154 )
+            v16 = 2576i64;
+          else
+            v16 = m_congestionWindow / 2;
+          this->m_slowStartThresh = v16;
+          this->m_congestionWindow = v16;
+          this->m_partialBytesAcked = 0i64;
+        }
+        if ( v4 )
+        {
+          v17 = this->m_congestionWindow;
+          if ( v17 >= 5154 )
+            v14 = v17 / 2;
+          this->m_slowStartThresh = v14;
+          this->m_congestionWindow = 1288i64;
+          this->m_partialBytesAcked = 0i64;
+          _XMM2 = LODWORD(FLOAT_2_0);
+          v20 = LODWORD(FLOAT_2_0);
+          *(float *)&v20 = 2.0 * this->m_timeoutPeriod;
+          _XMM1 = v20;
           __asm
           {
-            vmovss  xmm2, cs:__real@40000000
-            vmulss  xmm1, xmm2, dword ptr [rsi+8]
             vcmpltss xmm0, xmm2, xmm1
             vblendvps xmm0, xmm1, xmm2, xmm0
-            vmovss  dword ptr [rsi+8], xmm0
           }
+          this->m_timeoutPeriod = *(float *)&_XMM0;
         }
         goto LABEL_22;
       }
     }
-    v6 = 1;
+    v5 = 1;
 LABEL_11:
-    _RSI->m_flightSize -= v13;
+    this->m_flightSize -= v12;
     goto LABEL_12;
   }
 LABEL_22:
   v23 = 0;
-  bdSequenceNumber::bdSequenceNumber(&v41, 1);
-  bdSequenceNumber::operator+(&_RSI->m_lastAcked, &v52, &v41);
-  if ( !bdSequenceNumber::operator<(&v52, &_RSI->m_nextFree) )
+  bdSequenceNumber::bdSequenceNumber(&v43, 1);
+  bdSequenceNumber::operator+(&this->m_lastAcked, &v54, &v43);
+  if ( !bdSequenceNumber::operator<(&v54, &this->m_nextFree) )
     goto LABEL_56;
   while ( !v23 )
   {
-    v24 = bdSequenceNumber::getValue(&v52) & 0x7F;
+    v24 = bdSequenceNumber::getValue(&v54) & 0x7F;
     v25 = v24;
-    v26 = _RSI->m_frame[v24].m_chunk.m_ptr;
+    v26 = this->m_frame[v24].m_chunk.m_ptr;
     if ( v26 )
     {
-      v38 = _RSI->m_frame[v24].m_chunk.m_ptr;
+      v40 = this->m_frame[v24].m_chunk.m_ptr;
       _InterlockedExchangeAdd((volatile signed __int32 *)&v26->m_refCount, 1u);
-      if ( _RSI->m_frame[v24].m_sendCount )
+      if ( this->m_frame[v24].m_sendCount )
       {
-        if ( _RSI->m_frame[v24].m_missingCount < _RSI->m_retransmitCountThreshold )
+        if ( this->m_frame[v24].m_missingCount < this->m_retransmitCountThreshold )
         {
-          *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RSI->m_frame[v24].m_timer);
-          __asm { vcomiss xmm0, dword ptr [rsi+8] }
-          if ( v14 | v15 || _RSI->m_flightSize >= _RSI->m_congestionWindow )
+          v35 = bdStopwatch::getElapsedTimeInSeconds(&this->m_frame[v24].m_timer);
+          if ( *(float *)&v35 <= this->m_timeoutPeriod || this->m_flightSize >= this->m_congestionWindow )
             goto LABEL_48;
-          v45.m_ptr = v38;
+          v47.m_ptr = v40;
           _InterlockedExchangeAdd((volatile signed __int32 *)&v26->m_refCount, 1u);
-          if ( !bdPacket::addChunk(v3, (bdReference<bdChunk>)&v45) )
+          if ( !bdPacket::addChunk(v2, (bdReference<bdChunk>)&v47) )
           {
             bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::getDataToSend", 0x11Eu, "packet full.");
             goto LABEL_47;
           }
-          v33 = v38;
-          LODWORD(v37) = bdDataChunk::getSequenceNumber(v38);
-          bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::getDataToSend", 0x113u, "sent retransmit (rto timeout) %u", v37);
-          p_m_timer = &_RSI->m_frame[v25].m_timer;
+          v33 = v40;
+          LODWORD(v39) = bdDataChunk::getSequenceNumber(v40);
+          bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::getDataToSend", 0x113u, "sent retransmit (rto timeout) %u", v39);
+          p_m_timer = &this->m_frame[v25].m_timer;
         }
         else
         {
-          v44.m_ptr = v38;
+          v46.m_ptr = v40;
           _InterlockedExchangeAdd((volatile signed __int32 *)&v26->m_refCount, 1u);
-          if ( !bdPacket::addChunk(v3, (bdReference<bdChunk>)&v44) )
+          if ( !bdPacket::addChunk(v2, (bdReference<bdChunk>)&v46) )
           {
             bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::getDataToSend", 0x105u, "packet full.");
             goto LABEL_47;
           }
-          v33 = v38;
-          LODWORD(v37) = bdDataChunk::getSequenceNumber(v38);
-          bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::getDataToSend", 0xFAu, "sent retransmit (fast retransmit) %u", v37);
-          p_m_timer = &_RSI->m_frame[v25].m_timer;
+          v33 = v40;
+          LODWORD(v39) = bdDataChunk::getSequenceNumber(v40);
+          bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::getDataToSend", 0xFAu, "sent retransmit (fast retransmit) %u", v39);
+          p_m_timer = &this->m_frame[v25].m_timer;
         }
-        ++_RSI->m_frame[v25].m_sendCount;
-        _RSI->m_frame[v25].m_missingCount = 0;
+        ++this->m_frame[v25].m_sendCount;
+        this->m_frame[v25].m_missingCount = 0;
         bdStopwatch::start(p_m_timer);
-        _RSI->m_flightSize += v33->getSerializedSize(v33);
+        this->m_flightSize += v33->getSerializedSize(v33);
         v32 = 1;
-        v49 = 1;
+        v51 = 1;
       }
       else
       {
-        v27 = v38->getSerializedSize(v38);
-        v28 = v38->getSerializedSize(v38);
-        m_flightSize = _RSI->m_flightSize;
-        v30 = _RSI->m_remoteReceiveWindowCredit - m_flightSize;
-        v31 = m_flightSize < _RSI->m_congestionWindow && (unsigned int)v27 < 0x508;
+        v27 = v40->getSerializedSize(v40);
+        v28 = v40->getSerializedSize(v40);
+        m_flightSize = this->m_flightSize;
+        v30 = this->m_remoteReceiveWindowCredit - m_flightSize;
+        v31 = m_flightSize < this->m_congestionWindow && (unsigned int)v27 < 0x508;
         if ( v30 <= v28 )
         {
           if ( v31 )
           {
-            v43.m_ptr = v38;
+            v45.m_ptr = v40;
             _InterlockedExchangeAdd((volatile signed __int32 *)&v26->m_refCount, 1u);
-            if ( bdPacket::addChunk(v3, (bdReference<bdChunk>)&v43) )
+            if ( bdPacket::addChunk(v2, (bdReference<bdChunk>)&v45) )
             {
-              LODWORD(v37) = bdDataChunk::getSequenceNumber(v38);
-              bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::getDataToSend", 0xDFu, "sent 1 new packet %u (rule b)", v37);
-              ++_RSI->m_frame[v25].m_sendCount;
-              bdStopwatch::start(&_RSI->m_frame[v25].m_timer);
-              _RSI->m_flightSize += v27;
-              v49 = 1;
+              LODWORD(v39) = bdDataChunk::getSequenceNumber(v40);
+              bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::getDataToSend", 0xDFu, "sent 1 new packet %u (rule b)", v39);
+              ++this->m_frame[v25].m_sendCount;
+              bdStopwatch::start(&this->m_frame[v25].m_timer);
+              this->m_flightSize += v27;
+              v51 = 1;
             }
             else
             {
@@ -818,15 +819,15 @@ LABEL_22:
         }
         else
         {
-          chunk.m_ptr = v38;
+          chunk.m_ptr = v40;
           _InterlockedExchangeAdd((volatile signed __int32 *)&v26->m_refCount, 1u);
-          if ( bdPacket::addChunk(v3, (bdReference<bdChunk>)&chunk) )
+          if ( bdPacket::addChunk(v2, (bdReference<bdChunk>)&chunk) )
           {
-            ++_RSI->m_frame[v25].m_sendCount;
-            bdStopwatch::start(&_RSI->m_frame[v25].m_timer);
-            _RSI->m_flightSize += v27;
+            ++this->m_frame[v25].m_sendCount;
+            bdStopwatch::start(&this->m_frame[v25].m_timer);
+            this->m_flightSize += v27;
             v32 = 1;
-            v49 = 1;
+            v51 = 1;
             goto LABEL_49;
           }
           bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::getDataToSend", 0xD4u, "packet full.");
@@ -834,41 +835,40 @@ LABEL_22:
 LABEL_47:
         v23 = 1;
 LABEL_48:
-        v32 = v49;
+        v32 = v51;
       }
 LABEL_49:
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v26->m_refCount, 0xFFFFFFFF) == 1 )
-        ((void (__fastcall *)(bdDataChunk *, __int64))v38->~bdReferencable)(v38, 1i64);
+        ((void (__fastcall *)(bdDataChunk *, __int64))v40->~bdReferencable)(v40, 1i64);
       goto LABEL_52;
     }
-    v32 = v49;
+    v32 = v51;
 LABEL_52:
-    bdSequenceNumber::operator++(&v52, &v47, 0);
-    if ( !bdSequenceNumber::operator<(&v52, &_RSI->m_nextFree) )
+    bdSequenceNumber::operator++(&v54, &v49, 0);
+    if ( !bdSequenceNumber::operator<(&v54, &this->m_nextFree) )
       goto LABEL_55;
   }
-  v32 = v49;
+  v32 = v51;
 LABEL_55:
   if ( v32 )
   {
 LABEL_61:
-    bdStopwatch::start(&_RSI->m_lastSent);
+    bdStopwatch::start(&this->m_lastSent);
   }
   else
   {
 LABEL_56:
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&_RSI->m_lastSent);
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( !(v14 | v15) )
+    v36 = bdStopwatch::getElapsedTimeInSeconds(&this->m_lastSent);
+    if ( *(float *)&v36 > 1.0 )
     {
-      v35 = _RSI->m_congestionWindow;
-      if ( v35 < 10306 )
-        v36 = 5152i64;
+      v37 = this->m_congestionWindow;
+      if ( v37 < 10306 )
+        v38 = 5152i64;
       else
-        v36 = v35 / 2;
-      _RSI->m_congestionWindow = v36;
-      _RSI->m_partialBytesAcked = 0i64;
-      _RSI->m_flightSize = 0i64;
+        v38 = v37 / 2;
+      this->m_congestionWindow = v38;
+      this->m_partialBytesAcked = 0i64;
+      this->m_flightSize = 0i64;
       goto LABEL_61;
     }
   }
@@ -881,8 +881,7 @@ bdReliableSendWindow::getTimeoutPeriod
 */
 float bdReliableSendWindow::getTimeoutPeriod(bdReliableSendWindow *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+8] }
-  return *(float *)&_XMM0;
+  return this->m_timeoutPeriod;
 }
 
 /*
@@ -892,39 +891,43 @@ bdReliableSendWindow::handleAck
 */
 __int64 bdReliableSendWindow::handleAck(bdReliableSendWindow *this, bdReference<bdSAckChunk> chunk, float *rtt)
 {
-  bdSAckChunk **v7; 
+  bdSAckChunk **v4; 
   unsigned __int16 CumulativeAck; 
-  unsigned __int8 v10; 
+  unsigned __int8 v7; 
   int Value; 
+  __int64 v9; 
+  double ElapsedTimeInSeconds; 
+  unsigned int v11; 
   __int64 v12; 
-  unsigned int v13; 
-  __int64 v14; 
-  bdDataChunk *v15; 
-  unsigned int v16; 
-  __int64 v17; 
-  __int64 v18; 
+  bdDataChunk *v13; 
+  unsigned int v14; 
+  __int64 v15; 
+  __int64 v16; 
+  bdDataChunk *v17; 
+  bdDataChunk *v18; 
   bdDataChunk *v19; 
-  bdDataChunk *v20; 
-  bdDataChunk *v21; 
   bdLinkedList<bdSAckChunk::bdGapAckBlock> *GapList; 
   bdLinkedList<bdSAckChunk::bdGapAckBlock>::Node *m_head; 
-  __int64 v25; 
-  __int64 v26; 
+  __int64 v22; 
+  __int64 v23; 
   bdStopwatch *p_m_timer; 
-  char v28; 
-  int *v29; 
-  bdLinkedList<bdSAckChunk::bdGapAckBlock>::Node *v30; 
+  double v25; 
+  int *v26; 
+  bdLinkedList<bdSAckChunk::bdGapAckBlock>::Node *v27; 
   __int64 m_congestionWindow; 
-  __int64 v32; 
+  __int64 v29; 
   __int64 m_partialBytesAcked; 
-  __int64 v34; 
-  __int64 v35; 
-  bdSequenceNumber v37; 
-  bdSequenceNumber v38; 
-  bdSequenceNumber v39; 
-  bdSequenceNumber v40; 
+  __int64 v31; 
+  bdSequenceNumber v33; 
+  bdSequenceNumber v34; 
+  bdSequenceNumber v35; 
+  bdSequenceNumber v36; 
   bdSequenceNumber other; 
   bdSequenceNumber result; 
+  bdSequenceNumber v39; 
+  bdSequenceNumber v40; 
+  bdSequenceNumber v41; 
+  bdSequenceNumber v42; 
   bdSequenceNumber v43; 
   bdSequenceNumber v44; 
   bdSequenceNumber v45; 
@@ -932,216 +935,204 @@ __int64 bdReliableSendWindow::handleAck(bdReliableSendWindow *this, bdReference<
   bdSequenceNumber v47; 
   bdSequenceNumber v48; 
   bdSequenceNumber v49; 
-  bdSequenceNumber v50; 
-  bdSequenceNumber v51; 
+  bdLinkedList<bdSAckChunk::bdGapAckBlock> *v50; 
+  __int64 v51; 
   bdSequenceNumber v52; 
-  bdSequenceNumber v53; 
-  bdLinkedList<bdSAckChunk::bdGapAckBlock> *v54; 
-  __int64 v55; 
-  void *retaddr; 
-  bdSequenceNumber v58; 
   bdSAckChunk *m_ptr; 
-  bdSequenceNumber v60; 
+  bdSequenceNumber v54; 
 
-  _RAX = &retaddr;
   m_ptr = chunk.m_ptr;
-  v55 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  _RSI = rtt;
-  v7 = (bdSAckChunk **)chunk.m_ptr;
+  v51 = -2i64;
+  v4 = (bdSAckChunk **)chunk.m_ptr;
   CumulativeAck = bdSAckChunk::getCumulativeAck((bdSAckChunk *)chunk.m_ptr->__vftable);
-  bdSequenceNumber::bdSequenceNumber(&v58, &this->m_lastAcked, CumulativeAck, 0x10u);
-  v10 = 1;
+  bdSequenceNumber::bdSequenceNumber(&v52, &this->m_lastAcked, CumulativeAck, 0x10u);
+  v7 = 1;
   bdSequenceNumber::bdSequenceNumber(&other, 1);
   bdSequenceNumber::operator-(&this->m_nextFree, &result, &other);
-  if ( bdSequenceNumber::operator>(&v58, &result) )
+  if ( bdSequenceNumber::operator>(&v52, &result) )
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::handleAck", 0x145u, "Acking unsent chunk.");
-    v10 = 0;
+    v7 = 0;
   }
   else
   {
     Value = bdSequenceNumber::getValue(&this->m_lastAcked);
-    if ( bdSequenceNumber::getValue(&v58) >= Value )
+    if ( bdSequenceNumber::getValue(&v52) >= Value )
     {
-      v12 = bdSequenceNumber::getValue(&v58) & 0x8000007F;
-      if ( (int)v12 < 0 )
-        v12 = ((unsigned __int8)(v12 - 1) | 0xFFFFFF80) + 1;
-      if ( this->m_frame[v12].m_chunk.m_ptr && this->m_frame[v12].m_sendCount == 1 )
+      v9 = bdSequenceNumber::getValue(&v52) & 0x8000007F;
+      if ( (int)v9 < 0 )
+        v9 = ((unsigned __int8)(v9 - 1) | 0xFFFFFF80) + 1;
+      if ( this->m_frame[v9].m_chunk.m_ptr && this->m_frame[v9].m_sendCount == 1 )
       {
-        *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_frame[v12].m_timer);
-        __asm { vmovss  dword ptr [rsi], xmm0 }
+        ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_frame[v9].m_timer);
+        *rtt = *(float *)&ElapsedTimeInSeconds;
       }
       else
       {
-        *_RSI = 0.0;
+        *rtt = 0.0;
       }
-      this->m_remoteReceiveWindowCredit = bdSAckChunk::getWindowCredit(*v7);
+      this->m_remoteReceiveWindowCredit = bdSAckChunk::getWindowCredit(*v4);
       this->m_flightSize = 0i64;
-      v13 = 0;
-      bdSequenceNumber::bdSequenceNumber(&v43, 1);
-      bdSequenceNumber::operator+(&v58, &v39, &v43);
+      v11 = 0;
+      bdSequenceNumber::bdSequenceNumber(&v39, 1);
+      bdSequenceNumber::operator+(&v52, &v35, &v39);
       do
       {
-        v14 = bdSequenceNumber::getValue(&v39) & 0x7F;
-        v15 = this->m_frame[v14].m_chunk.m_ptr;
-        if ( !v15 )
+        v12 = bdSequenceNumber::getValue(&v35) & 0x7F;
+        v13 = this->m_frame[v12].m_chunk.m_ptr;
+        if ( !v13 )
           break;
-        this->m_flightSize += this->m_frame[v14].m_sendCount * v15->getSerializedSize(v15);
-        ++v13;
-        bdSequenceNumber::operator++(&v39, &v50, 0);
+        this->m_flightSize += this->m_frame[v12].m_sendCount * v13->getSerializedSize(v13);
+        ++v11;
+        bdSequenceNumber::operator++(&v35, &v46, 0);
       }
-      while ( v13 < 0x80 );
-      v16 = 0;
-      bdSequenceNumber::bdSequenceNumber(&v44, 1);
-      bdSequenceNumber::operator+(&this->m_lastAcked, &v37, &v44);
-      if ( bdSequenceNumber::operator<=(&v37, &v58) )
+      while ( v11 < 0x80 );
+      v14 = 0;
+      bdSequenceNumber::bdSequenceNumber(&v40, 1);
+      bdSequenceNumber::operator+(&this->m_lastAcked, &v33, &v40);
+      if ( bdSequenceNumber::operator<=(&v33, &v52) )
       {
         do
         {
-          v17 = bdSequenceNumber::getValue(&v37) & 0x7F;
-          v18 = v17;
-          v19 = this->m_frame[v17].m_chunk.m_ptr;
-          if ( v19 )
+          v15 = bdSequenceNumber::getValue(&v33) & 0x7F;
+          v16 = v15;
+          v17 = this->m_frame[v15].m_chunk.m_ptr;
+          if ( v17 )
           {
-            v16 += v19->getSerializedSize(v19);
-            v20 = this->m_frame[v18].m_chunk.m_ptr;
-            if ( v20 )
+            v14 += v17->getSerializedSize(v17);
+            v18 = this->m_frame[v16].m_chunk.m_ptr;
+            if ( v18 )
             {
-              if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v20->m_refCount, 0xFFFFFFFF) == 1 )
+              if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v18->m_refCount, 0xFFFFFFFF) == 1 )
               {
-                v21 = this->m_frame[v18].m_chunk.m_ptr;
-                if ( v21 )
-                  ((void (__fastcall *)(bdDataChunk *, __int64))v21->~bdReferencable)(v21, 1i64);
+                v19 = this->m_frame[v16].m_chunk.m_ptr;
+                if ( v19 )
+                  ((void (__fastcall *)(bdDataChunk *, __int64))v19->~bdReferencable)(v19, 1i64);
               }
             }
-            this->m_frame[v18].m_chunk.m_ptr = NULL;
-            bdStopwatch::reset(&this->m_frame[v18].m_timer);
+            this->m_frame[v16].m_chunk.m_ptr = NULL;
+            bdStopwatch::reset(&this->m_frame[v16].m_timer);
           }
           else
           {
             bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::handleAck", 0x18Au, "Invalid ack.");
-            v10 = 0;
+            v7 = 0;
           }
-          bdSequenceNumber::operator++(&v37, &v51, 0);
+          bdSequenceNumber::operator++(&v33, &v47, 0);
         }
-        while ( bdSequenceNumber::operator<=(&v37, &v58) );
-        v7 = (bdSAckChunk **)m_ptr;
+        while ( bdSequenceNumber::operator<=(&v33, &v52) );
+        v4 = (bdSAckChunk **)m_ptr;
       }
-      GapList = bdSAckChunk::getGapList(*v7);
-      v54 = GapList;
-      bdSequenceNumber::bdSequenceNumber(&v45, 1);
-      bdSequenceNumber::operator+(&v58, &v40, &v45);
-      if ( v10 )
+      GapList = bdSAckChunk::getGapList(*v4);
+      v50 = GapList;
+      bdSequenceNumber::bdSequenceNumber(&v41, 1);
+      bdSequenceNumber::operator+(&v52, &v36, &v41);
+      if ( v7 )
       {
-        __asm { vxorps  xmm6, xmm6, xmm6 }
         do
         {
           if ( !GapList->m_size )
             break;
           bdHandleAssert(GapList->m_head != NULL, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<class bdSAckChunk::bdGapAckBlock>::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
           m_head = GapList->m_head;
-          bdSequenceNumber::bdSequenceNumber(&v46, GapList->m_head->m_data.m_start);
-          bdSequenceNumber::operator+(&v58, &v48, &v46);
-          bdSequenceNumber::bdSequenceNumber(&v47, m_head->m_data.m_end);
-          bdSequenceNumber::operator+(&v58, &v38, &v47);
-          v60.m_seqNum = v40.m_seqNum;
-          if ( bdSequenceNumber::operator<=(&v60, &v38) )
+          bdSequenceNumber::bdSequenceNumber(&v42, GapList->m_head->m_data.m_start);
+          bdSequenceNumber::operator+(&v52, &v44, &v42);
+          bdSequenceNumber::bdSequenceNumber(&v43, m_head->m_data.m_end);
+          bdSequenceNumber::operator+(&v52, &v34, &v43);
+          v54.m_seqNum = v36.m_seqNum;
+          if ( bdSequenceNumber::operator<=(&v54, &v34) )
           {
             do
             {
-              v25 = bdSequenceNumber::getValue(&v60) & 0x7F;
-              v26 = v25;
-              if ( !this->m_frame[v25].m_chunk.m_ptr )
+              v22 = bdSequenceNumber::getValue(&v54) & 0x7F;
+              v23 = v22;
+              if ( !this->m_frame[v22].m_chunk.m_ptr )
               {
                 bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::handleAck", 0x19Fu, "Shouldn't be null!");
-                v10 = 0;
+                v7 = 0;
               }
-              if ( !this->m_frame[v26].m_sendCount )
+              if ( !this->m_frame[v23].m_sendCount )
               {
                 bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/windows", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdwindow\\bdreliablesendwindow.cpp", "bdReliableSendWindow::handleAck", 0x1A6u, "Send count should be > 0");
-                v10 = 0;
+                v7 = 0;
               }
-              if ( bdSequenceNumber::operator<(&v60, &v48) )
+              if ( bdSequenceNumber::operator<(&v54, &v44) )
               {
-                ++this->m_frame[v26].m_missingCount;
-                if ( this->m_frame[v26].m_gapAcked )
+                ++this->m_frame[v23].m_missingCount;
+                if ( this->m_frame[v23].m_gapAcked )
                 {
-                  this->m_frame[v26].m_gapAcked = 0;
-                  p_m_timer = &this->m_frame[v26].m_timer;
-                  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(p_m_timer);
-                  __asm { vucomiss xmm0, xmm6 }
-                  if ( v28 )
+                  this->m_frame[v23].m_gapAcked = 0;
+                  p_m_timer = &this->m_frame[v23].m_timer;
+                  v25 = bdStopwatch::getElapsedTimeInSeconds(p_m_timer);
+                  if ( *(float *)&v25 == 0.0 )
                     bdStopwatch::start(p_m_timer);
                 }
               }
               else
               {
-                this->m_frame[v26].m_gapAcked = 1;
-                bdStopwatch::start(&this->m_frame[v26].m_timer);
-                v16 += this->m_frame[v26].m_chunk.m_ptr->getSerializedSize(this->m_frame[v26].m_chunk.m_ptr);
+                this->m_frame[v23].m_gapAcked = 1;
+                bdStopwatch::start(&this->m_frame[v23].m_timer);
+                v14 += this->m_frame[v23].m_chunk.m_ptr->getSerializedSize(this->m_frame[v23].m_chunk.m_ptr);
               }
-              bdSequenceNumber::operator++(&v60, &v52, 0);
+              bdSequenceNumber::operator++(&v54, &v48, 0);
             }
-            while ( bdSequenceNumber::operator<=(&v60, &v38) );
-            GapList = v54;
+            while ( bdSequenceNumber::operator<=(&v54, &v34) );
+            GapList = v50;
           }
-          bdSequenceNumber::bdSequenceNumber(&v49, 1);
-          v40.m_seqNum = bdSequenceNumber::operator+(&v38, &v53, &v49)->m_seqNum;
-          v29 = (int *)GapList->m_head;
+          bdSequenceNumber::bdSequenceNumber(&v45, 1);
+          v36.m_seqNum = bdSequenceNumber::operator+(&v34, &v49, &v45)->m_seqNum;
+          v26 = (int *)GapList->m_head;
           if ( GapList->m_head )
           {
-            GapList->m_head = (bdLinkedList<bdSAckChunk::bdGapAckBlock>::Node *)*((_QWORD *)v29 + 1);
-            v30 = (bdLinkedList<bdSAckChunk::bdGapAckBlock>::Node *)*((_QWORD *)v29 + 2);
-            if ( v29 == (int *)GapList->m_tail )
-              GapList->m_tail = v30;
+            GapList->m_head = (bdLinkedList<bdSAckChunk::bdGapAckBlock>::Node *)*((_QWORD *)v26 + 1);
+            v27 = (bdLinkedList<bdSAckChunk::bdGapAckBlock>::Node *)*((_QWORD *)v26 + 2);
+            if ( v26 == (int *)GapList->m_tail )
+              GapList->m_tail = v27;
             else
-              *(_QWORD *)(*((_QWORD *)v29 + 1) + 16i64) = v30;
-            bdMemory::deallocate(v29);
+              *(_QWORD *)(*((_QWORD *)v26 + 1) + 16i64) = v27;
+            bdMemory::deallocate(v26);
             --GapList->m_size;
           }
         }
-        while ( v10 );
-        v7 = (bdSAckChunk **)m_ptr;
+        while ( v7 );
+        v4 = (bdSAckChunk **)m_ptr;
       }
       m_congestionWindow = this->m_congestionWindow;
       if ( this->m_flightSize >= m_congestionWindow )
       {
         if ( m_congestionWindow > this->m_slowStartThresh )
         {
-          this->m_partialBytesAcked += v16;
+          this->m_partialBytesAcked += v14;
           m_partialBytesAcked = this->m_partialBytesAcked;
           if ( m_partialBytesAcked >= m_congestionWindow )
           {
-            v34 = m_congestionWindow + 1288;
-            this->m_congestionWindow = v34;
-            if ( v34 >= m_partialBytesAcked )
+            v31 = m_congestionWindow + 1288;
+            this->m_congestionWindow = v31;
+            if ( v31 >= m_partialBytesAcked )
               this->m_partialBytesAcked = 0i64;
             else
-              this->m_partialBytesAcked = m_partialBytesAcked - v34;
+              this->m_partialBytesAcked = m_partialBytesAcked - v31;
           }
         }
         else
         {
-          if ( v16 <= 0x508ui64 )
-            v32 = v16 + m_congestionWindow;
+          if ( v14 <= 0x508ui64 )
+            v29 = v14 + m_congestionWindow;
           else
-            v32 = m_congestionWindow + 1288;
-          this->m_congestionWindow = v32;
+            v29 = m_congestionWindow + 1288;
+          this->m_congestionWindow = v29;
         }
       }
-      this->m_lastAcked = v58;
+      this->m_lastAcked = v52;
     }
   }
-  if ( *v7 && _InterlockedExchangeAdd((volatile signed __int32 *)&(*v7)->m_refCount, 0xFFFFFFFF) == 1 )
+  if ( *v4 && _InterlockedExchangeAdd((volatile signed __int32 *)&(*v4)->m_refCount, 0xFFFFFFFF) == 1 )
   {
-    if ( *v7 )
-      ((void (__fastcall *)(bdSAckChunk *, __int64))(*v7)->~bdReferencable)(*v7, 1i64);
-    *v7 = NULL;
+    if ( *v4 )
+      ((void (__fastcall *)(bdSAckChunk *, __int64))(*v4)->~bdReferencable)(*v4, 1i64);
+    *v4 = NULL;
   }
-  v35 = v10;
-  __asm { vmovaps xmm6, xmmword ptr [rsp+0E0h+var_48+8] }
-  return v35;
+  return v7;
 }
 
 /*
@@ -1220,9 +1211,8 @@ __int64 bdReliableSendWindow::isEmpty(bdReliableSendWindow *this)
 bdReliableSendWindow::setTimeoutPeriod
 ==============
 */
-
-void __fastcall bdReliableSendWindow::setTimeoutPeriod(bdReliableSendWindow *this, double secs)
+void bdReliableSendWindow::setTimeoutPeriod(bdReliableSendWindow *this, const float secs)
 {
-  __asm { vmovss  dword ptr [rcx+8], xmm1 }
+  this->m_timeoutPeriod = secs;
 }
 

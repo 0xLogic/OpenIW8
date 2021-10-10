@@ -189,9 +189,11 @@ void GSnapshotWeaponMap::CopyFromBuffer(GSnapshotWeaponMap *this, const WeaponMa
   unsigned __int16 v9; 
   __int64 v10; 
   __int64 v11; 
+  const WeaponMapEntry *v12; 
   unsigned __int16 index; 
-  __int64 v15; 
-  __int64 v19; 
+  __int64 v14; 
+  WeaponMapEntry *v15; 
+  __int64 v16; 
 
   v5 = size;
   if ( !src && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_snapshot_weapon_map.cpp", 54, ASSERT_TYPE_ASSERT, "( src )", (const char *)&queryFormat, "src") )
@@ -208,8 +210,8 @@ void GSnapshotWeaponMap::CopyFromBuffer(GSnapshotWeaponMap *this, const WeaponMa
 LABEL_32:
     if ( !BgWeaponMap::ms_runtimeSizeInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapon_map.h", 228, ASSERT_TYPE_ASSERT, "(ms_runtimeSizeInitialized)", (const char *)&queryFormat, "ms_runtimeSizeInitialized") )
       __debugbreak();
-    LODWORD(v19) = count;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_snapshot_weapon_map.cpp", 56, ASSERT_TYPE_ASSERT, "( 0 ) <= ( count ) && ( count ) <= ( BgWeaponMap::GetRuntimeSize() )", "count not in [0, BgWeaponMap::GetRuntimeSize()]\n\t%i not in [%i, %i]", v19, 0i64, BgWeaponMap::ms_runtimeSize) )
+    LODWORD(v16) = count;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_snapshot_weapon_map.cpp", 56, ASSERT_TYPE_ASSERT, "( 0 ) <= ( count ) && ( count ) <= ( BgWeaponMap::GetRuntimeSize() )", "count not in [0, BgWeaponMap::GetRuntimeSize()]\n\t%i not in [%i, %i]", v16, 0i64, BgWeaponMap::ms_runtimeSize) )
       __debugbreak();
   }
   if ( !this->m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_snapshot_weapon_map.cpp", 57, ASSERT_TYPE_ASSERT, "( m_entries != nullptr )", (const char *)&queryFormat, "m_entries != nullptr") )
@@ -220,27 +222,21 @@ LABEL_32:
     v11 = (unsigned int)count;
     do
     {
-      _RBX = &src[offset % v10];
-      index = _RBX->index;
-      if ( _RBX->index > v9 )
+      v12 = &src[offset % v10];
+      index = v12->index;
+      if ( v12->index > v9 )
       {
         memset_0(&this->m_entries[v9], 0, 62i64 * (unsigned __int16)(index - v9));
         v9 = index;
       }
-      __asm { vmovups ymm0, ymmword ptr [rbx] }
       ++offset;
-      v15 = v9++;
-      _RCX = &this->m_entries[v15];
-      __asm
-      {
-        vmovups ymmword ptr [rcx], ymm0
-        vmovups xmm1, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rcx+20h], xmm1
-        vmovsd  xmm0, qword ptr [rbx+30h]
-        vmovsd  qword ptr [rcx+30h], xmm0
-      }
-      *(_DWORD *)&_RCX->weapon.attachmentVariationIndices[27] = *(_DWORD *)&_RBX->weapon.attachmentVariationIndices[27];
-      *(_WORD *)&_RCX->weapon.scopeVariation = *(_WORD *)&_RBX->weapon.scopeVariation;
+      v14 = v9++;
+      v15 = &this->m_entries[v14];
+      *(__m256i *)&v15->index = *(__m256i *)&v12->index;
+      *(_OWORD *)&v15->weapon.attachmentVariationIndices[3] = *(_OWORD *)&v12->weapon.attachmentVariationIndices[3];
+      *(double *)&v15->weapon.attachmentVariationIndices[19] = *(double *)&v12->weapon.attachmentVariationIndices[19];
+      *(_DWORD *)&v15->weapon.attachmentVariationIndices[27] = *(_DWORD *)&v12->weapon.attachmentVariationIndices[27];
+      *(_WORD *)&v15->weapon.scopeVariation = *(_WORD *)&v12->weapon.scopeVariation;
       --v11;
     }
     while ( v11 );
@@ -340,13 +336,13 @@ void GSnapshotWeaponMap::SetWeapon(GSnapshotWeaponMap *this, BgWeaponHandle *han
   unsigned __int16 v11; 
   unsigned __int16 v12; 
   unsigned __int16 v13; 
-  __int64 v15; 
+  __int64 v14; 
+  Weapon *v15; 
   const char *WeaponName; 
   BgWeaponHandle *handlea; 
   char output[512]; 
 
   handlea = handle;
-  _R13 = r_weapon;
   if ( !handle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_snapshot_weapon_map.cpp", 113, ASSERT_TYPE_ASSERT, "( handle )", (const char *)&queryFormat, "handle", 0i64) )
     __debugbreak();
   if ( !this->m_entries && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_snapshot_weapon_map.cpp", 114, ASSERT_TYPE_ASSERT, "( m_entries != nullptr )", (const char *)&queryFormat, "m_entries != nullptr") )
@@ -358,11 +354,11 @@ void GSnapshotWeaponMap::SetWeapon(GSnapshotWeaponMap *this, BgWeaponHandle *han
       p_weapon = &BgWeaponMap::GetWeaponEntry(this, handle->m_mapEntryId)->weapon;
       if ( !p_weapon->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_snapshot_weapon_map.cpp", 126, ASSERT_TYPE_ASSERT, "(!BG_IsNullWeapon( r_currentWeapon ))", (const char *)&queryFormat, "!BG_IsNullWeapon( r_currentWeapon )") )
         __debugbreak();
-      if ( !memcmp_0(p_weapon, _R13, 0x3Cui64) )
+      if ( !memcmp_0(p_weapon, r_weapon, 0x3Cui64) )
         return;
     }
   }
-  else if ( !_R13->weaponIdx )
+  else if ( !r_weapon->weaponIdx )
   {
     return;
   }
@@ -386,7 +382,7 @@ void GSnapshotWeaponMap::SetWeapon(GSnapshotWeaponMap *this, BgWeaponHandle *han
       m_entries = this->m_entries;
       if ( m_entries[v11].index == v11 )
       {
-        if ( !memcmp_0(_R13, &m_entries[v9].weapon, 0x3Cui64) )
+        if ( !memcmp_0(r_weapon, &m_entries[v9].weapon, 0x3Cui64) )
         {
           BgWeaponMap::SetMapIndexForHandle(this, handlea, v9);
           return;
@@ -415,19 +411,13 @@ void GSnapshotWeaponMap::SetWeapon(GSnapshotWeaponMap *this, BgWeaponHandle *han
       __debugbreak();
     if ( this->m_entries[v13].index == v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_snapshot_weapon_map.cpp", 161, ASSERT_TYPE_ASSERT, "(!IsEntryValid( availEntryIndex ))", "%s\n\tAdding new weapon entry: found an available entry but the index for that entry is already active.", "!IsEntryValid( availEntryIndex )") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [r13+0] }
-    v15 = v7;
-    _R8 = &this->m_entries[v15].weapon;
-    __asm
-    {
-      vmovups ymmword ptr [r8], ymm0
-      vmovups xmm1, xmmword ptr [r13+20h]
-      vmovups xmmword ptr [r8+20h], xmm1
-      vmovsd  xmm0, qword ptr [r13+30h]
-      vmovsd  qword ptr [r8+30h], xmm0
-    }
-    *(_DWORD *)&_R8->weaponCamo = *(_DWORD *)&_R13->weaponCamo;
-    this->m_entries[v15].index = v7;
+    v14 = v7;
+    v15 = &this->m_entries[v14].weapon;
+    *(__m256i *)&v15->weaponIdx = *(__m256i *)&r_weapon->weaponIdx;
+    *(_OWORD *)&v15->attachmentVariationIndices[5] = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+    *(double *)&v15->attachmentVariationIndices[21] = *(double *)&r_weapon->attachmentVariationIndices[21];
+    *(_DWORD *)&v15->weaponCamo = *(_DWORD *)&r_weapon->weaponCamo;
+    this->m_entries[v14].index = v7;
     BgWeaponMap::SetMapIndexForHandle(this, handlea, v7);
   }
   else
@@ -435,7 +425,7 @@ void GSnapshotWeaponMap::SetWeapon(GSnapshotWeaponMap *this, BgWeaponHandle *han
 LABEL_53:
     Com_PrintError(131088, "Unable to acquire handle for weapon. The weapon map is full. Will Com_Error and disconnect all players\n");
     BgWeaponMap::PrintMap(this);
-    WeaponName = BG_GetWeaponName(_R13, output, 0x200u);
+    WeaponName = BG_GetWeaponName(r_weapon, output, 0x200u);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_snapshot_weapon_map.cpp", 181, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unable to acquire handle for weapon %s. The weapon map is full.", WeaponName) )
       __debugbreak();
   }

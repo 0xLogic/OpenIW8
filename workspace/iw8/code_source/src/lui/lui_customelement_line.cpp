@@ -5,28 +5,22 @@ LUIElement_Line_SetThickness
 */
 __int64 LUIElement_Line_SetThickness(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  unsigned int v8; 
+  LUIElement *v2; 
+  double v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetThickness( thickness )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    v4 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_Line_GetLineData(v4, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+0A8h], xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    LUIElement_Line_GetLineData(v2, luaVM)->thickness = *(float *)&v3;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v8 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v8);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v4);
   }
   return 0i64;
 }
@@ -38,28 +32,22 @@ LUIElement_Line_SetLineLengthScalar
 */
 __int64 LUIElement_Line_SetLineLengthScalar(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  unsigned int v8; 
+  LUIElement *v2; 
+  double v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetLineLengthScalar( scalar )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    v4 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_Line_GetLineData(v4, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+0ACh], xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    LUIElement_Line_GetLineData(v2, luaVM)->lengthScalar = *(float *)&v3;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v8 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v8);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v4);
   }
   return 0i64;
 }
@@ -258,66 +246,46 @@ LUIElement_ApplyTagOffset
 */
 void LUIElement_ApplyTagOffset(LUIElement *element, const LUILineVertex *vertex, const tmat33_t<vec3_t> *localAxis, vec3_t *outWorldPosition)
 {
-  char v6; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
   vec3_t forward; 
   vec3_t right; 
   vec3_t up; 
   vec3_t angles; 
 
-  __asm
+  if ( vertex->tagOffset.v[0] != 0.0 || vertex->tagOffset.v[1] != 0.0 || vertex->tagOffset.v[2] != 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rdx+48h]
-  }
-  _RDI = outWorldPosition;
-  _RBX = vertex;
-  if ( !v6 )
-    goto LABEL_4;
-  __asm { vucomiss xmm0, dword ptr [rdx+4Ch] }
-  if ( !v6 )
-    goto LABEL_4;
-  __asm { vucomiss xmm0, dword ptr [rdx+50h] }
-  if ( !v6 )
-  {
-LABEL_4:
-    __asm { vmovaps [rsp+88h+var_18], xmm6 }
     AxisToAngles(localAxis, &angles);
     AngleVectors(&angles, &forward, &right, &up);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+48h]
-      vmulss  xmm1, xmm2, dword ptr [rsp+88h+forward]
-      vaddss  xmm4, xmm1, dword ptr [rdi]
-      vmulss  xmm1, xmm2, dword ptr [rsp+88h+forward+4]
-      vaddss  xmm5, xmm1, dword ptr [rdi+4]
-      vmulss  xmm1, xmm2, dword ptr [rsp+88h+forward+8]
-      vaddss  xmm6, xmm1, dword ptr [rdi+8]
-      vmovss  dword ptr [rdi+8], xmm6
-      vmovss  dword ptr [rdi], xmm4
-      vmovss  dword ptr [rdi+4], xmm5
-      vmovss  xmm0, dword ptr [rbx+4Ch]
-      vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm1, xmm3, dword ptr [rsp+88h+right+4]
-      vmulss  xmm2, xmm3, dword ptr [rsp+88h+right]
-      vaddss  xmm5, xmm1, xmm5
-      vmulss  xmm1, xmm3, dword ptr [rsp+88h+right+8]
-      vaddss  xmm6, xmm1, xmm6
-      vaddss  xmm4, xmm2, xmm4
-      vmovss  dword ptr [rdi+8], xmm6
-      vmovss  dword ptr [rdi], xmm4
-      vmovss  dword ptr [rdi+4], xmm5
-      vmovss  xmm3, dword ptr [rbx+50h]
-      vmulss  xmm1, xmm3, dword ptr [rsp+88h+up]
-      vaddss  xmm2, xmm1, xmm4
-      vmulss  xmm1, xmm3, dword ptr [rsp+88h+up+4]
-      vmovss  dword ptr [rdi], xmm2
-      vaddss  xmm2, xmm1, xmm5
-      vmulss  xmm1, xmm3, dword ptr [rsp+88h+up+8]
-      vmovss  dword ptr [rdi+4], xmm2
-      vaddss  xmm2, xmm1, xmm6
-      vmovaps xmm6, [rsp+88h+var_18]
-      vmovss  dword ptr [rdi+8], xmm2
-    }
+    v6 = vertex->tagOffset.v[0];
+    v7 = (float)(v6 * forward.v[0]) + outWorldPosition->v[0];
+    v8 = (float)(v6 * forward.v[1]) + outWorldPosition->v[1];
+    v9 = (float)(v6 * forward.v[2]) + outWorldPosition->v[2];
+    outWorldPosition->v[2] = v9;
+    outWorldPosition->v[0] = v7;
+    outWorldPosition->v[1] = v8;
+    v10 = vertex->tagOffset.v[1];
+    v11 = (float)(COERCE_FLOAT(LODWORD(v10) ^ _xmm) * right.v[1]) + v8;
+    v12 = (float)(COERCE_FLOAT(LODWORD(v10) ^ _xmm) * right.v[2]) + v9;
+    v13 = (float)(COERCE_FLOAT(LODWORD(v10) ^ _xmm) * right.v[0]) + v7;
+    outWorldPosition->v[2] = v12;
+    outWorldPosition->v[0] = v13;
+    outWorldPosition->v[1] = v11;
+    v14 = vertex->tagOffset.v[2];
+    v15 = v14 * up.v[1];
+    outWorldPosition->v[0] = (float)(v14 * up.v[0]) + v13;
+    v16 = v14 * up.v[2];
+    outWorldPosition->v[1] = v15 + v11;
+    outWorldPosition->v[2] = v16 + v12;
   }
 }
 
@@ -343,79 +311,74 @@ LUIElement_Line_GetScreenPositionForVertex
 bool LUIElement_Line_GetScreenPositionForVertex(LocalClientNum_t localClientNum, LUIElement *element, const LUILineVertex *vertex, vec2_t *outPosition)
 {
   __int64 v5; 
-  char attachType; 
-  bool v19; 
-  const ScreenPlacement *v20; 
+  LUILineVertexAttachType attachType; 
+  float v16; 
+  bool v17; 
+  const ScreenPlacement *v18; 
   vec3_t outWorldPosition; 
-  dvec3_t v22; 
+  dvec3_t v20; 
   tmat33_t<vec3_t> outLocalAxis; 
   tmat33_t<vec3_t> localAxis; 
 
   v5 = localClientNum;
-  _RBX = vertex;
   if ( (unsigned __int8)(vertex->attachType - 1) > 3u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_line.cpp", 83, ASSERT_TYPE_ASSERT, "(vertex->attachType == LUILineVertexAttachType::POSITION_3D || vertex->attachType == LUILineVertexAttachType::ENTITY || vertex->attachType == LUILineVertexAttachType::VIEWMODEL || vertex->attachType == LUILineVertexAttachType::WORLDMODEL)", (const char *)&queryFormat, "vertex->attachType == LUILineVertexAttachType::POSITION_3D || vertex->attachType == LUILineVertexAttachType::ENTITY || vertex->attachType == LUILineVertexAttachType::VIEWMODEL || vertex->attachType == LUILineVertexAttachType::WORLDMODEL") )
     __debugbreak();
-  attachType = _RBX->attachType;
-  if ( _RBX->attachType == POSITION_3D )
+  attachType = vertex->attachType;
+  if ( vertex->attachType == POSITION_3D )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+4]
-      vmovss  xmm1, dword ptr [rbx+8]
-      vmovss  dword ptr [rsp+0C8h+outWorldPosition], xmm0
-      vmovss  xmm0, dword ptr [rbx+0Ch]
-      vmovss  dword ptr [rsp+0C8h+outWorldPosition+8], xmm0
-      vmovss  dword ptr [rsp+0C8h+outWorldPosition+4], xmm1
-    }
+    v16 = vertex->position.v[1];
+    LODWORD(outWorldPosition.v[0]) = vertex->entityNum;
+    outWorldPosition.v[2] = vertex->position.v[2];
+    outWorldPosition.v[1] = v16;
   }
   else
   {
-    if ( attachType <= 1 )
+    if ( attachType <= POSITION_3D )
       goto LABEL_14;
     if ( attachType > 3 )
     {
       if ( attachType != 4 )
         goto LABEL_14;
-      if ( LUI_GetEntityTagPositionAndAxis((const LocalClientNum_t)v5, _RBX->entityNum, _RBX->tagName, &outLocalAxis, &outWorldPosition) )
+      if ( LUI_GetEntityTagPositionAndAxis((const LocalClientNum_t)v5, vertex->entityNum, vertex->tagName, &outLocalAxis, &outWorldPosition) )
       {
-        LUIElement_ApplyTagOffset(element, _RBX, &outLocalAxis, &outWorldPosition);
+        LUIElement_ApplyTagOffset(element, vertex, &outLocalAxis, &outWorldPosition);
         goto LABEL_14;
       }
       return 0;
     }
-    if ( !LUI_GetViewModelTransform((const LocalClientNum_t)v5, WEAPON_HAND_DEFAULT, _RBX->tagName, &localAxis, &v22) )
+    if ( !LUI_GetViewModelTransform((const LocalClientNum_t)v5, WEAPON_HAND_DEFAULT, vertex->tagName, &localAxis, &v20) )
       return 0;
+    _XMM0 = *(unsigned __int64 *)&v20.x;
+    _XMM1 = *(unsigned __int64 *)&v20.y;
+    __asm { vcvtpd2ps xmm0, xmm0 }
+    outWorldPosition.v[0] = *(float *)&_XMM0;
+    _XMM0 = *(unsigned __int64 *)&v20.z;
     __asm
     {
-      vmovsd  xmm0, qword ptr [rsp+0C8h+var_88]
-      vmovsd  xmm1, qword ptr [rsp+0C8h+var_88+8]
-      vcvtpd2ps xmm0, xmm0
-      vmovss  dword ptr [rsp+0C8h+outWorldPosition], xmm0
-      vmovsd  xmm0, qword ptr [rsp+0C8h+var_88+10h]
       vcvtpd2ps xmm0, xmm0
       vcvtpd2ps xmm1, xmm1
-      vmovss  dword ptr [rsp+0C8h+outWorldPosition+8], xmm0
-      vmovss  dword ptr [rsp+0C8h+outWorldPosition+4], xmm1
     }
-    LUIElement_ApplyTagOffset(element, _RBX, &localAxis, &outWorldPosition);
+    outWorldPosition.v[2] = *(float *)&_XMM0;
+    outWorldPosition.v[1] = *(float *)&_XMM1;
+    LUIElement_ApplyTagOffset(element, vertex, &localAxis, &outWorldPosition);
   }
 LABEL_14:
   if ( activeScreenPlacementMode )
   {
     if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
     {
-      v20 = &scrPlaceViewDisplay[v5];
-      return CG_WorldPosToScreenPosReal((LocalClientNum_t)v5, v20, &outWorldPosition, outPosition);
+      v18 = &scrPlaceViewDisplay[v5];
+      return CG_WorldPosToScreenPosReal((LocalClientNum_t)v5, v18, &outWorldPosition, outPosition);
     }
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v19 )
+      v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v17 )
       __debugbreak();
   }
-  v20 = &scrPlaceFull;
-  return CG_WorldPosToScreenPosReal((LocalClientNum_t)v5, v20, &outWorldPosition, outPosition);
+  v18 = &scrPlaceFull;
+  return CG_WorldPosToScreenPosReal((LocalClientNum_t)v5, v18, &outWorldPosition, outPosition);
 }
 
 /*
@@ -426,40 +389,33 @@ LUIElement_Line_Layout
 void LUIElement_Line_Layout(const LocalClientNum_t localClientNum, LUIElement *element, float unitScale, int deltaTime, lua_State *luaVM)
 {
   void *customElementData; 
+  float v8; 
+  float v9; 
   vec2_t outPosition; 
 
-  _RBX = element;
   LUIElement_DefaultLayout(localClientNum, element, unitScale, deltaTime, luaVM);
-  if ( !_RBX->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
+  if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  customElementData = _RBX->customElementData;
+  customElementData = element->customElementData;
   if ( *(_BYTE *)customElementData )
   {
-    if ( !LUIElement_Line_GetScreenPositionForVertex(localClientNum, _RBX, (const LUILineVertex *)_RBX->customElementData, &outPosition) )
+    if ( !LUIElement_Line_GetScreenPositionForVertex(localClientNum, element, (const LUILineVertex *)element->customElementData, &outPosition) )
       goto LABEL_10;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+58h+outPosition]
-      vmovss  xmm1, dword ptr [rsp+58h+outPosition+4]
-      vmovss  dword ptr [rbx+0CCh], xmm0
-      vmovss  dword ptr [rbx+0D0h], xmm1
-    }
+    v8 = outPosition.v[1];
+    element->left = outPosition.v[0];
+    element->top = v8;
   }
   if ( !*((_BYTE *)customElementData + 84) )
     return;
-  if ( LUIElement_Line_GetScreenPositionForVertex(localClientNum, _RBX, (const LUILineVertex *)customElementData + 1, &outPosition) )
+  if ( LUIElement_Line_GetScreenPositionForVertex(localClientNum, element, (const LUILineVertex *)customElementData + 1, &outPosition) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+58h+outPosition]
-      vmovss  xmm1, dword ptr [rsp+58h+outPosition+4]
-      vmovss  dword ptr [rbx+0D4h], xmm0
-      vmovss  dword ptr [rbx+0D8h], xmm1
-    }
+    v9 = outPosition.v[1];
+    element->right = outPosition.v[0];
+    element->bottom = v9;
     return;
   }
 LABEL_10:
-  _RBX->currentAnimationState.flags &= ~1u;
+  element->currentAnimationState.flags &= ~1u;
 }
 
 /*
@@ -467,177 +423,96 @@ LABEL_10:
 LUIElement_Line_Render
 ==============
 */
-
-void __fastcall LUIElement_Line_Render(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, double alpha, float red, float green, float blue, lua_State *luaVM)
+void LUIElement_Line_Render(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, float alpha, float red, float green, float blue, lua_State *luaVM)
 {
-  bool v18; 
-  bool v22; 
-  vec4_t *v78; 
-  __int64 v79; 
-  float fmt; 
-  float vMin; 
-  float v95; 
-  float v96; 
+  float *customElementData; 
+  float left; 
+  float top; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  double CurrentUnitScale; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  vec4_t *v30; 
+  __int64 v31; 
   vec4_t color; 
   vec4_t point[4]; 
-  char v101; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
+  if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
+    __debugbreak();
+  customElementData = (float *)element->customElementData;
+  left = element->left;
+  top = element->top;
+  v14 = customElementData[43];
+  v15 = (float)(element->right - left) * v14;
+  v16 = (float)(element->bottom - top) * v14;
+  v17 = fsqrt((float)(v16 * v16) + (float)(v15 * v15));
+  if ( v17 > 1.0 )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-  }
-  v18 = element->customElementData == NULL;
-  _RSI = element;
-  __asm { vmovaps xmm12, xmm3 }
-  if ( !element->customElementData )
-  {
-    v22 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL");
-    v18 = !v22;
-    if ( v22 )
-      __debugbreak();
-  }
-  __asm { vmovss  xmm0, dword ptr [rsi+0D4h] }
-  _RBX = _RSI->customElementData;
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rsi+0CCh]
-    vmovss  xmm10, dword ptr [rsi+0D0h]
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm2, dword ptr [rbx+0ACh]
-    vsubss  xmm1, xmm0, xmm8
-    vmovss  xmm0, dword ptr [rsi+0D8h]
-    vmulss  xmm7, xmm1, xmm2
-    vsubss  xmm1, xmm0, xmm10
-    vmulss  xmm6, xmm1, xmm2
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm1, xmm2, xmm0
-    vsqrtss xmm11, xmm1, xmm1
-    vcomiss xmm11, xmm9
-  }
-  if ( !v18 )
-  {
-    _EAX = _RSI->currentAnimationState.userDataShorts[0];
-    __asm { vmovd   xmm0, eax }
-    _EAX = _RSI->currentAnimationState.userDataShorts[1];
-    __asm
+    v18 = _mm_cvtepi32_ps((__m128i)(unsigned int)element->currentAnimationState.userDataShorts[0]).m128_f32[0] * 0.000030518509;
+    v19 = (float)(v15 * v18) + left;
+    v20 = _mm_cvtepi32_ps((__m128i)(unsigned int)element->currentAnimationState.userDataShorts[1]).m128_f32[0] * 0.000030518509;
+    v21 = (float)(v16 * v18) + top;
+    v22 = (float)(left + v15) + (float)(COERCE_FLOAT(LODWORD(v20) ^ _xmm) * v15);
+    v23 = (float)(top + v16) + (float)(COERCE_FLOAT(LODWORD(v20) ^ _xmm) * v16);
+    if ( (float)(1.0 - v18) > v20 )
     {
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm5, xmm0, cs:__real@38000100
-      vmulss  xmm0, xmm7, xmm5
-      vmovaps xmmword ptr [rsp+160h+var_A8+8], xmm14
-      vaddss  xmm14, xmm0, xmm8
-      vmulss  xmm1, xmm6, xmm5
-      vmovd   xmm0, eax
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm4, xmm0, cs:__real@38000100
-      vxorps  xmm3, xmm4, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm3, xmm7
-      vmovaps [rsp+160h+var_B8+8], xmm15
-      vaddss  xmm15, xmm1, xmm10
-      vaddss  xmm1, xmm8, xmm7
-      vaddss  xmm8, xmm1, xmm0
-      vsubss  xmm0, xmm9, xmm5
-      vcomiss xmm0, xmm4
-      vaddss  xmm2, xmm10, xmm6
-      vmulss  xmm1, xmm3, xmm6
-      vaddss  xmm3, xmm2, xmm1
-      vxorps  xmm10, xmm10, xmm10
-      vdivss  xmm1, xmm9, xmm11
-      vmulss  xmm0, xmm1, xmm6
-      vxorps  xmm6, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmovss  dword ptr [rsp+160h+point], xmm14
-      vmovss  dword ptr [rsp+160h+point+4], xmm15
-      vmovss  dword ptr [rsp+160h+point+8], xmm10
-      vmovss  dword ptr [rsp+160h+point+0Ch], xmm9
-      vmovss  [rsp+160h+var_F0], xmm14
-      vmovss  [rsp+160h+var_EC], xmm15
-      vmovss  [rsp+160h+var_E8], xmm10
-      vmovss  [rsp+160h+var_E4], xmm9
-      vmovss  [rbp+60h+var_E0], xmm8
-      vmovss  [rbp+60h+var_DC], xmm3
-      vmovss  [rbp+60h+var_D8], xmm10
-      vmovss  [rbp+60h+var_D4], xmm9
-      vmovss  [rbp+60h+var_D0], xmm8
-      vmovss  [rbp+60h+var_CC], xmm3
-      vmovss  [rbp+60h+var_C8], xmm10
-      vmovss  [rbp+60h+var_C4], xmm9
-      vmulss  xmm7, xmm1, xmm7
+      LODWORD(v24) = COERCE_UNSIGNED_INT((float)(1.0 / v17) * v16) ^ _xmm;
+      point[0].v[0] = v19;
+      point[0].v[1] = v21;
+      point[0].v[2] = 0.0;
+      point[0].v[3] = FLOAT_1_0;
+      point[1].v[0] = v19;
+      point[1].v[1] = v21;
+      point[1].v[2] = 0.0;
+      point[1].v[3] = FLOAT_1_0;
+      point[2].v[0] = v22;
+      point[2].v[1] = v23;
+      point[2].v[2] = 0.0;
+      point[2].v[3] = FLOAT_1_0;
+      point[3].v[0] = v22;
+      point[3].v[1] = v23;
+      point[3].v[2] = 0.0;
+      point[3].v[3] = FLOAT_1_0;
+      CurrentUnitScale = LUI_Render_GetCurrentUnitScale();
+      v26 = (float)(*(float *)&CurrentUnitScale * customElementData[42]) * 0.5;
+      v27 = v24 * v26;
+      *(float *)&CurrentUnitScale = (float)(v24 * v26) + point[0].v[0];
+      v28 = (float)((float)(1.0 / v17) * v15) * v26;
+      LODWORD(v29) = LODWORD(v26) ^ _xmm;
+      point[0].v[0] = *(float *)&CurrentUnitScale;
+      point[0].v[1] = v28 + point[0].v[1];
+      point[1].v[0] = (float)(v24 * v29) + point[1].v[0];
+      point[1].v[1] = (float)((float)((float)(1.0 / v17) * v15) * v29) + point[1].v[1];
+      point[2].v[0] = (float)(v24 * v29) + point[2].v[0];
+      point[3].v[0] = v27 + point[3].v[0];
+      point[3].v[1] = v28 + point[3].v[1];
+      point[2].v[1] = (float)((float)((float)(1.0 / v17) * v15) * v29) + point[2].v[1];
+      v30 = point;
+      v31 = 4i64;
+      do
+      {
+        LUI_ApplyTransformsToPoint(v30++);
+        --v31;
+      }
+      while ( v31 );
+      color.v[0] = red;
+      color.v[1] = green;
+      color.v[2] = blue;
+      color.v[3] = alpha;
+      LUI_Render_DrawImage(localClientNum, element, luaVM, (const vec4_t (*)[4])point, 0.0, 0.0, 1.0, 1.0, &color, LUI_DefaultMaterial);
     }
-    *(double *)&_XMM0 = LUI_Render_GetCurrentUnitScale();
-    __asm
-    {
-      vmulss  xmm0, xmm0, dword ptr [rbx+0A8h]
-      vmulss  xmm2, xmm0, cs:__real@3f000000
-      vmulss  xmm8, xmm6, xmm2
-      vaddss  xmm0, xmm8, dword ptr [rsp+160h+point]
-      vmulss  xmm5, xmm7, xmm2
-      vxorps  xmm2, xmm2, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm4, xmm6, xmm2
-      vaddss  xmm1, xmm4, [rsp+160h+var_F0]
-      vmovss  dword ptr [rsp+160h+point], xmm0
-      vaddss  xmm0, xmm5, dword ptr [rsp+160h+point+4]
-      vmulss  xmm3, xmm7, xmm2
-      vaddss  xmm2, xmm3, [rbp+60h+var_DC]
-      vmovss  dword ptr [rsp+160h+point+4], xmm0
-      vaddss  xmm0, xmm4, [rbp+60h+var_E0]
-      vmovss  [rsp+160h+var_F0], xmm1
-      vaddss  xmm1, xmm3, [rsp+160h+var_EC]
-      vmovss  [rsp+160h+var_EC], xmm1
-      vaddss  xmm1, xmm8, [rbp+60h+var_D0]
-      vmovss  [rbp+60h+var_E0], xmm0
-      vaddss  xmm0, xmm5, [rbp+60h+var_CC]
-      vmovss  [rbp+60h+var_D0], xmm1
-      vmovss  [rbp+60h+var_CC], xmm0
-      vmovss  [rbp+60h+var_DC], xmm2
-    }
-    v78 = point;
-    v79 = 4i64;
-    do
-    {
-      LUI_ApplyTransformsToPoint(v78++);
-      --v79;
-    }
-    while ( v79 );
-    __asm
-    {
-      vmovss  xmm0, [rbp+60h+red]
-      vmovss  xmm1, [rbp+60h+green]
-      vmovss  dword ptr [rsp+160h+var_128], xmm9
-      vmovss  dword ptr [rsp+160h+var_110], xmm0
-      vmovss  xmm0, [rbp+60h+blue]
-      vmovss  [rsp+160h+var_130], xmm9
-      vmovss  [rsp+160h+vMin], xmm10
-      vmovss  dword ptr [rsp+160h+fmt], xmm10
-      vmovss  dword ptr [rsp+160h+var_110+4], xmm1
-      vmovss  dword ptr [rsp+160h+var_110+8], xmm0
-      vmovss  dword ptr [rsp+160h+var_110+0Ch], xmm12
-    }
-    LUI_Render_DrawImage(localClientNum, _RSI, luaVM, (const vec4_t (*)[4])point, fmt, vMin, v95, v96, &color, LUI_DefaultMaterial);
-    __asm
-    {
-      vmovaps xmm14, xmmword ptr [rsp+160h+var_A8+8]
-      vmovaps xmm15, [rsp+160h+var_B8+8]
-    }
-  }
-  _R11 = &v101;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
   }
 }
 
@@ -688,15 +563,17 @@ __int64 LUIElement_Line_SetVertexEntity_impl(lua_State *const luaVM)
 LUIElement_Line_SetVertexPadding_impl
 ==============
 */
-
-__int64 __fastcall LUIElement_Line_SetVertexPadding_impl(lua_State *const luaVM, double _XMM1_8)
+__int64 LUIElement_Line_SetVertexPadding_impl(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  int v5; 
-  __int64 v6; 
-  int v11; 
-  unsigned __int8 v12; 
-  LUITween *v14; 
+  LUIElement *v2; 
+  int v3; 
+  __int64 v4; 
+  double v5; 
+  double v6; 
+  int v7; 
+  int v8; 
+  unsigned __int8 v9; 
+  LUITween *v11; 
 
   if ( j_lua_gettop(luaVM) < 3 || j_lua_gettop(luaVM) > 5 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) || j_lua_gettop(luaVM) >= 4 && !j_lua_isnumber(luaVM, 4) || j_lua_gettop(luaVM) >= 5 && !j_lua_isnumber(luaVM, 5) )
     j_luaL_error(luaVM, "USAGE: element:SetVertexPadding( vertexNumber, padding, ?duration, ?easing )");
@@ -704,46 +581,37 @@ __int64 __fastcall LUIElement_Line_SetVertexPadding_impl(lua_State *const luaVM,
     return 0i64;
   if ( j_lua_gettop(luaVM) >= 5 && !j_lua_isnumber(luaVM, 5) )
     return 0i64;
-  v4 = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(v4, luaVM) )
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) )
     return 0i64;
-  v5 = lui_tointeger32(luaVM, 2);
-  v6 = v5;
-  if ( (unsigned int)v5 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_line.cpp", 281, ASSERT_TYPE_ASSERT, "(unsigned)( vertexNumber ) < (unsigned)( 2 )", "vertexNumber doesn't index 2\n\t%i not in [0, %i)", v5, 2) )
+  v3 = lui_tointeger32(luaVM, 2);
+  v4 = v3;
+  if ( (unsigned int)v3 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_line.cpp", 281, ASSERT_TYPE_ASSERT, "(unsigned)( vertexNumber ) < (unsigned)( 2 )", "vertexNumber doesn't index 2\n\t%i not in [0, %i)", v3, 2) )
     __debugbreak();
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@46fffe00
-    vcvttss2si r12d, xmm1
-  }
+  v5 = lui_tonumber32(luaVM, 3);
+  v6 = I_fclamp(*(float *)&v5, 0.0, 1.0);
+  v7 = (int)(float)(*(float *)&v6 * 32767.0);
   if ( j_lua_gettop(luaVM) < 3 )
-    v11 = 0;
+    v8 = 0;
   else
-    v11 = lui_tointeger32(luaVM, 4);
-  v12 = ((_DWORD)v6 != 0) + 53;
-  if ( v11 <= 0 )
+    v8 = lui_tointeger32(luaVM, 4);
+  v9 = ((_DWORD)v4 != 0) + 53;
+  if ( v8 <= 0 )
   {
-    LUI_Tween_InterruptElementTween(v4, (LUITweenProperty)v12, luaVM);
-    *(&v4->currentAnimationState.dataSource + v6) = _ER12;
-    LUI_QuadCache_Element_Invalidate(v4);
+    LUI_Tween_InterruptElementTween(v2, (LUITweenProperty)v9, luaVM);
+    *(&v2->currentAnimationState.dataSource + v4) = v7;
+    LUI_QuadCache_Element_Invalidate(v2);
     return 0i64;
   }
-  v14 = LUI_Tween_Create(luaVM, v4);
+  v11 = LUI_Tween_Create(luaVM, v2);
   if ( j_lua_gettop(luaVM) >= 4 )
-    v14->easing = lui_tointeger32(luaVM, 5);
-  v14->targetProperty[0] = v12;
-  v14->duration = v11;
-  v14->startValue.shortValue = v4->currentAnimationState.userDataShorts[v6];
-  v14->endValue.shortValue = _ER12;
-  LUI_Tween_AddElementTween(v4, v14, luaVM, 0);
-  LUI_Tween_PushOnLuaStack(v14, luaVM);
+    v11->easing = lui_tointeger32(luaVM, 5);
+  v11->targetProperty[0] = v9;
+  v11->duration = v8;
+  v11->startValue.shortValue = v2->currentAnimationState.userDataShorts[v4];
+  v11->endValue.shortValue = v7;
+  LUI_Tween_AddElementTween(v2, v11, luaVM, 0);
+  LUI_Tween_PushOnLuaStack(v11, luaVM);
   return 1i64;
 }
 
@@ -754,42 +622,36 @@ LUIElement_Line_SetVertexTagSpacePosition_impl
 */
 __int64 LUIElement_Line_SetVertexTagSpacePosition_impl(lua_State *const luaVM)
 {
-  LUIElement *v6; 
-  int v7; 
-  __int64 v8; 
+  LUIElement *v2; 
+  int v3; 
+  __int64 v4; 
+  double v5; 
+  float v6; 
+  double v7; 
+  float v8; 
+  double v9; 
+  LUILine *LineData; 
+  __int64 v11; 
 
   if ( j_lua_gettop(luaVM) != 5 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) || !j_lua_isnumber(luaVM, 4) || !j_lua_isnumber(luaVM, 5) )
     j_luaL_error(luaVM, "USAGE: element:SetVertexTagSpacePosition( vertex, x, y, z )");
   if ( j_lua_gettop(luaVM) == 5 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) && j_lua_isnumber(luaVM, 4) && j_lua_isnumber(luaVM, 5) )
   {
-    __asm
-    {
-      vmovaps [rsp+78h+var_18], xmm6
-      vmovaps [rsp+78h+var_28], xmm7
-      vmovaps [rsp+78h+var_38], xmm8
-    }
-    v6 = LUI_ToElement(luaVM, 1);
-    v7 = lui_tointeger32(luaVM, 2);
-    v8 = v7;
-    if ( (unsigned int)v7 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_line.cpp", 459, ASSERT_TYPE_ASSERT, "(unsigned)( vertexNumber ) < (unsigned)( 2 )", "vertexNumber doesn't index 2\n\t%i not in [0, %i)", v7, 2) )
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tointeger32(luaVM, 2);
+    v4 = v3;
+    if ( (unsigned int)v3 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_line.cpp", 459, ASSERT_TYPE_ASSERT, "(unsigned)( vertexNumber ) < (unsigned)( 2 )", "vertexNumber doesn't index 2\n\t%i not in [0, %i)", v3, 2) )
       __debugbreak();
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 4);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 5);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_Line_GetLineData(v6, luaVM);
-    _RDX = 84 * v8;
-    __asm
-    {
-      vmovss  dword ptr [rax+rdx+48h], xmm8
-      vmovaps xmm8, [rsp+78h+var_38]
-      vmovss  dword ptr [rax+rdx+4Ch], xmm7
-      vmovaps xmm7, [rsp+78h+var_28]
-      vmovss  dword ptr [rax+rdx+50h], xmm6
-      vmovaps xmm6, [rsp+78h+var_18]
-    }
+    v5 = lui_tonumber32(luaVM, 3);
+    v6 = *(float *)&v5;
+    v7 = lui_tonumber32(luaVM, 4);
+    v8 = *(float *)&v7;
+    v9 = lui_tonumber32(luaVM, 5);
+    LineData = LUIElement_Line_GetLineData(v2, luaVM);
+    v11 = v4;
+    LineData->vertices[v11].tagOffset.v[0] = v6;
+    LineData->vertices[v11].tagOffset.v[1] = v8;
+    LineData->vertices[v11].tagOffset.v[2] = *(float *)&v9;
   }
   return 0i64;
 }
@@ -801,44 +663,38 @@ LUIElement_Line_SetVertexWorldPosition_impl
 */
 __int64 LUIElement_Line_SetVertexWorldPosition_impl(lua_State *const luaVM)
 {
-  LUIElement *v6; 
-  int v7; 
-  __int64 v8; 
+  LUIElement *v2; 
+  int v3; 
+  __int64 v4; 
+  double v5; 
+  float v6; 
+  double v7; 
+  float v8; 
+  double v9; 
+  LUILine *LineData; 
+  __int64 v11; 
 
   if ( j_lua_gettop(luaVM) != 5 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) || !j_lua_isnumber(luaVM, 4) || !j_lua_isnumber(luaVM, 5) )
     j_luaL_error(luaVM, "USAGE: element:SetVertexWorldPosition( vertexNumber, x, y, z )");
   if ( j_lua_gettop(luaVM) == 5 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) && j_lua_isnumber(luaVM, 4) && j_lua_isnumber(luaVM, 5) )
   {
-    __asm
-    {
-      vmovaps [rsp+78h+var_18], xmm6
-      vmovaps [rsp+78h+var_28], xmm7
-      vmovaps [rsp+78h+var_38], xmm8
-    }
-    v6 = LUI_ToElement(luaVM, 1);
-    v7 = lui_tointeger32(luaVM, 2);
-    v8 = v7;
-    if ( (unsigned int)v7 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_line.cpp", 328, ASSERT_TYPE_ASSERT, "(unsigned)( vertexNumber ) < (unsigned)( 2 )", "vertexNumber doesn't index 2\n\t%i not in [0, %i)", v7, 2) )
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tointeger32(luaVM, 2);
+    v4 = v3;
+    if ( (unsigned int)v3 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_line.cpp", 328, ASSERT_TYPE_ASSERT, "(unsigned)( vertexNumber ) < (unsigned)( 2 )", "vertexNumber doesn't index 2\n\t%i not in [0, %i)", v3, 2) )
       __debugbreak();
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 4);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 5);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_Line_GetLineData(v6, luaVM);
-    _RDX = v8;
-    _RAX->vertices[_RDX].attachType = POSITION_3D;
-    __asm
-    {
-      vmovss  dword ptr [rdx+rax+4], xmm8
-      vmovaps xmm8, [rsp+78h+var_38]
-      vmovss  dword ptr [rdx+rax+8], xmm7
-      vmovaps xmm7, [rsp+78h+var_28]
-      vmovss  dword ptr [rdx+rax+0Ch], xmm6
-    }
-    v6->usageFlags |= 1u;
-    __asm { vmovaps xmm6, [rsp+78h+var_18] }
+    v5 = lui_tonumber32(luaVM, 3);
+    v6 = *(float *)&v5;
+    v7 = lui_tonumber32(luaVM, 4);
+    v8 = *(float *)&v7;
+    v9 = lui_tonumber32(luaVM, 5);
+    LineData = LUIElement_Line_GetLineData(v2, luaVM);
+    v11 = v4;
+    LineData->vertices[v11].attachType = POSITION_3D;
+    LineData->vertices[v11].position.v[0] = v6;
+    LineData->vertices[v11].position.v[1] = v8;
+    LineData->vertices[v11].position.v[2] = *(float *)&v9;
+    v2->usageFlags |= 1u;
   }
   return 0i64;
 }
@@ -860,7 +716,7 @@ __int64 LUI_LuaCall_LUIElement_SetupLine(lua_State *luaVM)
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
   v2 = LUI_ToElement(luaVM, 1);
   v2->layoutFunction = LUIElement_Line_Layout;
-  v2->renderFunction = (void (__fastcall *)(const LocalClientNum_t, LUIElement *, LUIElement *, float, float, float, float, lua_State *))LUIElement_Line_Render;
+  v2->renderFunction = LUIElement_Line_Render;
   v2->usageFlags = HALF_HALF;
   LUI_LUIElement_RegisterMethods(v2, luaVM, s_lineMethods);
   if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 48, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( element, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( element, luaVM )") )

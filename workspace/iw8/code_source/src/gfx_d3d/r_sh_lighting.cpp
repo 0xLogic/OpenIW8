@@ -333,105 +333,30 @@ void __fastcall R_InitWorldSHLighting(GfxWorld *world)
 Bounds_IntersectGpuLightGrid
 ==============
 */
-bool Bounds_IntersectGpuLightGrid(const Bounds *bounds, const GfxGpuLightGrid *lightGrid)
+char Bounds_IntersectGpuLightGrid(const Bounds *bounds, const GfxGpuLightGrid *lightGrid)
 {
-  __int64 v16; 
-  bool v18; 
-  bool v19; 
-  bool result; 
-  void *retaddr; 
+  __int64 v2; 
+  vec4_t *i; 
+  __m128 v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
 
-  _RAX = &retaddr;
-  __asm
+  v2 = 0i64;
+  for ( i = lightGrid->boundingVolume; ; ++i )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovss  xmm8, dword ptr [rcx+4]
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovss  xmm9, dword ptr [rcx]
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovss  xmm10, dword ptr [rcx+8]
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovss  xmm11, dword ptr [rcx+10h]
-    vmovaps xmmword ptr [rax-78h], xmm12
-  }
-  v16 = 0i64;
-  __asm
-  {
-    vmovss  xmm12, dword ptr [rcx+0Ch]
-    vmovaps [rsp+0A8h+var_88], xmm13
-  }
-  v18 = __CFADD__(lightGrid, 328i64);
-  v19 = __CFADD__(lightGrid, 328i64) || lightGrid->boundingVolume == NULL;
-  _RDX = lightGrid->boundingVolume;
-  __asm
-  {
-    vmovss  xmm13, dword ptr [rcx+14h]
-    vmovaps [rsp+0A8h+var_98], xmm14
-    vmovss  xmm14, cs:__real@3f800000
-  }
-  while ( 1 )
-  {
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rdx]
-      vshufps xmm5, xmm6, xmm6, 55h ; 'U'
-      vmulss  xmm1, xmm5, xmm5
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm1, xmm1, xmm0
-      vsubss  xmm1, xmm14, xmm1
-      vmulss  xmm2, xmm8, xmm5
-      vmulss  xmm0, xmm9, xmm6
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm0, xmm11, xmm5
-      vsqrtss xmm4, xmm1, xmm1
-      vmulss  xmm1, xmm4, xmm10
-      vaddss  xmm7, xmm3, xmm1
-      vmulss  xmm2, xmm12, xmm6
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm1, xmm4, xmm13
-      vaddss  xmm5, xmm3, xmm1
-      vmovups [rsp+0A8h+var_A8], xmm6
-      vaddss  xmm0, xmm5, xmm7
-      vshufps xmm6, xmm6, xmm6, 0AAh ; 'ª'
-      vcomiss xmm0, xmm6
-    }
-    if ( v19 )
+    v4 = *(__m128 *)i;
+    v5 = _mm_shuffle_ps(v4, v4, 85).m128_f32[0];
+    v6 = fsqrt(1.0 - (float)((float)(v5 * v5) + (float)(v4.m128_f32[0] * v4.m128_f32[0])));
+    v7 = (float)((float)(bounds->midPoint.v[1] * v5) + (float)(bounds->midPoint.v[0] * COERCE_FLOAT(*i))) + (float)(v6 * bounds->midPoint.v[2]);
+    v8 = (float)((float)(bounds->halfSize.v[0] * COERCE_FLOAT(*i)) + (float)(bounds->halfSize.v[1] * v5)) + (float)(v6 * bounds->halfSize.v[2]);
+    if ( (float)(v8 + v7) <= _mm_shuffle_ps(v4, v4, 170).m128_f32[0] || (float)(v7 - v8) >= COERCE_FLOAT(HIDWORD(*(unsigned __int128 *)i)) )
       break;
-    __asm
-    {
-      vsubss  xmm0, xmm7, xmm5
-      vcomiss xmm0, dword ptr [rsp+0A8h+var_A8+0Ch]
-    }
-    if ( !v18 )
-      break;
-    ++v16;
-    ++_RDX;
-    v18 = (unsigned __int64)v16 < 7;
-    v19 = (unsigned __int64)v16 <= 7;
-    if ( v16 >= 7 )
-    {
-      result = 1;
-      goto LABEL_7;
-    }
+    if ( ++v2 >= 7 )
+      return 1;
   }
-  result = 0;
-LABEL_7:
-  __asm { vmovaps xmm13, [rsp+0A8h+var_88] }
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm14, [rsp+0A8h+var_98]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -457,33 +382,30 @@ void RB_GpuLightGrid_DebugDrawVolumes(GfxCmdBufContext *context, const GfxViewIn
   GfxCmdBufState *state; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
-  const char *v32; 
+  __m256i m_mainSceneColorRt; 
+  GfxCmdBufContext v11; 
   unsigned int ActiveLightGridsMask; 
   __int64 shLightingIndex; 
   __int64 numActiveLightGrids; 
-  SHLightingFrameData *v37; 
-  __int64 v38; 
-  int v39; 
-  const GfxGpuLightGrid *v41; 
-  R_RT_Handle result_8; 
-  GfxCmdBufState *v48; 
-  _QWORD v49[5]; 
-  __m256i v51; 
-  char v52; 
-  const char *v55; 
-  R_RT_Group v56; 
-  void *retaddr; 
+  SHLightingFrameData *v16; 
+  __int64 v17; 
+  int v18; 
+  const GfxGpuLightGrid *v19; 
+  vec4_t *v20; 
+  R_RT_DepthHandle result_8; 
+  GfxCmdBufState *v24; 
+  _QWORD v25[5]; 
+  R_RT_DepthHandle m_mainSceneDepthRt; 
+  __m256i v27; 
+  R_RT_Group v28; 
+  R_RT_Group v29; 
 
-  _R11 = &retaddr;
-  _RDI = viewInfo;
-  _R14 = context;
   if ( r_lightGridDrawDebugVolumes->current.enabled )
   {
     state = context->state;
     source = context->source;
-    v48 = state;
-    __asm { vmovaps xmmword ptr [r11-48h], xmm6 }
-    v49[0] = source;
+    v24 = state;
+    v25[0] = source;
     R_InitCmdBufSourceState(source, &viewInfo->input);
     if ( (*((_BYTE *)&source->input + 7920) & 1) != 0 )
     {
@@ -493,12 +415,8 @@ void RB_GpuLightGrid_DebugDrawVolumes(GfxCmdBufContext *context, const GfxViewIn
     else
     {
       R_LockGfxImmediateContext();
-      _RAX = RB_GetBackendCmdBufContext((const GfxCmdBufContext *)&result_8);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vpextrq rdx, xmm0, 1; in
-      }
+      _XMM0 = (__int128)*RB_GetBackendCmdBufContext((const GfxCmdBufContext *)&result_8);
+      __asm { vpextrq rdx, xmm0, 1; in }
       if ( state != _RDX )
         GfxCmdBufState::Copy(state, _RDX);
     }
@@ -506,35 +424,22 @@ void RB_GpuLightGrid_DebugDrawVolumes(GfxCmdBufContext *context, const GfxViewIn
     memset_0(state->perObjectConstantState, 255, sizeof(state->perObjectConstantState));
     memset_0(state->stableConstantState, 255, sizeof(state->stableConstantState));
     state->data = source->input.data;
-    R_BeginViewInternal(source, &_RDI->sceneDef, (const GfxViewParms *)_RDI, &_RDI->viewParmsSet.frames[1].viewParms);
-    R_SetViewportStruct(source, &_RDI->sceneViewport);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+30C0h]
-      vmovups ymmword ptr [rsp+2B0h+result.state], ymm0
-    }
+    R_BeginViewInternal(source, &viewInfo->sceneDef, (const GfxViewParms *)viewInfo, &viewInfo->viewParmsSet.frames[1].viewParms);
+    R_SetViewportStruct(source, &viewInfo->sceneViewport);
+    result_8 = (R_RT_DepthHandle)viewInfo->sceneRtInput.m_mainSceneColorRt;
     height = R_RT_Handle::GetSurface(&result_8)->m_image.m_base.height;
     Surface = R_RT_Handle::GetSurface(&result_8);
-    R_SetRenderTargetSize(_R14->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+31A0h]
-      vmovups ymm1, ymmword ptr [rdi+30C0h]
-      vmovups xmm6, xmmword ptr [r14]
-      vmovd   eax, xmm0
-      vmovups [rbp+1B0h+var_230], ymm0
-      vmovups ymmword ptr [rsp+2B0h+result.state], ymm0
-      vmovups ymmword ptr [rsp+2B0h+var_258+8], ymm1
-      vmovups [rbp+1B0h+var_210], ymm1
-    }
-    if ( (_WORD)_EAX )
+    R_SetRenderTargetSize(context->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FOR_VIEW);
+    m_mainSceneColorRt = (__m256i)viewInfo->sceneRtInput.m_mainSceneColorRt;
+    v11 = *context;
+    m_mainSceneDepthRt = viewInfo->sceneRtInput.m_mainSceneDepthRt;
+    result_8 = m_mainSceneDepthRt;
+    *(__m256i *)&v25[1] = m_mainSceneColorRt;
+    v27 = m_mainSceneColorRt;
+    if ( (_WORD)_XMM0 )
     {
       R_RT_Handle::GetSurface(&result_8);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsp+2B0h+result.state]
-        vmovups [rbp+1B0h+var_230], ymm0
-      }
+      m_mainSceneDepthRt = result_8;
     }
     else
     {
@@ -544,98 +449,60 @@ void RB_GpuLightGrid_DebugDrawVolumes(GfxCmdBufContext *context, const GfxViewIn
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 463, ASSERT_TYPE_ASSERT, "(depthRt)", (const char *)&queryFormat, "depthRt") )
         __debugbreak();
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+2B0h+var_258+8]
-      vmovd   eax, xmm0
-    }
-    v52 = 1;
-    __asm { vmovups ymmword ptr [rsp+2B0h+result.state], ymm0 }
-    if ( (_WORD)_EAX )
+    v28.m_colorRtCount = 1;
+    result_8 = *(R_RT_DepthHandle *)&v25[1];
+    if ( (_WORD)_XMM0 )
     {
       R_RT_Handle::GetSurface(&result_8);
     }
     else
     {
-      if ( v51.m256i_i32[2] != (unsigned __int16)_EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&result_8.m_surfaceID, *(_QWORD *)&result_8.m_tracking.m_allocCounter, result_8.m_tracking.m_name, result_8.m_tracking.m_location) )
+      if ( v27.m256i_i32[2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&result_8.m_surfaceID, *(_QWORD *)&result_8.m_tracking.m_allocCounter, result_8.m_tracking.m_name, result_8.m_tracking.m_location) )
         __debugbreak();
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 442, ASSERT_TYPE_ASSERT, "(colorRt)", (const char *)&queryFormat, "colorRt") )
         __debugbreak();
     }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+2B0h+var_258+8]
-      vmovups [rbp+1B0h+var_1E8], ymm0
-      vmovups ymm0, [rbp+1B0h+var_230]
-      vmovups [rbp+1B0h+var_168], ymm0
-    }
-    _RCX = &v56;
-    _RAX = &v52;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymm0, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx+80h], ymm0
-      vmovups ymm0, ymmword ptr [rax+0A0h]
-    }
-    v32 = v55;
-    __asm { vmovups ymmword ptr [rcx+0A0h], ymm0 }
-    v56.m_vrsRt.m_tracking.m_location = v32;
-    __asm { vmovdqa xmmword ptr [rsp+2B0h+var_258+8], xmm6 }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v49[1], &v56, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sh_lighting.cpp(1249)");
-    __asm { vmovaps xmm6, [rsp+2B0h+var_48+8] }
+    v28.m_colorRts[0] = *(R_RT_ColorHandle *)&v25[1];
+    v28.m_depthRt = m_mainSceneDepthRt;
+    v29 = v28;
+    *(GfxCmdBufContext *)&v25[1] = v11;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v25[1], &v29, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sh_lighting.cpp(1249)");
     if ( r_lightGridDrawDebugVolumes->current.enabled )
     {
-      ActiveLightGridsMask = R_VOL_GetActiveLightGridsMask(_RDI->input.data);
-      shLightingIndex = _RDI->input.data->shLightingIndex;
+      ActiveLightGridsMask = R_VOL_GetActiveLightGridsMask(viewInfo->input.data);
+      shLightingIndex = viewInfo->input.data->shLightingIndex;
       numActiveLightGrids = (int)shLightingGlob.frameData[shLightingIndex].numActiveLightGrids;
-      v37 = &shLightingGlob.frameData[shLightingIndex];
+      v16 = &shLightingGlob.frameData[shLightingIndex];
       if ( numActiveLightGrids > 0 )
       {
-        v38 = 0i64;
-        v39 = 1;
+        v17 = 0i64;
+        v18 = 1;
         do
         {
-          __asm { vmovups xmm1, xmmword ptr [r14] }
-          v41 = v37->activeLightGrids[v38];
-          _RAX = &colorRed;
-          if ( (v39 & ActiveLightGridsMask) == 0 )
-            _RAX = &colorYellow;
-          __asm
-          {
-            vmovups xmmword ptr [rsp+2B0h+result.state], xmm1
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rsp+2B0h+var_258+8], xmm0
-          }
-          R_GpuLightGrid_DebugDrawVolume((GfxCmdBufContext *)&result_8, v41, (vec4_t *)&v49[1]);
-          v39 = __ROL4__(v39, 1);
-          ++v38;
+          v19 = v16->activeLightGrids[v17];
+          v20 = &colorRed;
+          if ( (v18 & ActiveLightGridsMask) == 0 )
+            v20 = &colorYellow;
+          *(GfxCmdBufContext *)&result_8.m_surfaceID = *context;
+          *(vec4_t *)&v25[1] = *v20;
+          R_GpuLightGrid_DebugDrawVolume((GfxCmdBufContext *)&result_8, v19, (vec4_t *)&v25[1]);
+          v18 = __ROL4__(v18, 1);
+          ++v17;
         }
-        while ( v38 < numActiveLightGrids );
-        state = v48;
+        while ( v17 < numActiveLightGrids );
+        state = v24;
       }
     }
     R_ResetRenderTargets(state);
-    if ( (*(_BYTE *)(v49[0] + 9712i64) & 1) != 0 )
+    if ( (*(_BYTE *)(v25[0] + 9712i64) & 1) != 0 )
     {
       R_ShutdownCmdBufState(state);
       R_UnlockIfGfxImmediateContext(state->device);
     }
     else
     {
-      _RAX = RB_GetBackendCmdBufContext((const GfxCmdBufContext *)&result_8);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vpextrq rcx, xmm0, 1; out
-      }
+      _XMM0 = (__int128)*RB_GetBackendCmdBufContext((const GfxCmdBufContext *)&result_8);
+      __asm { vpextrq rcx, xmm0, 1; out }
       if ( state != _RCX )
       {
         GfxCmdBufState::Copy(_RCX, state);
@@ -714,14 +581,16 @@ void RB_GpuLightGrid_Update(GfxCmdBufState *state, const GfxViewInfo *viewInfo, 
 {
   __int64 shLightingIndex; 
   __int64 v4; 
+  __m256i *v5; 
   SHLightingFrameData *v6; 
   __int64 numActiveLightGrids; 
   __int64 v8; 
   __int64 v9; 
+  const GfxGpuLightGrid *v10; 
 
   shLightingIndex = (int)data->shLightingIndex;
   v4 = shLightingIndex;
-  _RDI = (char *)shLightingGlob.gfxBuffers[shLightingIndex].lightGrids.data;
+  v5 = (__m256i *)shLightingGlob.gfxBuffers[shLightingIndex].lightGrids.data;
   v6 = &shLightingGlob.frameData[shLightingIndex];
   numActiveLightGrids = (int)shLightingGlob.frameData[shLightingIndex].numActiveLightGrids;
   v8 = numActiveLightGrids;
@@ -732,19 +601,12 @@ void RB_GpuLightGrid_Update(GfxCmdBufState *state, const GfxViewInfo *viewInfo, 
     {
       if ( !v6->activeLightGrids[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sh_lighting.cpp", 726, ASSERT_TYPE_ASSERT, "(frameData.activeLightGrids[i])", (const char *)&queryFormat, "frameData.activeLightGrids[i]") )
         __debugbreak();
-      _RAX = v6->activeLightGrids[v9++];
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax+148h]
-        vmovups ymmword ptr [rdi], ymm0
-        vmovups ymm1, ymmword ptr [rax+168h]
-        vmovups ymmword ptr [rdi+20h], ymm1
-        vmovups ymm0, ymmword ptr [rax+188h]
-        vmovups ymmword ptr [rdi+40h], ymm0
-        vmovups xmm1, xmmword ptr [rax+1A8h]
-        vmovups xmmword ptr [rdi+60h], xmm1
-      }
-      _RDI += 112;
+      v10 = v6->activeLightGrids[v9++];
+      *v5 = *(__m256i *)v10->boundingVolume[0].v;
+      v5[1] = *(__m256i *)v10->boundingVolume[2].v;
+      v5[2] = *(__m256i *)v10->boundingVolume[4].v;
+      *(vec4_t *)v5[3].m256i_i8 = v10->boundingVolume[6];
+      v5 = (__m256i *)((char *)v5 + 112);
     }
     while ( v9 < v8 );
     LODWORD(numActiveLightGrids) = v6->numActiveLightGrids;
@@ -760,108 +622,85 @@ RB_UpdateFallbackProbeData
 void RB_UpdateFallbackProbeData(GfxCmdBufState *state, const GfxBackEndData *data, const GfxViewInfo *viewInfo)
 {
   __int64 shLightingIndex; 
+  const GfxGpuLightGrid *v7; 
   unsigned int voxelTreeZoneIndex; 
   ComputeCmdBufState *GfxComputeCmdBufState; 
+  __int64 v10; 
   bool enabled; 
-  int v16; 
+  int v12; 
+  float value; 
+  float v14; 
+  float v15; 
   GfxShaderBufferRWView *views; 
   int dataa[8]; 
-  __m256i v28; 
-  _BYTE v29[32]; 
+  __m256i v18; 
+  __m256i v19; 
 
   Sys_ProfBeginNamedEvent(0xFF800000, "RB_UpdateFallbackProbeData");
   shLightingIndex = data->shLightingIndex;
   if ( (int)shLightingGlob.frameData[shLightingIndex].numActiveLightGrids > 0 )
   {
-    _RDI = shLightingGlob.frameData[shLightingIndex].activeLightGrids[0];
-    if ( _RDI->probeCount )
+    v7 = shLightingGlob.frameData[shLightingIndex].activeLightGrids[0];
+    if ( v7->probeCount )
     {
       voxelTreeZoneIndex = viewInfo->input.voxelTreeZoneIndex;
       if ( shLightingGlob.fallbackProbeDirty || shLightingGlob.fallbackProbeZoneIndex != voxelTreeZoneIndex )
       {
-        __asm
-        {
-          vmovaps [rsp+118h+var_48], xmm6
-          vmovaps [rsp+118h+var_58], xmm7
-          vmovaps [rsp+118h+var_68], xmm8
-        }
         GfxComputeCmdBufState = R_GetGfxComputeCmdBufState(state);
         R_LockIfGfxImmediateContext(GfxComputeCmdBufState->device);
         R_ProfBeginNamedEvent(GfxComputeCmdBufState, "Update Fallback Probe");
-        _RBX = &_RDI->zones[viewInfo->input.voxelTreeZoneIndex];
+        v10 = (__int64)&v7->zones[viewInfo->input.voxelTreeZoneIndex];
         enabled = r_fallbackProbeDebug->current.enabled;
-        if ( !enabled && (_RDI->fallbackProbeUseCustomSample || r_fallbackProbeUseCustomSample->current.enabled) )
+        if ( !enabled && (v7->fallbackProbeUseCustomSample || r_fallbackProbeUseCustomSample->current.enabled) )
         {
           if ( r_fallbackProbeUseCustomSample->current.enabled )
           {
-            _RAX = r_fallbackProbeSamplePos;
-            v16 = 1;
-            __asm
-            {
-              vmovss  xmm6, dword ptr [rax+28h]
-              vmovss  xmm7, dword ptr [rax+2Ch]
-              vmovss  xmm8, dword ptr [rax+30h]
-            }
+            v12 = 1;
+            value = r_fallbackProbeSamplePos->current.value;
+            v14 = r_fallbackProbeSamplePos->current.vector.v[1];
+            v15 = r_fallbackProbeSamplePos->current.vector.v[2];
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm6, dword ptr [rdi+74h]
-              vmovss  xmm7, dword ptr [rdi+78h]
-              vmovss  xmm8, dword ptr [rdi+7Ch]
-            }
-            v16 = 1;
+            value = v7->fallbackProbeCustomSamplePos.v[0];
+            v14 = v7->fallbackProbeCustomSamplePos.v[1];
+            v15 = v7->fallbackProbeCustomSamplePos.v[2];
+            v12 = 1;
           }
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm6, cs:__real@48000000
-            vmovaps xmm7, xmm6
-            vmovaps xmm8, xmm6
-          }
-          v16 = 0;
+          value = FLOAT_131072_0;
+          v14 = FLOAT_131072_0;
+          v15 = FLOAT_131072_0;
+          v12 = 0;
         }
         R_SetComputeShader(GfxComputeCmdBufState, rgp.sampleFallbackProbe);
-        __asm
+        *(float *)dataa = value;
+        *(float *)&dataa[1] = v14;
+        *(float *)&dataa[2] = v15;
+        if ( v10 )
         {
-          vmovss  [rsp+118h+data], xmm6
-          vmovaps xmm6, [rsp+118h+var_48]
-          vmovss  [rsp+118h+var_D4], xmm7
-          vmovaps xmm7, [rsp+118h+var_58]
-          vmovss  [rsp+118h+var_D0], xmm8
-          vmovaps xmm8, [rsp+118h+var_68]
+          dataa[4] = *(_DWORD *)(v10 + 12);
+          dataa[5] = *(_DWORD *)(v10 + 16);
+          dataa[6] = *(_DWORD *)(v10 + 20);
         }
-        if ( _RBX )
-        {
-          dataa[4] = _RBX->firstTetrahedron;
-          dataa[5] = _RBX->firstVoxelTetrahedronIndex;
-          dataa[6] = _RBX->voxelTetrahedronInternalNodeShift;
-        }
-        dataa[7] = v16;
+        dataa[7] = v12;
         if ( enabled )
         {
-          __asm { vmovss  xmm0, cs:__real@41200000; f }
-          *(_OWORD *)&v28.m256i_u64[2] = 0ui64;
-          memset(v29, 0, sizeof(v29));
-          *(_OWORD *)v28.m256i_i8 = HalfFromFloat(*(float *)&_XMM0);
+          *(_OWORD *)&v18.m256i_u64[2] = 0ui64;
+          memset(&v19, 0, sizeof(v19));
+          *(_OWORD *)v18.m256i_i8 = HalfFromFloat(10.0);
         }
         else
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbx+1Ch]
-            vmovups [rsp+118h+var_B8], ymm0
-            vmovups ymm1, ymmword ptr [rbx+3Ch]
-            vmovups [rsp+118h+var_98], ymm1
-          }
+          v18 = *(__m256i *)(v10 + 28);
+          v19 = *(__m256i *)(v10 + 60);
         }
         R_UploadAndSetComputeConstants(GfxComputeCmdBufState, 0, dataa, 0x60u, NULL);
         views = &shLightingGlob.fallbackProbe.rwView;
         R_SetComputeRWViewsWithCounters(GfxComputeCmdBufState, 0, 1, (const GfxShaderBufferRWView *const *)&views, NULL);
-        RB_GpuLightGrid_SetResouces(GfxComputeCmdBufState, &viewInfo->input, _RDI);
+        RB_GpuLightGrid_SetResouces(GfxComputeCmdBufState, &viewInfo->input, v7);
         R_Dispatch(GfxComputeCmdBufState, 1u, 1u, 1u);
         R_ProfEndNamedEvent(GfxComputeCmdBufState);
         R_UnlockIfGfxImmediateContext(GfxComputeCmdBufState->device);
@@ -995,259 +834,194 @@ unsigned int *R_GetPrevFrameLightGridIndicesList(const GfxBackEndData *data)
 R_GpuLightGrid_CreateDebugGeometry
 ==============
 */
-
-void __fastcall R_GpuLightGrid_CreateDebugGeometry(__int64 a1, double _XMM1_8)
+void R_GpuLightGrid_CreateDebugGeometry()
 {
-  char *v8; 
-  char *v9; 
+  char *v0; 
+  char *v1; 
+  int v2; 
+  __int64 v3; 
+  __int64 v4; 
+  __int64 v5; 
+  __int64 v6; 
+  _WORD *v7; 
+  float *v8; 
+  int v9; 
+  double v12; 
   int v13; 
   __int64 v14; 
-  __int64 v15; 
-  __int64 v16; 
-  __int64 v17; 
-  _WORD *v18; 
-  char *v19; 
-  int v23; 
-  int v30; 
-  __int64 v31; 
+  int v15; 
+  __int16 v16; 
+  int v17; 
+  __int16 v18; 
+  __int16 v19; 
+  __int16 v20; 
+  char *v21; 
+  char *v22; 
+  _WORD *v23; 
+  int v24; 
+  _WORD *v25; 
+  __int64 v26; 
+  int v27; 
+  int v28; 
+  float *v29; 
+  float v30; 
+  float v31; 
   int v32; 
-  __int16 v33; 
-  int v34; 
-  __int16 v35; 
-  __int16 v36; 
-  __int16 v37; 
-  void *v39; 
-  void *v40; 
-  _WORD *v42; 
-  int v45; 
-  _WORD *v46; 
-  __int64 v47; 
-  int v48; 
-  int v49; 
-  int v57; 
-  int v58; 
-  __int16 v59; 
+  int v33; 
+  __int16 v34; 
   int i; 
   int j; 
-  __int64 v62; 
-  __int16 v63; 
-  int v64; 
-  __int64 v65; 
-  __int16 v66; 
-  __int64 v67; 
-  __int64 v68; 
-  __int64 v69; 
-  __int64 v70; 
-  __int64 v71; 
-  __int16 v72; 
-  int v73; 
-  __int64 v74; 
-  __int64 v75; 
-  __int64 v76; 
-  __int64 v77; 
-  __int64 v78; 
-  GfxBufferCreationContext v84[5]; 
-  char v85; 
-  void *retaddr; 
+  __int64 v37; 
+  __int16 v38; 
+  int v39; 
+  __int64 v40; 
+  __int16 v41; 
+  __int64 v42; 
+  __int64 v43; 
+  __int64 v44; 
+  __int64 v45; 
+  __int64 v46; 
+  __int16 v47; 
+  int v48; 
+  __int64 v49; 
+  __int64 v50; 
+  __int64 v51; 
+  __int64 v52; 
+  __int64 v53; 
+  GfxBufferCreationContext v54; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
   R_LockGfxImmediateContext();
-  v84[0].objectName = "debugSphere VB";
-  v84[0].zoneName = "shLighting";
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+var_68]
-    vmovdqa [rsp+88h+var_68], xmm0
-  }
-  v8 = (char *)R_AllocStaticVertexBuffer(&shLightingGlob.debugLightProbeVerts, 768, v84);
-  v84[0].zoneName = "shLighting";
-  v9 = v8;
-  v84[0].objectName = "debugSphere IB";
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+var_68]
-    vmovdqa [rsp+88h+var_68], xmm0
-    vmovss  xmm9, cs:__real@3ee5c8fa
-    vmovss  xmm8, cs:__real@3f490fdb
-  }
-  v13 = 0;
-  v18 = R_AllocStaticIndexBuffer(&shLightingGlob.debugLightProbeIndices, 672, v84);
-  v19 = v9 + 8;
+  v54.objectName = "debugSphere VB";
+  v54.zoneName = "shLighting";
+  v0 = (char *)R_AllocStaticVertexBuffer(&shLightingGlob.debugLightProbeVerts, 768, &v54);
+  v54.zoneName = "shLighting";
+  v1 = v0;
+  v54.objectName = "debugSphere IB";
+  v2 = 0;
+  v7 = R_AllocStaticIndexBuffer(&shLightingGlob.debugLightProbeIndices, 672, &v54);
+  v8 = (float *)(v1 + 8);
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, esi
-      vmulss  xmm0, xmm0, xmm9
-    }
-    *(double *)&_XMM0 = j___libm_sse2_sincosf_(v15, v14, v16, v17);
-    v23 = 0;
-    _RBX = v19;
-    v19 += 96;
-    __asm { vmovups xmm6, xmm0 }
+    v9 = 0;
+    _RBX = v8;
+    v8 += 24;
+    _XMM6 = COERCE_UNSIGNED_INT64(j___libm_sse2_sincosf_(v4, v3, v5, v6));
     do
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, edi
-        vmulss  xmm0, xmm1, xmm8
-      }
-      *(double *)&_XMM0 = j___libm_sse2_sincosf_(v15, v14, v16, v17);
-      __asm
-      {
-        vshufps xmm1, xmm0, xmm0, 1
-        vmulss  xmm1, xmm1, xmm6
-        vmulss  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rbx-8], xmm1
-        vmovss  dword ptr [rbx-4], xmm0
-        vextractps dword ptr [rbx], xmm6, 1
-      }
-      _RBX += 12;
-      ++v23;
+      v12 = j___libm_sse2_sincosf_(v4, v3, v5, v6);
+      *(_RBX - 2) = _mm_shuffle_ps((__m128)*(unsigned __int64 *)&v12, (__m128)*(unsigned __int64 *)&v12, 1).m128_f32[0] * *(float *)&_XMM6;
+      *(_RBX - 1) = *(float *)&v12 * *(float *)&_XMM6;
+      __asm { vextractps dword ptr [rbx], xmm6, 1 }
+      _RBX += 3;
+      ++v9;
     }
-    while ( v23 < 8 );
+    while ( v9 < 8 );
+    ++v2;
+  }
+  while ( v2 < 8 );
+  v13 = 0;
+  v14 = 0i64;
+  do
+  {
+    v15 = 0;
+    v16 = 8 * v13;
+    do
+    {
+      v17 = v15 + 1;
+      v18 = (v15 + 1) % 8;
+      v19 = v16 + v15;
+      v20 = v16 + 8 + v15;
+      v7[v14] = v19;
+      v7[v14 + 1] = v16 + v18;
+      v7[v14 + 2] = v20;
+      v7[v14 + 3] = v16 + v18;
+      v7[v14 + 4] = v16 + v18 + 8;
+      v7[v14 + 5] = v20;
+      v14 += 6i64;
+      v15 = v17;
+    }
+    while ( v17 < 8 );
     ++v13;
   }
-  while ( v13 < 8 );
-  v30 = 0;
-  v31 = 0i64;
+  while ( v13 < 7 );
+  v54.zoneName = "shLighting";
+  v54.objectName = "debugTriPatch VB";
+  v21 = (char *)R_AllocStaticVertexBuffer(&shLightingGlob.debugTriPatchVerts, 180, &v54);
+  v54.zoneName = "shLighting";
+  v22 = v21;
+  v54.objectName = "debugTriPatch IB";
+  v23 = R_AllocStaticIndexBuffer(&shLightingGlob.debugTriPatchIndices, 192, &v54);
+  v24 = 0;
+  v25 = v23;
+  v26 = 0i64;
   do
   {
-    v32 = 0;
-    v33 = 8 * v30;
-    do
+    v27 = 0;
+    v28 = 5 - v24;
+    if ( 5 - v24 > 0 )
     {
-      v34 = v32 + 1;
-      v35 = (v32 + 1) % 8;
-      v36 = v33 + v32;
-      v37 = v33 + 8 + v32;
-      v18[v31] = v36;
-      v18[v31 + 1] = v33 + v35;
-      v18[v31 + 2] = v37;
-      v18[v31 + 3] = v33 + v35;
-      v18[v31 + 4] = v33 + v35 + 8;
-      v18[v31 + 5] = v37;
-      v31 += 6i64;
-      v32 = v34;
-    }
-    while ( v34 < 8 );
-    ++v30;
-  }
-  while ( v30 < 7 );
-  v84[0].zoneName = "shLighting";
-  v84[0].objectName = "debugTriPatch VB";
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+var_68]
-    vmovdqa [rsp+88h+var_68], xmm0
-  }
-  v39 = R_AllocStaticVertexBuffer(&shLightingGlob.debugTriPatchVerts, 180, v84);
-  v84[0].zoneName = "shLighting";
-  v40 = v39;
-  v84[0].objectName = "debugTriPatch IB";
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+var_68]
-    vmovdqa [rsp+88h+var_68], xmm0
-  }
-  v42 = R_AllocStaticIndexBuffer(&shLightingGlob.debugTriPatchIndices, 192, v84);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3e800000
-    vmovss  xmm4, cs:__real@3f800000
-  }
-  v45 = 0;
-  v46 = v42;
-  v47 = 0i64;
-  do
-  {
-    v48 = 0;
-    v49 = 5 - v45;
-    if ( 5 - v45 > 0 )
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      _RCX = (__int64)v40 + 12 * v47 + 8;
-      __asm { vcvtsi2ss xmm0, xmm0, r10d }
-      v47 += (unsigned int)v49;
-      __asm { vmulss  xmm2, xmm0, xmm3 }
+      v29 = (float *)&v22[12 * v26 + 8];
+      v26 += (unsigned int)v28;
+      v30 = (float)v24 * 0.25;
       do
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r8d
-          vmulss  xmm1, xmm0, xmm3
-          vmovss  dword ptr [rcx-8], xmm1
-          vsubss  xmm0, xmm4, xmm1
-          vsubss  xmm1, xmm0, xmm2
-        }
-        ++v48;
-        __asm
-        {
-          vmovss  dword ptr [rcx], xmm1
-          vmovss  dword ptr [rcx-4], xmm2
-        }
-        _RCX += 12i64;
+        v31 = (float)v27 * 0.25;
+        *(v29 - 2) = v31;
+        ++v27;
+        *v29 = (float)(1.0 - v31) - v30;
+        *(v29 - 1) = v30;
+        v29 += 3;
       }
-      while ( v48 < v49 );
+      while ( v27 < v28 );
     }
-    ++v45;
+    ++v24;
   }
-  while ( v45 < 5 );
-  v57 = 0;
-  v58 = 0;
-  v59 = 0;
+  while ( v24 < 5 );
+  v32 = 0;
+  v33 = 0;
+  v34 = 0;
   for ( i = 4; i > 0; --i )
   {
     for ( j = 0; j < i; ++j )
     {
-      v62 = v57;
-      v63 = v58 + 1;
-      v64 = v57 + 1;
-      v46[v62] = v58;
-      v65 = v64++;
-      v66 = v58 - v59 + 5;
-      v46[v65] = v58 + 1;
-      v67 = v64++;
-      v46[v67] = v66;
-      v68 = v64++;
-      v46[v68] = v58;
-      v69 = v64++;
-      v46[v69] = v66;
-      v70 = v64;
-      v57 = v64 + 1;
-      v46[v70] = v58 + 1;
+      v37 = v32;
+      v38 = v33 + 1;
+      v39 = v32 + 1;
+      v25[v37] = v33;
+      v40 = v39++;
+      v41 = v33 - v34 + 5;
+      v25[v40] = v33 + 1;
+      v42 = v39++;
+      v25[v42] = v41;
+      v43 = v39++;
+      v25[v43] = v33;
+      v44 = v39++;
+      v25[v44] = v41;
+      v45 = v39;
+      v32 = v39 + 1;
+      v25[v45] = v33 + 1;
       if ( j != i - 1 )
       {
-        v71 = v57;
-        v72 = v58 - v59 + 6;
-        v73 = v57 + 1;
-        v46[v71] = v63;
-        v74 = v73++;
-        v46[v74] = v72;
-        v75 = v73++;
-        v46[v75] = v66;
-        v76 = v73++;
-        v46[v76] = v63;
-        v77 = v73++;
-        v46[v77] = v66;
-        v78 = v73;
-        v57 = v73 + 1;
-        v46[v78] = v72;
+        v46 = v32;
+        v47 = v33 - v34 + 6;
+        v48 = v32 + 1;
+        v25[v46] = v38;
+        v49 = v48++;
+        v25[v49] = v47;
+        v50 = v48++;
+        v25[v50] = v41;
+        v51 = v48++;
+        v25[v51] = v38;
+        v52 = v48++;
+        v25[v52] = v41;
+        v53 = v48;
+        v32 = v48 + 1;
+        v25[v53] = v47;
       }
-      ++v58;
+      ++v33;
     }
-    ++v58;
-    ++v59;
+    ++v33;
+    ++v34;
   }
   shLightingGlob.debugLightProbeVertCount = 64;
   shLightingGlob.debugLightProbeVertsStride = 12;
@@ -1255,14 +1029,6 @@ void __fastcall R_GpuLightGrid_CreateDebugGeometry(__int64 a1, double _XMM1_8)
   shLightingGlob.debugTriPatchVertCount = 15;
   shLightingGlob.debugTriPatchVertsStride = 12;
   shLightingGlob.debugTriPatchTriCount = 32;
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
-  _R11 = &v85;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
   R_UnlockGfxImmediateContext();
 }
 
@@ -1305,385 +1071,360 @@ R_GpuLightGrid_DebugDrawVolume
 */
 void R_GpuLightGrid_DebugDrawVolume(GfxCmdBufContext *context, const GfxGpuLightGrid *lightGrid, vec4_t *color)
 {
-  __int64 v16; 
-  __int64 v25; 
-  int v53; 
-  int v61; 
-  int *v66; 
-  int *v68; 
-  int v115; 
-  unsigned int v145; 
-  int v146; 
-  __int64 v147; 
-  __int64 v157; 
-  int v162; 
-  int v163; 
-  vec4_t *v164; 
-  const vec3_t *v165; 
-  __int64 v166; 
-  const vec3_t *v167; 
-  int v181; 
-  int v182; 
-  int v183; 
-  __int64 v184; 
-  char *v185; 
+  __int128 v3; 
+  __int128 v4; 
+  __int64 v5; 
+  char *v6; 
+  float *v7; 
+  unsigned int v10; 
+  __int64 v11; 
+  __int128 v18; 
+  int v26; 
+  char *v27; 
+  __m128 v28; 
+  unsigned int v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  int v33; 
+  __m128 v34; 
+  vec3_t *p_start; 
+  int *v36; 
+  vec3_t *v37; 
+  int *v38; 
+  float v39; 
+  __int128 v40; 
+  __int128 v41; 
+  float v45; 
+  __int128 v46; 
+  __int128 v47; 
+  float v48; 
+  __int128 v49; 
+  char *v53; 
+  float v54; 
+  float v55; 
+  __int128 v56; 
+  float v57; 
+  float v58; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  int v68; 
+  __m128 v69; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  int v74; 
+  int v75; 
+  __int64 v76; 
+  float v77; 
+  float v78; 
+  float v79; 
+  __int64 v80; 
+  __int64 v81; 
+  float v82; 
+  float v83; 
+  __int64 v84; 
+  __int64 v85; 
+  __int64 v86; 
+  double v87; 
+  float v88; 
+  __int64 v89; 
+  float v90; 
+  float v91; 
+  __m128 v92; 
+  float v93; 
+  __m128 v94; 
+  int v97; 
+  int v98; 
+  vec4_t *v99; 
+  const vec3_t *v100; 
+  __int64 v101; 
+  const vec3_t *v102; 
+  int v103; 
+  int v104; 
+  int v105; 
+  int v106; 
+  int v107; 
+  char *v108; 
   vec4_t *colora; 
-  char *v187; 
-  float v189; 
+  char *v110; 
+  double v111; 
+  float v112; 
+  __int128 v113; 
+  double v114; 
+  float v115; 
+  float v116; 
+  __m128 v117; 
   vec3_t start; 
-  float v195; 
-  char v202; 
-  char v203[224]; 
-  char v204; 
-  void *retaddr; 
+  float v119; 
+  float v120; 
+  float v121; 
+  float v122; 
+  float v123; 
+  float v124; 
+  double v125; 
+  float v126; 
+  char v127; 
+  char v128[224]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmovss  xmm13, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm11, cs:__real@3f800000
-  }
-  v16 = 7i64;
+  v3 = (unsigned int)_xmm;
+  v4 = LODWORD(FLOAT_1_0);
+  v5 = 7i64;
   colora = color;
-  _RCX = v203;
-  _RDX = &lightGrid->boundingVolume[0].v[2];
-  _ER10 = 1;
+  v6 = v128;
+  v7 = &lightGrid->boundingVolume[0].v[2];
   do
   {
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rdx-8]
-      vmovss  xmm8, dword ptr [rdx-4]
-    }
-    _EAX = 0;
-    __asm
-    {
-      vxorps  xmm9, xmm7, xmm13
-      vxorps  xmm10, xmm8, xmm13
-    }
-    v25 = 2i64;
+    _XMM7 = *((unsigned int *)v7 - 2);
+    _XMM8 = *((unsigned int *)v7 - 1);
+    v10 = 0;
+    v11 = 2i64;
     do
     {
+      _XMM0 = v10;
       __asm
       {
-        vmovd   xmm1, r10d
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm5, xmm7, xmm9, xmm2
-        vmovd   xmm1, r10d
-        vmovd   xmm0, eax
-        vpcmpeqd xmm2, xmm0, xmm1
-        vblendvps xmm6, xmm8, xmm10, xmm2
-        vmulss  xmm1, xmm6, xmm6
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm1, xmm1, xmm0
-        vsubss  xmm1, xmm11, xmm1
-        vsqrtss xmm4, xmm1, xmm1
-        vmovd   xmm1, r10d
-        vmovd   xmm0, eax
-        vpcmpeqd xmm2, xmm0, xmm1
-        vxorps  xmm3, xmm4, xmm13
-        vblendvps xmm1, xmm4, xmm3, xmm2
-        vmovss  [rsp+860h+var_830], xmm6
-        vmovss  [rsp+860h+var_830], xmm5
-        vmovss  [rsp+860h+var_830], xmm1
       }
-      if ( _EAX == 1 )
-      {
-        __asm { vmovss  xmm1, dword ptr [rdx] }
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdx+4]
-          vxorps  xmm1, xmm0, xmm13
-        }
-      }
+      _XMM0 = v10;
       __asm
       {
+        vpcmpeqd xmm2, xmm0, xmm1
+        vblendvps xmm6, xmm8, xmm10, xmm2
+      }
+      v18 = LODWORD(FLOAT_1_0);
+      *(float *)&v18 = fsqrt(1.0 - (float)((float)(*(float *)&_XMM6 * *(float *)&_XMM6) + (float)(*(float *)&_XMM5 * *(float *)&_XMM5)));
+      _XMM4 = v18;
+      _XMM0 = v10;
+      __asm
+      {
+        vpcmpeqd xmm2, xmm0, xmm1
+        vblendvps xmm1, xmm4, xmm3, xmm2
         vinsertps xmm5, xmm5, xmm6, 10h
         vinsertps xmm5, xmm5, [rsp+860h+var_830], 20h
         vinsertps xmm5, xmm5, xmm1, 30h ; '0'
-        vmovups xmmword ptr [rcx], xmm5
       }
-      _RCX += 16;
-      ++_EAX;
-      __asm { vmovups [rsp+860h+var_7F8+8], xmm5 }
-      --v25;
+      *(_OWORD *)v6 = _XMM5;
+      v6 += 16;
+      v10 = 2;
+      v113 = _XMM5;
+      --v11;
     }
-    while ( v25 );
-    _RDX += 4;
-    --v16;
+    while ( v11 );
+    v7 += 4;
+    --v5;
   }
-  while ( v16 );
-  __asm { vmovss  xmm10, cs:__real@80000000 }
-  v53 = 0;
-  _RAX = v203;
-  v181 = 0;
-  v187 = v203;
+  while ( v5 );
+  v26 = 0;
+  v27 = v128;
+  v103 = 0;
+  v110 = v128;
   do
   {
-    __asm
+    v28 = *(__m128 *)v27;
+    v29 = _mm_shuffle_ps(v28, v28, 255).m128_u32[0];
+    v30 = _mm_shuffle_ps(v28, v28, 85).m128_f32[0];
+    v31 = COERCE_FLOAT(v29 ^ v3) * COERCE_FLOAT(*(_OWORD *)v27);
+    v32 = COERCE_FLOAT(v29 ^ v3) * v30;
+    v33 = 0;
+    v107 = 0;
+    v34 = _mm_shuffle_ps(v28, v28, 170);
+    v112 = COERCE_FLOAT(v29 ^ v3) * v34.m128_f32[0];
+    *(float *)&v111 = v31;
+    *((float *)&v111 + 1) = v32;
+    v104 = 0;
+    p_start = &start;
+    v36 = &v106;
+    v37 = (vec3_t *)&v127;
+    v38 = &v107;
+    v39 = v30 * v30;
+    if ( COERCE_FLOAT(v28.m128_i32[0] & _xmm) >= 0.0049999999 )
     {
-      vmovups xmm4, xmmword ptr [rax]
-      vshufps xmm0, xmm4, xmm4, 0FFh
-      vxorps  xmm1, xmm0, xmm13
-      vshufps xmm7, xmm4, xmm4, 55h ; 'U'
-      vmulss  xmm14, xmm1, xmm4
-      vmulss  xmm15, xmm1, xmm7
+      v40 = *(_OWORD *)&v28 ^ v3;
+      v49 = v40;
+      *(float *)&v49 = fsqrt((float)(*(float *)&v40 * *(float *)&v40) + v39);
+      _XMM2 = v49;
+      __asm
+      {
+        vcmpless xmm0, xmm2, xmm10
+        vblendvps xmm0, xmm2, xmm11, xmm0
+      }
+      v45 = *(float *)&v4 / *(float *)&_XMM0;
+      v48 = (float)(*(float *)&v4 / *(float *)&_XMM0) * v30;
+      v47 = 0i64;
     }
-    v61 = 0;
-    __asm
+    else
     {
-      vshufps xmm6, xmm4, xmm4, 0AAh ; 'ª'
-      vmulss  xmm0, xmm1, xmm6
-      vandps  xmm1, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm1, cs:__real@3ba3d70a
-      vmovss  dword ptr [rsp+860h+var_7F8], xmm0
-      vmovss  [rsp+860h+var_800], xmm14
-      vmovss  [rsp+860h+var_7FC], xmm15
+      v40 = *(_OWORD *)&v34 ^ v3;
+      v41 = v40;
+      *(float *)&v41 = fsqrt((float)(*(float *)&v40 * *(float *)&v40) + v39);
+      _XMM2 = v41;
+      __asm
+      {
+        vcmpless xmm0, xmm2, xmm10
+        vblendvps xmm0, xmm2, xmm11, xmm0
+      }
+      v46 = v4;
+      v45 = *(float *)&v4 / *(float *)&_XMM0;
+      *(float *)&v46 = (float)(*(float *)&v4 / *(float *)&_XMM0) * v30;
+      v47 = v46;
+      v48 = 0.0;
     }
-    v182 = 0;
-    _RDI = &start;
-    v66 = (int *)&v184;
-    _RSI = (vec3_t *)&v202;
-    v68 = (int *)&v184 + 1;
+    v53 = v128;
+    v54 = v45 * *(float *)&v40;
+    v55 = (float)((float)(v45 * *(float *)&v40) * v34.m128_f32[0]) - (float)(*(float *)&v47 * v30);
+    v56 = v47;
+    v57 = (float)(*(float *)&v47 * v28.m128_f32[0]) - (float)(v48 * v34.m128_f32[0]);
+    v58 = (float)(v48 * v30) - (float)((float)(v45 * *(float *)&v40) * v28.m128_f32[0]);
+    *(float *)&v56 = fsqrt((float)((float)(v57 * v57) + (float)(v55 * v55)) + (float)(v58 * v58));
+    _XMM1 = v56;
     __asm
     {
-      vmulss  xmm0, xmm7, xmm7
-      vxorps  xmm3, xmm4, xmm13
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vcmpless xmm0, xmm2, xmm10
-      vblendvps xmm0, xmm2, xmm11, xmm0
-      vdivss  xmm1, xmm11, xmm0
-      vmulss  xmm8, xmm1, xmm7
-      vxorps  xmm12, xmm12, xmm12
-    }
-    _R10 = v203;
-    __asm
-    {
-      vmulss  xmm9, xmm1, xmm3
-      vmulss  xmm1, xmm9, xmm6
-      vmulss  xmm0, xmm12, xmm7
-      vsubss  xmm5, xmm1, xmm0
-      vmulss  xmm1, xmm8, xmm6
-      vmulss  xmm2, xmm12, xmm4
-      vsubss  xmm6, xmm2, xmm1
-      vmulss  xmm0, xmm9, xmm4
-      vmulss  xmm3, xmm8, xmm7
-      vsubss  xmm7, xmm3, xmm0
-      vmulss  xmm2, xmm6, xmm6
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
       vcmpless xmm0, xmm1, xmm10
       vblendvps xmm0, xmm1, xmm11, xmm0
-      vmovss  xmm1, cs:__real@487a0000
-      vdivss  xmm2, xmm11, xmm0
-      vmovsd  xmm11, qword ptr [rsp+860h+var_800]
-      vmulss  xmm10, xmm9, xmm1
-      vmulss  xmm12, xmm12, xmm1
-      vmulss  xmm0, xmm2, xmm5
-      vmulss  xmm9, xmm0, xmm1
-      vmulss  xmm8, xmm8, xmm1
-      vmulss  xmm0, xmm2, xmm6
-      vmulss  xmm6, xmm0, cs:__real@487a0000
-      vmulss  xmm0, xmm2, xmm7
-      vmulss  xmm5, xmm0, cs:__real@487a0000
-      vsubss  xmm4, xmm14, xmm8
-      vsubss  xmm3, xmm15, xmm10
-      vmovsd  [rbp+760h+var_78C], xmm11
-      vsubss  xmm1, xmm4, xmm9
-      vmovsd  qword ptr [rbp+760h+start], xmm11
-      vmovss  dword ptr [rbp+760h+start], xmm1
-      vsubss  xmm1, xmm3, xmm6
-      vmovss  dword ptr [rbp+760h+start+4], xmm1
     }
-    start.v[2] = v189;
-    v115 = 0;
-    __asm
+    v62 = v54 * 256000.0;
+    v63 = *(float *)&v47 * 256000.0;
+    v64 = (float)((float)(*(float *)&v4 / *(float *)&_XMM0) * v55) * 256000.0;
+    v65 = v48 * 256000.0;
+    v66 = (float)((float)(*(float *)&v4 / *(float *)&_XMM0) * v57) * 256000.0;
+    v67 = (float)((float)(*(float *)&v4 / *(float *)&_XMM0) * v58) * 256000.0;
+    v125 = v111;
+    start.v[0] = (float)(v31 - v65) - v64;
+    start.v[1] = (float)(v32 - v62) - v66;
+    v68 = 0;
+    start.v[2] = (float)(v112 - v63) - v67;
+    v119 = (float)(v31 - v65) + v64;
+    v120 = (float)(v32 - v62) + v66;
+    v121 = (float)(v112 - v63) + v67;
+    v123 = (float)(v32 + v62) + v66;
+    v122 = (float)(v31 + v65) + v64;
+    v124 = (float)(v63 + v112) + v67;
+    *(float *)&v125 = (float)(v31 + v65) - v64;
+    *((float *)&v125 + 1) = (float)(v62 + *((float *)&v125 + 1)) - v66;
+    v126 = (float)(v63 + v112) - v67;
+    v106 = 4;
+    v105 = 0;
+    v108 = v128;
+    while ( *v36 >= 3 )
     {
-      vmovss  xmm1, dword ptr [rbp+760h+start+8]
-      vsubss  xmm0, xmm1, xmm12
-      vsubss  xmm2, xmm0, xmm5
-      vmovss  dword ptr [rbp+760h+start+8], xmm2
-      vaddss  xmm1, xmm3, xmm6
-      vaddss  xmm3, xmm14, xmm8
-      vmovss  xmm14, cs:__real@3ba3d70a
-      vaddss  xmm0, xmm4, xmm9
-      vmovsd  [rbp+760h+var_7A4], xmm11
-      vmovss  dword ptr [rbp+760h+var_7A4], xmm0
-      vmovss  dword ptr [rbp+760h+var_7A4+4], xmm1
-    }
-    v195 = v189;
-    __asm
-    {
-      vmovss  xmm0, [rbp+760h+var_79C]
-      vsubss  xmm2, xmm0, xmm12
-      vaddss  xmm1, xmm2, xmm5
-      vmovss  [rbp+760h+var_79C], xmm1
-      vaddss  xmm1, xmm15, xmm10
-      vaddss  xmm2, xmm1, xmm6
-      vaddss  xmm1, xmm12, [rbp+760h+var_790]
-      vmovsd  [rbp+760h+var_798], xmm11
-      vmovss  dword ptr [rbp+760h+var_798+4], xmm2
-      vaddss  xmm0, xmm3, xmm9
-      vmovss  dword ptr [rbp+760h+var_798], xmm0
-      vaddss  xmm2, xmm1, xmm5
-      vmovss  [rbp+760h+var_790], xmm2
-      vaddss  xmm2, xmm10, dword ptr [rbp+760h+var_78C+4]
-      vsubss  xmm0, xmm3, xmm9
-      vmovss  dword ptr [rbp+760h+var_78C], xmm0
-      vsubss  xmm0, xmm2, xmm6
-      vaddss  xmm2, xmm12, [rbp+760h+var_784]
-      vmovss  dword ptr [rbp+760h+var_78C+4], xmm0
-      vsubss  xmm0, xmm2, xmm5
-      vmovss  [rbp+760h+var_784], xmm0
-    }
-    v184 = 4i64;
-    v183 = 0;
-    v185 = v203;
-    while ( *v66 >= 3 )
-    {
-      if ( ((v53 ^ v115) & 0xFFFFFFFE) != 0 )
+      if ( ((v26 ^ v68) & 0xFFFFFFFE) != 0 )
       {
-        __asm
+        v69 = *(__m128 *)v53;
+        v70 = _mm_shuffle_ps(v69, v69, 85).m128_f32[0];
+        v71 = (float)(v70 * p_start->v[1]) + (float)(COERCE_FLOAT(*(_OWORD *)v53) * p_start->v[0]);
+        v72 = _mm_shuffle_ps(v69, v69, 170).m128_f32[0];
+        v73 = v72 * p_start->v[2];
+        *v38 = 0;
+        v74 = 0;
+        v75 = *v36;
+        v76 = 0i64;
+        v77 = v71 + v73;
+        v117 = v69;
+        if ( v75 > 0 )
         {
-          vmovups xmm8, xmmword ptr [r10]
-          vmulss  xmm0, xmm8, dword ptr [rdi]
-          vshufps xmm10, xmm8, xmm8, 55h ; 'U'
-          vmulss  xmm1, xmm10, dword ptr [rdi+4]
-          vaddss  xmm2, xmm1, xmm0
-          vshufps xmm11, xmm8, xmm8, 0AAh ; 'ª'
-          vmulss  xmm0, xmm11, dword ptr [rdi+8]
-        }
-        *v68 = 0;
-        v145 = 0;
-        v146 = *v66;
-        v147 = 0i64;
-        __asm
-        {
-          vaddss  xmm3, xmm2, xmm0
-          vmovups [rbp+760h+var_7C0], xmm8
-        }
-        if ( v146 > 0 )
-        {
-          __asm
-          {
-            vmovss  xmm12, dword ptr [rbp+760h+var_7C0+0Ch]
-            vxorps  xmm0, xmm12, xmm13
-            vmovss  xmm13, cs:__real@bf800000
-            vsubss  xmm9, xmm0, xmm14
-          }
+          v78 = v117.m128_f32[3];
+          v79 = COERCE_FLOAT(v117.m128_i32[3] ^ v3) - 0.0049999999;
           do
           {
-            __asm
+            v80 = 0i64;
+            if ( v74 != v75 - 1 )
+              v80 = v76 + 1;
+            v81 = v80;
+            v83 = (float)((float)(v70 * p_start[v80].v[1]) + (float)(v69.m128_f32[0] * p_start[v80].v[0])) + (float)(v72 * p_start[v80].v[2]);
+            v82 = v83;
+            if ( v79 > v77 )
             {
-              vcomiss xmm9, xmm3
-              vmulss  xmm1, xmm10, dword ptr [rdi+r10*4+4]
-              vmulss  xmm0, xmm8, dword ptr [rdi+r10*4]
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm11, dword ptr [rdi+r10*4+8]
-              vaddss  xmm7, xmm2, xmm1
-              vcomiss xmm9, xmm7
+              v84 = *v38;
+              v85 = v84;
+              *(double *)v37[v85].v = *(double *)p_start[v76].v;
+              v37[v85].v[2] = p_start[v76].v[2];
+              *v38 = v84 + 1;
             }
-            if ( v145 > v146 - 1 )
+            if ( v79 > v77 != v79 > v83 )
             {
-              v157 = *v68;
-              _RDX = 3 * v147;
-              __asm { vmovsd  xmm0, qword ptr [rdi+rdx*4] }
-              _RCX = v157;
-              __asm { vmovsd  qword ptr [rsi+rcx*4], xmm0 }
-              _RSI[_RCX].v[2] = _RDI[v147].v[2];
-              *v68 = v157 + 1;
+              v86 = *v38;
+              v87 = *(double *)p_start[v76].v;
+              v115 = p_start[v76].v[2];
+              v88 = p_start[v81].v[2];
+              v89 = v86;
+              v90 = -1.0 / (float)(v83 - v77);
+              v91 = v78 + v77;
+              v92 = (__m128)*(unsigned __int64 *)p_start[v81].v;
+              v93 = v90 * v91;
+              v94 = v92;
+              v94.m128_f32[0] = (float)((float)(v92.m128_f32[0] - *(float *)&v87) * v93) + *(float *)&v87;
+              _XMM5 = v94;
+              v114 = v87;
+              _mm_shuffle_ps(v92, v92, 85);
+              v116 = v88;
+              v94.m128_f32[0] = (float)((float)(v88 - v115) * v93) + v115;
+              __asm { vunpcklps xmm0, xmm5, xmm4 }
+              *((float *)&v113 + 2) = v94.m128_f32[0];
+              *(double *)v37[v89].v = *(double *)&_XMM0;
+              LODWORD(v37[v89].v[2]) = v94.m128_i32[0];
+              *v38 = v86 + 1;
             }
-            v146 = *v66;
-            ++v145;
-            ++v147;
-            __asm { vmovaps xmm3, xmm7 }
+            v75 = *v36;
+            ++v74;
+            ++v76;
+            v77 = v82;
           }
-          while ( (int)v145 < *v66 );
-          __asm { vmovss  xmm13, dword ptr cs:__xmm@80000000800000008000000080000000 }
-          v61 = v182;
-          v115 = v183;
-          _R10 = v185;
-          v53 = v181;
+          while ( v74 < *v36 );
+          v3 = (unsigned int)_xmm;
+          v33 = v104;
+          v68 = v105;
+          v53 = v108;
+          v26 = v103;
         }
-        v182 = ++v61;
-        v66 = (int *)&v184 + v61 % 2;
-        _RDI = &start + 64 * (v61 % 2);
-        v162 = (v61 + 1) % 2;
-        v68 = (int *)&v184 + v162;
-        _RSI = &start + 64 * v162;
+        v104 = ++v33;
+        v36 = &v106 + v33 % 2;
+        p_start = &start + 64 * (v33 % 2);
+        v97 = (v33 + 1) % 2;
+        v38 = &v106 + v97;
+        v37 = &start + 64 * v97;
       }
-      ++v115;
-      _R10 += 16;
-      v183 = v115;
-      v185 = _R10;
-      if ( v115 >= 14 )
+      ++v68;
+      v53 += 16;
+      v105 = v68;
+      v108 = v53;
+      if ( v68 >= 14 )
       {
-        if ( *v66 >= 3 )
+        if ( *v36 >= 3 )
         {
-          v163 = *v66 - 1;
-          if ( v163 > 0 )
+          v98 = *v36 - 1;
+          if ( v98 > 0 )
           {
-            v164 = colora;
-            v165 = _RDI;
-            v166 = (unsigned int)v163;
+            v99 = colora;
+            v100 = p_start;
+            v101 = (unsigned int)v98;
             do
             {
-              v167 = v165 + 1;
-              CG_DebugLine(v165, v165 + 1, v164, 1, 0);
-              v165 = v167;
-              --v166;
+              v102 = v100 + 1;
+              CG_DebugLine(v100, v100 + 1, v99, 1, 0);
+              v100 = v102;
+              --v101;
             }
-            while ( v166 );
+            while ( v101 );
           }
-          CG_DebugLine(&_RDI[v163], _RDI, colora, 1, 0);
+          CG_DebugLine(&p_start[v98], p_start, colora, 1, 0);
         }
         break;
       }
     }
-    ++v53;
-    __asm
-    {
-      vmovss  xmm11, cs:__real@3f800000
-      vmovss  xmm10, cs:__real@80000000
-    }
-    _RAX = v187 + 16;
-    v181 = v53;
-    v187 += 16;
+    ++v26;
+    v4 = LODWORD(FLOAT_1_0);
+    v27 = v110 + 16;
+    v103 = v26;
+    v110 += 16;
   }
-  while ( v53 < 14 );
-  _R11 = &v204;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  while ( v26 < 14 );
 }
 
 /*
@@ -1699,11 +1440,11 @@ void R_GpuLightGrid_DebugDrawVolumes(GfxCmdBufContext *context, const GfxViewInf
   SHLightingFrameData *v7; 
   int v8; 
   __int64 i; 
-  const GfxGpuLightGrid *v11; 
-  vec4_t v14; 
-  GfxCmdBufContext v15; 
+  const GfxGpuLightGrid *v10; 
+  vec4_t *v11; 
+  vec4_t v12; 
+  GfxCmdBufContext v13; 
 
-  _RSI = context;
   if ( r_lightGridDrawDebugVolumes->current.enabled )
   {
     ActiveLightGridsMask = R_VOL_GetActiveLightGridsMask(viewInfo->input.data);
@@ -1715,18 +1456,13 @@ void R_GpuLightGrid_DebugDrawVolumes(GfxCmdBufContext *context, const GfxViewInf
       v8 = 1;
       for ( i = 0i64; i < numActiveLightGrids; ++i )
       {
-        __asm { vmovups xmm1, xmmword ptr [rsi] }
-        v11 = v7->activeLightGrids[i];
-        _RAX = &colorRed;
+        v10 = v7->activeLightGrids[i];
+        v11 = &colorRed;
         if ( (v8 & ActiveLightGridsMask) == 0 )
-          _RAX = &colorYellow;
-        __asm
-        {
-          vmovups [rsp+68h+var_38], xmm1
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups [rsp+68h+var_48], xmm0
-        }
-        R_GpuLightGrid_DebugDrawVolume(&v15, v11, &v14);
+          v11 = &colorYellow;
+        v13 = *context;
+        v12 = *v11;
+        R_GpuLightGrid_DebugDrawVolume(&v13, v10, &v12);
         v8 = __ROL4__(v8, 1);
       }
     }
@@ -1742,148 +1478,131 @@ void R_GpuLightGrid_DrawDebug(GfxCmdBufContext *context, const GfxViewInfo *view
 {
   __int64 shLightingIndex; 
   __int64 voxelTreeZoneIndex; 
+  _DWORD *v16; 
   GfxGpuLightGridZone *zones; 
   unsigned int voxelTetrahedronInternalNodeShift; 
-  __int64 v22; 
-  __int64 p_input; 
+  float v19; 
+  __int64 v20; 
+  GfxCmdBufInput *p_input; 
   GfxGpuLightGridVoxelTree *zoneVoxelTrees; 
-  __int64 v25; 
-  GfxGpuLightGridVoxelTree *v26; 
+  __int64 v23; 
+  GfxGpuLightGridVoxelTree *v24; 
   GfxWrappedBuffer *p_treeHeaderBuffer; 
-  __int64 v28; 
+  __int64 v26; 
   GfxWrappedBuffer *p_topDownViewNodeBuffer; 
-  GfxWrappedBuffer *v31; 
+  GfxCmdBufContext v28; 
+  GfxWrappedBuffer *v29; 
   GfxWrappedBuffer *p_internalNodeBuffer; 
-  GfxCmdBufContext v41; 
-  GfxCmdBufContext v42; 
-  GfxCmdBufContext v43; 
+  GfxCmdBufContext v35; 
+  GfxCmdBufContext v36; 
+  GfxCmdBufContext v37; 
   GfxDrawPrimArgs outArgs; 
   GfxDrawPrimArgs args; 
 
-  _RBX = viewInfo;
-  _RSI = context;
   shLightingIndex = (int)context->source->input.data->shLightingIndex;
   if ( !R_BeginMaterial(context->state, rgp.gpuLightGridDebugMaterial, TECHNIQUE_EMISSIVE) )
     return;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+0F8h+var_A8], xmm0
-  }
-  if ( !R_SetupPass(&v41) )
+  v35 = *context;
+  if ( !R_SetupPass(&v35) )
     return;
-  voxelTreeZoneIndex = (int)_RBX->input.voxelTreeZoneIndex;
-  _R8 = R_BeginWrappedBufferDataWrite(&shLightingGlob.gfxBuffers[shLightingIndex].debugDataBuffer);
-  _R8[3] = lightGridDebug - 1;
-  _R8[7] = sphereIndexShift;
+  voxelTreeZoneIndex = (int)viewInfo->input.voxelTreeZoneIndex;
+  v16 = R_BeginWrappedBufferDataWrite(&shLightingGlob.gfxBuffers[shLightingIndex].debugDataBuffer);
+  v16[3] = lightGridDebug - 1;
+  v16[7] = sphereIndexShift;
   zones = gpuLightGrid->zones;
   if ( zones )
   {
-    _R8[8] = zones[voxelTreeZoneIndex].firstTetrahedron;
-    _R8[9] = gpuLightGrid->zones[voxelTreeZoneIndex].firstVoxelTetrahedronIndex;
+    v16[8] = zones[voxelTreeZoneIndex].firstTetrahedron;
+    v16[9] = gpuLightGrid->zones[voxelTreeZoneIndex].firstVoxelTetrahedronIndex;
     voxelTetrahedronInternalNodeShift = gpuLightGrid->zones[voxelTreeZoneIndex].voxelTetrahedronInternalNodeShift;
   }
   else
   {
-    *((_QWORD *)_R8 + 4) = 0i64;
+    *((_QWORD *)v16 + 4) = 0i64;
     voxelTetrahedronInternalNodeShift = 0;
   }
-  _R8[10] = voxelTetrahedronInternalNodeShift;
+  v16[10] = voxelTetrahedronInternalNodeShift;
   if ( r_lightGridDebugPosLocked->current.enabled )
   {
-    *(_QWORD *)_R8 = 0i64;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    *(_QWORD *)v16 = 0i64;
+    v19 = 0.0;
   }
   else
   {
-    _R8[4] = LODWORD(_RBX->viewParmsSet.frames[0].viewParms.camera.origin.v[0]);
-    _R8[5] = LODWORD(_RBX->viewParmsSet.frames[0].viewParms.camera.origin.v[1]);
-    _R8[6] = LODWORD(_RBX->viewParmsSet.frames[0].viewParms.camera.origin.v[2]);
-    *_R8 = LODWORD(_RBX->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[0]);
-    _R8[1] = LODWORD(_RBX->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[1]);
-    __asm { vmovss  xmm0, dword ptr [rbx+114h] }
+    v16[4] = LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[0]);
+    v16[5] = LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[1]);
+    v16[6] = LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.camera.origin.v[2]);
+    *v16 = LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[0]);
+    v16[1] = LODWORD(viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[1]);
+    v19 = viewInfo->viewParmsSet.frames[0].viewParms.camera.axis.m[0].v[2];
   }
-  __asm { vmovss  dword ptr [r8+8], xmm0 }
+  *((float *)v16 + 2) = v19;
   R_EndWrappedBufferDataWrite(&shLightingGlob.gfxBuffers[shLightingIndex].debugDataBuffer);
-  v22 = _RBX->input.data->shLightingIndex;
-  p_input = (__int64)&_RSI->source->input;
-  if ( _RSI->source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1494, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+  v20 = viewInfo->input.data->shLightingIndex;
+  p_input = &context->source->input;
+  if ( context->source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1494, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  *(_QWORD *)(p_input + 7264) = &gpuLightGrid->probesBuffer;
-  *(_QWORD *)(p_input + 7272) = &gpuLightGrid->probePositionsBuffer;
-  *(_QWORD *)(p_input + 7280) = &gpuLightGrid->tetrahedronBuffer;
+  p_input->codeBuffers[12] = &gpuLightGrid->probesBuffer;
+  p_input->codeBuffers[13] = &gpuLightGrid->probePositionsBuffer;
+  p_input->codeBuffers[14] = &gpuLightGrid->tetrahedronBuffer;
   zoneVoxelTrees = gpuLightGrid->zoneVoxelTrees;
-  v25 = *(unsigned int *)(p_input + 7932);
+  v23 = p_input->voxelTreeZoneIndex;
   if ( !zoneVoxelTrees )
   {
-    v26 = NULL;
+    v24 = NULL;
     goto LABEL_16;
   }
-  v26 = &zoneVoxelTrees[(unsigned __int64)(unsigned int)v25];
-  if ( !v26 )
+  v24 = &zoneVoxelTrees[(unsigned __int64)(unsigned int)v23];
+  if ( !v24 )
   {
 LABEL_16:
-    p_treeHeaderBuffer = &deviceGlobals.voxelTreeHeaderStructuredBuffer[v25];
+    p_treeHeaderBuffer = &deviceGlobals.voxelTreeHeaderStructuredBuffer[v23];
     goto LABEL_17;
   }
-  p_treeHeaderBuffer = &v26->treeHeaderBuffer;
+  p_treeHeaderBuffer = &v24->treeHeaderBuffer;
 LABEL_17:
-  v28 = v25;
-  *(_QWORD *)(p_input + 7296) = p_treeHeaderBuffer;
-  p_topDownViewNodeBuffer = &v26->topDownViewNodeBuffer;
-  if ( !v26 )
-    p_topDownViewNodeBuffer = &deviceGlobals.voxelTopDownViewNodeStructuredBuffer[v28];
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  v31 = &deviceGlobals.voxelInternalNodeStructuredBuffer[v28];
-  *(_QWORD *)(p_input + 7304) = p_topDownViewNodeBuffer;
-  __asm { vmovaps [rsp+0F8h+var_38], xmm6 }
-  p_internalNodeBuffer = &v26->internalNodeBuffer;
-  if ( !v26 )
-    p_internalNodeBuffer = v31;
-  *(_QWORD *)(p_input + 7312) = p_internalNodeBuffer;
-  *(_QWORD *)(p_input + 7320) = &gpuLightGrid->voxelStartTetrahedronBuffer;
-  *(_QWORD *)(p_input + 7288) = &gpuLightGrid->tetrahedronNeighborsBuffer;
-  *(_QWORD *)(p_input + 7328) = &gpuLightGrid->tetrahedronVisibilityBuffer;
-  *(_QWORD *)(p_input + 7344) = &gfxBuf.dummyBuffer;
-  *(_QWORD *)(p_input + 7336) = &shLightingGlob.gfxBuffers[v22].debugDataBuffer;
-  *(_QWORD *)(p_input + 7352) = &shLightingGlob.fallbackProbe;
-  __asm { vmovups [rsp+0F8h+var_98], xmm0 }
-  R_SetupPassStableArgsInternal(&v42, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sh_lighting.cpp(1029)");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+0F8h+var_88], xmm0
-  }
-  R_SetupPassPerObjectArgsInternal(&v43, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sh_lighting.cpp(1030)");
+  v26 = v23;
+  p_input->codeBuffers[16] = p_treeHeaderBuffer;
+  p_topDownViewNodeBuffer = &v24->topDownViewNodeBuffer;
+  if ( !v24 )
+    p_topDownViewNodeBuffer = &deviceGlobals.voxelTopDownViewNodeStructuredBuffer[v26];
+  v28 = *context;
+  v29 = &deviceGlobals.voxelInternalNodeStructuredBuffer[v26];
+  p_input->codeBuffers[17] = p_topDownViewNodeBuffer;
+  p_internalNodeBuffer = &v24->internalNodeBuffer;
+  if ( !v24 )
+    p_internalNodeBuffer = v29;
+  p_input->codeBuffers[18] = p_internalNodeBuffer;
+  p_input->codeBuffers[19] = &gpuLightGrid->voxelStartTetrahedronBuffer;
+  p_input->codeBuffers[15] = &gpuLightGrid->tetrahedronNeighborsBuffer;
+  p_input->codeBuffers[20] = &gpuLightGrid->tetrahedronVisibilityBuffer;
+  p_input->codeBuffers[22] = &gfxBuf.dummyBuffer;
+  p_input->codeBuffers[21] = &shLightingGlob.gfxBuffers[v20].debugDataBuffer;
+  p_input->codeBuffers[23] = &shLightingGlob.fallbackProbe;
+  v36 = v28;
+  R_SetupPassStableArgsInternal(&v36, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sh_lighting.cpp(1029)");
+  v37 = *context;
+  R_SetupPassPerObjectArgsInternal(&v37, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sh_lighting.cpp(1030)");
   if ( numSpheresToRender > 0 )
   {
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rsi]
-      vpextrq rbx, xmm6, 1
-    }
+    _XMM6 = *context;
+    __asm { vpextrq rbx, xmm6, 1 }
     R_SetIndicesWithType(_RBX, shLightingGlob.debugLightProbeIndices, DXGI_FORMAT_R16_UINT);
     R_SetStreamSource(_RBX, R_BASE_VERTEX_STREAM, shLightingGlob.debugLightProbeVerts, 0, shLightingGlob.debugLightProbeVertsStride);
     R_FlushStreamSources(_RBX, shLightingGlob.debugLightProbeVertCount);
-    __asm { vmovq   rax, xmm6 }
-    R_AssignDrawPrimArgsInternal(&outArgs, shLightingGlob.debugLightProbeVertCount, shLightingGlob.debugLightProbeTriCount, 0, 0, *(_DWORD *)(*(_QWORD *)(_RAX + 9728) + 927460i64), *(GfxViewStatsTarget *)(_RAX + 11688), GFX_PRIM_STATS_DEBUG, GFX_TRI_SOURCE_STATIC);
+    R_AssignDrawPrimArgsInternal(&outArgs, shLightingGlob.debugLightProbeVertCount, shLightingGlob.debugLightProbeTriCount, 0, 0, _XMM6.source->input.data->endSwapFrame, _XMM6.source->viewStatsTarget, GFX_PRIM_STATS_DEBUG, GFX_TRI_SOURCE_STATIC);
     R_DrawInstancedIndexedPrimitive(_RBX, &outArgs, numSpheresToRender);
   }
   if ( numTriPatchesToRender > 0 )
   {
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rsi]
-      vpextrq rbx, xmm6, 1
-    }
+    _XMM6 = *context;
+    __asm { vpextrq rbx, xmm6, 1 }
     R_SetIndicesWithType(_RBX, shLightingGlob.debugTriPatchIndices, DXGI_FORMAT_R16_UINT);
     R_SetStreamSource(_RBX, R_BASE_VERTEX_STREAM, shLightingGlob.debugTriPatchVerts, 0, shLightingGlob.debugTriPatchVertsStride);
     R_FlushStreamSources(_RBX, shLightingGlob.debugTriPatchVertCount);
-    __asm { vmovq   rax, xmm6 }
-    R_AssignDrawPrimArgsInternal(&args, shLightingGlob.debugTriPatchVertCount, shLightingGlob.debugTriPatchTriCount, 0, 0, *(_DWORD *)(*(_QWORD *)(_RAX + 9728) + 927460i64), *(GfxViewStatsTarget *)(_RAX + 11688), GFX_PRIM_STATS_DEBUG, GFX_TRI_SOURCE_STATIC);
+    R_AssignDrawPrimArgsInternal(&args, shLightingGlob.debugTriPatchVertCount, shLightingGlob.debugTriPatchTriCount, 0, 0, _XMM6.source->input.data->endSwapFrame, _XMM6.source->viewStatsTarget, GFX_PRIM_STATS_DEBUG, GFX_TRI_SOURCE_STATIC);
     R_DrawInstancedIndexedPrimitive(_RBX, &args, numTriPatchesToRender);
   }
-  __asm { vmovaps xmm6, [rsp+0F8h+var_38] }
 }
 
 /*
@@ -1911,74 +1630,44 @@ R_GpuLightGrid_GetBoundingPlane
 */
 vec4_t *R_GpuLightGrid_GetBoundingPlane(vec4_t *result, const GfxGpuLightGrid *lightGrid, int axisIndex, bool positive)
 {
+  __int64 v4; 
   __int64 v6; 
-  vec4_t *v38; 
+  __int128 v14; 
+  vec4_t *v19; 
 
-  _ER11 = 0;
+  v4 = axisIndex;
+  _XMM0 = positive;
   v6 = axisIndex;
-  _EAX = positive;
-  __asm { vmovd   xmm0, eax }
-  _R8 = 2i64 * axisIndex;
-  _EAX = positive;
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM3 = LODWORD(lightGrid->boundingVolume[v6].v[0]) ^ (unsigned __int128)(unsigned int)_xmm;
+  __asm { vblendvps xmm5, xmm3, xmm4, xmm2 }
+  _XMM0 = positive;
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM3 = LODWORD(lightGrid->boundingVolume[v6].v[1]) ^ (unsigned __int128)(unsigned int)_xmm;
+  __asm { vblendvps xmm3, xmm3, xmm4, xmm2 }
+  v14 = LODWORD(FLOAT_1_0);
+  *(float *)&v14 = fsqrt(1.0 - (float)((float)(*(float *)&_XMM3 * *(float *)&_XMM3) + (float)(*(float *)&_XMM5 * *(float *)&_XMM5)));
+  _XMM0 = positive;
+  result->v[1] = *(float *)&_XMM3;
+  _XMM3 = v14 ^ (unsigned int)_xmm;
   __asm
   {
-    vmovaps [rsp+18h+var_18], xmm6
-    vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovd   xmm1, r11d
-    vmovss  xmm4, dword ptr [rdx+r8*8+148h]
-    vpcmpeqd xmm2, xmm0, xmm1
-    vxorps  xmm3, xmm4, xmm6
-    vblendvps xmm5, xmm3, xmm4, xmm2
-    vmovss  xmm4, dword ptr [rdx+r8*8+14Ch]
-    vmovd   xmm0, eax
-  }
-  _EAX = positive;
-  __asm
-  {
-    vmovd   xmm1, r11d
-    vpcmpeqd xmm2, xmm0, xmm1
-    vxorps  xmm3, xmm4, xmm6
-    vblendvps xmm3, xmm3, xmm4, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm1, cs:__real@3f800000
-    vsubss  xmm2, xmm1, xmm2
-    vsqrtss xmm4, xmm2, xmm2
-    vmovd   xmm1, r11d
-    vmovss  [rsp+18h+arg_18], xmm5
-    vmovd   xmm0, eax
-    vmovss  dword ptr [rcx+4], xmm3
-    vmovss  [rsp+18h+arg_18], xmm3
-    vxorps  xmm3, xmm4, xmm6
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm1, xmm3, xmm4, xmm2
-    vmovss  dword ptr [rcx+8], xmm1
-    vmovss  dword ptr [rcx], xmm5
   }
+  result->v[2] = *(float *)&_XMM1;
+  result->v[0] = *(float *)&_XMM5;
   if ( positive )
   {
-    _RAX = 2 * (v6 + 21);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+rax*8]
-      vmovss  dword ptr [rcx+0Ch], xmm0
-    }
-    v38 = result;
-    __asm { vmovaps xmm6, [rsp+18h+var_18] }
+    result->v[3] = lightGrid->boundingVolume[v4].v[2];
+    return result;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+r8*8+154h]
-      vxorps  xmm1, xmm0, xmm6
-      vmovaps xmm6, [rsp+18h+var_18]
-    }
-    v38 = result;
-    __asm { vmovss  dword ptr [rcx+0Ch], xmm1 }
+    v19 = result;
+    result->v[3] = COERCE_FLOAT(LODWORD(lightGrid->boundingVolume[v6].v[3]) ^ _xmm);
   }
-  return v38;
+  return v19;
 }
 
 /*
@@ -1986,36 +1675,35 @@ vec4_t *R_GpuLightGrid_GetBoundingPlane(vec4_t *result, const GfxGpuLightGrid *l
 R_GpuLightGrid_Init
 ==============
 */
-void R_GpuLightGrid_Init(__int64 a1, double a2)
+void R_GpuLightGrid_Init(void)
 {
-  __int64 v2; 
+  __int64 v0; 
   GfxWrappedBuffer *p_prevFrameLightGridIndices; 
-  __int64 v4; 
+  __int64 v2; 
   int ElementSizeForDataFormat; 
-  __int64 v6; 
   GfxWrappedBuffer *p_debugDataBuffer; 
 
-  v2 = 2i64;
+  v0 = 2i64;
   p_prevFrameLightGridIndices = &shLightingGlob.gfxBuffers[0].prevFrameLightGridIndices;
-  v4 = 2i64;
+  v2 = 2i64;
   do
   {
     R_CreateGfxWrappedBuffer(p_prevFrameLightGridIndices - 1, GfxWrappedBuffer_Structured, 112, 0x14u, GFX_DATA_FORMAT_R32_UINT, 4u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, NULL, "Light grid parameters");
     ElementSizeForDataFormat = Buffers_GetElementSizeForDataFormat(GFX_DATA_FORMAT_R32_UINT);
     R_CreateGfxWrappedBuffer(p_prevFrameLightGridIndices, GfxWrappedBuffer_Data, ElementSizeForDataFormat, 0x14u, GFX_DATA_FORMAT_R32_UINT, 4u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, NULL, "Light grid indices in the prev frame");
     p_prevFrameLightGridIndices += 3;
-    --v4;
+    --v2;
   }
-  while ( v4 );
-  R_GpuLightGrid_CreateDebugGeometry(v6, a2);
+  while ( v2 );
+  R_GpuLightGrid_CreateDebugGeometry();
   p_debugDataBuffer = &shLightingGlob.gfxBuffers[0].debugDataBuffer;
   do
   {
     R_CreateGfxWrappedBuffer(p_debugDataBuffer, GfxWrappedBuffer_Structured, 48, 1u, GFX_DATA_FORMAT_R32_UINT, 0xAu, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, NULL, "debug");
     p_debugDataBuffer += 3;
-    --v2;
+    --v0;
   }
-  while ( v2 );
+  while ( v0 );
 }
 
 /*
@@ -2085,6 +1773,14 @@ R_GpuLightGrid_SetupFrame
 */
 void R_GpuLightGrid_SetupFrame(GfxBackEndData *data, const GfxViewInfo *viewInfo)
 {
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
   unsigned int shLightingIndex; 
   unsigned int v11; 
   signed int v12; 
@@ -2094,87 +1790,98 @@ void R_GpuLightGrid_SetupFrame(GfxBackEndData *data, const GfxViewInfo *viewInfo
   __int64 zoneCount; 
   __int64 voxelTreeZoneIndex; 
   __int64 v18; 
+  __int64 v19; 
   const GfxGpuLightGrid **gpuLightGrid; 
-  const GfxGpuLightGrid *v22; 
+  const GfxGpuLightGrid *v21; 
   GfxGpuLightGridVoxelTree *zoneVoxelTrees; 
-  bool v24; 
-  bool v30; 
-  bool v35; 
-  std::_Ref_fn<<lambda_5ecc68168016b79ce6058389727e366a> > v99; 
-  __int64 v100; 
+  float *rootNodeDimension; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  __m128 v39; 
+  __m128 v43; 
+  __int128 v49; 
+  std::_Ref_fn<<lambda_5ecc68168016b79ce6058389727e366a> > v57; 
+  __int64 v58; 
   __int64 i; 
-  const GfxGpuLightGrid *v102; 
-  unsigned __int64 v103; 
-  int v104; 
+  const GfxGpuLightGrid *v60; 
+  unsigned __int64 v61; 
+  int v62; 
   __int64 numActiveLightGrids; 
-  int *v106; 
-  int v107; 
-  __int64 v108; 
-  int v109; 
-  __int64 v110; 
-  __int64 v111; 
-  double v112; 
-  double v113; 
-  double v114; 
-  double v115; 
-  double v116; 
-  double v117; 
-  const GfxGpuLightGrid **v118; 
-  __int64 v119; 
+  int *v64; 
+  int v65; 
+  __int64 v66; 
+  int v67; 
+  __int64 v68; 
+  __int64 v69; 
+  const GfxGpuLightGrid **v70; 
+  __int64 v71; 
   R_GpuLightGrid_SetupFrame::__l2::<lambda_5ecc68168016b79ce6058389727e366a> _Val; 
-  unsigned __int64 v122; 
-  __int128 v123; 
-  __int128 v124; 
-  __int128 v125; 
+  unsigned __int64 v74; 
+  __int128 v75; 
+  __m128 v76; 
+  __m128 v77; 
   int _First[256]; 
-  int v127[1536]; 
-  int v128[1536]; 
+  float v79[1536]; 
+  float v80[1536]; 
+  __int128 v81; 
+  __int128 v82; 
+  __int128 v83; 
+  __int128 v84; 
+  __int128 v85; 
+  __int128 v86; 
+  __int128 v87; 
+  __int128 v88; 
 
   shLightingIndex = data->shLightingIndex;
   v11 = 0;
   v12 = 0;
-  v122 = 248i64 * shLightingIndex;
+  v74 = 248i64 * shLightingIndex;
   v13 = data;
-  gpuLightGridCameraDist = (float (*)[1536])&shLightingGlob.frameData[v122 / 0xF8];
+  gpuLightGridCameraDist = (float (*)[1536])&shLightingGlob.frameData[v74 / 0xF8];
   _Val.gpuLightGridCenterCameraDist = (float (*)[1536])viewInfo;
   _Val.gpuLightGridCameraDist = gpuLightGridCameraDist;
   v15 = &shLightingGlob.frameData[1 - shLightingIndex];
   zoneCount = (int)data->transientDrawContext.zoneCount;
-  v119 = zoneCount;
+  v71 = zoneCount;
   if ( zoneCount > 0 )
   {
     voxelTreeZoneIndex = (int)viewInfo->input.voxelTreeZoneIndex;
-    __asm { vmovaps [rsp+3580h+var_B0], xmm13 }
+    v81 = v9;
     v18 = 0i64;
-    __asm
-    {
-      vmovss  xmm13, cs:__real@3f000000
-      vmovaps [rsp+3580h+var_40], xmm6
-    }
-    _R14 = 0i64;
-    __asm { vmovaps [rsp+3580h+var_50], xmm7 }
+    v88 = v2;
+    v19 = 0i64;
+    v87 = v3;
     gpuLightGrid = data->transientDrawContext.gpuLightGrid;
-    __asm
-    {
-      vmovaps [rsp+3580h+var_60], xmm8
-      vmovaps [rsp+3580h+var_70], xmm9
-      vmovaps [rsp+3580h+var_80], xmm10
-      vmovaps [rsp+3580h+var_90], xmm11
-      vmovaps [rsp+3580h+var_A0], xmm12
-    }
-    v118 = data->transientDrawContext.gpuLightGrid;
+    v86 = v4;
+    v85 = v5;
+    v84 = v6;
+    v83 = v7;
+    v82 = v8;
+    v70 = data->transientDrawContext.gpuLightGrid;
     do
     {
-      v22 = *gpuLightGrid;
-      if ( *gpuLightGrid && v22->probeCount )
+      v21 = *gpuLightGrid;
+      if ( *gpuLightGrid && v21->probeCount )
       {
         if ( v11 >= 0x600 )
         {
-          LODWORD(v111) = 1536;
-          LODWORD(v110) = v11;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v110, v111) )
+          LODWORD(v69) = 1536;
+          LODWORD(v68) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v68, v69) )
             __debugbreak();
-          gpuLightGrid = v118;
+          gpuLightGrid = v70;
         }
         if ( ((0x80000000 >> (v11 & 0x1F)) & data->transientVisibility.array[(unsigned __int64)v11 >> 5]) != 0 )
         {
@@ -2185,228 +1892,143 @@ void R_GpuLightGrid_SetupFrame(GfxBackEndData *data, const GfxViewInfo *viewInfo
           else
           {
             _First[v18] = v11;
-            zoneVoxelTrees = v22->zoneVoxelTrees;
+            zoneVoxelTrees = v21->zoneVoxelTrees;
             if ( zoneVoxelTrees )
             {
-              v24 = __CFSHL__(voxelTreeZoneIndex, 7) || voxelTreeZoneIndex << 7 == 0;
-              _RBX = zoneVoxelTrees[voxelTreeZoneIndex].treeHeader;
-              __asm
-              {
-                vmovss  xmm1, dword ptr [rbx+20h]
-                vmovss  xmm0, dword ptr [rbx+30h]
-                vcomiss xmm1, xmm0
-              }
-              if ( !v24 )
-              {
-                __asm
-                {
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmovsd  [rsp+3580h+var_3540], xmm0
-                  vcvtss2sd xmm1, xmm1, xmm1
-                  vmovsd  [rsp+3580h+var_3548], xmm1
-                }
-                v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 109, ASSERT_TYPE_ASSERT, "( mins.x ) <= ( maxs.x )", "%s <= %s\n\t%g, %g", "mins.x", "maxs.x", v112, v115);
-                v24 = !v30;
-                if ( v30 )
-                  __debugbreak();
-              }
-              __asm
-              {
-                vmovss  xmm1, dword ptr [rbx+24h]
-                vmovss  xmm0, dword ptr [rbx+34h]
-                vcomiss xmm1, xmm0
-              }
-              if ( !v24 )
-              {
-                __asm
-                {
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmovsd  [rsp+3580h+var_3540], xmm0
-                  vcvtss2sd xmm1, xmm1, xmm1
-                  vmovsd  [rsp+3580h+var_3548], xmm1
-                }
-                v35 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 110, ASSERT_TYPE_ASSERT, "( mins.y ) <= ( maxs.y )", "%s <= %s\n\t%g, %g", "mins.y", "maxs.y", v113, v116);
-                v24 = !v35;
-                if ( v35 )
-                  __debugbreak();
-              }
-              __asm
-              {
-                vmovss  xmm1, dword ptr [rbx+28h]
-                vmovss  xmm0, dword ptr [rbx+38h]
-                vcomiss xmm1, xmm0
-              }
-              if ( !v24 )
-              {
-                __asm
-                {
-                  vcvtss2sd xmm0, xmm0, xmm0
-                  vmovsd  [rsp+3580h+var_3540], xmm0
-                  vcvtss2sd xmm1, xmm1, xmm1
-                  vmovsd  [rsp+3580h+var_3548], xmm1
-                }
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 111, ASSERT_TYPE_ASSERT, "( mins.z ) <= ( maxs.z )", "%s <= %s\n\t%g, %g", "mins.z", "maxs.z", v114, v117) )
-                  __debugbreak();
-              }
-              __asm
-              {
-                vmovss  xmm6, dword ptr [rbx+30h]
-                vaddss  xmm0, xmm6, dword ptr [rbx+20h]
-                vmovss  xmm5, dword ptr [rbx+34h]
-                vmovss  xmm3, dword ptr [rbx+38h]
-                vsubss  xmm1, xmm6, dword ptr [rbx+20h]
-              }
-              _RDX = _Val.gpuLightGridCenterCameraDist;
-              __asm
-              {
-                vmulss  xmm12, xmm0, xmm13
-                vaddss  xmm0, xmm5, dword ptr [rbx+24h]
-                vmulss  xmm11, xmm0, xmm13
-                vaddss  xmm0, xmm3, dword ptr [rbx+28h]
-                vmovss  xmm7, dword ptr [rdx+100h]
-                vmovss  xmm8, dword ptr [rdx+104h]
-                vmovss  xmm9, dword ptr [rdx+108h]
-                vmulss  xmm10, xmm0, xmm13
-                vsubss  xmm0, xmm5, dword ptr [rbx+24h]
-                vmulss  xmm4, xmm0, xmm13
-                vmulss  xmm6, xmm1, xmm13
-                vsubss  xmm1, xmm3, dword ptr [rbx+28h]
-                vmulss  xmm5, xmm1, xmm13
-              }
-              HIDWORD(v124) = 0;
+              rootNodeDimension = (float *)zoneVoxelTrees[voxelTreeZoneIndex].treeHeader->rootNodeDimension;
+              v24 = rootNodeDimension[8];
+              v25 = rootNodeDimension[12];
+              if ( v24 > v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 109, ASSERT_TYPE_ASSERT, "( mins.x ) <= ( maxs.x )", "%s <= %s\n\t%g, %g", "mins.x", "maxs.x", v24, v25) )
+                __debugbreak();
+              v26 = rootNodeDimension[9];
+              v27 = rootNodeDimension[13];
+              if ( v26 > v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 110, ASSERT_TYPE_ASSERT, "( mins.y ) <= ( maxs.y )", "%s <= %s\n\t%g, %g", "mins.y", "maxs.y", v26, v27) )
+                __debugbreak();
+              v28 = rootNodeDimension[10];
+              v29 = rootNodeDimension[14];
+              if ( v28 > v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 111, ASSERT_TYPE_ASSERT, "( mins.z ) <= ( maxs.z )", "%s <= %s\n\t%g, %g", "mins.z", "maxs.z", v28, v29) )
+                __debugbreak();
+              v30 = rootNodeDimension[12];
+              v31 = (float)(v30 + rootNodeDimension[8]) * 0.5;
+              v32 = (float)(rootNodeDimension[13] + rootNodeDimension[9]) * 0.5;
+              v33 = (*_Val.gpuLightGridCenterCameraDist)[64];
+              v34 = (*_Val.gpuLightGridCenterCameraDist)[65];
+              v35 = (*_Val.gpuLightGridCenterCameraDist)[66];
+              v36 = (float)(rootNodeDimension[14] + rootNodeDimension[10]) * 0.5;
+              v37 = (float)(v30 - rootNodeDimension[8]) * 0.5;
+              v76.m128_i32[3] = 0;
               ++v12;
+              v39 = v76;
+              v39.m128_f32[0] = v33;
+              _XMM1 = v39;
               __asm
               {
-                vmovups xmm1, xmmword ptr [rbp-60h]
-                vmovss  xmm1, xmm1, xmm7
                 vinsertps xmm1, xmm1, xmm8, 10h
                 vinsertps xmm1, xmm1, xmm9, 20h ; ' '
-                vmovups xmmword ptr [rbp-60h], xmm1
               }
-              HIDWORD(v125) = 0;
+              v76 = _XMM1;
+              v77.m128_i32[3] = 0;
               ++v18;
+              v43 = v77;
+              v43.m128_f32[0] = v31;
+              _XMM0 = v43;
               __asm
               {
-                vmovups xmm0, xmmword ptr [rbp-50h]
-                vmovss  xmm0, xmm0, xmm12
                 vinsertps xmm0, xmm0, xmm11, 10h
                 vinsertps xmm0, xmm0, xmm10, 20h ; ' '
-                vsubps  xmm1, xmm1, xmm0
-                vmovups xmmword ptr [rbp-50h], xmm0
-                vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-                vandnps xmm2, xmm0, xmm1
-                vxorps  xmm0, xmm0, xmm0
               }
-              HIDWORD(v123) = 0;
+              _mm128_sub_ps(_XMM1, _XMM0);
+              v77 = _XMM0;
+              _XMM0 = g_negativeZero.v;
+              __asm { vandnps xmm2, xmm0, xmm1 }
+              HIDWORD(v75) = 0;
+              v49 = v75;
+              *(float *)&v49 = v37;
+              _XMM3 = v49;
               __asm
               {
-                vmovups xmm3, xmmword ptr [rbp-70h]
-                vmovss  xmm3, xmm3, xmm6
                 vinsertps xmm3, xmm3, xmm4, 10h
                 vinsertps xmm3, xmm3, xmm5, 20h ; ' '
-                vmovups xmmword ptr [rbp-70h], xmm3
-                vsubps  xmm3, xmm2, xmm3
-                vmaxps  xmm1, xmm3, xmm0
-                vmulps  xmm2, xmm1, xmm1
+              }
+              v75 = (__int128)_XMM3;
+              _XMM3 = _mm128_sub_ps(_XMM2, _XMM3);
+              __asm { vmaxps  xmm1, xmm3, xmm0 }
+              _XMM2 = _mm128_mul_ps(_XMM1, _XMM1);
+              __asm
+              {
                 vhaddps xmm0, xmm2, xmm2
                 vhaddps xmm1, xmm0, xmm0
-                vsqrtss xmm0, xmm1, xmm1
-                vsubss  xmm1, xmm8, xmm11
-                vmulss  xmm2, xmm1, xmm1
-                vsubss  xmm3, xmm7, xmm12
-                vmovss  [rbp+r14*4+3480h+var_30C0], xmm0
-                vmulss  xmm0, xmm3, xmm3
-                vaddss  xmm3, xmm2, xmm0
-                vsubss  xmm4, xmm9, xmm10
-                vmulss  xmm1, xmm4, xmm4
-                vaddss  xmm2, xmm3, xmm1
-                vsqrtss xmm0, xmm2, xmm2
-                vmovss  [rbp+r14*4+3480h+var_18C0], xmm0
               }
+              v79[v19] = fsqrt(*(float *)&_XMM1);
+              v80[v19] = fsqrt((float)((float)((float)(v34 - v32) * (float)(v34 - v32)) + (float)((float)(v33 - v31) * (float)(v33 - v31))) + (float)((float)(v35 - v36) * (float)(v35 - v36)));
             }
             else
             {
               ++v12;
-              v127[_R14] = 0;
+              v79[v19] = 0.0;
               ++v18;
-              v128[_R14] = 0;
+              v80[v19] = 0.0;
             }
           }
-          gpuLightGrid = v118;
+          gpuLightGrid = v70;
         }
-        zoneCount = v119;
+        zoneCount = v71;
       }
       ++gpuLightGrid;
       ++v11;
-      v118 = gpuLightGrid;
-      ++_R14;
+      v70 = gpuLightGrid;
+      ++v19;
     }
-    while ( _R14 < zoneCount );
-    __asm
-    {
-      vmovaps xmm13, [rsp+3580h+var_B0]
-      vmovaps xmm12, [rsp+3580h+var_A0]
-      vmovaps xmm11, [rsp+3580h+var_90]
-      vmovaps xmm10, [rsp+3580h+var_80]
-      vmovaps xmm9, [rsp+3580h+var_70]
-      vmovaps xmm8, [rsp+3580h+var_60]
-      vmovaps xmm7, [rsp+3580h+var_50]
-      vmovaps xmm6, [rsp+3580h+var_40]
-    }
+    while ( v19 < zoneCount );
     gpuLightGridCameraDist = _Val.gpuLightGridCameraDist;
     if ( v12 > 20 )
       R_WarnOncePerFrame(R_WARN_TOO_MANY_ACTIVE_GPU_LIGHTGRIDS, 20i64, gpuLightGrid, "%s <= %s\n\t%g, %g");
     v13 = data;
   }
-  *(_QWORD *)&v123 = v127;
-  *((_QWORD *)&v123 + 1) = v128;
-  __asm
-  {
-    vmovups xmm0, [rbp+3480h+var_34F0]
-    vmovdqa [rbp+3480h+var_34F0], xmm0
-  }
-  v99._Fn = std::_Pass_fn__lambda_5ecc68168016b79ce6058389727e366a__0_(&_Val)._Fn;
-  std::_Sort_unchecked_int___std::_Ref_fn__lambda_5ecc68168016b79ce6058389727e366a_____(_First, &_First[v100], v100, (std::_Ref_fn<<lambda_5ecc68168016b79ce6058389727e366a> >)v99._Fn->gpuLightGridCameraDist);
+  *(_QWORD *)&v75 = v79;
+  *((_QWORD *)&v75 + 1) = v80;
+  v57._Fn = std::_Pass_fn__lambda_5ecc68168016b79ce6058389727e366a__0_(&_Val)._Fn;
+  std::_Sort_unchecked_int___std::_Ref_fn__lambda_5ecc68168016b79ce6058389727e366a_____(_First, &_First[v58], v58, (std::_Ref_fn<<lambda_5ecc68168016b79ce6058389727e366a> >)v57._Fn->gpuLightGridCameraDist);
   if ( v12 > 20 )
     v12 = 20;
   if ( v12 > 0 )
   {
-    for ( i = 0i64; i < v12; *(_QWORD *)&(*gpuLightGridCameraDist)[2 * i++] = v102 )
+    for ( i = 0i64; i < v12; *(_QWORD *)&(*gpuLightGridCameraDist)[2 * i++] = v60 )
     {
-      v102 = v13->transientDrawContext.gpuLightGrid[_First[i]];
-      if ( (!v102 || !v102->probeCount) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sh_lighting.cpp", 685, ASSERT_TYPE_ASSERT, "(gpuLightGrid && ( gpuLightGrid->probeCount > 0 ))", (const char *)&queryFormat, "gpuLightGrid && ( gpuLightGrid->probeCount > 0 )") )
+      v60 = v13->transientDrawContext.gpuLightGrid[_First[i]];
+      if ( (!v60 || !v60->probeCount) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_sh_lighting.cpp", 685, ASSERT_TYPE_ASSERT, "(gpuLightGrid && ( gpuLightGrid->probeCount > 0 ))", (const char *)&queryFormat, "gpuLightGrid && ( gpuLightGrid->probeCount > 0 )") )
         __debugbreak();
     }
   }
-  v103 = v122;
-  v104 = 0;
-  shLightingGlob.frameData[v122 / 0xF8].numActiveLightGrids = v12;
+  v61 = v74;
+  v62 = 0;
+  shLightingGlob.frameData[v74 / 0xF8].numActiveLightGrids = v12;
   numActiveLightGrids = (int)v15->numActiveLightGrids;
   if ( v12 > 0 )
   {
-    v106 = (int *)((char *)shLightingGlob.frameData[0].prevFrameLightGridIndex + v103);
+    v64 = (int *)((char *)shLightingGlob.frameData[0].prevFrameLightGridIndex + v61);
     do
     {
-      v107 = 0;
-      v108 = 0i64;
-      v109 = -1;
+      v65 = 0;
+      v66 = 0i64;
+      v67 = -1;
       if ( numActiveLightGrids > 0 )
       {
-        while ( *(const GfxGpuLightGrid **)&(*gpuLightGridCameraDist)[0] != v15->activeLightGrids[v108] )
+        while ( *(const GfxGpuLightGrid **)&(*gpuLightGridCameraDist)[0] != v15->activeLightGrids[v66] )
         {
-          ++v107;
-          if ( ++v108 >= numActiveLightGrids )
+          ++v65;
+          if ( ++v66 >= numActiveLightGrids )
             goto LABEL_46;
         }
-        v109 = v107;
+        v67 = v65;
       }
 LABEL_46:
-      *v106 = v109;
-      ++v104;
-      ++v106;
+      *v64 = v67;
+      ++v62;
+      ++v64;
       gpuLightGridCameraDist = (float (*)[1536])((char *)gpuLightGridCameraDist + 8);
     }
-    while ( v104 < *(_DWORD *)((char *)&shLightingGlob.frameData[0].activeLightGrids[20] + v103) );
+    while ( v62 < *(_DWORD *)((char *)&shLightingGlob.frameData[0].activeLightGrids[20] + v61) );
   }
 }
 
@@ -2474,13 +2096,12 @@ void R_GpuLightGrid_ShutdownBuffers(GfxGpuLightGrid *lg)
 R_InitSHLighting
 ==============
 */
-void R_InitSHLighting(__int64 a1, double a2)
+void R_InitSHLighting(void)
 {
-  __int64 v2; 
+  __int64 v0; 
   GfxWrappedBuffer *p_prevFrameLightGridIndices; 
-  __int64 v4; 
+  __int64 v2; 
   int ElementSizeForDataFormat; 
-  __int64 v6; 
   GfxWrappedBuffer *p_debugDataBuffer; 
 
   *(_QWORD *)&shLightingGlob.globalFrame = 0i64;
@@ -2488,27 +2109,27 @@ void R_InitSHLighting(__int64 a1, double a2)
   shLightingGlob.fallbackProbeDirty = 1;
   shLightingGlob.fallbackProbeZoneIndex = -1;
   R_LGV_Init();
-  v2 = 2i64;
+  v0 = 2i64;
   p_prevFrameLightGridIndices = &shLightingGlob.gfxBuffers[0].prevFrameLightGridIndices;
-  v4 = 2i64;
+  v2 = 2i64;
   do
   {
     R_CreateGfxWrappedBuffer(p_prevFrameLightGridIndices - 1, GfxWrappedBuffer_Structured, 112, 0x14u, GFX_DATA_FORMAT_R32_UINT, 4u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, NULL, "Light grid parameters");
     ElementSizeForDataFormat = Buffers_GetElementSizeForDataFormat(GFX_DATA_FORMAT_R32_UINT);
     R_CreateGfxWrappedBuffer(p_prevFrameLightGridIndices, GfxWrappedBuffer_Data, ElementSizeForDataFormat, 0x14u, GFX_DATA_FORMAT_R32_UINT, 4u, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, NULL, "Light grid indices in the prev frame");
     p_prevFrameLightGridIndices += 3;
-    --v4;
+    --v2;
   }
-  while ( v4 );
-  R_GpuLightGrid_CreateDebugGeometry(v6, a2);
+  while ( v2 );
+  R_GpuLightGrid_CreateDebugGeometry();
   p_debugDataBuffer = &shLightingGlob.gfxBuffers[0].debugDataBuffer;
   do
   {
     R_CreateGfxWrappedBuffer(p_debugDataBuffer, GfxWrappedBuffer_Structured, 48, 1u, GFX_DATA_FORMAT_R32_UINT, 0xAu, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, NULL, "debug");
     p_debugDataBuffer += 3;
-    --v2;
+    --v0;
   }
-  while ( v2 );
+  while ( v0 );
 }
 
 /*

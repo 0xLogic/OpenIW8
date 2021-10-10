@@ -3,117 +3,69 @@
 LUIElement_ScopeReticleSpacer_Layout
 ==============
 */
-
-void __fastcall LUIElement_ScopeReticleSpacer_Layout(const LocalClientNum_t localClientNum, LUIElement *element, double unitScale, int deltaTime, lua_State *luaVM)
+void LUIElement_ScopeReticleSpacer_Layout(const LocalClientNum_t localClientNum, LUIElement *element, float unitScale, int deltaTime, lua_State *luaVM)
 {
-  __int64 v10; 
-  bool v12; 
+  __int64 v8; 
+  float *customElementData; 
+  cg_t *v10; 
+  float v11; 
+  float fWeaponPosFrac; 
   bool v13; 
-  __int64 v40; 
-  __int64 v41; 
-  int v42; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  __int64 v19; 
+  __int64 v20; 
+  int v21; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps [rsp+78h+var_38], xmm7
-    vmovaps xmm7, xmm2
-  }
-  v10 = localClientNum;
+  v8 = localClientNum;
   if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  _RDI = element->customElementData;
-  if ( (unsigned int)v10 >= cg_t::ms_allocatedCount )
+  customElementData = (float *)element->customElementData;
+  if ( (unsigned int)v8 >= cg_t::ms_allocatedCount )
   {
-    v42 = cg_t::ms_allocatedCount;
-    LODWORD(v40) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v40, v42) )
+    v21 = cg_t::ms_allocatedCount;
+    LODWORD(v19) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v19, v21) )
       __debugbreak();
   }
-  if ( !cg_t::ms_cgArray[v10] )
+  if ( !cg_t::ms_cgArray[v8] )
   {
-    LODWORD(v41) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v41) )
+    LODWORD(v20) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v20) )
       __debugbreak();
   }
-  v12 = cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN;
   if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
   {
-    LODWORD(v41) = v10;
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v41);
-    v12 = !v13;
-    if ( v13 )
+    LODWORD(v20) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v20) )
       __debugbreak();
   }
-  _RAX = cg_t::ms_cgArray[v10];
-  __asm
+  v10 = cg_t::ms_cgArray[v8];
+  v11 = v10->predictedPlayerState.weapCommon.aimSpreadScale * 0.0039215689;
+  fWeaponPosFrac = v10->predictedPlayerState.weapCommon.fWeaponPosFrac;
+  if ( v11 != customElementData[5] || fWeaponPosFrac != customElementData[6] )
   {
-    vmovss  xmm0, dword ptr [rax+74Ch]
-    vmulss  xmm6, xmm0, cs:__real@3b808081
-    vucomiss xmm6, dword ptr [rdi+14h]
-    vmovss  xmm3, dword ptr [rax+738h]
+    v13 = *((_BYTE *)customElementData + 16) == 0;
+    v14 = (float)(1.0 - fWeaponPosFrac) * customElementData[2];
+    v15 = fWeaponPosFrac * *customElementData;
+    v16 = (float)((float)((float)(1.0 - fWeaponPosFrac) * customElementData[3]) + (float)(fWeaponPosFrac * customElementData[1])) * v11;
+    customElementData[6] = fWeaponPosFrac;
+    v17 = (float)(v14 + v15) * (float)(1.0 - v11);
+    v18 = (float)(v16 + v17) * 0.5;
+    customElementData[5] = v11;
+    if ( !v13 )
+      element->parent->currentAnimationState.position.x.offsets[0] = COERCE_FLOAT(LODWORD(v18) ^ _xmm);
+    if ( *((_BYTE *)customElementData + 17) )
+      element->parent->currentAnimationState.position.x.offsets[1] = v18;
+    if ( *((_BYTE *)customElementData + 18) )
+      element->parent->currentAnimationState.position.y.offsets[0] = (float)(v16 + v17) * -0.5;
+    if ( *((_BYTE *)customElementData + 19) )
+      element->parent->currentAnimationState.position.y.offsets[1] = (float)(v16 + v17) * 0.5;
   }
-  if ( !v12 )
-    goto LABEL_15;
-  __asm { vucomiss xmm3, dword ptr [rdi+18h] }
-  if ( !v12 )
-  {
-LABEL_15:
-    v12 = _RDI[16] == 0;
-    __asm
-    {
-      vmulss  xmm0, xmm3, dword ptr [rdi+4]
-      vmovss  xmm5, cs:__real@3f800000
-      vsubss  xmm2, xmm5, xmm3
-      vmulss  xmm1, xmm2, dword ptr [rdi+0Ch]
-      vmulss  xmm2, xmm2, dword ptr [rdi+8]
-      vaddss  xmm1, xmm1, xmm0
-      vmulss  xmm0, xmm3, dword ptr [rdi]
-      vmulss  xmm4, xmm1, xmm6
-      vsubss  xmm1, xmm5, xmm6
-      vmovss  dword ptr [rdi+18h], xmm3
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm0, xmm3, xmm1
-      vaddss  xmm2, xmm4, xmm0
-      vmulss  xmm1, xmm2, cs:__real@3f000000
-      vmovss  dword ptr [rdi+14h], xmm6
-    }
-    if ( !v12 )
-    {
-      _RAX = element->parent;
-      __asm
-      {
-        vxorps  xmm0, xmm1, cs:__xmm@80000000800000008000000080000000
-        vmovss  dword ptr [rax], xmm0
-      }
-    }
-    if ( _RDI[17] )
-    {
-      _RAX = element->parent;
-      __asm { vmovss  dword ptr [rax+4], xmm1 }
-    }
-    if ( _RDI[18] )
-    {
-      _RAX = element->parent;
-      __asm
-      {
-        vmulss  xmm0, xmm2, cs:__real@bf000000
-        vmovss  dword ptr [rax+18h], xmm0
-      }
-    }
-    if ( _RDI[19] )
-    {
-      _RAX = element->parent;
-      __asm { vmovss  dword ptr [rax+1Ch], xmm1 }
-    }
-  }
-  __asm
-  {
-    vmovaps xmm2, xmm7; unitScale
-    vmovaps xmm6, [rsp+78h+var_28]
-    vmovaps xmm7, [rsp+78h+var_38]
-  }
-  LUIElement_DefaultLayout((const LocalClientNum_t)v10, element, *(float *)&_XMM2, deltaTime, luaVM);
+  LUIElement_DefaultLayout((const LocalClientNum_t)v8, element, unitScale, deltaTime, luaVM);
 }
 
 /*
@@ -142,11 +94,16 @@ LUI_LuaCall_LUIElement_SetupScopeReticleSpacer_impl
 */
 __int64 LUI_LuaCall_LUIElement_SetupScopeReticleSpacer_impl(lua_State *const luaVM)
 {
-  LUIElement *v3; 
-  bool v5; 
-  bool v6; 
-  bool v7; 
+  LUIElement *v2; 
+  float *v3; 
+  double v4; 
+  double v5; 
+  double v6; 
+  double v7; 
   bool v8; 
+  bool v9; 
+  bool v10; 
+  bool v11; 
 
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_gettop( luaVM ) == 2");
@@ -154,70 +111,70 @@ __int64 LUI_LuaCall_LUIElement_SetupScopeReticleSpacer_impl(lua_State *const lua
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
   if ( j_lua_type(luaVM, 2) != 5 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_istable( luaVM, 2 )");
-  v3 = LUI_ToElement(luaVM, 1);
-  if ( !LUI_ElementHasWeakTableEntry(v3, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 48, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( element, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( element, luaVM )") )
+  v2 = LUI_ToElement(luaVM, 1);
+  if ( !LUI_ElementHasWeakTableEntry(v2, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 48, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( element, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( element, luaVM )") )
     __debugbreak();
-  LUI_PutElementOnTopOfStack(v3, luaVM);
-  _RSI = j_lua_newuserdata(luaVM, 0x1Cui64);
+  LUI_PutElementOnTopOfStack(v2, luaVM);
+  v3 = (float *)j_lua_newuserdata(luaVM, 0x1Cui64);
   j_lua_setfield(luaVM, -2, "_customElementData");
   j_lua_settop(luaVM, -2);
-  if ( v3->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 54, ASSERT_TYPE_ASSERT, "(element->customElementData == 0)", (const char *)&queryFormat, "element->customElementData == NULL") )
+  if ( v2->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 54, ASSERT_TYPE_ASSERT, "(element->customElementData == 0)", (const char *)&queryFormat, "element->customElementData == NULL") )
     __debugbreak();
-  v3->customElementData = _RSI;
-  *_RSI = 0i64;
-  _RSI[1] = 0i64;
-  _RSI[2] = 0i64;
-  *((_DWORD *)_RSI + 6) = 0;
+  v2->customElementData = v3;
+  *(_QWORD *)v3 = 0i64;
+  *((_QWORD *)v3 + 1) = 0i64;
+  *((_QWORD *)v3 + 2) = 0i64;
+  v3[6] = 0.0;
   j_lua_getfield(luaVM, 2, "minSizeADS");
   if ( j_lua_isnumber(luaVM, -1) )
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
+    v4 = lui_tonumber32(luaVM, -1);
   else
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  __asm { vmovss  dword ptr [rsi], xmm0 }
+    *(float *)&v4 = FLOAT_1_0;
+  *v3 = *(float *)&v4;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "maxSizeADS");
   if ( j_lua_isnumber(luaVM, -1) )
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
+    v5 = lui_tonumber32(luaVM, -1);
   else
-    __asm { vmovss  xmm0, cs:__real@40a00000 }
-  __asm { vmovss  dword ptr [rsi+4], xmm0 }
+    *(float *)&v5 = FLOAT_5_0;
+  v3[1] = *(float *)&v5;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "minSizeHip");
   if ( j_lua_isnumber(luaVM, -1) )
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
+    v6 = lui_tonumber32(luaVM, -1);
   else
-    __asm { vmovss  xmm0, cs:__real@41a00000 }
-  __asm { vmovss  dword ptr [rsi+8], xmm0 }
+    *(float *)&v6 = FLOAT_20_0;
+  v3[2] = *(float *)&v6;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "maxSizeHip");
   if ( j_lua_isnumber(luaVM, -1) )
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
+    v7 = lui_tonumber32(luaVM, -1);
   else
-    __asm { vmovss  xmm0, cs:__real@42700000 }
-  __asm { vmovss  dword ptr [rsi+0Ch], xmm0 }
+    *(float *)&v7 = FLOAT_60_0;
+  v3[3] = *(float *)&v7;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "adjustLeft");
-  v5 = 0;
-  v6 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) != 0;
-  *((_BYTE *)_RSI + 16) = v6;
+  v8 = 0;
+  v9 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) != 0;
+  *((_BYTE *)v3 + 16) = v9;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "adjustRight");
-  v7 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) != 0;
-  *((_BYTE *)_RSI + 17) = v7;
+  v10 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) != 0;
+  *((_BYTE *)v3 + 17) = v10;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "adjustTop");
-  v8 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) != 0;
-  *((_BYTE *)_RSI + 18) = v8;
+  v11 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) != 0;
+  *((_BYTE *)v3 + 18) = v11;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "adjustBottom");
   if ( j_lua_type(luaVM, -1) == 1 )
-    v5 = j_lua_toboolean(luaVM, -1) != 0;
-  *((_BYTE *)_RSI + 19) = v5;
+    v8 = j_lua_toboolean(luaVM, -1) != 0;
+  *((_BYTE *)v3 + 19) = v8;
   j_lua_settop(luaVM, -2);
-  *((_DWORD *)_RSI + 5) = -1082130432;
-  *((_DWORD *)_RSI + 6) = -1082130432;
-  v3->layoutFunction = (void (__fastcall *)(const LocalClientNum_t, LUIElement *, float, int, lua_State *))LUIElement_ScopeReticleSpacer_Layout;
-  v3->usageFlags |= 2u;
+  v3[5] = -1.0;
+  v3[6] = -1.0;
+  v2->layoutFunction = LUIElement_ScopeReticleSpacer_Layout;
+  v2->usageFlags |= 2u;
   return 0i64;
 }
 

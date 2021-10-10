@@ -557,73 +557,65 @@ G_Client_GetViewDirectionLinked
 */
 void G_Client_GetViewDirectionLinked(const gentity_s *ent, vec3_t *outForward, vec3_t *outRight, vec3_t *outUp)
 {
+  gclient_s *client; 
   int pm_type; 
   GHandler *v10; 
   GHandler *Handler; 
   vec3_t *p_groundTiltAngles; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
   vec3_t inOutViewAngles; 
   tmat33_t<vec3_t> axis; 
-  vec3_t v27; 
+  vec3_t v22; 
   tmat33_t<vec3_t> in2; 
   tmat33_t<vec3_t> in1; 
 
-  _R14 = outUp;
-  _RSI = outRight;
-  _RDI = outForward;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_client.cpp", 267, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
   if ( !ent->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_client.cpp", 268, ASSERT_TYPE_ASSERT, "(ent->client)", (const char *)&queryFormat, "ent->client") )
     __debugbreak();
-  _RCX = ent->client;
-  pm_type = _RCX->ps.pm_type;
-  if ( pm_type == 1 || pm_type == 8 || (_RCX->ps.linkFlags.m_flags[0] & 4) != 0 )
+  client = ent->client;
+  pm_type = client->ps.pm_type;
+  if ( pm_type == 1 || pm_type == 8 || (client->ps.linkFlags.m_flags[0] & 4) != 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+1D8h]
-      vmovss  dword ptr [rbp+57h+inOutViewAngles], xmm0
-      vmovss  xmm1, dword ptr [rcx+1DCh]
-      vmovss  dword ptr [rbp+57h+inOutViewAngles+4], xmm1
-      vmovss  xmm0, dword ptr [rcx+1E0h]
-      vmovss  dword ptr [rbp+57h+inOutViewAngles+8], xmm0
-    }
-    BG_CalcLinkedViewValues(&_RCX->ps, &inOutViewAngles);
+    inOutViewAngles = client->ps.viewangles;
+    BG_CalcLinkedViewValues(&client->ps, &inOutViewAngles);
     if ( Com_GameMode_SupportsFeature(WEAPON_MELEE) )
     {
       AnglesToAxis(&inOutViewAngles, &axis);
       if ( ent->client->ps.groundRefEnt == 2047 )
         goto LABEL_21;
       Handler = GHandler::getHandler();
-      if ( !Handler->GetEntityAngles(Handler, ent->client->ps.groundRefEnt, &v27) )
+      if ( !Handler->GetEntityAngles(Handler, ent->client->ps.groundRefEnt, &v22) )
         goto LABEL_21;
-      p_groundTiltAngles = &v27;
+      p_groundTiltAngles = &v22;
     }
     else
     {
       if ( !Com_GameMode_SupportsFeature(WEAPON_RELOAD_END_RECHAMBER) )
       {
 LABEL_21:
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+57h+axis]
-          vmovss  xmm1, dword ptr [rbp+57h+axis+4]
-          vmovss  dword ptr [rdi], xmm0
-          vmovss  xmm0, dword ptr [rbp+57h+axis+8]
-          vmovss  dword ptr [rdi+4], xmm1
-          vmovss  xmm1, dword ptr [rbp+57h+axis+0Ch]
-          vmovss  dword ptr [rdi+8], xmm0
-          vmovss  xmm0, dword ptr [rbp+57h+axis+10h]
-          vmovss  dword ptr [rsi], xmm1
-          vmovss  xmm1, dword ptr [rbp+57h+axis+14h]
-          vmovss  dword ptr [rsi+4], xmm0
-          vmovss  xmm0, dword ptr [rbp+57h+axis+18h]
-          vmovss  dword ptr [rsi+8], xmm1
-          vmovss  xmm1, dword ptr [rbp+57h+axis+1Ch]
-          vmovss  dword ptr [r14], xmm0
-          vmovss  xmm0, dword ptr [rbp+57h+axis+20h]
-          vmovss  dword ptr [r14+8], xmm0
-          vmovss  dword ptr [r14+4], xmm1
-        }
+        v13 = axis.m[0].v[1];
+        outForward->v[0] = axis.m[0].v[0];
+        v14 = axis.m[0].v[2];
+        outForward->v[1] = v13;
+        v15 = axis.m[1].v[0];
+        outForward->v[2] = v14;
+        v16 = axis.m[1].v[1];
+        outRight->v[0] = v15;
+        v17 = axis.m[1].v[2];
+        outRight->v[1] = v16;
+        v18 = axis.m[2].v[0];
+        outRight->v[2] = v17;
+        v19 = axis.m[2].v[1];
+        outUp->v[0] = v18;
+        outUp->v[2] = axis.m[2].v[2];
+        outUp->v[1] = v19;
         return;
       }
       AnglesToAxis(&inOutViewAngles, &in1);
@@ -633,10 +625,10 @@ LABEL_21:
     MatrixMultiply(&in1, &in2, &axis);
     goto LABEL_21;
   }
-  if ( !_RCX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_client.cpp", 259, ASSERT_TYPE_ASSERT, "(ent->client)", (const char *)&queryFormat, "ent->client") )
+  if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_client.cpp", 259, ASSERT_TYPE_ASSERT, "(ent->client)", (const char *)&queryFormat, "ent->client") )
     __debugbreak();
   v10 = GHandler::getHandler();
-  BG_GetPlayerViewDirection(&ent->client->ps, _RDI, _RSI, _R14, v10, 0);
+  BG_GetPlayerViewDirection(&ent->client->ps, outForward, outRight, outUp, v10, 0);
 }
 
 /*

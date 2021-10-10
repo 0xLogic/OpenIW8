@@ -221,47 +221,43 @@ LUI_DataBinding_Interactions_GetHintParam
 */
 char LUI_DataBinding_Interactions_GetHintParam(LocalClientNum_t localClientNum, int hintParamIndex, char *outString, unsigned __int64 outStringSize)
 {
+  __int64 v5; 
+  cg_t *LocalClientGlobals; 
   ClConfigStrings *ClConfigStrings; 
   const char *v10; 
   const char *v11; 
-  int v15; 
-  int v16; 
+  int v12; 
+  int v13; 
 
-  _RDI = hintParamIndex;
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  if ( (unsigned int)_RDI >= 2 )
+  v5 = hintParamIndex;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( (unsigned int)v5 >= 2 )
   {
-    v16 = 2;
-    v15 = _RDI;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_interactions.cpp", 206, ASSERT_TYPE_ASSERT, "(unsigned)( hintParamIndex ) < (unsigned)( ( sizeof( *array_counter( ps->cursorHintParams.types ) ) + 0 ) )", "hintParamIndex doesn't index ARRAY_COUNT( ps->cursorHintParams.types )\n\t%i not in [0, %i)", v15, v16) )
+    v13 = 2;
+    v12 = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_interactions.cpp", 206, ASSERT_TYPE_ASSERT, "(unsigned)( hintParamIndex ) < (unsigned)( ( sizeof( *array_counter( ps->cursorHintParams.types ) ) + 0 ) )", "hintParamIndex doesn't index ARRAY_COUNT( ps->cursorHintParams.types )\n\t%i not in [0, %i)", v12, v13) )
       __debugbreak();
   }
-  switch ( _RBX->predictedPlayerState.cursorHintParams.types[_RDI] )
+  switch ( LocalClientGlobals->predictedPlayerState.cursorHintParams.types[v5] )
   {
     case 0:
       return 0;
     case 1:
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+rdi*4+2F8h]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(outString, (int)outStringSize, "%f", *(double *)&_XMM3);
+      Com_sprintf(outString, (int)outStringSize, "%f", LocalClientGlobals->predictedPlayerState.cursorHintParams.values[v5].floatVal);
       return 1;
     case 2:
-      Com_sprintf(outString, (int)outStringSize, "%d", _RBX->predictedPlayerState.cursorHintParams.values[_RDI].stringVal);
+      Com_sprintf(outString, (int)outStringSize, "%d", LocalClientGlobals->predictedPlayerState.cursorHintParams.values[v5].stringVal);
       return 1;
     case 3:
       ClConfigStrings = ClConfigStrings::GetClConfigStrings();
-      v10 = ClConfigStrings->GetHintString(ClConfigStrings, _RBX->predictedPlayerState.cursorHintParams.values[_RDI].intVal);
+      v10 = ClConfigStrings->GetHintString(ClConfigStrings, LocalClientGlobals->predictedPlayerState.cursorHintParams.values[v5].intVal);
       v11 = SEH_LocalizeTextMessage(v10, "ui string", LOCMSG_NOERR);
       if ( v11 )
         v10 = v11;
       Core_strcpy(outString, outStringSize, v10);
       return 1;
     default:
-      if ( _RBX->predictedPlayerState.cursorHintParams.types[_RDI] != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_interactions.cpp", 231, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown hint parameter type") )
+      if ( LocalClientGlobals->predictedPlayerState.cursorHintParams.types[v5] != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_interactions.cpp", 231, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown hint parameter type") )
         __debugbreak();
       return 0;
   }
@@ -392,14 +388,16 @@ Weapon *LUI_DataBinding_Interactions_GetWeapon(Weapon *result, LocalClientNum_t 
   UsableClass cursorHintClass; 
   centity_t *Entity; 
   const char *Weapon; 
-  int v12; 
+  Weapon *WeaponForName; 
+  __int128 v9; 
+  double v10; 
+  int v11; 
   const entityState_t *p_nextState; 
   CgWeaponMap *Instance; 
-  BgWeaponHandle v15; 
-  CgWeaponMap *v16; 
+  BgWeaponHandle v14; 
+  CgWeaponMap *v15; 
   Weapon resulta; 
 
-  _RDI = result;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   cursorHintClass = LocalClientGlobals->predictedPlayerState.cursorHintClass;
   if ( cursorHintClass == USE_CLASS_GENTITY )
@@ -410,54 +408,40 @@ Weapon *LUI_DataBinding_Interactions_GetWeapon(Weapon *result, LocalClientNum_t 
       if ( Entity->nextState.eType == ET_SCRIPTMOVER && Entity->nextState.un.scriptMoverType == 5 )
       {
         Weapon = CL_UIWeapon_GetWeapon(localClientNum, Entity->nextState.staticState.player.stowedWeaponHandle.m_mapEntryId);
-        _RAX = CG_Weapons_GetWeaponForName(&resulta, Weapon);
+        WeaponForName = CG_Weapons_GetWeaponForName(&resulta, Weapon);
       }
       else
       {
         p_nextState = &Entity->nextState;
         Instance = CgWeaponMap::GetInstance(localClientNum);
-        _RAX = (Weapon *)BG_GetWeaponForEntity(Instance, p_nextState);
+        WeaponForName = (Weapon *)BG_GetWeaponForEntity(Instance, p_nextState);
       }
       goto LABEL_7;
     }
 LABEL_12:
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    }
-    v12 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-    __asm
-    {
-      vmovups ymmword ptr [rdi], ymm0
-      vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    }
+    v9 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+    v11 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+    *(__m256i *)&result->weaponIdx = *(__m256i *)&NULL_WEAPON.weaponIdx;
+    v10 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
     goto LABEL_13;
   }
   if ( cursorHintClass != USE_CLASS_SCRIPTABLE )
     goto LABEL_12;
-  v15.m_mapEntryId = ScriptableCl_GetLootItemWeaponHandleValidated(localClientNum, LocalClientGlobals->predictedPlayerState.cursorHintEntIndex, 0);
-  if ( !v15.m_mapEntryId )
+  v14.m_mapEntryId = ScriptableCl_GetLootItemWeaponHandleValidated(localClientNum, LocalClientGlobals->predictedPlayerState.cursorHintEntIndex, 0);
+  if ( !v14.m_mapEntryId )
     goto LABEL_12;
-  v16 = CgWeaponMap::GetInstance(localClientNum);
-  _RAX = (Weapon *)BgWeaponMap::GetWeapon(v16, v15);
+  v15 = CgWeaponMap::GetInstance(localClientNum);
+  WeaponForName = (Weapon *)BgWeaponMap::GetWeapon(v15, v14);
 LABEL_7:
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovsd  xmm0, qword ptr [rax+30h]
-  }
-  v12 = *(_DWORD *)&_RAX->weaponCamo;
+  v9 = *(_OWORD *)&WeaponForName->attachmentVariationIndices[5];
+  *(__m256i *)&result->weaponIdx = *(__m256i *)&WeaponForName->weaponIdx;
+  v10 = *(double *)&WeaponForName->attachmentVariationIndices[21];
+  v11 = *(_DWORD *)&WeaponForName->weaponCamo;
 LABEL_13:
-  __asm
-  {
-    vmovups xmmword ptr [rdi+20h], xmm1
-    vmovsd  qword ptr [rdi+30h], xmm0
-  }
-  *(_DWORD *)&_RDI->weaponCamo = v12;
-  return _RDI;
+  *(_OWORD *)&result->attachmentVariationIndices[5] = v9;
+  *(double *)&result->attachmentVariationIndices[21] = v10;
+  *(_DWORD *)&result->weaponCamo = v11;
+  return result;
 }
 
 /*
@@ -589,13 +573,15 @@ void LUI_DataBinding_Interactions_GetWeaponDisplayName(LocalClientNum_t localCli
   unsigned __int64 v7; 
   int v8; 
   __int64 v9; 
+  __int64 v10; 
+  cg_t *LocalClientGlobals; 
   ClConfigStrings *ClConfigStrings; 
   const char *v13; 
   const char *v14; 
+  __int64 v15; 
+  unsigned __int64 v17; 
   __int64 v18; 
-  unsigned __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
+  __int64 v19; 
   char dest[64]; 
 
   v4 = localClientNum;
@@ -608,59 +594,53 @@ void LUI_DataBinding_Interactions_GetWeaponDisplayName(LocalClientNum_t localCli
   {
     v8 = 0;
     v9 = 0i64;
-    _R14 = 752i64;
+    v10 = 752i64;
     do
     {
-      _RBX = CG_GetLocalClientGlobals(v4);
+      LocalClientGlobals = CG_GetLocalClientGlobals(v4);
       if ( (unsigned int)v8 >= 2 )
       {
-        LODWORD(v22) = 2;
-        LODWORD(v21) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_interactions.cpp", 206, ASSERT_TYPE_ASSERT, "(unsigned)( hintParamIndex ) < (unsigned)( ( sizeof( *array_counter( ps->cursorHintParams.types ) ) + 0 ) )", "hintParamIndex doesn't index ARRAY_COUNT( ps->cursorHintParams.types )\n\t%i not in [0, %i)", v21, v22) )
+        LODWORD(v19) = 2;
+        LODWORD(v18) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_interactions.cpp", 206, ASSERT_TYPE_ASSERT, "(unsigned)( hintParamIndex ) < (unsigned)( ( sizeof( *array_counter( ps->cursorHintParams.types ) ) + 0 ) )", "hintParamIndex doesn't index ARRAY_COUNT( ps->cursorHintParams.types )\n\t%i not in [0, %i)", v18, v19) )
           __debugbreak();
       }
-      switch ( _RBX->predictedPlayerState.cursorHintParams.types[v9] )
+      switch ( LocalClientGlobals->predictedPlayerState.cursorHintParams.types[v9] )
       {
         case 0:
           goto LABEL_24;
         case 1:
-          __asm
-          {
-            vmovss  xmm3, dword ptr [r14+rbx+8]
-            vcvtss2sd xmm3, xmm3, xmm3
-            vmovq   r9, xmm3
-          }
-          Com_sprintf(dest, 0x40ui64, "%f", *(double *)&_XMM3);
+          Com_sprintf(dest, 0x40ui64, "%f", *(float *)((char *)&LocalClientGlobals->predictedPlayerState.commandTime + v10));
           break;
         case 2:
-          Com_sprintf(dest, 0x40ui64, "%d", *(unsigned int *)((char *)&_RBX->predictedPlayerState.commandTime + _R14));
+          Com_sprintf(dest, 0x40ui64, "%d", *(unsigned int *)((char *)&LocalClientGlobals->predictedPlayerState.commandTime + v10));
           break;
         case 3:
           ClConfigStrings = ClConfigStrings::GetClConfigStrings();
-          v13 = ClConfigStrings->GetHintString(ClConfigStrings, *(int *)((char *)&_RBX->predictedPlayerState.commandTime + _R14));
+          v13 = ClConfigStrings->GetHintString(ClConfigStrings, *(int *)((char *)&LocalClientGlobals->predictedPlayerState.commandTime + v10));
           v14 = SEH_LocalizeTextMessage(v13, "ui string", LOCMSG_NOERR);
           if ( v14 )
             v13 = v14;
           Core_strcpy(dest, 0x40ui64, v13);
           break;
         default:
-          if ( _RBX->predictedPlayerState.cursorHintParams.types[v9] != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_interactions.cpp", 231, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown hint parameter type") )
+          if ( LocalClientGlobals->predictedPlayerState.cursorHintParams.types[v9] != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_databinding_interactions.cpp", 231, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unknown hint parameter type") )
             __debugbreak();
           goto LABEL_24;
       }
-      v18 = -1i64;
-      while ( dest[++v18] != 0 )
+      v15 = -1i64;
+      while ( dest[++v15] != 0 )
         ;
-      v20 = v18 + v7 + 1;
-      if ( v20 >= outStringSize - 1 )
+      v17 = v15 + v7 + 1;
+      if ( v17 >= outStringSize - 1 )
         return;
       Com_sprintf(&outString[v7], outStringSize - v7, " %s", dest);
-      v7 = v20;
+      v7 = v17;
 LABEL_24:
       v4 = localClientNum;
       ++v8;
       ++v9;
-      _R14 += 4i64;
+      v10 += 4i64;
     }
     while ( v8 < 2 );
   }
@@ -829,43 +809,33 @@ s_LUI_DataBinding_Get_ContextualPingHintVisible
 */
 bool s_LUI_DataBinding_Get_ContextualPingHintVisible(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v2; 
-  char v6; 
+  const dvar_t *v1; 
   const ContextualPingTarget *ContextualPingTarget; 
   ContextualPingTargetType type; 
   int objectiveIndex; 
   unsigned int scriptableIndex; 
 
-  v2 = DVARBOOL_calloutmarkerping_contextualPingDetectionEnabled;
+  v1 = DVARBOOL_calloutmarkerping_contextualPingDetectionEnabled;
   if ( !DVARBOOL_calloutmarkerping_contextualPingDetectionEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_contextualPingDetectionEnabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v2);
-  if ( v2->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled && CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState.weapCommon.fWeaponPosFrac <= 0.0 )
   {
-    _RAX = CG_GetLocalClientGlobals(localClientNum);
-    __asm
+    ContextualPingTarget = CG_CalloutMarkerPing_GetContextualPingTarget(localClientNum);
+    type = ContextualPingTarget->type;
+    if ( ContextualPingTarget->type == 1 )
+      return CG_CalloutMarkerPing_CheckSquadPingsForTarget(localClientNum, ContextualPingTarget->data.entity.entNum, 0xFFFFFFFF, -1) == 53;
+    if ( (unsigned int)(type - 2) <= 1 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rax+738h]
+      scriptableIndex = ContextualPingTarget->data.scriptable.scriptableIndex;
+      objectiveIndex = -1;
+      return CG_CalloutMarkerPing_CheckSquadPingsForTarget(localClientNum, 2047, scriptableIndex, objectiveIndex) == 53;
     }
-    if ( !v6 )
+    if ( type == Menu )
     {
-      ContextualPingTarget = CG_CalloutMarkerPing_GetContextualPingTarget(localClientNum);
-      type = ContextualPingTarget->type;
-      if ( ContextualPingTarget->type == 1 )
-        return CG_CalloutMarkerPing_CheckSquadPingsForTarget(localClientNum, ContextualPingTarget->data.entity.entNum, 0xFFFFFFFF, -1) == 53;
-      if ( (unsigned int)(type - 2) <= 1 )
-      {
-        scriptableIndex = ContextualPingTarget->data.scriptable.scriptableIndex;
-        objectiveIndex = -1;
-        return CG_CalloutMarkerPing_CheckSquadPingsForTarget(localClientNum, 2047, scriptableIndex, objectiveIndex) == 53;
-      }
-      if ( type == Menu )
-      {
-        objectiveIndex = ContextualPingTarget->data.objective.objectiveIndex;
-        scriptableIndex = -1;
-        return CG_CalloutMarkerPing_CheckSquadPingsForTarget(localClientNum, 2047, scriptableIndex, objectiveIndex) == 53;
-      }
+      objectiveIndex = ContextualPingTarget->data.objective.objectiveIndex;
+      scriptableIndex = -1;
+      return CG_CalloutMarkerPing_CheckSquadPingsForTarget(localClientNum, 2047, scriptableIndex, objectiveIndex) == 53;
     }
   }
   return 0;
@@ -878,19 +848,18 @@ s_LUI_DataBinding_Get_ContextualPingHintWorldPosX
 */
 float s_LUI_DataBinding_Get_ContextualPingHintWorldPosX(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v2; 
+  const dvar_t *v1; 
   const ContextualPingTarget *ContextualPingTarget; 
   vec3_t outDrawPos; 
 
-  v2 = DVARBOOL_calloutmarkerping_contextualPingDetectionEnabled;
+  v1 = DVARBOOL_calloutmarkerping_contextualPingDetectionEnabled;
   if ( !DVARBOOL_calloutmarkerping_contextualPingDetectionEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_contextualPingDetectionEnabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v2);
-  if ( v2->current.enabled && (ContextualPingTarget = CG_CalloutMarkerPing_GetContextualPingTarget(localClientNum), ContextualPingTarget->type) && CG_CalloutMarkerPing_GetDrawPos(localClientNum, ContextualPingTarget, &outDrawPos) )
-    __asm { vmovss  xmm0, dword ptr [rsp+68h+outDrawPos] }
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled && (ContextualPingTarget = CG_CalloutMarkerPing_GetContextualPingTarget(localClientNum), ContextualPingTarget->type) && CG_CalloutMarkerPing_GetDrawPos(localClientNum, ContextualPingTarget, &outDrawPos) )
+    return outDrawPos.v[0];
   else
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -900,19 +869,18 @@ s_LUI_DataBinding_Get_ContextualPingHintWorldPosY
 */
 float s_LUI_DataBinding_Get_ContextualPingHintWorldPosY(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v2; 
+  const dvar_t *v1; 
   const ContextualPingTarget *ContextualPingTarget; 
   vec3_t outDrawPos; 
 
-  v2 = DVARBOOL_calloutmarkerping_contextualPingDetectionEnabled;
+  v1 = DVARBOOL_calloutmarkerping_contextualPingDetectionEnabled;
   if ( !DVARBOOL_calloutmarkerping_contextualPingDetectionEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_contextualPingDetectionEnabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v2);
-  if ( v2->current.enabled && (ContextualPingTarget = CG_CalloutMarkerPing_GetContextualPingTarget(localClientNum), ContextualPingTarget->type) && CG_CalloutMarkerPing_GetDrawPos(localClientNum, ContextualPingTarget, &outDrawPos) )
-    __asm { vmovss  xmm0, dword ptr [rsp+68h+outDrawPos+4] }
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled && (ContextualPingTarget = CG_CalloutMarkerPing_GetContextualPingTarget(localClientNum), ContextualPingTarget->type) && CG_CalloutMarkerPing_GetDrawPos(localClientNum, ContextualPingTarget, &outDrawPos) )
+    return outDrawPos.v[1];
   else
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -922,19 +890,18 @@ s_LUI_DataBinding_Get_ContextualPingHintWorldPosZ
 */
 float s_LUI_DataBinding_Get_ContextualPingHintWorldPosZ(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v2; 
+  const dvar_t *v1; 
   const ContextualPingTarget *ContextualPingTarget; 
   vec3_t outDrawPos; 
 
-  v2 = DVARBOOL_calloutmarkerping_contextualPingDetectionEnabled;
+  v1 = DVARBOOL_calloutmarkerping_contextualPingDetectionEnabled;
   if ( !DVARBOOL_calloutmarkerping_contextualPingDetectionEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_contextualPingDetectionEnabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v2);
-  if ( v2->current.enabled && (ContextualPingTarget = CG_CalloutMarkerPing_GetContextualPingTarget(localClientNum), ContextualPingTarget->type) && CG_CalloutMarkerPing_GetDrawPos(localClientNum, ContextualPingTarget, &outDrawPos) )
-    __asm { vmovss  xmm0, dword ptr [rsp+68h+outDrawPos+8] }
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled && (ContextualPingTarget = CG_CalloutMarkerPing_GetContextualPingTarget(localClientNum), ContextualPingTarget->type) && CG_CalloutMarkerPing_GetDrawPos(localClientNum, ContextualPingTarget, &outDrawPos) )
+    return outDrawPos.v[2];
   else
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -963,7 +930,7 @@ bool s_LUI_DataBinding_Get_HasPopup(LocalClientNum_t localClientNum)
   bool v8; 
   centity_t *Entity; 
   bool inAltWeaponMode; 
-  bool v15; 
+  bool v11; 
   Weapon result; 
   Weapon r_weapon; 
 
@@ -979,23 +946,13 @@ bool s_LUI_DataBinding_Get_HasPopup(LocalClientNum_t localClientNum)
       v7 = 1;
   }
   v8 = p_predictedPlayerState->cursorHintRange == USE_RANGE && ((p_predictedPlayerState->cursorHint - 1) & 0xFB) == 0 || p_predictedPlayerState->cursorHint == HINT_WEAPON;
-  _RAX = LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0C8h+r_weapon.weaponIdx], ymm0
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+0C8h+r_weapon.attachmentVariationIndices+5], xmm1
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+0C8h+r_weapon.attachmentVariationIndices+15h], xmm0
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+  r_weapon = *LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
   Entity = LUI_DataBinding_Interactions_GetEntity(localClientNum);
   inAltWeaponMode = 0;
   if ( Entity )
     inAltWeaponMode = Entity->nextState.inAltWeaponMode;
-  v15 = BG_HideWarningIcons(&r_weapon, inAltWeaponMode);
-  return (CanMantle || CanManualDeployParachute || v7 || v8) && !v15;
+  v11 = BG_HideWarningIcons(&r_weapon, inAltWeaponMode);
+  return (CanMantle || CanManualDeployParachute || v7 || v8) && !v11;
 }
 
 /*
@@ -1059,24 +1016,13 @@ s_LUI_DataBinding_Get_IsBulletWeapon
 ==============
 */
 
-bool __fastcall s_LUI_DataBinding_Get_IsBulletWeapon(LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+bool __fastcall s_LUI_DataBinding_Get_IsBulletWeapon(LocalClientNum_t localClientNum, __int64 a2, double a3)
 {
   Weapon result; 
   Weapon r_weapon; 
 
-  _RAX = LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0B8h+r_weapon.weaponIdx], ymm2
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+0B8h+r_weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  xmm1, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+0B8h+r_weapon.attachmentVariationIndices+15h], xmm1
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  return (_WORD)_RAX && BG_GetWeaponType(&r_weapon, 0) == WEAPTYPE_BULLET;
+  r_weapon = *LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
+  return LOWORD(a3) && BG_GetWeaponType(&r_weapon, 0) == WEAPTYPE_BULLET;
 }
 
 /*
@@ -1166,23 +1112,18 @@ s_LUI_DataBinding_Get_PopupUsesIcon
 ==============
 */
 
-bool __fastcall s_LUI_DataBinding_Get_PopupUsesIcon(LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+bool __fastcall s_LUI_DataBinding_Get_PopupUsesIcon(LocalClientNum_t localClientNum, __int64 a2, double a3)
 {
   cg_t *LocalClientGlobals; 
-  bool v8; 
+  bool v5; 
   Weapon result; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  _RAX = LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rax]
-    vmovd   ecx, xmm2
-  }
-  v8 = 0;
-  if ( (_WORD)_ECX )
-    v8 = cgMedia.objectiveMaterials[(unsigned __int16)_ECX - 552] != NULL;
-  return !LocalClientGlobals->predictedPlayerState.throwbackGrenadeTimeLeft && v8;
+  LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
+  v5 = 0;
+  if ( LOWORD(a3) )
+    v5 = cgMedia.objectiveMaterials[LOWORD(a3) - 552] != NULL;
+  return !LocalClientGlobals->predictedPlayerState.throwbackGrenadeTimeLeft && v5;
 }
 
 /*
@@ -1190,45 +1131,34 @@ bool __fastcall s_LUI_DataBinding_Get_PopupUsesIcon(LocalClientNum_t localClient
 s_LUI_DataBinding_Get_Progress
 ==============
 */
-
-double __fastcall s_LUI_DataBinding_Get_Progress(LocalClientNum_t localClientNum, double _XMM1_8)
+double s_LUI_DataBinding_Get_Progress(LocalClientNum_t localClientNum)
 {
   cg_t *LocalClientGlobals; 
+  cg_t *v3; 
+  int time; 
+  unsigned int cursorHintProgressStartTime; 
   int UseHoldTime; 
 
-  CG_GetLocalClientGlobals(localClientNum);
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  _ESI = LocalClientGlobals->predictedPlayerState.cursorHintProgressStartTime;
-  UseHoldTime = BG_PlayerUse_GetUseHoldTime((const HintHoldDuration)LocalClientGlobals->predictedPlayerState.cursorHintProgressDuration);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f800000; max
-    vxorps  xmm5, xmm5, xmm5
-  }
+  v3 = CG_GetLocalClientGlobals(localClientNum);
+  time = LocalClientGlobals->time;
+  cursorHintProgressStartTime = v3->predictedPlayerState.cursorHintProgressStartTime;
+  UseHoldTime = BG_PlayerUse_GetUseHoldTime((const HintHoldDuration)v3->predictedPlayerState.cursorHintProgressDuration);
+  _XMM2 = LODWORD(FLOAT_1_0);
   if ( UseHoldTime <= 0 )
   {
-    __asm { vmovd   xmm0, esi }
-    _EAX = 0;
+    _XMM0 = cursorHintProgressStartTime;
     __asm
     {
-      vmovd   xmm3, eax
       vpcmpeqd xmm4, xmm0, xmm3
       vblendvps xmm0, xmm2, xmm5, xmm4; val
     }
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ebx
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm0, xmm1, xmm0
-    }
+    *(float *)&_XMM0 = (float)(int)(time - cursorHintProgressStartTime) / (float)UseHoldTime;
   }
-  __asm { vxorps  xmm1, xmm1, xmm1; min }
-  return I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+  return I_fclamp(*(float *)&_XMM0, 0.0, 1.0);
 }
 
 /*
@@ -1320,28 +1250,18 @@ s_LUI_DataBinding_Get_String
 */
 char s_LUI_DataBinding_Get_String(LocalClientNum_t localClientNum, unsigned __int64 outStringSize, char *outString)
 {
+  __int16 v3; 
   cg_t *LocalClientGlobals; 
   centity_t *Entity; 
-  cg_t *v17; 
-  const char *v18; 
-  Weapon v20; 
+  cg_t *v9; 
+  const char *v10; 
+  Weapon v12; 
   Weapon result; 
   Weapon r_weapon; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  _RAX = LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+108h+r_weapon.weaponIdx], ymm2
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+108h+r_weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  xmm1, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+108h+r_weapon.attachmentVariationIndices+15h], xmm1
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  if ( !(_WORD)_RAX )
+  r_weapon = *LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
+  if ( !v3 )
   {
     if ( LocalClientGlobals->predictedPlayerState.cursorHint )
       goto LABEL_3;
@@ -1351,28 +1271,18 @@ LABEL_11:
   }
   if ( BG_GetWeaponClass(&r_weapon, 0) != WEAPCLASS_TURRET )
   {
-    _RAX = LUI_DataBinding_Interactions_GetWeapon(&v20, localClientNum);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+108h+result.weaponIdx], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+108h+result.attachmentVariationIndices+5], xmm1
-      vmovsd  xmm0, qword ptr [rax+30h]
-      vmovsd  qword ptr [rsp+108h+result.attachmentVariationIndices+15h], xmm0
-    }
-    *(_DWORD *)&result.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+    result = *LUI_DataBinding_Interactions_GetWeapon(&v12, localClientNum);
     Entity = LUI_DataBinding_Interactions_GetEntity(localClientNum);
     if ( !Entity || Entity->nextState.eType != ET_MISSILE || BG_GetWeaponClass(&result, 0) == WEAPCLASS_THROWINGKNIFE )
     {
       LUI_DataBinding_Interactions_GetWeaponDisplayName(localClientNum, &result, outString, outStringSize);
       return 1;
     }
-    v17 = CG_GetLocalClientGlobals(localClientNum);
-    if ( !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&v17->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x33u) )
+    v9 = CG_GetLocalClientGlobals(localClientNum);
+    if ( !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&v9->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 0x33u) )
     {
-      v18 = UI_SafeTranslateString("PLATFORM/THROWBACKGRENADE");
-      Core_strcpy(outString, outStringSize, v18);
+      v10 = UI_SafeTranslateString("PLATFORM/THROWBACKGRENADE");
+      Core_strcpy(outString, outStringSize, v10);
       return 1;
     }
     goto LABEL_11;
@@ -1466,17 +1376,14 @@ s_LUI_DataBinding_Get_WeaponLootIndex
 ==============
 */
 
-__int64 __fastcall s_LUI_DataBinding_Get_WeaponLootIndex(LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+__int64 __fastcall s_LUI_DataBinding_Get_WeaponLootIndex(LocalClientNum_t localClientNum, __int64 a2, double a3)
 {
-  int v6; 
+  int v4; 
   Weapon result; 
 
-  _RAX = LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
-  __asm { vmovups ymm2, ymmword ptr [rax] }
-  v6 = *(_DWORD *)&_RAX->weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  if ( (_WORD)_RAX && BYTE1(v6) )
-    return (unsigned int)BYTE1(v6) - 1;
+  v4 = *(_DWORD *)&LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum)->weaponCamo;
+  if ( LOWORD(a3) && BYTE1(v4) )
+    return (unsigned int)BYTE1(v4) - 1;
   else
     return 0xFFFFFFFFi64;
 }
@@ -1486,31 +1393,23 @@ __int64 __fastcall s_LUI_DataBinding_Get_WeaponLootIndex(LocalClientNum_t localC
 s_LUI_DataBinding_Get_WeaponName
 ==============
 */
-bool s_LUI_DataBinding_Get_WeaponName(LocalClientNum_t localClientNum, unsigned __int64 outStringSize, char *outString)
+char s_LUI_DataBinding_Get_WeaponName(LocalClientNum_t localClientNum, unsigned __int64 outStringSize, char *outString)
 {
+  __int16 v3; 
   unsigned int v4; 
+  char v6; 
   Weapon result; 
   Weapon r_weapon; 
 
   v4 = outStringSize;
   *outString = 0;
-  _RAX = LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0B8h+r_weapon.weaponIdx], ymm2
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rsp+0B8h+r_weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  xmm1, qword ptr [rax+30h]
-    vmovsd  qword ptr [rsp+0B8h+r_weapon.attachmentVariationIndices+15h], xmm1
-  }
-  *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-  __asm { vmovd   eax, xmm2 }
-  if ( (_WORD)_EAX )
+  r_weapon = *LUI_DataBinding_Interactions_GetWeapon(&result, localClientNum);
+  v6 = v3;
+  if ( v3 )
   {
     BG_GetWeaponName(&r_weapon, outString, v4);
-    LOBYTE(_EAX) = 1;
+    return 1;
   }
-  return _EAX;
+  return v6;
 }
 

@@ -1800,24 +1800,14 @@ PhysicsQuery_CopyRayToShapeHit
 */
 void PhysicsQuery_CopyRayToShapeHit(PhysicsQuery_RaycastHit *rayHit, PhysicsQuery_ShapecastHit *shapeHit)
 {
-  __asm { vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000 }
   shapeHit->isValid = rayHit->isValid;
   shapeHit->fraction = rayHit->fraction;
   shapeHit->contactPosition = rayHit->position;
   shapeHit->shapePosition = rayHit->position;
   shapeHit->hitContactNormal = rayHit->normal;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+14h]
-    vxorps  xmm0, xmm0, xmm3
-    vmovss  dword ptr [rdx+2Ch], xmm0
-    vmovss  xmm1, dword ptr [rcx+18h]
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rdx+30h], xmm2
-    vmovss  xmm0, dword ptr [rcx+1Ch]
-    vxorps  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rdx+34h], xmm1
-  }
+  shapeHit->queryContactNormal.v[0] = COERCE_FLOAT(LODWORD(rayHit->normal.v[0]) ^ _xmm);
+  shapeHit->queryContactNormal.v[1] = COERCE_FLOAT(LODWORD(rayHit->normal.v[1]) ^ _xmm);
+  shapeHit->queryContactNormal.v[2] = COERCE_FLOAT(LODWORD(rayHit->normal.v[2]) ^ _xmm);
   shapeHit->surfaceFlags = rayHit->surfaceFlags;
   shapeHit->contents = rayHit->contents;
   shapeHit->material = rayHit->material;
@@ -1831,74 +1821,21 @@ PhysicsQuery_ExtractHitData
 */
 void PhysicsQuery_ExtractHitData(const vec3_t *start, const vec3_t *end, HavokPhysics_CollisionQueryResult *result, unsigned int index, PhysicsQuery_RaycastHit *hit)
 {
-  int v13; 
-  int v14; 
-  int v15; 
-  int v16; 
-  int v17; 
-  int v18; 
+  double RaycastHitFraction; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  _RDI = end;
-  if ( (v13 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v14 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v15 & 0x7F800000) == 2139095040 )
-  {
-LABEL_23:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 364, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v16 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-  {
-LABEL_24:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 365, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 364, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(end->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 365, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
+    __debugbreak();
   if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 366, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  _RDI = hit;
   if ( !hit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 367, ASSERT_TYPE_ASSERT, "(hit)", (const char *)&queryFormat, "hit") )
     __debugbreak();
   if ( HavokPhysics_CollisionQueryResult::HasHit(result) && HavokPhysics_CollisionQueryResult::GetNumHits(result) > index )
   {
     hit->isValid = 1;
-    *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(result, index);
-    __asm { vmovss  dword ptr [rdi+4], xmm0 }
+    RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(result, index);
+    hit->fraction = *(float *)&RaycastHitFraction;
     HavokPhysics_CollisionQueryResult::GetRaycastHitPosition(result, index, &hit->position);
     HavokPhysics_CollisionQueryResult::GetRaycastHitNormal(result, index, &hit->normal);
     hit->surfaceFlags = HavokPhysics_CollisionQueryResult::GetRaycastHitSurfFlags(result, index);
@@ -1920,102 +1857,33 @@ PhysicsQuery_ExtractHitData
 */
 void PhysicsQuery_ExtractHitData(const vec3_t *start, const vec3_t *end, HavokPhysics_CollisionQueryResult *result, unsigned int index, PhysicsQuery_ShapecastHit *hit)
 {
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
+  double ShapecastHitFraction; 
+  float fraction; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  _RSI = end;
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-  {
-LABEL_23:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 387, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-  {
-LABEL_24:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 388, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 387, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(end->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 388, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
+    __debugbreak();
   if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 389, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  _RDI = hit;
   if ( !hit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 390, ASSERT_TYPE_ASSERT, "(hit)", (const char *)&queryFormat, "hit") )
     __debugbreak();
   if ( HavokPhysics_CollisionQueryResult::HasHit(result) && HavokPhysics_CollisionQueryResult::GetNumHits(result) > index )
   {
-    __asm { vmovaps [rsp+58h+var_28], xmm6 }
     hit->isValid = 1;
-    *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetShapecastHitFraction(result, index);
-    __asm { vmovss  dword ptr [rdi+4], xmm0 }
+    ShapecastHitFraction = HavokPhysics_CollisionQueryResult::GetShapecastHitFraction(result, index);
+    hit->fraction = *(float *)&ShapecastHitFraction;
     HavokPhysics_CollisionQueryResult::GetShapecastHitContactPosition(result, index, &hit->contactPosition);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rdi+4]
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm1, xmm0, dword ptr [rbp+0]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbp+0]
-      vmovss  dword ptr [rdi+14h], xmm3
-      vmovss  xmm0, dword ptr [rsi+4]
-      vsubss  xmm1, xmm0, dword ptr [rbp+4]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbp+4]
-      vmovss  dword ptr [rdi+18h], xmm3
-      vmovss  xmm0, dword ptr [rsi+8]
-      vsubss  xmm1, xmm0, dword ptr [rbp+8]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rbp+8]
-      vmovss  dword ptr [rdi+1Ch], xmm3
-    }
+    fraction = hit->fraction;
+    hit->shapePosition.v[0] = (float)((float)(end->v[0] - start->v[0]) * fraction) + start->v[0];
+    hit->shapePosition.v[1] = (float)((float)(end->v[1] - start->v[1]) * fraction) + start->v[1];
+    hit->shapePosition.v[2] = (float)((float)(end->v[2] - start->v[2]) * fraction) + start->v[2];
     HavokPhysics_CollisionQueryResult::GetShapecastHitHitContactNormal(result, index, &hit->hitContactNormal);
     HavokPhysics_CollisionQueryResult::GetShapecastHitQueryContactNormal(result, index, &hit->queryContactNormal);
     hit->surfaceFlags = HavokPhysics_CollisionQueryResult::GetShapecastHitHitSurfFlags(result, index);
     hit->contents = HavokPhysics_CollisionQueryResult::GetShapecastHitHitContents(result, index);
     hit->material = HavokPhysics_CollisionQueryResult::GetShapecastHitHitMaterialId(result, index);
     hit->ref = HavokPhysics_CollisionQueryResult::GetShapecastHitRef(result, index);
-    __asm { vmovaps xmm6, [rsp+58h+var_28] }
     hit->bodyId = HavokPhysics_CollisionQueryResult::GetShapecastHitBodyId(result, index);
   }
   else
@@ -2031,38 +1899,12 @@ PhysicsQuery_ExtractHitData
 */
 void PhysicsQuery_ExtractHitData(const vec3_t *point, const float radius, HavokPhysics_CollisionQueryResult *result, unsigned int index, PhysicsQuery_GetClosestPointsHit *hit)
 {
-  int v9; 
-  int v10; 
-  int v11; 
+  double ClosestPointHitDistance; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_18;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-    goto LABEL_18;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v11 & 0x7F800000) == 2139095040 )
-  {
-LABEL_18:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 436, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(point->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 436, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
+    __debugbreak();
   if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 437, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  _RDI = hit;
   if ( !hit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 438, ASSERT_TYPE_ASSERT, "(hit)", (const char *)&queryFormat, "hit") )
     __debugbreak();
   if ( HavokPhysics_CollisionQueryResult::HasHit(result) && HavokPhysics_CollisionQueryResult::GetNumHits(result) > index )
@@ -2071,8 +1913,8 @@ LABEL_18:
     HavokPhysics_CollisionQueryResult::GetClosestPointHitHitPosition(result, index, &hit->hitPosition);
     HavokPhysics_CollisionQueryResult::GetClosestPointHitQueryPosition(result, index, &hit->queryPosition);
     HavokPhysics_CollisionQueryResult::GetClosestPointHitSeparatingNormal(result, index, &hit->separatingNormal);
-    *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetClosestPointHitDistance(result, index);
-    __asm { vmovss  dword ptr [rdi+28h], xmm0 }
+    ClosestPointHitDistance = HavokPhysics_CollisionQueryResult::GetClosestPointHitDistance(result, index);
+    hit->distance = *(float *)&ClosestPointHitDistance;
     hit->surfaceFlags = HavokPhysics_CollisionQueryResult::GetClosestPointHitHitSurfFlags(result, index);
     hit->contents = HavokPhysics_CollisionQueryResult::GetClosestPointHitHitContents(result, index);
     hit->material = HavokPhysics_CollisionQueryResult::GetClosestPointHitHitMaterialId(result, index);
@@ -2092,38 +1934,12 @@ PhysicsQuery_ExtractHitData
 */
 void PhysicsQuery_ExtractHitData(const vec3_t *point, const float radius, HavokPhysics_CollisionQueryResult *result, unsigned int index, PhysicsQuery_QueryPointHit *hit)
 {
-  int v9; 
-  int v10; 
-  int v11; 
+  double ClosestPointHitDistance; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_18;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-    goto LABEL_18;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+38h+arg_0], xmm0
-  }
-  if ( (v11 & 0x7F800000) == 2139095040 )
-  {
-LABEL_18:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 412, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(point->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 412, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
+    __debugbreak();
   if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 413, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  _RDI = hit;
   if ( !hit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 414, ASSERT_TYPE_ASSERT, "(hit)", (const char *)&queryFormat, "hit") )
     __debugbreak();
   if ( HavokPhysics_CollisionQueryResult::HasHit(result) && HavokPhysics_CollisionQueryResult::GetNumHits(result) > index )
@@ -2132,8 +1948,8 @@ LABEL_18:
     HavokPhysics_CollisionQueryResult::GetClosestPointHitHitPosition(result, index, &hit->hitPosition);
     HavokPhysics_CollisionQueryResult::GetClosestPointHitQueryPosition(result, index, &hit->queryPosition);
     HavokPhysics_CollisionQueryResult::GetClosestPointHitSeparatingNormal(result, index, &hit->separatingNormal);
-    *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetClosestPointHitDistance(result, index);
-    __asm { vmovss  dword ptr [rdi+28h], xmm0 }
+    ClosestPointHitDistance = HavokPhysics_CollisionQueryResult::GetClosestPointHitDistance(result, index);
+    hit->distance = *(float *)&ClosestPointHitDistance;
     hit->surfaceFlags = HavokPhysics_CollisionQueryResult::GetClosestPointHitHitSurfFlags(result, index);
     hit->contents = HavokPhysics_CollisionQueryResult::GetClosestPointHitHitContents(result, index);
     hit->material = HavokPhysics_CollisionQueryResult::GetClosestPointHitHitMaterialId(result, index);
@@ -2625,73 +2441,19 @@ PhysicsQuery_ImmediateAABBQueryAll
 void PhysicsQuery_ImmediateAABBQueryAll(Physics_WorldId worldId, const vec3_t *min, const vec3_t *max, Physics_AABBQueryExtendedData *extendedData, PhysicsQuery_AABBQueryHit *hits, int maxNumHits, int *hitsFound)
 {
   __int64 v7; 
-  HavokPhysics_CollisionQueryResult *v17; 
+  HavokPhysics_CollisionQueryResult *v11; 
   signed int NumHits; 
-  int v19; 
-  int v20; 
-  int v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
+  int v13; 
 
   v7 = worldId;
-  _RBP = max;
-  _R15 = min;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 863, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 864, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_44;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-    goto LABEL_44;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+8]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-  {
-LABEL_44:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 865, ASSERT_TYPE_SANITY, "( !IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-    goto LABEL_45;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_45;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-  {
-LABEL_45:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 866, ASSERT_TYPE_SANITY, "( !IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(min->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(min->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(min->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 865, ASSERT_TYPE_SANITY, "( !IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(max->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(max->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(max->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 866, ASSERT_TYPE_SANITY, "( !IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 867, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 868, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
@@ -2704,17 +2466,17 @@ LABEL_45:
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 873, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v17 = s_PhysicsQuery_AllQueryResults[(int)(28 * v7 + Physics_GetThreadId())];
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 878, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v11 = s_PhysicsQuery_AllQueryResults[(int)(28 * v7 + Physics_GetThreadId())];
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 878, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v17, 1);
-  Physics_AABBQuery((Physics_WorldId)v7, _R15, _RBP, extendedData, v17);
-  NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(v17);
+  HavokPhysics_CollisionQueryResult::Reset(v11, 1);
+  Physics_AABBQuery((Physics_WorldId)v7, min, max, extendedData, v11);
+  NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(v11);
   if ( maxNumHits < NumHits )
     NumHits = maxNumHits;
-  v19 = 0;
-  for ( *hitsFound = NumHits; v19 < *hitsFound; ++v19 )
-    PhysicsQuery_ExtractHitData(v17, v19, &hits[v19]);
+  v13 = 0;
+  for ( *hitsFound = NumHits; v13 < *hitsFound; ++v13 )
+    PhysicsQuery_ExtractHitData(v11, v13, &hits[v13]);
 }
 
 /*
@@ -2725,25 +2487,19 @@ PhysicsQuery_ImmediateAABBQueryAll
 void PhysicsQuery_ImmediateAABBQueryAll(Physics_WorldId worldId, unsigned int instanceId, const vec3_t *min, const vec3_t *max, Physics_AABBQueryExtendedData *extendedData, PhysicsQuery_AABBQueryHit *hits, int maxNumHits, int *hitsFound)
 {
   __int64 v8; 
-  Physics_AABBQueryExtendedData *v18; 
-  PhysicsQuery_AABBQueryHit *v19; 
-  int v20; 
-  int *v21; 
+  Physics_AABBQueryExtendedData *v12; 
+  PhysicsQuery_AABBQueryHit *v13; 
+  int v14; 
+  int *v15; 
   HavokPhysics_CollisionQueryResult *result; 
-  signed int v23; 
-  signed int v24; 
-  vec3_t *v25; 
-  vec3_t *v26; 
-  unsigned int v27; 
+  signed int v17; 
+  signed int v18; 
+  vec3_t *v19; 
+  vec3_t *v20; 
+  unsigned int v21; 
   hknpBodyId *RigidBodyID; 
   int NumHits; 
-  __int64 v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
-  int v35; 
-  int v36; 
+  __int64 v24; 
   int NumRigidBodys; 
   unsigned int instanceIda; 
   vec3_t *mina; 
@@ -2753,74 +2509,26 @@ void PhysicsQuery_ImmediateAABBQueryAll(Physics_WorldId worldId, unsigned int in
   mina = (vec3_t *)min;
   instanceIda = instanceId;
   v8 = worldId;
-  _RBX = max;
-  _RSI = min;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1142, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1143, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-    goto LABEL_63;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-    goto LABEL_63;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-  {
-LABEL_63:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1144, ASSERT_TYPE_SANITY, "( !IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-    goto LABEL_64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v35 & 0x7F800000) == 2139095040 )
-    goto LABEL_64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v36 & 0x7F800000) == 2139095040 )
-  {
-LABEL_64:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1145, ASSERT_TYPE_SANITY, "( !IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] )") )
-      __debugbreak();
-  }
-  v18 = extendedData;
+  if ( ((LODWORD(min->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(min->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(min->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1144, ASSERT_TYPE_SANITY, "( !IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(max->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(max->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(max->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1145, ASSERT_TYPE_SANITY, "( !IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] )") )
+    __debugbreak();
+  v12 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1146, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v18->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1147, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v12->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1147, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
-  v19 = hits;
+  v13 = hits;
   if ( !hits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1148, ASSERT_TYPE_ASSERT, "(hits)", (const char *)&queryFormat, "hits") )
     __debugbreak();
-  v20 = maxNumHits;
+  v14 = maxNumHits;
   if ( maxNumHits <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1149, ASSERT_TYPE_ASSERT, "(maxNumHits > 0)", (const char *)&queryFormat, "maxNumHits > 0") )
     __debugbreak();
-  v21 = hitsFound;
+  v15 = hitsFound;
   if ( !hitsFound && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1150, ASSERT_TYPE_ASSERT, "(hitsFound)", (const char *)&queryFormat, "hitsFound") )
     __debugbreak();
   if ( instanceId != -1 )
@@ -2831,58 +2539,58 @@ LABEL_64:
     if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1162, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
       __debugbreak();
     HavokPhysics_CollisionQueryResult::Reset(result, 1);
-    v23 = 0;
+    v17 = 0;
     NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v8, instanceId);
-    v24 = 0;
+    v18 = 0;
     if ( NumRigidBodys > 0 )
     {
-      v25 = maxa;
-      v26 = mina;
-      v27 = instanceIda;
+      v19 = maxa;
+      v20 = mina;
+      v21 = instanceIda;
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
         if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v30) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v30) )
+          LODWORD(v24) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v24) )
             __debugbreak();
         }
         if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
         {
-          LODWORD(v30) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v30) )
+          LODWORD(v24) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v24) )
             __debugbreak();
         }
         if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
         {
-          LODWORD(v30) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v30) )
+          LODWORD(v24) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v24) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v8, v27, v24);
-        Physics_AABBQuery((Physics_WorldId)v8, RigidBodyID->m_serialAndIndex, v26, v25, v18, result);
-        ++v24;
+        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v8, v21, v18);
+        Physics_AABBQuery((Physics_WorldId)v8, RigidBodyID->m_serialAndIndex, v20, v19, v12, result);
+        ++v18;
       }
-      while ( v24 < NumRigidBodys );
-      v21 = hitsFound;
-      v23 = 0;
-      v19 = hits;
-      v20 = maxNumHits;
+      while ( v18 < NumRigidBodys );
+      v15 = hitsFound;
+      v17 = 0;
+      v13 = hits;
+      v14 = maxNumHits;
     }
     NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(result);
-    if ( v20 < NumHits )
-      NumHits = v20;
-    *v21 = NumHits;
+    if ( v14 < NumHits )
+      NumHits = v14;
+    *v15 = NumHits;
     if ( NumHits > 0 )
     {
       do
       {
-        PhysicsQuery_ExtractHitData(result, v23, &v19[v23]);
-        ++v23;
+        PhysicsQuery_ExtractHitData(result, v17, &v13[v17]);
+        ++v17;
       }
-      while ( v23 < *v21 );
+      while ( v17 < *v15 );
     }
   }
 }
@@ -2962,71 +2670,17 @@ PhysicsQuery_ImmediateAABBQueryClosest
 void PhysicsQuery_ImmediateAABBQueryClosest(Physics_WorldId worldId, const vec3_t *min, const vec3_t *max, Physics_AABBQueryExtendedData *extendedData, PhysicsQuery_AABBQueryHit *hit)
 {
   __int64 v5; 
-  HavokPhysics_CollisionQueryResult *v15; 
-  int v16; 
-  int v17; 
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
+  HavokPhysics_CollisionQueryResult *v9; 
 
   v5 = worldId;
-  _RSI = max;
-  _RBP = min;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 833, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 834, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v16 & 0x7F800000) == 2139095040 )
-    goto LABEL_35;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_35;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-  {
-LABEL_35:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 835, ASSERT_TYPE_SANITY, "( !IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_36;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_36;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-  {
-LABEL_36:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 836, ASSERT_TYPE_SANITY, "( !IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(min->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(min->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(min->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 835, ASSERT_TYPE_SANITY, "( !IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(max->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(max->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(max->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 836, ASSERT_TYPE_SANITY, "( !IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 837, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 838, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
@@ -3035,12 +2689,12 @@ LABEL_36:
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 841, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v15 = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v5 + Physics_GetThreadId())];
-  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 846, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v9 = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v5 + Physics_GetThreadId())];
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 846, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v15, 1);
-  Physics_AABBQuery((Physics_WorldId)v5, _RBP, _RSI, extendedData, v15);
-  PhysicsQuery_ExtractHitData(v15, 0, hit);
+  HavokPhysics_CollisionQueryResult::Reset(v9, 1);
+  Physics_AABBQuery((Physics_WorldId)v5, min, max, extendedData, v9);
+  PhysicsQuery_ExtractHitData(v9, 0, hit);
 }
 
 /*
@@ -3051,87 +2705,33 @@ PhysicsQuery_ImmediateAABBQueryClosest
 void PhysicsQuery_ImmediateAABBQueryClosest(Physics_WorldId worldId, unsigned int instanceId, const vec3_t *min, const vec3_t *max, Physics_AABBQueryExtendedData *extendedData, PhysicsQuery_AABBQueryHit *hit)
 {
   __int64 v6; 
-  Physics_AABBQueryExtendedData *v16; 
-  PhysicsQuery_AABBQueryHit *v17; 
+  Physics_AABBQueryExtendedData *v10; 
+  PhysicsQuery_AABBQueryHit *v11; 
   HavokPhysics_CollisionQueryResult *result; 
   int NumRigidBodys; 
-  signed int v20; 
-  int v21; 
-  unsigned int v22; 
+  signed int v14; 
+  int v15; 
+  unsigned int v16; 
   hknpBodyId *RigidBodyID; 
-  __int64 v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
+  __int64 v18; 
   unsigned int instanceIda; 
 
   instanceIda = instanceId;
   v6 = worldId;
-  _R14 = max;
-  _R15 = min;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1048, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1049, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_54;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_54;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+8]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-  {
-LABEL_54:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1050, ASSERT_TYPE_SANITY, "( !IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-    goto LABEL_55;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_55;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-  {
-LABEL_55:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1051, ASSERT_TYPE_SANITY, "( !IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] )") )
-      __debugbreak();
-  }
-  v16 = extendedData;
+  if ( ((LODWORD(min->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(min->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(min->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1050, ASSERT_TYPE_SANITY, "( !IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(max->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(max->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(max->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1051, ASSERT_TYPE_SANITY, "( !IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] )") )
+    __debugbreak();
+  v10 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1052, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v16->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1053, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v10->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1053, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
-  v17 = hit;
+  v11 = hit;
   if ( !hit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1054, ASSERT_TYPE_ASSERT, "(hit)", (const char *)&queryFormat, "hit") )
     __debugbreak();
   if ( instanceId != -1 )
@@ -3143,41 +2743,41 @@ LABEL_55:
       __debugbreak();
     HavokPhysics_CollisionQueryResult::Reset(result, 1);
     NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v6, instanceId);
-    v20 = 0;
-    v21 = NumRigidBodys;
+    v14 = 0;
+    v15 = NumRigidBodys;
     if ( NumRigidBodys > 0 )
     {
-      v22 = instanceIda;
+      v16 = instanceIda;
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
         if ( (unsigned int)v6 > 7 )
         {
-          LODWORD(v24) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v24) )
+          LODWORD(v18) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v18) )
             __debugbreak();
         }
         if ( !g_physicsClientWorldsCreated && (unsigned int)(v6 - 2) <= 5 )
         {
-          LODWORD(v24) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v24) )
+          LODWORD(v18) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v18) )
             __debugbreak();
         }
         if ( !g_physicsServerWorldsCreated && (unsigned int)v6 <= 1 )
         {
-          LODWORD(v24) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v24) )
+          LODWORD(v18) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v18) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v6, v22, v20);
-        Physics_AABBQuery((Physics_WorldId)v6, RigidBodyID->m_serialAndIndex, _R15, _R14, v16, result);
-        ++v20;
+        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v6, v16, v14);
+        Physics_AABBQuery((Physics_WorldId)v6, RigidBodyID->m_serialAndIndex, min, max, v10, result);
+        ++v14;
       }
-      while ( v20 < v21 );
-      v17 = hit;
+      while ( v14 < v15 );
+      v11 = hit;
     }
-    PhysicsQuery_ExtractHitData(result, 0, v17);
+    PhysicsQuery_ExtractHitData(result, 0, v11);
   }
 }
 
@@ -3256,83 +2856,29 @@ PhysicsQuery_ImmediateAABBQuerySightCheck
 bool PhysicsQuery_ImmediateAABBQuerySightCheck(Physics_WorldId worldId, const vec3_t *min, const vec3_t *max, Physics_AABBQueryExtendedData *extendedData)
 {
   __int64 v4; 
-  HavokPhysics_CollisionQueryResult *v14; 
-  int v16; 
-  int v17; 
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
+  HavokPhysics_CollisionQueryResult *v8; 
 
   v4 = worldId;
-  _RDI = max;
-  _RSI = min;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 802, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 803, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v16 & 0x7F800000) == 2139095040 )
-    goto LABEL_32;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_32;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-  {
-LABEL_32:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 804, ASSERT_TYPE_SANITY, "( !IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_33;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_33;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-  {
-LABEL_33:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 805, ASSERT_TYPE_SANITY, "( !IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(min->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(min->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(min->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 804, ASSERT_TYPE_SANITY, "( !IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(max->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(max->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(max->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 805, ASSERT_TYPE_SANITY, "( !IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 806, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 807, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 809, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v14 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v4 + Physics_GetThreadId())];
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 814, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v8 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v4 + Physics_GetThreadId())];
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 814, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v14, 1);
-  Physics_AABBQuery((Physics_WorldId)v4, _RSI, _RDI, extendedData, v14);
-  return !HavokPhysics_CollisionQueryResult::HasHit(v14);
+  HavokPhysics_CollisionQueryResult::Reset(v8, 1);
+  Physics_AABBQuery((Physics_WorldId)v4, min, max, extendedData, v8);
+  return !HavokPhysics_CollisionQueryResult::HasHit(v8);
 }
 
 /*
@@ -3343,119 +2889,79 @@ PhysicsQuery_ImmediateAABBQuerySightCheck
 bool PhysicsQuery_ImmediateAABBQuerySightCheck(Physics_WorldId worldId, unsigned int instanceId, const vec3_t *min, const vec3_t *max, Physics_AABBQueryExtendedData *extendedData)
 {
   __int64 v5; 
-  Physics_AABBQueryExtendedData *v15; 
-  HavokPhysics_CollisionQueryResult *v17; 
-  signed int v18; 
+  Physics_AABBQueryExtendedData *v9; 
+  HavokPhysics_CollisionQueryResult *v11; 
+  signed int v12; 
   int NumRigidBodys; 
   hknpBodyId *RigidBodyID; 
-  __int64 v21; 
+  __int64 v15; 
   hknpBodyId result; 
 
   v5 = worldId;
-  _R14 = max;
-  _R15 = min;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 952, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 953, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
+  result.m_serialAndIndex = LODWORD(min->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(min->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(min->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [r15]
-    vmovss  [rsp+68h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_51;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  [rsp+68h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_51;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+8]
-    vmovss  [rsp+68h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_51:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 954, ASSERT_TYPE_SANITY, "( !IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( min )[0] ) && !IS_NAN( ( min )[1] ) && !IS_NAN( ( min )[2] )") )
       __debugbreak();
   }
-  __asm
+  result.m_serialAndIndex = LODWORD(max->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(max->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(max->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+68h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_52;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+68h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_52;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+68h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_52:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 955, ASSERT_TYPE_SANITY, "( !IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( max )[0] ) && !IS_NAN( ( max )[1] ) && !IS_NAN( ( max )[2] )") )
       __debugbreak();
   }
-  v15 = extendedData;
+  v9 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 956, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v15->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 957, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v9->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 957, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
   if ( instanceId == -1 )
     return 0;
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 965, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v17 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v5 + Physics_GetThreadId())];
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 970, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v11 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v5 + Physics_GetThreadId())];
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 970, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v17, 1);
-  v18 = 0;
+  HavokPhysics_CollisionQueryResult::Reset(v11, 1);
+  v12 = 0;
   NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v5, instanceId);
   if ( NumRigidBodys > 0 )
   {
     do
     {
-      if ( HavokPhysics_CollisionQueryResult::HasHit(v17) )
+      if ( HavokPhysics_CollisionQueryResult::HasHit(v11) )
         break;
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
       if ( (unsigned int)v5 > 7 )
       {
-        LODWORD(v21) = v5;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v21) )
+        LODWORD(v15) = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v15) )
           __debugbreak();
       }
       if ( !g_physicsClientWorldsCreated && (unsigned int)(v5 - 2) <= 5 )
       {
-        LODWORD(v21) = v5;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v21) )
+        LODWORD(v15) = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v15) )
           __debugbreak();
       }
       if ( !g_physicsServerWorldsCreated && (unsigned int)v5 <= 1 )
       {
-        LODWORD(v21) = v5;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v21) )
+        LODWORD(v15) = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v15) )
           __debugbreak();
       }
-      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v5, instanceId, v18);
-      Physics_AABBQuery((Physics_WorldId)v5, RigidBodyID->m_serialAndIndex, _R15, _R14, v15, v17);
-      ++v18;
+      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v5, instanceId, v12);
+      Physics_AABBQuery((Physics_WorldId)v5, RigidBodyID->m_serialAndIndex, min, max, v9, v11);
+      ++v12;
     }
-    while ( v18 < NumRigidBodys );
+    while ( v12 < NumRigidBodys );
   }
-  return !HavokPhysics_CollisionQueryResult::HasHit(v17);
+  return !HavokPhysics_CollisionQueryResult::HasHit(v11);
 }
 
 /*
@@ -3532,86 +3038,22 @@ PhysicsQuery_ImmediateGetClosestPointsAll
 */
 void PhysicsQuery_ImmediateGetClosestPointsAll(Physics_WorldId worldId, hknpShape *shape, const vec3_t *point, const vec4_t *rotation, const float radius, Physics_GetClosestPointsExtendedData *extendedData, PhysicsQuery_GetClosestPointsHit *hits, int maxNumHits, int *hitsFound)
 {
-  __int64 v10; 
+  __int64 v9; 
   HavokPhysics_CollisionQueryResult *result; 
   signed int NumHits; 
-  int v24; 
-  float fmt; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
-  int v35; 
+  int v15; 
 
-  v10 = worldId;
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  _RBX = rotation;
-  _RBP = point;
+  v9 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2427, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2428, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2428, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2429, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_49;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_49;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-  {
-LABEL_49:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2430, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-    goto LABEL_50;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-    goto LABEL_50;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-    goto LABEL_50;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v35 & 0x7F800000) == 2139095040 )
-  {
-LABEL_50:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2431, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(point->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2430, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(rotation->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2431, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2432, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2433, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
@@ -3624,26 +3066,17 @@ LABEL_50:
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2438, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  result = s_PhysicsQuery_AllQueryResults[(int)(28 * v10 + Physics_GetThreadId())];
+  result = s_PhysicsQuery_AllQueryResults[(int)(28 * v9 + Physics_GetThreadId())];
   if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2443, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
   HavokPhysics_CollisionQueryResult::Reset(result, 1);
-  __asm
-  {
-    vmovss  xmm6, [rsp+78h+radius]
-    vmovss  dword ptr [rsp+78h+fmt], xmm6
-  }
-  Physics_GetClosestPoints((Physics_WorldId)v10, shape, _RBP, _RBX, fmt, extendedData, result);
+  Physics_GetClosestPoints((Physics_WorldId)v9, shape, point, rotation, radius, extendedData, result);
   NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(result);
   if ( maxNumHits < NumHits )
     NumHits = maxNumHits;
-  v24 = 0;
-  for ( *hitsFound = NumHits; v24 < *hitsFound; ++v24 )
-  {
-    __asm { vmovaps xmm1, xmm6; radius }
-    PhysicsQuery_ExtractHitData(_RBP, *(const float *)&_XMM1, result, v24, &hits[(__int64)v24]);
-  }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
+  v15 = 0;
+  for ( *hitsFound = NumHits; v15 < *hitsFound; ++v15 )
+    PhysicsQuery_ExtractHitData(point, radius, result, v15, &hits[(__int64)v15]);
 }
 
 /*
@@ -3653,175 +3086,111 @@ PhysicsQuery_ImmediateGetClosestPointsAll
 */
 void PhysicsQuery_ImmediateGetClosestPointsAll(Physics_WorldId worldId, hknpShape *shape, unsigned int instanceId, const vec3_t *point, const vec4_t *rotation, const float radius, Physics_GetClosestPointsExtendedData *extendedData, PhysicsQuery_GetClosestPointsHit *hits, int maxNumHits, int *hitsFound)
 {
-  __int64 v11; 
-  Physics_GetClosestPointsExtendedData *v23; 
-  PhysicsQuery_GetClosestPointsHit *v24; 
-  int *v25; 
+  __int64 v10; 
+  const vec4_t *v14; 
+  Physics_GetClosestPointsExtendedData *v15; 
+  PhysicsQuery_GetClosestPointsHit *v16; 
+  int *v17; 
   HavokPhysics_CollisionQueryResult *result; 
   int NumRigidBodys; 
-  signed int v29; 
-  signed int v30; 
-  Physics_GetClosestPointsExtendedData *v31; 
-  unsigned int v32; 
+  float maxDistance; 
+  signed int v21; 
+  signed int v22; 
+  Physics_GetClosestPointsExtendedData *v23; 
+  unsigned int v24; 
   hknpBodyId *RigidBodyID; 
   int NumHits; 
-  float maxDistance; 
-  Physics_GetClosestPointsExtendedData *v38; 
-  int v40; 
-  int v41; 
-  int v42; 
-  int v43; 
-  int v44; 
-  int v45; 
-  int v46; 
-  int v47; 
+  Physics_GetClosestPointsExtendedData *v27; 
+  int v28; 
   unsigned int instanceIda; 
 
   instanceIda = instanceId;
-  v11 = worldId;
-  _RBP = point;
+  v10 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2928, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2929, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2929, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2930, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v40 & 0x7F800000) == 2139095040 )
-    goto LABEL_68;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v41 & 0x7F800000) == 2139095040 )
-    goto LABEL_68;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v42 & 0x7F800000) == 2139095040 )
-  {
-LABEL_68:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2931, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
-      __debugbreak();
-  }
-  _R12 = rotation;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v43 & 0x7F800000) == 2139095040 )
-    goto LABEL_69;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+4]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v44 & 0x7F800000) == 2139095040 )
-    goto LABEL_69;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+8]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v45 & 0x7F800000) == 2139095040 )
-    goto LABEL_69;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+0Ch]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v46 & 0x7F800000) == 2139095040 )
-  {
-LABEL_69:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2932, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
-      __debugbreak();
-  }
-  v23 = extendedData;
+  if ( ((LODWORD(point->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2931, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
+    __debugbreak();
+  v14 = rotation;
+  if ( ((LODWORD(rotation->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2932, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
+    __debugbreak();
+  v15 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2933, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v23->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2934, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v15->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2934, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
-  v24 = hits;
+  v16 = hits;
   if ( !hits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2935, ASSERT_TYPE_ASSERT, "(hits)", (const char *)&queryFormat, "hits") )
     __debugbreak();
   if ( maxNumHits <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2936, ASSERT_TYPE_ASSERT, "(maxNumHits > 0)", (const char *)&queryFormat, "maxNumHits > 0") )
     __debugbreak();
-  v25 = hitsFound;
+  v17 = hitsFound;
   if ( !hitsFound && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2937, ASSERT_TYPE_ASSERT, "(hitsFound)", (const char *)&queryFormat, "hitsFound") )
     __debugbreak();
   if ( instanceId != -1 )
   {
-    __asm { vmovaps [rsp+88h+var_48], xmm6 }
     if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2945, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
       __debugbreak();
-    result = s_PhysicsQuery_AllQueryResults[(int)(28 * v11 + Physics_GetThreadId())];
+    result = s_PhysicsQuery_AllQueryResults[(int)(28 * v10 + Physics_GetThreadId())];
     if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2950, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
       __debugbreak();
     HavokPhysics_CollisionQueryResult::Reset(result, 1);
-    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v11, instanceId);
-    __asm { vmovss  xmm6, [rsp+88h+radius] }
-    v29 = 0;
-    v47 = NumRigidBodys;
-    v30 = 0;
+    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v10, instanceId);
+    maxDistance = radius;
+    v21 = 0;
+    v28 = NumRigidBodys;
+    v22 = 0;
     if ( NumRigidBodys > 0 )
     {
-      v31 = extendedData;
-      v32 = instanceIda;
+      v23 = extendedData;
+      v24 = instanceIda;
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v11 > 7 )
+        if ( (unsigned int)v10 > 7 )
         {
-          LODWORD(v38) = v11;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v38) )
+          LODWORD(v27) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v27) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v11 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v10 - 2) <= 5 )
         {
-          LODWORD(v38) = v11;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v38) )
+          LODWORD(v27) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v27) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v11 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v10 <= 1 )
         {
-          LODWORD(v38) = v11;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v38) )
+          LODWORD(v27) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v27) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v11, v32, v30);
-        __asm { vmovss  [rsp+88h+maxDistance], xmm6 }
-        Physics_GetClosestPoints((Physics_WorldId)v11, RigidBodyID->m_serialAndIndex, shape, _RBP, _R12, maxDistance, v31, result);
-        ++v30;
+        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v10, v24, v22);
+        Physics_GetClosestPoints((Physics_WorldId)v10, RigidBodyID->m_serialAndIndex, shape, point, v14, maxDistance, v23, result);
+        ++v22;
       }
-      while ( v30 < v47 );
-      v25 = hitsFound;
-      v29 = 0;
-      v24 = hits;
+      while ( v22 < v28 );
+      v17 = hitsFound;
+      v21 = 0;
+      v16 = hits;
     }
     NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(result);
     if ( maxNumHits < NumHits )
       NumHits = maxNumHits;
-    *v25 = NumHits;
+    *v17 = NumHits;
     if ( NumHits > 0 )
     {
       do
       {
-        __asm { vmovaps xmm1, xmm6; radius }
-        PhysicsQuery_ExtractHitData(_RBP, *(const float *)&_XMM1, result, v29, &v24[(__int64)v29]);
-        ++v29;
+        PhysicsQuery_ExtractHitData(point, maxDistance, result, v21, &v16[(__int64)v21]);
+        ++v21;
       }
-      while ( v29 < *v25 );
+      while ( v21 < *v17 );
     }
-    __asm { vmovaps xmm6, [rsp+88h+var_48] }
   }
 }
 
@@ -3853,7 +3222,6 @@ void PhysicsQuery_ImmediateGetClosestPointsAll(Physics_WorldId worldId, hknpShap
 {
   __int64 v11; 
   CG_PhysicsObject *v15; 
-  float v17; 
 
   v11 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2674, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
@@ -3867,12 +3235,7 @@ void PhysicsQuery_ImmediateGetClosestPointsAll(Physics_WorldId worldId, hknpShap
   v15 = CG_PhysicsObject_Get(ent->nextState.number, localClientNum);
   if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2680, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rsp+58h+radius]
-    vmovss  [rsp+58h+var_30], xmm0
-  }
-  PhysicsQuery_ImmediateGetClosestPointsAll((Physics_WorldId)v11, shape, v15, point, rotation, v17, extendedData, hits, maxNumHits, hitsFound);
+  PhysicsQuery_ImmediateGetClosestPointsAll((Physics_WorldId)v11, shape, v15, point, rotation, radius, extendedData, hits, maxNumHits, hitsFound);
 }
 
 /*
@@ -3906,99 +3269,31 @@ PhysicsQuery_ImmediateGetClosestPointsFree
 bool PhysicsQuery_ImmediateGetClosestPointsFree(Physics_WorldId worldId, hknpShape *shape, const vec3_t *point, const vec4_t *rotation, const float radius, Physics_GetClosestPointsExtendedData *extendedData)
 {
   __int64 v6; 
-  HavokPhysics_CollisionQueryResult *v17; 
-  float fmt; 
-  int v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
+  HavokPhysics_CollisionQueryResult *v10; 
 
   v6 = worldId;
-  _RSI = rotation;
-  _RBP = point;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2364, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2365, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2366, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-    goto LABEL_36;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-    goto LABEL_36;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-  {
-LABEL_36:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2367, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_37;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_37;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_37;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+0Ch]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-  {
-LABEL_37:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2368, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(point->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2367, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(rotation->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2368, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2369, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2370, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2372, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v17 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v6 + Physics_GetThreadId())];
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2377, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v10 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v6 + Physics_GetThreadId())];
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2377, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v17, 1);
-  __asm
-  {
-    vmovss  xmm0, [rsp+68h+radius]
-    vmovss  dword ptr [rsp+68h+fmt], xmm0
-  }
-  Physics_GetClosestPoints((Physics_WorldId)v6, shape, _RBP, _RSI, fmt, extendedData, v17);
-  return !HavokPhysics_CollisionQueryResult::HasHit(v17);
+  HavokPhysics_CollisionQueryResult::Reset(v10, 1);
+  Physics_GetClosestPoints((Physics_WorldId)v6, shape, point, rotation, radius, extendedData, v10);
+  return !HavokPhysics_CollisionQueryResult::HasHit(v10);
 }
 
 /*
@@ -4008,139 +3303,88 @@ PhysicsQuery_ImmediateGetClosestPointsFree
 */
 bool PhysicsQuery_ImmediateGetClosestPointsFree(Physics_WorldId worldId, hknpShape *shape, unsigned int instanceId, const vec3_t *point, const vec4_t *rotation, const float radius, Physics_GetClosestPointsExtendedData *extendedData)
 {
-  __int64 v8; 
-  Physics_GetClosestPointsExtendedData *v20; 
-  HavokPhysics_CollisionQueryResult *v22; 
-  signed int v23; 
+  __int64 v7; 
+  const vec4_t *v11; 
+  Physics_GetClosestPointsExtendedData *v12; 
+  HavokPhysics_CollisionQueryResult *v14; 
+  signed int v15; 
   int NumRigidBodys; 
-  hknpBodyId *RigidBodyID; 
   float maxDistance; 
-  Physics_GetClosestPointsExtendedData *v29; 
+  hknpBodyId *RigidBodyID; 
+  Physics_GetClosestPointsExtendedData *v19; 
   hknpBodyId result; 
   hknpShape *shapea; 
 
   shapea = shape;
-  v8 = worldId;
-  _R15 = point;
+  v7 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2517, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2518, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2518, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2519, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
-  __asm
+  result.m_serialAndIndex = LODWORD(point->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(point->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(point->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [r15]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_57;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+8]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_57:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2520, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
       __debugbreak();
   }
-  _RSI = rotation;
-  __asm
+  v11 = rotation;
+  result.m_serialAndIndex = LODWORD(rotation->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(rotation->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(rotation->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(rotation->v[3]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_58;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_58;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_58;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+0Ch]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_58:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2521, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
       __debugbreak();
   }
-  v20 = extendedData;
+  v12 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2522, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v20->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2523, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v12->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2523, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
   if ( instanceId == -1 )
     return 0;
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2531, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v22 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v8 + Physics_GetThreadId())];
-  if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2536, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v14 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v7 + Physics_GetThreadId())];
+  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2536, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v22, 1);
-  v23 = 0;
-  NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v8, instanceId);
+  HavokPhysics_CollisionQueryResult::Reset(v14, 1);
+  v15 = 0;
+  NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v7, instanceId);
   if ( NumRigidBodys > 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+88h+var_48], xmm6
-      vmovss  xmm6, [rsp+88h+radius]
-    }
+    maxDistance = radius;
     do
     {
-      if ( HavokPhysics_CollisionQueryResult::HasHit(v22) )
+      if ( HavokPhysics_CollisionQueryResult::HasHit(v14) )
         break;
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
-      if ( (unsigned int)v8 > 7 )
+      if ( (unsigned int)v7 > 7 )
       {
-        LODWORD(v29) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v29) )
+        LODWORD(v19) = v7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v19) )
           __debugbreak();
       }
-      if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
+      if ( !g_physicsClientWorldsCreated && (unsigned int)(v7 - 2) <= 5 )
       {
-        LODWORD(v29) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v29) )
+        LODWORD(v19) = v7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v19) )
           __debugbreak();
       }
-      if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
+      if ( !g_physicsServerWorldsCreated && (unsigned int)v7 <= 1 )
       {
-        LODWORD(v29) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v29) )
+        LODWORD(v19) = v7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v19) )
           __debugbreak();
       }
-      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v8, instanceId, v23);
-      __asm { vmovss  [rsp+88h+maxDistance], xmm6 }
-      Physics_GetClosestPoints((Physics_WorldId)v8, RigidBodyID->m_serialAndIndex, shapea, _R15, _RSI, maxDistance, v20, v22);
-      ++v23;
+      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v7, instanceId, v15);
+      Physics_GetClosestPoints((Physics_WorldId)v7, RigidBodyID->m_serialAndIndex, shapea, point, v11, maxDistance, v12, v14);
+      ++v15;
     }
-    while ( v23 < NumRigidBodys );
-    __asm { vmovaps xmm6, [rsp+88h+var_48] }
+    while ( v15 < NumRigidBodys );
   }
-  return !HavokPhysics_CollisionQueryResult::HasHit(v22);
+  return !HavokPhysics_CollisionQueryResult::HasHit(v14);
 }
 
 /*
@@ -4171,7 +3415,6 @@ bool PhysicsQuery_ImmediateGetClosestPointsFree(Physics_WorldId worldId, hknpSha
 {
   __int64 v8; 
   CG_PhysicsObject *v12; 
-  float rotationa; 
 
   v8 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2480, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
@@ -4185,12 +3428,7 @@ bool PhysicsQuery_ImmediateGetClosestPointsFree(Physics_WorldId worldId, hknpSha
   v12 = CG_PhysicsObject_Get(ent->nextState.number, localClientNum);
   if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2486, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+48h+radius]
-    vmovss  dword ptr [rsp+48h+rotation], xmm0
-  }
-  return PhysicsQuery_ImmediateGetClosestPointsFree((Physics_WorldId)v8, shape, v12, point, rotation, rotationa, extendedData);
+  return PhysicsQuery_ImmediateGetClosestPointsFree((Physics_WorldId)v8, shape, v12, point, rotation, radius, extendedData);
 }
 
 /*
@@ -4223,84 +3461,20 @@ PhysicsQuery_ImmediateGetClosestPointsWorst
 */
 void PhysicsQuery_ImmediateGetClosestPointsWorst(Physics_WorldId worldId, hknpShape *shape, const vec3_t *point, const vec4_t *rotation, const float radius, Physics_GetClosestPointsExtendedData *extendedData, PhysicsQuery_GetClosestPointsHit *hit)
 {
-  __int64 v8; 
+  __int64 v7; 
   HavokPhysics_CollisionQueryResult *result; 
-  float fmt; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
 
-  v8 = worldId;
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  _RSI = rotation;
-  _R14 = point;
+  v7 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2396, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2397, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2397, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2398, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_39;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_39;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-  {
-LABEL_39:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2399, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-    goto LABEL_40;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_40;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_40;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+0Ch]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-  {
-LABEL_40:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2400, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(point->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2399, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(rotation->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2400, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2401, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2402, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
@@ -4309,22 +3483,12 @@ LABEL_40:
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2405, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  result = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v8 + Physics_GetThreadId())];
+  result = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v7 + Physics_GetThreadId())];
   if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2410, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
   HavokPhysics_CollisionQueryResult::Reset(result, 1);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rsp+78h+radius]
-    vmovss  dword ptr [rsp+78h+fmt], xmm6
-  }
-  Physics_GetClosestPoints((Physics_WorldId)v8, shape, _R14, _RSI, fmt, extendedData, result);
-  __asm
-  {
-    vmovaps xmm1, xmm6; radius
-    vmovaps xmm6, [rsp+78h+var_38]
-  }
-  PhysicsQuery_ExtractHitData(_R14, *(const float *)&_XMM1, result, 0, hit);
+  Physics_GetClosestPoints((Physics_WorldId)v7, shape, point, rotation, radius, extendedData, result);
+  PhysicsQuery_ExtractHitData(point, radius, result, 0, hit);
 }
 
 /*
@@ -4334,150 +3498,86 @@ PhysicsQuery_ImmediateGetClosestPointsWorst
 */
 void PhysicsQuery_ImmediateGetClosestPointsWorst(Physics_WorldId worldId, hknpShape *shape, unsigned int instanceId, const vec3_t *point, const vec4_t *rotation, const float radius, Physics_GetClosestPointsExtendedData *extendedData, PhysicsQuery_GetClosestPointsHit *hit)
 {
-  __int64 v9; 
-  Physics_GetClosestPointsExtendedData *v21; 
-  PhysicsQuery_GetClosestPointsHit *v22; 
+  __int64 v8; 
+  const vec4_t *v12; 
+  Physics_GetClosestPointsExtendedData *v13; 
+  PhysicsQuery_GetClosestPointsHit *v14; 
   HavokPhysics_CollisionQueryResult *result; 
   int NumRigidBodys; 
-  signed int v26; 
-  int v27; 
-  unsigned int v28; 
-  hknpBodyId *RigidBodyID; 
   float maxDistance; 
-  Physics_GetClosestPointsExtendedData *v33; 
-  int v35; 
-  int v36; 
-  int v37; 
-  int v38; 
-  int v39; 
-  int v40; 
-  int v41; 
+  signed int v18; 
+  int v19; 
+  unsigned int v20; 
+  hknpBodyId *RigidBodyID; 
+  Physics_GetClosestPointsExtendedData *v22; 
   unsigned int instanceIda; 
 
   instanceIda = instanceId;
-  v9 = worldId;
-  _RBP = point;
+  v8 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2614, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2615, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2615, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2616, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v35 & 0x7F800000) == 2139095040 )
-    goto LABEL_58;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v36 & 0x7F800000) == 2139095040 )
-    goto LABEL_58;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v37 & 0x7F800000) == 2139095040 )
-  {
-LABEL_58:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2617, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
-      __debugbreak();
-  }
-  _RDI = rotation;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v38 & 0x7F800000) == 2139095040 )
-    goto LABEL_59;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v39 & 0x7F800000) == 2139095040 )
-    goto LABEL_59;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v40 & 0x7F800000) == 2139095040 )
-    goto LABEL_59;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v41 & 0x7F800000) == 2139095040 )
-  {
-LABEL_59:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2618, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
-      __debugbreak();
-  }
-  v21 = extendedData;
+  if ( ((LODWORD(point->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2617, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
+    __debugbreak();
+  v12 = rotation;
+  if ( ((LODWORD(rotation->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2618, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
+    __debugbreak();
+  v13 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2619, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v21->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2620, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v13->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2620, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
-  v22 = hit;
+  v14 = hit;
   if ( !hit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2621, ASSERT_TYPE_ASSERT, "(hit)", (const char *)&queryFormat, "hit") )
     __debugbreak();
   if ( instanceId != -1 )
   {
-    __asm { vmovaps [rsp+88h+var_48], xmm6 }
     if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2629, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
       __debugbreak();
-    result = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v9 + Physics_GetThreadId())];
+    result = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v8 + Physics_GetThreadId())];
     if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2634, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
       __debugbreak();
     HavokPhysics_CollisionQueryResult::Reset(result, 1);
-    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v9, instanceId);
-    __asm { vmovss  xmm6, [rsp+88h+radius] }
-    v26 = 0;
-    v27 = NumRigidBodys;
+    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v8, instanceId);
+    maxDistance = radius;
+    v18 = 0;
+    v19 = NumRigidBodys;
     if ( NumRigidBodys > 0 )
     {
-      v28 = instanceIda;
+      v20 = instanceIda;
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v9 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v33) = v9;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v33) )
+          LODWORD(v22) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v22) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v9 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
         {
-          LODWORD(v33) = v9;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v33) )
+          LODWORD(v22) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v22) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v9 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
         {
-          LODWORD(v33) = v9;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v33) )
+          LODWORD(v22) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v22) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v9, v28, v26);
-        __asm { vmovss  [rsp+88h+maxDistance], xmm6 }
-        Physics_GetClosestPoints((Physics_WorldId)v9, RigidBodyID->m_serialAndIndex, shape, _RBP, _RDI, maxDistance, v21, result);
-        ++v26;
+        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v8, v20, v18);
+        Physics_GetClosestPoints((Physics_WorldId)v8, RigidBodyID->m_serialAndIndex, shape, point, v12, maxDistance, v13, result);
+        ++v18;
       }
-      while ( v26 < v27 );
-      v22 = hit;
+      while ( v18 < v19 );
+      v14 = hit;
     }
-    __asm { vmovaps xmm1, xmm6; radius }
-    PhysicsQuery_ExtractHitData(_RBP, *(const float *)&_XMM1, result, 0, v22);
-    __asm { vmovaps xmm6, [rsp+88h+var_48] }
+    PhysicsQuery_ExtractHitData(point, maxDistance, result, 0, v14);
   }
 }
 
@@ -4509,7 +3609,6 @@ void PhysicsQuery_ImmediateGetClosestPointsWorst(Physics_WorldId worldId, hknpSh
 {
   __int64 v9; 
   CG_PhysicsObject *v13; 
-  float v15; 
 
   v9 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2579, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
@@ -4523,12 +3622,7 @@ void PhysicsQuery_ImmediateGetClosestPointsWorst(Physics_WorldId worldId, hknpSh
   v13 = CG_PhysicsObject_Get(ent->nextState.number, localClientNum);
   if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2585, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rsp+48h+radius]
-    vmovss  [rsp+48h+var_20], xmm0
-  }
-  PhysicsQuery_ImmediateGetClosestPointsWorst((Physics_WorldId)v9, shape, v13, point, rotation, v15, extendedData, hit);
+  PhysicsQuery_ImmediateGetClosestPointsWorst((Physics_WorldId)v9, shape, v13, point, rotation, radius, extendedData, hit);
 }
 
 /*
@@ -4559,50 +3653,20 @@ void PhysicsQuery_ImmediateGetClosestPointsWorst(Physics_WorldId worldId, hknpSh
 PhysicsQuery_ImmediateQueryPointAll
 ==============
 */
-
-void __fastcall PhysicsQuery_ImmediateQueryPointAll(Physics_WorldId worldId, const vec3_t *point, double radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hits, int maxNumHits, int *hitsFound)
+void PhysicsQuery_ImmediateQueryPointAll(Physics_WorldId worldId, const vec3_t *point, const float radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hits, int maxNumHits, int *hitsFound)
 {
-  __int64 v8; 
-  HavokPhysics_CollisionQueryResult *v15; 
+  __int64 v7; 
+  HavokPhysics_CollisionQueryResult *v10; 
   signed int NumHits; 
-  int v18; 
-  int v22; 
-  int v23; 
-  int v24; 
+  int v12; 
 
-  v8 = worldId;
-  __asm { vmovaps [rsp+68h+var_38], xmm6 }
-  _RDI = point;
-  __asm { vmovaps xmm6, xmm2 }
+  v7 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2039, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2040, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2040, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-    goto LABEL_40;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-    goto LABEL_40;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-  {
-LABEL_40:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2041, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(point->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2041, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2042, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2043, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
@@ -4615,22 +3679,17 @@ LABEL_40:
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2048, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v15 = s_PhysicsQuery_AllQueryResults[(int)(28 * v8 + Physics_GetThreadId())];
-  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2053, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v10 = s_PhysicsQuery_AllQueryResults[(int)(28 * v7 + Physics_GetThreadId())];
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2053, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v15, 1);
-  __asm { vmovaps xmm2, xmm6; maxDistance }
-  Physics_QueryPoint((Physics_WorldId)v8, _RDI, *(float *)&_XMM2, extendedData, v15);
-  NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(v15);
+  HavokPhysics_CollisionQueryResult::Reset(v10, 1);
+  Physics_QueryPoint((Physics_WorldId)v7, point, radius, extendedData, v10);
+  NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(v10);
   if ( maxNumHits < NumHits )
     NumHits = maxNumHits;
-  v18 = 0;
-  for ( *hitsFound = NumHits; v18 < *hitsFound; ++v18 )
-  {
-    __asm { vmovaps xmm1, xmm6; radius }
-    PhysicsQuery_ExtractHitData(_RDI, *(const float *)&_XMM1, v15, v18, &hits[v18]);
-  }
-  __asm { vmovaps xmm6, [rsp+68h+var_38] }
+  v12 = 0;
+  for ( *hitsFound = NumHits; v12 < *hitsFound; ++v12 )
+    PhysicsQuery_ExtractHitData(point, radius, v10, v12, &hits[v12]);
 }
 
 /*
@@ -4638,140 +3697,107 @@ LABEL_40:
 PhysicsQuery_ImmediateQueryPointAll
 ==============
 */
-
-void __fastcall PhysicsQuery_ImmediateQueryPointAll(Physics_WorldId worldId, unsigned int instanceId, const vec3_t *point, double radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hits, int maxNumHits, int *hitsFound)
+void PhysicsQuery_ImmediateQueryPointAll(Physics_WorldId worldId, unsigned int instanceId, const vec3_t *point, const float radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hits, int maxNumHits, int *hitsFound)
 {
-  __int64 v9; 
-  Physics_QueryPointExtendedData *v16; 
-  PhysicsQuery_QueryPointHit *v17; 
-  int v18; 
-  int *v19; 
+  __int64 v8; 
+  Physics_QueryPointExtendedData *v11; 
+  PhysicsQuery_QueryPointHit *v12; 
+  int v13; 
+  int *v14; 
   HavokPhysics_CollisionQueryResult *result; 
-  signed int v21; 
-  signed int v22; 
-  Physics_QueryPointExtendedData *v23; 
-  unsigned int v24; 
+  signed int v16; 
+  signed int v17; 
+  Physics_QueryPointExtendedData *v18; 
+  unsigned int v19; 
   hknpBodyId *RigidBodyID; 
   int NumHits; 
-  __int64 v30; 
-  int v32; 
-  int v33; 
-  int v34; 
+  __int64 v22; 
   int NumRigidBodys; 
   unsigned int instanceIda; 
 
   instanceIda = instanceId;
-  v9 = worldId;
-  __asm { vmovaps [rsp+88h+var_48], xmm6 }
-  _RBP = point;
-  __asm { vmovaps xmm6, xmm3 }
+  v8 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2316, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2317, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2317, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-    goto LABEL_59;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-    goto LABEL_59;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+88h+arg_0], xmm0
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-  {
-LABEL_59:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2318, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
-      __debugbreak();
-  }
-  v16 = extendedData;
+  if ( ((LODWORD(point->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2318, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
+    __debugbreak();
+  v11 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2319, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v16->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2320, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v11->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2320, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
-  v17 = hits;
+  v12 = hits;
   if ( !hits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2321, ASSERT_TYPE_ASSERT, "(hits)", (const char *)&queryFormat, "hits") )
     __debugbreak();
-  v18 = maxNumHits;
+  v13 = maxNumHits;
   if ( maxNumHits <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2322, ASSERT_TYPE_ASSERT, "(maxNumHits > 0)", (const char *)&queryFormat, "maxNumHits > 0") )
     __debugbreak();
-  v19 = hitsFound;
+  v14 = hitsFound;
   if ( !hitsFound && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2323, ASSERT_TYPE_ASSERT, "(hitsFound)", (const char *)&queryFormat, "hitsFound") )
     __debugbreak();
   if ( instanceId != -1 )
   {
     if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2331, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
       __debugbreak();
-    result = s_PhysicsQuery_AllQueryResults[(int)(28 * v9 + Physics_GetThreadId())];
+    result = s_PhysicsQuery_AllQueryResults[(int)(28 * v8 + Physics_GetThreadId())];
     if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2336, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
       __debugbreak();
     HavokPhysics_CollisionQueryResult::Reset(result, 1);
-    v21 = 0;
-    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v9, instanceId);
-    v22 = 0;
+    v16 = 0;
+    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v8, instanceId);
+    v17 = 0;
     if ( NumRigidBodys > 0 )
     {
-      v23 = extendedData;
-      v24 = instanceIda;
+      v18 = extendedData;
+      v19 = instanceIda;
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v9 > 7 )
+        if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v30) = v9;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v30) )
+          LODWORD(v22) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v22) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v9 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
         {
-          LODWORD(v30) = v9;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v30) )
+          LODWORD(v22) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v22) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v9 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
         {
-          LODWORD(v30) = v9;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v30) )
+          LODWORD(v22) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v22) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v9, v24, v22);
-        __asm { vmovaps xmm3, xmm6; maxDistance }
-        Physics_QueryPoint((Physics_WorldId)v9, RigidBodyID->m_serialAndIndex, _RBP, *(float *)&_XMM3, v23, result);
-        ++v22;
+        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v8, v19, v17);
+        Physics_QueryPoint((Physics_WorldId)v8, RigidBodyID->m_serialAndIndex, point, radius, v18, result);
+        ++v17;
       }
-      while ( v22 < NumRigidBodys );
-      v19 = hitsFound;
-      v21 = 0;
-      v17 = hits;
-      v18 = maxNumHits;
+      while ( v17 < NumRigidBodys );
+      v14 = hitsFound;
+      v16 = 0;
+      v12 = hits;
+      v13 = maxNumHits;
     }
     NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(result);
-    if ( v18 < NumHits )
-      NumHits = v18;
-    *v19 = NumHits;
+    if ( v13 < NumHits )
+      NumHits = v13;
+    *v14 = NumHits;
     if ( NumHits > 0 )
     {
       do
       {
-        __asm { vmovaps xmm1, xmm6; radius }
-        PhysicsQuery_ExtractHitData(_RBP, *(const float *)&_XMM1, result, v21, &v17[v21]);
-        ++v21;
+        PhysicsQuery_ExtractHitData(point, radius, result, v16, &v12[v16]);
+        ++v16;
       }
-      while ( v21 < *v19 );
+      while ( v16 < *v14 );
     }
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_48] }
 }
 
 /*
@@ -4779,29 +3805,18 @@ LABEL_59:
 PhysicsQuery_ImmediateQueryPointAll
 ==============
 */
-
-void __fastcall PhysicsQuery_ImmediateQueryPointAll(Physics_WorldId worldId, PhysicsObject *physObj, const vec3_t *point, double radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hits, int maxNumHits, int *hitsFound)
+void PhysicsQuery_ImmediateQueryPointAll(Physics_WorldId worldId, PhysicsObject *physObj, const vec3_t *point, const float radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hits, int maxNumHits, int *hitsFound)
 {
-  __int64 v9; 
+  __int64 v8; 
 
-  v9 = worldId;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
+  v8 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2298, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2299, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2299, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !physObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2300, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm3, xmm6; radius
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  PhysicsQuery_ImmediateQueryPointAll((Physics_WorldId)v9, physObj->physicsInstances[v9], point, *(const float *)&_XMM3, extendedData, hits, maxNumHits, hitsFound);
+  PhysicsQuery_ImmediateQueryPointAll((Physics_WorldId)v8, physObj->physicsInstances[v8], point, radius, extendedData, hits, maxNumHits, hitsFound);
 }
 
 /*
@@ -4826,8 +3841,7 @@ void PhysicsQuery_ImmediateQueryPointAll(Physics_WorldId worldId, const centity_
   v13 = CG_PhysicsObject_Get(ent->nextState.number, localClientNum);
   if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2286, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  __asm { vmovss  xmm3, [rsp+48h+radius]; radius }
-  PhysicsQuery_ImmediateQueryPointAll((Physics_WorldId)v9, v13, point, *(const float *)&_XMM3, extendedData, hits, maxNumHits, hitsFound);
+  PhysicsQuery_ImmediateQueryPointAll((Physics_WorldId)v9, v13, point, radius, extendedData, hits, maxNumHits, hitsFound);
 }
 
 /*
@@ -4835,33 +3849,22 @@ void PhysicsQuery_ImmediateQueryPointAll(Physics_WorldId worldId, const centity_
 PhysicsQuery_ImmediateQueryPointAll
 ==============
 */
-
-void __fastcall PhysicsQuery_ImmediateQueryPointAll(Physics_WorldId worldId, const gentity_s *ent, const vec3_t *point, double radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hits, int maxNumHits, int *hitsFound)
+void PhysicsQuery_ImmediateQueryPointAll(Physics_WorldId worldId, const gentity_s *ent, const vec3_t *point, const float radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hits, int maxNumHits, int *hitsFound)
 {
-  __int64 v9; 
-  G_PhysicsObject *v13; 
+  __int64 v8; 
+  G_PhysicsObject *v11; 
 
-  v9 = worldId;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
+  v8 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2263, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2264, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2264, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2265, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  v13 = G_PhysicsObject_Get(ent);
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2268, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
+  v11 = G_PhysicsObject_Get(ent);
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2268, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm3, xmm6; radius
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  PhysicsQuery_ImmediateQueryPointAll((Physics_WorldId)v9, v13, point, *(const float *)&_XMM3, extendedData, hits, maxNumHits, hitsFound);
+  PhysicsQuery_ImmediateQueryPointAll((Physics_WorldId)v8, v11, point, radius, extendedData, hits, maxNumHits, hitsFound);
 }
 
 /*
@@ -4869,62 +3872,30 @@ void __fastcall PhysicsQuery_ImmediateQueryPointAll(Physics_WorldId worldId, con
 PhysicsQuery_ImmediateQueryPointFree
 ==============
 */
-
-bool __fastcall PhysicsQuery_ImmediateQueryPointFree(Physics_WorldId worldId, const vec3_t *point, double radius, Physics_QueryPointExtendedData *extendedData)
+bool PhysicsQuery_ImmediateQueryPointFree(Physics_WorldId worldId, const vec3_t *point, const float radius, Physics_QueryPointExtendedData *extendedData)
 {
-  __int64 v5; 
-  HavokPhysics_CollisionQueryResult *v12; 
-  int v17; 
-  int v18; 
-  int v19; 
+  __int64 v4; 
+  HavokPhysics_CollisionQueryResult *v7; 
 
-  v5 = worldId;
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
-  _RDI = point;
-  __asm { vmovaps xmm6, xmm2 }
+  v4 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1980, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1981, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1981, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_27;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-    goto LABEL_27;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-  {
-LABEL_27:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1982, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(point->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1982, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1983, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1984, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1986, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v12 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v5 + Physics_GetThreadId())];
-  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1991, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v7 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v4 + Physics_GetThreadId())];
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1991, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v12, 1);
-  __asm { vmovaps xmm2, xmm6; maxDistance }
-  Physics_QueryPoint((Physics_WorldId)v5, _RDI, *(float *)&_XMM2, extendedData, v12);
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
-  return !HavokPhysics_CollisionQueryResult::HasHit(v12);
+  HavokPhysics_CollisionQueryResult::Reset(v7, 1);
+  Physics_QueryPoint((Physics_WorldId)v4, point, radius, extendedData, v7);
+  return !HavokPhysics_CollisionQueryResult::HasHit(v7);
 }
 
 /*
@@ -4932,108 +3903,76 @@ LABEL_27:
 PhysicsQuery_ImmediateQueryPointFree
 ==============
 */
-
-bool __fastcall PhysicsQuery_ImmediateQueryPointFree(Physics_WorldId worldId, unsigned int instanceId, const vec3_t *point, double radius, Physics_QueryPointExtendedData *extendedData)
+bool PhysicsQuery_ImmediateQueryPointFree(Physics_WorldId worldId, unsigned int instanceId, const vec3_t *point, const float radius, Physics_QueryPointExtendedData *extendedData)
 {
-  __int64 v6; 
-  Physics_QueryPointExtendedData *v13; 
-  bool v14; 
-  HavokPhysics_CollisionQueryResult *v15; 
-  signed int v16; 
+  __int64 v5; 
+  Physics_QueryPointExtendedData *v8; 
+  HavokPhysics_CollisionQueryResult *v10; 
+  signed int v11; 
   int NumRigidBodys; 
   hknpBodyId *RigidBodyID; 
-  __int64 v21; 
+  __int64 v14; 
   hknpBodyId result; 
 
-  v6 = worldId;
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  _RBP = point;
-  __asm { vmovaps xmm6, xmm3 }
+  v5 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2127, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2128, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2128, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
+  result.m_serialAndIndex = LODWORD(point->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(point->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(point->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+78h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_47;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+78h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_47;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+78h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_47:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2129, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
       __debugbreak();
   }
-  v13 = extendedData;
+  v8 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2130, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v13->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2131, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v8->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2131, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
   if ( instanceId == -1 )
+    return 0;
+  if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2139, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
+    __debugbreak();
+  v10 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v5 + Physics_GetThreadId())];
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2144, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+    __debugbreak();
+  HavokPhysics_CollisionQueryResult::Reset(v10, 1);
+  v11 = 0;
+  NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v5, instanceId);
+  if ( NumRigidBodys > 0 )
   {
-    v14 = 0;
-  }
-  else
-  {
-    if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2139, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
-      __debugbreak();
-    v15 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v6 + Physics_GetThreadId())];
-    if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2144, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
-      __debugbreak();
-    HavokPhysics_CollisionQueryResult::Reset(v15, 1);
-    v16 = 0;
-    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v6, instanceId);
-    if ( NumRigidBodys > 0 )
+    do
     {
-      do
+      if ( HavokPhysics_CollisionQueryResult::HasHit(v10) )
+        break;
+      if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
+        __debugbreak();
+      if ( (unsigned int)v5 > 7 )
       {
-        if ( HavokPhysics_CollisionQueryResult::HasHit(v15) )
-          break;
-        if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
+        LODWORD(v14) = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v14) )
           __debugbreak();
-        if ( (unsigned int)v6 > 7 )
-        {
-          LODWORD(v21) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v21) )
-            __debugbreak();
-        }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v6 - 2) <= 5 )
-        {
-          LODWORD(v21) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v21) )
-            __debugbreak();
-        }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v6 <= 1 )
-        {
-          LODWORD(v21) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v21) )
-            __debugbreak();
-        }
-        RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v6, instanceId, v16);
-        __asm { vmovaps xmm3, xmm6; maxDistance }
-        Physics_QueryPoint((Physics_WorldId)v6, RigidBodyID->m_serialAndIndex, _RBP, *(float *)&_XMM3, v13, v15);
-        ++v16;
       }
-      while ( v16 < NumRigidBodys );
+      if ( !g_physicsClientWorldsCreated && (unsigned int)(v5 - 2) <= 5 )
+      {
+        LODWORD(v14) = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v14) )
+          __debugbreak();
+      }
+      if ( !g_physicsServerWorldsCreated && (unsigned int)v5 <= 1 )
+      {
+        LODWORD(v14) = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v14) )
+          __debugbreak();
+      }
+      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v5, instanceId, v11);
+      Physics_QueryPoint((Physics_WorldId)v5, RigidBodyID->m_serialAndIndex, point, radius, v8, v10);
+      ++v11;
     }
-    v14 = !HavokPhysics_CollisionQueryResult::HasHit(v15);
+    while ( v11 < NumRigidBodys );
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
-  return v14;
+  return !HavokPhysics_CollisionQueryResult::HasHit(v10);
 }
 
 /*
@@ -5041,29 +3980,18 @@ LABEL_47:
 PhysicsQuery_ImmediateQueryPointFree
 ==============
 */
-
-bool __fastcall PhysicsQuery_ImmediateQueryPointFree(Physics_WorldId worldId, PhysicsObject *physObj, const vec3_t *point, double radius, Physics_QueryPointExtendedData *extendedData)
+bool PhysicsQuery_ImmediateQueryPointFree(Physics_WorldId worldId, PhysicsObject *physObj, const vec3_t *point, const float radius, Physics_QueryPointExtendedData *extendedData)
 {
-  __int64 v6; 
+  __int64 v5; 
 
-  v6 = worldId;
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
+  v5 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2108, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2109, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2109, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !physObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2110, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm3, xmm6; radius
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return PhysicsQuery_ImmediateQueryPointFree((Physics_WorldId)v6, physObj->physicsInstances[v6], point, *(const float *)&_XMM3, extendedData);
+  return PhysicsQuery_ImmediateQueryPointFree((Physics_WorldId)v5, physObj->physicsInstances[v5], point, radius, extendedData);
 }
 
 /*
@@ -5088,8 +4016,7 @@ bool PhysicsQuery_ImmediateQueryPointFree(Physics_WorldId worldId, const centity
   v10 = CG_PhysicsObject_Get(ent->nextState.number, localClientNum);
   if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2096, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  __asm { vmovss  xmm3, dword ptr [rsp+38h+radius]; radius }
-  return PhysicsQuery_ImmediateQueryPointFree((Physics_WorldId)v6, v10, point, *(const float *)&_XMM3, extendedData);
+  return PhysicsQuery_ImmediateQueryPointFree((Physics_WorldId)v6, v10, point, radius, extendedData);
 }
 
 /*
@@ -5097,33 +4024,22 @@ bool PhysicsQuery_ImmediateQueryPointFree(Physics_WorldId worldId, const centity
 PhysicsQuery_ImmediateQueryPointFree
 ==============
 */
-
-bool __fastcall PhysicsQuery_ImmediateQueryPointFree(Physics_WorldId worldId, const gentity_s *ent, const vec3_t *point, double radius, Physics_QueryPointExtendedData *extendedData)
+bool PhysicsQuery_ImmediateQueryPointFree(Physics_WorldId worldId, const gentity_s *ent, const vec3_t *point, const float radius, Physics_QueryPointExtendedData *extendedData)
 {
-  __int64 v6; 
-  G_PhysicsObject *v10; 
+  __int64 v5; 
+  G_PhysicsObject *v8; 
 
-  v6 = worldId;
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
+  v5 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2073, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2074, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2074, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2075, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  v10 = G_PhysicsObject_Get(ent);
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2078, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
+  v8 = G_PhysicsObject_Get(ent);
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2078, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm3, xmm6; radius
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return PhysicsQuery_ImmediateQueryPointFree((Physics_WorldId)v6, v10, point, *(const float *)&_XMM3, extendedData);
+  return PhysicsQuery_ImmediateQueryPointFree((Physics_WorldId)v5, v8, point, radius, extendedData);
 }
 
 /*
@@ -5131,48 +4047,18 @@ bool __fastcall PhysicsQuery_ImmediateQueryPointFree(Physics_WorldId worldId, co
 PhysicsQuery_ImmediateQueryPointWorst
 ==============
 */
-
-void __fastcall PhysicsQuery_ImmediateQueryPointWorst(Physics_WorldId worldId, const vec3_t *point, double radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hit)
+void PhysicsQuery_ImmediateQueryPointWorst(Physics_WorldId worldId, const vec3_t *point, const float radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hit)
 {
-  __int64 v6; 
-  HavokPhysics_CollisionQueryResult *v13; 
-  int v18; 
-  int v19; 
-  int v20; 
+  __int64 v5; 
+  HavokPhysics_CollisionQueryResult *v8; 
 
-  v6 = worldId;
-  __asm { vmovaps [rsp+58h+var_28], xmm6 }
-  _RBX = point;
-  __asm { vmovaps xmm6, xmm2 }
+  v5 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2010, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2011, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2011, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-    goto LABEL_30;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_30;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-  {
-LABEL_30:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2012, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(point->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(point->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2012, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2013, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2014, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
@@ -5181,18 +4067,12 @@ LABEL_30:
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2017, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v13 = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v6 + Physics_GetThreadId())];
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2022, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v8 = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v5 + Physics_GetThreadId())];
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2022, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v13, 1);
-  __asm { vmovaps xmm2, xmm6; maxDistance }
-  Physics_QueryPoint((Physics_WorldId)v6, _RBX, *(float *)&_XMM2, extendedData, v13);
-  __asm
-  {
-    vmovaps xmm1, xmm6; radius
-    vmovaps xmm6, [rsp+58h+var_28]
-  }
-  PhysicsQuery_ExtractHitData(_RBX, *(const float *)&_XMM1, v13, 0, hit);
+  HavokPhysics_CollisionQueryResult::Reset(v8, 1);
+  Physics_QueryPoint((Physics_WorldId)v5, point, radius, extendedData, v8);
+  PhysicsQuery_ExtractHitData(point, radius, v8, 0, hit);
 }
 
 /*
@@ -5200,106 +4080,80 @@ LABEL_30:
 PhysicsQuery_ImmediateQueryPointWorst
 ==============
 */
-
-void __fastcall PhysicsQuery_ImmediateQueryPointWorst(Physics_WorldId worldId, unsigned int instanceId, const vec3_t *point, double radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hit)
+void PhysicsQuery_ImmediateQueryPointWorst(Physics_WorldId worldId, unsigned int instanceId, const vec3_t *point, const float radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hit)
 {
-  __int64 v7; 
-  Physics_QueryPointExtendedData *v14; 
-  PhysicsQuery_QueryPointHit *v15; 
-  HavokPhysics_CollisionQueryResult *v16; 
-  signed int v17; 
+  __int64 v6; 
+  Physics_QueryPointExtendedData *v9; 
+  PhysicsQuery_QueryPointHit *v10; 
+  HavokPhysics_CollisionQueryResult *v11; 
+  signed int v12; 
   int NumRigidBodys; 
   hknpBodyId *RigidBodyID; 
-  __int64 v23; 
+  __int64 v15; 
   hknpBodyId result; 
 
-  v7 = worldId;
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  _RDI = point;
-  __asm { vmovaps xmm6, xmm3 }
+  v6 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2222, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2223, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2223, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
+  result.m_serialAndIndex = LODWORD(point->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(point->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(point->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+78h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_49;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+78h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_49;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+78h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_49:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2224, ASSERT_TYPE_SANITY, "( !IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( point )[0] ) && !IS_NAN( ( point )[1] ) && !IS_NAN( ( point )[2] )") )
       __debugbreak();
   }
-  v14 = extendedData;
+  v9 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2225, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v14->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2226, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v9->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2226, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
-  v15 = hit;
+  v10 = hit;
   if ( !hit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2227, ASSERT_TYPE_ASSERT, "(hit)", (const char *)&queryFormat, "hit") )
     __debugbreak();
   if ( instanceId != -1 )
   {
     if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2235, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
       __debugbreak();
-    v16 = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v7 + Physics_GetThreadId())];
-    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2240, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+    v11 = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v6 + Physics_GetThreadId())];
+    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2240, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
       __debugbreak();
-    HavokPhysics_CollisionQueryResult::Reset(v16, 1);
-    v17 = 0;
-    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v7, instanceId);
+    HavokPhysics_CollisionQueryResult::Reset(v11, 1);
+    v12 = 0;
+    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v6, instanceId);
     if ( NumRigidBodys > 0 )
     {
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v7 > 7 )
+        if ( (unsigned int)v6 > 7 )
         {
-          LODWORD(v23) = v7;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v23) )
+          LODWORD(v15) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v15) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v7 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v6 - 2) <= 5 )
         {
-          LODWORD(v23) = v7;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v23) )
+          LODWORD(v15) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v15) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v7 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v6 <= 1 )
         {
-          LODWORD(v23) = v7;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v23) )
+          LODWORD(v15) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v15) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v7, instanceId, v17);
-        __asm { vmovaps xmm3, xmm6; maxDistance }
-        Physics_QueryPoint((Physics_WorldId)v7, RigidBodyID->m_serialAndIndex, _RDI, *(float *)&_XMM3, v14, v16);
-        ++v17;
+        RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v6, instanceId, v12);
+        Physics_QueryPoint((Physics_WorldId)v6, RigidBodyID->m_serialAndIndex, point, radius, v9, v11);
+        ++v12;
       }
-      while ( v17 < NumRigidBodys );
-      v15 = hit;
+      while ( v12 < NumRigidBodys );
+      v10 = hit;
     }
-    __asm { vmovaps xmm1, xmm6; radius }
-    PhysicsQuery_ExtractHitData(_RDI, *(const float *)&_XMM1, v16, 0, v15);
+    PhysicsQuery_ExtractHitData(point, radius, v11, 0, v10);
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
 }
 
 /*
@@ -5307,29 +4161,18 @@ LABEL_49:
 PhysicsQuery_ImmediateQueryPointWorst
 ==============
 */
-
-void __fastcall PhysicsQuery_ImmediateQueryPointWorst(Physics_WorldId worldId, PhysicsObject *physObj, const vec3_t *point, double radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hit)
+void PhysicsQuery_ImmediateQueryPointWorst(Physics_WorldId worldId, PhysicsObject *physObj, const vec3_t *point, const float radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hit)
 {
-  __int64 v7; 
+  __int64 v6; 
 
-  v7 = worldId;
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
+  v6 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2205, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2206, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2206, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !physObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2207, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm3, xmm6; radius
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  PhysicsQuery_ImmediateQueryPointWorst((Physics_WorldId)v7, physObj->physicsInstances[v7], point, *(const float *)&_XMM3, extendedData, hit);
+  PhysicsQuery_ImmediateQueryPointWorst((Physics_WorldId)v6, physObj->physicsInstances[v6], point, radius, extendedData, hit);
 }
 
 /*
@@ -5354,8 +4197,7 @@ void PhysicsQuery_ImmediateQueryPointWorst(Physics_WorldId worldId, const centit
   v11 = CG_PhysicsObject_Get(ent->nextState.number, localClientNum);
   if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2193, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  __asm { vmovss  xmm3, [rsp+38h+radius]; radius }
-  PhysicsQuery_ImmediateQueryPointWorst((Physics_WorldId)v7, v11, point, *(const float *)&_XMM3, extendedData, hit);
+  PhysicsQuery_ImmediateQueryPointWorst((Physics_WorldId)v7, v11, point, radius, extendedData, hit);
 }
 
 /*
@@ -5363,33 +4205,22 @@ void PhysicsQuery_ImmediateQueryPointWorst(Physics_WorldId worldId, const centit
 PhysicsQuery_ImmediateQueryPointWorst
 ==============
 */
-
-void __fastcall PhysicsQuery_ImmediateQueryPointWorst(Physics_WorldId worldId, const gentity_s *ent, const vec3_t *point, double radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hit)
+void PhysicsQuery_ImmediateQueryPointWorst(Physics_WorldId worldId, const gentity_s *ent, const vec3_t *point, const float radius, Physics_QueryPointExtendedData *extendedData, PhysicsQuery_QueryPointHit *hit)
 {
-  __int64 v7; 
-  G_PhysicsObject *v11; 
+  __int64 v6; 
+  G_PhysicsObject *v9; 
 
-  v7 = worldId;
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
+  v6 = worldId;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2170, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2171, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2171, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2172, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  v11 = G_PhysicsObject_Get(ent);
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2175, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
+  v9 = G_PhysicsObject_Get(ent);
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2175, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm3, xmm6; radius
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  PhysicsQuery_ImmediateQueryPointWorst((Physics_WorldId)v7, v11, point, *(const float *)&_XMM3, extendedData, hit);
+  PhysicsQuery_ImmediateQueryPointWorst((Physics_WorldId)v6, v9, point, radius, extendedData, hit);
 }
 
 /*
@@ -5400,73 +4231,19 @@ PhysicsQuery_ImmediateRaycastAll
 void PhysicsQuery_ImmediateRaycastAll(Physics_WorldId worldId, const vec3_t *start, const vec3_t *end, Physics_RaycastExtendedData *extendedData, PhysicsQuery_RaycastHit *hits, int maxNumHits, int *hitsFound)
 {
   __int64 v7; 
-  HavokPhysics_CollisionQueryResult *v17; 
+  HavokPhysics_CollisionQueryResult *v11; 
   signed int NumHits; 
-  int v19; 
-  int v20; 
-  int v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
+  int v13; 
 
   v7 = worldId;
-  _RBP = end;
-  _R14 = start;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1251, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1252, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_44;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-    goto LABEL_44;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-  {
-LABEL_44:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1253, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-    goto LABEL_45;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_45;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-  {
-LABEL_45:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1254, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1253, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(end->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1254, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1255, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1256, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
@@ -5479,17 +4256,17 @@ LABEL_45:
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1261, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v17 = s_PhysicsQuery_AllQueryResults[(int)(28 * v7 + Physics_GetThreadId())];
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1266, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v11 = s_PhysicsQuery_AllQueryResults[(int)(28 * v7 + Physics_GetThreadId())];
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1266, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v17, 1);
-  Physics_Raycast((Physics_WorldId)v7, _R14, _RBP, extendedData, v17);
-  NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(v17);
+  HavokPhysics_CollisionQueryResult::Reset(v11, 1);
+  Physics_Raycast((Physics_WorldId)v7, start, end, extendedData, v11);
+  NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(v11);
   if ( maxNumHits < NumHits )
     NumHits = maxNumHits;
-  v19 = 0;
-  for ( *hitsFound = NumHits; v19 < *hitsFound; ++v19 )
-    PhysicsQuery_ExtractHitData(_R14, _RBP, v17, v19, &hits[v19]);
+  v13 = 0;
+  for ( *hitsFound = NumHits; v13 < *hitsFound; ++v13 )
+    PhysicsQuery_ExtractHitData(start, end, v11, v13, &hits[v13]);
 }
 
 /*
@@ -5500,95 +4277,41 @@ PhysicsQuery_ImmediateRaycastAll
 void PhysicsQuery_ImmediateRaycastAll(Physics_WorldId worldId, unsigned int instanceId, const vec3_t *start, const vec3_t *end, Physics_RaycastExtendedData *extendedData, PhysicsQuery_RaycastHit *hits, int maxNumHits, int *hitsFound)
 {
   __int64 v8; 
-  Physics_RaycastExtendedData *v18; 
-  PhysicsQuery_RaycastHit *v19; 
-  int *v20; 
+  Physics_RaycastExtendedData *v12; 
+  PhysicsQuery_RaycastHit *v13; 
+  int *v14; 
   HavokPhysics_CollisionQueryResult *result; 
-  signed int v22; 
-  signed int v23; 
-  Physics_RaycastExtendedData *v24; 
-  unsigned int v25; 
+  signed int v16; 
+  signed int v17; 
+  Physics_RaycastExtendedData *v18; 
+  unsigned int v19; 
   hknpBodyId *RigidBodyID; 
   int NumHits; 
-  __int64 v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
+  __int64 v22; 
   int NumRigidBodys; 
   unsigned int instanceIda; 
 
   instanceIda = instanceId;
   v8 = worldId;
-  _RBP = end;
-  _R14 = start;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1531, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1532, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_63;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_63;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-  {
-LABEL_63:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1533, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-    goto LABEL_64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-    goto LABEL_64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-  {
-LABEL_64:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1534, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
-      __debugbreak();
-  }
-  v18 = extendedData;
+  if ( ((LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1533, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(end->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1534, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
+    __debugbreak();
+  v12 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1535, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v18->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1536, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v12->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1536, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
-  v19 = hits;
+  v13 = hits;
   if ( !hits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1537, ASSERT_TYPE_ASSERT, "(hits)", (const char *)&queryFormat, "hits") )
     __debugbreak();
   if ( maxNumHits <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1538, ASSERT_TYPE_ASSERT, "(maxNumHits > 0)", (const char *)&queryFormat, "maxNumHits > 0") )
     __debugbreak();
-  v20 = hitsFound;
+  v14 = hitsFound;
   if ( !hitsFound && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1539, ASSERT_TYPE_ASSERT, "(hitsFound)", (const char *)&queryFormat, "hitsFound") )
     __debugbreak();
   if ( instanceId != -1 )
@@ -5599,56 +4322,56 @@ LABEL_64:
     if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1552, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
       __debugbreak();
     HavokPhysics_CollisionQueryResult::Reset(result, 1);
-    v22 = 0;
+    v16 = 0;
     NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v8, instanceId);
-    v23 = 0;
+    v17 = 0;
     if ( NumRigidBodys > 0 )
     {
-      v24 = extendedData;
-      v25 = instanceIda;
+      v18 = extendedData;
+      v19 = instanceIda;
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
         if ( (unsigned int)v8 > 7 )
         {
-          LODWORD(v28) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v28) )
+          LODWORD(v22) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v22) )
             __debugbreak();
         }
         if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
         {
-          LODWORD(v28) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v28) )
+          LODWORD(v22) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v22) )
             __debugbreak();
         }
         if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
         {
-          LODWORD(v28) = v8;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v28) )
+          LODWORD(v22) = v8;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v22) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v8, v25, v23);
-        Physics_Raycast((Physics_WorldId)v8, RigidBodyID->m_serialAndIndex, _R14, _RBP, v24, result);
-        ++v23;
+        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v8, v19, v17);
+        Physics_Raycast((Physics_WorldId)v8, RigidBodyID->m_serialAndIndex, start, end, v18, result);
+        ++v17;
       }
-      while ( v23 < NumRigidBodys );
-      v20 = hitsFound;
-      v22 = 0;
-      v19 = hits;
+      while ( v17 < NumRigidBodys );
+      v14 = hitsFound;
+      v16 = 0;
+      v13 = hits;
     }
     NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(result);
     if ( maxNumHits < NumHits )
       NumHits = maxNumHits;
-    *v20 = NumHits;
+    *v14 = NumHits;
     if ( NumHits > 0 )
     {
       do
       {
-        PhysicsQuery_ExtractHitData(_R14, _RBP, result, v22, &v19[v22]);
-        ++v22;
+        PhysicsQuery_ExtractHitData(start, end, result, v16, &v13[v16]);
+        ++v16;
       }
-      while ( v22 < *v20 );
+      while ( v16 < *v14 );
     }
   }
 }
@@ -5728,71 +4451,17 @@ PhysicsQuery_ImmediateRaycastClosest
 void PhysicsQuery_ImmediateRaycastClosest(Physics_WorldId worldId, const vec3_t *start, const vec3_t *end, Physics_RaycastExtendedData *extendedData, PhysicsQuery_RaycastHit *hit)
 {
   __int64 v5; 
-  HavokPhysics_CollisionQueryResult *v15; 
-  int v16; 
-  int v17; 
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
+  HavokPhysics_CollisionQueryResult *v9; 
 
   v5 = worldId;
-  _RSI = end;
-  _RBP = start;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1221, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1222, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v16 & 0x7F800000) == 2139095040 )
-    goto LABEL_35;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_35;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-  {
-LABEL_35:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1223, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_36;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_36;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+58h+arg_0], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-  {
-LABEL_36:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1224, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1223, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(end->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1224, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1225, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1226, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
@@ -5801,12 +4470,12 @@ LABEL_36:
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1229, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v15 = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v5 + Physics_GetThreadId())];
-  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1234, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v9 = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v5 + Physics_GetThreadId())];
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1234, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v15, 1);
-  Physics_Raycast((Physics_WorldId)v5, _RBP, _RSI, extendedData, v15);
-  PhysicsQuery_ExtractHitData(_RBP, _RSI, v15, 0, hit);
+  HavokPhysics_CollisionQueryResult::Reset(v9, 1);
+  Physics_Raycast((Physics_WorldId)v5, start, end, extendedData, v9);
+  PhysicsQuery_ExtractHitData(start, end, v9, 0, hit);
 }
 
 /*
@@ -5817,87 +4486,33 @@ PhysicsQuery_ImmediateRaycastClosest
 void PhysicsQuery_ImmediateRaycastClosest(Physics_WorldId worldId, unsigned int instanceId, const vec3_t *start, const vec3_t *end, Physics_RaycastExtendedData *extendedData, PhysicsQuery_RaycastHit *hit)
 {
   __int64 v6; 
-  Physics_RaycastExtendedData *v16; 
-  PhysicsQuery_RaycastHit *v17; 
+  Physics_RaycastExtendedData *v10; 
+  PhysicsQuery_RaycastHit *v11; 
   HavokPhysics_CollisionQueryResult *result; 
   int NumRigidBodys; 
-  signed int v20; 
-  int v21; 
-  unsigned int v22; 
+  signed int v14; 
+  int v15; 
+  unsigned int v16; 
   hknpBodyId *RigidBodyID; 
-  __int64 v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
+  __int64 v18; 
   unsigned int instanceIda; 
 
   instanceIda = instanceId;
   v6 = worldId;
-  _RSI = end;
-  _RBP = start;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1436, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1437, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_54;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_54;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-  {
-LABEL_54:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1438, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-    goto LABEL_55;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_55;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+78h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-  {
-LABEL_55:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1439, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
-      __debugbreak();
-  }
-  v16 = extendedData;
+  if ( ((LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1438, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(end->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1439, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
+    __debugbreak();
+  v10 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1440, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v16->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1441, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v10->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1441, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
-  v17 = hit;
+  v11 = hit;
   if ( !hit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1442, ASSERT_TYPE_ASSERT, "(hit)", (const char *)&queryFormat, "hit") )
     __debugbreak();
   if ( instanceId != -1 )
@@ -5909,41 +4524,41 @@ LABEL_55:
       __debugbreak();
     HavokPhysics_CollisionQueryResult::Reset(result, 1);
     NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v6, instanceId);
-    v20 = 0;
-    v21 = NumRigidBodys;
+    v14 = 0;
+    v15 = NumRigidBodys;
     if ( NumRigidBodys > 0 )
     {
-      v22 = instanceIda;
+      v16 = instanceIda;
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
         if ( (unsigned int)v6 > 7 )
         {
-          LODWORD(v24) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v24) )
+          LODWORD(v18) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v18) )
             __debugbreak();
         }
         if ( !g_physicsClientWorldsCreated && (unsigned int)(v6 - 2) <= 5 )
         {
-          LODWORD(v24) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v24) )
+          LODWORD(v18) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v18) )
             __debugbreak();
         }
         if ( !g_physicsServerWorldsCreated && (unsigned int)v6 <= 1 )
         {
-          LODWORD(v24) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v24) )
+          LODWORD(v18) = v6;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v18) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v6, v22, v20);
-        Physics_Raycast((Physics_WorldId)v6, RigidBodyID->m_serialAndIndex, _RBP, _RSI, v16, result);
-        ++v20;
+        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v6, v16, v14);
+        Physics_Raycast((Physics_WorldId)v6, RigidBodyID->m_serialAndIndex, start, end, v10, result);
+        ++v14;
       }
-      while ( v20 < v21 );
-      v17 = hit;
+      while ( v14 < v15 );
+      v11 = hit;
     }
-    PhysicsQuery_ExtractHitData(_RBP, _RSI, result, 0, v17);
+    PhysicsQuery_ExtractHitData(start, end, result, 0, v11);
   }
 }
 
@@ -6022,83 +4637,29 @@ PhysicsQuery_ImmediateRaycastSightCheck
 bool PhysicsQuery_ImmediateRaycastSightCheck(Physics_WorldId worldId, const vec3_t *start, const vec3_t *end, Physics_RaycastExtendedData *extendedData)
 {
   __int64 v4; 
-  HavokPhysics_CollisionQueryResult *v14; 
-  int v16; 
-  int v17; 
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
+  HavokPhysics_CollisionQueryResult *v8; 
 
   v4 = worldId;
-  _RDI = end;
-  _RSI = start;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1190, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1191, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v16 & 0x7F800000) == 2139095040 )
-    goto LABEL_32;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_32;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-  {
-LABEL_32:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1192, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_33;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_33;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+48h+arg_0], xmm0
-  }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-  {
-LABEL_33:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1193, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1192, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(end->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1193, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1194, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1195, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1197, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v14 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v4 + Physics_GetThreadId())];
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1202, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v8 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v4 + Physics_GetThreadId())];
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1202, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v14, 1);
-  Physics_Raycast((Physics_WorldId)v4, _RSI, _RDI, extendedData, v14);
-  return !HavokPhysics_CollisionQueryResult::HasHit(v14);
+  HavokPhysics_CollisionQueryResult::Reset(v8, 1);
+  Physics_Raycast((Physics_WorldId)v4, start, end, extendedData, v8);
+  return !HavokPhysics_CollisionQueryResult::HasHit(v8);
 }
 
 /*
@@ -6109,119 +4670,79 @@ PhysicsQuery_ImmediateRaycastSightCheck
 bool PhysicsQuery_ImmediateRaycastSightCheck(Physics_WorldId worldId, unsigned int instanceId, const vec3_t *start, const vec3_t *end, Physics_RaycastExtendedData *extendedData)
 {
   __int64 v5; 
-  Physics_RaycastExtendedData *v15; 
-  HavokPhysics_CollisionQueryResult *v17; 
-  signed int v18; 
+  Physics_RaycastExtendedData *v9; 
+  HavokPhysics_CollisionQueryResult *v11; 
+  signed int v12; 
   int NumRigidBodys; 
   hknpBodyId *RigidBodyID; 
-  __int64 v21; 
+  __int64 v15; 
   hknpBodyId result; 
 
   v5 = worldId;
-  _R14 = end;
-  _R15 = start;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1340, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1341, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
+  result.m_serialAndIndex = LODWORD(start->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(start->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(start->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [r15]
-    vmovss  [rsp+68h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_51;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  [rsp+68h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_51;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+8]
-    vmovss  [rsp+68h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_51:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1342, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
       __debugbreak();
   }
-  __asm
+  result.m_serialAndIndex = LODWORD(end->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(end->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(end->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+68h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_52;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+68h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_52;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+68h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_52:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1343, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
       __debugbreak();
   }
-  v15 = extendedData;
+  v9 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1344, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v15->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1345, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v9->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1345, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
   if ( instanceId == -1 )
     return 0;
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1353, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v17 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v5 + Physics_GetThreadId())];
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1358, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v11 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v5 + Physics_GetThreadId())];
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1358, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v17, 1);
-  v18 = 0;
+  HavokPhysics_CollisionQueryResult::Reset(v11, 1);
+  v12 = 0;
   NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v5, instanceId);
   if ( NumRigidBodys > 0 )
   {
     do
     {
-      if ( HavokPhysics_CollisionQueryResult::HasHit(v17) )
+      if ( HavokPhysics_CollisionQueryResult::HasHit(v11) )
         break;
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
       if ( (unsigned int)v5 > 7 )
       {
-        LODWORD(v21) = v5;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v21) )
+        LODWORD(v15) = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v15) )
           __debugbreak();
       }
       if ( !g_physicsClientWorldsCreated && (unsigned int)(v5 - 2) <= 5 )
       {
-        LODWORD(v21) = v5;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v21) )
+        LODWORD(v15) = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v15) )
           __debugbreak();
       }
       if ( !g_physicsServerWorldsCreated && (unsigned int)v5 <= 1 )
       {
-        LODWORD(v21) = v5;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v21) )
+        LODWORD(v15) = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v15) )
           __debugbreak();
       }
-      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v5, instanceId, v18);
-      Physics_Raycast((Physics_WorldId)v5, RigidBodyID->m_serialAndIndex, _R15, _R14, v15, v17);
-      ++v18;
+      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v5, instanceId, v12);
+      Physics_Raycast((Physics_WorldId)v5, RigidBodyID->m_serialAndIndex, start, end, v9, v11);
+      ++v12;
     }
-    while ( v18 < NumRigidBodys );
+    while ( v12 < NumRigidBodys );
   }
-  return !HavokPhysics_CollisionQueryResult::HasHit(v17);
+  return !HavokPhysics_CollisionQueryResult::HasHit(v11);
 }
 
 /*
@@ -6300,111 +4821,22 @@ void PhysicsQuery_ImmediateShapecastAll(Physics_WorldId worldId, hknpShape *shap
 {
   __int64 v9; 
   HavokPhysics_CollisionQueryResult *result; 
-  int v25; 
+  int v14; 
   int NumHits; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  int v34; 
-  int rotationa; 
-  int rotationb; 
-  int rotationc; 
-  int rotationd; 
 
   v9 = worldId;
-  _RBP = end;
-  _R14 = start;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1643, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1644, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1645, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+78h+arg_10], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_53;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+78h+arg_10], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_53;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+78h+arg_10], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-  {
-LABEL_53:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1646, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+78h+arg_10], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-    goto LABEL_54;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+78h+arg_10], xmm0
-  }
-  if ( (v33 & 0x7F800000) == 2139095040 )
-    goto LABEL_54;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+78h+arg_10], xmm0
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-  {
-LABEL_54:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1647, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
-      __debugbreak();
-  }
-  _R12 = rotation;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12]
-    vmovss  dword ptr [rsp+78h+rotation], xmm0
-  }
-  if ( (rotationa & 0x7F800000) == 2139095040 )
-    goto LABEL_55;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+4]
-    vmovss  dword ptr [rsp+78h+rotation], xmm0
-  }
-  if ( (rotationb & 0x7F800000) == 2139095040 )
-    goto LABEL_55;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+8]
-    vmovss  dword ptr [rsp+78h+rotation], xmm0
-  }
-  if ( (rotationc & 0x7F800000) == 2139095040 )
-    goto LABEL_55;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+0Ch]
-    vmovss  dword ptr [rsp+78h+rotation], xmm0
-  }
-  if ( (rotationd & 0x7F800000) == 2139095040 )
-  {
-LABEL_55:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1648, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1646, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(end->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1647, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(rotation->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1648, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1649, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1650, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
@@ -6421,8 +4853,8 @@ LABEL_55:
   if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1660, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
   HavokPhysics_CollisionQueryResult::Reset(result, 1);
-  v25 = 0;
-  Physics_Shapecast(worldId, shape, _R14, _RBP, _R12, extendedData, result, NULL);
+  v14 = 0;
+  Physics_Shapecast(worldId, shape, start, end, rotation, extendedData, result, NULL);
   NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(result);
   if ( maxNumHits < NumHits )
     NumHits = maxNumHits;
@@ -6431,10 +4863,10 @@ LABEL_55:
   {
     do
     {
-      PhysicsQuery_ExtractHitData(_R14, _RBP, result, v25, &hits[v25]);
-      ++v25;
+      PhysicsQuery_ExtractHitData(start, end, result, v14, &hits[v14]);
+      ++v14;
     }
-    while ( v25 < *hitsFound );
+    while ( v14 < *hitsFound );
   }
 }
 
@@ -6446,131 +4878,46 @@ PhysicsQuery_ImmediateShapecastAll
 void PhysicsQuery_ImmediateShapecastAll(Physics_WorldId worldId, hknpShape *shape, unsigned int instanceId, const vec3_t *start, const vec3_t *end, const vec4_t *rotation, Physics_ShapecastExtendedData *extendedData, PhysicsQuery_ShapecastHit *hits, int maxNumHits, int *hitsFound)
 {
   __int64 v10; 
-  Physics_ShapecastExtendedData *v25; 
-  PhysicsQuery_ShapecastHit *v26; 
-  int *v27; 
+  const vec3_t *v13; 
+  const vec4_t *v14; 
+  Physics_ShapecastExtendedData *v15; 
+  PhysicsQuery_ShapecastHit *v16; 
+  int *v17; 
   HavokPhysics_CollisionQueryResult *result; 
-  signed int v29; 
-  Physics_ShapecastExtendedData *v30; 
-  unsigned int v31; 
+  signed int v19; 
+  Physics_ShapecastExtendedData *v20; 
+  unsigned int v21; 
   hknpBodyId *RigidBodyID; 
   int NumHits; 
-  Physics_ShapecastExtendedData *v34; 
-  unsigned int bodyIdxa; 
-  unsigned int bodyIdxb; 
-  unsigned int bodyIdxc; 
-  unsigned int bodyIdxd; 
-  unsigned int bodyIdxe; 
-  unsigned int bodyIdxf; 
-  unsigned int bodyIdxg; 
-  unsigned int bodyIdxh; 
-  unsigned int bodyIdxi; 
-  unsigned int bodyIdxj; 
+  Physics_ShapecastExtendedData *v24; 
   signed int bodyIdx; 
   unsigned int instanceIda; 
 
   instanceIda = instanceId;
   v10 = worldId;
-  _R14 = start;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1929, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1930, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+88h+bodyIdx], xmm0
-  }
-  if ( (bodyIdxa & 0x7F800000) == 2139095040 )
-    goto LABEL_72;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+88h+bodyIdx], xmm0
-  }
-  if ( (bodyIdxb & 0x7F800000) == 2139095040 )
-    goto LABEL_72;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+88h+bodyIdx], xmm0
-  }
-  if ( (bodyIdxc & 0x7F800000) == 2139095040 )
-  {
-LABEL_72:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1931, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
-      __debugbreak();
-  }
-  _RBP = end;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+88h+bodyIdx], xmm0
-  }
-  if ( (bodyIdxd & 0x7F800000) == 2139095040 )
-    goto LABEL_73;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+88h+bodyIdx], xmm0
-  }
-  if ( (bodyIdxe & 0x7F800000) == 2139095040 )
-    goto LABEL_73;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+88h+bodyIdx], xmm0
-  }
-  if ( (bodyIdxf & 0x7F800000) == 2139095040 )
-  {
-LABEL_73:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1932, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
-      __debugbreak();
-  }
-  _R13 = rotation;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+0]
-    vmovss  [rsp+88h+bodyIdx], xmm0
-  }
-  if ( (bodyIdxg & 0x7F800000) == 2139095040 )
-    goto LABEL_74;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+4]
-    vmovss  [rsp+88h+bodyIdx], xmm0
-  }
-  if ( (bodyIdxh & 0x7F800000) == 2139095040 )
-    goto LABEL_74;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+8]
-    vmovss  [rsp+88h+bodyIdx], xmm0
-  }
-  if ( (bodyIdxi & 0x7F800000) == 2139095040 )
-    goto LABEL_74;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+0Ch]
-    vmovss  [rsp+88h+bodyIdx], xmm0
-  }
-  if ( (bodyIdxj & 0x7F800000) == 2139095040 )
-  {
-LABEL_74:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1933, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
-      __debugbreak();
-  }
-  v25 = extendedData;
+  if ( ((LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1931, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
+    __debugbreak();
+  v13 = end;
+  if ( ((LODWORD(end->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1932, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
+    __debugbreak();
+  v14 = rotation;
+  if ( ((LODWORD(rotation->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1933, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
+    __debugbreak();
+  v15 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1934, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v25->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1935, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v15->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1935, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
-  v26 = hits;
+  v16 = hits;
   if ( !hits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1936, ASSERT_TYPE_ASSERT, "(hits)", (const char *)&queryFormat, "hits") )
     __debugbreak();
   if ( maxNumHits <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1937, ASSERT_TYPE_ASSERT, "(maxNumHits > 0)", (const char *)&queryFormat, "maxNumHits > 0") )
     __debugbreak();
-  v27 = hitsFound;
+  v17 = hitsFound;
   if ( !hitsFound && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1938, ASSERT_TYPE_ASSERT, "(hitsFound)", (const char *)&queryFormat, "hitsFound") )
     __debugbreak();
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1939, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
@@ -6583,55 +4930,55 @@ LABEL_74:
     if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1952, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
       __debugbreak();
     HavokPhysics_CollisionQueryResult::Reset(result, 1);
-    v29 = 0;
+    v19 = 0;
     LODWORD(end) = Physics_GetNumRigidBodys((const Physics_WorldId)v10, instanceIda);
     bodyIdx = 0;
     if ( (int)end > 0 )
     {
-      v30 = extendedData;
-      v31 = instanceIda;
+      v20 = extendedData;
+      v21 = instanceIda;
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
         if ( (unsigned int)v10 > 7 )
         {
-          LODWORD(v34) = v10;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v34) )
+          LODWORD(v24) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v24) )
             __debugbreak();
         }
         if ( !g_physicsClientWorldsCreated && (unsigned int)(v10 - 2) <= 5 )
         {
-          LODWORD(v34) = v10;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v34) )
+          LODWORD(v24) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v24) )
             __debugbreak();
         }
         if ( !g_physicsServerWorldsCreated && (unsigned int)v10 <= 1 )
         {
-          LODWORD(v34) = v10;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v34) )
+          LODWORD(v24) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v24) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v10, v31, bodyIdx);
-        Physics_Shapecast((Physics_WorldId)v10, RigidBodyID->m_serialAndIndex, shape, _R14, _RBP, _R13, v30, result, NULL);
+        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&instanceIda, (const Physics_WorldId)v10, v21, bodyIdx);
+        Physics_Shapecast((Physics_WorldId)v10, RigidBodyID->m_serialAndIndex, shape, start, v13, v14, v20, result, NULL);
         ++bodyIdx;
       }
       while ( bodyIdx < (int)end );
-      v27 = hitsFound;
-      v26 = hits;
+      v17 = hitsFound;
+      v16 = hits;
     }
     NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(result);
     if ( maxNumHits < NumHits )
       NumHits = maxNumHits;
-    *v27 = NumHits;
+    *v17 = NumHits;
     if ( NumHits > 0 )
     {
       do
       {
-        PhysicsQuery_ExtractHitData(_R14, _RBP, result, v29, &v26[v29]);
-        ++v29;
+        PhysicsQuery_ExtractHitData(start, v13, result, v19, &v16[v19]);
+        ++v19;
       }
-      while ( v29 < *v27 );
+      while ( v19 < *v17 );
     }
   }
 }
@@ -6712,109 +5059,20 @@ void PhysicsQuery_ImmediateShapecastClosest(Physics_WorldId worldId, hknpShape *
 {
   __int64 v7; 
   HavokPhysics_CollisionQueryResult *result; 
-  int v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
 
   v7 = worldId;
-  _R14 = end;
-  _R15 = start;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1612, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1613, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1614, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-    goto LABEL_44;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_44;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+8]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-  {
-LABEL_44:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1615, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_45;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-    goto LABEL_45;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-  {
-LABEL_45:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1616, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
-      __debugbreak();
-  }
-  _RBX = rotation;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_46;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_46;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-    goto LABEL_46;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-  {
-LABEL_46:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1617, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1615, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(end->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1616, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(rotation->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1617, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1618, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1619, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
@@ -6827,8 +5085,8 @@ LABEL_46:
   if ( !result && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1627, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
   HavokPhysics_CollisionQueryResult::Reset(result, 1);
-  Physics_Shapecast((Physics_WorldId)v7, shape, _R15, _R14, rotation, extendedData, result, NULL);
-  PhysicsQuery_ExtractHitData(_R15, _R14, result, 0, hit);
+  Physics_Shapecast((Physics_WorldId)v7, shape, start, end, rotation, extendedData, result, NULL);
+  PhysicsQuery_ExtractHitData(start, end, result, 0, hit);
 }
 
 /*
@@ -6839,13 +5097,15 @@ PhysicsQuery_ImmediateShapecastClosest
 void PhysicsQuery_ImmediateShapecastClosest(Physics_WorldId worldId, hknpShape *shape, unsigned int instanceId, const vec3_t *start, const vec3_t *end, const vec4_t *rotation, Physics_ShapecastExtendedData *extendedData, PhysicsQuery_ShapecastHit *hit)
 {
   __int64 v8; 
-  Physics_ShapecastExtendedData *v24; 
-  HavokPhysics_CollisionQueryResult *v25; 
+  const vec3_t *v12; 
+  const vec4_t *v13; 
+  Physics_ShapecastExtendedData *v14; 
+  HavokPhysics_CollisionQueryResult *v15; 
   unsigned int NumRigidBodys; 
-  signed int v27; 
+  signed int v17; 
   signed int i; 
   hknpBodyId *RigidBodyID; 
-  Physics_ShapecastExtendedData *v30; 
+  Physics_ShapecastExtendedData *v20; 
   hknpBodyId result; 
   hknpShape *shapea; 
   unsigned int instanceIda; 
@@ -6853,99 +5113,34 @@ void PhysicsQuery_ImmediateShapecastClosest(Physics_WorldId worldId, hknpShape *
   instanceIda = instanceId;
   shapea = shape;
   v8 = worldId;
-  _R14 = start;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1832, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1833, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
+  result.m_serialAndIndex = LODWORD(start->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(start->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(start->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_61;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_61;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_61:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1834, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
       __debugbreak();
   }
-  _RBP = end;
-  __asm
+  v12 = end;
+  result.m_serialAndIndex = LODWORD(end->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(end->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(end->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_62;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_62;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_62:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1835, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
       __debugbreak();
   }
-  _RSI = rotation;
-  __asm
+  v13 = rotation;
+  result.m_serialAndIndex = LODWORD(rotation->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(rotation->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(rotation->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(rotation->v[3]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_63;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_63;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_63;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+0Ch]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_63:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1836, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
       __debugbreak();
   }
-  v24 = extendedData;
+  v14 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1837, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v24->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1838, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v14->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1838, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
   if ( !hit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1839, ASSERT_TYPE_ASSERT, "(hit)", (const char *)&queryFormat, "hit") )
     __debugbreak();
@@ -6955,38 +5150,38 @@ LABEL_63:
   {
     if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1848, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
       __debugbreak();
-    v25 = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v8 + Physics_GetThreadId())];
-    if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1853, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+    v15 = s_PhysicsQuery_ClosestQueryResults[(int)(28 * v8 + Physics_GetThreadId())];
+    if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1853, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
       __debugbreak();
-    HavokPhysics_CollisionQueryResult::Reset(v25, 1);
+    HavokPhysics_CollisionQueryResult::Reset(v15, 1);
     NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v8, instanceId);
-    v27 = 0;
-    for ( i = NumRigidBodys; v27 < i; ++v27 )
+    v17 = 0;
+    for ( i = NumRigidBodys; v17 < i; ++v17 )
     {
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
       if ( (unsigned int)v8 > 7 )
       {
-        LODWORD(v30) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v30) )
+        LODWORD(v20) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v20) )
           __debugbreak();
       }
       if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
       {
-        LODWORD(v30) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v30) )
+        LODWORD(v20) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v20) )
           __debugbreak();
       }
       if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
       {
-        LODWORD(v30) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v30) )
+        LODWORD(v20) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v20) )
           __debugbreak();
       }
-      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v8, instanceIda, v27);
-      Physics_Shapecast((Physics_WorldId)v8, RigidBodyID->m_serialAndIndex, shapea, _R14, _RBP, _RSI, v24, v25, NULL);
+      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v8, instanceIda, v17);
+      Physics_Shapecast((Physics_WorldId)v8, RigidBodyID->m_serialAndIndex, shapea, start, v12, v13, v14, v15, NULL);
     }
-    PhysicsQuery_ExtractHitData(_R14, _RBP, v25, 0, hit);
+    PhysicsQuery_ExtractHitData(start, v12, v15, 0, hit);
   }
 }
 
@@ -7065,122 +5260,33 @@ PhysicsQuery_ImmediateShapecastSightCheck
 bool PhysicsQuery_ImmediateShapecastSightCheck(Physics_WorldId worldId, hknpShape *shape, const vec3_t *start, const vec3_t *end, const vec4_t *rotation, Physics_ShapecastExtendedData *extendedData)
 {
   __int64 v6; 
-  HavokPhysics_CollisionQueryResult *v21; 
-  int v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
+  HavokPhysics_CollisionQueryResult *v10; 
 
   v6 = worldId;
-  _RBP = end;
-  _R14 = start;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1580, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1581, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1582, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-    goto LABEL_41;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_41;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-  {
-LABEL_41:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1583, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v26 & 0x7F800000) == 2139095040 )
-    goto LABEL_42;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+4]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-    goto LABEL_42;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-  {
-LABEL_42:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1584, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
-      __debugbreak();
-  }
-  _RBX = rotation;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v29 & 0x7F800000) == 2139095040 )
-    goto LABEL_43;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v30 & 0x7F800000) == 2139095040 )
-    goto LABEL_43;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v31 & 0x7F800000) == 2139095040 )
-    goto LABEL_43;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rsp+68h+arg_0], xmm0
-  }
-  if ( (v32 & 0x7F800000) == 2139095040 )
-  {
-LABEL_43:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1585, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
-      __debugbreak();
-  }
+  if ( ((LODWORD(start->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(start->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1583, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(end->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(end->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1584, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(rotation->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(rotation->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1585, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
+    __debugbreak();
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1586, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
   if ( !extendedData->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1587, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1589, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v21 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v6 + Physics_GetThreadId())];
-  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1594, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v10 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v6 + Physics_GetThreadId())];
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1594, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v21, 1);
-  Physics_Shapecast((Physics_WorldId)v6, shape, _R14, _RBP, rotation, extendedData, v21, NULL);
-  return !HavokPhysics_CollisionQueryResult::HasHit(v21);
+  HavokPhysics_CollisionQueryResult::Reset(v10, 1);
+  Physics_Shapecast((Physics_WorldId)v6, shape, start, end, rotation, extendedData, v10, NULL);
+  return !HavokPhysics_CollisionQueryResult::HasHit(v10);
 }
 
 /*
@@ -7191,13 +5297,15 @@ PhysicsQuery_ImmediateShapecastSightCheck
 bool PhysicsQuery_ImmediateShapecastSightCheck(Physics_WorldId worldId, hknpShape *shape, unsigned int instanceId, const vec3_t *start, const vec3_t *end, const vec4_t *rotation, Physics_ShapecastExtendedData *extendedData)
 {
   __int64 v7; 
-  Physics_ShapecastExtendedData *v23; 
-  HavokPhysics_CollisionQueryResult *v25; 
+  const vec3_t *v11; 
+  const vec4_t *v12; 
+  Physics_ShapecastExtendedData *v13; 
+  HavokPhysics_CollisionQueryResult *v15; 
   unsigned int NumRigidBodys; 
-  signed int v27; 
+  signed int v17; 
   signed int i; 
   hknpBodyId *RigidBodyID; 
-  Physics_ShapecastExtendedData *v30; 
+  Physics_ShapecastExtendedData *v20; 
   hknpBodyId result; 
   hknpShape *shapea; 
   unsigned int instanceIda; 
@@ -7205,99 +5313,34 @@ bool PhysicsQuery_ImmediateShapecastSightCheck(Physics_WorldId worldId, hknpShap
   instanceIda = instanceId;
   shapea = shape;
   v7 = worldId;
-  _R12 = start;
   if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1734, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1735, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
+  result.m_serialAndIndex = LODWORD(start->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(start->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(start->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [r12]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_60;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+4]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_60;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+8]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_60:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1736, ASSERT_TYPE_SANITY, "( !IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( start )[0] ) && !IS_NAN( ( start )[1] ) && !IS_NAN( ( start )[2] )") )
       __debugbreak();
   }
-  _R14 = end;
-  __asm
+  v11 = end;
+  result.m_serialAndIndex = LODWORD(end->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(end->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(end->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_61;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_61;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_61:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1737, ASSERT_TYPE_SANITY, "( !IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( end )[0] ) && !IS_NAN( ( end )[1] ) && !IS_NAN( ( end )[2] )") )
       __debugbreak();
   }
-  _RSI = rotation;
-  __asm
+  v12 = rotation;
+  result.m_serialAndIndex = LODWORD(rotation->v[0]);
+  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 || (result.m_serialAndIndex = LODWORD(rotation->v[1]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(rotation->v[2]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) || (result.m_serialAndIndex = LODWORD(rotation->v[3]), (result.m_serialAndIndex & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_62;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_62;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-    goto LABEL_62;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+0Ch]
-    vmovss  [rsp+88h+result.m_serialAndIndex], xmm0
-  }
-  if ( (result.m_serialAndIndex & 0x7F800000) == 2139095040 )
-  {
-LABEL_62:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1738, ASSERT_TYPE_SANITY, "( !IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( rotation )[0] ) && !IS_NAN( ( rotation )[1] ) && !IS_NAN( ( rotation )[2] ) && !IS_NAN( ( rotation )[3] )") )
       __debugbreak();
   }
-  v23 = extendedData;
+  v13 = extendedData;
   if ( !extendedData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1739, ASSERT_TYPE_ASSERT, "(extendedData)", (const char *)&queryFormat, "extendedData") )
     __debugbreak();
-  if ( !v23->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1740, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
+  if ( !v13->contents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1740, ASSERT_TYPE_ASSERT, "(extendedData->contents != 0)", (const char *)&queryFormat, "extendedData->contents != 0") )
     __debugbreak();
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1741, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
@@ -7305,40 +5348,40 @@ LABEL_62:
     return 0;
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1749, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v25 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v7 + Physics_GetThreadId())];
-  if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1754, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v15 = s_PhysicsQuery_AnyQueryResults[(int)(28 * v7 + Physics_GetThreadId())];
+  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 1754, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v25, 1);
+  HavokPhysics_CollisionQueryResult::Reset(v15, 1);
   NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v7, instanceId);
-  v27 = 0;
-  for ( i = NumRigidBodys; v27 < i; ++v27 )
+  v17 = 0;
+  for ( i = NumRigidBodys; v17 < i; ++v17 )
   {
-    if ( HavokPhysics_CollisionQueryResult::HasHit(v25) )
+    if ( HavokPhysics_CollisionQueryResult::HasHit(v15) )
       break;
     if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
       __debugbreak();
     if ( (unsigned int)v7 > 7 )
     {
-      LODWORD(v30) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v30) )
+      LODWORD(v20) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v20) )
         __debugbreak();
     }
     if ( !g_physicsClientWorldsCreated && (unsigned int)(v7 - 2) <= 5 )
     {
-      LODWORD(v30) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v30) )
+      LODWORD(v20) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v20) )
         __debugbreak();
     }
     if ( !g_physicsServerWorldsCreated && (unsigned int)v7 <= 1 )
     {
-      LODWORD(v30) = v7;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v30) )
+      LODWORD(v20) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v20) )
         __debugbreak();
     }
-    RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v7, instanceIda, v27);
-    Physics_Shapecast((Physics_WorldId)v7, RigidBodyID->m_serialAndIndex, shapea, _R12, _R14, _RSI, v23, v25, NULL);
+    RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v7, instanceIda, v17);
+    Physics_Shapecast((Physics_WorldId)v7, RigidBodyID->m_serialAndIndex, shapea, start, v11, v12, v13, v15, NULL);
   }
-  return !HavokPhysics_CollisionQueryResult::HasHit(v25);
+  return !HavokPhysics_CollisionQueryResult::HasHit(v15);
 }
 
 /*
@@ -7519,140 +5562,82 @@ PhysicsQuery_LegacyBrushModelSightTraceAroundCorners
 */
 float PhysicsQuery_LegacyBrushModelSightTraceAroundCorners(Physics_WorldId worldId, const vec3_t *start, const vec3_t *end, int contentMask)
 {
-  __int64 v12; 
+  __int64 v7; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v14; 
-  unsigned int ThreadId; 
-  bool v17; 
-  int v18; 
-  HavokPhysics_CollisionQueryResult *v23; 
+  hkMonitorStream *v9; 
+  int v10; 
+  float v11; 
+  HavokPhysics_CollisionQueryResult *v12; 
+  float v13; 
+  float v14; 
+  __int128 v15; 
+  float v16; 
+  float v20; 
+  float v21; 
   Physics_RaycastExtendedData extendedData; 
-  __int64 v55; 
-  hkMonitorStream *v56; 
+  __int64 v24; 
+  hkMonitorStream *v25; 
   vec3_t pos; 
   vec3_t wallPos; 
   vec3_t normal; 
-  char v60; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v55 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
-  _RSI = end;
-  _RBP = start;
-  v12 = worldId;
+  v24 = -2i64;
+  v7 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v14 = Value;
+  v9 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_BrushModelSightTraceAroundCorners");
-  v56 = v14;
+  v25 = v9;
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5028, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  if ( (unsigned int)v12 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5030, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  if ( (unsigned int)v7 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5030, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5031, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5031, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   extendedData.ignoreBodies = NULL;
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+128h+extendedData.collisionBuffer], xmm0
-  }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
   *(_WORD *)&extendedData.collectInsideHits = 256;
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5037, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  ThreadId = Physics_GetThreadId();
-  v17 = 28 * (_DWORD)v12 + ThreadId == 0;
-  v18 = 28 * v12 + ThreadId;
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
+  v10 = 28 * v7 + Physics_GetThreadId();
+  v11 = FLOAT_1_0;
   extendedData.contents = contentMask;
-  __asm
+  if ( end->v[0] != start->v[0] || end->v[1] != start->v[1] || end->v[2] != start->v[2] )
   {
-    vmovss  xmm0, dword ptr [rsi]
-    vucomiss xmm0, dword ptr [rbp+0]
-  }
-  if ( !v17 )
-    goto LABEL_18;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vucomiss xmm0, dword ptr [rbp+4]
-  }
-  if ( !v17 )
-    goto LABEL_18;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vucomiss xmm0, dword ptr [rbp+8]
-  }
-  if ( !v17 )
-  {
-LABEL_18:
-    v23 = s_PhysicsQuery_LegacyTraceResults[v18];
-    if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5051, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+    v12 = s_PhysicsQuery_LegacyTraceResults[v10];
+    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5051, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
       __debugbreak();
-    HavokPhysics_CollisionQueryResult::Reset(v23, 1);
-    Physics_Raycast((Physics_WorldId)v12, _RBP, _RSI, &extendedData, v23);
-    if ( HavokPhysics_CollisionQueryResult::HasHit(v23) )
+    HavokPhysics_CollisionQueryResult::Reset(v12, 1);
+    Physics_Raycast((Physics_WorldId)v7, start, end, &extendedData, v12);
+    if ( HavokPhysics_CollisionQueryResult::HasHit(v12) )
     {
+      v13 = end->v[0] - start->v[0];
+      v15 = LODWORD(end->v[1]);
+      v14 = end->v[1] - start->v[1];
+      v16 = end->v[2] - start->v[2];
+      *(float *)&v15 = fsqrt((float)((float)(v14 * v14) + (float)(v13 * v13)) + (float)(v16 * v16));
+      _XMM1 = v15;
       __asm
       {
-        vmovss  xmm0, dword ptr [rsi]
-        vsubss  xmm6, xmm0, dword ptr [rbp+0]
-        vmovss  xmm1, dword ptr [rsi+4]
-        vsubss  xmm5, xmm1, dword ptr [rbp+4]
-        vmovss  xmm0, dword ptr [rsi+8]
-        vsubss  xmm4, xmm0, dword ptr [rbp+8]
-        vmulss  xmm2, xmm5, xmm5
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm1, xmm2, xmm2
         vcmpless xmm0, xmm1, cs:__real@80000000
         vblendvps xmm1, xmm1, xmm7, xmm0
-        vdivss  xmm0, xmm7, xmm1
-        vmulss  xmm6, xmm6, xmm0
-        vmulss  xmm7, xmm5, xmm0
-        vmulss  xmm8, xmm4, xmm0
       }
-      HavokPhysics_CollisionQueryResult::GetRaycastHitPosition(v23, 0, &pos);
-      HavokPhysics_CollisionQueryResult::GetRaycastHitNormal(v23, 0, &normal);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+128h+pos]
-        vsubss  xmm1, xmm0, xmm6
-        vmovss  dword ptr [rsp+128h+wallPos], xmm1
-        vmovss  xmm2, dword ptr [rsp+128h+pos+4]
-        vsubss  xmm0, xmm2, xmm7
-        vmovss  dword ptr [rsp+128h+wallPos+4], xmm0
-        vmovss  xmm1, dword ptr [rsp+128h+pos+8]
-        vsubss  xmm2, xmm1, xmm8
-        vmovss  dword ptr [rsp+128h+wallPos+8], xmm2
-      }
-      *(float *)&_XMM0 = PhysicsQuery_LegacyTraceRoundCorners((Physics_WorldId)v12, &wallPos, &normal, _RSI, contentMask);
-      __asm { vmovaps xmm7, xmm0 }
+      v20 = v14 * (float)(1.0 / *(float *)&_XMM1);
+      v21 = v16 * (float)(1.0 / *(float *)&_XMM1);
+      HavokPhysics_CollisionQueryResult::GetRaycastHitPosition(v12, 0, &pos);
+      HavokPhysics_CollisionQueryResult::GetRaycastHitNormal(v12, 0, &normal);
+      wallPos.v[0] = pos.v[0] - (float)(v13 * (float)(1.0 / *(float *)&_XMM1));
+      wallPos.v[1] = pos.v[1] - v20;
+      wallPos.v[2] = pos.v[2] - v21;
+      v11 = PhysicsQuery_LegacyTraceRoundCorners((Physics_WorldId)v7, &wallPos, &normal, end, contentMask);
     }
   }
-  if ( v14 )
-    hkMonitorStream::timerEnd(v14, "Et");
-  __asm { vmovaps xmm0, xmm7 }
-  _R11 = &v60;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
-  return *(float *)&_XMM0;
+  if ( v9 )
+    hkMonitorStream::timerEnd(v9, "Et");
+  return v11;
 }
 
 /*
@@ -7672,161 +5657,134 @@ PhysicsQuery_LegacyCapsuleBrushEntityTrace
 */
 void PhysicsQuery_LegacyCapsuleBrushEntityTrace(Physics_WorldId worldId, trace_t *results, const vec3_t *start, const vec3_t *end, const Bounds *bounds, int contentMask, unsigned int instanceId, int brushId, const vec3_t *brushOrigin, const vec3_t *brushAngles, const playerState_s *ps)
 {
-  __int64 v16; 
+  __int64 v12; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v19; 
-  int v20; 
-  bool v21; 
-  hknpShape *v26; 
-  hknpShape *v27; 
-  hknpShape *v28; 
-  hknpBodyId *v31; 
+  hkMonitorStream *v14; 
+  int v15; 
+  hknpShape *v16; 
+  hknpShape *v17; 
+  hknpShape *v18; 
+  hknpBodyId *v19; 
   unsigned int ThreadId; 
   bool IsShapeCacheDisabled; 
-  bool v34; 
-  signed int v35; 
+  bool v22; 
+  signed int v23; 
   hknpBodyId *RigidBodyID; 
-  char v37; 
+  double RaycastHitFraction; 
   unsigned int RaycastHitBodyId; 
   hknpShape **shape; 
   hknpShape **shapea; 
-  bool v46; 
+  bool v29; 
   int NumRigidBodys; 
   signed int bodyIdx; 
   hknpBodyId result[2]; 
   vec3_t *enda; 
   vec3_t *starta; 
   trace_t *trace; 
-  hkMonitorStream *v53; 
+  hkMonitorStream *v36; 
   hknpShape *nonBrushShape; 
-  hknpShape *v55; 
+  hknpShape *v38; 
   Physics_ShapecastExtendedData extendedData; 
-  __int64 v57; 
-  hkMonitorStream *v58; 
+  __int64 v40; 
+  hkMonitorStream *v41; 
   Physics_RaycastExtendedData quat; 
-  char v60; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v57 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
+  v40 = -2i64;
   enda = (vec3_t *)end;
   starta = (vec3_t *)start;
   trace = results;
-  v16 = worldId;
-  _R14 = bounds;
+  v12 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v19 = Value;
-  v53 = Value;
+  v14 = Value;
+  v36 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyCapsuleBrushEntityTrace");
-  v58 = v19;
+  v41 = v14;
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3915, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v20 = 28 * v16 + Physics_GetThreadId();
-  if ( (unsigned int)v16 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3918, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  v15 = 28 * v12 + Physics_GetThreadId();
+  if ( (unsigned int)v12 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3918, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v16] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3919, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3919, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !results && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3920, ASSERT_TYPE_ASSERT, "(results)", (const char *)&queryFormat, "results") )
     __debugbreak();
   if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3921, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryResults[v20], 1);
-  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[v20], 1);
-  v21 = instanceId == -1;
+  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryResults[v15], 1);
+  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[v15], 1);
   if ( instanceId == -1 )
-  {
     NumRigidBodys = 0;
-  }
   else
+    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v12, instanceId);
+  if ( bounds->halfSize.v[2] == 0.0 || bounds->halfSize.v[0] == 0.0 )
   {
-    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v16, instanceId);
-    v21 = 1;
-  }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r14+0Ch]
-    vmovss  xmm0, dword ptr [r14+14h]
-    vxorps  xmm8, xmm8, xmm8
-    vucomiss xmm0, xmm8
-  }
-  if ( v21 )
-  {
-    v35 = 0;
+    v23 = 0;
     if ( NumRigidBodys > 0 )
     {
       do
       {
         quat.ignoreBodies = NULL;
         quat.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-        __asm { vmovss  [rbp+80h+var_8C], xmm8 }
+        quat.collisionBuffer = 0.0;
         quat.phaseSelection = All;
         quat.insideHitType = Physics_RaycastInsideHitType_InsideHits;
         *(_WORD *)&quat.collectInsideHits = 256;
         quat.contents = contentMask;
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v16 > 7 )
+        if ( (unsigned int)v12 > 7 )
         {
-          LODWORD(shape) = v16;
+          LODWORD(shape) = v12;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", shape) )
             __debugbreak();
         }
         if ( instanceId == -1 )
         {
-          LODWORD(shape) = v16;
+          LODWORD(shape) = v12;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", shape) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v16 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v12 - 2) <= 5 )
         {
-          LODWORD(shape) = v16;
+          LODWORD(shape) = v12;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", shape) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v16 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v12 <= 1 )
         {
-          LODWORD(shape) = v16;
+          LODWORD(shape) = v12;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", shape) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID(result, (const Physics_WorldId)v16, instanceId, v35);
-        Physics_Raycast((Physics_WorldId)v16, RigidBodyID->m_serialAndIndex, starta, enda, &quat, s_PhysicsQuery_LegacyTraceResults[v20]);
-        ++v35;
+        RigidBodyID = HavokPhysics_GetRigidBodyID(result, (const Physics_WorldId)v12, instanceId, v23);
+        Physics_Raycast((Physics_WorldId)v12, RigidBodyID->m_serialAndIndex, starta, enda, &quat, s_PhysicsQuery_LegacyTraceResults[v15]);
+        ++v23;
       }
-      while ( v35 < NumRigidBodys );
-      v19 = v53;
+      while ( v23 < NumRigidBodys );
+      v14 = v36;
     }
-    if ( HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v20]) )
+    if ( HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v15]) )
     {
-      *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(s_PhysicsQuery_LegacyTraceResults[v20], 0);
-      __asm { vcomiss xmm0, xmm8 }
-      if ( v37 | v21 )
+      RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(s_PhysicsQuery_LegacyTraceResults[v15], 0);
+      if ( *(float *)&RaycastHitFraction <= 0.0 )
       {
         *((_BYTE *)&quat.contents + 4) = 0;
         quat.ignoreBodies = NULL;
         quat.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-        __asm { vmovss  [rbp+80h+var_8C], xmm8 }
+        quat.collisionBuffer = 0.0;
         quat.phaseSelection = All;
         quat.contents = contentMask;
-        RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(s_PhysicsQuery_LegacyTraceResults[v20], 0);
+        RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(s_PhysicsQuery_LegacyTraceResults[v15], 0);
         if ( (RaycastHitBodyId & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4026, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( hitBodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( hitBodyId )") )
           __debugbreak();
-        __asm { vmovss  xmm3, cs:__real@be001a37; maxDistance }
-        Physics_QueryPoint((Physics_WorldId)v16, RaycastHitBodyId, starta, *(float *)&_XMM3, (Physics_QueryPointExtendedData *)&quat, s_PhysicsQuery_LegacyQueryResults[v20]);
+        Physics_QueryPoint((Physics_WorldId)v12, RaycastHitBodyId, starta, -0.1251, (Physics_QueryPointExtendedData *)&quat, s_PhysicsQuery_LegacyQueryResults[v15]);
       }
     }
-    Physics_ConvertRayQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v20], s_PhysicsQuery_LegacyQueryResults[v20], NULL, trace);
+    Physics_ConvertRayQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v15], s_PhysicsQuery_LegacyQueryResults[v15], NULL, trace);
   }
   else
   {
-    __asm { vucomiss xmm1, xmm8 }
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2834, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     if ( BGMovingPlatformPS::IsNewRockingMoverCollisionEnabled() )
@@ -7842,91 +5800,72 @@ void PhysicsQuery_LegacyCapsuleBrushEntityTrace(Physics_WorldId worldId, trace_t
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-        vmovups xmmword ptr [rbp+80h+quat], xmm0
-      }
+      *(vec4_t *)&quat.contents = quat_identity;
     }
-    v46 = PhysicsQuery_LegacyTraceCreateShape((Physics_WorldId)v16, ps, bounds, 0, s_PhysicsQuery_LegacyTraceShapeBuffers[v20], 0, &v55, &nonBrushShape, (hknpShape **)result, NULL);
+    v29 = PhysicsQuery_LegacyTraceCreateShape((Physics_WorldId)v12, ps, bounds, 0, s_PhysicsQuery_LegacyTraceShapeBuffers[v15], 0, &v38, &nonBrushShape, (hknpShape **)result, NULL);
     bodyIdx = 0;
-    v26 = *(hknpShape **)&result[0].m_serialAndIndex;
-    v27 = nonBrushShape;
-    v28 = v55;
+    v16 = *(hknpShape **)&result[0].m_serialAndIndex;
+    v17 = nonBrushShape;
+    v18 = v38;
     if ( NumRigidBodys > 0 )
     {
-      __asm
-      {
-        vmovss  xmm6, cs:__real@3c83126f
-        vmovss  xmm7, cs:__real@3e000000
-      }
       do
       {
-        __asm
-        {
-          vmovss  [rbp+80h+extendedData.startTolerance], xmm8
-          vmovss  [rbp+80h+extendedData.accuracy], xmm6
-        }
+        extendedData.startTolerance = 0.0;
+        extendedData.accuracy = FLOAT_0_016000001;
         extendedData.simplifyStart = 0;
         extendedData.ignoreBodies = NULL;
         extendedData.phaseSelection = All;
         extendedData.permitOutwardTrace = 0;
         extendedData.contents = contentMask;
-        __asm { vmovss  [rbp+80h+extendedData.collisionBuffer], xmm7 }
-        extendedData.nonBrushShape = v27;
-        extendedData.secondPassShape = v26;
+        extendedData.collisionBuffer = FLOAT_0_125;
+        extendedData.nonBrushShape = v17;
+        extendedData.secondPassShape = v16;
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v16 > 7 )
+        if ( (unsigned int)v12 > 7 )
         {
-          LODWORD(shapea) = v16;
+          LODWORD(shapea) = v12;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", shapea) )
             __debugbreak();
         }
         if ( instanceId == -1 )
         {
-          LODWORD(shapea) = v16;
+          LODWORD(shapea) = v12;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", shapea) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v16 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v12 - 2) <= 5 )
         {
-          LODWORD(shapea) = v16;
+          LODWORD(shapea) = v12;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", shapea) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v16 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v12 <= 1 )
         {
-          LODWORD(shapea) = v16;
+          LODWORD(shapea) = v12;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", shapea) )
             __debugbreak();
         }
-        v31 = HavokPhysics_GetRigidBodyID(result, (const Physics_WorldId)v16, instanceId, bodyIdx);
-        Physics_Shapecast((Physics_WorldId)v16, v31->m_serialAndIndex, v28, starta, enda, (const vec4_t *)&quat, &extendedData, s_PhysicsQuery_LegacyTraceResults[v20], s_PhysicsQuery_LegacyQueryResults[v20]);
+        v19 = HavokPhysics_GetRigidBodyID(result, (const Physics_WorldId)v12, instanceId, bodyIdx);
+        Physics_Shapecast((Physics_WorldId)v12, v19->m_serialAndIndex, v18, starta, enda, (const vec4_t *)&quat, &extendedData, s_PhysicsQuery_LegacyTraceResults[v15], s_PhysicsQuery_LegacyQueryResults[v15]);
         ++bodyIdx;
       }
       while ( bodyIdx < NumRigidBodys );
-      v19 = v53;
+      v14 = v36;
     }
-    Physics_ConvertShapeQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v20], s_PhysicsQuery_LegacyQueryResults[v20], trace);
-    PhysicsQuery_LegacyTraceProcessAllSolid((Physics_WorldId)v16, trace, (const vec4_t *)&quat, v20, contentMask, v27, All, v28, enda);
+    Physics_ConvertShapeQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v15], s_PhysicsQuery_LegacyQueryResults[v15], trace);
+    PhysicsQuery_LegacyTraceProcessAllSolid((Physics_WorldId)v12, trace, (const vec4_t *)&quat, v15, contentMask, v17, All, v18, enda);
     ThreadId = Physics_GetThreadId();
     IsShapeCacheDisabled = Physics_IsShapeCacheDisabled(ThreadId);
-    v34 = IsShapeCacheDisabled;
-    if ( v26 )
-      Physics_ReleaseShape((Physics_WorldId)v16, v26, IsShapeCacheDisabled);
-    if ( v28 && v46 )
-      Physics_ReleaseShape((Physics_WorldId)v16, v28, v34);
+    v22 = IsShapeCacheDisabled;
+    if ( v16 )
+      Physics_ReleaseShape((Physics_WorldId)v12, v16, IsShapeCacheDisabled);
+    if ( v18 && v29 )
+      Physics_ReleaseShape((Physics_WorldId)v12, v18, v22);
   }
-  if ( v19 )
-    hkMonitorStream::timerEnd(v19, "Et");
-  _R11 = &v60;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
+  if ( v14 )
+    hkMonitorStream::timerEnd(v14, "Et");
 }
 
 /*
@@ -7966,42 +5905,41 @@ PhysicsQuery_LegacyCapsuleTrace_Internal
 */
 void PhysicsQuery_LegacyCapsuleTrace_Internal(Physics_WorldId worldId, trace_t *results, const vec3_t *start, const vec3_t *end, const Bounds *bounds, int *skipEntities, int numSkipEntities, unsigned int *ignoreBodies, unsigned int numIgnoreBodies, int contentMask, const playerState_s *ps, bool allowCheapPointQueries, bool vehicleTrace, const vec3_t *overrideAngles, BG_PMove_Cage *cage, PhysicsQuery_ContextSettings *traceContext)
 {
-  __int64 v21; 
-  unsigned int *v22; 
-  PhysicsQuery_ContextSettings *v23; 
+  const vec3_t *v16; 
+  const vec3_t *v17; 
+  __int64 v19; 
+  unsigned int *v20; 
+  PhysicsQuery_ContextSettings *v21; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v25; 
-  int v26; 
-  bool v27; 
-  __int64 v28; 
+  hkMonitorStream *v23; 
+  int v24; 
+  bool v25; 
+  __int64 v26; 
   unsigned int m_flags; 
-  unsigned int v30; 
-  int v31; 
-  __int64 v32; 
-  __int64 v33; 
-  HavokPhysics_IgnoreBodies *v34; 
-  int v35; 
+  unsigned int v28; 
+  int v29; 
+  __int64 v30; 
+  __int64 v31; 
+  HavokPhysics_IgnoreBodies *v32; 
+  int v33; 
+  __int64 v34; 
+  bool v35; 
   bool v36; 
-  __int64 v37; 
-  bool v42; 
-  char v43; 
-  bool v44; 
-  vec3_t *v46; 
-  HavokPhysics_CollisionQueryResult *v50; 
-  hknpShape *v51; 
-  HavokPhysics_CollisionQueryResult *v54; 
-  HavokPhysics_CollisionQueryResult *v55; 
+  float v37; 
+  vec3_t *v38; 
+  HavokPhysics_CollisionQueryResult *v39; 
+  hknpShape *v40; 
+  HavokPhysics_CollisionQueryResult *v41; 
+  HavokPhysics_CollisionQueryResult *v42; 
   unsigned int ThreadId; 
   bool IsShapeCacheDisabled; 
-  bool v58; 
-  HavokPhysics_CollisionQueryResult *v60; 
-  char v62; 
+  bool v45; 
+  HavokPhysics_CollisionQueryResult *v46; 
+  double RaycastHitFraction; 
   unsigned int RaycastHitBodyId; 
-  float fmt; 
-  float linked; 
-  bool v68; 
-  bool v69; 
-  bool v70; 
+  bool linked; 
+  bool v50; 
+  bool v51; 
   hknpShape *nonBrushShape; 
   hknpShape *shape; 
   vec3_t *enda; 
@@ -8010,277 +5948,212 @@ void PhysicsQuery_LegacyCapsuleTrace_Internal(Physics_WorldId worldId, trace_t *
   int legacyEntryId; 
   PhysicsQuery_ContextSettings *contextSettings; 
   vec3_t *angles; 
-  hkMonitorStream *v79; 
-  Bounds *v80; 
-  playerState_s *v81; 
-  BG_PMove_Cage *v82; 
-  int *v83; 
-  const vec3_t *v84; 
-  __int64 v85; 
-  hkMonitorStream *v86; 
+  hkMonitorStream *v60; 
+  Bounds *v61; 
+  playerState_s *v62; 
+  BG_PMove_Cage *v63; 
+  int *v64; 
+  const vec3_t *v65; 
+  __int64 v66; 
+  hkMonitorStream *v67; 
   Physics_QueryPointExtendedData quat; 
 
-  v85 = -2i64;
-  __asm { vmovaps [rsp+180h+var_50], xmm6 }
-  _R13 = end;
+  v66 = -2i64;
+  v16 = end;
   enda = (vec3_t *)end;
-  _R15 = start;
-  v84 = start;
+  v17 = start;
+  v65 = start;
   trace = results;
-  v21 = worldId;
+  v19 = worldId;
   LODWORD(shape) = worldId;
-  v80 = (Bounds *)bounds;
-  v83 = skipEntities;
-  v22 = ignoreBodies;
+  v61 = (Bounds *)bounds;
+  v64 = skipEntities;
+  v20 = ignoreBodies;
   *(_QWORD *)&quat.contents = ignoreBodies;
-  v81 = (playerState_s *)ps;
+  v62 = (playerState_s *)ps;
   angles = (vec3_t *)overrideAngles;
-  v82 = cage;
-  v23 = traceContext;
+  v63 = cage;
+  v21 = traceContext;
   contextSettings = traceContext;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v25 = Value;
-  v79 = Value;
+  v23 = Value;
+  v60 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyCapsuleTrace");
-  v86 = v25;
+  v67 = v23;
   Sys_ProfBeginNamedEvent(0xFFFF6347, "PhysicsQuery_LegacyCapsuleTrace_Internal");
-  if ( (unsigned int)v21 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3718, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  if ( (unsigned int)v19 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3718, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v21] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3719, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v19] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3719, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !results && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3720, ASSERT_TYPE_ASSERT, "(results)", (const char *)&queryFormat, "results") )
     __debugbreak();
-  if ( !v80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3721, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
+  if ( !v61 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3721, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3723, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v26 = 28 * v21 + Physics_GetThreadId();
-  legacyEntryId = v26;
+  v24 = 28 * v19 + Physics_GetThreadId();
+  legacyEntryId = v24;
   if ( traceContext )
   {
-    v27 = vehicleTrace;
+    v25 = vehicleTrace;
     if ( (traceContext->m_flags & 0x20) != 0 )
-      v27 = 1;
-    v70 = v27;
-    v23 = contextSettings;
+      v25 = 1;
+    v51 = v25;
+    v21 = contextSettings;
   }
   else
   {
-    v70 = vehicleTrace;
+    v51 = vehicleTrace;
   }
-  v28 = v26;
-  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v26]);
-  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryResults[v28], 1);
-  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryAnyResults[v28], 1);
-  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[v28], 1);
-  if ( v23 )
+  v26 = v24;
+  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v24]);
+  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryResults[v26], 1);
+  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryAnyResults[v26], 1);
+  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[v26], 1);
+  if ( v21 )
   {
-    m_flags = v23->m_flags;
-    v30 = v23->m_flags >> 2;
-    LOBYTE(v30) = (v23->m_flags & 4) == 0;
-    LODWORD(nonBrushShape) = v30;
-    v31 = m_flags & 8;
+    m_flags = v21->m_flags;
+    v28 = v21->m_flags >> 2;
+    LOBYTE(v28) = (v21->m_flags & 4) == 0;
+    LODWORD(nonBrushShape) = v28;
+    v29 = m_flags & 8;
   }
   else
   {
     LOBYTE(nonBrushShape) = 1;
-    v31 = 0;
+    v29 = 0;
   }
-  v68 = v31 != 0;
-  v32 = numSkipEntities;
+  linked = v29 != 0;
+  v30 = numSkipEntities;
   if ( numSkipEntities > 0 )
   {
-    v33 = 0i64;
+    v31 = 0i64;
     do
     {
-      v34 = s_PhysicsQuery_LegacyIgnoreBodies[v28];
-      v35 = v83[v33];
-      if ( !v34 )
+      v32 = s_PhysicsQuery_LegacyIgnoreBodies[v26];
+      v33 = v64[v31];
+      if ( !v32 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
           __debugbreak();
-        v32 = numSkipEntities;
+        v30 = numSkipEntities;
       }
-      if ( v35 >= 0 )
+      if ( v33 >= 0 )
       {
-        HavokPhysics_IgnoreBodies::AddIgnoreEntity(v34, v35, 1, (bool)nonBrushShape, 0, 1, v68);
-        v32 = numSkipEntities;
+        HavokPhysics_IgnoreBodies::AddIgnoreEntity(v32, v33, 1, (bool)nonBrushShape, 0, 1, linked);
+        v30 = numSkipEntities;
       }
-      ++v33;
+      ++v31;
     }
-    while ( v33 < v32 );
-    v25 = v79;
-    LODWORD(v21) = (_DWORD)shape;
-    _R15 = v84;
-    v22 = *(unsigned int **)&quat.contents;
-    _R13 = enda;
+    while ( v31 < v30 );
+    v23 = v60;
+    LODWORD(v19) = (_DWORD)shape;
+    v17 = v65;
+    v20 = *(unsigned int **)&quat.contents;
+    v16 = enda;
   }
-  v36 = numIgnoreBodies == 0;
   if ( numIgnoreBodies )
   {
-    v37 = numIgnoreBodies;
+    v34 = numIgnoreBodies;
     do
     {
-      HavokPhysics_IgnoreBodies::AddIgnoreBody(s_PhysicsQuery_LegacyIgnoreBodies[v28], *v22++);
-      v36 = --v37 == 0;
+      HavokPhysics_IgnoreBodies::AddIgnoreBody(s_PhysicsQuery_LegacyIgnoreBodies[v26], *v20++);
+      --v34;
     }
-    while ( v37 );
-    v25 = v79;
+    while ( v34 );
+    v23 = v60;
   }
-  _R12 = v80;
-  __asm
+  if ( v61->halfSize.v[2] == 0.0 || v61->halfSize.v[0] == 0.0 )
   {
-    vmovss  xmm1, dword ptr [r12+0Ch]
-    vmovss  xmm0, dword ptr [r12+14h]
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm0, xmm6
-  }
-  if ( v36 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r13+0]
-      vucomiss xmm0, dword ptr [r15]
-    }
-    if ( !v36 )
-      goto LABEL_76;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r13+4]
-      vucomiss xmm0, dword ptr [r15+4]
-    }
-    if ( !v36 )
-      goto LABEL_76;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r13+8]
-      vucomiss xmm0, dword ptr [r15+8]
-    }
-    if ( v36 )
+    if ( v16->v[0] == v17->v[0] && v16->v[1] == v17->v[1] && v16->v[2] == v17->v[2] )
     {
       quat.simplify = 0;
       quat.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-      __asm { vmovss  [rbp+80h+var_64], xmm6 }
+      quat.collisionBuffer = 0.0;
       quat.phaseSelection = All;
       quat.contents = contentMask;
-      quat.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v28];
+      quat.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v26];
       if ( allowCheapPointQueries )
-        v60 = s_PhysicsQuery_LegacyQueryAnyResults[v28];
+        v46 = s_PhysicsQuery_LegacyQueryAnyResults[v26];
       else
-        v60 = s_PhysicsQuery_LegacyQueryResults[v28];
-      __asm { vxorps  xmm2, xmm2, xmm2; maxDistance }
-      Physics_QueryPoint((Physics_WorldId)v21, _R15, *(float *)&_XMM2, &quat, v60);
-      Physics_ConvertClosestPointsToLegacyTrace(v60, trace);
+        v46 = s_PhysicsQuery_LegacyQueryResults[v26];
+      Physics_QueryPoint((Physics_WorldId)v19, v17, 0.0, &quat, v46);
+      Physics_ConvertClosestPointsToLegacyTrace(v46, trace);
     }
     else
     {
-LABEL_76:
       LODWORD(extendedData.ignoreBodies) = 1;
-      __asm { vmovss  dword ptr [rbp+80h+extendedData+14h], xmm6 }
+      *((float *)&extendedData.ignoreBodies + 1) = 0.0;
       *(_QWORD *)&extendedData.collisionBuffer = 0x100000000i64;
       LOWORD(extendedData.nonBrushShape) = 256;
       extendedData.contents = contentMask;
-      *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v28];
-      Physics_Raycast((Physics_WorldId)v21, _R15, _R13, (Physics_RaycastExtendedData *)&extendedData, s_PhysicsQuery_LegacyTraceResults[v28]);
-      if ( HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v28]) )
+      *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v26];
+      Physics_Raycast((Physics_WorldId)v19, v17, v16, (Physics_RaycastExtendedData *)&extendedData, s_PhysicsQuery_LegacyTraceResults[v26]);
+      if ( HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v26]) )
       {
-        *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(s_PhysicsQuery_LegacyTraceResults[v28], 0);
-        __asm { vcomiss xmm0, xmm6 }
-        if ( v62 | v36 )
+        RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(s_PhysicsQuery_LegacyTraceResults[v26], 0);
+        if ( *(float *)&RaycastHitFraction <= 0.0 )
         {
           quat.simplify = 0;
           quat.ignoreBodies = NULL;
           quat.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-          __asm { vmovss  [rbp+80h+var_64], xmm6 }
+          quat.collisionBuffer = 0.0;
           quat.phaseSelection = All;
           quat.contents = contentMask;
-          RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(s_PhysicsQuery_LegacyTraceResults[v28], 0);
+          RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(s_PhysicsQuery_LegacyTraceResults[v26], 0);
           if ( (RaycastHitBodyId & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3871, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( hitBodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( hitBodyId )") )
             __debugbreak();
-          __asm { vmovss  xmm3, cs:__real@be001a37; maxDistance }
-          Physics_QueryPoint((Physics_WorldId)v21, RaycastHitBodyId, _R15, *(float *)&_XMM3, &quat, s_PhysicsQuery_LegacyQueryResults[v28]);
+          Physics_QueryPoint((Physics_WorldId)v19, RaycastHitBodyId, v17, -0.1251, &quat, s_PhysicsQuery_LegacyQueryResults[v26]);
         }
       }
-      Physics_ConvertRayQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v28], s_PhysicsQuery_LegacyQueryResults[v28], NULL, trace);
+      Physics_ConvertRayQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v26], s_PhysicsQuery_LegacyQueryResults[v26], NULL, trace);
     }
   }
   else
   {
-    __asm { vucomiss xmm1, xmm6 }
     if ( angles )
     {
       AnglesToQuat(angles, (vec4_t *)&quat);
-      v42 = v70;
+      v35 = v51;
     }
     else
     {
-      v42 = v70;
-      PhysicsQuery_LegacyTraceBuildTraceQuat((Physics_WorldId)v21, v81, (vec4_t *)&quat, v70);
+      v35 = v51;
+      PhysicsQuery_LegacyTraceBuildTraceQuat((Physics_WorldId)v19, v62, (vec4_t *)&quat, v51);
     }
-    v44 = PhysicsQuery_LegacyTraceCreateShape((Physics_WorldId)v21, v81, v80, 0, s_PhysicsQuery_LegacyTraceShapeBuffers[v28], v42, &shape, &nonBrushShape, (hknpShape **)&angles, contextSettings);
-    v69 = v44;
-    __asm { vmovss  xmm0, dword ptr [r13+0] }
-    v46 = angles;
-    _RCX = enda;
-    __asm { vucomiss xmm0, dword ptr [r15] }
-    if ( !v43 )
-      goto LABEL_54;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+4]
-      vucomiss xmm0, dword ptr [r15+4]
-    }
-    if ( !v43 )
-      goto LABEL_54;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+8]
-      vucomiss xmm0, dword ptr [r15+8]
-    }
-    if ( v43 )
+    v36 = PhysicsQuery_LegacyTraceCreateShape((Physics_WorldId)v19, v62, v61, 0, s_PhysicsQuery_LegacyTraceShapeBuffers[v26], v35, &shape, &nonBrushShape, (hknpShape **)&angles, contextSettings);
+    v50 = v36;
+    v37 = v16->v[0];
+    v38 = angles;
+    if ( v37 == v17->v[0] && enda->v[1] == v17->v[1] && enda->v[2] == v17->v[2] )
     {
       LOBYTE(extendedData.startTolerance) = 0;
-      __asm { vmovss  [rbp+80h+extendedData.collisionBuffer], xmm6 }
+      *(float *)&extendedData.ignoreBodies = 0.0;
       LODWORD(extendedData.nonBrushShape) = 0;
       extendedData.contents = contentMask;
-      *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v28];
+      *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v26];
       *(_QWORD *)&extendedData.collisionBuffer = nonBrushShape;
       if ( allowCheapPointQueries )
-        v50 = s_PhysicsQuery_LegacyQueryAnyResults[v28];
+        v39 = s_PhysicsQuery_LegacyQueryAnyResults[v26];
       else
-        v50 = s_PhysicsQuery_LegacyQueryResults[v28];
-      v51 = shape;
-      if ( v82 )
-      {
-        __asm { vmovss  dword ptr [rsp+180h+linked], xmm6 }
-        Physics_GetClosestPoints((Physics_WorldId)v21, v82->numBodies, v82->bodies, shape, _R15, (const vec4_t *)&quat, linked, (Physics_GetClosestPointsExtendedData *)&extendedData, v50);
-      }
+        v39 = s_PhysicsQuery_LegacyQueryResults[v26];
+      v40 = shape;
+      if ( v63 )
+        Physics_GetClosestPoints((Physics_WorldId)v19, v63->numBodies, v63->bodies, shape, v17, (const vec4_t *)&quat, 0.0, (Physics_GetClosestPointsExtendedData *)&extendedData, v39);
       else
-      {
-        __asm { vmovss  dword ptr [rsp+180h+fmt], xmm6 }
-        Physics_GetClosestPoints((Physics_WorldId)v21, shape, _R15, (const vec4_t *)&quat, fmt, (Physics_GetClosestPointsExtendedData *)&extendedData, v50);
-      }
-      Physics_ConvertClosestPointsToLegacyTrace(v50, trace);
+        Physics_GetClosestPoints((Physics_WorldId)v19, shape, v17, (const vec4_t *)&quat, 0.0, (Physics_GetClosestPointsExtendedData *)&extendedData, v39);
+      Physics_ConvertClosestPointsToLegacyTrace(v39, trace);
     }
     else
     {
-LABEL_54:
-      __asm
-      {
-        vmovss  dword ptr [rsp+180h+extendedData.simplify], xmm6
-        vmovss  xmm0, cs:__real@3c83126f
-        vmovss  dword ptr [rbp+80h+extendedData.ignoreBodies], xmm0
-      }
+      extendedData.startTolerance = 0.0;
+      extendedData.accuracy = FLOAT_0_016000001;
       extendedData.simplifyStart = 0;
       extendedData.phaseSelection = All;
       extendedData.contents = contentMask;
-      extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v28];
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3e000000
-        vmovss  dword ptr [rbp+80h+extendedData.nonBrushShape], xmm0
-      }
+      extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v26];
+      extendedData.collisionBuffer = FLOAT_0_125;
       extendedData.nonBrushShape = nonBrushShape;
       extendedData.secondPassShape = (hknpShape *)angles;
       if ( contextSettings )
@@ -8288,31 +6161,30 @@ LABEL_54:
       else
         extendedData.permitOutwardTrace = 1;
       if ( allowCheapPointQueries )
-        v54 = s_PhysicsQuery_LegacyQueryAnyResults[v28];
+        v41 = s_PhysicsQuery_LegacyQueryAnyResults[v26];
       else
-        v54 = s_PhysicsQuery_LegacyQueryResults[v28];
-      v55 = s_PhysicsQuery_LegacyTraceResults[v28];
-      v51 = shape;
-      if ( v82 )
-        Physics_Shapecast((Physics_WorldId)v21, v82->numBodies, v82->bodies, shape, _R15, enda, (const vec4_t *)&quat, &extendedData, v55, v54);
+        v41 = s_PhysicsQuery_LegacyQueryResults[v26];
+      v42 = s_PhysicsQuery_LegacyTraceResults[v26];
+      v40 = shape;
+      if ( v63 )
+        Physics_Shapecast((Physics_WorldId)v19, v63->numBodies, v63->bodies, shape, v17, enda, (const vec4_t *)&quat, &extendedData, v42, v41);
       else
-        Physics_Shapecast((Physics_WorldId)v21, shape, _R15, enda, (const vec4_t *)&quat, &extendedData, v55, v54);
-      Physics_ConvertShapeQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v28], v54, trace);
-      PhysicsQuery_LegacyTraceProcessAllSolid((Physics_WorldId)v21, trace, (const vec4_t *)&quat, legacyEntryId, contentMask, nonBrushShape, All, v51, enda);
-      v44 = v69;
+        Physics_Shapecast((Physics_WorldId)v19, shape, v17, enda, (const vec4_t *)&quat, &extendedData, v42, v41);
+      Physics_ConvertShapeQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v26], v41, trace);
+      PhysicsQuery_LegacyTraceProcessAllSolid((Physics_WorldId)v19, trace, (const vec4_t *)&quat, legacyEntryId, contentMask, nonBrushShape, All, v40, enda);
+      v36 = v50;
     }
     ThreadId = Physics_GetThreadId();
     IsShapeCacheDisabled = Physics_IsShapeCacheDisabled(ThreadId);
-    v58 = IsShapeCacheDisabled;
-    if ( v46 )
-      Physics_ReleaseShape((Physics_WorldId)v21, (hknpShape *)v46, IsShapeCacheDisabled);
-    if ( v51 && v44 )
-      Physics_ReleaseShape((Physics_WorldId)v21, v51, v58);
+    v45 = IsShapeCacheDisabled;
+    if ( v38 )
+      Physics_ReleaseShape((Physics_WorldId)v19, (hknpShape *)v38, IsShapeCacheDisabled);
+    if ( v40 && v36 )
+      Physics_ReleaseShape((Physics_WorldId)v19, v40, v45);
   }
   Sys_ProfEndNamedEvent();
-  if ( v25 )
-    hkMonitorStream::timerEnd(v25, "Et");
-  __asm { vmovaps xmm6, [rsp+180h+var_50] }
+  if ( v23 )
+    hkMonitorStream::timerEnd(v23, "Et");
 }
 
 /*
@@ -8322,42 +6194,36 @@ PhysicsQuery_LegacyEntityContactCapsule
 */
 __int64 PhysicsQuery_LegacyEntityContactCapsule(Physics_WorldId worldId, const Bounds *bounds, unsigned int physicsInstanceId, const gentity_s *ent)
 {
-  __int64 v9; 
+  __int64 v7; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v11; 
-  int v12; 
-  unsigned int v13; 
+  hkMonitorStream *v9; 
+  int v10; 
+  unsigned int v11; 
   unsigned __int8 modelType; 
-  __int64 v16; 
-  HavokPhysics_CollisionQueryResult *v17; 
+  __int64 v13; 
+  HavokPhysics_CollisionQueryResult *v14; 
   hknpShape *ShapeCapsuleUpAxis; 
   int NumRigidBodys; 
-  unsigned int v24; 
+  unsigned int v17; 
   unsigned int RigidBodyID; 
-  bool v26; 
-  __int64 result; 
-  int optionalInplaceBufferSize; 
+  bool v19; 
   Physics_GetClosestPointsExtendedData extendedData; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  _RBP = bounds;
-  v9 = worldId;
+  v7 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v11 = Value;
+  v9 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyEntityContactCapsule");
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4515, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v12 = Physics_GetThreadId() + 28 * v9;
-  if ( (unsigned int)v9 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4518, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  v10 = Physics_GetThreadId() + 28 * v7;
+  if ( (unsigned int)v7 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4518, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4519, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4519, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4520, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
+  if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4520, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
-  v13 = 0;
+  v11 = 0;
   modelType = 5;
   if ( ent )
     modelType = ent->r.modelType;
@@ -8366,19 +6232,19 @@ __int64 PhysicsQuery_LegacyEntityContactCapsule(Physics_WorldId worldId, const B
     case 1u:
       if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4538, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
         __debugbreak();
-      v26 = BG_TriggerRadius_Contacts_Capsule(&ent->r.currentOrigin, &ent->r.box, _RBP);
+      v19 = BG_TriggerRadius_Contacts_Capsule(&ent->r.currentOrigin, &ent->r.box, bounds);
       goto LABEL_44;
     case 2u:
       if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4545, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
         __debugbreak();
-      v26 = BG_TriggerRadiusRotate_Contacts_Capsule(&ent->r.currentOrigin, &ent->r.currentAngles, &ent->r.box, _RBP);
+      v19 = BG_TriggerRadiusRotate_Contacts_Capsule(&ent->r.currentOrigin, &ent->r.currentAngles, &ent->r.box, bounds);
       goto LABEL_44;
     case 3u:
       if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4552, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
         __debugbreak();
-      v26 = BG_TriggerDisk_Contacts_Capsule(&ent->r.currentOrigin, &ent->r.box, _RBP);
+      v19 = BG_TriggerDisk_Contacts_Capsule(&ent->r.currentOrigin, &ent->r.box, bounds);
 LABEL_44:
-      v13 = v26;
+      v11 = v19;
       goto LABEL_45;
   }
   if ( physicsInstanceId != -1 )
@@ -8386,51 +6252,37 @@ LABEL_44:
     extendedData.contents = -1;
     extendedData.simplify = 0;
     extendedData.ignoreBodies = NULL;
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vmovss  [rsp+0A8h+extendedData.collisionBuffer], xmm6
-    }
+    extendedData.collisionBuffer = 0.0;
     extendedData.nonBrushShape = NULL;
     extendedData.phaseSelection = All;
-    v16 = v12;
-    v17 = s_PhysicsQuery_LegacyQueryAnyResults[v12];
-    if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4569, ASSERT_TYPE_ASSERT, "(queryResult)", (const char *)&queryFormat, "queryResult") )
+    v13 = v10;
+    v14 = s_PhysicsQuery_LegacyQueryAnyResults[v10];
+    if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4569, ASSERT_TYPE_ASSERT, "(queryResult)", (const char *)&queryFormat, "queryResult") )
       __debugbreak();
-    HavokPhysics_CollisionQueryResult::Reset(v17, 1);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbp+0Ch]
-      vaddss  xmm3, xmm1, cs:__real@3e000000; radius
-      vmovss  xmm0, dword ptr [rbp+14h]
-      vsubss  xmm2, xmm0, xmm1; halfHeight
-    }
-    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v9, &_RBP->midPoint, *(float *)&_XMM2, *(float *)&_XMM3, s_PhysicsQuery_LegacyTraceShapeBuffers[v16], 432, Temporary);
+    HavokPhysics_CollisionQueryResult::Reset(v14, 1);
+    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v7, &bounds->midPoint, bounds->halfSize.v[2] - bounds->halfSize.v[0], bounds->halfSize.v[0] + 0.125, s_PhysicsQuery_LegacyTraceShapeBuffers[v13], 432, Temporary);
     if ( !ShapeCapsuleUpAxis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4574, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
       __debugbreak();
-    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v9, physicsInstanceId);
-    v24 = 0;
+    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v7, physicsInstanceId);
+    v17 = 0;
     if ( NumRigidBodys > 0 )
     {
       while ( 1 )
       {
-        RigidBodyID = Physics_GetRigidBodyID((const Physics_WorldId)v9, physicsInstanceId, v24);
-        __asm { vmovss  [rsp+0A8h+optionalInplaceBufferSize], xmm6 }
-        Physics_GetClosestPoints((Physics_WorldId)v9, RigidBodyID, ShapeCapsuleUpAxis, &vec3_origin, &quat_identity, *(float *)&optionalInplaceBufferSize, &extendedData, v17);
-        if ( HavokPhysics_CollisionQueryResult::HasHit(v17) )
+        RigidBodyID = Physics_GetRigidBodyID((const Physics_WorldId)v7, physicsInstanceId, v17);
+        Physics_GetClosestPoints((Physics_WorldId)v7, RigidBodyID, ShapeCapsuleUpAxis, &vec3_origin, &quat_identity, 0.0, &extendedData, v14);
+        if ( HavokPhysics_CollisionQueryResult::HasHit(v14) )
           break;
-        if ( (int)++v24 >= NumRigidBodys )
+        if ( (int)++v17 >= NumRigidBodys )
           goto LABEL_45;
       }
-      v13 = 1;
+      v11 = 1;
     }
   }
 LABEL_45:
-  if ( v11 )
-    hkMonitorStream::timerEnd(v11, "Et");
-  result = v13;
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  return result;
+  if ( v9 )
+    hkMonitorStream::timerEnd(v9, "Et");
+  return v11;
 }
 
 /*
@@ -8443,18 +6295,20 @@ __int64 PhysicsQuery_LegacyEntityContactPoint(Physics_WorldId worldId, const vec
   __int64 v7; 
   hkMonitorStream *Value; 
   hkMonitorStream *v9; 
-  int modelType; 
-  bool v11; 
-  int v12; 
-  int v13; 
   unsigned int LegacyEntityContactPointDefaultCase; 
+  float v11; 
+  float v12; 
+  float v13; 
+  bool v14; 
+  bool v15; 
+  float v16; 
+  float v17; 
+  float v18; 
   vec3_t vec; 
-  vec3_t v56; 
+  vec3_t v21; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
 
-  _RDI = ent;
-  _RSI = pos;
   v7 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
   v9 = Value;
@@ -8466,109 +6320,49 @@ __int64 PhysicsQuery_LegacyEntityContactPoint(Physics_WorldId worldId, const vec
     __debugbreak();
   if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4428, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  modelType = _RDI->r.modelType;
-  v11 = modelType == 0;
-  v12 = modelType - 1;
-  if ( !v12 )
+  switch ( ent->r.modelType )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+138h]
-      vaddss  xmm1, xmm0, dword ptr [rdi+108h]
-      vsubss  xmm2, xmm1, dword ptr [rsi+8]
-      vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm2, dword ptr [rdi+114h]
-    }
-    if ( v11 )
-    {
-      __asm
+    case 1u:
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(ent->r.currentOrigin.v[2] + ent->r.box.midPoint.v[2]) - pos->v[2]) & _xmm) < ent->r.box.halfSize.v[2] )
       {
-        vmovss  xmm0, dword ptr [rdi+10Ch]
-        vmulss  xmm5, xmm0, xmm0
-        vmovss  xmm1, dword ptr [rsi]
-        vsubss  xmm4, xmm1, dword ptr [rdi+130h]
-        vmovss  xmm0, dword ptr [rsi+4]
-        vsubss  xmm2, xmm0, dword ptr [rdi+134h]
-        vmulss  xmm3, xmm2, xmm2
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm0, xmm3, xmm1
+        v16 = ent->r.box.halfSize.v[0] * ent->r.box.halfSize.v[0];
+        v17 = pos->v[1] - ent->r.currentOrigin.v[1];
+        v18 = (float)(pos->v[0] - ent->r.currentOrigin.v[0]) * (float)(pos->v[0] - ent->r.currentOrigin.v[0]);
+        LegacyEntityContactPointDefaultCase = 0;
+        v14 = v16 < (float)((float)(v17 * v17) + v18);
+        v15 = v16 == (float)((float)(v17 * v17) + v18);
+        goto LABEL_22;
       }
-      LegacyEntityContactPointDefaultCase = 0;
-      __asm { vcomiss xmm5, xmm0 }
-      goto LABEL_22;
-    }
 LABEL_20:
-    LegacyEntityContactPointDefaultCase = 0;
-    goto LABEL_23;
-  }
-  v13 = v12 - 1;
-  if ( !v13 )
-  {
-    AnglesToAxis(&_RDI->r.currentAngles, &axis);
-    MatrixInverse(&axis, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm1, xmm0, dword ptr [rdi+130h]
-      vmovss  dword ptr [rsp+0F8h+vec], xmm1
-      vmovss  xmm2, dword ptr [rsi+4]
-      vsubss  xmm0, xmm2, dword ptr [rdi+134h]
-      vmovss  dword ptr [rsp+0F8h+vec+4], xmm0
-      vmovss  xmm1, dword ptr [rsi+8]
-      vsubss  xmm2, xmm1, dword ptr [rdi+138h]
-      vmovss  dword ptr [rsp+0F8h+vec+8], xmm2
-    }
-    AxisTransformVec3(&out, &vec, &v56);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+108h]
-      vsubss  xmm1, xmm0, dword ptr [rsp+0F8h+var_A8+8]
-      vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm1, dword ptr [rdi+114h]
-    }
-    if ( v11 )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+10Ch]
-        vmulss  xmm4, xmm0, xmm0
-        vmovss  xmm1, dword ptr [rsp+0F8h+var_A8]
-        vmulss  xmm3, xmm1, xmm1
-        vmovss  xmm0, dword ptr [rsp+0F8h+var_A8+4]
-        vmulss  xmm2, xmm0, xmm0
-        vaddss  xmm1, xmm3, xmm2
-      }
       LegacyEntityContactPointDefaultCase = 0;
-      __asm { vcomiss xmm4, xmm1 }
+      break;
+    case 2u:
+      AnglesToAxis(&ent->r.currentAngles, &axis);
+      MatrixInverse(&axis, &out);
+      vec.v[0] = pos->v[0] - ent->r.currentOrigin.v[0];
+      vec.v[1] = pos->v[1] - ent->r.currentOrigin.v[1];
+      vec.v[2] = pos->v[2] - ent->r.currentOrigin.v[2];
+      AxisTransformVec3(&out, &vec, &v21);
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(ent->r.box.midPoint.v[2] - v21.v[2]) & _xmm) < ent->r.box.halfSize.v[2] )
+      {
+        v12 = ent->r.box.halfSize.v[0] * ent->r.box.halfSize.v[0];
+        v13 = v21.v[1];
+        LegacyEntityContactPointDefaultCase = 0;
+        v14 = v12 < (float)((float)(v21.v[0] * v21.v[0]) + (float)(v13 * v13));
+        v15 = v12 == (float)((float)(v21.v[0] * v21.v[0]) + (float)(v13 * v13));
 LABEL_22:
-      LOBYTE(LegacyEntityContactPointDefaultCase) = 0;
-      goto LABEL_23;
-    }
-    goto LABEL_20;
+        LOBYTE(LegacyEntityContactPointDefaultCase) = !v14 && !v15;
+        break;
+      }
+      goto LABEL_20;
+    case 3u:
+      v11 = pos->v[1] - ent->r.currentOrigin.v[1];
+      LegacyEntityContactPointDefaultCase = (float)((float)(v11 * v11) + (float)((float)(pos->v[0] - ent->r.currentOrigin.v[0]) * (float)(pos->v[0] - ent->r.currentOrigin.v[0]))) >= (float)((float)((float)(pos->v[0] + ent->r.box.halfSize.v[0]) - 64.0) * (float)((float)(pos->v[0] + ent->r.box.halfSize.v[0]) - 64.0));
+      break;
+    default:
+      LegacyEntityContactPointDefaultCase = PhysicsQuery_LegacyEntityContactPointDefaultCase((Physics_WorldId)v7, pos, physicsInstanceId);
+      break;
   }
-  if ( v13 == 1 )
-  {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]
-      vaddss  xmm0, xmm2, dword ptr [rdi+10Ch]
-      vsubss  xmm1, xmm0, cs:__real@42800000
-      vmulss  xmm4, xmm1, xmm1
-      vsubss  xmm2, xmm2, dword ptr [rdi+130h]
-      vmovss  xmm0, dword ptr [rsi+4]
-      vsubss  xmm1, xmm0, dword ptr [rdi+134h]
-      vmulss  xmm3, xmm1, xmm1
-      vmulss  xmm2, xmm2, xmm2
-      vaddss  xmm0, xmm3, xmm2
-      vcomiss xmm0, xmm4
-    }
-    LegacyEntityContactPointDefaultCase = 1;
-  }
-  else
-  {
-    LegacyEntityContactPointDefaultCase = PhysicsQuery_LegacyEntityContactPointDefaultCase((Physics_WorldId)v7, _RSI, physicsInstanceId);
-  }
-LABEL_23:
   if ( v9 )
     hkMonitorStream::timerEnd(v9, "Et");
   return LegacyEntityContactPointDefaultCase;
@@ -8581,77 +6375,60 @@ PhysicsQuery_LegacyEntityContactPointDefaultCase
 */
 __int64 PhysicsQuery_LegacyEntityContactPointDefaultCase(Physics_WorldId worldId, const vec3_t *pos, unsigned int physicsInstanceId)
 {
-  unsigned int v8; 
-  HavokPhysics_CollisionQueryResult *v10; 
+  unsigned int v6; 
+  HavokPhysics_CollisionQueryResult *v7; 
   int NumRigidBodys; 
   hknpBodyId *RigidBodyID; 
-  __int64 v14; 
-  __int64 v16; 
+  __int64 v11; 
   Physics_QueryPointExtendedData extendedData; 
-  void *retaddr; 
   hknpBodyId result; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   if ( physicsInstanceId == -1 )
-    goto LABEL_22;
-  v8 = 0;
+    return 0i64;
+  v6 = 0;
   extendedData.contents = -1;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rax-44h], xmm6
-  }
+  extendedData.collisionBuffer = 0.0;
   extendedData.ignoreBodies = NULL;
   extendedData.phaseSelection = All;
   extendedData.simplify = 0;
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  v10 = s_PhysicsQuery_LegacyQueryAnyResults[Physics_GetThreadId() + 28 * worldId];
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4396, ASSERT_TYPE_ASSERT, "(queryResult)", (const char *)&queryFormat, "queryResult") )
+  v7 = s_PhysicsQuery_LegacyQueryAnyResults[Physics_GetThreadId() + 28 * worldId];
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4396, ASSERT_TYPE_ASSERT, "(queryResult)", (const char *)&queryFormat, "queryResult") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v10, 1);
+  HavokPhysics_CollisionQueryResult::Reset(v7, 1);
   NumRigidBodys = Physics_GetNumRigidBodys(worldId, physicsInstanceId);
   if ( NumRigidBodys <= 0 )
+    return 0i64;
+  while ( 1 )
   {
-LABEL_22:
-    v14 = 0i64;
-  }
-  else
-  {
-    while ( 1 )
+    if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
+      __debugbreak();
+    if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
     {
-      if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
+      LODWORD(v11) = worldId;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v11) )
         __debugbreak();
-      if ( (unsigned int)worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
-      {
-        LODWORD(v16) = worldId;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v16) )
-          __debugbreak();
-      }
-      if ( !g_physicsClientWorldsCreated && (unsigned int)(worldId - 2) <= 5 )
-      {
-        LODWORD(v16) = worldId;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v16) )
-          __debugbreak();
-      }
-      if ( !g_physicsServerWorldsCreated && (unsigned int)worldId <= PHYSICS_WORLD_ID_SERVER_DETAIL )
-      {
-        LODWORD(v16) = worldId;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v16) )
-          __debugbreak();
-      }
-      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, worldId, physicsInstanceId, v8);
-      __asm { vmovaps xmm3, xmm6; maxDistance }
-      Physics_QueryPoint(worldId, RigidBodyID->m_serialAndIndex, pos, *(float *)&_XMM3, &extendedData, v10);
-      if ( HavokPhysics_CollisionQueryResult::HasHit(v10) )
-        break;
-      if ( (int)++v8 >= NumRigidBodys )
-        goto LABEL_22;
     }
-    v14 = 1i64;
+    if ( !g_physicsClientWorldsCreated && (unsigned int)(worldId - 2) <= 5 )
+    {
+      LODWORD(v11) = worldId;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v11) )
+        __debugbreak();
+    }
+    if ( !g_physicsServerWorldsCreated && (unsigned int)worldId <= PHYSICS_WORLD_ID_SERVER_DETAIL )
+    {
+      LODWORD(v11) = worldId;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v11) )
+        __debugbreak();
+    }
+    RigidBodyID = HavokPhysics_GetRigidBodyID(&result, worldId, physicsInstanceId, v6);
+    Physics_QueryPoint(worldId, RigidBodyID->m_serialAndIndex, pos, 0.0, &extendedData, v7);
+    if ( HavokPhysics_CollisionQueryResult::HasHit(v7) )
+      break;
+    if ( (int)++v6 >= NumRigidBodys )
+      return 0i64;
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
-  return v14;
+  return 1i64;
 }
 
 /*
@@ -8695,173 +6472,137 @@ PhysicsQuery_LegacyEntitySightTrace
 */
 __int64 PhysicsQuery_LegacyEntitySightTrace(Physics_WorldId worldId, const vec3_t *start, const vec3_t *end, const Bounds *bounds, int contentMask, unsigned int physicsInstanceId)
 {
-  __int64 v11; 
+  __int64 v7; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v13; 
-  int v14; 
-  __int64 v17; 
-  HavokPhysics_CollisionQueryResult *v18; 
-  unsigned int v19; 
-  unsigned int v20; 
+  hkMonitorStream *v9; 
+  int v10; 
+  float v11; 
+  float v12; 
+  __int64 v13; 
+  HavokPhysics_CollisionQueryResult *v14; 
+  unsigned int v15; 
+  unsigned int v16; 
   int NumRigidBodys; 
-  char v23; 
   hknpShape *ShapeCapsuleUpAxis; 
-  unsigned int v29; 
-  unsigned int v30; 
+  unsigned int v21; 
+  unsigned int v22; 
   unsigned __int8 *WeaponPriorityMap; 
-  unsigned int v32; 
+  unsigned int v24; 
   hknpBodyId *RigidBodyID; 
-  __int64 result; 
   __int64 shapeStorage; 
   Physics_ShapecastExtendedData extendedData; 
-  char v40; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _RSI = bounds;
-  v11 = worldId;
+  v7 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v13 = Value;
+  v9 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyEntitySightTrace");
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4733, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v14 = Physics_GetThreadId() + 28 * v11;
-  if ( (unsigned int)v11 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4736, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  v10 = Physics_GetThreadId() + 28 * v7;
+  if ( (unsigned int)v7 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4736, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4737, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4737, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4738, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
+  if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4738, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rsi+0Ch]
-    vmovss  xmm7, dword ptr [rsi+14h]
-  }
-  v17 = v14;
-  v18 = s_PhysicsQuery_LegacyQueryAnyResults[v14];
-  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4750, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v11 = bounds->halfSize.v[0];
+  v12 = bounds->halfSize.v[2];
+  v13 = v10;
+  v14 = s_PhysicsQuery_LegacyQueryAnyResults[v10];
+  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4750, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v18, 1);
-  v19 = 0;
-  v20 = physicsInstanceId;
+  HavokPhysics_CollisionQueryResult::Reset(v14, 1);
+  v15 = 0;
+  v16 = physicsInstanceId;
   if ( physicsInstanceId != -1 )
   {
-    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v11, physicsInstanceId);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm7, xmm1
-    }
-    if ( v23 )
+    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v7, physicsInstanceId);
+    if ( v12 == 0.0 || v11 == 0.0 )
     {
       *(_QWORD *)&extendedData.accuracy = 0i64;
       LODWORD(extendedData.ignoreBodies) = 1;
-      __asm { vmovss  dword ptr [rsp+0E8h+extendedData.ignoreBodies+4], xmm1 }
+      *((float *)&extendedData.ignoreBodies + 1) = 0.0;
       extendedData.collisionBuffer = 0.0;
       *((_DWORD *)&extendedData.collisionBuffer + 1) = 1;
       LOWORD(extendedData.nonBrushShape) = 256;
       extendedData.contents = contentMask;
-      if ( Physics_IsDetailWorld((Physics_WorldId)v11) )
+      if ( Physics_IsDetailWorld((Physics_WorldId)v7) )
       {
         WeaponPriorityMap = BG_GetWeaponPriorityMap(&NULL_WEAPON, 0);
-        Physics_AddDetailTrace(v18, WeaponPriorityMap);
+        Physics_AddDetailTrace(v14, WeaponPriorityMap);
         LODWORD(extendedData.ignoreBodies) = 0;
       }
-      v32 = 0;
+      v24 = 0;
       if ( NumRigidBodys > 0 )
       {
         do
         {
           if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
             __debugbreak();
-          if ( (unsigned int)v11 > 7 )
+          if ( (unsigned int)v7 > 7 )
           {
-            LODWORD(shapeStorage) = v11;
+            LODWORD(shapeStorage) = v7;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", shapeStorage) )
               __debugbreak();
           }
-          if ( !g_physicsClientWorldsCreated && (unsigned int)(v11 - 2) <= 5 )
+          if ( !g_physicsClientWorldsCreated && (unsigned int)(v7 - 2) <= 5 )
           {
-            LODWORD(shapeStorage) = v11;
+            LODWORD(shapeStorage) = v7;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", shapeStorage) )
               __debugbreak();
           }
-          if ( !g_physicsServerWorldsCreated && (unsigned int)v11 <= 1 )
+          if ( !g_physicsServerWorldsCreated && (unsigned int)v7 <= 1 )
           {
-            LODWORD(shapeStorage) = v11;
+            LODWORD(shapeStorage) = v7;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", shapeStorage) )
               __debugbreak();
           }
-          RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&physicsInstanceId, (const Physics_WorldId)v11, v20, v32);
-          Physics_Raycast((Physics_WorldId)v11, RigidBodyID->m_serialAndIndex, start, end, (Physics_RaycastExtendedData *)&extendedData, v18);
-          if ( HavokPhysics_CollisionQueryResult::HasHit(v18) )
-            goto LABEL_47;
+          RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&physicsInstanceId, (const Physics_WorldId)v7, v16, v24);
+          Physics_Raycast((Physics_WorldId)v7, RigidBodyID->m_serialAndIndex, start, end, (Physics_RaycastExtendedData *)&extendedData, v14);
+          if ( HavokPhysics_CollisionQueryResult::HasHit(v14) )
+            goto LABEL_48;
         }
-        while ( (int)++v32 < NumRigidBodys );
+        while ( (int)++v24 < NumRigidBodys );
       }
     }
     else
     {
-      __asm
-      {
-        vucomiss xmm6, xmm1
-        vmovss  [rsp+0E8h+extendedData.startTolerance], xmm1
-        vmovss  xmm0, cs:__real@3c83126f
-        vmovss  [rsp+0E8h+extendedData.accuracy], xmm0
-      }
+      extendedData.startTolerance = 0.0;
+      _XMM0 = LODWORD(FLOAT_0_016000001);
+      extendedData.accuracy = FLOAT_0_016000001;
       extendedData.simplifyStart = 0;
       extendedData.ignoreBodies = NULL;
-      __asm
-      {
-        vmovss  [rsp+0E8h+extendedData.collisionBuffer], xmm1
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+0E8h+extendedData.nonBrushShape], xmm0
-      }
+      extendedData.collisionBuffer = 0.0;
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)&extendedData.nonBrushShape = _XMM0;
       extendedData.phaseSelection = All;
       extendedData.permitOutwardTrace = 0;
       extendedData.contents = contentMask;
-      __asm
-      {
-        vsubss  xmm2, xmm7, xmm6; halfHeight
-        vmovaps xmm3, xmm6; radius
-      }
-      ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v11, &_RSI->midPoint, *(float *)&_XMM2, *(float *)&_XMM3, s_PhysicsQuery_LegacyTraceShapeBuffers[v17], 432, Temporary);
+      ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v7, &bounds->midPoint, v12 - v11, v11, s_PhysicsQuery_LegacyTraceShapeBuffers[v13], 432, Temporary);
       if ( !ShapeCapsuleUpAxis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4770, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
         __debugbreak();
-      v29 = 0;
+      v21 = 0;
       if ( NumRigidBodys > 0 )
       {
         while ( 1 )
         {
-          v30 = Physics_GetRigidBodyID((const Physics_WorldId)v11, v20, v29);
-          Physics_Shapecast((Physics_WorldId)v11, v30, ShapeCapsuleUpAxis, start, end, &quat_identity, &extendedData, v18, NULL);
-          if ( HavokPhysics_CollisionQueryResult::HasHit(v18) )
+          v22 = Physics_GetRigidBodyID((const Physics_WorldId)v7, v16, v21);
+          Physics_Shapecast((Physics_WorldId)v7, v22, ShapeCapsuleUpAxis, start, end, &quat_identity, &extendedData, v14, NULL);
+          if ( HavokPhysics_CollisionQueryResult::HasHit(v14) )
             break;
-          if ( (int)++v29 >= NumRigidBodys )
-            goto LABEL_48;
+          if ( (int)++v21 >= NumRigidBodys )
+            goto LABEL_49;
         }
-LABEL_47:
-        v19 = 1;
+LABEL_48:
+        v15 = 1;
       }
     }
   }
-LABEL_48:
-  if ( v13 )
-    hkMonitorStream::timerEnd(v13, "Et");
-  result = v19;
-  _R11 = &v40;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+LABEL_49:
+  if ( v9 )
+    hkMonitorStream::timerEnd(v9, "Et");
+  return v15;
 }
 
 /*
@@ -8871,107 +6612,96 @@ PhysicsQuery_LegacyGetEntityPointContents
 */
 __int64 PhysicsQuery_LegacyGetEntityPointContents(Physics_WorldId worldId, const vec3_t *pos, unsigned int physicsInstanceId, int contentMask)
 {
-  int v6; 
-  __int64 v8; 
+  int v4; 
+  __int64 v6; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v10; 
-  unsigned int v11; 
-  HavokPhysics_CollisionQueryResult *v13; 
+  hkMonitorStream *v8; 
+  unsigned int v9; 
+  HavokPhysics_CollisionQueryResult *v10; 
   int NumRigidBodys; 
-  signed int v15; 
-  vec3_t *v16; 
+  signed int v12; 
+  vec3_t *v13; 
   hknpBodyId *RigidBodyID; 
-  __int64 v19; 
-  __int64 v21; 
-  hkMonitorStream *v22; 
+  __int64 v16; 
+  hkMonitorStream *v17; 
   Physics_QueryPointExtendedData extendedData; 
-  void *retaddr; 
   hknpBodyId result; 
   vec3_t *point; 
-  int v28; 
+  int v21; 
 
-  _RAX = &retaddr;
-  v28 = contentMask;
+  v21 = contentMask;
   point = (vec3_t *)pos;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v6 = contentMask;
-  v8 = worldId;
+  v4 = contentMask;
+  v6 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v10 = Value;
-  v22 = Value;
+  v8 = Value;
+  v17 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyGetEntityPointContents");
-  if ( (unsigned int)v8 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4337, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  if ( (unsigned int)v6 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4337, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4338, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4338, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   extendedData.simplify = 0;
-  v11 = 0;
+  v9 = 0;
   extendedData.ignoreBodies = NULL;
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  [rsp+0C8h+extendedData.collisionBuffer], xmm6
-  }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4345, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  extendedData.contents = v6;
-  v13 = s_PhysicsQuery_LegacyQueryAnyResults[(int)(28 * v8 + Physics_GetThreadId())];
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4353, ASSERT_TYPE_ASSERT, "(queryResult)", (const char *)&queryFormat, "queryResult") )
+  extendedData.contents = v4;
+  v10 = s_PhysicsQuery_LegacyQueryAnyResults[(int)(28 * v6 + Physics_GetThreadId())];
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4353, ASSERT_TYPE_ASSERT, "(queryResult)", (const char *)&queryFormat, "queryResult") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v13, 1);
-  NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v8, physicsInstanceId);
-  v15 = 0;
+  HavokPhysics_CollisionQueryResult::Reset(v10, 1);
+  NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v6, physicsInstanceId);
+  v12 = 0;
   if ( NumRigidBodys > 0 )
   {
-    v16 = point;
+    v13 = point;
     do
     {
       if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
         __debugbreak();
-      if ( (unsigned int)v8 > 7 )
+      if ( (unsigned int)v6 > 7 )
       {
-        LODWORD(v21) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v21) )
+        LODWORD(v16) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v16) )
           __debugbreak();
       }
       if ( physicsInstanceId == -1 )
       {
-        LODWORD(v21) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v21) )
+        LODWORD(v16) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v16) )
           __debugbreak();
       }
-      if ( !g_physicsClientWorldsCreated && (unsigned int)(v8 - 2) <= 5 )
+      if ( !g_physicsClientWorldsCreated && (unsigned int)(v6 - 2) <= 5 )
       {
-        LODWORD(v21) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v21) )
+        LODWORD(v16) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v16) )
           __debugbreak();
       }
-      if ( !g_physicsServerWorldsCreated && (unsigned int)v8 <= 1 )
+      if ( !g_physicsServerWorldsCreated && (unsigned int)v6 <= 1 )
       {
-        LODWORD(v21) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v21) )
+        LODWORD(v16) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v16) )
           __debugbreak();
       }
-      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v8, physicsInstanceId, v15);
-      __asm { vmovaps xmm3, xmm6; maxDistance }
-      Physics_QueryPoint((Physics_WorldId)v8, RigidBodyID->m_serialAndIndex, v16, *(float *)&_XMM3, &extendedData, v13);
-      ++v15;
+      RigidBodyID = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v6, physicsInstanceId, v12);
+      Physics_QueryPoint((Physics_WorldId)v6, RigidBodyID->m_serialAndIndex, v13, 0.0, &extendedData, v10);
+      ++v12;
     }
-    while ( v15 < NumRigidBodys );
-    v10 = v22;
-    v11 = 0;
-    v6 = v28;
+    while ( v12 < NumRigidBodys );
+    v8 = v17;
+    v9 = 0;
+    v4 = v21;
   }
-  if ( HavokPhysics_CollisionQueryResult::HasHit(v13) )
-    v11 = v6 & HavokPhysics_CollisionQueryResult::GetClosestPointHitHitContents(v13, 0);
-  if ( v10 )
-    hkMonitorStream::timerEnd(v10, "Et");
-  v19 = v11;
-  __asm { vmovaps xmm6, [rsp+0C8h+var_48] }
-  return v19;
+  if ( HavokPhysics_CollisionQueryResult::HasHit(v10) )
+    v9 = v4 & HavokPhysics_CollisionQueryResult::GetClosestPointHitHitContents(v10, 0);
+  if ( v8 )
+    hkMonitorStream::timerEnd(v8, "Et");
+  return v9;
 }
 
 /*
@@ -8981,61 +6711,50 @@ PhysicsQuery_LegacyGetPointContents
 */
 __int64 PhysicsQuery_LegacyGetPointContents(Physics_WorldId worldId, const vec3_t *pos, int skipEntity, int contentMask)
 {
-  __int64 v10; 
+  __int64 v7; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v12; 
-  int v13; 
-  unsigned int v15; 
-  HavokPhysics_IgnoreBodies *v16; 
-  HavokPhysics_CollisionQueryResult *v17; 
-  __int64 result; 
+  hkMonitorStream *v9; 
+  int v10; 
+  unsigned int v11; 
+  HavokPhysics_IgnoreBodies *v12; 
+  HavokPhysics_CollisionQueryResult *v13; 
   Physics_QueryPointExtendedData extendedData; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v10 = worldId;
+  v7 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v12 = Value;
+  v9 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyGetPointContents");
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4290, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v13 = Physics_GetThreadId() + 28 * v10;
-  if ( (unsigned int)v10 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4293, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  v10 = Physics_GetThreadId() + 28 * v7;
+  if ( (unsigned int)v7 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4293, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4294, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4294, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   extendedData.simplify = 0;
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  [rsp+0A8h+extendedData.collisionBuffer], xmm6
-  }
-  v15 = 0;
+  extendedData.collisionBuffer = 0.0;
+  v11 = 0;
   extendedData.phaseSelection = All;
-  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v13]);
-  v16 = s_PhysicsQuery_LegacyIgnoreBodies[v13];
-  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
+  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v10]);
+  v12 = s_PhysicsQuery_LegacyIgnoreBodies[v10];
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
     __debugbreak();
   if ( skipEntity >= 0 )
-    HavokPhysics_IgnoreBodies::AddIgnoreEntity(v16, skipEntity, 1, 1, 0, 1, 0);
+    HavokPhysics_IgnoreBodies::AddIgnoreEntity(v12, skipEntity, 1, 1, 0, 1, 0);
   extendedData.contents = contentMask;
-  extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v13];
-  v17 = s_PhysicsQuery_LegacyQueryAnyResults[v13];
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4310, ASSERT_TYPE_ASSERT, "(queryResult)", (const char *)&queryFormat, "queryResult") )
+  extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v10];
+  v13 = s_PhysicsQuery_LegacyQueryAnyResults[v10];
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4310, ASSERT_TYPE_ASSERT, "(queryResult)", (const char *)&queryFormat, "queryResult") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v17, 1);
-  __asm { vxorps  xmm2, xmm2, xmm2; maxDistance }
-  Physics_QueryPoint((Physics_WorldId)v10, pos, *(float *)&_XMM2, &extendedData, v17);
-  if ( HavokPhysics_CollisionQueryResult::HasHit(v17) )
-    v15 = contentMask & HavokPhysics_CollisionQueryResult::GetClosestPointHitHitContents(v17, 0);
-  if ( v12 )
-    hkMonitorStream::timerEnd(v12, "Et");
-  result = v15;
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  return result;
+  HavokPhysics_CollisionQueryResult::Reset(v13, 1);
+  Physics_QueryPoint((Physics_WorldId)v7, pos, 0.0, &extendedData, v13);
+  if ( HavokPhysics_CollisionQueryResult::HasHit(v13) )
+    v11 = contentMask & HavokPhysics_CollisionQueryResult::GetClosestPointHitHitContents(v13, 0);
+  if ( v9 )
+    hkMonitorStream::timerEnd(v9, "Et");
+  return v11;
 }
 
 /*
@@ -9045,59 +6764,56 @@ PhysicsQuery_LegacyGrenadeTrace
 */
 void PhysicsQuery_LegacyGrenadeTrace(trace_t *results, const vec3_t *start, const vec3_t *end, const Bounds *bounds, int grenadeEntity, const int *skipEntities, int skipEntityCount, team_t skipTeamCharacters, int contentMask, Physics_QueryPhaseSelection phaseSelection, bool detail, const Physics_WorldId mainWorldId, const Physics_WorldId detailWorldId)
 {
+  const vec3_t *v15; 
+  const vec3_t *v16; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v23; 
+  hkMonitorStream *v19; 
+  __int64 v21; 
+  HavokPhysics_IgnoreBodies *v22; 
+  __int64 v23; 
+  int v24; 
   __int64 v25; 
   HavokPhysics_IgnoreBodies *v26; 
-  __int64 v27; 
-  int v28; 
-  __int64 v29; 
-  HavokPhysics_IgnoreBodies *v30; 
-  int v31; 
-  hknpShape *v35; 
-  bool v36; 
-  bool v37; 
+  int v27; 
+  hknpShape *v28; 
   unsigned __int8 *WeaponPriorityMap; 
-  unsigned __int8 *v46; 
+  trace_t *v31; 
+  unsigned __int8 *v32; 
   int NumHits; 
-  int v49; 
-  HavokPhysics_CollisionQueryResult *v50; 
+  int v34; 
+  HavokPhysics_CollisionQueryResult *v35; 
   int ClosestPointHitRef; 
-  char v52; 
+  bool v37; 
+  double RaycastHitFraction; 
   const Physics_DetailHitData *DetailHitData; 
-  hkMonitorStream *v56; 
-  Physics_RaycastExtendedData v59; 
-  Physics_QueryPointExtendedData v60; 
+  hkMonitorStream *v41; 
+  Physics_RaycastExtendedData v44; 
+  Physics_QueryPointExtendedData v45; 
   Physics_ShapecastExtendedData extendedData; 
-  __int64 v62; 
-  hkMonitorStream *v63; 
+  __int64 v47; 
+  hkMonitorStream *v48; 
   vec3_t center; 
-  void *retaddr; 
+  float v50; 
+  float v51; 
+  float v52; 
 
-  _RAX = &retaddr;
-  v62 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  _RDI = end;
-  _R12 = start;
+  v47 = -2i64;
+  v15 = end;
+  v16 = start;
   if ( !skipEntities && skipEntityCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5223, ASSERT_TYPE_ASSERT, "(skipEntities || skipEntityCount == 0)", (const char *)&queryFormat, "skipEntities || skipEntityCount == 0") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rbp+60h+center], xmm6
-    vmovss  dword ptr [rbp+60h+center+4], xmm6
-    vmovss  dword ptr [rbp+60h+center+8], xmm6
-    vmovss  xmm0, cs:tinyRadius
-    vmovss  [rbp+60h+var_54], xmm0
-    vmovss  [rbp+60h+var_50], xmm0
-    vmovss  [rbp+60h+var_4C], xmm0
-  }
+  center.v[0] = 0.0;
+  center.v[1] = 0.0;
+  center.v[2] = 0.0;
+  v50 = tinyRadius;
+  v51 = tinyRadius;
+  v52 = tinyRadius;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v23 = Value;
-  v56 = Value;
+  v19 = Value;
+  v41 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyGrenadeTrace");
-  v63 = v23;
+  v48 = v19;
   Profile_Begin(789);
   if ( !results && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5235, ASSERT_TYPE_ASSERT, "(results)", (const char *)&queryFormat, "results") )
     __debugbreak();
@@ -9109,164 +6825,118 @@ void PhysicsQuery_LegacyGrenadeTrace(trace_t *results, const vec3_t *start, cons
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5241, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v25 = (int)(28 * mainWorldId + Physics_GetThreadId());
-  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v25]);
-  v26 = s_PhysicsQuery_LegacyIgnoreBodies[v25];
-  if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
+  v21 = (int)(28 * mainWorldId + Physics_GetThreadId());
+  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v21]);
+  v22 = s_PhysicsQuery_LegacyIgnoreBodies[v21];
+  if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
     __debugbreak();
   if ( grenadeEntity >= 0 )
-    HavokPhysics_IgnoreBodies::AddIgnoreEntity(v26, grenadeEntity, 1, 1, 0, 0, 0);
-  v27 = skipEntityCount;
-  v28 = 0;
+    HavokPhysics_IgnoreBodies::AddIgnoreEntity(v22, grenadeEntity, 1, 1, 0, 0, 0);
+  v23 = skipEntityCount;
+  v24 = 0;
   if ( skipEntityCount > 0i64 )
   {
-    v29 = 0i64;
+    v25 = 0i64;
     do
     {
-      v30 = s_PhysicsQuery_LegacyIgnoreBodies[v25];
-      v31 = skipEntities[v29];
-      if ( !v30 )
+      v26 = s_PhysicsQuery_LegacyIgnoreBodies[v21];
+      v27 = skipEntities[v25];
+      if ( !v26 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
           __debugbreak();
-        v27 = skipEntityCount;
+        v23 = skipEntityCount;
       }
-      if ( v31 >= 0 )
+      if ( v27 >= 0 )
       {
-        HavokPhysics_IgnoreBodies::AddIgnoreEntity(v30, v31, 1, 0, 0, 0, 0);
-        v27 = skipEntityCount;
+        HavokPhysics_IgnoreBodies::AddIgnoreEntity(v26, v27, 1, 0, 0, 0, 0);
+        v23 = skipEntityCount;
       }
-      ++v29;
+      ++v25;
     }
-    while ( v29 < v27 );
-    v23 = v56;
-    v28 = 0;
-    _R12 = start;
-    _RDI = end;
+    while ( v25 < v23 );
+    v19 = v41;
+    v24 = 0;
+    v16 = start;
+    v15 = end;
   }
-  HavokPhysics_IgnoreBodies::SetIgnoreRefs(s_PhysicsQuery_LegacyIgnoreBodies[v25], -830);
-  s_PhysicsQuery_LegacyIgnoreBodies[v25]->m_ignoreTeamCharacters = skipTeamCharacters;
-  __asm
-  {
-    vmovss  xmm3, [rbp+60h+var_54]; radius
-    vmovss  xmm0, [rbp+60h+var_4C]
-    vsubss  xmm2, xmm0, xmm3; halfHeight
-  }
-  v35 = Physics_CreateShapeCapsuleUpAxis(mainWorldId, &center, *(float *)&_XMM2, *(float *)&_XMM3, s_PhysicsQuery_LegacyTraceShapeBuffers[v25], 432, Temporary);
-  v36 = v35 == NULL;
-  if ( !v35 )
-  {
-    v37 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5276, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape");
-    v36 = !v37;
-    if ( v37 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vucomiss xmm0, dword ptr [r12]
-  }
-  if ( !v36 )
-    goto LABEL_44;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vucomiss xmm0, dword ptr [r12+4]
-  }
-  if ( !v36 )
-    goto LABEL_44;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vucomiss xmm0, dword ptr [r12+8]
-  }
-  if ( v36 )
+  HavokPhysics_IgnoreBodies::SetIgnoreRefs(s_PhysicsQuery_LegacyIgnoreBodies[v21], -830);
+  s_PhysicsQuery_LegacyIgnoreBodies[v21]->m_ignoreTeamCharacters = skipTeamCharacters;
+  v28 = Physics_CreateShapeCapsuleUpAxis(mainWorldId, &center, v52 - v50, v50, s_PhysicsQuery_LegacyTraceShapeBuffers[v21], 432, Temporary);
+  if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5276, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
+    __debugbreak();
+  if ( v15->v[0] == v16->v[0] && v15->v[1] == v16->v[1] && v15->v[2] == v16->v[2] )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5281, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Grenade trying to trace zero distance - currently unsupported") )
       __debugbreak();
   }
   else
   {
-LABEL_44:
-    __asm
-    {
-      vmovss  [rbp+60h+extendedData.startTolerance], xmm6
-      vmovss  xmm0, cs:__real@3c83126f
-      vmovss  [rbp+60h+extendedData.accuracy], xmm0
-    }
+    extendedData.startTolerance = 0.0;
+    extendedData.accuracy = FLOAT_0_016000001;
     extendedData.simplifyStart = 0;
-    __asm
-    {
-      vpxor   xmm1, xmm1, xmm1
-      vmovdqu xmmword ptr [rbp+60h+extendedData.nonBrushShape], xmm1
-      vmovss  [rbp+60h+var_F0.collisionBuffer], xmm6
-    }
-    v59.insideHitType = Physics_RaycastInsideHitType_InsideHits;
-    *(_WORD *)&v59.collectInsideHits = 256;
-    v60.simplify = 0;
-    __asm { vmovss  [rbp+60h+var_C8.collisionBuffer], xmm6 }
+    __asm { vpxor   xmm1, xmm1, xmm1 }
+    *(_OWORD *)&extendedData.nonBrushShape = _XMM1;
+    v44.collisionBuffer = 0.0;
+    v44.insideHitType = Physics_RaycastInsideHitType_InsideHits;
+    *(_WORD *)&v44.collectInsideHits = 256;
+    v45.simplify = 0;
+    v45.collisionBuffer = 0.0;
     extendedData.contents = contentMask & 0xFDFFBFFF;
-    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v25];
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3e000000
-      vmovss  [rbp+60h+extendedData.collisionBuffer], xmm0
-    }
+    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v21];
+    extendedData.collisionBuffer = FLOAT_0_125;
     extendedData.phaseSelection = phaseSelection;
     extendedData.permitOutwardTrace = 1;
-    v59.contents = contentMask & 0x2004000;
-    v59.ignoreBodies = extendedData.ignoreBodies;
-    v59.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
-    v59.phaseSelection = phaseSelection;
-    v60.contents = contentMask & 0x2004000;
-    v60.ignoreBodies = extendedData.ignoreBodies;
-    v60.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
-    v60.phaseSelection = phaseSelection;
-    HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[v25], 1);
+    v44.contents = contentMask & 0x2004000;
+    v44.ignoreBodies = extendedData.ignoreBodies;
+    v44.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
+    v44.phaseSelection = phaseSelection;
+    v45.contents = contentMask & 0x2004000;
+    v45.ignoreBodies = extendedData.ignoreBodies;
+    v45.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
+    v45.phaseSelection = phaseSelection;
+    HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[v21], 1);
     if ( detail )
     {
       WeaponPriorityMap = BG_GetWeaponPriorityMap(&NULL_WEAPON, 0);
-      Physics_AddDetailTrace(s_PhysicsQuery_LegacyTraceResults[v25], WeaponPriorityMap);
+      Physics_AddDetailTrace(s_PhysicsQuery_LegacyTraceResults[v21], WeaponPriorityMap);
     }
-    Physics_Shapecast(mainWorldId, v35, _R12, _RDI, &quat_identity, &extendedData, s_PhysicsQuery_LegacyTraceResults[v25], NULL);
-    _RSI = results;
-    Physics_ConvertShapeQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v25], NULL, results);
-    HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[v25], 1);
-    v46 = BG_GetWeaponPriorityMap(&NULL_WEAPON, 0);
-    Physics_AddDetailTrace(s_PhysicsQuery_LegacyTraceResults[v25], v46);
-    Physics_Raycast(mainWorldId, _R12, _RDI, &v59, s_PhysicsQuery_LegacyTraceResults[v25]);
-    HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryAllResults[v25], 1);
-    __asm { vmovaps xmm2, xmm6; maxDistance }
-    Physics_QueryPoint(mainWorldId, _R12, *(float *)&_XMM2, &v60, s_PhysicsQuery_LegacyQueryAllResults[v25]);
-    NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(s_PhysicsQuery_LegacyQueryAllResults[v25]);
+    Physics_Shapecast(mainWorldId, v28, v16, v15, &quat_identity, &extendedData, s_PhysicsQuery_LegacyTraceResults[v21], NULL);
+    v31 = results;
+    Physics_ConvertShapeQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v21], NULL, results);
+    HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[v21], 1);
+    v32 = BG_GetWeaponPriorityMap(&NULL_WEAPON, 0);
+    Physics_AddDetailTrace(s_PhysicsQuery_LegacyTraceResults[v21], v32);
+    Physics_Raycast(mainWorldId, v16, v15, &v44, s_PhysicsQuery_LegacyTraceResults[v21]);
+    HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryAllResults[v21], 1);
+    Physics_QueryPoint(mainWorldId, v16, 0.0, &v45, s_PhysicsQuery_LegacyQueryAllResults[v21]);
+    NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(s_PhysicsQuery_LegacyQueryAllResults[v21]);
     if ( NumHits > 0 )
     {
-      v49 = NumHits;
+      v34 = NumHits;
       do
       {
-        if ( !HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v25]) || (v50 = s_PhysicsQuery_LegacyTraceResults[v25], ClosestPointHitRef = HavokPhysics_CollisionQueryResult::GetClosestPointHitRef(s_PhysicsQuery_LegacyQueryAllResults[v25], v28), v36 = HavokPhysics_CollisionQueryResult::GetRaycastHitRef(v50, 0) == ClosestPointHitRef, _RDI = end, !v36) )
-          HavokPhysics_CollisionQueryResult::AddQueryPointHitAsRaycastHit(s_PhysicsQuery_LegacyTraceResults[v25], mainWorldId, s_PhysicsQuery_LegacyQueryAllResults[v25], v28, _R12, _RDI, &v59);
-        ++v28;
+        if ( !HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v21]) || (v35 = s_PhysicsQuery_LegacyTraceResults[v21], ClosestPointHitRef = HavokPhysics_CollisionQueryResult::GetClosestPointHitRef(s_PhysicsQuery_LegacyQueryAllResults[v21], v24), v37 = HavokPhysics_CollisionQueryResult::GetRaycastHitRef(v35, 0) == ClosestPointHitRef, v15 = end, !v37) )
+          HavokPhysics_CollisionQueryResult::AddQueryPointHitAsRaycastHit(s_PhysicsQuery_LegacyTraceResults[v21], mainWorldId, s_PhysicsQuery_LegacyQueryAllResults[v21], v24, v16, v15, &v44);
+        ++v24;
       }
-      while ( v28 < v49 );
-      v23 = v56;
-      _RSI = results;
+      while ( v24 < v34 );
+      v19 = v41;
+      v31 = results;
     }
-    if ( HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v25]) )
+    if ( HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v21]) )
     {
-      *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(s_PhysicsQuery_LegacyTraceResults[v25], 0);
-      __asm { vcomiss xmm0, dword ptr [rsi] }
-      if ( v52 )
+      RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(s_PhysicsQuery_LegacyTraceResults[v21], 0);
+      if ( *(float *)&RaycastHitFraction < v31->fraction )
       {
-        DetailHitData = Physics_GetDetailHitData(s_PhysicsQuery_LegacyTraceResults[v25], 0, 0);
-        Physics_ConvertRayQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v25], NULL, DetailHitData, _RSI);
+        DetailHitData = Physics_GetDetailHitData(s_PhysicsQuery_LegacyTraceResults[v21], 0, 0);
+        Physics_ConvertRayQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v21], NULL, DetailHitData, v31);
       }
     }
   }
   Profile_EndInternal(NULL);
-  if ( v23 )
-    hkMonitorStream::timerEnd(v23, "Et");
-  __asm { vmovaps xmm6, xmmword ptr [rsp+160h+var_48+8] }
+  if ( v19 )
+    hkMonitorStream::timerEnd(v19, "Et");
 }
 
 /*
@@ -9276,52 +6946,48 @@ PhysicsQuery_LegacyLightSightTrace
 */
 _BOOL8 PhysicsQuery_LegacyLightSightTrace(Physics_WorldId worldId, const vec3_t *start, const vec3_t *end, int contentMask)
 {
-  __int64 v8; 
+  __int64 v7; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v10; 
-  int v11; 
+  hkMonitorStream *v9; 
+  int v10; 
   BOOL HasHit; 
-  HavokPhysics_CollisionQueryResult *v13; 
+  HavokPhysics_CollisionQueryResult *v12; 
   Physics_RaycastExtendedData extendedData; 
 
-  v8 = worldId;
+  v7 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v10 = Value;
+  v9 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyLightSightTrace");
-  if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4823, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS", -2i64, v10) )
+  if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4823, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS", -2i64, v9) )
     __debugbreak();
-  v11 = Physics_GetThreadId() + 28 * v8;
-  if ( (unsigned int)(v8 - 2) > 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4826, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_CLIENT_FIRST && worldId <= PHYSICS_WORLD_ID_CLIENT_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_CLIENT_FIRST && worldId <= PHYSICS_WORLD_ID_CLIENT_LAST") )
+  v10 = Physics_GetThreadId() + 28 * v7;
+  if ( (unsigned int)(v7 - 2) > 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4826, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_CLIENT_FIRST && worldId <= PHYSICS_WORLD_ID_CLIENT_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_CLIENT_FIRST && worldId <= PHYSICS_WORLD_ID_CLIENT_LAST") )
     __debugbreak();
-  if ( s_PhysicsQuery_WorldInitialized[v8] )
+  if ( s_PhysicsQuery_WorldInitialized[v7] )
   {
-    HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v11]);
-    HavokPhysics_IgnoreBodies::SetIgnoreRefs(s_PhysicsQuery_LegacyIgnoreBodies[v11], -2);
-    v13 = s_PhysicsQuery_LegacyQueryAnyResults[v11];
-    if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4847, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+    HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v10]);
+    HavokPhysics_IgnoreBodies::SetIgnoreRefs(s_PhysicsQuery_LegacyIgnoreBodies[v10], -2);
+    v12 = s_PhysicsQuery_LegacyQueryAnyResults[v10];
+    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4847, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
       __debugbreak();
-    HavokPhysics_CollisionQueryResult::Reset(v13, 1);
+    HavokPhysics_CollisionQueryResult::Reset(v12, 1);
     extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+98h+extendedData.collisionBuffer], xmm0
-    }
+    extendedData.collisionBuffer = 0.0;
     extendedData.phaseSelection = All;
     extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
     *(_WORD *)&extendedData.collectInsideHits = 256;
     extendedData.contents = contentMask;
-    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v11];
-    Physics_Raycast((Physics_WorldId)v8, start, end, &extendedData, v13);
-    HasHit = HavokPhysics_CollisionQueryResult::HasHit(v13);
+    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v10];
+    Physics_Raycast((Physics_WorldId)v7, start, end, &extendedData, v12);
+    HasHit = HavokPhysics_CollisionQueryResult::HasHit(v12);
   }
   else
   {
     HasHit = 0;
   }
-  if ( v10 )
-    hkMonitorStream::timerEnd(v10, "Et");
+  if ( v9 )
+    hkMonitorStream::timerEnd(v9, "Et");
   return HasHit;
 }
 
@@ -9332,65 +6998,61 @@ PhysicsQuery_LegacyMPCGWeaponSimTrace
 */
 void PhysicsQuery_LegacyMPCGWeaponSimTrace(Physics_WorldId worldId, trace_t *results, const vec3_t *start, const vec3_t *end, const Bounds *bounds, const int *skipEntities, int skipEntityCount, int skipChildren, int contentMask, int locational, unsigned __int8 *priorityMap, Physics_QueryPhaseSelection phaseSelection, const bool detectInsideRaycasts)
 {
-  trace_t *v18; 
-  __int64 v19; 
+  const vec3_t *v13; 
+  const vec3_t *v14; 
+  trace_t *v15; 
+  __int64 v16; 
   hknpShape *Value; 
-  hknpShape *v21; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
-  const int *v25; 
-  HavokPhysics_IgnoreBodies *v26; 
-  int v27; 
-  char v28; 
-  char v33; 
-  char v34; 
-  const vec3_t *v38; 
-  hknpShape *v39; 
-  int v41; 
-  hknpShape *v43; 
-  Physics_QueryPhaseSelection v44; 
-  const vec3_t *v45; 
+  hknpShape *v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v21; 
+  const int *v22; 
+  HavokPhysics_IgnoreBodies *v23; 
+  int v24; 
+  char v25; 
+  const vec3_t *v26; 
+  hknpShape *v27; 
+  int v28; 
+  hknpShape *v29; 
+  Physics_QueryPhaseSelection v30; 
+  const vec3_t *v31; 
   unsigned int ThreadId; 
   bool IsShapeCacheDisabled; 
-  int v49; 
-  unsigned __int8 *v51; 
-  int v52; 
-  int v53; 
-  int v54; 
-  int v55; 
-  HavokPhysics_CollisionQueryResult *v57; 
+  int v34; 
+  unsigned __int8 *v35; 
+  int v36; 
+  int v37; 
+  int v38; 
+  int v39; 
+  HavokPhysics_CollisionQueryResult *v40; 
   int ClosestPointHitRef; 
-  char v59; 
+  double RaycastHitFraction; 
   unsigned int RaycastHitBodyId; 
-  float fmt; 
-  Physics_QueryPointExtendedData v64; 
+  Physics_QueryPointExtendedData v44; 
   hknpShape *shape; 
   Physics_ShapecastExtendedData extendedData; 
   int legacyEntryId; 
   Physics_DetailHitData *detailHitData; 
-  __int64 v69; 
-  _QWORD v70[11]; 
-  void *retaddr; 
+  __int64 v49; 
+  __int128 v50; 
 
-  _RAX = &retaddr;
-  v69 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm6 }
-  _R14 = end;
-  _R12 = start;
-  v18 = results;
-  v19 = worldId;
+  v49 = -2i64;
+  v13 = end;
+  v14 = start;
+  v15 = results;
+  v16 = worldId;
   Value = (hknpShape *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v21 = Value;
+  v18 = Value;
   shape = Value;
   if ( Value )
     hkMonitorStream::timerBegin((hkMonitorStream *)Value, "TtLegacyQuery: PhysicsQuery_LegacyMPCGWeaponSimTrace");
-  v70[0] = v21;
-  if ( (unsigned int)v19 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3527, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  *(_QWORD *)&v50 = v18;
+  if ( (unsigned int)v16 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3527, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v19] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3528, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v16] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3528, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3529, ASSERT_TYPE_ASSERT, "(results)", (const char *)&queryFormat, "results") )
+  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3529, ASSERT_TYPE_ASSERT, "(results)", (const char *)&queryFormat, "results") )
     __debugbreak();
   if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3530, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
@@ -9398,255 +7060,192 @@ void PhysicsQuery_LegacyMPCGWeaponSimTrace(Physics_WorldId worldId, trace_t *res
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3533, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  legacyEntryId = 28 * v19 + Physics_GetThreadId();
-  v22 = legacyEntryId;
+  legacyEntryId = 28 * v16 + Physics_GetThreadId();
+  v19 = legacyEntryId;
   HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId]);
   HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryResults[legacyEntryId], 1);
   HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[legacyEntryId], 1);
-  v23 = skipEntityCount;
-  v24 = 0i64;
+  v20 = skipEntityCount;
+  v21 = 0i64;
   detailHitData = NULL;
   if ( skipEntityCount > 0 )
   {
-    v25 = skipEntities;
+    v22 = skipEntities;
     do
     {
-      v26 = s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId];
-      v27 = v25[v24];
-      if ( !v26 )
+      v23 = s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId];
+      v24 = v22[v21];
+      if ( !v23 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
           __debugbreak();
-        v23 = skipEntityCount;
+        v20 = skipEntityCount;
       }
-      if ( v27 >= 0 )
+      if ( v24 >= 0 )
       {
-        HavokPhysics_IgnoreBodies::AddIgnoreEntity(v26, v27, 1, skipChildren == 1, 0, 1, 0);
-        v23 = skipEntityCount;
+        HavokPhysics_IgnoreBodies::AddIgnoreEntity(v23, v24, 1, skipChildren == 1, 0, 1, 0);
+        v20 = skipEntityCount;
       }
-      ++v24;
+      ++v21;
     }
-    while ( v24 < v23 );
-    v21 = shape;
-    LODWORD(v19) = worldId;
-    _R12 = start;
-    _R14 = end;
-    v18 = results;
+    while ( v21 < v20 );
+    v18 = shape;
+    LODWORD(v16) = worldId;
+    v14 = start;
+    v13 = end;
+    v15 = results;
   }
   HavokPhysics_IgnoreBodies::SetIgnoreRefs(s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId], 194);
-  _RCX = bounds;
-  __asm
+  if ( bounds->halfSize.v[2] == 0.0 || bounds->halfSize.v[0] == 0.0 )
   {
-    vmovss  xmm1, dword ptr [rcx+0Ch]
-    vmovss  xmm0, dword ptr [rcx+14h]
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm0, xmm6
-  }
-  if ( v28 )
-  {
-    __asm
+    if ( v13->v[0] == v14->v[0] && v13->v[1] == v14->v[1] && v13->v[2] == v14->v[2] )
     {
-      vmovss  xmm0, dword ptr [r14]
-      vucomiss xmm0, dword ptr [r12]
-    }
-    if ( !v28 )
-      goto LABEL_56;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+4]
-      vucomiss xmm0, dword ptr [r12+4]
-    }
-    if ( !v28 )
-      goto LABEL_56;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+8]
-      vucomiss xmm0, dword ptr [r12+8]
-    }
-    if ( v28 )
-    {
-      v64.simplify = 0;
-      __asm { vmovss  [rbp+3Fh+var_D0.collisionBuffer], xmm6 }
+      v44.simplify = 0;
+      v44.collisionBuffer = 0.0;
       if ( locational && priorityMap )
       {
-        v49 = contentMask & 0xFDFFBFFF;
-        v64.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
+        v34 = contentMask & 0xFDFFBFFF;
+        v44.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
       }
       else
       {
-        v49 = contentMask;
-        v64.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
+        v34 = contentMask;
+        v44.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
       }
-      v64.contents = v49;
-      v64.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId];
-      v64.phaseSelection = phaseSelection;
-      __asm { vxorps  xmm2, xmm2, xmm2; maxDistance }
-      Physics_QueryPoint((Physics_WorldId)v19, _R12, *(float *)&_XMM2, &v64, s_PhysicsQuery_LegacyQueryResults[legacyEntryId]);
-      Physics_ConvertClosestPointsToLegacyTrace(s_PhysicsQuery_LegacyQueryResults[v22], v18);
+      v44.contents = v34;
+      v44.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId];
+      v44.phaseSelection = phaseSelection;
+      Physics_QueryPoint((Physics_WorldId)v16, v14, 0.0, &v44, s_PhysicsQuery_LegacyQueryResults[legacyEntryId]);
+      Physics_ConvertClosestPointsToLegacyTrace(s_PhysicsQuery_LegacyQueryResults[v19], v15);
     }
     else
     {
-LABEL_56:
-      v51 = priorityMap;
+      v35 = priorityMap;
       if ( locational && priorityMap )
         Physics_AddDetailTrace(s_PhysicsQuery_LegacyTraceResults[legacyEntryId], priorityMap);
-      __asm { vmovss  dword ptr [rbp+3Fh+extendedData+14h], xmm6 }
+      *((float *)&extendedData.ignoreBodies + 1) = 0.0;
       LOWORD(extendedData.nonBrushShape) = 256;
-      v52 = contentMask;
+      v36 = contentMask;
       extendedData.contents = contentMask;
       *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId];
-      if ( !locational || (LODWORD(extendedData.ignoreBodies) = 0, !v51) )
+      if ( !locational || (LODWORD(extendedData.ignoreBodies) = 0, !v35) )
         LODWORD(extendedData.ignoreBodies) = 1;
       LODWORD(extendedData.collisionBuffer) = phaseSelection;
-      v53 = 1;
+      v37 = 1;
       if ( detectInsideRaycasts )
-        v53 = 2;
-      *((_DWORD *)&extendedData.collisionBuffer + 1) = v53;
-      Physics_Raycast((Physics_WorldId)v19, _R12, _R14, (Physics_RaycastExtendedData *)&extendedData, s_PhysicsQuery_LegacyTraceResults[legacyEntryId]);
-      v54 = locational;
-      if ( locational && v51 )
+        v37 = 2;
+      *((_DWORD *)&extendedData.collisionBuffer + 1) = v37;
+      Physics_Raycast((Physics_WorldId)v16, v14, v13, (Physics_RaycastExtendedData *)&extendedData, s_PhysicsQuery_LegacyTraceResults[legacyEntryId]);
+      v38 = locational;
+      if ( locational && v35 )
       {
-        v64.simplify = 0;
-        __asm { vmovss  [rbp+3Fh+var_D0.collisionBuffer], xmm6 }
-        v64.contents = v52 & 0x2004000;
-        v64.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v22];
-        v55 = 0;
-        v64.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
-        v64.phaseSelection = phaseSelection;
-        HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryAllResults[v22], 1);
-        __asm { vxorps  xmm2, xmm2, xmm2; maxDistance }
-        Physics_QueryPoint((Physics_WorldId)v19, _R12, *(float *)&_XMM2, &v64, s_PhysicsQuery_LegacyQueryAllResults[v22]);
-        skipEntityCount = HavokPhysics_CollisionQueryResult::GetNumHits(s_PhysicsQuery_LegacyQueryAllResults[v22]);
+        v44.simplify = 0;
+        v44.collisionBuffer = 0.0;
+        v44.contents = v36 & 0x2004000;
+        v44.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v19];
+        v39 = 0;
+        v44.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
+        v44.phaseSelection = phaseSelection;
+        HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryAllResults[v19], 1);
+        Physics_QueryPoint((Physics_WorldId)v16, v14, 0.0, &v44, s_PhysicsQuery_LegacyQueryAllResults[v19]);
+        skipEntityCount = HavokPhysics_CollisionQueryResult::GetNumHits(s_PhysicsQuery_LegacyQueryAllResults[v19]);
         if ( skipEntityCount > 0 )
         {
           do
           {
-            if ( !HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v22]) || (v57 = s_PhysicsQuery_LegacyTraceResults[v22], ClosestPointHitRef = HavokPhysics_CollisionQueryResult::GetClosestPointHitRef(s_PhysicsQuery_LegacyQueryAllResults[v22], v55), HavokPhysics_CollisionQueryResult::GetRaycastHitRef(v57, 0) != ClosestPointHitRef) )
-              HavokPhysics_CollisionQueryResult::AddQueryPointHitAsRaycastHit(s_PhysicsQuery_LegacyTraceResults[v22], (Physics_WorldId)v19, s_PhysicsQuery_LegacyQueryAllResults[v22], v55, _R12, end, (Physics_RaycastExtendedData *)&extendedData);
-            ++v55;
+            if ( !HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v19]) || (v40 = s_PhysicsQuery_LegacyTraceResults[v19], ClosestPointHitRef = HavokPhysics_CollisionQueryResult::GetClosestPointHitRef(s_PhysicsQuery_LegacyQueryAllResults[v19], v39), HavokPhysics_CollisionQueryResult::GetRaycastHitRef(v40, 0) != ClosestPointHitRef) )
+              HavokPhysics_CollisionQueryResult::AddQueryPointHitAsRaycastHit(s_PhysicsQuery_LegacyTraceResults[v19], (Physics_WorldId)v16, s_PhysicsQuery_LegacyQueryAllResults[v19], v39, v14, end, (Physics_RaycastExtendedData *)&extendedData);
+            ++v39;
           }
-          while ( v55 < skipEntityCount );
-          v21 = shape;
-          v51 = priorityMap;
-          v52 = contentMask;
+          while ( v39 < skipEntityCount );
+          v18 = shape;
+          v35 = priorityMap;
+          v36 = contentMask;
         }
-        v54 = locational;
+        v38 = locational;
       }
-      if ( HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v22]) )
+      if ( HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v19]) )
       {
-        *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(s_PhysicsQuery_LegacyTraceResults[v22], 0);
-        __asm { vcomiss xmm0, xmm6 }
-        if ( v59 | v28 )
+        RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(s_PhysicsQuery_LegacyTraceResults[v19], 0);
+        if ( *(float *)&RaycastHitFraction <= 0.0 )
         {
-          v64.simplify = 0;
-          v64.ignoreBodies = NULL;
-          __asm { vmovss  [rbp+3Fh+var_D0.collisionBuffer], xmm6 }
-          if ( v54 && v51 )
+          v44.simplify = 0;
+          v44.ignoreBodies = NULL;
+          v44.collisionBuffer = 0.0;
+          if ( v38 && v35 )
           {
-            v52 &= 0xFDFFBFFF;
-            v64.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
+            v36 &= 0xFDFFBFFF;
+            v44.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
           }
           else
           {
-            v64.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
+            v44.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
           }
-          v64.contents = v52;
-          v64.phaseSelection = phaseSelection;
-          RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(s_PhysicsQuery_LegacyTraceResults[v22], 0);
+          v44.contents = v36;
+          v44.phaseSelection = phaseSelection;
+          RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(s_PhysicsQuery_LegacyTraceResults[v19], 0);
           if ( (RaycastHitBodyId & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3696, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( hitBodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( hitBodyId )") )
             __debugbreak();
-          __asm { vmovaps xmm3, xmm6; maxDistance }
-          Physics_QueryPoint((Physics_WorldId)v19, RaycastHitBodyId, _R12, *(float *)&_XMM3, &v64, s_PhysicsQuery_LegacyQueryResults[v22]);
+          Physics_QueryPoint((Physics_WorldId)v16, RaycastHitBodyId, v14, 0.0, &v44, s_PhysicsQuery_LegacyQueryResults[v19]);
         }
       }
-      if ( v54 && v51 )
-        detailHitData = (Physics_DetailHitData *)Physics_GetDetailHitData(s_PhysicsQuery_LegacyTraceResults[v22], 0, 0);
-      Physics_ConvertRayQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v22], s_PhysicsQuery_LegacyQueryResults[v22], detailHitData, results);
+      if ( v38 && v35 )
+        detailHitData = (Physics_DetailHitData *)Physics_GetDetailHitData(s_PhysicsQuery_LegacyTraceResults[v19], 0, 0);
+      Physics_ConvertRayQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v19], s_PhysicsQuery_LegacyQueryResults[v19], detailHitData, results);
     }
   }
   else
   {
-    __asm { vucomiss xmm1, xmm6 }
-    v34 = PhysicsQuery_LegacyTraceCreateShape((Physics_WorldId)v19, NULL, bounds, 0, s_PhysicsQuery_LegacyTraceShapeBuffers[legacyEntryId], 0, (hknpShape **)&bounds, (hknpShape **)&skipEntities, &shape, NULL);
-    LOBYTE(skipEntityCount) = v34;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14]
-      vucomiss xmm0, dword ptr [r12]
-    }
-    if ( !v33 )
-      goto LABEL_39;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+4]
-      vucomiss xmm0, dword ptr [r12+4]
-    }
-    if ( !v33 )
-      goto LABEL_39;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+8]
-      vucomiss xmm0, dword ptr [r12+8]
-    }
-    if ( v33 )
+    v25 = PhysicsQuery_LegacyTraceCreateShape((Physics_WorldId)v16, NULL, bounds, 0, s_PhysicsQuery_LegacyTraceShapeBuffers[legacyEntryId], 0, (hknpShape **)&bounds, (hknpShape **)&skipEntities, &shape, NULL);
+    LOBYTE(skipEntityCount) = v25;
+    if ( v13->v[0] == v14->v[0] && v13->v[1] == v14->v[1] && v13->v[2] == v14->v[2] )
     {
       LOBYTE(extendedData.startTolerance) = 0;
-      __asm { vmovss  [rbp+3Fh+extendedData.collisionBuffer], xmm6 }
+      *(float *)&extendedData.ignoreBodies = 0.0;
       if ( locational && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3565, ASSERT_TYPE_ASSERT, "(locational == qfalse)", "%s\n\tCan't do locational shape traces - only locational ray-traces", "locational == qfalse") )
         __debugbreak();
       extendedData.contents = contentMask;
-      *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v22];
+      *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v19];
       *(_QWORD *)&extendedData.collisionBuffer = skipEntities;
       LODWORD(extendedData.nonBrushShape) = phaseSelection;
-      __asm { vmovss  dword ptr [rsp+120h+fmt], xmm6 }
-      v38 = _R12;
-      v39 = (hknpShape *)bounds;
-      Physics_GetClosestPoints((Physics_WorldId)v19, (hknpShape *)bounds, v38, &quat_identity, fmt, (Physics_GetClosestPointsExtendedData *)&extendedData, s_PhysicsQuery_LegacyQueryResults[v22]);
-      Physics_ConvertClosestPointsToLegacyTrace(s_PhysicsQuery_LegacyQueryResults[v22], results);
+      v26 = v14;
+      v27 = (hknpShape *)bounds;
+      Physics_GetClosestPoints((Physics_WorldId)v16, (hknpShape *)bounds, v26, &quat_identity, 0.0, (Physics_GetClosestPointsExtendedData *)&extendedData, s_PhysicsQuery_LegacyQueryResults[v19]);
+      Physics_ConvertClosestPointsToLegacyTrace(s_PhysicsQuery_LegacyQueryResults[v19], results);
     }
     else
     {
-LABEL_39:
-      __asm
-      {
-        vmovss  dword ptr [rbp+3Fh+extendedData.simplify], xmm6
-        vmovss  xmm0, cs:__real@3c83126f
-        vmovss  dword ptr [rbp+3Fh+extendedData.ignoreBodies], xmm0
-      }
+      extendedData.startTolerance = 0.0;
+      extendedData.accuracy = FLOAT_0_016000001;
       extendedData.simplifyStart = 0;
       extendedData.permitOutwardTrace = 0;
       if ( locational && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3582, ASSERT_TYPE_ASSERT, "(locational == qfalse)", "%s\n\tCan't do locational shape traces - only locational ray-traces", "locational == qfalse") )
         __debugbreak();
-      v41 = contentMask;
+      v28 = contentMask;
       extendedData.contents = contentMask;
-      extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v22];
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3e000000
-        vmovss  dword ptr [rbp+3Fh+extendedData.nonBrushShape], xmm0
-      }
-      v43 = (hknpShape *)skipEntities;
+      extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v19];
+      extendedData.collisionBuffer = FLOAT_0_125;
+      v29 = (hknpShape *)skipEntities;
       extendedData.nonBrushShape = (hknpShape *)skipEntities;
       extendedData.secondPassShape = shape;
-      v44 = phaseSelection;
+      v30 = phaseSelection;
       extendedData.phaseSelection = phaseSelection;
-      v45 = _R12;
-      v39 = (hknpShape *)bounds;
-      Physics_Shapecast((Physics_WorldId)v19, (hknpShape *)bounds, v45, end, &quat_identity, &extendedData, s_PhysicsQuery_LegacyTraceResults[v22], s_PhysicsQuery_LegacyQueryResults[v22]);
-      Physics_ConvertShapeQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v22], s_PhysicsQuery_LegacyQueryResults[v22], results);
-      PhysicsQuery_LegacyTraceProcessAllSolid((Physics_WorldId)v19, results, &quat_identity, legacyEntryId, v41, v43, v44, v39, end);
-      v34 = skipEntityCount;
+      v31 = v14;
+      v27 = (hknpShape *)bounds;
+      Physics_Shapecast((Physics_WorldId)v16, (hknpShape *)bounds, v31, end, &quat_identity, &extendedData, s_PhysicsQuery_LegacyTraceResults[v19], s_PhysicsQuery_LegacyQueryResults[v19]);
+      Physics_ConvertShapeQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v19], s_PhysicsQuery_LegacyQueryResults[v19], results);
+      PhysicsQuery_LegacyTraceProcessAllSolid((Physics_WorldId)v16, results, &quat_identity, legacyEntryId, v28, v29, v30, v27, end);
+      v25 = skipEntityCount;
     }
     ThreadId = Physics_GetThreadId();
     IsShapeCacheDisabled = Physics_IsShapeCacheDisabled(ThreadId);
     if ( shape )
-      Physics_ReleaseShape((Physics_WorldId)v19, shape, IsShapeCacheDisabled);
-    if ( v39 && v34 )
-      Physics_ReleaseShape((Physics_WorldId)v19, v39, IsShapeCacheDisabled);
+      Physics_ReleaseShape((Physics_WorldId)v16, shape, IsShapeCacheDisabled);
+    if ( v27 && v25 )
+      Physics_ReleaseShape((Physics_WorldId)v16, v27, IsShapeCacheDisabled);
   }
-  if ( v21 )
-    hkMonitorStream::timerEnd((hkMonitorStream *)v21, "Et");
-  __asm { vmovaps xmm6, xmmword ptr [rsp+120h+var_58+8] }
+  if ( v18 )
+    hkMonitorStream::timerEnd((hkMonitorStream *)v18, "Et");
 }
 
 /*
@@ -9656,20 +7255,20 @@ PhysicsQuery_LegacyPenetrationBrushEntityTrace
 */
 void PhysicsQuery_LegacyPenetrationBrushEntityTrace(Physics_WorldId worldId, vec3_t *normal, const vec3_t *start, const vec3_t *end, const Bounds *bounds, int contentMask, unsigned int physicsInstanceId, const playerState_s *ps, int brushId, const vec3_t *brushOrigin, const vec3_t *brushAngles)
 {
-  __int64 v12; 
+  __int64 v11; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v15; 
-  int v16; 
-  HavokPhysics_CollisionQueryResult *v17; 
+  hkMonitorStream *v13; 
+  int v14; 
+  HavokPhysics_CollisionQueryResult *v15; 
   HavokPhysics_CollisionQueryResult *startResult; 
-  bool v19; 
-  bool v20; 
-  signed int v25; 
+  float v17; 
+  float v18; 
+  signed int v20; 
   hknpShape *ShapeCapsuleUpAxis; 
-  HavokPhysics_CollisionQueryResult *v30; 
-  hknpBodyId *v31; 
-  signed int v32; 
-  HavokPhysics_CollisionQueryResult *v33; 
+  HavokPhysics_CollisionQueryResult *v23; 
+  hknpBodyId *v24; 
+  signed int v25; 
+  HavokPhysics_CollisionQueryResult *v26; 
   hknpBodyId *RigidBodyID; 
   __int64 shapeStorage; 
   __int64 shapeStoragea; 
@@ -9677,44 +7276,43 @@ void PhysicsQuery_LegacyPenetrationBrushEntityTrace(Physics_WorldId worldId, vec
   hknpBodyId result[2]; 
   vec3_t *enda; 
   vec3_t *starta; 
-  hkMonitorStream *v41; 
+  hkMonitorStream *v34; 
   Physics_ShapecastExtendedData extendedData; 
   vec3_t *normala; 
-  __int64 v44; 
-  hkMonitorStream *v45; 
+  __int64 v37; 
+  hkMonitorStream *v38; 
   vec4_t quat; 
 
-  v44 = -2i64;
+  v37 = -2i64;
   enda = (vec3_t *)end;
   starta = (vec3_t *)start;
   normala = normal;
-  v12 = worldId;
-  _R15 = bounds;
+  v11 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v15 = Value;
-  v41 = Value;
+  v13 = Value;
+  v34 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyPenetrationBrushEntityTrace");
-  v45 = v15;
-  if ( (unsigned int)v12 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4190, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  v38 = v13;
+  if ( (unsigned int)v11 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4190, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4191, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4191, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4192, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4194, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v16 = Physics_GetThreadId() + 28 * v12;
+  v14 = Physics_GetThreadId() + 28 * v11;
   if ( physicsInstanceId == -1 )
     NumRigidBodys = 0;
   else
-    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v12, physicsInstanceId);
-  v17 = s_PhysicsQuery_LegacyTraceResults[v16];
-  *(_QWORD *)&result[0].m_serialAndIndex = v17;
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4202, ASSERT_TYPE_ASSERT, "(traceResult)", (const char *)&queryFormat, "traceResult") )
+    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v11, physicsInstanceId);
+  v15 = s_PhysicsQuery_LegacyTraceResults[v14];
+  *(_QWORD *)&result[0].m_serialAndIndex = v15;
+  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4202, ASSERT_TYPE_ASSERT, "(traceResult)", (const char *)&queryFormat, "traceResult") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v17, 1);
-  startResult = s_PhysicsQuery_LegacyQueryResults[v16];
+  HavokPhysics_CollisionQueryResult::Reset(v15, 1);
+  startResult = s_PhysicsQuery_LegacyQueryResults[v14];
   if ( !startResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4205, ASSERT_TYPE_ASSERT, "(queryResult)", (const char *)&queryFormat, "queryResult") )
     __debugbreak();
   HavokPhysics_CollisionQueryResult::Reset(startResult, 1);
@@ -9724,154 +7322,128 @@ void PhysicsQuery_LegacyPenetrationBrushEntityTrace(Physics_WorldId worldId, vec
   {
     AnglesToQuat(&ps->movingPlatforms.m_moverUpAngles, &quat);
   }
+  else if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xEu) )
+  {
+    if ( Com_GameMode_SupportsFeature(WEAPON_STUNNED_END|0x80) )
+      BGMovingPlatforms::GetBestPlatformUp(ps, brushAngles, NULL, &quat);
+    else
+      AnglesToQuat(brushAngles, &quat);
+  }
   else
   {
-    v20 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xEu);
-    v19 = !v20;
-    if ( v20 )
-    {
-      if ( Com_GameMode_SupportsFeature(WEAPON_STUNNED_END|0x80) )
-        BGMovingPlatforms::GetBestPlatformUp(ps, brushAngles, NULL, &quat);
-      else
-        AnglesToQuat(brushAngles, &quat);
-    }
-    else
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-        vmovups xmmword ptr [rbp+3Fh+quat], xmm0
-      }
-    }
+    quat = quat_identity;
   }
-  __asm
+  v17 = bounds->halfSize.v[0];
+  v18 = bounds->halfSize.v[2];
+  if ( v18 == 0.0 || v17 == 0.0 )
   {
-    vmovss  xmm3, dword ptr [r15+0Ch]; radius
-    vmovss  xmm1, dword ptr [r15+14h]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm1, xmm0
-  }
-  if ( v19 )
-  {
-    v32 = 0;
+    v25 = 0;
     *(_QWORD *)&extendedData.accuracy = 0i64;
     LODWORD(extendedData.ignoreBodies) = 1;
-    __asm { vmovss  dword ptr [rbp+3Fh+extendedData.ignoreBodies+4], xmm0 }
+    *((float *)&extendedData.ignoreBodies + 1) = 0.0;
     extendedData.collisionBuffer = 0.0;
     *((_DWORD *)&extendedData.collisionBuffer + 1) = 1;
     LOWORD(extendedData.nonBrushShape) = 256;
     extendedData.contents = contentMask;
-    v33 = *(HavokPhysics_CollisionQueryResult **)&result[0].m_serialAndIndex;
+    v26 = *(HavokPhysics_CollisionQueryResult **)&result[0].m_serialAndIndex;
     if ( NumRigidBodys > 0 )
     {
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v12 > 7 )
+        if ( (unsigned int)v11 > 7 )
         {
-          LODWORD(shapeStorage) = v12;
+          LODWORD(shapeStorage) = v11;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", shapeStorage) )
             __debugbreak();
         }
         if ( physicsInstanceId == -1 )
         {
-          LODWORD(shapeStorage) = v12;
+          LODWORD(shapeStorage) = v11;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", shapeStorage) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v12 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v11 - 2) <= 5 )
         {
-          LODWORD(shapeStorage) = v12;
+          LODWORD(shapeStorage) = v11;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", shapeStorage) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v12 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v11 <= 1 )
         {
-          LODWORD(shapeStorage) = v12;
+          LODWORD(shapeStorage) = v11;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", shapeStorage) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID(result, (const Physics_WorldId)v12, physicsInstanceId, v32);
-        Physics_Raycast((Physics_WorldId)v12, RigidBodyID->m_serialAndIndex, starta, enda, (Physics_RaycastExtendedData *)&extendedData, v33);
-        ++v32;
+        RigidBodyID = HavokPhysics_GetRigidBodyID(result, (const Physics_WorldId)v11, physicsInstanceId, v25);
+        Physics_Raycast((Physics_WorldId)v11, RigidBodyID->m_serialAndIndex, starta, enda, (Physics_RaycastExtendedData *)&extendedData, v26);
+        ++v25;
       }
-      while ( v32 < NumRigidBodys );
-      v15 = v41;
+      while ( v25 < NumRigidBodys );
+      v13 = v34;
     }
-    if ( HavokPhysics_CollisionQueryResult::HasHit(v33) )
-      HavokPhysics_CollisionQueryResult::GetRaycastHitNormal(v33, 0, normala);
+    if ( HavokPhysics_CollisionQueryResult::HasHit(v26) )
+      HavokPhysics_CollisionQueryResult::GetRaycastHitNormal(v26, 0, normala);
   }
   else
   {
-    __asm
-    {
-      vucomiss xmm3, xmm0
-      vmovss  [rbp+3Fh+extendedData.startTolerance], xmm0
-      vmovss  xmm0, cs:__real@3c83126f
-      vmovss  [rbp+3Fh+extendedData.accuracy], xmm0
-    }
+    extendedData.startTolerance = 0.0;
+    _XMM0 = LODWORD(FLOAT_0_016000001);
+    extendedData.accuracy = FLOAT_0_016000001;
     extendedData.simplifyStart = 0;
-    v25 = 0;
+    v20 = 0;
     extendedData.ignoreBodies = NULL;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+3Fh+extendedData.nonBrushShape], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&extendedData.nonBrushShape = _XMM0;
     extendedData.phaseSelection = All;
     extendedData.permitOutwardTrace = 0;
     extendedData.contents = contentMask;
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3e000000
-      vmovss  [rbp+3Fh+extendedData.collisionBuffer], xmm0
-      vsubss  xmm2, xmm1, xmm3; halfHeight
-    }
-    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v12, &bounds->midPoint, *(float *)&_XMM2, *(float *)&_XMM3, s_PhysicsQuery_LegacyTraceShapeBuffers[v16], 432, Temporary);
+    extendedData.collisionBuffer = FLOAT_0_125;
+    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v11, &bounds->midPoint, v18 - v17, v17, s_PhysicsQuery_LegacyTraceShapeBuffers[v14], 432, Temporary);
     if ( !ShapeCapsuleUpAxis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4252, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
       __debugbreak();
     if ( NumRigidBodys > 0 )
     {
-      v30 = *(HavokPhysics_CollisionQueryResult **)&result[0].m_serialAndIndex;
+      v23 = *(HavokPhysics_CollisionQueryResult **)&result[0].m_serialAndIndex;
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v12 > 7 )
+        if ( (unsigned int)v11 > 7 )
         {
-          LODWORD(shapeStoragea) = v12;
+          LODWORD(shapeStoragea) = v11;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", shapeStoragea) )
             __debugbreak();
         }
         if ( physicsInstanceId == -1 )
         {
-          LODWORD(shapeStoragea) = v12;
+          LODWORD(shapeStoragea) = v11;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", shapeStoragea) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v12 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v11 - 2) <= 5 )
         {
-          LODWORD(shapeStoragea) = v12;
+          LODWORD(shapeStoragea) = v11;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", shapeStoragea) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v12 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v11 <= 1 )
         {
-          LODWORD(shapeStoragea) = v12;
+          LODWORD(shapeStoragea) = v11;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", shapeStoragea) )
             __debugbreak();
         }
-        v31 = HavokPhysics_GetRigidBodyID(result, (const Physics_WorldId)v12, physicsInstanceId, v25);
-        Physics_Shapecast((Physics_WorldId)v12, v31->m_serialAndIndex, ShapeCapsuleUpAxis, starta, enda, &quat, &extendedData, v30, startResult);
-        ++v25;
+        v24 = HavokPhysics_GetRigidBodyID(result, (const Physics_WorldId)v11, physicsInstanceId, v20);
+        Physics_Shapecast((Physics_WorldId)v11, v24->m_serialAndIndex, ShapeCapsuleUpAxis, starta, enda, &quat, &extendedData, v23, startResult);
+        ++v20;
       }
-      while ( v25 < NumRigidBodys );
-      v15 = v41;
+      while ( v20 < NumRigidBodys );
+      v13 = v34;
     }
   }
-  if ( v15 )
-    hkMonitorStream::timerEnd(v15, "Et");
+  if ( v13 )
+    hkMonitorStream::timerEnd(v13, "Et");
 }
 
 /*
@@ -9881,80 +7453,75 @@ PhysicsQuery_LegacyPenetrationTest
 */
 void PhysicsQuery_LegacyPenetrationTest(Physics_WorldId worldId, const playerState_s *ps, bool *penetrating, bool *penetratingBrushBasis, vec3_t *penetration, const vec3_t *pos, const vec3_t *angles, const Bounds *bounds, int contentMask, unsigned int physicsInstanceId, const vec3_t *brushAngles, int ignoreEnt, bool vehicleTrace)
 {
-  __int64 v23; 
+  __int64 v15; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v26; 
-  int v27; 
+  hkMonitorStream *v17; 
+  int v18; 
   __int16 groundRefEnt; 
-  bool *v29; 
-  unsigned int v30; 
-  __int64 v31; 
-  HavokPhysics_CollisionQueryResult *v32; 
-  char v33; 
+  bool *v20; 
+  int v21; 
+  __int64 v22; 
+  HavokPhysics_CollisionQueryResult *v23; 
+  __m128 v24; 
+  float v25; 
+  float v26; 
+  playerState_s *v27; 
   unsigned int NumRigidBodys; 
-  unsigned int v59; 
+  unsigned int v29; 
   hknpBodyId *RigidBodyID; 
-  hknpShape *v61; 
+  hknpShape *v31; 
   bool HasHit; 
-  HavokPhysics_IgnoreBodies *v70; 
+  float viewHeightCurrent; 
+  float v34; 
+  float v35; 
+  float v36; 
+  HavokPhysics_IgnoreBodies *v37; 
   bool ClosestPointHitHitBrushBasis; 
-  bool *v75; 
-  char v90; 
+  bool *v39; 
+  float v40; 
+  __int128 v41; 
+  float v42; 
+  __int128 v43; 
+  vec3_t *v46; 
   unsigned int ThreadId; 
   bool IsShapeCacheDisabled; 
-  bool v110; 
-  float fmt; 
-  float maxDistance; 
+  bool v49; 
   hknpShape **shape; 
-  char v122; 
-  bool v123; 
+  char v51; 
+  bool v52; 
   hknpBodyId result[2]; 
-  hknpShape *v125; 
+  hknpShape *v54; 
   playerState_s *psa; 
-  bool *v127; 
-  vec3_t *v128; 
-  vec3_t *v129; 
+  bool *v56; 
+  vec3_t *v57; 
+  vec3_t *v58; 
   hknpShape *paddedShape; 
   Physics_GetClosestPointsExtendedData extendedData; 
-  __int64 v132; 
-  hkMonitorStream *v133; 
+  __int64 v61; 
+  hkMonitorStream *v62; 
   vec3_t normal; 
-  vec3_t v135; 
+  vec3_t v64; 
   vec3_t point; 
   tmat33_t<vec3_t> axis; 
   vec4_t quat; 
-  Bounds v139; 
-  char v140; 
-  void *retaddr; 
+  Bounds v68; 
 
-  _RAX = &retaddr;
-  v132 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-  }
-  v127 = penetratingBrushBasis;
-  *(_QWORD *)v135.v = penetrating;
+  v61 = -2i64;
+  v56 = penetratingBrushBasis;
+  *(_QWORD *)v64.v = penetrating;
   psa = (playerState_s *)ps;
-  v23 = worldId;
-  v129 = penetration;
-  v128 = (vec3_t *)angles;
-  _R13 = bounds;
+  v15 = worldId;
+  v58 = penetration;
+  v57 = (vec3_t *)angles;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v26 = Value;
+  v17 = Value;
   *(_QWORD *)normal.v = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyPenetrationTest");
-  v133 = v26;
+  v62 = v17;
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4041, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v27 = Physics_GetThreadId() + 28 * v23;
+  v18 = Physics_GetThreadId() + 28 * v15;
   if ( !ps )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2605, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
@@ -9974,263 +7541,166 @@ void PhysicsQuery_LegacyPenetrationTest(Physics_WorldId worldId, const playerSta
     __debugbreak();
   if ( BG_IsPlayerZeroGWalking(ps) || vehicleTrace )
 LABEL_20:
-    v122 = 0;
+    v51 = 0;
   else
-    v122 = 1;
-  if ( (unsigned int)v23 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4045, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+    v51 = 1;
+  if ( (unsigned int)v15 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4045, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v23] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4046, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v15] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4046, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !penetrating && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4047, ASSERT_TYPE_ASSERT, "(penetrating)", (const char *)&queryFormat, "penetrating") )
     __debugbreak();
-  v29 = v127;
-  if ( !v127 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4048, ASSERT_TYPE_ASSERT, "(penetratingBrushBasis)", (const char *)&queryFormat, "penetratingBrushBasis") )
+  v20 = v56;
+  if ( !v56 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4048, ASSERT_TYPE_ASSERT, "(penetratingBrushBasis)", (const char *)&queryFormat, "penetratingBrushBasis") )
     __debugbreak();
   if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4049, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
   *penetrating = 0;
-  *v29 = 0;
-  v30 = 0;
+  *v20 = 0;
+  v21 = 0;
   *(_QWORD *)penetration->v = 0i64;
   penetration->v[2] = 0.0;
-  v31 = v27;
-  v32 = s_PhysicsQuery_LegacyQueryResults[v27];
-  if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4057, ASSERT_TYPE_ASSERT, "(queryResult)", (const char *)&queryFormat, "queryResult") )
+  v22 = v18;
+  v23 = s_PhysicsQuery_LegacyQueryResults[v18];
+  if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4057, ASSERT_TYPE_ASSERT, "(queryResult)", (const char *)&queryFormat, "queryResult") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v32, 1);
-  __asm
-  {
-    vxorps  xmm12, xmm12, xmm12
-    vucomiss xmm12, dword ptr [r13+0Ch]
-  }
-  if ( v33 )
-    goto LABEL_87;
-  __asm { vucomiss xmm12, dword ptr [r13+14h] }
-  if ( v33 )
-  {
-LABEL_87:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4061, ASSERT_TYPE_ASSERT, "(bounds->halfSize[0] != 0.f && bounds->halfSize[2] != 0.f)", (const char *)&queryFormat, "bounds->halfSize[0] != 0.f && bounds->halfSize[2] != 0.f") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovups xmm6, xmmword ptr [r13+0]
-    vmovups xmmword ptr [rbp+100h+var_D0.midPoint], xmm6
-    vmovsd  xmm0, qword ptr [r13+10h]
-    vmovsd  qword ptr [rbp+100h+var_D0.halfSize+4], xmm0
-    vshufps xmm7, xmm6, xmm6, 55h ; 'U'
-    vshufps xmm8, xmm6, xmm6, 0AAh ; 'ª'
-    vmovss  dword ptr [rbp+100h+var_D0.midPoint], xmm12
-    vmovss  dword ptr [rbp+100h+var_D0.midPoint+4], xmm12
-    vmovss  dword ptr [rbp+100h+var_D0.midPoint+8], xmm12
-  }
-  _R13 = psa;
-  v123 = PhysicsQuery_LegacyTraceCreateShape((Physics_WorldId)v23, psa, &v139, 0, s_PhysicsQuery_LegacyTraceShapeBuffers[v27], vehicleTrace, &v125, (hknpShape **)result, &paddedShape, NULL);
+  HavokPhysics_CollisionQueryResult::Reset(v23, 1);
+  if ( (bounds->halfSize.v[0] == 0.0 || bounds->halfSize.v[2] == 0.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4061, ASSERT_TYPE_ASSERT, "(bounds->halfSize[0] != 0.f && bounds->halfSize[2] != 0.f)", (const char *)&queryFormat, "bounds->halfSize[0] != 0.f && bounds->halfSize[2] != 0.f") )
+    __debugbreak();
+  v24 = *(__m128 *)bounds->midPoint.v;
+  *(__m128 *)v68.midPoint.v = v24;
+  *(_QWORD *)&v68.halfSize.y = *(_QWORD *)&bounds->halfSize.y;
+  LODWORD(v25) = _mm_shuffle_ps(v24, v24, 85).m128_u32[0];
+  LODWORD(v26) = _mm_shuffle_ps(v24, v24, 170).m128_u32[0];
+  v68.midPoint.v[0] = 0.0;
+  v68.midPoint.v[1] = 0.0;
+  v68.midPoint.v[2] = 0.0;
+  v27 = psa;
+  v52 = PhysicsQuery_LegacyTraceCreateShape((Physics_WorldId)v15, psa, &v68, 0, s_PhysicsQuery_LegacyTraceShapeBuffers[v18], vehicleTrace, &v54, (hknpShape **)result, &paddedShape, NULL);
   extendedData.simplify = 0;
   extendedData.ignoreBodies = NULL;
-  __asm { vmovss  [rbp+100h+extendedData.collisionBuffer], xmm12 }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.contents = contentMask;
   extendedData.nonBrushShape = *(hknpShape **)&result[0].m_serialAndIndex;
-  if ( v128 )
-    AnglesToQuat(v128, &quat);
+  if ( v57 )
+    AnglesToQuat(v57, &quat);
   else
-    PhysicsQuery_LegacyTraceBuildTraceQuat((Physics_WorldId)v23, _R13, &quat, vehicleTrace);
+    PhysicsQuery_LegacyTraceBuildTraceQuat((Physics_WorldId)v15, v27, &quat, vehicleTrace);
   QuatToAxis(&quat, &axis);
-  __asm
-  {
-    vmulss  xmm3, xmm7, dword ptr [rbp+100h+axis+0Ch]
-    vmulss  xmm2, xmm6, dword ptr [rbp+100h+axis]
-    vaddss  xmm3, xmm3, xmm2
-    vmulss  xmm0, xmm8, dword ptr [rbp+100h+axis+18h]
-    vaddss  xmm1, xmm3, xmm0
-    vaddss  xmm1, xmm1, dword ptr [rax]
-    vmovss  dword ptr [rbp+100h+point], xmm1
-    vmulss  xmm3, xmm7, dword ptr [rbp+100h+axis+10h]
-    vmulss  xmm2, xmm6, dword ptr [rbp+100h+axis+4]
-    vaddss  xmm3, xmm3, xmm2
-    vmulss  xmm0, xmm8, dword ptr [rbp+100h+axis+1Ch]
-    vaddss  xmm1, xmm3, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rax+4]
-    vmovss  dword ptr [rbp+100h+point+4], xmm2
-    vmulss  xmm3, xmm7, dword ptr [rbp+100h+axis+14h]
-    vmulss  xmm2, xmm6, dword ptr [rbp+100h+axis+8]
-    vaddss  xmm3, xmm3, xmm2
-    vmulss  xmm0, xmm8, dword ptr [rbp+100h+axis+20h]
-    vaddss  xmm1, xmm3, xmm0
-    vaddss  xmm2, xmm1, dword ptr [rax+8]
-    vmovss  dword ptr [rbp+100h+point+8], xmm2
-  }
+  point.v[0] = (float)((float)((float)(v25 * axis.m[1].v[0]) + (float)(v24.m128_f32[0] * axis.m[0].v[0])) + (float)(v26 * axis.m[2].v[0])) + pos->v[0];
+  point.v[1] = (float)((float)((float)(v25 * axis.m[1].v[1]) + (float)(v24.m128_f32[0] * axis.m[0].v[1])) + (float)(v26 * axis.m[2].v[1])) + pos->v[1];
+  point.v[2] = (float)((float)((float)(v25 * axis.m[1].v[2]) + (float)(v24.m128_f32[0] * axis.m[0].v[2])) + (float)(v26 * axis.m[2].v[2])) + pos->v[2];
   if ( physicsInstanceId == -1 )
   {
-    v70 = s_PhysicsQuery_LegacyIgnoreBodies[v27];
-    HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v31]);
-    PhysicsQuery_AddEntityChainToIgnoreList(ignoreEnt, v70, 1, 1, 0, 1, 0);
-    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v31];
-    __asm { vmovss  dword ptr [rsp+200h+fmt], xmm12 }
-    v61 = v125;
-    Physics_GetClosestPoints((Physics_WorldId)v23, v125, &point, &quat, fmt, &extendedData, v32);
+    v37 = s_PhysicsQuery_LegacyIgnoreBodies[v18];
+    HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v22]);
+    PhysicsQuery_AddEntityChainToIgnoreList(ignoreEnt, v37, 1, 1, 0, 1, 0);
+    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v22];
+    v31 = v54;
+    Physics_GetClosestPoints((Physics_WorldId)v15, v54, &point, &quat, 0.0, &extendedData, v23);
   }
   else
   {
-    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v23, physicsInstanceId);
-    v59 = 0;
+    NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v15, physicsInstanceId);
+    v29 = 0;
     if ( NumRigidBodys )
     {
       do
       {
         if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
           __debugbreak();
-        if ( (unsigned int)v23 > 7 )
+        if ( (unsigned int)v15 > 7 )
         {
-          LODWORD(shape) = v23;
+          LODWORD(shape) = v15;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", shape) )
             __debugbreak();
         }
-        if ( !g_physicsClientWorldsCreated && (unsigned int)(v23 - 2) <= 5 )
+        if ( !g_physicsClientWorldsCreated && (unsigned int)(v15 - 2) <= 5 )
         {
-          LODWORD(shape) = v23;
+          LODWORD(shape) = v15;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", shape) )
             __debugbreak();
         }
-        if ( !g_physicsServerWorldsCreated && (unsigned int)v23 <= 1 )
+        if ( !g_physicsServerWorldsCreated && (unsigned int)v15 <= 1 )
         {
-          LODWORD(shape) = v23;
+          LODWORD(shape) = v15;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", shape) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID(result, (const Physics_WorldId)v23, physicsInstanceId, v59);
-        __asm { vmovss  [rsp+200h+maxDistance], xmm12 }
-        Physics_GetClosestPoints((Physics_WorldId)v23, RigidBodyID->m_serialAndIndex, v125, &point, &quat, maxDistance, &extendedData, v32);
-        ++v59;
+        RigidBodyID = HavokPhysics_GetRigidBodyID(result, (const Physics_WorldId)v15, physicsInstanceId, v29);
+        Physics_GetClosestPoints((Physics_WorldId)v15, RigidBodyID->m_serialAndIndex, v54, &point, &quat, 0.0, &extendedData, v23);
+        ++v29;
       }
-      while ( v59 < NumRigidBodys );
-      v26 = *(hkMonitorStream **)normal.v;
-      v30 = 0;
-      _R13 = psa;
+      while ( v29 < NumRigidBodys );
+      v17 = *(hkMonitorStream **)normal.v;
+      v21 = 0;
+      v27 = psa;
     }
-    v61 = v125;
+    v31 = v54;
   }
-  HasHit = HavokPhysics_CollisionQueryResult::HasHit(v32);
-  **(_BYTE **)v135.v = HasHit;
+  HasHit = HavokPhysics_CollisionQueryResult::HasHit(v23);
+  **(_BYTE **)v64.v = HasHit;
   if ( HasHit )
   {
-    if ( v122 )
+    if ( v51 )
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r13+1E8h]
-        vmulss  xmm0, xmm2, dword ptr [rbp+100h+axis+18h]
-        vaddss  xmm9, xmm0, dword ptr [r13+30h]
-        vmulss  xmm1, xmm2, dword ptr [rbp+100h+axis+1Ch]
-        vaddss  xmm10, xmm1, dword ptr [r13+34h]
-        vmulss  xmm0, xmm2, dword ptr [rbp+100h+axis+20h]
-        vaddss  xmm11, xmm0, dword ptr [r13+38h]
-      }
+      viewHeightCurrent = v27->viewHeightCurrent;
+      v34 = (float)(viewHeightCurrent * axis.m[2].v[0]) + v27->origin.v[0];
+      v35 = (float)(viewHeightCurrent * axis.m[2].v[1]) + v27->origin.v[1];
+      v36 = (float)(viewHeightCurrent * axis.m[2].v[2]) + v27->origin.v[2];
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm10, [rsp+200h+result.m_serialAndIndex]
-        vmovss  xmm11, [rsp+200h+result.m_serialAndIndex]
-        vmovss  xmm9, [rsp+200h+result.m_serialAndIndex]
-      }
+      v35 = *(float *)&result[0].m_serialAndIndex;
+      v36 = *(float *)&result[0].m_serialAndIndex;
+      v34 = *(float *)&result[0].m_serialAndIndex;
     }
-    ClosestPointHitHitBrushBasis = HavokPhysics_CollisionQueryResult::GetClosestPointHitHitBrushBasis(v32, 0);
-    v75 = v127;
-    *v127 = ClosestPointHitHitBrushBasis;
-    if ( HavokPhysics_CollisionQueryResult::GetNumHits(v32) )
+    ClosestPointHitHitBrushBasis = HavokPhysics_CollisionQueryResult::GetClosestPointHitHitBrushBasis(v23, 0);
+    v39 = v56;
+    *v56 = ClosestPointHitHitBrushBasis;
+    if ( HavokPhysics_CollisionQueryResult::GetNumHits(v23) )
     {
-      do
+      while ( 1 )
       {
-        HavokPhysics_CollisionQueryResult::GetClosestPointHitHitPosition(v32, v30, &v135);
-        __asm
+        HavokPhysics_CollisionQueryResult::GetClosestPointHitHitPosition(v23, v21, &v64);
+        v40 = v64.v[0] - point.v[0];
+        v41 = LODWORD(v64.v[1]);
+        *(float *)&v41 = v64.v[1] - point.v[1];
+        v42 = v64.v[2] - point.v[2];
+        HavokPhysics_CollisionQueryResult::GetClosestPointHitSeparatingNormal(v23, v21, &normal);
+        *((_QWORD *)&v43 + 1) = *((_QWORD *)&v41 + 1);
+        if ( (float)((float)((float)(*(float *)&v41 * normal.v[1]) + (float)(v40 * normal.v[0])) + (float)(v42 * normal.v[2])) < 0.0 )
         {
-          vmovss  xmm0, dword ptr [rbp+100h+var_128]
-          vsubss  xmm8, xmm0, dword ptr [rbp+100h+point]
-          vmovss  xmm1, dword ptr [rbp+100h+var_128+4]
-          vsubss  xmm6, xmm1, dword ptr [rbp+100h+point+4]
-          vmovss  xmm0, dword ptr [rbp+100h+var_128+8]
-          vsubss  xmm7, xmm0, dword ptr [rbp+100h+point+8]
-        }
-        HavokPhysics_CollisionQueryResult::GetClosestPointHitSeparatingNormal(v32, v30, &normal);
-        __asm
-        {
-          vmovss  xmm5, dword ptr [rbp+100h+normal+4]
-          vmulss  xmm1, xmm6, xmm5
-          vmovss  xmm6, dword ptr [rbp+100h+normal]
-          vmulss  xmm0, xmm8, xmm6
-          vaddss  xmm2, xmm1, xmm0
-          vmovss  xmm8, dword ptr [rbp+100h+normal+8]
-          vmulss  xmm1, xmm7, xmm8
-          vaddss  xmm0, xmm2, xmm1
-          vcomiss xmm0, xmm12
-        }
-        if ( v90 )
-        {
-          if ( !v122 )
-          {
-            *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetClosestPointHitDistance(v32, v30);
-            __asm
-            {
-              vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-              vmaxss  xmm3, xmm1, cs:__real@3a83126f
-              vmulss  xmm2, xmm3, dword ptr [rbp+100h+normal]
-            }
-            _RAX = v129;
-            __asm
-            {
-              vmovss  dword ptr [rax], xmm2
-              vmulss  xmm0, xmm3, dword ptr [rbp+100h+normal+4]
-              vmovss  dword ptr [rax+4], xmm0
-              vmulss  xmm1, xmm3, dword ptr [rbp+100h+normal+8]
-              vmovss  dword ptr [rax+8], xmm1
-            }
-            *v75 = HavokPhysics_CollisionQueryResult::GetClosestPointHitHitBrushBasis(v32, v30);
+          if ( !v51 )
             break;
-          }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+100h+var_128]
-            vsubss  xmm2, xmm0, xmm9
-            vmovss  xmm1, dword ptr [rbp+100h+var_128+4]
-            vsubss  xmm3, xmm1, xmm10
-            vmovss  xmm0, dword ptr [rbp+100h+var_128+8]
-            vsubss  xmm4, xmm0, xmm11
-            vmulss  xmm2, xmm2, xmm6
-            vmulss  xmm1, xmm3, xmm5
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm8, xmm4
-            vaddss  xmm4, xmm3, xmm0
-            vcomiss xmm4, xmm12
-          }
+          *((_QWORD *)&v43 + 1) = 0i64;
+          if ( (float)((float)((float)((float)(v64.v[0] - v34) * normal.v[0]) + (float)((float)(v64.v[1] - v35) * normal.v[1])) + (float)(normal.v[2] * (float)(v64.v[2] - v36))) < 0.0 )
+            break;
         }
-        ++v30;
+        if ( ++v21 >= HavokPhysics_CollisionQueryResult::GetNumHits(v23) )
+          goto LABEL_77;
       }
-      while ( v30 < HavokPhysics_CollisionQueryResult::GetNumHits(v32) );
+      *(double *)&v43 = HavokPhysics_CollisionQueryResult::GetClosestPointHitDistance(v23, v21);
+      _XMM1 = v43 ^ _xmm;
+      __asm { vmaxss  xmm3, xmm1, cs:__real@3a83126f }
+      v46 = v58;
+      v58->v[0] = *(float *)&_XMM3 * normal.v[0];
+      v46->v[1] = *(float *)&_XMM3 * normal.v[1];
+      v46->v[2] = *(float *)&_XMM3 * normal.v[2];
+      *v39 = HavokPhysics_CollisionQueryResult::GetClosestPointHitHitBrushBasis(v23, v21);
     }
   }
+LABEL_77:
   ThreadId = Physics_GetThreadId();
   IsShapeCacheDisabled = Physics_IsShapeCacheDisabled(ThreadId);
-  v110 = IsShapeCacheDisabled;
+  v49 = IsShapeCacheDisabled;
   if ( paddedShape )
-    Physics_ReleaseShape((Physics_WorldId)v23, paddedShape, IsShapeCacheDisabled);
-  if ( v61 && v123 )
-    Physics_ReleaseShape((Physics_WorldId)v23, v61, v110);
-  if ( v26 )
-    hkMonitorStream::timerEnd(v26, "Et");
-  _R11 = &v140;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-  }
+    Physics_ReleaseShape((Physics_WorldId)v15, paddedShape, IsShapeCacheDisabled);
+  if ( v31 && v52 )
+    Physics_ReleaseShape((Physics_WorldId)v15, v31, v49);
+  if ( v17 )
+    hkMonitorStream::timerEnd(v17, "Et");
 }
 
 /*
@@ -10240,122 +7710,85 @@ PhysicsQuery_LegacySightTrace
 */
 _BOOL8 PhysicsQuery_LegacySightTrace(Physics_WorldId worldId, const vec3_t *start, const vec3_t *end, const Bounds *bounds, int skipEntity0, int skipEntity1, int contentMask)
 {
-  __int64 v14; 
+  __int64 v10; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v16; 
-  int v17; 
-  __int64 v20; 
-  HavokPhysics_CollisionQueryResult *v21; 
-  HavokPhysics_IgnoreBodies *v22; 
-  HavokPhysics_IgnoreBodies *v23; 
-  bool v24; 
+  hkMonitorStream *v12; 
+  int v13; 
+  float v14; 
+  float v15; 
+  __int64 v16; 
+  HavokPhysics_CollisionQueryResult *v17; 
+  HavokPhysics_IgnoreBodies *v18; 
+  HavokPhysics_IgnoreBodies *v19; 
   hknpShape *ShapeCapsuleUpAxis; 
   BOOL HasHit; 
-  _BOOL8 result; 
   Physics_ShapecastExtendedData extendedData; 
-  char v37; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _R15 = bounds;
-  v14 = worldId;
+  v10 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v16 = Value;
+  v12 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacySightTrace");
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4667, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v17 = Physics_GetThreadId() + 28 * v14;
-  if ( (unsigned int)v14 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4670, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  v13 = Physics_GetThreadId() + 28 * v10;
+  if ( (unsigned int)v10 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4670, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v14] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4671, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4671, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4672, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
+  if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4672, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, dword ptr [r15+0Ch]
-    vmovss  xmm7, dword ptr [r15+14h]
-  }
-  v20 = v17;
-  v21 = s_PhysicsQuery_LegacyQueryAnyResults[v17];
-  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4684, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v14 = bounds->halfSize.v[0];
+  v15 = bounds->halfSize.v[2];
+  v16 = v13;
+  v17 = s_PhysicsQuery_LegacyQueryAnyResults[v13];
+  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4684, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v21, 1);
-  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v20]);
-  v22 = s_PhysicsQuery_LegacyIgnoreBodies[v20];
-  if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
+  HavokPhysics_CollisionQueryResult::Reset(v17, 1);
+  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v16]);
+  v18 = s_PhysicsQuery_LegacyIgnoreBodies[v16];
+  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
     __debugbreak();
   if ( skipEntity0 >= 0 )
-    HavokPhysics_IgnoreBodies::AddIgnoreEntity(v22, skipEntity0, 1, 1, 0, 1, 0);
-  v23 = s_PhysicsQuery_LegacyIgnoreBodies[v20];
-  if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
+    HavokPhysics_IgnoreBodies::AddIgnoreEntity(v18, skipEntity0, 1, 1, 0, 1, 0);
+  v19 = s_PhysicsQuery_LegacyIgnoreBodies[v16];
+  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
     __debugbreak();
-  v24 = skipEntity1 == 0;
   if ( skipEntity1 >= 0 )
-    HavokPhysics_IgnoreBodies::AddIgnoreEntity(v23, skipEntity1, 1, 1, 0, 1, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm7, xmm1
-  }
-  if ( v24 )
+    HavokPhysics_IgnoreBodies::AddIgnoreEntity(v19, skipEntity1, 1, 1, 0, 1, 0);
+  if ( v15 == 0.0 || v14 == 0.0 )
   {
     LODWORD(extendedData.ignoreBodies) = 1;
-    __asm { vmovss  dword ptr [rsp+0C8h+extendedData.ignoreBodies+4], xmm1 }
+    *((float *)&extendedData.ignoreBodies + 1) = 0.0;
     extendedData.collisionBuffer = 0.0;
     *((_DWORD *)&extendedData.collisionBuffer + 1) = 1;
     LOWORD(extendedData.nonBrushShape) = 256;
     extendedData.contents = contentMask;
-    *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v20];
-    Physics_Raycast((Physics_WorldId)v14, start, end, (Physics_RaycastExtendedData *)&extendedData, v21);
+    *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v16];
+    Physics_Raycast((Physics_WorldId)v10, start, end, (Physics_RaycastExtendedData *)&extendedData, v17);
   }
   else
   {
-    __asm
-    {
-      vucomiss xmm6, xmm1
-      vmovss  [rsp+0C8h+extendedData.startTolerance], xmm1
-      vmovss  xmm0, cs:__real@3c83126f
-      vmovss  [rsp+0C8h+extendedData.accuracy], xmm0
-    }
+    extendedData.startTolerance = 0.0;
+    _XMM0 = LODWORD(FLOAT_0_016000001);
+    extendedData.accuracy = FLOAT_0_016000001;
     extendedData.simplifyStart = 0;
-    __asm
-    {
-      vmovss  [rsp+0C8h+extendedData.collisionBuffer], xmm1
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+0C8h+extendedData.nonBrushShape], xmm0
-    }
+    extendedData.collisionBuffer = 0.0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&extendedData.nonBrushShape = _XMM0;
     extendedData.phaseSelection = All;
     extendedData.permitOutwardTrace = 0;
     extendedData.contents = contentMask;
-    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v20];
-    __asm
-    {
-      vsubss  xmm2, xmm7, xmm6; halfHeight
-      vmovaps xmm3, xmm6; radius
-    }
-    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v14, &_R15->midPoint, *(float *)&_XMM2, *(float *)&_XMM3, s_PhysicsQuery_LegacyTraceShapeBuffers[v20], 432, Temporary);
+    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v16];
+    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v10, &bounds->midPoint, v15 - v14, v14, s_PhysicsQuery_LegacyTraceShapeBuffers[v16], 432, Temporary);
     if ( !ShapeCapsuleUpAxis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4705, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
       __debugbreak();
-    Physics_Shapecast((Physics_WorldId)v14, ShapeCapsuleUpAxis, start, end, &quat_identity, &extendedData, v21, NULL);
+    Physics_Shapecast((Physics_WorldId)v10, ShapeCapsuleUpAxis, start, end, &quat_identity, &extendedData, v17, NULL);
   }
-  HasHit = HavokPhysics_CollisionQueryResult::HasHit(v21);
-  if ( v16 )
-    hkMonitorStream::timerEnd(v16, "Et");
-  result = HasHit;
-  _R11 = &v37;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  HasHit = HavokPhysics_CollisionQueryResult::HasHit(v17);
+  if ( v12 )
+    hkMonitorStream::timerEnd(v12, "Et");
+  return HasHit;
 }
 
 /*
@@ -10365,118 +7798,81 @@ PhysicsQuery_LegacySightTraceWithEntityBBox
 */
 _BOOL8 PhysicsQuery_LegacySightTraceWithEntityBBox(Physics_WorldId worldId, const vec3_t *start, const vec3_t *end, const Bounds *bounds, int skipEntity, int contentMask)
 {
-  __int64 v13; 
+  __int64 v9; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v15; 
-  int v16; 
-  __int64 v19; 
-  HavokPhysics_CollisionQueryResult *v20; 
-  HavokPhysics_IgnoreBodies *v21; 
-  bool v22; 
+  hkMonitorStream *v11; 
+  int v12; 
+  float v13; 
+  float v14; 
+  __int64 v15; 
+  HavokPhysics_CollisionQueryResult *v16; 
+  HavokPhysics_IgnoreBodies *v17; 
   hknpShape *ShapeCapsuleUpAxis; 
   BOOL HasHit; 
-  _BOOL8 result; 
   Physics_ShapecastExtendedData extendedData; 
-  char v35; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _R15 = bounds;
-  v13 = worldId;
+  v9 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v15 = Value;
+  v11 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacySightTraceWithEntityBBox");
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_MID_AIR_DETACH) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5088, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::TRACE_WORKER ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TRACE_WORKER )") )
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5089, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v16 = Physics_GetThreadId() + 28 * v13;
-  if ( (unsigned int)v13 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5092, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  v12 = Physics_GetThreadId() + 28 * v9;
+  if ( (unsigned int)v9 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5092, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v13] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5093, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5093, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5094, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
+  if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5094, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, dword ptr [r15+0Ch]
-    vmovss  xmm7, dword ptr [r15+14h]
-  }
-  v19 = v16;
-  v20 = s_PhysicsQuery_LegacyQueryAnyResults[v16];
-  if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5106, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v13 = bounds->halfSize.v[0];
+  v14 = bounds->halfSize.v[2];
+  v15 = v12;
+  v16 = s_PhysicsQuery_LegacyQueryAnyResults[v12];
+  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5106, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v20, 1);
-  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v19]);
-  v21 = s_PhysicsQuery_LegacyIgnoreBodies[v19];
-  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
+  HavokPhysics_CollisionQueryResult::Reset(v16, 1);
+  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v15]);
+  v17 = s_PhysicsQuery_LegacyIgnoreBodies[v15];
+  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
     __debugbreak();
-  v22 = skipEntity == 0;
   if ( skipEntity >= 0 )
-    HavokPhysics_IgnoreBodies::AddIgnoreEntity(v21, skipEntity, 1, 1, 0, 1, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm7, xmm1
-  }
-  if ( v22 )
+    HavokPhysics_IgnoreBodies::AddIgnoreEntity(v17, skipEntity, 1, 1, 0, 1, 0);
+  if ( v14 == 0.0 || v13 == 0.0 )
   {
     LODWORD(extendedData.ignoreBodies) = 1;
-    __asm { vmovss  dword ptr [rsp+0C8h+extendedData.ignoreBodies+4], xmm1 }
+    *((float *)&extendedData.ignoreBodies + 1) = 0.0;
     extendedData.collisionBuffer = 0.0;
     *((_DWORD *)&extendedData.collisionBuffer + 1) = 1;
     LOWORD(extendedData.nonBrushShape) = 256;
     extendedData.contents = contentMask;
-    *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v19];
-    Physics_Raycast((Physics_WorldId)v13, start, end, (Physics_RaycastExtendedData *)&extendedData, v20);
+    *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v15];
+    Physics_Raycast((Physics_WorldId)v9, start, end, (Physics_RaycastExtendedData *)&extendedData, v16);
   }
   else
   {
-    __asm
-    {
-      vucomiss xmm6, xmm1
-      vmovss  [rsp+0C8h+extendedData.startTolerance], xmm1
-      vmovss  xmm0, cs:__real@3c83126f
-      vmovss  [rsp+0C8h+extendedData.accuracy], xmm0
-    }
+    extendedData.startTolerance = 0.0;
+    _XMM0 = LODWORD(FLOAT_0_016000001);
+    extendedData.accuracy = FLOAT_0_016000001;
     extendedData.simplifyStart = 0;
-    __asm
-    {
-      vmovss  [rsp+0C8h+extendedData.collisionBuffer], xmm1
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+0C8h+extendedData.nonBrushShape], xmm0
-    }
+    extendedData.collisionBuffer = 0.0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&extendedData.nonBrushShape = _XMM0;
     extendedData.phaseSelection = All;
     extendedData.permitOutwardTrace = 0;
     extendedData.contents = contentMask;
-    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v19];
-    __asm
-    {
-      vsubss  xmm2, xmm7, xmm6; halfHeight
-      vmovaps xmm3, xmm6; radius
-    }
-    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v13, &_R15->midPoint, *(float *)&_XMM2, *(float *)&_XMM3, s_PhysicsQuery_LegacyTraceShapeBuffers[v19], 432, Temporary);
+    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v15];
+    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v9, &bounds->midPoint, v14 - v13, v13, s_PhysicsQuery_LegacyTraceShapeBuffers[v15], 432, Temporary);
     if ( !ShapeCapsuleUpAxis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5124, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
       __debugbreak();
-    Physics_Shapecast((Physics_WorldId)v13, ShapeCapsuleUpAxis, start, end, &quat_identity, &extendedData, v20, NULL);
+    Physics_Shapecast((Physics_WorldId)v9, ShapeCapsuleUpAxis, start, end, &quat_identity, &extendedData, v16, NULL);
   }
-  HasHit = HavokPhysics_CollisionQueryResult::HasHit(v20);
-  if ( v15 )
-    hkMonitorStream::timerEnd(v15, "Et");
-  result = HasHit;
-  _R11 = &v35;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  HasHit = HavokPhysics_CollisionQueryResult::HasHit(v16);
+  if ( v11 )
+    hkMonitorStream::timerEnd(v11, "Et");
+  return HasHit;
 }
 
 /*
@@ -10517,11 +7913,10 @@ PhysicsQuery_LegacyTraceBuildTraceQuat
 void PhysicsQuery_LegacyTraceBuildTraceQuat(Physics_WorldId worldId, const playerState_s *ps, vec4_t *outQuat, bool vehicleTrace)
 {
   CgHandler *HandlerFromWorldId; 
-  CgHandler *v12; 
+  CgHandler *v8; 
   vec3_t platformAngles; 
-  WorldUpReferenceFrame v18; 
+  WorldUpReferenceFrame v10; 
 
-  _RBX = outQuat;
   if ( !ps || vehicleTrace )
     goto LABEL_11;
   if ( PhysicsQuery_MoverUpAnglesToQuat(ps, outQuat) )
@@ -10529,44 +7924,24 @@ void PhysicsQuery_LegacyTraceBuildTraceQuat(Physics_WorldId worldId, const playe
   if ( WorldUpReferenceFrame::HasValidWorldUpInPs(ps) )
   {
     HandlerFromWorldId = PhysicsQuery_GetHandlerFromWorldId(worldId);
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v18, ps, HandlerFromWorldId);
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+4; vec4_t const quat_identity
-      vmovss  dword ptr [rbx+4], xmm1
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+8; vec4_t const quat_identity
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+0Ch; vec4_t const quat_identity
-      vmovss  dword ptr [rbx+0Ch], xmm1
-    }
-    WorldUpReferenceFrame::ApplyReferenceFrameToQuat(&v18, _RBX);
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v10, ps, HandlerFromWorldId);
+    *outQuat = quat_identity;
+    WorldUpReferenceFrame::ApplyReferenceFrameToQuat(&v10, outQuat);
     return;
   }
   if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xEu) && BGMovingPlatforms::IsOnMovingPlatform(ps) )
   {
-    v12 = PhysicsQuery_GetHandlerFromWorldId(worldId);
-    v12->GetEntityAngles(v12, ps->movingPlatforms.m_movingPlatformEntity, &platformAngles);
+    v8 = PhysicsQuery_GetHandlerFromWorldId(worldId);
+    v8->GetEntityAngles(v8, ps->movingPlatforms.m_movingPlatformEntity, &platformAngles);
     if ( Com_GameMode_SupportsFeature(WEAPON_STUNNED_END|0x80) )
-      BGMovingPlatforms::GetBestPlatformUp(ps, &platformAngles, NULL, _RBX);
+      BGMovingPlatforms::GetBestPlatformUp(ps, &platformAngles, NULL, outQuat);
     else
-      AnglesToQuat(&platformAngles, _RBX);
+      AnglesToQuat(&platformAngles, outQuat);
   }
   else
   {
 LABEL_11:
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+4; vec4_t const quat_identity
-      vmovss  dword ptr [rbx+4], xmm1
-      vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+8; vec4_t const quat_identity
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+0Ch; vec4_t const quat_identity
-      vmovss  dword ptr [rbx+0Ch], xmm1
-    }
+    *outQuat = quat_identity;
   }
 }
 
@@ -10575,134 +7950,82 @@ LABEL_11:
 PhysicsQuery_LegacyTraceCreateShape
 ==============
 */
-bool PhysicsQuery_LegacyTraceCreateShape(Physics_WorldId worldId, const playerState_s *ps, const Bounds *bounds, int locational, char *shapeBuffers, bool vehicleTrace, hknpShape **shape, hknpShape **nonBrushShape, hknpShape **paddedShape, PhysicsQuery_ContextSettings *contextSettings)
+char PhysicsQuery_LegacyTraceCreateShape(Physics_WorldId worldId, const playerState_s *ps, const Bounds *bounds, int locational, char *shapeBuffers, bool vehicleTrace, hknpShape **shape, hknpShape **nonBrushShape, hknpShape **paddedShape, PhysicsQuery_ContextSettings *contextSettings)
 {
+  float v14; 
+  float v15; 
   hknpShape *ShapeCapsuleUpAxis; 
-  bool result; 
-  hknpShape *v24; 
-  bool v25; 
-  hknpShape *v30; 
   hknpShape *ShapeCylinder; 
+  bool v19; 
+  double v20; 
+  hknpShape *v21; 
   Bounds boundsa; 
 
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_48], xmm6
-    vmovaps [rsp+0B8h+var_58], xmm7
-  }
-  _RDI = bounds;
   if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2726, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
     __debugbreak();
   if ( !nonBrushShape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2727, ASSERT_TYPE_ASSERT, "(nonBrushShape)", (const char *)&queryFormat, "nonBrushShape") )
     __debugbreak();
   if ( !paddedShape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2728, ASSERT_TYPE_ASSERT, "(paddedShape)", (const char *)&queryFormat, "paddedShape") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2729, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
+  if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2729, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
   if ( locational && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2731, ASSERT_TYPE_ASSERT, "(locational == qfalse)", "%s\n\tCan't do locational shape traces - only locational ray-traces", "locational == qfalse") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFF6347, "PhysicsQuery_LegacyTraceCreateShape");
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+0Ch]
-    vmovss  xmm7, dword ptr [rdi+14h]
-  }
+  v14 = bounds->halfSize.v[0];
+  v15 = bounds->halfSize.v[2];
   *shape = NULL;
   *nonBrushShape = NULL;
   *paddedShape = NULL;
   if ( contextSettings && (contextSettings->m_flags & 0x20) != 0 || vehicleTrace )
   {
-    __asm
-    {
-      vsubss  xmm2, xmm7, xmm6; halfHeight
-      vmovaps xmm3, xmm6; radius
-    }
-    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis(worldId, &_RDI->midPoint, *(float *)&_XMM2, *(float *)&_XMM3, shapeBuffers, 432, Temporary);
+    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis(worldId, &bounds->midPoint, v15 - v14, v14, shapeBuffers, 432, Temporary);
     *shape = ShapeCapsuleUpAxis;
     if ( !ShapeCapsuleUpAxis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2762, ASSERT_TYPE_ASSERT, "(*shape)", (const char *)&queryFormat, "*shape") )
       __debugbreak();
     Sys_ProfEndNamedEvent();
-    result = 0;
-    goto LABEL_46;
+    return 0;
   }
   if ( contextSettings && (contextSettings->m_flags & 2) != 0 || !BG_UsingNewPlayerCollision() || !ps )
   {
-    __asm
-    {
-      vsubss  xmm2, xmm7, xmm6; halfHeight
-      vmovaps xmm3, xmm6; radius
-    }
-    *nonBrushShape = Physics_CreateShapeCapsuleUpAxis(worldId, &_RDI->midPoint, *(float *)&_XMM2, *(float *)&_XMM3, shapeBuffers, 432, Temporary);
-    __asm
-    {
-      vmovaps xmm2, xmm6; radius
-      vmovaps xmm1, xmm7; halfHeight
-    }
-    ShapeCylinder = Physics_CreateShapeCylinder(&_RDI->midPoint, *(float *)&_XMM1, *(float *)&_XMM2, 16, 1);
-    __asm
-    {
-      vaddss  xmm2, xmm6, cs:__real@3e000000; radius
-      vaddss  xmm1, xmm7, cs:__real@3e000000; halfHeight
-    }
-    *shape = ShapeCylinder;
-    *paddedShape = Physics_CreateShapeCylinder(&_RDI->midPoint, *(float *)&_XMM1, *(float *)&_XMM2, 16, 1);
+    *nonBrushShape = Physics_CreateShapeCapsuleUpAxis(worldId, &bounds->midPoint, v15 - v14, v14, shapeBuffers, 432, Temporary);
+    *shape = Physics_CreateShapeCylinder(&bounds->midPoint, v15, v14, 16, 1);
+    *paddedShape = Physics_CreateShapeCylinder(&bounds->midPoint, v15 + 0.125, v14 + 0.125, 16, 1);
     if ( !*nonBrushShape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2801, ASSERT_TYPE_ASSERT, "(*nonBrushShape)", (const char *)&queryFormat, "*nonBrushShape") )
       __debugbreak();
     if ( !*shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2802, ASSERT_TYPE_ASSERT, "(*shape)", (const char *)&queryFormat, "*shape") )
       __debugbreak();
     if ( *paddedShape )
       goto LABEL_45;
-    v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2803, ASSERT_TYPE_ASSERT, "(*paddedShape)", (const char *)&queryFormat, "*paddedShape");
+    v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2803, ASSERT_TYPE_ASSERT, "(*paddedShape)", (const char *)&queryFormat, "*paddedShape");
     goto LABEL_43;
   }
   if ( contextSettings && (contextSettings->m_flags & 1) != 0 )
   {
-    __asm
-    {
-      vmovaps xmm2, xmm6; radius
-      vmovaps xmm1, xmm7; halfHeight
-    }
-    v24 = Physics_CreateShapeCylinder(&_RDI->midPoint, *(float *)&_XMM1, *(float *)&_XMM2, 16, 1);
-    *shape = v24;
-    if ( v24 )
+    ShapeCylinder = Physics_CreateShapeCylinder(&bounds->midPoint, v15, v14, 16, 1);
+    *shape = ShapeCylinder;
+    if ( ShapeCylinder )
     {
 LABEL_45:
       Sys_ProfEndNamedEvent();
-      result = 1;
-      goto LABEL_46;
+      return 1;
     }
-    v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2778, ASSERT_TYPE_ASSERT, "(*shape)", (const char *)&queryFormat, "*shape");
+    v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2778, ASSERT_TYPE_ASSERT, "(*shape)", (const char *)&queryFormat, "*shape");
 LABEL_43:
-    if ( v25 )
+    if ( v19 )
       __debugbreak();
     goto LABEL_45;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovsd  xmm1, qword ptr [rdi+10h]
-    vmovups xmmword ptr [rsp+0B8h+bounds.midPoint], xmm0
-    vmovsd  qword ptr [rsp+0B8h+bounds.halfSize+4], xmm1
-  }
+  v20 = *(double *)&bounds->halfSize.y;
+  *(_OWORD *)boundsa.midPoint.v = *(_OWORD *)bounds->midPoint.v;
+  *(double *)&boundsa.halfSize.y = v20;
   BG_PlayerCollision_AdjustCapsuleBoundsForStickSystem(&boundsa);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rsp+0B8h+bounds.halfSize]; radius
-    vmovss  xmm2, dword ptr [rsp+0B8h+bounds.halfSize+8]; halfHeight
-  }
-  v30 = Physics_CreateShapeCapsuleUpAxis(worldId, &boundsa.midPoint, *(float *)&_XMM2, *(float *)&_XMM3, shapeBuffers, 432, Temporary);
-  *shape = v30;
-  if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2790, ASSERT_TYPE_ASSERT, "(*shape)", (const char *)&queryFormat, "*shape") )
+  v21 = Physics_CreateShapeCapsuleUpAxis(worldId, &boundsa.midPoint, boundsa.halfSize.v[2], boundsa.halfSize.v[0], shapeBuffers, 432, Temporary);
+  *shape = v21;
+  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2790, ASSERT_TYPE_ASSERT, "(*shape)", (const char *)&queryFormat, "*shape") )
     __debugbreak();
   Sys_ProfEndNamedEvent();
-  result = 0;
-LABEL_46:
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_48]
-    vmovaps xmm7, [rsp+0B8h+var_58]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -10722,112 +8045,79 @@ PhysicsQuery_LegacyTracePassedWithSkipParams
 */
 __int64 PhysicsQuery_LegacyTracePassedWithSkipParams(Physics_WorldId worldId, const vec3_t *start, const vec3_t *end, const Bounds *bounds, int skipEntity0, bool skipEntity0Children, bool skipEntity0Siblings, int skipEntity1, bool skipEntity1Children, bool skipEntity1Siblings, int contentMask, int locational, unsigned __int8 *priorityMap, bool ignoreTransparentVolumes)
 {
-  __int64 v21; 
+  __int64 v17; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v23; 
-  __int64 v24; 
-  char v28; 
-  unsigned int v31; 
+  hkMonitorStream *v19; 
+  __int64 v20; 
+  float v21; 
+  float v22; 
+  unsigned int v25; 
   hknpShape *ShapeCapsuleUpAxis; 
-  __int64 result; 
   Physics_ShapecastExtendedData extendedData; 
-  char v40; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _R14 = bounds;
-  v21 = worldId;
+  v17 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v23 = Value;
+  v19 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyTracePassed");
-  if ( (unsigned int)v21 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3448, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  if ( (unsigned int)v17 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3448, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v21] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3449, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v17] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3449, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3450, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
+  if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3450, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3452, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v24 = (int)(28 * v21 + Physics_GetThreadId());
-  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v24]);
-  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[v24], 1);
-  PhysicsQuery_AddEntityChainToIgnoreList(skipEntity0, s_PhysicsQuery_LegacyIgnoreBodies[v24], 1, skipEntity0Children, 0, skipEntity0Siblings, 0);
-  PhysicsQuery_AddEntityChainToIgnoreList(skipEntity1, s_PhysicsQuery_LegacyIgnoreBodies[v24], 1, skipEntity1Children, 0, skipEntity1Siblings, 0);
-  s_PhysicsQuery_LegacyIgnoreBodies[v24]->m_ignoreTransparentVolumes = ignoreTransparentVolumes;
-  __asm
-  {
-    vmovss  xmm6, dword ptr [r14+0Ch]
-    vmovss  xmm7, dword ptr [r14+14h]
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm7, xmm1
-  }
-  if ( v28 )
+  v20 = (int)(28 * v17 + Physics_GetThreadId());
+  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v20]);
+  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[v20], 1);
+  PhysicsQuery_AddEntityChainToIgnoreList(skipEntity0, s_PhysicsQuery_LegacyIgnoreBodies[v20], 1, skipEntity0Children, 0, skipEntity0Siblings, 0);
+  PhysicsQuery_AddEntityChainToIgnoreList(skipEntity1, s_PhysicsQuery_LegacyIgnoreBodies[v20], 1, skipEntity1Children, 0, skipEntity1Siblings, 0);
+  s_PhysicsQuery_LegacyIgnoreBodies[v20]->m_ignoreTransparentVolumes = ignoreTransparentVolumes;
+  v21 = bounds->halfSize.v[0];
+  v22 = bounds->halfSize.v[2];
+  if ( v22 == 0.0 || v21 == 0.0 )
   {
     LODWORD(extendedData.ignoreBodies) = 1;
-    __asm { vmovss  dword ptr [rsp+0C8h+extendedData.ignoreBodies+4], xmm1 }
-    v31 = 0;
+    *((float *)&extendedData.ignoreBodies + 1) = 0.0;
+    v25 = 0;
     extendedData.collisionBuffer = 0.0;
     *((_DWORD *)&extendedData.collisionBuffer + 1) = 1;
     LOWORD(extendedData.nonBrushShape) = 256;
     extendedData.contents = contentMask;
-    *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v24];
+    *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v20];
     if ( locational && priorityMap )
     {
-      Physics_AddDetailTrace(s_PhysicsQuery_LegacyTraceResults[v24], priorityMap);
+      Physics_AddDetailTrace(s_PhysicsQuery_LegacyTraceResults[v20], priorityMap);
       LODWORD(extendedData.ignoreBodies) = 0;
     }
-    Physics_Raycast((Physics_WorldId)v21, start, end, (Physics_RaycastExtendedData *)&extendedData, s_PhysicsQuery_LegacyTraceResults[v24]);
+    Physics_Raycast((Physics_WorldId)v17, start, end, (Physics_RaycastExtendedData *)&extendedData, s_PhysicsQuery_LegacyTraceResults[v20]);
   }
   else
   {
-    __asm
-    {
-      vucomiss xmm6, xmm1
-      vmovss  [rsp+0C8h+extendedData.startTolerance], xmm1
-      vmovss  xmm0, cs:__real@3c83126f
-      vmovss  [rsp+0C8h+extendedData.accuracy], xmm0
-    }
+    extendedData.startTolerance = 0.0;
+    _XMM0 = LODWORD(FLOAT_0_016000001);
+    extendedData.accuracy = FLOAT_0_016000001;
     extendedData.simplifyStart = 0;
-    __asm
-    {
-      vmovss  [rsp+0C8h+extendedData.collisionBuffer], xmm1
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+0C8h+extendedData.nonBrushShape], xmm0
-    }
-    v31 = 0;
+    extendedData.collisionBuffer = 0.0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&extendedData.nonBrushShape = _XMM0;
+    v25 = 0;
     extendedData.phaseSelection = All;
     extendedData.permitOutwardTrace = 0;
     if ( locational && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3476, ASSERT_TYPE_ASSERT, "(locational == qfalse)", "%s\n\tCan't do locational shape traces - only locational ray-traces", "locational == qfalse") )
       __debugbreak();
     extendedData.contents = contentMask;
-    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v24];
-    __asm
-    {
-      vsubss  xmm2, xmm7, xmm6; halfHeight
-      vmovaps xmm3, xmm6; radius
-    }
-    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v21, &_R14->midPoint, *(float *)&_XMM2, *(float *)&_XMM3, s_PhysicsQuery_LegacyTraceShapeBuffers[v24], 432, Temporary);
+    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v20];
+    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v17, &bounds->midPoint, v22 - v21, v21, s_PhysicsQuery_LegacyTraceShapeBuffers[v20], 432, Temporary);
     if ( !ShapeCapsuleUpAxis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3483, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
       __debugbreak();
-    Physics_Shapecast((Physics_WorldId)v21, ShapeCapsuleUpAxis, start, end, &quat_identity, &extendedData, s_PhysicsQuery_LegacyTraceResults[v24], NULL);
+    Physics_Shapecast((Physics_WorldId)v17, ShapeCapsuleUpAxis, start, end, &quat_identity, &extendedData, s_PhysicsQuery_LegacyTraceResults[v20], NULL);
   }
-  LOBYTE(v31) = !HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v24]);
-  if ( v23 )
-    hkMonitorStream::timerEnd(v23, "Et");
-  result = v31;
-  _R11 = &v40;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  LOBYTE(v25) = !HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v20]);
+  if ( v19 )
+    hkMonitorStream::timerEnd(v19, "Et");
+  return v25;
 }
 
 /*
@@ -10837,39 +8127,27 @@ PhysicsQuery_LegacyTraceProcessAllSolid
 */
 void PhysicsQuery_LegacyTraceProcessAllSolid(Physics_WorldId worldId, trace_t *results, const vec4_t *quat, const int legacyEntryId, int contentMask, hknpShape *nonBrushShape, Physics_QueryPhaseSelection phaseSelection, hknpShape *shape, const vec3_t *end)
 {
-  __int64 v14; 
-  HavokPhysics_CollisionQueryResult *v16; 
+  __int64 v12; 
+  HavokPhysics_CollisionQueryResult *v13; 
   HavokPhysics_CollisionQueryResult *result; 
   unsigned int ShapecastHitBodyId; 
-  bool HasHit; 
-  float v21; 
   Physics_GetClosestPointsExtendedData extendedData; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   if ( results->startsolid )
   {
     extendedData.simplify = 0;
     extendedData.ignoreBodies = NULL;
-    __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
-    v14 = legacyEntryId;
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vmovss  dword ptr [rax-48h], xmm6
-    }
-    v16 = s_PhysicsQuery_LegacyQueryResults[legacyEntryId];
+    v12 = legacyEntryId;
+    extendedData.collisionBuffer = 0.0;
+    v13 = s_PhysicsQuery_LegacyQueryResults[legacyEntryId];
     extendedData.contents = contentMask;
     extendedData.nonBrushShape = nonBrushShape;
     extendedData.phaseSelection = phaseSelection;
-    HavokPhysics_CollisionQueryResult::Reset(v16, 1);
-    result = s_PhysicsQuery_LegacyQueryResults[v14];
-    ShapecastHitBodyId = HavokPhysics_CollisionQueryResult::GetShapecastHitBodyId(s_PhysicsQuery_LegacyTraceResults[v14], 0);
-    __asm { vmovss  [rsp+98h+var_70], xmm6 }
-    Physics_GetClosestPoints(worldId, ShapecastHitBodyId, shape, end, quat, v21, &extendedData, result);
-    HasHit = HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyQueryResults[v14]);
-    __asm { vmovaps xmm6, [rsp+98h+var_28] }
-    if ( HasHit )
+    HavokPhysics_CollisionQueryResult::Reset(v13, 1);
+    result = s_PhysicsQuery_LegacyQueryResults[v12];
+    ShapecastHitBodyId = HavokPhysics_CollisionQueryResult::GetShapecastHitBodyId(s_PhysicsQuery_LegacyTraceResults[v12], 0);
+    Physics_GetClosestPoints(worldId, ShapecastHitBodyId, shape, end, quat, 0.0, &extendedData, result);
+    if ( HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyQueryResults[v12]) )
       results->allsolid = 1;
   }
 }
@@ -10932,79 +8210,200 @@ void PhysicsQuery_LegacyTraceRotated(Physics_WorldId worldId, trace_t *results, 
 PhysicsQuery_LegacyTraceRoundCorners
 ==============
 */
-float PhysicsQuery_LegacyTraceRoundCorners(Physics_WorldId worldId, const vec3_t *wallPos, const vec3_t *wallNorm, const vec3_t *end)
+float PhysicsQuery_LegacyTraceRoundCorners(Physics_WorldId worldId, const vec3_t *wallPos, const vec3_t *wallNorm, const vec3_t *end, int contentMask)
 {
-  __int64 v15; 
+  __int64 v7; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v17; 
+  hkMonitorStream *v9; 
+  int v10; 
+  __int64 v12; 
+  float v13; 
+  __int128 v14; 
+  __int128 v15; 
+  float v19; 
+  float v20; 
+  float v21; 
+  HavokPhysics_CollisionQueryResult *v22; 
+  HavokPhysics_CollisionQueryResult *v23; 
+  bool v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  hkMonitorStream *v31; 
+  hkMonitorStream *v32; 
+  int v37; 
+  HavokPhysics_CollisionQueryResult *v38; 
+  int v39; 
+  float v40; 
+  __int128 v42; 
+  int v43; 
+  float v44; 
+  __int128 v46; 
+  bool HasHit; 
+  int v49; 
   Physics_RaycastExtendedData extendedData; 
-  __int64 v34; 
-  hkMonitorStream *v35; 
-  char v36; 
-  void *retaddr; 
+  __int64 v52; 
+  hkMonitorStream *v53; 
+  hkMonitorStream *v54; 
+  vec3_t start; 
+  vec3_t enda; 
+  vec3_t v57; 
+  vec3_t pos; 
+  vec3_t v59; 
 
-  _RAX = &retaddr;
-  v34 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-  }
-  _R15 = wallNorm;
-  v15 = worldId;
+  v52 = -2i64;
+  v7 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v17 = Value;
+  v9 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyTraceRoundCorners");
-  v35 = v17;
+  v53 = v9;
   extendedData.contents = -1;
+  v10 = 0;
   extendedData.ignoreBodies = NULL;
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  [rsp+1A0h+extendedData.collisionBuffer], xmm7
-  }
+  LODWORD(_XMM7) = 0;
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
   *(_WORD *)&extendedData.collectInsideHits = 256;
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4895, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  Physics_GetThreadId();
-  if ( (unsigned int)v15 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4898, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  LODWORD(v12) = Physics_GetThreadId() + 28 * v7;
+  if ( (unsigned int)v7 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4898, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v15] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4899, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4899, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  __asm
+  if ( COERCE_FLOAT(LODWORD(wallNorm->v[2]) & _xmm) < 0.99900001 )
   {
-    vmovss  xmm0, dword ptr [r15+8]
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3f7fbe77
+    LODWORD(v13) = LODWORD(wallNorm->v[0]) ^ _xmm;
+    v14 = LODWORD(wallNorm->v[1]);
+    v15 = v14;
+    *(float *)&v15 = fsqrt((float)(*(float *)&v14 * *(float *)&v14) + (float)(v13 * v13));
+    _XMM2 = v15;
+    __asm
+    {
+      vcmpless xmm0, xmm2, cs:__real@80000000
+      vblendvps xmm1, xmm2, xmm14, xmm0
+    }
+    *(float *)&v15 = *(float *)&v14 * (float)(1.0 / *(float *)&_XMM1);
+    *(float *)&v14 = v13 * (float)(1.0 / *(float *)&_XMM1);
+    extendedData.contents = contentMask;
+    v19 = *(float *)&v15 * 64.0;
+    v20 = *(float *)&v14 * 64.0;
+    *(float *)&v15 = *(float *)&v15 * 200.0;
+    *(float *)&v14 = *(float *)&v14 * 200.0;
+    v21 = wallPos->v[0];
+    enda.v[0] = wallPos->v[0] - *(float *)&v15;
+    *(float *)&_XMM1 = wallPos->v[1];
+    enda.v[1] = *(float *)&_XMM1 - *(float *)&v14;
+    enda.v[2] = wallPos->v[2];
+    v57.v[0] = *(float *)&v15 + v21;
+    v57.v[1] = *(float *)&v14 + *(float *)&_XMM1;
+    v57.v[2] = enda.v[2];
+    v12 = (int)v12;
+    *(_QWORD *)start.v = v12;
+    v22 = s_PhysicsQuery_LegacyTraceResults[(int)v12];
+    if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4927, ASSERT_TYPE_ASSERT, "(resultL)", (const char *)&queryFormat, "resultL") )
+      __debugbreak();
+    HavokPhysics_CollisionQueryResult::Reset(v22, 1);
+    v23 = s_PhysicsQuery_LegacyQueryResults[(int)v12];
+    if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4930, ASSERT_TYPE_ASSERT, "(resultR)", (const char *)&queryFormat, "resultR") )
+      __debugbreak();
+    HavokPhysics_CollisionQueryResult::Reset(v23, 1);
+    Physics_Raycast((Physics_WorldId)v7, wallPos, &enda, &extendedData, v22);
+    Physics_Raycast((Physics_WorldId)v7, wallPos, &v57, &extendedData, v23);
+    HasHit = HavokPhysics_CollisionQueryResult::HasHit(v22);
+    v24 = HavokPhysics_CollisionQueryResult::HasHit(v23);
+    if ( HasHit )
+      HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(v22, 0);
+    if ( v24 )
+      HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(v23, 0);
+    v25 = wallPos->v[0] - v19;
+    v26 = wallPos->v[1];
+    v27 = v26 - v20;
+    v28 = wallPos->v[2];
+    v29 = wallPos->v[0] + v19;
+    v30 = v26 + v20;
+    if ( HasHit )
+      HavokPhysics_CollisionQueryResult::GetRaycastHitPosition(v22, 0, &pos);
+    else
+      pos = enda;
+    if ( v24 )
+      HavokPhysics_CollisionQueryResult::GetRaycastHitPosition(v23, 0, &v59);
+    else
+      v59 = v57;
+    v31 = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
+    v32 = v31;
+    if ( v31 )
+      hkMonitorStream::timerBegin(v31, "TtLegacyQuery: PhysicsQuery_LegacyTraceRoundCorners SubRays");
+    v54 = v32;
+    _XMM2 = 0i64;
+    __asm { vroundss xmm2, xmm2, xmm0, 2 }
+    v49 = (int)*(float *)&_XMM2;
+    _XMM3 = 0i64;
+    __asm { vroundss xmm3, xmm3, xmm1, 2 }
+    v37 = (int)*(float *)&_XMM3;
+    v38 = s_PhysicsQuery_LegacyQueryAnyResults[*(_QWORD *)start.v];
+    if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4974, ASSERT_TYPE_ASSERT, "(sightTraceResult)", (const char *)&queryFormat, "sightTraceResult") )
+      __debugbreak();
+    HavokPhysics_CollisionQueryResult::Reset(v38, 1);
+    v39 = 0;
+    if ( v49 > 0 )
+    {
+      while ( 1 )
+      {
+        v40 = (float)v39 * 0.33333334;
+        start.v[0] = (float)((float)(pos.v[0] - v25) * v40) + v25;
+        start.v[1] = (float)((float)(pos.v[1] - v27) * v40) + v27;
+        start.v[2] = (float)((float)(pos.v[2] - v28) * v40) + v28;
+        HavokPhysics_CollisionQueryResult::Reset(v38, 1);
+        Physics_Raycast((Physics_WorldId)v7, &start, end, &extendedData, v38);
+        if ( !HavokPhysics_CollisionQueryResult::HasHit(v38) )
+          break;
+        if ( ++v39 >= v49 )
+          goto LABEL_41;
+      }
+      v42 = LODWORD(FLOAT_1_0);
+      *(float *)&v42 = 1.0 - v40;
+      _XMM0 = v42;
+      __asm { vmaxss  xmm7, xmm0, xmm7 }
+      v43 = v39 + 2;
+      if ( v37 < v39 + 2 )
+        v43 = (int)*(float *)&_XMM3;
+      v37 = v43;
+    }
+LABEL_41:
+    if ( v37 > 0 )
+    {
+      while ( 1 )
+      {
+        v44 = (float)v10 * 0.33333334;
+        start.v[0] = (float)((float)(v59.v[0] - v29) * v44) + v29;
+        start.v[1] = (float)((float)(v59.v[1] - v30) * v44) + v30;
+        start.v[2] = (float)((float)(v59.v[2] - v28) * v44) + v28;
+        HavokPhysics_CollisionQueryResult::Reset(v38, 1);
+        Physics_Raycast((Physics_WorldId)v7, &start, end, &extendedData, v38);
+        if ( !HavokPhysics_CollisionQueryResult::HasHit(v38) )
+          break;
+        if ( ++v10 >= v37 )
+          goto LABEL_46;
+      }
+      v46 = LODWORD(FLOAT_1_0);
+      *(float *)&v46 = 1.0 - v44;
+      _XMM0 = v46;
+      __asm { vmaxss  xmm7, xmm0, xmm7 }
+    }
+LABEL_46:
+    if ( v32 )
+      hkMonitorStream::timerEnd(v32, "Et");
   }
-  if ( v17 )
-    hkMonitorStream::timerEnd(v17, "Et");
-  __asm { vmovaps xmm0, xmm7 }
-  _R11 = &v36;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
-  return *(float *)&_XMM0;
+  if ( v9 )
+    hkMonitorStream::timerEnd(v9, "Et");
+  return *(float *)&_XMM7;
 }
 
 /*
@@ -11044,84 +8443,77 @@ PhysicsQuery_LegacyTraceSkipEntitiesRotated
 */
 void PhysicsQuery_LegacyTraceSkipEntitiesRotated(Physics_WorldId worldId, trace_t *results, const vec3_t *start, const vec3_t *end, const vec3_t *angles, const Bounds *bounds, const int *skipEntities, int skipEntityCount, int skipChildren, int contentMask, int locational, unsigned __int8 *priorityMap, Physics_QueryPhaseSelection phaseSelection, int ignoreRefs)
 {
-  __int64 v21; 
-  void *v22; 
+  const vec3_t *v14; 
+  const vec3_t *v15; 
+  __int64 v16; 
+  void *v17; 
   hknpShape *Value; 
-  hknpShape *v24; 
-  __int64 v25; 
-  __int64 v26; 
-  __int64 v27; 
-  HavokPhysics_IgnoreBodies *v28; 
-  int v29; 
-  char v33; 
-  char v35; 
-  bool v36; 
-  const vec3_t *v40; 
-  hknpShape *v41; 
-  hknpShape *v44; 
-  const vec3_t *v45; 
+  hknpShape *v19; 
+  __int64 v20; 
+  __int64 v21; 
+  __int64 v22; 
+  HavokPhysics_IgnoreBodies *v23; 
+  int v24; 
+  float v25; 
+  float v26; 
+  bool v27; 
+  const vec3_t *v28; 
+  hknpShape *v29; 
+  hknpShape *v30; 
+  const vec3_t *v31; 
   unsigned int ThreadId; 
   bool IsShapeCacheDisabled; 
-  int v49; 
-  int v51; 
-  hknpShape *v52; 
-  int v53; 
-  int v54; 
+  int v34; 
+  int v35; 
+  hknpShape *v36; 
+  int v37; 
+  int v38; 
   int NumHits; 
-  int v57; 
-  HavokPhysics_CollisionQueryResult *v58; 
+  int v40; 
+  HavokPhysics_CollisionQueryResult *v41; 
   int ClosestPointHitRef; 
   int RaycastHitRef; 
+  double RaycastHitFraction; 
   const Physics_DetailHitData *DetailHitData; 
   unsigned int RaycastHitBodyId; 
-  float fmt; 
   hknpShape *nonBrushShape; 
   int legacyEntryId; 
   trace_t *trace; 
-  Physics_QueryPointExtendedData v72; 
+  Physics_QueryPointExtendedData v50; 
   vec3_t *enda; 
   hknpShape *paddedShape; 
   hknpShape *shape; 
   Physics_ShapecastExtendedData extendedData; 
-  Bounds *v77; 
-  const int *v78; 
-  const vec3_t *v79; 
-  vec3_t *v80; 
-  __int64 v81; 
-  hknpShape *v82; 
+  Bounds *v55; 
+  const int *v56; 
+  const vec3_t *v57; 
+  vec3_t *v58; 
+  __int64 v59; 
+  hknpShape *v60; 
   vec4_t quat; 
-  char v84; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v81 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
-  _RSI = end;
+  v59 = -2i64;
+  v14 = end;
   enda = (vec3_t *)end;
-  _R12 = start;
-  v79 = start;
+  v15 = start;
+  v57 = start;
   trace = results;
-  v21 = worldId;
+  v16 = worldId;
   LODWORD(shape) = worldId;
-  v80 = (vec3_t *)angles;
-  v77 = (Bounds *)bounds;
-  v78 = skipEntities;
-  v22 = priorityMap;
+  v58 = (vec3_t *)angles;
+  v55 = (Bounds *)bounds;
+  v56 = skipEntities;
+  v17 = priorityMap;
   nonBrushShape = (hknpShape *)priorityMap;
   Value = (hknpShape *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v24 = Value;
+  v19 = Value;
   paddedShape = Value;
   if ( Value )
     hkMonitorStream::timerBegin((hkMonitorStream *)Value, "TtLegacyQuery: PhysicsQuery_LegacyTrace");
-  v82 = v24;
-  if ( (unsigned int)v21 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3217, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  v60 = v19;
+  if ( (unsigned int)v16 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3217, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v21] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3218, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v16] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3218, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
   if ( !trace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3219, ASSERT_TYPE_ASSERT, "(results)", (const char *)&queryFormat, "results") )
     __debugbreak();
@@ -11131,261 +8523,194 @@ void PhysicsQuery_LegacyTraceSkipEntitiesRotated(Physics_WorldId worldId, trace_
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3223, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  legacyEntryId = 28 * v21 + Physics_GetThreadId();
-  v25 = legacyEntryId;
+  legacyEntryId = 28 * v16 + Physics_GetThreadId();
+  v20 = legacyEntryId;
   HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId]);
   HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryResults[legacyEntryId], 1);
   HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[legacyEntryId], 1);
   HavokPhysics_IgnoreBodies::SetIgnoreRefs(s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId], ignoreRefs);
-  v26 = skipEntityCount;
-  v27 = 0i64;
+  v21 = skipEntityCount;
+  v22 = 0i64;
   if ( skipEntityCount > 0 )
   {
     do
     {
-      v28 = s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId];
-      v29 = v78[v27];
-      if ( !v28 )
+      v23 = s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId];
+      v24 = v56[v22];
+      if ( !v23 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
           __debugbreak();
-        v26 = skipEntityCount;
+        v21 = skipEntityCount;
       }
-      if ( v29 >= 0 )
+      if ( v24 >= 0 )
       {
-        HavokPhysics_IgnoreBodies::AddIgnoreEntity(v28, v29, 1, skipChildren == 1, 0, 1, 0);
-        v26 = skipEntityCount;
+        HavokPhysics_IgnoreBodies::AddIgnoreEntity(v23, v24, 1, skipChildren == 1, 0, 1, 0);
+        v21 = skipEntityCount;
       }
-      ++v27;
+      ++v22;
     }
-    while ( v27 < v26 );
-    v24 = paddedShape;
-    _R12 = v79;
-    LODWORD(v21) = (_DWORD)shape;
-    _RSI = enda;
-    v22 = nonBrushShape;
+    while ( v22 < v21 );
+    v19 = paddedShape;
+    v15 = v57;
+    LODWORD(v16) = (_DWORD)shape;
+    v14 = enda;
+    v17 = nonBrushShape;
   }
-  _RAX = v77;
-  __asm
+  v25 = v55->halfSize.v[0];
+  v26 = v55->halfSize.v[2];
+  AnglesToQuat(v58, &quat);
+  if ( v26 == 0.0 || v25 == 0.0 )
   {
-    vmovss  xmm8, dword ptr [rax+0Ch]
-    vmovss  xmm6, dword ptr [rax+14h]
-  }
-  AnglesToQuat(v80, &quat);
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vucomiss xmm6, xmm7
-  }
-  if ( v33 )
-  {
-    __asm
+    if ( v14->v[0] == v15->v[0] && v14->v[1] == v15->v[1] && v14->v[2] == v15->v[2] )
     {
-      vmovss  xmm0, dword ptr [rsi]
-      vucomiss xmm0, dword ptr [r12]
-    }
-    if ( !v33 )
-      goto LABEL_55;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vucomiss xmm0, dword ptr [r12+4]
-    }
-    if ( !v33 )
-      goto LABEL_55;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+8]
-      vucomiss xmm0, dword ptr [r12+8]
-    }
-    if ( v33 )
-    {
-      v72.simplify = 0;
-      __asm { vmovss  [rbp+0A0h+var_130.collisionBuffer], xmm7 }
-      if ( locational && v22 )
+      v50.simplify = 0;
+      v50.collisionBuffer = 0.0;
+      if ( locational && v17 )
       {
-        v49 = contentMask & 0xFDFFBFFF;
-        v72.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
+        v34 = contentMask & 0xFDFFBFFF;
+        v50.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
       }
       else
       {
-        v49 = contentMask;
-        v72.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
+        v34 = contentMask;
+        v50.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
       }
-      v72.contents = v49;
-      v72.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId];
-      v72.phaseSelection = phaseSelection;
-      __asm { vxorps  xmm2, xmm2, xmm2; maxDistance }
-      Physics_QueryPoint((Physics_WorldId)v21, _R12, *(float *)&_XMM2, &v72, s_PhysicsQuery_LegacyQueryResults[legacyEntryId]);
+      v50.contents = v34;
+      v50.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId];
+      v50.phaseSelection = phaseSelection;
+      Physics_QueryPoint((Physics_WorldId)v16, v15, 0.0, &v50, s_PhysicsQuery_LegacyQueryResults[legacyEntryId]);
       Physics_ConvertClosestPointsToLegacyTrace(s_PhysicsQuery_LegacyQueryResults[legacyEntryId], trace);
     }
     else
     {
-LABEL_55:
-      v51 = locational;
-      v52 = nonBrushShape;
+      v35 = locational;
+      v36 = nonBrushShape;
       if ( locational && nonBrushShape )
       {
         Physics_AddDetailTrace(s_PhysicsQuery_LegacyTraceResults[legacyEntryId], (unsigned __int8 *)nonBrushShape);
-        v52 = nonBrushShape;
+        v36 = nonBrushShape;
       }
-      __asm { vmovss  dword ptr [rbp+0A0h+extendedData+14h], xmm7 }
+      *((float *)&extendedData.ignoreBodies + 1) = 0.0;
       *((_DWORD *)&extendedData.collisionBuffer + 1) = 1;
       LOWORD(extendedData.nonBrushShape) = 256;
-      v53 = contentMask;
+      v37 = contentMask;
       extendedData.contents = contentMask;
       *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId];
-      if ( !locational || (LODWORD(extendedData.ignoreBodies) = 0, !v52) )
+      if ( !locational || (LODWORD(extendedData.ignoreBodies) = 0, !v36) )
         LODWORD(extendedData.ignoreBodies) = 1;
       LODWORD(extendedData.collisionBuffer) = phaseSelection;
-      Physics_Raycast((Physics_WorldId)v21, _R12, _RSI, (Physics_RaycastExtendedData *)&extendedData, s_PhysicsQuery_LegacyTraceResults[legacyEntryId]);
+      Physics_Raycast((Physics_WorldId)v16, v15, v14, (Physics_RaycastExtendedData *)&extendedData, s_PhysicsQuery_LegacyTraceResults[legacyEntryId]);
       if ( locational && nonBrushShape )
       {
-        v72.simplify = 0;
-        __asm { vmovss  [rbp+0A0h+var_130.collisionBuffer], xmm7 }
-        v72.contents = contentMask & 0x2004000;
-        v72.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId];
-        v54 = 0;
-        v72.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
-        v72.phaseSelection = phaseSelection;
+        v50.simplify = 0;
+        v50.collisionBuffer = 0.0;
+        v50.contents = contentMask & 0x2004000;
+        v50.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[legacyEntryId];
+        v38 = 0;
+        v50.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
+        v50.phaseSelection = phaseSelection;
         HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryAllResults[legacyEntryId], 1);
-        __asm { vxorps  xmm2, xmm2, xmm2; maxDistance }
-        Physics_QueryPoint((Physics_WorldId)v21, _R12, *(float *)&_XMM2, &v72, s_PhysicsQuery_LegacyQueryAllResults[legacyEntryId]);
+        Physics_QueryPoint((Physics_WorldId)v16, v15, 0.0, &v50, s_PhysicsQuery_LegacyQueryAllResults[legacyEntryId]);
         NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(s_PhysicsQuery_LegacyQueryAllResults[legacyEntryId]);
         if ( NumHits > 0 )
         {
-          v57 = NumHits;
+          v40 = NumHits;
           do
           {
-            if ( !HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[legacyEntryId]) || (v58 = s_PhysicsQuery_LegacyTraceResults[legacyEntryId], ClosestPointHitRef = HavokPhysics_CollisionQueryResult::GetClosestPointHitRef(s_PhysicsQuery_LegacyQueryAllResults[legacyEntryId], v54), RaycastHitRef = HavokPhysics_CollisionQueryResult::GetRaycastHitRef(v58, 0), _RSI = enda, RaycastHitRef != ClosestPointHitRef) )
-              HavokPhysics_CollisionQueryResult::AddQueryPointHitAsRaycastHit(s_PhysicsQuery_LegacyTraceResults[legacyEntryId], (Physics_WorldId)v21, s_PhysicsQuery_LegacyQueryAllResults[legacyEntryId], v54, _R12, _RSI, (Physics_RaycastExtendedData *)&extendedData);
-            ++v54;
+            if ( !HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[legacyEntryId]) || (v41 = s_PhysicsQuery_LegacyTraceResults[legacyEntryId], ClosestPointHitRef = HavokPhysics_CollisionQueryResult::GetClosestPointHitRef(s_PhysicsQuery_LegacyQueryAllResults[legacyEntryId], v38), RaycastHitRef = HavokPhysics_CollisionQueryResult::GetRaycastHitRef(v41, 0), v14 = enda, RaycastHitRef != ClosestPointHitRef) )
+              HavokPhysics_CollisionQueryResult::AddQueryPointHitAsRaycastHit(s_PhysicsQuery_LegacyTraceResults[legacyEntryId], (Physics_WorldId)v16, s_PhysicsQuery_LegacyQueryAllResults[legacyEntryId], v38, v15, v14, (Physics_RaycastExtendedData *)&extendedData);
+            ++v38;
           }
-          while ( v54 < v57 );
-          v24 = paddedShape;
-          v53 = contentMask;
+          while ( v38 < v40 );
+          v19 = paddedShape;
+          v37 = contentMask;
         }
-        v51 = locational;
+        v35 = locational;
       }
       if ( HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[legacyEntryId]) )
       {
-        *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(s_PhysicsQuery_LegacyTraceResults[legacyEntryId], 0);
+        RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(s_PhysicsQuery_LegacyTraceResults[legacyEntryId], 0);
         DetailHitData = NULL;
-        __asm { vcomiss xmm0, xmm7 }
-        v72.simplify = 0;
-        v72.ignoreBodies = NULL;
-        __asm { vmovss  [rbp+0A0h+var_130.collisionBuffer], xmm7 }
-        if ( v51 && nonBrushShape )
+        if ( *(float *)&RaycastHitFraction <= 0.0 )
         {
-          v53 &= 0xFDFFBFFF;
-          v72.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
+          v50.simplify = 0;
+          v50.ignoreBodies = NULL;
+          v50.collisionBuffer = 0.0;
+          if ( v35 && nonBrushShape )
+          {
+            v37 &= 0xFDFFBFFF;
+            v50.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
+          }
+          else
+          {
+            v50.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
+          }
+          v50.contents = v37;
+          v50.phaseSelection = phaseSelection;
+          RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(s_PhysicsQuery_LegacyTraceResults[legacyEntryId], 0);
+          if ( (RaycastHitBodyId & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3383, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( hitBodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( hitBodyId )") )
+            __debugbreak();
+          Physics_QueryPoint((Physics_WorldId)v16, RaycastHitBodyId, v15, 0.0, &v50, s_PhysicsQuery_LegacyQueryResults[legacyEntryId]);
         }
-        else
-        {
-          v72.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-        }
-        v72.contents = v53;
-        v72.phaseSelection = phaseSelection;
-        RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(s_PhysicsQuery_LegacyTraceResults[legacyEntryId], 0);
-        if ( (RaycastHitBodyId & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3383, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( hitBodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( hitBodyId )") )
-          __debugbreak();
-        __asm { vmovaps xmm3, xmm7; maxDistance }
-        Physics_QueryPoint((Physics_WorldId)v21, RaycastHitBodyId, _R12, *(float *)&_XMM3, &v72, s_PhysicsQuery_LegacyQueryResults[legacyEntryId]);
       }
       else
       {
         DetailHitData = NULL;
       }
-      if ( v51 && nonBrushShape )
+      if ( v35 && nonBrushShape )
         DetailHitData = Physics_GetDetailHitData(s_PhysicsQuery_LegacyTraceResults[legacyEntryId], 0, 0);
       Physics_ConvertRayQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[legacyEntryId], s_PhysicsQuery_LegacyQueryResults[legacyEntryId], DetailHitData, trace);
     }
   }
   else
   {
-    __asm { vucomiss xmm8, xmm7 }
-    v36 = PhysicsQuery_LegacyTraceCreateShape((Physics_WorldId)v21, NULL, v77, 0, s_PhysicsQuery_LegacyTraceShapeBuffers[legacyEntryId], 0, &shape, &nonBrushShape, &paddedShape, NULL);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vucomiss xmm0, dword ptr [r12]
-    }
-    if ( !v35 )
-      goto LABEL_38;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vucomiss xmm0, dword ptr [r12+4]
-    }
-    if ( !v35 )
-      goto LABEL_38;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+8]
-      vucomiss xmm0, dword ptr [r12+8]
-    }
-    if ( v35 )
+    v27 = PhysicsQuery_LegacyTraceCreateShape((Physics_WorldId)v16, NULL, v55, 0, s_PhysicsQuery_LegacyTraceShapeBuffers[legacyEntryId], 0, &shape, &nonBrushShape, &paddedShape, NULL);
+    if ( v14->v[0] == v15->v[0] && v14->v[1] == v15->v[1] && v14->v[2] == v15->v[2] )
     {
       LOBYTE(extendedData.startTolerance) = 0;
-      __asm { vmovss  [rbp+0A0h+extendedData.collisionBuffer], xmm7 }
+      *(float *)&extendedData.ignoreBodies = 0.0;
       if ( locational && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3257, ASSERT_TYPE_ASSERT, "(locational == qfalse)", "%s\n\tCan't do locational shape traces - only locational ray-traces", "locational == qfalse") )
         __debugbreak();
       extendedData.contents = contentMask;
-      *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v25];
+      *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v20];
       *(_QWORD *)&extendedData.collisionBuffer = nonBrushShape;
       LODWORD(extendedData.nonBrushShape) = phaseSelection;
-      __asm { vmovss  dword ptr [rsp+1A0h+fmt], xmm7 }
-      v40 = _R12;
-      v41 = shape;
-      Physics_GetClosestPoints((Physics_WorldId)v21, shape, v40, &quat, fmt, (Physics_GetClosestPointsExtendedData *)&extendedData, s_PhysicsQuery_LegacyQueryResults[v25]);
-      Physics_ConvertClosestPointsToLegacyTrace(s_PhysicsQuery_LegacyQueryResults[v25], trace);
+      v28 = v15;
+      v29 = shape;
+      Physics_GetClosestPoints((Physics_WorldId)v16, shape, v28, &quat, 0.0, (Physics_GetClosestPointsExtendedData *)&extendedData, s_PhysicsQuery_LegacyQueryResults[v20]);
+      Physics_ConvertClosestPointsToLegacyTrace(s_PhysicsQuery_LegacyQueryResults[v20], trace);
     }
     else
     {
-LABEL_38:
-      __asm
-      {
-        vmovss  dword ptr [rbp+0A0h+extendedData.simplify], xmm7
-        vmovss  xmm0, cs:__real@3c83126f
-        vmovss  dword ptr [rbp+0A0h+extendedData.ignoreBodies], xmm0
-      }
+      extendedData.startTolerance = 0.0;
+      extendedData.accuracy = FLOAT_0_016000001;
       extendedData.simplifyStart = 0;
       extendedData.permitOutwardTrace = 0;
       if ( locational && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3274, ASSERT_TYPE_ASSERT, "(locational == qfalse)", "%s\n\tCan't do locational shape traces - only locational ray-traces", "locational == qfalse") )
         __debugbreak();
       extendedData.contents = contentMask;
-      extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v25];
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3e000000
-        vmovss  dword ptr [rbp+0A0h+extendedData.nonBrushShape], xmm0
-      }
-      v44 = nonBrushShape;
+      extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v20];
+      extendedData.collisionBuffer = FLOAT_0_125;
+      v30 = nonBrushShape;
       extendedData.nonBrushShape = nonBrushShape;
       extendedData.secondPassShape = paddedShape;
       extendedData.phaseSelection = phaseSelection;
-      v45 = _R12;
-      v41 = shape;
-      Physics_Shapecast((Physics_WorldId)v21, shape, v45, enda, &quat, &extendedData, s_PhysicsQuery_LegacyTraceResults[v25], s_PhysicsQuery_LegacyQueryResults[v25]);
-      Physics_ConvertShapeQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v25], s_PhysicsQuery_LegacyQueryResults[v25], trace);
-      PhysicsQuery_LegacyTraceProcessAllSolid((Physics_WorldId)v21, trace, &quat, legacyEntryId, contentMask, v44, phaseSelection, v41, enda);
+      v31 = v15;
+      v29 = shape;
+      Physics_Shapecast((Physics_WorldId)v16, shape, v31, enda, &quat, &extendedData, s_PhysicsQuery_LegacyTraceResults[v20], s_PhysicsQuery_LegacyQueryResults[v20]);
+      Physics_ConvertShapeQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v20], s_PhysicsQuery_LegacyQueryResults[v20], trace);
+      PhysicsQuery_LegacyTraceProcessAllSolid((Physics_WorldId)v16, trace, &quat, legacyEntryId, contentMask, v30, phaseSelection, v29, enda);
     }
     ThreadId = Physics_GetThreadId();
     IsShapeCacheDisabled = Physics_IsShapeCacheDisabled(ThreadId);
     if ( paddedShape )
-      Physics_ReleaseShape((Physics_WorldId)v21, paddedShape, IsShapeCacheDisabled);
-    if ( v41 && v36 )
-      Physics_ReleaseShape((Physics_WorldId)v21, v41, IsShapeCacheDisabled);
+      Physics_ReleaseShape((Physics_WorldId)v16, paddedShape, IsShapeCacheDisabled);
+    if ( v29 && v27 )
+      Physics_ReleaseShape((Physics_WorldId)v16, v29, IsShapeCacheDisabled);
   }
-  if ( v24 )
-    hkMonitorStream::timerEnd((hkMonitorStream *)v24, "Et");
-  _R11 = &v84;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
+  if ( v19 )
+    hkMonitorStream::timerEnd((hkMonitorStream *)v19, "Et");
 }
 
 /*
@@ -11395,328 +8720,259 @@ PhysicsQuery_LegacyTraceSkipEntities_Internal
 */
 void PhysicsQuery_LegacyTraceSkipEntities_Internal(Physics_WorldId worldId, trace_t *results, const vec3_t *start, const vec3_t *end, const Bounds *bounds, const int *skipEntities, int skipEntityCount, int skipChildren, int contentMask, int locational, unsigned __int8 *priorityMap, Physics_QueryPhaseSelection phaseSelection, int ignoreRefs, const bool detectInsideRaycasts)
 {
-  trace_t *v19; 
-  __int64 v20; 
+  const vec3_t *v14; 
+  const vec3_t *v15; 
+  trace_t *v16; 
+  __int64 v17; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v22; 
-  hknpShape *v23; 
-  __int64 v24; 
-  hknpShape *v25; 
-  bool v26; 
-  __int64 v27; 
-  const int *v28; 
-  HavokPhysics_IgnoreBodies *v29; 
+  hkMonitorStream *v19; 
+  hknpShape *v20; 
+  __int64 v21; 
+  hknpShape *v22; 
+  __int64 v23; 
+  const int *v24; 
+  HavokPhysics_IgnoreBodies *v25; 
+  int v26; 
+  bool v27; 
+  const vec3_t *v28; 
+  hknpShape *v29; 
   int v30; 
-  char v35; 
-  bool v36; 
-  const vec3_t *v40; 
-  hknpShape *v41; 
-  int v43; 
-  hknpShape *v45; 
-  Physics_QueryPhaseSelection v46; 
-  const vec3_t *v47; 
+  hknpShape *v31; 
+  Physics_QueryPhaseSelection v32; 
+  const vec3_t *v33; 
   unsigned int ThreadId; 
   bool IsShapeCacheDisabled; 
-  int v51; 
-  unsigned __int8 *v53; 
-  int v54; 
-  int v55; 
-  int v56; 
+  int v36; 
+  unsigned __int8 *v37; 
+  int v38; 
+  int v39; 
+  int v40; 
   int NumHits; 
-  int v59; 
-  HavokPhysics_CollisionQueryResult *v60; 
+  int v42; 
+  HavokPhysics_CollisionQueryResult *v43; 
   int ClosestPointHitRef; 
   int RaycastHitRef; 
-  char v63; 
+  double RaycastHitFraction; 
   unsigned int RaycastHitBodyId; 
-  float fmt; 
   hknpShape *shape; 
-  Physics_QueryPointExtendedData v69; 
+  Physics_QueryPointExtendedData v49; 
   Physics_ShapecastExtendedData extendedData; 
-  hkMonitorStream *v71; 
+  hkMonitorStream *v51; 
   Physics_DetailHitData *detailHitData; 
-  __int64 v73; 
-  _QWORD v74[11]; 
-  void *retaddr; 
-  bool v77; 
+  __int64 v53; 
+  __int128 v54; 
+  bool v56; 
 
-  _RAX = &retaddr;
-  v73 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm6 }
-  _RSI = end;
-  _R13 = start;
-  v19 = results;
-  v20 = worldId;
+  v53 = -2i64;
+  v14 = end;
+  v15 = start;
+  v16 = results;
+  v17 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v22 = Value;
-  v71 = Value;
+  v19 = Value;
+  v51 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyTrace");
-  v74[0] = v22;
-  if ( (unsigned int)v20 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2989, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  *(_QWORD *)&v54 = v19;
+  if ( (unsigned int)v17 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2989, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v20] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2990, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v17] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2990, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2991, ASSERT_TYPE_ASSERT, "(results)", (const char *)&queryFormat, "results") )
+  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2991, ASSERT_TYPE_ASSERT, "(results)", (const char *)&queryFormat, "results") )
     __debugbreak();
   if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2992, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
-  v23 = (hknpShape *)skipEntityCount;
+  v20 = (hknpShape *)skipEntityCount;
   if ( !skipEntities && skipEntityCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2993, ASSERT_TYPE_ASSERT, "(skipEntities || skipEntityCount == 0)", (const char *)&queryFormat, "skipEntities || skipEntityCount == 0") )
     __debugbreak();
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 2995, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  skipEntityCount = 28 * v20 + Physics_GetThreadId();
-  v24 = skipEntityCount;
+  skipEntityCount = 28 * v17 + Physics_GetThreadId();
+  v21 = skipEntityCount;
   HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[skipEntityCount]);
-  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryResults[v24], 1);
-  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[v24], 1);
-  HavokPhysics_IgnoreBodies::SetIgnoreRefs(s_PhysicsQuery_LegacyIgnoreBodies[v24], ignoreRefs);
-  v25 = v23;
-  shape = v23;
+  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryResults[v21], 1);
+  HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyTraceResults[v21], 1);
+  HavokPhysics_IgnoreBodies::SetIgnoreRefs(s_PhysicsQuery_LegacyIgnoreBodies[v21], ignoreRefs);
+  v22 = v20;
+  shape = v20;
   detailHitData = NULL;
-  v26 = (_DWORD)v23 == 0;
-  if ( (int)v23 > 0 )
+  if ( (int)v20 > 0 )
   {
-    v27 = 0i64;
-    v28 = skipEntities;
+    v23 = 0i64;
+    v24 = skipEntities;
     do
     {
-      v29 = s_PhysicsQuery_LegacyIgnoreBodies[v24];
-      v30 = v28[v27];
-      if ( !v29 )
+      v25 = s_PhysicsQuery_LegacyIgnoreBodies[v21];
+      v26 = v24[v23];
+      if ( !v25 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 727, ASSERT_TYPE_ASSERT, "(ignoreBodies)", (const char *)&queryFormat, "ignoreBodies") )
           __debugbreak();
-        v25 = shape;
+        v22 = shape;
       }
-      if ( v30 >= 0 )
+      if ( v26 >= 0 )
       {
-        HavokPhysics_IgnoreBodies::AddIgnoreEntity(v29, v30, 1, skipChildren == 1, 0, 1, 0);
-        v25 = shape;
+        HavokPhysics_IgnoreBodies::AddIgnoreEntity(v25, v26, 1, skipChildren == 1, 0, 1, 0);
+        v22 = shape;
       }
-      ++v27;
+      ++v23;
     }
-    while ( v27 < (__int64)v25 );
-    v22 = v71;
-    LODWORD(v20) = worldId;
-    _R13 = start;
-    _RSI = end;
-    v26 = 1;
-    v19 = results;
+    while ( v23 < (__int64)v22 );
+    v19 = v51;
+    LODWORD(v17) = worldId;
+    v15 = start;
+    v14 = end;
+    v16 = results;
   }
-  _RDX = bounds;
-  __asm
+  if ( bounds->halfSize.v[2] == 0.0 || bounds->halfSize.v[0] == 0.0 )
   {
-    vmovss  xmm1, dword ptr [rdx+0Ch]
-    vmovss  xmm0, dword ptr [rdx+14h]
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm0, xmm6
-  }
-  if ( v26 )
-  {
-    __asm
+    if ( v14->v[0] == v15->v[0] && v14->v[1] == v15->v[1] && v14->v[2] == v15->v[2] )
     {
-      vmovss  xmm0, dword ptr [rsi]
-      vucomiss xmm0, dword ptr [r13+0]
-    }
-    if ( !v26 )
-      goto LABEL_58;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vucomiss xmm0, dword ptr [r13+4]
-    }
-    if ( !v26 )
-      goto LABEL_58;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+8]
-      vucomiss xmm0, dword ptr [r13+8]
-    }
-    if ( v26 )
-    {
-      v69.simplify = 0;
-      __asm { vmovss  [rbp+3Fh+var_C8.collisionBuffer], xmm6 }
+      v49.simplify = 0;
+      v49.collisionBuffer = 0.0;
       if ( locational && priorityMap )
       {
-        v51 = contentMask & 0xFDFFBFFF;
-        v69.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
+        v36 = contentMask & 0xFDFFBFFF;
+        v49.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
       }
       else
       {
-        v51 = contentMask;
-        v69.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
+        v36 = contentMask;
+        v49.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
       }
-      v69.contents = v51;
-      v69.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v24];
-      v69.phaseSelection = phaseSelection;
-      __asm { vxorps  xmm2, xmm2, xmm2; maxDistance }
-      Physics_QueryPoint((Physics_WorldId)v20, _R13, *(float *)&_XMM2, &v69, s_PhysicsQuery_LegacyQueryResults[v24]);
-      Physics_ConvertClosestPointsToLegacyTrace(s_PhysicsQuery_LegacyQueryResults[v24], v19);
+      v49.contents = v36;
+      v49.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v21];
+      v49.phaseSelection = phaseSelection;
+      Physics_QueryPoint((Physics_WorldId)v17, v15, 0.0, &v49, s_PhysicsQuery_LegacyQueryResults[v21]);
+      Physics_ConvertClosestPointsToLegacyTrace(s_PhysicsQuery_LegacyQueryResults[v21], v16);
     }
     else
     {
-LABEL_58:
-      v53 = priorityMap;
+      v37 = priorityMap;
       if ( locational && priorityMap )
-        Physics_AddDetailTrace(s_PhysicsQuery_LegacyTraceResults[v24], priorityMap);
-      __asm { vmovss  dword ptr [rbp+3Fh+extendedData+14h], xmm6 }
+        Physics_AddDetailTrace(s_PhysicsQuery_LegacyTraceResults[v21], priorityMap);
+      *((float *)&extendedData.ignoreBodies + 1) = 0.0;
       LOWORD(extendedData.nonBrushShape) = 256;
-      v54 = contentMask;
+      v38 = contentMask;
       extendedData.contents = contentMask;
-      *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v24];
-      if ( !locational || (LODWORD(extendedData.ignoreBodies) = 0, !v53) )
+      *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v21];
+      if ( !locational || (LODWORD(extendedData.ignoreBodies) = 0, !v37) )
         LODWORD(extendedData.ignoreBodies) = 1;
       LODWORD(extendedData.collisionBuffer) = phaseSelection;
-      v55 = 1;
+      v39 = 1;
       if ( detectInsideRaycasts )
-        v55 = 2;
-      *((_DWORD *)&extendedData.collisionBuffer + 1) = v55;
-      Physics_Raycast((Physics_WorldId)v20, _R13, _RSI, (Physics_RaycastExtendedData *)&extendedData, s_PhysicsQuery_LegacyTraceResults[v24]);
-      if ( locational && v53 )
+        v39 = 2;
+      *((_DWORD *)&extendedData.collisionBuffer + 1) = v39;
+      Physics_Raycast((Physics_WorldId)v17, v15, v14, (Physics_RaycastExtendedData *)&extendedData, s_PhysicsQuery_LegacyTraceResults[v21]);
+      if ( locational && v37 )
       {
-        v69.simplify = 0;
-        __asm { vmovss  [rbp+3Fh+var_C8.collisionBuffer], xmm6 }
-        v69.contents = v54 & 0x2004000;
-        v69.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v24];
-        v56 = 0;
-        v69.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
-        v69.phaseSelection = phaseSelection;
-        HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryAllResults[v24], 1);
-        __asm { vxorps  xmm2, xmm2, xmm2; maxDistance }
-        Physics_QueryPoint((Physics_WorldId)v20, _R13, *(float *)&_XMM2, &v69, s_PhysicsQuery_LegacyQueryAllResults[v24]);
-        NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(s_PhysicsQuery_LegacyQueryAllResults[v24]);
+        v49.simplify = 0;
+        v49.collisionBuffer = 0.0;
+        v49.contents = v38 & 0x2004000;
+        v49.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v21];
+        v40 = 0;
+        v49.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
+        v49.phaseSelection = phaseSelection;
+        HavokPhysics_CollisionQueryResult::Reset(s_PhysicsQuery_LegacyQueryAllResults[v21], 1);
+        Physics_QueryPoint((Physics_WorldId)v17, v15, 0.0, &v49, s_PhysicsQuery_LegacyQueryAllResults[v21]);
+        NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(s_PhysicsQuery_LegacyQueryAllResults[v21]);
         if ( NumHits > 0 )
         {
-          v59 = NumHits;
+          v42 = NumHits;
           do
           {
-            if ( !HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v24]) || (v60 = s_PhysicsQuery_LegacyTraceResults[v24], ClosestPointHitRef = HavokPhysics_CollisionQueryResult::GetClosestPointHitRef(s_PhysicsQuery_LegacyQueryAllResults[v24], v56), RaycastHitRef = HavokPhysics_CollisionQueryResult::GetRaycastHitRef(v60, 0), _RSI = end, RaycastHitRef != ClosestPointHitRef) )
-              HavokPhysics_CollisionQueryResult::AddQueryPointHitAsRaycastHit(s_PhysicsQuery_LegacyTraceResults[v24], (Physics_WorldId)v20, s_PhysicsQuery_LegacyQueryAllResults[v24], v56, _R13, _RSI, (Physics_RaycastExtendedData *)&extendedData);
-            ++v56;
+            if ( !HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v21]) || (v43 = s_PhysicsQuery_LegacyTraceResults[v21], ClosestPointHitRef = HavokPhysics_CollisionQueryResult::GetClosestPointHitRef(s_PhysicsQuery_LegacyQueryAllResults[v21], v40), RaycastHitRef = HavokPhysics_CollisionQueryResult::GetRaycastHitRef(v43, 0), v14 = end, RaycastHitRef != ClosestPointHitRef) )
+              HavokPhysics_CollisionQueryResult::AddQueryPointHitAsRaycastHit(s_PhysicsQuery_LegacyTraceResults[v21], (Physics_WorldId)v17, s_PhysicsQuery_LegacyQueryAllResults[v21], v40, v15, v14, (Physics_RaycastExtendedData *)&extendedData);
+            ++v40;
           }
-          while ( v56 < v59 );
-          v22 = v71;
-          v53 = priorityMap;
+          while ( v40 < v42 );
+          v19 = v51;
+          v37 = priorityMap;
         }
-        v54 = contentMask;
+        v38 = contentMask;
       }
-      if ( HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v24]) )
+      if ( HavokPhysics_CollisionQueryResult::HasHit(s_PhysicsQuery_LegacyTraceResults[v21]) )
       {
-        *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(s_PhysicsQuery_LegacyTraceResults[v24], 0);
-        __asm { vcomiss xmm0, xmm6 }
-        if ( v63 | v26 )
+        RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(s_PhysicsQuery_LegacyTraceResults[v21], 0);
+        if ( *(float *)&RaycastHitFraction <= 0.0 )
         {
-          v69.simplify = 0;
-          v69.ignoreBodies = NULL;
-          __asm { vmovss  [rbp+3Fh+var_C8.collisionBuffer], xmm6 }
-          if ( locational && v53 )
+          v49.simplify = 0;
+          v49.ignoreBodies = NULL;
+          v49.collisionBuffer = 0.0;
+          if ( locational && v37 )
           {
-            v54 &= 0xFDFFBFFF;
-            v69.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
+            v38 &= 0xFDFFBFFF;
+            v49.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
           }
           else
           {
-            v69.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
+            v49.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
           }
-          v69.contents = v54;
-          v69.phaseSelection = phaseSelection;
-          RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(s_PhysicsQuery_LegacyTraceResults[v24], 0);
+          v49.contents = v38;
+          v49.phaseSelection = phaseSelection;
+          RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(s_PhysicsQuery_LegacyTraceResults[v21], 0);
           if ( (RaycastHitBodyId & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3156, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( hitBodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( hitBodyId )") )
             __debugbreak();
-          __asm { vmovaps xmm3, xmm6; maxDistance }
-          Physics_QueryPoint((Physics_WorldId)v20, RaycastHitBodyId, _R13, *(float *)&_XMM3, &v69, s_PhysicsQuery_LegacyQueryResults[v24]);
+          Physics_QueryPoint((Physics_WorldId)v17, RaycastHitBodyId, v15, 0.0, &v49, s_PhysicsQuery_LegacyQueryResults[v21]);
         }
       }
-      if ( locational && v53 )
-        detailHitData = (Physics_DetailHitData *)Physics_GetDetailHitData(s_PhysicsQuery_LegacyTraceResults[v24], 0, 0);
-      Physics_ConvertRayQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v24], s_PhysicsQuery_LegacyQueryResults[v24], detailHitData, results);
+      if ( locational && v37 )
+        detailHitData = (Physics_DetailHitData *)Physics_GetDetailHitData(s_PhysicsQuery_LegacyTraceResults[v21], 0, 0);
+      Physics_ConvertRayQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v21], s_PhysicsQuery_LegacyQueryResults[v21], detailHitData, results);
     }
   }
   else
   {
-    __asm { vucomiss xmm1, xmm6 }
-    v36 = PhysicsQuery_LegacyTraceCreateShape((Physics_WorldId)v20, NULL, bounds, 0, s_PhysicsQuery_LegacyTraceShapeBuffers[v24], 0, (hknpShape **)&bounds, (hknpShape **)&skipEntities, &shape, NULL);
-    v77 = v36;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vucomiss xmm0, dword ptr [r13+0]
-    }
-    if ( !v35 )
-      goto LABEL_41;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+4]
-      vucomiss xmm0, dword ptr [r13+4]
-    }
-    if ( !v35 )
-      goto LABEL_41;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+8]
-      vucomiss xmm0, dword ptr [r13+8]
-    }
-    if ( v35 )
+    v27 = PhysicsQuery_LegacyTraceCreateShape((Physics_WorldId)v17, NULL, bounds, 0, s_PhysicsQuery_LegacyTraceShapeBuffers[v21], 0, (hknpShape **)&bounds, (hknpShape **)&skipEntities, &shape, NULL);
+    v56 = v27;
+    if ( v14->v[0] == v15->v[0] && v14->v[1] == v15->v[1] && v14->v[2] == v15->v[2] )
     {
       LOBYTE(extendedData.startTolerance) = 0;
-      __asm { vmovss  [rbp+3Fh+extendedData.collisionBuffer], xmm6 }
+      *(float *)&extendedData.ignoreBodies = 0.0;
       if ( locational && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3026, ASSERT_TYPE_ASSERT, "(locational == qfalse)", "%s\n\tCan't do locational shape traces - only locational ray-traces", "locational == qfalse") )
         __debugbreak();
       extendedData.contents = contentMask;
-      *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v24];
+      *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v21];
       *(_QWORD *)&extendedData.collisionBuffer = skipEntities;
       LODWORD(extendedData.nonBrushShape) = phaseSelection;
-      __asm { vmovss  dword ptr [rsp+120h+fmt], xmm6 }
-      v40 = _R13;
-      v41 = (hknpShape *)bounds;
-      Physics_GetClosestPoints((Physics_WorldId)v20, (hknpShape *)bounds, v40, &quat_identity, fmt, (Physics_GetClosestPointsExtendedData *)&extendedData, s_PhysicsQuery_LegacyQueryResults[v24]);
-      Physics_ConvertClosestPointsToLegacyTrace(s_PhysicsQuery_LegacyQueryResults[v24], results);
+      v28 = v15;
+      v29 = (hknpShape *)bounds;
+      Physics_GetClosestPoints((Physics_WorldId)v17, (hknpShape *)bounds, v28, &quat_identity, 0.0, (Physics_GetClosestPointsExtendedData *)&extendedData, s_PhysicsQuery_LegacyQueryResults[v21]);
+      Physics_ConvertClosestPointsToLegacyTrace(s_PhysicsQuery_LegacyQueryResults[v21], results);
     }
     else
     {
-LABEL_41:
-      __asm
-      {
-        vmovss  dword ptr [rbp+3Fh+extendedData.simplify], xmm6
-        vmovss  xmm0, cs:__real@3c83126f
-        vmovss  dword ptr [rbp+3Fh+extendedData.ignoreBodies], xmm0
-      }
+      extendedData.startTolerance = 0.0;
+      extendedData.accuracy = FLOAT_0_016000001;
       extendedData.simplifyStart = 0;
       extendedData.permitOutwardTrace = 0;
       if ( locational && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 3043, ASSERT_TYPE_ASSERT, "(locational == qfalse)", "%s\n\tCan't do locational shape traces - only locational ray-traces", "locational == qfalse") )
         __debugbreak();
-      v43 = contentMask;
+      v30 = contentMask;
       extendedData.contents = contentMask;
-      extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v24];
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3e000000
-        vmovss  dword ptr [rbp+3Fh+extendedData.nonBrushShape], xmm0
-      }
-      v45 = (hknpShape *)skipEntities;
+      extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v21];
+      extendedData.collisionBuffer = FLOAT_0_125;
+      v31 = (hknpShape *)skipEntities;
       extendedData.nonBrushShape = (hknpShape *)skipEntities;
       extendedData.secondPassShape = shape;
-      v46 = phaseSelection;
+      v32 = phaseSelection;
       extendedData.phaseSelection = phaseSelection;
-      v47 = _R13;
-      v41 = (hknpShape *)bounds;
-      Physics_Shapecast((Physics_WorldId)v20, (hknpShape *)bounds, v47, end, &quat_identity, &extendedData, s_PhysicsQuery_LegacyTraceResults[v24], s_PhysicsQuery_LegacyQueryResults[v24]);
-      Physics_ConvertShapeQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v24], s_PhysicsQuery_LegacyQueryResults[v24], results);
-      PhysicsQuery_LegacyTraceProcessAllSolid((Physics_WorldId)v20, results, &quat_identity, skipEntityCount, v43, v45, v46, v41, end);
-      v36 = v77;
+      v33 = v15;
+      v29 = (hknpShape *)bounds;
+      Physics_Shapecast((Physics_WorldId)v17, (hknpShape *)bounds, v33, end, &quat_identity, &extendedData, s_PhysicsQuery_LegacyTraceResults[v21], s_PhysicsQuery_LegacyQueryResults[v21]);
+      Physics_ConvertShapeQueryResultToLegacyTrace(s_PhysicsQuery_LegacyTraceResults[v21], s_PhysicsQuery_LegacyQueryResults[v21], results);
+      PhysicsQuery_LegacyTraceProcessAllSolid((Physics_WorldId)v17, results, &quat_identity, skipEntityCount, v30, v31, v32, v29, end);
+      v27 = v56;
     }
     ThreadId = Physics_GetThreadId();
     IsShapeCacheDisabled = Physics_IsShapeCacheDisabled(ThreadId);
     if ( shape )
-      Physics_ReleaseShape((Physics_WorldId)v20, shape, IsShapeCacheDisabled);
-    if ( v41 && v36 )
-      Physics_ReleaseShape((Physics_WorldId)v20, v41, IsShapeCacheDisabled);
+      Physics_ReleaseShape((Physics_WorldId)v17, shape, IsShapeCacheDisabled);
+    if ( v29 && v27 )
+      Physics_ReleaseShape((Physics_WorldId)v17, v29, IsShapeCacheDisabled);
   }
-  if ( v22 )
-    hkMonitorStream::timerEnd(v22, "Et");
-  __asm { vmovaps xmm6, xmmword ptr [rsp+120h+var_58+8] }
+  if ( v19 )
+    hkMonitorStream::timerEnd(v19, "Et");
 }
 
 /*
@@ -11736,110 +8992,74 @@ PhysicsQuery_LegacyWorldOnlySightTrace
 */
 _BOOL8 PhysicsQuery_LegacyWorldOnlySightTrace(Physics_WorldId worldId, const vec3_t *start, const vec3_t *end, const Bounds *bounds, int contentMask)
 {
-  __int64 v12; 
+  __int64 v8; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v14; 
-  int v15; 
-  __int64 v18; 
-  HavokPhysics_CollisionQueryResult *v19; 
-  char v21; 
+  hkMonitorStream *v10; 
+  int v11; 
+  float v12; 
+  float v13; 
+  __int64 v14; 
+  HavokPhysics_CollisionQueryResult *v15; 
   hknpShape *ShapeCapsuleUpAxis; 
   BOOL HasHit; 
-  _BOOL8 result; 
   Physics_ShapecastExtendedData extendedData; 
-  char v33; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  _R15 = bounds;
-  v12 = worldId;
+  v8 = worldId;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v14 = Value;
+  v10 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_LegacyWorldOnlySightTrace");
   if ( Physics_GetThreadId() >= 0x1C && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4603, ASSERT_TYPE_ASSERT, "(Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS)", (const char *)&queryFormat, "Physics_GetThreadId() < PHYSICS_MAX_SUPPORTED_NUM_THREADS") )
     __debugbreak();
-  v15 = Physics_GetThreadId() + 28 * v12;
-  if ( (unsigned int)v12 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4606, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
+  v11 = Physics_GetThreadId() + 28 * v8;
+  if ( (unsigned int)v8 > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4606, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", (const char *)&queryFormat, "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST") )
     __debugbreak();
-  if ( !s_PhysicsQuery_WorldInitialized[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4607, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
+  if ( !s_PhysicsQuery_WorldInitialized[v8] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4607, ASSERT_TYPE_ASSERT, "(s_PhysicsQuery_WorldInitialized[worldId])", (const char *)&queryFormat, "s_PhysicsQuery_WorldInitialized[worldId]") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4608, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
+  if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4608, ASSERT_TYPE_ASSERT, "(bounds)", (const char *)&queryFormat, "bounds") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, dword ptr [r15+0Ch]
-    vmovss  xmm7, dword ptr [r15+14h]
-  }
-  v18 = v15;
-  v19 = s_PhysicsQuery_LegacyQueryAnyResults[v15];
-  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4620, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
+  v12 = bounds->halfSize.v[0];
+  v13 = bounds->halfSize.v[2];
+  v14 = v11;
+  v15 = s_PhysicsQuery_LegacyQueryAnyResults[v11];
+  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4620, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
-  HavokPhysics_CollisionQueryResult::Reset(v19, 1);
-  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v18]);
-  HavokPhysics_IgnoreBodies::SetIgnoreRefs(s_PhysicsQuery_LegacyIgnoreBodies[v18], -2);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm7, xmm1
-  }
-  if ( v21 )
+  HavokPhysics_CollisionQueryResult::Reset(v15, 1);
+  HavokPhysics_IgnoreBodies::Reset(s_PhysicsQuery_LegacyIgnoreBodies[v14]);
+  HavokPhysics_IgnoreBodies::SetIgnoreRefs(s_PhysicsQuery_LegacyIgnoreBodies[v14], -2);
+  if ( v13 == 0.0 || v12 == 0.0 )
   {
     LODWORD(extendedData.ignoreBodies) = 1;
-    __asm { vmovss  dword ptr [rsp+0C8h+extendedData.ignoreBodies+4], xmm1 }
+    *((float *)&extendedData.ignoreBodies + 1) = 0.0;
     extendedData.collisionBuffer = 0.0;
     *((_DWORD *)&extendedData.collisionBuffer + 1) = 1;
     LOWORD(extendedData.nonBrushShape) = 256;
     extendedData.contents = contentMask;
-    *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v18];
-    Physics_Raycast((Physics_WorldId)v12, start, end, (Physics_RaycastExtendedData *)&extendedData, v19);
+    *(_QWORD *)&extendedData.accuracy = s_PhysicsQuery_LegacyIgnoreBodies[v14];
+    Physics_Raycast((Physics_WorldId)v8, start, end, (Physics_RaycastExtendedData *)&extendedData, v15);
   }
   else
   {
-    __asm
-    {
-      vucomiss xmm6, xmm1
-      vmovss  [rsp+0C8h+extendedData.startTolerance], xmm1
-      vmovss  xmm0, cs:__real@3c83126f
-      vmovss  [rsp+0C8h+extendedData.accuracy], xmm0
-    }
+    extendedData.startTolerance = 0.0;
+    _XMM0 = LODWORD(FLOAT_0_016000001);
+    extendedData.accuracy = FLOAT_0_016000001;
     extendedData.simplifyStart = 0;
-    __asm
-    {
-      vmovss  [rsp+0C8h+extendedData.collisionBuffer], xmm1
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+0C8h+extendedData.nonBrushShape], xmm0
-    }
+    extendedData.collisionBuffer = 0.0;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&extendedData.nonBrushShape = _XMM0;
     extendedData.phaseSelection = All;
     extendedData.permitOutwardTrace = 0;
     extendedData.contents = contentMask;
-    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v18];
-    __asm
-    {
-      vsubss  xmm2, xmm7, xmm6; halfHeight
-      vmovaps xmm3, xmm6; radius
-    }
-    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v12, &_R15->midPoint, *(float *)&_XMM2, *(float *)&_XMM3, s_PhysicsQuery_LegacyTraceShapeBuffers[v18], 432, Temporary);
+    extendedData.ignoreBodies = s_PhysicsQuery_LegacyIgnoreBodies[v14];
+    ShapeCapsuleUpAxis = Physics_CreateShapeCapsuleUpAxis((Physics_WorldId)v8, &bounds->midPoint, v13 - v12, v12, s_PhysicsQuery_LegacyTraceShapeBuffers[v14], 432, Temporary);
     if ( !ShapeCapsuleUpAxis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 4640, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
       __debugbreak();
-    Physics_Shapecast((Physics_WorldId)v12, ShapeCapsuleUpAxis, start, end, &quat_identity, &extendedData, v19, NULL);
+    Physics_Shapecast((Physics_WorldId)v8, ShapeCapsuleUpAxis, start, end, &quat_identity, &extendedData, v15, NULL);
   }
-  HasHit = HavokPhysics_CollisionQueryResult::HasHit(v19);
-  if ( v14 )
-    hkMonitorStream::timerEnd(v14, "Et");
-  result = HasHit;
-  _R11 = &v33;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  HasHit = HavokPhysics_CollisionQueryResult::HasHit(v15);
+  if ( v10 )
+    hkMonitorStream::timerEnd(v10, "Et");
+  return HasHit;
 }
 
 /*
@@ -12036,172 +9256,95 @@ void PhysicsQuery_ShutdownForWorld(__int64 worldId)
 PhysicsQuery_TraceCmd
 ==============
 */
-
-void __fastcall PhysicsQuery_TraceCmd(const void *const cmdData, __int64 a2, double _XMM2_8)
+void PhysicsQuery_TraceCmd(const void *const cmdData)
 {
+  unsigned __int64 v1; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v6; 
-  unsigned int v19; 
-  bool v20; 
-  bool v21; 
-  int v27; 
-  _QWORD v47[34]; 
+  hkMonitorStream *v4; 
+  float *v5; 
+  int v6; 
+  float *v7; 
+  float *v8; 
+  float *v9; 
+  _QWORD v10[34]; 
 
-  v47[33] = -2i64;
-  _RBP = (unsigned __int64)v47 & 0xFFFFFFFFFFFFFF80ui64;
-  _RDI = (char *)cmdData;
+  v10[33] = -2i64;
+  v1 = (unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v6 = Value;
+  v4 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtLegacyQuery: PhysicsQuery_TraceCmd");
-  *(_QWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFF80ui64) + 8) = v6;
+  *(_QWORD *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 8) = v4;
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_MID_AIR_DETACH) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5151, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::TRACE_WORKER ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TRACE_WORKER )") )
     __debugbreak();
-  memset_0((void *)(_RBP + 132), 0, 0x58ui64);
-  *(_QWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFF80ui64) + 0xF4) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v47 & 0xFFFFFFFFFFFFFF80ui64) + 0xFC) = 0;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rbp+330h+results.fraction], xmm0
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vmovss  dword ptr [rbp+330h+start], xmm0
-    vmovss  xmm1, dword ptr [rdi+10h]
-    vmovss  dword ptr [rbp+330h+start+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+14h]
-    vmovss  dword ptr [rbp+330h+start+8], xmm0
-  }
-  _RSI = _RDI + 24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  dword ptr [rbp+330h+end], xmm0
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  dword ptr [rbp+330h+end+4], xmm1
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rbp+330h+end+8], xmm0
-  }
-  if ( *((int *)_RDI + 64) < 0 )
+  memset_0((void *)(v1 + 132), 0, 0x58ui64);
+  *(_QWORD *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xF4) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xFC) = 0;
+  *(const float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0x80) = FLOAT_1_0;
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xDC) = *((float *)cmdData + 3);
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xE0) = *((float *)cmdData + 4);
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xE4) = *((float *)cmdData + 5);
+  v5 = (float *)((char *)cmdData + 24);
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xE8) = *((float *)cmdData + 6);
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xEC) = *((float *)cmdData + 7);
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xF0) = *((float *)cmdData + 8);
+  if ( *((int *)cmdData + 64) < 0 )
     goto LABEL_18;
-  if ( _RDI[268] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5173, ASSERT_TYPE_ASSERT, "(!cmd->boundsCylinder)", (const char *)&queryFormat, "!cmd->boundsCylinder") )
+  if ( *((_BYTE *)cmdData + 268) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5173, ASSERT_TYPE_ASSERT, "(!cmd->boundsCylinder)", (const char *)&queryFormat, "!cmd->boundsCylinder") )
     __debugbreak();
-  if ( !CG_CalcTraceEnd(*((LocalClientNum_t *)_RDI + 19), *((_DWORD *)_RDI + 20), (const vec3_t *)(_RDI + 64), *((_DWORD *)_RDI + 64), *((scr_string_t *)_RDI + 65), (vec3_t *)_RDI + 2) )
+  if ( !CG_CalcTraceEnd(*((LocalClientNum_t *)cmdData + 19), *((_DWORD *)cmdData + 20), (const vec3_t *)((char *)cmdData + 64), *((_DWORD *)cmdData + 64), *((scr_string_t *)cmdData + 65), (vec3_t *)cmdData + 2) )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rbp+330h+results.fraction], xmm0
-    }
+    *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0x80) = 0;
     goto LABEL_24;
   }
-  __asm
+  *(float *)v1 = *v5;
+  if ( (*(_DWORD *)v1 & 0x7F800000) == 2139095040 || (*(float *)v1 = *((float *)cmdData + 7), (*(_DWORD *)v1 & 0x7F800000) == 2139095040) || (*(float *)v1 = *((float *)cmdData + 8), (*(_DWORD *)v1 & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rbp+330h+var_330.m_flags], xmm0
-  }
-  if ( (*(_DWORD *)_RBP & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+1Ch]
-    vmovss  [rbp+330h+var_330.m_flags], xmm0
-  }
-  if ( (*(_DWORD *)_RBP & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+20h]
-    vmovss  [rbp+330h+var_330.m_flags], xmm0
-  }
-  v19 = *(_DWORD *)_RBP & 0x7F800000;
-  v20 = v19 <= 0x7F800000;
-  if ( v19 == 2139095040 )
-  {
-LABEL_28:
-    v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5182, ASSERT_TYPE_SANITY, "( !IS_NAN( ( cmd->end )[0] ) && !IS_NAN( ( cmd->end )[1] ) && !IS_NAN( ( cmd->end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( cmd->end )[0] ) && !IS_NAN( ( cmd->end )[1] ) && !IS_NAN( ( cmd->end )[2] )");
-    v20 = !v21;
-    if ( v21 )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5182, ASSERT_TYPE_SANITY, "( !IS_NAN( ( cmd->end )[0] ) && !IS_NAN( ( cmd->end )[1] ) && !IS_NAN( ( cmd->end )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( cmd->end )[0] ) && !IS_NAN( ( cmd->end )[1] ) && !IS_NAN( ( cmd->end )[2] )") )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  dword ptr [rbp+330h+end], xmm0
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  dword ptr [rbp+330h+end+4], xmm1
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rbp+330h+end+8], xmm0
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  xmm1, [rbp+330h+results.fraction]
-    vcomiss xmm1, xmm2
-  }
-  if ( !v20 )
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xE8) = *v5;
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xEC) = *((float *)cmdData + 7);
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xF0) = *((float *)cmdData + 8);
+  if ( *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0x80) > 0.0 )
   {
 LABEL_18:
-    v27 = 3 * *((_DWORD *)_RDI + 19) + 2;
-    if ( _RDI[268] )
+    v6 = 3 * *((_DWORD *)cmdData + 19) + 2;
+    if ( *((_BYTE *)cmdData + 268) )
     {
-      *(_DWORD *)_RBP = 5;
-      if ( !*((_QWORD *)_RDI + 34) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5196, ASSERT_TYPE_ASSERT, "(cmd->ps)", (const char *)&queryFormat, "cmd->ps") )
+      *(_DWORD *)v1 = 5;
+      if ( !*((_QWORD *)cmdData + 34) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsquery.cpp", 5196, ASSERT_TYPE_ASSERT, "(cmd->ps)", (const char *)&queryFormat, "cmd->ps") )
         __debugbreak();
-      PhysicsQuery_LegacyCapsuleTrace_Internal((Physics_WorldId)v27, (trace_t *)(_RBP + 128), (const vec3_t *)(_RBP + 220), (const vec3_t *)(_RBP + 232), (const Bounds *)(_RDI + 36), (int *)_RDI + 48, *((_DWORD *)_RDI + 56), NULL, 0, *((_DWORD *)_RDI + 15), *((const playerState_s **)_RDI + 34), 0, 0, NULL, NULL, (PhysicsQuery_ContextSettings *)((unsigned __int64)v47 & 0xFFFFFFFFFFFFFF80ui64));
+      PhysicsQuery_LegacyCapsuleTrace_Internal((Physics_WorldId)v6, (trace_t *)(v1 + 128), (const vec3_t *)(v1 + 220), (const vec3_t *)(v1 + 232), (const Bounds *)((char *)cmdData + 36), (int *)cmdData + 48, *((_DWORD *)cmdData + 56), NULL, 0, *((_DWORD *)cmdData + 15), *((const playerState_s **)cmdData + 34), 0, 0, NULL, NULL, (PhysicsQuery_ContextSettings *)((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64));
     }
     else
     {
-      PhysicsQuery_LegacyTraceSkipEntities_Internal((Physics_WorldId)v27, (trace_t *)(_RBP + 128), (const vec3_t *)(_RBP + 220), (const vec3_t *)(_RBP + 232), (const Bounds *)(_RDI + 36), (const int *)_RDI + 48, *((_DWORD *)_RDI + 56), 0, *((_DWORD *)_RDI + 15), *((_DWORD *)_RDI + 58), *((unsigned __int8 **)_RDI + 30), *((Physics_QueryPhaseSelection *)_RDI + 66), 0, 0);
+      PhysicsQuery_LegacyTraceSkipEntities_Internal((Physics_WorldId)v6, (trace_t *)(v1 + 128), (const vec3_t *)(v1 + 220), (const vec3_t *)(v1 + 232), (const Bounds *)((char *)cmdData + 36), (const int *)cmdData + 48, *((_DWORD *)cmdData + 56), 0, *((_DWORD *)cmdData + 15), *((_DWORD *)cmdData + 58), *((unsigned __int8 **)cmdData + 30), *((Physics_QueryPhaseSelection *)cmdData + 66), 0, 0);
     }
   }
 LABEL_24:
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vmovss  dword ptr [rbp+330h+start], xmm0
-    vmovss  xmm1, dword ptr [rdi+10h]
-    vmovss  dword ptr [rbp+330h+start+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+14h]
-    vmovss  dword ptr [rbp+330h+start+8], xmm0
-    vmovss  xmm1, dword ptr [rsi]
-    vmovss  dword ptr [rbp+330h+end], xmm1
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  dword ptr [rbp+330h+end+4], xmm0
-    vmovss  xmm1, dword ptr [rsi+8]
-    vmovss  dword ptr [rbp+330h+end+8], xmm1
-  }
-  _RAX = *(_QWORD *)_RDI;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+330h+results.fraction]
-    vmovups ymmword ptr [rax], ymm0
-    vmovups ymm1, ymmword ptr [rbp+330h+results.contents]
-    vmovups ymmword ptr [rax+20h], ymm1
-    vmovups xmm0, xmmword ptr [rbp+330h+results.allsolid]
-    vmovups xmmword ptr [rax+40h], xmm0
-    vmovsd  xmm1, [rbp+330h+results.debugHitName]
-    vmovsd  qword ptr [rax+50h], xmm1
-  }
-  _RAX = *(_QWORD *)_RDI;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+330h+start]
-    vmovss  dword ptr [rax+5Ch], xmm0
-    vmovss  xmm1, dword ptr [rbp+330h+start+4]
-    vmovss  dword ptr [rax+60h], xmm1
-    vmovss  xmm0, dword ptr [rbp+330h+start+8]
-    vmovss  dword ptr [rax+64h], xmm0
-  }
-  _RAX = *(_QWORD *)_RDI;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+330h+end]
-    vmovss  dword ptr [rax+68h], xmm0
-    vmovss  xmm1, dword ptr [rbp+330h+end+4]
-    vmovss  dword ptr [rax+6Ch], xmm1
-    vmovss  xmm0, dword ptr [rbp+330h+end+8]
-    vmovss  dword ptr [rax+70h], xmm0
-  }
-  *(_DWORD *)(*(_QWORD *)_RDI + 88i64) = 2;
-  if ( v6 )
-    hkMonitorStream::timerEnd(v6, "Et");
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xDC) = *((float *)cmdData + 3);
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xE0) = *((float *)cmdData + 4);
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xE4) = *((float *)cmdData + 5);
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xE8) = *v5;
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xEC) = *((float *)cmdData + 7);
+  *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xF0) = *((float *)cmdData + 8);
+  v7 = *(float **)cmdData;
+  *(__m256i *)v7 = *(__m256i *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0x80);
+  *((__m256i *)v7 + 1) = *(__m256i *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xA0);
+  *((_OWORD *)v7 + 4) = *(_OWORD *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xC0);
+  *((double *)v7 + 10) = *(double *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xD0);
+  v8 = *(float **)cmdData;
+  v8[23] = *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xDC);
+  v8[24] = *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xE0);
+  v8[25] = *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xE4);
+  v9 = *(float **)cmdData;
+  v9[26] = *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xE8);
+  v9[27] = *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xEC);
+  v9[28] = *(float *)(((unsigned __int64)v10 & 0xFFFFFFFFFFFFFF80ui64) + 0xF0);
+  *(_DWORD *)(*(_QWORD *)cmdData + 88i64) = 2;
+  if ( v4 )
+    hkMonitorStream::timerEnd(v4, "Et");
 }
 
 /*

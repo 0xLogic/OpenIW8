@@ -49,166 +49,138 @@ qsortArray<GfxSortDrawSurfsInterface,GfxDrawSurf>
 */
 void qsortArray<GfxSortDrawSurfsInterface,GfxDrawSurf>(GfxDrawSurf *elems, int count)
 {
+  GfxDrawSurf *v2; 
+  GfxDrawSurf *v3; 
   __int64 v4; 
   __int64 v5; 
-  unsigned __int64 v9; 
-  bool v12; 
-  GfxDrawSurf *v13; 
-  unsigned __int64 v21; 
-  unsigned __int64 v22; 
-  __int64 v32; 
-  __int128 v33; 
-  __int128 v34; 
-  __int128 v35; 
-  __int128 v36; 
-  __int128 v37; 
-  __int64 v39[60]; 
+  GfxDrawSurf *v6; 
+  GfxDrawSurf *v7; 
+  unsigned __int64 p1; 
+  bool v11; 
+  GfxDrawSurf *v12; 
+  GfxDrawSurfFields v13; 
+  char *v14; 
+  char *v15; 
+  __int64 v16; 
+  unsigned __int64 p0; 
+  GfxDrawSurfFields v24; 
+  __int128 v25; 
+  GfxDrawSurfFields v26; 
+  __int64 v27; 
+  GfxDrawSurfFields fields; 
+  GfxDrawSurfFields v29; 
+  __int64 v30[60]; 
 
   if ( count >= 2 )
   {
-    _RDI = elems;
-    _RBX = &elems[count - 1];
+    v2 = elems;
+    v3 = &elems[count - 1];
     v4 = 0i64;
     while ( 1 )
     {
       while ( 1 )
       {
-        v5 = _RBX - _RDI;
-        if ( (unsigned __int64)(v5 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v5, "signed", _RBX - _RDI) )
+        v5 = v3 - v2;
+        if ( (unsigned __int64)(v5 + 0x80000000i64) > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "int __cdecl truncate_cast_impl<int,__int64>(__int64)", "signed", (int)v5, "signed", v3 - v2) )
           __debugbreak();
         if ( (int)v5 + 1 <= 8 )
         {
-          for ( ; _RBX > _RDI; --_RBX )
+          for ( ; v3 > v2; --v3 )
           {
-            _R9 = _RDI;
-            _RAX = _RDI + 1;
-            __asm
+            v6 = v2;
+            v7 = v2 + 1;
+            fields = v2->fields;
+            if ( &v2[1] <= v3 )
             {
-              vmovups xmm0, xmmword ptr [rdi]
-              vmovups [rsp+298h+var_248], xmm0
-            }
-            if ( &_RDI[1] <= _RBX )
-            {
-              v9 = *((_QWORD *)&v33 + 1);
+              p1 = v2->packed.p1;
               do
               {
-                __asm
+                _XMM0 = v7->fields;
+                __asm { vpextrq rcx, xmm0, 1 }
+                v11 = p1 < _RCX;
+                if ( p1 == _RCX )
+                  v11 = *(_QWORD *)&fields < v7->packed.p0;
+                if ( v11 )
                 {
-                  vmovups xmm0, xmmword ptr [rax]
-                  vpextrq rcx, xmm0, 1
-                  vmovups [rsp+298h+var_238], xmm0
+                  p1 = v7->packed.p1;
+                  *(_QWORD *)&fields = v7->packed.p0;
                 }
-                v12 = v9 < _RCX;
-                if ( v9 == _RCX )
-                  v12 = (unsigned __int64)v33 < (unsigned __int64)v37;
-                if ( v12 )
-                {
-                  __asm { vmovups [rsp+298h+var_248], xmm0 }
-                  v9 = *((_QWORD *)&v33 + 1);
-                }
-                v13 = _RAX;
-                if ( !v12 )
-                  v13 = _R9;
-                ++_RAX;
-                _R9 = v13;
+                v12 = v7;
+                if ( !v11 )
+                  v12 = v6;
+                ++v7;
+                v6 = v12;
               }
-              while ( _RAX <= _RBX );
+              while ( v7 <= v3 );
             }
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rbx]
-              vmovups xmm1, xmmword ptr [r9]
-              vmovups xmmword ptr [r9], xmm0
-              vmovups xmmword ptr [rbx], xmm1
-            }
+            v13 = v6->fields;
+            v6->fields = v3->fields;
+            v3->fields = v13;
           }
           goto LABEL_40;
         }
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        _R8 = _RBX + 1;
-        _RDX = (unsigned __int64)_RDI;
-        _RCX = 2i64 * (((int)v5 + 1) / 2);
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rdi+rcx*8]
-          vmovups [rsp+298h+var_248], xmm1
-        }
-        v21 = v34;
-        __asm { vmovups xmmword ptr [rdi+rcx*8], xmm0 }
-        v22 = *((_QWORD *)&v34 + 1);
-        __asm
-        {
-          vmovups xmmword ptr [rdi], xmm1
-          vmovdqa [rsp+298h+var_238], xmm1
-        }
+        v14 = (char *)&v3[1];
+        v15 = (char *)v2;
+        v16 = ((int)v5 + 1) / 2;
+        v29 = v2[v16].fields;
+        p0 = v2[v16].packed.p0;
+        v2[v16] = (GfxDrawSurf)v2->fields;
+        v2->fields = v29;
         while ( 1 )
         {
           do
           {
-            _RDX += 16i64;
-            if ( _RDX > (unsigned __int64)_RBX )
+            v15 += 16;
+            if ( v15 > (char *)v3 )
               break;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rdx]
-              vpextrq rax, xmm0, 1
-              vmovups [rsp+298h+var_248], xmm0
-            }
+            _XMM0 = *(_OWORD *)v15;
+            __asm { vpextrq rax, xmm0, 1 }
           }
-          while ( _RAX == v22 ? (unsigned __int64)v35 <= v21 : _RAX < v22 );
+          while ( _RAX == *((_QWORD *)&v29 + 1) ? *(_QWORD *)v15 <= p0 : _RAX < *((_QWORD *)&v29 + 1) );
           do
           {
-            if ( _RDI >= --_R8 )
+            v14 -= 16;
+            if ( v2 >= (GfxDrawSurf *)v14 )
               break;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [r8]
-              vpextrq rax, xmm0, 1
-              vmovups [rsp+298h+var_248], xmm0
-            }
+            _XMM0 = *(GfxDrawSurfFields *)v14;
+            __asm { vpextrq rax, xmm0, 1 }
           }
-          while ( v22 == _RAX ? v21 <= (unsigned __int64)v36 : v22 < _RAX );
-          __asm { vmovups xmm0, xmmword ptr [r8] }
-          if ( (unsigned __int64)_R8 < _RDX )
+          while ( *((_QWORD *)&v29 + 1) == _RAX ? p0 <= *(_QWORD *)v14 : *((_QWORD *)&v29 + 1) < _RAX );
+          v24 = *(GfxDrawSurfFields *)v14;
+          if ( v14 < v15 )
             break;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rdx]
-            vmovups xmmword ptr [rdx], xmm0
-            vmovups xmmword ptr [r8], xmm1
-          }
+          v25 = *(_OWORD *)v15;
+          *(GfxDrawSurfFields *)v15 = v24;
+          *(_OWORD *)v14 = v25;
         }
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rdi]
-          vmovups xmmword ptr [rdi], xmm0
-          vmovups xmmword ptr [r8], xmm1
-        }
-        if ( (__int64)(((char *)_R8 - (char *)_RDI - 16) & 0xFFFFFFFFFFFFFFF0ui64) < (__int64)(((unsigned __int64)_RBX - _RDX) & 0xFFFFFFFFFFFFFFF0ui64) )
+        v26 = v2->fields;
+        v2->fields = v24;
+        *(GfxDrawSurfFields *)v14 = v26;
+        if ( (__int64)((v14 - (char *)v2 - 16) & 0xFFFFFFFFFFFFFFF0ui64) < (__int64)(((char *)v3 - v15) & 0xFFFFFFFFFFFFFFF0ui64) )
           break;
-        if ( _RDI <= _R8 )
+        if ( v2 <= (GfxDrawSurf *)v14 )
         {
-          v39[v4] = (__int64)_RDI;
-          v39[v4++ + 30] = (__int64)&_R8[-1];
+          v30[v4] = (__int64)v2;
+          v30[v4++ + 30] = (__int64)(v14 - 16);
         }
-        if ( _RDX >= (unsigned __int64)_RBX )
+        if ( v15 >= (char *)v3 )
           goto LABEL_40;
-        _RDI = (GfxDrawSurf *)_RDX;
+        v2 = (GfxDrawSurf *)v15;
       }
-      if ( _RDX < (unsigned __int64)_RBX )
+      if ( v15 < (char *)v3 )
       {
-        v39[v4] = _RDX;
-        v39[v4++ + 30] = (__int64)_RBX;
+        v30[v4] = (__int64)v15;
+        v30[v4++ + 30] = (__int64)v3;
       }
-      _RBX = _R8 - 1;
-      if ( _RDI >= &_R8[-1] )
+      v3 = (GfxDrawSurf *)(v14 - 16);
+      if ( v2 >= (GfxDrawSurf *)v14 - 1 )
       {
 LABEL_40:
-        v32 = v4--;
-        if ( v32 <= 0 )
+        v27 = v4--;
+        if ( v27 <= 0 )
           return;
-        _RDI = (GfxDrawSurf *)v39[v4];
-        _RBX = (GfxDrawSurf *)v39[v4 + 30];
+        v2 = (GfxDrawSurf *)v30[v4];
+        v3 = (GfxDrawSurf *)v30[v4 + 30];
       }
     }
   }
@@ -503,44 +475,52 @@ bool R_SortStaticModels()
   unsigned int v7; 
   unsigned int v8; 
   unsigned int v9; 
+  Bounds *collectionBounds; 
   unsigned int i; 
   int v12; 
+  unsigned __int64 v13; 
+  __int128 v14; 
+  double v15; 
+  Bounds *v16; 
+  int v17; 
+  __int64 v18; 
+  GfxStaticModelCollection *collections; 
+  bool v20; 
   int v21; 
   __int64 v22; 
-  bool v27; 
-  int v28; 
-  __int64 v29; 
-  int v34; 
-  __int64 v35; 
+  GfxStaticModelCollection v23; 
+  int v24; 
+  __int64 v25; 
+  __int64 v26; 
   GfxWorld *world; 
-  unsigned int v40; 
+  unsigned int v28; 
   unsigned int cellCount; 
-  GfxCellTransientInfo *v42; 
-  GfxWorldTransientZone *v43; 
+  GfxCellTransientInfo *v30; 
+  GfxWorldTransientZone *v31; 
   unsigned int aabbTreeIndex; 
   GfxAabbTree *aabbTree; 
   unsigned __int16 *smodelIndexes; 
   __int64 smodelIndexCount; 
-  __int64 v48; 
-  __int64 v49; 
+  __int64 v36; 
+  __int64 v37; 
   GfxShadowGeometry *shadowGeomOptimized; 
   unsigned int primaryLightCount; 
-  int v52; 
+  int v40; 
   unsigned __int16 *smodelIndex; 
   __int64 smodelCount; 
-  __int64 v55; 
-  __int64 v56; 
-  __int64 v57; 
-  GfxStaticModelCollection *collections; 
+  __int64 v43; 
+  __int64 v44; 
+  __int64 v45; 
+  GfxStaticModelCollection *v46; 
   int p1_low; 
-  __int64 v60; 
-  __int64 v61; 
-  unsigned int v62; 
+  __int64 v48; 
+  __int64 v49; 
+  unsigned int v50; 
   unsigned int outMovedBegin; 
-  int v64; 
+  int v52; 
 
   collectionCount = rgp.world->smodels.collectionCount;
-  v64 = collectionCount;
+  v52 = collectionCount;
   if ( !(_DWORD)collectionCount )
     return 0;
   materialCount = rgp.materialCount;
@@ -554,9 +534,9 @@ bool R_SortStaticModels()
   Sys_EnterCriticalSection(CRITSECT_RESET_SMODEL_DATA);
   Sys_ProfBeginNamedEvent(0xFFFF7F50, "R_UpdateAndSortStaticModels");
   v4 = 0;
-  v62 = R_UpdateAndSortStaticModels(&outMovedBegin, s_R_SortStaticModels_TempBuffers.oldToNewIndexMap, (R_SortStaticModels_HashBucket *)&s_R_SortStaticModels_TempBuffers, (R_SortStaticModels_HashNode *)&s_R_SortStaticModels_TempBuffers + 2 * materialCount, materialCount);
+  v50 = R_UpdateAndSortStaticModels(&outMovedBegin, s_R_SortStaticModels_TempBuffers.oldToNewIndexMap, (R_SortStaticModels_HashBucket *)&s_R_SortStaticModels_TempBuffers, (R_SortStaticModels_HashNode *)&s_R_SortStaticModels_TempBuffers + 2 * materialCount, materialCount);
   v5 = 0;
-  v6 = v62;
+  v6 = v50;
   do
   {
     *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * s_R_SortStaticModels_TempBuffers.oldToNewIndexMap[v5]] = v5;
@@ -565,120 +545,90 @@ bool R_SortStaticModels()
   while ( v5 != (_DWORD)collectionCount );
   Sys_ProfEndNamedEvent();
   v7 = 1;
-  if ( v62 )
+  if ( v50 )
   {
     v8 = outMovedBegin;
-    v9 = outMovedBegin + v62;
-    _RDI = rgp.world->smodels.collectionBounds;
-    if ( outMovedBegin > outMovedBegin + v62 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 838, ASSERT_TYPE_ASSERT, "(begin <= end)", (const char *)&queryFormat, "begin <= end") )
+    v9 = outMovedBegin + v50;
+    collectionBounds = rgp.world->smodels.collectionBounds;
+    if ( outMovedBegin > outMovedBegin + v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 838, ASSERT_TYPE_ASSERT, "(begin <= end)", (const char *)&queryFormat, "begin <= end") )
       __debugbreak();
     for ( i = v8; i != v9; ++i )
     {
       v12 = *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * i];
       if ( (v12 & 0xFF000000) != 0x1000000 )
       {
-        _R8 = v12 & 0xFFFFFF;
-        *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * i] = _R8 | 0x1000000;
-        if ( (_DWORD)_R8 != i )
+        v13 = v12 & 0xFFFFFF;
+        *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * i] = v13 | 0x1000000;
+        if ( (_DWORD)v13 != i )
         {
-          _RAX = 3i64 * i;
-          __asm
-          {
-            vmovups xmm2, xmmword ptr [rdi+rax*8]
-            vmovsd  xmm3, qword ptr [rdi+rax*8+10h]
-          }
-          _RDX = &_RDI[i];
-          _RAX = 3 * _R8;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi+rax*8]
-            vmovups xmmword ptr [rdx], xmm0
-            vmovsd  xmm1, qword ptr [rdi+rax*8+10h]
-            vmovsd  qword ptr [rdx+10h], xmm1
-          }
-          v21 = *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * _R8];
-          if ( (v21 & 0xFF000000) != 0x1000000 )
+          v14 = *(_OWORD *)collectionBounds[i].midPoint.v;
+          v15 = *(double *)&collectionBounds[i].halfSize.y;
+          v16 = &collectionBounds[i];
+          *(_OWORD *)v16->midPoint.v = *(_OWORD *)collectionBounds[v13].midPoint.v;
+          *(double *)&v16->halfSize.y = *(double *)&collectionBounds[v13].halfSize.y;
+          v17 = *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * v13];
+          if ( (v17 & 0xFF000000) != 0x1000000 )
           {
             while ( 1 )
             {
-              v22 = v21 & 0xFFFFFF;
-              *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * (unsigned int)_R8] = v22 | 0x1000000;
-              _R8 = (unsigned __int64)&_RDI[(unsigned int)_R8];
-              if ( (_DWORD)v22 == i )
+              v18 = v17 & 0xFFFFFF;
+              *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * (unsigned int)v13] = v18 | 0x1000000;
+              v13 = (unsigned __int64)&collectionBounds[(unsigned int)v13];
+              if ( (_DWORD)v18 == i )
                 break;
-              _RAX = 3 * v22;
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rdi+rax*8]
-                vmovups xmmword ptr [r8], xmm0
-                vmovsd  xmm1, qword ptr [rdi+rax*8+10h]
-                vmovsd  qword ptr [r8+10h], xmm1
-              }
-              LODWORD(_R8) = v22;
-              v21 = *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * v22];
-              if ( (v21 & 0xFF000000) == 0x1000000 )
+              *(_OWORD *)v13 = *(_OWORD *)collectionBounds[v18].midPoint.v;
+              *(double *)(v13 + 16) = *(double *)&collectionBounds[v18].halfSize.y;
+              LODWORD(v13) = v18;
+              v17 = *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * v18];
+              if ( (v17 & 0xFF000000) == 0x1000000 )
                 goto LABEL_25;
             }
-            __asm
-            {
-              vmovups xmmword ptr [r8], xmm2
-              vmovsd  qword ptr [r8+10h], xmm3
-            }
+            *(_OWORD *)v13 = v14;
+            *(double *)(v13 + 16) = v15;
           }
         }
       }
 LABEL_25:
       ;
     }
-    _RDI = rgp.world->smodels.collections;
-    v27 = v8 == v9;
+    collections = rgp.world->smodels.collections;
+    v20 = v8 == v9;
     if ( v8 > v9 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 838, ASSERT_TYPE_ASSERT, "(begin <= end)", (const char *)&queryFormat, "begin <= end") )
         __debugbreak();
-      v27 = v8 == v9;
+      v20 = v8 == v9;
     }
-    if ( !v27 )
+    if ( !v20 )
     {
       do
       {
-        v28 = *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * v8];
-        if ( (v28 & 0xFF000000) != 0x2000000 )
+        v21 = *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * v8];
+        if ( (v21 & 0xFF000000) != 0x2000000 )
         {
-          v29 = v28 & 0xFFFFFF;
-          *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * v8] = v29 | 0x2000000;
-          if ( (_DWORD)v29 != v8 )
+          v22 = v21 & 0xFFFFFF;
+          *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * v8] = v22 | 0x2000000;
+          if ( (_DWORD)v22 != v8 )
           {
-            _RDX = 2i64 * v8;
-            _RAX = 2i64 * (unsigned int)v29;
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rdi+rdx*8]
-              vmovups xmm0, xmmword ptr [rdi+rax*8]
-              vmovups xmmword ptr [rdi+rdx*8], xmm0
-            }
-            v34 = *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * v29];
-            if ( (v34 & 0xFF000000) != 0x2000000 )
+            v23 = collections[v8];
+            collections[v8] = collections[(unsigned int)v22];
+            v24 = *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * v22];
+            if ( (v24 & 0xFF000000) != 0x2000000 )
             {
               while ( 1 )
               {
-                v35 = v34 & 0xFFFFFF;
-                *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * (unsigned int)v29] = v35 | 0x2000000;
-                _RDX = 2i64 * (unsigned int)v29;
-                if ( (_DWORD)v35 == v8 )
+                v25 = v24 & 0xFFFFFF;
+                *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * (unsigned int)v22] = v25 | 0x2000000;
+                v26 = (unsigned int)v22;
+                if ( (_DWORD)v25 == v8 )
                   break;
-                LODWORD(v29) = v35;
-                _RCX = 2i64 * (unsigned int)v35;
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [rdi+rcx*8]
-                  vmovups xmmword ptr [rdi+rdx*8], xmm0
-                }
-                v34 = *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * v35];
-                if ( (v34 & 0xFF000000) == 0x2000000 )
+                LODWORD(v22) = v25;
+                collections[v26] = collections[(unsigned int)v25];
+                v24 = *(_DWORD *)&s_R_SortStaticModels_TempBuffers.newToOldAndHashBuffer[4 * v25];
+                if ( (v24 & 0xFF000000) == 0x2000000 )
                   goto LABEL_38;
               }
-              __asm { vmovups xmmword ptr [rdi+rdx*8], xmm1 }
+              collections[(unsigned int)v22] = v23;
             }
           }
         }
@@ -689,7 +639,7 @@ LABEL_38:
     }
     R_StaticModelData_DirtySModelCollectionOrder();
     world = rgp.world;
-    v40 = 0;
+    v28 = 0;
     cellCount = rgp.world->dpvsPlanes.cellCount;
     if ( cellCount )
     {
@@ -697,82 +647,82 @@ LABEL_38:
       {
         if ( !world && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 86, ASSERT_TYPE_ASSERT, "(world)", (const char *)&queryFormat, "world") )
           __debugbreak();
-        if ( v40 >= world->dpvsPlanes.cellCount )
+        if ( v28 >= world->dpvsPlanes.cellCount )
         {
-          LODWORD(v61) = world->dpvsPlanes.cellCount;
-          LODWORD(v60) = v40;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 87, ASSERT_TYPE_ASSERT, "(unsigned)( cellIndex ) < (unsigned)( world->dpvsPlanes.cellCount )", "cellIndex doesn't index world->dpvsPlanes.cellCount\n\t%i not in [0, %i)", v60, v61) )
+          LODWORD(v49) = world->dpvsPlanes.cellCount;
+          LODWORD(v48) = v28;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 87, ASSERT_TYPE_ASSERT, "(unsigned)( cellIndex ) < (unsigned)( world->dpvsPlanes.cellCount )", "cellIndex doesn't index world->dpvsPlanes.cellCount\n\t%i not in [0, %i)", v48, v49) )
             __debugbreak();
         }
         if ( !Sys_IsMainThread() && !Sys_IsUpdateScreenThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 92, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread() || Sys_IsUpdateScreenThread())", (const char *)&queryFormat, "Sys_IsMainThread() || Sys_IsUpdateScreenThread()") )
           __debugbreak();
-        v42 = &world->cellTransientInfos[v40];
-        v43 = world->draw.transientZones[v42->transientZone];
-        if ( v43 )
+        v30 = &world->cellTransientInfos[v28];
+        v31 = world->draw.transientZones[v30->transientZone];
+        if ( v31 )
         {
-          aabbTreeIndex = v42->aabbTreeIndex;
-          if ( aabbTreeIndex >= v43->drawCells.cellCount )
+          aabbTreeIndex = v30->aabbTreeIndex;
+          if ( aabbTreeIndex >= v31->drawCells.cellCount )
           {
-            LODWORD(v61) = v43->drawCells.cellCount;
-            LODWORD(v60) = v42->aabbTreeIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 78, ASSERT_TYPE_ASSERT, "(unsigned)( aabbTreeIndex ) < (unsigned)( drawCells.cellCount )", "aabbTreeIndex doesn't index drawCells.cellCount\n\t%i not in [0, %i)", v60, v61) )
+            LODWORD(v49) = v31->drawCells.cellCount;
+            LODWORD(v48) = v30->aabbTreeIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 78, ASSERT_TYPE_ASSERT, "(unsigned)( aabbTreeIndex ) < (unsigned)( drawCells.cellCount )", "aabbTreeIndex doesn't index drawCells.cellCount\n\t%i not in [0, %i)", v48, v49) )
               __debugbreak();
           }
-          aabbTree = v43->drawCells.aabbTrees[(unsigned __int16)aabbTreeIndex].aabbTree;
+          aabbTree = v31->drawCells.aabbTrees[(unsigned __int16)aabbTreeIndex].aabbTree;
           if ( aabbTree )
           {
             smodelIndexes = aabbTree->smodelIndexes;
             smodelIndexCount = aabbTree->smodelIndexCount;
-            v48 = 0i64;
+            v36 = 0i64;
             if ( smodelIndexes > &smodelIndexes[smodelIndexCount] )
               smodelIndexCount = 0i64;
             if ( smodelIndexCount )
             {
               do
               {
-                v49 = *smodelIndexes++;
-                ++v48;
-                *(smodelIndexes - 1) = s_R_SortStaticModels_TempBuffers.oldToNewIndexMap[v49];
+                v37 = *smodelIndexes++;
+                ++v36;
+                *(smodelIndexes - 1) = s_R_SortStaticModels_TempBuffers.oldToNewIndexMap[v37];
               }
-              while ( v48 != smodelIndexCount );
+              while ( v36 != smodelIndexCount );
             }
           }
         }
         world = rgp.world;
-        ++v40;
+        ++v28;
       }
-      while ( v40 != cellCount );
-      LODWORD(collectionCount) = v64;
+      while ( v28 != cellCount );
+      LODWORD(collectionCount) = v52;
       v7 = 1;
-      v6 = v62;
+      v6 = v50;
     }
     shadowGeomOptimized = world->shadowGeomOptimized;
     if ( shadowGeomOptimized )
     {
       primaryLightCount = world->primaryLightCount;
-      v52 = 0;
+      v40 = 0;
       if ( primaryLightCount )
       {
         do
         {
-          smodelIndex = shadowGeomOptimized[v52].smodelIndex;
-          smodelCount = shadowGeomOptimized[v52].smodelCount;
-          v55 = 0i64;
+          smodelIndex = shadowGeomOptimized[v40].smodelIndex;
+          smodelCount = shadowGeomOptimized[v40].smodelCount;
+          v43 = 0i64;
           if ( smodelIndex > &smodelIndex[smodelCount] )
             smodelCount = 0i64;
           if ( smodelCount )
           {
             do
             {
-              v56 = *smodelIndex++;
-              ++v55;
-              *(smodelIndex - 1) = s_R_SortStaticModels_TempBuffers.oldToNewIndexMap[v56];
+              v44 = *smodelIndex++;
+              ++v43;
+              *(smodelIndex - 1) = s_R_SortStaticModels_TempBuffers.oldToNewIndexMap[v44];
             }
-            while ( v55 != smodelCount );
+            while ( v43 != smodelCount );
           }
-          ++v52;
+          ++v40;
         }
-        while ( v52 != primaryLightCount );
+        while ( v40 != primaryLightCount );
         world = rgp.world;
       }
     }
@@ -780,12 +730,12 @@ LABEL_38:
     {
       do
       {
-        v57 = v4++;
-        world->dpvs.sortedSmodelIndices[v57] = s_R_SortStaticModels_TempBuffers.oldToNewIndexMap[v57];
+        v45 = v4++;
+        world->dpvs.sortedSmodelIndices[v45] = s_R_SortStaticModels_TempBuffers.oldToNewIndexMap[v45];
         world = rgp.world;
       }
       while ( v4 < rgp.world->smodels.collectionCount );
-      v6 = v62;
+      v6 = v50;
     }
     rg.useSortedStaticModelReindex = 1;
     rgp.gameSortedStaticModels = 1;
@@ -796,14 +746,14 @@ LABEL_38:
   {
     do
     {
-      collections = rgp.world->smodels.collections;
-      p1_low = LOWORD(R_FirstStaticModelMaterial(&collections[v7 - 1])->drawSurf.packed.p1);
-      if ( p1_low - LOWORD(R_FirstStaticModelMaterial(&collections[v7])->drawSurf.packed.p1) > 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 1216, ASSERT_TYPE_ASSERT, "(R_CompareStaticModels( &rgp.world->smodels.collections[smodelIndex - 1], &rgp.world->smodels.collections[smodelIndex] ) <= 0)", (const char *)&queryFormat, "R_CompareStaticModels( &rgp.world->smodels.collections[smodelIndex - 1], &rgp.world->smodels.collections[smodelIndex] ) <= 0") )
+      v46 = rgp.world->smodels.collections;
+      p1_low = LOWORD(R_FirstStaticModelMaterial(&v46[v7 - 1])->drawSurf.packed.p1);
+      if ( p1_low - LOWORD(R_FirstStaticModelMaterial(&v46[v7])->drawSurf.packed.p1) > 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 1216, ASSERT_TYPE_ASSERT, "(R_CompareStaticModels( &rgp.world->smodels.collections[smodelIndex - 1], &rgp.world->smodels.collections[smodelIndex] ) <= 0)", (const char *)&queryFormat, "R_CompareStaticModels( &rgp.world->smodels.collections[smodelIndex - 1], &rgp.world->smodels.collections[smodelIndex] ) <= 0") )
         __debugbreak();
       ++v7;
     }
     while ( v7 != (_DWORD)collectionCount );
-    v6 = v62;
+    v6 = v50;
   }
   Sys_LeaveCriticalSection(CRITSECT_RESET_SMODEL_DATA);
   return v6 != 0;
@@ -1127,10 +1077,11 @@ GfxWorld *R_SortWorldSurfacesSetSurfaces()
   int v5; 
   GfxSurfaceFlags *p_flags; 
   unsigned __int64 v7; 
-  unsigned __int64 v14; 
-  unsigned int v15; 
+  __int64 v8; 
+  unsigned __int64 v11; 
+  unsigned int v12; 
   unsigned int i; 
-  __int64 v17; 
+  __int64 v14; 
 
   result = rgp.world;
   sunShadowOptCount = rgp.world->dpvs.sunShadowOptCount;
@@ -1152,47 +1103,38 @@ GfxWorld *R_SortWorldSurfacesSetSurfaces()
     v5 = 1;
     p_flags = &result->surfaces.surfaces->flags;
     v7 = 0i64;
-    _R14 = 0i64;
+    v8 = 0i64;
     do
     {
-      _RCX = *((_QWORD *)p_flags - 2);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx+28h]
-        vpextrq rcx, xmm0, 1
-        vmovups [rsp+68h+var_38], xmm0
-      }
+      _XMM0.fields = *(GfxDrawSurfFields *)(*((_QWORD *)p_flags - 2) + 40i64);
+      __asm { vpextrq rcx, xmm0, 1 }
       if ( (_RCX & 0x7800000) != 0 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 324, ASSERT_TYPE_SANITY, "( drawSurf.fields.surfType == SF_TRIANGLES )", (const char *)&queryFormat, "drawSurf.fields.surfType == SF_TRIANGLES") )
           __debugbreak();
-        __asm { vmovups xmm0, [rsp+68h+var_38] }
         result = rgp.world;
       }
-      __asm { vmovq   rbx, xmm0 }
-      if ( (_RBX & 0x3FFFFFC000000i64) != 0 )
+      if ( (_XMM0.packed.p0 & 0x3FFFFFC000000i64) != 0 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 325, ASSERT_TYPE_SANITY, "( drawSurf.fields.objectId == 0 )", (const char *)&queryFormat, "drawSurf.fields.objectId == 0") )
           __debugbreak();
-        __asm { vmovups xmm0, [rsp+68h+var_38] }
         result = rgp.world;
       }
-      _RCX = result->surfaces.surfaceMaterials;
-      __asm { vmovups xmmword ptr [rcx+r14], xmm0 }
-      if ( v3 < surfaceCount && (_RBX & 0x1000000000000000i64) != 0 && (*p_flags & 1) != 0 && (v14 = v7 >> 5, rgp.world->dpvs.surfaceCastsSunShadow[v14] |= v5, (v15 = (*(unsigned __int8 *)p_flags >> 1) & 0x1F) != 0) )
+      result->surfaces.surfaceMaterials[v8] = (GfxDrawSurf)_XMM0.fields;
+      if ( v3 < surfaceCount && (_XMM0.packed.p0 & 0x1000000000000000i64) != 0 && (*p_flags & 1) != 0 && (v11 = v7 >> 5, rgp.world->dpvs.surfaceCastsSunShadow[v11] |= v5, (v12 = (*(unsigned __int8 *)p_flags >> 1) & 0x1F) != 0) )
       {
         result = rgp.world;
         for ( i = 0; i < result->dpvs.sunShadowOptCount; ++i )
         {
-          if ( !v15 )
+          if ( !v12 )
             break;
-          if ( (v15 & 1) != 0 )
+          if ( (v12 & 1) != 0 )
           {
-            v17 = (__int64)&result->dpvs.surfaceCastsSunShadowOpt[i * result->dpvs.sunSurfVisDataCount];
-            *(_DWORD *)(v17 + v14 * 4) |= 1 << (v3 & 0x1F);
+            v14 = (__int64)&result->dpvs.surfaceCastsSunShadowOpt[i * result->dpvs.sunSurfVisDataCount];
+            *(_DWORD *)(v14 + v11 * 4) |= 1 << (v3 & 0x1F);
             result = rgp.world;
           }
-          v15 >>= 1;
+          v12 >>= 1;
         }
       }
       else
@@ -1202,7 +1144,7 @@ GfxWorld *R_SortWorldSurfacesSetSurfaces()
       ++v3;
       v5 = __ROL4__(v5, 1);
       ++v7;
-      _R14 += 16i64;
+      ++v8;
       p_flags += 40;
     }
     while ( v3 < v4 );
@@ -1217,90 +1159,78 @@ R_SortWorldSurfacesSetSurfacesCheck
 */
 char R_SortWorldSurfacesSetSurfacesCheck()
 {
-  unsigned int v1; 
+  unsigned int v0; 
   unsigned int surfaceCount; 
   GfxSurface *surfaces; 
-  unsigned __int64 v4; 
-  int v5; 
-  __int64 v6; 
+  unsigned __int64 v3; 
+  int v4; 
+  __int64 v5; 
   GfxSurfaceFlags *p_flags; 
-  const char *v12; 
-  int v13; 
-  const char *v14; 
-  __int128 v17; 
+  const char *v9; 
+  int v10; 
+  const char *v11; 
 
-  v1 = 0;
+  v0 = 0;
   surfaceCount = rgp.world->models->surfaceCount;
   surfaces = rgp.world->surfaces.surfaces;
   if ( surfaceCount )
   {
-    v4 = 0i64;
-    v5 = 1;
-    v6 = 0i64;
-    __asm { vmovaps [rsp+78h+var_38], xmm6 }
+    v3 = 0i64;
+    v4 = 1;
+    v5 = 0i64;
     p_flags = &surfaces->flags;
-    while ( 1 )
+    do
     {
-      _RAX = *((_QWORD *)p_flags - 2);
-      __asm
-      {
-        vmovups xmm6, xmmword ptr [rax+28h]
-        vpextrq rax, xmm6, 1
-      }
+      _XMM6 = *(_OWORD *)(*((_QWORD *)p_flags - 2) + 40i64);
+      __asm { vpextrq rax, xmm6, 1 }
       if ( (_RAX & 0x7800000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 324, ASSERT_TYPE_SANITY, "( drawSurf.fields.surfType == SF_TRIANGLES )", (const char *)&queryFormat, "drawSurf.fields.surfType == SF_TRIANGLES") )
         __debugbreak();
-      __asm { vmovq   rbx, xmm6 }
-      if ( (_RBX & 0x3FFFFFC000000i64) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 325, ASSERT_TYPE_SANITY, "( drawSurf.fields.objectId == 0 )", (const char *)&queryFormat, "drawSurf.fields.objectId == 0") )
+      if ( (_XMM6 & 0x3FFFFFC000000i64) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 325, ASSERT_TYPE_SANITY, "( drawSurf.fields.objectId == 0 )", (const char *)&queryFormat, "drawSurf.fields.objectId == 0") )
         __debugbreak();
-      __asm { vmovdqa [rsp+78h+var_48], xmm6 }
-      if ( rgp.world->surfaces.surfaceMaterials[v6].packed.p0 != _RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 1250, ASSERT_TYPE_ASSERT, "(rgp.world->surfaces.surfaceMaterials[surfIndex].packed.p0 == drawSurf.packed.p0)", (const char *)&queryFormat, "rgp.world->surfaces.surfaceMaterials[surfIndex].packed.p0 == drawSurf.packed.p0") )
+      if ( rgp.world->surfaces.surfaceMaterials[v5].packed.p0 != (_QWORD)_XMM6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 1250, ASSERT_TYPE_ASSERT, "(rgp.world->surfaces.surfaceMaterials[surfIndex].packed.p0 == drawSurf.packed.p0)", (const char *)&queryFormat, "rgp.world->surfaces.surfaceMaterials[surfIndex].packed.p0 == drawSurf.packed.p0") )
         __debugbreak();
-      LOBYTE(surfaces) = BYTE8(v17);
-      if ( rgp.world->surfaces.surfaceMaterials[v6].packed.p1 != *((_QWORD *)&v17 + 1) )
+      LOBYTE(surfaces) = BYTE8(_XMM6);
+      if ( rgp.world->surfaces.surfaceMaterials[v5].packed.p1 != *((_QWORD *)&_XMM6 + 1) )
       {
         LOBYTE(surfaces) = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", 1251, ASSERT_TYPE_ASSERT, "(rgp.world->surfaces.surfaceMaterials[surfIndex].packed.p1 == drawSurf.packed.p1)", (const char *)&queryFormat, "rgp.world->surfaces.surfaceMaterials[surfIndex].packed.p1 == drawSurf.packed.p1");
         if ( (_BYTE)surfaces )
           __debugbreak();
       }
-      if ( v1 >= surfaceCount )
+      if ( v0 >= surfaceCount )
         goto LABEL_24;
-      if ( (v17 & 0x1000000000000000i64) != 0 && (*p_flags & 1) != 0 )
+      if ( (_XMM6 & 0x1000000000000000i64) != 0 && (*p_flags & 1) != 0 )
       {
         LOBYTE(surfaces) = rgp.world;
-        if ( (v5 & rgp.world->dpvs.surfaceCastsSunShadow[v4 >> 5]) == 0 )
+        if ( (v4 & rgp.world->dpvs.surfaceCastsSunShadow[v3 >> 5]) == 0 )
         {
-          v12 = "( rgp.world->dpvs.surfaceCastsSunShadow[surfIndex >> 5] ) & (1 << (surfIndex & 31))";
-          v13 = 1258;
-          v14 = "(( rgp.world->dpvs.surfaceCastsSunShadow[surfIndex >> 5] ) & (1 << (surfIndex & 31)))";
+          v9 = "( rgp.world->dpvs.surfaceCastsSunShadow[surfIndex >> 5] ) & (1 << (surfIndex & 31))";
+          v10 = 1258;
+          v11 = "(( rgp.world->dpvs.surfaceCastsSunShadow[surfIndex >> 5] ) & (1 << (surfIndex & 31)))";
           goto LABEL_22;
         }
       }
       else
       {
         LOBYTE(surfaces) = rgp.world;
-        if ( (v5 & rgp.world->dpvs.surfaceCastsSunShadow[v4 >> 5]) != 0 )
+        if ( (v4 & rgp.world->dpvs.surfaceCastsSunShadow[v3 >> 5]) != 0 )
         {
-          v12 = "!(( rgp.world->dpvs.surfaceCastsSunShadow[surfIndex >> 5] ) & (1 << (surfIndex & 31)))";
-          v13 = 1262;
-          v14 = "(!(( rgp.world->dpvs.surfaceCastsSunShadow[surfIndex >> 5] ) & (1 << (surfIndex & 31))))";
+          v9 = "!(( rgp.world->dpvs.surfaceCastsSunShadow[surfIndex >> 5] ) & (1 << (surfIndex & 31)))";
+          v10 = 1262;
+          v11 = "(!(( rgp.world->dpvs.surfaceCastsSunShadow[surfIndex >> 5] ) & (1 << (surfIndex & 31))))";
 LABEL_22:
-          LOBYTE(surfaces) = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", v13, ASSERT_TYPE_ASSERT, v14, (const char *)&queryFormat, v12);
+          LOBYTE(surfaces) = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_drawsurf.cpp", v10, ASSERT_TYPE_ASSERT, v11, (const char *)&queryFormat, v9);
           if ( (_BYTE)surfaces )
             __debugbreak();
         }
       }
 LABEL_24:
-      ++v1;
-      v5 = __ROL4__(v5, 1);
-      ++v4;
-      ++v6;
+      ++v0;
+      v4 = __ROL4__(v4, 1);
+      ++v3;
+      ++v5;
       p_flags += 40;
-      if ( v1 >= surfaceCount )
-      {
-        __asm { vmovaps xmm6, [rsp+78h+var_38] }
-        return (char)surfaces;
-      }
     }
+    while ( v0 < surfaceCount );
   }
   return (char)surfaces;
 }
@@ -1315,20 +1245,29 @@ void R_SwapAdjacentWorldSurfaceRanges(unsigned int i0, unsigned int i1, unsigned
   unsigned int v3; 
   int v4; 
   unsigned int v5; 
+  GfxSurface *surfaces; 
   int v8; 
+  GfxSurfaceBounds *surfaceBounds; 
   int i; 
   int v11; 
   __int64 v12; 
   unsigned int v13; 
+  __m256i v14; 
+  double v15; 
+  __int128 v16; 
+  double v17; 
+  __int64 v18; 
+  __int64 v19; 
   __int64 v20; 
   __int64 v21; 
+  __int64 v22; 
 
   v3 = i0;
   v4 = i1 - i0;
   v5 = i2 - i0;
-  _RSI = rgp.world->surfaces.surfaces;
+  surfaces = rgp.world->surfaces.surfaces;
   v8 = i2 - i1;
-  _RBP = rgp.world->surfaces.surfaceBounds;
+  surfaceBounds = rgp.world->surfaces.surfaceBounds;
   if ( v4 >= (int)(i2 - i1) )
   {
     if ( !v8 )
@@ -1349,61 +1288,34 @@ void R_SwapAdjacentWorldSurfaceRanges(unsigned int i0, unsigned int i1, unsigned
     do
     {
       v13 = v3;
-      _RAX = 5i64 * v3;
-      __asm
-      {
-        vmovups ymm2, ymmword ptr [rsi+rax*8]
-        vmovsd  xmm3, qword ptr [rsi+rax*8+20h]
-      }
-      _RAX = 3i64 * v3;
-      __asm
-      {
-        vmovups xmm4, xmmword ptr [rbp+rax*8+0]
-        vmovsd  xmm5, qword ptr [rbp+rax*8+10h]
-      }
+      v14 = *(__m256i *)&surfaces[v3].tris.posOffset;
+      v15 = *(double *)&surfaces[v3].flags;
+      v16 = *(_OWORD *)surfaceBounds[v3].bounds.midPoint.v;
+      v17 = *(double *)&surfaceBounds[v3].bounds.halfSize.y;
       while ( 1 )
       {
-        v20 = v13 + v4;
-        if ( (unsigned int)v20 >= i2 )
+        v18 = v13 + v4;
+        if ( (unsigned int)v18 >= i2 )
         {
-          v20 = (unsigned int)v20 - v5;
-          if ( (_DWORD)v20 == v3 )
+          v18 = (unsigned int)v18 - v5;
+          if ( (_DWORD)v18 == v3 )
             break;
         }
-        v21 = v13;
-        _RDX = 5 * v20;
-        __asm { vmovups ymm0, ymmword ptr [rsi+rdx*8] }
-        _RCX = 5 * v21;
-        __asm
-        {
-          vmovups ymmword ptr [rsi+rcx*8], ymm0
-          vmovsd  xmm1, qword ptr [rsi+rdx*8+20h]
-          vmovsd  qword ptr [rsi+rcx*8+20h], xmm1
-        }
-        _RDX = 3 * v20;
-        __asm { vmovups xmm0, xmmword ptr [rbp+rdx*8+0] }
-        _RCX = 3 * v21;
-        __asm
-        {
-          vmovups xmmword ptr [rbp+rcx*8+0], xmm0
-          vmovsd  xmm1, qword ptr [rbp+rdx*8+10h]
-          vmovsd  qword ptr [rbp+rcx*8+10h], xmm1
-        }
-        v13 = v20;
+        v19 = v13;
+        *(__m256i *)&surfaces[v19].tris.posOffset = *(__m256i *)&surfaces[v18].tris.posOffset;
+        *(double *)&surfaces[v19].flags = *(double *)&surfaces[v18].flags;
+        v20 = v13;
+        *(_OWORD *)surfaceBounds[v20].bounds.midPoint.v = *(_OWORD *)surfaceBounds[v18].bounds.midPoint.v;
+        *(double *)&surfaceBounds[v20].bounds.halfSize.y = *(double *)&surfaceBounds[v18].bounds.halfSize.y;
+        v13 = v18;
       }
       ++v3;
-      _RAX = 5i64 * v13;
-      __asm
-      {
-        vmovups ymmword ptr [rsi+rax*8], ymm2
-        vmovsd  qword ptr [rsi+rax*8+20h], xmm3
-      }
-      _RAX = 3i64 * v13;
-      __asm
-      {
-        vmovups xmmword ptr [rbp+rax*8+0], xmm4
-        vmovsd  qword ptr [rbp+rax*8+10h], xmm5
-      }
+      v21 = v13;
+      *(__m256i *)&surfaces[v21].tris.posOffset = v14;
+      *(double *)&surfaces[v21].flags = v15;
+      v22 = v13;
+      *(_OWORD *)surfaceBounds[v22].bounds.midPoint.v = v16;
+      *(double *)&surfaceBounds[v22].bounds.halfSize.y = v17;
       --v12;
     }
     while ( v12 );

@@ -160,6 +160,9 @@ unsigned __int8 encode_mcu_huff(jpeg_compress_struct *cinfo, __int16 (**MCU_data
 {
   jpeg_destination_mgr *dest; 
   int v3; 
+  jpeg_entropy_encoder *entropy; 
+  __int128 v7; 
+  double v8; 
   int start_pass_high; 
   unsigned __int8 *next_output_byte; 
   unsigned __int64 free_in_buffer; 
@@ -175,29 +178,25 @@ unsigned __int8 encode_mcu_huff(jpeg_compress_struct *cinfo, __int16 (**MCU_data
   __int64 v21; 
   __int64 v22; 
   __int16 (*v23)[64]; 
+  __int128 v24; 
+  double v25; 
   unsigned int restart_interval; 
   unsigned int start_pass; 
   working_state state; 
 
   dest = cinfo->dest;
   v3 = 0;
-  _RDI = cinfo->entropy;
+  entropy = cinfo->entropy;
   state.cinfo = cinfo;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+18h]
-    vmovsd  xmm1, qword ptr [rdi+28h]
-  }
+  v7 = *(_OWORD *)&entropy[1].start_pass;
+  v8 = *(double *)&entropy[1].finish_pass;
   state.next_output_byte = dest->next_output_byte;
   state.free_in_buffer = dest->free_in_buffer;
-  __asm
-  {
-    vmovups xmmword ptr [rbp+state.cur.EOBRUN], xmm0
-    vmovsd  qword ptr [rbp+state.cur.last_dc_val+0Ch], xmm1
-  }
-  if ( !cinfo->restart_interval || LODWORD(_RDI[2].start_pass) )
+  *(_OWORD *)&state.cur.EOBRUN = v7;
+  *(double *)&state.cur.last_dc_val[3] = v8;
+  if ( !cinfo->restart_interval || LODWORD(entropy[2].start_pass) )
     goto LABEL_13;
-  start_pass_high = HIDWORD(_RDI[2].start_pass);
+  start_pass_high = HIDWORD(entropy[2].start_pass);
   if ( !emit_bits(&state, 0x7Fu, 7) )
     return 0;
   next_output_byte = state.next_output_byte;
@@ -247,7 +246,7 @@ LABEL_13:
     {
       v21 = *MCU_membership;
       v22 = v21;
-      if ( !encode_one_block(&state, (__int16 *)*MCU_data, state.cur.last_dc_val[v21 + 1], *((c_derived_tbl **)&_RDI[2].encode_mcu + cinfo->cur_comp_info[v21]->dc_tbl_no), *((c_derived_tbl **)&_RDI[3].finish_pass + cinfo->cur_comp_info[v21]->ac_tbl_no)) )
+      if ( !encode_one_block(&state, (__int16 *)*MCU_data, state.cur.last_dc_val[v21 + 1], *((c_derived_tbl **)&entropy[2].encode_mcu + cinfo->cur_comp_info[v21]->dc_tbl_no), *((c_derived_tbl **)&entropy[3].finish_pass + cinfo->cur_comp_info[v21]->ac_tbl_no)) )
         return 0;
       v23 = *MCU_data;
       ++v3;
@@ -257,28 +256,22 @@ LABEL_13:
     }
     while ( v3 < cinfo->blocks_in_MCU );
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+state.cur.EOBRUN]
-    vmovsd  xmm1, qword ptr [rbp+state.cur.last_dc_val+0Ch]
-  }
+  v24 = *(_OWORD *)&state.cur.EOBRUN;
+  v25 = *(double *)&state.cur.last_dc_val[3];
   cinfo->dest->next_output_byte = state.next_output_byte;
   cinfo->dest->free_in_buffer = state.free_in_buffer;
-  __asm
-  {
-    vmovups xmmword ptr [rdi+18h], xmm0
-    vmovsd  qword ptr [rdi+28h], xmm1
-  }
+  *(_OWORD *)&entropy[1].start_pass = v24;
+  *(double *)&entropy[1].finish_pass = v25;
   restart_interval = cinfo->restart_interval;
   if ( restart_interval )
   {
-    start_pass = (unsigned int)_RDI[2].start_pass;
+    start_pass = (unsigned int)entropy[2].start_pass;
     if ( !start_pass )
     {
-      HIDWORD(_RDI[2].start_pass) = ((unsigned __int8)HIDWORD(_RDI[2].start_pass) + 1) & 7;
+      HIDWORD(entropy[2].start_pass) = ((unsigned __int8)HIDWORD(entropy[2].start_pass) + 1) & 7;
       start_pass = restart_interval;
     }
-    LODWORD(_RDI[2].start_pass) = start_pass - 1;
+    LODWORD(entropy[2].start_pass) = start_pass - 1;
   }
   return 1;
 }
@@ -451,23 +444,22 @@ finish_pass_huff
 void finish_pass_huff(jpeg_compress_struct *cinfo)
 {
   jpeg_destination_mgr *dest; 
+  jpeg_entropy_encoder *entropy; 
+  __int128 v4; 
+  double v5; 
+  __int128 v6; 
+  double v7; 
   working_state state; 
 
   dest = cinfo->dest;
-  _RDI = cinfo->entropy;
+  entropy = cinfo->entropy;
   state.cinfo = cinfo;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+18h]
-    vmovsd  xmm1, qword ptr [rdi+28h]
-  }
+  v4 = *(_OWORD *)&entropy[1].start_pass;
+  v5 = *(double *)&entropy[1].finish_pass;
   state.next_output_byte = dest->next_output_byte;
   state.free_in_buffer = dest->free_in_buffer;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+58h+state.cur.EOBRUN], xmm0
-    vmovsd  qword ptr [rsp+58h+state.cur.last_dc_val+0Ch], xmm1
-  }
+  *(_OWORD *)&state.cur.EOBRUN = v4;
+  *(double *)&state.cur.last_dc_val[3] = v5;
   if ( emit_bits(&state, 0x7Fu, 7) )
   {
     *(_QWORD *)&state.cur.EOBRUN = 0i64;
@@ -477,18 +469,12 @@ void finish_pass_huff(jpeg_compress_struct *cinfo)
     cinfo->err->msg_code = 24;
     cinfo->err->error_exit((jpeg_common_struct *)cinfo);
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+58h+state.cur.EOBRUN]
-    vmovsd  xmm1, qword ptr [rsp+58h+state.cur.last_dc_val+0Ch]
-  }
+  v6 = *(_OWORD *)&state.cur.EOBRUN;
+  v7 = *(double *)&state.cur.last_dc_val[3];
   cinfo->dest->next_output_byte = state.next_output_byte;
   cinfo->dest->free_in_buffer = state.free_in_buffer;
-  __asm
-  {
-    vmovups xmmword ptr [rdi+18h], xmm0
-    vmovsd  qword ptr [rdi+28h], xmm1
-  }
+  *(_OWORD *)&entropy[1].start_pass = v6;
+  *(double *)&entropy[1].finish_pass = v7;
 }
 
 /*
@@ -576,69 +562,68 @@ void jpeg_gen_optimal_table(jpeg_compress_struct *cinfo, JHUFF_TBL *htbl, int *f
   _BYTE *kk; 
   int v52; 
   unsigned __int8 v53; 
-  int v55; 
-  __int64 v56; 
-  int *v57; 
+  int v54; 
+  __int64 v55; 
+  int *v56; 
   int mm; 
-  __int64 v59; 
-  int *v60; 
+  __int64 v58; 
+  int *v59; 
   int nn; 
-  __int64 v62; 
-  int *v63; 
+  __int64 v61; 
+  int *v62; 
   int i1; 
-  __int64 v65; 
-  int *v66; 
+  __int64 v64; 
+  int *v65; 
   int i2; 
-  __int64 v68; 
-  int *v69; 
+  __int64 v67; 
+  int *v68; 
   int i3; 
-  __int64 v71; 
-  int *v72; 
+  __int64 v70; 
+  int *v71; 
   int i4; 
-  __int64 v74; 
-  int *v75; 
+  __int64 v73; 
+  int *v74; 
   int i5; 
-  __int64 v77; 
-  int *v78; 
+  __int64 v76; 
+  int *v77; 
   int i6; 
-  __int64 v80; 
-  int *v81; 
+  __int64 v79; 
+  int *v80; 
   int i7; 
-  __int64 v83; 
-  int *v84; 
+  __int64 v82; 
+  int *v83; 
   int i8; 
-  __int64 v86; 
-  int *v87; 
+  __int64 v85; 
+  int *v86; 
   int i9; 
-  __int64 v89; 
-  int *v90; 
+  __int64 v88; 
+  int *v89; 
   int i10; 
-  __int64 v92; 
-  int *v93; 
+  __int64 v91; 
+  int *v92; 
   int i11; 
-  __int64 v95; 
-  int *v96; 
+  __int64 v94; 
+  int *v95; 
   int i12; 
-  __int64 v98; 
-  int *v99; 
+  __int64 v97; 
+  int *v98; 
   int i13; 
-  int v101; 
-  __int64 v102; 
-  int *v103; 
+  int v100; 
+  __int64 v101; 
+  int *v102; 
+  int v103[260]; 
   int v104[260]; 
-  int v105[260]; 
-  __int128 v106; 
+  __int128 v105; 
+  __int64 v106; 
   __int64 v107; 
-  __int64 v108; 
-  char v109; 
+  char v108; 
 
-  _R14 = htbl;
-  v106 = 0ui64;
+  v105 = 0ui64;
+  v106 = 0i64;
   v107 = 0i64;
-  v108 = 0i64;
-  v109 = 0;
-  memset_0(v104, 0, 0x404ui64);
-  v6 = v105;
+  v108 = 0;
+  memset_0(v103, 0, 0x404ui64);
+  v6 = v104;
   v7 = 16i64;
   do
   {
@@ -697,33 +682,33 @@ void jpeg_gen_optimal_table(jpeg_compress_struct *cinfo, JHUFF_TBL *htbl, int *f
     if ( v16 < 0 )
       break;
     freq[v9] += freq[v14];
-    ++v104[v9];
+    ++v103[v9];
     freq[v14] = 0;
-    if ( v105[v9] >= 0 )
+    if ( v104[v9] >= 0 )
     {
-      v20 = v105[(int)v8];
+      v20 = v104[(int)v8];
       do
       {
         LODWORD(v8) = v20;
-        ++v104[v20];
-        v20 = v105[v20];
+        ++v103[v20];
+        v20 = v104[v20];
       }
       while ( v20 >= 0 );
     }
-    ++v104[v14];
-    v105[(int)v8] = v16;
-    if ( v105[v14] >= 0 )
+    ++v103[v14];
+    v104[(int)v8] = v16;
+    if ( v104[v14] >= 0 )
     {
-      v21 = v105[v16];
+      v21 = v104[v16];
       do
       {
-        ++v104[v21];
-        v21 = v105[v21];
+        ++v103[v21];
+        v21 = v104[v21];
       }
       while ( v21 >= 0 );
     }
   }
-  v22 = v104;
+  v22 = v103;
   v23 = 257i64;
   do
   {
@@ -735,330 +720,326 @@ void jpeg_gen_optimal_table(jpeg_compress_struct *cinfo, JHUFF_TBL *htbl, int *f
         cinfo->err->msg_code = 39;
         ((void (__fastcall *)(jpeg_compress_struct *, __int64, __int64, __int64))cinfo->err->error_exit)(cinfo, v19, v15, v8);
       }
-      ++*((_BYTE *)&v106 + v24);
+      ++*((_BYTE *)&v105 + v24);
     }
     ++v22;
     --v23;
   }
   while ( v23 );
   v25 = 32;
-  v26 = (char *)&v108 + 6;
+  v26 = (char *)&v107 + 6;
   v27 = 2i64;
   do
   {
-    for ( ; v26[2]; --*((_BYTE *)&v106 + v28) )
+    for ( ; v26[2]; --*((_BYTE *)&v105 + v28) )
     {
       v28 = v25 - 2;
-      if ( !*((_BYTE *)&v105[259] + v25 + 2) )
+      if ( !*((_BYTE *)&v104[259] + v25 + 2) )
       {
         do
           v29 = v28--;
-        while ( !*((_BYTE *)&v105[259] + v29 + 3) );
+        while ( !*((_BYTE *)&v104[259] + v29 + 3) );
       }
       v26[2] -= 2;
       ++v26[1];
-      *((_BYTE *)&v106 + v28 + 1) += 2;
+      *((_BYTE *)&v105 + v28 + 1) += 2;
     }
     for ( i = v26[1]; i; i = v26[1] )
     {
       v31 = v25 - 3;
-      if ( !*((_BYTE *)&v105[259] + v25 + 1) )
+      if ( !*((_BYTE *)&v104[259] + v25 + 1) )
       {
         do
           v32 = v31--;
-        while ( !*((_BYTE *)&v105[259] + v32 + 3) );
+        while ( !*((_BYTE *)&v104[259] + v32 + 3) );
       }
       v26[1] = i - 2;
       ++*v26;
-      *((_BYTE *)&v106 + v31 + 1) += 2;
-      --*((_BYTE *)&v106 + v31);
+      *((_BYTE *)&v105 + v31 + 1) += 2;
+      --*((_BYTE *)&v105 + v31);
     }
     for ( j = *v26; *v26; j = *v26 )
     {
       v34 = v25 - 4;
-      if ( !*((_BYTE *)&v105[259] + v25) )
+      if ( !*((_BYTE *)&v104[259] + v25) )
       {
         do
           v35 = v34--;
-        while ( !*((_BYTE *)&v105[259] + v35 + 3) );
+        while ( !*((_BYTE *)&v104[259] + v35 + 3) );
       }
       *v26 = j - 2;
       ++*(v26 - 1);
-      *((_BYTE *)&v106 + v34 + 1) += 2;
-      --*((_BYTE *)&v106 + v34);
+      *((_BYTE *)&v105 + v34 + 1) += 2;
+      --*((_BYTE *)&v105 + v34);
     }
     for ( k = *(v26 - 1); k; k = *(v26 - 1) )
     {
       v37 = v25 - 5;
-      if ( !*((_BYTE *)&v105[258] + v25 + 3) )
+      if ( !*((_BYTE *)&v104[258] + v25 + 3) )
       {
         do
           v38 = v37--;
-        while ( !*((_BYTE *)&v105[259] + v38 + 3) );
+        while ( !*((_BYTE *)&v104[259] + v38 + 3) );
       }
       *(v26 - 1) = k - 2;
       ++*(v26 - 2);
-      *((_BYTE *)&v106 + v37 + 1) += 2;
-      --*((_BYTE *)&v106 + v37);
+      *((_BYTE *)&v105 + v37 + 1) += 2;
+      --*((_BYTE *)&v105 + v37);
     }
     for ( m = *(v26 - 2); m; m = *(v26 - 2) )
     {
       v40 = v25 - 6;
-      if ( !*((_BYTE *)&v105[258] + v25 + 2) )
+      if ( !*((_BYTE *)&v104[258] + v25 + 2) )
       {
         do
           v41 = v40--;
-        while ( !*((_BYTE *)&v105[259] + v41 + 3) );
+        while ( !*((_BYTE *)&v104[259] + v41 + 3) );
       }
       *(v26 - 2) = m - 2;
       ++*(v26 - 3);
-      *((_BYTE *)&v106 + v40 + 1) += 2;
-      --*((_BYTE *)&v106 + v40);
+      *((_BYTE *)&v105 + v40 + 1) += 2;
+      --*((_BYTE *)&v105 + v40);
     }
     for ( n = *(v26 - 3); n; n = *(v26 - 3) )
     {
       v43 = v25 - 7;
-      if ( !*((_BYTE *)&v105[258] + v25 + 1) )
+      if ( !*((_BYTE *)&v104[258] + v25 + 1) )
       {
         do
           v44 = v43--;
-        while ( !*((_BYTE *)&v105[259] + v44 + 3) );
+        while ( !*((_BYTE *)&v104[259] + v44 + 3) );
       }
       *(v26 - 3) = n - 2;
       ++*(v26 - 4);
-      *((_BYTE *)&v106 + v43 + 1) += 2;
-      --*((_BYTE *)&v106 + v43);
+      *((_BYTE *)&v105 + v43 + 1) += 2;
+      --*((_BYTE *)&v105 + v43);
     }
     for ( ii = *(v26 - 4); ii; ii = *(v26 - 4) )
     {
       v46 = v25 - 8;
-      if ( !*((_BYTE *)&v105[258] + v25) )
+      if ( !*((_BYTE *)&v104[258] + v25) )
       {
         do
           v47 = v46--;
-        while ( !*((_BYTE *)&v105[259] + v47 + 3) );
+        while ( !*((_BYTE *)&v104[259] + v47 + 3) );
       }
       *(v26 - 4) = ii - 2;
       ++*(v26 - 5);
-      *((_BYTE *)&v106 + v46 + 1) += 2;
-      --*((_BYTE *)&v106 + v46);
+      *((_BYTE *)&v105 + v46 + 1) += 2;
+      --*((_BYTE *)&v105 + v46);
     }
     for ( jj = *(v26 - 5); jj; jj = *(v26 - 5) )
     {
       v49 = v25 - 9;
-      if ( !*((_BYTE *)&v105[257] + v25 + 3) )
+      if ( !*((_BYTE *)&v104[257] + v25 + 3) )
       {
         do
           v50 = v49--;
-        while ( !*((_BYTE *)&v105[259] + v50 + 3) );
+        while ( !*((_BYTE *)&v104[259] + v50 + 3) );
       }
       *(v26 - 5) = jj - 2;
       ++*(v26 - 6);
-      *((_BYTE *)&v106 + v49 + 1) += 2;
-      --*((_BYTE *)&v106 + v49);
+      *((_BYTE *)&v105 + v49 + 1) += 2;
+      --*((_BYTE *)&v105 + v49);
     }
     v25 -= 8;
     v26 -= 8;
     --v27;
   }
   while ( v27 );
-  for ( kk = (char *)&v106 + v25; !*kk; --kk )
+  for ( kk = (char *)&v105 + v25; !*kk; --kk )
     --v25;
   v52 = 3;
-  --*((_BYTE *)&v106 + v25);
-  v53 = v107;
-  __asm
-  {
-    vmovups xmm0, [rbp+7A0h+var_60]
-    vmovups xmmword ptr [r14], xmm0
-  }
-  _R14->bits[16] = v53;
-  v55 = 0;
+  --*((_BYTE *)&v105 + v25);
+  v53 = v106;
+  *(_OWORD *)htbl->bits = v105;
+  htbl->bits[16] = v53;
+  v54 = 0;
   do
   {
-    v56 = v55;
-    v57 = v104;
+    v55 = v54;
+    v56 = v103;
     for ( mm = 0; mm <= 255; ++mm )
     {
-      if ( *v57 == v52 - 2 )
+      if ( *v56 == v52 - 2 )
       {
-        ++v55;
-        _R14->huffval[v56++] = mm;
+        ++v54;
+        htbl->huffval[v55++] = mm;
       }
-      ++v57;
+      ++v56;
     }
-    v59 = v55;
-    v60 = v104;
+    v58 = v54;
+    v59 = v103;
     for ( nn = 0; nn <= 255; ++nn )
     {
-      if ( *v60 == v52 - 1 )
+      if ( *v59 == v52 - 1 )
       {
-        ++v55;
-        _R14->huffval[v59++] = nn;
+        ++v54;
+        htbl->huffval[v58++] = nn;
       }
-      ++v60;
+      ++v59;
     }
-    v62 = v55;
-    v63 = v104;
+    v61 = v54;
+    v62 = v103;
     for ( i1 = 0; i1 <= 255; ++i1 )
     {
-      if ( *v63 == v52 )
+      if ( *v62 == v52 )
       {
-        ++v55;
-        _R14->huffval[v62++] = i1;
+        ++v54;
+        htbl->huffval[v61++] = i1;
       }
-      ++v63;
+      ++v62;
     }
-    v65 = v55;
-    v66 = v104;
+    v64 = v54;
+    v65 = v103;
     for ( i2 = 0; i2 <= 255; ++i2 )
     {
-      if ( *v66 == v52 + 1 )
+      if ( *v65 == v52 + 1 )
       {
-        ++v55;
-        _R14->huffval[v65++] = i2;
+        ++v54;
+        htbl->huffval[v64++] = i2;
       }
-      ++v66;
+      ++v65;
     }
-    v68 = v55;
-    v69 = v104;
+    v67 = v54;
+    v68 = v103;
     for ( i3 = 0; i3 <= 255; ++i3 )
     {
-      if ( *v69 == v52 + 2 )
+      if ( *v68 == v52 + 2 )
       {
-        ++v55;
-        _R14->huffval[v68++] = i3;
+        ++v54;
+        htbl->huffval[v67++] = i3;
       }
-      ++v69;
+      ++v68;
     }
-    v71 = v55;
-    v72 = v104;
+    v70 = v54;
+    v71 = v103;
     for ( i4 = 0; i4 <= 255; ++i4 )
     {
-      if ( *v72 == v52 + 3 )
+      if ( *v71 == v52 + 3 )
       {
-        ++v55;
-        _R14->huffval[v71++] = i4;
+        ++v54;
+        htbl->huffval[v70++] = i4;
       }
-      ++v72;
+      ++v71;
     }
-    v74 = v55;
-    v75 = v104;
+    v73 = v54;
+    v74 = v103;
     for ( i5 = 0; i5 <= 255; ++i5 )
     {
-      if ( *v75 == v52 + 4 )
+      if ( *v74 == v52 + 4 )
       {
-        ++v55;
-        _R14->huffval[v74++] = i5;
+        ++v54;
+        htbl->huffval[v73++] = i5;
       }
-      ++v75;
+      ++v74;
     }
-    v77 = v55;
-    v78 = v104;
+    v76 = v54;
+    v77 = v103;
     for ( i6 = 0; i6 <= 255; ++i6 )
     {
-      if ( *v78 == v52 + 5 )
+      if ( *v77 == v52 + 5 )
       {
-        ++v55;
-        _R14->huffval[v77++] = i6;
+        ++v54;
+        htbl->huffval[v76++] = i6;
       }
-      ++v78;
+      ++v77;
     }
-    v80 = v55;
-    v81 = v104;
+    v79 = v54;
+    v80 = v103;
     for ( i7 = 0; i7 <= 255; ++i7 )
     {
-      if ( *v81 == v52 + 6 )
+      if ( *v80 == v52 + 6 )
       {
-        ++v55;
-        _R14->huffval[v80++] = i7;
+        ++v54;
+        htbl->huffval[v79++] = i7;
       }
-      ++v81;
+      ++v80;
     }
-    v83 = v55;
-    v84 = v104;
+    v82 = v54;
+    v83 = v103;
     for ( i8 = 0; i8 <= 255; ++i8 )
     {
-      if ( *v84 == v52 + 7 )
+      if ( *v83 == v52 + 7 )
       {
-        ++v55;
-        _R14->huffval[v83++] = i8;
+        ++v54;
+        htbl->huffval[v82++] = i8;
       }
-      ++v84;
+      ++v83;
     }
-    v86 = v55;
-    v87 = v104;
+    v85 = v54;
+    v86 = v103;
     for ( i9 = 0; i9 <= 255; ++i9 )
     {
-      if ( *v87 == v52 + 8 )
+      if ( *v86 == v52 + 8 )
       {
-        ++v55;
-        _R14->huffval[v86++] = i9;
+        ++v54;
+        htbl->huffval[v85++] = i9;
       }
-      ++v87;
+      ++v86;
     }
-    v89 = v55;
-    v90 = v104;
+    v88 = v54;
+    v89 = v103;
     for ( i10 = 0; i10 <= 255; ++i10 )
     {
-      if ( *v90 == v52 + 9 )
+      if ( *v89 == v52 + 9 )
       {
-        ++v55;
-        _R14->huffval[v89++] = i10;
+        ++v54;
+        htbl->huffval[v88++] = i10;
       }
-      ++v90;
+      ++v89;
     }
-    v92 = v55;
-    v93 = v104;
+    v91 = v54;
+    v92 = v103;
     for ( i11 = 0; i11 <= 255; ++i11 )
     {
-      if ( *v93 == v52 + 10 )
+      if ( *v92 == v52 + 10 )
       {
-        ++v55;
-        _R14->huffval[v92++] = i11;
+        ++v54;
+        htbl->huffval[v91++] = i11;
       }
-      ++v93;
+      ++v92;
     }
-    v95 = v55;
-    v96 = v104;
+    v94 = v54;
+    v95 = v103;
     for ( i12 = 0; i12 <= 255; ++i12 )
     {
-      if ( *v96 == v52 + 11 )
+      if ( *v95 == v52 + 11 )
       {
-        ++v55;
-        _R14->huffval[v95++] = i12;
+        ++v54;
+        htbl->huffval[v94++] = i12;
       }
-      ++v96;
+      ++v95;
     }
-    v98 = v55;
-    v99 = v104;
+    v97 = v54;
+    v98 = v103;
     for ( i13 = 0; i13 <= 255; ++i13 )
     {
-      if ( *v99 == v52 + 12 )
+      if ( *v98 == v52 + 12 )
       {
-        ++v55;
-        _R14->huffval[v98++] = i13;
+        ++v54;
+        htbl->huffval[v97++] = i13;
       }
-      ++v99;
+      ++v98;
     }
-    v101 = 0;
-    v102 = v55;
-    v103 = v104;
+    v100 = 0;
+    v101 = v54;
+    v102 = v103;
     do
     {
-      if ( *v103 == v52 + 13 )
+      if ( *v102 == v52 + 13 )
       {
-        ++v55;
-        _R14->huffval[v102++] = v101;
+        ++v54;
+        htbl->huffval[v101++] = v100;
       }
-      ++v101;
-      ++v103;
+      ++v100;
+      ++v102;
     }
-    while ( v101 <= 255 );
+    while ( v100 <= 255 );
     v52 += 16;
   }
   while ( v52 - 2 <= 32 );
-  _R14->sent_table = 0;
+  htbl->sent_table = 0;
 }
 
 /*

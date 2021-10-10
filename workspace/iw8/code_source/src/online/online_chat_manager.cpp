@@ -1457,39 +1457,26 @@ OnlineChatManager::ClearPending
 */
 void OnlineChatManager::ClearPending(OnlineChatManager *this, const OnlineChatManager::ChatPendingType pendingType, const OnlineChatId *chatId, const OnlineChatType *chatType)
 {
+  OnlineChatManager::PendingList *v4; 
   int v5; 
   __int64 listCount; 
   unsigned __int64 m_id; 
-  __int128 v14; 
+  OnlineChatManager::PendingList *i; 
 
-  _R11 = &this->m_pendingLists[pendingType];
+  v4 = &this->m_pendingLists[pendingType];
   v5 = 0;
-  listCount = _R11->listCount;
+  listCount = v4->listCount;
   if ( (int)listCount > 0 )
   {
     m_id = chatId->m_id;
-    for ( _RCX = _R11; ; _RCX = (OnlineChatManager::PendingList *)((char *)_RCX + 16) )
+    for ( i = v4; i->list[0].m_id.m_id != m_id || (unsigned int)*(_QWORD *)&i->list[0].m_type != *chatType; i = (OnlineChatManager::PendingList *)((char *)i + 16) )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx]
-        vmovq   rax, xmm0
-        vmovups [rsp+18h+var_18], xmm0
-      }
-      if ( _RAX == m_id && DWORD2(v14) == *chatType )
-        break;
       if ( ++v5 >= (int)listCount )
         return;
     }
-    _R11->listCount = listCount - 1;
-    _RCX = 2 * listCount;
-    _RAX = 2i64 * v5;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r11+rcx*8-10h]
-      vmovups xmmword ptr [r11+rax*8], xmm0
-    }
-    _R11->list[_R11->listCount].m_id.m_id = 0i64;
+    v4->listCount = listCount - 1;
+    v4->list[v5] = v4->list[listCount - 1];
+    v4->list[v4->listCount].m_id.m_id = 0i64;
   }
 }
 
@@ -2988,10 +2975,11 @@ void OnlineChatManager::JoinChatFailed(OnlineChatManager *this, const int contro
   unsigned __int64 m_channelID; 
   unsigned __int64 v8; 
   int v9; 
-  unsigned int v17; 
-  OnlineChatPool *v18; 
-  __int128 v19; 
-  unsigned __int64 v20; 
+  OnlineChatManager::PendingList *m_pendingLists; 
+  __int64 v11; 
+  unsigned int v12; 
+  OnlineChatPool *v13; 
+  unsigned __int64 v14; 
 
   m_channelID = cachedCallback->dwChannelInfo.m_channelID;
   if ( !m_channelID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_chat_types.h", 16, ASSERT_TYPE_ASSERT, "(_id != 0)", "%s\n\tShould call OnlineChatId.Clear() instead of SetID()", "_id != 0") )
@@ -3000,52 +2988,37 @@ void OnlineChatManager::JoinChatFailed(OnlineChatManager *this, const int contro
   v9 = 0;
   if ( OnlineChatManager::s_instance.m_pendingLists[0].listCount > 0 )
   {
-    _RCX = OnlineChatManager::s_instance.m_pendingLists;
-    while ( 1 )
+    m_pendingLists = OnlineChatManager::s_instance.m_pendingLists;
+    while ( m_pendingLists->list[0].m_id.m_id != m_channelID || (unsigned int)*(_QWORD *)&m_pendingLists->list[0].m_type != cachedCallback->chatType )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx]
-        vmovq   rax, xmm0
-        vmovups [rsp+58h+var_28], xmm0
-      }
-      if ( _RAX == m_channelID && DWORD2(v19) == cachedCallback->chatType )
-        break;
       ++v9;
-      _RCX = (OnlineChatManager::PendingList *)((char *)_RCX + 16);
+      m_pendingLists = (OnlineChatManager::PendingList *)((char *)m_pendingLists + 16);
       if ( v9 >= OnlineChatManager::s_instance.m_pendingLists[0].listCount )
         goto LABEL_11;
     }
-    _RCX = OnlineChatManager::s_instance.m_pendingLists[0].listCount--;
-    _R8 = &OnlineChatManager::s_instance;
-    _RCX *= 2i64;
-    _RAX = 2i64 * v9;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r8+rcx*8+30h]
-      vmovups xmmword ptr [r8+rax*8+40h], xmm0
-    }
+    v11 = OnlineChatManager::s_instance.m_pendingLists[0].listCount--;
+    OnlineChatManager::s_instance.m_pendingLists[0].list[v9] = *(OnlineChatManager::PendingChat *)&OnlineChatManager::s_instance.m_name[16 * v11 + 27];
     OnlineChatManager::s_instance.m_pendingLists[0].list[OnlineChatManager::s_instance.m_pendingLists[0].listCount].m_id.m_id = 0i64;
   }
 LABEL_11:
   Com_PrintError(14, "[Chat] %s: Failed to join chat %zu\n", "OnlineChatManager::JoinChatFailed", m_channelID);
-  v17 = 0;
-  v18 = &s_onlineChatPool;
-  while ( v18->pool[0].m_state == INACTIVE || v18->pool[0].m_chatType != cachedCallback->chatType || m_channelID != v18->pool[0].m_chatId.m_id )
+  v12 = 0;
+  v13 = &s_onlineChatPool;
+  while ( v13->pool[0].m_state == INACTIVE || v13->pool[0].m_chatType != cachedCallback->chatType || m_channelID != v13->pool[0].m_chatId.m_id )
   {
-    ++v17;
-    v18 = (OnlineChatPool *)((char *)v18 + 12848);
-    if ( v17 >= 0x12 )
+    ++v12;
+    v13 = (OnlineChatPool *)((char *)v13 + 12848);
+    if ( v12 >= 0x12 )
       goto LABEL_18;
   }
-  OnlineChat::UnInit(v18->pool);
+  OnlineChat::UnInit(v13->pool);
 LABEL_18:
   if ( !cachedCallback->callback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_chat_manager.cpp", 1403, ASSERT_TYPE_ASSERT, "(cachedCallback->callback)", (const char *)&queryFormat, "cachedCallback->callback") )
     __debugbreak();
   if ( cachedCallback->dwChannelInfo.m_channelID )
     v8 = cachedCallback->dwChannelInfo.m_channelID;
-  v20 = v8;
-  cachedCallback->callback(controllerIndex, (const OnlineChatId *)&v20, (const OnlineChatType *)cachedCallback, 0, errorCode);
+  v14 = v8;
+  cachedCallback->callback(controllerIndex, (const OnlineChatId *)&v14, (const OnlineChatType *)cachedCallback, 0, errorCode);
   OnlineChatManager::ClearCachedCreateChatCallback(cachedCallback);
 }
 
@@ -3059,162 +3032,151 @@ void OnlineChatManager::JoinChatSuccessful(OnlineChatManager *this, const int co
   unsigned __int64 m_channelID; 
   int v6; 
   __int64 listCount; 
-  OnlineChat *v15; 
-  unsigned int v16; 
-  OnlineChatPool *v17; 
+  OnlineChatManager::PendingList *m_pendingLists; 
+  OnlineChat *v9; 
+  unsigned int v10; 
+  OnlineChatPool *v11; 
   unsigned int i; 
-  unsigned __int64 v19; 
-  unsigned __int64 v20; 
+  unsigned __int64 v13; 
+  unsigned __int64 v14; 
   XUID *Xuid; 
-  unsigned __int64 v22; 
+  unsigned __int64 v16; 
   const char *LocalClientName; 
   XUID result[2]; 
-  __int64 v25; 
-  bdChannelMember v26; 
+  __int64 v19; 
+  bdChannelMember v20; 
 
-  v25 = -2i64;
+  v19 = -2i64;
   m_channelID = cachedCallback->dwChannelInfo.m_channelID;
   if ( !m_channelID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_chat_types.h", 16, ASSERT_TYPE_ASSERT, "(_id != 0)", "%s\n\tShould call OnlineChatId.Clear() instead of SetID()", "_id != 0") )
     __debugbreak();
   v6 = 0;
-  _R13 = &OnlineChatManager::s_instance;
   listCount = OnlineChatManager::s_instance.m_pendingLists[0].listCount;
   if ( OnlineChatManager::s_instance.m_pendingLists[0].listCount > 0 )
   {
-    _RCX = OnlineChatManager::s_instance.m_pendingLists;
+    m_pendingLists = OnlineChatManager::s_instance.m_pendingLists;
     while ( 1 )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx]
-        vmovups xmmword ptr [rbp+57h+result.m_id], xmm0
-        vmovq   rax, xmm0
-      }
-      if ( _RAX == m_channelID && LODWORD(result[1].m_id) == cachedCallback->chatType )
+      *(OnlineChatManager::PendingChat *)&result[0].m_id = m_pendingLists->list[0];
+      if ( result[0].m_id == m_channelID && LODWORD(result[1].m_id) == cachedCallback->chatType )
         break;
       ++v6;
-      _RCX = (OnlineChatManager::PendingList *)((char *)_RCX + 16);
+      m_pendingLists = (OnlineChatManager::PendingList *)((char *)m_pendingLists + 16);
       if ( v6 >= OnlineChatManager::s_instance.m_pendingLists[0].listCount )
         goto LABEL_11;
     }
     --OnlineChatManager::s_instance.m_pendingLists[0].listCount;
-    _RCX = 2 * listCount;
-    _RAX = 2i64 * v6;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r13+rcx*8+30h]
-      vmovups xmmword ptr [r13+rax*8+40h], xmm0
-    }
+    OnlineChatManager::s_instance.m_pendingLists[0].list[v6] = *(OnlineChatManager::PendingChat *)&OnlineChatManager::s_instance.m_name[16 * listCount + 27];
     OnlineChatManager::s_instance.m_pendingLists[0].list[OnlineChatManager::s_instance.m_pendingLists[0].listCount].m_id.m_id = 0i64;
   }
 LABEL_11:
   OnlineChatManager::ProcessJoinedChat(&OnlineChatManager::s_instance, controllerIndex, cachedCallback->dwChannelInfo.m_channelID, (const OnlineChatType)cachedCallback->chatType);
-  v15 = NULL;
-  v16 = 0;
-  v17 = &s_onlineChatPool;
+  v9 = NULL;
+  v10 = 0;
+  v11 = &s_onlineChatPool;
   do
   {
-    if ( v17->pool[0].m_state && v17->pool[0].m_chatType == cachedCallback->chatType && m_channelID == v17->pool[0].m_chatId.m_id )
+    if ( v11->pool[0].m_state && v11->pool[0].m_chatType == cachedCallback->chatType && m_channelID == v11->pool[0].m_chatId.m_id )
     {
-      v15 = (OnlineChat *)v17;
+      v9 = (OnlineChat *)v11;
       goto LABEL_18;
     }
-    ++v16;
-    v17 = (OnlineChatPool *)((char *)v17 + 12848);
+    ++v10;
+    v11 = (OnlineChatPool *)((char *)v11 + 12848);
   }
-  while ( v16 < 0x12 );
+  while ( v10 < 0x12 );
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_chat_manager.cpp", 416, ASSERT_TYPE_ASSERT, "(chat)", (const char *)&queryFormat, "chat") )
     __debugbreak();
 LABEL_18:
   for ( i = 0; i < *((_DWORD *)&cachedCallback->getMembersResponse.__vftable + 7); ++i )
   {
-    bdChannelMember::bdChannelMember(&v26);
+    bdChannelMember::bdChannelMember(&v20);
     if ( i >= *((_DWORD *)&cachedCallback->getMembersResponse.__vftable + 7) )
     {
-      v20 = *(_QWORD *)v26._bytes_20;
+      v14 = *(_QWORD *)v20._bytes_20;
     }
     else
     {
-      v19 = *((_QWORD *)&cachedCallback->getMembersResponse.__vftable + 2) + ((unsigned __int64)i << 7);
-      bdReferencable::operator=((bdReferencable *)&v26._bytes_20[*(int *)(*((_QWORD *)&v26.__vftable + 1) + 4i64) - 24], (const bdReferencable *)(*(int *)(*(_QWORD *)(v19 + 8) + 4i64) + v19 + 8));
-      bdReferencable::operator=((bdReferencable *)&v26._bytes_20[*(int *)(*((_QWORD *)&v26.__vftable + 3) + 4i64) - 8], (const bdReferencable *)(*(int *)(*(_QWORD *)(v19 + 24) + 4i64) + v19 + 24));
-      v20 = *(_QWORD *)(v19 + 32);
-      *(_QWORD *)v26._bytes_20 = v20;
-      v26._bytes_20[8] = *(_BYTE *)(v19 + 40);
-      v26._bytes_20[9] = *(_BYTE *)(v19 + 41);
-      v26._bytes_20[10] = *(_BYTE *)(v19 + 42);
-      v26._bytes_20[11] = *(_BYTE *)(v19 + 43);
-      v26._bytes_20[12] = *(_BYTE *)(v19 + 44);
-      v26._bytes_20[13] = *(_BYTE *)(v19 + 45);
-      v26._bytes_20[14] = *(_BYTE *)(v19 + 46);
-      v26._bytes_20[15] = *(_BYTE *)(v19 + 47);
-      v26.m_userName[0] = *(_BYTE *)(v19 + 48);
-      v26.m_userName[1] = *(_BYTE *)(v19 + 49);
-      v26.m_userName[2] = *(_BYTE *)(v19 + 50);
-      v26.m_userName[3] = *(_BYTE *)(v19 + 51);
-      v26.m_userName[4] = *(_BYTE *)(v19 + 52);
-      v26.m_userName[5] = *(_BYTE *)(v19 + 53);
-      v26.m_userName[6] = *(_BYTE *)(v19 + 54);
-      v26.m_userName[7] = *(_BYTE *)(v19 + 55);
-      v26.m_userName[8] = *(_BYTE *)(v19 + 56);
-      v26.m_userName[9] = *(_BYTE *)(v19 + 57);
-      v26.m_userName[10] = *(_BYTE *)(v19 + 58);
-      v26.m_userName[11] = *(_BYTE *)(v19 + 59);
-      v26.m_userName[12] = *(_BYTE *)(v19 + 60);
-      v26.m_userName[13] = *(_BYTE *)(v19 + 61);
-      v26.m_userName[14] = *(_BYTE *)(v19 + 62);
-      v26.m_userName[15] = *(_BYTE *)(v19 + 63);
-      v26.m_userName[16] = *(_BYTE *)(v19 + 64);
-      v26.m_userName[17] = *(_BYTE *)(v19 + 65);
-      v26.m_userName[18] = *(_BYTE *)(v19 + 66);
-      v26.m_userName[19] = *(_BYTE *)(v19 + 67);
-      v26.m_userName[20] = *(_BYTE *)(v19 + 68);
-      v26.m_userName[21] = *(_BYTE *)(v19 + 69);
-      v26.m_userName[22] = *(_BYTE *)(v19 + 70);
-      v26.m_userName[23] = *(_BYTE *)(v19 + 71);
-      v26.m_userName[24] = *(_BYTE *)(v19 + 72);
-      v26.m_userName[25] = *(_BYTE *)(v19 + 73);
-      v26.m_userName[26] = *(_BYTE *)(v19 + 74);
-      v26.m_userName[27] = *(_BYTE *)(v19 + 75);
-      v26.m_userName[28] = *(_BYTE *)(v19 + 76);
-      v26.m_userName[29] = *(_BYTE *)(v19 + 77);
-      v26.m_userName[30] = *(_BYTE *)(v19 + 78);
-      v26.m_userName[31] = *(_BYTE *)(v19 + 79);
-      v26.m_userName[32] = *(_BYTE *)(v19 + 80);
-      v26.m_userName[33] = *(_BYTE *)(v19 + 81);
-      v26.m_userName[34] = *(_BYTE *)(v19 + 82);
-      v26.m_userName[35] = *(_BYTE *)(v19 + 83);
-      v26.m_userName[36] = *(_BYTE *)(v19 + 84);
-      v26.m_userName[37] = *(_BYTE *)(v19 + 85);
-      v26.m_userName[38] = *(_BYTE *)(v19 + 86);
-      v26.m_userName[39] = *(_BYTE *)(v19 + 87);
-      v26.m_userName[40] = *(_BYTE *)(v19 + 88);
-      v26.m_userName[41] = *(_BYTE *)(v19 + 89);
-      v26.m_userName[42] = *(_BYTE *)(v19 + 90);
-      v26.m_userName[43] = *(_BYTE *)(v19 + 91);
-      v26.m_userName[44] = *(_BYTE *)(v19 + 92);
-      v26.m_userName[45] = *(_BYTE *)(v19 + 93);
-      v26.m_userName[46] = *(_BYTE *)(v19 + 94);
-      v26.m_userName[47] = *(_BYTE *)(v19 + 95);
-      v26.m_userName[48] = *(_BYTE *)(v19 + 96);
-      v26.m_userName[49] = *(_BYTE *)(v19 + 97);
-      v26.m_userName[50] = *(_BYTE *)(v19 + 98);
-      v26.m_userName[51] = *(_BYTE *)(v19 + 99);
-      v26.m_userName[52] = *(_BYTE *)(v19 + 100);
-      v26.m_userName[53] = *(_BYTE *)(v19 + 101);
-      v26.m_userName[54] = *(_BYTE *)(v19 + 102);
-      v26.m_userName[55] = *(_BYTE *)(v19 + 103);
-      v26.m_subscribedTimestamp = *(_DWORD *)(v19 + 104);
+      v13 = *((_QWORD *)&cachedCallback->getMembersResponse.__vftable + 2) + ((unsigned __int64)i << 7);
+      bdReferencable::operator=((bdReferencable *)&v20._bytes_20[*(int *)(*((_QWORD *)&v20.__vftable + 1) + 4i64) - 24], (const bdReferencable *)(*(int *)(*(_QWORD *)(v13 + 8) + 4i64) + v13 + 8));
+      bdReferencable::operator=((bdReferencable *)&v20._bytes_20[*(int *)(*((_QWORD *)&v20.__vftable + 3) + 4i64) - 8], (const bdReferencable *)(*(int *)(*(_QWORD *)(v13 + 24) + 4i64) + v13 + 24));
+      v14 = *(_QWORD *)(v13 + 32);
+      *(_QWORD *)v20._bytes_20 = v14;
+      v20._bytes_20[8] = *(_BYTE *)(v13 + 40);
+      v20._bytes_20[9] = *(_BYTE *)(v13 + 41);
+      v20._bytes_20[10] = *(_BYTE *)(v13 + 42);
+      v20._bytes_20[11] = *(_BYTE *)(v13 + 43);
+      v20._bytes_20[12] = *(_BYTE *)(v13 + 44);
+      v20._bytes_20[13] = *(_BYTE *)(v13 + 45);
+      v20._bytes_20[14] = *(_BYTE *)(v13 + 46);
+      v20._bytes_20[15] = *(_BYTE *)(v13 + 47);
+      v20.m_userName[0] = *(_BYTE *)(v13 + 48);
+      v20.m_userName[1] = *(_BYTE *)(v13 + 49);
+      v20.m_userName[2] = *(_BYTE *)(v13 + 50);
+      v20.m_userName[3] = *(_BYTE *)(v13 + 51);
+      v20.m_userName[4] = *(_BYTE *)(v13 + 52);
+      v20.m_userName[5] = *(_BYTE *)(v13 + 53);
+      v20.m_userName[6] = *(_BYTE *)(v13 + 54);
+      v20.m_userName[7] = *(_BYTE *)(v13 + 55);
+      v20.m_userName[8] = *(_BYTE *)(v13 + 56);
+      v20.m_userName[9] = *(_BYTE *)(v13 + 57);
+      v20.m_userName[10] = *(_BYTE *)(v13 + 58);
+      v20.m_userName[11] = *(_BYTE *)(v13 + 59);
+      v20.m_userName[12] = *(_BYTE *)(v13 + 60);
+      v20.m_userName[13] = *(_BYTE *)(v13 + 61);
+      v20.m_userName[14] = *(_BYTE *)(v13 + 62);
+      v20.m_userName[15] = *(_BYTE *)(v13 + 63);
+      v20.m_userName[16] = *(_BYTE *)(v13 + 64);
+      v20.m_userName[17] = *(_BYTE *)(v13 + 65);
+      v20.m_userName[18] = *(_BYTE *)(v13 + 66);
+      v20.m_userName[19] = *(_BYTE *)(v13 + 67);
+      v20.m_userName[20] = *(_BYTE *)(v13 + 68);
+      v20.m_userName[21] = *(_BYTE *)(v13 + 69);
+      v20.m_userName[22] = *(_BYTE *)(v13 + 70);
+      v20.m_userName[23] = *(_BYTE *)(v13 + 71);
+      v20.m_userName[24] = *(_BYTE *)(v13 + 72);
+      v20.m_userName[25] = *(_BYTE *)(v13 + 73);
+      v20.m_userName[26] = *(_BYTE *)(v13 + 74);
+      v20.m_userName[27] = *(_BYTE *)(v13 + 75);
+      v20.m_userName[28] = *(_BYTE *)(v13 + 76);
+      v20.m_userName[29] = *(_BYTE *)(v13 + 77);
+      v20.m_userName[30] = *(_BYTE *)(v13 + 78);
+      v20.m_userName[31] = *(_BYTE *)(v13 + 79);
+      v20.m_userName[32] = *(_BYTE *)(v13 + 80);
+      v20.m_userName[33] = *(_BYTE *)(v13 + 81);
+      v20.m_userName[34] = *(_BYTE *)(v13 + 82);
+      v20.m_userName[35] = *(_BYTE *)(v13 + 83);
+      v20.m_userName[36] = *(_BYTE *)(v13 + 84);
+      v20.m_userName[37] = *(_BYTE *)(v13 + 85);
+      v20.m_userName[38] = *(_BYTE *)(v13 + 86);
+      v20.m_userName[39] = *(_BYTE *)(v13 + 87);
+      v20.m_userName[40] = *(_BYTE *)(v13 + 88);
+      v20.m_userName[41] = *(_BYTE *)(v13 + 89);
+      v20.m_userName[42] = *(_BYTE *)(v13 + 90);
+      v20.m_userName[43] = *(_BYTE *)(v13 + 91);
+      v20.m_userName[44] = *(_BYTE *)(v13 + 92);
+      v20.m_userName[45] = *(_BYTE *)(v13 + 93);
+      v20.m_userName[46] = *(_BYTE *)(v13 + 94);
+      v20.m_userName[47] = *(_BYTE *)(v13 + 95);
+      v20.m_userName[48] = *(_BYTE *)(v13 + 96);
+      v20.m_userName[49] = *(_BYTE *)(v13 + 97);
+      v20.m_userName[50] = *(_BYTE *)(v13 + 98);
+      v20.m_userName[51] = *(_BYTE *)(v13 + 99);
+      v20.m_userName[52] = *(_BYTE *)(v13 + 100);
+      v20.m_userName[53] = *(_BYTE *)(v13 + 101);
+      v20.m_userName[54] = *(_BYTE *)(v13 + 102);
+      v20.m_userName[55] = *(_BYTE *)(v13 + 103);
+      v20.m_subscribedTimestamp = *(_DWORD *)(v13 + 104);
     }
-    if ( v20 )
-      OnlineChat::AddMemberToChat(v15, v20, &v26._bytes_20[8], v20 == cachedCallback->dwChannelInfo.m_adminID);
-    bdChannelMember::~bdChannelMember((bdChannelMember *)(&v26.m_subscribedTimestamp + 2));
-    bdReferencable::~bdReferencable((bdReferencable *)(&v26.m_subscribedTimestamp + 2));
+    if ( v14 )
+      OnlineChat::AddMemberToChat(v9, v14, &v20._bytes_20[8], v14 == cachedCallback->dwChannelInfo.m_adminID);
+    bdChannelMember::~bdChannelMember((bdChannelMember *)(&v20.m_subscribedTimestamp + 2));
+    bdReferencable::~bdReferencable((bdReferencable *)(&v20.m_subscribedTimestamp + 2));
   }
   Xuid = Live_GetXuid(result, controllerIndex);
-  v22 = XUID::ToUint64(Xuid);
+  v16 = XUID::ToUint64(Xuid);
   LocalClientName = Live_GetLocalClientName(controllerIndex);
-  OnlineChat::AddMemberToChat(v15, v22, LocalClientName, 0);
+  OnlineChat::AddMemberToChat(v9, v16, LocalClientName, 0);
   OnlineChatManager::ProcessCreateCallback(&OnlineChatManager::s_instance, controllerIndex, cachedCallback, 1, 0);
 }
 
@@ -3569,42 +3531,27 @@ void OnlineChatManager::LeaveChatCallback(GenericTask *task, eTaskManagerTaskSta
   OnlineChat *m_appData; 
   int v5; 
   int listCount; 
+  OnlineChatManager::PendingList *v7; 
   char *fmt; 
-  __int128 v15; 
 
   m_appData = (OnlineChat *)task->m_appData;
   if ( m_appData )
   {
     v5 = 0;
-    _RBP = &OnlineChatManager::s_instance;
     if ( OnlineChatManager::s_instance.m_pendingLists[1].listCount > 0 )
     {
       listCount = OnlineChatManager::s_instance.m_pendingLists[1].listCount;
-      _RCX = &OnlineChatManager::s_instance.m_pendingLists[1];
-      while ( 1 )
+      v7 = &OnlineChatManager::s_instance.m_pendingLists[1];
+      while ( v7->list[0].m_id.m_id != m_appData->m_chatId.m_id || (unsigned int)*(_QWORD *)&v7->list[0].m_type != m_appData->m_chatType )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rcx]
-          vmovq   rax, xmm0
-          vmovups [rsp+48h+var_18], xmm0
-        }
-        if ( _RAX == m_appData->m_chatId.m_id && DWORD2(v15) == m_appData->m_chatType )
-          break;
         ++v5;
-        _RCX = (OnlineChatManager::PendingList *)((char *)_RCX + 16);
+        v7 = (OnlineChatManager::PendingList *)((char *)v7 + 16);
         listCount = OnlineChatManager::s_instance.m_pendingLists[1].listCount;
         if ( v5 >= OnlineChatManager::s_instance.m_pendingLists[1].listCount )
           goto LABEL_12;
       }
       OnlineChatManager::s_instance.m_pendingLists[1].listCount = listCount - 1;
-      _RCX = 2i64 * listCount;
-      _RAX = 2i64 * v5;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+rcx*8+158h]
-        vmovups xmmword ptr [rbp+rax*8+168h], xmm0
-      }
+      *(_OWORD *)&OnlineChatManager::s_instance.m_throttleMessageQueue[4 * v5 - 74] = *(_OWORD *)&OnlineChatManager::s_instance.m_pendingLists[0].list[listCount + 17].m_type;
       OnlineChatManager::s_instance.m_pendingLists[1].list[OnlineChatManager::s_instance.m_pendingLists[1].listCount].m_id.m_id = 0i64;
     }
 LABEL_12:
@@ -4661,21 +4608,17 @@ void OnlineChatManager::TrackPending(OnlineChatManager *this, const OnlineChatMa
 {
   __int64 v4; 
   __int64 v8; 
-  __int128 v11; 
+  OnlineChatManager::PendingChat v9; 
 
   v4 = pendingType;
-  _RDI = this;
   if ( OnlineChatManager::IsChatPending(this, pendingType, chatId, chatType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_chat_manager.cpp", 1431, ASSERT_TYPE_ASSERT, "(!IsChatPending( pendingType, chatId, chatType ))", (const char *)&queryFormat, "!IsChatPending( pendingType, chatId, chatType )") )
     __debugbreak();
   v8 = v4;
-  if ( _RDI->m_pendingLists[v8].listCount >= 0x12u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_chat_manager.cpp", 1435, ASSERT_TYPE_ASSERT, "(m_pendingLists[pendingTypeIndex].listCount < ( sizeof( *array_counter( m_pendingLists[pendingTypeIndex].list ) ) + 0 ))", (const char *)&queryFormat, "m_pendingLists[pendingTypeIndex].listCount < ARRAY_COUNT( m_pendingLists[pendingTypeIndex].list )") )
+  if ( this->m_pendingLists[v8].listCount >= 0x12u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_chat_manager.cpp", 1435, ASSERT_TYPE_ASSERT, "(m_pendingLists[pendingTypeIndex].listCount < ( sizeof( *array_counter( m_pendingLists[pendingTypeIndex].list ) ) + 0 ))", (const char *)&queryFormat, "m_pendingLists[pendingTypeIndex].listCount < ARRAY_COUNT( m_pendingLists[pendingTypeIndex].list )") )
     __debugbreak();
-  *(OnlineChatId *)&v11 = (OnlineChatId)chatId->m_id;
-  SDWORD2(v11) = *chatType;
-  __asm { vmovups xmm0, [rsp+48h+var_18] }
-  _RAX = v8 * 296 + 16 * (_RDI->m_pendingLists[v8].listCount + 4i64);
-  __asm { vmovups xmmword ptr [rax+rdi], xmm0 }
-  ++_RDI->m_pendingLists[v8].listCount;
+  v9.m_id = (OnlineChatId)chatId->m_id;
+  v9.m_type = *chatType;
+  *(OnlineChatManager::PendingChat *)((char *)&this->m_pendingLists[0].list[this->m_pendingLists[v8].listCount++] + v8 * 296) = v9;
 }
 
 /*

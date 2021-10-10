@@ -182,6 +182,7 @@ G_RagdollConstraintEntity_Spawn
 */
 gentity_s *G_RagdollConstraintEntity_Spawn(gentity_s *corpseEnt, hitLocation_t hitLoc, scr_string_t boneName, const vec3_t *boneOffset, bool useSpikeVFX)
 {
+  __int128 v5; 
   gentity_s *v10; 
   scrContext_t *v11; 
   const char *BoneNameForHitLocation; 
@@ -191,25 +192,25 @@ gentity_s *G_RagdollConstraintEntity_Spawn(gentity_s *corpseEnt, hitLocation_t h
   scrContext_t *v17; 
   const char *v18; 
   const char *v19; 
-  unsigned __int8 v33; 
-  __int64 v35; 
-  __int64 v36; 
+  __int64 v24; 
+  __int64 v25; 
   vec3_t outBoneSpacePos; 
   vec3_t outWorldPos; 
+  __int128 v28; 
 
   if ( !corpseEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ragdollconstraintentity.cpp", 13, ASSERT_TYPE_ASSERT, "(corpseEnt)", (const char *)&queryFormat, "corpseEnt") )
     __debugbreak();
   if ( corpseEnt->s.number >= 0x7FFu )
   {
-    LODWORD(v35) = corpseEnt->s.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ragdollconstraintentity.cpp", 14, ASSERT_TYPE_ASSERT, "(unsigned)( corpseEnt->s.number ) < (unsigned)( ENTITYNUM_NONE )", "corpseEnt->s.number doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v35, 2047) )
+    LODWORD(v24) = corpseEnt->s.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ragdollconstraintentity.cpp", 14, ASSERT_TYPE_ASSERT, "(unsigned)( corpseEnt->s.number ) < (unsigned)( ENTITYNUM_NONE )", "corpseEnt->s.number doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v24, 2047) )
       __debugbreak();
   }
   if ( (unsigned int)hitLoc >= HITLOC_NUM )
   {
-    LODWORD(v36) = 22;
-    LODWORD(v35) = hitLoc;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ragdollconstraintentity.cpp", 15, ASSERT_TYPE_ASSERT, "(unsigned)( hitLoc ) < (unsigned)( HITLOC_NUM )", "hitLoc doesn't index HITLOC_NUM\n\t%i not in [0, %i)", v35, v36) )
+    LODWORD(v25) = 22;
+    LODWORD(v24) = hitLoc;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ragdollconstraintentity.cpp", 15, ASSERT_TYPE_ASSERT, "(unsigned)( hitLoc ) < (unsigned)( HITLOC_NUM )", "hitLoc doesn't index HITLOC_NUM\n\t%i not in [0, %i)", v24, v25) )
       __debugbreak();
   }
   if ( !boneName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ragdollconstraintentity.cpp", 16, ASSERT_TYPE_ASSERT, "(boneName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "boneName != NULL_SCR_STRING") )
@@ -233,34 +234,14 @@ gentity_s *G_RagdollConstraintEntity_Spawn(gentity_s *corpseEnt, hitLocation_t h
       {
         v10->s.otherEntityNum = corpseEnt->s.number;
         v10->s.lerp.u.actor.species = hitLoc;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0B8h+outBoneSpacePos]
-          vaddss  xmm2, xmm0, cs:__real@3f000000
-          vmovaps [rsp+0B8h+var_48], xmm7
-          vxorps  xmm7, xmm7, xmm7
-          vroundss xmm0, xmm7, xmm2, 1
-          vcvttss2si ecx, xmm0; val
-        }
-        v10->s.lerp.u.actor.unittype = I_clamp(_ECX, -253, 254);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0B8h+outBoneSpacePos+4]
-          vaddss  xmm2, xmm0, cs:__real@3f000000
-          vroundss xmm0, xmm7, xmm2, 1
-          vcvttss2si ecx, xmm0; val
-        }
-        v10->s.lerp.u.actor.stepMove = I_clamp(_ECX, -253, 254);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0B8h+outBoneSpacePos+8]
-          vaddss  xmm2, xmm0, cs:__real@3f000000
-          vroundss xmm0, xmm7, xmm2, 1
-          vcvttss2si ecx, xmm0; val
-        }
-        v33 = I_clamp(_ECX, -253, 254);
-        __asm { vmovaps xmm7, [rsp+0B8h+var_48] }
-        v10->s.lerp.u.actor.flags = v33;
+        v28 = v5;
+        _XMM7 = 0i64;
+        __asm { vroundss xmm0, xmm7, xmm2, 1 }
+        v10->s.lerp.u.actor.unittype = I_clamp((int)*(float *)&_XMM0, -253, 254);
+        __asm { vroundss xmm0, xmm7, xmm2, 1 }
+        v10->s.lerp.u.actor.stepMove = I_clamp((int)*(float *)&_XMM0, -253, 254);
+        __asm { vroundss xmm0, xmm7, xmm2, 1 }
+        v10->s.lerp.u.actor.flags = I_clamp((int)*(float *)&_XMM0, -253, 254);
         v10->s.lerp.u.anonymous.data[2] = useSpikeVFX;
         if ( corpseEnt->c.item[0].ammoCount != 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_ragdollconstraintentity.cpp", 72, ASSERT_TYPE_ASSERT, "(corpseEnt->c.corpse.ragdollConstraintEnt == ENTITYNUM_NONE)", (const char *)&queryFormat, "corpseEnt->c.corpse.ragdollConstraintEnt == ENTITYNUM_NONE") )
           __debugbreak();

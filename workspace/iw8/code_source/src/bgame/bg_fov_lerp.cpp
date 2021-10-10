@@ -300,65 +300,66 @@ BG_FovLerp_GetTargetFov
 */
 double BG_FovLerp_GetTargetFov(const int presetIndex)
 {
-  int v5; 
+  double result; 
+  int v3; 
 
   if ( (unsigned int)(presetIndex - 1) > 0xE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_fov_lerp.cpp", 55, ASSERT_TYPE_ASSERT, "((presetIndex >= 1) && (presetIndex <= 15))", (const char *)&queryFormat, "(presetIndex >= 1) && (presetIndex <= NUM_FOV_LERP_PRESETS)") )
     __debugbreak();
   switch ( presetIndex )
   {
     case 1:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset1_targetFov, "fovLerpPreset1_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset1_targetFov, "fovLerpPreset1_targetFov");
       break;
     case 2:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset2_targetFov, "fovLerpPreset2_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset2_targetFov, "fovLerpPreset2_targetFov");
       break;
     case 3:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset3_targetFov, "fovLerpPreset3_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset3_targetFov, "fovLerpPreset3_targetFov");
       break;
     case 4:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset4_targetFov, "fovLerpPreset4_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset4_targetFov, "fovLerpPreset4_targetFov");
       break;
     case 5:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset5_targetFov, "fovLerpPreset5_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset5_targetFov, "fovLerpPreset5_targetFov");
       break;
     case 6:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset6_targetFov, "fovLerpPreset6_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset6_targetFov, "fovLerpPreset6_targetFov");
       break;
     case 7:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset7_targetFov, "fovLerpPreset7_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset7_targetFov, "fovLerpPreset7_targetFov");
       break;
     case 8:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset8_targetFov, "fovLerpPreset8_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset8_targetFov, "fovLerpPreset8_targetFov");
       break;
     case 9:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset9_targetFov, "fovLerpPreset9_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset9_targetFov, "fovLerpPreset9_targetFov");
       break;
     case 10:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset10_targetFov, "fovLerpPreset10_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset10_targetFov, "fovLerpPreset10_targetFov");
       break;
     case 11:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset11_targetFov, "fovLerpPreset11_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset11_targetFov, "fovLerpPreset11_targetFov");
       break;
     case 12:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset12_targetFov, "fovLerpPreset12_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset12_targetFov, "fovLerpPreset12_targetFov");
       break;
     case 13:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset13_targetFov, "fovLerpPreset13_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset13_targetFov, "fovLerpPreset13_targetFov");
       break;
     case 14:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset14_targetFov, "fovLerpPreset14_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset14_targetFov, "fovLerpPreset14_targetFov");
       break;
     case 15:
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset15_targetFov, "fovLerpPreset15_targetFov");
+      result = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_fovLerpPreset15_targetFov, "fovLerpPreset15_targetFov");
       break;
     default:
-      v5 = presetIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_fov_lerp.cpp", 90, ASSERT_TYPE_ASSERT, "(0)", "%s\n\tBG_GetFovLerpTargetFov: Unhandled preset index %d", "0", v5) )
+      v3 = presetIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_fov_lerp.cpp", 90, ASSERT_TYPE_ASSERT, "(0)", "%s\n\tBG_GetFovLerpTargetFov: Unhandled preset index %d", "0", v3) )
         __debugbreak();
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      result = 0.0;
       break;
   }
-  return *(double *)&_XMM0;
+  return result;
 }
 
 /*

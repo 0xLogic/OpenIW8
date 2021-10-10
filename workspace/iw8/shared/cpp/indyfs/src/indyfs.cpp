@@ -415,20 +415,23 @@ __int64 __fastcall indyfs_filesize(IndyFsFile *file, double _XMM1_8, double _XMM
 {
   unsigned __int64 chunkCount; 
   __int64 v4; 
+  __int64 v6; 
   unsigned __int64 v7; 
-  __int64 v21; 
   IndyFsChunk *chunks; 
+  __int64 v9; 
+  __int64 v21; 
+  IndyFsChunk *v22; 
   __int64 v23; 
   unsigned __int64 v24; 
 
   chunkCount = file->chunkCount;
   v4 = 0i64;
-  _R10 = 0i64;
+  v6 = 0i64;
   v7 = 0i64;
   if ( chunkCount >= 4 )
   {
-    _R9 = file->chunks;
-    _RAX = 0i64;
+    chunks = file->chunks;
+    v9 = 0i64;
     __asm
     {
       vpxor   xmm1, xmm1, xmm1
@@ -436,16 +439,16 @@ __int64 __fastcall indyfs_filesize(IndyFsFile *file, double _XMM1_8, double _XMM
     }
     do
     {
+      _XMM0 = chunks[v9].size;
       __asm
       {
-        vmovq   xmm0, qword ptr [rax+r9+18h]
         vmovhpd xmm0, xmm0, qword ptr [rax+r9+38h]
         vpaddq  xmm1, xmm0, xmm1
-        vmovq   xmm0, qword ptr [rax+r9+58h]
-        vmovhpd xmm0, xmm0, qword ptr [rax+r9+78h]
       }
+      _XMM0 = chunks[v9 + 2].size;
+      __asm { vmovhpd xmm0, xmm0, qword ptr [rax+r9+78h] }
       v7 += 4i64;
-      _RAX += 128i64;
+      v9 += 4i64;
       __asm { vpaddq  xmm2, xmm0, xmm2 }
     }
     while ( v7 < (chunkCount & 0xFFFFFFFFFFFFFFFCui64) );
@@ -454,30 +457,30 @@ __int64 __fastcall indyfs_filesize(IndyFsFile *file, double _XMM1_8, double _XMM
       vpaddq  xmm1, xmm2, xmm1
       vpsrldq xmm0, xmm1, 8
       vpaddq  xmm1, xmm1, xmm0
-      vmovq   r10, xmm1
     }
+    v6 = _XMM1;
   }
   v21 = 0i64;
   if ( v7 >= chunkCount )
-    return _R10;
+    return v6;
   if ( chunkCount - v7 >= 2 )
   {
-    chunks = file->chunks;
+    v22 = file->chunks;
     v23 = v7;
     v24 = ((chunkCount - v7 - 2) >> 1) + 1;
     v7 += 2 * v24;
     do
     {
-      v4 += chunks[v23].size;
-      v21 += chunks[v23 + 1].size;
+      v4 += v22[v23].size;
+      v21 += v22[v23 + 1].size;
       v23 += 2i64;
       --v24;
     }
     while ( v24 );
   }
   if ( v7 < chunkCount )
-    _R10 += file->chunks[v7].size;
-  return _R10 + v21 + v4;
+    v6 += file->chunks[v7].size;
+  return v6 + v21 + v4;
 }
 
 /*
@@ -625,111 +628,104 @@ indyfs_init
 */
 __int64 indyfs_init(const char *storageServerUrl, const char *localFileCachePath, void *memoryBlock, unsigned __int64 memoryBlockSize, const char *imageFilePath, const char *workingDirectoryInImage, unsigned int fileCount, unsigned __int64 chunkCount, const char *profilerOutputFile, const char *statisticsOutputFile, const IndyFsInitOptions *options)
 {
-  __int64 v15; 
-  __int64 v16; 
-  __int64 v17; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
+  unsigned __int64 v14; 
+  unsigned __int64 v15; 
+  IndyFsState *v16; 
+  char *v17; 
   unsigned __int64 v18; 
-  unsigned __int64 v19; 
-  IndyFsState *v20; 
-  char *v21; 
-  unsigned __int64 v22; 
-  IndyFsFileCache *v23; 
+  IndyFsFileCache *v19; 
   IndyFsArkVersion arkVersion; 
   IndyFsLocalCaching cachingBehavior; 
   int decompressionScratchPadCount; 
-  unsigned int v27; 
-  IndyFsState *v28; 
-  bool *v29; 
-  IndyFsState *v30; 
-  __int64 v31; 
-  __int64 v32; 
-  IndyFsFile *v33; 
-  char *v34; 
-  size_t v35; 
+  unsigned int v23; 
+  IndyFsState *v24; 
+  bool *v25; 
+  IndyFsState *v26; 
+  __int64 v27; 
+  __int64 v28; 
+  IndyFsFile *v29; 
+  char *v30; 
+  size_t v31; 
+  unsigned int v32; 
+  IndyFsState *v33; 
+  __int64 v34; 
+  IndyFsFile *v35; 
   unsigned int v36; 
-  IndyFsState *v37; 
-  __int64 v38; 
-  IndyFsFile *v39; 
-  unsigned int v40; 
-  size_t v41; 
-  unsigned __int64 v42; 
-  char *v43; 
-  unsigned __int64 v44; 
-  void **v45; 
+  size_t v37; 
+  unsigned __int64 v38; 
+  char *v39; 
+  unsigned __int64 v40; 
+  void **v41; 
   int httpQueueThreadsToCreate; 
-  IndyFsState *v47; 
-  int v48; 
+  IndyFsState *v43; 
+  int v44; 
   __int64 ioQueueThreadsToCreate; 
-  int v50; 
+  int v46; 
+  __int64 v47; 
+  __int64 v49; 
+  IndyFsState *v50; 
   __int64 v51; 
+  unsigned __int64 v52; 
   __int64 v53; 
-  IndyFsState *v54; 
-  __int64 v55; 
-  unsigned __int64 v56; 
-  __int64 v57; 
-  unsigned __int64 v58; 
+  unsigned __int64 v54; 
   int fileHandleCount[8]; 
   unsigned __int64 bufferSize[2]; 
-  __int64 v65; 
+  __int64 v61; 
   unsigned int arg; 
   char _Buffer[60]; 
-  IndyFsScopedEvent v68; 
+  IndyFsScopedEvent v64; 
   char dest; 
-  char v70[271]; 
+  char v66[271]; 
 
-  _R15 = options;
   indyfs_time_init();
-  IndyFsScopedEvent::IndyFsScopedEvent(&v68, "IndyFs", "Init");
+  IndyFsScopedEvent::IndyFsScopedEvent(&v64, "IndyFs", "Init");
   if ( !*(_QWORD *)&options->arkVersion )
   {
     indyfs_log_message(Error, "Failed to init IndyFs: Invalid cachingBehavior option. PartialDownload_NoCaching can not be used with Ark V1");
 LABEL_69:
-    LODWORD(v15) = -1;
+    LODWORD(v11) = -1;
     goto LABEL_70;
   }
-  __asm
+  *(__m256i *)fileHandleCount = *(__m256i *)&options->fileCacheFileHandleCount;
+  *(_OWORD *)bufferSize = *(_OWORD *)&options->statisticsEnabled;
+  v61 = *(_QWORD *)&options->arkVersion;
+  v11 = 0i64;
+  v52 = 0i64;
+  if ( HIDWORD(v61) == 1 )
+    v52 = indyfs_filecache_size(fileHandleCount[0]);
+  v12 = 0i64;
+  if ( !(_DWORD)v61 )
+    v12 = fileHandleCount[1] + (__int64)(131076 * fileHandleCount[1]);
+  v53 = fileCount;
+  v54 = 32 * chunkCount;
+  v13 = 0i64;
+  if ( HIDWORD(v61) == 1 )
+    v13 = 8i64 * fileHandleCount[2];
+  v14 = indyfs_profiler_size(fileHandleCount[4], *(unsigned __int64 *)&fileHandleCount[6]);
+  v15 = v12 + v53 * 280 + v54 + v13 + 8i64 * fileHandleCount[3] + indyfs_statistics_size(bufferSize[0], bufferSize[1]) + v14 + v52 + 10496;
+  if ( memoryBlockSize < v15 )
   {
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups ymmword ptr [rbp+390h+fileHandleCount], ymm0
-    vmovups xmm1, xmmword ptr [r15+20h]
-    vmovups xmmword ptr [rbp+390h+bufferSize], xmm1
-    vmovsd  xmm0, qword ptr [r15+30h]
-    vmovsd  [rbp+390h+var_3C0], xmm0
-  }
-  v15 = 0i64;
-  v56 = 0i64;
-  if ( HIDWORD(v65) == 1 )
-    v56 = indyfs_filecache_size(fileHandleCount[0]);
-  v16 = 0i64;
-  if ( !(_DWORD)v65 )
-    v16 = fileHandleCount[1] + (__int64)(131076 * fileHandleCount[1]);
-  v57 = fileCount;
-  v58 = 32 * chunkCount;
-  v17 = 0i64;
-  if ( HIDWORD(v65) == 1 )
-    v17 = 8i64 * fileHandleCount[2];
-  v18 = indyfs_profiler_size(fileHandleCount[4], *(unsigned __int64 *)&fileHandleCount[6]);
-  v19 = v16 + v57 * 280 + v58 + v17 + 8i64 * fileHandleCount[3] + indyfs_statistics_size(bufferSize[0], bufferSize[1]) + v18 + v56 + 10496;
-  if ( memoryBlockSize < v19 )
-  {
-    indyfs_log_message(Error, "Failed to init IndyFs: Memory block too small.\nRequired: %zu  Given: %zu", v19, memoryBlockSize);
+    indyfs_log_message(Error, "Failed to init IndyFs: Memory block too small.\nRequired: %zu  Given: %zu", v15, memoryBlockSize);
     goto LABEL_69;
   }
-  v20 = (IndyFsState *)memoryBlock;
+  v16 = (IndyFsState *)memoryBlock;
   g_indyfs = (IndyFsState *)memoryBlock;
-  v21 = (char *)memoryBlock + 10496;
+  v17 = (char *)memoryBlock + 10496;
   if ( localFileCachePath && options->cachingBehavior )
   {
-    v22 = indyfs_filecache_size(options->fileCacheFileHandleCount);
-    v23 = indyfs_filecache_init(localFileCachePath, options->fileCacheFileHandleCount, v21, v22);
-    v20 = g_indyfs;
-    g_indyfs->fileCache = v23;
-    if ( !v23 )
+    v18 = indyfs_filecache_size(options->fileCacheFileHandleCount);
+    v19 = indyfs_filecache_init(localFileCachePath, options->fileCacheFileHandleCount, v17, v18);
+    v16 = g_indyfs;
+    g_indyfs->fileCache = v19;
+    if ( !v19 )
     {
       indyfs_log_message(Error, "Failed to initialize FileCache");
       goto LABEL_69;
     }
-    v21 += v22;
+    v17 += v18;
   }
   else
   {
@@ -737,64 +733,64 @@ LABEL_69:
   }
   if ( storageServerUrl )
   {
-    if ( parse_storage_server_url(storageServerUrl, &v20->storageServerInfo) )
+    if ( parse_storage_server_url(storageServerUrl, &v16->storageServerInfo) )
       goto LABEL_69;
-    v20 = g_indyfs;
+    v16 = g_indyfs;
   }
   else
   {
-    memset_0(v20, 0, 0x60Cui64);
+    memset_0(v16, 0, 0x60Cui64);
   }
   arkVersion = options->arkVersion;
-  v20->storageServerInfo.arkVersion = arkVersion;
+  v16->storageServerInfo.arkVersion = arkVersion;
   cachingBehavior = options->cachingBehavior;
-  v20->cachingBehavior = cachingBehavior;
-  indyfs_io_queue_init(&v20->ioTaskQueue);
+  v16->cachingBehavior = cachingBehavior;
+  indyfs_io_queue_init(&v16->ioTaskQueue);
   indyfs_http_queue_init(&g_indyfs->httpTaskQueue);
   if ( arkVersion == V2 )
   {
     options->decompressionScratchPadCount = 0;
     decompressionScratchPadCount = 0;
-    v27 = 0;
+    v23 = 0;
   }
   else
   {
     decompressionScratchPadCount = options->decompressionScratchPadCount;
-    v27 = decompressionScratchPadCount;
+    v23 = decompressionScratchPadCount;
   }
-  v28 = g_indyfs;
-  g_indyfs->decompressionScratchPadPool = v21;
-  v28->decompressionScratchPadCount = decompressionScratchPadCount;
-  v29 = (bool *)&v21[131076 * decompressionScratchPadCount];
-  indyfs_mutex_init((LPCRITICAL_SECTION)&v28->decompressionScratchPadLock);
+  v24 = g_indyfs;
+  g_indyfs->decompressionScratchPadPool = v17;
+  v24->decompressionScratchPadCount = decompressionScratchPadCount;
+  v25 = (bool *)&v17[131076 * decompressionScratchPadCount];
+  indyfs_mutex_init((LPCRITICAL_SECTION)&v24->decompressionScratchPadLock);
   indyfs_condition_variable_init((PCONDITION_VARIABLE)&g_indyfs->decompressionScratchPadsNotAllClaimed);
-  v30 = g_indyfs;
-  g_indyfs->decompressionScratchPadsInUse = v29;
+  v26 = g_indyfs;
+  g_indyfs->decompressionScratchPadsInUse = v25;
   if ( decompressionScratchPadCount > 0 )
   {
-    v31 = 0i64;
-    v32 = v27;
+    v27 = 0i64;
+    v28 = v23;
     do
     {
-      v30->decompressionScratchPadsInUse[v31++] = 0;
-      --v32;
+      v26->decompressionScratchPadsInUse[v27++] = 0;
+      --v28;
     }
-    while ( v32 );
-    decompressionScratchPadCount = v27;
+    while ( v28 );
+    decompressionScratchPadCount = v23;
   }
-  v33 = (IndyFsFile *)&v29[decompressionScratchPadCount];
-  v30->files = v33;
-  v30->chunks = (IndyFsChunk *)&v33[v57];
-  v34 = &v33[v57].path[v58];
-  if ( indyfs_image_parse(&v30->image, v33, fileCount, (IndyFsChunk *)&v33[v57], chunkCount, imageFilePath) )
+  v29 = (IndyFsFile *)&v25[decompressionScratchPadCount];
+  v26->files = v29;
+  v26->chunks = (IndyFsChunk *)&v29[v53];
+  v30 = &v29[v53].path[v54];
+  if ( indyfs_image_parse(&v26->image, v29, fileCount, (IndyFsChunk *)&v29[v53], chunkCount, imageFilePath) )
   {
     indyfs_log_message(Error, "Failed to parse image");
     goto LABEL_69;
   }
   if ( workingDirectoryInImage && *workingDirectoryInImage )
   {
-    v35 = indyfs_strlcpy(&dest, workingDirectoryInImage, 0x104ui64);
-    if ( v35 >= 0x104 )
+    v31 = indyfs_strlcpy(&dest, workingDirectoryInImage, 0x104ui64);
+    if ( v31 >= 0x104 )
     {
 LABEL_35:
       indyfs_log_message(Error, "Failed to change working directory in Image. Path too long: %s", workingDirectoryInImage);
@@ -803,57 +799,57 @@ LABEL_35:
     indyfs_path_to_unix(&dest);
     if ( dest != 47 )
     {
-      if ( ++v35 >= 0x104 )
+      if ( ++v31 >= 0x104 )
         goto LABEL_35;
-      memmove_0(v70, &dest, v35);
+      memmove_0(v66, &dest, v31);
       dest = 47;
     }
-    v36 = 0;
-    v37 = g_indyfs;
-    while ( v36 < v37->image.fileCount )
+    v32 = 0;
+    v33 = g_indyfs;
+    while ( v32 < v33->image.fileCount )
     {
-      v38 = v36;
-      v39 = &v37->image.files[v38];
-      if ( indyfs_string_startswith(v39->path, &dest) )
+      v34 = v32;
+      v35 = &v33->image.files[v34];
+      if ( indyfs_string_startswith(v35->path, &dest) )
       {
-        memmove_0(v39, &v39->path[v35], 260 - v35);
-        if ( v39->path[0] != 47 )
+        memmove_0(v35, &v35->path[v31], 260 - v31);
+        if ( v35->path[0] != 47 )
         {
-          v41 = strnlen(v39->path, 0x104ui64);
-          memmove_0(&v39->path[1], v39, v41 + 1);
-          v39->path[0] = 47;
+          v37 = strnlen(v35->path, 0x104ui64);
+          memmove_0(&v35->path[1], v35, v37 + 1);
+          v35->path[0] = 47;
         }
-        ++v36;
-        v37 = g_indyfs;
+        ++v32;
+        v33 = g_indyfs;
       }
       else
       {
-        v37 = g_indyfs;
-        v40 = g_indyfs->image.fileCount;
-        if ( v36 + 1 < v40 )
+        v33 = g_indyfs;
+        v36 = g_indyfs->image.fileCount;
+        if ( v32 + 1 < v36 )
         {
-          memmove_0(&g_indyfs->image.files[v38], &g_indyfs->image.files[v36 + 1], 280i64 * (v40 - v36 - 1));
-          v40 = v37->image.fileCount;
+          memmove_0(&g_indyfs->image.files[v34], &g_indyfs->image.files[v32 + 1], 280i64 * (v36 - v32 - 1));
+          v36 = v33->image.fileCount;
         }
-        v37->image.fileCount = v40 - 1;
+        v33->image.fileCount = v36 - 1;
       }
     }
     cachingBehavior = options->cachingBehavior;
   }
-  v42 = indyfs_profiler_size(options->profilerEnabled, options->profilerBufferSize);
-  if ( indyfs_profiler_init(options->profilerEnabled, profilerOutputFile, v34, v42) )
+  v38 = indyfs_profiler_size(options->profilerEnabled, options->profilerBufferSize);
+  if ( indyfs_profiler_init(options->profilerEnabled, profilerOutputFile, v30, v38) )
   {
     indyfs_log_message(Error, "Failed to init profiler system");
     goto LABEL_69;
   }
-  v43 = &v34[v42];
-  v44 = indyfs_statistics_size(options->statisticsEnabled, options->statisticsBufferSize);
-  if ( indyfs_statistics_init(options->statisticsEnabled, statisticsOutputFile, v43, v44) )
+  v39 = &v30[v38];
+  v40 = indyfs_statistics_size(options->statisticsEnabled, options->statisticsBufferSize);
+  if ( indyfs_statistics_init(options->statisticsEnabled, statisticsOutputFile, v39, v40) )
   {
     indyfs_log_message(Error, "Failed to init statistics system");
     goto LABEL_69;
   }
-  v45 = (void **)&v43[v44];
+  v41 = (void **)&v39[v40];
   indyfs_statistics_internal_record_caching_info(options->arkVersion, cachingBehavior);
   if ( cachingBehavior )
   {
@@ -864,33 +860,33 @@ LABEL_35:
     options->httpQueueThreadsToCreate = 0;
     httpQueueThreadsToCreate = 0;
   }
-  v47 = g_indyfs;
+  v43 = g_indyfs;
   g_indyfs->httpQueueThreadCount = httpQueueThreadsToCreate;
   if ( httpQueueThreadsToCreate > 0 )
   {
-    v47->httpQueueThreads = v45;
-    v45 += httpQueueThreadsToCreate;
-    v48 = 0;
+    v43->httpQueueThreads = v41;
+    v41 += httpQueueThreadsToCreate;
+    v44 = 0;
     while ( 1 )
     {
       fileHandleCount[0] = 0;
-      j_snprintf((char *const)&fileHandleCount[1], 0x32ui64, "IndyFs-HttpQueue-%u", (unsigned int)v48);
-      if ( indyfs_thread_create(0x10000ui64, indyfs_http_queue_thread_start, fileHandleCount, (const char *)&fileHandleCount[1], &g_indyfs->httpQueueThreads[v48]) )
+      j_snprintf((char *const)&fileHandleCount[1], 0x32ui64, "IndyFs-HttpQueue-%u", (unsigned int)v44);
+      if ( indyfs_thread_create(0x10000ui64, indyfs_http_queue_thread_start, fileHandleCount, (const char *)&fileHandleCount[1], &g_indyfs->httpQueueThreads[v44]) )
         break;
       while ( indyfs_atomic_compare_and_exchange((volatile unsigned int *)fileHandleCount, 1u, 1u) != 1 )
         indyfs_thread_yield();
-      if ( ++v48 >= options->httpQueueThreadsToCreate )
+      if ( ++v44 >= options->httpQueueThreadsToCreate )
       {
-        v47 = g_indyfs;
+        v43 = g_indyfs;
         goto LABEL_61;
       }
     }
     indyfs_http_queue_quit();
-    if ( v48 > 0 )
+    if ( v44 > 0 )
     {
       do
-        indyfs_thread_join(g_indyfs->httpQueueThreads[v15++]);
-      while ( v15 < v48 );
+        indyfs_thread_join(g_indyfs->httpQueueThreads[v11++]);
+      while ( v11 < v44 );
     }
     indyfs_http_queue_term(&g_indyfs->httpTaskQueue);
     indyfs_io_queue_term(&g_indyfs->ioTaskQueue);
@@ -899,51 +895,51 @@ LABEL_35:
   }
 LABEL_61:
   ioQueueThreadsToCreate = options->ioQueueThreadsToCreate;
-  v47->ioQueueThreadCount = ioQueueThreadsToCreate;
+  v43->ioQueueThreadCount = ioQueueThreadsToCreate;
   if ( (int)ioQueueThreadsToCreate > 0 )
   {
-    v47->ioQueueThreads = v45;
-    v45 += ioQueueThreadsToCreate;
-    v50 = 0;
+    v43->ioQueueThreads = v41;
+    v41 += ioQueueThreadsToCreate;
+    v46 = 0;
     while ( 1 )
     {
       arg = 0;
-      j_snprintf(_Buffer, 0x32ui64, "IndyFs-IOQueue-%u", (unsigned int)v50);
-      v51 = v50;
-      if ( indyfs_thread_create(0x10000ui64, indyfs_io_queue_thread_start, &arg, _Buffer, &g_indyfs->ioQueueThreads[v50]) )
+      j_snprintf(_Buffer, 0x32ui64, "IndyFs-IOQueue-%u", (unsigned int)v46);
+      v47 = v46;
+      if ( indyfs_thread_create(0x10000ui64, indyfs_io_queue_thread_start, &arg, _Buffer, &g_indyfs->ioQueueThreads[v46]) )
         break;
       while ( indyfs_atomic_compare_and_exchange(&arg, 1u, 1u) != 1 )
         indyfs_thread_yield();
-      if ( ++v50 >= (int)ioQueueThreadsToCreate )
+      if ( ++v46 >= (int)ioQueueThreadsToCreate )
         goto LABEL_67;
     }
     indyfs_io_queue_quit();
-    if ( v50 > 0 )
+    if ( v46 > 0 )
     {
-      v53 = 0i64;
+      v49 = 0i64;
       do
-        indyfs_thread_join(g_indyfs->ioQueueThreads[v53++]);
-      while ( v53 < v51 );
+        indyfs_thread_join(g_indyfs->ioQueueThreads[v49++]);
+      while ( v49 < v47 );
     }
-    v54 = g_indyfs;
+    v50 = g_indyfs;
     if ( g_indyfs->httpQueueThreadCount > 0 )
     {
       indyfs_http_queue_quit();
-      v54 = g_indyfs;
+      v50 = g_indyfs;
       if ( g_indyfs->httpQueueThreadCount > 0 )
       {
-        v55 = 0i64;
+        v51 = 0i64;
         do
         {
-          indyfs_thread_join(v54->httpQueueThreads[v55]);
-          LODWORD(v15) = v15 + 1;
-          ++v55;
-          v54 = g_indyfs;
+          indyfs_thread_join(v50->httpQueueThreads[v51]);
+          LODWORD(v11) = v11 + 1;
+          ++v51;
+          v50 = g_indyfs;
         }
-        while ( (int)v15 < g_indyfs->httpQueueThreadCount );
+        while ( (int)v11 < g_indyfs->httpQueueThreadCount );
       }
     }
-    indyfs_http_queue_term(&v54->httpTaskQueue);
+    indyfs_http_queue_term(&v50->httpTaskQueue);
     indyfs_io_queue_term(&g_indyfs->ioTaskQueue);
     indyfs_log_message(Error, "Failed to create io worker threads.");
     goto LABEL_69;
@@ -951,14 +947,14 @@ LABEL_61:
 LABEL_67:
   simplehttp_log_init(indyfs_simplehttp_log_callback);
   simplehttp_init();
-  if ( (char *)v45 - (_BYTE *)memoryBlock > memoryBlockSize )
+  if ( (char *)v41 - (_BYTE *)memoryBlock > memoryBlockSize )
   {
     indyfs_log_message(Error, "Failed to init IndyFs - Overran the memory buffer");
     goto LABEL_69;
   }
 LABEL_70:
-  IndyFsScopedEvent::~IndyFsScopedEvent(&v68);
-  return (unsigned int)v15;
+  IndyFsScopedEvent::~IndyFsScopedEvent(&v64);
+  return (unsigned int)v11;
 }
 
 /*

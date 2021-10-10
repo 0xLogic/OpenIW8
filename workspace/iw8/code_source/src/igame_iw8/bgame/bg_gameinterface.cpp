@@ -113,8 +113,7 @@ BG_GameInterface_AddContributionToPlayerEye
 */
 void BG_GameInterface_AddContributionToPlayerEye(const playerState_s *ps, const BgHandler *handler, vec3_t *outOrigin, const WorldUpReferenceFrame *refFrame)
 {
-  __asm { vmovss  xmm1, dword ptr [rcx+1E8h]; height }
-  WorldUpReferenceFrame::AddUpContribution((WorldUpReferenceFrame *)refFrame, *(float *)&_XMM1, outOrigin);
+  WorldUpReferenceFrame::AddUpContribution((WorldUpReferenceFrame *)refFrame, ps->viewHeightCurrent, outOrigin);
 }
 
 /*
@@ -124,12 +123,13 @@ BG_GameInterface_FastCrouch_GetSpeedScale
 */
 float BG_GameInterface_FastCrouch_GetSpeedScale()
 {
-  _RBX = DCONST_DVARMPFLT_fastCrouchMovement_speedScale;
+  const dvar_t *v0; 
+
+  v0 = DCONST_DVARMPFLT_fastCrouchMovement_speedScale;
   if ( !DCONST_DVARMPFLT_fastCrouchMovement_speedScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fastCrouchMovement_speedScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v0);
+  return v0->current.value;
 }
 
 /*
@@ -187,12 +187,13 @@ BG_GameInterface_SuperSprint_Enhanced_GetRechargeScale
 */
 float BG_GameInterface_SuperSprint_Enhanced_GetRechargeScale()
 {
-  _RBX = DVARFLT_superSprint_enhancedRechargeScale;
+  const dvar_t *v0; 
+
+  v0 = DVARFLT_superSprint_enhancedRechargeScale;
   if ( !DVARFLT_superSprint_enhancedRechargeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "superSprint_enhancedRechargeScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v0);
+  return v0->current.value;
 }
 
 /*
@@ -202,12 +203,13 @@ BG_GameInterface_SuperSprint_Enhanced_GetTime
 */
 float BG_GameInterface_SuperSprint_Enhanced_GetTime()
 {
-  _RBX = DVARFLT_superSprint_enhancedTime;
+  const dvar_t *v0; 
+
+  v0 = DVARFLT_superSprint_enhancedTime;
   if ( !DVARFLT_superSprint_enhancedTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "superSprint_enhancedTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v0);
+  return v0->current.value;
 }
 
 /*

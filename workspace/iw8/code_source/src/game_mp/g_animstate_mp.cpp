@@ -632,26 +632,29 @@ AnimStateCmd_SetAnimState
 void AnimStateCmd_SetAnimState(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *v4; 
+  float v5; 
   scr_string_t ConstString; 
   int Int; 
   scr_string_t AnimsetName; 
-  const char *v11; 
-  const char *v12; 
+  const char *v9; 
+  const char *v10; 
   const char *String; 
-  const char *v14; 
+  const char *v12; 
   VariableType Type; 
+  const char *v14; 
+  const char *v15; 
   const char *v16; 
-  const char *v17; 
-  const char *v18; 
-  ComErrorCode v19; 
-  scr_string_t v20; 
+  ComErrorCode v17; 
+  scr_string_t v18; 
+  const char *v19; 
+  const char *v20; 
   const char *v21; 
   const char *v22; 
   const char *v23; 
-  const char *v24; 
-  const char *v25; 
-  int v26; 
-  const char *v28; 
+  double Float; 
+  int v25; 
+  const char *v26; 
   unsigned int pHoldrand; 
   int pOutStateIndex; 
   AnimsetState *outState; 
@@ -665,40 +668,35 @@ void AnimStateCmd_SetAnimState(scrContext_t *scrContext, scr_entref_t entref)
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_animstate_mp.cpp", 527, ASSERT_TYPE_ASSERT, "( entref.entnum < ( 2048 ) )", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    _R14 = &g_entities[entnum];
-    if ( BG_IsCharacterEntity(&_R14->s) )
+    v4 = &g_entities[entnum];
+    if ( BG_IsCharacterEntity(&v4->s) )
     {
-      __asm
-      {
-        vmovaps [rsp+68h+var_38], xmm6
-        vmovss  xmm6, cs:__real@3f800000
-      }
+      v5 = FLOAT_1_0;
       ConstString = Scr_GetConstString(scrContext, 0);
       Int = 0;
-      AnimsetName = BG_AnimationState_GetAnimsetName(&_R14->s);
+      AnimsetName = BG_AnimationState_GetAnimsetName(&v4->s);
       if ( !AnimsetName )
       {
-        v11 = j_va("entity %i references an animset that has not been loaded", entnum);
-        Scr_ObjectError(COM_ERR_5152, scrContext, v11);
+        v9 = j_va("entity %i references an animset that has not been loaded", entnum);
+        Scr_ObjectError(COM_ERR_5152, scrContext, v9);
       }
       if ( !BG_Animset_GetStateInfoByName(AnimsetName, ConstString, &outState, &pOutStateIndex) )
       {
-        v12 = SL_ConvertToString(AnimsetName);
+        v10 = SL_ConvertToString(AnimsetName);
         String = Scr_GetString(scrContext, 0);
-        v14 = j_va("state %s does not exist in animset %s", String, v12);
-        Scr_ParamError(COM_ERR_5153, scrContext, 0, v14);
+        v12 = j_va("state %s does not exist in animset %s", String, v10);
+        Scr_ParamError(COM_ERR_5153, scrContext, 0, v12);
       }
       if ( Scr_GetNumParam(scrContext) <= 1 )
       {
-        pHoldrand = _R14->s.number * (_R14->s.number + level.time);
-        v26 = BG_irand(0, outState->numAnimAliases, &pHoldrand);
-        Int = BG_irand(0, outState->animAliases[v26].numAnims, &pHoldrand);
+        pHoldrand = v4->s.number * (v4->s.number + level.time);
+        v25 = BG_irand(0, outState->numAnimAliases, &pHoldrand);
+        Int = BG_irand(0, outState->animAliases[v25].numAnims, &pHoldrand);
 LABEL_26:
-        BG_AnimationState_SetState(pOutStateIndex, Int, &_R14->s);
-        _R14->s.animInfo.animTime = level.time;
-        __asm { vmovss  dword ptr [r14+0C8h], xmm6 }
+        BG_AnimationState_SetState(pOutStateIndex, Int, &v4->s);
+        v4->s.animInfo.animTime = level.time;
+        v4->s.un.animRate = v5;
         Scr_AddInt(scrContext, Int);
-        __asm { vmovaps xmm6, [rsp+68h+var_38] }
         return;
       }
       Type = Scr_GetType(scrContext, 1u);
@@ -707,49 +705,49 @@ LABEL_26:
         Int = Scr_GetInt(scrContext, 1u);
         if ( Int >= 0 && Int <= BG_Animset_GetNumEntriesForStateIndex(AnimsetName, pOutStateIndex) )
           goto LABEL_23;
-        v16 = SL_ConvertToString(AnimsetName);
-        v17 = Scr_GetString(scrContext, 0);
-        v18 = j_va("animation entry %d is not part of state %s in animset %s", (unsigned int)Int, v17, v16);
-        v19 = COM_ERR_5154;
+        v14 = SL_ConvertToString(AnimsetName);
+        v15 = Scr_GetString(scrContext, 0);
+        v16 = j_va("animation entry %d is not part of state %s in animset %s", (unsigned int)Int, v15, v14);
+        v17 = COM_ERR_5154;
       }
       else if ( Type == VAR_STRING )
       {
-        v20 = Scr_GetConstString(scrContext, 1u);
-        Int = G_Animset_GetIndexOfRandomAnimFromAlias(AnimsetName, ConstString, v20);
+        v18 = Scr_GetConstString(scrContext, 1u);
+        Int = G_Animset_GetIndexOfRandomAnimFromAlias(AnimsetName, ConstString, v18);
         if ( Int >= 0 )
           goto LABEL_23;
-        v21 = SL_ConvertToString(AnimsetName);
-        v22 = Scr_GetString(scrContext, 0);
-        v23 = Scr_GetString(scrContext, 1u);
-        v18 = j_va("animation entry %s is not part of state %s in animset %s", v23, v22, v21);
-        v19 = COM_ERR_5155;
+        v19 = SL_ConvertToString(AnimsetName);
+        v20 = Scr_GetString(scrContext, 0);
+        v21 = Scr_GetString(scrContext, 1u);
+        v16 = j_va("animation entry %s is not part of state %s in animset %s", v21, v20, v19);
+        v17 = COM_ERR_5155;
       }
       else if ( Type )
       {
-        v18 = "entry must be either int, string, or undefined (to select at random)";
-        v19 = COM_ERR_5157;
+        v16 = "entry must be either int, string, or undefined (to select at random)";
+        v17 = COM_ERR_5157;
       }
       else
       {
         Int = G_Animset_GetIndexOfRandomAnimFromRandomAlias(AnimsetName, ConstString);
         if ( Int >= 0 )
           goto LABEL_23;
-        v24 = SL_ConvertToString(AnimsetName);
-        v25 = Scr_GetString(scrContext, 0);
-        v18 = j_va("malformed state %s in animset %s", v25, v24);
-        v19 = COM_ERR_5156;
+        v22 = SL_ConvertToString(AnimsetName);
+        v23 = Scr_GetString(scrContext, 0);
+        v16 = j_va("malformed state %s in animset %s", v23, v22);
+        v17 = COM_ERR_5156;
       }
-      Scr_ParamError(v19, scrContext, 1u, v18);
+      Scr_ParamError(v17, scrContext, 1u, v16);
 LABEL_23:
       if ( Scr_GetNumParam(scrContext) > 2 )
       {
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-        __asm { vmovaps xmm6, xmm0 }
+        Float = Scr_GetFloat(scrContext, 2u);
+        v5 = *(float *)&Float;
       }
       goto LABEL_26;
     }
-    v28 = j_va("entity %i is not a player or agent", entnum);
-    Scr_ObjectError(COM_ERR_5158, scrContext, v28);
+    v26 = j_va("entity %i is not a player or agent", entnum);
+    Scr_ObjectError(COM_ERR_5158, scrContext, v26);
   }
 }
 
@@ -760,55 +758,50 @@ G_NotifyEntityAnimationState
 */
 void G_NotifyEntityAnimationState(gentity_s *ent)
 {
-  const DObj *v5; 
+  const DObj *v2; 
   const XAnimTree *Tree; 
   scr_string_t AnimsetName; 
-  const Animset *v8; 
+  const Animset *v5; 
+  scr_string_t Notify; 
   unsigned int AnimIndex; 
+  double Time; 
+  float v9; 
+  double Length; 
+  float v11; 
+  scrContext_t *v12; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_animstate_mp.cpp", 30, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
   if ( !*(_QWORD *)&GStatic::ms_gameStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_static.h", 64, ASSERT_TYPE_ASSERT, "( ms_gameStatics )", (const char *)&queryFormat, "ms_gameStatics") )
     __debugbreak();
-  v5 = (const DObj *)(*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 232i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)ent->s.number);
-  if ( v5 )
+  v2 = (const DObj *)(*(__int64 (__fastcall **)(_QWORD, _QWORD))(**(_QWORD **)&GStatic::ms_gameStatics + 232i64))(*(_QWORD *)&GStatic::ms_gameStatics, (unsigned int)ent->s.number);
+  if ( v2 )
   {
-    Tree = DObjGetTree(v5);
+    Tree = DObjGetTree(v2);
     if ( Tree )
     {
       AnimsetName = BG_AnimationState_GetAnimsetName(&ent->s);
       if ( AnimsetName )
       {
-        v8 = Animset_Find(AnimsetName);
-        if ( BG_AnimationState_GetNotify(v8, &ent->s) )
+        v5 = Animset_Find(AnimsetName);
+        Notify = BG_AnimationState_GetNotify(v5, &ent->s);
+        if ( Notify )
         {
-          AnimIndex = BG_AnimationState_GetAnimIndex(v8, &ent->s);
+          AnimIndex = BG_AnimationState_GetAnimIndex(v5, &ent->s);
           if ( XAnimIsLeafNode(Tree->anims, AnimIndex) )
           {
-            __asm
-            {
-              vmovaps [rsp+58h+var_18], xmm6
-              vmovaps [rsp+58h+var_28], xmm7
-            }
-            *(double *)&_XMM0 = XAnimGetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, AnimIndex);
-            __asm { vmovaps xmm6, xmm0 }
-            *(double *)&_XMM0 = XAnimGetLength(Tree->anims, AnimIndex);
-            __asm
-            {
-              vmovaps xmm7, xmm0
-              vmulss  xmm6, xmm0, xmm6
-            }
+            Time = XAnimGetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, AnimIndex);
+            v9 = *(float *)&Time;
+            Length = XAnimGetLength(Tree->anims, AnimIndex);
+            v11 = *(float *)&Length * v9;
             if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
               __debugbreak();
-            __asm
+            if ( (float)(*(float *)&Length - v11) < (float)((float)level.frameDuration * 0.001) )
             {
-              vsubss  xmm2, xmm7, xmm6
-              vmovaps xmm7, [rsp+58h+var_28]
-              vmovaps xmm6, [rsp+58h+var_18]
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-              vmulss  xmm1, xmm0, cs:__real@3a83126f
-              vcomiss xmm2, xmm1
+              v12 = ScriptContext_Server();
+              Scr_AddConstString(v12, scr_const.anim_will_finish);
+              GScr_Notify(ent, Notify, 1u);
+              Scr_RunCurrentThreads(v12);
             }
           }
         }

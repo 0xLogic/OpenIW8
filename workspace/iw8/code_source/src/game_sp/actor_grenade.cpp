@@ -29,11 +29,11 @@ void AIActorInterface::Grenade_Attach(AIActorInterface *this)
 {
   actor_s *m_pAI; 
   unsigned __int16 number; 
-  __int64 v5; 
-  unsigned int v6; 
-  __int64 v7; 
-  gentity_s *v8; 
-  char v9; 
+  __int64 v4; 
+  unsigned int v5; 
+  __int64 v6; 
+  gentity_s *v7; 
+  actor_s *v8; 
   __int64 errorMessageSize; 
   char *outErrorMessage; 
   int outErrorMessagea; 
@@ -44,21 +44,21 @@ void AIActorInterface::Grenade_Attach(AIActorInterface *this)
   number = m_pAI->grenade.pGrenade.number;
   if ( !number )
     goto LABEL_26;
-  v5 = number;
-  v6 = number - 1;
-  if ( v6 >= 0x800 )
+  v4 = number;
+  v5 = number - 1;
+  if ( v5 >= 0x800 )
   {
     outErrorMessagea = 2048;
-    LODWORD(errorMessageSize) = v6;
+    LODWORD(errorMessageSize) = v5;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", errorMessageSize, outErrorMessagea) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v7 = v5 - 1;
-  if ( g_entities[v7].r.isInUse != g_entityIsInUse[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+  v6 = v4 - 1;
+  if ( g_entities[v6].r.isInUse != g_entityIsInUse[v6] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
     __debugbreak();
-  if ( !g_entityIsInUse[v7] )
+  if ( !g_entityIsInUse[v6] )
   {
     LODWORD(outErrorMessage) = m_pAI->grenade.pGrenade.number - 1;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", outErrorMessage) )
@@ -70,21 +70,14 @@ LABEL_26:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_grenade.cpp", 26, ASSERT_TYPE_ASSERT, "(m_pAI->grenade.pGrenade.isDefined())", (const char *)&queryFormat, "m_pAI->grenade.pGrenade.isDefined()") )
       __debugbreak();
   }
-  v8 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
-  G_EntLinkToWithOffset(v8, this->m_pAI->ent, scr_const.tag_accessory_right, &vec3_origin, &vec3_origin, 0, NULL);
-  G_Utils_AddEvent(v8, 0x6Fu, 0);
-  _RDX = this->m_pAI;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  _R8 = &_RDX->grenade.vGrenadeTossVel;
-  __asm { vucomiss xmm0, dword ptr [r8] }
-  if ( !v9 )
-    goto LABEL_22;
-  __asm { vucomiss xmm0, dword ptr [rdx+4D4h] }
-  if ( !v9 )
-LABEL_22:
-    AIScriptedInterface::FaceVector(this, &_RDX->CodeOrient, _R8);
+  v7 = EntHandle::ent(&this->m_pAI->grenade.pGrenade);
+  G_EntLinkToWithOffset(v7, this->m_pAI->ent, scr_const.tag_accessory_right, &vec3_origin, &vec3_origin, 0, NULL);
+  G_Utils_AddEvent(v7, 0x6Fu, 0);
+  v8 = this->m_pAI;
+  if ( v8->grenade.vGrenadeTossVel.v[0] != 0.0 || v8->grenade.vGrenadeTossVel.v[1] != 0.0 )
+    AIScriptedInterface::FaceVector(this, &v8->CodeOrient, &v8->grenade.vGrenadeTossVel);
   AIScriptedInterface::SetOrientMode(this, AI_ORIENT_DONT_CHANGE_RELATIVE);
-  EntHandle::setEnt(&v8->parent, this->m_pAI->ent);
+  EntHandle::setEnt(&v7->parent, this->m_pAI->ent);
 }
 
 /*

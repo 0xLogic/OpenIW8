@@ -160,11 +160,13 @@ void CPUTimelineProfiler::EndSample(CPUTimelineProfiler *this, ThreadContext thr
   CPUTimelineProfiler::SampleStack *v4; 
   int v5; 
   int v6; 
-  __int64 *v7; 
+  _QWORD *v7; 
   int Top; 
   __int64 v9; 
+  __int64 v10; 
+  __int64 v11; 
   int m_overflow; 
-  signed __int32 v16[8]; 
+  signed __int32 v13[8]; 
 
   if ( this->m_enabled && threadContext < THREAD_CONTEXT_COUNT )
   {
@@ -174,33 +176,27 @@ void CPUTimelineProfiler::EndSample(CPUTimelineProfiler *this, ThreadContext thr
     {
       *(_QWORD *)(*((_QWORD *)v3 + 131) + 32i64 * CPUTimelineProfiler::SampleStack::GetTop((CPUTimelineProfiler::SampleStack *)(v3 + 568)) + 8) = __rdtsc();
       v5 = *((_DWORD *)v3 + 275);
-      _InterlockedOr(v16, 0);
+      _InterlockedOr(v13, 0);
       if ( *((_DWORD *)v3 + 274) - v5 < (unsigned int)(*((_DWORD *)v3 + 276) - 1) )
       {
         v6 = (*((_DWORD *)v3 + 274))++ & *((_DWORD *)v3 + 277);
         if ( v6 != -1 )
         {
-          v7 = (__int64 *)(v3 + 512);
+          v7 = v3 + 512;
           Top = CPUTimelineProfiler::SampleStack::GetTop(v4);
           v9 = Top;
           if ( Top == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\cpu_timeline_prof.h", 418, ASSERT_TYPE_ASSERT, "(topSample != -1)", (const char *)&queryFormat, "topSample != -1") )
             __debugbreak();
-          _R12 = v9;
-          _RCX = v4->m_stack.m_base;
-          _RDI = 32i64 * v6;
-          _RAX = *v7;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rcx+r12]
-            vmovups ymmword ptr [rdi+rax], ymm0
-          }
-          CPUTimelineProfiler::CopySampleName(this, (char *)(_RDI + v7[1]), v4->m_stack.m_name[_R12]);
+          v10 = v9;
+          v11 = 32i64 * v6;
+          *(CPUTimelineProfiler::SampleBase *)(v11 + *v7) = v4->m_stack.m_base[v10];
+          CPUTimelineProfiler::CopySampleName(this, (char *)(v11 + v7[1]), v4->m_stack.m_name[v10]);
           if ( this->m_pmcEnabled )
           {
-            *(_QWORD *)(_RDI + v7[2]) = __readpmc(0) - v4->m_stack.m_cpuStats[_R12].m_counters[0];
-            *(_QWORD *)(_RDI + v7[2] + 8) = __readpmc(1u) - v4->m_stack.m_cpuStats[_R12].m_counters[1];
-            *(_QWORD *)(_RDI + v7[2] + 16) = __readpmc(2u) - v4->m_stack.m_cpuStats[_R12].m_counters[2];
-            *(_QWORD *)(_RDI + v7[2] + 24) = __readpmc(3u) - v4->m_stack.m_cpuStats[_R12].m_counters[3];
+            *(_QWORD *)(v11 + v7[2]) = __readpmc(0) - v4->m_stack.m_cpuStats[v10].m_counters[0];
+            *(_QWORD *)(v11 + v7[2] + 8) = __readpmc(1u) - v4->m_stack.m_cpuStats[v10].m_counters[1];
+            *(_QWORD *)(v11 + v7[2] + 16) = __readpmc(2u) - v4->m_stack.m_cpuStats[v10].m_counters[2];
+            *(_QWORD *)(v11 + v7[2] + 24) = __readpmc(3u) - v4->m_stack.m_cpuStats[v10].m_counters[3];
           }
         }
       }

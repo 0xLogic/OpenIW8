@@ -203,17 +203,8 @@ TelemetrySerializer::TelemetrySerializer
 */
 void TelemetrySerializer::TelemetrySerializer(TelemetrySerializer *this, const ProtoBufSerializer *base, const DDLState *root)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups xmm1, xmmword ptr [rdx+20h]
-    vmovups xmmword ptr [rcx+20h], xmm1
-    vmovsd  xmm0, qword ptr [rdx+30h]
-    vmovsd  qword ptr [rcx+30h], xmm0
-    vmovups ymm0, ymmword ptr [r8]
-    vmovups ymmword ptr [rcx+38h], ymm0
-  }
+  this->ProtoBufSerializer = *base;
+  this->m_rootState = *root;
 }
 
 /*
@@ -263,9 +254,17 @@ TelemetryMessage::GenerateIdentifier
 */
 char TelemetryMessage::GenerateIdentifier(const char *name, const DDLDef *definition, char *out, unsigned int len)
 {
+  Hash_state *v8; 
   __int64 v9; 
+  TextWriter *p_md; 
+  __m256i v11; 
+  __int128 v12; 
   char *fmt; 
-  __int64 v19; 
+  __int64 v15; 
+  int v16; 
+  int v17; 
+  int v18; 
+  int v19; 
   int v20; 
   int v21; 
   int v22; 
@@ -275,77 +274,60 @@ char TelemetryMessage::GenerateIdentifier(const char *name, const DDLDef *defini
   int v26; 
   int v27; 
   int v28; 
-  int v29; 
-  int v30; 
-  int v31; 
-  int v32; 
   TextWriter md; 
-  Hash_state v37; 
+  Hash_state v33; 
   unsigned __int8 outa[8]; 
-  __int64 v39; 
+  __int64 v35; 
 
   *(_QWORD *)outa = 0i64;
-  v39 = 0i64;
+  v35 = 0i64;
   if ( out && len >= 0x21 )
   {
     __asm { vpxor   xmm0, xmm0, xmm0 }
     md.m_end = NULL;
-    __asm { vmovdqu [rbp+340h+var_210], xmm0 }
+    *(_OWORD *)&md.m_start = _XMM0;
     if ( j_md5_init(&md.m_state) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwtelemetry.cpp", 177, ASSERT_TYPE_ASSERT, "(CRYPT_OK == result)", (const char *)&queryFormat, "CRYPT_OK == result") )
       __debugbreak();
     WriteProtoFromDef(&md, "com.activision.ds.protobuf", definition, name, 0);
-    _RCX = &v37;
+    v8 = &v33;
     v9 = 3i64;
-    _RAX = &md;
+    p_md = &md;
     do
     {
-      _RCX = (Hash_state *)((char *)_RCX + 128);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+70h]
-      }
-      _RAX = (TextWriter *)((char *)_RAX + 128);
-      __asm
-      {
-        vmovups ymmword ptr [rcx-80h], ymm0
-        vmovups ymm0, ymmword ptr [rax-60h]
-        vmovups ymmword ptr [rcx-60h], ymm0
-        vmovups ymm0, ymmword ptr [rax-40h]
-        vmovups ymmword ptr [rcx-40h], ymm0
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rcx-20h], xmm0
-        vmovups xmmword ptr [rcx-10h], xmm1
-      }
+      v8 = (Hash_state *)((char *)v8 + 128);
+      v11 = *(__m256i *)p_md->m_state.dummy;
+      v12 = *((_OWORD *)&p_md->m_state.data + 7);
+      p_md = (TextWriter *)((char *)p_md + 128);
+      *(__m256i *)(&v8[-1].data + 34) = v11;
+      *(__m256i *)(&v8[-1].data + 38) = *(__m256i *)(&p_md[-1].m_state.data + 41);
+      *(__m256i *)(&v8[-1].data + 42) = *(__m256i *)(&p_md[-1].m_state.data + 45);
+      *((_OWORD *)&v8[-1].data + 23) = *(_OWORD *)(&p_md[-1].m_state.data + 49);
+      *((_OWORD *)&v8[-1].data + 24) = v12;
       --v9;
     }
     while ( v9 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-    }
-    if ( j_md5_done(&v37, outa) )
+    *(_OWORD *)v8->dummy = *(_OWORD *)p_md->m_state.dummy;
+    if ( j_md5_done(&v33, outa) )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwtelemetry.cpp", 234, ASSERT_TYPE_ASSERT, "(CRYPT_OK == result)", (const char *)&queryFormat, "CRYPT_OK == result") )
         __debugbreak();
     }
-    v32 = HIBYTE(v39);
-    v31 = BYTE6(v39);
-    v30 = BYTE5(v39);
-    v29 = BYTE4(v39);
-    v28 = BYTE3(v39);
-    v27 = BYTE2(v39);
-    v26 = BYTE1(v39);
-    v25 = (unsigned __int8)v39;
-    v24 = outa[7];
-    v23 = outa[6];
-    v22 = outa[5];
-    v21 = outa[4];
-    v20 = outa[3];
-    LODWORD(v19) = outa[2];
+    v28 = HIBYTE(v35);
+    v27 = BYTE6(v35);
+    v26 = BYTE5(v35);
+    v25 = BYTE4(v35);
+    v24 = BYTE3(v35);
+    v23 = BYTE2(v35);
+    v22 = BYTE1(v35);
+    v21 = (unsigned __int8)v35;
+    v20 = outa[7];
+    v19 = outa[6];
+    v18 = outa[5];
+    v17 = outa[4];
+    v16 = outa[3];
+    LODWORD(v15) = outa[2];
     LODWORD(fmt) = outa[1];
-    Com_sprintf(out, len, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", outa[0], fmt, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29, v30, v31, v32);
+    Com_sprintf(out, len, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", outa[0], fmt, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28);
     Com_Printf(16, "Telemetry Id: '%s' = %s\n", name, out);
     return 1;
   }
@@ -384,234 +366,226 @@ TelemetryMessage::Open
 */
 TelemetrySerializer *TelemetryMessage::Open(TelemetryMessage *this, TelemetrySerializer *result, const char *name, const DDLDef *definition, const char *identifier, const bool exportSchema, unsigned __int8 *out, unsigned __int64 len)
 {
+  __int64 v12; 
   __int64 v13; 
-  __int64 v14; 
-  __int64 m_currentPtr; 
-  __int64 v16; 
-  signed __int64 v17; 
+  unsigned __int8 *m_currentPtr; 
+  __int64 v15; 
+  signed __int64 v16; 
+  __int64 v17; 
   __int64 v18; 
-  __int64 v19; 
+  signed __int64 v19; 
   signed __int64 v20; 
-  signed __int64 v21; 
+  __int64 v21; 
   __int64 v22; 
-  __int64 v23; 
+  signed __int64 v23; 
   signed __int64 v24; 
-  signed __int64 v25; 
   unsigned __int8 *m_buffer; 
-  int v27; 
+  int v26; 
   char *m_start; 
-  __int64 v29; 
-  signed __int64 v30; 
+  __int64 v28; 
+  signed __int64 v29; 
+  unsigned __int8 *v31; 
   unsigned __int8 *v32; 
-  unsigned __int64 v33; 
+  unsigned __int8 *v33; 
   unsigned __int8 *v34; 
   unsigned __int8 *v35; 
-  unsigned __int64 v36; 
+  TelemetrySerializer *v36; 
   DDLDef *schema; 
-  _BYTE v44[48]; 
-  _QWORD resulta[6]; 
+  _BYTE v39[48]; 
+  double resulta[6]; 
   TextWriter md; 
   char Src[16]; 
   char dest[64]; 
 
-  _RBX = this;
   schema = (DDLDef *)definition;
   DDL_GetRootState((DDLState *)&resulta[1], definition);
   Com_sprintf(dest, 0x40ui64, "%s.%s", "iw8", name);
   Com_sprintf(Src, 0x10ui64, "%d", definition->version);
   if ( out && len )
   {
-    _RBX->m_writer.m_buffer = out;
-    _RBX->m_writer.m_currentPtr = out;
-    _RBX->m_writer.m_real_len = len;
-    _RBX->m_writer.m_len_minus_buffer = len;
-    _RBX->m_writer.m_rollbackPtr = NULL;
-    _RBX->m_writer.m_optional_buffer_to_leave = 0;
+    this->m_writer.m_buffer = out;
+    this->m_writer.m_currentPtr = out;
+    this->m_writer.m_real_len = len;
+    this->m_writer.m_len_minus_buffer = len;
+    this->m_writer.m_rollbackPtr = NULL;
+    this->m_writer.m_optional_buffer_to_leave = 0;
   }
-  __asm { vmovups ymm0, ymmword ptr [rsp+2F0h+result+8] }
+  v12 = -1i64;
+  this->m_writer.m_rootState = *(DDLState *)&resulta[1];
   v13 = -1i64;
-  __asm { vmovups ymmword ptr [rbx+38h], ymm0 }
-  v14 = -1i64;
-  do
-    ++v14;
-  while ( dest[v14] );
-  m_currentPtr = (__int64)_RBX->m_writer.m_currentPtr;
-  v16 = (unsigned int)v14;
-  if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, 0xAui64) )
-  {
-    v17 = _RBX->m_writer.m_currentPtr - _RBX->m_writer.m_buffer;
-    if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, (unsigned int)v16) )
-    {
-      if ( v17 + v16 > _RBX->m_writer.m_len_minus_buffer )
-      {
-        _RBX->m_writer.m_overflowed = 1;
-      }
-      else
-      {
-        memmove_0(_RBX->m_writer.m_currentPtr, dest, (unsigned int)v16);
-        m_currentPtr = (__int64)&_RBX->m_writer.m_currentPtr[v16];
-      }
-    }
-  }
-  _RBX->m_writer.m_currentPtr = (unsigned __int8 *)m_currentPtr;
-  v18 = -1i64;
-  do
-    ++v18;
-  while ( name[v18] );
-  v19 = (unsigned int)v18;
-  if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, 0x22ui64) )
-  {
-    v20 = _RBX->m_writer.m_currentPtr - _RBX->m_writer.m_buffer;
-    if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, (unsigned int)v19) )
-    {
-      if ( v20 + v19 > _RBX->m_writer.m_len_minus_buffer )
-      {
-        _RBX->m_writer.m_overflowed = 1;
-      }
-      else
-      {
-        memmove_0(_RBX->m_writer.m_currentPtr, name, (unsigned int)v19);
-        m_currentPtr = (__int64)&_RBX->m_writer.m_currentPtr[v19];
-      }
-    }
-  }
-  _RBX->m_writer.m_currentPtr = (unsigned __int8 *)m_currentPtr;
-  if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, 0x32ui64) )
-  {
-    v21 = _RBX->m_writer.m_currentPtr - _RBX->m_writer.m_buffer;
-    if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, 3ui64) )
-    {
-      if ( v21 + 3 > _RBX->m_writer.m_len_minus_buffer )
-      {
-        _RBX->m_writer.m_overflowed = 1;
-      }
-      else
-      {
-        memmove_0(_RBX->m_writer.m_currentPtr, "iw8", 3ui64);
-        m_currentPtr = (__int64)(_RBX->m_writer.m_currentPtr + 3);
-      }
-    }
-  }
-  _RBX->m_writer.m_currentPtr = (unsigned __int8 *)m_currentPtr;
-  v22 = -1i64;
-  do
-    ++v22;
-  while ( identifier[v22] );
-  v23 = (unsigned int)v22;
-  if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, 0x3Aui64) )
-  {
-    v24 = _RBX->m_writer.m_currentPtr - _RBX->m_writer.m_buffer;
-    if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, (unsigned int)v23) )
-    {
-      if ( v24 + v23 > _RBX->m_writer.m_len_minus_buffer )
-      {
-        _RBX->m_writer.m_overflowed = 1;
-      }
-      else
-      {
-        memmove_0(_RBX->m_writer.m_currentPtr, identifier, (unsigned int)v23);
-        m_currentPtr = (__int64)&_RBX->m_writer.m_currentPtr[v23];
-      }
-    }
-  }
-  _RBX->m_writer.m_currentPtr = (unsigned __int8 *)m_currentPtr;
   do
     ++v13;
-  while ( Src[v13] );
-  if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, 0x42ui64) )
+  while ( dest[v13] );
+  m_currentPtr = this->m_writer.m_currentPtr;
+  v15 = (unsigned int)v13;
+  if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, 0xAui64) )
   {
-    v25 = _RBX->m_writer.m_currentPtr - _RBX->m_writer.m_buffer;
-    if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, (unsigned int)v13) )
+    v16 = this->m_writer.m_currentPtr - this->m_writer.m_buffer;
+    if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, (unsigned int)v15) )
     {
-      if ( v25 + (unsigned __int64)(unsigned int)v13 > _RBX->m_writer.m_len_minus_buffer )
+      if ( v16 + v15 > this->m_writer.m_len_minus_buffer )
       {
-        _RBX->m_writer.m_overflowed = 1;
+        this->m_writer.m_overflowed = 1;
       }
       else
       {
-        memmove_0(_RBX->m_writer.m_currentPtr, Src, (unsigned int)v13);
-        m_currentPtr = (__int64)&_RBX->m_writer.m_currentPtr[(unsigned int)v13];
+        memmove_0(this->m_writer.m_currentPtr, dest, (unsigned int)v15);
+        m_currentPtr = &this->m_writer.m_currentPtr[v15];
       }
     }
   }
-  _RBX->m_writer.m_currentPtr = (unsigned __int8 *)m_currentPtr;
+  this->m_writer.m_currentPtr = m_currentPtr;
+  v17 = -1i64;
+  do
+    ++v17;
+  while ( name[v17] );
+  v18 = (unsigned int)v17;
+  if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, 0x22ui64) )
+  {
+    v19 = this->m_writer.m_currentPtr - this->m_writer.m_buffer;
+    if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, (unsigned int)v18) )
+    {
+      if ( v19 + v18 > this->m_writer.m_len_minus_buffer )
+      {
+        this->m_writer.m_overflowed = 1;
+      }
+      else
+      {
+        memmove_0(this->m_writer.m_currentPtr, name, (unsigned int)v18);
+        m_currentPtr = &this->m_writer.m_currentPtr[v18];
+      }
+    }
+  }
+  this->m_writer.m_currentPtr = m_currentPtr;
+  if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, 0x32ui64) )
+  {
+    v20 = this->m_writer.m_currentPtr - this->m_writer.m_buffer;
+    if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, 3ui64) )
+    {
+      if ( v20 + 3 > this->m_writer.m_len_minus_buffer )
+      {
+        this->m_writer.m_overflowed = 1;
+      }
+      else
+      {
+        memmove_0(this->m_writer.m_currentPtr, "iw8", 3ui64);
+        m_currentPtr = this->m_writer.m_currentPtr + 3;
+      }
+    }
+  }
+  this->m_writer.m_currentPtr = m_currentPtr;
+  v21 = -1i64;
+  do
+    ++v21;
+  while ( identifier[v21] );
+  v22 = (unsigned int)v21;
+  if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, 0x3Aui64) )
+  {
+    v23 = this->m_writer.m_currentPtr - this->m_writer.m_buffer;
+    if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, (unsigned int)v22) )
+    {
+      if ( v23 + v22 > this->m_writer.m_len_minus_buffer )
+      {
+        this->m_writer.m_overflowed = 1;
+      }
+      else
+      {
+        memmove_0(this->m_writer.m_currentPtr, identifier, (unsigned int)v22);
+        m_currentPtr = &this->m_writer.m_currentPtr[v22];
+      }
+    }
+  }
+  this->m_writer.m_currentPtr = m_currentPtr;
+  do
+    ++v12;
+  while ( Src[v12] );
+  if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, 0x42ui64) )
+  {
+    v24 = this->m_writer.m_currentPtr - this->m_writer.m_buffer;
+    if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, (unsigned int)v12) )
+    {
+      if ( v24 + (unsigned __int64)(unsigned int)v12 > this->m_writer.m_len_minus_buffer )
+      {
+        this->m_writer.m_overflowed = 1;
+      }
+      else
+      {
+        memmove_0(this->m_writer.m_currentPtr, Src, (unsigned int)v12);
+        m_currentPtr = &this->m_writer.m_currentPtr[(unsigned int)v12];
+      }
+    }
+  }
+  this->m_writer.m_currentPtr = m_currentPtr;
   if ( exportSchema )
   {
-    m_buffer = _RBX->m_writer.m_buffer;
-    v27 = LODWORD(_RBX->m_writer.m_real_len) - LODWORD(_RBX->m_writer.m_currentPtr);
-    md.m_start = (char *)&out[m_currentPtr - (_QWORD)m_buffer + 10];
+    m_buffer = this->m_writer.m_buffer;
+    v26 = LODWORD(this->m_writer.m_real_len) - LODWORD(this->m_writer.m_currentPtr);
+    md.m_start = (char *)&out[m_currentPtr - m_buffer + 10];
     md.m_writer = md.m_start;
-    md.m_end = &md.m_start[v27 + (_DWORD)m_buffer - 10];
+    md.m_end = &md.m_start[v26 + (_DWORD)m_buffer - 10];
     if ( j_md5_init(&md.m_state) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dw\\dwtelemetry.cpp", 188, ASSERT_TYPE_ASSERT, "(CRYPT_OK == result)", (const char *)&queryFormat, "CRYPT_OK == result", schema) )
       __debugbreak();
     if ( md.m_writer )
       *md.m_writer = 0;
     WriteProtoFromDef(&md, "com.activision.ds.protobuf", schema, name, 0);
     m_start = md.m_start;
-    m_currentPtr = (__int64)_RBX->m_writer.m_currentPtr;
-    v29 = (unsigned int)(LODWORD(md.m_writer) - LODWORD(md.m_start));
-    if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, 0x12ui64) )
+    m_currentPtr = this->m_writer.m_currentPtr;
+    v28 = (unsigned int)(LODWORD(md.m_writer) - LODWORD(md.m_start));
+    if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, 0x12ui64) )
     {
-      v30 = _RBX->m_writer.m_currentPtr - _RBX->m_writer.m_buffer;
-      if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, (unsigned int)v29) )
+      v29 = this->m_writer.m_currentPtr - this->m_writer.m_buffer;
+      if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, (unsigned int)v28) )
       {
-        if ( v30 + v29 > _RBX->m_writer.m_len_minus_buffer )
+        if ( v29 + v28 > this->m_writer.m_len_minus_buffer )
         {
-          _RBX->m_writer.m_overflowed = 1;
+          this->m_writer.m_overflowed = 1;
         }
         else
         {
-          memmove_0(_RBX->m_writer.m_currentPtr, m_start, (unsigned int)v29);
-          m_currentPtr = (__int64)&_RBX->m_writer.m_currentPtr[v29];
+          memmove_0(this->m_writer.m_currentPtr, m_start, (unsigned int)v28);
+          m_currentPtr = &this->m_writer.m_currentPtr[v28];
         }
       }
     }
-    _RBX->m_writer.m_currentPtr = (unsigned __int8 *)m_currentPtr;
+    this->m_writer.m_currentPtr = m_currentPtr;
   }
   __asm { vpxor   xmm0, xmm0, xmm0 }
-  *(_QWORD *)v44 = 0i64;
-  *(_QWORD *)&v44[8] = 0i64;
-  v44[20] = 0;
-  __asm { vmovdqu xmmword ptr [rsp+58h], xmm0 }
-  *(_QWORD *)&v44[40] = 0i64;
-  if ( ProtoBufSerializer::EncodeVarInt(&_RBX->m_writer, 0x2Aui64) && (v32 = _RBX->m_writer.m_currentPtr, v33 = _RBX->m_writer.m_real_len + _RBX->m_writer.m_buffer - v32, v33 > 0xA) )
+  *(_QWORD *)v39 = 0i64;
+  *(_QWORD *)&v39[8] = 0i64;
+  v39[20] = 0;
+  *(_OWORD *)&v39[24] = _XMM0;
+  *(_QWORD *)&v39[40] = 0i64;
+  if ( ProtoBufSerializer::EncodeVarInt(&this->m_writer, 0x2Aui64) && (v31 = this->m_writer.m_currentPtr, v32 = (unsigned __int8 *)(this->m_writer.m_real_len + this->m_writer.m_buffer - v31), (unsigned __int64)v32 > 0xA) )
   {
+    v33 = NULL;
+    this->m_writer.m_structPtr = v31 + 10;
     v34 = NULL;
-    _RBX->m_writer.m_structPtr = v32 + 10;
     v35 = NULL;
-    v36 = 0i64;
-    if ( v32 != (unsigned __int8 *)-10i64 )
+    if ( v31 != (unsigned __int8 *)-10i64 )
     {
-      *(_QWORD *)&v44[40] = v32 + 10;
-      v34 = v32 + 10;
-      *(_QWORD *)&v44[32] = v32 + 10;
-      v35 = v32 + 10;
-      *(_QWORD *)v44 = v33 - 10;
-      v36 = v33 - 10;
-      *(_QWORD *)&v44[8] = v33 - 10;
-      resulta[0] = 0i64;
-      *(_DWORD *)&v44[16] = 0;
+      *(_QWORD *)&v39[40] = v31 + 10;
+      v33 = v31 + 10;
+      *(_QWORD *)&v39[32] = v31 + 10;
+      v34 = v31 + 10;
+      *(_QWORD *)v39 = v32 - 10;
+      v35 = v32 - 10;
+      *(_QWORD *)&v39[8] = v32 - 10;
+      resulta[0] = 0.0;
+      *(_DWORD *)&v39[16] = 0;
     }
-    if ( v36 + v34 - v35 >= v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\proto\\online_protobuf_serialization.h", 230, ASSERT_TYPE_ASSERT, "(structure.GetRemainingSize() < GetRemainingSize())", (const char *)&queryFormat, "structure.GetRemainingSize() < GetRemainingSize()") )
+    if ( &v35[v33 - v34] >= v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\proto\\online_protobuf_serialization.h", 230, ASSERT_TYPE_ASSERT, "(structure.GetRemainingSize() < GetRemainingSize())", (const char *)&queryFormat, "structure.GetRemainingSize() < GetRemainingSize()") )
       __debugbreak();
   }
   else
   {
-    _RBX->m_writer.m_currentPtr = (unsigned __int8 *)m_currentPtr;
+    this->m_writer.m_currentPtr = m_currentPtr;
   }
-  _RAX = result;
-  __asm
-  {
-    vmovups ymm0, [rsp+2F0h+var_2B8+8]
-    vmovups xmm1, [rsp+2F0h+var_290]
-    vmovups ymmword ptr [rax], ymm0
-    vmovsd  xmm0, [rsp+2F0h+result]
-    vmovups xmmword ptr [rax+20h], xmm1
-    vmovsd  qword ptr [rax+30h], xmm0
-    vmovups ymm0, ymmword ptr [rbx+38h]
-    vmovups ymmword ptr [rax+38h], ymm0
-  }
-  return _RAX;
+  v36 = result;
+  *(__m256i *)&result->m_real_len = *(__m256i *)v39;
+  *(_OWORD *)&result->m_currentPtr = *(_OWORD *)&v39[32];
+  *(double *)&result->m_rollbackPtr = resulta[0];
+  result->m_rootState = this->m_writer.m_rootState;
+  return v36;
 }
 
 /*
@@ -623,36 +597,33 @@ TelemetrySerializer *TelemetrySerializer::OpenStruct(TelemetrySerializer *this, 
 {
   unsigned int v6; 
   int externalIndex; 
+  ProtoBufSerializer *v9; 
+  __int128 v10; 
+  double v11; 
   DDLState toState; 
   ProtoBufSerializer resulta; 
 
-  _RDI = result;
   v6 = DDL::DDL_HashString(name, 0);
   __asm { vpxor   xmm0, xmm0, xmm0 }
   externalIndex = 0;
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+88h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   if ( DDL_MoveToNameByHash(&this->m_rootState, &toState, v6, NULL) )
   {
     if ( toState.member )
       externalIndex = toState.member->externalIndex;
     externalIndex = (LODWORD(toState.member) - LODWORD(this->m_rootState.ddlDef->structList[externalIndex].members)) / 48 + 1;
   }
-  _RAX = ProtoBufSerializer::OpenStruct(this, &resulta, externalIndex);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovups xmmword ptr [rdi+20h], xmm1
-    vmovups ymm1, ymmword ptr [rsp+88h+toState.isValid]
-    vmovups ymmword ptr [rdi+38h], ymm1
-    vmovsd  qword ptr [rdi+30h], xmm0
-  }
-  return _RDI;
+  v9 = ProtoBufSerializer::OpenStruct(this, &resulta, externalIndex);
+  v10 = *(_OWORD *)&v9->m_currentPtr;
+  *(__m256i *)&result->m_real_len = *(__m256i *)&v9->m_real_len;
+  v11 = *(double *)&v9->m_rollbackPtr;
+  *(_OWORD *)&result->m_currentPtr = v10;
+  result->m_rootState = toState;
+  *(double *)&result->m_rollbackPtr = v11;
+  return result;
 }
 
 /*
@@ -663,37 +634,32 @@ TelemetrySerializer::OpenStructByHash
 TelemetrySerializer *TelemetrySerializer::OpenStructByHash(TelemetrySerializer *this, TelemetrySerializer *result, const unsigned int hash)
 {
   int externalIndex; 
-  DDLState v15; 
+  ProtoBufSerializer *v8; 
+  __int128 v9; 
+  double v10; 
+  DDLState v12; 
   ProtoBufSerializer resulta; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  _RDI = result;
-  v15.isValid = 0;
-  v15.arrayIndex = -1;
+  v12.isValid = 0;
+  v12.arrayIndex = -1;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   externalIndex = 0;
-  v15.offset = 0;
-  __asm { vmovdqu xmmword ptr [rax-58h], xmm0 }
-  if ( DDL_MoveToNameByHash(&this->m_rootState, &v15, hash, NULL) )
+  v12.offset = 0;
+  *(_OWORD *)&v12.member = _XMM0;
+  if ( DDL_MoveToNameByHash(&this->m_rootState, &v12, hash, NULL) )
   {
-    if ( v15.member )
-      externalIndex = v15.member->externalIndex;
-    externalIndex = (LODWORD(v15.member) - LODWORD(this->m_rootState.ddlDef->structList[externalIndex].members)) / 48 + 1;
+    if ( v12.member )
+      externalIndex = v12.member->externalIndex;
+    externalIndex = (LODWORD(v12.member) - LODWORD(this->m_rootState.ddlDef->structList[externalIndex].members)) / 48 + 1;
   }
-  _RAX = ProtoBufSerializer::OpenStruct(this, &resulta, externalIndex);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovups xmmword ptr [rdi+20h], xmm1
-    vmovups ymm1, ymmword ptr [rsp+20h]
-    vmovups ymmword ptr [rdi+38h], ymm1
-    vmovsd  qword ptr [rdi+30h], xmm0
-  }
-  return _RDI;
+  v8 = ProtoBufSerializer::OpenStruct(this, &resulta, externalIndex);
+  v9 = *(_OWORD *)&v8->m_currentPtr;
+  *(__m256i *)&result->m_real_len = *(__m256i *)&v8->m_real_len;
+  v10 = *(double *)&v8->m_rollbackPtr;
+  *(_OWORD *)&result->m_currentPtr = v9;
+  result->m_rootState = v12;
+  *(double *)&result->m_rollbackPtr = v10;
+  return result;
 }
 
 /*
@@ -703,25 +669,21 @@ TelemetrySerializer::OpenStructByTag
 */
 TelemetrySerializer *TelemetrySerializer::OpenStructByTag(TelemetrySerializer *this, TelemetrySerializer *result, unsigned int tag)
 {
-  TelemetrySerializer *v10; 
+  ProtoBufSerializer *v5; 
+  __int128 v6; 
+  double v7; 
+  TelemetrySerializer *v8; 
   ProtoBufSerializer resulta; 
 
-  _RDI = result;
-  _RBX = this;
-  _RAX = ProtoBufSerializer::OpenStruct(this, &resulta, tag);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovsd  xmm0, qword ptr [rax+30h]
-    vmovups xmmword ptr [rdi+20h], xmm1
-    vmovsd  qword ptr [rdi+30h], xmm0
-    vmovups ymm0, ymmword ptr [rbx+38h]
-  }
-  v10 = _RDI;
-  __asm { vmovups ymmword ptr [rdi+38h], ymm0 }
-  return v10;
+  v5 = ProtoBufSerializer::OpenStruct(this, &resulta, tag);
+  v6 = *(_OWORD *)&v5->m_currentPtr;
+  *(__m256i *)&result->m_real_len = *(__m256i *)&v5->m_real_len;
+  v7 = *(double *)&v5->m_rollbackPtr;
+  *(_OWORD *)&result->m_currentPtr = v6;
+  *(double *)&result->m_rollbackPtr = v7;
+  v8 = result;
+  result->m_rootState = this->m_rootState;
+  return v8;
 }
 
 /*
@@ -740,11 +702,7 @@ void TelemetrySerializer::Reset(TelemetrySerializer *this, const DDLState *schem
     this->m_real_len = len;
     this->m_len_minus_buffer = len;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx+38h], ymm0
-  }
+  this->m_rootState = *schema;
 }
 
 /*
@@ -761,103 +719,101 @@ void SerializeMember(TelemetrySerializer *writer, const DDLState *const focus, c
   unsigned __int64 UInt64; 
   unsigned __int8 *m_currentPtr; 
   unsigned __int8 *m_buffer; 
-  char *v18; 
+  unsigned __int8 *v17; 
+  double Float; 
+  double FixedPoint; 
   const char *String; 
-  __int64 v22; 
-  size_t v30; 
+  __int64 v21; 
+  ProtoBufSerializer *v22; 
+  DDLState m_rootState; 
+  size_t v26; 
   TelemetrySerializer writera; 
   ProtoBufSerializer result; 
 
-  _RDI = writer;
   switch ( member->type )
   {
     case 0:
       Byte = DDL_GetByte(focus, context);
-      ProtoBufSerializer::WriteInt64(_RDI, tag, Byte);
+      ProtoBufSerializer::WriteInt64(writer, tag, Byte);
       return;
     case 1:
       Short = DDL_GetShort(focus, context);
-      ProtoBufSerializer::WriteInt64(_RDI, tag, Short);
+      ProtoBufSerializer::WriteInt64(writer, tag, Short);
       return;
     case 2:
     case 0xA:
       UInt = DDL_GetUInt(focus, context);
-      ProtoBufSerializer::WriteUInt32(_RDI, tag, UInt);
+      ProtoBufSerializer::WriteUInt32(writer, tag, UInt);
       return;
     case 3:
       Int = DDL_GetInt(focus, context);
-      ProtoBufSerializer::WriteInt64(_RDI, tag, Int);
+      ProtoBufSerializer::WriteInt64(writer, tag, Int);
       return;
     case 4:
       UInt64 = DDL_GetUInt64(focus, context);
-      m_currentPtr = _RDI->m_currentPtr;
+      m_currentPtr = writer->m_currentPtr;
       if ( !tag )
         goto LABEL_13;
-      if ( !ProtoBufSerializer::EncodeVarInt(_RDI, (8i64 * (unsigned int)tag) | 1) )
+      if ( !ProtoBufSerializer::EncodeVarInt(writer, (8i64 * (unsigned int)tag) | 1) )
         goto LABEL_13;
-      m_buffer = _RDI->m_buffer;
+      m_buffer = writer->m_buffer;
       if ( !m_buffer )
         goto LABEL_13;
-      v18 = (char *)_RDI->m_currentPtr;
-      if ( !v18 )
+      v17 = writer->m_currentPtr;
+      if ( !v17 )
         goto LABEL_13;
-      if ( v18 - (char *)m_buffer + 8 > _RDI->m_len_minus_buffer )
+      if ( v17 - m_buffer + 8 > writer->m_len_minus_buffer )
       {
-        _RDI->m_overflowed = 1;
+        writer->m_overflowed = 1;
 LABEL_13:
-        _RDI->m_currentPtr = m_currentPtr;
+        writer->m_currentPtr = m_currentPtr;
       }
       else
       {
-        *(_QWORD *)v18 = UInt64;
-        _RDI->m_currentPtr += 8;
+        *(_QWORD *)v17 = UInt64;
+        writer->m_currentPtr += 8;
       }
       return;
     case 6:
-      *(double *)&_XMM0 = DDL_GetFloat(focus, context);
-      __asm { vmovaps xmm2, xmm0; value }
-      ProtoBufSerializer::WriteFloat32(_RDI, tag, *(float *)&_XMM2);
+      Float = DDL_GetFloat(focus, context);
+      ProtoBufSerializer::WriteFloat32(writer, tag, *(float *)&Float);
       return;
     case 7:
-      *(double *)&_XMM0 = DDL_GetFixedPoint(focus, context);
-      __asm { vmovaps xmm2, xmm0; value }
-      ProtoBufSerializer::WriteFloat32(_RDI, tag, *(float *)&_XMM2);
+      FixedPoint = DDL_GetFixedPoint(focus, context);
+      ProtoBufSerializer::WriteFloat32(writer, tag, *(float *)&FixedPoint);
       return;
     case 8:
       String = DDL_GetString(focus, context);
-      v22 = -1i64;
+      v21 = -1i64;
       do
-        ++v22;
-      while ( String[v22] );
-      ProtoBufSerializer::WriteString(_RDI, tag, String, (unsigned int)v22);
+        ++v21;
+      while ( String[v21] );
+      ProtoBufSerializer::WriteString(writer, tag, String, (unsigned int)v21);
       return;
     case 9:
-      _RAX = ProtoBufSerializer::OpenStruct(writer, &result, tag);
+      v22 = ProtoBufSerializer::OpenStruct(writer, &result, tag);
+      *(__m256i *)&writera.m_real_len = *(__m256i *)&v22->m_real_len;
+      *(_OWORD *)&writera.m_currentPtr = *(_OWORD *)&v22->m_currentPtr;
+      m_rootState = writer->m_rootState;
+      writera.m_rollbackPtr = v22->m_rollbackPtr;
       __asm
       {
-        vmovups ymm2, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0D8h+writer.baseclass_0.m_real_len], ymm2
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rsp+0D8h+writer.baseclass_0.m_currentPtr], xmm0
-        vmovsd  xmm1, qword ptr [rax+30h]
-        vmovups ymm0, ymmword ptr [rdi+38h]
-        vmovsd  [rsp+0D8h+writer.baseclass_0.m_rollbackPtr], xmm1
         vextractf128 xmm1, ymm2, 1
         vpextrq rax, xmm1, 1
-        vmovups ymmword ptr [rsp+0D8h+writer.m_rootState.isValid], ymm0
       }
+      writera.m_rootState = m_rootState;
       if ( !_RAX )
       {
         if ( writera.m_currentPtr )
         {
           SerializeStruct(&writera, focus, context, schema, &schema->structList[member->externalIndex]);
-          if ( _RDI->m_structPtr == writera.m_buffer )
+          if ( writer->m_structPtr == writera.m_buffer )
           {
-            v30 = writera.m_currentPtr - writera.m_buffer;
-            ProtoBufSerializer::EncodeVarInt(_RDI, writera.m_currentPtr - writera.m_buffer);
-            memmove_0(_RDI->m_currentPtr, writera.m_buffer, v30);
-            _RDI->m_currentPtr += v30;
-            _RDI->m_structPtr = NULL;
+            v26 = writera.m_currentPtr - writera.m_buffer;
+            ProtoBufSerializer::EncodeVarInt(writer, writera.m_currentPtr - writera.m_buffer);
+            memmove_0(writer->m_currentPtr, writera.m_buffer, v26);
+            writer->m_currentPtr += v26;
+            writer->m_structPtr = NULL;
           }
         }
       }
@@ -901,7 +857,7 @@ void SerializeStruct(TelemetrySerializer *writer, const DDLState *const focus, c
   toState.offset = 0;
   v11 = message->memberCount <= 0;
   toState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+0A8h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   if ( !v11 )
   {
     v13 = 0i64;
@@ -924,7 +880,7 @@ void SerializeStruct(TelemetrySerializer *writer, const DDLState *const focus, c
           state.isValid = 0;
           state.offset = 0;
           state.arrayIndex = -1;
-          __asm { vmovdqu xmmword ptr [rsp+0A8h+state.member], xmm0 }
+          *(_OWORD *)&state.member = _XMM0;
           v18 = ArraySize;
           if ( toState.member->type )
           {
@@ -1161,29 +1117,25 @@ TelemetrySerializer::TagFromNameByHash
 __int64 TelemetrySerializer::TagFromNameByHash(TelemetrySerializer *this, const unsigned int hashName, DDLState *outState)
 {
   int externalIndex; 
-  DDLState *v6; 
+  DDLState *v5; 
   DDLMember *member; 
-  char v11; 
+  char v10; 
+  int v11; 
   int v12; 
-  int v13; 
-  void *retaddr; 
+  __int128 v13; 
 
-  _RAX = &retaddr;
   externalIndex = 0;
+  v10 = 0;
   v11 = 0;
-  v12 = 0;
-  v6 = (DDLState *)&v11;
-  v13 = -1;
+  v5 = (DDLState *)&v10;
+  v12 = -1;
   if ( outState )
-    v6 = outState;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-18h], xmm0
-  }
-  if ( !DDL_MoveToNameByHash(&this->m_rootState, v6, hashName, NULL) )
+    v5 = outState;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v13 = _XMM0;
+  if ( !DDL_MoveToNameByHash(&this->m_rootState, v5, hashName, NULL) )
     return 0i64;
-  member = v6->member;
+  member = v5->member;
   if ( member )
     externalIndex = member->externalIndex;
   return (unsigned int)(((int)member - LODWORD(this->m_rootState.ddlDef->structList[externalIndex].members)) / 48 + 1);
@@ -1363,63 +1315,59 @@ bool TelemetrySerializer::WriteState(TelemetrySerializer *this, const char *memb
   const DDLDef *ddlDef; 
   __int64 v14; 
   DDLStruct *structList; 
+  ProtoBufSerializer *v16; 
   const DDLDef *v17; 
-  DDLStruct *v21; 
+  __int128 v18; 
+  double v19; 
+  DDLStruct *v20; 
+  DDLState m_rootState; 
   unsigned __int8 *m_buffer; 
-  size_t v24; 
+  size_t v23; 
   DDLState toState; 
   TelemetrySerializer writer; 
   ProtoBufSerializer result; 
 
-  _RDI = this;
   v8 = DDL::DDL_HashString(memberName, 0);
   toState.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   v10 = v8 == 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+0F8h+toState.member], xmm0 }
-  if ( !v8 || (v11 = DDL_MoveToNameByHash(&_RDI->m_rootState, &toState, v8, NULL)) )
+  *(_OWORD *)&toState.member = _XMM0;
+  if ( !v8 || (v11 = DDL_MoveToNameByHash(&this->m_rootState, &toState, v8, NULL)) )
   {
     if ( toState.member )
       externalIndex = toState.member->externalIndex;
     else
       externalIndex = 0;
-    ddlDef = _RDI->m_rootState.ddlDef;
+    ddlDef = this->m_rootState.ddlDef;
     v14 = externalIndex;
     structList = ddlDef->structList;
     if ( v10 )
     {
-      SerializeStruct(_RDI, state, context, ddlDef, &structList[v14]);
+      SerializeStruct(this, state, context, ddlDef, &structList[v14]);
     }
     else
     {
-      _RAX = ProtoBufSerializer::OpenStruct(_RDI, &result, (LODWORD(toState.member) - LODWORD(structList->members)) / 48 + 1);
-      v17 = _RDI->m_rootState.ddlDef;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+0F8h+writer.baseclass_0.m_real_len], ymm0
-        vmovsd  xmm0, qword ptr [rax+30h]
-      }
-      v21 = v17->structList;
-      __asm
-      {
-        vmovups xmmword ptr [rsp+0F8h+writer.baseclass_0.m_currentPtr], xmm1
-        vmovups ymm1, ymmword ptr [rdi+38h]
-        vmovsd  [rsp+0F8h+writer.baseclass_0.m_rollbackPtr], xmm0
-        vmovups ymmword ptr [rsp+0F8h+writer.m_rootState.isValid], ymm1
-      }
-      SerializeStruct(&writer, state, context, v17, &v21[v14]);
+      v16 = ProtoBufSerializer::OpenStruct(this, &result, (LODWORD(toState.member) - LODWORD(structList->members)) / 48 + 1);
+      v17 = this->m_rootState.ddlDef;
+      v18 = *(_OWORD *)&v16->m_currentPtr;
+      *(__m256i *)&writer.m_real_len = *(__m256i *)&v16->m_real_len;
+      v19 = *(double *)&v16->m_rollbackPtr;
+      v20 = v17->structList;
+      *(_OWORD *)&writer.m_currentPtr = v18;
+      m_rootState = this->m_rootState;
+      *(double *)&writer.m_rollbackPtr = v19;
+      writer.m_rootState = m_rootState;
+      SerializeStruct(&writer, state, context, v17, &v20[v14]);
       m_buffer = writer.m_buffer;
-      if ( _RDI->m_structPtr == writer.m_buffer )
+      if ( this->m_structPtr == writer.m_buffer )
       {
-        v24 = writer.m_currentPtr - writer.m_buffer;
-        ProtoBufSerializer::EncodeVarInt(_RDI, writer.m_currentPtr - writer.m_buffer);
-        memmove_0(_RDI->m_currentPtr, m_buffer, v24);
-        _RDI->m_currentPtr += v24;
-        _RDI->m_structPtr = NULL;
+        v23 = writer.m_currentPtr - writer.m_buffer;
+        ProtoBufSerializer::EncodeVarInt(this, writer.m_currentPtr - writer.m_buffer);
+        memmove_0(this->m_currentPtr, m_buffer, v23);
+        this->m_currentPtr += v23;
+        this->m_structPtr = NULL;
       }
     }
     return 1;
@@ -1439,10 +1387,14 @@ bool TelemetrySerializer::WriteStateByHash(TelemetrySerializer *this, const unsi
   const DDLDef *ddlDef; 
   __int64 v13; 
   DDLStruct *structList; 
+  ProtoBufSerializer *v15; 
   const DDLDef *v16; 
-  DDLStruct *v20; 
+  __int128 v17; 
+  double v18; 
+  DDLStruct *v19; 
+  DDLState m_rootState; 
   unsigned __int8 *m_buffer; 
-  size_t v23; 
+  size_t v22; 
   DDLState toState; 
   TelemetrySerializer writer; 
   ProtoBufSerializer result; 
@@ -1450,54 +1402,43 @@ bool TelemetrySerializer::WriteStateByHash(TelemetrySerializer *this, const unsi
   toState.isValid = 0;
   toState.offset = 0;
   toState.arrayIndex = -1;
-  _RDI = this;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+0F8h+toState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   if ( !hashName || (v10 = DDL_MoveToNameByHash(&this->m_rootState, &toState, hashName, NULL)) )
   {
     if ( toState.member )
       externalIndex = toState.member->externalIndex;
     else
       externalIndex = 0;
-    ddlDef = _RDI->m_rootState.ddlDef;
+    ddlDef = this->m_rootState.ddlDef;
     v13 = externalIndex;
     structList = ddlDef->structList;
     if ( hashName )
     {
-      _RAX = ProtoBufSerializer::OpenStruct(_RDI, &result, (LODWORD(toState.member) - LODWORD(structList->members)) / 48 + 1);
-      v16 = _RDI->m_rootState.ddlDef;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+0F8h+writer.baseclass_0.m_real_len], ymm0
-        vmovsd  xmm0, qword ptr [rax+30h]
-      }
-      v20 = v16->structList;
-      __asm
-      {
-        vmovups xmmword ptr [rsp+0F8h+writer.baseclass_0.m_currentPtr], xmm1
-        vmovups ymm1, ymmword ptr [rdi+38h]
-        vmovsd  [rsp+0F8h+writer.baseclass_0.m_rollbackPtr], xmm0
-        vmovups ymmword ptr [rsp+0F8h+writer.m_rootState.isValid], ymm1
-      }
-      SerializeStruct(&writer, state, context, v16, &v20[v13]);
+      v15 = ProtoBufSerializer::OpenStruct(this, &result, (LODWORD(toState.member) - LODWORD(structList->members)) / 48 + 1);
+      v16 = this->m_rootState.ddlDef;
+      v17 = *(_OWORD *)&v15->m_currentPtr;
+      *(__m256i *)&writer.m_real_len = *(__m256i *)&v15->m_real_len;
+      v18 = *(double *)&v15->m_rollbackPtr;
+      v19 = v16->structList;
+      *(_OWORD *)&writer.m_currentPtr = v17;
+      m_rootState = this->m_rootState;
+      *(double *)&writer.m_rollbackPtr = v18;
+      writer.m_rootState = m_rootState;
+      SerializeStruct(&writer, state, context, v16, &v19[v13]);
       m_buffer = writer.m_buffer;
-      if ( _RDI->m_structPtr == writer.m_buffer )
+      if ( this->m_structPtr == writer.m_buffer )
       {
-        v23 = writer.m_currentPtr - writer.m_buffer;
-        ProtoBufSerializer::EncodeVarInt(_RDI, writer.m_currentPtr - writer.m_buffer);
-        memmove_0(_RDI->m_currentPtr, m_buffer, v23);
-        _RDI->m_currentPtr += v23;
-        _RDI->m_structPtr = NULL;
+        v22 = writer.m_currentPtr - writer.m_buffer;
+        ProtoBufSerializer::EncodeVarInt(this, writer.m_currentPtr - writer.m_buffer);
+        memmove_0(this->m_currentPtr, m_buffer, v22);
+        this->m_currentPtr += v22;
+        this->m_structPtr = NULL;
       }
     }
     else
     {
-      SerializeStruct(_RDI, state, context, ddlDef, &structList[v13]);
+      SerializeStruct(this, state, context, ddlDef, &structList[v13]);
     }
     return 1;
   }

@@ -436,88 +436,84 @@ PlayerCmd_ZeroGrav
 void PlayerCmd_ZeroGrav(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v7; 
-  ComErrorCode v8; 
+  gentity_s *v4; 
+  playerState_s *p_ps; 
+  const char *v6; 
+  ComErrorCode v7; 
   __int16 groundRefEnt; 
   GHandler *Handler; 
+  float v10; 
   vec3_t angles; 
   vec3_t newWorldAngles; 
-  WorldUpReferenceFrame v17; 
+  WorldUpReferenceFrame v13; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
-    v7 = "not an entity";
-    v8 = COM_ERR_3682;
+    v6 = "not an entity";
+    v7 = COM_ERR_3682;
     goto LABEL_9;
   }
   if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_client_script_sp.cpp", 227, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
     __debugbreak();
-  v5 = &g_entities[entnum];
-  _RDI = &v5->client->ps;
-  if ( !_RDI )
+  v4 = &g_entities[entnum];
+  p_ps = &v4->client->ps;
+  if ( !p_ps )
   {
-    _RDI = &v5->agent->playerState;
-    if ( !_RDI )
+    p_ps = &v4->agent->playerState;
+    if ( !p_ps )
     {
-      v7 = j_va("entity %i is not a player or agent", entnum);
-      v8 = COM_ERR_3679;
+      v6 = j_va("entity %i is not a player or agent", entnum);
+      v7 = COM_ERR_3679;
 LABEL_9:
-      Scr_ObjectError(v8, scrContext, v7);
-      _RDI = NULL;
+      Scr_ObjectError(v7, scrContext, v6);
+      p_ps = NULL;
     }
   }
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) )
     Scr_Error(COM_ERR_1805, scrContext, "ZeroGrav is not supported in this game mode");
   if ( Scr_GetInt(scrContext, 0) )
   {
-    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x2Au) )
+    if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&p_ps->pm_flags, ACTIVE, 0x2Au) )
     {
-      _RDI->autoLevelTime = 0;
-      GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal(&_RDI->otherFlags, GameModeFlagValues::ms_spValue, 0x2Du);
+      p_ps->autoLevelTime = 0;
+      GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal(&p_ps->otherFlags, GameModeFlagValues::ms_spValue, 0x2Du);
     }
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&_RDI->pm_flags, ACTIVE, 0x2Au);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::SetFlagInternal(&p_ps->pm_flags, ACTIVE, 0x2Au);
   }
   else
   {
-    if ( !_RDI )
+    if ( !p_ps )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2605, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2571, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
     }
-    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RDI->pm_flags, ACTIVE, 0x2Au) )
+    if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&p_ps->pm_flags, ACTIVE, 0x2Au) )
     {
-      groundRefEnt = _RDI->groundRefEnt;
+      groundRefEnt = p_ps->groundRefEnt;
       if ( groundRefEnt == 2047 || !groundRefEnt )
       {
         if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_PARACHUTE_IDLE|WEAPON_FIRING) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2575, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ZEROG )") )
           __debugbreak();
-        if ( !BG_IsPlayerZeroGWalking(_RDI) )
+        if ( !BG_IsPlayerZeroGWalking(p_ps) )
         {
           Handler = GHandler::getHandler();
-          WorldUpReferenceFrame::WorldUpReferenceFrame(&v17, _RDI, Handler);
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rdi+1DCh]
-            vxorps  xmm0, xmm0, xmm0
-            vmovss  dword ptr [rsp+98h+newWorldAngles], xmm0
-            vmovss  dword ptr [rsp+98h+newWorldAngles+4], xmm0
-            vmovss  dword ptr [rsp+98h+newWorldAngles+8], xmm0
-            vmovss  xmm0, dword ptr [rdi+1D8h]
-            vmovss  dword ptr [rsp+98h+angles], xmm0
-            vmovss  xmm0, dword ptr [rdi+1E0h]
-            vmovss  dword ptr [rsp+98h+angles+8], xmm0
-            vmovss  dword ptr [rsp+98h+angles+4], xmm1
-          }
-          WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v17, &angles);
-          WorldUpReferenceFrame::SetAnglesAndViewAngles(&v17, _RDI, Handler, &newWorldAngles, &angles);
+          WorldUpReferenceFrame::WorldUpReferenceFrame(&v13, p_ps, Handler);
+          v10 = p_ps->viewangles.v[1];
+          newWorldAngles.v[0] = 0.0;
+          newWorldAngles.v[1] = 0.0;
+          newWorldAngles.v[2] = 0.0;
+          angles.v[0] = p_ps->viewangles.v[0];
+          angles.v[2] = p_ps->viewangles.v[2];
+          angles.v[1] = v10;
+          WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v13, &angles);
+          WorldUpReferenceFrame::SetAnglesAndViewAngles(&v13, p_ps, Handler, &newWorldAngles, &angles);
         }
       }
     }
-    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&_RDI->pm_flags, ACTIVE, 0x2Au);
+    GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::ClearFlagInternal(&p_ps->pm_flags, ACTIVE, 0x2Au);
   }
 }
 
@@ -602,9 +598,7 @@ void PlayerCmd_GetBobRate(scrContext_t *scrContext, scr_entref_t entref)
       Scr_ObjectError(COM_ERR_3680, scrContext, v5);
     }
   }
-  _RAX = v4->client;
-  __asm { vmovss  xmm1, dword ptr [rax+52E0h]; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, v4->client->ps.bobScale);
 }
 
 /*
@@ -615,29 +609,29 @@ PlayerCmd_SetBobRate
 void PlayerCmd_SetBobRate(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v5; 
-  const char *v6; 
+  gentity_s *v4; 
+  const char *v5; 
+  double Float; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
-    v5 = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_client_script_sp.cpp", 321, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v5 = &g_entities[entnum];
-    if ( !v5->client )
+    v4 = &g_entities[entnum];
+    if ( !v4->client )
     {
-      v6 = j_va("entity %i is not a player", entnum);
-      Scr_ObjectError(COM_ERR_3680, scrContext, v6);
+      v5 = j_va("entity %i is not a player", entnum);
+      Scr_ObjectError(COM_ERR_3680, scrContext, v5);
     }
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  _RAX = v5->client;
-  __asm { vmovss  dword ptr [rax+52E0h], xmm0 }
+  Float = Scr_GetFloat(scrContext, 0);
+  v4->client->ps.bobScale = *(float *)&Float;
 }
 
 /*
@@ -1599,58 +1593,47 @@ void GScr_EnableSlowAim(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
   unsigned int NumParam; 
-  unsigned int v7; 
-  const char *v8; 
-  const char *v15; 
-  const char *v16; 
+  unsigned int v5; 
+  const char *v6; 
+  double Float; 
+  float v8; 
+  double v9; 
+  const char *v10; 
+  const char *v11; 
   SvClient *CommonClient; 
 
   entnum = entref.entnum;
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_MID_AIR_DETACH|WEAPON_OFFHAND_END) )
     Scr_Error(COM_ERR_1821, scrContext, "EnableSlowAim is not supported in this game mode");
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam )
   {
     if ( NumParam != 2 )
     {
-      v7 = Scr_GetNumParam(scrContext);
-      v8 = j_va("EnableSlowAim: Incorrect number of parameters ( %d ).", v7);
-      __asm { vmovaps xmm6, [rsp+38h+var_18] }
-      Scr_Error(COM_ERR_1822, scrContext, v8);
+      v5 = Scr_GetNumParam(scrContext);
+      v6 = j_va("EnableSlowAim: Incorrect number of parameters ( %d ).", v5);
+      Scr_Error(COM_ERR_1822, scrContext, v6);
       return;
     }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
+    Float = Scr_GetFloat(scrContext, 0);
+    v8 = *(float *)&Float;
+    v9 = Scr_GetFloat(scrContext, 1u);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3dcccccd
-      vmovss  xmm0, cs:__real@3e051eb8
-    }
+    v8 = FLOAT_0_1;
+    *(float *)&v9 = FLOAT_0_13;
   }
-  __asm
-  {
-    vcvtss2sd xmm2, xmm0, xmm0
-    vcvtss2sd xmm1, xmm6, xmm6
-    vmovq   r8, xmm2
-    vmovq   rdx, xmm1
-  }
-  v15 = j_va("slowaim 1 %f %f", _RDX, _R8);
-  v16 = v15;
+  v10 = j_va("slowaim 1 %f %f", v8, *(float *)&v9);
+  v11 = v10;
   if ( entnum == -1 )
   {
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v15);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v10);
   }
   else
   {
     CommonClient = SvClient::GetCommonClient(entnum);
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v16);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v11);
   }
 }
 
@@ -1687,43 +1670,37 @@ void GScr_CapTurnRate(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
   unsigned int NumParam; 
-  const char *v7; 
-  const char *v13; 
-  const char *v15; 
+  const char *v5; 
+  double Float; 
+  float v7; 
+  double v8; 
+  const char *v9; 
+  const char *v10; 
   SvClient *CommonClient; 
 
   entnum = entref.entnum;
   if ( Scr_GetNumParam(scrContext) == 2 )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
-    {
-      vcvtss2sd xmm2, xmm0, xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   r8, xmm2
-      vmovq   rdx, xmm1
-    }
-    v13 = j_va("capturnrate %f %f", _RDX, _R8);
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    v15 = v13;
+    Float = Scr_GetFloat(scrContext, 0);
+    v7 = *(float *)&Float;
+    v8 = Scr_GetFloat(scrContext, 1u);
+    v9 = j_va("capturnrate %f %f", v7, *(float *)&v8);
+    v10 = v9;
     if ( entnum == -1 )
     {
-      SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v13);
+      SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v9);
     }
     else
     {
       CommonClient = SvClient::GetCommonClient(entnum);
-      CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v15);
+      CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v10);
     }
   }
   else
   {
     NumParam = Scr_GetNumParam(scrContext);
-    v7 = j_va("CapTurnRate: Incorrect number of parameters ( %d ).", NumParam);
-    Scr_Error(COM_ERR_5778, scrContext, v7);
+    v5 = j_va("CapTurnRate: Incorrect number of parameters ( %d ).", NumParam);
+    Scr_Error(COM_ERR_5778, scrContext, v5);
   }
 }
 
@@ -1818,197 +1795,121 @@ PlayerCmd_getNormalizedCameraMovement
 void PlayerCmd_getNormalizedCameraMovement(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  const char *v10; 
+  gentity_s *v4; 
+  const char *v5; 
   unsigned int NumParam; 
-  char v35; 
-  char v50; 
-  char v55; 
+  double Float; 
+  __int128 v10; 
+  float v12; 
+  float v14; 
+  float v15; 
+  double v16; 
+  float v17; 
+  double v18; 
+  float v19; 
+  unsigned __int128 v20; 
+  unsigned __int128 v24; 
   float value; 
-  void *retaddr; 
+  float v29; 
+  float v30; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-18h], xmm6 }
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_3681, scrContext, "not an entity");
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_client_script_sp.cpp", 1078, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    if ( !g_entities[entnum].client )
+    v4 = &g_entities[entnum];
+    if ( !v4->client )
     {
-      v10 = j_va("entity %i is not a player", entnum);
-      Scr_ObjectError(COM_ERR_3680, scrContext, v10);
+      v5 = j_va("entity %i is not a player", entnum);
+      Scr_ObjectError(COM_ERR_3680, scrContext, v5);
     }
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovaps [rsp+98h+var_28], xmm7
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm0, xmm0, cs:__real@bc010204
-    vmovss  [rsp+98h+value], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovaps [rsp+98h+var_38], xmm8
-    vmovaps [rsp+98h+var_48], xmm9
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm1, xmm0, cs:__real@bc010204
-    vmovss  [rsp+98h+var_64], xmm1
-    vmovss  [rsp+98h+var_60], xmm6
-  }
+  _XMM6 = 0i64;
+  value = (float)v4->client->sess.cmd.pitchmove * -0.0078740157;
+  v29 = (float)v4->client->sess.cmd.yawmove * -0.0078740157;
+  v30 = 0.0;
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam == 1 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm
+    Float = Scr_GetFloat(scrContext, 0);
+    v10 = LODWORD(value);
+    *(float *)&v10 = fsqrt((float)(value * value) + (float)(v29 * v29));
+    _XMM8 = v10;
+    __asm { vcmpless xmm1, xmm8, cs:__real@80000000 }
+    v12 = *(float *)&Float;
+    __asm { vblendvps xmm1, xmm8, xmm9, xmm1 }
+    v14 = value * (float)(1.0 / *(float *)&_XMM1);
+    v15 = v29 * (float)(1.0 / *(float *)&_XMM1);
+    value = v14;
+    v29 = v15;
+    if ( *(float *)&Float < 0.0 || *(float *)&Float >= 1.0 )
     {
-      vmovss  xmm3, [rsp+98h+value]
-      vmovss  xmm4, [rsp+98h+var_64]
-      vmovss  xmm9, cs:__real@3f800000
-      vmulss  xmm2, xmm3, xmm3
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm8, xmm2, xmm2
-      vcmpless xmm1, xmm8, cs:__real@80000000
-      vmovaps xmm7, xmm0
-      vcomiss xmm7, xmm6
-      vblendvps xmm1, xmm8, xmm9, xmm1
-      vdivss  xmm0, xmm9, xmm1
-      vmulss  xmm2, xmm3, xmm0
-      vmulss  xmm5, xmm4, xmm0
-      vmovss  [rsp+98h+value], xmm2
-      vmovss  [rsp+98h+var_64], xmm5
+      Scr_Error(COM_ERR_5685, scrContext, "Deadzone must be less than 1.0 and >= 0.0\n");
+      I_fclamp(*(float *)&Float, 0.0, 0.99000001);
+      v15 = v29;
+      v14 = value;
     }
-    if ( !v35 )
-      __asm { vcomiss xmm7, xmm9 }
-    Scr_Error(COM_ERR_5685, scrContext, "Deadzone must be less than 1.0 and >= 0.0\n");
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f7d70a4; max
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovaps xmm0, xmm7; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm5, [rsp+98h+var_64]
-      vmovss  xmm2, [rsp+98h+value]
-      vmovaps xmm7, xmm0
-      vcomiss xmm8, xmm7
-    }
-    if ( !v35 )
-    {
-      __asm
-      {
-        vsubss  xmm1, xmm8, xmm7
-        vsubss  xmm0, xmm9, xmm7
-        vdivss  xmm6, xmm1, xmm0
-      }
-    }
-    __asm
-    {
-      vmulss  xmm0, xmm2, xmm6
-      vmulss  xmm1, xmm5, xmm6
-      vmovss  [rsp+98h+value], xmm0
-      vmovss  [rsp+98h+var_64], xmm1
-    }
+    if ( *(float *)&v10 >= v12 )
+      *(float *)&_XMM6 = (float)(*(float *)&v10 - v12) / (float)(1.0 - v12);
+    value = v14 * *(float *)&_XMM6;
+    v29 = v15 * *(float *)&_XMM6;
   }
   else if ( NumParam > 1 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm
+    v16 = Scr_GetFloat(scrContext, 0);
+    v17 = *(float *)&v16;
+    v18 = Scr_GetFloat(scrContext, 1u);
+    v19 = *(float *)&v18;
+    if ( v17 < 0.0 || v17 >= 1.0 )
     {
-      vcomiss xmm8, xmm6
-      vmovss  xmm9, cs:__real@3f800000
-      vmovaps xmm7, xmm0
+      Scr_Error(COM_ERR_5686, scrContext, "Deadzones must be less than 1.0 and >= 0.0\n");
+      I_fclamp(v17, 0.0, 0.99000001);
     }
-    if ( !v35 )
-      __asm { vcomiss xmm8, xmm9 }
-    Scr_Error(COM_ERR_5686, scrContext, "Deadzones must be less than 1.0 and >= 0.0\n");
-    __asm
+    if ( v19 < 0.0 || v19 >= 1.0 )
     {
-      vmovss  xmm2, cs:__real@3f7d70a4; max
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovaps xmm0, xmm8; val
+      Scr_Error(COM_ERR_5687, scrContext, "Deadzones must be less than 1.0 and >= 0.0\n");
+      I_fclamp(v19, 0.0, 0.99000001);
     }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
+    if ( COERCE_FLOAT(LODWORD(value) & _xmm) >= v17 )
     {
-      vmovaps xmm8, xmm0
-      vcomiss xmm7, xmm6
-    }
-    if ( !v50 )
-      __asm { vcomiss xmm7, xmm9 }
-    Scr_Error(COM_ERR_5687, scrContext, "Deadzones must be less than 1.0 and >= 0.0\n");
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f7d70a4; max
-      vxorps  xmm1, xmm1, xmm1; min
-      vmovaps xmm0, xmm7; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm7, xmm0
-      vmovss  xmm5, [rsp+98h+value]
-      vmovss  xmm4, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vandps  xmm0, xmm5, xmm4
-      vcomiss xmm0, xmm8
-    }
-    if ( v55 )
-    {
-      __asm { vmovss  [rsp+98h+value], xmm6 }
+      v20 = LODWORD(value) & (unsigned __int128)(unsigned int)_xmm;
+      *(float *)&v20 = (float)(COERCE_FLOAT(LODWORD(value) & _xmm) - v17) / (float)(1.0 - v17);
+      _XMM2 = v20 ^ _xmm;
+      __asm
+      {
+        vcmpless xmm0, xmm6, xmm5
+        vblendvps xmm0, xmm2, xmm3, xmm0
+      }
+      value = *(float *)&_XMM0;
     }
     else
     {
+      value = 0.0;
+    }
+    if ( COERCE_FLOAT(LODWORD(v29) & _xmm) >= v19 )
+    {
+      v24 = LODWORD(v29) & (unsigned __int128)(unsigned int)_xmm;
+      *(float *)&v24 = (float)(COERCE_FLOAT(LODWORD(v29) & _xmm) - v19) / (float)(1.0 - v19);
+      _XMM2 = v24 ^ _xmm;
       __asm
       {
-        vsubss  xmm1, xmm0, xmm8
-        vsubss  xmm0, xmm9, xmm8
-        vdivss  xmm3, xmm1, xmm0
-        vxorps  xmm2, xmm3, cs:__xmm@80000000800000008000000080000000
         vcmpless xmm0, xmm6, xmm5
         vblendvps xmm0, xmm2, xmm3, xmm0
-        vmovss  [rsp+98h+value], xmm0
       }
-    }
-    __asm
-    {
-      vmovss  xmm5, [rsp+98h+var_64]
-      vandps  xmm0, xmm5, xmm4
-      vcomiss xmm0, xmm7
-    }
-    if ( v55 )
-    {
-      __asm { vmovss  [rsp+98h+var_64], xmm6 }
+      v29 = *(float *)&_XMM0;
     }
     else
     {
-      __asm
-      {
-        vsubss  xmm1, xmm0, xmm7
-        vsubss  xmm0, xmm9, xmm7
-        vdivss  xmm3, xmm1, xmm0
-        vxorps  xmm2, xmm3, cs:__xmm@80000000800000008000000080000000
-        vcmpless xmm0, xmm6, xmm5
-        vblendvps xmm0, xmm2, xmm3, xmm0
-        vmovss  [rsp+98h+var_64], xmm0
-      }
+      v29 = 0.0;
     }
   }
   Scr_AddVector(scrContext, &value);
-  __asm
-  {
-    vmovaps xmm9, [rsp+98h+var_48]
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm6, [rsp+98h+var_18]
-  }
 }
 
 /*
@@ -2076,9 +1977,9 @@ void PlayerCmdSP_SetBlurForPlayer(scrContext_t *scrContext, scr_entref_t entref)
   unsigned int entnum; 
   gentity_s *v4; 
   const char *v5; 
-  const char *v9; 
+  const char *v6; 
   unsigned int number; 
-  const char *v11; 
+  const char *v8; 
   SvClient *CommonClient; 
   char *fmt; 
   float outBlurFinalValue; 
@@ -2102,24 +2003,18 @@ void PlayerCmdSP_SetBlurForPlayer(scrContext_t *scrContext, scr_entref_t entref)
     }
   }
   PlayerCmd_SetBlurForPlayer(scrContext, &outBlurTimeMs, &outBlurFinalValue);
-  __asm
-  {
-    vmovss  xmm2, [rsp+38h+outBlurFinalValue]
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovq   r8, xmm2
-  }
   LODWORD(fmt) = 1;
-  v9 = j_va("scr_blur %i %f %i %i", (unsigned int)outBlurTimeMs, _R8, 0i64, fmt);
+  v6 = j_va("scr_blur %i %f %i %i", (unsigned int)outBlurTimeMs, outBlurFinalValue, 0i64, fmt);
   number = v4->s.number;
-  v11 = v9;
+  v8 = v6;
   if ( number == -1 )
   {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v9);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v6);
   }
   else
   {
     CommonClient = SvClient::GetCommonClient(number);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v11);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
   }
 }
 

@@ -288,19 +288,14 @@ bdLoginStatus::updateLoginStatusCode
 */
 void bdLoginStatus::updateLoginStatusCode(bdLoginStatus *this, const bdLoginStatus::bdLoginStatusCode code)
 {
-  double v4; 
+  double ElapsedTimeInSeconds; 
 
   this->m_lastSuccesfulCode = this->m_loginStatusCode;
   this->m_loginStatusCode = code;
   if ( (unsigned int)(code - 26) <= 1 )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_loginTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+48h+var_10], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginstatus.cpp", "bdLoginStatus::updateLoginStatusCode", 0x5Au, "Login completed in %2.1f seconds", v4);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_loginTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdloginstatus.cpp", "bdLoginStatus::updateLoginStatusCode", 0x5Au, "Login completed in %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   }
 }
 

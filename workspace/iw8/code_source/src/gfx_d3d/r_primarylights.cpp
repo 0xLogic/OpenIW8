@@ -299,38 +299,28 @@ R_AddDynamicSceneLight
 __int64 R_AddDynamicSceneLight(GfxBackEndData *data, GfxViewInfo *viewInfo, const GfxLight *light)
 {
   unsigned int sceneLightCount; 
+  __int64 v6; 
   __int64 result; 
-  __int64 v14; 
+  __int64 v8; 
 
-  _RDI = light;
-  _RBX = data;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 442, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
-  if ( _RBX->sceneLightCount >= 0x1984 )
+  if ( data->sceneLightCount >= 0x1984 )
   {
-    LODWORD(v14) = _RBX->sceneLightCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 443, ASSERT_TYPE_ASSERT, "(unsigned)( data->sceneLightCount ) < (unsigned)( (6500 + I_max( ( 4 + 1 ), I_max( 32, 32 ) )) )", "data->sceneLightCount doesn't index GFX_MAX_SCENE_LIGHTS\n\t%i not in [0, %i)", v14, 6532) )
+    LODWORD(v8) = data->sceneLightCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 443, ASSERT_TYPE_ASSERT, "(unsigned)( data->sceneLightCount ) < (unsigned)( (6500 + I_max( ( 4 + 1 ), I_max( 32, 32 ) )) )", "data->sceneLightCount doesn't index GFX_MAX_SCENE_LIGHTS\n\t%i not in [0, %i)", v8, 6532) )
       __debugbreak();
   }
-  sceneLightCount = _RBX->sceneLightCount;
-  _RCX = 152i64 * sceneLightCount;
-  _RBX->sceneLightCount = sceneLightCount + 1;
+  sceneLightCount = data->sceneLightCount;
+  v6 = sceneLightCount;
+  data->sceneLightCount = sceneLightCount + 1;
   result = sceneLightCount;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rcx+rbx+53A000h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rcx+rbx+53A020h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [rcx+rbx+53A040h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+60h]
-    vmovups ymmword ptr [rcx+rbx+53A060h], ymm1
-    vmovups xmm0, xmmword ptr [rdi+80h]
-    vmovups xmmword ptr [rcx+rbx+53A080h], xmm0
-    vmovsd  xmm1, qword ptr [rdi+90h]
-    vmovsd  qword ptr [rcx+rbx+53A090h], xmm1
-  }
+  *(__m256i *)&data->sceneLights[v6].type = *(__m256i *)&light->type;
+  *(__m256i *)data->sceneLights[v6].dir.v = *(__m256i *)light->dir.v;
+  *(__m256i *)&data->sceneLights[v6].origin.z = *(__m256i *)&light->origin.z;
+  *(__m256i *)&data->sceneLights[v6].cosHalfFovOuter = *(__m256i *)&light->cosHalfFovOuter;
+  *(_OWORD *)&data->sceneLights[v6].shadowArea = *(_OWORD *)&light->shadowArea;
+  data->sceneLights[v6].def = light->def;
   return result;
 }
 
@@ -339,253 +329,153 @@ __int64 R_AddDynamicSceneLight(GfxBackEndData *data, GfxViewInfo *viewInfo, cons
 R_AddPotentiallyShadowedLight
 ==============
 */
-__int64 R_AddPotentiallyShadowedLight(const GfxLightScoreConfig *config, GfxBackEndData *backEndData, const GfxViewInfo *viewInfo, const GfxViewParms *viewParmsDpvs, unsigned int sceneLightIndex, GfxCandidateShadowedLight *candidateLights, unsigned int candidateLightCount, unsigned int candidateLightLimit)
+__int64 R_AddPotentiallyShadowedLight(const GfxLightScoreConfig *config, GfxBackEndData *backEndData, const GfxViewInfo *viewInfo, const GfxViewParms *viewParmsDpvs, unsigned int sceneLightIndex, GfxCandidateShadowedLight *candidateLights, unsigned int candidateLightCount, unsigned int candidateLightLimit, float scoreScale)
 {
+  GfxLight *v12; 
+  float v13; 
   GfxCamera *p_camera; 
+  float v15; 
+  float v16; 
   bool useNightAndThermalVisionCombo; 
-  bool v71; 
-  bool v72; 
-  unsigned int v80; 
-  bool v81; 
-  GfxCandidateShadowedLight *v82; 
-  bool v87; 
-  GfxCandidateShadowedLight *v88; 
+  float sceneSMLightScoreEyeProjectDist; 
+  float sceneSMlightScorespotProjectFrac; 
+  float radius; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float intensity; 
+  float v26; 
+  float v27; 
+  float v28; 
+  unsigned int v29; 
+  GfxCandidateShadowedLight *v30; 
+  __int64 v31; 
+  __int64 v32; 
+  __int64 v33; 
+  __int64 v34; 
+  bool v35; 
+  GfxCandidateShadowedLight *v36; 
+  __int64 v37; 
   __int64 result; 
-  float fmt; 
-  double v96; 
-  double v97; 
-  int v98; 
-  int v99; 
 
-  _R14 = sceneLightIndex;
-  _RBX = candidateLights;
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_48], xmm6
-    vmovaps [rsp+0B8h+var_58], xmm7
-  }
   g_lightScore[sceneLightIndex].score = 0.0;
   *(_DWORD *)&g_lightScore[sceneLightIndex].ranking0 = 16711935;
-  __asm { vmovaps [rsp+0B8h+var_68], xmm8 }
   if ( !sceneLightIndex )
-    goto LABEL_36;
+    return candidateLightCount;
   if ( sceneLightIndex <= rgp.world->lastSunPrimaryLightIndex )
-    goto LABEL_36;
-  _RDI = &backEndData->sceneLights[sceneLightIndex];
+    return candidateLightCount;
+  v12 = &backEndData->sceneLights[sceneLightIndex];
   if ( (backEndData->sceneLights[sceneLightIndex].flags & 0x10) != 0 )
-    goto LABEL_36;
+    return candidateLightCount;
   if ( !backEndData->sceneLights[sceneLightIndex].canUseShadowMap )
-    goto LABEL_36;
-  __asm
+    return candidateLightCount;
+  if ( rg.smSpotDistCull > 0.0 )
   {
-    vmovss  xmm7, cs:?rg@@3Ur_globals_t@@A.smSpotDistCull; r_globals_t rg
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm7, xmm8
-  }
-  if ( backEndData->sceneLights[sceneLightIndex].canUseShadowMap )
-  {
-    __asm { vaddss  xmm6, xmm7, dword ptr [rdi+44h] }
-    v71 = __CFADD__(viewParmsDpvs, 256i64);
+    v13 = rg.smSpotDistCull + backEndData->sceneLights[sceneLightIndex].radius;
     p_camera = &viewParmsDpvs->camera;
-    _RCX = &backEndData->sceneLights[sceneLightIndex].origin;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx]
-      vmovss  xmm1, dword ptr [rcx+4]
-      vsubss  xmm4, xmm0, dword ptr [r9]
-      vsubss  xmm3, xmm1, dword ptr [r9+4]
-      vmovss  xmm0, dword ptr [rcx+8]
-      vsubss  xmm5, xmm0, dword ptr [r9+8]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm3, xmm3, xmm3
-      vaddss  xmm4, xmm3, xmm1
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm5, xmm4, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vcomiss xmm5, xmm1
-    }
-    if ( !v71 )
-      goto LABEL_36;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi+60h]; cosHalfFov
-      vmovss  dword ptr [rsp+0B8h+fmt], xmm7
-    }
-    if ( CullSphereFromCone(_RCX, &backEndData->sceneLights[sceneLightIndex].dir, *(float *)&_XMM2, &p_camera->origin, fmt) )
-      goto LABEL_36;
+    v15 = backEndData->sceneLights[sceneLightIndex].origin.v[1] - p_camera->origin.v[1];
+    v16 = backEndData->sceneLights[sceneLightIndex].origin.v[2] - p_camera->origin.v[2];
+    if ( (float)((float)((float)(v15 * v15) + (float)((float)(backEndData->sceneLights[sceneLightIndex].origin.v[0] - p_camera->origin.v[0]) * (float)(backEndData->sceneLights[sceneLightIndex].origin.v[0] - p_camera->origin.v[0]))) + (float)(v16 * v16)) >= (float)(v13 * v13) || CullSphereFromCone(&backEndData->sceneLights[sceneLightIndex].origin, &backEndData->sceneLights[sceneLightIndex].dir, backEndData->sceneLights[sceneLightIndex].cosHalfFovOuter, &p_camera->origin, rg.smSpotDistCull) )
+      return candidateLightCount;
   }
   useNightAndThermalVisionCombo = viewInfo->thermalParams.useNightAndThermalVisionCombo;
   if ( config->m_scoreSystem )
   {
-    *(float *)&_XMM0 = R_ShadowedSpotLightScore_MultiSamples(config, viewParmsDpvs, _RDI, useNightAndThermalVisionCombo);
+    v27 = R_ShadowedSpotLightScore_MultiSamples(config, viewParmsDpvs, v12, useNightAndThermalVisionCombo);
   }
   else
   {
-    __asm
+    sceneSMLightScoreEyeProjectDist = scene.sceneSMLightScoreEyeProjectDist;
+    if ( (LODWORD(scene.sceneSMLightScoreEyeProjectDist) & 0x7F800000) == 2139095040 || scene.sceneSMLightScoreEyeProjectDist < 0.0 )
     {
-      vmovss  xmm7, cs:?scene@@3UGfxScene@@A.sceneSMLightScoreEyeProjectDist; GfxScene scene
-      vmovss  [rsp+0B8h+var_88], xmm7
-      vmovaps [rsp+0B8h+var_78], xmm9
-    }
-    if ( (v98 & 0x7F800000) != 2139095040 )
-      __asm { vcomiss xmm7, xmm8 }
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+0B8h+var_90], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 332, ASSERT_TYPE_ASSERT, "( ( !IS_NAN(scene.sceneSMLightScoreEyeProjectDist) && (scene.sceneSMLightScoreEyeProjectDist >= 0.0f) ) )", "( scene.sceneSMLightScoreEyeProjectDist ) = %g", v96) )
-      __debugbreak();
-    __asm
-    {
-      vmovss  xmm7, cs:?scene@@3UGfxScene@@A.sceneSMLightScoreEyeProjectDist; GfxScene scene
-      vmovss  xmm0, cs:?scene@@3UGfxScene@@A.sceneSMlightScorespotProjectFrac; GfxScene scene
-      vmovss  [rsp+0B8h+var_88], xmm0
-    }
-    if ( (v99 & 0x7F800000) == 2139095040 )
-      goto LABEL_15;
-    __asm { vcomiss xmm0, xmm8 }
-    if ( (v99 & 0x7F800000u) < 0x7F800000 )
-    {
-LABEL_15:
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0B8h+var_90], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 333, ASSERT_TYPE_ASSERT, "( ( !IS_NAN(scene.sceneSMlightScorespotProjectFrac) && (scene.sceneSMlightScorespotProjectFrac >= 0.0f) ) )", "( scene.sceneSMlightScorespotProjectFrac ) = %g", v97) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 332, ASSERT_TYPE_ASSERT, "( ( !IS_NAN(scene.sceneSMLightScoreEyeProjectDist) && (scene.sceneSMLightScoreEyeProjectDist >= 0.0f) ) )", "( scene.sceneSMLightScoreEyeProjectDist ) = %g", scene.sceneSMLightScoreEyeProjectDist) )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm7, cs:?scene@@3UGfxScene@@A.sceneSMLightScoreEyeProjectDist; GfxScene scene
-        vmovss  xmm0, cs:?scene@@3UGfxScene@@A.sceneSMlightScorespotProjectFrac; GfxScene scene
-      }
+      sceneSMLightScoreEyeProjectDist = scene.sceneSMLightScoreEyeProjectDist;
     }
-    __asm
+    sceneSMlightScorespotProjectFrac = scene.sceneSMlightScorespotProjectFrac;
+    if ( (LODWORD(scene.sceneSMlightScorespotProjectFrac) & 0x7F800000) == 2139095040 || scene.sceneSMlightScorespotProjectFrac < 0.0 )
     {
-      vmulss  xmm1, xmm7, dword ptr [r15+10Ch]
-      vaddss  xmm2, xmm1, dword ptr [r15+100h]
-      vmovss  xmm9, dword ptr [rdi+44h]
-      vmulss  xmm0, xmm9, xmm0
-      vxorps  xmm4, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm1, xmm4, dword ptr [rdi+20h]
-      vmovss  xmm0, dword ptr [rdi+38h]
-      vsubss  xmm3, xmm0, xmm2
-      vmulss  xmm0, xmm7, dword ptr [r15+110h]
-      vaddss  xmm2, xmm0, dword ptr [r15+104h]
-      vmulss  xmm0, xmm4, dword ptr [rdi+24h]
-      vaddss  xmm6, xmm3, xmm1
-      vmovss  xmm1, dword ptr [rdi+3Ch]
-      vsubss  xmm3, xmm1, xmm2
-      vmulss  xmm1, xmm7, dword ptr [r15+114h]
-      vaddss  xmm2, xmm1, dword ptr [r15+108h]
-      vmulss  xmm1, xmm4, dword ptr [rdi+28h]
-      vaddss  xmm5, xmm3, xmm0
-      vmovss  xmm0, dword ptr [rdi+40h]
-      vsubss  xmm3, xmm0, xmm2
-      vmulss  xmm2, xmm5, xmm5
-      vaddss  xmm4, xmm3, xmm1
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm3, xmm2, xmm0
-      vmovss  xmm0, dword ptr [rdi+10h]
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm1
-      vsqrtss xmm5, xmm2, xmm2
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 333, ASSERT_TYPE_ASSERT, "( ( !IS_NAN(scene.sceneSMlightScorespotProjectFrac) && (scene.sceneSMlightScorespotProjectFrac >= 0.0f) ) )", "( scene.sceneSMlightScorespotProjectFrac ) = %g", scene.sceneSMlightScorespotProjectFrac) )
+        __debugbreak();
+      sceneSMLightScoreEyeProjectDist = scene.sceneSMLightScoreEyeProjectDist;
+      sceneSMlightScorespotProjectFrac = scene.sceneSMlightScorespotProjectFrac;
     }
-    v71 = 0;
-    v72 = !useNightAndThermalVisionCombo;
+    radius = v12->radius;
+    LODWORD(v21) = COERCE_UNSIGNED_INT(radius * sceneSMlightScorespotProjectFrac) ^ _xmm;
+    v22 = (float)(v12->origin.v[0] - (float)((float)(sceneSMLightScoreEyeProjectDist * viewParmsDpvs->camera.axis.m[0].v[0]) + viewParmsDpvs->camera.origin.v[0])) + (float)(v21 * v12->dir.v[0]);
+    v23 = (float)(v12->origin.v[1] - (float)((float)(sceneSMLightScoreEyeProjectDist * viewParmsDpvs->camera.axis.m[0].v[1]) + viewParmsDpvs->camera.origin.v[1])) + (float)(v21 * v12->dir.v[1]);
+    v24 = (float)(v12->origin.v[2] - (float)((float)(sceneSMLightScoreEyeProjectDist * viewParmsDpvs->camera.axis.m[0].v[2]) + viewParmsDpvs->camera.origin.v[2])) + (float)(v21 * v12->dir.v[2]);
+    intensity = v12->intensity;
+    v26 = fsqrt((float)((float)(v23 * v23) + (float)(v22 * v22)) + (float)(v24 * v24));
     if ( useNightAndThermalVisionCombo )
-      __asm { vaddss  xmm0, xmm0, dword ptr [rdi+8] }
-    __asm
+      intensity = intensity + v12->irIntensity;
+    v27 = (float)(radius * intensity) / (float)(v26 + 1.0);
+  }
+  v28 = v27 * scoreScale;
+  g_lightScore[sceneLightIndex].score = v27 * scoreScale;
+  if ( (float)(v27 * scoreScale) == 0.0 || v28 < sm_minSpotLightScore->current.value && !config->m_scoreSystem )
+    return candidateLightCount;
+  v29 = candidateLightCount;
+  if ( candidateLightCount < 4 )
+  {
+LABEL_33:
+    if ( v29 )
     {
-      vmulss  xmm1, xmm9, xmm0
-      vaddss  xmm0, xmm5, cs:__real@3f800000
-      vmovaps xmm9, [rsp+0B8h+var_78]
-      vdivss  xmm0, xmm1, xmm0
+      v36 = &candidateLights[v29];
+      do
+      {
+        v37 = v29 - 1;
+        if ( v28 <= candidateLights[v37].score )
+          break;
+        --v29;
+        *v36-- = candidateLights[v37];
+      }
+      while ( (_DWORD)v37 );
     }
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm0, [rsp+0B8h+scoreScale]
-    vucomiss xmm0, xmm8
-  }
-  _RAX = g_lightScore;
-  __asm { vmovss  dword ptr [rax+r14*8], xmm0 }
-  if ( v72 )
-    goto LABEL_36;
-  _RAX = sm_minSpotLightScore;
-  __asm { vcomiss xmm0, dword ptr [rax+28h] }
-  if ( !v71 )
-    goto LABEL_25;
-  if ( !config->m_scoreSystem )
-  {
-LABEL_36:
-    result = candidateLightCount;
   }
   else
   {
-LABEL_25:
-    v80 = candidateLightCount;
-    v81 = candidateLightCount <= 4;
-    if ( candidateLightCount < 4 )
+    v30 = &candidateLights[candidateLightCount - 2];
+    while ( 1 )
     {
-LABEL_29:
-      v87 = v80 == 0;
-      if ( v80 )
+      v31 = v29 - 1;
+      if ( v28 <= candidateLights[v31].score )
+        break;
+      v30[2] = candidateLights[v31];
+      v32 = v29 - 2;
+      if ( v28 <= candidateLights[v32].score )
       {
-        v88 = &candidateLights[v80];
-        do
-        {
-          _R8 = v80 - 1;
-          __asm { vcomiss xmm0, dword ptr [rbx+r8*8+4] }
-          if ( v87 )
-            break;
-          --v80;
-          *v88-- = candidateLights[_R8];
-          v87 = (_DWORD)_R8 == 0;
-        }
-        while ( (_DWORD)_R8 );
+        --v29;
+        break;
       }
-    }
-    else
-    {
-      v82 = &candidateLights[candidateLightCount - 2];
-      while ( 1 )
+      v30[1] = candidateLights[v32];
+      v33 = v29 - 3;
+      if ( v28 <= candidateLights[v33].score )
       {
-        _RAX = v80 - 1;
-        __asm { vcomiss xmm0, dword ptr [rbx+rax*8+4] }
-        if ( v81 )
-          break;
-        v82[2] = candidateLights[_RAX];
-        _RAX = v80 - 2;
-        __asm { vcomiss xmm0, dword ptr [rbx+rax*8+4] }
-        v82[1] = candidateLights[_RAX];
-        _RAX = v80 - 3;
-        __asm { vcomiss xmm0, dword ptr [rbx+rax*8+4] }
-        _R8 = v80 - 4;
-        __asm { vcomiss xmm0, dword ptr [rbx+r8*8+4] }
-        *v82 = candidateLights[_RAX];
-        v80 -= 4;
-        v82[-1] = candidateLights[_R8];
-        v82 -= 4;
-        v81 = (unsigned int)_R8 <= 3;
-        if ( (unsigned int)_R8 <= 3 )
-          goto LABEL_29;
+        v29 -= 2;
+        break;
       }
+      v34 = v29 - 4;
+      v35 = v28 <= candidateLights[v34].score;
+      *v30 = candidateLights[v33];
+      if ( v35 )
+      {
+        v29 -= 3;
+        break;
+      }
+      v29 -= 4;
+      v30[-1] = candidateLights[v34];
+      v30 -= 4;
+      if ( (unsigned int)v34 <= 3 )
+        goto LABEL_33;
     }
-    _RAX = v80;
-    __asm { vmovss  dword ptr [rbx+rax*8+4], xmm0 }
-    candidateLights[v80].sceneLightIndex = sceneLightIndex;
-    result = candidateLightCount + 1;
-    if ( (unsigned int)result > candidateLightLimit )
-      result = candidateLightLimit;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0B8h+var_48]
-    vmovaps xmm7, [rsp+0B8h+var_58]
-    vmovaps xmm8, [rsp+0B8h+var_68]
-  }
+  candidateLights[v29].score = v28;
+  candidateLights[v29].sceneLightIndex = sceneLightIndex;
+  result = candidateLightCount + 1;
+  if ( (unsigned int)result > candidateLightLimit )
+    return candidateLightLimit;
   return result;
 }
 
@@ -689,6 +579,7 @@ R_ChooseShadowedLights
 */
 void R_ChooseShadowedLights(GfxBackEndData *backEndData, GfxViewInfo *viewInfo, const GfxViewParms *viewParmsDpvs, const unsigned int *sceneLightIsUsed)
 {
+  __int128 v4; 
   int spotCandidateLimit; 
   const GfxViewParms *v7; 
   int integer; 
@@ -717,55 +608,55 @@ void R_ChooseShadowedLights(GfxBackEndData *backEndData, GfxViewInfo *viewInfo, 
   unsigned int v32; 
   const unsigned int *v33; 
   int v34; 
+  unsigned int v35; 
   unsigned int v36; 
-  unsigned int v37; 
   __int64 sceneLightCount; 
-  __int64 v39; 
-  unsigned int v41; 
+  __int64 v38; 
+  unsigned int v39; 
   GfxWorld *world; 
   unsigned int i; 
+  __int64 v42; 
+  const dvar_t *v43; 
   __int64 v44; 
-  const dvar_t *v45; 
+  unsigned int v45; 
   __int64 v46; 
-  unsigned int v47; 
+  GfxCandidateShadowedLight *v47; 
   __int64 v48; 
-  GfxCandidateShadowedLight *v49; 
-  __int64 v50; 
-  __int64 v51; 
+  __int64 v49; 
   R_SpotShadow_StaleCacheEntry *StaleCacheEntryForSceneLight; 
-  unsigned int v53; 
+  unsigned int v51; 
+  unsigned int v52; 
+  int v53; 
   unsigned int v54; 
-  int v55; 
-  unsigned int v56; 
-  unsigned int v57; 
+  unsigned int v55; 
+  __int64 v56; 
+  GfxCandidateShadowedLight *v57; 
   __int64 v58; 
-  GfxCandidateShadowedLight *v59; 
+  unsigned int v59; 
   __int64 v60; 
-  unsigned int v61; 
+  int v61; 
   __int64 v62; 
-  int v63; 
+  char *v63; 
   __int64 v64; 
-  char *v65; 
+  __int64 v65; 
   __int64 v66; 
   __int64 v67; 
   __int64 v68; 
-  __int64 v69; 
-  __int64 v70; 
-  int v71; 
-  GfxWorld *v72; 
+  int v69; 
+  GfxWorld *v70; 
   LocalClientNum_t clientIndex; 
-  unsigned int v74; 
-  unsigned __int64 v75; 
+  unsigned int v72; 
+  unsigned __int64 v73; 
   __int64 EntityPrimaryLightShadowBitArrayIndex; 
-  __int64 v77; 
-  char v78; 
+  __int64 v75; 
+  char v76; 
   int needsDynamicShadows; 
-  __int64 v80; 
-  GfxCandidateShadowedLight *v81; 
-  unsigned int v82; 
+  __int64 v78; 
+  GfxCandidateShadowedLight *v79; 
+  unsigned int v80; 
   char *j; 
-  R_SpotShadow_StaleCacheEntry *v84; 
-  bool v85; 
+  R_SpotShadow_StaleCacheEntry *v82; 
+  bool v83; 
   char *fmt; 
   GfxCandidateShadowedLight *candidateLights; 
   __int64 candidateLightCount; 
@@ -777,26 +668,27 @@ void R_ChooseShadowedLights(GfxBackEndData *backEndData, GfxViewInfo *viewInfo, 
   unsigned int sceneLightIndex; 
   unsigned int sceneLightIndexa; 
   unsigned int sceneLightIndexb; 
-  const bitarray<1536> *v98; 
+  const bitarray<1536> *v95; 
+  unsigned int v96; 
+  __int64 v97; 
+  __int64 v98; 
   unsigned int v99; 
-  __int64 v100; 
-  __int64 v101; 
-  unsigned int v102; 
   unsigned int spotShadowUpdateLimit; 
-  GfxCandidateShadowedLight *v106; 
-  unsigned int v108; 
+  GfxCandidateShadowedLight *v103; 
+  unsigned int v105; 
   GfxLightScoreConfig config; 
-  GfxCandidateShadowedLight v110; 
+  GfxCandidateShadowedLight v107; 
   __int16 Base; 
-  char v112[254]; 
-  GfxCandidateShadowedLight v113; 
+  char v109[254]; 
+  GfxCandidateShadowedLight v110; 
+  __int128 v111; 
 
   spotCandidateLimit = rg.spotCandidateLimit;
   v7 = viewParmsDpvs;
   integer = sm_roundRobinPrioritySpotShadowsMax->current.integer;
   if ( rg.roundRobinPrioritySpotShadows < integer )
     integer = rg.roundRobinPrioritySpotShadows;
-  v102 = integer;
+  v99 = integer;
   spotShadowUpdateLimit = backEndData->spotShadowUpdateLimit;
   NumOfElements = backEndData->spotShadowDynLightUpdateLimit;
   NumOfElements_4 = rg.spotCandidateLimit;
@@ -842,7 +734,7 @@ void R_ChooseShadowedLights(GfxBackEndData *backEndData, GfxViewInfo *viewInfo, 
     Dvar_SetInt_Internal(DVARINT_r_evictPrimaryLightStaleCache, 0);
   }
   v17 = CL_TransientsWorldMP_GetChangeVisible();
-  v98 = v17;
+  v95 = v17;
   if ( CL_TransientsWorldMP_IsActive() && v17 )
   {
     R_SpotShadow_StaleCacheSnapshot(backEndData, viewInfo->clientIndex, 0);
@@ -894,7 +786,7 @@ void R_ChooseShadowedLights(GfxBackEndData *backEndData, GfxViewInfo *viewInfo, 
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", candidateLights, candidateLightCount) )
                   __debugbreak();
               }
-              if ( ((0x80000000 >> (v28 & 0x1F)) & v98->array[(unsigned __int64)v28 >> 5]) != 0 )
+              if ( ((0x80000000 >> (v28 & 0x1F)) & v95->array[(unsigned __int64)v28 >> 5]) != 0 )
                 break;
               if ( ++v27 >= v26 )
                 goto LABEL_49;
@@ -914,7 +806,7 @@ LABEL_49:
     }
     backEndData->spotShadowCount = 0;
   }
-  v108 = 0;
+  v105 = 0;
   v29 = 0;
   v30 = 0;
   if ( spotCandidateLimit )
@@ -924,58 +816,53 @@ LABEL_49:
     v31 = 0;
     sceneLightIndexa = 0;
     v32 = (backEndData->sceneLightCount + 31) >> 5;
-    v99 = v32;
+    v96 = v32;
     if ( v32 )
     {
       v33 = sceneLightIsUsed;
       v34 = 0;
-      __asm
-      {
-        vmovaps [rsp+4A8h+var_58], xmm6
-        vmovss  xmm6, cs:__real@3f800000
-      }
+      v111 = v4;
       do
       {
-        v36 = v33[v31];
-        v37 = __lzcnt(v36);
-        if ( v37 != 32 )
+        v35 = v33[v31];
+        v36 = __lzcnt(v35);
+        if ( v36 != 32 )
         {
           do
           {
             sceneLightCount = backEndData->sceneLightCount;
-            v36 &= ~(1 << (31 - v37));
-            v39 = v34 + 31 - v37;
-            if ( (unsigned int)v39 >= (unsigned int)sceneLightCount )
+            v35 &= ~(1 << (31 - v36));
+            v38 = v34 + 31 - v36;
+            if ( (unsigned int)v38 >= (unsigned int)sceneLightCount )
             {
-              Com_Printf(8, "ERROR: Invalid scene light index %d >= %d flagged as an used light\n", v39, sceneLightCount);
+              Com_Printf(8, "ERROR: Invalid scene light index %d >= %d flagged as an used light\n", v38, sceneLightCount);
+            }
+            else if ( (unsigned int)v38 >= rgp.world->primaryLightCount )
+            {
+              v30 = R_AddPotentiallyShadowedLight(&config, backEndData, viewInfo, v7, v38, &v107, v30, NumOfElements, 1.0);
             }
             else
             {
-              __asm { vmovss  dword ptr [rsp+4A8h+var_468], xmm6 }
-              if ( (unsigned int)v39 >= rgp.world->primaryLightCount )
-                v30 = R_AddPotentiallyShadowedLight(&config, backEndData, viewInfo, v7, v39, &v110, v30, NumOfElements);
-              else
-                v29 = R_AddPotentiallyShadowedLight(&config, backEndData, viewInfo, v7, v39, &v113, v29, NumOfElements_4 - v30);
+              v29 = R_AddPotentiallyShadowedLight(&config, backEndData, viewInfo, v7, v38, &v110, v29, NumOfElements_4 - v30, 1.0);
             }
-            v37 = __lzcnt(v36);
+            v36 = __lzcnt(v35);
           }
-          while ( v37 != 32 );
+          while ( v36 != 32 );
           v31 = sceneLightIndexa;
-          v32 = v99;
+          v32 = v96;
           v33 = sceneLightIsUsed;
-          v108 = v30;
+          v105 = v30;
         }
         ++v31;
         v34 += 32;
         sceneLightIndexa = v31;
       }
       while ( v31 != v32 );
-      __asm { vmovaps xmm6, [rsp+4A8h+var_58] }
     }
-    v41 = NumOfElements_4 - v30;
+    v39 = NumOfElements_4 - v30;
     if ( NumOfElements_4 - v30 > v29 )
-      v41 = v29;
-    v29 = v41;
+      v39 = v29;
+    v29 = v39;
   }
   if ( backEndData->spotShadowCount )
   {
@@ -990,282 +877,282 @@ LABEL_49:
       __debugbreak();
   }
   world = rgp.world;
-  for ( i = 0; i < world->primaryLightCount; g_lightScore[v44].ranking0 = 255 )
-    v44 = i++;
-  v45 = DVARBOOL_sm_spotUpdateMoreDynObj;
+  for ( i = 0; i < world->primaryLightCount; g_lightScore[v42].ranking0 = 255 )
+    v42 = i++;
+  v43 = DVARBOOL_sm_spotUpdateMoreDynObj;
   if ( !DVARBOOL_sm_spotUpdateMoreDynObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotUpdateMoreDynObj") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v45);
-  enabled = v45->current.enabled;
-  v46 = 0i64;
-  v47 = 0;
+  Dvar_CheckFrontendServerThread(v43);
+  enabled = v43->current.enabled;
+  v44 = 0i64;
+  v45 = 0;
   NumOfElementsa = 0;
   if ( v29 )
   {
-    v48 = 0i64;
-    v100 = 0i64;
-    v49 = &v113;
-    v106 = &v113;
+    v46 = 0i64;
+    v97 = 0i64;
+    v47 = &v110;
+    v103 = &v110;
     while ( 1 )
     {
-      v50 = v49->sceneLightIndex;
-      if ( (unsigned int)v50 >= rgp.world->primaryLightCount )
+      v48 = v47->sceneLightIndex;
+      if ( (unsigned int)v48 >= rgp.world->primaryLightCount )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 655, ASSERT_TYPE_ASSERT, "(R_IsPrimaryLight( sceneLightIndex ))", (const char *)&queryFormat, "R_IsPrimaryLight( sceneLightIndex )") )
           __debugbreak();
-        v48 = v100;
+        v46 = v97;
       }
-      v51 = v50;
-      backEndData->sceneLights[v50].flags |= 0x100u;
-      if ( v47 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v47, "unsigned", v48) )
+      v49 = v48;
+      backEndData->sceneLights[v48].flags |= 0x100u;
+      if ( v45 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v45, "unsigned", v46) )
         __debugbreak();
-      g_lightScore[v50].ranking0 = v47;
-      StaleCacheEntryForSceneLight = R_SpotShadow_GetStaleCacheEntryForSceneLight(v50);
-      if ( (unsigned int)v50 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v50, "unsigned", v50) )
+      g_lightScore[v48].ranking0 = v45;
+      StaleCacheEntryForSceneLight = R_SpotShadow_GetStaleCacheEntryForSceneLight(v48);
+      if ( (unsigned int)v48 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v48, "unsigned", v48) )
         __debugbreak();
-      *(_WORD *)&v112[4 * v46 - 2] = v50;
-      v112[4 * v46] = -1;
-      if ( v47 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v47, "unsigned", v100) )
+      *(_WORD *)&v109[4 * v44 - 2] = v48;
+      v109[4 * v44] = -1;
+      if ( v45 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v45, "unsigned", v97) )
         __debugbreak();
-      v112[4 * v46 + 1] = v47;
-      if ( !backEndData->sceneLights[v51].needsDynamicShadows )
+      v109[4 * v44 + 1] = v45;
+      if ( !backEndData->sceneLights[v49].needsDynamicShadows )
         break;
       if ( !StaleCacheEntryForSceneLight )
-        goto LABEL_115;
+        goto LABEL_114;
       R_SpotShadow_StaleCacheEntry::Unrot(StaleCacheEntryForSceneLight);
-      v112[4 * v46] = StaleCacheEntryForSceneLight->staleness;
-      v55 = R_CheckPrimaryLightMotionBit(viewInfo->clientIndex, v50);
-      if ( !rg.primaryLightMotionDetect || v55 )
+      v109[4 * v44] = StaleCacheEntryForSceneLight->staleness;
+      v53 = R_CheckPrimaryLightMotionBit(viewInfo->clientIndex, v48);
+      if ( !rg.primaryLightMotionDetect || v53 )
       {
         if ( StaleCacheEntryForSceneLight->staleness )
-          goto LABEL_115;
+          goto LABEL_114;
       }
       else if ( StaleCacheEntryForSceneLight->staleness )
       {
-        backEndData->sceneLights[v51].flags |= 0x200u;
-LABEL_109:
-        v46 = NumOfElementsa;
-        goto LABEL_116;
-      }
-      if ( v47 < v102 || enabled )
-      {
-        v112[4 * v46] = 1;
-        StaleCacheEntryForSceneLight->staleness = 1;
+        backEndData->sceneLights[v49].flags |= 0x200u;
+LABEL_108:
+        v44 = NumOfElementsa;
         goto LABEL_115;
       }
-      backEndData->sceneLights[v51].flags |= 0x400u;
-      v46 = NumOfElementsa;
-LABEL_116:
-      v48 = v100 + 1;
-      v49 = v106 + 1;
-      ++v47;
-      ++v100;
-      ++v106;
-      if ( v47 >= v29 )
+      if ( v45 < v99 || enabled )
       {
-        v30 = v108;
-        goto LABEL_118;
+        v109[4 * v44] = 1;
+        StaleCacheEntryForSceneLight->staleness = 1;
+        goto LABEL_114;
+      }
+      backEndData->sceneLights[v49].flags |= 0x400u;
+      v44 = NumOfElementsa;
+LABEL_115:
+      v46 = v97 + 1;
+      v47 = v103 + 1;
+      ++v45;
+      ++v97;
+      ++v103;
+      if ( v45 >= v29 )
+      {
+        v30 = v105;
+        goto LABEL_117;
       }
     }
-    v53 = v102 + 1;
-    if ( v47 >= v102 )
-      v53 = v102;
-    v102 = v53;
-    v54 = v53;
+    v51 = v99 + 1;
+    if ( v45 >= v99 )
+      v51 = v99;
+    v99 = v51;
+    v52 = v51;
     if ( !StaleCacheEntryForSceneLight )
-      goto LABEL_103;
+      goto LABEL_102;
     R_SpotShadow_StaleCacheEntry::Unrot(StaleCacheEntryForSceneLight);
     if ( StaleCacheEntryForSceneLight->staleness )
     {
-      R_SpotShadow_EvictSceneLightFromStaleCache(v50);
-LABEL_103:
-      v102 = v54;
-LABEL_115:
-      v46 = NumOfElementsa + 1;
-      backEndData->sceneLights[v51].flags |= 0x800u;
+      R_SpotShadow_EvictSceneLightFromStaleCache(v48);
+LABEL_102:
+      v99 = v52;
+LABEL_114:
+      v44 = NumOfElementsa + 1;
+      backEndData->sceneLights[v49].flags |= 0x800u;
       ++NumOfElementsa;
-      goto LABEL_116;
+      goto LABEL_115;
     }
-    goto LABEL_109;
+    goto LABEL_108;
   }
-LABEL_118:
+LABEL_117:
   NumOfElements_4a = 0;
-  v56 = 0;
-  v57 = 0;
+  v54 = 0;
+  v55 = 0;
   if ( v30 )
   {
-    v58 = 0i64;
-    v59 = &v110;
+    v56 = 0i64;
+    v57 = &v107;
     do
     {
-      v60 = v59->sceneLightIndex;
-      if ( (unsigned int)v60 < rgp.world->primaryLightCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 752, ASSERT_TYPE_ASSERT, "(!R_IsPrimaryLight( sceneLightIndex ))", (const char *)&queryFormat, "!R_IsPrimaryLight( sceneLightIndex )") )
+      v58 = v57->sceneLightIndex;
+      if ( (unsigned int)v58 < rgp.world->primaryLightCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 752, ASSERT_TYPE_ASSERT, "(!R_IsPrimaryLight( sceneLightIndex ))", (const char *)&queryFormat, "!R_IsPrimaryLight( sceneLightIndex )") )
         __debugbreak();
-      if ( R_SpotShadow_GetStaleCacheEntryForSceneLight(v60) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 753, ASSERT_TYPE_ASSERT, "(!R_SpotShadow_GetStaleCacheEntryForSceneLight( sceneLightIndex ))", (const char *)&queryFormat, "!R_SpotShadow_GetStaleCacheEntryForSceneLight( sceneLightIndex )") )
+      if ( R_SpotShadow_GetStaleCacheEntryForSceneLight(v58) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 753, ASSERT_TYPE_ASSERT, "(!R_SpotShadow_GetStaleCacheEntryForSceneLight( sceneLightIndex ))", (const char *)&queryFormat, "!R_SpotShadow_GetStaleCacheEntryForSceneLight( sceneLightIndex )") )
         __debugbreak();
-      R_AddSpotShadowUpdateForSceneLight(backEndData, viewInfo, v60, 1);
+      R_AddSpotShadowUpdateForSceneLight(backEndData, viewInfo, v58, 1);
       ++NumOfElements_4a;
-      backEndData->sceneLights[v60].flags |= 0x1000u;
-      if ( v57 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v57, "unsigned", v58) )
+      backEndData->sceneLights[v58].flags |= 0x1000u;
+      if ( v55 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v55, "unsigned", v56) )
         __debugbreak();
-      g_lightScore[v60].ranking0 = v57;
-      if ( v56 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v56, "unsigned", v56) )
+      g_lightScore[v58].ranking0 = v55;
+      if ( v54 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v54, "unsigned", v54) )
         __debugbreak();
+      ++v55;
+      g_lightScore[v58].ranking1 = v54;
+      v54 = NumOfElements_4a;
+      ++v56;
       ++v57;
-      g_lightScore[v60].ranking1 = v56;
-      v56 = NumOfElements_4a;
-      ++v58;
-      ++v59;
     }
-    while ( v57 < v30 );
+    while ( v55 < v30 );
   }
-  v61 = NumOfElementsa;
-  v62 = NumOfElementsa;
+  v59 = NumOfElementsa;
+  v60 = NumOfElementsa;
   qsort(&Base, NumOfElementsa, 4ui64, (_CoreCrtNonSecureSearchSortCompareFunction)GfxSpotShadowUpdateCandidate::Compare);
-  v63 = 0;
+  v61 = 0;
   sceneLightIndexb = 0;
   if ( NumOfElementsa )
   {
-    v64 = NumOfElementsa;
-    v65 = v112;
-    v101 = NumOfElementsa;
+    v62 = NumOfElementsa;
+    v63 = v109;
+    v98 = NumOfElementsa;
     while ( 1 )
     {
-      v66 = *((unsigned __int16 *)v65 - 1);
-      v67 = v56;
-      if ( (unsigned int)v66 >= rgp.world->primaryLightCount )
+      v64 = *((unsigned __int16 *)v63 - 1);
+      v65 = v54;
+      if ( (unsigned int)v64 >= rgp.world->primaryLightCount )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 785, ASSERT_TYPE_ASSERT, "(R_IsPrimaryLight( sceneLightIndex ))", (const char *)&queryFormat, "R_IsPrimaryLight( sceneLightIndex )") )
           __debugbreak();
-        v64 = v101;
+        v62 = v98;
       }
-      v68 = spotShadowUpdateLimit;
-      v69 = v66;
-      v70 = v66;
-      if ( v56 < spotShadowUpdateLimit )
+      v66 = spotShadowUpdateLimit;
+      v67 = v64;
+      v68 = v64;
+      if ( v54 < spotShadowUpdateLimit )
         break;
-      if ( (unsigned __int8)(*v65 - 1) <= 0xFCu )
+      if ( (unsigned __int8)(*v63 - 1) <= 0xFCu )
       {
-        needsDynamicShadows = backEndData->sceneLights[v70].needsDynamicShadows;
+        needsDynamicShadows = backEndData->sceneLights[v68].needsDynamicShadows;
         if ( rg.primaryLightMotionDetect )
-          needsDynamicShadows = (_BYTE)needsDynamicShadows && R_CheckPrimaryLightMotionBit(viewInfo->clientIndex, v66);
-        *v65 += needsDynamicShadows != 0;
-        if ( v63 || needsDynamicShadows )
+          needsDynamicShadows = (_BYTE)needsDynamicShadows && R_CheckPrimaryLightMotionBit(viewInfo->clientIndex, v64);
+        *v63 += needsDynamicShadows != 0;
+        if ( v61 || needsDynamicShadows )
         {
-          v63 = 1;
+          v61 = 1;
           sceneLightIndexb = 1;
         }
         else
         {
-          v63 = 0;
+          v61 = 0;
           sceneLightIndexb = 0;
         }
-        goto LABEL_171;
+        goto LABEL_170;
       }
-LABEL_172:
-      v65 += 4;
-      v101 = --v64;
-      if ( !v64 )
+LABEL_171:
+      v63 += 4;
+      v98 = --v62;
+      if ( !v62 )
       {
-        if ( v63 )
-          R_WarnOncePerFrame(R_WARN_DYNAMIC_SHADOWS_LIMIT_REACHED, v68, 0i64);
-        v61 = NumOfElementsa;
-        v30 = v108;
-        v62 = NumOfElementsa;
-        goto LABEL_176;
+        if ( v61 )
+          R_WarnOncePerFrame(R_WARN_DYNAMIC_SHADOWS_LIMIT_REACHED, v66, 0i64);
+        v59 = NumOfElementsa;
+        v30 = v105;
+        v60 = NumOfElementsa;
+        goto LABEL_175;
       }
     }
-    if ( (unsigned __int8)v65[1] < v102 || (v71 = 0, enabled) )
-      v71 = 1;
-    R_AddSpotShadowUpdateForSceneLight(backEndData, viewInfo, v66, v71);
-    if ( v71 )
+    if ( (unsigned __int8)v63[1] < v99 || (v69 = 0, enabled) )
+      v69 = 1;
+    R_AddSpotShadowUpdateForSceneLight(backEndData, viewInfo, v64, v69);
+    if ( v69 )
     {
-      v72 = rgp.world;
+      v70 = rgp.world;
       clientIndex = viewInfo->clientIndex;
-      if ( (unsigned int)v66 <= rgp.world->lastSunPrimaryLightIndex || (unsigned int)v66 >= rgp.world->primaryLightCount - rgp.world->movingScriptablePrimaryLightCount )
+      if ( (unsigned int)v64 <= rgp.world->lastSunPrimaryLightIndex || (unsigned int)v64 >= rgp.world->primaryLightCount - rgp.world->movingScriptablePrimaryLightCount )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 1678, ASSERT_TYPE_ASSERT, "(primaryLightIndex > rgp.world->lastSunPrimaryLightIndex && primaryLightIndex < rgp.world->primaryLightCount - rgp.world->movingScriptablePrimaryLightCount)", (const char *)&queryFormat, "primaryLightIndex > rgp.world->lastSunPrimaryLightIndex && primaryLightIndex < rgp.world->primaryLightCount - rgp.world->movingScriptablePrimaryLightCount") )
           __debugbreak();
-        v72 = rgp.world;
+        v70 = rgp.world;
       }
-      v74 = clientIndex * v72->staticSpotOmniPrimaryLightCountAligned;
-      if ( (((_BYTE)clientIndex * LOBYTE(v72->staticSpotOmniPrimaryLightCountAligned)) & 0x1F) != 0 )
+      v72 = clientIndex * v70->staticSpotOmniPrimaryLightCountAligned;
+      if ( (((_BYTE)clientIndex * LOBYTE(v70->staticSpotOmniPrimaryLightCountAligned)) & 0x1F) != 0 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 928, ASSERT_TYPE_ASSERT, "((firstBit & 31) == 0)", (const char *)&queryFormat, "(firstBit & 31) == 0") )
           __debugbreak();
-        v72 = rgp.world;
+        v70 = rgp.world;
       }
-      v75 = (unsigned __int64)&v72->primaryLightMotionDetectBits[(unsigned __int64)v74 >> 5];
-      EntityPrimaryLightShadowBitArrayIndex = (int)R_GetEntityPrimaryLightShadowBitArrayIndex(v66);
-      if ( !v75 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 28, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+      v73 = (unsigned __int64)&v70->primaryLightMotionDetectBits[(unsigned __int64)v72 >> 5];
+      EntityPrimaryLightShadowBitArrayIndex = (int)R_GetEntityPrimaryLightShadowBitArrayIndex(v64);
+      if ( !v73 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 28, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
         __debugbreak();
-      v77 = EntityPrimaryLightShadowBitArrayIndex >> 5;
-      v78 = EntityPrimaryLightShadowBitArrayIndex & 0x1F;
-      v69 = v66;
-      *(_DWORD *)(v75 + 4 * v77) &= ~(1 << v78);
-      v56 = NumOfElements_4a;
+      v75 = EntityPrimaryLightShadowBitArrayIndex >> 5;
+      v76 = EntityPrimaryLightShadowBitArrayIndex & 0x1F;
+      v67 = v64;
+      *(_DWORD *)(v73 + 4 * v75) &= ~(1 << v76);
+      v54 = NumOfElements_4a;
     }
-    *v65 = v71;
-    NumOfElements_4a = ++v56;
-    backEndData->sceneLights[v70].flags |= (v71 << 13) | 0x1000;
-    if ( (unsigned int)v67 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v67, "unsigned", v67) )
+    *v63 = v69;
+    NumOfElements_4a = ++v54;
+    backEndData->sceneLights[v68].flags |= (v69 << 13) | 0x1000;
+    if ( (unsigned int)v65 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v65, "unsigned", v65) )
       __debugbreak();
-    v63 = sceneLightIndexb;
-    g_lightScore[v69].ranking1 = v67;
-LABEL_171:
-    v64 = v101;
-    v68 = spotShadowUpdateLimit;
-    goto LABEL_172;
+    v61 = sceneLightIndexb;
+    g_lightScore[v67].ranking1 = v65;
+LABEL_170:
+    v62 = v98;
+    v66 = spotShadowUpdateLimit;
+    goto LABEL_171;
   }
-LABEL_176:
+LABEL_175:
   R_SpotShadow_StaleCacheSnapshot(backEndData, viewInfo->clientIndex, 1);
   if ( v30 )
   {
-    v80 = v30;
-    v81 = &v110;
+    v78 = v30;
+    v79 = &v107;
     do
     {
-      v82 = v81->sceneLightIndex;
-      if ( v81->sceneLightIndex < rgp.world->primaryLightCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 845, ASSERT_TYPE_ASSERT, "(!R_IsPrimaryLight( sceneLightIndex ))", (const char *)&queryFormat, "!R_IsPrimaryLight( sceneLightIndex )") )
+      v80 = v79->sceneLightIndex;
+      if ( v79->sceneLightIndex < rgp.world->primaryLightCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 845, ASSERT_TYPE_ASSERT, "(!R_IsPrimaryLight( sceneLightIndex ))", (const char *)&queryFormat, "!R_IsPrimaryLight( sceneLightIndex )") )
         __debugbreak();
-      R_SpotShadow_EvictSceneLightFromStaleCache(v82);
-      ++v81;
-      --v80;
+      R_SpotShadow_EvictSceneLightFromStaleCache(v80);
+      ++v79;
+      --v78;
     }
-    while ( v80 );
-    v62 = v61;
+    while ( v78 );
+    v60 = v59;
   }
-  if ( v61 )
+  if ( v59 )
   {
-    for ( j = v112; ; j += 4 )
+    for ( j = v109; ; j += 4 )
     {
-      v84 = R_SpotShadow_GetStaleCacheEntryForSceneLight(*((unsigned __int16 *)j - 1));
+      v82 = R_SpotShadow_GetStaleCacheEntryForSceneLight(*((unsigned __int16 *)j - 1));
       if ( !*j )
         break;
       if ( *j == -1 )
       {
-        if ( v84 )
+        if ( v82 )
         {
-          v85 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 868, ASSERT_TYPE_ASSERT, "(entry == nullptr)", (const char *)&queryFormat, "entry == nullptr");
-LABEL_196:
-          if ( v85 )
+          v83 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 868, ASSERT_TYPE_ASSERT, "(entry == nullptr)", (const char *)&queryFormat, "entry == nullptr");
+LABEL_195:
+          if ( v83 )
             __debugbreak();
         }
       }
       else if ( !rg.primaryLightMotionDetect )
       {
-        v84->staleness = *j;
+        v82->staleness = *j;
       }
-LABEL_198:
-      if ( !--v62 )
+LABEL_197:
+      if ( !--v60 )
         return;
     }
-    if ( !v84 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 860, ASSERT_TYPE_ASSERT, "(entry != nullptr)", (const char *)&queryFormat, "entry != nullptr") )
+    if ( !v82 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 860, ASSERT_TYPE_ASSERT, "(entry != nullptr)", (const char *)&queryFormat, "entry != nullptr") )
       __debugbreak();
-    if ( !v84->staleness )
-      goto LABEL_198;
-    v85 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 861, ASSERT_TYPE_ASSERT, "(entry->staleness == R_SpotShadow_StaleCacheEntry::STALENESS_IMMORTAL)", (const char *)&queryFormat, "entry->staleness == R_SpotShadow_StaleCacheEntry::STALENESS_IMMORTAL");
-    goto LABEL_196;
+    if ( !v82->staleness )
+      goto LABEL_197;
+    v83 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 861, ASSERT_TYPE_ASSERT, "(entry->staleness == R_SpotShadow_StaleCacheEntry::STALENESS_IMMORTAL)", (const char *)&queryFormat, "entry->staleness == R_SpotShadow_StaleCacheEntry::STALENESS_IMMORTAL");
+    goto LABEL_195;
   }
 }
 
@@ -1532,150 +1419,119 @@ R_GetShadowedSpotLightScoreConfig
 */
 void R_GetShadowedSpotLightScoreConfig(GfxLightScoreConfig *config)
 {
+  const dvar_t *v1; 
   const dvar_t *v3; 
-  const dvar_t *v5; 
   signed int integer; 
+  const dvar_t *v5; 
+  const dvar_t *v6; 
   const dvar_t *v7; 
   const dvar_t *v8; 
+  const dvar_t *v11; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  const dvar_t *v14; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  const dvar_t *v17; 
   const dvar_t *v18; 
-  const dvar_t *v19; 
-  const dvar_t *v20; 
-  const dvar_t *v24; 
-  const dvar_t *v25; 
-  const dvar_t *v34; 
+  const dvar_t *v21; 
+  const dvar_t *v22; 
+  float value; 
 
-  v3 = DVARINT_sm_spotShadowScoreSystem;
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  _RBX = config;
-  __asm { vmovaps [rsp+68h+var_28], xmm7 }
+  v1 = DVARINT_sm_spotShadowScoreSystem;
   if ( !DVARINT_sm_spotShadowScoreSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowScoreSystem") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  _RBX->m_scoreSystem = v3->current.integer;
-  v5 = DCONST_DVARINT_sm_spotShadowSampleCountMin;
+  Dvar_CheckFrontendServerThread(v1);
+  config->m_scoreSystem = v1->current.integer;
+  v3 = DCONST_DVARINT_sm_spotShadowSampleCountMin;
   if ( !DCONST_DVARINT_sm_spotShadowSampleCountMin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowSampleCountMin") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  integer = v5->current.integer;
-  _RBX->m_sampleCountMin = integer;
-  v7 = DCONST_DVARINT_sm_spotShadowSampleCountMax;
+  Dvar_CheckFrontendServerThread(v3);
+  integer = v3->current.integer;
+  config->m_sampleCountMin = integer;
+  v5 = DCONST_DVARINT_sm_spotShadowSampleCountMax;
   if ( !DCONST_DVARINT_sm_spotShadowSampleCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowSampleCountMax") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.integer > integer )
-    integer = v7->current.integer;
-  _RBX->m_sampleCountMax = integer;
-  v8 = DCONST_DVARFLT_sm_spotShadowSampleDistance;
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.integer > integer )
+    integer = v5->current.integer;
+  config->m_sampleCountMax = integer;
+  v6 = DCONST_DVARFLT_sm_spotShadowSampleDistance;
   if ( !DCONST_DVARFLT_sm_spotShadowSampleDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowSampleDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vdivss  xmm0, xmm7, dword ptr [rdi+28h]
-    vmovss  dword ptr [rbx+0Ch], xmm0
-  }
-  _RDI = DCONST_DVARFLT_sm_spotShadowSampleBegin;
+  Dvar_CheckFrontendServerThread(v6);
+  config->m_sampleDistanceRcp = 1.0 / v6->current.value;
+  v7 = DCONST_DVARFLT_sm_spotShadowSampleBegin;
   if ( !DCONST_DVARFLT_sm_spotShadowSampleBegin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowSampleBegin") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vaddss  xmm6, xmm0, cs:__real@3c23d70a
-    vmovss  dword ptr [rbx+10h], xmm0
-  }
-  _RDI = DCONST_DVARFLT_sm_spotShadowSampleEnd;
+  Dvar_CheckFrontendServerThread(v7);
+  config->m_sampleBegin = v7->current.value;
+  v8 = DCONST_DVARFLT_sm_spotShadowSampleEnd;
   if ( !DCONST_DVARFLT_sm_spotShadowSampleEnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowSampleEnd") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmaxss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rbx+14h], xmm1
-    vsubss  xmm1, xmm1, dword ptr [rbx+10h]
-    vmovss  dword ptr [rbx+18h], xmm1
-  }
-  v18 = DCONST_DVARFLT_sm_spotShadowSampleLargeLightThreshold0;
+  Dvar_CheckFrontendServerThread(v8);
+  _XMM0 = v8->current.unsignedInt;
+  __asm { vmaxss  xmm1, xmm0, xmm6 }
+  config->m_sampleEnd = *(float *)&_XMM1;
+  config->m_sampleRange = *(float *)&_XMM1 - config->m_sampleBegin;
+  v11 = DCONST_DVARFLT_sm_spotShadowSampleLargeLightThreshold0;
   if ( !DCONST_DVARFLT_sm_spotShadowSampleLargeLightThreshold0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowSampleLargeLightThreshold0") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  LODWORD(_RBX->m_sampleExtraThreshold0) = v18->current.integer;
-  v19 = DCONST_DVARFLT_sm_spotShadowSampleLargeLightThreshold1;
+  Dvar_CheckFrontendServerThread(v11);
+  LODWORD(config->m_sampleExtraThreshold0) = v11->current.integer;
+  v12 = DCONST_DVARFLT_sm_spotShadowSampleLargeLightThreshold1;
   if ( !DCONST_DVARFLT_sm_spotShadowSampleLargeLightThreshold1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowSampleLargeLightThreshold1") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  LODWORD(_RBX->m_sampleExtraThreshold1) = v19->current.integer;
-  v20 = DVARFLT_sm_spotShadowSampleExtra0;
+  Dvar_CheckFrontendServerThread(v12);
+  LODWORD(config->m_sampleExtraThreshold1) = v12->current.integer;
+  v13 = DVARFLT_sm_spotShadowSampleExtra0;
   if ( !DVARFLT_sm_spotShadowSampleExtra0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowSampleExtra0") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  LODWORD(_RBX->m_sampleExtra0) = v20->current.integer;
-  _RDI = DVARFLT_sm_spotShadowSampleExtra0;
+  Dvar_CheckFrontendServerThread(v13);
+  LODWORD(config->m_sampleExtra0) = v13->current.integer;
+  v14 = DVARFLT_sm_spotShadowSampleExtra0;
   if ( !DVARFLT_sm_spotShadowSampleExtra0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowSampleExtra0") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vmovss  dword ptr [rbx+28h], xmm1
-  }
-  v24 = DVARFLT_sm_spotShadowScore0Min;
+  Dvar_CheckFrontendServerThread(v14);
+  config->m_sampleExtra1 = v14->current.value * 0.5;
+  v15 = DVARFLT_sm_spotShadowScore0Min;
   if ( !DVARFLT_sm_spotShadowScore0Min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowScore0Min") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v24);
-  LODWORD(_RBX->m_score0Min) = v24->current.integer;
-  _RBX->m_score0Max = 1.0;
-  v25 = DCONST_DVARFLT_sm_spotShadowScore1Min;
+  Dvar_CheckFrontendServerThread(v15);
+  LODWORD(config->m_score0Min) = v15->current.integer;
+  config->m_score0Max = 1.0;
+  v16 = DCONST_DVARFLT_sm_spotShadowScore1Min;
   if ( !DCONST_DVARFLT_sm_spotShadowScore1Min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowScore1Min") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v25);
-  LODWORD(_RBX->m_score1Min) = v25->current.integer;
-  _RBX->m_score1Max = 1.0;
-  _RDI = DCONST_DVARFLT_sm_spotShadowScore1ConstA;
+  Dvar_CheckFrontendServerThread(v16);
+  LODWORD(config->m_score1Min) = v16->current.integer;
+  config->m_score1Max = 1.0;
+  v17 = DCONST_DVARFLT_sm_spotShadowScore1ConstA;
   if ( !DCONST_DVARFLT_sm_spotShadowScore1ConstA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowScore1ConstA") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  dword ptr [rbx+3Ch], xmm0
-  }
-  _RDI = DCONST_DVARFLT_sm_spotShadowScore1ConstB;
-  __asm { vaddss  xmm6, xmm0, xmm7 }
+  Dvar_CheckFrontendServerThread(v17);
+  config->m_score1ConstA = v17->current.value;
+  v18 = DCONST_DVARFLT_sm_spotShadowScore1ConstB;
   if ( !DCONST_DVARFLT_sm_spotShadowScore1ConstB && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowScore1ConstB") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmaxss  xmm1, xmm0, xmm6
-    vsubss  xmm2, xmm1, dword ptr [rbx+3Ch]
-    vdivss  xmm0, xmm7, xmm2
-    vmovss  dword ptr [rbx+44h], xmm0
-    vmovss  dword ptr [rbx+40h], xmm1
-  }
-  v34 = DCONST_DVARFLT_sm_spotShadowScore2Min;
+  Dvar_CheckFrontendServerThread(v18);
+  _XMM0 = v18->current.unsignedInt;
+  __asm { vmaxss  xmm1, xmm0, xmm6 }
+  config->m_score1DistanceFalloffRcp = 1.0 / (float)(*(float *)&_XMM1 - config->m_score1ConstA);
+  config->m_score1ConstB = *(float *)&_XMM1;
+  v21 = DCONST_DVARFLT_sm_spotShadowScore2Min;
   if ( !DCONST_DVARFLT_sm_spotShadowScore2Min && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowScore2Min") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v34);
-  LODWORD(_RBX->m_score2Min) = v34->current.integer;
-  _RBX->m_score2Max = 1.0;
-  _RDI = DCONST_DVARFLT_sm_spotShadowScore2ConstA;
+  Dvar_CheckFrontendServerThread(v21);
+  LODWORD(config->m_score2Min) = v21->current.integer;
+  config->m_score2Max = 1.0;
+  v22 = DCONST_DVARFLT_sm_spotShadowScore2ConstA;
   if ( !DCONST_DVARFLT_sm_spotShadowScore2ConstA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sm_spotShadowScore2ConstA") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovss  dword ptr [rbx+50h], xmm0
-    vdivss  xmm0, xmm7, xmm0
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovss  dword ptr [rbx+54h], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v22);
+  value = v22->current.value;
+  config->m_score2ConstA = value;
+  config->m_score2IntensityFalloffRcp = 1.0 / value;
 }
 
 /*
@@ -1955,22 +1811,79 @@ R_LinkBoxEntityToPrimaryLightsAABBTree
 */
 __int64 R_LinkBoxEntityToPrimaryLightsAABBTree(unsigned int nodeIndex, const Bounds *bounds, unsigned int *visBits)
 {
-  _RDI = &rgp.world->lightAABB.nodeArray[nodeIndex];
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 592, ASSERT_TYPE_ASSERT, "(b0)", (const char *)&queryFormat, "b0") )
+  GfxWorld *world; 
+  unsigned int v6; 
+  GfxLightAABBNode *v7; 
+  unsigned __int16 childCount; 
+  unsigned int v9; 
+  __int16 firstChild; 
+  int v11; 
+  unsigned int v12; 
+  unsigned int v13; 
+  const ComPrimaryLight *PrimaryLight; 
+  unsigned __int8 type; 
+  __int64 EntityPrimaryLightShadowBitArrayIndex; 
+  __int64 v18; 
+  GfxWorld *v19; 
+
+  world = rgp.world;
+  v19 = rgp.world;
+  v6 = 0;
+  v7 = &rgp.world->lightAABB.nodeArray[nodeIndex];
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 592, ASSERT_TYPE_ASSERT, "(b0)", (const char *)&queryFormat, "b0") )
     __debugbreak();
   if ( !bounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 593, ASSERT_TYPE_ASSERT, "(b1)", (const char *)&queryFormat, "b1") )
     __debugbreak();
-  __asm
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v7->bound.midPoint.v[0] - bounds->midPoint.v[0]) & _xmm) >= (float)(v7->bound.halfSize.v[0] + bounds->halfSize.v[0]) || COERCE_FLOAT(COERCE_UNSIGNED_INT(v7->bound.midPoint.v[1] - bounds->midPoint.v[1]) & _xmm) >= (float)(v7->bound.halfSize.v[1] + bounds->halfSize.v[1]) || COERCE_FLOAT(COERCE_UNSIGNED_INT(v7->bound.midPoint.v[2] - bounds->midPoint.v[2]) & _xmm) >= (float)(v7->bound.halfSize.v[2] + bounds->halfSize.v[2]) )
+    return 0i64;
+  childCount = v7->childCount;
+  v9 = 0;
+  firstChild = v7->firstChild;
+  if ( firstChild >= 0 )
   {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm2, xmm0, dword ptr [rbp+0]
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vmovss  xmm3, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm1, xmm0, dword ptr [rbp+0Ch]
-    vandps  xmm2, xmm2, xmm3
-    vcomiss xmm2, xmm1
+    if ( childCount )
+    {
+      do
+      {
+        v6 += R_LinkBoxEntityToPrimaryLightsAABBTree(v9 + v7->firstChild, bounds, visBits);
+        ++v9;
+      }
+      while ( v9 < v7->childCount );
+    }
+    return v6;
   }
-  return 0i64;
+  else
+  {
+    v11 = firstChild & 0x7FFF;
+    v12 = childCount;
+    if ( childCount )
+    {
+      do
+      {
+        v13 = world->lightAABB.lightArray[v9 + v11];
+        PrimaryLight = Com_GetPrimaryLight(v13);
+        type = PrimaryLight->type;
+        if ( (unsigned __int8)(type - 2) > 1u )
+        {
+          LODWORD(v18) = type;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 971, ASSERT_TYPE_ASSERT, "( ( light->type == 2 || light->type == 3 ) )", "( light->type ) = %i", v18) )
+            __debugbreak();
+        }
+        if ( PrimaryLight->needsDynamicShadows && R_PrimaryLightFrustumTestBox(v13, bounds) )
+        {
+          EntityPrimaryLightShadowBitArrayIndex = (int)R_GetEntityPrimaryLightShadowBitArrayIndex(v13);
+          if ( !visBits && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+            __debugbreak();
+          visBits[EntityPrimaryLightShadowBitArrayIndex >> 5] |= 1 << (EntityPrimaryLightShadowBitArrayIndex & 0x1F);
+          ++v6;
+        }
+        world = v19;
+        ++v9;
+      }
+      while ( v9 < v12 );
+    }
+    return v6;
+  }
 }
 
 /*
@@ -2016,64 +1929,47 @@ __int64 R_LinkDynEntClientToPrimaryLights(LocalClientNum_t localClientNum, unsig
 R_LinkSphereEntityToPrimaryLights
 ==============
 */
-
-__int64 __fastcall R_LinkSphereEntityToPrimaryLights(unsigned int localClientNum, unsigned int entityNum, const vec3_t *origin, double radius)
+__int64 R_LinkSphereEntityToPrimaryLights(unsigned int localClientNum, unsigned int entityNum, const vec3_t *origin, float radius)
 {
   unsigned int staticSpotOmniPrimaryLightCountAligned; 
-  unsigned int v10; 
+  unsigned int v7; 
   unsigned int *PrimaryLightEntityShadowBitsArray; 
-  unsigned __int16 *v12; 
-  unsigned int v17; 
+  unsigned __int16 *v9; 
+  float v10; 
+  float v11; 
+  unsigned int v12; 
   unsigned int shadowBitsArrayPitch; 
-  unsigned int v19; 
-  __int64 result; 
+  unsigned int v14; 
   Sphere sphere; 
-  char v23[816]; 
-  void *retaddr; 
+  char v17[816]; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-38h], xmm6 }
-  _RBX = origin;
-  __asm { vmovaps xmm6, xmm3 }
   staticSpotOmniPrimaryLightCountAligned = rgp.world->staticSpotOmniPrimaryLightCountAligned;
-  if ( staticSpotOmniPrimaryLightCountAligned && rgp.world->lightAABB.nodeCount )
+  if ( !staticSpotOmniPrimaryLightCountAligned || !rgp.world->lightAABB.nodeCount )
+    return 0i64;
+  v7 = staticSpotOmniPrimaryLightCountAligned >> 5;
+  PrimaryLightEntityShadowBitsArray = R_GetPrimaryLightEntityShadowBitsArray(localClientNum, entityNum);
+  v9 = (unsigned __int16 *)PrimaryLightEntityShadowBitsArray;
+  if ( rgp.world->shadowBitsArrayPitch != rgp.world->staticSpotOmniPrimaryLightCountAligned )
   {
-    v10 = staticSpotOmniPrimaryLightCountAligned >> 5;
-    PrimaryLightEntityShadowBitsArray = R_GetPrimaryLightEntityShadowBitsArray(localClientNum, entityNum);
-    v12 = (unsigned __int16 *)PrimaryLightEntityShadowBitsArray;
-    if ( rgp.world->shadowBitsArrayPitch != rgp.world->staticSpotOmniPrimaryLightCountAligned )
-    {
-      memset_0(v23, 0, 4i64 * v10);
-      PrimaryLightEntityShadowBitsArray = (unsigned int *)v23;
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmovss  dword ptr [rsp+3C8h+sphere.origin], xmm0
-      vmovss  xmm0, dword ptr [rbx+8]
-      vmovss  dword ptr [rsp+3C8h+sphere.origin+4], xmm1
-      vmulss  xmm1, xmm6, xmm6
-      vmovss  dword ptr [rsp+3C8h+sphere.origin+8], xmm0
-      vmovss  [rsp+3C8h+sphere.radiusSq], xmm1
-      vmovss  [rsp+3C8h+sphere.radius], xmm6
-    }
-    v17 = R_LinkSphereEntityToPrimaryLightsAABBTree(0, &sphere, PrimaryLightEntityShadowBitsArray);
-    shadowBitsArrayPitch = rgp.world->shadowBitsArrayPitch;
-    if ( shadowBitsArrayPitch != rgp.world->staticSpotOmniPrimaryLightCountAligned )
-    {
-      v19 = R_BitsArrayToLightList(PrimaryLightEntityShadowBitsArray, v10, v17, v12, shadowBitsArrayPitch >> 4);
-      if ( v19 )
-        Com_Printf(8, "R_LinkSphereEntityToPrimaryLights missing %d lights for ent(%d)\n", v19, entityNum);
-    }
-    result = v17;
+    memset_0(v17, 0, 4i64 * v7);
+    PrimaryLightEntityShadowBitsArray = (unsigned int *)v17;
   }
-  else
+  v10 = origin->v[1];
+  sphere.origin.v[0] = origin->v[0];
+  v11 = origin->v[2];
+  sphere.origin.v[1] = v10;
+  sphere.origin.v[2] = v11;
+  sphere.radiusSq = radius * radius;
+  sphere.radius = radius;
+  v12 = R_LinkSphereEntityToPrimaryLightsAABBTree(0, &sphere, PrimaryLightEntityShadowBitsArray);
+  shadowBitsArrayPitch = rgp.world->shadowBitsArrayPitch;
+  if ( shadowBitsArrayPitch != rgp.world->staticSpotOmniPrimaryLightCountAligned )
   {
-    result = 0i64;
+    v14 = R_BitsArrayToLightList(PrimaryLightEntityShadowBitsArray, v7, v12, v9, shadowBitsArrayPitch >> 4);
+    if ( v14 )
+      Com_Printf(8, "R_LinkSphereEntityToPrimaryLights missing %d lights for ent(%d)\n", v14, entityNum);
   }
-  __asm { vmovaps xmm6, [rsp+3C8h+var_38] }
-  return result;
+  return v12;
 }
 
 /*
@@ -2085,123 +1981,133 @@ __int64 R_LinkSphereEntityToPrimaryLightsAABBTree(unsigned int nodeIndex, Sphere
 {
   GfxWorld *world; 
   unsigned int v6; 
+  GfxLightAABBNode *v7; 
+  __int64 result; 
+  __int128 v10; 
+  __m128 v14; 
+  __m128 v18; 
   unsigned __int16 childCount; 
   __int16 firstChild; 
-  int v34; 
-  unsigned int v35; 
-  unsigned int v36; 
-  unsigned int v37; 
+  int v30; 
+  unsigned int v31; 
+  unsigned int v32; 
+  unsigned int v33; 
   const ComPrimaryLight *PrimaryLight; 
   unsigned __int8 type; 
   __int64 EntityPrimaryLightShadowBitArrayIndex; 
-  unsigned int v42; 
-  __int64 v43; 
-  GfxWorld *v44; 
-  __int128 v45; 
-  __int128 v46; 
-  __int128 v47; 
+  unsigned int v37; 
+  __int64 v38; 
+  GfxWorld *v39; 
+  __int128 v40; 
+  __m128 v41; 
+  __m128 v42; 
 
   world = rgp.world;
-  _R15 = sphere;
-  v44 = rgp.world;
+  v39 = rgp.world;
   v6 = 0;
-  _RSI = &rgp.world->lightAABB.nodeArray[nodeIndex];
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1335, ASSERT_TYPE_ASSERT, "(b)", (const char *)&queryFormat, "b") )
+  v7 = &rgp.world->lightAABB.nodeArray[nodeIndex];
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1335, ASSERT_TYPE_ASSERT, "(b)", (const char *)&queryFormat, "b") )
     __debugbreak();
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1336, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
+  if ( !sphere && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 1336, ASSERT_TYPE_ASSERT, "(s)", (const char *)&queryFormat, "s") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [r15] }
-  HIDWORD(v45) = 0;
+  result = 0i64;
+  HIDWORD(v40) = 0;
+  v10 = v40;
+  *(float *)&v10 = sphere->origin.v[0];
+  _XMM5 = v10;
   __asm
   {
-    vmovups xmm5, xmmword ptr [rsp+40h]
-    vmovss  xmm5, xmm5, xmm0
-    vmovss  xmm0, dword ptr [rsi]
     vinsertps xmm5, xmm5, dword ptr [r15+4], 10h
     vinsertps xmm5, xmm5, dword ptr [r15+8], 20h ; ' '
-    vmovups xmmword ptr [rsp+40h], xmm5
   }
-  HIDWORD(v46) = 0;
+  v41 = _XMM5;
+  v41.m128_i32[3] = 0;
+  v14 = v41;
+  v14.m128_f32[0] = v7->bound.midPoint.v[0];
+  _XMM4 = v14;
   __asm
   {
-    vmovups xmm4, xmmword ptr [rsp+40h]
-    vmovss  xmm4, xmm4, xmm0
-    vmovss  xmm0, dword ptr [rsi+0Ch]
     vinsertps xmm4, xmm4, dword ptr [rsi+4], 10h
     vinsertps xmm4, xmm4, dword ptr [rsi+8], 20h ; ' '
-    vmovups xmmword ptr [rsp+40h], xmm4
-    vsubps  xmm1, xmm5, xmm4
   }
-  HIDWORD(v47) = 0;
+  v42 = _XMM4;
+  _mm128_sub_ps(_XMM5, _XMM4);
+  v42.m128_i32[3] = 0;
+  v18 = v42;
+  v18.m128_f32[0] = v7->bound.halfSize.v[0];
+  _XMM3 = v18;
+  __asm { vinsertps xmm3, xmm3, dword ptr [rsi+10h], 10h }
+  _XMM0 = g_negativeZero.v;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+40h]
-    vmovss  xmm3, xmm3, xmm0
-    vinsertps xmm3, xmm3, dword ptr [rsi+10h], 10h
-    vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
     vinsertps xmm3, xmm3, dword ptr [rsi+14h], 20h ; ' '
     vandnps xmm2, xmm0, xmm1
-    vsubps  xmm3, xmm2, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vmaxps  xmm1, xmm3, xmm0
-    vmulps  xmm2, xmm1, xmm1
+  }
+  _XMM3 = _mm128_sub_ps(_XMM2, _XMM3);
+  __asm { vmaxps  xmm1, xmm3, xmm0 }
+  _XMM2 = _mm128_mul_ps(_XMM1, _XMM1);
+  __asm
+  {
     vhaddps xmm0, xmm2, xmm2
     vhaddps xmm1, xmm0, xmm0
-    vcomiss xmm1, dword ptr [r15+10h]
   }
-  childCount = _RSI->childCount;
-  firstChild = _RSI->firstChild;
-  if ( firstChild >= 0 )
+  if ( *(float *)&_XMM1 <= sphere->radiusSq )
   {
-    v42 = 0;
-    if ( childCount )
+    childCount = v7->childCount;
+    firstChild = v7->firstChild;
+    if ( firstChild >= 0 )
     {
-      do
+      v37 = 0;
+      if ( childCount )
       {
-        v6 += R_LinkSphereEntityToPrimaryLightsAABBTree(v42 + _RSI->firstChild, _R15, visBits);
-        ++v42;
-      }
-      while ( v42 < _RSI->childCount );
-    }
-    return v6;
-  }
-  else
-  {
-    v34 = firstChild & 0x7FFF;
-    v35 = childCount;
-    v36 = 0;
-    if ( childCount )
-    {
-      do
-      {
-        v37 = world->lightAABB.lightArray[v36 + v34];
-        PrimaryLight = Com_GetPrimaryLight(v37);
-        type = PrimaryLight->type;
-        if ( (unsigned __int8)(type - 2) > 1u )
+        do
         {
-          LODWORD(v43) = type;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 971, ASSERT_TYPE_ASSERT, "( ( light->type == 2 || light->type == 3 ) )", "( light->type ) = %i", v43) )
-            __debugbreak();
+          v6 += R_LinkSphereEntityToPrimaryLightsAABBTree(v37 + v7->firstChild, sphere, visBits);
+          ++v37;
         }
-        if ( PrimaryLight->needsDynamicShadows && R_PrimaryLightFrustumTestSphere(v37, _R15) )
-        {
-          EntityPrimaryLightShadowBitArrayIndex = (int)R_GetEntityPrimaryLightShadowBitArrayIndex(v37);
-          if ( !visBits && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
-            __debugbreak();
-          visBits[EntityPrimaryLightShadowBitArrayIndex >> 5] |= 1 << (EntityPrimaryLightShadowBitArrayIndex & 0x1F);
-          ++v6;
-        }
-        world = v44;
-        ++v36;
+        while ( v37 < v7->childCount );
       }
-      while ( v36 < v35 );
       return v6;
     }
     else
     {
-      return 0i64;
+      v30 = firstChild & 0x7FFF;
+      v31 = childCount;
+      v32 = 0;
+      if ( childCount )
+      {
+        do
+        {
+          v33 = world->lightAABB.lightArray[v32 + v30];
+          PrimaryLight = Com_GetPrimaryLight(v33);
+          type = PrimaryLight->type;
+          if ( (unsigned __int8)(type - 2) > 1u )
+          {
+            LODWORD(v38) = type;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 971, ASSERT_TYPE_ASSERT, "( ( light->type == 2 || light->type == 3 ) )", "( light->type ) = %i", v38) )
+              __debugbreak();
+          }
+          if ( PrimaryLight->needsDynamicShadows && R_PrimaryLightFrustumTestSphere(v33, sphere) )
+          {
+            EntityPrimaryLightShadowBitArrayIndex = (int)R_GetEntityPrimaryLightShadowBitArrayIndex(v33);
+            if ( !visBits && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 20, ASSERT_TYPE_SANITY, "( array )", (const char *)&queryFormat, "array") )
+              __debugbreak();
+            visBits[EntityPrimaryLightShadowBitArrayIndex >> 5] |= 1 << (EntityPrimaryLightShadowBitArrayIndex & 0x1F);
+            ++v6;
+          }
+          world = v39;
+          ++v32;
+        }
+        while ( v32 < v31 );
+        return v6;
+      }
+      else
+      {
+        return 0i64;
+      }
     }
   }
+  return result;
 }
 
 /*
@@ -2626,28 +2532,34 @@ __int64 R_PopulateMotionBits(LocalClientNum_t localClientNum)
 R_PrimaryLightFrustumTestBox
 ==============
 */
-
-bool __fastcall R_PrimaryLightFrustumTestBox(unsigned int primaryLightIndex, const Bounds *bounds, double _XMM2_8)
+bool R_PrimaryLightFrustumTestBox(unsigned int primaryLightIndex, const Bounds *bounds)
 {
-  __int64 v13; 
+  __int64 v3; 
+  const ComPrimaryLight *PrimaryLight; 
   unsigned __int8 type; 
   int integer; 
   GfxLightViewFrustum *lightViewFrustums; 
   unsigned __int8 planeCount; 
-  unsigned int v20; 
-  unsigned int v21; 
-  bool v22; 
-  bool result; 
-  float v60; 
-  float v64; 
-  vec3_t v74; 
-  vec3_t v75; 
+  vec4_t *planes; 
+  int v10; 
+  int v11; 
+  float v13; 
+  float cosHalfFovOuter; 
+  float bulbRadius; 
+  double v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  vec3_t v23; 
+  vec3_t v24; 
   vec3_t coneOrg; 
 
-  _RDI = bounds;
-  v13 = primaryLightIndex;
-  _RBX = Com_GetPrimaryLight(primaryLightIndex);
-  type = _RBX->type;
+  v3 = primaryLightIndex;
+  PrimaryLight = Com_GetPrimaryLight(primaryLightIndex);
+  type = PrimaryLight->type;
   if ( (unsigned __int8)(type - 2) > 1u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 993, ASSERT_TYPE_ASSERT, "( ( light->type == 2 || light->type == 3 ) )", "( light->type ) = %i", type) )
     __debugbreak();
   integer = sm_spotShadowCulling->current.integer;
@@ -2655,128 +2567,47 @@ bool __fastcall R_PrimaryLightFrustumTestBox(unsigned int primaryLightIndex, con
   {
     if ( !integer )
     {
-      __asm { vxorps  xmm2, xmm2, xmm2 }
-      goto LABEL_17;
+      v18 = 0.0;
+      goto LABEL_15;
     }
+LABEL_13:
+    v13 = PrimaryLight->bulbLength.v[2];
+    cosHalfFovOuter = PrimaryLight->cosHalfFovOuter;
+    bulbRadius = PrimaryLight->bulbRadius;
+    *(_QWORD *)v23.v = *(_QWORD *)PrimaryLight->bulbLength.v;
+    v16 = *(double *)PrimaryLight->dir.v;
+    v23.v[2] = v13;
+    v17 = PrimaryLight->dir.v[2];
+    *(double *)v24.v = v16;
+    v24.v[2] = v17;
+    v18 = PhysicallyBasedLight_AreaLightVPLOffsetTube(&v24, &v23, bulbRadius, cosHalfFovOuter);
 LABEL_15:
-    __asm { vmovsd  xmm0, qword ptr [rbx+60h] }
-    v60 = _RBX->bulbLength.v[2];
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbx+6Ch]
-      vmovss  xmm2, dword ptr [rbx+5Ch]
-      vmovsd  [rsp+108h+var_D8], xmm0
-      vmovsd  xmm0, qword ptr [rbx+2Ch]
-    }
-    v74.v[2] = v60;
-    v64 = _RBX->dir.v[2];
-    __asm { vmovsd  [rsp+108h+var_C8], xmm0 }
-    v75.v[2] = v64;
-    *(float *)&_XMM0 = PhysicallyBasedLight_AreaLightVPLOffsetTube(&v75, &v74, *(const float *)&_XMM2, *(const float *)&_XMM3);
-    __asm { vmovaps xmm2, xmm0 }
-LABEL_17:
-    __asm
-    {
-      vaddss  xmm3, xmm2, dword ptr [rbx+50h]; radius
-      vmulss  xmm0, xmm2, dword ptr [rdx]
-      vaddss  xmm1, xmm0, dword ptr [rbx+44h]
-      vmulss  xmm0, xmm2, dword ptr [rdx+4]
-      vmovss  dword ptr [rsp+108h+coneOrg], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx+48h]
-      vmulss  xmm0, xmm2, dword ptr [rdx+8]
-      vmovss  xmm2, dword ptr [rbx+6Ch]; cosHalfFov
-      vmovss  dword ptr [rsp+108h+coneOrg+4], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx+4Ch]
-      vmovss  dword ptr [rsp+108h+coneOrg+8], xmm1
-    }
-    return !CullBoxFromConicSectionOfSphere(&coneOrg, &_RBX->dir, *(float *)&_XMM2, *(float *)&_XMM3, _RDI);
+    v19 = v18 + PrimaryLight->radius;
+    v20 = v18 * PrimaryLight->dir.v[1];
+    coneOrg.v[0] = (float)(v18 * PrimaryLight->dir.v[0]) + PrimaryLight->origin.v[0];
+    v21 = v18 * PrimaryLight->dir.v[2];
+    v22 = PrimaryLight->cosHalfFovOuter;
+    coneOrg.v[1] = v20 + PrimaryLight->origin.v[1];
+    coneOrg.v[2] = v21 + PrimaryLight->origin.v[2];
+    return !CullBoxFromConicSectionOfSphere(&coneOrg, &PrimaryLight->dir, v22, v19, bounds);
   }
   lightViewFrustums = rgp.world->lightViewFrustums;
   if ( !lightViewFrustums )
-    goto LABEL_15;
-  planeCount = lightViewFrustums[v13].planeCount;
+    goto LABEL_13;
+  planeCount = lightViewFrustums[v3].planeCount;
   if ( !planeCount )
-    goto LABEL_15;
-  _RCX = lightViewFrustums[v13].planes;
-  __asm
+    goto LABEL_13;
+  planes = lightViewFrustums[v3].planes;
+  v10 = planeCount;
+  v11 = 0;
+  while ( (float)((float)((float)((float)((float)((float)(COERCE_FLOAT(LODWORD(planes->v[0]) & _xmm) * bounds->halfSize.v[0]) + (float)((float)(bounds->midPoint.v[0] * planes->v[0]) + planes->v[3])) + (float)(bounds->midPoint.v[1] * planes->v[1])) + (float)(COERCE_FLOAT(LODWORD(planes->v[1]) & _xmm) * bounds->halfSize.v[1])) + (float)(bounds->midPoint.v[2] * planes->v[2])) + (float)(COERCE_FLOAT(LODWORD(planes->v[2]) & _xmm) * bounds->halfSize.v[2])) > 0.0 )
   {
-    vmovaps [rsp+108h+var_18], xmm6
-    vmovaps [rsp+108h+var_28], xmm7
-    vmovaps [rsp+108h+var_38], xmm8
-    vmovaps [rsp+108h+var_48], xmm9
-    vmovaps [rsp+108h+var_58], xmm10
-    vmovaps [rsp+108h+var_68], xmm11
+    ++v11;
+    ++planes;
+    if ( v11 >= v10 )
+      return 1;
   }
-  v20 = planeCount;
-  v21 = 0;
-  __asm
-  {
-    vmovaps [rsp+108h+var_78], xmm12
-    vmovaps [rsp+108h+var_88], xmm13
-    vmovaps [rsp+108h+var_98], xmm14
-  }
-  v22 = v20 == 0;
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rdi+0Ch]
-    vmovss  xmm9, dword ptr [rdi]
-    vmovss  xmm10, dword ptr [rdi+4]
-    vmovss  xmm11, dword ptr [rdi+10h]
-    vmovss  xmm12, dword ptr [rdi+8]
-    vmovss  xmm13, dword ptr [rdi+14h]
-    vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vxorps  xmm14, xmm14, xmm14
-  }
-  while ( 1 )
-  {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rcx]
-      vmovss  xmm5, dword ptr [rcx+4]
-      vmovss  xmm6, dword ptr [rcx+8]
-      vandps  xmm0, xmm1, xmm7
-      vmulss  xmm2, xmm0, xmm8
-      vmulss  xmm0, xmm9, xmm1
-      vaddss  xmm1, xmm0, dword ptr [rcx+0Ch]
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm10, xmm5
-      vmulss  xmm1, xmm12, xmm6
-      vaddss  xmm4, xmm3, xmm2
-      vandps  xmm5, xmm5, xmm7
-      vmulss  xmm0, xmm5, xmm11
-      vaddss  xmm2, xmm4, xmm0
-      vandps  xmm6, xmm6, xmm7
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm6, xmm13
-      vaddss  xmm1, xmm3, xmm0
-      vcomiss xmm1, xmm14
-    }
-    if ( v22 )
-      break;
-    ++v21;
-    ++_RCX;
-    v22 = v21 <= v20;
-    if ( (int)v21 >= (int)v20 )
-    {
-      result = 1;
-      goto LABEL_12;
-    }
-  }
-  result = 0;
-LABEL_12:
-  __asm
-  {
-    vmovaps xmm14, [rsp+108h+var_98]
-    vmovaps xmm13, [rsp+108h+var_88]
-    vmovaps xmm12, [rsp+108h+var_78]
-    vmovaps xmm11, [rsp+108h+var_68]
-    vmovaps xmm10, [rsp+108h+var_58]
-    vmovaps xmm9, [rsp+108h+var_48]
-    vmovaps xmm8, [rsp+108h+var_38]
-    vmovaps xmm7, [rsp+108h+var_28]
-    vmovaps xmm6, [rsp+108h+var_18]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -2784,135 +2615,99 @@ LABEL_12:
 R_PrimaryLightFrustumTestSphere
 ==============
 */
-bool R_PrimaryLightFrustumTestSphere(unsigned int primaryLightIndex, const Sphere *sphere)
+char R_PrimaryLightFrustumTestSphere(unsigned int primaryLightIndex, const Sphere *sphere)
 {
-  __int64 v7; 
+  __int64 v3; 
+  const ComPrimaryLight *PrimaryLight; 
   unsigned __int8 type; 
   GfxLightViewFrustum *lightViewFrustums; 
   unsigned __int8 planeCount; 
-  vec4_t *planes; 
-  unsigned int v15; 
-  unsigned int v16; 
-  bool v17; 
-  bool result; 
-  int v61; 
+  float *v; 
+  int v9; 
+  int v10; 
+  float radius; 
+  float v13; 
+  int integer; 
+  float v15; 
+  float v16; 
+  float v17; 
+  bool v18; 
+  float v19; 
+  float cosHalfFovOuter; 
+  float bulbRadius; 
+  double v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  vec3_t v27; 
+  vec3_t v28; 
+  vec3_t coneOrg; 
 
-  _RDI = sphere;
-  v7 = primaryLightIndex;
-  _RBX = Com_GetPrimaryLight(primaryLightIndex);
-  type = _RBX->type;
-  if ( (unsigned __int8)(type - 2) > 1u )
+  v3 = primaryLightIndex;
+  PrimaryLight = Com_GetPrimaryLight(primaryLightIndex);
+  type = PrimaryLight->type;
+  if ( (unsigned __int8)(type - 2) > 1u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 1036, ASSERT_TYPE_ASSERT, "( ( light->type == 2 || light->type == 3 ) )", "( light->type ) = %i", type) )
+    __debugbreak();
+  if ( sm_spotShadowCulling->current.integer == 2 && (lightViewFrustums = rgp.world->lightViewFrustums) != NULL && (planeCount = lightViewFrustums[v3].planeCount) != 0 )
   {
-    v61 = type;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 1036, ASSERT_TYPE_ASSERT, "( ( light->type == 2 || light->type == 3 ) )", "( light->type ) = %i", v61) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_18], xmm6
-    vmovaps [rsp+0B8h+var_28], xmm7
-    vmovaps [rsp+0B8h+var_38], xmm8
-  }
-  if ( sm_spotShadowCulling->current.integer == 2 && (lightViewFrustums = rgp.world->lightViewFrustums) != NULL && (planeCount = lightViewFrustums[v7].planeCount) != 0 )
-  {
-    __asm { vmovss  xmm8, dword ptr [rdi+0Ch] }
-    planes = lightViewFrustums[v7].planes;
-    v15 = planeCount;
-    v16 = 0;
-    v17 = v15 == 0;
-    __asm
+    v = lightViewFrustums[v3].planes->v;
+    v9 = planeCount;
+    v10 = 0;
+    while ( (float)((float)((float)((float)((float)(sphere->origin.v[1] * v[1]) + (float)(sphere->origin.v[0] * *v)) + (float)(sphere->origin.v[2] * v[2])) + v[3]) + sphere->radius) > 0.0 )
     {
-      vmovss  xmm6, dword ptr [rdi+4]
-      vmovss  xmm4, dword ptr [rdi]
-      vmovss  xmm7, dword ptr [rdi+8]
-      vxorps  xmm5, xmm5, xmm5
+      ++v10;
+      v += 4;
+      if ( v10 >= v9 )
+        return 1;
     }
-    while ( 1 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rax+4]
-        vmulss  xmm0, xmm4, dword ptr [rax]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm7, dword ptr [rax+8]
-        vaddss  xmm0, xmm2, xmm1
-        vaddss  xmm2, xmm0, dword ptr [rax+0Ch]
-        vaddss  xmm3, xmm2, xmm8
-        vcomiss xmm3, xmm5
-      }
-      if ( v17 )
-        break;
-      ++v16;
-      ++planes;
-      v17 = v16 <= v15;
-      if ( (int)v16 >= (int)v15 )
-      {
-        result = 1;
-        goto LABEL_20;
-      }
-    }
-    result = 0;
+    return 0;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+0B8h+var_48], xmm9
-      vmovss  xmm9, dword ptr [rdi+0Ch]
-    }
-    if ( (unsigned __int8)(_RBX->type - 2) > 1u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 1018, ASSERT_TYPE_ASSERT, "(light->type == 2 || light->type == 3)", (const char *)&queryFormat, "light->type == GFX_LIGHT_TYPE_SPOT || light->type == GFX_LIGHT_TYPE_OMNI") )
+    radius = sphere->radius;
+    if ( (unsigned __int8)(PrimaryLight->type - 2) > 1u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 1018, ASSERT_TYPE_ASSERT, "(light->type == 2 || light->type == 3)", (const char *)&queryFormat, "light->type == GFX_LIGHT_TYPE_SPOT || light->type == GFX_LIGHT_TYPE_OMNI") )
       __debugbreak();
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    if ( sm_spotShadowCulling->current.integer )
+    v13 = 0.0;
+    integer = sm_spotShadowCulling->current.integer;
+    if ( integer )
+      v15 = fsqrt((float)((float)(PrimaryLight->bulbLength.v[0] * PrimaryLight->bulbLength.v[0]) + (float)(PrimaryLight->bulbLength.v[1] * PrimaryLight->bulbLength.v[1])) + (float)(PrimaryLight->bulbLength.v[2] * PrimaryLight->bulbLength.v[2]));
+    else
+      v15 = 0.0;
+    v16 = PrimaryLight->origin.v[1];
+    v17 = PrimaryLight->origin.v[2];
+    if ( (float)((float)((float)((float)(sphere->origin.v[1] - v16) * (float)(sphere->origin.v[1] - v16)) + (float)((float)(sphere->origin.v[0] - PrimaryLight->origin.v[0]) * (float)(sphere->origin.v[0] - PrimaryLight->origin.v[0]))) + (float)((float)(sphere->origin.v[2] - v17) * (float)(sphere->origin.v[2] - v17))) < (float)((float)((float)(v15 + PrimaryLight->radius) + radius) * (float)((float)(v15 + PrimaryLight->radius) + radius)) )
     {
-      __asm
+      if ( integer )
       {
-        vmovss  xmm0, dword ptr [rbx+60h]
-        vmovss  xmm2, dword ptr [rbx+64h]
-        vmovss  xmm3, dword ptr [rbx+68h]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm5, xmm2, xmm2
+        v19 = PrimaryLight->bulbLength.v[2];
+        cosHalfFovOuter = PrimaryLight->cosHalfFovOuter;
+        bulbRadius = PrimaryLight->bulbRadius;
+        *(_QWORD *)v27.v = *(_QWORD *)PrimaryLight->bulbLength.v;
+        v22 = *(double *)PrimaryLight->dir.v;
+        v27.v[2] = v19;
+        v23 = PrimaryLight->dir.v[2];
+        *(double *)v28.v = v22;
+        v28.v[2] = v23;
+        *(float *)&v22 = PhysicallyBasedLight_AreaLightVPLOffsetTube(&v28, &v27, bulbRadius, cosHalfFovOuter);
+        v16 = PrimaryLight->origin.v[1];
+        v17 = PrimaryLight->origin.v[2];
+        v13 = *(float *)&v22;
       }
+      v24 = v13 * PrimaryLight->dir.v[1];
+      v25 = PrimaryLight->cosHalfFovOuter;
+      coneOrg.v[0] = (float)(v13 * PrimaryLight->dir.v[0]) + PrimaryLight->origin.v[0];
+      v26 = v13 * PrimaryLight->dir.v[2];
+      coneOrg.v[1] = v24 + v16;
+      coneOrg.v[2] = v26 + v17;
+      v18 = CullSphereFromCone(&coneOrg, &PrimaryLight->dir, v25, &sphere->origin, radius);
     }
     else
     {
-      __asm { vxorps  xmm5, xmm5, xmm5 }
+      v18 = 1;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm3, xmm0, dword ptr [rbx+44h]
-      vmovss  xmm0, dword ptr [rdi+4]
-      vaddss  xmm1, xmm5, dword ptr [rbx+50h]
-      vmovss  xmm7, dword ptr [rbx+48h]
-      vmovss  xmm8, dword ptr [rbx+4Ch]
-      vsubss  xmm2, xmm0, xmm7
-      vmovss  xmm0, dword ptr [rdi+8]
-      vsubss  xmm4, xmm0, xmm8
-      vmulss  xmm0, xmm3, xmm3
-      vaddss  xmm5, xmm1, xmm9
-      vmulss  xmm2, xmm2, xmm2
-      vaddss  xmm3, xmm2, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm4, xmm3, xmm1
-      vmulss  xmm0, xmm5, xmm5
-      vcomiss xmm4, xmm0
-      vmovaps xmm9, [rsp+0B8h+var_48]
-    }
-    result = 0;
+    return !v18;
   }
-LABEL_20:
-  __asm
-  {
-    vmovaps xmm8, [rsp+0B8h+var_38]
-    vmovaps xmm7, [rsp+0B8h+var_28]
-    vmovaps xmm6, [rsp+0B8h+var_18]
-  }
-  return result;
 }
 
 /*
@@ -2922,659 +2717,402 @@ R_ShadowedSpotLightScore_MultiSamples
 */
 float R_ShadowedSpotLightScore_MultiSamples(const GfxLightScoreConfig *config, const GfxViewParms *viewParms, const GfxLight *light, const bool nvgMode)
 {
+  float intensity; 
+  __int128 v8; 
+  vec3_t *p_dir; 
+  float bulbRadius; 
+  float cosHalfFovOuter; 
+  __int128 v12; 
+  __int128 v13; 
+  float v17; 
+  float v18; 
+  double v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int128 v25; 
+  unsigned int v28; 
+  float m_sampleBegin; 
+  unsigned int v30; 
+  vec3_t *p_up; 
+  float v32; 
+  float v33; 
+  float v34; 
   float v35; 
-  unsigned int v99; 
-  int v105; 
-  unsigned int v109; 
-  __int64 v127; 
-  unsigned int v128; 
-  unsigned int v135; 
-  __int64 v173; 
-  bool v204; 
-  bool v205; 
-  bool v206; 
-  char v211; 
-  char v212; 
-  unsigned int v215; 
-  __int64 v226; 
-  __int64 v233; 
-  __int64 v242; 
-  __int64 v258; 
-  __int64 v265; 
-  __int64 v274; 
-  __int64 v296; 
-  float v370; 
-  float v374; 
-  char v375; 
-  float v376; 
-  int v378[190]; 
+  float v36; 
+  __int64 v37; 
+  unsigned int v38; 
+  float radius; 
+  float v40; 
+  float v41; 
+  float v42; 
+  unsigned int v43; 
+  __int64 v44; 
+  float v45; 
+  float v46; 
+  __int64 v47; 
+  float v48; 
+  float v49; 
+  __int64 v50; 
+  float v51; 
+  float v52; 
+  __int64 v53; 
+  __int64 v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  __int64 v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float m_sampleExtra1; 
+  float m_sampleExtra0; 
+  bool v68; 
+  bool v69; 
+  unsigned int v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  __int64 v74; 
+  __int64 v75; 
+  float v76; 
+  int v77; 
+  float v78; 
+  __int64 v79; 
+  __int64 v80; 
+  float v81; 
+  float v82; 
+  float v83; 
+  __int64 v84; 
+  __int64 v85; 
+  __int64 v86; 
+  __int64 v87; 
+  __int64 v88; 
+  float v89; 
+  int v90; 
+  float v91; 
+  __int64 v92; 
+  __int64 v93; 
+  float v94; 
+  float v95; 
+  float v96; 
+  __int64 v97; 
+  __int64 v98; 
+  __int64 v99; 
+  float *v101; 
+  __int64 v102; 
+  float v103; 
+  float v104; 
+  float v105; 
+  __int128 v107; 
+  float v110; 
+  float v111; 
+  float v112; 
+  float v113; 
+  __int128 v117; 
+  __int128 v120; 
+  float v122; 
+  float v123; 
+  bool v124; 
+  float v125; 
+  float v126; 
+  float v127; 
+  float v128; 
+  float m_score0Min; 
+  float m_score0Max; 
+  float m_score1ConstA; 
+  float m_score1DistanceFalloffRcp; 
+  float m_score1Min; 
+  float m_score1Max; 
+  vec3_t bulbLength; 
+  double v136; 
+  double v137; 
+  float v138; 
+  __int64 v139; 
+  float v140; 
+  char v141; 
+  float v142; 
+  int v143[2]; 
+  float v144[190]; 
 
-  _RDI = light;
-  _R15 = config;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+10h]
-    vmovss  [rsp+490h+var_454], xmm0
-  }
+  intensity = light->intensity;
+  v125 = intensity;
   if ( nvgMode )
   {
-    __asm
-    {
-      vaddss  xmm0, xmm0, dword ptr [r8+8]
-      vmovss  [rsp+490h+var_454], xmm0
-    }
+    intensity = intensity + light->irIntensity;
+    v125 = intensity;
   }
+  if ( intensity < 0.00000011920929 )
+    return 0.0;
+  v8 = *(unsigned __int64 *)light->bulbLength.v;
+  m_score0Min = config->m_score0Min;
+  m_score0Max = config->m_score0Max;
+  m_score1ConstA = config->m_score1ConstA;
+  m_score1Min = config->m_score1Min;
+  m_score1Max = config->m_score1Max;
+  m_score1DistanceFalloffRcp = config->m_score1DistanceFalloffRcp;
+  p_dir = &light->dir;
+  v139 = *(_QWORD *)viewParms->camera.axis.m[0].v;
+  bulbRadius = light->bulbRadius;
+  cosHalfFovOuter = light->cosHalfFovOuter;
+  v12 = LODWORD(FLOAT_1_0);
+  v138 = viewParms->camera.origin.v[2];
+  v13 = v8;
+  bulbLength = light->bulbLength;
+  v140 = viewParms->camera.axis.m[0].v[2];
+  *(float *)&v13 = fsqrt((float)((float)(*(float *)&v8 * *(float *)&v8) + (float)(bulbLength.v[1] * bulbLength.v[1])) + (float)(bulbLength.v[2] * bulbLength.v[2]));
+  _XMM3 = v13;
   __asm
   {
-    vcomiss xmm0, cs:__real@34000000
-    vmovsd  xmm5, qword ptr [r8+54h]
-    vmovss  xmm0, dword ptr [rcx+2Ch]
-    vmovss  [rsp+490h+var_444], xmm0
-    vmovss  xmm0, dword ptr [rcx+30h]
-    vmovss  [rsp+490h+var_440], xmm0
-    vmovss  xmm0, dword ptr [rcx+3Ch]
-    vmovss  [rsp+490h+var_43C], xmm0
-    vmovss  xmm0, dword ptr [rcx+34h]
-    vmovss  [rsp+490h+var_434], xmm0
-    vmovss  xmm0, dword ptr [rcx+38h]
-    vmovss  [rsp+490h+var_430], xmm0
-    vmovss  xmm0, dword ptr [rcx+44h]
-    vmovss  [rsp+490h+var_438], xmm0
-    vmovsd  xmm0, qword ptr [rdx+10Ch]
-  }
-  _R13 = (char *)&light->dir;
-  __asm
-  {
-    vmovsd  [rbp+390h+var_3F8], xmm0
-    vmovaps [rsp+490h+var_30], xmm6
-    vmovaps [rsp+490h+var_40], xmm7
-    vmovaps [rsp+490h+var_50], xmm8
-    vmovsd  xmm8, qword ptr [r13+0]
-    vmovaps [rsp+490h+var_60], xmm9
-    vmovss  xmm9, dword ptr [r8+50h]
-    vmovaps [rsp+490h+var_70], xmm10
-    vmovaps [rsp+490h+var_80], xmm11
-    vmovss  xmm11, dword ptr [r8+60h]
-    vmovaps [rsp+490h+var_90], xmm12
-    vmovss  xmm12, cs:__real@3f800000
-    vmulss  xmm1, xmm5, xmm5
-    vmovsd  [rsp+490h+var_420], xmm5
-    vmovss  xmm4, dword ptr [rsp+490h+var_420+4]
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-  }
-  v374 = viewParms->camera.axis.m[0].v[2];
-  v370 = light->bulbLength.v[2];
-  __asm { vmovss  xmm6, [rsp+490h+var_418] }
-  v35 = light->dir.v[2];
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm12, xmm0
-    vdivss  xmm2, xmm12, xmm0
-    vmulss  xmm0, xmm2, xmm5
-    vmulss  xmm1, xmm0, xmm9
-    vaddss  xmm7, xmm1, xmm5
-    vmulss  xmm0, xmm2, xmm4
-    vmulss  xmm1, xmm0, xmm9
-    vmulss  xmm0, xmm2, xmm6
-    vaddss  xmm5, xmm1, xmm4
-    vmulss  xmm1, xmm0, xmm9
-    vaddss  xmm4, xmm1, xmm6
-    vshufps xmm0, xmm8, xmm8, 55h ; 'U'
-    vmulss  xmm0, xmm0, xmm5
-    vmulss  xmm2, xmm8, xmm7
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm7, xmm7
-    vmovaps [rsp+490h+var_A0], xmm13
-    vmovaps [rsp+490h+var_B0], xmm14
-    vmovsd  xmm14, qword ptr [rdx+100h]
   }
-  v376 = v35;
+  v25 = LODWORD(FLOAT_1_0);
+  v17 = (float)((float)((float)(1.0 / *(float *)&_XMM0) * *(float *)&v8) * bulbRadius) + *(float *)&v8;
+  *(float *)&v25 = (float)((float)((float)(1.0 / *(float *)&_XMM0) * bulbLength.v[1]) * bulbRadius) + bulbLength.v[1];
+  v18 = (float)((float)((float)(1.0 / *(float *)&_XMM0) * bulbLength.v[2]) * bulbRadius) + bulbLength.v[2];
+  *(float *)&_XMM3 = (float)(COERCE_FLOAT(*(_QWORD *)light->dir.v) * v17) + (float)(_mm_shuffle_ps((__m128)*(unsigned __int64 *)light->dir.v, (__m128)*(unsigned __int64 *)light->dir.v, 85).m128_f32[0] * *(float *)&v25);
+  v19 = *(double *)viewParms->camera.origin.v;
+  v142 = light->dir.v[2];
+  v136 = v19;
+  v124 = 0;
+  v137 = v19;
+  v20 = (float)((float)(fsqrt((float)((float)((float)(*(float *)&v25 * *(float *)&v25) + (float)(v17 * v17)) + (float)(v18 * v18)) - (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&_XMM3 + (float)(v18 * v142)) & _xmm) * COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&_XMM3 + (float)(v18 * v142)) & _xmm))) * cosHalfFovOuter) / fsqrt(1.0 - (float)(cosHalfFovOuter * cosHalfFovOuter))) + COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&_XMM3 + (float)(v18 * v142)) & _xmm);
+  v21 = (float)((float)(v20 * light->dir.v[1]) + light->origin.v[1]) - *((float *)&v137 + 1);
+  v22 = (float)((float)(v20 * light->dir.v[2]) + light->origin.v[2]) - v138;
+  v23 = (float)((float)(v20 * light->dir.v[0]) + light->origin.v[0]) - *(float *)&v19;
+  *(float *)&v25 = fsqrt((float)((float)(v21 * v21) + (float)(v23 * v23)) + (float)(v22 * v22));
+  _XMM14 = v25;
   __asm
   {
-    vmulss  xmm2, xmm4, [rbp+390h+var_3D8]
-    vaddss  xmm6, xmm3, xmm2
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm6, xmm6
-    vmovaps [rsp+490h+var_C0], xmm15
-    vmovsd  [rbp+390h+var_410], xmm14
-    vsubss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vmulss  xmm4, xmm1, xmm11
-    vmovsd  [rbp+390h+var_408], xmm14
-    vmulss  xmm0, xmm11, xmm11
-    vsubss  xmm0, xmm12, xmm0
-    vsqrtss xmm1, xmm0, xmm0
-    vdivss  xmm2, xmm4, xmm1
-    vaddss  xmm13, xmm2, xmm6
-    vmulss  xmm0, xmm13, dword ptr [r13+0]
-    vaddss  xmm2, xmm0, dword ptr [r8+38h]
-    vmulss  xmm1, xmm13, dword ptr [r13+4]
-    vaddss  xmm0, xmm1, dword ptr [r8+3Ch]
-    vsubss  xmm4, xmm0, dword ptr [rbp+390h+var_408+4]
-    vmulss  xmm0, xmm13, dword ptr [r13+8]
-    vaddss  xmm1, xmm0, dword ptr [r8+40h]
-    vsubss  xmm6, xmm1, [rbp+390h+var_400]
-    vsubss  xmm7, xmm2, xmm14
-    vmulss  xmm2, xmm4, xmm4
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm3, xmm1
-    vsqrtss xmm14, xmm2, xmm2
     vcmpless xmm0, xmm14, cs:__real@80000000
     vblendvps xmm0, xmm14, xmm12, xmm0
-    vdivss  xmm5, xmm12, xmm0
-    vmulss  xmm0, xmm5, xmm4
-    vmulss  xmm3, xmm0, dword ptr [r13+4]
-    vmulss  xmm1, xmm5, xmm7
-    vmulss  xmm2, xmm1, dword ptr [r13+0]
-    vmulss  xmm0, xmm6, xmm5
-    vmulss  xmm1, xmm0, dword ptr [r13+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vcomiss xmm2, xmm11
   }
-  v99 = 1;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+18h]
-    vmulss  xmm1, xmm0, dword ptr [r8+44h]
-    vmulss  xmm0, xmm1, dword ptr [r15+0Ch]
-    vmovss  xmm8, dword ptr [r15+10h]
-    vcvttss2si rcx, xmm0; val
-  }
-  v105 = I_clamp(_RCX, _R15->m_sampleCountMin, _R15->m_sampleCountMax);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+14h]
-    vsubss  xmm2, xmm0, dword ptr [r15+10h]
-    vmovss  xmm0, dword ptr [rdi+60h]
-  }
-  v109 = v105 - 1;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rcx
-    vdivss  xmm9, xmm2, xmm1
-    vmulss  xmm2, xmm0, xmm0
-    vsubss  xmm1, xmm12, xmm2
-    vsqrtss xmm0, xmm1, xmm1
-    vmovss  [rsp+490h+var_448], xmm0
-  }
-  if ( &_RDI->up == (vec3_t *)&v375 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
+  v28 = 1;
+  if ( (float)((float)((float)((float)((float)(1.0 / *(float *)&_XMM0) * v21) * light->dir.v[1]) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * v23) * light->dir.v[0])) + (float)((float)(v22 * (float)(1.0 / *(float *)&_XMM0)) * light->dir.v[2])) > cosHalfFovOuter && *(float *)&v25 < (float)(v20 + light->radius) )
+    v124 = *(float *)&v25 > v20;
+  m_sampleBegin = config->m_sampleBegin;
+  v30 = I_clamp((int)(float)((float)(config->m_sampleRange * light->radius) * config->m_sampleDistanceRcp), config->m_sampleCountMin, config->m_sampleCountMax) - 1;
+  p_up = &light->up;
+  v32 = (float)v30;
+  v33 = (float)(config->m_sampleEnd - config->m_sampleBegin) / v32;
+  v128 = fsqrt(1.0 - (float)(light->cosHalfFovOuter * light->cosHalfFovOuter));
+  if ( &light->up == (vec3_t *)&v141 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
     __debugbreak();
-  if ( _R13 == &v375 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
+  if ( p_dir == (vec3_t *)&v141 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm5, dword ptr [r13+8]
-    vmovss  xmm6, dword ptr [r13+4]
-    vmulss  xmm1, xmm5, dword ptr [r12+4]
-    vmulss  xmm0, xmm6, dword ptr [r12+8]
-    vmovss  xmm10, dword ptr [r13+0]
-    vmovss  xmm7, dword ptr cs:__xmm@80000000800000008000000080000000
-    vsubss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, dword ptr [r12+8]
-    vmulss  xmm0, xmm5, dword ptr [r12]
-    vsubss  xmm3, xmm1, xmm0
-    vmulss  xmm1, xmm10, dword ptr [r12+4]
-  }
-  v127 = 0i64;
-  v128 = 0;
-  __asm
-  {
-    vmovss  [rsp+490h+var_450], xmm2
-    vmulss  xmm2, xmm6, dword ptr [r12]
-    vsubss  xmm0, xmm2, xmm1
-    vmovss  [rsp+490h+var_460], xmm0
-    vmovss  [rsp+490h+var_44C], xmm3
-  }
-  if ( v109 + 1 < 4 )
-    goto LABEL_13;
-  __asm
-  {
-    vmovss  xmm11, dword ptr [rdi+44h]
-    vmovss  xmm13, dword ptr [rdi+38h]
-    vmovss  xmm14, dword ptr [rdi+3Ch]
-    vmovss  xmm15, dword ptr [rdi+40h]
-  }
-  v135 = 1;
+  v34 = p_dir->v[2];
+  v35 = p_dir->v[1];
+  v36 = p_dir->v[0];
+  v37 = 0i64;
+  v38 = 0;
+  v126 = (float)(v34 * light->up.v[1]) - (float)(v35 * light->up.v[2]);
+  v122 = (float)(v35 * p_up->v[0]) - (float)(p_dir->v[0] * light->up.v[1]);
+  v127 = (float)(p_dir->v[0] * light->up.v[2]) - (float)(v34 * light->up.v[0]);
+  if ( v30 + 1 < 4 )
+    goto LABEL_18;
+  radius = light->radius;
+  v40 = light->origin.v[0];
+  v41 = light->origin.v[1];
+  v42 = light->origin.v[2];
+  v43 = 1;
   do
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    _RCX = 3 * v127;
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, xmm9
-      vaddss  xmm2, xmm1, xmm8
-      vmulss  xmm3, xmm2, xmm11
-      vxorps  xmm4, xmm3, xmm7
-      vmulss  xmm0, xmm10, xmm4
-      vaddss  xmm1, xmm0, xmm13
-      vmovss  [rbp+rcx*4+390h+var_3D0], xmm1
-      vmulss  xmm2, xmm4, xmm6
-      vaddss  xmm0, xmm2, xmm14
-      vmovss  [rbp+rcx*4+390h+var_3CC], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm4, xmm5
-      vaddss  xmm2, xmm1, xmm15
-      vmovss  [rbp+rcx*4+390h+var_3C8], xmm2
-    }
-    v127 = (unsigned int)(v127 + 4);
-    v128 += 4;
-    _RCX = 3i64 * v135;
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, xmm9
-      vaddss  xmm2, xmm1, xmm8
-      vmulss  xmm3, xmm2, xmm11
-      vxorps  xmm4, xmm3, xmm7
-      vmulss  xmm0, xmm10, xmm4
-      vaddss  xmm1, xmm0, xmm13
-      vmovss  [rbp+rcx*4+390h+var_3D0], xmm1
-      vmulss  xmm2, xmm4, xmm6
-      vaddss  xmm0, xmm2, xmm14
-      vmovss  [rbp+rcx*4+390h+var_3CC], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm4, xmm5
-      vaddss  xmm2, xmm1, xmm15
-      vmovss  [rbp+rcx*4+390h+var_3C8], xmm2
-    }
-    _RDX = 3i64 * (v135 + 1);
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, xmm9
-      vaddss  xmm2, xmm1, xmm8
-      vmulss  xmm3, xmm2, xmm11
-      vxorps  xmm4, xmm3, xmm7
-      vmulss  xmm0, xmm10, xmm4
-      vaddss  xmm1, xmm0, xmm13
-      vmovss  [rbp+rdx*4+390h+var_3D0], xmm1
-      vmulss  xmm2, xmm4, xmm6
-      vaddss  xmm0, xmm2, xmm14
-      vmovss  [rbp+rdx*4+390h+var_3CC], xmm0
-    }
-    v173 = v135 + 2;
-    v135 += 4;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm4, xmm5
-      vaddss  xmm2, xmm1, xmm15
-      vmovss  [rbp+rdx*4+390h+var_3C8], xmm2
-    }
-    _RDX = 3 * v173;
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, xmm9
-      vaddss  xmm2, xmm1, xmm8
-      vmulss  xmm3, xmm2, xmm11
-      vxorps  xmm4, xmm3, xmm7
-      vmulss  xmm0, xmm10, xmm4
-      vaddss  xmm1, xmm0, xmm13
-      vmovss  [rbp+rdx*4+390h+var_3D0], xmm1
-      vmulss  xmm2, xmm4, xmm6
-      vaddss  xmm0, xmm2, xmm14
-      vmulss  xmm1, xmm4, xmm5
-      vaddss  xmm2, xmm1, xmm15
-      vmovss  [rbp+rdx*4+390h+var_3CC], xmm0
-      vmovss  [rbp+rdx*4+390h+var_3C8], xmm2
-    }
+    v44 = 3 * v37;
+    v45 = (float)v38;
+    LODWORD(v46) = COERCE_UNSIGNED_INT((float)((float)(v45 * v33) + m_sampleBegin) * radius) ^ _xmm;
+    *(float *)&v143[v44] = (float)(v36 * v46) + v40;
+    *(float *)&v143[v44 + 1] = (float)(v46 * v35) + v41;
+    v144[v44] = (float)(v46 * v34) + v42;
+    v37 = (unsigned int)(v37 + 4);
+    v38 += 4;
+    v47 = 3i64 * v43;
+    v48 = (float)v43;
+    LODWORD(v49) = COERCE_UNSIGNED_INT((float)((float)(v48 * v33) + m_sampleBegin) * radius) ^ _xmm;
+    *(float *)&v143[v47] = (float)(v36 * v49) + v40;
+    *(float *)&v143[v47 + 1] = (float)(v49 * v35) + v41;
+    v144[v47] = (float)(v49 * v34) + v42;
+    v50 = 3i64 * (v43 + 1);
+    v51 = (float)(v43 + 1);
+    LODWORD(v52) = COERCE_UNSIGNED_INT((float)((float)(v51 * v33) + m_sampleBegin) * radius) ^ _xmm;
+    *(float *)&v143[v50] = (float)(v36 * v52) + v40;
+    *(float *)&v143[v50 + 1] = (float)(v52 * v35) + v41;
+    v53 = v43 + 2;
+    v43 += 4;
+    v144[v50] = (float)(v52 * v34) + v42;
+    v54 = 3 * v53;
+    v55 = (float)(unsigned int)v53;
+    LODWORD(v56) = COERCE_UNSIGNED_INT((float)((float)(v55 * v33) + m_sampleBegin) * radius) ^ _xmm;
+    *(float *)&v143[v54] = (float)(v36 * v56) + v40;
+    *(float *)&v143[v54 + 1] = (float)(v56 * v35) + v41;
+    v144[v54] = (float)(v56 * v34) + v42;
   }
-  while ( v128 <= v109 - 3 );
-  if ( v128 <= v109 )
+  while ( v38 <= v30 - 3 );
+  if ( v38 <= v30 )
   {
-LABEL_13:
-    __asm
-    {
-      vmovss  xmm10, dword ptr [rdi+44h]
-      vmovss  xmm11, dword ptr [r13+0]
-      vmovss  xmm13, dword ptr [rdi+38h]
-      vmovss  xmm14, dword ptr [rdi+3Ch]
-      vmovss  xmm15, dword ptr [rdi+40h]
-    }
+LABEL_18:
+    v57 = light->radius;
+    v58 = p_dir->v[0];
+    v59 = light->origin.v[0];
+    v60 = light->origin.v[1];
+    v61 = light->origin.v[2];
     do
     {
-      _RCX = 3 * v127;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm1, xmm0, xmm9
-        vaddss  xmm2, xmm1, xmm8
-        vmulss  xmm3, xmm2, xmm10
-        vxorps  xmm4, xmm3, xmm7
-        vmulss  xmm0, xmm4, xmm11
-        vaddss  xmm1, xmm0, xmm13
-        vmulss  xmm2, xmm4, xmm6
-        vaddss  xmm0, xmm2, xmm14
-        vmovss  [rbp+rcx*4+390h+var_3D0], xmm1
-        vmulss  xmm1, xmm4, xmm5
-      }
-      v127 = (unsigned int)(v127 + 1);
-      ++v128;
-      __asm
-      {
-        vaddss  xmm2, xmm1, xmm15
-        vmovss  [rbp+rcx*4+390h+var_3C8], xmm2
-        vmovss  [rbp+rcx*4+390h+var_3CC], xmm0
-      }
+      v62 = 3 * v37;
+      v63 = (float)v38;
+      LODWORD(v64) = COERCE_UNSIGNED_INT((float)((float)(v63 * v33) + m_sampleBegin) * v57) ^ _xmm;
+      *(float *)&v143[v62] = (float)(v64 * v58) + v59;
+      v37 = (unsigned int)(v37 + 1);
+      ++v38;
+      v144[v62] = (float)(v64 * v34) + v61;
+      *(float *)&v143[v62 + 1] = (float)(v64 * v35) + v60;
     }
-    while ( v128 <= v109 );
+    while ( v38 <= v30 );
   }
-  v204 = (unsigned int)v127 < 0x40;
-  v205 = (unsigned int)v127 <= 0x40;
-  if ( (unsigned int)v127 > 0x40 )
+  if ( (unsigned int)v37 > 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 220, ASSERT_TYPE_ASSERT, "(sampleCount <= ( sizeof( *array_counter( sampleTable ) ) + 0 ))", (const char *)&queryFormat, "sampleCount <= ARRAY_COUNT( sampleTable )") )
+    __debugbreak();
+  v65 = light->radius;
+  m_sampleExtra1 = config->m_sampleExtra1;
+  m_sampleExtra0 = config->m_sampleExtra0;
+  v123 = m_sampleExtra1;
+  v68 = v65 >= config->m_sampleExtraThreshold0 && m_sampleExtra0 > 0.0;
+  v69 = v65 >= config->m_sampleExtraThreshold1 && m_sampleExtra1 > 0.0;
+  if ( v68 || v69 )
   {
-    v206 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 220, ASSERT_TYPE_ASSERT, "(sampleCount <= ( sizeof( *array_counter( sampleTable ) ) + 0 ))", (const char *)&queryFormat, "sampleCount <= ARRAY_COUNT( sampleTable )");
-    v204 = 0;
-    v205 = !v206;
-    if ( v206 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm13, dword ptr [rdi+44h]
-    vcomiss xmm13, dword ptr [r15+1Ch]
-    vmovss  xmm4, dword ptr [r15+28h]
-    vmovss  xmm15, dword ptr [r15+24h]
-    vmovss  [rsp+490h+var_45C], xmm4
-    vxorps  xmm11, xmm11, xmm11
-  }
-  if ( v204 )
-    goto LABEL_21;
-  __asm { vcomiss xmm15, xmm11 }
-  if ( v205 )
-  {
-LABEL_21:
-    v211 = 0;
-    v205 = 1;
-  }
-  else
-  {
-    v211 = 1;
-  }
-  __asm
-  {
-    vcomiss xmm13, dword ptr [r15+20h]
-    vcomiss xmm4, xmm11
-  }
-  v212 = !v205;
-  if ( v211 || v212 )
-  {
-    if ( v109 )
+    if ( v30 )
     {
-      __asm
-      {
-        vmovss  xmm12, [rsp+490h+var_450]
-        vmovss  xmm11, [rsp+490h+var_44C]
-      }
-      v215 = v127 + 4;
+      v70 = v37 + 4;
       do
       {
-        __asm
+        v71 = (float)v28;
+        v72 = (float)((float)((float)(v71 * v33) + m_sampleBegin) * v65) * v128;
+        if ( v68 && v70 <= 0x40 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, xmm9
-          vaddss  xmm2, xmm1, xmm8
-          vmulss  xmm3, xmm2, xmm13
-          vmulss  xmm10, xmm3, [rsp+490h+var_448]
-        }
-        if ( v211 && v215 <= 0x40 )
-        {
-          __asm
-          {
-            vmovss  xmm14, [rsp+490h+var_460]
-            vmovss  xmm4, [rsp+490h+var_45C]
-          }
-          _RCX = 3 * v127;
-          __asm
-          {
-            vmulss  xmm6, xmm10, xmm15
-            vmulss  xmm0, xmm6, dword ptr [r12]
-          }
-          v226 = (unsigned int)(v127 + 1);
-          __asm
-          {
-            vaddss  xmm1, xmm0, [rbp+rdx*4+390h+var_3D0]
-            vmulss  xmm0, xmm6, dword ptr [rdi+30h]
-            vmovss  [rbp+rcx*4+390h+var_3D0], xmm1
-            vaddss  xmm1, xmm0, [rbp+rdx*4+390h+var_3CC]
-            vmulss  xmm0, xmm6, dword ptr [rdi+34h]
-            vmovss  [rbp+rcx*4+390h+var_3CC], xmm1
-            vaddss  xmm1, xmm0, [rbp+rdx*4+390h+var_3C8]
-            vmovss  [rbp+rcx*4+390h+var_3C8], xmm1
-          }
-          _RCX = 3 * v226;
-          v233 = (unsigned int)(v226 + 1);
-          __asm
-          {
-            vxorps  xmm5, xmm6, xmm7
-            vmulss  xmm0, xmm5, dword ptr [r12]
-            vaddss  xmm1, xmm0, [rbp+rdx*4+390h+var_3D0]
-            vmulss  xmm2, xmm5, dword ptr [rdi+30h]
-            vmovss  [rbp+rcx*4+390h+var_3D0], xmm1
-            vaddss  xmm0, xmm2, [rbp+rdx*4+390h+var_3CC]
-            vmulss  xmm1, xmm5, dword ptr [rdi+34h]
-            vmovss  [rbp+rcx*4+390h+var_3CC], xmm0
-            vaddss  xmm2, xmm1, [rbp+rdx*4+390h+var_3C8]
-            vmovss  [rbp+rcx*4+390h+var_3C8], xmm2
-          }
-          _RCX = 3 * v233;
-          v242 = (unsigned int)(v233 + 1);
-          __asm
-          {
-            vmulss  xmm0, xmm12, xmm6
-            vaddss  xmm1, xmm0, [rbp+rdx*4+390h+var_3D0]
-            vmovss  [rbp+rcx*4+390h+var_3D0], xmm1
-            vmulss  xmm2, xmm11, xmm6
-            vaddss  xmm0, xmm2, [rbp+rdx*4+390h+var_3CC]
-            vmovss  [rbp+rcx*4+390h+var_3CC], xmm0
-            vmulss  xmm1, xmm14, xmm6
-            vaddss  xmm2, xmm1, [rbp+rdx*4+390h+var_3C8]
-            vmovss  [rbp+rcx*4+390h+var_3C8], xmm2
-          }
-          _RCX = 3 * v242;
-          v127 = (unsigned int)(v242 + 1);
-          __asm
-          {
-            vmulss  xmm0, xmm12, xmm5
-            vaddss  xmm1, xmm0, [rbp+rdx*4+390h+var_3D0]
-            vmovss  [rbp+rcx*4+390h+var_3D0], xmm1
-            vmulss  xmm2, xmm11, xmm5
-            vaddss  xmm0, xmm2, [rbp+rdx*4+390h+var_3CC]
-            vmulss  xmm1, xmm14, xmm5
-            vmovss  [rbp+rcx*4+390h+var_3CC], xmm0
-            vaddss  xmm2, xmm1, [rbp+rdx*4+390h+var_3C8]
-            vmovss  [rbp+rcx*4+390h+var_3C8], xmm2
-          }
-          v215 += 4;
+          v73 = v122;
+          m_sampleExtra1 = v123;
+          v74 = 3 * v37;
+          v75 = (unsigned int)(v37 + 1);
+          v76 = (float)(v72 * m_sampleExtra0) * light->up.v[1];
+          *(float *)&v143[v74] = (float)((float)(v72 * m_sampleExtra0) * p_up->v[0]) + *(float *)&v143[3 * v28];
+          *(float *)&v77 = v76 + *(float *)&v143[3 * v28 + 1];
+          v78 = (float)(v72 * m_sampleExtra0) * light->up.v[2];
+          v143[v74 + 1] = v77;
+          v144[v74] = v78 + v144[3 * v28];
+          v79 = 3 * v75;
+          v80 = (unsigned int)(v75 + 1);
+          LODWORD(v81) = COERCE_UNSIGNED_INT(v72 * m_sampleExtra0) ^ _xmm;
+          v82 = v81 * light->up.v[1];
+          *(float *)&v143[v79] = (float)(v81 * p_up->v[0]) + *(float *)&v143[3 * v28];
+          v83 = v81 * light->up.v[2];
+          *(float *)&v143[v79 + 1] = v82 + *(float *)&v143[3 * v28 + 1];
+          v144[v79] = v83 + v144[3 * v28];
+          v84 = 3 * v80;
+          v85 = (unsigned int)(v80 + 1);
+          *(float *)&v143[v84] = (float)(v126 * (float)(v72 * m_sampleExtra0)) + *(float *)&v143[3 * v28];
+          *(float *)&v143[v84 + 1] = (float)(v127 * (float)(v72 * m_sampleExtra0)) + *(float *)&v143[3 * v28 + 1];
+          v144[v84] = (float)(v122 * (float)(v72 * m_sampleExtra0)) + v144[3 * v28];
+          v86 = 3 * v85;
+          v37 = (unsigned int)(v85 + 1);
+          *(float *)&v143[v86] = (float)(v126 * v81) + *(float *)&v143[3 * v28];
+          *(float *)&v143[v86 + 1] = (float)(v127 * v81) + *(float *)&v143[3 * v28 + 1];
+          v144[v86] = (float)(v122 * v81) + v144[3 * v28];
+          v70 += 4;
         }
         else
         {
-          __asm { vmovss  xmm14, [rsp+490h+var_460] }
+          v73 = v122;
         }
-        if ( v212 && v215 <= 0x40 )
+        if ( v69 && v70 <= 0x40 )
         {
-          _RCX = 3 * v127;
-          __asm
-          {
-            vmulss  xmm6, xmm10, xmm4
-            vmulss  xmm0, xmm6, dword ptr [r12]
-          }
-          v258 = (unsigned int)(v127 + 1);
-          __asm
-          {
-            vaddss  xmm1, xmm0, [rbp+rdx*4+390h+var_3D0]
-            vmulss  xmm0, xmm6, dword ptr [rdi+30h]
-            vmovss  [rbp+rcx*4+390h+var_3D0], xmm1
-            vaddss  xmm1, xmm0, [rbp+rdx*4+390h+var_3CC]
-            vmulss  xmm0, xmm6, dword ptr [rdi+34h]
-            vmovss  [rbp+rcx*4+390h+var_3CC], xmm1
-            vaddss  xmm1, xmm0, [rbp+rdx*4+390h+var_3C8]
-            vmovss  [rbp+rcx*4+390h+var_3C8], xmm1
-          }
-          _RCX = 3 * v258;
-          v265 = (unsigned int)(v258 + 1);
-          __asm
-          {
-            vxorps  xmm5, xmm6, xmm7
-            vmulss  xmm0, xmm5, dword ptr [r12]
-            vaddss  xmm1, xmm0, [rbp+rdx*4+390h+var_3D0]
-            vmulss  xmm2, xmm5, dword ptr [rdi+30h]
-            vmovss  [rbp+rcx*4+390h+var_3D0], xmm1
-            vaddss  xmm0, xmm2, [rbp+rdx*4+390h+var_3CC]
-            vmulss  xmm1, xmm5, dword ptr [rdi+34h]
-            vmovss  [rbp+rcx*4+390h+var_3CC], xmm0
-            vaddss  xmm2, xmm1, [rbp+rdx*4+390h+var_3C8]
-            vmovss  [rbp+rcx*4+390h+var_3C8], xmm2
-          }
-          _RCX = 3 * v265;
-          v274 = (unsigned int)(v265 + 1);
-          __asm
-          {
-            vmulss  xmm0, xmm12, xmm6
-            vaddss  xmm1, xmm0, [rbp+rdx*4+390h+var_3D0]
-            vmovss  [rbp+rcx*4+390h+var_3D0], xmm1
-            vmulss  xmm2, xmm11, xmm6
-            vaddss  xmm0, xmm2, [rbp+rdx*4+390h+var_3CC]
-            vmovss  [rbp+rcx*4+390h+var_3CC], xmm0
-            vmulss  xmm1, xmm14, xmm6
-            vaddss  xmm2, xmm1, [rbp+rdx*4+390h+var_3C8]
-            vmovss  [rbp+rcx*4+390h+var_3C8], xmm2
-          }
-          _RCX = 3 * v274;
-          v127 = (unsigned int)(v274 + 1);
-          __asm
-          {
-            vmulss  xmm0, xmm12, xmm5
-            vaddss  xmm1, xmm0, [rbp+rdx*4+390h+var_3D0]
-            vmovss  [rbp+rcx*4+390h+var_3D0], xmm1
-            vmulss  xmm2, xmm11, xmm5
-            vaddss  xmm0, xmm2, [rbp+rdx*4+390h+var_3CC]
-            vmulss  xmm1, xmm14, xmm5
-            vmovss  [rbp+rcx*4+390h+var_3CC], xmm0
-            vaddss  xmm2, xmm1, [rbp+rdx*4+390h+var_3C8]
-            vmovss  [rbp+rcx*4+390h+var_3C8], xmm2
-          }
-          v215 += 4;
+          v87 = 3 * v37;
+          v88 = (unsigned int)(v37 + 1);
+          v89 = (float)(v72 * m_sampleExtra1) * light->up.v[1];
+          *(float *)&v143[v87] = (float)((float)(v72 * m_sampleExtra1) * p_up->v[0]) + *(float *)&v143[3 * v28];
+          *(float *)&v90 = v89 + *(float *)&v143[3 * v28 + 1];
+          v91 = (float)(v72 * m_sampleExtra1) * light->up.v[2];
+          v143[v87 + 1] = v90;
+          v144[v87] = v91 + v144[3 * v28];
+          v92 = 3 * v88;
+          v93 = (unsigned int)(v88 + 1);
+          LODWORD(v94) = COERCE_UNSIGNED_INT(v72 * m_sampleExtra1) ^ _xmm;
+          v95 = v94 * light->up.v[1];
+          *(float *)&v143[v92] = (float)(v94 * p_up->v[0]) + *(float *)&v143[3 * v28];
+          v96 = v94 * light->up.v[2];
+          *(float *)&v143[v92 + 1] = v95 + *(float *)&v143[3 * v28 + 1];
+          v144[v92] = v96 + v144[3 * v28];
+          v97 = 3 * v93;
+          v98 = (unsigned int)(v93 + 1);
+          *(float *)&v143[v97] = (float)(v126 * (float)(v72 * m_sampleExtra1)) + *(float *)&v143[3 * v28];
+          *(float *)&v143[v97 + 1] = (float)(v127 * (float)(v72 * m_sampleExtra1)) + *(float *)&v143[3 * v28 + 1];
+          v144[v97] = (float)(v73 * (float)(v72 * m_sampleExtra1)) + v144[3 * v28];
+          v99 = 3 * v98;
+          v37 = (unsigned int)(v98 + 1);
+          *(float *)&v143[v99] = (float)(v126 * v94) + *(float *)&v143[3 * v28];
+          *(float *)&v143[v99 + 1] = (float)(v127 * v94) + *(float *)&v143[3 * v28 + 1];
+          v144[v99] = (float)(v73 * v94) + v144[3 * v28];
+          v70 += 4;
         }
-        __asm { vmovss  xmm4, [rsp+490h+var_45C] }
-        ++v99;
+        m_sampleExtra1 = v123;
+        ++v28;
       }
-      while ( v99 <= v109 );
-      __asm
-      {
-        vmovss  xmm12, cs:__real@3f800000
-        vxorps  xmm11, xmm11, xmm11
-      }
+      while ( v28 <= v30 );
+      v12 = LODWORD(FLOAT_1_0);
     }
-    if ( (unsigned int)v127 > 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 254, ASSERT_TYPE_ASSERT, "(sampleCount <= ( sizeof( *array_counter( sampleTable ) ) + 0 ))", (const char *)&queryFormat, "sampleCount <= ARRAY_COUNT( sampleTable )") )
+    if ( (unsigned int)v37 > 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_primarylights.cpp", 254, ASSERT_TYPE_ASSERT, "(sampleCount <= ( sizeof( *array_counter( sampleTable ) ) + 0 ))", (const char *)&queryFormat, "sampleCount <= ARRAY_COUNT( sampleTable )") )
       __debugbreak();
   }
-  __asm { vxorps  xmm8, xmm8, xmm8 }
-  if ( (_DWORD)v127 )
+  LODWORD(_XMM8) = 0;
+  if ( (_DWORD)v37 )
   {
-    __asm
-    {
-      vmovss  xmm9, [rbp+390h+var_3F0]
-      vmovss  xmm10, dword ptr [rbp+390h+var_3F8+4]
-      vmovss  xmm13, dword ptr [rbp+390h+var_3F8]
-      vmovss  xmm14, cs:__real@3f000000
-      vmovss  xmm15, [rsp+490h+var_444]
-    }
-    _RAX = v378;
-    v296 = (unsigned int)v127;
+    v101 = v144;
+    v102 = (unsigned int)v37;
     do
     {
+      v103 = *(v101 - 2) - *(float *)&v136;
+      v107 = *((unsigned int *)v101 - 1);
+      v104 = *(v101 - 1) - *((float *)&v137 + 1);
+      v105 = *v101 - v138;
+      *(float *)&v107 = fsqrt((float)((float)(v104 * v104) + (float)(v103 * v103)) + (float)(v105 * v105));
+      _XMM7 = v107;
       __asm
       {
-        vmovss  xmm0, dword ptr [rax-8]
-        vsubss  xmm6, xmm0, dword ptr [rbp+390h+var_410]
-        vmovss  xmm1, dword ptr [rax-4]
-        vsubss  xmm5, xmm1, dword ptr [rbp+390h+var_408+4]
-        vmovss  xmm0, dword ptr [rax]
-        vsubss  xmm4, xmm0, [rbp+390h+var_400]
-        vmulss  xmm2, xmm5, xmm5
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm7, xmm2, xmm2
         vcmpless xmm0, xmm7, cs:__real@80000000
         vblendvps xmm0, xmm7, xmm12, xmm0
-        vdivss  xmm1, xmm12, xmm0
-        vmulss  xmm3, xmm5, xmm1
-        vmovaps xmm5, xmm12
-        vmulss  xmm2, xmm6, xmm1
-        vmulss  xmm4, xmm4, xmm1
-        vmulss  xmm0, xmm13, xmm2
-        vmulss  xmm1, xmm10, xmm3
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm9, xmm4
-        vaddss  xmm2, xmm2, xmm1
-        vaddss  xmm0, xmm2, xmm12
-        vmulss  xmm3, xmm0, xmm14
-        vmulss  xmm0, xmm3, [rsp+490h+var_440]
-        vsubss  xmm1, xmm12, xmm3
-        vmulss  xmm2, xmm1, xmm15
-        vaddss  xmm5, xmm2, xmm0
-        vsubss  xmm0, xmm7, [rsp+490h+var_43C]
-        vmulss  xmm1, xmm0, [rsp+490h+var_438]
-        vmaxss  xmm1, xmm1, xmm11
-        vminss  xmm0, xmm1, xmm12
-        vsubss  xmm3, xmm12, xmm0
-        vmulss  xmm1, xmm3, [rsp+490h+var_430]
-        vsubss  xmm0, xmm12, xmm3
-        vmulss  xmm2, xmm0, [rsp+490h+var_434]
-        vaddss  xmm2, xmm2, xmm1
       }
-      _RAX += 3;
+      v110 = v104 * (float)(*(float *)&v12 / *(float *)&_XMM0);
+      v111 = *(float *)&v12;
+      v112 = v105 * (float)(*(float *)&v12 / *(float *)&_XMM0);
+      if ( !v124 )
+      {
+        v113 = (float)((float)((float)((float)(*((float *)&v139 + 1) * v110) + (float)(*(float *)&v139 * (float)(v103 * (float)(*(float *)&v12 / *(float *)&_XMM0)))) + (float)(v140 * v112)) + *(float *)&v12) * 0.5;
+        v111 = (float)((float)(*(float *)&v12 - v113) * m_score0Min) + (float)(v113 * m_score0Max);
+      }
+      *(float *)&v107 = (float)(*(float *)&v107 - m_score1ConstA) * m_score1DistanceFalloffRcp;
+      _XMM1 = v107;
       __asm
       {
-        vmulss  xmm0, xmm2, xmm5
-        vmaxss  xmm8, xmm0, xmm8
+        vmaxss  xmm1, xmm1, xmm11
+        vminss  xmm0, xmm1, xmm12
       }
-      --v296;
+      v117 = v12;
+      v101 += 3;
+      *(float *)&v117 = (float)((float)((float)(*(float *)&v12 - (float)(*(float *)&v12 - *(float *)&_XMM0)) * m_score1Min) + (float)((float)(*(float *)&v12 - *(float *)&_XMM0) * m_score1Max)) * v111;
+      _XMM0 = v117;
+      __asm { vmaxss  xmm8, xmm0, xmm8 }
+      --v102;
     }
-    while ( v296 );
+    while ( v102 );
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+490h+var_454]
-    vmulss  xmm0, xmm0, dword ptr [r15+54h]
-    vmovaps xmm15, [rsp+490h+var_C0]
-    vmovaps xmm14, [rsp+490h+var_B0]
-    vmovaps xmm13, [rsp+490h+var_A0]
-    vmovaps xmm11, [rsp+490h+var_80]
-    vmovaps xmm10, [rsp+490h+var_70]
-    vmovaps xmm9, [rsp+490h+var_60]
-    vmovaps xmm7, [rsp+490h+var_40]
-    vmovaps xmm6, [rsp+490h+var_30]
-    vminss  xmm3, xmm0, xmm12
-    vmulss  xmm0, xmm3, dword ptr [r15+4Ch]
-    vsubss  xmm1, xmm12, xmm3
-    vmulss  xmm2, xmm1, dword ptr [r15+48h]
-    vmovaps xmm12, [rsp+490h+var_90]
-    vaddss  xmm1, xmm2, xmm0
-    vmulss  xmm0, xmm1, xmm8
-    vmovaps xmm8, [rsp+490h+var_50]
-  }
-  return *(float *)&_XMM0;
+  v120 = LODWORD(v125);
+  *(float *)&v120 = v125 * config->m_score2IntensityFalloffRcp;
+  _XMM0 = v120;
+  __asm { vminss  xmm3, xmm0, xmm12 }
+  return (float)((float)((float)(*(float *)&v12 - *(float *)&_XMM3) * config->m_score2Min) + (float)(*(float *)&_XMM3 * config->m_score2Max)) * *(float *)&_XMM8;
 }
 
 /*

@@ -270,33 +270,11 @@ XAnimCurve *__fastcall XAnimCurve_GetAssetFromID(const XAnimCurveID curveID)
 XAnimCurve_GetValueLinear
 ==============
 */
-
-float __fastcall XAnimCurve_GetValueLinear(double time, double goalTime, double start, double goal)
+float XAnimCurve_GetValueLinear(float time, float goalTime, float start, float goal)
 {
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vxorps  xmm4, xmm4, xmm4
-    vucomiss xmm1, xmm4
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm1
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm2, xmm9, xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm9, [rsp+78h+var_48]
-    vsubss  xmm1, xmm0, xmm2
-    vmulss  xmm3, xmm1, xmm8
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmulss  xmm2, xmm2, xmm7
-    vmovaps xmm7, [rsp+78h+var_28]
-    vaddss  xmm0, xmm3, xmm2
-  }
-  return *(float *)&_XMM0;
+  if ( goalTime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 254, ASSERT_TYPE_ASSERT, "(goalTime != 0.f)", (const char *)&queryFormat, "goalTime != 0.f") )
+    __debugbreak();
+  return (float)((float)(1.0 - (float)(time / goalTime)) * start) + (float)((float)(time / goalTime) * goal);
 }
 
 /*
@@ -304,34 +282,11 @@ float __fastcall XAnimCurve_GetValueLinear(double time, double goalTime, double 
 XAnimCurve_GetValueEaseInQuad
 ==============
 */
-
-float __fastcall XAnimCurve_GetValueEaseInQuad(double time, double goalTime, double start, double goal)
+float XAnimCurve_GetValueEaseInQuad(float time, float goalTime, float start, float goal)
 {
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vxorps  xmm4, xmm4, xmm4
-    vucomiss xmm1, xmm4
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vdivss  xmm0, xmm9, xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm9, [rsp+78h+var_48]
-    vmulss  xmm4, xmm0, xmm0
-    vmulss  xmm0, xmm4, xmm7
-    vmovaps xmm7, [rsp+78h+var_28]
-    vsubss  xmm2, xmm1, xmm4
-    vmulss  xmm3, xmm2, xmm8
-    vmovaps xmm8, [rsp+78h+var_38]
-    vaddss  xmm0, xmm3, xmm0
-  }
-  return *(float *)&_XMM0;
+  if ( goalTime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 262, ASSERT_TYPE_ASSERT, "(goalTime != 0.f)", (const char *)&queryFormat, "goalTime != 0.f") )
+    __debugbreak();
+  return (float)((float)(1.0 - (float)((float)(time / goalTime) * (float)(time / goalTime))) * start) + (float)((float)((float)(time / goalTime) * (float)(time / goalTime)) * goal);
 }
 
 /*
@@ -339,36 +294,11 @@ float __fastcall XAnimCurve_GetValueEaseInQuad(double time, double goalTime, dou
 XAnimCurve_GetValueEaseOutQuad
 ==============
 */
-
-float __fastcall XAnimCurve_GetValueEaseOutQuad(double time, double goalTime, double start, double goal)
+float XAnimCurve_GetValueEaseOutQuad(float time, float goalTime, float start, float goal)
 {
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vxorps  xmm4, xmm4, xmm4
-    vucomiss xmm1, xmm4
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm1
-    vmovss  xmm0, cs:__real@40000000
-    vdivss  xmm2, xmm9, xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm9, [rsp+78h+var_48]
-    vsubss  xmm1, xmm0, xmm2
-    vmulss  xmm4, xmm1, xmm2
-    vmovss  xmm2, cs:__real@3f800000
-    vsubss  xmm0, xmm2, xmm4
-    vmulss  xmm3, xmm0, xmm8
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmulss  xmm1, xmm4, xmm7
-    vmovaps xmm7, [rsp+78h+var_28]
-    vaddss  xmm0, xmm3, xmm1
-  }
-  return *(float *)&_XMM0;
+  if ( goalTime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 273, ASSERT_TYPE_ASSERT, "(goalTime != 0.f)", (const char *)&queryFormat, "goalTime != 0.f") )
+    __debugbreak();
+  return (float)((float)(1.0 - (float)((float)(2.0 - (float)(time / goalTime)) * (float)(time / goalTime))) * start) + (float)((float)((float)(2.0 - (float)(time / goalTime)) * (float)(time / goalTime)) * goal);
 }
 
 /*
@@ -376,41 +306,21 @@ float __fastcall XAnimCurve_GetValueEaseOutQuad(double time, double goalTime, do
 XAnimCurve_GetValueEaseInOutQuad
 ==============
 */
-
-float __fastcall XAnimCurve_GetValueEaseInOutQuad(double time, double goalTime, double start, double goal)
+float XAnimCurve_GetValueEaseInOutQuad(float time, float goalTime, float start, float goal)
 {
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vxorps  xmm4, xmm4, xmm4
-    vucomiss xmm1, xmm4
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm2
-    vmovaps xmm8, xmm3
-    vmovaps xmm6, xmm1
-    vmovaps xmm7, xmm0
-    vmovss  xmm0, cs:__real@3f000000
-    vmovss  xmm4, cs:__real@3f800000
-    vdivss  xmm1, xmm7, xmm6
-    vcomiss xmm1, xmm0
-    vsubss  xmm0, xmm1, xmm0
-    vmulss  xmm2, xmm0, cs:__real@40000000
-    vsubss  xmm0, xmm2, cs:__real@40000000
-    vmulss  xmm1, xmm0, xmm2
-    vsubss  xmm2, xmm1, xmm4
-    vmulss  xmm3, xmm2, cs:__real@bf000000
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm2, xmm0, xmm9
-    vmovaps xmm9, [rsp+78h+var_48]
-    vmulss  xmm1, xmm3, xmm8
-    vmovaps xmm8, [rsp+78h+var_38]
-    vaddss  xmm0, xmm2, xmm1
-  }
-  return *(float *)&_XMM0;
+  float v6; 
+  float v7; 
+  float v8; 
+
+  if ( goalTime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 286, ASSERT_TYPE_ASSERT, "(goalTime != 0.f)", (const char *)&queryFormat, "goalTime != 0.f") )
+    __debugbreak();
+  v7 = time / goalTime;
+  v6 = time / goalTime;
+  if ( (float)(time / goalTime) >= 0.5 )
+    v8 = (float)((float)((float)((float)((float)(v7 - 0.5) * 2.0) - 2.0) * (float)((float)(v7 - 0.5) * 2.0)) - 1.0) * -0.5;
+  else
+    v8 = (float)(v6 * 2.0) * v6;
+  return (float)((float)(1.0 - v8) * start) + (float)(v8 * goal);
 }
 
 /*
@@ -418,35 +328,14 @@ float __fastcall XAnimCurve_GetValueEaseInOutQuad(double time, double goalTime, 
 XAnimCurve_GetValueEaseInCubic
 ==============
 */
-
-float __fastcall XAnimCurve_GetValueEaseInCubic(double time, double goalTime, double start, double goal)
+float XAnimCurve_GetValueEaseInCubic(float time, float goalTime, float start, float goal)
 {
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vxorps  xmm4, xmm4, xmm4
-    vucomiss xmm1, xmm4
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm1
-    vdivss  xmm1, xmm9, xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm9, [rsp+78h+var_48]
-    vmulss  xmm0, xmm1, xmm1
-    vmulss  xmm4, xmm0, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vmulss  xmm0, xmm4, xmm7
-    vmovaps xmm7, [rsp+78h+var_28]
-    vsubss  xmm2, xmm1, xmm4
-    vmulss  xmm3, xmm2, xmm8
-    vmovaps xmm8, [rsp+78h+var_38]
-    vaddss  xmm0, xmm3, xmm0
-  }
-  return *(float *)&_XMM0;
+  float v4; 
+
+  if ( goalTime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 306, ASSERT_TYPE_ASSERT, "(goalTime != 0.f)", (const char *)&queryFormat, "goalTime != 0.f") )
+    __debugbreak();
+  v4 = (float)((float)(time / goalTime) * (float)(time / goalTime)) * (float)(time / goalTime);
+  return (float)((float)(1.0 - v4) * start) + (float)(v4 * goal);
 }
 
 /*
@@ -454,37 +343,14 @@ float __fastcall XAnimCurve_GetValueEaseInCubic(double time, double goalTime, do
 XAnimCurve_GetValueEaseOutCubic
 ==============
 */
-
-float __fastcall XAnimCurve_GetValueEaseOutCubic(double time, double goalTime, double start, double goal)
+float XAnimCurve_GetValueEaseOutCubic(float time, float goalTime, float start, float goal)
 {
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vxorps  xmm4, xmm4, xmm4
-    vucomiss xmm1, xmm4
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm1
-    vmovss  xmm2, cs:__real@3f800000
-    vdivss  xmm0, xmm9, xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm9, [rsp+78h+var_48]
-    vsubss  xmm1, xmm0, xmm2
-    vmulss  xmm0, xmm1, xmm1
-    vmulss  xmm1, xmm0, xmm1
-    vaddss  xmm3, xmm1, xmm2
-    vsubss  xmm0, xmm2, xmm3
-    vmulss  xmm2, xmm0, xmm8
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmulss  xmm1, xmm3, xmm7
-    vmovaps xmm7, [rsp+78h+var_28]
-    vaddss  xmm0, xmm2, xmm1
-  }
-  return *(float *)&_XMM0;
+  float v5; 
+
+  if ( goalTime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 317, ASSERT_TYPE_ASSERT, "(goalTime != 0.f)", (const char *)&queryFormat, "goalTime != 0.f") )
+    __debugbreak();
+  v5 = (float)((float)((float)((float)(time / goalTime) - 1.0) * (float)((float)(time / goalTime) - 1.0)) * (float)((float)(time / goalTime) - 1.0)) + 1.0;
+  return (float)((float)(1.0 - v5) * start) + (float)(v5 * goal);
 }
 
 /*
@@ -492,41 +358,19 @@ float __fastcall XAnimCurve_GetValueEaseOutCubic(double time, double goalTime, d
 XAnimCurve_GetValueEaseInOutCubic
 ==============
 */
-
-float __fastcall XAnimCurve_GetValueEaseInOutCubic(double time, double goalTime, double start, double goal)
+float XAnimCurve_GetValueEaseInOutCubic(float time, float goalTime, float start, float goal)
 {
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vxorps  xmm4, xmm4, xmm4
-    vucomiss xmm1, xmm4
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm2
-    vmovaps xmm8, xmm3
-    vmovaps xmm6, xmm1
-    vmovaps xmm7, xmm0
-    vmovss  xmm1, cs:__real@40000000
-    vmovss  xmm4, cs:__real@3f800000
-    vdivss  xmm0, xmm7, xmm6
-    vmulss  xmm2, xmm0, xmm1
-    vcomiss xmm2, xmm4
-    vsubss  xmm1, xmm2, xmm1
-    vmulss  xmm0, xmm1, xmm1
-    vmulss  xmm1, xmm0, xmm1
-    vmulss  xmm2, xmm1, cs:__real@3f000000
-    vaddss  xmm3, xmm2, xmm4
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm2, xmm0, xmm9
-    vmovaps xmm9, [rsp+78h+var_48]
-    vmulss  xmm1, xmm3, xmm8
-    vmovaps xmm8, [rsp+78h+var_38]
-    vaddss  xmm0, xmm2, xmm1
-  }
-  return *(float *)&_XMM0;
+  float v5; 
+  float v6; 
+
+  if ( goalTime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 330, ASSERT_TYPE_ASSERT, "(goalTime != 0.f)", (const char *)&queryFormat, "goalTime != 0.f") )
+    __debugbreak();
+  v5 = (float)(time / goalTime) * 2.0;
+  if ( v5 >= 1.0 )
+    v6 = (float)((float)((float)((float)(v5 - 2.0) * (float)(v5 - 2.0)) * (float)(v5 - 2.0)) * 0.5) + 1.0;
+  else
+    v6 = (float)((float)(v5 * 0.5) * v5) * v5;
+  return (float)((float)(1.0 - v6) * start) + (float)(v6 * goal);
 }
 
 /*
@@ -534,39 +378,14 @@ float __fastcall XAnimCurve_GetValueEaseInOutCubic(double time, double goalTime,
 XAnimCurve_GetValueEaseInSine
 ==============
 */
-
-float __fastcall XAnimCurve_GetValueEaseInSine(double time, double goalTime, double start, double goal)
+float XAnimCurve_GetValueEaseInSine(float time, float goalTime, float start, float goal)
 {
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vxorps  xmm4, xmm4, xmm4
-    vucomiss xmm1, xmm4
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm1
-    vdivss  xmm0, xmm9, xmm6
-    vmulss  xmm0, xmm0, cs:__real@3fc90fdb; X
-  }
-  cosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm9, [rsp+78h+var_48]
-    vsubss  xmm3, xmm1, xmm0
-    vsubss  xmm0, xmm1, xmm3
-    vmulss  xmm2, xmm0, xmm8
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmulss  xmm1, xmm3, xmm7
-    vmovaps xmm7, [rsp+78h+var_28]
-    vaddss  xmm0, xmm2, xmm1
-  }
-  return *(float *)&_XMM0;
+  float v4; 
+
+  if ( goalTime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 350, ASSERT_TYPE_ASSERT, "(goalTime != 0.f)", (const char *)&queryFormat, "goalTime != 0.f") )
+    __debugbreak();
+  v4 = cosf_0((float)(time / goalTime) * 1.5707964);
+  return (float)((float)(1.0 - (float)(1.0 - v4)) * start) + (float)((float)(1.0 - v4) * goal);
 }
 
 /*
@@ -574,38 +393,14 @@ float __fastcall XAnimCurve_GetValueEaseInSine(double time, double goalTime, dou
 XAnimCurve_GetValueEaseOutSine
 ==============
 */
-
-float __fastcall XAnimCurve_GetValueEaseOutSine(double time, double goalTime, double start, double goal)
+float XAnimCurve_GetValueEaseOutSine(float time, float goalTime, float start, float goal)
 {
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vxorps  xmm4, xmm4, xmm4
-    vucomiss xmm1, xmm4
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm1
-    vdivss  xmm0, xmm9, xmm6
-    vmulss  xmm0, xmm0, cs:__real@3fc90fdb; X
-  }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm9, [rsp+78h+var_48]
-    vsubss  xmm2, xmm1, xmm0
-    vmulss  xmm3, xmm2, xmm8
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmulss  xmm0, xmm0, xmm7
-    vmovaps xmm7, [rsp+78h+var_28]
-    vaddss  xmm0, xmm3, xmm0
-  }
-  return *(float *)&_XMM0;
+  float v4; 
+
+  if ( goalTime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 359, ASSERT_TYPE_ASSERT, "(goalTime != 0.f)", (const char *)&queryFormat, "goalTime != 0.f") )
+    __debugbreak();
+  v4 = sinf_0((float)(time / goalTime) * 1.5707964);
+  return (float)((float)(1.0 - v4) * start) + (float)(v4 * goal);
 }
 
 /*
@@ -613,41 +408,14 @@ float __fastcall XAnimCurve_GetValueEaseOutSine(double time, double goalTime, do
 XAnimCurve_GetValueEaseInOutSine
 ==============
 */
-
-float __fastcall XAnimCurve_GetValueEaseInOutSine(double time, double goalTime, double start, double goal)
+float XAnimCurve_GetValueEaseInOutSine(float time, float goalTime, float start, float goal)
 {
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vxorps  xmm4, xmm4, xmm4
-    vucomiss xmm1, xmm4
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm0
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-    vmovaps xmm6, xmm1
-    vdivss  xmm0, xmm9, xmm6
-    vsubss  xmm0, xmm0, cs:__real@3f000000
-    vmulss  xmm0, xmm0, cs:__real@40490fdb; X
-  }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm9, [rsp+78h+var_48]
-    vaddss  xmm0, xmm0, xmm1
-    vmulss  xmm3, xmm0, cs:__real@3f000000
-    vmulss  xmm0, xmm3, xmm7
-    vmovaps xmm7, [rsp+78h+var_28]
-    vsubss  xmm1, xmm1, xmm3
-    vmulss  xmm2, xmm1, xmm8
-    vmovaps xmm8, [rsp+78h+var_38]
-    vaddss  xmm0, xmm2, xmm0
-  }
-  return *(float *)&_XMM0;
+  float v4; 
+
+  if ( goalTime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 368, ASSERT_TYPE_ASSERT, "(goalTime != 0.f)", (const char *)&queryFormat, "goalTime != 0.f") )
+    __debugbreak();
+  v4 = sinf_0((float)((float)(time / goalTime) - 0.5) * 3.1415927);
+  return (float)((float)(1.0 - (float)((float)(v4 + 1.0) * 0.5)) * start) + (float)((float)((float)(v4 + 1.0) * 0.5) * goal);
 }
 
 /*
@@ -832,162 +600,119 @@ const scr_string_t *XAnimCurve_GetPrimitiveCurveNames(unsigned int *outNumCurves
 XAnimCurve_GetValue
 ==============
 */
-
-float __fastcall XAnimCurve_GetValue(const XAnimCurve *curve, double time)
+float XAnimCurve_GetValue(const XAnimCurve *curve, const float time)
 {
   __int64 numControlPoints; 
-  unsigned __int64 v6; 
+  __int64 v4; 
+  XAnimCurveControlPoint *controlPoints; 
+  int v6; 
+  int v7; 
   int v8; 
-  int v9; 
-  int v10; 
-  bool v12; 
-  bool v28; 
-  bool v30; 
+  bool v9; 
+  float v11; 
+  float v12; 
+  float *v13; 
+  float *p_time; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !curve && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 401, ASSERT_TYPE_ASSERT, "(curve)", (const char *)&queryFormat, "curve") )
     __debugbreak();
   if ( curve->numControlPoints < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 406, ASSERT_TYPE_ASSERT, "(curve->numControlPoints >= 2)", (const char *)&queryFormat, "curve->numControlPoints >= 2") )
     __debugbreak();
   numControlPoints = curve->numControlPoints;
-  v6 = 0i64;
-  _RDI = curve->controlPoints;
-  v8 = 0;
+  v4 = 0i64;
+  controlPoints = curve->controlPoints;
+  v6 = 0;
   if ( (int)numControlPoints <= 8 )
   {
-    v28 = (unsigned __int64)numControlPoints <= 4;
     if ( numControlPoints < 4 )
     {
-LABEL_33:
-      v30 = v6 <= numControlPoints;
-      if ( (__int64)v6 < numControlPoints )
+LABEL_36:
+      if ( v4 < numControlPoints )
       {
-        _RDX = &_RDI[v6];
+        p_time = &controlPoints[v4].time;
         do
         {
-          __asm { vcomiss xmm6, dword ptr [rdx] }
-          if ( v30 )
+          if ( time <= *p_time )
             break;
-          ++v8;
           ++v6;
-          ++_RDX;
-          v30 = v6 <= numControlPoints;
+          ++v4;
+          p_time += 3;
         }
-        while ( (__int64)v6 < numControlPoints );
+        while ( v4 < numControlPoints );
       }
     }
     else
     {
-      _RDX = _RDI + 2;
-      while ( 1 )
+      v13 = &controlPoints[2].time;
+      while ( time > *(v13 - 6) )
       {
-        __asm { vcomiss xmm6, dword ptr [rdx-18h] }
-        if ( v28 )
-          break;
-        __asm
+        if ( time <= *(v13 - 3) )
         {
-          vcomiss xmm6, dword ptr [rdx-0Ch]
-          vcomiss xmm6, dword ptr [rdx]
-          vcomiss xmm6, dword ptr [rdx+0Ch]
+          ++v6;
+          break;
         }
-        v8 += 4;
-        v6 += 4i64;
-        _RDX += 4;
-        v28 = v6 <= numControlPoints - 3;
-        if ( (__int64)v6 >= numControlPoints - 3 )
-          goto LABEL_33;
+        if ( time <= *v13 )
+        {
+          v6 += 2;
+          break;
+        }
+        if ( time <= v13[3] )
+        {
+          v6 += 3;
+          break;
+        }
+        v6 += 4;
+        v4 += 4i64;
+        v13 += 12;
+        if ( v4 >= numControlPoints - 3 )
+          goto LABEL_36;
       }
     }
-    if ( v8 == (_DWORD)numControlPoints )
-    {
-      _RCX = 3i64 * v8;
-      __asm { vmovss  xmm0, dword ptr [rdi+rcx*4-8] }
-      goto LABEL_40;
-    }
+    if ( v6 == (_DWORD)numControlPoints )
+      return controlPoints[v6 - 1].value;
   }
   else
   {
-    v9 = numControlPoints - 1;
+    v7 = numControlPoints - 1;
     if ( (int)numControlPoints - 1 >= 0 )
     {
       do
       {
-        v10 = (v9 + v8) >> 1;
-        _RCX = 3i64 * v10;
-        __asm { vcomiss xmm6, dword ptr [rdi+rcx*4] }
-        if ( ((_BYTE)v9 + (_BYTE)v8) & 1 | (v10 == 0) )
+        v8 = (v7 + v6) >> 1;
+        if ( time <= controlPoints[v8].time )
         {
-          if ( !(((_BYTE)v9 + (_BYTE)v8) & 1) )
-          {
-            _RCX = 3i64 * v8;
-            __asm { vmovss  xmm0, dword ptr [rdi+rcx*4+4] }
-            goto LABEL_40;
-          }
-          v9 = v10 - 1;
+          if ( time >= controlPoints[v8].time )
+            return controlPoints[v6].value;
+          v7 = v8 - 1;
         }
         else
         {
-          v8 = v10 + 1;
+          v6 = v8 + 1;
         }
       }
-      while ( v8 <= v9 );
+      while ( v6 <= v7 );
     }
-    v12 = v8 == (_DWORD)numControlPoints;
-    if ( v8 > (int)numControlPoints )
+    v9 = v6 == (_DWORD)numControlPoints;
+    if ( v6 > (int)numControlPoints )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 433, ASSERT_TYPE_ASSERT, "(controlPointIndex <= numControlPoints)", (const char *)&queryFormat, "controlPointIndex <= numControlPoints") )
         __debugbreak();
-      v12 = v8 == (_DWORD)numControlPoints;
+      v9 = v6 == (_DWORD)numControlPoints;
     }
-    if ( v12 )
-    {
-      _RCX = 3 * numControlPoints;
-      __asm { vmovss  xmm0, dword ptr [rdi+rcx*4-8] }
-      goto LABEL_40;
-    }
-    if ( (v8 < 0 || v8 >= (int)numControlPoints) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 439, ASSERT_TYPE_ASSERT, "(controlPointIndex >= 0 && controlPointIndex < numControlPoints)", (const char *)&queryFormat, "controlPointIndex >= 0 && controlPointIndex < numControlPoints") )
+    if ( v9 )
+      return controlPoints[numControlPoints - 1].value;
+    if ( (v6 < 0 || v6 >= (int)numControlPoints) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 439, ASSERT_TYPE_ASSERT, "(controlPointIndex >= 0 && controlPointIndex < numControlPoints)", (const char *)&queryFormat, "controlPointIndex >= 0 && controlPointIndex < numControlPoints") )
       __debugbreak();
   }
-  if ( v8 <= 0 )
+  if ( v6 <= 0 )
+    return controlPoints->value;
+  v11 = (float)(time - controlPoints[v6 - 1].time) * controlPoints[v6].invTimeDelta;
+  if ( curve->curveType == XANIM_CURVE_TYPE_SMOOTHSTEP )
   {
-    __asm { vmovss  xmm0, dword ptr [rdi+4] }
+    v12 = (float)(time - controlPoints[v6 - 1].time) * controlPoints[v6].invTimeDelta;
+    v11 = (float)((float)((float)((float)(v12 * 6.0) - 15.0) * v12) + 10.0) * (float)((float)(v12 * v12) * v12);
   }
-  else
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm6, dword ptr [rdi+rcx*4-0Ch]
-      vmulss  xmm4, xmm0, dword ptr [rdi+rcx*4+8]
-    }
-    if ( curve->curveType == XANIM_CURVE_TYPE_SMOOTHSTEP )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm4, cs:__real@40c00000
-        vsubss  xmm1, xmm0, cs:__real@41700000
-        vmulss  xmm2, xmm1, xmm4
-        vaddss  xmm3, xmm2, cs:__real@41200000
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm0, xmm4
-        vmulss  xmm4, xmm3, xmm1
-      }
-    }
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm1, xmm0, xmm4
-      vmulss  xmm2, xmm1, dword ptr [rdi+rcx*4-8]
-      vmulss  xmm0, xmm4, dword ptr [rdi+rcx*4+4]
-      vaddss  xmm0, xmm2, xmm0
-    }
-  }
-LABEL_40:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return *(float *)&_XMM0;
+  return (float)((float)(1.0 - v11) * controlPoints[v6 - 1].value) + (float)(v11 * controlPoints[v6].value);
 }
 
 /*
@@ -996,101 +721,37 @@ XAnimCurve_GetValue
 ==============
 */
 
-float __fastcall XAnimCurve_GetValue(const XAnimCurveID curveID, double time, double goalTime, double start, float goal)
+float __fastcall XAnimCurve_GetValue(const XAnimCurveID curveID, double time, float goalTime, float start, float goal)
 {
-  double (__fastcall *v14)(float, float, float, float); 
-  const XAnimCurve *AssetFromID; 
-  bool v20; 
-  bool v21; 
+  double (__fastcall *v6)(float, float, float, float); 
+  XAnimCurve *AssetFromID; 
   __int64 numControlPoints; 
-  bool v25; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps [rsp+98h+var_48], xmm9
-    vmovaps [rsp+98h+var_58], xmm10
-    vmovaps xmm10, xmm1
-    vmovaps xmm9, xmm3
-    vmovaps xmm7, xmm2
-  }
   if ( (unsigned __int8)curveID >= CURVE_ASSET_END && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 479, ASSERT_TYPE_ASSERT, "(curveID < XAnimCurveID::MAX)", (const char *)&queryFormat, "curveID < XAnimCurveID::MAX") )
     __debugbreak();
   if ( (unsigned __int8)curveID >= CURVE_ASSET_START )
   {
-    __asm
-    {
-      vmovaps [rsp+98h+var_18], xmm6
-      vmovaps [rsp+98h+var_38], xmm8
-    }
     AssetFromID = XAnimCurve_GetAssetFromID(curveID);
-    v20 = AssetFromID == NULL;
-    if ( !AssetFromID )
-    {
-      v21 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 493, ASSERT_TYPE_ASSERT, "(curveAsset)", (const char *)&queryFormat, "curveAsset");
-      v20 = !v21;
-      if ( v21 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vxorps  xmm8, xmm8, xmm8
-      vucomiss xmm7, xmm8
-    }
-    if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 494, ASSERT_TYPE_ASSERT, "(goalTime != 0.f)", (const char *)&queryFormat, "goalTime != 0.f") )
+    if ( !AssetFromID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 493, ASSERT_TYPE_ASSERT, "(curveAsset)", (const char *)&queryFormat, "curveAsset") )
+      __debugbreak();
+    if ( goalTime == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 494, ASSERT_TYPE_ASSERT, "(goalTime != 0.f)", (const char *)&queryFormat, "goalTime != 0.f") )
       __debugbreak();
     if ( !AssetFromID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 379, ASSERT_TYPE_ASSERT, "(curve)", (const char *)&queryFormat, "curve") )
       __debugbreak();
     numControlPoints = AssetFromID->numControlPoints;
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-    v25 = (_DWORD)numControlPoints == 0;
-    if ( (int)numControlPoints <= 0 )
-      goto LABEL_27;
-    _RCX = 3 * numControlPoints;
-    _RAX = AssetFromID->controlPoints;
-    __asm { vcomiss xmm6, dword ptr [rax+rcx*4-8] }
-    if ( !v25 )
-    {
-LABEL_27:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 497, ASSERT_TYPE_ASSERT, "(XAnimCurve_IsValidForBlending( curveAsset ))", "%s\n\tCurve '%s' is not valid for blending. Last control point value must be >= 1.0.", "XAnimCurve_IsValidForBlending( curveAsset )", AssetFromID->name) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vdivss  xmm0, xmm10, xmm7
-      vmulss  xmm1, xmm0, dword ptr [rbx+18h]; time
-    }
-    *(double *)&_XMM0 = XAnimCurve_GetValue(AssetFromID, *(const float *)&_XMM1);
-    __asm
-    {
-      vmaxss  xmm1, xmm0, xmm8
-      vmovaps xmm8, [rsp+98h+var_38]
-      vsubss  xmm0, xmm6, xmm1
-      vmulss  xmm1, xmm1, [rsp+98h+goal]
-      vmovaps xmm6, [rsp+98h+var_18]
-      vmulss  xmm2, xmm0, xmm9
-      vaddss  xmm0, xmm2, xmm1
-    }
+    if ( ((int)numControlPoints <= 0 || AssetFromID->controlPoints[numControlPoints - 1].value < 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 497, ASSERT_TYPE_ASSERT, "(XAnimCurve_IsValidForBlending( curveAsset ))", "%s\n\tCurve '%s' is not valid for blending. Last control point value must be >= 1.0.", "XAnimCurve_IsValidForBlending( curveAsset )", AssetFromID->name) )
+      __debugbreak();
+    *((double *)&_XMM0 + 1) = *(&time + 1);
+    *(double *)&_XMM0 = XAnimCurve_GetValue(AssetFromID, (float)(*(float *)&time / goalTime) * AssetFromID->duration);
+    __asm { vmaxss  xmm1, xmm0, xmm8 }
+    *(float *)&_XMM0 = (float)((float)(1.0 - *(float *)&_XMM1) * start) + (float)(*(float *)&_XMM1 * goal);
   }
   else
   {
-    v14 = (double (__fastcall *)(float, float, float, float))s_xAnimPrimitiveCurveFunctions[(unsigned __int8)curveID];
-    if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 485, ASSERT_TYPE_ASSERT, "(calcFunction)", (const char *)&queryFormat, "calcFunction") )
+    v6 = (double (__fastcall *)(float, float, float, float))s_xAnimPrimitiveCurveFunctions[(unsigned __int8)curveID];
+    if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_curve.cpp", 485, ASSERT_TYPE_ASSERT, "(calcFunction)", (const char *)&queryFormat, "calcFunction") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm3, [rsp+98h+goal]; goal
-      vmovaps xmm2, xmm9; start
-      vmovaps xmm1, xmm7; goalTime
-      vmovaps xmm0, xmm10; time
-    }
-    *(double *)&_XMM0 = v14(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm9, [rsp+98h+var_48]
-    vmovaps xmm10, [rsp+98h+var_58]
+    *(double *)&_XMM0 = v6(*(float *)&time, goalTime, start, goal);
   }
   return *(float *)&_XMM0;
 }

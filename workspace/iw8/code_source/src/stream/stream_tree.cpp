@@ -189,57 +189,31 @@ void ScopedStreamTreeLock::~ScopedStreamTreeLock(ScopedStreamTreeLock *this)
 ComputeInstanceLodExtentBounds
 ==============
 */
-void ComputeInstanceLodExtentBounds(ExtentBounds *lodExtentBounds, const unsigned __int64 lodIndex, const XModelInstance *instance, const XModel *xmodel)
+void ComputeInstanceLodExtentBounds(ExtentBounds *lodExtentBounds, const unsigned __int64 lodIndex, const XModelInstance *instance, const XModel *xmodel, const XModelStreamTreeContext *context)
 {
-  float v37; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  __int64 v15; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps [rsp+88h+var_38], xmm7
-  }
-  _RDI = xmodel;
-  _RBP = instance;
-  _RSI = lodExtentBounds;
   if ( lodIndex >= xmodel->numLods && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1221, ASSERT_TYPE_ASSERT, "(lodIndex < xmodel.numLods)", (const char *)&queryFormat, "lodIndex < xmodel.numLods") )
     __debugbreak();
-  __asm
-  {
-    vmovsd  xmm7, qword ptr [rbp+0]
-    vxorps  xmm4, xmm4, xmm4
-    vcvtsi2ss xmm4, xmm4, eax
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, eax
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, eax
-  }
-  v37 = _RBP->position.v[2];
-  _RBX = lodIndex << 6;
-  __asm
-  {
-    vmovsd  [rsp+88h+var_58], xmm7
-    vmovss  xmm0, dword ptr [rbx+rdi+0F0h]
-    vmulss  xmm1, xmm0, dword ptr [rax+20h]
-    vaddss  xmm5, xmm4, xmm1
-    vaddss  xmm4, xmm3, xmm1
-    vmovss  xmm3, dword ptr [rsp+88h+var_58+4]
-    vaddss  xmm6, xmm2, xmm1
-    vmovss  xmm2, [rsp+88h+var_50]
-    vsubss  xmm0, xmm7, xmm5
-    vmovss  dword ptr [rsi], xmm0
-    vsubss  xmm1, xmm3, xmm4
-    vmovss  dword ptr [rsi+4], xmm1
-    vsubss  xmm0, xmm2, xmm6
-    vmovss  dword ptr [rsi+8], xmm0
-    vaddss  xmm1, xmm5, xmm7
-    vmovss  dword ptr [rsi+0Ch], xmm1
-    vaddss  xmm1, xmm6, xmm2
-    vaddss  xmm0, xmm4, xmm3
-    vmovss  dword ptr [rsi+14h], xmm1
-    vmovss  dword ptr [rsi+10h], xmm0
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
+  v15 = *(_QWORD *)instance->position.v;
+  v9 = xmodel->lodInfo[lodIndex].dist * context->zoomFactor;
+  v10 = (float)instance->halfExtents.x + v9;
+  v11 = (float)instance->halfExtents.y + v9;
+  LODWORD(v12) = HIDWORD(*(_QWORD *)instance->position.v);
+  v13 = (float)instance->halfExtents.z + v9;
+  v14 = instance->position.v[2];
+  lodExtentBounds->mins.v[0] = COERCE_FLOAT(*(_QWORD *)instance->position.v) - v10;
+  lodExtentBounds->mins.v[1] = v12 - v11;
+  lodExtentBounds->mins.v[2] = v14 - v13;
+  lodExtentBounds->maxs.v[0] = v10 + *(float *)&v15;
+  lodExtentBounds->maxs.v[2] = v13 + v14;
+  lodExtentBounds->maxs.v[1] = v11 + v12;
 }
 
 /*
@@ -249,83 +223,76 @@ ComputeMaterialMinDistancesForXModel
 */
 void ComputeMaterialMinDistancesForXModel(XAssetHeader header, void *data)
 {
+  float v4; 
+  int v5; 
+  float *v6; 
   int v7; 
-  int v9; 
   unsigned int MaterialIndex; 
-  unsigned __int64 v13; 
-  unsigned int v14; 
-  __int64 v19; 
-  __int64 v20; 
-  __int64 v21; 
-  __int64 v22; 
-  void *retaddr; 
-  int v25; 
+  __int64 v9; 
+  unsigned __int64 v10; 
+  unsigned int v11; 
+  float v14; 
+  __int64 v15; 
+  __int64 v16; 
+  __int64 v17; 
+  __int64 v18; 
+  int v19; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v7 = 0;
-  v25 = 0;
+  v4 = 0.0;
+  v5 = 0;
+  v19 = 0;
   if ( header.physicsLibrary->isMotionPropertiesList )
   {
-    _R15 = (unsigned __int16 *)&header.physicsLibrary[10].name + 2;
+    v6 = (float *)&header.physicsLibrary[10].name + 1;
     do
     {
-      v9 = 0;
-      if ( *_R15 )
+      v7 = 0;
+      if ( *(_WORD *)v6 )
       {
-        _R13 = s_minDistSqForMaterials;
         do
         {
-          MaterialIndex = DB_GetMaterialIndex(*(const Material **)&header.physicsLibrary[9].name[8 * v9 + 8 * _R15[1]]);
-          _RDI = (int)MaterialIndex;
+          MaterialIndex = DB_GetMaterialIndex(*(const Material **)&header.physicsLibrary[9].name[8 * v7 + 8 * *((unsigned __int16 *)v6 + 1)]);
+          v9 = (int)MaterialIndex;
           if ( MaterialIndex >= 0xB400 )
           {
-            LODWORD(v20) = 46080;
-            LODWORD(v19) = MaterialIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v19, v20) )
+            LODWORD(v16) = 46080;
+            LODWORD(v15) = MaterialIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v15, v16) )
               __debugbreak();
           }
-          v13 = (unsigned __int64)(unsigned int)_RDI >> 5;
-          v14 = 0x80000000 >> (_RDI & 0x1F);
-          if ( (v14 & *((_DWORD *)data + v13 + 2)) != 0 )
+          v10 = (unsigned __int64)(unsigned int)v9 >> 5;
+          v11 = 0x80000000 >> (v9 & 0x1F);
+          if ( (v11 & *((_DWORD *)data + v10 + 2)) != 0 )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [r13+rdi*4+0]
-              vminss  xmm1, xmm0, xmm6
-              vmovss  dword ptr [r13+rdi*4+0], xmm1
-            }
+            _XMM0 = LODWORD(s_minDistSqForMaterials[v9]);
+            __asm { vminss  xmm1, xmm0, xmm6 }
+            s_minDistSqForMaterials[v9] = *(float *)&_XMM1;
           }
           else
           {
-            __asm { vmovss  dword ptr [r13+rdi*4+0], xmm6 }
-            if ( (unsigned int)_RDI >= 0xB400 )
+            s_minDistSqForMaterials[v9] = v4;
+            if ( (unsigned int)v9 >= 0xB400 )
             {
-              LODWORD(v22) = 46080;
-              LODWORD(v21) = _RDI;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v21, v22) )
+              LODWORD(v18) = 46080;
+              LODWORD(v17) = v9;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v17, v18) )
                 __debugbreak();
             }
-            *((_DWORD *)data + v13 + 2) |= v14;
+            *((_DWORD *)data + v10 + 2) |= v11;
           }
-          ++v9;
+          ++v7;
         }
-        while ( v9 < *_R15 );
-        v7 = v25;
+        while ( v7 < *(unsigned __int16 *)v6 );
+        v5 = v19;
       }
-      __asm { vmovss  xmm0, dword ptr [r15-4] }
-      ++v7;
-      _R15 += 32;
-      v25 = v7;
-      __asm { vmulss  xmm6, xmm0, xmm0 }
+      v14 = *(v6 - 1);
+      ++v5;
+      v6 += 16;
+      v19 = v5;
+      v4 = v14 * v14;
     }
-    while ( v7 < header.physicsLibrary->isMotionPropertiesList );
+    while ( v5 < header.physicsLibrary->isMotionPropertiesList );
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
 }
 
 /*
@@ -335,141 +302,89 @@ FindClosestGridCell
 */
 StreamKey *FindClosestGridCell(const StreamTreeGrid *xmodelStreamTreeGrid, float4 *viewPos)
 {
-  unsigned int v16; 
+  StreamKey *v4; 
+  unsigned int v5; 
+  float v6; 
+  __int128 v7; 
   unsigned __int16 columnCount; 
   unsigned int i; 
-  __int64 v23; 
-  bool v41; 
+  __int64 v10; 
+  StreamKey *v11; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v25; 
+  float v26; 
   StreamKey *result; 
-  double v68; 
-  double v69; 
-  double v70; 
-  double v71; 
-  void *retaddr; 
+  __m128 v; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps [rsp+118h+var_A8], xmm12 }
-  _R14 = viewPos;
-  __asm
+  v4 = NULL;
+  v5 = 0;
+  v6 = FLOAT_3_4028235e38;
+  v7 = 0i64;
+  if ( !xmodelStreamTreeGrid->rowCount )
+    return 0i64;
+  do
   {
-    vmovaps [rsp+118h+var_B8], xmm13
-    vmovaps [rsp+118h+var_C8], xmm14
-  }
-  v16 = 0;
-  __asm
-  {
-    vmovss  xmm12, cs:__real@7f7fffff
-    vxorps  xmm14, xmm14, xmm14
-    vxorps  xmm13, xmm13, xmm13
-  }
-  if ( xmodelStreamTreeGrid->rowCount )
-  {
-    __asm
+    columnCount = xmodelStreamTreeGrid->columnCount;
+    for ( i = 0; i < columnCount; columnCount = xmodelStreamTreeGrid->columnCount )
     {
-      vmovaps xmmword ptr [rax-48h], xmm6
-      vmovaps xmmword ptr [rax-58h], xmm7
-      vmovaps xmmword ptr [rax-68h], xmm8
-      vmovaps xmmword ptr [rax-78h], xmm9
-      vmovaps xmmword ptr [rax-88h], xmm10
-      vmovaps xmmword ptr [rax-98h], xmm11
-      vmovaps [rsp+118h+var_D8], xmm15
-      vmovss  xmm15, cs:__real@3a83126f
-    }
-    do
-    {
-      columnCount = xmodelStreamTreeGrid->columnCount;
-      for ( i = 0; i < columnCount; columnCount = xmodelStreamTreeGrid->columnCount )
+      v10 = i + v5 * columnCount;
+      v11 = xmodelStreamTreeGrid->cellKeys[v10];
+      if ( v11 && Stream_GenericIsSafeToUse(xmodelStreamTreeGrid->cellKeys[v10]) )
       {
-        v23 = i + v16 * columnCount;
-        if ( xmodelStreamTreeGrid->cellKeys[v23] && Stream_GenericIsSafeToUse(xmodelStreamTreeGrid->cellKeys[v23]) )
+        _XMM11 = viewPos->v;
+        v13 = (float)i;
+        v14 = (float)(v13 * 5000.0) + xmodelStreamTreeGrid->bounds.mins.v[0];
+        v15 = 5000.0 * 0.001;
+        v16 = (float)v5;
+        v17 = (float)(v16 * 5000.0) + xmodelStreamTreeGrid->bounds.mins.v[1];
+        v18 = (float)(v14 + 5000.0) - (float)(5000.0 * 0.001);
+        v19 = v17 + 5000.0;
+        if ( (float)(v14 + (float)(5000.0 * 0.001)) > v18 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", (float)(v14 + (float)(5000.0 * 0.001)), v18) )
+          __debugbreak();
+        __asm { vmaxss  xmm0, xmm11, xmm8 }
+        _XMM11 = viewPos->v.m128_u32[1];
+        __asm { vminss  xmm8, xmm0, xmm6 }
+        if ( (float)(v17 + v15) > (float)(v19 - v15) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", (float)(v17 + v15), (float)(v19 - v15)) )
+          __debugbreak();
+        __asm
         {
-          __asm
-          {
-            vmovss  xmm3, cs:?g_xmodelStreamTreeGridCellSize@@3MB; float const g_xmodelStreamTreeGridCellSize
-            vmovups xmm11, xmmword ptr [r14]
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vmulss  xmm1, xmm0, xmm3
-            vaddss  xmm2, xmm1, dword ptr [rsi+28h]
-            vxorps  xmm0, xmm0, xmm0
-            vmulss  xmm7, xmm3, xmm15
-            vcvtsi2ss xmm0, xmm0, rax
-            vmulss  xmm1, xmm0, xmm3
-            vaddss  xmm9, xmm1, dword ptr [rsi+2Ch]
-            vaddss  xmm0, xmm2, xmm3
-            vsubss  xmm6, xmm0, xmm7
-            vaddss  xmm8, xmm2, xmm7
-            vcomiss xmm8, xmm6
-            vaddss  xmm10, xmm9, xmm3
-            vcvtss2sd xmm0, xmm6, xmm6
-            vmovsd  [rsp+118h+var_E8], xmm0
-            vcvtss2sd xmm1, xmm8, xmm8
-            vmovsd  [rsp+118h+var_F0], xmm1
-          }
-          v41 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v68, v70);
-          if ( v41 )
-            __debugbreak();
-          __asm
-          {
-            vmaxss  xmm0, xmm11, xmm8
-            vmovss  xmm11, dword ptr [r14+4]
-            vminss  xmm8, xmm0, xmm6
-            vsubss  xmm6, xmm10, xmm7
-            vaddss  xmm7, xmm9, xmm7
-            vcomiss xmm7, xmm6
-          }
-          if ( v41 )
-          {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm6, xmm6
-              vmovsd  [rsp+118h+var_E8], xmm0
-              vcvtss2sd xmm1, xmm7, xmm7
-              vmovsd  [rsp+118h+var_F0], xmm1
-            }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v69, v71) )
-              __debugbreak();
-          }
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [r14]
-            vmaxss  xmm0, xmm11, xmm7
-            vminss  xmm3, xmm0, xmm6
-            vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-            vsubss  xmm0, xmm0, xmm3
-            vsubss  xmm1, xmm1, xmm8
-            vmulss  xmm2, xmm0, xmm0
-            vmulss  xmm1, xmm1, xmm1
-            vaddss  xmm4, xmm2, xmm1
-            vcomiss xmm4, xmm12
-          }
+          vmaxss  xmm0, xmm11, xmm7
+          vminss  xmm3, xmm0, xmm6
         }
-        ++i;
+        v25 = _mm_shuffle_ps(viewPos->v, viewPos->v, 85).m128_f32[0] - *(float *)&_XMM3;
+        v26 = (float)(v25 * v25) + (float)((float)(COERCE_FLOAT(*viewPos) - *(float *)&_XMM8) * (float)(COERCE_FLOAT(*viewPos) - *(float *)&_XMM8));
+        if ( v26 < v6 )
+        {
+          v6 = v26;
+          v7 = _XMM8;
+          v4 = v11;
+        }
       }
-      ++v16;
+      ++i;
     }
-    while ( v16 < xmodelStreamTreeGrid->rowCount );
-    __asm { vmovaps xmm15, [rsp+118h+var_D8] }
-    result = NULL;
+    ++v5;
+  }
+  while ( v5 < xmodelStreamTreeGrid->rowCount );
+  result = v4;
+  if ( v4 )
+  {
+    v = viewPos->v;
+    _mm_shuffle_ps(v, v, 255);
+    _XMM1 = v7;
+    __asm { vinsertps xmm1, xmm1, xmm14, 10h }
+    _mm_shuffle_ps(v, v, 170);
     __asm
     {
-      vmovaps xmm11, [rsp+118h+var_98]
-      vmovaps xmm10, [rsp+118h+var_88]
-      vmovaps xmm9, [rsp+118h+var_78]
-      vmovaps xmm8, [rsp+118h+var_68]
-      vmovaps xmm7, [rsp+118h+var_58]
-      vmovaps xmm6, [rsp+118h+var_48]
+      vinsertps xmm1, xmm1, xmm0, 20h ; ' '
+      vinsertps xmm1, xmm1, xmm2, 30h ; '0'
     }
-  }
-  else
-  {
-    result = NULL;
-  }
-  __asm
-  {
-    vmovaps xmm12, [rsp+118h+var_A8]
-    vmovaps xmm13, [rsp+118h+var_B8]
-    vmovaps xmm14, [rsp+118h+var_C8]
+    *viewPos = (float4)_XMM1.v;
   }
   return result;
 }
@@ -479,68 +394,50 @@ StreamKey *FindClosestGridCell(const StreamTreeGrid *xmodelStreamTreeGrid, float
 FindGridCellIndex
 ==============
 */
-
-__int64 __fastcall FindGridCellIndex(const StreamTreeGrid *streamTreeGrid, double streamTreeGridCellSize, const float4 *viewPos)
+__int64 FindGridCellIndex(const StreamTreeGrid *streamTreeGrid, const float streamTreeGridCellSize, const float4 *viewPos)
 {
+  int v5; 
+  int v6; 
   int columnCount; 
   int rowCount; 
-  unsigned int v20; 
-  __int64 result; 
-  __int64 v23; 
-  int v24; 
-  __int64 v25; 
-  int v26; 
-  void *retaddr; 
+  unsigned int v9; 
+  __int64 v11; 
+  int v12; 
+  __int64 v13; 
+  int v14; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  _RBX = viewPos;
-  __asm { vmovaps xmm6, xmm1 }
   Sys_ProfBeginNamedEvent(0xFF808080, "FindGridCellIndex");
-  __asm
-  {
-    vmovups xmm2, xmmword ptr [rbx]
-    vshufps xmm0, xmm2, xmm2, 55h ; 'U'
-    vsubss  xmm1, xmm2, dword ptr [rbp+28h]
-    vsubss  xmm3, xmm0, dword ptr [rbp+2Ch]
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm2, xmm0, xmm6
-    vmulss  xmm1, xmm2, xmm1
-    vcvttss2si esi, xmm1
-    vmulss  xmm0, xmm2, xmm3
-    vcvttss2si edi, xmm0
-  }
+  v5 = (int)(float)((float)(1.0 / streamTreeGridCellSize) * (float)(COERCE_FLOAT(*viewPos) - streamTreeGrid->bounds.mins.v[0]));
+  v6 = (int)(float)((float)(1.0 / streamTreeGridCellSize) * (float)(_mm_shuffle_ps(viewPos->v, viewPos->v, 85).m128_f32[0] - streamTreeGrid->bounds.mins.v[1]));
   columnCount = streamTreeGrid->columnCount;
   if ( columnCount - 1 < 0 )
   {
-    v26 = columnCount - 1;
-    v24 = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v24, v26) )
+    v14 = columnCount - 1;
+    v12 = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v12, v14) )
       __debugbreak();
   }
-  if ( columnCount <= _ESI )
-    _ESI = columnCount - 1;
-  if ( _ESI < 0 )
-    _ESI = 0;
+  if ( columnCount <= v5 )
+    v5 = columnCount - 1;
+  if ( v5 < 0 )
+    v5 = 0;
   rowCount = streamTreeGrid->rowCount;
   if ( rowCount - 1 < 0 )
   {
-    LODWORD(v25) = rowCount - 1;
-    LODWORD(v23) = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v23, v25) )
+    LODWORD(v13) = rowCount - 1;
+    LODWORD(v11) = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v11, v13) )
       __debugbreak();
   }
-  if ( rowCount <= _EDI )
-    _EDI = rowCount - 1;
-  if ( _EDI < 0 )
-    _EDI = 0;
-  v20 = _ESI + _EDI * streamTreeGrid->columnCount;
-  if ( v20 >= streamTreeGrid->columnCount * (unsigned int)streamTreeGrid->rowCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1544, ASSERT_TYPE_ASSERT, "(gridCellIndex < static_cast<uint>( streamTreeGrid.rowCount * streamTreeGrid.columnCount ))", (const char *)&queryFormat, "gridCellIndex < static_cast<uint>( streamTreeGrid.rowCount * streamTreeGrid.columnCount )") )
+  if ( rowCount <= v6 )
+    v6 = rowCount - 1;
+  if ( v6 < 0 )
+    v6 = 0;
+  v9 = v5 + v6 * streamTreeGrid->columnCount;
+  if ( v9 >= streamTreeGrid->columnCount * (unsigned int)streamTreeGrid->rowCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1544, ASSERT_TYPE_ASSERT, "(gridCellIndex < static_cast<uint>( streamTreeGrid.rowCount * streamTreeGrid.columnCount ))", (const char *)&queryFormat, "gridCellIndex < static_cast<uint>( streamTreeGrid.rowCount * streamTreeGrid.columnCount )") )
     __debugbreak();
   Sys_ProfEndNamedEvent();
-  result = v20;
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  return result;
+  return v9;
 }
 
 /*
@@ -550,31 +447,26 @@ GetHimipDistanceFactor
 */
 float GetHimipDistanceFactor()
 {
-  const dvar_t *v6; 
+  const dvar_t *v0; 
+  float smoothedImageCurrentReadDistanceSq; 
+  __int128 unsignedInt; 
+  const dvar_t *v3; 
+  __int128 v5; 
 
-  _RAX = streamFrontendGlob;
-  _RBX = DVARFLT_stream_treeDistanceFactor;
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovss  xmm7, dword ptr [rax+0B96B3Ch]
-  }
+  v0 = DVARFLT_stream_treeDistanceFactor;
+  smoothedImageCurrentReadDistanceSq = streamFrontendGlob->smoothedImageCurrentReadDistanceSq;
   if ( !DVARFLT_stream_treeDistanceFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeDistanceFactor") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  v6 = DVARFLT_stream_treeDistanceMinClamp;
+  Dvar_CheckFrontendServerThread(v0);
+  unsignedInt = v0->current.unsignedInt;
+  v3 = DVARFLT_stream_treeDistanceMinClamp;
   if ( !DVARFLT_stream_treeDistanceMinClamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeDistanceMinClamp") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  __asm
-  {
-    vmulss  xmm0, xmm6, xmm7
-    vmaxss  xmm0, xmm0, dword ptr [rbx+28h]
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
+  Dvar_CheckFrontendServerThread(v3);
+  v5 = unsignedInt;
+  *(float *)&v5 = *(float *)&unsignedInt * smoothedImageCurrentReadDistanceSq;
+  _XMM0 = v5;
+  __asm { vmaxss  xmm0, xmm0, dword ptr [rbx+28h] }
   return *(float *)&_XMM0;
 }
 
@@ -595,16 +487,15 @@ __int64 RB_Stream_DebugDrawImages(GfxCmdBufContext *gfxContext, const MaterialSt
   unsigned int GfxImageIndex; 
   unsigned __int16 v17; 
   unsigned int v18; 
-  __int64 v20; 
+  __int64 v19; 
+  __int64 v21; 
   __int64 v22; 
-  __int64 v23; 
   const StreamTreeGrid *streamTreeGrid; 
-  GfxCmdBufContext v25; 
-  __int64 v26; 
-  unsigned int v27; 
+  GfxCmdBufContext v24; 
+  __int64 v25; 
+  unsigned int v26; 
 
-  v27 = groupStartIndex;
-  _R13 = gfxContext;
+  v26 = groupStartIndex;
   v8 = instanceGroupCount;
   v9 = groupStartIndex;
   if ( !context->streamTreeGrid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1948, ASSERT_TYPE_ASSERT, "(context.streamTreeGrid != nullptr)", (const char *)&queryFormat, "context.streamTreeGrid != nullptr") )
@@ -618,14 +509,14 @@ __int64 RB_Stream_DebugDrawImages(GfxCmdBufContext *gfxContext, const MaterialSt
     return instanceIndex;
   v13 = instanceIndex;
   v14 = v8;
-  v26 = v8;
+  v25 = v8;
   do
   {
     if ( v9 >= gridCell->instanceGroupCount )
     {
-      LODWORD(v23) = gridCell->instanceGroupCount;
-      LODWORD(v22) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1961, ASSERT_TYPE_ASSERT, "(unsigned)( imgInstanceGroupIndex ) < (unsigned)( gridCell.instanceGroupCount )", "imgInstanceGroupIndex doesn't index gridCell.instanceGroupCount\n\t%i not in [0, %i)", v22, v23) )
+      LODWORD(v22) = gridCell->instanceGroupCount;
+      LODWORD(v21) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1961, ASSERT_TYPE_ASSERT, "(unsigned)( imgInstanceGroupIndex ) < (unsigned)( gridCell.instanceGroupCount )", "imgInstanceGroupIndex doesn't index gridCell.instanceGroupCount\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
     v15 = (__int64)&gridCell->instanceGroups[v9];
@@ -633,9 +524,9 @@ __int64 RB_Stream_DebugDrawImages(GfxCmdBufContext *gfxContext, const MaterialSt
       __debugbreak();
     if ( *(unsigned __int16 *)(v15 + 4) >= streamTreeGrid->imageCount )
     {
-      LODWORD(v23) = streamTreeGrid->imageCount;
-      LODWORD(v22) = *(unsigned __int16 *)(v15 + 4);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1966, ASSERT_TYPE_ASSERT, "(unsigned)( imgInstanceGroup.assetIndex ) < (unsigned)( streamTreeGrid.imageCount )", "imgInstanceGroup.assetIndex doesn't index streamTreeGrid.imageCount\n\t%i not in [0, %i)", v22, v23) )
+      LODWORD(v22) = streamTreeGrid->imageCount;
+      LODWORD(v21) = *(unsigned __int16 *)(v15 + 4);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1966, ASSERT_TYPE_ASSERT, "(unsigned)( imgInstanceGroup.assetIndex ) < (unsigned)( streamTreeGrid.imageCount )", "imgInstanceGroup.assetIndex doesn't index streamTreeGrid.imageCount\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
     GfxImageIndex = DB_GetGfxImageIndex(streamTreeGrid->images[*(unsigned __int16 *)(v15 + 4)]);
@@ -649,20 +540,19 @@ __int64 RB_Stream_DebugDrawImages(GfxCmdBufContext *gfxContext, const MaterialSt
         {
           if ( v13 >= v12 )
           {
-            LODWORD(v23) = v12;
-            LODWORD(v22) = v13;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1979, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( cellInstanceCount )", "instanceIndex doesn't index cellInstanceCount\n\t%i not in [0, %i)", v22, v23) )
+            LODWORD(v22) = v12;
+            LODWORD(v21) = v13;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1979, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( cellInstanceCount )", "instanceIndex doesn't index cellInstanceCount\n\t%i not in [0, %i)", v21, v22) )
               __debugbreak();
           }
-          __asm { vmovups xmm0, xmmword ptr [r13+0] }
-          v20 = v13++;
-          __asm { vmovups [rsp+98h+var_48], xmm0 }
-          RB_Stream_StreamTreeDebugBox(&v25, &gridCell->instances[v20].bounds.mins, &gridCell->instances[v20].bounds.maxs, &colorMagenta, viewProjectionMatrix);
+          v19 = v13++;
+          v24 = *gfxContext;
+          RB_Stream_StreamTreeDebugBox(&v24, &gridCell->instances[v19].bounds.mins, &gridCell->instances[v19].bounds.maxs, &colorMagenta, viewProjectionMatrix);
           ++v18;
         }
         while ( v18 < *(unsigned __int16 *)(v15 + 6) );
-        v9 = v27;
-        v14 = v26;
+        v9 = v26;
+        v14 = v25;
       }
     }
     else
@@ -671,8 +561,8 @@ __int64 RB_Stream_DebugDrawImages(GfxCmdBufContext *gfxContext, const MaterialSt
     }
     ++v9;
     --v14;
-    v27 = v9;
-    v26 = v14;
+    v26 = v9;
+    v25 = v14;
   }
   while ( v14 );
   return v13;
@@ -695,16 +585,15 @@ __int64 RB_Stream_DebugDrawMaterials(GfxCmdBufContext *gfxContext, const Materia
   unsigned int MaterialIndex; 
   unsigned __int16 v17; 
   unsigned int v18; 
-  __int64 v20; 
+  __int64 v19; 
+  __int64 v21; 
   __int64 v22; 
-  __int64 v23; 
   const StreamTreeGrid *streamTreeGrid; 
-  GfxCmdBufContext v25; 
-  __int64 v26; 
-  unsigned int v27; 
+  GfxCmdBufContext v24; 
+  __int64 v25; 
+  unsigned int v26; 
 
-  v27 = groupStartIndex;
-  _R13 = gfxContext;
+  v26 = groupStartIndex;
   v8 = instanceGroupCount;
   v9 = groupStartIndex;
   if ( !context->streamTreeGrid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1900, ASSERT_TYPE_ASSERT, "(context.streamTreeGrid != nullptr)", (const char *)&queryFormat, "context.streamTreeGrid != nullptr") )
@@ -718,14 +607,14 @@ __int64 RB_Stream_DebugDrawMaterials(GfxCmdBufContext *gfxContext, const Materia
     return instanceIndex;
   v13 = instanceIndex;
   v14 = v8;
-  v26 = v8;
+  v25 = v8;
   do
   {
     if ( v9 >= gridCell->instanceGroupCount )
     {
-      LODWORD(v23) = gridCell->instanceGroupCount;
-      LODWORD(v22) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1913, ASSERT_TYPE_ASSERT, "(unsigned)( mtlInstanceGroupIndex ) < (unsigned)( gridCell.instanceGroupCount )", "mtlInstanceGroupIndex doesn't index gridCell.instanceGroupCount\n\t%i not in [0, %i)", v22, v23) )
+      LODWORD(v22) = gridCell->instanceGroupCount;
+      LODWORD(v21) = v9;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1913, ASSERT_TYPE_ASSERT, "(unsigned)( mtlInstanceGroupIndex ) < (unsigned)( gridCell.instanceGroupCount )", "mtlInstanceGroupIndex doesn't index gridCell.instanceGroupCount\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
     v15 = (__int64)&gridCell->instanceGroups[v9];
@@ -733,9 +622,9 @@ __int64 RB_Stream_DebugDrawMaterials(GfxCmdBufContext *gfxContext, const Materia
       __debugbreak();
     if ( *(unsigned __int16 *)(v15 + 4) >= streamTreeGrid->materialCount )
     {
-      LODWORD(v23) = streamTreeGrid->materialCount;
-      LODWORD(v22) = *(unsigned __int16 *)(v15 + 4);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1918, ASSERT_TYPE_ASSERT, "(unsigned)( mtlInstanceGroup.assetIndex ) < (unsigned)( streamTreeGrid.materialCount )", "mtlInstanceGroup.assetIndex doesn't index streamTreeGrid.materialCount\n\t%i not in [0, %i)", v22, v23) )
+      LODWORD(v22) = streamTreeGrid->materialCount;
+      LODWORD(v21) = *(unsigned __int16 *)(v15 + 4);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1918, ASSERT_TYPE_ASSERT, "(unsigned)( mtlInstanceGroup.assetIndex ) < (unsigned)( streamTreeGrid.materialCount )", "mtlInstanceGroup.assetIndex doesn't index streamTreeGrid.materialCount\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
     MaterialIndex = DB_GetMaterialIndex(streamTreeGrid->materials[*(unsigned __int16 *)(v15 + 4)]);
@@ -749,20 +638,19 @@ __int64 RB_Stream_DebugDrawMaterials(GfxCmdBufContext *gfxContext, const Materia
         {
           if ( v13 >= v12 )
           {
-            LODWORD(v23) = v12;
-            LODWORD(v22) = v13;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1931, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( cellInstanceCount )", "instanceIndex doesn't index cellInstanceCount\n\t%i not in [0, %i)", v22, v23) )
+            LODWORD(v22) = v12;
+            LODWORD(v21) = v13;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1931, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( cellInstanceCount )", "instanceIndex doesn't index cellInstanceCount\n\t%i not in [0, %i)", v21, v22) )
               __debugbreak();
           }
-          __asm { vmovups xmm0, xmmword ptr [r13+0] }
-          v20 = v13++;
-          __asm { vmovups [rsp+98h+var_48], xmm0 }
-          RB_Stream_StreamTreeDebugBox(&v25, &gridCell->instances[v20].bounds.mins, &gridCell->instances[v20].bounds.maxs, &colorMagenta, viewProjectionMatrix);
+          v19 = v13++;
+          v24 = *gfxContext;
+          RB_Stream_StreamTreeDebugBox(&v24, &gridCell->instances[v19].bounds.mins, &gridCell->instances[v19].bounds.maxs, &colorMagenta, viewProjectionMatrix);
           ++v18;
         }
         while ( v18 < *(unsigned __int16 *)(v15 + 6) );
-        v9 = v27;
-        v14 = v26;
+        v9 = v26;
+        v14 = v25;
       }
     }
     else
@@ -771,8 +659,8 @@ __int64 RB_Stream_DebugDrawMaterials(GfxCmdBufContext *gfxContext, const Materia
     }
     ++v9;
     --v14;
-    v27 = v9;
-    v26 = v14;
+    v26 = v9;
+    v25 = v14;
   }
   while ( v14 );
   return v13;
@@ -785,186 +673,171 @@ RB_Stream_DebugDrawStreamTreeRecursive
 */
 void RB_Stream_DebugDrawStreamTreeRecursive(GfxCmdBufContext *gfxContext, const StreamTreeNode *node, const MaterialStreamTreeContext *context, int curDepth, int drawAssetIndex, int maxDepth, const GfxMatrix *viewProjectionMatrix)
 {
-  const StreamTreeNode *v8; 
-  char v11; 
-  char v12; 
-  unsigned __int16 v16; 
-  unsigned __int16 v17; 
-  bool v18; 
-  int v19; 
+  const StreamTreeNode *v7; 
+  GfxCmdBufContext *v8; 
+  const MaterialStreamTreeContext *v9; 
+  float v10; 
+  unsigned __int16 v11; 
+  unsigned __int16 v12; 
+  bool v13; 
+  int v14; 
   StreamKey *volumesKey; 
   const streamer_handle_t *p_dataHandle; 
   unsigned __int8 *data; 
   int imgInfoCount; 
-  unsigned int v24; 
-  unsigned int v25; 
+  unsigned int v19; 
+  unsigned int v20; 
   StreamMtlImgInfo *infos; 
-  __int64 v27; 
+  __int64 v22; 
   unsigned int i; 
-  __int64 v30; 
-  unsigned int v31; 
-  StreamMtlImgInfo *v32; 
-  __int64 v33; 
-  unsigned int v34; 
-  __int64 v37; 
-  int v38; 
-  const StreamTree *v40; 
-  const StreamTree *v42; 
-  const vec4_t *v44; 
-  unsigned __int16 v45; 
-  unsigned __int16 v46; 
-  unsigned int v47; 
-  unsigned int v48; 
-  unsigned int v49; 
-  int v50; 
+  __int64 v24; 
+  unsigned int v25; 
+  StreamMtlImgInfo *v26; 
+  __int64 v27; 
+  unsigned int v28; 
+  __int64 v29; 
+  int v30; 
+  const StreamTree *v31; 
+  const StreamTree *v32; 
+  const vec4_t *v33; 
+  unsigned __int16 v34; 
+  unsigned __int16 v35; 
+  unsigned int v36; 
+  unsigned int v37; 
+  unsigned int v38; 
+  int v39; 
   const StreamTree *streamTree; 
-  unsigned int v52; 
-  GfxCmdBufContext v53; 
+  unsigned int v41; 
+  GfxCmdBufContext v42; 
 
-  v8 = node;
-  _R15 = gfxContext;
-  _RSI = context;
-  *(float *)&_XMM0 = Stream_DistanceSqToAABB(context, &node->aabb);
-  __asm { vcomiss xmm0, cs:__real@4bbebc20 }
-  if ( !(v11 | v12) )
+  v7 = node;
+  v8 = gfxContext;
+  v9 = context;
+  v10 = Stream_DistanceSqToAABB(context, &node->aabb);
+  if ( v10 > 25000000.0 || (float)((float)((float)(v10 + 1.0) * v7->minLomipInvSqRadiiOfChildren) * v9->distanceScale) > v9->streamerMaxDistToRead )
     return;
-  __asm
-  {
-    vaddss  xmm0, xmm0, cs:__real@3f800000
-    vmulss  xmm0, xmm0, dword ptr [r14+34h]
-    vmulss  xmm1, xmm0, dword ptr [rsi+28h]
-    vcomiss xmm1, dword ptr [rsi+2Ch]
-  }
-  if ( !(v11 | v12) )
-    return;
-  if ( !_RSI->streamTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1744, ASSERT_TYPE_ASSERT, "(context.streamTree != nullptr)", (const char *)&queryFormat, "context.streamTree != nullptr") )
+  if ( !v9->streamTree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1744, ASSERT_TYPE_ASSERT, "(context.streamTree != nullptr)", (const char *)&queryFormat, "context.streamTree != nullptr") )
     __debugbreak();
-  v16 = v8->childNodes[0];
-  v17 = v8->childNodes[1];
-  streamTree = _RSI->streamTree;
-  v45 = v16;
-  v46 = v17;
-  v18 = v16 == 0xFFFF && v17 == 0xFFFF;
-  v19 = drawAssetIndex;
+  v11 = v7->childNodes[0];
+  v12 = v7->childNodes[1];
+  streamTree = v9->streamTree;
+  v34 = v11;
+  v35 = v12;
+  v13 = v11 == 0xFFFF && v12 == 0xFFFF;
+  v14 = drawAssetIndex;
   if ( drawAssetIndex == -1 )
   {
-    __asm { vmovups xmm0, xmmword ptr [r15] }
-    v44 = &colorGreen;
-    if ( v18 )
-      v44 = &colorBlue;
-    __asm { vmovups xmmword ptr [rsp+0B8h+var_58.source], xmm0 }
-    RB_Stream_StreamTreeDebugBox(&v53, &v8->aabb.mins, &v8->aabb.maxs, v44, viewProjectionMatrix);
+    v33 = &colorGreen;
+    if ( v13 )
+      v33 = &colorBlue;
+    v42 = *v8;
+    RB_Stream_StreamTreeDebugBox(&v42, &v7->aabb.mins, &v7->aabb.maxs, v33, viewProjectionMatrix);
   }
   else
   {
-    if ( !v8->volumesKey )
-      goto LABEL_44;
-    if ( Stream_GenericIsSafeToUse(v8->volumesKey) )
+    if ( !v7->volumesKey )
+      goto LABEL_43;
+    if ( Stream_GenericIsSafeToUse(v7->volumesKey) )
     {
-      volumesKey = v8->volumesKey;
-      p_dataHandle = &v8->volumesKey->data.dataHandle;
-      if ( (v8->volumesKey->flags & 2) != 0 )
+      volumesKey = v7->volumesKey;
+      p_dataHandle = &v7->volumesKey->data.dataHandle;
+      if ( (v7->volumesKey->flags & 2) != 0 )
         data = (unsigned __int8 *)p_dataHandle->data;
       else
         data = Stream_AddressSpace_ResolveHandle(p_dataHandle);
       if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1760, ASSERT_TYPE_ASSERT, "(volumes != nullptr)", (const char *)&queryFormat, "volumes != nullptr") )
         __debugbreak();
-      imgInfoCount = v8->imgInfoCount;
-      v52 = volumesKey->dataSize / 0x18;
-      v50 = v8->mtlInfoCount + imgInfoCount;
-      v49 = 0;
-      v24 = 0;
-      v25 = 0;
-      if ( v8->mtlInfoCount )
+      imgInfoCount = v7->imgInfoCount;
+      v41 = volumesKey->dataSize / 0x18;
+      v39 = v7->mtlInfoCount + imgInfoCount;
+      v38 = 0;
+      v19 = 0;
+      v20 = 0;
+      if ( v7->mtlInfoCount )
       {
         do
         {
-          infos = v8->infos;
-          v27 = v24++;
-          v47 = v24;
-          if ( DB_GetMaterialIndex(streamTree->materials[infos[v27].assetIndex]) == drawAssetIndex )
+          infos = v7->infos;
+          v22 = v19++;
+          v36 = v19;
+          if ( DB_GetMaterialIndex(streamTree->materials[infos[v22].assetIndex]) == drawAssetIndex )
           {
-            for ( i = 0; i < infos[v27].volumeCount; ++i )
+            for ( i = 0; i < infos[v22].volumeCount; ++i )
             {
-              __asm { vmovups xmm0, xmmword ptr [r15] }
-              v30 = v25++;
-              __asm { vmovups xmmword ptr [rsp+0B8h+var_58.source], xmm0 }
-              RB_Stream_DebugDrawStreamTreeVolume(&v53, (const StreamVolumeCompressed *)&data[24 * v30], viewProjectionMatrix);
+              v24 = v20++;
+              v42 = *v8;
+              RB_Stream_DebugDrawStreamTreeVolume(&v42, (const StreamVolumeCompressed *)&data[24 * v24], viewProjectionMatrix);
             }
-            v24 = v47;
+            v19 = v36;
           }
           else
           {
-            v25 += infos[v27].volumeCount;
+            v20 += infos[v22].volumeCount;
           }
-          ++v49;
+          ++v38;
         }
-        while ( v49 < v8->mtlInfoCount );
-        LOWORD(imgInfoCount) = v8->imgInfoCount;
+        while ( v38 < v7->mtlInfoCount );
+        LOWORD(imgInfoCount) = v7->imgInfoCount;
       }
-      v31 = 0;
+      v25 = 0;
       if ( (_WORD)imgInfoCount )
       {
         do
         {
-          v32 = v8->infos;
-          v33 = v24++;
-          v48 = v24;
-          if ( DB_GetGfxImageIndex(streamTree->images[v32[v33].assetIndex]) == drawAssetIndex )
+          v26 = v7->infos;
+          v27 = v19++;
+          v37 = v19;
+          if ( DB_GetGfxImageIndex(streamTree->images[v26[v27].assetIndex]) == drawAssetIndex )
           {
-            v34 = 0;
-            if ( v32[v33].volumeCount )
+            v28 = 0;
+            if ( v26[v27].volumeCount )
             {
-              _R14 = gfxContext;
               do
               {
-                __asm { vmovups xmm0, xmmword ptr [r14] }
-                v37 = v25++;
-                __asm { vmovups xmmword ptr [rsp+0B8h+var_58.source], xmm0 }
-                RB_Stream_DebugDrawStreamTreeVolume(&v53, (const StreamVolumeCompressed *)&data[24 * v37], viewProjectionMatrix);
-                ++v34;
+                v29 = v20++;
+                v42 = *gfxContext;
+                RB_Stream_DebugDrawStreamTreeVolume(&v42, (const StreamVolumeCompressed *)&data[24 * v29], viewProjectionMatrix);
+                ++v28;
               }
-              while ( v34 < v32[v33].volumeCount );
-              v8 = node;
+              while ( v28 < v26[v27].volumeCount );
+              v7 = node;
             }
-            v24 = v48;
+            v19 = v37;
           }
           else
           {
-            v25 += v32[v33].volumeCount;
+            v20 += v26[v27].volumeCount;
           }
-          ++v31;
+          ++v25;
         }
-        while ( v31 < v8->imgInfoCount );
+        while ( v25 < v7->imgInfoCount );
       }
-      if ( v24 != v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1817, ASSERT_TYPE_ASSERT, "(nodeInfoIndex == nodeInfoCount)", (const char *)&queryFormat, "nodeInfoIndex == nodeInfoCount") )
+      if ( v19 != v39 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1817, ASSERT_TYPE_ASSERT, "(nodeInfoIndex == nodeInfoCount)", (const char *)&queryFormat, "nodeInfoIndex == nodeInfoCount") )
         __debugbreak();
-      if ( v25 != v52 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1818, ASSERT_TYPE_ASSERT, "(nodeVolumeIndex == totalVolumeCount)", (const char *)&queryFormat, "nodeVolumeIndex == totalVolumeCount") )
+      if ( v20 != v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1818, ASSERT_TYPE_ASSERT, "(nodeVolumeIndex == totalVolumeCount)", (const char *)&queryFormat, "nodeVolumeIndex == totalVolumeCount") )
         __debugbreak();
-      v17 = v46;
-      v19 = drawAssetIndex;
-      _RSI = context;
-      _R15 = gfxContext;
+      v12 = v35;
+      v14 = drawAssetIndex;
+      v9 = context;
+      v8 = gfxContext;
     }
   }
-  v16 = v45;
-LABEL_44:
+  v11 = v34;
+LABEL_43:
   if ( curDepth < maxDepth )
   {
-    v38 = curDepth + 1;
-    if ( v16 != 0xFFFF )
+    v30 = curDepth + 1;
+    if ( v11 != 0xFFFF )
     {
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v40 = _RSI->streamTree;
-      __asm { vmovups xmmword ptr [rsp+0B8h+var_58.source], xmm0 }
-      RB_Stream_DebugDrawStreamTreeRecursive(&v53, &v40->nodes[v16], _RSI, v38, v19, maxDepth, viewProjectionMatrix);
+      v31 = v9->streamTree;
+      v42 = *v8;
+      RB_Stream_DebugDrawStreamTreeRecursive(&v42, &v31->nodes[v11], v9, v30, v14, maxDepth, viewProjectionMatrix);
     }
-    if ( v17 != 0xFFFF )
+    if ( v12 != 0xFFFF )
     {
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v42 = _RSI->streamTree;
-      __asm { vmovups xmmword ptr [rsp+0B8h+var_58.source], xmm0 }
-      RB_Stream_DebugDrawStreamTreeRecursive(&v53, &v42->nodes[v17], _RSI, v38, v19, maxDepth, viewProjectionMatrix);
+      v32 = v9->streamTree;
+      v42 = *v8;
+      RB_Stream_DebugDrawStreamTreeRecursive(&v42, &v32->nodes[v12], v9, v30, v14, maxDepth, viewProjectionMatrix);
     }
   }
 }
@@ -976,53 +849,54 @@ RB_Stream_DebugDrawStreamTreeVolume
 */
 void RB_Stream_DebugDrawStreamTreeVolume(GfxCmdBufContext *gfxContext, const StreamVolumeCompressed *volume, const GfxMatrix *viewProjectionMatrix)
 {
-  GfxCmdBufContext v25; 
-  __int128 v26; 
-  vec3_t v27; 
+  float x; 
+  __m128 v5; 
+  float v6; 
+  __m128 v10; 
+  GfxCmdBufContext v13; 
+  GfxCmdBufContext v16; 
+  __m128 v17; 
+  vec3_t v18; 
 
+  x = (float)volume->halfExtent.x;
+  v17.m128_i32[3] = 0;
+  v5 = v17;
+  v5.m128_f32[0] = x;
+  _XMM4 = v5;
+  v6 = volume->wldCenter.v[0];
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, eax
-  }
-  HIDWORD(v26) = 0;
-  __asm
-  {
-    vmovups xmm4, xmmword ptr [rsp+40h]
-    vmovss  xmm4, xmm4, xmm0
-    vmovss  xmm0, dword ptr [rdx]
     vinsertps xmm4, xmm4, xmm1, 10h
     vinsertps xmm4, xmm4, xmm2, 20h ; ' '
-    vmovups xmmword ptr [rsp+40h], xmm4
   }
-  HIDWORD(v26) = 0;
+  v17 = _XMM4;
+  v17.m128_i32[3] = 0;
+  v10 = v17;
+  v10.m128_f32[0] = v6;
+  _XMM3 = v10;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+40h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rdx+4], 10h
     vinsertps xmm3, xmm3, dword ptr [rdx+8], 20h ; ' '
-    vmovups xmm0, xmmword ptr [rcx]
-    vsubps  xmm2, xmm3, xmm4
-    vaddps  xmm1, xmm3, xmm4
-    vmovups xmmword ptr [rsp+40h], xmm3
   }
-  HIDWORD(v26) = HIDWORD(_RT0);
+  v13 = *gfxContext;
+  _XMM2 = _mm128_sub_ps(_XMM3, _XMM4);
+  _XMM1 = _mm128_add_ps(_XMM3, _XMM4);
+  v17.m128_i32[3] = _XMM3.m128_i32[3];
+  v18.v[0] = _XMM1.m128_f32[0];
   __asm
   {
-    vmovss  [rsp+78h+var_28], xmm1
     vextractps [rsp+78h+var_24], xmm1, 1
     vextractps [rsp+78h+var_20], xmm1, 2
-    vmovss  [rsp+78h+var_38], xmm2
+  }
+  v17.m128_f32[0] = _XMM2.m128_f32[0];
+  __asm
+  {
     vextractps [rsp+78h+var_34], xmm2, 1
     vextractps [rsp+78h+var_30], xmm2, 2
-    vmovups [rsp+78h+var_48], xmm0
   }
-  RB_Stream_StreamTreeDebugBox(&v25, (const vec3_t *)&v26, &v27, &colorMagenta, viewProjectionMatrix);
+  v16 = v13;
+  RB_Stream_StreamTreeDebugBox(&v16, (const vec3_t *)&v17, &v18, &colorMagenta, viewProjectionMatrix);
 }
 
 /*
@@ -1035,69 +909,62 @@ void RB_Stream_DebugDrawStreamTreeZoneRecursive(GfxCmdBufContext *gfxContext, co
   unsigned int instanceStartIndex; 
   unsigned int materialInstanceGroupCount; 
   unsigned int instanceGroupStartIndex; 
+  unsigned int v14; 
   unsigned int v15; 
-  unsigned int v17; 
   unsigned int imageInstanceGroupCount; 
-  bool v19; 
-  unsigned __int16 v23; 
+  bool v17; 
+  GfxCmdBufContext v18; 
+  vec4_t *v19; 
+  unsigned __int16 v20; 
   const MaterialStreamTreeGridCell *gridCell; 
-  unsigned __int16 v25; 
-  const MaterialStreamTreeNode *v27; 
-  const MaterialStreamTreeNode *v29; 
-  GfxCmdBufContext v30; 
-  GfxCmdBufContext v31; 
+  unsigned __int16 v22; 
+  const MaterialStreamTreeNode *v23; 
+  const MaterialStreamTreeNode *v24; 
+  GfxCmdBufContext v25; 
+  vec4_t v26; 
 
-  _R14 = gfxContext;
   if ( drawAssetIndex == -1 )
   {
-    v19 = node->childNodes[0] == 0xFFFF && node->childNodes[1] == 0xFFFF;
-    __asm { vmovups xmm1, xmmword ptr [r14] }
-    _RAX = &colorGreen;
-    if ( v19 )
-      _RAX = &colorBlue;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rsp+0B8h+var_68], xmm0
-      vmovups [rsp+0B8h+var_78], xmm1
-    }
-    RB_Stream_StreamTreeDebugBox(&v30, &node->bounds.mins, &node->bounds.maxs, (const vec4_t *)&v31, viewProjectionMatrix);
+    v17 = node->childNodes[0] == 0xFFFF && node->childNodes[1] == 0xFFFF;
+    v18 = *gfxContext;
+    v19 = &colorGreen;
+    if ( v17 )
+      v19 = &colorBlue;
+    v26 = *v19;
+    v25 = v18;
+    RB_Stream_StreamTreeDebugBox(&v25, &node->bounds.mins, &node->bounds.maxs, &v26, viewProjectionMatrix);
   }
   else
   {
     instanceStartIndex = node->instanceStartIndex;
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
     materialInstanceGroupCount = node->materialInstanceGroupCount;
     instanceGroupStartIndex = node->instanceGroupStartIndex;
-    __asm { vmovups [rsp+0B8h+var_68], xmm0 }
-    v15 = RB_Stream_DebugDrawMaterials(&v31, context, instanceGroupStartIndex, materialInstanceGroupCount, instanceStartIndex, drawAssetIndex, viewProjectionMatrix);
-    __asm { vmovups xmm0, xmmword ptr [r14] }
-    v17 = node->instanceGroupStartIndex + node->materialInstanceGroupCount;
+    v26 = *(vec4_t *)gfxContext;
+    v14 = RB_Stream_DebugDrawMaterials((GfxCmdBufContext *)&v26, context, instanceGroupStartIndex, materialInstanceGroupCount, instanceStartIndex, drawAssetIndex, viewProjectionMatrix);
+    v15 = node->instanceGroupStartIndex + node->materialInstanceGroupCount;
     imageInstanceGroupCount = node->imageInstanceGroupCount;
-    __asm { vmovups [rsp+0B8h+var_68], xmm0 }
-    if ( (unsigned int)RB_Stream_DebugDrawImages(&v31, context, v17, imageInstanceGroupCount, v15, drawAssetIndex, viewProjectionMatrix) - node->instanceStartIndex != node->instanceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2008, ASSERT_TYPE_ASSERT, "(( instanceIndex - node.instanceStartIndex ) == node.instanceCount)", (const char *)&queryFormat, "( instanceIndex - node.instanceStartIndex ) == node.instanceCount") )
+    v26 = *(vec4_t *)gfxContext;
+    if ( (unsigned int)RB_Stream_DebugDrawImages((GfxCmdBufContext *)&v26, context, v15, imageInstanceGroupCount, v14, drawAssetIndex, viewProjectionMatrix) - node->instanceStartIndex != node->instanceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2008, ASSERT_TYPE_ASSERT, "(( instanceIndex - node.instanceStartIndex ) == node.instanceCount)", (const char *)&queryFormat, "( instanceIndex - node.instanceStartIndex ) == node.instanceCount") )
       __debugbreak();
   }
   if ( curDepth < maxDepth )
   {
     if ( !context->gridCell && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2020, ASSERT_TYPE_ASSERT, "(context.gridCell != nullptr)", (const char *)&queryFormat, "context.gridCell != nullptr") )
       __debugbreak();
-    v23 = node->childNodes[0];
+    v20 = node->childNodes[0];
     gridCell = context->gridCell;
-    v25 = node->childNodes[1];
-    if ( v23 != 0xFFFF )
+    v22 = node->childNodes[1];
+    if ( v20 != 0xFFFF )
     {
-      __asm { vmovups xmm0, xmmword ptr [r14] }
-      v27 = &gridCell->nodes[v23];
-      __asm { vmovups [rsp+0B8h+var_78], xmm0 }
-      RB_Stream_DebugDrawStreamTreeZoneRecursive(&v30, v27, context, curDepth + 1, drawAssetIndex, maxDepth, viewProjectionMatrix);
+      v23 = &gridCell->nodes[v20];
+      v25 = *gfxContext;
+      RB_Stream_DebugDrawStreamTreeZoneRecursive(&v25, v23, context, curDepth + 1, drawAssetIndex, maxDepth, viewProjectionMatrix);
     }
-    if ( v25 != 0xFFFF )
+    if ( v22 != 0xFFFF )
     {
-      __asm { vmovups xmm0, xmmword ptr [r14] }
-      v29 = &gridCell->nodes[v25];
-      __asm { vmovups [rsp+0B8h+var_78], xmm0 }
-      RB_Stream_DebugDrawStreamTreeZoneRecursive(&v30, v29, context, curDepth + 1, drawAssetIndex, maxDepth, viewProjectionMatrix);
+      v24 = &gridCell->nodes[v22];
+      v25 = *gfxContext;
+      RB_Stream_DebugDrawStreamTreeZoneRecursive(&v25, v24, context, curDepth + 1, drawAssetIndex, maxDepth, viewProjectionMatrix);
     }
   }
 }
@@ -1110,23 +977,23 @@ RB_Stream_DebugDrawXModelStreamTreeGrid
 void RB_Stream_DebugDrawXModelStreamTreeGrid(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const int drawMode, const StreamTreeGrid *xmodelStreamTreeGrid)
 {
   StreamKey **cellKeys; 
+  float v8; 
+  __m128 v; 
   unsigned int GridCellIndex; 
-  __int64 v18; 
-  const StreamKey *v19; 
-  const XModelStreamTreeGridCell *v20; 
-  const dvar_t *v29; 
+  __int64 v14; 
+  const StreamKey *v15; 
+  const XModelStreamTreeGridCell *v16; 
+  __m128 v17; 
+  float v18; 
+  __m128 v20; 
+  const dvar_t *v23; 
   const XModelStreamTreeNode *nodes; 
-  const dvar_t *v31; 
+  const dvar_t *v25; 
   int integer; 
-  const dvar_t *v33; 
-  XModelStreamTreeContext v36; 
+  const dvar_t *v27; 
+  XModelStreamTreeContext v29; 
   float4 viewPos; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  _RSI = viewInfo;
-  _R15 = gfxContext;
   if ( !viewInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2268, ASSERT_TYPE_ASSERT, "(viewInfo != nullptr)", (const char *)&queryFormat, "viewInfo != nullptr") )
     __debugbreak();
   if ( xmodelStreamTreeGrid->version != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2270, ASSERT_TYPE_ASSERT, "(xmodelStreamTreeGrid.version == STREAM_XMODEL_TREE_VERSION)", (const char *)&queryFormat, "xmodelStreamTreeGrid.version == STREAM_XMODEL_TREE_VERSION") )
@@ -1139,86 +1006,85 @@ void RB_Stream_DebugDrawXModelStreamTreeGrid(GfxCmdBufContext *gfxContext, const
       __debugbreak();
     if ( !xmodelStreamTreeGrid->columnCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2281, ASSERT_TYPE_ASSERT, "(xmodelStreamTreeGrid.columnCount > 0)", (const char *)&queryFormat, "xmodelStreamTreeGrid.columnCount > 0") )
       __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rsi+400h] }
+    v8 = viewInfo->viewParmsSet.frames[2].viewParms.camera.origin.v[0];
     viewPos.v.m128_i32[3] = 0;
+    v = viewPos.v;
+    v.m128_f32[0] = v8;
+    _XMM3 = v;
     __asm
     {
-      vmovups xmm3, xmmword ptr [rbp-9]
-      vmovss  xmm3, xmm3, xmm0
       vinsertps xmm3, xmm3, dword ptr [rsi+404h], 10h
       vinsertps xmm3, xmm3, dword ptr [rsi+408h], 20h ; ' '
-      vmovups xmmword ptr [rbp-9], xmm3
-      vmovups xmmword ptr [rbp-9], xmm3
-      vmovss  xmm1, cs:?g_xmodelStreamTreeGridCellSize@@3MB; streamTreeGridCellSize
     }
-    GridCellIndex = FindGridCellIndex(xmodelStreamTreeGrid, *(const float *)&_XMM1, &viewPos);
-    v18 = GridCellIndex;
+    viewPos.v = _XMM3;
+    GridCellIndex = FindGridCellIndex(xmodelStreamTreeGrid, 5000.0, &viewPos);
+    v14 = GridCellIndex;
     if ( GridCellIndex >= xmodelStreamTreeGrid->rowCount * (unsigned int)xmodelStreamTreeGrid->columnCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2288, ASSERT_TYPE_ASSERT, "(gridCellIndex < static_cast<uint>( xmodelStreamTreeGrid.rowCount * xmodelStreamTreeGrid.columnCount ))", (const char *)&queryFormat, "gridCellIndex < static_cast<uint>( xmodelStreamTreeGrid.rowCount * xmodelStreamTreeGrid.columnCount )") )
       __debugbreak();
-    v19 = cellKeys[v18];
-    if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2291, ASSERT_TYPE_ASSERT, "(gridCellKey != nullptr)", (const char *)&queryFormat, "gridCellKey != nullptr") )
+    v15 = cellKeys[v14];
+    if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2291, ASSERT_TYPE_ASSERT, "(gridCellKey != nullptr)", (const char *)&queryFormat, "gridCellKey != nullptr") )
       __debugbreak();
-    if ( Stream_GenericIsSafeToUse(v19) )
+    if ( Stream_GenericIsSafeToUse(v15) )
     {
-      Stream_UsedGeneric(v19);
-      v20 = XModelStreamTreeGridCell::DeserializeBegin(v19);
-      if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2310, ASSERT_TYPE_ASSERT, "(gridCell != nullptr)", (const char *)&queryFormat, "gridCell != nullptr") )
+      Stream_UsedGeneric(v15);
+      v16 = XModelStreamTreeGridCell::DeserializeBegin(v15);
+      if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2310, ASSERT_TYPE_ASSERT, "(gridCell != nullptr)", (const char *)&queryFormat, "gridCell != nullptr") )
         __debugbreak();
-      __asm { vmovups xmm6, xmmword ptr [r15] }
-      if ( v20->nodes )
+      v17 = *(__m128 *)gfxContext;
+      if ( v16->nodes )
       {
-        __asm { vmovss  xmm0, dword ptr [rsi+400h] }
+        v18 = viewInfo->viewParmsSet.frames[2].viewParms.camera.origin.v[0];
         viewPos.v.m128_i32[3] = 0;
+        v20 = viewPos.v;
+        v20.m128_f32[0] = v18;
+        _XMM3 = v20;
         __asm
         {
-          vmovups xmm3, xmmword ptr [rbp+57h+viewPos.v]
-          vmovss  xmm3, xmm3, xmm0
           vinsertps xmm3, xmm3, dword ptr [rsi+404h], 10h
           vinsertps xmm3, xmm3, dword ptr [rsi+408h], 20h ; ' '
-          vmovups xmmword ptr [rbp+57h+viewPos.v], xmm3
-          vmovss  [rbp+57h+var_C0], xmm3
+        }
+        viewPos.v = _XMM3;
+        v29.viewPos.v.m128_f32[0] = _XMM3.m128_f32[0];
+        __asm
+        {
           vextractps [rbp+57h+var_BC], xmm3, 1
           vextractps [rbp+57h+var_B8], xmm3, 2
           vextractps [rbp+57h+var_B4], xmm3, 3
-          vmovss  xmm1, cs:__real@3f800000
-          vmovss  [rbp+57h+var_A0], xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  [rbp+57h+var_9C], xmm0
-          vmovss  [rbp+57h+var_98], xmm1
         }
-        *(float *)&_XMM0 = GetHimipDistanceFactor();
-        __asm { vmovss  [rbp+57h+var_94], xmm0 }
-        v29 = DVARINT_stream_treeSpanBoost;
+        v29.zoomFactor = FLOAT_1_0;
+        v29.cosFovLimit = 0.0;
+        v29.distanceScale = FLOAT_1_0;
+        v29.streamerMaxDistToRead = GetHimipDistanceFactor();
+        v23 = DVARINT_stream_treeSpanBoost;
         if ( !DVARINT_stream_treeSpanBoost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeSpanBoost") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v29);
-        v36.spanBoost = v29->current.integer;
-        v36.streamTreeGrid = xmodelStreamTreeGrid;
-        v36.gridCell = v20;
-        v36.transientVisibility = NULL;
-        nodes = v20->nodes;
-        v31 = DCONST_DVARINT_stream_treeDrawMaxDepth;
+        Dvar_CheckFrontendServerThread(v23);
+        v29.spanBoost = v23->current.integer;
+        v29.streamTreeGrid = xmodelStreamTreeGrid;
+        v29.gridCell = v16;
+        v29.transientVisibility = NULL;
+        nodes = v16->nodes;
+        v25 = DCONST_DVARINT_stream_treeDrawMaxDepth;
         if ( !DCONST_DVARINT_stream_treeDrawMaxDepth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeDrawMaxDepth") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v31);
-        integer = v31->current.integer;
-        __asm { vmovdqa xmmword ptr [rbp+57h+viewPos.v], xmm6 }
-        RB_Stream_DebugDrawXModelStreamTreeRecursive((GfxCmdBufContext *)&viewPos, nodes, &v36, 0, drawMode > 1, integer, &_RSI->viewParmsSet.frames[2].viewParms.viewProjectionMatrix);
+        Dvar_CheckFrontendServerThread(v25);
+        integer = v25->current.integer;
+        viewPos.v = v17;
+        RB_Stream_DebugDrawXModelStreamTreeRecursive((GfxCmdBufContext *)&viewPos, nodes, &v29, 0, drawMode > 1, integer, &viewInfo->viewParmsSet.frames[2].viewParms.viewProjectionMatrix);
       }
-      XModelStreamTreeGridCell::DeserializeEnd(v20);
+      XModelStreamTreeGridCell::DeserializeEnd(v16);
     }
     else
     {
-      Stream_RequestGeneric(v19);
-      v33 = DVARINT_stream_treeSpanBoost;
+      Stream_RequestGeneric(v15);
+      v27 = DVARINT_stream_treeSpanBoost;
       if ( !DVARINT_stream_treeSpanBoost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeSpanBoost") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v33);
-      Stream_BoostGeneric(v19, v33->current.integer);
+      Dvar_CheckFrontendServerThread(v27);
+      Stream_BoostGeneric(v15, v27->current.integer);
     }
     Sys_LeaveCriticalSection(CRITSECT_STREAM_TREE_DRAW);
   }
-  __asm { vmovaps xmm6, xmmword ptr [rsp+110h+var_48+8] }
 }
 
 /*
@@ -1228,65 +1094,61 @@ RB_Stream_DebugDrawXModelStreamTreeGridCell
 */
 void RB_Stream_DebugDrawXModelStreamTreeGridCell(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, const int drawMode, const StreamTreeGrid *xmodelStreamTreeGrid, const XModelStreamTreeGridCell *xmodelStreamTreeGridCell)
 {
-  const GfxViewInfo *v8; 
-  const dvar_t *v17; 
+  float v9; 
+  GfxCmdBufContext v11; 
+  float HimipDistanceFactor; 
+  const dvar_t *v15; 
   int integer; 
   XModelStreamTreeNode *nodes; 
-  bool v20; 
-  const dvar_t *v21; 
-  int v23; 
-  XModelStreamTreeContext v24; 
-  GfxCmdBufContext v25; 
-  void *retaddr; 
+  bool v18; 
+  const dvar_t *v19; 
+  int v20; 
+  XModelStreamTreeContext v21; 
+  GfxCmdBufContext v22; 
 
-  _R11 = &retaddr;
-  v8 = viewInfo;
-  _R15 = gfxContext;
   if ( xmodelStreamTreeGridCell->nodes )
   {
+    v9 = viewInfo->viewParmsSet.frames[2].viewParms.camera.origin.v[0];
+    HIDWORD(v22.state) = 0;
+    v11 = v22;
+    *(float *)&v11.source = v9;
+    _XMM3 = v11;
     __asm
     {
-      vmovss  xmm0, dword ptr [rdx+400h]
-      vmovss  xmm1, cs:__real@3f800000
-    }
-    HIDWORD(v25.state) = 0;
-    __asm
-    {
-      vmovups xmm3, xmmword ptr [r11-58h]
-      vmovss  xmm3, xmm3, xmm0
       vinsertps xmm3, xmm3, dword ptr [rdx+404h], 10h
       vinsertps xmm3, xmm3, dword ptr [rdx+408h], 20h ; ' '
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+0F8h+var_B8], xmm3
+    }
+    v21.viewPos.v.m128_f32[0] = *(float *)&_XMM3.source;
+    __asm
+    {
       vextractps [rsp+0F8h+var_B4], xmm3, 1
       vextractps [rsp+0F8h+var_B0], xmm3, 2
       vextractps [rsp+0F8h+var_AC], xmm3, 3
-      vmovups xmmword ptr [r11-58h], xmm3
-      vmovss  [rsp+0F8h+var_98], xmm1
-      vmovss  [rsp+0F8h+var_94], xmm0
-      vmovss  [rsp+0F8h+var_90], xmm1
     }
-    *(float *)&_XMM0 = GetHimipDistanceFactor();
-    v17 = DVARINT_stream_treeSpanBoost;
-    __asm { vmovss  [rsp+0F8h+var_8C], xmm0 }
+    v22 = _XMM3;
+    v21.zoomFactor = FLOAT_1_0;
+    v21.cosFovLimit = 0.0;
+    v21.distanceScale = FLOAT_1_0;
+    HimipDistanceFactor = GetHimipDistanceFactor();
+    v15 = DVARINT_stream_treeSpanBoost;
+    v21.streamerMaxDistToRead = HimipDistanceFactor;
     if ( !DVARINT_stream_treeSpanBoost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeSpanBoost") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    integer = v17->current.integer;
+    Dvar_CheckFrontendServerThread(v15);
+    integer = v15->current.integer;
     nodes = xmodelStreamTreeGridCell->nodes;
-    v24.gridCell = xmodelStreamTreeGridCell;
-    v20 = drawMode > 1;
-    v21 = DCONST_DVARINT_stream_treeDrawMaxDepth;
-    v24.spanBoost = integer;
-    v24.streamTreeGrid = xmodelStreamTreeGrid;
-    v24.transientVisibility = NULL;
+    v21.gridCell = xmodelStreamTreeGridCell;
+    v18 = drawMode > 1;
+    v19 = DCONST_DVARINT_stream_treeDrawMaxDepth;
+    v21.spanBoost = integer;
+    v21.streamTreeGrid = xmodelStreamTreeGrid;
+    v21.transientVisibility = NULL;
     if ( !DCONST_DVARINT_stream_treeDrawMaxDepth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeDrawMaxDepth") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
-    __asm { vmovups xmm0, xmmword ptr [r15] }
-    v23 = v21->current.integer;
-    __asm { vmovups [rsp+0F8h+var_58], xmm0 }
-    RB_Stream_DebugDrawXModelStreamTreeRecursive(&v25, nodes, &v24, 0, v20, v23, &v8->viewParmsSet.frames[2].viewParms.viewProjectionMatrix);
+    Dvar_CheckFrontendServerThread(v19);
+    v20 = v19->current.integer;
+    v22 = *gfxContext;
+    RB_Stream_DebugDrawXModelStreamTreeRecursive(&v22, nodes, &v21, 0, v18, v20, &viewInfo->viewParmsSet.frames[2].viewParms.viewProjectionMatrix);
   }
 }
 
@@ -1298,182 +1160,142 @@ RB_Stream_DebugDrawXModelStreamTreeRecursive
 void RB_Stream_DebugDrawXModelStreamTreeRecursive(GfxCmdBufContext *gfxContext, const XModelStreamTreeNode *node, const XModelStreamTreeContext *context, int curDepth, bool drawVolumes, int maxDepth, const GfxMatrix *viewProjectionMatrix)
 {
   ExtentBounds *p_bounds; 
-  int v14; 
-  char v17; 
-  char v18; 
-  unsigned __int16 v19; 
+  int v10; 
+  const XModelStreamTreeContext *v11; 
+  unsigned __int16 v12; 
   const XModelStreamTreeGridCell *gridCell; 
-  unsigned int v21; 
-  __int64 v24; 
-  unsigned int v25; 
-  const XModelInstance *v26; 
-  const XModel *v27; 
-  const vec4_t *v50; 
-  __int64 v55; 
-  __int64 v56; 
-  float v57; 
-  float v58; 
-  float v59; 
-  unsigned __int16 v60; 
-  unsigned __int16 v61; 
-  GfxCmdBufContext v63; 
+  unsigned int v14; 
+  __int64 v15; 
+  unsigned int v16; 
+  const XModelInstance *v17; 
+  const XModel *v18; 
+  __m128 v20; 
+  GfxCmdBufContext v24; 
+  __m128 v29; 
+  __m128 v; 
+  const vec4_t *v35; 
+  __int64 v36; 
+  __int64 v37; 
+  unsigned __int16 v38; 
+  unsigned __int16 v39; 
+  GfxCmdBufContext v41; 
   XModelStreamTreeContext *contexta; 
   const StreamTreeGrid *streamTreeGrid; 
-  float4 v66; 
-  float4 v67; 
-  float4 v68; 
-  float4 v69; 
+  float4 v44; 
+  float4 v45; 
+  float4 v46; 
+  float4 v47; 
   ExtentBounds lodExtentBounds; 
-  __int128 v71; 
-  __int128 v72; 
+  __m128 v49; 
+  GfxCmdBufContext v50; 
 
-  __asm { vmovaps [rsp+180h+var_50], xmm6 }
   p_bounds = &node->bounds;
-  _R12 = gfxContext;
   contexta = (XModelStreamTreeContext *)context;
-  v14 = curDepth;
-  _R15 = context;
-  *(float *)&_XMM0 = Stream_DistanceSqToAABB(context, &node->bounds);
-  __asm
+  v10 = curDepth;
+  v11 = context;
+  if ( Stream_DistanceSqToAABB(context, &node->bounds) <= 0.0 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-  }
-  if ( v17 | v18 )
-  {
-    streamTreeGrid = _R15->streamTreeGrid;
-    v60 = node->childNodes[0];
-    v19 = node->childNodes[1];
-    gridCell = _R15->gridCell;
-    v61 = v19;
+    streamTreeGrid = v11->streamTreeGrid;
+    v38 = node->childNodes[0];
+    v12 = node->childNodes[1];
+    gridCell = v11->gridCell;
+    v39 = v12;
     if ( drawVolumes )
     {
-      v21 = 0;
+      v14 = 0;
       if ( node->instanceCount )
       {
-        __asm
-        {
-          vmovaps [rsp+180h+var_60], xmm7
-          vmovss  xmm7, cs:__real@3f800000
-          vmovaps [rsp+180h+var_70], xmm8
-          vmovss  xmm8, cs:__real@481c4000
-        }
         do
         {
-          v24 = v21 + node->instanceStartIndex;
-          if ( (unsigned int)v24 >= gridCell->instanceIndexCount )
+          v15 = v14 + node->instanceStartIndex;
+          if ( (unsigned int)v15 >= gridCell->instanceIndexCount )
           {
-            LODWORD(v56) = gridCell->instanceIndexCount;
-            LODWORD(v55) = v21 + node->instanceStartIndex;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2178, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndexIndex ) < (unsigned)( gridCell.instanceIndexCount )", "instanceIndexIndex doesn't index gridCell.instanceIndexCount\n\t%i not in [0, %i)", v55, v56) )
+            LODWORD(v37) = gridCell->instanceIndexCount;
+            LODWORD(v36) = v14 + node->instanceStartIndex;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2178, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndexIndex ) < (unsigned)( gridCell.instanceIndexCount )", "instanceIndexIndex doesn't index gridCell.instanceIndexCount\n\t%i not in [0, %i)", v36, v37) )
               __debugbreak();
           }
-          v25 = gridCell->instanceIndices[v24];
-          if ( v25 >= gridCell->instanceCount )
+          v16 = gridCell->instanceIndices[v15];
+          if ( v16 >= gridCell->instanceCount )
           {
-            LODWORD(v56) = gridCell->instanceCount;
-            LODWORD(v55) = v25;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2181, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( gridCell.instanceCount )", "instanceIndex doesn't index gridCell.instanceCount\n\t%i not in [0, %i)", v55, v56) )
+            LODWORD(v37) = gridCell->instanceCount;
+            LODWORD(v36) = v16;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2181, ASSERT_TYPE_ASSERT, "(unsigned)( instanceIndex ) < (unsigned)( gridCell.instanceCount )", "instanceIndex doesn't index gridCell.instanceCount\n\t%i not in [0, %i)", v36, v37) )
               __debugbreak();
           }
-          v26 = &gridCell->instances[(unsigned __int16)v25];
-          v27 = streamTreeGrid->xmodels[v26->xmodelIndex];
-          if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2186, ASSERT_TYPE_ASSERT, "(xmodel != nullptr)", (const char *)&queryFormat, "xmodel != nullptr") )
+          v17 = &gridCell->instances[(unsigned __int16)v16];
+          v18 = streamTreeGrid->xmodels[v17->xmodelIndex];
+          if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2186, ASSERT_TYPE_ASSERT, "(xmodel != nullptr)", (const char *)&queryFormat, "xmodel != nullptr") )
             __debugbreak();
-          ComputeInstanceLodExtentBounds(&lodExtentBounds, 0i64, v26, v27);
-          _R15 = contexta;
-          __asm { vmovss  xmm0, dword ptr [rbp+80h+lodExtentBounds.maxs] }
-          HIDWORD(v71) = 0;
+          ComputeInstanceLodExtentBounds(&lodExtentBounds, 0i64, v17, v18, contexta);
+          v11 = contexta;
+          v49.m128_i32[3] = 0;
+          v20 = v49;
+          v20.m128_f32[0] = lodExtentBounds.maxs.v[0];
+          _XMM5 = v20;
           __asm
           {
-            vmovups xmm5, xmmword ptr [rbp-20h]
-            vmovss  xmm5, xmm5, xmm0
-            vmovss  xmm0, dword ptr [rbp+80h+lodExtentBounds.mins]
             vinsertps xmm5, xmm5, dword ptr [rbp+80h+lodExtentBounds.maxs+4], 80h+var_70
             vinsertps xmm5, xmm5, dword ptr [rbp+80h+lodExtentBounds.maxs+8], 80h+var_60
           }
-          HIDWORD(v72) = 0;
+          HIDWORD(v50.state) = 0;
+          v24 = v50;
+          *(float *)&v24.source = lodExtentBounds.mins.v[0];
+          _XMM4 = v24;
           __asm
           {
-            vmovups xmm4, xmmword ptr [rbp-10h]
-            vmovss  xmm4, xmm4, xmm0
             vminps  xmm0, xmm5, xmmword ptr [r15]
             vinsertps xmm4, xmm4, dword ptr [rbp+80h+lodExtentBounds.mins+4], 80h+var_70
             vinsertps xmm4, xmm4, dword ptr [rbp+80h+lodExtentBounds.mins+8], 80h+var_60
             vmaxps  xmm3, xmm0, xmm4
-            vsubps  xmm1, xmm3, xmmword ptr [r15]
-            vmulps  xmm2, xmm1, xmm1
-            vinsertps xmm0, xmm2, xmm2, 8
-            vmovss  [rsp+180h+var_140], xmm6
-            vhaddps xmm1, xmm0, xmm0
-            vmovups xmm0, xmmword ptr [r15+10h]
-            vmovss  [rsp+180h+var_148], xmm7
-            vmovss  dword ptr [rsp+180h+var_150], xmm7
-            vhaddps xmm2, xmm1, xmm1
-            vmovups xmm1, xmmword ptr [r15]
-            vmovups [rbp+80h+var_F0], xmm1
-            vmovups xmmword ptr [rbp-20h], xmm5
-            vmovups xmmword ptr [rbp-10h], xmm4
-            vmovups [rbp+80h+var_100], xmm0
-            vmovdqa [rbp+80h+var_E0], xmm3
-            vmovdqa [rbp+80h+var_D0], xmm5
-            vmovdqa [rsp+180h+var_120], xmm4
           }
-          *(float *)&_XMM0 = Stream_CalculateDistanceSq_ApplyZoomFactor((const float4 *)&v63, &v69, *(float *)&_XMM2, &v68, &v67, &v66, v57, v58, v59);
-          __asm { vcomiss xmm0, xmm8 }
-          if ( v17 )
+          v29 = _mm128_sub_ps(_XMM3, contexta->viewPos.v);
+          _XMM2 = _mm128_mul_ps(v29, v29);
+          __asm
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [r12]
-              vmovups [rsp+180h+var_120], xmm0
-            }
-            RB_Stream_StreamTreeDebugBox(&v63, &lodExtentBounds.mins, &lodExtentBounds.maxs, &colorRed, viewProjectionMatrix);
+            vinsertps xmm0, xmm2, xmm2, 8
+            vhaddps xmm1, xmm0, xmm0
           }
-          ++v21;
+          v = contexta->viewDir.v;
+          __asm { vhaddps xmm2, xmm1, xmm1 }
+          v45.v = (__m128)contexta->viewPos;
+          v49 = _XMM5;
+          v50 = _XMM4;
+          v44.v = v;
+          v46.v = _XMM3;
+          v47.v = _XMM5;
+          v41 = _XMM4;
+          if ( Stream_CalculateDistanceSq_ApplyZoomFactor((const float4 *)&v41, &v47, *(float *)&_XMM2, &v46, &v45, &v44, 1.0, 1.0, 0.0) < 160000.0 )
+          {
+            v41 = *gfxContext;
+            RB_Stream_StreamTreeDebugBox(&v41, &lodExtentBounds.mins, &lodExtentBounds.maxs, &colorRed, viewProjectionMatrix);
+          }
+          ++v14;
         }
-        while ( v21 < node->instanceCount );
-        v19 = v61;
+        while ( v14 < node->instanceCount );
+        v12 = v39;
         p_bounds = &node->bounds;
-        __asm
-        {
-          vmovaps xmm8, [rsp+180h+var_70]
-          vmovaps xmm7, [rsp+180h+var_60]
-        }
       }
-      v14 = curDepth;
+      v10 = curDepth;
     }
-    if ( v60 != 0xFFFF || (v50 = &colorBlue, v19 != 0xFFFF) )
-      v50 = &colorGreen;
-    __asm
+    if ( v38 != 0xFFFF || (v35 = &colorBlue, v12 != 0xFFFF) )
+      v35 = &colorGreen;
+    v41 = *gfxContext;
+    RB_Stream_StreamTreeDebugBox(&v41, &p_bounds->mins, &node->bounds.maxs, v35, viewProjectionMatrix);
+    if ( v10 < maxDepth )
     {
-      vmovups xmm0, xmmword ptr [r12]
-      vmovups [rsp+180h+var_120], xmm0
-    }
-    RB_Stream_StreamTreeDebugBox(&v63, &p_bounds->mins, &node->bounds.maxs, v50, viewProjectionMatrix);
-    if ( v14 < maxDepth )
-    {
-      if ( v60 != 0xFFFF )
+      if ( v38 != 0xFFFF )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r12]
-          vmovups [rsp+180h+var_120], xmm0
-        }
-        RB_Stream_DebugDrawXModelStreamTreeRecursive(&v63, &gridCell->nodes[v60], _R15, v14 + 1, drawVolumes, maxDepth, viewProjectionMatrix);
+        v41 = *gfxContext;
+        RB_Stream_DebugDrawXModelStreamTreeRecursive(&v41, &gridCell->nodes[v38], v11, v10 + 1, drawVolumes, maxDepth, viewProjectionMatrix);
       }
-      if ( v61 != 0xFFFF )
+      if ( v39 != 0xFFFF )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r12]
-          vmovups [rsp+180h+var_120], xmm0
-        }
-        RB_Stream_DebugDrawXModelStreamTreeRecursive(&v63, &gridCell->nodes[v61], _R15, v14 + 1, drawVolumes, maxDepth, viewProjectionMatrix);
+        v41 = *gfxContext;
+        RB_Stream_DebugDrawXModelStreamTreeRecursive(&v41, &gridCell->nodes[v39], v11, v10 + 1, drawVolumes, maxDepth, viewProjectionMatrix);
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+180h+var_50] }
 }
 
 /*
@@ -1483,130 +1305,100 @@ RB_Stream_StreamTreeDebugBox
 */
 void RB_Stream_StreamTreeDebugBox(GfxCmdBufContext *gfxContext, const vec3_t *p0, const vec3_t *p1, const vec4_t *color)
 {
-  const std::pair<int,int> *v13; 
-  float *v17; 
-  int v39; 
-  __int64 v40; 
-  __int64 v41; 
-  _QWORD v50[4]; 
-  int v51; 
-  int v53; 
-  int v54; 
-  int v56[22]; 
-  char v57; 
-  void *retaddr; 
+  double v4; 
+  __int128 v5; 
+  float v6; 
+  const std::pair<int,int> *v7; 
+  float v8; 
+  float *v9; 
+  float v10; 
+  float v11; 
+  __int128 v13; 
+  float v15; 
+  __int128 v18; 
+  __int128 v21; 
+  int v23; 
+  __int64 v24; 
+  __int64 v25; 
+  _QWORD v26[3]; 
+  double v27; 
+  float v28; 
+  __int64 v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  int v33[22]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovsd  xmm7, qword ptr [rdx]
-    vmovsd  xmm2, qword ptr [r8]
-    vmovss  xmm1, cs:__real@3f000000
-  }
-  *(float *)&_RAX = p0->v[2];
-  v13 = iEdgePairs_9;
-  __asm
-  {
-    vaddss  xmm0, xmm2, xmm7
-    vmulss  xmm8, xmm0, xmm1
-    vmovsd  qword ptr [rsp+140h+var_F4], xmm2
-    vmovss  xmm3, [rsp+140h+var_F0]
-  }
-  v51 = (int)_RAX;
-  v17 = &s_debugLineVerts[0].xyz.v[2];
-  *(float *)&_RAX = p1->v[2];
-  __asm
-  {
-    vmovsd  qword ptr [rsp+140h+var_100], xmm7
-    vaddss  xmm0, xmm3, dword ptr [rsp+140h+var_FC]
-    vmulss  xmm9, xmm0, xmm1
-    vsubss  xmm2, xmm2, xmm8
-  }
-  v53 = (int)_RAX;
-  __asm
-  {
-    vmovss  xmm4, [rsp+140h+var_EC]
-    vaddss  xmm0, xmm4, dword ptr [rsp+140h+var_FC+4]
-    vmulss  xmm10, xmm0, xmm1
-    vsubss  xmm0, xmm9, dword ptr [rsp+140h+var_FC]
-    vsubss  xmm1, xmm8, xmm7
-    vmaxss  xmm7, xmm2, xmm1
-    vsubss  xmm1, xmm10, dword ptr [rsp+140h+var_FC+4]
-    vsubss  xmm6, xmm8, xmm7
-    vaddss  xmm5, xmm7, xmm8
-    vsubss  xmm2, xmm4, xmm10
-    vmaxss  xmm4, xmm2, xmm1
-    vsubss  xmm3, xmm3, xmm9
-    vmaxss  xmm3, xmm3, xmm0
-    vsubss  xmm0, xmm10, xmm4
-    vsubss  xmm2, xmm9, xmm3
-    vaddss  xmm1, xmm3, xmm9
-    vmovss  [rsp+140h+var_D8], xmm0
-    vmovss  [rsp+140h+var_CC], xmm0
-    vmovss  [rbp+40h+var_C0], xmm0
-    vmovss  [rbp+40h+var_B4], xmm0
-    vaddss  xmm0, xmm4, xmm10
-    vmovss  [rbp+40h+var_A8], xmm0
-    vmovss  [rbp+40h+var_9C], xmm0
-    vmovss  [rbp+40h+var_90], xmm0
-    vmovss  [rbp+40h+var_84], xmm0
-    vmovss  [rsp+140h+var_E0], xmm6
-    vmovss  [rsp+140h+var_DC], xmm2
-    vmovss  [rsp+140h+var_D4], xmm5
-    vmovss  [rsp+140h+var_D0], xmm2
-    vmovss  [rsp+140h+var_C8], xmm6
-    vmovss  [rsp+140h+var_C4], xmm1
-    vmovss  [rbp+40h+var_BC], xmm5
-    vmovss  [rbp+40h+var_B8], xmm1
-    vmovss  [rbp+40h+var_B0], xmm6
-    vmovss  [rbp+40h+var_AC], xmm2
-    vmovss  [rbp+40h+var_A4], xmm5
-    vmovss  [rbp+40h+var_A0], xmm2
-    vmovss  [rbp+40h+var_98], xmm6
-    vmovss  [rbp+40h+var_94], xmm1
-    vmovss  [rbp+40h+var_8C], xmm5
-    vmovss  [rbp+40h+var_88], xmm1
-  }
-  v50[1] = gfxContext;
-  v39 = 0;
+  v4 = *(double *)p0->v;
+  v5 = *(unsigned __int64 *)p1->v;
+  v6 = p0->v[2];
+  v7 = iEdgePairs_9;
+  v8 = (float)(*(float *)&v5 + COERCE_FLOAT(*(_QWORD *)p0->v)) * 0.5;
+  v29 = *(_QWORD *)p1->v;
+  v28 = v6;
+  v9 = &s_debugLineVerts[0].xyz.v[2];
+  v10 = p1->v[2];
+  v27 = v4;
+  v11 = (float)(*((float *)&v29 + 1) + *((float *)&v27 + 1)) * 0.5;
+  v13 = v5;
+  *(float *)&v13 = *(float *)&v5 - v8;
+  _XMM2 = v13;
+  v30 = v10;
+  v15 = (float)(v10 + v28) * 0.5;
+  __asm { vmaxss  xmm7, xmm2, xmm1 }
+  v18 = LODWORD(v10);
+  *(float *)&v18 = v10 - v15;
+  _XMM2 = v18;
+  __asm { vmaxss  xmm4, xmm2, xmm1 }
+  v21 = HIDWORD(v29);
+  *(float *)&v21 = *((float *)&v29 + 1) - v11;
+  _XMM3 = v21;
+  __asm { vmaxss  xmm3, xmm3, xmm0 }
+  *(float *)v33 = v15 - *(float *)&_XMM4;
+  *(float *)&v33[3] = v15 - *(float *)&_XMM4;
+  *(float *)&v33[6] = v15 - *(float *)&_XMM4;
+  *(float *)&v33[9] = v15 - *(float *)&_XMM4;
+  *(float *)&v33[12] = *(float *)&_XMM4 + v15;
+  *(float *)&v33[15] = *(float *)&_XMM4 + v15;
+  *(float *)&v33[18] = *(float *)&_XMM4 + v15;
+  *(float *)&v33[21] = *(float *)&_XMM4 + v15;
+  v31 = v8 - *(float *)&_XMM7;
+  v32 = v11 - *(float *)&_XMM3;
+  *(float *)&v33[1] = *(float *)&_XMM7 + v8;
+  *(float *)&v33[2] = v11 - *(float *)&_XMM3;
+  *(float *)&v33[4] = v8 - *(float *)&_XMM7;
+  *(float *)&v33[5] = *(float *)&_XMM3 + v11;
+  *(float *)&v33[7] = *(float *)&_XMM7 + v8;
+  *(float *)&v33[8] = *(float *)&_XMM3 + v11;
+  *(float *)&v33[10] = v8 - *(float *)&_XMM7;
+  *(float *)&v33[11] = v11 - *(float *)&_XMM3;
+  *(float *)&v33[13] = *(float *)&_XMM7 + v8;
+  *(float *)&v33[14] = v11 - *(float *)&_XMM3;
+  *(float *)&v33[16] = v8 - *(float *)&_XMM7;
+  *(float *)&v33[17] = *(float *)&_XMM3 + v11;
+  *(float *)&v33[19] = *(float *)&_XMM7 + v8;
+  *(float *)&v33[20] = *(float *)&_XMM3 + v11;
+  v26[1] = gfxContext;
+  v23 = 0;
   do
   {
-    v40 = 3i64 * v13->second;
-    v41 = 3i64 * v13->first;
-    Byte4PackVertexColor(color, s_debugLineVerts[v39].color);
-    Byte4PackVertexColor(color, s_debugLineVerts[v39 + 1].color);
-    v39 += 2;
-    *((_DWORD *)v17 - 2) = *(&v54 + v41);
-    v17 += 8;
-    ++v13;
-    *((_DWORD *)v17 - 9) = v56[v41 - 1];
-    *((_DWORD *)v17 - 8) = v56[v41];
-    *((_DWORD *)v17 - 6) = *(&v54 + v40);
-    *((_DWORD *)v17 - 5) = v56[v40 - 1];
-    *((_DWORD *)v17 - 4) = v56[v40];
+    v24 = 3i64 * v7->second;
+    v25 = 3i64 * v7->first;
+    Byte4PackVertexColor(color, s_debugLineVerts[v23].color);
+    Byte4PackVertexColor(color, s_debugLineVerts[v23 + 1].color);
+    v23 += 2;
+    *(v9 - 2) = *(&v31 + v25);
+    v9 += 8;
+    ++v7;
+    *(v9 - 9) = *(float *)&v33[v25 - 1];
+    *((_DWORD *)v9 - 8) = v33[v25];
+    *(v9 - 6) = *(&v31 + v24);
+    *(v9 - 5) = *(float *)&v33[v24 - 1];
+    *((_DWORD *)v9 - 4) = v33[v24];
   }
-  while ( v13 != (const std::pair<int,int> *)&unk_147F85BA0 );
-  _R13 = v50[1];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r13+0]
-    vmovups xmmword ptr [rsp+140h+var_118+8], xmm0
-  }
-  RB_DrawLines3D((GfxCmdBufContext *)&v50[1], 12, 1, s_debugLineVerts, 1);
-  _R11 = &v57;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  while ( v7 != (const std::pair<int,int> *)&unk_147F85BA0 );
+  *(_OWORD *)&v26[1] = *(_OWORD *)v26[1];
+  RB_DrawLines3D((GfxCmdBufContext *)&v26[1], 12, 1, s_debugLineVerts, 1);
 }
 
 /*
@@ -1616,41 +1408,34 @@ RB_Stream_TreeDebugDraw
 */
 void RB_Stream_TreeDebugDraw(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
-  const dvar_t *v7; 
+  GfxCmdBufContext v4; 
+  const dvar_t *v5; 
   int integer; 
   StreamTree *p_streamTree; 
-  const dvar_t *v10; 
-  int v11; 
-  int v12; 
+  const dvar_t *v8; 
+  int v9; 
+  int v10; 
+  float v11; 
+  GfxCmdBufContext v13; 
   const StreamTreeNode *nodes; 
-  MaterialStreamTreeContext v22; 
-  GfxCmdBufContext v23; 
+  MaterialStreamTreeContext v17; 
+  GfxCmdBufContext v18; 
 
-  _RSI = viewInfo;
-  _RBX = gfxContext;
   if ( !Sys_IsBackendOwnerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2131, ASSERT_TYPE_ASSERT, "(Sys_IsBackendOwnerThread())", (const char *)&queryFormat, "Sys_IsBackendOwnerThread()") )
     __debugbreak();
   if ( rgp.world->materialStreamTreeGrid.cellKeys )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rsp+0E8h+var_58], xmm0
-    }
-    RB_Stream_ZoneStreamTreeDebugDraw(&v23, _RSI);
+    v18 = *gfxContext;
+    RB_Stream_ZoneStreamTreeDebugDraw(&v18, viewInfo);
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+0E8h+var_38], xmm6
-      vmovups xmm6, xmmword ptr [rbx]
-    }
-    v7 = DCONST_DVARINT_stream_treeDraw;
+    v4 = *gfxContext;
+    v5 = DCONST_DVARINT_stream_treeDraw;
     if ( !DCONST_DVARINT_stream_treeDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeDraw") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    integer = v7->current.integer;
+    Dvar_CheckFrontendServerThread(v5);
+    integer = v5->current.integer;
     if ( integer )
     {
       if ( rgp.world )
@@ -1658,47 +1443,44 @@ void RB_Stream_TreeDebugDraw(GfxCmdBufContext *gfxContext, const GfxViewInfo *vi
         p_streamTree = &rgp.world->streamTree;
         if ( rgp.world->streamTree.nodeCount )
         {
-          v10 = DCONST_DVARINT_stream_treeDrawMaxDepth;
-          v11 = -1;
+          v8 = DCONST_DVARINT_stream_treeDrawMaxDepth;
+          v9 = -1;
           if ( integer > 1 )
-            v11 = integer;
+            v9 = integer;
           if ( !DCONST_DVARINT_stream_treeDrawMaxDepth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeDrawMaxDepth") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v10);
-          v12 = v10->current.integer;
-          __asm { vmovss  xmm0, dword ptr [rsi+400h] }
-          HIDWORD(v23.state) = 0;
+          Dvar_CheckFrontendServerThread(v8);
+          v10 = v8->current.integer;
+          v11 = viewInfo->viewParmsSet.frames[2].viewParms.camera.origin.v[0];
+          HIDWORD(v18.state) = 0;
+          v13 = v18;
+          *(float *)&v13.source = v11;
+          _XMM3 = v13;
           __asm
           {
-            vmovups xmm3, [rsp+0E8h+var_58]
-            vmovss  xmm3, xmm3, xmm0
             vinsertps xmm3, xmm3, dword ptr [rsi+404h], 10h
             vinsertps xmm3, xmm3, dword ptr [rsi+408h], 20h ; ' '
-            vmovss  [rsp+0E8h+var_A8], xmm3
+          }
+          v17.viewPos.v.m128_f32[0] = *(float *)&_XMM3.source;
+          __asm
+          {
             vextractps [rsp+0E8h+var_A4], xmm3, 1
             vextractps [rsp+0E8h+var_A0], xmm3, 2
             vextractps [rsp+0E8h+var_9C], xmm3, 3
-            vmovups [rsp+0E8h+var_58], xmm3
           }
-          *(float *)&_XMM0 = GetHimipDistanceFactor();
-          __asm
-          {
-            vmovss  [rsp+0E8h+var_7C], xmm0
-            vmovss  xmm0, cs:__real@3f800000
-            vmovq   rcx, xmm6; source
-            vmovss  [rsp+0E8h+var_80], xmm0
-          }
-          v22.streamTree = p_streamTree;
-          R_Set3D(_RCX);
+          v18 = _XMM3;
+          v17.streamerMaxDistToRead = GetHimipDistanceFactor();
+          v17.distanceScale = FLOAT_1_0;
+          v17.streamTree = p_streamTree;
+          R_Set3D(v4.source);
           nodes = p_streamTree->nodes;
-          __asm { vmovdqa [rsp+0E8h+var_58], xmm6 }
-          RB_Stream_DebugDrawStreamTreeRecursive(&v23, nodes, &v22, 0, v11, v12, &_RSI->viewParmsSet.frames[2].viewParms.viewProjectionMatrix);
-          __asm { vmovdqa [rsp+0E8h+var_58], xmm6 }
-          RB_EndSurfaceIfNeeded(&v23);
+          v18 = v4;
+          RB_Stream_DebugDrawStreamTreeRecursive(&v18, nodes, &v17, 0, v9, v10, &viewInfo->viewParmsSet.frames[2].viewParms.viewProjectionMatrix);
+          v18 = v4;
+          RB_EndSurfaceIfNeeded(&v18);
         }
       }
     }
-    __asm { vmovaps xmm6, [rsp+0E8h+var_38] }
   }
 }
 
@@ -1728,9 +1510,8 @@ void RB_Stream_XModelTreeDebugDraw(GfxCmdBufContext *gfxContext, const GfxViewIn
   const dvar_t *v4; 
   int integer; 
   StreamTreeGrid *p_xmodelStreamTreeGrid; 
-  GfxCmdBufContext v9; 
+  GfxCmdBufContext v7; 
 
-  _RSI = gfxContext;
   if ( !Sys_IsBackendOwnerThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2321, ASSERT_TYPE_ASSERT, "(Sys_IsBackendOwnerThread())", (const char *)&queryFormat, "Sys_IsBackendOwnerThread()") )
     __debugbreak();
   v4 = DCONST_DVARINT_stream_xmodelTreeDraw;
@@ -1745,19 +1526,11 @@ void RB_Stream_XModelTreeDebugDraw(GfxCmdBufContext *gfxContext, const GfxViewIn
       p_xmodelStreamTreeGrid = &rgp.world->xmodelStreamTreeGrid;
       if ( rgp.world != (GfxWorld *)-16776i64 && rgp.world->xmodelStreamTreeGrid.version == 1 )
       {
-        R_Set3D(_RSI->source);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups xmmword ptr [rsp+58h+var_18.source], xmm0
-        }
-        RB_Stream_DebugDrawXModelStreamTreeGrid(&v9, viewInfo, integer, p_xmodelStreamTreeGrid);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups xmmword ptr [rsp+58h+var_18.source], xmm0
-        }
-        RB_EndSurfaceIfNeeded(&v9);
+        R_Set3D(gfxContext->source);
+        v7 = *gfxContext;
+        RB_Stream_DebugDrawXModelStreamTreeGrid(&v7, viewInfo, integer, p_xmodelStreamTreeGrid);
+        v7 = *gfxContext;
+        RB_EndSurfaceIfNeeded(&v7);
       }
     }
   }
@@ -1786,163 +1559,128 @@ RB_Stream_ZoneStreamTreeDebugDraw
 */
 void RB_Stream_ZoneStreamTreeDebugDraw(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo)
 {
-  const dvar_t *v7; 
+  const dvar_t *v4; 
   int integer; 
   StreamTreeGrid *p_materialStreamTreeGrid; 
   StreamKey **cellKeys; 
-  int v11; 
-  const dvar_t *v12; 
-  unsigned __int16 v13; 
-  StreamKey *v16; 
+  int v8; 
+  const dvar_t *v9; 
+  unsigned __int16 i; 
+  StreamKey *v11; 
   const MaterialStreamTreeGridCell *data; 
-  unsigned int v30; 
-  int v36; 
-  _QWORD v37[3]; 
+  float v13; 
+  __int128 v15; 
+  float v18; 
+  __m128 v20; 
+  unsigned int v23; 
+  int v24; 
+  _QWORD v25[3]; 
   bitarray_base<bitarray<1536> > *p_transientVisibility; 
-  StreamKey **v39; 
-  __int64 v40; 
-  MaterialStreamTreeCellContext v41; 
-  __int128 v42; 
-  __int128 v43; 
-  char v44; 
-  void *retaddr; 
+  StreamKey **v27; 
+  __int64 v28; 
+  MaterialStreamTreeCellContext v29; 
+  __int128 v30; 
+  __m128 v; 
 
-  _RAX = &retaddr;
-  v40 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  _R14 = viewInfo;
-  _R15 = gfxContext;
-  v7 = DCONST_DVARINT_stream_treeDraw;
+  v28 = -2i64;
+  v4 = DCONST_DVARINT_stream_treeDraw;
   if ( !DCONST_DVARINT_stream_treeDraw && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeDraw") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  integer = v7->current.integer;
+  Dvar_CheckFrontendServerThread(v4);
+  integer = v4->current.integer;
   if ( integer )
   {
     if ( rgp.world )
     {
       p_materialStreamTreeGrid = &rgp.world->materialStreamTreeGrid;
       cellKeys = rgp.world->materialStreamTreeGrid.cellKeys;
-      v39 = cellKeys;
+      v27 = cellKeys;
       if ( cellKeys )
       {
         Sys_EnterCriticalSection(CRITSECT_STREAM_TREE_DRAW);
         p_transientVisibility = &streamFrontendGlob->transientVisibility;
-        v11 = -1;
+        v8 = -1;
         if ( integer > 1 )
-          v11 = integer;
-        v12 = DCONST_DVARINT_stream_treeDrawMaxDepth;
+          v8 = integer;
+        v9 = DCONST_DVARINT_stream_treeDrawMaxDepth;
         if ( !DCONST_DVARINT_stream_treeDrawMaxDepth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeDrawMaxDepth") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v12);
-        v36 = v12->current.integer;
-        R_Set3D(_R15->source);
-        v13 = 0;
-        if ( p_materialStreamTreeGrid->rowCount )
+        Dvar_CheckFrontendServerThread(v9);
+        v24 = v9->current.integer;
+        R_Set3D(gfxContext->source);
+        for ( i = 0; i < p_materialStreamTreeGrid->rowCount; ++i )
         {
-          __asm
+          if ( bitarray_base<bitarray<1536>>::testBit(p_transientVisibility, i) )
           {
-            vmovss  xmm6, cs:__real@3f800000
-            vxorps  xmm7, xmm7, xmm7
-          }
-          do
-          {
-            if ( bitarray_base<bitarray<1536>>::testBit(p_transientVisibility, v13) )
+            v11 = cellKeys[i];
+            if ( v11 )
             {
-              v16 = cellKeys[v13];
-              if ( v16 )
+              if ( Stream_GenericIsSafeToUse(cellKeys[i]) )
               {
-                if ( Stream_GenericIsSafeToUse(cellKeys[v13]) )
+                if ( (v11->flags & 2) != 0 )
+                  data = (const MaterialStreamTreeGridCell *)v11->data.dataHandle.data;
+                else
+                  data = (const MaterialStreamTreeGridCell *)Stream_AddressSpace_ResolveHandle(&v11->data.dataHandle);
+                if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2092, ASSERT_TYPE_ASSERT, "(gridCell != nullptr)", (const char *)&queryFormat, "gridCell != nullptr") )
+                  __debugbreak();
+                v13 = viewInfo->viewParmsSet.frames[2].viewParms.camera.origin.v[0];
+                HIDWORD(v30) = 0;
+                v15 = v30;
+                *(float *)&v15 = v13;
+                _XMM3 = v15;
+                __asm
                 {
-                  if ( (v16->flags & 2) != 0 )
-                    data = (const MaterialStreamTreeGridCell *)v16->data.dataHandle.data;
-                  else
-                    data = (const MaterialStreamTreeGridCell *)Stream_AddressSpace_ResolveHandle(&v16->data.dataHandle);
-                  if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 2092, ASSERT_TYPE_ASSERT, "(gridCell != nullptr)", (const char *)&queryFormat, "gridCell != nullptr") )
-                    __debugbreak();
-                  __asm { vmovss  xmm0, dword ptr [r14+400h] }
-                  HIDWORD(v42) = 0;
-                  __asm
-                  {
-                    vmovups xmm3, xmmword ptr [rbp-30h]
-                    vmovss  xmm3, xmm3, xmm0
-                    vinsertps xmm3, xmm3, dword ptr [r14+404h], 10h
-                    vinsertps xmm3, xmm3, dword ptr [r14+408h], 20h ; ' '
-                    vmovups xmmword ptr [rbp-30h], xmm3
-                    vmovss  [rbp+50h+var_D0], xmm3
-                    vextractps [rbp+50h+var_CC], xmm3, 1
-                    vextractps [rbp+50h+var_C8], xmm3, 2
-                    vextractps [rbp+50h+var_C4], xmm3, 3
-                    vmovss  xmm0, dword ptr [r14+418h]
-                  }
-                  HIDWORD(v43) = 0;
-                  __asm
-                  {
-                    vmovups xmm3, xmmword ptr [rbp-20h]
-                    vmovss  xmm3, xmm3, xmm0
-                    vinsertps xmm3, xmm3, dword ptr [r14+41Ch], 10h
-                    vinsertps xmm3, xmm3, dword ptr [r14+420h], 20h ; ' '
-                    vmovups xmmword ptr [rbp-20h], xmm3
-                    vmovups [rbp+50h+var_C0], xmm3
-                    vmovss  [rbp+50h+var_B0], xmm6
-                    vmovss  [rbp+50h+var_AC], xmm7
-                    vmovss  [rbp+50h+var_A8], xmm6
-                  }
-                  *(float *)&_XMM0 = GetHimipDistanceFactor();
-                  __asm { vmovss  [rbp+50h+var_A4], xmm0 }
-                  v41.spanBoost = Dvar_GetInt_Internal_DebugName(DVARINT_stream_treeSpanBoost, "stream_treeSpanBoost");
-                  v41.gridCell = data;
-                  v41.streamTreeGrid = p_materialStreamTreeGrid;
-                  MaterialStreamTreeGridCell::DeserializeBegin(data);
-                  if ( data->nodeCount )
-                  {
-                    __asm
-                    {
-                      vmovups xmm0, xmmword ptr [r15]
-                      vmovups xmmword ptr [rsp+150h+var_108+8], xmm0
-                    }
-                    RB_Stream_DebugDrawStreamTreeZoneRecursive((GfxCmdBufContext *)&v37[1], data->nodes, &v41, 0, v11, v36, &_R14->viewParmsSet.frames[2].viewParms.viewProjectionMatrix);
-                  }
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr [r15]
-                    vmovups xmmword ptr [rsp+150h+var_108+8], xmm0
-                  }
-                  v30 = RB_Stream_DebugDrawMaterials((GfxCmdBufContext *)&v37[1], &v41, 0, data->largeMaterialInstanceGroupCount, 0, v11, &_R14->viewParmsSet.frames[2].viewParms.viewProjectionMatrix);
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr [r15]
-                    vmovups xmmword ptr [rsp+150h+var_108+8], xmm0
-                  }
-                  RB_Stream_DebugDrawImages((GfxCmdBufContext *)&v37[1], &v41, data->largeMaterialInstanceGroupCount, data->largeImageInstanceGroupCount, v30, v11, &_R14->viewParmsSet.frames[2].viewParms.viewProjectionMatrix);
-                  MaterialStreamTreeGridCell::DeserializeEnd(data);
-                  cellKeys = v39;
+                  vinsertps xmm3, xmm3, dword ptr [r14+404h], 10h
+                  vinsertps xmm3, xmm3, dword ptr [r14+408h], 20h ; ' '
                 }
+                v30 = _XMM3;
+                v29.viewPos.v.m128_f32[0] = *(float *)&_XMM3;
+                __asm
+                {
+                  vextractps [rbp+50h+var_CC], xmm3, 1
+                  vextractps [rbp+50h+var_C8], xmm3, 2
+                  vextractps [rbp+50h+var_C4], xmm3, 3
+                }
+                v18 = viewInfo->viewParmsSet.frames[2].viewParms.camera.axis.m[1].v[0];
+                v.m128_i32[3] = 0;
+                v20 = v;
+                v20.m128_f32[0] = v18;
+                _XMM3 = v20;
+                __asm
+                {
+                  vinsertps xmm3, xmm3, dword ptr [r14+41Ch], 10h
+                  vinsertps xmm3, xmm3, dword ptr [r14+420h], 20h ; ' '
+                }
+                v = _XMM3.v;
+                v29.viewDir = (float4)_XMM3.v;
+                v29.zoomFactor = FLOAT_1_0;
+                v29.cosFovLimit = 0.0;
+                v29.distanceScale = FLOAT_1_0;
+                v29.streamerMaxDistToRead = GetHimipDistanceFactor();
+                v29.spanBoost = Dvar_GetInt_Internal_DebugName(DVARINT_stream_treeSpanBoost, "stream_treeSpanBoost");
+                v29.gridCell = data;
+                v29.streamTreeGrid = p_materialStreamTreeGrid;
+                MaterialStreamTreeGridCell::DeserializeBegin(data);
+                if ( data->nodeCount )
+                {
+                  *(GfxCmdBufContext *)&v25[1] = *gfxContext;
+                  RB_Stream_DebugDrawStreamTreeZoneRecursive((GfxCmdBufContext *)&v25[1], data->nodes, &v29, 0, v8, v24, &viewInfo->viewParmsSet.frames[2].viewParms.viewProjectionMatrix);
+                }
+                *(GfxCmdBufContext *)&v25[1] = *gfxContext;
+                v23 = RB_Stream_DebugDrawMaterials((GfxCmdBufContext *)&v25[1], &v29, 0, data->largeMaterialInstanceGroupCount, 0, v8, &viewInfo->viewParmsSet.frames[2].viewParms.viewProjectionMatrix);
+                *(GfxCmdBufContext *)&v25[1] = *gfxContext;
+                RB_Stream_DebugDrawImages((GfxCmdBufContext *)&v25[1], &v29, data->largeMaterialInstanceGroupCount, data->largeImageInstanceGroupCount, v23, v8, &viewInfo->viewParmsSet.frames[2].viewParms.viewProjectionMatrix);
+                MaterialStreamTreeGridCell::DeserializeEnd(data);
+                cellKeys = v27;
               }
             }
-            ++v13;
           }
-          while ( v13 < p_materialStreamTreeGrid->rowCount );
         }
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r15]
-          vmovups xmmword ptr [rsp+150h+var_108+8], xmm0
-        }
-        RB_EndSurfaceIfNeeded((GfxCmdBufContext *)&v37[1]);
+        *(GfxCmdBufContext *)&v25[1] = *gfxContext;
+        RB_EndSurfaceIfNeeded((GfxCmdBufContext *)&v25[1]);
         Sys_LeaveCriticalSection(CRITSECT_STREAM_TREE_DRAW);
       }
     }
-  }
-  _R11 = &v44;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -1953,70 +1691,58 @@ Stream_DistanceSqToAABB
 */
 float Stream_DistanceSqToAABB(const StreamTreeContext *context, const ExtentBounds *aabb)
 {
-  float result; 
-  float v30; 
-  float v31; 
-  float v32; 
-  float4 v33; 
-  float4 v34; 
-  float4 v35; 
-  float4 v36; 
-  float4 v37[4]; 
-  void *retaddr; 
+  float v2; 
+  float cosFovLimit; 
+  float zoomFactor; 
+  __m128 v; 
+  float v7; 
+  __m128 v11; 
+  __m128 v16; 
+  float4 v22; 
+  float4 v23; 
+  float4 v24; 
+  float4 v25; 
+  float4 v26; 
 
-  _R11 = &retaddr;
+  v2 = aabb->maxs.v[0];
+  cosFovLimit = context->cosFovLimit;
+  zoomFactor = context->zoomFactor;
+  v26.v.m128_i32[3] = 0;
+  v = v26.v;
+  v.m128_f32[0] = v2;
+  _XMM7 = v;
+  v7 = aabb->mins.v[0];
   __asm
   {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps xmmword ptr [r11-28h], xmm7
-    vmovss  xmm0, dword ptr [rdx+0Ch]
-    vmovss  xmm4, dword ptr [rcx+24h]
-    vmovss  xmm5, dword ptr [rcx+20h]
-  }
-  v37[0].v.m128_i32[3] = 0;
-  __asm
-  {
-    vmovups xmm7, xmmword ptr [r11-48h]
-    vmovss  xmm7, xmm7, xmm0
-    vmovss  xmm0, dword ptr [rdx]
     vinsertps xmm7, xmm7, dword ptr [rdx+10h], 10h
     vinsertps xmm7, xmm7, dword ptr [rdx+14h], 20h ; ' '
-    vmovups xmmword ptr [r11-48h], xmm7
   }
-  v37[0].v.m128_i32[3] = 0;
+  v26.v = _XMM7;
+  v26.v.m128_i32[3] = 0;
+  v11 = v26.v;
+  v11.m128_f32[0] = v7;
+  _XMM6 = v11;
   __asm
   {
-    vmovups xmm6, xmmword ptr [r11-48h]
-    vmovss  xmm6, xmm6, xmm0
     vminps  xmm0, xmm7, xmmword ptr [rcx]
     vinsertps xmm6, xmm6, dword ptr [rdx+4], 10h
     vinsertps xmm6, xmm6, dword ptr [rdx+8], 20h ; ' '
     vmaxps  xmm3, xmm0, xmm6
-    vsubps  xmm1, xmm3, xmmword ptr [rcx]
-    vmulps  xmm2, xmm1, xmm1
-    vinsertps xmm0, xmm2, xmm2, 8
-    vhaddps xmm1, xmm0, xmm0
-    vmovups xmm0, xmmword ptr [rcx+10h]
-    vmovups xmmword ptr [r11-48h], xmm6
-    vmovups xmmword ptr [r11-48h], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+0D8h+var_98], xmm0
-    vmovss  [rsp+0D8h+var_A0], xmm4
-    vmovss  [rsp+0D8h+var_A8], xmm5
-    vhaddps xmm2, xmm1, xmm1
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovups [rsp+0D8h+var_88], xmm1
-    vmovdqa [rsp+0D8h+var_78], xmm3
-    vmovdqa [rsp+0D8h+var_68], xmm7
-    vmovdqu xmmword ptr [r11-58h], xmm6
   }
-  result = Stream_CalculateDistanceSq_ApplyZoomFactor(&v36, &v35, *(float *)&_XMM2, &v34, &v33, v37, v30, v31, v32);
+  v16 = _mm128_sub_ps(_XMM3, context->viewPos.v);
+  _XMM2 = _mm128_mul_ps(v16, v16);
   __asm
   {
-    vmovaps xmm6, [rsp+0D8h+var_18]
-    vmovaps xmm7, [rsp+0D8h+var_28]
+    vinsertps xmm0, xmm2, xmm2, 8
+    vhaddps xmm1, xmm0, xmm0
   }
-  return result;
+  v26.v = (__m128)context->viewDir;
+  __asm { vhaddps xmm2, xmm1, xmm1 }
+  v22.v = (__m128)context->viewPos;
+  v23.v = _XMM3;
+  v24.v = _XMM7;
+  v25.v = _XMM6;
+  return Stream_CalculateDistanceSq_ApplyZoomFactor(&v25, &v24, *(float *)&_XMM2, &v23, &v22, &v26, zoomFactor, cosFovLimit, 1.0);
 }
 
 /*
@@ -2064,496 +1790,429 @@ Stream_ProcessMatImgInstanceGroups
 */
 void Stream_ProcessMatImgInstanceGroups(const unsigned int instanceStartIndex, const unsigned int instanceGroupStartIndex, const unsigned int materialGroupCount, const unsigned int imageGroupCount, const unsigned int totalInstanceCount, const float nodeDistSq, const float nodeStreamDistance, MaterialStreamTreeCellContext *context)
 {
+  float4 v8; 
+  float4 v9; 
+  float4 v10; 
+  float4 v11; 
+  float4 v12; 
+  float4 v13; 
+  float4 v14; 
+  float4 v15; 
+  float4 v16; 
+  float4 v17; 
+  unsigned int v18; 
   unsigned int v19; 
   unsigned int v20; 
-  unsigned int v22; 
-  __int64 v23; 
+  __int64 v21; 
   const MaterialStreamTreeGridCell *gridCell; 
-  unsigned int v25; 
+  unsigned int v23; 
   MatImgInstanceGroup *instanceGroups; 
-  __int64 v32; 
+  __int64 v25; 
   int instanceCount; 
-  unsigned int v34; 
-  unsigned int v35; 
-  unsigned int v36; 
+  unsigned int v27; 
+  unsigned int v28; 
+  unsigned int v29; 
   unsigned int MaterialIndex; 
-  StreamFrontendGlob *v38; 
+  StreamFrontendGlob *v31; 
+  __int64 v32; 
   unsigned int mValue; 
-  bool v41; 
-  __int64 v44; 
-  bool v76; 
-  LocalClientNum_t localClientIndex; 
-  bool v78; 
-  unsigned int v87; 
-  StreamFrontendGlob *v88; 
-  bool v92; 
-  unsigned int v93; 
+  float v34; 
+  __int64 v35; 
+  MatImgInstance *instances; 
+  __m128 v42; 
+  __m128 v44; 
+  __m128 v52; 
+  __int128 v59; 
+  float v61; 
+  unsigned int v62; 
+  StreamFrontendGlob *v63; 
+  __int64 v64; 
+  MatImgInstanceGroup *v65; 
+  bool v66; 
+  unsigned int v67; 
   unsigned int GfxImageIndex; 
-  StreamFrontendGlob *v95; 
-  __int64 v96; 
-  unsigned int v97; 
-  bool v98; 
-  bool v106; 
-  unsigned int v137; 
-  const dvar_t *v138; 
-  StreamFrontendGlob *v139; 
-  __int64 v149; 
-  __int64 v150; 
-  float v151; 
-  float v152; 
-  float v153; 
-  float v154; 
-  float v155; 
-  float v156; 
-  unsigned int v157; 
-  int v158; 
-  unsigned int v160; 
-  unsigned int v161; 
-  unsigned int v163; 
-  int v164; 
-  __int16 v165; 
-  unsigned int v166; 
-  unsigned int v167; 
-  int v168; 
-  const MaterialStreamTreeGridCell *v170; 
-  __int64 v171; 
-  __int64 v172; 
+  StreamFrontendGlob *v69; 
+  __int64 v70; 
+  unsigned int v71; 
+  float v72; 
+  float himipInvSqRadii; 
+  float distanceScale; 
+  MatImgInstance *v76; 
+  __m128 v79; 
+  __m128 v81; 
+  __m128 v89; 
+  float v95; 
+  unsigned int v96; 
+  const dvar_t *v97; 
+  StreamFrontendGlob *v98; 
+  __int64 v99; 
+  __int64 v100; 
+  float zoomFactor; 
+  float v102; 
+  float cosFovLimit; 
+  float v104; 
+  unsigned int v105; 
+  int v106; 
+  unsigned int v108; 
+  __int16 v110; 
+  const MaterialStreamTreeGridCell *v112; 
+  __int64 v113; 
+  __int64 v114; 
+  __int64 v116; 
   const StreamTreeGrid *streamTreeGrid; 
-  float4 v175; 
-  float4 v176; 
-  float4 v177; 
-  float4 v178; 
-  float4 v179[7]; 
-  void *retaddr; 
+  float4 v118; 
+  float4 v119; 
+  float4 v120; 
+  float4 v121; 
+  float4 v122[15]; 
 
-  _R11 = &retaddr;
-  v19 = totalInstanceCount;
-  v20 = imageGroupCount;
-  _R13 = context;
-  v22 = instanceGroupStartIndex;
-  v23 = materialGroupCount;
+  v18 = totalInstanceCount;
+  v19 = imageGroupCount;
+  v20 = instanceGroupStartIndex;
+  v21 = materialGroupCount;
   if ( totalInstanceCount )
   {
-    v92 = context->streamTreeGrid == NULL;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-98h], xmm11
-      vmovaps xmmword ptr [r11-0A8h], xmm12
-      vmovaps xmmword ptr [r11-0B8h], xmm13
-      vmovaps xmmword ptr [r11-0C8h], xmm14
-      vmovaps xmmword ptr [r11-0D8h], xmm15
-    }
-    if ( v92 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 585, ASSERT_TYPE_ASSERT, "(context.streamTreeGrid != nullptr)", (const char *)&queryFormat, "context.streamTreeGrid != nullptr") )
+    v66 = context->streamTreeGrid == NULL;
+    v122[6] = (float4)v13.v;
+    v122[5] = (float4)v14.v;
+    v122[4] = (float4)v15.v;
+    v122[3] = (float4)v16.v;
+    v122[2] = (float4)v17.v;
+    if ( v66 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 585, ASSERT_TYPE_ASSERT, "(context.streamTreeGrid != nullptr)", (const char *)&queryFormat, "context.streamTreeGrid != nullptr") )
       __debugbreak();
     streamTreeGrid = context->streamTreeGrid;
     if ( !context->gridCell && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 588, ASSERT_TYPE_ASSERT, "(context.gridCell != nullptr)", (const char *)&queryFormat, "context.gridCell != nullptr") )
       __debugbreak();
     gridCell = context->gridCell;
-    v25 = 0;
-    __asm
+    v23 = 0;
+    v122[11] = (float4)v8.v;
+    v122[10] = (float4)v9.v;
+    v122[9] = (float4)v10.v;
+    v122[8] = (float4)v11.v;
+    v112 = gridCell;
+    if ( (_DWORD)v21 )
     {
-      vmovaps [rsp+200h+var_48+8], xmm6
-      vmovaps [rsp+200h+var_58+8], xmm7
-      vmovaps [rsp+200h+var_68+8], xmm8
-      vmovaps [rsp+200h+var_78+8], xmm9
-    }
-    v170 = gridCell;
-    __asm
-    {
-      vmovss  xmm12, [rbp+100h+nodeStreamDistance]
-      vmovss  xmm15, [rbp+100h+nodeDistSq]
-      vmovss  xmm13, cs:__real@7f7fff80
-      vmovss  xmm11, cs:__real@3f800000
-      vmovss  xmm14, cs:__real@7f7fffff
-    }
-    if ( (_DWORD)v23 )
-    {
-      v157 = v22;
-      v171 = v23;
-      __asm { vmovaps [rsp+200h+var_88+8], xmm10 }
+      v105 = v20;
+      v113 = v21;
+      v122[7] = (float4)v12.v;
       do
       {
-        if ( v22 >= gridCell->instanceGroupCount )
+        if ( v20 >= gridCell->instanceGroupCount )
         {
-          LODWORD(v150) = gridCell->instanceGroupCount;
-          LODWORD(v149) = v22;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 598, ASSERT_TYPE_ASSERT, "(unsigned)( mtlInstanceGroupIndex ) < (unsigned)( gridCell.instanceGroupCount )", "mtlInstanceGroupIndex doesn't index gridCell.instanceGroupCount\n\t%i not in [0, %i)", v149, v150) )
+          LODWORD(v100) = gridCell->instanceGroupCount;
+          LODWORD(v99) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 598, ASSERT_TYPE_ASSERT, "(unsigned)( mtlInstanceGroupIndex ) < (unsigned)( gridCell.instanceGroupCount )", "mtlInstanceGroupIndex doesn't index gridCell.instanceGroupCount\n\t%i not in [0, %i)", v99, v100) )
             __debugbreak();
         }
         instanceGroups = gridCell->instanceGroups;
-        v32 = v22;
-        instanceCount = instanceGroups[v22].instanceCount;
-        v165 = (unsigned __int16)instanceCount >> 15;
-        v34 = instanceCount & 0xFFFF7FFF;
-        if ( !v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 605, ASSERT_TYPE_ASSERT, "(instanceCount > 0)", (const char *)&queryFormat, "instanceCount > 0") )
+        v25 = v20;
+        v116 = v20;
+        instanceCount = instanceGroups[v20].instanceCount;
+        v110 = (unsigned __int16)instanceCount >> 15;
+        v27 = instanceCount & 0xFFFF7FFF;
+        if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 605, ASSERT_TYPE_ASSERT, "(instanceCount > 0)", (const char *)&queryFormat, "instanceCount > 0") )
           __debugbreak();
-        if ( instanceGroups[v32].assetIndex >= streamTreeGrid->materialCount )
+        if ( instanceGroups[v25].assetIndex >= streamTreeGrid->materialCount )
         {
-          LODWORD(v150) = streamTreeGrid->materialCount;
-          LODWORD(v149) = instanceGroups[v32].assetIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 606, ASSERT_TYPE_ASSERT, "(unsigned)( mtlInstanceGroup.assetIndex ) < (unsigned)( streamTreeGrid.materialCount )", "mtlInstanceGroup.assetIndex doesn't index streamTreeGrid.materialCount\n\t%i not in [0, %i)", v149, v150) )
+          LODWORD(v100) = streamTreeGrid->materialCount;
+          LODWORD(v99) = instanceGroups[v25].assetIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 606, ASSERT_TYPE_ASSERT, "(unsigned)( mtlInstanceGroup.assetIndex ) < (unsigned)( streamTreeGrid.materialCount )", "mtlInstanceGroup.assetIndex doesn't index streamTreeGrid.materialCount\n\t%i not in [0, %i)", v99, v100) )
             __debugbreak();
         }
-        v35 = v34 + v25;
-        v36 = v19;
-        if ( v19 > v35 )
-          v36 = v35;
-        MaterialIndex = DB_GetMaterialIndex(streamTreeGrid->materials[instanceGroups[v32].assetIndex]);
-        v38 = streamFrontendGlob;
-        _RDI = MaterialIndex;
+        v28 = v27 + v23;
+        v29 = v18;
+        if ( v18 > v28 )
+          v29 = v28;
+        MaterialIndex = DB_GetMaterialIndex(streamTreeGrid->materials[instanceGroups[v25].assetIndex]);
+        v31 = streamFrontendGlob;
+        v32 = MaterialIndex;
         if ( MaterialIndex >= 0xB400 )
         {
-          LODWORD(v150) = 46080;
-          LODWORD(v149) = MaterialIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v149, v150) )
+          LODWORD(v100) = 46080;
+          LODWORD(v99) = MaterialIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v99, v100) )
             __debugbreak();
         }
-        mValue = v38->materialDistance.mDistances[(int)_RDI].mValue;
-        v41 = mValue != -1;
+        mValue = v31->materialDistance.mDistances[(int)v32].mValue;
         if ( mValue == -1 )
-        {
-          __asm { vmovaps xmm9, xmm13 }
-        }
+          v34 = FLOAT_3_4027977e38;
         else
+          LODWORD(v34) = mValue << 7;
+        if ( nodeStreamDistance < v34 )
         {
-          v41 = __CFSHL__(mValue, 7);
-          v167 = mValue << 7;
-          __asm { vmovss  xmm9, dword ptr [rsp+200h+var_190] }
-        }
-        __asm { vcomiss xmm12, xmm9 }
-        if ( v41 )
-        {
-          _RAX = s_minDistSqForMaterials;
-          v44 = _RDI;
-          __asm
+          v35 = v32;
+          _XMM10 = LODWORD(s_minDistSqForMaterials[v32]);
+          __asm { vmaxss  xmm0, xmm10, xmm15 }
+          if ( (float)((float)((float)(*(float *)&_XMM0 + 1.0) * instanceGroups[v25].himipInvSqRadii) * context->distanceScale) < v34 )
           {
-            vmovss  xmm10, dword ptr [rax+rdi*4]
-            vmaxss  xmm0, xmm10, xmm15
-            vaddss  xmm1, xmm0, xmm11
-            vmulss  xmm2, xmm1, dword ptr [r14+rsi*8]
-            vmulss  xmm3, xmm2, dword ptr [r13+28h]
-            vcomiss xmm3, xmm9
-            vmovaps xmm8, xmm14
-          }
-          if ( v25 < v36 )
-          {
-            do
+            _XMM8 = LODWORD(FLOAT_3_4028235e38);
+            if ( v23 < v29 )
             {
-              _RCX = v170->instances;
-              __asm
+              do
               {
-                vmovss  xmm4, dword ptr [r13+24h]
-                vmovss  xmm5, dword ptr [r13+20h]
-                vmovups xmm7, cs:__xmm@3f800000000000000000000000000000
-                vmovups xmm6, cs:__xmm@3f800000000000000000000000000000
+                instances = v112->instances;
+                _XMM7 = _xmm;
+                _XMM6 = _xmm;
+                v42 = (__m128)*(unsigned __int64 *)instances[v23 + instanceStartIndex].bounds.mins.v;
+                _mm_shuffle_ps(v42, v42, 85);
+                __asm { vinsertps xmm7, xmm7, xmm1, 0 }
+                v44 = (__m128)*(unsigned __int64 *)instances[v23 + instanceStartIndex].bounds.maxs.v;
+                __asm
+                {
+                  vinsertps xmm7, xmm7, xmm0, 10h
+                  vinsertps xmm6, xmm6, xmm1, 0
+                }
+                _mm_shuffle_ps(v44, v44, 85);
+                __asm
+                {
+                  vinsertps xmm7, xmm7, [rbp+100h+var_158], 100h+var_E0
+                  vinsertps xmm6, xmm6, xmm0, 10h
+                  vinsertps xmm6, xmm6, [rbp+100h+var_148], 100h+var_E0
+                  vminps  xmm0, xmm6, xmmword ptr [r13+0]
+                  vmaxps  xmm3, xmm0, xmm7
+                }
+                v52 = _mm128_sub_ps(_XMM3, context->viewPos.v);
+                _XMM2 = _mm128_mul_ps(v52, v52);
+                __asm
+                {
+                  vinsertps xmm0, xmm2, xmm2, 8
+                  vhaddps xmm1, xmm0, xmm0
+                }
+                _XMM0 = context->viewDir.v;
+                cosFovLimit = context->cosFovLimit;
+                zoomFactor = context->zoomFactor;
+                __asm { vhaddps xmm2, xmm1, xmm1 }
+                v119.v = (__m128)context->viewPos;
+                v118.v = _XMM0;
+                v120.v = _XMM3;
+                v121.v = _XMM6;
+                v122[0] = (float4)_XMM7.v;
+                _XMM0.m128_f32[0] = Stream_CalculateDistanceSq_ApplyZoomFactor(v122, &v121, *(float *)&_XMM2, &v120, &v119, &v118, zoomFactor, cosFovLimit, 1.0);
+                ++v23;
+                __asm { vminss  xmm8, xmm0, xmm8 }
               }
-              _RDX = 3i64 * (v25 + instanceStartIndex);
-              __asm
+              while ( v23 < v29 );
+              v25 = v116;
+              v35 = v32;
+            }
+            if ( (_BYTE)v110 )
+            {
+              if ( context->localClientIndex >= (unsigned int)LOCAL_CLIENT_COUNT )
               {
-                vmovsd  xmm1, qword ptr [rcx+rdx*8]
-                vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-                vinsertps xmm7, xmm7, xmm1, 0
-                vmovsd  xmm1, qword ptr [rcx+rdx*8+0Ch]
-                vinsertps xmm7, xmm7, xmm0, 10h
-                vinsertps xmm6, xmm6, xmm1, 0
-                vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-                vinsertps xmm7, xmm7, [rbp+100h+var_158], 100h+var_E0
-                vinsertps xmm6, xmm6, xmm0, 10h
-                vinsertps xmm6, xmm6, [rbp+100h+var_148], 100h+var_E0
-                vminps  xmm0, xmm6, xmmword ptr [r13+0]
-                vmaxps  xmm3, xmm0, xmm7
-                vsubps  xmm1, xmm3, xmmword ptr [r13+0]
-                vmulps  xmm2, xmm1, xmm1
-                vinsertps xmm0, xmm2, xmm2, 8
-                vmovss  dword ptr [rsp+40h], xmm11
-                vhaddps xmm1, xmm0, xmm0
-                vmovups xmm0, xmmword ptr [r13+10h]
-                vmovss  [rsp+200h+var_1C8], xmm4
-                vmovss  dword ptr [rsp+200h+var_1D0], xmm5
-                vhaddps xmm2, xmm1, xmm1
-                vmovups xmm1, xmmword ptr [r13+0]
-                vmovups [rbp+100h+var_120], xmm1
-                vmovups [rbp+100h+var_130], xmm0
-                vmovdqa [rbp+100h+var_110], xmm3
-                vmovdqa [rbp+100h+var_100], xmm6
-                vmovdqa [rbp+100h+var_F0], xmm7
+                LODWORD(v100) = 2;
+                LODWORD(v99) = context->localClientIndex;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 643, ASSERT_TYPE_ASSERT, "(unsigned)( context.localClientIndex ) < (unsigned)( ( sizeof( *array_counter( streamFrontendGlob->minDistanceToClutter ) ) + 0 ) )", "context.localClientIndex doesn't index streamFrontendGlob->minDistanceToClutter\n\t%i not in [0, %i)", v99, v100) )
+                  __debugbreak();
               }
-              *(float *)&_XMM0 = Stream_CalculateDistanceSq_ApplyZoomFactor(v179, &v178, *(float *)&_XMM2, &v177, &v176, &v175, v151, v153, v155);
-              ++v25;
-              __asm { vminss  xmm8, xmm0, xmm8 }
+              v59 = LODWORD(streamFrontendGlob->minDistanceToClutter[context->localClientIndex]);
+              *(float *)&v59 = *(float *)&v59 * *(float *)&v59;
+              _XMM1 = v59;
+              __asm { vmaxss  xmm8, xmm1, xmm8 }
             }
-            while ( v25 < v36 );
-            v44 = _RDI;
-          }
-          v76 = 0;
-          if ( (_BYTE)v165 )
-          {
-            localClientIndex = context->localClientIndex;
-            v76 = (unsigned int)localClientIndex < LOCAL_CLIENT_COUNT;
-            if ( (unsigned int)localClientIndex >= LOCAL_CLIENT_COUNT )
+            __asm { vmaxss  xmm0, xmm8, xmm10 }
+            v61 = (float)((float)(*(float *)&_XMM0 + 1.0) * instanceGroups[v25].himipInvSqRadii) * context->distanceScale;
+            if ( v61 < v34 )
             {
-              LODWORD(v150) = 2;
-              LODWORD(v149) = context->localClientIndex;
-              v78 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 643, ASSERT_TYPE_ASSERT, "(unsigned)( context.localClientIndex ) < (unsigned)( ( sizeof( *array_counter( streamFrontendGlob->minDistanceToClutter ) ) + 0 ) )", "context.localClientIndex doesn't index streamFrontendGlob->minDistanceToClutter\n\t%i not in [0, %i)", v149, v150);
-              v76 = 0;
-              if ( v78 )
+              if ( (LODWORD(v61) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
                 __debugbreak();
-            }
-            _RCX = context->localClientIndex;
-            _RAX = streamFrontendGlob;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax+rcx*4+0B97260h]
-              vmulss  xmm1, xmm0, xmm0
-              vmaxss  xmm8, xmm1, xmm8
+              v62 = LODWORD(v61) >> 7;
+              if ( (unsigned int)v32 >= 0xB400 )
+              {
+                LODWORD(v100) = 46080;
+                LODWORD(v99) = v32;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_internal.h", 435, ASSERT_TYPE_ASSERT, "(unsigned)( materialIndex ) < (unsigned)( ((( 43 * 1024 ) + 1024 + MATERIAL_POOL_SIZE_PRELOAD_PROCESS) + 1024) )", "materialIndex doesn't index MATERIAL_POOL_SIZE\n\t%i not in [0, %i)", v99, v100) )
+                  __debugbreak();
+              }
+              v63 = streamFrontendGlob;
+              if ( (unsigned int)v32 >= 0xB400 )
+              {
+                LODWORD(v100) = 46080;
+                LODWORD(v99) = v32;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 366, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v99, v100) )
+                  __debugbreak();
+              }
+              if ( v62 < v63->materialDistance.mDistances[v35].mValue )
+                v63->materialDistance.mDistances[v35].mValue = v62;
+              Com_BitSetAssert(v63->materialDistance.mValueSet, v32, 5760);
             }
           }
-          __asm
+          else
           {
-            vmaxss  xmm0, xmm8, xmm10
-            vaddss  xmm1, xmm0, xmm11
-            vmulss  xmm2, xmm1, dword ptr [r14+rsi*8]
-            vmulss  xmm3, xmm2, dword ptr [r13+28h]
-            vcomiss xmm3, xmm9
-          }
-          if ( v76 )
-          {
-            __asm
-            {
-              vmovss  dword ptr [rsp+200h+var_190], xmm3
-              vmovss  [rsp+200h+var_198], xmm3
-            }
-            if ( (v168 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
-              __debugbreak();
-            v87 = v166 >> 7;
-            if ( (unsigned int)_RDI >= 0xB400 )
-            {
-              LODWORD(v150) = 46080;
-              LODWORD(v149) = _RDI;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_internal.h", 435, ASSERT_TYPE_ASSERT, "(unsigned)( materialIndex ) < (unsigned)( ((( 43 * 1024 ) + 1024 + MATERIAL_POOL_SIZE_PRELOAD_PROCESS) + 1024) )", "materialIndex doesn't index MATERIAL_POOL_SIZE\n\t%i not in [0, %i)", v149, v150) )
-                __debugbreak();
-            }
-            v88 = streamFrontendGlob;
-            if ( (unsigned int)_RDI >= 0xB400 )
-            {
-              LODWORD(v150) = 46080;
-              LODWORD(v149) = _RDI;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 366, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v149, v150) )
-                __debugbreak();
-            }
-            if ( v87 < v88->materialDistance.mDistances[v44].mValue )
-              v88->materialDistance.mDistances[v44].mValue = v87;
-            Com_BitSetAssert(v88->materialDistance.mValueSet, _RDI, 5760);
+            v23 = v29;
           }
         }
         else
         {
-          v25 = v36;
+          v23 = v29;
         }
-        gridCell = v170;
-        v19 = totalInstanceCount;
-        v22 = v157 + 1;
-        v92 = v171-- == 1;
-        ++v157;
+        gridCell = v112;
+        v18 = totalInstanceCount;
+        v20 = v105 + 1;
+        v66 = v113-- == 1;
+        ++v105;
       }
-      while ( !v92 );
-      LODWORD(v23) = materialGroupCount;
-      v22 = instanceGroupStartIndex;
-      v20 = imageGroupCount;
-      __asm { vmovaps xmm10, [rsp+200h+var_88+8] }
+      while ( !v66 );
+      LODWORD(v21) = materialGroupCount;
+      v20 = instanceGroupStartIndex;
+      v19 = imageGroupCount;
     }
-    _RBX = (unsigned int)v23 + v22;
-    v158 = _RBX;
-    if ( v20 )
+    v64 = (unsigned int)v21 + v20;
+    v106 = v64;
+    if ( v19 )
     {
-      v172 = v20;
+      v114 = v19;
       do
       {
-        if ( (unsigned int)_RBX >= gridCell->instanceGroupCount )
+        if ( (unsigned int)v64 >= gridCell->instanceGroupCount )
         {
-          LODWORD(v150) = gridCell->instanceGroupCount;
-          LODWORD(v149) = _RBX;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 659, ASSERT_TYPE_ASSERT, "(unsigned)( imgInstanceGroupIndex ) < (unsigned)( gridCell.instanceGroupCount )", "imgInstanceGroupIndex doesn't index gridCell.instanceGroupCount\n\t%i not in [0, %i)", v149, v150) )
+          LODWORD(v100) = gridCell->instanceGroupCount;
+          LODWORD(v99) = v64;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 659, ASSERT_TYPE_ASSERT, "(unsigned)( imgInstanceGroupIndex ) < (unsigned)( gridCell.instanceGroupCount )", "imgInstanceGroupIndex doesn't index gridCell.instanceGroupCount\n\t%i not in [0, %i)", v99, v100) )
             __debugbreak();
         }
-        _RSI = gridCell->instanceGroups;
-        v92 = _RSI[_RBX].instanceCount == 0;
-        if ( (_RSI[_RBX].instanceCount & 0x8000u) != 0 )
+        v65 = gridCell->instanceGroups;
+        v66 = v65[v64].instanceCount == 0;
+        if ( (v65[v64].instanceCount & 0x8000u) != 0 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 663, ASSERT_TYPE_ASSERT, "(( imgInstanceGroup.instanceCount & STREAM_MATERIAL_TREE_CLUTTER_BIT ) == 0)", (const char *)&queryFormat, "( imgInstanceGroup.instanceCount & STREAM_MATERIAL_TREE_CLUTTER_BIT ) == 0") )
             __debugbreak();
-          v92 = _RSI[_RBX].instanceCount == 0;
+          v66 = v65[v64].instanceCount == 0;
         }
-        if ( v92 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 664, ASSERT_TYPE_ASSERT, "(imgInstanceGroup.instanceCount > 0)", (const char *)&queryFormat, "imgInstanceGroup.instanceCount > 0") )
+        if ( v66 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 664, ASSERT_TYPE_ASSERT, "(imgInstanceGroup.instanceCount > 0)", (const char *)&queryFormat, "imgInstanceGroup.instanceCount > 0") )
           __debugbreak();
-        if ( _RSI[_RBX].assetIndex >= streamTreeGrid->imageCount )
+        if ( v65[v64].assetIndex >= streamTreeGrid->imageCount )
         {
-          LODWORD(v150) = streamTreeGrid->imageCount;
-          LODWORD(v149) = _RSI[_RBX].assetIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 665, ASSERT_TYPE_ASSERT, "(unsigned)( imgInstanceGroup.assetIndex ) < (unsigned)( streamTreeGrid.imageCount )", "imgInstanceGroup.assetIndex doesn't index streamTreeGrid.imageCount\n\t%i not in [0, %i)", v149, v150) )
+          LODWORD(v100) = streamTreeGrid->imageCount;
+          LODWORD(v99) = v65[v64].assetIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 665, ASSERT_TYPE_ASSERT, "(unsigned)( imgInstanceGroup.assetIndex ) < (unsigned)( streamTreeGrid.imageCount )", "imgInstanceGroup.assetIndex doesn't index streamTreeGrid.imageCount\n\t%i not in [0, %i)", v99, v100) )
             __debugbreak();
         }
-        v93 = v19;
-        if ( v19 > v25 + _RSI[_RBX].instanceCount )
-          v93 = v25 + _RSI[_RBX].instanceCount;
-        GfxImageIndex = DB_GetGfxImageIndex(streamTreeGrid->images[_RSI[_RBX].assetIndex]);
-        v95 = streamFrontendGlob;
-        v96 = (int)GfxImageIndex;
-        v160 = GfxImageIndex;
+        v67 = v18;
+        if ( v18 > v23 + v65[v64].instanceCount )
+          v67 = v23 + v65[v64].instanceCount;
+        GfxImageIndex = DB_GetGfxImageIndex(streamTreeGrid->images[v65[v64].assetIndex]);
+        v69 = streamFrontendGlob;
+        v70 = (int)GfxImageIndex;
+        v108 = GfxImageIndex;
         if ( GfxImageIndex >= 0x14000 )
         {
-          LODWORD(v150) = 81920;
-          LODWORD(v149) = GfxImageIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v149, v150) )
+          LODWORD(v100) = 81920;
+          LODWORD(v99) = GfxImageIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v99, v100) )
             __debugbreak();
         }
-        v97 = v95->imageDistance.mDistances[v96].mValue;
-        v98 = v97 != -1;
-        if ( v97 == -1 )
-        {
-          __asm { vmovaps xmm8, xmm13 }
-        }
+        v71 = v69->imageDistance.mDistances[v70].mValue;
+        if ( v71 == -1 )
+          v72 = FLOAT_3_4027977e38;
         else
+          LODWORD(v72) = v71 << 7;
+        if ( nodeStreamDistance < v72 )
         {
-          v98 = __CFSHL__(v97, 7);
-          v163 = v97 << 7;
-          __asm { vmovss  xmm8, [rsp+200h+var_1A0] }
-        }
-        __asm { vcomiss xmm12, xmm8 }
-        if ( v98 )
-        {
-          __asm
+          himipInvSqRadii = v65[v64].himipInvSqRadii;
+          distanceScale = context->distanceScale;
+          if ( (float)((float)((float)(nodeDistSq + 1.0) * himipInvSqRadii) * distanceScale) < v72 )
           {
-            vmovss  xmm3, dword ptr [rsi+rbx*8]
-            vmovss  xmm4, dword ptr [r13+28h]
-            vaddss  xmm0, xmm15, xmm11
-            vmulss  xmm1, xmm0, xmm3
-            vmulss  xmm2, xmm1, xmm4
-            vcomiss xmm2, xmm8
-            vmovaps xmm9, xmm14
-          }
-          v106 = v25 < v93;
-          if ( v25 < v93 )
-          {
-            do
+            *(float *)&_XMM9 = FLOAT_3_4028235e38;
+            if ( v23 < v67 )
             {
-              _RCX = v170->instances;
-              __asm
+              do
               {
-                vmovss  xmm4, dword ptr [r13+24h]
-                vmovss  xmm5, dword ptr [r13+20h]
-                vmovups xmm7, cs:__xmm@3f800000000000000000000000000000
-                vmovups xmm6, cs:__xmm@3f800000000000000000000000000000
+                v76 = v112->instances;
+                _XMM7 = _xmm;
+                _XMM6 = _xmm;
+                v79 = (__m128)*(unsigned __int64 *)v76[v23 + instanceStartIndex].bounds.mins.v;
+                _mm_shuffle_ps(v79, v79, 85);
+                __asm { vinsertps xmm7, xmm7, xmm1, 0 }
+                v81 = (__m128)*(unsigned __int64 *)v76[v23 + instanceStartIndex].bounds.maxs.v;
+                __asm
+                {
+                  vinsertps xmm7, xmm7, xmm0, 10h
+                  vinsertps xmm6, xmm6, xmm1, 0
+                }
+                _mm_shuffle_ps(v81, v81, 85);
+                __asm
+                {
+                  vinsertps xmm7, xmm7, [rbp+100h+var_148], 100h+var_E0
+                  vinsertps xmm6, xmm6, xmm0, 10h
+                  vinsertps xmm6, xmm6, [rbp+100h+var_158], 100h+var_E0
+                  vminps  xmm0, xmm6, xmmword ptr [r13+0]
+                  vmaxps  xmm3, xmm0, xmm7
+                }
+                v89 = _mm128_sub_ps(_XMM3, context->viewPos.v);
+                _XMM2 = _mm128_mul_ps(v89, v89);
+                __asm
+                {
+                  vinsertps xmm0, xmm2, xmm2, 8
+                  vhaddps xmm1, xmm0, xmm0
+                }
+                _XMM0.v = (__m128)context->viewDir;
+                v104 = context->cosFovLimit;
+                v102 = context->zoomFactor;
+                __asm { vhaddps xmm2, xmm1, xmm1 }
+                v121.v = (__m128)context->viewPos;
+                v122[0] = (float4)_XMM0.v;
+                v120.v = _XMM3;
+                v119.v = _XMM6;
+                v118.v = _XMM7;
+                _XMM0.v.m128_f32[0] = Stream_CalculateDistanceSq_ApplyZoomFactor(&v118, &v119, *(float *)&_XMM2, &v120, &v121, v122, v102, v104, 1.0);
+                ++v23;
+                __asm { vminss  xmm9, xmm0, xmm9 }
               }
-              _RDX = 3i64 * (v25 + instanceStartIndex);
-              __asm
+              while ( v23 < v67 );
+              distanceScale = context->distanceScale;
+              LODWORD(v70) = v108;
+              himipInvSqRadii = v65[v64].himipInvSqRadii;
+            }
+            v95 = (float)((float)(*(float *)&_XMM9 + 1.0) * himipInvSqRadii) * distanceScale;
+            if ( v95 < v72 )
+            {
+              if ( (LODWORD(v95) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
+                __debugbreak();
+              v96 = LODWORD(v95) >> 7;
+              if ( (unsigned int)v70 >= 0x14000 )
               {
-                vmovsd  xmm1, qword ptr [rcx+rdx*8]
-                vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-                vinsertps xmm7, xmm7, xmm1, 0
-                vmovsd  xmm1, qword ptr [rcx+rdx*8+0Ch]
-                vinsertps xmm7, xmm7, xmm0, 10h
-                vinsertps xmm6, xmm6, xmm1, 0
-                vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-                vinsertps xmm7, xmm7, [rbp+100h+var_148], 100h+var_E0
-                vinsertps xmm6, xmm6, xmm0, 10h
-                vinsertps xmm6, xmm6, [rbp+100h+var_158], 100h+var_E0
-                vminps  xmm0, xmm6, xmmword ptr [r13+0]
-                vmaxps  xmm3, xmm0, xmm7
-                vsubps  xmm1, xmm3, xmmword ptr [r13+0]
-                vmulps  xmm2, xmm1, xmm1
-                vinsertps xmm0, xmm2, xmm2, 8
-                vmovss  dword ptr [rsp+40h], xmm11
-                vhaddps xmm1, xmm0, xmm0
-                vmovups xmm0, xmmword ptr [r13+10h]
-                vmovss  [rsp+200h+var_1C8], xmm4
-                vmovss  dword ptr [rsp+200h+var_1D0], xmm5
-                vhaddps xmm2, xmm1, xmm1
-                vmovups xmm1, xmmword ptr [r13+0]
-                vmovups [rbp+100h+var_100], xmm1
-                vmovups [rbp+100h+var_F0], xmm0
-                vmovdqa [rbp+100h+var_110], xmm3
-                vmovdqa [rbp+100h+var_120], xmm6
-                vmovdqa [rbp+100h+var_130], xmm7
+                LODWORD(v100) = 81920;
+                LODWORD(v99) = v70;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_internal.h", 421, ASSERT_TYPE_ASSERT, "(unsigned)( imageIndex ) < (unsigned)( IMAGE_POOL_SIZE )", "imageIndex doesn't index IMAGE_POOL_SIZE\n\t%i not in [0, %i)", v99, v100) )
+                  __debugbreak();
               }
-              *(float *)&_XMM0 = Stream_CalculateDistanceSq_ApplyZoomFactor(&v175, &v176, *(float *)&_XMM2, &v177, &v178, v179, v152, v154, v156);
-              ++v25;
-              __asm { vminss  xmm9, xmm0, xmm9 }
-              v106 = v25 < v93;
-            }
-            while ( v25 < v93 );
-            __asm { vmovss  xmm4, dword ptr [r13+28h] }
-            LODWORD(v96) = v160;
-            __asm { vmovss  xmm3, dword ptr [rsi+rbx*8] }
-          }
-          __asm
-          {
-            vaddss  xmm0, xmm9, xmm11
-            vmulss  xmm1, xmm0, xmm3
-            vmulss  xmm2, xmm1, xmm4
-            vcomiss xmm2, xmm8
-          }
-          if ( v106 )
-          {
-            __asm
-            {
-              vmovss  [rsp+200h+var_1A0], xmm2
-              vmovss  [rsp+200h+var_1A8], xmm2
-            }
-            if ( (v164 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
-              __debugbreak();
-            v137 = v161 >> 7;
-            if ( (unsigned int)v96 >= 0x14000 )
-            {
-              LODWORD(v150) = 81920;
-              LODWORD(v149) = v96;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_internal.h", 421, ASSERT_TYPE_ASSERT, "(unsigned)( imageIndex ) < (unsigned)( IMAGE_POOL_SIZE )", "imageIndex doesn't index IMAGE_POOL_SIZE\n\t%i not in [0, %i)", v149, v150) )
+              v97 = DCONST_DVARBOOL_stream_pedanticAddImageChecks;
+              if ( !DCONST_DVARBOOL_stream_pedanticAddImageChecks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_pedanticAddImageChecks") )
                 __debugbreak();
-            }
-            v138 = DCONST_DVARBOOL_stream_pedanticAddImageChecks;
-            if ( !DCONST_DVARBOOL_stream_pedanticAddImageChecks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_pedanticAddImageChecks") )
-              __debugbreak();
-            Dvar_CheckFrontendServerThread(v138);
-            if ( v138->current.enabled && (DB_GetGfxImageAtIndex(v96)->flags & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_internal.h", 426, ASSERT_TYPE_ASSERT, "(R_IsStreamedImage( image ))", (const char *)&queryFormat, "R_IsStreamedImage( image )") )
-              __debugbreak();
-            v139 = streamFrontendGlob;
-            if ( (unsigned int)v96 >= 0x14000 )
-            {
-              LODWORD(v150) = 81920;
-              LODWORD(v149) = v96;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 366, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v149, v150) )
+              Dvar_CheckFrontendServerThread(v97);
+              if ( v97->current.enabled && (DB_GetGfxImageAtIndex(v70)->flags & 0x40) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_internal.h", 426, ASSERT_TYPE_ASSERT, "(R_IsStreamedImage( image ))", (const char *)&queryFormat, "R_IsStreamedImage( image )") )
                 __debugbreak();
+              v98 = streamFrontendGlob;
+              if ( (unsigned int)v70 >= 0x14000 )
+              {
+                LODWORD(v100) = 81920;
+                LODWORD(v99) = v70;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_sortlist.h", 366, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( mDistances ) ) + 0 ) )", "assetIndex doesn't index ARRAY_COUNT( mDistances )\n\t%i not in [0, %i)", v99, v100) )
+                  __debugbreak();
+              }
+              if ( v96 < v98->imageDistance.mDistances[(unsigned int)v70].mValue )
+                v98->imageDistance.mDistances[(unsigned int)v70].mValue = v96;
+              Com_BitSetAssert(v98->imageDistance.mValueSet, v70, 10240);
             }
-            if ( v137 < v139->imageDistance.mDistances[(unsigned int)v96].mValue )
-              v139->imageDistance.mDistances[(unsigned int)v96].mValue = v137;
-            Com_BitSetAssert(v139->imageDistance.mValueSet, v96, 10240);
+          }
+          else
+          {
+            v23 = v67;
           }
         }
         else
         {
-          v25 = v93;
+          v23 = v67;
         }
-        gridCell = v170;
-        v19 = totalInstanceCount;
-        _RBX = (unsigned int)(v158 + 1);
-        v92 = v172-- == 1;
-        ++v158;
+        gridCell = v112;
+        v18 = totalInstanceCount;
+        v64 = (unsigned int)(v106 + 1);
+        v66 = v114-- == 1;
+        ++v106;
       }
-      while ( !v92 );
+      while ( !v66 );
     }
-    __asm
-    {
-      vmovaps xmm15, [rsp+200h+var_D8+8]
-      vmovaps xmm14, [rsp+200h+var_C8+8]
-      vmovaps xmm13, [rsp+200h+var_B8+8]
-      vmovaps xmm12, [rsp+200h+var_A8+8]
-      vmovaps xmm11, [rsp+200h+var_98+8]
-      vmovaps xmm9, [rsp+200h+var_78+8]
-      vmovaps xmm8, [rsp+200h+var_68+8]
-      vmovaps xmm7, [rsp+200h+var_58+8]
-      vmovaps xmm6, [rsp+200h+var_48+8]
-    }
-    if ( v25 != totalInstanceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 707, ASSERT_TYPE_ASSERT, "(instanceIndex == totalInstanceCount)", (const char *)&queryFormat, "instanceIndex == totalInstanceCount") )
+    if ( v23 != totalInstanceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 707, ASSERT_TYPE_ASSERT, "(instanceIndex == totalInstanceCount)", (const char *)&queryFormat, "instanceIndex == totalInstanceCount") )
       __debugbreak();
   }
 }
@@ -2565,273 +2224,266 @@ Stream_ProcessXModelInstance
 */
 void Stream_ProcessXModelInstance(const XModelInstance *instance, XModelStreamTreeContext *context)
 {
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
   const XModel *v7; 
   signed int v8; 
   int v9; 
   int v10; 
-  __int64 v11; 
+  unsigned __int64 v11; 
   int forceLod; 
-  int v35; 
-  unsigned __int8 v39; 
-  StreamFrontendGlob *v40; 
-  __int64 v41; 
+  float distanceScale; 
+  float cosFovLimit; 
+  __m128 v16; 
+  __int128 v20; 
+  __m128 v25; 
+  __m128 v; 
+  int v31; 
+  int v32; 
+  unsigned __int8 v33; 
+  StreamFrontendGlob *v34; 
+  __int64 v35; 
   __int64 xmodelIndex; 
-  unsigned __int8 v43; 
+  unsigned __int8 v37; 
+  __int64 v38; 
+  const XModelSurfs *v39; 
+  char v40; 
+  signed __int64 v41; 
+  int v42; 
+  int v43; 
   __int64 v44; 
-  const XModelSurfs *v45; 
-  char v46; 
-  __int64 v47; 
-  int v48; 
-  int v49; 
+  int v45; 
+  unsigned __int8 v46; 
+  const XModel *v47; 
+  unsigned __int8 v48; 
+  const dvar_t *v49; 
   __int64 v50; 
-  int v51; 
-  unsigned __int8 v52; 
-  const XModel *v53; 
-  unsigned __int8 v54; 
-  const dvar_t *v55; 
-  __int64 v56; 
-  __int64 v57; 
-  float v58; 
-  float v59; 
-  float v60; 
-  char v61; 
-  int v62; 
-  int v63; 
+  __int64 v51; 
+  char v52; 
+  int v53; 
   XModelSurfs *mesha; 
   const StreamTreeGrid *streamTreeGrid; 
-  __int64 v67; 
-  int v68; 
-  const XModel *v69; 
-  float4 v70; 
-  float4 v71; 
-  float4 v72; 
-  float4 v73; 
-  __int128 v74; 
+  signed __int64 v57; 
+  int v58; 
+  const XModel *v59; 
+  float4 v60; 
+  float4 v61; 
+  float4 v62; 
+  float4 v63; 
+  __m128 v64; 
   ExtentBounds lodExtentBounds; 
-  __int128 v76; 
+  __int128 v66; 
+  __int128 v67; 
+  __int128 v68; 
+  __int128 v69; 
 
-  _RDI = context;
   if ( !context->streamTreeGrid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1254, ASSERT_TYPE_ASSERT, "(context.streamTreeGrid != nullptr)", (const char *)&queryFormat, "context.streamTreeGrid != nullptr") )
     __debugbreak();
-  if ( instance->xmodelIndex >= _RDI->streamTreeGrid->xmodelCount )
+  if ( instance->xmodelIndex >= context->streamTreeGrid->xmodelCount )
   {
-    LODWORD(v56) = instance->xmodelIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1255, ASSERT_TYPE_ASSERT, "(unsigned)( instance.xmodelIndex ) < (unsigned)( context.streamTreeGrid->xmodelCount )", "instance.xmodelIndex doesn't index context.streamTreeGrid->xmodelCount\n\t%i not in [0, %i)", v56, _RDI->streamTreeGrid->xmodelCount) )
+    LODWORD(v50) = instance->xmodelIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1255, ASSERT_TYPE_ASSERT, "(unsigned)( instance.xmodelIndex ) < (unsigned)( context.streamTreeGrid->xmodelCount )", "instance.xmodelIndex doesn't index context.streamTreeGrid->xmodelCount\n\t%i not in [0, %i)", v50, context->streamTreeGrid->xmodelCount) )
       __debugbreak();
   }
-  streamTreeGrid = _RDI->streamTreeGrid;
+  streamTreeGrid = context->streamTreeGrid;
   v7 = streamTreeGrid->xmodels[instance->xmodelIndex];
-  v69 = v7;
+  v59 = v7;
   if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1259, ASSERT_TYPE_ASSERT, "(xmodel != nullptr)", (const char *)&queryFormat, "xmodel != nullptr") )
     __debugbreak();
   v8 = XModelHighLod(v7);
   v9 = -1;
   v10 = v7->numLods - 2;
   v11 = v8;
-  forceLod = _RDI->forceLod;
+  forceLod = context->forceLod;
   if ( forceLod == -1 )
   {
     if ( v10 < (int)v11 )
       return;
-    __asm
-    {
-      vmovaps [rsp+170h+var_40], xmm6
-      vmovaps [rsp+170h+var_50], xmm7
-      vmovaps [rsp+170h+var_60], xmm8
-      vmovss  xmm8, cs:__real@3f800000
-    }
+    v69 = v2;
+    v68 = v3;
+    v67 = v4;
     do
     {
-      ComputeInstanceLodExtentBounds(&lodExtentBounds, v10, instance, v7);
+      ComputeInstanceLodExtentBounds(&lodExtentBounds, v10, instance, v7, context);
+      distanceScale = context->distanceScale;
+      cosFovLimit = context->cosFovLimit;
+      v64.m128_i32[3] = 0;
+      v16 = v64;
+      v16.m128_f32[0] = lodExtentBounds.maxs.v[0];
+      _XMM7 = v16;
       __asm
       {
-        vmovss  xmm0, dword ptr [rbp+70h+lodExtentBounds.maxs]
-        vmovss  xmm4, dword ptr [rdi+28h]
-        vmovss  xmm5, dword ptr [rdi+24h]
-      }
-      HIDWORD(v74) = 0;
-      __asm
-      {
-        vmovups xmm7, xmmword ptr [rbp-40h]
-        vmovss  xmm7, xmm7, xmm0
-        vmovss  xmm0, dword ptr [rbp+70h+lodExtentBounds.mins]
         vinsertps xmm7, xmm7, dword ptr [rbp+70h+lodExtentBounds.maxs+4], 70h+var_60
         vinsertps xmm7, xmm7, dword ptr [rbp+70h+lodExtentBounds.maxs+8], 70h+var_50
       }
-      HIDWORD(v76) = 0;
+      HIDWORD(v66) = 0;
+      v20 = v66;
+      *(float *)&v20 = lodExtentBounds.mins.v[0];
+      _XMM6 = v20;
       __asm
       {
-        vmovups xmm6, xmmword ptr [rbp-10h]
-        vmovss  xmm6, xmm6, xmm0
         vinsertps xmm6, xmm6, dword ptr [rbp+70h+lodExtentBounds.mins+4], 70h+var_60
         vinsertps xmm6, xmm6, dword ptr [rbp+70h+lodExtentBounds.mins+8], 70h+var_50
         vminps  xmm0, xmm7, xmmword ptr [rdi]
         vmaxps  xmm3, xmm0, xmm6
-        vsubps  xmm1, xmm3, xmmword ptr [rdi]
-        vmulps  xmm2, xmm1, xmm1
-        vmovss  [rsp+170h+var_130], xmm4
+      }
+      v25 = _mm128_sub_ps(_XMM3, context->viewPos.v);
+      _XMM2 = _mm128_mul_ps(v25, v25);
+      __asm
+      {
         vinsertps xmm0, xmm2, xmm2, 8
         vhaddps xmm1, xmm0, xmm0
-        vmovups xmm0, xmmword ptr [rdi+10h]
-        vmovss  [rsp+170h+var_138], xmm5
-        vmovss  dword ptr [rsp+170h+var_140], xmm8
-        vhaddps xmm2, xmm1, xmm1
-        vmovups xmm1, xmmword ptr [rdi]
-        vmovups [rbp+70h+var_E0], xmm1
-        vmovups xmmword ptr [rbp-40h], xmm7
-        vmovups xmmword ptr [rbp-10h], xmm6
-        vmovups [rbp+70h+var_F0], xmm0
-        vmovdqa [rbp+70h+var_D0], xmm3
-        vmovdqa [rbp+70h+var_C0], xmm7
-        vmovdqa xmmword ptr [rbp+70h+lodExtentBounds.mins], xmm6
       }
-      *(float *)&_XMM0 = Stream_CalculateDistanceSq_ApplyZoomFactor((const float4 *)&lodExtentBounds, &v73, *(float *)&_XMM2, &v72, &v71, &v70, v58, v59, v60);
-      __asm { vmovss  [rsp+170h+var_11C], xmm0 }
-      v35 = 0x80000000 - v62;
-      if ( v62 >= 0 )
-        v35 = v62;
-      if ( (int)abs32(v35) > 8 )
+      v = context->viewDir.v;
+      __asm { vhaddps xmm2, xmm1, xmm1 }
+      v61.v = (__m128)context->viewPos;
+      v64 = _XMM7;
+      v66 = _XMM6;
+      v60.v = v;
+      v62.v = _XMM3;
+      v63.v = _XMM7;
+      *(_OWORD *)lodExtentBounds.mins.v = _XMM6;
+      v31 = Stream_CalculateDistanceSq_ApplyZoomFactor((const float4 *)&lodExtentBounds, &v63, *(float *)&_XMM2, &v62, &v61, &v60, 1.0, cosFovLimit, distanceScale);
+      v32 = 0x80000000 - v31;
+      if ( v31 >= 0 )
+        v32 = v31;
+      if ( (int)abs32(v32) > 8 )
         break;
       v9 = v10--;
     }
     while ( v10 >= (int)v11 );
-    __asm
-    {
-      vmovaps xmm7, [rsp+170h+var_50]
-      vmovaps xmm6, [rsp+170h+var_40]
-      vmovaps xmm8, [rsp+170h+var_60]
-    }
   }
   else
   {
     if ( forceLod > v10 )
       return;
-    v9 = _RDI->forceLod;
+    v9 = context->forceLod;
   }
   if ( v9 != -1 )
   {
-    v39 = 1 << v9;
+    v33 = 1 << v9;
     if ( instance->collectionIndirectIndex >= streamTreeGrid->smodelCollectionIndexCount )
     {
-      LODWORD(v57) = streamTreeGrid->smodelCollectionIndexCount;
-      LODWORD(v56) = instance->collectionIndirectIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1296, ASSERT_TYPE_ASSERT, "(unsigned)( instance.collectionIndirectIndex ) < (unsigned)( streamTreeGrid.smodelCollectionIndexCount )", "instance.collectionIndirectIndex doesn't index streamTreeGrid.smodelCollectionIndexCount\n\t%i not in [0, %i)", v56, v57) )
+      LODWORD(v51) = streamTreeGrid->smodelCollectionIndexCount;
+      LODWORD(v50) = instance->collectionIndirectIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1296, ASSERT_TYPE_ASSERT, "(unsigned)( instance.collectionIndirectIndex ) < (unsigned)( streamTreeGrid.smodelCollectionIndexCount )", "instance.collectionIndirectIndex doesn't index streamTreeGrid.smodelCollectionIndexCount\n\t%i not in [0, %i)", v50, v51) )
         __debugbreak();
     }
-    v40 = streamFrontendGlob;
-    v41 = streamTreeGrid->smodelCollectionIndices[instance->collectionIndirectIndex];
+    v34 = streamFrontendGlob;
+    v35 = streamTreeGrid->smodelCollectionIndices[instance->collectionIndirectIndex];
     xmodelIndex = instance->xmodelIndex;
-    v43 = streamFrontendGlob->smodelsCollectionLodsTemp[v41];
-    if ( (v43 & v39) == 0 )
+    v37 = streamFrontendGlob->smodelsCollectionLodsTemp[v35];
+    if ( (v37 & v33) == 0 )
     {
-      if ( (v39 & streamFrontendGlob->xmodelLodsAvailableTemp[xmodelIndex]) != 0 )
+      if ( (v33 & streamFrontendGlob->xmodelLodsAvailableTemp[xmodelIndex]) != 0 )
       {
-        streamFrontendGlob->smodelsCollectionLodsTemp[v41] = v39 | v43;
+        streamFrontendGlob->smodelsCollectionLodsTemp[v35] = v33 | v37;
       }
       else
       {
-        v67 = v9;
-        v44 = (__int64)&v7->lodInfo[(__int64)v9];
-        v45 = *(const XModelSurfs **)v44;
-        mesha = *(XModelSurfs **)v44;
-        if ( !*(_QWORD *)v44 )
+        v57 = v9;
+        v38 = (__int64)&v7->lodInfo[(__int64)v9];
+        v39 = *(const XModelSurfs **)v38;
+        mesha = *(XModelSurfs **)v38;
+        if ( !*(_QWORD *)v38 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1318, ASSERT_TYPE_ASSERT, "(chosenModelSurfsStaging != nullptr)", (const char *)&queryFormat, "chosenModelSurfsStaging != nullptr") )
             __debugbreak();
-          v45 = NULL;
+          v39 = NULL;
         }
-        if ( (v39 & v40->xmodelLodsTestedTemp[xmodelIndex]) == 0 && *(_QWORD *)(v44 + 8) && Stream_MeshIsSafeToUse(v45) )
+        if ( (v33 & v34->xmodelLodsTestedTemp[xmodelIndex]) == 0 && *(_QWORD *)(v38 + 8) && Stream_MeshIsSafeToUse(v39) )
         {
-          v40->smodelsCollectionLodsTemp[v41] |= v39;
-          v40->xmodelLodsAvailableTemp[xmodelIndex] |= v39;
-          v40->xmodelLodsTestedTemp[xmodelIndex] |= v39;
+          v34->smodelsCollectionLodsTemp[v35] |= v33;
+          v34->xmodelLodsAvailableTemp[xmodelIndex] |= v33;
+          v34->xmodelLodsTestedTemp[xmodelIndex] |= v33;
           Stream_UsedMesh(mesha);
         }
         else
         {
-          v40->xmodelLodsTestedTemp[xmodelIndex] |= v39;
-          v46 = 0;
-          v47 = v11;
-          *(_QWORD *)&v74 = v11;
-          v61 = 0;
-          v48 = 0;
-          v49 = v9;
-          v50 = v44;
+          v34->xmodelLodsTestedTemp[xmodelIndex] |= v33;
+          v40 = 0;
+          v41 = v11;
+          v64.m128_u64[0] = v11;
+          v52 = 0;
+          v42 = 0;
+          v43 = v9;
+          v44 = v38;
           do
           {
-            v44 += 64i64;
-            v50 -= 64i64;
-            ++v48;
-            --v67;
-            v51 = v49 - 1;
-            v63 = v48;
+            v38 += 64i64;
+            v44 -= 64i64;
+            ++v42;
+            --v57;
+            v45 = v43 - 1;
+            v53 = v42;
             ++v9;
-            v68 = v51;
-            if ( v67 >= v47 )
+            v58 = v45;
+            if ( v57 >= v41 )
             {
-              v52 = 1 << v51;
-              if ( ((unsigned __int8)(1 << v51) & v40->xmodelLodsTestedTemp[xmodelIndex]) == 0 )
+              v46 = 1 << v45;
+              if ( ((unsigned __int8)(1 << v45) & v34->xmodelLodsTestedTemp[xmodelIndex]) == 0 )
               {
-                if ( *(_QWORD *)(v50 + 8) && Stream_MeshIsSafeToUse(*(const XModelSurfs **)v50) )
+                if ( *(_QWORD *)(v44 + 8) && Stream_MeshIsSafeToUse(*(const XModelSurfs **)v44) )
                 {
-                  Stream_UsedMesh(*(const XModelSurfs **)v50);
-                  v40->xmodelLodsAvailableTemp[xmodelIndex] |= v52;
+                  Stream_UsedMesh(*(const XModelSurfs **)v44);
+                  v34->xmodelLodsAvailableTemp[xmodelIndex] |= v46;
                 }
-                v40->xmodelLodsTestedTemp[xmodelIndex] |= v52;
+                v34->xmodelLodsTestedTemp[xmodelIndex] |= v46;
               }
-              if ( (v52 & v40->xmodelLodsAvailableTemp[xmodelIndex]) != 0 )
+              if ( (v46 & v34->xmodelLodsAvailableTemp[xmodelIndex]) != 0 )
               {
-                v40->smodelsCollectionLodsTemp[v41] |= v52;
-                v46 = 1;
-                v61 = 1;
+                v34->smodelsCollectionLodsTemp[v35] |= v46;
+                v40 = 1;
+                v52 = 1;
               }
               else
               {
-                v46 = v61;
+                v40 = v52;
               }
-              v48 = v63;
+              v42 = v53;
             }
-            v53 = v69;
-            if ( v9 < v69->numLods - 1 )
+            v47 = v59;
+            if ( v9 < v59->numLods - 1 )
             {
-              v54 = 1 << v9;
-              if ( ((unsigned __int8)(1 << v9) & v40->xmodelLodsTestedTemp[xmodelIndex]) == 0 )
+              v48 = 1 << v9;
+              if ( ((unsigned __int8)(1 << v9) & v34->xmodelLodsTestedTemp[xmodelIndex]) == 0 )
               {
-                if ( *(_QWORD *)(v44 + 8) )
+                if ( *(_QWORD *)(v38 + 8) )
                 {
-                  if ( Stream_MeshIsSafeToUse(*(const XModelSurfs **)v44) )
+                  if ( Stream_MeshIsSafeToUse(*(const XModelSurfs **)v38) )
                   {
-                    Stream_UsedMesh(*(const XModelSurfs **)v44);
-                    v40->xmodelLodsAvailableTemp[xmodelIndex] |= v54;
+                    Stream_UsedMesh(*(const XModelSurfs **)v38);
+                    v34->xmodelLodsAvailableTemp[xmodelIndex] |= v48;
                   }
-                  v53 = v69;
+                  v47 = v59;
                 }
-                v40->xmodelLodsTestedTemp[xmodelIndex] |= v54;
+                v34->xmodelLodsTestedTemp[xmodelIndex] |= v48;
               }
-              if ( (v54 & v40->xmodelLodsAvailableTemp[xmodelIndex]) != 0 )
+              if ( (v48 & v34->xmodelLodsAvailableTemp[xmodelIndex]) != 0 )
               {
-                v40->smodelsCollectionLodsTemp[v41] |= v54;
-                v46 = 1;
-                v61 = 1;
+                v34->smodelsCollectionLodsTemp[v35] |= v48;
+                v40 = 1;
+                v52 = 1;
               }
               else
               {
-                v46 = v61;
+                v40 = v52;
               }
-              v48 = v63;
+              v42 = v53;
             }
-            if ( v48 == v53->numLods )
+            if ( v42 == v47->numLods )
               break;
-            v49 = v68;
-            v47 = v74;
+            v43 = v58;
+            v41 = v64.m128_u64[0];
           }
-          while ( !v46 );
+          while ( !v40 );
           Stream_RequestMesh(mesha);
-          v55 = DVARINT_stream_missingXModelLodBoost;
+          v49 = DVARINT_stream_missingXModelLodBoost;
           if ( !DVARINT_stream_missingXModelLodBoost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_missingXModelLodBoost") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v55);
-          Stream_BoostMesh(mesha, 1 << (v48 * v55->current.integer));
+          Dvar_CheckFrontendServerThread(v49);
+          Stream_BoostMesh(mesha, 1 << (v42 * v49->current.integer));
         }
       }
     }
@@ -2881,107 +2533,107 @@ Stream_TransientZoneStreamingQualitySufficient
 */
 bool Stream_TransientZoneStreamingQualitySufficient(unsigned int transientZoneIndex)
 {
+  __int64 v1; 
   __int64 v2; 
-  __int64 v3; 
-  char v4; 
+  char v3; 
   bool result; 
   StreamTreeGrid *p_materialStreamTreeGrid; 
   StreamKey **cellKeys; 
-  const StreamKey *v8; 
+  const StreamKey *v7; 
+  double Float_Internal_DebugName; 
   const streamer_handle_t *p_dataHandle; 
   unsigned __int8 *data; 
-  unsigned int v12; 
+  unsigned int v11; 
   __int64 sortListRead; 
-  __int64 v14; 
-  int v15; 
-  char v16; 
-  bool v17; 
-  __int64 v18; 
-  __int64 v19[2]; 
-  __int64 v20[3]; 
+  __int64 v13; 
+  int v14; 
+  char v15; 
+  bool v16; 
+  __int64 v17; 
+  __int64 v18[2]; 
+  __int64 v19[3]; 
   unsigned int instanceGroupStartIndex[2]; 
-  __int64 *v22; 
-  StreamTreeGrid *v23; 
+  __int64 *v21; 
+  StreamTreeGrid *v22; 
+  __int64 *v23; 
   __int64 *v24; 
-  __int64 *v25; 
-  char v26; 
-  StreamDistance v27; 
-  StreamSortListFrame *v28; 
-  unsigned __int8 *v29; 
+  char v25; 
+  StreamDistance v26; 
+  StreamSortListFrame *v27; 
+  unsigned __int8 *v28; 
 
-  v2 = transientZoneIndex;
+  v1 = transientZoneIndex;
   if ( !transientZoneIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1154, ASSERT_TYPE_SANITY, "( transientZoneIndex != 0 )", (const char *)&queryFormat, "transientZoneIndex != 0") )
     __debugbreak();
-  v3 = v2;
-  v4 = streamFrontendGlob->transientZoneStreamingQuality[1536 * streamFrontendGlob->sortListRead + v2];
-  if ( !v4 )
+  v2 = v1;
+  v3 = streamFrontendGlob->transientZoneStreamingQuality[1536 * streamFrontendGlob->sortListRead + v1];
+  if ( !v3 )
     return 0;
-  if ( v4 != 1 )
-    return v4 == 2;
+  if ( v3 != 1 )
+    return v3 == 2;
   if ( !rgp.world )
     return 0;
   p_materialStreamTreeGrid = &rgp.world->materialStreamTreeGrid;
   cellKeys = rgp.world->materialStreamTreeGrid.cellKeys;
   if ( !cellKeys )
     return 0;
-  if ( (unsigned int)v2 >= rgp.world->materialStreamTreeGrid.rowCount * (unsigned int)rgp.world->materialStreamTreeGrid.columnCount )
+  if ( (unsigned int)v1 >= rgp.world->materialStreamTreeGrid.rowCount * (unsigned int)rgp.world->materialStreamTreeGrid.columnCount )
   {
-    LODWORD(v18) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1180, ASSERT_TYPE_ASSERT, "(unsigned)( transientZoneIndex ) < (unsigned)( materialStreamTreeGrid.rowCount * materialStreamTreeGrid.columnCount )", "transientZoneIndex doesn't index materialStreamTreeGrid.rowCount * materialStreamTreeGrid.columnCount\n\t%i not in [0, %i)", v18, rgp.world->materialStreamTreeGrid.rowCount * rgp.world->materialStreamTreeGrid.columnCount) )
+    LODWORD(v17) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1180, ASSERT_TYPE_ASSERT, "(unsigned)( transientZoneIndex ) < (unsigned)( materialStreamTreeGrid.rowCount * materialStreamTreeGrid.columnCount )", "transientZoneIndex doesn't index materialStreamTreeGrid.rowCount * materialStreamTreeGrid.columnCount\n\t%i not in [0, %i)", v17, rgp.world->materialStreamTreeGrid.rowCount * rgp.world->materialStreamTreeGrid.columnCount) )
       __debugbreak();
   }
-  v8 = cellKeys[v2];
-  if ( !v8 || !Stream_GenericIsSafeToUse(v8) )
+  v7 = cellKeys[v1];
+  if ( !v7 || !Stream_GenericIsSafeToUse(v7) )
     return 0;
-  *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_stream_distanceImageNeededForTransientZone, "stream_distanceImageNeededForTransientZone");
-  __asm { vmulss  xmm1, xmm0, xmm0; distance }
-  StreamDistance::StreamDistance(&v27, *(float *)&_XMM1);
-  p_dataHandle = &v8->data.dataHandle;
-  if ( (v8->flags & 2) != 0 )
+  Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_stream_distanceImageNeededForTransientZone, "stream_distanceImageNeededForTransientZone");
+  StreamDistance::StreamDistance(&v26, *(float *)&Float_Internal_DebugName * *(float *)&Float_Internal_DebugName);
+  p_dataHandle = &v7->data.dataHandle;
+  if ( (v7->flags & 2) != 0 )
     data = (unsigned __int8 *)p_dataHandle->data;
   else
     data = Stream_AddressSpace_ResolveHandle(p_dataHandle);
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1196, ASSERT_TYPE_ASSERT, "(gridCell != nullptr)", (const char *)&queryFormat, "gridCell != nullptr") )
     __debugbreak();
-  v12 = *((_DWORD *)data + 17);
-  v23 = p_materialStreamTreeGrid;
+  v11 = *((_DWORD *)data + 17);
+  v22 = p_materialStreamTreeGrid;
   sortListRead = streamFrontendGlob->sortListRead;
-  v26 = 1;
-  v28 = &streamFrontendGlob->sortLists[sortListRead];
-  v14 = 52i64 * *((unsigned int *)data + 12);
-  v20[0] = (__int64)&v28;
-  v29 = &data[v14 + 80];
-  v20[1] = (__int64)&v27;
-  v20[2] = (__int64)&v26;
-  v19[0] = (__int64)&v26;
-  v19[1] = (__int64)v20;
-  *(_QWORD *)instanceGroupStartIndex = &v26;
-  v22 = (__int64 *)&v29;
+  v25 = 1;
+  v27 = &streamFrontendGlob->sortLists[sortListRead];
+  v13 = 52i64 * *((unsigned int *)data + 12);
+  v19[0] = (__int64)&v27;
+  v28 = &data[v13 + 80];
+  v19[1] = (__int64)&v26;
+  v19[2] = (__int64)&v25;
+  v18[0] = (__int64)&v25;
+  v18[1] = (__int64)v19;
+  *(_QWORD *)instanceGroupStartIndex = &v25;
+  v21 = (__int64 *)&v28;
+  v23 = v18;
   v24 = v19;
-  v25 = v20;
-  lambda_c61fc1d736f22d4f58b3f923e6e6bf39_::operator()((unsigned int)instanceGroupStartIndex, 0, v12);
-  v15 = 0;
+  lambda_c61fc1d736f22d4f58b3f923e6e6bf39_::operator()((unsigned int)instanceGroupStartIndex, 0, v11);
+  v14 = 0;
   if ( *((_DWORD *)data + 12) )
   {
     while ( 1 )
     {
-      v16 = v26;
-      v17 = v26 == 0;
-      if ( !v26 )
+      v15 = v25;
+      v16 = v25 == 0;
+      if ( !v25 )
         break;
-      lambda_c61fc1d736f22d4f58b3f923e6e6bf39_::operator()((unsigned int)instanceGroupStartIndex, *(_DWORD *)&data[52 * v15 + 116], *(_DWORD *)&data[52 * v15 + 120]);
-      if ( (unsigned int)++v15 >= *((_DWORD *)data + 12) )
+      lambda_c61fc1d736f22d4f58b3f923e6e6bf39_::operator()((unsigned int)instanceGroupStartIndex, *(_DWORD *)&data[52 * v14 + 116], *(_DWORD *)&data[52 * v14 + 120]);
+      if ( (unsigned int)++v14 >= *((_DWORD *)data + 12) )
         goto LABEL_23;
     }
   }
   else
   {
 LABEL_23:
-    v16 = v26;
-    v17 = v26 == 0;
+    v15 = v25;
+    v16 = v25 == 0;
   }
-  result = v16 != 0;
-  streamFrontendGlob->transientZoneStreamingQuality[1536 * streamFrontendGlob->sortListRead + v3] = v17 + 2;
+  result = v15 != 0;
+  streamFrontendGlob->transientZoneStreamingQuality[1536 * streamFrontendGlob->sortListRead + v2] = v16 + 2;
   return result;
 }
 
@@ -3062,60 +2714,21 @@ Stream_TraverseMaterialHybridStreamTree
 */
 void Stream_TraverseMaterialHybridStreamTree(const StreamTree *materialStreamTree, const StreamTreeGrid *materialStreamTreeGrid, const unsigned int viewIndex, const LocalClientNum_t localClientIndex, const float4 *viewPos, const float4 *viewDir, float zoomFactor, float cosFovLimit, float distanceScale, const bitarray<1536> *transientVisibility)
 {
-  const dvar_t *v14; 
-  __int64 v18; 
+  const dvar_t *v10; 
+  __int64 v14; 
   bool useWorkers; 
-  float v27; 
-  float v28; 
-  float v29; 
-  float v30; 
-  float v31; 
-  float v32; 
-  char v35; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  v14 = DCONST_DVARBOOL_stream_treeEnableMaterialGridWorkers;
-  __asm
-  {
-    vmovaps [rsp+98h+var_28], xmm6
-    vmovaps [rsp+98h+var_38], xmm7
-    vmovaps xmmword ptr [r11-48h], xmm8
-  }
-  v18 = viewIndex;
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeEnableMaterialGridWorkers") )
+  v10 = DCONST_DVARBOOL_stream_treeEnableMaterialGridWorkers;
+  v14 = viewIndex;
+  if ( !DCONST_DVARBOOL_stream_treeEnableMaterialGridWorkers && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeEnableMaterialGridWorkers") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  useWorkers = v14->current.enabled;
+  Dvar_CheckFrontendServerThread(v10);
+  useWorkers = v10->current.enabled;
   if ( useWorkers )
-    s_streamTreeGridTraversalContexts[v18].soloTree = materialStreamTree;
-  __asm
-  {
-    vmovss  xmm6, [rsp+98h+distanceScale]
-    vmovss  xmm7, [rsp+98h+cosFovLimit]
-    vmovss  xmm8, [rsp+98h+zoomFactor]
-    vmovss  dword ptr [rsp+98h+var_60], xmm6
-    vmovss  [rsp+98h+var_68], xmm7
-    vmovss  [rsp+98h+var_70], xmm8
-  }
-  Stream_TraverseMaterialStreamTreeGrid(materialStreamTreeGrid, v18, localClientIndex, viewPos, viewDir, v28, v30, v32, transientVisibility, useWorkers);
+    s_streamTreeGridTraversalContexts[v14].soloTree = materialStreamTree;
+  Stream_TraverseMaterialStreamTreeGrid(materialStreamTreeGrid, v14, localClientIndex, viewPos, viewDir, zoomFactor, cosFovLimit, distanceScale, transientVisibility, useWorkers);
   if ( !useWorkers )
-  {
-    __asm
-    {
-      vmovss  [rsp+98h+var_68], xmm6
-      vmovss  [rsp+98h+var_70], xmm7
-      vmovss  dword ptr [rsp+98h+var_78], xmm8
-    }
-    Stream_TraverseStreamTree(materialStreamTree, localClientIndex, viewPos, viewDir, v27, v29, v31, transientVisibility);
-  }
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
-  _R11 = &v35;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+98h+var_38]
-  }
+    Stream_TraverseStreamTree(materialStreamTree, localClientIndex, viewPos, viewDir, zoomFactor, cosFovLimit, distanceScale, transientVisibility);
 }
 
 /*
@@ -3123,48 +2736,30 @@ void Stream_TraverseMaterialHybridStreamTree(const StreamTree *materialStreamTre
 Stream_TraverseMaterialStreamTree
 ==============
 */
-
-void __fastcall Stream_TraverseMaterialStreamTree(MaterialStreamTreeCellContext *context, double _XMM1_8)
+void Stream_TraverseMaterialStreamTree(MaterialStreamTreeCellContext *context)
 {
   const MaterialStreamTreeGridCell *gridCell; 
   float nodeDistSq; 
-  float v14; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TraverseMaterialStreamTree");
   if ( !context->gridCell && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 784, ASSERT_TYPE_ASSERT, "(context.gridCell != nullptr)", (const char *)&queryFormat, "context.gridCell != nullptr") )
     __debugbreak();
   if ( !context->streamTreeGrid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 785, ASSERT_TYPE_ASSERT, "(context.streamTreeGrid != nullptr)", (const char *)&queryFormat, "context.streamTreeGrid != nullptr") )
     __debugbreak();
   gridCell = context->gridCell;
-  *(float *)&_XMM0 = Stream_DistanceSqToAABB(context, &gridCell->bounds);
-  __asm { vmovaps xmm6, xmm0 }
+  nodeDistSq = Stream_DistanceSqToAABB(context, &gridCell->bounds);
   Sys_ProfBeginNamedEvent(0xFF808080, "Process large materials");
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  [rsp+68h+var_38], xmm1
-    vmovss  [rsp+68h+nodeDistSq], xmm6
-  }
-  Stream_ProcessMatImgInstanceGroups(0, 0, gridCell->largeMaterialInstanceGroupCount, gridCell->largeImageInstanceGroupCount, gridCell->largeInstanceCount, nodeDistSq, v14, context);
+  Stream_ProcessMatImgInstanceGroups(0, 0, gridCell->largeMaterialInstanceGroupCount, gridCell->largeImageInstanceGroupCount, gridCell->largeInstanceCount, nodeDistSq, 0.0, context);
   Sys_ProfEndNamedEvent();
   if ( gridCell->nodes )
   {
     Sys_ProfBeginNamedEvent(0xFF808080, "Process materials in tree");
     if ( !gridCell->nodeCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 813, ASSERT_TYPE_ASSERT, "(materialStreamTreeCell.nodeCount > 0)", (const char *)&queryFormat, "materialStreamTreeCell.nodeCount > 0") )
       __debugbreak();
-    __asm
-    {
-      vaddss  xmm0, xmm6, cs:__real@3f800000
-      vmulss  xmm1, xmm0, dword ptr [rcx+30h]
-      vmulss  xmm3, xmm1, dword ptr [rbx+28h]; nodeStreamDistance
-      vmovaps xmm2, xmm6; distToNodeSq
-    }
-    Stream_TraverseMaterialStreamTreeRecursive(gridCell->nodes, context, *(const float *)&_XMM2, *(const float *)&_XMM3);
+    Stream_TraverseMaterialStreamTreeRecursive(gridCell->nodes, context, nodeDistSq, (float)((float)(nodeDistSq + 1.0) * gridCell->nodes->minHimipInvSqRadiiOfChildren) * context->distanceScale);
     Sys_ProfEndNamedEvent();
   }
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
 }
 
 /*
@@ -3175,44 +2770,34 @@ Stream_TraverseMaterialStreamTreeGrid
 void Stream_TraverseMaterialStreamTreeGrid(const StreamTreeGrid *materialStreamTreeGrid, const unsigned int viewIndex, const LocalClientNum_t localClientIndex, const float4 *viewPos, const float4 *viewDir, float zoomFactor, float cosFovLimit, float distanceScale, const bitarray<1536> *transientVisibility, bool useWorkers)
 {
   StreamKey **cellKeys; 
-  __int64 v23; 
-  const dvar_t *v32; 
-  unsigned __int16 v33; 
-  unsigned __int16 v34; 
-  const StreamKey *v36; 
+  float HimipDistanceFactor; 
+  __int64 v15; 
+  StreamMaterialSortGridList *p_materialSortGridList; 
+  MaterialStreamTreeCellContext *p_materialCellContext; 
+  const dvar_t *v18; 
+  unsigned __int16 v19; 
+  unsigned __int16 v20; 
+  const StreamKey *v21; 
   unsigned __int8 *residentData; 
-  const dvar_t *v57; 
+  __int64 sortCellCount; 
+  __m128 v; 
+  __m128 v35; 
+  const dvar_t *v40; 
   const MaterialStreamTreeGridCell *gridCell; 
-  __int64 v66; 
-  __int64 v67; 
-  float v68; 
-  float v69; 
-  float v70; 
-  StreamMaterialSortGridList::Sort::__l2::<lambda_103be8987fb214e831bfdf2d62fe101e> v71; 
+  __int64 v42; 
+  __int64 v43; 
+  StreamMaterialSortGridList::Sort::__l2::<lambda_103be8987fb214e831bfdf2d62fe101e> v44; 
   unsigned int data; 
-  const float4 *v73; 
-  __int64 v74; 
-  float4 v75; 
-  float4 v76; 
-  float4 v77; 
-  float4 v78; 
-  float4 v79; 
-  char v80; 
-  void *retaddr; 
+  const float4 *v46; 
+  __int64 v47; 
+  float4 v48; 
+  float4 v49; 
+  float4 v50; 
+  float4 v51; 
+  float4 v52; 
 
-  _RAX = &retaddr;
-  v74 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-  }
-  _RBX = viewPos;
-  v73 = viewPos;
+  v47 = -2i64;
+  v46 = viewPos;
   data = viewIndex;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TraverseMaterialStreamTreeGrid");
   Sys_EnterCriticalSection(CRITSECT_STREAM_TREE_DRAW);
@@ -3227,72 +2812,58 @@ void Stream_TraverseMaterialStreamTreeGrid(const StreamTreeGrid *materialStreamT
       __debugbreak();
     if ( materialStreamTreeGrid->columnCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 924, ASSERT_TYPE_ASSERT, "(materialStreamTreeGrid.columnCount == 1)", (const char *)&queryFormat, "materialStreamTreeGrid.columnCount == 1") )
       __debugbreak();
-    *(float *)&_XMM0 = GetHimipDistanceFactor();
-    __asm { vmovaps xmm6, xmm0 }
-    v23 = data;
-    _R14 = &s_streamTreeGridTraversalContexts[v23].materialSortGridList;
-    _RSI = &s_streamTreeGridTraversalContexts[v23].materialCellContext;
-    memset_0(_R14, 0, sizeof(StreamMaterialSortGridList));
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovdqu xmmword ptr [rsi], xmm0
-    }
-    _RAX = viewDir;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax]
-      vmovdqu xmmword ptr [rsi+10h], xmm1
-      vmovss  xmm9, [rsp+168h+zoomFactor]
-      vmovss  dword ptr [rsi+20h], xmm9
-      vmovss  xmm10, [rsp+168h+cosFovLimit]
-      vmovss  dword ptr [rsi+24h], xmm10
-      vmovss  xmm0, [rsp+168h+distanceScale]
-      vmovss  dword ptr [rsi+28h], xmm0
-      vmovss  dword ptr [rsi+2Ch], xmm6
-    }
-    v32 = DVARINT_stream_treeSpanBoost;
+    HimipDistanceFactor = GetHimipDistanceFactor();
+    v15 = data;
+    p_materialSortGridList = &s_streamTreeGridTraversalContexts[v15].materialSortGridList;
+    p_materialCellContext = &s_streamTreeGridTraversalContexts[v15].materialCellContext;
+    memset_0(p_materialSortGridList, 0, sizeof(StreamMaterialSortGridList));
+    p_materialCellContext->viewPos = (float4)viewPos->v;
+    s_streamTreeGridTraversalContexts[v15].materialCellContext.viewDir = (float4)viewDir->v;
+    s_streamTreeGridTraversalContexts[v15].materialCellContext.zoomFactor = zoomFactor;
+    s_streamTreeGridTraversalContexts[v15].materialCellContext.cosFovLimit = cosFovLimit;
+    s_streamTreeGridTraversalContexts[v15].materialCellContext.distanceScale = distanceScale;
+    s_streamTreeGridTraversalContexts[v15].materialCellContext.streamerMaxDistToRead = HimipDistanceFactor;
+    v18 = DVARINT_stream_treeSpanBoost;
     if ( !DVARINT_stream_treeSpanBoost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeSpanBoost") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v32);
-    s_streamTreeGridTraversalContexts[v23].materialCellContext.spanBoost = v32->current.integer;
-    s_streamTreeGridTraversalContexts[v23].materialCellContext.localClientIndex = localClientIndex;
-    s_streamTreeGridTraversalContexts[v23].materialCellContext.streamTreeGrid = materialStreamTreeGrid;
-    v33 = 0;
-    s_streamTreeGridTraversalContexts[v23].materialCellContext.gridCell = NULL;
-    s_streamTreeGridTraversalContexts[v23].currentIndex = 0;
-    v34 = 0;
+    Dvar_CheckFrontendServerThread(v18);
+    s_streamTreeGridTraversalContexts[v15].materialCellContext.spanBoost = v18->current.integer;
+    s_streamTreeGridTraversalContexts[v15].materialCellContext.localClientIndex = localClientIndex;
+    s_streamTreeGridTraversalContexts[v15].materialCellContext.streamTreeGrid = materialStreamTreeGrid;
+    v19 = 0;
+    s_streamTreeGridTraversalContexts[v15].materialCellContext.gridCell = NULL;
+    s_streamTreeGridTraversalContexts[v15].currentIndex = 0;
+    v20 = 0;
     if ( materialStreamTreeGrid->rowCount )
     {
-      __asm { vmovss  xmm11, cs:__real@3f800000 }
       do
       {
-        streamFrontendGlob->transientZoneStreamingQuality[1536 * streamFrontendGlob->sortListWrite + v34] = 0;
-        if ( v34 >= 0x600u )
+        streamFrontendGlob->transientZoneStreamingQuality[1536 * streamFrontendGlob->sortListWrite + v20] = 0;
+        if ( v20 >= 0x600u )
         {
-          LODWORD(v67) = 1536;
-          LODWORD(v66) = v34;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v66, v67) )
+          LODWORD(v43) = 1536;
+          LODWORD(v42) = v20;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v42, v43) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> (v34 & 0x1F)) & transientVisibility->array[(unsigned __int64)v34 >> 5]) != 0 )
+        if ( ((0x80000000 >> (v20 & 0x1F)) & transientVisibility->array[(unsigned __int64)v20 >> 5]) != 0 )
         {
-          v36 = cellKeys[v34];
-          if ( v36 )
+          v21 = cellKeys[v20];
+          if ( v21 )
           {
-            if ( Stream_GenericIsSafeToUse(cellKeys[v34]) )
+            if ( Stream_GenericIsSafeToUse(cellKeys[v20]) )
             {
-              Stream_UsedGeneric(v36);
-              streamFrontendGlob->transientZoneStreamingQuality[1536 * streamFrontendGlob->sortListWrite + v34] = 1;
+              Stream_UsedGeneric(v21);
+              streamFrontendGlob->transientZoneStreamingQuality[1536 * streamFrontendGlob->sortListWrite + v20] = 1;
               Sys_ProfBeginNamedEvent(0xFFFF6347, "Deserialize material stream grid cell");
-              if ( (v36->flags & 2) != 0 )
-                residentData = v36->data.residentData;
+              if ( (v21->flags & 2) != 0 )
+                residentData = v21->data.residentData;
               else
-                residentData = Stream_AddressSpace_ResolveHandle(&v36->data.dataHandle);
+                residentData = Stream_AddressSpace_ResolveHandle(&v21->data.dataHandle);
               if ( !residentData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 985, ASSERT_TYPE_ASSERT, "(gridCell != nullptr)", (const char *)&queryFormat, "gridCell != nullptr") )
                 __debugbreak();
               Sys_ProfEndNamedEvent();
-              if ( *((_WORD *)residentData + 38) != v34 )
+              if ( *((_WORD *)residentData + 38) != v20 )
               {
                 Com_PrintError(0, "Stream_TraverseMaterialStreamTreeGrid - Corrupt stream key detected. Bailing out to avoid crashing\n");
                 Stream_Logger_Dump(residentData);
@@ -3301,102 +2872,88 @@ void Stream_TraverseMaterialStreamTreeGrid(const StreamTreeGrid *materialStreamT
               }
               if ( (unsigned int)(*((_DWORD *)residentData + 14) + *((_DWORD *)residentData + 15)) > 0x19 )
               {
-                if ( _R14->sortCellCount >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1009, ASSERT_TYPE_ASSERT, "(sortList.sortCellCount < STREAM_MAX_SORTED_GRID_CELLS)", (const char *)&queryFormat, "sortList.sortCellCount < STREAM_MAX_SORTED_GRID_CELLS") )
+                if ( p_materialSortGridList->sortCellCount >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1009, ASSERT_TYPE_ASSERT, "(sortList.sortCellCount < STREAM_MAX_SORTED_GRID_CELLS)", (const char *)&queryFormat, "sortList.sortCellCount < STREAM_MAX_SORTED_GRID_CELLS") )
                   __debugbreak();
-                _RBX = 2i64 * _R14->sortCellCount;
-                _R14->sortCells[_R14->sortCellCount].gridCell = (const MaterialStreamTreeGridCell *)residentData;
-                _RAX = v73;
+                sortCellCount = p_materialSortGridList->sortCellCount;
+                p_materialSortGridList->sortCells[p_materialSortGridList->sortCellCount].gridCell = (const MaterialStreamTreeGridCell *)residentData;
+                v = v46->v;
+                _XMM8 = _xmm;
                 __asm
                 {
-                  vmovups xmm3, xmmword ptr [rax]
-                  vmovups xmm8, cs:__xmm@3f800000000000000000000000000000
                   vinsertps xmm8, xmm8, dword ptr [rdi+0Ch], 0
                   vinsertps xmm8, xmm8, dword ptr [rdi+10h], 10h
                   vinsertps xmm8, xmm8, dword ptr [rdi+14h], 20h ; ' '
-                  vmovups xmm7, cs:__xmm@3f800000000000000000000000000000
+                }
+                _XMM7 = _xmm;
+                __asm
+                {
                   vinsertps xmm7, xmm7, dword ptr [rdi], 0
                   vinsertps xmm7, xmm7, dword ptr [rdi+4], 10h
                   vinsertps xmm7, xmm7, dword ptr [rdi+8], 20h ; ' '
                   vminps  xmm0, xmm8, xmm3
                   vmaxps  xmm4, xmm0, xmm7
-                  vsubps  xmm1, xmm4, xmm3
-                  vmulps  xmm2, xmm1, xmm1
+                }
+                v35 = _mm128_sub_ps(_XMM4, v46->v);
+                _XMM2 = _mm128_mul_ps(v35, v35);
+                __asm
+                {
                   vinsertps xmm0, xmm2, xmm2, 8
                   vhaddps xmm1, xmm0, xmm0
                   vhaddps xmm2, xmm1, xmm1
                 }
-                _RCX = viewDir;
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [rcx]
-                  vmovups [rsp+168h+var_F8], xmm0
-                  vmovups [rsp+168h+var_E8], xmm3
-                  vmovdqa [rsp+168h+var_D8], xmm4
-                  vmovdqa [rsp+168h+var_C8], xmm8
-                  vmovdqa [rsp+168h+var_B8], xmm7
-                  vmovss  [rsp+168h+var_128], xmm11
-                  vmovss  [rsp+168h+var_130], xmm10
-                  vmovss  dword ptr [rsp+168h+var_138], xmm9
-                }
-                *(float *)&_XMM0 = Stream_CalculateDistanceSq_ApplyZoomFactor(&v79, &v78, *(float *)&_XMM2, &v77, &v76, &v75, v68, v69, v70);
-                __asm { vmovss  dword ptr [r14+rbx*8+8], xmm0 }
-                ++_R14->sortCellCount;
+                v48.v = viewDir->v;
+                v49.v = v;
+                v50.v = _XMM4;
+                v51.v = _XMM8;
+                v52.v = _XMM7;
+                p_materialSortGridList->sortCells[sortCellCount].distance = Stream_CalculateDistanceSq_ApplyZoomFactor(&v52, &v51, *(float *)&_XMM2, &v50, &v49, &v48, zoomFactor, cosFovLimit, 1.0);
+                ++p_materialSortGridList->sortCellCount;
               }
               else
               {
-                _RSI->gridCell = (const MaterialStreamTreeGridCell *)residentData;
+                p_materialCellContext->gridCell = (const MaterialStreamTreeGridCell *)residentData;
                 MaterialStreamTreeGridCell::DeserializeBegin((const MaterialStreamTreeGridCell *)residentData);
-                Stream_TraverseMaterialStreamTree(_RSI, *(double *)&_XMM1);
+                Stream_TraverseMaterialStreamTree(p_materialCellContext);
                 MaterialStreamTreeGridCell::DeserializeEnd((const MaterialStreamTreeGridCell *)residentData);
               }
             }
             else
             {
-              Stream_RequestGeneric(v36);
-              v57 = DVARINT_stream_treeSpanBoost;
+              Stream_RequestGeneric(v21);
+              v40 = DVARINT_stream_treeSpanBoost;
               if ( !DVARINT_stream_treeSpanBoost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeSpanBoost") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(v57);
-              Stream_BoostGeneric(v36, v57->current.integer);
+              Dvar_CheckFrontendServerThread(v40);
+              Stream_BoostGeneric(v21, v40->current.integer);
             }
           }
         }
-        ++v34;
+        ++v20;
       }
-      while ( v34 < materialStreamTreeGrid->rowCount );
-      v33 = 0;
+      while ( v20 < materialStreamTreeGrid->rowCount );
+      v19 = 0;
     }
-    std::_Sort_unchecked<StreamMaterialSortGridCell *,_lambda_103be8987fb214e831bfdf2d62fe101e_>(_R14->sortCells, &_R14->sortCells[_R14->sortCellCount], _R14->sortCellCount, v71);
+    std::_Sort_unchecked<StreamMaterialSortGridCell *,_lambda_103be8987fb214e831bfdf2d62fe101e_>(p_materialSortGridList->sortCells, &p_materialSortGridList->sortCells[p_materialSortGridList->sortCellCount], p_materialSortGridList->sortCellCount, v44);
     if ( useWorkers )
     {
       Sys_AddWorkerCmd(WRKCMD_STREAM_TRAVERSE_MATERIAL_ZONE, &data);
     }
-    else if ( _R14->sortCellCount )
+    else if ( p_materialSortGridList->sortCellCount )
     {
       do
       {
-        gridCell = _R14->sortCells[v33].gridCell;
-        _RSI->gridCell = gridCell;
+        gridCell = p_materialSortGridList->sortCells[v19].gridCell;
+        p_materialCellContext->gridCell = gridCell;
         MaterialStreamTreeGridCell::DeserializeBegin(gridCell);
-        Stream_TraverseMaterialStreamTree(_RSI, *(double *)&_XMM1);
-        MaterialStreamTreeGridCell::DeserializeEnd(_RSI->gridCell);
-        ++v33;
+        Stream_TraverseMaterialStreamTree(p_materialCellContext);
+        MaterialStreamTreeGridCell::DeserializeEnd(p_materialCellContext->gridCell);
+        ++v19;
       }
-      while ( v33 < _R14->sortCellCount );
+      while ( v19 < p_materialSortGridList->sortCellCount );
     }
   }
   Sys_LeaveCriticalSection(CRITSECT_STREAM_TREE_DRAW);
   Sys_ProfEndNamedEvent();
-  _R11 = &v80;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
 }
 
 /*
@@ -3404,155 +2961,116 @@ void Stream_TraverseMaterialStreamTreeGrid(const StreamTreeGrid *materialStreamT
 Stream_TraverseMaterialStreamTreeRecursive
 ==============
 */
-
-void __fastcall Stream_TraverseMaterialStreamTreeRecursive(const MaterialStreamTreeNode *node, MaterialStreamTreeCellContext *context, double distToNodeSq, double nodeStreamDistance)
+void Stream_TraverseMaterialStreamTreeRecursive(const MaterialStreamTreeNode *node, MaterialStreamTreeCellContext *context, const float distToNodeSq, const float nodeStreamDistance)
 {
-  bool v10; 
   const MaterialStreamTreeGridCell *gridCell; 
+  __int64 v7; 
+  __int64 i; 
+  unsigned __int16 v9; 
+  float cosFovLimit; 
+  float zoomFactor; 
   __int64 v12; 
-  unsigned __int16 v16; 
-  _BOOL8 v45; 
-  __int64 v47; 
-  unsigned __int16 v49; 
-  __int64 v51; 
-  bool v53; 
-  const MaterialStreamTreeNode *v54; 
-  float nodeDistSq; 
-  float v59; 
-  float v60; 
-  float contexta; 
-  float v62; 
-  float4 v64; 
-  float4 v65; 
-  float4 v66; 
-  float4 v67; 
-  float4 v68; 
-  __int128 v69; 
-  __int128 v70; 
+  MaterialStreamTreeNode *nodes; 
+  __m128 v15; 
+  float v16; 
+  __m128 v20; 
+  __m128 v25; 
+  __m128 v; 
+  float v31; 
+  __int64 v32; 
+  __int64 v33; 
+  unsigned __int16 v34; 
+  float v35; 
+  const MaterialStreamTreeNode *v36; 
+  float v37; 
+  int v38[4]; 
+  float4 v39; 
+  float4 v40; 
+  float4 v41; 
+  float4 v42; 
+  float4 v43; 
+  __m128 v44; 
+  __m128 v45; 
 
-  _RDI = context;
-  __asm
-  {
-    vmovss  [rsp+150h+var_120], xmm3
-    vmovss  [rsp+150h+nodeDistSq], xmm2
-  }
-  Stream_ProcessMatImgInstanceGroups(node->instanceStartIndex, node->instanceGroupStartIndex, node->materialInstanceGroupCount, node->imageInstanceGroupCount, node->instanceCount, nodeDistSq, v59, context);
+  Stream_ProcessMatImgInstanceGroups(node->instanceStartIndex, node->instanceGroupStartIndex, node->materialInstanceGroupCount, node->imageInstanceGroupCount, node->instanceCount, distToNodeSq, nodeStreamDistance, context);
   if ( *(_DWORD *)node->childNodes != -1 )
   {
-    v10 = _RDI->gridCell == NULL;
-    __asm
-    {
-      vmovaps [rsp+150h+var_60], xmm8
-      vmovaps [rsp+150h+var_70], xmm9
-    }
-    if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 733, ASSERT_TYPE_ASSERT, "(context.gridCell != nullptr)", (const char *)&queryFormat, "context.gridCell != nullptr") )
+    if ( !context->gridCell && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 733, ASSERT_TYPE_ASSERT, "(context.gridCell != nullptr)", (const char *)&queryFormat, "context.gridCell != nullptr") )
       __debugbreak();
-    gridCell = _RDI->gridCell;
-    v12 = 0i64;
-    __asm
+    gridCell = context->gridCell;
+    v7 = 0i64;
+    for ( i = 0i64; i < 2; ++i )
     {
-      vmovss  xmm9, cs:__real@3f800000
-      vmovss  xmm8, cs:__real@7f7fffff
-      vmovaps [rsp+150h+var_40], xmm6
-    }
-    _RBX = 0i64;
-    __asm { vmovaps [rsp+150h+var_50], xmm7 }
-    do
-    {
-      v16 = node->childNodes[_RBX];
-      if ( v16 == 0xFFFF )
+      v9 = node->childNodes[i];
+      if ( v9 == 0xFFFF )
       {
-        __asm { vmovaps xmm0, xmm8 }
+        v31 = FLOAT_3_4028235e38;
       }
       else
       {
+        cosFovLimit = context->cosFovLimit;
+        zoomFactor = context->zoomFactor;
+        v12 = v9;
+        nodes = gridCell->nodes;
+        v44.m128_i32[3] = 0;
+        v15 = v44;
+        v15.m128_f32[0] = nodes[v12].bounds.maxs.v[0];
+        _XMM7 = v15;
+        v16 = nodes[v12].bounds.mins.v[0];
         __asm
         {
-          vmovss  xmm4, dword ptr [rdi+24h]
-          vmovss  xmm5, dword ptr [rdi+20h]
-        }
-        _RCX = 52i64 * v16;
-        _RAX = gridCell->nodes;
-        HIDWORD(v69) = 0;
-        __asm
-        {
-          vmovups xmm7, xmmword ptr [rbp-50h]
-          vmovss  [rsp+150h+var_110], xmm9
-          vmovss  xmm0, dword ptr [rcx+rax+10h]
-          vmovss  xmm1, dword ptr [rcx+rax+8]
-          vmovss  xmm2, dword ptr [rcx+rax+0Ch]
-          vmovss  xmm7, xmm7, xmm0
-          vmovss  xmm0, dword ptr [rcx+rax+4]
           vinsertps xmm7, xmm7, dword ptr [rcx+rax+14h], 10h
           vinsertps xmm7, xmm7, dword ptr [rcx+rax+18h], 20h ; ' '
         }
-        HIDWORD(v70) = 0;
+        v45.m128_i32[3] = 0;
+        v20 = v45;
+        v20.m128_f32[0] = v16;
+        _XMM6 = v20;
         __asm
         {
-          vmovups xmm6, xmmword ptr [rbp-40h]
-          vmovss  xmm6, xmm6, xmm0
           vminps  xmm0, xmm7, xmmword ptr [rdi]
           vinsertps xmm6, xmm6, xmm1, 10h
           vinsertps xmm6, xmm6, xmm2, 20h ; ' '
           vmaxps  xmm3, xmm0, xmm6
-          vsubps  xmm1, xmm3, xmmword ptr [rdi]
-          vmulps  xmm2, xmm1, xmm1
-          vinsertps xmm0, xmm2, xmm2, 8
-          vhaddps xmm1, xmm0, xmm0
-          vmovups xmm0, xmmword ptr [rdi+10h]
-          vmovss  dword ptr [rsp+150h+context], xmm4
-          vmovss  [rsp+150h+var_120], xmm5
-          vhaddps xmm2, xmm1, xmm1
-          vmovups xmm1, xmmword ptr [rdi]
-          vmovups [rsp+150h+var_E0], xmm1
-          vmovups xmmword ptr [rbp-50h], xmm7
-          vmovups xmmword ptr [rbp-40h], xmm6
-          vmovups [rsp+150h+var_F0], xmm0
-          vmovdqa [rbp+50h+var_D0], xmm3
-          vmovdqa [rbp+50h+var_C0], xmm7
-          vmovdqa [rbp+50h+var_B0], xmm6
         }
-        *(float *)&_XMM0 = Stream_CalculateDistanceSq_ApplyZoomFactor(&v68, &v67, *(float *)&_XMM2, &v66, &v65, &v64, v60, contexta, v62);
-      }
-      __asm { vmovss  [rsp+rbx*4+150h+var_100], xmm0 }
-      ++_RBX;
-    }
-    while ( _RBX < 2 );
-    __asm
-    {
-      vmovss  xmm0, [rsp+150h+var_FC]
-      vcomiss xmm0, [rsp+150h+var_100]
-      vmovaps xmm8, [rsp+150h+var_60]
-      vmovaps xmm7, [rsp+150h+var_50]
-    }
-    v45 = (unsigned __int64)_RBX < 2;
-    __asm { vmovaps xmm6, [rsp+150h+var_40] }
-    v47 = 2i64;
-    do
-    {
-      _RAX = v45 ^ v12;
-      v49 = node->childNodes[v45 ^ v12];
-      if ( v49 != 0xFFFF )
-      {
-        __asm { vmovss  xmm2, [rsp+rax*4+150h+var_100]; distToNodeSq }
-        v51 = v49;
-        __asm { vaddss  xmm0, xmm2, xmm9 }
-        v53 = __CFADD__(gridCell->nodes, v51 * 52) || &gridCell->nodes[v51] == NULL;
-        v54 = &gridCell->nodes[v51];
+        v25 = _mm128_sub_ps(_XMM3, context->viewPos.v);
+        _XMM2 = _mm128_mul_ps(v25, v25);
         __asm
         {
-          vmulss  xmm0, xmm0, dword ptr [rcx+30h]
-          vmulss  xmm3, xmm0, dword ptr [rdi+28h]; nodeStreamDistance
-          vcomiss xmm3, dword ptr [rdi+2Ch]
+          vinsertps xmm0, xmm2, xmm2, 8
+          vhaddps xmm1, xmm0, xmm0
         }
-        if ( v53 )
-          Stream_TraverseMaterialStreamTreeRecursive(v54, _RDI, *(const float *)&_XMM2, *(const float *)&_XMM3);
+        v = context->viewDir.v;
+        __asm { vhaddps xmm2, xmm1, xmm1 }
+        v40.v = (__m128)context->viewPos;
+        v44 = _XMM7;
+        v45 = _XMM6;
+        v39.v = v;
+        v41.v = _XMM3;
+        v42.v = _XMM7;
+        v43.v = _XMM6;
+        v31 = Stream_CalculateDistanceSq_ApplyZoomFactor(&v43, &v42, *(float *)&_XMM2, &v41, &v40, &v39, zoomFactor, cosFovLimit, 1.0);
       }
-      ++v12;
-      --v47;
+      *(float *)&v38[i] = v31;
     }
-    while ( v47 );
-    __asm { vmovaps xmm9, [rsp+150h+var_70] }
+    v32 = 0i64;
+    LOBYTE(v32) = *(float *)&v38[1] < *(float *)v38;
+    v33 = 2i64;
+    do
+    {
+      v34 = node->childNodes[v32 ^ v7];
+      if ( v34 != 0xFFFF )
+      {
+        v35 = *(float *)&v38[v32 ^ v7];
+        v36 = &gridCell->nodes[v34];
+        v37 = (float)((float)(v35 + 1.0) * v36->minHimipInvSqRadiiOfChildren) * context->distanceScale;
+        if ( v37 <= context->streamerMaxDistToRead )
+          Stream_TraverseMaterialStreamTreeRecursive(v36, context, v35, v37);
+      }
+      ++v7;
+      --v33;
+    }
+    while ( v33 );
   }
 }
 
@@ -3561,12 +3079,10 @@ void __fastcall Stream_TraverseMaterialStreamTreeRecursive(const MaterialStreamT
 Stream_TraverseMaterialZoneCmd
 ==============
 */
-void Stream_TraverseMaterialZoneCmd(const void *const data, double a2)
+void Stream_TraverseMaterialZoneCmd(const void *const data)
 {
+  StreamMaterialTreeGridTraversalContext *v2; 
   const MaterialStreamTreeGridCell *gridCell; 
-  float fmt; 
-  float cosFovLimit; 
-  float v10; 
   unsigned int dataa; 
 
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 868, ASSERT_TYPE_ASSERT, "(data != nullptr)", (const char *)&queryFormat, "data != nullptr") )
@@ -3574,31 +3090,22 @@ void Stream_TraverseMaterialZoneCmd(const void *const data, double a2)
   dataa = *(_DWORD *)data;
   if ( dataa >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 870, ASSERT_TYPE_ASSERT, "(viewIndex < ( sizeof( *array_counter( s_streamTreeGridTraversalContexts ) ) + 0 ))", (const char *)&queryFormat, "viewIndex < ARRAY_COUNT( s_streamTreeGridTraversalContexts )") )
     __debugbreak();
-  _RBX = &s_streamTreeGridTraversalContexts[dataa];
-  if ( _RBX->currentIndex == _RBX->materialSortGridList.sortCellCount )
+  v2 = &s_streamTreeGridTraversalContexts[dataa];
+  if ( v2->currentIndex == v2->materialSortGridList.sortCellCount )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+838h]
-      vmovss  [rsp+58h+var_28], xmm0
-      vmovss  xmm1, dword ptr [rbx+834h]
-      vmovss  [rsp+58h+cosFovLimit], xmm1
-      vmovss  xmm0, dword ptr [rbx+830h]
-      vmovss  dword ptr [rsp+58h+fmt], xmm0
-    }
-    Stream_TraverseStreamTree(_RBX->soloTree, (const LocalClientNum_t)_RBX->materialCellContext.localClientIndex, &_RBX->materialCellContext.viewPos, &_RBX->materialCellContext.viewDir, fmt, cosFovLimit, v10, _RBX->materialCellContext.transientVisibility);
+    Stream_TraverseStreamTree(v2->soloTree, (const LocalClientNum_t)v2->materialCellContext.localClientIndex, &v2->materialCellContext.viewPos, &v2->materialCellContext.viewDir, v2->materialCellContext.zoomFactor, v2->materialCellContext.cosFovLimit, v2->materialCellContext.distanceScale, v2->materialCellContext.transientVisibility);
   }
   else
   {
     Sys_EnterCriticalSection(CRITSECT_STREAM_TREE_DRAW);
-    if ( _RBX->currentIndex >= _RBX->materialSortGridList.sortCellCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 888, ASSERT_TYPE_ASSERT, "(traversalContext.currentIndex < materialSortGridList.sortCellCount)", (const char *)&queryFormat, "traversalContext.currentIndex < materialSortGridList.sortCellCount") )
+    if ( v2->currentIndex >= v2->materialSortGridList.sortCellCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 888, ASSERT_TYPE_ASSERT, "(traversalContext.currentIndex < materialSortGridList.sortCellCount)", (const char *)&queryFormat, "traversalContext.currentIndex < materialSortGridList.sortCellCount") )
       __debugbreak();
-    gridCell = _RBX->materialSortGridList.sortCells[_RBX->currentIndex].gridCell;
-    _RBX->materialCellContext.gridCell = gridCell;
+    gridCell = v2->materialSortGridList.sortCells[v2->currentIndex].gridCell;
+    v2->materialCellContext.gridCell = gridCell;
     MaterialStreamTreeGridCell::DeserializeBegin(gridCell);
-    Stream_TraverseMaterialStreamTree(&_RBX->materialCellContext, a2);
-    MaterialStreamTreeGridCell::DeserializeEnd(_RBX->materialSortGridList.sortCells[_RBX->currentIndex].gridCell);
-    ++_RBX->currentIndex;
+    Stream_TraverseMaterialStreamTree(&v2->materialCellContext);
+    MaterialStreamTreeGridCell::DeserializeEnd(v2->materialSortGridList.sortCells[v2->currentIndex].gridCell);
+    ++v2->currentIndex;
     Sys_AddWorkerCmd(WRKCMD_STREAM_TRAVERSE_MATERIAL_ZONE, &dataa);
     Sys_LeaveCriticalSection(CRITSECT_STREAM_TREE_DRAW);
   }
@@ -3611,50 +3118,27 @@ Stream_TraverseStreamTree
 */
 void Stream_TraverseStreamTree(const StreamTree *streamTree, const LocalClientNum_t localClientIndex, const float4 *viewPos, const float4 *viewDir, float zoomFactor, float cosFovLimit, float distanceScale, const bitarray<1536> *transientVisibility)
 {
-  const dvar_t *v19; 
+  const dvar_t *v12; 
   MaterialStreamTreeContext context; 
 
-  _RDI = viewDir;
-  _RBX = viewPos;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TraverseStreamTree");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rsp+0D8h+context.baseclass_0.viewPos.v], xmm0
-    vmovups xmm1, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsp+0D8h+context.baseclass_0.viewDir.v], xmm1
-    vmovss  xmm0, [rsp+0D8h+zoomFactor]
-    vmovss  [rsp+0D8h+context.baseclass_0.zoomFactor], xmm0
-    vmovss  xmm1, [rsp+0D8h+cosFovLimit]
-    vmovss  [rsp+0D8h+context.baseclass_0.cosFovLimit], xmm1
-    vmovss  xmm0, [rsp+0D8h+distanceScale]
-    vmovss  [rsp+0D8h+context.baseclass_0.distanceScale], xmm0
-  }
-  *(float *)&_XMM0 = GetHimipDistanceFactor();
-  __asm { vmovss  [rsp+0D8h+context.baseclass_0.streamerMaxDistToRead], xmm0 }
-  v19 = DVARINT_stream_treeSpanBoost;
+  context.viewPos = (float4)viewPos->v;
+  context.viewDir = (float4)viewDir->v;
+  context.zoomFactor = zoomFactor;
+  context.cosFovLimit = cosFovLimit;
+  context.distanceScale = distanceScale;
+  context.streamerMaxDistToRead = GetHimipDistanceFactor();
+  v12 = DVARINT_stream_treeSpanBoost;
   if ( !DVARINT_stream_treeSpanBoost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeSpanBoost") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  context.spanBoost = v19->current.integer;
+  Dvar_CheckFrontendServerThread(v12);
+  context.spanBoost = v12->current.integer;
   context.streamTree = streamTree;
   context.localClientIndex = localClientIndex;
   context.transientVisibility = transientVisibility;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; nodeStreamDistance
-    vxorps  xmm2, xmm2, xmm2; nodeDistSq
-  }
-  Stream_ProcessVolumeSpan_StreamMtlGroup_(&streamTree->largeMtlGroup, &context, *(float *)&_XMM2, *(float *)&_XMM3);
+  Stream_ProcessVolumeSpan_StreamMtlGroup_(&streamTree->largeMtlGroup, &context, 0.0, 0.0);
   if ( streamTree->nodes )
-  {
-    __asm
-    {
-      vxorps  xmm3, xmm3, xmm3; streamDist
-      vxorps  xmm2, xmm2, xmm2; distToNodeSq
-    }
-    Stream_TraverseStreamTreeRecursive(streamTree->nodes, &context, *(float *)&_XMM2, *(float *)&_XMM3);
-  }
+    Stream_TraverseStreamTreeRecursive(streamTree->nodes, &context, 0.0, 0.0);
   Sys_ProfEndNamedEvent();
 }
 
@@ -3665,59 +3149,50 @@ Stream_TraverseStreamTreeRecursive
 */
 void Stream_TraverseStreamTreeRecursive(const StreamTreeNode *node, const MaterialStreamTreeContext *context, float distToNodeSq, float streamDist)
 {
-  unsigned __int16 v8; 
-  unsigned __int16 v9; 
+  unsigned __int16 v6; 
+  unsigned __int16 v7; 
   StreamTreeNode *nodes; 
-  __int64 v12; 
-  __int64 v14; 
+  float v9; 
+  float v10; 
+  __int64 v11; 
+  _BOOL8 v12; 
+  __int64 v13; 
+  const StreamTreeNode *v14; 
+  float v15; 
+  float v16; 
   StreamTreeNode *nodea; 
-  StreamTreeNode *v22; 
+  StreamTreeNode *v18; 
+  float v19; 
+  float v20; 
 
-  _RDI = context;
   Stream_ProcessVolumeSpan_StreamTreeNode_(node, context, distToNodeSq, streamDist);
-  v8 = node->childNodes[0];
-  if ( v8 != 0xFFFF )
+  v6 = node->childNodes[0];
+  if ( v6 != 0xFFFF )
   {
-    v9 = node->childNodes[1];
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    if ( v9 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 463, ASSERT_TYPE_ASSERT, "(child1Index != c_streamTreeNoChildIndex)", (const char *)&queryFormat, "child1Index != c_streamTreeNoChildIndex") )
+    v7 = node->childNodes[1];
+    if ( v7 == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 463, ASSERT_TYPE_ASSERT, "(child1Index != c_streamTreeNoChildIndex)", (const char *)&queryFormat, "child1Index != c_streamTreeNoChildIndex") )
       __debugbreak();
-    nodes = _RDI->streamTree->nodes;
-    nodea = &nodes[v8];
-    v22 = &nodes[v9];
-    *(float *)&_XMM0 = Stream_DistanceSqToAABB(_RDI, &nodea->aabb);
-    __asm
-    {
-      vmovss  [rsp+58h+arg_0], xmm0
-      vmovaps xmm6, xmm0
-    }
-    *(float *)&_XMM0 = Stream_DistanceSqToAABB(_RDI, &v22->aabb);
-    v12 = 0i64;
-    __asm
-    {
-      vcomiss xmm0, xmm6
-      vmovss  xmm6, cs:__real@3f800000
-    }
-    v14 = 2i64;
-    __asm { vmovss  [rsp+58h+arg_4], xmm0 }
+    nodes = context->streamTree->nodes;
+    nodea = &nodes[v6];
+    v18 = &nodes[v7];
+    v19 = Stream_DistanceSqToAABB(context, &nodea->aabb);
+    v9 = v19;
+    v10 = Stream_DistanceSqToAABB(context, &v18->aabb);
+    v11 = 0i64;
+    v12 = v10 < v9;
+    v13 = 2i64;
+    v20 = v10;
     do
     {
-      _RAX = v12;
-      __asm
-      {
-        vmovss  xmm2, [rsp+rax*4+58h+arg_0]; distToNodeSq
-        vaddss  xmm0, xmm2, xmm6
-        vmulss  xmm1, xmm0, dword ptr [rcx+34h]
-        vmulss  xmm3, xmm1, dword ptr [rdi+28h]; streamDist
-        vcomiss xmm3, dword ptr [rdi+2Ch]
-      }
-      if ( !v12 )
-        Stream_TraverseStreamTreeRecursive(nodea, _RDI, *(float *)&_XMM2, *(float *)&_XMM3);
-      ++v12;
-      --v14;
+      v14 = *(&nodea + (v12 ^ v11));
+      v15 = *(&v19 + (v12 ^ v11));
+      v16 = (float)((float)(v15 + 1.0) * v14->minLomipInvSqRadiiOfChildren) * context->distanceScale;
+      if ( v16 <= context->streamerMaxDistToRead )
+        Stream_TraverseStreamTreeRecursive(v14, context, v15, v16);
+      ++v11;
+      --v13;
     }
-    while ( v14 );
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
+    while ( v13 );
   }
 }
 
@@ -3728,33 +3203,22 @@ Stream_TraverseXModelStreamTree
 */
 void Stream_TraverseXModelStreamTree(const XModelStreamTreeGridCell *xmodelStreamTreeCell, const StreamTreeGrid *streamTreeGrid, const unsigned int viewIndex, const LocalClientNum_t localClientIndex, const float4 *viewPos, const float4 *viewDir, float zoomFactor, float cosFovLimit, float distanceScale, const bitarray<1536> *transientVisibility)
 {
-  const dvar_t *v21; 
+  const dvar_t *v14; 
   unsigned int unsignedInt; 
   XModelStreamTreeContext context; 
 
-  _RBX = viewPos;
-  _RDI = viewDir;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TraverseXModelStreamTree");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rsp+0F8h+context.baseclass_0.viewPos.v], xmm0
-    vmovups xmm1, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsp+0F8h+context.baseclass_0.viewDir.v], xmm1
-    vmovss  xmm0, [rsp+0F8h+zoomFactor]
-    vmovss  [rsp+0F8h+context.baseclass_0.zoomFactor], xmm0
-    vmovss  xmm1, [rsp+0F8h+cosFovLimit]
-    vmovss  [rsp+0F8h+context.baseclass_0.cosFovLimit], xmm1
-    vmovss  xmm0, [rsp+0F8h+distanceScale]
-    vmovss  [rsp+0F8h+context.baseclass_0.distanceScale], xmm0
-  }
-  *(float *)&_XMM0 = GetHimipDistanceFactor();
-  __asm { vmovss  [rsp+0F8h+context.baseclass_0.streamerMaxDistToRead], xmm0 }
-  v21 = DVARINT_stream_treeSpanBoost;
+  context.viewPos = (float4)viewPos->v;
+  context.viewDir = (float4)viewDir->v;
+  context.zoomFactor = zoomFactor;
+  context.cosFovLimit = cosFovLimit;
+  context.distanceScale = distanceScale;
+  context.streamerMaxDistToRead = GetHimipDistanceFactor();
+  v14 = DVARINT_stream_treeSpanBoost;
   if ( !DVARINT_stream_treeSpanBoost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeSpanBoost") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v21);
-  context.spanBoost = v21->current.integer;
+  Dvar_CheckFrontendServerThread(v14);
+  context.spanBoost = v14->current.integer;
   context.localClientIndex = localClientIndex;
   context.gridCell = xmodelStreamTreeCell;
   context.streamTreeGrid = streamTreeGrid;
@@ -3791,19 +3255,15 @@ void Stream_TraverseXModelStreamTreeGrid(const StreamTreeGrid *xmodelStreamTreeG
 {
   StreamKey **cellKeys; 
   unsigned int GridCellIndex; 
-  __int64 v16; 
-  const StreamKey *v17; 
+  __int64 v15; 
+  const StreamKey *v16; 
   bool IsSafeToUse; 
-  const StreamKey *v20; 
-  const dvar_t *v21; 
+  const StreamKey *v18; 
+  const dvar_t *v19; 
   StreamKey *ClosestGridCell; 
-  const XModelStreamTreeGridCell *v23; 
-  float v27; 
-  float v28; 
-  float v29; 
+  const XModelStreamTreeGridCell *v21; 
   float4 viewPosa; 
 
-  _RBP = viewPos;
   Sys_ProfBeginNamedEvent(0xFF808080, "Stream_TraverseXModelStreamTreeGrid");
   if ( xmodelStreamTreeGrid->version != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1594, ASSERT_TYPE_ASSERT, "(xmodelStreamTreeGrid.version == STREAM_XMODEL_TREE_VERSION)", (const char *)&queryFormat, "xmodelStreamTreeGrid.version == STREAM_XMODEL_TREE_VERSION") )
     __debugbreak();
@@ -3815,31 +3275,26 @@ void Stream_TraverseXModelStreamTreeGrid(const StreamTreeGrid *xmodelStreamTreeG
       __debugbreak();
     if ( !xmodelStreamTreeGrid->columnCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1605, ASSERT_TYPE_ASSERT, "(xmodelStreamTreeGrid.columnCount > 0)", (const char *)&queryFormat, "xmodelStreamTreeGrid.columnCount > 0") )
       __debugbreak();
-    __asm { vmovss  xmm1, cs:?g_xmodelStreamTreeGridCellSize@@3MB; streamTreeGridCellSize }
-    GridCellIndex = FindGridCellIndex(xmodelStreamTreeGrid, *(const float *)&_XMM1, _RBP);
-    v16 = GridCellIndex;
+    GridCellIndex = FindGridCellIndex(xmodelStreamTreeGrid, 5000.0, viewPos);
+    v15 = GridCellIndex;
     if ( GridCellIndex >= xmodelStreamTreeGrid->rowCount * (unsigned int)xmodelStreamTreeGrid->columnCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1609, ASSERT_TYPE_ASSERT, "(gridCellIndex < static_cast<uint>( xmodelStreamTreeGrid.rowCount * xmodelStreamTreeGrid.columnCount ))", (const char *)&queryFormat, "gridCellIndex < static_cast<uint>( xmodelStreamTreeGrid.rowCount * xmodelStreamTreeGrid.columnCount )") )
       __debugbreak();
-    v17 = cellKeys[v16];
-    if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1612, ASSERT_TYPE_ASSERT, "(gridCellKey != nullptr)", (const char *)&queryFormat, "gridCellKey != nullptr") )
+    v16 = cellKeys[v15];
+    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1612, ASSERT_TYPE_ASSERT, "(gridCellKey != nullptr)", (const char *)&queryFormat, "gridCellKey != nullptr") )
       __debugbreak();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovups xmmword ptr [rsp+98h+viewPos.v], xmm0
-    }
-    IsSafeToUse = Stream_GenericIsSafeToUse(v17);
-    v20 = v17;
+    viewPosa.v = viewPos->v;
+    IsSafeToUse = Stream_GenericIsSafeToUse(v16);
+    v18 = v16;
     if ( !IsSafeToUse )
     {
-      Stream_RequestGeneric(v17);
-      v21 = DVARINT_stream_treeSpanBoost;
+      Stream_RequestGeneric(v16);
+      v19 = DVARINT_stream_treeSpanBoost;
       if ( !DVARINT_stream_treeSpanBoost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_treeSpanBoost") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v21);
-      Stream_BoostGeneric(v17, v21->current.integer);
+      Dvar_CheckFrontendServerThread(v19);
+      Stream_BoostGeneric(v16, v19->current.integer);
       ClosestGridCell = FindClosestGridCell(xmodelStreamTreeGrid, &viewPosa);
-      v17 = ClosestGridCell;
+      v16 = ClosestGridCell;
       if ( !ClosestGridCell )
       {
         memset_0(streamFrontendGlob->smodelsCollectionLodsTemp, 0, sizeof(streamFrontendGlob->smodelsCollectionLodsTemp));
@@ -3847,25 +3302,16 @@ LABEL_28:
         Sys_LeaveCriticalSection(CRITSECT_STREAM_TREE_DRAW);
         goto LABEL_29;
       }
-      v20 = ClosestGridCell;
+      v18 = ClosestGridCell;
     }
-    Stream_UsedGeneric(v20);
+    Stream_UsedGeneric(v18);
     Sys_ProfBeginNamedEvent(0xFFFF6347, "Deserialize xmodel stream grid cell");
-    v23 = XModelStreamTreeGridCell::DeserializeBegin(v17);
-    if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1643, ASSERT_TYPE_ASSERT, "(gridCell != nullptr)", (const char *)&queryFormat, "gridCell != nullptr") )
+    v21 = XModelStreamTreeGridCell::DeserializeBegin(v16);
+    if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_tree.cpp", 1643, ASSERT_TYPE_ASSERT, "(gridCell != nullptr)", (const char *)&queryFormat, "gridCell != nullptr") )
       __debugbreak();
     Sys_ProfEndNamedEvent();
-    __asm
-    {
-      vmovss  xmm0, [rsp+98h+distanceScale]
-      vmovss  [rsp+98h+var_58], xmm0
-      vmovss  xmm1, [rsp+98h+cosFovLimit]
-      vmovss  [rsp+98h+var_60], xmm1
-      vmovss  xmm0, [rsp+98h+zoomFactor]
-      vmovss  [rsp+98h+var_68], xmm0
-    }
-    Stream_TraverseXModelStreamTree(v23, xmodelStreamTreeGrid, viewIndex, localClientIndex, _RBP, viewDir, v27, v28, v29, transientVisibility);
-    XModelStreamTreeGridCell::DeserializeEnd(v23);
+    Stream_TraverseXModelStreamTree(v21, xmodelStreamTreeGrid, viewIndex, localClientIndex, viewPos, viewDir, zoomFactor, cosFovLimit, distanceScale, transientVisibility);
+    XModelStreamTreeGridCell::DeserializeEnd(v21);
     goto LABEL_28;
   }
 LABEL_29:
@@ -3879,35 +3325,21 @@ Stream_TraverseXModelStreamTreeRecursive
 */
 void Stream_TraverseXModelStreamTreeRecursive(const XModelStreamTreeNode *node, XModelStreamTreeContext *context)
 {
-  const XModelStreamTreeNode *v5; 
-  char v7; 
-  char v8; 
+  const XModelStreamTreeNode *i; 
   const XModelStreamTreeGridCell *gridCell; 
-  unsigned __int16 v10; 
-  unsigned __int16 v11; 
+  unsigned __int16 v5; 
+  unsigned __int16 v6; 
 
-  __asm { vmovaps [rsp+48h+var_28], xmm6 }
-  v5 = node;
-  *(float *)&_XMM0 = Stream_DistanceSqToAABB(context, &node->bounds);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-  }
-  while ( v7 | v8 )
+  for ( i = node; Stream_DistanceSqToAABB(context, &i->bounds) <= 0.0; i = &gridCell->nodes[v6] )
   {
     gridCell = context->gridCell;
-    v10 = v5->childNodes[0];
-    v11 = v5->childNodes[1];
-    Stream_ProcessXModelInstances(v5->instanceStartIndex, v5->instanceCount, context);
-    if ( v10 != 0xFFFF )
-      Stream_TraverseXModelStreamTreeRecursive(&gridCell->nodes[v10], context);
-    if ( v11 == 0xFFFF )
+    v5 = i->childNodes[0];
+    v6 = i->childNodes[1];
+    Stream_ProcessXModelInstances(i->instanceStartIndex, i->instanceCount, context);
+    if ( v5 != 0xFFFF )
+      Stream_TraverseXModelStreamTreeRecursive(&gridCell->nodes[v5], context);
+    if ( v6 == 0xFFFF )
       break;
-    v5 = &gridCell->nodes[v11];
-    *(float *)&_XMM0 = Stream_DistanceSqToAABB(context, &v5->bounds);
-    __asm { vcomiss xmm0, xmm6 }
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_28] }
 }
 

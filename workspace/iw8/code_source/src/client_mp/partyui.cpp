@@ -390,17 +390,16 @@ XUID *PartyUI_GetMemberXuid(XUID *result, PartyData *party, int localControllerI
 PartyUI_GetStatus
 ==============
 */
-
-__int64 __fastcall PartyUI_GetStatus(const PartyData *party, __int64 a2, double _XMM2_8)
+__int64 PartyUI_GetStatus(const PartyData *party)
 {
-  int v5; 
-  unsigned int v7; 
-  bool v8; 
-  const dvar_t *v9; 
-  const char *v10; 
+  int v2; 
+  unsigned int v4; 
+  bool v5; 
+  const dvar_t *v6; 
+  const char *v7; 
   int Int_Internal_DebugName; 
-  int v18; 
-  int v19; 
+  int v11; 
+  int v12; 
   bool IsPreloadComplete; 
   int areWeHost; 
 
@@ -408,7 +407,7 @@ __int64 __fastcall PartyUI_GetStatus(const PartyData *party, __int64 a2, double 
     return 0i64;
   if ( Party_IsGameLobby(party) )
   {
-    if ( party->areWeHost && (v5 = Party_CountMembersEvenIfInactive(party, PARTY_MEMBER_TYPE_ALL), v5 <= Party_CountMembersEvenIfInactive(&g_partyData, PARTY_MEMBER_TYPE_ALL)) )
+    if ( party->areWeHost && (v2 = Party_CountMembersEvenIfInactive(party, PARTY_MEMBER_TYPE_ALL), v2 <= Party_CountMembersEvenIfInactive(&g_partyData, PARTY_MEMBER_TYPE_ALL)) )
     {
       if ( PartyAtomic_IsJoiningActive(&g_partyJoinInfo) )
         return 1i64;
@@ -440,12 +439,12 @@ __int64 __fastcall PartyUI_GetStatus(const PartyData *party, __int64 a2, double 
   }
   if ( Party_IsWaitingForMembers(party) && (!party->inParty || !party->areWeHost || party->specificData.hostData.partyCreationDoneTime) )
     return 7i64;
-  v7 = party->lobbyFlags & 0x64;
-  if ( v7 != 4 )
+  v4 = party->lobbyFlags & 0x64;
+  if ( v4 != 4 )
   {
-    if ( v7 != 32 )
+    if ( v4 != 32 )
     {
-      if ( v7 == 64 )
+      if ( v4 == 64 )
         return 15i64;
       if ( Party_AreWeHost(party) )
         return 21i64;
@@ -453,35 +452,28 @@ __int64 __fastcall PartyUI_GetStatus(const PartyData *party, __int64 a2, double 
     }
     if ( !PartyUI_GetStatus_IsPreloadComplete(party) )
     {
-      v8 = party->areWeHost == 0;
+      v5 = party->areWeHost == 0;
 LABEL_58:
-      if ( v8 && party->specificData.clientData.m_receivedGoMessage )
+      if ( v5 && party->specificData.clientData.m_receivedGoMessage )
         return 5i64;
       else
         return 6i64;
     }
     if ( Party_IsPrivateOrSystemlinkGame(party) )
     {
-      v9 = DVARINT_pt_privateGameStartTimerLength;
-      v10 = "pt_privateGameStartTimerLength";
+      v6 = DVARINT_pt_privateGameStartTimerLength;
+      v7 = "pt_privateGameStartTimerLength";
     }
     else
     {
-      v9 = DVARINT_pt_gameStartTimerLength;
-      v10 = "pt_gameStartTimerLength";
+      v6 = DVARINT_pt_gameStartTimerLength;
+      v7 = "pt_gameStartTimerLength";
     }
-    Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(v9, v10);
+    Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(v6, v7);
     Sys_Milliseconds();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vxorps  xmm2, xmm2, xmm2
-      vroundss xmm2, xmm2, xmm1, 2
-      vcvttss2si eax, xmm2
-    }
-    if ( _EAX > Int_Internal_DebugName )
+    _XMM2 = 0i64;
+    __asm { vroundss xmm2, xmm2, xmm1, 2 }
+    if ( (int)*(float *)&_XMM2 > Int_Internal_DebugName )
       return 19i64;
     return 20i64;
   }
@@ -489,11 +481,11 @@ LABEL_58:
     return 17i64;
   if ( !Party_IsPrivateOrSystemlinkGame(party) )
   {
-    v18 = Party_CountMembers(party, PARTY_MEMBER_TYPE_ALL);
-    v19 = Dvar_GetInt_Internal_DebugName(DVARINT_party_minplayers, "party_minplayers");
-    if ( v18 < 1 )
-      v18 = 1;
-    if ( v19 - v18 > 0 )
+    v11 = Party_CountMembers(party, PARTY_MEMBER_TYPE_ALL);
+    v12 = Dvar_GetInt_Internal_DebugName(DVARINT_party_minplayers, "party_minplayers");
+    if ( v11 < 1 )
+      v11 = 1;
+    if ( v12 - v11 > 0 )
       return 10i64;
   }
   if ( Party_UsingReadyUpFeature() )
@@ -507,7 +499,7 @@ LABEL_58:
   areWeHost = party->areWeHost;
   if ( !IsPreloadComplete )
   {
-    v8 = areWeHost == 0;
+    v5 = areWeHost == 0;
     goto LABEL_58;
   }
   if ( !areWeHost && party->specificData.clientData.m_receivedGoMessage )
@@ -1102,12 +1094,9 @@ void __fastcall Party_SetUIPlayerCount(const PartyData *party, double _XMM1_8)
   }
   *(&arguments.argCount + 1) = 0;
   arguments.args[2] = NULL;
-  __asm
-  {
-    vmovdqu xmmword ptr [rsp+4D8h+arguments.args+18h], xmm0
-    vmovdqu xmmword ptr [rsp+4D8h+arguments.args+28h], xmm1
-    vmovdqu xmmword ptr [rsp+4D8h+arguments.args+38h], xmm0
-  }
+  *(_OWORD *)&arguments.args[3] = _XMM0;
+  *(_OWORD *)&arguments.args[5] = _XMM1;
+  *(_OWORD *)&arguments.args[7] = _XMM0;
   j_sprintf(_Buffer, "%d", (unsigned int)v9);
   arguments.argCount = 2;
   arguments.args[0] = _Buffer;

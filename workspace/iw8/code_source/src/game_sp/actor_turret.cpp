@@ -278,6 +278,9 @@ void AIScriptedInterface::Turret_Pain(AIScriptedInterface *this, gentity_s *pAtt
   sentient_s *sentient; 
   sentient_s *v7; 
   bool v8; 
+  const bitarray<224> *AllCombatTeamFlags; 
+  __int128 v10; 
+  double v11; 
   unsigned int v12; 
   unsigned __int64 eTeam; 
   GTurret *Turret; 
@@ -298,20 +301,14 @@ void AIScriptedInterface::Turret_Pain(AIScriptedInterface *this, gentity_s *pAtt
     {
       v8 = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80);
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-        _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+        AllCombatTeamFlags = Com_TeamsSP_GetAllCombatTeamFlags();
       else
-        _RAX = Com_TeamsMP_GetAllTeamFlags();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovsd  xmm1, qword ptr [rax+10h]
-      }
-      v12 = _RAX->array[6] & 0xFFEFFFFF;
-      __asm
-      {
-        vmovups xmmword ptr [rsp+98h+result.array], xmm0
-        vmovsd  qword ptr [rsp+98h+result.array+10h], xmm1
-      }
+        AllCombatTeamFlags = Com_TeamsMP_GetAllTeamFlags();
+      v10 = *(_OWORD *)AllCombatTeamFlags->array;
+      v11 = *(double *)&AllCombatTeamFlags->array[4];
+      v12 = AllCombatTeamFlags->array[6] & 0xFFEFFFFF;
+      *(_OWORD *)result.array = v10;
+      *(double *)&result.array[4] = v11;
       if ( v8 )
         result.array[0] &= ~0x8000000u;
       result.array[6] = v12 & 0xFF9FFFFF;
@@ -483,20 +480,20 @@ __int64 AIScriptedInterface::Turret_Think(AIScriptedInterface *this)
   gentity_s *pTurret; 
   __int64 v3; 
   GTurret *Turret; 
-  unsigned int v6; 
+  unsigned int v5; 
   GTurretState state; 
-  AIScriptedInterface_vtbl *v8; 
-  AIScriptedInterface *v9; 
-  const char *v10; 
-  GameScriptData *v11; 
-  gentity_s *v12; 
+  AIScriptedInterface_vtbl *v7; 
+  AIScriptedInterface *v8; 
+  const char *v9; 
+  GameScriptData *v10; 
+  gentity_s *v11; 
   GWeaponMap *Instance; 
   const Weapon *Weapon; 
   char *WeaponName; 
-  const pathnode_t *v16; 
-  pathnode_t *v17; 
-  __int64 v20; 
-  __int64 v21; 
+  const pathnode_t *v15; 
+  pathnode_t *v16; 
+  __int64 v18; 
+  __int64 v19; 
   char output[1032]; 
 
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Actor_Turret_Think");
@@ -511,7 +508,7 @@ __int64 AIScriptedInterface::Turret_Think(AIScriptedInterface *this)
     Com_PrintWarning(18, "WARNING: Actor_Turret_Think() aborting turret behavior since we don't think we're using the turret anymore, at the beginning.\n");
 LABEL_42:
     this->StopUseTurret(this);
-    v6 = 1;
+    v5 = 1;
     AIScriptedInterface::SetState(this, AIS_BEHAVE);
     goto LABEL_80;
   }
@@ -523,16 +520,16 @@ LABEL_42:
   v3 = pTurret - g_entities;
   if ( (unsigned int)v3 >= 0x800 )
   {
-    LODWORD(v20) = pTurret - g_entities;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v20, 2048) )
+    LODWORD(v18) = pTurret - g_entities;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v18, 2048) )
       __debugbreak();
   }
   v3 = (__int16)v3;
   if ( (unsigned int)(__int16)v3 >= 0x800 )
   {
-    LODWORD(v21) = 2048;
-    LODWORD(v20) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v20, v21) )
+    LODWORD(v19) = 2048;
+    LODWORD(v18) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v18, v19) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -548,14 +545,10 @@ LABEL_42:
     this->m_pAI->useEnemyGoal = 0;
   if ( !AIScriptedInterface::KeepClaimedNode(this) )
     AIScriptedInterface::UpdateGoalPos(this);
-  if ( (Turret->m_data.flags & 0x800000) == 0 )
+  if ( (Turret->m_data.flags & 0x800000) == 0 && !AICommonInterface::PointNearGoal(this, &pTurret->r.currentOrigin, &this->m_pAI->codeGoal, 92.0) )
   {
-    __asm { vmovss  xmm3, cs:__real@42b80000; buffer }
-    if ( !AICommonInterface::PointNearGoal(this, &pTurret->r.currentOrigin, &this->m_pAI->codeGoal, *(float *)&_XMM3) )
-    {
-      Com_PrintWarning(18, "WARNING: Actor_Turret_Think() aborting turret behavior since we are not near our goal anymore.\n");
-      goto LABEL_42;
-    }
+    Com_PrintWarning(18, "WARNING: Actor_Turret_Think() aborting turret behavior since we are not near our goal anymore.\n");
+    goto LABEL_42;
   }
   if ( (Turret->m_data.flags & 0x80000) != 0 )
   {
@@ -568,39 +561,39 @@ LABEL_42:
   {
     if ( state == INITIALIZING )
     {
-      v8 = this->__vftable;
-      v9 = this;
+      v7 = this->__vftable;
+      v8 = this;
       if ( (Turret->m_data.flags & 4) != 0 )
-        v10 = "auto_turret_firing_head";
+        v9 = "auto_turret_firing_head";
       else
-        v10 = "manual_turret_firing_head";
+        v9 = "manual_turret_firing_head";
     }
     else
     {
       if ( state != SEARCHING )
       {
-        LODWORD(v20) = Turret->m_data.state;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_turret.cpp", 283, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unhandled case %i", v20) )
+        LODWORD(v18) = Turret->m_data.state;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_turret.cpp", 283, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unhandled case %i", v18) )
           __debugbreak();
         goto LABEL_57;
       }
-      v8 = this->__vftable;
-      v9 = this;
+      v7 = this->__vftable;
+      v8 = this;
       if ( (Turret->m_data.flags & 4) != 0 )
-        v10 = "auto_turret_firing_feet";
+        v9 = "auto_turret_firing_feet";
       else
-        v10 = "manual_turret_firing_feet";
+        v9 = "manual_turret_firing_feet";
     }
   }
   else
   {
-    v8 = this->__vftable;
-    v9 = this;
-    v10 = "auto_turret_idle";
+    v7 = this->__vftable;
+    v8 = this;
+    v9 = "auto_turret_idle";
     if ( (Turret->m_data.flags & 4) == 0 )
-      v10 = "manual_turret_idle";
+      v9 = "manual_turret_idle";
   }
-  v8->SetDebugInfo(v9, v10);
+  v7->SetDebugInfo(v8, v9);
 LABEL_57:
   if ( (_BYTE)GameScriptData::ms_allocatedType != HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_scr_data_sp.h", 97, ASSERT_TYPE_ASSERT, "( ms_allocatedType == ALLOCATION_TYPE )", (const char *)&queryFormat, "ms_allocatedType == ALLOCATION_TYPE") )
     __debugbreak();
@@ -608,31 +601,30 @@ LABEL_57:
     __debugbreak();
   if ( !(_BYTE)GameScriptData::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_data.h", 79, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tAttempting to access game data outside of an active game context", "ms_allocatedType != GameModeType::NONE") )
     __debugbreak();
-  v11 = GameScriptData::ms_gScriptData;
-  v12 = this->m_pAI->turret.pTurret;
+  v10 = GameScriptData::ms_gScriptData;
+  v11 = this->m_pAI->turret.pTurret;
   Instance = GWeaponMap::GetInstance();
   if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 439, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 439, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  Weapon = BgWeaponMap::GetWeapon(Instance, v12->s.weaponHandle);
-  v6 = 1;
-  if ( !*(&v11[1].ai_asm_getgenerichandler + 3 * Weapon->weaponIdx) )
+  Weapon = BgWeaponMap::GetWeapon(Instance, v11->s.weaponHandle);
+  v5 = 1;
+  if ( !*(&v10[1].ai_asm_getgenerichandler + 3 * Weapon->weaponIdx) )
   {
     WeaponName = BG_GetWeaponName(Weapon, output, 0x400u);
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143E58950, 622i64, WeaponName);
   }
-  v16 = Sentient_NearestNode(this->m_pAI->sentient);
-  v17 = (pathnode_t *)v16;
-  if ( v16 && Path_CanClaimNode(v16, this->m_pAI->sentient) )
-    Path_ForceClaimNode(v17, this->m_pAI->sentient);
-  __asm { vmovss  xmm1, cs:__real@42800000; radius }
-  Sentient_BanNodesInDirAndRadius(this->m_pAI->sentient, *(float *)&_XMM1);
+  v15 = Sentient_NearestNode(this->m_pAI->sentient);
+  v16 = (pathnode_t *)v15;
+  if ( v15 && Path_CanClaimNode(v15, this->m_pAI->sentient) )
+    Path_ForceClaimNode(v16, this->m_pAI->sentient);
+  Sentient_BanNodesInDirAndRadius(this->m_pAI->sentient, 64.0);
   if ( AICommonInterface::IsUsingTurret(this) )
   {
     this->m_pAI->bUseGoalWeight = 0;
     AIScriptedInterface::PostThink(this);
-    v6 = 0;
+    v5 = 0;
   }
   else
   {
@@ -642,7 +634,7 @@ LABEL_57:
   }
 LABEL_80:
   Sys_ProfEndNamedEvent();
-  return v6;
+  return v5;
 }
 
 /*

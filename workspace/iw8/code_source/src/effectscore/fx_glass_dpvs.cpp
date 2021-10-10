@@ -78,9 +78,10 @@ void FX_AddCellGlassSurfacesInFrustumCmd(const void *const data)
   unsigned int *v6; 
   __int64 v7; 
   unsigned int v8; 
+  __int64 v9; 
   unsigned __int8 PieceDrawFlags; 
-  __int64 v13; 
-  __int64 v14; 
+  __int64 v11; 
+  __int64 v12; 
   FxGlassPiecePlace *piecePlaces; 
   DpvsPlane *planes; 
   float *halfThickness; 
@@ -102,31 +103,29 @@ void FX_AddCellGlassSurfacesInFrustumCmd(const void *const data)
     {
 LABEL_9:
       v8 = __lzcnt(v5);
-      _R14 = v8 + 32 * (_DWORD)v7;
+      v9 = v8 + 32 * (_DWORD)v7;
       if ( v8 >= 0x20 )
       {
-        LODWORD(v14) = 32;
-        LODWORD(v13) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v13, v14) )
+        LODWORD(v12) = 32;
+        LODWORD(v11) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v11, v12) )
           __debugbreak();
       }
       if ( (v5 & (0x80000000 >> v8)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
         __debugbreak();
       v5 &= ~(0x80000000 >> v8);
-      if ( !visData[_R14] )
+      if ( !visData[v9] )
       {
-        _RAX = halfThickness;
-        __asm { vmovss  xmm1, dword ptr [rax+r14*4]; halfThickness }
-        PieceDrawFlags = Glass_GetPieceDrawFlags(&piecePlaces[_R14], *(float *)&_XMM1, (const vec3_t *)((char *)data + 16), *((unsigned __int16 *)data + 6), planes);
+        PieceDrawFlags = Glass_GetPieceDrawFlags(&piecePlaces[v9], halfThickness[v9], (const vec3_t *)((char *)data + 16), *((unsigned __int16 *)data + 6), planes);
         if ( PieceDrawFlags )
         {
           if ( PieceDrawFlags > 3u )
           {
-            LODWORD(v13) = PieceDrawFlags;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_dpvs.cpp", 216, ASSERT_TYPE_ASSERT, "( ( drawFlags <= (GLASS_DRAW_FACES | GLASS_DRAW_SIDES) ) )", "( drawFlags ) = %i", v13) )
+            LODWORD(v11) = PieceDrawFlags;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_dpvs.cpp", 216, ASSERT_TYPE_ASSERT, "( ( drawFlags <= (GLASS_DRAW_FACES | GLASS_DRAW_SIDES) ) )", "( drawFlags ) = %i", v11) )
               __debugbreak();
           }
-          visData[_R14] = PieceDrawFlags;
+          visData[v9] = PieceDrawFlags;
         }
       }
     }
@@ -277,115 +276,63 @@ FX_EvaluateGlassVisibility
 void FX_EvaluateGlassVisibility(FxGlassSystem *glassSys, const UmbraCullGlassCmd *cmd, unsigned int pieceIndex)
 {
   unsigned __int8 *visData; 
+  __int64 v4; 
   unsigned int localClientViewIndex; 
-  __int64 v15; 
-  bool v16; 
-  int IsBoxVisible; 
-  unsigned __int8 v49; 
-  unsigned __int8 v55; 
+  float v6; 
+  FxGlassPiecePlace *v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float radius; 
+  float v14; 
+  float v15; 
+  char v16; 
+  float v17; 
   vec3_t normal; 
   Bounds bounds; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
   visData = glassSys->visData;
-  _RDI = pieceIndex;
+  v4 = pieceIndex;
   if ( !visData[pieceIndex] )
   {
-    _RAX = glassSys->halfThickness;
     localClientViewIndex = cmd->localClientViewIndex;
-    __asm
+    v6 = glassSys->halfThickness[pieceIndex];
+    v7 = &glassSys->piecePlaces[pieceIndex];
+    v8 = v7->frame.origin.v[0] - cmd->viewOrg.v[0];
+    v9 = v7->frame.origin.v[1] - cmd->viewOrg.v[1];
+    v10 = v7->frame.origin.v[2] - cmd->viewOrg.v[2];
+    v11 = (float)((float)(v9 * v9) + (float)(v8 * v8)) + (float)(v10 * v10);
+    v12 = (float)(v7->radius * v7->radius) - (float)(v6 * v6);
+    if ( v12 >= (float)(v11 * 0.0000070461542) )
     {
-      vmovaps xmmword ptr [r11-28h], xmm6
-      vmovaps xmmword ptr [r11-38h], xmm7
-      vmovaps xmmword ptr [r11-48h], xmm8
-      vmovss  xmm8, dword ptr [rax+rdi*4]
-      vmovaps xmmword ptr [r11-58h], xmm9
-    }
-    v15 = pieceIndex;
-    v16 = __CFADD__(glassSys->piecePlaces, v15 * 32);
-    _RBX = &glassSys->piecePlaces[v15];
-    __asm
-    {
-      vmovaps xmmword ptr [r11-68h], xmm10
-      vmovaps xmmword ptr [r11-78h], xmm11
-      vmovss  xmm0, dword ptr [rbx+10h]
-      vsubss  xmm9, xmm0, dword ptr [rdx]
-      vmovss  xmm1, dword ptr [rbx+14h]
-      vsubss  xmm10, xmm1, dword ptr [rdx+4]
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vsubss  xmm11, xmm0, dword ptr [rdx+8]
-      vmulss  xmm0, xmm9, xmm9
-      vmulss  xmm1, xmm10, xmm10
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  xmm0, dword ptr [rbx+1Ch]
-      vmulss  xmm1, xmm11, xmm11
-      vaddss  xmm6, xmm2, xmm1
-      vmulss  xmm2, xmm0, xmm0
-      vmulss  xmm0, xmm6, cs:__real@36ec6e01
-      vmulss  xmm1, xmm8, xmm8
-      vsubss  xmm7, xmm2, xmm1
-      vcomiss xmm7, xmm0
-    }
-    if ( !v16 )
-    {
-      UnitQuatToNormal(&_RBX->frame.quat, &normal);
-      __asm
+      UnitQuatToNormal(&v7->frame.quat, &normal);
+      radius = v7->radius;
+      v14 = v7->frame.origin.v[1];
+      bounds.midPoint.v[0] = v7->frame.origin.v[0];
+      bounds.midPoint.v[2] = v7->frame.origin.v[2];
+      bounds.midPoint.v[1] = v14;
+      bounds.halfSize.v[0] = radius;
+      bounds.halfSize.v[1] = radius;
+      bounds.halfSize.v[2] = radius;
+      if ( R_Umbra_IsBoxVisible(&bounds, 0, localClientViewIndex, 0) )
       {
-        vmovss  xmm2, dword ptr [rbx+1Ch]
-        vmovss  xmm0, dword ptr [rbx+10h]
-        vmovss  xmm1, dword ptr [rbx+14h]
-        vmovss  dword ptr [rsp+0C8h+bounds.midPoint], xmm0
-        vmovss  xmm0, dword ptr [rbx+18h]
-        vmovss  dword ptr [rsp+0C8h+bounds.midPoint+8], xmm0
-        vmovss  dword ptr [rsp+0C8h+bounds.midPoint+4], xmm1
-        vmovss  dword ptr [rsp+0C8h+bounds.halfSize], xmm2
-        vmovss  dword ptr [rsp+0C8h+bounds.halfSize+4], xmm2
-        vmovss  dword ptr [rsp+0C8h+bounds.halfSize+8], xmm2
-      }
-      IsBoxVisible = R_Umbra_IsBoxVisible(&bounds, 0, localClientViewIndex, 0);
-      if ( IsBoxVisible )
-      {
-        __asm
+        v15 = v11 - v12;
+        if ( (float)(v11 - v12) <= 1.0 )
         {
-          vsubss  xmm4, xmm6, xmm7
-          vcomiss xmm4, cs:__real@3f800000
-          vmulss  xmm1, xmm9, dword ptr [rsp+0C8h+normal]
-          vmulss  xmm0, xmm10, dword ptr [rsp+0C8h+normal+4]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm11, dword ptr [rsp+0C8h+normal+8]
-          vmulss  xmm0, xmm4, cs:__real@3aadf670
-          vaddss  xmm3, xmm2, xmm1
-          vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vmulss  xmm1, xmm3, dword ptr [rbx+1Ch]
-          vcomiss xmm0, xmm1
-          vmulss  xmm0, xmm3, xmm3
+          v16 = 3;
+LABEL_9:
+          visData[v4] = v16;
+          return;
         }
-        v49 = (IsBoxVisible == 0) + 2;
-        __asm
-        {
-          vsubss  xmm1, xmm6, xmm0
-          vmulss  xmm2, xmm1, xmm8
-          vmulss  xmm0, xmm4, xmm4
-          vmulss  xmm1, xmm0, cs:__real@35ec6e01
-          vmulss  xmm3, xmm2, xmm8
-          vcomiss xmm1, xmm3
-        }
-        v55 = v49 & 0xFD;
-        if ( (v49 & 0xFD) == 0 )
-          v55 = v49;
-        if ( v55 )
-          visData[_RDI] = v55;
+        LODWORD(v17) = COERCE_UNSIGNED_INT((float)((float)(v8 * normal.v[0]) + (float)(v9 * normal.v[1])) + (float)(v10 * normal.v[2])) & _xmm;
+        v16 = (((float)(v15 * 0.0013272297) <= (float)(v17 * v7->radius)) + 2) & 0xFD;
+        if ( (float)((float)(v15 * v15) * 0.0000017615386) <= (float)((float)((float)(v11 - (float)(v17 * v17)) * v6) * v6) )
+          v16 = ((float)((float)(v11 - v12) * 0.0013272297) <= (float)(v17 * v7->radius)) + 2;
+        if ( v16 )
+          goto LABEL_9;
       }
-    }
-    __asm
-    {
-      vmovaps xmm10, [rsp+0C8h+var_68]
-      vmovaps xmm9, [rsp+0C8h+var_58]
-      vmovaps xmm8, [rsp+0C8h+var_48]
-      vmovaps xmm7, [rsp+0C8h+var_38]
-      vmovaps xmm6, [rsp+0C8h+var_28]
-      vmovaps xmm11, [rsp+0C8h+var_78]
     }
   }
 }
@@ -395,156 +342,70 @@ void FX_EvaluateGlassVisibility(FxGlassSystem *glassSys, const UmbraCullGlassCmd
 Glass_GetPieceDrawFlags
 ==============
 */
-
-unsigned __int8 __fastcall Glass_GetPieceDrawFlags(const FxGlassPiecePlace *piecePlace, double halfThickness, const vec3_t *viewOrg, const unsigned int planeCount, const DpvsPlane *planes)
+char Glass_GetPieceDrawFlags(const FxGlassPiecePlace *piecePlace, float halfThickness, const vec3_t *viewOrg, const unsigned int planeCount, const DpvsPlane *planes)
 {
-  unsigned int v38; 
-  bool v39; 
-  __int64 v40; 
-  bool v41; 
-  unsigned __int8 result; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  int v13; 
+  const DpvsPlane *v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  char result; 
+  char v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
   vec3_t normal; 
-  char v99; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0F8h+var_88], xmm13
-    vmovaps [rsp+0F8h+var_98], xmm14
-    vmovaps [rsp+0F8h+var_A8], xmm15
-    vmovss  xmm0, dword ptr [rcx+14h]
-    vsubss  xmm7, xmm0, dword ptr [r8+4]
-    vmovss  xmm0, dword ptr [rcx+18h]
-    vsubss  xmm3, xmm0, dword ptr [r8+8]
-    vmovss  xmm15, dword ptr [rcx+10h]
-    vsubss  xmm6, xmm15, dword ptr [r8]
-    vmovaps xmm9, xmm1
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm0, dword ptr [rcx+1Ch]
-    vmulss  xmm1, xmm3, xmm3
-    vmovss  [rsp+0F8h+var_D0], xmm3
-    vmulss  xmm3, xmm0, xmm0
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm14, xmm2, xmm1
-    vmulss  xmm1, xmm14, cs:__real@36ec6e01
-    vsubss  xmm8, xmm3, xmm0
-    vcomiss xmm8, xmm1
-    vmovss  [rsp+0F8h+var_D8], xmm6
-    vmovss  [rsp+0F8h+var_D4], xmm7
-  }
+  v5 = piecePlace->frame.origin.v[1] - viewOrg->v[1];
+  v6 = piecePlace->frame.origin.v[2] - viewOrg->v[2];
+  v7 = piecePlace->frame.origin.v[0];
+  v8 = v7 - viewOrg->v[0];
+  v24 = v6;
+  v9 = (float)((float)(v5 * v5) + (float)(v8 * v8)) + (float)(v6 * v6);
+  v10 = (float)(piecePlace->radius * piecePlace->radius) - (float)(halfThickness * halfThickness);
+  v22 = v8;
+  v23 = v5;
+  if ( v10 < (float)(v9 * 0.0000070461542) )
+    return 0;
   UnitQuatToNormal(&piecePlace->frame.quat, &normal);
-  __asm
-  {
-    vmovss  xmm11, dword ptr [rsp+0F8h+normal+8]
-    vmovss  xmm12, dword ptr [rsp+0F8h+normal+4]
-    vmovss  xmm13, dword ptr [rsp+0F8h+normal]
-    vmovss  xmm10, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  v38 = 0;
-  v39 = planeCount == 0;
+  v13 = 0;
   if ( planeCount )
   {
     while ( 1 )
     {
-      v40 = v38;
-      v41 = __CFADD__(planes, v40 * 16);
-      _RAX = &planes[v40];
-      __asm
+      v14 = &planes[v13];
+      v15 = v14->coeffs.v[1];
+      v16 = v14->coeffs.v[2];
+      v17 = (float)((float)(normal.v[0] * v14->coeffs.v[0]) + (float)(normal.v[1] * v15)) + (float)(normal.v[2] * v16);
+      v18 = (float)(COERCE_FLOAT(LODWORD(v17) & _xmm) * halfThickness) + (float)((float)((float)((float)(v7 * v14->coeffs.v[0]) + (float)(v15 * piecePlace->frame.origin.v[1])) + (float)(v16 * piecePlace->frame.origin.v[2])) + v14->coeffs.v[3]);
+      if ( (float)(COERCE_FLOAT(LODWORD(v18) & _xmm) * v18) < (float)((float)((float)(v17 * v10) * v17) - v10) )
+        return 0;
+      if ( ++v13 >= planeCount )
       {
-        vmovss  xmm5, dword ptr [rax+4]
-        vmulss  xmm1, xmm13, dword ptr [rax]
-        vmovss  xmm6, dword ptr [rax+8]
-        vmulss  xmm0, xmm12, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm11, xmm6
-        vaddss  xmm7, xmm2, xmm1
-        vmulss  xmm1, xmm15, dword ptr [rax]
-        vandps  xmm0, xmm7, xmm10
-        vmulss  xmm3, xmm0, xmm9
-        vmulss  xmm0, xmm5, dword ptr [rdi+14h]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, dword ptr [rdi+18h]
-        vaddss  xmm2, xmm2, xmm1
-        vaddss  xmm0, xmm2, dword ptr [rax+0Ch]
-        vaddss  xmm3, xmm3, xmm0
-        vandps  xmm1, xmm3, xmm10
-        vmulss  xmm4, xmm1, xmm3
-        vmulss  xmm0, xmm7, xmm8
-        vmulss  xmm1, xmm0, xmm7
-        vsubss  xmm2, xmm1, xmm8
-        vcomiss xmm4, xmm2
-      }
-      if ( v41 )
+        v8 = v22;
+        v5 = v23;
         break;
-      v39 = ++v38 <= planeCount;
-      if ( v38 >= planeCount )
-      {
-        __asm
-        {
-          vmovss  xmm6, [rsp+0F8h+var_D8]
-          vmovss  xmm7, [rsp+0F8h+var_D4]
-        }
-        goto LABEL_5;
       }
     }
-    result = 0;
   }
-  else
+  result = 3;
+  if ( (float)(v9 - v10) > 1.0 )
   {
-LABEL_5:
-    __asm
-    {
-      vsubss  xmm4, xmm14, xmm8
-      vcomiss xmm4, cs:__real@3f800000
-    }
-    result = 3;
-    if ( !v39 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm12, xmm7
-        vmulss  xmm0, xmm6, xmm13
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm11, [rsp+0F8h+var_D0]
-        vmulss  xmm0, xmm4, cs:__real@3aadf670
-        vaddss  xmm3, xmm2, xmm1
-        vandps  xmm3, xmm3, xmm10
-        vmulss  xmm1, xmm3, dword ptr [rdi+1Ch]
-        vcomiss xmm0, xmm1
-        vmulss  xmm0, xmm3, xmm3
-        vsubss  xmm1, xmm14, xmm0
-        vmulss  xmm2, xmm1, xmm9
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm0, cs:__real@35ec6e01
-        vmulss  xmm3, xmm2, xmm9
-        vcomiss xmm1, xmm3
-      }
-      result = 2;
-    }
-  }
-  _R11 = &v99;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+0F8h+var_98]
-    vmovaps xmm15, [rsp+0F8h+var_A8]
+    v20 = 3;
+    LODWORD(v21) = COERCE_UNSIGNED_INT((float)((float)(normal.v[1] * v5) + (float)(v8 * normal.v[0])) + (float)(normal.v[2] * v24)) & _xmm;
+    if ( (float)((float)(v9 - v10) * 0.0013272297) > (float)(v21 * piecePlace->radius) )
+      v20 = 2;
+    result = v20 & 0xFD;
+    if ( (float)((float)((float)(v9 - v10) * (float)(v9 - v10)) * 0.0000017615386) <= (float)((float)((float)(v9 - (float)(v21 * v21)) * halfThickness) * halfThickness) )
+      return v20;
   }
   return result;
 }
@@ -557,58 +418,35 @@ Glass_LinkPiece_Dynamic
 void Glass_LinkPiece_Dynamic(FxGlassSystem *glassSys, unsigned int pieceIndex)
 {
   __int64 v2; 
-  __int64 v4; 
-  bool v5; 
+  FxGlassPiecePlace *v3; 
+  vec3_t *linkOrg; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
   unsigned int pieceWordCount; 
   unsigned int *cellBits; 
   Bounds bounds; 
 
   v2 = pieceIndex;
-  v4 = pieceIndex;
-  v5 = __CFADD__(glassSys->piecePlaces, v4 * 32);
-  _RDX = &glassSys->piecePlaces[v4];
-  _R9 = glassSys->linkOrg;
-  _RCX = 3 * v2;
-  __asm
+  v3 = &glassSys->piecePlaces[pieceIndex];
+  linkOrg = glassSys->linkOrg;
+  v5 = v3->frame.origin.v[0];
+  v6 = linkOrg[v2].v[1] - v3->frame.origin.v[1];
+  v7 = linkOrg[v2].v[2] - v3->frame.origin.v[2];
+  if ( (float)((float)((float)((float)(linkOrg[v2].v[0] - v5) * (float)(linkOrg[v2].v[0] - v5)) + (float)(v6 * v6)) + (float)(v7 * v7)) >= 256.0 )
   {
-    vmovss  xmm5, dword ptr [rdx+10h]
-    vmovss  xmm0, dword ptr [r9+rcx*4]
-    vsubss  xmm2, xmm0, xmm5
-    vmovss  xmm0, dword ptr [r9+rcx*4+4]
-    vsubss  xmm1, xmm0, dword ptr [rdx+14h]
-    vmovss  xmm0, dword ptr [r9+rcx*4+8]
-    vsubss  xmm4, xmm0, dword ptr [rdx+18h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm1, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vcomiss xmm2, cs:__real@43800000
-  }
-  if ( !v5 )
-  {
-    __asm { vmovss  dword ptr [r9+rcx*4], xmm5 }
-    _R9[v2].v[1] = _RDX->frame.origin.v[1];
-    _R9[v2].v[2] = _RDX->frame.origin.v[2];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+1Ch]
-      vmovss  xmm1, dword ptr [rdx+10h]
-      vaddss  xmm2, xmm0, cs:__real@41800000
-    }
+    linkOrg[v2].v[0] = v5;
+    linkOrg[v2].v[1] = v3->frame.origin.v[1];
+    linkOrg[v2].v[2] = v3->frame.origin.v[2];
+    v8 = v3->radius + 16.0;
     pieceWordCount = glassSys->pieceWordCount;
     cellBits = glassSys->cellBits;
-    __asm
-    {
-      vmovss  dword ptr [rsp+48h+bounds.midPoint], xmm1
-      vmovss  xmm0, dword ptr [rdx+14h]
-      vmovss  dword ptr [rsp+48h+bounds.midPoint+4], xmm0
-      vmovss  xmm1, dword ptr [rdx+18h]
-      vmovss  dword ptr [rsp+48h+bounds.midPoint+8], xmm1
-      vmovss  dword ptr [rsp+48h+bounds.halfSize], xmm2
-      vmovss  dword ptr [rsp+48h+bounds.halfSize+4], xmm2
-      vmovss  dword ptr [rsp+48h+bounds.halfSize+8], xmm2
-    }
+    bounds.midPoint.v[0] = v3->frame.origin.v[0];
+    *(_QWORD *)&bounds.midPoint.y = *(_QWORD *)(&v3->nextFree + 5);
+    bounds.halfSize.v[0] = v8;
+    bounds.halfSize.v[1] = v8;
+    bounds.halfSize.v[2] = v8;
     R_FilterThingIntoCells(v2, &bounds, cellBits, pieceWordCount);
   }
 }
@@ -620,106 +458,33 @@ Glass_LinkPiece_Static
 */
 void Glass_LinkPiece_Static(FxGlassSystem *glassSys, unsigned int pieceIndex)
 {
-  __int64 v8; 
-  bool v9; 
+  FxGlassPiecePlace *v3; 
+  vec3_t *linkOrg; 
+  __int64 v5; 
   unsigned int pieceWordCount; 
   unsigned int *cellBits; 
+  float v8; 
   vec3_t normal; 
   Bounds bounds; 
 
-  v8 = pieceIndex;
-  v9 = &glassSys->piecePlaces[v8] == NULL;
-  _RBX = &glassSys->piecePlaces[v8];
-  _RCX = glassSys->linkOrg;
-  _RBP = pieceIndex;
-  _RAX = 3i64 * pieceIndex;
-  __asm
+  v3 = &glassSys->piecePlaces[pieceIndex];
+  linkOrg = glassSys->linkOrg;
+  v5 = pieceIndex;
+  if ( linkOrg[pieceIndex].v[0] != v3->frame.origin.v[0] || linkOrg[pieceIndex].v[1] != v3->frame.origin.v[1] || linkOrg[pieceIndex].v[2] != v3->frame.origin.v[2] )
   {
-    vmovss  xmm0, dword ptr [rcx+rax*4]
-    vucomiss xmm0, dword ptr [rbx+10h]
-  }
-  if ( !v9 )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+rax*4+4]
-    vucomiss xmm0, dword ptr [rbx+14h]
-  }
-  if ( !v9 )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+rax*4+8]
-    vucomiss xmm0, dword ptr [rbx+18h]
-  }
-  if ( !v9 )
-  {
-LABEL_4:
-    _RCX[pieceIndex].v[0] = 262144.0;
-    _RCX[pieceIndex].v[1] = 262144.0;
-    _RCX[pieceIndex].v[2] = 262144.0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+10h]
-      vmovaps [rsp+0B8h+var_28], xmm6
-      vmovss  dword ptr [rsp+0B8h+bounds.midPoint], xmm0
-      vmovss  xmm1, dword ptr [rbx+14h]
-      vmovaps [rsp+0B8h+var_38], xmm7
-      vmovss  dword ptr [rsp+0B8h+bounds.midPoint+4], xmm1
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vmovaps [rsp+0B8h+var_48], xmm8
-      vmovaps [rsp+0B8h+var_58], xmm9
-      vmovss  dword ptr [rsp+0B8h+bounds.midPoint+8], xmm0
-      vmovaps [rsp+0B8h+var_68], xmm10
-    }
-    UnitQuatToNormal(&_RBX->frame.quat, &normal);
-    __asm
-    {
-      vmovss  xmm5, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm4, dword ptr [rsp+0B8h+normal]
-      vmovss  xmm6, dword ptr [rsp+0B8h+normal+4]
-      vmovss  xmm10, dword ptr [rsp+0B8h+normal+8]
-    }
-    _RAX = glassSys->halfThickness;
+    linkOrg[pieceIndex].v[0] = 262144.0;
+    linkOrg[pieceIndex].v[1] = 262144.0;
+    linkOrg[pieceIndex].v[2] = 262144.0;
+    bounds.midPoint.v[0] = v3->frame.origin.v[0];
+    *(_QWORD *)&bounds.midPoint.y = *(_QWORD *)(&v3->nextFree + 5);
+    UnitQuatToNormal(&v3->frame.quat, &normal);
     pieceWordCount = glassSys->pieceWordCount;
     cellBits = glassSys->cellBits;
-    __asm
-    {
-      vmulss  xmm3, xmm10, xmm10
-      vmovss  xmm8, dword ptr [rax+rbp*4]
-      vmulss  xmm9, xmm4, xmm4
-      vmulss  xmm7, xmm6, xmm6
-      vaddss  xmm0, xmm3, xmm7
-      vsqrtss xmm1, xmm0, xmm0
-      vmulss  xmm2, xmm1, dword ptr [rbx+1Ch]
-      vandps  xmm4, xmm4, xmm5
-      vmulss  xmm0, xmm4, xmm8
-      vaddss  xmm1, xmm2, xmm0
-      vmovss  dword ptr [rsp+0B8h+bounds.halfSize], xmm1
-      vaddss  xmm2, xmm3, xmm9
-      vsqrtss xmm0, xmm2, xmm2
-      vmulss  xmm1, xmm0, dword ptr [rbx+1Ch]
-      vandps  xmm6, xmm6, xmm5
-      vmulss  xmm0, xmm6, xmm8
-      vaddss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rsp+0B8h+bounds.halfSize+4], xmm1
-      vaddss  xmm2, xmm7, xmm9
-      vsqrtss xmm0, xmm2, xmm2
-      vmulss  xmm1, xmm0, dword ptr [rbx+1Ch]
-      vandps  xmm10, xmm10, xmm5
-      vmulss  xmm0, xmm10, xmm8
-      vaddss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rsp+0B8h+bounds.halfSize+8], xmm1
-    }
-    R_FilterThingIntoCells(_RBP, &bounds, cellBits, pieceWordCount);
-    __asm
-    {
-      vmovaps xmm10, [rsp+0B8h+var_68]
-      vmovaps xmm9, [rsp+0B8h+var_58]
-      vmovaps xmm8, [rsp+0B8h+var_48]
-      vmovaps xmm7, [rsp+0B8h+var_38]
-      vmovaps xmm6, [rsp+0B8h+var_28]
-    }
+    v8 = glassSys->halfThickness[v5];
+    bounds.halfSize.v[0] = (float)(fsqrt((float)(normal.v[2] * normal.v[2]) + (float)(normal.v[1] * normal.v[1])) * v3->radius) + (float)(COERCE_FLOAT(LODWORD(normal.v[0]) & _xmm) * v8);
+    bounds.halfSize.v[1] = (float)(fsqrt((float)(normal.v[2] * normal.v[2]) + (float)(normal.v[0] * normal.v[0])) * v3->radius) + (float)(COERCE_FLOAT(LODWORD(normal.v[1]) & _xmm) * v8);
+    bounds.halfSize.v[2] = (float)(fsqrt((float)(normal.v[1] * normal.v[1]) + (float)(normal.v[0] * normal.v[0])) * v3->radius) + (float)(COERCE_FLOAT(LODWORD(normal.v[2]) & _xmm) * v8);
+    R_FilterThingIntoCells(v5, &bounds, cellBits, pieceWordCount);
   }
 }
 

@@ -341,45 +341,43 @@ NetBurstAutoCorrelate::AddSample
 */
 void NetBurstAutoCorrelate::AddSample(NetBurstAutoCorrelate *this, const NetBurst::UpdateParams *parms)
 {
+  int v4; 
   int v5; 
   int m_lastSample; 
+  float v7; 
+  float v8; 
   int v9; 
   __int64 v10; 
   __int64 v11; 
   __int64 v12; 
 
-  _RBX = this;
-  v5 = parms->systemMsec / this->m_sampleRateMsec;
-  if ( v5 < this->m_lastSample && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.cpp", 304, ASSERT_TYPE_ASSERT, "( sampleBucket ) >= ( m_lastSample )", "sampleBucket >= m_lastSample\n\t%i, %i", parms->systemMsec / this->m_sampleRateMsec, this->m_lastSample) )
+  v4 = parms->systemMsec / this->m_sampleRateMsec;
+  if ( v4 < this->m_lastSample && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.cpp", 304, ASSERT_TYPE_ASSERT, "( sampleBucket ) >= ( m_lastSample )", "sampleBucket >= m_lastSample\n\t%i, %i", parms->systemMsec / this->m_sampleRateMsec, this->m_lastSample) )
     __debugbreak();
-  I_clamp(parms->currBuffer, -parms->maxBuffer, parms->maxBuffer);
-  m_lastSample = _RBX->m_lastSample;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
+  v5 = I_clamp(parms->currBuffer, -parms->maxBuffer, parms->maxBuffer);
+  m_lastSample = this->m_lastSample;
+  v8 = (float)v5;
+  v7 = v8;
   v9 = m_lastSample + 1;
-  if ( v5 - 256 > m_lastSample + 1 )
-    v9 = v5 - 256;
-  if ( v9 < v5 )
+  if ( v4 - 256 > m_lastSample + 1 )
+    v9 = v4 - 256;
+  if ( v9 < v4 )
   {
     v10 = v9;
-    v11 = (unsigned int)(v5 - v9);
+    v11 = (unsigned int)(v4 - v9);
     do
     {
       v12 = (unsigned __int8)v10++;
-      _RBX->m_samples[v12] = 0.0;
+      this->m_samples[v12] = 0.0;
       --v11;
     }
     while ( v11 );
-    m_lastSample = _RBX->m_lastSample;
+    m_lastSample = this->m_lastSample;
   }
-  _RCX = (unsigned __int8)v5;
-  if ( v5 == m_lastSample )
-    __asm { vaddss  xmm0, xmm0, dword ptr [rbx+rcx*4+30h] }
-  __asm { vmovss  dword ptr [rbx+rcx*4+30h], xmm0 }
-  _RBX->m_lastSample = v5;
+  if ( v4 == m_lastSample )
+    v7 = v8 + this->m_samples[(unsigned __int8)v4];
+  this->m_samples[(unsigned __int8)v4] = v7;
+  this->m_lastSample = v4;
 }
 
 /*
@@ -533,236 +531,156 @@ NetBurstAutoCorrelate::CorrelogramPeriod
 */
 char NetBurstAutoCorrelate::CorrelogramPeriod(NetBurstAutoCorrelate *this, const float *correlogram, const int size, float *outPeriod)
 {
-  __int64 v10; 
-  unsigned int v11; 
+  int v4; 
+  __int64 v8; 
+  int v9; 
+  int v10; 
+  int v11; 
   int v12; 
-  int v13; 
-  int v14; 
-  bool v17; 
-  bool v18; 
-  unsigned int v19; 
-  bool v23; 
-  bool v24; 
-  char result; 
-  unsigned int v32; 
-  unsigned int v33; 
-  __int64 v40; 
-  __int64 v41; 
-  int v42; 
-  __int64 v45[2]; 
+  __int128 v13; 
+  const float *v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float *v19; 
+  float v20; 
+  unsigned int v22; 
+  unsigned int v23; 
+  float v24; 
+  __int128 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  int v28; 
+  __int64 v31[2]; 
 
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  _R13 = outPeriod;
+  v4 = size;
   if ( !correlogram && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.cpp", 381, ASSERT_TYPE_ASSERT, "( correlogram != nullptr )", (const char *)&queryFormat, "correlogram != nullptr") )
     __debugbreak();
-  if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.cpp", 382, ASSERT_TYPE_ASSERT, "( outPeriod != nullptr )", (const char *)&queryFormat, "outPeriod != nullptr") )
+  if ( !outPeriod && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.cpp", 382, ASSERT_TYPE_ASSERT, "( outPeriod != nullptr )", (const char *)&queryFormat, "outPeriod != nullptr") )
     __debugbreak();
-  LODWORD(v10) = 0;
-  v11 = size - 1;
-  v42 = 0;
-  v12 = 1;
-  v45[0] = 0i64;
-  v45[1] = 0i64;
-  v13 = 0x7FFFFFFF;
-  v14 = 0;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  if ( size - 1 <= 1 )
+  LODWORD(v8) = 0;
+  v9 = v4 - 1;
+  v28 = 0;
+  v10 = 1;
+  v31[0] = 0i64;
+  v31[1] = 0i64;
+  v11 = 0x7FFFFFFF;
+  v12 = 0;
+  v13 = 0i64;
+  if ( v4 - 1 <= 1 )
     goto LABEL_56;
-  __asm { vmovss  xmm2, cs:__real@3e800000 }
-  v17 = v11 < 4;
-  v18 = v11 <= 4;
-  if ( (int)v11 > 4 )
+  if ( v9 > 4 )
   {
-    v19 = size - 4;
-    _R10 = correlogram + 2;
+    v14 = correlogram + 2;
     do
     {
-      __asm
+      v15 = *(v14 - 1);
+      if ( v15 >= 0.25 && v15 > *(v14 - 2) && v15 > *v14 )
       {
-        vmovss  xmm0, dword ptr [r10-4]
-        vcomiss xmm0, xmm2
+        *((_DWORD *)v31 + ((__int64)v10 >> 5)) |= 0x80000000 >> (v10 & 0x1F);
+        ++v12;
       }
-      if ( !v17 )
+      v16 = *v14;
+      if ( *v14 >= 0.25 && v15 < v16 && v16 > v14[1] )
       {
-        __asm { vcomiss xmm0, dword ptr [r10-8] }
-        if ( !v18 )
-        {
-          __asm { vcomiss xmm0, dword ptr [r10] }
-          v17 = 0;
-          *((_DWORD *)v45 + ((__int64)v12 >> 5)) |= 0x80000000 >> (v12 & 0x1F);
-          v18 = ++v14 == 0;
-        }
+        *((_DWORD *)v31 + ((v10 + 1i64) >> 5)) |= 0x80000000 >> ((v10 + 1) & 0x1F);
+        ++v12;
       }
-      __asm
+      v17 = v14[1];
+      if ( v17 >= 0.25 && v16 < v17 && v17 > v14[2] )
       {
-        vmovss  xmm1, dword ptr [r10]
-        vcomiss xmm1, xmm2
+        *((_DWORD *)v31 + ((v10 + 2i64) >> 5)) |= 0x80000000 >> ((v10 + 2) & 0x1F);
+        ++v12;
       }
-      if ( !v17 )
+      v18 = v14[2];
+      if ( v18 >= 0.25 && v17 < v18 && v18 > v14[3] )
       {
-        __asm { vcomiss xmm0, xmm1 }
-        if ( v17 )
-        {
-          __asm { vcomiss xmm1, dword ptr [r10+4] }
-          if ( !v18 )
-          {
-            v17 = 0;
-            *((_DWORD *)v45 + ((v12 + 1i64) >> 5)) |= 0x80000000 >> ((v12 + 1) & 0x1F);
-            v18 = ++v14 == 0;
-          }
-        }
+        *((_DWORD *)v31 + ((v10 + 3i64) >> 5)) |= 0x80000000 >> ((v10 + 3) & 0x1F);
+        ++v12;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r10+4]
-        vcomiss xmm0, xmm2
-      }
-      if ( !v17 )
-      {
-        __asm { vcomiss xmm1, xmm0 }
-        if ( v17 )
-        {
-          __asm { vcomiss xmm0, dword ptr [r10+8] }
-          if ( !v18 )
-          {
-            v17 = 0;
-            *((_DWORD *)v45 + ((v12 + 2i64) >> 5)) |= 0x80000000 >> ((v12 + 2) & 0x1F);
-            v18 = ++v14 == 0;
-          }
-        }
-      }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r10+8]
-        vcomiss xmm1, xmm2
-      }
-      if ( !v17 )
-      {
-        __asm { vcomiss xmm0, xmm1 }
-        if ( v17 )
-        {
-          __asm { vcomiss xmm1, dword ptr [r10+0Ch] }
-          if ( !v18 )
-          {
-            *((_DWORD *)v45 + ((v12 + 3i64) >> 5)) |= 0x80000000 >> ((v12 + 3) & 0x1F);
-            ++v14;
-          }
-        }
-      }
-      _R10 += 4;
-      v12 += 4;
-      v17 = v12 < v19;
-      v18 = v12 <= v19;
+      v14 += 4;
+      v10 += 4;
     }
-    while ( v12 < (int)v19 );
-    v42 = v14;
+    while ( v10 < v4 - 4 );
+    v4 = size;
+    v28 = v12;
   }
-  v23 = v12 < v11;
-  v24 = v12 <= v11;
-  if ( v12 < (int)v11 )
+  if ( v10 < v9 )
   {
-    _R10 = &correlogram[v12 + 1];
+    v19 = (float *)&correlogram[v10 + 1];
     do
     {
-      __asm
+      v20 = *(v19 - 1);
+      if ( v20 >= 0.25 && v20 > *(v19 - 2) && v20 > *v19 )
       {
-        vmovss  xmm0, dword ptr [r10-4]
-        vcomiss xmm0, xmm2
+        *((_DWORD *)v31 + ((__int64)v10 >> 5)) |= 0x80000000 >> (v10 & 0x1F);
+        ++v12;
       }
-      if ( !v23 )
-      {
-        __asm { vcomiss xmm0, dword ptr [r10-8] }
-        if ( !v24 )
-        {
-          __asm { vcomiss xmm0, dword ptr [r10] }
-          *((_DWORD *)v45 + ((__int64)v12 >> 5)) |= 0x80000000 >> (v12 & 0x1F);
-          ++v14;
-        }
-      }
-      ++_R10;
-      v23 = ++v12 < v11;
-      v24 = v12 <= v11;
+      ++v19;
+      ++v10;
     }
-    while ( v12 < (int)v11 );
-    v42 = v14;
+    while ( v10 < v9 );
+    v28 = v12;
   }
-  if ( v14 )
+  if ( v12 )
   {
-    if ( v14 == 1 )
+    if ( v12 == 1 )
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, dword ptr [rbp+28h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebx
-        vmulss  xmm1, xmm1, xmm0
-        vmovss  dword ptr [r13+0], xmm1
-      }
-      result = v14;
+      *outPeriod = (float)this->m_sampleRateMsec * (float)v4;
+      return 1;
     }
     else
     {
-      v32 = v45[0];
-      while ( v32 )
+      v22 = v31[0];
+      while ( v22 )
       {
 LABEL_43:
-        v33 = __lzcnt(v32);
-        if ( v33 >= 0x20 )
+        v23 = __lzcnt(v22);
+        if ( v23 >= 0x20 )
         {
-          LODWORD(v41) = 32;
-          LODWORD(v40) = v33;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v40, v41) )
+          LODWORD(v27) = 32;
+          LODWORD(v26) = v23;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v26, v27) )
             __debugbreak();
         }
-        if ( (v32 & (0x80000000 >> v33)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+        if ( (v22 & (0x80000000 >> v23)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
           __debugbreak();
-        v32 &= ~(0x80000000 >> v33);
-        if ( v13 < size )
+        v22 &= ~(0x80000000 >> v23);
+        if ( v11 < size )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vaddss  xmm6, xmm6, xmm0
-          }
+          v24 = (float)(this->m_sampleRateMsec * (v23 + 32 * v8 - v11));
+          v25 = v13;
+          *(float *)&v25 = *(float *)&v13 + v24;
+          v13 = v25;
         }
-        v13 = v33 + 32 * v10;
+        v11 = v23 + 32 * v8;
       }
       while ( 1 )
       {
-        v10 = (unsigned int)(v10 + 1);
-        if ( (unsigned int)v10 >= 4 )
+        v8 = (unsigned int)(v8 + 1);
+        if ( (unsigned int)v8 >= 4 )
           break;
-        v32 = *((_DWORD *)v45 + v10);
-        if ( v32 )
+        v22 = *((_DWORD *)v31 + v8);
+        if ( v22 )
           goto LABEL_43;
       }
-      _R13 = outPeriod;
-      if ( v42 <= 1 )
+      if ( v28 <= 1 )
       {
-        LODWORD(v41) = v42;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.cpp", 431, ASSERT_TYPE_ASSERT, "( ( peakCount > 1 ) )", "%s\n\t( peakCount ) = %i", "( peakCount > 1 )", v41) )
+        LODWORD(v27) = v28;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.cpp", 431, ASSERT_TYPE_ASSERT, "( ( peakCount > 1 ) )", "%s\n\t( peakCount ) = %i", "( peakCount > 1 )", v27) )
           __debugbreak();
       }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm1, xmm6, xmm0
-        vmovss  dword ptr [r13+0], xmm1
-      }
-      result = 1;
+      *outPeriod = *(float *)&v13 / (float)(v28 - 1);
+      return 1;
     }
   }
   else
   {
 LABEL_56:
-    *_R13 = 0.0;
-    result = 0;
+    *outPeriod = 0.0;
+    return 0;
   }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  return result;
 }
 
 /*
@@ -830,193 +748,169 @@ NetBurstAutoCorrelate::SampleCorrelogram
 */
 void NetBurstAutoCorrelate::SampleCorrelogram(NetBurstAutoCorrelate *this, const int startSample, const int endSample, float *outCorrelogram, int *outSize)
 {
-  __int64 v10; 
+  float *v5; 
+  __int64 v7; 
   int m_lastSample; 
-  int v13; 
-  __int64 v16; 
-  unsigned int v17; 
+  int v10; 
+  __int128 v11; 
+  __int64 v12; 
+  unsigned int v13; 
+  __int64 v14; 
+  __int128 v15; 
+  unsigned __int8 v16; 
+  __int64 v17; 
   __int64 v18; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v19; 
+  __int128 v20; 
+  float v21; 
+  int v22; 
+  int v23; 
+  int v24; 
   int v25; 
-  int v26; 
-  int v27; 
+  __int128 v26; 
+  __int128 v27; 
   int v28; 
-  int v31; 
-  bool i; 
+  __int64 v29; 
+  float v30; 
+  __int64 v31; 
+  __int128 v32; 
+  __int128 v33; 
+  __int128 v34; 
+  float v35; 
+  float v36; 
+  __int128 v37; 
+  float v38; 
+  __int64 v39; 
+  __int128 v40; 
+  __int128 v41; 
+  float v42; 
+  __int128 v43; 
+  __int128 v44; 
+  float v45; 
+  __int128 v46; 
+  __int128 v47; 
+  __int64 v48; 
+  float v49; 
+  __int128 v50; 
+  __int128 v51; 
+  float v52; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  _RSI = outCorrelogram;
-  __asm { vmovaps [rsp+68h+var_38], xmm7 }
-  v10 = startSample;
-  _RBX = this;
+  v5 = outCorrelogram;
+  v7 = startSample;
   if ( !outCorrelogram && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.cpp", 345, ASSERT_TYPE_ASSERT, "( outCorrelogram != nullptr )", (const char *)&queryFormat, "outCorrelogram != nullptr") )
     __debugbreak();
   if ( !outSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.cpp", 346, ASSERT_TYPE_ASSERT, "( outSize != nullptr )", (const char *)&queryFormat, "outSize != nullptr") )
     __debugbreak();
-  m_lastSample = _RBX->m_lastSample;
-  v13 = v10;
-  __asm
+  m_lastSample = this->m_lastSample;
+  v10 = v7;
+  v11 = 0i64;
+  if ( (int)v7 <= m_lastSample )
   {
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm0, xmm0, xmm0
-  }
-  if ( (int)v10 <= m_lastSample )
-  {
-    if ( m_lastSample - (int)v10 + 1 >= 4 )
+    if ( m_lastSample - (int)v7 + 1 >= 4 )
     {
-      v16 = v10 + 2;
-      v17 = ((unsigned int)(m_lastSample - v10 - 3) >> 2) + 1;
-      v18 = v17;
-      v13 = v10 + 4 * v17;
+      v12 = v7 + 2;
+      v13 = ((unsigned int)(m_lastSample - v7 - 3) >> 2) + 1;
+      v14 = v13;
+      v10 = v7 + 4 * v13;
       do
       {
-        __asm
-        {
-          vaddss  xmm0, xmm0, dword ptr [rbx+rcx*4+30h]
-          vaddss  xmm1, xmm0, dword ptr [rbx+rcx*4+30h]
-          vaddss  xmm0, xmm1, dword ptr [rbx+rax*4+30h]
-        }
-        v16 += 4i64;
-        __asm { vaddss  xmm0, xmm0, dword ptr [rbx+rcx*4+30h] }
+        v15 = v11;
+        *(float *)&v15 = (float)((float)(*(float *)&v11 + this->m_samples[(unsigned __int8)(v12 - 2)]) + this->m_samples[(unsigned __int8)(v12 - 1)]) + this->m_samples[(unsigned __int8)v12];
+        v16 = v12 + 1;
+        v12 += 4i64;
+        *(float *)&v15 = *(float *)&v15 + this->m_samples[v16];
+        v11 = v15;
+        --v14;
+      }
+      while ( v14 );
+    }
+    if ( v10 <= m_lastSample )
+    {
+      v17 = v10;
+      v18 = m_lastSample - v10 + 1;
+      do
+      {
+        v19 = (unsigned __int8)v17++;
+        v20 = v11;
+        *(float *)&v20 = *(float *)&v11 + this->m_samples[v19];
+        v11 = v20;
         --v18;
       }
       while ( v18 );
     }
-    if ( v13 <= m_lastSample )
-    {
-      v22 = v13;
-      v23 = m_lastSample - v13 + 1;
-      do
-      {
-        ++v22;
-        __asm { vaddss  xmm0, xmm0, dword ptr [rbx+rax*4+30h] }
-        --v23;
-      }
-      while ( v23 );
-    }
   }
-  __asm { vmulss  xmm6, xmm0, cs:__real@3b800000 }
-  v25 = 0;
-  v26 = (endSample - (int)v10 + 1) / 2;
-  *outSize = v26;
-  if ( v26 > 0 )
+  v21 = *(float *)&v11 * 0.00390625;
+  v22 = 0;
+  v23 = (endSample - (int)v7 + 1) / 2;
+  *outSize = v23;
+  if ( v23 > 0 )
   {
     do
     {
-      v27 = _RBX->m_lastSample;
-      v28 = v10;
-      __asm
-      {
-        vmovaps xmm4, xmm7
-        vmovaps xmm5, xmm7
-      }
-      if ( (int)v10 > v27 )
+      v24 = this->m_lastSample;
+      v25 = v7;
+      v26 = 0i64;
+      v27 = 0i64;
+      if ( (int)v7 > v24 )
         goto LABEL_23;
-      if ( v27 - (int)v10 + 1 >= 4 )
+      if ( v24 - (int)v7 + 1 >= 4 )
       {
-        v31 = v10 + 2;
+        v28 = v7 + 2;
         do
         {
-          _RAX = (unsigned __int8)v28;
+          v29 = (unsigned __int8)v25;
+          v25 += 4;
+          v30 = this->m_samples[v29] - v21;
+          v31 = (unsigned __int8)(v28 - 1);
+          v33 = v26;
+          *(float *)&v33 = *(float *)&v26 + (float)((float)(this->m_samples[(unsigned __int8)(v22 + v29)] - v21) * v30);
+          v32 = v33;
+          v34 = v27;
+          *(float *)&v34 = *(float *)&v27 + (float)(v30 * v30);
+          v35 = this->m_samples[v31] - v21;
+          v36 = (float)(this->m_samples[(unsigned __int8)(v31 + v22)] - v21) * v35;
+          *(float *)&v34 = *(float *)&v34 + (float)(v35 * v35);
+          v37 = v34;
+          v38 = this->m_samples[(unsigned __int8)v28] - v21;
+          v39 = (unsigned __int8)(v22 + v28);
+          LOBYTE(v29) = v28 + 1;
+          v41 = v32;
+          *(float *)&v41 = *(float *)&v32 + v36;
+          v40 = v41;
           v28 += 4;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+rax*4+30h]
-            vsubss  xmm3, xmm0, xmm6
-          }
-          _RCX = (unsigned __int8)(v25 + _RAX);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+rcx*4+30h]
-            vsubss  xmm1, xmm0, xmm6
-            vmulss  xmm2, xmm1, xmm3
-          }
-          _RCX = (unsigned __int8)(v31 - 1);
-          __asm
-          {
-            vaddss  xmm4, xmm4, xmm2
-            vmulss  xmm0, xmm3, xmm3
-            vaddss  xmm5, xmm5, xmm0
-            vmovss  xmm0, dword ptr [rbx+rcx*4+30h]
-            vsubss  xmm3, xmm0, xmm6
-          }
-          _RCX = (unsigned __int8)(_RCX + v25);
-          _RAX = (unsigned __int8)v31;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+rcx*4+30h]
-            vsubss  xmm1, xmm0, xmm6
-            vmulss  xmm2, xmm1, xmm3
-            vmulss  xmm0, xmm3, xmm3
-            vaddss  xmm5, xmm5, xmm0
-            vmovss  xmm0, dword ptr [rbx+rax*4+30h]
-            vsubss  xmm3, xmm0, xmm6
-          }
-          _RCX = (unsigned __int8)(v25 + v31);
-          LOBYTE(_RAX) = v31 + 1;
-          __asm { vaddss  xmm4, xmm4, xmm2 }
-          v31 += 4;
-          __asm { vmovss  xmm0, dword ptr [rbx+rcx*4+30h] }
-          _RCX = (unsigned __int8)_RAX;
-          __asm
-          {
-            vsubss  xmm1, xmm0, xmm6
-            vmulss  xmm2, xmm1, xmm3
-            vmulss  xmm0, xmm3, xmm3
-            vaddss  xmm5, xmm5, xmm0
-            vmovss  xmm0, dword ptr [rbx+rcx*4+30h]
-          }
-          _RCX = (unsigned __int8)(_RAX + v25);
-          __asm
-          {
-            vsubss  xmm3, xmm0, xmm6
-            vaddss  xmm4, xmm4, xmm2
-            vmovss  xmm0, dword ptr [rbx+rcx*4+30h]
-            vsubss  xmm1, xmm0, xmm6
-            vmulss  xmm2, xmm1, xmm3
-            vmulss  xmm0, xmm3, xmm3
-            vaddss  xmm4, xmm4, xmm2
-            vaddss  xmm5, xmm5, xmm0
-          }
+          v42 = (float)(this->m_samples[v39] - v21) * v38;
+          v44 = v37;
+          *(float *)&v44 = *(float *)&v37 + (float)(v38 * v38);
+          v43 = v44;
+          v45 = this->m_samples[(unsigned __int8)v29] - v21;
+          v46 = v40;
+          *(float *)&v46 = (float)(*(float *)&v40 + v42) + (float)((float)(this->m_samples[(unsigned __int8)(v29 + v22)] - v21) * v45);
+          v26 = v46;
+          v47 = v43;
+          *(float *)&v47 = *(float *)&v43 + (float)(v45 * v45);
+          v27 = v47;
         }
-        while ( v28 <= v27 - 3 );
+        while ( v25 <= v24 - 3 );
       }
-      for ( i = v28 == v27; v28 <= v27; i = v28 == v27 )
+      for ( ; v25 <= v24; v27 = v51 )
       {
-        _RAX = (unsigned __int8)v28++;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+rax*4+30h]
-          vsubss  xmm3, xmm0, xmm6
-        }
-        _RCX = (unsigned __int8)(v25 + _RAX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+rcx*4+30h]
-          vsubss  xmm1, xmm0, xmm6
-          vmulss  xmm2, xmm1, xmm3
-          vmulss  xmm0, xmm3, xmm3
-          vaddss  xmm4, xmm4, xmm2
-          vaddss  xmm5, xmm5, xmm0
-        }
+        v48 = (unsigned __int8)v25++;
+        v49 = this->m_samples[v48] - v21;
+        v50 = v26;
+        *(float *)&v50 = *(float *)&v26 + (float)((float)(this->m_samples[(unsigned __int8)(v22 + v48)] - v21) * v49);
+        v26 = v50;
+        v51 = v27;
+        *(float *)&v51 = *(float *)&v27 + (float)(v49 * v49);
       }
-      __asm { vucomiss xmm5, xmm7 }
-      if ( i )
+      if ( *(float *)&v27 == 0.0 )
 LABEL_23:
-        __asm { vmovaps xmm0, xmm7 }
+        v52 = 0.0;
       else
-        __asm { vdivss  xmm0, xmm4, xmm5 }
-      __asm { vmovss  dword ptr [rsi], xmm0 }
-      ++_RSI;
-      ++v25;
+        v52 = *(float *)&v26 / *(float *)&v27;
+      *v5++ = v52;
+      ++v22;
     }
-    while ( v25 < *outSize );
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_28]
-    vmovaps xmm7, [rsp+68h+var_38]
+    while ( v22 < *outSize );
   }
 }
 
@@ -1027,52 +921,56 @@ NetBurstAutoCorrelate::SampleMean
 */
 float NetBurstAutoCorrelate::SampleMean(NetBurstAutoCorrelate *this, const int startSample, const int endSample)
 {
-  int v4; 
+  int v3; 
+  __int128 v5; 
   __int64 v6; 
   unsigned int v7; 
   __int64 v8; 
+  __int128 v9; 
+  unsigned __int8 v10; 
+  __int64 v11; 
   __int64 v12; 
   __int64 v13; 
+  __int128 v14; 
 
-  v4 = startSample;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  v3 = startSample;
+  v5 = 0i64;
   if ( startSample <= endSample )
   {
     if ( endSample - startSample + 1 >= 4 )
     {
       v6 = startSample + 2i64;
-      v7 = ((unsigned int)(endSample - v4 - 3) >> 2) + 1;
+      v7 = ((unsigned int)(endSample - v3 - 3) >> 2) + 1;
       v8 = v7;
-      v4 += 4 * v7;
+      v3 += 4 * v7;
       do
       {
-        __asm
-        {
-          vaddss  xmm0, xmm0, dword ptr [r9+rcx*4+30h]
-          vaddss  xmm1, xmm0, dword ptr [r9+rcx*4+30h]
-          vaddss  xmm0, xmm1, dword ptr [r9+rax*4+30h]
-        }
+        v9 = v5;
+        *(float *)&v9 = (float)((float)(*(float *)&v5 + this->m_samples[(unsigned __int8)(v6 - 2)]) + this->m_samples[(unsigned __int8)(v6 - 1)]) + this->m_samples[(unsigned __int8)v6];
+        v10 = v6 + 1;
         v6 += 4i64;
-        __asm { vaddss  xmm0, xmm0, dword ptr [r9+rcx*4+30h] }
+        *(float *)&v9 = *(float *)&v9 + this->m_samples[v10];
+        v5 = v9;
         --v8;
       }
       while ( v8 );
     }
-    if ( v4 <= endSample )
+    if ( v3 <= endSample )
     {
-      v12 = v4;
-      v13 = endSample - v4 + 1;
+      v11 = v3;
+      v12 = endSample - v3 + 1;
       do
       {
-        ++v12;
-        __asm { vaddss  xmm0, xmm0, dword ptr [r9+rax*4+30h] }
-        --v13;
+        v13 = (unsigned __int8)v11++;
+        v14 = v5;
+        *(float *)&v14 = *(float *)&v5 + this->m_samples[v13];
+        v5 = v14;
+        --v12;
       }
-      while ( v13 );
+      while ( v12 );
     }
   }
-  __asm { vmulss  xmm0, xmm0, cs:__real@3b800000 }
-  return *(float *)&_XMM0;
+  return *(float *)&v5 * 0.00390625;
 }
 
 /*
@@ -1082,93 +980,90 @@ NetBurstAutoCorrelate::Update
 */
 char NetBurstAutoCorrelate::Update(NetBurstAutoCorrelate *this, const NetBurst::UpdateParams *parms)
 {
+  int v4; 
   int v5; 
   int m_lastSample; 
+  float v7; 
+  float v8; 
   int v9; 
   int burstDurationClamp; 
   __int64 v11; 
   __int64 v12; 
   __int64 v13; 
-  int v15; 
+  int v14; 
   int m_currentMinimum; 
   int m_currentMaximum; 
-  bool v18; 
+  bool v17; 
   int systemMsec; 
+  int v19; 
   int v20; 
   int v21; 
-  int v22; 
   int outSize; 
   float outPeriod[3]; 
   float outCorrelogram[128]; 
 
-  _RBX = this;
-  v5 = parms->systemMsec / this->m_sampleRateMsec;
-  if ( v5 < this->m_lastSample && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.cpp", 304, ASSERT_TYPE_ASSERT, "( sampleBucket ) >= ( m_lastSample )", "sampleBucket >= m_lastSample\n\t%i, %i", parms->systemMsec / this->m_sampleRateMsec, this->m_lastSample) )
+  v4 = parms->systemMsec / this->m_sampleRateMsec;
+  if ( v4 < this->m_lastSample && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_burst.cpp", 304, ASSERT_TYPE_ASSERT, "( sampleBucket ) >= ( m_lastSample )", "sampleBucket >= m_lastSample\n\t%i, %i", parms->systemMsec / this->m_sampleRateMsec, this->m_lastSample) )
     __debugbreak();
-  I_clamp(parms->currBuffer, -parms->maxBuffer, parms->maxBuffer);
-  m_lastSample = _RBX->m_lastSample;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
+  v5 = I_clamp(parms->currBuffer, -parms->maxBuffer, parms->maxBuffer);
+  m_lastSample = this->m_lastSample;
+  v8 = (float)v5;
+  v7 = v8;
   v9 = m_lastSample + 1;
-  if ( v5 - 256 > m_lastSample + 1 )
-    v9 = v5 - 256;
+  if ( v4 - 256 > m_lastSample + 1 )
+    v9 = v4 - 256;
   burstDurationClamp = 0;
-  if ( v9 < v5 )
+  if ( v9 < v4 )
   {
     v11 = v9;
-    v12 = (unsigned int)(v5 - v9);
+    v12 = (unsigned int)(v4 - v9);
     do
     {
       v13 = (unsigned __int8)v11++;
-      _RBX->m_samples[v13] = 0.0;
+      this->m_samples[v13] = 0.0;
       --v12;
     }
     while ( v12 );
-    m_lastSample = _RBX->m_lastSample;
+    m_lastSample = this->m_lastSample;
   }
-  _RDX = (unsigned __int8)v5;
-  if ( v5 == m_lastSample )
-    __asm { vaddss  xmm0, xmm0, dword ptr [rbx+rdx*4+30h] }
-  __asm { vmovss  dword ptr [rbx+rdx*4+30h], xmm0 }
-  _RBX->m_lastSample = v5;
-  v15 = I_clamp(parms->currBuffer, -parms->maxBuffer, parms->maxBuffer);
-  NetBurst::UpdateTimers(_RBX, parms);
-  m_currentMinimum = v15;
-  m_currentMaximum = v15;
-  if ( _RBX->m_currentMinimum < v15 )
-    m_currentMinimum = _RBX->m_currentMinimum;
-  v18 = _RBX->m_currentMaximum <= v15;
-  _RBX->m_currentMinimum = m_currentMinimum;
-  if ( !v18 )
-    m_currentMaximum = _RBX->m_currentMaximum;
-  _RBX->m_currentMaximum = m_currentMaximum;
+  if ( v4 == m_lastSample )
+    v7 = v8 + this->m_samples[(unsigned __int8)v4];
+  this->m_samples[(unsigned __int8)v4] = v7;
+  this->m_lastSample = v4;
+  v14 = I_clamp(parms->currBuffer, -parms->maxBuffer, parms->maxBuffer);
+  NetBurst::UpdateTimers(this, parms);
+  m_currentMinimum = v14;
+  m_currentMaximum = v14;
+  if ( this->m_currentMinimum < v14 )
+    m_currentMinimum = this->m_currentMinimum;
+  v17 = this->m_currentMaximum <= v14;
+  this->m_currentMinimum = m_currentMinimum;
+  if ( !v17 )
+    m_currentMaximum = this->m_currentMaximum;
+  this->m_currentMaximum = m_currentMaximum;
   systemMsec = parms->systemMsec;
-  if ( parms->systemMsec - _RBX->m_windowStartTime <= _RBX->m_windowDuration )
+  if ( parms->systemMsec - this->m_windowStartTime <= this->m_windowDuration )
     return 0;
-  _RBX->m_windowMinimum = m_currentMinimum;
-  _RBX->m_windowStartTime = systemMsec;
-  v20 = 256;
-  _RBX->m_windowMaximum = m_currentMaximum;
-  v21 = _RBX->m_lastSample;
-  _RBX->m_currentMaximum = v15;
-  _RBX->m_currentMinimum = v15;
-  v22 = 0;
-  if ( parms->burstDurationClamp / _RBX->m_sampleRateMsec < 256 )
-    v20 = parms->burstDurationClamp / _RBX->m_sampleRateMsec;
-  if ( v21 - v20 >= 0 )
-    v22 = v21 - v20 + 1;
-  NetBurstAutoCorrelate::SampleCorrelogram(_RBX, v22, v21, outCorrelogram, &outSize);
-  if ( NetBurstAutoCorrelate::CorrelogramPeriod(_RBX, outCorrelogram, outSize, outPeriod) )
+  this->m_windowMinimum = m_currentMinimum;
+  this->m_windowStartTime = systemMsec;
+  v19 = 256;
+  this->m_windowMaximum = m_currentMaximum;
+  v20 = this->m_lastSample;
+  this->m_currentMaximum = v14;
+  this->m_currentMinimum = v14;
+  v21 = 0;
+  if ( parms->burstDurationClamp / this->m_sampleRateMsec < 256 )
+    v19 = parms->burstDurationClamp / this->m_sampleRateMsec;
+  if ( v20 - v19 >= 0 )
+    v21 = v20 - v19 + 1;
+  NetBurstAutoCorrelate::SampleCorrelogram(this, v21, v20, outCorrelogram, &outSize);
+  if ( NetBurstAutoCorrelate::CorrelogramPeriod(this, outCorrelogram, outSize, outPeriod) )
   {
-    __asm { vcvttss2si eax, [rsp+278h+outPeriod] }
     burstDurationClamp = parms->burstDurationClamp;
-    if ( _EAX < burstDurationClamp )
-      burstDurationClamp = _EAX;
+    if ( (int)outPeriod[0] < burstDurationClamp )
+      burstDurationClamp = (int)outPeriod[0];
   }
-  _RBX->m_windowDuration = burstDurationClamp;
+  this->m_windowDuration = burstDurationClamp;
   return 1;
 }
 
@@ -1388,10 +1283,9 @@ void NetBurstAutoCorrelate::UpdateWindow(NetBurstAutoCorrelate *this, const NetB
   NetBurstAutoCorrelate::SampleCorrelogram(this, v7, m_lastSample, outCorrelogram, &size);
   if ( NetBurstAutoCorrelate::CorrelogramPeriod(this, outCorrelogram, size, outPeriod) )
   {
-    __asm { vcvttss2si eax, [rsp+258h+outPeriod] }
     burstDurationClamp = parms->burstDurationClamp;
-    if ( _EAX < burstDurationClamp )
-      burstDurationClamp = _EAX;
+    if ( (int)outPeriod[0] < burstDurationClamp )
+      burstDurationClamp = (int)outPeriod[0];
     this->m_windowDuration = burstDurationClamp;
   }
   else

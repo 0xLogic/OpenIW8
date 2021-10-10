@@ -1458,8 +1458,7 @@ BG_GameInterface_ApplyFastReloadPerkVariantScaling
 */
 float BG_GameInterface_ApplyFastReloadPerkVariantScaling(const playerState_s *ps, float reloadTimeScale)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 
 /*
@@ -1793,8 +1792,7 @@ BG_GameInterface_VehicleGetHealthRatio
 */
 float BG_GameInterface_VehicleGetHealthRatio(const LerpEntityStateVehicle *const vehicleLerp)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 
 /*
@@ -1916,8 +1914,7 @@ CG_GameInterface_GetFootstepVolumeScale
 */
 float CG_GameInterface_GetFootstepVolumeScale(const LocalClientNum_t localClientNum, const centity_t *cent, int isPlayerView)
 {
-  __asm { vmovss  xmm0, cs:__real@bf800000 }
-  return *(float *)&_XMM0;
+  return FLOAT_N1_0;
 }
 
 /*
@@ -2405,11 +2402,9 @@ bool G_GameInterface_CalcBulletEndPos(const playerState_s *ps, const int gameTim
 G_GameInterface_CalcSpawnPointScore
 ==============
 */
-
-float __fastcall G_GameInterface_CalcSpawnPointScore(double factorScore, const float weight, const int factorIndex)
+float G_GameInterface_CalcSpawnPointScore(const float factorScore, const float weight, const int factorIndex)
 {
-  __asm { vmulss  xmm0, xmm0, xmm1 }
-  return *(float *)&_XMM0;
+  return factorScore * weight;
 }
 
 /*
@@ -2629,8 +2624,7 @@ PM_GameInterface_GetLongSlideSlopeFrictionScale
 */
 float PM_GameInterface_GetLongSlideSlopeFrictionScale(const int surfaceIndex)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 
 /*

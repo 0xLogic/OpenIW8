@@ -126,13 +126,14 @@ FXW_UpdatePass2Internal
 */
 void FXW_UpdatePass2Internal(const void *const passCmdInfo)
 {
-  __int64 v3; 
-  __int64 v7; 
-  __int64 v11; 
-  int v12; 
+  __int64 v1; 
+  float v3; 
+  __int64 v4; 
+  float v5; 
+  __int64 v6; 
+  int v7; 
 
-  v3 = *(_QWORD *)passCmdInfo;
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
+  v1 = *(_QWORD *)passCmdInfo;
   FxCamera::operator=((FxCamera *)(*(_QWORD *)passCmdInfo + 96i64), (const FxCamera *)(*(_QWORD *)(*(_QWORD *)passCmdInfo + 80i64) + 256i64));
   Profile2_UpdateEntry(78);
   if ( ((unsigned __int8)&dword_14FDE8108 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8108) )
@@ -144,22 +145,17 @@ void FXW_UpdatePass2Internal(const void *const passCmdInfo)
   if ( ((unsigned __int8)&dword_14FDE8114 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8114) )
     __debugbreak();
   _InterlockedIncrement(&dword_14FDE8114);
-  __asm
+  v3 = (float)*(int *)(v1 + 28);
+  v4 = *(int *)(v1 + 40);
+  v5 = v3 * 0.001;
+  if ( (unsigned int)v4 >= 2 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+1Ch]
-  }
-  v7 = *(int *)(v3 + 40);
-  __asm { vmulss  xmm6, xmm0, cs:__real@3a83126f }
-  if ( (unsigned int)v7 >= 2 )
-  {
-    v12 = 2;
-    LODWORD(v11) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 866, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v11, v12) )
+    v7 = 2;
+    LODWORD(v6) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 866, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v6, v7) )
       __debugbreak();
   }
-  __asm { vmovaps xmm1, xmm6; dt }
-  ParticleManager::UpdateBoltingAndDrawLights(&g_particleManager[v7], *(float *)&_XMM1);
+  ParticleManager::UpdateBoltingAndDrawLights(&g_particleManager[v4], v5);
   Profile2_UpdateEntry(81);
   if ( ((unsigned __int64)&dword_14FDE8114 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8114) )
     __debugbreak();
@@ -170,7 +166,6 @@ void FXW_UpdatePass2Internal(const void *const passCmdInfo)
   if ( ((unsigned __int64)&dword_14FDE8108 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8108) )
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE8108);
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
   FX_ExitWriteSystemLock(*((FxAccessLock **)passCmdInfo + 7));
 }
 

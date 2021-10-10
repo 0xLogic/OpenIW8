@@ -151,8 +151,7 @@ BgVehiclePhysicsCarBase::GetCameraPitchAddition
 */
 float BgVehiclePhysicsCarBase::GetCameraPitchAddition(BgVehiclePhysicsCarBase *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+0CBCh] }
-  return *(float *)&_XMM0;
+  return this->m_cameraConfig.m_camPitchAdd;
 }
 
 /*
@@ -162,8 +161,7 @@ BgVehiclePhysicsCarBase::GetCameraRangeAddition
 */
 float BgVehiclePhysicsCarBase::GetCameraRangeAddition(BgVehiclePhysicsCarBase *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+0CC4h] }
-  return *(float *)&_XMM0;
+  return this->m_cameraConfig.m_camRangeAdd;
 }
 
 /*
@@ -173,8 +171,7 @@ BgVehiclePhysicsCarBase::GetCameraReturnFactor
 */
 float BgVehiclePhysicsCarBase::GetCameraReturnFactor(BgVehiclePhysicsCarBase *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+0CB8h] }
-  return *(float *)&_XMM0;
+  return this->m_cameraConfig.m_camReturnFactor;
 }
 
 /*
@@ -184,8 +181,7 @@ BgVehiclePhysicsGround::GetFixedTorqueFactor
 */
 float BgVehiclePhysicsGround::GetFixedTorqueFactor(BgVehiclePhysicsGround *this)
 {
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
-  return *(float *)&_XMM0;
+  return FLOAT_1_0;
 }
 
 /*
@@ -195,8 +191,7 @@ BgVehiclePhysicsGround::GetSteeringAngle
 */
 float BgVehiclePhysicsGround::GetSteeringAngle(BgVehiclePhysicsGround *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+0AECh] }
-  return *(float *)&_XMM0;
+  return this->m_steering.m_yawVisual;
 }
 
 /*

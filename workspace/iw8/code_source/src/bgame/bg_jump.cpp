@@ -246,82 +246,69 @@ Jump_ApplySlowdown
 */
 void Jump_ApplySlowdown(pmove_t *pm, playerState_s *ps)
 {
-  const dvar_t *v6; 
+  const dvar_t *v4; 
+  float value; 
   int pm_time; 
-  const char *v10; 
-  char v13; 
-  const dvar_t *v14; 
-  const dvar_t *v15; 
+  const dvar_t *v7; 
+  const char *v8; 
+  double UpContribution; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  _RBX = ps;
   if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x13u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 146, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::JUMPING ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::JUMPING )") )
     __debugbreak();
-  v6 = DCONST_DVARINT_jump_landSlowDownTime;
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
+  v4 = DCONST_DVARINT_jump_landSlowDownTime;
+  value = FLOAT_1_0;
   if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  pm_time = _RBX->pm_time;
-  if ( pm_time <= v6->current.integer )
+  Dvar_CheckFrontendServerThread(v4);
+  pm_time = ps->pm_time;
+  if ( pm_time <= v4->current.integer )
   {
     if ( pm_time )
       goto LABEL_25;
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &_RBX->origin);
-    __asm
+    UpContribution = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &ps->origin);
+    if ( *(float *)&UpContribution >= (float)(ps->jumpState.jumpOriginZ + 18.0) )
     {
-      vmovss  xmm1, dword ptr [rbx+0C8h]
-      vaddss  xmm2, xmm1, cs:__real@41900000
-      vcomiss xmm0, xmm2
-    }
-    if ( !v13 )
-    {
-      v15 = DCONST_DVARINT_jump_landHigherSlowDownTime;
+      v11 = DCONST_DVARINT_jump_landHigherSlowDownTime;
       if ( !DCONST_DVARINT_jump_landHigherSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landHigherSlowDownTime") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v15);
-      _RBX->pm_time = v15->current.integer;
-      _RDI = DCONST_DVARFLT_jump_landHigherSlowDownVelocity;
+      Dvar_CheckFrontendServerThread(v11);
+      ps->pm_time = v11->current.integer;
+      v7 = DCONST_DVARFLT_jump_landHigherSlowDownVelocity;
       if ( DCONST_DVARFLT_jump_landHigherSlowDownVelocity )
         goto LABEL_24;
-      v10 = "jump_landHigherSlowDownVelocity";
+      v8 = "jump_landHigherSlowDownVelocity";
       goto LABEL_22;
     }
-    v14 = DCONST_DVARINT_jump_landSlowDownTime;
+    v10 = DCONST_DVARINT_jump_landSlowDownTime;
     if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    _RBX->pm_time = v14->current.integer;
+    Dvar_CheckFrontendServerThread(v10);
+    ps->pm_time = v10->current.integer;
   }
   else
   {
     Jump_ClearState(pm);
   }
-  _RDI = DCONST_DVARFLT_jump_landSlowDownVelocity;
+  v7 = DCONST_DVARFLT_jump_landSlowDownVelocity;
   if ( !DCONST_DVARFLT_jump_landSlowDownVelocity )
   {
-    v10 = "jump_landSlowDownVelocity";
+    v8 = "jump_landSlowDownVelocity";
 LABEL_22:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v10) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v8) )
       __debugbreak();
   }
 LABEL_24:
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
+  Dvar_CheckFrontendServerThread(v7);
+  value = v7->current.value;
 LABEL_25:
-  if ( Jump_IsJumpSlowDownEnabled(_RBX) )
+  if ( Jump_IsJumpSlowDownEnabled(ps) )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rbx+3Ch]
-      vmovss  dword ptr [rbx+3Ch], xmm0
-      vmulss  xmm1, xmm6, dword ptr [rbx+40h]
-      vmovss  dword ptr [rbx+40h], xmm1
-      vmulss  xmm0, xmm6, dword ptr [rbx+44h]
-      vmovss  dword ptr [rbx+44h], xmm0
-    }
+    ps->velocity.v[0] = value * ps->velocity.v[0];
+    ps->velocity.v[1] = value * ps->velocity.v[1];
+    ps->velocity.v[2] = value * ps->velocity.v[2];
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
 }
 
 /*
@@ -365,37 +352,38 @@ Jump_Check
 char Jump_Check(pmove_t *pm, pml_t *pml)
 {
   playerState_s *ps; 
-  const dvar_t *v6; 
+  const dvar_t *v5; 
   const Weapon *CurrentWeaponForPlayer; 
-  bool v8; 
+  bool v7; 
   usercmd_s *p_cmd; 
   __int16 groundRefEnt; 
   int serverTime; 
-  char v13; 
-  bool v15; 
+  char v12; 
+  double JumpHeight; 
+  bool v14; 
   BgWeaponMap *weaponMap; 
-  bool v17; 
-  int v18; 
-  unsigned int v19; 
-  PlayerAnimScriptEventType v20; 
+  bool v16; 
+  int v17; 
+  unsigned int v18; 
+  PlayerAnimScriptEventType v19; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 444, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 444, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v6 = DVARBOOL_killswitch_weapon_inspect_on_jump;
+  v5 = DVARBOOL_killswitch_weapon_inspect_on_jump;
   if ( !DVARBOOL_killswitch_weapon_inspect_on_jump && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_weapon_inspect_on_jump") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.enabled && Com_GameMode_SupportsFeature(WEAPON_LEAP_OUT|0x80) )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled && Com_GameMode_SupportsFeature(WEAPON_LEAP_OUT|0x80) )
   {
     CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(pm->weaponMap, ps);
     if ( BG_UseLeftTriggerAltFireMode(CurrentWeaponForPlayer) )
-      v8 = ps && GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x1Du);
+      v7 = ps && GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&ps->weapCommon.weapFlags, ACTIVE, 0x1Du);
     else
-      v8 = BG_UsingAlternate(ps);
-    if ( BG_GetWeaponInspectEnabled(CurrentWeaponForPlayer, v8) )
+      v7 = BG_UsingAlternate(ps);
+    if ( BG_GetWeaponInspectEnabled(CurrentWeaponForPlayer, v7) )
       return 0;
   }
   if ( ps->vehicleState.entity != 2047 || GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Au) )
@@ -429,10 +417,10 @@ char Jump_Check(pmove_t *pm, pml_t *pml)
   serverTime = pm->cmd.serverTime;
   if ( ps->mountState.endTime == serverTime )
     return 0;
-  v13 = 0;
+  v12 = 0;
   if ( Slide_CanDoLateSlideJump(ps, serverTime) && PM_CanStand(ps, pm, 1) )
   {
-    v13 = 1;
+    v12 = 1;
   }
   else if ( PM_GetEffectiveStance(ps) && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x1Du) )
   {
@@ -440,7 +428,7 @@ char Jump_Check(pmove_t *pm, pml_t *pml)
   }
   if ( (p_cmd->buttons & 0x100) == 0 )
     return 0;
-  if ( v13 )
+  if ( v12 )
   {
     Slide_ScaleVelocityBeforeJump(ps);
     BG_AddPredictableEventToPlayerstate(EV_STANCE_FORCE_STAND, 0, pm->cmd.serverTime, pm->weaponMap, ps);
@@ -450,31 +438,30 @@ char Jump_Check(pmove_t *pm, pml_t *pml)
     p_cmd->buttons &= ~0x100ui64;
     return 0;
   }
-  *(double *)&_XMM0 = Jump_GetJumpHeight(ps);
-  __asm { vmovaps xmm2, xmm0; height }
-  v15 = Jump_Start(pm, pml, *(float *)&_XMM2);
+  JumpHeight = Jump_GetJumpHeight(ps);
+  v14 = Jump_Start(pm, pml, *(float *)&JumpHeight);
   weaponMap = pm->weaponMap;
-  v17 = v15;
-  v18 = PM_GroundSurfaceType(pm);
-  if ( v18 )
+  v16 = v14;
+  v17 = PM_GroundSurfaceType(pm);
+  if ( v17 )
   {
-    v19 = BG_PackFootstepEventParm(weaponMap, ps, v18, FOOTSTEP_ACTION_TYPE_STEP, 0);
-    BG_AddPredictableEventToPlayerstate(EV_JUMP, v19, pm->cmd.serverTime, weaponMap, ps);
+    v18 = BG_PackFootstepEventParm(weaponMap, ps, v17, FOOTSTEP_ACTION_TYPE_STEP, 0);
+    BG_AddPredictableEventToPlayerstate(EV_JUMP, v18, pm->cmd.serverTime, weaponMap, ps);
   }
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
     PM_Jump_PushOffLadder(pm, ps, pml);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) )
   {
     PM_SetJumpStrafeCondition(pm);
-    if ( v17 )
+    if ( v16 )
     {
-      v20 = ANIM_ET_JUMP_LEAP;
+      v19 = ANIM_ET_JUMP_LEAP;
     }
-    else if ( PlayerASM_IsEnabled() || (v20 = ANIM_ET_JUMPBK, pm->cmd.forwardmove >= 0) )
+    else if ( PlayerASM_IsEnabled() || (v19 = ANIM_ET_JUMPBK, pm->cmd.forwardmove >= 0) )
     {
-      v20 = ANIM_ET_JUMP;
+      v19 = ANIM_ET_JUMP;
     }
-    BG_AnimScriptEvent(pm->m_bgHandler, ps, v20, 0, 1, &pml->holdrand);
+    BG_AnimScriptEvent(pm->m_bgHandler, ps, v19, 0, 1, &pml->holdrand);
     BG_AnimScriptAnimation(pm->m_bgHandler, ps, AISTATE_COMBAT, ANIM_MT_AIR, 0, 0);
   }
   return 1;
@@ -488,67 +475,43 @@ Jump_ClampVelocity
 void Jump_ClampVelocity(const pmove_t *pm, playerState_s *ps, const vec3_t *origin)
 {
   WorldUpReferenceFramePM *p_refFrame; 
-  char v13; 
-  char v14; 
-  WorldUpReferenceFrame *v17; 
+  double UpContribution; 
+  float v8; 
+  double v9; 
+  double JumpHeight; 
+  float v11; 
+  double v12; 
+  WorldUpReferenceFrame *v13; 
+  float v14; 
+  float v15; 
+  double v16; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
   if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x13u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 226, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::JUMPING ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::JUMPING )") )
     __debugbreak();
   p_refFrame = &pm->refFrame;
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &ps->origin);
-  __asm { vmovaps xmm6, xmm0 }
-  WorldUpReferenceFrame::GetUpContribution(p_refFrame, origin);
-  __asm
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &ps->origin);
+  v8 = *(float *)&UpContribution;
+  v9 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, origin);
+  if ( (float)(v8 - *(float *)&v9) > 0.0 )
   {
-    vsubss  xmm1, xmm6, xmm0
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm1, xmm7
-  }
-  if ( !(v13 | v14) )
-  {
-    *(double *)&_XMM0 = Jump_GetJumpHeight(ps);
-    __asm { vaddss  xmm6, xmm0, dword ptr [rdi+0C8h] }
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &ps->origin);
-    __asm
+    JumpHeight = Jump_GetJumpHeight(ps);
+    v11 = *(float *)&JumpHeight + ps->jumpState.jumpOriginZ;
+    v12 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &ps->origin);
+    v13 = p_refFrame;
+    if ( (float)(v11 - *(float *)&v12) >= 0.1 )
     {
-      vsubss  xmm1, xmm6, xmm0
-      vcomiss xmm1, cs:__real@3dcccccd
+      v15 = fsqrt((float)((float)ps->gravity * (float)(v11 - *(float *)&v12)) * 2.0);
+      v16 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &ps->velocity);
+      if ( *(float *)&v16 <= v15 )
+        return;
+      v14 = v15;
+      v13 = p_refFrame;
     }
-    v17 = p_refFrame;
-    if ( v13 )
+    else
     {
-      __asm { vxorps  xmm1, xmm1, xmm1 }
-LABEL_9:
-      WorldUpReferenceFrame::SetUpContribution(v17, *(float *)&_XMM1, &ps->velocity);
-      goto LABEL_10;
+      v14 = 0.0;
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm1
-      vmulss  xmm2, xmm1, cs:__real@40000000
-      vsqrtss xmm6, xmm2, xmm2
-    }
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, &ps->velocity);
-    __asm { vcomiss xmm0, xmm6 }
-    if ( !(v13 | v14) )
-    {
-      __asm { vmovaps xmm1, xmm6; height }
-      v17 = p_refFrame;
-      goto LABEL_9;
-    }
-  }
-LABEL_10:
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
+    WorldUpReferenceFrame::SetUpContribution(v13, v14, &ps->velocity);
   }
 }
 
@@ -579,69 +542,44 @@ void Jump_ClearState(pmove_t *pm)
 Jump_GetJumpHeight
 ==============
 */
-
-float __fastcall Jump_GetJumpHeight(playerState_s *ps, double _XMM1_8)
+float Jump_GetJumpHeight(playerState_s *ps)
 {
-  const dvar_t *v8; 
+  float jump_height; 
+  const dvar_t *v3; 
+  const dvar_t *v4; 
+  const dvar_t *v5; 
+  const dvar_t *v6; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
   if ( ps )
   {
-    _RAX = BG_GetSuitDef(ps->suitIndex);
-    __asm { vmovss  xmm6, dword ptr [rax+68h] }
+    jump_height = BG_GetSuitDef(ps->suitIndex)->jump_height;
   }
   else
   {
-    _RBX = DCONST_DVARMPFLT_jump_height;
+    v3 = DCONST_DVARMPFLT_jump_height;
     if ( !DCONST_DVARMPFLT_jump_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_height") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v3);
+    jump_height = v3->current.value;
   }
-  v8 = DCONST_DVARMPSPBOOL_jump_subsequentSlowdownEnable;
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
+  v4 = DCONST_DVARMPSPBOOL_jump_subsequentSlowdownEnable;
   if ( !DCONST_DVARMPSPBOOL_jump_subsequentSlowdownEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_subsequentSlowdownEnable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
-  {
-    _RBX = DCONST_DVARFLT_jump_subsequentJumpScale;
-    if ( !DCONST_DVARFLT_jump_subsequentJumpScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_subsequentJumpScale") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]; X
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, dword ptr [rdi+0C4h]; Y
-    }
-    *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    _RBX = DCONST_DVARFLT_jump_subsequentMinScale;
-    __asm { vmovaps xmm7, xmm0 }
-    if ( !DCONST_DVARFLT_jump_subsequentMinScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_subsequentMinScale") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmaxss  xmm1, xmm0, xmm7
-      vmulss  xmm0, xmm1, xmm6
-    }
-  }
-  else
-  {
-    __asm { vmulss  xmm0, xmm7, xmm6 }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v4);
+  if ( !v4->current.enabled )
+    return 1.0 * jump_height;
+  v5 = DCONST_DVARFLT_jump_subsequentJumpScale;
+  if ( !DCONST_DVARFLT_jump_subsequentJumpScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_subsequentJumpScale") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v5);
+  powf_0(v5->current.value, (float)ps->jumpState.subsequentJump);
+  v6 = DCONST_DVARFLT_jump_subsequentMinScale;
+  if ( !DCONST_DVARFLT_jump_subsequentMinScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_subsequentMinScale") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v6);
+  _XMM0 = v6->current.unsignedInt;
+  __asm { vmaxss  xmm1, xmm0, xmm7 }
+  return *(float *)&_XMM1 * jump_height;
 }
 
 /*
@@ -651,12 +589,13 @@ Jump_GetJumpHeightClassic
 */
 float Jump_GetJumpHeightClassic()
 {
-  _RBX = DCONST_DVARMPFLT_jump_height;
+  const dvar_t *v0; 
+
+  v0 = DCONST_DVARMPFLT_jump_height;
   if ( !DCONST_DVARMPFLT_jump_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_height") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v0);
+  return v0->current.value;
 }
 
 /*
@@ -666,59 +605,38 @@ Jump_GetLandFactor
 */
 float Jump_GetLandFactor(playerState_s *ps)
 {
+  const dvar_t *v2; 
   const dvar_t *v4; 
-  const dvar_t *v8; 
-  const dvar_t *v9; 
+  float value; 
+  const dvar_t *v6; 
+  const dvar_t *v7; 
 
   if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x13u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 249, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::JUMPING ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::JUMPING )") )
     __debugbreak();
-  v4 = DCONST_DVARINT_jump_landSlowDownTime;
+  v2 = DCONST_DVARINT_jump_landSlowDownTime;
   if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( ps->pm_time > v4->current.integer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 250, ASSERT_TYPE_ASSERT, "(ps->pm_time <= Dvar_GetInt_Internal_DebugName( DCONST_DVARINT_jump_landSlowDownTime, \"jump_landSlowDownTime\" ))", (const char *)&queryFormat, "ps->pm_time <= Dconst_GetInt( jump_landSlowDownTime )") )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( ps->pm_time > v2->current.integer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 250, ASSERT_TYPE_ASSERT, "(ps->pm_time <= Dvar_GetInt_Internal_DebugName( DCONST_DVARINT_jump_landSlowDownTime, \"jump_landSlowDownTime\" ))", (const char *)&queryFormat, "ps->pm_time <= Dconst_GetInt( jump_landSlowDownTime )") )
     __debugbreak();
-  if ( Jump_IsJumpSlowDownEnabled(ps) )
-  {
-    _RBX = DCONST_DVARFLT_jump_landSlowDownLandJumpFactor;
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
-    if ( !DCONST_DVARFLT_jump_landSlowDownLandJumpFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownLandJumpFactor") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    v8 = DCONST_DVARINT_jump_landSlowDownTime;
-    if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v8);
-    if ( ps->pm_time < v8->current.integer - 100 )
-    {
-      v9 = DCONST_DVARINT_jump_landSlowDownTime;
-      if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v9);
-      __asm
-      {
-        vsubss  xmm1, xmm6, cs:__real@3f800000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rdi+10h]
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm1, xmm2, xmm0
-        vaddss  xmm0, xmm1, cs:__real@3f800000
-      }
-    }
-    else
-    {
-      __asm { vmovaps xmm0, xmm6 }
-    }
-    __asm { vmovaps xmm6, [rsp+68h+var_28] }
-  }
-  else
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  return *(float *)&_XMM0;
+  if ( !Jump_IsJumpSlowDownEnabled(ps) )
+    return FLOAT_1_0;
+  v4 = DCONST_DVARFLT_jump_landSlowDownLandJumpFactor;
+  if ( !DCONST_DVARFLT_jump_landSlowDownLandJumpFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownLandJumpFactor") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v4);
+  value = v4->current.value;
+  v6 = DCONST_DVARINT_jump_landSlowDownTime;
+  if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v6);
+  if ( ps->pm_time >= v6->current.integer - 100 )
+    return value;
+  v7 = DCONST_DVARINT_jump_landSlowDownTime;
+  if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v7);
+  return (float)((float)((float)(value - 1.0) * (float)ps->pm_time) / (float)(v7->current.integer - 100)) + 1.0;
 }
 
 /*
@@ -728,59 +646,38 @@ Jump_GetSlowdownFriction
 */
 float Jump_GetSlowdownFriction(playerState_s *ps)
 {
+  const dvar_t *v2; 
   const dvar_t *v4; 
-  const dvar_t *v8; 
-  const dvar_t *v9; 
+  float value; 
+  const dvar_t *v6; 
+  const dvar_t *v7; 
 
   if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x13u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 183, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::JUMPING ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::JUMPING )") )
     __debugbreak();
-  v4 = DCONST_DVARINT_jump_landSlowDownTime;
+  v2 = DCONST_DVARINT_jump_landSlowDownTime;
   if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( ps->pm_time > v4->current.integer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 184, ASSERT_TYPE_ASSERT, "(ps->pm_time <= Dvar_GetInt_Internal_DebugName( DCONST_DVARINT_jump_landSlowDownTime, \"jump_landSlowDownTime\" ))", (const char *)&queryFormat, "ps->pm_time <= Dconst_GetInt( jump_landSlowDownTime )") )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( ps->pm_time > v2->current.integer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 184, ASSERT_TYPE_ASSERT, "(ps->pm_time <= Dvar_GetInt_Internal_DebugName( DCONST_DVARINT_jump_landSlowDownTime, \"jump_landSlowDownTime\" ))", (const char *)&queryFormat, "ps->pm_time <= Dconst_GetInt( jump_landSlowDownTime )") )
     __debugbreak();
-  if ( Jump_IsJumpSlowDownEnabled(ps) )
-  {
-    _RBX = DCONST_DVARFLT_jump_landSlowDownFriction;
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
-    if ( !DCONST_DVARFLT_jump_landSlowDownFriction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownFriction") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    v8 = DCONST_DVARINT_jump_landSlowDownTime;
-    if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v8);
-    if ( ps->pm_time < v8->current.integer - 100 )
-    {
-      v9 = DCONST_DVARINT_jump_landSlowDownTime;
-      if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v9);
-      __asm
-      {
-        vsubss  xmm1, xmm6, cs:__real@3f800000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rdi+10h]
-        vmulss  xmm2, xmm1, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm1, xmm2, xmm0
-        vaddss  xmm0, xmm1, cs:__real@3f800000
-      }
-    }
-    else
-    {
-      __asm { vmovaps xmm0, xmm6 }
-    }
-    __asm { vmovaps xmm6, [rsp+68h+var_28] }
-  }
-  else
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  return *(float *)&_XMM0;
+  if ( !Jump_IsJumpSlowDownEnabled(ps) )
+    return FLOAT_1_0;
+  v4 = DCONST_DVARFLT_jump_landSlowDownFriction;
+  if ( !DCONST_DVARFLT_jump_landSlowDownFriction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownFriction") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v4);
+  value = v4->current.value;
+  v6 = DCONST_DVARINT_jump_landSlowDownTime;
+  if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v6);
+  if ( ps->pm_time >= v6->current.integer - 100 )
+    return value;
+  v7 = DCONST_DVARINT_jump_landSlowDownTime;
+  if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v7);
+  return (float)((float)((float)(value - 1.0) * (float)ps->pm_time) / (float)(v7->current.integer - 100)) + 1.0;
 }
 
 /*
@@ -788,63 +685,46 @@ float Jump_GetSlowdownFriction(playerState_s *ps)
 Jump_GetStepHeight
 ==============
 */
-bool Jump_GetStepHeight(const pmove_t *pm, playerState_s *ps, const vec3_t *origin, float *stepSize)
+char Jump_GetStepHeight(const pmove_t *pm, playerState_s *ps, const vec3_t *origin, float *stepSize)
 {
   WorldUpReferenceFramePM *p_refFrame; 
-  char v13; 
-  const dvar_t *v14; 
-  char v17; 
-  bool result; 
+  double UpContribution; 
+  float v10; 
+  double JumpHeight; 
+  const dvar_t *v12; 
+  double v13; 
+  float v14; 
+  double v15; 
+  double v16; 
+  float v17; 
+  double v18; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RSI = stepSize;
   if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x13u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 105, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::JUMPING ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::JUMPING )") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 106, ASSERT_TYPE_ASSERT, "(stepSize)", (const char *)&queryFormat, "stepSize") )
+  if ( !stepSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 106, ASSERT_TYPE_ASSERT, "(stepSize)", (const char *)&queryFormat, "stepSize") )
     __debugbreak();
   p_refFrame = &pm->refFrame;
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, origin);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Jump_GetJumpHeight(ps);
-  __asm
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(p_refFrame, origin);
+  v10 = *(float *)&UpContribution;
+  JumpHeight = Jump_GetJumpHeight(ps);
+  if ( v10 >= (float)(*(float *)&JumpHeight + ps->jumpState.jumpOriginZ) )
+    return 0;
+  v12 = DCONST_DVARFLT_jump_stepSize;
+  if ( !DCONST_DVARFLT_jump_stepSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_stepSize") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v12);
+  *stepSize = v12->current.value;
+  v13 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, origin);
+  v14 = *(float *)&v13 + *stepSize;
+  v15 = Jump_GetJumpHeight(ps);
+  if ( v14 > (float)(*(float *)&v15 + ps->jumpState.jumpOriginZ) )
   {
-    vaddss  xmm1, xmm0, dword ptr [rbx+0C8h]
-    vcomiss xmm6, xmm1
+    v16 = Jump_GetJumpHeight(ps);
+    v17 = *(float *)&v16 + ps->jumpState.jumpOriginZ;
+    v18 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, origin);
+    *stepSize = v17 - *(float *)&v18;
   }
-  if ( v13 )
-  {
-    v14 = DCONST_DVARFLT_jump_stepSize;
-    if ( !DCONST_DVARFLT_jump_stepSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_stepSize") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    *_RSI = v14->current.value;
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(p_refFrame, origin);
-    __asm { vaddss  xmm6, xmm0, dword ptr [rsi] }
-    *(double *)&_XMM0 = Jump_GetJumpHeight(ps);
-    __asm
-    {
-      vaddss  xmm1, xmm0, dword ptr [rbx+0C8h]
-      vcomiss xmm6, xmm1
-    }
-    if ( !(v13 | v17) )
-    {
-      *(double *)&_XMM0 = Jump_GetJumpHeight(ps);
-      __asm { vaddss  xmm6, xmm0, dword ptr [rbx+0C8h] }
-      WorldUpReferenceFrame::GetUpContribution(p_refFrame, origin);
-      __asm
-      {
-        vsubss  xmm1, xmm6, xmm0
-        vmovss  dword ptr [rsi], xmm1
-      }
-    }
-    result = 1;
-  }
-  else
-  {
-    result = 0;
-  }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  return 1;
 }
 
 /*
@@ -852,25 +732,23 @@ bool Jump_GetStepHeight(const pmove_t *pm, playerState_s *ps, const vec3_t *orig
 Jump_GetVelocity
 ==============
 */
-
-float __fastcall Jump_GetVelocity(pmove_t *pm, double height)
+float Jump_GetVelocity(pmove_t *pm, float height)
 {
   playerState_s *ps; 
   int lastSprintStart; 
+  __int128 v6; 
   int serverTime; 
-  const dvar_t *v11; 
-  int v12; 
-  const dvar_t *v13; 
+  const dvar_t *v8; 
+  int v9; 
+  const dvar_t *v10; 
+  __int128 v11; 
   GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64> *p_pm_flags; 
-  const dvar_t *v24; 
-  char v27; 
+  __int128 v14; 
+  float v15; 
+  const dvar_t *v16; 
+  float LandFactor; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps [rsp+78h+var_38], xmm7
-    vmovaps xmm7, xmm1
-  }
+  *(float *)&_XMM7 = height;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 271, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   ps = pm->ps;
@@ -879,84 +757,49 @@ float __fastcall Jump_GetVelocity(pmove_t *pm, double height)
   if ( Leap_ShouldSprintLeap(pm) )
   {
     lastSprintStart = ps->sprintState.lastSprintStart;
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
+    v6 = LODWORD(FLOAT_1_0);
     if ( lastSprintStart <= ps->leapState.lastLandTime )
       lastSprintStart = ps->leapState.lastLandTime;
     serverTime = pm->cmd.serverTime;
-    v11 = DCONST_DVARMPINT_sprintLeap_minSprintTimeMs;
-    v12 = serverTime - lastSprintStart;
+    v8 = DCONST_DVARMPINT_sprintLeap_minSprintTimeMs;
+    v9 = serverTime - lastSprintStart;
     if ( !DCONST_DVARMPINT_sprintLeap_minSprintTimeMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sprintLeap_minSprintTimeMs") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    if ( v12 <= v11->current.integer )
+    Dvar_CheckFrontendServerThread(v8);
+    if ( v9 <= v8->current.integer )
     {
-      v13 = DCONST_DVARMPINT_sprintLeap_minSprintTimeMs;
+      v10 = DCONST_DVARMPINT_sprintLeap_minSprintTimeMs;
       if ( !DCONST_DVARMPINT_sprintLeap_minSprintTimeMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sprintLeap_minSprintTimeMs") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v13);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rdi+28h]
-        vcvtsi2ss xmm1, xmm1, esi
-        vdivss  xmm6, xmm1, xmm0
-      }
+      Dvar_CheckFrontendServerThread(v10);
+      v11 = 0i64;
+      *(float *)&v11 = (float)v9 / (float)v10->current.integer;
+      v6 = v11;
     }
     ps->pm_flags.m_flags[0] |= 0x80000000;
     p_pm_flags = &ps->pm_flags;
-    BG_GetSuitDef(ps->suitIndex);
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rax+6Ch]
-      vmaxss  xmm7, xmm0, xmm7
-    }
+    v14 = v6;
+    *(float *)&v14 = *(float *)&v6 * BG_GetSuitDef(ps->suitIndex)->sprintLeap_height;
+    _XMM0 = v14;
+    __asm { vmaxss  xmm7, xmm0, xmm7 }
   }
   else
   {
     p_pm_flags = &ps->pm_flags;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm7
-    vmulss  xmm6, xmm1, cs:__real@40000000
-  }
+  v15 = (float)((float)ps->gravity * *(float *)&_XMM7) * 2.0;
   if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(p_pm_flags, ACTIVE, 0x13u) )
-    goto LABEL_29;
-  v24 = DCONST_DVARINT_jump_landSlowDownTime;
+    return fsqrt(v15);
+  v16 = DCONST_DVARINT_jump_landSlowDownTime;
   if ( !DCONST_DVARINT_jump_landSlowDownTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_landSlowDownTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v24);
-  if ( ps->pm_time <= v24->current.integer )
-  {
-    *(float *)&_XMM0 = Jump_GetLandFactor(ps);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm0, xmm1
-      vmovaps xmm7, xmm0
-    }
-    if ( v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 300, ASSERT_TYPE_ASSERT, "(factor)", (const char *)&queryFormat, "factor") )
-      __debugbreak();
-    __asm
-    {
-      vdivss  xmm0, xmm6, xmm7
-      vsqrtss xmm0, xmm0, xmm0
-    }
-  }
-  else
-  {
-LABEL_29:
-    __asm { vsqrtss xmm0, xmm6, xmm6 }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_28]
-    vmovaps xmm7, [rsp+78h+var_38]
-  }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v16);
+  if ( ps->pm_time > v16->current.integer )
+    return fsqrt(v15);
+  LandFactor = Jump_GetLandFactor(ps);
+  if ( LandFactor == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 300, ASSERT_TYPE_ASSERT, "(factor)", (const char *)&queryFormat, "factor") )
+    __debugbreak();
+  return fsqrt(v15 / LandFactor);
 }
 
 /*
@@ -1045,21 +888,16 @@ Jump_IsPlayerAboveMax
 */
 bool Jump_IsPlayerAboveMax(const pmove_t *pm, playerState_s *ps)
 {
-  char v9; 
+  double UpContribution; 
+  float v5; 
+  double JumpHeight; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
   if ( !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x13u) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 126, ASSERT_TYPE_ASSERT, "(ps->pm_flags.TestFlag( PMoveFlagsCommon::JUMPING ))", (const char *)&queryFormat, "ps->pm_flags.TestFlag( PMoveFlagsCommon::JUMPING )") )
     __debugbreak();
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &ps->origin);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Jump_GetJumpHeight(ps);
-  __asm
-  {
-    vaddss  xmm1, xmm0, dword ptr [rbx+0C8h]
-    vcomiss xmm6, xmm1
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return !v9;
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &ps->origin);
+  v5 = *(float *)&UpContribution;
+  JumpHeight = Jump_GetJumpHeight(ps);
+  return v5 >= (float)(*(float *)&JumpHeight + ps->jumpState.jumpOriginZ);
 }
 
 /*
@@ -1102,6 +940,7 @@ Jump_ReduceFriction
 double Jump_ReduceFriction(pmove_t *pm, playerState_s *ps)
 {
   const dvar_t *v4; 
+  double result; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 200, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
@@ -1116,13 +955,13 @@ double Jump_ReduceFriction(pmove_t *pm, playerState_s *ps)
   if ( ps->pm_time > v4->current.integer )
   {
     Jump_ClearState(pm);
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
+    *(_QWORD *)&result = LODWORD(FLOAT_1_0);
   }
   else
   {
-    *(float *)&_XMM0 = Jump_GetSlowdownFriction(ps);
+    *(float *)&result = Jump_GetSlowdownFriction(ps);
   }
-  return *(double *)&_XMM0;
+  return result;
 }
 
 /*
@@ -1143,120 +982,101 @@ void Jump_SetTime(pmove_t *pm)
 Jump_Start
 ==============
 */
-
-_BOOL8 __fastcall Jump_Start(pmove_t *pm, pml_t *pml, double height)
+_BOOL8 Jump_Start(pmove_t *pm, pml_t *pml, float height)
 {
+  __int128 v3; 
+  playerState_s *ps; 
   bool ShouldSprintLeap; 
+  double Velocity; 
+  float v9; 
+  double UpContribution; 
   int lastSprintStart; 
+  float v12; 
+  const dvar_t *v13; 
+  int v14; 
   const dvar_t *v15; 
-  int v16; 
-  const dvar_t *v17; 
-  const dvar_t *v28; 
+  float v16; 
+  double v17; 
+  const dvar_t *v18; 
   int subsequentJump; 
   unsigned __int64 CurrentWeaponForPlayer; 
-  __int64 v37; 
-  __int64 v38; 
-  WorldUpReferenceFrame v39; 
+  const dvar_t *v21; 
+  __int128 unsignedInt; 
+  __int64 v26; 
+  __int64 v27; 
+  WorldUpReferenceFrame v28; 
+  __int128 v29; 
 
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_48], xmm6
-    vmovaps xmm6, xmm2
-  }
+  v29 = v3;
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 339, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
   if ( !pm->ground && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 340, ASSERT_TYPE_ASSERT, "(pm->ground)", (const char *)&queryFormat, "pm->ground") )
     __debugbreak();
-  _RDI = pm->ps;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 342, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  ps = pm->ps;
+  if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_jump.cpp", 342, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm { vmovaps xmm1, xmm6; height }
   ShouldSprintLeap = Leap_ShouldSprintLeap(pm);
-  *(double *)&_XMM0 = Jump_GetVelocity(pm, *(float *)&_XMM1);
-  __asm { vmovaps xmm6, xmm0 }
+  Velocity = Jump_GetVelocity(pm, height);
+  v9 = *(float *)&Velocity;
   pm->ground->groundPlane = 0;
   PM_SetAlmostGroundPlane(pm, 0);
   pm->ground->walking = 0;
-  _RDI->groundEntityNum = 2047;
+  ps->groundEntityNum = 2047;
   pm->ps->jumpState.jumpTime = pm->cmd.serverTime;
   pm->m_flags &= ~2u;
-  Jump_UpdateFallTime(pm, _RDI);
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v39, _RDI, pm->m_bgHandler);
-  *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&v39, &_RDI->origin);
-  __asm
-  {
-    vmovaps xmm1, xmm6; height
-    vmovss  dword ptr [rdi+0C8h], xmm0
-  }
-  WorldUpReferenceFrame::SetUpContribution(&v39, *(float *)&_XMM1, &_RDI->velocity);
+  Jump_UpdateFallTime(pm, ps);
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v28, ps, pm->m_bgHandler);
+  UpContribution = WorldUpReferenceFrame::GetUpContribution(&v28, &ps->origin);
+  ps->jumpState.jumpOriginZ = *(float *)&UpContribution;
+  WorldUpReferenceFrame::SetUpContribution(&v28, v9, &ps->velocity);
   if ( ShouldSprintLeap )
   {
-    lastSprintStart = _RDI->sprintState.lastSprintStart;
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
-    if ( lastSprintStart <= _RDI->leapState.lastLandTime )
-      lastSprintStart = _RDI->leapState.lastLandTime;
-    v15 = DCONST_DVARMPINT_sprintLeap_minSprintTimeMs;
-    v16 = pm->cmd.serverTime - lastSprintStart;
+    lastSprintStart = ps->sprintState.lastSprintStart;
+    v12 = FLOAT_1_0;
+    if ( lastSprintStart <= ps->leapState.lastLandTime )
+      lastSprintStart = ps->leapState.lastLandTime;
+    v13 = DCONST_DVARMPINT_sprintLeap_minSprintTimeMs;
+    v14 = pm->cmd.serverTime - lastSprintStart;
     if ( !DCONST_DVARMPINT_sprintLeap_minSprintTimeMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sprintLeap_minSprintTimeMs") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v15);
-    if ( v16 <= v15->current.integer )
+    Dvar_CheckFrontendServerThread(v13);
+    if ( v14 <= v13->current.integer )
     {
-      v17 = DCONST_DVARMPINT_sprintLeap_minSprintTimeMs;
+      v15 = DCONST_DVARMPINT_sprintLeap_minSprintTimeMs;
       if ( !DCONST_DVARMPINT_sprintLeap_minSprintTimeMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sprintLeap_minSprintTimeMs") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v17);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rbp+28h]
-        vcvtsi2ss xmm1, xmm1, ebx
-        vdivss  xmm6, xmm1, xmm0
-      }
+      Dvar_CheckFrontendServerThread(v15);
+      v12 = (float)v14 / (float)v15->current.integer;
     }
-    BG_GetSuitDef(_RDI->suitIndex);
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rax+70h]
-      vaddss  xmm6, xmm0, cs:__real@3f800000
-    }
-    *(double *)&_XMM0 = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &_RDI->velocity);
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rdi+3Ch]
-      vmovss  dword ptr [rdi+3Ch], xmm1
-      vmulss  xmm2, xmm6, dword ptr [rdi+40h]
-      vmovss  dword ptr [rdi+40h], xmm2
-      vmulss  xmm1, xmm6, dword ptr [rdi+44h]
-      vmovss  dword ptr [rdi+44h], xmm1
-      vmovaps xmm1, xmm0; height
-    }
-    WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&_XMM1, &_RDI->velocity);
+    v16 = (float)(v12 * BG_GetSuitDef(ps->suitIndex)->sprintLeap_forwardVelocityScale) + 1.0;
+    v17 = WorldUpReferenceFrame::GetUpContribution(&pm->refFrame, &ps->velocity);
+    ps->velocity.v[0] = v16 * ps->velocity.v[0];
+    ps->velocity.v[1] = v16 * ps->velocity.v[1];
+    ps->velocity.v[2] = v16 * ps->velocity.v[2];
+    WorldUpReferenceFrame::SetUpContribution(&pm->refFrame, *(float *)&v17, &ps->velocity);
   }
-  v28 = DCONST_DVARMPSPBOOL_jump_subsequentSlowdownEnable;
-  __asm { vmovaps xmm6, [rsp+0B8h+var_48] }
+  v18 = DCONST_DVARMPSPBOOL_jump_subsequentSlowdownEnable;
   if ( !DCONST_DVARMPSPBOOL_jump_subsequentSlowdownEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_subsequentSlowdownEnable") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v28);
-  if ( v28->current.enabled )
+  Dvar_CheckFrontendServerThread(v18);
+  if ( v18->current.enabled )
   {
-    subsequentJump = _RDI->jumpState.subsequentJump;
+    subsequentJump = ps->jumpState.subsequentJump;
     if ( subsequentJump < 7 )
-      _RDI->jumpState.subsequentJump = subsequentJump + 1;
+      ps->jumpState.subsequentJump = subsequentJump + 1;
   }
-  _RDI->pm_flags.m_flags[0] &= 0xFFFFCFFF;
-  _RDI->pm_flags.m_flags[0] |= 0x80000u;
-  _RDI->pm_time = 0;
-  _RDI->sprintState.sprintButtonUpRequired = 0;
-  CurrentWeaponForPlayer = (unsigned __int64)BG_GetCurrentWeaponForPlayer(pm->weaponMap, _RDI);
-  BG_UsingAlternate(_RDI);
+  ps->pm_flags.m_flags[0] &= 0xFFFFCFFF;
+  ps->pm_flags.m_flags[0] |= 0x80000u;
+  ps->pm_time = 0;
+  ps->sprintState.sprintButtonUpRequired = 0;
+  CurrentWeaponForPlayer = (unsigned __int64)BG_GetCurrentWeaponForPlayer(pm->weaponMap, ps);
+  BG_UsingAlternate(ps);
   LODWORD(CurrentWeaponForPlayer) = *(unsigned __int16 *)CurrentWeaponForPlayer;
   if ( (unsigned int)CurrentWeaponForPlayer > bg_lastParsedWeaponIndex )
   {
-    LODWORD(v38) = bg_lastParsedWeaponIndex;
-    LODWORD(v37) = CurrentWeaponForPlayer;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v37, v38) )
+    LODWORD(v27) = bg_lastParsedWeaponIndex;
+    LODWORD(v26) = CurrentWeaponForPlayer;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v26, v27) )
       __debugbreak();
   }
   CurrentWeaponForPlayer = (unsigned __int16)CurrentWeaponForPlayer;
@@ -1264,17 +1084,15 @@ _BOOL8 __fastcall Jump_Start(pmove_t *pm, pml_t *pml, double height)
     __debugbreak();
   if ( bg_weaponDefs[CurrentWeaponForPlayer]->jumpSpread )
   {
-    _RBX = DCONST_DVARFLT_jump_spreadAdd;
+    v21 = DCONST_DVARFLT_jump_spreadAdd;
     if ( !DCONST_DVARFLT_jump_spreadAdd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "jump_spreadAdd") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vaddss  xmm1, xmm0, dword ptr [rdi+744h]
-      vminss  xmm2, xmm1, cs:__real@437f0000
-      vmovss  dword ptr [rdi+744h], xmm2
-    }
+    Dvar_CheckFrontendServerThread(v21);
+    unsignedInt = v21->current.unsignedInt;
+    *(float *)&unsignedInt = v21->current.value + ps->weapCommon.aimSpreadScale;
+    _XMM1 = unsignedInt;
+    __asm { vminss  xmm2, xmm1, cs:__real@437f0000 }
+    ps->weapCommon.aimSpreadScale = *(float *)&_XMM2;
   }
   PM_Skydive_OnJump(pm, pml);
   return ShouldSprintLeap;

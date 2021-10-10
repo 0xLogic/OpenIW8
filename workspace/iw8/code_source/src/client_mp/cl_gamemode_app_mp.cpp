@@ -334,14 +334,14 @@ ClGameModeApplicationMP::ConnectionLessPacketDispatch
 */
 bool ClGameModeApplicationMP::ConnectionLessPacketDispatch(ClGameModeApplicationMP *this, LocalClientNum_t localClientNum, const netadr_t *from, msg_t *msg, int time)
 {
+  __int128 v8; 
   netadr_t v10; 
 
-  _RBX = from;
   if ( !from && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_gamemode_app_mp.cpp", 440, ASSERT_TYPE_ASSERT, "(from)", (const char *)&queryFormat, "from") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  v10.addrHandleIndex = _RBX->addrHandleIndex;
-  __asm { vmovups [rsp+58h+var_28], xmm0 }
+  v8 = *(_OWORD *)&from->type;
+  v10.addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v10.type = v8;
   return CL_MainMP_DispatchConnectionlessPacket(localClientNum, &v10, msg, time);
 }
 

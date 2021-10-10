@@ -106,13 +106,14 @@ __int64 AIScriptedInterface::Negotiation_Think(AIScriptedInterface *this)
   ai_scripted_t *v5; 
   ai_scripted_t *v6; 
   int number; 
+  Ai_Asm *v9; 
+  int v10; 
   Ai_Asm *v11; 
-  int v12; 
-  Ai_Asm *v13; 
   const ASM_Instance *InstanceIfExists; 
-  Ai_Asm *v15; 
-  __int64 v18; 
-  __int64 v19; 
+  Ai_Asm *v13; 
+  gentity_s *ent; 
+  __int64 v15; 
+  __int64 v16; 
 
   m_pAI = this->m_pAI;
   eScriptSetAnimMode = 7;
@@ -142,32 +143,28 @@ __int64 AIScriptedInterface::Negotiation_Think(AIScriptedInterface *this)
     AIScriptedInterface::PreThink(this);
     AIScriptedInterface::UpdateOriginAndAngles(this);
     number = this->m_pAI->ent->s.number;
-    LODWORD(v18) = 47;
-    v19 = 0i64;
+    LODWORD(v15) = 47;
+    v16 = 0i64;
     SV_Profile_BeginEvent(SVPROF_AI_ASM_TICK);
-    v11 = Ai_Asm::Singleton();
-    LOBYTE(number) = Common_Asm::Tick(v11, NULL, number, 0, 0);
+    v9 = Ai_Asm::Singleton();
+    LOBYTE(number) = Common_Asm::Tick(v9, NULL, number, 0, 0);
     SV_Profile_EndEvent(SVPROF_AI_ASM_TICK);
     AIScriptedInterface::UpdateLookAtPos(this);
     AIScriptedInterface::UpdateLookAtTracking(this);
     AIScriptedInterface::UpdateGunPose(this);
     this->UpdateAnimGameParams(this, number);
-    v12 = this->m_pAI->ent->s.number;
-    v13 = Ai_Asm::Singleton();
-    InstanceIfExists = Ai_Asm::GetInstanceIfExists(v13, NULL, v12);
+    v10 = this->m_pAI->ent->s.number;
+    v11 = Ai_Asm::Singleton();
+    InstanceIfExists = Ai_Asm::GetInstanceIfExists(v11, NULL, v10);
     if ( InstanceIfExists )
     {
-      v15 = Ai_Asm::Singleton();
+      v13 = Ai_Asm::Singleton();
       if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
         __debugbreak();
-      _RCX = this->m_pAI->ent;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rcx+130h]
-        vmovsd  [rsp+68h+var_18], xmm0
-      }
-      *(float *)&v19 = _RCX->r.currentOrigin.v[2];
-      Ai_Asm::DebugRender(v15, InstanceIfExists, (vec3_t *)&v18, level.frameDuration);
+      ent = this->m_pAI->ent;
+      v15 = *(_QWORD *)ent->r.currentOrigin.v;
+      *(float *)&v16 = ent->r.currentOrigin.v[2];
+      Ai_Asm::DebugRender(v13, InstanceIfExists, (vec3_t *)&v15, level.frameDuration);
     }
     return 0i64;
   }
@@ -181,9 +178,7 @@ __int64 AIScriptedInterface::Negotiation_Think(AIScriptedInterface *this)
     v6->Physics.vVelocity.v[2] = 0.0;
     if ( this->Is3D(this) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\actor_negotiation.cpp", 125, ASSERT_TYPE_ASSERT, "(!Is3D())", "%s\n\tNeed to support actor_t->prevMoveDir2D for 3-dimensions", "!Is3D()") )
       __debugbreak();
-    _RAX = this->m_pAI;
-    __asm { vmovss  xmm0, dword ptr [rax+138h]; yaw }
-    YawVectors2D(*(float *)&_XMM0, &_RAX->prevMoveDir2D, NULL);
+    YawVectors2D(this->m_pAI->orientation.vDesiredAngles.v[1], &this->m_pAI->prevMoveDir2D, NULL);
     AIScriptedInterface::PopState(this);
     return 1i64;
   }

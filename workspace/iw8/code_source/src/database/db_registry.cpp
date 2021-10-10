@@ -1639,12 +1639,7 @@ void DB_ArchiveAssets()
     {
       Sys_ProfBeginNamedEvent(0xFFBDB76B, "DB_ArchiveAssets_D3DData");
       R_LockGfxImmediateContext();
-      _RAX = RB_GetBackendCmdBufContext(&result);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+48h+result.source], xmm0
-      }
+      result = *RB_GetBackendCmdBufContext(&result);
       RB_UnbindAllImages(&result);
       R_UnlockGfxImmediateContext();
       Sys_ProfEndNamedEvent();
@@ -1739,22 +1734,18 @@ void DB_AssetQuery_Pop(void)
 DB_AssetQuery_Push
 ==============
 */
-
-void __fastcall DB_AssetQuery_Push(double _XMM0_8)
+void DB_AssetQuery_Push(void)
 {
-  unsigned __int64 v1; 
+  unsigned __int64 v0; 
   const char *CurrentThreadContextName; 
-  unsigned __int64 v3; 
-  bool v4; 
-  __int64 v5; 
-  __int64 v10; 
+  __int64 v4; 
 
   DB_AssetQuery_ThreadCheck();
   if ( ((unsigned __int8)&s_assetManager.assetQueryCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &s_assetManager.assetQueryCount) )
     __debugbreak();
   if ( _InterlockedAdd(&s_assetManager.assetQueryCount, 1u) < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 3403, ASSERT_TYPE_ASSERT, "(Sys_InterlockedIncrement( &s_assetManager.assetQueryCount ) >= 0)", (const char *)&queryFormat, "Sys_InterlockedIncrement( &s_assetManager.assetQueryCount ) >= 0") )
     __debugbreak();
-  v1 = __rdtsc();
+  v0 = __rdtsc();
   if ( !s_assetManager.assetQueryCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 3360, ASSERT_TYPE_ASSERT, "(s_assetManager.assetQueryCount)", (const char *)&queryFormat, "s_assetManager.assetQueryCount") )
     __debugbreak();
   CurrentThreadContextName = Sys_GetCurrentThreadContextName();
@@ -1771,30 +1762,16 @@ void __fastcall DB_AssetQuery_Push(double _XMM0_8)
       Sys_Sleep(1);
     }
   }
-  v3 = __rdtsc();
-  v4 = v3 < v1;
-  v5 = v3 - v1;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
-  if ( v5 < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcomisd xmm2, cs:__real@3f847ae147ae147b
-  }
-  if ( !v4 && v5 != 0 )
-  {
-    __asm { vmovq   r8, xmm2 }
-    Com_PrintWarning(10, "WARNING: DB_AssetQuery_Sync stalled for %fms\n", *(double *)&_XMM2);
-  }
-  v10 = tls_index;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v0) < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  if ( *(double *)&_XMM0 * msecPerRawTimerTick > 0.01 )
+    Com_PrintWarning(10, "WARNING: DB_AssetQuery_Sync stalled for %fms\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
+  v4 = tls_index;
   if ( *(_BYTE *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 717i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 3407, ASSERT_TYPE_ASSERT, "(!s_inAssetQuery)", (const char *)&queryFormat, "!s_inAssetQuery") )
     __debugbreak();
-  *(_BYTE *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v10) + 717i64) = 1;
+  *(_BYTE *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v4) + 717i64) = 1;
 }
 
 /*
@@ -1868,44 +1845,26 @@ char DB_AssetQuery_ThreadCheck()
 DB_AssetQuery_WaitForQueriesToComplete
 ==============
 */
-
-void __fastcall DB_AssetQuery_WaitForQueriesToComplete(double _XMM0_8)
+void DB_AssetQuery_WaitForQueriesToComplete()
 {
-  unsigned __int64 v1; 
-  unsigned __int64 v2; 
-  bool v3; 
-  __int64 v4; 
+  unsigned __int64 v0; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 3328, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   if ( *(_BYTE *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 717i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 3329, ASSERT_TYPE_ASSERT, "(!s_inAssetQuery)", (const char *)&queryFormat, "!s_inAssetQuery") )
     __debugbreak();
-  v1 = __rdtsc();
+  v0 = __rdtsc();
   while ( s_assetManager.assetQueryCount )
   {
     Sys_CheckQuitRequest();
     Sys_Sleep(1);
   }
-  v2 = __rdtsc();
-  v3 = v2 < v1;
-  v4 = v2 - v1;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
-  if ( v4 < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcomisd xmm2, cs:__real@3f847ae147ae147b
-  }
-  if ( !v3 && v4 != 0 )
-  {
-    __asm { vmovq   r8, xmm2 }
-    Com_PrintWarning(10, "WARNING: DB_AssetQuery_WaitForQueriesToComplete stalled for %fms\n", *(double *)&_XMM2);
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v0) < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  if ( *(double *)&_XMM0 * msecPerRawTimerTick > 0.01 )
+    Com_PrintWarning(10, "WARNING: DB_AssetQuery_WaitForQueriesToComplete stalled for %fms\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
 }
 
 /*
@@ -3579,65 +3538,62 @@ LABEL_27:
     vpxor   xmm1, xmm1, xmm1
   }
   s_assetManager.masterDefaultAssets[0].physicsLibrary = NULL;
-  __asm
-  {
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+8, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+18h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+28h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+38h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+48h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+58h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+68h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+78h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+88h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+98h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+0A8h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+0B8h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+0C8h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+0D8h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+0E8h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+0F8h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+108h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+118h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+128h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+138h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+148h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+158h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+168h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+178h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+188h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+198h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+1A8h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+1B8h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+1C8h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+1D8h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+1E8h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+1F8h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+208h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+218h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+228h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+238h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+248h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+258h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+268h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+278h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+288h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+298h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+2A8h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+2B8h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+2C8h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+2D8h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+2E8h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+2F8h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+308h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+318h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+328h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+338h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+348h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+358h, xmm1; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+368h, xmm0; AssetManagerGlob s_assetManager
-    vmovdqu xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.masterDefaultAssets+378h, xmm1; AssetManagerGlob s_assetManager
-  }
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[1].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[3].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[5].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[7].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[9].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[11].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[13].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[15].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[17].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[19].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[21].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[23].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[25].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[27].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[29].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[31].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[33].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[35].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[37].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[39].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[41].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[43].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[45].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[47].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[49].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[51].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[53].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[55].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[57].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[59].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[61].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[63].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[65].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[67].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[69].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[71].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[73].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[75].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[77].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[79].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[81].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[83].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[85].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[87].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[89].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[91].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[93].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[95].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[97].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[99].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[101].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[103].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[105].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[107].physicsLibrary = _XMM1;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[109].physicsLibrary = _XMM0;
+  *(_OWORD *)&s_assetManager.masterDefaultAssets[111].physicsLibrary = _XMM1;
   DB_ModelFixup_SetDefaultSurfs(NULL);
   DB_AssetUsage_ResetValues();
 }
@@ -6420,8 +6376,8 @@ __int64 DB_LogMissingAsset_CheckPrintNullEntry(const XAssetType type, const char
   int v12; 
   __int64 v13; 
   ntl::internal::list_node<DB_MissingAsset> *v14; 
-  char dest[32]; 
-  XAssetType v25; 
+  ntl::internal::list_node<DB_MissingAsset> *v15; 
+  DB_MissingAsset dest; 
 
   if ( !name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 1846, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
     __debugbreak();
@@ -6462,8 +6418,8 @@ __int64 DB_LogMissingAsset_CheckPrintNullEntry(const XAssetType type, const char
           if ( (ntl::internal::pool_allocator_freelist<152> *)s_missingAssetPrints.m_freelist.m_head.mp_next == &s_missingAssetPrints.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 1871, ASSERT_TYPE_ASSERT, "(!s_missingAssetPrints.get_allocator().empty())", (const char *)&queryFormat, "!s_missingAssetPrints.get_allocator().empty()") )
             __debugbreak();
         }
-        v25 = type;
-        Core_strcpy(dest, 0x80ui64, name);
+        dest.type = type;
+        Core_strcpy(dest.name, 0x80ui64, name);
         if ( !s_missingAssetPrints.m_freelist.m_head.mp_next )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
@@ -6473,23 +6429,12 @@ __int64 DB_LogMissingAsset_CheckPrintNullEntry(const XAssetType type, const char
         }
         if ( (ntl::internal::pool_allocator_freelist<152> *)s_missingAssetPrints.m_freelist.m_head.mp_next == &s_missingAssetPrints.m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x98ui64, 0x10ui64) )
           __debugbreak();
-        _R8 = s_missingAssetPrints.m_freelist.m_head.mp_next;
+        v15 = (ntl::internal::list_node<DB_MissingAsset> *)s_missingAssetPrints.m_freelist.m_head.mp_next;
         s_missingAssetPrints.m_freelist.m_head.mp_next = s_missingAssetPrints.m_freelist.m_head.mp_next->mp_next;
-        _R8->mp_next = NULL;
-        _R8[1].mp_next = NULL;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsp+118h+dest]
-          vmovups ymmword ptr [r8+10h], ymm0
-          vmovups ymm1, [rsp+118h+var_B8]
-          vmovups ymmword ptr [r8+30h], ymm1
-          vmovups ymm0, [rsp+118h+var_98]
-          vmovups ymmword ptr [r8+50h], ymm0
-          vmovups ymm1, [rsp+118h+var_78]
-          vmovups ymmword ptr [r8+70h], ymm1
-        }
-        LODWORD(_R8[18].mp_next) = v25;
-        ntl::internal::list_head_base<ntl::internal::list_node<DB_MissingAsset>>::insert_before(&s_missingAssetPrints.m_listHead, (ntl::internal::list_node<DB_MissingAsset> *)&s_missingAssetPrints.m_listHead, (ntl::internal::list_node<DB_MissingAsset> *)_R8);
+        v15->mp_prev = NULL;
+        v15->mp_next = NULL;
+        v15->m_data = dest;
+        ntl::internal::list_head_base<ntl::internal::list_node<DB_MissingAsset>>::insert_before(&s_missingAssetPrints.m_listHead, (ntl::internal::list_node<DB_MissingAsset> *)&s_missingAssetPrints.m_listHead, v15);
       }
       goto LABEL_61;
     }
@@ -9161,132 +9106,120 @@ DB_SteadyStateSanityChecks
 */
 void DB_SteadyStateSanityChecks(const bool unload)
 {
-  const dvar_t *v5; 
-  unsigned int v6; 
-  unsigned int v7; 
-  unsigned int *v8; 
-  unsigned __int64 v9; 
-  const dvar_t *v10; 
+  const dvar_t *v2; 
+  unsigned int v3; 
+  unsigned int v4; 
+  unsigned int *v5; 
+  unsigned __int64 v6; 
+  const dvar_t *v7; 
+  unsigned int v8; 
+  unsigned int v9; 
+  DB_AssetEntryFlags *p_unusableDefaultAssets; 
   unsigned int v11; 
   unsigned int v12; 
-  DB_AssetEntryFlags *p_unusableDefaultAssets; 
-  unsigned int v14; 
-  unsigned int v15; 
   DB_AssetEntryFlags *p_m_allocatedFlags; 
-  const dvar_t *v17; 
-  unsigned int v18; 
-  DB_AssetEntryFlags *v19; 
+  const dvar_t *v14; 
+  unsigned int v15; 
+  DB_AssetEntryFlags *v16; 
+  long double v19; 
   int LogChannel; 
-  void *retaddr; 
-  TransientAssetCheck v29; 
+  TransientAssetCheck v21; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 5415, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  v5 = DCONST_DVARBOOL_db_comprehensiveSanityChecks;
+  v2 = DCONST_DVARBOOL_db_comprehensiveSanityChecks;
   if ( !DCONST_DVARBOOL_db_comprehensiveSanityChecks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "db_comprehensiveSanityChecks") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( v5->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
-    v6 = 0;
+    v3 = 0;
     if ( DB_UsePedanticCorruptionChecks() )
       goto LABEL_19;
-    v7 = s_dbCurrentWorkFlags;
+    v4 = s_dbCurrentWorkFlags;
     if ( (s_dbCurrentWorkFlags & 0xFC700FFF) != 0 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 6319, ASSERT_TYPE_ASSERT, "(( s_dbCurrentWorkFlags & ~DB_MASK_STREAM_ZONES ) == 0)", (const char *)&queryFormat, "( s_dbCurrentWorkFlags & ~DB_MASK_STREAM_ZONES ) == 0") )
         __debugbreak();
-      v7 = s_dbCurrentWorkFlags;
+      v4 = s_dbCurrentWorkFlags;
     }
-    if ( !v7 )
+    if ( !v4 )
     {
       s_lastUnloadTransientFlags = 0;
       s_lastLoadTransientFlags = 0;
 LABEL_19:
       Sys_ProfBeginNamedEvent(0xFFFFFFFF, "DB_SteadyStateSanityChecks");
-      v9 = __rdtsc();
+      v6 = __rdtsc();
       DB_LockHashRead();
       DB_LockPendingZoneRead();
-      v10 = DCONST_DVARBOOL_db_comprehensiveSanityChecks;
+      v7 = DCONST_DVARBOOL_db_comprehensiveSanityChecks;
       if ( !DCONST_DVARBOOL_db_comprehensiveSanityChecks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "db_comprehensiveSanityChecks") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v10);
-      if ( !v10->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 5376, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_db_comprehensiveSanityChecks, \"db_comprehensiveSanityChecks\" ))", (const char *)&queryFormat, "Dconst_GetBool( db_comprehensiveSanityChecks )") )
+      Dvar_CheckFrontendServerThread(v7);
+      if ( !v7->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 5376, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_db_comprehensiveSanityChecks, \"db_comprehensiveSanityChecks\" ))", (const char *)&queryFormat, "Dconst_GetBool( db_comprehensiveSanityChecks )") )
         __debugbreak();
-      v11 = 0;
-      v12 = 0;
+      v8 = 0;
+      v9 = 0;
       p_unusableDefaultAssets = &s_assetManager.unusableDefaultAssets;
       do
       {
-        DB_AssetEntryPool::ForEachInBlock<CheckUnusableDefaultAssetsFunctor>(&s_assetManager.table.m_pool, &s_assetManager.unusableDefaultAssets, p_unusableDefaultAssets->m_flags.m_data[0], v11, (CheckUnusableDefaultAssetsFunctor *)&v29);
-        v11 += 64;
-        ++v12;
+        DB_AssetEntryPool::ForEachInBlock<CheckUnusableDefaultAssetsFunctor>(&s_assetManager.table.m_pool, &s_assetManager.unusableDefaultAssets, p_unusableDefaultAssets->m_flags.m_data[0], v8, (CheckUnusableDefaultAssetsFunctor *)&v21);
+        v8 += 64;
+        ++v9;
         p_unusableDefaultAssets = (DB_AssetEntryFlags *)((char *)p_unusableDefaultAssets + 8);
       }
-      while ( v12 < 0x1768 );
-      v14 = 0;
-      v15 = 0;
+      while ( v9 < 0x1768 );
+      v11 = 0;
+      v12 = 0;
       p_m_allocatedFlags = &s_assetManager.table.m_pool.m_allocatedFlags;
       do
       {
-        DB_AssetEntryPool::ForEachInBlock<CheckDefaultAssetsFunctor>(&s_assetManager.table.m_pool, &s_assetManager.table.m_pool.m_allocatedFlags, p_m_allocatedFlags->m_flags.m_data[0], v14, (CheckDefaultAssetsFunctor *)&v29);
-        v14 += 64;
-        ++v15;
+        DB_AssetEntryPool::ForEachInBlock<CheckDefaultAssetsFunctor>(&s_assetManager.table.m_pool, &s_assetManager.table.m_pool.m_allocatedFlags, p_m_allocatedFlags->m_flags.m_data[0], v11, (CheckDefaultAssetsFunctor *)&v21);
+        v11 += 64;
+        ++v12;
         p_m_allocatedFlags = (DB_AssetEntryFlags *)((char *)p_m_allocatedFlags + 8);
       }
-      while ( v15 < 0x1768 );
+      while ( v12 < 0x1768 );
       DB_UnlockPendingZoneRead();
-      v17 = DCONST_DVARBOOL_db_comprehensiveSanityChecks;
+      v14 = DCONST_DVARBOOL_db_comprehensiveSanityChecks;
       if ( !DCONST_DVARBOOL_db_comprehensiveSanityChecks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "db_comprehensiveSanityChecks") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v17);
-      if ( !v17->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 1196, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_db_comprehensiveSanityChecks, \"db_comprehensiveSanityChecks\" ))", (const char *)&queryFormat, "Dconst_GetBool( db_comprehensiveSanityChecks )") )
+      Dvar_CheckFrontendServerThread(v14);
+      if ( !v14->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 1196, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DCONST_DVARBOOL_db_comprehensiveSanityChecks, \"db_comprehensiveSanityChecks\" ))", (const char *)&queryFormat, "Dconst_GetBool( db_comprehensiveSanityChecks )") )
         __debugbreak();
-      v18 = 0;
-      v19 = &s_assetManager.table.m_pool.m_allocatedFlags;
+      v15 = 0;
+      v16 = &s_assetManager.table.m_pool.m_allocatedFlags;
       do
       {
-        DB_AssetEntryPool::ForEachInBlock<TransientAssetCheck>(&s_assetManager.table.m_pool, &s_assetManager.table.m_pool.m_allocatedFlags, v19->m_flags.m_data[0], v6, &v29);
-        v6 += 64;
-        ++v18;
-        v19 = (DB_AssetEntryFlags *)((char *)v19 + 8);
+        DB_AssetEntryPool::ForEachInBlock<TransientAssetCheck>(&s_assetManager.table.m_pool, &s_assetManager.table.m_pool.m_allocatedFlags, v16->m_flags.m_data[0], v3, &v21);
+        v3 += 64;
+        ++v15;
+        v16 = (DB_AssetEntryFlags *)((char *)v16 + 8);
       }
-      while ( v18 < 0x1768 );
+      while ( v15 < 0x1768 );
       DB_ValidateAssetTable();
       DB_AssetEntryTable::Validate(&s_assetManager.table);
       DB_ModelFixup_CheckFixupAll();
       DB_UnlockHashRead();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-      }
-      if ( (__int64)(__rdtsc() - v9) < 0 )
-        __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-      __asm { vmulsd  xmm6, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick }
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      if ( (__int64)(__rdtsc() - v6) < 0 )
+        *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+      v19 = *(double *)&_XMM0 * msecPerRawTimerTick;
       LogChannel = DB_GetLogChannel();
-      __asm
-      {
-        vmovaps xmm2, xmm6
-        vmovq   r8, xmm2
-      }
-      Com_Printf(LogChannel, "DB_SteadyStateSanityChecks took %.2fms\n", *(double *)&_XMM2);
+      Com_Printf(LogChannel, "DB_SteadyStateSanityChecks took %.2fms\n", (double)v19);
       Sys_ProfEndNamedEvent();
-      goto LABEL_40;
+      return;
     }
-    v8 = &s_lastLoadTransientFlags;
+    v5 = &s_lastLoadTransientFlags;
     if ( unload )
-      v8 = &s_lastUnloadTransientFlags;
-    if ( (v7 & *v8) != v7 )
+      v5 = &s_lastUnloadTransientFlags;
+    if ( (v4 & *v5) != v4 )
     {
-      *v8 |= v7;
+      *v5 |= v4;
       goto LABEL_19;
     }
   }
-LABEL_40:
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
 }
 
 /*
@@ -9343,24 +9276,22 @@ void DB_SyncFinishUnloadFastfiles()
 DB_SyncForUnfinishedLoadsOrUnloads
 ==============
 */
-
-void __fastcall DB_SyncForUnfinishedLoadsOrUnloads(double _XMM0_8)
+void DB_SyncForUnfinishedLoadsOrUnloads()
 {
-  unsigned __int64 v1; 
-  unsigned __int64 v2; 
-  bool v3; 
-  __int64 v4; 
-  XRegistryState v11; 
+  unsigned __int64 v0; 
+  __int128 v3; 
+  __int128 v5; 
+  XRegistryState v7; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 6980, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "DB_SyncForUnfinishedLoadsOrUnloads");
-  v1 = __rdtsc();
+  v0 = __rdtsc();
   DB_SyncFinishUnloadFastfiles();
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 6006, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   Stream_AlwaysLoaded_CancelProcessStreamingInfo();
-  DB_AssetQuery_WaitForQueriesToComplete(_XMM0_8);
+  DB_AssetQuery_WaitForQueriesToComplete();
   if ( s_dbLoadingFastfiles )
   {
     Com_Printf(0, "Blocking for DB thread to complete...\n");
@@ -9406,34 +9337,25 @@ void __fastcall DB_SyncForUnfinishedLoadsOrUnloads(double _XMM0_8)
     __debugbreak();
   if ( s_registryState )
   {
-    v11 = s_registryState;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7039, ASSERT_TYPE_ASSERT, "( s_registryState ) == ( REGISTRY_STATE_IDLE )", "%s == %s\n\t%i, %i", "s_registryState", "REGISTRY_STATE_IDLE", v11, 0i64) )
+    v7 = s_registryState;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7039, ASSERT_TYPE_ASSERT, "( s_registryState ) == ( REGISTRY_STATE_IDLE )", "%s == %s\n\t%i, %i", "s_registryState", "REGISTRY_STATE_IDLE", v7, 0i64) )
       __debugbreak();
   }
-  v2 = __rdtsc();
-  v3 = v2 < v1;
-  v4 = v2 - v1;
-  __asm
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v0) < 0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
+    *((_QWORD *)&v3 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v3 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v3;
   }
-  if ( v4 < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
+  *((_QWORD *)&v5 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v5 = *(double *)&_XMM0 * msecPerRawTimerTick;
+  _XMM1 = v5;
+  if ( *(double *)&_XMM0 * msecPerRawTimerTick > 16.0 )
   {
-    vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vcomisd xmm1, cs:__real@4030000000000000
-  }
-  if ( !v3 && v4 != 0 )
-  {
-    __asm
-    {
-      vcvtsd2ss xmm0, xmm1, xmm1
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovq   r8, xmm2
-    }
-    Com_Printf(10, "DB_SyncForUnfinishedLoadsOrUnloads: Took %.2fms\n", *(double *)&_XMM2);
+    __asm { vcvtsd2ss xmm0, xmm1, xmm1 }
+    Com_Printf(10, "DB_SyncForUnfinishedLoadsOrUnloads: Took %.2fms\n", *(float *)&_XMM0);
   }
   Sys_ProfEndNamedEvent();
 }
@@ -10109,36 +10031,36 @@ void DB_TryLoadXFile()
   unsigned __int64 v12; 
   unsigned __int64 v13; 
   bool v14; 
-  int v22; 
-  const char *v23; 
+  int v15; 
+  const char *v16; 
+  int v17; 
+  const char *v18; 
+  unsigned int v19; 
+  int LogChannel; 
+  bool v21; 
+  const char *v22; 
+  unsigned int v23; 
   int v24; 
   const char *v25; 
   unsigned int v26; 
-  int LogChannel; 
-  bool v28; 
-  const char *v29; 
-  unsigned int v30; 
-  int v31; 
-  const char *v32; 
-  unsigned int v33; 
-  int v34; 
-  unsigned int v35; 
+  int v27; 
+  unsigned int v28; 
   bool IsActive; 
-  char v37; 
+  char v30; 
   __int64 wasPaused; 
   __int64 priority; 
-  __int64 v40; 
-  unsigned __int64 v41; 
-  char v42; 
-  char v43; 
-  int v44; 
-  int v45; 
+  __int64 v33; 
+  unsigned __int64 v34; 
+  char v35; 
+  char v36; 
+  int v37; 
+  int v38; 
 
   v0 = 0;
   v1 = 0;
   v2 = 0;
-  v42 = 0;
-  v44 = 0;
+  v35 = 0;
+  v37 = 0;
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 8882, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
   if ( !Sys_IsDatabaseReady() )
@@ -10150,7 +10072,7 @@ void DB_TryLoadXFile()
     if ( Sys_GetDatabaseStopServer() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 8894, ASSERT_TYPE_ASSERT, "(!Sys_GetDatabaseStopServer())", (const char *)&queryFormat, "!Sys_GetDatabaseStopServer()") )
       __debugbreak();
     v3 = (unsigned __int64)&s_registryState & 3;
-    v41 = (unsigned __int64)&s_registryState & 3;
+    v34 = (unsigned __int64)&s_registryState & 3;
     if ( ((unsigned __int8)&s_registryState & 3) != 0 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_registryState) )
@@ -10167,9 +10089,9 @@ void DB_TryLoadXFile()
     if ( s_dbWorkPeriod != ReadyToFlush && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 8902, ASSERT_TYPE_ASSERT, "(s_dbWorkPeriod == DB_WorkPeriod::Awake)", (const char *)&queryFormat, "s_dbWorkPeriod == DB_WorkPeriod::Awake") )
       __debugbreak();
     s_dbWorkPeriod = Flushing;
-    v45 = Sys_Milliseconds();
+    v38 = Sys_Milliseconds();
     Stream_DBPreFastfilesLoad();
-    v43 = 0;
+    v36 = 0;
     s_dbLoadingProcessedAssets = 1;
     DB_LoadTimes_FastfileLoadStarted();
     s_dbWorkPeriodZone[0] = 0;
@@ -10205,7 +10127,7 @@ void DB_TryLoadXFile()
             if ( (v12 & s_assetManager.pausedZones.m_data[v9 >> 6]) != 0 )
             {
               v4 = 1;
-              v42 = 1;
+              v35 = 1;
               if ( v10 >= 0x7A4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\bitset\\bitset.h", 238, ASSERT_TYPE_ASSERT, "( pos < num_bits )", (const char *)&queryFormat, "pos < num_bits") )
                 __debugbreak();
               if ( (v12 & s_assetManager.thisLoadPassZones.m_data[v11]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 8975, ASSERT_TYPE_ASSERT, "(!s_assetManager.thisLoadPassZones.test( zoneIndex ))", (const char *)&queryFormat, "!s_assetManager.thisLoadPassZones.test( zoneIndex )") )
@@ -10264,10 +10186,10 @@ void DB_TryLoadXFile()
                 __debugbreak();
               s_assetManager.fullyLoadedZones.m_data[v11] &= v13;
             }
-            v1 = v42;
-            v0 = v43;
+            v1 = v35;
+            v0 = v36;
           }
-          v2 = v44;
+          v2 = v37;
         }
         s_assetManager.pendingZoneLock.writeThreadId = 0;
         ReleaseSRWLockExclusive((PSRWLOCK)&s_assetManager.pendingZoneLock);
@@ -10288,17 +10210,17 @@ void DB_TryLoadXFile()
           {
             s_dbZoneAllocDone = 1;
           }
-          v26 = Sys_Milliseconds() - v45;
+          v19 = Sys_Milliseconds() - v38;
           LogChannel = DB_GetLogChannel();
-          Com_Printf(LogChannel, "Fastfile load... Loaded resident assets @ %ims. (1/3)\n", v26);
-          v28 = Stream_DBPostFastfilesLoad();
+          Com_Printf(LogChannel, "Fastfile load... Loaded resident assets @ %ims. (1/3)\n", v19);
+          v21 = Stream_DBPostFastfilesLoad();
           if ( v1 )
           {
             ProfLoad_DB_Begin("AlwaysLoaded Assets");
             s_dbWorkPeriod = 6;
             if ( v0 )
               DB_LoadTimes_AlwaysLoadedStarted();
-            if ( !v28 )
+            if ( !v21 )
               s_assetManager.redoAlwaysloadedFlagsForPauseOrCancel = 0;
             Stream_AlwaysLoaded_QueueProcessStreamingInfo();
             if ( DB_AlwaysLoadedImages_ShouldWaitForLoading() )
@@ -10306,44 +10228,44 @@ void DB_TryLoadXFile()
             if ( v0 )
               DB_LoadTimes_AlwaysLoadedFinished();
             ProfLoad_DB_End();
-            v29 = "Fastfile load... Loaded alwaysloaded assets @ %ims. (2/3)\n";
+            v22 = "Fastfile load... Loaded alwaysloaded assets @ %ims. (2/3)\n";
           }
           else
           {
-            v29 = "Fastfile load... Skipped loading alwaysloaded assets @ %ims. (2/3)\n";
+            v22 = "Fastfile load... Skipped loading alwaysloaded assets @ %ims. (2/3)\n";
           }
-          v30 = Sys_Milliseconds() - v45;
-          v31 = DB_GetLogChannel();
-          Com_Printf(v31, v29, v30);
-          if ( v28 )
+          v23 = Sys_Milliseconds() - v38;
+          v24 = DB_GetLogChannel();
+          Com_Printf(v24, v22, v23);
+          if ( v21 )
           {
             ProfLoad_DB_Begin("Sound banks");
             s_dbWorkPeriod = 5;
             if ( SND_Active() )
               SND_LoadSoundsWait(0);
             ProfLoad_DB_End();
-            v32 = "Fastfile load... Loaded soundbanks @ %ims. (3/3)\n";
+            v25 = "Fastfile load... Loaded soundbanks @ %ims. (3/3)\n";
           }
           else
           {
-            v32 = "Fastfile load... Skipped loading soundbanks @ %ims. (3/3)\n";
+            v25 = "Fastfile load... Skipped loading soundbanks @ %ims. (3/3)\n";
           }
-          v33 = Sys_Milliseconds() - v45;
-          v34 = DB_GetLogChannel();
-          Com_Printf(v34, v32, v33);
-          v35 = s_dbCurrentWorkFlags;
+          v26 = Sys_Milliseconds() - v38;
+          v27 = DB_GetLogChannel();
+          Com_Printf(v27, v25, v26);
+          v28 = s_dbCurrentWorkFlags;
           if ( (s_dbCurrentWorkFlags & 0x5000) != 0 )
           {
-            if ( (v44 & 0xFFFFAFFF) != 0 )
+            if ( (v37 & 0xFFFFAFFF) != 0 )
             {
-              LODWORD(wasPaused) = v44;
+              LODWORD(wasPaused) = v37;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 9149, ASSERT_TYPE_ASSERT, "( ( ( flagsLoaded & ~DB_MASK_TRANSIENT_SP_ZONES ) == 0 ) )", "( flagsLoaded ) = %i", wasPaused) )
                 __debugbreak();
-              v35 = s_dbCurrentWorkFlags;
+              v28 = s_dbCurrentWorkFlags;
             }
-            if ( (v35 & 0xFFFFAFFF) != 0 )
+            if ( (v28 & 0xFFFFAFFF) != 0 )
             {
-              LODWORD(wasPaused) = v35;
+              LODWORD(wasPaused) = v28;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 9150, ASSERT_TYPE_ASSERT, "( ( ( s_dbCurrentWorkFlags & ~DB_MASK_TRANSIENT_SP_ZONES ) == 0 ) )", "( s_dbCurrentWorkFlags ) = %i", wasPaused) )
                 __debugbreak();
             }
@@ -10353,16 +10275,16 @@ void DB_TryLoadXFile()
           }
           else if ( (s_dbCurrentWorkFlags & 0x38FA000) != 0 )
           {
-            if ( (v44 & 0xFC705FFF) != 0 )
+            if ( (v37 & 0xFC705FFF) != 0 )
             {
-              LODWORD(wasPaused) = v44;
+              LODWORD(wasPaused) = v37;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 9161, ASSERT_TYPE_ASSERT, "( ( ( flagsLoaded & ~DB_MASK_STREAM_MP_ZONES ) == 0 ) )", "( flagsLoaded ) = %i", wasPaused) )
                 __debugbreak();
-              v35 = s_dbCurrentWorkFlags;
+              v28 = s_dbCurrentWorkFlags;
             }
-            if ( (v35 & 0xFC705FFF) != 0 )
+            if ( (v28 & 0xFC705FFF) != 0 )
             {
-              LODWORD(wasPaused) = v35;
+              LODWORD(wasPaused) = v28;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 9162, ASSERT_TYPE_ASSERT, "( ( ( s_dbCurrentWorkFlags & ~DB_MASK_STREAM_MP_ZONES ) == 0 ) )", "( s_dbCurrentWorkFlags ) = %i", wasPaused) )
                 __debugbreak();
             }
@@ -10374,20 +10296,20 @@ void DB_TryLoadXFile()
             ProfLoad_DB_End();
           }
           IsActive = ProfLoad_IsActive();
-          v37 = s_dbProfilingLoadedFastFile;
+          v30 = s_dbProfilingLoadedFastFile;
           if ( IsActive )
-            v37 = 1;
-          s_dbProfilingLoadedFastFile = v37;
+            v30 = 1;
+          s_dbProfilingLoadedFastFile = v30;
           s_dbWorkPeriod = ReadyToFlush;
-          if ( v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_registryState) )
+          if ( v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_registryState) )
             __debugbreak();
           if ( _InterlockedCompareExchange((volatile signed __int32 *)&s_registryState, 0, 2) != 2 )
           {
-            if ( v41 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_registryState) )
+            if ( v34 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_registryState) )
               __debugbreak();
-            LODWORD(v40) = 2;
+            LODWORD(v33) = 2;
             LODWORD(priority) = _InterlockedCompareExchange((volatile signed __int32 *)&s_registryState, 0, 2);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 9185, ASSERT_TYPE_ASSERT, "( Sys_InterlockedCompareExchange( reinterpret_cast<volatile_int32*>( &s_registryState ), REGISTRY_STATE_IDLE, REGISTRY_STATE_DB_THREAD ) ) == ( REGISTRY_STATE_DB_THREAD )", "%s == %s\n\t%i, %i", "Sys_InterlockedCompareExchange( reinterpret_cast<volatile_int32*>( &s_registryState ), REGISTRY_STATE_IDLE, REGISTRY_STATE_DB_THREAD )", "REGISTRY_STATE_DB_THREAD", priority, v40) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 9185, ASSERT_TYPE_ASSERT, "( Sys_InterlockedCompareExchange( reinterpret_cast<volatile_int32*>( &s_registryState ), REGISTRY_STATE_IDLE, REGISTRY_STATE_DB_THREAD ) ) == ( REGISTRY_STATE_DB_THREAD )", "%s == %s\n\t%i, %i", "Sys_InterlockedCompareExchange( reinterpret_cast<volatile_int32*>( &s_registryState ), REGISTRY_STATE_IDLE, REGISTRY_STATE_DB_THREAD )", "REGISTRY_STATE_DB_THREAD", priority, v33) )
               __debugbreak();
           }
           if ( !s_dbLoadingProcessedAssets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 9188, ASSERT_TYPE_ASSERT, "(s_dbLoadingProcessedAssets)", (const char *)&queryFormat, "s_dbLoadingProcessedAssets") )
@@ -10413,24 +10335,10 @@ void DB_TryLoadXFile()
         }
         if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
           __debugbreak();
-        _R14 = &s_assetManager;
-        __asm { vmovups ymm0, ymmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.pendingZoneInfo.parentZoneName; AssetManagerGlob s_assetManager }
-        _RCX = 18 * s_assetManager.attemptedLoads.m_size;
-        __asm
-        {
-          vmovups ymmword ptr [r14+rcx*8+963410h], ymm0
-          vmovups ymm1, ymmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.pendingZoneInfo.parentZoneName+20h; AssetManagerGlob s_assetManager
-          vmovups ymmword ptr [r14+rcx*8+963430h], ymm1
-          vmovups ymm0, ymmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.pendingZoneInfo.fastfileName; AssetManagerGlob s_assetManager
-          vmovups ymmword ptr [r14+rcx*8+963450h], ymm0
-          vmovups ymm1, ymmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.pendingZoneInfo.fastfileName+20h; AssetManagerGlob s_assetManager
-          vmovups ymmword ptr [r14+rcx*8+963470h], ymm1
-          vmovups xmm0, xmmword ptr cs:?s_assetManager@@3UAssetManagerGlob@@A.pendingZoneInfo.flags; AssetManagerGlob s_assetManager
-          vmovups xmmword ptr [r14+rcx*8+963490h], xmm0
-        }
+        *(DB_PendingZoneInfo *)&s_assetManager.attemptedLoads.m_data.m_buffer[144 * s_assetManager.attemptedLoads.m_size] = s_assetManager.pendingZoneInfo;
         v2 |= s_assetManager.pendingZoneInfo.flags;
         ++s_assetManager.attemptedLoads.m_size;
-        v44 = v2;
+        v37 = v2;
         if ( v6 )
           break;
         LoadBar_BeginFastfile(s_assetManager.pendingZoneInfo.fastfileName, s_assetManager.pendingZoneInfo.flags);
@@ -10439,9 +10347,9 @@ void DB_TryLoadXFile()
           if ( s_assetManager.pendingZoneInfo.fastfileName[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 9050, ASSERT_TYPE_ASSERT, "(pendingZoneInfo.fastfileName[0] == '\\0')", (const char *)&queryFormat, "pendingZoneInfo.fastfileName[0] == '\\0'") )
             __debugbreak();
           v0 = 1;
-          v43 = 1;
+          v36 = 1;
           v1 = 1;
-          v42 = 1;
+          v35 = 1;
           LoadBar_FinishFastfile();
         }
         else
@@ -10456,30 +10364,30 @@ void DB_TryLoadXFile()
       }
       DB_LockPendingZoneWrite();
       Com_Printf(16, "DB_TryLoadXFile: alreadyLoadedAssets is set: '%s'\n", s_assetManager.pendingZoneInfo.fastfileName);
-      v22 = DB_Zones_GetZoneIndexFromName(s_assetManager.pendingZoneInfo.fastfileName);
-      if ( v22 == 0xFFFF )
+      v15 = DB_Zones_GetZoneIndexFromName(s_assetManager.pendingZoneInfo.fastfileName);
+      if ( v15 == 0xFFFF )
       {
-        v23 = "zoneIndex != INVALID_ZONE_INDEX";
-        v24 = 9032;
-        v25 = "(zoneIndex != INVALID_ZONE_INDEX)";
+        v16 = "zoneIndex != INVALID_ZONE_INDEX";
+        v17 = 9032;
+        v18 = "(zoneIndex != INVALID_ZONE_INDEX)";
       }
       else
       {
-        if ( v22 )
+        if ( v15 )
           goto LABEL_137;
-        v23 = "zoneIndex != DEFAULT_ZONE_INDEX";
-        v24 = 9033;
-        v25 = "(zoneIndex != DEFAULT_ZONE_INDEX)";
+        v16 = "zoneIndex != DEFAULT_ZONE_INDEX";
+        v17 = 9033;
+        v18 = "(zoneIndex != DEFAULT_ZONE_INDEX)";
       }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", v24, ASSERT_TYPE_ASSERT, v25, (const char *)&queryFormat, v23) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", v17, ASSERT_TYPE_ASSERT, v18, (const char *)&queryFormat, v16) )
         __debugbreak();
 LABEL_137:
-      DB_PendingLoadFinalizePauseAndCancel(s_assetManager.pendingZoneInfo.fastfileName, v22);
+      DB_PendingLoadFinalizePauseAndCancel(s_assetManager.pendingZoneInfo.fastfileName, v15);
       DB_ClearPendingZoneInfo();
       s_assetManager.pendingZoneLock.writeThreadId = 0;
       ReleaseSRWLockExclusive((PSRWLOCK)&s_assetManager.pendingZoneLock);
       Sys_CheckReleaseLock(&s_assetManager.pendingZoneLock);
-      v2 = v44;
+      v2 = v37;
     }
   }
 }
@@ -10947,89 +10855,88 @@ DB_UnloadFastfiles
 */
 void DB_UnloadFastfiles(const DB_FastfileInfo *zoneInfo, unsigned int zoneCount, unsigned int unloadFlags)
 {
-  double v3; 
   DB_ZoneBitArray *p_outArray; 
+  __int64 v7; 
   __int64 v8; 
-  __int64 v9; 
-  unsigned int v10; 
-  const dvar_t *v11; 
-  int v12; 
-  int *v13; 
-  unsigned int v14; 
-  unsigned __int64 v15; 
+  unsigned int v9; 
+  const dvar_t *v10; 
+  int v11; 
+  int *v12; 
+  unsigned int v13; 
+  unsigned __int64 v14; 
   unsigned int ZoneFlagsFromIndex; 
   const char *ZoneNameFromIndex; 
-  __int64 v18; 
+  __int64 v17; 
+  unsigned int v18; 
   unsigned int v19; 
-  unsigned int v20; 
-  __int64 v21; 
-  unsigned int v22; 
-  DB_ZoneBitArray *v23; 
-  char v24; 
-  unsigned __int64 v25; 
+  __int64 v20; 
+  unsigned int v21; 
+  DB_ZoneBitArray *v22; 
+  char v23; 
+  unsigned __int64 v24; 
   int LogChannel; 
-  __int64 v27; 
-  unsigned int v28; 
-  const char *v29; 
-  unsigned int v30; 
-  int v31; 
-  const char *v32; 
+  __int64 v26; 
+  unsigned int v27; 
+  const char *v28; 
+  unsigned int v29; 
+  int v30; 
+  const char *v31; 
+  int v32; 
   int v33; 
-  int v34; 
-  unsigned int v35; 
+  unsigned int v34; 
   char IsDoingStreamMPOnlyWork; 
-  unsigned int v37; 
+  unsigned int v36; 
+  bool v37; 
   bool v38; 
-  bool v39; 
-  char v40; 
+  char v39; 
+  int v40; 
   int v41; 
-  int v42; 
+  bool v42; 
   bool v43; 
   bool v44; 
-  bool v45; 
-  const dvar_t *v46; 
-  bool v47; 
-  __int16 v48; 
-  bool v49; 
-  unsigned int v50; 
-  const dvar_t *v51; 
+  const dvar_t *v45; 
+  bool v46; 
+  __int16 v47; 
+  bool v48; 
+  unsigned int v49; 
+  const dvar_t *v50; 
+  unsigned int v51; 
   unsigned int v52; 
-  unsigned int v53; 
   DB_AssetEntryFlags *p_defaultAssets; 
-  __int64 v55; 
-  unsigned int v56; 
-  char v57; 
-  unsigned int v58; 
-  int v59; 
-  char v60; 
-  unsigned __int64 v61; 
-  bool v62; 
+  __int64 v54; 
+  unsigned int v55; 
+  char v56; 
+  unsigned int v57; 
+  int v58; 
+  char v59; 
+  unsigned __int64 v60; 
+  bool v61; 
+  __int64 v62; 
   __int64 v63; 
   __int64 v64; 
   __int64 v65; 
-  __int64 v66; 
+  bool v66; 
   bool v67; 
-  bool v68; 
-  char v69; 
+  char v68; 
   unsigned int flags; 
   DBCreateDefaultOptions flagsa; 
+  bool v71; 
   bool v72; 
   bool v73; 
-  bool v74; 
-  FreeAssetEntryValidateDefaultNameFunctor v75; 
+  FreeAssetEntryValidateDefaultNameFunctor v74; 
+  unsigned int v75; 
   unsigned int v76; 
-  unsigned int v77; 
-  int v78; 
-  unsigned int v79; 
-  unsigned __int64 v80; 
-  __int64 v81; 
+  int v77; 
+  unsigned int v78; 
+  unsigned __int64 v79; 
+  __int64 v80; 
   DB_ZoneBitArray outArray; 
-  int v83[64]; 
+  int v82[64]; 
   GfxWorldTransientZoneDeferredReleasePointerList list; 
 
-  v81 = -2i64;
-  v77 = unloadFlags;
-  v68 = 0;
+  v80 = -2i64;
+  v76 = unloadFlags;
+  v67 = 0;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7312, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   if ( !zoneInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7314, ASSERT_TYPE_ASSERT, "(zoneInfo)", (const char *)&queryFormat, "zoneInfo") )
@@ -11038,10 +10945,10 @@ void DB_UnloadFastfiles(const DB_FastfileInfo *zoneInfo, unsigned int zoneCount,
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "DB_UnloadFastfiles");
   DB_CancelLoadFastfiles(zoneInfo, zoneCount);
-  DB_SyncForUnfinishedLoadsOrUnloads(v3);
+  DB_SyncForUnfinishedLoadsOrUnloads();
   p_outArray = &outArray;
+  v7 = 3i64;
   v8 = 3i64;
-  v9 = 3i64;
   do
   {
     *(_QWORD *)p_outArray->zones.array = 0i64;
@@ -11053,9 +10960,9 @@ void DB_UnloadFastfiles(const DB_FastfileInfo *zoneInfo, unsigned int zoneCount,
     *(_QWORD *)&p_outArray[-1].zones.array[56] = 0i64;
     *(_QWORD *)&p_outArray[-1].zones.array[58] = 0i64;
     *(_QWORD *)&p_outArray[-1].zones.array[60] = 0i64;
-    --v9;
+    --v8;
   }
-  while ( v9 );
+  while ( v8 );
   *(_QWORD *)p_outArray->zones.array = 0i64;
   *(_QWORD *)&p_outArray->zones.array[2] = 0i64;
   *(_QWORD *)&p_outArray->zones.array[4] = 0i64;
@@ -11063,82 +10970,82 @@ void DB_UnloadFastfiles(const DB_FastfileInfo *zoneInfo, unsigned int zoneCount,
   *(_QWORD *)&p_outArray->zones.array[8] = 0i64;
   *(_QWORD *)&p_outArray->zones.array[10] = 0i64;
   *(_QWORD *)&p_outArray->zones.array[12] = 0i64;
-  v69 = unloadFlags & 1;
-  v10 = unloadFlags >> 1;
-  LOBYTE(v10) = (unloadFlags & 2) != 0;
-  v76 = v10;
-  v73 = (unloadFlags & 8) != 0;
+  v68 = unloadFlags & 1;
+  v9 = unloadFlags >> 1;
+  LOBYTE(v9) = (unloadFlags & 2) != 0;
+  v75 = v9;
+  v72 = (unloadFlags & 8) != 0;
   if ( s_dbIsSyncLoading && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7334, ASSERT_TYPE_ASSERT, "(!s_dbIsSyncLoading)", (const char *)&queryFormat, "!s_dbIsSyncLoading") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "DB_UnloadFastfiles - Zone Match");
   flags = DB_Zones_GetUnloadBitArray(&outArray, zoneInfo, zoneCount);
   Sys_ProfEndNamedEvent();
-  v11 = DCONST_DVARBOOL_db_comprehensiveSanityChecks;
+  v10 = DCONST_DVARBOOL_db_comprehensiveSanityChecks;
   if ( !DCONST_DVARBOOL_db_comprehensiveSanityChecks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "db_comprehensiveSanityChecks") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( v11->current.enabled )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( v10->current.enabled )
   {
     Sys_ProfBeginNamedEvent(0xFFFFFFFF, "DB_UnloadFastfiles - Zone Match Validate");
-    v12 = 0;
-    v13 = v83;
+    v11 = 0;
+    v12 = v82;
     do
     {
-      *(_QWORD *)v13 = 0i64;
-      *((_QWORD *)v13 + 1) = 0i64;
-      *((_QWORD *)v13 + 2) = 0i64;
-      v13 += 16;
-      *((_QWORD *)v13 - 5) = 0i64;
-      *((_QWORD *)v13 - 4) = 0i64;
-      *((_QWORD *)v13 - 3) = 0i64;
-      *((_QWORD *)v13 - 2) = 0i64;
-      *((_QWORD *)v13 - 1) = 0i64;
-      --v8;
+      *(_QWORD *)v12 = 0i64;
+      *((_QWORD *)v12 + 1) = 0i64;
+      *((_QWORD *)v12 + 2) = 0i64;
+      v12 += 16;
+      *((_QWORD *)v12 - 5) = 0i64;
+      *((_QWORD *)v12 - 4) = 0i64;
+      *((_QWORD *)v12 - 3) = 0i64;
+      *((_QWORD *)v12 - 2) = 0i64;
+      *((_QWORD *)v12 - 1) = 0i64;
+      --v7;
     }
-    while ( v8 );
-    *(_QWORD *)v13 = 0i64;
-    *((_QWORD *)v13 + 1) = 0i64;
-    *((_QWORD *)v13 + 2) = 0i64;
-    *((_QWORD *)v13 + 3) = 0i64;
-    *((_QWORD *)v13 + 4) = 0i64;
-    *((_QWORD *)v13 + 5) = 0i64;
-    *((_QWORD *)v13 + 6) = 0i64;
-    v14 = 1;
-    v15 = 1i64;
+    while ( v7 );
+    *(_QWORD *)v12 = 0i64;
+    *((_QWORD *)v12 + 1) = 0i64;
+    *((_QWORD *)v12 + 2) = 0i64;
+    *((_QWORD *)v12 + 3) = 0i64;
+    *((_QWORD *)v12 + 4) = 0i64;
+    *((_QWORD *)v12 + 5) = 0i64;
+    *((_QWORD *)v12 + 6) = 0i64;
+    v13 = 1;
+    v14 = 1i64;
     do
     {
-      if ( DB_Zones_IsValidZoneIndex(v14) )
+      if ( DB_Zones_IsValidZoneIndex(v13) )
       {
-        ZoneFlagsFromIndex = DB_Zones_GetZoneFlagsFromIndex(v14);
-        ZoneNameFromIndex = DB_Zones_GetZoneNameFromIndex(v14);
-        v18 = 0i64;
+        ZoneFlagsFromIndex = DB_Zones_GetZoneFlagsFromIndex(v13);
+        ZoneNameFromIndex = DB_Zones_GetZoneNameFromIndex(v13);
+        v17 = 0i64;
         if ( zoneCount )
         {
-          while ( !DB_Zones_FastfileInfoMatches(&zoneInfo[v18], ZoneFlagsFromIndex, ZoneNameFromIndex) )
+          while ( !DB_Zones_FastfileInfoMatches(&zoneInfo[v17], ZoneFlagsFromIndex, ZoneNameFromIndex) )
           {
-            v18 = (unsigned int)(v18 + 1);
-            if ( (unsigned int)v18 >= zoneCount )
+            v17 = (unsigned int)(v17 + 1);
+            if ( (unsigned int)v17 >= zoneCount )
               goto LABEL_28;
           }
-          v83[v15 >> 5] |= 0x80000000 >> (v14 & 0x1F);
-          v12 |= ZoneFlagsFromIndex;
+          v82[v14 >> 5] |= 0x80000000 >> (v13 & 0x1F);
+          v11 |= ZoneFlagsFromIndex;
         }
       }
 LABEL_28:
+      ++v13;
       ++v14;
-      ++v15;
     }
-    while ( v14 < 0x7A4 );
-    v19 = flags;
-    if ( flags != v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7373, ASSERT_TYPE_ASSERT, "( freeFlags ) == ( validateFreeFlags )", "%s == %s\n\t%u, %u", "freeFlags", "validateFreeFlags", flags, v12) )
+    while ( v13 < 0x7A4 );
+    v18 = flags;
+    if ( flags != v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7373, ASSERT_TYPE_ASSERT, "( freeFlags ) == ( validateFreeFlags )", "%s == %s\n\t%u, %u", "freeFlags", "validateFreeFlags", flags, v11) )
       __debugbreak();
-    v20 = 0;
-    v21 = 0i64;
-    while ( outArray.zones.array[v21] == v83[v21] )
+    v19 = 0;
+    v20 = 0i64;
+    while ( outArray.zones.array[v20] == v82[v20] )
     {
+      ++v19;
       ++v20;
-      ++v21;
-      if ( v20 >= 0x3E )
+      if ( v19 >= 0x3E )
         goto LABEL_38;
     }
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7374, ASSERT_TYPE_ASSERT, "(unloadZones.zones.isEqual( validateUnloadZones.zones ))", (const char *)&queryFormat, "unloadZones.zones.isEqual( validateUnloadZones.zones )") )
@@ -11148,224 +11055,224 @@ LABEL_38:
   }
   else
   {
-    v19 = flags;
+    v18 = flags;
   }
-  if ( v19 )
+  if ( v18 )
   {
-    v22 = 0;
-    v23 = &outArray;
-    while ( !v23->zones.array[0] )
+    v21 = 0;
+    v22 = &outArray;
+    while ( !v22->zones.array[0] )
     {
-      ++v22;
-      v23 = (DB_ZoneBitArray *)((char *)v23 + 4);
-      if ( v22 >= 0x3E )
+      ++v21;
+      v22 = (DB_ZoneBitArray *)((char *)v22 + 4);
+      if ( v21 >= 0x3E )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7384, ASSERT_TYPE_ASSERT, "(unloadZones.zones.anyBitsOn())", (const char *)&queryFormat, "unloadZones.zones.anyBitsOn()") )
           __debugbreak();
         break;
       }
     }
-    v79 = v19 & 0x600000;
-    v24 = g_dbPreloadUnloading;
-    if ( (v19 & 0x600000) != 0 )
-      v24 = 1;
-    g_dbPreloadUnloading = v24;
+    v78 = v18 & 0x600000;
+    v23 = g_dbPreloadUnloading;
+    if ( (v18 & 0x600000) != 0 )
+      v23 = 1;
+    g_dbPreloadUnloading = v23;
     DB_PushMainThreadWork();
-    v25 = (unsigned __int64)&s_registryState & 3;
-    v80 = (unsigned __int64)&s_registryState & 3;
+    v24 = (unsigned __int64)&s_registryState & 3;
+    v79 = (unsigned __int64)&s_registryState & 3;
     if ( ((unsigned __int8)&s_registryState & 3) != 0 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_registryState) )
         __debugbreak();
-      v25 = v80;
+      v24 = v79;
     }
     if ( _InterlockedCompareExchange((volatile signed __int32 *)&s_registryState, 1, 0) )
     {
-      if ( v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_registryState) )
+      if ( v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_registryState) )
         __debugbreak();
-      LODWORD(v65) = _InterlockedCompareExchange((volatile signed __int32 *)&s_registryState, 1, 0);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7397, ASSERT_TYPE_ASSERT, "( Sys_InterlockedCompareExchange( reinterpret_cast<volatile_int32*>( &s_registryState ), REGISTRY_STATE_MAIN_THREAD, REGISTRY_STATE_IDLE ) ) == ( REGISTRY_STATE_IDLE )", "%s == %s\n\t%i, %i", "Sys_InterlockedCompareExchange( reinterpret_cast<volatile_int32*>( &s_registryState ), REGISTRY_STATE_MAIN_THREAD, REGISTRY_STATE_IDLE )", "REGISTRY_STATE_IDLE", v65, 0i64) )
+      LODWORD(v64) = _InterlockedCompareExchange((volatile signed __int32 *)&s_registryState, 1, 0);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7397, ASSERT_TYPE_ASSERT, "( Sys_InterlockedCompareExchange( reinterpret_cast<volatile_int32*>( &s_registryState ), REGISTRY_STATE_MAIN_THREAD, REGISTRY_STATE_IDLE ) ) == ( REGISTRY_STATE_IDLE )", "%s == %s\n\t%i, %i", "Sys_InterlockedCompareExchange( reinterpret_cast<volatile_int32*>( &s_registryState ), REGISTRY_STATE_MAIN_THREAD, REGISTRY_STATE_IDLE )", "REGISTRY_STATE_IDLE", v64, 0i64) )
         __debugbreak();
     }
     R_PushRemoteScreenUpdateDisableQuitCheck();
     LogChannel = DB_GetLogChannel();
     Com_Printf(LogChannel, "\nDB_UnloadFastfiles() Job:\n");
-    LODWORD(v27) = 0;
-    v28 = outArray.zones.array[0];
-    v29 = "DB_Zones_IsValidZoneIndex( unloadingZone )";
-    while ( v28 )
+    LODWORD(v26) = 0;
+    v27 = outArray.zones.array[0];
+    v28 = "DB_Zones_IsValidZoneIndex( unloadingZone )";
+    while ( v27 )
     {
 LABEL_62:
-      v30 = __lzcnt(v28);
-      v31 = v30 + 32 * v27;
-      if ( v30 >= 0x20 )
+      v29 = __lzcnt(v27);
+      v30 = v29 + 32 * v26;
+      if ( v29 >= 0x20 )
       {
-        LODWORD(v64) = 32;
-        LODWORD(v63) = v30;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v63, v64) )
+        LODWORD(v63) = 32;
+        LODWORD(v62) = v29;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v62, v63) )
           __debugbreak();
       }
-      if ( (v28 & (0x80000000 >> v30)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+      if ( (v27 & (0x80000000 >> v29)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
         __debugbreak();
-      v28 &= ~(0x80000000 >> v30);
-      if ( !DB_Zones_IsValidZoneIndex(v31) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7416, ASSERT_TYPE_ASSERT, "(DB_Zones_IsValidZoneIndex( unloadingZone ))", (const char *)&queryFormat, "DB_Zones_IsValidZoneIndex( unloadingZone )") )
+      v27 &= ~(0x80000000 >> v29);
+      if ( !DB_Zones_IsValidZoneIndex(v30) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7416, ASSERT_TYPE_ASSERT, "(DB_Zones_IsValidZoneIndex( unloadingZone ))", (const char *)&queryFormat, "DB_Zones_IsValidZoneIndex( unloadingZone )") )
         __debugbreak();
-      v32 = DB_Zones_GetZoneNameFromIndex(v31);
-      v33 = DB_GetLogChannel();
-      Com_Printf(v33, "* Freeing '%s'\n", v32);
+      v31 = DB_Zones_GetZoneNameFromIndex(v30);
+      v32 = DB_GetLogChannel();
+      Com_Printf(v32, "* Freeing '%s'\n", v31);
     }
     while ( 1 )
     {
-      v27 = (unsigned int)(v27 + 1);
-      if ( (unsigned int)v27 >= 0x3E )
+      v26 = (unsigned int)(v26 + 1);
+      if ( (unsigned int)v26 >= 0x3E )
         break;
-      v28 = outArray.zones.array[v27];
-      if ( v28 )
+      v27 = outArray.zones.array[v26];
+      if ( v27 )
         goto LABEL_62;
     }
-    v34 = DB_GetLogChannel();
-    Com_Printf(v34, "\n");
+    v33 = DB_GetLogChannel();
+    Com_Printf(v33, "\n");
     if ( DB_Zones_AreStreamOnlyFlags(flags) )
     {
       if ( (flags & 0x5000) != 0 )
         CL_TransientsSP_ClientCodeCheck();
-      v35 = flags;
+      v34 = flags;
       s_dbCurrentWorkFlags = flags;
-      v68 = (flags & 0x5000) != 0;
+      v67 = (flags & 0x5000) != 0;
     }
     else
     {
-      v35 = s_dbCurrentWorkFlags;
+      v34 = s_dbCurrentWorkFlags;
     }
-    if ( (v35 & 0xFC700FFF) != 0 )
+    if ( (v34 & 0xFC700FFF) != 0 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 6336, ASSERT_TYPE_ASSERT, "(( s_dbCurrentWorkFlags & ~DB_MASK_STREAM_ZONES ) == 0)", (const char *)&queryFormat, "( s_dbCurrentWorkFlags & ~DB_MASK_STREAM_ZONES ) == 0") )
         __debugbreak();
-      v35 = s_dbCurrentWorkFlags;
+      v34 = s_dbCurrentWorkFlags;
     }
-    v67 = (v35 & 0xFF000) != 0 && (v35 & 0xFFF00FFF) == 0;
+    v66 = (v34 & 0xFF000) != 0 && (v34 & 0xFFF00FFF) == 0;
     IsDoingStreamMPOnlyWork = DB_IsDoingStreamMPOnlyWork();
-    v37 = s_dbCurrentWorkFlags;
+    v36 = s_dbCurrentWorkFlags;
     if ( (s_dbCurrentWorkFlags & 0xFC700FFF) != 0 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 6386, ASSERT_TYPE_ASSERT, "(( s_dbCurrentWorkFlags & ~DB_MASK_STREAM_ZONES ) == 0)", (const char *)&queryFormat, "( s_dbCurrentWorkFlags & ~DB_MASK_STREAM_ZONES ) == 0") )
         __debugbreak();
-      v37 = s_dbCurrentWorkFlags;
+      v36 = s_dbCurrentWorkFlags;
     }
-    v38 = (v37 & 0x82000) != 0 && (v37 & 0xFFF7DFFF) == 0;
+    v37 = (v36 & 0x82000) != 0 && (v36 & 0xFFF7DFFF) == 0;
     if ( IsDoingStreamMPOnlyWork )
     {
+      v38 = 0;
       v39 = 0;
-      v40 = 0;
     }
     else
     {
-      v39 = !v73;
-      v40 = 1;
+      v38 = !v72;
+      v39 = 1;
     }
-    v74 = v39;
-    if ( v69 )
+    v73 = v38;
+    if ( v68 )
     {
-      if ( v39 )
+      if ( v38 )
         R_SyncRenderThread();
     }
     else
     {
-      v41 = R_PopRemoteScreenUpdate();
+      v40 = R_PopRemoteScreenUpdate();
       Sys_ProfBeginNamedEvent(0xFFFFFFFF, "DB_LoadAndUnloadSyncThreads");
       Com_SyncThreads();
       DB_Zones_ProcessPendingUnloadFrees(1);
       Sys_ProfEndNamedEvent();
-      R_PushRemoteScreenUpdate(v41);
+      R_PushRemoteScreenUpdate(v40);
     }
-    v42 = flags & 0x3F00000;
-    v43 = (flags & 0x3F00000) != 0;
-    Stream_DBPreFastfilesUnload(v43);
-    v44 = DB_Zones_AreTransientOnlyFlags(flags);
-    v45 = !v44;
-    v72 = !v44;
-    if ( !v44 )
+    v41 = flags & 0x3F00000;
+    v42 = (flags & 0x3F00000) != 0;
+    Stream_DBPreFastfilesUnload(v42);
+    v43 = DB_Zones_AreTransientOnlyFlags(flags);
+    v44 = !v43;
+    v71 = !v43;
+    if ( !v43 )
       Stream_ImageRecord_WaitForReportComplete();
-    LOBYTE(v29) = 0;
-    v78 = (int)v29;
-    if ( (v77 & 4) == 0 )
+    LOBYTE(v28) = 0;
+    v77 = (int)v28;
+    if ( (v76 & 4) == 0 )
     {
-      LODWORD(v29) = (flags & 0x38FF200) == 0;
+      LODWORD(v28) = (flags & 0x38FF200) == 0;
       if ( s_loadingSPHotLoad )
-        LODWORD(v29) = 0;
-      v78 = (int)v29;
+        LODWORD(v28) = 0;
+      v77 = (int)v28;
     }
     DB_LockHashWrite();
-    if ( v74 )
+    if ( v73 )
     {
       ProfLoad_Begin("DB_ArchiveAssets");
       DB_ArchiveAssets();
     }
     else
     {
-      if ( !v40 )
+      if ( !v39 )
       {
 LABEL_120:
-        v46 = DCONST_DVARBOOL_db_transientWorldRenderSync;
+        v45 = DCONST_DVARBOOL_db_transientWorldRenderSync;
         if ( !DCONST_DVARBOOL_db_transientWorldRenderSync && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "db_transientWorldRenderSync") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v46);
-        v47 = !v46->current.enabled;
-        v48 = flags;
-        if ( !v47 && (flags & 0x8000) != 0 )
+        Dvar_CheckFrontendServerThread(v45);
+        v46 = !v45->current.enabled;
+        v47 = flags;
+        if ( !v46 && (flags & 0x8000) != 0 )
           R_SyncRenderThread();
-        if ( (_BYTE)v76 )
+        if ( (_BYTE)v75 )
           GfxWorldTransientZoneDeferredRelease_PointerListSet(&list);
-        if ( v45 )
+        if ( v44 )
           Stream_ImageRecord_GenerateRecordsForAllImages();
         ProfLoad_Begin("DB_UnloadXZone");
-        v49 = (s_dbCurrentWorkFlags & 0xFF000) != 0 && (s_dbCurrentWorkFlags & 0x80000) == 0 || DB_FreeOnlyCustomizationAssets();
+        v48 = (s_dbCurrentWorkFlags & 0xFF000) != 0 && (s_dbCurrentWorkFlags & 0x80000) == 0 || DB_FreeOnlyCustomizationAssets();
         flagsa.createDefault = 1;
-        flagsa.copyDefaultStrings = v49;
-        DB_UnloadXZones(&outArray, flagsa, (const bool)v29);
+        flagsa.copyDefaultStrings = v48;
+        DB_UnloadXZones(&outArray, flagsa, (const bool)v28);
         ProfLoad_End();
         ProfLoad_Begin("DB_ModelFixup");
-        if ( v38 )
+        if ( v37 )
           DB_ModelFixup_TryTransientFixup(&outArray);
         else
           DB_ModelFixup_TryFullFixup();
         ProfLoad_End();
-        DB_CheckAndExecuteTechsetFixUp(!v68);
+        DB_CheckAndExecuteTechsetFixUp(!v67);
         ProfLoad_Begin("DB_FixupAllWorldTransientZones");
-        if ( (v48 & 0xC000) != 0 )
+        if ( (v47 & 0xC000) != 0 )
           DB_FixupAllWorldTransientZones();
         ProfLoad_End();
         DB_UnlockHashWrite();
-        if ( v74 )
+        if ( v73 )
         {
           ProfLoad_Begin("DB_UnarchiveAssets");
-          DB_UnarchiveAssets(v68);
+          DB_UnarchiveAssets(v67);
         }
         else
         {
-          if ( !v40 )
+          if ( !v39 )
           {
 LABEL_156:
             if ( (s_dbCurrentWorkFlags & 0xFC700FFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 6319, ASSERT_TYPE_ASSERT, "(( s_dbCurrentWorkFlags & ~DB_MASK_STREAM_ZONES ) == 0)", (const char *)&queryFormat, "( s_dbCurrentWorkFlags & ~DB_MASK_STREAM_ZONES ) == 0") )
               __debugbreak();
-            v77 = s_dbCurrentWorkFlags != 0;
-            if ( (_BYTE)v29 )
+            v76 = s_dbCurrentWorkFlags != 0;
+            if ( (_BYTE)v28 )
             {
               Sys_ProfBeginNamedEvent(0xFFFFFFFF, "DB_UnloadFastfiles Remote Screen Update");
               R_BeginRemoteScreenUpdate();
             }
-            if ( (v48 & 8) != 0 )
+            if ( (v47 & 8) != 0 )
               *(_WORD *)&s_assetManager.forceStubbedDataLoading = 0;
-            if ( (v48 & 2) != 0 )
+            if ( (v47 & 2) != 0 )
               memset_0(&s_assetManager.forcedStubbedKeepDefaultAssets, 0, sizeof(s_assetManager.forcedStubbedKeepDefaultAssets));
-            v50 = DB_Zones_GetInUseFlags() & 0x3F00000;
-            if ( v42 && v42 == v50 )
+            v49 = DB_Zones_GetInUseFlags() & 0x3F00000;
+            if ( v41 && v41 == v49 )
               memset_0(&s_assetManager.preloadKeepDefaultAssets, 0, sizeof(s_assetManager.preloadKeepDefaultAssets));
-            if ( v79 )
+            if ( v78 )
             {
-              if ( v69 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7688, ASSERT_TYPE_ASSERT, "(!noSyncThreads)", (const char *)&queryFormat, "!noSyncThreads") )
+              if ( v68 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7688, ASSERT_TYPE_ASSERT, "(!noSyncThreads)", (const char *)&queryFormat, "!noSyncThreads") )
                 __debugbreak();
-              if ( (_BYTE)v76 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7689, ASSERT_TYPE_ASSERT, "(!freeGpuWait)", (const char *)&queryFormat, "!freeGpuWait") )
+              if ( (_BYTE)v75 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7689, ASSERT_TYPE_ASSERT, "(!freeGpuWait)", (const char *)&queryFormat, "!freeGpuWait") )
                 __debugbreak();
               SV_PreloadSP_ClearZones();
             }
@@ -11381,74 +11288,74 @@ LABEL_156:
               DB_UnlockHashWrite();
               Sys_ProfEndNamedEvent();
             }
-            v51 = DCONST_DVARBOOL_db_comprehensiveSanityChecks;
+            v50 = DCONST_DVARBOOL_db_comprehensiveSanityChecks;
             if ( !DCONST_DVARBOOL_db_comprehensiveSanityChecks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "db_comprehensiveSanityChecks") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v51);
-            if ( v51->current.enabled )
+            Dvar_CheckFrontendServerThread(v50);
+            if ( v50->current.enabled )
             {
               ProfLoad_Begin("freeDefaultAssetNames");
               DB_LockPendingZoneRead();
+              v51 = 0;
               v52 = 0;
-              v53 = 0;
               p_defaultAssets = &s_assetManager.defaultAssets;
               do
               {
-                DB_AssetEntryPool::ForEachInBlock<FreeAssetEntryValidateDefaultNameFunctor>(&s_assetManager.table.m_pool, &s_assetManager.defaultAssets, p_defaultAssets->m_flags.m_data[0], v52, &v75);
-                v52 += 64;
-                ++v53;
+                DB_AssetEntryPool::ForEachInBlock<FreeAssetEntryValidateDefaultNameFunctor>(&s_assetManager.table.m_pool, &s_assetManager.defaultAssets, p_defaultAssets->m_flags.m_data[0], v51, &v74);
+                v51 += 64;
+                ++v52;
                 p_defaultAssets = (DB_AssetEntryFlags *)((char *)p_defaultAssets + 8);
               }
-              while ( v53 < 0x1768 );
+              while ( v52 < 0x1768 );
               DB_UnlockPendingZoneRead();
               ProfLoad_End();
             }
             DB_DefaultStringUsageReport("DB_UnloadFastfiles");
-            Stream_DBPostFastfilesUnload(v43, v67);
+            Stream_DBPostFastfilesUnload(v42, v66);
             Sys_ProfBeginNamedEvent(0xFFFFFFFF, "DB_Zones_UnloadAndFreeZone");
-            LODWORD(v55) = 0;
-            v56 = outArray.zones.array[0];
-            v57 = v76;
-            while ( v56 )
+            LODWORD(v54) = 0;
+            v55 = outArray.zones.array[0];
+            v56 = v75;
+            while ( v55 )
             {
 LABEL_190:
-              v58 = __lzcnt(v56);
-              v59 = v58 + 32 * v55;
-              if ( v58 >= 0x20 )
+              v57 = __lzcnt(v55);
+              v58 = v57 + 32 * v54;
+              if ( v57 >= 0x20 )
               {
-                LODWORD(v64) = 32;
-                LODWORD(v63) = v58;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v63, v64) )
+                LODWORD(v63) = 32;
+                LODWORD(v62) = v57;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v62, v63) )
                   __debugbreak();
               }
-              if ( (v56 & (0x80000000 >> v58)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+              if ( (v55 & (0x80000000 >> v57)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
                 __debugbreak();
-              v56 &= ~(0x80000000 >> v58);
-              if ( !DB_Zones_IsValidZoneIndex(v59) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7734, ASSERT_TYPE_ASSERT, "(DB_Zones_IsValidZoneIndex( zoneIndex ))", (const char *)&queryFormat, "DB_Zones_IsValidZoneIndex( zoneIndex )") )
+              v55 &= ~(0x80000000 >> v57);
+              if ( !DB_Zones_IsValidZoneIndex(v58) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7734, ASSERT_TYPE_ASSERT, "(DB_Zones_IsValidZoneIndex( zoneIndex ))", (const char *)&queryFormat, "DB_Zones_IsValidZoneIndex( zoneIndex )") )
                 __debugbreak();
-              DB_Zones_UnloadAndFreeZone(v59, v57);
+              DB_Zones_UnloadAndFreeZone(v58, v56);
             }
             while ( 1 )
             {
-              v55 = (unsigned int)(v55 + 1);
-              if ( (unsigned int)v55 >= 0x3E )
+              v54 = (unsigned int)(v54 + 1);
+              if ( (unsigned int)v54 >= 0x3E )
                 break;
-              v56 = outArray.zones.array[v55];
-              if ( v56 )
+              v55 = outArray.zones.array[v54];
+              if ( v55 )
                 goto LABEL_190;
             }
             Sys_ProfEndNamedEvent();
             DB_Zones_UpdateInUseFlags();
             GfxWorldTransientZoneDeferredRelease_PointerListSet(NULL);
-            v60 = v77;
-            if ( (_BYTE)v78 )
+            v59 = v76;
+            if ( (_BYTE)v77 )
             {
               R_EndRemoteScreenUpdate();
               Sys_ProfEndNamedEvent();
             }
-            if ( v67 )
+            if ( v66 )
               Material_TransientDirtySort();
-            if ( v72 )
+            if ( v71 )
               Stream_ImageRecord_TriggerImageReport();
             if ( (s_dbCurrentWorkFlags & 0xFC700FFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 6354, ASSERT_TYPE_ASSERT, "(( s_dbCurrentWorkFlags & ~DB_MASK_STREAM_ZONES ) == 0)", (const char *)&queryFormat, "( s_dbCurrentWorkFlags & ~DB_MASK_STREAM_ZONES ) == 0") )
               __debugbreak();
@@ -11459,25 +11366,25 @@ LABEL_190:
             if ( Sys_GetDatabaseStopServer() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7789, ASSERT_TYPE_ASSERT, "(!Sys_GetDatabaseStopServer())", (const char *)&queryFormat, "!Sys_GetDatabaseStopServer()") )
               __debugbreak();
             R_PopRemoteScreenUpdateDisableQuitCheck();
-            v61 = v80;
-            if ( v80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_registryState) )
+            v60 = v79;
+            if ( v79 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_registryState) )
               __debugbreak();
             if ( _InterlockedCompareExchange((volatile signed __int32 *)&s_registryState, 0, 1) != 1 )
             {
-              if ( v61 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_registryState) )
+              if ( v60 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_registryState) )
                 __debugbreak();
-              LODWORD(v66) = 1;
-              LODWORD(v65) = _InterlockedCompareExchange((volatile signed __int32 *)&s_registryState, 0, 1);
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7798, ASSERT_TYPE_ASSERT, "( Sys_InterlockedCompareExchange( reinterpret_cast<volatile_int32*>( &s_registryState ), REGISTRY_STATE_IDLE, REGISTRY_STATE_MAIN_THREAD ) ) == ( REGISTRY_STATE_MAIN_THREAD )", "%s == %s\n\t%i, %i", "Sys_InterlockedCompareExchange( reinterpret_cast<volatile_int32*>( &s_registryState ), REGISTRY_STATE_IDLE, REGISTRY_STATE_MAIN_THREAD )", "REGISTRY_STATE_MAIN_THREAD", v65, v66) )
+              LODWORD(v65) = 1;
+              LODWORD(v64) = _InterlockedCompareExchange((volatile signed __int32 *)&s_registryState, 0, 1);
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 7798, ASSERT_TYPE_ASSERT, "( Sys_InterlockedCompareExchange( reinterpret_cast<volatile_int32*>( &s_registryState ), REGISTRY_STATE_IDLE, REGISTRY_STATE_MAIN_THREAD ) ) == ( REGISTRY_STATE_MAIN_THREAD )", "%s == %s\n\t%i, %i", "Sys_InterlockedCompareExchange( reinterpret_cast<volatile_int32*>( &s_registryState ), REGISTRY_STATE_IDLE, REGISTRY_STATE_MAIN_THREAD )", "REGISTRY_STATE_MAIN_THREAD", v64, v65) )
                 __debugbreak();
             }
             DB_PopMainThreadWork();
-            if ( v60 )
+            if ( v59 )
               Stream_AlwaysLoaded_QueueProcessStreamingInfoForUnload();
-            v62 = g_dbPreloadUnloading;
-            if ( v79 )
-              v62 = 0;
-            g_dbPreloadUnloading = v62;
+            v61 = g_dbPreloadUnloading;
+            if ( v78 )
+              v61 = 0;
+            g_dbPreloadUnloading = v61;
             s_dbCurrentWorkFlags = 0;
             if ( s_errorOnPatchedImageMismatch )
             {
@@ -12448,14 +12355,13 @@ DB_UnpauseLoadFastfiles
 */
 void DB_UnpauseLoadFastfiles(const DB_FastfileInfo *zoneInfo, unsigned int zoneCount)
 {
-  double v2; 
-  __int64 v5; 
+  __int64 v4; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 8071, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   if ( !zoneInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 8073, ASSERT_TYPE_ASSERT, "(zoneInfo)", (const char *)&queryFormat, "zoneInfo") )
     __debugbreak();
-  DB_AssetQuery_WaitForQueriesToComplete(v2);
+  DB_AssetQuery_WaitForQueriesToComplete();
   DB_LockPendingZoneWrite();
   while ( s_dbLoadingFastfiles )
   {
@@ -12470,8 +12376,8 @@ void DB_UnpauseLoadFastfiles(const DB_FastfileInfo *zoneInfo, unsigned int zoneC
     s_assetManager.pendingZoneLock.writeThreadId = Sys_GetCurrentThreadId();
     if ( !s_assetManager.pendingZoneLock.writeThreadId )
     {
-      LODWORD(v5) = 0;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_rwlock.h", 177, ASSERT_TYPE_ASSERT, "( lock->writeThreadId ) != ( INVALID_THREAD_ID )", "%s != %s\n\t%i, %i", "lock->writeThreadId", "INVALID_THREAD_ID", v5, 0i64) )
+      LODWORD(v4) = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_rwlock.h", 177, ASSERT_TYPE_ASSERT, "( lock->writeThreadId ) != ( INVALID_THREAD_ID )", "%s != %s\n\t%i, %i", "lock->writeThreadId", "INVALID_THREAD_ID", v4, 0i64) )
         __debugbreak();
     }
   }
@@ -12941,71 +12847,108 @@ __int64 DB_VerbosePrint()
 DB_WaitForAlwaysLoadedAssets
 ==============
 */
-
-void __fastcall DB_WaitForAlwaysLoadedAssets(double _XMM0_8, double _XMM1_8)
+void DB_WaitForAlwaysLoadedAssets()
 {
   int LogChannel; 
-  int v9; 
-  char v10; 
-  __int64 v11; 
-  __int64 v12; 
-  __int64 v13; 
-  int v14; 
+  int v1; 
+  char v2; 
+  __int64 v3; 
+  __int64 v4; 
+  __int64 v5; 
+  int v6; 
   bool IsRunning; 
-  int v16; 
-  signed __int64 v20; 
-  signed __int64 v21; 
-  unsigned __int64 v22; 
-  unsigned __int64 v23; 
-  signed __int64 v24; 
-  unsigned __int64 v25; 
+  int v8; 
+  signed __int64 v9; 
+  signed __int64 v10; 
+  unsigned __int64 v11; 
+  unsigned __int64 v12; 
+  signed __int64 v13; 
+  unsigned __int64 v14; 
   const char *StatusText; 
-  int v27; 
-  int v28; 
-  int v45; 
-  unsigned __int64 v46; 
-  unsigned __int64 v47; 
-  unsigned __int64 v48; 
+  int v16; 
+  int v17; 
+  float v18; 
+  float v19; 
+  double v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  double v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  int v30; 
+  unsigned __int64 v31; 
+  unsigned __int64 v32; 
+  unsigned __int64 v33; 
   bool IsEnabled; 
-  unsigned __int64 v50; 
-  unsigned __int64 v51; 
-  unsigned __int64 v52; 
-  __int64 v53; 
-  __int64 v54; 
-  __int64 v55; 
-  int v56; 
-  int v93; 
-  int v113; 
-  char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  double v121; 
-  double v122; 
-  double v123; 
-  __int64 v124; 
-  double v125; 
-  double v126; 
-  double v127; 
-  double v128; 
-  double v129; 
-  double v130; 
-  char v131; 
-  bool v132; 
-  int v133; 
-  int v134; 
-  int v135; 
+  unsigned __int64 v35; 
+  unsigned __int64 v36; 
+  unsigned __int64 v37; 
+  __int64 v38; 
+  __int64 v39; 
+  __int64 v40; 
+  int v41; 
+  float v42; 
+  float v43; 
+  double v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  double v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  double v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  double v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  double v66; 
+  double v67; 
+  int v68; 
+  float v69; 
+  float v70; 
+  double v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  double v77; 
+  float v78; 
+  float v79; 
+  float v80; 
+  int v81; 
+  __int64 v82; 
+  char v83; 
+  bool v84; 
+  int v85; 
+  int v86; 
+  int v87; 
   unsigned __int64 bytesLoaded[3]; 
   unsigned __int64 bytesToLoad[3]; 
-  __int64 v138; 
-  __int64 v139; 
-  __int64 v140; 
-  unsigned __int64 v141[3]; 
-  __int64 v142; 
-  __int64 v143; 
-  __int64 v144; 
-  unsigned __int64 v145; 
-  unsigned __int64 v146; 
-  unsigned __int64 v147; 
+  __int64 v90; 
+  __int64 v91; 
+  __int64 v92; 
+  unsigned __int64 v93[3]; 
+  __int64 v94; 
+  __int64 v95; 
+  __int64 v96; 
+  unsigned __int64 v97; 
+  unsigned __int64 v98; 
+  unsigned __int64 v99; 
 
   if ( !Stream_IsInitialized() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_registry.cpp", 8583, ASSERT_TYPE_ASSERT, "(Stream_IsInitialized())", (const char *)&queryFormat, "Stream_IsInitialized()") )
     __debugbreak();
@@ -13017,47 +12960,37 @@ void __fastcall DB_WaitForAlwaysLoadedAssets(double _XMM0_8, double _XMM1_8)
   }
   if ( !Stream_IsEnabled() )
   {
-    v9 = DB_GetLogChannel();
-    Com_Printf(v9, "Fastfile load... Not loading always loaded assets because streamer is disabled\n");
+    v1 = DB_GetLogChannel();
+    Com_Printf(v1, "Fastfile load... Not loading always loaded assets because streamer is disabled\n");
     return;
   }
-  v10 = 0;
-  v131 = 0;
+  v2 = 0;
+  v83 = 0;
   memset(bytesToLoad, 0, sizeof(bytesToLoad));
   memset(bytesLoaded, 0, sizeof(bytesLoaded));
-  v138 = 0i64;
-  v139 = 0i64;
-  v140 = 0i64;
-  v11 = 0i64;
-  v133 = Sys_Milliseconds();
-  v142 = 0i64;
-  v12 = 0i64;
-  v143 = 0i64;
-  v13 = 0i64;
-  v144 = 0i64;
-  v14 = v133;
-  v135 = v133;
+  v90 = 0i64;
+  v91 = 0i64;
+  v92 = 0i64;
+  v3 = 0i64;
+  v85 = Sys_Milliseconds();
+  v94 = 0i64;
+  v4 = 0i64;
+  v95 = 0i64;
+  v5 = 0i64;
+  v96 = 0i64;
+  v6 = v85;
+  v87 = v85;
   IsRunning = 1;
-  v132 = LoadBar_IsComplete() == 0;
-  v16 = Sys_Milliseconds();
-  v134 = v16;
+  v84 = LoadBar_IsComplete() == 0;
+  v8 = Sys_Milliseconds();
+  v86 = v8;
   if ( !Stream_AlwaysLoaded_IsFinished() )
   {
-    __asm
-    {
-      vmovaps [rsp+190h+var_30], xmm6
-      vmovss  xmm6, cs:__real@5f800000
-      vmovaps [rsp+190h+var_50], xmm8
-      vmovss  xmm8, cs:__real@3a83126f
-      vmovaps [rsp+190h+var_80], xmm11
-      vmovss  xmm11, cs:__real@35800000
-      vmovaps [rsp+190h+var_40], xmm7
-    }
     while ( 1 )
     {
       if ( !Stream_AlwaysLoaded_IsLoading() )
-        goto LABEL_35;
-      if ( v10 )
+        goto LABEL_34;
+      if ( v2 )
         break;
       IsRunning = Stream_Primer_IsRunning();
       if ( !IsRunning || (Stream_Primer_GetProgress((unsigned __int64 (*)[3])bytesToLoad, (unsigned __int64 (*)[3])bytesLoaded), !(IsRunning = Stream_Primer_IsRunning())) )
@@ -13065,340 +12998,262 @@ void __fastcall DB_WaitForAlwaysLoadedAssets(double _XMM0_8, double _XMM1_8)
         Stream_CalculateForced(bytesToLoad, &bytesToLoad[1]);
         Stream_CalculateForcedAndLoaded(bytesLoaded, &bytesLoaded[1]);
       }
-      v20 = bytesToLoad[0] - bytesLoaded[0];
-      v138 = bytesToLoad[0] - bytesLoaded[0];
+      v9 = bytesToLoad[0] - bytesLoaded[0];
+      v90 = bytesToLoad[0] - bytesLoaded[0];
       if ( bytesToLoad[0] )
       {
-        v21 = bytesToLoad[1] - bytesLoaded[1];
-        v139 = bytesToLoad[1] - bytesLoaded[1];
+        v10 = bytesToLoad[1] - bytesLoaded[1];
+        v91 = bytesToLoad[1] - bytesLoaded[1];
+LABEL_19:
+        v11 = bytesToLoad[2] - bytesLoaded[2];
+        v92 = bytesToLoad[2] - bytesLoaded[2];
+        v12 = bytesToLoad[2] - bytesLoaded[2];
+        v13 = bytesToLoad[2] - bytesLoaded[2];
+        v14 = bytesToLoad[2] - bytesLoaded[2];
 LABEL_20:
-        v22 = bytesToLoad[2] - bytesLoaded[2];
-        v140 = bytesToLoad[2] - bytesLoaded[2];
-        v23 = bytesToLoad[2] - bytesLoaded[2];
-        v24 = bytesToLoad[2] - bytesLoaded[2];
-        v25 = bytesToLoad[2] - bytesLoaded[2];
-LABEL_21:
-        v131 = 1;
-        if ( v132 )
+        v83 = 1;
+        if ( v84 )
         {
-          LoadBar_StartAlwaysLoaded(v20 + v21);
-          v22 = v23;
-          v24 = v25;
+          LoadBar_StartAlwaysLoaded(v9 + v10);
+          v11 = v12;
+          v13 = v14;
         }
-        v28 = DB_GetLogChannel();
-        __asm
+        v17 = DB_GetLogChannel();
+        v18 = (float)(__int64)(v10 + v9 + v11);
+        if ( (__int64)(v10 + v9 + v11) < 0 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
+          v19 = (float)(__int64)(v10 + v9 + v11);
+          v18 = v19 + 1.8446744e19;
         }
-        if ( (__int64)(v21 + v20 + v22) < 0 )
-          __asm { vaddss  xmm0, xmm0, xmm6 }
-        __asm
+        v20 = (float)(v18 * 0.00000095367432);
+        v21 = (float)v13;
+        if ( v13 < 0 )
         {
-          vmulss  xmm0, xmm0, xmm11
-          vxorps  xmm1, xmm1, xmm1
-          vcvtss2sd xmm5, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, r14
+          v22 = (float)v13;
+          v21 = v22 + 1.8446744e19;
         }
-        if ( v24 < 0 )
-          __asm { vaddss  xmm1, xmm1, xmm6 }
-        __asm
+        v23 = v21 * 0.00000095367432;
+        v24 = (float)v10;
+        v26 = v23;
+        if ( v10 < 0 )
         {
-          vmulss  xmm0, xmm1, xmm11
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rbx
-          vcvtss2sd xmm4, xmm0, xmm0
+          v25 = (float)v10;
+          v24 = v25 + 1.8446744e19;
         }
-        if ( v21 < 0 )
-          __asm { vaddss  xmm1, xmm1, xmm6 }
-        __asm
+        v27 = v24 * 0.00000095367432;
+        v28 = (float)v9;
+        if ( v9 < 0 )
         {
-          vmulss  xmm0, xmm1, xmm11
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rsi
-          vcvtss2sd xmm3, xmm0, xmm0
+          v29 = (float)v9;
+          v28 = v29 + 1.8446744e19;
         }
-        if ( v20 < 0 )
-          __asm { vaddss  xmm1, xmm1, xmm6 }
-        LODWORD(v124) = v134 - v133;
-        __asm
-        {
-          vmulss  xmm0, xmm1, xmm11
-          vcvtss2sd xmm2, xmm0, xmm0
-          vmovsd  [rsp+190h+var_168], xmm5
-          vmovq   r8, xmm2
-          vmovq   r9, xmm3
-          vmovsd  [rsp+190h+fmt], xmm4
-        }
-        Com_Printf(v28, "Fastfile load... Start loading alwaysloaded assets: images %.2f MB + meshes %.2f MB + generics %.2f MB = %.2f MB @ %ims.\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt, v121, v124);
-LABEL_32:
-        v16 = v134;
-        goto LABEL_33;
+        LODWORD(v82) = v86 - v85;
+        Com_Printf(v17, "Fastfile load... Start loading alwaysloaded assets: images %.2f MB + meshes %.2f MB + generics %.2f MB = %.2f MB @ %ims.\n", (float)(v28 * 0.00000095367432), v27, v26, v20, v82);
+LABEL_31:
+        v8 = v86;
+        goto LABEL_32;
       }
-      v21 = bytesToLoad[1] - bytesLoaded[1];
-      v139 = bytesToLoad[1] - bytesLoaded[1];
+      v10 = bytesToLoad[1] - bytesLoaded[1];
+      v91 = bytesToLoad[1] - bytesLoaded[1];
       if ( bytesToLoad[1] )
-        goto LABEL_20;
-      v22 = bytesToLoad[2] - bytesLoaded[2];
-      v140 = bytesToLoad[2] - bytesLoaded[2];
-      v23 = bytesToLoad[2] - bytesLoaded[2];
-      v24 = bytesToLoad[2] - bytesLoaded[2];
-      v25 = bytesToLoad[2] - bytesLoaded[2];
+        goto LABEL_19;
+      v11 = bytesToLoad[2] - bytesLoaded[2];
+      v92 = bytesToLoad[2] - bytesLoaded[2];
+      v12 = bytesToLoad[2] - bytesLoaded[2];
+      v13 = bytesToLoad[2] - bytesLoaded[2];
+      v14 = bytesToLoad[2] - bytesLoaded[2];
       if ( bytesToLoad[2] )
-        goto LABEL_21;
+        goto LABEL_20;
       StatusText = Stream_Primer_GetStatusText();
-      v27 = DB_GetLogChannel();
-      v16 = v134;
-      v14 = v133;
-      Com_Printf(v27, "Fastfile load... Start loading alwaysloaded assets... (Primer status: %s) @ %ims.\n", StatusText, (unsigned int)(v134 - v133));
+      v16 = DB_GetLogChannel();
+      v8 = v86;
+      v6 = v85;
+      Com_Printf(v16, "Fastfile load... Start loading alwaysloaded assets... (Primer status: %s) @ %ims.\n", StatusText, (unsigned int)(v86 - v85));
+LABEL_33:
+      v2 = v83;
 LABEL_34:
-      v10 = v131;
-LABEL_35:
       if ( s_assetManager.redoAlwaysloadedFlagsForPauseOrCancel )
       {
-        v45 = DB_GetLogChannel();
-        Com_Printf(v45, "Fastfile load... Loading alwaysloaded assets canceled and restarted.\n");
+        v30 = DB_GetLogChannel();
+        Com_Printf(v30, "Fastfile load... Loading alwaysloaded assets canceled and restarted.\n");
         s_assetManager.redoAlwaysloadedFlagsForPauseOrCancel = 0;
         Stream_AlwaysLoaded_QueueProcessStreamingInfo();
-        v10 = 0;
-        v131 = 0;
+        v2 = 0;
+        v83 = 0;
       }
       Sys_YieldWorkerCmd();
       Sys_Sleep(15);
       if ( Stream_AlwaysLoaded_IsTimedOut() )
       {
-        v113 = DB_GetLogChannel();
-        Com_Printf(v113, "Fastfile load... Loading alwaysloaded assets timed out due to no progress after %ims.\n", (unsigned int)(v16 - v14));
+        v81 = DB_GetLogChannel();
+        Com_Printf(v81, "Fastfile load... Loading alwaysloaded assets timed out due to no progress after %ims.\n", (unsigned int)(v8 - v6));
         Stream_Primer_RequestCancel();
-        goto LABEL_81;
+        goto LABEL_80;
       }
-      v16 = Sys_Milliseconds();
-      v134 = v16;
+      v8 = Sys_Milliseconds();
+      v86 = v8;
       if ( Stream_AlwaysLoaded_IsFinished() )
       {
-        if ( !v10 )
-          goto LABEL_84;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovaps [rsp+190h+var_60], xmm9
-          vmovaps [rsp+190h+var_70], xmm10
-          vcvtsi2ss xmm0, xmm0, rax
-        }
+        if ( !v2 )
+          return;
+        v54 = (float)(__int64)(bytesToLoad[2] + bytesToLoad[0] + bytesToLoad[1]);
         if ( (__int64)(bytesToLoad[2] + bytesToLoad[0] + bytesToLoad[1]) < 0 )
-          __asm { vaddss  xmm0, xmm0, xmm6 }
-        __asm
         {
-          vmulss  xmm0, xmm0, xmm11
-          vxorps  xmm1, xmm1, xmm1
-          vcvtss2sd xmm10, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, rcx
+          v55 = (float)(__int64)(bytesToLoad[2] + bytesToLoad[0] + bytesToLoad[1]);
+          v54 = v55 + 1.8446744e19;
         }
+        v56 = (float)(v54 * 0.00000095367432);
+        v57 = (float)(__int64)bytesToLoad[2];
         if ( (bytesToLoad[2] & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddss  xmm1, xmm1, xmm6 }
-        __asm
         {
-          vmulss  xmm0, xmm1, xmm11
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rdx
-          vcvtss2sd xmm9, xmm0, xmm0
+          v58 = (float)(__int64)bytesToLoad[2];
+          v57 = v58 + 1.8446744e19;
         }
+        v59 = v57 * 0.00000095367432;
+        v60 = (float)(__int64)bytesToLoad[1];
+        v62 = v59;
         if ( (bytesToLoad[1] & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddss  xmm1, xmm1, xmm6 }
-        __asm
         {
-          vmulss  xmm0, xmm1, xmm11
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, r8
-          vcvtss2sd xmm7, xmm0, xmm0
+          v61 = (float)(__int64)bytesToLoad[1];
+          v60 = v61 + 1.8446744e19;
         }
+        v63 = v60 * 0.00000095367432;
+        v64 = (float)(__int64)bytesToLoad[0];
+        v66 = v63;
         if ( (bytesToLoad[0] & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddss  xmm1, xmm1, xmm6 }
-        __asm
         {
-          vmulss  xmm0, xmm1, xmm11
-          vcvtss2sd xmm8, xmm0, xmm0
+          v65 = (float)(__int64)bytesToLoad[0];
+          v64 = v65 + 1.8446744e19;
         }
-        v93 = DB_GetLogChannel();
-        __asm
+        v67 = (float)(v64 * 0.00000095367432);
+        v68 = DB_GetLogChannel();
+        v69 = (float)(v91 + v92 + v90);
+        if ( v91 + v92 + v90 < 0 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
+          v70 = (float)(v91 + v92 + v90);
+          v69 = v70 + 1.8446744e19;
         }
-        if ( v139 + v140 + v138 < 0 )
-          __asm { vaddss  xmm0, xmm0, xmm6 }
-        __asm
+        v71 = (float)(v69 * 0.00000095367432);
+        v72 = (float)v92;
+        if ( v92 < 0 )
         {
-          vmulss  xmm0, xmm0, xmm11
-          vxorps  xmm1, xmm1, xmm1
-          vcvtss2sd xmm5, xmm0, xmm0
-          vcvtsi2ss xmm1, xmm1, rdx
+          v73 = (float)v92;
+          v72 = v73 + 1.8446744e19;
         }
-        if ( v140 < 0 )
-          __asm { vaddss  xmm1, xmm1, xmm6 }
-        __asm
+        v74 = v72 * 0.00000095367432;
+        v75 = (float)v91;
+        v77 = v74;
+        if ( v91 < 0 )
         {
-          vmulss  xmm0, xmm1, xmm11
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, r8
-          vcvtss2sd xmm4, xmm0, xmm0
+          v76 = (float)v91;
+          v75 = v76 + 1.8446744e19;
         }
-        if ( v139 < 0 )
-          __asm { vaddss  xmm1, xmm1, xmm6 }
-        __asm
+        v78 = v75 * 0.00000095367432;
+        v79 = (float)v90;
+        if ( v90 < 0 )
         {
-          vmulss  xmm0, xmm1, xmm11
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, r9
-          vcvtss2sd xmm2, xmm0, xmm0
+          v80 = (float)v90;
+          v79 = v80 + 1.8446744e19;
         }
-        if ( v138 < 0 )
-          __asm { vaddss  xmm1, xmm1, xmm6 }
-        __asm
+        Com_Printf(v68, "Fastfile load... Loaded alwaysloaded assets in %ims, images %.2f MB + meshes %.2f MB + generics %.2f MB = %.2f MB. New total including other already loaded fastfiles: images %.2f MB + meshes %.2f MB + generics %.2f MB = %.2f MB \n", (unsigned int)(v8 - v6), (float)(v79 * 0.00000095367432), v78, v77, v71, v67, v66, v62, v56);
+LABEL_80:
+        if ( v2 )
         {
-          vmovsd  [rsp+190h+var_140], xmm10
-          vmovsd  [rsp+190h+var_148], xmm9
-          vmovsd  [rsp+190h+var_150], xmm7
-          vmovsd  [rsp+190h+var_158], xmm8
-          vmovsd  [rsp+190h+var_160], xmm5
-          vmulss  xmm0, xmm1, xmm11
-          vcvtss2sd xmm3, xmm0, xmm0
-          vmovsd  [rsp+190h+var_168], xmm4
-          vmovq   r9, xmm3
-          vmovsd  [rsp+190h+fmt], xmm2
-        }
-        Com_Printf(v93, "Fastfile load... Loaded alwaysloaded assets in %ims, images %.2f MB + meshes %.2f MB + generics %.2f MB = %.2f MB. New total including other already loaded fastfiles: images %.2f MB + meshes %.2f MB + generics %.2f MB = %.2f MB \n", (unsigned int)(v16 - v14), *(double *)&_XMM3, *(double *)&fmtb, v123, v126, v127, v128, v129, v130);
-        __asm
-        {
-          vmovaps xmm10, [rsp+190h+var_70]
-          vmovaps xmm9, [rsp+190h+var_60]
-        }
-LABEL_81:
-        if ( v10 )
-        {
-          if ( v132 )
+          if ( v84 )
             LoadBar_FinishAlwaysLoaded();
-        }
-LABEL_84:
-        __asm
-        {
-          vmovaps xmm7, [rsp+190h+var_40]
-          vmovaps xmm8, [rsp+190h+var_50]
-          vmovaps xmm6, [rsp+190h+var_30]
-          vmovaps xmm11, [rsp+190h+var_80]
         }
         return;
       }
-      v13 = v144;
-      v12 = v143;
-      v11 = v142;
+      v5 = v96;
+      v4 = v95;
+      v3 = v94;
     }
-    v46 = 0i64;
-    memset(v141, 0, sizeof(v141));
-    v47 = 0i64;
-    v48 = 0i64;
-    v145 = 0i64;
-    v146 = 0i64;
-    v147 = 0i64;
+    v31 = 0i64;
+    memset(v93, 0, sizeof(v93));
+    v32 = 0i64;
+    v33 = 0i64;
+    v97 = 0i64;
+    v98 = 0i64;
+    v99 = 0i64;
     if ( IsRunning )
     {
-      Stream_Primer_GetProgress((unsigned __int64 (*)[3])bytesToLoad, (unsigned __int64 (*)[3])v141);
+      Stream_Primer_GetProgress((unsigned __int64 (*)[3])bytesToLoad, (unsigned __int64 (*)[3])v93);
       IsEnabled = Stream_Primer_IsRunning();
     }
     else
     {
-      Stream_CalculateForcedAndLoaded(v141, &v141[1]);
+      Stream_CalculateForcedAndLoaded(v93, &v93[1]);
       IsEnabled = Stream_IsEnabled();
     }
     if ( !IsEnabled )
-      goto LABEL_32;
-    v50 = bytesLoaded[0];
-    if ( bytesLoaded[0] <= v141[0] )
+      goto LABEL_31;
+    v35 = bytesLoaded[0];
+    if ( bytesLoaded[0] <= v93[0] )
     {
-      bytesLoaded[0] = v141[0];
-      v46 = v141[0] - v50;
-      v145 = v141[0] - v50;
+      bytesLoaded[0] = v93[0];
+      v31 = v93[0] - v35;
+      v97 = v93[0] - v35;
     }
-    v51 = bytesLoaded[1];
-    if ( bytesLoaded[1] <= v141[1] )
+    v36 = bytesLoaded[1];
+    if ( bytesLoaded[1] <= v93[1] )
     {
-      bytesLoaded[1] = v141[1];
-      v47 = v141[1] - v51;
-      v146 = v141[1] - v51;
+      bytesLoaded[1] = v93[1];
+      v32 = v93[1] - v36;
+      v98 = v93[1] - v36;
     }
-    v52 = bytesLoaded[2];
-    if ( bytesLoaded[2] <= v141[2] )
+    v37 = bytesLoaded[2];
+    if ( bytesLoaded[2] <= v93[2] )
     {
-      bytesLoaded[2] = v141[2];
-      v48 = v141[2] - v52;
-      v147 = v141[2] - v52;
+      bytesLoaded[2] = v93[2];
+      v33 = v93[2] - v37;
+      v99 = v93[2] - v37;
     }
-    if ( v132 )
-      LoadBar_ReadAlwaysLoaded(v46 + v47);
-    v53 = v46 + v11;
-    v54 = v12 + v47;
-    v55 = v48 + v13;
-    v142 = v53;
-    v16 = v134;
-    v143 = v54;
-    v144 = v55;
-    if ( v134 - v135 > 2000 )
+    if ( v84 )
+      LoadBar_ReadAlwaysLoaded(v31 + v32);
+    v38 = v31 + v3;
+    v39 = v4 + v32;
+    v40 = v33 + v5;
+    v94 = v38;
+    v8 = v86;
+    v95 = v39;
+    v96 = v40;
+    if ( v86 - v87 > 2000 )
     {
-      v135 = v134;
-      v56 = DB_GetLogChannel();
-      __asm
+      v87 = v86;
+      v41 = DB_GetLogChannel();
+      v42 = (float)(v40 + v38 + v39);
+      if ( v40 + v38 + v39 < 0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm1, xmm0, xmm8
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rcx
-        vcvtss2sd xmm7, xmm1, xmm1
+        v43 = (float)(v40 + v38 + v39);
+        v42 = v43 + 1.8446744e19;
       }
-      if ( v55 + v53 + v54 < 0 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
+      v44 = (float)(v42 * 0.00000095367432);
+      v45 = (float)v40;
+      if ( v40 < 0 )
       {
-        vmulss  xmm0, xmm0, xmm11
-        vxorps  xmm1, xmm1, xmm1
-        vcvtss2sd xmm5, xmm0, xmm0
-        vcvtsi2ss xmm1, xmm1, rbx
+        v46 = (float)v40;
+        v45 = v46 + 1.8446744e19;
       }
-      if ( v55 < 0 )
-        __asm { vaddss  xmm1, xmm1, xmm6 }
-      __asm
+      v47 = v45 * 0.00000095367432;
+      v48 = (float)v39;
+      v50 = v47;
+      if ( v39 < 0 )
       {
-        vmulss  xmm0, xmm1, xmm11
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rdi
-        vcvtss2sd xmm4, xmm0, xmm0
+        v49 = (float)v39;
+        v48 = v49 + 1.8446744e19;
       }
-      if ( v54 < 0 )
-        __asm { vaddss  xmm1, xmm1, xmm6 }
-      __asm
+      v51 = v48 * 0.00000095367432;
+      v52 = (float)v38;
+      if ( v38 < 0 )
       {
-        vmulss  xmm0, xmm1, xmm11
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, r14
-        vcvtss2sd xmm3, xmm0, xmm0
+        v53 = (float)v38;
+        v52 = v53 + 1.8446744e19;
       }
-      if ( v53 < 0 )
-        __asm { vaddss  xmm1, xmm1, xmm6 }
-      __asm
-      {
-        vmulss  xmm0, xmm1, xmm11
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovsd  [rsp+190h+var_160], xmm7
-        vmovsd  [rsp+190h+var_168], xmm5
-        vmovq   r8, xmm2
-        vmovq   r9, xmm3
-        vmovsd  [rsp+190h+fmt], xmm4
-      }
-      Com_Printf(v56, "Fastfile load... Loading alwaysloaded assets: images %.2f MB + meshes %.2f MB + generics %.2f MB = %.2f MB, %.2f seconds so far\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmta, v122, v125);
+      Com_Printf(v41, "Fastfile load... Loading alwaysloaded assets: images %.2f MB + meshes %.2f MB + generics %.2f MB = %.2f MB, %.2f seconds so far\n", (float)(v52 * 0.00000095367432), v51, v50, v44, (float)((float)(v86 - v85) * 0.001));
     }
-LABEL_33:
-    v14 = v133;
-    goto LABEL_34;
+LABEL_32:
+    v6 = v85;
+    goto LABEL_33;
   }
 }
 

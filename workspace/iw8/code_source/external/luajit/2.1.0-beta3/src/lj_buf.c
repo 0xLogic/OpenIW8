@@ -334,12 +334,13 @@ SBuf *lj_buf_puttab(SBuf *sb, GCtab *t, GCstr *sep, int i, int e)
   signed int v5; 
   GCstr *v6; 
   unsigned int len; 
+  const TValue *v10; 
   __int64 v11; 
   size_t v12; 
   char *ptr64; 
   char *v14; 
-  SBuf *v16; 
-  signed int v17; 
+  SBuf *v15; 
+  signed int v16; 
 
   v5 = i;
   v6 = sep;
@@ -351,18 +352,18 @@ SBuf *lj_buf_puttab(SBuf *sb, GCtab *t, GCstr *sep, int i, int e)
     return sb;
   while ( 1 )
   {
-    _RBX = v5 >= t->asize ? j_lj_tab_getinth(t, v5) : (const TValue *)(t->array.ptr64 + 8i64 * v5);
-    if ( !_RBX )
+    v10 = v5 >= t->asize ? j_lj_tab_getinth(t, v5) : (const TValue *)(t->array.ptr64 + 8i64 * v5);
+    if ( !v10 )
       break;
-    v11 = _RBX->it64 >> 47;
+    v11 = v10->it64 >> 47;
     if ( (_DWORD)v11 == -5 )
     {
-      v12 = *(unsigned int *)((_RBX->u64 & 0x7FFFFFFFFFFFi64) + 0x10);
+      v12 = *(unsigned int *)((v10->u64 & 0x7FFFFFFFFFFFi64) + 0x10);
       if ( (unsigned int)v12 + len <= LODWORD(sb->e.ptr64) - LODWORD(sb->p.ptr64) )
         ptr64 = (char *)sb->p.ptr64;
       else
         ptr64 = j_lj_buf_more2(sb, (unsigned int)v12 + len);
-      memcpy_0(ptr64, (const void *)((_RBX->u64 & 0x7FFFFFFFFFFFi64) + 24), v12);
+      memcpy_0(ptr64, (const void *)((v10->u64 & 0x7FFFFFFFFFFFi64) + 24), v12);
       v14 = &ptr64[v12];
       v6 = sep;
     }
@@ -370,15 +371,14 @@ SBuf *lj_buf_puttab(SBuf *sb, GCtab *t, GCstr *sep, int i, int e)
     {
       if ( (unsigned int)v11 >= 0xFFFFFFF2 )
         break;
-      __asm { vmovsd  xmm2, qword ptr [rbx]; n }
-      v16 = j_lj_strfmt_putfnum(sb, 0xF000035u, *(long double *)&_XMM2);
-      if ( len <= LODWORD(v16->e.ptr64) - LODWORD(v16->p.ptr64) )
-        v14 = (char *)v16->p.ptr64;
+      v15 = j_lj_strfmt_putfnum(sb, 0xF000035u, v10->n);
+      if ( len <= LODWORD(v15->e.ptr64) - LODWORD(v15->p.ptr64) )
+        v14 = (char *)v15->p.ptr64;
       else
-        v14 = j_lj_buf_more2(v16, len);
+        v14 = j_lj_buf_more2(v15, len);
     }
-    v17 = v5++;
-    if ( v17 == e )
+    v16 = v5++;
+    if ( v16 == e )
     {
       sb->p.ptr64 = (unsigned __int64)v14;
       return sb;

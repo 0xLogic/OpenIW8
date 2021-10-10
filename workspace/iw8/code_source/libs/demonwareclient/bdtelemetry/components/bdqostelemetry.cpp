@@ -63,32 +63,13 @@ bdQoSTelemetry::setRelayEstablished
 */
 void bdQoSTelemetry::setRelayEstablished(bdQoSTelemetry *this, const bdReference<bdCommonAddr> *remote, const bdAddr *relay)
 {
-  _RSI = relay;
+  double ElapsedTimeInSeconds; 
+
   this->m_msToNatTravResolve = 0;
-  _RDI = this;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  _RDI->m_msToRelayEstablished = _RAX;
-  bdReference<bdCommonAddr>::operator=(&_RDI->m_probeInfo.m_addr, remote);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rdi+20h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+20h]
-    vmovups ymmword ptr [rdi+40h], ymm1
-    vmovups ymm0, ymmword ptr [rsi+40h]
-    vmovups ymmword ptr [rdi+60h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+60h]
-    vmovups ymmword ptr [rdi+80h], ymm1
-    vmovups xmm0, xmmword ptr [rsi+80h]
-    vmovups xmmword ptr [rdi+0A0h], xmm0
-    vmovsd  xmm1, qword ptr [rsi+90h]
-    vmovsd  qword ptr [rdi+0B0h], xmm1
-  }
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_msToRelayEstablished = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
+  bdReference<bdCommonAddr>::operator=(&this->m_probeInfo.m_addr, remote);
+  this->m_probeInfo.m_realAddr = *relay;
 }
 
 /*
@@ -98,32 +79,13 @@ bdQoSTelemetry::setResolved
 */
 void bdQoSTelemetry::setResolved(bdQoSTelemetry *this, const bdReference<bdCommonAddr> *remote, const bdAddr *real)
 {
-  _RSI = real;
+  double ElapsedTimeInSeconds; 
+
   this->m_msToRelayEstablished = 0;
-  _RDI = this;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  _RDI->m_msToNatTravResolve = _RAX;
-  bdReference<bdCommonAddr>::operator=(&_RDI->m_probeInfo.m_addr, remote);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rdi+20h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+20h]
-    vmovups ymmword ptr [rdi+40h], ymm1
-    vmovups ymm0, ymmword ptr [rsi+40h]
-    vmovups ymmword ptr [rdi+60h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+60h]
-    vmovups ymmword ptr [rdi+80h], ymm1
-    vmovups xmm0, xmmword ptr [rsi+80h]
-    vmovups xmmword ptr [rdi+0A0h], xmm0
-    vmovsd  xmm1, qword ptr [rsi+90h]
-    vmovsd  qword ptr [rdi+0B0h], xmm1
-  }
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_msToNatTravResolve = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
+  bdReference<bdCommonAddr>::operator=(&this->m_probeInfo.m_addr, remote);
+  this->m_probeInfo.m_realAddr = *real;
 }
 
 /*
@@ -133,16 +95,12 @@ bdQoSTelemetry::setResult
 */
 void bdQoSTelemetry::setResult(bdQoSTelemetry *this, bdQoSTelemetry::bdQoSTelemetryResultType result)
 {
-  unsigned __int8 v3; 
+  unsigned __int8 v2; 
+  double ElapsedTimeInSeconds; 
 
-  v3 = result;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si rax, xmm1
-  }
-  this->m_duration = _RAX;
-  this->m_result = v3;
+  v2 = result;
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_age);
+  this->m_duration = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
+  this->m_result = v2;
 }
 

@@ -95,21 +95,14 @@ void Online_Invitation::Deserialize(Online_Invitation *this, const unsigned __in
 {
   __int64 v5; 
 
-  _RDI = buffer;
-  _RSI = this;
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_invitations.cpp", 102, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
     __debugbreak();
   v5 = -1i64;
-  while ( _RDI[++v5] != 0 )
+  while ( buffer[++v5] != 0 )
     ;
-  Core_strcpy(_RSI->m_inviterName, 0x24ui64, (const char *)_RDI);
-  _RSI->m_timeSentUTC = *(_DWORD *)&_RDI[(unsigned int)(v5 + 1)];
-  _RAX = (unsigned int)(v5 + 5);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rax+rdi]
-    vmovsd  qword ptr [rsi+18h], xmm0
-  }
+  Core_strcpy(this->m_inviterName, 0x24ui64, (const char *)buffer);
+  this->m_timeSentUTC = *(_DWORD *)&buffer[(unsigned int)(v5 + 1)];
+  this->m_inviterXUID.m_id = *(unsigned __int64 *)&buffer[(unsigned int)(v5 + 5)];
 }
 
 /*
@@ -171,34 +164,29 @@ Online_Invitation::Serialize
 __int64 Online_Invitation::Serialize(Online_Invitation *this, unsigned __int8 *buffer, const unsigned int sizeOfBuffer)
 {
   unsigned __int64 v3; 
-  const char *m_inviterName; 
+  char *m_inviterName; 
   __int64 v7; 
   __int64 v8; 
-  unsigned int v11; 
+  __int64 v9; 
+  unsigned int v10; 
 
   v3 = sizeOfBuffer;
-  _RDI = buffer;
-  _RSI = this;
   if ( !buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_invitations.cpp", 80, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
     __debugbreak();
-  m_inviterName = _RSI->m_inviterName;
+  m_inviterName = this->m_inviterName;
   v7 = -1i64;
   do
     ++v7;
   while ( m_inviterName[v7] );
-  Core_strcpy((char *)_RDI, v3, m_inviterName);
+  Core_strcpy((char *)buffer, v3, m_inviterName);
   v8 = (unsigned int)(v7 + 1);
-  *(_DWORD *)&_RDI[v8] = _RSI->m_timeSentUTC;
-  _RBX = (unsigned int)(v8 + 4);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsi+18h]
-    vmovsd  qword ptr [rbx+rdi], xmm0
-  }
-  v11 = _RBX + 8;
-  if ( v11 > (unsigned int)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_invitations.cpp", 94, ASSERT_TYPE_ASSERT, "(writeSize <= sizeOfBuffer)", (const char *)&queryFormat, "writeSize <= sizeOfBuffer") )
+  *(_DWORD *)&buffer[v8] = this->m_timeSentUTC;
+  v9 = (unsigned int)(v8 + 4);
+  *(double *)&buffer[v9] = *(double *)&this->m_inviterXUID.m_id;
+  v10 = v9 + 8;
+  if ( v10 > (unsigned int)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_invitations.cpp", 94, ASSERT_TYPE_ASSERT, "(writeSize <= sizeOfBuffer)", (const char *)&queryFormat, "writeSize <= sizeOfBuffer") )
     __debugbreak();
-  return v11;
+  return v10;
 }
 
 /*
@@ -209,30 +197,25 @@ Online_Invitation::SetData
 void Online_Invitation::SetData(Online_Invitation *this, InvitationType invitationType, XUID inviteeXUID, unsigned __int64 inviteePlatformId, XUID inviterXUID, unsigned __int64 inviterPlatformId, const void *payload)
 {
   unsigned __int64 v7; 
+  const char *v9; 
   __int64 v10; 
   XUID xuid; 
 
   xuid.m_id = inviteeXUID.m_id;
   v7 = inviterPlatformId;
-  _RSI = this;
   this->m_invitationType = invitationType;
   this->m_inviterPlatformId = v7;
   this->m_inviteePlatformId = inviteePlatformId;
   XUID::operator=(&this->m_inviterXUID, &inviterXUID);
-  XUID::operator=(&_RSI->m_inviteeXUID, &xuid);
-  _RDI = (const char *)payload;
+  XUID::operator=(&this->m_inviteeXUID, &xuid);
+  v9 = (const char *)payload;
   if ( !payload && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_invitations.cpp", 102, ASSERT_TYPE_ASSERT, "(buffer)", (const char *)&queryFormat, "buffer") )
     __debugbreak();
   v10 = -1i64;
-  while ( _RDI[++v10] != 0 )
+  while ( v9[++v10] != 0 )
     ;
-  Core_strcpy(_RSI->m_inviterName, 0x24ui64, _RDI);
-  _RSI->m_timeSentUTC = *(_DWORD *)&_RDI[(unsigned int)(v10 + 1)];
-  _RAX = (unsigned int)(v10 + 5);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rax+rdi]
-    vmovsd  qword ptr [rsi+18h], xmm0
-  }
+  Core_strcpy(this->m_inviterName, 0x24ui64, v9);
+  this->m_timeSentUTC = *(_DWORD *)&v9[(unsigned int)(v10 + 1)];
+  this->m_inviterXUID.m_id = *(unsigned __int64 *)&v9[(unsigned int)(v10 + 5)];
 }
 

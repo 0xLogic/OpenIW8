@@ -83,10 +83,16 @@ CG_SND_WeapReflectUpdate
 void CG_SND_WeapReflectUpdate(void)
 {
   const dvar_t *v0; 
-  NPCResolvedWeapReflRequest *v9; 
+  SndWeapReflectCastResultUpdate *v1; 
+  SndWeapReflectCastResult *soundClipResults; 
+  __int64 raycastIndex; 
+  NPCResolvedWeapReflRequest *v4; 
   __int64 autoSimId; 
   __int64 autoSimTimeStamp; 
   LocalClientNum_t data; 
+  __int128 v8; 
+  float v9; 
+  float v10; 
   snd_listener outListener; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 1239, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
@@ -106,25 +112,20 @@ void CG_SND_WeapReflectUpdate(void)
     {
       if ( s_sndWeapReflect.raycastUpdates.bufcount < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 63, ASSERT_TYPE_ASSERT, "(CanRead())", (const char *)&queryFormat, "CanRead()") )
         __debugbreak();
-      _RBX = &s_sndWeapReflect.raycastUpdates.buffer[s_sndWeapReflect.raycastUpdates.readPos];
-      if ( _RBX->raycastIndex >= 8 )
+      v1 = &s_sndWeapReflect.raycastUpdates.buffer[s_sndWeapReflect.raycastUpdates.readPos];
+      if ( v1->raycastIndex >= 8 )
       {
         LODWORD(autoSimTimeStamp) = 8;
-        LODWORD(autoSimId) = _RBX->raycastIndex;
+        LODWORD(autoSimId) = v1->raycastIndex;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 1263, ASSERT_TYPE_ASSERT, "(unsigned)( castUpdate->raycastIndex ) < (unsigned)( SndWeapReflect::MAX_RAYCASTS )", "castUpdate->raycastIndex doesn't index SndWeapReflect::MAX_RAYCASTS\n\t%i not in [0, %i)", autoSimId, autoSimTimeStamp) )
           __debugbreak();
       }
-      __asm { vmovups ymm0, ymmword ptr [rbx] }
-      _RDX = s_sndWeapReflect.soundClipResults;
-      if ( !_RBX->isSoundClip )
-        _RDX = s_sndWeapReflect.results;
-      _RCX = 6i64 * _RBX->raycastIndex;
-      __asm
-      {
-        vmovups ymmword ptr [rdx+rcx*8], ymm0
-        vmovups xmm1, xmmword ptr [rbx+20h]
-        vmovups xmmword ptr [rdx+rcx*8+20h], xmm1
-      }
+      soundClipResults = s_sndWeapReflect.soundClipResults;
+      if ( !v1->isSoundClip )
+        soundClipResults = s_sndWeapReflect.results;
+      raycastIndex = v1->raycastIndex;
+      *(__m256i *)soundClipResults[raycastIndex].position.v = *(__m256i *)v1->castResult.position.v;
+      *(_OWORD *)&soundClipResults[raycastIndex].normal.z = *(_OWORD *)&v1->castResult.normal.z;
       if ( s_sndWeapReflect.raycastUpdates.bufcount < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 70, ASSERT_TYPE_ASSERT, "(CanRead())", (const char *)&queryFormat, "CanRead()") )
         __debugbreak();
       s_sndWeapReflect.raycastUpdates.readPos = 0;
@@ -134,27 +135,18 @@ void CG_SND_WeapReflectUpdate(void)
     }
     if ( !Sys_ExistsWorkerCmdsOfType(WRKCMD_SOUND_WEAPON_REFLECT) )
     {
-      __asm
-      {
-        vmovaps xmm0, xmmword ptr [rsp+118h+outListener.orient.origin]
-        vmovss  xmm1, dword ptr [rsp+118h+outListener.orient.axis+8]
-        vmovups [rsp+118h+var_D4], xmm0
-        vmovss  xmm0, dword ptr [rsp+118h+outListener.orient.axis+4]
-      }
+      v8 = *(_OWORD *)outListener.orient.origin.v;
       data = outListener.localClientNum;
-      __asm
-      {
-        vmovss  [rsp+118h+var_C4], xmm0
-        vmovss  [rsp+118h+var_C0], xmm1
-      }
+      v9 = outListener.orient.axis.m[0].v[1];
+      v10 = outListener.orient.axis.m[0].v[2];
       Sys_AddWorkerCmd(WRKCMD_SOUND_WEAPON_REFLECT, &data);
     }
     while ( s_npcResolvedPlayRequest.bufcount >= 1 )
     {
       if ( s_npcResolvedPlayRequest.bufcount < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 63, ASSERT_TYPE_ASSERT, "(CanRead())", (const char *)&queryFormat, "CanRead()") )
         __debugbreak();
-      v9 = &s_npcResolvedPlayRequest.buffer[s_npcResolvedPlayRequest.readPos];
-      SND_WeapReflectPlayQueuedNPCSound(&v9->org, &v9->orientation, &outListener.orient.origin, v9->sfxPackage, (const SndWeapShotCountId)v9->shotCount, v9->autoSimId, v9->autoSimTimeStamp, &v9->castResult);
+      v4 = &s_npcResolvedPlayRequest.buffer[s_npcResolvedPlayRequest.readPos];
+      SND_WeapReflectPlayQueuedNPCSound(&v4->org, &v4->orientation, &outListener.orient.origin, v4->sfxPackage, (const SndWeapShotCountId)v4->shotCount, v4->autoSimId, v4->autoSimTimeStamp, &v4->castResult);
       if ( s_npcResolvedPlayRequest.bufcount < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 70, ASSERT_TYPE_ASSERT, "(CanRead())", (const char *)&queryFormat, "CanRead()") )
         __debugbreak();
       s_npcResolvedPlayRequest.readPos = 0;
@@ -222,51 +214,39 @@ void SND_AddTrackedWeapReflSound(unsigned int id, const SndAliasList *aliasList,
   int v46; 
   int v47; 
   unsigned int v48; 
-  float v56; 
+  __int64 v49; 
+  float v50; 
+  int v51; 
+  int v52; 
+  int v53; 
+  int *v54; 
+  int v55; 
+  int v56; 
+  int v57; 
+  int v58; 
+  int v59; 
+  int v60; 
+  int v61; 
   int v62; 
   int v63; 
   int v64; 
-  int *v65; 
-  int v66; 
-  int v67; 
-  int v68; 
-  int v69; 
-  int v70; 
-  int v71; 
-  int v72; 
-  int v73; 
-  int v74; 
-  int v75; 
-  int v76; 
-  const SndWeapReflDelayedSound *v79; 
+  int v65; 
 
-  v79 = delayedSound;
   v4 = 0;
-  v62 = 0;
+  v51 = 0;
   p_timestamp = &s_debugInfo[0].timestamp;
   do
   {
     if ( *p_timestamp < g_snd.time )
     {
-      _RDI = s_debugInfo;
-      _RBX = (__int64)(int)v4 << 8;
-      *(_DWORD *)&s_debugInfo[0].aliasName[_RBX + 128] = id;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r8]
-        vmovups ymmword ptr [rbx+rdi], ymm0
-        vmovups ymm1, ymmword ptr [r8+20h]
-        vmovups ymmword ptr [rbx+rdi+20h], ymm1
-        vmovups ymm0, ymmword ptr [r8+40h]
-        vmovups ymmword ptr [rbx+rdi+40h], ymm0
-        vmovsd  xmm1, qword ptr [r8+60h]
-        vmovsd  qword ptr [rbx+rdi+60h], xmm1
-      }
-      Core_strcpy(&s_debugInfo[0].aliasName[_RBX], 0x80ui64, aliasList->aliasName);
-      *(int *)((char *)&s_debugInfo[0].timestamp + _RBX) = g_snd.time + 5000;
-      *(float *)((char *)s_debugInfo[0].position.v + _RBX) = position->v[0];
-      *(float *)((char *)&s_debugInfo[0].position.v[1] + _RBX) = position->v[1];
-      v56 = position->v[2];
+      v49 = (__int64)(int)v4 << 8;
+      *(_DWORD *)&s_debugInfo[0].aliasName[v49 + 128] = id;
+      *(SndWeapReflDelayedSound *)((char *)&s_debugInfo[0].delayedInfo + v49) = *delayedSound;
+      Core_strcpy(&s_debugInfo[0].aliasName[v49], 0x80ui64, aliasList->aliasName);
+      *(int *)((char *)&s_debugInfo[0].timestamp + v49) = g_snd.time + 5000;
+      *(float *)((char *)s_debugInfo[0].position.v + v49) = position->v[0];
+      *(float *)((char *)&s_debugInfo[0].position.v[1] + v49) = position->v[1];
+      v50 = position->v[2];
       goto LABEL_73;
     }
     ++v4;
@@ -275,9 +255,9 @@ void SND_AddTrackedWeapReflSound(unsigned int id, const SndAliasList *aliasList,
   while ( v4 < 0x10 );
   v7 = &s_debugInfo[2].timestamp;
   v8 = 0x7FFFFFFF;
-  v63 = -1;
-  v64 = 0x7FFFFFFF;
-  v65 = &s_debugInfo[2].timestamp;
+  v52 = -1;
+  v53 = 0x7FFFFFFF;
+  v54 = &s_debugInfo[2].timestamp;
   do
   {
     v9 = v7[512];
@@ -293,38 +273,38 @@ void SND_AddTrackedWeapReflSound(unsigned int id, const SndAliasList *aliasList,
     v17 = *(v7 - 64);
     if ( v17 >= v11 )
       v17 = v11;
-    v66 = v11;
+    v55 = v11;
     v18 = v7[576];
     v19 = *v7;
     v20 = v7[640];
-    v67 = v17;
-    v74 = v7[448];
+    v56 = v17;
+    v63 = v7[448];
     v21 = v7[704];
     if ( *v7 >= v17 )
       v19 = v17;
-    v76 = v7[512];
-    v68 = v19;
+    v65 = v7[512];
+    v57 = v19;
     v22 = v7[64];
     if ( v22 >= v19 )
       v22 = v19;
     v23 = v7[128];
-    v69 = v22;
+    v58 = v22;
     if ( v23 >= v22 )
       v23 = v22;
     v24 = v7[192];
-    v70 = v23;
+    v59 = v23;
     if ( v24 >= v23 )
       v24 = v23;
     v25 = v7[256];
-    v71 = v24;
+    v60 = v24;
     if ( v25 >= v24 )
       v25 = v24;
     v26 = v7[320];
-    v72 = v25;
+    v61 = v25;
     if ( v26 >= v25 )
       v26 = v25;
     v27 = v7[384];
-    v73 = v26;
+    v62 = v26;
     if ( v27 >= v26 )
       v27 = v26;
     v28 = v7[768];
@@ -332,8 +312,8 @@ void SND_AddTrackedWeapReflSound(unsigned int id, const SndAliasList *aliasList,
     v30 = v28;
     if ( v12 >= v27 )
       v13 = v27;
-    v75 = v27;
-    v31 = v62;
+    v64 = v27;
+    v31 = v51;
     if ( v9 >= v13 )
       v10 = v13;
     if ( v14 >= v10 )
@@ -344,90 +324,81 @@ void SND_AddTrackedWeapReflSound(unsigned int id, const SndAliasList *aliasList,
       v21 = v20;
     if ( v28 >= v21 )
       v30 = v21;
-    if ( *(v65 - 128) >= v64 )
-      v31 = v63;
-    v32 = v62 + 1;
-    if ( *(v65 - 64) >= v66 )
+    if ( *(v54 - 128) >= v53 )
+      v31 = v52;
+    v32 = v51 + 1;
+    if ( *(v54 - 64) >= v55 )
       v32 = v31;
-    v33 = v62 + 2;
-    if ( *v65 >= v67 )
+    v33 = v51 + 2;
+    if ( *v54 >= v56 )
       v33 = v32;
-    v34 = v62 + 3;
-    if ( v65[64] >= v68 )
+    v34 = v51 + 3;
+    if ( v54[64] >= v57 )
       v34 = v33;
-    v35 = v62 + 4;
-    if ( v65[128] >= v69 )
+    v35 = v51 + 4;
+    if ( v54[128] >= v58 )
       v35 = v34;
-    v36 = v62 + 5;
-    if ( v65[192] >= v70 )
+    v36 = v51 + 5;
+    if ( v54[192] >= v59 )
       v36 = v35;
-    v37 = v62 + 6;
-    if ( v65[256] >= v71 )
+    v37 = v51 + 6;
+    if ( v54[256] >= v60 )
       v37 = v36;
-    v38 = v62 + 7;
-    if ( v65[320] >= v72 )
+    v38 = v51 + 7;
+    if ( v54[320] >= v61 )
       v38 = v37;
-    v39 = v62 + 8;
-    if ( v65[384] >= v73 )
+    v39 = v51 + 8;
+    if ( v54[384] >= v62 )
       v39 = v38;
-    v40 = v62 + 9;
-    if ( v74 >= v75 )
+    v40 = v51 + 9;
+    if ( v63 >= v64 )
       v40 = v39;
-    v41 = v62 + 10;
-    if ( v76 >= v13 )
+    v41 = v51 + 10;
+    if ( v65 >= v13 )
       v41 = v40;
-    v42 = v62 + 11;
+    v42 = v51 + 11;
     if ( v14 >= v10 )
       v42 = v41;
-    v43 = v62 + 12;
+    v43 = v51 + 12;
     if ( v15 >= v18 )
       v43 = v42;
-    v44 = v62 + 13;
+    v44 = v51 + 13;
     if ( v16 >= v20 )
       v44 = v43;
     v45 = v28 < v21;
-    v46 = v62 + 14;
+    v46 = v51 + 14;
     v8 = v29;
     if ( !v45 )
       v46 = v44;
-    v47 = v62 + 15;
+    v47 = v51 + 15;
     if ( v29 >= v30 )
       v47 = v46;
-    v65 += 1024;
-    v48 = v62 + 16;
-    v63 = v47;
+    v54 += 1024;
+    v48 = v51 + 16;
+    v52 = v47;
     v45 = v29 < v30;
-    v62 += 16;
-    v7 = v65;
+    v51 += 16;
+    v7 = v54;
     if ( !v45 )
       v8 = v30;
-    v64 = v8;
+    v53 = v8;
   }
   while ( v48 < 0x10 );
   if ( v47 > -1 )
   {
-    _RDI = s_debugInfo;
-    _RBX = (__int64)v47 << 8;
-    *(_DWORD *)&s_debugInfo[0].aliasName[_RBX + 128] = id;
-    _RAX = v79;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbx+rdi], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rbx+rdi+20h], ymm1
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rbx+rdi+40h], ymm0
-      vmovsd  xmm1, qword ptr [rax+60h]
-      vmovsd  qword ptr [rbx+rdi+60h], xmm1
-    }
-    Core_strcpy(&s_debugInfo[0].aliasName[_RBX], 0x80ui64, aliasList->aliasName);
-    *(int *)((char *)&s_debugInfo[0].timestamp + _RBX) = g_snd.time + 5000;
-    *(float *)((char *)s_debugInfo[0].position.v + _RBX) = position->v[0];
-    *(float *)((char *)&s_debugInfo[0].position.v[1] + _RBX) = position->v[1];
-    v56 = position->v[2];
+    v49 = (__int64)v47 << 8;
+    *(_DWORD *)&s_debugInfo[0].aliasName[v49 + 128] = id;
+    *(__m256i *)((char *)&s_debugInfo[0].delayedInfo.distanceType + v49) = *(__m256i *)&delayedSound->distanceType;
+    *(__m256i *)(&s_debugInfo[0].delayedInfo.isPlayer + v49) = *(__m256i *)&delayedSound->isPlayer;
+    *(__m256i *)((char *)&s_debugInfo[0].delayedInfo.soundPosition.z + v49) = *(__m256i *)&delayedSound->soundPosition.z;
+    *(double *)((char *)&s_debugInfo[0].delayedInfo.shotCount + v49) = *(double *)&delayedSound->shotCount;
+    Core_strcpy(&s_debugInfo[0].aliasName[v49], 0x80ui64, aliasList->aliasName);
+    *(int *)((char *)&s_debugInfo[0].timestamp + v49) = g_snd.time + 5000;
+    *(float *)((char *)s_debugInfo[0].position.v + v49) = position->v[0];
+    *(float *)((char *)&s_debugInfo[0].position.v[1] + v49) = position->v[1];
+    v50 = position->v[2];
 LABEL_73:
-    *(float *)((char *)&s_debugInfo[0].position.v[2] + _RBX) = v56;
+    *(float *)((char *)&s_debugInfo[0].position.v[2] + v49) = v50;
   }
 }
 
@@ -438,23 +409,38 @@ SND_DrawWeapReflOverlay
 */
 void SND_DrawWeapReflOverlay(LocalClientNum_t localClientNum)
 {
-  bool v11; 
-  unsigned int v27; 
-  bool v32; 
-  const vec4_t *v33; 
-  const dvar_t *v42; 
-  const char *v51; 
-  const char *v59; 
-  const char *v68; 
-  const char *v75; 
+  bool v1; 
+  ScreenPlacement *v2; 
+  float v3; 
+  float *v4; 
+  unsigned int i; 
+  float v6; 
+  float v7; 
+  float v8; 
+  bool v9; 
+  const vec4_t *color; 
+  float v11; 
+  float v12; 
+  const dvar_t *v13; 
+  double v14; 
+  const char *v15; 
+  float v16; 
+  float v17; 
+  const char *v18; 
+  double v21; 
+  const char *v22; 
+  const char *v23; 
+  float v24; 
+  __int128 v25; 
+  float v26; 
+  __int128 v27; 
+  __int128 v29; 
   GfxFont *font; 
-  const char *v121; 
-  float fmt; 
-  float fmta; 
-  char *fmtb; 
-  float fmtc; 
-  char *s; 
-  vec4_t *color; 
+  double v36; 
+  double v37; 
+  const char *s; 
+  float v41; 
+  float v42; 
   vec3_t point; 
   snd_listener outListener; 
 
@@ -465,271 +451,107 @@ void SND_DrawWeapReflOverlay(LocalClientNum_t localClientNum)
   SND_GetListener(LOCAL_CLIENT_0, &outListener);
   if ( !outListener.active )
     return;
-  __asm
-  {
-    vmovaps [rsp+1C0h+var_30], xmm6
-    vmovaps [rsp+1C0h+var_70], xmm10
-    vmovaps [rsp+1C0h+var_90], xmm12
-    vmovaps [rsp+1C0h+var_A0], xmm13
-    vmovaps [rsp+1C0h+var_B0], xmm14
-    vmovaps [rsp+1C0h+var_C0], xmm15
-  }
   if ( activeScreenPlacementMode == SCRMODE_FULL )
     goto LABEL_10;
   if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
   {
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v1 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v11 )
+      v1 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v1 )
       __debugbreak();
 LABEL_10:
-    _R14 = &scrPlaceFull;
+    v2 = &scrPlaceFull;
     goto LABEL_11;
   }
-  _R14 = scrPlaceViewDisplay;
+  v2 = scrPlaceViewDisplay;
 LABEL_11:
-  __asm
+  v3 = v2->virtualViewableMin.v[1];
+  v42 = v2->virtualViewableMin.v[0];
+  v4 = &s_debugInfo[0].position.v[2];
+  v41 = (float)CG_DrawDevString(v2, v42, v3, 0.69999999, 0.69999999, "Weapon Reflection Overlay Enabled", &colorCyan, 5, cls.smallDevFont) + v3;
+  for ( i = 0; i < 0x10; ++i )
   {
-    vmovss  xmm0, dword ptr [r14+28h]
-    vmovss  xmm6, dword ptr [r14+2Ch]
-    vmovss  xmm14, cs:__real@3f333333
-    vmovaps xmm3, xmm14; xScale
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm0; x
-    vmovss  dword ptr [rsp+1C0h+fmt], xmm14
-    vmovss  [rsp+1C0h+var_16C], xmm0
-  }
-  CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, "Weapon Reflection Overlay Enabled", &colorCyan, 5, cls.smallDevFont);
-  __asm
-  {
-    vmovss  xmm13, cs:__real@41200000
-    vmovss  xmm10, cs:__real@3d4ccccd
-    vmovss  xmm12, cs:__real@40e00000
-    vmovss  xmm15, cs:__real@41400000
-  }
-  _RDI = &s_debugInfo[0].position.v[2];
-  __asm
-  {
-    vmovaps [rsp+1C0h+var_40], xmm7
-    vmovaps [rsp+1C0h+var_50], xmm8
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vaddss  xmm1, xmm0, xmm6
-    vmovaps [rsp+1C0h+var_60], xmm9
-    vmovss  [rsp+1C0h+var_170], xmm1
-  }
-  v27 = 0;
-  __asm { vmovaps [rsp+1C0h+var_80], xmm11 }
-  do
-  {
-    if ( g_snd.time < *((_DWORD *)_RDI - 3) )
+    if ( g_snd.time < *((_DWORD *)v4 - 3) )
     {
-      __asm
+      v6 = *(v4 - 2);
+      v7 = *v4;
+      v8 = *v4 - outListener.orient.origin.v[2];
+      v9 = *((_DWORD *)v4 - 4) == 0;
+      color = &colorRedHeat;
+      point.v[1] = *(v4 - 1);
+      point.v[0] = v6;
+      point.v[2] = v7;
+      v11 = fsqrt((float)((float)((float)(v6 - outListener.orient.origin.v[0]) * (float)(v6 - outListener.orient.origin.v[0])) + (float)((float)(point.v[1] - outListener.orient.origin.v[1]) * (float)(point.v[1] - outListener.orient.origin.v[1]))) + (float)(v8 * v8));
+      if ( !v9 )
+        color = &colorWhite;
+      if ( v11 >= 10.0 )
       {
-        vmovss  xmm0, dword ptr [rdi-8]
-        vmovss  xmm2, dword ptr [rdi-4]
-        vmovss  xmm1, dword ptr [rdi]
-        vsubss  xmm3, xmm1, dword ptr [rsp+1C0h+outListener.orient.origin+8]
+        v13 = DCONST_DVARFLT_snd_weapReflect_maxTraceDistance;
+        if ( !DCONST_DVARFLT_snd_weapReflect_maxTraceDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_weapReflect_maxTraceDistance") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v13);
+        v12 = (float)(7.0 / v13->current.value) * v11;
       }
-      v32 = *((_DWORD *)_RDI - 4) == 0;
-      v33 = &colorRedHeat;
-      __asm
+      else
       {
-        vmovss  dword ptr [rsp+1C0h+point+4], xmm2
-        vsubss  xmm2, xmm2, dword ptr [rsp+1C0h+outListener.orient.origin+4]
-        vmovss  dword ptr [rsp+1C0h+point], xmm0
-        vsubss  xmm0, xmm0, dword ptr [rsp+1C0h+outListener.orient.origin]
-        vmovss  dword ptr [rsp+1C0h+point+8], xmm1
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm7, xmm2, xmm2
+        v12 = FLOAT_0_050000001;
       }
-      if ( !v32 )
-        v33 = &colorWhite;
-      __asm { vcomiss xmm7, xmm13 }
-      v42 = DCONST_DVARFLT_snd_weapReflect_maxTraceDistance;
-      if ( !DCONST_DVARFLT_snd_weapReflect_maxTraceDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_weapReflect_maxTraceDistance") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v42);
-      __asm
+      CL_AddDebugStarWithText(&point, &colorCyan, color, (const char *)v4 - 144, v12, 0, 1, 0);
+      point.v[2] = point.v[2] - (float)(v12 * 12.0);
+      v14 = v11;
+      v15 = j_va("Distance: %.0f", v11);
+      CL_AddDebugString(&point, color, v12, v15, 0, 1);
+      v16 = *(v4 - 52);
+      point.v[2] = point.v[2] - (float)(v12 * 12.0);
+      v17 = log2f(v16);
+      v18 = j_va("Pitch: %.2fst", (float)(v17 * 12.0));
+      CL_AddDebugString(&point, color, v12, v18, 0, 1);
+      _XMM0 = *((unsigned int *)v4 - 51);
+      __asm { vmaxss  xmm0, xmm0, cs:__real@37803e84; X }
+      point.v[2] = point.v[2] - (float)(v12 * 12.0);
+      v21 = (float)(log10f_0(*(float *)&_XMM0) * 20.0);
+      v22 = j_va("Vol: %.2fdB", v21);
+      CL_AddDebugString(&point, color, v12, v22, 0, 1);
+      point.v[2] = point.v[2] - (float)(v12 * 12.0);
+      v23 = j_va("LPF: %.2f", *(v4 - 50));
+      CL_AddDebugString(&point, color, v12, v23, 0, 1);
+      if ( !*((_DWORD *)v4 - 4) )
       {
-        vdivss  xmm0, xmm12, dword ptr [rbx+28h]
-        vmulss  xmm6, xmm0, xmm7
-        vmovss  dword ptr [rsp+1C0h+fmt], xmm6
+        point.v[2] = point.v[2] - (float)(v12 * 12.0);
+        CL_AddDebugString(&point, color, v12, "Stopped", 0, 1);
       }
-      CL_AddDebugStarWithText(&point, &colorCyan, v33, (const char *)_RDI - 144, fmta, 0, 1, 0);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+1C0h+point+8]
-        vmulss  xmm8, xmm6, xmm15
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  dword ptr [rsp+1C0h+point+8], xmm1
-        vcvtss2sd xmm11, xmm7, xmm7
-        vmovaps xmm1, xmm11
-        vmovq   rdx, xmm1
-      }
-      v51 = j_va("Distance: %.0f", _RDX);
-      __asm { vmovaps xmm2, xmm6; scale }
-      CL_AddDebugString(&point, v33, *(float *)&_XMM2, v51, 0, 1);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+1C0h+point+8]
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  xmm0, dword ptr [rdi-0D0h]; X
-        vmovss  dword ptr [rsp+1C0h+point+8], xmm1
-      }
-      *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm15
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v59 = j_va("Pitch: %.2fst", _RDX);
-      __asm { vmovaps xmm2, xmm6; scale }
-      CL_AddDebugString(&point, v33, *(float *)&_XMM2, v59, 0, 1);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+1C0h+point+8]
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  xmm0, dword ptr [rdi-0CCh]
-        vmaxss  xmm0, xmm0, cs:__real@37803e84; X
-        vmovss  dword ptr [rsp+1C0h+point+8], xmm1
-      }
-      *(float *)&_XMM0 = log10f_0(*(float *)&_XMM0);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@41a00000
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v68 = j_va("Vol: %.2fdB", _RDX);
-      __asm { vmovaps xmm2, xmm6; scale }
-      CL_AddDebugString(&point, v33, *(float *)&_XMM2, v68, 0, 1);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+1C0h+point+8]
-        vsubss  xmm1, xmm0, xmm8
-        vmovss  dword ptr [rsp+1C0h+point+8], xmm1
-        vmovss  xmm1, dword ptr [rdi-0C8h]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v75 = j_va("LPF: %.2f", _RDX);
-      __asm { vmovaps xmm2, xmm6; scale }
-      CL_AddDebugString(&point, v33, *(float *)&_XMM2, v75, 0, 1);
-      if ( !*((_DWORD *)_RDI - 4) )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+1C0h+point+8]
-          vsubss  xmm1, xmm0, xmm8
-          vmovaps xmm2, xmm6; scale
-          vmovss  dword ptr [rsp+1C0h+point+8], xmm1
-        }
-        CL_AddDebugString(&point, v33, *(float *)&_XMM2, "Stopped", 0, 1);
-      }
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi-4]
-        vsubss  xmm5, xmm1, dword ptr [rsp+1C0h+outListener.orient.origin+4]
-        vmulss  xmm3, xmm5, dword ptr [rbp+0C0h+outListener.orient.axis+10h]
-        vmovss  xmm0, dword ptr [rdi-8]
-        vsubss  xmm7, xmm0, dword ptr [rsp+1C0h+outListener.orient.origin]
-        vmulss  xmm2, xmm7, dword ptr [rbp+0C0h+outListener.orient.axis+0Ch]
-        vmovss  xmm0, dword ptr [rdi]
-        vsubss  xmm6, xmm0, dword ptr [rsp+1C0h+outListener.orient.origin+8]
-        vmulss  xmm0, xmm6, dword ptr [rbp+0C0h+outListener.orient.axis+14h]
-        vaddss  xmm4, xmm3, xmm2
-        vmulss  xmm3, xmm7, dword ptr [rsp+1C0h+outListener.orient.axis]
-        vaddss  xmm2, xmm4, xmm0
-        vmulss  xmm4, xmm5, dword ptr [rbp+0C0h+outListener.orient.axis+4]
-        vxorps  xmm0, xmm2, cs:__xmm@80000000800000008000000080000000; Y
-        vmulss  xmm2, xmm6, dword ptr [rbp+0C0h+outListener.orient.axis+8]
-        vaddss  xmm5, xmm4, xmm3
-        vaddss  xmm1, xmm5, xmm2; X
-      }
-      *(float *)&_XMM0 = atan2f_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm2, xmm0, cs:__real@42652ee0
-        vmovss  xmm0, cs:__real@43b40000
-        vmovss  xmm8, dword ptr [rdi-0C8h]
-      }
+      v25 = *((unsigned int *)v4 - 1);
+      v24 = *(v4 - 1) - outListener.orient.origin.v[1];
+      v26 = *(v4 - 2) - outListener.orient.origin.v[0];
+      *(float *)&v25 = (float)((float)(v24 * outListener.orient.axis.m[1].v[1]) + (float)(v26 * outListener.orient.axis.m[1].v[0])) + (float)((float)(*v4 - outListener.orient.origin.v[2]) * outListener.orient.axis.m[1].v[2]);
+      v27 = v25 ^ _xmm;
+      *(float *)&v27 = atan2f_0(COERCE_FLOAT(v25 ^ _xmm), (float)((float)(v24 * outListener.orient.axis.m[0].v[1]) + (float)(v26 * outListener.orient.axis.m[0].v[0])) + (float)((float)(*v4 - outListener.orient.origin.v[2]) * outListener.orient.axis.m[0].v[2]));
+      v29 = v27;
+      *(float *)&v29 = *(float *)&v27 * 57.295776;
+      _XMM2 = v29;
+      _XMM0 = LODWORD(FLOAT_360_0);
       font = cls.smallDevFont;
       __asm
       {
-        vsubss  xmm1, xmm2, xmm0
         vcmpltss xmm0, xmm0, xmm2
         vblendvps xmm9, xmm2, xmm1, xmm0
-        vmovss  xmm0, dword ptr [rdi-0CCh]
-        vmaxss  xmm6, xmm0, cs:__real@37803e84
-        vmovss  xmm0, dword ptr [rdi-0D0h]; X
-        vcvtss2sd xmm8, xmm8, xmm8
       }
-      *(float *)&_XMM0 = log2f(*(float *)&_XMM0);
+      _XMM0 = *((unsigned int *)v4 - 51);
+      __asm { vmaxss  xmm6, xmm0, cs:__real@37803e84 }
+      v36 = *(v4 - 50);
+      v37 = (float)(log2f(*(v4 - 52)) * 12.0);
+      *(double *)&_XMM2 = (float)(log10f_0(*(float *)&_XMM6) * 20.0);
       __asm
       {
-        vmulss  xmm1, xmm0, xmm15
-        vmovaps xmm0, xmm6; X
-        vcvtss2sd xmm7, xmm1, xmm1
-      }
-      *(float *)&_XMM0 = log10f_0(*(float *)&_XMM0);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@41a00000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtss2sd xmm2, xmm1, xmm1
-        vaddss  xmm1, xmm9, cs:__real@43b40000
         vcmpltss xmm0, xmm9, xmm0
         vblendvps xmm0, xmm9, xmm1, xmm0
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovaps xmm3, xmm11
-        vmovsd  [rsp+1C0h+color], xmm8
-        vmovsd  [rsp+1C0h+s], xmm2
-        vmovq   rdx, xmm1
-        vmovq   r9, xmm3
-        vmovsd  [rsp+1C0h+fmt], xmm7
-        vmovss  [rsp+1C0h+var_168], xmm9
       }
-      v121 = j_va("%.0f %s Dist: %.0f Pitch %.2fst Vol %.2fdB LPF %.0f", _RDX, _RDI - 36, _R9, fmtb, s, color);
-      __asm
-      {
-        vmovss  xmm2, [rsp+1C0h+var_170]; y
-        vmovss  xmm1, [rsp+1C0h+var_16C]; x
-        vmovaps xmm3, xmm14; xScale
-        vmovss  dword ptr [rsp+1C0h+fmt], xmm14
-      }
-      CG_DrawDevString(_R14, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, v121, v33, 5, font);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vaddss  xmm6, xmm0, [rsp+1C0h+var_170]
-        vmovss  [rsp+1C0h+var_170], xmm6
-      }
+      s = j_va("%.0f %s Dist: %.0f Pitch %.2fst Vol %.2fdB LPF %.0f", *(float *)&_XMM0, v4 - 36, v14, v37, (_QWORD)_XMM2, v36);
+      v41 = (float)CG_DrawDevString(v2, v42, v41, 0.69999999, 0.69999999, s, color, 5, font) + v41;
     }
-    ++v27;
-    _RDI += 64;
-  }
-  while ( v27 < 0x10 );
-  __asm
-  {
-    vmovaps xmm15, [rsp+1C0h+var_C0]
-    vmovaps xmm14, [rsp+1C0h+var_B0]
-    vmovaps xmm13, [rsp+1C0h+var_A0]
-    vmovaps xmm12, [rsp+1C0h+var_90]
-    vmovaps xmm11, [rsp+1C0h+var_80]
-    vmovaps xmm10, [rsp+1C0h+var_70]
-    vmovaps xmm9, [rsp+1C0h+var_60]
-    vmovaps xmm8, [rsp+1C0h+var_50]
-    vmovaps xmm7, [rsp+1C0h+var_40]
-    vmovaps xmm6, [rsp+1C0h+var_30]
+    v4 += 64;
   }
 }
 
@@ -1017,70 +839,58 @@ SND_WeapReflPerformNPCTrace
 */
 __int64 SND_WeapReflPerformNPCTrace(SndWeapReflectCastResult *castResult, const vec3_t *org, const vec3_t *direction, const vec3_t *listenerPos)
 {
+  const dvar_t *v8; 
+  float value; 
+  float v10; 
+  float v11; 
+  float v12; 
   HavokPhysics_CollisionQueryResult *ClosestResult; 
-  const dvar_t *v27; 
-  char v47; 
-  char v48; 
-  unsigned __int8 v49; 
-  hkMemoryAllocator *v50; 
-  hkMemoryAllocator *v51; 
-  __int64 result; 
+  double RaycastHitFraction; 
+  const dvar_t *v15; 
+  float distance; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  vec3_t *p_normal; 
+  unsigned __int8 v27; 
+  hkMemoryAllocator *v28; 
+  hkMemoryAllocator *v29; 
   Physics_RaycastExtendedData extendedData; 
-  HavokPhysics_IgnoreBodies v59; 
-  __int64 v60; 
+  HavokPhysics_IgnoreBodies v32; 
+  __int64 v33; 
   vec3_t end; 
-  char v62; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v60 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
-  _R15 = listenerPos;
-  _R14 = direction;
-  _RBX = castResult;
+  v33 = -2i64;
   castResult->weapReflDefId = 0;
-  _RDI = DCONST_DVARFLT_snd_weapReflect_maxTraceDistance;
+  v8 = DCONST_DVARFLT_snd_weapReflect_maxTraceDistance;
   if ( !DCONST_DVARFLT_snd_weapReflect_maxTraceDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_weapReflect_maxTraceDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  xmm4, dword ptr [r14]
-    vmulss  xmm1, xmm0, xmm4
-    vmulss  xmm2, xmm0, dword ptr [r14+4]
-    vmulss  xmm3, xmm0, dword ptr [r14+8]
-    vaddss  xmm0, xmm1, dword ptr [rsi]
-    vmovss  dword ptr [rbp+57h+end], xmm0
-    vaddss  xmm0, xmm2, dword ptr [rsi+4]
-    vmovss  dword ptr [rbp+57h+end+4], xmm0
-    vaddss  xmm0, xmm3, dword ptr [rsi+8]
-    vmovss  dword ptr [rbp+57h+end+8], xmm0
-    vmovss  dword ptr [rbx+0Ch], xmm4
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  dword ptr [rbx+10h], xmm0
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  dword ptr [rbx+14h], xmm1
-  }
-  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v59, 1, 0);
-  HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v59, 0, 0, 1, 1, 0, 1, 1);
+  Dvar_CheckFrontendServerThread(v8);
+  value = v8->current.value;
+  v10 = direction->v[0];
+  v11 = value * direction->v[1];
+  v12 = value * direction->v[2];
+  end.v[0] = (float)(value * direction->v[0]) + org->v[0];
+  end.v[1] = v11 + org->v[1];
+  end.v[2] = v12 + org->v[2];
+  castResult->direction.v[0] = v10;
+  castResult->direction.v[1] = direction->v[1];
+  castResult->direction.v[2] = direction->v[2];
+  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v32, 1, 0);
+  HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v32, 0, 0, 1, 1, 0, 1, 1);
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vmovss  [rsp+130h+extendedData.collisionBuffer], xmm9
-  }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
   *(_WORD *)&extendedData.collectInsideHits = 256;
   extendedData.contents = 2097169;
-  extendedData.ignoreBodies = &v59;
+  extendedData.ignoreBodies = &v32;
   ClosestResult = PhysicsQuery_GetClosestResult(PHYSICS_WORLD_ID_CLIENT_FIRST);
   if ( !ClosestResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 1205, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
@@ -1088,72 +898,44 @@ __int64 SND_WeapReflPerformNPCTrace(SndWeapReflectCastResult *castResult, const 
   Physics_Raycast(PHYSICS_WORLD_ID_CLIENT_FIRST, org, &end, &extendedData, ClosestResult);
   if ( !HavokPhysics_CollisionQueryResult::HasHit(ClosestResult) )
     goto LABEL_13;
-  *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(ClosestResult, 0);
-  __asm { vmovaps xmm6, xmm0 }
-  v27 = DCONST_DVARFLT_snd_weapReflect_maxTraceDistance;
+  RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(ClosestResult, 0);
+  v15 = DCONST_DVARFLT_snd_weapReflect_maxTraceDistance;
   if ( !DCONST_DVARFLT_snd_weapReflect_maxTraceDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_weapReflect_maxTraceDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v27);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [r14+28h]
-    vmovss  dword ptr [rbx+24h], xmm0
-  }
-  _RBX->surfaceIndex = (HavokPhysics_CollisionQueryResult::GetRaycastHitSurfFlags(ClosestResult, 0) >> 19) & 0x3F;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+24h]
-    vmulss  xmm0, xmm2, dword ptr [rbx+0Ch]
-    vmulss  xmm1, xmm2, dword ptr [rbx+10h]
-    vmulss  xmm2, xmm2, dword ptr [rbx+14h]
-    vaddss  xmm3, xmm0, dword ptr [rsi]
-    vmovss  dword ptr [rbx], xmm3
-    vaddss  xmm4, xmm1, dword ptr [rsi+4]
-    vmovss  dword ptr [rbx+4], xmm4
-    vaddss  xmm5, xmm2, dword ptr [rsi+8]
-    vmovss  dword ptr [rbx+8], xmm5
-    vmovss  xmm0, dword ptr [r15]
-    vsubss  xmm8, xmm0, xmm3
-    vmovss  xmm1, dword ptr [r15+4]
-    vsubss  xmm6, xmm1, xmm4
-    vmovss  xmm0, dword ptr [r15+8]
-    vsubss  xmm7, xmm0, xmm5
-  }
-  HavokPhysics_CollisionQueryResult::GetRaycastHitNormal(ClosestResult, 0, &_RBX->normal);
-  __asm
-  {
-    vmulss  xmm1, xmm6, dword ptr [rbx+4]
-    vmulss  xmm0, xmm8, dword ptr [rbx]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, dword ptr [rbx+8]
-    vaddss  xmm0, xmm2, xmm1
-    vcomiss xmm0, xmm9
-  }
-  if ( v47 | v48 )
-LABEL_13:
-    v49 = 0;
+  Dvar_CheckFrontendServerThread(v15);
+  castResult->distance = *(float *)&RaycastHitFraction * v15->current.value;
+  castResult->surfaceIndex = (HavokPhysics_CollisionQueryResult::GetRaycastHitSurfFlags(ClosestResult, 0) >> 19) & 0x3F;
+  distance = castResult->distance;
+  v17 = distance * castResult->direction.v[0];
+  v18 = distance * castResult->direction.v[1];
+  v19 = distance * castResult->direction.v[2];
+  v20 = v17 + org->v[0];
+  castResult->position.v[0] = v20;
+  v21 = v18 + org->v[1];
+  castResult->position.v[1] = v21;
+  v22 = v19 + org->v[2];
+  castResult->position.v[2] = v22;
+  v23 = listenerPos->v[0] - v20;
+  v24 = listenerPos->v[1] - v21;
+  v25 = listenerPos->v[2] - v22;
+  p_normal = &castResult->normal;
+  HavokPhysics_CollisionQueryResult::GetRaycastHitNormal(ClosestResult, 0, p_normal);
+  if ( (float)((float)((float)(v24 * p_normal->v[1]) + (float)(v23 * p_normal->v[0])) + (float)(v25 * p_normal->v[2])) > 0.0 )
+    v27 = 1;
   else
-    v49 = 1;
-  v50 = hkMemHeapAllocator();
-  v59.m_ignoreBodies.m_size = 0;
-  if ( v59.m_ignoreBodies.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v50, v59.m_ignoreBodies.m_data, 4, v59.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-  v59.m_ignoreBodies.m_data = NULL;
-  v59.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-  v51 = hkMemHeapAllocator();
-  v59.m_ignoreEntities.m_size = 0;
-  if ( v59.m_ignoreEntities.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v51, v59.m_ignoreEntities.m_data, 8, v59.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
-  result = v49;
-  _R11 = &v62;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
+LABEL_13:
+    v27 = 0;
+  v28 = hkMemHeapAllocator();
+  v32.m_ignoreBodies.m_size = 0;
+  if ( v32.m_ignoreBodies.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v28, v32.m_ignoreBodies.m_data, 4, v32.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+  v32.m_ignoreBodies.m_data = NULL;
+  v32.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+  v29 = hkMemHeapAllocator();
+  v32.m_ignoreEntities.m_size = 0;
+  if ( v32.m_ignoreEntities.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v29, v32.m_ignoreEntities.m_data, 8, v32.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+  return v27;
 }
 
 /*
@@ -1161,88 +943,62 @@ LABEL_13:
 SND_WeapReflPlaySoundAliasImmediate
 ==============
 */
-
-void __fastcall SND_WeapReflPlaySoundAliasImmediate(const WeapReflectDistance distanceType, const SndWeapReflectPlaySound *params, double pitch, const WeapReflDir direction, const int startDelayUs, const vec3_t *soundPosition, const vec3_t *reflectionPosition, const bool enableOcclusion)
+void SND_WeapReflPlaySoundAliasImmediate(const WeapReflectDistance distanceType, const SndWeapReflectPlaySound *params, const float pitch, const WeapReflDir direction, const int startDelayUs, const vec3_t *soundPosition, const vec3_t *reflectionPosition, const bool enableOcclusion)
 {
-  const SndAliasList *v15; 
-  unsigned __int64 v16; 
-  __int32 v20; 
+  const SndAliasList *v10; 
+  unsigned __int64 v11; 
+  const WeaponReflectionDef *weapReflDef; 
+  __int32 v13; 
+  float rearVol; 
+  float rearEq; 
   int autoSimId; 
   __int64 autoSimTimeStamp; 
-  unsigned int v31; 
-  const WeaponReflectionDef *weapReflDef; 
+  float v18; 
+  unsigned int v19; 
+  const WeaponReflectionDef *v20; 
   SndAlias *outAliasA; 
   SndWeapReflDelayedSound delayedSound; 
   SndPlayParams inParams; 
   SndAliasGroupTracking inOutTracking; 
 
-  __asm
-  {
-    vmovaps [rsp+270h+var_70], xmm9
-    vmovaps xmm9, xmm2
-  }
-  v15 = SND_WeapReflectGenAlias(distanceType, direction, params->weapReflDef, params->sfxPackage, params->isPlayer, params->surfaceIndex);
-  SND_PickSoundAliasFromList(v15, LOCAL_CLIENT_0, 2046, reflectionPosition, (const SndAlias **)&outAliasA, NULL, NULL);
-  v16 = ((unsigned __int64)enableOcclusion << 36) | CG_GenerateSndEntHandle(LOCAL_CLIENT_0, 2046) & 0xFFFFFFEFFFFFFFFFui64;
+  v10 = SND_WeapReflectGenAlias(distanceType, direction, params->weapReflDef, params->sfxPackage, params->isPlayer, params->surfaceIndex);
+  SND_PickSoundAliasFromList(v10, LOCAL_CLIENT_0, 2046, reflectionPosition, (const SndAlias **)&outAliasA, NULL, NULL);
+  v11 = ((unsigned __int64)enableOcclusion << 36) | CG_GenerateSndEntHandle(LOCAL_CLIENT_0, 2046) & 0xFFFFFFEFFFFFFFFFui64;
   if ( outAliasA )
   {
-    _RDX = params->weapReflDef;
-    __asm
-    {
-      vmovaps [rsp+270h+var_40], xmm6
-      vmovaps [rsp+270h+var_50], xmm7
-      vmovaps [rsp+270h+var_60], xmm8
-      vmovss  xmm8, cs:__real@3f800000
-      vmovss  xmm0, cs:__real@bf800000
-    }
+    weapReflDef = params->weapReflDef;
     if ( direction )
     {
-      v20 = direction - 1;
-      if ( v20 )
+      v13 = direction - 1;
+      if ( v13 )
       {
-        if ( v20 == 1 )
+        if ( v13 == 1 )
         {
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rdx+84h]
-            vmovss  xmm7, dword ptr [rdx+88h]
-          }
+          rearVol = weapReflDef->rearVol;
+          rearEq = weapReflDef->rearEq;
         }
         else
         {
-          __asm
-          {
-            vmovaps xmm6, xmm8
-            vmovaps xmm7, xmm0
-          }
+          rearVol = FLOAT_1_0;
+          rearEq = FLOAT_N1_0;
         }
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rdx+7Ch]
-          vmovss  xmm7, dword ptr [rdx+80h]
-        }
+        rearVol = weapReflDef->sideVol;
+        rearEq = weapReflDef->sideEq;
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rdx+74h]
-        vmovss  xmm7, dword ptr [rdx+78h]
-      }
+      rearVol = weapReflDef->frontVol;
+      rearEq = weapReflDef->frontEq;
     }
-    if ( params->playerDef->zoneType != _RDX->zoneType )
-      __asm { vmulss  xmm6, xmm6, dword ptr [rdx+2Ch] }
+    if ( params->playerDef->zoneType != weapReflDef->zoneType )
+      rearVol = rearVol * weapReflDef->zoneTypeScalar;
     autoSimId = params->autoSimId;
-    __asm
-    {
-      vmovss  [rbp+170h+inParams.hpfCutoff], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rbp+170h+inParams.startOffsetFraction], xmm0
-    }
+    inParams.hpfCutoff = FLOAT_N1_0;
+    inParams.startOffsetFraction = 0.0;
     inParams.autoSimId = autoSimId;
     autoSimTimeStamp = params->autoSimTimeStamp;
     *(_QWORD *)&inParams.aliasId = 0i64;
@@ -1250,57 +1006,40 @@ void __fastcall SND_WeapReflPlaySoundAliasImmediate(const WeapReflectDistance di
     inParams.fadeTime = 0;
     inParams.startPaused = 0;
     inParams.reflectionClass = 0;
-    _RSI = soundPosition;
     inParams.autoSimTimeStamp = autoSimTimeStamp;
     LODWORD(autoSimTimeStamp) = params->shotCount;
-    __asm
-    {
-      vmovss  [rbp+170h+inParams.distanceScale], xmm8
-      vmovss  xmm0, dword ptr [rsi]
-      vmovss  xmm1, dword ptr [rsi+4]
-      vmovss  dword ptr [rbp+170h+inParams.org], xmm0
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmovss  dword ptr [rbp+170h+inParams.org+8], xmm0
-      vmovss  [rbp+170h+inParams.lfeScale], xmm8
-      vmovss  [rbp+170h+inParams.volumeScale], xmm6
-      vmovss  [rbp+170h+inParams.pitch], xmm9
-      vmovss  dword ptr [rbp+170h+inParams.org+4], xmm1
-      vmovss  [rbp+170h+inParams.lpfCutoff], xmm7
-    }
+    inParams.distanceScale = FLOAT_1_0;
+    v18 = soundPosition->v[1];
+    inParams.org.v[0] = soundPosition->v[0];
+    inParams.org.v[2] = soundPosition->v[2];
+    inParams.lfeScale = FLOAT_1_0;
+    inParams.volumeScale = rearVol;
+    inParams.pitch = pitch;
+    inParams.org.v[1] = v18;
+    inParams.lpfCutoff = rearEq;
     inParams.adsrIndex = -1;
     inParams.system = SASYS_CGAME;
     *(_QWORD *)&inParams.surfaceType = -1i64;
     inParams.contextIndex2 = -1;
     *(_WORD *)&inParams.isADS = 256;
-    inParams.aliasList = v15;
-    inParams.sndEnt = v16;
+    inParams.aliasList = v10;
+    inParams.sndEnt = v11;
     inParams.autoSimShotCount = autoSimTimeStamp;
     inParams.additionalStartDelayUs = startDelayUs;
     SND_InitAliasGroupTracking(&inOutTracking);
-    __asm { vmovaps xmm1, xmm8; contextLerp }
-    v31 = SND_PlaySoundAliasCore(outAliasA, *(float *)&_XMM1, &inParams, &inOutTracking);
+    v19 = SND_PlaySoundAliasCore(outAliasA, 1.0, &inParams, &inOutTracking);
     SND_FinalizeAliasGroupTracking(&inOutTracking);
     delayedSound.isPlayer = params->isPlayer;
     delayedSound.sfxPackage = params->sfxPackage;
-    weapReflDef = params->weapReflDef;
+    v20 = params->weapReflDef;
     delayedSound.distanceType = SND_WEAP_REFL_CLOSE;
     delayedSound.timeMStoStart = startDelayUs / 1000;
-    delayedSound.weapReflDef = weapReflDef;
-    __asm
-    {
-      vmovss  [rsp+270h+delayedSound.pitch], xmm9
-      vmovss  [rsp+270h+delayedSound.vol], xmm6
-      vmovss  [rbp+170h+delayedSound.lpfCutoff], xmm7
-    }
-    SND_AddTrackedWeapReflSound(v31, v15, &delayedSound, soundPosition);
-    __asm
-    {
-      vmovaps xmm8, [rsp+270h+var_60]
-      vmovaps xmm7, [rsp+270h+var_50]
-      vmovaps xmm6, [rsp+270h+var_40]
-    }
+    delayedSound.weapReflDef = v20;
+    delayedSound.pitch = pitch;
+    delayedSound.vol = rearVol;
+    delayedSound.lpfCutoff = rearEq;
+    SND_AddTrackedWeapReflSound(v19, v10, &delayedSound, soundPosition);
   }
-  __asm { vmovaps xmm9, [rsp+270h+var_70] }
 }
 
 /*
@@ -1432,41 +1171,30 @@ SndAliasList *SND_WeapReflectGenAlias(WeapReflectDistance distanceType, WeapRefl
 SND_WeapReflectGetPitch
 ==============
 */
-
-float __fastcall SND_WeapReflectGetPitch(const WeaponReflectionDef *weapDef, double distance, const WeapReflectDistance distanceType, bool isNPC)
+float SND_WeapReflectGetPitch(const WeaponReflectionDef *weapDef, const float distance, const WeapReflectDistance distanceType, bool isNPC)
 {
-  bool v18; 
+  float npcCloseMedThreshold; 
+  float npcMedFarThreshold; 
+  float npcPitchDistMed; 
+  float npcMaxPitchMed; 
+  double v8; 
+  float result; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps [rsp+88h+var_48], xmm9
-    vmovaps [rsp+88h+var_58], xmm10
-    vmovaps xmm10, xmm1
-  }
   if ( isNPC )
   {
     switch ( distanceType )
     {
       case SND_WEAP_REFL_MEDIUM:
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rcx+3Ch]; jumptable 000000014276AEAC case 2
-          vmovss  xmm7, dword ptr [rcx+40h]
-          vmovss  xmm8, dword ptr [rcx+68h]
-          vmovss  xmm9, dword ptr [rcx+64h]
-        }
+        npcCloseMedThreshold = weapDef->npcCloseMedThreshold;
+        npcMedFarThreshold = weapDef->npcMedFarThreshold;
+        npcPitchDistMed = weapDef->npcPitchDistMed;
+        npcMaxPitchMed = weapDef->npcMaxPitchMed;
         goto LABEL_9;
       case SND_WEAP_REFL_FAR:
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rcx+40h]; jumptable 000000014276AEAC case 3
-          vmovss  xmm7, dword ptr [rcx+44h]
-          vmovss  xmm8, dword ptr [rcx+70h]
-          vmovss  xmm9, dword ptr [rcx+6Ch]
-        }
+        npcCloseMedThreshold = weapDef->npcMedFarThreshold;
+        npcMedFarThreshold = weapDef->npcFarThreshold;
+        npcPitchDistMed = weapDef->npcPitchDistFar;
+        npcMaxPitchMed = weapDef->npcMaxPitchFar;
         goto LABEL_9;
       default:
         goto $LN36_64;
@@ -1475,81 +1203,42 @@ float __fastcall SND_WeapReflectGetPitch(const WeaponReflectionDef *weapDef, dou
   switch ( distanceType )
   {
     case SND_WEAP_REFL_CLOSE:
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rcx+30h]; jumptable 000000014276AEE4 case 1
-        vmovss  xmm8, dword ptr [rcx+50h]
-        vmovss  xmm9, dword ptr [rcx+4Ch]
-        vxorps  xmm6, xmm6, xmm6
-      }
+      npcMedFarThreshold = weapDef->closeMedThreshold;
+      npcPitchDistMed = weapDef->pitchDistClose;
+      npcMaxPitchMed = weapDef->maxPitchClose;
+      npcCloseMedThreshold = 0.0;
       goto LABEL_9;
     case SND_WEAP_REFL_MEDIUM:
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rcx+30h]; jumptable 000000014276AEE4 case 2
-        vmovss  xmm7, dword ptr [rcx+34h]
-        vmovss  xmm8, dword ptr [rcx+58h]
-        vmovss  xmm9, dword ptr [rcx+54h]
-      }
+      npcCloseMedThreshold = weapDef->closeMedThreshold;
+      npcMedFarThreshold = weapDef->medFarThreshold;
+      npcPitchDistMed = weapDef->pitchDistMed;
+      npcMaxPitchMed = weapDef->maxPitchMed;
       goto LABEL_9;
     case SND_WEAP_REFL_FAR:
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rcx+34h]; jumptable 000000014276AEE4 case 3
-        vmovss  xmm7, dword ptr [rcx+38h]
-        vmovss  xmm8, dword ptr [rcx+60h]
-        vmovss  xmm9, dword ptr [rcx+5Ch]
-      }
+      npcCloseMedThreshold = weapDef->medFarThreshold;
+      npcMedFarThreshold = weapDef->farThreshold;
+      npcPitchDistMed = weapDef->pitchDistFar;
+      npcMaxPitchMed = weapDef->maxPitchFar;
 LABEL_9:
-      __asm { vcomiss xmm6, xmm7 }
-      v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 569, ASSERT_TYPE_ASSERT, "(minDist < maxDist)", (const char *)&queryFormat, "minDist < maxDist");
-      if ( v18 )
+      if ( npcCloseMedThreshold >= npcMedFarThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 569, ASSERT_TYPE_ASSERT, "(minDist < maxDist)", (const char *)&queryFormat, "minDist < maxDist") )
         __debugbreak();
-      __asm
-      {
-        vcomiss xmm8, xmm6
-        vcomiss xmm8, xmm7
-      }
-      if ( v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 571, ASSERT_TYPE_ASSERT, "(pitchDist <= maxDist)", (const char *)&queryFormat, "pitchDist <= maxDist") )
+      if ( npcPitchDistMed < npcCloseMedThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 570, ASSERT_TYPE_ASSERT, "(pitchDist >= minDist)", (const char *)&queryFormat, "pitchDist >= minDist") )
         __debugbreak();
-      __asm
-      {
-        vcomiss xmm10, xmm6
-        vcomiss xmm10, xmm7
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 573, ASSERT_TYPE_ASSERT, "(distance < maxDist)", (const char *)&queryFormat, "distance < maxDist") )
+      if ( npcPitchDistMed > npcMedFarThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 571, ASSERT_TYPE_ASSERT, "(pitchDist <= maxDist)", (const char *)&queryFormat, "pitchDist <= maxDist") )
         __debugbreak();
-      __asm
-      {
-        vsubss  xmm2, xmm10, xmm6
-        vsubss  xmm0, xmm8, xmm6
-        vmovss  xmm6, cs:__real@3f800000
-        vdivss  xmm0, xmm2, xmm0; val
-        vmovaps xmm2, xmm6; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm9
-        vsubss  xmm0, xmm6, xmm0
-        vaddss  xmm0, xmm1, xmm0
-      }
+      if ( distance < npcCloseMedThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 572, ASSERT_TYPE_ASSERT, "(distance >= minDist)", (const char *)&queryFormat, "distance >= minDist") )
+        __debugbreak();
+      if ( distance >= npcMedFarThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 573, ASSERT_TYPE_ASSERT, "(distance < maxDist)", (const char *)&queryFormat, "distance < maxDist") )
+        __debugbreak();
+      v8 = I_fclamp((float)(distance - npcCloseMedThreshold) / (float)(npcPitchDistMed - npcCloseMedThreshold), 0.0, 1.0);
+      result = (float)(*(float *)&v8 * npcMaxPitchMed) + (float)(1.0 - *(float *)&v8);
       break;
     default:
 $LN36_64:
-      __asm { vmovss  xmm0, cs:__real@3f800000; jumptable 000000014276AEAC default case, cases 0,1,4,5 }
+      result = FLOAT_1_0;
       break;
   }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-    vmovaps xmm10, [rsp+88h+var_58]
-  }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -1559,16 +1248,28 @@ SND_WeapReflectPlayDist
 */
 void SND_WeapReflectPlayDist(SndWeapReflectPlaySound *params, const vec3_t *originPosition, const vec3_t *listenerPos, const vec3_t *listenerDir, unsigned int reflectionClassHash)
 {
+  __int128 v5; 
+  __int128 v6; 
   const WeaponReflectionDef *WeapReflDefWithClass; 
   ZoneDef *v10; 
   unsigned int WeapReflDefId; 
   const WeaponReflectionDef *v12; 
   unsigned int v13; 
+  const dvar_t *v14; 
+  float v15; 
+  float v16; 
+  float value; 
+  float v18; 
+  const dvar_t *v19; 
+  float v20; 
+  float v21; 
+  float v22; 
   ZoneDef *outZoneFront; 
   ZoneDef *zone; 
   vec3_t soundPosition; 
+  __int128 v26; 
+  __int128 v27; 
 
-  _R14 = originPosition;
   WeapReflDefWithClass = NULL;
   CG_ChooseWeapReflDistantZones(LOCAL_CLIENT_0, listenerPos, listenerDir, (const ZoneDef **)&outZoneFront, (const ZoneDef **)&zone);
   v10 = outZoneFront;
@@ -1588,59 +1289,35 @@ void SND_WeapReflectPlayDist(SndWeapReflectPlaySound *params, const vec3_t *orig
   if ( WeapReflDefWithClass )
   {
     params->weapReflDef = WeapReflDefWithClass;
-    _RBX = DCONST_DVARFLT_snd_weapReflect_distantVoiceDistance;
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_48], xmm7
-      vmovaps [rsp+0C8h+var_58], xmm8
-      vmovss  xmm7, dword ptr cs:s_sndWeapReflect.results.direction
-      vmovss  xmm8, dword ptr cs:s_sndWeapReflect.results.direction+4
-    }
+    v14 = DCONST_DVARFLT_snd_weapReflect_distantVoiceDistance;
+    v27 = v5;
+    v26 = v6;
+    v15 = s_sndWeapReflect.results[0].direction.v[0];
+    v16 = s_sndWeapReflect.results[0].direction.v[1];
     if ( !DCONST_DVARFLT_snd_weapReflect_distantVoiceDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_weapReflect_distantVoiceDistance") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+28h]
-      vmulss  xmm0, xmm7, xmm2
-      vaddss  xmm1, xmm0, dword ptr [r14]
-      vmulss  xmm2, xmm8, xmm2
-      vaddss  xmm0, xmm2, dword ptr [r14+4]
-      vmovss  xmm2, cs:__real@3f800000; pitch
-      vmovss  dword ptr [rsp+0C8h+var_78], xmm1
-      vmovss  xmm1, dword ptr [r14+8]
-      vmovss  dword ptr [rsp+0C8h+var_78+8], xmm1
-      vmovss  dword ptr [rsp+0C8h+var_78+4], xmm0
-    }
-    SND_WeapReflPlaySoundAliasImmediate(SND_WEAP_REFL_DIST, params, *(double *)&_XMM2, SND_WEAP_REFL_DIR_DIST_FRONT, 0, &soundPosition, &soundPosition, 0);
-    __asm
-    {
-      vmovaps xmm8, [rsp+0C8h+var_58]
-      vmovaps xmm7, [rsp+0C8h+var_48]
-    }
+    Dvar_CheckFrontendServerThread(v14);
+    value = v14->current.value;
+    v18 = (float)(v16 * value) + originPosition->v[1];
+    soundPosition.v[0] = (float)(v15 * value) + originPosition->v[0];
+    soundPosition.v[2] = originPosition->v[2];
+    soundPosition.v[1] = v18;
+    SND_WeapReflPlaySoundAliasImmediate(SND_WEAP_REFL_DIST, params, 1.0, SND_WEAP_REFL_DIR_DIST_FRONT, 0, &soundPosition, &soundPosition, 0);
   }
   if ( v12 )
   {
     params->weapReflDef = v12;
-    _RBX = DCONST_DVARFLT_snd_weapReflect_distantVoiceDistance;
+    v19 = DCONST_DVARFLT_snd_weapReflect_distantVoiceDistance;
     if ( !DCONST_DVARFLT_snd_weapReflect_distantVoiceDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_weapReflect_distantVoiceDistance") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm4, dword ptr cs:s_sndWeapReflect.results.direction+0C0h
-      vaddss  xmm2, xmm1, dword ptr [r14]
-      vmulss  xmm1, xmm4, dword ptr cs:s_sndWeapReflect.results.direction+0C4h
-      vaddss  xmm3, xmm1, dword ptr [r14+4]
-      vmulss  xmm1, xmm4, dword ptr cs:s_sndWeapReflect.results.direction+0C8h
-      vmovss  dword ptr [rsp+0C8h+var_78+4], xmm3
-      vaddss  xmm3, xmm1, dword ptr [r14+8]
-      vmovss  dword ptr [rsp+0C8h+var_78], xmm2
-      vmovss  xmm2, cs:__real@3f800000; pitch
-      vmovss  dword ptr [rsp+0C8h+var_78+8], xmm3
-    }
-    SND_WeapReflPlaySoundAliasImmediate(SND_WEAP_REFL_DIST, params, *(double *)&_XMM2, SND_WEAP_REFL_DIR_DIST_REAR, 0, &soundPosition, &soundPosition, 0);
+    Dvar_CheckFrontendServerThread(v19);
+    v20 = v19->current.value;
+    v21 = (float)(v20 * s_sndWeapReflect.results[4].direction.v[0]) + originPosition->v[0];
+    soundPosition.v[1] = (float)(v20 * s_sndWeapReflect.results[4].direction.v[1]) + originPosition->v[1];
+    v22 = (float)(v20 * s_sndWeapReflect.results[4].direction.v[2]) + originPosition->v[2];
+    soundPosition.v[0] = v21;
+    soundPosition.v[2] = v22;
+    SND_WeapReflPlaySoundAliasImmediate(SND_WEAP_REFL_DIST, params, 1.0, SND_WEAP_REFL_DIR_DIST_REAR, 0, &soundPosition, &soundPosition, 0);
   }
 }
 
@@ -1652,26 +1329,40 @@ SND_WeapReflectPlayExplosionSound
 void SND_WeapReflectPlayExplosionSound(const vec3_t *org, const unsigned int reflectionClass)
 {
   unsigned int CurrentWeapReflDefId; 
-  unsigned int v9; 
-  int *v63; 
-  __int64 v65; 
+  int v5; 
+  __int128 v6; 
+  __int128 v7; 
+  float v8; 
+  __int128 v9; 
+  float v10; 
+  int v12; 
+  __int128 v14; 
+  __int128 v17; 
+  __int128 v20; 
+  __int128 v23; 
+  __int128 v26; 
+  __int128 v29; 
+  int *i; 
+  __int64 v33; 
+  __int64 v34; 
+  SndWeapReflectCastResult *v35; 
+  const WeaponReflectionDef *WeapReflDefWithClass; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float distance; 
+  float v41; 
+  float Pitch; 
+  WeapReflectDistance v43; 
+  vec3_t *reflectionPosition; 
   SndWeapReflectPlaySound params; 
-  __int64 v93; 
-  ScopedCriticalSection v94; 
+  __int64 v46; 
+  ScopedCriticalSection v47; 
+  vec3_t soundPosition; 
   snd_listener outListener; 
-  int v97[4]; 
-  char v98; 
-  void *retaddr; 
+  int v50[4]; 
 
-  _RAX = &retaddr;
-  v93 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  _R12 = org;
+  v46 = -2i64;
   if ( s_sndWeapReflect.reflectionsEnabled )
   {
     SND_GetListener(LOCAL_CLIENT_0, &outListener);
@@ -1681,144 +1372,133 @@ void SND_WeapReflectPlayExplosionSound(const vec3_t *org, const unsigned int ref
       params.playerDef = SND_FindWeapReflDefWithClass(CurrentWeapReflDefId, reflectionClass);
       if ( params.playerDef )
       {
-        ScopedCriticalSection::ScopedCriticalSection(&v94, CRITSECT_SOUND_UPDATE, SCOPED_CRITSECT_NORMAL);
+        ScopedCriticalSection::ScopedCriticalSection(&v47, CRITSECT_SOUND_UPDATE, SCOPED_CRITSECT_NORMAL);
         params.isPlayer = 1;
-        v9 = 0;
+        v5 = 0;
         params.sfxPackage = NULL;
         params.shotCount = SND_WEAP_SHOT_UNCOUNTED;
         params.autoSimId = -1;
         params.autoSimTimeStamp = 0i64;
-        __asm
+        v7 = LODWORD(org->v[1]);
+        *(float *)&v7 = org->v[1] - outListener.orient.origin.v[1];
+        v6 = v7;
+        v9 = LODWORD(org->v[0]);
+        v8 = org->v[0] - outListener.orient.origin.v[0];
+        v10 = org->v[2] - outListener.orient.origin.v[2];
+        *(float *)&v9 = (float)((float)(v8 * s_sndWeapReflect.results[0].direction.v[0]) + (float)(*(float *)&v6 * s_sndWeapReflect.results[0].direction.v[1])) + (float)(v10 * s_sndWeapReflect.results[0].direction.v[2]);
+        _XMM4 = v9;
+        v12 = -1;
+        if ( *(float *)&v9 < 3.4028235e38 )
+          v12 = 0;
+        __asm { vminss  xmm5, xmm4, cs:__real@7f7fffff }
+        v14 = v6;
+        *(float *)&v14 = (float)((float)(*(float *)&v6 * s_sndWeapReflect.results[1].direction.v[1]) + (float)(v8 * s_sndWeapReflect.results[1].direction.v[0])) + (float)(v10 * s_sndWeapReflect.results[1].direction.v[2]);
+        _XMM3 = v14;
+        if ( *(float *)&_XMM5 > *(float *)&v14 )
+          v12 = 1;
+        __asm { vminss  xmm4, xmm3, xmm5 }
+        v17 = v6;
+        *(float *)&v17 = (float)((float)(*(float *)&v6 * s_sndWeapReflect.results[2].direction.v[1]) + (float)(v8 * s_sndWeapReflect.results[2].direction.v[0])) + (float)(v10 * s_sndWeapReflect.results[2].direction.v[2]);
+        _XMM3 = v17;
+        if ( *(float *)&_XMM4 > *(float *)&v17 )
+          v12 = 2;
+        __asm { vminss  xmm5, xmm3, xmm4 }
+        v20 = v6;
+        *(float *)&v20 = (float)((float)(*(float *)&v6 * s_sndWeapReflect.results[3].direction.v[1]) + (float)(v8 * s_sndWeapReflect.results[3].direction.v[0])) + (float)(v10 * s_sndWeapReflect.results[3].direction.v[2]);
+        _XMM3 = v20;
+        if ( *(float *)&_XMM5 > *(float *)&v20 )
+          v12 = 3;
+        __asm { vminss  xmm4, xmm3, xmm5 }
+        v23 = v6;
+        *(float *)&v23 = (float)((float)(*(float *)&v6 * s_sndWeapReflect.results[4].direction.v[1]) + (float)(v8 * s_sndWeapReflect.results[4].direction.v[0])) + (float)(v10 * s_sndWeapReflect.results[4].direction.v[2]);
+        _XMM3 = v23;
+        if ( *(float *)&_XMM4 > *(float *)&v23 )
+          v12 = 4;
+        __asm { vminss  xmm4, xmm3, xmm4 }
+        v26 = v6;
+        *(float *)&v26 = (float)((float)(*(float *)&v6 * s_sndWeapReflect.results[5].direction.v[1]) + (float)(v8 * s_sndWeapReflect.results[5].direction.v[0])) + (float)(v10 * s_sndWeapReflect.results[5].direction.v[2]);
+        _XMM3 = v26;
+        if ( *(float *)&_XMM4 > *(float *)&v26 )
+          v12 = 5;
+        __asm { vminss  xmm5, xmm3, xmm4 }
+        v29 = v6;
+        *(float *)&v29 = (float)((float)(*(float *)&v6 * s_sndWeapReflect.results[6].direction.v[1]) + (float)(v8 * s_sndWeapReflect.results[6].direction.v[0])) + (float)(v10 * s_sndWeapReflect.results[6].direction.v[2]);
+        _XMM4 = v29;
+        if ( *(float *)&_XMM5 > *(float *)&v29 )
+          v12 = 6;
+        v50[0] = v12;
+        __asm { vminss  xmm0, xmm4, xmm5 }
+        if ( (float)((float)((float)(*(float *)&v6 * s_sndWeapReflect.results[7].direction.v[1]) + (float)(v8 * s_sndWeapReflect.results[7].direction.v[0])) + (float)(v10 * s_sndWeapReflect.results[7].direction.v[2])) >= *(float *)&_XMM0 )
         {
-          vmovss  xmm0, dword ptr [r12+4]
-          vsubss  xmm8, xmm0, dword ptr [rbp+0A0h+outListener.orient.origin+4]
-          vmovss  xmm1, dword ptr [r12]
-          vsubss  xmm6, xmm1, dword ptr [rbp+0A0h+outListener.orient.origin]
-          vmovss  xmm0, dword ptr [r12+8]
-          vsubss  xmm7, xmm0, dword ptr [rbp+0A0h+outListener.orient.origin+8]
-          vmulss  xmm2, xmm6, dword ptr cs:s_sndWeapReflect.results.direction
-          vmulss  xmm1, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+4
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm7, dword ptr cs:s_sndWeapReflect.results.direction+8
-          vaddss  xmm4, xmm3, xmm0
-          vcomiss xmm4, cs:__real@7f7fffff
-          vminss  xmm5, xmm4, cs:__real@7f7fffff
-          vmulss  xmm1, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+34h
-          vmulss  xmm0, xmm6, dword ptr cs:s_sndWeapReflect.results.direction+30h
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm7, dword ptr cs:s_sndWeapReflect.results.direction+38h
-          vaddss  xmm3, xmm2, xmm1
-          vcomiss xmm5, xmm3
-          vminss  xmm4, xmm3, xmm5
-          vmulss  xmm1, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+64h
-          vmulss  xmm0, xmm6, dword ptr cs:s_sndWeapReflect.results.direction+60h
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm7, dword ptr cs:s_sndWeapReflect.results.direction+68h
-          vaddss  xmm3, xmm2, xmm1
-          vcomiss xmm4, xmm3
-          vminss  xmm5, xmm3, xmm4
-          vmulss  xmm1, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+94h
-          vmulss  xmm0, xmm6, dword ptr cs:s_sndWeapReflect.results.direction+90h
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm7, dword ptr cs:s_sndWeapReflect.results.direction+98h
-          vaddss  xmm3, xmm2, xmm1
-          vcomiss xmm5, xmm3
-          vminss  xmm4, xmm3, xmm5
-          vmulss  xmm1, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+0C4h
-          vmulss  xmm0, xmm6, dword ptr cs:s_sndWeapReflect.results.direction+0C0h
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm7, dword ptr cs:s_sndWeapReflect.results.direction+0C8h
-          vaddss  xmm3, xmm2, xmm1
-          vcomiss xmm4, xmm3
-          vminss  xmm4, xmm3, xmm4
-          vmulss  xmm1, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+0F4h
-          vmulss  xmm0, xmm6, dword ptr cs:s_sndWeapReflect.results.direction+0F0h
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm7, dword ptr cs:s_sndWeapReflect.results.direction+0F8h
-          vaddss  xmm3, xmm2, xmm1
-          vcomiss xmm4, xmm3
-          vminss  xmm5, xmm3, xmm4
-          vmulss  xmm1, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+124h
-          vmulss  xmm0, xmm6, dword ptr cs:s_sndWeapReflect.results.direction+120h
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm7, dword ptr cs:s_sndWeapReflect.results.direction+128h
-          vaddss  xmm4, xmm2, xmm1
-          vcomiss xmm5, xmm4
-        }
-        v97[0] = -1;
-        __asm
-        {
-          vmulss  xmm1, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+154h
-          vmulss  xmm0, xmm6, dword ptr cs:s_sndWeapReflect.results.direction+150h
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm7, dword ptr cs:s_sndWeapReflect.results.direction+158h
-          vaddss  xmm3, xmm2, xmm1
-          vminss  xmm0, xmm4, xmm5
-          vcomiss xmm3, xmm0
-        }
-        v97[1] = 0;
-        v97[2] = 4;
-        v63 = v97;
-        __asm { vmovss  xmm7, cs:__real@428ae38e }
-        do
-        {
-          v65 = *v63;
-          if ( (_DWORD)v65 != -1 )
+          if ( v12 == -1 )
           {
-            _RBX = &s_sndWeapReflect.results[v65];
-            _RDI = SND_FindWeapReflDefWithClass(_RBX->weapReflDefId, reflectionClass);
-            if ( !_RDI )
-              _RDI = params.playerDef;
-            params.weapReflDef = _RDI;
-            __asm
+LABEL_24:
+            v50[1] = 0;
+            v50[2] = 4;
+            for ( i = v50; ; ++i )
             {
-              vmovss  xmm0, dword ptr [r12]
-              vsubss  xmm3, xmm0, dword ptr [rbx]
-              vmovss  xmm1, dword ptr [r12+4]
-              vsubss  xmm2, xmm1, dword ptr [rbx+4]
-              vmovss  xmm0, dword ptr [r12+8]
-              vsubss  xmm4, xmm0, dword ptr [rbx+8]
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm2, xmm3, xmm0
-              vsqrtss xmm1, xmm2, xmm2
-              vmovss  xmm4, dword ptr [rbx+24h]
-              vaddss  xmm6, xmm4, xmm1
-              vmulss  xmm0, xmm6, dword ptr [rbx+0Ch]
-              vaddss  xmm1, xmm0, dword ptr [rbp+0A0h+outListener.orient.origin]
-              vmovss  dword ptr [rbp+0A0h+var_118], xmm1
-              vmulss  xmm0, xmm6, dword ptr [rbx+10h]
-              vaddss  xmm2, xmm0, dword ptr [rbp+0A0h+outListener.orient.origin+4]
-              vmovss  dword ptr [rbp+0A0h+var_118+4], xmm2
-              vmulss  xmm0, xmm6, dword ptr [rbx+14h]
-              vaddss  xmm2, xmm0, dword ptr [rbp+0A0h+outListener.orient.origin+8]
-              vmovss  dword ptr [rbp+0A0h+var_118+8], xmm2
-            }
-            params.surfaceIndex = _RBX->surfaceIndex;
-            __asm
-            {
-              vcomiss xmm4, dword ptr [rdi+30h]
-              vcomiss xmm4, dword ptr [rdi+34h]
-              vcomiss xmm4, dword ptr [rdi+38h]
+              v33 = *i;
+              if ( (_DWORD)v33 != -1 )
+              {
+                v34 = *i;
+                v35 = &s_sndWeapReflect.results[v33];
+                WeapReflDefWithClass = SND_FindWeapReflDefWithClass(v35->weapReflDefId, reflectionClass);
+                if ( !WeapReflDefWithClass )
+                  WeapReflDefWithClass = params.playerDef;
+                params.weapReflDef = WeapReflDefWithClass;
+                v37 = org->v[1] - v35->position.v[1];
+                v38 = org->v[2] - v35->position.v[2];
+                v39 = fsqrt((float)((float)(v37 * v37) + (float)((float)(org->v[0] - v35->position.v[0]) * (float)(org->v[0] - v35->position.v[0]))) + (float)(v38 * v38));
+                distance = v35->distance;
+                v41 = distance + v39;
+                soundPosition.v[0] = (float)((float)(distance + v39) * v35->direction.v[0]) + outListener.orient.origin.v[0];
+                soundPosition.v[1] = (float)((float)(distance + v39) * v35->direction.v[1]) + outListener.orient.origin.v[1];
+                soundPosition.v[2] = (float)((float)(distance + v39) * v35->direction.v[2]) + outListener.orient.origin.v[2];
+                params.surfaceIndex = v35->surfaceIndex;
+                if ( distance < WeapReflDefWithClass->closeMedThreshold )
+                {
+                  Pitch = SND_WeapReflectGetPitch(WeapReflDefWithClass, distance, SND_WEAP_REFL_CLOSE, 0);
+                  reflectionPosition = &v35->position;
+                  v43 = SND_WEAP_REFL_CLOSE;
+LABEL_34:
+                  SND_WeapReflectQueueSound(v43, &params, (int)(float)((float)(69.444443 / WeapReflDefWithClass->speedOfSound) * v41), Pitch, s_weapReflectDirNames[v34], &soundPosition, reflectionPosition, 0);
+                  goto LABEL_35;
+                }
+                if ( distance < WeapReflDefWithClass->medFarThreshold )
+                {
+                  Pitch = SND_WeapReflectGetPitch(WeapReflDefWithClass, distance, SND_WEAP_REFL_MEDIUM, 0);
+                  reflectionPosition = &v35->position;
+                  v43 = SND_WEAP_REFL_MEDIUM;
+                  goto LABEL_34;
+                }
+                if ( distance < WeapReflDefWithClass->farThreshold )
+                {
+                  Pitch = SND_WeapReflectGetPitch(WeapReflDefWithClass, distance, SND_WEAP_REFL_FAR, 0);
+                  reflectionPosition = &v35->position;
+                  v43 = SND_WEAP_REFL_FAR;
+                  goto LABEL_34;
+                }
+              }
+LABEL_35:
+              if ( (unsigned int)++v5 >= 3 )
+              {
+                SND_WeapReflectPlayDist(&params, org, &outListener.orient.origin, outListener.orient.axis.m, reflectionClass);
+                ScopedCriticalSection::~ScopedCriticalSection(&v47);
+                return;
+              }
             }
           }
-          ++v9;
-          ++v63;
         }
-        while ( v9 < 3 );
-        SND_WeapReflectPlayDist(&params, _R12, &outListener.orient.origin, outListener.orient.axis.m, reflectionClass);
-        ScopedCriticalSection::~ScopedCriticalSection(&v94);
+        else
+        {
+          v12 = 7;
+        }
+        if ( !s_weapReflectAngleDoExplosionReflection[v12] )
+          v12 = -1;
+        v50[0] = v12;
+        goto LABEL_24;
       }
     }
-  }
-  _R11 = &v98;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -1829,92 +1509,60 @@ SND_WeapReflectPlayNPCSound
 */
 void SND_WeapReflectPlayNPCSound(const unsigned __int64 sndEnt, const vec3_t *org, const WeaponSFXPackage *sfxPackage, const SndWeapShotCountId shotCount, const int autoSimId, const __int64 autoSimTimeStamp)
 {
+  NPCNewWeapReflRequest *v10; 
   SndEntState *EntState; 
-  const tmat33_t<vec3_t> *v14; 
-  float v15; 
-  float v16; 
-  int v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  __int64 v27[2]; 
-  ScopedCriticalSection v28; 
-  unsigned int v29; 
-  unsigned int v30; 
-  unsigned int v31; 
+  const tmat33_t<vec3_t> *v12; 
+  float v13; 
+  float v14; 
+  int v15; 
+  unsigned int v16; 
+  __int64 v17[2]; 
+  ScopedCriticalSection v18; 
+  unsigned int v19; 
+  unsigned int v20; 
+  unsigned int v21; 
   tmat33_t<vec3_t> out; 
 
-  v27[1] = -2i64;
-  _RDI = org;
+  v17[1] = -2i64;
   if ( s_sndWeapReflect.reflectionsEnabled )
   {
-    ScopedCriticalSection::ScopedCriticalSection(&v28, CRITSECT_SOUND_UPDATE, SCOPED_CRITSECT_NORMAL);
+    ScopedCriticalSection::ScopedCriticalSection(&v18, CRITSECT_SOUND_UPDATE, SCOPED_CRITSECT_NORMAL);
     if ( 64 - s_npcNewPlayRequest.bufcount >= 1 )
     {
-      _RBX = &s_npcNewPlayRequest.buffer[s_npcNewPlayRequest.writePos];
-      _RBX->sfxPackage = sfxPackage;
-      _RBX->shotCount = shotCount;
-      _RBX->autoSimId = autoSimId;
-      _RBX->autoSimTimeStamp = autoSimTimeStamp;
-      _RBX->org.v[0] = _RDI->v[0];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+4]
-        vmovss  dword ptr [rbx+4], xmm0
-        vmovss  xmm1, dword ptr [rdi+8]
-        vmovss  dword ptr [rbx+8], xmm1
-      }
+      v10 = &s_npcNewPlayRequest.buffer[s_npcNewPlayRequest.writePos];
+      v10->sfxPackage = sfxPackage;
+      v10->shotCount = shotCount;
+      v10->autoSimId = autoSimId;
+      v10->autoSimTimeStamp = autoSimTimeStamp;
+      v10->org.v[0] = org->v[0];
+      v10->org.v[1] = org->v[1];
+      v10->org.v[2] = org->v[2];
       EntState = SND_FindEntState(sndEnt, 0);
-      v14 = (const tmat33_t<vec3_t> *)EntState;
+      v12 = (const tmat33_t<vec3_t> *)EntState;
       if ( EntState )
       {
         if ( EntState->hasPosition )
         {
-          v27[0] = (__int64)&v29;
-          v15 = EntState->origin.origin.v[0];
-          v16 = EntState->origin.origin.v[2];
-          LOBYTE(v23) = (unsigned int)((_DWORD)EntState + 108) >> 24;
-          *(_WORD *)((char *)&v23 + 1) = (_WORD)EntState + 108;
-          HIBYTE(v23) = (unsigned int)((_DWORD)EntState + 108) >> 16;
-          v31 = LODWORD(v16) ^ LODWORD(EntState->origin.origin.v[1]) ^ v23 ^ s_soundorg_aab_Z;
-          v29 = s_soundorg_aab_X ^ LODWORD(v15) ^ LODWORD(v16) ^ v23;
-          v30 = LODWORD(v15) ^ v23 ^ ~s_soundorg_aab_Y;
-          memset(v27, 0, 8ui64);
-          __asm
+          v17[0] = (__int64)&v19;
+          v13 = EntState->origin.origin.v[0];
+          v14 = EntState->origin.origin.v[2];
+          LOBYTE(v15) = (unsigned int)((_DWORD)EntState + 108) >> 24;
+          *(_WORD *)((char *)&v15 + 1) = (_WORD)EntState + 108;
+          HIBYTE(v15) = (unsigned int)((_DWORD)EntState + 108) >> 16;
+          v21 = LODWORD(v14) ^ LODWORD(EntState->origin.origin.v[1]) ^ v15 ^ s_soundorg_aab_Z;
+          v20 = LODWORD(v13) ^ v15 ^ ~s_soundorg_aab_Y;
+          memset(v17, 0, 8ui64);
+          v16 = s_soundorg_aab_X ^ LODWORD(v13) ^ LODWORD(v14) ^ v15;
+          v19 = v16;
+          if ( (v16 & 0x7F800000) == 2139095040 || (v16 = v20, (v20 & 0x7F800000) == 2139095040) || (v16 = v21, (v21 & 0x7F800000) == 2139095040) )
           {
-            vmovss  xmm0, [rsp+0C8h+var_68]
-            vmovss  [rsp+0C8h+var_98], xmm0
-          }
-          if ( (v24 & 0x7F800000) == 2139095040 )
-            goto LABEL_20;
-          __asm
-          {
-            vmovss  xmm0, [rsp+0C8h+var_64]
-            vmovss  [rsp+0C8h+var_98], xmm0
-          }
-          if ( (v25 & 0x7F800000) == 2139095040 )
-            goto LABEL_20;
-          __asm
-          {
-            vmovss  xmm0, [rsp+0C8h+var_60]
-            vmovss  [rsp+0C8h+var_98], xmm0
-          }
-          if ( (v26 & 0x7F800000) == 2139095040 )
-          {
-LABEL_20:
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd.h", 868, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd.h", 868, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )", v16, &EntState->origin) )
               __debugbreak();
           }
-          AxisCopy(v14 + 2, &out);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+0C8h+out]
-            vmovss  dword ptr [rbx+0Ch], xmm0
-            vmovss  xmm1, dword ptr [rsp+0C8h+out+4]
-            vmovss  dword ptr [rbx+10h], xmm1
-            vmovss  xmm0, dword ptr [rsp+0C8h+out+8]
-            vmovss  dword ptr [rbx+14h], xmm0
-          }
+          AxisCopy(v12 + 2, &out);
+          v10->orientation.v[0] = out.m[0].v[0];
+          v10->orientation.v[1] = out.m[0].v[1];
+          v10->orientation.v[2] = out.m[0].v[2];
           if ( 64 - s_npcNewPlayRequest.bufcount < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 90, ASSERT_TYPE_ASSERT, "(CanWrite())", (const char *)&queryFormat, "CanWrite()") )
             __debugbreak();
           s_npcNewPlayRequest.writePos = (LOBYTE(s_npcNewPlayRequest.writePos) + 1) & 0x3F;
@@ -1924,7 +1572,7 @@ LABEL_20:
         }
       }
     }
-    ScopedCriticalSection::~ScopedCriticalSection(&v28);
+    ScopedCriticalSection::~ScopedCriticalSection(&v18);
   }
 }
 
@@ -1935,109 +1583,112 @@ SND_WeapReflectPlayPlayerSound
 */
 void SND_WeapReflectPlayPlayerSound(const unsigned __int64 sndEnt, const vec3_t *org, const WeaponSFXPackage *sfxPackage, const SndWeapShotCountId shotCount, const int autoSimId, const __int64 autoSimTimeStamp)
 {
-  unsigned int v11; 
+  unsigned int v8; 
   unsigned int CurrentWeapReflDefId; 
+  __int64 v10; 
+  float *p_distance; 
+  __int64 v12; 
   __int64 v13; 
-  __int64 v15; 
-  __int64 v16; 
-  __int64 v17; 
+  __int64 v14; 
+  const WeaponReflectionDef *WeapReflDefWithClass; 
+  float Pitch; 
+  SndWeapReflectCastResult *soundPosition; 
+  const WeaponReflectionDef *playerDef; 
+  float distance; 
+  float v20; 
+  WeapReflectDistance v21; 
   SndWeapReflectPlaySound params; 
   vec3_t *originPosition; 
-  __int64 v30; 
-  ScopedCriticalSection v31; 
+  __int64 v24; 
+  ScopedCriticalSection v25; 
   snd_listener outListener; 
-  __int64 v33; 
-  char v34; 
-  void *retaddr; 
+  __int64 v27; 
 
-  _RAX = &retaddr;
-  v30 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
+  v24 = -2i64;
   originPosition = (vec3_t *)org;
   if ( s_sndWeapReflect.reflectionsEnabled )
   {
     SND_GetListener(LOCAL_CLIENT_0, &outListener);
     if ( outListener.active )
     {
-      v11 = SND_HashName(sfxPackage->szWeapSndReflectionClass);
+      v8 = SND_HashName(sfxPackage->szWeapSndReflectionClass);
       CurrentWeapReflDefId = CG_GetCurrentWeapReflDefId();
-      params.playerDef = SND_FindWeapReflDefWithClass(CurrentWeapReflDefId, v11);
+      params.playerDef = SND_FindWeapReflDefWithClass(CurrentWeapReflDefId, v8);
       if ( params.playerDef )
       {
-        ScopedCriticalSection::ScopedCriticalSection(&v31, CRITSECT_SOUND_UPDATE, SCOPED_CRITSECT_NORMAL);
+        ScopedCriticalSection::ScopedCriticalSection(&v25, CRITSECT_SOUND_UPDATE, SCOPED_CRITSECT_NORMAL);
         params.isPlayer = 1;
         params.sfxPackage = sfxPackage;
         params.shotCount = shotCount;
         params.autoSimId = autoSimId;
         params.autoSimTimeStamp = autoSimTimeStamp;
-        v13 = 0i64;
-        v33 = 0i64;
-        _RBX = &s_sndWeapReflect.soundClipResults[0].distance;
-        v15 = 0i64;
-        v16 = 8i64;
-        v17 = 8i64;
-        __asm
-        {
-          vmovss  xmm6, cs:__real@40000000
-          vmovss  xmm7, cs:__real@428ae38e
-        }
+        v10 = 0i64;
+        v27 = 0i64;
+        p_distance = &s_sndWeapReflect.soundClipResults[0].distance;
+        v12 = 0i64;
+        v13 = 8i64;
+        v14 = 8i64;
         do
         {
-          if ( s_weapReflectAngleDoSoundClip[v15] )
+          if ( s_weapReflectAngleDoSoundClip[v12] )
           {
-            _RDI = SND_FindWeapReflDefWithClass(*((_DWORD *)_RBX + 2), v11);
-            if ( !_RDI )
-              _RDI = params.playerDef;
-            params.weapReflDef = _RDI;
-            params.surfaceIndex = (int)_RBX[1];
-            __asm
+            WeapReflDefWithClass = SND_FindWeapReflDefWithClass(*((_DWORD *)p_distance + 2), v8);
+            if ( !WeapReflDefWithClass )
+              WeapReflDefWithClass = params.playerDef;
+            params.weapReflDef = WeapReflDefWithClass;
+            params.surfaceIndex = (int)p_distance[1];
+            if ( *p_distance < WeapReflDefWithClass->closeMedThreshold )
             {
-              vmovss  xmm1, dword ptr [rbx]; distance
-              vcomiss xmm1, dword ptr [rdi+30h]
+              Pitch = SND_WeapReflectGetPitch(WeapReflDefWithClass, *p_distance, SND_WEAP_REFL_CLOSE, 0);
+              SND_WeapReflectQueueSound(SND_WEAP_REFL_CLOSE, &params, (int)(float)((float)(69.444443 / WeapReflDefWithClass->speedOfSound) * (float)(2.0 * *p_distance)), Pitch, s_weapReflectDirNames[v12], (const vec3_t *)p_distance - 3, (const vec3_t *)p_distance - 3, 0);
+              *((_BYTE *)&v27 + v12) = 1;
             }
           }
-          ++v15;
-          _RBX += 12;
-          --v17;
+          ++v12;
+          p_distance += 12;
+          --v14;
         }
-        while ( v17 );
-        _RDI = s_sndWeapReflect.results;
-        do
+        while ( v14 );
+        for ( soundPosition = s_sndWeapReflect.results; ; ++soundPosition )
         {
-          if ( !*((_BYTE *)&v33 + v13) && s_weapReflectAngleDoWeaponReflection[v13] )
+          if ( *((_BYTE *)&v27 + v10) || !s_weapReflectAngleDoWeaponReflection[v10] )
+            goto LABEL_23;
+          playerDef = SND_FindWeapReflDefWithClass(soundPosition->weapReflDefId, v8);
+          if ( !playerDef )
+            playerDef = params.playerDef;
+          params.weapReflDef = playerDef;
+          params.surfaceIndex = soundPosition->surfaceIndex;
+          distance = soundPosition->distance;
+          if ( distance < playerDef->closeMedThreshold )
+            break;
+          if ( distance < playerDef->medFarThreshold )
           {
-            _RBX = SND_FindWeapReflDefWithClass(_RDI->weapReflDefId, v11);
-            if ( !_RBX )
-              _RBX = params.playerDef;
-            params.weapReflDef = _RBX;
-            params.surfaceIndex = _RDI->surfaceIndex;
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rdi+24h]; distance
-              vcomiss xmm1, dword ptr [rbx+30h]
-              vcomiss xmm1, dword ptr [rbx+34h]
-              vcomiss xmm1, dword ptr [rbx+38h]
-            }
+            v20 = SND_WeapReflectGetPitch(playerDef, distance, SND_WEAP_REFL_MEDIUM, 0);
+            v21 = SND_WEAP_REFL_MEDIUM;
+            goto LABEL_22;
           }
-          ++v13;
-          ++_RDI;
-          --v16;
+          if ( distance < playerDef->farThreshold )
+          {
+            v20 = SND_WeapReflectGetPitch(playerDef, distance, SND_WEAP_REFL_FAR, 0);
+            v21 = SND_WEAP_REFL_FAR;
+            goto LABEL_22;
+          }
+LABEL_23:
+          ++v10;
+          if ( !--v13 )
+          {
+            SND_WeapReflectPlayDist(&params, originPosition, &outListener.orient.origin, outListener.orient.axis.m, v8);
+            ScopedCriticalSection::~ScopedCriticalSection(&v25);
+            return;
+          }
         }
-        while ( v16 );
-        SND_WeapReflectPlayDist(&params, originPosition, &outListener.orient.origin, outListener.orient.axis.m, v11);
-        ScopedCriticalSection::~ScopedCriticalSection(&v31);
+        v20 = SND_WeapReflectGetPitch(playerDef, distance, SND_WEAP_REFL_CLOSE, 0);
+        v21 = SND_WEAP_REFL_CLOSE;
+LABEL_22:
+        SND_WeapReflectQueueSound(v21, &params, (int)(float)((float)(69.444443 / playerDef->speedOfSound) * (float)(2.0 * soundPosition->distance)), v20, s_weapReflectDirNames[v10], &soundPosition->position, &soundPosition->position, 0);
+        goto LABEL_23;
       }
     }
-  }
-  _R11 = &v34;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -2049,217 +1700,208 @@ SND_WeapReflectPlayQueuedNPCSound
 void SND_WeapReflectPlayQueuedNPCSound(const vec3_t *org, const vec3_t *orientation, const vec3_t *listenerPos, const WeaponSFXPackage *sfxPackage, const SndWeapShotCountId shotCount, const int autoSimId, const __int64 autoSimTimeStamp, const SndWeapReflectCastResult *castResult)
 {
   const char *szWeapSndReflectionClass; 
-  int v19; 
-  int v22; 
-  char v23; 
-  unsigned int v24; 
-  char v25; 
+  int v9; 
+  int v13; 
+  char v14; 
+  unsigned int v15; 
+  char v16; 
   unsigned int CurrentWeapReflDefId; 
+  __int128 v18; 
+  __int128 v19; 
+  float v20; 
+  float v21; 
+  __int128 v24; 
+  __int128 v26; 
+  __int128 v27; 
+  __int128 v28; 
+  __int128 v29; 
+  __int128 v31; 
+  __int128 v33; 
+  __int128 v34; 
+  __int128 v35; 
+  __int128 v36; 
+  __int128 v38; 
+  __int128 v39; 
+  __int128 v40; 
+  __int128 v41; 
+  __int128 v42; 
+  __int128 v44; 
+  __int128 v45; 
+  __int128 v46; 
+  __int128 v47; 
+  __int128 v48; 
+  __int128 v50; 
+  __int128 v53; 
+  int v55; 
+  int v58; 
+  int v61; 
+  int v62; 
+  int v64; 
+  int v65; 
+  int v66; 
   const WeaponReflectionDef *WeapReflDefWithClass; 
-  const WeaponReflectionDef *v28; 
-  bool v80; 
-  int v81; 
-  int v84; 
-  int v88; 
-  int v90; 
-  int v95; 
-  int v99; 
-  int v100; 
-  const WeaponReflectionDef *v102; 
+  float v68; 
+  float v69; 
+  float v70; 
+  const WeaponReflectionDef *playerDef; 
+  float v72; 
+  bool v73; 
+  float v74; 
+  float Pitch; 
+  WeapReflectDistance v76; 
+  float v77; 
+  SndWeapReflectPlaySound params; 
 
   szWeapSndReflectionClass = sfxPackage->szWeapSndReflectionClass;
-  v19 = 0;
-  _RDI = castResult;
-  _R12 = orientation;
-  v22 = 1;
-  if ( szWeapSndReflectionClass && (v23 = *szWeapSndReflectionClass) != 0 )
+  v9 = 0;
+  v13 = 1;
+  if ( szWeapSndReflectionClass && (v14 = *szWeapSndReflectionClass) != 0 )
   {
-    v24 = 5381;
+    v15 = 5381;
     do
     {
       ++szWeapSndReflectionClass;
-      v25 = v23 | 0x20;
-      if ( (unsigned int)(v23 - 65) >= 0x1A )
-        v25 = v23;
-      v24 = 65599 * v24 + v25;
-      v23 = *szWeapSndReflectionClass;
+      v16 = v14 | 0x20;
+      if ( (unsigned int)(v14 - 65) >= 0x1A )
+        v16 = v14;
+      v15 = 65599 * v15 + v16;
+      v14 = *szWeapSndReflectionClass;
     }
     while ( *szWeapSndReflectionClass );
-    if ( !v24 )
-      v24 = 1;
+    if ( !v15 )
+      v15 = 1;
   }
   else
   {
-    v24 = 0;
+    v15 = 0;
   }
   CurrentWeapReflDefId = CG_GetCurrentWeapReflDefId();
-  WeapReflDefWithClass = SND_FindWeapReflDefWithClass(CurrentWeapReflDefId, v24);
-  v28 = WeapReflDefWithClass;
-  if ( WeapReflDefWithClass )
+  params.playerDef = SND_FindWeapReflDefWithClass(CurrentWeapReflDefId, v15);
+  if ( params.playerDef )
   {
+    v18 = LODWORD(orientation->v[1]);
+    v19 = v18;
+    v20 = orientation->v[0];
+    v21 = orientation->v[2];
+    *(float *)&v19 = (float)((float)(*(float *)&v18 * s_sndWeapReflect.results[0].direction.v[1]) + (float)(orientation->v[0] * s_sndWeapReflect.results[0].direction.v[0])) + (float)(v21 * s_sndWeapReflect.results[0].direction.v[2]);
+    _XMM1 = v19;
+    __asm { vmaxss  xmm3, xmm1, xmm0 }
+    v24 = v18;
+    *(float *)&v24 = (float)((float)(*(float *)&v18 * s_sndWeapReflect.results[1].direction.v[1]) + (float)(orientation->v[0] * s_sndWeapReflect.results[1].direction.v[0])) + (float)(v21 * s_sndWeapReflect.results[1].direction.v[2]);
+    _XMM0 = v24;
+    __asm { vmaxss  xmm4, xmm0, xmm3 }
+    v77 = *(float *)&_XMM3;
+    v26 = v18;
+    *(float *)&v26 = (float)(*(float *)&v18 * s_sndWeapReflect.results[2].direction.v[1]) + (float)(orientation->v[0] * s_sndWeapReflect.results[2].direction.v[0]);
+    v27 = v26;
+    v29 = v18;
+    *(float *)&v29 = *(float *)&v18 * s_sndWeapReflect.results[3].direction.v[1];
+    v28 = v29;
+    params.shotCount = shotCount;
+    params.isPlayer = 0;
+    params.autoSimId = autoSimId;
+    v31 = v27;
+    *(float *)&v31 = *(float *)&v27 + (float)(v21 * s_sndWeapReflect.results[2].direction.v[2]);
+    _XMM15 = v31;
+    __asm { vmaxss  xmm5, xmm15, xmm4 }
+    v34 = v28;
+    *(float *)&v34 = *(float *)&v28 + (float)(v20 * s_sndWeapReflect.results[3].direction.v[0]);
+    v33 = v34;
+    v36 = v18;
+    *(float *)&v36 = *(float *)&v18 * s_sndWeapReflect.results[4].direction.v[1];
+    v35 = v36;
+    v38 = v33;
+    *(float *)&v38 = *(float *)&v33 + (float)(v21 * s_sndWeapReflect.results[3].direction.v[2]);
+    _XMM13 = v38;
+    v40 = v35;
+    *(float *)&v40 = *(float *)&v35 + (float)(v20 * s_sndWeapReflect.results[4].direction.v[0]);
+    v39 = v40;
+    v42 = v18;
+    *(float *)&v42 = *(float *)&v18 * s_sndWeapReflect.results[5].direction.v[1];
+    v41 = v42;
+    v44 = v39;
+    *(float *)&v44 = *(float *)&v39 + (float)(v21 * s_sndWeapReflect.results[4].direction.v[2]);
+    _XMM9 = v44;
+    v46 = v41;
+    *(float *)&v46 = *(float *)&v41 + (float)(v20 * s_sndWeapReflect.results[5].direction.v[0]);
+    v45 = v46;
+    v48 = v18;
+    *(float *)&v48 = *(float *)&v18 * s_sndWeapReflect.results[6].direction.v[1];
+    v47 = v48;
+    v50 = v45;
+    *(float *)&v50 = *(float *)&v45 + (float)(v21 * s_sndWeapReflect.results[5].direction.v[2]);
+    _XMM6 = v50;
+    v53 = v47;
+    __asm { vmaxss  xmm14, xmm13, xmm5 }
+    *(float *)&v53 = (float)(*(float *)&v47 + (float)(v20 * s_sndWeapReflect.results[6].direction.v[0])) + (float)(v21 * s_sndWeapReflect.results[6].direction.v[2]);
+    _XMM5 = v53;
+    _XMM0 = (unsigned int)_XMM0;
+    LOBYTE(v9) = (float)((float)((float)(*(float *)&v18 * s_sndWeapReflect.results[0].direction.v[1]) + (float)(v20 * s_sndWeapReflect.results[0].direction.v[0])) + (float)(v21 * s_sndWeapReflect.results[0].direction.v[2])) > 0.0;
+    params.autoSimTimeStamp = autoSimTimeStamp;
+    v55 = v9 - 1;
+    params.sfxPackage = sfxPackage;
     __asm
     {
-      vmovaps [rsp+148h+var_38], xmm6
-      vmovaps [rsp+148h+var_48], xmm7
-      vmovaps [rsp+148h+var_58], xmm8
-      vmovss  xmm8, dword ptr [r12+4]
-      vmulss  xmm1, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+4
-      vmovaps [rsp+148h+var_68], xmm9
-      vmovaps [rsp+148h+var_78], xmm10
-      vmovss  xmm10, dword ptr [r12]
-      vmulss  xmm0, xmm10, dword ptr cs:s_sndWeapReflect.results.direction
-      vaddss  xmm2, xmm1, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vmovaps [rsp+148h+var_88], xmm11
-      vmovaps [rsp+148h+var_98], xmm12
-      vmovss  xmm12, dword ptr [r12+8]
-      vmulss  xmm1, xmm12, dword ptr cs:s_sndWeapReflect.results.direction+8
-      vaddss  xmm1, xmm2, xmm1
-      vmaxss  xmm3, xmm1, xmm0
-      vmulss  xmm0, xmm10, dword ptr cs:s_sndWeapReflect.results.direction+30h
-      vmovss  [rsp+148h+var_108], xmm1
-      vmulss  xmm1, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+34h
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm12, dword ptr cs:s_sndWeapReflect.results.direction+38h
-      vaddss  xmm0, xmm2, xmm1
-      vmulss  xmm1, xmm12, dword ptr cs:s_sndWeapReflect.results.direction+68h
-      vmaxss  xmm4, xmm0, xmm3
-      vmovss  [rsp+148h+var_100], xmm3
-      vmulss  xmm3, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+64h
-      vmovss  [rsp+148h+var_104], xmm0
-      vmulss  xmm0, xmm10, dword ptr cs:s_sndWeapReflect.results.direction+60h
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm3, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+94h
-      vmulss  xmm0, xmm10, dword ptr cs:s_sndWeapReflect.results.direction+90h
-      vmovaps [rsp+148h+var_A8], xmm13
-      vmovaps [rsp+148h+var_B8], xmm14
-      vmovaps [rsp+148h+var_C8], xmm15
-      vaddss  xmm15, xmm2, xmm1
-      vmulss  xmm2, xmm12, dword ptr cs:s_sndWeapReflect.results.direction+98h
-      vmulss  xmm1, xmm12, dword ptr cs:s_sndWeapReflect.results.direction+0C8h
-      vmaxss  xmm5, xmm15, xmm4
-      vaddss  xmm4, xmm3, xmm0
-      vmulss  xmm3, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+0C4h
-      vmulss  xmm0, xmm12, dword ptr cs:s_sndWeapReflect.results.direction+158h
-      vaddss  xmm13, xmm4, xmm2
-      vmulss  xmm2, xmm10, dword ptr cs:s_sndWeapReflect.results.direction+0C0h
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm3, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+0F4h
-      vmulss  xmm2, xmm10, dword ptr cs:s_sndWeapReflect.results.direction+0F0h
-      vaddss  xmm9, xmm4, xmm1
-      vmulss  xmm1, xmm12, dword ptr cs:s_sndWeapReflect.results.direction+0F8h
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm3, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+124h
-      vmulss  xmm2, xmm10, dword ptr cs:s_sndWeapReflect.results.direction+120h
-      vaddss  xmm6, xmm4, xmm1
-      vmulss  xmm1, xmm12, dword ptr cs:s_sndWeapReflect.results.direction+128h
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm3, xmm8, dword ptr cs:s_sndWeapReflect.results.direction+154h
-      vmovss  xmm2, [rsp+148h+var_108]
-      vmaxss  xmm14, xmm13, xmm5
-      vaddss  xmm5, xmm4, xmm1
-      vmulss  xmm1, xmm10, dword ptr cs:s_sndWeapReflect.results.direction+150h
-      vaddss  xmm4, xmm3, xmm1
-      vaddss  xmm3, xmm4, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm2, xmm0
-      vmovss  xmm0, [rsp+148h+var_104]
-    }
-    LOBYTE(v19) = WeapReflDefWithClass != NULL;
-    v80 = v19 == 1;
-    v81 = v19 - 1;
-    __asm
-    {
-      vcomiss xmm0, [rsp+148h+var_100]
       vmaxss  xmm11, xmm9, xmm14
       vmaxss  xmm7, xmm6, xmm11
     }
-    if ( v80 )
-      v22 = v81;
-    v84 = 2;
+    if ( *(float *)&_XMM0 <= v77 )
+      v13 = v55;
+    v58 = 2;
     __asm
     {
       vmaxss  xmm1, xmm5, xmm7
       vmaxss  xmm2, xmm0, [rsp+148h+var_100]
-      vmovaps xmm12, [rsp+148h+var_98]
     }
-    v88 = 3;
-    __asm { vmovaps xmm10, [rsp+148h+var_78] }
-    v90 = 7;
-    __asm
+    v61 = 3;
+    v62 = 7;
+    __asm { vmaxss  xmm0, xmm15, xmm2 }
+    if ( *(float *)&_XMM15 <= *(float *)&_XMM2 )
+      v58 = v13;
+    if ( *(float *)&_XMM13 <= *(float *)&_XMM0 )
+      v61 = v58;
+    v64 = 4;
+    if ( *(float *)&_XMM9 <= *(float *)&_XMM14 )
+      v64 = v61;
+    v65 = 5;
+    if ( *(float *)&_XMM6 <= *(float *)&_XMM11 )
+      v65 = v64;
+    v66 = 6;
+    if ( *(float *)&v53 <= *(float *)&_XMM7 )
+      v66 = v65;
+    if ( (float)((float)((float)(*(float *)&v18 * s_sndWeapReflect.results[7].direction.v[1]) + (float)(v20 * s_sndWeapReflect.results[7].direction.v[0])) + (float)(v21 * s_sndWeapReflect.results[7].direction.v[2])) <= *(float *)&_XMM1 )
+      v62 = v66;
+    if ( v62 >= 0 )
     {
-      vmovaps xmm8, [rsp+148h+var_58]
-      vcomiss xmm15, xmm2
-      vmaxss  xmm0, xmm15, xmm2
-      vmovaps xmm15, [rsp+148h+var_C8]
-    }
-    if ( v80 )
-      v84 = v22;
-    __asm
-    {
-      vcomiss xmm13, xmm0
-      vmovaps xmm13, [rsp+148h+var_A8]
-    }
-    if ( v80 )
-      v88 = v84;
-    v95 = 4;
-    __asm
-    {
-      vcomiss xmm9, xmm14
-      vmovaps xmm14, [rsp+148h+var_B8]
-      vmovaps xmm9, [rsp+148h+var_68]
-    }
-    if ( v80 )
-      v95 = v88;
-    __asm
-    {
-      vcomiss xmm6, xmm11
-      vmovaps xmm11, [rsp+148h+var_88]
-    }
-    v99 = 5;
-    if ( v80 )
-      v99 = v95;
-    v100 = 6;
-    __asm
-    {
-      vcomiss xmm5, xmm7
-      vmovaps xmm7, [rsp+148h+var_48]
-    }
-    if ( v80 )
-      v100 = v99;
-    __asm { vcomiss xmm3, xmm1 }
-    if ( v80 )
-      v90 = v100;
-    if ( v90 >= 0 )
-    {
-      v102 = SND_FindWeapReflDefWithClass(castResult->weapReflDefId, v24);
-      __asm
+      WeapReflDefWithClass = SND_FindWeapReflDefWithClass(castResult->weapReflDefId, v15);
+      v68 = castResult->position.v[1] - listenerPos->v[1];
+      v69 = castResult->position.v[2] - listenerPos->v[2];
+      v70 = (float)(v68 * v68) + (float)((float)(castResult->position.v[0] - listenerPos->v[0]) * (float)(castResult->position.v[0] - listenerPos->v[0]));
+      playerDef = WeapReflDefWithClass;
+      params.surfaceIndex = castResult->surfaceIndex;
+      if ( !WeapReflDefWithClass )
+        playerDef = params.playerDef;
+      v72 = fsqrt(v70 + (float)(v69 * v69));
+      v73 = v72 < playerDef->npcCloseMedThreshold;
+      v74 = v72 + castResult->distance;
+      params.weapReflDef = playerDef;
+      if ( !v73 )
       {
-        vmovss  xmm0, dword ptr [rdi]
-        vsubss  xmm3, xmm0, dword ptr [rbp+0]
-        vmovss  xmm1, dword ptr [rdi+4]
-        vsubss  xmm2, xmm1, dword ptr [rbp+4]
-        vmovss  xmm0, dword ptr [rdi+8]
-        vsubss  xmm4, xmm0, dword ptr [rbp+8]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-      }
-      _RBX = v102;
-      if ( !v102 )
-        _RBX = v28;
-      __asm
-      {
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm1, xmm2, xmm2; distance
-        vcomiss xmm1, dword ptr [rbx+3Ch]
-        vaddss  xmm6, xmm1, dword ptr [rdi+24h]
-        vcomiss xmm1, dword ptr [rbx+40h]
-        vcomiss xmm1, dword ptr [rbx+44h]
+        if ( v72 >= playerDef->npcMedFarThreshold )
+        {
+          if ( v72 >= playerDef->npcFarThreshold )
+            return;
+          Pitch = SND_WeapReflectGetPitch(playerDef, v72, SND_WEAP_REFL_FAR, 1);
+          v76 = SND_WEAP_REFL_FAR;
+        }
+        else
+        {
+          Pitch = SND_WeapReflectGetPitch(playerDef, v72, SND_WEAP_REFL_MEDIUM, 1);
+          v76 = SND_WEAP_REFL_MEDIUM;
+        }
+        SND_WeapReflectQueueSound(v76, &params, (int)(float)((float)(69.444443 / playerDef->speedOfSound) * v74), Pitch, s_weapReflectDirNames[v62], &castResult->position, &castResult->position, 1);
       }
     }
-    __asm { vmovaps xmm6, [rsp+148h+var_38] }
   }
 }
 
@@ -2268,114 +1910,100 @@ void SND_WeapReflectPlayQueuedNPCSound(const vec3_t *org, const vec3_t *orientat
 SND_WeapReflectQueueSound
 ==============
 */
-
-void __fastcall SND_WeapReflectQueueSound(const WeapReflectDistance distanceType, const SndWeapReflectPlaySound *params, const int timeUS, double pitch, const WeapReflDir direction, const vec3_t *soundPosition, const vec3_t *reflectionPosition, const bool enableOcclusion)
+void SND_WeapReflectQueueSound(const WeapReflectDistance distanceType, const SndWeapReflectPlaySound *params, const int timeUS, const float pitch, const WeapReflDir direction, const vec3_t *soundPosition, const vec3_t *reflectionPosition, const bool enableOcclusion)
 {
-  __int64 v12; 
-  int v16; 
-  int v17; 
-  int v18; 
-  SndWeapReflDelayedSound *v20; 
+  const dvar_t *v8; 
+  __int64 v11; 
+  int value; 
+  int v13; 
+  int v14; 
+  int v15; 
+  SndWeapReflDelayedSound *v16; 
+  float sideVol; 
+  float sideEq; 
+  const WeaponReflectionDef *v19; 
+  const WeaponReflectionDef *weapReflDef; 
+  const WeaponReflectionDef *v21; 
+  __int64 v22; 
 
-  _RDI = DCONST_DVARFLT_snd_autoSim_predictWindowMs;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v12 = timeUS;
-  __asm { vmovaps xmm6, xmm3 }
+  v8 = DCONST_DVARFLT_snd_autoSim_predictWindowMs;
+  v11 = timeUS;
   if ( !DCONST_DVARFLT_snd_autoSim_predictWindowMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_autoSim_predictWindowMs") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vcvttss2si edi, dword ptr [rdi+28h] }
+  Dvar_CheckFrontendServerThread(v8);
+  value = (int)v8->current.value;
   if ( (unsigned int)(distanceType - 1) > 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 692, ASSERT_TYPE_ASSERT, "(distanceType > SND_WEAP_REFL_NONE && distanceType < SND_WEAP_REFL_MAX)", (const char *)&queryFormat, "distanceType > SND_WEAP_REFL_NONE && distanceType < SND_WEAP_REFL_MAX") )
     __debugbreak();
-  if ( (int)v12 >= 1000 * _EDI || params->autoSimId == -1 )
+  if ( (int)v11 >= 1000 * value || params->autoSimId == -1 )
   {
-    v16 = 0;
-    v17 = g_snd.time + (int)v12 / 1000;
+    v13 = 0;
+    v14 = g_snd.time + (int)v11 / 1000;
     if ( params->autoSimId != -1 )
     {
-      v18 = v17 - _EDI;
-      v17 = 0;
-      if ( v18 > 0 )
-        v17 = v18;
+      v15 = v14 - value;
+      v14 = 0;
+      if ( v15 > 0 )
+        v14 = v15;
     }
-    _R10 = s_sndDelayed;
-    v20 = s_sndDelayed;
-    while ( v20->distanceType )
+    v16 = s_sndDelayed;
+    while ( v16->distanceType )
     {
-      ++v16;
-      if ( (__int64)++v20 >= (__int64)s_debugInfo )
+      ++v13;
+      if ( (__int64)++v16 >= (__int64)s_debugInfo )
       {
         Com_PrintWarning(9, "Ran out of weapon reflection queued sounds\n", s_debugInfo);
-        goto LABEL_25;
+        return;
       }
     }
     if ( direction )
     {
       if ( direction == SND_WEAP_REFL_DIR_SIDE )
       {
-        _RAX = params->weapReflDef;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+7Ch]
-          vmovss  xmm1, dword ptr [rax+80h]
-        }
+        weapReflDef = params->weapReflDef;
+        sideVol = weapReflDef->sideVol;
+        sideEq = weapReflDef->sideEq;
       }
       else if ( direction == SND_WEAP_REFL_DIR_REAR )
       {
-        _RAX = params->weapReflDef;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+84h]
-          vmovss  xmm1, dword ptr [rax+88h]
-        }
+        v19 = params->weapReflDef;
+        sideVol = v19->rearVol;
+        sideEq = v19->rearEq;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vmovss  xmm1, cs:__real@bf800000
-        }
+        sideVol = FLOAT_1_0;
+        sideEq = FLOAT_N1_0;
       }
     }
     else
     {
-      _RAX = params->weapReflDef;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+74h]
-        vmovss  xmm1, dword ptr [rax+78h]
-      }
+      v21 = params->weapReflDef;
+      sideVol = v21->frontVol;
+      sideEq = v21->frontEq;
     }
-    _RDX = v16;
-    s_sndDelayed[_RDX].timeMStoStart = v17;
-    s_sndDelayed[_RDX].distanceType = distanceType;
-    s_sndDelayed[_RDX].isPlayer = params->isPlayer;
-    s_sndDelayed[_RDX].surfaceIndex = params->surfaceIndex;
-    s_sndDelayed[_RDX].sfxPackage = params->sfxPackage;
-    s_sndDelayed[_RDX].weapReflDef = params->weapReflDef;
-    s_sndDelayed[_RDX].playerDef = params->playerDef;
-    s_sndDelayed[_RDX].enableOcclusion = enableOcclusion;
-    __asm
-    {
-      vmovss  dword ptr [rdx+r10+28h], xmm6
-      vmovss  dword ptr [rdx+r10+2Ch], xmm0
-      vmovss  dword ptr [rdx+r10+30h], xmm1
-    }
-    s_sndDelayed[_RDX].direction = direction;
-    s_sndDelayed[_RDX].soundPosition = *soundPosition;
-    s_sndDelayed[_RDX].reflectionPosition = *reflectionPosition;
-    s_sndDelayed[_RDX].autoSimId = params->autoSimId;
-    s_sndDelayed[_RDX].autoSimTimeStamp = params->autoSimTimeStamp + v12;
-    s_sndDelayed[_RDX].shotCount = params->shotCount;
+    v22 = v13;
+    s_sndDelayed[v22].timeMStoStart = v14;
+    s_sndDelayed[v22].distanceType = distanceType;
+    s_sndDelayed[v22].isPlayer = params->isPlayer;
+    s_sndDelayed[v22].surfaceIndex = params->surfaceIndex;
+    s_sndDelayed[v22].sfxPackage = params->sfxPackage;
+    s_sndDelayed[v22].weapReflDef = params->weapReflDef;
+    s_sndDelayed[v22].playerDef = params->playerDef;
+    s_sndDelayed[v22].enableOcclusion = enableOcclusion;
+    s_sndDelayed[v22].pitch = pitch;
+    s_sndDelayed[v22].vol = sideVol;
+    s_sndDelayed[v22].lpfCutoff = sideEq;
+    s_sndDelayed[v22].direction = direction;
+    s_sndDelayed[v22].soundPosition = *soundPosition;
+    s_sndDelayed[v22].reflectionPosition = *reflectionPosition;
+    s_sndDelayed[v22].autoSimId = params->autoSimId;
+    s_sndDelayed[v22].autoSimTimeStamp = params->autoSimTimeStamp + v11;
+    s_sndDelayed[v22].shotCount = params->shotCount;
   }
   else
   {
-    __asm { vmovaps xmm2, xmm6; pitch }
-    SND_WeapReflPlaySoundAliasImmediate(distanceType, params, *(double *)&_XMM2, direction, v12, soundPosition, reflectionPosition, enableOcclusion);
+    SND_WeapReflPlaySoundAliasImmediate(distanceType, params, pitch, direction, v11, soundPosition, reflectionPosition, enableOcclusion);
   }
-LABEL_25:
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -2385,73 +2013,57 @@ SND_WeapReflectUpdatePlaySound
 */
 void SND_WeapReflectUpdatePlaySound()
 {
-  WeapReflectDistance v8; 
-  const SndAliasList *v9; 
+  float *v0; 
+  WeapReflectDistance v1; 
+  const SndAliasList *v2; 
   unsigned __int64 SndEntHandle; 
-  unsigned __int64 v12; 
-  int v13; 
-  __int64 v18; 
-  unsigned int v21; 
+  __int64 v4; 
+  float v5; 
+  unsigned __int64 v6; 
+  int v7; 
+  float v8; 
+  float v9; 
+  __int64 v10; 
+  float v11; 
+  unsigned int v12; 
   SndAlias *outAliasA; 
   SndPlayParams inParams; 
   SndAliasGroupTracking inOutTracking; 
-  char v29; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  xmm7, cs:__real@bf800000
-  }
-  _RBX = &s_sndDelayed[0].soundPosition.v[2];
-  __asm { vxorps  xmm8, xmm8, xmm8 }
+  v0 = &s_sndDelayed[0].soundPosition.v[2];
   do
   {
-    v8 = *((_DWORD *)_RBX - 16);
-    if ( v8 && *((_DWORD *)_RBX - 15) <= g_snd.time )
+    v1 = *((_DWORD *)v0 - 16);
+    if ( v1 && *((_DWORD *)v0 - 15) <= g_snd.time )
     {
-      v9 = SND_WeapReflectGenAlias(v8, (WeapReflDir)*((_DWORD *)_RBX - 3), *((const WeaponReflectionDef **)_RBX - 7), *((const WeaponSFXPackage **)_RBX - 5), *((_BYTE *)_RBX - 32), *((_DWORD *)_RBX - 7));
-      if ( v9 )
+      v2 = SND_WeapReflectGenAlias(v1, (WeapReflDir)*((_DWORD *)v0 - 3), *((const WeaponReflectionDef **)v0 - 7), *((const WeaponSFXPackage **)v0 - 5), *((_BYTE *)v0 - 32), *((_DWORD *)v0 - 7));
+      if ( v2 )
       {
-        SND_PickSoundAliasFromList(v9, LOCAL_CLIENT_0, 2046, (const vec3_t *)(_RBX + 1), (const SndAlias **)&outAliasA, NULL, NULL);
+        SND_PickSoundAliasFromList(v2, LOCAL_CLIENT_0, 2046, (const vec3_t *)(v0 + 1), (const SndAlias **)&outAliasA, NULL, NULL);
         SndEntHandle = CG_GenerateSndEntHandle(LOCAL_CLIENT_0, 2046);
-        __asm { vmovss  xmm0, dword ptr [rbx-14h] }
-        v12 = SndEntHandle & 0xFFFFFFEFFFFFFFFFui64 | -(__int64)(*((_BYTE *)_RBX + 16) != 0) & 0x1000000000i64;
-        if ( *(_DWORD *)(*((_QWORD *)_RBX - 6) + 40i64) != *(_DWORD *)(*((_QWORD *)_RBX - 7) + 40i64) )
-          __asm { vmulss  xmm0, xmm0, dword ptr [rdx+2Ch] }
-        v13 = *((_DWORD *)_RBX + 5);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx-4]
-          vmovss  [rsp+1E0h+inParams.volumeScale], xmm0
-          vmovss  xmm0, dword ptr [rbx-18h]
-          vmovss  [rsp+1E0h+inParams.pitch], xmm0
-          vmovss  xmm0, dword ptr [rbx-8]
-          vmovss  dword ptr [rsp+1E0h+inParams.org], xmm0
-          vmovss  xmm0, dword ptr [rbx]
-        }
-        inParams.autoSimId = v13;
-        v18 = *((_QWORD *)_RBX + 3);
-        __asm
-        {
-          vmovss  dword ptr [rbp+0E0h+inParams.org+8], xmm0
-          vmovss  xmm0, dword ptr [rbx-10h]
-        }
-        inParams.autoSimTimeStamp = v18;
-        *(float *)&v18 = _RBX[8];
-        __asm
-        {
-          vmovss  [rbp+0E0h+inParams.lpfCutoff], xmm0
-          vmovss  [rsp+1E0h+inParams.distanceScale], xmm6
-          vmovss  [rsp+1E0h+inParams.lfeScale], xmm6
-          vmovss  [rbp+0E0h+inParams.hpfCutoff], xmm7
-          vmovss  [rbp+0E0h+inParams.startOffsetFraction], xmm8
-          vmovss  dword ptr [rsp+1E0h+inParams.org+4], xmm1
-        }
+        v4 = *((_QWORD *)v0 - 7);
+        v5 = *(v0 - 5);
+        v6 = SndEntHandle & 0xFFFFFFEFFFFFFFFFui64 | -(__int64)(*((_BYTE *)v0 + 16) != 0) & 0x1000000000i64;
+        if ( *(_DWORD *)(*((_QWORD *)v0 - 6) + 40i64) != *(_DWORD *)(v4 + 40) )
+          v5 = v5 * *(float *)(v4 + 44);
+        v7 = *((_DWORD *)v0 + 5);
+        v8 = *(v0 - 1);
+        inParams.volumeScale = v5;
+        inParams.pitch = *(v0 - 6);
+        inParams.org.v[0] = *(v0 - 2);
+        v9 = *v0;
+        inParams.autoSimId = v7;
+        v10 = *((_QWORD *)v0 + 3);
+        inParams.org.v[2] = v9;
+        v11 = *(v0 - 4);
+        inParams.autoSimTimeStamp = v10;
+        *(float *)&v10 = v0[8];
+        inParams.lpfCutoff = v11;
+        inParams.distanceScale = FLOAT_1_0;
+        inParams.lfeScale = FLOAT_1_0;
+        inParams.hpfCutoff = FLOAT_N1_0;
+        inParams.startOffsetFraction = 0.0;
+        inParams.org.v[1] = v8;
         *(_QWORD *)&inParams.aliasId = 0i64;
         inParams.timeshift = 0;
         inParams.adsrIndex = -1;
@@ -2463,29 +2075,21 @@ void SND_WeapReflectUpdatePlaySound()
         inParams.contextIndex2 = -1;
         inParams.reflectionClass = 0;
         *(_WORD *)&inParams.isADS = 256;
-        inParams.aliasList = v9;
-        inParams.sndEnt = v12;
-        inParams.autoSimShotCount = v18;
+        inParams.aliasList = v2;
+        inParams.sndEnt = v6;
+        inParams.autoSimShotCount = v10;
         SND_InitAliasGroupTracking(&inOutTracking);
-        __asm { vmovaps xmm1, xmm6; contextLerp }
-        v21 = SND_PlaySoundAliasCore(outAliasA, *(float *)&_XMM1, &inParams, &inOutTracking);
+        v12 = SND_PlaySoundAliasCore(outAliasA, 1.0, &inParams, &inOutTracking);
         SND_FinalizeAliasGroupTracking(&inOutTracking);
-        if ( v21 )
-          SND_AddTrackedWeapReflSound(v21, v9, (const SndWeapReflDelayedSound *)(_RBX - 16), (const vec3_t *)(_RBX - 2));
+        if ( v12 )
+          SND_AddTrackedWeapReflSound(v12, v2, (const SndWeapReflDelayedSound *)(v0 - 16), (const vec3_t *)(v0 - 2));
       }
-      *(_RBX - 16) = 0.0;
+      *(v0 - 16) = 0.0;
     }
-    _RBX += 26;
+    v0 += 26;
   }
-  while ( (__int64)_RBX < (__int64)&s_debugInfo[0].delayedInfo.soundPosition.z );
+  while ( (__int64)v0 < (__int64)&s_debugInfo[0].delayedInfo.soundPosition.z );
   SND_UpdateTrackedWeapReflSound();
-  _R11 = &v29;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -2493,63 +2097,64 @@ void SND_WeapReflectUpdatePlaySound()
 SND_WeaponReflectionWorker
 ==============
 */
-
-void __fastcall SND_WeaponReflectionWorker(const void *const cmdInfo, double _XMM1_8)
+void SND_WeaponReflectionWorker(const void *const cmdInfo)
 {
-  char *v8; 
+  char *v1; 
+  const vec2_t *v2; 
+  float *v3; 
+  __int64 writePos; 
+  SndWeapReflectCastResultUpdate *v5; 
   bool doSoundClipCastNext; 
   __int64 currentSoundClipRaycastIndex; 
-  int v17; 
-  __int64 v27; 
-  __int64 v28; 
-  __int64 v29; 
-  __int64 v30; 
-  int v40; 
+  int v8; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
+  __int64 v14; 
+  const dvar_t *v15; 
+  float value; 
+  float v17; 
+  float v18; 
+  int v19; 
   HavokPhysics_CollisionQueryResult *ClosestResult; 
-  hkMemoryAllocator *v57; 
-  hkMemoryAllocator *v58; 
-  NPCNewWeapReflRequest *v59; 
-  NPCResolvedWeapReflRequest *v60; 
+  double RaycastHitFraction; 
+  float v22; 
+  const dvar_t *v23; 
+  float v24; 
+  float *p_distance; 
+  const dvar_t *v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  hkMemoryAllocator *v30; 
+  hkMemoryAllocator *v31; 
+  NPCNewWeapReflRequest *v32; 
+  NPCResolvedWeapReflRequest *v33; 
   float outLerp[2]; 
-  char *v67; 
+  float *v35; 
   ZoneDef *outZoneB; 
   ZoneDef *outZoneA; 
-  unsigned __int64 v70; 
+  unsigned __int64 v38; 
   Physics_RaycastExtendedData extendedData; 
-  HavokPhysics_IgnoreBodies v72; 
-  __int64 v73; 
+  HavokPhysics_IgnoreBodies v40; 
+  __int64 v41; 
   vec3_t end; 
-  char v75; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v73 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
-  v8 = (char *)cmdInfo;
-  v67 = (char *)cmdInfo;
+  v41 = -2i64;
+  v1 = (char *)cmdInfo;
+  v35 = (float *)cmdInfo;
   Sys_ProfBeginNamedEvent(0xFFD8BFD8, "SND_WeaponReflectionWorker");
   if ( 1 - s_sndWeapReflect.raycastUpdates.bufcount >= 1 )
   {
-    _R12 = (const vec2_t *)(v8 + 16);
-    v70 = (unsigned __int64)&s_sndWeapReflect.raycastUpdates.bufcount & 3;
-    __asm
-    {
-      vxorps  xmm7, xmm7, xmm7
-      vmovss  xmm9, cs:__real@3c8efa35
-      vmovss  xmm8, cs:__real@3f000000
-    }
+    v2 = (const vec2_t *)(v1 + 16);
+    v3 = (float *)(v1 + 4);
+    v38 = (unsigned __int64)&s_sndWeapReflect.raycastUpdates.bufcount & 3;
     do
     {
       if ( 1 - s_sndWeapReflect.raycastUpdates.bufcount < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 83, ASSERT_TYPE_ASSERT, "(CanWrite())", (const char *)&queryFormat, "CanWrite()") )
         __debugbreak();
-      _RBX = s_sndWeapReflect.raycastUpdates.writePos;
-      _R13 = &s_sndWeapReflect.raycastUpdates.buffer[_RBX];
+      writePos = s_sndWeapReflect.raycastUpdates.writePos;
+      v5 = &s_sndWeapReflect.raycastUpdates.buffer[writePos];
       doSoundClipCastNext = s_sndWeapReflect.doSoundClipCastNext;
       if ( s_sndWeapReflect.doSoundClipCastNext )
       {
@@ -2557,7 +2162,7 @@ void __fastcall SND_WeaponReflectionWorker(const void *const cmdInfo, double _XM
         s_sndWeapReflect.currentSoundClipRaycastIndex = (LOBYTE(s_sndWeapReflect.currentSoundClipRaycastIndex) + 1) & 7;
         if ( s_weapReflectAngleDoSoundClip[currentSoundClipRaycastIndex] )
         {
-          v17 = 0x4000000;
+          v8 = 0x4000000;
           goto LABEL_10;
         }
         doSoundClipCastNext = 0;
@@ -2565,160 +2170,115 @@ void __fastcall SND_WeaponReflectionWorker(const void *const cmdInfo, double _XM
       }
       LODWORD(currentSoundClipRaycastIndex) = s_sndWeapReflect.currentRaycastIndex;
       s_sndWeapReflect.currentRaycastIndex = (LOBYTE(s_sndWeapReflect.currentRaycastIndex) + 1) & 7;
-      v17 = 2097169;
+      v8 = 2097169;
 LABEL_10:
-      s_sndWeapReflect.raycastUpdates.buffer[_RBX].isSoundClip = doSoundClipCastNext;
-      s_sndWeapReflect.raycastUpdates.buffer[_RBX].raycastIndex = currentSoundClipRaycastIndex;
+      s_sndWeapReflect.raycastUpdates.buffer[writePos].isSoundClip = doSoundClipCastNext;
+      s_sndWeapReflect.raycastUpdates.buffer[writePos].raycastIndex = currentSoundClipRaycastIndex;
       s_sndWeapReflect.doSoundClipCastNext = !s_sndWeapReflect.doSoundClipCastNext;
-      _RSI = (unsigned int)currentSoundClipRaycastIndex;
-      _RAX = 0x140000000ui64;
-      __asm { vucomiss xmm7, rva s_weapReflectAngles[rax+rsi*4] }
-      if ( s_sndWeapReflect.doSoundClipCastNext )
+      if ( s_weapReflectAngles[(unsigned int)currentSoundClipRaycastIndex] == 0.0 )
       {
-        _RDI = &_R13->castResult.direction;
-        _R13->castResult.direction.v[0] = _R12->v[0];
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r12+4]
-          vmovss  dword ptr [rdi+4], xmm0
-          vmovss  xmm1, dword ptr [r12+8]
-          vmovss  dword ptr [rdi+8], xmm1
-        }
+        _RDI = &v5->castResult.direction;
+        v5->castResult.direction.v[0] = v2->v[0];
+        v5->castResult.direction.v[1] = v2->v[1];
+        v5->castResult.direction.v[2] = v2[1].v[0];
       }
       else
       {
-        *(double *)&_XMM0 = vectoyaw(_R12);
-        _RDI = &s_sndWeapReflect.raycastUpdates.buffer[_RBX].castResult.direction;
-        __asm
-        {
-          vaddss  xmm0, xmm0, rva s_weapReflectAngles[rax+rsi*4]
-          vmulss  xmm2, xmm0, xmm9
-          vxorps  xmm1, xmm1, xmm1
-          vmovss  xmm0, xmm1, xmm2
-        }
-        *(double *)&_XMM0 = j___libm_sse2_sincosf_(v28, v27, v29, v30);
+        vectoyaw(v2);
+        _RDI = &s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.direction;
+        *((_QWORD *)&_XMM0 + 1) = 0i64;
+        *(double *)&_XMM0 = j___libm_sse2_sincosf_(v12, v11, v13, v14);
         __asm { vextractps dword ptr [rdi], xmm0, 1 }
-        _RAX = 0x140000000ui64;
-        __asm { vmovss  dword ptr [rbx+rax+15E057D8h], xmm0 }
-        s_sndWeapReflect.raycastUpdates.buffer[_RBX].castResult.direction.v[2] = 0.0;
+        s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.direction.v[1] = *(float *)&_XMM0;
+        s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.direction.v[2] = 0.0;
       }
-      _RSI = DCONST_DVARFLT_snd_weapReflect_maxTraceDistance;
+      v15 = DCONST_DVARFLT_snd_weapReflect_maxTraceDistance;
       if ( !DCONST_DVARFLT_snd_weapReflect_maxTraceDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_weapReflect_maxTraceDistance") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RSI);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi+28h]
-        vmulss  xmm0, xmm1, dword ptr [rdi]
-        vmulss  xmm2, xmm1, dword ptr [rdi+4]
-        vmulss  xmm3, xmm1, dword ptr [rdi+8]
-        vaddss  xmm0, xmm0, dword ptr [r15]
-        vmovss  dword ptr [rbp+50h+end], xmm0
-        vaddss  xmm1, xmm2, dword ptr [r15+4]
-        vmovss  dword ptr [rbp+50h+end+4], xmm1
-        vaddss  xmm0, xmm3, dword ptr [r15+8]
-        vmovss  dword ptr [rbp+50h+end+8], xmm0
-      }
-      v40 = 3 * *(_DWORD *)v67 + 2;
-      HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v72, 1, 0);
-      HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v72, 0, 0, 1, 1, 0, 1, 1);
+      Dvar_CheckFrontendServerThread(v15);
+      value = v15->current.value;
+      v17 = value * _RDI->v[1];
+      v18 = value * _RDI->v[2];
+      end.v[0] = (float)(value * _RDI->v[0]) + *v3;
+      end.v[1] = v17 + v3[1];
+      end.v[2] = v18 + v3[2];
+      v19 = 3 * *(_DWORD *)v35 + 2;
+      HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v40, 1, 0);
+      HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v40, 0, 0, 1, 1, 0, 1, 1);
       extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-      __asm { vmovss  [rsp+150h+extendedData.collisionBuffer], xmm7 }
+      extendedData.collisionBuffer = 0.0;
       extendedData.phaseSelection = All;
       extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
       *(_WORD *)&extendedData.collectInsideHits = 256;
-      extendedData.contents = v17;
-      extendedData.ignoreBodies = &v72;
-      ClosestResult = PhysicsQuery_GetClosestResult((Physics_WorldId)v40);
+      extendedData.contents = v8;
+      extendedData.ignoreBodies = &v40;
+      ClosestResult = PhysicsQuery_GetClosestResult((Physics_WorldId)v19);
       if ( !ClosestResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 1366, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
         __debugbreak();
       HavokPhysics_CollisionQueryResult::Reset(ClosestResult, 1);
-      Physics_Raycast((Physics_WorldId)v40, (const vec3_t *)(v67 + 4), &end, &extendedData, ClosestResult);
+      Physics_Raycast((Physics_WorldId)v19, (const vec3_t *)(v35 + 1), &end, &extendedData, ClosestResult);
       if ( HavokPhysics_CollisionQueryResult::HasHit(ClosestResult) )
       {
-        *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(ClosestResult, 0);
-        __asm { vmovaps xmm6, xmm0 }
-        _R14 = DCONST_DVARFLT_snd_weapReflect_maxTraceDistance;
+        RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(ClosestResult, 0);
+        v22 = *(float *)&RaycastHitFraction;
+        v23 = DCONST_DVARFLT_snd_weapReflect_maxTraceDistance;
         if ( !DCONST_DVARFLT_snd_weapReflect_maxTraceDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_weapReflect_maxTraceDistance") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_R14);
-        __asm { vmovss  xmm0, dword ptr [r14+28h] }
-        _R14 = &s_sndWeapReflect.raycastUpdates.buffer[_RBX].castResult.distance;
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm0
-          vmovss  dword ptr [r14], xmm0
-        }
-        s_sndWeapReflect.raycastUpdates.buffer[_RBX].castResult.surfaceIndex = (HavokPhysics_CollisionQueryResult::GetRaycastHitSurfFlags(ClosestResult, 0) >> 19) & 0x3F;
-        HavokPhysics_CollisionQueryResult::GetRaycastHitNormal(ClosestResult, 0, &s_sndWeapReflect.raycastUpdates.buffer[_RBX].castResult.normal);
-        _RSI = 0x140000000ui64;
+        Dvar_CheckFrontendServerThread(v23);
+        v24 = v23->current.value;
+        p_distance = &s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.distance;
+        s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.distance = v22 * v24;
+        s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.surfaceIndex = (HavokPhysics_CollisionQueryResult::GetRaycastHitSurfFlags(ClosestResult, 0) >> 19) & 0x3F;
+        HavokPhysics_CollisionQueryResult::GetRaycastHitNormal(ClosestResult, 0, &s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.normal);
       }
       else
       {
-        _RSI = DCONST_DVARFLT_snd_weapReflect_maxTraceDistance;
+        v26 = DCONST_DVARFLT_snd_weapReflect_maxTraceDistance;
         if ( !DCONST_DVARFLT_snd_weapReflect_maxTraceDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_weapReflect_maxTraceDistance") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RSI);
-        __asm { vmovss  xmm0, dword ptr [rsi+28h] }
-        _RSI = 0x140000000ui64;
-        _R14 = &s_sndWeapReflect.raycastUpdates.buffer[_RBX].castResult.distance;
-        __asm { vmovss  dword ptr [r14], xmm0 }
-        s_sndWeapReflect.raycastUpdates.buffer[_RBX].castResult.surfaceIndex = 0;
-        s_sndWeapReflect.raycastUpdates.buffer[_RBX].castResult.normal.v[0] = _RDI->v[0];
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+4]
-          vmovss  dword ptr [rbx+rsi+15E057E4h], xmm0
-          vmovss  xmm1, dword ptr [rdi+8]
-          vmovss  dword ptr [rbx+rsi+15E057E8h], xmm1
-        }
+        Dvar_CheckFrontendServerThread(v26);
+        p_distance = &s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.distance;
+        s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.distance = v26->current.value;
+        s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.surfaceIndex = 0;
+        s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.normal.v[0] = _RDI->v[0];
+        s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.normal.v[1] = _RDI->v[1];
+        s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.normal.v[2] = _RDI->v[2];
       }
-      __asm
+      v27 = *p_distance;
+      v28 = *p_distance * _RDI->v[1];
+      v29 = *p_distance * _RDI->v[2];
+      v1 = (char *)v35;
+      v3 = v35 + 1;
+      v5->castResult.position.v[0] = (float)(v27 * _RDI->v[0]) + v35[1];
+      s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.position.v[1] = v28 + v3[1];
+      s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.position.v[2] = v29 + v3[2];
+      if ( CG_FindAudioZoneAtPoint(*(LocalClientNum_t *)v1, &v5->castResult.position, (const ZoneDef **)&outZoneA, (const ZoneDef **)&outZoneB, outLerp) )
       {
-        vmovss  xmm1, dword ptr [r14]
-        vmulss  xmm0, xmm1, dword ptr [rdi]
-        vmulss  xmm2, xmm1, dword ptr [rdi+4]
-        vmulss  xmm3, xmm1, dword ptr [rdi+8]
-      }
-      v8 = v67;
-      __asm
-      {
-        vaddss  xmm0, xmm0, dword ptr [r15]
-        vmovss  dword ptr [r13+0], xmm0
-        vaddss  xmm1, xmm2, dword ptr [r15+4]
-        vmovss  dword ptr [rbx+rsi+15E057CCh], xmm1
-        vaddss  xmm0, xmm3, dword ptr [r15+8]
-        vmovss  dword ptr [rbx+rsi+15E057D0h], xmm0
-      }
-      if ( CG_FindAudioZoneAtPoint(*(LocalClientNum_t *)v8, &_R13->castResult.position, (const ZoneDef **)&outZoneA, (const ZoneDef **)&outZoneB, outLerp) )
-      {
-        __asm
-        {
-          vmovss  xmm0, [rsp+150h+outLerp]
-          vcomiss xmm0, xmm8
-        }
-        s_sndWeapReflect.raycastUpdates.buffer[_RBX].castResult.weapReflDefId = CG_GetWeapReflDefId(outZoneB);
+        if ( outLerp[0] <= 0.5 )
+          s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.weapReflDefId = CG_GetWeapReflDefId(outZoneA);
+        else
+          s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.weapReflDefId = CG_GetWeapReflDefId(outZoneB);
       }
       else
       {
-        s_sndWeapReflect.raycastUpdates.buffer[_RBX].castResult.weapReflDefId = 0;
+        s_sndWeapReflect.raycastUpdates.buffer[writePos].castResult.weapReflDefId = 0;
       }
       if ( 1 - s_sndWeapReflect.raycastUpdates.bufcount < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 90, ASSERT_TYPE_ASSERT, "(CanWrite())", (const char *)&queryFormat, "CanWrite()") )
         __debugbreak();
       s_sndWeapReflect.raycastUpdates.writePos = 0;
-      if ( v70 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &s_sndWeapReflect.raycastUpdates.bufcount) )
+      if ( v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &s_sndWeapReflect.raycastUpdates.bufcount) )
         __debugbreak();
       _InterlockedIncrement(&s_sndWeapReflect.raycastUpdates.bufcount);
-      v57 = hkMemHeapAllocator();
-      v72.m_ignoreBodies.m_size = 0;
-      if ( v72.m_ignoreBodies.m_capacityAndFlags >= 0 )
-        hkMemoryAllocator::bufFree2(v57, v72.m_ignoreBodies.m_data, 4, v72.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-      v72.m_ignoreBodies.m_data = NULL;
-      v72.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-      v58 = hkMemHeapAllocator();
-      v72.m_ignoreEntities.m_size = 0;
-      if ( v72.m_ignoreEntities.m_capacityAndFlags >= 0 )
-        hkMemoryAllocator::bufFree2(v58, v72.m_ignoreEntities.m_data, 8, v72.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+      v30 = hkMemHeapAllocator();
+      v40.m_ignoreBodies.m_size = 0;
+      if ( v40.m_ignoreBodies.m_capacityAndFlags >= 0 )
+        hkMemoryAllocator::bufFree2(v30, v40.m_ignoreBodies.m_data, 4, v40.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+      v40.m_ignoreBodies.m_data = NULL;
+      v40.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+      v31 = hkMemHeapAllocator();
+      v40.m_ignoreEntities.m_size = 0;
+      if ( v40.m_ignoreEntities.m_capacityAndFlags >= 0 )
+        hkMemoryAllocator::bufFree2(v31, v40.m_ignoreEntities.m_data, 8, v40.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
     }
     while ( 1 - s_sndWeapReflect.raycastUpdates.bufcount >= 1 );
   }
@@ -2728,22 +2288,22 @@ LABEL_10:
       break;
     if ( s_npcNewPlayRequest.bufcount < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 63, ASSERT_TYPE_ASSERT, "(CanRead())", (const char *)&queryFormat, "CanRead()") )
       __debugbreak();
-    v59 = &s_npcNewPlayRequest.buffer[s_npcNewPlayRequest.readPos];
+    v32 = &s_npcNewPlayRequest.buffer[s_npcNewPlayRequest.readPos];
     if ( 1 - s_npcResolvedPlayRequest.bufcount < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 83, ASSERT_TYPE_ASSERT, "(CanWrite())", (const char *)&queryFormat, "CanWrite()") )
       __debugbreak();
-    v60 = &s_npcResolvedPlayRequest.buffer[s_npcResolvedPlayRequest.writePos];
-    if ( (unsigned __int8)SND_WeapReflPerformNPCTrace(&v60->castResult, &v59->org, &v59->orientation, (const vec3_t *)(v8 + 4)) )
+    v33 = &s_npcResolvedPlayRequest.buffer[s_npcResolvedPlayRequest.writePos];
+    if ( (unsigned __int8)SND_WeapReflPerformNPCTrace(&v33->castResult, &v32->org, &v32->orientation, (const vec3_t *)(v1 + 4)) )
     {
-      v60->org.v[0] = v59->org.v[0];
-      v60->org.v[1] = v59->org.v[1];
-      v60->org.v[2] = v59->org.v[2];
-      v60->orientation.v[0] = v59->orientation.v[0];
-      v60->orientation.v[1] = v59->orientation.v[1];
-      v60->orientation.v[2] = v59->orientation.v[2];
-      v60->sfxPackage = v59->sfxPackage;
-      v60->shotCount = v59->shotCount;
-      v60->autoSimId = v59->autoSimId;
-      v60->autoSimTimeStamp = v59->autoSimTimeStamp;
+      v33->org.v[0] = v32->org.v[0];
+      v33->org.v[1] = v32->org.v[1];
+      v33->org.v[2] = v32->org.v[2];
+      v33->orientation.v[0] = v32->orientation.v[0];
+      v33->orientation.v[1] = v32->orientation.v[1];
+      v33->orientation.v[2] = v32->orientation.v[2];
+      v33->sfxPackage = v32->sfxPackage;
+      v33->shotCount = v32->shotCount;
+      v33->autoSimId = v32->autoSimId;
+      v33->autoSimTimeStamp = v32->autoSimTimeStamp;
       if ( 1 - s_npcResolvedPlayRequest.bufcount < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_weapon_reflect.cpp", 90, ASSERT_TYPE_ASSERT, "(CanWrite())", (const char *)&queryFormat, "CanWrite()") )
         __debugbreak();
       s_npcResolvedPlayRequest.writePos = 0;
@@ -2759,13 +2319,5 @@ LABEL_10:
     _InterlockedDecrement(&s_npcNewPlayRequest.bufcount);
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v75;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
 }
 

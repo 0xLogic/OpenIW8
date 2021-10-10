@@ -545,11 +545,8 @@ __int64 bdPlatformSocket::sendMsg(const int handle, const bdSockMsgHdr *msg)
   m_data = msg->m_data;
   m_dataLen = msg->m_dataLen;
   *(&Msg.namelen + 1) = 0;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+98h+Msg+1Ch], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)(&Msg.dwBufferCount + 1) = _XMM0;
   HIDWORD(Msg.Control.buf) = 0;
   *(&Msg.dwFlags + 1) = 0;
   Msg.name = (sockaddr *)bdSockAddr::getSockaddrStorage((bdSockAddr *)msg->m_addr);

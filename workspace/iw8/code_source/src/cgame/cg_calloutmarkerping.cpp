@@ -1233,8 +1233,7 @@ void CG_CalloutMarkerPing_DebugDraw(const LocalClientNum_t localClientNum)
           {
             Com_sprintf(&dest[v5], 1024 - (int)v5, " Scriptable: %u", v4->data.scriptable.scriptableIndex);
           }
-          __asm { vmovss  xmm2, cs:TEXT_SCALE; scale }
-          CL_AddDebugStringCentered(&outDrawPos, &colorOrange, *(float *)&_XMM2, dest, 0, 0);
+          CL_AddDebugStringCentered(&outDrawPos, &colorOrange, TEXT_SCALE, dest, 0, 0);
         }
       }
     }
@@ -1288,29 +1287,25 @@ CG_CalloutMarkerPing_ExecuteContextualPingWorkerThread
 */
 void CG_CalloutMarkerPing_ExecuteContextualPingWorkerThread(const void *const cmdInfo)
 {
-  __int64 v3; 
+  __int64 v2; 
   __int16 bestEntNum; 
   unsigned int bestScriptable; 
-  CalloutMarkerPingType v7; 
+  CalloutMarkerPingType v5; 
   centity_t *Entity; 
   int bestGSCObjective; 
   CalloutMarkerPingScore outPingScore; 
 
   Sys_ProfBeginNamedEvent(0xFF808080, "CG_CalloutMarkerPing_ExecuteContextualPingWorkerThread");
-  v3 = *((int *)cmdInfo + 12);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+78h+outPingScore.bestScore], xmm0
-  }
+  v2 = *((int *)cmdInfo + 12);
+  outPingScore.bestScore = 0.0;
   outPingScore.bestEntNum = 2047;
   *(_DWORD *)outPingScore.bestType = 1;
   *(_QWORD *)&outPingScore.bestScriptable = -1i64;
-  CG_CalloutMarkerPing_PickContextualTarget((const LocalClientNum_t)v3, (const vec3_t *)cmdInfo, (const tmat33_t<vec3_t> *)((char *)cmdInfo + 12), &outPingScore);
-  s_contextualPingTargets[v3].type = None;
+  CG_CalloutMarkerPing_PickContextualTarget((const LocalClientNum_t)v2, (const vec3_t *)cmdInfo, (const tmat33_t<vec3_t> *)((char *)cmdInfo + 12), &outPingScore);
+  s_contextualPingTargets[v2].type = None;
   bestEntNum = outPingScore.bestEntNum;
   bestScriptable = outPingScore.bestScriptable;
-  if ( (unsigned __int8)(CG_CalloutMarkerPing_CheckSquadPingsForTarget((LocalClientNum_t)v3, outPingScore.bestEntNum, outPingScore.bestScriptable, -1) - 52) <= 1u )
+  if ( (unsigned __int8)(CG_CalloutMarkerPing_CheckSquadPingsForTarget((LocalClientNum_t)v2, outPingScore.bestEntNum, outPingScore.bestScriptable, -1) - 52) <= 1u )
   {
     if ( bestEntNum == 2047 )
     {
@@ -1319,30 +1314,30 @@ void CG_CalloutMarkerPing_ExecuteContextualPingWorkerThread(const void *const cm
         bestGSCObjective = outPingScore.bestGSCObjective;
         if ( outPingScore.bestGSCObjective != -1 )
         {
-          s_contextualPingTargets[v3].type = Menu;
-          s_contextualPingTargets[v3].data.scriptable.scriptableIndex = bestGSCObjective;
+          s_contextualPingTargets[v2].type = Menu;
+          s_contextualPingTargets[v2].data.scriptable.scriptableIndex = bestGSCObjective;
         }
       }
       else
       {
-        s_contextualPingTargets[v3].type = 2;
-        s_contextualPingTargets[v3].data.scriptable.scriptableIndex = bestScriptable;
+        s_contextualPingTargets[v2].type = 2;
+        s_contextualPingTargets[v2].data.scriptable.scriptableIndex = bestScriptable;
       }
     }
     else
     {
-      v7 = outPingScore.bestType[0];
+      v5 = outPingScore.bestType[0];
       if ( (unsigned int)(*(_DWORD *)outPingScore.bestType - 6) > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 5180, ASSERT_TYPE_ASSERT, "(( pingScore.bestType < CalloutMarkerPingType::SCRIPTABLES_BEGIN ) && ( pingScore.bestType >= CalloutMarkerPingType::ENTITIES_BEGIN ))", (const char *)&queryFormat, "( pingScore.bestType < CalloutMarkerPingType::SCRIPTABLES_BEGIN ) && ( pingScore.bestType >= CalloutMarkerPingType::ENTITIES_BEGIN )", -2i64) )
         __debugbreak();
-      Entity = CG_GetEntity((const LocalClientNum_t)v3, bestEntNum);
+      Entity = CG_GetEntity((const LocalClientNum_t)v2, bestEntNum);
       if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 5183, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
         __debugbreak();
       if ( (Entity->flags & 1) != 0 && Entity->nextState.eType != ET_PLAYER )
       {
-        s_contextualPingTargets[v3].type = 1;
-        s_contextualPingTargets[v3].data.entity.entNum = bestEntNum;
-        s_contextualPingTargets[v3].data.entity.pool = CG_CalloutMarkerPing_TypeGetPoolID(v7);
-        s_contextualPingTargets[v3].data.entity.zOffset = CG_CalloutMarkerPing_GetEntityZOffset((LocalClientNum_t)v3, bestEntNum);
+        s_contextualPingTargets[v2].type = 1;
+        s_contextualPingTargets[v2].data.entity.entNum = bestEntNum;
+        s_contextualPingTargets[v2].data.entity.pool = CG_CalloutMarkerPing_TypeGetPoolID(v5);
+        s_contextualPingTargets[v2].data.entity.zOffset = CG_CalloutMarkerPing_GetEntityZOffset((LocalClientNum_t)v2, bestEntNum);
       }
     }
   }
@@ -1437,11 +1432,10 @@ double CG_CalloutMarkerPing_GetAspectRatio(const CalloutMarkerPingPool pool, con
     case 6:
       IconForVehicle = CG_CalloutMarkerPing_GetIconForVehicle(localClientNum, view->origin.x, COMPASS_TYPE_TACMAP);
       CG_CalloutMarkerPing_GetAspectRatioForIcon(IconForVehicle);
+      _XMM2 = LODWORD(FLOAT_1_0);
       __asm
       {
-        vmovss  xmm2, cs:__real@3f800000
         vcmpltss xmm1, xmm2, xmm0
-        vmovss  xmm0, cs:__real@40000000
         vblendvps xmm0, xmm2, xmm0, xmm1
       }
       break;
@@ -1453,7 +1447,7 @@ double CG_CalloutMarkerPing_GetAspectRatio(const CalloutMarkerPingPool pool, con
       *(float *)&_XMM0 = CG_CalloutMarkerPing_GetAspectRatioForScriptable(localClientNum, view->scriptable.index);
       break;
     default:
-      __asm { vmovss  xmm0, cs:__real@3f800000; jumptable 00000001403C00B5 default case, cases 0-5,7-13,17,20-22 }
+      *(_QWORD *)&_XMM0 = LODWORD(FLOAT_1_0);
       break;
   }
   return *(double *)&_XMM0;
@@ -1464,25 +1458,14 @@ double CG_CalloutMarkerPing_GetAspectRatio(const CalloutMarkerPingPool pool, con
 CG_CalloutMarkerPing_GetAspectRatioForIcon
 ==============
 */
-
-float __fastcall CG_CalloutMarkerPing_GetAspectRatioForIcon(const GfxImage *const icon, double _XMM1_8)
+float CG_CalloutMarkerPing_GetAspectRatioForIcon(const GfxImage *const icon)
 {
-  if ( icon && icon->height )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm0, xmm1, xmm0
-    }
-  }
+  unsigned __int16 height; 
+
+  if ( icon && (height = icon->height) != 0 )
+    return (float)icon->width / (float)height;
   else
-  {
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  return *(float *)&_XMM0;
+    return FLOAT_1_0;
 }
 
 /*
@@ -1492,65 +1475,55 @@ CG_CalloutMarkerPing_GetAspectRatioForScriptable
 */
 float CG_CalloutMarkerPing_GetAspectRatioForScriptable(LocalClientNum_t localClientNum, unsigned int scriptableIndex)
 {
-  unsigned __int8 v6; 
-  const ObjectiveSettings *v7; 
-  const GfxImage *v8; 
+  unsigned __int8 v4; 
+  const ObjectiveSettings *v5; 
+  const GfxImage *v6; 
+  float result; 
   const BG_SpawnGroup_Loot_ItemDef *LootItemDef; 
-  const BG_SpawnGroup_Loot_ItemDef *v11; 
-  BgWeaponHandle v12; 
+  const BG_SpawnGroup_Loot_ItemDef *v9; 
+  BgWeaponHandle v10; 
   CgWeaponMap *Instance; 
   const Weapon *Weapon; 
   GfxImage *icon; 
+  unsigned __int16 height; 
   vec3_t out_origin; 
   char *outName; 
 
   if ( ScriptableCl_ObjectiveActiveForInstance(localClientNum, scriptableIndex) )
   {
-    v6 = ScriptableCl_ObjectiveGetForInstance(localClientNum, scriptableIndex);
-    v7 = ScriptableCl_ObjectiveGet(localClientNum, v6, &out_origin);
-    if ( v7 && NetConstStrings_AreStringsLoaded() && NetConstStrings_GetNameFromIndexPlusOne(NETCONSTSTRINGTYPE_OBJECTIVEICON, v7->icon, (const char **)&outName) )
+    v4 = ScriptableCl_ObjectiveGetForInstance(localClientNum, scriptableIndex);
+    v5 = ScriptableCl_ObjectiveGet(localClientNum, v4, &out_origin);
+    if ( v5 && NetConstStrings_AreStringsLoaded() && NetConstStrings_GetNameFromIndexPlusOne(NETCONSTSTRINGTYPE_OBJECTIVEICON, v5->icon, (const char **)&outName) )
     {
-      v8 = Image_Register(outName, IMAGE_TRACK_HUD);
-      *(float *)&_XMM0 = CG_CalloutMarkerPing_GetAspectRatioForIcon(v8, *(double *)&_XMM1);
+      v6 = Image_Register(outName, IMAGE_TRACK_HUD);
+      result = CG_CalloutMarkerPing_GetAspectRatioForIcon(v6);
     }
     else
     {
-      __asm { vmovss  xmm0, cs:__real@3f800000 }
+      result = FLOAT_1_0;
     }
     memset(&out_origin, 0, sizeof(out_origin));
   }
   else
   {
     LootItemDef = ScriptableCl_GetLootItemDef(localClientNum, scriptableIndex);
-    v11 = LootItemDef;
+    v9 = LootItemDef;
     if ( !LootItemDef )
-      goto LABEL_14;
+      return FLOAT_1_0;
     if ( BG_SpawnGroup_Loot_IsCustomWeaponItemDef(LootItemDef) )
     {
-      v12.m_mapEntryId = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex)->extraPayload;
+      v10.m_mapEntryId = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex)->extraPayload;
       Instance = CgWeaponMap::GetInstance(localClientNum);
-      Weapon = BgWeaponMap::GetWeapon(Instance, v12);
+      Weapon = BgWeaponMap::GetWeapon(Instance, v10);
       BG_WeaponCompleteDef(Weapon, 0);
     }
-    icon = v11->icon;
-    if ( icon && icon->height )
-    {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm0, xmm1, xmm0
-      }
-    }
+    icon = v9->icon;
+    if ( icon && (height = icon->height) != 0 )
+      return (float)icon->width / (float)height;
     else
-    {
-LABEL_14:
-      __asm { vmovss  xmm0, cs:__real@3f800000 }
-    }
+      return FLOAT_1_0;
   }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -1614,10 +1587,10 @@ void CG_CalloutMarkerPing_GetColor(const CalloutMarkerPingPool pool, const Callo
   unsigned __int8 owner; 
   int v10; 
   int v11; 
+  float v12; 
   team_t Friendliness; 
-  vec4_t *v21; 
+  vec4_t *v14; 
 
-  _RBX = out_color;
   clientNum = CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState.clientNum;
   owner = view->origin.owner;
   if ( owner )
@@ -1628,17 +1601,7 @@ void CG_CalloutMarkerPing_GetColor(const CalloutMarkerPingPool pool, const Callo
   switch ( v11 )
   {
     case 0:
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B; jumptable 00000001403C04EE case 0
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+4; vec4_t const colorWhite
-        vmovss  dword ptr [rbx+4], xmm1
-        vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B+8; vec4_t const colorWhite
-        vmovss  dword ptr [rbx+8], xmm0
-        vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+0Ch; vec4_t const colorWhite
-        vmovss  dword ptr [rbx+0Ch], xmm1
-      }
+      *out_color = colorWhite;
       goto LABEL_6;
     case 1:
     case 3:
@@ -1651,54 +1614,42 @@ void CG_CalloutMarkerPing_GetColor(const CalloutMarkerPingPool pool, const Callo
     case 21:
     case 22:
 LABEL_6:
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B; jumptable 00000001403C04EE cases 1,3,4,8-10,18,20-22
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+4; vec4_t const colorWhite
-        vmovss  dword ptr [rbx+4], xmm1
-        vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B+8; vec4_t const colorWhite
-        vmovss  dword ptr [rbx+8], xmm0
-        vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+0Ch; vec4_t const colorWhite
-      }
+      out_color->v[0] = colorWhite.v[0];
+      out_color->v[1] = colorWhite.v[1];
+      out_color->v[2] = colorWhite.v[2];
+      v12 = colorWhite.v[3];
       goto LABEL_7;
     case 2:
     case 5:
     case 13:
     case 19:
-      CG_CalloutMarkerPing_GetColorForAllyOrSelf(localClientNum, clientNum, v10, _RBX);
+      CG_CalloutMarkerPing_GetColorForAllyOrSelf(localClientNum, clientNum, v10, out_color);
       return;
     case 6:
       Friendliness = CG_CalloutMarkerPing_GetFriendliness(pool, view, localClientNum);
-      v21 = &colorWhite;
+      v14 = &colorWhite;
       if ( Friendliness == TEAM_ONE )
-        v21 = &colorRed;
-      _RBX->v[0] = v21->v[0];
-      _RBX->v[1] = v21->v[1];
-      _RBX->v[2] = v21->v[2];
-      _RBX->v[3] = v21->v[3];
+        v14 = &colorRed;
+      out_color->v[0] = v14->v[0];
+      out_color->v[1] = v14->v[1];
+      out_color->v[2] = v14->v[2];
+      out_color->v[3] = v14->v[3];
       return;
     case 7:
     case 11:
     case 12:
     case 17:
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?colorRed@@3Tvec4_t@@B; jumptable 00000001403C04EE cases 7,11,12,17
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm1, dword ptr cs:?colorRed@@3Tvec4_t@@B+4; vec4_t const colorRed
-        vmovss  dword ptr [rbx+4], xmm1
-        vmovss  xmm0, dword ptr cs:?colorRed@@3Tvec4_t@@B+8; vec4_t const colorRed
-        vmovss  dword ptr [rbx+8], xmm0
-        vmovss  xmm1, dword ptr cs:?colorRed@@3Tvec4_t@@B+0Ch; vec4_t const colorRed
-      }
+      out_color->v[0] = colorRed.v[0];
+      out_color->v[1] = colorRed.v[1];
+      out_color->v[2] = colorRed.v[2];
+      v12 = colorRed.v[3];
 LABEL_7:
-      __asm { vmovss  dword ptr [rbx+0Ch], xmm1 }
+      out_color->v[3] = v12;
       break;
     case 14:
     case 15:
     case 16:
-      CG_CalloutMarkerPing_GetColorForLoot(localClientNum, view->scriptable.index, _RBX);
+      CG_CalloutMarkerPing_GetColorForLoot(localClientNum, view->scriptable.index, out_color);
       break;
     default:
       return;
@@ -1755,33 +1706,16 @@ void CG_CalloutMarkerPing_GetColorForLoot(LocalClientNum_t localClientNum, unsig
 {
   const BG_SpawnGroup_Loot_ItemDef *LootItemDef; 
 
-  _RBX = out_color;
   LootItemDef = ScriptableCl_GetLootItemDef(localClientNum, scriptableIndex);
   if ( LootItemDef )
   {
-    _EAX = ScriptableCl_GetLootItemRarityColor(localClientNum, LootItemDef->rarity);
-    __asm
-    {
-      vmovd   xmm0, eax
-      vpmovzxbd xmm1, xmm0
-      vcvtdq2ps xmm3, xmm1
-      vmulps  xmm0, xmm3, cs:__xmm@3b8080813b8080813b8080813b808081
-      vmovups xmmword ptr [rbx], xmm0
-    }
+    _XMM0 = ScriptableCl_GetLootItemRarityColor(localClientNum, LootItemDef->rarity);
+    __asm { vpmovzxbd xmm1, xmm0 }
+    *(__m128 *)out_color = _mm128_mul_ps(_mm_cvtepi32_ps(_XMM1), (__m128)_xmm);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+4; vec4_t const colorWhite
-      vmovss  dword ptr [rbx+4], xmm1
-      vmovss  xmm0, dword ptr cs:?colorWhite@@3Tvec4_t@@B+8; vec4_t const colorWhite
-      vmovss  dword ptr [rbx+8], xmm0
-      vmovss  xmm1, dword ptr cs:?colorWhite@@3Tvec4_t@@B+0Ch; vec4_t const colorWhite
-      vmovss  dword ptr [rbx+0Ch], xmm1
-    }
+    *out_color = colorWhite;
   }
 }
 
@@ -1833,14 +1767,16 @@ CG_CalloutMarkerPing_GetDrawPos
 bool CG_CalloutMarkerPing_GetDrawPos(const LocalClientNum_t localClientNum, const ContextualPingTarget *contextualPingTarget, vec3_t *outDrawPos)
 {
   bool result; 
-  unsigned int v10; 
-  const cpose_t *v11; 
+  cg_t *LocalClientGlobals; 
+  __int64 objectiveIndex; 
+  unsigned int v9; 
+  const cpose_t *v10; 
+  float v11; 
   unsigned int scriptableIndex; 
   __int16 entNum; 
   const cpose_t *Pose; 
-  __int64 v28; 
+  __int64 v15; 
 
-  _RBX = outDrawPos;
   if ( (contextualPingTarget->type == None || contextualPingTarget->type == 5) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 5276, ASSERT_TYPE_ASSERT, "((contextualPingTarget.type != ContextualPingTargetType::None) && (contextualPingTarget.type != ContextualPingTargetType::Count))", (const char *)&queryFormat, "(contextualPingTarget.type != ContextualPingTargetType::None) && (contextualPingTarget.type != ContextualPingTargetType::Count)") )
     __debugbreak();
   switch ( contextualPingTarget->type )
@@ -1852,64 +1788,40 @@ bool CG_CalloutMarkerPing_GetDrawPos(const LocalClientNum_t localClientNum, cons
       Pose = CG_GetPose(localClientNum, entNum);
       if ( !Pose )
         return 0;
-      CG_GetPoseOrigin(Pose, _RBX);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vaddss  xmm1, xmm0, dword ptr [rbx+8]
-        vaddss  xmm2, xmm1, cs:ENTITY_DRAW_Z_OFFSET
-        vmovss  dword ptr [rbx+8], xmm2
-      }
+      CG_GetPoseOrigin(Pose, outDrawPos);
+      outDrawPos->v[2] = (float)((float)contextualPingTarget->data.entity.zOffset + outDrawPos->v[2]) + ENTITY_DRAW_Z_OFFSET;
       return 1;
     case 2:
     case 3:
       scriptableIndex = contextualPingTarget->data.scriptable.scriptableIndex;
       if ( scriptableIndex == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 5303, ASSERT_TYPE_ASSERT, "(scriptableIndex != SCRIPTABLE_INVALID_INSTANCE_INDEX)", (const char *)&queryFormat, "scriptableIndex != SCRIPTABLE_INVALID_INSTANCE_INDEX") )
         __debugbreak();
-      ScriptableCl_GetInstanceOrigin(localClientNum, scriptableIndex, _RBX);
-      __asm
-      {
-        vmovss  xmm0, cs:SCRIPTABLE_DRAW_Z_OFFSET
-        vaddss  xmm1, xmm0, dword ptr [rbx+8]
-        vmovss  dword ptr [rbx+8], xmm1
-      }
+      ScriptableCl_GetInstanceOrigin(localClientNum, scriptableIndex, outDrawPos);
+      outDrawPos->v[2] = SCRIPTABLE_DRAW_Z_OFFSET + outDrawPos->v[2];
       return 1;
     case 4:
-      _RDI = CG_GetLocalClientGlobals(localClientNum);
-      _RSI = contextualPingTarget->data.objective.objectiveIndex;
-      v10 = _RDI->predictedPlayerState.objectives[_RSI].entNum[0];
-      if ( v10 < 0x7FE && (v11 = CG_GetPose(localClientNum, v10)) != NULL )
+      LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+      objectiveIndex = contextualPingTarget->data.objective.objectiveIndex;
+      v9 = LocalClientGlobals->predictedPlayerState.objectives[objectiveIndex].entNum[0];
+      if ( v9 < 0x7FE && (v10 = CG_GetPose(localClientNum, v9)) != NULL )
       {
-        CG_GetPoseOrigin(v11, _RBX);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rsi+rdi+12FCh]
-          vaddss  xmm1, xmm0, dword ptr [rbx+8]
-          vmovss  dword ptr [rbx+8], xmm1
-        }
+        CG_GetPoseOrigin(v10, outDrawPos);
+        outDrawPos->v[2] = (float)LocalClientGlobals->predictedPlayerState.objectives[objectiveIndex].zOffset + outDrawPos->v[2];
         return 1;
       }
       else
       {
-        _RBX->v[0] = _RDI->predictedPlayerState.objectives[_RSI].origin[0].v[0];
-        _RBX->v[1] = _RDI->predictedPlayerState.objectives[_RSI].origin[0].v[1];
+        outDrawPos->v[0] = LocalClientGlobals->predictedPlayerState.objectives[objectiveIndex].origin[0].v[0];
+        outDrawPos->v[1] = LocalClientGlobals->predictedPlayerState.objectives[objectiveIndex].origin[0].v[1];
         result = 1;
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rsi+rdi+12A0h]
-          vmovss  dword ptr [rbx+8], xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rsi+rdi+12FCh]
-          vaddss  xmm1, xmm0, xmm1
-          vmovss  dword ptr [rbx+8], xmm1
-        }
+        v11 = LocalClientGlobals->predictedPlayerState.objectives[objectiveIndex].origin[0].v[2];
+        outDrawPos->v[2] = v11;
+        outDrawPos->v[2] = (float)LocalClientGlobals->predictedPlayerState.objectives[objectiveIndex].zOffset + v11;
       }
       break;
     default:
-      LODWORD(v28) = contextualPingTarget->type;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 5330, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CalloutMarkerPing_GetDrawPos: Unhandled ping target type: %d", v28) )
+      LODWORD(v15) = contextualPingTarget->type;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 5330, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "CG_CalloutMarkerPing_GetDrawPos: Unhandled ping target type: %d", v15) )
         __debugbreak();
       return 0;
   }
@@ -1927,8 +1839,8 @@ float CG_CalloutMarkerPing_GetEntityOffsetForPointLineSegmentDistCheck(const Loc
   int v5; 
   unsigned int Instance; 
   unsigned int m_serialAndIndex; 
-  __int64 v29; 
-  __int64 v30; 
+  __int64 v13; 
+  __int64 v14; 
   hknpBodyId result; 
   vec3_t aabbMin; 
   vec3_t aabbMax; 
@@ -1937,9 +1849,9 @@ float CG_CalloutMarkerPing_GetEntityOffsetForPointLineSegmentDistCheck(const Loc
     __debugbreak();
   if ( (unsigned __int16)entNum >= 0x7FEu )
   {
-    LODWORD(v30) = 2046;
-    LODWORD(v29) = entNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3724, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "entNum doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v29, v30) )
+    LODWORD(v14) = 2046;
+    LODWORD(v13) = entNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3724, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ENTITYNUM_ORDINARY_END )", "entNum doesn't index ENTITYNUM_ORDINARY_END\n\t%i not in [0, %i)", v13, v14) )
       __debugbreak();
   }
   v4 = 3 * localClientNum + 2;
@@ -1951,58 +1863,35 @@ float CG_CalloutMarkerPing_GetEntityOffsetForPointLineSegmentDistCheck(const Loc
     __debugbreak();
   if ( (unsigned int)v4 > 7 )
   {
-    LODWORD(v30) = 3 * localClientNum + 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v30) )
+    LODWORD(v14) = 3 * localClientNum + 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v14) )
       __debugbreak();
   }
   if ( !g_physicsClientWorldsCreated && (unsigned int)(3 * localClientNum) <= 5 )
   {
-    LODWORD(v30) = 3 * localClientNum + 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v30) )
+    LODWORD(v14) = 3 * localClientNum + 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v14) )
       __debugbreak();
   }
   if ( !g_physicsServerWorldsCreated && (unsigned int)v4 <= 1 )
   {
-    LODWORD(v30) = 3 * localClientNum + 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v30) )
+    LODWORD(v14) = 3 * localClientNum + 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v14) )
       __debugbreak();
   }
   m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v4, Instance, 0)->m_serialAndIndex;
   if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF )
   {
 LABEL_24:
-    _RAX = CG_GetEntity(localClientNum, v5);
-    __asm { vmovss  xmm2, cs:VEHICLE_OFFSET }
-    _ECX = 14;
-    __asm { vmovd   xmm1, ecx }
-    LODWORD(_RAX) = _RAX->nextState.eType;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vpcmpeqd xmm3, xmm0, xmm1
-      vxorps  xmm1, xmm1, xmm1
-      vblendvps xmm0, xmm1, xmm2, xmm3
-    }
+    _XMM0 = (unsigned int)CG_GetEntity(localClientNum, v5)->nextState.eType;
+    __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+    _XMM1 = 0i64;
+    __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
   }
   else
   {
     Physics_GetRigidBodyAABB((Physics_WorldId)v4, m_serialAndIndex, &aabbMin, &aabbMax, 1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+88h+aabbMin]
-      vsubss  xmm3, xmm0, dword ptr [rsp+88h+aabbMax]
-      vmovss  xmm1, dword ptr [rsp+88h+aabbMin+4]
-      vsubss  xmm2, xmm1, dword ptr [rsp+88h+aabbMax+4]
-      vmovss  xmm0, dword ptr [rsp+88h+aabbMin+8]
-      vsubss  xmm4, xmm0, dword ptr [rsp+88h+aabbMax+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vmulss  xmm1, xmm2, cs:__real@3e800000
-      vsqrtss xmm0, xmm1, xmm1
-    }
+    LODWORD(_XMM0) = fsqrt((float)((float)((float)((float)(aabbMin.v[1] - aabbMax.v[1]) * (float)(aabbMin.v[1] - aabbMax.v[1])) + (float)((float)(aabbMin.v[0] - aabbMax.v[0]) * (float)(aabbMin.v[0] - aabbMax.v[0]))) + (float)((float)(aabbMin.v[2] - aabbMax.v[2]) * (float)(aabbMin.v[2] - aabbMax.v[2]))) * 0.25);
   }
   return *(float *)&_XMM0;
 }
@@ -2012,88 +1901,67 @@ LABEL_24:
 CG_CalloutMarkerPing_GetEntityZOffset
 ==============
 */
-int CG_CalloutMarkerPing_GetEntityZOffset(LocalClientNum_t localClientNum, __int16 entNum)
+__int64 CG_CalloutMarkerPing_GetEntityZOffset(LocalClientNum_t localClientNum, __int16 entNum)
 {
-  int v5; 
+  int v4; 
   centity_t *Entity; 
   cg_t *LocalClientGlobals; 
-  int v8; 
-  __int64 v9; 
+  int v7; 
+  __int64 v8; 
   ObjectiveView *objectives; 
-  int result; 
-  int v17; 
+  const CompassVehicleMedia *VehicleMedia; 
+  int v12; 
 
-  v5 = entNum;
+  v4 = entNum;
   Entity = CG_GetEntity(localClientNum, entNum);
   if ( (Entity->flags & 1) == 0 )
-    return 0;
+    return 0i64;
   if ( !BG_IsVehicleEntity(&Entity->nextState) )
   {
-    LOBYTE(v17) = CG_CalloutMarkerPing_ClassifyEntity(localClientNum, entNum);
-    if ( v17 == 10 )
-      return 82;
-    if ( v17 != 7 )
+    LOBYTE(v12) = CG_CalloutMarkerPing_ClassifyEntity(localClientNum, entNum);
+    if ( v12 == 10 )
+      return 82i64;
+    if ( v12 != 7 )
     {
-      if ( v17 == 8 )
-        return 24;
-      if ( v17 == 9 )
-        return 60;
-      if ( v17 != 11 )
+      if ( v12 == 8 )
+        return 24i64;
+      if ( v12 == 9 )
+        return 60i64;
+      if ( v12 != 11 )
       {
-        if ( v17 == 12 )
-          return 120;
-        if ( v17 != 13 )
+        if ( v12 == 12 )
+          return 120i64;
+        if ( v12 != 13 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3057, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "unhandled entity type in CG_CalloutMarkerPing_GetEntityZOffset()") )
             __debugbreak();
-          return 0;
+          return 0i64;
         }
-        return 60;
+        return 60i64;
       }
     }
-    return 32;
+    return 32i64;
   }
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v8 = 0;
-  v9 = 0i64;
+  v7 = 0;
+  v8 = 0i64;
   objectives = LocalClientGlobals->predictedPlayerState.objectives;
-  while ( objectives->entNum[0] != v5 )
+  while ( objectives->entNum[0] != v4 )
   {
+    ++v7;
     ++v8;
-    ++v9;
     ++objectives;
-    if ( v9 >= 32 )
+    if ( v8 >= 32 )
       goto LABEL_6;
   }
-  if ( v8 != -1 )
-  {
-    CG_GetLocalClientGlobals(localClientNum);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rax+rdx+12FCh]
-      vcvttss2si eax, xmm0
-    }
-    return result;
-  }
+  if ( v7 != -1 )
+    return (unsigned int)(int)(float)CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState.objectives[v7].zOffset;
 LABEL_6:
-  if ( CG_CalloutMarkerPing_GetVehicleMedia(localClientNum, entNum) )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+8]
-      vcvttss2si eax, xmm0
-    }
-  }
+  VehicleMedia = CG_CalloutMarkerPing_GetVehicleMedia(localClientNum, entNum);
+  if ( VehicleMedia )
+    return (unsigned int)(int)VehicleMedia->pingZOffset;
   else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvttss2si eax, xmm0
-    }
-  }
-  return result;
+    return (unsigned int)(int)0.0;
 }
 
 /*
@@ -2701,44 +2569,31 @@ CG_CalloutMarkerPing_GetTacmapLookAtScale
 */
 float CG_CalloutMarkerPing_GetTacmapLookAtScale(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v6; 
-  const dvar_t *v10; 
+  cg_t *LocalClientGlobals; 
+  const dvar_t *v2; 
+  cg_t *v3; 
+  float value; 
+  const dvar_t *v5; 
+  float v6; 
+  const dvar_t *v7; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  CG_GetLocalClientGlobals(localClientNum);
-  _RBX = DCONST_DVARFLT_scr_calloutmarkerping_iconpulse_basis;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  v2 = DCONST_DVARFLT_scr_calloutmarkerping_iconpulse_basis;
+  v3 = LocalClientGlobals;
   if ( !DCONST_DVARFLT_scr_calloutmarkerping_iconpulse_basis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scr_calloutmarkerping_iconpulse_basis") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  v6 = DCONST_DVARFLT_scr_calloutmarkerping_iconpulse_frequency;
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  v5 = DCONST_DVARFLT_scr_calloutmarkerping_iconpulse_frequency;
   if ( !DCONST_DVARFLT_scr_calloutmarkerping_iconpulse_frequency && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scr_calloutmarkerping_iconpulse_frequency") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+65ECh]
-    vdivss  xmm0, xmm0, dword ptr [rbx+28h]; X
-  }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-  v10 = DCONST_DVARFLT_scr_calloutmarkerping_iconpulse_amplitude;
-  __asm { vmovaps xmm6, xmm0 }
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = sinf_0((float)v3->time / v5->current.value);
+  v7 = DCONST_DVARFLT_scr_calloutmarkerping_iconpulse_amplitude;
   if ( !DCONST_DVARFLT_scr_calloutmarkerping_iconpulse_amplitude && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scr_calloutmarkerping_iconpulse_amplitude") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  __asm
-  {
-    vmulss  xmm0, xmm6, dword ptr [rbx+28h]
-    vmovaps xmm6, [rsp+68h+var_18]
-    vaddss  xmm0, xmm0, xmm7
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v7);
+  return (float)(v6 * v7->current.value) + value;
 }
 
 /*
@@ -2749,24 +2604,20 @@ CG_CalloutMarkerPing_GetTacmapWorldPos
 void CG_CalloutMarkerPing_GetTacmapWorldPos(LocalClientNum_t localClientNum, vec3_t *outPosition, vec3_t *outDirection)
 {
   cg_t *LocalClientGlobals; 
-  const dvar_t *v8; 
+  float v6; 
+  const dvar_t *v7; 
   vec2_t outWorldPosition; 
 
-  _RSI = outPosition;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   CG_CompassFullToWorld(LocalClientGlobals, &LocalClientGlobals->locationSelectorCursor, &outWorldPosition);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+68h+outWorldPosition]
-    vmovss  xmm1, dword ptr [rsp+68h+outWorldPosition+4]
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  dword ptr [rsi+4], xmm1
-  }
-  v8 = DCONST_DVARFLT_calloutmarkerping_trace_tacmap_height;
+  v6 = outWorldPosition.v[1];
+  outPosition->v[0] = outWorldPosition.v[0];
+  outPosition->v[1] = v6;
+  v7 = DCONST_DVARFLT_calloutmarkerping_trace_tacmap_height;
   if ( !DCONST_DVARFLT_calloutmarkerping_trace_tacmap_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_trace_tacmap_height") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  LODWORD(_RSI->v[2]) = v8->current.integer;
+  Dvar_CheckFrontendServerThread(v7);
+  LODWORD(outPosition->v[2]) = v7->current.integer;
   *(_QWORD *)outDirection->v = 0i64;
   outDirection->v[2] = -1.0;
 }
@@ -2877,79 +2728,48 @@ CG_CalloutMarkerPing_GetZOffset
 */
 float CG_CalloutMarkerPing_GetZOffset(const CalloutMarkerPingPool pool, const CalloutMarkerPingView *view, LocalClientNum_t localClientNum)
 {
-  int v7; 
+  int v6; 
   cg_t *LocalClientGlobals; 
   __int64 x; 
-  unsigned __int8 v11; 
-  const ObjectiveSettings *v12; 
+  unsigned __int8 v9; 
+  const ObjectiveSettings *v10; 
   vec3_t out_origin; 
 
-  if ( pool == CONST_CALLOUT_POOL_ID_REQUEST || pool == CONST_CALLOUT_POOL_ID_VEHICLE || (unsigned __int8)(pool - 4) <= 2u )
+  if ( pool == CONST_CALLOUT_POOL_ID_REQUEST )
+    return (float)view->origin.x;
+  if ( pool == CONST_CALLOUT_POOL_ID_VEHICLE || (unsigned __int8)(pool - 4) <= 2u )
+    return (float)view->origin.y;
+  if ( (unsigned __int8)pool <= CONST_CALLOUT_POOL_ID_DANGER_3 )
+    return FLOAT_60_0;
+  LOBYTE(v6) = CG_CalloutMarkerPing_ClassifyPing(localClientNum, pool, view);
+  if ( (unsigned int)(v6 - 20) <= 1 )
+    return FLOAT_48_0;
+  if ( ((v6 - 14) & 0xFFFFFFFD) != 0 )
   {
-    __asm
+    if ( (unsigned int)(v6 - 18) <= 1 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
+      v9 = ScriptableCl_ObjectiveGetForInstance(localClientNum, view->scriptable.index);
+      v10 = ScriptableCl_ObjectiveGet(localClientNum, v9, &out_origin);
+      if ( v10 && ((v10->state - 2) & 0xFD) == 0 )
+        return (float)v10->zOffset;
+      return FLOAT_72_0;
     }
-    return *(float *)&_XMM0;
+    if ( v6 == 4 )
+    {
+      LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+      x = view->origin.x;
+      if ( (cg_t *)((char *)LocalClientGlobals + x * 172) != (cg_t *)-4728i64 && ((LocalClientGlobals->predictedPlayerState.objectives[x].state - 2) & 0xFD) == 0 )
+        return (float)LocalClientGlobals->predictedPlayerState.objectives[x].zOffset;
+      return FLOAT_72_0;
+    }
+    if ( v6 != 17 )
+    {
+      if ( v6 != 22 )
+        return 0.0;
+      return FLOAT_72_0;
+    }
   }
-  if ( (unsigned __int8)pool > CONST_CALLOUT_POOL_ID_DANGER_3 )
-  {
-    LOBYTE(v7) = CG_CalloutMarkerPing_ClassifyPing(localClientNum, pool, view);
-    if ( (unsigned int)(v7 - 20) <= 1 )
-    {
-      __asm { vmovss  xmm0, cs:__real@42400000 }
-      return *(float *)&_XMM0;
-    }
-    if ( ((v7 - 14) & 0xFFFFFFFD) != 0 )
-    {
-      if ( (unsigned int)(v7 - 18) <= 1 )
-      {
-        v11 = ScriptableCl_ObjectiveGetForInstance(localClientNum, view->scriptable.index);
-        v12 = ScriptableCl_ObjectiveGet(localClientNum, v11, &out_origin);
-        if ( v12 && ((v12->state - 2) & 0xFD) == 0 )
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rax+4]
-          }
-          return *(float *)&_XMM0;
-        }
-        goto LABEL_20;
-      }
-      if ( v7 == 4 )
-      {
-        LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-        x = view->origin.x;
-        if ( (cg_t *)((char *)LocalClientGlobals + x * 172) != (cg_t *)-4728i64 && ((LocalClientGlobals->predictedPlayerState.objectives[x].state - 2) & 0xFD) == 0 )
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rcx+84h]
-          }
-          return *(float *)&_XMM0;
-        }
-LABEL_20:
-        __asm { vmovss  xmm0, cs:__real@42900000 }
-        return *(float *)&_XMM0;
-      }
-      if ( v7 != 17 )
-      {
-        if ( v7 != 22 )
-        {
-          __asm { vxorps  xmm0, xmm0, xmm0 }
-          return *(float *)&_XMM0;
-        }
-        goto LABEL_20;
-      }
-    }
-    __asm { vmovss  xmm0, cs:__real@42000000 }
-    return *(float *)&_XMM0;
-  }
-  __asm { vmovss  xmm0, cs:__real@42700000 }
-  return *(float *)&_XMM0;
+  return FLOAT_32_0;
 }
 
 /*
@@ -3300,62 +3120,43 @@ CG_CalloutMarkerPing_PickContextualTarget
 */
 void CG_CalloutMarkerPing_PickContextualTarget(const LocalClientNum_t localClientNum, const vec3_t *viewPos, const tmat33_t<vec3_t> *viewAxis, CalloutMarkerPingScore *outPingScore)
 {
-  const dvar_t *v14; 
-  int v16; 
-  float fmt; 
-  float fmta; 
+  const dvar_t *v4; 
+  float value; 
+  const dvar_t *v10; 
   float traceRadius; 
-  float traceRadiusa; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  int v14; 
 
-  _RBX = DCONST_DVARFLT_calloutmarkerping_trace_entity_distance;
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps [rsp+78h+var_38], xmm7
-  }
+  v4 = DCONST_DVARFLT_calloutmarkerping_trace_entity_distance;
   if ( !DCONST_DVARFLT_calloutmarkerping_trace_entity_distance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_trace_entity_distance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_calloutmarkerping_trace_entity_radius;
+  Dvar_CheckFrontendServerThread(v4);
+  value = v4->current.value;
+  v10 = DCONST_DVARFLT_calloutmarkerping_trace_entity_radius;
   if ( !DCONST_DVARFLT_calloutmarkerping_trace_entity_radius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_trace_entity_radius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  v14 = DVARBOOL_calloutmarkerping_enableLongRangeEnemyPing;
+  Dvar_CheckFrontendServerThread(v10);
+  traceRadius = v10->current.value;
+  v12 = DVARBOOL_calloutmarkerping_enableLongRangeEnemyPing;
   if ( !DVARBOOL_calloutmarkerping_enableLongRangeEnemyPing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_enableLongRangeEnemyPing") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( v14->current.enabled )
+  Dvar_CheckFrontendServerThread(v12);
+  if ( v12->current.enabled )
   {
-    __asm
-    {
-      vmovss  [rsp+78h+traceRadius], xmm7
-      vmovss  dword ptr [rsp+78h+fmt], xmm6
-    }
-    CG_CalloutMarkerPing_PickContextualTarget_CollectAndScore(localClientNum, viewPos, viewAxis, 16768, fmt, traceRadius, outPingScore);
-    _RBX = DVARFLT_calloutmarkerping_longRangeEnemyPing;
+    CG_CalloutMarkerPing_PickContextualTarget_CollectAndScore(localClientNum, viewPos, viewAxis, 16768, value, traceRadius, outPingScore);
+    v13 = DVARFLT_calloutmarkerping_longRangeEnemyPing;
     if ( !DVARFLT_calloutmarkerping_longRangeEnemyPing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_longRangeEnemyPing") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    v16 = 41943040;
+    Dvar_CheckFrontendServerThread(v13);
+    value = v13->current.value;
+    v14 = 41943040;
   }
   else
   {
-    v16 = 41959808;
+    v14 = 41959808;
   }
-  __asm
-  {
-    vmovss  [rsp+78h+traceRadius], xmm7
-    vmovss  dword ptr [rsp+78h+fmt], xmm6
-  }
-  CG_CalloutMarkerPing_PickContextualTarget_CollectAndScore(localClientNum, viewPos, viewAxis, v16, fmta, traceRadiusa, outPingScore);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_28]
-    vmovaps xmm7, [rsp+78h+var_38]
-  }
+  CG_CalloutMarkerPing_PickContextualTarget_CollectAndScore(localClientNum, viewPos, viewAxis, v14, value, traceRadius, outPingScore);
 }
 
 /*
@@ -3366,445 +3167,294 @@ CG_CalloutMarkerPing_PickContextualTarget_CollectAndScore
 void CG_CalloutMarkerPing_PickContextualTarget_CollectAndScore(const LocalClientNum_t localClientNum, const vec3_t *viewPos, const tmat33_t<vec3_t> *viewAxis, const int contents, const float traceDistance, const float traceRadius, CalloutMarkerPingScore *outPingScore)
 {
   signed __int64 v7; 
-  void *v18; 
-  __int32 v20; 
+  __int128 v8; 
+  __int128 v9; 
+  void *v10; 
+  __int32 v11; 
+  const dvar_t *v15; 
+  float v16; 
+  float value; 
+  float v18; 
+  float v19; 
   unsigned int i; 
-  unsigned int v48; 
-  int v49; 
-  int v50; 
+  unsigned int v21; 
+  int v22; 
+  int v23; 
+  float v24; 
   unsigned int j; 
-  __int16 v53; 
-  int v54; 
-  int v55; 
+  __int16 v26; 
+  int v27; 
+  int v28; 
   const centity_t *Entity; 
-  unsigned __int8 v61; 
-  const ObjectiveSettings *v62; 
-  bool v64; 
-  bool v65; 
-  char v66; 
-  char ActiveGameTypeQuick; 
-  const dvar_t *v68; 
-  int v97; 
-  float *v99; 
-  bool v100; 
-  unsigned __int8 v101; 
-  const dvar_t *v102; 
-  char v103; 
-  LocalClientNum_t v127; 
-  bool v128; 
+  float v30; 
+  float v31; 
+  unsigned __int8 v32; 
+  const ObjectiveSettings *v33; 
+  const ObjectiveSettings *v34; 
+  const dvar_t *v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  __int128 v40; 
+  float v44; 
+  float v45; 
+  float v46; 
+  const dvar_t *v47; 
+  float v48; 
+  int v49; 
+  float *v50; 
+  const dvar_t *v51; 
+  float v52; 
+  float v53; 
+  __int128 v54; 
+  float v55; 
+  float v59; 
+  LocalClientNum_t v60; 
   unsigned int Count; 
   unsigned int k; 
-  unsigned int v137; 
-  int v138; 
-  int v139; 
-  float ignoreEnts; 
-  float ignoreEntsa; 
-  float ignoreEntsb; 
-  float ignoreEntsc; 
-  float collectedEnts; 
-  float collectedEntsa; 
-  float collectedEntsb; 
-  float collectedEntsc; 
-  unsigned __int8 v152; 
+  unsigned int v63; 
+  int v64; 
+  int v65; 
+  float v66; 
+  unsigned __int8 v67; 
   unsigned int scriptableIndex; 
   LocalClientNum_t localClientNuma; 
   PhysicsQuery_Collected<unsigned int> collectedScriptables; 
-  PhysicsQuery_Collected<unsigned short> v157; 
+  PhysicsQuery_Collected<unsigned short> collectedEnts; 
   cg_t *LocalClientGlobals; 
   vec3_t origin; 
   vec3_t aabbMax; 
   vec3_t aabbMin; 
   Bounds baseBounds; 
   Bounds rotatedBounds; 
-  char v164; 
-  char v165; 
-  char v176; 
+  char v79; 
+  char v80; 
+  __int128 v81; 
+  __int128 v82; 
 
-  v18 = alloca(v7);
-  __asm
-  {
-    vmovaps [rsp+31E0h+var_A0], xmm11
-    vmovaps [rsp+31E0h+var_B0], xmm12
-  }
-  _RBX = outPingScore;
-  __asm { vmovaps [rsp+31E0h+var_50], xmm6 }
-  v20 = 3 * localClientNum + 2;
-  __asm { vmovaps [rsp+31E0h+var_70], xmm8 }
-  v157.ids = (unsigned __int16 *)&v165;
-  __asm
-  {
-    vmovaps [rsp+31E0h+var_C0], xmm13
-    vmovaps [rsp+31E0h+var_D0], xmm14
-  }
-  collectedScriptables.ids = (unsigned int *)&v164;
-  __asm { vmovaps [rsp+31E0h+var_E0], xmm15 }
+  v10 = alloca(v7);
+  v11 = 3 * localClientNum + 2;
+  collectedEnts.ids = (unsigned __int16 *)&v80;
+  collectedScriptables.ids = (unsigned int *)&v79;
   localClientNuma = localClientNum;
-  v157.count = 0;
-  v157.countMax = 2048;
+  collectedEnts.count = 0;
+  collectedEnts.countMax = 2048;
   collectedScriptables.count = 0;
   collectedScriptables.countMax = 2048;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 4679, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  _RSI = DCONST_DVARFLT_calloutmarkerping_lookat_objective_icon_dot;
+  v15 = DCONST_DVARFLT_calloutmarkerping_lookat_objective_icon_dot;
   if ( !DCONST_DVARFLT_calloutmarkerping_lookat_objective_icon_dot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_lookat_objective_icon_dot") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
-  {
-    vmovss  xmm11, [rbp+30E0h+arg_28]
-    vxorps  xmm2, xmm11, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm0, xmm2, dword ptr [r13+0]
-    vmovss  xmm12, [rbp+30E0h+arg_20]
-    vaddss  xmm1, xmm0, dword ptr [rax]
-    vmulss  xmm0, xmm2, dword ptr [r13+4]
-    vmovss  xmm15, dword ptr [rsi+28h]
-    vmovss  dword ptr [rbp+30E0h+origin], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rax+4]
-    vmulss  xmm0, xmm2, dword ptr [r13+8]
-    vmovss  dword ptr [rbp+30E0h+origin+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rax+8]
-    vmulss  xmm0, xmm12, cs:__real@3f000000
-    vmovss  dword ptr [rbp+30E0h+origin+8], xmm1
-    vaddss  xmm1, xmm0, xmm11
-    vxorps  xmm8, xmm8, xmm8
-    vmovss  dword ptr [rbp+30E0h+baseBounds.midPoint], xmm1
-    vmovss  dword ptr [rbp+30E0h+baseBounds.halfSize], xmm1
-    vmovss  dword ptr [rbp+30E0h+baseBounds.midPoint+4], xmm8
-    vmovss  dword ptr [rbp+30E0h+baseBounds.midPoint+8], xmm8
-    vmovss  dword ptr [rbp+30E0h+baseBounds.halfSize+4], xmm11
-    vmovss  dword ptr [rbp+30E0h+baseBounds.halfSize+8], xmm11
-  }
+  Dvar_CheckFrontendServerThread(v15);
+  v16 = COERCE_FLOAT(LODWORD(traceRadius) ^ _xmm) * viewAxis->m[0].v[1];
+  value = v15->current.value;
+  origin.v[0] = (float)(COERCE_FLOAT(LODWORD(traceRadius) ^ _xmm) * viewAxis->m[0].v[0]) + viewPos->v[0];
+  v18 = v16 + viewPos->v[1];
+  v19 = COERCE_FLOAT(LODWORD(traceRadius) ^ _xmm) * viewAxis->m[0].v[2];
+  origin.v[1] = v18;
+  origin.v[2] = v19 + viewPos->v[2];
+  baseBounds.midPoint.v[0] = (float)(traceDistance * 0.5) + traceRadius;
+  baseBounds.halfSize.v[0] = baseBounds.midPoint.v[0];
+  baseBounds.midPoint.v[1] = 0.0;
+  baseBounds.midPoint.v[2] = 0.0;
+  baseBounds.halfSize.v[1] = traceRadius;
+  baseBounds.halfSize.v[2] = traceRadius;
   Bounds_Transform(&baseBounds, &origin, viewAxis, &rotatedBounds);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbp+30E0h+rotatedBounds.midPoint+4]
-    vmovss  xmm3, dword ptr [rbp+30E0h+rotatedBounds.midPoint+8]
-    vmovss  xmm6, dword ptr [rbp+30E0h+rotatedBounds.midPoint]
-    vsubss  xmm0, xmm6, dword ptr [rbp+30E0h+rotatedBounds.halfSize]
-    vaddss  xmm1, xmm6, dword ptr [rbp+30E0h+rotatedBounds.halfSize]
-    vmovss  dword ptr [rbp+30E0h+aabbMin], xmm0
-    vsubss  xmm0, xmm5, dword ptr [rbp+30E0h+rotatedBounds.halfSize+4]
-    vmovss  dword ptr [rbp+30E0h+aabbMin+4], xmm0
-    vsubss  xmm0, xmm3, dword ptr [rbp+30E0h+rotatedBounds.halfSize+8]
-    vmovss  dword ptr [rbp+30E0h+aabbMin+8], xmm0
-    vaddss  xmm0, xmm5, dword ptr [rbp+30E0h+rotatedBounds.halfSize+4]
-    vmovss  dword ptr [rbp+30E0h+aabbMax], xmm1
-    vaddss  xmm1, xmm3, dword ptr [rbp+30E0h+rotatedBounds.halfSize+8]
-    vmovss  dword ptr [rbp+30E0h+aabbMax+4], xmm0
-    vmovss  dword ptr [rbp+30E0h+aabbMax+8], xmm1
-  }
-  PhysicsQuery_ImmediateAABBBroadphaseQuery((Physics_WorldId)v20, &aabbMin, &aabbMax, contents, 1u, &LocalClientGlobals->predictedPlayerState.clientNum, &v157, &collectedScriptables, 1);
+  aabbMin.v[0] = rotatedBounds.midPoint.v[0] - rotatedBounds.halfSize.v[0];
+  aabbMin.v[1] = rotatedBounds.midPoint.v[1] - rotatedBounds.halfSize.v[1];
+  aabbMin.v[2] = rotatedBounds.midPoint.v[2] - rotatedBounds.halfSize.v[2];
+  aabbMax.v[0] = rotatedBounds.midPoint.v[0] + rotatedBounds.halfSize.v[0];
+  aabbMax.v[1] = rotatedBounds.midPoint.v[1] + rotatedBounds.halfSize.v[1];
+  aabbMax.v[2] = rotatedBounds.midPoint.v[2] + rotatedBounds.halfSize.v[2];
+  PhysicsQuery_ImmediateAABBBroadphaseQuery((Physics_WorldId)v11, &aabbMin, &aabbMax, contents, 1u, &LocalClientGlobals->predictedPlayerState.clientNum, &collectedEnts, &collectedScriptables, 1);
   for ( i = 0; i < collectedScriptables.count; ++i )
   {
-    v48 = collectedScriptables.ids[i];
-    v49 = CG_CalloutMarkerPing_ClassifyScriptable(localClientNum, v48);
-    v50 = v49;
-    if ( v49 > 1 )
+    v21 = collectedScriptables.ids[i];
+    v22 = CG_CalloutMarkerPing_ClassifyScriptable(localClientNum, v21);
+    v23 = v22;
+    if ( v22 > 1 )
     {
-      __asm
+      v24 = CG_CalloutMarkerPing_ScoreScriptable(localClientNum, 1, outPingScore->bestScore, viewPos, viewAxis->m, traceDistance, traceRadius, v21, (CalloutMarkerPingType)v22);
+      if ( v24 > outPingScore->bestScore )
       {
-        vmovss  xmm2, dword ptr [rbx]; bestScore
-        vmovss  dword ptr [rsp+31E0h+collectedEnts], xmm11
-        vmovss  dword ptr [rsp+31E0h+ignoreEnts], xmm12
-      }
-      *(float *)&_XMM0 = CG_CalloutMarkerPing_ScoreScriptable(localClientNum, 1, *(const float *)&_XMM2, viewPos, viewAxis->m, ignoreEnts, collectedEnts, v48, (CalloutMarkerPingType)v49);
-      __asm { vcomiss xmm0, dword ptr [rbx] }
-      if ( !v64 && !v65 )
-      {
-        __asm { vmovss  dword ptr [rbx], xmm0 }
-        outPingScore->bestScriptable = v48;
+        outPingScore->bestScore = v24;
+        outPingScore->bestScriptable = v21;
         outPingScore->bestEntNum = 2047;
-        *(_DWORD *)outPingScore->bestType = v50;
+        *(_DWORD *)outPingScore->bestType = v23;
       }
     }
   }
-  for ( j = 0; j < v157.count; ++j )
+  for ( j = 0; j < collectedEnts.count; ++j )
   {
-    v53 = v157.ids[j];
-    if ( v53 == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 4722, ASSERT_TYPE_ASSERT, "(entNum != ENTITYNUM_NONE)", (const char *)&queryFormat, "entNum != ENTITYNUM_NONE") )
+    v26 = collectedEnts.ids[j];
+    if ( v26 == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 4722, ASSERT_TYPE_ASSERT, "(entNum != ENTITYNUM_NONE)", (const char *)&queryFormat, "entNum != ENTITYNUM_NONE") )
       __debugbreak();
-    if ( (unsigned __int16)v53 < 0x7FEu )
+    if ( (unsigned __int16)v26 < 0x7FEu )
     {
-      LOBYTE(v54) = CG_CalloutMarkerPing_ClassifyEntity(localClientNum, v53);
-      v55 = v54;
-      if ( v54 > 1 )
+      LOBYTE(v27) = CG_CalloutMarkerPing_ClassifyEntity(localClientNum, v26);
+      v28 = v27;
+      if ( v27 > 1 )
       {
-        if ( v54 < 14 )
+        if ( v27 < 14 )
         {
-          __asm
+          v31 = CG_CalloutMarkerPing_ScoreEntity(localClientNum, 1, outPingScore->bestScore, viewPos, viewAxis->m, traceDistance, traceRadius, v26, (CalloutMarkerPingType)v27);
+          if ( v31 > outPingScore->bestScore )
           {
-            vmovss  xmm2, dword ptr [rbx]; bestScore
-            vmovss  dword ptr [rsp+31E0h+collectedEnts], xmm11
-            vmovss  dword ptr [rsp+31E0h+ignoreEnts], xmm12
-          }
-          *(float *)&_XMM0 = CG_CalloutMarkerPing_ScoreEntity(localClientNum, 1, *(const float *)&_XMM2, viewPos, viewAxis->m, ignoreEntsb, collectedEntsb, v53, (CalloutMarkerPingType)v54);
-          __asm { vcomiss xmm0, dword ptr [rbx] }
-          if ( !v64 && !v65 )
-          {
-            __asm { vmovss  dword ptr [rbx], xmm0 }
+            outPingScore->bestScore = v31;
             outPingScore->bestScriptable = -1;
-            outPingScore->bestEntNum = v53;
-            *(_DWORD *)outPingScore->bestType = v55;
+            outPingScore->bestEntNum = v26;
+            *(_DWORD *)outPingScore->bestType = v28;
           }
         }
         else
         {
-          Entity = CG_GetEntity(localClientNum, v53);
+          Entity = CG_GetEntity(localClientNum, v26);
           if ( ScriptableCl_GetIndexForEntity(localClientNum, Entity, &scriptableIndex) )
           {
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rbx]; bestScore
-              vmovss  dword ptr [rsp+31E0h+collectedEnts], xmm11
-              vmovss  dword ptr [rsp+31E0h+ignoreEnts], xmm12
-            }
-            *(float *)&_XMM0 = CG_CalloutMarkerPing_ScoreScriptable(localClientNum, 1, *(const float *)&_XMM2, viewPos, viewAxis->m, ignoreEntsa, collectedEntsa, scriptableIndex, (CalloutMarkerPingType)v55);
-            __asm { vcomiss xmm0, dword ptr [rbx] }
-            if ( !v64 && !v65 )
+            v30 = CG_CalloutMarkerPing_ScoreScriptable(localClientNum, 1, outPingScore->bestScore, viewPos, viewAxis->m, traceDistance, traceRadius, scriptableIndex, (CalloutMarkerPingType)v28);
+            if ( v30 > outPingScore->bestScore )
             {
               outPingScore->bestScriptable = scriptableIndex;
-              __asm { vmovss  dword ptr [rbx], xmm0 }
+              outPingScore->bestScore = v30;
               outPingScore->bestEntNum = 2047;
-              *(_DWORD *)outPingScore->bestType = v55;
+              *(_DWORD *)outPingScore->bestType = v28;
             }
           }
         }
       }
     }
-  }
-  __asm
-  {
-    vmovaps [rsp+31E0h+var_60], xmm7
-    vmovss  xmm14, cs:__real@80000000
-    vmovss  xmm13, cs:__real@3f800000
   }
   if ( !CG_CalloutMarkerPing_IsInPrematch(localClientNum) )
   {
-    v61 = 0;
-    v152 = ScriptableCl_ObjectiveCount(localClientNum);
-    if ( v152 )
+    v32 = 0;
+    v67 = ScriptableCl_ObjectiveCount(localClientNum);
+    if ( v67 )
     {
-      __asm
-      {
-        vmovaps [rsp+31E0h+var_80], xmm9
-        vmovaps [rsp+31E0h+var_90], xmm10
-      }
+      v82 = v8;
+      v81 = v9;
       do
       {
-        v62 = ScriptableCl_ObjectiveGet(localClientNum, v61, &origin);
-        _R15 = v62;
-        v64 = 0;
-        v65 = v62 == NULL;
-        if ( !v62 )
+        v33 = ScriptableCl_ObjectiveGet(localClientNum, v32, &origin);
+        v34 = v33;
+        if ( !v33 || ((v33->state - 2) & 0xFD) != 0 || (unsigned __int8)ClStatic::GetActiveGameTypeQuick(&cls) != DODGE )
           goto LABEL_41;
-        v66 = v62->state - 2;
-        v64 = 0;
-        v65 = (v66 & 0xFD) == 0;
-        if ( (v66 & 0xFD) != 0 )
-          goto LABEL_41;
-        ActiveGameTypeQuick = ClStatic::GetActiveGameTypeQuick(&cls);
-        v64 = ActiveGameTypeQuick == 0;
-        v65 = ActiveGameTypeQuick == 1;
-        if ( ActiveGameTypeQuick != 1 )
-          goto LABEL_41;
-        v68 = DCONST_DVARBOOL_calloutmarkerping_trace_hit_objectives;
+        v35 = DCONST_DVARBOOL_calloutmarkerping_trace_hit_objectives;
         if ( !DCONST_DVARBOOL_calloutmarkerping_trace_hit_objectives && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_trace_hit_objectives") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v68);
-        v64 = 0;
-        v65 = !v68->current.enabled;
-        if ( !v68->current.enabled )
+        Dvar_CheckFrontendServerThread(v35);
+        if ( !v35->current.enabled )
           goto LABEL_41;
+        v36 = origin.v[0] - viewPos->v[0];
+        v37 = _mm_cvtepi32_ps((__m128i)(unsigned int)v34->zOffset).m128_f32[0];
+        v38 = (float)(v37 + origin.v[2]) - viewPos->v[2];
+        v40 = LODWORD(origin.v[1]);
+        v39 = origin.v[1] - viewPos->v[1];
+        origin.v[2] = v37 + origin.v[2];
+        *(float *)&v40 = fsqrt((float)((float)(v39 * v39) + (float)(v36 * v36)) + (float)(v38 * v38));
+        _XMM7 = v40;
         __asm
         {
-          vmovd   xmm1, dword ptr [r15+4]
-          vmovss  xmm0, dword ptr [rbp+30E0h+origin]
-          vsubss  xmm6, xmm0, dword ptr [r12]
-          vcvtdq2ps xmm1, xmm1
-          vaddss  xmm2, xmm1, dword ptr [rbp+30E0h+origin+8]
-          vsubss  xmm5, xmm2, dword ptr [r12+8]
-          vmovss  xmm1, dword ptr [rbp+30E0h+origin+4]
-          vsubss  xmm4, xmm1, dword ptr [r12+4]
-          vmovss  dword ptr [rbp+30E0h+origin+8], xmm2
-        }
-        v64 = 0;
-        v65 = !_R15->alwaysShowInWorld;
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm6
-          vmulss  xmm2, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm0
-          vmulss  xmm1, xmm5, xmm5
-          vaddss  xmm2, xmm3, xmm1
-          vsqrtss xmm7, xmm2, xmm2
           vcmpless xmm0, xmm7, xmm14
           vblendvps xmm0, xmm7, xmm13, xmm0
-          vdivss  xmm1, xmm13, xmm0
-          vmulss  xmm6, xmm6, xmm1
-          vmulss  xmm9, xmm4, xmm1
-          vmulss  xmm10, xmm5, xmm1
         }
-        if ( _R15->alwaysShowInWorld )
+        v44 = v36 * (float)(1.0 / *(float *)&_XMM0);
+        v45 = v39 * (float)(1.0 / *(float *)&_XMM0);
+        v46 = v38 * (float)(1.0 / *(float *)&_XMM0);
+        if ( v34->alwaysShowInWorld )
           goto LABEL_40;
-        _RSI = DVARFLT_lui_objective_fadeEnd;
+        v47 = DVARFLT_lui_objective_fadeEnd;
         if ( !DVARFLT_lui_objective_fadeEnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_objective_fadeEnd") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RSI);
-        __asm { vcomiss xmm7, dword ptr [rsi+28h] }
-        if ( v64 || v65 )
-        {
+        Dvar_CheckFrontendServerThread(v47);
+        if ( *(float *)&_XMM7 <= v47->current.value )
 LABEL_40:
-          __asm
-          {
-            vmulss  xmm1, xmm9, dword ptr [r13+4]
-            vmulss  xmm0, xmm6, dword ptr [r13+0]
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm10, dword ptr [r13+8]
-            vaddss  xmm0, xmm2, xmm1
-          }
-        }
+          v48 = (float)((float)(v45 * viewAxis->m[0].v[1]) + (float)(v44 * viewAxis->m[0].v[0])) + (float)(v46 * viewAxis->m[0].v[2]);
         else
-        {
 LABEL_41:
-          __asm { vmovaps xmm0, xmm8 }
-        }
-        __asm { vcomiss xmm0, dword ptr [rbx] }
-        if ( !v64 && !v65 )
+          v48 = 0.0;
+        if ( v48 > outPingScore->bestScore && v48 > value )
         {
-          __asm { vcomiss xmm0, xmm15 }
-          if ( !v64 && !v65 )
-          {
-            *(_DWORD *)outPingScore->bestType = 18;
-            __asm { vmovss  dword ptr [rbx], xmm0 }
-            outPingScore->bestScriptable = ScriptableCl_ObjectiveGetInstanceIndex(localClientNum, v61);
-            outPingScore->bestEntNum = 2047;
-            outPingScore->bestGSCObjective = -1;
-          }
+          *(_DWORD *)outPingScore->bestType = 18;
+          outPingScore->bestScore = v48;
+          outPingScore->bestScriptable = ScriptableCl_ObjectiveGetInstanceIndex(localClientNum, v32);
+          outPingScore->bestEntNum = 2047;
+          outPingScore->bestGSCObjective = -1;
         }
-        ++v61;
+        ++v32;
       }
-      while ( v61 < v152 );
-      __asm
-      {
-        vmovaps xmm10, [rsp+31E0h+var_90]
-        vmovaps xmm9, [rsp+31E0h+var_80]
-      }
+      while ( v32 < v67 );
     }
   }
-  v97 = 0;
-  _RSI = &LocalClientGlobals->predictedPlayerState.objectives[0].origin[0].v[2];
+  v49 = 0;
+  v50 = &LocalClientGlobals->predictedPlayerState.objectives[0].origin[0].v[2];
   do
   {
-    v99 = _RSI - 10;
-    v100 = _RSI == (float *)40;
-    if ( _RSI == (float *)40 )
-      goto LABEL_58;
-    v101 = ClStatic::GetActiveGameTypeQuick(&cls);
-    v100 = v101 <= 1u;
-    if ( v101 != 1 )
-      goto LABEL_58;
-    v102 = DCONST_DVARBOOL_calloutmarkerping_trace_hit_objectives;
+    if ( v50 == (float *)40 || (unsigned __int8)ClStatic::GetActiveGameTypeQuick(&cls) != DODGE )
+      goto LABEL_57;
+    v51 = DCONST_DVARBOOL_calloutmarkerping_trace_hit_objectives;
     if ( !DCONST_DVARBOOL_calloutmarkerping_trace_hit_objectives && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_trace_hit_objectives") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v102);
-    v100 = !v102->current.enabled;
-    if ( v102->current.enabled && (v103 = *((_BYTE *)_RSI + 119) - 2, v100 = (v103 & 0xFD) == 0) && (v100 = *((_BYTE *)_RSI + 116) >= 0, *((char *)_RSI + 116) >= 0) && (v100 = *(_DWORD *)v99 <= 0x7FFu, *(_DWORD *)v99 == 2047) )
+    Dvar_CheckFrontendServerThread(v51);
+    if ( v51->current.enabled && ((*((_BYTE *)v50 + 119) - 2) & 0xFD) == 0 && *((char *)v50 + 116) >= 0 && *((_DWORD *)v50 - 10) == 2047 )
     {
+      v52 = *(v50 - 2) - viewPos->v[0];
+      v54 = *((unsigned int *)v50 - 1);
+      v53 = *(v50 - 1) - viewPos->v[1];
+      v55 = *v50 - viewPos->v[2];
+      *(float *)&v54 = fsqrt((float)((float)(v53 * v53) + (float)(v52 * v52)) + (float)(v55 * v55));
+      _XMM1 = v54;
       __asm
       {
-        vmovss  xmm0, dword ptr [rsi-8]
-        vsubss  xmm7, xmm0, dword ptr [rdi]
-        vmovss  xmm1, dword ptr [rsi-4]
-        vsubss  xmm4, xmm1, dword ptr [rdi+4]
-        vmovss  xmm0, dword ptr [rsi]
-        vsubss  xmm6, xmm0, dword ptr [rdi+8]
-        vmulss  xmm2, xmm4, xmm4
-        vmulss  xmm0, xmm6, xmm6
-        vmulss  xmm1, xmm7, xmm7
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm1, xmm2, xmm2
         vcmpless xmm0, xmm1, xmm14
         vblendvps xmm0, xmm1, xmm13, xmm0
-        vdivss  xmm5, xmm13, xmm0
-        vmulss  xmm0, xmm4, xmm5
-        vmulss  xmm3, xmm0, dword ptr [r13+4]
-        vmulss  xmm1, xmm7, xmm5
-        vmulss  xmm2, xmm1, dword ptr [r13+0]
-        vmulss  xmm0, xmm6, xmm5
-        vmulss  xmm1, xmm0, dword ptr [r13+8]
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm0, xmm4, xmm1
       }
+      v59 = (float)((float)((float)(v53 * (float)(1.0 / *(float *)&_XMM0)) * viewAxis->m[0].v[1]) + (float)((float)(v52 * (float)(1.0 / *(float *)&_XMM0)) * viewAxis->m[0].v[0])) + (float)((float)(v55 * (float)(1.0 / *(float *)&_XMM0)) * viewAxis->m[0].v[2]);
     }
     else
     {
-LABEL_58:
-      __asm { vmovaps xmm0, xmm8 }
+LABEL_57:
+      v59 = 0.0;
     }
-    __asm { vcomiss xmm0, dword ptr [rbx] }
-    if ( !v100 )
+    if ( v59 > outPingScore->bestScore && v59 > value )
     {
-      __asm { vcomiss xmm0, xmm15 }
       *(_DWORD *)outPingScore->bestType = 4;
       outPingScore->bestEntNum = 2047;
-      __asm { vmovss  dword ptr [rbx], xmm0 }
+      outPingScore->bestScore = v59;
       outPingScore->bestScriptable = -1;
-      outPingScore->bestGSCObjective = v97;
+      outPingScore->bestGSCObjective = v49;
     }
-    ++v97;
-    _RSI += 43;
+    ++v49;
+    v50 += 43;
   }
-  while ( v97 < 32 );
-  v127 = localClientNuma;
-  v128 = CG_CalloutMarkerPing_IsInPrematch(localClientNuma);
-  __asm
+  while ( v49 < 32 );
+  v60 = localClientNuma;
+  if ( !CG_CalloutMarkerPing_IsInPrematch(localClientNuma) )
   {
-    vmovaps xmm15, [rsp+31E0h+var_E0]
-    vmovaps xmm14, [rsp+31E0h+var_D0]
-    vmovaps xmm13, [rsp+31E0h+var_C0]
-    vmovaps xmm8, [rsp+31E0h+var_70]
-    vmovaps xmm7, [rsp+31E0h+var_60]
-    vmovaps xmm6, [rsp+31E0h+var_50]
-  }
-  if ( !v128 )
-  {
-    Count = ScriptableCl_Spatial_ActiveList_GetCount(v127);
+    Count = ScriptableCl_Spatial_ActiveList_GetCount(v60);
     if ( Count )
     {
       for ( k = 0; k < Count; ++k )
       {
-        v137 = ScriptableCl_Spatial_ActiveList_GetAtIndex(v127, k);
-        v138 = CG_CalloutMarkerPing_ClassifyScriptable(v127, v137);
-        v139 = v138;
-        if ( ((v138 - 14) & 0xFFFFFFFC) == 0 && v138 != 15 )
+        v63 = ScriptableCl_Spatial_ActiveList_GetAtIndex(v60, k);
+        v64 = CG_CalloutMarkerPing_ClassifyScriptable(v60, v63);
+        v65 = v64;
+        if ( ((v64 - 14) & 0xFFFFFFFC) == 0 && v64 != 15 )
         {
-          __asm
+          v66 = CG_CalloutMarkerPing_ScoreScriptable(v60, 1, outPingScore->bestScore, viewPos, viewAxis->m, traceDistance, traceRadius, v63, (CalloutMarkerPingType)v64);
+          if ( v66 > outPingScore->bestScore )
           {
-            vmovss  xmm2, dword ptr [rbx]; bestScore
-            vmovss  dword ptr [rsp+31E0h+collectedEnts], xmm11
-            vmovss  dword ptr [rsp+31E0h+ignoreEnts], xmm12
-          }
-          *(float *)&_XMM0 = CG_CalloutMarkerPing_ScoreScriptable(v127, 1, *(const float *)&_XMM2, viewPos, viewAxis->m, ignoreEntsc, collectedEntsc, v137, (CalloutMarkerPingType)v138);
-          __asm { vcomiss xmm0, dword ptr [rbx] }
-          if ( !v64 && !v65 )
-          {
-            outPingScore->bestScriptable = v137;
+            outPingScore->bestScriptable = v63;
             outPingScore->bestEntNum = 2047;
-            __asm { vmovss  dword ptr [rbx], xmm0 }
-            *(_DWORD *)outPingScore->bestType = v139;
+            outPingScore->bestScore = v66;
+            *(_DWORD *)outPingScore->bestType = v65;
             outPingScore->bestGSCObjective = -1;
           }
         }
       }
     }
-  }
-  _R11 = &v176;
-  __asm
-  {
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
   }
 }
 
@@ -3938,10 +3588,12 @@ CG_CalloutMarkerPing_Predicted_CreateAtOrigin
 void CG_CalloutMarkerPing_Predicted_CreateAtOrigin(LocalClientNum_t localClientNum, CalloutMarkerPingPool pool, const vec3_t *origin, const bool isTentative)
 {
   __int64 v4; 
-  __int64 v10; 
+  __int64 v8; 
+  int v9; 
+  int v10; 
+  int v11; 
 
   v4 = localClientNum;
-  _RDI = origin;
   if ( pool == CONST_CALLOUT_POOL_SIZE )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 4226, ASSERT_TYPE_ASSERT, "(pool != CalloutMarkerPingPool::CONST_CALLOUT_POOL_INVALID)", (const char *)&queryFormat, "pool != CalloutMarkerPingPool::CONST_CALLOUT_POOL_INVALID") )
@@ -3955,35 +3607,26 @@ void CG_CalloutMarkerPing_Predicted_CreateAtOrigin(LocalClientNum_t localClientN
     __debugbreak();
 LABEL_7:
   CG_CalloutMarkerPing_Predicted_CreateViewCommon((LocalClientNum_t)v4, pool);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000
-    vmulss  xmm0, xmm1, dword ptr [rdi]
-  }
-  v10 = v4;
-  __asm { vcvttss2si eax, xmm0 }
-  if ( _EAX > 0x7FFF )
-    _EAX = 0x7FFF;
-  if ( _EAX < -32768 )
-    LOWORD(_EAX) = 0x8000;
-  s_calloutMarkerPingData[v10].predicted.view.origin.x = _EAX;
-  __asm
-  {
-    vmulss  xmm1, xmm1, dword ptr [rdi+4]
-    vcvttss2si eax, xmm1
-  }
-  if ( _EAX > 0x7FFF )
-    _EAX = 0x7FFF;
-  if ( _EAX < -32768 )
-    LOWORD(_EAX) = 0x8000;
-  s_calloutMarkerPingData[v10].predicted.view.origin.y = _EAX;
-  __asm { vcvttss2si eax, dword ptr [rdi+8] }
-  if ( _EAX > 0x7FFF )
-    _EAX = 0x7FFF;
-  if ( _EAX < -32768 )
-    LOWORD(_EAX) = 0x8000;
-  s_calloutMarkerPingData[v10].predicted.view.origin.z = _EAX;
-  s_calloutMarkerPingData[v10].predicted.isTentative = isTentative;
+  v8 = v4;
+  v9 = (int)(float)(0.5 * origin->v[0]);
+  if ( v9 > 0x7FFF )
+    v9 = 0x7FFF;
+  if ( v9 < -32768 )
+    LOWORD(v9) = 0x8000;
+  s_calloutMarkerPingData[v8].predicted.view.origin.x = v9;
+  v10 = (int)(float)(0.5 * origin->v[1]);
+  if ( v10 > 0x7FFF )
+    v10 = 0x7FFF;
+  if ( v10 < -32768 )
+    LOWORD(v10) = 0x8000;
+  s_calloutMarkerPingData[v8].predicted.view.origin.y = v10;
+  v11 = (int)origin->v[2];
+  if ( v11 > 0x7FFF )
+    v11 = 0x7FFF;
+  if ( v11 < -32768 )
+    LOWORD(v11) = 0x8000;
+  s_calloutMarkerPingData[v8].predicted.view.origin.z = v11;
+  s_calloutMarkerPingData[v8].predicted.isTentative = isTentative;
 }
 
 /*
@@ -4067,27 +3710,37 @@ CG_CalloutMarkerPing_Predicted_HandleButtonPress
 */
 void CG_CalloutMarkerPing_Predicted_HandleButtonPress(LocalClientNum_t localClientNum, const bool isTentativeAction)
 {
-  __int64 v6; 
+  __int64 v2; 
   cg_t *LocalClientGlobals; 
-  __int64 v9; 
+  __int64 v5; 
   CgCompassSystem *CompassSystem; 
-  cg_t *v11; 
-  bool v13; 
-  int v17; 
+  cg_t *v7; 
+  cg_t *v8; 
+  bool v9; 
+  int v10; 
   unsigned __int8 pingLookAtViewIndex; 
   __int16 bestEntNum; 
   unsigned int bestScriptable; 
-  unsigned __int8 v25; 
-  int v27; 
+  unsigned __int8 v14; 
+  int v15; 
   CalloutMarkerPingPool PoolID; 
   __int16 EntityZOffset; 
-  __int16 v31; 
+  double Float_Internal_DebugName; 
+  __int16 v19; 
   centity_t *Entity; 
-  __int16 v47; 
-  __int16 v50; 
-  CalloutMarkerPingPool v56; 
-  __int16 v57; 
-  __int16 v72; 
+  float v21; 
+  float v22; 
+  int v23; 
+  int v24; 
+  __int16 v25; 
+  double v26; 
+  CalloutMarkerPingPool v27; 
+  __int16 v28; 
+  centity_t *v29; 
+  float v30; 
+  float v31; 
+  int v32; 
+  __int16 v33; 
   CalloutMarkerPingType *outPingType; 
   CalloutMarkerPingType outEntityNum[4]; 
   CalloutMarkerPingType type[4]; 
@@ -4099,249 +3752,169 @@ void CG_CalloutMarkerPing_Predicted_HandleButtonPress(LocalClientNum_t localClie
   vec3_t traceDir; 
   tmat33_t<vec3_t> axis; 
 
-  v6 = localClientNum;
+  v2 = localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 4831, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  v9 = v6;
-  if ( !CG_CalloutMarkerPing_CanPing((const LocalClientNum_t)v6, isTentativeAction) )
-    return;
-  CompassSystem = CgCompassSystem::GetCompassSystem((const LocalClientNum_t)v6);
-  if ( CgCompassSystem::GetCurrentCompassType(CompassSystem) == COMPASS_TYPE_TACMAP )
+  v5 = v2;
+  if ( CG_CalloutMarkerPing_CanPing((const LocalClientNum_t)v2, isTentativeAction) )
   {
-    CG_CalloutMarkerPing_Predicted_HandleButtonPress_TacMap((LocalClientNum_t)v6);
-    return;
-  }
-  if ( LocalClientGlobals->predictedPlayerState.pm_type == 5 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, GameModeFlagValues::ms_mpValue, 0x21u) )
-  {
-    CG_CalloutMarkerPing_Predicted_HandleButtonPress_Spectate((const LocalClientNum_t)v6, isTentativeAction);
-    return;
-  }
-  v11 = CG_GetLocalClientGlobals((const LocalClientNum_t)v6);
-  RefdefView_GetOrg(&v11->refdef.view, &outOrg);
-  _RAX = CG_GetLocalClientGlobals((const LocalClientNum_t)v6);
-  v13 = s_calloutMarkerPingData[v9].predicted.view.origin.owner == 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+6944h]
-    vmovss  dword ptr [rbp+40h+traceDir], xmm0
-    vmovss  xmm1, dword ptr [rax+6948h]
-    vmovss  dword ptr [rbp+40h+traceDir+4], xmm1
-    vmovss  xmm0, dword ptr [rax+694Ch]
-    vmovss  dword ptr [rbp+40h+traceDir+8], xmm0
-  }
-  if ( v13 )
-  {
-    pingLookAtViewIndex = s_calloutMarkerPingData[v9].pingLookAtViewIndex;
-    if ( pingLookAtViewIndex != 53 )
+    CompassSystem = CgCompassSystem::GetCompassSystem((const LocalClientNum_t)v2);
+    if ( CgCompassSystem::GetCurrentCompassType(CompassSystem) == COMPASS_TYPE_TACMAP )
     {
-      CG_CalloutMarkerPing_Predicted_CreateFeedback((LocalClientNum_t)v6, pingLookAtViewIndex, isTentativeAction);
+      CG_CalloutMarkerPing_Predicted_HandleButtonPress_TacMap((LocalClientNum_t)v2);
       return;
     }
-    __asm
+    if ( LocalClientGlobals->predictedPlayerState.pm_type == 5 || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, GameModeFlagValues::ms_mpValue, 0x21u) )
     {
-      vmovaps [rsp+140h+var_50], xmm8
-      vxorps  xmm8, xmm8, xmm8
-    }
-    outPingScore.bestEntNum = 2047;
-    *(_DWORD *)outPingScore.bestType = 1;
-    __asm { vmovss  [rsp+140h+outPingScore.bestScore], xmm8 }
-    *(_QWORD *)&outPingScore.bestScriptable = -1i64;
-    CG_CalloutMarkerPing_PickContextualTarget((const LocalClientNum_t)v6, &outOrg, &LocalClientGlobals->refdef.view.axis, &outPingScore);
-    bestEntNum = outPingScore.bestEntNum;
-    bestScriptable = outPingScore.bestScriptable;
-    v25 = CG_CalloutMarkerPing_CheckSquadPingsForTarget((LocalClientNum_t)v6, outPingScore.bestEntNum, outPingScore.bestScriptable, -1);
-    if ( (unsigned __int8)(v25 - 52) > 1u )
-    {
-      CG_CalloutMarkerPing_Predicted_CreateFeedback((LocalClientNum_t)v6, v25, isTentativeAction);
-LABEL_35:
-      __asm { vmovaps xmm8, [rsp+140h+var_50] }
+      CG_CalloutMarkerPing_Predicted_HandleButtonPress_Spectate((const LocalClientNum_t)v2, isTentativeAction);
       return;
     }
-    __asm
+    v7 = CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
+    RefdefView_GetOrg(&v7->refdef.view, &outOrg);
+    v8 = CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
+    v9 = s_calloutMarkerPingData[v5].predicted.view.origin.owner == 0;
+    traceDir = v8->refdef.view.axis.m[0];
+    if ( v9 )
     {
-      vmovaps [rsp+140h+var_30], xmm6
-      vmovaps [rsp+140h+var_40], xmm7
-      vmovaps [rsp+140h+var_60], xmm9
-      vmovss  xmm9, cs:__real@3e800000
-    }
-    if ( bestEntNum != 2047 )
-    {
-      v27 = *(_DWORD *)outPingScore.bestType;
-      if ( (unsigned int)(*(_DWORD *)outPingScore.bestType - 6) > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 4908, ASSERT_TYPE_ASSERT, "(( pingScore.bestType < CalloutMarkerPingType::SCRIPTABLES_BEGIN ) && ( pingScore.bestType >= CalloutMarkerPingType::ENTITIES_BEGIN ))", (const char *)&queryFormat, "( pingScore.bestType < CalloutMarkerPingType::SCRIPTABLES_BEGIN ) && ( pingScore.bestType >= CalloutMarkerPingType::ENTITIES_BEGIN )") )
-        __debugbreak();
-      PoolID = CG_CalloutMarkerPing_TypeGetPoolID((CalloutMarkerPingType)v27);
-      EntityZOffset = CG_CalloutMarkerPing_GetEntityZOffset((LocalClientNum_t)v6, bestEntNum);
-      if ( v27 != 13 )
+      pingLookAtViewIndex = s_calloutMarkerPingData[v5].pingLookAtViewIndex;
+      if ( pingLookAtViewIndex != 53 )
       {
-        CG_CalloutMarkerPing_Predicted_CreateAtEntity((LocalClientNum_t)v6, PoolID, bestEntNum, 0, 0, EntityZOffset, isTentativeAction);
-        goto LABEL_34;
+        CG_CalloutMarkerPing_Predicted_CreateFeedback((LocalClientNum_t)v2, pingLookAtViewIndex, isTentativeAction);
+        return;
       }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_calloutmarkerping_trace_solid_distance, "calloutmarkerping_trace_solid_distance");
-      __asm { vaddss  xmm3, xmm0, dword ptr [rbp+40h+outOrg+8]; traceDistance }
-      *(_DWORD *)outEntityNum = 2;
-      if ( CG_CalloutMarkerPing_TraceSolidForNavOrDanger((LocalClientNum_t)v6, &outOrg, &traceDir, *(float *)&_XMM3, (vec3_t *)&plane, outEntityNum, &outPingScore.bestEntNum) && *(_DWORD *)outEntityNum == 13 )
-      {
-        v31 = outPingScore.bestEntNum;
-        Entity = CG_GetEntity((const LocalClientNum_t)v6, outPingScore.bestEntNum);
-        CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+40h+plane]
-          vmovss  xmm1, dword ptr [rbp+40h+plane+4]
-          vsubss  xmm7, xmm0, dword ptr [rsp+140h+outOrigin]
-          vsubss  xmm6, xmm1, dword ptr [rsp+140h+outOrigin+4]
-        }
-        AnglesToAxis(&Entity->pose.angles, &axis);
-        __asm
-        {
-          vmulss  xmm1, xmm6, dword ptr [rbp+40h+axis+4]
-          vmulss  xmm0, xmm7, dword ptr [rbp+40h+axis]
-          vaddss  xmm1, xmm1, xmm0
-          vmulss  xmm0, xmm7, dword ptr [rbp+40h+axis+0Ch]
-          vmulss  xmm2, xmm1, xmm9
-          vmulss  xmm1, xmm6, dword ptr [rbp+40h+axis+10h]
-          vaddss  xmm1, xmm1, xmm0
-          vcvttss2si ebx, xmm2
-          vmulss  xmm2, xmm1, xmm9
-          vcvttss2si r13d, xmm2
-        }
-        v47 = CG_CalloutMarkerPing_GetEntityZOffset((LocalClientNum_t)v6, v31);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+40h+plane+8]
-          vsubss  xmm1, xmm0, dword ptr [rsp+140h+outOrigin+8]
-          vcvttss2si ecx, xmm1
-        }
-        v50 = _ECX + v47;
-        if ( v31 != 2047 )
-        {
-          CG_CalloutMarkerPing_Predicted_CreateAtEntity((LocalClientNum_t)v6, PoolID, v31, _EBX, _ER13, v50, isTentativeAction);
-LABEL_34:
-          __asm
-          {
-            vmovaps xmm6, [rsp+140h+var_30]
-            vmovaps xmm7, [rsp+140h+var_40]
-            vmovaps xmm9, [rsp+140h+var_60]
-          }
-          goto LABEL_35;
-        }
-      }
+      outPingScore.bestEntNum = 2047;
+      *(_DWORD *)outPingScore.bestType = 1;
+      outPingScore.bestScore = 0.0;
+      *(_QWORD *)&outPingScore.bestScriptable = -1i64;
+      CG_CalloutMarkerPing_PickContextualTarget((const LocalClientNum_t)v2, &outOrg, &LocalClientGlobals->refdef.view.axis, &outPingScore);
+      bestEntNum = outPingScore.bestEntNum;
       bestScriptable = outPingScore.bestScriptable;
-    }
-    if ( bestScriptable == -1 )
-    {
-      if ( outPingScore.bestGSCObjective == -1 )
+      v14 = CG_CalloutMarkerPing_CheckSquadPingsForTarget((LocalClientNum_t)v2, outPingScore.bestEntNum, outPingScore.bestScriptable, -1);
+      if ( (unsigned __int8)(v14 - 52) > 1u )
       {
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_calloutmarkerping_trace_solid_distance, "calloutmarkerping_trace_solid_distance");
-        __asm { vaddss  xmm3, xmm0, dword ptr [rbp+40h+outOrg+8]; traceDistance }
-        *(_DWORD *)type = 2;
-        if ( CG_CalloutMarkerPing_TraceSolidForNavOrDanger((LocalClientNum_t)v6, &outOrg, &traceDir, *(float *)&_XMM3, &outPosition, type, (__int16 *)outEntityNum) )
+        CG_CalloutMarkerPing_Predicted_CreateFeedback((LocalClientNum_t)v2, v14, isTentativeAction);
+        return;
+      }
+      if ( bestEntNum != 2047 )
+      {
+        v15 = *(_DWORD *)outPingScore.bestType;
+        if ( (unsigned int)(*(_DWORD *)outPingScore.bestType - 6) > 7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 4908, ASSERT_TYPE_ASSERT, "(( pingScore.bestType < CalloutMarkerPingType::SCRIPTABLES_BEGIN ) && ( pingScore.bestType >= CalloutMarkerPingType::ENTITIES_BEGIN ))", (const char *)&queryFormat, "( pingScore.bestType < CalloutMarkerPingType::SCRIPTABLES_BEGIN ) && ( pingScore.bestType >= CalloutMarkerPingType::ENTITIES_BEGIN )") )
+          __debugbreak();
+        PoolID = CG_CalloutMarkerPing_TypeGetPoolID((CalloutMarkerPingType)v15);
+        EntityZOffset = CG_CalloutMarkerPing_GetEntityZOffset((LocalClientNum_t)v2, bestEntNum);
+        if ( v15 != 13 )
         {
-          if ( *(_DWORD *)type == 13 )
+          CG_CalloutMarkerPing_Predicted_CreateAtEntity((LocalClientNum_t)v2, PoolID, bestEntNum, 0, 0, EntityZOffset, isTentativeAction);
+          return;
+        }
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_calloutmarkerping_trace_solid_distance, "calloutmarkerping_trace_solid_distance");
+        *(_DWORD *)outEntityNum = 2;
+        if ( CG_CalloutMarkerPing_TraceSolidForNavOrDanger((LocalClientNum_t)v2, &outOrg, &traceDir, *(float *)&Float_Internal_DebugName + outOrg.v[2], (vec3_t *)&plane, outEntityNum, &outPingScore.bestEntNum) && *(_DWORD *)outEntityNum == 13 )
+        {
+          v19 = outPingScore.bestEntNum;
+          Entity = CG_GetEntity((const LocalClientNum_t)v2, outPingScore.bestEntNum);
+          CG_GetPoseOrigin(&Entity->pose, &outOrigin);
+          v21 = plane.v[0] - outOrigin.v[0];
+          v22 = plane.v[1] - outOrigin.v[1];
+          AnglesToAxis(&Entity->pose.angles, &axis);
+          v23 = (int)(float)((float)((float)(v22 * axis.m[0].v[1]) + (float)(v21 * axis.m[0].v[0])) * 0.25);
+          v24 = (int)(float)((float)((float)(v22 * axis.m[1].v[1]) + (float)(v21 * axis.m[1].v[0])) * 0.25);
+          v25 = (int)(float)(plane.v[2] - outOrigin.v[2]) + CG_CalloutMarkerPing_GetEntityZOffset((LocalClientNum_t)v2, v19);
+          if ( v19 != 2047 )
           {
-            v56 = CG_CalloutMarkerPing_TypeGetPoolID(STRUCT_POINTER|INT_VALUE);
-            Dvar_GetFloat_Internal_DebugName(DVARFLT_calloutmarkerping_trace_solid_distance, "calloutmarkerping_trace_solid_distance");
-            v57 = *(_WORD *)outEntityNum;
-            _RBX = CG_GetEntity((const LocalClientNum_t)v6, *(__int16 *)outEntityNum);
-            CG_GetPoseOrigin(&_RBX->pose, &outOrigin);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+140h+outPosition]
-              vmovss  xmm1, dword ptr [rsp+140h+outPosition+4]
-              vsubss  xmm7, xmm0, dword ptr [rsp+140h+outOrigin]
-              vsubss  xmm6, xmm1, dword ptr [rsp+140h+outOrigin+4]
-            }
-            AnglesToAxis(&_RBX->pose.angles, &axis);
-            __asm
-            {
-              vmulss  xmm1, xmm6, dword ptr [rbp+40h+axis+4]
-              vmulss  xmm0, xmm7, dword ptr [rbp+40h+axis]
-              vaddss  xmm1, xmm1, xmm0
-              vmulss  xmm0, xmm7, dword ptr [rbp+40h+axis+0Ch]
-              vmulss  xmm2, xmm1, xmm9
-              vmulss  xmm1, xmm6, dword ptr [rbp+40h+axis+10h]
-              vaddss  xmm1, xmm1, xmm0
-              vcvttss2si edi, xmm2
-              vmulss  xmm2, xmm1, xmm9
-              vcvttss2si ebx, xmm2
-            }
-            v72 = CG_CalloutMarkerPing_GetEntityZOffset((LocalClientNum_t)v6, v57);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+140h+outPosition+8]
-              vsubss  xmm1, xmm0, dword ptr [rsp+140h+outOrigin+8]
-              vcvttss2si ecx, xmm1
-            }
-            CG_CalloutMarkerPing_Predicted_CreateAtEntity((LocalClientNum_t)v6, v56, v57, _EDI, (char)_RBX, _ECX + v72, isTentativeAction);
+            CG_CalloutMarkerPing_Predicted_CreateAtEntity((LocalClientNum_t)v2, PoolID, v19, v23, v24, v25, isTentativeAction);
+            return;
           }
-          else if ( *(_DWORD *)type )
+        }
+        bestScriptable = outPingScore.bestScriptable;
+      }
+      if ( bestScriptable == -1 )
+      {
+        if ( outPingScore.bestGSCObjective == -1 )
+        {
+          v26 = Dvar_GetFloat_Internal_DebugName(DVARFLT_calloutmarkerping_trace_solid_distance, "calloutmarkerping_trace_solid_distance");
+          *(_DWORD *)type = 2;
+          if ( CG_CalloutMarkerPing_TraceSolidForNavOrDanger((LocalClientNum_t)v2, &outOrg, &traceDir, *(float *)&v26 + outOrg.v[2], &outPosition, type, (__int16 *)outEntityNum) )
           {
-            __asm
+            if ( *(_DWORD *)type == 13 )
             {
-              vmovss  xmm0, dword ptr [rsp+140h+outPosition+8]
-              vaddss  xmm1, xmm0, cs:__real@42700000
-              vmovss  dword ptr [rsp+140h+outPosition+8], xmm1
+              v27 = CG_CalloutMarkerPing_TypeGetPoolID(STRUCT_POINTER|INT_VALUE);
+              Dvar_GetFloat_Internal_DebugName(DVARFLT_calloutmarkerping_trace_solid_distance, "calloutmarkerping_trace_solid_distance");
+              v28 = *(_WORD *)outEntityNum;
+              v29 = CG_GetEntity((const LocalClientNum_t)v2, *(__int16 *)outEntityNum);
+              CG_GetPoseOrigin(&v29->pose, &outOrigin);
+              v30 = outPosition.v[0] - outOrigin.v[0];
+              v31 = outPosition.v[1] - outOrigin.v[1];
+              AnglesToAxis(&v29->pose.angles, &axis);
+              v32 = (int)(float)((float)((float)(v31 * axis.m[0].v[1]) + (float)(v30 * axis.m[0].v[0])) * 0.25);
+              LODWORD(v29) = (int)(float)((float)((float)(v31 * axis.m[1].v[1]) + (float)(v30 * axis.m[1].v[0])) * 0.25);
+              v33 = CG_CalloutMarkerPing_GetEntityZOffset((LocalClientNum_t)v2, v28);
+              CG_CalloutMarkerPing_Predicted_CreateAtEntity((LocalClientNum_t)v2, v27, v28, v32, (char)v29, (int)(float)(outPosition.v[2] - outOrigin.v[2]) + v33, isTentativeAction);
             }
-            CG_CalloutMarkerPing_Predicted_CreateAtOrigin((LocalClientNum_t)v6, CONST_CALLOUT_POOL_ID_NAVIGATION, &outPosition, isTentativeAction);
+            else if ( *(_DWORD *)type )
+            {
+              outPosition.v[2] = outPosition.v[2] + 60.0;
+              CG_CalloutMarkerPing_Predicted_CreateAtOrigin((LocalClientNum_t)v2, CONST_CALLOUT_POOL_ID_NAVIGATION, &outPosition, isTentativeAction);
+            }
+          }
+          else if ( outOrg.v[2] > 0.0 && CG_GameInterface_PlayingBR() )
+          {
+            plane = (vec4_t)_xmm;
+            if ( IntersectRayPlane(&outOrg, &traceDir, &plane, (float *)type, &outOrigin) && outOrigin.v[0] >= -65000.0 && outOrigin.v[1] >= -65000.0 && outOrigin.v[0] <= 65000.0 && outOrigin.v[1] <= 65000.0 )
+            {
+              outPosition.v[0] = outOrigin.v[0];
+              outPosition.v[1] = outOrigin.v[1];
+              outPosition.v[2] = 0.0;
+              CG_CalloutMarkerPing_Predicted_CreateAtOrigin((LocalClientNum_t)v2, CONST_CALLOUT_POOL_ID_NAVIGATION, &outPosition, 0);
+              s_calloutMarkerPingData[v5].predicted.view.origin.z = -12345;
+            }
           }
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+40h+outOrg+8]
-            vcomiss xmm0, xmm8
-          }
+          CG_CalloutMarkerPing_Predicted_CreateAtGSCObjective((LocalClientNum_t)v2, outPingScore.bestGSCObjective, isTentativeAction);
         }
       }
       else
       {
-        CG_CalloutMarkerPing_Predicted_CreateAtGSCObjective((LocalClientNum_t)v6, outPingScore.bestGSCObjective, isTentativeAction);
+        CG_CalloutMarkerPing_Predicted_CreateAtScriptable((LocalClientNum_t)v2, bestScriptable, isTentativeAction);
       }
     }
     else
     {
-      CG_CalloutMarkerPing_Predicted_CreateAtScriptable((LocalClientNum_t)v6, bestScriptable, isTentativeAction);
-    }
-    goto LABEL_34;
-  }
-  if ( (unsigned int)v6 >= 2 )
-  {
-    LODWORD(outPingType) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 4549, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", outPingType, 2) )
-      __debugbreak();
-  }
-  if ( !s_calloutMarkerPingData[v9].predicted.sentToServer )
-  {
-    LOBYTE(v17) = CG_CalloutMarkerPing_ClassifyPing((LocalClientNum_t)v6, (const CalloutMarkerPingPool)s_calloutMarkerPingData[v9].predicted.pool, &s_calloutMarkerPingData[v9].predicted.view);
-    if ( v17 == 10 )
-    {
-LABEL_19:
-      CG_CalloutMarkerPing_FinalizeDoubleTap((LocalClientNum_t)v6, isTentativeAction, 0);
-      return;
-    }
-    if ( v17 == 2 )
-    {
-      s_calloutMarkerPingData[v9].predicted.pool = CONST_CALLOUT_POOL_ID_DANGER_1;
-      s_calloutMarkerPingData[v9].dirty = 1;
-      CG_CalloutMarkerPing_FinalizeDoubleTap((LocalClientNum_t)v6, isTentativeAction, 0);
-      return;
-    }
-    __asm { vmovss  xmm3, cs:__real@453b8000; traceDistance }
-    *(_DWORD *)type = 1;
-    if ( CG_CalloutMarkerPing_TraceSolidForNavOrDanger((LocalClientNum_t)v6, &outOrg, &traceDir, *(float *)&_XMM3, (vec3_t *)&plane, type, (__int16 *)outEntityNum) )
-    {
-      __asm
+      if ( (unsigned int)v2 >= 2 )
       {
-        vmovss  xmm0, dword ptr [rbp+40h+plane+8]
-        vaddss  xmm1, xmm0, cs:__real@42700000
-        vmovss  dword ptr [rbp+40h+plane+8], xmm1
+        LODWORD(outPingType) = v2;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 4549, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", outPingType, 2) )
+          __debugbreak();
       }
-      CG_CalloutMarkerPing_Predicted_CreateAtOrigin((LocalClientNum_t)v6, CONST_CALLOUT_POOL_ID_DANGER_1, (const vec3_t *)&plane, 1);
-      goto LABEL_19;
+      if ( !s_calloutMarkerPingData[v5].predicted.sentToServer )
+      {
+        LOBYTE(v10) = CG_CalloutMarkerPing_ClassifyPing((LocalClientNum_t)v2, (const CalloutMarkerPingPool)s_calloutMarkerPingData[v5].predicted.pool, &s_calloutMarkerPingData[v5].predicted.view);
+        if ( v10 == 10 )
+        {
+LABEL_19:
+          CG_CalloutMarkerPing_FinalizeDoubleTap((LocalClientNum_t)v2, isTentativeAction, 0);
+          return;
+        }
+        if ( v10 == 2 )
+        {
+          s_calloutMarkerPingData[v5].predicted.pool = CONST_CALLOUT_POOL_ID_DANGER_1;
+          s_calloutMarkerPingData[v5].dirty = 1;
+          CG_CalloutMarkerPing_FinalizeDoubleTap((LocalClientNum_t)v2, isTentativeAction, 0);
+          return;
+        }
+        *(_DWORD *)type = 1;
+        if ( CG_CalloutMarkerPing_TraceSolidForNavOrDanger((LocalClientNum_t)v2, &outOrg, &traceDir, 3000.0, (vec3_t *)&plane, type, (__int16 *)outEntityNum) )
+        {
+          plane.v[2] = plane.v[2] + 60.0;
+          CG_CalloutMarkerPing_Predicted_CreateAtOrigin((LocalClientNum_t)v2, CONST_CALLOUT_POOL_ID_DANGER_1, (const vec3_t *)&plane, 1);
+          goto LABEL_19;
+        }
+        CG_CalloutMarkerPing_FinalizeDoubleTap((LocalClientNum_t)v2, isTentativeAction, 1);
+      }
     }
-    CG_CalloutMarkerPing_FinalizeDoubleTap((LocalClientNum_t)v6, isTentativeAction, 1);
   }
 }
 
@@ -4352,37 +3925,44 @@ CG_CalloutMarkerPing_Predicted_HandleButtonPress_Spectate
 */
 void CG_CalloutMarkerPing_Predicted_HandleButtonPress_Spectate(const LocalClientNum_t localClientNum, const bool isTentativeAction)
 {
-  __int64 v8; 
+  __int64 v2; 
   unsigned int IndexByName; 
-  unsigned int v11; 
+  unsigned int v5; 
   const OmnvarDef *Def; 
   OmnvarData *Data; 
-  const dvar_t *v14; 
-  char v15; 
+  const dvar_t *v8; 
+  char v9; 
+  float v10; 
+  float v11; 
+  double Float_Internal_DebugName; 
+  float v13; 
   cg_t *LocalClientGlobals; 
-  unsigned int v21; 
-  unsigned __int8 v22; 
-  unsigned __int8 v23; 
+  unsigned int v15; 
+  unsigned __int8 v16; 
+  unsigned __int8 v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   unsigned int InstanceIndex; 
-  unsigned int v28; 
-  __int64 v52; 
-  __int64 v53; 
+  unsigned int v22; 
+  __int64 v23; 
+  __int64 v24; 
   bool outIsMoving; 
   float outRadius; 
   vec3_t outOrg; 
   vec2_t outPosition; 
 
-  v8 = localClientNum;
+  v2 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 4459, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  if ( !s_calloutMarkerPingData[v8].predicted.view.origin.owner && s_calloutMarkerPingData[v8].predicted.feedbackViewIndex == 53 )
+  if ( !s_calloutMarkerPingData[v2].predicted.view.origin.owner && s_calloutMarkerPingData[v2].predicted.feedbackViewIndex == 53 )
   {
     IndexByName = BG_Omnvar_GetIndexByName("ui_lower_message");
-    v11 = IndexByName;
+    v5 = IndexByName;
     if ( IndexByName != -1 )
     {
       Def = BG_Omnvar_GetDef(IndexByName);
-      Data = CG_Omnvar_GetData((LocalClientNum_t)v8, v11);
+      Data = CG_Omnvar_GetData((LocalClientNum_t)v2, v5);
       if ( !Def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 206, ASSERT_TYPE_ASSERT, "(def)", (const char *)&queryFormat, "def") )
         __debugbreak();
       if ( !Data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_omnvar.h", 207, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
@@ -4391,142 +3971,82 @@ void CG_CalloutMarkerPing_Predicted_HandleButtonPress_Spectate(const LocalClient
         __debugbreak();
       if ( Data->current.integer + Def->minvalue == 75 )
       {
-        v14 = DVARBOOL_calloutmarkerping_buybackEnabled;
+        v8 = DVARBOOL_calloutmarkerping_buybackEnabled;
         if ( !DVARBOOL_calloutmarkerping_buybackEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_buybackEnabled") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v14);
-        if ( v14->current.enabled )
+        Dvar_CheckFrontendServerThread(v8);
+        if ( v8->current.enabled )
         {
-          __asm { vmovaps [rsp+108h+var_48], xmm7 }
-          v15 = 0;
-          __asm
-          {
-            vmovaps [rsp+108h+var_58], xmm8
-            vxorps  xmm8, xmm8, xmm8
-            vxorps  xmm7, xmm7, xmm7
-          }
+          v9 = 0;
+          v10 = 0.0;
+          v11 = 0.0;
           if ( CG_GameInterface_PlayingBR() )
           {
             if ( (_BYTE)CgCompassSystem::ms_allocatedType != HALF_HALF )
             {
-              LODWORD(v53) = v8;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v53, 2, (unsigned __int8)CgCompassSystem::ms_allocatedType) )
+              LODWORD(v24) = v2;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 586, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE)", "%s\n\tTrying to access the compass system for localClientNum %d but the compass system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::COMPASS_SYSTEM_TYPE", v24, 2, (unsigned __int8)CgCompassSystem::ms_allocatedType) )
                 __debugbreak();
             }
-            if ( (unsigned int)v8 >= CgCompassSystem::ms_allocatedCount )
+            if ( (unsigned int)v2 >= CgCompassSystem::ms_allocatedCount )
             {
-              LODWORD(v53) = CgCompassSystem::ms_allocatedCount;
-              LODWORD(v52) = v8;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v52, v53) )
+              LODWORD(v24) = CgCompassSystem::ms_allocatedCount;
+              LODWORD(v23) = v2;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 587, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v23, v24) )
                 __debugbreak();
             }
-            if ( !CgCompassSystem::ms_compassSystemArray[v8] )
+            if ( !CgCompassSystem::ms_compassSystemArray[v2] )
             {
-              LODWORD(v53) = v8;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v53) )
+              LODWORD(v24) = v2;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_compass.h", 588, ASSERT_TYPE_ASSERT, "(ms_compassSystemArray[localClientNum])", "%s\n\tTrying to access unallocated compass system for localClientNum %d\n", "ms_compassSystemArray[localClientNum]", v24) )
                 __debugbreak();
             }
-            if ( CgCompassSystemBR::GetDangerCircleInfo((CgCompassSystemBR *)CgCompassSystem::ms_compassSystemArray[v8], &outPosition, &outRadius, &outIsMoving) )
+            if ( CgCompassSystemBR::GetDangerCircleInfo((CgCompassSystemBR *)CgCompassSystem::ms_compassSystemArray[v2], &outPosition, &outRadius, &outIsMoving) )
             {
               if ( outIsMoving )
               {
-                Dvar_GetFloat_Internal_DebugName(DVARFLT_compass_buyback_circle_moving_radius_pct, "compass_buyback_circle_moving_radius_pct");
-                __asm
-                {
-                  vmovss  xmm1, [rsp+108h+outRadius]
-                  vmulss  xmm2, xmm1, xmm0
-                }
+                Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_compass_buyback_circle_moving_radius_pct, "compass_buyback_circle_moving_radius_pct");
+                v13 = outRadius * *(float *)&Float_Internal_DebugName;
               }
               else
               {
-                __asm { vmovss  xmm2, [rsp+108h+outRadius] }
+                v13 = outRadius;
               }
-              __asm { vmulss  xmm8, xmm2, xmm2 }
-              v15 = 1;
+              v10 = v13 * v13;
+              v9 = 1;
             }
           }
-          LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v8);
+          LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
           RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-          v21 = -1;
-          v22 = 0;
-          v23 = ScriptableCl_ObjectiveCount((const LocalClientNum_t)v8);
-          if ( v23 )
+          v15 = -1;
+          v16 = 0;
+          v17 = ScriptableCl_ObjectiveCount((const LocalClientNum_t)v2);
+          if ( v17 )
           {
-            __asm
-            {
-              vmovaps [rsp+108h+var_68], xmm9
-              vmovss  xmm9, dword ptr [rsp+108h+outOrg+8]
-              vmovaps [rsp+108h+var_78], xmm10
-              vmovss  xmm10, dword ptr [rsp+108h+outOrg+4]
-              vmovaps [rsp+108h+var_88], xmm11
-              vmovss  xmm11, dword ptr [rsp+108h+outOrg]
-              vmovaps [rsp+108h+var_38], xmm6
-            }
+            v18 = outOrg.v[2];
+            v19 = outOrg.v[1];
+            v20 = outOrg.v[0];
             do
             {
-              InstanceIndex = ScriptableCl_ObjectiveGetInstanceIndex((const LocalClientNum_t)v8, v22);
-              v28 = InstanceIndex;
-              if ( InstanceIndex != -1 && (unsigned int)CG_CalloutMarkerPing_ClassifyScriptable((LocalClientNum_t)v8, InstanceIndex) == 15 )
+              InstanceIndex = ScriptableCl_ObjectiveGetInstanceIndex((const LocalClientNum_t)v2, v16);
+              v22 = InstanceIndex;
+              if ( InstanceIndex != -1 && (unsigned int)CG_CalloutMarkerPing_ClassifyScriptable((LocalClientNum_t)v2, InstanceIndex) == 15 )
               {
-                ScriptableCl_GetInstanceOrigin((const LocalClientNum_t)v8, v28, &outOrg);
-                __asm
+                ScriptableCl_GetInstanceOrigin((const LocalClientNum_t)v2, v22, &outOrg);
+                if ( (!v9 || (float)((float)((float)(outPosition.v[1] - outOrg.v[1]) * (float)(outPosition.v[1] - outOrg.v[1])) + (float)((float)(outPosition.v[0] - outOrg.v[0]) * (float)(outPosition.v[0] - outOrg.v[0]))) <= v10) && (v15 == -1 || (float)((float)((float)((float)(v19 - outOrg.v[1]) * (float)(v19 - outOrg.v[1])) + (float)((float)(v20 - outOrg.v[0]) * (float)(v20 - outOrg.v[0]))) + (float)((float)(v18 - outOrg.v[2]) * (float)(v18 - outOrg.v[2]))) < v11) )
                 {
-                  vmovss  xmm5, dword ptr [rsp+108h+outOrg+4]
-                  vmovss  xmm6, dword ptr [rsp+108h+outOrg]
-                }
-                if ( v15 )
-                {
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rsp+108h+outPosition]
-                    vmovss  xmm1, dword ptr [rsp+108h+outPosition+4]
-                    vsubss  xmm2, xmm1, xmm5
-                    vsubss  xmm4, xmm0, xmm6
-                    vmulss  xmm3, xmm2, xmm2
-                    vmulss  xmm0, xmm4, xmm4
-                    vaddss  xmm1, xmm3, xmm0
-                    vcomiss xmm1, xmm8
-                  }
-                }
-                else
-                {
-                  __asm
-                  {
-                    vsubss  xmm3, xmm9, dword ptr [rsp+108h+outOrg+8]
-                    vsubss  xmm0, xmm10, xmm5
-                    vmulss  xmm1, xmm0, xmm0
-                    vsubss  xmm2, xmm11, xmm6
-                    vmulss  xmm0, xmm2, xmm2
-                    vaddss  xmm2, xmm1, xmm0
-                    vmulss  xmm1, xmm3, xmm3
-                    vaddss  xmm4, xmm2, xmm1
-                  }
-                  if ( v21 != -1 )
-                    __asm { vcomiss xmm4, xmm7 }
-                  v21 = v28;
-                  __asm { vmovaps xmm7, xmm4 }
+                  v15 = v22;
+                  v11 = (float)((float)((float)(v19 - outOrg.v[1]) * (float)(v19 - outOrg.v[1])) + (float)((float)(v20 - outOrg.v[0]) * (float)(v20 - outOrg.v[0]))) + (float)((float)(v18 - outOrg.v[2]) * (float)(v18 - outOrg.v[2]));
                 }
               }
-              ++v22;
+              ++v16;
             }
-            while ( v22 < v23 );
-            __asm
+            while ( v16 < v17 );
+            if ( v15 != -1 )
             {
-              vmovaps xmm11, [rsp+108h+var_88]
-              vmovaps xmm10, [rsp+108h+var_78]
-              vmovaps xmm9, [rsp+108h+var_68]
-              vmovaps xmm6, [rsp+108h+var_38]
+              CG_CalloutMarkerPing_Predicted_CreateAtScriptable((LocalClientNum_t)v2, v15, isTentativeAction);
+              CG_CalloutMarkerPing_Predicted_SendToServer((LocalClientNum_t)v2);
             }
-            if ( v21 != -1 )
-            {
-              CG_CalloutMarkerPing_Predicted_CreateAtScriptable((LocalClientNum_t)v8, v21, isTentativeAction);
-              CG_CalloutMarkerPing_Predicted_SendToServer((LocalClientNum_t)v8);
-            }
-          }
-          __asm
-          {
-            vmovaps xmm7, [rsp+108h+var_48]
-            vmovaps xmm8, [rsp+108h+var_58]
           }
         }
       }
@@ -4541,22 +4061,29 @@ CG_CalloutMarkerPing_Predicted_HandleButtonPress_TacMap
 */
 void CG_CalloutMarkerPing_Predicted_HandleButtonPress_TacMap(LocalClientNum_t localClientNum)
 {
-  __int64 v5; 
+  __int64 v2; 
   cg_t *LocalClientGlobals; 
-  const dvar_t *v7; 
-  cg_t *v8; 
+  const dvar_t *v4; 
+  cg_t *v5; 
   unsigned __int8 pingIndex; 
   unsigned int scriptableIndex; 
   __int16 entityIndex; 
-  int v12; 
-  CalloutMarkerPingType v13; 
+  int v9; 
+  CalloutMarkerPingType v10; 
   CalloutMarkerPingPool PoolID; 
   __int16 zOffset; 
   int objectiveIndex; 
-  __int16 v20; 
+  double Float_Internal_DebugName; 
+  double v15; 
+  __int16 v16; 
   centity_t *Entity; 
+  float v18; 
+  float v19; 
+  int v20; 
+  int v21; 
   __int16 EntityZOffset; 
-  __int16 v41; 
+  float v23; 
+  __int16 v24; 
   __int16 outEntityNum[2]; 
   CalloutMarkerPingType outPingType[4]; 
   vec3_t origin; 
@@ -4565,21 +4092,21 @@ void CG_CalloutMarkerPing_Predicted_HandleButtonPress_TacMap(LocalClientNum_t lo
   vec3_t outDirection; 
   tmat33_t<vec3_t> axis; 
 
-  v5 = localClientNum;
-  if ( !s_calloutMarkerPingData[v5].predicted.view.origin.owner && s_calloutMarkerPingData[v5].predicted.feedbackViewIndex == 53 )
+  v2 = localClientNum;
+  if ( !s_calloutMarkerPingData[v2].predicted.view.origin.owner && s_calloutMarkerPingData[v2].predicted.feedbackViewIndex == 53 )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    v7 = DCONST_DVARINT_calloutmarkerping_prediction_debounce_time;
-    v8 = LocalClientGlobals;
+    v4 = DCONST_DVARINT_calloutmarkerping_prediction_debounce_time;
+    v5 = LocalClientGlobals;
     if ( !DCONST_DVARINT_calloutmarkerping_prediction_debounce_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_prediction_debounce_time") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    if ( v8->time >= v7->current.integer + s_calloutMarkerPingData[v5].predicted.sentToServerTime && CG_GameInterface_PlayingBR() )
+    Dvar_CheckFrontendServerThread(v4);
+    if ( v5->time >= v4->current.integer + s_calloutMarkerPingData[v2].predicted.sentToServerTime && CG_GameInterface_PlayingBR() )
     {
       CG_CalloutMarkerPing_UpdateSquad(localClientNum);
-      if ( s_calloutMarkerPingData[v5].squadMateAliveCount )
+      if ( s_calloutMarkerPingData[v2].squadMateAliveCount )
       {
-        pingIndex = s_calloutMarkerPingData[v5].tacmapLookAt.pingIndex;
+        pingIndex = s_calloutMarkerPingData[v2].tacmapLookAt.pingIndex;
         if ( pingIndex != 52 )
         {
           if ( pingIndex != 53 )
@@ -4588,112 +4115,74 @@ void CG_CalloutMarkerPing_Predicted_HandleButtonPress_TacMap(LocalClientNum_t lo
             CG_CalloutMarkerPing_Predicted_SendToServer(localClientNum);
             return;
           }
-          scriptableIndex = s_calloutMarkerPingData[v5].tacmapLookAt.scriptableIndex;
+          scriptableIndex = s_calloutMarkerPingData[v2].tacmapLookAt.scriptableIndex;
           if ( scriptableIndex != -1 )
           {
             CG_CalloutMarkerPing_Predicted_CreateAtScriptable(localClientNum, scriptableIndex, 0);
             CG_CalloutMarkerPing_Predicted_SendToServer(localClientNum);
             return;
           }
-          entityIndex = s_calloutMarkerPingData[v5].tacmapLookAt.entityIndex;
+          entityIndex = s_calloutMarkerPingData[v2].tacmapLookAt.entityIndex;
           if ( entityIndex != 2047 )
           {
-            LOBYTE(v12) = CG_CalloutMarkerPing_ClassifyEntity(localClientNum, entityIndex);
-            v13 = (char)v12;
-            if ( v12 <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 4371, ASSERT_TYPE_ASSERT, "(type > CalloutMarkerPingType::INVALID)", (const char *)&queryFormat, "type > CalloutMarkerPingType::INVALID") )
+            LOBYTE(v9) = CG_CalloutMarkerPing_ClassifyEntity(localClientNum, entityIndex);
+            v10 = (char)v9;
+            if ( v9 <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 4371, ASSERT_TYPE_ASSERT, "(type > CalloutMarkerPingType::INVALID)", (const char *)&queryFormat, "type > CalloutMarkerPingType::INVALID") )
               __debugbreak();
-            CG_CalloutMarkerPing_GetEntityZOffset(localClientNum, s_calloutMarkerPingData[v5].tacmapLookAt.entityIndex);
-            PoolID = CG_CalloutMarkerPing_TypeGetPoolID(v13);
-            CG_CalloutMarkerPing_Predicted_CreateAtEntity(localClientNum, PoolID, s_calloutMarkerPingData[v5].tacmapLookAt.entityIndex, 0, 0, zOffset, 0);
+            CG_CalloutMarkerPing_GetEntityZOffset(localClientNum, s_calloutMarkerPingData[v2].tacmapLookAt.entityIndex);
+            PoolID = CG_CalloutMarkerPing_TypeGetPoolID(v10);
+            CG_CalloutMarkerPing_Predicted_CreateAtEntity(localClientNum, PoolID, s_calloutMarkerPingData[v2].tacmapLookAt.entityIndex, 0, 0, zOffset, 0);
             CG_CalloutMarkerPing_Predicted_SendToServer(localClientNum);
             return;
           }
-          objectiveIndex = s_calloutMarkerPingData[v5].tacmapLookAt.objectiveIndex;
+          objectiveIndex = s_calloutMarkerPingData[v2].tacmapLookAt.objectiveIndex;
           if ( objectiveIndex != -1 )
           {
             CG_CalloutMarkerPing_Predicted_CreateAtGSCObjective(localClientNum, objectiveIndex, 0);
             CG_CalloutMarkerPing_Predicted_SendToServer(localClientNum);
             return;
           }
-          __asm { vmovaps [rsp+100h+var_38+8], xmm6 }
           CG_CalloutMarkerPing_GetTacmapWorldPos(localClientNum, &outPosition, &outDirection);
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_calloutmarkerping_trace_tacmap_height, "calloutmarkerping_trace_tacmap_height");
-          __asm { vmovss  xmm6, cs:__real@40000000 }
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_calloutmarkerping_trace_tacmap_height, "calloutmarkerping_trace_tacmap_height");
           *(_DWORD *)outPingType = 1;
-          __asm { vmulss  xmm3, xmm0, xmm6; traceDistance }
-          if ( !CG_CalloutMarkerPing_TraceSolidForNavOrDanger(localClientNum, &outPosition, &outDirection, *(float *)&_XMM3, &origin, outPingType, outEntityNum) )
+          if ( !CG_CalloutMarkerPing_TraceSolidForNavOrDanger(localClientNum, &outPosition, &outDirection, *(float *)&Float_Internal_DebugName * 2.0, &origin, outPingType, outEntityNum) )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+57h+outPosition]
-              vmovss  xmm1, dword ptr [rbp+57h+outPosition+4]
-              vmovss  dword ptr [rbp+57h+origin], xmm0
-              vxorps  xmm0, xmm0, xmm0
-              vmovss  dword ptr [rbp+57h+origin+8], xmm0
-              vmovss  dword ptr [rbp+57h+origin+4], xmm1
-            }
+            origin.v[0] = outPosition.v[0];
+            origin.v[2] = 0.0;
+            origin.v[1] = outPosition.v[1];
             CG_CalloutMarkerPing_Predicted_CreateAtOrigin(localClientNum, CONST_CALLOUT_POOL_ID_NAVIGATION, &origin, 0);
-            s_calloutMarkerPingData[v5].predicted.view.origin.z = -1234;
+            s_calloutMarkerPingData[v2].predicted.view.origin.z = -1234;
             goto LABEL_29;
           }
           outEntityNum[0] = 2047;
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_calloutmarkerping_trace_tacmap_height, "calloutmarkerping_trace_tacmap_height");
+          v15 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_calloutmarkerping_trace_tacmap_height, "calloutmarkerping_trace_tacmap_height");
           *(_DWORD *)outPingType = 2;
-          __asm { vmulss  xmm3, xmm0, xmm6; traceDistance }
-          if ( CG_CalloutMarkerPing_TraceSolidForNavOrDanger(localClientNum, &outPosition, &outDirection, *(float *)&_XMM3, &origin, outPingType, outEntityNum) && *(_DWORD *)outPingType == 13 )
+          if ( CG_CalloutMarkerPing_TraceSolidForNavOrDanger(localClientNum, &outPosition, &outDirection, *(float *)&v15 * 2.0, &origin, outPingType, outEntityNum) && *(_DWORD *)outPingType == 13 )
           {
-            v20 = outEntityNum[0];
-            __asm { vmovaps [rsp+100h+var_48+8], xmm7 }
+            v16 = outEntityNum[0];
             Entity = CG_GetEntity(localClientNum, outEntityNum[0]);
             CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+57h+origin]
-              vmovss  xmm1, dword ptr [rbp+57h+origin+4]
-              vsubss  xmm6, xmm0, dword ptr [rbp+57h+outOrigin]
-              vsubss  xmm7, xmm1, dword ptr [rbp+57h+outOrigin+4]
-            }
+            v18 = origin.v[0] - outOrigin.v[0];
+            v19 = origin.v[1] - outOrigin.v[1];
             AnglesToAxis(&Entity->pose.angles, &axis);
-            __asm
+            v20 = (int)(float)((float)((float)(v18 * axis.m[1].v[0]) + (float)(v19 * axis.m[1].v[1])) * 0.25);
+            v21 = (int)(float)((float)((float)(v19 * axis.m[0].v[1]) + (float)(v18 * axis.m[0].v[0])) * 0.25);
+            EntityZOffset = CG_CalloutMarkerPing_GetEntityZOffset(localClientNum, v16);
+            v23 = origin.v[2];
+            v24 = (int)(float)(origin.v[2] - outOrigin.v[2]) + EntityZOffset;
+            if ( v16 != 2047 )
             {
-              vmulss  xmm3, xmm7, dword ptr [rbp+57h+axis+4]
-              vmulss  xmm2, xmm6, dword ptr [rbp+57h+axis]
-              vaddss  xmm0, xmm3, xmm2
-              vmulss  xmm3, xmm6, dword ptr [rbp+57h+axis+0Ch]
-              vmulss  xmm2, xmm7, dword ptr [rbp+57h+axis+10h]
-              vmulss  xmm0, xmm0, cs:__real@3e800000
-              vaddss  xmm1, xmm3, xmm2
-              vmulss  xmm3, xmm1, cs:__real@3e800000
-              vcvttss2si r14d, xmm3
-              vcvttss2si ebx, xmm0
-            }
-            EntityZOffset = CG_CalloutMarkerPing_GetEntityZOffset(localClientNum, v20);
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rbp+57h+origin+8]
-              vsubss  xmm0, xmm1, dword ptr [rbp+57h+outOrigin+8]
-              vmovaps xmm7, [rsp+100h+var_48+8]
-              vcvttss2si ecx, xmm0
-            }
-            v41 = _ECX + EntityZOffset;
-            if ( v20 != 2047 )
-            {
-              CG_CalloutMarkerPing_Predicted_CreateAtEntity(localClientNum, CONST_CALLOUT_POOL_ID_ENTITY_1, v20, _EBX, _ER14, v41, 0);
+              CG_CalloutMarkerPing_Predicted_CreateAtEntity(localClientNum, CONST_CALLOUT_POOL_ID_ENTITY_1, v16, v21, v20, v24, 0);
 LABEL_29:
               CG_CalloutMarkerPing_Predicted_SendToServer(localClientNum);
-              __asm { vmovaps xmm6, [rsp+100h+var_38+8] }
               return;
             }
           }
           else
           {
-            __asm { vmovss  xmm1, dword ptr [rbp+57h+origin+8] }
+            v23 = origin.v[2];
           }
-          __asm
-          {
-            vaddss  xmm0, xmm1, cs:__real@42700000
-            vmovss  dword ptr [rbp+57h+origin+8], xmm0
-          }
+          origin.v[2] = v23 + 60.0;
           CG_CalloutMarkerPing_Predicted_CreateAtOrigin(localClientNum, CONST_CALLOUT_POOL_ID_NAVIGATION, &origin, 0);
           goto LABEL_29;
         }
@@ -4791,85 +4280,75 @@ CG_CalloutMarkerPing_Predicted_Update
 void CG_CalloutMarkerPing_Predicted_Update(LocalClientNum_t localClientNum)
 {
   const dvar_t *v1; 
-  int v7; 
-  unsigned __int8 v8; 
+  __int64 v3; 
+  double v4; 
+  int v5; 
+  unsigned __int8 v6; 
   bool *p_newsFeedPending; 
   cg_t *LocalClientGlobals; 
   const CalloutMarkerPingView *View; 
-  cg_t *v12; 
+  cg_t *v10; 
   ClConnectionMP *ClientConnectionMP; 
-  __int64 v15; 
-  __int64 v16; 
+  __int64 v12; 
+  __int64 v13; 
 
   v1 = DCONST_DVARBOOL_calloutmarkerping_use_prediction;
-  _RBP = localClientNum;
+  v3 = localClientNum;
   if ( !DCONST_DVARBOOL_calloutmarkerping_use_prediction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_use_prediction") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v1);
   if ( v1->current.enabled )
   {
-    _R15 = s_calloutMarkerPingData;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15+rbp+10h]
-      vmovsd  xmm1, qword ptr [r15+rbp+20h]
-    }
-    v7 = *(_DWORD *)&s_calloutMarkerPingData[_RBP].predicted.isTentative;
-    __asm
-    {
-      vmovups xmmword ptr [r15+rbp+2Ch], xmm0
-      vmovsd  qword ptr [r15+rbp+3Ch], xmm1
-    }
-    *(_DWORD *)&s_calloutMarkerPingData[_RBP].predictedPrev.isTentative = v7;
+    v4 = *(double *)&s_calloutMarkerPingData[v3].predicted.sentToServerTime;
+    v5 = *(_DWORD *)&s_calloutMarkerPingData[v3].predicted.isTentative;
+    *(_OWORD *)&s_calloutMarkerPingData[v3].predictedPrev.view.origin.x = *(_OWORD *)&s_calloutMarkerPingData[v3].predicted.view.origin.x;
+    *(double *)&s_calloutMarkerPingData[v3].predictedPrev.sentToServerTime = v4;
+    *(_DWORD *)&s_calloutMarkerPingData[v3].predictedPrev.isTentative = v5;
     CG_CalloutMarkerPing_UpdatePingLookAt(localClientNum);
     CG_CalloutMarkerPing_UpdateTacmapLookAt(localClientNum);
     if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
     {
-      LODWORD(v16) = 2;
-      LODWORD(v15) = localClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 1780, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v15, v16) )
+      LODWORD(v13) = 2;
+      LODWORD(v12) = localClientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 1780, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v12, v13) )
         __debugbreak();
     }
-    v8 = 0;
-    p_newsFeedPending = &s_calloutMarkerPingData[_RBP].markers[0].newsFeedPending;
+    v6 = 0;
+    p_newsFeedPending = &s_calloutMarkerPingData[v3].markers[0].newsFeedPending;
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     do
     {
       if ( *p_newsFeedPending )
       {
-        View = CG_CalloutMarkerPing_GetView(localClientNum, v8, &LocalClientGlobals->predictedPlayerState);
-        CG_CalloutMarkerPing_UpdateNewsFeedSingle(localClientNum, v8, View);
+        View = CG_CalloutMarkerPing_GetView(localClientNum, v6, &LocalClientGlobals->predictedPlayerState);
+        CG_CalloutMarkerPing_UpdateNewsFeedSingle(localClientNum, v6, View);
         *p_newsFeedPending = 0;
         *((_DWORD *)p_newsFeedPending + 1) = 0;
       }
-      ++v8;
+      ++v6;
       p_newsFeedPending += 16;
     }
-    while ( v8 < 0x34u );
-    if ( s_calloutMarkerPingData[_RBP].predicted.view.origin.owner || s_calloutMarkerPingData[_RBP].predicted.feedbackViewIndex != 53 )
+    while ( v6 < 0x34u );
+    if ( s_calloutMarkerPingData[v3].predicted.view.origin.owner || s_calloutMarkerPingData[v3].predicted.feedbackViewIndex != 53 )
     {
-      if ( s_calloutMarkerPingData[_RBP].predicted.sentToServer )
+      if ( s_calloutMarkerPingData[v3].predicted.sentToServer )
       {
         ClientConnectionMP = ClConnectionMP::GetClientConnectionMP(localClientNum);
-        if ( ClientConnectionMP->GetConnectionData(ClientConnectionMP)->reliableAcknowledge > s_calloutMarkerPingData[_RBP].predicted.sentToServerSequence )
+        if ( ClientConnectionMP->GetConnectionData(ClientConnectionMP)->reliableAcknowledge > s_calloutMarkerPingData[v3].predicted.sentToServerSequence )
         {
-          s_calloutMarkerPingData[_RBP].lastPredictedPool = s_calloutMarkerPingData[_RBP].predicted.pool;
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [r15+rbp+10h]
-            vmovsd  qword ptr [r15+rbp+4], xmm0
-          }
-          s_calloutMarkerPingData[_RBP].predicted.createdTime = 0;
-          *(_QWORD *)&s_calloutMarkerPingData[_RBP].predicted.sentToServerSequence = 0i64;
-          *(_WORD *)&s_calloutMarkerPingData[_RBP].predicted.pool = 13581;
-          s_calloutMarkerPingData[_RBP].predicted.view = 0i64;
-          s_calloutMarkerPingData[_RBP].dirty = 1;
+          s_calloutMarkerPingData[v3].lastPredictedPool = s_calloutMarkerPingData[v3].predicted.pool;
+          s_calloutMarkerPingData[v3].lastPredictedView = s_calloutMarkerPingData[v3].predicted.view;
+          s_calloutMarkerPingData[v3].predicted.createdTime = 0;
+          *(_QWORD *)&s_calloutMarkerPingData[v3].predicted.sentToServerSequence = 0i64;
+          *(_WORD *)&s_calloutMarkerPingData[v3].predicted.pool = 13581;
+          s_calloutMarkerPingData[v3].predicted.view = 0i64;
+          s_calloutMarkerPingData[v3].dirty = 1;
         }
       }
-      else if ( !s_calloutMarkerPingData[_RBP].predicted.isTentative )
+      else if ( !s_calloutMarkerPingData[v3].predicted.isTentative )
       {
-        v12 = CG_GetLocalClientGlobals(localClientNum);
-        if ( v12->time > Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_calloutmarkerping_double_tap_time, "calloutmarkerping_double_tap_time") + s_calloutMarkerPingData[_RBP].predicted.createdTime )
+        v10 = CG_GetLocalClientGlobals(localClientNum);
+        if ( v10->time > Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_calloutmarkerping_double_tap_time, "calloutmarkerping_double_tap_time") + s_calloutMarkerPingData[v3].predicted.createdTime )
           CG_CalloutMarkerPing_Predicted_SendToServer(localClientNum);
       }
     }
@@ -4928,54 +4407,48 @@ void CG_CalloutMarkerPing_ResetLastPredicted(const LocalClientNum_t localClientN
 CG_CalloutMarkerPing_ScoreEntity
 ==============
 */
-
-float __fastcall CG_CalloutMarkerPing_ScoreEntity(LocalClientNum_t localClientNum, const bool usingAABBCollection, double bestScore, const vec3_t *traceStart, const vec3_t *traceDir, const float traceDistance, const float traceRadius, __int16 entNum, unsigned int type)
+float CG_CalloutMarkerPing_ScoreEntity(LocalClientNum_t localClientNum, const bool usingAABBCollection, const float bestScore, const vec3_t *traceStart, const vec3_t *traceDir, const float traceDistance, const float traceRadius, __int16 entNum, int type)
 {
+  __int128 v9; 
+  __int128 v10; 
   centity_t *Entity; 
-  int v19; 
-  bool v52; 
+  int v15; 
+  float v16; 
+  __int128 v17; 
+  const dvar_t *v18; 
+  float v19; 
+  float v20; 
+  float v24; 
+  float v25; 
+  float v26; 
+  double Float_Internal_DebugName; 
   cg_t *LocalClientGlobals; 
   int linkedEntNum; 
-  centity_t *v55; 
-  unsigned int v56; 
-  int v57; 
-  int v58; 
-  char v59; 
-  __int64 v60; 
-  float fmt; 
-  float radiusExtensiona; 
+  centity_t *v30; 
+  int v31; 
+  int v32; 
+  int i; 
+  char v34; 
+  __int64 v35; 
   __int64 radiusExtension; 
-  __int16 *v69; 
+  __int16 *v38; 
   int numIgnoreEnts[2]; 
   vec3_t outOrigin; 
   __int16 ignoreEnts[4]; 
-  char v77; 
+  __int128 v42; 
+  __int128 v43; 
 
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_48], xmm6
-    vmovaps [rsp+0E8h+var_78], xmm9
-    vmovaps xmm9, xmm2
-  }
   if ( !CG_CalloutMarkerPing_TypeCanBeTraceHit((CalloutMarkerPingType)type) )
-    goto $LN247;
+    return 0.0;
   Entity = CG_GetEntity(localClientNum, entNum);
   if ( (Entity->flags & 1) == 0 )
-    goto $LN247;
+    return 0.0;
   CG_GetPoseOrigin(&Entity->pose, &outOrigin);
-  LOBYTE(v19) = CG_CalloutMarkerPing_ClassifyEntity(localClientNum, entNum);
-  switch ( v19 )
+  LOBYTE(v15) = CG_CalloutMarkerPing_ClassifyEntity(localClientNum, entNum);
+  switch ( v15 )
   {
     case 6:
-      CG_CalloutMarkerPing_GetEntityZOffset(localClientNum, entNum);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vmulss  xmm2, xmm0, cs:__real@3f000000
-        vaddss  xmm2, xmm2, dword ptr [rsp+0E8h+outOrigin+8]
-        vmovss  dword ptr [rsp+0E8h+outOrigin+8], xmm2
-      }
+      outOrigin.v[2] = (float)((float)(__int16)CG_CalloutMarkerPing_GetEntityZOffset(localClientNum, entNum) * 0.5) + outOrigin.v[2];
       break;
     case 7:
     case 8:
@@ -4989,128 +4462,82 @@ float __fastcall CG_CalloutMarkerPing_ScoreEntity(LocalClientNum_t localClientNu
       CG_CalcEyePoint(localClientNum, entNum, &outOrigin);
       break;
     default:
-      goto $LN247;
+      return 0.0;
   }
+  v17 = LODWORD(outOrigin.v[1]);
+  v16 = outOrigin.v[1] - traceStart->v[1];
+  v18 = DCONST_DVARFLT_calloutmarkerping_trace_entity_mindot;
+  v43 = v9;
+  v42 = v10;
+  v19 = outOrigin.v[0] - traceStart->v[0];
+  v20 = outOrigin.v[2] - traceStart->v[2];
+  *(float *)&v17 = fsqrt((float)((float)(v16 * v16) + (float)(v19 * v19)) + (float)(v20 * v20));
+  _XMM4 = v17;
   __asm
   {
-    vmovss  xmm0, dword ptr [rsp+0E8h+outOrigin]; jumptable 00000001403C6D5D cases 7-9,11-13,17
-    vmovss  xmm1, dword ptr [rsp+0E8h+outOrigin+4]
-    vsubss  xmm6, xmm1, dword ptr [r15+4]
-  }
-  _RDI = DCONST_DVARFLT_calloutmarkerping_trace_entity_mindot;
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_58], xmm7
-    vmovaps [rsp+0E8h+var_68], xmm8
-    vsubss  xmm8, xmm0, dword ptr [r15]
-    vmovss  xmm0, dword ptr [rsp+0E8h+outOrigin+8]
-    vsubss  xmm7, xmm0, dword ptr [r15+8]
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm5, xmm1, xmm0
-    vmulss  xmm0, xmm6, xmm5
-    vmulss  xmm3, xmm0, dword ptr [r12+4]
-    vmulss  xmm1, xmm8, xmm5
-    vmovaps xmm8, [rsp+0E8h+var_68]
-    vmulss  xmm2, xmm1, dword ptr [r12]
-    vmulss  xmm0, xmm7, xmm5
-    vmovaps xmm7, [rsp+0E8h+var_58]
-    vmulss  xmm1, xmm0, dword ptr [r12+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm6, xmm4, xmm1
   }
+  v25 = (float)((float)((float)(v16 * (float)(1.0 / *(float *)&_XMM0)) * traceDir->v[1]) + (float)((float)(v19 * (float)(1.0 / *(float *)&_XMM0)) * traceDir->v[0])) + (float)((float)(v20 * (float)(1.0 / *(float *)&_XMM0)) * traceDir->v[2]);
+  v24 = v25;
   if ( !DCONST_DVARFLT_calloutmarkerping_trace_entity_mindot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_trace_entity_mindot") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-  if ( v52 )
-    goto $LN247;
+  Dvar_CheckFrontendServerThread(v18);
+  if ( v25 < v18->current.value )
+    return 0.0;
   if ( usingAABBCollection )
   {
-    *(float *)&_XMM0 = CG_CalloutMarkerPing_GetEntityOffsetForPointLineSegmentDistCheck(localClientNum, entNum);
-    __asm
-    {
-      vmovss  xmm1, [rsp+0E8h+traceRadius]
-      vmovss  xmm3, [rsp+0E8h+traceDistance]; traceDistance
-      vmovss  [rsp+0E8h+radiusExtension], xmm0
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm1
-    }
-    if ( !CG_CalloutMarkerPing_TargetIsWithinViewSphere(traceStart, traceDir, &outOrigin, *(const float *)&_XMM3, fmt, radiusExtensiona) )
-      goto $LN247;
+    v26 = CG_CalloutMarkerPing_GetEntityOffsetForPointLineSegmentDistCheck(localClientNum, entNum);
+    if ( !CG_CalloutMarkerPing_TargetIsWithinViewSphere(traceStart, traceDir, &outOrigin, traceDistance, traceRadius, v26) )
+      return 0.0;
   }
   if ( type == 10 )
   {
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_calloutmarkerping_trace_enemy_bias, "calloutmarkerping_trace_enemy_bias");
-    __asm { vaddss  xmm6, xmm0, xmm6 }
+    Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_calloutmarkerping_trace_enemy_bias, "calloutmarkerping_trace_enemy_bias");
+    v24 = *(float *)&Float_Internal_DebugName + v25;
   }
-  else
+  else if ( type == 6 )
   {
-    v52 = type < 6;
-    if ( type == 6 )
+    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+    linkedEntNum = CG_GetCharacterInfo(LocalClientGlobals, LocalClientGlobals->clientNum)->linkedEntNum;
+    if ( linkedEntNum > 0 )
     {
-      LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-      linkedEntNum = CG_GetCharacterInfo(LocalClientGlobals, LocalClientGlobals->clientNum)->linkedEntNum;
-      v52 = 0;
-      if ( linkedEntNum > 0 )
+      v30 = CG_GetEntity(localClientNum, linkedEntNum - 1);
+      v31 = 2047;
+      if ( v30 )
       {
-        v55 = CG_GetEntity(localClientNum, linkedEntNum - 1);
-        v56 = 2047;
-        if ( v55 )
-        {
-          v57 = *(_DWORD *)&v55->nextState.clientLinkInfo & 0x7FF;
-          if ( v57 )
-            v56 = v57 - 1;
-        }
-        v52 = v56 < entNum;
-        if ( v56 == entNum )
-          goto $LN247;
+        v32 = *(_DWORD *)&v30->nextState.clientLinkInfo & 0x7FF;
+        if ( v32 )
+          v31 = v32 - 1;
       }
+      if ( v31 == entNum )
+        return 0.0;
     }
   }
-  __asm { vcomiss xmm6, xmm9 }
-  if ( v52 )
-    goto $LN247;
-  numIgnoreEnts[0] = 0;
-  CG_CalloutMarkerPing_InitTraceSightIgnoreList(localClientNum, ignoreEnts, numIgnoreEnts);
-  v58 = numIgnoreEnts[0];
-  while ( 1 )
+  if ( v24 >= bestScore )
   {
-    *(PingTraceSightResult *)numIgnoreEnts = CG_CalloutMarkerPing_TraceSight(localClientNum, traceStart, &outOrigin, entNum, 0xFFFFFFFF, v58, ignoreEnts);
-    v59 = numIgnoreEnts[0];
-    if ( !CG_CalloutMarkerPing_ShouldIgnoreAndRetraceSight(localClientNum, entNum, (CalloutMarkerPingType)type, (const PingTraceSightResult *)numIgnoreEnts, v58) )
-      break;
-    if ( (unsigned int)v58 >= 4 )
+    numIgnoreEnts[0] = 0;
+    CG_CalloutMarkerPing_InitTraceSightIgnoreList(localClientNum, ignoreEnts, numIgnoreEnts);
+    for ( i = numIgnoreEnts[0]; ; ++i )
     {
-      LODWORD(v69) = 4;
-      LODWORD(radiusExtension) = v58;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3853, ASSERT_TYPE_ASSERT, "(unsigned)( numIgnoreEnts ) < (unsigned)( TRACE_SIGHT_IGNORE_ENTS_ARRAY_SIZE )", "numIgnoreEnts doesn't index TRACE_SIGHT_IGNORE_ENTS_ARRAY_SIZE\n\t%i not in [0, %i)", radiusExtension, v69) )
-        __debugbreak();
+      *(PingTraceSightResult *)numIgnoreEnts = CG_CalloutMarkerPing_TraceSight(localClientNum, traceStart, &outOrigin, entNum, 0xFFFFFFFF, i, ignoreEnts);
+      v34 = numIgnoreEnts[0];
+      if ( !CG_CalloutMarkerPing_ShouldIgnoreAndRetraceSight(localClientNum, entNum, (CalloutMarkerPingType)type, (const PingTraceSightResult *)numIgnoreEnts, i) )
+        break;
+      if ( (unsigned int)i >= 4 )
+      {
+        LODWORD(v38) = 4;
+        LODWORD(radiusExtension) = i;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3853, ASSERT_TYPE_ASSERT, "(unsigned)( numIgnoreEnts ) < (unsigned)( TRACE_SIGHT_IGNORE_ENTS_ARRAY_SIZE )", "numIgnoreEnts doesn't index TRACE_SIGHT_IGNORE_ENTS_ARRAY_SIZE\n\t%i not in [0, %i)", radiusExtension, v38) )
+          __debugbreak();
+      }
+      v35 = i;
+      ignoreEnts[v35] = numIgnoreEnts[1];
     }
-    v60 = v58++;
-    ignoreEnts[v60] = numIgnoreEnts[1];
+    if ( v34 )
+      return v24;
   }
-  if ( !v59 )
-  {
-$LN247:
-    __asm { vxorps  xmm0, xmm0, xmm0; jumptable 00000001403C6D5D default case, cases 0-5,14-16,18-22 }
-    goto LABEL_30;
-  }
-  __asm { vmovaps xmm0, xmm6 }
-LABEL_30:
-  _R11 = &v77;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 
 /*
@@ -5118,139 +4545,97 @@ LABEL_30:
 CG_CalloutMarkerPing_ScoreScriptable
 ==============
 */
-
-float __fastcall CG_CalloutMarkerPing_ScoreScriptable(LocalClientNum_t localClientNum, const bool usingAABBCollection, double bestScore, const vec3_t *traceStart, const vec3_t *traceDir, const float traceDistance, const float traceRadius, unsigned int scriptableIndex, int type)
+float CG_CalloutMarkerPing_ScoreScriptable(LocalClientNum_t localClientNum, const bool usingAABBCollection, const float bestScore, const vec3_t *traceStart, const vec3_t *traceDir, const float traceDistance, const float traceRadius, unsigned int scriptableIndex, int type)
 {
-  char v20; 
+  __int128 v9; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
-  char v58; 
+  double v15; 
+  float v16; 
+  ScriptableInstanceContextSecure *v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v25; 
+  float v26; 
+  float v28; 
+  float v29; 
+  double v30; 
   __int16 LinkObject; 
   int i; 
-  char v61; 
-  __int64 v62; 
+  char v33; 
+  __int64 v34; 
   __int64 numIgnoreEnts; 
   __int16 *ignoreEnts; 
   unsigned int outFirstUsablePartIndex[2]; 
   vec3_t out_usePosition; 
   vec3_t end; 
+  __int128 v40; 
 
-  __asm
-  {
-    vmovaps [rsp+0D0h+var_40], xmm6
-    vmovaps [rsp+0D0h+var_60], xmm8
-    vmovaps xmm8, xmm2
-  }
   if ( CG_CalloutMarkerPing_IsInPrematch(localClientNum) && type != 17 )
-    goto LABEL_18;
+    return 0.0;
   if ( !CG_CalloutMarkerPing_TypeCanBeTraceHit((CalloutMarkerPingType)type) )
-    goto LABEL_18;
+    return 0.0;
   if ( !ScriptableCl_GetInstanceInUse(localClientNum, scriptableIndex) )
-    goto LABEL_18;
+    return 0.0;
   if ( !ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex)->def )
-    goto LABEL_18;
+    return 0.0;
   if ( type == 20 && ScriptableCl_GetInstanceInUse(localClientNum, scriptableIndex) )
   {
-    _RAX = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+30h]; angle2
-      vmovss  xmm0, dword ptr [rax+18h]; angle1
-    }
-    *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-    __asm
-    {
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@3c23d70a
-    }
-    if ( v20 )
-      goto LABEL_18;
+    InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+    v15 = AngleDelta(InstanceCommonContext->anglesInitial.v[1], InstanceCommonContext->angles.v[1]);
+    if ( COERCE_FLOAT(LODWORD(v15) & _xmm) < 0.0099999998 )
+      return 0.0;
   }
   if ( ScriptableCl_IsLootWeaponWithInvalidHandleIndex(localClientNum, scriptableIndex) )
-    goto LABEL_18;
-  __asm { vmovaps [rsp+0D0h+var_50], xmm7 }
+    return 0.0;
+  v40 = v9;
   outFirstUsablePartIndex[0] = 0;
   if ( ScriptableCl_IsScriptableUsable(localClientNum, scriptableIndex, outFirstUsablePartIndex) )
   {
     ScriptableCl_GetPartUsePosition(localClientNum, scriptableIndex, outFirstUsablePartIndex[0], &out_usePosition);
-    __asm { vmovss  xmm2, dword ptr [rbp+37h+out_usePosition+8] }
+    v16 = out_usePosition.v[2];
   }
   else
   {
-    InstanceCommonContext = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
-    ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, &out_usePosition);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+37h+out_usePosition+8]
-      vaddss  xmm2, xmm0, cs:__real@42000000
-      vmovss  dword ptr [rbp+37h+out_usePosition+8], xmm2
-    }
+    v17 = ScriptableCl_GetInstanceCommonContext(localClientNum, scriptableIndex);
+    ScriptableInstanceContextSecure::GetOrigin(v17, scriptableIndex, &out_usePosition);
+    v16 = out_usePosition.v[2] + 32.0;
+    out_usePosition.v[2] = out_usePosition.v[2] + 32.0;
   }
+  v18 = v16 - traceStart->v[2];
+  v19 = out_usePosition.v[0] - traceStart->v[0];
+  v21 = LODWORD(out_usePosition.v[1]);
+  v20 = out_usePosition.v[1] - traceStart->v[1];
+  *(float *)&v21 = fsqrt((float)((float)(v20 * v20) + (float)(v19 * v19)) + (float)(v18 * v18));
+  _XMM3 = v21;
   __asm
   {
-    vsubss  xmm6, xmm2, dword ptr [r13+8]
-    vmovss  xmm0, dword ptr [rbp+37h+out_usePosition]
-    vsubss  xmm7, xmm0, dword ptr [r13+0]
-    vmovss  xmm1, dword ptr [rbp+37h+out_usePosition+4]
-    vsubss  xmm4, xmm1, dword ptr [r13+4]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm5, xmm1, xmm0
-    vmulss  xmm0, xmm4, xmm5
-    vmulss  xmm3, xmm0, dword ptr [rbx+4]
-    vmulss  xmm1, xmm7, xmm5
-    vmulss  xmm2, xmm1, dword ptr [rbx]
-    vmulss  xmm0, xmm6, xmm5
-    vmulss  xmm1, xmm0, dword ptr [rbx+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm6, xmm4, xmm1
   }
+  v26 = (float)((float)((float)(v20 * (float)(1.0 / *(float *)&_XMM0)) * traceDir->v[1]) + (float)((float)(v19 * (float)(1.0 / *(float *)&_XMM0)) * traceDir->v[0])) + (float)((float)(v18 * (float)(1.0 / *(float *)&_XMM0)) * traceDir->v[2]);
+  v25 = v26;
   *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_calloutmarkerping_trace_entity_mindot, "calloutmarkerping_trace_entity_mindot");
-  __asm
-  {
-    vcomiss xmm6, xmm0
-    vmovaps xmm7, [rsp+0D0h+var_50]
-  }
-  if ( v20 )
-    goto LABEL_18;
-  __asm { vcomiss xmm6, xmm8 }
+  if ( v26 < *(float *)&_XMM0 || v26 < bestScore )
+    return 0.0;
   if ( ((type - 14) & 0xFFFFFFFC) == 0 && type != 15 )
   {
     if ( !ScriptableCl_IsScriptableUsable(localClientNum, scriptableIndex, NULL) )
-      goto LABEL_18;
+      return 0.0;
     goto LABEL_21;
   }
   if ( usingAABBCollection )
   {
 LABEL_21:
-    __asm
-    {
-      vmovss  xmm2, [rbp+37h+traceDistance]
-      vmulss  xmm0, xmm2, dword ptr [rbx]
-      vaddss  xmm1, xmm0, dword ptr [r13+0]
-      vmulss  xmm0, xmm2, dword ptr [rbx+4]
-      vmovss  dword ptr [rbp+37h+end], xmm1
-      vaddss  xmm1, xmm0, dword ptr [r13+4]
-      vmulss  xmm0, xmm2, dword ptr [rbx+8]
-      vmovss  dword ptr [rbp+37h+end+4], xmm1
-      vaddss  xmm1, xmm0, dword ptr [r13+8]
-      vmovss  dword ptr [rbp+37h+end+8], xmm1
-    }
-    *(double *)&_XMM0 = PointToLineSegmentDistSq(&out_usePosition, traceStart, &end);
-    __asm
-    {
-      vmovss  xmm1, [rbp+37h+traceRadius]
-      vmulss  xmm2, xmm1, xmm1
-      vcomiss xmm0, xmm2
-    }
-    if ( !(v20 | v58) )
-      goto LABEL_18;
+    v28 = traceDistance * traceDir->v[1];
+    end.v[0] = (float)(traceDistance * traceDir->v[0]) + traceStart->v[0];
+    v29 = traceDistance * traceDir->v[2];
+    end.v[1] = v28 + traceStart->v[1];
+    end.v[2] = v29 + traceStart->v[2];
+    v30 = PointToLineSegmentDistSq(&out_usePosition, traceStart, &end);
+    if ( *(float *)&v30 > (float)(traceRadius * traceRadius) )
+      return 0.0;
   }
   LinkObject = 2047;
   if ( ScriptableCl_GetLinkType(localClientNum, scriptableIndex) == SCRIPTABLE_LINK_ENTITY )
@@ -5260,7 +4645,7 @@ LABEL_21:
   for ( i = outFirstUsablePartIndex[0]; ; ++i )
   {
     *(PingTraceSightResult *)outFirstUsablePartIndex = CG_CalloutMarkerPing_TraceSight(localClientNum, traceStart, &out_usePosition, LinkObject, scriptableIndex, i, (__int16 *)&end);
-    v61 = outFirstUsablePartIndex[0];
+    v33 = outFirstUsablePartIndex[0];
     if ( !CG_CalloutMarkerPing_ShouldIgnoreAndRetraceSight(localClientNum, LinkObject, (CalloutMarkerPingType)type, (const PingTraceSightResult *)outFirstUsablePartIndex, i) )
       break;
     if ( (unsigned int)i >= 4 )
@@ -5270,23 +4655,12 @@ LABEL_21:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3972, ASSERT_TYPE_ASSERT, "(unsigned)( numIgnoreEnts ) < (unsigned)( TRACE_SIGHT_IGNORE_ENTS_ARRAY_SIZE )", "numIgnoreEnts doesn't index TRACE_SIGHT_IGNORE_ENTS_ARRAY_SIZE\n\t%i not in [0, %i)", numIgnoreEnts, ignoreEnts) )
         __debugbreak();
     }
-    v62 = i;
-    *((_WORD *)end.v + v62) = outFirstUsablePartIndex[1];
+    v34 = i;
+    *((_WORD *)end.v + v34) = outFirstUsablePartIndex[1];
   }
-  if ( v61 )
-  {
-    __asm { vmovaps xmm0, xmm6 }
-    goto LABEL_19;
-  }
-LABEL_18:
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-LABEL_19:
-  __asm
-  {
-    vmovaps xmm6, [rsp+0D0h+var_40]
-    vmovaps xmm8, [rsp+0D0h+var_60]
-  }
-  return *(float *)&_XMM0;
+  if ( v33 )
+    return v25;
+  return 0.0;
 }
 
 /*
@@ -5490,37 +4864,20 @@ bool CG_CalloutMarkerPing_TacmapIsLookingAtScriptable(LocalClientNum_t localClie
 CG_CalloutMarkerPing_TargetIsWithinViewSphere
 ==============
 */
-
-bool __fastcall CG_CalloutMarkerPing_TargetIsWithinViewSphere(const vec3_t *viewPos, const vec3_t *viewDir, const vec3_t *targetPos, double traceDistance, const float traceRadius)
+bool CG_CalloutMarkerPing_TargetIsWithinViewSphere(const vec3_t *viewPos, const vec3_t *viewDir, const vec3_t *targetPos, const float traceDistance, const float traceRadius, const float radiusExtension)
 {
-  char v15; 
-  bool result; 
+  float v6; 
+  float v7; 
+  double v8; 
   vec3_t end; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmulss  xmm0, xmm3, dword ptr [rdx]
-    vaddss  xmm1, xmm0, dword ptr [rcx]
-    vmulss  xmm0, xmm3, dword ptr [rdx+4]
-    vmovss  xmm2, [rsp+58h+traceRadius]
-    vaddss  xmm6, xmm2, [rsp+58h+radiusExtension]
-    vmovss  dword ptr [rsp+58h+end], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rcx+4]
-    vmulss  xmm0, xmm3, dword ptr [rdx+8]
-    vmovss  dword ptr [rsp+58h+end+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rcx+8]
-    vmovss  dword ptr [rsp+58h+end+8], xmm1
-  }
-  *(double *)&_XMM0 = PointToLineSegmentDistSq(targetPos, viewPos, &end);
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm6
-    vcomiss xmm1, xmm0
-  }
-  result = !v15;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  v6 = traceDistance * viewDir->v[1];
+  end.v[0] = (float)(traceDistance * viewDir->v[0]) + viewPos->v[0];
+  v7 = traceDistance * viewDir->v[2];
+  end.v[1] = v6 + viewPos->v[1];
+  end.v[2] = v7 + viewPos->v[2];
+  v8 = PointToLineSegmentDistSq(targetPos, viewPos, &end);
+  return (float)((float)(traceRadius + radiusExtension) * (float)(traceRadius + radiusExtension)) >= *(float *)&v8;
 }
 
 /*
@@ -5530,95 +4887,91 @@ CG_CalloutMarkerPing_TraceSight
 */
 PingTraceSightResult CG_CalloutMarkerPing_TraceSight(LocalClientNum_t localClientNum, const vec3_t *traceStart, const vec3_t *traceEnd, __int16 entNum, unsigned int scriptableIndex, int numIgnoreEnts, __int16 *ignoreEnts)
 {
-  __int32 v11; 
-  const dvar_t *v13; 
-  int v14; 
-  __int16 *v15; 
+  __int32 v10; 
+  const dvar_t *v11; 
+  int v12; 
+  __int16 *v13; 
   int i; 
   HavokPhysics_CollisionQueryResult *ClosestResult; 
   unsigned int RaycastHitBodyId; 
   int Ref; 
-  int v20; 
+  int v18; 
   int EntityNum; 
-  hkMemoryAllocator *v22; 
-  hkMemoryAllocator *v23; 
-  __int64 v25; 
+  hkMemoryAllocator *v20; 
+  hkMemoryAllocator *v21; 
+  __int64 v23; 
   Physics_RaycastExtendedData extendedData; 
-  HavokPhysics_IgnoreBodies v27; 
-  __int64 v28; 
+  HavokPhysics_IgnoreBodies v25; 
+  __int64 v26; 
 
-  v28 = -2i64;
-  v25 = 0i64;
-  v11 = 3 * localClientNum + 2;
+  v26 = -2i64;
+  v23 = 0i64;
+  v10 = 3 * localClientNum + 2;
   extendedData.ignoreBodies = NULL;
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+3Fh+extendedData.collisionBuffer], xmm0
-  }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
   *(_WORD *)&extendedData.collectInsideHits = 256;
-  v13 = DVARBOOL_calloutmarkerping_sightTraceContentsFix;
+  v11 = DVARBOOL_calloutmarkerping_sightTraceContentsFix;
   if ( !DVARBOOL_calloutmarkerping_sightTraceContentsFix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_sightTraceContentsFix") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  v14 = 8396801;
-  if ( v13->current.enabled )
-    v14 = 8433665;
-  extendedData.contents = v14;
-  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v27, numIgnoreEnts, 0);
-  v15 = ignoreEnts;
+  Dvar_CheckFrontendServerThread(v11);
+  v12 = 8396801;
+  if ( v11->current.enabled )
+    v12 = 8433665;
+  extendedData.contents = v12;
+  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v25, numIgnoreEnts, 0);
+  v13 = ignoreEnts;
   if ( ignoreEnts && numIgnoreEnts > 0 )
   {
     for ( i = 0; i < numIgnoreEnts; ++i )
-      HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v27, i, *v15++, 1, 1, 1, 1, 1);
-    extendedData.ignoreBodies = &v27;
+      HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v25, i, *v13++, 1, 1, 1, 1, 1);
+    extendedData.ignoreBodies = &v25;
   }
-  ClosestResult = PhysicsQuery_GetClosestResult((Physics_WorldId)v11);
+  ClosestResult = PhysicsQuery_GetClosestResult((Physics_WorldId)v10);
   if ( !ClosestResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3221, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
   HavokPhysics_CollisionQueryResult::Reset(ClosestResult, 1);
-  Physics_Raycast((Physics_WorldId)v11, traceStart, traceEnd, &extendedData, ClosestResult);
+  Physics_Raycast((Physics_WorldId)v10, traceStart, traceEnd, &extendedData, ClosestResult);
   CG_CalloutMarkerPing_DebugTraceLine(traceStart, traceEnd, ClosestResult);
   if ( HavokPhysics_CollisionQueryResult::HasHit(ClosestResult) )
   {
-    LOWORD(v25) = 256;
+    LOWORD(v23) = 256;
     RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(ClosestResult, 0);
-    Ref = Physics_GetRef((Physics_WorldId)v11, RaycastHitBodyId);
+    Ref = Physics_GetRef((Physics_WorldId)v10, RaycastHitBodyId);
     if ( Physics_GetRefSystem(Ref) == Physics_RefSystem_Scriptable )
     {
-      BYTE2(v25) = 0;
-      v20 = Ref & 0x3FFFFF;
-      HIDWORD(v25) = v20;
-      if ( scriptableIndex != -1 && v20 == scriptableIndex )
-        LOBYTE(v25) = 1;
+      BYTE2(v23) = 0;
+      v18 = Ref & 0x3FFFFF;
+      HIDWORD(v23) = v18;
+      if ( scriptableIndex != -1 && v18 == scriptableIndex )
+        LOBYTE(v23) = 1;
     }
     else
     {
-      BYTE2(v25) = 1;
+      BYTE2(v23) = 1;
       EntityNum = Physics_GetEntityNum(Ref);
-      WORD2(v25) = EntityNum;
+      WORD2(v23) = EntityNum;
       if ( (unsigned __int16)(entNum - 2046) > 1u )
-        LOBYTE(v25) = EntityNum == entNum;
+        LOBYTE(v23) = EntityNum == entNum;
     }
   }
   else
   {
-    LOBYTE(v25) = 1;
+    LOBYTE(v23) = 1;
   }
-  v22 = hkMemHeapAllocator();
-  v27.m_ignoreBodies.m_size = 0;
-  if ( v27.m_ignoreBodies.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v22, v27.m_ignoreBodies.m_data, 4, v27.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-  v27.m_ignoreBodies.m_data = NULL;
-  v27.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-  v23 = hkMemHeapAllocator();
-  v27.m_ignoreEntities.m_size = 0;
-  if ( v27.m_ignoreEntities.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v23, v27.m_ignoreEntities.m_data, 8, v27.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
-  return (PingTraceSightResult)v25;
+  v20 = hkMemHeapAllocator();
+  v25.m_ignoreBodies.m_size = 0;
+  if ( v25.m_ignoreBodies.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v20, v25.m_ignoreBodies.m_data, 4, v25.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+  v25.m_ignoreBodies.m_data = NULL;
+  v25.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+  v21 = hkMemHeapAllocator();
+  v25.m_ignoreEntities.m_size = 0;
+  if ( v25.m_ignoreEntities.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v21, v25.m_ignoreEntities.m_data, 8, v25.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+  return (PingTraceSightResult)v23;
 }
 
 /*
@@ -5626,69 +4979,55 @@ PingTraceSightResult CG_CalloutMarkerPing_TraceSight(LocalClientNum_t localClien
 CG_CalloutMarkerPing_TraceSolidForNavOrDanger
 ==============
 */
-
-_BOOL8 __fastcall CG_CalloutMarkerPing_TraceSolidForNavOrDanger(LocalClientNum_t localClientNum, const vec3_t *traceStart, const vec3_t *traceDir, double traceDistance, vec3_t *outPosition, CalloutMarkerPingType *outPingType, __int16 *outEntityNum)
+_BOOL8 CG_CalloutMarkerPing_TraceSolidForNavOrDanger(LocalClientNum_t localClientNum, const vec3_t *traceStart, const vec3_t *traceDir, float traceDistance, vec3_t *outPosition, CalloutMarkerPingType *outPingType, __int16 *outEntityNum)
 {
   const vec3_t *v7; 
-  __int32 v15; 
-  unsigned int v16; 
+  __int32 v9; 
+  unsigned int v10; 
   centity_t *TurretEntity; 
   HavokPhysics_CollisionQueryResult *ClosestResult; 
-  char v20; 
+  char v13; 
   unsigned int NumHits; 
   unsigned int RaycastHitBodyId; 
   int Ref; 
   int EntityNum; 
-  __int16 v25; 
-  int v26; 
+  __int16 v18; 
+  int v19; 
   bool HasHit; 
-  hkMemoryAllocator *v28; 
-  hkMemoryAllocator *v29; 
+  hkMemoryAllocator *v21; 
+  hkMemoryAllocator *v22; 
   Physics_RaycastExtendedData extendedData; 
-  HavokPhysics_IgnoreBodies v33; 
-  __int64 v34; 
+  HavokPhysics_IgnoreBodies v26; 
+  __int64 v27; 
   vec3_t end; 
 
-  v34 = -2i64;
+  v27 = -2i64;
   v7 = traceStart;
-  __asm
-  {
-    vmulss  xmm0, xmm3, dword ptr [r8]
-    vaddss  xmm1, xmm0, dword ptr [rdx]
-    vmovss  dword ptr [rbp+3Fh+end], xmm1
-    vmulss  xmm0, xmm3, dword ptr [r8+4]
-    vaddss  xmm1, xmm0, dword ptr [rdx+4]
-    vmovss  dword ptr [rbp+3Fh+end+4], xmm1
-    vmulss  xmm0, xmm3, dword ptr [r8+8]
-    vaddss  xmm1, xmm0, dword ptr [rdx+8]
-    vmovss  dword ptr [rbp+3Fh+end+8], xmm1
-  }
-  v15 = 3 * localClientNum + 2;
-  v16 = 0;
+  end.v[0] = (float)(traceDistance * traceDir->v[0]) + traceStart->v[0];
+  end.v[1] = (float)(traceDistance * traceDir->v[1]) + traceStart->v[1];
+  end.v[2] = (float)(traceDistance * traceDir->v[2]) + traceStart->v[2];
+  v9 = 3 * localClientNum + 2;
+  v10 = 0;
   extendedData.ignoreBodies = NULL;
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+3Fh+extendedData.collisionBuffer], xmm0
-  }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
   *(_WORD *)&extendedData.collectInsideHits = 256;
   extendedData.contents = 8193;
-  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v33, 1, 0);
+  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v26, 1, 0);
   TurretEntity = CG_GetTurretEntity(localClientNum);
   if ( TurretEntity && (TurretEntity->flags & 1) != 0 )
   {
-    HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v33, 0, TurretEntity->nextState.number, 1, 1, 1, 1, 1);
-    extendedData.ignoreBodies = &v33;
+    HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v26, 0, TurretEntity->nextState.number, 1, 1, 1, 1, 1);
+    extendedData.ignoreBodies = &v26;
   }
-  ClosestResult = PhysicsQuery_GetClosestResult((Physics_WorldId)v15);
+  ClosestResult = PhysicsQuery_GetClosestResult((Physics_WorldId)v9);
   if ( !ClosestResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3334, ASSERT_TYPE_ASSERT, "(result)", (const char *)&queryFormat, "result") )
     __debugbreak();
   HavokPhysics_CollisionQueryResult::Reset(ClosestResult, 1);
-  v20 = 0;
-  Physics_Raycast((Physics_WorldId)v15, v7, &end, &extendedData, ClosestResult);
+  v13 = 0;
+  Physics_Raycast((Physics_WorldId)v9, v7, &end, &extendedData, ClosestResult);
   if ( HavokPhysics_CollisionQueryResult::HasHit(ClosestResult) )
   {
     NumHits = HavokPhysics_CollisionQueryResult::GetNumHits(ClosestResult);
@@ -5696,53 +5035,53 @@ _BOOL8 __fastcall CG_CalloutMarkerPing_TraceSolidForNavOrDanger(LocalClientNum_t
     {
       do
       {
-        RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(ClosestResult, v16);
-        Ref = Physics_GetRef((Physics_WorldId)v15, RaycastHitBodyId);
+        RaycastHitBodyId = HavokPhysics_CollisionQueryResult::GetRaycastHitBodyId(ClosestResult, v10);
+        Ref = Physics_GetRef((Physics_WorldId)v9, RaycastHitBodyId);
         if ( ((Physics_GetRefSystem(Ref) - 2) & 0xFFFFFFFD) == 0 )
         {
           EntityNum = Physics_GetEntityNum(Ref);
-          v25 = EntityNum;
+          v18 = EntityNum;
           if ( (EntityNum < 0 || (unsigned int)EntityNum > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)EntityNum, "signed", EntityNum) )
             __debugbreak();
-          if ( v25 == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3358, ASSERT_TYPE_ASSERT, "(entNum != ENTITYNUM_NONE)", (const char *)&queryFormat, "entNum != ENTITYNUM_NONE") )
+          if ( v18 == 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3358, ASSERT_TYPE_ASSERT, "(entNum != ENTITYNUM_NONE)", (const char *)&queryFormat, "entNum != ENTITYNUM_NONE") )
             __debugbreak();
-          if ( (unsigned __int16)v25 < 0x7FEu )
+          if ( (unsigned __int16)v18 < 0x7FEu )
           {
-            LOBYTE(v26) = CG_CalloutMarkerPing_ClassifyEntity(localClientNum, v25);
-            if ( v26 )
+            LOBYTE(v19) = CG_CalloutMarkerPing_ClassifyEntity(localClientNum, v18);
+            if ( v19 )
             {
-              v20 = 0;
-              *(_DWORD *)outPingType = v26;
-              *outEntityNum = v25;
+              v13 = 0;
+              *(_DWORD *)outPingType = v19;
+              *outEntityNum = v18;
             }
             else
             {
-              v20 = 1;
+              v13 = 1;
             }
           }
         }
-        ++v16;
+        ++v10;
       }
-      while ( v16 < NumHits );
+      while ( v10 < NumHits );
       v7 = traceStart;
     }
     HavokPhysics_CollisionQueryResult::GetRaycastHitPosition(ClosestResult, 0, outPosition);
   }
   CG_CalloutMarkerPing_DebugTraceLine(v7, &end, ClosestResult);
-  if ( v20 )
+  if ( v13 )
     HasHit = 0;
   else
     HasHit = HavokPhysics_CollisionQueryResult::HasHit(ClosestResult);
-  v28 = hkMemHeapAllocator();
-  v33.m_ignoreBodies.m_size = 0;
-  if ( v33.m_ignoreBodies.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v28, v33.m_ignoreBodies.m_data, 4, v33.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-  v33.m_ignoreBodies.m_data = NULL;
-  v33.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-  v29 = hkMemHeapAllocator();
-  v33.m_ignoreEntities.m_size = 0;
-  if ( v33.m_ignoreEntities.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v29, v33.m_ignoreEntities.m_data, 8, v33.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+  v21 = hkMemHeapAllocator();
+  v26.m_ignoreBodies.m_size = 0;
+  if ( v26.m_ignoreBodies.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v21, v26.m_ignoreBodies.m_data, 4, v26.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+  v26.m_ignoreBodies.m_data = NULL;
+  v26.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+  v22 = hkMemHeapAllocator();
+  v26.m_ignoreEntities.m_size = 0;
+  if ( v26.m_ignoreEntities.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v22, v26.m_ignoreEntities.m_data, 8, v26.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
   return HasHit;
 }
 
@@ -6205,199 +5544,119 @@ CG_CalloutMarkerPing_UpdatePingLookAt
 */
 void CG_CalloutMarkerPing_UpdatePingLookAt(LocalClientNum_t localClientNum)
 {
-  __int64 v8; 
+  __int64 v1; 
   cg_t *LocalClientGlobals; 
-  playerState_s *v13; 
-  unsigned __int8 v17; 
-  char v18; 
-  unsigned int v21; 
+  playerState_s *v3; 
+  unsigned __int8 v4; 
+  char v5; 
+  float v6; 
+  unsigned int v7; 
   const CalloutMarkerPingView *View; 
-  const CalloutMarkerPingView *v23; 
-  unsigned int v24; 
-  char v49; 
-  char v51; 
-  CG_CalloutMarkerPingData *v62; 
-  __int64 v69; 
-  __int64 v71; 
-  int v72; 
+  const CalloutMarkerPingView *v9; 
+  int v10; 
+  __int128 v11; 
+  float v15; 
+  const dvar_t *v16; 
+  double ZOffset; 
+  float v18; 
+  double Float_Internal_DebugName; 
+  CG_CalloutMarkerPingData *v20; 
+  __int64 v21; 
+  __int64 v22; 
   playerState_s *ps; 
-  CG_CalloutMarkerPingData *v74; 
+  CG_CalloutMarkerPingData *v24; 
   vec3_t outWorldOrigin; 
   vec3_t rayDir; 
   vec3_t outOrg; 
   vec3_t bbMax; 
   vec3_t bbMin; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-68h], xmm9
-  }
-  v8 = localClientNum;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-78h], xmm10
-    vmovaps xmmword ptr [r11-88h], xmm11
-  }
-  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
-  {
-    v72 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 1802, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v72) )
-      __debugbreak();
-  }
-  ps = &CG_GetLocalClientGlobals((const LocalClientNum_t)v8)->predictedPlayerState;
-  v74 = &s_calloutMarkerPingData[v8];
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v8);
+  v1 = localClientNum;
+  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 1802, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
+    __debugbreak();
+  ps = &CG_GetLocalClientGlobals((const LocalClientNum_t)v1)->predictedPlayerState;
+  v24 = &s_calloutMarkerPingData[v1];
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
   RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-  _RAX = CG_GetLocalClientGlobals((const LocalClientNum_t)v8);
-  __asm
-  {
-    vmovss  xmm11, cs:__real@80000000
-    vmovss  xmm10, cs:__real@3f800000
-  }
-  v13 = ps;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+6944h]
-    vmovss  dword ptr [rsp+130h+rayDir], xmm0
-    vmovss  xmm1, dword ptr [rax+6948h]
-    vmovss  dword ptr [rsp+130h+rayDir+4], xmm1
-    vmovss  xmm0, dword ptr [rax+694Ch]
-  }
-  v17 = 0;
-  __asm
-  {
-    vmovaps [rsp+130h+var_38+8], xmm6
-    vmovaps [rsp+130h+var_48+8], xmm7
-  }
-  v18 = 53;
-  __asm
-  {
-    vmovss  dword ptr [rsp+130h+rayDir+8], xmm0
-    vxorps  xmm8, xmm8, xmm8
-    vxorps  xmm9, xmm9, xmm9
-  }
+  v3 = ps;
+  rayDir = CG_GetLocalClientGlobals((const LocalClientNum_t)v1)->refdef.view.axis.m[0];
+  v4 = 0;
+  v5 = 53;
+  v6 = 0.0;
   do
   {
-    if ( v17 / 0xDu >= 4 )
+    if ( v4 / 0xDu >= 4 )
     {
-      LODWORD(v71) = 4;
-      LODWORD(v69) = v17 / 0xDu;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_calloutmarkerping_mp.h", 178, ASSERT_TYPE_ASSERT, "(unsigned)( teammateIndex ) < (unsigned)( 4 )", "teammateIndex doesn't index CALLOUT_MARKER_PING_MAX_TEAM_SIZE\n\t%i not in [0, %i)", v69, v71) )
+      LODWORD(v22) = 4;
+      LODWORD(v21) = v4 / 0xDu;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_calloutmarkerping_mp.h", 178, ASSERT_TYPE_ASSERT, "(unsigned)( teammateIndex ) < (unsigned)( 4 )", "teammateIndex doesn't index CALLOUT_MARKER_PING_MAX_TEAM_SIZE\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    v21 = v17 % 0xDu;
-    if ( v21 >= 0xD )
+    v7 = v4 % 0xDu;
+    if ( v7 >= 0xD )
     {
-      LODWORD(v71) = 13;
-      LODWORD(v69) = v17 % 0xDu;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_calloutmarkerping_mp.h", 181, ASSERT_TYPE_ASSERT, "(unsigned)( poolIndex ) < (unsigned)( 13 )", "poolIndex doesn't index CALLOUT_MARKER_PING_LOCAL_PLAYER_POOL_SIZE\n\t%i not in [0, %i)", v69, v71) )
+      LODWORD(v22) = 13;
+      LODWORD(v21) = v4 % 0xDu;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame_mp\\bg_calloutmarkerping_mp.h", 181, ASSERT_TYPE_ASSERT, "(unsigned)( poolIndex ) < (unsigned)( 13 )", "poolIndex doesn't index CALLOUT_MARKER_PING_LOCAL_PLAYER_POOL_SIZE\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    View = CG_CalloutMarkerPing_GetView((LocalClientNum_t)v8, v17, v13);
-    v23 = View;
+    View = CG_CalloutMarkerPing_GetView((LocalClientNum_t)v1, v4, v3);
+    v9 = View;
     if ( View->origin.owner )
     {
-      if ( CG_CalloutMarkerPing_GetWorldOrigin((const CalloutMarkerPingPool)v21, View, (LocalClientNum_t)v8, &outWorldOrigin) )
+      if ( CG_CalloutMarkerPing_GetWorldOrigin((const CalloutMarkerPingPool)v7, View, (LocalClientNum_t)v1, &outWorldOrigin) )
       {
-        LOBYTE(v24) = CG_CalloutMarkerPing_ClassifyPing((LocalClientNum_t)v8, (const CalloutMarkerPingPool)v21, v23);
-        if ( v24 != 10 )
+        LOBYTE(v10) = CG_CalloutMarkerPing_ClassifyPing((LocalClientNum_t)v1, (const CalloutMarkerPingPool)v7, v9);
+        if ( v10 != 10 )
         {
+          v11 = LODWORD(outWorldOrigin.v[1]);
+          *(float *)&v11 = fsqrt((float)((float)((float)(outWorldOrigin.v[1] - outOrg.v[1]) * (float)(outWorldOrigin.v[1] - outOrg.v[1])) + (float)((float)(outWorldOrigin.v[0] - outOrg.v[0]) * (float)(outWorldOrigin.v[0] - outOrg.v[0]))) + (float)((float)(outWorldOrigin.v[2] - outOrg.v[2]) * (float)(outWorldOrigin.v[2] - outOrg.v[2])));
+          _XMM1 = v11;
           __asm
           {
-            vmovss  xmm0, dword ptr [rsp+130h+outWorldOrigin]
-            vsubss  xmm7, xmm0, dword ptr [rsp+130h+outOrg]
-            vmovss  xmm1, dword ptr [rsp+130h+outWorldOrigin+4]
-            vsubss  xmm4, xmm1, dword ptr [rsp+130h+outOrg+4]
-            vmovss  xmm0, dword ptr [rsp+130h+outWorldOrigin+8]
-            vsubss  xmm6, xmm0, dword ptr [rsp+130h+outOrg+8]
-            vmulss  xmm2, xmm4, xmm4
-            vmulss  xmm1, xmm7, xmm7
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm6
-            vaddss  xmm2, xmm3, xmm0
-            vsqrtss xmm1, xmm2, xmm2
             vcmpless xmm0, xmm1, xmm11
             vblendvps xmm0, xmm1, xmm10, xmm0
-            vdivss  xmm5, xmm10, xmm0
-            vmulss  xmm0, xmm5, xmm4
-            vmulss  xmm3, xmm0, dword ptr [rsp+130h+rayDir+4]
-            vmulss  xmm1, xmm5, xmm7
-            vmulss  xmm2, xmm1, dword ptr [rsp+130h+rayDir]
-            vmulss  xmm0, xmm5, xmm6
-            vmulss  xmm1, xmm0, dword ptr [rsp+130h+rayDir+8]
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm7, xmm4, xmm1
-            vcomiss xmm7, xmm9
           }
-          if ( v24 >= 0xA )
+          v15 = (float)((float)((float)((float)(1.0 / *(float *)&_XMM0) * (float)(outWorldOrigin.v[1] - outOrg.v[1])) * rayDir.v[1]) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * (float)(outWorldOrigin.v[0] - outOrg.v[0])) * rayDir.v[0])) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * (float)(outWorldOrigin.v[2] - outOrg.v[2])) * rayDir.v[2]);
+          if ( v15 >= v6 )
           {
-            _RSI = DCONST_DVARFLT_calloutmarkerping_lookat_ping_icon_dot;
+            v16 = DCONST_DVARFLT_calloutmarkerping_lookat_ping_icon_dot;
             if ( !DCONST_DVARFLT_calloutmarkerping_lookat_ping_icon_dot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_lookat_ping_icon_dot") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(_RSI);
-            __asm { vcomiss xmm7, dword ptr [rsi+28h] }
-            if ( !v49 )
+            Dvar_CheckFrontendServerThread(v16);
+            if ( v15 >= v16->current.value )
               goto LABEL_21;
-            *(double *)&_XMM0 = CG_CalloutMarkerPing_GetZOffset((const CalloutMarkerPingPool)v21, v23, (LocalClientNum_t)v8);
-            __asm
+            ZOffset = CG_CalloutMarkerPing_GetZOffset((const CalloutMarkerPingPool)v7, v9, (LocalClientNum_t)v1);
+            v18 = *(float *)&ZOffset;
+            if ( *(float *)&ZOffset > 0.0 )
             {
-              vcomiss xmm0, xmm8
-              vmovaps xmm6, xmm0
-            }
-            if ( !(v49 | v51) )
-            {
-              *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_calloutmarkerping_lookat_ping_beam_dist, "calloutmarkerping_lookat_ping_beam_dist");
-              __asm
-              {
-                vmovss  xmm5, dword ptr [rsp+130h+outWorldOrigin]
-                vmovss  xmm3, dword ptr [rsp+130h+outWorldOrigin+4]
-                vmovss  xmm4, dword ptr [rsp+130h+outWorldOrigin+8]
-                vaddss  xmm1, xmm0, xmm5
-                vaddss  xmm2, xmm0, xmm3
-                vmovss  dword ptr [rbp+30h+bbMax], xmm1
-                vaddss  xmm1, xmm0, xmm4
-                vmovss  dword ptr [rbp+30h+bbMax+4], xmm2
-                vsubss  xmm2, xmm5, xmm0
-                vmovss  dword ptr [rbp+30h+bbMax+8], xmm1
-                vsubss  xmm1, xmm3, xmm0
-                vaddss  xmm0, xmm0, xmm6
-                vmovss  dword ptr [rbp+30h+bbMin], xmm2
-                vsubss  xmm2, xmm4, xmm0
-                vmovss  dword ptr [rbp+30h+bbMin+8], xmm2
-                vmovss  dword ptr [rbp+30h+bbMin+4], xmm1
-                vmovss  dword ptr [rsp+130h+ps], xmm8
-              }
+              Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_calloutmarkerping_lookat_ping_beam_dist, "calloutmarkerping_lookat_ping_beam_dist");
+              bbMax.v[0] = *(float *)&Float_Internal_DebugName + outWorldOrigin.v[0];
+              bbMax.v[1] = *(float *)&Float_Internal_DebugName + outWorldOrigin.v[1];
+              bbMax.v[2] = *(float *)&Float_Internal_DebugName + outWorldOrigin.v[2];
+              bbMin.v[0] = outWorldOrigin.v[0] - *(float *)&Float_Internal_DebugName;
+              bbMin.v[2] = outWorldOrigin.v[2] - (float)(*(float *)&Float_Internal_DebugName + v18);
+              bbMin.v[1] = outWorldOrigin.v[1] - *(float *)&Float_Internal_DebugName;
+              *(float *)&ps = 0.0;
               if ( IntersectRayAABB(&outOrg, &rayDir, &bbMin, &bbMax, (float *)&ps) )
               {
 LABEL_21:
-                __asm { vmovaps xmm9, xmm7 }
-                v18 = v17;
+                v6 = v15;
+                v5 = v4;
               }
             }
           }
         }
       }
     }
-    ++v17;
+    ++v4;
   }
-  while ( v17 < 0x34u );
-  v62 = v74;
-  __asm
+  while ( v4 < 0x34u );
+  v20 = v24;
+  if ( v24->pingLookAtViewIndex != v5 )
   {
-    vmovaps xmm11, [rsp+130h+var_88+8]
-    vmovaps xmm10, [rsp+130h+var_78+8]
-    vmovaps xmm9, [rsp+130h+var_68+8]
-    vmovaps xmm8, [rsp+130h+var_58+8]
-    vmovaps xmm7, [rsp+130h+var_48+8]
-    vmovaps xmm6, [rsp+130h+var_38+8]
-  }
-  if ( v74->pingLookAtViewIndex != v18 )
-  {
-    v74->pingLookAtViewIndex = v18;
-    v62->dirty = 1;
+    v24->pingLookAtViewIndex = v5;
+    v20->dirty = 1;
   }
 }
 
@@ -6469,367 +5728,292 @@ CG_CalloutMarkerPing_UpdateTacmapLookAt
 */
 void CG_CalloutMarkerPing_UpdateTacmapLookAt(LocalClientNum_t localClientNum)
 {
-  LocalClientNum_t v8; 
+  LocalClientNum_t v1; 
+  __int64 v2; 
   CgCompassSystemMP *CompassSystemMP; 
-  const dvar_t *v13; 
-  int radarStrength; 
+  cg_t *LocalClientGlobals; 
+  const dvar_t *v5; 
+  float v6; 
+  double CurrentCompassZoomLevel; 
+  float v8; 
+  float v9; 
+  double Float_Internal_DebugName; 
+  float v11; 
   const playerState_s *p_predictedPlayerState; 
-  unsigned __int8 v22; 
+  unsigned __int8 v13; 
+  float v14; 
+  float v15; 
   CalloutMarkerPingPool pool; 
   const CalloutMarkerPingView *View; 
-  __int16 *v27; 
-  char v37; 
-  unsigned int v39; 
-  int v40; 
-  bool v43; 
-  bool v44; 
-  const dvar_t *v55; 
-  unsigned __int8 v56; 
-  unsigned __int8 v57; 
-  const ObjectiveSettings *v59; 
-  const ObjectiveSettings *v60; 
+  __int16 *v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  unsigned int v22; 
+  int v23; 
+  ObjectiveBackground *p_background; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  const dvar_t *v29; 
+  unsigned __int8 v30; 
+  unsigned __int8 v31; 
+  const ObjectiveSettings *v32; 
+  const ObjectiveSettings *v33; 
   objectiveState_t state; 
   unsigned int InstanceIndex; 
-  int v63; 
-  bool v74; 
+  int v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  bool v40; 
   int *p_entIndex; 
-  __int64 v76; 
-  bool v77; 
+  __int64 v42; 
+  bool v43; 
   centity_t *Entity; 
+  float v45; 
+  float v46; 
+  float v47; 
   GfxImage **outIcon; 
-  __int64 v97; 
-  GfxImage *v99; 
+  __int64 v49; 
+  GfxImage *v51; 
   vec3_t outPosition; 
   vec3_t outDirection; 
-  char v102; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-  }
-  v8 = localClientNum;
-  _RBX = localClientNum;
-  _R15 = s_calloutMarkerPingData;
-  s_calloutMarkerPingData[_RBX].tacmapLookAt.pingIndex = 53;
-  s_calloutMarkerPingData[_RBX].tacmapLookAt.scriptableIndex = -1;
-  s_calloutMarkerPingData[_RBX].tacmapLookAt.objectiveIndex = -1;
-  s_calloutMarkerPingData[_RBX].tacmapLookAt.entityIndex = 2047;
+  v1 = localClientNum;
+  v2 = localClientNum;
+  s_calloutMarkerPingData[v2].tacmapLookAt.pingIndex = 53;
+  s_calloutMarkerPingData[v2].tacmapLookAt.scriptableIndex = -1;
+  s_calloutMarkerPingData[v2].tacmapLookAt.objectiveIndex = -1;
+  s_calloutMarkerPingData[v2].tacmapLookAt.entityIndex = 2047;
   if ( CG_GameInterface_PlayingBR() )
   {
-    CompassSystemMP = CgCompassSystemMP::GetCompassSystemMP(v8);
+    CompassSystemMP = CgCompassSystemMP::GetCompassSystemMP(v1);
     if ( CgCompassSystem::GetCurrentCompassType(CompassSystemMP) == COMPASS_TYPE_TACMAP )
     {
-      _RSI = CG_GetLocalClientGlobals(v8);
-      v13 = DCONST_DVARINT_bg_counterUAVStrengthLevelShowFriendlyOnly;
+      LocalClientGlobals = CG_GetLocalClientGlobals(v1);
+      v5 = DCONST_DVARINT_bg_counterUAVStrengthLevelShowFriendlyOnly;
       if ( !DCONST_DVARINT_bg_counterUAVStrengthLevelShowFriendlyOnly && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_counterUAVStrengthLevelShowFriendlyOnly") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v13);
-      radarStrength = _RSI->predictedPlayerState.radarStrength;
-      if ( radarStrength > v13->current.integer )
+      Dvar_CheckFrontendServerThread(v5);
+      if ( LocalClientGlobals->predictedPlayerState.radarStrength > v5->current.integer )
       {
-        __asm
+        v6 = LocalClientGlobals->compassMapWorldSize.v[0];
+        if ( v6 > 0.0 )
         {
-          vmovss  xmm7, dword ptr [rsi+4A020h]
-          vxorps  xmm0, xmm0, xmm0
-          vcomiss xmm7, xmm0
-        }
-        if ( (unsigned int)radarStrength > v13->current.integer )
-        {
-          *(double *)&_XMM0 = CgCompassSystem::GetCurrentCompassZoomLevel(CompassSystemMP);
-          __asm
-          {
-            vmovaps xmm6, xmm0
-            vmovss  xmm1, cs:__real@3f800000
-            vdivss  xmm8, xmm1, xmm7
-          }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_calloutmarkerping_trace_tacmap_radius, "calloutmarkerping_trace_tacmap_radius");
-          __asm { vmulss  xmm7, xmm0, xmm6 }
-          CG_CalloutMarkerPing_GetTacmapWorldPos(v8, &outPosition, &outDirection);
-          p_predictedPlayerState = &_RSI->predictedPlayerState;
-          *(_QWORD *)outDirection.v = &_RSI->predictedPlayerState;
-          v22 = 0;
-          __asm
-          {
-            vmovss  xmm9, dword ptr [rsp+108h+outPosition+4]
-            vmovss  xmm10, dword ptr [rsp+108h+outPosition]
-          }
+          CurrentCompassZoomLevel = CgCompassSystem::GetCurrentCompassZoomLevel(CompassSystemMP);
+          v8 = *(float *)&CurrentCompassZoomLevel;
+          v9 = 1.0 / v6;
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_calloutmarkerping_trace_tacmap_radius, "calloutmarkerping_trace_tacmap_radius");
+          v11 = *(float *)&Float_Internal_DebugName * v8;
+          CG_CalloutMarkerPing_GetTacmapWorldPos(v1, &outPosition, &outDirection);
+          p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
+          *(_QWORD *)outDirection.v = &LocalClientGlobals->predictedPlayerState;
+          v13 = 0;
+          v14 = outPosition.v[1];
+          v15 = outPosition.v[0];
           do
           {
-            if ( (unsigned int)v8 >= LOCAL_CLIENT_COUNT )
+            if ( (unsigned int)v1 >= LOCAL_CLIENT_COUNT )
             {
-              LODWORD(v97) = 2;
-              LODWORD(outIcon) = v8;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 2019, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", outIcon, v97) )
+              LODWORD(v49) = 2;
+              LODWORD(outIcon) = v1;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 2019, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", outIcon, v49) )
                 __debugbreak();
             }
-            if ( v22 == 52 )
-              pool = s_calloutMarkerPingData[_RBX].predicted.pool;
+            if ( v13 == 52 )
+              pool = s_calloutMarkerPingData[v2].predicted.pool;
             else
-              pool = BG_CalloutMarkerPing_ViewIndexToPool(v22);
-            View = CG_CalloutMarkerPing_GetView(v8, v22, p_predictedPlayerState);
-            v27 = (__int16 *)View;
+              pool = BG_CalloutMarkerPing_ViewIndexToPool(v13);
+            View = CG_CalloutMarkerPing_GetView(v1, v13, p_predictedPlayerState);
+            v18 = (__int16 *)View;
             if ( View->origin.owner )
             {
-              CG_CalloutMarkerPing_GetWorldOrigin(pool, View, v8, &outPosition);
-              __asm
+              CG_CalloutMarkerPing_GetWorldOrigin(pool, View, v1, &outPosition);
+              v19 = outPosition.v[0];
+              v20 = outPosition.v[1];
+              v21 = fsqrt((float)((float)(outPosition.v[1] - v14) * (float)(outPosition.v[1] - v14)) + (float)((float)(outPosition.v[0] - v15) * (float)(outPosition.v[0] - v15))) * v9;
+              if ( v11 > v21 )
               {
-                vmovss  xmm3, dword ptr [rsp+108h+outPosition]
-                vsubss  xmm1, xmm3, xmm10
-                vmovss  xmm4, dword ptr [rsp+108h+outPosition+4]
-                vsubss  xmm0, xmm4, xmm9
-                vmulss  xmm2, xmm0, xmm0
-                vmulss  xmm1, xmm1, xmm1
-                vaddss  xmm2, xmm2, xmm1
-                vsqrtss xmm0, xmm2, xmm2
-                vmulss  xmm5, xmm0, xmm8
-                vcomiss xmm7, xmm5
-              }
-              if ( !(v77 | v37) )
-              {
-                __asm { vmovaps xmm7, xmm5 }
-                s_calloutMarkerPingData[_RBX].tacmapLookAt.scriptableIndex = -1;
-                s_calloutMarkerPingData[_RBX].tacmapLookAt.objectiveIndex = -1;
-                s_calloutMarkerPingData[_RBX].tacmapLookAt.entityIndex = 2047;
-                __asm
-                {
-                  vmovss  dword ptr [rbx+r15+3B0h], xmm3
-                  vmovss  dword ptr [rbx+r15+3B4h], xmm4
-                  vmovss  xmm0, dword ptr [rsp+108h+outPosition+8]
-                  vmovss  dword ptr [rbx+r15+3B8h], xmm0
-                }
-                s_calloutMarkerPingData[_RBX].tacmapLookAt.pingIndex = v22;
+                v11 = v21;
+                s_calloutMarkerPingData[v2].tacmapLookAt.scriptableIndex = -1;
+                s_calloutMarkerPingData[v2].tacmapLookAt.objectiveIndex = -1;
+                s_calloutMarkerPingData[v2].tacmapLookAt.entityIndex = 2047;
+                s_calloutMarkerPingData[v2].tacmapLookAt.origin.v[0] = v19;
+                s_calloutMarkerPingData[v2].tacmapLookAt.origin.v[1] = v20;
+                s_calloutMarkerPingData[v2].tacmapLookAt.origin.v[2] = outPosition.v[2];
+                s_calloutMarkerPingData[v2].tacmapLookAt.pingIndex = v13;
                 if ( pool == CONST_CALLOUT_POOL_ID_VEHICLE || (unsigned __int8)(pool - 4) <= 2u )
                 {
-                  s_calloutMarkerPingData[_RBX].tacmapLookAt.entityIndex = *v27;
+                  s_calloutMarkerPingData[v2].tacmapLookAt.entityIndex = *v18;
                 }
                 else if ( (unsigned __int8)(pool - 9) > 2u )
                 {
                   if ( pool == CONST_CALLOUT_POOL_ID_WORLD )
-                    s_calloutMarkerPingData[_RBX].tacmapLookAt.objectiveIndex = *v27;
+                    s_calloutMarkerPingData[v2].tacmapLookAt.objectiveIndex = *v18;
                 }
                 else
                 {
-                  s_calloutMarkerPingData[_RBX].tacmapLookAt.scriptableIndex = *(_DWORD *)v27;
+                  s_calloutMarkerPingData[v2].tacmapLookAt.scriptableIndex = *(_DWORD *)v18;
                 }
               }
             }
-            ++v22;
+            ++v13;
           }
-          while ( v22 < 0x35u );
-          if ( s_calloutMarkerPingData[_RBX].tacmapLookAt.pingIndex == 53 )
+          while ( v13 < 0x35u );
+          if ( s_calloutMarkerPingData[v2].tacmapLookAt.pingIndex == 53 )
           {
-            v39 = 0;
+            v22 = 0;
             if ( (unsigned __int8)ClStatic::GetActiveGameTypeQuick(&cls) == DODGE && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_calloutmarkerping_tacmap_hit_objectives, "calloutmarkerping_tacmap_hit_objectives") )
             {
-              v40 = 0;
-              _RDI = &p_predictedPlayerState->objectives[0].background;
-              _RBP = s_calloutMarkerPingData;
+              v23 = 0;
+              p_background = &p_predictedPlayerState->objectives[0].background;
               do
               {
-                if ( *((char *)_RDI - 2) >= 0 && *(_DWORD *)(_RDI - 158) == 2047 && !CompassSystemMP->IsObjectiveFiltered(CompassSystemMP, COMPASS_TYPE_TACMAP, *_RDI) && !CompassSystemMP->IsObjectiveMini(CompassSystemMP, COMPASS_TYPE_TACMAP, *_RDI) && CgCompassSystemMP::GetObjectiveShouldRender(CompassSystemMP, *((objectiveState_t *)_RDI + 1), (ObjectiveFlags)*((unsigned __int16 *)_RDI - 1), 0, *(_DWORD *)(_RDI - 14), (const GfxImage **)&v99) )
+                if ( *((char *)p_background - 2) >= 0 && *(_DWORD *)(p_background - 158) == 2047 && !CompassSystemMP->IsObjectiveFiltered(CompassSystemMP, COMPASS_TYPE_TACMAP, *p_background) && !CompassSystemMP->IsObjectiveMini(CompassSystemMP, COMPASS_TYPE_TACMAP, *p_background) && CgCompassSystemMP::GetObjectiveShouldRender(CompassSystemMP, *((objectiveState_t *)p_background + 1), (ObjectiveFlags)*((unsigned __int16 *)p_background - 1), 0, *(_DWORD *)(p_background - 14), (const GfxImage **)&v51) )
                 {
-                  v43 = *(_DWORD *)(_RDI - 158) <= 0x7FFu;
-                  if ( *(_DWORD *)(_RDI - 158) != 2047 )
+                  if ( *(_DWORD *)(p_background - 158) != 2047 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3151, ASSERT_TYPE_ASSERT, "(obj->entNum[0] == ENTITYNUM_NONE)", (const char *)&queryFormat, "obj->entNum[0] == ENTITYNUM_NONE") )
+                    __debugbreak();
+                  v25 = *(float *)(p_background - 126);
+                  v26 = *(float *)(p_background - 122);
+                  v27 = *(float *)(p_background - 118);
+                  v28 = fsqrt((float)((float)(v26 - v14) * (float)(v26 - v14)) + (float)((float)(v25 - v15) * (float)(v25 - v15))) * v9;
+                  if ( v11 > v28 )
                   {
-                    v44 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3151, ASSERT_TYPE_ASSERT, "(obj->entNum[0] == ENTITYNUM_NONE)", (const char *)&queryFormat, "obj->entNum[0] == ENTITYNUM_NONE");
-                    v43 = !v44;
-                    if ( v44 )
-                      __debugbreak();
-                  }
-                  __asm
-                  {
-                    vmovss  xmm3, dword ptr [rdi-7Eh]
-                    vmovss  xmm4, dword ptr [rdi-7Ah]
-                    vmovss  xmm6, dword ptr [rdi-76h]
-                    vsubss  xmm1, xmm3, xmm10
-                    vsubss  xmm0, xmm4, xmm9
-                    vmulss  xmm2, xmm0, xmm0
-                    vmulss  xmm1, xmm1, xmm1
-                    vaddss  xmm2, xmm2, xmm1
-                    vsqrtss xmm0, xmm2, xmm2
-                    vmulss  xmm5, xmm0, xmm8
-                    vcomiss xmm7, xmm5
-                  }
-                  if ( !v43 )
-                  {
-                    __asm { vmovaps xmm7, xmm5 }
-                    s_calloutMarkerPingData[_RBX].tacmapLookAt.pingIndex = 53;
-                    s_calloutMarkerPingData[_RBX].tacmapLookAt.scriptableIndex = -1;
-                    s_calloutMarkerPingData[_RBX].tacmapLookAt.entityIndex = 2047;
-                    __asm
-                    {
-                      vmovss  dword ptr [rbx+rbp+3B0h], xmm3
-                      vmovss  dword ptr [rbx+rbp+3B4h], xmm4
-                      vmovss  dword ptr [rbx+rbp+3B8h], xmm6
-                    }
-                    s_calloutMarkerPingData[_RBX].tacmapLookAt.objectiveIndex = v40;
+                    v11 = v28;
+                    s_calloutMarkerPingData[v2].tacmapLookAt.pingIndex = 53;
+                    s_calloutMarkerPingData[v2].tacmapLookAt.scriptableIndex = -1;
+                    s_calloutMarkerPingData[v2].tacmapLookAt.entityIndex = 2047;
+                    s_calloutMarkerPingData[v2].tacmapLookAt.origin.v[0] = v25;
+                    s_calloutMarkerPingData[v2].tacmapLookAt.origin.v[1] = v26;
+                    s_calloutMarkerPingData[v2].tacmapLookAt.origin.v[2] = v27;
+                    s_calloutMarkerPingData[v2].tacmapLookAt.objectiveIndex = v23;
                   }
                 }
-                ++v40;
-                _RDI += 172;
+                ++v23;
+                p_background += 172;
               }
-              while ( v40 < 32 );
-              v39 = 0;
-              v8 = localClientNum;
+              while ( v23 < 32 );
+              v22 = 0;
+              v1 = localClientNum;
             }
-            if ( s_calloutMarkerPingData[_RBX].tacmapLookAt.objectiveIndex == -1 )
+            if ( s_calloutMarkerPingData[v2].tacmapLookAt.objectiveIndex == -1 )
             {
-              if ( !CG_CalloutMarkerPing_IsInPrematch(v8) )
+              if ( !CG_CalloutMarkerPing_IsInPrematch(v1) )
               {
-                v55 = DCONST_DVARBOOL_calloutmarkerping_tacmap_hit_tablets;
+                v29 = DCONST_DVARBOOL_calloutmarkerping_tacmap_hit_tablets;
                 if ( !DCONST_DVARBOOL_calloutmarkerping_tacmap_hit_tablets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "calloutmarkerping_tacmap_hit_tablets") )
                   __debugbreak();
-                Dvar_CheckFrontendServerThread(v55);
-                if ( v55->current.enabled || Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_calloutmarkerping_tacmap_hit_kiosks, "calloutmarkerping_tacmap_hit_kiosks") )
+                Dvar_CheckFrontendServerThread(v29);
+                if ( v29->current.enabled || Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_calloutmarkerping_tacmap_hit_kiosks, "calloutmarkerping_tacmap_hit_kiosks") )
                 {
-                  v56 = ScriptableCl_ObjectiveCount(v8);
-                  v57 = 0;
-                  if ( v56 )
+                  v30 = ScriptableCl_ObjectiveCount(v1);
+                  v31 = 0;
+                  if ( v30 )
                   {
-                    _R15 = s_calloutMarkerPingData;
                     do
                     {
-                      v59 = ScriptableCl_ObjectiveGet(v8, v57, &outPosition);
-                      v60 = v59;
-                      if ( v59 )
+                      v32 = ScriptableCl_ObjectiveGet(v1, v31, &outPosition);
+                      v33 = v32;
+                      if ( v32 )
                       {
-                        state = v59->state;
-                        if ( (state == OBJST_ACTIVE || state == OBJST_CURRENT) && !CompassSystemMP->IsObjectiveFiltered(CompassSystemMP, COMPASS_TYPE_TACMAP, v60->background) && !CompassSystemMP->IsObjectiveMini(CompassSystemMP, COMPASS_TYPE_TACMAP, v60->background) )
+                        state = v32->state;
+                        if ( (state == OBJST_ACTIVE || state == OBJST_CURRENT) && !CompassSystemMP->IsObjectiveFiltered(CompassSystemMP, COMPASS_TYPE_TACMAP, v33->background) && !CompassSystemMP->IsObjectiveMini(CompassSystemMP, COMPASS_TYPE_TACMAP, v33->background) )
                         {
-                          InstanceIndex = ScriptableCl_ObjectiveGetInstanceIndex(v8, v57);
-                          v63 = CG_CalloutMarkerPing_ClassifyScriptable(v8, InstanceIndex);
-                          if ( CG_CalloutMarkerPing_TypeCanBeTacMapHit(v63) )
+                          InstanceIndex = ScriptableCl_ObjectiveGetInstanceIndex(v1, v31);
+                          v36 = CG_CalloutMarkerPing_ClassifyScriptable(v1, InstanceIndex);
+                          if ( CG_CalloutMarkerPing_TypeCanBeTacMapHit(v36) )
                           {
-                            __asm
+                            v37 = outPosition.v[0];
+                            v38 = outPosition.v[1];
+                            v39 = fsqrt((float)((float)(outPosition.v[1] - v14) * (float)(outPosition.v[1] - v14)) + (float)((float)(outPosition.v[0] - v15) * (float)(outPosition.v[0] - v15))) * v9;
+                            if ( v11 > v39 )
                             {
-                              vmovss  xmm3, dword ptr [rsp+108h+outPosition]
-                              vsubss  xmm1, xmm3, xmm10
-                              vmovss  xmm4, dword ptr [rsp+108h+outPosition+4]
-                              vsubss  xmm0, xmm4, xmm9
-                              vmulss  xmm2, xmm0, xmm0
-                              vmulss  xmm1, xmm1, xmm1
-                              vaddss  xmm2, xmm2, xmm1
-                              vsqrtss xmm0, xmm2, xmm2
-                              vmulss  xmm5, xmm0, xmm8
-                              vcomiss xmm7, xmm5
-                              vmovaps xmm7, xmm5
+                              v11 = v39;
+                              s_calloutMarkerPingData[v2].tacmapLookAt.pingIndex = 53;
+                              s_calloutMarkerPingData[v2].tacmapLookAt.objectiveIndex = -1;
+                              s_calloutMarkerPingData[v2].tacmapLookAt.entityIndex = 2047;
+                              s_calloutMarkerPingData[v2].tacmapLookAt.origin.v[0] = v37;
+                              s_calloutMarkerPingData[v2].tacmapLookAt.origin.v[1] = v38;
+                              s_calloutMarkerPingData[v2].tacmapLookAt.origin.v[2] = outPosition.v[2];
+                              s_calloutMarkerPingData[v2].tacmapLookAt.scriptableIndex = InstanceIndex;
                             }
-                            s_calloutMarkerPingData[_RBX].tacmapLookAt.pingIndex = 53;
-                            s_calloutMarkerPingData[_RBX].tacmapLookAt.objectiveIndex = -1;
-                            s_calloutMarkerPingData[_RBX].tacmapLookAt.entityIndex = 2047;
-                            __asm
-                            {
-                              vmovss  dword ptr [rbx+r15+3B0h], xmm3
-                              vmovss  dword ptr [rbx+r15+3B4h], xmm4
-                              vmovss  xmm0, dword ptr [rsp+108h+outPosition+8]
-                              vmovss  dword ptr [rbx+r15+3B8h], xmm0
-                            }
-                            s_calloutMarkerPingData[_RBX].tacmapLookAt.scriptableIndex = InstanceIndex;
                           }
                         }
                       }
-                      ++v57;
+                      ++v31;
                     }
-                    while ( v57 < v56 );
-                    v39 = 0;
+                    while ( v31 < v30 );
+                    v22 = 0;
                   }
                 }
               }
-              if ( s_calloutMarkerPingData[_RBX].tacmapLookAt.scriptableIndex == -1 && (unsigned __int8)ClStatic::GetActiveGameTypeQuick(&cls) == DODGE && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_calloutmarkerping_tacmap_hit_vehicles, "calloutmarkerping_tacmap_hit_vehicles") )
+              if ( s_calloutMarkerPingData[v2].tacmapLookAt.scriptableIndex == -1 && (unsigned __int8)ClStatic::GetActiveGameTypeQuick(&cls) == DODGE && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_calloutmarkerping_tacmap_hit_vehicles, "calloutmarkerping_tacmap_hit_vehicles") )
               {
-                v74 = DVARBOOL_bg_compassEnableVisibleVehiclesMask && Dvar_GetBool_Internal_DebugName(DVARBOOL_bg_compassEnableVisibleVehiclesMask, "bg_compassEnableVisibleVehiclesMask");
-                p_entIndex = &CgVehicleSystem::GetVehicleSystem(v8)->m_vehicleClients[0].entIndex;
-                v76 = *(_QWORD *)outDirection.v;
-                v77 = 1;
+                v40 = DVARBOOL_bg_compassEnableVisibleVehiclesMask && Dvar_GetBool_Internal_DebugName(DVARBOOL_bg_compassEnableVisibleVehiclesMask, "bg_compassEnableVisibleVehiclesMask");
+                p_entIndex = &CgVehicleSystem::GetVehicleSystem(v1)->m_vehicleClients[0].entIndex;
+                v42 = *(_QWORD *)outDirection.v;
+                v43 = 1;
                 do
                 {
-                  if ( !v77 )
+                  if ( !v43 )
                   {
-                    LODWORD(v97) = 128;
-                    LODWORD(outIcon) = v39;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 502, ASSERT_TYPE_ASSERT, "(unsigned)( vehIndex ) < (unsigned)( (1 << 7) )", "vehIndex doesn't index MAX_VEHICLES\n\t%i not in [0, %i)", outIcon, v97) )
+                    LODWORD(v49) = 128;
+                    LODWORD(outIcon) = v22;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 502, ASSERT_TYPE_ASSERT, "(unsigned)( vehIndex ) < (unsigned)( (1 << 7) )", "vehIndex doesn't index MAX_VEHICLES\n\t%i not in [0, %i)", outIcon, v49) )
                       __debugbreak();
                   }
-                  if ( CG_Vehicle_IsClientValid(v8, (const VehicleClient *)(p_entIndex - 20)) && (p_entIndex[5] & 0x20000) == 0 )
+                  if ( CG_Vehicle_IsClientValid(v1, (const VehicleClient *)(p_entIndex - 20)) && (p_entIndex[5] & 0x20000) == 0 )
                   {
-                    if ( !v74 )
+                    if ( !v40 )
                       goto LABEL_77;
-                    if ( v39 >= 0x80 )
+                    if ( v22 >= 0x80 )
                     {
-                      LODWORD(v97) = 128;
-                      LODWORD(outIcon) = v39;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", outIcon, v97) )
+                      LODWORD(v49) = 128;
+                      LODWORD(outIcon) = v22;
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", outIcon, v49) )
                         __debugbreak();
                     }
-                    if ( ((0x80000000 >> (v39 & 0x1F)) & *(_DWORD *)(v76 + 4 * ((unsigned __int64)v39 >> 5) + 4580)) == 0 )
+                    if ( ((0x80000000 >> (v22 & 0x1F)) & *(_DWORD *)(v42 + 4 * ((unsigned __int64)v22 >> 5) + 4580)) == 0 )
                     {
 LABEL_77:
-                      Entity = CG_GetEntity(v8, *p_entIndex);
+                      Entity = CG_GetEntity(v1, *p_entIndex);
                       if ( (Entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_calloutmarkerping.cpp", 3674, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
                         __debugbreak();
                       if ( !CompassSystemMP->IsVehicleFiltered(CompassSystemMP, COMPASS_TYPE_TACMAP, Entity) && !CompassSystemMP->IsVehicleMini(CompassSystemMP, COMPASS_TYPE_TACMAP) )
                       {
                         CG_GetPoseOrigin(&Entity->pose, &outDirection);
-                        __asm
+                        v45 = outDirection.v[0];
+                        v46 = outDirection.v[1];
+                        v47 = fsqrt((float)((float)(outDirection.v[1] - v14) * (float)(outDirection.v[1] - v14)) + (float)((float)(outDirection.v[0] - v15) * (float)(outDirection.v[0] - v15))) * v9;
+                        if ( v11 > v47 )
                         {
-                          vmovss  xmm3, dword ptr [rsp+108h+outDirection]
-                          vsubss  xmm1, xmm3, xmm10
-                          vmovss  xmm4, dword ptr [rsp+108h+outDirection+4]
-                          vsubss  xmm0, xmm4, xmm9
-                          vmulss  xmm2, xmm0, xmm0
-                          vmulss  xmm1, xmm1, xmm1
-                          vaddss  xmm2, xmm2, xmm1
-                          vsqrtss xmm0, xmm2, xmm2
-                          vmulss  xmm5, xmm0, xmm8
-                          vcomiss xmm7, xmm5
-                        }
-                        if ( !(v77 | v37) )
-                        {
-                          __asm { vmovaps xmm7, xmm5 }
-                          _RCX = s_calloutMarkerPingData;
-                          s_calloutMarkerPingData[_RBX].tacmapLookAt.pingIndex = 53;
-                          s_calloutMarkerPingData[_RBX].tacmapLookAt.scriptableIndex = -1;
-                          s_calloutMarkerPingData[_RBX].tacmapLookAt.objectiveIndex = -1;
-                          s_calloutMarkerPingData[_RBX].tacmapLookAt.entityIndex = 2047;
-                          __asm
-                          {
-                            vmovss  dword ptr [rbx+rcx+3B0h], xmm3
-                            vmovss  dword ptr [rbx+rcx+3B4h], xmm4
-                            vmovss  xmm0, dword ptr [rsp+108h+outDirection+8]
-                            vmovss  dword ptr [rbx+rcx+3B8h], xmm0
-                          }
-                          s_calloutMarkerPingData[_RBX].tacmapLookAt.entityIndex = *(_WORD *)p_entIndex;
+                          v11 = v47;
+                          s_calloutMarkerPingData[v2].tacmapLookAt.pingIndex = 53;
+                          s_calloutMarkerPingData[v2].tacmapLookAt.scriptableIndex = -1;
+                          s_calloutMarkerPingData[v2].tacmapLookAt.objectiveIndex = -1;
+                          s_calloutMarkerPingData[v2].tacmapLookAt.entityIndex = 2047;
+                          s_calloutMarkerPingData[v2].tacmapLookAt.origin.v[0] = v45;
+                          s_calloutMarkerPingData[v2].tacmapLookAt.origin.v[1] = v46;
+                          s_calloutMarkerPingData[v2].tacmapLookAt.origin.v[2] = outDirection.v[2];
+                          s_calloutMarkerPingData[v2].tacmapLookAt.entityIndex = *(_WORD *)p_entIndex;
                         }
                         memset(&outDirection, 0, sizeof(outDirection));
                       }
                     }
                   }
-                  ++v39;
+                  ++v22;
                   p_entIndex += 147;
-                  v77 = v39 < 0x80;
+                  v43 = v22 < 0x80;
                 }
-                while ( (int)v39 < 128 );
+                while ( (int)v22 < 128 );
               }
             }
           }
         }
       }
     }
-  }
-  _R11 = &v102;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
   }
 }
 

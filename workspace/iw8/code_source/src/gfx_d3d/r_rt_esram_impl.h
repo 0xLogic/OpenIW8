@@ -575,11 +575,7 @@ R_RT_ESRAM_GetFrameTotals
 */
 void R_RT_ESRAM_GetFrameTotals(R_RT_Tracking_ESRAMFrameTotals *outFrameTotals)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:s_R_RT_ESRAM_Internal.m_frameTotals.m_requestKB
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *outFrameTotals = s_R_RT_ESRAM_Internal.m_frameTotals;
 }
 
 /*

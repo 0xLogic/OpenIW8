@@ -413,116 +413,61 @@ bool __fastcall Nav_Trace3DAllowEdgeHit(nav_space_s *pSpace, const vec3_t *start
 AdjustPtToWithinRadiusSq
 ==============
 */
-
-bool __fastcall AdjustPtToWithinRadiusSq(const vec3_t *pt, const vec3_t *origin, const vec3_t *centroid, double radiusSq, vec3_t *outPoint)
+char AdjustPtToWithinRadiusSq(const vec3_t *pt, const vec3_t *origin, const vec3_t *centroid, float radiusSq, vec3_t *outPoint)
 {
-  bool result; 
-  void *retaddr; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  __int128 v12; 
+  __int128 v13; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  __int128 v23; 
 
-  _RAX = &retaddr;
+  v5 = centroid->v[2];
+  v6 = centroid->v[1];
+  v7 = pt->v[0] - centroid->v[0];
+  v8 = pt->v[2] - v5;
+  v9 = v6 - origin->v[1];
+  v10 = v5 - origin->v[2];
+  v11 = centroid->v[0] - origin->v[0];
+  v13 = LODWORD(pt->v[1]);
+  *(float *)&v13 = pt->v[1] - v6;
+  v12 = v13;
+  *(float *)&v13 = fsqrt((float)((float)(*(float *)&v13 * *(float *)&v13) + (float)(v7 * v7)) + (float)(v8 * v8));
+  _XMM1 = v13;
   __asm
   {
-    vmovss  xmm1, dword ptr [r8]
-    vmovss  xmm2, dword ptr [r8+8]
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm4, dword ptr [r8+4]
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vsubss  xmm6, xmm0, xmm1
-    vmovss  xmm0, dword ptr [rcx+8]
-    vsubss  xmm5, xmm0, xmm2
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovss  xmm8, cs:__real@3f800000
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vsubss  xmm9, xmm4, dword ptr [rdx+4]
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vsubss  xmm10, xmm2, dword ptr [rdx+8]
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vsubss  xmm11, xmm1, dword ptr [rdx]
-    vmovss  xmm1, dword ptr [rcx+4]
-    vsubss  xmm4, xmm1, xmm4
-    vmovaps xmmword ptr [rax-78h], xmm12
-  }
-  _RAX = outPoint;
-  __asm
-  {
-    vmulss  xmm0, xmm5, xmm5
-    vmovaps [rsp+0B8h+var_88], xmm13
-    vmovaps [rsp+0B8h+var_98], xmm14
-    vmovaps [rsp+0B8h+var_A8], xmm15
-    vmulss  xmm2, xmm4, xmm4
-    vmulss  xmm1, xmm6, xmm6
-    vmovaps xmm12, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
     vcmpless xmm0, xmm1, cs:__real@80000000
     vblendvps xmm0, xmm1, xmm8, xmm0
-    vmovss  [rsp+0B8h+var_B8], xmm1
-    vdivss  xmm1, xmm8, xmm0
-    vmulss  xmm13, xmm6, xmm1
-    vmulss  xmm14, xmm4, xmm1
-    vmulss  xmm15, xmm5, xmm1
-    vmulss  xmm1, xmm14, xmm14
-    vmulss  xmm0, xmm13, xmm13
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm15, xmm15
-    vaddss  xmm6, xmm2, xmm1
-    vmulss  xmm3, xmm14, xmm9
-    vmulss  xmm0, xmm13, xmm11
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm1, xmm15, xmm10
-    vaddss  xmm7, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm5, xmm0, cs:__real@40800000
-    vmulss  xmm0, xmm11, xmm11
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm2, xmm2, xmm1
-    vsubss  xmm0, xmm2, xmm12
-    vmulss  xmm3, xmm0, xmm6
-    vmulss  xmm1, xmm3, cs:__real@40800000
-    vsubss  xmm2, xmm5, xmm1
-    vsqrtss xmm4, xmm2, xmm2
-    vmulss  xmm0, xmm4, cs:__real@3f000000
-    vmulss  xmm2, xmm7, cs:__real@c0000000
-    vsubss  xmm1, xmm0, xmm7
-    vsubss  xmm0, xmm2, xmm4
-    vdivss  xmm5, xmm8, xmm6
-    vmulss  xmm6, xmm1, xmm5
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vxorps  xmm4, xmm4, xmm4
-    vcomiss xmm6, xmm4
-    vmulss  xmm2, xmm1, xmm5
-    vmaxss  xmm0, xmm2, xmm6
-    vminss  xmm3, xmm0, [rsp+0B8h+var_B8]
-    vmulss  xmm1, xmm3, xmm13
-    vaddss  xmm2, xmm1, dword ptr [r8]
-    vmovss  dword ptr [rax], xmm2
-    vmulss  xmm0, xmm3, xmm14
-    vaddss  xmm1, xmm0, dword ptr [r8+4]
-    vmovss  dword ptr [rax+4], xmm1
-    vmulss  xmm2, xmm3, xmm15
-    vaddss  xmm0, xmm2, dword ptr [r8+8]
-    vmovss  dword ptr [rax+8], xmm0
   }
-  result = 1;
-  __asm { vmovaps xmm13, [rsp+0B8h+var_88] }
-  _R11 = &retaddr;
+  v17 = v7 * (float)(1.0 / *(float *)&_XMM0);
+  v23 = v12;
+  v18 = *(float *)&v12 * (float)(1.0 / *(float *)&_XMM0);
+  v19 = v8 * (float)(1.0 / *(float *)&_XMM0);
+  v20 = (float)((float)(v18 * v18) + (float)(v17 * v17)) + (float)(v19 * v19);
+  v21 = (float)((float)(v18 * v9) + (float)(v17 * v11)) + (float)(v19 * v10);
+  LODWORD(v12) = fsqrt((float)((float)(v21 * v21) * 4.0) - (float)((float)((float)((float)((float)((float)(v9 * v9) + (float)(v11 * v11)) + (float)(v10 * v10)) - radiusSq) * v20) * 4.0));
+  *(float *)&v23 = (float)((float)((float)(v21 * -2.0) - *(float *)&v12) * 0.5) * (float)(1.0 / v20);
+  _XMM2 = v23;
+  if ( (float)((float)((float)(*(float *)&v12 * 0.5) - v21) * (float)(1.0 / v20)) <= 0.0 && *(float *)&v23 <= 0.0 )
+    return 0;
   __asm
   {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm14, [rsp+0B8h+var_98]
-    vmovaps xmm15, [rsp+0B8h+var_A8]
+    vmaxss  xmm0, xmm2, xmm6
+    vminss  xmm3, xmm0, [rsp+0B8h+var_B8]
   }
-  return result;
+  outPoint->v[0] = (float)(*(float *)&_XMM3 * v17) + centroid->v[0];
+  outPoint->v[1] = (float)(*(float *)&_XMM3 * v18) + centroid->v[1];
+  outPoint->v[2] = (float)(*(float *)&_XMM3 * v19) + centroid->v[2];
+  return 1;
 }
 
 /*
@@ -530,158 +475,100 @@ bool __fastcall AdjustPtToWithinRadiusSq(const vec3_t *pt, const vec3_t *origin,
 GetRandomPointsInTriangles
 ==============
 */
-
-void __fastcall GetRandomPointsInTriangles(Triangle *triangles, int numTriangles, double totalArea, vec3_t *outPoints, int numPoints)
+void GetRandomPointsInTriangles(Triangle *triangles, int numTriangles, float totalArea, vec3_t *outPoints, int numPoints)
 {
-  __int64 v17; 
-  __int64 v19; 
-  __int64 v23; 
-  bool v24; 
+  __int64 v5; 
+  __int64 v7; 
+  float v8; 
+  float *v9; 
+  __int128 v10; 
+  double v11; 
+  __int64 v12; 
+  Triangle *v13; 
+  __int128 v14; 
+  double v15; 
+  float v16; 
+  double v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
   vec3_t point; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm7 }
-  v17 = numPoints;
-  v19 = numTriangles;
-  __asm
-  {
-    vmovss  [rsp+128h+var_F0], xmm2
-    vmovaps xmm7, xmm2
-  }
+  v5 = numPoints;
+  v7 = numTriangles;
+  v8 = totalArea;
   if ( numPoints > 0 )
   {
-    _RDI = &outPoints->v[2];
-    __asm
-    {
-      vmovaps xmmword ptr [r11-38h], xmm6
-      vmovaps xmmword ptr [r11-68h], xmm9
-      vmovss  xmm9, cs:__real@3f800000
-      vmovaps xmmword ptr [r11-58h], xmm8
-      vmovaps xmmword ptr [r11-78h], xmm10
-      vmovaps xmmword ptr [r11-88h], xmm11
-      vmovaps xmmword ptr [r11-98h], xmm12
-      vmovaps xmmword ptr [r11-0A8h], xmm13
-      vmovaps [rsp+128h+var_B8], xmm14
-      vmovaps [rsp+128h+var_C8], xmm15
-    }
+    v9 = &outPoints->v[2];
     do
     {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      *(double *)&_XMM0 = G_random();
-      v23 = 0i64;
-      v24 = 0;
-      if ( v19 > 0 )
+      v10 = 0i64;
+      v11 = G_random();
+      v12 = 0i64;
+      if ( v7 > 0 )
       {
-        __asm { vdivss  xmm2, xmm9, xmm7 }
-        _RBX = triangles;
+        v13 = triangles;
         while ( 1 )
         {
-          __asm
-          {
-            vmulss  xmm1, xmm2, dword ptr [rbx+24h]
-            vaddss  xmm6, xmm6, xmm1
-            vcomiss xmm6, xmm0
-          }
-          if ( !v24 )
+          v14 = v10;
+          *(float *)&v14 = *(float *)&v10 + (float)((float)(1.0 / v8) * v13->m_area);
+          v10 = v14;
+          if ( *(float *)&v14 >= *(float *)&v11 )
             break;
-          ++v23;
-          ++_RBX;
-          v24 = v23 < (unsigned __int64)v19;
-          if ( v23 >= v19 )
+          ++v12;
+          ++v13;
+          if ( v12 >= v7 )
             goto LABEL_13;
         }
-        *(double *)&_XMM0 = G_random();
-        __asm { vmovaps xmm10, xmm0 }
-        *(double *)&_XMM0 = G_random();
-        __asm
+        v15 = G_random();
+        v16 = *(float *)&v15;
+        v17 = G_random();
+        v18 = v13->m_vert[0].v[1];
+        v19 = v13->m_vert[0].v[2];
+        v20 = v13->m_vert[1].v[0] - v13->m_vert[0].v[0];
+        v21 = v13->m_vert[1].v[1] - v18;
+        v22 = v13->m_vert[1].v[2] - v19;
+        v23 = v13->m_vert[2].v[1] - v18;
+        v24 = v13->m_vert[2].v[0] - v13->m_vert[0].v[0];
+        v25 = (float)((float)(v20 * v16) + (float)(v24 * *(float *)&v17)) + v13->m_vert[0].v[0];
+        v26 = (float)((float)(v21 * v16) + (float)(v23 * *(float *)&v17)) + v18;
+        v29 = v13->m_vert[2].v[2] - v19;
+        v27 = (float)((float)(v22 * v16) + (float)(v29 * *(float *)&v17)) + v19;
+        point.v[2] = v27;
+        v28 = v23;
+        point.v[0] = v25;
+        point.v[1] = v26;
+        if ( !Nav_PointWithinTriangle(v13, &point) )
         {
-          vmovss  xmm2, dword ptr [rbx]
-          vmovss  xmm3, dword ptr [rbx+4]
-          vmovss  xmm4, dword ptr [rbx+8]
-          vmovss  xmm1, dword ptr [rbx+0Ch]
-          vsubss  xmm12, xmm1, xmm2
-          vmovss  xmm1, dword ptr [rbx+10h]
-          vsubss  xmm13, xmm1, xmm3
-          vmovss  xmm1, dword ptr [rbx+14h]
-          vsubss  xmm14, xmm1, xmm4
-          vmovss  xmm1, dword ptr [rbx+1Ch]
-          vsubss  xmm5, xmm1, xmm3
-          vmovaps xmm11, xmm0
-          vmovss  xmm0, dword ptr [rbx+18h]
-          vsubss  xmm15, xmm0, xmm2
-          vmovss  xmm0, dword ptr [rbx+20h]
-          vsubss  xmm8, xmm0, xmm4
-          vmulss  xmm1, xmm12, xmm10
-          vmulss  xmm0, xmm15, xmm11
-          vaddss  xmm1, xmm1, xmm0
-          vaddss  xmm6, xmm1, xmm2
-          vmulss  xmm2, xmm13, xmm10
-          vmulss  xmm0, xmm5, xmm11
-          vaddss  xmm1, xmm2, xmm0
-          vmulss  xmm0, xmm8, xmm11
-          vaddss  xmm7, xmm1, xmm3
-          vmulss  xmm2, xmm14, xmm10
-          vaddss  xmm1, xmm2, xmm0
-          vmovss  [rsp+128h+var_F4], xmm8
-          vaddss  xmm8, xmm1, xmm4
-          vmovss  dword ptr [rsp+128h+point+8], xmm8
-          vmovss  [rsp+128h+var_F8], xmm5
-          vmovss  dword ptr [rsp+128h+point], xmm6
-          vmovss  dword ptr [rsp+128h+point+4], xmm7
-        }
-        if ( !Nav_PointWithinTriangle(_RBX, &point) )
-        {
-          __asm
-          {
-            vsubss  xmm4, xmm9, xmm10
-            vsubss  xmm3, xmm9, xmm11
-            vmulss  xmm1, xmm4, xmm12
-            vmulss  xmm0, xmm3, xmm15
-            vaddss  xmm1, xmm1, xmm0
-            vaddss  xmm6, xmm1, dword ptr [rbx]
-            vmulss  xmm0, xmm3, [rsp+128h+var_F8]
-            vmulss  xmm2, xmm4, xmm13
-            vaddss  xmm1, xmm2, xmm0
-            vaddss  xmm7, xmm1, dword ptr [rbx+4]
-            vmulss  xmm0, xmm3, [rsp+128h+var_F4]
-            vmulss  xmm2, xmm4, xmm14
-            vaddss  xmm1, xmm2, xmm0
-            vaddss  xmm8, xmm1, dword ptr [rbx+8]
-            vmovss  dword ptr [rsp+128h+point+8], xmm8
-            vmovss  dword ptr [rsp+128h+point], xmm6
-            vmovss  dword ptr [rsp+128h+point+4], xmm7
-          }
-          if ( !Nav_PointWithinTriangle(_RBX, &point) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 829, ASSERT_TYPE_ASSERT, "( Nav_PointWithinTriangle( pTri, sum ) )", (const char *)&queryFormat, "Nav_PointWithinTriangle( pTri, sum )") )
+          v25 = (float)((float)((float)(1.0 - v16) * v20) + (float)((float)(1.0 - *(float *)&v17) * v24)) + v13->m_vert[0].v[0];
+          v26 = (float)((float)((float)(1.0 - v16) * v21) + (float)((float)(1.0 - *(float *)&v17) * v28)) + v13->m_vert[0].v[1];
+          v27 = (float)((float)((float)(1.0 - v16) * v22) + (float)((float)(1.0 - *(float *)&v17) * v29)) + v13->m_vert[0].v[2];
+          point.v[2] = v27;
+          point.v[0] = v25;
+          point.v[1] = v26;
+          if ( !Nav_PointWithinTriangle(v13, &point) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 829, ASSERT_TYPE_ASSERT, "( Nav_PointWithinTriangle( pTri, sum ) )", (const char *)&queryFormat, "Nav_PointWithinTriangle( pTri, sum )") )
             __debugbreak();
         }
-        __asm
-        {
-          vmovss  dword ptr [rdi-4], xmm7
-          vmovss  xmm7, [rsp+128h+var_F0]
-          vmovss  dword ptr [rdi-8], xmm6
-          vmovss  dword ptr [rdi], xmm8
-        }
+        *(v9 - 1) = v26;
+        v8 = totalArea;
+        *(v9 - 2) = v25;
+        *v9 = v27;
       }
 LABEL_13:
-      _RDI += 3;
-      --v17;
+      v9 += 3;
+      --v5;
     }
-    while ( v17 );
-    __asm
-    {
-      vmovaps xmm15, [rsp+128h+var_C8]
-      vmovaps xmm14, [rsp+128h+var_B8]
-      vmovaps xmm13, [rsp+128h+var_A8]
-      vmovaps xmm12, [rsp+128h+var_98]
-      vmovaps xmm11, [rsp+128h+var_88]
-      vmovaps xmm10, [rsp+128h+var_78]
-      vmovaps xmm9, [rsp+128h+var_68]
-      vmovaps xmm8, [rsp+128h+var_58]
-      vmovaps xmm6, [rsp+128h+var_38]
-    }
+    while ( v5 );
   }
-  __asm { vmovaps xmm7, [rsp+128h+var_48] }
 }
 
 /*
@@ -691,32 +578,18 @@ Nav3D_GetClosestPointInsideVolume
 */
 void Nav3D_GetClosestPointInsideVolume(const vec3_t *testPos, const bfx::VolumeHandle hVolume, vec3_t *outClosestPos)
 {
-  bfx::Vector3 v13; 
-  bfx::Vector3 v14; 
-  void *retaddr; 
+  bfx::Vector3 *ClosestPos; 
+  __m128 v6; 
+  vec3_t v7; 
+  bfx::Vector3 v8; 
 
-  _RAX = &retaddr;
-  _RBX = outClosestPos;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  dword ptr [rax-30h], xmm0
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmovss  dword ptr [rax-2Ch], xmm1
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  dword ptr [rax-28h], xmm0
-  }
-  _RAX = bfx::VolumeHandle::GetClosestPos((bfx::VolumeHandle *)hVolume.m_pProxy, &v14, &v13);
-  __asm { vmovsd  xmm1, qword ptr [rax] }
-  v14.m_z = _RAX->m_z;
-  __asm
-  {
-    vmovss  dword ptr [rbx], xmm1
-    vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-    vmovss  dword ptr [rbx+4], xmm0
-    vmovss  xmm0, [rsp+58h+var_18]
-    vmovss  dword ptr [rbx+8], xmm0
-  }
+  v7 = *testPos;
+  ClosestPos = bfx::VolumeHandle::GetClosestPos((bfx::VolumeHandle *)hVolume.m_pProxy, &v8, (const bfx::Vector3 *)&v7);
+  v6 = (__m128)*(unsigned __int64 *)&ClosestPos->m_x;
+  v8.m_z = ClosestPos->m_z;
+  outClosestPos->v[0] = v6.m128_f32[0];
+  outClosestPos->v[1] = _mm_shuffle_ps(v6, v6, 85).m128_f32[0];
+  outClosestPos->v[2] = v8.m_z;
   bfx::VolumeHandle::~VolumeHandle((bfx::VolumeHandle *)hVolume.m_pProxy);
 }
 
@@ -727,63 +600,45 @@ Nav3D_GetClosestPointOnMesh
 */
 __int64 Nav3D_GetClosestPointOnMesh(nav_space_s *pSpace, const bfx::Path3DSpec *pathSpec, const vec3_t *pos, vec3_t *outClosestPos)
 {
-  unsigned __int8 v10; 
-  bfx::VolumeHandle *v11; 
-  bfx::VolumeHandle *v12; 
+  unsigned __int8 v8; 
+  bfx::VolumeHandle *v9; 
+  bfx::VolumeHandle *v10; 
+  bfx::Vector3 *ClosestPos; 
+  __m128 v12; 
   bfx::VolumeHandle pClosestVolume; 
-  bfx::VolumeHandle v22; 
-  __int64 v23; 
-  bfx::VolumeHandle *v24; 
+  bfx::VolumeHandle v15; 
+  __int64 v16; 
+  bfx::VolumeHandle *v17; 
   float m_z; 
   bfx::Vector3 posa; 
   bfx::Vector3 result; 
 
-  v23 = -2i64;
-  _RSI = outClosestPos;
-  _RDI = pos;
+  v16 = -2i64;
   bfx::VolumeHandle::VolumeHandle(&pClosestVolume);
-  if ( Nav_MeshLoaded() && Nav3D_GetClosestVolume(pSpace, _RDI, pathSpec, &pClosestVolume) )
+  if ( Nav_MeshLoaded() && Nav3D_GetClosestVolume(pSpace, pos, pathSpec, &pClosestVolume) )
   {
-    bfx::VolumeHandle::VolumeHandle(&v22, &pClosestVolume);
-    v12 = v11;
-    v24 = v11;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovss  [rsp+78h+pos.m_x], xmm0
-      vmovss  xmm1, dword ptr [rdi+4]
-      vmovss  [rsp+78h+pos.m_y], xmm1
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovss  [rsp+78h+pos.m_z], xmm0
-    }
-    _RAX = bfx::VolumeHandle::GetClosestPos(v11, &result, &posa);
-    __asm { vmovsd  xmm1, qword ptr [rax] }
-    m_z = _RAX->m_z;
-    __asm
-    {
-      vmovss  dword ptr [rsi], xmm1
-      vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-      vmovss  dword ptr [rsi+4], xmm0
-      vmovss  xmm0, [rsp+78h+var_38]
-      vmovss  dword ptr [rsi+8], xmm0
-    }
-    bfx::VolumeHandle::~VolumeHandle(v12);
-    v10 = 1;
+    bfx::VolumeHandle::VolumeHandle(&v15, &pClosestVolume);
+    v10 = v9;
+    v17 = v9;
+    posa = (bfx::Vector3)*pos;
+    ClosestPos = bfx::VolumeHandle::GetClosestPos(v9, &result, &posa);
+    v12 = (__m128)*(unsigned __int64 *)&ClosestPos->m_x;
+    m_z = ClosestPos->m_z;
+    outClosestPos->v[0] = v12.m128_f32[0];
+    outClosestPos->v[1] = _mm_shuffle_ps(v12, v12, 85).m128_f32[0];
+    outClosestPos->v[2] = m_z;
+    bfx::VolumeHandle::~VolumeHandle(v10);
+    v8 = 1;
   }
   else
   {
-    _RSI->v[0] = _RDI->v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmovss  dword ptr [rsi+4], xmm0
-      vmovss  xmm1, dword ptr [rdi+8]
-      vmovss  dword ptr [rsi+8], xmm1
-    }
-    v10 = 0;
+    outClosestPos->v[0] = pos->v[0];
+    outClosestPos->v[1] = pos->v[1];
+    outClosestPos->v[2] = pos->v[2];
+    v8 = 0;
   }
   bfx::VolumeHandle::~VolumeHandle(&pClosestVolume);
-  return v10;
+  return v8;
 }
 
 /*
@@ -795,44 +650,26 @@ char Nav3D_GetClosestReachablePos(const bfx::VolumeHandle startVolume, const vec
 {
   const bfx::VolumeHandle *ClosestReachableVolume; 
   bfx::VolumeHandle result; 
-  __int64 v17; 
+  __int64 v11; 
   bfx::Vector3 pos; 
-  bfx::VolumeHandle v19; 
+  bfx::VolumeHandle v13; 
 
-  v17 = -2i64;
-  _RSI = outClosestPos;
-  _RBX = origin;
-  bfx::VolumeHandle::VolumeHandle(&v19);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+58h+pos.m_x], xmm0
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  [rsp+58h+pos.m_y], xmm1
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+58h+pos.m_z], xmm0
-  }
+  v11 = -2i64;
+  bfx::VolumeHandle::VolumeHandle(&v13);
+  pos = (bfx::Vector3)*origin;
   ClosestReachableVolume = bfx::GetClosestReachableVolume(&result, (const bfx::VolumeHandle *)startVolume.m_pProxy, &pos, pPathSpec);
-  bfx::VolumeHandle::operator=(&v19, ClosestReachableVolume);
+  bfx::VolumeHandle::operator=(&v13, ClosestReachableVolume);
   bfx::VolumeHandle::~VolumeHandle(&result);
-  if ( bfx::VolumeHandle::IsValid(&v19) )
+  if ( bfx::VolumeHandle::IsValid(&v13) )
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+58h+pos.m_x]
-      vmovss  dword ptr [rsi], xmm0
-      vmovss  xmm1, [rsp+58h+pos.m_y]
-      vmovss  dword ptr [rsi+4], xmm1
-      vmovss  xmm0, [rsp+58h+pos.m_z]
-      vmovss  dword ptr [rsi+8], xmm0
-    }
-    bfx::VolumeHandle::~VolumeHandle(&v19);
+    *(bfx::Vector3 *)outClosestPos = pos;
+    bfx::VolumeHandle::~VolumeHandle(&v13);
     bfx::VolumeHandle::~VolumeHandle((bfx::VolumeHandle *)startVolume.m_pProxy);
     return 1;
   }
   else
   {
-    bfx::VolumeHandle::~VolumeHandle(&v19);
+    bfx::VolumeHandle::~VolumeHandle(&v13);
     bfx::VolumeHandle::~VolumeHandle((bfx::VolumeHandle *)startVolume.m_pProxy);
     return 0;
   }
@@ -850,18 +687,9 @@ _BOOL8 Nav3D_GetClosestReachableVolume(const bfx::VolumeHandle startVolume, cons
   bfx::Vector3 pos; 
   bfx::VolumeHandle result; 
 
-  _RSI = origin;
   if ( !pClosestVolume && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 1049, ASSERT_TYPE_ASSERT, "(pClosestVolume)", (const char *)&queryFormat, "pClosestVolume", -2i64) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+68h+pos.m_x], xmm0
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  [rsp+68h+pos.m_y], xmm1
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+68h+pos.m_z], xmm0
-  }
+  pos = (bfx::Vector3)*origin;
   ClosestReachableVolume = bfx::GetClosestReachableVolume(&result, (const bfx::VolumeHandle *)startVolume.m_pProxy, &pos, pPathSpec);
   bfx::VolumeHandle::operator=(pClosestVolume, ClosestReachableVolume);
   bfx::VolumeHandle::~VolumeHandle(&result);
@@ -881,22 +709,13 @@ bool Nav3D_GetClosestVolume(nav_space_s *pSpace, const vec3_t *origin, const bfx
   bfx::Vector3 pos; 
   bfx::VolumeHandle result; 
 
-  _RSI = origin;
   if ( !pClosestVolume && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 1058, ASSERT_TYPE_ASSERT, "(pClosestVolume)", (const char *)&queryFormat, "pClosestVolume", -2i64) )
     __debugbreak();
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 1059, ASSERT_TYPE_ASSERT, "(pSpace)", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( Nav_IsRunning() )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vmovss  [rsp+68h+pos.m_x], xmm0
-      vmovss  xmm1, dword ptr [rsi+4]
-      vmovss  [rsp+68h+pos.m_y], xmm1
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmovss  [rsp+68h+pos.m_z], xmm0
-    }
+    pos = (bfx::Vector3)*origin;
     ClosestVolume = bfx::GetClosestVolume(&result, &pSpace->hSpace, &pos, pPathSpec);
     bfx::VolumeHandle::operator=(pClosestVolume, ClosestVolume);
     bfx::VolumeHandle::~VolumeHandle(&result);
@@ -919,54 +738,37 @@ _BOOL8 Nav3D_IsPointOnMesh(nav_space_s *pSpace, const vec3_t *testPos, const bfx
   bool IsPosInside; 
   const bfx::VolumeHandle *ClosestVolume; 
   bfx::Vector3 pos; 
-  bfx::Vector3 v16; 
-  bfx::VolumeHandle v17; 
+  bfx::Vector3 v10; 
+  bfx::VolumeHandle v11; 
   bfx::VolumeHandle result; 
 
-  _RBX = testPos;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 1084, ASSERT_TYPE_ASSERT, "(pSpace)", (const char *)&queryFormat, "pSpace", -2i64) )
     __debugbreak();
   if ( !pPathSpec && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 1085, ASSERT_TYPE_ASSERT, "(pPathSpec)", (const char *)&queryFormat, "pPathSpec") )
     __debugbreak();
-  bfx::VolumeHandle::VolumeHandle(&v17);
+  bfx::VolumeHandle::VolumeHandle(&v11);
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 1059, ASSERT_TYPE_ASSERT, "(pSpace)", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( Nav_IsRunning() )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  [rsp+78h+pos.m_x], xmm0
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmovss  [rsp+78h+pos.m_y], xmm1
-      vmovss  xmm0, dword ptr [rbx+8]
-      vmovss  [rsp+78h+pos.m_z], xmm0
-    }
+    pos = (bfx::Vector3)*testPos;
     ClosestVolume = bfx::GetClosestVolume(&result, &pSpace->hSpace, &pos, pPathSpec);
-    bfx::VolumeHandle::operator=(&v17, ClosestVolume);
+    bfx::VolumeHandle::operator=(&v11, ClosestVolume);
     bfx::VolumeHandle::~VolumeHandle(&result);
-    if ( bfx::VolumeHandle::IsValid(&v17) )
+    if ( bfx::VolumeHandle::IsValid(&v11) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  [rsp+78h+var_30.m_x], xmm0
-        vmovss  xmm1, dword ptr [rbx+4]
-        vmovss  [rsp+78h+var_30.m_y], xmm1
-        vmovss  xmm0, dword ptr [rbx+8]
-        vmovss  [rsp+78h+var_30.m_z], xmm0
-      }
-      IsPosInside = bfx::VolumeHandle::IsPosInside(&v17, &v16);
+      v10 = (bfx::Vector3)*testPos;
+      IsPosInside = bfx::VolumeHandle::IsPosInside(&v11, &v10);
       goto LABEL_13;
     }
   }
   else
   {
-    bfx::VolumeHandle::Release(&v17);
+    bfx::VolumeHandle::Release(&v11);
   }
   IsPosInside = 0;
 LABEL_13:
-  bfx::VolumeHandle::~VolumeHandle(&v17);
+  bfx::VolumeHandle::~VolumeHandle(&v11);
   return IsPosInside;
 }
 
@@ -977,91 +779,44 @@ Nav3D_IsStraightLineReachable
 */
 bool Nav3D_IsStraightLineReachable(nav_space_s *pSpace, const vec3_t *startPos, const vec3_t *endPos, const bfx::Path3DSpec *pPathSpec)
 {
-  bool result; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int128 v15; 
   bfx::Vector3 dir; 
   bfx::Vector3 startPosa; 
   bfx::Probe3DResults clientResults; 
-  char v48; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RSI = endPos;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm8 }
-  _RBP = startPos;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 1114, ASSERT_TYPE_ASSERT, "(pSpace)", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( !pPathSpec && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 1115, ASSERT_TYPE_ASSERT, "(pPathSpec)", (const char *)&queryFormat, "pPathSpec") )
     __debugbreak();
+  v8 = startPos->v[0];
+  v9 = startPos->v[1];
+  v10 = startPos->v[2];
+  v11 = endPos->v[0] - startPos->v[0];
+  v15 = LODWORD(endPos->v[1]);
+  v12 = endPos->v[1] - v9;
+  v13 = endPos->v[2] - v10;
+  *(float *)&v15 = fsqrt((float)((float)(v12 * v12) + (float)(v11 * v11)) + (float)(v13 * v13));
+  _XMM10 = v15;
   __asm
   {
-    vmovss  xmm9, dword ptr [rbp+0]
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  xmm8, dword ptr [rbp+4]
-    vmovss  xmm1, dword ptr [rsi+4]
-    vmovss  xmm7, dword ptr [rbp+8]
-    vsubss  xmm6, xmm0, xmm9
-    vmovss  xmm0, dword ptr [rsi+8]
-    vsubss  xmm5, xmm1, xmm8
-    vsubss  xmm4, xmm0, xmm7
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm10, xmm2, xmm2
     vcmpless xmm0, xmm10, cs:__real@80000000
     vblendvps xmm0, xmm10, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm3, xmm5, xmm1
   }
   clientResults.m_collided = 0;
-  __asm
-  {
-    vmovss  [rsp+0D8h+dir.m_y], xmm3
-    vmulss  xmm2, xmm6, xmm1
-    vmulss  xmm0, xmm4, xmm1
-    vmovaps xmm3, xmm10; dist
-    vmovss  [rsp+0D8h+startPos.m_x], xmm9
-    vmovss  [rsp+0D8h+startPos.m_y], xmm8
-    vmovss  [rsp+0D8h+startPos.m_z], xmm7
-    vmovss  [rsp+0D8h+dir.m_x], xmm2
-    vmovss  [rsp+0D8h+dir.m_z], xmm0
-  }
-  bfx::NavProbe3D(&pSpace->hSpace, &startPosa, &dir, *(float *)&_XMM3, pPathSpec, &clientResults);
-  if ( clientResults.m_collided )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm10, [rsp+0D8h+var_88.m_distTravelled]
-      vcomiss xmm0, cs:__real@3b449ba6
-    }
-    result = 0;
-  }
-  else
-  {
-    result = 1;
-  }
-  _R11 = &v48;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return result;
+  dir.m_y = v12 * (float)(1.0 / *(float *)&_XMM0);
+  startPosa.m_x = v8;
+  startPosa.m_y = v9;
+  startPosa.m_z = v10;
+  dir.m_x = v11 * (float)(1.0 / *(float *)&_XMM0);
+  dir.m_z = v13 * (float)(1.0 / *(float *)&_XMM0);
+  bfx::NavProbe3D(&pSpace->hSpace, &startPosa, &dir, *(float *)&v15, pPathSpec, &clientResults);
+  return !clientResults.m_collided || (float)(*(float *)&v15 - clientResults.m_distTravelled) < 0.003;
 }
 
 /*
@@ -1069,64 +824,29 @@ bool Nav3D_IsStraightLineReachable(nav_space_s *pSpace, const vec3_t *startPos, 
 Nav_CheckBoxFit
 ==============
 */
-
-__int64 __fastcall Nav_CheckBoxFit(const vec3_t *centerPoint, const vec4_t *qRot, double length, double width, const float height, AINavLayer layer, const bfx::PathSpec *pathSpec, bfx::SpaceHandle *spaceHandle)
+__int64 Nav_CheckBoxFit(const vec3_t *centerPoint, const vec4_t *qRot, const float length, const float width, const float height, AINavLayer layer, const bfx::PathSpec *pathSpec, bfx::SpaceHandle *spaceHandle)
 {
-  __int64 result; 
   bfx::BoxExtents extents; 
   bfx::Vector3 iPos; 
   bfx::BoxFitResults pResultsOut; 
   bfx::Quaternion iRot; 
-  char v33; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmm7, xmm3
-    vmovaps xmm6, xmm2
-  }
-  _RDI = qRot;
-  _RBX = centerPoint;
   Sys_ProfBeginNamedEvent(0xFF808080, "Nav_CheckBoxFit");
   pResultsOut.m_boxFits = 0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0B8h+var_50.m_snappedCenterPos.m_x], xmm0
-    vmovss  [rsp+0B8h+var_50.m_snappedCenterPos.m_y], xmm0
-    vmovss  [rsp+0B8h+var_50.m_snappedCenterPos.m_z], xmm0
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+0B8h+iPos.m_x], xmm0
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  [rsp+0B8h+iPos.m_y], xmm1
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+0B8h+iPos.m_z], xmm0
-    vmovss  xmm1, dword ptr [rdi]
-    vmovss  [rsp+0B8h+iRot.m_x], xmm1
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+0B8h+iRot.m_y], xmm0
-    vmovss  xmm1, dword ptr [rdi+8]
-    vmovss  [rsp+0B8h+iRot.m_z], xmm1
-    vmovss  xmm0, dword ptr [rdi+0Ch]
-    vmovss  [rsp+0B8h+iRot.m_w], xmm0
-    vmovss  [rsp+0B8h+extents.m_length], xmm6
-    vmovss  [rsp+0B8h+extents.m_width], xmm7
-    vmovss  xmm0, [rsp+0B8h+height]
-    vmovss  [rsp+0B8h+extents.m_height], xmm0
-  }
-  LOBYTE(_RBX) = bfx::CheckBoxFit(spaceHandle, &iPos, &iRot, &extents, layer, pathSpec, &pResultsOut);
+  pResultsOut.m_snappedCenterPos.m_x = 0.0;
+  pResultsOut.m_snappedCenterPos.m_y = 0.0;
+  pResultsOut.m_snappedCenterPos.m_z = 0.0;
+  iPos = (bfx::Vector3)*centerPoint;
+  iRot.m_x = qRot->v[0];
+  iRot.m_y = qRot->v[1];
+  iRot.m_z = qRot->v[2];
+  iRot.m_w = qRot->v[3];
+  extents.m_length = length;
+  extents.m_width = width;
+  extents.m_height = height;
+  LOBYTE(centerPoint) = bfx::CheckBoxFit(spaceHandle, &iPos, &iRot, &extents, layer, pathSpec, &pResultsOut);
   Sys_ProfEndNamedEvent();
-  result = (unsigned __int8)_RBX;
-  _R11 = &v33;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  return (unsigned __int8)centerPoint;
 }
 
 /*
@@ -1138,11 +858,7 @@ void Nav_DrawPolyLinePath(bfx::PolylinePathRCPtr path)
 {
   bfx::Color color; 
 
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@3f80000000000000000000003f800000
-    vmovups xmmword ptr [rsp+48h+color.m_r], xmm0
-  }
+  color = (bfx::Color)_xmm;
   bfx::PolylinePathRCPtr::Draw((bfx::PolylinePathRCPtr *)path.m_pProxy, &color);
   bfx::PolylinePathRCPtr::~PolylinePathRCPtr((bfx::PolylinePathRCPtr *)path.m_pProxy);
 }
@@ -1156,22 +872,20 @@ __int64 Nav_FindFirstNCornersOnPath(nav_space_s *pSpace, const vec3_t *startPos,
 {
   const bfx::PathSpec *v13; 
   vec3_t *v14; 
-  bfx::AreaHandle *v21; 
-  const bfx::MultiPathRCPtr *v22; 
-  bfx::PolylinePathRCPtr v23; 
-  unsigned int v24; 
+  bfx::AreaHandle *v15; 
+  const bfx::MultiPathRCPtr *v16; 
+  bfx::PolylinePathRCPtr v17; 
+  unsigned int v18; 
   bfx::Vector3 startPosa; 
   bfx::MultiPathGoal ptr; 
   bfx::MultiPathGoalOutput goalOut; 
-  __int64 v29; 
-  bfx::MultiPathRCPtr v30; 
-  bfx::AreaHandle *v31; 
+  __int64 v23; 
+  bfx::MultiPathRCPtr v24; 
+  bfx::AreaHandle *v25; 
   bfx::MultiPathSpec multiPathSpec; 
 
-  v31 = hStartArea;
-  v29 = -2i64;
-  _R14 = goalPos;
-  _R15 = startPos;
+  v25 = hStartArea;
+  v23 = -2i64;
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "FindFirstNCornersOnPath");
   v13 = pPathSpec;
   if ( !pPathSpec && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 542, ASSERT_TYPE_ASSERT, "( pPathSpec )", (const char *)&queryFormat, "pPathSpec") )
@@ -1179,63 +893,49 @@ __int64 Nav_FindFirstNCornersOnPath(nav_space_s *pSpace, const vec3_t *startPos,
   v14 = cornerArray;
   if ( !cornerArray && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 543, ASSERT_TYPE_ASSERT, "( cornerArray )", (const char *)&queryFormat, "cornerArray") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15]
-    vmovss  [rbp+37h+startPos.m_x], xmm0
-    vmovss  xmm1, dword ptr [r15+4]
-    vmovss  [rbp+37h+startPos.m_y], xmm1
-    vmovss  xmm0, dword ptr [r15+8]
-    vmovss  [rbp+37h+startPos.m_z], xmm0
-  }
+  startPosa = (bfx::Vector3)*startPos;
   multiPathSpec.m_generatePaths = 1;
   multiPathSpec.m_maxNumCorners = numCorners;
   `eh vector constructor iterator'(&ptr, 0x28ui64, 1ui64, (void (__fastcall *)(void *))bfx::MultiPathGoal::MultiPathGoal, (void (__fastcall *)(void *))bfx::MultiPathGoal::~MultiPathGoal);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rbp+37h+ptr], xmm0
-    vmovss  xmm1, dword ptr [r14+4]
-    vmovss  [rbp+37h+var_9C], xmm1
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  [rbp+37h+var_98], xmm0
-  }
-  v21 = hGoalArea;
+  ptr.m_goalPos.m_x = goalPos->v[0];
+  ptr.m_goalPos.m_y = goalPos->v[1];
+  ptr.m_goalPos.m_z = goalPos->v[2];
+  v15 = hGoalArea;
   bfx::AreaHandle::operator=(&ptr.m_goalArea, hGoalArea);
-  bfx::MultiPathRCPtr::MultiPathRCPtr(&v30);
+  bfx::MultiPathRCPtr::MultiPathRCPtr(&v24);
   if ( bfx::AreaHandle::IsValid(hStartArea) )
-    v22 = bfx::SearchToMultipleGoals((bfx::MultiPathRCPtr *)&pPathSpec, hStartArea, &startPosa, v13, &multiPathSpec, &ptr, 1);
+    v16 = bfx::SearchToMultipleGoals((bfx::MultiPathRCPtr *)&pPathSpec, hStartArea, &startPosa, v13, &multiPathSpec, &ptr, 1);
   else
-    v22 = bfx::SearchToMultipleGoals((bfx::MultiPathRCPtr *)&pPathSpec, &pSpace->hSpace, &startPosa, layer, v13, &multiPathSpec, &ptr, 1);
-  bfx::MultiPathRCPtr::operator=(&v30, v22);
+    v16 = bfx::SearchToMultipleGoals((bfx::MultiPathRCPtr *)&pPathSpec, &pSpace->hSpace, &startPosa, layer, v13, &multiPathSpec, &ptr, 1);
+  bfx::MultiPathRCPtr::operator=(&v24, v16);
   bfx::MultiPathRCPtr::~MultiPathRCPtr((bfx::MultiPathRCPtr *)&pPathSpec);
-  if ( !bfx::MultiPathRCPtr::IsValid(&v30) )
+  if ( !bfx::MultiPathRCPtr::IsValid(&v24) )
     goto LABEL_18;
   bfx::MultiPathGoalOutput::MultiPathGoalOutput(&goalOut);
-  if ( !bfx::MultiPathRCPtr::GetGoalOutput(&v30, 0, &goalOut) || !goalOut.m_goalReached )
+  if ( !bfx::MultiPathRCPtr::GetGoalOutput(&v24, 0, &goalOut) || !goalOut.m_goalReached )
   {
     bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&goalOut.m_path);
     bfx::AreaHandle::~AreaHandle(&goalOut.m_goalArea);
 LABEL_18:
     Sys_ProfEndNamedEvent();
-    bfx::MultiPathRCPtr::~MultiPathRCPtr(&v30);
+    bfx::MultiPathRCPtr::~MultiPathRCPtr(&v24);
     `eh vector destructor iterator'(&ptr, 0x28ui64, 1ui64, (void (__fastcall *)(void *))bfx::MultiPathGoal::~MultiPathGoal);
     bfx::AreaHandle::~AreaHandle(hStartArea);
-    bfx::AreaHandle::~AreaHandle(v21);
+    bfx::AreaHandle::~AreaHandle(v15);
     return 0i64;
   }
   if ( !bfx::PolylinePathRCPtr::IsValid(&goalOut.m_path) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 570, ASSERT_TYPE_ASSERT, "( pathOutput.m_path.IsValid() )", (const char *)&queryFormat, "pathOutput.m_path.IsValid()") )
     __debugbreak();
   bfx::PolylinePathRCPtr::PolylinePathRCPtr((bfx::PolylinePathRCPtr *)&pPathSpec, &goalOut.m_path);
-  v24 = Nav_SimplifyPath(pSpace, _R15, v23, layer, v13, numCorners, v14);
+  v18 = Nav_SimplifyPath(pSpace, startPos, v17, layer, v13, numCorners, v14);
   Sys_ProfEndNamedEvent();
   bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&goalOut.m_path);
   bfx::AreaHandle::~AreaHandle(&goalOut.m_goalArea);
-  bfx::MultiPathRCPtr::~MultiPathRCPtr(&v30);
+  bfx::MultiPathRCPtr::~MultiPathRCPtr(&v24);
   `eh vector destructor iterator'(&ptr, 0x28ui64, 1ui64, (void (__fastcall *)(void *))bfx::MultiPathGoal::~MultiPathGoal);
   bfx::AreaHandle::~AreaHandle(hStartArea);
-  bfx::AreaHandle::~AreaHandle(v21);
-  return v24;
+  bfx::AreaHandle::~AreaHandle(v15);
+  return v18;
 }
 
 /*
@@ -1250,31 +950,15 @@ bfx::PolylinePath3DRCPtr *Nav_FindPath3D(bfx::PolylinePath3DRCPtr *result, const
   bfx::Vector3 goalPos; 
   bfx::Vector3 startPosa; 
 
-  _RBP = endPos;
-  _R14 = startPos;
   DefaultSpace = Nav_GetDefaultSpace();
   if ( !DefaultSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 584, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace", 0, -2i64) )
     __debugbreak();
   if ( !Nav_AnyVolumesLoaded() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 585, ASSERT_TYPE_ASSERT, "( Nav_AnyVolumesLoaded() )", (const char *)&queryFormat, "Nav_AnyVolumesLoaded()") )
     __debugbreak();
   *(_QWORD *)&pathSpec.m_volumeUsageFlags = -1i64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+88h+pathSpec.m_maxSearchDist], xmm0
-    vmovss  xmm1, dword ptr [r14]
-    vmovss  [rsp+88h+startPos.m_x], xmm1
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+88h+startPos.m_y], xmm0
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  [rsp+88h+startPos.m_z], xmm1
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+88h+goalPos.m_x], xmm0
-    vmovss  xmm1, dword ptr [rbp+4]
-    vmovss  [rsp+88h+goalPos.m_y], xmm1
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+88h+goalPos.m_z], xmm0
-  }
+  pathSpec.m_maxSearchDist = 0.0;
+  startPosa = (bfx::Vector3)*startPos;
+  goalPos = (bfx::Vector3)*endPos;
   Profile_Begin(275);
   bfx::CreatePolylinePath3D(result, &DefaultSpace->hSpace, &startPosa, &goalPos, &pathSpec);
   Profile_EndInternal(NULL);
@@ -1292,31 +976,15 @@ bfx::PolylinePath3DRCPtr *Nav_FindPath3DCustom(bfx::PolylinePath3DRCPtr *result,
   bfx::Vector3 goalPos; 
   bfx::Vector3 startPosa; 
 
-  _RBP = endPos;
-  _R14 = startPos;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 584, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace", 0, -2i64) )
     __debugbreak();
   if ( !Nav_AnyVolumesLoaded() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 585, ASSERT_TYPE_ASSERT, "( Nav_AnyVolumesLoaded() )", (const char *)&queryFormat, "Nav_AnyVolumesLoaded()") )
     __debugbreak();
   pathSpec.m_volumeUsageFlags = volumeUsageFlags;
   pathSpec.m_applyPenaltyFlags = applyPenaltyFlags;
-  __asm
-  {
-    vmovss  xmm0, [rsp+88h+maxSearchDist]
-    vmovss  [rsp+88h+pathSpec.m_maxSearchDist], xmm0
-    vmovss  xmm1, dword ptr [r14]
-    vmovss  [rsp+88h+startPos.m_x], xmm1
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  [rsp+88h+startPos.m_y], xmm0
-    vmovss  xmm1, dword ptr [r14+8]
-    vmovss  [rsp+88h+startPos.m_z], xmm1
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  [rsp+88h+goalPos.m_x], xmm0
-    vmovss  xmm1, dword ptr [rbp+4]
-    vmovss  [rsp+88h+goalPos.m_y], xmm1
-    vmovss  xmm0, dword ptr [rbp+8]
-    vmovss  [rsp+88h+goalPos.m_z], xmm0
-  }
+  pathSpec.m_maxSearchDist = maxSearchDist;
+  startPosa = (bfx::Vector3)*startPos;
+  goalPos = (bfx::Vector3)*endPos;
   Profile_Begin(275);
   bfx::CreatePolylinePath3D(result, &pSpace->hSpace, &startPosa, &goalPos, &pathSpec);
   Profile_EndInternal(NULL);
@@ -1330,51 +998,40 @@ Nav_FindPath
 */
 bfx::PolylinePathRCPtr *Nav_FindPath(bfx::PolylinePathRCPtr *result, nav_space_s *pSpace, const vec3_t *startPos, const vec3_t *goalPos, unsigned int layer)
 {
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   bfx::PathCreationOptions options; 
   bfx::Vector3 goalPosa; 
   bfx::Vector3 startPosa; 
   bfx::PathSpec pathSpec; 
 
   *(_QWORD *)&goalPosa.m_x = result;
-  _RSI = goalPos;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   pathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-  __asm
-  {
-    vmovss  [rbp+4Fh+var_80.m_pathSharingPenalty], xmm0
-    vmovss  [rbp+4Fh+var_80.m_maxPathSharingPenalty], xmm0
-    vmovss  [rbp+4Fh+var_80.m_maxSearchDist], xmm0
-  }
-  _RBX = startPos;
+  pathSpec.m_pathSharingPenalty = 0.0;
+  pathSpec.m_maxPathSharingPenalty = 0.0;
+  pathSpec.m_maxSearchDist = 0.0;
   *(_QWORD *)&pathSpec.m_obstacleBlockageFlags = -1i64;
   *(_QWORD *)&pathSpec.m_areaPenaltyFlags = -1i64;
   pathSpec.m_usePathSharingPenalty = 0;
   bfx::PenaltyTable::PenaltyTable(&pathSpec.m_penaltyTable);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  [rbp+4Fh+startPos.m_x], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rbp+4Fh+startPos.m_y], xmm1
-    vmovss  xmm1, dword ptr [rsi]
-  }
+  v9 = startPos->v[1];
+  startPosa.m_x = startPos->v[0];
+  v10 = startPos->v[2];
+  startPosa.m_y = v9;
+  v11 = goalPos->v[0];
   pathSpec.m_snapMode = SNAP_CLOSEST;
-  __asm
-  {
-    vmovss  [rbp+4Fh+startPos.m_z], xmm0
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rbp+4Fh+goalPos.m_x], xmm1
-    vmovss  xmm1, dword ptr [rsi+8]
-  }
+  startPosa.m_z = v10;
+  v12 = goalPos->v[1];
+  goalPosa.m_x = v11;
+  v13 = goalPos->v[2];
   *(_WORD *)&options.m_performInitialNavProbe = 257;
   options.m_forceFirstPosOntoNavGraph = 0;
   *(_QWORD *)&pathSpec.m_obstacleBlockageFlags = -1i64;
-  __asm
-  {
-    vmovss  [rbp+4Fh+goalPos.m_y], xmm0
-    vmovss  [rbp+4Fh+goalPos.m_z], xmm1
-  }
+  goalPosa.m_y = v12;
+  goalPosa.m_z = v13;
   pathSpec.m_linkUsageFlags = 2047;
   bfx::CreatePolylinePath(result, &pSpace->hSpace, &startPosa, &goalPosa, layer, &pathSpec, &options);
   return result;
@@ -1387,53 +1044,41 @@ Nav_FindPathCustom
 */
 bfx::PolylinePathRCPtr *Nav_FindPathCustom(bfx::PolylinePathRCPtr *result, nav_space_s *pSpace, const vec3_t *startPos, const vec3_t *goalPos, unsigned int layer, unsigned int areaUsageFlags, unsigned int linkUsageFlags, unsigned int obstacleBlockageFlags)
 {
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
   bfx::PathCreationOptions options; 
   bfx::Vector3 goalPosa; 
   bfx::Vector3 startPosa; 
   bfx::PathSpec pathSpec; 
 
   *(_QWORD *)&goalPosa.m_x = result;
-  _RDI = goalPos;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   pathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-  __asm
-  {
-    vmovss  [rbp+37h+var_80.m_pathSharingPenalty], xmm0
-    vmovss  [rbp+37h+var_80.m_maxPathSharingPenalty], xmm0
-    vmovss  [rbp+37h+var_80.m_maxSearchDist], xmm0
-  }
-  _RBX = startPos;
+  pathSpec.m_pathSharingPenalty = 0.0;
+  pathSpec.m_maxPathSharingPenalty = 0.0;
+  pathSpec.m_maxSearchDist = 0.0;
   *(_QWORD *)&pathSpec.m_obstacleBlockageFlags = -1i64;
   *(_QWORD *)&pathSpec.m_areaPenaltyFlags = -1i64;
   pathSpec.m_usePathSharingPenalty = 0;
   bfx::PenaltyTable::PenaltyTable(&pathSpec.m_penaltyTable);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-  }
+  v12 = startPos->v[0];
+  v13 = startPos->v[1];
   pathSpec.m_areaUsageFlags = areaUsageFlags;
-  __asm
-  {
-    vmovss  [rbp+37h+startPos.m_x], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rbp+37h+startPos.m_y], xmm1
-    vmovss  xmm1, dword ptr [rdi]
-  }
+  startPosa.m_x = v12;
+  v14 = startPos->v[2];
+  startPosa.m_y = v13;
+  v15 = goalPos->v[0];
   pathSpec.m_linkUsageFlags = linkUsageFlags;
-  __asm
-  {
-    vmovss  [rbp+37h+startPos.m_z], xmm0
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rbp+37h+goalPos.m_x], xmm1
-    vmovss  xmm1, dword ptr [rdi+8]
-  }
+  startPosa.m_z = v14;
+  v16 = goalPos->v[1];
+  goalPosa.m_x = v15;
+  v17 = goalPos->v[2];
   pathSpec.m_obstacleBlockageFlags = obstacleBlockageFlags;
-  __asm
-  {
-    vmovss  [rbp+37h+goalPos.m_y], xmm0
-    vmovss  [rbp+37h+goalPos.m_z], xmm1
-  }
+  goalPosa.m_y = v16;
+  goalPosa.m_z = v17;
   pathSpec.m_snapMode = SNAP_CLOSEST;
   *(_WORD *)&options.m_performInitialNavProbe = 257;
   options.m_forceFirstPosOntoNavGraph = 0;
@@ -1446,204 +1091,127 @@ bfx::PolylinePathRCPtr *Nav_FindPathCustom(bfx::PolylinePathRCPtr *result, nav_s
 Nav_GetKindaRandomReachablePoints
 ==============
 */
-
-__int64 __fastcall Nav_GetKindaRandomReachablePoints(nav_space_s *pSpace, const vec3_t *origin, double radius, int layer, const bfx::PathSpec *pathSpec, int numPoints, vec3_t *outPoints)
+__int64 Nav_GetKindaRandomReachablePoints(nav_space_s *pSpace, const vec3_t *origin, float radius, int layer, const bfx::PathSpec *pathSpec, int numPoints, vec3_t *outPoints)
 {
-  int v26; 
-  unsigned int v27; 
-  __int64 v28; 
-  __int64 v29; 
-  __int64 v39; 
-  __int64 v40; 
-  __int64 v41; 
-  __int64 v42; 
-  int v49; 
+  vec3_t *v10; 
+  int v11; 
+  unsigned int v12; 
+  __int64 v13; 
+  __int64 v14; 
+  double v15; 
+  float v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
+  double v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  int v25; 
+  bfx::Vector3 *ClosestPosInArea; 
+  __m128 v27; 
+  float v28; 
+  float v29; 
+  float v30; 
   const bfx::AreaHandle *AdjacentArea; 
-  __int64 v67; 
   bfx::ClosestPosData pDataOut; 
-  bfx::AreaHandle v80; 
+  bfx::AreaHandle v34; 
   bfx::Vector3 pos; 
   bfx::Vector3 posWCoord; 
+  __int64 v37; 
   float m_z; 
   bfx::AreaHandle result; 
-  __int64 v86; 
-  bfx::AreaHandle v87; 
-  bfx::Vector3 v88; 
-  char v89; 
-  void *retaddr; 
+  __int64 v40; 
+  bfx::AreaHandle v41; 
+  bfx::Vector3 v42; 
 
-  _RAX = &retaddr;
-  v86 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-    vmovaps xmm12, xmm2
-  }
-  _R13 = origin;
-  _RBX = outPoints;
+  v40 = -2i64;
+  v10 = outPoints;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 977, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( !Nav_MeshLoaded() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 978, ASSERT_TYPE_ASSERT, "( Nav_MeshLoaded() )", (const char *)&queryFormat, "Nav_MeshLoaded()") )
     __debugbreak();
   if ( !outPoints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 979, ASSERT_TYPE_ASSERT, "( outPoints )", (const char *)&queryFormat, "outPoints") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+0]
-    vmovss  [rsp+180h+pos.m_x], xmm0
-    vmovss  xmm1, dword ptr [r13+4]
-    vmovss  [rsp+180h+pos.m_y], xmm1
-    vmovss  xmm0, dword ptr [r13+8]
-    vmovss  [rsp+180h+pos.m_z], xmm0
-  }
+  pos = (bfx::Vector3)*origin;
   bfx::GetClosestArea(&result, &pSpace->hSpace, &pos, layer, pathSpec);
   if ( !bfx::AreaHandle::IsValid(&result) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 985, ASSERT_TYPE_ASSERT, "( startArea.IsValid() )", (const char *)&queryFormat, "startArea.IsValid()") )
     __debugbreak();
-  v26 = 0;
-  v27 = 0;
-  v28 = numPoints;
-  v29 = 0i64;
-  __asm
-  {
-    vmovss  xmm14, cs:__real@40490fdb
-    vmovss  xmm15, cs:__real@40000000
-    vmovss  xmm13, cs:__real@40c00000
-  }
+  v11 = 0;
+  v12 = 0;
+  v13 = numPoints;
+  v14 = 0i64;
   do
   {
-    if ( v29 >= v28 )
+    if ( v14 >= v13 )
       break;
-    *(double *)&_XMM0 = G_random();
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm14
-      vmulss  xmm6, xmm1, xmm15
-    }
-    *(double *)&_XMM0 = G_random();
-    __asm
-    {
-      vmulss  xmm7, xmm0, xmm12
-      vmovaps xmm2, xmm6
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm0, xmm1, xmm2
-    }
-    *(double *)&_XMM0 = j___libm_sse2_sincosf_(v40, v39, v41, v42);
-    __asm
-    {
-      vmulss  xmm2, xmm0, xmm7
-      vshufps xmm0, xmm0, xmm0, 1
-      vmulss  xmm1, xmm0, xmm7
-      vaddss  xmm9, xmm1, dword ptr [r13+0]
-      vaddss  xmm10, xmm2, dword ptr [r13+4]
-      vmovss  xmm11, dword ptr [r13+8]
-    }
-    v49 = 0;
-    bfx::AreaHandle::AreaHandle(&v80, &result);
+    G_random();
+    v15 = G_random();
+    v16 = *(float *)&v15 * radius;
+    v21 = j___libm_sse2_sincosf_(v18, v17, v19, v20);
+    v22 = (float)(_mm_shuffle_ps((__m128)*(unsigned __int64 *)&v21, (__m128)*(unsigned __int64 *)&v21, 1).m128_f32[0] * v16) + origin->v[0];
+    v23 = (float)(*(float *)&v21 * v16) + origin->v[1];
+    v24 = origin->v[2];
+    v25 = 0;
+    bfx::AreaHandle::AreaHandle(&v34, &result);
     while ( 1 )
     {
-      __asm
-      {
-        vmovss  [rsp+180h+posWCoord.m_x], xmm9
-        vmovss  [rsp+180h+posWCoord.m_y], xmm10
-        vmovss  [rsp+180h+posWCoord.m_z], xmm11
-      }
+      posWCoord.m_x = v22;
+      posWCoord.m_y = v23;
+      posWCoord.m_z = v24;
       pDataOut.m_isEdgePos = 0;
       pDataOut.m_edgeIndex = -1;
-      _RAX = bfx::AreaHandle::GetClosestPosInArea(&v80, &v88, &posWCoord, &pDataOut);
-      __asm { vmovsd  xmm0, qword ptr [rax] }
-      m_z = _RAX->m_z;
-      __asm
-      {
-        vmovss  xmm6, [rsp+180h+var_110]
-        vshufps xmm7, xmm0, xmm0, 55h ; 'U'
-        vmovsd  [rsp+180h+var_118], xmm0
-        vmovss  xmm8, dword ptr [rsp+180h+var_118]
-      }
+      ClosestPosInArea = bfx::AreaHandle::GetClosestPosInArea(&v34, &v42, &posWCoord, &pDataOut);
+      v27 = (__m128)*(unsigned __int64 *)&ClosestPosInArea->m_x;
+      m_z = ClosestPosInArea->m_z;
+      v28 = m_z;
+      LODWORD(v29) = _mm_shuffle_ps(v27, v27, 85).m128_u32[0];
+      v37 = v27.m128_i64[0];
+      v30 = *(float *)&v37;
       if ( !pDataOut.m_isEdgePos )
+      {
+        v10->v[0] = *(float *)&v37;
+        v10->v[1] = v29;
+        v10->v[2] = v28;
+        goto LABEL_24;
+      }
+      AdjacentArea = bfx::AreaHandle::GetAdjacentArea(&v34, &v41, pDataOut.m_edgeIndex);
+      bfx::AreaHandle::operator=(&v34, AdjacentArea);
+      bfx::AreaHandle::~AreaHandle(&v41);
+      if ( !bfx::AreaHandle::IsValid(&v34) || !bfx::AreaHandle::IsUsable(&v34, pathSpec) )
         break;
-      AdjacentArea = bfx::AreaHandle::GetAdjacentArea(&v80, &v87, pDataOut.m_edgeIndex);
-      bfx::AreaHandle::operator=(&v80, AdjacentArea);
-      bfx::AreaHandle::~AreaHandle(&v87);
-      if ( !bfx::AreaHandle::IsValid(&v80) || !bfx::AreaHandle::IsUsable(&v80, pathSpec) )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rbx], xmm8
-          vmovss  dword ptr [rbx+4], xmm7
-          vmovss  dword ptr [rbx+8], xmm6
-          vmovss  xmm0, dword ptr [r13+0]
-          vsubss  xmm3, xmm0, xmm8
-          vmovss  xmm1, dword ptr [r13+4]
-          vsubss  xmm2, xmm1, xmm7
-          vmovss  xmm0, dword ptr [r13+8]
-          vsubss  xmm4, xmm0, xmm6
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm4, xmm2, xmm2
-          vaddss  xmm1, xmm12, xmm13
-          vcomiss xmm4, xmm1
-        }
-        ++v26;
-        goto LABEL_23;
-      }
-      if ( ++v49 >= 6 )
-        goto LABEL_23;
+      if ( ++v25 >= 6 )
+        goto LABEL_25;
     }
-    __asm
+    v10->v[0] = v30;
+    v10->v[1] = v29;
+    v10->v[2] = v28;
+    if ( fsqrt((float)((float)((float)(origin->v[1] - v29) * (float)(origin->v[1] - v29)) + (float)((float)(origin->v[0] - v30) * (float)(origin->v[0] - v30))) + (float)((float)(origin->v[2] - v28) * (float)(origin->v[2] - v28))) >= (float)(radius + 6.0) )
     {
-      vmovss  dword ptr [rbx], xmm8
-      vmovss  dword ptr [rbx+4], xmm7
-      vmovss  dword ptr [rbx+8], xmm6
+      ++v11;
+      goto LABEL_25;
     }
-    ++v27;
-    ++v29;
-    ++_RBX;
-LABEL_23:
-    if ( v49 == 6 )
+LABEL_24:
+    ++v12;
+    ++v14;
+    ++v10;
+LABEL_25:
+    if ( v25 == 6 )
     {
-      __asm
-      {
-        vmovss  dword ptr [rbx], xmm8
-        vmovss  dword ptr [rbx+4], xmm7
-        vmovss  dword ptr [rbx+8], xmm6
-      }
-      ++v27;
-      ++v29;
-      ++_RBX;
+      v10->v[0] = v30;
+      v10->v[1] = v29;
+      v10->v[2] = v28;
+      ++v12;
+      ++v14;
+      ++v10;
     }
-    bfx::AreaHandle::~AreaHandle(&v80);
-    v28 = numPoints;
+    bfx::AreaHandle::~AreaHandle(&v34);
+    v13 = numPoints;
   }
-  while ( v26 < 3 );
+  while ( v11 < 3 );
   bfx::AreaHandle::~AreaHandle(&result);
-  v67 = v27;
-  _R11 = &v89;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return v67;
+  return v12;
 }
 
 /*
@@ -1653,28 +1221,18 @@ Nav_GetLargestRepulsorBadplaceRadius
 */
 float Nav_GetLargestRepulsorBadplaceRadius()
 {
-  __asm
+  nav_repulsor_s *i; 
+
+  *(float *)&_XMM6 = FLOAT_N1_0;
+  for ( i = Nav_GetFirstRepulsor(); i; i = Nav_GetNextRepulsor(i) )
   {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, cs:__real@bf800000
-  }
-  for ( _RAX = Nav_GetFirstRepulsor(); _RAX; _RAX = Nav_GetNextRepulsor(_RAX) )
-  {
-    if ( _RAX->bBadplace )
+    if ( i->bBadplace )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rax+30h]
-        vmaxss  xmm6, xmm1, xmm6
-      }
+      _XMM1 = LODWORD(i->radius);
+      __asm { vmaxss  xmm6, xmm1, xmm6 }
     }
   }
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&_XMM6;
 }
 
 /*
@@ -1682,62 +1240,52 @@ float Nav_GetLargestRepulsorBadplaceRadius()
 Nav_GetModifierLocationOnPath
 ==============
 */
-
-bool __fastcall Nav_GetModifierLocationOnPath(const bfx::PolylinePathRCPtr *path, unsigned int flags, int curSegment, double minCheckDist, float maxCheckDist, vec3_t *outStartPoint, vec3_t *outEndPoint)
+char Nav_GetModifierLocationOnPath(const bfx::PolylinePathRCPtr *path, unsigned int flags, int curSegment, float minCheckDist, float maxCheckDist, vec3_t *outStartPoint, vec3_t *outEndPoint)
 {
-  __int64 v19; 
-  bool IsValid; 
+  __int64 v8; 
+  char IsValid; 
   int NumSegments; 
-  bool v26; 
+  __int128 v12; 
   bfx::SegmentType SegmentType; 
   bfx::SurfaceSegment *SurfaceSegment; 
-  char v38; 
+  const bfx::Vector3 *v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  const bfx::Vector3 *v19; 
+  float v20; 
+  float v21; 
+  float v22; 
   const bfx::AreaHandle *Area; 
   int NumObstacles; 
-  int v41; 
+  int v25; 
+  float v26; 
   bfx::LinkSegment *LinkSegment; 
-  bool v67; 
-  bfx::AreaHandle v79; 
-  bfx::ObstacleHandle v80; 
-  __int64 v81; 
+  const bfx::Vector3 *StartPos; 
+  float m_z; 
+  float m_y; 
+  float m_x; 
+  const bfx::Vector3 *EndPos; 
+  __int128 v33; 
+  char v34; 
+  bfx::AreaHandle v36; 
+  bfx::ObstacleHandle v37; 
+  __int64 v38; 
   bfx::AreaHandle result; 
-  bfx::ObstacleDat v83; 
-  char v84; 
-  void *retaddr; 
+  bfx::ObstacleDat v40; 
 
-  _RAX = &retaddr;
-  v81 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmm14, xmm3
-  }
-  v19 = flags;
-  _R12 = outStartPoint;
-  _R13 = outEndPoint;
+  v38 = -2i64;
+  v8 = flags;
   IsValid = bfx::PolylinePathRCPtr::IsValid((bfx::PolylinePathRCPtr *)path);
   if ( IsValid )
   {
     NumSegments = bfx::PolylinePathRCPtr::GetNumSegments((bfx::PolylinePathRCPtr *)path);
-    bfx::AreaHandle::AreaHandle(&v79);
-    __asm { vxorps  xmm9, xmm9, xmm9 }
-    v26 = curSegment <= (unsigned int)NumSegments;
+    bfx::AreaHandle::AreaHandle(&v36);
+    v12 = 0i64;
     if ( curSegment < NumSegments )
     {
-      __asm { vmovss  xmm13, [rsp+158h+maxCheckDist] }
-      do
+      while ( *(float *)&v12 <= maxCheckDist )
       {
-        __asm { vcomiss xmm9, xmm13 }
-        if ( !v26 )
-          break;
         SegmentType = bfx::PolylinePathRCPtr::GetSegmentType((bfx::PolylinePathRCPtr *)path, curSegment);
         if ( SegmentType )
         {
@@ -1746,121 +1294,73 @@ bool __fastcall Nav_GetModifierLocationOnPath(const bfx::PolylinePathRCPtr *path
           LinkSegment = bfx::PolylinePathRCPtr::GetLinkSegment((bfx::PolylinePathRCPtr *)path, curSegment);
           if ( !LinkSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 526, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
             __debugbreak();
-          _RAX = bfx::LinkSegment::GetStartPos(LinkSegment);
-          __asm
-          {
-            vmovss  xmm8, dword ptr [rax+8]
-            vmovss  xmm7, dword ptr [rax+4]
-            vmovss  xmm6, dword ptr [rax]
-          }
-          _RAX = bfx::LinkSegment::GetEndPos(LinkSegment);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [rax+8]
-            vmovss  xmm1, dword ptr [rax+4]
-            vmovss  xmm0, dword ptr [rax]
-            vsubss  xmm3, xmm0, xmm6
-            vsubss  xmm1, xmm1, xmm7
-            vsubss  xmm4, xmm2, xmm8
-            vmulss  xmm2, xmm1, xmm1
-            vmulss  xmm0, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm0
-            vmulss  xmm1, xmm4, xmm4
-            vaddss  xmm2, xmm3, xmm1
-          }
+          StartPos = bfx::LinkSegment::GetStartPos(LinkSegment);
+          m_z = StartPos->m_z;
+          m_y = StartPos->m_y;
+          m_x = StartPos->m_x;
+          EndPos = bfx::LinkSegment::GetEndPos(LinkSegment);
+          v26 = (float)((float)((float)(EndPos->m_y - m_y) * (float)(EndPos->m_y - m_y)) + (float)((float)(EndPos->m_x - m_x) * (float)(EndPos->m_x - m_x))) + (float)((float)(EndPos->m_z - m_z) * (float)(EndPos->m_z - m_z));
         }
         else
         {
           SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment((bfx::PolylinePathRCPtr *)path, curSegment);
           if ( !SurfaceSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 497, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
             __debugbreak();
-          _RAX = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rax+8]
-            vmovss  xmm7, dword ptr [rax+4]
-            vmovss  xmm8, dword ptr [rax]
-          }
-          _RAX = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
-          __asm
-          {
-            vmovss  xmm10, dword ptr [rax+8]
-            vmovss  xmm11, dword ptr [rax+4]
-            vmovss  xmm12, dword ptr [rax]
-            vcomiss xmm9, xmm14
-          }
-          if ( !v38 )
+          v15 = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
+          v16 = v15->m_z;
+          v17 = v15->m_y;
+          v18 = v15->m_x;
+          v19 = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
+          v20 = v19->m_z;
+          v21 = v19->m_y;
+          v22 = v19->m_x;
+          if ( *(float *)&v12 >= minCheckDist )
           {
             Area = bfx::SurfaceSegment::GetArea(SurfaceSegment, &result);
-            bfx::AreaHandle::operator=(&v79, Area);
+            bfx::AreaHandle::operator=(&v36, Area);
             bfx::AreaHandle::~AreaHandle(&result);
-            NumObstacles = bfx::AreaHandle::GetNumObstacles(&v79);
-            v41 = 0;
+            NumObstacles = bfx::AreaHandle::GetNumObstacles(&v36);
+            v25 = 0;
             if ( NumObstacles > 0 )
             {
               while ( 1 )
               {
-                bfx::AreaHandle::GetObstacle(&v79, &v80, v41);
-                if ( (v19 & bfx::ObstacleHandle::GetObstacleDat(&v80, &v83)->m_userData) != 0 )
+                bfx::AreaHandle::GetObstacle(&v36, &v37, v25);
+                if ( (v8 & bfx::ObstacleHandle::GetObstacleDat(&v37, &v40)->m_userData) != 0 )
                   break;
-                bfx::ObstacleHandle::~ObstacleHandle(&v80);
-                if ( ++v41 >= NumObstacles )
+                bfx::ObstacleHandle::~ObstacleHandle(&v37);
+                if ( ++v25 >= NumObstacles )
                 {
-                  v19 = flags;
-                  goto LABEL_14;
+                  v8 = flags;
+                  goto LABEL_13;
                 }
               }
-              __asm
-              {
-                vmovss  dword ptr [r12], xmm8
-                vmovss  dword ptr [r12+4], xmm7
-                vmovss  dword ptr [r12+8], xmm6
-                vmovss  dword ptr [r13+0], xmm12
-                vmovss  dword ptr [r13+4], xmm11
-                vmovss  dword ptr [r13+8], xmm10
-              }
-              bfx::ObstacleHandle::~ObstacleHandle(&v80);
-              v67 = 1;
-              goto LABEL_24;
+              outStartPoint->v[0] = v18;
+              outStartPoint->v[1] = v17;
+              outStartPoint->v[2] = v16;
+              outEndPoint->v[0] = v22;
+              outEndPoint->v[1] = v21;
+              outEndPoint->v[2] = v20;
+              bfx::ObstacleHandle::~ObstacleHandle(&v37);
+              v34 = 1;
+              goto LABEL_23;
             }
           }
-LABEL_14:
-          __asm
-          {
-            vsubss  xmm0, xmm12, xmm8
-            vsubss  xmm2, xmm11, xmm7
-            vsubss  xmm3, xmm10, xmm6
-            vmulss  xmm1, xmm0, xmm0
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm2, xmm2, xmm1
-          }
+LABEL_13:
+          v26 = (float)((float)((float)(v22 - v18) * (float)(v22 - v18)) + (float)((float)(v21 - v17) * (float)(v21 - v17))) + (float)((float)(v20 - v16) * (float)(v20 - v16));
         }
-        __asm { vsqrtss xmm0, xmm2, xmm2 }
         ++curSegment;
-        __asm { vaddss  xmm9, xmm9, xmm0 }
-        v26 = curSegment <= (unsigned int)NumSegments;
+        v33 = v12;
+        *(float *)&v33 = *(float *)&v12 + fsqrt(v26);
+        v12 = v33;
+        if ( curSegment >= NumSegments )
+          break;
       }
-      while ( curSegment < NumSegments );
     }
-    v67 = 0;
-LABEL_24:
-    bfx::AreaHandle::~AreaHandle(&v79);
-    IsValid = v67;
-  }
-  _R11 = &v84;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
+    v34 = 0;
+LABEL_23:
+    bfx::AreaHandle::~AreaHandle(&v36);
+    return v34;
   }
   return IsValid;
 }
@@ -1873,10 +1373,12 @@ Nav_GetPointOn3DPath
 void Nav_GetPointOn3DPath(const bfx::PolylinePath3DRCPtr path, int pointIdx, vec3_t *outPoint)
 {
   bfx::VolumePathSegment *Segment; 
+  const bfx::Vector3 *EndPos; 
+  float m_z; 
+  float m_y; 
   __int64 v10; 
   unsigned int NumSegments; 
 
-  _RSI = outPoint;
   if ( !bfx::PolylinePath3DRCPtr::IsValid((bfx::PolylinePath3DRCPtr *)path.m_pProxy) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 615, ASSERT_TYPE_ASSERT, "( path.IsValid() )", (const char *)&queryFormat, "path.IsValid()") )
     __debugbreak();
   if ( pointIdx >= bfx::PolylinePath3DRCPtr::GetNumSegments((bfx::PolylinePath3DRCPtr *)path.m_pProxy) )
@@ -1889,18 +1391,12 @@ void Nav_GetPointOn3DPath(const bfx::PolylinePath3DRCPtr path, int pointIdx, vec
   Segment = (bfx::VolumePathSegment *)bfx::PolylinePath3DRCPtr::GetSegment((bfx::PolylinePath3DRCPtr *)path.m_pProxy, pointIdx);
   if ( !Segment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 619, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
     __debugbreak();
-  _RAX = bfx::VolumePathSegment::GetEndPos(Segment);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+8]
-    vmovss  xmm0, dword ptr [rax+4]
-  }
-  _RSI->v[0] = _RAX->m_x;
-  __asm
-  {
-    vmovss  dword ptr [rsi+4], xmm0
-    vmovss  dword ptr [rsi+8], xmm1
-  }
+  EndPos = bfx::VolumePathSegment::GetEndPos(Segment);
+  m_z = EndPos->m_z;
+  m_y = EndPos->m_y;
+  outPoint->v[0] = EndPos->m_x;
+  outPoint->v[1] = m_y;
+  outPoint->v[2] = m_z;
   bfx::PolylinePath3DRCPtr::~PolylinePath3DRCPtr((bfx::PolylinePath3DRCPtr *)path.m_pProxy);
 }
 
@@ -1913,12 +1409,14 @@ void Nav_GetPointOnPath(const bfx::PolylinePathRCPtr path, int pointIdx, vec3_t 
 {
   bfx::SegmentType SegmentType; 
   bfx::SurfaceSegment *SurfaceSegment; 
+  const bfx::Vector3 *EndPos; 
   bfx::LinkSegment *LinkSegment; 
+  float m_z; 
+  float m_y; 
   float m_x; 
   __int64 v13; 
   int NumSegments; 
 
-  _RSI = outPoint;
   if ( !bfx::PolylinePathRCPtr::IsValid((bfx::PolylinePathRCPtr *)path.m_pProxy) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 333, ASSERT_TYPE_ASSERT, "( path.IsValid() )", (const char *)&queryFormat, "path.IsValid()") )
     __debugbreak();
   if ( pointIdx >= (unsigned int)bfx::PolylinePathRCPtr::GetNumSegments((bfx::PolylinePathRCPtr *)path.m_pProxy) )
@@ -1934,25 +1432,19 @@ void Nav_GetPointOnPath(const bfx::PolylinePathRCPtr path, int pointIdx, vec3_t 
     if ( SegmentType != LINK_SEGMENT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 344, ASSERT_TYPE_ASSERT, "( segmentType == bfx::LINK_SEGMENT )", (const char *)&queryFormat, "segmentType == bfx::LINK_SEGMENT") )
       __debugbreak();
     LinkSegment = bfx::PolylinePathRCPtr::GetLinkSegment((bfx::PolylinePathRCPtr *)path.m_pProxy, pointIdx);
-    _RAX = bfx::LinkSegment::GetEndPos(LinkSegment);
+    EndPos = bfx::LinkSegment::GetEndPos(LinkSegment);
   }
   else
   {
     SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment((bfx::PolylinePathRCPtr *)path.m_pProxy, pointIdx);
-    _RAX = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
+    EndPos = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
   }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rax+8]
-    vmovss  xmm0, dword ptr [rax+4]
-  }
-  m_x = _RAX->m_x;
-  __asm
-  {
-    vmovss  dword ptr [rsi+8], xmm1
-    vmovss  dword ptr [rsi+4], xmm0
-  }
-  _RSI->v[0] = m_x;
+  m_z = EndPos->m_z;
+  m_y = EndPos->m_y;
+  m_x = EndPos->m_x;
+  outPoint->v[2] = m_z;
+  outPoint->v[1] = m_y;
+  outPoint->v[0] = m_x;
   bfx::PolylinePathRCPtr::~PolylinePathRCPtr((bfx::PolylinePathRCPtr *)path.m_pProxy);
 }
 
@@ -1961,59 +1453,60 @@ void Nav_GetPointOnPath(const bfx::PolylinePathRCPtr path, int pointIdx, vec3_t 
 Nav_GetRandomReachablePoints
 ==============
 */
-
-__int64 __fastcall Nav_GetRandomReachablePoints(nav_space_s *pSpace, const vec3_t *origin, double radius, int layer, const bfx::PathSpec *pathSpec, int numPoints, vec3_t *outPoints)
+__int64 Nav_GetRandomReachablePoints(nav_space_s *pSpace, const vec3_t *origin, float radius, int layer, const bfx::PathSpec *pathSpec, int numPoints, vec3_t *outPoints)
 {
   signed __int64 v7; 
-  void *v18; 
+  void *v8; 
+  float v12; 
   int FloodFillAreas; 
-  __int64 v28; 
-  __int64 v30; 
-  const bfx::AreaHandle *v31; 
-  __int64 v32; 
-  char v33; 
+  __int64 v14; 
+  __int128 v15; 
+  __int64 v16; 
+  const bfx::AreaHandle *v17; 
+  __int64 v18; 
   int NumEdges; 
-  int v47; 
-  char v53; 
-  bool v75; 
-  unsigned __int8 v111; 
-  __int64 v112; 
-  bool v124; 
+  int v20; 
+  float *v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float *v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  bool v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  __int128 v40; 
+  unsigned __int8 v41; 
+  bool v43; 
   int numTriangles; 
-  bfx::Vector3 v126; 
-  bfx::Vector3 v127; 
-  bfx::Vector3 v128; 
-  bfx::AreaHandle v129; 
-  bfx::AreaHandle *v130; 
-  __int64 v131; 
+  bfx::Vector3 v45; 
+  bfx::Vector3 v46; 
+  bfx::Vector3 v47; 
+  bfx::AreaHandle v48; 
+  bfx::AreaHandle *v49; 
+  __int64 v50; 
   bfx::Vector3 pos; 
   vec3_t *outPointsa; 
   bfx::AreaHandle result; 
-  __int64 v135; 
+  __int64 v54; 
   vec3_t centroid; 
   vec3_t pt; 
   vec3_t outPoint; 
   bfx::AreaHandle ptr[64]; 
   Triangle triangles[256]; 
-  char v151; 
 
-  v18 = alloca(v7);
-  v135 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+2DD0h+var_40], xmm6
-    vmovaps [rsp+2DD0h+var_50], xmm7
-    vmovaps [rsp+2DD0h+var_60], xmm8
-    vmovaps [rsp+2DD0h+var_70], xmm9
-    vmovaps [rsp+2DD0h+var_80], xmm10
-    vmovaps [rsp+2DD0h+var_90], xmm11
-    vmovaps [rsp+2DD0h+var_A0], xmm12
-    vmovaps [rsp+2DD0h+var_B0], xmm13
-    vmovaps [rsp+2DD0h+var_C0], xmm14
-    vmovaps [rsp+2DD0h+var_D0], xmm15
-    vmovaps xmm6, xmm2
-  }
-  _RDI = origin;
+  v8 = alloca(v7);
+  v54 = -2i64;
   outPointsa = outPoints;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 845, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
@@ -2021,224 +1514,117 @@ __int64 __fastcall Nav_GetRandomReachablePoints(nav_space_s *pSpace, const vec3_
     __debugbreak();
   if ( !outPoints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 847, ASSERT_TYPE_ASSERT, "( outPoints )", (const char *)&queryFormat, "outPoints") )
     __debugbreak();
-  __asm { vmulss  xmm11, xmm6, xmm6 }
+  v12 = radius * radius;
   `eh vector constructor iterator'(ptr, 0x10ui64, 0x40ui64, (void (__fastcall *)(void *))bfx::AreaHandle::AreaHandle, (void (__fastcall *)(void *))bfx::AreaHandle::~AreaHandle);
   numTriangles = 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rbp+2CD0h+pos.m_x], xmm0
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmovss  [rbp+2CD0h+pos.m_y], xmm1
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rbp+2CD0h+pos.m_z], xmm0
-  }
+  pos = (bfx::Vector3)*origin;
   bfx::GetClosestArea(&result, &pSpace->hSpace, &pos, layer, pathSpec);
   if ( !bfx::AreaHandle::IsValid(&result) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 861, ASSERT_TYPE_ASSERT, "( startArea.IsValid() )", (const char *)&queryFormat, "startArea.IsValid()") )
     __debugbreak();
   FloodFillAreas = bfx::GetFloodFillAreas(&result, pathSpec, 64, ptr);
-  v28 = (unsigned int)FloodFillAreas;
+  v14 = (unsigned int)FloodFillAreas;
   if ( FloodFillAreas <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 864, ASSERT_TYPE_ASSERT, "( numAreas > 0 )", (const char *)&queryFormat, "numAreas > 0") )
     __debugbreak();
-  bfx::AreaHandle::AreaHandle(&v129);
-  __asm { vxorps  xmm12, xmm12, xmm12 }
-  if ( (int)v28 <= 0 )
+  bfx::AreaHandle::AreaHandle(&v48);
+  v15 = 0i64;
+  if ( (int)v14 <= 0 )
     goto LABEL_36;
-  v30 = 0i64;
-  v31 = ptr;
-  v130 = ptr;
-  v32 = v28;
-  v131 = v28;
+  v16 = 0i64;
+  v17 = ptr;
+  v49 = ptr;
+  v18 = v14;
+  v50 = v14;
   do
   {
-    bfx::AreaHandle::operator=(&v129, v31);
-    bfx::AreaHandle::CalcCentroid(&v129, &v126);
-    NumEdges = bfx::AreaHandle::GetNumEdges(&v129);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsp+2DD0h+var_2D98.m_x]
-      vmovsd  qword ptr [rbp+2CD0h+centroid], xmm0
-    }
-    centroid.v[2] = v126.m_z;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm3, xmm0, [rsp+2DD0h+var_2D98.m_x]
-      vmovss  xmm1, dword ptr [rdi+4]
-      vsubss  xmm2, xmm1, [rsp+2DD0h+var_2D98.m_y]
-      vmovss  xmm0, dword ptr [rdi+8]
-      vsubss  xmm4, xmm0, [rsp+2DD0h+var_2D98.m_z]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, xmm11
-    }
-    v47 = 0;
+    bfx::AreaHandle::operator=(&v48, v17);
+    bfx::AreaHandle::CalcCentroid(&v48, &v45);
+    NumEdges = bfx::AreaHandle::GetNumEdges(&v48);
+    centroid = (vec3_t)v45;
+    v20 = 0;
     if ( NumEdges <= 0 )
       goto LABEL_33;
-    _RSI = &triangles[v30].m_vert[1].v[1];
-    __asm
-    {
-      vmovss  xmm13, dword ptr [rbp+2CD0h+centroid+8]
-      vmovss  xmm14, dword ptr [rbp+2CD0h+centroid+4]
-      vmovss  xmm15, dword ptr [rbp+2CD0h+centroid]
-    }
-    v124 = !v33;
+    v21 = &triangles[v16].m_vert[1].v[1];
+    v22 = centroid.v[2];
+    v23 = centroid.v[1];
+    v24 = centroid.v[0];
+    v43 = (float)((float)((float)((float)(origin->v[1] - v45.m_y) * (float)(origin->v[1] - v45.m_y)) + (float)((float)(origin->v[0] - v45.m_x) * (float)(origin->v[0] - v45.m_x))) + (float)((float)(origin->v[2] - v45.m_z) * (float)(origin->v[2] - v45.m_z))) >= v12;
     do
     {
-      _R14 = _RSI - 4;
-      bfx::AreaHandle::GetEdgeStartPos(&v129, &v127, v47);
-      bfx::AreaHandle::GetEdgeEndPos(&v129, &v128, v47);
-      __asm
+      v25 = v21 - 4;
+      bfx::AreaHandle::GetEdgeStartPos(&v48, &v46, v20);
+      bfx::AreaHandle::GetEdgeEndPos(&v48, &v47, v20);
+      pt = (vec3_t)v46;
+      outPoint = (vec3_t)v47;
+      v26 = origin->v[1];
+      v27 = origin->v[2];
+      v28 = (float)((float)((float)(v26 - v47.m_y) * (float)(v26 - v47.m_y)) + (float)((float)(origin->v[0] - v47.m_x) * (float)(origin->v[0] - v47.m_x))) + (float)((float)(v27 - v47.m_z) * (float)(v27 - v47.m_z));
+      v29 = v28 >= v12;
+      if ( !v43 )
+        goto LABEL_23;
+      if ( (float)((float)((float)((float)(v26 - v46.m_y) * (float)(v26 - v46.m_y)) + (float)((float)(origin->v[0] - v46.m_x) * (float)(origin->v[0] - v46.m_x))) + (float)((float)(v27 - v46.m_z) * (float)(v27 - v46.m_z))) >= v12 )
       {
-        vmovsd  xmm0, qword ptr [rsp+2DD0h+var_2D88.m_x]
-        vmovsd  qword ptr [rbp+2CD0h+pt], xmm0
-      }
-      pt.v[2] = v127.m_z;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rsp+2DD0h+var_2D78.m_x]
-        vmovsd  qword ptr [rbp+2CD0h+outPoint], xmm0
-      }
-      outPoint.v[2] = v128.m_z;
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rdi]
-        vsubss  xmm2, xmm6, [rsp+2DD0h+var_2D88.m_x]
-        vmovss  xmm5, dword ptr [rdi+4]
-        vsubss  xmm0, xmm5, [rsp+2DD0h+var_2D88.m_y]
-        vmovss  xmm4, dword ptr [rdi+8]
-        vsubss  xmm3, xmm4, [rsp+2DD0h+var_2D88.m_z]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vcomiss xmm2, xmm11
-        vsubss  xmm3, xmm6, [rsp+2DD0h+var_2D78.m_x]
-        vsubss  xmm0, xmm5, [rsp+2DD0h+var_2D78.m_y]
-        vsubss  xmm4, xmm4, [rsp+2DD0h+var_2D78.m_z]
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm3, xmm3
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm2, xmm1
-        vcomiss xmm2, xmm11
-      }
-      v75 = !v53;
-      if ( v124 )
-      {
-        if ( !v53 )
+        if ( v28 >= v12 )
+          goto LABEL_31;
+LABEL_23:
+        if ( (float)((float)((float)((float)(v26 - v46.m_y) * (float)(v26 - v46.m_y)) + (float)((float)(origin->v[0] - v46.m_x) * (float)(origin->v[0] - v46.m_x))) + (float)((float)(v27 - v46.m_z) * (float)(v27 - v46.m_z))) >= v12 && !AdjustPtToWithinRadiusSq(&pt, origin, &centroid, v12, &pt) )
           goto LABEL_31;
       }
-      else if ( !v53 )
+      if ( !v29 || AdjustPtToWithinRadiusSq(&outPoint, origin, &centroid, v12, &outPoint) )
       {
-        __asm { vmovaps xmm3, xmm11; radiusSq }
-        if ( !AdjustPtToWithinRadiusSq(&pt, _RDI, &centroid, *(double *)&_XMM3, &pt) )
-          goto LABEL_31;
-      }
-      if ( !v75 )
-        goto LABEL_27;
-      __asm { vmovaps xmm3, xmm11; radiusSq }
-      if ( AdjustPtToWithinRadiusSq(&outPoint, _RDI, &centroid, *(double *)&_XMM3, &outPoint) )
-      {
-LABEL_27:
-        __asm
-        {
-          vmovss  dword ptr [r14], xmm15
-          vmovss  dword ptr [rsi-0Ch], xmm14
-          vmovss  dword ptr [rsi-8], xmm13
-          vmovss  xmm0, dword ptr [rbp+2CD0h+pt]
-          vmovss  dword ptr [rsi-4], xmm0
-          vmovss  xmm1, dword ptr [rbp+2CD0h+pt+4]
-          vmovss  dword ptr [rsi], xmm1
-          vmovss  xmm0, dword ptr [rbp+2CD0h+pt+8]
-          vmovss  dword ptr [rsi+4], xmm0
-          vmovss  xmm7, dword ptr [rbp+2CD0h+outPoint]
-          vmovss  dword ptr [rsi+8], xmm7
-          vmovss  xmm8, dword ptr [rbp+2CD0h+outPoint+4]
-          vmovss  dword ptr [rsi+0Ch], xmm8
-          vmovss  xmm6, dword ptr [rbp+2CD0h+outPoint+8]
-          vmovss  dword ptr [rsi+10h], xmm6
-          vmovss  xmm0, dword ptr [rsi-4]
-          vsubss  xmm10, xmm0, dword ptr [r14]
-          vmovss  xmm1, dword ptr [rsi]
-          vsubss  xmm9, xmm1, dword ptr [rsi-0Ch]
-          vmovss  xmm0, dword ptr [rsi+4]
-          vsubss  xmm4, xmm0, dword ptr [rsi-8]
-          vsubss  xmm7, xmm7, dword ptr [r14]
-          vsubss  xmm5, xmm8, dword ptr [rsi-0Ch]
-          vsubss  xmm3, xmm6, dword ptr [rsi-8]
-          vmulss  xmm1, xmm3, xmm9
-          vmulss  xmm0, xmm5, xmm4
-          vsubss  xmm6, xmm1, xmm0
-          vmulss  xmm2, xmm7, xmm4
-          vmulss  xmm1, xmm3, xmm10
-          vsubss  xmm4, xmm2, xmm1
-          vmulss  xmm3, xmm5, xmm10
-          vmulss  xmm0, xmm7, xmm9
-          vsubss  xmm5, xmm3, xmm0
-          vmulss  xmm2, xmm4, xmm4
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm5, xmm5
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
-          vmulss  xmm6, xmm1, cs:__real@3f000000
-          vmovss  dword ptr [rsi+14h], xmm6
-        }
+        *v25 = v24;
+        *(v21 - 3) = v23;
+        *(v21 - 2) = v22;
+        *(vec3_t *)(v21 - 1) = pt;
+        v30 = outPoint.v[0];
+        v21[2] = outPoint.v[0];
+        v31 = outPoint.v[1];
+        v21[3] = outPoint.v[1];
+        v32 = outPoint.v[2];
+        v21[4] = outPoint.v[2];
+        v33 = *(v21 - 1) - *v25;
+        v34 = *v21 - *(v21 - 3);
+        v35 = v21[1] - *(v21 - 2);
+        v36 = v30 - *v25;
+        v37 = v31 - *(v21 - 3);
+        v38 = v32 - *(v21 - 2);
+        v39 = fsqrt((float)((float)((float)((float)(v36 * v35) - (float)(v38 * v33)) * (float)((float)(v36 * v35) - (float)(v38 * v33))) + (float)((float)((float)(v38 * v34) - (float)(v37 * v35)) * (float)((float)(v38 * v34) - (float)(v37 * v35)))) + (float)((float)((float)(v37 * v33) - (float)(v36 * v34)) * (float)((float)(v37 * v33) - (float)(v36 * v34)))) * 0.5;
+        v21[5] = v39;
         ++numTriangles;
-        ++v30;
-        _RSI += 10;
-        if ( v30 >= 256 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 917, ASSERT_TYPE_ASSERT, "(numTriangles < cMaxNumTriangles)", "%s\n\tran out of triangles on stack. need to increase.", "numTriangles < cMaxNumTriangles") )
+        ++v16;
+        v21 += 10;
+        if ( v16 >= 256 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 917, ASSERT_TYPE_ASSERT, "(numTriangles < cMaxNumTriangles)", "%s\n\tran out of triangles on stack. need to increase.", "numTriangles < cMaxNumTriangles") )
         {
           __debugbreak();
-          __asm { vmovss  xmm6, dword ptr [r14+24h] }
+          v39 = v25[9];
         }
-        __asm { vaddss  xmm12, xmm12, xmm6 }
+        v40 = v15;
+        *(float *)&v40 = *(float *)&v15 + v39;
+        v15 = v40;
       }
 LABEL_31:
-      ++v47;
+      ++v20;
     }
-    while ( v47 < NumEdges );
-    v31 = v130;
-    v32 = v131;
+    while ( v20 < NumEdges );
+    v17 = v49;
+    v18 = v50;
 LABEL_33:
-    v130 = (bfx::AreaHandle *)++v31;
-    v131 = --v32;
+    v49 = (bfx::AreaHandle *)++v17;
+    v50 = --v18;
   }
-  while ( v32 );
+  while ( v18 );
   if ( !numTriangles )
   {
 LABEL_36:
-    v111 = 0;
+    v41 = 0;
     goto LABEL_37;
   }
-  __asm { vmovaps xmm2, xmm12; totalArea }
-  GetRandomPointsInTriangles(triangles, numTriangles, *(double *)&_XMM2, outPointsa, numPoints);
-  v111 = 1;
+  GetRandomPointsInTriangles(triangles, numTriangles, *(float *)&v15, outPointsa, numPoints);
+  v41 = 1;
 LABEL_37:
-  bfx::AreaHandle::~AreaHandle(&v129);
+  bfx::AreaHandle::~AreaHandle(&v48);
   bfx::AreaHandle::~AreaHandle(&result);
   `eh vector destructor iterator'(ptr, 0x10ui64, 0x40ui64, (void (__fastcall *)(void *))bfx::AreaHandle::~AreaHandle);
-  v112 = v111;
-  _R11 = &v151;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return v112;
+  return v41;
 }
 
 /*
@@ -2246,63 +1632,27 @@ LABEL_37:
 Nav_IsPointInRepulsorBadplace
 ==============
 */
-bool Nav_IsPointInRepulsorBadplace(const vec3_t *pos, int usageFlags, int ignoreEntNum, int ignoreEntNum2)
+char Nav_IsPointInRepulsorBadplace(const vec3_t *pos, int usageFlags, int ignoreEntNum, int ignoreEntNum2)
 {
-  bool result; 
+  nav_repulsor_s *FirstRepulsor; 
+  float v9; 
 
-  __asm
+  FirstRepulsor = Nav_GetFirstRepulsor();
+  if ( !FirstRepulsor )
+    return 0;
+  while ( 1 )
   {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-  }
-  _RSI = pos;
-  _RAX = Nav_GetFirstRepulsor();
-  if ( _RAX )
-  {
-    __asm
+    if ( FirstRepulsor->bBadplace && (ignoreEntNum == 2047 || FirstRepulsor->entNum != ignoreEntNum) && (ignoreEntNum2 == 2047 || FirstRepulsor->entNum != ignoreEntNum2) && (usageFlags & FirstRepulsor->usageFlags) != 0 && COERCE_FLOAT(COERCE_UNSIGNED_INT(FirstRepulsor->origin.v[2] - pos->v[2]) & _xmm) <= 80.0 )
     {
-      vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm7, cs:__real@42a00000
+      v9 = pos->v[1] - FirstRepulsor->origin.v[1];
+      if ( (float)((float)(v9 * v9) + (float)((float)(pos->v[0] - FirstRepulsor->origin.v[0]) * (float)(pos->v[0] - FirstRepulsor->origin.v[0]))) < (float)(FirstRepulsor->radius * FirstRepulsor->radius) )
+        break;
     }
-    do
-    {
-      if ( _RAX->bBadplace && (ignoreEntNum == 2047 || _RAX->entNum != ignoreEntNum) && (ignoreEntNum2 == 2047 || _RAX->entNum != ignoreEntNum2) && (usageFlags & _RAX->usageFlags) != 0 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+2Ch]
-          vsubss  xmm1, xmm0, dword ptr [rsi+8]
-          vandps  xmm1, xmm1, xmm6
-          vcomiss xmm1, xmm7
-        }
-        if ( (usageFlags & _RAX->usageFlags) == 0 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi]
-            vmovss  xmm1, dword ptr [rsi+4]
-            vsubss  xmm4, xmm0, dword ptr [rax+24h]
-            vsubss  xmm2, xmm1, dword ptr [rax+28h]
-            vmovss  xmm5, dword ptr [rax+30h]
-            vmulss  xmm3, xmm2, xmm2
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm4, xmm3, xmm0
-            vmulss  xmm1, xmm5, xmm5
-            vcomiss xmm4, xmm1
-          }
-        }
-      }
-      _RAX = Nav_GetNextRepulsor(_RAX);
-    }
-    while ( _RAX );
+    FirstRepulsor = Nav_GetNextRepulsor(FirstRepulsor);
+    if ( !FirstRepulsor )
+      return 0;
   }
-  result = 0;
-  __asm
-  {
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -2315,15 +1665,11 @@ bool Nav_IsPointOnMesh(nav_space_s *pSpace, const vec3_t *pos, AINavLayer layer)
   bfx::PathSpec pPathSpec; 
   vec3_t outSnappedPos; 
 
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   pPathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
   *(_QWORD *)&pPathSpec.m_obstacleBlockageFlags = -1i64;
-  __asm
-  {
-    vmovss  [rsp+0B8h+pPathSpec.m_pathSharingPenalty], xmm0
-    vmovss  [rsp+0B8h+pPathSpec.m_maxPathSharingPenalty], xmm0
-    vmovss  [rsp+0B8h+pPathSpec.m_maxSearchDist], xmm0
-  }
+  pPathSpec.m_pathSharingPenalty = 0.0;
+  pPathSpec.m_maxPathSharingPenalty = 0.0;
+  pPathSpec.m_maxSearchDist = 0.0;
   *(_QWORD *)&pPathSpec.m_areaPenaltyFlags = -1i64;
   pPathSpec.m_usePathSharingPenalty = 0;
   bfx::PenaltyTable::PenaltyTable(&pPathSpec.m_penaltyTable);
@@ -2349,7 +1695,7 @@ Nav_IsPointOnMeshCustom
 bool Nav_IsPointOnMeshCustom(nav_space_s *pSpace, const vec3_t *pos, AINavLayer layer, const bfx::PathSpec *pPathSpec, vec3_t *outSnappedPos, bfx::AreaHandle *outAreaHandle)
 {
   bool result; 
-  char v12; 
+  double v11; 
   vec3_t outUp; 
 
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 295, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
@@ -2360,9 +1706,8 @@ bool Nav_IsPointOnMeshCustom(nav_space_s *pSpace, const vec3_t *pos, AINavLayer 
   result = Nav_GetClosestVerticalPos(pos, &outUp, layer, &pSpace->hSpace, pPathSpec, outSnappedPos, outAreaHandle);
   if ( result )
   {
-    *(double *)&_XMM0 = Nav_Get2DDistanceSqWithUp(pos, outSnappedPos, &outUp);
-    __asm { vcomiss xmm0, cs:__real@3b449ba6 }
-    return v12;
+    v11 = Nav_Get2DDistanceSqWithUp(pos, outSnappedPos, &outUp);
+    return *(float *)&v11 < 0.003;
   }
   return result;
 }
@@ -2375,7 +1720,7 @@ Nav_IsPointOnMeshCustomWithHint
 bool Nav_IsPointOnMeshCustomWithHint(nav_space_s *pSpace, const vec3_t *pos, AINavLayer layer, const bfx::PathSpec *pPathSpec, vec3_t *outSnappedPos, const bfx::AreaHandle *hHintArea, bfx::AreaHandle *outAreaHandle)
 {
   bool result; 
-  char v13; 
+  double v12; 
   vec3_t outUp; 
 
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 314, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
@@ -2386,9 +1731,8 @@ bool Nav_IsPointOnMeshCustomWithHint(nav_space_s *pSpace, const vec3_t *pos, AIN
   result = Nav_GetClosestVerticalPosWithHint(pos, &outUp, layer, &pSpace->hSpace, pPathSpec, outSnappedPos, hHintArea, outAreaHandle);
   if ( result )
   {
-    *(double *)&_XMM0 = Nav_Get2DDistanceSqWithUp(pos, outSnappedPos, &outUp);
-    __asm { vcomiss xmm0, cs:__real@3b449ba6 }
-    return v13;
+    v12 = Nav_Get2DDistanceSqWithUp(pos, outSnappedPos, &outUp);
+    return *(float *)&v12 < 0.003;
   }
   return result;
 }
@@ -2400,30 +1744,29 @@ Nav_IsStraightLineReachable
 */
 bool Nav_IsStraightLineReachable(const vec3_t *startPos, const bfx::AreaHandle *hStartArea, const vec3_t *endPos, const bfx::AreaHandle *hEndArea, const bfx::PathSpec *pPathSpec)
 {
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   bool IsStraightLineReachable; 
   bfx::Vector3 iEndPos; 
   bfx::Vector3 iStartPos; 
 
-  _R14 = startPos;
-  _RSI = endPos;
   Profile_Begin(271);
   if ( bfx::AreaHandle::IsUsable((bfx::AreaHandle *)hStartArea, pPathSpec) && bfx::AreaHandle::IsUsable((bfx::AreaHandle *)hEndArea, pPathSpec) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14]
-      vmovss  xmm1, dword ptr [r14+4]
-      vmovss  [rsp+58h+iStartPos.m_x], xmm0
-      vmovss  xmm0, dword ptr [r14+8]
-      vmovss  [rsp+58h+iStartPos.m_y], xmm1
-      vmovss  xmm1, dword ptr [rsi]
-      vmovss  [rsp+58h+iStartPos.m_z], xmm0
-      vmovss  xmm0, dword ptr [rsi+4]
-      vmovss  [rsp+58h+iEndPos.m_x], xmm1
-      vmovss  xmm1, dword ptr [rsi+8]
-      vmovss  [rsp+58h+iEndPos.m_y], xmm0
-      vmovss  [rsp+58h+iEndPos.m_z], xmm1
-    }
+    v9 = startPos->v[1];
+    iStartPos.m_x = startPos->v[0];
+    v10 = startPos->v[2];
+    iStartPos.m_y = v9;
+    v11 = endPos->v[0];
+    iStartPos.m_z = v10;
+    v12 = endPos->v[1];
+    iEndPos.m_x = v11;
+    v13 = endPos->v[2];
+    iEndPos.m_y = v12;
+    iEndPos.m_z = v13;
     IsStraightLineReachable = bfx::IsStraightLineReachable(&iStartPos, hStartArea, &iEndPos, hEndArea, pPathSpec);
     Profile_EndInternal(NULL);
     return IsStraightLineReachable;
@@ -2447,28 +1790,18 @@ _BOOL8 Nav_IsStraightLineReachable(nav_space_s *pSpace, const vec3_t *startPos, 
   bfx::Vector3 iStartPos; 
   bfx::AreaHandle endArea; 
   bfx::AreaHandle startArea; 
-  __int64 v17; 
+  __int64 v15; 
   vec3_t outSnappedPos; 
-  vec3_t v19; 
+  vec3_t v17; 
 
-  v17 = -2i64;
+  v15 = -2i64;
   Profile_Begin(271);
   bfx::AreaHandle::AreaHandle(&startArea);
   bfx::AreaHandle::AreaHandle(&endArea);
-  if ( Nav_IsPointOnMeshCustom(pSpace, startPos, layer, pPathSpec, &outSnappedPos, &startArea) && Nav_IsPointOnMeshCustom(pSpace, endPos, layer, pPathSpec, &v19, &endArea) )
+  if ( Nav_IsPointOnMeshCustom(pSpace, startPos, layer, pPathSpec, &outSnappedPos, &startArea) && Nav_IsPointOnMeshCustom(pSpace, endPos, layer, pPathSpec, &v17, &endArea) )
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsp+0C8h+var_50]
-      vmovsd  qword ptr [rsp+0C8h+iStartPos.m_x], xmm0
-    }
-    iStartPos.m_z = outSnappedPos.v[2];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsp+0C8h+var_40]
-      vmovsd  qword ptr [rsp+0C8h+iEndPos.m_x], xmm0
-    }
-    iEndPos.m_z = v19.v[2];
+    iStartPos = (bfx::Vector3)outSnappedPos;
+    iEndPos = (bfx::Vector3)v17;
     IsStraightLineReachable = bfx::IsStraightLineReachable(&iStartPos, &startArea, &iEndPos, &endArea, pPathSpec);
     Profile_EndInternal(NULL);
   }
@@ -2487,85 +1820,32 @@ _BOOL8 Nav_IsStraightLineReachable(nav_space_s *pSpace, const vec3_t *startPos, 
 Nav_PointWithinTriangle
 ==============
 */
-bool Nav_PointWithinTriangle(Triangle *pTri, const vec3_t *point)
+char Nav_PointWithinTriangle(Triangle *pTri, const vec3_t *point)
 {
-  bool v13; 
-  __int64 v14; 
-  signed int v16; 
-  bool result; 
+  bool v4; 
+  __int64 v5; 
+  int i; 
+  float v7; 
 
-  __asm { vmovaps [rsp+88h+var_18], xmm6 }
-  _RDI = point;
-  __asm { vmovaps [rsp+88h+var_28], xmm7 }
-  _RBX = pTri;
-  __asm
-  {
-    vmovaps [rsp+88h+var_38], xmm8
-    vmovaps [rsp+88h+var_48], xmm9
-    vmovaps [rsp+88h+var_58], xmm10
-  }
   if ( !pTri && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 737, ASSERT_TYPE_ASSERT, "( pTri )", (const char *)&queryFormat, "pTri") )
     __debugbreak();
-  __asm
+  v4 = 0;
+  v5 = 0i64;
+  for ( i = 1; ; ++i )
   {
-    vmovss  xmm8, dword ptr [rdi]
-    vmovss  xmm9, dword ptr [rdi+4]
-    vmovss  xmm10, cs:__real@bcf5c28f
-    vmovss  xmm7, cs:__real@3cf5c28f
-  }
-  v13 = 0;
-  v14 = 0i64;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v16 = 1;
-  while ( 1 )
-  {
-    __asm { vsubss  xmm3, xmm8, dword ptr [rbx+r8*4] }
-    _RCX = 3i64 * (v16 % 3);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+rcx*4]
-      vsubss  xmm5, xmm0, dword ptr [rbx+r8*4]
-      vmovss  xmm1, dword ptr [rbx+rcx*4+4]
-      vsubss  xmm0, xmm9, dword ptr [rbx+r8*4+4]
-      vsubss  xmm4, xmm1, dword ptr [rbx+r8*4+4]
-      vmulss  xmm2, xmm5, xmm0
-      vmulss  xmm1, xmm4, xmm3
-      vsubss  xmm0, xmm2, xmm1
-      vcomiss xmm0, xmm10
-    }
-    if ( v16 > (unsigned int)(3 * (v16 / 3)) )
-    {
-      __asm { vcomiss xmm0, xmm7 }
-      if ( v16 < (unsigned int)(3 * (v16 / 3)) )
-      {
-LABEL_11:
-        result = 1;
-        goto LABEL_13;
-      }
-    }
-    if ( v14 )
+    v7 = (float)((float)(pTri->m_vert[i % 3].v[0] - pTri->m_vert[v5].v[0]) * (float)(point->v[1] - pTri->m_vert[v5].v[1])) - (float)((float)(pTri->m_vert[i % 3].v[1] - pTri->m_vert[v5].v[1]) * (float)(point->v[0] - pTri->m_vert[v5].v[0]));
+    if ( v7 > -0.029999999 && v7 < 0.029999999 )
+      return 1;
+    if ( v5 )
       break;
-    __asm { vcomiss xmm0, xmm6 }
-    v13 = (unsigned __int8)v14 != 0i64;
+    v4 = v7 > 0.0;
 LABEL_10:
-    ++v16;
-    if ( ++v14 >= 3 )
-      goto LABEL_11;
+    if ( ++v5 >= 3 )
+      return 1;
   }
-  __asm { vcomiss xmm0, xmm6 }
-  if ( !v13 )
+  if ( v4 == v7 > 0.0 )
     goto LABEL_10;
-  result = 0;
-LABEL_13:
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-    vmovaps xmm10, [rsp+88h+var_58]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -2575,138 +1855,119 @@ Nav_Simplify3DPath
 */
 __int64 Nav_Simplify3DPath(nav_space_s *pSpace, const vec3_t *startPt, const vec3_t *sourcePath, int segmentCount, int maxNumPoints, vec3_t *outPath)
 {
+  __int128 v6; 
+  const vec3_t *v9; 
+  float v11; 
+  int v12; 
   int v13; 
-  int v15; 
-  __int64 v16; 
-  int v18; 
-  __int64 v19; 
-  __int64 v20; 
-  int v22; 
-  int v23; 
-  __int64 v24; 
-  int v35; 
-  __int64 v36; 
-  float *v37; 
+  __int64 v14; 
+  float *v15; 
+  int v16; 
+  __int64 v17; 
+  __int64 v18; 
+  int v19; 
+  int v20; 
+  __int64 v21; 
+  float *v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  int v28; 
+  __int64 v29; 
+  float *v30; 
   bfx::Path3DSpec pathSpec; 
-  const vec3_t *v39; 
+  const vec3_t *v32; 
   vec3_t startPos; 
   vec3_t endPos; 
+  __int128 v35; 
 
-  _RBX = startPt;
-  _R12 = sourcePath;
-  v39 = sourcePath;
+  v9 = sourcePath;
+  v32 = sourcePath;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 627, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( !outPath && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 628, ASSERT_TYPE_ASSERT, "( outPath )", (const char *)&queryFormat, "outPath") )
     __debugbreak();
-  if ( !_R12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 629, ASSERT_TYPE_ASSERT, "( sourcePath )", (const char *)&queryFormat, "sourcePath") )
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 629, ASSERT_TYPE_ASSERT, "( sourcePath )", (const char *)&queryFormat, "sourcePath") )
     __debugbreak();
   Profile_Begin(276);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-  }
-  v13 = 0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0C8h+startPos], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-  }
-  v15 = -1;
-  v35 = 0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0C8h+startPos+8], xmm0
-    vmovss  dword ptr [rsp+0C8h+startPos+4], xmm1
-  }
+  v11 = startPt->v[1];
+  v12 = 0;
+  startPos.v[0] = startPt->v[0];
+  v13 = -1;
+  v28 = 0;
+  startPos.v[2] = startPt->v[2];
+  startPos.v[1] = v11;
   if ( segmentCount - 1 > -1 )
   {
-    v16 = maxNumPoints;
-    _RCX = &outPath->v[2];
-    v18 = segmentCount - 1;
-    v19 = 0i64;
-    __asm { vmovaps [rsp+0C8h+var_38], xmm6 }
-    v36 = 0i64;
-    v20 = -1i64;
-    v37 = &outPath->v[2];
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    v14 = maxNumPoints;
+    v15 = &outPath->v[2];
+    v16 = segmentCount - 1;
+    v17 = 0i64;
+    v35 = v6;
+    v29 = 0i64;
+    v18 = -1i64;
+    v30 = &outPath->v[2];
     do
     {
-      if ( v19 >= v16 )
+      if ( v17 >= v14 )
         break;
-      v22 = v15 + 1;
-      v23 = v15 + 2;
-      v24 = ++v20 + 1;
-      if ( v15 + 2 < segmentCount )
+      v19 = v13 + 1;
+      v20 = v13 + 2;
+      v21 = ++v18 + 1;
+      if ( v13 + 2 < segmentCount )
       {
-        _RDI = (__int64)&_R12[v24].z;
+        v22 = &v9[v21].v[2];
         do
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi-8]
-            vmovss  xmm1, dword ptr [rdi-4]
-            vmovss  dword ptr [rsp+0C8h+endPos], xmm0
-            vmovss  xmm0, dword ptr [rdi]
-            vmovss  dword ptr [rsp+0C8h+endPos+8], xmm0
-            vmovss  dword ptr [rsp+0C8h+endPos+4], xmm1
-          }
+          v23 = *(v22 - 1);
+          endPos.v[0] = *(v22 - 2);
+          endPos.v[2] = *v22;
+          endPos.v[1] = v23;
           if ( !Nav_AnyVolumesLoaded() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 195, ASSERT_TYPE_ASSERT, "( Nav_AnyVolumesLoaded() )", (const char *)&queryFormat, "Nav_AnyVolumesLoaded()") )
             __debugbreak();
           if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 196, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
             __debugbreak();
           *(_QWORD *)&pathSpec.m_volumeUsageFlags = -1i64;
-          __asm { vmovss  [rsp+0C8h+pathSpec.m_maxSearchDist], xmm6 }
+          pathSpec.m_maxSearchDist = 0.0;
           if ( Nav_Trace3D(pSpace, &startPos, &endPos, &pathSpec, NULL) )
             break;
-          v22 = v23;
-          v20 = v24;
-          ++v23;
-          ++v24;
-          _RDI += 12i64;
+          v19 = v20;
+          v18 = v21;
+          ++v20;
+          ++v21;
+          v22 += 3;
         }
-        while ( v23 < segmentCount );
-        _R12 = v39;
-        v18 = segmentCount - 1;
-        _RCX = v37;
-        v19 = v36;
-        v16 = maxNumPoints;
+        while ( v20 < segmentCount );
+        v9 = v32;
+        v16 = segmentCount - 1;
+        v15 = v30;
+        v17 = v29;
+        v14 = maxNumPoints;
       }
-      _RAX = 3 * v20;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r12+rax*4]
-        vmovss  xmm1, dword ptr [r12+rax*4+4]
-        vmovss  xmm0, dword ptr [r12+rax*4+8]
-      }
-      v13 = v35 + 1;
-      ++v19;
-      __asm
-      {
-        vmovss  dword ptr [rcx-8], xmm2
-        vmovss  dword ptr [rcx-4], xmm1
-        vmovss  dword ptr [rcx], xmm0
-      }
-      _RCX += 3;
-      ++v35;
-      v36 = v19;
-      v15 = v22;
-      v37 = _RCX;
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C8h+startPos], xmm2
-        vmovss  dword ptr [rsp+0C8h+startPos+4], xmm1
-        vmovss  dword ptr [rsp+0C8h+startPos+8], xmm0
-      }
+      v24 = v9[v18].v[0];
+      v25 = v9[v18].v[1];
+      v26 = v9[v18].v[2];
+      v12 = v28 + 1;
+      ++v17;
+      *(v15 - 2) = v24;
+      *(v15 - 1) = v25;
+      *v15 = v26;
+      v15 += 3;
+      ++v28;
+      v29 = v17;
+      v13 = v19;
+      v30 = v15;
+      startPos.v[0] = v24;
+      startPos.v[1] = v25;
+      startPos.v[2] = v26;
     }
-    while ( v22 < v18 );
-    __asm { vmovaps xmm6, [rsp+0C8h+var_38] }
+    while ( v19 < v16 );
   }
-  if ( segmentCount && v13 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 663, ASSERT_TYPE_ASSERT, "( segmentCount == 0 || numPoints > 0 )", (const char *)&queryFormat, "segmentCount == 0 || numPoints > 0") )
+  if ( segmentCount && v12 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 663, ASSERT_TYPE_ASSERT, "( segmentCount == 0 || numPoints > 0 )", (const char *)&queryFormat, "segmentCount == 0 || numPoints > 0") )
     __debugbreak();
   Profile_EndInternal(NULL);
-  return (unsigned int)v13;
+  return (unsigned int)v12;
 }
 
 /*
@@ -2716,34 +1977,30 @@ Nav_Simplify3DPath
 */
 __int64 Nav_Simplify3DPath(nav_space_s *pSpace, const vec3_t *startPt, const bfx::PolylinePath3DRCPtr path, int maxNumPoints, vec3_t *outPath)
 {
-  __int64 v7; 
+  __int64 v5; 
   signed int NumSegments; 
-  int v12; 
-  int v16; 
-  __int64 v17; 
-  __int64 v18; 
-  int v21; 
-  bfx::PolylinePath3DRCPtr v22; 
-  bfx::PolylinePath3DRCPtr v23; 
-  __int64 result; 
-  int v29; 
-  __int64 v30; 
-  float *v31; 
+  int v10; 
+  int v11; 
+  __int64 v12; 
+  __int64 v13; 
+  float *v14; 
+  int v15; 
+  bfx::PolylinePath3DRCPtr v16; 
+  bfx::PolylinePath3DRCPtr v17; 
+  int v19; 
+  __int64 v20; 
+  float *v21; 
   bfx::Path3DSpec pathSpec; 
-  bfx::PolylinePath3DRCPtr v33; 
-  bfx::PolylinePath3DRCPtr v34; 
-  __int64 v35; 
-  __int64 v36; 
+  bfx::PolylinePath3DRCPtr v23; 
+  bfx::PolylinePath3DRCPtr v24; 
+  __int64 v25; 
+  __int64 v26; 
   void *m_pProxy; 
   vec3_t startPos; 
   vec3_t outPoint; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  v36 = -2i64;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm6 }
-  v7 = maxNumPoints;
-  _RBX = startPt;
+  v26 = -2i64;
+  v5 = maxNumPoints;
   m_pProxy = path.m_pProxy;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 674, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
@@ -2753,79 +2010,60 @@ __int64 Nav_Simplify3DPath(nav_space_s *pSpace, const vec3_t *startPt, const bfx
     __debugbreak();
   Profile_Begin(276);
   NumSegments = bfx::PolylinePath3DRCPtr::GetNumSegments((bfx::PolylinePath3DRCPtr *)path.m_pProxy);
-  v12 = 0;
-  v29 = 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  dword ptr [rsp+0F8h+startPos], xmm0
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+0F8h+startPos+4], xmm1
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+0F8h+startPos+8], xmm0
-  }
-  v16 = -1;
+  v10 = 0;
+  v19 = 0;
+  startPos = *startPt;
+  v11 = -1;
   if ( NumSegments - 1 > -1 )
   {
-    v17 = v7;
-    v35 = v7;
-    v18 = 0i64;
-    v30 = 0i64;
-    _RSI = &outPath->v[2];
-    v31 = &outPath->v[2];
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    v12 = v5;
+    v25 = v5;
+    v13 = 0i64;
+    v20 = 0i64;
+    v14 = &outPath->v[2];
+    v21 = &outPath->v[2];
     do
     {
-      if ( v18 >= v17 )
+      if ( v13 >= v12 )
         break;
-      v21 = ++v16 + 1;
-      if ( v16 + 1 < NumSegments )
+      v15 = ++v11 + 1;
+      if ( v11 + 1 < NumSegments )
       {
         do
         {
-          bfx::PolylinePath3DRCPtr::PolylinePath3DRCPtr(&v33, (const bfx::PolylinePath3DRCPtr *)path.m_pProxy);
-          Nav_GetPointOn3DPath(v22, v21, &outPoint);
+          bfx::PolylinePath3DRCPtr::PolylinePath3DRCPtr(&v23, (const bfx::PolylinePath3DRCPtr *)path.m_pProxy);
+          Nav_GetPointOn3DPath(v16, v15, &outPoint);
           if ( !Nav_AnyVolumesLoaded() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 195, ASSERT_TYPE_ASSERT, "( Nav_AnyVolumesLoaded() )", (const char *)&queryFormat, "Nav_AnyVolumesLoaded()") )
             __debugbreak();
           if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 196, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
             __debugbreak();
           *(_QWORD *)&pathSpec.m_volumeUsageFlags = -1i64;
-          __asm { vmovss  [rsp+0F8h+pathSpec.m_maxSearchDist], xmm6 }
+          pathSpec.m_maxSearchDist = 0.0;
           if ( Nav_Trace3D(pSpace, &startPos, &outPoint, &pathSpec, NULL) )
             break;
-          v16 = v21++;
+          v11 = v15++;
         }
-        while ( v21 < NumSegments );
-        v18 = v30;
-        v12 = v29;
-        _RSI = v31;
+        while ( v15 < NumSegments );
+        v13 = v20;
+        v10 = v19;
+        v14 = v21;
       }
-      bfx::PolylinePath3DRCPtr::PolylinePath3DRCPtr(&v34, (const bfx::PolylinePath3DRCPtr *)path.m_pProxy);
-      Nav_GetPointOn3DPath(v23, v16, &startPos);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0F8h+startPos]
-        vmovss  dword ptr [rsi-8], xmm0
-        vmovss  xmm1, dword ptr [rsp+0F8h+startPos+4]
-        vmovss  dword ptr [rsi-4], xmm1
-        vmovss  xmm0, dword ptr [rsp+0F8h+startPos+8]
-        vmovss  dword ptr [rsi], xmm0
-      }
-      v29 = ++v12;
-      v30 = ++v18;
-      _RSI += 3;
-      v31 = _RSI;
-      v17 = v35;
+      bfx::PolylinePath3DRCPtr::PolylinePath3DRCPtr(&v24, (const bfx::PolylinePath3DRCPtr *)path.m_pProxy);
+      Nav_GetPointOn3DPath(v17, v11, &startPos);
+      *(vec3_t *)(v14 - 2) = startPos;
+      v19 = ++v10;
+      v20 = ++v13;
+      v14 += 3;
+      v21 = v14;
+      v12 = v25;
     }
-    while ( v16 < NumSegments - 1 );
+    while ( v11 < NumSegments - 1 );
   }
-  if ( NumSegments && v12 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 712, ASSERT_TYPE_ASSERT, "( segmentCount == 0 || numPoints > 0 )", (const char *)&queryFormat, "segmentCount == 0 || numPoints > 0") )
+  if ( NumSegments && v10 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 712, ASSERT_TYPE_ASSERT, "( segmentCount == 0 || numPoints > 0 )", (const char *)&queryFormat, "segmentCount == 0 || numPoints > 0") )
     __debugbreak();
   Profile_EndInternal(NULL);
   bfx::PolylinePath3DRCPtr::~PolylinePath3DRCPtr((bfx::PolylinePath3DRCPtr *)path.m_pProxy);
-  result = (unsigned int)v12;
-  __asm { vmovaps xmm6, [rsp+0F8h+var_48] }
-  return result;
+  return (unsigned int)v10;
 }
 
 /*
@@ -2836,56 +2074,64 @@ Nav_SimplifyPath
 __int64 Nav_SimplifyPath(nav_space_s *pSpace, const vec3_t *startPt, const bfx::PolylinePathRCPtr path, AINavLayer layer, const bfx::PathSpec *pPathSpec, int maxNumPoints, vec3_t *outPath)
 {
   bfx::PolylinePathRCPtr *m_pProxy; 
-  int v18; 
-  int v19; 
-  int v20; 
+  vec3_t *v8; 
+  int v9; 
+  int v10; 
+  int v11; 
   bfx::SegmentType SegmentType; 
   bfx::SurfaceSegment *SurfaceSegment; 
+  const bfx::Vector3 *v14; 
+  float v15; 
+  float v16; 
+  __int64 v17; 
   const bfx::AreaHandle *Area; 
-  bfx::AreaHandle *v42; 
+  const bfx::Vector3 *v19; 
+  float v20; 
+  float v21; 
+  float m_x; 
+  bfx::AreaHandle *v23; 
   bool IsStraightLineReachable; 
-  const bfx::AreaHandle *v52; 
-  const bfx::AreaHandle *v54; 
-  __int64 v55; 
+  const bfx::Vector3 *v25; 
+  float v26; 
+  float v27; 
+  const bfx::AreaHandle *v28; 
+  __int64 v29; 
+  const bfx::AreaHandle *v30; 
   bfx::LinkSegment *LinkSegment; 
+  const bfx::Vector3 *StartPos; 
+  float m_z; 
+  float m_y; 
   const bfx::Vector3 *EndPos; 
+  float v37; 
+  float v38; 
+  const bfx::Vector3 *v39; 
   const bfx::AreaHandle *ClosestArea; 
   int NumSegments; 
   bfx::AreaHandle startArea; 
   unsigned int layera[2]; 
-  const vec3_t *v76; 
+  const vec3_t *v45; 
   bfx::Vector3 iEndPos; 
   bfx::Vector3 iStartPos; 
   bfx::SpaceHandle *spaceHandle; 
-  __int64 v80; 
-  void *v81; 
+  __int64 v49; 
+  void *v50; 
   bfx::AreaHandle result; 
-  bfx::AreaHandle v83; 
-  bfx::AreaHandle v84; 
-  bfx::AreaHandle v85; 
-  bfx::AreaHandle v86; 
+  bfx::AreaHandle v52; 
+  bfx::AreaHandle v53; 
+  bfx::AreaHandle v54; 
+  bfx::AreaHandle v55; 
   float v1; 
+  float v57; 
+  float v58; 
   bfx::PathSpec pathSpec; 
-  char v91; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v80 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-  }
+  v49 = -2i64;
   layera[0] = layer;
   m_pProxy = (bfx::PolylinePathRCPtr *)path.m_pProxy;
-  _R13 = startPt;
-  v76 = startPt;
+  v8 = (vec3_t *)startPt;
+  v45 = startPt;
   spaceHandle = &pSpace->hSpace;
-  v81 = path.m_pProxy;
-  _RBX = pPathSpec;
-  _RSI = outPath;
+  v50 = path.m_pProxy;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 355, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( !bfx::PolylinePathRCPtr::IsValid(m_pProxy) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 356, ASSERT_TYPE_ASSERT, "( path.IsValid() )", (const char *)&queryFormat, "path.IsValid()") )
@@ -2894,163 +2140,96 @@ __int64 Nav_SimplifyPath(nav_space_s *pSpace, const vec3_t *startPt, const bfx::
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Nav_SimplifyPath");
   NumSegments = bfx::PolylinePathRCPtr::GetNumSegments(m_pProxy);
-  outPath->v[0] = _R13->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+4]
-    vmovss  dword ptr [rsi+4], xmm0
-    vmovss  xmm1, dword ptr [r13+8]
-    vmovss  dword ptr [rsi+8], xmm1
-  }
-  v18 = 1;
-  v19 = maxNumPoints;
+  *outPath = *v8;
+  v9 = 1;
+  v10 = maxNumPoints;
   if ( maxNumPoints > 1 )
   {
     bfx::AreaHandle::AreaHandle(&startArea);
-    v20 = 0;
+    v11 = 0;
     pathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
     *(_QWORD *)&pathSpec.m_obstacleBlockageFlags = -1i64;
     *(_QWORD *)&pathSpec.m_areaPenaltyFlags = -1i64;
     pathSpec.m_usePathSharingPenalty = 0;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rbp+0E0h+pathSpec.m_pathSharingPenalty], xmm0
-      vmovss  [rbp+0E0h+pathSpec.m_maxPathSharingPenalty], xmm0
-      vmovss  [rbp+0E0h+pathSpec.m_maxSearchDist], xmm0
-    }
+    pathSpec.m_pathSharingPenalty = 0.0;
+    pathSpec.m_maxPathSharingPenalty = 0.0;
+    pathSpec.m_maxSearchDist = 0.0;
     bfx::PenaltyTable::PenaltyTable(&pathSpec.m_penaltyTable);
     pathSpec.m_snapMode = SNAP_CLOSEST;
     if ( pPathSpec )
-    {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rbp+0E0h+pathSpec.m_obstacleMode], ymm0
-        vmovups ymm1, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rbp+0E0h+pathSpec.m_maxSearchDist], ymm1
-        vmovups xmm0, xmmword ptr [rbx+40h]
-        vmovups xmmword ptr [rbp+40h], xmm0
-      }
-    }
+      pathSpec = *pPathSpec;
     if ( NumSegments > 0 )
     {
-      __asm { vmovss  xmm9, cs:__real@3a83126f }
       while ( 1 )
       {
-        SegmentType = bfx::PolylinePathRCPtr::GetSegmentType(m_pProxy, v20);
+        SegmentType = bfx::PolylinePathRCPtr::GetSegmentType(m_pProxy, v11);
         if ( SegmentType )
         {
           if ( SegmentType != LINK_SEGMENT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 423, ASSERT_TYPE_ASSERT, "( segmentType == bfx::LINK_SEGMENT )", (const char *)&queryFormat, "segmentType == bfx::LINK_SEGMENT") )
             __debugbreak();
-          LinkSegment = bfx::PolylinePathRCPtr::GetLinkSegment(m_pProxy, v20);
+          LinkSegment = bfx::PolylinePathRCPtr::GetLinkSegment(m_pProxy, v11);
           if ( !LinkSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 426, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
             __debugbreak();
-          _RBX = 3i64 * v18;
-          _RAX = bfx::LinkSegment::GetStartPos(LinkSegment);
-          __asm
+          StartPos = bfx::LinkSegment::GetStartPos(LinkSegment);
+          m_z = StartPos->m_z;
+          m_y = StartPos->m_y;
+          outPath[v9].v[0] = StartPos->m_x;
+          outPath[v9].v[1] = m_y;
+          outPath[v9++].v[2] = m_z;
+          if ( v9 >= v10 || (EndPos = bfx::LinkSegment::GetEndPos(LinkSegment), v37 = EndPos->m_z, v38 = EndPos->m_y, outPath[v9].v[0] = EndPos->m_x, outPath[v9].v[1] = v38, outPath[v9].v[2] = v37, ++v9, v9 >= v10) )
           {
-            vmovss  xmm1, dword ptr [rax+8]
-            vmovss  xmm0, dword ptr [rax+4]
-          }
-          outPath[v18].v[0] = _RAX->m_x;
-          __asm
-          {
-            vmovss  dword ptr [rsi+rbx*4+4], xmm0
-            vmovss  dword ptr [rsi+rbx*4+8], xmm1
-          }
-          if ( ++v18 >= v19 )
-            goto LABEL_40;
-          _RBX = 3i64 * v18;
-          _RAX = bfx::LinkSegment::GetEndPos(LinkSegment);
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rax+8]
-            vmovss  xmm0, dword ptr [rax+4]
-          }
-          outPath[v18].v[0] = _RAX->m_x;
-          __asm
-          {
-            vmovss  dword ptr [rsi+rbx*4+4], xmm0
-            vmovss  dword ptr [rsi+rbx*4+8], xmm1
-          }
-          if ( ++v18 >= v19 )
-          {
-LABEL_40:
-            if ( v18 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 441, ASSERT_TYPE_ASSERT, "( numPoints > 0 )", (const char *)&queryFormat, "numPoints > 0") )
+LABEL_39:
+            if ( v9 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 441, ASSERT_TYPE_ASSERT, "( numPoints > 0 )", (const char *)&queryFormat, "numPoints > 0") )
               __debugbreak();
             m_pProxy = (bfx::PolylinePathRCPtr *)path.m_pProxy;
             break;
           }
-          EndPos = bfx::LinkSegment::GetEndPos(LinkSegment);
-          ClosestArea = bfx::GetClosestArea(&v86, spaceHandle, EndPos, layera[0], &bfx::g_defaultPathSpec);
+          v39 = bfx::LinkSegment::GetEndPos(LinkSegment);
+          ClosestArea = bfx::GetClosestArea(&v55, spaceHandle, v39, layera[0], &bfx::g_defaultPathSpec);
           bfx::AreaHandle::operator=(&startArea, ClosestArea);
-          bfx::AreaHandle::~AreaHandle(&v86);
+          bfx::AreaHandle::~AreaHandle(&v55);
         }
         else
         {
-          SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment(m_pProxy, v20);
+          SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment(m_pProxy, v11);
           if ( !SurfaceSegment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 384, ASSERT_TYPE_ASSERT, "( pSegment )", (const char *)&queryFormat, "pSegment") )
             __debugbreak();
-          if ( !v20 )
+          if ( !v11 )
           {
-            _RAX = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
-            __asm
+            v14 = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
+            v15 = v14->m_z;
+            v16 = v14->m_y;
+            v1 = v14->m_x;
+            v57 = v16;
+            v58 = v15;
+            if ( !VecNCompareCustomEpsilon(v8->v, &v1, 0.001, 3) )
             {
-              vmovss  xmm2, dword ptr [rax+8]
-              vmovss  xmm1, dword ptr [rax+4]
-              vmovss  xmm0, dword ptr [rax]
-              vmovss  [rbp+0E0h+v1], xmm0
-              vmovss  [rbp+0E0h+var_F4], xmm1
-              vmovss  [rbp+0E0h+var_F0], xmm2
-              vmovaps xmm2, xmm9; epsilon
-            }
-            if ( !VecNCompareCustomEpsilon(_R13->v, &v1, *(float *)&_XMM2, 3) )
-            {
-              _RCX = 3i64 * v18;
-              __asm
-              {
-                vmovss  xmm0, [rbp+0E0h+v1]
-                vmovss  dword ptr [rsi+rcx*4], xmm0
-                vmovss  xmm1, [rbp+0E0h+var_F4]
-                vmovss  dword ptr [rsi+rcx*4+4], xmm1
-                vmovss  xmm0, [rbp+0E0h+var_F0]
-                vmovss  dword ptr [rsi+rcx*4+8], xmm0
-              }
-              if ( ++v18 >= v19 )
-                goto LABEL_40;
+              v17 = v9;
+              outPath[v17].v[0] = v1;
+              outPath[v17].v[1] = v57;
+              outPath[v17].v[2] = v58;
+              if ( ++v9 >= v10 )
+                goto LABEL_39;
             }
             Area = bfx::SurfaceSegment::GetArea(SurfaceSegment, &result);
             bfx::AreaHandle::operator=(&startArea, Area);
             bfx::AreaHandle::~AreaHandle(&result);
           }
-          _RAX = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rax+8]
-            vmovss  xmm7, dword ptr [rax+4]
-            vmovss  xmm8, dword ptr [rax]
-          }
+          v19 = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
+          v20 = v19->m_z;
+          v21 = v19->m_y;
+          m_x = v19->m_x;
           if ( !bfx::AreaHandle::IsValid(&startArea) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 403, ASSERT_TYPE_ASSERT, "( hPrevArea.IsValid() )", (const char *)&queryFormat, "hPrevArea.IsValid()") )
             __debugbreak();
-          v42 = bfx::SurfaceSegment::GetArea(SurfaceSegment, &v83);
-          _R13 = 3i64 * v18;
+          v23 = bfx::SurfaceSegment::GetArea(SurfaceSegment, &v52);
           Profile_Begin(271);
-          if ( bfx::AreaHandle::IsUsable(&startArea, &pathSpec) && bfx::AreaHandle::IsUsable(v42, &pathSpec) )
+          if ( bfx::AreaHandle::IsUsable(&startArea, &pathSpec) && bfx::AreaHandle::IsUsable(v23, &pathSpec) )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsi+r13*4-0Ch]
-              vmovss  [rsp+1E0h+iStartPos.m_x], xmm0
-              vmovss  xmm1, dword ptr [rsi+r13*4-8]
-              vmovss  [rsp+1E0h+iStartPos.m_y], xmm1
-              vmovss  xmm0, dword ptr [rsi+r13*4-4]
-              vmovss  [rsp+1E0h+iStartPos.m_z], xmm0
-              vmovss  [rsp+1E0h+iEndPos.m_x], xmm8
-              vmovss  [rsp+1E0h+iEndPos.m_y], xmm7
-              vmovss  [rsp+1E0h+iEndPos.m_z], xmm6
-            }
-            IsStraightLineReachable = bfx::IsStraightLineReachable(&iStartPos, &startArea, &iEndPos, v42, &pathSpec);
+            iStartPos = (bfx::Vector3)outPath[v9 - 1];
+            iEndPos.m_x = m_x;
+            iEndPos.m_y = v21;
+            iEndPos.m_z = v20;
+            IsStraightLineReachable = bfx::IsStraightLineReachable(&iStartPos, &startArea, &iEndPos, v23, &pathSpec);
             Profile_EndInternal(NULL);
           }
           else
@@ -3058,55 +2237,44 @@ LABEL_40:
             Profile_EndInternal(NULL);
             IsStraightLineReachable = 0;
           }
-          bfx::AreaHandle::~AreaHandle(&v83);
+          bfx::AreaHandle::~AreaHandle(&v52);
           if ( IsStraightLineReachable )
           {
-            v19 = maxNumPoints;
+            v10 = maxNumPoints;
           }
           else
           {
-            _RBX = 3i64 * v18;
-            _RAX = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rax+8]
-              vmovss  xmm0, dword ptr [rax+4]
-            }
-            outPath[v18].v[0] = _RAX->m_x;
-            __asm
-            {
-              vmovss  dword ptr [rsi+rbx*4+4], xmm0
-              vmovss  dword ptr [rsi+rbx*4+8], xmm1
-            }
-            ++v18;
-            v19 = maxNumPoints;
-            if ( v18 >= maxNumPoints )
-              goto LABEL_40;
-            v52 = bfx::SurfaceSegment::GetArea(SurfaceSegment, &v84);
-            bfx::AreaHandle::operator=(&startArea, v52);
-            bfx::AreaHandle::~AreaHandle(&v84);
+            v25 = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
+            v26 = v25->m_z;
+            v27 = v25->m_y;
+            outPath[v9].v[0] = v25->m_x;
+            outPath[v9].v[1] = v27;
+            outPath[v9++].v[2] = v26;
+            v10 = maxNumPoints;
+            if ( v9 >= maxNumPoints )
+              goto LABEL_39;
+            v28 = bfx::SurfaceSegment::GetArea(SurfaceSegment, &v53);
+            bfx::AreaHandle::operator=(&startArea, v28);
+            bfx::AreaHandle::~AreaHandle(&v53);
           }
-          if ( v20 == NumSegments - 1 )
+          if ( v11 == NumSegments - 1 )
           {
-            _RCX = 3i64 * v18;
-            __asm
-            {
-              vmovss  dword ptr [rsi+rcx*4], xmm8
-              vmovss  dword ptr [rsi+rcx*4+4], xmm7
-              vmovss  dword ptr [rsi+rcx*4+8], xmm6
-            }
-            if ( ++v18 >= v19 )
-              goto LABEL_40;
-            v54 = bfx::SurfaceSegment::GetArea(SurfaceSegment, &v85);
-            bfx::AreaHandle::operator=(&startArea, v54);
-            bfx::AreaHandle::~AreaHandle(&v85);
+            v29 = v9;
+            outPath[v29].v[0] = m_x;
+            outPath[v29].v[1] = v21;
+            outPath[v29].v[2] = v20;
+            if ( ++v9 >= v10 )
+              goto LABEL_39;
+            v30 = bfx::SurfaceSegment::GetArea(SurfaceSegment, &v54);
+            bfx::AreaHandle::operator=(&startArea, v30);
+            bfx::AreaHandle::~AreaHandle(&v54);
           }
-          _R13 = v76;
+          v8 = (vec3_t *)v45;
         }
-        ++v20;
+        ++v11;
         m_pProxy = (bfx::PolylinePathRCPtr *)path.m_pProxy;
-        if ( v20 >= NumSegments )
-          goto LABEL_40;
+        if ( v11 >= NumSegments )
+          goto LABEL_39;
       }
     }
     Sys_ProfEndNamedEvent();
@@ -3117,16 +2285,7 @@ LABEL_40:
     Sys_ProfEndNamedEvent();
   }
   bfx::PolylinePathRCPtr::~PolylinePathRCPtr(m_pProxy);
-  v55 = (unsigned int)v18;
-  _R11 = &v91;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-  }
-  return v55;
+  return (unsigned int)v9;
 }
 
 /*
@@ -3142,9 +2301,8 @@ bool Nav_Trace3D(nav_space_s *pSpace, const vec3_t *startPos, const vec3_t *endP
     __debugbreak();
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 196, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   *(_QWORD *)&pathSpec.m_volumeUsageFlags = -1i64;
-  __asm { vmovss  [rsp+48h+pathSpec.m_maxSearchDist], xmm0 }
+  pathSpec.m_maxSearchDist = 0.0;
   return Nav_Trace3D(pSpace, startPos, endPos, &pathSpec, NULL);
 }
 
@@ -3155,89 +2313,58 @@ Nav_Trace3D
 */
 _BOOL8 Nav_Trace3D(nav_space_s *pSpace, const vec3_t *startPos, const vec3_t *endPos, const bfx::Path3DSpec *pathSpec, nav_probe_results_3D_s *pOutResults)
 {
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int128 v14; 
+  float v15; 
   _BOOL8 result; 
+  float m_z; 
+  float m_distTravelled; 
   bfx::Probe3DResults clientResults; 
   bfx::Vector3 dir; 
   bfx::Vector3 startPosa; 
-  char v50; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  _RBX = pOutResults;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  _RBP = endPos;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm7 }
-  _R14 = startPos;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
   if ( !Nav_AnyVolumesLoaded() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 164, ASSERT_TYPE_ASSERT, "( Nav_AnyVolumesLoaded() )", (const char *)&queryFormat, "Nav_AnyVolumesLoaded()") )
     __debugbreak();
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 165, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( !pathSpec && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 166, ASSERT_TYPE_ASSERT, "( pathSpec )", (const char *)&queryFormat, "pathSpec") )
     __debugbreak();
+  v9 = startPos->v[0];
+  v10 = startPos->v[1];
+  v11 = startPos->v[2];
+  v12 = endPos->v[0] - startPos->v[0];
+  v14 = LODWORD(endPos->v[1]);
+  v13 = endPos->v[1] - v10;
+  v15 = endPos->v[2] - v11;
+  *(float *)&v14 = fsqrt((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v15 * v15));
+  _XMM3 = v14;
   __asm
   {
-    vmovss  xmm9, dword ptr [r14]
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovss  xmm8, dword ptr [r14+4]
-    vmovss  xmm1, dword ptr [rbp+4]
-    vmovss  xmm7, dword ptr [r14+8]
-    vsubss  xmm6, xmm0, xmm9
-    vmovss  xmm0, dword ptr [rbp+8]
-    vsubss  xmm4, xmm1, xmm8
-    vsubss  xmm5, xmm0, xmm7
-    vmulss  xmm2, xmm4, xmm4
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm3, xmm2, xmm2; dist
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
   }
   clientResults.m_collided = 0;
-  __asm
-  {
-    vmulss  xmm2, xmm6, xmm1
-    vmulss  xmm4, xmm4, xmm1
-    vmulss  xmm0, xmm5, xmm1
-    vmovss  [rsp+0D8h+dir.m_x], xmm2
-    vmovss  [rsp+0D8h+dir.m_y], xmm4
-    vmovss  [rsp+0D8h+dir.m_z], xmm0
-    vmovss  [rsp+0D8h+startPos.m_x], xmm9
-    vmovss  [rsp+0D8h+startPos.m_y], xmm8
-    vmovss  [rsp+0D8h+startPos.m_z], xmm7
-  }
-  bfx::NavProbe3D(&pSpace->hSpace, &startPosa, &dir, *(float *)&_XMM3, pathSpec, &clientResults);
+  dir.m_x = v12 * (float)(1.0 / *(float *)&_XMM0);
+  dir.m_y = v13 * (float)(1.0 / *(float *)&_XMM0);
+  dir.m_z = v15 * (float)(1.0 / *(float *)&_XMM0);
+  startPosa.m_x = v9;
+  startPosa.m_y = v10;
+  startPosa.m_z = v11;
+  bfx::NavProbe3D(&pSpace->hSpace, &startPosa, &dir, *(float *)&v14, pathSpec, &clientResults);
   result = clientResults.m_collided;
   if ( pOutResults )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+0D8h+var_A8.m_endPos.m_x]
-      vmovss  xmm1, [rsp+0D8h+var_A8.m_endNorm.m_z]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovss  xmm0, [rsp+0D8h+var_A8.m_endNorm.m_y]
-      vmovss  dword ptr [rbx+10h], xmm0
-      vmovss  xmm0, [rsp+0D8h+var_A8.m_distTravelled]
-      vmovss  dword ptr [rbx+14h], xmm1
-      vmovss  dword ptr [rbx+18h], xmm0
-    }
+    m_z = clientResults.m_endNorm.m_z;
+    *(_OWORD *)pOutResults->m_EndPos.v = *(_OWORD *)&clientResults.m_endPos.m_x;
+    pOutResults->m_Normal.v[1] = clientResults.m_endNorm.m_y;
+    m_distTravelled = clientResults.m_distTravelled;
+    pOutResults->m_Normal.v[2] = m_z;
+    pOutResults->m_DistTraveled = m_distTravelled;
     pOutResults->m_bCollided = result;
-  }
-  _R11 = &v50;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
   return result;
 }
@@ -3249,106 +2376,58 @@ Nav_Trace3DAllowEdgeHit
 */
 bool Nav_Trace3DAllowEdgeHit(nav_space_s *pSpace, const vec3_t *startPos, const vec3_t *endPos, const bfx::Path3DSpec *pathSpec, nav_probe_results_3D_s *pOutResults)
 {
-  bool v15; 
-  bool result; 
+  bool v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  __int128 v20; 
   bfx::Vector3 dir; 
   bfx::Vector3 startPosa; 
   bfx::Probe3DResults clientResults; 
 
-  _R15 = pOutResults;
-  _RDI = endPos;
-  __asm { vmovaps [rsp+0F8h+var_88], xmm10 }
-  _RBX = startPos;
-  v15 = Nav_Trace3D(pSpace, startPos, endPos, pathSpec, pOutResults);
-  if ( !v15 )
-    goto LABEL_10;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm3, xmm0, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rdi+4]
-    vsubss  xmm1, xmm0, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm4, xmm0, dword ptr [rbx+8]
-    vmulss  xmm2, xmm1, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, dword ptr [r15+18h]
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm4, xmm2, xmm2
-    vsubss  xmm0, xmm1, xmm4
-    vmulss  xmm2, xmm0, xmm0
-    vcomiss xmm2, cs:__real@3b23d70a
-    vmovaps [rsp+0F8h+var_48], xmm6
-    vmovaps [rsp+0F8h+var_58], xmm7
-    vmovaps [rsp+0F8h+var_68], xmm8
-    vmovaps [rsp+0F8h+var_78], xmm9
-  }
+  v9 = Nav_Trace3D(pSpace, startPos, endPos, pathSpec, pOutResults);
+  if ( !v9 )
+    return 0;
+  v10 = endPos->v[1] - startPos->v[1];
+  v11 = endPos->v[2] - startPos->v[2];
+  v12 = pOutResults->m_DistTraveled - fsqrt((float)((float)(v10 * v10) + (float)((float)(endPos->v[0] - startPos->v[0]) * (float)(endPos->v[0] - startPos->v[0]))) + (float)(v11 * v11));
+  if ( (float)(v12 * v12) < 0.0024999999 )
+    return 0;
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 1114, ASSERT_TYPE_ASSERT, "(pSpace)", (const char *)&queryFormat, "pSpace") )
     __debugbreak();
   if ( !pathSpec && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 1115, ASSERT_TYPE_ASSERT, "(pPathSpec)", (const char *)&queryFormat, "pPathSpec") )
     __debugbreak();
+  v13 = startPos->v[0];
+  v14 = startPos->v[1];
+  v15 = startPos->v[2];
+  v16 = endPos->v[0] - startPos->v[0];
+  v20 = LODWORD(endPos->v[1]);
+  v17 = endPos->v[1] - v14;
+  v18 = endPos->v[2] - v15;
+  *(float *)&v20 = fsqrt((float)((float)(v17 * v17) + (float)(v16 * v16)) + (float)(v18 * v18));
+  _XMM10 = v20;
   __asm
   {
-    vmovss  xmm9, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  xmm8, dword ptr [rbx+4]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmovss  xmm7, dword ptr [rbx+8]
-    vsubss  xmm6, xmm0, xmm9
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm5, xmm1, xmm8
-    vsubss  xmm4, xmm0, xmm7
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm10, xmm2, xmm2
     vcmpless xmm0, xmm10, cs:__real@80000000
     vblendvps xmm0, xmm10, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm3, xmm5, xmm1
   }
   clientResults.m_collided = 0;
-  __asm
-  {
-    vmovss  [rsp+0F8h+dir.m_y], xmm3
-    vmulss  xmm2, xmm6, xmm1
-    vmulss  xmm0, xmm4, xmm1
-    vmovaps xmm3, xmm10; dist
-    vmovss  [rsp+0F8h+startPos.m_x], xmm9
-    vmovss  [rsp+0F8h+startPos.m_y], xmm8
-    vmovss  [rsp+0F8h+startPos.m_z], xmm7
-    vmovss  [rsp+0F8h+dir.m_x], xmm2
-    vmovss  [rsp+0F8h+dir.m_z], xmm0
-  }
-  bfx::NavProbe3D(&pSpace->hSpace, &startPosa, &dir, *(float *)&_XMM3, pathSpec, &clientResults);
-  __asm
-  {
-    vmovaps xmm9, [rsp+0F8h+var_78]
-    vmovaps xmm8, [rsp+0F8h+var_68]
-    vmovaps xmm7, [rsp+0F8h+var_58]
-    vmovaps xmm6, [rsp+0F8h+var_48]
-  }
-  if ( clientResults.m_collided )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm10, [rsp+0F8h+var_A8.m_distTravelled]
-      vcomiss xmm0, cs:__real@3b449ba6
-    }
-    result = v15;
-  }
-  else
-  {
-LABEL_10:
-    result = 0;
-  }
-  __asm { vmovaps xmm10, [rsp+0F8h+var_88] }
-  return result;
+  dir.m_y = v17 * (float)(1.0 / *(float *)&_XMM0);
+  startPosa.m_x = v13;
+  startPosa.m_y = v14;
+  startPosa.m_z = v15;
+  dir.m_x = v16 * (float)(1.0 / *(float *)&_XMM0);
+  dir.m_z = v18 * (float)(1.0 / *(float *)&_XMM0);
+  bfx::NavProbe3D(&pSpace->hSpace, &startPosa, &dir, *(float *)&v20, pathSpec, &clientResults);
+  if ( !clientResults.m_collided )
+    return 0;
+  return (float)(*(float *)&v20 - clientResults.m_distTravelled) >= 0.003 && v9;
 }
 
 /*
@@ -3378,141 +2457,95 @@ Nav_Trace
 */
 _BOOL8 Nav_Trace(const vec3_t *startPos, const bfx::AreaHandle *hStartArea, const vec3_t *endPos, const bfx::PathSpec *pathSpec, nav_probe_results_s *pOutResults)
 {
+  float v9; 
+  float v10; 
+  float v11; 
+  __int128 v12; 
+  float v13; 
+  float v14; 
+  bfx::Vector3 *EdgeStartPos; 
+  __m128 v19; 
+  bfx::Vector3 *EdgeEndPos; 
+  __m128 v21; 
+  bfx::Vector3 *Normal; 
+  __m128 v23; 
   bool m_collided; 
-  _BOOL8 v57; 
   bfx::ProbeSpec probeSpec; 
   bfx::Vector3 result; 
   bfx::ProbeResults results; 
   bfx::Vector3 dir; 
   bfx::Vector3 iStartPos; 
   float m_z; 
-  float v70; 
-  __int64 v71; 
-  char v72; 
-  void *retaddr; 
+  float v32; 
+  __int64 v33; 
 
-  _RAX = &retaddr;
-  v71 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-  }
-  _RSI = endPos;
-  _R14 = startPos;
-  _RBX = pOutResults;
+  v33 = -2i64;
   if ( !Nav_MeshLoaded() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 86, ASSERT_TYPE_ASSERT, "( Nav_MeshLoaded() )", (const char *)&queryFormat, "Nav_MeshLoaded()") )
     __debugbreak();
   if ( !pathSpec && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 87, ASSERT_TYPE_ASSERT, "( pathSpec )", (const char *)&queryFormat, "pathSpec") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Nav_Trace");
+  v9 = endPos->v[0] - startPos->v[0];
+  v10 = startPos->v[1];
+  v12 = LODWORD(endPos->v[1]);
+  v11 = endPos->v[1] - v10;
+  v13 = startPos->v[2];
+  v14 = endPos->v[2] - v13;
+  *(float *)&v12 = fsqrt((float)((float)(v11 * v11) + (float)(v9 * v9)) + (float)(v14 * v14));
+  _XMM10 = v12;
   __asm
   {
-    vmovss  xmm9, dword ptr [r14]
-    vmovss  xmm0, dword ptr [rsi]
-    vsubss  xmm6, xmm0, xmm9
-    vmovss  xmm8, dword ptr [r14+4]
-    vmovss  xmm1, dword ptr [rsi+4]
-    vsubss  xmm5, xmm1, xmm8
-    vmovss  xmm7, dword ptr [r14+8]
-    vmovss  xmm0, dword ptr [rsi+8]
-    vsubss  xmm4, xmm0, xmm7
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm10, xmm2, xmm2
     vcmpless xmm0, xmm10, cs:__real@80000000
-    vmovss  xmm2, cs:__real@3f800000
     vblendvps xmm1, xmm10, xmm2, xmm0
-    vmovss  [rsp+150h+var_110.m_probeType], xmm1
-    vdivss  xmm0, xmm2, xmm1
-    vmulss  xmm2, xmm6, xmm0
-    vmulss  xmm3, xmm5, xmm0
-    vmulss  xmm1, xmm4, xmm0
-    vmovss  [rbp+50h+iStartPos.m_x], xmm9
-    vmovss  [rbp+50h+iStartPos.m_y], xmm8
-    vmovss  [rbp+50h+iStartPos.m_z], xmm7
-    vmovss  [rbp+50h+dir.m_x], xmm2
-    vmovss  [rbp+50h+dir.m_y], xmm3
-    vmovss  [rbp+50h+dir.m_z], xmm1
   }
+  iStartPos.m_x = startPos->v[0];
+  iStartPos.m_y = v10;
+  iStartPos.m_z = v13;
+  dir.m_x = v9 * (float)(1.0 / *(float *)&_XMM1);
+  dir.m_y = v11 * (float)(1.0 / *(float *)&_XMM1);
+  dir.m_z = v14 * (float)(1.0 / *(float *)&_XMM1);
   probeSpec.m_probeType = NAVPROBE_TYPE_FULL3D;
   bfx::AreaHandle::AreaHandle(&results.m_endArea);
   results.m_collided = 0;
   results.m_collideEdgeIndex = -1;
   results.m_generatePath = 0;
   bfx::PolylinePathRCPtr::PolylinePathRCPtr(&results.m_path);
-  __asm { vmovaps xmm3, xmm10; dist }
-  bfx::NavProbe(hStartArea, &iStartPos, &dir, *(float *)&_XMM3, pathSpec, &probeSpec, &results);
+  bfx::NavProbe(hStartArea, &iStartPos, &dir, *(float *)&v12, pathSpec, &probeSpec, &results);
   if ( pOutResults )
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+150h+var_F8.m_endPos.m_x]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, [rsp+150h+var_F8.m_endPos.m_y]
-      vmovss  dword ptr [rbx+4], xmm1
-      vmovss  xmm0, [rsp+150h+var_F8.m_endPos.m_z]
-      vmovss  dword ptr [rbx+8], xmm0
-    }
+    pOutResults->m_EndPos.v[0] = results.m_endPos.m_x;
+    pOutResults->m_EndPos.v[1] = results.m_endPos.m_y;
+    pOutResults->m_EndPos.v[2] = results.m_endPos.m_z;
     pOutResults->m_bCollided = results.m_collided;
-    __asm
-    {
-      vmovss  xmm0, [rsp+150h+var_F8.m_distTravelled]
-      vmovss  dword ptr [rbx+30h], xmm0
-    }
+    pOutResults->m_DistTraveled = results.m_distTravelled;
     bfx::AreaHandle::operator=(&pOutResults->m_hEndArea, &results.m_endArea);
     if ( results.m_collided )
     {
-      _RAX = bfx::AreaHandle::GetEdgeStartPos(&results.m_endArea, &result, results.m_collideEdgeIndex);
-      __asm { vmovsd  xmm7, qword ptr [rax] }
-      m_z = _RAX->m_z;
-      _RAX = bfx::AreaHandle::GetEdgeEndPos(&results.m_endArea, &result, results.m_collideEdgeIndex);
-      __asm { vmovsd  xmm6, qword ptr [rax] }
-      v70 = _RAX->m_z;
-      _RAX = bfx::AreaHandle::GetNormal(&results.m_endArea, &result);
-      __asm { vmovsd  xmm1, qword ptr [rax] }
-      result.m_z = _RAX->m_z;
-      __asm
-      {
-        vmovss  dword ptr [rbx+0Ch], xmm7
-        vshufps xmm0, xmm7, xmm7, 55h ; 'U'
-        vmovss  dword ptr [rbx+10h], xmm0
-        vmovss  xmm0, [rbp+50h+var_98]
-        vmovss  dword ptr [rbx+14h], xmm0
-        vmovss  dword ptr [rbx+18h], xmm6
-        vshufps xmm0, xmm6, xmm6, 55h ; 'U'
-        vmovss  dword ptr [rbx+1Ch], xmm0
-        vmovss  xmm0, [rbp+50h+var_88]
-        vmovss  dword ptr [rbx+20h], xmm0
-        vmovss  dword ptr [rbx+24h], xmm1
-        vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-        vmovss  dword ptr [rbx+28h], xmm0
-        vmovss  xmm0, [rsp+150h+result.m_z]
-        vmovss  dword ptr [rbx+2Ch], xmm0
-      }
+      EdgeStartPos = bfx::AreaHandle::GetEdgeStartPos(&results.m_endArea, &result, results.m_collideEdgeIndex);
+      v19 = (__m128)*(unsigned __int64 *)&EdgeStartPos->m_x;
+      m_z = EdgeStartPos->m_z;
+      EdgeEndPos = bfx::AreaHandle::GetEdgeEndPos(&results.m_endArea, &result, results.m_collideEdgeIndex);
+      v21 = (__m128)*(unsigned __int64 *)&EdgeEndPos->m_x;
+      v32 = EdgeEndPos->m_z;
+      Normal = bfx::AreaHandle::GetNormal(&results.m_endArea, &result);
+      v23 = (__m128)*(unsigned __int64 *)&Normal->m_x;
+      result.m_z = Normal->m_z;
+      pOutResults->m_edgeStartPos.v[0] = v19.m128_f32[0];
+      pOutResults->m_edgeStartPos.v[1] = _mm_shuffle_ps(v19, v19, 85).m128_f32[0];
+      pOutResults->m_edgeStartPos.v[2] = m_z;
+      pOutResults->m_edgeEndPos.v[0] = v21.m128_f32[0];
+      pOutResults->m_edgeEndPos.v[1] = _mm_shuffle_ps(v21, v21, 85).m128_f32[0];
+      pOutResults->m_edgeEndPos.v[2] = v32;
+      pOutResults->m_areaNormal.v[0] = v23.m128_f32[0];
+      pOutResults->m_areaNormal.v[1] = _mm_shuffle_ps(v23, v23, 85).m128_f32[0];
+      pOutResults->m_areaNormal.v[2] = result.m_z;
     }
   }
   Sys_ProfEndNamedEvent();
   m_collided = results.m_collided;
   bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
   bfx::AreaHandle::~AreaHandle(&results.m_endArea);
-  v57 = m_collided;
-  _R11 = &v72;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return v57;
+  return m_collided;
 }
 
 /*
@@ -3551,33 +2584,30 @@ Nav_Trace
 */
 _BOOL8 Nav_Trace(nav_space_s *pSpace, const vec3_t *startPos, const vec3_t *endPos, AINavLayer layer, const bfx::PathSpec *pathSpec, nav_probe_results_s *pOutResults)
 {
+  float v10; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
+  float v14; 
+  float v15; 
+  bfx::Vector3 *EdgeStartPos; 
+  __m128 v20; 
+  bfx::Vector3 *EdgeEndPos; 
+  __m128 v22; 
+  bfx::Vector3 *Normal; 
+  __m128 v24; 
   bool m_collided; 
-  _BOOL8 v58; 
-  bfx::PathSpec *v65; 
+  bfx::PathSpec *v27; 
   bfx::ProbeSpec probeSpec; 
   bfx::Vector3 result; 
   bfx::ProbeResults results; 
   bfx::Vector3 dir; 
   bfx::Vector3 iStartPos; 
   float m_z; 
-  float v72; 
-  __int64 v73; 
-  char v74; 
-  void *retaddr; 
+  float v34; 
+  __int64 v35; 
 
-  _RAX = &retaddr;
-  v73 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  _R15 = endPos;
-  _R12 = startPos;
-  _RBX = pOutResults;
+  v35 = -2i64;
   if ( !Nav_MeshLoaded() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 21, ASSERT_TYPE_ASSERT, "( Nav_MeshLoaded() )", (const char *)&queryFormat, "Nav_MeshLoaded()") )
     __debugbreak();
   if ( !pSpace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 22, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
@@ -3586,114 +2616,71 @@ _BOOL8 Nav_Trace(nav_space_s *pSpace, const vec3_t *startPos, const vec3_t *endP
     __debugbreak();
   if ( (unsigned int)layer >= NAV_NUM_LAYERS )
   {
-    LODWORD(v65) = layer;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 24, ASSERT_TYPE_ASSERT, "(unsigned)( layer ) < (unsigned)( NAV_NUM_LAYERS )", "layer doesn't index NAV_NUM_LAYERS\n\t%i not in [0, %i)", v65, 3) )
+    LODWORD(v27) = layer;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_query.cpp", 24, ASSERT_TYPE_ASSERT, "(unsigned)( layer ) < (unsigned)( NAV_NUM_LAYERS )", "layer doesn't index NAV_NUM_LAYERS\n\t%i not in [0, %i)", v27, 3) )
       __debugbreak();
   }
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Nav_Trace");
+  v10 = endPos->v[0] - startPos->v[0];
+  v11 = startPos->v[1];
+  v13 = LODWORD(endPos->v[1]);
+  v12 = endPos->v[1] - v11;
+  v14 = startPos->v[2];
+  v15 = endPos->v[2] - v14;
+  *(float *)&v13 = fsqrt((float)((float)(v12 * v12) + (float)(v10 * v10)) + (float)(v15 * v15));
+  _XMM10 = v13;
   __asm
   {
-    vmovss  xmm9, dword ptr [r12]
-    vmovss  xmm0, dword ptr [r15]
-    vsubss  xmm6, xmm0, xmm9
-    vmovss  xmm8, dword ptr [r12+4]
-    vmovss  xmm1, dword ptr [r15+4]
-    vsubss  xmm5, xmm1, xmm8
-    vmovss  xmm7, dword ptr [r12+8]
-    vmovss  xmm0, dword ptr [r15+8]
-    vsubss  xmm4, xmm0, xmm7
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm10, xmm2, xmm2
     vcmpless xmm0, xmm10, cs:__real@80000000
-    vmovss  xmm2, cs:__real@3f800000
     vblendvps xmm1, xmm10, xmm2, xmm0
-    vmovss  [rsp+160h+var_120.m_probeType], xmm1
-    vdivss  xmm0, xmm2, xmm1
-    vmulss  xmm2, xmm0, xmm6
-    vmulss  xmm3, xmm0, xmm5
-    vmulss  xmm1, xmm4, xmm0
-    vmovss  [rbp+60h+iStartPos.m_x], xmm9
-    vmovss  [rbp+60h+iStartPos.m_y], xmm8
-    vmovss  [rbp+60h+iStartPos.m_z], xmm7
-    vmovss  [rbp+60h+dir.m_x], xmm2
-    vmovss  [rbp+60h+dir.m_y], xmm3
-    vmovss  [rbp+60h+dir.m_z], xmm1
   }
+  iStartPos.m_x = startPos->v[0];
+  iStartPos.m_y = v11;
+  iStartPos.m_z = v14;
+  dir.m_x = (float)(1.0 / *(float *)&_XMM1) * v10;
+  dir.m_y = (float)(1.0 / *(float *)&_XMM1) * v12;
+  dir.m_z = v15 * (float)(1.0 / *(float *)&_XMM1);
   probeSpec.m_probeType = NAVPROBE_TYPE_FULL3D;
   bfx::AreaHandle::AreaHandle(&results.m_endArea);
   results.m_collided = 0;
   results.m_collideEdgeIndex = -1;
   results.m_generatePath = 0;
   bfx::PolylinePathRCPtr::PolylinePathRCPtr(&results.m_path);
-  __asm { vmovaps xmm3, xmm10; dist }
-  bfx::NavProbe(&pSpace->hSpace, &iStartPos, &dir, *(float *)&_XMM3, layer, pathSpec, &probeSpec, &results);
+  bfx::NavProbe(&pSpace->hSpace, &iStartPos, &dir, *(float *)&v13, layer, pathSpec, &probeSpec, &results);
   if ( pOutResults )
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+160h+var_108.m_endPos.m_x]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, [rsp+160h+var_108.m_endPos.m_y]
-      vmovss  dword ptr [rbx+4], xmm1
-      vmovss  xmm0, [rsp+160h+var_108.m_endPos.m_z]
-      vmovss  dword ptr [rbx+8], xmm0
-    }
+    pOutResults->m_EndPos.v[0] = results.m_endPos.m_x;
+    pOutResults->m_EndPos.v[1] = results.m_endPos.m_y;
+    pOutResults->m_EndPos.v[2] = results.m_endPos.m_z;
     pOutResults->m_bCollided = results.m_collided;
-    __asm
-    {
-      vmovss  xmm0, [rsp+160h+var_108.m_distTravelled]
-      vmovss  dword ptr [rbx+30h], xmm0
-    }
+    pOutResults->m_DistTraveled = results.m_distTravelled;
     bfx::AreaHandle::operator=(&pOutResults->m_hEndArea, &results.m_endArea);
     if ( results.m_collided )
     {
-      _RAX = bfx::AreaHandle::GetEdgeStartPos(&results.m_endArea, &result, results.m_collideEdgeIndex);
-      __asm { vmovsd  xmm7, qword ptr [rax] }
-      m_z = _RAX->m_z;
-      _RAX = bfx::AreaHandle::GetEdgeEndPos(&results.m_endArea, &result, results.m_collideEdgeIndex);
-      __asm { vmovsd  xmm6, qword ptr [rax] }
-      v72 = _RAX->m_z;
-      _RAX = bfx::AreaHandle::GetNormal(&results.m_endArea, &result);
-      __asm { vmovsd  xmm1, qword ptr [rax] }
-      result.m_z = _RAX->m_z;
-      __asm
-      {
-        vmovss  dword ptr [rbx+0Ch], xmm7
-        vshufps xmm0, xmm7, xmm7, 55h ; 'U'
-        vmovss  dword ptr [rbx+10h], xmm0
-        vmovss  xmm0, [rbp+60h+var_A8]
-        vmovss  dword ptr [rbx+14h], xmm0
-        vmovss  dword ptr [rbx+18h], xmm6
-        vshufps xmm0, xmm6, xmm6, 55h ; 'U'
-        vmovss  dword ptr [rbx+1Ch], xmm0
-        vmovss  xmm0, [rbp+60h+var_98]
-        vmovss  dword ptr [rbx+20h], xmm0
-        vmovss  dword ptr [rbx+24h], xmm1
-        vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-        vmovss  dword ptr [rbx+28h], xmm0
-        vmovss  xmm0, [rsp+160h+result.m_z]
-        vmovss  dword ptr [rbx+2Ch], xmm0
-      }
+      EdgeStartPos = bfx::AreaHandle::GetEdgeStartPos(&results.m_endArea, &result, results.m_collideEdgeIndex);
+      v20 = (__m128)*(unsigned __int64 *)&EdgeStartPos->m_x;
+      m_z = EdgeStartPos->m_z;
+      EdgeEndPos = bfx::AreaHandle::GetEdgeEndPos(&results.m_endArea, &result, results.m_collideEdgeIndex);
+      v22 = (__m128)*(unsigned __int64 *)&EdgeEndPos->m_x;
+      v34 = EdgeEndPos->m_z;
+      Normal = bfx::AreaHandle::GetNormal(&results.m_endArea, &result);
+      v24 = (__m128)*(unsigned __int64 *)&Normal->m_x;
+      result.m_z = Normal->m_z;
+      pOutResults->m_edgeStartPos.v[0] = v20.m128_f32[0];
+      pOutResults->m_edgeStartPos.v[1] = _mm_shuffle_ps(v20, v20, 85).m128_f32[0];
+      pOutResults->m_edgeStartPos.v[2] = m_z;
+      pOutResults->m_edgeEndPos.v[0] = v22.m128_f32[0];
+      pOutResults->m_edgeEndPos.v[1] = _mm_shuffle_ps(v22, v22, 85).m128_f32[0];
+      pOutResults->m_edgeEndPos.v[2] = v34;
+      pOutResults->m_areaNormal.v[0] = v24.m128_f32[0];
+      pOutResults->m_areaNormal.v[1] = _mm_shuffle_ps(v24, v24, 85).m128_f32[0];
+      pOutResults->m_areaNormal.v[2] = result.m_z;
     }
   }
   Sys_ProfEndNamedEvent();
   m_collided = results.m_collided;
   bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&results.m_path);
   bfx::AreaHandle::~AreaHandle(&results.m_endArea);
-  v58 = m_collided;
-  _R11 = &v74;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return v58;
+  return m_collided;
 }
 

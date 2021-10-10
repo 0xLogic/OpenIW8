@@ -192,107 +192,78 @@ RT_DrawDecalSetup
 */
 void RT_DrawDecalSetup(const GfxTaskInfo *taskInfo, GfxViewInfo *viewInfo)
 {
+  __int16 v2; 
   R_RT_Image *blackImage3D; 
   R_RT_Image *whiteImage3D; 
   R_RT_Image *whiteImage; 
   R_RT_Image *defaultWaveWaterFloatZImage; 
   R_RT_Image *p_m_image; 
-  R_RT_Handle v20; 
+  R_RT_Handle v10; 
 
-  _RAX = taskInfo->attachments;
   blackImage3D = (R_RT_Image *)rgp.blackImage3D;
-  __asm
+  v10 = taskInfo->attachments[7];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+0E0h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+68h+var_38.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v10);
+    blackImage3D = &R_RT_Handle::GetSurface(&v10)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v20);
-    blackImage3D = &R_RT_Handle::GetSurface(&v20)->m_image;
-  }
-  else if ( v20.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v20.m_surfaceID) )
+  else if ( v10.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v10.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   viewInfo->input.codePersistentImages[25] = &blackImage3D->m_base;
-  _RAX = taskInfo->attachments;
   whiteImage3D = (R_RT_Image *)rgp.whiteImage3D;
-  __asm
+  v10 = taskInfo->attachments[8];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+100h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+68h+var_38.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v10);
+    whiteImage3D = &R_RT_Handle::GetSurface(&v10)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v20);
-    whiteImage3D = &R_RT_Handle::GetSurface(&v20)->m_image;
-  }
-  else if ( v20.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v20.m_surfaceID) )
+  else if ( v10.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v10.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   viewInfo->input.codePersistentImages[26] = &whiteImage3D->m_base;
-  _RAX = taskInfo->attachments;
   whiteImage = (R_RT_Image *)rgp.whiteImage;
-  __asm
+  v10 = taskInfo->attachments[9];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+120h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+68h+var_38.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v10);
+    whiteImage = &R_RT_Handle::GetSurface(&v10)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v20);
-    whiteImage = &R_RT_Handle::GetSurface(&v20)->m_image;
-  }
-  else if ( v20.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v20.m_surfaceID) )
+  else if ( v10.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v10.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   viewInfo->input.codePersistentImages[27] = &whiteImage->m_base;
-  _RAX = taskInfo->attachments;
   defaultWaveWaterFloatZImage = (R_RT_Image *)rgp.defaultWaveWaterFloatZImage;
-  __asm
+  v10 = taskInfo->attachments[21];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+2A0h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+68h+var_38.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v10);
+    defaultWaveWaterFloatZImage = &R_RT_Handle::GetSurface(&v10)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v20);
-    defaultWaveWaterFloatZImage = &R_RT_Handle::GetSurface(&v20)->m_image;
-  }
-  else if ( v20.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v20.m_surfaceID) )
+  else if ( v10.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v10.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( viewInfo == (GfxViewInfo *)-3760i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   viewInfo->input.codePersistentImages[15] = &defaultWaveWaterFloatZImage->m_base;
-  _RAX = taskInfo->attachments;
   p_m_image = (R_RT_Image *)rgp.defaultWaveWaterFloatZImage;
-  __asm
+  v10 = taskInfo->attachments[21];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+2A0h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+68h+var_38.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v10);
+    p_m_image = &R_RT_Handle::GetSurface(&v10)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v20);
-    p_m_image = &R_RT_Handle::GetSurface(&v20)->m_image;
-  }
-  else if ( v20.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v20.m_surfaceID) )
+  else if ( v10.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v10.m_surfaceID) )
   {
     __debugbreak();
   }
@@ -309,334 +280,238 @@ RT_DrawOpaqueSetup
 */
 void RT_DrawOpaqueSetup(const GfxTaskInfo *taskInfo, GfxViewInfo *viewInfo)
 {
+  __int16 v2; 
   GfxCmdBufInput *p_input; 
   R_RT_Image *blackImage3D; 
   R_RT_Image *p_m_image; 
   R_RT_Image *blackImage; 
   R_RT_Image *whiteImage; 
-  R_RT_Image *v29; 
-  bool v31; 
+  R_RT_Image *v10; 
+  bool v11; 
   R_RT_Image *blackShadowImage; 
-  bool v35; 
+  bool v13; 
   R_RT_Image *whiteUintImage; 
-  R_RT_Image *v40; 
-  R_RT_Image *v43; 
-  R_RT_Image *v46; 
-  GfxImage *v48; 
+  R_RT_Image *v15; 
+  R_RT_Image *v16; 
+  R_RT_Image *v17; 
+  GfxImage *v18; 
   GfxWrappedBuffer *p_dummyDataBufferR32UINT; 
   const R_RT_Surface *Surface; 
   GfxWrappedBuffer *p_dummyStructuredBuffer8; 
-  const R_RT_Surface *v56; 
-  __int64 v57; 
-  __int64 v58; 
+  const R_RT_Surface *v22; 
+  __int64 v23; 
+  __int64 v24; 
   unsigned int taskFlags; 
-  const R_TG_DrawList *v60; 
-  R_RT_Handle v61; 
+  const R_TG_DrawList *v26; 
+  R_RT_Handle v27; 
 
-  _RAX = taskInfo->attachments;
   p_input = &viewInfo->input;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
-  }
-  R_SetInputCodePersistentBuffer(&viewInfo->input, 0xAu, &v61);
-  _RAX = taskInfo->attachments;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
-  }
-  R_SetInputCodePersistentBuffer(p_input, 0xBu, &v61);
-  _RAX = taskInfo->attachments;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
-  }
-  R_SetInputCodePersistentBuffer(p_input, 6u, &v61);
-  _RAX = taskInfo->attachments;
+  v27 = *taskInfo->attachments;
+  R_SetInputCodePersistentBuffer(&viewInfo->input, 0xAu, &v27);
+  v27 = taskInfo->attachments[1];
+  R_SetInputCodePersistentBuffer(p_input, 0xBu, &v27);
+  v27 = taskInfo->attachments[2];
+  R_SetInputCodePersistentBuffer(p_input, 6u, &v27);
   blackImage3D = (R_RT_Image *)rgp.blackImage3D;
-  __asm
+  v27 = taskInfo->attachments[3];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v27);
+    blackImage3D = &R_RT_Handle::GetSurface(&v27)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    blackImage3D = &R_RT_Handle::GetSurface(&v61)->m_image;
-  }
-  else if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+  else if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v27.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codePersistentImages[21] = &blackImage3D->m_base;
-  _RAX = taskInfo->attachments;
   p_m_image = (R_RT_Image *)rgp.blackImage3D;
-  __asm
+  v27 = taskInfo->attachments[4];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+80h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v27);
+    p_m_image = &R_RT_Handle::GetSurface(&v27)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    p_m_image = &R_RT_Handle::GetSurface(&v61)->m_image;
-  }
-  else if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+  else if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v27.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codePersistentImages[22] = &p_m_image->m_base;
-  _RAX = taskInfo->attachments;
   blackImage = (R_RT_Image *)rgp.blackImage;
-  __asm
+  v27 = taskInfo->attachments[5];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+0A0h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v27);
+    blackImage = &R_RT_Handle::GetSurface(&v27)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    blackImage = &R_RT_Handle::GetSurface(&v61)->m_image;
-  }
-  else if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+  else if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v27.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codeImages[0] = &blackImage->m_base;
-  _RAX = taskInfo->attachments;
   whiteImage = (R_RT_Image *)rgp.whiteImage;
-  __asm
+  v27 = taskInfo->attachments[6];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+0C0h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v27);
+    whiteImage = &R_RT_Handle::GetSurface(&v27)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    whiteImage = &R_RT_Handle::GetSurface(&v61)->m_image;
-  }
-  else if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+  else if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v27.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codePersistentImages[10] = &whiteImage->m_base;
-  _RAX = taskInfo->attachments;
-  __asm
+  v27 = taskInfo->attachments[10];
+  R_SetInputCodePersistentBuffer(p_input, 0x11u, &v27);
+  v27 = taskInfo->attachments[11];
+  R_SetInputCodePersistentBuffer(p_input, 0x10u, &v27);
+  v10 = (R_RT_Image *)rgp.whiteImage;
+  v11 = (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 4) != 0;
+  v27 = taskInfo->attachments[12];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+140h]
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v27);
+    if ( v11 )
+      v10 = &R_RT_Handle::GetSurface(&v27)->m_image;
   }
-  R_SetInputCodePersistentBuffer(p_input, 0x11u, &v61);
-  _RAX = taskInfo->attachments;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+160h]
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
-  }
-  R_SetInputCodePersistentBuffer(p_input, 0x10u, &v61);
-  _RAX = taskInfo->attachments;
-  v29 = (R_RT_Image *)rgp.whiteImage;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+180h]
-    vmovd   eax, xmm0
-  }
-  v31 = (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 4) != 0;
-  __asm { vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0 }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    if ( v31 )
-      v29 = &R_RT_Handle::GetSurface(&v61)->m_image;
-  }
-  else if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+  else if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v27.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[0] = &v29->m_base;
-  _RAX = taskInfo->attachments;
+  p_input->codePersistentImages[0] = &v10->m_base;
   blackShadowImage = (R_RT_Image *)rgp.blackShadowImage;
-  __asm
+  v13 = (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 2) != 0;
+  v27 = taskInfo->attachments[13];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+1A0h]
-    vmovd   eax, xmm0
+    R_RT_Handle::GetSurface(&v27);
+    if ( v13 )
+      blackShadowImage = &R_RT_Handle::GetSurface(&v27)->m_image;
   }
-  v35 = (*((_DWORD *)&viewInfo->viewportFeatures + 11) & 2) != 0;
-  __asm { vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0 }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    if ( v35 )
-      blackShadowImage = &R_RT_Handle::GetSurface(&v61)->m_image;
-  }
-  else if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+  else if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v27.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codePersistentImages[8] = &blackShadowImage->m_base;
-  _RAX = taskInfo->attachments;
   whiteUintImage = (R_RT_Image *)rgp.whiteUintImage;
-  __asm
+  v27 = taskInfo->attachments[14];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+1C0h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v27);
+    whiteUintImage = &R_RT_Handle::GetSurface(&v27)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    whiteUintImage = &R_RT_Handle::GetSurface(&v61)->m_image;
-  }
-  else if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+  else if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v27.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codePersistentImages[9] = &whiteUintImage->m_base;
-  _RAX = taskInfo->attachments;
-  v40 = (R_RT_Image *)rgp.blackImage;
-  __asm
+  v15 = (R_RT_Image *)rgp.blackImage;
+  v27 = taskInfo->attachments[15];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+1E0h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v27);
+    v15 = &R_RT_Handle::GetSurface(&v27)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    v40 = &R_RT_Handle::GetSurface(&v61)->m_image;
-  }
-  else if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+  else if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v27.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codeImages[7] = &v40->m_base;
-  _RAX = taskInfo->attachments;
-  v43 = (R_RT_Image *)rgp.blackImage;
-  __asm
+  p_input->codeImages[7] = &v15->m_base;
+  v16 = (R_RT_Image *)rgp.blackImage;
+  v27 = taskInfo->attachments[16];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+200h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v27);
+    v16 = &R_RT_Handle::GetSurface(&v27)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    v43 = &R_RT_Handle::GetSurface(&v61)->m_image;
-  }
-  else if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+  else if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v27.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[11] = &v43->m_base;
-  _RAX = taskInfo->attachments;
-  v46 = (R_RT_Image *)rgp.blackImage;
-  __asm
+  p_input->codePersistentImages[11] = &v16->m_base;
+  v17 = (R_RT_Image *)rgp.blackImage;
+  v27 = taskInfo->attachments[19];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+260h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
+    R_RT_Handle::GetSurface(&v27);
+    v17 = &R_RT_Handle::GetSurface(&v27)->m_image;
   }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    v46 = &R_RT_Handle::GetSurface(&v61)->m_image;
-  }
-  else if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+  else if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v27.m_surfaceID) )
   {
     __debugbreak();
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codeImages[80] = &v46->m_base;
-  v48 = rgp.blackImage;
+  p_input->codeImages[80] = &v17->m_base;
+  v18 = rgp.blackImage;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1482, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  p_input->codePersistentImages[12] = v48;
-  _RAX = taskInfo->attachments;
-  __asm
+  p_input->codePersistentImages[12] = v18;
+  v27 = taskInfo->attachments[20];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+280h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    Surface = R_RT_Handle::GetSurface(&v61);
-    if ( (Surface->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer", *(_QWORD *)&v61.m_surfaceID) )
+    R_RT_Handle::GetSurface(&v27);
+    Surface = R_RT_Handle::GetSurface(&v27);
+    if ( (Surface->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer", *(_QWORD *)&v27.m_surfaceID) )
       __debugbreak();
     p_dummyDataBufferR32UINT = (GfxWrappedBuffer *)&Surface->1080;
   }
   else
   {
-    if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+    if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v27.m_surfaceID) )
       __debugbreak();
     p_dummyDataBufferR32UINT = &gfxBuf.dummyDataBufferR32UINT;
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1503, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codePersistentBuffers[14] = p_dummyDataBufferR32UINT;
-  _RAX = taskInfo->attachments;
-  __asm
+  v27 = taskInfo->attachments[21];
+  if ( v2 )
   {
-    vmovups ymm0, ymmword ptr [rax+2A0h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rbp+var_20.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v61);
-    v56 = R_RT_Handle::GetSurface(&v61);
-    if ( (v56->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer", *(_QWORD *)&v61.m_surfaceID) )
+    R_RT_Handle::GetSurface(&v27);
+    v22 = R_RT_Handle::GetSurface(&v27);
+    if ( (v22->m_rtFlagsInternal & 8) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 283, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Buffer", *(_QWORD *)&v27.m_surfaceID) )
       __debugbreak();
-    p_dummyStructuredBuffer8 = (GfxWrappedBuffer *)&v56->1080;
+    p_dummyStructuredBuffer8 = (GfxWrappedBuffer *)&v22->1080;
   }
   else
   {
-    if ( v61.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v61.m_surfaceID) )
+    if ( v27.m_tracking.m_allocCounter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v27.m_surfaceID) )
       __debugbreak();
     p_dummyStructuredBuffer8 = &gfxBuf.dummyStructuredBuffer8;
   }
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1494, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codeBuffers[43] = p_dummyStructuredBuffer8;
-  v57 = 0i64;
-  v58 = 13i64;
+  v23 = 0i64;
+  v24 = 13i64;
   taskFlags = taskInfo->pGraphInfo->taskFlags;
   do
   {
-    v60 = &g_R_TG_opaqueGroups[0].drawLists[v57];
-    if ( (taskFlags & g_R_TG_opaqueGroups[0].drawLists[v57].enableFlags) == g_R_TG_opaqueGroups[0].drawLists[v57].enableFlags && (taskFlags & v60->disableFlags) == 0 )
-      R_AddDrawCall(viewInfo, &taskInfo->rtGroup, v60->type, 0x5Du);
-    ++v57;
-    --v58;
+    v26 = &g_R_TG_opaqueGroups[0].drawLists[v23];
+    if ( (taskFlags & g_R_TG_opaqueGroups[0].drawLists[v23].enableFlags) == g_R_TG_opaqueGroups[0].drawLists[v23].enableFlags && (taskFlags & v26->disableFlags) == 0 )
+      R_AddDrawCall(viewInfo, &taskInfo->rtGroup, v26->type, 0x5Du);
+    ++v23;
+    --v24;
   }
-  while ( v58 );
+  while ( v24 );
 }
 
 /*

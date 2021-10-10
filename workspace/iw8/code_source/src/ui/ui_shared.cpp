@@ -1158,14 +1158,7 @@ UI_DrawWrappedTextSubtitled
 */
 void UI_DrawWrappedTextSubtitled(const ScreenPlacement *scrPlace, const char *text, const rectDef_s *rect, GfxFont *font, float scale, const vec4_t *color, int style, int textAlignMode, const vec4_t *subtitleGlowColor)
 {
-  float v10; 
-
-  __asm
-  {
-    vmovss  xmm0, [rsp+88h+scale]
-    vmovss  [rsp+88h+var_68], xmm0
-  }
-  DrawWrappedText(scrPlace, text, rect, font, v10, color, style, textAlignMode, 1, subtitleGlowColor, NULL, NULL, 0, 0, 0, 0);
+  DrawWrappedText(scrPlace, text, rect, font, scale, color, style, textAlignMode, 1, subtitleGlowColor, NULL, NULL, 0, 0, 0, 0);
 }
 
 /*
@@ -1370,13 +1363,13 @@ __int64 UI_GetDefaultKeyLocalizedString(LocalClientNum_t localClientNum, InputCo
 UI_GetFontHandle
 ==============
 */
-
-GfxFont *__fastcall UI_GetFontHandle(const ScreenPlacement *scrPlace, int fontEnum, double scale)
+GfxFont *UI_GetFontHandle(const ScreenPlacement *scrPlace, int fontEnum, float scale)
 {
+  GfxFont *textFont; 
   GfxFont *result; 
-  bool v4; 
-  bool v5; 
+  float v5; 
 
+  textFont = sharedUiInfo.assets.textFont;
   switch ( fontEnum )
   {
     case 2:
@@ -1406,34 +1399,21 @@ GfxFont *__fastcall UI_GetFontHandle(const ScreenPlacement *scrPlace, int fontEn
     case 10:
       result = sharedUiInfo.assets.hudSmallFont;
       goto LABEL_21;
-  }
-  v4 = (unsigned int)fontEnum < 0xB;
-  v5 = (unsigned int)fontEnum <= 0xB;
-  if ( fontEnum == 11 )
-  {
-    result = sharedUiInfo.assets.bigNotoFont;
+    case 11:
+      result = sharedUiInfo.assets.bigNotoFont;
 LABEL_21:
-    v4 = 0;
-    v5 = result == NULL;
-    if ( result )
-      return result;
+      if ( result )
+        return result;
+      break;
   }
-  _RAX = ui_smallFont;
-  __asm
-  {
-    vmulss  xmm1, xmm2, cs:?cg_hudSplitscreenScale@@3MA; float cg_hudSplitscreenScale
-    vmulss  xmm2, xmm1, cs:__real@3fc00000
-    vcomiss xmm2, dword ptr [rax+28h]
-  }
-  if ( v5 )
+  v5 = (float)(scale * cg_hudSplitscreenScale) * 1.5;
+  if ( v5 <= ui_smallFont->current.value )
     return sharedUiInfo.assets.smallFont;
-  _RCX = ui_extraBigFont;
-  __asm { vcomiss xmm2, dword ptr [rcx+28h] }
-  if ( !v4 )
+  if ( v5 >= ui_extraBigFont->current.value )
     return sharedUiInfo.assets.extraBigFont;
-  _RCX = ui_bigFont;
-  __asm { vcomiss xmm2, dword ptr [rcx+28h] }
-  return sharedUiInfo.assets.textFont;
+  if ( v5 >= ui_bigFont->current.value )
+    return sharedUiInfo.assets.bigFont;
+  return textFont;
 }
 
 /*
@@ -1598,32 +1578,35 @@ UI_GetSubtitleData
 */
 void UI_GetSubtitleData(LocalClientNum_t localClientNum, const StringTable *table, char *outText, unsigned __int64 outTextSize, int *outVerticalOffset)
 {
-  unsigned __int64 v7; 
-  LocalClientNum_t v10; 
-  __int64 v11; 
+  __int128 v5; 
+  unsigned __int64 v6; 
+  LocalClientNum_t v9; 
+  __int64 v10; 
+  int v11; 
   int v12; 
   int v13; 
   int v14; 
-  int v15; 
   const char *ColumnValueForRow; 
-  char *v17; 
-  signed __int64 v18; 
-  unsigned __int8 v19; 
+  char *v16; 
+  signed __int64 v17; 
+  unsigned __int8 v18; 
+  int v19; 
   int v20; 
-  int v21; 
-  const char *v22; 
-  int v23; 
-  char *v24; 
-  const char *v26; 
-  char *v27; 
-  signed __int64 v28; 
-  unsigned __int8 v29; 
-  int v30; 
+  const char *v21; 
+  int v22; 
+  char *v23; 
+  const char *v24; 
+  char *v25; 
+  signed __int64 v26; 
+  unsigned __int8 v27; 
+  int v28; 
+  bool v29; 
+  const char *v30; 
   bool v31; 
   const char *v32; 
-  bool v33; 
-  const char *v34; 
-  const char *v37; 
+  __int128 v34; 
+  const char *v36; 
+  __int128 v38; 
   const char *v40; 
   int v41; 
   unsigned int v42; 
@@ -1633,214 +1616,202 @@ void UI_GetSubtitleData(LocalClientNum_t localClientNum, const StringTable *tabl
   __int64 v46; 
   __int64 v47; 
   char *fmt; 
-  __int64 v50; 
+  __int64 v49; 
   unsigned int outTimeInMsec; 
-  LocalClientNum_t v52; 
+  LocalClientNum_t v51; 
   unsigned __int64 destsize; 
-  unsigned __int64 v54; 
-  __int64 v55; 
-  int *v56; 
+  unsigned __int64 v53; 
+  __int64 v54; 
+  int *v55; 
   char outName[64]; 
 
-  v7 = outTextSize;
-  v56 = outVerticalOffset;
+  v6 = outTextSize;
+  v55 = outVerticalOffset;
   destsize = outTextSize;
-  v52 = localClientNum;
-  v10 = localClientNum;
+  v51 = localClientNum;
+  v9 = localClientNum;
   if ( !outTextSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_shared.cpp", 753, ASSERT_TYPE_ASSERT, "(outTextSize >= 1)", (const char *)&queryFormat, "outTextSize >= 1") )
     __debugbreak();
   *outText = 0;
   if ( !loc_language && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_shared.cpp", 757, ASSERT_TYPE_ASSERT, "(loc_language)", (const char *)&queryFormat, "loc_language") )
     __debugbreak();
-  if ( table && R_Cinematic_GetFilenameAndTimeInMsec(outName, 0x40ui64, &outTimeInMsec) && outTimeInMsec )
+  if ( !table || !R_Cinematic_GetFilenameAndTimeInMsec(outName, 0x40ui64, &outTimeInMsec) || !outTimeInMsec )
+    return;
+  if ( ui_cinematicsTimestamp->current.enabled )
   {
-    if ( ui_cinematicsTimestamp->current.enabled )
+    LODWORD(fmt) = outTimeInMsec % 0x3E8 / 0x64;
+    Com_sprintf(outText, v6, "%i.%01is ", outTimeInMsec / 0x3E8, fmt);
+    v10 = -1i64;
+    do
+      ++v10;
+    while ( outText[v10] );
+    outText += v10;
+    v6 -= v10;
+    destsize = v6;
+  }
+  if ( s_PrevRowUsed >= 0 && s_PrevRowUsed < table->rowCount && !strcmp(outName, StringTable_GetColumnValueForRow(table, s_PrevRowUsed, 0)) )
+  {
+    v11 = s_PrevRowUsed;
+    v12 = s_LastKnownGoodRow;
+    goto LABEL_40;
+  }
+  v13 = 0;
+  v14 = table->rowCount - 1;
+  if ( v14 >= 0 )
+  {
+    do
     {
-      LODWORD(fmt) = outTimeInMsec % 0x3E8 / 0x64;
-      Com_sprintf(outText, v7, "%i.%01is ", outTimeInMsec / 0x3E8, fmt);
-      v11 = -1i64;
-      do
-        ++v11;
-      while ( outText[v11] );
-      outText += v11;
-      v7 -= v11;
-      destsize = v7;
-    }
-    if ( s_PrevRowUsed >= 0 && s_PrevRowUsed < table->rowCount && !strcmp(outName, StringTable_GetColumnValueForRow(table, s_PrevRowUsed, 0)) )
-    {
-      v12 = s_PrevRowUsed;
-      v13 = s_LastKnownGoodRow;
-    }
-    else
-    {
-      v14 = 0;
-      v15 = table->rowCount - 1;
-      if ( v15 < 0 )
-        return;
-      do
+      v11 = (v14 + v13) >> 1;
+      ColumnValueForRow = StringTable_GetColumnValueForRow(table, v11, 0);
+      if ( (*ColumnValueForRow & 0xDF) == 0 )
       {
-        v12 = (v15 + v14) >> 1;
-        ColumnValueForRow = StringTable_GetColumnValueForRow(table, v12, 0);
-        if ( (*ColumnValueForRow & 0xDF) == 0 )
+        LODWORD(v49) = *ColumnValueForRow;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_shared.cpp", 793, ASSERT_TYPE_ASSERT, "( ( rowCinematic[ 0 ] && rowCinematic[ 0 ] != ' ' ) )", "( rowCinematic[ 0 ] ) = %i", v49) )
+          __debugbreak();
+      }
+      v16 = outName;
+      v17 = ColumnValueForRow - outName;
+      while ( 1 )
+      {
+        v18 = *v16;
+        if ( *v16 != v16[v17] )
+          break;
+        ++v16;
+        if ( !v18 )
         {
-          LODWORD(v50) = *ColumnValueForRow;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_shared.cpp", 793, ASSERT_TYPE_ASSERT, "( ( rowCinematic[ 0 ] && rowCinematic[ 0 ] != ' ' ) )", "( rowCinematic[ 0 ] ) = %i", v50) )
-            __debugbreak();
-        }
-        v17 = outName;
-        v18 = ColumnValueForRow - outName;
-        while ( 1 )
-        {
-          v19 = *v17;
-          if ( *v17 != v17[v18] )
-            break;
-          ++v17;
-          if ( !v19 )
-          {
-            v20 = 0;
-            goto LABEL_27;
-          }
-        }
-        v20 = v19 < (unsigned __int8)v17[v18] ? -1 : 1;
-LABEL_27:
-        if ( v20 >= 0 )
-        {
-          if ( v20 <= 0 )
-            break;
-          v14 = v12 + 1;
-        }
-        else
-        {
-          v15 = v12 - 1;
+          v19 = 0;
+          goto LABEL_27;
         }
       }
-      while ( v14 <= v15 );
-      if ( v20 )
-        return;
-      if ( v12 > 0 )
+      v19 = v18 < (unsigned __int8)v16[v17] ? -1 : 1;
+LABEL_27:
+      if ( v19 >= 0 )
+      {
+        if ( v19 <= 0 )
+          break;
+        v13 = v11 + 1;
+      }
+      else
+      {
+        v14 = v11 - 1;
+      }
+    }
+    while ( v13 <= v14 );
+    if ( !v19 )
+    {
+      if ( v11 > 0 )
       {
         do
         {
-          v21 = v12 - 1;
-          v22 = StringTable_GetColumnValueForRow(table, v12 - 1, 0);
-          if ( (*v22 & 0xDF) == 0 )
+          v20 = v11 - 1;
+          v21 = StringTable_GetColumnValueForRow(table, v11 - 1, 0);
+          if ( (*v21 & 0xDF) == 0 )
           {
-            LODWORD(v50) = *v22;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_shared.cpp", 819, ASSERT_TYPE_ASSERT, "( ( rowCinematic[ 0 ] && rowCinematic[ 0 ] != ' ' ) )", "( rowCinematic[ 0 ] ) = %i", v50) )
+            LODWORD(v49) = *v21;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_shared.cpp", 819, ASSERT_TYPE_ASSERT, "( ( rowCinematic[ 0 ] && rowCinematic[ 0 ] != ' ' ) )", "( rowCinematic[ 0 ] ) = %i", v49) )
               __debugbreak();
           }
-          if ( strcmp(outName, v22) )
+          if ( strcmp(outName, v21) )
             break;
-          --v12;
+          --v11;
         }
-        while ( v21 > 0 );
+        while ( v20 > 0 );
       }
-      v7 = destsize;
-      v13 = v12;
-      s_LastKnownGoodRow = v12;
-      s_PrevRowUsed = v12;
-    }
-    v23 = -1;
-    v55 = 0i64;
-    v24 = outText;
-    v54 = v7;
-    if ( v12 >= table->rowCount )
-      return;
-    __asm
-    {
-      vmovaps [rsp+108h+var_58], xmm6
-      vmovsd  xmm6, cs:__real@408f400000000000
-    }
-    while ( 1 )
-    {
-      if ( v13 < 0 || v12 > v13 )
+      v6 = destsize;
+      v12 = v11;
+      s_LastKnownGoodRow = v11;
+      s_PrevRowUsed = v11;
+LABEL_40:
+      v22 = -1;
+      v54 = 0i64;
+      v23 = outText;
+      v53 = v6;
+      if ( v11 < table->rowCount )
       {
-        v26 = StringTable_GetColumnValueForRow(table, v12, 0);
-        v27 = outName;
-        v28 = v26 - outName;
         while ( 1 )
         {
-          v29 = *v27;
-          if ( *v27 != v27[v28] )
-            break;
-          ++v27;
-          if ( !v29 )
+          if ( v12 < 0 || v11 > v12 )
           {
-            v30 = 0;
-            goto LABEL_49;
-          }
-        }
-        v30 = v29 < (unsigned __int8)v27[v28] ? -1 : 1;
-LABEL_49:
-        if ( v30 )
-        {
-LABEL_72:
-          __asm { vmovaps xmm6, [rsp+108h+var_58] }
-          return;
-        }
-        s_LastKnownGoodRow = v12;
-      }
-      v31 = (unsigned int)SEH_GetCurrentLanguage() <= 1;
-      v32 = StringTable_GetColumnValueForRow(table, v12, 5);
-      v33 = atoi(v32) && !v31;
-      if ( CL_SubtitlesEnabled(v10) || v33 )
-      {
-        v34 = StringTable_GetColumnValueForRow(table, v12, 1);
-        *(double *)&_XMM0 = atof(v34);
-        __asm
-        {
-          vmulsd  xmm1, xmm0, xmm6
-          vcvttsd2si rsi, xmm1
-        }
-        if ( outTimeInMsec < (unsigned int)_RSI )
-          goto LABEL_72;
-        v37 = StringTable_GetColumnValueForRow(table, v12, 2);
-        *(double *)&_XMM0 = atof(v37);
-        __asm
-        {
-          vmulsd  xmm1, xmm0, xmm6
-          vcvttsd2si rbx, xmm1
-        }
-        v40 = StringTable_GetColumnValueForRow(table, v12, 4);
-        v41 = atoi(v40);
-        v42 = _RSI + 3000;
-        *v56 = v41;
-        if ( (unsigned int)(_RBX - _RSI) >= 0xBB8 )
-          v42 = _RBX;
-        if ( outTimeInMsec < v42 )
-        {
-          if ( v23 >= 0 )
-          {
-            if ( v23 >= (unsigned int)_RSI && (unsigned int)(v23 - _RSI) < 0x46 )
+            v24 = StringTable_GetColumnValueForRow(table, v11, 0);
+            v25 = outName;
+            v26 = v24 - outName;
+            while ( 1 )
             {
-              outText = v24;
-              destsize = v54;
+              v27 = *v25;
+              if ( *v25 != v25[v26] )
+                break;
+              ++v25;
+              if ( !v27 )
+              {
+                v28 = 0;
+                goto LABEL_48;
+              }
             }
-            v24[v55] = 10;
+            v28 = v27 < (unsigned __int8)v25[v26] ? -1 : 1;
+LABEL_48:
+            if ( v28 )
+              return;
+            s_LastKnownGoodRow = v11;
           }
-          v43 = StringTable_GetColumnValueForRow(table, v12, 3);
-          v44 = destsize;
-          v45 = v43;
-          Core_strcpy(outText, destsize, v43);
-          v46 = -1i64;
-          do
-            ++v46;
-          while ( v45[v46] );
-          v47 = v46 + 1;
-          v54 = v44;
-          v24 = outText;
-          v23 = v42;
-          outText += v47;
-          destsize = v44 - v47;
-          v55 = v47 - 1;
-          if ( v44 == v47 )
-            goto LABEL_72;
+          v29 = (unsigned int)SEH_GetCurrentLanguage() <= 1;
+          v30 = StringTable_GetColumnValueForRow(table, v11, 5);
+          v31 = atoi(v30) && !v29;
+          if ( CL_SubtitlesEnabled(v9) || v31 )
+          {
+            v32 = StringTable_GetColumnValueForRow(table, v11, 1);
+            *((_QWORD *)&v34 + 1) = *((_QWORD *)&v5 + 1);
+            *(double *)&v34 = atof(v32) * 1000.0;
+            _XMM1 = v34;
+            __asm { vcvttsd2si rsi, xmm1 }
+            if ( outTimeInMsec < (unsigned int)_RSI )
+              return;
+            v36 = StringTable_GetColumnValueForRow(table, v11, 2);
+            *((_QWORD *)&v38 + 1) = *((_QWORD *)&v5 + 1);
+            *(double *)&v38 = atof(v36) * 1000.0;
+            _XMM1 = v38;
+            __asm { vcvttsd2si rbx, xmm1 }
+            v40 = StringTable_GetColumnValueForRow(table, v11, 4);
+            v41 = atoi(v40);
+            v42 = _RSI + 3000;
+            *v55 = v41;
+            if ( (unsigned int)(_RBX - _RSI) >= 0xBB8 )
+              v42 = _RBX;
+            if ( outTimeInMsec < v42 )
+            {
+              if ( v22 >= 0 )
+              {
+                if ( v22 >= (unsigned int)_RSI && (unsigned int)(v22 - _RSI) < 0x46 )
+                {
+                  outText = v23;
+                  destsize = v53;
+                }
+                v23[v54] = 10;
+              }
+              v43 = StringTable_GetColumnValueForRow(table, v11, 3);
+              v44 = destsize;
+              v45 = v43;
+              Core_strcpy(outText, destsize, v43);
+              v46 = -1i64;
+              do
+                ++v46;
+              while ( v45[v46] );
+              v47 = v46 + 1;
+              v53 = v44;
+              v23 = outText;
+              v22 = v42;
+              outText += v47;
+              destsize = v44 - v47;
+              v54 = v47 - 1;
+              if ( v44 == v47 )
+                return;
+            }
+            v9 = v51;
+          }
+          if ( ++v11 >= table->rowCount )
+            return;
+          v12 = s_LastKnownGoodRow;
         }
-        v10 = v52;
       }
-      if ( ++v12 >= table->rowCount )
-        goto LABEL_72;
-      v13 = s_LastKnownGoodRow;
     }
   }
 }
@@ -2839,187 +2810,120 @@ _DrawWrappedText
 void DrawWrappedText(const ScreenPlacement *scrPlace, const char *text, const rectDef_s *rect, GfxFont *font, float scale, const vec4_t *color, int style, int textAlignMode)
 {
   signed __int64 v8; 
-  void *v16; 
-  int v20; 
-  const rectDef_s *v22; 
-  const FontGlowStyle *glowStyle; 
-  bool v27; 
-  int v28; 
-  int MinHeightForDistanceField; 
-  int IsRightToLeft; 
-  int v44; 
-  int v46; 
-  float h; 
-  float ha; 
+  void *v9; 
+  float v10; 
   int horzAlign; 
+  float v16; 
+  float v17; 
+  const FontGlowStyle *glowStyle; 
+  bool v19; 
+  int v20; 
+  int MinHeightForDistanceField; 
+  float v22; 
+  int v23; 
+  float v26; 
+  int IsRightToLeft; 
+  __int128 v28; 
+  int v29; 
+  TextLine *v30; 
+  int v31; 
+  float pixelWidth; 
+  float v33; 
+  float v34; 
+  __int128 v35; 
   int vertAlign; 
   int vertAligna; 
-  int vertAlignb; 
   __int64 leftToRight; 
-  float leftToRighta; 
   TextLine *outLines; 
-  float outLinesa; 
   bool usePost; 
   char colorEscape[2]; 
   float scalea; 
   float w; 
-  float v76; 
+  float v44; 
   float y; 
   float x; 
   int outLineCount; 
-  float v80[4]; 
-  TextLine v81; 
+  float h[4]; 
+  TextLine v49; 
   char output[1040]; 
-  char v90; 
 
-  v16 = alloca(v8);
-  __asm
-  {
-    vmovaps [rsp+3560h+var_80], xmm9
-    vmovaps [rsp+3560h+var_90], xmm10
-    vmovaps [rsp+3560h+var_A0], xmm11
-    vmovss  xmm0, dword ptr [r8+8]
-    vmovss  xmm1, dword ptr [r8+0Ch]
-  }
-  v20 = rect->horzAlign;
-  v22 = rect;
+  v9 = alloca(v8);
+  v10 = rect->h;
+  horzAlign = rect->horzAlign;
   vertAlign = rect->vertAlign;
-  __asm
-  {
-    vmovss  [rsp+3560h+w], xmm0
-    vmovss  xmm0, dword ptr [r8]
-    vmovss  [rbp+3460h+var_34E0], xmm1
-    vmovss  xmm1, dword ptr [r8+4]
-    vmovss  [rsp+3560h+x], xmm0
-    vmovss  [rsp+3560h+y], xmm1
-  }
-  ScrPlace_ApplyRect(scrPlace, &x, &y, &w, v80, v20, vertAlign);
+  w = rect->w;
+  v16 = rect->x;
+  h[0] = v10;
+  v17 = rect->y;
+  x = v16;
+  y = v17;
+  ScrPlace_ApplyRect(scrPlace, &x, &y, &w, h, horzAlign, vertAlign);
   glowStyle = R_Font_GetLegacyFontStyle(style);
-  v27 = R_Font_UsePost(style);
-  v28 = v22->horzAlign;
-  __asm
-  {
-    vmovss  xmm0, [rbp+3460h+arg_20]
-    vmulss  xmm1, xmm0, cs:__real@42400000
-  }
-  vertAligna = v22->vertAlign;
-  usePost = v27;
-  __asm { vmovss  [rsp+3560h+scale], xmm1 }
-  ScrPlace_ApplyRect(scrPlace, &v76, &v76, &v76, &scalea, v28, vertAligna);
-  __asm { vmovss  xmm10, cs:__real@3f000000 }
+  v19 = R_Font_UsePost(style);
+  v20 = rect->horzAlign;
+  vertAligna = rect->vertAlign;
+  usePost = v19;
+  scalea = scale * 48.0;
+  ScrPlace_ApplyRect(scrPlace, &v44, &v44, &v44, &scalea, v20, vertAligna);
   if ( glowStyle )
   {
     MinHeightForDistanceField = FontCache_GetMinHeightForDistanceField();
-    __asm { vmovss  xmm4, [rsp+3560h+scale] }
-    _ESI = MinHeightForDistanceField;
+    v22 = scalea;
+    v23 = MinHeightForDistanceField;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm4, [rsp+3560h+scale]
-      vaddss  xmm2, xmm4, xmm10
-      vxorps  xmm1, xmm1, xmm1
-      vroundss xmm3, xmm1, xmm2, 1
-      vcvttss2si esi, xmm3
-    }
+    v22 = scalea;
+    _XMM1 = 0i64;
+    __asm { vroundss xmm3, xmm1, xmm2, 1 }
+    v23 = (int)*(float *)&_XMM3;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, esi
-    vdivss  xmm9, xmm4, xmm0
-  }
+  v26 = v22 / (float)v23;
   IsRightToLeft = Language_IsRightToLeft();
-  __asm
-  {
-    vmovss  xmm1, [rsp+3560h+w]; boxWidth
-    vmovss  dword ptr [rsp+3560h+h], xmm9
-  }
-  R_Font_WordWrap(text, *(float *)&_XMM1, font, _ESI, h, 0, 512, IsRightToLeft == 0, &v81, &outLineCount);
-  __asm { vmovss  xmm11, [rsp+3560h+y] }
-  v44 = 0;
+  R_Font_WordWrap(text, w, font, v23, v26, 0, 512, IsRightToLeft == 0, &v49, &outLineCount);
+  v28 = LODWORD(y);
+  v29 = 0;
   *(_WORD *)colorEscape = 0;
   if ( outLineCount > 0 )
   {
-    _RBX = &v81;
-    __asm
-    {
-      vmovaps [rsp+3560h+var_50], xmm6
-      vmovaps [rsp+3560h+var_60], xmm7
-      vmovaps [rsp+3560h+var_70], xmm8
-      vmovaps [rsp+3560h+var_B0], xmm12
-    }
-    v46 = textAlignMode & 3;
-    __asm { vxorps  xmm12, xmm12, xmm12 }
+    v30 = &v49;
+    v31 = textAlignMode & 3;
     do
     {
-      if ( (!_RBX->textLeft || !_RBX->textRight) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_shared.cpp", 717, ASSERT_TYPE_ASSERT, "(textLine->textLeft != 0 && textLine->textRight != 0)", (const char *)&queryFormat, "textLine->textLeft != NULL && textLine->textRight != NULL") )
+      if ( (!v30->textLeft || !v30->textRight) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_shared.cpp", 717, ASSERT_TYPE_ASSERT, "(textLine->textLeft != 0 && textLine->textRight != 0)", (const char *)&queryFormat, "textLine->textLeft != NULL && textLine->textRight != NULL") )
         __debugbreak();
-      if ( _RBX->textLeft > _RBX->textRight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_shared.cpp", 718, ASSERT_TYPE_ASSERT, "(textLine->textLeft <= textLine->textRight)", (const char *)&queryFormat, "textLine->textLeft <= textLine->textRight") )
+      if ( v30->textLeft > v30->textRight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_shared.cpp", 718, ASSERT_TYPE_ASSERT, "(textLine->textLeft <= textLine->textRight)", (const char *)&queryFormat, "textLine->textLeft <= textLine->textRight") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rbx+10h]
-        vmovss  xmm8, [rsp+3560h+w]
-        vmovss  xmm6, [rsp+3560h+x]
-      }
+      pixelWidth = v30->pixelWidth;
+      v33 = w;
+      v34 = x;
       if ( (textAlignMode & 3) != 0 )
       {
-        if ( v46 == 1 )
+        if ( v31 == 1 )
         {
-          __asm
-          {
-            vsubss  xmm0, xmm8, xmm7
-            vmulss  xmm1, xmm0, xmm10
-            vaddss  xmm6, xmm1, xmm6
-          }
+          v34 = (float)((float)(w - pixelWidth) * 0.5) + x;
         }
         else
         {
-          if ( v46 != 2 )
+          if ( v31 != 2 )
           {
             LODWORD(outLines) = 2;
             LODWORD(leftToRight) = textAlignMode & 3;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ui\\ui_shared.cpp", 208, ASSERT_TYPE_ASSERT, "( alignX ) == ( 2 )", "%s == %s\n\t%i, %i", "alignX", "ITEM_ALIGN_RIGHT", leftToRight, outLines) )
               __debugbreak();
           }
-          __asm
-          {
-            vsubss  xmm0, xmm8, xmm7
-            vaddss  xmm6, xmm0, xmm6
-          }
+          v34 = (float)(v33 - pixelWidth) + v34;
         }
       }
-      R_PrepareTextLine(_RBX->textLeft, _RBX->textRight - _RBX->textLeft + 1, output, 1026, 1, colorEscape);
-      __asm
-      {
-        vmovss  dword ptr [rsp+3560h+outLines], xmm12
-        vmovss  dword ptr [rsp+3560h+leftToRight], xmm9
-        vmovss  [rsp+3560h+vertAlign], xmm9
-        vmovss  [rsp+3560h+horzAlign], xmm11
-        vmovss  dword ptr [rsp+3560h+h], xmm6
-      }
-      R_AddCmdDrawText(output, 0x7FFFFFFF, font, _ESI, ha, *(float *)&horzAlign, *(float *)&vertAlignb, leftToRighta, outLinesa, color, glowStyle, usePost);
-      __asm { vaddss  xmm11, xmm11, [rsp+3560h+scale] }
-      ++v44;
-      ++_RBX;
+      R_PrepareTextLine(v30->textLeft, v30->textRight - v30->textLeft + 1, output, 1026, 1, colorEscape);
+      R_AddCmdDrawText(output, 0x7FFFFFFF, font, v23, v34, *(float *)&v28, v26, v26, 0.0, color, glowStyle, usePost);
+      v35 = v28;
+      *(float *)&v35 = *(float *)&v28 + scalea;
+      v28 = v35;
+      ++v29;
+      ++v30;
     }
-    while ( v44 < outLineCount );
-    __asm
-    {
-      vmovaps xmm12, [rsp+3560h+var_B0]
-      vmovaps xmm8, [rsp+3560h+var_70]
-      vmovaps xmm7, [rsp+3560h+var_60]
-      vmovaps xmm6, [rsp+3560h+var_50]
-    }
-  }
-  _R11 = &v90;
-  __asm
-  {
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
+    while ( v29 < outLineCount );
   }
 }
 

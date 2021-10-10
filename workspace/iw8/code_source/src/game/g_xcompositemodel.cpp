@@ -171,21 +171,12 @@ G_XCompositeModel_DObjInitScriptable
 */
 void G_XCompositeModel_DObjInitScriptable(const XCompositeModelDef *const compositeModel, const unsigned int maxNumModels, gentity_s *outEnt, unsigned __int16 *outNumModels, DObjModel *outDObjModels)
 {
-  vec3_t v9; 
-  vec4_t v10; 
+  vec3_t v7; 
+  vec4_t v8; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-    vmovsd  xmm1, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-  }
-  v9.v[2] = vec3_origin.v[2];
-  __asm
-  {
-    vmovdqa xmmword ptr [rsp+88h+var_18], xmm0
-    vmovsd  [rsp+88h+var_28], xmm1
-  }
-  G_XCompositeModel_InitModelsRecursive(compositeModel, -1, (const scr_string_t)0, &v9, &v10, maxNumModels, outEnt, outNumModels, outDObjModels, 0, 1);
+  v7 = vec3_origin;
+  v8 = quat_identity;
+  G_XCompositeModel_InitModelsRecursive(compositeModel, -1, (const scr_string_t)0, &v7, &v8, maxNumModels, outEnt, outNumModels, outDObjModels, 0, 1);
   if ( *outNumModels > 0x1Cu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_xcompositemodel.cpp", 231, ASSERT_TYPE_ASSERT, "( outNumModels <= (32 - 4) )", "Error: CompositeModel: %s, has too many submodels.", compositeModel->name) )
     __debugbreak();
 }
@@ -291,8 +282,8 @@ void G_XCompositeModel_InitForType(gentity_s *const ent, entityType_s entityType
 {
   int vehicleXModel; 
   const XCompositeModelDef *CompositeModel; 
-  vec3_t v13; 
-  vec4_t v14; 
+  vec3_t v11; 
+  vec4_t v12; 
 
   if ( entityType == ET_SCRIPTMOVER )
   {
@@ -313,18 +304,9 @@ LABEL_10:
   CompositeModel = G_Utils_GetCompositeModel(vehicleXModel);
   if ( !CompositeModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_xcompositemodel.cpp", 240, ASSERT_TYPE_ASSERT, "( compositeModel != nullptr )", "Error: CompositeModel with index: %d could not be found.", vehicleXModel) )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-    vmovsd  xmm1, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-  }
-  v13.v[2] = vec3_origin.v[2];
-  __asm
-  {
-    vmovdqa [rsp+88h+var_18], xmm0
-    vmovsd  [rsp+88h+var_28], xmm1
-  }
-  G_XCompositeModel_InitModelsRecursive(CompositeModel, -1, (const scr_string_t)0, &v13, &v14, maxNumModels, ent, outNumModels, outDObjModels, setEntityPosition, 0);
+  v11 = vec3_origin;
+  v12 = quat_identity;
+  G_XCompositeModel_InitModelsRecursive(CompositeModel, -1, (const scr_string_t)0, &v11, &v12, maxNumModels, ent, outNumModels, outDObjModels, setEntityPosition, 0);
   if ( *outNumModels > 0x1Cu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_xcompositemodel.cpp", 243, ASSERT_TYPE_ASSERT, "( outNumModels <= (32 - 4) )", "Error: CompositeModel: %s, has too many submodels.", CompositeModel->name) )
     __debugbreak();
 }
@@ -345,7 +327,7 @@ char G_XCompositeModel_InitModelsRecursive(const XCompositeModelDef *const compo
   int v18; 
   scr_string_t stringValue; 
   int parentSlot; 
-  unsigned int v25; 
+  unsigned int v22; 
   int modelStartIndex; 
   XCompositeModelDef *compositeModela; 
   scr_string_t recursiveParentBoneNamea; 
@@ -373,7 +355,7 @@ char G_XCompositeModel_InitModelsRecursive(const XCompositeModelDef *const compo
   v14 = *outNumModels;
   modelStartIndex = v13;
   v15 = 0;
-  v25 = 0;
+  v22 = 0;
   do
   {
     submodel[0] = NULL;
@@ -409,7 +391,7 @@ char G_XCompositeModel_InitModelsRecursive(const XCompositeModelDef *const compo
         *((_WORD *)&outEnt->pAnimTree + v14 + 3) = ModelIndex;
         if ( G_Utils_IsIndexCompositeModel(ModelIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_xcompositemodel.cpp", 130, ASSERT_TYPE_ASSERT, "( !G_Utils_IsIndexCompositeModel( outEnt->attachModelNames[numModels - 1] ) )", (const char *)&queryFormat, "!G_Utils_IsIndexCompositeModel( outEnt->attachModelNames[numModels - 1] )") )
           __debugbreak();
-        v15 = v25;
+        v15 = v22;
         v11 = (const vec3_t *)compositeModela;
       }
     }
@@ -424,9 +406,7 @@ char G_XCompositeModel_InitModelsRecursive(const XCompositeModelDef *const compo
       {
         AnglesAndOriginToMatrix43(&outEnt->r.currentAngles, &outEnt->r.currentOrigin, &result);
         MatrixMultiply43(&outResultMat, &result, &out);
-        __asm { vmovsd  xmm0, qword ptr [rbp+180h+out+24h] }
-        origin.v[2] = out.m[3].v[2];
-        __asm { vmovsd  qword ptr [rbp+180h+origin], xmm0 }
+        origin = out.m[3];
         AxisToAngles((const tmat33_t<vec3_t> *)&out, &recursiveQuata);
         G_SetOriginAndAngle(outEnt, &origin, &recursiveQuata, 1, 1);
         return 0;
@@ -438,7 +418,7 @@ char G_XCompositeModel_InitModelsRecursive(const XCompositeModelDef *const compo
     v13 = modelStartIndex;
     ++v15;
     ++v14;
-    v25 = v15;
+    v22 = v15;
   }
   while ( v15 < 0xA );
   v17 = 0;
@@ -451,17 +431,8 @@ char G_XCompositeModel_InitModelsRecursive(const XCompositeModelDef *const compo
     {
       if ( !compositeModela && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_xcompositemodel.cpp", 183, ASSERT_TYPE_ASSERT, "( subCompositeModel )", (const char *)&queryFormat, "subCompositeModel") )
         __debugbreak();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+180h+quat]
-        vmovsd  xmm1, qword ptr [rbp+180h+offsets]
-      }
-      recursiveOffsetsa.v[2] = offsets.v[2];
-      __asm
-      {
-        vmovdqa xmmword ptr [rbp+180h+submodel], xmm0
-        vmovsd  qword ptr [rbp+180h+recursiveOffsets], xmm1
-      }
+      recursiveOffsetsa = offsets;
+      *(vec4_t *)submodel = quat;
       if ( !G_XCompositeModel_InitModelsRecursive(compositeModela, parentSlot, (const scr_string_t)modelStartIndex, &recursiveOffsetsa, (const vec4_t *)submodel, maxNumModels, outEnt, *(unsigned __int16 **)origin.v, outDobjModels, setEntityPosition, isScriptable) )
         break;
     }

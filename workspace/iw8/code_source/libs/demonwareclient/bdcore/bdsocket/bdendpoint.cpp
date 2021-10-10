@@ -212,9 +212,8 @@ __int64 bdEndpoint::deserialize(bdEndpoint *this, bdReference<bdCommonAddr> me, 
   bdCommonAddr *v13; 
   const unsigned __int8 *v14; 
   bdCommonAddr_vtbl *v15; 
+  __int64 v16; 
 
-  _R13 = (char *)data;
-  _R15 = this;
   v9 = 1;
   v10 = newOffset;
   *newOffset = offset;
@@ -234,24 +233,24 @@ __int64 bdEndpoint::deserialize(bdEndpoint *this, bdReference<bdCommonAddr> me, 
     {
       m_ptr = NULL;
     }
-    if ( _R15->m_ca.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&_R15->m_ca.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && _R15->m_ca.m_ptr )
-      ((void (__fastcall *)(bdCommonAddr *, __int64))_R15->m_ca.m_ptr->~bdReferencable)(_R15->m_ca.m_ptr, 1i64);
-    _R15->m_ca.m_ptr = m_ptr;
+    if ( this->m_ca.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_ca.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && this->m_ca.m_ptr )
+      ((void (__fastcall *)(bdCommonAddr *, __int64))this->m_ca.m_ptr->~bdReferencable)(this->m_ca.m_ptr, 1i64);
+    this->m_ca.m_ptr = m_ptr;
     if ( m_ptr )
     {
       _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-      m_ptr = _R15->m_ca.m_ptr;
+      m_ptr = this->m_ca.m_ptr;
     }
   }
-  v14 = (const unsigned __int8 *)&_R13[*v10];
+  v14 = (const unsigned __int8 *)data + *v10;
   v15 = me.m_ptr->__vftable;
   newOffset = (unsigned int *)v15;
   if ( v15 )
     _InterlockedExchangeAdd((volatile signed __int32 *)&v15[1], 1u);
   bdCommonAddr::deserialize(m_ptr, (bdReference<bdCommonAddr>)&newOffset, v14);
   *v10 += 84;
-  _RCX = *v10;
-  if ( (int)_RCX + 8 > size )
+  v16 = *v10;
+  if ( (int)v16 + 8 > size )
   {
 LABEL_16:
     v9 = 0;
@@ -259,11 +258,7 @@ LABEL_16:
   }
   else
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rcx+r13]
-      vmovsd  qword ptr [r15+8], xmm0
-    }
+    this->m_secID = *(bdSecurityID *)((char *)data + v16);
     *v10 += 8;
   }
   if ( me.m_ptr->__vftable && _InterlockedExchangeAdd((volatile signed __int32 *)&me.m_ptr->__vftable[1], 0xFFFFFFFF) == 1 )
@@ -324,9 +319,7 @@ bool bdEndpoint::serialize(bdEndpoint *this, void *data, const unsigned int size
 {
   bool result; 
 
-  _R14 = this;
   *newOffset = offset;
-  _RBP = (unsigned __int8 *)data;
   bdHandleAssert(offset <= size, "offset <= size", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdsocket\\bdendpoint.cpp", "bdEndpoint::serialize", 0x5Du, "Offset is past the end of the destination buffer.");
   if ( size - offset < 0x5C )
   {
@@ -335,15 +328,10 @@ bool bdEndpoint::serialize(bdEndpoint *this, void *data, const unsigned int size
   }
   else
   {
-    bdCommonAddr::serialize(_R14->m_ca.m_ptr, &_RBP[*newOffset]);
+    bdCommonAddr::serialize(this->m_ca.m_ptr, (unsigned __int8 *)data + *newOffset);
     *newOffset += 84;
     result = 1;
-    _RCX = *newOffset;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [r14+8]
-      vmovsd  qword ptr [rcx+rbp], xmm0
-    }
+    *(double *)((char *)data + *newOffset) = *(double *)&this->m_secID;
     *newOffset += 8;
   }
   return result;

@@ -533,40 +533,28 @@ const char *SV_Demo_GetString()
 SV_Demo_GetTimeScale
 ==============
 */
-
-float __fastcall SV_Demo_GetTimeScale(double _XMM0_8)
+float SV_Demo_GetTimeScale()
 {
-  char v3; 
+  const dvar_t *v0; 
+  const dvar_t *v1; 
 
   if ( !sv_demo.playing )
-    goto LABEL_16;
+    return FLOAT_1_0;
   if ( !SvDemo::ms_gServerDemoSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_demo.cpp", 245, ASSERT_TYPE_ASSERT, "( SvDemo::IsSystemEnabled() )", (const char *)&queryFormat, "SvDemo::IsSystemEnabled()") )
     __debugbreak();
-  _RBX = DVARFLT_replay_speed;
+  v0 = DVARFLT_replay_speed;
   if ( !DVARFLT_replay_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "replay_speed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rbx+28h]
-  }
-  if ( v3 )
-  {
-LABEL_16:
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  }
-  else
-  {
-    if ( !SvDemo::ms_gServerDemoSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_demo.cpp", 255, ASSERT_TYPE_ASSERT, "( SvDemo::IsSystemEnabled() )", (const char *)&queryFormat, "SvDemo::IsSystemEnabled()") )
-      __debugbreak();
-    _RBX = DVARFLT_replay_speed;
-    if ( !DVARFLT_replay_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "replay_speed") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v0);
+  if ( v0->current.value == 0.0 )
+    return FLOAT_1_0;
+  if ( !SvDemo::ms_gServerDemoSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_demo.cpp", 255, ASSERT_TYPE_ASSERT, "( SvDemo::IsSystemEnabled() )", (const char *)&queryFormat, "SvDemo::IsSystemEnabled()") )
+    __debugbreak();
+  v1 = DVARFLT_replay_speed;
+  if ( !DVARFLT_replay_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "replay_speed") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v1);
+  return v1->current.value;
 }
 
 /*
@@ -597,23 +585,17 @@ void SV_Demo_InitHistorySaveThread(void)
 SV_Demo_IsPaused
 ==============
 */
-
-bool __fastcall SV_Demo_IsPaused(double _XMM0_8)
+bool SV_Demo_IsPaused()
 {
-  char v3; 
+  const dvar_t *v0; 
 
   if ( !SvDemo::ms_gServerDemoSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server\\sv_demo.cpp", 245, ASSERT_TYPE_ASSERT, "( SvDemo::IsSystemEnabled() )", (const char *)&queryFormat, "SvDemo::IsSystemEnabled()") )
     __debugbreak();
-  _RBX = DVARFLT_replay_speed;
+  v0 = DVARFLT_replay_speed;
   if ( !DVARFLT_replay_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "replay_speed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rbx+28h]
-  }
-  return v3 != 0;
+  Dvar_CheckFrontendServerThread(v0);
+  return v0->current.value == 0.0;
 }
 
 /*
@@ -784,14 +766,10 @@ void SV_Record_GetByte(unsigned __int8 value)
 SV_Record_GetFloat
 ==============
 */
-
-void __fastcall SV_Record_GetFloat(double value)
+void SV_Record_GetFloat(float value)
 {
   if ( SvDemo::ms_gServerDemoSystem )
-  {
-    __asm { vmovaps xmm1, xmm0 }
     ((void (__fastcall *)(SvDemo *))SvDemo::ms_gServerDemoSystem->RecordFloat)(SvDemo::ms_gServerDemoSystem);
-  }
 }
 
 /*

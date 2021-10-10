@@ -171,42 +171,42 @@ char G_HudOutline_DisableForClientMask(gentity_s *subjectEnt, ClientBits *subtra
   int v6; 
   gclient_s *clients; 
   unsigned int v8; 
+  unsigned int v9; 
   unsigned int v10; 
+  __int64 v11; 
   unsigned int v12; 
-  __int64 v13; 
-  int v15; 
+  unsigned int v13; 
+  unsigned int v14; 
+  unsigned int v15; 
   unsigned int v16; 
-  int v17; 
+  unsigned int v17; 
   unsigned int v18; 
-  int v19; 
+  unsigned int v19; 
   unsigned int v20; 
-  int v21; 
+  unsigned int v21; 
   unsigned int v22; 
   unsigned int v23; 
   unsigned int v24; 
   int v25; 
   unsigned int v26; 
-  unsigned int v27; 
-  int v28; 
-  unsigned int v29; 
   ClientBits *p_enabledForClientMask; 
   unsigned int maxclients; 
   int *p_refCount; 
   unsigned int i; 
-  ClientBits *v35; 
+  ClientBits *v32; 
+  unsigned int v33; 
+  int v34; 
+  int *v35; 
   unsigned int v36; 
   int v37; 
-  int *v38; 
-  unsigned int v39; 
-  int v40; 
   int j; 
-  unsigned int v42; 
-  __int64 v43; 
-  __int64 v44; 
+  unsigned int v39; 
+  __int64 v40; 
+  __int64 v41; 
+  __int64 v42; 
+  __int128 v44; 
   __int64 v45; 
-  __int128 v47; 
-  __int64 v48; 
-  unsigned int v49; 
+  unsigned int v46; 
   outline_data_t destData; 
 
   v3 = subjectEnt;
@@ -222,8 +222,8 @@ char G_HudOutline_DisableForClientMask(gentity_s *subjectEnt, ClientBits *subtra
   }
   if ( EntHudOutlineIndex > 0x3F )
   {
-    LODWORD(v43) = EntHudOutlineIndex;
-    v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 235, ASSERT_TYPE_ASSERT, "( outlineIndex ) <= ( (( 1 << 6 )-1) )", "outlineIndex not in [0, MAX_CLIENT_OUTLINES]\n\t%u not in [0, %u]", v43, 63);
+    LODWORD(v40) = EntHudOutlineIndex;
+    v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 235, ASSERT_TYPE_ASSERT, "( outlineIndex ) <= ( (( 1 << 6 )-1) )", "outlineIndex not in [0, MAX_CLIENT_OUTLINES]\n\t%u not in [0, %u]", v40, 63);
 LABEL_9:
     if ( v5 )
       __debugbreak();
@@ -238,9 +238,9 @@ LABEL_9:
     {
       if ( v8 >= 0xE0 )
       {
-        LODWORD(v44) = 224;
-        LODWORD(v43) = v8;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v43, v44) )
+        LODWORD(v41) = 224;
+        LODWORD(v40) = v8;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v40, v41) )
           __debugbreak();
       }
       if ( ((0x80000000 >> (v8 & 0x1F)) & subtractClientMask->array[(unsigned __int64)v8 >> 5]) != 0 )
@@ -263,66 +263,60 @@ LABEL_9:
     while ( v8 < level.maxclients );
     v3 = subjectEnt;
   }
-  __asm { vmovups xmm1, xmmword ptr [rbp+310h+destData.enabledForClientMask.baseclass_0.array] }
-  v10 = 0;
-  __asm { vmovsd  xmm0, qword ptr [rbp+310h+destData.enabledForClientMask.baseclass_0.array+10h] }
-  v12 = ~subtractClientMask->array[0];
-  __asm { vmovups [rsp+410h+var_3B8], xmm1 }
-  v13 = 0i64;
-  __asm
+  v9 = 0;
+  v10 = ~subtractClientMask->array[0];
+  v44 = *(_OWORD *)destData.enabledForClientMask.array;
+  v11 = 0i64;
+  v45 = *(__int64 *)&destData.enabledForClientMask.array[4];
+  v12 = destData.enabledForClientMask.array[0] & v10;
+  v13 = ~subtractClientMask->array[1];
+  LODWORD(v44) = v12;
+  v14 = v13 & destData.enabledForClientMask.array[1];
+  v15 = ~subtractClientMask->array[2];
+  DWORD1(v44) = v14;
+  v16 = v15 & destData.enabledForClientMask.array[2];
+  v17 = ~subtractClientMask->array[3];
+  DWORD2(v44) = v16;
+  v18 = v17 & destData.enabledForClientMask.array[3];
+  v19 = ~subtractClientMask->array[4];
+  HIDWORD(v44) = v18;
+  v20 = v19 & destData.enabledForClientMask.array[4];
+  v21 = ~subtractClientMask->array[5];
+  LODWORD(v45) = v20;
+  v22 = v21 & destData.enabledForClientMask.array[5];
+  v23 = ~subtractClientMask->array[6];
+  HIDWORD(v45) = v22;
+  v24 = v23 & destData.enabledForClientMask.array[6];
+  v46 = v23 & destData.enabledForClientMask.array[6];
+  while ( destData.enabledForClientMask.array[v11] == *(_DWORD *)((char *)&v44 + v11 * 4) )
   {
-    vmovsd  [rsp+410h+var_3A8], xmm0
-    vmovd   eax, xmm1
-  }
-  v15 = _EAX & v12;
-  v16 = ~subtractClientMask->array[1];
-  LODWORD(v47) = v15;
-  v17 = v16 & DWORD1(v47);
-  v18 = ~subtractClientMask->array[2];
-  DWORD1(v47) = v17;
-  v19 = v18 & DWORD2(v47);
-  v20 = ~subtractClientMask->array[3];
-  DWORD2(v47) = v19;
-  v21 = v20 & HIDWORD(v47);
-  v22 = ~subtractClientMask->array[4];
-  HIDWORD(v47) = v21;
-  v23 = v22 & v48;
-  v24 = ~subtractClientMask->array[5];
-  LODWORD(v48) = v23;
-  v25 = v24 & HIDWORD(v48);
-  v26 = ~subtractClientMask->array[6];
-  HIDWORD(v48) = v25;
-  v27 = v26 & destData.enabledForClientMask.array[6];
-  v49 = v26 & destData.enabledForClientMask.array[6];
-  while ( destData.enabledForClientMask.array[v13] == *(_DWORD *)((char *)&v47 + v13 * 4) )
-  {
-    ++v10;
-    ++v13;
-    if ( v10 >= 7 )
+    ++v9;
+    ++v11;
+    if ( v9 >= 7 )
     {
-      v28 = 0;
+      v25 = 0;
       goto LABEL_29;
     }
   }
-  v28 = 1;
+  v25 = 1;
 LABEL_29:
-  if ( !(v6 | v28) )
+  if ( !(v6 | v25) )
     return 1;
-  destData.enabledForClientMask.array[0] = v15;
-  destData.enabledForClientMask.array[1] = v17;
-  destData.enabledForClientMask.array[2] = v19;
-  destData.enabledForClientMask.array[3] = v21;
-  destData.enabledForClientMask.array[4] = v23;
-  destData.enabledForClientMask.array[5] = v25;
-  destData.enabledForClientMask.array[6] = v27;
+  destData.enabledForClientMask.array[0] = v12;
+  destData.enabledForClientMask.array[1] = v14;
+  destData.enabledForClientMask.array[2] = v16;
+  destData.enabledForClientMask.array[3] = v18;
+  destData.enabledForClientMask.array[4] = v20;
+  destData.enabledForClientMask.array[5] = v22;
+  destData.enabledForClientMask.array[6] = v24;
   G_HudOutline_RemoveEntOutlineIndex(v3);
-  v29 = 0;
+  v26 = 0;
   p_enabledForClientMask = &destData.enabledForClientMask;
   while ( !p_enabledForClientMask->array[0] )
   {
-    ++v29;
+    ++v26;
     p_enabledForClientMask = (ClientBits *)((char *)p_enabledForClientMask + 4);
-    if ( v29 >= 7 )
+    if ( v26 >= 7 )
       goto LABEL_33;
   }
   maxclients = level.maxclients;
@@ -331,29 +325,29 @@ LABEL_29:
   {
     if ( *p_refCount < 0 )
     {
-      LODWORD(v45) = *p_refCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 263, ASSERT_TYPE_ASSERT, "( outlineData->refCount ) >= ( 0 )", "%s >= %s\n\t%i, %i", "outlineData->refCount", "0", v45, 0i64) )
+      LODWORD(v42) = *p_refCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 263, ASSERT_TYPE_ASSERT, "( outlineData->refCount ) >= ( 0 )", "%s >= %s\n\t%i, %i", "outlineData->refCount", "0", v42, 0i64) )
         __debugbreak();
       maxclients = level.maxclients;
     }
-    v35 = &destData.enabledForClientMask;
-    v36 = 0;
-    while ( *(unsigned int *)((char *)v35->array + (char *)p_refCount - (char *)&destData.refCount) == v35->array[0] )
+    v32 = &destData.enabledForClientMask;
+    v33 = 0;
+    while ( *(unsigned int *)((char *)v32->array + (char *)p_refCount - (char *)&destData.refCount) == v32->array[0] )
     {
-      ++v36;
-      v35 = (ClientBits *)((char *)v35 + 4);
-      if ( v36 >= 7 )
+      ++v33;
+      v32 = (ClientBits *)((char *)v32 + 4);
+      if ( v33 >= 7 )
       {
-        v37 = 0;
+        v34 = 0;
         if ( !maxclients )
         {
 LABEL_46:
           G_HudOutline_SetEntOutlineIndex(v3, i + 1);
           goto LABEL_33;
         }
-        while ( p_refCount[v37 - 200] == *(_DWORD *)&destData.clientData[v37] )
+        while ( p_refCount[v34 - 200] == *(_DWORD *)&destData.clientData[v34] )
         {
-          if ( ++v37 >= maxclients )
+          if ( ++v34 >= maxclients )
             goto LABEL_46;
         }
         break;
@@ -361,36 +355,36 @@ LABEL_46:
     }
     p_refCount += 209;
   }
-  v38 = &level.outlineData[0].refCount;
-  v39 = level.time + 1;
-  v40 = -1;
+  v35 = &level.outlineData[0].refCount;
+  v36 = level.time + 1;
+  v37 = -1;
   for ( j = 0; j < 63; ++j )
   {
-    if ( *v38 < 0 )
+    if ( *v35 < 0 )
     {
-      LODWORD(v45) = *v38;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 287, ASSERT_TYPE_ASSERT, "( outlineData->refCount ) >= ( 0 )", "%s >= %s\n\t%i, %i", "outlineData->refCount", "0", v45, 0i64) )
+      LODWORD(v42) = *v35;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 287, ASSERT_TYPE_ASSERT, "( outlineData->refCount ) >= ( 0 )", "%s >= %s\n\t%i, %i", "outlineData->refCount", "0", v42, 0i64) )
         __debugbreak();
     }
-    if ( !*v38 && v38[8] < v39 )
+    if ( !*v35 && v35[8] < v36 )
     {
-      v39 = v38[8];
-      v40 = j;
+      v36 = v35[8];
+      v37 = j;
     }
-    v38 += 209;
+    v35 += 209;
   }
-  if ( v40 >= 0 )
+  if ( v37 >= 0 )
   {
-    G_HudOutline_CopyData(&destData, &level.outlineData[v40]);
-    level.mayhemEnts[209 * v40 - 12967].targetName = 0;
-    v42 = v40 + 1;
-    if ( G_HudOutline_GetRefCount(v40 + 1) )
+    G_HudOutline_CopyData(&destData, &level.outlineData[v37]);
+    level.mayhemEnts[209 * v37 - 12967].targetName = 0;
+    v39 = v37 + 1;
+    if ( G_HudOutline_GetRefCount(v37 + 1) )
     {
-      LODWORD(v45) = G_HudOutline_GetRefCount(v42);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 622, ASSERT_TYPE_ASSERT, "( G_HudOutline_GetRefCount( outlineIndex ) ) == ( 0 )", "%s == %s\n\t%i, %i", "G_HudOutline_GetRefCount( outlineIndex )", "0", v45, 0i64) )
+      LODWORD(v42) = G_HudOutline_GetRefCount(v39);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 622, ASSERT_TYPE_ASSERT, "( G_HudOutline_GetRefCount( outlineIndex ) ) == ( 0 )", "%s == %s\n\t%i, %i", "G_HudOutline_GetRefCount( outlineIndex )", "0", v42, 0i64) )
         __debugbreak();
     }
-    G_HudOutline_SetEntOutlineIndex(v3, v42);
+    G_HudOutline_SetEntOutlineIndex(v3, v39);
 LABEL_33:
     G_HudOutline_UpdateClientBits();
     return 1;
@@ -481,37 +475,37 @@ char G_HudOutline_EnableForClientMask(gentity_s *subjectEnt, ClientBits *addClie
   unsigned int v13; 
   unsigned int *v14; 
   BOOL v15; 
+  unsigned int v16; 
   unsigned int v17; 
+  unsigned int v18; 
   unsigned int v19; 
   unsigned int v20; 
   unsigned int v21; 
   unsigned int v22; 
   unsigned int v23; 
   unsigned int v24; 
+  __int64 v25; 
   int v26; 
   unsigned int v27; 
-  __int64 v28; 
-  int v29; 
-  unsigned int v30; 
-  signed __int64 v31; 
+  signed __int64 v28; 
   ClientBits *p_enabledForClientMask; 
+  unsigned int v30; 
+  ClientBits *v31; 
+  unsigned int v32; 
   unsigned int v33; 
-  ClientBits *v34; 
-  unsigned int v35; 
-  unsigned int v36; 
   int *p_refCount; 
-  unsigned int v38; 
-  int v39; 
+  unsigned int v35; 
+  int v36; 
   int i; 
-  outline_data_t *v41; 
+  outline_data_t *v38; 
+  __int64 v40; 
+  __int64 v41; 
+  __int64 v42; 
   __int64 v43; 
-  __int64 v44; 
-  __int64 v45; 
-  __int64 v46; 
-  int v47; 
-  __int128 v49; 
-  unsigned __int64 v50; 
-  unsigned int v51; 
+  int v44; 
+  __int128 v46; 
+  double v47; 
+  unsigned int v48; 
   outline_data_t destData; 
 
   if ( !subjectEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 461, ASSERT_TYPE_ASSERT, "(subjectEnt)", (const char *)&queryFormat, "subjectEnt") )
@@ -531,8 +525,8 @@ LABEL_14:
         G_HudOutline_CopyData((const outline_data_t *)&level.currentTriggerList[445].otherUseCount + v8, &destData);
         goto LABEL_16;
       }
-      LODWORD(v43) = v8;
-      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 235, ASSERT_TYPE_ASSERT, "( outlineIndex ) <= ( (( 1 << 6 )-1) )", "outlineIndex not in [0, MAX_CLIENT_OUTLINES]\n\t%u not in [0, %u]", v43, 63);
+      LODWORD(v40) = v8;
+      v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 235, ASSERT_TYPE_ASSERT, "( outlineIndex ) <= ( (( 1 << 6 )-1) )", "outlineIndex not in [0, MAX_CLIENT_OUTLINES]\n\t%u not in [0, %u]", v40, 63);
     }
     else
     {
@@ -548,16 +542,16 @@ LABEL_16:
   v10 = 0;
   clients = level.clients;
   v12 = 0;
-  v47 = 0;
+  v44 = 0;
   if ( level.maxclients )
   {
     while ( 1 )
     {
       if ( v12 >= 0xE0 )
       {
-        LODWORD(v44) = 224;
-        LODWORD(v43) = v12;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v43, v44) )
+        LODWORD(v41) = 224;
+        LODWORD(v40) = v12;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v40, v41) )
           __debugbreak();
       }
       v13 = 0x80000000 >> (v12 & 0x1F);
@@ -570,8 +564,8 @@ LABEL_16:
         break;
       v15 = *clientData != *(_DWORD *)&destData.clientData[v12];
       destData.clientData[v12] = *clientData;
-      v10 = v15 | v47;
-      v47 |= v15;
+      v10 = v15 | v44;
+      v44 |= v15;
 LABEL_31:
       ++v12;
       ++clients;
@@ -580,131 +574,128 @@ LABEL_31:
     }
     if ( v12 >= 0xE0 )
     {
-      LODWORD(v46) = 224;
-      LODWORD(v45) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v45, v46) )
+      LODWORD(v43) = 224;
+      LODWORD(v42) = v12;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v42, v43) )
         __debugbreak();
     }
     *v14 &= ~v13;
 LABEL_30:
-    v10 = v47;
+    v10 = v44;
     goto LABEL_31;
   }
 LABEL_32:
-  __asm { vmovups xmm1, xmmword ptr [rbp+310h+destData.enabledForClientMask.baseclass_0.array] }
-  v17 = addClientMask->array[0];
-  __asm { vmovsd  xmm0, qword ptr [rbp+310h+destData.enabledForClientMask.baseclass_0.array+10h] }
-  v19 = addClientMask->array[6] | destData.enabledForClientMask.array[6];
-  __asm { vmovups [rsp+410h+var_3B0], xmm1 }
-  v20 = addClientMask->array[1] | DWORD1(v49);
-  v21 = addClientMask->array[2] | DWORD2(v49);
-  v22 = addClientMask->array[3] | HIDWORD(v49);
-  __asm { vmovsd  [rsp+410h+var_3A0], xmm0 }
-  v23 = addClientMask->array[4] | v50;
-  v24 = addClientMask->array[5] | HIDWORD(v50);
-  __asm { vmovd   eax, xmm1 }
-  v26 = _EAX | v17;
-  *(_QWORD *)&v49 = __PAIR64__(v20, v26);
-  v27 = 0;
-  *((_QWORD *)&v49 + 1) = __PAIR64__(v22, v21);
-  v28 = 0i64;
-  v50 = __PAIR64__(v24, v23);
-  v51 = v19;
-  while ( destData.enabledForClientMask.array[v28] == *(_DWORD *)((char *)&v49 + v28 * 4) )
+  v16 = addClientMask->array[0];
+  v17 = addClientMask->array[6] | destData.enabledForClientMask.array[6];
+  v46 = *(_OWORD *)destData.enabledForClientMask.array;
+  v18 = addClientMask->array[1] | destData.enabledForClientMask.array[1];
+  v19 = addClientMask->array[2] | destData.enabledForClientMask.array[2];
+  v20 = addClientMask->array[3] | destData.enabledForClientMask.array[3];
+  v47 = *(double *)&destData.enabledForClientMask.array[4];
+  v21 = addClientMask->array[4] | destData.enabledForClientMask.array[4];
+  v22 = addClientMask->array[5] | destData.enabledForClientMask.array[5];
+  v23 = destData.enabledForClientMask.array[0] | v16;
+  *(_QWORD *)&v46 = __PAIR64__(v18, v23);
+  v24 = 0;
+  *((_QWORD *)&v46 + 1) = __PAIR64__(v20, v19);
+  v25 = 0i64;
+  v47 = COERCE_DOUBLE(__PAIR64__(v22, v21));
+  v48 = v17;
+  while ( destData.enabledForClientMask.array[v25] == *(_DWORD *)((char *)&v46 + v25 * 4) )
   {
-    ++v27;
-    ++v28;
-    if ( v27 >= 7 )
+    ++v24;
+    ++v25;
+    if ( v24 >= 7 )
     {
-      v29 = 0;
+      v26 = 0;
       goto LABEL_37;
     }
   }
-  v29 = 1;
+  v26 = 1;
 LABEL_37:
-  if ( !(v10 | v29) )
+  if ( !(v10 | v26) )
     return 1;
-  destData.enabledForClientMask.array[0] = v26;
-  destData.enabledForClientMask.array[1] = v20;
-  destData.enabledForClientMask.array[2] = v21;
-  destData.enabledForClientMask.array[3] = v22;
-  destData.enabledForClientMask.array[4] = v23;
-  destData.enabledForClientMask.array[5] = v24;
-  destData.enabledForClientMask.array[6] = v19;
+  destData.enabledForClientMask.array[0] = v23;
+  destData.enabledForClientMask.array[1] = v18;
+  destData.enabledForClientMask.array[2] = v19;
+  destData.enabledForClientMask.array[3] = v20;
+  destData.enabledForClientMask.array[4] = v21;
+  destData.enabledForClientMask.array[5] = v22;
+  destData.enabledForClientMask.array[6] = v17;
   if ( v7 )
     G_HudOutline_RemoveEntOutlineIndex(subjectEnt);
-  v30 = 0;
-  v31 = (char *)&destData - (char *)level.outlineData;
+  v27 = 0;
+  v28 = (char *)&destData - (char *)level.outlineData;
   p_enabledForClientMask = &level.outlineData[0].enabledForClientMask;
   while ( 2 )
   {
     if ( (p_enabledForClientMask[-1].array[6] & 0x80000000) != 0 )
     {
-      LODWORD(v45) = p_enabledForClientMask[-1].array[6];
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 263, ASSERT_TYPE_ASSERT, "( outlineData->refCount ) >= ( 0 )", "%s >= %s\n\t%i, %i", "outlineData->refCount", "0", v45, 0i64) )
+      LODWORD(v42) = p_enabledForClientMask[-1].array[6];
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 263, ASSERT_TYPE_ASSERT, "( outlineData->refCount ) >= ( 0 )", "%s >= %s\n\t%i, %i", "outlineData->refCount", "0", v42, 0i64) )
         __debugbreak();
     }
-    v33 = 0;
-    v34 = p_enabledForClientMask;
+    v30 = 0;
+    v31 = p_enabledForClientMask;
     do
     {
-      if ( v34->array[0] != *(unsigned int *)((char *)v34->array + v31) )
+      if ( v31->array[0] != *(unsigned int *)((char *)v31->array + v28) )
         goto LABEL_51;
-      ++v33;
-      v34 = (ClientBits *)((char *)v34 + 4);
+      ++v30;
+      v31 = (ClientBits *)((char *)v31 + 4);
     }
-    while ( v33 < 7 );
-    v35 = 0;
+    while ( v30 < 7 );
+    v32 = 0;
     if ( !level.maxclients )
     {
 LABEL_50:
-      v36 = v30 + 1;
+      v33 = v27 + 1;
 LABEL_64:
-      G_HudOutline_SetEntOutlineIndex(subjectEnt, v36);
+      G_HudOutline_SetEntOutlineIndex(subjectEnt, v33);
       G_HudOutline_UpdateClientBits();
       return 1;
     }
-    while ( *((_DWORD *)&p_enabledForClientMask[-28] + v35 - 5) == *(_DWORD *)&destData.clientData[v35] )
+    while ( *((_DWORD *)&p_enabledForClientMask[-28] + v32 - 5) == *(_DWORD *)&destData.clientData[v32] )
     {
-      if ( ++v35 >= level.maxclients )
+      if ( ++v32 >= level.maxclients )
         goto LABEL_50;
     }
 LABEL_51:
-    ++v30;
-    v31 -= 836i64;
+    ++v27;
+    v28 -= 836i64;
     p_enabledForClientMask = (ClientBits *)((char *)p_enabledForClientMask + 836);
-    if ( v30 < 0x3F )
+    if ( v27 < 0x3F )
       continue;
     break;
   }
   p_refCount = &level.outlineData[0].refCount;
-  v38 = level.time + 1;
-  v39 = -1;
+  v35 = level.time + 1;
+  v36 = -1;
   for ( i = 0; i < 63; ++i )
   {
     if ( *p_refCount < 0 )
     {
-      LODWORD(v45) = *p_refCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 287, ASSERT_TYPE_ASSERT, "( outlineData->refCount ) >= ( 0 )", "%s >= %s\n\t%i, %i", "outlineData->refCount", "0", v45, 0i64) )
+      LODWORD(v42) = *p_refCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 287, ASSERT_TYPE_ASSERT, "( outlineData->refCount ) >= ( 0 )", "%s >= %s\n\t%i, %i", "outlineData->refCount", "0", v42, 0i64) )
         __debugbreak();
     }
-    if ( !*p_refCount && p_refCount[8] < v38 )
+    if ( !*p_refCount && p_refCount[8] < v35 )
     {
-      v38 = p_refCount[8];
-      v39 = i;
+      v35 = p_refCount[8];
+      v36 = i;
     }
     p_refCount += 209;
   }
-  if ( v39 >= 0 )
+  if ( v36 >= 0 )
   {
-    v41 = &level.outlineData[v39];
-    G_HudOutline_CopyData(&destData, v41);
-    v36 = v39 + 1;
-    v41->refCount = 0;
-    if ( G_HudOutline_GetRefCount(v36) )
+    v38 = &level.outlineData[v36];
+    G_HudOutline_CopyData(&destData, v38);
+    v33 = v36 + 1;
+    v38->refCount = 0;
+    if ( G_HudOutline_GetRefCount(v33) )
     {
-      LODWORD(v45) = G_HudOutline_GetRefCount(v36);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 528, ASSERT_TYPE_ASSERT, "( G_HudOutline_GetRefCount( outlineIndex ) ) == ( 0 )", "%s == %s\n\t%i, %i", "G_HudOutline_GetRefCount( outlineIndex )", "0", v45, 0i64) )
+      LODWORD(v42) = G_HudOutline_GetRefCount(v33);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 528, ASSERT_TYPE_ASSERT, "( G_HudOutline_GetRefCount( outlineIndex ) ) == ( 0 )", "%s == %s\n\t%i, %i", "G_HudOutline_GetRefCount( outlineIndex )", "0", v42, 0i64) )
         __debugbreak();
     }
     goto LABEL_64;
@@ -729,36 +720,36 @@ void G_HudOutline_FreeForClient(gentity_s *clientEnt)
   __int64 v5; 
   __int64 v6; 
   unsigned int v7; 
-  __int64 v10; 
-  __int64 v11; 
-  ClientBits v12; 
-  __int128 v13; 
-  __int64 v14; 
-  unsigned int v15; 
+  __int64 v8; 
+  __int64 v9; 
+  ClientBits v10; 
+  __int128 v11; 
+  double v12; 
+  unsigned int v13; 
 
   if ( !clientEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_hudoutlines.cpp", 414, ASSERT_TYPE_ASSERT, "(clientEnt)", (const char *)&queryFormat, "clientEnt") )
     __debugbreak();
   number = clientEnt->s.number;
   v3 = 0;
-  v13 = 0ui64;
-  v14 = 0i64;
-  v15 = 0;
+  v11 = 0ui64;
+  v12 = 0.0;
+  v13 = 0;
   if ( number >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", number, 224) )
     __debugbreak();
   gentities = level.gentities;
-  *((_DWORD *)&v13 + ((unsigned __int64)number >> 5)) |= 0x80000000 >> (number & 0x1F);
+  *((_DWORD *)&v11 + ((unsigned __int64)number >> 5)) |= 0x80000000 >> (number & 0x1F);
   if ( level.num_entities > 0 )
   {
     v5 = 0i64;
     v6 = 0i64;
-    v7 = v15;
+    v7 = v13;
     do
     {
       if ( (unsigned int)v3 >= 0x800 )
       {
-        LODWORD(v11) = 2048;
-        LODWORD(v10) = v3;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v10, v11) )
+        LODWORD(v9) = 2048;
+        LODWORD(v8) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v8, v9) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -767,15 +758,10 @@ void G_HudOutline_FreeForClient(gentity_s *clientEnt)
         __debugbreak();
       if ( g_entityIsInUse[v5] )
       {
-        __asm
-        {
-          vmovups xmm0, [rsp+0C8h+var_58]
-          vmovups [rsp+0C8h+var_78], xmm0
-          vmovsd  xmm0, [rsp+0C8h+var_48]
-        }
-        v12.array[6] = v7;
-        __asm { vmovsd  [rsp+0C8h+var_68], xmm0 }
-        G_HudOutline_DisableForClientMask(gentities, &v12);
+        *(_OWORD *)v10.array = v11;
+        v10.array[6] = v7;
+        *(double *)&v10.array[4] = v12;
+        G_HudOutline_DisableForClientMask(gentities, &v10);
       }
       ++v3;
       ++v5;

@@ -170,208 +170,109 @@ CG_DrawPlayerBreathState
 */
 void CG_DrawPlayerBreathState(const LocalClientNum_t localClientNum)
 {
-  bool v6; 
+  bool v2; 
+  ScreenPlacement *v3; 
+  float v4; 
+  float v5; 
   cg_t *LocalClientGlobals; 
   GfxFont *font; 
-  int *v12; 
+  int *v8; 
   const char *s; 
-  const char *v17; 
+  const char *v10; 
+  int v11; 
   GfxFont *smallDevFont; 
+  float v13; 
+  const char *v14; 
+  int v15; 
+  GfxFont *v16; 
+  float v17; 
+  const char *v18; 
+  int v19; 
+  GfxFont *v20; 
+  float v21; 
+  const char *v22; 
+  int v23; 
+  GfxFont *v24; 
+  float v25; 
   const char *v26; 
-  GfxFont *v30; 
-  const char *v34; 
-  GfxFont *v38; 
-  const char *v42; 
-  GfxFont *v46; 
-  const char *v50; 
-  GfxFont *v54; 
-  const char *v58; 
-  int v62; 
-  unsigned int v66; 
-  unsigned int *p_playbackId; 
-  GfxFont *v68; 
-  const char *v69; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
+  int v27; 
+  GfxFont *v28; 
+  float v29; 
+  const char *v30; 
+  int v31; 
+  int v32; 
+  float v33; 
+  int v34; 
+  unsigned int *i; 
+  GfxFont *v36; 
+  const char *v37; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-  }
   if ( activeScreenPlacementMode == SCRMODE_FULL )
   {
 LABEL_7:
-    _RDI = &scrPlaceFull;
+    v3 = &scrPlaceFull;
     goto LABEL_8;
   }
   if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
   {
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v2 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v6 )
+      v2 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v2 )
       __debugbreak();
     goto LABEL_7;
   }
-  _RDI = &scrPlaceViewDisplay[localClientNum];
+  v3 = &scrPlaceViewDisplay[localClientNum];
 LABEL_8:
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rdi+28h]
-    vmovss  xmm6, dword ptr [rdi+2Ch]
-  }
+  v4 = v3->virtualViewableMin.v[0];
+  v5 = v3->virtualViewableMin.v[1];
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   font = cls.smallDevFont;
-  v12 = (int *)LocalClientGlobals;
+  v8 = (int *)LocalClientGlobals;
   if ( LocalClientGlobals->breathSysDisabled )
   {
     s = j_va("Breath System disabled by script.");
-    __asm
-    {
-      vmovss  xmm3, cs:__real@3f0ccccd; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm7; x
-      vmovss  dword ptr [rsp+88h+fmt], xmm3
-    }
-    CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, s, &colorGreen, 5, font);
+    CG_DrawDevString(v3, v4, v5, 0.55000001, 0.55000001, s, &colorGreen, 5, font);
   }
   else
   {
-    __asm { vmovaps [rsp+88h+var_38], xmm8 }
-    v17 = j_va("Main State: %s", s_playerBreathMainStateName[LocalClientGlobals->breathMainState]);
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f0ccccd
-      vmovaps xmm3, xmm8; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm7; x
-      vmovss  dword ptr [rsp+88h+fmt], xmm8
-    }
-    CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v17, &colorGreen, 5, font);
+    v10 = j_va("Main State: %s", s_playerBreathMainStateName[LocalClientGlobals->breathMainState]);
+    v11 = CG_DrawDevString(v3, v4, v5, 0.55000001, 0.55000001, v10, &colorGreen, 5, font);
     smallDevFont = cls.smallDevFont;
-    __asm
+    v13 = v5 + (float)v11;
+    v14 = j_va("Breath Player State: %s", s_playerBreathPlayerStateName[v8[92370]]);
+    v15 = CG_DrawDevString(v3, v4, v13, 0.55000001, 0.55000001, v14, &colorGreen, 5, smallDevFont);
+    v16 = cls.smallDevFont;
+    v17 = v13 + (float)v15;
+    v18 = j_va("Breath Sound State: %s", s_playerBreathSoundStateName[v8[92371]]);
+    v19 = CG_DrawDevString(v3, v4, v17, 0.55000001, 0.55000001, v18, &colorGreen, 5, v16);
+    v20 = cls.smallDevFont;
+    v21 = v17 + (float)v19;
+    v22 = j_va("Pain State: %s", s_playerBreathPainStateName[v8[92372]]);
+    v23 = CG_DrawDevString(v3, v4, v21, 0.55000001, 0.55000001, v22, &colorGreen, 5, v20);
+    v24 = cls.smallDevFont;
+    v25 = v21 + (float)v23;
+    v26 = j_va("Landing Type: %s", s_playerBreathLandingTypeName[v8[92379]]);
+    v27 = CG_DrawDevString(v3, v4, v25, 0.55000001, 0.55000001, v26, &colorGreen, 5, v24);
+    v28 = cls.smallDevFont;
+    v29 = v25 + (float)v27;
+    v30 = j_va("Hold State: %s", s_playerBreathHoldStateName[v8[92373]]);
+    v31 = CG_DrawDevString(v3, v4, v29, 0.55000001, 0.55000001, v30, &colorGreen, 5, v28);
+    v32 = v8[92376];
+    v33 = v29 + (float)v31;
+    if ( v32 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
-    v26 = j_va("Breath Player State: %s", s_playerBreathPlayerStateName[v12[92370]]);
-    __asm
-    {
-      vmovaps xmm3, xmm8; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm7; x
-      vmovss  dword ptr [rsp+88h+fmt], xmm8
-    }
-    CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, v26, &colorGreen, 5, smallDevFont);
-    v30 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
-    v34 = j_va("Breath Sound State: %s", s_playerBreathSoundStateName[v12[92371]]);
-    __asm
-    {
-      vmovaps xmm3, xmm8; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm7; x
-      vmovss  dword ptr [rsp+88h+fmt], xmm8
-    }
-    CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, v34, &colorGreen, 5, v30);
-    v38 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
-    v42 = j_va("Pain State: %s", s_playerBreathPainStateName[v12[92372]]);
-    __asm
-    {
-      vmovaps xmm3, xmm8; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm7; x
-      vmovss  dword ptr [rsp+88h+fmt], xmm8
-    }
-    CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, v42, &colorGreen, 5, v38);
-    v46 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
-    v50 = j_va("Landing Type: %s", s_playerBreathLandingTypeName[v12[92379]]);
-    __asm
-    {
-      vmovaps xmm3, xmm8; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm7; x
-      vmovss  dword ptr [rsp+88h+fmt], xmm8
-    }
-    CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmte, v50, &colorGreen, 5, v46);
-    v54 = cls.smallDevFont;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
-    v58 = j_va("Hold State: %s", s_playerBreathHoldStateName[v12[92373]]);
-    __asm
-    {
-      vmovaps xmm3, xmm8; xScale
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm7; x
-      vmovss  dword ptr [rsp+88h+fmt], xmm8
-    }
-    CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, v58, &colorGreen, 5, v54);
-    v62 = v12[92376];
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vaddss  xmm6, xmm6, xmm0
-    }
-    if ( v62 )
-    {
-      v66 = 0;
-      p_playbackId = &g_snd.voices[0].playbackId;
-      while ( *p_playbackId != v62 )
+      v34 = 0;
+      for ( i = &g_snd.voices[0].playbackId; *i != v32; i += 492 )
       {
-        ++v66;
-        p_playbackId += 492;
-        if ( v66 >= 0x63 )
-          goto LABEL_18;
+        if ( (unsigned int)++v34 >= 0x63 )
+          return;
       }
-      v68 = cls.smallDevFont;
-      v69 = j_va("Playing: %s", **(const char ***)&g_snd.chaninfoUnweightedPriority[492 * v66 - 48680]);
-      __asm
-      {
-        vmovaps xmm3, xmm8; xScale
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm7; x
-        vmovss  dword ptr [rsp+88h+fmt], xmm8
-      }
-      CG_DrawDevString(_RDI, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtg, v69, &colorGreen, 5, v68);
+      v36 = cls.smallDevFont;
+      v37 = j_va("Playing: %s", **(const char ***)&g_snd.chaninfoUnweightedPriority[492 * v34 - 48680]);
+      CG_DrawDevString(v3, v4, v33, 0.55000001, 0.55000001, v37, &colorGreen, 5, v36);
     }
-LABEL_18:
-    __asm { vmovaps xmm8, [rsp+88h+var_38] }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
   }
 }
 
@@ -1022,7 +923,6 @@ void CG_SND_PlayBreathSound(cg_t *cgameGlob, PlayerBreathStateDef *breath)
   const char *exhaleAlias; 
   int breathsLeft; 
   int v8; 
-  float v10; 
 
   if ( breath )
   {
@@ -1044,18 +944,9 @@ void CG_SND_PlayBreathSound(cg_t *cgameGlob, PlayerBreathStateDef *breath)
         v8 = 0;
       cgameGlob->breathsLeft = v8;
       if ( Alias )
-      {
-        __asm
-        {
-          vmovss  xmm3, cs:__real@3f800000; volumeScale
-          vmovss  [rsp+48h+var_28], xmm3
-        }
-        cgameGlob->breathSoundId = SND_PlayScaledSoundAlias(Alias, (const LocalClientNum_t)cgameGlob->localClientNum, cgameGlob->predictedPlayerState.clientNum, *(float *)&_XMM3, v10, &cgameGlob->predictedPlayerState.origin, 0, SASYS_CGAME);
-      }
+        cgameGlob->breathSoundId = SND_PlayScaledSoundAlias(Alias, (const LocalClientNum_t)cgameGlob->localClientNum, cgameGlob->predictedPlayerState.clientNum, 1.0, 1.0, &cgameGlob->predictedPlayerState.origin, 0, SASYS_CGAME);
       else
-      {
         *(_QWORD *)&cgameGlob->breathsLeft = 0i64;
-      }
     }
   }
 }
@@ -1070,7 +961,6 @@ char CG_SND_PlayInitialPainSound(cg_t *cgameGlob)
   PlayerBreathStateDef *PlayerBreathState; 
   int clientNum; 
   LocalClientNum_t localClientNum; 
-  float fmt; 
 
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_player_breaths.cpp", 694, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
@@ -1078,14 +968,12 @@ char CG_SND_PlayInitialPainSound(cg_t *cgameGlob)
   PlayerBreathState = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[7]);
   if ( PlayerBreathState && PlayerBreathState->inhaleAlias )
   {
-    __asm { vmovss  xmm3, cs:__real@3f800000; volumeScale }
     clientNum = cgameGlob->predictedPlayerState.clientNum;
     localClientNum = cgameGlob->localClientNum;
     cgameGlob->breathSoundOut = 0;
     *(_WORD *)&cgameGlob->breathPlayedSoundAfterPain = 0;
     cgameGlob->breathPlayingInitialPainSound = 1;
-    __asm { vmovss  dword ptr [rsp+48h+fmt], xmm3 }
-    cgameGlob->breathSoundId = SND_PlayScaledSoundAlias(PlayerBreathState->inhaleAlias, localClientNum, clientNum, *(float *)&_XMM3, fmt, &cgameGlob->predictedPlayerState.origin, 0, SASYS_CGAME);
+    cgameGlob->breathSoundId = SND_PlayScaledSoundAlias(PlayerBreathState->inhaleAlias, localClientNum, clientNum, 1.0, 1.0, &cgameGlob->predictedPlayerState.origin, 0, SASYS_CGAME);
     return 1;
   }
   else
@@ -1448,151 +1336,145 @@ CG_SND_UpdatePlayerBreathSystem
 void CG_SND_UpdatePlayerBreathSystem(LocalClientNum_t localClientNum)
 {
   cg_t *LocalClientGlobals; 
+  cg_t *v2; 
   bool breathDamageOccurred; 
   unsigned int MainDesiredBreathState; 
   unsigned int breathSoundId; 
-  unsigned int v7; 
+  unsigned int v6; 
   bool IsPlaybackIdPlaying; 
   int entity; 
   int PerkNetworkPriorityIndex; 
-  unsigned __int64 v11; 
-  int v12; 
+  unsigned __int64 v10; 
+  int v11; 
   unsigned int breathMainState; 
   BreathPlayerState minBreaths; 
-  unsigned int v15; 
+  unsigned int v14; 
   PlayerBreathStateDef *PlayerBreathState; 
-  unsigned int v17; 
+  unsigned int v16; 
   int breathsLeft; 
+  PlayerBreathStateDef *v18; 
   PlayerBreathStateDef *v19; 
-  PlayerBreathStateDef *v21; 
   BreathSoundHoldState breathHoldState; 
+  PlayerBreathStateDef *v21; 
+  bool v22; 
+  unsigned int v23; 
   PlayerBreathStateDef *v24; 
-  bool v26; 
+  bool v25; 
+  __int64 v26; 
   unsigned int v27; 
   PlayerBreathStateDef *v28; 
-  bool v30; 
-  __int64 v31; 
-  unsigned int v32; 
+  PlayerBreathStateDef *v29; 
+  PlayerBreathStateDef *v30; 
+  PlayerBreathStateDef *v31; 
+  PlayerBreathStateDef *v32; 
   PlayerBreathStateDef *v33; 
   PlayerBreathStateDef *v34; 
-  PlayerBreathStateDef *v36; 
+  PlayerBreathStateDef *v35; 
+  unsigned int v36; 
   PlayerBreathStateDef *v37; 
-  PlayerBreathStateDef *v39; 
-  PlayerBreathStateDef *v40; 
-  PlayerBreathStateDef *v42; 
-  PlayerBreathStateDef *v44; 
-  unsigned int v46; 
-  PlayerBreathStateDef *v47; 
-  char v60; 
-  bool v62; 
+  float v38; 
+  const dvar_t *v39; 
+  double Float_Internal_DebugName; 
+  const dvar_t *v41; 
+  bool v42; 
   __int64 breathSoundState; 
-  unsigned int v64; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
-  float fmti; 
+  unsigned int v44; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  _RBX = LocalClientGlobals;
-  if ( !LocalClientGlobals || LocalClientGlobals->IsClientGamePaused(LocalClientGlobals) || _RBX->time < 1000 || _RBX->breathSysDisabled )
+  v2 = LocalClientGlobals;
+  if ( !LocalClientGlobals || LocalClientGlobals->IsClientGamePaused(LocalClientGlobals) || v2->time < 1000 || v2->breathSysDisabled )
     return;
-  breathDamageOccurred = _RBX->breathDamageOccurred;
-  MainDesiredBreathState = CG_SND_GetMainDesiredBreathState(_RBX);
-  breathSoundId = _RBX->breathSoundId;
-  v7 = MainDesiredBreathState;
-  _RBX->breathDamageOccurred = 0;
+  breathDamageOccurred = v2->breathDamageOccurred;
+  MainDesiredBreathState = CG_SND_GetMainDesiredBreathState(v2);
+  breathSoundId = v2->breathSoundId;
+  v6 = MainDesiredBreathState;
+  v2->breathDamageOccurred = 0;
   IsPlaybackIdPlaying = SND_IsPlaybackIdPlaying(breathSoundId);
-  if ( !_RBX->breathPlayingInitialPainSound )
+  if ( !v2->breathPlayingInitialPainSound )
   {
-    if ( _RBX->predictedPlayerState.pm_type < 7 )
+    if ( v2->predictedPlayerState.pm_type < 7 )
     {
-      if ( _RBX->breathPlayedSoundAfterPain )
+      if ( v2->breathPlayedSoundAfterPain )
       {
         if ( !IsPlaybackIdPlaying )
-          _RBX->breathCompletedSoundAfterPain = 1;
+          v2->breathCompletedSoundAfterPain = 1;
       }
       else if ( IsPlaybackIdPlaying )
       {
-        _RBX->breathPlayedSoundAfterPain = 1;
+        v2->breathPlayedSoundAfterPain = 1;
       }
     }
     else
     {
-      *(_DWORD *)&_RBX->breathPlayedSoundAfterPain = 0;
+      *(_DWORD *)&v2->breathPlayedSoundAfterPain = 0;
     }
   }
-  entity = _RBX->predictedPlayerState.vehicleState.entity;
-  if ( _RBX->predictedPlayerState.pm_type >= 7 )
+  entity = v2->predictedPlayerState.vehicleState.entity;
+  if ( v2->predictedPlayerState.pm_type >= 7 )
     goto LABEL_170;
   PerkNetworkPriorityIndex = BG_GetPerkNetworkPriorityIndex(0x1Fu);
-  v11 = (unsigned int)PerkNetworkPriorityIndex;
+  v10 = (unsigned int)PerkNetworkPriorityIndex;
   if ( PerkNetworkPriorityIndex >= 0 )
   {
     if ( (unsigned int)PerkNetworkPriorityIndex >= 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", PerkNetworkPriorityIndex, 64) )
       __debugbreak();
-    if ( ((0x80000000 >> (v11 & 0x1F)) & _RBX->predictedPlayerState.perks.array[v11 >> 5]) != 0 && v7 <= 0x10 )
+    if ( ((0x80000000 >> (v10 & 0x1F)) & v2->predictedPlayerState.perks.array[v10 >> 5]) != 0 && v6 <= 0x10 )
     {
-      v12 = 66097;
-      if ( _bittest(&v12, v7) )
+      v11 = 66097;
+      if ( _bittest(&v11, v6) )
         goto LABEL_170;
     }
   }
   if ( entity != 2047 )
   {
 LABEL_170:
-    if ( _RBX->breathSoundId )
+    if ( v2->breathSoundId )
       SND_StopSoundAliasById(IsPlaybackIdPlaying);
     return;
   }
-  breathMainState = _RBX->breathMainState;
+  breathMainState = v2->breathMainState;
   if ( breathMainState == 1 )
     goto LABEL_135;
   minBreaths = BREATH_PLR_STATE_IDLE;
   if ( breathMainState == 3 )
   {
-    if ( v7 != 3 )
+    if ( v6 != 3 )
     {
       if ( IsPlaybackIdPlaying )
         return;
-      v17 = s_painBreathSoundLookup[0];
-      _RBX->breathPainSoundState = BREATH_PAIN_RECOVERY;
-      PlayerBreathState = CG_GetPlayerBreathState(v17);
+      v16 = s_painBreathSoundLookup[0];
+      v2->breathPainSoundState = BREATH_PAIN_RECOVERY;
+      PlayerBreathState = CG_GetPlayerBreathState(v16);
       if ( PlayerBreathState )
       {
-        if ( _RBX->breathPlayedRecoverySound )
+        if ( v2->breathPlayedRecoverySound )
         {
-          breathsLeft = _RBX->breathsLeft;
+          breathsLeft = v2->breathsLeft;
         }
         else
         {
-          _RBX->breathPlayedRecoverySound = 1;
+          v2->breathPlayedRecoverySound = 1;
           breathsLeft = PlayerBreathState->minBreaths;
-          _RBX->breathsLeft = breathsLeft;
+          v2->breathsLeft = breathsLeft;
         }
         if ( breathsLeft > 0 )
           goto LABEL_42;
       }
-      _RBX->breathMainState = v7;
-      breathMainState = v7;
+      v2->breathMainState = v6;
+      breathMainState = v6;
       goto LABEL_50;
     }
 LABEL_33:
     if ( breathMainState == 3 )
     {
-      if ( !breathDamageOccurred || _RBX->breathPlayingInitialPainSound || !_RBX->breathPlayedSoundAfterPain || !_RBX->breathCompletedSoundAfterPain )
+      if ( !breathDamageOccurred || v2->breathPlayingInitialPainSound || !v2->breathPlayedSoundAfterPain || !v2->breathCompletedSoundAfterPain )
       {
         if ( IsPlaybackIdPlaying )
           return;
-        v15 = s_painBreathSoundLookup[1];
-        _RBX->breathPlayingInitialPainSound = 0;
-        _RBX->breathPainSoundState = BREATH_PAIN_ONGOING;
-        PlayerBreathState = CG_GetPlayerBreathState(v15);
+        v14 = s_painBreathSoundLookup[1];
+        v2->breathPlayingInitialPainSound = 0;
+        v2->breathPainSoundState = BREATH_PAIN_ONGOING;
+        PlayerBreathState = CG_GetPlayerBreathState(v14);
         if ( !PlayerBreathState )
           return;
         goto LABEL_42;
@@ -1600,166 +1482,139 @@ LABEL_33:
     }
     else
     {
-      _RBX->breathPlayedRecoverySound = 0;
-      _RBX->breathMainState = BREATH_MAIN_PAIN_DEATHSDOOR;
+      v2->breathPlayedRecoverySound = 0;
+      v2->breathMainState = BREATH_MAIN_PAIN_DEATHSDOOR;
     }
-    CG_SND_PlayInitialPainSound(_RBX);
+    CG_SND_PlayInitialPainSound(v2);
     return;
   }
-  if ( v7 == 3 )
+  if ( v6 == 3 )
     goto LABEL_33;
   if ( breathMainState == 2 )
     goto LABEL_30;
-  if ( v7 != 2 )
+  if ( v6 != 2 )
     goto LABEL_50;
-  if ( !_RBX->breathCompletedSoundAfterPain )
+  if ( !v2->breathCompletedSoundAfterPain )
   {
 LABEL_30:
     if ( IsPlaybackIdPlaying )
       return;
-    *(_WORD *)&_RBX->breathCompletedSoundAfterPain = 0;
-    _RBX->breathPlayedSoundAfterPain = 0;
+    *(_WORD *)&v2->breathCompletedSoundAfterPain = 0;
+    v2->breathPlayedSoundAfterPain = 0;
   }
   else
   {
-    _RBX->breathMainState = BREATH_MAIN_PAIN_REGULAR;
-    if ( CG_SND_PlayInitialPainSound(_RBX) )
+    v2->breathMainState = BREATH_MAIN_PAIN_REGULAR;
+    if ( CG_SND_PlayInitialPainSound(v2) )
       return;
   }
-  v7 = CG_SND_GetMainDesiredBreathState(_RBX);
-  _RBX->breathMainState = v7;
-  breathMainState = v7;
+  v6 = CG_SND_GetMainDesiredBreathState(v2);
+  v2->breathMainState = v6;
+  breathMainState = v6;
 LABEL_50:
   if ( breathMainState == 8 )
     goto LABEL_135;
-  if ( v7 == 8 )
+  if ( v6 == 8 )
   {
-    v19 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[20]);
-    SND_StopSoundAliasById(_RBX->breathSoundId);
-    *(_QWORD *)&_RBX->breathsLeft = 0i64;
-    if ( v19 )
+    v18 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[20]);
+    SND_StopSoundAliasById(v2->breathSoundId);
+    *(_QWORD *)&v2->breathsLeft = 0i64;
+    if ( v18 )
     {
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3f800000; volumeScale
-        vmovss  dword ptr [rsp+68h+fmt], xmm3
-      }
-      _RBX->breathSoundId = SND_PlayScaledSoundAlias(v19->inhaleAlias, (const LocalClientNum_t)_RBX->localClientNum, _RBX->predictedPlayerState.clientNum, *(float *)&_XMM3, fmt, &_RBX->predictedPlayerState.origin, 0, SASYS_CGAME);
-      _RBX->breathsLeft = v19->minBreaths;
+      v2->breathSoundId = SND_PlayScaledSoundAlias(v18->inhaleAlias, (const LocalClientNum_t)v2->localClientNum, v2->predictedPlayerState.clientNum, 1.0, 1.0, &v2->predictedPlayerState.origin, 0, SASYS_CGAME);
+      v2->breathsLeft = v18->minBreaths;
     }
-    _RBX->breathMainState = BREATH_MAIN_GASP;
-    _RBX->breathSoundOut = 0;
-    _RBX->breathHoldState = BREATH_HOLD_EXHALE;
+    v2->breathMainState = BREATH_MAIN_GASP;
+    v2->breathSoundOut = 0;
+    v2->breathHoldState = BREATH_HOLD_EXHALE;
     return;
   }
   if ( breathMainState == 7 )
   {
-    if ( v7 != 7 && _RBX->breathHoldState == BREATH_HOLD_HOLDING && !IsPlaybackIdPlaying )
+    if ( v6 != 7 && v2->breathHoldState == BREATH_HOLD_HOLDING && !IsPlaybackIdPlaying )
     {
-      v21 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[19]);
-      SND_StopSoundAliasById(_RBX->breathSoundId);
-      _RBX->breathSoundId = 0;
-      if ( v21 )
+      v19 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[19]);
+      SND_StopSoundAliasById(v2->breathSoundId);
+      v2->breathSoundId = 0;
+      if ( v19 )
       {
-        __asm
-        {
-          vmovss  xmm3, cs:__real@3f800000; volumeScale
-          vmovss  dword ptr [rsp+68h+fmt], xmm3
-        }
-        _RBX->breathSoundId = SND_PlayScaledSoundAlias(v21->exhaleAlias, (const LocalClientNum_t)_RBX->localClientNum, _RBX->predictedPlayerState.clientNum, *(float *)&_XMM3, fmta, &_RBX->predictedPlayerState.origin, 0, SASYS_CGAME);
-        _RBX->breathsLeft = v21->minBreaths;
+        v2->breathSoundId = SND_PlayScaledSoundAlias(v19->exhaleAlias, (const LocalClientNum_t)v2->localClientNum, v2->predictedPlayerState.clientNum, 1.0, 1.0, &v2->predictedPlayerState.origin, 0, SASYS_CGAME);
+        v2->breathsLeft = v19->minBreaths;
       }
-      _RBX->breathMainState = BREATH_MAIN_HOLD;
-      _RBX->breathHoldState = BREATH_HOLD_EXHALE;
-      _RBX->breathSoundOut = 0;
+      v2->breathMainState = BREATH_MAIN_HOLD;
+      v2->breathHoldState = BREATH_HOLD_EXHALE;
+      v2->breathSoundOut = 0;
     }
-    breathHoldState = _RBX->breathHoldState;
+    breathHoldState = v2->breathHoldState;
     if ( breathHoldState )
     {
       if ( breathHoldState == BREATH_HOLD_EXHALE && !IsPlaybackIdPlaying )
       {
-        _RBX->breathMainState = v7;
-        _RBX->breathHoldState = BREATH_HOLD_INHALE;
+        v2->breathMainState = v6;
+        v2->breathHoldState = BREATH_HOLD_INHALE;
       }
     }
     else if ( !IsPlaybackIdPlaying )
     {
-      _RBX->breathHoldState = BREATH_HOLD_HOLDING;
+      v2->breathHoldState = BREATH_HOLD_HOLDING;
     }
     return;
   }
-  if ( v7 == 7 )
+  if ( v6 == 7 )
   {
-    v24 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[19]);
-    SND_StopSoundAliasById(_RBX->breathSoundId);
-    *(_QWORD *)&_RBX->breathsLeft = 0i64;
+    v21 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[19]);
+    SND_StopSoundAliasById(v2->breathSoundId);
+    *(_QWORD *)&v2->breathsLeft = 0i64;
+    if ( v21 )
+    {
+      v2->breathSoundId = SND_PlayScaledSoundAlias(v21->inhaleAlias, (const LocalClientNum_t)v2->localClientNum, v2->predictedPlayerState.clientNum, 1.0, 1.0, &v2->predictedPlayerState.origin, 0, SASYS_CGAME);
+      v2->breathsLeft = v21->minBreaths;
+    }
+    v2->breathMainState = BREATH_MAIN_HOLD;
+    v2->breathSoundOut = 0;
+    v2->breathHoldState = BREATH_HOLD_INHALE;
+    return;
+  }
+  if ( v6 == 9 )
+  {
+    v22 = breathMainState == 6;
+    v23 = s_breathSoundStateHashLookup[21];
+    if ( !v22 )
+      v23 = s_breathSoundStateHashLookup[15];
+    v24 = CG_GetPlayerBreathState(v23);
+    SND_StopSoundAliasById(v2->breathSoundId);
     if ( v24 )
-    {
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3f800000; volumeScale
-        vmovss  dword ptr [rsp+68h+fmt], xmm3
-      }
-      _RBX->breathSoundId = SND_PlayScaledSoundAlias(v24->inhaleAlias, (const LocalClientNum_t)_RBX->localClientNum, _RBX->predictedPlayerState.clientNum, *(float *)&_XMM3, fmtb, &_RBX->predictedPlayerState.origin, 0, SASYS_CGAME);
-      _RBX->breathsLeft = v24->minBreaths;
-    }
-    _RBX->breathMainState = BREATH_MAIN_HOLD;
-    _RBX->breathSoundOut = 0;
-    _RBX->breathHoldState = BREATH_HOLD_INHALE;
+      v2->breathSoundId = SND_PlayScaledSoundAlias(v24->inhaleAlias, (const LocalClientNum_t)v2->localClientNum, v2->predictedPlayerState.clientNum, 1.0, 1.0, &v2->predictedPlayerState.origin, 0, SASYS_CGAME);
+    v2->breathSoundOut = 0;
     return;
   }
-  if ( v7 == 9 )
-  {
-    v26 = breathMainState == 6;
-    v27 = s_breathSoundStateHashLookup[21];
-    if ( !v26 )
-      v27 = s_breathSoundStateHashLookup[15];
-    v28 = CG_GetPlayerBreathState(v27);
-    SND_StopSoundAliasById(_RBX->breathSoundId);
-    if ( v28 )
-    {
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3f800000; volumeScale
-        vmovss  dword ptr [rsp+68h+fmt], xmm3
-      }
-      _RBX->breathSoundId = SND_PlayScaledSoundAlias(v28->inhaleAlias, (const LocalClientNum_t)_RBX->localClientNum, _RBX->predictedPlayerState.clientNum, *(float *)&_XMM3, fmtc, &_RBX->predictedPlayerState.origin, 0, SASYS_CGAME);
-    }
-    _RBX->breathSoundOut = 0;
-    return;
-  }
-  if ( v7 != 6 )
+  if ( v6 != 6 )
   {
     switch ( breathMainState )
     {
       case 6u:
-        if ( !CG_SND_ShouldAutoHoldBreath(_RBX) )
-          _RBX->breathMainState = v7;
+        if ( !CG_SND_ShouldAutoHoldBreath(v2) )
+          v2->breathMainState = v6;
         return;
       case 0xAu:
-        if ( v7 != 10 )
+        if ( v6 != 10 )
         {
-          v34 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[16]);
-          if ( v34 )
+          v29 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[16]);
+          if ( v29 )
           {
-            if ( _RBX->time - _RBX->breathShotStartTime > Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_cg_playerbreath_shot_recov_time, "cg_playerbreath_shot_recov_time") )
+            if ( v2->time - v2->breathShotStartTime > Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_cg_playerbreath_shot_recov_time, "cg_playerbreath_shot_recov_time") )
             {
-              SND_StopSoundAliasById(_RBX->breathSoundId);
-              __asm
-              {
-                vmovss  xmm3, cs:__real@3f800000; volumeScale
-                vmovss  dword ptr [rsp+68h+fmt], xmm3
-              }
-              _RBX->breathSoundId = SND_PlayScaledSoundAlias(v34->inhaleAlias, (const LocalClientNum_t)_RBX->localClientNum, _RBX->predictedPlayerState.clientNum, *(float *)&_XMM3, fmtd, &_RBX->predictedPlayerState.origin, 0, SASYS_CGAME);
-              v7 = 11;
+              SND_StopSoundAliasById(v2->breathSoundId);
+              v2->breathSoundId = SND_PlayScaledSoundAlias(v29->inhaleAlias, (const LocalClientNum_t)v2->localClientNum, v2->predictedPlayerState.clientNum, 1.0, 1.0, &v2->predictedPlayerState.origin, 0, SASYS_CGAME);
+              v6 = 11;
             }
-            _RBX->breathMainState = v7;
+            v2->breathMainState = v6;
           }
           else
           {
-            SND_StopSoundAliasById(_RBX->breathSoundId);
-            _RBX->breathSoundId = 0;
-            _RBX->breathMainState = BREATH_MAIN_SHOOTING_RECOVERY;
+            SND_StopSoundAliasById(v2->breathSoundId);
+            v2->breathSoundId = 0;
+            v2->breathMainState = BREATH_MAIN_SHOOTING_RECOVERY;
           }
           return;
         }
@@ -1767,28 +1622,23 @@ LABEL_50:
       case 0xBu:
         if ( !IsPlaybackIdPlaying )
         {
-          _RBX->breathMainState = v7;
-          _RBX->breathSoundOut = 1;
+          v2->breathMainState = v6;
+          v2->breathSoundOut = 1;
           return;
         }
         break;
       case 0xCu:
         goto LABEL_107;
     }
-    if ( v7 == 12 )
+    if ( v6 == 12 )
     {
-      v36 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[17]);
-      _RBX->breathMainState = BREATH_MAIN_MELEE_RECOVERY;
-      v37 = v36;
-      if ( v36 )
+      v30 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[17]);
+      v2->breathMainState = BREATH_MAIN_MELEE_RECOVERY;
+      v31 = v30;
+      if ( v30 )
       {
-        SND_StopSoundAliasById(_RBX->breathSoundId);
-        __asm
-        {
-          vmovss  xmm3, cs:__real@3f800000; volumeScale
-          vmovss  dword ptr [rsp+68h+fmt], xmm3
-        }
-        _RBX->breathSoundId = SND_PlayScaledSoundAlias(v37->inhaleAlias, (const LocalClientNum_t)_RBX->localClientNum, _RBX->predictedPlayerState.clientNum, *(float *)&_XMM3, fmte, &_RBX->predictedPlayerState.origin, 0, SASYS_CGAME);
+        SND_StopSoundAliasById(v2->breathSoundId);
+        v2->breathSoundId = SND_PlayScaledSoundAlias(v31->inhaleAlias, (const LocalClientNum_t)v2->localClientNum, v2->predictedPlayerState.clientNum, 1.0, 1.0, &v2->predictedPlayerState.origin, 0, SASYS_CGAME);
         return;
       }
       goto LABEL_114;
@@ -1798,7 +1648,7 @@ LABEL_107:
     {
       if ( !IsPlaybackIdPlaying )
       {
-        _RBX->breathMainState = v7;
+        v2->breathMainState = v6;
         return;
       }
     }
@@ -1808,68 +1658,47 @@ LABEL_115:
       if ( breathMainState == 15 && !IsPlaybackIdPlaying )
       {
 LABEL_136:
-        _RBX->breathMainState = v7;
+        v2->breathMainState = v6;
         return;
       }
-      switch ( v7 )
+      switch ( v6 )
       {
         case 0xAu:
           if ( breathMainState != 10 )
           {
-            _RBX->breathShotStartTime = _RBX->time;
-            _RBX->breathMainState = BREATH_MAIN_SHOOTING;
+            v2->breathShotStartTime = v2->time;
+            v2->breathMainState = BREATH_MAIN_SHOOTING;
           }
           return;
         case 4u:
-          v42 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[11]);
-          SND_StopSoundAliasById(_RBX->breathSoundId);
-          _RBX->breathSoundId = 0;
-          if ( v42 )
-          {
-            __asm
-            {
-              vmovss  xmm3, cs:__real@3f800000; volumeScale
-              vmovss  dword ptr [rsp+68h+fmt], xmm3
-            }
-            _RBX->breathSoundId = SND_PlayScaledSoundAlias(v42->inhaleAlias, (const LocalClientNum_t)_RBX->localClientNum, _RBX->predictedPlayerState.clientNum, *(float *)&_XMM3, fmtg, &_RBX->predictedPlayerState.origin, 0, SASYS_CGAME);
-          }
-          _RBX->breathSoundOut = 0;
-          _RBX->breathMainState = BREATH_MAIN_JUMP;
+          v34 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[11]);
+          SND_StopSoundAliasById(v2->breathSoundId);
+          v2->breathSoundId = 0;
+          if ( v34 )
+            v2->breathSoundId = SND_PlayScaledSoundAlias(v34->inhaleAlias, (const LocalClientNum_t)v2->localClientNum, v2->predictedPlayerState.clientNum, 1.0, 1.0, &v2->predictedPlayerState.origin, 0, SASYS_CGAME);
+          v2->breathSoundOut = 0;
+          v2->breathMainState = BREATH_MAIN_JUMP;
           return;
         case 0x10u:
-          v44 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[12]);
-          SND_StopSoundAliasById(_RBX->breathSoundId);
-          _RBX->breathSoundId = 0;
-          if ( v44 )
-          {
-            __asm
-            {
-              vmovss  xmm3, cs:__real@3f800000; volumeScale
-              vmovss  dword ptr [rsp+68h+fmt], xmm3
-            }
-            _RBX->breathSoundId = SND_PlayScaledSoundAlias(v44->inhaleAlias, (const LocalClientNum_t)_RBX->localClientNum, _RBX->predictedPlayerState.clientNum, *(float *)&_XMM3, fmth, &_RBX->predictedPlayerState.origin, 0, SASYS_CGAME);
-          }
-          _RBX->breathSoundOut = 0;
-          _RBX->breathMainState = BREATH_MAIN_DOUBLE_JUMP;
+          v35 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[12]);
+          SND_StopSoundAliasById(v2->breathSoundId);
+          v2->breathSoundId = 0;
+          if ( v35 )
+            v2->breathSoundId = SND_PlayScaledSoundAlias(v35->inhaleAlias, (const LocalClientNum_t)v2->localClientNum, v2->predictedPlayerState.clientNum, 1.0, 1.0, &v2->predictedPlayerState.origin, 0, SASYS_CGAME);
+          v2->breathSoundOut = 0;
+          v2->breathMainState = BREATH_MAIN_DOUBLE_JUMP;
           return;
         case 5u:
-          v46 = s_breathSoundStateHashLookup[13];
-          if ( _RBX->breathLanded == BREATH_LAND_LOW )
-            v46 = s_breathSoundStateHashLookup[14];
-          v47 = CG_GetPlayerBreathState(v46);
-          SND_StopSoundAliasById(_RBX->breathSoundId);
-          _RBX->breathSoundId = 0;
-          if ( v47 )
-          {
-            __asm
-            {
-              vmovss  xmm3, cs:__real@3f800000; volumeScale
-              vmovss  dword ptr [rsp+68h+fmt], xmm3
-            }
-            _RBX->breathSoundId = SND_PlayScaledSoundAlias(v47->inhaleAlias, (const LocalClientNum_t)_RBX->localClientNum, _RBX->predictedPlayerState.clientNum, *(float *)&_XMM3, fmti, &_RBX->predictedPlayerState.origin, 0, SASYS_CGAME);
-          }
-          _RBX->breathSoundOut = 0;
-          _RBX->breathLanded = BREATH_LAND_NONE;
+          v36 = s_breathSoundStateHashLookup[13];
+          if ( v2->breathLanded == BREATH_LAND_LOW )
+            v36 = s_breathSoundStateHashLookup[14];
+          v37 = CG_GetPlayerBreathState(v36);
+          SND_StopSoundAliasById(v2->breathSoundId);
+          v2->breathSoundId = 0;
+          if ( v37 )
+            v2->breathSoundId = SND_PlayScaledSoundAlias(v37->inhaleAlias, (const LocalClientNum_t)v2->localClientNum, v2->predictedPlayerState.clientNum, 1.0, 1.0, &v2->predictedPlayerState.origin, 0, SASYS_CGAME);
+          v2->breathSoundOut = 0;
+          v2->breathLanded = BREATH_LAND_NONE;
           return;
       }
       if ( ((breathMainState - 4) & 0xFFFFFFFA) == 0 )
@@ -1879,107 +1708,76 @@ LABEL_135:
           return;
         goto LABEL_136;
       }
-      if ( breathMainState || _RBX->breathSoundId && IsPlaybackIdPlaying )
+      if ( breathMainState || v2->breathSoundId && IsPlaybackIdPlaying )
         return;
-      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->predictedPlayerState.pm_flags, ACTIVE, 0x1Eu) )
+      if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v2->predictedPlayerState.pm_flags, ACTIVE, 0x1Eu) )
       {
         minBreaths = BREATH_PLR_STATE_SPRINT;
       }
-      else if ( _RBX->predictedPlayerState.pm_type <= 1u )
+      else if ( v2->predictedPlayerState.pm_type <= 1u )
       {
-        __asm
+        v38 = fsqrt((float)((float)(v2->predictedPlayerState.velocity.v[0] * v2->predictedPlayerState.velocity.v[0]) + (float)(v2->predictedPlayerState.velocity.v[1] * v2->predictedPlayerState.velocity.v[1])) + (float)(v2->predictedPlayerState.velocity.v[2] * v2->predictedPlayerState.velocity.v[2]));
+        if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v2->predictedPlayerState.pm_flags, ACTIVE, 0xBu) && v38 >= 10.0 )
         {
-          vmovss  xmm0, dword ptr [rbx+44h]
-          vmovss  xmm2, dword ptr [rbx+48h]
-          vmovss  xmm3, dword ptr [rbx+4Ch]
-          vmulss  xmm1, xmm0, xmm0
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vmovaps [rsp+68h+var_28], xmm6
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm6, xmm2, xmm2
-        }
-        if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->predictedPlayerState.pm_flags, ACTIVE, 0xBu) )
-        {
-          __asm { vcomiss xmm6, cs:__real@41200000 }
           minBreaths = BREATH_PLR_STATE_WALK;
         }
         else
         {
-          if ( !BG_IsSuperSprinting(&_RBX->predictedPlayerState) )
+          if ( !BG_IsSuperSprinting(&v2->predictedPlayerState) )
             goto LABEL_171;
-          _RSI = DCONST_DVARFLT_player_sprintThreshhold;
+          v39 = DCONST_DVARFLT_player_sprintThreshhold;
           if ( !DCONST_DVARFLT_player_sprintThreshhold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_sprintThreshhold") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RSI);
-          __asm { vcomiss xmm6, dword ptr [rsi+28h] }
-          if ( v60 )
-          {
-LABEL_171:
-            if ( !PM_IsSprinting(&_RBX->predictedPlayerState) )
-              goto LABEL_154;
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_sprintThreshhold, "player_sprintThreshhold");
-            __asm { vcomiss xmm6, xmm0 }
-            if ( v60 )
-            {
-LABEL_154:
-              _RSI = DCONST_DVARFLT_player_runThreshhold;
-              if ( !DCONST_DVARFLT_player_runThreshhold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_runThreshhold") )
-                __debugbreak();
-              Dvar_CheckFrontendServerThread(_RSI);
-              __asm { vcomiss xmm6, dword ptr [rsi+28h] }
-              if ( v60 )
-              {
-                __asm { vcomiss xmm6, cs:__real@41200000 }
-                LOBYTE(minBreaths) = !v60;
-              }
-              else
-              {
-                minBreaths = BREATH_PLR_STATE_RUN;
-              }
-            }
-            else
-            {
-              minBreaths = BREATH_PLR_STATE_SPRINT;
-            }
-          }
-          else
+          Dvar_CheckFrontendServerThread(v39);
+          if ( v38 >= v39->current.value )
           {
             minBreaths = BREATH_PLR_STATE_SUPERSPRINT;
           }
+          else
+          {
+LABEL_171:
+            if ( PM_IsSprinting(&v2->predictedPlayerState) && (Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_player_sprintThreshhold, "player_sprintThreshhold"), v38 >= *(float *)&Float_Internal_DebugName) )
+            {
+              minBreaths = BREATH_PLR_STATE_SPRINT;
+            }
+            else
+            {
+              v41 = DCONST_DVARFLT_player_runThreshhold;
+              if ( !DCONST_DVARFLT_player_runThreshhold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_runThreshhold") )
+                __debugbreak();
+              Dvar_CheckFrontendServerThread(v41);
+              if ( v38 < v41->current.value )
+                LOBYTE(minBreaths) = v38 >= 10.0;
+              else
+                minBreaths = BREATH_PLR_STATE_RUN;
+            }
+          }
         }
-        __asm { vmovaps xmm6, [rsp+68h+var_28] }
       }
-      _RBX->breathSoundState = CG_SND_TransitionBreathSoundState(minBreaths, _RBX);
-      v62 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->predictedPlayerState.pm_flags, ACTIVE, 0x2Au);
-      breathSoundState = _RBX->breathSoundState;
-      if ( v62 )
-        v64 = s_breathZeroGSoundLookup[breathSoundState];
+      v2->breathSoundState = CG_SND_TransitionBreathSoundState(minBreaths, v2);
+      v42 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v2->predictedPlayerState.pm_flags, ACTIVE, 0x2Au);
+      breathSoundState = v2->breathSoundState;
+      if ( v42 )
+        v44 = s_breathZeroGSoundLookup[breathSoundState];
       else
-        v64 = s_breathSoundLookup[breathSoundState];
-      PlayerBreathState = CG_GetPlayerBreathState(v64);
+        v44 = s_breathSoundLookup[breathSoundState];
+      PlayerBreathState = CG_GetPlayerBreathState(v44);
 LABEL_42:
-      CG_SND_PlayBreathSound(_RBX, PlayerBreathState);
+      CG_SND_PlayBreathSound(v2, PlayerBreathState);
       return;
     }
-    if ( v7 == 14 )
+    if ( v6 == 14 )
     {
-      v39 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[18]);
-      _RBX->breathMainState = BREATH_MAIN_OFFHAND_RECOVERY;
-      v40 = v39;
-      if ( v39 )
+      v32 = CG_GetPlayerBreathState(s_breathSoundStateHashLookup[18]);
+      v2->breathMainState = BREATH_MAIN_OFFHAND_RECOVERY;
+      v33 = v32;
+      if ( v32 )
       {
-        SND_StopSoundAliasById(_RBX->breathSoundId);
-        __asm
-        {
-          vmovss  xmm3, cs:__real@3f800000; volumeScale
-          vmovss  dword ptr [rsp+68h+fmt], xmm3
-        }
-        minBreaths = SND_PlayScaledSoundAlias(v40->inhaleAlias, (const LocalClientNum_t)_RBX->localClientNum, _RBX->predictedPlayerState.clientNum, *(float *)&_XMM3, fmtf, &_RBX->predictedPlayerState.origin, 0, SASYS_CGAME);
+        SND_StopSoundAliasById(v2->breathSoundId);
+        minBreaths = SND_PlayScaledSoundAlias(v33->inhaleAlias, (const LocalClientNum_t)v2->localClientNum, v2->predictedPlayerState.clientNum, 1.0, 1.0, &v2->predictedPlayerState.origin, 0, SASYS_CGAME);
       }
 LABEL_114:
-      _RBX->breathSoundId = minBreaths;
+      v2->breathSoundId = minBreaths;
       return;
     }
     goto LABEL_115;
@@ -1995,17 +1793,17 @@ LABEL_114:
     case 6u:
       return;
   }
-  v30 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->predictedPlayerState.pm_flags, ACTIVE, 0x2Au);
-  v31 = _RBX->breathSoundState;
-  if ( v30 )
-    v32 = s_breathZeroGSoundLookup[v31];
+  v25 = GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&v2->predictedPlayerState.pm_flags, ACTIVE, 0x2Au);
+  v26 = v2->breathSoundState;
+  if ( v25 )
+    v27 = s_breathZeroGSoundLookup[v26];
   else
-    v32 = s_breathSoundLookup[v31];
-  v33 = CG_GetPlayerBreathState(v32);
-  _RBX->breathMainState = BREATH_MAIN_AUTO_HOLD;
-  if ( v33 )
-    minBreaths = v33->minBreaths;
-  _RBX->breathsLeft = minBreaths;
-  _RBX->breathSoundOut = 0;
+    v27 = s_breathSoundLookup[v26];
+  v28 = CG_GetPlayerBreathState(v27);
+  v2->breathMainState = BREATH_MAIN_AUTO_HOLD;
+  if ( v28 )
+    minBreaths = v28->minBreaths;
+  v2->breathsLeft = minBreaths;
+  v2->breathSoundOut = 0;
 }
 

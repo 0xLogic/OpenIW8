@@ -91,6 +91,7 @@ load_jpeg_image
 */
 unsigned __int8 *load_jpeg_image(stbi__jpeg *z, int *out_x, int *out_y, int *comp, int req_comp)
 {
+  __m256i v6; 
   int v7; 
   int *v8; 
   stbi__jpeg *v9; 
@@ -223,11 +224,8 @@ LABEL_16:
   index = stbi_mem.index;
   v18 = img_n;
   v94 = img_n;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu ymmword ptr [rsp+1A8h+var_138], ymm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v99 = v6;
   if ( img_n <= 0 )
     goto LABEL_37;
   v20 = 0i64;
@@ -740,11 +738,8 @@ LABEL_56:
   if ( img_n != 3 || v18->img_x > outputwidth || v18->img_y > outputheight )
     return 0i64;
   v20 = &v63;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rsp+198h+var_128], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v61 = _XMM0;
   v62 = 0i64;
   p_h = &v16->img_comp[0].h;
   for ( i = 0i64; i < 3; ++i )
@@ -1142,65 +1137,41 @@ stbi__YCbCr_to_RGB_simd
 */
 void stbi__YCbCr_to_RGB_simd(unsigned __int8 *out, const unsigned __int8 *y, const unsigned __int8 *pcb, const unsigned __int8 *pcr, int count, int step)
 {
-  int v18; 
-  unsigned __int8 *v62; 
-  signed __int64 v63; 
-  signed __int64 v64; 
-  const unsigned __int8 *v65; 
-  __int64 v66; 
-  int v67; 
-  int v68; 
-  int v69; 
-  int v70; 
-  int v71; 
-  int v72; 
-  char v73; 
-  char v74; 
-  char v75; 
-  void *retaddr; 
+  int v8; 
+  __int64 v11; 
+  unsigned __int8 *v37; 
+  signed __int64 v38; 
+  signed __int64 v39; 
+  const unsigned __int8 *v40; 
+  __int64 v41; 
+  int v42; 
+  int v43; 
+  int v44; 
+  int v45; 
+  int v46; 
+  int v47; 
+  char v48; 
+  char v49; 
+  char v50; 
 
-  _RAX = &retaddr;
-  _RSI = pcb;
-  _RBP = y;
-  v18 = 0;
+  v8 = 0;
   if ( step == 4 )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [rax-48h], xmm8
-      vmovaps xmmword ptr [rax-68h], xmm10
-      vmovaps xmmword ptr [rax-78h], xmm11
-      vmovaps [rsp+0A8h+var_88], xmm12
-      vmovaps [rsp+0A8h+var_98], xmm13
-      vmovaps [rsp+0A8h+var_A8], xmm14
-      vmovdqu xmm14, cs:__xmm@00ff00ff00ff00ff00ff00ff00ff00ff
-      vmovdqu xmm8, cs:__xmm@80808080808080808080808080808080
-      vmovdqu xmm10, cs:__xmm@166f166f166f166f166f166f166f166f
-      vmovdqu xmm11, cs:__xmm@f493f493f493f493f493f493f493f493
-      vmovdqu xmm12, cs:__xmm@fa7efa7efa7efa7efa7efa7efa7efa7e
-      vmovdqu xmm13, cs:__xmm@1c5a1c5a1c5a1c5a1c5a1c5a1c5a1c5a
-    }
+    _XMM8 = _xmm;
     if ( count > 7 )
     {
-      __asm
-      {
-        vmovaps xmmword ptr [rax-28h], xmm6
-        vmovaps xmmword ptr [rax-38h], xmm7
-        vmovaps xmmword ptr [rax-58h], xmm9
-        vpxor   xmm9, xmm9, xmm9
-      }
+      __asm { vpxor   xmm9, xmm9, xmm9 }
       do
       {
-        _RAX = v18;
-        v18 += 8;
+        v11 = v8;
+        v8 += 8;
+        _XMM0 = *(unsigned __int64 *)&pcr[v11];
+        __asm { vpxor   xmm1, xmm0, xmm8 }
+        _XMM0 = *(unsigned __int64 *)&pcb[v11];
         __asm
         {
-          vmovq   xmm0, qword ptr [rax+r9]
-          vpxor   xmm1, xmm0, xmm8
-          vmovq   xmm0, qword ptr [rax+rsi]
           vpunpcklbw xmm7, xmm9, xmm1
           vpxor   xmm1, xmm0, xmm8
-          vmovq   xmm0, qword ptr [rax+rbp]
           vpunpcklbw xmm6, xmm9, xmm1
           vpunpcklbw xmm1, xmm8, xmm0
           vpsrlw  xmm4, xmm1, 4
@@ -1220,75 +1191,60 @@ void stbi__YCbCr_to_RGB_simd(unsigned __int8 *out, const unsigned __int8 *y, con
           vpunpcklbw xmm2, xmm5, xmm3
           vpunpckhbw xmm1, xmm5, xmm3
           vpunpcklwd xmm0, xmm2, xmm1
-          vmovdqu xmmword ptr [rcx], xmm0
-          vpunpckhwd xmm0, xmm2, xmm1
-          vmovdqu xmmword ptr [rcx+10h], xmm0
         }
+        *(_OWORD *)out = _XMM0;
+        __asm { vpunpckhwd xmm0, xmm2, xmm1 }
+        *((_OWORD *)out + 1) = _XMM0;
         out += 32;
       }
-      while ( v18 + 7 < count );
-      __asm
-      {
-        vmovaps xmm9, [rsp+0A8h+var_58]
-        vmovaps xmm7, [rsp+0A8h+var_38]
-        vmovaps xmm6, [rsp+0A8h+var_28]
-      }
-    }
-    __asm
-    {
-      vmovaps xmm13, [rsp+0A8h+var_98]
-      vmovaps xmm12, [rsp+0A8h+var_88]
-      vmovaps xmm11, [rsp+0A8h+var_78]
-      vmovaps xmm10, [rsp+0A8h+var_68]
-      vmovaps xmm8, [rsp+0A8h+var_48]
-      vmovaps xmm14, [rsp+0A8h+var_A8]
+      while ( v8 + 7 < count );
     }
   }
-  if ( v18 < (__int64)count )
+  if ( v8 < (__int64)count )
   {
-    v62 = out + 2;
-    v63 = _RBP - pcr;
-    v64 = pcb - pcr;
-    v65 = &pcr[v18];
-    v66 = count - (__int64)v18;
+    v37 = out + 2;
+    v38 = y - pcr;
+    v39 = pcb - pcr;
+    v40 = &pcr[v8];
+    v41 = count - (__int64)v8;
     do
     {
-      v67 = *v65;
-      v68 = v65[v64];
-      v69 = (v65[v63] << 20) + 0x80000;
-      v70 = (v69 + 1470208 * (v67 - 128)) >> 20;
-      v71 = (int)(v69 + ((360960 * (128 - v68)) & 0xFFFF0000) + 748800 * (128 - v67)) >> 20;
-      v72 = (v69 + 1858048 * (v68 - 128)) >> 20;
-      if ( (unsigned int)v70 > 0xFF )
+      v42 = *v40;
+      v43 = v40[v39];
+      v44 = (v40[v38] << 20) + 0x80000;
+      v45 = (v44 + 1470208 * (v42 - 128)) >> 20;
+      v46 = (int)(v44 + ((360960 * (128 - v43)) & 0xFFFF0000) + 748800 * (128 - v42)) >> 20;
+      v47 = (v44 + 1858048 * (v43 - 128)) >> 20;
+      if ( (unsigned int)v45 > 0xFF )
       {
-        v73 = -1;
-        if ( v70 < 0 )
-          v73 = 0;
-        LOBYTE(v70) = v73;
+        v48 = -1;
+        if ( v45 < 0 )
+          v48 = 0;
+        LOBYTE(v45) = v48;
       }
-      if ( (unsigned int)v71 > 0xFF )
+      if ( (unsigned int)v46 > 0xFF )
       {
-        v74 = -1;
-        if ( v71 < 0 )
-          v74 = 0;
-        LOBYTE(v71) = v74;
+        v49 = -1;
+        if ( v46 < 0 )
+          v49 = 0;
+        LOBYTE(v46) = v49;
       }
-      if ( (unsigned int)v72 > 0xFF )
+      if ( (unsigned int)v47 > 0xFF )
       {
-        v75 = -1;
-        if ( v72 < 0 )
-          v75 = 0;
-        LOBYTE(v72) = v75;
+        v50 = -1;
+        if ( v47 < 0 )
+          v50 = 0;
+        LOBYTE(v47) = v50;
       }
-      *(v62 - 2) = v70;
-      ++v65;
-      *(v62 - 1) = v71;
-      *v62 = v72;
-      v62[1] = -1;
-      v62 += step;
-      --v66;
+      *(v37 - 2) = v45;
+      ++v40;
+      *(v37 - 1) = v46;
+      *v37 = v47;
+      v37[1] = -1;
+      v37 += step;
+      --v41;
     }
-    while ( v66 );
+    while ( v41 );
   }
 }
 
@@ -2298,52 +2254,52 @@ int stbi__create_png_image(stbi__png *a, unsigned __int8 *image_data, unsigned i
   unsigned __int8 *v17; 
   int v18; 
   __int64 v19; 
-  stbi__context *v21; 
-  unsigned int v25; 
-  int v26; 
-  unsigned int v27; 
+  stbi__context *v20; 
+  unsigned int v21; 
+  int v22; 
+  unsigned int v23; 
   unsigned int x; 
-  unsigned int v29; 
-  __int64 v30; 
+  unsigned int v25; 
+  __int64 v26; 
+  int v27; 
+  unsigned int v28; 
+  int v29; 
+  int v30; 
   int v31; 
-  unsigned int v32; 
+  int v32; 
   int v33; 
   int v34; 
-  int v35; 
-  int v36; 
+  unsigned int raw_len; 
+  unsigned __int8 *v36; 
   int v37; 
   int v38; 
-  unsigned int raw_len; 
-  unsigned __int8 *v40; 
-  int v41; 
+  int v39; 
+  unsigned int v41; 
   int v42; 
-  int v43; 
+  unsigned int v43; 
+  int v44; 
   unsigned int v45; 
-  int v46; 
-  unsigned int v47; 
-  int v48; 
-  unsigned int v49; 
   int y; 
-  int v51; 
-  unsigned int v52; 
-  unsigned __int8 *v53; 
-  __int64 v54; 
+  int v47; 
+  unsigned int v48; 
+  unsigned __int8 *v49; 
+  __int64 v50; 
+  __int128 v51; 
+  int v52; 
+  int v53; 
+  int v54; 
   __int128 v55; 
   int v56; 
-  int v57; 
-  int v58; 
-  __int128 v59; 
+  __int64 v57; 
+  __int128 v58; 
+  int v59; 
   int v60; 
-  __int64 v61; 
+  int v61; 
   __int128 v62; 
-  int v63; 
+  __int64 v63; 
   int v64; 
-  int v65; 
-  __int128 v66; 
-  __int64 v67; 
-  int v68; 
 
-  v53 = image_data;
+  v49 = image_data;
   v7 = image_data;
   raw_len = image_data_len;
   s = a->s;
@@ -2364,130 +2320,123 @@ int stbi__create_png_image(stbi__png *a, unsigned __int8 *image_data, unsigned i
     if ( v16 + stbi_mem.index < stbi_mem.size )
     {
       stbi_mem.old_index = stbi_mem.index;
-      v40 = &stbi_mem.data[stbi_mem.index];
+      v36 = &stbi_mem.data[stbi_mem.index];
       v7 = image_data;
       stbi_mem.index += v16;
       goto LABEL_16;
     }
 LABEL_15:
-    v40 = NULL;
+    v36 = NULL;
     goto LABEL_16;
   }
   v17 = (unsigned __int8 *)alt_stb_malloc(v16);
   v10 = raw_len;
-  v40 = v17;
+  v36 = v17;
 LABEL_16:
   v18 = 0;
-  v43 = 0;
+  v39 = 0;
   v19 = 0i64;
-  v54 = 0i64;
+  v50 = 0i64;
   while ( 1 )
   {
-    __asm { vmovdqu xmm0, cs:__xmm@00000002000000000000000400000000 }
-    v21 = a->s;
-    __asm
-    {
-      vmovdqu [rbp+50h+var_98], xmm0
-      vmovdqu xmm0, cs:__xmm@00000000000000040000000000000000
-      vmovdqu [rbp+50h+var_58], xmm0
-      vmovdqu xmm0, cs:__xmm@00000004000000040000000800000008
-      vmovdqu [rbp+50h+var_B8], xmm0
-      vmovdqu xmm0, cs:__xmm@00000004000000080000000800000008
-    }
-    v56 = 2;
-    v57 = 2;
-    v58 = 1;
-    v25 = *(_DWORD *)((char *)&v55 + v19);
-    v60 = 0;
-    v61 = 1i64;
-    v26 = v25 - *(_DWORD *)((char *)&v59 + v19);
-    v48 = *(_DWORD *)((char *)&v59 + v19);
-    v27 = v21->img_x;
-    __asm { vmovdqu [rbp+50h+var_78], xmm0 }
-    v63 = 4;
-    v64 = 2;
-    v65 = 2;
-    x = (v26 + v27 - 1) / v25;
-    v47 = v25;
-    v29 = *(_DWORD *)((char *)&v62 + v19);
-    v30 = x;
-    v49 = x;
-    v67 = 2i64;
-    v68 = 1;
-    v45 = v29;
+    v20 = a->s;
+    v55 = _xmm;
+    v62 = _xmm;
+    v51 = _xmm;
+    v52 = 2;
+    v53 = 2;
+    v54 = 1;
+    v21 = *(_DWORD *)((char *)&v51 + v19);
+    v56 = 0;
+    v57 = 1i64;
+    v22 = v21 - *(_DWORD *)((char *)&v55 + v19);
+    v44 = *(_DWORD *)((char *)&v55 + v19);
+    v23 = v20->img_x;
+    v58 = _xmm;
+    v59 = 4;
+    v60 = 2;
+    v61 = 2;
+    x = (v22 + v23 - 1) / v21;
+    v43 = v21;
+    v25 = *(_DWORD *)((char *)&v58 + v19);
+    v26 = x;
+    v45 = x;
+    v63 = 2i64;
+    v64 = 1;
+    v41 = v25;
     if ( x )
     {
-      v46 = *(_DWORD *)((char *)&v66 + v19);
-      y = (v21->img_y - v46 + v29 - 1) / v29;
-      v31 = y;
+      v42 = *(_DWORD *)((char *)&v62 + v19);
+      y = (v20->img_y - v42 + v25 - 1) / v25;
+      v27 = y;
       if ( y )
         break;
     }
 LABEL_31:
     ++v18;
     v19 += 4i64;
-    v43 = v18;
-    v54 = v19;
+    v39 = v18;
+    v50 = v19;
     if ( v18 >= 7 )
     {
-      a->out = v40;
+      a->out = v36;
       return 1;
     }
   }
-  v32 = y * (((int)(depth * x * v21->img_n + 7) >> 3) + 1);
-  v52 = v32;
+  v28 = y * (((int)(depth * x * v20->img_n + 7) >> 3) + 1);
+  v48 = v28;
   if ( stbi__create_png_image_raw(a, v7, v10, out_n, x, y, depth, color) )
   {
-    v33 = 0;
-    v41 = 0;
+    v29 = 0;
+    v37 = 0;
     if ( y > 0 )
     {
-      v34 = 0;
-      v35 = v11 * v30;
-      v42 = 0;
-      v51 = v11 * v30;
+      v30 = 0;
+      v31 = v11 * v26;
+      v38 = 0;
+      v47 = v11 * v26;
       do
       {
-        if ( (int)v30 > 0 )
+        if ( (int)v26 > 0 )
         {
-          v36 = v34;
-          v37 = v46 + v33 * v45;
-          v38 = v11 * v48;
+          v32 = v30;
+          v33 = v42 + v29 * v41;
+          v34 = v11 * v44;
           do
           {
-            memcpy_0(&v40[v11 * v37 * a->s->img_x + v38], &a->out[v36], v11);
-            v37 = v46 + v33 * v45;
-            v36 += v11;
-            v38 += v11 * v47;
-            --v30;
+            memcpy_0(&v36[v11 * v33 * a->s->img_x + v34], &a->out[v32], v11);
+            v33 = v42 + v29 * v41;
+            v32 += v11;
+            v34 += v11 * v43;
+            --v26;
           }
-          while ( v30 );
-          v33 = v41;
-          v34 = v42;
-          v30 = v49;
-          v31 = y;
-          v35 = v51;
+          while ( v26 );
+          v29 = v37;
+          v30 = v38;
+          v26 = v45;
+          v27 = y;
+          v31 = v47;
         }
-        ++v33;
-        v34 += v35;
-        v41 = v33;
-        v42 = v34;
+        ++v29;
+        v30 += v31;
+        v37 = v29;
+        v38 = v30;
       }
-      while ( v33 < v31 );
-      v32 = v52;
-      v19 = v54;
+      while ( v29 < v27 );
+      v28 = v48;
+      v19 = v50;
     }
     if ( alt_stb_free )
       alt_stb_free(a->out);
-    v18 = v43;
-    v10 = raw_len - v32;
-    v7 = &v53[v32];
-    raw_len -= v32;
-    v53 = v7;
+    v18 = v39;
+    v10 = raw_len - v28;
+    v7 = &v49[v28];
+    raw_len -= v28;
+    v49 = v7;
     goto LABEL_31;
   }
   if ( alt_stb_free )
-    alt_stb_free(v40);
+    alt_stb_free(v36);
   return 0;
 }
 
@@ -2536,6 +2485,8 @@ __int64 stbi__create_png_image_raw(stbi__png *a, unsigned __int8 *raw, unsigned 
   __int64 v46; 
   __int64 v47; 
   unsigned __int64 v48; 
+  unsigned __int8 *v49; 
+  _OWORD *v50; 
   unsigned __int8 *v59; 
   __int64 v60; 
   __int64 v61; 
@@ -2569,6 +2520,9 @@ __int64 stbi__create_png_image_raw(stbi__png *a, unsigned __int8 *raw, unsigned 
   __int64 v89; 
   __int64 v90; 
   unsigned __int64 v91; 
+  signed __int64 v92; 
+  unsigned __int64 v93; 
+  unsigned __int8 *v94; 
   signed __int64 v103; 
   unsigned __int8 *v104; 
   unsigned __int64 v105; 
@@ -2877,28 +2831,25 @@ LABEL_65:
               v91 = v39 + v90;
               if ( (v39 > (unsigned __int64)&raw[v90] || v91 < (unsigned __int64)raw) && (v39 > (unsigned __int64)&v38[v90] || v91 < (unsigned __int64)v38) )
               {
-                _RCX = v38 - raw;
-                _R8 = v39 - (_QWORD)raw;
-                _RAX = raw;
+                v92 = v38 - raw;
+                v93 = v39 - (_QWORD)raw;
+                v94 = raw;
                 do
                 {
-                  __asm
-                  {
-                    vmovdqu xmm2, xmmword ptr [rcx+rax+10h]
-                    vmovdqu xmm1, xmmword ptr [rcx+rax]
-                    vpaddb  xmm1, xmm1, xmmword ptr [rax]
-                    vmovdqu xmmword ptr [rax+r8], xmm1
-                    vpaddb  xmm1, xmm2, xmmword ptr [rax+10h]
-                    vmovdqu xmm2, xmmword ptr [rcx+rax+20h]
-                    vmovdqu xmmword ptr [r8+rax+10h], xmm1
-                    vpaddb  xmm1, xmm2, xmmword ptr [rax+20h]
-                    vmovdqu xmm2, xmmword ptr [rcx+rax+30h]
-                    vmovdqu xmmword ptr [r8+rax+20h], xmm1
-                    vpaddb  xmm1, xmm2, xmmword ptr [rax+30h]
-                  }
+                  _XMM2 = *(_OWORD *)&v94[v92 + 16];
+                  _XMM1 = *(_OWORD *)&v94[v92];
+                  __asm { vpaddb  xmm1, xmm1, xmmword ptr [rax] }
+                  *(_OWORD *)&v94[v93] = _XMM1;
+                  __asm { vpaddb  xmm1, xmm2, xmmword ptr [rax+10h] }
+                  _XMM2 = *(_OWORD *)&v94[v92 + 32];
+                  *(_OWORD *)&v94[v93 + 16] = _XMM1;
+                  __asm { vpaddb  xmm1, xmm2, xmmword ptr [rax+20h] }
+                  _XMM2 = *(_OWORD *)&v94[v92 + 48];
+                  *(_OWORD *)&v94[v93 + 32] = _XMM1;
+                  __asm { vpaddb  xmm1, xmm2, xmmword ptr [rax+30h] }
                   v89 += 64i64;
-                  __asm { vmovdqu xmmword ptr [r8+rax+30h], xmm1 }
-                  _RAX += 64;
+                  *(_OWORD *)&v94[v93 + 48] = _XMM1;
+                  v94 += 64;
                 }
                 while ( v89 < v85 - (v85 & 0x3F) );
               }
@@ -3052,27 +3003,24 @@ LABEL_65:
                   v48 = v47 + v39;
                   if ( (v39 > (unsigned __int64)&raw[v47] || v48 < (unsigned __int64)raw) && (v39 > (unsigned __int64)&v38[v47] || v48 < (unsigned __int64)v38) )
                   {
-                    _RCX = &raw[-v39];
-                    _RAX = v39 + 16;
+                    v49 = &raw[-v39];
+                    v50 = (_OWORD *)(v39 + 16);
                     do
                     {
-                      __asm
-                      {
-                        vmovdqu xmm2, xmmword ptr [rax+rcx]
-                        vmovdqu xmm1, xmmword ptr [rcx+rax-10h]
-                        vpaddb  xmm1, xmm1, xmmword ptr [rdx+rax-10h]
-                        vmovdqu xmmword ptr [rax-10h], xmm1
-                        vpaddb  xmm1, xmm2, xmmword ptr [rdx+rax]
-                        vmovdqu xmm2, xmmword ptr [rcx+rax+10h]
-                        vmovdqu xmmword ptr [rax], xmm1
-                        vpaddb  xmm1, xmm2, xmmword ptr [rdx+rax+10h]
-                        vmovdqu xmm2, xmmword ptr [rcx+rax+20h]
-                        vmovdqu xmmword ptr [rax+10h], xmm1
-                        vpaddb  xmm1, xmm2, xmmword ptr [rdx+rax+20h]
-                      }
+                      _XMM2 = *(_OWORD *)&v49[(_QWORD)v50];
+                      _XMM1 = *(_OWORD *)((char *)v50 + (_QWORD)v49 - 16);
+                      __asm { vpaddb  xmm1, xmm1, xmmword ptr [rdx+rax-10h] }
+                      *(v50 - 1) = _XMM1;
+                      __asm { vpaddb  xmm1, xmm2, xmmword ptr [rdx+rax] }
+                      _XMM2 = *(_OWORD *)((char *)v50 + (_QWORD)v49 + 16);
+                      *v50 = _XMM1;
+                      __asm { vpaddb  xmm1, xmm2, xmmword ptr [rdx+rax+10h] }
+                      _XMM2 = *(_OWORD *)((char *)v50 + (_QWORD)v49 + 32);
+                      v50[1] = _XMM1;
+                      __asm { vpaddb  xmm1, xmm2, xmmword ptr [rdx+rax+20h] }
                       v17 += 64i64;
-                      __asm { vmovdqu xmmword ptr [rax+20h], xmm1 }
-                      _RAX += 64i64;
+                      v50[2] = _XMM1;
+                      v50 += 4;
                     }
                     while ( v17 < v37 - (v37 & 0x3F) );
                   }
@@ -4358,54 +4306,59 @@ stbi__idct_simd
 
 void __fastcall stbi__idct_simd(unsigned __int8 *out, int out_stride, __int16 *data, double _XMM3_8)
 {
-  void *retaddr; 
+  unsigned __int8 *v256; 
+  unsigned __int8 *v260; 
+  unsigned __int8 *v263; 
+  unsigned __int8 *v264; 
+  unsigned __int8 *v266; 
+  unsigned __int8 *v267; 
+  __int128 v269; 
+  __int128 v270; 
+  __int128 v271; 
+  __int128 v272; 
+  __int128 v273; 
+  __int128 v274; 
+  __int128 v275; 
+  __int128 v276; 
 
-  _R11 = &retaddr;
+  _XMM5 = *((_OWORD *)data + 7);
+  _XMM4 = *(_OWORD *)data;
+  _XMM2 = *((_OWORD *)data + 2);
   __asm
   {
-    vmovdqu xmm5, xmmword ptr [r8+70h]
-    vmovdqu xmm4, xmmword ptr [r8]
-    vmovdqu xmm2, xmmword ptr [r8+20h]
     vpunpcklwd xmm1, xmm2, xmmword ptr [r8+60h]
     vpmaddwd xmm0, xmm1, cs:__xmm@eb1a08a9eb1a08a9eb1a08a9eb1a08a9
     vpunpckhwd xmm2, xmm2, xmmword ptr [r8+60h]
-    vmovdqu [rsp+1A8h+var_158], xmm0
     vpmaddwd xmm0, xmm2, cs:__xmm@eb1a08a9eb1a08a9eb1a08a9eb1a08a9
-    vmovdqu [rsp+1A8h+var_1A8], xmm0
     vpmaddwd xmm0, xmm1, cs:__xmm@08a914e808a914e808a914e808a914e8
     vpaddw  xmm1, xmm4, xmmword ptr [r8+40h]
-    vmovdqu [rsp+1A8h+var_198], xmm0
     vpmaddwd xmm0, xmm2, cs:__xmm@08a914e808a914e808a914e808a914e8
     vpsubw  xmm2, xmm4, xmmword ptr [r8+40h]
-    vmovdqu [rsp+1A8h+var_178], xmm0
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovaps xmmword ptr [r11-28h], xmm7
-    vmovaps xmmword ptr [r11-38h], xmm8
-    vmovaps xmmword ptr [r11-48h], xmm9
-    vmovaps xmmword ptr [r11-58h], xmm10
-    vmovaps xmmword ptr [r11-68h], xmm11
-    vmovaps xmmword ptr [r11-78h], xmm12
-    vmovaps xmmword ptr [r11-88h], xmm13
-    vmovaps xmmword ptr [r11-98h], xmm14
-    vmovaps xmmword ptr [r11-0A8h], xmm15
-    vmovdqu xmm12, xmmword ptr [r8+10h]
-    vmovdqu xmm8, xmmword ptr [r8+30h]
-    vmovdqu xmm6, xmmword ptr [r8+50h]
+  }
+  _XMM6 = *((_OWORD *)data + 5);
+  __asm
+  {
     vpxor   xmm3, xmm3, xmm3
     vpunpcklwd xmm0, xmm3, xmm1
     vpsrad  xmm15, xmm0, 4
     vpunpckhwd xmm1, xmm3, xmm1
     vpsrad  xmm0, xmm1, 4
-    vmovdqu [rsp+1A8h+var_188], xmm0
+  }
+  v269 = _XMM0;
+  __asm
+  {
     vpunpckhwd xmm1, xmm3, xmm2
     vpunpcklwd xmm7, xmm5, xmm8
     vpunpcklwd xmm10, xmm6, xmm12
     vpunpckhwd xmm9, xmm5, xmm8
     vpunpcklwd xmm0, xmm3, xmm2
     vpsrad  xmm0, xmm0, 4
-    vmovdqu [rsp+1A8h+var_168], xmm0
-    vpsrad  xmm0, xmm1, 4
-    vmovdqu [rsp+1A8h+var_148], xmm0
+  }
+  v270 = _XMM0;
+  __asm { vpsrad  xmm0, xmm1, 4 }
+  v272 = _XMM0;
+  __asm
+  {
     vpaddw  xmm0, xmm6, xmm8
     vpaddw  xmm1, xmm5, xmm12
     vpunpcklwd xmm2, xmm1, xmm0
@@ -4418,12 +4371,10 @@ void __fastcall stbi__idct_simd(unsigned __int8 *out, int out_stride, __int16 *d
     vpunpckhwd xmm11, xmm6, xmm12
     vpmaddwd xmm6, xmm2, cs:__xmm@12d0046b12d0046b12d0046b12d0046b
     vpaddd  xmm0, xmm0, xmm6
-    vmovdqu [rsp+1A8h+var_128], xmm0
     vpaddd  xmm0, xmm1, xmm8
     vpmaddwd xmm1, xmm11, cs:__xmm@f9c31a9df9c31a9df9c31a9df9c31a9d
     vpaddd  xmm13, xmm1, xmm5
     vpmaddwd xmm1, xmm9, cs:__xmm@11c8e09e11c8e09e11c8e09e11c8e09e
-    vmovdqu [rsp+1A8h+var_118], xmm0
     vpmaddwd xmm0, xmm10, cs:__xmm@f9c31a9df9c31a9df9c31a9df9c31a9d
     vpaddd  xmm14, xmm0, xmm4
     vpmaddwd xmm0, xmm7, cs:__xmm@11c8e09e11c8e09e11c8e09e11c8e09e
@@ -4431,29 +4382,39 @@ void __fastcall stbi__idct_simd(unsigned __int8 *out, int out_stride, __int16 *d
     vpmaddwd xmm1, xmm11, cs:__xmm@11c8f9c311c8f9c311c8f9c311c8f9c3
     vpaddd  xmm12, xmm0, xmm4
     vpmaddwd xmm0, xmm10, cs:__xmm@11c8f9c311c8f9c311c8f9c311c8f9c3
-    vmovdqu xmm10, cs:__xmm@00000200000002000000020000000200
     vpaddd  xmm7, xmm0, xmm6
     vpaddd  xmm0, xmm15, [rsp+1A8h+var_198]
     vpaddd  xmm6, xmm1, xmm8
-    vmovdqu xmm1, [rsp+1A8h+var_188]
+  }
+  _XMM1 = v269;
+  __asm
+  {
     vpaddd  xmm1, xmm1, [rsp+1A8h+var_178]
     vpaddd  xmm4, xmm1, xmm10
     vpaddd  xmm5, xmm0, xmm10
     vpaddd  xmm1, xmm4, xmm6
     vpaddd  xmm0, xmm5, xmm7
     vpsrad  xmm2, xmm1, 0Ah
-    vmovdqu [rsp+1A8h+var_138], xmm15
+  }
+  v274 = _XMM15;
+  __asm
+  {
     vpsrad  xmm3, xmm0, 0Ah
     vpackssdw xmm15, xmm3, xmm2
     vpsubd  xmm1, xmm4, xmm6
-    vmovdqu xmm6, [rsp+1A8h+var_168]
+  }
+  _XMM6 = v270;
+  __asm
+  {
     vpsrad  xmm2, xmm1, 0Ah
     vpsubd  xmm0, xmm5, xmm7
-    vmovdqu xmm7, [rsp+1A8h+var_148]
+  }
+  _XMM7 = v272;
+  __asm
+  {
     vpaddd  xmm1, xmm7, [rsp+1A8h+var_1A8]
     vpsrad  xmm3, xmm0, 0Ah
     vpackssdw xmm0, xmm3, xmm2
-    vmovdqu [rsp+1A8h+var_108], xmm0
     vpaddd  xmm0, xmm6, [rsp+1A8h+var_158]
     vpaddd  xmm5, xmm0, xmm10
     vpaddd  xmm4, xmm1, xmm10
@@ -4468,7 +4429,6 @@ void __fastcall stbi__idct_simd(unsigned __int8 *out, int out_stride, __int16 *d
     vpsubd  xmm0, xmm5, xmm12
     vpsrad  xmm3, xmm0, 0Ah
     vpsubd  xmm0, xmm6, [rsp+1A8h+var_158]
-    vmovdqu xmm6, cs:__xmm@00000200000002000000020000000200
     vpaddd  xmm5, xmm0, xmm6
     vpackssdw xmm11, xmm3, xmm2
     vpaddd  xmm4, xmm1, xmm6
@@ -4481,10 +4441,16 @@ void __fastcall stbi__idct_simd(unsigned __int8 *out, int out_stride, __int16 *d
     vpsrad  xmm2, xmm1, 0Ah
     vpsubd  xmm0, xmm5, xmm14
     vpsrad  xmm3, xmm0, 0Ah
-    vmovdqu xmm0, [rsp+1A8h+var_138]
+  }
+  _XMM0 = v274;
+  __asm
+  {
     vpsubd  xmm0, xmm0, [rsp+1A8h+var_198]
     vpaddd  xmm5, xmm0, xmm6
-    vmovdqu xmm0, [rsp+1A8h+var_188]
+  }
+  _XMM0 = v269;
+  __asm
+  {
     vpsubd  xmm1, xmm0, [rsp+1A8h+var_178]
     vpaddd  xmm0, xmm5, [rsp+1A8h+var_128]
     vpackssdw xmm7, xmm3, xmm2
@@ -4526,11 +4492,8 @@ void __fastcall stbi__idct_simd(unsigned __int8 *out, int out_stride, __int16 *d
     vpunpckhwd xmm12, xmm8, xmm4
     vpunpckhwd xmm4, xmm9, xmm5
     vpmaddwd xmm15, xmm1, cs:__xmm@08a914e808a914e808a914e808a914e8
-    vmovdqu [rsp+1A8h+var_138], xmm0
     vpmaddwd xmm0, xmm2, cs:__xmm@eb1a08a9eb1a08a9eb1a08a9eb1a08a9
-    vmovdqu [rsp+1A8h+var_158], xmm0
     vpmaddwd xmm0, xmm2, cs:__xmm@08a914e808a914e808a914e808a914e8
-    vmovdqu [rsp+1A8h+var_118], xmm0
     vpsubw  xmm2, xmm10, xmm3
     vpaddw  xmm1, xmm3, xmm10
     vpunpcklwd xmm10, xmm6, xmm13
@@ -4539,72 +4502,82 @@ void __fastcall stbi__idct_simd(unsigned __int8 *out, int out_stride, __int16 *d
     vpsrad  xmm14, xmm0, 4
     vpunpckhwd xmm1, xmm5, xmm1
     vpsrad  xmm0, xmm1, 4
-    vmovdqu [rsp+1A8h+var_108], xmm0
+  }
+  v276 = _XMM0;
+  __asm
+  {
     vpunpckhwd xmm1, xmm5, xmm2
     vpunpcklwd xmm0, xmm5, xmm2
     vpsrad  xmm0, xmm0, 4
-    vmovdqu [rsp+1A8h+var_128], xmm0
-    vpsrad  xmm0, xmm1, 4
-    vmovdqu [rsp+1A8h+var_148], xmm0
+  }
+  v275 = _XMM0;
+  __asm { vpsrad  xmm0, xmm1, 4 }
+  v273 = _XMM0;
+  __asm
+  {
     vpaddw  xmm0, xmm6, xmm12
     vpaddw  xmm1, xmm4, xmm13
     vpunpcklwd xmm2, xmm1, xmm0
     vpunpckhwd xmm3, xmm1, xmm0
     vpmaddwd xmm7, xmm3, cs:__xmm@12d0046b12d0046b12d0046b12d0046b
     vpmaddwd xmm5, xmm3, cs:__xmm@e9cf12d0e9cf12d0e9cf12d0e9cf12d0
-    vmovdqu xmm3, [rsp+1A8h+var_148]
+  }
+  _XMM3 = v273;
+  __asm
+  {
     vpunpcklwd xmm8, xmm4, xmm12
     vpmaddwd xmm0, xmm8, cs:__xmm@e09ee565e09ee565e09ee565e09ee565
     vpunpckhwd xmm11, xmm6, xmm13
     vpmaddwd xmm6, xmm2, cs:__xmm@12d0046b12d0046b12d0046b12d0046b
     vpaddd  xmm0, xmm0, xmm6
-    vmovdqu [rsp+1A8h+var_E8], xmm0
     vpunpckhwd xmm9, xmm4, xmm12
     vpmaddwd xmm4, xmm2, cs:__xmm@e9cf12d0e9cf12d0e9cf12d0e9cf12d0
     vpmaddwd xmm1, xmm9, cs:__xmm@e09ee565e09ee565e09ee565e09ee565
-    vmovdqu xmm2, [rsp+1A8h+var_128]
+  }
+  _XMM2 = v275;
+  __asm
+  {
     vpaddd  xmm0, xmm1, xmm7
     vpmaddwd xmm1, xmm11, cs:__xmm@f9c31a9df9c31a9df9c31a9df9c31a9d
-    vmovdqu [rsp+1A8h+var_178], xmm0
     vpmaddwd xmm0, xmm10, cs:__xmm@f9c31a9df9c31a9df9c31a9df9c31a9d
     vpaddd  xmm0, xmm0, xmm4
-    vmovdqu [rsp+1A8h+var_188], xmm0
     vpaddd  xmm0, xmm1, xmm5
     vpmaddwd xmm1, xmm9, cs:__xmm@11c8e09e11c8e09e11c8e09e11c8e09e
-    vmovdqu [rsp+1A8h+var_198], xmm0
     vpmaddwd xmm0, xmm8, cs:__xmm@11c8e09e11c8e09e11c8e09e11c8e09e
     vpaddd  xmm0, xmm0, xmm4
-    vmovdqu [rsp+1A8h+var_1A8], xmm0
     vpmaddwd xmm0, xmm10, cs:__xmm@11c8f9c311c8f9c311c8f9c311c8f9c3
-    vmovdqu xmm10, cs:__xmm@01010000010100000101000001010000
     vpaddd  xmm8, xmm1, xmm5
     vpmaddwd xmm1, xmm11, cs:__xmm@11c8f9c311c8f9c311c8f9c311c8f9c3
     vpaddd  xmm5, xmm0, xmm6
-    vmovdqu xmm6, [rsp+1A8h+var_108]
+  }
+  _XMM6 = v276;
+  __asm
+  {
     vpaddd  xmm4, xmm1, xmm7
     vpaddd  xmm1, xmm6, [rsp+1A8h+var_118]
     vpaddd  xmm0, xmm14, xmm15
-    vmovdqu [rsp+1A8h+var_F8], xmm15
     vpaddd  xmm15, xmm0, xmm10
     vpaddd  xmm0, xmm2, [rsp+1A8h+var_138]
     vpaddd  xmm13, xmm0, xmm10
     vpsubd  xmm0, xmm2, [rsp+1A8h+var_138]
-    vmovdqu xmm2, cs:__xmm@01010000010100000101000001010000
-    vmovdqu [rsp+1A8h+var_168], xmm14
+  }
+  v271 = _XMM14;
+  __asm
+  {
     vpaddd  xmm14, xmm1, xmm10
     vpaddd  xmm1, xmm3, [rsp+1A8h+var_158]
     vpaddd  xmm12, xmm1, xmm10
     vpsubd  xmm1, xmm3, [rsp+1A8h+var_158]
     vpaddd  xmm10, xmm0, xmm10
-    vmovdqu xmm0, [rsp+1A8h+var_168]
+  }
+  _XMM0 = v271;
+  __asm
+  {
     vpsubd  xmm0, xmm0, [rsp+1A8h+var_F8]
     vpaddd  xmm9, xmm1, xmm2
     vpsubd  xmm1, xmm6, [rsp+1A8h+var_118]
     vpaddd  xmm7, xmm0, xmm2
     vpaddd  xmm0, xmm15, xmm5
-    vmovdqu [rsp+1A8h+var_D8], xmm8
-    vmovdqu [rsp+1A8h+var_C8], xmm5
-    vmovdqu [rsp+1A8h+var_B8], xmm4
     vpaddd  xmm6, xmm1, xmm2
     vpsrad  xmm3, xmm0, 11h
     vpaddd  xmm0, xmm13, [rsp+1A8h+var_1A8]
@@ -4612,10 +4585,6 @@ void __fastcall stbi__idct_simd(unsigned __int8 *out, int out_stride, __int16 *d
     vpsrad  xmm4, xmm0, 11h
     vpsrad  xmm2, xmm1, 11h
     vpackssdw xmm5, xmm3, xmm2
-  }
-  _RAX = out_stride;
-  __asm
-  {
     vpaddd  xmm1, xmm12, xmm8
     vpsrad  xmm2, xmm1, 11h
     vpaddd  xmm1, xmm10, [rsp+1A8h+var_188]
@@ -4629,10 +4598,8 @@ void __fastcall stbi__idct_simd(unsigned __int8 *out, int out_stride, __int16 *d
     vpackssdw xmm5, xmm3, xmm2
     vpsrad  xmm2, xmm0, 11h
     vpsubd  xmm0, xmm7, [rsp+1A8h+var_E8]
-    vmovaps xmm7, xmmword ptr [r11-28h]
     vpsrad  xmm3, xmm0, 11h
     vpsubd  xmm0, xmm10, [rsp+1A8h+var_188]
-    vmovaps xmm10, xmmword ptr [r11-58h]
     vpsrad  xmm4, xmm1, 11h
     vpackssdw xmm1, xmm4, xmm2
     vpackuswb xmm8, xmm5, xmm1
@@ -4640,7 +4607,6 @@ void __fastcall stbi__idct_simd(unsigned __int8 *out, int out_stride, __int16 *d
     vpsrad  xmm4, xmm0, 11h
     vpsrad  xmm2, xmm1, 11h
     vpsubd  xmm1, xmm9, [rsp+1A8h+var_198]
-    vmovaps xmm9, xmmword ptr [r11-48h]
     vpackssdw xmm5, xmm3, xmm2
     vpsrad  xmm2, xmm1, 11h
     vpsubd  xmm1, xmm13, [rsp+1A8h+var_1A8]
@@ -4658,54 +4624,41 @@ void __fastcall stbi__idct_simd(unsigned __int8 *out, int out_stride, __int16 *d
     vpackuswb xmm3, xmm5, xmm1
     vpunpckhbw xmm1, xmm8, xmm3
     vpunpcklbw xmm0, xmm8, xmm3
-    vmovaps xmm8, xmmword ptr [r11-38h]
     vpunpcklbw xmm2, xmm11, xmm6
     vpunpcklbw xmm3, xmm2, xmm0
     vpunpckhbw xmm5, xmm2, xmm0
     vpunpckhbw xmm4, xmm11, xmm6
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
     vpunpckhbw xmm2, xmm4, xmm1
     vpunpcklbw xmm0, xmm4, xmm1
     vpunpcklbw xmm1, xmm3, xmm0
-    vmovq   qword ptr [rcx], xmm1
   }
-  _RCX = &out[out_stride];
+  *(_QWORD *)out = _XMM1;
+  v256 = &out[out_stride];
   __asm
   {
     vpunpckhbw xmm4, xmm3, xmm0
     vpunpcklbw xmm3, xmm5, xmm2
     vpshufd xmm0, xmm1, 4Eh ; 'N'
-    vmovq   qword ptr [rcx], xmm0
   }
-  _RCX = &_RCX[out_stride];
+  *(_QWORD *)v256 = _XMM0;
+  v260 = &v256[out_stride];
   __asm
   {
     vpshufd xmm0, xmm4, 4Eh ; 'N'
     vpunpckhbw xmm2, xmm5, xmm2
-    vmovq   qword ptr [rcx], xmm4
   }
-  _RCX = &_RCX[out_stride];
-  __asm { vmovq   qword ptr [rcx], xmm0 }
-  _RCX = &_RCX[out_stride];
-  __asm
-  {
-    vpshufd xmm0, xmm3, 4Eh ; 'N'
-    vmovq   qword ptr [rcx], xmm3
-  }
-  _RCX = &_RCX[out_stride];
-  __asm { vmovq   qword ptr [rcx], xmm0 }
-  _RCX = &_RCX[out_stride];
-  __asm
-  {
-    vpshufd xmm0, xmm2, 4Eh ; 'N'
-    vmovq   qword ptr [rcx], xmm2
-    vmovq   qword ptr [rax+rcx], xmm0
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, xmmword ptr [r11-0A8h]
-  }
+  *(_QWORD *)v260 = _XMM4;
+  v263 = &v260[out_stride];
+  *(_QWORD *)v263 = _XMM0;
+  v264 = &v263[out_stride];
+  __asm { vpshufd xmm0, xmm3, 4Eh ; 'N' }
+  *(_QWORD *)v264 = _XMM3;
+  v266 = &v264[out_stride];
+  *(_QWORD *)v266 = _XMM0;
+  v267 = &v266[out_stride];
+  __asm { vpshufd xmm0, xmm2, 4Eh ; 'N' }
+  *(_QWORD *)v267 = _XMM2;
+  *(_QWORD *)&v267[out_stride] = _XMM0;
 }
 
 /*
@@ -5557,206 +5510,164 @@ stbi__ldr_to_hdr
 */
 float *stbi__ldr_to_hdr(unsigned __int8 *data, int x, int y, int comp)
 {
-  __int64 v8; 
-  unsigned __int8 *v9; 
+  __int64 v4; 
+  unsigned __int8 *v5; 
+  int v7; 
+  int v8; 
+  unsigned __int64 v9; 
+  unsigned __int8 *v10; 
   int v11; 
   int v12; 
-  unsigned __int64 v13; 
+  __int64 v13; 
   unsigned __int8 *v14; 
-  int v15; 
-  int v17; 
+  float v15; 
+  __int64 v16; 
+  float v17; 
   __int64 v18; 
-  unsigned __int8 *v19; 
+  float *v19; 
+  __int64 v20; 
   __int64 v21; 
-  __int64 v23; 
-  unsigned __int8 *v24; 
+  float *v22; 
   __int64 v25; 
   __int64 v26; 
-  __int64 v37; 
+  __int64 v27; 
+  __int64 v28; 
+  __int64 v29; 
+  unsigned int v30; 
+  unsigned __int8 *v31; 
+  float *v32; 
+  __int64 v33; 
+  int v34; 
+  int v35; 
+  unsigned __int8 *v36; 
+  float *v37; 
   __int64 v38; 
-  unsigned int v42; 
-  unsigned __int8 *v43; 
-  __int64 v45; 
-  int v57; 
-  unsigned __int8 *v58; 
-  __int64 v60; 
-  int v64; 
-  unsigned __int8 *v65; 
+  int v39; 
+  int v40; 
+  unsigned __int8 *v41; 
 
-  v8 = comp;
-  v9 = data;
+  v4 = comp;
+  v5 = data;
   if ( !data )
     return 0i64;
   if ( x < 0 || y < 0 || y && x > 0x7FFFFFFF / y )
     goto LABEL_39;
-  v11 = y * x;
-  if ( y * x < 0 || comp < 0 || comp && v11 > 0x7FFFFFFF / comp )
+  v7 = y * x;
+  if ( y * x < 0 || comp < 0 || comp && v7 > 0x7FFFFFFF / comp )
     goto LABEL_39;
-  v12 = comp * v11;
-  if ( comp * v11 < 0 || v12 > 0x1FFFFFFF )
+  v8 = comp * v7;
+  if ( comp * v7 < 0 || v8 > 0x1FFFFFFF )
     goto LABEL_39;
-  v13 = 4 * v12;
+  v9 = 4 * v8;
   if ( alt_stb_malloc )
   {
-    v14 = (unsigned __int8 *)alt_stb_malloc(v13);
+    v10 = (unsigned __int8 *)alt_stb_malloc(v9);
   }
   else
   {
-    if ( stbi_mem.index + v13 >= stbi_mem.size )
+    if ( stbi_mem.index + v9 >= stbi_mem.size )
       goto LABEL_39;
-    v14 = &stbi_mem.data[stbi_mem.index];
+    v10 = &stbi_mem.data[stbi_mem.index];
     stbi_mem.old_index = stbi_mem.index;
-    stbi_mem.index += v13;
+    stbi_mem.index += v9;
   }
-  v65 = v14;
-  if ( v14 )
+  v41 = v10;
+  if ( v10 )
   {
-    v15 = v8;
-    if ( (v8 & 1) == 0 )
-      v15 = v8 - 1;
-    __asm
+    v11 = v4;
+    if ( (v4 & 1) == 0 )
+      v11 = v4 - 1;
+    v12 = 0;
+    v40 = v11;
+    if ( v7 > 0 )
     {
-      vmovaps [rsp+98h+var_38], xmm6
-      vmovss  xmm6, cs:__real@3b808081
-    }
-    v17 = 0;
-    v64 = v15;
-    if ( v11 > 0 )
-    {
-      v18 = 4 * v8;
-      __asm { vmovaps [rsp+98h+var_48], xmm7 }
-      v19 = v9;
-      __asm
-      {
-        vmovss  xmm7, cs:stbi__l2h_gamma
-        vmovaps [rsp+98h+var_58], xmm8
-      }
-      v21 = v8;
-      __asm { vmovss  xmm8, cs:stbi__l2h_scale }
-      v23 = v15;
-      v24 = v14;
-      v25 = (unsigned int)v11;
+      v13 = 4 * v4;
+      v14 = v5;
+      v15 = stbi__l2h_gamma;
+      v16 = v4;
+      v17 = stbi__l2h_scale;
+      v18 = v11;
+      v19 = (float *)v10;
+      v20 = (unsigned int)v7;
       do
       {
-        if ( v23 > 0 )
+        if ( v18 > 0 )
         {
-          v26 = 0i64;
-          _RDI = v24;
+          v21 = 0i64;
+          v22 = v19;
           do
           {
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vmulss  xmm1, xmm0, xmm6
-              vcvtss2sd xmm0, xmm1, xmm1; X
-              vcvtss2sd xmm1, xmm7, xmm7; Y
-            }
-            *(double *)&_XMM0 = pow_0(*(double *)&_XMM0, *(double *)&_XMM1);
-            __asm
-            {
-              vcvtss2sd xmm1, xmm8, xmm8
-              vmulsd  xmm0, xmm0, xmm1
-              vcvtsd2ss xmm2, xmm0, xmm0
-            }
-            ++v26;
-            __asm { vmovss  dword ptr [rdi], xmm2 }
-            _RDI += 4;
+            _XMM0 = COERCE_UNSIGNED_INT64(pow_0((float)((float)v14[v21] * 0.0039215689), v15) * v17);
+            __asm { vcvtsd2ss xmm2, xmm0, xmm0 }
+            ++v21;
+            *v22++ = *(float *)&_XMM2;
           }
-          while ( v26 < v23 );
-          v18 = 4 * v8;
-          v17 = 0;
-          v21 = v8;
+          while ( v21 < v18 );
+          v13 = 4 * v4;
+          v12 = 0;
+          v16 = v4;
         }
-        v24 += v18;
-        v19 += v21;
-        --v25;
+        v19 = (float *)((char *)v19 + v13);
+        v14 += v16;
+        --v20;
       }
-      while ( v25 );
-      v15 = v64;
-      v14 = v65;
-      v9 = data;
-      __asm
-      {
-        vmovaps xmm8, [rsp+98h+var_58]
-        vmovaps xmm7, [rsp+98h+var_48]
-      }
+      while ( v20 );
+      v11 = v40;
+      v10 = v41;
+      v5 = data;
     }
-    if ( v15 < (int)v8 )
+    if ( v11 < (int)v4 )
     {
-      if ( v11 >= 4 )
+      if ( v7 >= 4 )
       {
-        v37 = 4 * (int)v8;
-        v38 = v15 + 2 * (int)v8;
-        _R10 = v15 + (int)v8 - v38;
-        _RCX = (int)v8 + v15 + 2 * (int)v8 - v38;
-        _RBX = v15 - v38;
-        v42 = ((unsigned int)(v11 - 4) >> 2) + 1;
-        v43 = &v9[v38];
-        _R9 = &v14[4 * v38];
-        v45 = v42;
-        v17 = 4 * v42;
+        v25 = 4 * (int)v4;
+        v26 = v11 + 2 * (int)v4;
+        v27 = v11 + (int)v4 - v26;
+        v28 = (int)v4 + v11 + 2 * (int)v4 - v26;
+        v29 = v11 - v26;
+        v30 = ((unsigned int)(v7 - 4) >> 2) + 1;
+        v31 = &v5[v26];
+        v32 = (float *)&v10[4 * v26];
+        v33 = v30;
+        v12 = 4 * v30;
         do
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, xmm6
-            vmovss  dword ptr [r9+rbx*4], xmm1
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, xmm6
-            vmovss  dword ptr [r9+r10*4], xmm1
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, xmm6
-            vmovss  dword ptr [r9], xmm1
-          }
-          v43 += v37;
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, xmm6
-            vmovss  dword ptr [r9+rcx*4], xmm1
-          }
-          _R9 += 4 * v37;
-          --v45;
+          v32[v29] = (float)v31[v29] * 0.0039215689;
+          v32[v27] = (float)v31[v27] * 0.0039215689;
+          *v32 = (float)*v31 * 0.0039215689;
+          v34 = v31[v28];
+          v31 += v25;
+          v32[v28] = (float)v34 * 0.0039215689;
+          v32 += v25;
+          --v33;
         }
-        while ( v45 );
-        v15 = v64;
+        while ( v33 );
+        v11 = v40;
       }
-      if ( v17 < v11 )
+      if ( v12 < v7 )
       {
-        v57 = v15 + v8 * v17;
-        v58 = &v9[v57];
-        _R8 = &v14[4 * v57];
-        v60 = (unsigned int)(v11 - v17);
+        v35 = v11 + v4 * v12;
+        v36 = &v5[v35];
+        v37 = (float *)&v10[4 * v35];
+        v38 = (unsigned int)(v7 - v12);
         do
         {
-          v58 += v8;
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, xmm6
-            vmovss  dword ptr [r8], xmm1
-          }
-          _R8 += 4 * v8;
-          --v60;
+          v39 = *v36;
+          v36 += v4;
+          *v37 = (float)v39 * 0.0039215689;
+          v37 += v4;
+          --v38;
         }
-        while ( v60 );
+        while ( v38 );
       }
     }
-    __asm { vmovaps xmm6, [rsp+98h+var_38] }
     if ( alt_stb_free )
-      alt_stb_free(v9);
-    return (float *)v14;
+      alt_stb_free(v5);
+    return (float *)v10;
   }
 LABEL_39:
   if ( alt_stb_free )
-    alt_stb_free(v9);
+    alt_stb_free(v5);
   stbi__g_failure_reason = "outofmem";
   return 0i64;
 }
@@ -5847,6 +5758,8 @@ unsigned __int8 *stbi__load_and_postprocess_8bit(stbi__context *s, int *x, int *
   int v15; 
   __int64 v16; 
   int v17; 
+  _QWORD *v18; 
+  __int128 *v19; 
   __int64 i; 
   stbi__result_info ri; 
 
@@ -5889,36 +5802,43 @@ LABEL_22:
         if ( v14 > &v10[2 * v16] || &v14[v16] < v10 )
         {
           v17 = v12 - (v12 & 0x1F);
-          _RCX = v14 + 8;
-          _EAX = 8;
-          _R8 = v10 + 32;
-          __asm { vmovd   xmm4, eax }
+          v18 = v14 + 8;
+          v19 = (__int128 *)(v10 + 32);
           do
           {
+            _XMM0 = *(v19 - 2);
             __asm
             {
-              vmovdqu xmm0, xmmword ptr [r8-20h]
               vpsrlw  xmm2, xmm0, xmm4
               vpshufb xmm3, xmm2, cs:__xmm@0e0c0a08060402000e0c0a0806040200
-              vmovdqu xmm0, xmmword ptr [r8-10h]
-              vmovq   qword ptr [rcx-8], xmm3
-              vpsrlw  xmm2, xmm0, xmm4
-              vpshufb xmm3, xmm2, cs:__xmm@0e0c0a08060402000e0c0a0806040200
-              vmovdqu xmm0, xmmword ptr [r8]
-              vmovq   qword ptr [rcx], xmm3
-              vpsrlw  xmm2, xmm0, xmm4
-              vpshufb xmm3, xmm2, cs:__xmm@0e0c0a08060402000e0c0a0806040200
-              vmovdqu xmm0, xmmword ptr [r8+10h]
-              vmovq   qword ptr [rcx+8], xmm3
-              vpsrlw  xmm2, xmm0, xmm4
-              vpshufb xmm3, xmm2, cs:__xmm@0e0c0a08060402000e0c0a0806040200
-              vmovq   qword ptr [rcx+10h], xmm3
             }
-            _RCX += 32;
+            _XMM0 = *(v19 - 1);
+            *(v18 - 1) = _XMM3;
+            __asm
+            {
+              vpsrlw  xmm2, xmm0, xmm4
+              vpshufb xmm3, xmm2, cs:__xmm@0e0c0a08060402000e0c0a0806040200
+            }
+            _XMM0 = *v19;
+            *v18 = _XMM3;
+            __asm
+            {
+              vpsrlw  xmm2, xmm0, xmm4
+              vpshufb xmm3, xmm2, cs:__xmm@0e0c0a08060402000e0c0a0806040200
+            }
+            _XMM0 = v19[1];
+            v18[1] = _XMM3;
+            __asm
+            {
+              vpsrlw  xmm2, xmm0, xmm4
+              vpshufb xmm3, xmm2, cs:__xmm@0e0c0a08060402000e0c0a0806040200
+            }
+            v18[2] = _XMM3;
+            v18 += 4;
             v15 += 32;
-            _R8 += 64;
+            v19 += 4;
           }
-          while ( (__int64)&_RCX[-8i64 - (_QWORD)v14] < v17 );
+          while ( (__int64)v18 - 8 - (__int64)v14 < v17 );
         }
       }
       for ( i = v15; i < v13; ++i )
@@ -9250,68 +9170,65 @@ stbi__resample_row_hv_2_simd
 */
 unsigned __int8 *stbi__resample_row_hv_2_simd(unsigned __int8 *out, unsigned __int8 *in_near, unsigned __int8 *in_far, int w)
 {
-  __int64 v7; 
-  int v9; 
-  int v11; 
-  unsigned int v12; 
+  __int64 v6; 
+  int v8; 
+  int v10; 
+  unsigned int v11; 
   unsigned __int8 *result; 
-  unsigned __int8 *v14; 
-  unsigned int v18; 
-  __int64 v21; 
+  unsigned __int8 *v13; 
+  signed __int64 v14; 
+  unsigned __int8 *v15; 
+  unsigned int v16; 
+  unsigned __int8 *v17; 
+  __int64 v19; 
+  int v42; 
+  int v43; 
   int v44; 
-  int v47; 
-  int v48; 
-  signed __int64 v49; 
-  unsigned __int8 *v50; 
-  __int64 v51; 
-  unsigned __int8 *v52; 
-  int v53; 
-  int v54; 
-  int v55; 
-  unsigned int v56; 
+  signed __int64 v45; 
+  unsigned __int8 *v46; 
+  __int64 v47; 
+  unsigned __int8 *v48; 
+  int v49; 
+  int v50; 
+  int v51; 
+  unsigned int v52; 
 
-  v7 = w;
-  v9 = 0;
-  v11 = *in_far + 3 * *in_near;
-  if ( (_DWORD)v7 == 1 )
+  v6 = w;
+  v8 = 0;
+  v10 = *in_far + 3 * *in_near;
+  if ( (_DWORD)v6 == 1 )
   {
-    v12 = (unsigned int)(v11 + 2) >> 2;
-    out[1] = v12;
-    *out = v12;
+    v11 = (unsigned int)(v10 + 2) >> 2;
+    out[1] = v11;
+    *out = v11;
     return out;
   }
   else
   {
-    if ( (int)v7 - 1 >= 0 && (((_DWORD)v7 - 1) & 0xFFFFFFF8) != 0 )
+    if ( (int)v6 - 1 >= 0 && (((_DWORD)v6 - 1) & 0xFFFFFFF8) != 0 )
     {
-      v14 = in_far + 8;
-      _R8 = in_near - in_far;
-      __asm
-      {
-        vmovaps [rsp+38h+var_28], xmm6
-        vmovaps [rsp+38h+var_38], xmm7
-        vmovdqu xmm7, cs:__xmm@00080008000800080008000800080008
-      }
-      _RBP = in_far;
-      v18 = (((((_DWORD)v7 - 1) & 0xFFFFFFF8) - 1) >> 3) + 1;
-      _R15 = out;
+      v13 = in_far + 8;
+      v14 = in_near - in_far;
+      v15 = in_far;
+      v16 = (((((_DWORD)v6 - 1) & 0xFFFFFFF8) - 1) >> 3) + 1;
+      v17 = out;
       __asm { vpxor   xmm6, xmm6, xmm6 }
-      v21 = v18;
-      v9 = 8 * v18;
+      v19 = v16;
+      v8 = 8 * v16;
       do
       {
-        __asm { vmovq   xmm0, qword ptr [r8+rbp] }
-        _RBP += 8;
+        _XMM0 = *(unsigned __int64 *)&v15[v14];
+        v15 += 8;
+        __asm { vpunpcklbw xmm2, xmm0, xmm6 }
+        _XMM0 = *((unsigned __int64 *)v15 - 1);
         __asm
         {
-          vpunpcklbw xmm2, xmm0, xmm6
-          vmovq   xmm0, qword ptr [rbp-8]
           vpunpcklbw xmm1, xmm0, xmm6
           vpsubw  xmm3, xmm1, xmm2
           vpsllw  xmm2, xmm2, 2
           vpaddw  xmm5, xmm3, xmm2
         }
-        _R15 += 16;
+        v17 += 16;
         __asm
         {
           vpsllw  xmm0, xmm5, 2
@@ -9329,46 +9246,41 @@ unsigned __int8 *stbi__resample_row_hv_2_simd(unsigned __int8 *out, unsigned __i
           vpsrlw  xmm3, xmm0, 4
           vpsrlw  xmm2, xmm1, 4
           vpackuswb xmm0, xmm3, xmm2
-          vmovdqu xmmword ptr [r15-10h], xmm0
         }
-        v44 = v14[_R8 - 1];
-        v14 += 8;
-        v11 = *(v14 - 9) + 3 * v44;
-        --v21;
+        *((_OWORD *)v17 - 1) = _XMM0;
+        v42 = v13[v14 - 1];
+        v13 += 8;
+        v10 = *(v13 - 9) + 3 * v42;
+        --v19;
       }
-      while ( v21 );
-      __asm
-      {
-        vmovaps xmm7, [rsp+38h+var_38]
-        vmovaps xmm6, [rsp+38h+var_28]
-      }
+      while ( v19 );
     }
-    v47 = in_far[v9] + 3 * in_near[v9];
-    v48 = v9 + 1;
-    out[2 * v9] = (unsigned int)(v47 + v11 + 2 * v47 + 8) >> 4;
-    if ( v9 + 1 < v7 )
+    v43 = in_far[v8] + 3 * in_near[v8];
+    v44 = v8 + 1;
+    out[2 * v8] = (unsigned int)(v43 + v10 + 2 * v43 + 8) >> 4;
+    if ( v8 + 1 < v6 )
     {
-      v49 = in_near - in_far;
-      v50 = &in_far[v48];
-      v51 = v7 - v48;
-      v52 = &out[2 * v48];
+      v45 = in_near - in_far;
+      v46 = &in_far[v44];
+      v47 = v6 - v44;
+      v48 = &out[2 * v44];
       do
       {
-        v53 = *v50;
-        v54 = v47;
-        v55 = v50[v49];
-        v52 += 2;
-        ++v50;
-        v47 = v53 + 3 * v55;
-        *(v52 - 3) = (unsigned int)(v54 + v47 + 2 * v54 + 8) >> 4;
-        *(v52 - 2) = (unsigned int)(v47 + v54 + 2 * v47 + 8) >> 4;
-        --v51;
+        v49 = *v46;
+        v50 = v43;
+        v51 = v46[v45];
+        v48 += 2;
+        ++v46;
+        v43 = v49 + 3 * v51;
+        *(v48 - 3) = (unsigned int)(v50 + v43 + 2 * v50 + 8) >> 4;
+        *(v48 - 2) = (unsigned int)(v43 + v50 + 2 * v43 + 8) >> 4;
+        --v47;
       }
-      while ( v51 );
+      while ( v47 );
     }
-    v56 = (unsigned int)(v47 + 2) >> 2;
+    v52 = (unsigned int)(v43 + 2) >> 2;
     result = out;
-    out[2 * (int)v7 - 1] = v56;
+    out[2 * (int)v6 - 1] = v52;
   }
   return result;
 }
@@ -9380,102 +9292,109 @@ stbi__resample_row_v_2
 */
 unsigned __int8 *stbi__resample_row_v_2(unsigned __int8 *out, unsigned __int8 *in_near, unsigned __int8 *in_far, int w)
 {
-  int v6; 
-  __int64 v9; 
-  unsigned __int8 *v10; 
-  unsigned __int8 *v56; 
-  signed __int64 v57; 
-  __int64 v58; 
-  int v59; 
+  int v4; 
+  __int64 v7; 
+  unsigned __int8 *v8; 
+  unsigned int *v9; 
+  signed __int64 v10; 
+  signed __int64 v11; 
+  unsigned __int8 *v48; 
+  signed __int64 v49; 
+  __int64 v50; 
+  int v51; 
 
-  v6 = 0;
+  v4 = 0;
   if ( w > 0 && (unsigned int)w >= 0x10 )
   {
-    v9 = w - 1;
-    v10 = &out[v9];
-    if ( (out > &in_far[v9] || v10 < in_far) && (out > &in_near[v9] || v10 < in_near) )
+    v7 = w - 1;
+    v8 = &out[v7];
+    if ( (out > &in_far[v7] || v8 < in_far) && (out > &in_near[v7] || v8 < in_near) )
     {
-      __asm
-      {
-        vmovaps [rsp+28h+var_18], xmm6
-        vmovaps [rsp+28h+var_28], xmm7
-        vmovdqu xmm5, cs:__xmm@00000003000000030000000300000003
-        vmovdqu xmm6, cs:__xmm@00000002000000020000000200000002
-      }
-      _RDI = in_far;
-      _EAX = 2;
-      _RCX = in_near - in_far;
-      __asm { vmovd   xmm7, eax }
-      _RDX = out - in_far;
+      v9 = (unsigned int *)in_far;
+      v10 = in_near - in_far;
+      v11 = out - in_far;
       do
       {
+        _XMM0 = *(unsigned int *)((char *)v9 + v10);
+        __asm { vpmovzxbd xmm1, xmm0 }
+        _XMM0 = *v9;
         __asm
         {
-          vmovd   xmm0, dword ptr [rcx+rdi]
-          vpmovzxbd xmm1, xmm0
-          vmovd   xmm0, dword ptr [rdi]
           vpmulld xmm2, xmm1, xmm5
           vpmovzxbd xmm1, xmm0
-          vmovd   xmm0, dword ptr [rcx+rdi+4]
-          vpaddd  xmm2, xmm2, xmm1
-          vpaddd  xmm3, xmm2, xmm6
-          vpsrad  xmm4, xmm3, xmm7
-          vpshufb xmm1, xmm4, cs:__xmm@000000000c080400000000000c080400
-          vmovd   dword ptr [rdx+rdi], xmm1
-          vpmovzxbd xmm1, xmm0
-          vmovd   xmm0, dword ptr [rdi+4]
-          vpmulld xmm2, xmm1, xmm5
-          vpmovzxbd xmm1, xmm0
-          vmovd   xmm0, dword ptr [rcx+rdi+8]
-          vpaddd  xmm2, xmm2, xmm1
-          vpaddd  xmm3, xmm2, xmm6
-          vpsrad  xmm4, xmm3, xmm7
-          vpshufb xmm1, xmm4, cs:__xmm@000000000c080400000000000c080400
-          vmovd   dword ptr [rdx+rdi+4], xmm1
-          vpmovzxbd xmm1, xmm0
-          vmovd   xmm0, dword ptr [rdi+8]
-          vpmulld xmm2, xmm1, xmm5
-          vpmovzxbd xmm1, xmm0
-          vmovd   xmm0, dword ptr [rcx+rdi+0Ch]
-          vpaddd  xmm2, xmm2, xmm1
-          vpaddd  xmm3, xmm2, xmm6
-          vpsrad  xmm4, xmm3, xmm7
-          vpshufb xmm1, xmm4, cs:__xmm@000000000c080400000000000c080400
-          vmovd   dword ptr [rdx+rdi+8], xmm1
-          vpmovzxbd xmm1, xmm0
-          vmovd   xmm0, dword ptr [rdi+0Ch]
-          vpmulld xmm2, xmm1, xmm5
-          vpmovzxbd xmm1, xmm0
-          vpaddd  xmm2, xmm2, xmm1
-          vpaddd  xmm3, xmm2, xmm6
-          vpsrad  xmm4, xmm3, xmm7
-          vpshufb xmm1, xmm4, cs:__xmm@000000000c080400000000000c080400
-          vmovd   dword ptr [rdx+rdi+0Ch], xmm1
         }
-        _RDI += 16;
-        v6 += 16;
+        _XMM0 = *(unsigned int *)((char *)v9 + v10 + 4);
+        __asm
+        {
+          vpaddd  xmm2, xmm2, xmm1
+          vpaddd  xmm3, xmm2, xmm6
+          vpsrad  xmm4, xmm3, xmm7
+          vpshufb xmm1, xmm4, cs:__xmm@000000000c080400000000000c080400
+        }
+        *(unsigned int *)((char *)v9 + v11) = _XMM1;
+        __asm { vpmovzxbd xmm1, xmm0 }
+        _XMM0 = v9[1];
+        __asm
+        {
+          vpmulld xmm2, xmm1, xmm5
+          vpmovzxbd xmm1, xmm0
+        }
+        _XMM0 = *(unsigned int *)((char *)v9 + v10 + 8);
+        __asm
+        {
+          vpaddd  xmm2, xmm2, xmm1
+          vpaddd  xmm3, xmm2, xmm6
+          vpsrad  xmm4, xmm3, xmm7
+          vpshufb xmm1, xmm4, cs:__xmm@000000000c080400000000000c080400
+        }
+        *(unsigned int *)((char *)v9 + v11 + 4) = _XMM1;
+        __asm { vpmovzxbd xmm1, xmm0 }
+        _XMM0 = v9[2];
+        __asm
+        {
+          vpmulld xmm2, xmm1, xmm5
+          vpmovzxbd xmm1, xmm0
+        }
+        _XMM0 = *(unsigned int *)((char *)v9 + v10 + 12);
+        __asm
+        {
+          vpaddd  xmm2, xmm2, xmm1
+          vpaddd  xmm3, xmm2, xmm6
+          vpsrad  xmm4, xmm3, xmm7
+          vpshufb xmm1, xmm4, cs:__xmm@000000000c080400000000000c080400
+        }
+        *(unsigned int *)((char *)v9 + v11 + 8) = _XMM1;
+        __asm { vpmovzxbd xmm1, xmm0 }
+        _XMM0 = v9[3];
+        __asm
+        {
+          vpmulld xmm2, xmm1, xmm5
+          vpmovzxbd xmm1, xmm0
+          vpaddd  xmm2, xmm2, xmm1
+          vpaddd  xmm3, xmm2, xmm6
+          vpsrad  xmm4, xmm3, xmm7
+          vpshufb xmm1, xmm4, cs:__xmm@000000000c080400000000000c080400
+        }
+        *(unsigned int *)((char *)v9 + v11 + 12) = _XMM1;
+        v9 += 4;
+        v4 += 16;
       }
-      while ( _RDI - in_far < (int)(w - (w & 0x8000000F)) );
-      __asm
-      {
-        vmovaps xmm7, [rsp+28h+var_28]
-        vmovaps xmm6, [rsp+28h+var_18]
-      }
+      while ( (char *)v9 - (char *)in_far < w - (w & 0xF) );
     }
   }
-  if ( v6 < (__int64)w )
+  if ( v4 < (__int64)w )
   {
-    v56 = &in_far[v6];
-    v57 = in_near - in_far;
-    v58 = w - (__int64)v6;
+    v48 = &in_far[v4];
+    v49 = in_near - in_far;
+    v50 = w - (__int64)v4;
     do
     {
-      v59 = v56[v57];
-      ++v56;
-      v56[out - in_far - 1] = (3 * v59 + (unsigned int)*(v56 - 1) + 2) >> 2;
-      --v58;
+      v51 = v48[v49];
+      ++v48;
+      v48[out - in_far - 1] = (3 * v51 + (unsigned int)*(v48 - 1) + 2) >> 2;
+      --v50;
     }
-    while ( v58 );
+    while ( v50 );
   }
   return out;
 }
@@ -9830,12 +9749,7 @@ stbi_hdr_to_ldr_gamma
 */
 void stbi_hdr_to_ldr_gamma(float gamma)
 {
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vdivss  xmm0, xmm1, xmm0
-    vmovss  cs:stbi__h2l_gamma_i, xmm0
-  }
+  stbi__h2l_gamma_i = 1.0 / gamma;
 }
 
 /*
@@ -9845,12 +9759,7 @@ stbi_hdr_to_ldr_scale
 */
 void stbi_hdr_to_ldr_scale(float scale)
 {
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vdivss  xmm0, xmm1, xmm0
-    vmovss  cs:stbi__h2l_scale_i, xmm0
-  }
+  stbi__h2l_scale_i = 1.0 / scale;
 }
 
 /*
@@ -9874,12 +9783,11 @@ __int64 stbi_info(const char *filename, int *x, int *y, int *comp)
   errno_t v7; 
   FILE *v8; 
   int v10; 
-  int v13; 
-  unsigned int v14; 
-  int v16; 
-  unsigned __int8 *v17; 
-  stbi__context *v18; 
-  stbi__context *v19; 
+  unsigned int v11; 
+  int v12; 
+  unsigned __int8 *v13; 
+  stbi__context *v14; 
+  stbi__context *v15; 
   FILE *Stream; 
   stbi__png z; 
   stbi__context s; 
@@ -9892,63 +9800,52 @@ __int64 stbi_info(const char *filename, int *x, int *y, int *comp)
   if ( v8 )
   {
     v10 = ftell(v8);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr cs:stbi__stdio_callbacks.read
-      vmovsd  xmm0, cs:stbi__stdio_callbacks.eof
-    }
-    v13 = v10;
     s.io_user_data = v8;
-    v14 = 1;
+    v11 = 1;
     s.buflen = 128;
     s.read_from_callbacks = 1;
     s.img_buffer_original = s.buffer_start;
-    __asm
-    {
-      vmovq   rax, xmm1
-      vmovups xmmword ptr [rsp+180h+s.io.read], xmm1
-      vmovsd  [rsp+180h+s.io.eof], xmm0
-    }
-    v16 = _RAX(v8, s.buffer_start, 128i64);
-    if ( v16 )
+    s.io = stbi__stdio_callbacks;
+    v12 = stbi__stdio_callbacks.read(v8, (char *)s.buffer_start, 128);
+    if ( v12 )
     {
       s.img_buffer = s.buffer_start;
-      v17 = &s.buffer_start[v16];
+      v13 = &s.buffer_start[v12];
     }
     else
     {
       s.read_from_callbacks = 0;
       s.img_buffer = s.buffer_start;
-      v17 = &s.buffer_start[1];
+      v13 = &s.buffer_start[1];
       s.buffer_start[0] = 0;
     }
-    s.img_buffer_end = v17;
-    s.img_buffer_original_end = v17;
+    s.img_buffer_end = v13;
+    s.img_buffer_original_end = v13;
     if ( !(unsigned int)stbi__jpeg_info(&s, x, y, comp) )
     {
       z.s = &s;
       if ( (unsigned int)stbi__parse_png_file(&z, 2, 0) )
       {
-        v19 = z.s;
+        v15 = z.s;
         if ( x )
           *x = z.s->img_x;
         if ( y )
-          *y = v19->img_y;
+          *y = v15->img_y;
         if ( comp )
-          *comp = v19->img_n;
+          *comp = v15->img_n;
       }
       else
       {
-        v18 = z.s;
-        v14 = 0;
+        v14 = z.s;
+        v11 = 0;
         z.s->img_buffer = z.s->img_buffer_original;
-        v18->img_buffer_end = v18->img_buffer_original_end;
+        v14->img_buffer_end = v14->img_buffer_original_end;
         stbi__g_failure_reason = "unknown image type";
       }
     }
-    fseek(v8, v13, 0);
+    fseek(v8, v10, 0);
     fclose(v8);
-    return v14;
+    return v11;
   }
   else
   {
@@ -9964,29 +9861,84 @@ stbi_info_from_callbacks
 */
 __int64 stbi_info_from_callbacks(const stbi_io_callbacks *c, void *user, int *x, int *y, int *comp)
 {
+  __int128 v5; 
+  int (__fastcall *eof)(void *); 
+  int v9; 
+  unsigned __int8 *v10; 
+  __int64 result; 
+  stbi__context *v12; 
+  stbi__png z; 
+  stbi__context s; 
+
+  v5 = *(_OWORD *)&c->read;
+  eof = c->eof;
+  s.img_buffer_original = s.buffer_start;
+  s.io_user_data = user;
+  s.buflen = 128;
+  s.read_from_callbacks = 1;
+  *(_OWORD *)&s.io.read = v5;
+  s.io.eof = eof;
+  v9 = ((__int64 (__fastcall *)(void *, unsigned __int8 *, __int64))v5)(user, s.buffer_start, 128i64);
+  if ( v9 )
+  {
+    s.img_buffer = s.buffer_start;
+    v10 = &s.buffer_start[v9];
+  }
+  else
+  {
+    s.read_from_callbacks = 0;
+    s.img_buffer = s.buffer_start;
+    v10 = &s.buffer_start[1];
+    s.buffer_start[0] = 0;
+  }
+  s.img_buffer_end = v10;
+  s.img_buffer_original_end = v10;
+  if ( !(unsigned int)stbi__jpeg_info(&s, x, y, comp) )
+  {
+    z.s = &s;
+    result = stbi__parse_png_file(&z, 2, 0);
+    v12 = z.s;
+    if ( !(_DWORD)result )
+    {
+      z.s->img_buffer = z.s->img_buffer_original;
+      v12->img_buffer_end = v12->img_buffer_original_end;
+      stbi__g_failure_reason = "unknown image type";
+      return result;
+    }
+    if ( x )
+      *x = z.s->img_x;
+    if ( y )
+      *y = v12->img_y;
+    if ( comp )
+      *comp = v12->img_n;
+  }
+  return 1i64;
+}
+
+/*
+==============
+stbi_info_from_file
+==============
+*/
+__int64 stbi_info_from_file(_iobuf *f, int *x, int *y, int *comp)
+{
+  int v8; 
+  unsigned int v9; 
   int v10; 
   unsigned __int8 *v11; 
-  __int64 result; 
+  stbi__context *v12; 
   stbi__context *v13; 
   stbi__png z; 
   stbi__context s; 
 
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovsd  xmm0, qword ptr [rcx+10h]
-  }
-  s.img_buffer_original = s.buffer_start;
-  s.io_user_data = user;
+  v8 = ftell(f);
+  s.io_user_data = f;
+  v9 = 1;
   s.buflen = 128;
-  __asm { vmovq   rax, xmm1 }
   s.read_from_callbacks = 1;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+150h+s.io.read], xmm1
-    vmovsd  [rsp+150h+s.io.eof], xmm0
-  }
-  v10 = _RAX(user, s.buffer_start, 128i64);
+  s.img_buffer_original = s.buffer_start;
+  s.io = stbi__stdio_callbacks;
+  v10 = stbi__stdio_callbacks.read(f, (char *)s.buffer_start, 128);
   if ( v10 )
   {
     s.img_buffer = s.buffer_start;
@@ -10004,99 +9956,27 @@ __int64 stbi_info_from_callbacks(const stbi_io_callbacks *c, void *user, int *x,
   if ( !(unsigned int)stbi__jpeg_info(&s, x, y, comp) )
   {
     z.s = &s;
-    result = stbi__parse_png_file(&z, 2, 0);
-    v13 = z.s;
-    if ( !(_DWORD)result )
-    {
-      z.s->img_buffer = z.s->img_buffer_original;
-      v13->img_buffer_end = v13->img_buffer_original_end;
-      stbi__g_failure_reason = "unknown image type";
-      return result;
-    }
-    if ( x )
-      *x = z.s->img_x;
-    if ( y )
-      *y = v13->img_y;
-    if ( comp )
-      *comp = v13->img_n;
-  }
-  return 1i64;
-}
-
-/*
-==============
-stbi_info_from_file
-==============
-*/
-__int64 stbi_info_from_file(_iobuf *f, int *x, int *y, int *comp)
-{
-  int v8; 
-  int v11; 
-  unsigned int v12; 
-  int v14; 
-  unsigned __int8 *v15; 
-  stbi__context *v16; 
-  stbi__context *v17; 
-  stbi__png z; 
-  stbi__context s; 
-
-  v8 = ftell(f);
-  __asm
-  {
-    vmovups xmm1, xmmword ptr cs:stbi__stdio_callbacks.read
-    vmovsd  xmm0, cs:stbi__stdio_callbacks.eof
-  }
-  v11 = v8;
-  s.io_user_data = f;
-  v12 = 1;
-  s.buflen = 128;
-  s.read_from_callbacks = 1;
-  s.img_buffer_original = s.buffer_start;
-  __asm
-  {
-    vmovq   rax, xmm1
-    vmovups xmmword ptr [rsp+170h+s.io.read], xmm1
-    vmovsd  [rsp+170h+s.io.eof], xmm0
-  }
-  v14 = _RAX(f, s.buffer_start, 128i64);
-  if ( v14 )
-  {
-    s.img_buffer = s.buffer_start;
-    v15 = &s.buffer_start[v14];
-  }
-  else
-  {
-    s.read_from_callbacks = 0;
-    s.img_buffer = s.buffer_start;
-    v15 = &s.buffer_start[1];
-    s.buffer_start[0] = 0;
-  }
-  s.img_buffer_end = v15;
-  s.img_buffer_original_end = v15;
-  if ( !(unsigned int)stbi__jpeg_info(&s, x, y, comp) )
-  {
-    z.s = &s;
     if ( (unsigned int)stbi__parse_png_file(&z, 2, 0) )
     {
-      v17 = z.s;
+      v13 = z.s;
       if ( x )
         *x = z.s->img_x;
       if ( y )
-        *y = v17->img_y;
+        *y = v13->img_y;
       if ( comp )
-        *comp = v17->img_n;
+        *comp = v13->img_n;
     }
     else
     {
-      v16 = z.s;
-      v12 = 0;
+      v12 = z.s;
+      v9 = 0;
       z.s->img_buffer = z.s->img_buffer_original;
-      v16->img_buffer_end = v16->img_buffer_original_end;
+      v12->img_buffer_end = v12->img_buffer_original_end;
       stbi__g_failure_reason = "unknown image type";
     }
   }
-  fseek(f, v11, 0);
-  return v12;
+  fseek(f, v8, 0);
+  return v9;
 }
 
 /*
@@ -10152,22 +10032,22 @@ __int64 stbi_is_16_bit(const char *filename)
   FILE *v2; 
   unsigned int v3; 
   int v5; 
-  int v8; 
-  int v10; 
-  char *v11; 
+  int v6; 
+  char *v7; 
   stbi__context *s; 
   FILE *Stream; 
   stbi__png z; 
-  char v15; 
-  FILE *v18; 
-  int v19; 
-  int v20; 
-  char v21; 
-  char v22; 
-  char *v23; 
-  char *v24; 
-  char *v25; 
-  char *v26; 
+  char v11; 
+  stbi_io_callbacks v12; 
+  FILE *v13; 
+  int v14; 
+  int v15; 
+  char v16; 
+  char v17; 
+  char *v18; 
+  char *v19; 
+  char *v20; 
+  char *v21; 
 
   v1 = fopen_s(&Stream, filename, "rb");
   v2 = Stream;
@@ -10178,38 +10058,27 @@ __int64 stbi_is_16_bit(const char *filename)
   if ( v2 )
   {
     v5 = ftell(v2);
-    __asm
+    v13 = v2;
+    v15 = 128;
+    v20 = &v16;
+    v14 = 1;
+    v12 = stbi__stdio_callbacks;
+    v6 = stbi__stdio_callbacks.read(v2, &v16, 128);
+    if ( v6 )
     {
-      vmovups xmm1, xmmword ptr cs:stbi__stdio_callbacks.read
-      vmovsd  xmm0, cs:stbi__stdio_callbacks.eof
-    }
-    v8 = v5;
-    v18 = v2;
-    v20 = 128;
-    v25 = &v21;
-    __asm { vmovq   rax, xmm1 }
-    v19 = 1;
-    __asm
-    {
-      vmovups [rsp+140h+var_E0], xmm1
-      vmovsd  [rsp+140h+var_D0], xmm0
-    }
-    v10 = _RAX(v2, &v21, 128i64);
-    if ( v10 )
-    {
-      v23 = &v21;
-      v11 = &v21 + v10;
+      v18 = &v16;
+      v7 = &v16 + v6;
     }
     else
     {
-      v19 = 0;
-      v23 = &v21;
-      v11 = &v22;
-      v21 = 0;
+      v14 = 0;
+      v18 = &v16;
+      v7 = &v17;
+      v16 = 0;
     }
-    v24 = v11;
-    v26 = v11;
-    z.s = (stbi__context *)&v15;
+    v19 = v7;
+    v21 = v7;
+    z.s = (stbi__context *)&v11;
     if ( (unsigned int)stbi__parse_png_file(&z, 2, 0) && z.depth == 16 )
     {
       v3 = 1;
@@ -10220,7 +10089,7 @@ __int64 stbi_is_16_bit(const char *filename)
       z.s->img_buffer = z.s->img_buffer_original;
       s->img_buffer_end = s->img_buffer_original_end;
     }
-    fseek(v2, v8, 0);
+    fseek(v2, v5, 0);
     fclose(v2);
     return v3;
   }
@@ -10238,54 +10107,51 @@ stbi_is_16_bit_from_callbacks
 */
 __int64 stbi_is_16_bit_from_callbacks(const stbi_io_callbacks *c, void *user)
 {
-  int v5; 
-  char *v6; 
-  stbi__context *v7; 
+  __int128 v2; 
+  int (__fastcall *eof)(void *); 
+  int v4; 
+  char *v5; 
+  stbi__context *v6; 
   __int64 result; 
   stbi__context *s; 
   stbi__png z; 
-  char v11; 
-  void *v14; 
+  char v10; 
+  __int128 v11; 
+  __int64 v12; 
+  void *v13; 
+  int v14; 
   int v15; 
-  int v16; 
+  char v16; 
   char v17; 
-  char v18; 
+  char *v18; 
   char *v19; 
   char *v20; 
   char *v21; 
-  char *v22; 
 
-  __asm
+  v2 = *(_OWORD *)&c->read;
+  eof = c->eof;
+  v13 = user;
+  v15 = 128;
+  v20 = &v16;
+  v14 = 1;
+  v11 = v2;
+  v12 = (__int64)eof;
+  v4 = ((__int64 (__fastcall *)(void *, char *, __int64))v2)(user, &v16, 128i64);
+  if ( v4 )
   {
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovsd  xmm0, qword ptr [rcx+10h]
-  }
-  v14 = user;
-  v16 = 128;
-  v21 = &v17;
-  v15 = 1;
-  __asm
-  {
-    vmovq   rax, xmm1
-    vmovups [rsp+140h+var_E0], xmm1
-    vmovsd  [rsp+140h+var_D0], xmm0
-  }
-  v5 = _RAX(user, &v17, 128i64);
-  if ( v5 )
-  {
-    v19 = &v17;
-    v6 = &v17 + v5;
+    v18 = &v16;
+    v5 = &v16 + v4;
   }
   else
   {
-    v15 = 0;
-    v19 = &v17;
-    v6 = &v18;
-    v17 = 0;
+    v14 = 0;
+    v18 = &v16;
+    v5 = &v17;
+    v16 = 0;
   }
-  v20 = v6;
-  v22 = v6;
-  z.s = (stbi__context *)&v11;
+  v19 = v5;
+  v21 = v5;
+  z.s = (stbi__context *)&v10;
   if ( (unsigned int)stbi__parse_png_file(&z, 2, 0) )
   {
     if ( z.depth == 16 )
@@ -10302,9 +10168,9 @@ __int64 stbi_is_16_bit_from_callbacks(const stbi_io_callbacks *c, void *user)
   }
   else
   {
-    v7 = z.s;
+    v6 = z.s;
     z.s->img_buffer = z.s->img_buffer_original;
-    v7->img_buffer_end = v7->img_buffer_original_end;
+    v6->img_buffer_end = v6->img_buffer_original_end;
     return 0i64;
   }
   return result;
@@ -10318,60 +10184,49 @@ stbi_is_16_bit_from_file
 __int64 stbi_is_16_bit_from_file(_iobuf *f)
 {
   int v2; 
-  int v5; 
-  int v7; 
-  unsigned int v8; 
-  char *v9; 
+  int v3; 
+  unsigned int v4; 
+  char *v5; 
   stbi__context *s; 
   stbi__png z; 
-  char v13; 
-  _iobuf *v16; 
-  int v17; 
-  int v18; 
-  char v19; 
-  char v20; 
-  char *v21; 
-  char *v22; 
-  char *v23; 
-  char *v24; 
+  char v9; 
+  stbi_io_callbacks v10; 
+  _iobuf *v11; 
+  int v12; 
+  int v13; 
+  char v14; 
+  char v15; 
+  char *v16; 
+  char *v17; 
+  char *v18; 
+  char *v19; 
 
   v2 = ftell(f);
-  __asm
+  v11 = f;
+  v13 = 128;
+  v18 = &v14;
+  v12 = 1;
+  v10 = stbi__stdio_callbacks;
+  v3 = stbi__stdio_callbacks.read(f, &v14, 128);
+  v4 = 0;
+  if ( v3 )
   {
-    vmovups xmm1, xmmword ptr cs:stbi__stdio_callbacks.read
-    vmovsd  xmm0, cs:stbi__stdio_callbacks.eof
-  }
-  v5 = v2;
-  v16 = f;
-  v18 = 128;
-  v23 = &v19;
-  __asm { vmovq   rax, xmm1 }
-  v17 = 1;
-  __asm
-  {
-    vmovups [rsp+140h+var_E0], xmm1
-    vmovsd  [rsp+140h+var_D0], xmm0
-  }
-  v7 = _RAX(f, &v19, 128i64);
-  v8 = 0;
-  if ( v7 )
-  {
-    v21 = &v19;
-    v9 = &v19 + v7;
+    v16 = &v14;
+    v5 = &v14 + v3;
   }
   else
   {
-    v17 = 0;
-    v21 = &v19;
-    v9 = &v20;
-    v19 = 0;
+    v12 = 0;
+    v16 = &v14;
+    v5 = &v15;
+    v14 = 0;
   }
-  v22 = v9;
-  v24 = v9;
-  z.s = (stbi__context *)&v13;
+  v17 = v5;
+  v19 = v5;
+  z.s = (stbi__context *)&v9;
   if ( (unsigned int)stbi__parse_png_file(&z, 2, 0) && z.depth == 16 )
   {
-    v8 = 1;
+    v4 = 1;
   }
   else
   {
@@ -10379,8 +10234,8 @@ __int64 stbi_is_16_bit_from_file(_iobuf *f)
     z.s->img_buffer = z.s->img_buffer_original;
     s->img_buffer_end = s->img_buffer_original_end;
   }
-  fseek(f, v5, 0);
-  return v8;
+  fseek(f, v2, 0);
+  return v4;
 }
 
 /*
@@ -10482,10 +10337,9 @@ __int64 stbi_is_hdr_from_memory(const unsigned __int8 *buffer, int len)
 stbi_ldr_to_hdr_gamma
 ==============
 */
-
-void __fastcall stbi_ldr_to_hdr_gamma(double gamma)
+void stbi_ldr_to_hdr_gamma(float gamma)
 {
-  __asm { vmovss  cs:stbi__l2h_gamma, xmm0 }
+  stbi__l2h_gamma = gamma;
 }
 
 /*
@@ -10493,10 +10347,9 @@ void __fastcall stbi_ldr_to_hdr_gamma(double gamma)
 stbi_ldr_to_hdr_scale
 ==============
 */
-
-void __fastcall stbi_ldr_to_hdr_scale(double scale)
+void stbi_ldr_to_hdr_scale(float scale)
 {
-  __asm { vmovss  cs:stbi__l2h_scale, xmm0 }
+  stbi__l2h_scale = scale;
 }
 
 /*
@@ -10508,9 +10361,9 @@ unsigned __int8 *stbi_load(const char *filename, int *x, int *y, int *comp, int 
 {
   errno_t v8; 
   FILE *v9; 
-  int v14; 
-  unsigned __int8 *v15; 
-  unsigned __int8 *v16; 
+  int v11; 
+  unsigned __int8 *v12; 
+  unsigned __int8 *v13; 
   FILE *Stream; 
   stbi__context s; 
 
@@ -10521,41 +10374,31 @@ unsigned __int8 *stbi_load(const char *filename, int *x, int *y, int *comp, int 
   Stream = v9;
   if ( v9 )
   {
-    __asm
-    {
-      vmovups xmm1, xmmword ptr cs:stbi__stdio_callbacks.read
-      vmovsd  xmm0, cs:stbi__stdio_callbacks.eof
-    }
     s.io_user_data = v9;
     s.img_buffer_original = s.buffer_start;
-    __asm { vmovq   rax, xmm1 }
     s.buflen = 128;
     s.read_from_callbacks = 1;
-    __asm
-    {
-      vmovups xmmword ptr [rsp+160h+s.io.read], xmm1
-      vmovsd  [rsp+160h+s.io.eof], xmm0
-    }
-    v14 = _RAX(v9, s.buffer_start, 128i64);
-    if ( v14 )
+    s.io = stbi__stdio_callbacks;
+    v11 = stbi__stdio_callbacks.read(v9, (char *)s.buffer_start, 128);
+    if ( v11 )
     {
       s.img_buffer = s.buffer_start;
-      v15 = &s.buffer_start[v14];
+      v12 = &s.buffer_start[v11];
     }
     else
     {
       s.read_from_callbacks = 0;
       s.img_buffer = s.buffer_start;
-      v15 = &s.buffer_start[1];
+      v12 = &s.buffer_start[1];
       s.buffer_start[0] = 0;
     }
-    s.img_buffer_end = v15;
-    s.img_buffer_original_end = v15;
-    v16 = stbi__load_and_postprocess_8bit(&s, x, y, comp, req_comp);
-    if ( v16 )
+    s.img_buffer_end = v12;
+    s.img_buffer_original_end = v12;
+    v13 = stbi__load_and_postprocess_8bit(&s, x, y, comp, req_comp);
+    if ( v13 )
       fseek(v9, LODWORD(s.img_buffer) - LODWORD(s.img_buffer_end), 1);
     fclose(v9);
-    return v16;
+    return v13;
   }
   else
   {
@@ -10573,9 +10416,9 @@ unsigned __int16 *stbi_load_16(const char *filename, int *x, int *y, int *comp, 
 {
   errno_t v8; 
   FILE *v9; 
-  int v14; 
-  unsigned __int8 *v15; 
-  unsigned __int16 *v16; 
+  int v11; 
+  unsigned __int8 *v12; 
+  unsigned __int16 *v13; 
   FILE *Stream; 
   stbi__context s; 
 
@@ -10586,41 +10429,31 @@ unsigned __int16 *stbi_load_16(const char *filename, int *x, int *y, int *comp, 
   Stream = v9;
   if ( v9 )
   {
-    __asm
-    {
-      vmovups xmm1, xmmword ptr cs:stbi__stdio_callbacks.read
-      vmovsd  xmm0, cs:stbi__stdio_callbacks.eof
-    }
     s.io_user_data = v9;
     s.img_buffer_original = s.buffer_start;
-    __asm { vmovq   rax, xmm1 }
     s.buflen = 128;
     s.read_from_callbacks = 1;
-    __asm
-    {
-      vmovups xmmword ptr [rsp+160h+s.io.read], xmm1
-      vmovsd  [rsp+160h+s.io.eof], xmm0
-    }
-    v14 = _RAX(v9, s.buffer_start, 128i64);
-    if ( v14 )
+    s.io = stbi__stdio_callbacks;
+    v11 = stbi__stdio_callbacks.read(v9, (char *)s.buffer_start, 128);
+    if ( v11 )
     {
       s.img_buffer = s.buffer_start;
-      v15 = &s.buffer_start[v14];
+      v12 = &s.buffer_start[v11];
     }
     else
     {
       s.read_from_callbacks = 0;
       s.img_buffer = s.buffer_start;
-      v15 = &s.buffer_start[1];
+      v12 = &s.buffer_start[1];
       s.buffer_start[0] = 0;
     }
-    s.img_buffer_end = v15;
-    s.img_buffer_original_end = v15;
-    v16 = stbi__load_and_postprocess_16bit(&s, x, y, comp, req_comp);
-    if ( v16 )
+    s.img_buffer_end = v12;
+    s.img_buffer_original_end = v12;
+    v13 = stbi__load_and_postprocess_16bit(&s, x, y, comp, req_comp);
+    if ( v13 )
       fseek(v9, LODWORD(s.img_buffer) - LODWORD(s.img_buffer_end), 1);
     fclose(v9);
-    return v16;
+    return v13;
   }
   else
   {
@@ -10636,40 +10469,35 @@ stbi_load_16_from_callbacks
 */
 unsigned __int16 *stbi_load_16_from_callbacks(const stbi_io_callbacks *clbk, void *user, int *x, int *y, int *channels_in_file, int desired_channels)
 {
-  int v11; 
-  unsigned __int8 *v12; 
+  __int128 v6; 
+  int (__fastcall *eof)(void *); 
+  int v10; 
+  unsigned __int8 *v11; 
   stbi__context s; 
 
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovsd  xmm0, qword ptr [rcx+10h]
-  }
+  v6 = *(_OWORD *)&clbk->read;
+  eof = clbk->eof;
   s.img_buffer_original = s.buffer_start;
   s.io_user_data = user;
-  __asm { vmovq   rax, xmm1 }
   s.buflen = 128;
   s.read_from_callbacks = 1;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+138h+s.io.read], xmm1
-    vmovsd  [rsp+138h+s.io.eof], xmm0
-  }
-  v11 = _RAX(user, s.buffer_start, 128i64);
-  if ( v11 )
+  *(_OWORD *)&s.io.read = v6;
+  s.io.eof = eof;
+  v10 = ((__int64 (__fastcall *)(void *, unsigned __int8 *, __int64))v6)(user, s.buffer_start, 128i64);
+  if ( v10 )
   {
     s.img_buffer = s.buffer_start;
-    v12 = &s.buffer_start[v11];
+    v11 = &s.buffer_start[v10];
   }
   else
   {
     s.read_from_callbacks = 0;
     s.img_buffer = s.buffer_start;
-    v12 = &s.buffer_start[1];
+    v11 = &s.buffer_start[1];
     s.buffer_start[0] = 0;
   }
-  s.img_buffer_end = v12;
-  s.img_buffer_original_end = v12;
+  s.img_buffer_end = v11;
+  s.img_buffer_original_end = v11;
   return stbi__load_and_postprocess_16bit(&s, x, y, channels_in_file, desired_channels);
 }
 
@@ -10698,40 +10526,35 @@ stbi_load_from_callbacks
 */
 unsigned __int8 *stbi_load_from_callbacks(const stbi_io_callbacks *clbk, void *user, int *x, int *y, int *comp, int req_comp)
 {
-  int v11; 
-  unsigned __int8 *v12; 
+  __int128 v6; 
+  int (__fastcall *eof)(void *); 
+  int v10; 
+  unsigned __int8 *v11; 
   stbi__context s; 
 
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovsd  xmm0, qword ptr [rcx+10h]
-  }
+  v6 = *(_OWORD *)&clbk->read;
+  eof = clbk->eof;
   s.img_buffer_original = s.buffer_start;
   s.io_user_data = user;
-  __asm { vmovq   rax, xmm1 }
   s.buflen = 128;
   s.read_from_callbacks = 1;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+138h+s.io.read], xmm1
-    vmovsd  [rsp+138h+s.io.eof], xmm0
-  }
-  v11 = _RAX(user, s.buffer_start, 128i64);
-  if ( v11 )
+  *(_OWORD *)&s.io.read = v6;
+  s.io.eof = eof;
+  v10 = ((__int64 (__fastcall *)(void *, unsigned __int8 *, __int64))v6)(user, s.buffer_start, 128i64);
+  if ( v10 )
   {
     s.img_buffer = s.buffer_start;
-    v12 = &s.buffer_start[v11];
+    v11 = &s.buffer_start[v10];
   }
   else
   {
     s.read_from_callbacks = 0;
     s.img_buffer = s.buffer_start;
-    v12 = &s.buffer_start[1];
+    v11 = &s.buffer_start[1];
     s.buffer_start[0] = 0;
   }
-  s.img_buffer_end = v12;
-  s.img_buffer_original_end = v12;
+  s.img_buffer_end = v11;
+  s.img_buffer_original_end = v11;
   return stbi__load_and_postprocess_8bit(&s, x, y, comp, req_comp);
 }
 
@@ -10742,48 +10565,38 @@ stbi_load_from_file
 */
 unsigned __int8 *stbi_load_from_file(_iobuf *f, int *x, int *y, int *comp, int req_comp)
 {
-  int v12; 
-  unsigned __int8 *v13; 
+  int v9; 
+  unsigned __int8 *v10; 
   unsigned __int8 *result; 
-  unsigned __int8 *v15; 
+  unsigned __int8 *v12; 
   stbi__context s; 
 
-  __asm
-  {
-    vmovups xmm1, xmmword ptr cs:stbi__stdio_callbacks.read
-    vmovsd  xmm0, cs:stbi__stdio_callbacks.eof
-  }
   s.img_buffer_original = s.buffer_start;
   s.io_user_data = f;
-  __asm { vmovq   rax, xmm1 }
   s.buflen = 128;
   s.read_from_callbacks = 1;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+148h+s.io.read], xmm1
-    vmovsd  [rsp+148h+s.io.eof], xmm0
-  }
-  v12 = _RAX(f, s.buffer_start, 128i64);
-  if ( v12 )
+  s.io = stbi__stdio_callbacks;
+  v9 = stbi__stdio_callbacks.read(f, (char *)s.buffer_start, 128);
+  if ( v9 )
   {
     s.img_buffer = s.buffer_start;
-    v13 = &s.buffer_start[v12];
+    v10 = &s.buffer_start[v9];
   }
   else
   {
     s.read_from_callbacks = 0;
     s.img_buffer = s.buffer_start;
-    v13 = &s.buffer_start[1];
+    v10 = &s.buffer_start[1];
     s.buffer_start[0] = 0;
   }
-  s.img_buffer_end = v13;
-  s.img_buffer_original_end = v13;
+  s.img_buffer_end = v10;
+  s.img_buffer_original_end = v10;
   result = stbi__load_and_postprocess_8bit(&s, x, y, comp, req_comp);
-  v15 = result;
+  v12 = result;
   if ( result )
   {
     fseek(f, LODWORD(s.img_buffer) - LODWORD(s.img_buffer_end), 1);
-    return v15;
+    return v12;
   }
   return result;
 }
@@ -10795,48 +10608,38 @@ stbi_load_from_file_16
 */
 unsigned __int16 *stbi_load_from_file_16(_iobuf *f, int *x, int *y, int *comp, int req_comp)
 {
-  int v12; 
-  unsigned __int8 *v13; 
+  int v9; 
+  unsigned __int8 *v10; 
   unsigned __int16 *result; 
-  unsigned __int16 *v15; 
+  unsigned __int16 *v12; 
   stbi__context s; 
 
-  __asm
-  {
-    vmovups xmm1, xmmword ptr cs:stbi__stdio_callbacks.read
-    vmovsd  xmm0, cs:stbi__stdio_callbacks.eof
-  }
   s.img_buffer_original = s.buffer_start;
   s.io_user_data = f;
-  __asm { vmovq   rax, xmm1 }
   s.buflen = 128;
   s.read_from_callbacks = 1;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+148h+s.io.read], xmm1
-    vmovsd  [rsp+148h+s.io.eof], xmm0
-  }
-  v12 = _RAX(f, s.buffer_start, 128i64);
-  if ( v12 )
+  s.io = stbi__stdio_callbacks;
+  v9 = stbi__stdio_callbacks.read(f, (char *)s.buffer_start, 128);
+  if ( v9 )
   {
     s.img_buffer = s.buffer_start;
-    v13 = &s.buffer_start[v12];
+    v10 = &s.buffer_start[v9];
   }
   else
   {
     s.read_from_callbacks = 0;
     s.img_buffer = s.buffer_start;
-    v13 = &s.buffer_start[1];
+    v10 = &s.buffer_start[1];
     s.buffer_start[0] = 0;
   }
-  s.img_buffer_end = v13;
-  s.img_buffer_original_end = v13;
+  s.img_buffer_end = v10;
+  s.img_buffer_original_end = v10;
   result = stbi__load_and_postprocess_16bit(&s, x, y, comp, req_comp);
-  v15 = result;
+  v12 = result;
   if ( result )
   {
     fseek(f, LODWORD(s.img_buffer) - LODWORD(s.img_buffer_end), 1);
-    return v15;
+    return v12;
   }
   return result;
 }
@@ -10922,10 +10725,10 @@ float *stbi_loadf(const char *filename, int *x, int *y, int *comp, int req_comp)
 {
   int v5; 
   FILE *v9; 
-  int v13; 
-  float *v14; 
-  unsigned __int8 *v15; 
-  unsigned __int8 *v16; 
+  int v10; 
+  float *v11; 
+  unsigned __int8 *v12; 
+  unsigned __int8 *v13; 
   FILE *Stream; 
   stbi__context s; 
 
@@ -10937,50 +10740,40 @@ float *stbi_loadf(const char *filename, int *x, int *y, int *comp, int req_comp)
   }
   else
   {
-    __asm
-    {
-      vmovups xmm1, xmmword ptr cs:stbi__stdio_callbacks.read
-      vmovsd  xmm0, cs:stbi__stdio_callbacks.eof
-    }
     s.img_buffer_original = s.buffer_start;
-    __asm { vmovq   rax, xmm1 }
     s.io_user_data = Stream;
     s.buflen = 128;
-    __asm
-    {
-      vmovups xmmword ptr [rsp+168h+s.io.read], xmm1
-      vmovsd  [rsp+168h+s.io.eof], xmm0
-    }
+    s.io = stbi__stdio_callbacks;
     s.read_from_callbacks = 1;
-    v13 = _RAX(Stream, s.buffer_start, 128i64);
-    v14 = NULL;
-    if ( v13 )
+    v10 = stbi__stdio_callbacks.read(Stream, (char *)s.buffer_start, 128);
+    v11 = NULL;
+    if ( v10 )
     {
       s.img_buffer = s.buffer_start;
-      v15 = &s.buffer_start[v13];
+      v12 = &s.buffer_start[v10];
     }
     else
     {
       s.read_from_callbacks = 0;
       s.img_buffer = s.buffer_start;
-      v15 = &s.buffer_start[1];
+      v12 = &s.buffer_start[1];
       s.buffer_start[0] = 0;
     }
-    s.img_buffer_end = v15;
-    s.img_buffer_original_end = v15;
-    v16 = stbi__load_and_postprocess_8bit(&s, x, y, comp, req_comp);
-    if ( v16 )
+    s.img_buffer_end = v12;
+    s.img_buffer_original_end = v12;
+    v13 = stbi__load_and_postprocess_8bit(&s, x, y, comp, req_comp);
+    if ( v13 )
     {
       if ( !req_comp )
         v5 = *comp;
-      v14 = stbi__ldr_to_hdr(v16, *x, *y, v5);
+      v11 = stbi__ldr_to_hdr(v13, *x, *y, v5);
     }
     else
     {
       stbi__g_failure_reason = "unknown image type";
     }
     fclose(v9);
-    return v14;
+    return v11;
   }
 }
 
@@ -10991,50 +10784,45 @@ stbi_loadf_from_callbacks
 */
 float *stbi_loadf_from_callbacks(const stbi_io_callbacks *clbk, void *user, int *x, int *y, int *comp, int req_comp)
 {
+  __int128 v6; 
+  int (__fastcall *eof)(void *); 
   int v8; 
-  int v12; 
+  int v11; 
+  unsigned __int8 *v12; 
   unsigned __int8 *v13; 
-  unsigned __int8 *v14; 
   float *result; 
   stbi__context s; 
 
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rcx]
-    vmovsd  xmm0, qword ptr [rcx+10h]
-  }
+  v6 = *(_OWORD *)&clbk->read;
+  eof = clbk->eof;
   v8 = req_comp;
   s.img_buffer_original = s.buffer_start;
   s.io_user_data = user;
-  __asm { vmovq   rax, xmm1 }
   s.buflen = 128;
   s.read_from_callbacks = 1;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+138h+s.io.read], xmm1
-    vmovsd  [rsp+138h+s.io.eof], xmm0
-  }
-  v12 = _RAX(user, s.buffer_start, 128i64);
-  if ( v12 )
+  *(_OWORD *)&s.io.read = v6;
+  s.io.eof = eof;
+  v11 = ((__int64 (__fastcall *)(void *, unsigned __int8 *, __int64))v6)(user, s.buffer_start, 128i64);
+  if ( v11 )
   {
     s.img_buffer = s.buffer_start;
-    v13 = &s.buffer_start[v12];
+    v12 = &s.buffer_start[v11];
   }
   else
   {
     s.read_from_callbacks = 0;
     s.img_buffer = s.buffer_start;
-    v13 = &s.buffer_start[1];
+    v12 = &s.buffer_start[1];
     s.buffer_start[0] = 0;
   }
-  s.img_buffer_end = v13;
-  s.img_buffer_original_end = v13;
-  v14 = stbi__load_and_postprocess_8bit(&s, x, y, comp, req_comp);
-  if ( v14 )
+  s.img_buffer_end = v12;
+  s.img_buffer_original_end = v12;
+  v13 = stbi__load_and_postprocess_8bit(&s, x, y, comp, req_comp);
+  if ( v13 )
   {
     if ( !req_comp )
       v8 = *comp;
-    return stbi__ldr_to_hdr(v14, *x, *y, v8);
+    return stbi__ldr_to_hdr(v13, *x, *y, v8);
   }
   else
   {
@@ -11051,50 +10839,40 @@ stbi_loadf_from_file
 */
 float *stbi_loadf_from_file(_iobuf *f, int *x, int *y, int *comp, int req_comp)
 {
-  int v7; 
-  int v12; 
-  unsigned __int8 *v13; 
-  unsigned __int8 *v14; 
+  int v5; 
+  int v9; 
+  unsigned __int8 *v10; 
+  unsigned __int8 *v11; 
   float *result; 
   stbi__context s; 
 
-  __asm
-  {
-    vmovups xmm1, xmmword ptr cs:stbi__stdio_callbacks.read
-    vmovsd  xmm0, cs:stbi__stdio_callbacks.eof
-  }
-  v7 = req_comp;
+  v5 = req_comp;
   s.img_buffer_original = s.buffer_start;
   s.io_user_data = f;
-  __asm { vmovq   rax, xmm1 }
   s.buflen = 128;
   s.read_from_callbacks = 1;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+138h+s.io.read], xmm1
-    vmovsd  [rsp+138h+s.io.eof], xmm0
-  }
-  v12 = _RAX(f, s.buffer_start, 128i64);
-  if ( v12 )
+  s.io = stbi__stdio_callbacks;
+  v9 = stbi__stdio_callbacks.read(f, (char *)s.buffer_start, 128);
+  if ( v9 )
   {
     s.img_buffer = s.buffer_start;
-    v13 = &s.buffer_start[v12];
+    v10 = &s.buffer_start[v9];
   }
   else
   {
     s.read_from_callbacks = 0;
     s.img_buffer = s.buffer_start;
-    v13 = &s.buffer_start[1];
+    v10 = &s.buffer_start[1];
     s.buffer_start[0] = 0;
   }
-  s.img_buffer_end = v13;
-  s.img_buffer_original_end = v13;
-  v14 = stbi__load_and_postprocess_8bit(&s, x, y, comp, req_comp);
-  if ( v14 )
+  s.img_buffer_end = v10;
+  s.img_buffer_original_end = v10;
+  v11 = stbi__load_and_postprocess_8bit(&s, x, y, comp, req_comp);
+  if ( v11 )
   {
     if ( !req_comp )
-      v7 = *comp;
-    return stbi__ldr_to_hdr(v14, *x, *y, v7);
+      v5 = *comp;
+    return stbi__ldr_to_hdr(v11, *x, *y, v5);
   }
   else
   {

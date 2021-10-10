@@ -652,72 +652,60 @@ ScriptableBg_MoveScriptableAsset
 */
 void ScriptableBg_MoveScriptableAsset(ScriptableDef *from, ScriptableDef *to)
 {
+  ntl::fixed_vector<ScriptableDef *,1024,0> *v2; 
+  ntl::fixed_vector<ScriptableDef *,1024,0> *v3; 
+  __int64 v4; 
+  ntl::fixed_vector<ScriptableDef *,1024,0> *v5; 
+  char *v6; 
   ntl::fixed_vector<ScriptableDef *,1024,0> *v7; 
-  ntl::fixed_vector<ScriptableDef *,1024,0> *v8; 
-  __int64 v9; 
-  ntl::fixed_vector<ScriptableDef *,1024,0> *v10; 
-  char *v11; 
-  ntl::fixed_vector<ScriptableDef *,1024,0> *v12; 
-  unsigned __int64 v13; 
-  unsigned __int64 v14; 
+  unsigned __int64 v8; 
+  unsigned __int64 v9; 
 
-  __asm
+  *to = *from;
+  v2 = &g_scriptableDefVector;
+  v3 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * g_scriptableDefVector.m_size);
+  if ( &g_scriptableDefVector != v3 )
   {
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovups ymmword ptr [rdx], ymm0
-    vmovups ymm1, ymmword ptr [rcx+20h]
-    vmovups ymmword ptr [rdx+20h], ymm1
-    vmovups ymm0, ymmword ptr [rcx+40h]
-    vmovups ymmword ptr [rdx+40h], ymm0
-    vmovups xmm1, xmmword ptr [rcx+60h]
-    vmovups xmmword ptr [rdx+60h], xmm1
-    vmovsd  xmm0, qword ptr [rcx+70h]
-    vmovsd  qword ptr [rdx+70h], xmm0
-  }
-  v7 = &g_scriptableDefVector;
-  v8 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * g_scriptableDefVector.m_size);
-  if ( &g_scriptableDefVector != v8 )
-  {
-    while ( *(ScriptableDef **)v7->m_data.m_buffer != from )
+    while ( *(ScriptableDef **)v2->m_data.m_buffer != from )
     {
-      v7 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)v7 + 8);
-      if ( v7 == v8 )
+      v2 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)v2 + 8);
+      if ( v2 == v3 )
         return;
     }
     if ( !g_scriptableDefVector.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 341, ASSERT_TYPE_ASSERT, "( empty() == false )", (const char *)&queryFormat, "empty() == false") )
       __debugbreak();
-    if ( (v7 < &g_scriptableDefVector || v7 > (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * g_scriptableDefVector.m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
+    if ( (v2 < &g_scriptableDefVector || v2 > (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * g_scriptableDefVector.m_size)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 494, ASSERT_TYPE_ASSERT, "( ( iter >= begin()) && ( iter <= end()) )", (const char *)&queryFormat, "( iter >= begin()) && ( iter <= end())") )
       __debugbreak();
-    v9 = (char *)v7 - (char *)&g_scriptableDefVector;
-    if ( (((_BYTE)v7 - (unsigned __int8)&g_scriptableDefVector) & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
+    v4 = (char *)v2 - (char *)&g_scriptableDefVector;
+    if ( (((_BYTE)v2 - (unsigned __int8)&g_scriptableDefVector) & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 495, ASSERT_TYPE_ASSERT, "( (( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0 )", (const char *)&queryFormat, "(( reinterpret_cast< ntl_size_t >( iter ) - reinterpret_cast< ntl_size_t >( begin())) % sizeof( value_type )) == 0") )
       __debugbreak();
-    if ( v7 == (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * g_scriptableDefVector.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
+    if ( v2 == (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * g_scriptableDefVector.m_size) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 343, ASSERT_TYPE_ASSERT, "( citer != end() )", (const char *)&queryFormat, "citer != end()") )
       __debugbreak();
-    v10 = &g_scriptableDefVector;
+    v5 = &g_scriptableDefVector;
     if ( g_scriptableDefVector.m_size )
-      v10 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * (v9 >> 3));
-    v11 = &v10->m_data.m_buffer[8];
-    v12 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * g_scriptableDefVector.m_size);
-    if ( &v10->m_data.m_buffer[8] == (char *)v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
+      v5 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * (v4 >> 3));
+    v6 = &v5->m_data.m_buffer[8];
+    v7 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)&g_scriptableDefVector + 8 * g_scriptableDefVector.m_size);
+    if ( &v5->m_data.m_buffer[8] == (char *)v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 460, ASSERT_TYPE_ASSERT, "( first != result )", (const char *)&queryFormat, "first != result") )
       __debugbreak();
-    if ( v12 == v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
+    if ( v7 == v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 461, ASSERT_TYPE_ASSERT, "( last != result )", (const char *)&queryFormat, "last != result") )
       __debugbreak();
-    if ( v12 < (ntl::fixed_vector<ScriptableDef *,1024,0> *)v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
+    if ( v7 < (ntl::fixed_vector<ScriptableDef *,1024,0> *)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 463, ASSERT_TYPE_ASSERT, "( last >= first )", (const char *)&queryFormat, "last >= first") )
       __debugbreak();
-    v13 = 0i64;
-    v14 = (unsigned __int64)((char *)v12 - v11 + 7) >> 3;
-    if ( v11 > (char *)v12 )
-      v14 = 0i64;
-    if ( v14 )
+    v8 = 0i64;
+    v9 = (unsigned __int64)((char *)v7 - v6 + 7) >> 3;
+    if ( v6 > (char *)v7 )
+      v9 = 0i64;
+    if ( v9 )
     {
       do
       {
-        ++v13;
-        *(_QWORD *)v10->m_data.m_buffer = *(_QWORD *)v11;
-        v10 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)v10 + 8);
-        v11 += 8;
+        ++v8;
+        *(_QWORD *)v5->m_data.m_buffer = *(_QWORD *)v6;
+        v5 = (ntl::fixed_vector<ScriptableDef *,1024,0> *)((char *)v5 + 8);
+        v6 += 8;
       }
-      while ( v13 < v14 );
+      while ( v8 < v9 );
     }
     --g_scriptableDefVector.m_size;
   }
@@ -795,30 +783,22 @@ ScriptableBg_SwapScriptableAsset
 */
 void ScriptableBg_SwapScriptableAsset(ScriptableDef *from, ScriptableDef *to)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymm3, ymmword ptr [rcx]
-    vmovups ymm4, ymmword ptr [rcx+20h]
-    vmovups ymm5, ymmword ptr [rcx+40h]
-    vmovsd  xmm2, qword ptr [rcx+70h]
-    vmovaps [rsp+18h+var_18], xmm6
-    vmovups xmm6, xmmword ptr [rcx+60h]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx+20h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups xmm1, xmmword ptr [rdx+60h]
-    vmovups xmmword ptr [rcx+60h], xmm1
-    vmovsd  xmm0, qword ptr [rdx+70h]
-    vmovsd  qword ptr [rcx+70h], xmm0
-    vmovups ymmword ptr [rdx], ymm3
-    vmovups ymmword ptr [rdx+20h], ymm4
-    vmovups ymmword ptr [rdx+40h], ymm5
-    vmovups xmmword ptr [rdx+60h], xmm6
-    vmovaps xmm6, [rsp+18h+var_18]
-    vmovsd  qword ptr [rdx+70h], xmm2
-  }
+  __m256i v2; 
+  __m256i v3; 
+  __m256i v4; 
+  double v5; 
+  __int128 v6; 
+
+  v2 = *(__m256i *)&from->name;
+  v3 = *(__m256i *)&from->maxNumDynEntsRequired;
+  v4 = *(__m256i *)&from->ffMemCost;
+  v5 = *(double *)&from->spatialActivationMode;
+  v6 = *(_OWORD *)&from->networkLODRangeOverrideDistance;
+  *from = *to;
+  *(__m256i *)&to->name = v2;
+  *(__m256i *)&to->maxNumDynEntsRequired = v3;
+  *(__m256i *)&to->ffMemCost = v4;
+  *(_OWORD *)&to->networkLODRangeOverrideDistance = v6;
+  *(double *)&to->spatialActivationMode = v5;
 }
 

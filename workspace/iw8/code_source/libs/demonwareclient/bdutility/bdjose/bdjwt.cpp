@@ -133,27 +133,28 @@ __int64 bdJWT::encode(bdJWT *this, char *const dest, const unsigned int destLen,
   unsigned __int8 v6; 
   bool v7; 
   __int64 i; 
+  const bdJWTClaim *m_claims; 
   __int64 m_type; 
   __int64 m_expiration; 
-  const char *v13; 
+  const char *v12; 
   __int64 m_issuedAt; 
-  const char *v15; 
+  const char *v14; 
   __int64 m_notBefore; 
-  const char *v17; 
+  const char *v16; 
   const char *m_issuer; 
-  const char *v19; 
+  const char *v18; 
   const char *m_subject; 
-  const char *v21; 
+  const char *v20; 
   const char *m_audience; 
-  const char *v23; 
+  const char *v22; 
   const char *m_jwtId; 
-  const char *v25; 
-  bool v26; 
+  const char *v24; 
+  bool v25; 
   bdJOSE::bdJWTRegisteredClaim value; 
-  __int64 v30; 
-  bdJSONSerializer v31; 
+  __int64 v28; 
+  bdJSONSerializer v29; 
 
-  v30 = -2i64;
+  v28 = -2i64;
   v6 = 0;
   if ( !this->m_initialized )
   {
@@ -162,13 +163,12 @@ LABEL_45:
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdJWT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdutility\\bdjose\\bdjwt.cpp", "bdJWT::encode", 0x9Eu, "bdJWT: Failed to encode JWT claims");
     return v6;
   }
-  bdJSONSerializer::bdJSONSerializer(&v31, dest, destLen);
-  v7 = bdJSONSerializer::writeBeginObject(&v31);
+  bdJSONSerializer::bdJSONSerializer(&v29, dest, destLen);
+  v7 = bdJSONSerializer::writeBeginObject(&v29);
   for ( i = 0i64; (unsigned int)i < this->m_numClaims; i = (unsigned int)(i + 1) )
   {
-    _R10 = 3 * i;
-    _R11 = this->m_claims;
-    m_type = _R11[i].m_type;
+    m_claims = this->m_claims;
+    m_type = m_claims[i].m_type;
     if ( (_DWORD)m_type )
     {
       switch ( (_DWORD)m_type )
@@ -176,23 +176,22 @@ LABEL_45:
         case 1:
           if ( !v7 )
             goto LABEL_9;
-          v26 = bdJSONSerializer::writeInt64(&v31, _R11[i].m_name, _R11[i].m_value.m_int64, 0);
+          v25 = bdJSONSerializer::writeInt64(&v29, m_claims[i].m_name, m_claims[i].m_value.m_int64, 0);
           break;
         case 2:
           if ( !v7 )
             goto LABEL_9;
-          v26 = bdJSONSerializer::writeUInt64(&v31, _R11[i].m_name, _R11[i].m_value.m_uint64, 0);
+          v25 = bdJSONSerializer::writeUInt64(&v29, m_claims[i].m_name, m_claims[i].m_value.m_uint64, 0);
           break;
         case 3:
           if ( !v7 )
             goto LABEL_9;
-          __asm { vmovsd  xmm2, qword ptr [r11+r10*8+8]; value }
-          v26 = bdJSONSerializer::writeFloat64(&v31, _R11[i].m_name, *(const long double *)&_XMM2, 0);
+          v25 = bdJSONSerializer::writeFloat64(&v29, m_claims[i].m_name, m_claims[i].m_value.m_float64, 0);
           break;
         case 4:
           if ( !v7 )
             goto LABEL_9;
-          v26 = bdJSONSerializer::writeBoolean(&v31, _R11[i].m_name, _R11[i].m_value.m_bool);
+          v25 = bdJSONSerializer::writeBoolean(&v29, m_claims[i].m_name, m_claims[i].m_value.m_bool);
           break;
         default:
           bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdJWT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdutility\\bdjose\\bdjwt.cpp", "bdJWT::encode", 0x7Fu, "bdJWT: Unsupported JSON data type [%s]", bdJSONTypeString_2[m_type]);
@@ -203,9 +202,9 @@ LABEL_45:
     {
       if ( !v7 )
         goto LABEL_9;
-      v26 = bdJSONSerializer::writeString(&v31, _R11[i].m_name, _R11[i].m_value.m_string);
+      v25 = bdJSONSerializer::writeString(&v29, m_claims[i].m_name, m_claims[i].m_value.m_string);
     }
-    if ( v26 )
+    if ( v25 )
     {
       v7 = 1;
       continue;
@@ -213,55 +212,55 @@ LABEL_45:
 LABEL_9:
     v7 = 0;
   }
-  if ( v7 && (m_expiration = this->m_expiration, m_expiration != 0x8000000000000000ui64) && (value = EXPIRATION, v13 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value), !bdJSONSerializer::writeInt64(&v31, v13, m_expiration, 0)) || (m_issuedAt = this->m_issuedAt, m_issuedAt == 0x8000000000000000ui64) || (value = ISSUED_AT, v15 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value), bdJSONSerializer::writeInt64(&v31, v15, m_issuedAt, 0)) )
+  if ( v7 && (m_expiration = this->m_expiration, m_expiration != 0x8000000000000000ui64) && (value = EXPIRATION, v12 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value), !bdJSONSerializer::writeInt64(&v29, v12, m_expiration, 0)) || (m_issuedAt = this->m_issuedAt, m_issuedAt == 0x8000000000000000ui64) || (value = ISSUED_AT, v14 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value), bdJSONSerializer::writeInt64(&v29, v14, m_issuedAt, 0)) )
   {
     m_notBefore = this->m_notBefore;
     if ( m_notBefore != 0x8000000000000000ui64 )
     {
       value = NOT_BEFORE;
-      v17 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value);
-      if ( !bdJSONSerializer::writeInt64(&v31, v17, m_notBefore, 0) )
+      v16 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value);
+      if ( !bdJSONSerializer::writeInt64(&v29, v16, m_notBefore, 0) )
         goto LABEL_50;
     }
   }
   m_issuer = this->m_issuer;
-  if ( !m_issuer || (value = ISSUER, v19 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value), bdJSONSerializer::writeString(&v31, v19, m_issuer)) )
+  if ( !m_issuer || (value = ISSUER, v18 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value), bdJSONSerializer::writeString(&v29, v18, m_issuer)) )
   {
 LABEL_50:
     m_subject = this->m_subject;
     if ( m_subject )
     {
       value = SUBJECT;
-      v21 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value);
-      if ( !bdJSONSerializer::writeString(&v31, v21, m_subject) )
+      v20 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value);
+      if ( !bdJSONSerializer::writeString(&v29, v20, m_subject) )
         goto LABEL_49;
     }
   }
   m_audience = this->m_audience;
-  if ( !m_audience || (value = AUDIENCE, v23 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value), bdJSONSerializer::writeString(&v31, v23, m_audience)) )
+  if ( !m_audience || (value = AUDIENCE, v22 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value), bdJSONSerializer::writeString(&v29, v22, m_audience)) )
   {
 LABEL_49:
     m_jwtId = this->m_jwtId;
     if ( m_jwtId )
     {
       value = JWT_ID;
-      v25 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value);
-      if ( !bdJSONSerializer::writeString(&v31, v25, m_jwtId) )
+      v24 = bdJOSE::getString<enum bdJOSE::bdJWTRegisteredClaim>(&value);
+      if ( !bdJSONSerializer::writeString(&v29, v24, m_jwtId) )
         goto LABEL_41;
     }
   }
-  if ( bdJSONSerializer::writeEndObject(&v31) )
+  if ( bdJSONSerializer::writeEndObject(&v29) )
   {
     v6 = 1;
     if ( outLen )
-      *outLen = bdJSONSerializer::length(&v31);
+      *outLen = bdJSONSerializer::length(&v29);
   }
   else
   {
 LABEL_41:
     v6 = 0;
   }
-  bdJSONSerializer::~bdJSONSerializer(&v31);
+  bdJSONSerializer::~bdJSONSerializer(&v29);
   if ( !v6 )
     goto LABEL_45;
   return v6;

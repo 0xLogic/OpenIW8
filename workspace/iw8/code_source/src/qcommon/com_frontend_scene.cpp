@@ -412,14 +412,11 @@ bool Com_FrontEndScene_CanDrawGameScene()
 Com_FrontEndScene_CheckSceneConnection
 ==============
 */
-
-void __fastcall Com_FrontEndScene_CheckSceneConnection(double _XMM0_8)
+void Com_FrontEndScene_CheckSceneConnection()
 {
-  const dvar_t *v1; 
-  char v2; 
-  char v3; 
+  const dvar_t *v0; 
   int integer; 
-  __int64 v7; 
+  __int64 v2; 
   char *fmt; 
 
   if ( s_frontEndScene_state != 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_frontend_scene.cpp", 465, ASSERT_TYPE_ASSERT, "(s_frontEndScene_state == ComFrontEndSceneState::SERVER_STARTING)", (const char *)&queryFormat, "s_frontEndScene_state == ComFrontEndSceneState::SERVER_STARTING") )
@@ -432,38 +429,28 @@ void __fastcall Com_FrontEndScene_CheckSceneConnection(double _XMM0_8)
     __debugbreak();
   if ( clientUIActives[0].connectionState == CA_ACTIVE )
   {
-    v1 = DCONST_DVARINT_frontEndSceneDefaultFadeTime;
+    v0 = DCONST_DVARINT_frontEndSceneDefaultFadeTime;
     if ( !DCONST_DVARINT_frontEndSceneDefaultFadeTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "frontEndSceneDefaultFadeTime") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v1);
-    integer = v1->current.integer;
-    __asm
-    {
-      vmovss  xmm1, cs:s_frontEndSceneControl.m_renderOpacity
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm1, xmm0
-      vmovss  cs:s_frontEndSceneControl.m_renderOpacityTarget, xmm0
-    }
+    Dvar_CheckFrontendServerThread(v0);
+    integer = v0->current.integer;
+    s_frontEndSceneControl.m_renderOpacityTarget = 0.0;
     s_frontEndSceneControl.m_renderOpacityChangeTime = integer;
     s_frontEndSceneControl.m_renderOpacityGameOverrideValid = 1;
-    if ( !v3 )
-    {
-      __asm { vcomiss xmm1, xmm0 }
-      if ( v2 || !(v2 | v3) )
-        __asm { vmovss  cs:s_frontEndSceneControl.m_renderOpacity, xmm0 }
-    }
+    if ( s_frontEndSceneControl.m_renderOpacity != 0.0 && (s_frontEndSceneControl.m_renderOpacity < 0.0 || s_frontEndSceneControl.m_renderOpacity > 0.0) )
+      s_frontEndSceneControl.m_renderOpacity = 0.0;
     s_frontEndSceneControl.m_imageStreamingForcedTime = 0;
     *(_WORD *)&s_frontEndSceneControl.m_imageStreamingComplete = 0;
     if ( !CL_UIStreaming_IsRunningImages() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_frontend_scene.cpp", 482, ASSERT_TYPE_ASSERT, "(CL_UIStreaming_IsRunningImages())", "%s\n\tWe expect ui streaming images to be active to service the front-end scene", "CL_UIStreaming_IsRunningImages()") )
       __debugbreak();
     CL_UIStreaming_StartStreamingTransients();
     Stream_LoadSync_BeginFrontend();
-    v7 = s_frontEndScene_state;
+    v2 = s_frontEndScene_state;
     s_frontEndScene_state = 6;
     s_frontEndScene_stateToggleTime = Sys_Milliseconds();
     s_frontEndScene_stateTime[6] = Sys_Milliseconds();
-    LODWORD(fmt) = s_frontEndScene_stateTime[6] - s_frontEndScene_stateTime[v7];
-    Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v7, 6i64, fmt);
+    LODWORD(fmt) = s_frontEndScene_stateTime[6] - s_frontEndScene_stateTime[v2];
+    Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v2, 6i64, fmt);
   }
 }
 
@@ -595,14 +582,13 @@ bool Com_FrontEndScene_ForceAllowTabulation()
 Com_FrontEndScene_Frame
 ==============
 */
-
-void __fastcall Com_FrontEndScene_Frame(int msec, __int64 a2, __int64 a3, double _XMM3_8)
+void Com_FrontEndScene_Frame(int msec)
 {
-  const dvar_t *v6; 
-  bool v7; 
-  bool v8; 
-  bool v9; 
-  unsigned __int32 v10; 
+  const dvar_t *v2; 
+  __int128 m_renderOpacity_low; 
+  float v5; 
+  __int128 v7; 
+  __int128 v10; 
 
   if ( Com_FrontEndScene_IsSystemEnabled() )
   {
@@ -612,103 +598,58 @@ void __fastcall Com_FrontEndScene_Frame(int msec, __int64 a2, __int64 a3, double
       {
         if ( Com_FrontEndScene_IsSystemEnabled() )
         {
-          v6 = DVARBOOL_frontEndSceneFreeCam;
+          v2 = DVARBOOL_frontEndSceneFreeCam;
           if ( !DVARBOOL_frontEndSceneFreeCam && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "frontEndSceneFreeCam") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v6);
-          if ( v6->current.enabled )
+          Dvar_CheckFrontendServerThread(v2);
+          if ( v2->current.enabled )
             Stream_ImageRecord_Disable("Com_FrontEndScene_FreeCamEnabled");
         }
         Com_FrontEndScene_RunStateMachine();
         if ( !s_frontEndSceneControl.m_renderOpacityGameOverrideValid )
         {
-          v7 = (unsigned int)s_frontEndScene_state < 8;
-          v8 = s_frontEndScene_state == 8;
-          v9 = (unsigned int)s_frontEndScene_state <= 8;
-          v10 = s_frontEndScene_state - 8;
           if ( s_frontEndScene_state == 8 )
           {
-            __asm
-            {
-              vmovss  xmm1, cs:__real@3f800000
-              vmovss  cs:s_frontEndSceneControl.m_renderOpacityTarget, xmm1
-            }
+            *(float *)&_XMM1 = FLOAT_1_0;
+            s_frontEndSceneControl.m_renderOpacityTarget = FLOAT_1_0;
           }
           else
           {
-            v7 = s_frontEndScene_state == 8;
-            v8 = v10 == 1;
-            v9 = v10 <= 1;
             if ( s_frontEndScene_state != 9 )
             {
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vmovss  cs:s_frontEndSceneControl.m_renderOpacityTarget, xmm0
-                vmovss  cs:s_frontEndSceneControl.m_renderOpacity, xmm0
-              }
+              s_frontEndSceneControl.m_renderOpacityTarget = 0.0;
+              s_frontEndSceneControl.m_renderOpacity = 0.0;
               return;
             }
-            __asm { vmovss  xmm1, cs:s_frontEndSceneControl.m_renderOpacityTarget }
+            *(float *)&_XMM1 = s_frontEndSceneControl.m_renderOpacityTarget;
           }
-          __asm
+          m_renderOpacity_low = LODWORD(s_frontEndSceneControl.m_renderOpacity);
+          if ( *(float *)&_XMM1 != s_frontEndSceneControl.m_renderOpacity )
           {
-            vmovss  xmm2, cs:s_frontEndSceneControl.m_renderOpacity
-            vucomiss xmm1, xmm2
-          }
-          if ( !v8 )
-          {
-            __asm
+            if ( (float)s_frontEndSceneControl.m_renderOpacityChangeTime > 0.0 )
             {
-              vxorps  xmm3, xmm3, xmm3
-              vcvtsi2ss xmm3, xmm3, cs:s_frontEndSceneControl.m_renderOpacityChangeTime
-              vxorps  xmm0, xmm0, xmm0
-              vcomiss xmm3, xmm0
-            }
-            if ( !v9 )
-            {
-              __asm
+              v5 = (float)msec / (float)s_frontEndSceneControl.m_renderOpacityChangeTime;
+              if ( *(float *)&_XMM1 < s_frontEndSceneControl.m_renderOpacity )
               {
-                vcomiss xmm1, xmm2
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, edi
-                vmovaps [rsp+68h+var_18], xmm6
-                vdivss  xmm6, xmm0, xmm3
-              }
-              if ( v7 )
-              {
-                __asm
-                {
-                  vsubss  xmm0, xmm2, xmm6
-                  vmovaps xmm6, [rsp+68h+var_18]
-                  vmaxss  xmm1, xmm0, xmm1
-                  vmovss  cs:s_frontEndSceneControl.m_renderOpacity, xmm1
-                }
+                v7 = LODWORD(s_frontEndSceneControl.m_renderOpacity);
+                *(float *)&v7 = s_frontEndSceneControl.m_renderOpacity - v5;
+                _XMM0 = v7;
+                __asm { vmaxss  xmm1, xmm0, xmm1 }
+                s_frontEndSceneControl.m_renderOpacity = *(float *)&_XMM1;
                 return;
               }
-              if ( v9 )
+              if ( *(float *)&_XMM1 <= s_frontEndSceneControl.m_renderOpacity )
               {
-                __asm
-                {
-                  vcvttss2si eax, xmm2
-                  vcvttss2si ecx, xmm1
-                }
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_frontend_scene.cpp", 248, ASSERT_TYPE_ASSERT, "( s_frontEndSceneControl.m_renderOpacityTarget ) > ( s_frontEndSceneControl.m_renderOpacity )", "%s > %s\n\t%i, %i", "s_frontEndSceneControl.m_renderOpacityTarget", "s_frontEndSceneControl.m_renderOpacity", _ECX, _EAX) )
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_frontend_scene.cpp", 248, ASSERT_TYPE_ASSERT, "( s_frontEndSceneControl.m_renderOpacityTarget ) > ( s_frontEndSceneControl.m_renderOpacity )", "%s > %s\n\t%i, %i", "s_frontEndSceneControl.m_renderOpacityTarget", "s_frontEndSceneControl.m_renderOpacity", (int)*(float *)&_XMM1, (int)s_frontEndSceneControl.m_renderOpacity) )
                   __debugbreak();
-                __asm
-                {
-                  vmovss  xmm2, cs:s_frontEndSceneControl.m_renderOpacity
-                  vmovss  xmm1, cs:s_frontEndSceneControl.m_renderOpacityTarget
-                }
+                m_renderOpacity_low = LODWORD(s_frontEndSceneControl.m_renderOpacity);
               }
-              __asm
-              {
-                vaddss  xmm0, xmm2, xmm6
-                vmovaps xmm6, [rsp+68h+var_18]
-                vminss  xmm1, xmm0, xmm1
-              }
+              v10 = m_renderOpacity_low;
+              *(float *)&v10 = *(float *)&m_renderOpacity_low + v5;
+              _XMM0 = v10;
+              __asm { vminss  xmm1, xmm0, xmm1 }
             }
-            __asm { vmovss  cs:s_frontEndSceneControl.m_renderOpacity, xmm1 }
+            s_frontEndSceneControl.m_renderOpacity = *(float *)&_XMM1;
           }
         }
       }
@@ -840,22 +781,12 @@ const char *Com_FrontEndScene_GetLevelNameForMode(GameModeType gameMode)
 Com_FrontEndScene_GetOpaqueOverlayAlpha
 ==============
 */
-
-float __fastcall Com_FrontEndScene_GetOpaqueOverlayAlpha(double _XMM0_8)
+float Com_FrontEndScene_GetOpaqueOverlayAlpha()
 {
   if ( s_frontEndScene_state < (COUNT|DODGE|0x4) )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
+    return 0.0;
   else
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm0, xmm0, cs:s_frontEndSceneControl.m_renderOpacity
-    }
-  }
-  return *(float *)&_XMM0;
+    return 1.0 - s_frontEndSceneControl.m_renderOpacity;
 }
 
 /*
@@ -1155,14 +1086,7 @@ Com_FrontEndScene_NeedsStreamingForVisiblity
 */
 bool Com_FrontEndScene_NeedsStreamingForVisiblity()
 {
-  if ( s_frontEndScene_state < 8 )
-    return 0;
-  __asm
-  {
-    vmovss  xmm0, cs:s_frontEndSceneControl.m_renderOpacityTarget
-    vcomiss xmm0, cs:__real@3f800000
-  }
-  return (unsigned int)s_frontEndScene_state < 8;
+  return s_frontEndScene_state >= 8 && s_frontEndSceneControl.m_renderOpacityTarget < 1.0;
 }
 
 /*
@@ -1311,24 +1235,24 @@ void Com_FrontEndScene_OnProcessResume(void)
 Com_FrontEndScene_RunStateMachine
 ==============
 */
-void Com_FrontEndScene_RunStateMachine(double a1)
+void Com_FrontEndScene_RunStateMachine()
 {
-  ComFrontEndSceneState v1; 
-  __int64 v2; 
+  ComFrontEndSceneState v0; 
+  __int64 v1; 
   int ControllerFromClient; 
+  __int64 v3; 
   __int64 v4; 
   __int64 v5; 
-  __int64 v6; 
-  const dvar_t *v7; 
+  const dvar_t *v6; 
   int integer; 
-  __int64 v9; 
-  const dvar_t *v10; 
-  int v11; 
+  __int64 v8; 
+  const dvar_t *v9; 
+  int v10; 
   char *fmt; 
 
   do
   {
-    v1 = s_frontEndScene_state;
+    v0 = s_frontEndScene_state;
     switch ( s_frontEndScene_state )
     {
       case 0:
@@ -1343,12 +1267,12 @@ void Com_FrontEndScene_RunStateMachine(double a1)
           __debugbreak();
         if ( rgp.gameWorldSorted )
         {
-          v2 = s_frontEndScene_state;
+          v1 = s_frontEndScene_state;
           s_frontEndScene_state = COUNT|DODGE;
           s_frontEndScene_stateToggleTime = Sys_Milliseconds();
           s_frontEndScene_stateTime[3] = Sys_Milliseconds();
-          LODWORD(fmt) = s_frontEndScene_stateTime[3] - s_frontEndScene_stateTime[v2];
-          Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v2, 3i64, fmt);
+          LODWORD(fmt) = s_frontEndScene_stateTime[3] - s_frontEndScene_stateTime[v1];
+          Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v1, 3i64, fmt);
         }
         break;
       case 3:
@@ -1359,19 +1283,19 @@ void Com_FrontEndScene_RunStateMachine(double a1)
         ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
         if ( FenceManager_IsFenceComplete(ControllerFromClient, FENCE_ONLINE) )
         {
-          v4 = s_frontEndScene_state;
+          v3 = s_frontEndScene_state;
           s_frontEndScene_state = 4;
           s_frontEndScene_stateToggleTime = Sys_Milliseconds();
           s_frontEndScene_stateTime[4] = Sys_Milliseconds();
-          LODWORD(fmt) = s_frontEndScene_stateTime[4] - s_frontEndScene_stateTime[v4];
-          Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v4, 4i64, fmt);
+          LODWORD(fmt) = s_frontEndScene_stateTime[4] - s_frontEndScene_stateTime[v3];
+          Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v3, 4i64, fmt);
         }
         break;
       case 4:
         Com_FrontEndScene_CheckStartServer();
         break;
       case 5:
-        Com_FrontEndScene_CheckSceneConnection(a1);
+        Com_FrontEndScene_CheckSceneConnection();
         break;
       case 6:
         if ( !s_frontEndScene_worldChecksum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_frontend_scene.cpp", 512, ASSERT_TYPE_ASSERT, "(s_frontEndScene_worldChecksum)", (const char *)&queryFormat, "s_frontEndScene_worldChecksum") )
@@ -1386,12 +1310,12 @@ void Com_FrontEndScene_RunStateMachine(double a1)
           goto LABEL_50;
         if ( s_frontEndSceneControl.m_imageStreamingComplete )
         {
-          v5 = s_frontEndScene_state;
+          v4 = s_frontEndScene_state;
           s_frontEndScene_state = COUNT|DODGE|0x4;
           s_frontEndScene_stateToggleTime = Sys_Milliseconds();
           s_frontEndScene_stateTime[7] = Sys_Milliseconds();
-          LODWORD(fmt) = s_frontEndScene_stateTime[7] - s_frontEndScene_stateTime[v5];
-          Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v5, 7i64, fmt);
+          LODWORD(fmt) = s_frontEndScene_stateTime[7] - s_frontEndScene_stateTime[v4];
+          Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v4, 7i64, fmt);
         }
         break;
       case 7:
@@ -1411,20 +1335,20 @@ void Com_FrontEndScene_RunStateMachine(double a1)
           __debugbreak();
         if ( Stream_LoadSync_IsActiveFrontend() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_frontend_scene.cpp", 573, ASSERT_TYPE_ASSERT, "(!Stream_LoadSync_IsActiveFrontend())", (const char *)&queryFormat, "!Stream_LoadSync_IsActiveFrontend()") )
           __debugbreak();
-        v7 = DCONST_DVARINT_frontEndFastfilesMinTime;
+        v6 = DCONST_DVARINT_frontEndFastfilesMinTime;
         if ( !DCONST_DVARINT_frontEndFastfilesMinTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "frontEndFastfilesMinTime") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v7);
-        integer = v7->current.integer;
+        Dvar_CheckFrontendServerThread(v6);
+        integer = v6->current.integer;
         if ( integer + s_frontEndScene_stateToggleTime - Sys_Milliseconds() <= 0 && !s_frontEndSceneControl.m_imageStreamingComplete || s_frontEndSceneControl.m_imageStreamingForcedTime >= Sys_Milliseconds() )
         {
           Stream_LoadSync_BeginFrontend();
-          v9 = s_frontEndScene_state;
+          v8 = s_frontEndScene_state;
           s_frontEndScene_state = 9;
           s_frontEndScene_stateToggleTime = Sys_Milliseconds();
           s_frontEndScene_stateTime[9] = Sys_Milliseconds();
-          LODWORD(fmt) = s_frontEndScene_stateTime[9] - s_frontEndScene_stateTime[v9];
-          Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v9, 9i64, fmt);
+          LODWORD(fmt) = s_frontEndScene_stateTime[9] - s_frontEndScene_stateTime[v8];
+          Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v8, 9i64, fmt);
         }
         break;
       case 9:
@@ -1434,24 +1358,24 @@ void Com_FrontEndScene_RunStateMachine(double a1)
           __debugbreak();
         if ( !Stream_LoadSync_IsActiveFrontend() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_frontend_scene.cpp", 597, ASSERT_TYPE_ASSERT, "(Stream_LoadSync_IsActiveFrontend())", (const char *)&queryFormat, "Stream_LoadSync_IsActiveFrontend()") )
           __debugbreak();
-        v10 = DCONST_DVARINT_frontEndStreamingMinTime;
+        v9 = DCONST_DVARINT_frontEndStreamingMinTime;
         if ( !DCONST_DVARINT_frontEndStreamingMinTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "frontEndStreamingMinTime") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v10);
-        v11 = v10->current.integer;
-        if ( v11 + s_frontEndScene_stateToggleTime - Sys_Milliseconds() <= 0 )
+        Dvar_CheckFrontendServerThread(v9);
+        v10 = v9->current.integer;
+        if ( v10 + s_frontEndScene_stateToggleTime - Sys_Milliseconds() <= 0 )
         {
 LABEL_48:
           if ( s_frontEndSceneControl.m_imageStreamingComplete || Com_FrontendScene_CheckRenderableStreamingTimeout() )
           {
 LABEL_50:
             Stream_LoadSync_EndFrontend();
-            v6 = s_frontEndScene_state;
+            v5 = s_frontEndScene_state;
             s_frontEndScene_state = 8;
             s_frontEndScene_stateToggleTime = Sys_Milliseconds();
             s_frontEndScene_stateTime[8] = Sys_Milliseconds();
-            LODWORD(fmt) = s_frontEndScene_stateTime[8] - s_frontEndScene_stateTime[v6];
-            Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v6, 8i64, fmt);
+            LODWORD(fmt) = s_frontEndScene_stateTime[8] - s_frontEndScene_stateTime[v5];
+            Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v5, 8i64, fmt);
           }
         }
         break;
@@ -1461,7 +1385,7 @@ LABEL_50:
         break;
     }
   }
-  while ( s_frontEndScene_state != v1 );
+  while ( s_frontEndScene_state != v0 );
 }
 
 /*
@@ -1512,35 +1436,25 @@ Com_FrontEndScene_SetOpacityTargetOverride
 ==============
 */
 
-void __fastcall Com_FrontEndScene_SetOpacityTargetOverride(double targetOpacity, double renderOpacity)
+void __fastcall Com_FrontEndScene_SetOpacityTargetOverride(const float targetOpacity, double renderOpacity)
 {
-  char v2; 
-  char v3; 
-
-  __asm
-  {
-    vmovss  xmm2, cs:s_frontEndSceneControl.m_renderOpacity
-    vucomiss xmm0, xmm2
-    vmovss  cs:s_frontEndSceneControl.m_renderOpacityTarget, xmm0
-  }
+  _XMM2 = LODWORD(s_frontEndSceneControl.m_renderOpacity);
+  s_frontEndSceneControl.m_renderOpacityTarget = targetOpacity;
   s_frontEndSceneControl.m_renderOpacityGameOverrideValid = 1;
-  if ( !v3 )
+  if ( targetOpacity != s_frontEndSceneControl.m_renderOpacity )
   {
-    __asm { vcomiss xmm0, xmm2 }
-    if ( v2 | v3 )
+    if ( targetOpacity <= s_frontEndSceneControl.m_renderOpacity )
     {
       __asm
       {
         vcmpltss xmm0, xmm1, xmm2
         vblendvps xmm0, xmm2, xmm1, xmm0
-        vmovss  cs:s_frontEndSceneControl.m_renderOpacity, xmm0
       }
+      s_frontEndSceneControl.m_renderOpacity = *(float *)&_XMM0;
     }
-    else
+    else if ( *(float *)&renderOpacity > s_frontEndSceneControl.m_renderOpacity )
     {
-      __asm { vcomiss xmm1, xmm2 }
-      if ( !(v2 | v3) )
-        __asm { vmovss  cs:s_frontEndSceneControl.m_renderOpacity, xmm1 }
+      s_frontEndSceneControl.m_renderOpacity = *(float *)&renderOpacity;
     }
   }
 }
@@ -1550,10 +1464,10 @@ void __fastcall Com_FrontEndScene_SetOpacityTargetOverride(double targetOpacity,
 Com_FrontEndScene_Shutdown
 ==============
 */
-
-void __fastcall Com_FrontEndScene_Shutdown(double _XMM0_8)
+void Com_FrontEndScene_Shutdown()
 {
-  __int64 v7; 
+  __int128 v3; 
+  __int64 v5; 
   char *fmt; 
 
   if ( (unsigned int)s_frontEndScene_state > DODGE )
@@ -1575,22 +1489,19 @@ void __fastcall Com_FrontEndScene_Shutdown(double _XMM0_8)
     s_frontEndScene_worldChecksum = 0;
     s_frontEndScene_transmissionErrorTime = 0;
     __rdtsc();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-      vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vcvtsd2ss xmm2, xmm1, xmm1
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovq   r8, xmm2
-    }
-    Com_Printf(16, "Com_FrontEndScene_Shutdown: Took %f ms\n", *(double *)&_XMM2);
-    v7 = s_frontEndScene_state;
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    *((_QWORD *)&v3 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v3 = *(double *)&_XMM0 * msecPerRawTimerTick;
+    _XMM1 = v3;
+    __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+    Com_Printf(16, "Com_FrontEndScene_Shutdown: Took %f ms\n", *(float *)&_XMM2);
+    v5 = s_frontEndScene_state;
     s_frontEndScene_state = DODGE;
     s_frontEndScene_stateToggleTime = Sys_Milliseconds();
     s_frontEndScene_stateTime[1] = Sys_Milliseconds();
-    LODWORD(fmt) = s_frontEndScene_stateTime[1] - s_frontEndScene_stateTime[v7];
-    Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v7, 1i64, fmt);
+    LODWORD(fmt) = s_frontEndScene_stateTime[1] - s_frontEndScene_stateTime[v5];
+    Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v5, 1i64, fmt);
   }
 }
 
@@ -1599,26 +1510,26 @@ void __fastcall Com_FrontEndScene_Shutdown(double _XMM0_8)
 Com_FrontEndScene_ShutdownAndDisable
 ==============
 */
-void Com_FrontEndScene_ShutdownAndDisable(double a1)
+void Com_FrontEndScene_ShutdownAndDisable(void)
 {
-  ComFrontEndSceneState v1; 
+  ComFrontEndSceneState v0; 
   char *fmt; 
 
-  Com_FrontEndScene_Shutdown(a1);
-  v1 = s_frontEndScene_state;
+  Com_FrontEndScene_Shutdown();
+  v0 = s_frontEndScene_state;
   if ( s_frontEndScene_state )
   {
     if ( s_frontEndScene_state != DODGE )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_frontend_scene.cpp", 873, ASSERT_TYPE_ASSERT, "(s_frontEndScene_state == ComFrontEndSceneState::STOPPED)", (const char *)&queryFormat, "s_frontEndScene_state == ComFrontEndSceneState::STOPPED") )
         __debugbreak();
-      v1 = s_frontEndScene_state;
+      v0 = s_frontEndScene_state;
     }
     s_frontEndScene_state = MOVEMENT;
     s_frontEndScene_stateToggleTime = Sys_Milliseconds();
     s_frontEndScene_stateTime[0] = Sys_Milliseconds();
-    LODWORD(fmt) = s_frontEndScene_stateTime[0] - s_frontEndScene_stateTime[v1];
-    Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v1, 0i64, fmt);
+    LODWORD(fmt) = s_frontEndScene_stateTime[0] - s_frontEndScene_stateTime[v0];
+    Com_Printf(16, "Com_FrontEndScene_SetState %i => %i (%i ms).\n", (unsigned int)v0, 0i64, fmt);
   }
 }
 

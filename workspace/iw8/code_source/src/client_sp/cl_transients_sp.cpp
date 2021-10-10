@@ -2334,90 +2334,80 @@ CL_TransientsSP_ProcessStreamingPriority
 */
 void CL_TransientsSP_ProcessStreamingPriority(bool forceSync)
 {
-  int v4; 
-  const dvar_t *v5; 
-  const dvar_t *v6; 
-  char v8; 
-  const dvar_t *v10; 
-  const dvar_t *v11; 
+  int v2; 
+  const dvar_t *v3; 
+  const dvar_t *v4; 
+  double Quality_Image; 
+  float v6; 
+  double Float_Internal_DebugName; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
+  double v10; 
+  float v11; 
+  double v12; 
 
-  if ( !SV_IsDemoPlaying() && !forceSync )
+  if ( SV_IsDemoPlaying() || forceSync )
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    v4 = Sys_Milliseconds();
-    if ( !s_transientsSP_yieldingToImages )
-    {
-      if ( !s_transientWaitForAll )
-      {
-        v10 = DVARBOOL_cl_transient_sp_yield_for_streamer;
-        if ( !DVARBOOL_cl_transient_sp_yield_for_streamer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_sp_yield_for_streamer") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v10);
-        if ( v10->current.enabled && Stream_CanStreamMore() )
-        {
-          v11 = DCONST_DVARINT_cl_transient_sp_stream_minimum_time;
-          if ( !DCONST_DVARINT_cl_transient_sp_stream_minimum_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_sp_stream_minimum_time") )
-            __debugbreak();
-          Dvar_CheckFrontendServerThread(v11);
-          if ( v4 > s_transientsSP_lastYieldEndTime + v11->current.integer )
-          {
-            *(double *)&_XMM0 = Stream_LoadQuality_Image();
-            __asm { vmovaps xmm6, xmm0 }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_transient_sp_yield_start_priority, "cl_transient_sp_yield_start_priority");
-            __asm { vcomiss xmm6, xmm0 }
-            if ( v8 )
-            {
-              s_transientsSP_yieldingToImages = 1;
-              s_transientsSP_lastYieldStartTime = v4;
-              if ( DB_Transients_VerbosePrint() )
-                Com_Printf(16, "Yield for streamer starting at %d milliseconds\n", (unsigned int)s_transientsSP_lastYieldStartTime);
-            }
-          }
-        }
-      }
-      goto LABEL_20;
-    }
-    if ( !s_transientWaitForAll )
-    {
-      v5 = DVARBOOL_cl_transient_sp_yield_for_streamer;
-      if ( !DVARBOOL_cl_transient_sp_yield_for_streamer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_sp_yield_for_streamer") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v5);
-      if ( v5->current.enabled )
-      {
-        v6 = DCONST_DVARINT_cl_transient_sp_yield_timeout;
-        if ( !DCONST_DVARINT_cl_transient_sp_yield_timeout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_sp_yield_timeout") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v6);
-        if ( v4 <= s_transientsSP_lastYieldStartTime + v6->current.integer )
-        {
-          if ( Stream_CanStreamMore() )
-          {
-            if ( v4 <= s_transientsSP_lastYieldStartTime + Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_cl_transient_sp_yield_minimum_time, "cl_transient_sp_yield_minimum_time") )
-              goto LABEL_20;
-            *(double *)&_XMM0 = Stream_LoadQuality_Image();
-            __asm { vmovaps xmm6, xmm0 }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_transient_sp_yield_end_priority, "cl_transient_sp_yield_end_priority");
-            __asm { vcomiss xmm6, xmm0 }
-            if ( v8 )
-              goto LABEL_20;
-          }
-        }
-        else if ( DB_Transients_VerbosePrint() )
-        {
-          Com_Printf(16, "Yield for streamer timed out after %d milliseconds\n", (unsigned int)(v4 - s_transientsSP_lastYieldStartTime));
-        }
-      }
-    }
     s_transientsSP_yieldingToImages = 0;
-    s_transientsSP_lastYieldEndTime = v4;
-    if ( DB_Transients_VerbosePrint() )
-      Com_Printf(16, "Yield for streamer ended at %d milliseconds (duration %d milliseconds)\n", (unsigned int)s_transientsSP_lastYieldEndTime, (unsigned int)(s_transientsSP_lastYieldEndTime - s_transientsSP_lastYieldStartTime));
-LABEL_20:
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
     return;
   }
-  s_transientsSP_yieldingToImages = 0;
+  v2 = Sys_Milliseconds();
+  if ( s_transientsSP_yieldingToImages )
+  {
+    if ( s_transientWaitForAll )
+      goto LABEL_18;
+    v3 = DVARBOOL_cl_transient_sp_yield_for_streamer;
+    if ( !DVARBOOL_cl_transient_sp_yield_for_streamer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_sp_yield_for_streamer") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v3);
+    if ( !v3->current.enabled )
+      goto LABEL_18;
+    v4 = DCONST_DVARINT_cl_transient_sp_yield_timeout;
+    if ( !DCONST_DVARINT_cl_transient_sp_yield_timeout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_sp_yield_timeout") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v4);
+    if ( v2 > s_transientsSP_lastYieldStartTime + v4->current.integer )
+    {
+      if ( DB_Transients_VerbosePrint() )
+        Com_Printf(16, "Yield for streamer timed out after %d milliseconds\n", (unsigned int)(v2 - s_transientsSP_lastYieldStartTime));
+      goto LABEL_18;
+    }
+    if ( !Stream_CanStreamMore() || v2 > s_transientsSP_lastYieldStartTime + Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_cl_transient_sp_yield_minimum_time, "cl_transient_sp_yield_minimum_time") && (Quality_Image = Stream_LoadQuality_Image(), v6 = *(float *)&Quality_Image, Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_transient_sp_yield_end_priority, "cl_transient_sp_yield_end_priority"), v6 >= *(float *)&Float_Internal_DebugName) )
+    {
+LABEL_18:
+      s_transientsSP_yieldingToImages = 0;
+      s_transientsSP_lastYieldEndTime = v2;
+      if ( DB_Transients_VerbosePrint() )
+        Com_Printf(16, "Yield for streamer ended at %d milliseconds (duration %d milliseconds)\n", (unsigned int)s_transientsSP_lastYieldEndTime, (unsigned int)(s_transientsSP_lastYieldEndTime - s_transientsSP_lastYieldStartTime));
+    }
+  }
+  else if ( !s_transientWaitForAll )
+  {
+    v8 = DVARBOOL_cl_transient_sp_yield_for_streamer;
+    if ( !DVARBOOL_cl_transient_sp_yield_for_streamer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_sp_yield_for_streamer") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v8);
+    if ( v8->current.enabled && Stream_CanStreamMore() )
+    {
+      v9 = DCONST_DVARINT_cl_transient_sp_stream_minimum_time;
+      if ( !DCONST_DVARINT_cl_transient_sp_stream_minimum_time && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_sp_stream_minimum_time") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v9);
+      if ( v2 > s_transientsSP_lastYieldEndTime + v9->current.integer )
+      {
+        v10 = Stream_LoadQuality_Image();
+        v11 = *(float *)&v10;
+        v12 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_transient_sp_yield_start_priority, "cl_transient_sp_yield_start_priority");
+        if ( v11 < *(float *)&v12 )
+        {
+          s_transientsSP_yieldingToImages = 1;
+          s_transientsSP_lastYieldStartTime = v2;
+          if ( DB_Transients_VerbosePrint() )
+            Com_Printf(16, "Yield for streamer starting at %d milliseconds\n", (unsigned int)s_transientsSP_lastYieldStartTime);
+        }
+      }
+    }
+  }
 }
 
 /*

@@ -694,12 +694,13 @@ Sys_SendTo
 */
 int Sys_SendTo(const unsigned __int64 socket, const void *data, const int length, const netadr_t *to)
 {
+  __int128 v4; 
   netadr_t a; 
   sockaddr s; 
 
-  __asm { vmovups xmm0, xmmword ptr [r9] }
+  v4 = *(_OWORD *)&to->type;
   a.addrHandleIndex = to->addrHandleIndex;
-  __asm { vmovups xmmword ptr [rsp+78h+a.type], xmm0 }
+  *(_OWORD *)&a.type = v4;
   NetadrToSockadr(&a, &s);
   return sendto(socket, (const char *)data, length, 0, &s, 16);
 }

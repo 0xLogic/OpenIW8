@@ -219,44 +219,39 @@ void ProfMem_EndAllForError(unsigned __int64 bytesUsed)
 ProfMem_PrintTree
 ==============
 */
-
-void __fastcall ProfMem_PrintTree(bool error, double _XMM1_8)
+void ProfMem_PrintTree(bool error)
 {
-  bool v9; 
   profilemem_t *i; 
   signed __int64 totalSize; 
-  int v12; 
+  int v4; 
   profilemem_t *nodePool; 
-  const char *v16; 
-  int v17; 
-  __int64 v18; 
-  __int64 v19; 
+  const char *v6; 
+  int v7; 
+  __int64 v8; 
+  __int64 v9; 
+  float v10; 
+  float v11; 
+  float v12; 
   profilemem_t *child; 
-  __int64 v26; 
-  __int64 v28; 
-  char *v34; 
-  unsigned __int64 v35; 
-  const char *v36; 
-  unsigned int hits; 
-  profilemem_t *v38; 
-  profilemem_t *j; 
+  __int64 v14; 
+  float j; 
+  __int64 v16; 
+  float v17; 
+  float v18; 
+  float hits; 
+  char *v20; 
+  unsigned __int64 v21; 
+  const char *v22; 
+  unsigned int v23; 
+  profilemem_t *v24; 
+  profilemem_t *k; 
   profilemem_t *parent; 
   char *fmt; 
-  __int64 v46; 
-  __int64 v47; 
-  __int64 v48; 
-  void *retaddr; 
+  __int64 v28; 
 
-  _R11 = &retaddr;
   if ( !savegame_profile || !savegame_profile->current.integer || !s_profmemTreeGlob.treeSize )
     return;
-  v9 = s_profmemTreeGlob.currentNode == NULL;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-68h], xmm9
-  }
-  if ( !v9 )
+  if ( s_profmemTreeGlob.currentNode )
   {
     Com_PrintError(10, "Profiling didn't complete as normal!  Either there are orphaned BEGIN/END blocks in code, or an error has interrupted normal execution flow.  These nodes have incomplete information:");
     for ( i = s_profmemTreeGlob.currentNode; i; s_profmemTreeGlob.currentNode = i )
@@ -267,109 +262,75 @@ void __fastcall ProfMem_PrintTree(bool error, double _XMM1_8)
     Com_PrintError(10, "\n");
   }
   totalSize = s_profmemTreeGlob.nodePool[0].totalSize;
-  v12 = 0;
+  v4 = 0;
   Com_Printf(12, "\n%-40.40s %12s %8s %6s %5s %8s\n", "Savegame profiling:", "self(bytes)", "total", "%total", "hits", "self/hit");
   Com_Printf(12, "-----------------------------------------------------------------------------------\n");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@5f800000
-    vmovss  xmm9, cs:__real@42c80000
-    vmovaps [rsp+0B8h+var_38], xmm6
-  }
   nodePool = s_profmemTreeGlob.nodePool;
-  __asm { vmovaps [rsp+0B8h+var_48], xmm7 }
   while ( 1 )
   {
     while ( 1 )
     {
-      v16 = "total > 0";
-      if ( error || !savegame_profile || savegame_profile->current.integer != 2 || v12 <= 2 )
+      v6 = "total > 0";
+      if ( error || !savegame_profile || savegame_profile->current.integer != 2 || v4 <= 2 )
       {
-        v17 = v12;
-        if ( v12 > 30 )
-          v17 = 30;
-        if ( v17 > 0 )
+        v7 = v4;
+        if ( v4 > 30 )
+          v7 = 30;
+        if ( v7 > 0 )
         {
-          v18 = (unsigned int)v17;
+          v8 = (unsigned int)v7;
           do
           {
-            Com_Printf(12, " ", v16);
-            --v18;
+            Com_Printf(12, " ", v6);
+            --v8;
           }
-          while ( v18 );
+          while ( v8 );
         }
         if ( !totalSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_mem.cpp", 171, ASSERT_TYPE_ASSERT, "(total > 0)", (const char *)&queryFormat, "total > 0") )
           __debugbreak();
-        v19 = nodePool->totalSize;
-        __asm
+        v9 = nodePool->totalSize;
+        v10 = (float)v9;
+        if ( v9 < 0 )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rdi
+          v11 = (float)v9;
+          v10 = v11 + 1.8446744e19;
         }
-        if ( v19 < 0 )
-          __asm { vaddss  xmm0, xmm0, xmm8 }
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, r12
-          vmulss  xmm2, xmm0, xmm9
-        }
+        v12 = (float)totalSize;
         if ( totalSize < 0 )
-          __asm { vaddss  xmm1, xmm1, xmm8 }
+          v12 = v12 + 1.8446744e19;
         child = nodePool->child;
-        v26 = 0i64;
-        __asm { vdivss  xmm7, xmm2, xmm1 }
-        if ( nodePool->child )
-        {
-          do
-          {
-            v26 += child->totalSize;
-            child = child->nextSibling;
-          }
-          while ( child );
-        }
-        v28 = v19 - v26;
+        v14 = 0i64;
+        for ( j = (float)(v10 * 100.0) / v12; child; child = child->nextSibling )
+          v14 += child->totalSize;
+        v16 = v9 - v14;
         if ( !nodePool->hits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_mem.cpp", 174, ASSERT_TYPE_ASSERT, "(iter.node->hits > 0)", (const char *)&queryFormat, "iter.node->hits > 0") )
           __debugbreak();
-        __asm
+        v17 = (float)v16;
+        if ( v16 < 0 )
         {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, rdi
+          v18 = (float)v16;
+          v17 = v18 + 1.8446744e19;
         }
-        if ( v28 < 0 )
-          __asm { vaddss  xmm1, xmm1, xmm8 }
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vdivss  xmm6, xmm1, xmm0
-        }
-        v34 = j_va("%%-%i.%is %%12i %%8u %%5.1f%%%% %%5i %%8.2f\n", (unsigned int)(40 - v17), (unsigned int)(40 - v17));
-        v35 = nodePool->totalSize;
-        v36 = v34;
-        hits = nodePool->hits;
-        if ( v35 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v35, "unsigned", nodePool->totalSize) )
+        hits = (float)nodePool->hits;
+        v20 = j_va("%%-%i.%is %%12i %%8u %%5.1f%%%% %%5i %%8.2f\n", (unsigned int)(40 - v7), (unsigned int)(40 - v7));
+        v21 = nodePool->totalSize;
+        v22 = v20;
+        v23 = nodePool->hits;
+        if ( v21 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v21, "unsigned", nodePool->totalSize) )
           __debugbreak();
-        __asm
-        {
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  [rsp+0B8h+var_80], xmm0
-          vcvtss2sd xmm1, xmm7, xmm7
-        }
-        LODWORD(v47) = hits;
-        __asm { vmovsd  [rsp+0B8h+var_90], xmm1 }
-        LODWORD(fmt) = v35;
-        Com_Printf(12, v36, nodePool->name, v28, fmt, v46, v47, v48);
+        LODWORD(v28) = v23;
+        LODWORD(fmt) = v21;
+        Com_Printf(12, v22, nodePool->name, v16, fmt, j, v28, (float)(v17 / hits));
       }
       if ( !nodePool && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_mem.cpp", 52, ASSERT_TYPE_ASSERT, "(iter->node)", (const char *)&queryFormat, "iter->node") )
         __debugbreak();
-      v38 = nodePool->child;
+      v24 = nodePool->child;
       if ( nodePool->child )
       {
         nodePool = nodePool->child;
-        ++v12;
-        for ( j = v38->nextSibling; j; j = j->nextSibling )
-          nodePool = j;
+        ++v4;
+        for ( k = v24->nextSibling; k; k = k->nextSibling )
+          nodePool = k;
         goto LABEL_42;
       }
       if ( !nodePool->prevSibling )
@@ -384,7 +345,7 @@ LABEL_42:
       break;
     while ( 1 )
     {
-      if ( --v12 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_mem.cpp", 78, ASSERT_TYPE_ASSERT, "(iter->nesting >= 0)", (const char *)&queryFormat, "iter->nesting >= 0") )
+      if ( --v4 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_mem.cpp", 78, ASSERT_TYPE_ASSERT, "(iter->nesting >= 0)", (const char *)&queryFormat, "iter->nesting >= 0") )
         __debugbreak();
       nodePool = parent->prevSibling;
       if ( nodePool )
@@ -395,16 +356,9 @@ LABEL_42:
     }
   }
 LABEL_52:
-  if ( v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_mem.cpp", 88, ASSERT_TYPE_ASSERT, "(iter->nesting == 0)", (const char *)&queryFormat, "iter->nesting == 0") )
+  if ( v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile_mem.cpp", 88, ASSERT_TYPE_ASSERT, "(iter->nesting == 0)", (const char *)&queryFormat, "iter->nesting == 0") )
     __debugbreak();
 LABEL_55:
-  Com_Printf(12, "-----------------------------------------------------------------------------------\n", v16);
-  __asm
-  {
-    vmovaps xmm9, [rsp+0B8h+var_68]
-    vmovaps xmm8, [rsp+0B8h+var_58]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-    vmovaps xmm6, [rsp+0B8h+var_38]
-  }
+  Com_Printf(12, "-----------------------------------------------------------------------------------\n", v6);
 }
 

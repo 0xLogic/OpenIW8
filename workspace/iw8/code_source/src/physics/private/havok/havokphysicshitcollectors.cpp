@@ -434,35 +434,26 @@ HavokPhysicsAllHitsCollector::HavokPhysicsAllHitsCollector
 */
 void HavokPhysicsAllHitsCollector::HavokPhysicsAllHitsCollector(HavokPhysicsAllHitsCollector *this, HavokPhysicsHitCollector *collector, Physics_WorldId worldId)
 {
-  _RBX = this;
   this->__vftable = (HavokPhysicsAllHitsCollector_vtbl *)hknpCollisionQueryCollector::`vftable';
   this->m_hints.m_storage = 0;
   this->m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rbx+10h], xmm0
-  }
+  this->m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   this->m_earlyOut.m_bool = 0;
   this->__vftable = (HavokPhysicsAllHitsCollector_vtbl *)hknpAllHitsCollector::`vftable';
   this->m_hits.m_data = (hknpCollisionResult *)this->m_hits.m_storage;
   this->m_hits.m_size = 0;
   this->m_hits.m_capacityAndFlags = -2147483638;
   this->m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rbx+10h], xmm0
-  }
+  this->m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   this->m_earlyOut.m_bool = 0;
   this->m_hits.m_size = 0;
   this->m_hints.m_storage |= 0x40u;
   this->__vftable = (HavokPhysicsAllHitsCollector_vtbl *)&HavokPhysicsAllHitsCollector::`vftable';
   if ( !collector && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 567, ASSERT_TYPE_ASSERT, "(collector)", (const char *)&queryFormat, "collector", -2i64) )
     __debugbreak();
-  _RBX->m_collector = collector;
-  _RBX->m_worldId = worldId;
-  _RBX->m_hints.m_storage = 2;
+  this->m_collector = collector;
+  this->m_worldId = worldId;
+  this->m_hints.m_storage = 2;
 }
 
 /*
@@ -472,23 +463,14 @@ HavokPhysicsAnyHitCollector::HavokPhysicsAnyHitCollector
 */
 void HavokPhysicsAnyHitCollector::HavokPhysicsAnyHitCollector(HavokPhysicsAnyHitCollector *this, HavokPhysicsHitCollector *collector, Physics_WorldId worldId)
 {
-  _RBX = this;
   this->__vftable = (HavokPhysicsAnyHitCollector_vtbl *)hknpCollisionQueryCollector::`vftable';
   this->m_hints.m_storage = 0;
   this->m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rbx+10h], xmm0
-  }
+  this->m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   this->m_earlyOut.m_bool = 0;
   this->__vftable = (HavokPhysicsAnyHitCollector_vtbl *)hknpClosestHitCollector::`vftable';
   *(_QWORD *)&this->m_hit.m_queryType = 0i64;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovups ymmword ptr [rbx+30h], ymm1
-  }
+  *(__m256i *)this->m_hit.m_position.m_quad.m128_f32 = (__m256i)0i64;
   this->m_hit.m_fraction = 3.40282e38;
   this->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = 0xFFFFFF;
   *(_QWORD *)&this->m_hit.m_queryBodyInfo.m_shapeKey.m_value = -1i64;
@@ -501,14 +483,10 @@ void HavokPhysicsAnyHitCollector::HavokPhysicsAnyHitCollector(HavokPhysicsAnyHit
   this->m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo = 0;
   this->m_hit.m_hitBodyInfo.m_filterData.m_userData = 0i64;
   this->m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rbx+10h], xmm0
-  }
+  this->m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   this->m_earlyOut.m_bool = 0;
   *(_QWORD *)&this->m_hit.m_queryType = 0i64;
-  __asm { vmovups ymmword ptr [rbx+30h], ymm1 }
+  *(__m256i *)this->m_hit.m_position.m_quad.m128_f32 = (__m256i)0i64;
   this->m_hit.m_fraction = 3.40282e38;
   this->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = 0xFFFFFF;
   *(_QWORD *)&this->m_hit.m_queryBodyInfo.m_shapeKey.m_value = -1i64;
@@ -525,9 +503,9 @@ void HavokPhysicsAnyHitCollector::HavokPhysicsAnyHitCollector(HavokPhysicsAnyHit
   this->__vftable = (HavokPhysicsAnyHitCollector_vtbl *)&HavokPhysicsAnyHitCollector::`vftable';
   if ( !collector && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 401, ASSERT_TYPE_ASSERT, "(collector)", (const char *)&queryFormat, "collector", -2i64) )
     __debugbreak();
-  _RBX->m_collector = collector;
-  _RBX->m_worldId = worldId;
-  _RBX->m_hints.m_storage = 2;
+  this->m_collector = collector;
+  this->m_worldId = worldId;
+  this->m_hints.m_storage = 2;
 }
 
 /*
@@ -537,23 +515,14 @@ HavokPhysicsClosestHitCollector::HavokPhysicsClosestHitCollector
 */
 void HavokPhysicsClosestHitCollector::HavokPhysicsClosestHitCollector(HavokPhysicsClosestHitCollector *this, HavokPhysicsHitCollector *collector, Physics_WorldId worldId)
 {
-  _RBX = this;
   this->__vftable = (HavokPhysicsClosestHitCollector_vtbl *)hknpCollisionQueryCollector::`vftable';
   this->m_hints.m_storage = 0;
   this->m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rbx+10h], xmm0
-  }
+  this->m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   this->m_earlyOut.m_bool = 0;
   this->__vftable = (HavokPhysicsClosestHitCollector_vtbl *)hknpClosestHitCollector::`vftable';
   *(_QWORD *)&this->m_hit.m_queryType = 0i64;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovups ymmword ptr [rbx+30h], ymm1
-  }
+  *(__m256i *)this->m_hit.m_position.m_quad.m128_f32 = (__m256i)0i64;
   this->m_hit.m_fraction = 3.40282e38;
   this->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = 0xFFFFFF;
   *(_QWORD *)&this->m_hit.m_queryBodyInfo.m_shapeKey.m_value = -1i64;
@@ -566,14 +535,10 @@ void HavokPhysicsClosestHitCollector::HavokPhysicsClosestHitCollector(HavokPhysi
   this->m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo = 0;
   this->m_hit.m_hitBodyInfo.m_filterData.m_userData = 0i64;
   this->m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rbx+10h], xmm0
-  }
+  this->m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   this->m_earlyOut.m_bool = 0;
   *(_QWORD *)&this->m_hit.m_queryType = 0i64;
-  __asm { vmovups ymmword ptr [rbx+30h], ymm1 }
+  *(__m256i *)this->m_hit.m_position.m_quad.m128_f32 = (__m256i)0i64;
   this->m_hit.m_fraction = 3.40282e38;
   this->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = 0xFFFFFF;
   *(_QWORD *)&this->m_hit.m_queryBodyInfo.m_shapeKey.m_value = -1i64;
@@ -588,9 +553,9 @@ void HavokPhysicsClosestHitCollector::HavokPhysicsClosestHitCollector(HavokPhysi
   this->__vftable = (HavokPhysicsClosestHitCollector_vtbl *)&HavokPhysicsClosestHitCollector::`vftable';
   if ( !collector && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 475, ASSERT_TYPE_ASSERT, "(collector)", (const char *)&queryFormat, "collector", -2i64) )
     __debugbreak();
-  _RBX->m_collector = collector;
-  _RBX->m_worldId = worldId;
-  _RBX->m_hints.m_storage = 2;
+  this->m_collector = collector;
+  this->m_worldId = worldId;
+  this->m_hints.m_storage = 2;
 }
 
 /*
@@ -605,21 +570,15 @@ void HavokPhysicsFlippedGetClosestPointsQueryCollector::HavokPhysicsFlippedGetCl
   this->__vftable = (HavokPhysicsFlippedGetClosestPointsQueryCollector_vtbl *)hknpCollisionQueryCollector::`vftable';
   this->m_hints.m_storage = 0;
   this->m_numHits = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+250h; __m128 const near * const g_vectorfConstants
-    vmovups xmmword ptr [rcx+10h], xmm0
-  }
+  _XMM0 = g_vectorfConstants[37];
+  this->m_earlyOutThreshold.m_real = g_vectorfConstants[37];
   this->m_earlyOut.m_bool = 0;
   v3 = this->m_earlyOut.m_bool == 0;
   this->__vftable = (HavokPhysicsFlippedGetClosestPointsQueryCollector_vtbl *)&HavokPhysicsFlippedGetClosestPointsQueryCollector::`vftable';
   this->m_childCollector = childCollector;
   this->m_hints.m_storage = childCollector->m_hints.m_storage;
-  __asm
-  {
-    vminps  xmm1, xmm0, xmmword ptr [rdx+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-  }
+  __asm { vminps  xmm1, xmm0, xmmword ptr [rdx+10h] }
+  this->m_earlyOutThreshold = (hkSimdFloat32)_XMM1.m_real;
   if ( !v3 || childCollector->m_earlyOut.m_bool )
   {
     this->m_earlyOut.m_bool = 1;
@@ -894,41 +853,42 @@ void HavokPhysics_ProcessClosestPointsCvxCvx(hknpCollisionQueryCollector *collec
 {
   const hknpCollisionFilter *m_filter; 
   unsigned __int64 m_userData; 
+  const hknpConvexShape *m_shape; 
   __int64 m_storage; 
   __int64 m_offset; 
+  float m_convexRadius; 
   hknpClosestPointsQuery initialQuerya; 
   hknpConvexVertexShape querya; 
 
   m_filter = initialQuery->m_filter;
   if ( m_filter && m_filter->m_type.m_storage == 6 && (m_userData = initialQuery->m_filterData.m_userData) != 0 && *(_QWORD *)(m_userData + 24) && !Physics_GetBrushBasisFromUserData(targetFilterData->m_userData) )
   {
-    _RDX = *(const hknpConvexShape **)(m_userData + 24);
-    if ( (_RDX->m_flags.m_storage & 1) == 0 )
-      _RDX = NULL;
+    m_shape = *(const hknpConvexShape **)(m_userData + 24);
+    if ( (m_shape->m_flags.m_storage & 1) == 0 )
+      m_shape = NULL;
   }
   else
   {
-    _RDX = NULL;
+    m_shape = NULL;
     if ( (query->m_shape->m_flags.m_storage & 1) != 0 )
-      _RDX = query->m_shape;
+      m_shape = query->m_shape;
   }
-  m_storage = _RDX->m_type.m_storage;
+  m_storage = m_shape->m_type.m_storage;
   initialQuerya.m_filterData.m_collisionFilterInfo = 0;
   initialQuerya.m_filterData.m_userData = 0i64;
   querya.m_type = hknpConvexDispatch::s_shapeTypeToCvxDispatch[m_storage].m_disptach.m_storage;
-  m_offset = _RDX->m_vertices.m_offset;
+  m_offset = m_shape->m_vertices.m_offset;
   initialQuerya.m_filter = NULL;
-  querya.m_vertices = (const hkcdVertex *)((char *)&_RDX->m_vertices + m_offset);
-  querya.m_numVertices = _RDX->m_vertices.m_size;
-  __asm { vmovss  xmm0, dword ptr [rdx+20h] }
+  querya.m_vertices = (const hkcdVertex *)((char *)&m_shape->m_vertices + m_offset);
+  querya.m_numVertices = m_shape->m_vertices.m_size;
+  m_convexRadius = m_shape->m_convexRadius;
   initialQuerya.m_filterData.m_materialId.m_value = -1;
-  __asm { vmovss  [rsp+118h+query.m_convexRadius], xmm0 }
-  querya.m_shape = _RDX;
+  querya.m_convexRadius = m_convexRadius;
+  querya.m_shape = m_shape;
   initialQuerya.m_shapeTagCodec = NULL;
   initialQuerya.m_shape = NULL;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   initialQuerya.m_body = NULL;
-  __asm { vmovss  [rsp+118h+initialQuery.m_maxDistance], xmm0 }
+  initialQuerya.m_maxDistance = 0.0;
   *(_DWORD *)initialQuerya.m_levelOfDetail = 2;
   initialQuerya.m_broadPhaseFilterMask = -5;
   hknpCollisionQueryDispatcher::_getClosestPointsCvxCvxPreScaledImpl<hknpCollisionQueryCollector,hknpClosestPointsQuery,hknpCollisionResult>((hknpCollisionQueryDispatcher *)dispatcher, &initialQuerya, &querya, queryFilterData, queryInfo, target, targetFilterData, targetInfo, queryToTarget, collector);
@@ -983,13 +943,8 @@ HavokPhysicsHitCollector::SetBatchRaycastDataForModifiers
 */
 void HavokPhysicsHitCollector::SetBatchRaycastDataForModifiers(HavokPhysicsHitCollector *this, const hkVector4f *start, const hkVector4f *end, hknpCollisionQuery *query, hkFlags<enum hkcdRayQueryFlags::Enum,unsigned int> raycastFlags)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx+30h], xmm0
-    vmovups xmm1, xmmword ptr [r8]
-    vmovups xmmword ptr [rcx+40h], xmm1
-  }
+  this->m_modifierCastStart = (hkVector4f)start->m_quad;
+  this->m_modifierCastEnd = (hkVector4f)end->m_quad;
   this->m_modifierBatchRaycastQuery = query;
   this->m_modifierBatchRaycastFlags = raycastFlags;
 }
@@ -1017,13 +972,8 @@ HavokPhysicsHitCollector::SetRaycastDataForModifiers
 */
 void HavokPhysicsHitCollector::SetRaycastDataForModifiers(HavokPhysicsHitCollector *this, const hkVector4f *start, const hkVector4f *end, hknpRayCastQuery *query)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx+30h], xmm0
-    vmovups xmm1, xmmword ptr [r8]
-    vmovups xmmword ptr [rcx+40h], xmm1
-  }
+  this->m_modifierCastStart = (hkVector4f)start->m_quad;
+  this->m_modifierCastEnd = (hkVector4f)end->m_quad;
   this->m_modifierRaycastQuery = query;
 }
 
@@ -1034,15 +984,9 @@ HavokPhysicsHitCollector::SetShapecastDataForModifiers
 */
 void HavokPhysicsHitCollector::SetShapecastDataForModifiers(HavokPhysicsHitCollector *this, const hkVector4f *start, const hkVector4f *end, const hkQuaternionf *rotation, hknpShapeCastQuery *query)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx+30h], xmm0
-    vmovups xmm1, xmmword ptr [r8]
-    vmovups xmmword ptr [rcx+40h], xmm1
-    vmovups xmm0, xmmword ptr [r9]
-    vmovups xmmword ptr [rcx+70h], xmm0
-  }
+  this->m_modifierCastStart = (hkVector4f)start->m_quad;
+  this->m_modifierCastEnd = (hkVector4f)end->m_quad;
+  this->m_modifierShapecastRotation = (hkQuaternionf)rotation->m_vec.m_quad;
   this->m_modifierShapecastQuery = query;
 }
 
@@ -1055,8 +999,9 @@ char HavokPhysicsHitCollector::WillBeIgnored(HavokPhysicsHitCollector *this, hkn
 {
   Physics_CollisionQueryCollectionType m_collectionType; 
   __int32 v5; 
+  hknpCollisionQueryCollector *m_collector; 
+  hknpCollisionQueryCollector *v8; 
 
-  _RDI = hit;
   if ( !hit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 284, ASSERT_TYPE_ASSERT, "(hit)", (const char *)&queryFormat, "hit") )
     __debugbreak();
   if ( !this->m_collector && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 285, ASSERT_TYPE_ASSERT, "(m_collector)", (const char *)&queryFormat, "m_collector") )
@@ -1078,28 +1023,14 @@ char HavokPhysicsHitCollector::WillBeIgnored(HavokPhysicsHitCollector *this, hkn
       }
       return 0;
     }
-    _RAX = this->m_collector;
-    if ( !_RAX->m_numHits )
-      return 0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+50h]
-      vcomiss xmm0, dword ptr [rdi+20h]
-    }
-    if ( _RAX->m_numHits )
+    m_collector = this->m_collector;
+    if ( !m_collector->m_numHits || *(float *)&m_collector[1].m_earlyOut.m_bool > hit->m_fraction )
       return 0;
   }
   else
   {
-    _RAX = this->m_collector;
-    if ( !_RAX->m_numHits )
-      return 0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+50h]
-      vcomiss xmm0, dword ptr [rdi+20h]
-    }
-    if ( _RAX->m_numHits )
+    v8 = this->m_collector;
+    if ( !v8->m_numHits || *(float *)&v8[1].m_earlyOut.m_bool > hit->m_fraction )
       return 0;
   }
   return 1;
@@ -1114,8 +1045,9 @@ char HavokPhysicsHitCollector::WillHitReplaceCurrentHit(HavokPhysicsHitCollector
 {
   Physics_CollisionQueryCollectionType m_collectionType; 
   __int32 v5; 
+  hknpCollisionQueryCollector *m_collector; 
+  hknpCollisionQueryCollector *v8; 
 
-  _RDI = hit;
   if ( !hit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 343, ASSERT_TYPE_ASSERT, "(hit)", (const char *)&queryFormat, "hit") )
     __debugbreak();
   if ( !this->m_collector && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 344, ASSERT_TYPE_ASSERT, "(m_collector)", (const char *)&queryFormat, "m_collector") )
@@ -1133,28 +1065,14 @@ char HavokPhysicsHitCollector::WillHitReplaceCurrentHit(HavokPhysicsHitCollector
       }
       return 0;
     }
-    _RAX = this->m_collector;
-    if ( !_RAX->m_numHits )
-      return 1;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+50h]
-      vcomiss xmm0, dword ptr [rdi+20h]
-    }
-    if ( _RAX->m_numHits )
+    m_collector = this->m_collector;
+    if ( !m_collector->m_numHits || *(float *)&m_collector[1].m_earlyOut.m_bool > hit->m_fraction )
       return 1;
   }
   else
   {
-    _RAX = this->m_collector;
-    if ( !_RAX->m_numHits )
-      return 1;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+50h]
-      vcomiss xmm0, dword ptr [rdi+20h]
-    }
-    if ( _RAX->m_numHits )
+    v8 = this->m_collector;
+    if ( !v8->m_numHits || *(float *)&v8[1].m_earlyOut.m_bool > hit->m_fraction )
       return 1;
   }
   return 0;
@@ -1168,260 +1086,113 @@ HavokPhysicsAllHitsCollector::addHit
 void HavokPhysicsAllHitsCollector::addHit(HavokPhysicsAllHitsCollector *this, const hknpCollisionResult *hit)
 {
   HavokPhysicsHitCollector *m_collector; 
-  int m_queryType; 
+  hknpCollisionQueryType::Enum m_queryType; 
   __int64 m_size; 
-  __int64 v14; 
-  int v16; 
+  __m256i v7; 
+  unsigned __int64 v8; 
+  int m_fraction_low; 
+  unsigned int v10; 
   HavokPhysicsHitCollector_Modifier **m_data; 
-  HavokPhysicsHitCollector_Modifier **v18; 
-  bool v19; 
-  unsigned __int64 v20; 
-  const hknpCollisionResult *v27; 
-  int v34; 
-  int v35; 
-  int v36; 
-  int v37; 
-  int v38; 
-  int v39; 
-  int v40; 
-  int v41; 
-  int v42; 
-  int v43; 
-  int v44; 
-  int v45; 
-  int v46; 
-  int v47; 
-  int v48; 
-  int v49; 
-  int v50; 
-  int v51; 
-  __m256i v52; 
+  const hknpCollisionResult *v12; 
+  __int64 v13; 
+  int v14; 
+  __m256i v15; 
+  int v16; 
   unsigned int m_serialAndIndex; 
   unsigned int m_value; 
-  int v56; 
-  unsigned __int16 v57; 
+  int v19; 
+  unsigned __int16 v20; 
   unsigned int m_collisionFilterInfo; 
   unsigned __int64 m_userData; 
-  unsigned int v60; 
-  unsigned int v61; 
-  int v62; 
-  unsigned __int16 v63; 
-  unsigned int v64; 
-  __int64 v65; 
-  int v66; 
-  int v67; 
+  unsigned int v23; 
+  unsigned int v24; 
+  int v25; 
+  unsigned __int16 v26; 
+  unsigned int v27; 
+  unsigned __int64 v28; 
+  hknpCollisionQueryType::Enum v29; 
+  unsigned int v30; 
 
-  _RBX = hit;
   if ( !this->m_collector && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 577, ASSERT_TYPE_ASSERT, "(m_collector)", (const char *)&queryFormat, "m_collector") )
     __debugbreak();
-  __asm
+  v14 = hit->m_position.m_quad.m128_i32[0];
+  if ( (hit->m_position.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (v14 = hit->m_position.m_quad.m128_i32[1], (v14 & 0x7F800000) == 2139095040) || (v14 = hit->m_position.m_quad.m128_i32[2], (v14 & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v34 & 0x7F800000) == 2139095040 )
-    goto LABEL_50;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v35 & 0x7F800000) == 2139095040 )
-    goto LABEL_50;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v36 & 0x7F800000) == 2139095040 )
-  {
-LABEL_50:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 578, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 578, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) )", v14) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v37 & 0x7F800000) == 2139095040 )
-    goto LABEL_51;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v38 & 0x7F800000) == 2139095040 )
-    goto LABEL_51;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+18h]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v39 & 0x7F800000) == 2139095040 )
-  {
-LABEL_51:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 579, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) )") )
-      __debugbreak();
-  }
+  if ( ((hit->m_normal.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (hit->m_normal.m_quad.m128_i32[1] & 0x7F800000) == 2139095040 || (hit->m_normal.m_quad.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 579, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) )") )
+    __debugbreak();
   m_collector = this->m_collector;
-  m_queryType = _RBX->m_queryType;
+  m_queryType = hit->m_queryType;
   m_size = m_collector->m_modifiers.m_size;
   if ( (int)m_size <= 0 )
   {
-    if ( m_queryType != 1 || m_collector->m_enableInsideHits || (_RBX->m_rayCastResult.m_value & 4) == 0 )
+    if ( m_queryType != RAY_CAST || m_collector->m_enableInsideHits || (hit->m_rayCastResult.m_value & 4) == 0 )
     {
-      __asm
+      LODWORD(v13) = hit->m_position.m_quad.m128_i32[0];
+      if ( (hit->m_position.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (LODWORD(v13) = hit->m_position.m_quad.m128_i32[1], (v13 & 0x7F800000) == 2139095040) || (LODWORD(v13) = hit->m_position.m_quad.m128_i32[2], (v13 & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v46 & 0x7F800000) == 2139095040 )
-        goto LABEL_52;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+4]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v47 & 0x7F800000) == 2139095040 )
-        goto LABEL_52;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+8]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v48 & 0x7F800000) == 2139095040 )
-      {
-LABEL_52:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 608, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) )") )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 608, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) )", v13) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+10h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v49 & 0x7F800000) == 2139095040 )
-        goto LABEL_53;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+14h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v50 & 0x7F800000) == 2139095040 )
-        goto LABEL_53;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+18h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v51 & 0x7F800000) == 2139095040 )
-      {
-LABEL_53:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 609, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) )") )
-          __debugbreak();
-      }
-      v27 = _RBX;
+      if ( ((hit->m_normal.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (hit->m_normal.m_quad.m128_i32[1] & 0x7F800000) == 2139095040 || (hit->m_normal.m_quad.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 609, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) )") )
+        __debugbreak();
+      v12 = hit;
       goto LABEL_47;
     }
   }
   else
   {
-    __asm { vmovups ymm0, ymmword ptr [rbx] }
-    m_serialAndIndex = _RBX->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
-    m_value = _RBX->m_queryBodyInfo.m_shapeKey.m_value;
-    v56 = *(_DWORD *)_RBX->m_queryBodyInfo.m_levelOfDetail;
-    v57 = _RBX->m_queryBodyInfo.m_filterData.m_materialId.m_value;
-    m_collisionFilterInfo = _RBX->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
-    m_userData = _RBX->m_queryBodyInfo.m_filterData.m_userData;
-    v60 = _RBX->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
-    v61 = _RBX->m_hitBodyInfo.m_shapeKey.m_value;
-    v62 = *(_DWORD *)_RBX->m_hitBodyInfo.m_levelOfDetail;
-    v63 = _RBX->m_hitBodyInfo.m_filterData.m_materialId.m_value;
-    v64 = _RBX->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
-    v14 = _RBX->m_hitBodyInfo.m_filterData.m_userData;
-    __asm
-    {
-      vmovups [rbp+57h+var_B0], ymm0
-      vmovss  xmm0, dword ptr [rbx+20h]
-    }
-    v65 = v14;
-    v16 = _RBX->m_rayCastResult.m_value;
-    v67 = v16;
-    __asm { vmovss  [rbp+57h+var_90], xmm0 }
-    v66 = m_queryType;
+    v7 = *(__m256i *)hit->m_position.m_quad.m128_f32;
+    m_serialAndIndex = hit->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
+    m_value = hit->m_queryBodyInfo.m_shapeKey.m_value;
+    v19 = *(_DWORD *)hit->m_queryBodyInfo.m_levelOfDetail;
+    v20 = hit->m_queryBodyInfo.m_filterData.m_materialId.m_value;
+    m_collisionFilterInfo = hit->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
+    m_userData = hit->m_queryBodyInfo.m_filterData.m_userData;
+    v23 = hit->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
+    v24 = hit->m_hitBodyInfo.m_shapeKey.m_value;
+    v25 = *(_DWORD *)hit->m_hitBodyInfo.m_levelOfDetail;
+    v26 = hit->m_hitBodyInfo.m_filterData.m_materialId.m_value;
+    v27 = hit->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
+    v8 = hit->m_hitBodyInfo.m_filterData.m_userData;
+    v15 = v7;
+    m_fraction_low = SLODWORD(hit->m_fraction);
+    v28 = v8;
+    v10 = hit->m_rayCastResult.m_value;
+    v30 = v10;
+    v16 = m_fraction_low;
+    v29 = m_queryType;
     m_data = m_collector->m_modifiers.m_data;
-    v18 = &m_data[m_size];
-    v19 = m_data < v18;
-    if ( m_data != v18 )
+    if ( m_data != &m_data[m_size] )
     {
       do
       {
-        (*m_data)->ModifyHit(*m_data, m_collector, (hknpCollisionResult *)&v52);
+        (*m_data)->ModifyHit(*m_data, m_collector, (hknpCollisionResult *)&v15);
         ++m_data;
-        v20 = (unsigned __int64)&m_collector->m_modifiers.m_data[m_collector->m_modifiers.m_size];
-        v19 = (unsigned __int64)m_data < v20;
       }
-      while ( m_data != (HavokPhysicsHitCollector_Modifier **)v20 );
-      LOBYTE(v16) = v67;
-      __asm { vmovss  xmm0, [rbp+57h+var_90] }
+      while ( m_data != &m_collector->m_modifiers.m_data[m_collector->m_modifiers.m_size] );
+      LOBYTE(v10) = v30;
+      m_fraction_low = v16;
     }
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( v19 && (m_queryType != 1 || this->m_collector->m_enableInsideHits || (v16 & 5) == 0) )
+    if ( *(float *)&m_fraction_low < 1.0 && (m_queryType != RAY_CAST || this->m_collector->m_enableInsideHits || (v10 & 5) == 0) )
     {
-      __asm
+      *(float *)&v13 = *(float *)v15.m256i_i32;
+      if ( (v15.m256i_i32[0] & 0x7F800000) == 2139095040 || (*(float *)&v13 = *(float *)&v15.m256i_i32[1], (v15.m256i_i32[1] & 0x7F800000) == 2139095040) || (*(float *)&v13 = *(float *)&v15.m256i_i32[2], (v15.m256i_i32[2] & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rbp+57h+var_B0]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v40 & 0x7F800000) == 2139095040 )
-        goto LABEL_54;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+var_B0+4]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v41 & 0x7F800000) == 2139095040 )
-        goto LABEL_54;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+var_B0+8]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v42 & 0x7F800000) == 2139095040 )
-      {
-LABEL_54:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 595, ASSERT_TYPE_ASSERT, "(!IS_NAN( modifiedHit.m_position( 0 ) ) && !IS_NAN( modifiedHit.m_position( 1 ) ) && !IS_NAN( modifiedHit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( modifiedHit.m_position( 0 ) ) && !IS_NAN( modifiedHit.m_position( 1 ) ) && !IS_NAN( modifiedHit.m_position( 2 ) )") )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 595, ASSERT_TYPE_ASSERT, "(!IS_NAN( modifiedHit.m_position( 0 ) ) && !IS_NAN( modifiedHit.m_position( 1 ) ) && !IS_NAN( modifiedHit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( modifiedHit.m_position( 0 ) ) && !IS_NAN( modifiedHit.m_position( 1 ) ) && !IS_NAN( modifiedHit.m_position( 2 ) )", v13) )
           __debugbreak();
       }
-      __asm
+      *(float *)&v13 = *(float *)&v15.m256i_i32[4];
+      if ( (v15.m256i_i32[4] & 0x7F800000) == 2139095040 || (*(float *)&v13 = *(float *)&v15.m256i_i32[5], (v15.m256i_i32[5] & 0x7F800000) == 2139095040) || (*(float *)&v13 = *(float *)&v15.m256i_i32[6], (v15.m256i_i32[6] & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rbp+57h+var_B0+10h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v43 & 0x7F800000) == 2139095040 )
-        goto LABEL_55;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+var_B0+14h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v44 & 0x7F800000) == 2139095040 )
-        goto LABEL_55;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+57h+var_B0+18h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v45 & 0x7F800000) == 2139095040 )
-      {
-LABEL_55:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 596, ASSERT_TYPE_ASSERT, "(!IS_NAN( modifiedHit.m_normal( 0 ) ) && !IS_NAN( modifiedHit.m_normal( 1 ) ) && !IS_NAN( modifiedHit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( modifiedHit.m_normal( 0 ) ) && !IS_NAN( modifiedHit.m_normal( 1 ) ) && !IS_NAN( modifiedHit.m_normal( 2 ) )") )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 596, ASSERT_TYPE_ASSERT, "(!IS_NAN( modifiedHit.m_normal( 0 ) ) && !IS_NAN( modifiedHit.m_normal( 1 ) ) && !IS_NAN( modifiedHit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( modifiedHit.m_normal( 0 ) ) && !IS_NAN( modifiedHit.m_normal( 1 ) ) && !IS_NAN( modifiedHit.m_normal( 2 ) )", v13) )
           __debugbreak();
       }
-      v27 = (const hknpCollisionResult *)&v52;
+      v12 = (const hknpCollisionResult *)&v15;
 LABEL_47:
-      hknpAllHitsCollector::addHit(this, v27);
+      hknpAllHitsCollector::addHit(this, v12);
     }
   }
 }
@@ -1434,369 +1205,174 @@ HavokPhysicsAnyHitCollector::addHit
 void HavokPhysicsAnyHitCollector::addHit(HavokPhysicsAnyHitCollector *this, const hknpCollisionResult *hit)
 {
   HavokPhysicsHitCollector *m_collector; 
-  int m_queryType; 
+  hknpCollisionQueryType::Enum m_queryType; 
   __int64 m_size; 
-  __int16 m_value; 
-  int m_serialAndIndex; 
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
-  __int64 v22; 
-  int v23; 
+  hkVector4f v7; 
+  hkVector4f v8; 
+  float m_fraction; 
+  unsigned __int16 m_value; 
+  unsigned int m_serialAndIndex; 
+  unsigned int v12; 
+  int v13; 
+  unsigned int v14; 
+  unsigned int v15; 
+  unsigned __int64 v16; 
+  unsigned int v17; 
   HavokPhysicsHitCollector_Modifier **m_data; 
-  HavokPhysicsHitCollector_Modifier **v25; 
-  bool v26; 
-  unsigned __int64 v27; 
-  __int16 v28; 
-  int v29; 
+  unsigned __int16 v19; 
+  int v20; 
+  unsigned int v21; 
+  hknpCollisionQueryType::Enum v22; 
+  unsigned int v23; 
+  unsigned __int64 v24; 
+  __m128 m_quad; 
+  __m128 v26; 
+  float v27; 
+  unsigned int v28; 
+  unsigned int v29; 
   int v30; 
-  int v31; 
-  int v45; 
-  int v46; 
-  int v47; 
-  int v48; 
-  int v49; 
-  int v50; 
-  int v51; 
-  int v52; 
-  int v53; 
-  int v54; 
-  int v55; 
-  int v56; 
-  int v57; 
-  int v58; 
-  int v59; 
-  int v60; 
-  int v61; 
-  int v62; 
-  int v63; 
-  __int64 v64; 
-  __int128 v65; 
-  int v68; 
-  int v69; 
-  int v70; 
-  __int16 v71; 
-  int v72; 
-  __int64 v73; 
-  int v74; 
-  int v75; 
-  int v76; 
-  __int16 v77; 
-  int m_collisionFilterInfo; 
-  __int64 m_userData; 
-  int v80; 
-  int v81; 
+  unsigned __int16 v31; 
+  unsigned int v32; 
+  unsigned __int64 v33; 
+  unsigned int v34; 
+  unsigned int v35; 
+  int v36; 
+  unsigned __int16 v37; 
+  unsigned int m_collisionFilterInfo; 
+  unsigned __int64 m_userData; 
+  hknpCollisionQueryType::Enum v40; 
+  unsigned int v41; 
 
-  _RDI = hit;
-  _RBX = this;
   if ( !this->m_collector && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 411, ASSERT_TYPE_ASSERT, "(m_collector)", (const char *)&queryFormat, "m_collector") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rbp+57h+var_D0], xmm0
-  }
-  if ( (v57 & 0x7F800000) == 2139095040 )
-    goto LABEL_55;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rbp+57h+var_D0], xmm0
-  }
-  if ( (v58 & 0x7F800000) == 2139095040 )
-    goto LABEL_55;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rbp+57h+var_D0], xmm0
-  }
-  if ( (v59 & 0x7F800000) == 2139095040 )
-  {
-LABEL_55:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 412, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+10h]
-    vmovss  [rbp+57h+var_D0], xmm0
-  }
-  if ( (v60 & 0x7F800000) == 2139095040 )
-    goto LABEL_56;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+14h]
-    vmovss  [rbp+57h+var_D0], xmm0
-  }
-  if ( (v61 & 0x7F800000) == 2139095040 )
-    goto LABEL_56;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+18h]
-    vmovss  [rbp+57h+var_D0], xmm0
-  }
-  if ( (v62 & 0x7F800000) == 2139095040 )
-  {
-LABEL_56:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 413, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) )") )
-      __debugbreak();
-  }
-  m_collector = _RBX->m_collector;
-  m_queryType = _RDI->m_queryType;
+  if ( ((hit->m_position.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (hit->m_position.m_quad.m128_i32[1] & 0x7F800000) == 2139095040 || (hit->m_position.m_quad.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 412, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) )") )
+    __debugbreak();
+  if ( ((hit->m_normal.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (hit->m_normal.m_quad.m128_i32[1] & 0x7F800000) == 2139095040 || (hit->m_normal.m_quad.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 413, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) )") )
+    __debugbreak();
+  m_collector = this->m_collector;
+  m_queryType = hit->m_queryType;
   m_size = m_collector->m_modifiers.m_size;
   if ( (int)m_size <= 0 )
   {
-    __asm
+    if ( (this->m_hit.m_fraction > hit->m_fraction || !this->m_numHits) && (m_queryType != RAY_CAST || m_collector->m_enableInsideHits || (hit->m_rayCastResult.m_value & 4) == 0) )
     {
-      vmovss  xmm0, dword ptr [rbx+50h]
-      vcomiss xmm0, dword ptr [rdi+20h]
-    }
-    if ( ((_DWORD)m_size || !_RBX->m_numHits) && (m_queryType != 1 || m_collector->m_enableInsideHits || (_RDI->m_rayCastResult.m_value & 4) == 0) )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups xmmword ptr [rbx+30h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+10h]
-        vmovups xmmword ptr [rbx+40h], xmm1
-      }
-      _RBX->m_hit.m_fraction = _RDI->m_fraction;
-      _RBX->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = _RDI->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
-      _RBX->m_hit.m_queryBodyInfo.m_shapeKey.m_value = _RDI->m_queryBodyInfo.m_shapeKey.m_value;
-      *(_DWORD *)_RBX->m_hit.m_queryBodyInfo.m_levelOfDetail = *(_DWORD *)_RDI->m_queryBodyInfo.m_levelOfDetail;
-      _RBX->m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value = _RDI->m_queryBodyInfo.m_filterData.m_materialId.m_value;
-      _RBX->m_hit.m_queryBodyInfo.m_filterData.m_collisionFilterInfo = _RDI->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
-      _RBX->m_hit.m_queryBodyInfo.m_filterData.m_userData = _RDI->m_queryBodyInfo.m_filterData.m_userData;
-      _RBX->m_hit.m_hitBodyInfo.m_bodyId.m_serialAndIndex = _RDI->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
-      _RBX->m_hit.m_hitBodyInfo.m_shapeKey.m_value = _RDI->m_hitBodyInfo.m_shapeKey.m_value;
-      *(_DWORD *)_RBX->m_hit.m_hitBodyInfo.m_levelOfDetail = *(_DWORD *)_RDI->m_hitBodyInfo.m_levelOfDetail;
-      _RBX->m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value = _RDI->m_hitBodyInfo.m_filterData.m_materialId.m_value;
-      _RBX->m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo = _RDI->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
-      _RBX->m_hit.m_hitBodyInfo.m_filterData.m_userData = _RDI->m_hitBodyInfo.m_filterData.m_userData;
-      _RBX->m_hit.m_queryType = _RDI->m_queryType;
-      _RBX->m_hit.m_rayCastResult.m_value = _RDI->m_rayCastResult.m_value;
-      _RBX->m_numHits = 1;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+30h]
-        vmovss  [rsp+110h+var_E0], xmm0
-      }
-      if ( (v51 & 0x7F800000) == 2139095040 )
-        goto LABEL_57;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+34h]
-        vmovss  [rsp+110h+var_E0], xmm0
-      }
-      if ( (v52 & 0x7F800000) == 2139095040 )
-        goto LABEL_57;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+38h]
-        vmovss  [rsp+110h+var_E0], xmm0
-      }
-      if ( (v53 & 0x7F800000) == 2139095040 )
-      {
-LABEL_57:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 453, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+40h]
-        vmovss  [rsp+110h+var_E0], xmm0
-      }
-      if ( (v54 & 0x7F800000) == 2139095040 )
-        goto LABEL_58;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+44h]
-        vmovss  [rsp+110h+var_E0], xmm0
-      }
-      if ( (v55 & 0x7F800000) == 2139095040 )
-        goto LABEL_58;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+48h]
-        vmovss  [rsp+110h+var_E0], xmm0
-      }
-      if ( (v56 & 0x7F800000) == 2139095040 )
-      {
-LABEL_58:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 454, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_normal( 0 ) ) && !IS_NAN( m_hit.m_normal( 1 ) ) && !IS_NAN( m_hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_normal( 0 ) ) && !IS_NAN( m_hit.m_normal( 1 ) ) && !IS_NAN( m_hit.m_normal( 2 ) )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovups xmmword ptr [rbx+10h], xmm0
-      }
-      _RBX->m_earlyOut.m_bool = 1;
+      this->m_hit.m_position = hit->m_position;
+      this->m_hit.m_normal = hit->m_normal;
+      this->m_hit.m_fraction = hit->m_fraction;
+      this->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = hit->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
+      this->m_hit.m_queryBodyInfo.m_shapeKey.m_value = hit->m_queryBodyInfo.m_shapeKey.m_value;
+      *(_DWORD *)this->m_hit.m_queryBodyInfo.m_levelOfDetail = *(_DWORD *)hit->m_queryBodyInfo.m_levelOfDetail;
+      this->m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value = hit->m_queryBodyInfo.m_filterData.m_materialId.m_value;
+      this->m_hit.m_queryBodyInfo.m_filterData.m_collisionFilterInfo = hit->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
+      this->m_hit.m_queryBodyInfo.m_filterData.m_userData = hit->m_queryBodyInfo.m_filterData.m_userData;
+      this->m_hit.m_hitBodyInfo.m_bodyId.m_serialAndIndex = hit->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
+      this->m_hit.m_hitBodyInfo.m_shapeKey.m_value = hit->m_hitBodyInfo.m_shapeKey.m_value;
+      *(_DWORD *)this->m_hit.m_hitBodyInfo.m_levelOfDetail = *(_DWORD *)hit->m_hitBodyInfo.m_levelOfDetail;
+      this->m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value = hit->m_hitBodyInfo.m_filterData.m_materialId.m_value;
+      this->m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo = hit->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
+      this->m_hit.m_hitBodyInfo.m_filterData.m_userData = hit->m_hitBodyInfo.m_filterData.m_userData;
+      this->m_hit.m_queryType = hit->m_queryType;
+      this->m_hit.m_rayCastResult.m_value = hit->m_rayCastResult.m_value;
+      this->m_numHits = 1;
+      if ( ((this->m_hit.m_position.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (this->m_hit.m_position.m_quad.m128_i32[1] & 0x7F800000) == 2139095040 || (this->m_hit.m_position.m_quad.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 453, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) )") )
+        __debugbreak();
+      if ( ((this->m_hit.m_normal.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (this->m_hit.m_normal.m_quad.m128_i32[1] & 0x7F800000) == 2139095040 || (this->m_hit.m_normal.m_quad.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 454, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_normal( 0 ) ) && !IS_NAN( m_hit.m_normal( 1 ) ) && !IS_NAN( m_hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_normal( 0 ) ) && !IS_NAN( m_hit.m_normal( 1 ) ) && !IS_NAN( m_hit.m_normal( 2 ) )") )
+        __debugbreak();
+      this->m_earlyOutThreshold = 0i64;
+      this->m_earlyOut.m_bool = 1;
     }
   }
   else
   {
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rdi]
-      vmovups xmm2, xmmword ptr [rdi+10h]
-      vmovss  xmm0, dword ptr [rdi+20h]
-    }
-    m_value = _RDI->m_queryBodyInfo.m_filterData.m_materialId.m_value;
-    m_serialAndIndex = _RDI->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
-    v18 = _RDI->m_queryBodyInfo.m_shapeKey.m_value;
-    v19 = *(_DWORD *)_RDI->m_queryBodyInfo.m_levelOfDetail;
-    v20 = _RDI->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
-    v75 = _RDI->m_hitBodyInfo.m_shapeKey.m_value;
-    v76 = *(_DWORD *)_RDI->m_hitBodyInfo.m_levelOfDetail;
-    v77 = _RDI->m_hitBodyInfo.m_filterData.m_materialId.m_value;
-    m_collisionFilterInfo = _RDI->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
-    v63 = m_collisionFilterInfo;
-    v21 = _RDI->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
-    m_userData = _RDI->m_hitBodyInfo.m_filterData.m_userData;
-    v22 = _RDI->m_queryBodyInfo.m_filterData.m_userData;
-    v64 = m_userData;
-    v23 = _RDI->m_rayCastResult.m_value;
-    v81 = v23;
-    __asm
-    {
-      vmovss  [rbp+57h+var_80], xmm0
-      vmovups [rbp+57h+var_A0], xmm1
-      vmovups [rbp+57h+var_90], xmm2
-    }
-    v68 = m_serialAndIndex;
-    v69 = v18;
-    v70 = v19;
-    v71 = m_value;
-    v72 = v21;
-    v73 = v22;
-    v74 = v20;
-    v80 = m_queryType;
+    v7.m_quad = (__m128)hit->m_position;
+    v8.m_quad = (__m128)hit->m_normal;
+    m_fraction = hit->m_fraction;
+    m_value = hit->m_queryBodyInfo.m_filterData.m_materialId.m_value;
+    m_serialAndIndex = hit->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
+    v12 = hit->m_queryBodyInfo.m_shapeKey.m_value;
+    v13 = *(_DWORD *)hit->m_queryBodyInfo.m_levelOfDetail;
+    v14 = hit->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
+    v35 = hit->m_hitBodyInfo.m_shapeKey.m_value;
+    v36 = *(_DWORD *)hit->m_hitBodyInfo.m_levelOfDetail;
+    v37 = hit->m_hitBodyInfo.m_filterData.m_materialId.m_value;
+    m_collisionFilterInfo = hit->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
+    v23 = m_collisionFilterInfo;
+    v15 = hit->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
+    m_userData = hit->m_hitBodyInfo.m_filterData.m_userData;
+    v16 = hit->m_queryBodyInfo.m_filterData.m_userData;
+    v24 = m_userData;
+    v17 = hit->m_rayCastResult.m_value;
+    v41 = v17;
+    v27 = m_fraction;
+    m_quad = v7.m_quad;
+    v26 = v8.m_quad;
+    v28 = m_serialAndIndex;
+    v29 = v12;
+    v30 = v13;
+    v31 = m_value;
+    v32 = v15;
+    v33 = v16;
+    v34 = v14;
+    v40 = m_queryType;
     m_data = m_collector->m_modifiers.m_data;
-    v25 = &m_data[m_size];
-    v26 = m_data < v25;
-    if ( m_data == v25 )
+    if ( m_data == &m_data[m_size] )
     {
-      v30 = v75;
-      v29 = v76;
-      v28 = v77;
+      v21 = v35;
+      v20 = v36;
+      v19 = v37;
     }
     else
     {
       do
       {
-        (*m_data)->ModifyHit(*m_data, m_collector, (hknpCollisionResult *)&v65);
+        (*m_data)->ModifyHit(*m_data, m_collector, (hknpCollisionResult *)&m_quad);
         ++m_data;
-        v27 = (unsigned __int64)&m_collector->m_modifiers.m_data[m_collector->m_modifiers.m_size];
-        v26 = (unsigned __int64)m_data < v27;
       }
-      while ( m_data != (HavokPhysicsHitCollector_Modifier **)v27 );
-      v23 = v81;
-      v28 = v77;
-      v29 = v76;
-      v30 = v75;
-      v20 = v74;
-      v22 = v73;
-      v21 = v72;
-      m_value = v71;
-      v19 = v70;
-      v18 = v69;
-      __asm
-      {
-        vmovss  xmm0, [rbp+57h+var_80]
-        vmovups xmm2, [rbp+57h+var_90]
-        vmovups xmm1, [rbp+57h+var_A0]
-      }
-      v64 = m_userData;
-      v63 = m_collisionFilterInfo;
-      m_serialAndIndex = v68;
+      while ( m_data != &m_collector->m_modifiers.m_data[m_collector->m_modifiers.m_size] );
+      v17 = v41;
+      v19 = v37;
+      v20 = v36;
+      v21 = v35;
+      v14 = v34;
+      v16 = v33;
+      v15 = v32;
+      m_value = v31;
+      v13 = v30;
+      v12 = v29;
+      m_fraction = v27;
+      v8.m_quad = v26;
+      v7.m_quad = m_quad;
+      v24 = m_userData;
+      v23 = m_collisionFilterInfo;
+      m_serialAndIndex = v28;
     }
-    __asm { vcomiss xmm0, cs:__real@3f800000 }
-    if ( v26 )
+    if ( m_fraction < 1.0 && (m_fraction < this->m_hit.m_fraction || !this->m_numHits) && (m_queryType != RAY_CAST || this->m_collector->m_enableInsideHits || (v17 & 5) == 0) )
     {
-      __asm { vcomiss xmm0, dword ptr [rbx+50h] }
-      if ( (v26 || !_RBX->m_numHits) && (m_queryType != 1 || _RBX->m_collector->m_enableInsideHits || (v23 & 5) == 0) )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rbx+50h], xmm0
-          vmovups xmmword ptr [rbx+30h], xmm1
-          vmovups xmmword ptr [rbx+40h], xmm2
-        }
-        _RBX->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = m_serialAndIndex;
-        _RBX->m_hit.m_queryBodyInfo.m_shapeKey.m_value = v18;
-        *(_DWORD *)_RBX->m_hit.m_queryBodyInfo.m_levelOfDetail = v19;
-        _RBX->m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value = m_value;
-        _RBX->m_hit.m_queryBodyInfo.m_filterData.m_collisionFilterInfo = v21;
-        _RBX->m_hit.m_queryBodyInfo.m_filterData.m_userData = v22;
-        _RBX->m_hit.m_hitBodyInfo.m_bodyId.m_serialAndIndex = v20;
-        _RBX->m_hit.m_hitBodyInfo.m_shapeKey.m_value = v30;
-        *(_DWORD *)_RBX->m_hit.m_hitBodyInfo.m_levelOfDetail = v29;
-        _RBX->m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value = v28;
-        _RBX->m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo = v63;
-        _RBX->m_hit.m_hitBodyInfo.m_filterData.m_userData = v64;
-        v31 = v80;
-        _RBX->m_hit.m_rayCastResult.m_value = v23;
-        _RBX->m_hit.m_queryType = v31;
-        _RBX->m_numHits = 1;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+30h]
-          vmovss  [rsp+110h+var_E0], xmm0
-        }
-        if ( (v45 & 0x7F800000) == 2139095040 )
-          goto LABEL_59;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+34h]
-          vmovss  [rsp+110h+var_E0], xmm0
-        }
-        if ( (v46 & 0x7F800000) == 2139095040 )
-          goto LABEL_59;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+38h]
-          vmovss  [rsp+110h+var_E0], xmm0
-        }
-        if ( (v47 & 0x7F800000) == 2139095040 )
-        {
-LABEL_59:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 434, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) )") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+40h]
-          vmovss  [rsp+110h+var_E0], xmm0
-        }
-        if ( (v48 & 0x7F800000) == 2139095040 )
-          goto LABEL_60;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+44h]
-          vmovss  [rsp+110h+var_E0], xmm0
-        }
-        if ( (v49 & 0x7F800000) == 2139095040 )
-          goto LABEL_60;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+48h]
-          vmovss  [rsp+110h+var_E0], xmm0
-        }
-        if ( (v50 & 0x7F800000) == 2139095040 )
-        {
-LABEL_60:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 435, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_normal( 0 ) ) && !IS_NAN( m_hit.m_normal( 1 ) ) && !IS_NAN( m_hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_normal( 0 ) ) && !IS_NAN( m_hit.m_normal( 1 ) ) && !IS_NAN( m_hit.m_normal( 2 ) )") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovups xmmword ptr [rbx+10h], xmm0
-        }
-        _RBX->m_earlyOut.m_bool = 1;
-      }
+      this->m_hit.m_fraction = m_fraction;
+      this->m_hit.m_position = (hkVector4f)v7.m_quad;
+      this->m_hit.m_normal = (hkVector4f)v8.m_quad;
+      this->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = m_serialAndIndex;
+      this->m_hit.m_queryBodyInfo.m_shapeKey.m_value = v12;
+      *(_DWORD *)this->m_hit.m_queryBodyInfo.m_levelOfDetail = v13;
+      this->m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value = m_value;
+      this->m_hit.m_queryBodyInfo.m_filterData.m_collisionFilterInfo = v15;
+      this->m_hit.m_queryBodyInfo.m_filterData.m_userData = v16;
+      this->m_hit.m_hitBodyInfo.m_bodyId.m_serialAndIndex = v14;
+      this->m_hit.m_hitBodyInfo.m_shapeKey.m_value = v21;
+      *(_DWORD *)this->m_hit.m_hitBodyInfo.m_levelOfDetail = v20;
+      this->m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value = v19;
+      this->m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo = v23;
+      this->m_hit.m_hitBodyInfo.m_filterData.m_userData = v24;
+      v22 = v40;
+      this->m_hit.m_rayCastResult.m_value = v17;
+      this->m_hit.m_queryType = v22;
+      this->m_numHits = 1;
+      if ( ((this->m_hit.m_position.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (this->m_hit.m_position.m_quad.m128_i32[1] & 0x7F800000) == 2139095040 || (this->m_hit.m_position.m_quad.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 434, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) )") )
+        __debugbreak();
+      if ( ((this->m_hit.m_normal.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (this->m_hit.m_normal.m_quad.m128_i32[1] & 0x7F800000) == 2139095040 || (this->m_hit.m_normal.m_quad.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 435, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_normal( 0 ) ) && !IS_NAN( m_hit.m_normal( 1 ) ) && !IS_NAN( m_hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_normal( 0 ) ) && !IS_NAN( m_hit.m_normal( 1 ) ) && !IS_NAN( m_hit.m_normal( 2 ) )") )
+        __debugbreak();
+      this->m_earlyOutThreshold = 0i64;
+      this->m_earlyOut.m_bool = 1;
     }
   }
 }
@@ -1809,396 +1385,195 @@ HavokPhysicsClosestHitCollector::addHit
 void HavokPhysicsClosestHitCollector::addHit(HavokPhysicsClosestHitCollector *this, const hknpCollisionResult *hit)
 {
   HavokPhysicsHitCollector *m_collector; 
-  int m_queryType; 
+  hknpCollisionQueryType::Enum m_queryType; 
   __int64 m_size; 
-  unsigned __int64 v14; 
+  __m256i v7; 
+  unsigned __int64 v8; 
+  float m_fraction; 
   HavokPhysicsHitCollector_Modifier **m_data; 
-  HavokPhysicsHitCollector_Modifier **v16; 
-  bool v17; 
-  unsigned __int64 v18; 
-  unsigned __int8 v19; 
-  unsigned __int8 v20; 
-  char v23; 
-  int v24; 
-  int v25; 
-  int v27; 
-  int v34; 
-  unsigned __int8 DecalTypeFromUserData; 
-  unsigned __int8 v36; 
-  char v39; 
-  int v55; 
-  int v56; 
-  int v57; 
-  int v58; 
-  int v59; 
-  int v60; 
-  int v61; 
-  int v62; 
-  int v63; 
-  int v64; 
-  int v65; 
-  int v66; 
-  int v67; 
-  int v68; 
-  int v69; 
-  int v70; 
-  int v71; 
-  int v72; 
-  __m256i v74; 
-  int m_serialAndIndex; 
+  char v11; 
+  char v12; 
+  float v13; 
+  bool v14; 
+  unsigned int v15; 
+  unsigned int v16; 
+  hknpCollisionQueryType::Enum v17; 
+  int v18; 
+  char DecalTypeFromUserData; 
+  char v20; 
+  bool v21; 
+  __int128 m_fraction_low; 
+  __m128 v26; 
+  float v27; 
+  __m256i v28; 
+  float v29; 
+  unsigned int m_serialAndIndex; 
   unsigned int m_value; 
-  int v78; 
-  unsigned __int16 v79; 
+  int v32; 
+  unsigned __int16 v33; 
   unsigned int m_collisionFilterInfo; 
   unsigned __int64 m_userData; 
-  unsigned int v82; 
-  unsigned int v83; 
-  int v84; 
-  unsigned __int16 v85; 
-  unsigned int v86; 
+  unsigned int v36; 
+  unsigned int v37; 
+  int v38; 
+  unsigned __int16 v39; 
+  unsigned int v40; 
   unsigned __int64 userData; 
-  int v88; 
-  int v89; 
+  hknpCollisionQueryType::Enum v42; 
+  unsigned int v43; 
 
-  __asm { vmovaps [rsp+0F0h+var_30], xmm6 }
-  _RSI = hit;
-  _RDI = this;
   if ( !this->m_collector && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 485, ASSERT_TYPE_ASSERT, "(m_collector)", (const char *)&queryFormat, "m_collector") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v55 & 0x7F800000) == 2139095040 )
-    goto LABEL_67;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v56 & 0x7F800000) == 2139095040 )
-    goto LABEL_67;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v57 & 0x7F800000) == 2139095040 )
-  {
-LABEL_67:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 486, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+10h]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v58 & 0x7F800000) == 2139095040 )
-    goto LABEL_68;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+14h]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v59 & 0x7F800000) == 2139095040 )
-    goto LABEL_68;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+18h]
-    vmovss  [rbp+57h+var_C0], xmm0
-  }
-  if ( (v60 & 0x7F800000) == 2139095040 )
-  {
-LABEL_68:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 487, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) )") )
-      __debugbreak();
-  }
-  m_collector = _RDI->m_collector;
-  m_queryType = _RSI->m_queryType;
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
+  if ( ((hit->m_position.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (hit->m_position.m_quad.m128_i32[1] & 0x7F800000) == 2139095040 || (hit->m_position.m_quad.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 486, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_position( 0 ) ) && !IS_NAN( hit.m_position( 1 ) ) && !IS_NAN( hit.m_position( 2 ) )") )
+    __debugbreak();
+  if ( ((hit->m_normal.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (hit->m_normal.m_quad.m128_i32[1] & 0x7F800000) == 2139095040 || (hit->m_normal.m_quad.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 487, ASSERT_TYPE_ASSERT, "(!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( hit.m_normal( 0 ) ) && !IS_NAN( hit.m_normal( 1 ) ) && !IS_NAN( hit.m_normal( 2 ) )") )
+    __debugbreak();
+  m_collector = this->m_collector;
+  m_queryType = hit->m_queryType;
   m_size = m_collector->m_modifiers.m_size;
   if ( (int)m_size <= 0 )
   {
-    DecalTypeFromUserData = Physics_GetDecalTypeFromUserData(_RDI->m_hit.m_hitBodyInfo.m_filterData.m_userData);
-    v36 = Physics_GetDecalTypeFromUserData(_RSI->m_hitBodyInfo.m_filterData.m_userData);
-    if ( DecalTypeFromUserData == v36 )
-      goto LABEL_42;
-    __asm
+    DecalTypeFromUserData = Physics_GetDecalTypeFromUserData(this->m_hit.m_hitBodyInfo.m_filterData.m_userData);
+    v20 = Physics_GetDecalTypeFromUserData(hit->m_hitBodyInfo.m_filterData.m_userData);
+    v21 = DecalTypeFromUserData != v20 && COERCE_FLOAT(COERCE_UNSIGNED_INT(hit->m_fraction - this->m_hit.m_fraction) & _xmm) < 0.000001;
+    if ( this->m_numHits )
     {
-      vmovss  xmm0, dword ptr [rsi+20h]
-      vsubss  xmm1, xmm0, dword ptr [rdi+50h]
-      vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm1, cs:__real@358637bd
-    }
-    if ( DecalTypeFromUserData >= v36 )
-LABEL_42:
-      v39 = 0;
-    else
-      v39 = 1;
-    if ( !_RDI->m_numHits )
-      goto LABEL_49;
-    if ( !v39 )
-    {
-      __asm
+      if ( v21 )
       {
-        vmovss  xmm0, dword ptr [rdi+50h]
-        vcomiss xmm0, dword ptr [rsi+20h]
+        if ( !v20 )
+          goto LABEL_64;
       }
-      goto LABEL_62;
-    }
-    if ( v36 )
-    {
-LABEL_49:
-      if ( m_queryType == 1 && !_RDI->m_collector->m_enableInsideHits && (_RSI->m_rayCastResult.m_value & 4) != 0 )
-        goto LABEL_64;
-      __asm
+      else if ( this->m_hit.m_fraction <= hit->m_fraction )
       {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups xmmword ptr [rdi+30h], xmm0
-        vmovups xmm1, xmmword ptr [rsi+10h]
-        vmovups xmmword ptr [rdi+40h], xmm1
-      }
-      _RDI->m_hit.m_fraction = _RSI->m_fraction;
-      _RDI->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = _RSI->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
-      _RDI->m_hit.m_queryBodyInfo.m_shapeKey.m_value = _RSI->m_queryBodyInfo.m_shapeKey.m_value;
-      *(_DWORD *)_RDI->m_hit.m_queryBodyInfo.m_levelOfDetail = *(_DWORD *)_RSI->m_queryBodyInfo.m_levelOfDetail;
-      _RDI->m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value = _RSI->m_queryBodyInfo.m_filterData.m_materialId.m_value;
-      _RDI->m_hit.m_queryBodyInfo.m_filterData.m_collisionFilterInfo = _RSI->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
-      _RDI->m_hit.m_queryBodyInfo.m_filterData.m_userData = _RSI->m_queryBodyInfo.m_filterData.m_userData;
-      _RDI->m_hit.m_hitBodyInfo.m_bodyId.m_serialAndIndex = _RSI->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
-      _RDI->m_hit.m_hitBodyInfo.m_shapeKey.m_value = _RSI->m_hitBodyInfo.m_shapeKey.m_value;
-      *(_DWORD *)_RDI->m_hit.m_hitBodyInfo.m_levelOfDetail = *(_DWORD *)_RSI->m_hitBodyInfo.m_levelOfDetail;
-      _RDI->m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value = _RSI->m_hitBodyInfo.m_filterData.m_materialId.m_value;
-      _RDI->m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo = _RSI->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
-      _RDI->m_hit.m_hitBodyInfo.m_filterData.m_userData = _RSI->m_hitBodyInfo.m_filterData.m_userData;
-      _RDI->m_hit.m_queryType = _RSI->m_queryType;
-      _RDI->m_hit.m_rayCastResult.m_value = _RSI->m_rayCastResult.m_value;
-      _RDI->m_numHits = 1;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+30h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v67 & 0x7F800000) == 2139095040 )
-        goto LABEL_69;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+34h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v68 & 0x7F800000) == 2139095040 )
-        goto LABEL_69;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+38h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v69 & 0x7F800000) == 2139095040 )
-      {
-LABEL_69:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 539, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+40h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v70 & 0x7F800000) != 2139095040 )
-      {
-        __asm
+LABEL_64:
+        if ( Physics_IsDetailWorld(this->m_worldId) )
         {
-          vmovss  xmm0, dword ptr [rdi+44h]
-          vmovss  [rbp+57h+var_C0], xmm0
+          v26 = 0i64;
+          v26.m128_f32[0] = 1.0;
+          this->m_earlyOutThreshold.m_real = _mm_shuffle_ps(v26, v26, 0);
         }
-        if ( (v71 & 0x7F800000) != 2139095040 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+48h]
-            vmovss  [rbp+57h+var_C0], xmm0
-          }
-          if ( (v72 & 0x7F800000) != 2139095040 )
-            goto LABEL_61;
-        }
+        return;
       }
-      v34 = 540;
-      goto LABEL_59;
+    }
+    if ( m_queryType != RAY_CAST || this->m_collector->m_enableInsideHits || (hit->m_rayCastResult.m_value & 4) == 0 )
+    {
+      this->m_hit.m_position = hit->m_position;
+      this->m_hit.m_normal = hit->m_normal;
+      this->m_hit.m_fraction = hit->m_fraction;
+      this->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = hit->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
+      this->m_hit.m_queryBodyInfo.m_shapeKey.m_value = hit->m_queryBodyInfo.m_shapeKey.m_value;
+      *(_DWORD *)this->m_hit.m_queryBodyInfo.m_levelOfDetail = *(_DWORD *)hit->m_queryBodyInfo.m_levelOfDetail;
+      this->m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value = hit->m_queryBodyInfo.m_filterData.m_materialId.m_value;
+      this->m_hit.m_queryBodyInfo.m_filterData.m_collisionFilterInfo = hit->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
+      this->m_hit.m_queryBodyInfo.m_filterData.m_userData = hit->m_queryBodyInfo.m_filterData.m_userData;
+      this->m_hit.m_hitBodyInfo.m_bodyId.m_serialAndIndex = hit->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
+      this->m_hit.m_hitBodyInfo.m_shapeKey.m_value = hit->m_hitBodyInfo.m_shapeKey.m_value;
+      *(_DWORD *)this->m_hit.m_hitBodyInfo.m_levelOfDetail = *(_DWORD *)hit->m_hitBodyInfo.m_levelOfDetail;
+      this->m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value = hit->m_hitBodyInfo.m_filterData.m_materialId.m_value;
+      this->m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo = hit->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
+      this->m_hit.m_hitBodyInfo.m_filterData.m_userData = hit->m_hitBodyInfo.m_filterData.m_userData;
+      this->m_hit.m_queryType = hit->m_queryType;
+      this->m_hit.m_rayCastResult.m_value = hit->m_rayCastResult.m_value;
+      this->m_numHits = 1;
+      if ( ((this->m_hit.m_position.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (this->m_hit.m_position.m_quad.m128_i32[1] & 0x7F800000) == 2139095040 || (this->m_hit.m_position.m_quad.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 539, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) )") )
+        __debugbreak();
+      if ( (this->m_hit.m_normal.m_quad.m128_i32[0] & 0x7F800000) != 2139095040 && (this->m_hit.m_normal.m_quad.m128_i32[1] & 0x7F800000) != 2139095040 && (this->m_hit.m_normal.m_quad.m128_i32[2] & 0x7F800000) != 2139095040 )
+        goto LABEL_63;
+      v18 = 540;
+      goto LABEL_61;
     }
   }
   else
   {
-    __asm { vmovups ymm0, ymmword ptr [rsi] }
-    m_serialAndIndex = _RSI->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
-    m_value = _RSI->m_queryBodyInfo.m_shapeKey.m_value;
-    v78 = *(_DWORD *)_RSI->m_queryBodyInfo.m_levelOfDetail;
-    v79 = _RSI->m_queryBodyInfo.m_filterData.m_materialId.m_value;
-    m_collisionFilterInfo = _RSI->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
-    m_userData = _RSI->m_queryBodyInfo.m_filterData.m_userData;
-    v82 = _RSI->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
-    v83 = _RSI->m_hitBodyInfo.m_shapeKey.m_value;
-    v84 = *(_DWORD *)_RSI->m_hitBodyInfo.m_levelOfDetail;
-    v85 = _RSI->m_hitBodyInfo.m_filterData.m_materialId.m_value;
-    v86 = _RSI->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
-    v14 = _RSI->m_hitBodyInfo.m_filterData.m_userData;
-    __asm
-    {
-      vmovups [rbp+57h+var_B0], ymm0
-      vmovss  xmm0, dword ptr [rsi+20h]
-    }
-    userData = v14;
-    v89 = _RSI->m_rayCastResult.m_value;
-    __asm { vmovss  [rbp+57h+var_90], xmm0 }
-    v88 = m_queryType;
+    v7 = *(__m256i *)hit->m_position.m_quad.m128_f32;
+    m_serialAndIndex = hit->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
+    m_value = hit->m_queryBodyInfo.m_shapeKey.m_value;
+    v32 = *(_DWORD *)hit->m_queryBodyInfo.m_levelOfDetail;
+    v33 = hit->m_queryBodyInfo.m_filterData.m_materialId.m_value;
+    m_collisionFilterInfo = hit->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
+    m_userData = hit->m_queryBodyInfo.m_filterData.m_userData;
+    v36 = hit->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
+    v37 = hit->m_hitBodyInfo.m_shapeKey.m_value;
+    v38 = *(_DWORD *)hit->m_hitBodyInfo.m_levelOfDetail;
+    v39 = hit->m_hitBodyInfo.m_filterData.m_materialId.m_value;
+    v40 = hit->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
+    v8 = hit->m_hitBodyInfo.m_filterData.m_userData;
+    v28 = v7;
+    m_fraction = hit->m_fraction;
+    userData = v8;
+    v43 = hit->m_rayCastResult.m_value;
+    v29 = m_fraction;
+    v42 = m_queryType;
     m_data = m_collector->m_modifiers.m_data;
-    v16 = &m_data[m_size];
-    v17 = m_data < v16;
-    if ( m_data != v16 )
+    if ( m_data != &m_data[m_size] )
     {
       do
       {
-        (*m_data)->ModifyHit(*m_data, m_collector, (hknpCollisionResult *)&v74);
+        (*m_data)->ModifyHit(*m_data, m_collector, (hknpCollisionResult *)&v28);
         ++m_data;
-        v18 = (unsigned __int64)&m_collector->m_modifiers.m_data[m_collector->m_modifiers.m_size];
-        v17 = (unsigned __int64)m_data < v18;
       }
-      while ( m_data != (HavokPhysicsHitCollector_Modifier **)v18 );
-      __asm { vmovss  xmm0, [rbp+57h+var_90] }
+      while ( m_data != &m_collector->m_modifiers.m_data[m_collector->m_modifiers.m_size] );
+      m_fraction = v29;
     }
-    __asm { vcomiss xmm0, xmm6 }
-    if ( !v17 )
-      goto LABEL_62;
-    v19 = Physics_GetDecalTypeFromUserData(_RDI->m_hit.m_hitBodyInfo.m_filterData.m_userData);
-    v20 = Physics_GetDecalTypeFromUserData(userData);
-    __asm { vmovss  xmm2, [rbp+57h+var_90] }
-    if ( v19 == v20 )
-      goto LABEL_22;
-    __asm
+    if ( m_fraction >= 1.0 )
+      goto LABEL_64;
+    v11 = Physics_GetDecalTypeFromUserData(this->m_hit.m_hitBodyInfo.m_filterData.m_userData);
+    v12 = Physics_GetDecalTypeFromUserData(userData);
+    v13 = v29;
+    v14 = v11 != v12 && COERCE_FLOAT(COERCE_UNSIGNED_INT(v29 - this->m_hit.m_fraction) & _xmm) < 0.000001;
+    if ( this->m_numHits )
     {
-      vsubss  xmm0, xmm2, dword ptr [rdi+50h]
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@358637bd
-    }
-    if ( v19 >= v20 )
-LABEL_22:
-      v23 = 0;
-    else
-      v23 = 1;
-    if ( !_RDI->m_numHits )
-      goto LABEL_27;
-    if ( !v23 )
-    {
-      __asm { vcomiss xmm2, dword ptr [rdi+50h] }
-      goto LABEL_62;
-    }
-    if ( v20 )
-    {
-LABEL_27:
-      v24 = v89;
-      if ( m_queryType == 1 && !_RDI->m_collector->m_enableInsideHits && (v89 & 5) != 0 )
+      if ( v14 )
+      {
+        if ( !v12 )
+          goto LABEL_64;
+      }
+      else if ( v29 >= this->m_hit.m_fraction )
+      {
         goto LABEL_64;
-      v25 = m_serialAndIndex;
-      __asm
-      {
-        vmovups ymm0, [rbp+57h+var_B0]
-        vmovups ymmword ptr [rdi+30h], ymm0
-        vmovss  dword ptr [rdi+50h], xmm2
-      }
-      _RDI->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = v25;
-      _RDI->m_hit.m_queryBodyInfo.m_shapeKey.m_value = m_value;
-      *(_DWORD *)_RDI->m_hit.m_queryBodyInfo.m_levelOfDetail = v78;
-      _RDI->m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value = v79;
-      _RDI->m_hit.m_queryBodyInfo.m_filterData.m_collisionFilterInfo = m_collisionFilterInfo;
-      _RDI->m_hit.m_queryBodyInfo.m_filterData.m_userData = m_userData;
-      _RDI->m_hit.m_hitBodyInfo.m_bodyId.m_serialAndIndex = v82;
-      _RDI->m_hit.m_hitBodyInfo.m_shapeKey.m_value = v83;
-      *(_DWORD *)_RDI->m_hit.m_hitBodyInfo.m_levelOfDetail = v84;
-      _RDI->m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value = v85;
-      _RDI->m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo = v86;
-      _RDI->m_hit.m_hitBodyInfo.m_filterData.m_userData = userData;
-      v27 = v88;
-      _RDI->m_hit.m_rayCastResult.m_value = v24;
-      _RDI->m_hit.m_queryType = v27;
-      _RDI->m_numHits = 1;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+30h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v61 & 0x7F800000) == 2139095040 )
-        goto LABEL_70;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+34h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v62 & 0x7F800000) == 2139095040 )
-        goto LABEL_70;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+38h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v63 & 0x7F800000) == 2139095040 )
-      {
-LABEL_70:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 514, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) )") )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+40h]
-        vmovss  [rbp+57h+var_C0], xmm0
-      }
-      if ( (v64 & 0x7F800000) != 2139095040 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+44h]
-          vmovss  [rbp+57h+var_C0], xmm0
-        }
-        if ( (v65 & 0x7F800000) != 2139095040 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+48h]
-            vmovss  [rbp+57h+var_C0], xmm0
-          }
-          if ( (v66 & 0x7F800000) != 2139095040 )
-            goto LABEL_61;
-        }
-      }
-      v34 = 515;
-LABEL_59:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", v34, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_normal( 0 ) ) && !IS_NAN( m_hit.m_normal( 1 ) ) && !IS_NAN( m_hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_normal( 0 ) ) && !IS_NAN( m_hit.m_normal( 1 ) ) && !IS_NAN( m_hit.m_normal( 2 ) )") )
-        __debugbreak();
-LABEL_61:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+50h]
-        vaddss  xmm1, xmm0, cs:__real@358637bd
-        vminss  xmm2, xmm1, xmm6
-        vmovss  [rbp+57h+var_C0], xmm2
-        vbroadcastss xmm0, [rbp+57h+var_C0]
-        vmovups xmmword ptr [rdi+10h], xmm0
       }
     }
-  }
-LABEL_62:
-  if ( Physics_IsDetailWorld(_RDI->m_worldId) )
-  {
-    __asm
+    v15 = v43;
+    if ( m_queryType != RAY_CAST || this->m_collector->m_enableInsideHits || (v43 & 5) == 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm1, xmm0, xmm6
-      vshufps xmm1, xmm1, xmm1, 0
-      vmovups xmmword ptr [rdi+10h], xmm1
+      v16 = m_serialAndIndex;
+      *(__m256i *)this->m_hit.m_position.m_quad.m128_f32 = v28;
+      this->m_hit.m_fraction = v13;
+      this->m_hit.m_queryBodyInfo.m_bodyId.m_serialAndIndex = v16;
+      this->m_hit.m_queryBodyInfo.m_shapeKey.m_value = m_value;
+      *(_DWORD *)this->m_hit.m_queryBodyInfo.m_levelOfDetail = v32;
+      this->m_hit.m_queryBodyInfo.m_filterData.m_materialId.m_value = v33;
+      this->m_hit.m_queryBodyInfo.m_filterData.m_collisionFilterInfo = m_collisionFilterInfo;
+      this->m_hit.m_queryBodyInfo.m_filterData.m_userData = m_userData;
+      this->m_hit.m_hitBodyInfo.m_bodyId.m_serialAndIndex = v36;
+      this->m_hit.m_hitBodyInfo.m_shapeKey.m_value = v37;
+      *(_DWORD *)this->m_hit.m_hitBodyInfo.m_levelOfDetail = v38;
+      this->m_hit.m_hitBodyInfo.m_filterData.m_materialId.m_value = v39;
+      this->m_hit.m_hitBodyInfo.m_filterData.m_collisionFilterInfo = v40;
+      this->m_hit.m_hitBodyInfo.m_filterData.m_userData = userData;
+      v17 = v42;
+      this->m_hit.m_rayCastResult.m_value = v15;
+      this->m_hit.m_queryType = v17;
+      this->m_numHits = 1;
+      if ( ((this->m_hit.m_position.m_quad.m128_i32[0] & 0x7F800000) == 2139095040 || (this->m_hit.m_position.m_quad.m128_i32[1] & 0x7F800000) == 2139095040 || (this->m_hit.m_position.m_quad.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", 514, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_position( 0 ) ) && !IS_NAN( m_hit.m_position( 1 ) ) && !IS_NAN( m_hit.m_position( 2 ) )") )
+        __debugbreak();
+      if ( (this->m_hit.m_normal.m_quad.m128_i32[0] & 0x7F800000) != 2139095040 && (this->m_hit.m_normal.m_quad.m128_i32[1] & 0x7F800000) != 2139095040 && (this->m_hit.m_normal.m_quad.m128_i32[2] & 0x7F800000) != 2139095040 )
+        goto LABEL_63;
+      v18 = 515;
+LABEL_61:
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicshitcollectors.cpp", v18, ASSERT_TYPE_ASSERT, "(!IS_NAN( m_hit.m_normal( 0 ) ) && !IS_NAN( m_hit.m_normal( 1 ) ) && !IS_NAN( m_hit.m_normal( 2 ) ))", (const char *)&queryFormat, "!IS_NAN( m_hit.m_normal( 0 ) ) && !IS_NAN( m_hit.m_normal( 1 ) ) && !IS_NAN( m_hit.m_normal( 2 ) )") )
+        __debugbreak();
+LABEL_63:
+      m_fraction_low = LODWORD(this->m_hit.m_fraction);
+      *(float *)&m_fraction_low = this->m_hit.m_fraction + 0.000001;
+      _XMM1 = m_fraction_low;
+      __asm { vminss  xmm2, xmm1, xmm6 }
+      v27 = *(float *)&_XMM2;
+      __asm { vbroadcastss xmm0, [rbp+57h+var_C0] }
+      this->m_earlyOutThreshold = (hkSimdFloat32)_XMM0.m_real;
+      goto LABEL_64;
     }
   }
-LABEL_64:
-  __asm { vmovaps xmm6, [rsp+0F0h+var_30] }
 }
 
 /*
@@ -2208,66 +1583,55 @@ HavokPhysicsFlippedGetClosestPointsQueryCollector::addHit
 */
 void HavokPhysicsFlippedGetClosestPointsQueryCollector::addHit(HavokPhysicsFlippedGetClosestPointsQueryCollector *this, const hknpCollisionResult *flippedHit)
 {
+  __m256i v3; 
+  __int128 v4; 
   hknpCollisionQueryCollector *m_childCollector; 
   unsigned __int64 m_userData; 
+  __int128 v11; 
+  __m128 v13; 
+  bool v14; 
+  hknpCollisionQueryCollector *v16; 
   bool v18; 
-  hknpCollisionQueryCollector *v20; 
-  bool v22; 
-  __m256i v23; 
-  __m256i v24; 
-  __m256i v25; 
-  unsigned __int64 v26; 
-  void *retaddr; 
+  __m256i v19; 
+  __m256i v20; 
+  __m256i v21; 
+  __int128 v22; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymm1, ymmword ptr [rdx+20h]
-    vmovups [rsp+0A8h+var_68], ymm1
-    vmovups xmm1, xmmword ptr [rdx+60h]
-    vmovups [rsp+0A8h+var_88], ymm0
-    vmovups ymm0, ymmword ptr [rdx+40h]
-    vmovups [rsp+0A8h+var_48], ymm0
-    vmovups xmmword ptr [r11-28h], xmm1
-    vpxor   xmm0, xmm0, xmm0
-  }
-  _RBX = this;
+  v3 = *(__m256i *)flippedHit->m_position.m_quad.m128_f32;
+  v20 = *(__m256i *)&flippedHit->m_fraction;
+  v4 = *(_OWORD *)&flippedHit->m_hitBodyInfo.m_filterData.m_userData;
+  v19 = v3;
+  v21 = *(__m256i *)&flippedHit->m_queryBodyInfo.m_filterData.m_userData;
+  v22 = v4;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
   m_childCollector = this->m_childCollector;
   __asm { vpinsrw xmm0, xmm0, eax, 1 }
-  v24.m256i_i64[1] = *(_QWORD *)&flippedHit->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
-  v24.m256i_i32[4] = *(_DWORD *)flippedHit->m_hitBodyInfo.m_levelOfDetail;
-  v24.m256i_i16[12] = flippedHit->m_hitBodyInfo.m_filterData.m_materialId.m_value;
-  v24.m256i_i32[7] = flippedHit->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
+  v20.m256i_i64[1] = *(_QWORD *)&flippedHit->m_hitBodyInfo.m_bodyId.m_serialAndIndex;
+  v20.m256i_i32[4] = *(_DWORD *)flippedHit->m_hitBodyInfo.m_levelOfDetail;
+  v20.m256i_i16[12] = flippedHit->m_hitBodyInfo.m_filterData.m_materialId.m_value;
+  v20.m256i_i32[7] = flippedHit->m_hitBodyInfo.m_filterData.m_collisionFilterInfo;
   m_userData = flippedHit->m_hitBodyInfo.m_filterData.m_userData;
-  __asm
-  {
-    vpshufd xmm1, xmm0, 40h ; '@'
-    vxorps  xmm0, xmm1, xmmword ptr [rdx+10h]
-    vbroadcastss xmm1, dword ptr [rdx+20h]
-    vmulps  xmm2, xmm1, xmmword ptr [rdx+10h]
-    vmovups xmmword ptr [rsp+0A8h+var_88+10h], xmm0
-    vaddps  xmm0, xmm2, xmmword ptr [rdx]
-    vmovups xmmword ptr [rsp+0A8h+var_88], xmm0
-  }
-  v25.m256i_i64[0] = m_userData;
-  v25.m256i_i64[1] = *(_QWORD *)&flippedHit->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
-  v25.m256i_i32[4] = *(_DWORD *)flippedHit->m_queryBodyInfo.m_levelOfDetail;
-  v25.m256i_i16[12] = flippedHit->m_queryBodyInfo.m_filterData.m_materialId.m_value;
-  v25.m256i_i32[7] = flippedHit->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
-  v26 = flippedHit->m_queryBodyInfo.m_filterData.m_userData;
-  m_childCollector->addHit(m_childCollector, (const hknpCollisionResult *)&v23);
-  v18 = _RBX->m_earlyOut.m_bool == 0;
-  __asm { vmovups xmm0, xmmword ptr [rbx+10h] }
-  v20 = _RBX->m_childCollector;
-  __asm
-  {
-    vminps  xmm1, xmm0, xmmword ptr [rcx+10h]
-    vmovups xmmword ptr [rbx+10h], xmm1
-  }
-  v22 = !v18 || v20->m_earlyOut.m_bool;
-  _RBX->m_earlyOut.m_bool = v22;
-  _RBX->m_numHits = v20->m_numHits;
+  __asm { vpshufd xmm1, xmm0, 40h ; '@' }
+  v11 = _XMM1 ^ *(_OWORD *)&flippedHit->m_normal;
+  __asm { vbroadcastss xmm1, dword ptr [rdx+20h] }
+  v13 = _mm128_mul_ps(_XMM1, flippedHit->m_normal.m_quad);
+  *(_OWORD *)&v19.m256i_u64[2] = v11;
+  *(__m128 *)v19.m256i_i8 = _mm128_add_ps(v13, flippedHit->m_position.m_quad);
+  v21.m256i_i64[0] = m_userData;
+  v21.m256i_i64[1] = *(_QWORD *)&flippedHit->m_queryBodyInfo.m_bodyId.m_serialAndIndex;
+  v21.m256i_i32[4] = *(_DWORD *)flippedHit->m_queryBodyInfo.m_levelOfDetail;
+  v21.m256i_i16[12] = flippedHit->m_queryBodyInfo.m_filterData.m_materialId.m_value;
+  v21.m256i_i32[7] = flippedHit->m_queryBodyInfo.m_filterData.m_collisionFilterInfo;
+  *(_QWORD *)&v22 = flippedHit->m_queryBodyInfo.m_filterData.m_userData;
+  m_childCollector->addHit(m_childCollector, (const hknpCollisionResult *)&v19);
+  v14 = this->m_earlyOut.m_bool == 0;
+  _XMM0.m_real = (__m128)this->m_earlyOutThreshold;
+  v16 = this->m_childCollector;
+  __asm { vminps  xmm1, xmm0, xmmword ptr [rcx+10h] }
+  this->m_earlyOutThreshold = (hkSimdFloat32)_XMM1.m_real;
+  v18 = !v14 || v16->m_earlyOut.m_bool;
+  this->m_earlyOut.m_bool = v18;
+  this->m_numHits = v16->m_numHits;
 }
 
 /*
@@ -2321,11 +1685,7 @@ void HavokPhysicsFlippedGetClosestPointsQueryCollector::processClosestPointsCvxC
   initialQuerya.m_shapeTagCodec = NULL;
   initialQuerya.m_shape = NULL;
   initialQuerya.m_body = NULL;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+98h+initialQuery.m_maxDistance], xmm0
-  }
+  initialQuerya.m_maxDistance = 0.0;
   hknpCollisionQueryDispatcher::_getClosestPointsCvxCvxPreScaledImpl<hknpCollisionQueryCollector,hknpClosestPointsQuery,hknpCollisionResult>((hknpCollisionQueryDispatcher *)m_dispatcher, &initialQuerya, query, queryFilterData, queryInfo, target, targetFilterData, targetInfo, queryToTarget, this);
 }
 
@@ -2339,25 +1699,21 @@ void HavokPhysicsFlippedGetClosestPointsQueryCollector::reset(HavokPhysicsFlippe
   bool v2; 
   hknpCollisionQueryCollector *m_childCollector; 
 
-  _RBX = this;
   this->m_childCollector->reset(this->m_childCollector);
-  v2 = _RBX->m_earlyOut.m_bool == 0;
-  __asm { vmovups xmm0, xmmword ptr [rbx+10h] }
-  m_childCollector = _RBX->m_childCollector;
-  __asm
-  {
-    vminps  xmm1, xmm0, xmmword ptr [rcx+10h]
-    vmovups xmmword ptr [rbx+10h], xmm1
-  }
+  v2 = this->m_earlyOut.m_bool == 0;
+  _XMM0.m_real = (__m128)this->m_earlyOutThreshold;
+  m_childCollector = this->m_childCollector;
+  __asm { vminps  xmm1, xmm0, xmmword ptr [rcx+10h] }
+  this->m_earlyOutThreshold = (hkSimdFloat32)_XMM1.m_real;
   if ( !v2 || m_childCollector->m_earlyOut.m_bool )
   {
-    _RBX->m_earlyOut.m_bool = 1;
-    _RBX->m_numHits = m_childCollector->m_numHits;
+    this->m_earlyOut.m_bool = 1;
+    this->m_numHits = m_childCollector->m_numHits;
   }
   else
   {
-    _RBX->m_earlyOut.m_bool = 0;
-    _RBX->m_numHits = m_childCollector->m_numHits;
+    this->m_earlyOut.m_bool = 0;
+    this->m_numHits = m_childCollector->m_numHits;
   }
 }
 

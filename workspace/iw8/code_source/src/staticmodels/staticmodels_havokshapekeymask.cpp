@@ -81,22 +81,23 @@ void StaticModels_HavokShapeInternalsSimdTreeKeyMask::StaticModels_HavokShapeInt
   hkMemoryAllocator *v11; 
   int v12; 
   int v13; 
-  unsigned __int16 *v15; 
+  unsigned int v14; 
+  _WORD *v15; 
   __int64 v16; 
+  int v19; 
+  hkMemoryAllocator *v20; 
   int v21; 
-  hkMemoryAllocator *v22; 
+  int v22; 
   int v23; 
   int v24; 
   int v25; 
-  int v26; 
-  int v27; 
-  __int64 v28; 
+  __int64 v26; 
   _BYTE *CollisionTileModelShape; 
-  hknpShapeKeyMask *v30; 
-  hkMemoryAllocator *v31; 
-  unsigned __int16 *array; 
-  int v33; 
-  int v34; 
+  hknpShapeKeyMask *v28; 
+  hkMemoryAllocator *v29; 
+  _WORD *array; 
+  int v31; 
+  int v32; 
   hkBitField *numInOut; 
 
   this->__vftable = (StaticModels_HavokShapeInternalsSimdTreeKeyMask_vtbl *)&StaticModels_HavokShapeInternalsSimdTreeKeyMask::`vftable';
@@ -130,83 +131,78 @@ void StaticModels_HavokShapeInternalsSimdTreeKeyMask::StaticModels_HavokShapeInt
   p_m_enableInstances->m_storage.m_words.m_capacityAndFlags = v9;
   p_m_enableInstances->m_storage.m_numBits = 0;
   array = NULL;
-  v33 = 0;
-  v34 = 0x80000000;
+  v31 = 0;
+  v32 = 0x80000000;
   v10 = shape->m_instances.m_capacityAndFlags & 0x3FFFFFFF;
   v11 = hkMemHeapAllocator();
   if ( v10 )
     hkArrayUtil::_reserve(v11, &array, v10, 2);
   v12 = 0;
-  v13 = v33;
+  v13 = v31;
   if ( v10 )
   {
     do
     {
       array[v13] = v12;
-      v13 = ++v33;
+      v13 = ++v31;
       ++v12;
     }
     while ( v12 < v10 );
   }
-  _ECX = 0;
+  v14 = 0;
   if ( v13 > 0 )
   {
     v15 = array;
     v16 = (unsigned int)v13;
     do
     {
-      _EAX = *v15;
-      __asm
-      {
-        vmovd   xmm1, eax
-        vmovd   xmm0, ecx
-        vpmaxsd xmm1, xmm0, xmm1
-        vmovd   ecx, xmm1
-      }
+      _XMM0 = v14;
+      __asm { vpmaxsd xmm1, xmm0, xmm1 }
+      v14 = _XMM1;
       ++v15;
       --v16;
     }
     while ( v16 );
   }
-  v21 = _ECX + 1;
-  hkBitFieldBase<hkBitFieldStorage<hkArray<unsigned int,hkContainerHeapAllocator>>>::setSizeAndFill(p_m_enableInstances, 0, _ECX + 1, 1);
-  v22 = hkMemHeapAllocator();
-  v23 = this->m_instanceMasks.m_capacityAndFlags & 0x3FFFFFFF;
-  if ( v23 < v21 )
+  v19 = v14 + 1;
+  hkBitFieldBase<hkBitFieldStorage<hkArray<unsigned int,hkContainerHeapAllocator>>>::setSizeAndFill(p_m_enableInstances, 0, v14 + 1, 1);
+  v20 = hkMemHeapAllocator();
+  v21 = this->m_instanceMasks.m_capacityAndFlags & 0x3FFFFFFF;
+  if ( v21 < v19 )
   {
-    v24 = 2 * v23;
-    if ( (unsigned int)v24 >= 0x3FFFFFFF )
-      v24 = 1073741822;
-    v25 = v21;
-    if ( v21 < v24 )
-      v25 = v24;
-    hkArrayUtil::_reserve(v22, &this->m_instanceMasks, v25, 8);
+    v22 = 2 * v21;
+    if ( (unsigned int)v22 >= 0x3FFFFFFF )
+      v22 = 1073741822;
+    v23 = v19;
+    if ( v19 < v22 )
+      v23 = v22;
+    hkArrayUtil::_reserve(v20, &this->m_instanceMasks, v23, 8);
   }
-  v26 = v21 - this->m_instanceMasks.m_size;
-  if ( v26 > 0 )
-    memset(&this->m_instanceMasks.m_data[this->m_instanceMasks.m_size], 0, 8i64 * v26);
-  this->m_instanceMasks.m_size = v21;
-  v27 = 0;
-  if ( v33 > 0 )
+  v24 = v19 - this->m_instanceMasks.m_size;
+  if ( v24 > 0 )
+    memset(&this->m_instanceMasks.m_data[this->m_instanceMasks.m_size], 0, 8i64 * v24);
+  this->m_instanceMasks.m_size = v19;
+  v25 = 0;
+  if ( v31 > 0 )
   {
-    v28 = 0i64;
+    v26 = 0i64;
     do
     {
-      CollisionTileModelShape = StaticModels_GetCollisionTileModelShape((shape->m_instances.m_data[array[v28]].m_modelIdxAndFlags & 0x4000) != 0, shape->m_tileIdx, shape->m_instances.m_data[array[v28]].m_modelIdxAndFlags & 0x3FFF);
+      CollisionTileModelShape = StaticModels_GetCollisionTileModelShape((shape->m_instances.m_data[(unsigned __int16)array[v26]].m_modelIdxAndFlags & 0x4000) != 0, shape->m_tileIdx, shape->m_instances.m_data[(unsigned __int16)array[v26]].m_modelIdxAndFlags & 0x3FFF);
       if ( CollisionTileModelShape[28] == 3 )
       {
-        v30 = (hknpShapeKeyMask *)(*(__int64 (__fastcall **)(_BYTE *))(*(_QWORD *)CollisionTileModelShape + 152i64))(CollisionTileModelShape);
-        this->m_instanceMasks.m_data[array[v28]] = v30;
+        v28 = (hknpShapeKeyMask *)(*(__int64 (__fastcall **)(_BYTE *))(*(_QWORD *)CollisionTileModelShape + 152i64))(CollisionTileModelShape);
+        this->m_instanceMasks.m_data[(unsigned __int16)array[v26]] = v28;
       }
-      ++v27;
-      ++v28;
+      ++v25;
+      ++v26;
     }
-    while ( v27 < v33 );
+    while ( v25 < v31 );
   }
-  v31 = hkMemHeapAllocator();
-  v33 = 0;
-  if ( v34 >= 0 )
-    hkMemoryAllocator::bufFree2(v31, array, 2, v34 & 0x3FFFFFFF);
+  v29 = hkMemHeapAllocator();
+  v31 = 0;
+  if ( v32 >= 0 )
+    hkMemoryAllocator::bufFree2(v29, array, 2, v32 & 0x3FFFFFFF);
 }
 
 /*

@@ -2917,20 +2917,15 @@ _BOOL8 dwGetPublisherVariableKeyValueByIterator(const int controllerIndex, bdPub
   DWServicesAccess *Instance; 
   DWServicesAccess *v11; 
   DWPublisherVariables *PublisherVariables; 
-  bdPublisherVariablesIterator v15; 
+  bdPublisherVariablesIterator v14; 
 
-  _RBP = iterator;
   Instance = DWServicesAccess::GetInstance();
   if ( !DWServicesAccess::isReady(Instance, controllerIndex) )
     return 0i64;
   v11 = DWServicesAccess::GetInstance();
   PublisherVariables = DWServicesAccess::GetPublisherVariables(v11, controllerIndex);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+0]
-    vmovups xmmword ptr [rsp+48h+var_18.m_it], xmm0
-  }
-  return DWPublisherVariables::getKeyValueByIterator(PublisherVariables, &v15, key, keySize, value, valueSize);
+  v14 = *iterator;
+  return DWPublisherVariables::getKeyValueByIterator(PublisherVariables, &v14, key, keySize, value, valueSize);
 }
 
 /*

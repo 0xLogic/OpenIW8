@@ -786,68 +786,24 @@ Bot_Score_Dbg_TargetNode
 */
 void Bot_Score_Dbg_TargetNode(bot_score_item_s *items, int itemCount, bot_score_parms_s *parms)
 {
-  bool v5; 
+  float v4; 
   __int64 entityNum; 
-  const char *v17; 
-  _BYTE v22[32]; 
+  const char *v6; 
   vec3_t xyz; 
 
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  v5 = (unsigned __int64)v22 == _security_cookie;
-  __asm
+  if ( parms->vector1.v[0] != 0.0 || parms->vector1.v[1] != 0.0 || parms->vector1.v[2] != 0.0 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm6, dword ptr [r8+14h]
+    G_DebugBox(&parms->vector1, &targetBox, 0.0, &colorBlue, 1, 1);
+    v4 = parms->vector1.v[1];
+    entityNum = (unsigned int)parms->entityNum;
+    xyz.v[0] = parms->vector1.v[0];
+    xyz.v[1] = v4;
+    xyz.v[2] = (float)(144.0 - (float)((float)(int)entityNum * 8.0)) + parms->vector1.v[2];
+    v6 = j_va("client %i", entityNum);
+    SV_BotDebugString(NULL, &xyz, &colorBlue, 1.0, v6, 0);
   }
-  _RDI = parms;
-  if ( (unsigned __int64)v22 != _security_cookie )
-    goto LABEL_4;
-  __asm { vucomiss xmm6, dword ptr [r8+18h] }
-  if ( (unsigned __int64)v22 != _security_cookie )
-    goto LABEL_4;
-  __asm { vucomiss xmm6, dword ptr [r8+1Ch] }
-  if ( (unsigned __int64)v22 != _security_cookie )
-  {
-LABEL_4:
-    __asm { vxorps  xmm2, xmm2, xmm2; yaw }
-    G_DebugBox(&parms->vector1, &targetBox, *(float *)&_XMM2, &colorBlue, 1, 1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+14h]
-      vmovss  xmm1, dword ptr [rdi+18h]
-    }
-    entityNum = (unsigned int)_RDI->entityNum;
-    __asm
-    {
-      vmovss  dword ptr [rsp+68h+xyz], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edx
-      vmulss  xmm2, xmm0, cs:__real@41000000
-      vmovss  dword ptr [rsp+68h+xyz+4], xmm1
-      vmovss  xmm1, cs:__real@43100000
-      vsubss  xmm2, xmm1, xmm2
-      vaddss  xmm0, xmm2, dword ptr [rdi+1Ch]
-      vmovss  dword ptr [rsp+68h+xyz+8], xmm0
-    }
-    v17 = j_va("client %i", entityNum);
-    __asm { vmovss  xmm3, cs:__real@3f800000; scale }
-    SV_BotDebugString(NULL, &xyz, &colorBlue, *(float *)&_XMM3, v17, 0);
-  }
-  _RCX = &_RDI->vector2;
-  __asm { vucomiss xmm6, dword ptr [rcx] }
-  if ( !v5 )
-    goto LABEL_8;
-  __asm { vucomiss xmm6, dword ptr [rcx+4] }
-  if ( !v5 )
-    goto LABEL_8;
-  __asm { vucomiss xmm6, dword ptr [rcx+8] }
-  if ( !v5 )
-  {
-LABEL_8:
-    __asm { vxorps  xmm2, xmm2, xmm2; yaw }
-    G_DebugBox(_RCX, &targetBox, *(float *)&_XMM2, &colorRed, 1, 1);
-  }
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
+  if ( parms->vector2.v[0] != 0.0 || parms->vector2.v[1] != 0.0 || parms->vector2.v[2] != 0.0 )
+    G_DebugBox(&parms->vector2, &targetBox, 0.0, &colorRed, 1, 1);
 }
 
 /*
@@ -858,13 +814,12 @@ Bot_Score_Dbg_NodeTrap
 void Bot_Score_Dbg_NodeTrap(bot_score_item_s *items, int itemCount, bot_score_parms_s *parms)
 {
   int integer1; 
-  unsigned __int16 v7; 
-  pathnode_t *v8; 
-  pathnode_t *v9; 
+  pathnode_t *v5; 
+  pathnode_t *v6; 
   __int64 entityNum; 
-  const char *v20; 
-  __int64 v25; 
-  const char *v31; 
+  const char *v8; 
+  __int64 v9; 
+  const char *v10; 
   vec3_t xyz; 
   vec3_t pos; 
   vec3_t origin; 
@@ -872,58 +827,24 @@ void Bot_Score_Dbg_NodeTrap(bot_score_item_s *items, int itemCount, bot_score_pa
   integer1 = parms->integer1;
   if ( integer1 != 0xFFFF && parms->integer2 != 0xFFFF && Path_NodeValid(integer1) && Path_NodeValid(parms->integer2) )
   {
-    v7 = parms->integer1;
-    __asm { vmovaps [rsp+88h+var_18], xmm8 }
-    v8 = Path_ConvertIndexToNode(v7);
-    v9 = Path_ConvertIndexToNode(parms->integer2);
-    pathnode_t::GetPos(v8, &pos);
-    pathnode_t::GetPos(v9, &origin);
-    __asm { vxorps  xmm2, xmm2, xmm2; yaw }
-    G_DebugBox(&pos, &targetBox_0, *(float *)&_XMM2, &colorBlue, 1, 1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+88h+pos]
-      vmovss  xmm1, dword ptr [rsp+88h+pos+4]
-    }
+    v5 = Path_ConvertIndexToNode(parms->integer1);
+    v6 = Path_ConvertIndexToNode(parms->integer2);
+    pathnode_t::GetPos(v5, &pos);
+    pathnode_t::GetPos(v6, &origin);
+    G_DebugBox(&pos, &targetBox_0, 0.0, &colorBlue, 1, 1);
     entityNum = (unsigned int)parms->entityNum;
-    __asm
-    {
-      vmovss  xmm8, cs:__real@43100000
-      vmovss  dword ptr [rsp+88h+xyz], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edx
-      vmovss  dword ptr [rsp+88h+xyz+4], xmm1
-      vmulss  xmm1, xmm0, cs:__real@41000000
-      vsubss  xmm0, xmm8, xmm1
-      vaddss  xmm1, xmm0, dword ptr [rsp+88h+pos+8]
-      vmovss  dword ptr [rsp+88h+xyz+8], xmm1
-    }
-    v20 = j_va("client %i", entityNum);
-    __asm { vmovss  xmm3, cs:__real@3f800000; scale }
-    SV_BotDebugString(NULL, &xyz, &colorBlue, *(float *)&_XMM3, v20, 0);
-    __asm { vxorps  xmm2, xmm2, xmm2; yaw }
-    G_DebugBox(&origin, &targetBox_0, *(float *)&_XMM2, &colorGreen, 1, 1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+88h+origin]
-      vmovss  xmm1, dword ptr [rsp+88h+origin+4]
-    }
-    v25 = (unsigned int)parms->entityNum;
-    __asm
-    {
-      vmovss  dword ptr [rsp+88h+xyz], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edx
-      vmovss  dword ptr [rsp+88h+xyz+4], xmm1
-      vmulss  xmm1, xmm0, cs:__real@41000000
-      vsubss  xmm1, xmm8, xmm1
-      vaddss  xmm0, xmm1, dword ptr [rsp+88h+origin+8]
-      vmovss  dword ptr [rsp+88h+xyz+8], xmm0
-    }
-    v31 = j_va("client %i", v25);
-    __asm { vmovss  xmm3, cs:__real@3f800000; scale }
-    SV_BotDebugString(NULL, &xyz, &colorGreen, *(float *)&_XMM3, v31, 0);
-    __asm { vmovaps xmm8, [rsp+88h+var_18] }
+    xyz.v[0] = pos.v[0];
+    xyz.v[1] = pos.v[1];
+    xyz.v[2] = (float)(144.0 - (float)((float)(int)entityNum * 8.0)) + pos.v[2];
+    v8 = j_va("client %i", entityNum);
+    SV_BotDebugString(NULL, &xyz, &colorBlue, 1.0, v8, 0);
+    G_DebugBox(&origin, &targetBox_0, 0.0, &colorGreen, 1, 1);
+    v9 = (unsigned int)parms->entityNum;
+    xyz.v[0] = origin.v[0];
+    xyz.v[1] = origin.v[1];
+    xyz.v[2] = (float)(144.0 - (float)((float)(int)v9 * 8.0)) + origin.v[2];
+    v10 = j_va("client %i", v9);
+    SV_BotDebugString(NULL, &xyz, &colorGreen, 1.0, v10, 0);
   }
 }
 
@@ -934,91 +855,150 @@ Bot_Score_NodeCapture
 */
 __int64 Bot_Score_NodeCapture(int object, const bot_score_parms_s *parms)
 {
-  unsigned __int16 v5; 
-  const pathnode_t *v6; 
+  unsigned __int16 v3; 
+  const pathnode_t *v4; 
+  const pathnode_t *v5; 
+  int flags; 
+  int integer1; 
+  int StopGoalStance; 
+  unsigned __int16 NearestNode; 
   __int16 entityNum; 
   bot_score_type_t scoreType; 
-  int v11; 
-  int v14; 
-  bot_score_type_t v15; 
+  int v12; 
+  int v13; 
+  bot_score_type_t v14; 
+  int v15; 
   int v16; 
   int v17; 
+  bot_score_type_t v18; 
   int v19; 
-  bot_score_type_t v20; 
+  int v20; 
   int v21; 
-  int v22; 
+  bot_score_type_t v22; 
+  int v23; 
+  int v24; 
   int v25; 
-  bot_score_type_t v26; 
-  int v27; 
-  int v28; 
+  int v26; 
+  __int16 v27; 
+  bot_score_type_t v28; 
+  int v29; 
   int v30; 
-  __int64 result; 
+  __int16 v31; 
+  bot_score_type_t v32; 
+  int v33; 
+  int v34; 
+  __int16 v35; 
+  bot_score_type_t v36; 
+  int v37; 
+  int v38; 
+  int v39; 
+  int v40; 
+  __int16 v41; 
+  bot_score_type_t v42; 
+  int v43; 
+  int v44; 
+  int v45; 
+  __int16 v46; 
+  bot_score_type_t v47; 
+  int v48; 
+  int v49; 
+  int v50; 
+  __int16 v51; 
+  bot_score_type_t v52; 
+  int v53; 
+  int v54; 
+  pathnode_t *lookAtNode; 
 
-  _RSI = parms;
-  v5 = object;
+  v3 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 828, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
-  v6 = Path_ConvertIndexToNode(v5);
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 831, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
+  v4 = Path_ConvertIndexToNode(v3);
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 831, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  if ( Bot_Score_NodeShouldIgnore(v6, _RSI->entityNum, _RSI) )
-    goto LABEL_10;
-  __asm { vmovss  xmm2, cs:__real@42000000; radius }
-  if ( Bot_Score_NodeIsDangerous(v6, _RSI->entityNum, *(float *)&_XMM2) )
+  v5 = NULL;
+  flags = parms->flags;
+  lookAtNode = NULL;
+  if ( Bot_Score_NodeShouldIgnore(v4, parms->entityNum, parms) || Bot_Score_NodeIsDangerous(v4, parms->entityNum, 32.0) )
+    return 0i64;
+  if ( parms->vector1.v[0] != 0.0 || parms->vector1.v[1] != 0.0 || parms->vector1.v[2] != 0.0 )
   {
-LABEL_10:
-    result = 0i64;
+    integer1 = parms->integer1;
+    if ( integer1 == 0xFFFF )
+      return 0i64;
+    v5 = Path_ConvertIndexToNode(integer1);
+    if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 858, ASSERT_TYPE_ASSERT, "( nodeCenterOfCaptureZone )", (const char *)&queryFormat, "nodeCenterOfCaptureZone") )
+      __debugbreak();
+    StopGoalStance = Bot_GetStopGoalStance(v4);
+    if ( !Path_NodesVisibleAreaNoPeek(v5, v4) || !Path_NodeExposedToPoint(v4, &parms->vector1, StopGoalStance) || (flags & 0x10) != 0 && !Path_NodesVisibleNoPeek(v5, v4) )
+      return 0i64;
   }
-  else
+  if ( parms->vector2.v[0] != 0.0 || parms->vector2.v[1] != 0.0 || parms->vector2.v[2] != 0.0 )
   {
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vucomiss xmm6, dword ptr [rsi+14h]
-      vucomiss xmm6, dword ptr [rsi+18h]
-      vucomiss xmm6, dword ptr [rsi+1Ch]
-      vucomiss xmm6, dword ptr [rsi+20h]
-      vmovaps [rsp+78h+var_48], xmm7
-      vucomiss xmm6, dword ptr [rsi+24h]
-      vucomiss xmm6, dword ptr [rsi+28h]
-    }
-    entityNum = _RSI->entityNum;
-    scoreType = _RSI->scoreType;
-    v11 = Bot_Score_Factor_ProneCover360(v6);
-    __asm
-    {
-      vmovss  xmm7, cs:__real@3f800000
-      vmovaps xmm1, xmm7; weight
-    }
-    v14 = BotScoreDebugFactor(0, *(float *)&_XMM1, v11, scoreType, entityNum);
-    LOWORD(scoreType) = _RSI->entityNum;
-    v15 = _RSI->scoreType;
-    v16 = v14;
-    v17 = Bot_Score_Factor_NoTraffic360(v6);
-    __asm { vmovaps xmm1, xmm7; weight }
-    v19 = BotScoreDebugFactor(1, *(float *)&_XMM1, v17, v15, scoreType);
-    LOWORD(scoreType) = _RSI->entityNum;
-    v20 = _RSI->scoreType;
-    v21 = v19 + v16;
-    v22 = Bot_Score_Factor_AwayFromAlliedPlayers(v6, _RSI->entityNum);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@40000000
-      vmovaps xmm1, xmm6; weight
-    }
-    v25 = BotScoreDebugFactor(2, *(float *)&_XMM1, v22, v20, scoreType);
-    LOWORD(scoreType) = _RSI->entityNum;
-    v26 = _RSI->scoreType;
-    v27 = v25 + v21;
-    v28 = Bot_Score_Factor_NotRecentlyUsed(v6, _RSI);
-    __asm { vmovss  xmm1, cs:__real@3f333333; weight }
-    v30 = BotScoreDebugFactor(3, *(float *)&_XMM1, v28, v26, scoreType) + v27;
-    __asm { vmovaps xmm7, [rsp+78h+var_48] }
-    result = (unsigned int)(v30 + Bot_Score_Factor_HideFromAerialEnemiesHelper(v6, _RSI, 5));
+    NearestNode = Bot_Score_GetNearestNode(parms, &parms->vector2);
+    lookAtNode = Path_ConvertIndexToNode(NearestNode);
+    if ( !lookAtNode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 875, ASSERT_TYPE_ASSERT, "( nodeToFace )", (const char *)&queryFormat, "nodeToFace") )
+      __debugbreak();
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
-  return result;
+  entityNum = parms->entityNum;
+  scoreType = parms->scoreType;
+  v12 = Bot_Score_Factor_ProneCover360(v4);
+  v13 = BotScoreDebugFactor(0, 1.0, v12, scoreType, entityNum);
+  LOWORD(scoreType) = parms->entityNum;
+  v14 = parms->scoreType;
+  v15 = v13;
+  v16 = Bot_Score_Factor_NoTraffic360(v4);
+  v17 = BotScoreDebugFactor(1, 1.0, v16, v14, scoreType);
+  LOWORD(scoreType) = parms->entityNum;
+  v18 = parms->scoreType;
+  v19 = v17 + v15;
+  v20 = Bot_Score_Factor_AwayFromAlliedPlayers(v4, parms->entityNum);
+  v21 = BotScoreDebugFactor(2, 2.0, v20, v18, scoreType);
+  LOWORD(scoreType) = parms->entityNum;
+  v22 = parms->scoreType;
+  v23 = v21 + v19;
+  v24 = Bot_Score_Factor_NotRecentlyUsed(v4, parms);
+  v25 = BotScoreDebugFactor(3, 0.69999999, v24, v22, scoreType) + v23;
+  v26 = 5;
+  if ( v5 )
+  {
+    v27 = parms->entityNum;
+    v28 = parms->scoreType;
+    v29 = Bot_Score_Factor_VisibilityToNode(v4, v5);
+    v30 = BotScoreDebugFactor(5, 2.0, v29, v28, v27) + v25;
+    v25 = Bot_Score_Factor_AwayFromCenterPointHelper(v4, parms, 6, 0.30000001) + v30;
+    v26 = 7;
+  }
+  if ( lookAtNode )
+  {
+    v31 = parms->entityNum;
+    v32 = parms->scoreType;
+    v33 = Bot_Score_Factor_VisibilityToNode(v4, lookAtNode);
+    v34 = BotScoreDebugFactor(v26, 2.0, v33, v32, v31);
+    v35 = parms->entityNum;
+    v36 = parms->scoreType;
+    v37 = v34 + v25;
+    v38 = v26 + 1;
+    v39 = Bot_Score_Factor_NoTrafficRearFromDir(v4, &parms->vector2);
+    v40 = BotScoreDebugFactor(v38, 1.0, v39, v36, v35);
+    v41 = parms->entityNum;
+    v42 = parms->scoreType;
+    v43 = v40 + v37;
+    v44 = Bot_Score_Factor_CoverRearFromDir(v4, &parms->vector2);
+    v45 = BotScoreDebugFactor(v38 + 1, 1.0, v44, v42, v41);
+    v46 = parms->entityNum;
+    v47 = parms->scoreType;
+    v48 = v45 + v43;
+    v38 += 2;
+    v49 = Bot_Score_Factor_ProneCoverFacingDir(v4, &parms->vector2);
+    v50 = BotScoreDebugFactor(v38, 1.0, v49, v47, v46);
+    v51 = parms->entityNum;
+    v52 = parms->scoreType;
+    v53 = v50 + v48;
+    v54 = Bot_Score_Factor_AwayFromPoint(v4, &parms->vector2, 1000);
+    v25 = BotScoreDebugFactor(v38 + 1, 0.69999999, v54, v52, v51) + v53;
+    v26 = v38 + 2;
+  }
+  return (unsigned int)(v25 + Bot_Score_Factor_HideFromAerialEnemiesHelper(v4, parms, v26));
 }
 
 /*
@@ -1026,130 +1006,105 @@ LABEL_10:
 Bot_Score_NodeProtect
 ==============
 */
-
-__int64 __fastcall Bot_Score_NodeProtect(int object, const bot_score_parms_s *parms, __int64 a3, double _XMM3_8)
+__int64 Bot_Score_NodeProtect(int object, const bot_score_parms_s *parms)
 {
-  unsigned __int16 v5; 
-  const pathnode_t *v6; 
+  unsigned __int16 v3; 
+  const pathnode_t *v4; 
   int flags; 
-  const pathnode_t *v9; 
+  const pathnode_t *v6; 
   int StopGoalStance; 
   __int16 entityNum; 
   bot_score_type_t scoreType; 
+  int v10; 
+  int v11; 
+  bot_score_type_t v12; 
+  int v13; 
+  int v14; 
   int v15; 
+  bot_score_type_t v16; 
   int v17; 
-  bot_score_type_t v18; 
+  int v18; 
   int v19; 
-  int v20; 
+  bot_score_type_t v20; 
+  int v21; 
   int v22; 
-  bot_score_type_t v23; 
-  int v24; 
+  int v23; 
+  bot_score_type_t v24; 
   int v25; 
+  int v26; 
   int v27; 
   bot_score_type_t v28; 
+  int v29; 
   int v30; 
   int v31; 
+  int v32; 
   int v33; 
   bot_score_type_t v34; 
   int v35; 
   int v36; 
+  bot_score_type_t v37; 
   int v38; 
-  bot_score_type_t v39; 
+  int v39; 
   int v40; 
-  int v41; 
-  int v44; 
-  int v45; 
-  int v46; 
-  bot_score_type_t v47; 
-  int v48; 
-  int v50; 
-  bot_score_type_t v51; 
-  int v52; 
-  int v53; 
-  int v55; 
 
-  v5 = object;
+  v3 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 924, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
-  v6 = Path_ConvertIndexToNode(v5);
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 927, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
+  v4 = Path_ConvertIndexToNode(v3);
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 927, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
   flags = parms->flags;
-  if ( parms->integer1 == 0xFFFF )
+  if ( parms->integer1 == 0xFFFF || Bot_Score_NodeWasRecentlyUsed(v4, parms, 5.0) || Path_NodeExposureGetTraffic(v4) )
     return 0i64;
-  __asm { vmovss  xmm2, cs:__real@40a00000; recentUseTime }
-  if ( Bot_Score_NodeWasRecentlyUsed(v6, parms, *(float *)&_XMM2) || Path_NodeExposureGetTraffic(v6) )
-    return 0i64;
-  v9 = Path_ConvertIndexToNode(parms->integer1);
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 946, ASSERT_TYPE_ASSERT, "( nodeNearestPoint )", (const char *)&queryFormat, "nodeNearestPoint") )
+  v6 = Path_ConvertIndexToNode(parms->integer1);
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 946, ASSERT_TYPE_ASSERT, "( nodeNearestPoint )", (const char *)&queryFormat, "nodeNearestPoint") )
     __debugbreak();
-  if ( !Path_NodesVisibleAreaNoPeek(v9, v6) )
+  if ( !Path_NodesVisibleAreaNoPeek(v6, v4) )
     return 0i64;
-  StopGoalStance = Bot_GetStopGoalStance(v6);
-  if ( !Path_NodeExposedToPoint(v6, &parms->vector1, StopGoalStance) )
-    return 0i64;
-  if ( Bot_Score_NodeShouldIgnore(v6, parms->entityNum, parms) )
-    return 0i64;
-  __asm { vmovss  xmm2, cs:__real@43fa0000; radius }
-  if ( Bot_Score_NodeIsDangerous(v6, parms->entityNum, *(float *)&_XMM2) )
-    return 0i64;
-  __asm { vmovss  xmm2, cs:__real@42c80000; radius }
-  if ( Bot_Score_NodeIsNearAllySentient(v6, parms->entityNum, *(float *)&_XMM2) || (flags & 0x10) != 0 && !Path_NodesVisibleNoPeek(v9, v6) )
+  StopGoalStance = Bot_GetStopGoalStance(v4);
+  if ( !Path_NodeExposedToPoint(v4, &parms->vector1, StopGoalStance) || Bot_Score_NodeShouldIgnore(v4, parms->entityNum, parms) || Bot_Score_NodeIsDangerous(v4, parms->entityNum, 500.0) || Bot_Score_NodeIsNearAllySentient(v4, parms->entityNum, 100.0) || (flags & 0x10) != 0 && !Path_NodesVisibleNoPeek(v6, v4) )
     return 0i64;
   entityNum = parms->entityNum;
   scoreType = parms->scoreType;
-  v15 = Bot_Score_Factor_CoverRearFromPoint(v6, &parms->vector1);
-  __asm { vmovss  xmm1, cs:__real@3f800000; weight }
-  v17 = BotScoreDebugFactor(0, *(float *)&_XMM1, v15, scoreType, entityNum);
+  v10 = Bot_Score_Factor_CoverRearFromPoint(v4, &parms->vector1);
+  v11 = BotScoreDebugFactor(0, 1.0, v10, scoreType, entityNum);
   LOWORD(scoreType) = parms->entityNum;
-  v18 = parms->scoreType;
-  v19 = v17;
-  v20 = Bot_Score_Factor_ProneCoverFacingPoint(v6, &parms->vector1);
-  __asm { vmovss  xmm1, cs:__real@3f000000; weight }
-  v22 = BotScoreDebugFactor(1, *(float *)&_XMM1, v20, v18, scoreType);
+  v12 = parms->scoreType;
+  v13 = v11;
+  v14 = Bot_Score_Factor_ProneCoverFacingPoint(v4, &parms->vector1);
+  v15 = BotScoreDebugFactor(1, 0.5, v14, v12, scoreType);
   LOWORD(scoreType) = parms->entityNum;
-  v23 = parms->scoreType;
-  v24 = v22 + v19;
-  v25 = Bot_Score_Factor_ProneCover360(v6);
-  __asm { vmovss  xmm1, cs:__real@3f000000; weight }
-  v27 = BotScoreDebugFactor(2, *(float *)&_XMM1, v25, v23, scoreType);
+  v16 = parms->scoreType;
+  v17 = v15 + v13;
+  v18 = Bot_Score_Factor_ProneCover360(v4);
+  v19 = BotScoreDebugFactor(2, 0.5, v18, v16, scoreType);
+  LOWORD(scoreType) = parms->entityNum;
+  v20 = parms->scoreType;
+  v21 = v19 + v17;
+  v22 = Bot_Score_Factor_IdealRangeWeapon(v4, parms->entityNum, &parms->vector1, 0.0);
+  v23 = BotScoreDebugFactor(3, 1.2, v22, v20, scoreType);
+  LOWORD(scoreType) = parms->entityNum;
+  v24 = parms->scoreType;
+  v25 = v23 + v21;
+  v26 = Bot_Score_Factor_NoTrafficRearFromPoint(v4, &parms->vector1);
+  v27 = BotScoreDebugFactor(4, 2.0, v26, v24, scoreType);
   LOWORD(scoreType) = parms->entityNum;
   v28 = parms->scoreType;
-  __asm { vxorps  xmm3, xmm3, xmm3; addDistance }
-  v30 = v27 + v24;
-  v31 = Bot_Score_Factor_IdealRangeWeapon(v6, parms->entityNum, &parms->vector1, *(const float *)&_XMM3);
-  __asm { vmovss  xmm1, cs:__real@3f99999a; weight }
-  v33 = BotScoreDebugFactor(3, *(float *)&_XMM1, v31, v28, scoreType);
+  v29 = v27 + v25;
+  v30 = Bot_Score_Factor_VisibilityToNode(v4, v6);
+  v31 = BotScoreDebugFactor(5, 2.0, v30, v28, scoreType) + v29;
+  v32 = Bot_Score_Factor_AwayFromCenterPointHelper(v4, parms, 6, 1.2);
   LOWORD(scoreType) = parms->entityNum;
+  v33 = v32 + v31;
   v34 = parms->scoreType;
-  v35 = v33 + v30;
-  v36 = Bot_Score_Factor_NoTrafficRearFromPoint(v6, &parms->vector1);
-  __asm { vmovss  xmm1, cs:__real@40000000; weight }
-  v38 = BotScoreDebugFactor(4, *(float *)&_XMM1, v36, v34, scoreType);
+  v35 = Bot_Score_Factor_AwayFromAlliedPlayers(v4, parms->entityNum);
+  v36 = BotScoreDebugFactor(7, 1.0, v35, v34, scoreType);
   LOWORD(scoreType) = parms->entityNum;
-  v39 = parms->scoreType;
-  v40 = v38 + v35;
-  v41 = Bot_Score_Factor_VisibilityToNode(v6, v9);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@40000000; weight
-    vmovss  xmm3, cs:__real@3f99999a; weight
-  }
-  v44 = BotScoreDebugFactor(5, *(float *)&_XMM1, v41, v39, scoreType) + v40;
-  v45 = Bot_Score_Factor_AwayFromCenterPointHelper(v6, parms, 6, *(float *)&_XMM3);
-  LOWORD(scoreType) = parms->entityNum;
-  v46 = v45 + v44;
-  v47 = parms->scoreType;
-  v48 = Bot_Score_Factor_AwayFromAlliedPlayers(v6, parms->entityNum);
-  __asm { vmovss  xmm1, cs:__real@3f800000; weight }
-  v50 = BotScoreDebugFactor(7, *(float *)&_XMM1, v48, v47, scoreType);
-  LOWORD(scoreType) = parms->entityNum;
-  v51 = parms->scoreType;
-  v52 = v50 + v46;
-  v53 = Bot_Score_Factor_NotRecentlyUsed(v6, parms);
-  __asm { vmovss  xmm1, cs:__real@3f800000; weight }
-  v55 = BotScoreDebugFactor(8, *(float *)&_XMM1, v53, v51, scoreType) + v52;
-  return (unsigned int)(v55 + Bot_Score_Factor_HideFromAerialEnemiesHelper(v6, parms, 10));
+  v37 = parms->scoreType;
+  v38 = v36 + v33;
+  v39 = Bot_Score_Factor_NotRecentlyUsed(v4, parms);
+  v40 = BotScoreDebugFactor(8, 1.0, v39, v37, scoreType) + v38;
+  return (unsigned int)(v40 + Bot_Score_Factor_HideFromAerialEnemiesHelper(v4, parms, 10));
 }
 
 /*
@@ -1168,24 +1123,23 @@ __int64 Bot_Score_NodeGrenade_From(int object, const bot_score_parms_s *parms)
   __int16 entityNum; 
   bot_score_type_t scoreType; 
   int v12; 
-  int v14; 
-  bot_score_type_t v17; 
+  int v13; 
+  bot_score_type_t v14; 
+  int v15; 
+  int v16; 
+  int v17; 
+  bot_score_type_t v18; 
   int v19; 
   int v20; 
-  int v22; 
-  bot_score_type_t v23; 
-  int v24; 
-  int v25; 
-  float fmt; 
-  __int64 v28; 
+  __int64 v21; 
 
   v3 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 997, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
   if ( (unsigned int)parms->entityNum >= level.num_entities )
   {
-    LODWORD(v28) = parms->entityNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 998, ASSERT_TYPE_ASSERT, "(unsigned)( parms->entityNum ) < (unsigned)( level.num_entities )", "parms->entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v28, level.num_entities) )
+    LODWORD(v21) = parms->entityNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 998, ASSERT_TYPE_ASSERT, "(unsigned)( parms->entityNum ) < (unsigned)( level.num_entities )", "parms->entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v21, level.num_entities) )
       __debugbreak();
   }
   if ( parms->integer1 == 0xFFFF )
@@ -1206,30 +1160,17 @@ __int64 Bot_Score_NodeGrenade_From(int object, const bot_score_parms_s *parms)
     entityNum = parms->entityNum;
     scoreType = parms->scoreType;
     v12 = Bot_Score_Factor_CloseToPoint(v6, &v5->r.currentOrigin, 1000);
-    __asm { vmovss  xmm1, cs:__real@3f800000; weight }
-    v14 = BotScoreDebugFactor(0, *(float *)&_XMM1, v12, scoreType, entityNum);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@44098000; minRange
-      vmovss  xmm0, cs:__real@40000000
-    }
+    v13 = BotScoreDebugFactor(0, 1.0, v12, scoreType, entityNum);
     LOWORD(scoreType) = parms->entityNum;
-    v17 = parms->scoreType;
-    __asm
-    {
-      vmovaps xmm3, xmm2; maxRange
-      vmovss  dword ptr [rsp+68h+fmt], xmm0
-    }
-    v19 = v14;
-    v20 = Bot_Score_Factor_IdealRange(v6, &parms->vector1, *(float *)&_XMM2, *(float *)&_XMM3, fmt);
-    __asm { vmovss  xmm1, cs:__real@3f800000; weight }
-    v22 = BotScoreDebugFactor(1, *(float *)&_XMM1, v20, v17, scoreType);
+    v14 = parms->scoreType;
+    v15 = v13;
+    v16 = Bot_Score_Factor_IdealRange(v6, &parms->vector1, 550.0, 550.0, 2.0);
+    v17 = BotScoreDebugFactor(1, 1.0, v16, v14, scoreType);
     LOWORD(scoreType) = parms->entityNum;
-    v23 = parms->scoreType;
-    v24 = v22 + v19;
-    v25 = Bot_Score_Factor_VisibilityToNode(v6, v7);
-    __asm { vmovss  xmm1, cs:__real@3ecccccd; weight }
-    return (unsigned int)(BotScoreDebugFactor(2, *(float *)&_XMM1, v25, v23, scoreType) + v24);
+    v18 = parms->scoreType;
+    v19 = v17 + v15;
+    v20 = Bot_Score_Factor_VisibilityToNode(v6, v7);
+    return (unsigned int)(BotScoreDebugFactor(2, 0.40000001, v20, v18, scoreType) + v19);
   }
   return v9;
 }
@@ -1247,28 +1188,30 @@ __int64 Bot_Score_NodeGrenade_Target(int object, const bot_score_parms_s *parms)
   const pathnode_t *v7; 
   const pathnode_t *v8; 
   unsigned int v9; 
-  char v22; 
-  char v23; 
+  float *v; 
   __int16 entityNum; 
   bot_score_type_t scoreType; 
+  float v13; 
+  double v14; 
   int RawMax; 
-  int v35; 
-  __int16 v36; 
-  bot_score_type_t v37; 
-  int v38; 
-  int v39; 
-  __int64 v41; 
+  int v16; 
+  __int16 v17; 
+  bot_score_type_t v18; 
+  int v19; 
+  int v20; 
+  __int64 v21; 
   vec3_t pos; 
-  vec3_t v43; 
+  vec3_t v23; 
   vec2_t vec; 
+  float v25; 
 
   v3 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1045, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
   if ( (unsigned int)parms->entityNum >= level.num_entities )
   {
-    LODWORD(v41) = parms->entityNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1046, ASSERT_TYPE_ASSERT, "(unsigned)( parms->entityNum ) < (unsigned)( level.num_entities )", "parms->entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v41, level.num_entities) )
+    LODWORD(v21) = parms->entityNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1046, ASSERT_TYPE_ASSERT, "(unsigned)( parms->entityNum ) < (unsigned)( level.num_entities )", "parms->entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v21, level.num_entities) )
       __debugbreak();
   }
   if ( parms->integer1 == 0xFFFF )
@@ -1285,54 +1228,28 @@ __int64 Bot_Score_NodeGrenade_Target(int object, const bot_score_parms_s *parms)
     __debugbreak();
   v9 = 0;
   pathnode_t::GetPos(v6, &pos);
-  _R14 = &v5->r.currentOrigin;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vsubss  xmm3, xmm0, dword ptr [rsp+0B8h+pos]
-    vmovss  xmm1, dword ptr [r14+4]
-    vsubss  xmm2, xmm1, dword ptr [rsp+0B8h+pos+4]
-    vmovss  xmm0, dword ptr [r14+8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+0B8h+pos+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vcomiss xmm2, cs:__real@47afc800
-  }
-  if ( !(v22 | v23) && Path_NodeExposedToPoint(v6, &parms->vector1, 7) && Path_NodesVisibleNoPeek(v6, v7) && (!v8 || Path_NodesVisibleNoPeek(v6, v8)) && Path_NodeExposedToPoint(v6, &v5->r.currentOrigin, 1) )
+  v = v5->r.currentOrigin.v;
+  if ( (float)((float)((float)((float)(v5->r.currentOrigin.v[1] - pos.v[1]) * (float)(v5->r.currentOrigin.v[1] - pos.v[1])) + (float)((float)(v5->r.currentOrigin.v[0] - pos.v[0]) * (float)(v5->r.currentOrigin.v[0] - pos.v[0]))) + (float)((float)(v5->r.currentOrigin.v[2] - pos.v[2]) * (float)(v5->r.currentOrigin.v[2] - pos.v[2]))) > 90000.0 && Path_NodeExposedToPoint(v6, &parms->vector1, 7) && Path_NodesVisibleNoPeek(v6, v7) && (!v8 || Path_NodesVisibleNoPeek(v6, v8)) && Path_NodeExposedToPoint(v6, &v5->r.currentOrigin, 1) )
   {
     entityNum = parms->entityNum;
     scoreType = parms->scoreType;
-    pathnode_t::GetPos(v6, &v43);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0B8h+var_68]
-      vsubss  xmm1, xmm0, dword ptr [r14]
-      vmovss  xmm2, dword ptr [rsp+0B8h+var_68+4]
-      vsubss  xmm0, xmm2, dword ptr [r14+4]
-      vmovss  dword ptr [rsp+0B8h+vec], xmm1
-      vmovss  xmm1, dword ptr [rsp+0B8h+var_68+8]
-      vsubss  xmm2, xmm1, dword ptr [r14+8]
-      vmovss  [rsp+0B8h+var_50], xmm2
-      vmovss  dword ptr [rsp+0B8h+vec+4], xmm0
-    }
-    *(double *)&_XMM0 = vectoyaw(&vec);
-    __asm { vmovaps xmm1, xmm0; yaw }
-    RawMax = Path_NodeExposureGetRawMax(v6, *(float *)&_XMM1, 1);
-    __asm { vmovss  xmm1, cs:__real@3f000000; weight }
+    pathnode_t::GetPos(v6, &v23);
+    v13 = v23.v[1] - v[1];
+    vec.v[0] = v23.v[0] - *v;
+    v25 = v23.v[2] - v[2];
+    vec.v[1] = v13;
+    v14 = vectoyaw(&vec);
+    RawMax = Path_NodeExposureGetRawMax(v6, *(float *)&v14, 1);
     if ( RawMax > 10 )
       RawMax = 10;
     if ( RawMax < 0 )
       RawMax = 0;
-    v35 = BotScoreDebugFactor(0, *(float *)&_XMM1, 10 * (10 - RawMax), scoreType, entityNum);
-    v36 = parms->entityNum;
-    v37 = parms->scoreType;
-    v38 = v35;
-    v39 = Bot_Score_Factor_CloseToPoint(v6, &parms->vector1, 1000);
-    __asm { vmovss  xmm1, cs:__real@3f800000; weight }
-    return (unsigned int)(BotScoreDebugFactor(1, *(float *)&_XMM1, v39, v37, v36) + v38);
+    v16 = BotScoreDebugFactor(0, 0.5, 10 * (10 - RawMax), scoreType, entityNum);
+    v17 = parms->entityNum;
+    v18 = parms->scoreType;
+    v19 = v16;
+    v20 = Bot_Score_Factor_CloseToPoint(v6, &parms->vector1, 1000);
+    return (unsigned int)(BotScoreDebugFactor(1, 1.0, v20, v18, v17) + v19);
   }
   return v9;
 }
@@ -1342,113 +1259,88 @@ __int64 Bot_Score_NodeGrenade_Target(int object, const bot_score_parms_s *parms)
 Bot_Score_NodeAmbush
 ==============
 */
-
-__int64 __fastcall Bot_Score_NodeAmbush(int object, const bot_score_parms_s *parms, __int64 a3, double _XMM3_8)
+__int64 Bot_Score_NodeAmbush(int object, const bot_score_parms_s *parms)
 {
-  unsigned __int16 v6; 
-  const pathnode_t *v7; 
-  const pathnode_t *v8; 
+  unsigned __int16 v3; 
+  const pathnode_t *v4; 
+  const pathnode_t *v5; 
   int StopGoalStance; 
-  unsigned int v12; 
+  unsigned int v7; 
   __int16 entityNum; 
   bot_score_type_t scoreType; 
+  int v10; 
+  int v11; 
+  bot_score_type_t v12; 
+  int v13; 
+  int v14; 
   int v15; 
+  bot_score_type_t v16; 
   int v17; 
-  bot_score_type_t v18; 
+  int v18; 
   int v19; 
-  int v20; 
+  bot_score_type_t v20; 
+  int v21; 
   int v22; 
-  bot_score_type_t v23; 
+  int v23; 
+  bot_score_type_t v24; 
   int v25; 
   int v26; 
-  int v28; 
-  bot_score_type_t v29; 
+  int v27; 
+  bot_score_type_t v28; 
+  int v29; 
   int v30; 
-  int v31; 
-  int v34; 
-  bot_score_type_t v35; 
-  int v36; 
-  int v37; 
-  int v39; 
-  bot_score_type_t v40; 
-  int v41; 
-  int v42; 
 
-  v6 = object;
+  v3 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 369, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
   if ( parms->integer1 == 0xFFFF )
     return 0i64;
-  v7 = Path_ConvertIndexToNode(v6);
-  v8 = Path_ConvertIndexToNode(parms->integer1);
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 379, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
+  v4 = Path_ConvertIndexToNode(v3);
+  v5 = Path_ConvertIndexToNode(parms->integer1);
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 379, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 380, ASSERT_TYPE_ASSERT, "( nodeNearestPoint )", (const char *)&queryFormat, "nodeNearestPoint") )
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 380, ASSERT_TYPE_ASSERT, "( nodeNearestPoint )", (const char *)&queryFormat, "nodeNearestPoint") )
     __debugbreak();
-  StopGoalStance = Bot_GetStopGoalStance(v7);
-  if ( Bot_Score_NodeShouldIgnore(v7, parms->entityNum, parms) )
+  StopGoalStance = Bot_GetStopGoalStance(v4);
+  if ( Bot_Score_NodeShouldIgnore(v4, parms->entityNum, parms) || Bot_Score_NodeIsDangerous(v4, parms->entityNum, 500.0) || Path_NodeExposureGetTraffic(v4) || Bot_Score_NodeIsNearAllySentient(v4, parms->entityNum, 100.0) )
     return 0i64;
-  __asm { vmovss  xmm2, cs:__real@43fa0000; radius }
-  if ( Bot_Score_NodeIsDangerous(v7, parms->entityNum, *(float *)&_XMM2) )
-    return 0i64;
-  if ( Path_NodeExposureGetTraffic(v7) )
-    return 0i64;
-  __asm { vmovss  xmm2, cs:__real@42c80000; radius }
-  if ( Bot_Score_NodeIsNearAllySentient(v7, parms->entityNum, *(float *)&_XMM2) )
-    return 0i64;
-  v12 = 0;
-  if ( v7 != v8 && Path_NodesVisibleNoPeek(v8, v7) )
+  v7 = 0;
+  if ( v4 != v5 && Path_NodesVisibleNoPeek(v5, v4) )
   {
-    if ( Path_NodeExposedToPoint(v7, &parms->vector1, StopGoalStance) )
+    if ( Path_NodeExposedToPoint(v4, &parms->vector1, StopGoalStance) )
     {
       entityNum = parms->entityNum;
       scoreType = parms->scoreType;
-      __asm { vmovaps [rsp+58h+var_28], xmm6 }
-      v15 = Bot_Score_Factor_CoverRearFromPoint(v7, &parms->vector1);
-      __asm { vmovss  xmm1, cs:__real@3fc00000; weight }
-      v17 = BotScoreDebugFactor(0, *(float *)&_XMM1, v15, scoreType, entityNum);
+      v10 = Bot_Score_Factor_CoverRearFromPoint(v4, &parms->vector1);
+      v11 = BotScoreDebugFactor(0, 1.5, v10, scoreType, entityNum);
       LOWORD(scoreType) = parms->entityNum;
-      v18 = parms->scoreType;
-      v19 = v17;
-      v20 = Bot_Score_Factor_ProneCover360(v7);
-      __asm { vmovss  xmm1, cs:__real@3fc00000; weight }
-      v22 = BotScoreDebugFactor(1, *(float *)&_XMM1, v20, v18, scoreType);
+      v12 = parms->scoreType;
+      v13 = v11;
+      v14 = Bot_Score_Factor_ProneCover360(v4);
+      v15 = BotScoreDebugFactor(1, 1.5, v14, v12, scoreType);
       LOWORD(scoreType) = parms->entityNum;
-      v23 = parms->scoreType;
-      __asm { vxorps  xmm3, xmm3, xmm3; addDistance }
-      v25 = v22 + v19;
-      v26 = Bot_Score_Factor_IdealRangeWeapon(v7, parms->entityNum, &parms->vector1, *(const float *)&_XMM3);
-      __asm { vmovss  xmm1, cs:__real@3f400000; weight }
-      v28 = BotScoreDebugFactor(2, *(float *)&_XMM1, v26, v23, scoreType);
+      v16 = parms->scoreType;
+      v17 = v15 + v13;
+      v18 = Bot_Score_Factor_IdealRangeWeapon(v4, parms->entityNum, &parms->vector1, 0.0);
+      v19 = BotScoreDebugFactor(2, 0.75, v18, v16, scoreType);
       LOWORD(scoreType) = parms->entityNum;
-      v29 = parms->scoreType;
-      v30 = v28 + v25;
-      v31 = Bot_Score_Factor_NoTrafficRearFromPoint(v7, &parms->vector1);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@3f800000
-        vmovaps xmm1, xmm6; weight
-      }
-      v34 = BotScoreDebugFactor(3, *(float *)&_XMM1, v31, v29, scoreType);
+      v20 = parms->scoreType;
+      v21 = v19 + v17;
+      v22 = Bot_Score_Factor_NoTrafficRearFromPoint(v4, &parms->vector1);
+      v23 = BotScoreDebugFactor(3, 1.0, v22, v20, scoreType);
       LOWORD(scoreType) = parms->entityNum;
-      v35 = parms->scoreType;
-      v36 = v34 + v30;
-      v37 = Bot_Score_Factor_ProneCoverFacingPoint(v7, &parms->vector1);
-      __asm { vmovaps xmm1, xmm6; weight }
-      v39 = BotScoreDebugFactor(4, *(float *)&_XMM1, v37, v35, scoreType);
+      v24 = parms->scoreType;
+      v25 = v23 + v21;
+      v26 = Bot_Score_Factor_ProneCoverFacingPoint(v4, &parms->vector1);
+      v27 = BotScoreDebugFactor(4, 1.0, v26, v24, scoreType);
       LOWORD(scoreType) = parms->entityNum;
-      v40 = parms->scoreType;
-      v41 = v39 + v36;
-      v42 = Bot_Score_Factor_NotRecentlyUsed(v7, parms);
-      __asm
-      {
-        vmovaps xmm1, xmm6; weight
-        vmovaps xmm6, [rsp+58h+var_28]
-      }
-      return (unsigned int)(BotScoreDebugFactor(5, *(float *)&_XMM1, v42, v40, scoreType) + v41);
+      v28 = parms->scoreType;
+      v29 = v27 + v25;
+      v30 = Bot_Score_Factor_NotRecentlyUsed(v4, parms);
+      return (unsigned int)(BotScoreDebugFactor(5, 1.0, v30, v28, scoreType) + v29);
     }
   }
-  return v12;
+  return v7;
 }
 
 /*
@@ -1462,19 +1354,18 @@ __int64 Bot_Score_NodeSentry(int object, const bot_score_parms_s *parms)
   pathnode_t *v4; 
   const pathnode_t *v5; 
   int StopGoalStance; 
-  unsigned int v9; 
+  unsigned int v7; 
   __int16 entityNum; 
   bot_score_type_t scoreType; 
-  int v12; 
+  int v10; 
+  int v11; 
+  bot_score_type_t v12; 
+  int v13; 
   int v14; 
-  bot_score_type_t v15; 
-  int v16; 
+  int v15; 
+  bot_score_type_t v16; 
   int v17; 
-  int v19; 
-  bot_score_type_t v23; 
-  int v24; 
-  int v25; 
-  float fmt; 
+  int v18; 
   vec3_t pos; 
 
   v3 = object;
@@ -1489,15 +1380,9 @@ __int64 Bot_Score_NodeSentry(int object, const bot_score_parms_s *parms)
   if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 438, ASSERT_TYPE_ASSERT, "( nodeNearestPoint )", (const char *)&queryFormat, "nodeNearestPoint") )
     __debugbreak();
   StopGoalStance = Bot_GetStopGoalStance(v4);
-  if ( Bot_Score_NodeShouldIgnore(v4, parms->entityNum, parms) )
+  if ( Bot_Score_NodeShouldIgnore(v4, parms->entityNum, parms) || Bot_Score_NodeIsDangerous(v4, parms->entityNum, 500.0) || Bot_Score_NodeIsNearAllySentient(v4, parms->entityNum, 100.0) )
     return 0i64;
-  __asm { vmovss  xmm2, cs:__real@43fa0000; radius }
-  if ( Bot_Score_NodeIsDangerous(v4, parms->entityNum, *(float *)&_XMM2) )
-    return 0i64;
-  __asm { vmovss  xmm2, cs:__real@42c80000; radius }
-  if ( Bot_Score_NodeIsNearAllySentient(v4, parms->entityNum, *(float *)&_XMM2) )
-    return 0i64;
-  v9 = 0;
+  v7 = 0;
   pathnode_t::GetPos(v4, &pos);
   if ( v4 != v5 && Path_NodesVisibleNoPeek(v5, v4) )
   {
@@ -1505,31 +1390,21 @@ __int64 Bot_Score_NodeSentry(int object, const bot_score_parms_s *parms)
     {
       entityNum = parms->entityNum;
       scoreType = parms->scoreType;
-      v12 = Bot_Score_Factor_CoverRearFromPoint(v4, &parms->vector1);
-      __asm { vmovss  xmm1, cs:__real@40000000; weight }
-      v14 = BotScoreDebugFactor(0, *(float *)&_XMM1, v12, scoreType, entityNum);
+      v10 = Bot_Score_Factor_CoverRearFromPoint(v4, &parms->vector1);
+      v11 = BotScoreDebugFactor(0, 2.0, v10, scoreType, entityNum);
       LOWORD(scoreType) = parms->entityNum;
-      v15 = parms->scoreType;
-      v16 = v14;
-      v17 = Bot_Score_Factor_NoTrafficRearFromPoint(v4, &parms->vector1);
-      __asm { vmovss  xmm1, cs:__real@3f800000; weight }
-      v19 = BotScoreDebugFactor(1, *(float *)&_XMM1, v17, v15, scoreType);
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f000000
-        vmovss  xmm3, cs:__real@44a28000; maxRange
-        vmovss  xmm2, cs:__real@44480000; minRange
-      }
+      v12 = parms->scoreType;
+      v13 = v11;
+      v14 = Bot_Score_Factor_NoTrafficRearFromPoint(v4, &parms->vector1);
+      v15 = BotScoreDebugFactor(1, 1.0, v14, v12, scoreType);
       LOWORD(scoreType) = parms->entityNum;
-      v23 = parms->scoreType;
-      __asm { vmovss  dword ptr [rsp+78h+fmt], xmm0 }
-      v24 = v19 + v16;
-      v25 = Bot_Score_Factor_IdealRange(v4, &parms->vector1, *(float *)&_XMM2, *(float *)&_XMM3, fmt);
-      __asm { vmovss  xmm1, cs:__real@3f800000; weight }
-      return (unsigned int)(BotScoreDebugFactor(2, *(float *)&_XMM1, v25, v23, scoreType) + v24);
+      v16 = parms->scoreType;
+      v17 = v15 + v13;
+      v18 = Bot_Score_Factor_IdealRange(v4, &parms->vector1, 800.0, 1300.0, 0.5);
+      return (unsigned int)(BotScoreDebugFactor(2, 1.0, v18, v16, scoreType) + v17);
     }
   }
-  return v9;
+  return v7;
 }
 
 /*
@@ -1539,32 +1414,23 @@ Bot_Score_NodeTraffic
 */
 int Bot_Score_NodeTraffic(int object, const bot_score_parms_s *parms)
 {
-  unsigned __int16 v4; 
-  const pathnode_t *v5; 
+  unsigned __int16 v3; 
+  const pathnode_t *v4; 
   __int16 entityNum; 
   bot_score_type_t scoreType; 
 
-  v4 = object;
+  v3 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 482, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
-  v5 = Path_ConvertIndexToNode(v4);
-  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 485, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
+  v4 = Path_ConvertIndexToNode(v3);
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 485, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
   entityNum = parms->entityNum;
   scoreType = parms->scoreType;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  Path_NodeExposureGetTraffic(v5);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3ec8c8c9
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si r8d, xmm1; factor
-    vmovss  xmm1, cs:__real@3f800000; weight
-  }
-  return BotScoreDebugFactor(0, *(float *)&_XMM1, _ER8, scoreType, entityNum);
+  Path_NodeExposureGetTraffic(v4);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return BotScoreDebugFactor(0, 1.0, (int)*(float *)&_XMM1, scoreType, entityNum);
 }
 
 /*
@@ -1574,32 +1440,23 @@ Bot_Score_NodeExposed
 */
 int Bot_Score_NodeExposed(int object, const bot_score_parms_s *parms)
 {
-  unsigned __int16 v4; 
-  const pathnode_t *v5; 
+  unsigned __int16 v3; 
+  const pathnode_t *v4; 
   __int16 entityNum; 
   bot_score_type_t scoreType; 
 
-  v4 = object;
+  v3 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 502, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
-  v5 = Path_ConvertIndexToNode(v4);
-  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 505, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
+  v4 = Path_ConvertIndexToNode(v3);
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 505, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
   entityNum = parms->entityNum;
   scoreType = parms->scoreType;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  Path_NodeExposureGeneral(v5, 4);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3ec8c8c9
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si r8d, xmm1; factor
-    vmovss  xmm1, cs:__real@3f800000; weight
-  }
-  return BotScoreDebugFactor(0, *(float *)&_XMM1, _ER8, scoreType, entityNum);
+  Path_NodeExposureGeneral(v4, 4);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return BotScoreDebugFactor(0, 1.0, (int)*(float *)&_XMM1, scoreType, entityNum);
 }
 
 /*
@@ -1629,53 +1486,59 @@ Bot_Score_NodeHideFrom
 */
 __int64 Bot_Score_NodeHideFrom(int object, const bot_score_parms_s *parms)
 {
-  unsigned __int16 v8; 
+  unsigned __int16 v3; 
   __int64 entityNum; 
-  pathnode_t *v10; 
-  pathnode_t *v11; 
-  const pathnode_t *v13; 
-  __int16 v16; 
+  pathnode_t *v5; 
+  pathnode_t *v6; 
+  gentity_s *v7; 
+  const pathnode_t *v8; 
+  __int16 v9; 
   bot_score_type_t scoreType; 
-  int v55; 
-  int v56; 
-  int v58; 
-  __int16 v59; 
-  bot_score_type_t v60; 
-  int v61; 
-  int v72; 
-  __int16 v73; 
-  bot_score_type_t v74; 
-  int v75; 
-  int v76; 
-  int v78; 
-  __int16 v79; 
-  bot_score_type_t v80; 
-  int v81; 
-  int v82; 
-  int v84; 
-  __int64 result; 
-  __int64 v91; 
-  __int64 v92; 
+  __int128 v11; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int128 v18; 
+  int v22; 
+  int v23; 
+  int v24; 
+  __int16 v25; 
+  bot_score_type_t v26; 
+  int v27; 
+  double v28; 
+  int v31; 
+  __int16 v32; 
+  bot_score_type_t v33; 
+  int v34; 
+  int v35; 
+  int v36; 
+  __int16 v37; 
+  bot_score_type_t v38; 
+  int v39; 
+  int v40; 
+  __int64 v42; 
+  __int64 v43; 
   vec3_t point; 
   vec3_t pos; 
   vec2_t vec; 
+  float v47; 
   vec3_t eyeForward; 
 
-  v8 = object;
+  v3 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 598, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
   if ( (unsigned int)parms->entityNum >= level.num_entities )
   {
-    LODWORD(v91) = parms->entityNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 599, ASSERT_TYPE_ASSERT, "(unsigned)( parms->entityNum ) < (unsigned)( level.num_entities )", "parms->entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v91, level.num_entities) )
+    LODWORD(v42) = parms->entityNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 599, ASSERT_TYPE_ASSERT, "(unsigned)( parms->entityNum ) < (unsigned)( level.num_entities )", "parms->entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v42, level.num_entities) )
       __debugbreak();
   }
   entityNum = parms->entityNum;
   if ( (unsigned int)entityNum >= 0x800 )
   {
-    LODWORD(v92) = 2048;
-    LODWORD(v91) = parms->entityNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v91, v92) )
+    LODWORD(v43) = 2048;
+    LODWORD(v42) = parms->entityNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v42, v43) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1686,129 +1549,68 @@ __int64 Bot_Score_NodeHideFrom(int object, const bot_score_parms_s *parms)
     __debugbreak();
   if ( parms->integer2 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 601, ASSERT_TYPE_ASSERT, "( parms->integer2 > 0 )", (const char *)&queryFormat, "parms->integer2 > 0") )
     __debugbreak();
-  v10 = Path_ConvertIndexToNode(v8);
-  v11 = Path_ConvertIndexToNode(parms->integer1);
-  _RBP = &level.gentities[parms->entityNum];
-  v13 = Sentient_NearestNode(_RBP->sentient);
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 608, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
+  v5 = Path_ConvertIndexToNode(v3);
+  v6 = Path_ConvertIndexToNode(parms->integer1);
+  v7 = &level.gentities[parms->entityNum];
+  v8 = Sentient_NearestNode(v7->sentient);
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 608, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 609, ASSERT_TYPE_ASSERT, "( hideFromNode )", (const char *)&queryFormat, "hideFromNode") )
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 609, ASSERT_TYPE_ASSERT, "( hideFromNode )", (const char *)&queryFormat, "hideFromNode") )
     __debugbreak();
-  pathnode_t::GetPos(v10, &pos);
-  pathnode_t::GetPos(v11, &point);
-  if ( Bot_Score_NodeShouldIgnore(v10, parms->entityNum, parms) )
+  pathnode_t::GetPos(v5, &pos);
+  pathnode_t::GetPos(v6, &point);
+  if ( Bot_Score_NodeShouldIgnore(v5, parms->entityNum, parms) || Bot_Score_NodeWasRecentlyUsed(v5, parms, 10.0) || Bot_Score_NodeIsDangerous(v5, parms->entityNum, 500.0) || (parms->flags & 0x20) != 0 && (Bot_Score_NodeIgnoreTraversalIslandMismatch(v5, parms) || v8 && !Path_NodesVisibleNoPeek(v5, v8)) || Path_NodeExposedToPoint(v5, &point, 4) )
     return 0i64;
-  __asm { vmovss  xmm2, cs:__real@41200000; recentUseTime }
-  if ( Bot_Score_NodeWasRecentlyUsed(v10, parms, *(float *)&_XMM2) )
-    return 0i64;
-  __asm { vmovss  xmm2, cs:__real@43fa0000; radius }
-  if ( Bot_Score_NodeIsDangerous(v10, parms->entityNum, *(float *)&_XMM2) || (parms->flags & 0x20) != 0 && (Bot_Score_NodeIgnoreTraversalIslandMismatch(v10, parms) || v13 && !Path_NodesVisibleNoPeek(v10, v13)) )
-    return 0i64;
-  if ( Path_NodeExposedToPoint(v10, &point, 4) )
-    return 0i64;
-  v16 = parms->entityNum;
+  v9 = parms->entityNum;
   scoreType = parms->scoreType;
+  v11 = LODWORD(point.v[1]);
+  *(float *)&v11 = fsqrt((float)((float)((float)(point.v[1] - pos.v[1]) * (float)(point.v[1] - pos.v[1])) + (float)((float)(point.v[0] - pos.v[0]) * (float)(point.v[0] - pos.v[0]))) + (float)((float)(point.v[2] - pos.v[2]) * (float)(point.v[2] - pos.v[2])));
+  _XMM3 = v11;
   __asm
   {
-    vmovaps [rsp+108h+var_38], xmm6
-    vmovaps [rsp+108h+var_48], xmm7
-    vmovss  xmm7, dword ptr [rsp+108h+point]
-    vsubss  xmm4, xmm7, dword ptr [rsp+108h+pos]
-    vmulss  xmm0, xmm4, xmm4
-    vmovaps [rsp+108h+var_58], xmm8
-    vmovss  xmm8, dword ptr [rsp+108h+point+4]
-    vsubss  xmm5, xmm8, dword ptr [rsp+108h+pos+4]
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmovaps [rsp+108h+var_68], xmm9
-    vmovss  xmm9, dword ptr [rsp+108h+point+8]
-    vsubss  xmm6, xmm9, dword ptr [rsp+108h+pos+8]
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
-    vmovaps [rsp+108h+var_78], xmm11
-    vmovss  xmm11, cs:__real@3f800000
     vblendvps xmm0, xmm3, xmm11, xmm0
-    vdivss  xmm2, xmm11, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rsp+108h+vec], xmm0
-    vmulss  xmm0, xmm6, xmm2
-    vmovss  [rsp+108h+var_A0], xmm0
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [rsp+108h+vec+4], xmm1
-    vmovss  xmm0, dword ptr [rbp+130h]
-    vmovss  xmm1, dword ptr [rbp+134h]
-    vsubss  xmm4, xmm0, xmm7
-    vmovss  xmm0, dword ptr [rbp+138h]
-    vsubss  xmm6, xmm0, xmm9
-    vsubss  xmm5, xmm1, xmm8
-    vmulss  xmm0, xmm6, xmm6
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
+  }
+  vec.v[0] = (float)(point.v[0] - pos.v[0]) * (float)(1.0 / *(float *)&_XMM0);
+  v47 = (float)(point.v[2] - pos.v[2]) * (float)(1.0 / *(float *)&_XMM0);
+  vec.v[1] = (float)(point.v[1] - pos.v[1]) * (float)(1.0 / *(float *)&_XMM0);
+  v15 = v7->r.currentOrigin.v[0] - point.v[0];
+  v16 = v7->r.currentOrigin.v[2] - point.v[2];
+  v18 = LODWORD(v7->r.currentOrigin.v[1]);
+  v17 = v7->r.currentOrigin.v[1] - point.v[1];
+  *(float *)&v18 = fsqrt((float)((float)(v17 * v17) + (float)(v15 * v15)) + (float)(v16 * v16));
+  _XMM1 = v18;
+  __asm
+  {
     vcmpless xmm0, xmm1, cs:__real@80000000
     vblendvps xmm0, xmm1, xmm11, xmm0
-    vdivss  xmm2, xmm11, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rsp+108h+eyeForward], xmm0
-    vmulss  xmm0, xmm6, xmm2
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  dword ptr [rsp+108h+eyeForward+8], xmm0
-    vmovss  dword ptr [rsp+108h+eyeForward+4], xmm1
   }
-  v55 = Path_NodesVisibleNoPeek(v10, v11);
-  v56 = 100;
-  if ( v55 )
-    v56 = 0;
-  __asm { vmovaps xmm1, xmm11; weight }
-  v58 = BotScoreDebugFactor(0, *(float *)&_XMM1, v56, scoreType, v16);
-  v59 = parms->entityNum;
-  v60 = parms->scoreType;
-  v61 = v58;
-  *(double *)&_XMM0 = vectoyaw(&vec);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@41c80000; coneAngle
-    vmovaps xmm1, xmm0; arcYaw
-    vxorps  xmm0, xmm0, xmm0
-  }
-  Path_NodeExposureGetRawArcSum(v10, *(float *)&_XMM1, *(float *)&_XMM2, 4);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@41480000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si r8d, xmm1; factor
-    vmovaps xmm1, xmm11; weight
-  }
-  v72 = BotScoreDebugFactor(1, *(float *)&_XMM1, _ER8, v60, v59);
-  v73 = parms->entityNum;
-  v74 = parms->scoreType;
-  v75 = v72 + v61;
-  v76 = Bot_Score_Factor_CloseToPoint(v10, &_RBP->r.currentOrigin, parms->integer2);
-  __asm { vmovaps xmm1, xmm11; weight }
-  v78 = BotScoreDebugFactor(2, *(float *)&_XMM1, v76, v74, v73);
-  v79 = parms->entityNum;
-  v80 = parms->scoreType;
-  v81 = v78 + v75;
-  v82 = Bot_Score_Factor_InFrontOf(v10, &_RBP->r.currentOrigin, &eyeForward);
-  __asm { vmovaps xmm1, xmm11; weight }
-  v84 = BotScoreDebugFactor(3, *(float *)&_XMM1, v82, v80, v79);
-  __asm { vmovaps xmm11, [rsp+108h+var_78] }
-  result = (unsigned int)(v81 + v84);
-  __asm
-  {
-    vmovaps xmm9, [rsp+108h+var_68]
-    vmovaps xmm8, [rsp+108h+var_58]
-    vmovaps xmm7, [rsp+108h+var_48]
-    vmovaps xmm6, [rsp+108h+var_38]
-  }
-  return result;
+  eyeForward.v[0] = v15 * (float)(1.0 / *(float *)&_XMM0);
+  eyeForward.v[2] = v16 * (float)(1.0 / *(float *)&_XMM0);
+  eyeForward.v[1] = v17 * (float)(1.0 / *(float *)&_XMM0);
+  v22 = Path_NodesVisibleNoPeek(v5, v6);
+  v23 = 100;
+  if ( v22 )
+    v23 = 0;
+  v24 = BotScoreDebugFactor(0, 1.0, v23, scoreType, v9);
+  v25 = parms->entityNum;
+  v26 = parms->scoreType;
+  v27 = v24;
+  v28 = vectoyaw(&vec);
+  Path_NodeExposureGetRawArcSum(v5, *(float *)&v28, 25.0, 4);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  v31 = BotScoreDebugFactor(1, 1.0, (int)*(float *)&_XMM1, v26, v25);
+  v32 = parms->entityNum;
+  v33 = parms->scoreType;
+  v34 = v31 + v27;
+  v35 = Bot_Score_Factor_CloseToPoint(v5, &v7->r.currentOrigin, parms->integer2);
+  v36 = BotScoreDebugFactor(2, 1.0, v35, v33, v32);
+  v37 = parms->entityNum;
+  v38 = parms->scoreType;
+  v39 = v36 + v34;
+  v40 = Bot_Score_Factor_InFrontOf(v5, &v7->r.currentOrigin, &eyeForward);
+  return (unsigned int)(v39 + BotScoreDebugFactor(3, 1.0, v40, v38, v37));
 }
 
 /*
@@ -1818,50 +1620,50 @@ Bot_Score_NodeCombat
 */
 __int64 Bot_Score_NodeCombat(int object, const bot_score_parms_s *parms)
 {
-  unsigned __int16 v5; 
+  unsigned __int16 v3; 
   __int64 entityNum; 
-  pathnode_t *v7; 
-  pathnode_t *v8; 
-  gentity_s *v9; 
+  pathnode_t *v5; 
+  pathnode_t *v6; 
+  gentity_s *v7; 
   bot_data_t *EntityData; 
-  gentity_s *v11; 
+  gentity_s *v9; 
   const sentient_info_t *SentientInfo; 
-  __int16 v13; 
-  __int16 v35; 
+  __int128 v11; 
+  __int16 v15; 
   bot_score_type_t scoreType; 
-  int v38; 
-  int v40; 
-  int v42; 
-  __int16 v43; 
-  bot_score_type_t v44; 
-  int v55; 
-  __int16 v56; 
-  bot_score_type_t v57; 
-  int v58; 
-  int v59; 
-  __int64 result; 
-  __int64 v63; 
-  __int64 v64; 
+  int v17; 
+  int v18; 
+  __int16 v19; 
+  bot_score_type_t v20; 
+  double v21; 
+  int v24; 
+  __int16 v25; 
+  bot_score_type_t v26; 
+  int v27; 
+  int v28; 
+  __int64 v30; 
+  __int64 v31; 
   vec3_t outLastKnownPos; 
   vec3_t pos; 
   vec2_t vec; 
+  float v35; 
   vec3_t forward; 
 
-  v5 = object;
+  v3 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 666, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
   if ( (unsigned int)parms->entityNum >= level.num_entities )
   {
-    LODWORD(v63) = parms->entityNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 667, ASSERT_TYPE_ASSERT, "(unsigned)( parms->entityNum ) < (unsigned)( level.num_entities )", "parms->entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v63, level.num_entities) )
+    LODWORD(v30) = parms->entityNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 667, ASSERT_TYPE_ASSERT, "(unsigned)( parms->entityNum ) < (unsigned)( level.num_entities )", "parms->entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v30, level.num_entities) )
       __debugbreak();
   }
   entityNum = parms->entityNum;
   if ( (unsigned int)entityNum >= 0x800 )
   {
-    LODWORD(v64) = 2048;
-    LODWORD(v63) = parms->entityNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v63, v64) )
+    LODWORD(v31) = 2048;
+    LODWORD(v30) = parms->entityNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v30, v31) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -1872,31 +1674,31 @@ __int64 Bot_Score_NodeCombat(int object, const bot_score_parms_s *parms)
     __debugbreak();
   if ( parms->integer2 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 669, ASSERT_TYPE_ASSERT, "( parms->integer2 > 0 )", (const char *)&queryFormat, "parms->integer2 > 0") )
     __debugbreak();
-  v7 = Path_ConvertIndexToNode(v5);
-  v8 = Path_ConvertIndexToNode(parms->integer1);
-  v9 = &level.gentities[parms->entityNum];
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 675, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
+  v5 = Path_ConvertIndexToNode(v3);
+  v6 = Path_ConvertIndexToNode(parms->integer1);
+  v7 = &level.gentities[parms->entityNum];
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 675, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 676, ASSERT_TYPE_ASSERT, "( enemyNode )", (const char *)&queryFormat, "enemyNode") )
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 676, ASSERT_TYPE_ASSERT, "( enemyNode )", (const char *)&queryFormat, "enemyNode") )
     __debugbreak();
-  pathnode_t::GetPos(v7, &pos);
-  pathnode_t::GetPos(v8, &outLastKnownPos);
-  EntityData = Bot_GetEntityData(v9);
+  pathnode_t::GetPos(v5, &pos);
+  pathnode_t::GetPos(v6, &outLastKnownPos);
+  EntityData = Bot_GetEntityData(v7);
   if ( !EntityData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 695, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
   if ( EntHandle::isDefined(&EntityData->botInfo.sentient->targetEnt) )
   {
     if ( EntHandle::isDefined(&EntityData->botInfo.sentient->targetEnt) )
     {
-      v11 = EntHandle::ent(&EntityData->botInfo.sentient->targetEnt);
-      if ( v11 )
+      v9 = EntHandle::ent(&EntityData->botInfo.sentient->targetEnt);
+      if ( v9 )
       {
 LABEL_38:
-        if ( !v11->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 700, ASSERT_TYPE_ASSERT, "( enemy->sentient )", (const char *)&queryFormat, "enemy->sentient") )
+        if ( !v9->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 700, ASSERT_TYPE_ASSERT, "( enemy->sentient )", (const char *)&queryFormat, "enemy->sentient") )
           __debugbreak();
         if ( !EntityData->botInfo.sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 701, ASSERT_TYPE_ASSERT, "( botData->botInfo.sentient )", (const char *)&queryFormat, "botData->botInfo.sentient") )
           __debugbreak();
-        SentientInfo = Sentient_GetSentientInfo(EntityData->botInfo.sentient, v11->sentient);
+        SentientInfo = Sentient_GetSentientInfo(EntityData->botInfo.sentient, v9->sentient);
         if ( !SentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 703, ASSERT_TYPE_ASSERT, "( info )", (const char *)&queryFormat, "info") )
           __debugbreak();
         SentientInfo_GetLastKnownPos(SentientInfo, &outLastKnownPos);
@@ -1905,101 +1707,55 @@ LABEL_38:
     }
     else
     {
-      v11 = NULL;
+      v9 = NULL;
     }
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 699, ASSERT_TYPE_ASSERT, "( enemy )", (const char *)&queryFormat, "enemy") )
       __debugbreak();
     goto LABEL_38;
   }
 LABEL_48:
-  v13 = parms->entityNum;
-  __asm { vmovaps [rsp+0E8h+var_58], xmm7 }
-  if ( Bot_Score_NodeShouldIgnore(v7, v13, parms) )
-    goto LABEL_56;
-  __asm { vmovss  xmm2, cs:__real@41200000; recentUseTime }
-  if ( Bot_Score_NodeWasRecentlyUsed(v7, parms, *(float *)&_XMM2) )
-    goto LABEL_56;
-  __asm { vmovss  xmm2, cs:__real@43fa0000; radius }
-  if ( Bot_Score_NodeIsDangerous(v7, parms->entityNum, *(float *)&_XMM2) )
-    goto LABEL_56;
-  if ( !Path_NodesVisibleNoPeek(v7, v8) )
-    goto LABEL_56;
-  if ( Path_NodeExposedToPoint(v7, &outLastKnownPos, 4) )
-    goto LABEL_56;
-  if ( Bot_Score_NodeIgnoreTraversalIslandMismatch(v7, parms) )
-    goto LABEL_56;
+  if ( Bot_Score_NodeShouldIgnore(v5, parms->entityNum, parms) )
+    return 0i64;
+  if ( Bot_Score_NodeWasRecentlyUsed(v5, parms, 10.0) )
+    return 0i64;
+  if ( Bot_Score_NodeIsDangerous(v5, parms->entityNum, 500.0) )
+    return 0i64;
+  if ( !Path_NodesVisibleNoPeek(v5, v6) )
+    return 0i64;
+  if ( Path_NodeExposedToPoint(v5, &outLastKnownPos, 4) )
+    return 0i64;
+  if ( Bot_Score_NodeIgnoreTraversalIslandMismatch(v5, parms) )
+    return 0i64;
+  v11 = LODWORD(outLastKnownPos.v[1]);
+  *(float *)&v11 = fsqrt((float)((float)((float)(outLastKnownPos.v[1] - pos.v[1]) * (float)(outLastKnownPos.v[1] - pos.v[1])) + (float)((float)(outLastKnownPos.v[0] - pos.v[0]) * (float)(outLastKnownPos.v[0] - pos.v[0]))) + (float)((float)(outLastKnownPos.v[2] - pos.v[2]) * (float)(outLastKnownPos.v[2] - pos.v[2])));
+  _XMM1 = v11;
   __asm
   {
-    vmovss  xmm0, dword ptr [rsp+0E8h+outLastKnownPos]
-    vsubss  xmm4, xmm0, dword ptr [rsp+0E8h+pos]
-    vmovss  xmm1, dword ptr [rsp+0E8h+outLastKnownPos+4]
-    vsubss  xmm5, xmm1, dword ptr [rsp+0E8h+pos+4]
-    vmovss  xmm0, dword ptr [rsp+0E8h+outLastKnownPos+8]
-    vmovss  xmm7, cs:__real@3f800000
-    vmulss  xmm2, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vmovaps [rsp+0E8h+var_48], xmm6
-    vsubss  xmm6, xmm0, dword ptr [rsp+0E8h+pos+8]
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
     vcmpless xmm0, xmm1, cs:__real@80000000
     vblendvps xmm0, xmm1, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rsp+0E8h+vec], xmm0
-    vmulss  xmm0, xmm6, xmm2
-    vmulss  xmm1, xmm5, xmm2
-    vmovss  [rsp+0E8h+var_80], xmm0
-    vmovss  dword ptr [rsp+0E8h+vec+4], xmm1
   }
-  AngleVectors(&v9->r.currentAngles, &forward, NULL, NULL);
-  v35 = parms->entityNum;
-  __asm { vmovss  xmm3, cs:__real@43800000; addDistance }
+  vec.v[0] = (float)(outLastKnownPos.v[0] - pos.v[0]) * (float)(1.0 / *(float *)&_XMM0);
+  v35 = (float)(outLastKnownPos.v[2] - pos.v[2]) * (float)(1.0 / *(float *)&_XMM0);
+  vec.v[1] = (float)(outLastKnownPos.v[1] - pos.v[1]) * (float)(1.0 / *(float *)&_XMM0);
+  AngleVectors(&v7->r.currentAngles, &forward, NULL, NULL);
+  v15 = parms->entityNum;
   scoreType = parms->scoreType;
-  v38 = Bot_Score_Factor_IdealRangeWeapon(v7, parms->entityNum, &outLastKnownPos, *(const float *)&_XMM3);
-  __asm { vmovaps xmm1, xmm7; weight }
-  v40 = BotScoreDebugFactor(0, *(float *)&_XMM1, v38, scoreType, v35);
-  __asm { vmovaps xmm6, [rsp+0E8h+var_48] }
-  v42 = v40;
-  if ( !v40 )
-  {
-LABEL_56:
-    result = 0i64;
-  }
-  else
-  {
-    v43 = parms->entityNum;
-    v44 = parms->scoreType;
-    *(double *)&_XMM0 = vectoyaw(&vec);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@41c80000; coneAngle
-      vmovaps xmm1, xmm0; arcYaw
-      vxorps  xmm0, xmm0, xmm0
-    }
-    Path_NodeExposureGetRawArcSum(v7, *(float *)&_XMM1, *(float *)&_XMM2, 4);
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, cs:__real@41480000
-      vaddss  xmm3, xmm1, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vroundss xmm1, xmm0, xmm3, 1
-      vcvttss2si r8d, xmm1; factor
-      vmovaps xmm1, xmm7; weight
-    }
-    v55 = BotScoreDebugFactor(1, *(float *)&_XMM1, _ER8, v44, v43);
-    v56 = parms->entityNum;
-    v57 = parms->scoreType;
-    v58 = v55 + v42;
-    v59 = Bot_Score_Factor_CloseToPoint(v7, &v9->r.currentOrigin, parms->integer2);
-    __asm { vmovaps xmm1, xmm7; weight }
-    result = (unsigned int)(v58 + BotScoreDebugFactor(2, *(float *)&_XMM1, v59, v57, v56));
-  }
-  __asm { vmovaps xmm7, [rsp+0E8h+var_58] }
-  return result;
+  v17 = Bot_Score_Factor_IdealRangeWeapon(v5, parms->entityNum, &outLastKnownPos, 256.0);
+  v18 = BotScoreDebugFactor(0, 1.0, v17, scoreType, v15);
+  if ( !v18 )
+    return 0i64;
+  v19 = parms->entityNum;
+  v20 = parms->scoreType;
+  v21 = vectoyaw(&vec);
+  Path_NodeExposureGetRawArcSum(v5, *(float *)&v21, 25.0, 4);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  v24 = BotScoreDebugFactor(1, 1.0, (int)*(float *)&_XMM1, v20, v19);
+  v25 = parms->entityNum;
+  v26 = parms->scoreType;
+  v27 = v24 + v18;
+  v28 = Bot_Score_Factor_CloseToPoint(v5, &v7->r.currentOrigin, parms->integer2);
+  return (unsigned int)(v27 + BotScoreDebugFactor(2, 1.0, v28, v26, v25));
 }
 
 /*
@@ -2009,159 +1765,107 @@ Bot_Score_NodeCamp
 */
 __int64 Bot_Score_NodeCamp(int object, const bot_score_parms_s *parms)
 {
-  unsigned __int16 v5; 
-  const pathnode_t *v6; 
+  unsigned __int16 v3; 
+  const pathnode_t *v4; 
   unsigned int flags; 
   __int16 entityNum; 
   bot_score_type_t scoreType; 
-  int v20; 
+  int v12; 
+  int v13; 
+  int v14; 
+  __int16 v15; 
+  bot_score_type_t v16; 
+  int v17; 
+  int v18; 
+  int v19; 
+  __int16 v20; 
+  bot_score_type_t v21; 
+  int v22; 
   int v23; 
   int v24; 
   __int16 v25; 
   bot_score_type_t v26; 
   int v27; 
-  int v30; 
+  int v28; 
+  __int16 v29; 
+  bot_score_type_t v30; 
   int v31; 
-  __int16 v32; 
-  bot_score_type_t v33; 
-  int v34; 
-  int v35; 
+  int v32; 
+  int v33; 
+  __int16 v34; 
+  bot_score_type_t v35; 
+  int v36; 
   int v37; 
-  __int16 v38; 
-  bot_score_type_t v39; 
-  int v40; 
+  int v38; 
+  __int16 v39; 
+  bot_score_type_t v40; 
+  int v41; 
   int v42; 
-  __int16 v43; 
-  bot_score_type_t v44; 
-  int v45; 
-  int v46; 
-  int v48; 
-  __int16 v49; 
-  bot_score_type_t v50; 
-  int v51; 
-  int v52; 
-  int v54; 
-  __int16 v55; 
-  bot_score_type_t v56; 
-  int v57; 
-  int v58; 
-  __int64 result; 
 
-  v5 = object;
+  v3 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 752, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
-  v6 = Path_ConvertIndexToNode(v5);
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 755, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
+  v4 = Path_ConvertIndexToNode(v3);
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 755, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
   flags = parms->flags;
+  if ( Bot_Score_NodeShouldIgnore(v4, parms->entityNum, parms) )
+    return 0i64;
+  _XMM6 = LODWORD(FLOAT_100_0);
+  _XMM0 = flags & 8;
   __asm
   {
-    vmovaps [rsp+78h+var_38], xmm6
-    vmovaps [rsp+78h+var_48], xmm7
-  }
-  if ( Bot_Score_NodeShouldIgnore(v6, parms->entityNum, parms) )
-    goto LABEL_22;
-  __asm
-  {
-    vmovss  xmm2, cs:__real@43fa0000
-    vmovss  xmm6, cs:__real@42c80000
-  }
-  _ECX = 0;
-  __asm { vmovd   xmm1, ecx }
-  _EAX = flags & 8;
-  __asm
-  {
-    vmovd   xmm0, eax
     vpcmpeqd xmm3, xmm0, xmm1
     vblendvps xmm2, xmm6, xmm2, xmm3; radius
   }
-  if ( Bot_Score_NodeIsDangerous(v6, parms->entityNum, *(float *)&_XMM2) )
-    goto LABEL_22;
-  if ( (flags & 8) == 0 )
-  {
-    __asm { vmovss  xmm2, cs:__real@41200000; recentUseTime }
-    if ( Bot_Score_NodeWasRecentlyUsed(v6, parms, *(float *)&_XMM2) )
-      goto LABEL_22;
-  }
-  if ( Path_NodeExposureGetTraffic(v6) > 4 * ((flags >> 3) & 1) + 1 )
-    goto LABEL_22;
-  __asm { vmovaps xmm2, xmm6; radius }
-  if ( Bot_Score_NodeIsNearAllySentient(v6, parms->entityNum, *(float *)&_XMM2) )
-    goto LABEL_22;
+  if ( Bot_Score_NodeIsDangerous(v4, parms->entityNum, *(float *)&_XMM2) || (flags & 8) == 0 && Bot_Score_NodeWasRecentlyUsed(v4, parms, 10.0) )
+    return 0i64;
+  if ( Path_NodeExposureGetTraffic(v4) > 4 * ((flags >> 3) & 1) + 1 || Bot_Score_NodeIsNearAllySentient(v4, parms->entityNum, 100.0) )
+    return 0i64;
   entityNum = parms->entityNum;
   scoreType = parms->scoreType;
-  v20 = Bot_Score_Factor_HighTrafficViewDir(v6, &parms->vector1);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@40000000
-    vmovaps xmm1, xmm6; weight
-  }
-  v23 = BotScoreDebugFactor(0, *(float *)&_XMM1, v20, scoreType, entityNum);
-  v24 = 20;
+  v12 = Bot_Score_Factor_HighTrafficViewDir(v4, &parms->vector1);
+  v13 = BotScoreDebugFactor(0, 2.0, v12, scoreType, entityNum);
+  v14 = 20;
   if ( (flags & 8) != 0 )
-    v24 = 8;
-  if ( v23 < v24 )
-    goto LABEL_22;
+    v14 = 8;
+  if ( v13 < v14 )
+    return 0i64;
+  v15 = parms->entityNum;
+  v16 = parms->scoreType;
+  v17 = Bot_Score_Factor_CrouchSightFacingDir(v4, &parms->vector1);
+  v18 = BotScoreDebugFactor(1, 1.0, v17, v16, v15);
+  v19 = 50;
+  if ( (flags & 8) != 0 )
+    v19 = 20;
+  if ( v18 < v19 )
+    return 0i64;
+  v20 = parms->entityNum;
+  v21 = parms->scoreType;
+  v22 = v18 + v13;
+  v23 = Bot_Score_Factor_ConcealedRearFromDir(v4, &parms->vector1);
+  v24 = BotScoreDebugFactor(2, 2.0, v23, v21, v20);
+  if ( !v24 && (flags & 8) == 0 )
+    return 0i64;
   v25 = parms->entityNum;
   v26 = parms->scoreType;
-  v27 = Bot_Score_Factor_CrouchSightFacingDir(v6, &parms->vector1);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovaps xmm1, xmm7; weight
-  }
-  v30 = BotScoreDebugFactor(1, *(float *)&_XMM1, v27, v26, v25);
-  v31 = 50;
-  if ( (flags & 8) != 0 )
-    v31 = 20;
-  if ( v30 < v31 )
-    goto LABEL_22;
-  v32 = parms->entityNum;
-  v33 = parms->scoreType;
-  v34 = v30 + v23;
-  v35 = Bot_Score_Factor_ConcealedRearFromDir(v6, &parms->vector1);
-  __asm { vmovaps xmm1, xmm6; weight }
-  v37 = BotScoreDebugFactor(2, *(float *)&_XMM1, v35, v33, v32);
-  if ( v37 )
-    goto LABEL_21;
-  if ( (flags & 8) == 0 )
-  {
-LABEL_22:
-    result = 0i64;
-  }
-  else
-  {
-LABEL_21:
-    v38 = parms->entityNum;
-    v39 = parms->scoreType;
-    v40 = Bot_Score_Factor_NoTrafficRearFromDir(v6, &parms->vector1);
-    __asm { vmovaps xmm1, xmm7; weight }
-    v42 = BotScoreDebugFactor(3, *(float *)&_XMM1, v40, v39, v38);
-    v43 = parms->entityNum;
-    v44 = parms->scoreType;
-    v45 = v37 + v42 + v34;
-    v46 = Bot_Score_Factor_CoverRearFromDir(v6, &parms->vector1);
-    __asm { vmovaps xmm1, xmm7; weight }
-    v48 = BotScoreDebugFactor(4, *(float *)&_XMM1, v46, v44, v43);
-    v49 = parms->entityNum;
-    v50 = parms->scoreType;
-    v51 = v48 + v45;
-    v52 = Bot_Score_Factor_ProneCoverFacingDir(v6, &parms->vector1);
-    __asm { vmovaps xmm1, xmm7; weight }
-    v54 = BotScoreDebugFactor(5, *(float *)&_XMM1, v52, v50, v49);
-    v55 = parms->entityNum;
-    v56 = parms->scoreType;
-    v57 = v54 + v51;
-    v58 = Bot_Score_Factor_NotRecentlyUsed(v6, parms);
-    __asm { vmovaps xmm1, xmm7; weight }
-    result = (unsigned int)(v57 + BotScoreDebugFactor(6, *(float *)&_XMM1, v58, v56, v55));
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+78h+var_48]
-    vmovaps xmm6, [rsp+78h+var_38]
-  }
-  return result;
+  v27 = Bot_Score_Factor_NoTrafficRearFromDir(v4, &parms->vector1);
+  v28 = BotScoreDebugFactor(3, 1.0, v27, v26, v25);
+  v29 = parms->entityNum;
+  v30 = parms->scoreType;
+  v31 = v24 + v28 + v22;
+  v32 = Bot_Score_Factor_CoverRearFromDir(v4, &parms->vector1);
+  v33 = BotScoreDebugFactor(4, 1.0, v32, v30, v29);
+  v34 = parms->entityNum;
+  v35 = parms->scoreType;
+  v36 = v33 + v31;
+  v37 = Bot_Score_Factor_ProneCoverFacingDir(v4, &parms->vector1);
+  v38 = BotScoreDebugFactor(5, 1.0, v37, v35, v34);
+  v39 = parms->entityNum;
+  v40 = parms->scoreType;
+  v41 = v38 + v36;
+  v42 = Bot_Score_Factor_NotRecentlyUsed(v4, parms);
+  return (unsigned int)(v41 + BotScoreDebugFactor(6, 1.0, v42, v40, v39));
 }
 
 /*
@@ -2171,130 +1875,76 @@ Bot_Score_NodeTrap
 */
 __int64 Bot_Score_NodeTrap(int object, const bot_score_parms_s *parms)
 {
-  unsigned __int16 v4; 
-  pathnode_t *v5; 
-  const pathnode_t *v6; 
-  pathnode_t *v7; 
-  char v29; 
+  unsigned __int16 v3; 
+  pathnode_t *v4; 
+  const pathnode_t *v5; 
+  pathnode_t *v6; 
+  double v7; 
+  double RangeArcMax; 
   __int16 entityNum; 
   bot_score_type_t scoreType; 
-  int v32; 
-  int v34; 
-  bot_score_type_t v35; 
-  int v36; 
-  int v46; 
-  bot_score_type_t v47; 
-  int v48; 
-  int v49; 
-  __int64 result; 
+  int v11; 
+  int v12; 
+  bot_score_type_t v13; 
+  int v14; 
+  int v17; 
+  bot_score_type_t v18; 
+  int v19; 
+  int v20; 
   vec2_t vec; 
-  vec3_t v55; 
+  float v23; 
+  vec3_t v24; 
   vec3_t pos; 
 
-  v4 = object;
+  v3 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1099, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
-  v5 = Path_ConvertIndexToNode(v4);
-  v6 = Path_ConvertIndexToNode(parms->integer1);
-  v7 = Path_ConvertIndexToNode(parms->integer2);
-  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1105, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
+  v4 = Path_ConvertIndexToNode(v3);
+  v5 = Path_ConvertIndexToNode(parms->integer1);
+  v6 = Path_ConvertIndexToNode(parms->integer2);
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1105, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1106, ASSERT_TYPE_ASSERT, "( ambush_node )", (const char *)&queryFormat, "ambush_node") )
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1106, ASSERT_TYPE_ASSERT, "( ambush_node )", (const char *)&queryFormat, "ambush_node") )
     __debugbreak();
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1107, ASSERT_TYPE_ASSERT, "( entrance_node )", (const char *)&queryFormat, "entrance_node") )
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1107, ASSERT_TYPE_ASSERT, "( entrance_node )", (const char *)&queryFormat, "entrance_node") )
     __debugbreak();
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  if ( v5 == v6 )
-    goto LABEL_21;
-  if ( v5 == v7 )
-    goto LABEL_21;
-  if ( Bot_Score_NodeShouldIgnore(v5, parms->entityNum, parms) )
-    goto LABEL_21;
-  __asm { vmovss  xmm2, cs:__real@41200000; recentUseTime }
-  if ( Bot_Score_NodeWasRecentlyUsed(v5, parms, *(float *)&_XMM2) )
-    goto LABEL_21;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@42c80000
-    vmovaps xmm2, xmm6; radius
-  }
-  if ( Bot_Score_NodeIsNearAllySentient(v5, parms->entityNum, *(float *)&_XMM2) )
-    goto LABEL_21;
-  __asm { vmovss  xmm2, cs:__real@43fa0000; radius }
-  if ( Bot_Score_NodeIsDangerous(v5, parms->entityNum, *(float *)&_XMM2) )
-    goto LABEL_21;
-  pathnode_t::GetPos(v5, &pos);
-  pathnode_t::GetPos(v7, &v55);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0A8h+var_68]
-    vsubss  xmm1, xmm0, dword ptr [rsp+0A8h+pos]
-    vmovss  xmm2, dword ptr [rsp+0A8h+var_68+4]
-    vsubss  xmm0, xmm2, dword ptr [rsp+0A8h+pos+4]
-    vmovss  dword ptr [rsp+0A8h+vec], xmm1
-    vmovss  xmm1, dword ptr [rsp+0A8h+var_68+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+0A8h+pos+8]
-    vmovss  [rsp+0A8h+var_70], xmm2
-    vmovss  dword ptr [rsp+0A8h+vec+4], xmm0
-  }
-  *(double *)&_XMM0 = vectoyaw(&vec);
-  __asm
-  {
-    vmovaps xmm1, xmm0; arcYaw
-    vxorps  xmm2, xmm2, xmm2; coneAngle
-  }
-  *(double *)&_XMM0 = Path_NodeExposureGetRangeArcMax(v5, *(float *)&_XMM1, *(float *)&_XMM2, 4);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+0A8h+vec+4]
-    vmulss  xmm5, xmm0, xmm0
-    vmovss  xmm0, dword ptr [rsp+0A8h+vec]
-    vmulss  xmm2, xmm0, xmm0
-    vmulss  xmm3, xmm1, xmm1
-    vmovss  xmm1, [rsp+0A8h+var_70]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm0, xmm1, xmm1
-    vaddss  xmm2, xmm4, xmm0
-    vcomiss xmm5, xmm2
-  }
-  if ( v29 )
-  {
-LABEL_21:
-    result = 0i64;
-  }
-  else
-  {
-    entityNum = parms->entityNum;
-    scoreType = parms->scoreType;
-    v32 = Bot_Score_Factor_ProneCover360(v5);
-    __asm { vmovss  xmm1, cs:__real@40000000; weight }
-    v34 = BotScoreDebugFactor(0, *(float *)&_XMM1, v32, scoreType, entityNum);
-    LOWORD(scoreType) = parms->entityNum;
-    v35 = parms->scoreType;
-    v36 = v34;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    Path_NodeExposureGetTraffic(v5);
-    __asm
-    {
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm1, xmm0, cs:__real@3ec8c8c9
-      vsubss  xmm1, xmm6, xmm1
-      vaddss  xmm2, xmm1, cs:__real@3f000000
-      vxorps  xmm1, xmm1, xmm1
-      vroundss xmm4, xmm1, xmm2, 1
-      vmovss  xmm1, cs:__real@3f800000; weight
-      vcvttss2si r8d, xmm4; factor
-    }
-    v46 = BotScoreDebugFactor(1, *(float *)&_XMM1, _ER8, v35, scoreType);
-    LOWORD(scoreType) = parms->entityNum;
-    v47 = parms->scoreType;
-    v48 = v46 + v36;
-    v49 = Bot_Score_Factor_VisibilityToNode(v5, v6);
-    __asm { vmovss  xmm1, cs:__real@3f800000; weight }
-    result = (unsigned int)(v48 + BotScoreDebugFactor(2, *(float *)&_XMM1, v49, v47, scoreType));
-  }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  return result;
+  if ( v4 == v5 )
+    return 0i64;
+  if ( v4 == v6 )
+    return 0i64;
+  if ( Bot_Score_NodeShouldIgnore(v4, parms->entityNum, parms) )
+    return 0i64;
+  if ( Bot_Score_NodeWasRecentlyUsed(v4, parms, 10.0) )
+    return 0i64;
+  if ( Bot_Score_NodeIsNearAllySentient(v4, parms->entityNum, 100.0) )
+    return 0i64;
+  if ( Bot_Score_NodeIsDangerous(v4, parms->entityNum, 500.0) )
+    return 0i64;
+  pathnode_t::GetPos(v4, &pos);
+  pathnode_t::GetPos(v6, &v24);
+  vec.v[0] = v24.v[0] - pos.v[0];
+  v23 = v24.v[2] - pos.v[2];
+  vec.v[1] = v24.v[1] - pos.v[1];
+  v7 = vectoyaw(&vec);
+  RangeArcMax = Path_NodeExposureGetRangeArcMax(v4, *(float *)&v7, 0.0, 4);
+  if ( (float)(*(float *)&RangeArcMax * *(float *)&RangeArcMax) < (float)((float)((float)(vec.v[1] * vec.v[1]) + (float)(vec.v[0] * vec.v[0])) + (float)(v23 * v23)) )
+    return 0i64;
+  entityNum = parms->entityNum;
+  scoreType = parms->scoreType;
+  v11 = Bot_Score_Factor_ProneCover360(v4);
+  v12 = BotScoreDebugFactor(0, 2.0, v11, scoreType, entityNum);
+  LOWORD(scoreType) = parms->entityNum;
+  v13 = parms->scoreType;
+  v14 = v12;
+  Path_NodeExposureGetTraffic(v4);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm4, xmm1, xmm2, 1 }
+  v17 = BotScoreDebugFactor(1, 1.0, (int)*(float *)&_XMM4, v13, scoreType);
+  LOWORD(scoreType) = parms->entityNum;
+  v18 = parms->scoreType;
+  v19 = v17 + v14;
+  v20 = Bot_Score_Factor_VisibilityToNode(v4, v5);
+  return (unsigned int)(v19 + BotScoreDebugFactor(2, 1.0, v20, v18, scoreType));
 }
 
 /*
@@ -2304,80 +1954,51 @@ Bot_Score_NodeAerialTarget
 */
 __int64 Bot_Score_NodeAerialTarget(int object, const bot_score_parms_s *parms)
 {
-  unsigned __int16 v5; 
-  pathnode_t *v6; 
+  unsigned __int16 v3; 
+  pathnode_t *v4; 
   __int16 entityNum; 
   bot_score_type_t scoreType; 
-  int v11; 
-  int v19; 
-  __int16 v20; 
-  bot_score_type_t v21; 
-  int v22; 
+  int v7; 
+  int v10; 
+  __int16 v11; 
+  bot_score_type_t v12; 
+  int v13; 
   int IsExposedSky; 
-  __int64 v24; 
+  __int64 v15; 
 
-  v5 = object;
+  v3 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1153, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
-  v6 = Path_ConvertIndexToNode(v5);
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1156, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
+  v4 = Path_ConvertIndexToNode(v3);
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1156, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( Bot_Score_NodeShouldIgnore(v6, parms->entityNum, parms) )
-    return 0i64;
-  __asm { vmovss  xmm2, cs:__real@42000000; radius }
-  if ( Bot_Score_NodeIsDangerous(v6, parms->entityNum, *(float *)&_XMM2) )
+  if ( Bot_Score_NodeShouldIgnore(v4, parms->entityNum, parms) || Bot_Score_NodeIsDangerous(v4, parms->entityNum, 32.0) )
     return 0i64;
   entityNum = parms->entityNum;
   scoreType = parms->scoreType;
-  __asm
+  Path_NodeExposureGeneral(v4, 1);
+  v7 = 0;
+  _XMM6 = 0i64;
+  __asm { vroundss xmm3, xmm6, xmm2, 1 }
+  v10 = BotScoreDebugFactor(0, 0.80000001, (int)*(float *)&_XMM3, scoreType, entityNum);
+  v11 = parms->entityNum;
+  v12 = parms->scoreType;
+  v13 = v10;
+  IsExposedSky = Path_IsExposedSky(v4);
+  if ( v4->dynamic.wLinkCount > 0 )
   {
-    vmovaps [rsp+68h+var_38], xmm6
-    vxorps  xmm0, xmm0, xmm0
-  }
-  Path_NodeExposureGeneral(v6, 1);
-  v11 = 0;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3f44ec4f
-    vaddss  xmm2, xmm1, cs:__real@3f000000
-    vmovss  xmm1, cs:__real@3f4ccccd; weight
-    vroundss xmm3, xmm6, xmm2, 1
-    vcvttss2si r8d, xmm3; factor
-  }
-  v19 = BotScoreDebugFactor(0, *(float *)&_XMM1, _ER8, scoreType, entityNum);
-  v20 = parms->entityNum;
-  v21 = parms->scoreType;
-  v22 = v19;
-  IsExposedSky = Path_IsExposedSky(v6);
-  if ( v6->dynamic.wLinkCount > 0 )
-  {
-    v24 = 0i64;
+    v15 = 0i64;
     do
     {
-      if ( Path_IsNodeIndexExposedSky(v6->constant.Links[v24].nodeNum) )
+      if ( Path_IsNodeIndexExposedSky(v4->constant.Links[v15].nodeNum) )
         ++IsExposedSky;
-      ++v11;
-      ++v24;
+      ++v7;
+      ++v15;
     }
-    while ( v11 < v6->dynamic.wLinkCount );
+    while ( v7 < v4->dynamic.wLinkCount );
   }
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, edi
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm2, xmm1, cs:__real@42c80000
-    vaddss  xmm3, xmm2, cs:__real@3f000000
-    vmovss  xmm1, cs:__real@3f800000; weight
-    vroundss xmm2, xmm6, xmm3, 1
-    vcvttss2si r8d, xmm2; factor
-    vmovaps xmm6, [rsp+68h+var_38]
-  }
-  return (unsigned int)(v22 + BotScoreDebugFactor(0, *(float *)&_XMM1, _ER8, v21, v20));
+  __asm { vroundss xmm2, xmm6, xmm3, 1 }
+  return (unsigned int)(v13 + BotScoreDebugFactor(0, 1.0, (int)*(float *)&_XMM2, v12, v11));
 }
 
 /*
@@ -2416,6 +2037,7 @@ void Bot_Score_Prep_Normal(bot_score_item_s *items, int itemCount, bot_score_par
   bool v7; 
   __int64 entityNum; 
   gentity_s *v9; 
+  bitarray<224> *AllTeamFlags; 
   sentient_s *i; 
   bitarray<224> iTeamFlags; 
 
@@ -2443,17 +2065,10 @@ void Bot_Score_Prep_Normal(bot_score_item_s *items, int itemCount, bot_score_par
     if ( !v9->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1227, ASSERT_TYPE_ASSERT, "( entity->sentient )", (const char *)&queryFormat, "entity->sentient") )
       __debugbreak();
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-      _RAX = Com_TeamsSP_GetAllTeamFlags();
+      AllTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
     else
-      _RAX = Com_TeamsMP_GetAllTeamFlags();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+68h+iTeamFlags.array], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rsp+68h+iTeamFlags.array+10h], xmm1
-    }
-    iTeamFlags.array[6] = _RAX->array[6];
+      AllTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+    iTeamFlags = *AllTeamFlags;
     for ( i = Sentient_FirstSentient(&iTeamFlags); i; i = Sentient_NextSentient(i, &iTeamFlags) )
     {
       if ( Bot_IsCharacterActive(i->ent) && !AI_IsAlliedSentient(v9->sentient, i) && Sentient_IsAerial(i) )
@@ -2476,222 +2091,193 @@ void Bot_Score_Prep_Normal(bot_score_item_s *items, int itemCount, bot_score_par
 BotScoreDebugFactor
 ==============
 */
-
-__int64 __fastcall BotScoreDebugFactor(int index, double weight, int factor, bot_score_type_t type, __int16 entityNum)
+__int64 BotScoreDebugFactor(int index, float weight, int factor, bot_score_type_t type, __int16 entityNum)
 {
-  __int64 v9; 
-  __int16 v10; 
-  const dvar_t *v13; 
-  unsigned int v15; 
-  const dvar_t **v16; 
-  const dvar_t *v18; 
-  bool v19; 
-  bool v20; 
+  __int64 v5; 
+  __int16 v6; 
+  float v7; 
+  __int64 v8; 
+  const dvar_t *v9; 
+  unsigned int v10; 
+  const dvar_t **v11; 
+  const dvar_t *v12; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  const dvar_t *v17; 
+  __int16 v18; 
+  unsigned int v19; 
+  bot_data_t *EntityData; 
+  bot_debug_data_t *p_botDebugData; 
+  bot_debug_score_t *v22; 
+  const dvar_t *v24; 
+  const dvar_t *v25; 
+  const dvar_t *v26; 
+  const dvar_t *v27; 
+  const dvar_t *v28; 
+  const dvar_t *v29; 
   const dvar_t *v30; 
   const dvar_t *v31; 
   const dvar_t *v32; 
-  __int16 v33; 
-  unsigned int v34; 
-  bot_data_t *EntityData; 
-  bot_debug_data_t *p_botDebugData; 
-  bot_debug_score_t *v37; 
-  __int64 result; 
-  const dvar_t *v43; 
-  const dvar_t *v44; 
-  const dvar_t *v45; 
-  const dvar_t *v46; 
-  const dvar_t *v47; 
-  const dvar_t *v48; 
-  const dvar_t *v49; 
-  const dvar_t *v50; 
-  const dvar_t *v51; 
-  const dvar_t *v52; 
-  const dvar_t *v53; 
-  const dvar_t *v54; 
-  const dvar_t *v55; 
-  const dvar_t *v56; 
-  const dvar_t *v57; 
-  __int64 v58; 
-  __int64 v59; 
-  void *retaddr; 
+  const dvar_t *v33; 
+  const dvar_t *v34; 
+  const dvar_t *v35; 
+  const dvar_t *v36; 
+  const dvar_t *v37; 
+  const dvar_t *v38; 
+  __int64 v39; 
+  __int64 v40; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  v9 = type;
-  v10 = factor;
-  __asm { vmovaps xmm7, xmm1 }
+  v5 = type;
+  v6 = factor;
+  v7 = weight;
+  v8 = index;
   if ( dword_14E9320B0 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_14E9320B0);
     if ( dword_14E9320B0 == -1 )
     {
-      v43 = DVARFLT_bot_ScoreVal0;
+      v24 = DVARFLT_bot_ScoreVal0;
       if ( !DVARFLT_bot_ScoreVal0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[0] = v43;
-      v44 = DVARFLT_bot_ScoreVal1;
+      FACTOR_OFFSET_DVARS[0] = v24;
+      v25 = DVARFLT_bot_ScoreVal1;
       if ( !DVARFLT_bot_ScoreVal1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[1] = v44;
-      v45 = DVARFLT_bot_ScoreVal2;
+      FACTOR_OFFSET_DVARS[1] = v25;
+      v26 = DVARFLT_bot_ScoreVal2;
       if ( !DVARFLT_bot_ScoreVal2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[2] = v45;
-      v46 = DVARFLT_bot_ScoreVal3;
+      FACTOR_OFFSET_DVARS[2] = v26;
+      v27 = DVARFLT_bot_ScoreVal3;
       if ( !DVARFLT_bot_ScoreVal3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[3] = v46;
-      v47 = DVARFLT_bot_ScoreVal4;
+      FACTOR_OFFSET_DVARS[3] = v27;
+      v28 = DVARFLT_bot_ScoreVal4;
       if ( !DVARFLT_bot_ScoreVal4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[4] = v47;
-      v48 = DVARFLT_bot_ScoreVal5;
+      FACTOR_OFFSET_DVARS[4] = v28;
+      v29 = DVARFLT_bot_ScoreVal5;
       if ( !DVARFLT_bot_ScoreVal5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[5] = v48;
-      v49 = DVARFLT_bot_ScoreVal6;
+      FACTOR_OFFSET_DVARS[5] = v29;
+      v30 = DVARFLT_bot_ScoreVal6;
       if ( !DVARFLT_bot_ScoreVal6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[6] = v49;
-      v50 = DVARFLT_bot_ScoreVal7;
+      FACTOR_OFFSET_DVARS[6] = v30;
+      v31 = DVARFLT_bot_ScoreVal7;
       if ( !DVARFLT_bot_ScoreVal7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[7] = v50;
-      v51 = DVARFLT_bot_ScoreVal8;
+      FACTOR_OFFSET_DVARS[7] = v31;
+      v32 = DVARFLT_bot_ScoreVal8;
       if ( !DVARFLT_bot_ScoreVal8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[8] = v51;
-      v52 = DVARFLT_bot_ScoreVal9;
+      FACTOR_OFFSET_DVARS[8] = v32;
+      v33 = DVARFLT_bot_ScoreVal9;
       if ( !DVARFLT_bot_ScoreVal9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[9] = v52;
-      v53 = DVARFLT_bot_ScoreVal10;
+      FACTOR_OFFSET_DVARS[9] = v33;
+      v34 = DVARFLT_bot_ScoreVal10;
       if ( !DVARFLT_bot_ScoreVal10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[10] = v53;
-      v54 = DVARFLT_bot_ScoreVal11;
+      FACTOR_OFFSET_DVARS[10] = v34;
+      v35 = DVARFLT_bot_ScoreVal11;
       if ( !DVARFLT_bot_ScoreVal11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[11] = v54;
-      v55 = DVARFLT_bot_ScoreVal12;
+      FACTOR_OFFSET_DVARS[11] = v35;
+      v36 = DVARFLT_bot_ScoreVal12;
       if ( !DVARFLT_bot_ScoreVal12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[12] = v55;
-      v56 = DVARFLT_bot_ScoreVal13;
+      FACTOR_OFFSET_DVARS[12] = v36;
+      v37 = DVARFLT_bot_ScoreVal13;
       if ( !DVARFLT_bot_ScoreVal13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[13] = v56;
-      v57 = DVARFLT_bot_ScoreVal14;
+      FACTOR_OFFSET_DVARS[13] = v37;
+      v38 = DVARFLT_bot_ScoreVal14;
       if ( !DVARFLT_bot_ScoreVal14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar_api.h", 759, ASSERT_TYPE_ASSERT, "( dvar )", "Dvar accessed after deregistration") )
         __debugbreak();
-      FACTOR_OFFSET_DVARS[14] = v57;
+      FACTOR_OFFSET_DVARS[14] = v38;
       j__Init_thread_footer(&dword_14E9320B0);
     }
   }
-  v13 = DVARBOOL_bot_ScoreValReset;
+  v9 = DVARBOOL_bot_ScoreValReset;
   if ( !DVARBOOL_bot_ScoreValReset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreValReset") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  if ( v13->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.enabled )
   {
-    v15 = 0;
-    v16 = FACTOR_OFFSET_DVARS;
+    v10 = 0;
+    v11 = FACTOR_OFFSET_DVARS;
     do
     {
-      __asm { vmovaps xmm1, xmm6; value }
-      Dvar_SetFloat_Internal(*v16, *(float *)&_XMM1);
-      ++v15;
-      ++v16;
+      Dvar_SetFloat_Internal(*v11, 0.0);
+      ++v10;
+      ++v11;
     }
-    while ( v15 < 0xF );
+    while ( v10 < 0xF );
     Dvar_SetBool_Internal(DVARBOOL_bot_ScoreValReset, 0);
   }
-  v18 = DVARINT_bot_ScoreType;
+  v12 = DVARINT_bot_ScoreType;
   if ( !DVARINT_bot_ScoreType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreType") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  v19 = v18->current.integer < (unsigned int)v9;
-  if ( v18->current.integer == (_DWORD)v9 )
+  Dvar_CheckFrontendServerThread(v12);
+  if ( v12->current.integer == (_DWORD)v5 )
   {
-    v19 = (unsigned int)index < 0xF;
-    if ( (unsigned int)index >= 0xF )
+    if ( (unsigned int)v8 >= 0xF )
     {
-      LODWORD(v59) = 15;
-      LODWORD(v58) = index;
-      v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2735, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( FACTOR_OFFSET_DVARS ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( FACTOR_OFFSET_DVARS )\n\t%i not in [0, %i)", v58, v59);
-      v19 = 0;
-      if ( v20 )
+      LODWORD(v40) = 15;
+      LODWORD(v39) = v8;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2735, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( FACTOR_OFFSET_DVARS ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( FACTOR_OFFSET_DVARS )\n\t%i not in [0, %i)", v39, v40) )
         __debugbreak();
     }
-    __asm { vaddss  xmm7, xmm7, dword ptr [rcx+28h] }
+    v7 = weight + FACTOR_OFFSET_DVARS[v8]->current.value;
   }
-  __asm
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  if ( v7 < 0.0 || v7 >= 1000.0 )
+    Com_Printf(16, "*** Invalid bot score factor weight: %f ***\n", v7);
+  if ( (unsigned int)v5 >= 0x11 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r14d
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si esi, xmm1
-    vcomiss xmm7, xmm6
-  }
-  if ( !v19 )
-    __asm { vcomiss xmm7, cs:__real@447a0000 }
-  __asm
-  {
-    vcvtss2sd xmm2, xmm7, xmm7
-    vmovq   r8, xmm2
-  }
-  Com_Printf(16, "*** Invalid bot score factor weight: %f ***\n", *(double *)&_XMM2);
-  if ( (unsigned int)v9 >= 0x11 )
-  {
-    LODWORD(v59) = 17;
-    LODWORD(v58) = v9;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2710, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( BOT_SCORE_TYPE_COUNT )", "type doesn't index BOT_SCORE_TYPE_COUNT\n\t%i not in [0, %i)", v58, v59) )
+    LODWORD(v40) = 17;
+    LODWORD(v39) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2710, ASSERT_TYPE_ASSERT, "(unsigned)( type ) < (unsigned)( BOT_SCORE_TYPE_COUNT )", "type doesn't index BOT_SCORE_TYPE_COUNT\n\t%i not in [0, %i)", v39, v40) )
       __debugbreak();
   }
-  if ( BOT_SCORE_FUNCS[v9].pathNodes )
+  if ( BOT_SCORE_FUNCS[v5].pathNodes )
   {
-    v30 = DVARINT_bot_ScoreType;
+    v15 = DVARINT_bot_ScoreType;
     if ( !DVARINT_bot_ScoreType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreType") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v30);
-    if ( v30->current.integer == (_DWORD)v9 )
+    Dvar_CheckFrontendServerThread(v15);
+    if ( v15->current.integer == (_DWORD)v5 )
     {
-      v31 = DVARINT_bot_ScoreClient;
+      v16 = DVARINT_bot_ScoreClient;
       if ( !DVARINT_bot_ScoreClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreClient") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v31);
-      if ( v31->current.integer == -1 )
+      Dvar_CheckFrontendServerThread(v16);
+      if ( v16->current.integer == -1 )
       {
-        v33 = entityNum;
-        v34 = entityNum;
+        v18 = entityNum;
+        v19 = entityNum;
       }
       else
       {
-        v32 = DVARINT_bot_ScoreClient;
+        v17 = DVARINT_bot_ScoreClient;
         if ( !DVARINT_bot_ScoreClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreClient") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v32);
-        v33 = entityNum;
-        v34 = entityNum;
-        if ( v32->current.integer != entityNum )
-          goto LABEL_55;
+        Dvar_CheckFrontendServerThread(v17);
+        v18 = entityNum;
+        v19 = entityNum;
+        if ( v17->current.integer != entityNum )
+          return (unsigned int)(int)*(float *)&_XMM1;
       }
-      if ( v34 >= level.num_entities )
+      if ( v19 >= level.num_entities )
       {
-        LODWORD(v59) = level.num_entities;
-        LODWORD(v58) = v34;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2756, ASSERT_TYPE_ASSERT, "(unsigned)( entityNum ) < (unsigned)( level.num_entities )", "entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v58, v59) )
+        LODWORD(v40) = level.num_entities;
+        LODWORD(v39) = v19;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2756, ASSERT_TYPE_ASSERT, "(unsigned)( entityNum ) < (unsigned)( level.num_entities )", "entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v39, v40) )
           __debugbreak();
       }
-      EntityData = Bot_GetEntityData(&level.gentities[v33]);
+      EntityData = Bot_GetEntityData(&level.gentities[v18]);
       if ( !EntityData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2758, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
         __debugbreak();
       p_botDebugData = &EntityData->botDebugData;
@@ -2699,40 +2285,28 @@ __int64 __fastcall BotScoreDebugFactor(int index, double weight, int factor, bot
         __debugbreak();
       if ( p_botDebugData->debugScoresCount >= 0x400u )
       {
-        LODWORD(v59) = 1024;
-        LODWORD(v58) = p_botDebugData->debugScoresCount;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2763, ASSERT_TYPE_ASSERT, "(unsigned)( botDebug->debugScoresCount ) < (unsigned)( 1024 )", "botDebug->debugScoresCount doesn't index BOT_SCORE_MAX\n\t%i not in [0, %i)", v58, v59) )
+        LODWORD(v40) = 1024;
+        LODWORD(v39) = p_botDebugData->debugScoresCount;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2763, ASSERT_TYPE_ASSERT, "(unsigned)( botDebug->debugScoresCount ) < (unsigned)( 1024 )", "botDebug->debugScoresCount doesn't index BOT_SCORE_MAX\n\t%i not in [0, %i)", v39, v40) )
           __debugbreak();
       }
-      v37 = &p_botDebugData->debugScores[p_botDebugData->debugScoresCount];
-      if ( (unsigned int)((int)(*((_DWORD *)v37 + 2) << 27) >> 27) >= 0xF )
+      v22 = &p_botDebugData->debugScores[p_botDebugData->debugScoresCount];
+      if ( (unsigned int)((int)(*((_DWORD *)v22 + 2) << 27) >> 27) >= 0xF )
       {
-        LODWORD(v59) = 15;
-        LODWORD(v58) = (int)(*((_DWORD *)v37 + 2) << 27) >> 27;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2765, ASSERT_TYPE_ASSERT, "(unsigned)( debugScore->factorCount ) < (unsigned)( 15 )", "debugScore->factorCount doesn't index BOT_SCORE_FACTOR_MAX\n\t%i not in [0, %i)", v58, v59) )
+        LODWORD(v40) = 15;
+        LODWORD(v39) = (int)(*((_DWORD *)v22 + 2) << 27) >> 27;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2765, ASSERT_TYPE_ASSERT, "(unsigned)( debugScore->factorCount ) < (unsigned)( 15 )", "debugScore->factorCount doesn't index BOT_SCORE_FACTOR_MAX\n\t%i not in [0, %i)", v39, v40) )
           __debugbreak();
       }
       if ( p_botDebugData->debugScoresSaving )
       {
-        *(_WORD *)&v37->factors[(__int64)(int)(*((_DWORD *)v37 + 2) << 27) >> 27] = v10;
-        __asm
-        {
-          vmulss  xmm0, xmm7, cs:__real@428311ec
-          vcvttss2si rdx, xmm0
-        }
-        *((_WORD *)&v37->factors[(__int64)(int)(*((_DWORD *)v37 + 2) << 27) >> 27] + 1) = _RDX;
-        *((_DWORD *)v37 + 2) ^= ((unsigned __int8)*((_DWORD *)v37 + 2) ^ (unsigned __int8)(*((_DWORD *)v37 + 2) + 1)) & 0x1F;
+        *(_WORD *)&v22->factors[(__int64)(int)(*((_DWORD *)v22 + 2) << 27) >> 27] = v6;
+        *((_WORD *)&v22->factors[(__int64)(int)(*((_DWORD *)v22 + 2) << 27) >> 27] + 1) = (int)(float)(v7 * 65.535004);
+        *((_DWORD *)v22 + 2) ^= ((unsigned __int8)*((_DWORD *)v22 + 2) ^ (unsigned __int8)(*((_DWORD *)v22 + 2) + 1)) & 0x1F;
       }
     }
   }
-LABEL_55:
-  result = _ESI;
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_38]
-    vmovaps xmm7, [rsp+98h+var_48]
-  }
-  return result;
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -2947,54 +2521,45 @@ Bot_Score_Dbg_Direction
 */
 void Bot_Score_Dbg_Direction(bot_score_item_s *items, int itemCount, bot_score_parms_s *parms)
 {
-  __int64 v11; 
-  __int64 v19; 
-  pathnode_t *v20; 
+  __int64 v3; 
+  __int64 v12; 
+  pathnode_t *v13; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
   vec3_t start; 
   vec3_t pos; 
   vec3_t end; 
-  vec3_t v64; 
-  char v65; 
-  void *retaddr; 
+  vec3_t v26; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-68h], xmm9
-    vmovaps xmmword ptr [r11-78h], xmm10
-    vmovaps xmmword ptr [r11-88h], xmm11
-    vmovaps xmmword ptr [r11-98h], xmm12
-  }
-  v11 = itemCount;
-  __asm
-  {
-    vmovss  xmm9, cs:__real@47c34f80
-    vmovss  xmm6, cs:__real@c7c34f80
-    vmovaps xmm10, xmm9
-    vmovaps xmm11, xmm9
-    vmovaps xmm7, xmm6
-    vmovaps xmm12, xmm6
-  }
+  v3 = itemCount;
+  _XMM9 = LODWORD(FLOAT_99999_0);
+  _XMM6 = LODWORD(FLOAT_N99999_0);
+  *(float *)&_XMM10 = FLOAT_99999_0;
+  *(float *)&_XMM11 = FLOAT_99999_0;
+  *(float *)&_XMM7 = FLOAT_N99999_0;
+  *(float *)&_XMM12 = FLOAT_N99999_0;
   if ( itemCount > 0 )
   {
-    v19 = 0i64;
+    v12 = 0i64;
     do
     {
-      v20 = Path_ConvertIndexToNode(items[v19].object);
-      if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2875, ASSERT_TYPE_ASSERT, "( pathnode )", (const char *)&queryFormat, "pathnode") )
+      v13 = Path_ConvertIndexToNode(items[v12].object);
+      if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2875, ASSERT_TYPE_ASSERT, "( pathnode )", (const char *)&queryFormat, "pathnode") )
         __debugbreak();
-      pathnode_t::GetPos(v20, &pos);
+      pathnode_t::GetPos(v13, &pos);
+      _XMM1 = LODWORD(pos.v[1]);
+      _XMM0 = LODWORD(pos.v[2]);
       __asm
       {
-        vmovss  xmm1, dword ptr [rsp+118h+pos+4]
-        vmovss  xmm0, dword ptr [rsp+118h+pos+8]
         vminss  xmm9, xmm9, dword ptr [rsp+118h+pos]
         vmaxss  xmm6, xmm6, dword ptr [rsp+118h+pos]
       }
-      ++v19;
+      ++v12;
       __asm
       {
         vminss  xmm10, xmm1, xmm10
@@ -3003,63 +2568,26 @@ void Bot_Score_Dbg_Direction(bot_score_item_s *items, int itemCount, bot_score_p
         vmaxss  xmm12, xmm0, xmm12
       }
     }
-    while ( v19 < v11 );
+    while ( v12 < v3 );
   }
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f000000
-    vsubss  xmm0, xmm6, xmm9
-    vmulss  xmm0, xmm0, xmm2
-    vaddss  xmm8, xmm0, xmm9
-    vsubss  xmm1, xmm7, xmm10
-    vmulss  xmm0, xmm1, xmm2
-    vaddss  xmm7, xmm0, xmm10
-    vsubss  xmm1, xmm12, xmm11
-    vmulss  xmm0, xmm1, xmm2
-    vaddss  xmm6, xmm0, xmm11
-    vsubss  xmm0, xmm10, xmm7
-    vmulss  xmm1, xmm0, xmm0
-    vsubss  xmm2, xmm9, xmm8
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vsubss  xmm3, xmm11, xmm6
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
-    vmulss  xmm1, xmm4, dword ptr [r14+14h]
-    vmulss  xmm5, xmm4, dword ptr [r14+18h]
-    vmulss  xmm3, xmm4, dword ptr [r14+1Ch]
-    vaddss  xmm0, xmm1, xmm8
-    vmovss  dword ptr [rsp+118h+end], xmm0
-    vaddss  xmm0, xmm5, xmm7
-    vmovss  dword ptr [rsp+118h+end+4], xmm0
-    vaddss  xmm0, xmm3, xmm6
-    vaddss  xmm0, xmm0, cs:__real@42480000
-    vsubss  xmm1, xmm8, xmm1
-    vmovss  dword ptr [rsp+118h+start], xmm1
-    vsubss  xmm1, xmm6, xmm3
-    vaddss  xmm2, xmm1, cs:__real@42480000
-    vmovss  dword ptr [rsp+118h+end+8], xmm0
-    vsubss  xmm0, xmm7, xmm5
-    vmovss  dword ptr [rsp+118h+start+4], xmm0
-    vmovss  dword ptr [rsp+118h+var_B8], xmm8
-    vmovss  dword ptr [rsp+118h+var_B8+4], xmm7
-    vmovss  dword ptr [rsp+118h+var_B8+8], xmm6
-    vmovss  dword ptr [rsp+118h+start+8], xmm2
-  }
+  v16 = (float)((float)(*(float *)&_XMM6 - *(float *)&_XMM9) * 0.5) + *(float *)&_XMM9;
+  v17 = (float)((float)(*(float *)&_XMM7 - *(float *)&_XMM10) * 0.5) + *(float *)&_XMM10;
+  v18 = (float)((float)(*(float *)&_XMM12 - *(float *)&_XMM11) * 0.5) + *(float *)&_XMM11;
+  v19 = fsqrt((float)((float)((float)(*(float *)&_XMM10 - v17) * (float)(*(float *)&_XMM10 - v17)) + (float)((float)(*(float *)&_XMM9 - v16) * (float)(*(float *)&_XMM9 - v16))) + (float)((float)(*(float *)&_XMM11 - v18) * (float)(*(float *)&_XMM11 - v18)));
+  v20 = v19 * parms->vector1.v[0];
+  v21 = v19 * parms->vector1.v[1];
+  v22 = v19 * parms->vector1.v[2];
+  end.v[0] = v20 + v16;
+  end.v[1] = v21 + v17;
+  start.v[0] = v16 - v20;
+  end.v[2] = (float)(v22 + v18) + 50.0;
+  start.v[1] = v17 - v21;
+  v26.v[0] = v16;
+  v26.v[1] = v17;
+  v26.v[2] = v18;
+  start.v[2] = (float)(v18 - v22) + 50.0;
   G_DebugLine(&start, &end, &colorCyan, 0);
-  G_DebugLine(&start, &v64, &colorCyan, 0);
-  _R11 = &v65;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-20h]
-    vmovaps xmm7, xmmword ptr [r11-30h]
-    vmovaps xmm8, xmmword ptr [r11-40h]
-    vmovaps xmm9, xmmword ptr [r11-50h]
-    vmovaps xmm10, xmmword ptr [r11-60h]
-    vmovaps xmm11, xmmword ptr [r11-70h]
-    vmovaps xmm12, xmmword ptr [r11-80h]
-  }
+  G_DebugLine(&start, &v26, &colorCyan, 0);
 }
 
 /*
@@ -3090,151 +2618,82 @@ void Bot_Score_DrawDebugParms(bot_score_item_s *items, int itemCount, bot_score_
 Bot_Score_Factor_AwayFromAlliedPlayers
 ==============
 */
-int Bot_Score_Factor_AwayFromAlliedPlayers(const pathnode_t *node, __int16 entityNum)
+__int64 Bot_Score_Factor_AwayFromAlliedPlayers(const pathnode_t *node, __int16 entityNum)
 {
-  unsigned int v5; 
-  sentient_s *v11; 
+  unsigned int v2; 
+  __int128 v3; 
+  gentity_s *v4; 
+  bitarray<224> *AllTeamFlags; 
+  sentient_s *i; 
   const gentity_s *ent; 
-  bool v14; 
+  float v8; 
+  __int128 v9; 
   const bot_data_t *EntityData; 
-  char v39; 
-  char v40; 
-  int result; 
+  float v11; 
+  __int128 v12; 
   vec3_t pos; 
   vec3_t goal; 
   bitarray<224> iTeamFlags; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  v5 = entityNum;
+  v2 = entityNum;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  if ( v5 >= level.num_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1938, ASSERT_TYPE_ASSERT, "(unsigned)( entityNum ) < (unsigned)( level.num_entities )", "entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v5, level.num_entities) )
+  v3 = 0i64;
+  if ( v2 >= level.num_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1938, ASSERT_TYPE_ASSERT, "(unsigned)( entityNum ) < (unsigned)( level.num_entities )", "entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v2, level.num_entities) )
     __debugbreak();
-  _RDI = &level.gentities[(__int16)v5];
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1940, ASSERT_TYPE_ASSERT, "( thisEnt )", (const char *)&queryFormat, "thisEnt") )
+  v4 = &level.gentities[(__int16)v2];
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1940, ASSERT_TYPE_ASSERT, "( thisEnt )", (const char *)&queryFormat, "thisEnt") )
     __debugbreak();
-  if ( !_RDI->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1941, ASSERT_TYPE_ASSERT, "( thisEnt->sentient )", (const char *)&queryFormat, "thisEnt->sentient") )
+  if ( !v4->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1941, ASSERT_TYPE_ASSERT, "( thisEnt->sentient )", (const char *)&queryFormat, "thisEnt->sentient") )
     __debugbreak();
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-    _RAX = Com_TeamsSP_GetAllTeamFlags();
+    AllTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
   else
-    _RAX = Com_TeamsMP_GetAllTeamFlags();
-  __asm
+    AllTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+  iTeamFlags = *AllTeamFlags;
+  for ( i = Sentient_FirstSentient(&iTeamFlags); i; i = Sentient_NextSentient(i, &iTeamFlags) )
   {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+0D8h+iTeamFlags.array], xmm0
-    vmovsd  xmm1, qword ptr [rax+10h]
-    vmovsd  qword ptr [rsp+0D8h+iTeamFlags.array+10h], xmm1
-  }
-  iTeamFlags.array[6] = _RAX->array[6];
-  v11 = Sentient_FirstSentient(&iTeamFlags);
-  if ( v11 )
-  {
-    __asm { vmovss  xmm6, cs:__real@43fa0000 }
-    do
+    if ( !i->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1946, ASSERT_TYPE_ASSERT, "( allySentient->ent )", (const char *)&queryFormat, "allySentient->ent") )
+      __debugbreak();
+    if ( Bot_IsCharacterActive(i->ent) )
     {
-      if ( !v11->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1946, ASSERT_TYPE_ASSERT, "( allySentient->ent )", (const char *)&queryFormat, "allySentient->ent") )
-        __debugbreak();
-      if ( Bot_IsCharacterActive(v11->ent) )
+      if ( AI_IsAlliedSentient(v4->sentient, i) )
       {
-        if ( AI_IsAlliedSentient(_RDI->sentient, v11) )
+        if ( i != v4->sentient )
         {
-          if ( v11 != _RDI->sentient )
+          ent = i->ent;
+          if ( i->ent->client || ent->agent && ent->s.otherEntityNum == 2047 )
           {
-            ent = v11->ent;
-            v14 = v11->ent->client == NULL;
-            if ( v11->ent->client || ent->agent && (v14 = ent->s.otherEntityNum <= 0x7FFu, ent->s.otherEntityNum == 2047) )
+            v8 = fsqrt((float)((float)((float)(v4->r.currentOrigin.v[1] - pos.v[1]) * (float)(v4->r.currentOrigin.v[1] - pos.v[1])) + (float)((float)(v4->r.currentOrigin.v[0] - pos.v[0]) * (float)(v4->r.currentOrigin.v[0] - pos.v[0]))) + (float)((float)(v4->r.currentOrigin.v[2] - pos.v[2]) * (float)(v4->r.currentOrigin.v[2] - pos.v[2])));
+            if ( v8 <= 500.0 )
             {
-              __asm
+              v9 = v3;
+              *(float *)&v9 = *(float *)&v3 + (float)(500.0 - v8);
+              v3 = v9;
+            }
+            if ( SV_BotIsBotEnt(ent) )
+            {
+              EntityData = Bot_GetEntityData(i->ent);
+              if ( Bot_HasScriptGoal(EntityData) )
               {
-                vmovss  xmm0, dword ptr [rdi+130h]
-                vsubss  xmm3, xmm0, dword ptr [rsp+0D8h+pos]
-                vmovss  xmm1, dword ptr [rdi+134h]
-                vsubss  xmm2, xmm1, dword ptr [rsp+0D8h+pos+4]
-                vmovss  xmm0, dword ptr [rdi+138h]
-                vsubss  xmm4, xmm0, dword ptr [rsp+0D8h+pos+8]
-                vmulss  xmm2, xmm2, xmm2
-                vmulss  xmm1, xmm3, xmm3
-                vaddss  xmm3, xmm2, xmm1
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm2, xmm3, xmm0
-                vsqrtss xmm1, xmm2, xmm2
-                vcomiss xmm1, xmm6
-              }
-              if ( v14 )
-              {
-                __asm
+                Bot_GetScriptGoal(EntityData, &goal);
+                v11 = fsqrt((float)((float)((float)(goal.v[1] - pos.v[1]) * (float)(goal.v[1] - pos.v[1])) + (float)((float)(goal.v[0] - pos.v[0]) * (float)(goal.v[0] - pos.v[0]))) + (float)((float)(goal.v[2] - pos.v[2]) * (float)(goal.v[2] - pos.v[2])));
+                if ( v11 <= 500.0 )
                 {
-                  vsubss  xmm0, xmm6, xmm1
-                  vaddss  xmm7, xmm7, xmm0
-                }
-              }
-              if ( SV_BotIsBotEnt(ent) )
-              {
-                EntityData = Bot_GetEntityData(v11->ent);
-                if ( Bot_HasScriptGoal(EntityData) )
-                {
-                  Bot_GetScriptGoal(EntityData, &goal);
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rsp+0D8h+goal]
-                    vsubss  xmm3, xmm0, dword ptr [rsp+0D8h+pos]
-                    vmovss  xmm1, dword ptr [rsp+0D8h+goal+4]
-                    vsubss  xmm2, xmm1, dword ptr [rsp+0D8h+pos+4]
-                    vmovss  xmm0, dword ptr [rsp+0D8h+goal+8]
-                    vsubss  xmm4, xmm0, dword ptr [rsp+0D8h+pos+8]
-                    vmulss  xmm2, xmm2, xmm2
-                    vmulss  xmm1, xmm3, xmm3
-                    vaddss  xmm3, xmm2, xmm1
-                    vmulss  xmm0, xmm4, xmm4
-                    vaddss  xmm2, xmm3, xmm0
-                    vsqrtss xmm1, xmm2, xmm2
-                    vcomiss xmm1, xmm6
-                  }
-                  if ( v39 | v40 )
-                  {
-                    __asm
-                    {
-                      vsubss  xmm0, xmm6, xmm1
-                      vaddss  xmm7, xmm7, xmm0
-                    }
-                  }
+                  v12 = v3;
+                  *(float *)&v12 = *(float *)&v3 + (float)(500.0 - v11);
+                  v3 = v12;
                 }
               }
             }
           }
         }
       }
-      v11 = Sentient_NextSentient(v11, &iTeamFlags);
     }
-    while ( v11 );
   }
-  __asm
-  {
-    vmovss  xmm6, cs:__real@447a0000
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm0, xmm7; val
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm0, xmm6, xmm0
-    vmulss  xmm1, xmm0, cs:__real@3dcccccd
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si eax, xmm1
-    vmovaps xmm6, [rsp+0D8h+var_38]
-    vmovaps xmm7, [rsp+0D8h+var_48]
-  }
-  return result;
+  I_fclamp(*(float *)&v3, 0.0, 1000.0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -3242,62 +2701,33 @@ int Bot_Score_Factor_AwayFromAlliedPlayers(const pathnode_t *node, __int16 entit
 Bot_Score_Factor_AwayFromCenterPointHelper
 ==============
 */
-
-__int64 __fastcall Bot_Score_Factor_AwayFromCenterPointHelper(const pathnode_t *node, const bot_score_parms_s *parms, int index, double weight)
+__int64 Bot_Score_Factor_AwayFromCenterPointHelper(const pathnode_t *node, const bot_score_parms_s *parms, int index, float weight)
 {
-  bool v10; 
-  bool v11; 
+  float v7; 
   __int16 entityNum; 
   bot_score_type_t scoreType; 
-  int v16; 
-  __int64 result; 
-  __int64 v20; 
-  double v21; 
-  double v22; 
+  int v10; 
+  __int64 v12; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
+  v7 = weight;
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2026, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2027, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
-  v10 = index == 0;
   if ( index < 0 )
   {
-    LODWORD(v20) = index;
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2028, ASSERT_TYPE_ASSERT, "( index ) >= ( 0 )", "index >= 0\n\t%i, %i", v20, 0i64);
-    v10 = !v11;
-    if ( v11 )
+    LODWORD(v12) = index;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2028, ASSERT_TYPE_ASSERT, "( index ) >= ( 0 )", "index >= 0\n\t%i, %i", v12, 0i64) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( v10 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+58h+var_28], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+58h+var_30], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2029, ASSERT_TYPE_ASSERT, "( weight ) > ( 0 )", "weight > 0\n\t%g, %g", v21, v22) )
-      __debugbreak();
-  }
+  if ( weight <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2029, ASSERT_TYPE_ASSERT, "( weight ) > ( 0 )", "weight > 0\n\t%g, %g", weight, 0.0) )
+    __debugbreak();
   if ( (parms->flags & 0x40) != 0 )
-    __asm { vmulss  xmm6, xmm6, cs:__real@40400000 }
+    v7 = weight * 3.0;
   entityNum = parms->entityNum;
   scoreType = parms->scoreType;
-  v16 = Bot_Score_Factor_AwayFromPoint(node, &parms->vector1, 1000);
-  __asm { vmovaps xmm1, xmm6; weight }
-  result = BotScoreDebugFactor(index, *(double *)&_XMM1, v16, scoreType, entityNum);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  v10 = Bot_Score_Factor_AwayFromPoint(node, &parms->vector1, 1000);
+  return BotScoreDebugFactor(index, v7, v10, scoreType, entityNum);
 }
 
 /*
@@ -3305,42 +2735,20 @@ __int64 __fastcall Bot_Score_Factor_AwayFromCenterPointHelper(const pathnode_t *
 Bot_Score_Factor_AwayFromPoint
 ==============
 */
-int Bot_Score_Factor_AwayFromPoint(const pathnode_t *node, const vec3_t *point, int maxDistAway)
+__int64 Bot_Score_Factor_AwayFromPoint(const pathnode_t *node, const vec3_t *point, int maxDistAway)
 {
-  int result; 
+  __int64 result; 
   vec3_t pos; 
 
-  _RBX = point;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm3, xmm0, dword ptr [rsp+48h+pos]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vsubss  xmm2, xmm1, dword ptr [rsp+48h+pos+4]
-    vmovss  xmm0, dword ptr [rbx+8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+48h+pos+8]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, edi
-    vdivss  xmm1, xmm0, xmm1
-    vsqrtss xmm5, xmm2, xmm2
-    vmulss  xmm2, xmm5, xmm1
-    vmulss  xmm3, xmm2, cs:__real@42c80000
-    vaddss  xmm4, xmm3, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm3, xmm1, xmm4, 1
-    vcvttss2si eax, xmm3
-  }
-  if ( result > 100 )
-    result = 100;
-  if ( result < 0 )
-    return 0;
+  fsqrt((float)((float)((float)(point->v[1] - pos.v[1]) * (float)(point->v[1] - pos.v[1])) + (float)((float)(point->v[0] - pos.v[0]) * (float)(point->v[0] - pos.v[0]))) + (float)((float)(point->v[2] - pos.v[2]) * (float)(point->v[2] - pos.v[2])));
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm4, 1 }
+  result = (unsigned int)(int)*(float *)&_XMM3;
+  if ( (int)result > 100 )
+    result = 100i64;
+  if ( (int)result < 0 )
+    return 0i64;
   return result;
 }
 
@@ -3359,43 +2767,20 @@ __int64 Bot_Score_Factor_Behind(const pathnode_t *node, const vec3_t *eyePoint, 
 Bot_Score_Factor_CloseToPoint
 ==============
 */
-int Bot_Score_Factor_CloseToPoint(const pathnode_t *node, const vec3_t *point, int maxDistAway)
+__int64 Bot_Score_Factor_CloseToPoint(const pathnode_t *node, const vec3_t *point, int maxDistAway)
 {
-  int result; 
+  __int64 result; 
   vec3_t pos; 
 
-  _RBX = point;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm3, xmm0, dword ptr [rsp+48h+pos]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vsubss  xmm2, xmm1, dword ptr [rsp+48h+pos+4]
-    vmovss  xmm0, dword ptr [rbx+8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+48h+pos+8]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vmovss  xmm3, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, edi
-    vdivss  xmm0, xmm3, xmm1
-    vsqrtss xmm5, xmm2, xmm2
-    vmulss  xmm1, xmm5, xmm0
-    vsubss  xmm1, xmm3, xmm1
-    vmulss  xmm0, xmm1, cs:__real@42c80000
-    vaddss  xmm3, xmm0, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-    vcvttss2si eax, xmm4
-  }
-  if ( result > 100 )
-    result = 100;
-  if ( result < 0 )
-    return 0;
+  fsqrt((float)((float)((float)(point->v[1] - pos.v[1]) * (float)(point->v[1] - pos.v[1])) + (float)((float)(point->v[0] - pos.v[0]) * (float)(point->v[0] - pos.v[0]))) + (float)((float)(point->v[2] - pos.v[2]) * (float)(point->v[2] - pos.v[2])));
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
+  result = (unsigned int)(int)*(float *)&_XMM4;
+  if ( (int)result > 100 )
+    result = 100i64;
+  if ( (int)result < 0 )
+    return 0i64;
   return result;
 }
 
@@ -3404,27 +2789,15 @@ int Bot_Score_Factor_CloseToPoint(const pathnode_t *node, const vec3_t *point, i
 Bot_Score_Factor_ConcealedRearFromDir
 ==============
 */
-int Bot_Score_Factor_ConcealedRearFromDir(const pathnode_t *node, const vec3_t *lookDir)
+__int64 Bot_Score_Factor_ConcealedRearFromDir(const pathnode_t *node, const vec3_t *lookDir)
 {
-  int result; 
+  double v3; 
 
-  *(double *)&_XMM0 = vectoyaw((const vec2_t *)lookDir);
-  __asm
-  {
-    vaddss  xmm1, xmm0, cs:__real@43340000; arcYaw
-    vmovss  xmm2, cs:__real@42b40000; coneAngle
-    vxorps  xmm0, xmm0, xmm0
-  }
-  Path_NodeExposureGetRawArcMax(node, *(float *)&_XMM1, *(float *)&_XMM2, 4);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vcvttss2si eax, xmm4
-  }
-  return result;
+  v3 = vectoyaw((const vec2_t *)lookDir);
+  Path_NodeExposureGetRawArcMax(node, *(float *)&v3 + 180.0, 90.0, 4);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  return (unsigned int)(int)*(float *)&_XMM4;
 }
 
 /*
@@ -3432,43 +2805,24 @@ int Bot_Score_Factor_ConcealedRearFromDir(const pathnode_t *node, const vec3_t *
 Bot_Score_Factor_ConcealedRearFromPoint
 ==============
 */
-int Bot_Score_Factor_ConcealedRearFromPoint(const pathnode_t *node, const vec3_t *lookAtPoint)
+__int64 Bot_Score_Factor_ConcealedRearFromPoint(const pathnode_t *node, const vec3_t *lookAtPoint)
 {
-  int result; 
+  float v4; 
+  double v5; 
   vec3_t pos; 
   vec2_t vec; 
+  float v11; 
 
-  _RBX = lookAtPoint;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm1, xmm0, dword ptr [rsp+58h+pos]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vsubss  xmm0, xmm2, dword ptr [rsp+58h+pos+4]
-    vmovss  dword ptr [rsp+58h+vec], xmm1
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+58h+pos+8]
-    vmovss  [rsp+58h+var_20], xmm2
-    vmovss  dword ptr [rsp+58h+vec+4], xmm0
-  }
-  *(double *)&_XMM0 = vectoyaw(&vec);
-  __asm
-  {
-    vaddss  xmm1, xmm0, cs:__real@43340000; arcYaw
-    vmovss  xmm2, cs:__real@42b40000; coneAngle
-    vxorps  xmm0, xmm0, xmm0
-  }
-  Path_NodeExposureGetRawArcMax(node, *(float *)&_XMM1, *(float *)&_XMM2, 4);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vcvttss2si eax, xmm4
-  }
-  return result;
+  v4 = lookAtPoint->v[1] - pos.v[1];
+  vec.v[0] = lookAtPoint->v[0] - pos.v[0];
+  v11 = lookAtPoint->v[2] - pos.v[2];
+  vec.v[1] = v4;
+  v5 = vectoyaw(&vec);
+  Path_NodeExposureGetRawArcMax(node, *(float *)&v5 + 180.0, 90.0, 4);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  return (unsigned int)(int)*(float *)&_XMM4;
 }
 
 /*
@@ -3479,16 +2833,12 @@ Bot_Score_Factor_CoverRearFromDir
 __int64 Bot_Score_Factor_CoverRearFromDir(const pathnode_t *node, const vec3_t *lookDir)
 {
   int StopGoalStance; 
+  double v5; 
   int RawArcSum; 
 
   StopGoalStance = Bot_GetStopGoalStance(node);
-  *(double *)&_XMM0 = vectoyaw((const vec2_t *)lookDir);
-  __asm
-  {
-    vaddss  xmm1, xmm0, cs:__real@43340000; arcYaw
-    vmovss  xmm2, cs:__real@42b40000; coneAngle
-  }
-  RawArcSum = Path_NodeExposureGetRawArcSum(node, *(float *)&_XMM1, *(float *)&_XMM2, StopGoalStance);
+  v5 = vectoyaw((const vec2_t *)lookDir);
+  RawArcSum = Path_NodeExposureGetRawArcSum(node, *(float *)&v5 + 180.0, 90.0, StopGoalStance);
   if ( RawArcSum > 100 )
     RawArcSum = 100;
   if ( RawArcSum < 0 )
@@ -3503,32 +2853,21 @@ Bot_Score_Factor_CoverRearFromPoint
 */
 __int64 Bot_Score_Factor_CoverRearFromPoint(const pathnode_t *node, const vec3_t *lookAtPoint)
 {
+  float v4; 
+  double v5; 
   int RawArcSum; 
   vec3_t pos; 
   vec2_t vec; 
+  float v10; 
 
-  _RBX = lookAtPoint;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm1, xmm0, dword ptr [rsp+58h+pos]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vsubss  xmm0, xmm2, dword ptr [rsp+58h+pos+4]
-    vmovss  dword ptr [rsp+58h+vec], xmm1
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+58h+pos+8]
-    vmovss  [rsp+58h+var_20], xmm2
-    vmovss  dword ptr [rsp+58h+vec+4], xmm0
-  }
-  LODWORD(_RBX) = Bot_GetStopGoalStance(node);
-  *(double *)&_XMM0 = vectoyaw(&vec);
-  __asm
-  {
-    vaddss  xmm1, xmm0, cs:__real@43340000; arcYaw
-    vmovss  xmm2, cs:__real@42b40000; coneAngle
-  }
-  RawArcSum = Path_NodeExposureGetRawArcSum(node, *(float *)&_XMM1, *(float *)&_XMM2, (int)_RBX);
+  v4 = lookAtPoint->v[1] - pos.v[1];
+  vec.v[0] = lookAtPoint->v[0] - pos.v[0];
+  v10 = lookAtPoint->v[2] - pos.v[2];
+  vec.v[1] = v4;
+  LODWORD(lookAtPoint) = Bot_GetStopGoalStance(node);
+  v5 = vectoyaw(&vec);
+  RawArcSum = Path_NodeExposureGetRawArcSum(node, *(float *)&v5 + 180.0, 90.0, (int)lookAtPoint);
   if ( RawArcSum > 100 )
     RawArcSum = 100;
   if ( RawArcSum < 0 )
@@ -3541,28 +2880,15 @@ __int64 Bot_Score_Factor_CoverRearFromPoint(const pathnode_t *node, const vec3_t
 Bot_Score_Factor_CrouchSightFacingDir
 ==============
 */
-int Bot_Score_Factor_CrouchSightFacingDir(const pathnode_t *node, const vec3_t *lookDir)
+__int64 Bot_Score_Factor_CrouchSightFacingDir(const pathnode_t *node, const vec3_t *lookDir)
 {
-  int result; 
+  double v3; 
 
-  *(double *)&_XMM0 = vectoyaw((const vec2_t *)lookDir);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@41c80000; coneAngle
-    vmovaps xmm1, xmm0; arcYaw
-    vxorps  xmm0, xmm0, xmm0
-  }
-  Path_NodeExposureGetRawArcSum(node, *(float *)&_XMM1, *(float *)&_XMM2, 2);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@40555555
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  v3 = vectoyaw((const vec2_t *)lookDir);
+  Path_NodeExposureGetRawArcSum(node, *(float *)&v3, 25.0, 2);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -3570,44 +2896,24 @@ int Bot_Score_Factor_CrouchSightFacingDir(const pathnode_t *node, const vec3_t *
 Bot_Score_Factor_CrouchSightFacingPoint
 ==============
 */
-int Bot_Score_Factor_CrouchSightFacingPoint(const pathnode_t *node, const vec3_t *lookAtPoint)
+__int64 Bot_Score_Factor_CrouchSightFacingPoint(const pathnode_t *node, const vec3_t *lookAtPoint)
 {
-  int result; 
+  float v4; 
+  double v5; 
   vec3_t pos; 
   vec2_t vec; 
+  float v11; 
 
-  _RBX = lookAtPoint;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm1, xmm0, dword ptr [rsp+58h+pos]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vsubss  xmm0, xmm2, dword ptr [rsp+58h+pos+4]
-    vmovss  dword ptr [rsp+58h+vec], xmm1
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+58h+pos+8]
-    vmovss  [rsp+58h+var_20], xmm2
-    vmovss  dword ptr [rsp+58h+vec+4], xmm0
-  }
-  *(double *)&_XMM0 = vectoyaw(&vec);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@41c80000; coneAngle
-    vmovaps xmm1, xmm0; arcYaw
-    vxorps  xmm0, xmm0, xmm0
-  }
-  Path_NodeExposureGetRawArcSum(node, *(float *)&_XMM1, *(float *)&_XMM2, 2);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@40555555
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  v4 = lookAtPoint->v[1] - pos.v[1];
+  vec.v[0] = lookAtPoint->v[0] - pos.v[0];
+  v11 = lookAtPoint->v[2] - pos.v[2];
+  vec.v[1] = v4;
+  v5 = vectoyaw(&vec);
+  Path_NodeExposureGetRawArcSum(node, *(float *)&v5, 25.0, 2);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -3615,46 +2921,36 @@ int Bot_Score_Factor_CrouchSightFacingPoint(const pathnode_t *node, const vec3_t
 Bot_Score_Factor_ExposedToSky
 ==============
 */
-int Bot_Score_Factor_ExposedToSky(const pathnode_t *node)
+__int64 Bot_Score_Factor_ExposedToSky(const pathnode_t *node)
 {
   int v2; 
   bool IsExposedSky; 
   int wLinkCount; 
+  unsigned int v5; 
   __int64 v6; 
-  int result; 
 
   v2 = 0;
   IsExposedSky = Path_IsExposedSky(node);
   LOWORD(wLinkCount) = node->dynamic.wLinkCount;
-  _ESI = IsExposedSky;
+  v5 = IsExposedSky;
   if ( (__int16)wLinkCount > 0 )
   {
     v6 = 0i64;
     do
     {
       if ( Path_IsNodeIndexExposedSky(node->constant.Links[v6].nodeNum) )
-        ++_ESI;
+        ++v5;
       wLinkCount = node->dynamic.wLinkCount;
       ++v2;
       ++v6;
     }
     while ( v2 < wLinkCount );
   }
-  _EAX = (__int16)wLinkCount + 1;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vmovd   xmm1, esi
-    vcvtdq2ps xmm1, xmm1
-    vcvtdq2ps xmm0, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm2, xmm1, cs:__real@42c80000
-    vaddss  xmm3, xmm2, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm2, xmm1, xmm3, 1
-    vcvttss2si eax, xmm2
-  }
-  return result;
+  _mm_cvtepi32_ps((__m128i)(unsigned int)((__int16)wLinkCount + 1));
+  _mm_cvtepi32_ps((__m128i)v5);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm2, xmm1, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM2;
 }
 
 /*
@@ -3662,91 +2958,42 @@ int Bot_Score_Factor_ExposedToSky(const pathnode_t *node)
 Bot_Score_Factor_FacesAwayFromPoint
 ==============
 */
-int Bot_Score_Factor_FacesAwayFromPoint(const pathnode_t *node, const vec3_t *lookAtPoint, const vec3_t *facingCheckPoint)
+__int64 Bot_Score_Factor_FacesAwayFromPoint(const pathnode_t *node, const vec3_t *lookAtPoint, const vec3_t *facingCheckPoint)
 {
-  int result; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v10; 
+  __int128 v13; 
   vec3_t pos; 
-  char v71; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm9
-    vmovaps xmmword ptr [rax-48h], xmm10
-    vmovaps xmmword ptr [rax-58h], xmm11
-    vmovaps xmmword ptr [rax-68h], xmm12
-    vmovaps xmmword ptr [rax-78h], xmm13
-  }
-  _RBX = lookAtPoint;
-  _RDI = facingCheckPoint;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
+  v5 = LODWORD(lookAtPoint->v[1]);
+  *(float *)&v5 = (float)((float)((float)(lookAtPoint->v[1] - pos.v[1]) * (float)(lookAtPoint->v[1] - pos.v[1])) + (float)((float)(lookAtPoint->v[0] - pos.v[0]) * (float)(lookAtPoint->v[0] - pos.v[0]))) + (float)((float)(lookAtPoint->v[2] - pos.v[2]) * (float)(lookAtPoint->v[2] - pos.v[2]));
+  v6 = v5;
+  v8 = LODWORD(facingCheckPoint->v[1]);
+  *(float *)&v8 = facingCheckPoint->v[1] - pos.v[1];
+  v7 = v8;
+  v10 = v6;
+  *(float *)&v10 = fsqrt(*(float *)&v6);
+  _XMM3 = v10;
   __asm
   {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm13, xmm0, dword ptr [rsp+0B8h+pos]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vsubss  xmm11, xmm1, dword ptr [rsp+0B8h+pos+4]
-    vmovss  xmm0, dword ptr [rbx+8]
-    vsubss  xmm12, xmm0, dword ptr [rsp+0B8h+pos+8]
-    vmulss  xmm0, xmm13, xmm13
-    vmulss  xmm1, xmm11, xmm11
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm12, xmm12
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, dword ptr [rdi+4]
-    vsubss  xmm4, xmm1, dword ptr [rsp+0B8h+pos+4]
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm9, xmm0
-    vdivss  xmm10, xmm9, xmm0
-    vmovss  xmm0, dword ptr [rdi]
-    vsubss  xmm6, xmm0, dword ptr [rsp+0B8h+pos]
-    vmovss  xmm0, dword ptr [rdi+8]
-    vsubss  xmm7, xmm0, dword ptr [rsp+0B8h+pos+8]
-    vmulss  xmm2, xmm4, xmm4
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vcmpless xmm0, xmm1, cs:__real@80000000
-    vblendvps xmm0, xmm1, xmm9, xmm0
-    vdivss  xmm5, xmm9, xmm0
-    vmulss  xmm1, xmm4, xmm5
-    vmulss  xmm0, xmm11, xmm10
-    vmulss  xmm3, xmm1, xmm0
-    vmulss  xmm1, xmm13, xmm10
-    vmulss  xmm2, xmm6, xmm5
-    vmulss  xmm0, xmm2, xmm1
-    vaddss  xmm4, xmm3, xmm0
-    vmulss  xmm1, xmm12, xmm10
-    vmulss  xmm3, xmm7, xmm5
-    vmulss  xmm0, xmm3, xmm1
-    vaddss  xmm2, xmm4, xmm0
-    vmovss  xmm4, cs:__real@42480000
-    vmulss  xmm1, xmm2, xmm4
-    vsubss  xmm0, xmm4, xmm1
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vcvttss2si eax, xmm4
   }
-  _R11 = &v71;
+  v13 = v7;
+  *(float *)&v13 = fsqrt((float)((float)(*(float *)&v7 * *(float *)&v7) + (float)((float)(facingCheckPoint->v[0] - pos.v[0]) * (float)(facingCheckPoint->v[0] - pos.v[0]))) + (float)((float)(facingCheckPoint->v[2] - pos.v[2]) * (float)(facingCheckPoint->v[2] - pos.v[2])));
+  _XMM1 = v13;
   __asm
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
-    vmovaps xmm13, xmmword ptr [r11-70h]
+    vcmpless xmm0, xmm1, cs:__real@80000000
+    vblendvps xmm0, xmm1, xmm9, xmm0
   }
-  return result;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  return (unsigned int)(int)*(float *)&_XMM4;
 }
 
 /*
@@ -3754,27 +3001,14 @@ int Bot_Score_Factor_FacesAwayFromPoint(const pathnode_t *node, const vec3_t *lo
 Bot_Score_Factor_GeneralExposure
 ==============
 */
-int Bot_Score_Factor_GeneralExposure(const pathnode_t *node, int exposeFlags, int maxExposeValue)
+__int64 Bot_Score_Factor_GeneralExposure(const pathnode_t *node, int exposeFlags, int maxExposeValue)
 {
-  int result; 
-
   Path_NodeExposureGeneral(node, exposeFlags);
   if ( maxExposeValue < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", 0, maxExposeValue) )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm1, xmm1, rax
-    vcvtsi2ss xmm0, xmm0, ebx
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm2, xmm1, cs:__real@42c80000
-    vaddss  xmm3, xmm2, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm2, xmm1, xmm3, 1
-    vcvttss2si eax, xmm2
-  }
-  return result;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm2, xmm1, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM2;
 }
 
 /*
@@ -3789,12 +3023,12 @@ __int64 Bot_Score_Factor_HideFromAerialEnemiesHelper(const pathnode_t *node, con
   __int16 entityNum; 
   bot_score_type_t scoreType; 
   int v10; 
-  gentity_s *v13; 
-  __int16 v14; 
-  bot_score_type_t v15; 
-  int v16; 
-  __int64 v18; 
-  __int64 v19; 
+  gentity_s *v12; 
+  __int16 v13; 
+  bot_score_type_t v14; 
+  int v15; 
+  __int64 v16; 
+  __int64 v17; 
 
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2046, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
@@ -3803,8 +3037,8 @@ __int64 Bot_Score_Factor_HideFromAerialEnemiesHelper(const pathnode_t *node, con
   v6 = 0;
   if ( index < 0 )
   {
-    LODWORD(v18) = index;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2048, ASSERT_TYPE_ASSERT, "( index ) >= ( 0 )", "index >= 0\n\t%i, %i", v18, 0i64) )
+    LODWORD(v16) = index;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2048, ASSERT_TYPE_ASSERT, "( index ) >= ( 0 )", "index >= 0\n\t%i, %i", v16, 0i64) )
       __debugbreak();
   }
   if ( SLOBYTE(parms->flags) >= 0 )
@@ -3815,9 +3049,9 @@ __int64 Bot_Score_Factor_HideFromAerialEnemiesHelper(const pathnode_t *node, con
     {
       if ( parms->integer2 >= (unsigned int)level.num_entities )
       {
-        LODWORD(v19) = level.num_entities;
-        LODWORD(v18) = parms->integer2;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2067, ASSERT_TYPE_ASSERT, "(unsigned)( parms->integer2 ) < (unsigned)( level.num_entities )", "parms->integer2 doesn't index level.num_entities\n\t%i not in [0, %i)", v18, v19) )
+        LODWORD(v17) = level.num_entities;
+        LODWORD(v16) = parms->integer2;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2067, ASSERT_TYPE_ASSERT, "(unsigned)( parms->integer2 ) < (unsigned)( level.num_entities )", "parms->integer2 doesn't index level.num_entities\n\t%i not in [0, %i)", v16, v17) )
           __debugbreak();
       }
       v7 = &level.gentities[parms->integer2];
@@ -3826,8 +3060,7 @@ __int64 Bot_Score_Factor_HideFromAerialEnemiesHelper(const pathnode_t *node, con
       entityNum = parms->entityNum;
       scoreType = parms->scoreType;
       v10 = Bot_Score_Factor_StandingCoverFacingPoint(node, &v7->r.currentOrigin);
-      __asm { vmovss  xmm1, cs:__real@40800000; weight }
-      v6 = BotScoreDebugFactor(index, *(double *)&_XMM1, v10, scoreType, entityNum);
+      v6 = BotScoreDebugFactor(index, 4.0, v10, scoreType, entityNum);
     }
     else
     {
@@ -3840,19 +3073,18 @@ __int64 Bot_Score_Factor_HideFromAerialEnemiesHelper(const pathnode_t *node, con
     return v6 + 400;
   if ( parms->integer2 >= (unsigned int)level.num_entities )
   {
-    LODWORD(v19) = level.num_entities;
-    LODWORD(v18) = parms->integer2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2083, ASSERT_TYPE_ASSERT, "(unsigned)( parms->integer2 ) < (unsigned)( level.num_entities )", "parms->integer2 doesn't index level.num_entities\n\t%i not in [0, %i)", v18, v19) )
+    LODWORD(v17) = level.num_entities;
+    LODWORD(v16) = parms->integer2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2083, ASSERT_TYPE_ASSERT, "(unsigned)( parms->integer2 ) < (unsigned)( level.num_entities )", "parms->integer2 doesn't index level.num_entities\n\t%i not in [0, %i)", v16, v17) )
       __debugbreak();
   }
-  v13 = &level.gentities[parms->integer3];
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2085, ASSERT_TYPE_ASSERT, "( aerialEntity )", (const char *)&queryFormat, "aerialEntity") )
+  v12 = &level.gentities[parms->integer3];
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2085, ASSERT_TYPE_ASSERT, "( aerialEntity )", (const char *)&queryFormat, "aerialEntity") )
     __debugbreak();
-  v14 = parms->entityNum;
-  v15 = parms->scoreType;
-  v16 = Bot_Score_Factor_StandingCoverFacingPoint(node, &v13->r.currentOrigin);
-  __asm { vmovss  xmm1, cs:__real@40800000; weight }
-  return v6 + (unsigned int)BotScoreDebugFactor(index + 1, *(double *)&_XMM1, v16, v15, v14);
+  v13 = parms->entityNum;
+  v14 = parms->scoreType;
+  v15 = Bot_Score_Factor_StandingCoverFacingPoint(node, &v12->r.currentOrigin);
+  return v6 + (unsigned int)BotScoreDebugFactor(index + 1, 4.0, v15, v14, v13);
 }
 
 /*
@@ -3860,28 +3092,12 @@ __int64 Bot_Score_Factor_HideFromAerialEnemiesHelper(const pathnode_t *node, con
 Bot_Score_Factor_HighTraffic360
 ==============
 */
-
-int __fastcall Bot_Score_Factor_HighTraffic360(const pathnode_t *node, double _XMM1_8)
+__int64 Bot_Score_Factor_HighTraffic360(const pathnode_t *node)
 {
-  int result; 
-
-  __asm
-  {
-    vmovss  xmm2, cs:__real@43340000; coneAngle
-    vxorps  xmm1, xmm1, xmm1; arcYaw
-    vxorps  xmm0, xmm0, xmm0
-  }
-  Path_NodeExposureGetRawArcSum(node, *(float *)&_XMM1, *(float *)&_XMM2, 8);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3e05db31
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  Path_NodeExposureGetRawArcSum(node, 0.0, 180.0, 8);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -3889,22 +3105,12 @@ int __fastcall Bot_Score_Factor_HighTraffic360(const pathnode_t *node, double _X
 Bot_Score_Factor_HighTrafficSelf
 ==============
 */
-int Bot_Score_Factor_HighTrafficSelf(const pathnode_t *node)
+__int64 Bot_Score_Factor_HighTrafficSelf(const pathnode_t *node)
 {
-  int result; 
-
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   Path_NodeExposureGetTraffic(node);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3ec8c8c9
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -3912,31 +3118,21 @@ int Bot_Score_Factor_HighTrafficSelf(const pathnode_t *node)
 Bot_Score_Factor_HighTrafficViewDir
 ==============
 */
-int Bot_Score_Factor_HighTrafficViewDir(const pathnode_t *node, const vec3_t *lookDir)
+__int64 Bot_Score_Factor_HighTrafficViewDir(const pathnode_t *node, const vec3_t *lookDir)
 {
-  int result; 
+  double v4; 
+  __int128 v6; 
 
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1678, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  *(double *)&_XMM0 = vectoyaw((const vec2_t *)lookDir);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@41b80000; coneAngle
-    vmovaps xmm1, xmm0; arcYaw
-  }
-  Path_NodeExposureGetRawArcMax(node, *(float *)&_XMM1, *(float *)&_XMM2, 8);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vminss  xmm1, xmm0, cs:__real@437f0000
-    vmulss  xmm2, xmm1, cs:__real@3ec8c8c9
-    vaddss  xmm3, xmm2, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm2, xmm1, xmm3, 1
-    vcvttss2si eax, xmm2
-  }
-  return result;
+  v4 = vectoyaw((const vec2_t *)lookDir);
+  v6 = 0i64;
+  *(float *)&v6 = (float)Path_NodeExposureGetRawArcMax(node, *(float *)&v4, 23.0, 8);
+  _XMM0 = v6;
+  __asm { vminss  xmm1, xmm0, cs:__real@437f0000 }
+  _XMM1 = 0i64;
+  __asm { vroundss xmm2, xmm1, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM2;
 }
 
 /*
@@ -3946,23 +3142,15 @@ Bot_Score_Factor_HighTrafficViewToPoint
 */
 int Bot_Score_Factor_HighTrafficViewToPoint(const pathnode_t *node, const vec3_t *lookAtPoint)
 {
+  float v4; 
   vec3_t pos; 
   vec3_t lookDir; 
 
-  _RBX = lookAtPoint;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm1, xmm0, dword ptr [rsp+58h+pos]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vsubss  xmm0, xmm2, dword ptr [rsp+58h+pos+4]
-    vmovss  dword ptr [rsp+58h+lookDir], xmm1
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+58h+pos+8]
-    vmovss  dword ptr [rsp+58h+lookDir+8], xmm2
-    vmovss  dword ptr [rsp+58h+lookDir+4], xmm0
-  }
+  v4 = lookAtPoint->v[1] - pos.v[1];
+  lookDir.v[0] = lookAtPoint->v[0] - pos.v[0];
+  lookDir.v[2] = lookAtPoint->v[2] - pos.v[2];
+  lookDir.v[1] = v4;
   return Bot_Score_Factor_HighTrafficViewDir(node, &lookDir);
 }
 
@@ -3971,116 +3159,44 @@ int Bot_Score_Factor_HighTrafficViewToPoint(const pathnode_t *node, const vec3_t
 Bot_Score_Factor_IdealRange
 ==============
 */
-
-int __fastcall Bot_Score_Factor_IdealRange(const pathnode_t *node, const vec3_t *point, double minRange, double maxRange, float zeroFraction)
+__int64 Bot_Score_Factor_IdealRange(const pathnode_t *node, const vec3_t *point, float minRange, float maxRange, float zeroFraction)
 {
-  bool v13; 
-  bool v14; 
-  char v17; 
-  char v18; 
-  int result; 
+  float v7; 
+  float v8; 
+  float v9; 
+  __int64 result; 
   vec3_t pos; 
-  char v44; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
-  v13 = node == NULL;
-  if ( !node )
-  {
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1390, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node");
-    v13 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm9, [rsp+98h+zeroFraction]
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm9, xmm8
-    vcomiss xmm7, xmm8
-    vcomiss xmm7, xmm6
-  }
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1392, ASSERT_TYPE_ASSERT, "( (minRange < 0.0f) || (minRange <= maxRange) )", (const char *)&queryFormat, "(minRange < 0.0f) || (minRange <= maxRange)") )
+  if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1390, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  __asm
-  {
-    vcomiss xmm6, xmm8
-    vcomiss xmm6, xmm7
-  }
+  if ( zeroFraction < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1391, ASSERT_TYPE_ASSERT, "( zeroFraction >= 0.0f )", (const char *)&queryFormat, "zeroFraction >= 0.0f") )
+    __debugbreak();
+  if ( minRange >= 0.0 && minRange > maxRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1392, ASSERT_TYPE_ASSERT, "( (minRange < 0.0f) || (minRange <= maxRange) )", (const char *)&queryFormat, "(minRange < 0.0f) || (minRange <= maxRange)") )
+    __debugbreak();
+  if ( maxRange >= 0.0 && maxRange < minRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1393, ASSERT_TYPE_ASSERT, "( (maxRange < 0.0f) || (maxRange >= minRange) )", (const char *)&queryFormat, "(maxRange < 0.0f) || (maxRange >= minRange)") )
+    __debugbreak();
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
+  v7 = fsqrt((float)((float)((float)(pos.v[1] - point->v[1]) * (float)(pos.v[1] - point->v[1])) + (float)((float)(pos.v[0] - point->v[0]) * (float)(pos.v[0] - point->v[0]))) + (float)((float)(pos.v[2] - point->v[2]) * (float)(pos.v[2] - point->v[2])));
+  if ( v7 < minRange && minRange >= 0.0 )
   {
-    vmovss  xmm0, dword ptr [rsp+98h+pos]
-    vsubss  xmm3, xmm0, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rsp+98h+pos+4]
-    vsubss  xmm2, xmm1, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rsp+98h+pos+8]
-    vsubss  xmm4, xmm0, dword ptr [rdi+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vcomiss xmm1, xmm7
+    v8 = minRange - v7;
+    v9 = minRange * zeroFraction;
+LABEL_21:
+    result = (unsigned int)(int)(float)((float)(v8 / v9) * 100.0);
+    goto LABEL_23;
   }
-  if ( v17 )
+  if ( v7 > maxRange && maxRange >= 0.0 )
   {
-    __asm { vcomiss xmm7, xmm8 }
-    if ( !v17 )
-    {
-      __asm
-      {
-        vsubss  xmm1, xmm7, xmm1
-        vmulss  xmm0, xmm7, xmm9
-      }
-LABEL_13:
-      __asm
-      {
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm2, xmm1, cs:__real@42c80000
-        vcvttss2si eax, xmm2
-      }
-      goto LABEL_15;
-    }
+    v8 = v7 - maxRange;
+    v9 = maxRange * zeroFraction;
+    goto LABEL_21;
   }
-  __asm { vcomiss xmm1, xmm6 }
-  if ( !(v17 | v18) )
-  {
-    __asm { vcomiss xmm6, xmm8 }
-    if ( !v17 )
-    {
-      __asm
-      {
-        vsubss  xmm1, xmm1, xmm6
-        vmulss  xmm0, xmm6, xmm9
-      }
-      goto LABEL_13;
-    }
-  }
-  result = 100;
-LABEL_15:
-  if ( result > 100 )
-    result = 100;
-  if ( result < 0 )
-    result = 0;
-  _R11 = &v44;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  result = 100i64;
+LABEL_23:
+  if ( (int)result > 100 )
+    result = 100i64;
+  if ( (int)result < 0 )
+    return 0i64;
   return result;
 }
 
@@ -4089,22 +3205,17 @@ LABEL_15:
 Bot_Score_Factor_IdealRangeWeapon
 ==============
 */
-
-__int64 __fastcall Bot_Score_Factor_IdealRangeWeapon(const pathnode_t *node, __int16 entityNum, const vec3_t *targetPoint, double addDistance)
+__int64 Bot_Score_Factor_IdealRangeWeapon(const pathnode_t *node, __int16 entityNum, const vec3_t *targetPoint, const float addDistance)
 {
   const playerState_s *EntityPlayerState; 
   const Weapon *ViewmodelWeapon; 
-  __int64 result; 
-  char v24; 
+  unsigned int v10; 
+  float v11; 
+  double IdealFiringRange; 
   float min; 
   float max; 
   vec3_t pos; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( (unsigned int)entityNum >= level.num_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1792, ASSERT_TYPE_ASSERT, "(unsigned)( entityNum ) < (unsigned)( level.num_entities )", "entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", entityNum, level.num_entities) )
     __debugbreak();
   EntityPlayerState = G_GetEntityPlayerState(&level.gentities[entityNum]);
@@ -4112,76 +3223,25 @@ __int64 __fastcall Bot_Score_Factor_IdealRangeWeapon(const pathnode_t *node, __i
     __debugbreak();
   ViewmodelWeapon = Bot_Weap_GetViewmodelWeapon(EntityPlayerState);
   if ( Bot_Weap_IsNone(ViewmodelWeapon) )
+    return 0i64;
+  pathnode_t::GetPos((pathnode_t *)node, &pos);
+  v10 = 0;
+  v11 = fsqrt((float)((float)((float)(pos.v[1] - targetPoint->v[1]) * (float)(pos.v[1] - targetPoint->v[1])) + (float)((float)(pos.v[0] - targetPoint->v[0]) * (float)(pos.v[0] - targetPoint->v[0]))) + (float)((float)(pos.v[2] - targetPoint->v[2]) * (float)(pos.v[2] - targetPoint->v[2]))) + addDistance;
+  Bot_Weap_EffectiveRange(EntityPlayerState, ViewmodelWeapon, &min, &max, 0);
+  IdealFiringRange = Bot_Weap_GetIdealFiringRange(EntityPlayerState, ViewmodelWeapon);
+  if ( v11 >= min )
   {
-    result = 0i64;
+    if ( v11 >= *(float *)&IdealFiringRange )
+    {
+      if ( v11 < max )
+        return (unsigned int)(int)(float)((float)(1.0 - (float)((float)(v11 - *(float *)&IdealFiringRange) / (float)(max - *(float *)&IdealFiringRange))) * 100.0);
+    }
+    else
+    {
+      return (unsigned int)(int)(float)((float)((float)(v11 - min) / (float)(*(float *)&IdealFiringRange - min)) * 100.0);
+    }
   }
-  else
-  {
-    pathnode_t::GetPos((pathnode_t *)node, &pos);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+88h+pos]
-      vsubss  xmm3, xmm0, dword ptr [rbp+0]
-      vmovss  xmm1, dword ptr [rsp+88h+pos+4]
-      vsubss  xmm2, xmm1, dword ptr [rbp+4]
-      vmovss  xmm0, dword ptr [rsp+88h+pos+8]
-      vsubss  xmm4, xmm0, dword ptr [rbp+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
-    }
-    _EBX = 0;
-    __asm { vaddss  xmm6, xmm1, xmm6 }
-    Bot_Weap_EffectiveRange(EntityPlayerState, ViewmodelWeapon, &min, &max, 0);
-    *(double *)&_XMM0 = Bot_Weap_GetIdealFiringRange(EntityPlayerState, ViewmodelWeapon);
-    __asm
-    {
-      vmovss  xmm2, [rsp+88h+min]
-      vcomiss xmm6, xmm2
-    }
-    if ( !v24 )
-    {
-      __asm { vcomiss xmm6, xmm0 }
-      if ( v24 )
-      {
-        __asm
-        {
-          vsubss  xmm1, xmm6, xmm2
-          vsubss  xmm0, xmm0, xmm2
-          vdivss  xmm1, xmm1, xmm0
-          vmulss  xmm2, xmm1, cs:__real@42c80000
-          vcvttss2si ebx, xmm2
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm2, [rsp+88h+max]
-          vcomiss xmm6, xmm2
-        }
-        if ( v24 )
-        {
-          __asm
-          {
-            vsubss  xmm1, xmm6, xmm0
-            vsubss  xmm0, xmm2, xmm0
-            vdivss  xmm2, xmm1, xmm0
-            vmovss  xmm1, cs:__real@3f800000
-            vsubss  xmm2, xmm1, xmm2
-            vmulss  xmm0, xmm2, cs:__real@42c80000
-            vcvttss2si ebx, xmm0
-          }
-        }
-      }
-    }
-    result = _EBX;
-  }
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
-  return result;
+  return v10;
 }
 
 /*
@@ -4189,86 +3249,27 @@ __int64 __fastcall Bot_Score_Factor_IdealRangeWeapon(const pathnode_t *node, __i
 Bot_Score_Factor_InFrontOf
 ==============
 */
-int Bot_Score_Factor_InFrontOf(const pathnode_t *node, const vec3_t *eyePoint, const vec3_t *eyeForward)
+__int64 Bot_Score_Factor_InFrontOf(const pathnode_t *node, const vec3_t *eyePoint, const vec3_t *eyeForward)
 {
-  bool v10; 
-  bool v11; 
-  int result; 
+  __int128 v6; 
   vec3_t pos; 
-  char v50; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovaps [rsp+88h+var_38], xmm8
-  }
-  _RBX = eyeForward;
-  _RSI = eyePoint;
-  v10 = node == NULL;
-  if ( !node )
-  {
-    v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1363, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node");
-    v10 = !v11;
-    if ( v11 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rbx]
-  }
-  if ( v10 )
-  {
-    __asm { vucomiss xmm0, dword ptr [rbx+4] }
-    if ( v10 )
-    {
-      __asm { vucomiss xmm0, dword ptr [rbx+8] }
-      if ( v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1364, ASSERT_TYPE_ASSERT, "( Vec3NotZero( eyeForward ) )", (const char *)&queryFormat, "Vec3NotZero( eyeForward )") )
-        __debugbreak();
-    }
-  }
+  if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1363, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
+    __debugbreak();
+  if ( eyeForward->v[0] == 0.0 && eyeForward->v[1] == 0.0 && eyeForward->v[2] == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1364, ASSERT_TYPE_ASSERT, "( Vec3NotZero( eyeForward ) )", (const char *)&queryFormat, "Vec3NotZero( eyeForward )") )
+    __debugbreak();
   pathnode_t::GetPos((pathnode_t *)node, &pos);
+  v6 = LODWORD(eyePoint->v[1]);
+  *(float *)&v6 = fsqrt((float)((float)((float)(eyePoint->v[1] - pos.v[1]) * (float)(eyePoint->v[1] - pos.v[1])) + (float)((float)(eyePoint->v[0] - pos.v[0]) * (float)(eyePoint->v[0] - pos.v[0]))) + (float)((float)(eyePoint->v[2] - pos.v[2]) * (float)(eyePoint->v[2] - pos.v[2])));
+  _XMM4 = v6;
   __asm
   {
-    vmovss  xmm0, dword ptr [rsi]
-    vsubss  xmm8, xmm0, dword ptr [rsp+88h+pos]
-    vmovss  xmm1, dword ptr [rsi+4]
-    vsubss  xmm6, xmm1, dword ptr [rsp+88h+pos+4]
-    vmovss  xmm0, dword ptr [rsi+8]
-    vsubss  xmm7, xmm0, dword ptr [rsp+88h+pos+8]
-    vmulss  xmm0, xmm7, xmm7
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm5, xmm1, xmm0
-    vmulss  xmm0, xmm6, xmm5
-    vmulss  xmm3, xmm0, dword ptr [rbx+4]
-    vmulss  xmm1, xmm8, xmm5
-    vmulss  xmm2, xmm1, dword ptr [rbx]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm0, xmm7, xmm5
-    vmulss  xmm1, xmm0, dword ptr [rbx+8]
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm3, xmm2, cs:__real@42480000
-    vaddss  xmm4, xmm3, cs:__real@424a0000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm3, xmm1, xmm4, 1
-    vcvttss2si eax, xmm3
   }
-  _R11 = &v50;
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm4, 1 }
+  return (unsigned int)(int)*(float *)&_XMM3;
 }
 
 /*
@@ -4276,27 +3277,12 @@ int Bot_Score_Factor_InFrontOf(const pathnode_t *node, const vec3_t *eyePoint, c
 Bot_Score_Factor_LowTrafficSelf
 ==============
 */
-int Bot_Score_Factor_LowTrafficSelf(const pathnode_t *node)
+__int64 Bot_Score_Factor_LowTrafficSelf(const pathnode_t *node)
 {
-  int result; 
-
-  __asm
-  {
-    vmovss  xmm1, cs:__real@42c80000
-    vxorps  xmm0, xmm0, xmm0
-  }
   Path_NodeExposureGetTraffic(node);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm2, xmm0, cs:__real@3ec8c8c9
-    vsubss  xmm2, xmm1, xmm2
-    vaddss  xmm3, xmm2, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm2, xmm1, xmm3, 1
-    vcvttss2si eax, xmm2
-  }
-  return result;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm2, xmm1, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM2;
 }
 
 /*
@@ -4306,26 +3292,20 @@ Bot_Score_Factor_NoExposurePastNode
 */
 __int64 Bot_Score_Factor_NoExposurePastNode(const pathnode_t *node, const vec3_t *point, int exposeFlags)
 {
+  float v6; 
+  double v7; 
   int RawMax; 
   vec3_t pos; 
   vec2_t vec; 
+  float v12; 
 
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+58h+pos]
-    vsubss  xmm1, xmm0, dword ptr [rbx]
-    vmovss  xmm2, dword ptr [rsp+58h+pos+4]
-    vsubss  xmm0, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+58h+vec], xmm1
-    vmovss  xmm1, dword ptr [rsp+58h+pos+8]
-    vsubss  xmm2, xmm1, dword ptr [rbx+8]
-    vmovss  [rsp+58h+var_20], xmm2
-    vmovss  dword ptr [rsp+58h+vec+4], xmm0
-  }
-  *(double *)&_XMM0 = vectoyaw(&vec);
-  __asm { vmovaps xmm1, xmm0; yaw }
-  RawMax = Path_NodeExposureGetRawMax(node, *(float *)&_XMM1, exposeFlags);
+  v6 = pos.v[1] - point->v[1];
+  vec.v[0] = pos.v[0] - point->v[0];
+  v12 = pos.v[2] - point->v[2];
+  vec.v[1] = v6;
+  v7 = vectoyaw(&vec);
+  RawMax = Path_NodeExposureGetRawMax(node, *(float *)&v7, exposeFlags);
   if ( RawMax > 10 )
     RawMax = 10;
   if ( RawMax < 0 )
@@ -4338,30 +3318,12 @@ __int64 Bot_Score_Factor_NoExposurePastNode(const pathnode_t *node, const vec3_t
 Bot_Score_Factor_NoTraffic360
 ==============
 */
-
-int __fastcall Bot_Score_Factor_NoTraffic360(const pathnode_t *node, double _XMM1_8)
+__int64 Bot_Score_Factor_NoTraffic360(const pathnode_t *node)
 {
-  int result; 
-
-  __asm
-  {
-    vmovss  xmm2, cs:__real@43340000; coneAngle
-    vxorps  xmm1, xmm1, xmm1; arcYaw
-  }
-  Path_NodeExposureGetRawArcSum(node, *(float *)&_XMM1, *(float *)&_XMM2, 8);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@42c80000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm2, xmm0, cs:__real@3e05db31
-    vsubss  xmm2, xmm1, xmm2
-    vaddss  xmm3, xmm2, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm2, xmm1, xmm3, 1
-    vcvttss2si eax, xmm2
-  }
-  return result;
+  Path_NodeExposureGetRawArcSum(node, 0.0, 180.0, 8);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm2, xmm1, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM2;
 }
 
 /*
@@ -4369,33 +3331,21 @@ int __fastcall Bot_Score_Factor_NoTraffic360(const pathnode_t *node, double _XMM
 Bot_Score_Factor_NoTrafficRearFromDir
 ==============
 */
-int Bot_Score_Factor_NoTrafficRearFromDir(const pathnode_t *node, const vec3_t *lookDir)
+__int64 Bot_Score_Factor_NoTrafficRearFromDir(const pathnode_t *node, const vec3_t *lookDir)
 {
-  int result; 
+  double v4; 
+  __int128 v6; 
 
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1639, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  *(double *)&_XMM0 = vectoyaw((const vec2_t *)lookDir);
-  __asm
-  {
-    vaddss  xmm1, xmm0, cs:__real@43340000; arcYaw
-    vmovss  xmm2, cs:__real@431d0000; coneAngle
-  }
-  Path_NodeExposureGetRawArcSum(node, *(float *)&_XMM1, *(float *)&_XMM2, 8);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@42c80000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vminss  xmm1, xmm0, cs:__real@43800000
-    vmulss  xmm3, xmm1, cs:__real@3ec80000
-    vsubss  xmm0, xmm2, xmm3
-    vaddss  xmm4, xmm0, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm3, xmm0, xmm4, 1
-    vcvttss2si eax, xmm3
-  }
-  return result;
+  v4 = vectoyaw((const vec2_t *)lookDir);
+  v6 = 0i64;
+  *(float *)&v6 = (float)Path_NodeExposureGetRawArcSum(node, *(float *)&v4 + 180.0, 157.0, 8);
+  _XMM0 = v6;
+  __asm { vminss  xmm1, xmm0, cs:__real@43800000 }
+  _XMM0 = 0i64;
+  __asm { vroundss xmm3, xmm0, xmm4, 1 }
+  return (unsigned int)(int)*(float *)&_XMM3;
 }
 
 /*
@@ -4405,23 +3355,15 @@ Bot_Score_Factor_NoTrafficRearFromPoint
 */
 int Bot_Score_Factor_NoTrafficRearFromPoint(const pathnode_t *node, const vec3_t *lookAtPoint)
 {
+  float v4; 
   vec3_t pos; 
   vec3_t lookDir; 
 
-  _RBX = lookAtPoint;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm1, xmm0, dword ptr [rsp+58h+pos]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vsubss  xmm0, xmm2, dword ptr [rsp+58h+pos+4]
-    vmovss  dword ptr [rsp+58h+lookDir], xmm1
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+58h+pos+8]
-    vmovss  dword ptr [rsp+58h+lookDir+8], xmm2
-    vmovss  dword ptr [rsp+58h+lookDir+4], xmm0
-  }
+  v4 = lookAtPoint->v[1] - pos.v[1];
+  lookDir.v[0] = lookAtPoint->v[0] - pos.v[0];
+  lookDir.v[2] = lookAtPoint->v[2] - pos.v[2];
+  lookDir.v[1] = v4;
   return Bot_Score_Factor_NoTrafficRearFromDir(node, &lookDir);
 }
 
@@ -4430,19 +3372,18 @@ int Bot_Score_Factor_NoTrafficRearFromPoint(const pathnode_t *node, const vec3_t
 Bot_Score_Factor_NotRecentlyUsed
 ==============
 */
-int Bot_Score_Factor_NotRecentlyUsed(const pathnode_t *node, const bot_score_parms_s *parms)
+__int64 Bot_Score_Factor_NotRecentlyUsed(const pathnode_t *node, const bot_score_parms_s *parms)
 {
   gentity_s *GEntity; 
-  gentity_s *v5; 
-  int result; 
+  gentity_s *v4; 
   const char *GameType; 
   unsigned int NodeTeam; 
-  __int64 v15; 
+  __int64 v10; 
 
   GEntity = G_GetGEntity(parms->entityNum);
-  v5 = GEntity;
+  v4 = GEntity;
   if ( (parms->flags & 1) != 0 )
-    return 100;
+    return 100i64;
   if ( (!GEntity || !GEntity->sentient) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1897, ASSERT_TYPE_ASSERT, "( thisEnt && thisEnt->sentient )", (const char *)&queryFormat, "thisEnt && thisEnt->sentient") )
     __debugbreak();
   if ( !Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1898, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::BOTS ))", "%s\n\tAccess to pathnode_dynamic_t::bots", "Com_GameMode_SupportsFeature( Com_GameMode_Feature::BOTS )") )
@@ -4452,24 +3393,16 @@ int Bot_Score_Factor_NotRecentlyUsed(const pathnode_t *node, const bot_score_par
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1899, ASSERT_TYPE_ASSERT, "(!Path_MapUsesScriptedAIData())", "%s\n\tmap/mode is only set up to use scripted soldier data, should not be accessing pathnode_dynamic::bots", "!Path_MapUsesScriptedAIData()") )
       __debugbreak();
   }
-  NodeTeam = Path_GetNodeTeam(v5->sentient->eTeam);
+  NodeTeam = Path_GetNodeTeam(v4->sentient->eTeam);
   if ( NodeTeam >= 2 )
   {
-    LODWORD(v15) = NodeTeam;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1905, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeam ) < (unsigned)( (2) )", "nodeTeam doesn't index MAX_NODE_TEAMS_MP\n\t%i not in [0, %i)", v15, 2) )
+    LODWORD(v10) = NodeTeam;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 1905, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeam ) < (unsigned)( (2) )", "nodeTeam doesn't index MAX_NODE_TEAMS_MP\n\t%i not in [0, %i)", v10, 2) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3fd55555
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -4477,22 +3410,12 @@ int Bot_Score_Factor_NotRecentlyUsed(const pathnode_t *node, const bot_score_par
 Bot_Score_Factor_ProneCover360
 ==============
 */
-int Bot_Score_Factor_ProneCover360(const pathnode_t *node)
+__int64 Bot_Score_Factor_ProneCover360(const pathnode_t *node)
 {
-  int result; 
-
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   Path_NodeExposureGeneral(node, 4);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3f44ec4f
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -4500,28 +3423,15 @@ int Bot_Score_Factor_ProneCover360(const pathnode_t *node)
 Bot_Score_Factor_ProneCoverFacingDir
 ==============
 */
-int Bot_Score_Factor_ProneCoverFacingDir(const pathnode_t *node, const vec3_t *lookDir)
+__int64 Bot_Score_Factor_ProneCoverFacingDir(const pathnode_t *node, const vec3_t *lookDir)
 {
-  int result; 
+  double v3; 
 
-  *(double *)&_XMM0 = vectoyaw((const vec2_t *)lookDir);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@41c80000; coneAngle
-    vmovaps xmm1, xmm0; arcYaw
-    vxorps  xmm0, xmm0, xmm0
-  }
-  Path_NodeExposureGetRawArcSum(node, *(float *)&_XMM1, *(float *)&_XMM2, 4);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@41480000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  v3 = vectoyaw((const vec2_t *)lookDir);
+  Path_NodeExposureGetRawArcSum(node, *(float *)&v3, 25.0, 4);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -4529,44 +3439,24 @@ int Bot_Score_Factor_ProneCoverFacingDir(const pathnode_t *node, const vec3_t *l
 Bot_Score_Factor_ProneCoverFacingPoint
 ==============
 */
-int Bot_Score_Factor_ProneCoverFacingPoint(const pathnode_t *node, const vec3_t *lookAtPoint)
+__int64 Bot_Score_Factor_ProneCoverFacingPoint(const pathnode_t *node, const vec3_t *lookAtPoint)
 {
-  int result; 
+  float v4; 
+  double v5; 
   vec3_t pos; 
   vec2_t vec; 
+  float v11; 
 
-  _RBX = lookAtPoint;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm1, xmm0, dword ptr [rsp+58h+pos]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vsubss  xmm0, xmm2, dword ptr [rsp+58h+pos+4]
-    vmovss  dword ptr [rsp+58h+vec], xmm1
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+58h+pos+8]
-    vmovss  [rsp+58h+var_20], xmm2
-    vmovss  dword ptr [rsp+58h+vec+4], xmm0
-  }
-  *(double *)&_XMM0 = vectoyaw(&vec);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@41c80000; coneAngle
-    vmovaps xmm1, xmm0; arcYaw
-    vxorps  xmm0, xmm0, xmm0
-  }
-  Path_NodeExposureGetRawArcSum(node, *(float *)&_XMM1, *(float *)&_XMM2, 4);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@41480000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  v4 = lookAtPoint->v[1] - pos.v[1];
+  vec.v[0] = lookAtPoint->v[0] - pos.v[0];
+  v11 = lookAtPoint->v[2] - pos.v[2];
+  vec.v[1] = v4;
+  v5 = vectoyaw(&vec);
+  Path_NodeExposureGetRawArcSum(node, *(float *)&v5, 25.0, 4);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -4574,44 +3464,24 @@ int Bot_Score_Factor_ProneCoverFacingPoint(const pathnode_t *node, const vec3_t 
 Bot_Score_Factor_StandingCoverFacingPoint
 ==============
 */
-int Bot_Score_Factor_StandingCoverFacingPoint(const pathnode_t *node, const vec3_t *lookAtPoint)
+__int64 Bot_Score_Factor_StandingCoverFacingPoint(const pathnode_t *node, const vec3_t *lookAtPoint)
 {
-  int result; 
+  float v4; 
+  double v5; 
   vec3_t pos; 
   vec2_t vec; 
+  float v11; 
 
-  _RBX = lookAtPoint;
   pathnode_t::GetPos((pathnode_t *)node, &pos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm1, xmm0, dword ptr [rsp+58h+pos]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vsubss  xmm0, xmm2, dword ptr [rsp+58h+pos+4]
-    vmovss  dword ptr [rsp+58h+vec], xmm1
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm2, xmm1, dword ptr [rsp+58h+pos+8]
-    vmovss  [rsp+58h+var_20], xmm2
-    vmovss  dword ptr [rsp+58h+vec+4], xmm0
-  }
-  *(double *)&_XMM0 = vectoyaw(&vec);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@42340000; coneAngle
-    vmovaps xmm1, xmm0; arcYaw
-    vxorps  xmm0, xmm0, xmm0
-  }
-  Path_NodeExposureGetRawArcSum(node, *(float *)&_XMM1, *(float *)&_XMM2, 1);
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@40480000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  v4 = lookAtPoint->v[1] - pos.v[1];
+  vec.v[0] = lookAtPoint->v[0] - pos.v[0];
+  v11 = lookAtPoint->v[2] - pos.v[2];
+  vec.v[1] = v4;
+  v5 = vectoyaw(&vec);
+  Path_NodeExposureGetRawArcSum(node, *(float *)&v5, 45.0, 1);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -4619,39 +3489,30 @@ int Bot_Score_Factor_StandingCoverFacingPoint(const pathnode_t *node, const vec3
 Bot_Score_Factor_VisibilityToNode
 ==============
 */
-int Bot_Score_Factor_VisibilityToNode(const pathnode_t *node, const pathnode_t *lookAtNode)
+__int64 Bot_Score_Factor_VisibilityToNode(const pathnode_t *node, const pathnode_t *lookAtNode)
 {
-  int v5; 
-  unsigned int v6; 
-  const pathnode_t *v7; 
-  int result; 
+  int v4; 
+  unsigned int v5; 
+  const pathnode_t *v6; 
 
+  v4 = 0;
   v5 = 0;
-  v6 = 0;
   if ( Path_NodesVisibleNoPeek(lookAtNode, node) )
-    v5 = 1;
+    v4 = 1;
   if ( lookAtNode->constant.totalLinkCount )
   {
     do
     {
-      v7 = Path_ConvertIndexToNode(lookAtNode->constant.Links[v6].nodeNum);
-      if ( Path_NodesVisibleNoPeek(v7, node) )
-        ++v5;
-      ++v6;
+      v6 = Path_ConvertIndexToNode(lookAtNode->constant.Links[v5].nodeNum);
+      if ( Path_NodesVisibleNoPeek(v6, node) )
+        ++v4;
+      ++v5;
     }
-    while ( v6 < lookAtNode->constant.totalLinkCount );
+    while ( v5 < lookAtNode->constant.totalLinkCount );
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@41200000
-    vaddss  xmm3, xmm1, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm3, 1
-    vcvttss2si eax, xmm1
-  }
-  return result;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm3, 1 }
+  return (unsigned int)(int)*(float *)&_XMM1;
 }
 
 /*
@@ -4664,7 +3525,7 @@ unsigned __int16 Bot_Score_GetNearestNode(const bot_score_parms_s *parms, const 
   __int16 entityNum; 
   int clipmask; 
   pathnode_t *node; 
-  int v9; 
+  int v7; 
   __int64 maxNodes; 
   pathsort_s nodes[64]; 
 
@@ -4687,17 +3548,8 @@ LABEL_17:
     if ( node )
       return Path_ConvertNodeToIndex(node);
   }
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42800000; maxHeight
-    vmovss  xmm2, cs:__real@43400000; maxDist
-  }
-  v9 = Path_NodesInCylinder(originPoint, NULL, *(float *)&_XMM2, *(float *)&_XMM3, nodes, 64, -2);
-  if ( v9 <= 0 )
-    return -1;
-  std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>(nodes, &nodes[v9], v9, Path_CompareNodesIncreasing);
-  node = nodes[0].node;
-  if ( nodes[0].node )
+  v7 = Path_NodesInCylinder(originPoint, NULL, 192.0, 64.0, nodes, 64, -2);
+  if ( v7 > 0 && (std::_Sort_unchecked<pathsort_s *,bool (*)(pathsort_s const &,pathsort_s const &)>(nodes, &nodes[v7], v7, Path_CompareNodesIncreasing), (node = nodes[0].node) != NULL) )
     return Path_ConvertNodeToIndex(node);
   else
     return -1;
@@ -4716,24 +3568,24 @@ __int64 Bot_Score_NodeHideCommon(int object, const bot_score_parms_s *parms, int
   const pathnode_t *v8; 
   __int16 entityNum; 
   bot_score_type_t scoreType; 
+  int v11; 
+  int v12; 
+  bot_score_type_t v13; 
   int v14; 
+  int v15; 
   int v16; 
   bot_score_type_t v17; 
   int v18; 
   int v19; 
-  int v21; 
-  bot_score_type_t v22; 
-  int v23; 
-  int v24; 
-  __int64 v27; 
+  __int64 v21; 
 
   v5 = object;
   if ( !parms && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 517, ASSERT_TYPE_ASSERT, "( parms )", (const char *)&queryFormat, "parms") )
     __debugbreak();
   if ( (unsigned int)parms->entityNum >= level.num_entities )
   {
-    LODWORD(v27) = parms->entityNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 518, ASSERT_TYPE_ASSERT, "(unsigned)( parms->entityNum ) < (unsigned)( level.num_entities )", "parms->entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v27, level.num_entities) )
+    LODWORD(v21) = parms->entityNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 518, ASSERT_TYPE_ASSERT, "(unsigned)( parms->entityNum ) < (unsigned)( level.num_entities )", "parms->entityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v21, level.num_entities) )
       __debugbreak();
   }
   v6 = Path_ConvertIndexToNode(v5);
@@ -4741,36 +3593,22 @@ __int64 Bot_Score_NodeHideCommon(int object, const bot_score_parms_s *parms, int
   v8 = Sentient_NearestNode(v7->sentient);
   if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 523, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  if ( Bot_Score_NodeShouldIgnore(v6, parms->entityNum, parms) )
-    return 0i64;
-  __asm { vmovss  xmm2, cs:__real@41200000; recentUseTime }
-  if ( Bot_Score_NodeWasRecentlyUsed(v6, parms, *(float *)&_XMM2) )
-    return 0i64;
-  __asm { vmovss  xmm2, cs:__real@43fa0000; radius }
-  if ( Bot_Score_NodeIsDangerous(v6, parms->entityNum, *(float *)&_XMM2) || (parms->flags & 0x20) != 0 && (Bot_Score_NodeIgnoreTraversalIslandMismatch(v6, parms) || v8 && !Path_NodesVisibleNoPeek(v6, v8)) )
-    return 0i64;
-  if ( Path_NodeExposureGetTraffic(v6) )
-    return 0i64;
-  __asm { vmovss  xmm2, cs:__real@42c80000; radius }
-  if ( Bot_Score_NodeIsNearAllySentient(v6, parms->entityNum, *(float *)&_XMM2) || checkSightToBot && v8 && !Path_NodesVisibleAreaNoPeek(v6, v8) )
+  if ( Bot_Score_NodeShouldIgnore(v6, parms->entityNum, parms) || Bot_Score_NodeWasRecentlyUsed(v6, parms, 10.0) || Bot_Score_NodeIsDangerous(v6, parms->entityNum, 500.0) || (parms->flags & 0x20) != 0 && (Bot_Score_NodeIgnoreTraversalIslandMismatch(v6, parms) || v8 && !Path_NodesVisibleNoPeek(v6, v8)) || Path_NodeExposureGetTraffic(v6) || Bot_Score_NodeIsNearAllySentient(v6, parms->entityNum, 100.0) || checkSightToBot && v8 && !Path_NodesVisibleAreaNoPeek(v6, v8) )
     return 0i64;
   entityNum = parms->entityNum;
   scoreType = parms->scoreType;
-  v14 = Bot_Score_Factor_ProneCover360(v6);
-  __asm { vmovss  xmm1, cs:__real@3f800000; weight }
-  v16 = BotScoreDebugFactor(0, *(double *)&_XMM1, v14, scoreType, entityNum);
+  v11 = Bot_Score_Factor_ProneCover360(v6);
+  v12 = BotScoreDebugFactor(0, 1.0, v11, scoreType, entityNum);
+  LOWORD(scoreType) = parms->entityNum;
+  v13 = parms->scoreType;
+  v14 = v12;
+  v15 = Bot_Score_Factor_NoTraffic360(v6);
+  v16 = BotScoreDebugFactor(1, 1.0, v15, v13, scoreType);
   LOWORD(scoreType) = parms->entityNum;
   v17 = parms->scoreType;
-  v18 = v16;
-  v19 = Bot_Score_Factor_NoTraffic360(v6);
-  __asm { vmovss  xmm1, cs:__real@3f800000; weight }
-  v21 = BotScoreDebugFactor(1, *(double *)&_XMM1, v19, v17, scoreType);
-  LOWORD(scoreType) = parms->entityNum;
-  v22 = parms->scoreType;
-  v23 = v21 + v18;
-  v24 = Bot_Score_Factor_CloseToPoint(v6, &v7->r.currentOrigin, 1000);
-  __asm { vmovss  xmm1, cs:__real@3f800000; weight }
-  return v23 + (unsigned int)BotScoreDebugFactor(2, *(double *)&_XMM1, v24, v22, scoreType);
+  v18 = v16 + v14;
+  v19 = Bot_Score_Factor_CloseToPoint(v6, &v7->r.currentOrigin, 1000);
+  return v18 + (unsigned int)BotScoreDebugFactor(2, 1.0, v19, v17, scoreType);
 }
 
 /*
@@ -4839,11 +3677,11 @@ _BOOL8 Bot_Score_NodeIgnoreTraversalIslandMismatch(const pathnode_t *node, const
 Bot_Score_NodeIsCurrentlyOccupied
 ==============
 */
-_BOOL8 Bot_Score_NodeIsCurrentlyOccupied(const pathnode_t *node, __int16 botEntityNum, const bot_score_parms_s *parms)
+__int64 Bot_Score_NodeIsCurrentlyOccupied(const pathnode_t *node, __int16 botEntityNum, const bot_score_parms_s *parms)
 {
   bot_data_t *EntityData; 
   const gentity_s *v7; 
-  __int64 v10; 
+  __int64 v9; 
   vec3_t pos; 
 
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2101, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
@@ -4854,8 +3692,8 @@ _BOOL8 Bot_Score_NodeIsCurrentlyOccupied(const pathnode_t *node, __int16 botEnti
     return 0i64;
   if ( (unsigned int)botEntityNum >= level.num_entities )
   {
-    LODWORD(v10) = botEntityNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2110, ASSERT_TYPE_ASSERT, "(unsigned)( botEntityNum ) < (unsigned)( level.num_entities )", "botEntityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v10, level.num_entities) )
+    LODWORD(v9) = botEntityNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2110, ASSERT_TYPE_ASSERT, "(unsigned)( botEntityNum ) < (unsigned)( level.num_entities )", "botEntityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v9, level.num_entities) )
       __debugbreak();
   }
   EntityData = Bot_GetEntityData(&level.gentities[botEntityNum]);
@@ -4865,14 +3703,10 @@ _BOOL8 Bot_Score_NodeIsCurrentlyOccupied(const pathnode_t *node, __int16 botEnti
     __debugbreak();
   if ( !EntityData->botInfo.ent->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2114, ASSERT_TYPE_ASSERT, "( botData->botInfo.ent->sentient )", (const char *)&queryFormat, "botData->botInfo.ent->sentient") )
     __debugbreak();
-  if ( !Path_NodeUnclaimedByOther(node, EntityData->botInfo.ent->sentient) )
-    return 1i64;
-  pathnode_t::GetPos((pathnode_t *)node, &pos);
-  if ( !EntHandle::isDefined(&EntityData->botInfo.ent->r.ownerNum) )
+  if ( Path_NodeUnclaimedByOther(node, EntityData->botInfo.ent->sentient) && ((pathnode_t::GetPos((pathnode_t *)node, &pos), !EntHandle::isDefined(&EntityData->botInfo.ent->r.ownerNum)) || (v7 = EntHandle::ent(&EntityData->botInfo.ent->r.ownerNum), !Bot_EntityOccupiesLocation(v7, &pos, 1.0))) )
     return 0i64;
-  v7 = EntHandle::ent(&EntityData->botInfo.ent->r.ownerNum);
-  __asm { vmovss  xmm2, cs:__real@3f800000; distanceScalar }
-  return Bot_EntityOccupiesLocation(v7, &pos, *(float *)&_XMM2) != 0;
+  else
+    return 1i64;
 }
 
 /*
@@ -4880,100 +3714,68 @@ _BOOL8 Bot_Score_NodeIsCurrentlyOccupied(const pathnode_t *node, __int16 botEnti
 Bot_Score_NodeIsDangerous
 ==============
 */
-
-__int64 __fastcall Bot_Score_NodeIsDangerous(const pathnode_t *node, __int16 botEntityNum, double radius)
+__int64 Bot_Score_NodeIsDangerous(const pathnode_t *node, __int16 botEntityNum, float radius)
 {
   bot_data_t *EntityData; 
   AIBotInterface *m_pAI; 
   unsigned __int64 eTeam; 
   gentity_s *ent; 
-  bot_mem_event_t *i; 
-  char v26; 
-  __int64 result; 
-  __int64 v29; 
-  bitarray<224> v30; 
-  AIBotWrapper v31; 
-  __int128 v32; 
-  __int64 v33; 
-  unsigned int v34; 
+  bot_mem_event_t *v9; 
+  __int64 v11; 
+  bitarray<224> v12; 
+  AIBotWrapper v13; 
+  __int128 v14; 
+  double v15; 
+  unsigned int v16; 
   vec3_t pos; 
   bot_mem_iterator_t memIt; 
 
-  __asm
-  {
-    vmovaps [rsp+310h+var_30], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2165, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
-  __asm { vmulss  xmm6, xmm6, xmm6 }
   if ( (unsigned int)botEntityNum >= level.num_entities )
   {
-    LODWORD(v29) = botEntityNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2174, ASSERT_TYPE_ASSERT, "(unsigned)( botEntityNum ) < (unsigned)( level.num_entities )", "botEntityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v29, level.num_entities) )
+    LODWORD(v11) = botEntityNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2174, ASSERT_TYPE_ASSERT, "(unsigned)( botEntityNum ) < (unsigned)( level.num_entities )", "botEntityNum doesn't index level.num_entities\n\t%i not in [0, %i)", v11, level.num_entities) )
       __debugbreak();
   }
   EntityData = Bot_GetEntityData(&level.gentities[botEntityNum]);
   if ( !EntityData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2176, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
-  AIBotWrapper::AIBotWrapper(&v31, EntityData);
-  m_pAI = v31.m_pAI;
-  if ( !v31.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2177, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIBotWrapper::AIBotWrapper(&v13, EntityData);
+  m_pAI = v13.m_pAI;
+  if ( !v13.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2177, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   eTeam = (unsigned int)EntityData->botInfo.sentient->eTeam;
-  v32 = 0ui64;
-  v33 = 0i64;
-  v34 = 0;
+  v14 = 0ui64;
+  v15 = 0.0;
+  v16 = 0;
   if ( (unsigned int)eTeam >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", eTeam, 224) )
     __debugbreak();
-  *((_DWORD *)&v32 + (eTeam >> 5)) |= 0x80000000 >> (eTeam & 0x1F);
-  __asm
-  {
-    vmovups xmm0, [rbp+210h+var_268]
-    vmovsd  xmm1, [rbp+210h+var_258]
-  }
-  v30.array[6] = v34;
+  *((_DWORD *)&v14 + (eTeam >> 5)) |= 0x80000000 >> (eTeam & 0x1F);
+  v12.array[6] = v16;
   ent = EntityData->botInfo.ent;
-  __asm
+  *(_OWORD *)v12.array = v14;
+  *(double *)&v12.array[4] = v15;
+  if ( !AICommonInterface::BadPlace_IsNodeInAnyBadPlace(m_pAI, node, ent->clipmask, &v12) )
   {
-    vmovups [rsp+310h+var_2C0], xmm0
-    vmovsd  [rsp+310h+var_2B0], xmm1
-  }
-  if ( AICommonInterface::BadPlace_IsNodeInAnyBadPlace(m_pAI, node, ent->clipmask, &v30) )
-  {
-LABEL_22:
-    result = 1i64;
-    goto LABEL_23;
-  }
-  Bot_MemoryIterateInit(&memIt);
-  for ( i = Bot_MemoryIterate(EntityData, level.time, level.time - 60000, &memIt); i; i = Bot_MemoryIterate(EntityData, level.time, level.time - 60000, &memIt) )
-  {
-    if ( i->type == BOT_MEM_DEATH )
+    Bot_MemoryIterateInit(&memIt);
+    v9 = Bot_MemoryIterate(EntityData, level.time, level.time - 60000, &memIt);
+    if ( !v9 )
+      return 0i64;
+    while ( 1 )
     {
-      pathnode_t::GetPos((pathnode_t *)node, &pos);
-      __asm
+      if ( v9->type == BOT_MEM_DEATH )
       {
-        vmovss  xmm0, dword ptr [rbp+210h+pos]
-        vsubss  xmm3, xmm0, dword ptr [rbx+14h]
-        vmovss  xmm1, dword ptr [rbp+210h+pos+4]
-        vsubss  xmm2, xmm1, dword ptr [rbx+18h]
-        vmovss  xmm0, dword ptr [rbp+210h+pos+8]
-        vsubss  xmm4, xmm0, dword ptr [rbx+1Ch]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vcomiss xmm2, xmm6
+        pathnode_t::GetPos((pathnode_t *)node, &pos);
+        if ( (float)((float)((float)((float)(pos.v[1] - v9->location2.v[1]) * (float)(pos.v[1] - v9->location2.v[1])) + (float)((float)(pos.v[0] - v9->location2.v[0]) * (float)(pos.v[0] - v9->location2.v[0]))) + (float)((float)(pos.v[2] - v9->location2.v[2]) * (float)(pos.v[2] - v9->location2.v[2]))) < (float)(radius * radius) )
+          break;
       }
-      if ( v26 )
-        goto LABEL_22;
+      v9 = Bot_MemoryIterate(EntityData, level.time, level.time - 60000, &memIt);
+      if ( !v9 )
+        return 0i64;
     }
   }
-  result = 0i64;
-LABEL_23:
-  __asm { vmovaps xmm6, [rsp+310h+var_30] }
-  return result;
+  return 1i64;
 }
 
 /*
@@ -4981,87 +3783,41 @@ LABEL_23:
 Bot_Score_NodeIsNearAllySentient
 ==============
 */
-
-__int64 __fastcall Bot_Score_NodeIsNearAllySentient(const pathnode_t *node, __int16 botEntityNum, double radius)
+__int64 Bot_Score_NodeIsNearAllySentient(const pathnode_t *node, __int16 botEntityNum, float radius)
 {
-  gentity_s *v8; 
-  sentient_s *v12; 
-  __int64 result; 
+  gentity_s *v5; 
+  bitarray<224> *AllTeamFlags; 
+  sentient_s *v7; 
   vec3_t pos; 
   bitarray<224> iTeamFlags; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_28], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( (unsigned int)botEntityNum >= level.num_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2205, ASSERT_TYPE_ASSERT, "(unsigned)( botEntityNum ) < (unsigned)( level.num_entities )", "botEntityNum doesn't index level.num_entities\n\t%i not in [0, %i)", botEntityNum, level.num_entities) )
     __debugbreak();
-  __asm { vmulss  xmm6, xmm6, xmm6 }
-  v8 = &level.gentities[botEntityNum];
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2215, ASSERT_TYPE_ASSERT, "( botEnt )", (const char *)&queryFormat, "botEnt") )
+  v5 = &level.gentities[botEntityNum];
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2215, ASSERT_TYPE_ASSERT, "( botEnt )", (const char *)&queryFormat, "botEnt") )
     __debugbreak();
-  if ( !v8->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2216, ASSERT_TYPE_ASSERT, "( botEnt->sentient )", (const char *)&queryFormat, "botEnt->sentient") )
+  if ( !v5->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2216, ASSERT_TYPE_ASSERT, "( botEnt->sentient )", (const char *)&queryFormat, "botEnt->sentient") )
     __debugbreak();
   pathnode_t::GetPos((pathnode_t *)node, &pos);
   if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-    _RAX = Com_TeamsSP_GetAllTeamFlags();
+    AllTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllTeamFlags();
   else
-    _RAX = Com_TeamsMP_GetAllTeamFlags();
-  __asm
+    AllTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+  iTeamFlags = *AllTeamFlags;
+  v7 = Sentient_FirstSentient(&iTeamFlags);
+  if ( !v7 )
+    return 0i64;
+  while ( 1 )
   {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rsp+0A8h+iTeamFlags.array], xmm0
-    vmovsd  xmm1, qword ptr [rax+10h]
-    vmovsd  qword ptr [rsp+0A8h+iTeamFlags.array+10h], xmm1
+    if ( !v7->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2222, ASSERT_TYPE_ASSERT, "( sentient->ent )", (const char *)&queryFormat, "sentient->ent") )
+      __debugbreak();
+    if ( Bot_IsCharacterActive(v7->ent) && AI_IsAlliedSentient(v5->sentient, v7) && v7 != v5->sentient && (float)((float)((float)((float)(pos.v[1] - v7->ent->r.currentOrigin.v[1]) * (float)(pos.v[1] - v7->ent->r.currentOrigin.v[1])) + (float)((float)(pos.v[0] - v7->ent->r.currentOrigin.v[0]) * (float)(pos.v[0] - v7->ent->r.currentOrigin.v[0]))) + (float)((float)(pos.v[2] - v7->ent->r.currentOrigin.v[2]) * (float)(pos.v[2] - v7->ent->r.currentOrigin.v[2]))) < (float)(radius * radius) )
+      break;
+    v7 = Sentient_NextSentient(v7, &iTeamFlags);
+    if ( !v7 )
+      return 0i64;
   }
-  iTeamFlags.array[6] = _RAX->array[6];
-  v12 = Sentient_FirstSentient(&iTeamFlags);
-  if ( v12 )
-  {
-    while ( 1 )
-    {
-      if ( !v12->ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2222, ASSERT_TYPE_ASSERT, "( sentient->ent )", (const char *)&queryFormat, "sentient->ent") )
-        __debugbreak();
-      if ( Bot_IsCharacterActive(v12->ent) )
-      {
-        if ( AI_IsAlliedSentient(v8->sentient, v12) )
-        {
-          if ( v12 != v8->sentient )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+0A8h+pos]
-              vmovss  xmm1, dword ptr [rsp+0A8h+pos+4]
-              vsubss  xmm3, xmm0, dword ptr [rax+130h]
-              vsubss  xmm2, xmm1, dword ptr [rax+134h]
-              vmovss  xmm0, dword ptr [rsp+0A8h+pos+8]
-              vsubss  xmm4, xmm0, dword ptr [rax+138h]
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm1, xmm3, xmm3
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm3, xmm2, xmm1
-              vaddss  xmm2, xmm3, xmm0
-              vcomiss xmm2, xmm6
-            }
-            if ( v12 < v8->sentient )
-              break;
-          }
-        }
-      }
-      v12 = Sentient_NextSentient(v12, &iTeamFlags);
-      if ( !v12 )
-        goto LABEL_22;
-    }
-    result = 1i64;
-  }
-  else
-  {
-LABEL_22:
-    result = 0i64;
-  }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_28] }
-  return result;
+  return 1i64;
 }
 
 /*
@@ -5072,20 +3828,19 @@ Bot_Score_NodeShouldIgnore
 __int64 Bot_Score_NodeShouldIgnore(const pathnode_t *node, __int16 botEntityNum, const bot_score_parms_s *parms)
 {
   bot_data_t *EntityData; 
-  unsigned __int16 v8; 
+  unsigned __int16 v7; 
   bool IsExposedSky; 
-  unsigned int v11; 
+  int v9; 
   BOOL IsNodeIndexExposedSky; 
-  unsigned int wLinkCount; 
-  bool v15; 
-  __int64 result; 
-  bool v19; 
-  BOOL v20; 
-  unsigned int v21; 
-  unsigned int v23; 
-  bool v24; 
-  int v26; 
-  ai_stance_e v27; 
+  __int64 v11; 
+  pathlink_s *Links; 
+  bool v14; 
+  BOOL v15; 
+  int v16; 
+  __int64 v17; 
+  pathlink_s *v18; 
+  int v19; 
+  ai_stance_e v20; 
 
   if ( !node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2287, ASSERT_TYPE_ASSERT, "( node )", (const char *)&queryFormat, "node") )
     __debugbreak();
@@ -5098,82 +3853,66 @@ __int64 Bot_Score_NodeShouldIgnore(const pathnode_t *node, __int16 botEntityNum,
     __debugbreak();
   if ( !EntityData->botInfo.ent->sentient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2293, ASSERT_TYPE_ASSERT, "( botData->botInfo.ent->sentient )", (const char *)&queryFormat, "botData->botInfo.ent->sentient") )
     __debugbreak();
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  v8 = Path_ConvertNodeToIndex(node);
-  if ( Path_IsNodeDisconnected(v8) || node->constant.parent.index || Path_IsNodeTraversalOrOverlapsTraversal(node) && (parms->flags & 0x100) == 0 || Bot_Score_NodeIsCurrentlyOccupied(node, botEntityNum, parms) )
-    goto LABEL_28;
-  __asm { vmovss  xmm6, cs:__real@42c80000 }
+  v7 = Path_ConvertNodeToIndex(node);
+  if ( Path_IsNodeDisconnected(v7) || node->constant.parent.index || Path_IsNodeTraversalOrOverlapsTraversal(node) && (parms->flags & 0x100) == 0 || Bot_Score_NodeIsCurrentlyOccupied(node, botEntityNum, parms) )
+    return 1i64;
   if ( (parms->flags & 4) != 0 )
   {
     IsExposedSky = Path_IsExposedSky(node);
-    v11 = 0;
+    v9 = 0;
     IsNodeIndexExposedSky = IsExposedSky;
     if ( !IsExposedSky )
     {
-      _RDI = 0i64;
-      while ( 1 )
+      v11 = 0i64;
+      while ( v9 < node->dynamic.wLinkCount )
       {
-        wLinkCount = node->dynamic.wLinkCount;
-        v15 = v11 < wLinkCount;
-        if ( (int)v11 >= (int)wLinkCount )
-          break;
-        _RAX = node->constant.Links;
-        __asm { vcomiss xmm6, dword ptr [rax+rdi] }
-        if ( !v15 )
-          IsNodeIndexExposedSky = Path_IsNodeIndexExposedSky(_RAX[_RDI].nodeNum);
+        Links = node->constant.Links;
+        if ( Links[v11].fDist <= 100.0 )
+          IsNodeIndexExposedSky = Path_IsNodeIndexExposedSky(Links[v11].nodeNum);
+        ++v9;
         ++v11;
-        ++_RDI;
         if ( IsNodeIndexExposedSky )
-          goto LABEL_28;
+          return 1i64;
       }
     }
     if ( IsNodeIndexExposedSky )
-      goto LABEL_28;
+      return 1i64;
   }
   if ( (parms->flags & 2) != 0 )
   {
-    v19 = Path_IsExposedSky(node);
-    v20 = !v19;
-    v21 = 0;
-    if ( v19 )
+    v14 = Path_IsExposedSky(node);
+    v15 = !v14;
+    v16 = 0;
+    if ( v14 )
     {
-      _RDI = 0i64;
-      while ( 1 )
+      v17 = 0i64;
+      while ( v16 < node->dynamic.wLinkCount )
       {
-        v23 = node->dynamic.wLinkCount;
-        v24 = v21 < v23;
-        if ( (int)v21 >= (int)v23 )
-          break;
-        _RAX = node->constant.Links;
-        __asm { vcomiss xmm6, dword ptr [rax+rdi] }
-        if ( !v24 )
-          v20 = !Path_IsNodeIndexExposedSky(_RAX[_RDI].nodeNum);
-        ++v21;
-        ++_RDI;
-        if ( v20 )
-          goto LABEL_28;
+        v18 = node->constant.Links;
+        if ( v18[v17].fDist <= 100.0 )
+          v15 = !Path_IsNodeIndexExposedSky(v18[v17].nodeNum);
+        ++v16;
+        ++v17;
+        if ( v15 )
+          return 1i64;
       }
     }
-    if ( v20 )
-      goto LABEL_28;
+    if ( v15 )
+      return 1i64;
   }
   if ( (parms->flags & 0x200) != 0 )
-    goto LABEL_50;
-  v26 = 7;
+    return 0i64;
+  v19 = 7;
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityData->botInfo.playerState->pm_flags, ACTIVE, 0x21u) )
-    v26 = 6;
+    v19 = 6;
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityData->botInfo.playerState->pm_flags, ACTIVE, 0x23u) )
-    v26 &= ~4u;
+    v19 &= ~4u;
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityData->botInfo.playerState->pm_flags, ACTIVE, 0x22u) )
-    v26 &= ~2u;
-  if ( v26 != 7 && (v27 = Path_AllowedStancesForNode(node), (v27 & 7) == 0) && (v27 & v26) == 0 )
-LABEL_28:
-    result = 1i64;
+    v19 &= ~2u;
+  if ( v19 != 7 && (v20 = Path_AllowedStancesForNode(node), (v20 & 7) == 0) && (v20 & v19) == 0 )
+    return 1i64;
   else
-LABEL_50:
-    result = 0i64;
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
-  return result;
+    return 0i64;
 }
 
 /*
@@ -5181,27 +3920,20 @@ LABEL_50:
 Bot_Score_NodeWasRecentlyUsed
 ==============
 */
-
-__int64 __fastcall Bot_Score_NodeWasRecentlyUsed(const pathnode_t *node, const bot_score_parms_s *parms, double recentUseTime)
+_BOOL8 Bot_Score_NodeWasRecentlyUsed(const pathnode_t *node, const bot_score_parms_s *parms, float recentUseTime)
 {
   gentity_s *GEntity; 
-  gentity_s *v9; 
+  gentity_s *v6; 
   const char *GameType; 
   int NodeTeam; 
+  __int64 v9; 
+  int v10; 
   __int64 v12; 
-  int v13; 
-  __int64 result; 
-  __int64 v19; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   GEntity = G_GetGEntity(parms->entityNum);
-  v9 = GEntity;
+  v6 = GEntity;
   if ( (parms->flags & 1) != 0 )
-    goto LABEL_21;
+    return 0i64;
   if ( (!GEntity || !GEntity->sentient) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2139, ASSERT_TYPE_ASSERT, "( thisEnt && thisEnt->sentient )", (const char *)&queryFormat, "thisEnt && thisEnt->sentient") )
     __debugbreak();
   if ( !Com_GameMode_SupportsFeature(WEAPON_RAISING_ALTSWITCH) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2140, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::BOTS ))", "%s\n\tAccess to pathnode_dynamic_t::bots", "Com_GameMode_SupportsFeature( Com_GameMode_Feature::BOTS )") )
@@ -5211,31 +3943,16 @@ __int64 __fastcall Bot_Score_NodeWasRecentlyUsed(const pathnode_t *node, const b
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2141, ASSERT_TYPE_ASSERT, "(!Path_MapUsesScriptedAIData())", "%s\n\tmap/mode is only set up to use scripted soldier data, should not be accessing pathnode_dynamic::bots", "!Path_MapUsesScriptedAIData()") )
       __debugbreak();
   }
-  NodeTeam = Path_GetNodeTeam(v9->sentient->eTeam);
-  v12 = NodeTeam;
+  NodeTeam = Path_GetNodeTeam(v6->sentient->eTeam);
+  v9 = NodeTeam;
   if ( (unsigned int)NodeTeam >= 2 )
   {
-    LODWORD(v19) = NodeTeam;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2144, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeam ) < (unsigned)( (2) )", "nodeTeam doesn't index MAX_NODE_TEAMS_MP\n\t%i not in [0, %i)", v19, 2) )
+    LODWORD(v12) = NodeTeam;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2144, ASSERT_TYPE_ASSERT, "(unsigned)( nodeTeam ) < (unsigned)( (2) )", "nodeTeam doesn't index MAX_NODE_TEAMS_MP\n\t%i not in [0, %i)", v12, 2) )
       __debugbreak();
   }
-  v13 = node->dynamic.actors.dangerousNodeTime[v12];
-  if ( v13 <= 0 )
-    goto LABEL_21;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vcomiss xmm1, xmm6
-  }
-  if ( level.time > (unsigned int)v13 )
-LABEL_21:
-    result = 0i64;
-  else
-    result = 1i64;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  return result;
+  v10 = node->dynamic.actors.dangerousNodeTime[v9];
+  return v10 > 0 && (float)((float)(level.time - v10) * 0.001) <= recentUseTime;
 }
 
 /*
@@ -5259,43 +3976,37 @@ Bot_Score_RndPickSortedMultiple
 */
 void Bot_Score_RndPickSortedMultiple(bot_score_item_s *items, int itemCount, int numToPick, int *nodesPicked)
 {
-  __int64 v5; 
-  __int64 v7; 
-  __int64 v9; 
-  __int64 v13; 
-  int v14[2048]; 
+  __int64 v4; 
+  __int64 v6; 
+  __int64 v8; 
+  int v9; 
+  __int64 v10; 
+  int v11[2048]; 
 
-  v5 = numToPick;
-  v7 = itemCount;
+  v4 = numToPick;
+  v6 = itemCount;
   if ( !items && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2454, ASSERT_TYPE_ASSERT, "( items )", (const char *)&queryFormat, "items") )
     __debugbreak();
-  if ( (int)v7 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2455, ASSERT_TYPE_ASSERT, "( itemCount >= 0 )", (const char *)&queryFormat, "itemCount >= 0") )
+  if ( (int)v6 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2455, ASSERT_TYPE_ASSERT, "( itemCount >= 0 )", (const char *)&queryFormat, "itemCount >= 0") )
     __debugbreak();
-  if ( (int)v5 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2456, ASSERT_TYPE_ASSERT, "( numToPick > 0 )", (const char *)&queryFormat, "numToPick > 0") )
+  if ( (int)v4 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2456, ASSERT_TYPE_ASSERT, "( numToPick > 0 )", (const char *)&queryFormat, "numToPick > 0") )
     __debugbreak();
-  if ( (int)v5 > (int)v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2457, ASSERT_TYPE_ASSERT, "( numToPick <= itemCount )", (const char *)&queryFormat, "numToPick <= itemCount") )
+  if ( (int)v4 > (int)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2457, ASSERT_TYPE_ASSERT, "( numToPick <= itemCount )", (const char *)&queryFormat, "numToPick <= itemCount") )
     __debugbreak();
-  memcpy_0(v14, items, 8 * v7);
-  if ( (int)v5 > 0 )
+  memcpy_0(v11, items, 8 * v6);
+  if ( (int)v4 > 0 )
   {
-    v9 = 0i64;
+    v8 = 0i64;
     while ( 1 )
     {
-      G_rand();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edx
-        vsqrtss xmm1, xmm0, xmm0
-        vcvttss2si r8d, xmm1
-      }
-      v13 = (int)v7 - _ER8 - 1i64;
-      nodesPicked[v9++] = v14[2 * v13];
-      if ( v9 >= v5 )
+      v9 = (int)fsqrt((float)(G_rand() % ((int)v6 * (int)v6)));
+      v10 = (int)v6 - v9 - 1i64;
+      nodesPicked[v8++] = v11[2 * v10];
+      if ( v8 >= v4 )
         break;
-      if ( v13 < (int)v7 - 1 )
-        qmemcpy(&v14[2 * v13], &v14[2 * v13 + 2], 8 * ((int)v7 - 1 - (__int64)((int)v7 - _ER8 - 1)));
-      LODWORD(v7) = v7 - 1;
+      if ( v10 < (int)v6 - 1 )
+        qmemcpy(&v11[2 * v10], &v11[2 * v10 + 2], 8 * ((int)v6 - 1 - (__int64)((int)v6 - v9 - 1)));
+      LODWORD(v6) = v6 - 1;
     }
   }
 }
@@ -5311,15 +4022,7 @@ __int64 Bot_Score_RndPickSortedSingle(bot_score_item_s *items, int itemCount)
     __debugbreak();
   if ( itemCount < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2443, ASSERT_TYPE_ASSERT, "( itemCount >= 0 )", (const char *)&queryFormat, "itemCount >= 0") )
     __debugbreak();
-  G_rand();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edx
-    vsqrtss xmm1, xmm0, xmm0
-    vcvttss2si eax, xmm1
-  }
-  return (unsigned int)items[itemCount - _EAX - 1].object;
+  return (unsigned int)items[itemCount - (int)fsqrt((float)(G_rand() % (itemCount * itemCount))) - 1].object;
 }
 
 /*
@@ -5358,120 +4061,104 @@ Bot_Score_ScoreNodesPick
 */
 __int64 Bot_Score_ScoreNodesPick(const bot_data_t *botData, bot_score_item_s *objects, int objectsCount, int selectCount, bot_score_parms_s *parms, int nodesToPick, int *nodesPicked)
 {
-  __int64 v8; 
+  __int64 v7; 
+  const dvar_t *v11; 
   const dvar_t *v12; 
+  const dvar_t *v13; 
   const dvar_t *v14; 
-  const dvar_t *v15; 
-  const dvar_t *v16; 
-  int v19; 
+  int v15; 
   int *p_score; 
-  int v21; 
+  int v17; 
 
-  v8 = objectsCount;
-  _RDI = botData;
+  v7 = objectsCount;
   if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2572, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
   if ( !objects && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2573, ASSERT_TYPE_ASSERT, "( objects )", (const char *)&queryFormat, "objects") )
     __debugbreak();
-  if ( (int)v8 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2574, ASSERT_TYPE_ASSERT, "( objectsCount > 0 )", (const char *)&queryFormat, "objectsCount > 0") )
+  if ( (int)v7 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2574, ASSERT_TYPE_ASSERT, "( objectsCount > 0 )", (const char *)&queryFormat, "objectsCount > 0") )
     __debugbreak();
   if ( selectCount <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2575, ASSERT_TYPE_ASSERT, "( selectCount > 0 )", (const char *)&queryFormat, "selectCount > 0") )
     __debugbreak();
-  if ( selectCount > (int)v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2576, ASSERT_TYPE_ASSERT, "( selectCount <= objectsCount )", (const char *)&queryFormat, "selectCount <= objectsCount") )
+  if ( selectCount > (int)v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2576, ASSERT_TYPE_ASSERT, "( selectCount <= objectsCount )", (const char *)&queryFormat, "selectCount <= objectsCount") )
     __debugbreak();
   if ( nodesToPick <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2577, ASSERT_TYPE_ASSERT, "( nodesToPick > 0 )", (const char *)&queryFormat, "nodesToPick > 0") )
     __debugbreak();
-  if ( nodesToPick > (int)v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2578, ASSERT_TYPE_ASSERT, "( nodesToPick <= objectsCount )", (const char *)&queryFormat, "nodesToPick <= objectsCount") )
+  if ( nodesToPick > (int)v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2578, ASSERT_TYPE_ASSERT, "( nodesToPick <= objectsCount )", (const char *)&queryFormat, "nodesToPick <= objectsCount") )
     __debugbreak();
   if ( nodesToPick > selectCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2579, ASSERT_TYPE_ASSERT, "( nodesToPick <= selectCount )", (const char *)&queryFormat, "nodesToPick <= selectCount") )
     __debugbreak();
-  _RDI->botDebugData.debugScoresSaving = 0;
-  v12 = DVARINT_bot_ScoreType;
+  botData->botDebugData.debugScoresSaving = 0;
+  v11 = DVARINT_bot_ScoreType;
   if ( !DVARINT_bot_ScoreType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreType") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  _R15 = parms;
-  if ( v12->current.integer == parms->scoreType )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.integer == parms->scoreType )
   {
-    v14 = DVARINT_bot_ScoreClient;
+    v12 = DVARINT_bot_ScoreClient;
     if ( !DVARINT_bot_ScoreClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreClient") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v14);
-    if ( v14->current.integer == -1 )
+    Dvar_CheckFrontendServerThread(v12);
+    if ( v12->current.integer == -1 )
       goto LABEL_37;
-    v15 = DVARINT_bot_ScoreClient;
+    v13 = DVARINT_bot_ScoreClient;
     if ( !DVARINT_bot_ScoreClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreClient") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v15);
-    if ( v15->current.integer == _RDI->botInfo.ent->s.number )
+    Dvar_CheckFrontendServerThread(v13);
+    if ( v13->current.integer == botData->botInfo.ent->s.number )
     {
 LABEL_37:
-      v16 = DVARBOOL_bot_ScoreHold;
+      v14 = DVARBOOL_bot_ScoreHold;
       if ( !DVARBOOL_bot_ScoreHold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreHold") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v16);
-      if ( !v16->current.enabled || _RDI->botDebugData.debugScoresCount <= 0 )
+      Dvar_CheckFrontendServerThread(v14);
+      if ( !v14->current.enabled || botData->botDebugData.debugScoresCount <= 0 )
       {
-        _RDI->botDebugData.debugScoresSaving = 1;
-        _RDI->botDebugData.debugScoresCount = 0;
-        _RDI->botDebugData.debugScoresPicked = -1;
-        memset_0(_RDI->botDebugData.debugScores, 0, sizeof(_RDI->botDebugData.debugScores));
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [r15]
-          vmovups ymmword ptr [rdi+806Ch], ymm0
-          vmovups xmm1, xmmword ptr [r15+20h]
-          vmovups xmmword ptr [rdi+808Ch], xmm1
-        }
+        botData->botDebugData.debugScoresSaving = 1;
+        botData->botDebugData.debugScoresCount = 0;
+        botData->botDebugData.debugScoresPicked = -1;
+        memset_0(botData->botDebugData.debugScores, 0, sizeof(botData->botDebugData.debugScores));
+        botData->botDebugData.debugScoresParms = *parms;
       }
     }
   }
-  Bot_Score_ScoreSet(objects, v8, parms);
-  Bot_Score_SortTop(objects, v8, selectCount);
-  v19 = selectCount - 1;
+  Bot_Score_ScoreSet(objects, v7, parms);
+  Bot_Score_SortTop(objects, v7, selectCount);
+  v15 = selectCount - 1;
   if ( selectCount - 1 >= 0 )
   {
-    p_score = &objects[v19].score;
+    p_score = &objects[v15].score;
     do
     {
       if ( *p_score > 0 )
         break;
       p_score -= 2;
-      selectCount = v19--;
+      selectCount = v15--;
     }
-    while ( v19 >= 0 );
+    while ( v15 >= 0 );
   }
-  v21 = selectCount;
+  v17 = selectCount;
   if ( nodesToPick < selectCount )
-    v21 = nodesToPick;
-  if ( v21 == 1 )
+    v17 = nodesToPick;
+  if ( v17 == 1 )
   {
     if ( !objects && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2442, ASSERT_TYPE_ASSERT, "( items )", (const char *)&queryFormat, "items") )
       __debugbreak();
     if ( selectCount < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2443, ASSERT_TYPE_ASSERT, "( itemCount >= 0 )", (const char *)&queryFormat, "itemCount >= 0") )
       __debugbreak();
-    G_rand();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edx
-      vsqrtss xmm1, xmm0, xmm0
-      vcvttss2si eax, xmm1
-    }
-    *nodesPicked = objects[selectCount - _EAX - 1].object;
+    *nodesPicked = objects[selectCount - (int)fsqrt((float)(G_rand() % (selectCount * selectCount))) - 1].object;
   }
-  else if ( v21 > 1 )
+  else if ( v17 > 1 )
   {
-    Bot_Score_RndPickSortedMultiple(objects, selectCount, v21, nodesPicked);
+    Bot_Score_RndPickSortedMultiple(objects, selectCount, v17, nodesPicked);
   }
-  if ( _RDI->botDebugData.debugScoresSaving )
+  if ( botData->botDebugData.debugScoresSaving )
   {
-    if ( (int)v8 > 0 )
-      std::_Sort_unchecked<bot_debug_score_t *,int (*)(bot_debug_score_t const &,bot_debug_score_t const &)>(_RDI->botDebugData.debugScores, (bot_debug_score_t *)&_RDI->scriptedAgentInfo.threat + v8 + 457, (8 * (9 * v8 + 9) - 72) / 72, CompareBotDebugScoreDecreasing);
-    _RDI->botDebugData.debugScoresPicked = *nodesPicked;
-    _RDI->botDebugData.debugScoresSelectCount = selectCount;
+    if ( (int)v7 > 0 )
+      std::_Sort_unchecked<bot_debug_score_t *,int (*)(bot_debug_score_t const &,bot_debug_score_t const &)>(botData->botDebugData.debugScores, (bot_debug_score_t *)&botData->scriptedAgentInfo.threat + v7 + 457, (8 * (9 * v7 + 9) - 72) / 72, CompareBotDebugScoreDecreasing);
+    botData->botDebugData.debugScoresPicked = *nodesPicked;
+    botData->botDebugData.debugScoresSelectCount = selectCount;
   }
-  return (unsigned int)v21;
+  return (unsigned int)v17;
 }
 
 /*
@@ -5489,8 +4176,6 @@ __int64 Bot_Score_ScoreNodesSort(const bot_data_t *botData, bot_score_item_s *ob
   const dvar_t *v13; 
 
   v5 = objectsCount;
-  _RBP = parms;
-  _R15 = botData;
   if ( !botData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2650, ASSERT_TYPE_ASSERT, "( botData )", (const char *)&queryFormat, "botData") )
     __debugbreak();
   if ( !objects && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2651, ASSERT_TYPE_ASSERT, "( objects )", (const char *)&queryFormat, "objects") )
@@ -5498,12 +4183,12 @@ __int64 Bot_Score_ScoreNodesSort(const bot_data_t *botData, bot_score_item_s *ob
   if ( (int)v5 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\server_mp\\sv_bot_scoring.cpp", 2652, ASSERT_TYPE_ASSERT, "( objectsCount > 0 )", (const char *)&queryFormat, "objectsCount > 0") )
     __debugbreak();
   v9 = 0i64;
-  _R15->botDebugData.debugScoresSaving = 0;
+  botData->botDebugData.debugScoresSaving = 0;
   v10 = DVARINT_bot_ScoreType;
   if ( !DVARINT_bot_ScoreType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreType") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.integer == _RBP->scoreType )
+  if ( v10->current.integer == parms->scoreType )
   {
     v11 = DVARINT_bot_ScoreClient;
     if ( !DVARINT_bot_ScoreClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreClient") )
@@ -5515,30 +4200,25 @@ __int64 Bot_Score_ScoreNodesSort(const bot_data_t *botData, bot_score_item_s *ob
     if ( !DVARINT_bot_ScoreClient && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreClient") )
       __debugbreak();
     Dvar_CheckFrontendServerThread(v12);
-    if ( v12->current.integer == _R15->botInfo.ent->s.number )
+    if ( v12->current.integer == botData->botInfo.ent->s.number )
     {
 LABEL_22:
       v13 = DVARBOOL_bot_ScoreHold;
       if ( !DVARBOOL_bot_ScoreHold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bot_ScoreHold") )
         __debugbreak();
       Dvar_CheckFrontendServerThread(v13);
-      if ( !v13->current.enabled || _R15->botDebugData.debugScoresCount <= 0 )
+      if ( !v13->current.enabled || botData->botDebugData.debugScoresCount <= 0 )
       {
-        _R15->botDebugData.debugScoresSaving = 1;
-        _R15->botDebugData.debugScoresCount = 0;
-        _R15->botDebugData.debugScoresPicked = -1;
-        memset_0(_R15->botDebugData.debugScores, 0, sizeof(_R15->botDebugData.debugScores));
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+0]
-          vmovups ymmword ptr [r15+806Ch], ymm0
-          vmovups xmm1, xmmword ptr [rbp+20h]
-          vmovups xmmword ptr [r15+808Ch], xmm1
-        }
+        botData->botDebugData.debugScoresSaving = 1;
+        botData->botDebugData.debugScoresCount = 0;
+        botData->botDebugData.debugScoresPicked = -1;
+        memset_0(botData->botDebugData.debugScores, 0, sizeof(botData->botDebugData.debugScores));
+        *(__m256i *)&botData->botDebugData.debugScoresParms.entityNum = *(__m256i *)&parms->entityNum;
+        *(_OWORD *)botData->botDebugData.debugScoresParms.vector2.v = *(_OWORD *)parms->vector2.v;
       }
     }
   }
-  Bot_Score_ScoreSet(objects, v5, _RBP);
+  Bot_Score_ScoreSet(objects, v5, parms);
   Bot_Score_Sort(objects, v5);
   if ( (int)v5 > 0 )
   {
@@ -5549,12 +4229,12 @@ LABEL_22:
     }
     while ( v9 < v5 );
   }
-  if ( _R15->botDebugData.debugScoresSaving )
+  if ( botData->botDebugData.debugScoresSaving )
   {
     if ( (int)v5 > 0 )
-      std::_Sort_unchecked<bot_debug_score_t *,int (*)(bot_debug_score_t const &,bot_debug_score_t const &)>(_R15->botDebugData.debugScores, (bot_debug_score_t *)&_R15->scriptedAgentInfo.threat + v5 + 457, (8 * (9 * v5 + 9) - 72) / 72, CompareBotDebugScoreDecreasing);
-    _R15->botDebugData.debugScoresPicked = *nodesPicked;
-    _R15->botDebugData.debugScoresSelectCount = v5;
+      std::_Sort_unchecked<bot_debug_score_t *,int (*)(bot_debug_score_t const &,bot_debug_score_t const &)>(botData->botDebugData.debugScores, (bot_debug_score_t *)&botData->scriptedAgentInfo.threat + v5 + 457, (8 * (9 * v5 + 9) - 72) / 72, CompareBotDebugScoreDecreasing);
+    botData->botDebugData.debugScoresPicked = *nodesPicked;
+    botData->botDebugData.debugScoresSelectCount = v5;
   }
   return (unsigned int)v5;
 }

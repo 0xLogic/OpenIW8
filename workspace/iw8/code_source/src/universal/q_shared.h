@@ -111,77 +111,36 @@ BobCycle::BobCycle
 */
 void BobCycle::BobCycle(BobCycle *this, const int (*packedBobCycle)[2])
 {
-  int v4; 
-  int v5; 
-  int v10; 
-  int v11; 
-  bool v15; 
-  bool v16; 
-  bool v17; 
-  bool v20; 
+  int v2; 
+  int v3; 
+  char v5; 
+  int v6; 
+  int v7; 
+  float amplitudeRatio; 
+  float amplitudeRatioGun; 
 
-  v4 = (*packedBobCycle)[1];
-  v5 = (*packedBobCycle)[0] >> 9;
+  v2 = (*packedBobCycle)[1];
+  v3 = (*packedBobCycle)[0] >> 9;
   this->animCycle = (*packedBobCycle)[0] & 0x1FF;
-  _RBX = this;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3b808081
-  }
-  v10 = v4 & 0xF;
-  __asm { vmovss  dword ptr [rcx+0Ch], xmm1 }
-  this->generation = v10;
-  this->isAnimDecreasing = BYTE1(v5) & 1;
-  v11 = (v4 >> 4) & 0xF;
-  __asm { vmovaps [rsp+48h+var_18], xmm7 }
-  _RBX->maxGeneration = v11;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r9d
-    vmulss  xmm1, xmm0, cs:__real@3a802008
-    vmovss  dword ptr [rbx+10h], xmm1
-  }
-  if ( v10 > v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5281, ASSERT_TYPE_ASSERT, "(0 <= generation && generation <= maxGeneration)", (const char *)&queryFormat, "0 <= generation && generation <= maxGeneration") )
+  v5 = v2;
+  v2 >>= 4;
+  v6 = v5 & 0xF;
+  this->amplitudeRatio = (float)(unsigned __int8)v3 * 0.0039215689;
+  this->generation = v6;
+  this->isAnimDecreasing = BYTE1(v3) & 1;
+  v7 = v2 & 0xF;
+  this->maxGeneration = v7;
+  this->amplitudeRatioGun = (float)((v2 >> 4) & 0x3FF) * 0.00097751711;
+  if ( v6 > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5281, ASSERT_TYPE_ASSERT, "(0 <= generation && generation <= maxGeneration)", (const char *)&queryFormat, "0 <= generation && generation <= maxGeneration") )
     __debugbreak();
-  v15 = _RBX->animCycle < 0x1FFu;
-  v16 = _RBX->animCycle <= 0x1FFu;
-  if ( _RBX->animCycle > 0x1FFu )
-  {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5282, ASSERT_TYPE_ASSERT, "(0 <= animCycle && animCycle <= ((0x1 << 9) - 1))", (const char *)&queryFormat, "0 <= animCycle && animCycle <= MAX_BOB_CYCLE");
-    v15 = 0;
-    v16 = !v17;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm0, xmm7
-  }
-  if ( v15 )
-    goto LABEL_18;
-  __asm { vcomiss xmm0, cs:__real@3f800000 }
-  if ( !v16 )
-  {
-LABEL_18:
-    v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5283, ASSERT_TYPE_ASSERT, "(0.0f <= amplitudeRatio && amplitudeRatio <= 1.0f)", (const char *)&queryFormat, "0.0f <= amplitudeRatio && amplitudeRatio <= 1.0f");
-    v16 = !v20;
-    if ( v20 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vcomiss xmm0, xmm7
-    vcomiss xmm0, cs:__real@3f800000
-  }
-  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5284, ASSERT_TYPE_ASSERT, "(0.0f <= amplitudeRatioGun && amplitudeRatioGun <= 1.0f)", (const char *)&queryFormat, "0.0f <= amplitudeRatioGun && amplitudeRatioGun <= 1.0f") )
+  if ( this->animCycle > 0x1FFu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5282, ASSERT_TYPE_ASSERT, "(0 <= animCycle && animCycle <= ((0x1 << 9) - 1))", (const char *)&queryFormat, "0 <= animCycle && animCycle <= MAX_BOB_CYCLE") )
     __debugbreak();
-  __asm { vmovaps xmm7, [rsp+48h+var_18] }
+  amplitudeRatio = this->amplitudeRatio;
+  if ( (amplitudeRatio < 0.0 || amplitudeRatio > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5283, ASSERT_TYPE_ASSERT, "(0.0f <= amplitudeRatio && amplitudeRatio <= 1.0f)", (const char *)&queryFormat, "0.0f <= amplitudeRatio && amplitudeRatio <= 1.0f") )
+    __debugbreak();
+  amplitudeRatioGun = this->amplitudeRatioGun;
+  if ( (amplitudeRatioGun < 0.0 || amplitudeRatioGun > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_pmove.cpp", 5284, ASSERT_TYPE_ASSERT, "(0.0f <= amplitudeRatioGun && amplitudeRatioGun <= 1.0f)", (const char *)&queryFormat, "0.0f <= amplitudeRatioGun && amplitudeRatioGun <= 1.0f") )
+    __debugbreak();
 }
 
 /*

@@ -359,6 +359,7 @@ void XPak_AddPackFile(Sys_Folder folder, const char *name)
   const char *v2; 
   int PackIndexByName; 
   XPakLoadedPackFile *v5; 
+  __m256i *v6; 
   int v7; 
   int MultiVolumePackIndexByName; 
   XPakLoadedMultiVolumePackFile *v9; 
@@ -376,13 +377,14 @@ void XPak_AddPackFile(Sys_Folder folder, const char *name)
   unsigned int v21; 
   __int64 v22; 
   int *p_refCount; 
+  __m256i v24; 
   char *fmt; 
   __int64 v26; 
   __int64 v27; 
   char *data_p; 
   const char *v29; 
   char *v30; 
-  _DWORD v31[10]; 
+  __m256i v31; 
   char dest[64]; 
   char v33[260]; 
 
@@ -393,7 +395,7 @@ void XPak_AddPackFile(Sys_Folder folder, const char *name)
   PackIndexByName = XPak_FindPackIndexByName(v2);
   if ( PackIndexByName == 256 || (v5 = &s_loadedPackFiles[PackIndexByName]) == NULL )
   {
-    _RDI = NULL;
+    v6 = NULL;
     v7 = 0;
     if ( s_emptyPackFileCount <= 0 )
     {
@@ -418,7 +420,7 @@ LABEL_13:
         }
         else
         {
-          memset(v31, 0, 32);
+          memset(&v31, 0, sizeof(v31));
           v15 = FileStream_Easy_FileSize((FileStreamFileID)v13);
           v16 = v15;
           if ( v15 )
@@ -451,14 +453,14 @@ LABEL_13:
                       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v26, v27) )
                         __debugbreak();
                     }
-                    v31[(unsigned __int64)v21 >> 5] |= 0x80000000 >> (v21 & 0x1F);
+                    v31.m256i_i32[(unsigned __int64)v21 >> 5] |= 0x80000000 >> (v21 & 0x1F);
                   }
                   v19 = Com_Parse((const char **)&data_p);
                 }
                 while ( data_p );
                 v2 = v29;
                 v17 = v30;
-                _RDI = NULL;
+                v6 = NULL;
               }
               Com_EndParseSession();
               Mem_Virtual_Free(v17);
@@ -471,19 +473,19 @@ LABEL_13:
                 if ( (unsigned int)v22 >= 0x20 )
                   goto LABEL_43;
               }
-              _RDI = &s_loadedMultiVolumePackFiles[v22];
-              if ( _RDI )
+              v6 = (__m256i *)&s_loadedMultiVolumePackFiles[v22];
+              if ( v6 )
                 goto LABEL_44;
 LABEL_43:
               XPak_PrintLoadedPackFiles();
               Sys_Error((const ObfuscateErrorText)&stru_1441E5D50, v33);
 LABEL_44:
-              Core_strcpy(_RDI->name, 0x40ui64, v2);
-              if ( _RDI->refCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 557, ASSERT_TYPE_ASSERT, "(mvpak->refCount == 0)", (const char *)&queryFormat, "mvpak->refCount == 0") )
+              Core_strcpy(v6->m256i_i8, 0x40ui64, v2);
+              if ( v6[3].m256i_i32[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 557, ASSERT_TYPE_ASSERT, "(mvpak->refCount == 0)", (const char *)&queryFormat, "mvpak->refCount == 0") )
                 __debugbreak();
-              __asm { vmovups ymm0, ymmword ptr [rsp+228h+var_1C0] }
-              _RDI->refCount = 1;
-              __asm { vmovups ymmword ptr [rdi+40h], ymm0 }
+              v24 = v31;
+              v6[3].m256i_i32[0] = 1;
+              v6[2] = v24;
               Com_Printf(36, "XPak_AddPackFile: Added multivolume xpak file: %s\n", v2);
             }
             else
@@ -531,6 +533,7 @@ XPak_AddPackFileInternal
 */
 void XPak_AddPackFileInternal(Sys_Folder folder, const char *name)
 {
+  unsigned int *v2; 
   int PackIndexByName; 
   char *v6; 
   const char *v7; 
@@ -541,17 +544,23 @@ void XPak_AddPackFileInternal(Sys_Folder folder, const char *name)
   unsigned __int64 v12; 
   int *p_refCount; 
   __int64 v14; 
+  XPakLoadedPackFile *v15; 
   __int64 v16; 
   __int64 v17; 
+  double v18; 
+  __int128 v19; 
+  double v20; 
+  __int128 v21; 
+  double v22; 
   __int64 *p_fileSize; 
   unsigned int i; 
-  __int64 v26; 
-  unsigned __int64 v27; 
+  __int64 v25; 
+  unsigned __int64 v26; 
   char *fmt; 
-  __int64 v29; 
+  __int64 v28; 
   __int64 bytesRead[2]; 
 
-  _RBP = (unsigned int *)((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64);
+  v2 = (unsigned int *)((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64);
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 334, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
   PackIndexByName = XPak_FindPackIndexByName(name);
@@ -561,27 +570,27 @@ void XPak_AddPackFileInternal(Sys_Folder folder, const char *name)
   v7 = v6 + 1;
   if ( !v6 )
     v7 = name;
-  Core_strcpy((char *)_RBP + 16, 0x40ui64, v7);
-  v8 = strchr_0((const char *)_RBP + 16, 33);
+  Core_strcpy((char *)v2 + 16, 0x40ui64, v7);
+  v8 = strchr_0((const char *)v2 + 16, 33);
   if ( v8 )
     *v8 = 0;
-  Com_sprintf<260>((char (*)[260])(_RBP + 20), "%s.%s", (const char *)_RBP + 16, "xpak");
-  LOBYTE(v9) = FileStream_OpenFile(folder, (const char *)_RBP + 80, 27);
+  Com_sprintf<260>((char (*)[260])(v2 + 20), "%s.%s", (const char *)v2 + 16, "xpak");
+  LOBYTE(v9) = FileStream_OpenFile(folder, (const char *)v2 + 80, 27);
   v10 = v9;
   if ( v9 == -16777217 )
   {
-    Com_Printf(36, "xpak is missing: %s\n", (const char *)_RBP + 80);
+    Com_Printf(36, "xpak is missing: %s\n", (const char *)v2 + 80);
   }
   else
   {
     s_xpakEntryInfoStale = 1;
     FileStream_Easy_SeekSet((FileStreamFileID)v9, 0i64);
-    if ( (unsigned __int64)FileStream_Easy_Read((FileStreamFileID)v10, _RBP + 1024, 4096i64, (__int64 *)((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64), FILE_STREAM_TRACK_XPAK) >= 0x320 )
+    if ( (unsigned __int64)FileStream_Easy_Read((FileStreamFileID)v10, v2 + 1024, 4096i64, (__int64 *)((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64), FILE_STREAM_TRACK_XPAK) >= 0x320 )
     {
       if ( *(_DWORD *)(((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64) + 0x1000) != 1229996363 )
       {
         FileStream_CloseFile((FileStreamFileID)v10);
-        Sys_Error((const ObfuscateErrorText)&stru_1441E58B8, _RBP + 20);
+        Sys_Error((const ObfuscateErrorText)&stru_1441E58B8, v2 + 20);
       }
       if ( *(_WORD *)(((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64) + 0x1006) == 13 )
       {
@@ -599,69 +608,65 @@ void XPak_AddPackFileInternal(Sys_Folder folder, const char *name)
             p_refCount += 40;
             if ( (unsigned int)v14 >= 0x100 )
             {
-              _RSI = NULL;
+              v15 = NULL;
               goto LABEL_32;
             }
           }
-          _RSI = &s_loadedPackFiles[v14];
-          if ( _RSI )
+          v15 = &s_loadedPackFiles[v14];
+          if ( v15 )
             goto LABEL_33;
 LABEL_32:
           FileStream_CloseFile((FileStreamFileID)v10);
           XPak_PrintLoadedPackFiles();
-          Sys_Error((const ObfuscateErrorText)&stru_1441E5A68, _RBP + 20);
+          Sys_Error((const ObfuscateErrorText)&stru_1441E5A68, v2 + 20);
 LABEL_33:
           v16 = FileStream_Easy_FileSize((FileStreamFileID)v10);
           v17 = v16;
           if ( v16 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 427, ASSERT_TYPE_ASSERT, "( fileSize > 0 )", "Invalid file size (%zd) for XPak %s", v16, name) )
             __debugbreak();
-          Core_strcpy(_RSI->name, 0x40ui64, name);
-          __asm
-          {
-            vmovups xmm0, [rbp+2040h+var_F08]
-            vmovsd  xmm1, [rbp+2040h+var_EF8]
-            vmovups xmmword ptr [rsi+40h], xmm0
-            vmovups xmm0, [rbp+2040h+var_EF0]
-            vmovsd  qword ptr [rsi+50h], xmm1
-            vmovsd  xmm1, [rbp+2040h+var_EE0]
-            vmovups xmmword ptr [rsi+58h], xmm0
-            vmovups xmm0, [rbp+2040h+var_EC0]
-            vmovsd  qword ptr [rsi+68h], xmm1
-            vmovsd  xmm1, [rbp+2040h+var_EB0]
-            vmovups xmmword ptr [rsi+70h], xmm0
-            vmovsd  qword ptr [rsi+80h], xmm1
-          }
-          *(_DWORD *)_RSI->fh = v10;
-          _RSI->fileSize = v17;
-          if ( _RSI->refCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 440, ASSERT_TYPE_ASSERT, "(pak->refCount == 0)", (const char *)&queryFormat, "pak->refCount == 0") )
+          Core_strcpy(v15->name, 0x40ui64, name);
+          v18 = *(double *)(((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64) + 0x1148);
+          *(_OWORD *)&v15->data.itemCount = *(_OWORD *)(((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64) + 0x1138);
+          v19 = *(_OWORD *)(((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64) + 0x1150);
+          *(double *)&v15->data.size = v18;
+          v20 = *(double *)(((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64) + 0x1160);
+          *(_OWORD *)&v15->index.itemCount = v19;
+          v21 = *(_OWORD *)(((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64) + 0x1180);
+          *(double *)&v15->index.size = v20;
+          v22 = *(double *)(((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64) + 0x1190);
+          *(_OWORD *)&v15->meta.itemCount = v21;
+          *(double *)&v15->meta.size = v22;
+          *(_DWORD *)v15->fh = v10;
+          v15->fileSize = v17;
+          if ( v15->refCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 440, ASSERT_TYPE_ASSERT, "(pak->refCount == 0)", (const char *)&queryFormat, "pak->refCount == 0") )
             __debugbreak();
-          _RSI->refCount = 1;
+          v15->refCount = 1;
           p_fileSize = &s_loadedPackFiles[0].fileSize;
           for ( i = 0; i < 0x100; ++i )
           {
             if ( *((_DWORD *)p_fileSize + 2) )
             {
-              v26 = *p_fileSize;
+              v25 = *p_fileSize;
               if ( *p_fileSize <= 0 )
               {
-                LODWORD(v29) = i;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1125, ASSERT_TYPE_ASSERT, "( fileSize > 0 )", "Invalid file size (%zd) for XPak %d '%s'", v26, v29, s_loadedPackFiles[i].name) )
+                LODWORD(v28) = i;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1125, ASSERT_TYPE_ASSERT, "( fileSize > 0 )", "Invalid file size (%zd) for XPak %d '%s'", v25, v28, s_loadedPackFiles[i].name) )
                   __debugbreak();
               }
-              v12 += v26;
+              v12 += v25;
             }
             p_fileSize += 20;
           }
-          v27 = v12 >> 20;
-          if ( v27 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v27, "unsigned", v27) )
+          v26 = v12 >> 20;
+          if ( v26 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v26, "unsigned", v26) )
             __debugbreak();
-          Stream_ValidateXPakPosition(v27);
+          Stream_ValidateXPakPosition(v26);
           Com_Printf(36, "XPak_AddPackFile: Added xpak file: %s (%lld items)\n", name, *(_QWORD *)(((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64) + 0x1150));
         }
         else
         {
           FileStream_CloseFile((FileStreamFileID)v10);
-          Com_Printf(36, "xpak is empty: %s\n", (const char *)_RBP + 80);
+          Com_Printf(36, "xpak is empty: %s\n", (const char *)v2 + 80);
           if ( !DB_IsLoadingDebugZone() && (unsigned __int64)s_emptyPackFileCount < 0x100 )
           {
             Core_strcpy(s_emptyPackFiles[(__int64)s_emptyPackFileCount], 0x40ui64, name);
@@ -672,13 +677,13 @@ LABEL_33:
       else
       {
         FileStream_CloseFile((FileStreamFileID)v10);
-        Com_PrintError(36, "xpak version mismatch, got %08x, expected %08x: %s. Ignoring...\n", *(unsigned int *)(((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64) + 0x1004), 851968i64, (const char *)_RBP + 80);
+        Com_PrintError(36, "xpak version mismatch, got %08x, expected %08x: %s. Ignoring...\n", *(unsigned int *)(((unsigned __int64)bytesRead & 0xFFFFFFFFFFFFF000ui64) + 0x1004), 851968i64, (const char *)v2 + 80);
       }
     }
     else
     {
       LODWORD(fmt) = 800;
-      Com_PrintError(36, "Error performing initial read from xpak file: %s. Readbytes is %d but expected %d.\n", (const char *)_RBP + 80, *_RBP, fmt);
+      Com_PrintError(36, "Error performing initial read from xpak file: %s. Readbytes is %d but expected %d.\n", (const char *)v2 + 80, *v2, fmt);
       FileStream_CloseFile((FileStreamFileID)v10);
     }
   }
@@ -691,121 +696,110 @@ XPak_AddPackFilesForZone
 */
 __int64 XPak_AddPackFilesForZone(const char *zoneName)
 {
-  __int64 v4; 
-  unsigned __int8 v5; 
+  __int64 v2; 
+  unsigned __int8 v3; 
   const char *CurrentRegionCode; 
   int CurrentLanguage; 
   const char *LanguageCode; 
+  char *v7; 
+  const char *v8; 
   char *v9; 
-  const char *v10; 
-  char *v11; 
-  char *v12; 
-  char v13; 
-  __int64 v14; 
-  int v15; 
-  bool v17; 
-  bool v18; 
-  Sys_Folder v19; 
-  __int64 result; 
+  char *v10; 
+  char v11; 
+  __int64 v12; 
+  int v13; 
+  XHash v14; 
+  bool v15; 
+  bool v16; 
+  Sys_Folder v17; 
   char *str; 
   XHash xhash_8; 
-  __int64 v25; 
-  char v26[5]; 
+  __int64 v21; 
+  char v22[5]; 
   char dest[2][6]; 
   char Str[64]; 
-  char v29[128]; 
-  char vars0; 
-  void *retaddr; 
+  char v25[128]; 
 
-  _RAX = &retaddr;
-  v25 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
+  v21 = -2i64;
   Sys_ProfBeginNamedEvent(0xFF808080, "XPak_AddPackFilesForZone");
   if ( !Sys_IsDatabaseThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 654, ASSERT_TYPE_ASSERT, "(Sys_IsDatabaseThread())", (const char *)&queryFormat, "Sys_IsDatabaseThread()") )
     __debugbreak();
-  v4 = 0i64;
+  v2 = 0i64;
   str = NULL;
-  v5 = 0;
+  v3 = 0;
   CurrentRegionCode = RG_GetCurrentRegionCode();
   Com_sprintf<6>(dest, "%s_", CurrentRegionCode);
   CurrentLanguage = SEH_GetCurrentLanguage();
   LanguageCode = SEH_GetLanguageCode(CurrentLanguage);
-  Com_sprintf<5>((char (*)[5])v26, "%s_", LanguageCode);
-  v9 = strchr_0(zoneName, 47);
-  v10 = v9 + 1;
-  if ( !v9 )
-    v10 = zoneName;
-  Core_strcpy(Str, 0x40ui64, v10);
-  v11 = strchr_0(Str, 33);
-  if ( v11 )
-    *v11 = 0;
+  Com_sprintf<5>((char (*)[5])v22, "%s_", LanguageCode);
+  v7 = strchr_0(zoneName, 47);
+  v8 = v7 + 1;
+  if ( !v7 )
+    v8 = zoneName;
+  Core_strcpy(Str, 0x40ui64, v8);
+  v9 = strchr_0(Str, 33);
+  if ( v9 )
+    *v9 = 0;
   xhash_8.name = NULL;
   xhash_8.hashPacked = 0i64;
-  v12 = Str;
-  v13 = Str[0];
+  v10 = Str;
+  v11 = Str[0];
   if ( Str[0] )
   {
-    v14 = 0xCBF29CE484222325ui64;
+    v12 = 0xCBF29CE484222325ui64;
     do
     {
-      v15 = v13;
-      if ( (unsigned __int8)(v13 - 65) <= 0x19u )
-        v15 = v13 + 32;
-      v14 = (0x100000001B3i64 * (v15 ^ (unsigned __int64)v14)) & 0x7FFFFFFFFFFFFFFFi64;
-      v13 = *++v12;
+      v13 = v11;
+      if ( (unsigned __int8)(v11 - 65) <= 0x19u )
+        v13 = v11 + 32;
+      v12 = (0x100000001B3i64 * (v13 ^ (unsigned __int64)v12)) & 0x7FFFFFFFFFFFFFFFi64;
+      v11 = *++v10;
     }
-    while ( *v12 );
-    v4 = v14 & 0x7FFFFFFFFFFFFFFFi64;
+    while ( *v10 );
+    v2 = v12 & 0x7FFFFFFFFFFFFFFFi64;
   }
-  xhash_8.hashPacked = v4;
+  xhash_8.hashPacked = v2;
   DB_SetHashDebugName(&xhash_8, Str, 1);
   if ( !DB_IsLoadingDebugZone() )
   {
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rsp+150h+xhash.___u1]
-      vmovdqa xmmword ptr [rsp+150h+xhash.___u1], xmm6
-    }
+    v14 = xhash_8;
     if ( !KeyValuePairs_GetNextValue("xpak_read", &xhash_8, (const char **)&str) )
       goto LABEL_25;
-    v5 = 1;
+    v3 = 1;
     while ( 1 )
     {
-      v17 = I_StartsWith(str, v26);
-      v18 = I_StartsWith(str, dest[0]);
-      if ( v17 )
+      v15 = I_StartsWith(str, v22);
+      v16 = I_StartsWith(str, dest[0]);
+      if ( v15 )
         break;
-      if ( v18 )
+      if ( v16 )
         goto LABEL_22;
-      Com_sprintf<128>((char (*)[128])v29, "%s%s", v26, str);
-      XPak_AddPackFile(SF_PAKFILE_LOC, v29);
-      Com_sprintf<128>((char (*)[128])v29, "%s%s", dest[0], str);
-      XPak_AddPackFile(SF_ZONE_REGION, v29);
-      v19 = SF_PAKFILE;
+      Com_sprintf<128>((char (*)[128])v25, "%s%s", v22, str);
+      XPak_AddPackFile(SF_PAKFILE_LOC, v25);
+      Com_sprintf<128>((char (*)[128])v25, "%s%s", dest[0], str);
+      XPak_AddPackFile(SF_ZONE_REGION, v25);
+      v17 = SF_PAKFILE;
 LABEL_24:
-      XPak_AddPackFile(v19, str);
-      __asm { vmovdqa xmmword ptr [rsp+150h+xhash.___u1], xmm6 }
+      XPak_AddPackFile(v17, str);
+      xhash_8 = v14;
       if ( !KeyValuePairs_GetNextValue("xpak_read", &xhash_8, (const char **)&str) )
         goto LABEL_25;
     }
-    if ( !v18 )
+    if ( !v16 )
     {
-      v19 = SF_PAKFILE_LOC;
+      v17 = SF_PAKFILE_LOC;
       goto LABEL_24;
     }
 LABEL_22:
-    v19 = SF_ZONE_REGION;
+    v17 = SF_ZONE_REGION;
     goto LABEL_24;
   }
   Com_Printf(36, "XPak_AddPackFilesForZone: adding debug zone %s\n", zoneName);
   XPak_AddPackFile(SF_PAKFILE, Str);
-  v5 = 1;
+  v3 = 1;
 LABEL_25:
   Sys_ProfEndNamedEvent();
-  result = v5;
-  _R11 = &vars0;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
-  return result;
+  return v3;
 }
 
 /*
@@ -1657,30 +1651,24 @@ bool XPak_CurrentIndexEntry(XPakWorkContext *work, XPakIndexEntry *entry)
   __int64 currentEntry; 
   bool result; 
   unsigned __int64 v6; 
+  unsigned __int64 v7; 
 
-  _RDI = entry;
-  _RBX = work;
   if ( !work->pak && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1018, ASSERT_TYPE_ASSERT, "(work->pak)", (const char *)&queryFormat, "work->pak") )
     __debugbreak();
-  _RDI->key = -1i64;
-  currentEntry = _RBX->currentEntry;
-  if ( currentEntry == _RBX->pak->index.itemCount )
+  entry->key = -1i64;
+  currentEntry = work->currentEntry;
+  if ( currentEntry == work->pak->index.itemCount )
     return 0;
-  if ( currentEntry >= _RBX->pak->index.itemCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1025, ASSERT_TYPE_ASSERT, "(work->currentEntry < work->pak->index.itemCount)", (const char *)&queryFormat, "work->currentEntry < work->pak->index.itemCount") )
+  if ( currentEntry >= work->pak->index.itemCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1025, ASSERT_TYPE_ASSERT, "(work->currentEntry < work->pak->index.itemCount)", (const char *)&queryFormat, "work->currentEntry < work->pak->index.itemCount") )
     __debugbreak();
-  XPak_WaitReadIndexData(_RBX, _RBX->activeBuffer);
-  v6 = _RBX->indexBufferOffset[_RBX->activeBuffer] / 0x18ui64;
-  if ( _RBX->currentEntry >= v6 + 4096 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1030, ASSERT_TYPE_ASSERT, "(work->currentEntry < bufferEntryOffset + ( ( ( 96 * 1024 ) ) / sizeof( XPakIndexEntry ) ))", (const char *)&queryFormat, "work->currentEntry < bufferEntryOffset + XPAK_INDEX_BUFFER_ENTRY_COUNT") )
+  XPak_WaitReadIndexData(work, work->activeBuffer);
+  v6 = work->indexBufferOffset[work->activeBuffer] / 0x18ui64;
+  if ( work->currentEntry >= v6 + 4096 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1030, ASSERT_TYPE_ASSERT, "(work->currentEntry < bufferEntryOffset + ( ( ( 96 * 1024 ) ) / sizeof( XPakIndexEntry ) ))", (const char *)&queryFormat, "work->currentEntry < bufferEntryOffset + XPAK_INDEX_BUFFER_ENTRY_COUNT") )
     __debugbreak();
-  _RAX = 3 * (_RBX->currentEntry + ((__int64)_RBX->activeBuffer << 12) - v6);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+rax*8+1000h]
-    vmovups xmmword ptr [rdi], xmm0
-    vmovsd  xmm1, qword ptr [rbx+rax*8+1010h]
-  }
+  v7 = work->currentEntry + ((__int64)work->activeBuffer << 12) - v6;
+  *(_OWORD *)&entry->key = *(_OWORD *)&work->indexBuffer[0][v7].key;
   result = 1;
-  __asm { vmovsd  qword ptr [rdi+10h], xmm1 }
+  entry->size = work->indexBuffer[0][v7].size;
   return result;
 }
 
@@ -2273,9 +2261,12 @@ XPak_PatchAdjacencyInfo
 void XPak_PatchAdjacencyInfo(GfxImage *image, unsigned int imageIndex)
 {
   unsigned int streamedPartCount; 
-  __int64 v6; 
-  unsigned int v9; 
   XPakEntryInfo *p_part; 
+  __int64 v6; 
+  GfxImageStreamData *streams; 
+  __m256i xpakEntry; 
+  unsigned int v9; 
+  XPakEntryInfo *v10; 
   unsigned int v11; 
   XPakEntryInfo part; 
 
@@ -2287,15 +2278,15 @@ void XPak_PatchAdjacencyInfo(GfxImage *image, unsigned int imageIndex)
   streamedPartCount = image->streamedPartCount;
   if ( image->streamedPartCount )
   {
-    _RAX = &part;
+    p_part = &part;
     v6 = image->streamedPartCount;
-    _RCX = image->streams;
+    streams = image->streams;
     do
     {
-      ++_RAX;
-      __asm { vmovups ymm0, ymmword ptr [rcx] }
-      ++_RCX;
-      __asm { vmovups ymmword ptr [rax-20h], ymm0 }
+      ++p_part;
+      xpakEntry = (__m256i)streams->xpakEntry;
+      ++streams;
+      p_part[-1] = (XPakEntryInfo)xpakEntry;
       --v6;
     }
     while ( v6 );
@@ -2303,10 +2294,10 @@ void XPak_PatchAdjacencyInfo(GfxImage *image, unsigned int imageIndex)
   v9 = 0;
   if ( streamedPartCount )
   {
-    p_part = &part;
+    v10 = &part;
     v11 = 4 * imageIndex;
     do
-      XPak_PatchAdjacencyInfoForEntry(p_part++, v11 + v9++);
+      XPak_PatchAdjacencyInfoForEntry(v10++, v11 + v9++);
     while ( v9 < streamedPartCount );
   }
 }
@@ -2394,52 +2385,49 @@ void XPak_PrintEntries(const XPakLoadedPackFile *const pak)
 {
   signed __int64 v2; 
   char *v3; 
+  char *v4; 
   __int64 v5; 
+  __int64 v6; 
   __int64 i; 
   __int64 v8; 
   __int64 v11; 
   __int64 v12; 
-  __int128 v13; 
-  char v14[2048]; 
+  char v13[2048]; 
 
   v2 = (pak->meta.size + 4095) & 0xFFFFFFFFFFFFF000ui64;
   v3 = (char *)Mem_Virtual_TryAlloc(v2, "XPak_PrintEntries", TRACK_DEBUG);
-  _R14 = v3;
+  v4 = v3;
   if ( v3 )
   {
     if ( ((unsigned __int16)v3 & 0xFFF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1422, ASSERT_TYPE_ASSERT, "(IsAligned( readBuffer, 4096 ))", (const char *)&queryFormat, "IsAligned( readBuffer, FILE_READ_ALIGNMENT )") )
       __debugbreak();
     Com_Printf(36, "Meta Entries:\n");
     FileStream_Easy_SeekSet((FileStreamFileID)*(_DWORD *)pak->fh, pak->meta.offset);
-    v5 = FileStream_Easy_Read((FileStreamFileID)*(_DWORD *)pak->fh, _R14, v2, NULL, FILE_STREAM_TRACK_XPAK);
+    v5 = FileStream_Easy_Read((FileStreamFileID)*(_DWORD *)pak->fh, v4, v2, NULL, FILE_STREAM_TRACK_XPAK);
     if ( v5 != v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1427, ASSERT_TYPE_ASSERT, "( bytesRead ) == ( metaSectionReadSize )", "%s == %s\n\t%lli, %lli", "bytesRead", "metaSectionReadSize", v5, v2) )
       __debugbreak();
-    _RDI = 0i64;
+    v6 = 0i64;
     for ( i = 0i64; i < pak->meta.itemCount; ++i )
     {
-      v8 = _RDI + 16;
-      if ( _RDI + 16 > v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1431, ASSERT_TYPE_ASSERT, "( readBufferOffset + metaEntrySize ) <= ( metaSectionReadSize )", "%s <= %s\n\t%lli, %lli", "readBufferOffset + metaEntrySize", "metaSectionReadSize", _RDI + 16, v2) )
+      v8 = v6 + 16;
+      if ( v6 + 16 > v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1431, ASSERT_TYPE_ASSERT, "( readBufferOffset + metaEntrySize ) <= ( metaSectionReadSize )", "%s <= %s\n\t%lli, %lli", "readBufferOffset + metaEntrySize", "metaSectionReadSize", v6 + 16, v2) )
         __debugbreak();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi+r14]
-        vpextrd rbp, xmm0, 2
-      }
-      v11 = _RDI + 16;
-      __asm { vmovups [rsp+898h+var_848], xmm0 }
+      _XMM0 = *(_OWORD *)&v4[v6];
+      __asm { vpextrd rbp, xmm0, 2 }
+      v11 = v6 + 16;
       if ( v8 + (unsigned int)_RBP > v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1434, ASSERT_TYPE_ASSERT, "( readBufferOffset + metaEntry.size ) <= ( metaSectionReadSize )", "%s <= %s\n\t%lli, %lli", "readBufferOffset + metaEntry.size", "metaSectionReadSize", v8 + (unsigned int)_RBP, v2) )
         __debugbreak();
-      memcpy_0(v14, &_R14[v8], (unsigned int)_RBP);
+      memcpy_0(v13, &v4[v8], (unsigned int)_RBP);
       v12 = 2047i64;
-      _RDI = (unsigned int)_RBP + v11;
+      v6 = (unsigned int)_RBP + v11;
       if ( (unsigned int)_RBP < 0x7FF )
         v12 = (unsigned int)_RBP;
-      v14[v12] = 0;
-      Com_Printf(36, "Meta Entry key %zu %s\n", (size_t)v13, v14);
+      v13[v12] = 0;
+      Com_Printf(36, "Meta Entry key %zu %s\n", (size_t)_XMM0, v13);
     }
-    if ( _RDI != pak->meta.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1441, ASSERT_TYPE_ASSERT, "( readBufferOffset ) == ( pak->meta.size )", "%s == %s\n\t%lli, %lli", "readBufferOffset", "pak->meta.size", _RDI, pak->meta.size) )
+    if ( v6 != pak->meta.size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 1441, ASSERT_TYPE_ASSERT, "( readBufferOffset ) == ( pak->meta.size )", "%s == %s\n\t%lli, %lli", "readBufferOffset", "pak->meta.size", v6, pak->meta.size) )
       __debugbreak();
-    Mem_Virtual_Free(_R14);
+    Mem_Virtual_Free(v4);
   }
   else
   {
@@ -2680,76 +2668,73 @@ XPak_RemovePackFilesForZone
 */
 void XPak_RemovePackFilesForZone(const char *zoneName)
 {
+  char *v2; 
+  const char *v3; 
   char *v4; 
-  const char *v5; 
-  char *v6; 
-  char *v7; 
-  char v8; 
+  char *v5; 
+  char v6; 
+  __int64 v7; 
+  int v8; 
   __int64 v9; 
-  int v10; 
-  __int64 v11; 
-  char v12; 
+  char v10; 
   int CurrentLanguage; 
   const char *LanguageCode; 
   const char *CurrentRegionCode; 
-  bool v17; 
-  bool v18; 
-  char v19; 
+  XHash v14; 
+  bool v15; 
+  bool v16; 
+  char v17; 
   unsigned int xpakIndex; 
   const char *p_size; 
   const DB_AssetEntryFlags *AssetEntryUsedFlagsIncludingStashed; 
   DB_AssetEntryPool *AssetEntryPool; 
-  unsigned int v24; 
-  unsigned int v25; 
-  unsigned __int64 *v26; 
+  unsigned int v22; 
+  unsigned int v23; 
+  unsigned __int64 *v24; 
   char *str; 
   XHash xhash_8; 
   InvalidateItemFunctor functor[2]; 
-  __int64 v32; 
+  __int64 v28; 
   char dest[64]; 
-  char v34[128]; 
-  char v35; 
-  void *retaddr; 
+  char v30[128]; 
 
-  _RAX = &retaddr;
-  v32 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
+  v28 = -2i64;
   Sys_ProfBeginNamedEvent(0xFF808080, "XPak_RemovePackFilesForZone");
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xpak\\xpak_game.cpp", 739, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  v4 = strchr_0(zoneName, 47);
-  v5 = v4 + 1;
-  if ( !v4 )
-    v5 = zoneName;
-  Core_strcpy(dest, 0x40ui64, v5);
-  v6 = strchr_0(dest, 33);
-  if ( v6 )
-    *v6 = 0;
+  v2 = strchr_0(zoneName, 47);
+  v3 = v2 + 1;
+  if ( !v2 )
+    v3 = zoneName;
+  Core_strcpy(dest, 0x40ui64, v3);
+  v4 = strchr_0(dest, 33);
+  if ( v4 )
+    *v4 = 0;
   xhash_8.name = NULL;
   xhash_8.hashPacked = 0i64;
-  v7 = dest;
-  v8 = dest[0];
+  v5 = dest;
+  v6 = dest[0];
   if ( dest[0] )
   {
-    v9 = 0xCBF29CE484222325ui64;
+    v7 = 0xCBF29CE484222325ui64;
     do
     {
-      v10 = v8;
-      if ( (unsigned __int8)(v8 - 65) <= 0x19u )
-        v10 = v8 + 32;
-      v9 = (0x100000001B3i64 * (v10 ^ (unsigned __int64)v9)) & 0x7FFFFFFFFFFFFFFFi64;
-      v8 = *++v7;
+      v8 = v6;
+      if ( (unsigned __int8)(v6 - 65) <= 0x19u )
+        v8 = v6 + 32;
+      v7 = (0x100000001B3i64 * (v8 ^ (unsigned __int64)v7)) & 0x7FFFFFFFFFFFFFFFi64;
+      v6 = *++v5;
     }
-    while ( *v7 );
-    v11 = v9 & 0x7FFFFFFFFFFFFFFFi64;
+    while ( *v5 );
+    v9 = v7 & 0x7FFFFFFFFFFFFFFFi64;
   }
   else
   {
-    v11 = 0i64;
+    v9 = 0i64;
   }
-  xhash_8.hashPacked = v11;
+  xhash_8.hashPacked = v9;
   DB_SetHashDebugName(&xhash_8, dest, 1);
-  v12 = 0;
+  v10 = 0;
   if ( DB_IsLoadingDebugZone() )
   {
     Com_Printf(36, "XPak_RemovePackFilesForZone: remove debug zone %s as %s\n", zoneName, dest);
@@ -2761,34 +2746,30 @@ void XPak_RemovePackFilesForZone(const char *zoneName)
     LanguageCode = SEH_GetLanguageCode(CurrentLanguage);
     CurrentRegionCode = RG_GetCurrentRegionCode();
     str = NULL;
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rsp+160h+xhash.___u1]
-      vmovdqa xmmword ptr [rsp+160h+xhash.___u1], xmm6
-    }
+    v14 = xhash_8;
     if ( KeyValuePairs_GetNextValue("xpak_read", &xhash_8, (const char **)&str) )
     {
       do
       {
-        v17 = I_StartsWith(str, LanguageCode);
-        v18 = I_StartsWith(str, CurrentRegionCode);
-        if ( !v17 && !v18 )
+        v15 = I_StartsWith(str, LanguageCode);
+        v16 = I_StartsWith(str, CurrentRegionCode);
+        if ( !v15 && !v16 )
         {
-          Com_sprintf<128>((char (*)[128])v34, "%s_%s", LanguageCode, str);
-          v19 = v12;
-          if ( !(unsigned int)XPak_RemovePackFile(v34) )
-            v19 = 1;
-          Com_sprintf<128>((char (*)[128])v34, "%s_%s", CurrentRegionCode, str);
-          v12 = v19;
-          if ( !(unsigned int)XPak_RemovePackFile(v34) )
-            v12 = 1;
+          Com_sprintf<128>((char (*)[128])v30, "%s_%s", LanguageCode, str);
+          v17 = v10;
+          if ( !(unsigned int)XPak_RemovePackFile(v30) )
+            v17 = 1;
+          Com_sprintf<128>((char (*)[128])v30, "%s_%s", CurrentRegionCode, str);
+          v10 = v17;
+          if ( !(unsigned int)XPak_RemovePackFile(v30) )
+            v10 = 1;
         }
         if ( !(unsigned int)XPak_RemovePackFile(str) )
-          v12 = 1;
-        __asm { vmovdqa xmmword ptr [rsp+160h+xhash.___u1], xmm6 }
+          v10 = 1;
+        xhash_8 = v14;
       }
       while ( KeyValuePairs_GetNextValue("xpak_read", &xhash_8, (const char **)&str) );
-      if ( v12 )
+      if ( v10 )
       {
         Sys_ProfBeginNamedEvent(0xFF808080, "XPak_InvalidateItems");
         DB_LockHashRead();
@@ -2803,17 +2784,17 @@ void XPak_RemovePackFilesForZone(const char *zoneName)
             functor[1].xpakIndex = xpakIndex;
             AssetEntryUsedFlagsIncludingStashed = DB_GetAssetEntryUsedFlagsIncludingStashed();
             AssetEntryPool = DB_GetAssetEntryPool();
-            v24 = 0;
-            v25 = 0;
-            v26 = (unsigned __int64 *)AssetEntryUsedFlagsIncludingStashed;
+            v22 = 0;
+            v23 = 0;
+            v24 = (unsigned __int64 *)AssetEntryUsedFlagsIncludingStashed;
             do
             {
-              DB_AssetEntryPool::ForEachInBlock<InvalidateItemFunctor>(AssetEntryPool, AssetEntryUsedFlagsIncludingStashed, *v26, v24, &functor[1]);
-              v24 += 64;
-              ++v25;
-              ++v26;
+              DB_AssetEntryPool::ForEachInBlock<InvalidateItemFunctor>(AssetEntryPool, AssetEntryUsedFlagsIncludingStashed, *v24, v22, &functor[1]);
+              v22 += 64;
+              ++v23;
+              ++v24;
             }
-            while ( v25 < 0x1768 );
+            while ( v23 < 0x1768 );
             p_size = xhash_8.name;
             xpakIndex = functor[0].xpakIndex;
           }
@@ -2828,8 +2809,6 @@ void XPak_RemovePackFilesForZone(const char *zoneName)
     }
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v35;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*

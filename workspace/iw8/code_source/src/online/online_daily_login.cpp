@@ -427,12 +427,7 @@ Online_Dailylogin::OutputCurrentState
 void Online_Dailylogin::OutputCurrentState(Online_Dailylogin *this, const int controllerIndex)
 {
   Com_Printf(25, "Online_Dailylogin DUMP START controllerIndex %d\n", (unsigned int)controllerIndex);
-  __asm
-  {
-    vmovsd  xmm3, cs:__real@3fce000000000000
-    vmovq   r9, xmm3
-  }
-  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, *(double *)&_XMM3);
+  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, DOUBLE_0_234375);
   Com_Printf(25, "Online_Dailylogin DUMP END\n");
 }
 

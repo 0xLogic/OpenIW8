@@ -123,7 +123,7 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
   int v13; 
   winrt::hstring *v14; 
   winrt::hstring *v15; 
-  winrt::hstring *Mylast; 
+  winrt::hstring *second; 
   winrt::hstring *Myfirst; 
   int productCount; 
   int v19; 
@@ -170,7 +170,7 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
   IUnknown_vtbl *v60; 
   HRESULT v61; 
   std::vector<winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Xbox::Services::Marketplace::CatalogItemDetails>> *v62; 
-  winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Xbox::Services::Marketplace::CatalogItemDetails> *v63; 
+  winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Xbox::Services::Marketplace::CatalogItemDetails> *Mylast; 
   IUnknown *v64; 
   HSTRING *v65; 
   IUnknown *v66; 
@@ -205,18 +205,15 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
   v83 = Catalog;
   if ( Catalog )
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+168h+var_F0.baseclass_0._Mypair._Myval2._Myfirst], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(std::pair<winrt::Windows::Foundation::Collections::IVectorView<winrt::hstring>,winrt::impl::input_scope *> *)&v80._Mypair._Myval2._Myfirst = _XMM0;
     Myend = NULL;
     v80._Mypair._Myval2._Myend = NULL;
     v13 = 0;
     v14 = NULL;
     v15 = NULL;
-    Mylast = v80._Mypair._Myval2._Mylast;
-    Myfirst = v80._Mypair._Myval2._Myfirst;
+    second = (winrt::hstring *)_XMM0.second;
+    Myfirst = (winrt::hstring *)_XMM0.first.m_ptr;
     while ( 1 )
     {
       v75 = v13;
@@ -235,7 +232,7 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
           {
             std::vector<winrt::hstring>::_Emplace_reallocate<wchar_t (&)[37]>(&v80, v14, (wchar_t (*)[37])WideCharStr);
             Myend = v80._Mypair._Myval2._Myend;
-            Mylast = v80._Mypair._Myval2._Mylast;
+            second = v80._Mypair._Myval2._Mylast;
             Myfirst = v80._Mypair._Myval2._Myfirst;
           }
           else
@@ -249,21 +246,21 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
             if ( v22 )
               winrt::impl::throw_hresult(v22);
             v14->m_handle.m_value = string;
-            Mylast = v14 + 1;
+            second = v14 + 1;
             v80._Mypair._Myval2._Mylast = v14 + 1;
           }
         }
       }
       v23 = v75;
-      if ( v75 == v19 || (v14 = Mylast, Mylast - Myfirst == 10) )
+      if ( v75 == v19 || (v14 = second, second - Myfirst == 10) )
       {
-        if ( (unsigned __int64)((char *)Mylast - (char *)Myfirst) < 8 )
+        if ( (unsigned __int64)((char *)second - (char *)Myfirst) < 8 )
         {
           v24 = InGameStore_Error(controllerIndexa, INGAMESTORE_ERROR_XB3_GET_CATALOG_ITEM_DETAILS, "no_products");
           if ( Myfirst )
           {
             p_m_value = &Myfirst->m_handle.m_value;
-            if ( Myfirst != Mylast )
+            if ( Myfirst != second )
             {
               do
               {
@@ -274,7 +271,7 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
                 }
                 ++p_m_value;
               }
-              while ( p_m_value != (HSTRING *)Mylast );
+              while ( p_m_value != (HSTRING *)second );
             }
             v26 = 8 * (Myend - Myfirst);
             v27 = Myfirst;
@@ -305,11 +302,8 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
         if ( v32 )
           winrt::impl::throw_hresult(v32);
         *(_QWORD *)&v71[4] = &v81;
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu [rsp+168h+var_D8], xmm0
-        }
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        v81.m_pair = _XMM0;
         v33 = (winrt::impl::input_scope *)operator new(0x38ui64);
         v34 = v33;
         *(_QWORD *)&v71[4] = v33;
@@ -320,7 +314,7 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
           *(_QWORD *)&v33[24].m_invalid = &winrt::impl::produce<winrt::impl::scoped_input_vector_view<winrt::hstring,std::_Vector_const_iterator<std::_Vector_val<std::_Simple_types<winrt::hstring>>>>,winrt::Windows::Foundation::Collections::IIterable<winrt::hstring>>::`vftable';
           *(_DWORD *)&v33[32].m_invalid = 1;
           *(_QWORD *)&v33[40].m_invalid = Myfirst;
-          *(_QWORD *)&v33[48].m_invalid = Mylast;
+          *(_QWORD *)&v33[48].m_invalid = second;
         }
         else
         {
@@ -369,7 +363,7 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
           if ( Myfirst )
           {
             v44 = &Myfirst->m_handle.m_value;
-            if ( Myfirst != Mylast )
+            if ( Myfirst != second )
             {
               do
               {
@@ -380,7 +374,7 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
                 }
                 ++v44;
               }
-              while ( v44 != (HSTRING *)Mylast );
+              while ( v44 != (HSTRING *)second );
             }
             v45 = 8 * (Myend - Myfirst);
             v46 = Myfirst;
@@ -444,7 +438,7 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
             if ( Myfirst )
             {
               v57 = &Myfirst->m_handle.m_value;
-              if ( Myfirst != Mylast )
+              if ( Myfirst != second )
               {
                 do
                 {
@@ -455,7 +449,7 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
                   }
                   ++v57;
                 }
-                while ( v57 != (HSTRING *)Mylast );
+                while ( v57 != (HSTRING *)second );
               }
               v58 = 8 * (Myend - Myfirst);
               v59 = Myfirst;
@@ -481,15 +475,15 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
           if ( v61 )
             winrt::impl::throw_hresult(v61);
           v62 = v79;
-          v63 = v79->_Mypair._Myval2._Mylast;
-          if ( v79->_Mypair._Myval2._Myend == v63 )
+          Mylast = v79->_Mypair._Myval2._Mylast;
+          if ( v79->_Mypair._Myval2._Myend == Mylast )
           {
-            std::vector<winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Xbox::Services::Marketplace::CatalogItemDetails>>::_Emplace_reallocate<winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Xbox::Services::Marketplace::CatalogItemDetails> const &>(v79, v63, &v73);
+            std::vector<winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Xbox::Services::Marketplace::CatalogItemDetails>>::_Emplace_reallocate<winrt::Windows::Foundation::Collections::IVectorView<winrt::Microsoft::Xbox::Services::Marketplace::CatalogItemDetails> const &>(v79, Mylast, &v73);
             v64 = v73.m_ptr;
           }
           else
           {
-            v63->m_ptr = v73.m_ptr;
+            Mylast->m_ptr = v73.m_ptr;
             v64 = v73.m_ptr;
             if ( v73.m_ptr )
             {
@@ -506,7 +500,7 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
           }
         }
         v65 = &Myfirst->m_handle.m_value;
-        if ( Myfirst != Mylast )
+        if ( Myfirst != second )
         {
           do
           {
@@ -517,9 +511,9 @@ char InGameStore_CoGetCatalogItemDetails(const int controllerIndex, const winrt:
             }
             ++v65;
           }
-          while ( v65 != (HSTRING *)Mylast );
+          while ( v65 != (HSTRING *)second );
         }
-        Mylast = Myfirst;
+        second = Myfirst;
         v80._Mypair._Myval2._Mylast = Myfirst;
         v66 = v72.m_ptr;
         if ( v72.m_ptr )
@@ -769,23 +763,24 @@ char InGameStore_CoPlatformDownloadProduct(const int controllerIndex, const InGa
   __int64 v7; 
   HRESULT String_0; 
   IUnknown *v9; 
-  winrt::Windows::Foundation::IAsyncInfo *v11; 
-  unsigned __int64 v12; 
-  bool v13; 
+  winrt::Windows::Foundation::IAsyncInfo *v10; 
+  unsigned __int64 v11; 
+  bool v12; 
+  IUnknown *v13; 
   IUnknown *v14; 
   IUnknown *v15; 
-  IUnknown *v16; 
-  bool v17; 
+  bool v16; 
+  IUnknown *v17; 
   IUnknown *v18; 
-  IUnknown *v19; 
   winrt::Windows::Xbox::System::User result; 
   winrt::Windows::Foundation::IUnknown right; 
-  winrt::Windows::Foundation::IAsyncAction v22; 
-  int v23; 
+  winrt::Windows::Foundation::IAsyncAction v21; 
+  int v22; 
   void *p_right; 
-  __int64 v25; 
-  winrt::hstring_view v26; 
+  __int64 v24; 
+  winrt::hstring_view v25; 
   wchar_t WideCharStr[4]; 
+  __int64 v27; 
   __int64 v28; 
   __int64 v29; 
   __int64 v30; 
@@ -793,11 +788,10 @@ char InGameStore_CoPlatformDownloadProduct(const int controllerIndex, const InGa
   __int64 v32; 
   __int64 v33; 
   __int64 v34; 
-  __int64 v35; 
-  __int16 v36; 
+  __int16 v35; 
 
-  v25 = -2i64;
-  v23 = controllerIndex;
+  v24 = -2i64;
+  v22 = controllerIndex;
   InGameStore_GetUser(&result, controllerIndex);
   right.m_ptr = NULL;
   if ( winrt::Windows::Foundation::operator==(&result, &right) )
@@ -814,6 +808,7 @@ char InGameStore_CoPlatformDownloadProduct(const int controllerIndex, const InGa
   else
   {
     *(_QWORD *)WideCharStr = 0i64;
+    v27 = 0i64;
     v28 = 0i64;
     v29 = 0i64;
     v30 = 0i64;
@@ -821,8 +816,7 @@ char InGameStore_CoPlatformDownloadProduct(const int controllerIndex, const InGa
     v32 = 0i64;
     v33 = 0i64;
     v34 = 0i64;
-    v35 = 0i64;
-    v36 = 0;
+    v35 = 0;
     v7 = -1i64;
     MultiByteToWideChar(0xFDE9u, 0, product->skuId, -1, WideCharStr, 37);
     do
@@ -834,64 +828,59 @@ char InGameStore_CoPlatformDownloadProduct(const int controllerIndex, const InGa
       winrt::impl::throw_hresult(String_0);
     v9 = right.m_ptr;
     p_right = right.m_ptr;
-    v26.m_handle = (HSTRING__ *)right.m_ptr;
-    __asm
-    {
-      vmovups ymm0, [rsp+108h+var_98]
-      vmovups [rsp+108h+var_98], ymm0
-    }
-    winrt::Windows::Xbox::ApplicationModel::Store::Product::ShowDetailsAsync(&v22, &result, &v26);
+    v25.m_handle = (HSTRING__ *)right.m_ptr;
+    winrt::Windows::Xbox::ApplicationModel::Store::Product::ShowDetailsAsync(&v21, &result, &v25);
     if ( v9 )
       WindowsDeleteString_0((HSTRING)v9);
     p_right = &right;
-    v11 = winrt::impl::require_one<winrt::Windows::Foundation::IAsyncAction,winrt::Windows::Foundation::IAsyncInfo>::operator winrt::Windows::Foundation::IAsyncInfo((winrt::impl::require_one<winrt::Windows::Foundation::IAsyncAction,winrt::Windows::Foundation::IAsyncInfo> *)&v23, (winrt::Windows::Foundation::IAsyncInfo *)&right);
-    v12 = Co_Self();
-    if ( InGameStore_StartAsyncTask(controllerIndex, v12, INGAMESTORE_TASK_SHOW_DETAILS, (winrt::Windows::Foundation::IAsyncInfo)v11) )
+    v10 = winrt::impl::require_one<winrt::Windows::Foundation::IAsyncAction,winrt::Windows::Foundation::IAsyncInfo>::operator winrt::Windows::Foundation::IAsyncInfo((winrt::impl::require_one<winrt::Windows::Foundation::IAsyncAction,winrt::Windows::Foundation::IAsyncInfo> *)&v22, (winrt::Windows::Foundation::IAsyncInfo *)&right);
+    v11 = Co_Self();
+    if ( InGameStore_StartAsyncTask(controllerIndex, v11, INGAMESTORE_TASK_SHOW_DETAILS, (winrt::Windows::Foundation::IAsyncInfo)v10) )
     {
-      v16 = v22.m_ptr;
-      if ( v22.m_ptr )
+      v15 = v21.m_ptr;
+      if ( v21.m_ptr )
       {
-        v22.m_ptr = NULL;
-        v16->Release(v16);
+        v21.m_ptr = NULL;
+        v15->Release(v15);
       }
       if ( Co_Yield(1ui64) )
       {
-        v19 = result.m_ptr;
-        if ( result.m_ptr )
-        {
-          result.m_ptr = NULL;
-          v19->Release(v19);
-        }
-        return 1;
-      }
-      else
-      {
-        v17 = InGameStore_Error(controllerIndex, INGAMESTORE_ERROR_XB3_SHOW_DETAILS, "task_failed");
         v18 = result.m_ptr;
         if ( result.m_ptr )
         {
           result.m_ptr = NULL;
           v18->Release(v18);
         }
-        return v17;
+        return 1;
+      }
+      else
+      {
+        v16 = InGameStore_Error(controllerIndex, INGAMESTORE_ERROR_XB3_SHOW_DETAILS, "task_failed");
+        v17 = result.m_ptr;
+        if ( result.m_ptr )
+        {
+          result.m_ptr = NULL;
+          v17->Release(v17);
+        }
+        return v16;
       }
     }
     else
     {
-      v13 = InGameStore_Error(controllerIndex, INGAMESTORE_ERROR_XB3_SHOW_DETAILS, "task_failed");
-      v14 = v22.m_ptr;
-      if ( v22.m_ptr )
+      v12 = InGameStore_Error(controllerIndex, INGAMESTORE_ERROR_XB3_SHOW_DETAILS, "task_failed");
+      v13 = v21.m_ptr;
+      if ( v21.m_ptr )
       {
-        v22.m_ptr = NULL;
-        v14->Release(v14);
+        v21.m_ptr = NULL;
+        v13->Release(v13);
       }
-      v15 = result.m_ptr;
+      v14 = result.m_ptr;
       if ( result.m_ptr )
       {
         result.m_ptr = NULL;
-        v15->Release(v15);
+        v14->Release(v14);
       }
-      return v13;
+      return v12;
     }
   }
 }
@@ -1151,6 +1140,7 @@ bool InGameStore_CoPlatformFetchProducts(const int controllerIndex)
   unsigned __int64 v46[3]; 
   std::function<unsigned __int64 __cdecl(void)> v47; 
   void (__fastcall *const *_Where)(); 
+  __int128 v49; 
   void (__fastcall *const **p_Where)(); 
   _BYTE *v51; 
   unsigned __int64 v52; 
@@ -1185,11 +1175,8 @@ bool InGameStore_CoPlatformFetchProducts(const int controllerIndex)
   {
     winrt::Microsoft::Xbox::Services::XboxLiveContext::XboxLiveContext(&v36, &result);
     *(_QWORD *)ptr = 0i64;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+190h+ptr+8], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&ptr[8] = _XMM0;
     inventoryItems.m_ptr = NULL;
     v38.m_ptr = NULL;
     v37.m_ptr = NULL;
@@ -1209,11 +1196,8 @@ bool InGameStore_CoPlatformFetchProducts(const int controllerIndex)
     *(_QWORD *)&v41 = InGameStore_CoGetCatalogItemDetails;
     *((_QWORD *)&v41 + 1) = &v51;
     _Where = std::_Func_impl_no_alloc__lambda_654db2aa44bd066b669c867d59e344be__unsigned___int64_::_vftable_;
-    __asm
-    {
-      vmovups xmm0, [rsp+190h+var_130]
-      vmovups [rbp+90h+var_88], xmm0
-    }
+    _XMM0 = v41;
+    v49 = v41;
     p_Where = &_Where;
     *(_QWORD *)&v41 = &v47;
     v47._Mystorage._Ptrs[7] = NULL;
@@ -1338,11 +1322,8 @@ bool InGameStore_CoPlatformFetchProducts(const int controllerIndex)
           _invalid_parameter_noinfo_noreturn();
       }
       operator delete(v27, v30);
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu xmmword ptr [rsp+190h+ptr], xmm0
-      }
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      *(_OWORD *)ptr = _XMM0;
       *(_QWORD *)&ptr[16] = 0i64;
     }
     v33 = v36.m_ptr;
@@ -1470,28 +1451,28 @@ char InGameStore_CoPlatformPurchaseProduct(const int controllerIndex, const InGa
   __int64 v11; 
   HRESULT String_0; 
   IUnknown *v13; 
-  winrt::Windows::Foundation::IAsyncInfo *v15; 
-  unsigned __int64 v16; 
-  bool v17; 
+  winrt::Windows::Foundation::IAsyncInfo *v14; 
+  unsigned __int64 v15; 
+  bool v16; 
+  IUnknown *v17; 
   IUnknown *v18; 
-  IUnknown *v19; 
-  unsigned __int64 v20; 
-  bool v21; 
-  IUnknown *v22; 
-  bool v23; 
+  unsigned __int64 v19; 
+  bool v20; 
+  IUnknown *v21; 
+  bool v22; 
+  IUnknown *v23; 
   IUnknown *v24; 
-  IUnknown *v25; 
   winrt::Windows::Xbox::System::User result; 
   winrt::Windows::Foundation::IUnknown right; 
-  winrt::Windows::Foundation::IAsyncAction v28; 
-  int v29; 
+  winrt::Windows::Foundation::IAsyncAction v27; 
+  int v28; 
   void *p_right; 
-  __int64 v31; 
-  winrt::hstring_view v32; 
+  __int64 v30; 
+  winrt::hstring_view v31; 
   wchar_t WideCharStr[4096]; 
 
-  v31 = -2i64;
-  v29 = controllerIndex;
+  v30 = -2i64;
+  v28 = controllerIndex;
   *purchased = 0;
   *refresh = 0;
   InGameStore_GetUser(&result, controllerIndex);
@@ -1521,76 +1502,71 @@ char InGameStore_CoPlatformPurchaseProduct(const int controllerIndex, const InGa
       winrt::impl::throw_hresult(String_0);
     v13 = right.m_ptr;
     p_right = right.m_ptr;
-    v32.m_handle = (HSTRING__ *)right.m_ptr;
-    __asm
-    {
-      vmovups ymm0, [rsp+20C8h+var_2058]
-      vmovups [rsp+20C8h+var_2058], ymm0
-    }
-    winrt::Windows::Xbox::ApplicationModel::Store::Product::ShowPurchaseAsync(&v28, &result, &v32);
+    v31.m_handle = (HSTRING__ *)right.m_ptr;
+    winrt::Windows::Xbox::ApplicationModel::Store::Product::ShowPurchaseAsync(&v27, &result, &v31);
     if ( v13 )
       WindowsDeleteString_0((HSTRING)v13);
     p_right = &right;
-    v15 = winrt::impl::require_one<winrt::Windows::Foundation::IAsyncAction,winrt::Windows::Foundation::IAsyncInfo>::operator winrt::Windows::Foundation::IAsyncInfo((winrt::impl::require_one<winrt::Windows::Foundation::IAsyncAction,winrt::Windows::Foundation::IAsyncInfo> *)&v29, (winrt::Windows::Foundation::IAsyncInfo *)&right);
-    v16 = Co_Self();
-    if ( InGameStore_StartAsyncTask(controllerIndex, v16, INGAMESTORE_TASK_SHOW_PURCHASE, (winrt::Windows::Foundation::IAsyncInfo)v15) )
+    v14 = winrt::impl::require_one<winrt::Windows::Foundation::IAsyncAction,winrt::Windows::Foundation::IAsyncInfo>::operator winrt::Windows::Foundation::IAsyncInfo((winrt::impl::require_one<winrt::Windows::Foundation::IAsyncAction,winrt::Windows::Foundation::IAsyncInfo> *)&v28, (winrt::Windows::Foundation::IAsyncInfo *)&right);
+    v15 = Co_Self();
+    if ( InGameStore_StartAsyncTask(controllerIndex, v15, INGAMESTORE_TASK_SHOW_PURCHASE, (winrt::Windows::Foundation::IAsyncInfo)v14) )
     {
-      v20 = Co_Yield(1ui64);
-      v21 = v20 != 0;
-      if ( v20 && winrt::Windows::Foundation::impl_IAsyncInfo<winrt::Windows::Foundation::IAsyncAction>::Status((winrt::Windows::Foundation::impl_IAsyncInfo<winrt::Windows::Foundation::IAsyncAction> *)&v29) == Completed )
+      v19 = Co_Yield(1ui64);
+      v20 = v19 != 0;
+      if ( v19 && winrt::Windows::Foundation::impl_IAsyncInfo<winrt::Windows::Foundation::IAsyncAction>::Status((winrt::Windows::Foundation::impl_IAsyncInfo<winrt::Windows::Foundation::IAsyncAction> *)&v28) == Completed )
       {
         *purchased = 1;
       }
-      else if ( winrt::Windows::Foundation::impl_IAsyncInfo<winrt::Windows::Foundation::IAsyncAction>::Status((winrt::Windows::Foundation::impl_IAsyncInfo<winrt::Windows::Foundation::IAsyncAction> *)&v29) == Canceled )
+      else if ( winrt::Windows::Foundation::impl_IAsyncInfo<winrt::Windows::Foundation::IAsyncAction>::Status((winrt::Windows::Foundation::impl_IAsyncInfo<winrt::Windows::Foundation::IAsyncAction> *)&v28) == Canceled )
       {
         *purchased = 0;
-        v21 = 1;
+        v20 = 1;
       }
-      v22 = v28.m_ptr;
-      if ( v28.m_ptr )
+      v21 = v27.m_ptr;
+      if ( v27.m_ptr )
       {
-        v28.m_ptr = NULL;
-        v22->Release(v22);
+        v27.m_ptr = NULL;
+        v21->Release(v21);
       }
-      if ( v21 )
+      if ( v20 )
       {
         *refresh = *purchased;
-        v25 = result.m_ptr;
-        if ( result.m_ptr )
-        {
-          result.m_ptr = NULL;
-          v25->Release(v25);
-        }
-        return 1;
-      }
-      else
-      {
-        v23 = InGameStore_Error(controllerIndex, INGAMESTORE_ERROR_XB3_SHOW_PURCHASE, "task_failed");
         v24 = result.m_ptr;
         if ( result.m_ptr )
         {
           result.m_ptr = NULL;
           v24->Release(v24);
         }
-        return v23;
+        return 1;
+      }
+      else
+      {
+        v22 = InGameStore_Error(controllerIndex, INGAMESTORE_ERROR_XB3_SHOW_PURCHASE, "task_failed");
+        v23 = result.m_ptr;
+        if ( result.m_ptr )
+        {
+          result.m_ptr = NULL;
+          v23->Release(v23);
+        }
+        return v22;
       }
     }
     else
     {
-      v17 = InGameStore_Error(controllerIndex, INGAMESTORE_ERROR_XB3_SHOW_PURCHASE, "task_failed");
-      v18 = v28.m_ptr;
-      if ( v28.m_ptr )
+      v16 = InGameStore_Error(controllerIndex, INGAMESTORE_ERROR_XB3_SHOW_PURCHASE, "task_failed");
+      v17 = v27.m_ptr;
+      if ( v27.m_ptr )
       {
-        v28.m_ptr = NULL;
-        v18->Release(v18);
+        v27.m_ptr = NULL;
+        v17->Release(v17);
       }
-      v19 = result.m_ptr;
+      v18 = result.m_ptr;
       if ( result.m_ptr )
       {
         result.m_ptr = NULL;
-        v19->Release(v19);
+        v18->Release(v18);
       }
-      return v17;
+      return v16;
     }
   }
 }

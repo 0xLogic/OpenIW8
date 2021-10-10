@@ -25,7 +25,6 @@ field_is_zeroish
 */
 _BOOL8 field_is_zeroish(const ProtobufCFieldDescriptor *field, const void *member)
 {
-  char v2; 
   _BOOL8 result; 
 
   switch ( field->type )
@@ -49,22 +48,13 @@ _BOOL8 field_is_zeroish(const ProtobufCFieldDescriptor *field, const void *membe
       result = *(_QWORD *)member == 0i64;
       break;
     case PROTOBUF_C_TYPE_FLOAT:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0; jumptable 00000001435570FB case 10
-        vucomiss xmm0, dword ptr [rdx]
-      }
-      if ( v2 )
+      if ( *(float *)member == 0.0 )
         goto LABEL_11;
       result = 0i64;
       break;
     case PROTOBUF_C_TYPE_DOUBLE:
-      __asm
-      {
-        vxorpd  xmm0, xmm0, xmm0; jumptable 00000001435570FB case 11
-        vucomisd xmm0, qword ptr [rdx]
-      }
-      if ( v2 )
+      __asm { vxorpd  xmm0, xmm0, xmm0; jumptable 00000001435570FB case 11 }
+      if ( *(double *)&_XMM0 == *(double *)member )
         goto LABEL_11;
       result = 0i64;
       break;
@@ -2729,98 +2719,101 @@ ProtobufCMessage *protobuf_c_message_unpack(const ProtobufCMessageDescriptor *de
   char *v13; 
   ProtobufCMessage *v14; 
   void (__fastcall *message_init)(ProtobufCMessage *); 
+  unsigned __int64 i; 
   __int64 v18; 
   const ProtobufCFieldDescriptor *v19; 
-  unsigned int v22; 
-  __int64 v23; 
-  unsigned int v24; 
-  int v25; 
-  __int64 v26; 
-  unsigned int v27; 
-  char *v28; 
+  _DWORD *default_value; 
+  unsigned int v21; 
+  __int64 v22; 
+  unsigned int v23; 
+  int v24; 
+  __int64 v25; 
+  unsigned int v26; 
+  char *v27; 
+  char v28; 
   char v29; 
-  char v30; 
-  const ProtobufCFieldDescriptor *v31; 
-  int v32; 
+  const ProtobufCFieldDescriptor *v30; 
+  int v31; 
+  unsigned __int64 v32; 
   unsigned __int64 v33; 
-  unsigned __int64 v34; 
-  unsigned int v35; 
+  unsigned int v34; 
+  int v35; 
   int v36; 
   int v37; 
-  int v38; 
+  unsigned int v38; 
   unsigned int v39; 
-  unsigned int v40; 
-  char *v41; 
-  unsigned int v42; 
+  char *v40; 
+  unsigned int v41; 
+  __int64 v42; 
   __int64 v43; 
-  _QWORD *v47; 
-  unsigned __int64 v48; 
-  char *v49; 
-  char v50; 
-  _DWORD *v51; 
+  _QWORD *v44; 
+  unsigned __int64 v45; 
+  char *v46; 
+  char v47; 
+  _DWORD *v48; 
   unsigned int n_fields; 
-  unsigned int i; 
-  const ProtobufCFieldDescriptor *v54; 
+  unsigned int j; 
+  const ProtobufCFieldDescriptor *v51; 
   ProtobufCLabel label; 
-  __int64 v56; 
+  __int64 v53; 
   __int64 quantifier_offset; 
+  __int64 v55; 
+  __int64 v56; 
+  char *v57; 
   __int64 v58; 
-  __int64 v59; 
-  char *v60; 
-  __int64 v61; 
+  unsigned int v59; 
+  bool v60; 
+  __int64 *m; 
   unsigned int v62; 
-  bool v63; 
-  __int64 *k; 
-  unsigned int v65; 
-  __int64 j; 
-  const ProtobufCFieldDescriptor *v67; 
-  __int64 v68; 
-  const ProtobufCFieldDescriptor *v69; 
-  __int64 v70; 
-  unsigned int v71; 
-  unsigned int v72; 
+  __int64 k; 
+  const ProtobufCFieldDescriptor *v64; 
+  __int64 v65; 
+  const ProtobufCFieldDescriptor *v66; 
+  __int64 v67; 
+  unsigned int v68; 
+  unsigned int v69; 
+  unsigned int v70; 
+  int v71; 
+  char *v72; 
   unsigned int v73; 
   int v74; 
-  char *v75; 
-  unsigned int v76; 
-  int v77; 
-  const unsigned __int8 *v78; 
-  __int64 v79; 
-  __int64 v80; 
+  const unsigned __int8 *v75; 
+  __int64 v76; 
+  __int64 v77; 
   const ProtobufCFieldDescriptor *fields; 
-  __m256i v82; 
-  __int64 v83[24]; 
-  char v84; 
-  char v85[16]; 
+  __m256i v79; 
+  __int64 v80[24]; 
+  char v81; 
+  char v82[16]; 
 
   v4 = &protobuf_c__allocator;
   fields = desc->fields;
-  v78 = data;
-  v72 = 0;
+  v75 = data;
+  v69 = 0;
   v6 = 0;
-  v73 = 0;
+  v70 = 0;
   if ( allocator )
     v4 = allocator;
-  v80 = 0i64;
-  v76 = 0;
+  v77 = 0i64;
+  v73 = 0;
   v7 = data;
-  v74 = 0;
-  v75 = v85;
+  v71 = 0;
+  v72 = v82;
   v9 = (ProtobufCMessage *)v4->alloc(v4->allocator_data, desc->sizeof_message);
   if ( !v9 )
     return 0i64;
   v10 = 1;
-  v83[0] = (__int64)&v84;
+  v80[0] = (__int64)&v81;
   v11 = (desc->n_fields + 7) >> 3;
   v12 = v11;
   if ( v11 <= 0x10 )
   {
-    v13 = v85;
+    v13 = v82;
   }
   else
   {
     v13 = (char *)v4->alloc(v4->allocator_data, v11);
-    v75 = v13;
+    v72 = v13;
     if ( !v13 )
     {
       v14 = v9;
@@ -2828,7 +2821,7 @@ LABEL_7:
       v4->free(v4->allocator_data, v14);
       return 0i64;
     }
-    v74 = 1;
+    v71 = 1;
   }
   memset_0(v13, 0, v12);
   message_init = desc->message_init;
@@ -2843,10 +2836,10 @@ LABEL_7:
     for ( v9->descriptor = desc; (unsigned int)v18 < desc->n_fields; v18 = (unsigned int)(v18 + 1) )
     {
       v19 = desc->fields;
-      _R10 = v19[v18].default_value;
-      if ( _R10 && v19[v18].label != PROTOBUF_C_LABEL_REPEATED )
+      default_value = v19[v18].default_value;
+      if ( default_value && v19[v18].label != PROTOBUF_C_LABEL_REPEATED )
       {
-        _R8 = (unsigned __int64)v9 + v19[v18].offset;
+        i = (unsigned __int64)v9 + v19[v18].offset;
         switch ( v19[v18].type )
         {
           case PROTOBUF_C_TYPE_INT32:
@@ -2857,7 +2850,7 @@ LABEL_7:
           case PROTOBUF_C_TYPE_FLOAT:
           case PROTOBUF_C_TYPE_BOOL:
           case PROTOBUF_C_TYPE_ENUM:
-            *(_DWORD *)_R8 = *_R10;
+            *(_DWORD *)i = *default_value;
             break;
           case PROTOBUF_C_TYPE_INT64:
           case PROTOBUF_C_TYPE_SINT64:
@@ -2865,18 +2858,14 @@ LABEL_7:
           case PROTOBUF_C_TYPE_UINT64:
           case PROTOBUF_C_TYPE_FIXED64:
           case PROTOBUF_C_TYPE_DOUBLE:
-            *(_QWORD *)_R8 = *(_QWORD *)_R10;
+            *(_QWORD *)i = *(_QWORD *)default_value;
             break;
           case PROTOBUF_C_TYPE_STRING:
           case PROTOBUF_C_TYPE_MESSAGE:
-            *(_QWORD *)_R8 = _R10;
+            *(_QWORD *)i = default_value;
             break;
           case PROTOBUF_C_TYPE_BYTES:
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [r10]; jumptable 000000014355A0DA case 15
-              vmovups xmmword ptr [r8], xmm0
-            }
+            *(_OWORD *)i = *(_OWORD *)default_value;
             break;
           default:
             continue;
@@ -2888,180 +2877,177 @@ LABEL_7:
   {
     while ( 1 )
     {
-      v22 = len;
-      v23 = 4i64;
+      v21 = len;
+      v22 = 4i64;
       if ( len > 5 )
-        v22 = 5;
-      v24 = *v7;
-      v25 = (v24 >> 3) & 0xF;
-      v77 = *v7 & 7;
-      if ( (v24 & 0x80u) != 0 )
+        v21 = 5;
+      v23 = *v7;
+      v24 = (v23 >> 3) & 0xF;
+      v74 = *v7 & 7;
+      if ( (v23 & 0x80u) != 0 )
       {
-        v27 = 1;
-        if ( v22 <= 1 )
+        v26 = 1;
+        if ( v21 <= 1 )
           goto $error_cleanup_during_scan;
-        v28 = (char *)(v7 + 1);
+        v27 = (char *)(v7 + 1);
         while ( 1 )
         {
-          v29 = *v28;
-          _R8 = v27 + 1;
-          if ( *v28 >= 0 )
+          v28 = *v27;
+          i = v26 + 1;
+          if ( *v27 >= 0 )
             break;
-          v30 = v23;
-          v23 = (unsigned int)(v23 + 7);
-          ++v28;
-          v25 |= (v29 & 0x7F) << v30;
-          v27 = _R8;
-          if ( (unsigned int)_R8 >= v22 )
+          v29 = v22;
+          v22 = (unsigned int)(v22 + 7);
+          ++v27;
+          v24 |= (v28 & 0x7F) << v29;
+          v26 = i;
+          if ( (unsigned int)i >= v21 )
             goto $error_cleanup_during_scan;
         }
-        v25 |= v7[v27] << v23;
-        v26 = (unsigned int)_R8;
-        if ( v27 == -1 )
+        v24 |= v7[v26] << v22;
+        v25 = (unsigned int)i;
+        if ( v26 == -1 )
         {
 $error_cleanup_during_scan:
-          ((void (__fastcall *)(void *, ProtobufCMessage *, unsigned __int64, __int64))v4->free)(v4->allocator_data, v9, _R8, v23);
-          if ( v72 )
+          ((void (__fastcall *)(void *, ProtobufCMessage *, unsigned __int64, __int64))v4->free)(v4->allocator_data, v9, i, v22);
+          if ( v69 )
           {
             do
             {
-              if ( v83[v10] )
+              if ( v80[v10] )
                 ((void (__fastcall *)(void *))v4->free)(v4->allocator_data);
               ++v10;
             }
-            while ( v10 <= v72 );
+            while ( v10 <= v69 );
           }
-          if ( v74 && v75 )
-            v4->free(v4->allocator_data, v75);
+          if ( v71 && v72 )
+            v4->free(v4->allocator_data, v72);
           return 0i64;
         }
       }
       else
       {
-        v26 = 1i64;
+        v25 = 1i64;
       }
-      if ( fields && fields->id == v25 )
+      if ( fields && fields->id == v24 )
       {
-        _R8 = v76;
-        v31 = fields;
+        i = v73;
+        v30 = fields;
       }
       else
       {
-        v32 = int_range_lookup(desc->n_field_ranges, desc->field_ranges, v25);
-        if ( v32 < 0 )
+        v31 = int_range_lookup(desc->n_field_ranges, desc->field_ranges, v24);
+        if ( v31 < 0 )
         {
-          v31 = NULL;
-          ++v80;
+          v30 = NULL;
+          ++v77;
           goto LABEL_48;
         }
-        _R8 = (unsigned int)v32;
-        v76 = v32;
-        v31 = &desc->fields[v32];
-        fields = v31;
+        i = (unsigned int)v31;
+        v73 = v31;
+        v30 = &desc->fields[v31];
+        fields = v30;
       }
-      if ( v31 && v31->label == PROTOBUF_C_LABEL_REQUIRED )
-        v75[(unsigned __int64)(unsigned int)_R8 >> 3] |= 1 << (_R8 & 7);
+      if ( v30 && v30->label == PROTOBUF_C_LABEL_REQUIRED )
+        v72[(unsigned __int64)(unsigned int)i >> 3] |= 1 << (i & 7);
 LABEL_48:
-      v33 = len - v26;
-      v23 = (__int64)&v78[v26];
-      LOBYTE(v26) = 0;
-      v79 = v23;
-      v82.m256i_i32[0] = v25;
-      v82.m256i_i8[4] = v77;
-      v82.m256i_i64[1] = (__int64)v31;
-      v82.m256i_i64[3] = v23;
-      v82.m256i_i8[5] = 0;
-      if ( !v77 )
+      v32 = len - v25;
+      v22 = (__int64)&v75[v25];
+      LOBYTE(v25) = 0;
+      v76 = v22;
+      v79.m256i_i32[0] = v24;
+      v79.m256i_i8[4] = v74;
+      v79.m256i_i64[1] = (__int64)v30;
+      v79.m256i_i64[3] = v22;
+      v79.m256i_i8[5] = 0;
+      if ( !v74 )
       {
-        v39 = 10;
-        if ( v33 < 0xA )
-          v39 = v33;
-        v40 = 0;
-        if ( v39 )
+        v38 = 10;
+        if ( v32 < 0xA )
+          v38 = v32;
+        v39 = 0;
+        if ( v38 )
         {
-          v41 = (char *)v23;
+          v40 = (char *)v22;
           do
           {
-            if ( *v41 >= 0 )
+            if ( *v40 >= 0 )
               break;
+            ++v39;
             ++v40;
-            ++v41;
           }
-          while ( v40 < v39 );
+          while ( v39 < v38 );
         }
-        if ( v40 == v39 )
+        if ( v39 == v38 )
           goto $error_cleanup_during_scan;
-        v34 = v40 + 1;
+        v33 = v39 + 1;
         goto LABEL_73;
       }
-      if ( v77 == 1 )
+      if ( v74 == 1 )
       {
-        if ( v33 < 8 )
+        if ( v32 < 8 )
           goto $error_cleanup_during_scan;
-        v34 = 8i64;
+        v33 = 8i64;
 LABEL_73:
-        v82.m256i_i64[2] = v34;
+        v79.m256i_i64[2] = v33;
         goto LABEL_74;
       }
-      if ( v77 != 2 )
+      if ( v74 != 2 )
       {
-        if ( v77 != 5 || v33 < 4 )
+        if ( v74 != 5 || v32 < 4 )
           goto $error_cleanup_during_scan;
-        v34 = 4i64;
+        v33 = 4i64;
         goto LABEL_73;
       }
-      v35 = 5;
-      if ( v33 < 5 )
-        v35 = v33;
+      v34 = 5;
+      if ( v32 < 5 )
+        v34 = v32;
+      v35 = 0;
       v36 = 0;
-      v37 = 0;
-      for ( _R8 = 0i64; (unsigned int)_R8 < v35; ++v23 )
+      for ( i = 0i64; (unsigned int)i < v34; ++v22 )
       {
-        v38 = (*(_BYTE *)v23 & 0x7F) << v37;
-        v37 += 7;
-        v36 |= v38;
-        if ( *(char *)v23 >= 0 )
+        v37 = (*(_BYTE *)v22 & 0x7F) << v36;
+        v36 += 7;
+        v35 |= v37;
+        if ( *(char *)v22 >= 0 )
           break;
-        _R8 = (unsigned int)(_R8 + 1);
+        i = (unsigned int)(i + 1);
       }
-      if ( (_DWORD)_R8 == v35 )
+      if ( (_DWORD)i == v34 )
         goto $error_cleanup_during_scan;
-      LODWORD(v26) = _R8 + 1;
-      v34 = (unsigned int)(_R8 + 1 + v36);
-      if ( v34 > v33 )
+      LODWORD(v25) = i + 1;
+      v33 = (unsigned int)(i + 1 + v35);
+      if ( v33 > v32 )
         goto $error_cleanup_during_scan;
-      v82.m256i_i64[2] = (unsigned int)(v26 + v36);
-      if ( !((_DWORD)_R8 + 1 + v36) )
+      v79.m256i_i64[2] = (unsigned int)(v25 + v35);
+      if ( !((_DWORD)i + 1 + v35) )
         goto $error_cleanup_during_scan;
-      v82.m256i_i8[5] = _R8 + 1;
+      v79.m256i_i8[5] = i + 1;
 LABEL_74:
-      v42 = v72;
-      if ( v73 == 1 << (v72 + 4) )
+      v41 = v69;
+      if ( v70 == 1 << (v69 + 4) )
       {
-        v73 = 0;
-        if ( v72 == 22 )
+        v70 = 0;
+        if ( v69 == 22 )
           goto $error_cleanup_during_scan;
-        ++v72;
-        v43 = ((__int64 (__fastcall *)(void *, __int64, unsigned __int64, __int64))v4->alloc)(v4->allocator_data, 32i64 << ((unsigned __int8)v42 + 5), _R8, v23);
-        v42 = v72;
-        v83[v72] = v43;
-        if ( !v43 )
+        ++v69;
+        v42 = ((__int64 (__fastcall *)(void *, __int64, unsigned __int64, __int64))v4->alloc)(v4->allocator_data, 32i64 << ((unsigned __int8)v41 + 5), i, v22);
+        v41 = v69;
+        v80[v69] = v42;
+        if ( !v42 )
           goto $error_cleanup_during_scan;
       }
-      __asm { vmovups ymm0, ymmword ptr [rsp+398h+var_340] }
-      _RCX = 32i64 * v73;
-      _RAX = v83[v42];
-      ++v73;
-      __asm { vmovups ymmword ptr [rax+rcx], ymm0 }
-      if ( v31 && v31->label == PROTOBUF_C_LABEL_REPEATED )
+      v43 = 32i64 * v70++;
+      *(__m256i *)(v80[v41] + v43) = v79;
+      if ( v30 && v30->label == PROTOBUF_C_LABEL_REPEATED )
       {
-        v47 = (const ProtobufCMessageDescriptor **)((char *)&v9->descriptor + v31->quantifier_offset);
-        if ( v77 == 2 && ((v31->flags & 1) != 0 || (unsigned int)(v31->type - 14) > 2) )
+        v44 = (const ProtobufCMessageDescriptor **)((char *)&v9->descriptor + v30->quantifier_offset);
+        if ( v74 == 2 && ((v30->flags & 1) != 0 || (unsigned int)(v30->type - 14) > 2) )
         {
-          _R8 = (unsigned __int8)v26;
-          v48 = v34 - (unsigned __int8)v26;
-          v23 = 0x140000000ui64;
-          switch ( v31->type )
+          i = (unsigned __int8)v25;
+          v45 = v33 - (unsigned __int8)v25;
+          v22 = 0x140000000ui64;
+          switch ( v30->type )
           {
             case PROTOBUF_C_TYPE_INT32:
             case PROTOBUF_C_TYPE_SINT32:
@@ -3070,35 +3056,35 @@ LABEL_74:
             case PROTOBUF_C_TYPE_UINT32:
             case PROTOBUF_C_TYPE_UINT64:
             case PROTOBUF_C_TYPE_ENUM:
-              v49 = (char *)((unsigned __int8)v26 + v79);
-              for ( _R8 = 0i64; v48; --v48 )
+              v46 = (char *)((unsigned __int8)v25 + v76);
+              for ( i = 0i64; v45; --v45 )
               {
-                v50 = *v49;
-                v51 = (_DWORD *)(_R8 + 1);
-                ++v49;
-                if ( v50 < 0 )
-                  v51 = (_DWORD *)_R8;
-                _R8 = (unsigned __int64)v51;
+                v47 = *v46;
+                v48 = (_DWORD *)(i + 1);
+                ++v46;
+                if ( v47 < 0 )
+                  v48 = (_DWORD *)i;
+                i = (unsigned __int64)v48;
               }
-              v48 = _R8;
+              v45 = i;
               goto LABEL_92;
             case PROTOBUF_C_TYPE_SFIXED32:
             case PROTOBUF_C_TYPE_FIXED32:
             case PROTOBUF_C_TYPE_FLOAT:
-              if ( (v48 & 3) != 0 )
+              if ( (v45 & 3) != 0 )
                 goto $error_cleanup_during_scan;
-              *v47 += v48 >> 2;
+              *v44 += v45 >> 2;
               break;
             case PROTOBUF_C_TYPE_SFIXED64:
             case PROTOBUF_C_TYPE_FIXED64:
             case PROTOBUF_C_TYPE_DOUBLE:
-              if ( (v48 & 7) != 0 )
+              if ( (v45 & 7) != 0 )
                 goto $error_cleanup_during_scan;
-              *v47 += v48 >> 3;
+              *v44 += v45 >> 3;
               break;
             case PROTOBUF_C_TYPE_BOOL:
 LABEL_92:
-              *v47 += v48;
+              *v44 += v45;
               break;
             default:
               goto $error_cleanup_during_scan;
@@ -3106,27 +3092,27 @@ LABEL_92:
         }
         else
         {
-          ++*v47;
+          ++*v44;
         }
       }
-      v7 = (const unsigned __int8 *)(v34 + v79);
-      v78 = (const unsigned __int8 *)(v34 + v79);
-      len = v33 - v34;
+      v7 = (const unsigned __int8 *)(v33 + v76);
+      v75 = (const unsigned __int8 *)(v33 + v76);
+      len = v32 - v33;
       if ( !len )
       {
-        v6 = v72;
+        v6 = v69;
         break;
       }
     }
   }
   n_fields = desc->n_fields;
-  for ( i = 0; i < n_fields; ++i )
+  for ( j = 0; j < n_fields; ++j )
   {
-    v54 = &desc->fields[i];
-    label = v54->label;
+    v51 = &desc->fields[j];
+    label = v51->label;
     if ( label == PROTOBUF_C_LABEL_REPEATED )
     {
-      switch ( v54->type )
+      switch ( v51->type )
       {
         case PROTOBUF_C_TYPE_INT32:
         case PROTOBUF_C_TYPE_SINT32:
@@ -3136,7 +3122,7 @@ LABEL_92:
         case PROTOBUF_C_TYPE_FLOAT:
         case PROTOBUF_C_TYPE_BOOL:
         case PROTOBUF_C_TYPE_ENUM:
-          v56 = 4i64;
+          v53 = 4i64;
           break;
         case PROTOBUF_C_TYPE_INT64:
         case PROTOBUF_C_TYPE_SINT64:
@@ -3146,113 +3132,113 @@ LABEL_92:
         case PROTOBUF_C_TYPE_DOUBLE:
         case PROTOBUF_C_TYPE_STRING:
         case PROTOBUF_C_TYPE_MESSAGE:
-          v56 = 8i64;
+          v53 = 8i64;
           break;
         case PROTOBUF_C_TYPE_BYTES:
-          v56 = 16i64;
+          v53 = 16i64;
           break;
         default:
-          v56 = 0i64;
+          v53 = 0i64;
           break;
       }
-      quantifier_offset = v54->quantifier_offset;
-      v58 = *(__int64 *)((char *)&v9->descriptor + quantifier_offset);
-      if ( v58 )
+      quantifier_offset = v51->quantifier_offset;
+      v55 = *(__int64 *)((char *)&v9->descriptor + quantifier_offset);
+      if ( v55 )
       {
         *(const ProtobufCMessageDescriptor **)((char *)&v9->descriptor + quantifier_offset) = NULL;
-        v59 = v4->alloc(v4->allocator_data, v56 * (unsigned int)v58);
-        if ( !v59 )
+        v56 = v4->alloc(v4->allocator_data, v53 * (unsigned int)v55);
+        if ( !v56 )
         {
-          for ( j = i + 1; (unsigned int)j < desc->n_fields; j = (unsigned int)(j + 1) )
+          for ( k = j + 1; (unsigned int)k < desc->n_fields; k = (unsigned int)(k + 1) )
           {
-            v67 = desc->fields;
-            if ( v67[j].label == PROTOBUF_C_LABEL_REPEATED )
-              *(const ProtobufCMessageDescriptor **)((char *)&v9->descriptor + v67[j].quantifier_offset) = NULL;
+            v64 = desc->fields;
+            if ( v64[k].label == PROTOBUF_C_LABEL_REPEATED )
+              *(const ProtobufCMessageDescriptor **)((char *)&v9->descriptor + v64[k].quantifier_offset) = NULL;
           }
           goto LABEL_139;
         }
-        *(const ProtobufCMessageDescriptor **)((char *)&v9->descriptor + v54->offset) = (const ProtobufCMessageDescriptor *)v59;
+        *(const ProtobufCMessageDescriptor **)((char *)&v9->descriptor + v51->offset) = (const ProtobufCMessageDescriptor *)v56;
       }
     }
-    else if ( label == PROTOBUF_C_LABEL_REQUIRED && !v54->default_value )
+    else if ( label == PROTOBUF_C_LABEL_REQUIRED && !v51->default_value )
     {
-      v60 = v75;
-      if ( ((unsigned __int8)(1 << (i & 7)) & (unsigned __int8)v75[(unsigned __int64)i >> 3]) == 0 )
+      v57 = v72;
+      if ( ((unsigned __int8)(1 << (j & 7)) & (unsigned __int8)v72[(unsigned __int64)j >> 3]) == 0 )
       {
-        v68 = i + 1;
-        if ( (unsigned int)v68 < n_fields )
+        v65 = j + 1;
+        if ( (unsigned int)v65 < n_fields )
         {
           do
           {
-            v69 = desc->fields;
-            if ( v69[v68].label == PROTOBUF_C_LABEL_REPEATED )
-              *(const ProtobufCMessageDescriptor **)((char *)&v9->descriptor + v69[v68].quantifier_offset) = NULL;
-            v68 = (unsigned int)(v68 + 1);
+            v66 = desc->fields;
+            if ( v66[v65].label == PROTOBUF_C_LABEL_REPEATED )
+              *(const ProtobufCMessageDescriptor **)((char *)&v9->descriptor + v66[v65].quantifier_offset) = NULL;
+            v65 = (unsigned int)(v65 + 1);
           }
-          while ( (unsigned int)v68 < desc->n_fields );
+          while ( (unsigned int)v65 < desc->n_fields );
         }
         goto $error_cleanup;
       }
     }
     n_fields = desc->n_fields;
   }
-  if ( !v80 || (v61 = (__int64)v4->alloc(v4->allocator_data, 24 * v80), (v9->unknown_fields = (ProtobufCMessageUnknownField *)v61) != NULL) )
+  if ( !v77 || (v58 = (__int64)v4->alloc(v4->allocator_data, 24 * v77), (v9->unknown_fields = (ProtobufCMessageUnknownField *)v58) != NULL) )
   {
-    v62 = 0;
-    v63 = v72 == 0;
-    for ( k = v83; ; ++k )
+    v59 = 0;
+    v60 = v69 == 0;
+    for ( m = v80; ; ++m )
     {
-      v65 = v63 ? v73 : 1 << (v62 + 4);
-      v70 = *k;
-      v71 = 0;
-      if ( v65 )
+      v62 = v60 ? v70 : 1 << (v59 + 4);
+      v67 = *m;
+      v68 = 0;
+      if ( v62 )
         break;
 LABEL_129:
-      v63 = ++v62 == v72;
-      if ( v62 > v72 )
+      v60 = ++v59 == v69;
+      if ( v59 > v69 )
       {
-        if ( v72 )
+        if ( v69 )
         {
           do
           {
-            if ( v83[v10] )
+            if ( v80[v10] )
               ((void (__fastcall *)(void *))v4->free)(v4->allocator_data);
             ++v10;
           }
-          while ( v10 <= v72 );
+          while ( v10 <= v69 );
         }
-        if ( v74 )
+        if ( v71 )
         {
-          if ( v75 )
-            v4->free(v4->allocator_data, v75);
+          if ( v72 )
+            v4->free(v4->allocator_data, v72);
         }
         return v9;
       }
     }
-    while ( parse_member((_ScannedMember *)(v70 + 32i64 * v71), v9, v4) )
+    while ( parse_member((_ScannedMember *)(v67 + 32i64 * v68), v9, v4) )
     {
-      if ( ++v71 >= v65 )
+      if ( ++v68 >= v62 )
         goto LABEL_129;
     }
-    v6 = v72;
+    v6 = v69;
   }
 LABEL_139:
-  v60 = v75;
+  v57 = v72;
 $error_cleanup:
   j_protobuf_c_message_free_unpacked(v9, v4);
   if ( v6 )
   {
     do
     {
-      if ( v83[v10] )
+      if ( v80[v10] )
         ((void (__fastcall *)(void *))v4->free)(v4->allocator_data);
       ++v10;
     }
     while ( v10 <= v6 );
   }
-  if ( v74 && v60 )
+  if ( v71 && v57 )
   {
-    v14 = (ProtobufCMessage *)v60;
+    v14 = (ProtobufCMessage *)v57;
     goto LABEL_7;
   }
   return 0i64;

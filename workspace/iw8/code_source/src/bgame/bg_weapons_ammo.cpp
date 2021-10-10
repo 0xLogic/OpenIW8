@@ -380,32 +380,26 @@ BG_AmmoStoreForWeapon
 AmmoStore *BG_AmmoStoreForWeapon(AmmoStore *result, const Weapon *weapon, bool isAlternate)
 {
   int v3; 
-  const Weapon *v4; 
-  AmmoStore *v5; 
-  bool v9; 
-  AmmoStore *v10; 
+  __int128 v6; 
+  double v7; 
+  bool v8; 
+  AmmoStore *v9; 
 
   v3 = *(_DWORD *)&weapon->weaponCamo;
-  v4 = weapon;
   result->ammoType = WEAPON_AMMO_PRIMARY;
-  v5 = result;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups xmm1, xmmword ptr [rdx+20h]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovsd  xmm0, qword ptr [rdx+30h]
-    vmovups xmmword ptr [rcx+20h], xmm1
-    vmovsd  qword ptr [rcx+30h], xmm0
-  }
+  v6 = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+  *(__m256i *)&result->weapon.weaponIdx = *(__m256i *)&weapon->weaponIdx;
+  v7 = *(double *)&weapon->attachmentVariationIndices[21];
+  *(_OWORD *)&result->weapon.attachmentVariationIndices[5] = v6;
+  *(double *)&result->weapon.attachmentVariationIndices[21] = v7;
   *(_DWORD *)&result->weapon.weaponCamo = v3;
   if ( !isAlternate || !BG_HasUnderbarrelAmmo(weapon) )
-    return v5;
-  v9 = !BG_AltSharesAmmo(v4);
-  v10 = v5;
-  if ( v9 )
-    v5->ammoType = WEAPON_AMMO_ALTERNATE;
-  return v10;
+    return result;
+  v8 = !BG_AltSharesAmmo(weapon);
+  v9 = result;
+  if ( v8 )
+    result->ammoType = WEAPON_AMMO_ALTERNATE;
+  return v9;
 }
 
 /*
@@ -417,23 +411,23 @@ ClipAmmo *BG_CreateClipAmmoPtr(playerState_s *ps, const AmmoStore *r_clipIndex)
 {
   ClipAmmo *result; 
   __int64 v5; 
+  ClipAmmo *ammoInClip; 
   ClipAmmo *v7; 
 
-  _RSI = r_clipIndex;
   result = BG_GetClipAmmoPtr(ps, r_clipIndex);
   if ( !result )
   {
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 388, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     v5 = 0i64;
-    _RDI = ps->weapCommon.ammoInClip;
-    v7 = _RDI;
+    ammoInClip = ps->weapCommon.ammoInClip;
+    v7 = ammoInClip;
     do
     {
       if ( !v7->clipIndex.weapon.weaponIdx )
       {
         memset_0(v7, 0, sizeof(ClipAmmo));
-        _RDI = v7;
+        ammoInClip = v7;
         goto LABEL_11;
       }
       ++v5;
@@ -443,14 +437,9 @@ ClipAmmo *BG_CreateClipAmmoPtr(playerState_s *ps, const AmmoStore *r_clipIndex)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 398, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "All clipAmmo slots are full!") )
       __debugbreak();
 LABEL_11:
-    __asm { vmovups ymm0, ymmword ptr [rsi] }
-    result = _RDI;
-    __asm
-    {
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups ymm1, ymmword ptr [rsi+20h]
-      vmovups ymmword ptr [rdi+20h], ymm1
-    }
+    result = ammoInClip;
+    *(__m256i *)&ammoInClip->clipIndex.weapon.weaponIdx = *(__m256i *)&r_clipIndex->weapon.weaponIdx;
+    *(__m256i *)&ammoInClip->clipIndex.weapon.attachmentVariationIndices[5] = *(__m256i *)&r_clipIndex->weapon.attachmentVariationIndices[5];
   }
   return result;
 }
@@ -462,39 +451,41 @@ BG_GetAmmoPlayerMax
 */
 int BG_GetAmmoPlayerMax(const BgWeaponMap *weaponMap, const playerState_s *ps, const Weapon *weapon, bool isAlternate, const Weapon *weaponToSkip)
 {
+  __int16 v5; 
   const WeaponDef *v10; 
   int PerkNetworkPriorityIndex; 
   unsigned __int64 v13; 
   bool v14; 
-  int v20; 
-  unsigned int v21; 
-  const WeaponDef *v26; 
-  __int64 v32; 
-  __int64 v33; 
-  __m256i v34; 
-  __m256i v35; 
+  int v15; 
+  unsigned int v16; 
+  const WeaponDef *v17; 
+  __int64 v18; 
+  __int64 v19; 
+  __m256i v20; 
+  __m256i v21; 
+  __m256i v22; 
+  __m256i v23; 
   Weapon Buf1; 
   AmmoStore r_ammo2; 
   AmmoStore r_ammo1; 
 
-  _RBX = weapon;
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 150, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 151, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v10 = BG_WeaponDef(_RBX, isAlternate);
+  v10 = BG_WeaponDef(weapon, isAlternate);
   if ( v10->iSharedAmmoCapIndex >= 0 )
     return v10->iSharedAmmoCap;
-  if ( BG_WeaponDef(_RBX, isAlternate)->bClipOnly )
-    return BG_GetClipSize(ps, _RBX, isAlternate);
+  if ( BG_WeaponDef(weapon, isAlternate)->bClipOnly )
+    return BG_GetClipSize(ps, weapon, isAlternate);
   PerkNetworkPriorityIndex = BG_GetPerkNetworkPriorityIndex(7u);
   v13 = (unsigned int)PerkNetworkPriorityIndex;
   if ( PerkNetworkPriorityIndex >= 0 )
   {
     if ( (unsigned int)PerkNetworkPriorityIndex >= 0x40 )
     {
-      LODWORD(v32) = PerkNetworkPriorityIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v32, 64) )
+      LODWORD(v18) = PerkNetworkPriorityIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v18, 64) )
         __debugbreak();
     }
     v14 = ((0x80000000 >> (v13 & 0x1F)) & ps->perks.array[v13 >> 5]) != 0;
@@ -503,83 +494,50 @@ int BG_GetAmmoPlayerMax(const BgWeaponMap *weaponMap, const playerState_s *ps, c
   {
     v14 = 0;
   }
-  v34.m256i_i64[3] = *(unsigned int *)&_RBX->weaponCamo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovsd  xmm1, qword ptr [rbx+30h]
-    vmovups [rbp+0B0h+var_130], ymm0
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rsp+1B0h+var_150], xmm0
-    vmovsd  qword ptr [rsp+1B0h+var_150+10h], xmm1
-  }
-  if ( isAlternate && BG_HasUnderbarrelAmmo(_RBX) )
-    v34.m256i_i32[7] = !BG_AltSharesAmmo(_RBX);
-  __asm
-  {
-    vmovups ymm0, [rbp+0B0h+var_130]
-    vmovups ymmword ptr [rbp+0B0h+r_ammo2.weapon.weaponIdx], ymm0
-    vmovups ymm0, [rsp+1B0h+var_150]
-  }
-  v20 = 0;
-  __asm { vmovups ymmword ptr [rbp+0B0h+r_ammo2.weapon.attachmentVariationIndices+5], ymm0 }
-  v21 = 0;
+  v20.m256i_i64[3] = *(unsigned int *)&weapon->weaponCamo;
+  v22 = *(__m256i *)&weapon->weaponIdx;
+  *(_OWORD *)v20.m256i_i8 = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+  v20.m256i_i64[2] = *(_QWORD *)&weapon->attachmentVariationIndices[21];
+  if ( isAlternate && BG_HasUnderbarrelAmmo(weapon) )
+    v20.m256i_i32[7] = !BG_AltSharesAmmo(weapon);
+  *(__m256i *)&r_ammo2.weapon.weaponIdx = v22;
+  v15 = 0;
+  *(__m256i *)&r_ammo2.weapon.attachmentVariationIndices[5] = v20;
+  v16 = 0;
   while ( 1 )
   {
     if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 840, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( v21 >= 0xF )
+    if ( v16 >= 0xF )
     {
-      LODWORD(v33) = 15;
-      LODWORD(v32) = v21;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v32, v33) )
+      LODWORD(v19) = 15;
+      LODWORD(v18) = v16;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
-    _RAX = BgWeaponMap::GetWeapon((BgWeaponMap *)weaponMap, ps->weaponsEquipped[v21]);
-    __asm
-    {
-      vmovups ymm2, ymmword ptr [rax]
-      vmovups [rbp+0B0h+Buf1], ymm2
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups [rbp+0B0h+var_F0], xmm0
-      vmovsd  xmm1, qword ptr [rax+30h]
-      vmovsd  [rbp+0B0h+var_E0], xmm1
-    }
-    *(_DWORD *)&Buf1.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-    __asm { vmovd   eax, xmm2 }
-    if ( !(_WORD)_RAX || !memcmp_0(&Buf1, weaponToSkip, 0x3Cui64) )
+    Buf1 = *BgWeaponMap::GetWeapon((BgWeaponMap *)weaponMap, ps->weaponsEquipped[v16]);
+    if ( !v5 || !memcmp_0(&Buf1, weaponToSkip, 0x3Cui64) )
       goto LABEL_40;
-    v26 = BG_WeaponDef(&Buf1, isAlternate);
-    v35.m256i_i64[3] = *(unsigned int *)&Buf1.weaponCamo;
-    __asm
-    {
-      vmovups ymm0, [rbp+0B0h+Buf1]
-      vmovsd  xmm1, [rbp+0B0h+var_E0]
-      vmovups [rbp+0B0h+var_130], ymm0
-      vmovups xmm0, [rbp+0B0h+var_F0]
-      vmovups xmmword ptr [rsp+1B0h+var_150], xmm0
-      vmovsd  qword ptr [rsp+1B0h+var_150+10h], xmm1
-    }
+    v17 = BG_WeaponDef(&Buf1, isAlternate);
+    v21.m256i_i64[3] = *(unsigned int *)&Buf1.weaponCamo;
+    v23 = *(__m256i *)&Buf1.weaponIdx;
+    *(_OWORD *)v21.m256i_i8 = *(_OWORD *)&Buf1.attachmentVariationIndices[5];
+    v21.m256i_i64[2] = *(__int64 *)&Buf1.attachmentVariationIndices[21];
     if ( isAlternate && BG_HasUnderbarrelAmmo(&Buf1) )
-      v35.m256i_i32[7] = !BG_AltSharesAmmo(&Buf1);
-    __asm
-    {
-      vmovups ymm0, [rbp+0B0h+var_130]
-      vmovups ymmword ptr [rbp+0B0h+r_ammo1.weapon.weaponIdx], ymm0
-      vmovups ymm0, [rsp+1B0h+var_150]
-      vmovups ymmword ptr [rbp+0B0h+r_ammo1.weapon.attachmentVariationIndices+5], ymm0
-    }
+      v21.m256i_i32[7] = !BG_AltSharesAmmo(&Buf1);
+    *(__m256i *)&r_ammo1.weapon.weaponIdx = v23;
+    *(__m256i *)&r_ammo1.weapon.attachmentVariationIndices[5] = v21;
     if ( !BG_IsAmmoCompatible(&r_ammo1, &r_ammo2) )
       goto LABEL_40;
-    if ( v26->iSharedAmmoCapIndex >= 0 )
-      return v26->iSharedAmmoCap;
+    if ( v17->iSharedAmmoCapIndex >= 0 )
+      return v17->iSharedAmmoCap;
     if ( !isAlternate || BG_HasUnderbarrelAmmo(&Buf1) )
-      v20 += BG_MaxAmmo(&Buf1, isAlternate, v14);
+      v15 += BG_MaxAmmo(&Buf1, isAlternate, v14);
 LABEL_40:
-    if ( (int)++v21 >= 15 )
-      return v20;
+    if ( (int)++v16 >= 15 )
+      return v15;
   }
 }
 
@@ -653,115 +611,95 @@ BG_GetMaxPickupableAmmo
 */
 __int64 BG_GetMaxPickupableAmmo(const BgWeaponMap *weaponMap, const playerState_s *ps, const Weapon *weapon, bool isAlternate)
 {
+  unsigned __int16 v4; 
   BgWeaponMap *v8; 
   const WeaponDef *v9; 
   int ClipSize; 
-  unsigned int v16; 
+  unsigned int v11; 
   int AmmoPlayerMax; 
   unsigned int iSharedAmmoCap; 
+  unsigned int v15; 
+  int v16; 
+  unsigned __int16 weaponIdx; 
+  bool v18; 
+  WeaponDef **v19; 
   unsigned int v20; 
   int v21; 
-  unsigned __int16 v27; 
-  bool v28; 
-  WeaponDef **v29; 
-  WeaponDef **v30; 
-  unsigned int v34; 
-  int v42; 
   int ammoCount; 
-  __int64 v47; 
-  __int64 v48; 
-  __m256i v50; 
-  __m256i v51; 
-  __m256i v52; 
-  const WeaponDef *v53; 
+  __m256i v23; 
+  unsigned __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __m256i v28; 
+  __m256i v29; 
+  __m256i v30; 
+  const WeaponDef *v31; 
+  __m256i v32; 
+  __m256i v33; 
+  __m256i v34; 
   Weapon r_weapon; 
   AmmoStore r_ammo2; 
-  AmmoStore v59; 
+  AmmoStore v37; 
   AmmoStore r_ammo1[15]; 
 
-  _RDI = weapon;
   v8 = (BgWeaponMap *)weaponMap;
   if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 209, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 210, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v9 = BG_WeaponDef(_RDI, isAlternate);
-  v53 = v9;
-  v50.m256i_i64[3] = *(unsigned int *)&_RDI->weaponCamo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovsd  xmm1, qword ptr [rdi+30h]
-    vmovups [rbp+480h+var_4F0], ymm0
-    vmovups xmm0, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rsp+580h+var_518], xmm0
-    vmovsd  qword ptr [rsp+580h+var_518+10h], xmm1
-  }
-  if ( isAlternate && BG_HasUnderbarrelAmmo(_RDI) )
-    v50.m256i_i32[7] = !BG_AltSharesAmmo(_RDI);
-  __asm
-  {
-    vmovups ymm0, [rbp+480h+var_4F0]
-    vmovups ymmword ptr [rbp+480h+r_ammo2.weapon.weaponIdx], ymm0
-    vmovups ymm0, [rsp+580h+var_518]
-    vmovups ymmword ptr [rbp+480h+r_ammo2.weapon.attachmentVariationIndices+5], ymm0
-  }
+  v9 = BG_WeaponDef(weapon, isAlternate);
+  v31 = v9;
+  v28.m256i_i64[3] = *(unsigned int *)&weapon->weaponCamo;
+  v32 = *(__m256i *)&weapon->weaponIdx;
+  *(_OWORD *)v28.m256i_i8 = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+  v28.m256i_i64[2] = *(_QWORD *)&weapon->attachmentVariationIndices[21];
+  if ( isAlternate && BG_HasUnderbarrelAmmo(weapon) )
+    v28.m256i_i32[7] = !BG_AltSharesAmmo(weapon);
+  *(__m256i *)&r_ammo2.weapon.weaponIdx = v32;
+  *(__m256i *)&r_ammo2.weapon.attachmentVariationIndices[5] = v28;
   if ( v9->iSharedAmmoCapIndex >= 0 )
   {
     iSharedAmmoCap = v9->iSharedAmmoCap;
-    v20 = 0;
-    v21 = 0;
+    v15 = 0;
+    v16 = 0;
     while ( 1 )
     {
       if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 839, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
         __debugbreak();
       if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 840, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      _RAX = BgWeaponMap::GetWeapon(v8, ps->weaponsEquipped[v21]);
-      __asm
+      r_weapon = *BgWeaponMap::GetWeapon(v8, ps->weaponsEquipped[v16]);
+      weaponIdx = v4;
+      if ( v4 )
       {
-        vmovups ymm2, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+480h+r_weapon.weaponIdx], ymm2
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rbp+480h+r_weapon.attachmentVariationIndices+5], xmm0
-        vmovsd  xmm1, qword ptr [rax+30h]
-        vmovd   ebx, xmm2
-        vmovsd  qword ptr [rbp+480h+r_weapon.attachmentVariationIndices+15h], xmm1
-      }
-      *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-      if ( (_WORD)_EBX )
-      {
-        v27 = _EBX;
-        if ( (unsigned __int16)_EBX > bg_lastParsedWeaponIndex )
+        if ( v4 > bg_lastParsedWeaponIndex )
         {
-          LODWORD(v48) = bg_lastParsedWeaponIndex;
-          LODWORD(v47) = (unsigned __int16)_EBX;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v47, v48) )
+          LODWORD(v26) = bg_lastParsedWeaponIndex;
+          LODWORD(v25) = v4;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v25, v26) )
             __debugbreak();
-          LOWORD(_EBX) = r_weapon.weaponIdx;
+          weaponIdx = r_weapon.weaponIdx;
         }
-        v28 = bg_weaponDefs[v27] == NULL;
-        v29 = &bg_weaponDefs[v27];
-        if ( v28 )
+        if ( !bg_weaponDefs[v4] )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
             __debugbreak();
-          LOWORD(_EBX) = r_weapon.weaponIdx;
+          weaponIdx = r_weapon.weaponIdx;
         }
-        if ( (*v29)->iSharedAmmoCapIndex == v53->iSharedAmmoCapIndex )
+        if ( bg_weaponDefs[v4]->iSharedAmmoCapIndex == v31->iSharedAmmoCapIndex )
         {
-          if ( (unsigned __int16)_EBX > bg_lastParsedWeaponIndex )
+          if ( weaponIdx > bg_lastParsedWeaponIndex )
           {
-            LODWORD(v48) = bg_lastParsedWeaponIndex;
-            LODWORD(v47) = (unsigned __int16)_EBX;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v47, v48) )
+            LODWORD(v26) = bg_lastParsedWeaponIndex;
+            LODWORD(v25) = weaponIdx;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v25, v26) )
               __debugbreak();
           }
-          v28 = bg_weaponDefs[(unsigned __int16)_EBX] == NULL;
-          v30 = &bg_weaponDefs[(unsigned __int16)_EBX];
-          if ( v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+          v18 = bg_weaponDefs[weaponIdx] == NULL;
+          v19 = &bg_weaponDefs[weaponIdx];
+          if ( v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
             __debugbreak();
-          if ( (*v30)->bClipOnly )
+          if ( (*v19)->bClipOnly )
           {
             v8 = (BgWeaponMap *)weaponMap;
             iSharedAmmoCap -= BG_GetAmmoInClipForWeapon(ps, &r_weapon, isAlternate, WEAPON_HAND_DEFAULT);
@@ -769,113 +707,75 @@ __int64 BG_GetMaxPickupableAmmo(const BgWeaponMap *weaponMap, const playerState_
               iSharedAmmoCap -= BG_GetAmmoInClipForWeapon(ps, &r_weapon, isAlternate, WEAPON_HAND_LEFT);
             goto LABEL_69;
           }
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+480h+r_weapon.weaponIdx]
-            vmovsd  xmm1, qword ptr [rbp+480h+r_weapon.attachmentVariationIndices+15h]
-          }
-          v51.m256i_i64[3] = *(unsigned int *)&r_weapon.weaponCamo;
-          __asm
-          {
-            vmovups [rbp+480h+var_4F0], ymm0
-            vmovups xmm0, xmmword ptr [rbp+480h+r_weapon.attachmentVariationIndices+5]
-            vmovups xmmword ptr [rsp+580h+var_518], xmm0
-            vmovsd  qword ptr [rsp+580h+var_518+10h], xmm1
-          }
+          v29.m256i_i64[3] = *(unsigned int *)&r_weapon.weaponCamo;
+          v33 = *(__m256i *)&r_weapon.weaponIdx;
+          *(_OWORD *)v29.m256i_i8 = *(_OWORD *)&r_weapon.attachmentVariationIndices[5];
+          v29.m256i_i64[2] = *(__int64 *)&r_weapon.attachmentVariationIndices[21];
           if ( isAlternate && BG_HasUnderbarrelAmmo(&r_weapon) )
-            v51.m256i_i32[7] = !BG_AltSharesAmmo(&r_weapon);
-          v34 = 0;
-          __asm
+            v29.m256i_i32[7] = !BG_AltSharesAmmo(&r_weapon);
+          v20 = 0;
+          *(__m256i *)&r_ammo2.weapon.weaponIdx = v33;
+          for ( *(__m256i *)&r_ammo2.weapon.attachmentVariationIndices[5] = v29; v20 < v15; ++v20 )
           {
-            vmovups ymm0, [rbp+480h+var_4F0]
-            vmovups ymmword ptr [rbp+480h+r_ammo2.weapon.weaponIdx], ymm0
-            vmovups ymm0, [rsp+580h+var_518]
-            vmovups ymmword ptr [rbp+480h+r_ammo2.weapon.attachmentVariationIndices+5], ymm0
+            if ( BG_IsAmmoCompatible(&r_ammo1[(unsigned __int64)v20], &r_ammo2) )
+              break;
           }
-          if ( v20 )
-          {
-            do
-            {
-              if ( BG_IsAmmoCompatible(&r_ammo1[(unsigned __int64)v34], &r_ammo2) )
-                break;
-              ++v34;
-            }
-            while ( v34 < v20 );
-          }
-          if ( v34 == v20 )
+          if ( v20 == v15 )
           {
             if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1322, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
               __debugbreak();
-            v52.m256i_i64[3] = *(unsigned int *)&r_weapon.weaponCamo;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+480h+r_weapon.weaponIdx]
-              vmovsd  xmm1, qword ptr [rbp+480h+r_weapon.attachmentVariationIndices+15h]
-              vmovups [rbp+480h+var_4F0], ymm0
-              vmovups xmm0, xmmword ptr [rbp+480h+r_weapon.attachmentVariationIndices+5]
-              vmovups xmmword ptr [rsp+580h+var_518], xmm0
-              vmovsd  qword ptr [rsp+580h+var_518+10h], xmm1
-            }
+            v30.m256i_i64[3] = *(unsigned int *)&r_weapon.weaponCamo;
+            v34 = *(__m256i *)&r_weapon.weaponIdx;
+            *(_OWORD *)v30.m256i_i8 = *(_OWORD *)&r_weapon.attachmentVariationIndices[5];
+            v30.m256i_i64[2] = *(__int64 *)&r_weapon.attachmentVariationIndices[21];
             if ( isAlternate && BG_HasUnderbarrelAmmo(&r_weapon) )
-              v52.m256i_i32[7] = !BG_AltSharesAmmo(&r_weapon);
-            __asm
-            {
-              vmovups ymm0, [rbp+480h+var_4F0]
-              vmovups ymmword ptr [rbp+480h+var_450.weapon.weaponIdx], ymm0
-              vmovups ymm0, [rsp+580h+var_518]
-              vmovups ymmword ptr [rbp+480h+var_450.weapon.attachmentVariationIndices+5], ymm0
-            }
+              v30.m256i_i32[7] = !BG_AltSharesAmmo(&r_weapon);
+            *(__m256i *)&v37.weapon.weaponIdx = v34;
+            *(__m256i *)&v37.weapon.attachmentVariationIndices[5] = v30;
             if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1304, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
               __debugbreak();
-            v42 = 0;
-            while ( !BG_IsAmmoCompatible(&ps->weapCommon.ammoNotInClip[v42].ammoType, &v59) )
+            v21 = 0;
+            while ( !BG_IsAmmoCompatible(&ps->weapCommon.ammoNotInClip[v21].ammoType, &v37) )
             {
-              if ( (unsigned int)++v42 >= 0xF )
+              if ( (unsigned int)++v21 >= 0xF )
                 goto LABEL_66;
             }
-            if ( (const playerState_s *)((char *)ps + 68 * v42) == (const playerState_s *)-1912i64 )
+            if ( (const playerState_s *)((char *)ps + 68 * v21) == (const playerState_s *)-1912i64 )
             {
 LABEL_66:
               ammoCount = 0;
               goto LABEL_67;
             }
-            ammoCount = ps->weapCommon.ammoNotInClip[v42].ammoCount;
+            ammoCount = ps->weapCommon.ammoNotInClip[v21].ammoCount;
 LABEL_67:
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+480h+r_ammo2.weapon.weaponIdx]
-              vmovups ymm1, ymmword ptr [rbp+480h+r_ammo2.weapon.attachmentVariationIndices+5]
-            }
+            v23 = *(__m256i *)&r_ammo2.weapon.attachmentVariationIndices[5];
             iSharedAmmoCap -= ammoCount;
-            _RCX = (unsigned __int64)v20++ << 6;
-            __asm
-            {
-              vmovups ymmword ptr [rbp+rcx+480h+r_ammo1.weapon.weaponIdx], ymm0
-              vmovups ymmword ptr [rbp+rcx+480h+r_ammo1.weapon.attachmentVariationIndices+5], ymm1
-            }
+            v24 = (unsigned __int64)v15++ << 6;
+            *(__m256i *)((char *)&r_ammo1[0].weapon.weaponIdx + v24) = *(__m256i *)&r_ammo2.weapon.weaponIdx;
+            *(__m256i *)&r_ammo1[0].weapon.attachmentVariationIndices[v24 + 5] = v23;
           }
         }
       }
       v8 = (BgWeaponMap *)weaponMap;
 LABEL_69:
-      if ( (unsigned int)++v21 >= 0xF )
+      if ( (unsigned int)++v16 >= 0xF )
         return iSharedAmmoCap;
     }
   }
-  if ( BG_WeaponDef(_RDI, isAlternate)->bClipOnly )
+  if ( BG_WeaponDef(weapon, isAlternate)->bClipOnly )
   {
-    ClipSize = BG_GetClipSize(ps, _RDI, isAlternate);
-    v16 = ClipSize - BG_GetAmmoInClipForWeapon(ps, _RDI, isAlternate, WEAPON_HAND_DEFAULT);
+    ClipSize = BG_GetClipSize(ps, weapon, isAlternate);
+    v11 = ClipSize - BG_GetAmmoInClipForWeapon(ps, weapon, isAlternate, WEAPON_HAND_DEFAULT);
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1366, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     if ( !BG_Skydive_IsSkydiving(ps) && BG_Ladder_IsDualWieldingAllowed(ps) && ps->weapCommon.lastWeaponHand == WEAPON_HAND_LEFT )
-      v16 += ClipSize - BG_GetAmmoInClipForWeapon(ps, _RDI, isAlternate, WEAPON_HAND_LEFT);
-    return v16;
+      v11 += ClipSize - BG_GetAmmoInClipForWeapon(ps, weapon, isAlternate, WEAPON_HAND_LEFT);
+    return v11;
   }
   else
   {
-    AmmoPlayerMax = BG_GetAmmoPlayerMax(v8, ps, _RDI, isAlternate, &NULL_WEAPON);
-    return (unsigned int)(AmmoPlayerMax - BG_GetAmmoNotInClip(ps, _RDI, isAlternate));
+    AmmoPlayerMax = BG_GetAmmoPlayerMax(v8, ps, weapon, isAlternate, &NULL_WEAPON);
+    return (unsigned int)(AmmoPlayerMax - BG_GetAmmoNotInClip(ps, weapon, isAlternate));
   }
 }
 
@@ -886,25 +786,30 @@ BG_GetTotalAmmoReserve
 */
 int BG_GetTotalAmmoReserve(const BgWeaponMap *weaponMap, const playerState_s *ps, const Weapon *weapon, bool isAlternate)
 {
+  unsigned __int16 v4; 
   BgWeaponMap *v5; 
   int v6; 
   unsigned int v10; 
   int v11; 
-  unsigned __int16 v17; 
-  bool v18; 
-  WeaponDef **v19; 
-  WeaponDef **v20; 
+  unsigned __int16 weaponIdx; 
+  bool v13; 
+  WeaponDef **v14; 
   int AmmoInClipBothHands; 
-  unsigned int v25; 
-  int v34; 
-  __int64 v36; 
-  __int64 v37; 
-  const WeaponDef *v39; 
-  __m256i v40; 
-  __m256i v41; 
+  unsigned int v16; 
+  __m256i v17; 
+  __m256i v18; 
+  unsigned __int64 v19; 
+  int v20; 
+  __int64 v22; 
+  __int64 v23; 
+  const WeaponDef *v25; 
+  __m256i v26; 
+  __m256i v27; 
+  __m256i v28; 
+  __m256i v29; 
   Weapon r_weapon; 
   AmmoStore r_ammo2; 
-  AmmoStore v46; 
+  AmmoStore v32; 
   AmmoStore r_ammo1[15]; 
 
   v5 = (BgWeaponMap *)weaponMap;
@@ -914,8 +819,8 @@ int BG_GetTotalAmmoReserve(const BgWeaponMap *weaponMap, const playerState_s *ps
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 286, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   v10 = 0;
-  v39 = BG_WeaponDef(weapon, isAlternate);
-  if ( v39->iSharedAmmoCapIndex >= 0 )
+  v25 = BG_WeaponDef(weapon, isAlternate);
+  if ( v25->iSharedAmmoCapIndex >= 0 )
   {
     v11 = 0;
     while ( 1 )
@@ -924,138 +829,96 @@ int BG_GetTotalAmmoReserve(const BgWeaponMap *weaponMap, const playerState_s *ps
         __debugbreak();
       if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 840, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      _RAX = BgWeaponMap::GetWeapon(v5, ps->weaponsEquipped[v11]);
-      __asm
-      {
-        vmovups ymm2, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+470h+r_weapon.weaponIdx], ymm2
-        vmovups xmm0, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rbp+470h+r_weapon.attachmentVariationIndices+5], xmm0
-        vmovsd  xmm1, qword ptr [rax+30h]
-        vmovd   ebx, xmm2
-        vmovsd  qword ptr [rbp+470h+r_weapon.attachmentVariationIndices+15h], xmm1
-      }
-      *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-      if ( !(_WORD)_EBX )
+      r_weapon = *BgWeaponMap::GetWeapon(v5, ps->weaponsEquipped[v11]);
+      weaponIdx = v4;
+      if ( !v4 )
         goto LABEL_56;
-      v17 = _EBX;
-      if ( (unsigned __int16)_EBX > bg_lastParsedWeaponIndex )
+      if ( v4 > bg_lastParsedWeaponIndex )
       {
-        LODWORD(v37) = bg_lastParsedWeaponIndex;
-        LODWORD(v36) = (unsigned __int16)_EBX;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v36, v37) )
+        LODWORD(v23) = bg_lastParsedWeaponIndex;
+        LODWORD(v22) = v4;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v22, v23) )
           __debugbreak();
-        LOWORD(_EBX) = r_weapon.weaponIdx;
+        weaponIdx = r_weapon.weaponIdx;
       }
-      v18 = bg_weaponDefs[v17] == NULL;
-      v19 = &bg_weaponDefs[v17];
-      if ( v18 )
+      if ( !bg_weaponDefs[v4] )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
           __debugbreak();
-        LOWORD(_EBX) = r_weapon.weaponIdx;
+        weaponIdx = r_weapon.weaponIdx;
       }
-      if ( (*v19)->iSharedAmmoCapIndex == v39->iSharedAmmoCapIndex )
+      if ( bg_weaponDefs[v4]->iSharedAmmoCapIndex == v25->iSharedAmmoCapIndex )
       {
-        if ( (unsigned __int16)_EBX > bg_lastParsedWeaponIndex )
+        if ( weaponIdx > bg_lastParsedWeaponIndex )
         {
-          LODWORD(v37) = bg_lastParsedWeaponIndex;
-          LODWORD(v36) = (unsigned __int16)_EBX;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v36, v37) )
+          LODWORD(v23) = bg_lastParsedWeaponIndex;
+          LODWORD(v22) = weaponIdx;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v22, v23) )
             __debugbreak();
         }
-        v18 = bg_weaponDefs[(unsigned __int16)_EBX] == NULL;
-        v20 = &bg_weaponDefs[(unsigned __int16)_EBX];
-        if ( v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+        v13 = bg_weaponDefs[weaponIdx] == NULL;
+        v14 = &bg_weaponDefs[weaponIdx];
+        if ( v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
           __debugbreak();
-        if ( (*v20)->bClipOnly )
+        if ( (*v14)->bClipOnly )
         {
           AmmoInClipBothHands = BG_GetAmmoInClipBothHands(ps, &r_weapon, isAlternate);
         }
         else
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+470h+r_weapon.weaponIdx]
-            vmovsd  xmm1, qword ptr [rbp+470h+r_weapon.attachmentVariationIndices+15h]
-          }
-          v40.m256i_i64[3] = *(unsigned int *)&r_weapon.weaponCamo;
-          __asm
-          {
-            vmovups [rbp+470h+var_4E0], ymm0
-            vmovups xmm0, xmmword ptr [rbp+470h+r_weapon.attachmentVariationIndices+5]
-            vmovups xmmword ptr [rsp+570h+var_500], xmm0
-            vmovsd  qword ptr [rbp+470h+var_500+10h], xmm1
-          }
+          v26.m256i_i64[3] = *(unsigned int *)&r_weapon.weaponCamo;
+          v28 = *(__m256i *)&r_weapon.weaponIdx;
+          *(_OWORD *)v26.m256i_i8 = *(_OWORD *)&r_weapon.attachmentVariationIndices[5];
+          v26.m256i_i64[2] = *(__int64 *)&r_weapon.attachmentVariationIndices[21];
           if ( isAlternate && BG_HasUnderbarrelAmmo(&r_weapon) )
-            v40.m256i_i32[7] = !BG_AltSharesAmmo(&r_weapon);
-          v25 = 0;
-          __asm
-          {
-            vmovups ymm1, [rbp+470h+var_4E0]
-            vmovups ymm0, [rsp+570h+var_500]
-            vmovups ymmword ptr [rbp+470h+r_ammo2.weapon.weaponIdx], ymm1
-            vmovups ymmword ptr [rbp+470h+r_ammo2.weapon.attachmentVariationIndices+5], ymm0
-          }
+            v26.m256i_i32[7] = !BG_AltSharesAmmo(&r_weapon);
+          v16 = 0;
+          v17 = v28;
+          v18 = v26;
+          *(__m256i *)&r_ammo2.weapon.weaponIdx = v28;
+          *(__m256i *)&r_ammo2.weapon.attachmentVariationIndices[5] = v26;
           if ( v10 )
           {
             do
             {
-              if ( BG_IsAmmoCompatible(&r_ammo1[(unsigned __int64)v25], &r_ammo2) )
+              if ( BG_IsAmmoCompatible(&r_ammo1[(unsigned __int64)v16], &r_ammo2) )
                 break;
-              ++v25;
+              ++v16;
             }
-            while ( v25 < v10 );
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rbp+470h+r_ammo2.weapon.attachmentVariationIndices+5]
-              vmovups ymm1, ymmword ptr [rbp+470h+r_ammo2.weapon.weaponIdx]
-            }
+            while ( v16 < v10 );
+            v18 = *(__m256i *)&r_ammo2.weapon.attachmentVariationIndices[5];
+            v17 = *(__m256i *)&r_ammo2.weapon.weaponIdx;
           }
-          if ( v25 != v10 )
+          if ( v16 != v10 )
             goto LABEL_55;
-          _RAX = (unsigned __int64)v10++ << 6;
-          __asm
-          {
-            vmovups ymmword ptr [rbp+rax+470h+r_ammo1.weapon.weaponIdx], ymm1
-            vmovups ymmword ptr [rbp+rax+470h+r_ammo1.weapon.attachmentVariationIndices+5], ymm0
-          }
+          v19 = (unsigned __int64)v10++ << 6;
+          *(__m256i *)((char *)&r_ammo1[0].weapon.weaponIdx + v19) = v17;
+          *(__m256i *)&r_ammo1[0].weapon.attachmentVariationIndices[v19 + 5] = v18;
           if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1322, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
             __debugbreak();
-          v41.m256i_i64[3] = *(unsigned int *)&r_weapon.weaponCamo;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rbp+470h+r_weapon.weaponIdx]
-            vmovsd  xmm1, qword ptr [rbp+470h+r_weapon.attachmentVariationIndices+15h]
-            vmovups [rbp+470h+var_4E0], ymm0
-            vmovups xmm0, xmmword ptr [rbp+470h+r_weapon.attachmentVariationIndices+5]
-            vmovups xmmword ptr [rsp+570h+var_500], xmm0
-            vmovsd  qword ptr [rbp+470h+var_500+10h], xmm1
-          }
+          v27.m256i_i64[3] = *(unsigned int *)&r_weapon.weaponCamo;
+          v29 = *(__m256i *)&r_weapon.weaponIdx;
+          *(_OWORD *)v27.m256i_i8 = *(_OWORD *)&r_weapon.attachmentVariationIndices[5];
+          v27.m256i_i64[2] = *(__int64 *)&r_weapon.attachmentVariationIndices[21];
           if ( isAlternate && BG_HasUnderbarrelAmmo(&r_weapon) )
-            v41.m256i_i32[7] = !BG_AltSharesAmmo(&r_weapon);
-          __asm
-          {
-            vmovups ymm0, [rbp+470h+var_4E0]
-            vmovups ymmword ptr [rbp+470h+var_440.weapon.weaponIdx], ymm0
-            vmovups ymm0, [rsp+570h+var_500]
-            vmovups ymmword ptr [rbp+470h+var_440.weapon.attachmentVariationIndices+5], ymm0
-          }
+            v27.m256i_i32[7] = !BG_AltSharesAmmo(&r_weapon);
+          *(__m256i *)&v32.weapon.weaponIdx = v29;
+          *(__m256i *)&v32.weapon.attachmentVariationIndices[5] = v27;
           if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1304, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
             __debugbreak();
-          v34 = 0;
-          while ( !BG_IsAmmoCompatible(&ps->weapCommon.ammoNotInClip[v34].ammoType, &v46) )
+          v20 = 0;
+          while ( !BG_IsAmmoCompatible(&ps->weapCommon.ammoNotInClip[v20].ammoType, &v32) )
           {
-            if ( (unsigned int)++v34 >= 0xF )
+            if ( (unsigned int)++v20 >= 0xF )
               goto LABEL_53;
           }
-          if ( (const playerState_s *)((char *)ps + 68 * v34) == (const playerState_s *)-1912i64 )
+          if ( (const playerState_s *)((char *)ps + 68 * v20) == (const playerState_s *)-1912i64 )
           {
 LABEL_53:
             AmmoInClipBothHands = 0;
             goto LABEL_54;
           }
-          AmmoInClipBothHands = ps->weapCommon.ammoNotInClip[v34].ammoCount;
+          AmmoInClipBothHands = ps->weapCommon.ammoNotInClip[v20].ammoCount;
         }
 LABEL_54:
         v6 += AmmoInClipBothHands;
@@ -1252,40 +1115,25 @@ BG_RemoveClipAmmo
 */
 void BG_RemoveClipAmmo(playerState_s *ps, const Weapon *weapon, bool isAlternate)
 {
-  int v5; 
-  const Weapon *v6; 
+  double v3; 
+  int v4; 
   ClipAmmo *ClipAmmoPtr; 
-  __m256i v12; 
+  __m256i v8; 
   AmmoStore r_clipIndex; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovsd  xmm1, qword ptr [rdx+30h]
-  }
-  v5 = 0;
-  v12.m256i_i64[3] = *(unsigned int *)&weapon->weaponCamo;
-  v6 = weapon;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+0B8h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups xmm0, xmmword ptr [rdx+20h]
-    vmovups xmmword ptr [rsp+0B8h+var_78], xmm0
-    vmovsd  qword ptr [rsp+0B8h+var_78+10h], xmm1
-  }
+  v3 = *(double *)&weapon->attachmentVariationIndices[21];
+  v4 = 0;
+  v8.m256i_i64[3] = *(unsigned int *)&weapon->weaponCamo;
+  *(__m256i *)&r_clipIndex.weapon.weaponIdx = *(__m256i *)&weapon->weaponIdx;
+  *(_OWORD *)v8.m256i_i8 = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+  *(double *)&v8.m256i_i64[2] = v3;
   if ( isAlternate && BG_HasUnderbarrelAmmo(weapon) )
   {
-    if ( !BG_AltSharesAmmo(v6) )
-      v5 = 1;
-    v12.m256i_i32[7] = v5;
+    if ( !BG_AltSharesAmmo(weapon) )
+      v4 = 1;
+    v8.m256i_i32[7] = v4;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+0B8h+r_clipIndex.weapon.weaponIdx]
-    vmovups ymmword ptr [rsp+0B8h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups ymm0, [rsp+0B8h+var_78]
-    vmovups ymmword ptr [rsp+0B8h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm0
-  }
+  *(__m256i *)&r_clipIndex.weapon.attachmentVariationIndices[5] = v8;
   ClipAmmoPtr = BG_GetClipAmmoPtr(ps, &r_clipIndex);
   if ( ClipAmmoPtr )
     memset_0(ClipAmmoPtr, 0, sizeof(ClipAmmo));
@@ -1300,16 +1148,16 @@ void BG_SetClipAmmo(playerState_s *ps, const AmmoStore *r_clipIndex, const Weapo
 {
   ClipAmmo *ClipAmmoPtr; 
   const char *WeaponName; 
+  double v12; 
   int WeaponBurstCount; 
-  ClipAmmo *v18; 
+  ClipAmmo *v14; 
   weapFireType_t WeaponFireType; 
-  int v20; 
-  __int64 v21; 
-  __m256i v22; 
+  int v16; 
+  __int64 v17; 
+  __m256i v18; 
   AmmoStore r_clipIndexa; 
   char output[512]; 
 
-  _RBX = r_weapon;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 465, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   ClipAmmoPtr = BG_CreateClipAmmoPtr(ps, r_clipIndex);
@@ -1321,55 +1169,41 @@ void BG_SetClipAmmo(playerState_s *ps, const AmmoStore *r_clipIndex, const Weapo
   }
   if ( amount < 0 )
   {
-    LODWORD(v21) = amount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 473, ASSERT_TYPE_ASSERT, "(amount >= 0)", "%s\n\tTried to set the clip ammo to a negative amount (%i).", "amount >= 0", v21) )
+    LODWORD(v17) = amount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 473, ASSERT_TYPE_ASSERT, "(amount >= 0)", "%s\n\tTried to set the clip ammo to a negative amount (%i).", "amount >= 0", v17) )
       __debugbreak();
   }
   ClipAmmoPtr->ammoCount[hand] = amount;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 501, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovsd  xmm1, qword ptr [rbx+30h]
-  }
-  v22.m256i_i64[3] = *(unsigned int *)&_RBX->weaponCamo;
-  __asm { vmovups ymmword ptr [rsp+318h+r_clipIndex.weapon.weaponIdx], ymm0 }
+  v12 = *(double *)&r_weapon->attachmentVariationIndices[21];
+  v18.m256i_i64[3] = *(unsigned int *)&r_weapon->weaponCamo;
+  *(__m256i *)&r_clipIndexa.weapon.weaponIdx = *(__m256i *)&r_weapon->weaponIdx;
   WeaponBurstCount = 1;
-  __asm
+  *(_OWORD *)v18.m256i_i8 = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+  *(double *)&v18.m256i_i64[2] = v12;
+  if ( isAlternate && BG_HasUnderbarrelAmmo(r_weapon) )
+    v18.m256i_i32[7] = !BG_AltSharesAmmo(r_weapon);
+  *(__m256i *)&r_clipIndexa.weapon.attachmentVariationIndices[5] = v18;
+  v14 = BG_GetClipAmmoPtr(ps, &r_clipIndexa);
+  if ( v14 )
   {
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rsp+318h+var_2B8], xmm0
-    vmovsd  qword ptr [rsp+318h+var_2B8+10h], xmm1
-  }
-  if ( isAlternate && BG_HasUnderbarrelAmmo(_RBX) )
-    v22.m256i_i32[7] = !BG_AltSharesAmmo(_RBX);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+318h+r_clipIndex.weapon.weaponIdx]
-    vmovups ymmword ptr [rsp+318h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups ymm0, [rsp+318h+var_2B8]
-    vmovups ymmword ptr [rsp+318h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm0
-  }
-  v18 = BG_GetClipAmmoPtr(ps, &r_clipIndexa);
-  if ( v18 )
-  {
-    WeaponFireType = BG_GetWeaponFireType(_RBX, isAlternate);
+    WeaponFireType = BG_GetWeaponFireType(r_weapon, isAlternate);
     if ( WeaponFireType == WEAPON_FIRETYPE_DOUBLEBARREL )
     {
       WeaponBurstCount = 2;
     }
-    else if ( WeaponFireType == WEAPON_FIRETYPE_BURST && BG_IsBoltAction(_RBX, isAlternate) )
+    else if ( WeaponFireType == WEAPON_FIRETYPE_BURST && BG_IsBoltAction(r_weapon, isAlternate) )
     {
-      WeaponBurstCount = BG_GetWeaponBurstCount(_RBX, isAlternate);
+      WeaponBurstCount = BG_GetWeaponBurstCount(r_weapon, isAlternate);
     }
-    v20 = v18->ammoCount[hand];
-    if ( WeaponBurstCount < v20 )
-      v20 = WeaponBurstCount;
-    if ( v20 > 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 514, ASSERT_TYPE_ASSERT, "(chamberCount <= (( ( 1 << 5 ) - 1 )))", (const char *)&queryFormat, "chamberCount <= PLAYER_WEAPONCHAMBER_MAX") )
+    v16 = v14->ammoCount[hand];
+    if ( WeaponBurstCount < v16 )
+      v16 = WeaponBurstCount;
+    if ( v16 > 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 514, ASSERT_TYPE_ASSERT, "(chamberCount <= (( ( 1 << 5 ) - 1 )))", (const char *)&queryFormat, "chamberCount <= PLAYER_WEAPONCHAMBER_MAX") )
       __debugbreak();
-    v18->chamberedCount[hand] = v20;
-    v18->shotsSinceRechamber[hand] = 0;
+    v14->chamberedCount[hand] = v16;
+    v14->shotsSinceRechamber[hand] = 0;
   }
 }
 
@@ -1627,49 +1461,35 @@ PM_GetWeaponLastChamberFired
 int PM_GetWeaponLastChamberFired(const playerState_s *ps, const Weapon *r_weapon, bool isAlternate, PlayerHandIndex hand)
 {
   __int64 v4; 
-  __int64 v10; 
-  int v14; 
+  double v8; 
+  __int64 v9; 
+  int v10; 
   ClipAmmo *i; 
-  __m256i v17; 
+  __m256i v13; 
   __m256i Buf2; 
-  __m256i v19; 
+  __m256i v15; 
 
   v4 = hand;
-  _RBP = r_weapon;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 522, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0]
-    vmovsd  xmm1, qword ptr [rbp+30h]
-  }
-  v10 = 0i64;
-  v17.m256i_i64[3] = *(unsigned int *)&_RBP->weaponCamo;
-  __asm
-  {
-    vmovups [rsp+0E8h+Buf2], ymm0
-    vmovups xmm0, xmmword ptr [rbp+20h]
-    vmovups xmmword ptr [rsp+0E8h+var_98], xmm0
-    vmovsd  qword ptr [rsp+0E8h+var_98+10h], xmm1
-  }
-  if ( isAlternate && BG_HasUnderbarrelAmmo(_RBP) )
-    v17.m256i_i32[7] = !BG_AltSharesAmmo(_RBP);
-  __asm
-  {
-    vmovups ymm0, [rsp+0E8h+Buf2]
-    vmovups [rsp+0E8h+Buf2], ymm0
-    vmovups ymm0, [rsp+0E8h+var_98]
-    vmovups [rsp+0E8h+var_58], ymm0
-  }
+  v8 = *(double *)&r_weapon->attachmentVariationIndices[21];
+  v9 = 0i64;
+  v13.m256i_i64[3] = *(unsigned int *)&r_weapon->weaponCamo;
+  Buf2 = *(__m256i *)&r_weapon->weaponIdx;
+  *(_OWORD *)v13.m256i_i8 = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+  *(double *)&v13.m256i_i64[2] = v8;
+  if ( isAlternate && BG_HasUnderbarrelAmmo(r_weapon) )
+    v13.m256i_i32[7] = !BG_AltSharesAmmo(r_weapon);
+  v15 = v13;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 368, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v14 = v19.m256i_i32[7];
-  for ( i = ps->weapCommon.ammoInClip; i->clipIndex.ammoType != v14 || memcmp_0(i, &Buf2, 0x3Cui64); ++i )
+  v10 = v15.m256i_i32[7];
+  for ( i = ps->weapCommon.ammoInClip; i->clipIndex.ammoType != v10 || memcmp_0(i, &Buf2, 0x3Cui64); ++i )
   {
-    if ( ++v10 >= 15 )
+    if ( ++v9 >= 15 )
       return 0;
   }
-  if ( (unsigned int)(BG_GetWeaponFireType(_RBP, isAlternate) - 3) > 1 )
+  if ( (unsigned int)(BG_GetWeaponFireType(r_weapon, isAlternate) - 3) > 1 )
     return 0;
   return I_clamp(i->shotsSinceRechamber[v4] - 1, 0, 31);
 }
@@ -1679,22 +1499,23 @@ int PM_GetWeaponLastChamberFired(const playerState_s *ps, const Weapon *r_weapon
 PM_ReloadClip
 ==============
 */
-
-void __fastcall PM_ReloadClip(pmove_t *pm, PlayerHandIndex hand, double _XMM2_8)
+void PM_ReloadClip(pmove_t *pm, PlayerHandIndex hand)
 {
   BgWeaponMap *weaponMap; 
   playerState_s *ps; 
-  int v8; 
+  int v5; 
   int started; 
   int ClipSize; 
-  int v11; 
+  int v8; 
   ReloadType ReloadType; 
-  bool v23; 
-  int v26; 
-  bool v30; 
+  const Weapon *CurrentWeaponForPlayer; 
+  bool v13; 
+  int v14; 
+  bool v15; 
   Weapon *r_weapon; 
-  __int64 v33; 
-  __m256i v34; 
+  __int64 v18; 
+  __m256i v19; 
+  __m256i v20; 
   AmmoStore r_clipIndex; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 907, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
@@ -1706,78 +1527,54 @@ void __fastcall PM_ReloadClip(pmove_t *pm, PlayerHandIndex hand, double _XMM2_8)
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 913, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   r_weapon = (Weapon *)BG_GetCurrentWeaponForPlayer(weaponMap, ps);
-  v30 = BG_UsingAlternate(ps);
-  v8 = BG_ReloadAmmoAdd(r_weapon, v30);
-  started = BG_ReloadStartAdd(r_weapon, v30);
-  v33 = hand;
-  if ( ps->weapState[v33].weaponState != 19 || started )
+  v15 = BG_UsingAlternate(ps);
+  v5 = BG_ReloadAmmoAdd(r_weapon, v15);
+  started = BG_ReloadStartAdd(r_weapon, v15);
+  v18 = hand;
+  if ( ps->weapState[v18].weaponState != 19 || started )
   {
-    ClipSize = BG_GetClipSize(ps, r_weapon, v30);
-    v11 = PM_CalcBaselineAmmoAdd(pm, hand, r_weapon, v30, 1);
-    if ( ps->weapState[v33].weaponState == 19 || (ReloadType = BG_GetReloadType(r_weapon, v30), ReloadType == RELOAD_TYPE_MULTIPLE_BULLET) )
+    ClipSize = BG_GetClipSize(ps, r_weapon, v15);
+    v8 = PM_CalcBaselineAmmoAdd(pm, hand, r_weapon, v15, 1);
+    if ( ps->weapState[v18].weaponState == 19 || (ReloadType = BG_GetReloadType(r_weapon, v15), ReloadType == RELOAD_TYPE_MULTIPLE_BULLET) )
     {
-      if ( started < ClipSize && v11 > started )
-        v11 = started;
+      if ( started < ClipSize && v8 > started )
+        v8 = started;
     }
     else if ( ReloadType == RELOAD_TYPE_MULTIPLE_PERCENTAGE )
     {
-      *(double *)&_XMM0 = BG_GetMultipleReloadClipPercentage(r_weapon, v30);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, r12d
-        vmulss  xmm0, xmm0, xmm1
-        vaddss  xmm3, xmm0, cs:__real@3f000000
-        vxorps  xmm2, xmm2, xmm2
-        vmovss  xmm1, xmm2, xmm3
-        vxorps  xmm0, xmm0, xmm0
-        vroundss xmm4, xmm0, xmm1, 1
-        vcvttss2si eax, xmm4
-      }
-      if ( v11 > _EAX )
-        v11 = _EAX;
+      BG_GetMultipleReloadClipPercentage(r_weapon, v15);
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm1, 1 }
+      if ( v8 > (int)*(float *)&_XMM4 )
+        v8 = (int)*(float *)&_XMM4;
     }
-    else if ( v8 && v8 < ClipSize && v11 > v8 )
+    else if ( v5 && v5 < ClipSize && v8 > v5 )
     {
-      v11 = v8;
+      v8 = v5;
     }
-    if ( v11 )
+    if ( v8 )
     {
       if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 700, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
         __debugbreak();
       if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 701, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      _RDI = BG_GetCurrentWeaponForPlayer(weaponMap, ps);
-      v23 = BG_UsingAlternate(ps);
-      __asm
+      CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(weaponMap, ps);
+      v13 = BG_UsingAlternate(ps);
+      v14 = 0;
+      v19.m256i_i64[3] = *(unsigned int *)&CurrentWeaponForPlayer->weaponCamo;
+      v20 = *(__m256i *)&CurrentWeaponForPlayer->weaponIdx;
+      *(_OWORD *)v19.m256i_i8 = *(_OWORD *)&CurrentWeaponForPlayer->attachmentVariationIndices[5];
+      v19.m256i_i64[2] = *(_QWORD *)&CurrentWeaponForPlayer->attachmentVariationIndices[21];
+      if ( v13 && BG_HasUnderbarrelAmmo(CurrentWeaponForPlayer) )
       {
-        vmovups ymm0, ymmword ptr [rdi]
-        vmovsd  xmm1, qword ptr [rdi+30h]
+        if ( !BG_AltSharesAmmo(CurrentWeaponForPlayer) )
+          v14 = 1;
+        v19.m256i_i32[7] = v14;
       }
-      v26 = 0;
-      v34.m256i_i64[3] = *(unsigned int *)&_RDI->weaponCamo;
-      __asm
-      {
-        vmovups [rsp+128h+var_A0], ymm0
-        vmovups xmm0, xmmword ptr [rdi+20h]
-        vmovups xmmword ptr [rsp+128h+var_C0], xmm0
-        vmovsd  qword ptr [rsp+128h+var_C0+10h], xmm1
-      }
-      if ( v23 && BG_HasUnderbarrelAmmo(_RDI) )
-      {
-        if ( !BG_AltSharesAmmo(_RDI) )
-          v26 = 1;
-        v34.m256i_i32[7] = v26;
-      }
-      __asm
-      {
-        vmovups ymm0, [rsp+128h+var_A0]
-        vmovups ymmword ptr [rsp+128h+r_clipIndex.weapon.weaponIdx], ymm0
-        vmovups ymm0, [rsp+128h+var_C0]
-        vmovups ymmword ptr [rsp+128h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm0
-      }
-      BG_AddClipAmmo(ps, &r_clipIndex, hand, v11);
-      BG_AddGlobalAmmoForAmmoType(ps, &r_clipIndex, -v11);
+      *(__m256i *)&r_clipIndex.weapon.weaponIdx = v20;
+      *(__m256i *)&r_clipIndex.weapon.attachmentVariationIndices[5] = v19;
+      BG_AddClipAmmo(ps, &r_clipIndex, hand, v8);
+      BG_AddGlobalAmmoForAmmoType(ps, &r_clipIndex, -v8);
       PM_AddEvent(pm, EV_RELOAD_ADDAMMO);
     }
   }
@@ -1809,51 +1606,37 @@ PM_WeaponDistributeClipAmmoBetweenHands
 */
 void PM_WeaponDistributeClipAmmoBetweenHands(playerState_s *ps, const Weapon *r_weapon, bool isAlternate)
 {
-  int v8; 
-  ClipAmmo *v12; 
-  int v13; 
-  int v14; 
-  __m256i v15; 
+  double v6; 
+  int v7; 
+  ClipAmmo *v8; 
+  int v9; 
+  int v10; 
+  __m256i v11; 
   AmmoStore r_clipIndex; 
 
-  _RBX = r_weapon;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 561, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
+  v6 = *(double *)&r_weapon->attachmentVariationIndices[21];
+  v7 = 0;
+  v11.m256i_i64[3] = *(unsigned int *)&r_weapon->weaponCamo;
+  *(__m256i *)&r_clipIndex.weapon.weaponIdx = *(__m256i *)&r_weapon->weaponIdx;
+  *(_OWORD *)v11.m256i_i8 = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+  *(double *)&v11.m256i_i64[2] = v6;
+  if ( isAlternate && BG_HasUnderbarrelAmmo(r_weapon) )
   {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovsd  xmm1, qword ptr [rbx+30h]
+    if ( !BG_AltSharesAmmo(r_weapon) )
+      v7 = 1;
+    v11.m256i_i32[7] = v7;
   }
-  v8 = 0;
-  v15.m256i_i64[3] = *(unsigned int *)&_RBX->weaponCamo;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+0E8h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rsp+0E8h+var_88], xmm0
-    vmovsd  qword ptr [rsp+0E8h+var_88+10h], xmm1
-  }
-  if ( isAlternate && BG_HasUnderbarrelAmmo(_RBX) )
-  {
-    if ( !BG_AltSharesAmmo(_RBX) )
-      v8 = 1;
-    v15.m256i_i32[7] = v8;
-  }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+0E8h+r_clipIndex.weapon.weaponIdx]
-    vmovups ymmword ptr [rsp+0E8h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups ymm0, [rsp+0E8h+var_88]
-    vmovups ymmword ptr [rsp+0E8h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm0
-  }
-  v12 = BG_CreateClipAmmoPtr(ps, &r_clipIndex);
-  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 566, ASSERT_TYPE_ASSERT, "(clipAmmo)", "%s\n\tTried to distribute ammo for the clipIndex (ammotype=%i), but we can't find that in our clip ammo list", "clipAmmo", r_clipIndex.ammoType) )
+  *(__m256i *)&r_clipIndex.weapon.attachmentVariationIndices[5] = v11;
+  v8 = BG_CreateClipAmmoPtr(ps, &r_clipIndex);
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 566, ASSERT_TYPE_ASSERT, "(clipAmmo)", "%s\n\tTried to distribute ammo for the clipIndex (ammotype=%i), but we can't find that in our clip ammo list", "clipAmmo", r_clipIndex.ammoType) )
     __debugbreak();
-  v13 = v12->ammoCount[1] + v12->ammoCount[0];
-  v14 = v13 & 1;
-  v13 /= 2;
-  v12->ammoCount[1] = v13;
-  v12->ammoCount[0] = v13 + v14;
+  v9 = v8->ammoCount[1] + v8->ammoCount[0];
+  v10 = v9 & 1;
+  v9 /= 2;
+  v8->ammoCount[1] = v9;
+  v8->ammoCount[0] = v9 + v10;
 }
 
 /*
@@ -1863,37 +1646,26 @@ PM_WeaponPassClipAmmoToRightHand
 */
 void PM_WeaponPassClipAmmoToRightHand(playerState_s *ps, const Weapon *r_weapon, bool isAlternate)
 {
-  ClipAmmo *v11; 
-  __m256i v12; 
+  double v6; 
+  ClipAmmo *v7; 
+  __m256i v8; 
   AmmoStore r_clipIndex; 
 
-  _RBX = r_weapon;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 582, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v12.m256i_i64[3] = *(unsigned int *)&_RBX->weaponCamo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovsd  xmm1, qword ptr [rbx+30h]
-    vmovups ymmword ptr [rsp+0D8h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rsp+0D8h+var_78], xmm0
-    vmovsd  qword ptr [rsp+0D8h+var_78+10h], xmm1
-  }
-  if ( isAlternate && BG_HasUnderbarrelAmmo(_RBX) )
-    v12.m256i_i32[7] = !BG_AltSharesAmmo(_RBX);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+0D8h+r_clipIndex.weapon.weaponIdx]
-    vmovups ymmword ptr [rsp+0D8h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups ymm0, [rsp+0D8h+var_78]
-    vmovups ymmword ptr [rsp+0D8h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm0
-  }
-  v11 = BG_CreateClipAmmoPtr(ps, &r_clipIndex);
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 587, ASSERT_TYPE_ASSERT, "(clipAmmo)", "%s\n\tTried to distribute ammo for the clipIndex (ammotype=%i), but we can't find that in our clip ammo list", "clipAmmo", r_clipIndex.ammoType) )
+  v8.m256i_i64[3] = *(unsigned int *)&r_weapon->weaponCamo;
+  v6 = *(double *)&r_weapon->attachmentVariationIndices[21];
+  *(__m256i *)&r_clipIndex.weapon.weaponIdx = *(__m256i *)&r_weapon->weaponIdx;
+  *(_OWORD *)v8.m256i_i8 = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+  *(double *)&v8.m256i_i64[2] = v6;
+  if ( isAlternate && BG_HasUnderbarrelAmmo(r_weapon) )
+    v8.m256i_i32[7] = !BG_AltSharesAmmo(r_weapon);
+  *(__m256i *)&r_clipIndex.weapon.attachmentVariationIndices[5] = v8;
+  v7 = BG_CreateClipAmmoPtr(ps, &r_clipIndex);
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 587, ASSERT_TYPE_ASSERT, "(clipAmmo)", "%s\n\tTried to distribute ammo for the clipIndex (ammotype=%i), but we can't find that in our clip ammo list", "clipAmmo", r_clipIndex.ammoType) )
     __debugbreak();
-  v11->ammoCount[0] += v11->ammoCount[1];
-  v11->ammoCount[1] = 0;
+  v7->ammoCount[0] += v7->ammoCount[1];
+  v7->ammoCount[1] = 0;
 }
 
 /*
@@ -1905,54 +1677,43 @@ void PM_WeaponRechamberAmmo(playerState_s *ps, const Weapon *r_weapon, bool isAl
 {
   __int64 v4; 
   int WeaponBurstCount; 
+  double v9; 
   ClipAmmo *ClipAmmoPtr; 
   weapFireType_t WeaponFireType; 
-  int v16; 
-  __m256i v17; 
+  int v12; 
+  __m256i v13; 
   AmmoStore r_clipIndex; 
 
   v4 = hand;
-  _RBX = r_weapon;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 501, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   WeaponBurstCount = 1;
-  v17.m256i_i64[3] = *(unsigned int *)&_RBX->weaponCamo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovsd  xmm1, qword ptr [rbx+30h]
-    vmovups ymmword ptr [rsp+0F8h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rsp+0F8h+var_A8], xmm0
-    vmovsd  qword ptr [rsp+0F8h+var_A8+10h], xmm1
-  }
-  if ( isAlternate && BG_HasUnderbarrelAmmo(_RBX) )
-    v17.m256i_i32[7] = !BG_AltSharesAmmo(_RBX);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+0F8h+r_clipIndex.weapon.weaponIdx]
-    vmovups ymmword ptr [rsp+0F8h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups ymm0, [rsp+0F8h+var_A8]
-    vmovups ymmword ptr [rsp+0F8h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm0
-  }
+  v13.m256i_i64[3] = *(unsigned int *)&r_weapon->weaponCamo;
+  v9 = *(double *)&r_weapon->attachmentVariationIndices[21];
+  *(__m256i *)&r_clipIndex.weapon.weaponIdx = *(__m256i *)&r_weapon->weaponIdx;
+  *(_OWORD *)v13.m256i_i8 = *(_OWORD *)&r_weapon->attachmentVariationIndices[5];
+  *(double *)&v13.m256i_i64[2] = v9;
+  if ( isAlternate && BG_HasUnderbarrelAmmo(r_weapon) )
+    v13.m256i_i32[7] = !BG_AltSharesAmmo(r_weapon);
+  *(__m256i *)&r_clipIndex.weapon.attachmentVariationIndices[5] = v13;
   ClipAmmoPtr = BG_GetClipAmmoPtr(ps, &r_clipIndex);
   if ( ClipAmmoPtr )
   {
-    WeaponFireType = BG_GetWeaponFireType(_RBX, isAlternate);
+    WeaponFireType = BG_GetWeaponFireType(r_weapon, isAlternate);
     if ( WeaponFireType == WEAPON_FIRETYPE_DOUBLEBARREL )
     {
       WeaponBurstCount = 2;
     }
-    else if ( WeaponFireType == WEAPON_FIRETYPE_BURST && BG_IsBoltAction(_RBX, isAlternate) )
+    else if ( WeaponFireType == WEAPON_FIRETYPE_BURST && BG_IsBoltAction(r_weapon, isAlternate) )
     {
-      WeaponBurstCount = BG_GetWeaponBurstCount(_RBX, isAlternate);
+      WeaponBurstCount = BG_GetWeaponBurstCount(r_weapon, isAlternate);
     }
-    v16 = ClipAmmoPtr->ammoCount[v4];
-    if ( WeaponBurstCount < v16 )
-      v16 = WeaponBurstCount;
-    if ( v16 > 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 514, ASSERT_TYPE_ASSERT, "(chamberCount <= (( ( 1 << 5 ) - 1 )))", (const char *)&queryFormat, "chamberCount <= PLAYER_WEAPONCHAMBER_MAX") )
+    v12 = ClipAmmoPtr->ammoCount[v4];
+    if ( WeaponBurstCount < v12 )
+      v12 = WeaponBurstCount;
+    if ( v12 > 31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_ammo.cpp", 514, ASSERT_TYPE_ASSERT, "(chamberCount <= (( ( 1 << 5 ) - 1 )))", (const char *)&queryFormat, "chamberCount <= PLAYER_WEAPONCHAMBER_MAX") )
       __debugbreak();
-    ClipAmmoPtr->chamberedCount[v4] = v16;
+    ClipAmmoPtr->chamberedCount[v4] = v12;
     ClipAmmoPtr->shotsSinceRechamber[v4] = 0;
   }
 }
@@ -1965,44 +1726,30 @@ PM_WeaponUseAmmo
 void PM_WeaponUseAmmo(playerState_s *ps, const Weapon *weapon, bool isAlternate, int amount, PlayerHandIndex hand)
 {
   const dvar_t *v5; 
-  int v12; 
-  __m256i v16; 
+  double v10; 
+  int v11; 
+  __m256i v12; 
   AmmoStore r_clipIndex; 
 
   v5 = DCONST_DVARBOOL_player_sustainAmmo;
-  _RBX = weapon;
   if ( !DCONST_DVARBOOL_player_sustainAmmo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "player_sustainAmmo") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v5);
   if ( !v5->current.enabled )
   {
-    __asm
+    v10 = *(double *)&weapon->attachmentVariationIndices[21];
+    v11 = 0;
+    v12.m256i_i64[3] = *(unsigned int *)&weapon->weaponCamo;
+    *(__m256i *)&r_clipIndex.weapon.weaponIdx = *(__m256i *)&weapon->weaponIdx;
+    *(_OWORD *)v12.m256i_i8 = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+    *(double *)&v12.m256i_i64[2] = v10;
+    if ( isAlternate && BG_HasUnderbarrelAmmo(weapon) )
     {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovsd  xmm1, qword ptr [rbx+30h]
+      if ( !BG_AltSharesAmmo(weapon) )
+        v11 = 1;
+      v12.m256i_i32[7] = v11;
     }
-    v12 = 0;
-    v16.m256i_i64[3] = *(unsigned int *)&_RBX->weaponCamo;
-    __asm
-    {
-      vmovups ymmword ptr [rsp+0E8h+r_clipIndex.weapon.weaponIdx], ymm0
-      vmovups xmm0, xmmword ptr [rbx+20h]
-      vmovups xmmword ptr [rsp+0E8h+var_88], xmm0
-      vmovsd  qword ptr [rsp+0E8h+var_88+10h], xmm1
-    }
-    if ( isAlternate && BG_HasUnderbarrelAmmo(_RBX) )
-    {
-      if ( !BG_AltSharesAmmo(_RBX) )
-        v12 = 1;
-      v16.m256i_i32[7] = v12;
-    }
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+0E8h+r_clipIndex.weapon.weaponIdx]
-      vmovups ymmword ptr [rsp+0E8h+r_clipIndex.weapon.weaponIdx], ymm0
-      vmovups ymm0, [rsp+0E8h+var_88]
-      vmovups ymmword ptr [rsp+0E8h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm0
-    }
+    *(__m256i *)&r_clipIndex.weapon.attachmentVariationIndices[5] = v12;
     BG_AddClipAmmo(ps, &r_clipIndex, hand, -amount);
   }
 }

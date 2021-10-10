@@ -332,8 +332,7 @@ CgVehicleSystemSP::GetTurretBarrelRoll
 */
 float CgVehicleSystemSP::GetTurretBarrelRoll(CgVehicleSystemSP *this, const centity_t *cent)
 {
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 
 /*
@@ -554,31 +553,28 @@ void CgVehicleSystemSP::ProcessEntity(CgVehicleSystemSP *this, centity_t *cent, 
 {
   entityState_t *p_nextState; 
   DObj *EntityDObj; 
-  const cg_t *LocalClientGlobals; 
+  cg_t *LocalClientGlobals; 
+  float v11; 
   VehicleClient *Client; 
-  team_t v21; 
-  unsigned int v22; 
-  float characterEVOffset; 
-  bool v27; 
+  team_t v13; 
+  unsigned int v14; 
+  __m256i *HudOutlineInfo; 
+  __m256i v16; 
+  float v17; 
+  bool v18; 
   bool useAlternateColor; 
-  unsigned int v29; 
+  unsigned int v20; 
   unsigned int RenderFlagForRefEntity; 
   unsigned int number; 
-  float v37; 
-  float v38; 
-  vec3_t v39; 
-  GfxSceneHudOutlineInfo v40; 
-  shaderOverride_t v41; 
+  vec3_t v23; 
+  GfxSceneHudOutlineInfo v24; 
+  shaderOverride_t v25; 
   vec3_t outOrigin; 
-  __int64 v43; 
+  __int64 v27; 
   GfxSceneHudOutlineInfo result; 
-  char v45; 
-  void *retaddr; 
   unsigned int scriptableIndex; 
 
-  _RAX = &retaddr;
-  v43 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
+  v27 = -2i64;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_vehicle_sp.cpp", 174, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   p_nextState = &cent->nextState;
@@ -607,7 +603,7 @@ void CgVehicleSystemSP::ProcessEntity(CgVehicleSystemSP *this, centity_t *cent, 
       }
       CG_GetPoseOrigin(&cent->pose, &outOrigin);
       XAnimBonePhysicsSetDObjMatrix(EntityDObj, &outOrigin, &cent->pose.angles);
-      __asm { vxorps  xmm6, xmm6, xmm6 }
+      v11 = 0.0;
       if ( !CG_Vehicle_IsCorpse(cent) )
       {
         this->UpdateEntity(this, cent);
@@ -615,100 +611,63 @@ void CgVehicleSystemSP::ProcessEntity(CgVehicleSystemSP *this, centity_t *cent, 
         if ( CG_Vehicle_ShouldApplyMaterialTime(Client) )
         {
           CG_Vehicle_UpdateMaterialTime(Client);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [r12+65ECh]
-            vmulss  xmm1, xmm0, cs:__real@3a83126f
-            vsubss  xmm6, xmm1, dword ptr [r14+68h]
-          }
+          v11 = (float)((float)LocalClientGlobals->time * 0.001) - Client->materialTime;
         }
       }
-      CG_GetPoseOrigin(&cent->pose, &v39);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+130h+var_E0+8]
-        vaddss  xmm1, xmm0, cs:__real@42000000
-        vmovss  dword ptr [rsp+130h+var_E0+8], xmm1
-      }
+      CG_GetPoseOrigin(&cent->pose, &v23);
+      v23.v[2] = v23.v[2] + 32.0;
       if ( CG_Vehicle_IsCorpse(cent) )
       {
         if ( isVisible )
         {
           RenderFlagForRefEntity = CG_EntitySP_GetRenderFlagForRefEntity(LocalClientGlobals, cent, &cent->nextState.lerp.eFlags);
           number = p_nextState->number;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr cs:NULL_HUDOUTLINE_INFO_11.color
-            vmovups ymmword ptr [rsp+60h], ymm0
-          }
-          v40.characterEVOffset = NULL_HUDOUTLINE_INFO_11.characterEVOffset;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_15.scrollRateX
-            vmovups [rbp+30h+var_A0], ymm0
-          }
-          v41.atlasTime = NULL_SHADER_OVERRIDE_15.atlasTime;
-          __asm { vmovss  [rsp+130h+var_F0], xmm6 }
-          CG_Entity_AddDObjToScene((const LocalClientNum_t)this->m_localClientNum, EntityDObj, &cent->pose, number, RenderFlagForRefEntity | 0x1000, &v41, &v40, &v39, v38, 0);
+          memset(&v24, 0, sizeof(v24));
+          memset(&v25, 0, sizeof(v25));
+          CG_Entity_AddDObjToScene((const LocalClientNum_t)this->m_localClientNum, EntityDObj, &cent->pose, number, RenderFlagForRefEntity | 0x1000, &v25, &v24, &v23, v11, 0);
         }
       }
       else
       {
-        v21 = this->GetTeam(this, &cent->nextState);
+        v13 = this->GetTeam(this, &cent->nextState);
         if ( isVisible )
         {
-          v22 = CG_EntitySP_GetRenderFlagForRefEntity(LocalClientGlobals, cent, &cent->nextState.lerp.eFlags) | 0x1000;
-          _RAX = CG_Entity_GetHudOutlineInfo(&result, LocalClientGlobals, cent);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups [rbp+30h+var_A0], ymm0
-            vmovups ymmword ptr [rsp+60h], ymm0
-          }
-          characterEVOffset = _RAX->characterEVOffset;
-          if ( v21 != TEAM_TWO )
+          v14 = CG_EntitySP_GetRenderFlagForRefEntity(LocalClientGlobals, cent, &cent->nextState.lerp.eFlags) | 0x1000;
+          HudOutlineInfo = (__m256i *)CG_Entity_GetHudOutlineInfo(&result, LocalClientGlobals, cent);
+          v16 = *HudOutlineInfo;
+          *(__m256i *)&v25.scrollRateX = v16;
+          *(__m256i *)&v24.color = v16;
+          v17 = *(float *)HudOutlineInfo[1].m256i_i32;
+          if ( v13 != TEAM_TWO )
           {
             if ( CG_Utils_ShouldHighlightVehicle((const LocalClientNum_t)this->m_localClientNum) && CG_Utils_ShouldHighlightInScope((const LocalClientNum_t)this->m_localClientNum) && !CG_Utils_StencilScriptControlled((const LocalClientNum_t)this->m_localClientNum) )
             {
-              __asm
-              {
-                vmovss  xmm0, cs:__real@3f800000
-                vmovss  dword ptr [rsp+64h], xmm0
-              }
-              v27 = CG_Utils_PlayerLockedOn((const LocalClientNum_t)this->m_localClientNum, cent);
-              useAlternateColor = v40.useAlternateColor;
-              if ( v27 )
+              v24.scopeStencil = FLOAT_1_0;
+              v18 = CG_Utils_PlayerLockedOn((const LocalClientNum_t)this->m_localClientNum, cent);
+              useAlternateColor = v24.useAlternateColor;
+              if ( v18 )
                 useAlternateColor = 1;
-              v40.useAlternateColor = useAlternateColor;
-              __asm { vmovups ymm0, ymmword ptr [rsp+60h] }
+              v24.useAlternateColor = useAlternateColor;
+              v16 = *(__m256i *)&v24.color;
             }
             else
             {
-              __asm { vmovups ymm0, [rbp+30h+var_A0] }
+              v16 = *(__m256i *)&v25.scrollRateX;
             }
           }
-          v29 = p_nextState->number;
-          __asm { vmovups ymmword ptr [rsp+60h], ymm0 }
-          v40.characterEVOffset = characterEVOffset;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_15.scrollRateX
-            vmovups [rbp+30h+var_A0], ymm0
-          }
-          v41.atlasTime = NULL_SHADER_OVERRIDE_15.atlasTime;
-          __asm { vmovss  [rsp+130h+var_F0], xmm6 }
-          CG_Entity_AddDObjToScene((const LocalClientNum_t)this->m_localClientNum, EntityDObj, &cent->pose, v29, v22, &v41, &v40, &v39, v37, 0);
+          v20 = p_nextState->number;
+          *(__m256i *)&v24.color = v16;
+          v24.characterEVOffset = v17;
+          memset(&v25, 0, sizeof(v25));
+          CG_Entity_AddDObjToScene((const LocalClientNum_t)this->m_localClientNum, EntityDObj, &cent->pose, v20, v14, &v25, &v24, &v23, v11, 0);
         }
         if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->nextState.lerp.eFlags, ACTIVE, 9u) || CG_LaserForceOnEnabled() )
-          CG_LaserAdd((const LocalClientNum_t)this->m_localClientNum, p_nextState->number, v21);
+          CG_LaserAdd((const LocalClientNum_t)this->m_localClientNum, p_nextState->number, v13);
       }
       memset(&outOrigin, 0, sizeof(outOrigin));
     }
   }
-  memset(&v39, 0, sizeof(v39));
-  _R11 = &v45;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  memset(&v23, 0, sizeof(v23));
 }
 
 /*

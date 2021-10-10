@@ -95,126 +95,65 @@ CG_Event_Debug_Draw
 */
 void CG_Event_Debug_Draw(const ScreenPlacement *scrPlace)
 {
-  char currentIndex; 
-  const dvar_t *v12; 
-  unsigned __int16 v13; 
+  const dvar_t *v2; 
+  unsigned __int16 v3; 
+  __int128 v5; 
   int integer; 
-  __int64 v23; 
-  const char *v24; 
-  unsigned __int64 v27; 
-  const char *v28; 
-  const char *v31; 
-  __int64 v34; 
-  __int64 v35; 
-  char *v38; 
-  const dvar_t *v58; 
-  unsigned int v59; 
-  bool v60; 
-  bool v61; 
-  __int64 v65; 
-  int *v66; 
+  __int64 v7; 
+  const char *v8; 
+  unsigned __int64 v9; 
+  const char *v10; 
+  const char *v11; 
+  __int64 v14; 
+  __int64 v15; 
+  char *v18; 
+  __int128 v25; 
+  const dvar_t *v27; 
+  __int64 v28; 
+  int *data; 
   const vec4_t *color; 
-  __int64 v68; 
-  unsigned int *v71; 
+  __int64 v31; 
+  __int128 v32; 
+  __int128 v33; 
+  unsigned int *v35; 
   int (*skippedEventCount)[128]; 
-  const char **v73; 
-  const vec4_t *v74; 
-  char v75; 
-  const char *v76; 
-  __int64 v81; 
-  __int64 v94; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  int forceColor; 
-  int forceColora; 
-  int forceColorb; 
-  int shadow; 
-  int shadowa; 
-  int shadowb; 
-  float data; 
-  float dataa; 
-  float datab; 
-  float datac; 
-  float datad; 
-  char v133; 
-  void *retaddr; 
-  unsigned __int16 v135; 
+  const char **v37; 
+  const vec4_t *v38; 
+  const char *v39; 
+  __int128 v42; 
+  __int64 v43; 
+  __int128 v50; 
+  __int64 v52; 
+  unsigned __int16 v53; 
 
-  _RAX = &retaddr;
-  currentIndex = s_CgEventDebugData.currentIndex;
-  v12 = DVARINT_cg_event_debugAnalytics_Type;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  v13 = (currentIndex - 1) & 0x7F;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps [rsp+128h+var_B8], xmm13
-  }
-  v135 = v13;
-  __asm
-  {
-    vmovss  xmm8, cs:__real@41000000
-    vmovaps xmm6, xmm8
-  }
-  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_event_debugAnalytics_Type") )
+  v2 = DVARINT_cg_event_debugAnalytics_Type;
+  v3 = (LOBYTE(s_CgEventDebugData.currentIndex) - 1) & 0x7F;
+  v53 = v3;
+  v5 = LODWORD(FLOAT_8_0);
+  if ( !DVARINT_cg_event_debugAnalytics_Type && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_event_debugAnalytics_Type") )
     __debugbreak();
-  __asm { vmovaps [rsp+128h+var_58], xmm7 }
-  Dvar_CheckFrontendServerThread(v12);
-  integer = v12->current.integer;
-  __asm
-  {
-    vmovss  xmm10, cs:__real@41a00000
-    vmovss  xmm9, cs:__real@40a00000
-    vmovss  xmm12, cs:__real@42c80000
-    vmovss  xmm13, cs:__real@44000000
-    vxorps  xmm11, xmm11, xmm11
-  }
+  Dvar_CheckFrontendServerThread(v2);
+  integer = v2->current.integer;
   if ( (unsigned __int8)integer < 9u )
   {
-    v23 = (unsigned __int8)integer;
-    v24 = j_va("CgEventLod: %s", g_cgEventDebugTypeNames[(unsigned __int8)integer]);
-    __asm
-    {
-      vmovss  dword ptr [rsp+128h+data], xmm8
-      vmovaps xmm2, xmm8; y
-      vmovaps xmm1, xmm8; x
-    }
-    CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v24, &colorWhite, 0, 1, data, 0);
-    v27 = v13 + ((unsigned __int64)(unsigned int)v23 << 7);
-    v28 = j_va("Total Events: %i", (unsigned int)s_CgEventDebugData.totalEventCount[0][v27]);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@41800000; y
-      vmovss  dword ptr [rsp+128h+data], xmm8
-      vmovaps xmm1, xmm10; x
-    }
-    CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v28, &colorBlue, 0, 1, dataa, 0);
-    v31 = j_va("Performed Events: %i", (unsigned int)s_CgEventDebugData.performedEventCount[0][v27]);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@41c00000; y
-      vmovss  dword ptr [rsp+128h+data], xmm8
-      vmovaps xmm1, xmm10; x
-    }
-    CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v31, &colorRed, 0, 1, datab, 0);
-    v34 = v23 << 9;
-    v35 = 16i64;
+    v7 = (unsigned __int8)integer;
+    v8 = j_va("CgEventLod: %s", g_cgEventDebugTypeNames[(unsigned __int8)integer]);
+    CG_DrawStringExt(scrPlace, 8.0, 8.0, v8, &colorWhite, 0, 1, 8.0, 0);
+    v9 = v3 + ((unsigned __int64)(unsigned int)v7 << 7);
+    v10 = j_va("Total Events: %i", (unsigned int)s_CgEventDebugData.totalEventCount[0][v9]);
+    CG_DrawStringExt(scrPlace, 20.0, 16.0, v10, &colorBlue, 0, 1, 8.0, 0);
+    v11 = j_va("Performed Events: %i", (unsigned int)s_CgEventDebugData.performedEventCount[0][v9]);
+    _XMM2 = LODWORD(FLOAT_24_0);
+    _XMM1 = LODWORD(FLOAT_20_0);
+    CG_DrawStringExt(scrPlace, 20.0, 24.0, v11, &colorRed, 0, 1, 8.0, 0);
+    v14 = v7 << 9;
+    v15 = 16i64;
     __asm
     {
       vpxor   xmm1, xmm1, xmm1
       vpxor   xmm2, xmm2, xmm2
     }
-    v38 = (char *)&s_CgEventDebugData + v34;
+    v18 = (char *)&s_CgEventDebugData + v14;
     do
     {
       __asm
@@ -222,142 +161,72 @@ void CG_Event_Debug_Draw(const ScreenPlacement *scrPlace)
         vpmaxsd xmm1, xmm1, xmmword ptr [rax]
         vpmaxsd xmm2, xmm2, xmmword ptr [rax+10h]
       }
-      v38 += 32;
-      --v35;
+      v18 += 32;
+      --v15;
     }
-    while ( v35 );
+    while ( v15 );
     __asm
     {
-      vmovss  xmm7, cs:__real@42280000
       vpmaxsd xmm1, xmm1, xmm2
       vpsrldq xmm0, xmm1, 8
       vpmaxsd xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpmaxsd xmm0, xmm2, xmm0
-      vmovd   eax, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, eax
-      vmaxss  xmm6, xmm1, xmm9
-      vmovss  [rsp+128h+shadow], xmm6
-      vmovss  [rsp+128h+forceColor], xmm11
-      vmovaps xmm3, xmm13; width
-      vmovaps xmm2, xmm7; y
-      vmovaps xmm1, xmm10; x
-      vmovss  dword ptr [rsp+128h+fmt], xmm12
     }
-    CG_DebugGraphs_DrawGraphData(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, *(float *)&forceColor, *(float *)&shadow, (int *)((char *)&s_CgEventDebugData + v34), 0x80u, v13, &colorBlue);
-    __asm
-    {
-      vmovss  [rsp+128h+shadow], xmm6
-      vmovss  [rsp+128h+forceColor], xmm11
-      vmovaps xmm3, xmm13; width
-      vmovaps xmm2, xmm7; y
-      vmovaps xmm1, xmm10; x
-      vmovss  dword ptr [rsp+128h+fmt], xmm12
-    }
-    CG_DebugGraphs_DrawGraphData(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, *(float *)&forceColora, *(float *)&shadowa, (int *)((char *)s_CgEventDebugData.performedEventCount[0] + v34), 0x80u, v13, &colorRed);
-    __asm
-    {
-      vmovaps xmm3, xmm13; width
-      vmovaps xmm2, xmm7; y
-      vmovaps xmm1, xmm10; x
-      vmovss  dword ptr [rsp+128h+fmt], xmm12
-    }
-    CG_DebugGraphs_DrawAxes(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, &colorWhite);
-    __asm { vmovss  xmm6, cs:__real@43180000 }
+    v25 = 0i64;
+    *(float *)&v25 = (float)(int)_XMM0;
+    _XMM1 = v25;
+    __asm { vmaxss  xmm6, xmm1, xmm9 }
+    CG_DebugGraphs_DrawGraphData(scrPlace, 20.0, 42.0, 512.0, 100.0, 0.0, *(float *)&_XMM6, (int *)((char *)&s_CgEventDebugData + v14), 0x80u, v3, &colorBlue);
+    CG_DebugGraphs_DrawGraphData(scrPlace, 20.0, 42.0, 512.0, 100.0, 0.0, *(float *)&_XMM6, (int *)((char *)s_CgEventDebugData.performedEventCount[0] + v14), 0x80u, v3, &colorRed);
+    CG_DebugGraphs_DrawAxes(scrPlace, 20.0, 42.0, 512.0, 100.0, &colorWhite);
+    v5 = LODWORD(FLOAT_152_0);
   }
-  v58 = DVARBOOL_cg_event_debugAnalytics_overBudgetSkipped;
+  v27 = DVARBOOL_cg_event_debugAnalytics_overBudgetSkipped;
   if ( !DVARBOOL_cg_event_debugAnalytics_overBudgetSkipped && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_event_debugAnalytics_overBudgetSkipped") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v58);
-  if ( v58->current.enabled )
+  Dvar_CheckFrontendServerThread(v27);
+  if ( v27->current.enabled )
   {
-    __asm { vmovaps [rsp+128h+var_C8], xmm14 }
-    v59 = *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64);
-    v60 = dword_148C4F604 < v59;
-    v61 = dword_148C4F604 == v59;
-    if ( dword_148C4F604 > (int)v59 )
+    if ( dword_148C4F604 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
     {
       j__Init_thread_header(&dword_148C4F604);
-      v60 = dword_148C4F604 != -1;
-      v61 = dword_148C4F604 == -1;
       if ( dword_148C4F604 == -1 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-          vmovups xmm1, xmmword ptr cs:?colorOrange@@3Tvec4_t@@B; vec4_t const colorOrange
-          vmovups xmmword ptr cs:debugColors, xmm0
-          vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
-          vmovups xmmword ptr cs:debugColors+10h, xmm1
-          vmovups xmm1, xmmword ptr cs:?colorBlue@@3Tvec4_t@@B; vec4_t const colorBlue
-          vmovups xmmword ptr cs:debugColors+20h, xmm0
-          vmovups xmm0, xmmword ptr cs:?colorPurple@@3Tvec4_t@@B; vec4_t const colorPurple
-          vmovups xmmword ptr cs:debugColors+30h, xmm1
-          vmovups xmm1, xmmword ptr cs:?colorPink@@3Tvec4_t@@B; vec4_t const colorPink
-          vmovups xmmword ptr cs:debugColors+40h, xmm0
-          vmovups xmmword ptr cs:debugColors+50h, xmm1
-        }
+        debugColors[0] = colorRed;
+        debugColors[1] = colorOrange;
+        debugColors[2] = colorGreen;
+        debugColors[3] = colorBlue;
+        debugColors[4] = colorPurple;
+        debugColors[5] = colorPink;
         j__Init_thread_footer(&dword_148C4F604);
       }
     }
-    __asm
-    {
-      vcomiss xmm6, xmm11
-      vmovss  xmm7, cs:__real@44870000
-    }
-    if ( !v60 && !v61 )
-    {
-      __asm { vcomiss xmm6, xmm7 }
-      if ( v60 )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rsp+128h+data], xmm8
-          vmovaps xmm2, xmm6; y
-          vmovaps xmm1, xmm8; x
-        }
-        CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "CgEventLod skipped overbudget events", &colorWhite, 0, 1, datac, 0);
-      }
-    }
-    v65 = v13;
-    v66 = s_CgEventDebugData.skippedEventCount[0];
+    if ( *(float *)&v5 > 0.0 && *(float *)&v5 < 1080.0 )
+      CG_DrawStringExt(scrPlace, 8.0, *(float *)&v5, "CgEventLod skipped overbudget events", &colorWhite, 0, 1, 8.0, 0);
+    v28 = v3;
+    data = s_CgEventDebugData.skippedEventCount[0];
     color = debugColors;
-    v68 = 6i64;
-    __asm
-    {
-      vaddss  xmm6, xmm6, xmm8
-      vpxor   xmm14, xmm14, xmm14
-    }
-    v71 = (unsigned int *)s_CgEventDebugData.skippedEventCount + v65;
+    v31 = 6i64;
+    v33 = v5;
+    *(float *)&v33 = *(float *)&v5 + 8.0;
+    v32 = v33;
+    __asm { vpxor   xmm14, xmm14, xmm14 }
+    v35 = (unsigned int *)s_CgEventDebugData.skippedEventCount + v28;
     skippedEventCount = s_CgEventDebugData.skippedEventCount;
-    v73 = g_cgEventInventoryDebugTypeNames;
-    v74 = debugColors;
+    v37 = g_cgEventInventoryDebugTypeNames;
+    v38 = debugColors;
     do
     {
-      v76 = j_va("%s : %i", *v73, *v71);
-      __asm { vcomiss xmm6, xmm11 }
-      if ( !(v75 | v61) )
-      {
-        __asm { vcomiss xmm6, xmm7 }
-        if ( v75 )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rsp+128h+data], xmm8
-            vmovaps xmm2, xmm6; y
-            vmovaps xmm1, xmm10; x
-          }
-          CG_DrawStringExt(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v76, v74, 0, 1, datad, 0);
-        }
-      }
-      __asm
-      {
-        vmovdqu xmm1, xmm14
-        vmovdqu xmm2, xmm1
-        vaddss  xmm6, xmm6, xmm8
-      }
-      v81 = 16i64;
+      v39 = j_va("%s : %i", *v37, *v35);
+      if ( *(float *)&v32 > 0.0 && *(float *)&v32 < 1080.0 )
+        CG_DrawStringExt(scrPlace, 20.0, *(float *)&v32, v39, v38, 0, 1, 8.0, 0);
+      _XMM1 = _XMM14;
+      _XMM2 = _XMM14;
+      v42 = v32;
+      *(float *)&v42 = *(float *)&v32 + 8.0;
+      v32 = v42;
+      v43 = 16i64;
       do
       {
         __asm
@@ -366,9 +235,9 @@ void CG_Event_Debug_Draw(const ScreenPlacement *scrPlace)
           vpmaxsd xmm2, xmm2, xmmword ptr [rbx+10h]
         }
         skippedEventCount = (int (*)[128])((char *)skippedEventCount + 32);
-        --v81;
+        --v43;
       }
-      while ( v81 );
+      while ( v43 );
       __asm
       {
         vpmaxsd xmm1, xmm1, xmm2
@@ -376,58 +245,26 @@ void CG_Event_Debug_Draw(const ScreenPlacement *scrPlace)
         vpmaxsd xmm2, xmm1, xmm0
         vpsrldq xmm0, xmm2, 4
         vpmaxsd xmm0, xmm2, xmm0
-        vmovd   eax, xmm0
-        vxorps  xmm1, xmm1, xmm1
       }
-      v71 += 128;
-      ++v73;
-      ++v74;
-      __asm
-      {
-        vcvtsi2ss xmm1, xmm1, eax
-        vmaxss  xmm9, xmm1, xmm9
-      }
-      --v68;
+      v35 += 128;
+      ++v37;
+      ++v38;
+      v50 = 0i64;
+      *(float *)&v50 = (float)(int)_XMM0;
+      _XMM1 = v50;
+      __asm { vmaxss  xmm9, xmm1, xmm9 }
+      --v31;
     }
-    while ( v68 );
-    __asm
-    {
-      vmovaps xmm3, xmm13; width
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm10; x
-      vmovss  dword ptr [rsp+128h+fmt], xmm12
-    }
-    CG_DebugGraphs_DrawAxes(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, &colorWhite);
-    v94 = 6i64;
-    __asm { vmovaps xmm14, [rsp+128h+var_C8] }
+    while ( v31 );
+    CG_DebugGraphs_DrawAxes(scrPlace, 20.0, *(float *)&v32, 512.0, 100.0, &colorWhite);
+    v52 = 6i64;
     do
     {
-      __asm
-      {
-        vmovss  [rsp+128h+shadow], xmm9
-        vmovss  [rsp+128h+forceColor], xmm11
-        vmovaps xmm3, xmm13; width
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm10; x
-        vmovss  dword ptr [rsp+128h+fmt], xmm12
-      }
-      CG_DebugGraphs_DrawGraphData(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, *(float *)&forceColorb, *(float *)&shadowb, v66, 0x80u, v135, color++);
-      v66 += 128;
-      --v94;
+      CG_DebugGraphs_DrawGraphData(scrPlace, 20.0, *(float *)&v32, 512.0, 100.0, 0.0, *(float *)&_XMM9, data, 0x80u, v53, color++);
+      data += 128;
+      --v52;
     }
-    while ( v94 );
-  }
-  __asm { vmovaps xmm7, [rsp+128h+var_58] }
-  _R11 = &v133;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
+    while ( v52 );
   }
 }
 

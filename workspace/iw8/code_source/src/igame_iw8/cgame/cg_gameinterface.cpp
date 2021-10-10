@@ -596,39 +596,21 @@ CG_GameInterface_MinimapHidePinnedVehicleTest
 */
 bool CG_GameInterface_MinimapHidePinnedVehicleTest(const unsigned int vehFlags, const vec2_t *currentPosition, const vec2_t *clippedPosition)
 {
-  char v18; 
+  float v5; 
+  float v6; 
+  const dvar_t *v7; 
+  float v8; 
 
-  _RBX = clippedPosition;
   if ( (unsigned __int8)ClStatic::GetActiveGameTypeQuick(&cls) != COUNT )
     return (unsigned __int8)ClStatic::GetActiveGameTypeQuick(&cls) == DODGE || (unsigned __int8)ClStatic::GetActiveGameTypeQuick(&cls) == 4;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vsubss  xmm4, xmm0, dword ptr [rdi]
-    vsubss  xmm2, xmm1, dword ptr [rdi+4]
-  }
-  _RBX = DVARFLT_compassClippedScaleMaxDistance;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm6, xmm3, xmm0
-  }
+  v5 = clippedPosition->v[0] - currentPosition->v[0];
+  v6 = clippedPosition->v[1] - currentPosition->v[1];
+  v7 = DVARFLT_compassClippedScaleMaxDistance;
+  v8 = (float)(v6 * v6) + (float)(v5 * v5);
   if ( !DVARFLT_compassClippedScaleMaxDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "compassClippedScaleMaxDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, xmm0
-    vsubss  xmm3, xmm1, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vxorps  xmm2, xmm2, xmm2
-    vcomiss xmm3, xmm2
-  }
-  return v18;
+  Dvar_CheckFrontendServerThread(v7);
+  return (float)((float)(v7->current.value * v7->current.value) - v8) < 0.0;
 }
 
 /*
@@ -720,10 +702,9 @@ CG_GameInterface_ShutdownCompassSystem
 */
 char CG_GameInterface_ShutdownCompassSystem(LocalClientNum_t localClientNum)
 {
-  const dvar_t *v3; 
+  const dvar_t *v2; 
   CgCompassSystemCPRaid *CompassSystemCPRaid; 
-  char v7; 
-  bool v8; 
+  const dvar_t *VarByName; 
   CgCompassSystemMP *CompassSystemMP; 
   CgCompassSystemBR *CompassSystemBR; 
 
@@ -735,22 +716,13 @@ char CG_GameInterface_ShutdownCompassSystem(LocalClientNum_t localClientNum)
   }
   else
   {
-    v3 = DVARBOOL_isCompassCPRaidSecurityScreen;
-    if ( DVARBOOL_isCompassCPRaidSecurityScreen && (Dvar_CheckFrontendServerThread(DVARBOOL_isCompassCPRaidSecurityScreen), v3->current.enabled) )
+    v2 = DVARBOOL_isCompassCPRaidSecurityScreen;
+    if ( DVARBOOL_isCompassCPRaidSecurityScreen && (Dvar_CheckFrontendServerThread(DVARBOOL_isCompassCPRaidSecurityScreen), v2->current.enabled) )
     {
       CompassSystemCPRaid = CgCompassSystemCPRaid::GetCompassSystemCPRaid(localClientNum);
       CgCompassSystemMP::ShutdownCompass(CompassSystemCPRaid);
-      _RAX = Dvar_FindVarByName("LQSSNPQOMO");
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vucomiss xmm0, dword ptr [rax+48h]
-      }
-      if ( v7 )
-        v8 = 0;
-      else
-        v8 = 1;
-      Dvar_SetBool_Internal(_RAX, v8);
+      VarByName = Dvar_FindVarByName("LQSSNPQOMO");
+      Dvar_SetBool_Internal(VarByName, VarByName->reset.value != 0.0);
       return 1;
     }
     else

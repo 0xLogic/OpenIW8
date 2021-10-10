@@ -148,39 +148,34 @@ RB_ReflectionProbeRelighting_Update
 */
 void RB_ReflectionProbeRelighting_Update(ComputeCmdBufState *computeState, const GfxViewInfo *viewInfo, const GfxBackEndData *data)
 {
+  __int16 v3; 
   GfxImage *SunShadowmapImage; 
   bool v8; 
   R_RT_Image *p_m_image; 
   GfxImage *translucentSunShadowMaskImage; 
   const GfxImage *spotshadowArrayImage; 
   GfxImage *sunShadowImages[3]; 
-  R_RT_Handle v15; 
+  R_RT_Handle m_translucentShadowRt; 
 
-  _RBP = viewInfo;
-  if ( R_UseBakedLighting() && (*((_DWORD *)&_RBP->viewportFeatures + 10) & 0x20000000) != 0 )
+  if ( R_UseBakedLighting() && (*((_DWORD *)&viewInfo->viewportFeatures + 10) & 0x20000000) != 0 )
   {
     if ( !s_reflectionProbeRelighting.m_relightingImage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_relighting.cpp", 1078, ASSERT_TYPE_ASSERT, "(s_reflectionProbeRelighting.m_relightingImage != nullptr)", (const char *)&queryFormat, "s_reflectionProbeRelighting.m_relightingImage != nullptr") )
       __debugbreak();
-    sunShadowImages[0] = (GfxImage *)R_GetSunShadowmapImage(_RBP, 0);
-    sunShadowImages[1] = (GfxImage *)R_GetSunShadowmapImage(_RBP, 1u);
-    SunShadowmapImage = (GfxImage *)R_GetSunShadowmapImage(_RBP, 2u);
-    v8 = (*((_BYTE *)&_RBP->viewportFeatures + 44) & 4) == 0;
+    sunShadowImages[0] = (GfxImage *)R_GetSunShadowmapImage(viewInfo, 0);
+    sunShadowImages[1] = (GfxImage *)R_GetSunShadowmapImage(viewInfo, 1u);
+    SunShadowmapImage = (GfxImage *)R_GetSunShadowmapImage(viewInfo, 2u);
+    v8 = (*((_BYTE *)&viewInfo->viewportFeatures + 44) & 4) == 0;
     sunShadowImages[2] = SunShadowmapImage;
     if ( !v8 && rg.useTransSunShadow )
     {
-      __asm
+      m_translucentShadowRt = (R_RT_Handle)viewInfo->sceneRtInput.m_translucentShadowRt;
+      if ( v3 )
       {
-        vmovups ymm0, ymmword ptr [rbp+3300h]
-        vmovd   eax, xmm0
-        vmovups ymmword ptr [rsp+98h+var_40.m_surfaceID], ymm0
-      }
-      if ( (_WORD)_EAX )
-      {
-        R_RT_Handle::GetSurface(&v15);
-        p_m_image = &R_RT_Handle::GetSurface(&v15)->m_image;
+        R_RT_Handle::GetSurface(&m_translucentShadowRt);
+        p_m_image = &R_RT_Handle::GetSurface(&m_translucentShadowRt)->m_image;
         goto LABEL_13;
       }
-      if ( v15.m_tracking.m_allocCounter )
+      if ( m_translucentShadowRt.m_tracking.m_allocCounter )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
           __debugbreak();
@@ -192,7 +187,7 @@ LABEL_13:
     spotshadowArrayImage = R_GetSpotShadowArrayImageDraw3D();
     R_LockGfxImmediateContext();
     R_GPU_BeginTimer(GPU_TIMER_REFLECTION_PROBE_RELIGHTING);
-    R_ReflectionProbeRelighting_Update(computeState, _RBP, data, (const GfxImage **)sunShadowImages, &p_m_image->m_base, translucentSunShadowMaskImage, spotshadowArrayImage);
+    R_ReflectionProbeRelighting_Update(computeState, viewInfo, data, (const GfxImage **)sunShadowImages, &p_m_image->m_base, translucentSunShadowMaskImage, spotshadowArrayImage);
     R_GPU_EndTimer();
     R_UnlockGfxImmediateContext();
   }
@@ -243,34 +238,24 @@ void R_ReflectionProbeRelightingCmd(const void *const cmd)
 R_ReflectionProbeRelighting_CopyCurrentRadiometricScale
 ==============
 */
-
-void __fastcall R_ReflectionProbeRelighting_CopyCurrentRadiometricScale(__int64 a1, double _XMM1_8)
+void R_ReflectionProbeRelighting_CopyCurrentRadiometricScale(void)
 {
+  GfxViewInfo *v0; 
   float outPrevFrameRadiometricScale; 
   float outRadiometricScale; 
 
-  if ( s_reflectionProbeRelighting.bufferState[0].currentProbeRelightingIndex != -1 )
+  if ( s_reflectionProbeRelighting.bufferState[0].currentProbeRelightingIndex != -1 && s_reflectionProbeRelighting.bufferState[0].radiometricScale == 0.0 )
   {
+    v0 = &frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex];
+    R_Tonemap_GetRadiometricScale(frontEndDataOut, v0, &outRadiometricScale, &outPrevFrameRadiometricScale);
+    _XMM0 = LODWORD(v0->input.sceneConstants.radiometricScale.v[0]);
+    _XMM3 = LODWORD(v0->input.sceneConstants.radiometricScale.v[1]);
     __asm
     {
-      vmovss  xmm0, cs:s_reflectionProbeRelighting.bufferState.radiometricScale
-      vxorps  xmm1, xmm1, xmm1
-      vucomiss xmm0, xmm1
+      vcmpless xmm2, xmm0, cs:__real@358637bd
+      vblendvps xmm0, xmm3, xmm1, xmm2
     }
-    if ( s_reflectionProbeRelighting.bufferState[0].currentProbeRelightingIndex == -1 )
-    {
-      _RBX = &frontEndDataOut->viewInfo[frontEndDataOut->viewInfoIndex];
-      R_Tonemap_GetRadiometricScale(frontEndDataOut, _RBX, &outRadiometricScale, &outPrevFrameRadiometricScale);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+1B50h]
-        vmovss  xmm3, dword ptr [rbx+1B54h]
-        vcmpless xmm2, xmm0, cs:__real@358637bd
-        vmovss  xmm1, cs:__real@3f800000
-        vblendvps xmm0, xmm3, xmm1, xmm2
-        vmovss  cs:s_reflectionProbeRelighting.bufferState.radiometricScale, xmm0
-      }
-    }
+    s_reflectionProbeRelighting.bufferState[0].radiometricScale = *(float *)&_XMM0;
   }
 }
 
@@ -281,130 +266,89 @@ R_ReflectionProbeRelighting_GetProbeToRelight
 */
 __int64 R_ReflectionProbeRelighting_GetProbeToRelight(const GfxBackEndData *data, const vec3_t *viewPosition)
 {
-  const dvar_t *v5; 
-  __int64 result; 
-  unsigned int v7; 
-  unsigned int v8; 
+  const dvar_t *v2; 
+  unsigned int v4; 
+  unsigned int v5; 
   unsigned int probeRelightingCount; 
-  char v10; 
+  char v7; 
   int integer; 
-  unsigned int v13; 
-  __int64 v14; 
-  unsigned __int64 v15; 
+  float v9; 
+  unsigned int v10; 
+  __int64 v11; 
+  unsigned __int64 v12; 
+  float *v13; 
   GfxReflectionProbeRelightingData *probeRelightingData; 
-  __int64 v43; 
-  __int64 v44; 
+  float v15; 
+  float v16; 
+  float v17; 
+  __int64 v18; 
+  __int64 v19; 
   bitarray<128> relightableProbeVisibility; 
 
-  v5 = r_reflectionProbeLightingEnabled;
+  v2 = r_reflectionProbeLightingEnabled;
   if ( !r_reflectionProbeLightingEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( !v5->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( !v2->current.enabled )
     return 0xFFFFFFFFi64;
-  v7 = 0;
-  v8 = -1;
+  v4 = 0;
+  v5 = -1;
   probeRelightingCount = s_reflectionProbeRelighting.probeRelightingCount;
-  v10 = 1;
+  v7 = 1;
   integer = r_reflectionProbeLightingProbeIndexOverride->current.integer;
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_38], xmm6
-    vmovss  xmm6, cs:__real@ff7fffff
-  }
-  if ( integer == -1 || (v13 = 0, !s_reflectionProbeRelighting.probeRelightingCount) )
+  v9 = FLOAT_N3_4028235e38;
+  if ( integer == -1 || (v10 = 0, !s_reflectionProbeRelighting.probeRelightingCount) )
   {
 LABEL_10:
     R_ReflectionProbeRelighting_GetRelightableProbeVisibility(&relightableProbeVisibility);
     if ( probeRelightingCount )
     {
-      v14 = 0i64;
-      v15 = 0i64;
-      _R14 = &s_reflectionProbeRelighting.probeRelightingState[0].reflectionProbePosition.v[2];
-      __asm
-      {
-        vmovaps [rsp+0C8h+var_48], xmm7
-        vmovss  xmm7, cs:__real@3f800000
-        vmovaps [rsp+0C8h+var_58], xmm8
-        vmovss  xmm8, cs:__real@3a83126f
-      }
+      v11 = 0i64;
+      v12 = 0i64;
+      v13 = &s_reflectionProbeRelighting.probeRelightingState[0].reflectionProbePosition.v[2];
       do
       {
         probeRelightingData = g_worldDraw->reflectionProbeData.probeRelightingData;
-        if ( !R_ReflectionProbe_IsTransientStreamingEnabled() || R_ReflectionProbe_IsRelightableReflectionProbeImageLoaded(data, probeRelightingData[v14].reflectionProbeIndex) )
+        if ( !R_ReflectionProbe_IsTransientStreamingEnabled() || R_ReflectionProbe_IsRelightableReflectionProbeImageLoaded(data, probeRelightingData[v11].reflectionProbeIndex) )
         {
-          if ( v7 >= 0x80 )
+          if ( v4 >= 0x80 )
           {
-            LODWORD(v44) = 128;
-            LODWORD(v43) = v7;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v43, v44) )
+            LODWORD(v19) = 128;
+            LODWORD(v18) = v4;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v18, v19) )
               __debugbreak();
           }
-          if ( ((0x80000000 >> (v7 & 0x1F)) & relightableProbeVisibility.array[v15 >> 5]) != 0 )
+          if ( ((0x80000000 >> (v4 & 0x1F)) & relightableProbeVisibility.array[v12 >> 5]) != 0 )
           {
-            __asm
+            v15 = *(v13 - 1) - viewPosition->v[1];
+            v16 = 1.0 / (float)((float)(fsqrt((float)((float)(v15 * v15) + (float)((float)(*(v13 - 2) - viewPosition->v[0]) * (float)(*(v13 - 2) - viewPosition->v[0]))) + (float)((float)(*v13 - viewPosition->v[2]) * (float)(*v13 - viewPosition->v[2]))) * 0.001) + 1.0);
+            v17 = _mm_cvtepi32_ps((__m128i)(s_reflectionProbeRelighting.updateTicksElapsed - *((_DWORD *)v13 - 3))).m128_f32[0] * (float)(v16 * v16);
+            if ( v7 || v17 > v9 )
             {
-              vmovss  xmm0, dword ptr [r14-8]
-              vmovss  xmm1, dword ptr [r14-4]
-              vsubss  xmm3, xmm0, dword ptr [rax]
-              vsubss  xmm2, xmm1, dword ptr [rax+4]
-              vmovss  xmm0, dword ptr [r14]
-              vsubss  xmm4, xmm0, dword ptr [rax+8]
-            }
-            _EAX = s_reflectionProbeRelighting.updateTicksElapsed - *((_DWORD *)_R14 - 3);
-            __asm
-            {
-              vmulss  xmm1, xmm3, xmm3
-              vmulss  xmm2, xmm2, xmm2
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm2, xmm3, xmm0
-              vsqrtss xmm1, xmm2, xmm2
-              vmulss  xmm3, xmm1, xmm8
-              vaddss  xmm0, xmm3, xmm7
-              vdivss  xmm2, xmm7, xmm0
-              vmovd   xmm1, eax
-              vmulss  xmm0, xmm2, xmm2
-              vcvtdq2ps xmm1, xmm1
-              vmulss  xmm3, xmm1, xmm0
-            }
-            if ( v10 )
-            {
-              __asm { vmovaps xmm6, xmm3 }
-              v8 = v7;
-              v10 = 0;
-            }
-            else
-            {
-              __asm { vcomiss xmm3, xmm6 }
+              v9 = v17;
+              v5 = v4;
+              v7 = 0;
             }
           }
         }
-        ++v7;
-        ++v15;
-        ++v14;
-        _R14 += 10;
+        ++v4;
+        ++v12;
+        ++v11;
+        v13 += 10;
       }
-      while ( v7 < probeRelightingCount );
-      __asm
-      {
-        vmovaps xmm8, [rsp+0C8h+var_58]
-        vmovaps xmm7, [rsp+0C8h+var_48]
-      }
+      while ( v4 < probeRelightingCount );
     }
-    result = v8;
+    return v5;
   }
   else
   {
-    while ( g_worldDraw->reflectionProbeData.probeRelightingData[v13].reflectionProbeIndex != integer )
+    while ( g_worldDraw->reflectionProbeData.probeRelightingData[v10].reflectionProbeIndex != integer )
     {
-      if ( ++v13 >= s_reflectionProbeRelighting.probeRelightingCount )
+      if ( ++v10 >= s_reflectionProbeRelighting.probeRelightingCount )
         goto LABEL_10;
     }
-    result = v13;
+    return v10;
   }
-  __asm { vmovaps xmm6, [rsp+0C8h+var_38] }
-  return result;
 }
 
 /*
@@ -530,69 +474,66 @@ bool R_ReflectionProbeRelighting_IssueRelightingStage(const GfxViewParms *viewPa
 {
   const GfxImage *ProbeOctahedronImageArray; 
   GfxPixelFormat format; 
-  __int64 v6; 
+  GfxBackEndData *v4; 
+  __int64 v5; 
   unsigned int currentProbeRelightingIndex; 
   bool result; 
-  unsigned int v9; 
-  __int64 v12; 
+  unsigned int v8; 
+  __int64 v9; 
   unsigned int frameIndex; 
   unsigned int labelIndex; 
   const GfxLabelSyncInfo *waitLabelInfo; 
-  GfxReflectionProbeFilteringMethod v16; 
+  GfxReflectionProbeFilteringMethod v13; 
   unsigned int ProbeToRelight; 
-  __int64 v20; 
-  int v22; 
-  unsigned int v23; 
-  unsigned int v24; 
-  char v28; 
+  __int64 v15; 
+  int v16; 
+  unsigned int v17; 
+  unsigned int v18; 
+  const dvar_t *v19; 
+  float value; 
   int Int_Internal; 
-  int v30; 
-  int v31; 
-  int v32; 
+  int v22; 
+  int v23; 
+  int v24; 
   unsigned __int64 *gpuLabelRelightingComplete; 
-  unsigned int v35; 
+  unsigned int v26; 
 
   if ( rg.useRProbeOctahedron )
     ProbeOctahedronImageArray = R_ReflectionProbe_GetProbeOctahedronImageArray();
   else
     ProbeOctahedronImageArray = R_ReflectionProbe_GetProbeImageArray();
   format = ProbeOctahedronImageArray->format;
-  _RBX = frontEndDataOut;
-  v6 = 1i64;
+  v4 = frontEndDataOut;
+  v5 = 1i64;
   if ( format == GFX_PF_BC6H )
-    v6 = 2i64;
-  currentProbeRelightingIndex = s_reflectionProbeRelighting.bufferState[v6].currentProbeRelightingIndex;
+    v5 = 2i64;
+  currentProbeRelightingIndex = s_reflectionProbeRelighting.bufferState[v5].currentProbeRelightingIndex;
   if ( currentProbeRelightingIndex != -1 )
   {
     frontEndDataOut->reflectionProbeRelightingData.relightingIndexToCopy = currentProbeRelightingIndex;
-    _RBX->reflectionProbeRelightingData.relitReflectionProbeRadiometricScale = s_reflectionProbeRelighting.bufferState[v6].radiometricScale;
+    v4->reflectionProbeRelightingData.relitReflectionProbeRadiometricScale = s_reflectionProbeRelighting.bufferState[v5].radiometricScale;
     result = 1;
-    s_reflectionProbeRelighting.bufferState[v6].currentProbeRelightingIndex = -1;
-    *(_QWORD *)&s_reflectionProbeRelighting.bufferState[v6].labelIndex = 0i64;
+    s_reflectionProbeRelighting.bufferState[v5].currentProbeRelightingIndex = -1;
+    *(_QWORD *)&s_reflectionProbeRelighting.bufferState[v5].labelIndex = 0i64;
     return result;
   }
-  v9 = s_reflectionProbeRelighting.bufferState[1].currentProbeRelightingIndex;
+  v8 = s_reflectionProbeRelighting.bufferState[1].currentProbeRelightingIndex;
   if ( s_reflectionProbeRelighting.bufferState[1].currentProbeRelightingIndex != -1 )
   {
     if ( format != GFX_PF_BC6H || R_ReflectionProbeFiltering_CompressFilteredImage(NULL, 0, 1) )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:s_reflectionProbeRelighting.bufferState.radiometricScale+0Ch
-        vmovss  cs:s_reflectionProbeRelighting.bufferState.radiometricScale+18h, xmm0
-      }
-      s_reflectionProbeRelighting.bufferState[2].currentProbeRelightingIndex = v9;
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      s_reflectionProbeRelighting.bufferState[2].radiometricScale = s_reflectionProbeRelighting.bufferState[1].radiometricScale;
+      s_reflectionProbeRelighting.bufferState[2].currentProbeRelightingIndex = v8;
       s_reflectionProbeRelighting.bufferState[2].labelIndex = s_reflectionProbeRelighting.bufferState[1].labelIndex;
       result = 1;
-      __asm { vmovss  cs:s_reflectionProbeRelighting.bufferState.radiometricScale+0Ch, xmm0 }
+      s_reflectionProbeRelighting.bufferState[1].radiometricScale = 0.0;
       s_reflectionProbeRelighting.bufferState[1].currentProbeRelightingIndex = -1;
       s_reflectionProbeRelighting.bufferState[1].labelIndex = 0;
       return result;
     }
     return 1;
   }
-  v12 = s_reflectionProbeRelighting.bufferState[0].currentProbeRelightingIndex;
+  v9 = s_reflectionProbeRelighting.bufferState[0].currentProbeRelightingIndex;
   if ( s_reflectionProbeRelighting.bufferState[0].currentProbeRelightingIndex != -1 )
   {
     frameIndex = s_reflectionProbeRelighting.frameIndex;
@@ -609,21 +550,16 @@ bool R_ReflectionProbeRelighting_IssueRelightingStage(const GfxViewParms *viewPa
     {
       waitLabelInfo = (const GfxLabelSyncInfo *)&gpuLabelRelightingComplete;
       gpuLabelRelightingComplete = s_reflectionProbeRelighting.gpuLabelRelightingComplete;
-      v35 = labelIndex;
+      v26 = labelIndex;
     }
-    v16 = BRUTE_FORCE;
-    if ( _RBX->reflectionProbeRelightingData.debugMode )
-      v16 = BOX;
-    if ( R_ReflectionProbeFiltering_FilterImage(s_reflectionProbeRelighting.m_relightingImage, v16, 0, 1, 0x10u, g_worldDraw->reflectionProbeData.probeRelightingData[v12].reflectionProbeIndex, waitLabelInfo) )
+    v13 = BRUTE_FORCE;
+    if ( v4->reflectionProbeRelightingData.debugMode )
+      v13 = BOX;
+    if ( R_ReflectionProbeFiltering_FilterImage(s_reflectionProbeRelighting.m_relightingImage, v13, 0, 1, 0x10u, g_worldDraw->reflectionProbeData.probeRelightingData[v9].reflectionProbeIndex, waitLabelInfo) )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:s_reflectionProbeRelighting.bufferState.radiometricScale
-        vmovss  cs:s_reflectionProbeRelighting.bufferState.radiometricScale+0Ch, xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  cs:s_reflectionProbeRelighting.bufferState.radiometricScale, xmm0
-      }
-      s_reflectionProbeRelighting.bufferState[1].currentProbeRelightingIndex = v12;
+      s_reflectionProbeRelighting.bufferState[1].radiometricScale = s_reflectionProbeRelighting.bufferState[0].radiometricScale;
+      s_reflectionProbeRelighting.bufferState[0].radiometricScale = 0.0;
+      s_reflectionProbeRelighting.bufferState[1].currentProbeRelightingIndex = v9;
       s_reflectionProbeRelighting.bufferState[1].labelIndex = s_reflectionProbeRelighting.bufferState[0].labelIndex;
       s_reflectionProbeRelighting.bufferState[0].currentProbeRelightingIndex = -1;
       s_reflectionProbeRelighting.bufferState[0].labelIndex = 0;
@@ -631,76 +567,63 @@ bool R_ReflectionProbeRelighting_IssueRelightingStage(const GfxViewParms *viewPa
     return 1;
   }
   ProbeToRelight = R_ReflectionProbeRelighting_GetProbeToRelight(frontEndDataOut, &viewParms->camera.origin);
-  v20 = ProbeToRelight;
+  v15 = ProbeToRelight;
   if ( ProbeToRelight != -1 )
   {
-    __asm { vmovaps [rsp+78h+var_18], xmm6 }
     if ( r_reflectionProbeShowRelitProbe && r_reflectionProbeShowRelitProbe->current.enabled )
-    {
-      __asm { vmovss  xmm2, cs:__real@42800000; size }
-      R_AddDebugStar(&frontEndDataOut->debugGlobals, &g_worldDraw->reflectionProbeData.reflectionProbes[g_worldDraw->reflectionProbeData.probeRelightingData[ProbeToRelight].reflectionProbeIndex].origin, *(const float *)&_XMM2, &colorYellowHeat);
-    }
-    _RBX->reflectionProbeRelightingData.reflectionProbeRelightingIndex = v20;
-    v22 = 0;
-    _RBX->reflectionProbeRelightingData.frameIndex = s_reflectionProbeRelighting.frameIndex;
-    s_reflectionProbeRelighting.probeRelightingState[v20].lastUpdateTick = s_reflectionProbeRelighting.updateTicksElapsed;
-    _RBX->reflectionProbeRelightingData.reflectionProbePosition.v[0] = s_reflectionProbeRelighting.probeRelightingState[v20].reflectionProbePosition.v[0];
-    _RBX->reflectionProbeRelightingData.reflectionProbePosition.v[1] = s_reflectionProbeRelighting.probeRelightingState[v20].reflectionProbePosition.v[1];
-    _RBX->reflectionProbeRelightingData.reflectionProbePosition.v[2] = s_reflectionProbeRelighting.probeRelightingState[v20].reflectionProbePosition.v[2];
-    _RBX->reflectionProbeRelightingData.reflectionProbeRotation.v[0] = s_reflectionProbeRelighting.probeRelightingState[v20].reflectionProbeRotation.v[0];
-    _RBX->reflectionProbeRelightingData.reflectionProbeRotation.v[1] = s_reflectionProbeRelighting.probeRelightingState[v20].reflectionProbeRotation.v[1];
-    _RBX->reflectionProbeRelightingData.reflectionProbeRotation.v[2] = s_reflectionProbeRelighting.probeRelightingState[v20].reflectionProbeRotation.v[2];
-    _RBX->reflectionProbeRelightingData.reflectionProbeRotation.v[3] = s_reflectionProbeRelighting.probeRelightingState[v20].reflectionProbeRotation.v[3];
-    _RBX->reflectionProbeRelightingData.sunIntensityScale = s_reflectionProbeRelighting.probeRelightingState[v20].sunIntensityScale;
-    v23 = *((_DWORD *)&_RBX->reflectionProbeRelightingData + 12) & 0xFFFFFFFE | s_reflectionProbeRelighting.probeRelightingState[v20].disableSunShadowmap;
-    *((_DWORD *)&_RBX->reflectionProbeRelightingData + 12) = v23;
-    v24 = v23 & 0xFFFFFFFD | (s_reflectionProbeRelighting.probeRelightingState[v20].disableSunGBufferMask ? 2 : 0);
-    *((_DWORD *)&_RBX->reflectionProbeRelightingData + 12) = v24;
-    *((_DWORD *)&_RBX->reflectionProbeRelightingData + 12) = v24 & 0xFFFFFFFB | (s_reflectionProbeRelighting.probeRelightingState[v20].disableOtherShadowmap ? 4 : 0);
-    _RBX->reflectionProbeRelightingData.debugMode = Dvar_GetInt_Internal(r_reflectionProbeLightingDebugMode);
-    _RBX->reflectionProbeRelightingData.debugTimestamp = s_reflectionProbeRelighting.updateTicksElapsed;
-    _RBP = r_reflectionProbeLightingSunOverride;
+      R_AddDebugStar(&frontEndDataOut->debugGlobals, &g_worldDraw->reflectionProbeData.reflectionProbes[g_worldDraw->reflectionProbeData.probeRelightingData[ProbeToRelight].reflectionProbeIndex].origin, 64.0, &colorYellowHeat);
+    v4->reflectionProbeRelightingData.reflectionProbeRelightingIndex = v15;
+    v16 = 0;
+    v4->reflectionProbeRelightingData.frameIndex = s_reflectionProbeRelighting.frameIndex;
+    s_reflectionProbeRelighting.probeRelightingState[v15].lastUpdateTick = s_reflectionProbeRelighting.updateTicksElapsed;
+    v4->reflectionProbeRelightingData.reflectionProbePosition.v[0] = s_reflectionProbeRelighting.probeRelightingState[v15].reflectionProbePosition.v[0];
+    v4->reflectionProbeRelightingData.reflectionProbePosition.v[1] = s_reflectionProbeRelighting.probeRelightingState[v15].reflectionProbePosition.v[1];
+    v4->reflectionProbeRelightingData.reflectionProbePosition.v[2] = s_reflectionProbeRelighting.probeRelightingState[v15].reflectionProbePosition.v[2];
+    v4->reflectionProbeRelightingData.reflectionProbeRotation.v[0] = s_reflectionProbeRelighting.probeRelightingState[v15].reflectionProbeRotation.v[0];
+    v4->reflectionProbeRelightingData.reflectionProbeRotation.v[1] = s_reflectionProbeRelighting.probeRelightingState[v15].reflectionProbeRotation.v[1];
+    v4->reflectionProbeRelightingData.reflectionProbeRotation.v[2] = s_reflectionProbeRelighting.probeRelightingState[v15].reflectionProbeRotation.v[2];
+    v4->reflectionProbeRelightingData.reflectionProbeRotation.v[3] = s_reflectionProbeRelighting.probeRelightingState[v15].reflectionProbeRotation.v[3];
+    v4->reflectionProbeRelightingData.sunIntensityScale = s_reflectionProbeRelighting.probeRelightingState[v15].sunIntensityScale;
+    v17 = *((_DWORD *)&v4->reflectionProbeRelightingData + 12) & 0xFFFFFFFE | s_reflectionProbeRelighting.probeRelightingState[v15].disableSunShadowmap;
+    *((_DWORD *)&v4->reflectionProbeRelightingData + 12) = v17;
+    v18 = v17 & 0xFFFFFFFD | (s_reflectionProbeRelighting.probeRelightingState[v15].disableSunGBufferMask ? 2 : 0);
+    *((_DWORD *)&v4->reflectionProbeRelightingData + 12) = v18;
+    *((_DWORD *)&v4->reflectionProbeRelightingData + 12) = v18 & 0xFFFFFFFB | (s_reflectionProbeRelighting.probeRelightingState[v15].disableOtherShadowmap ? 4 : 0);
+    v4->reflectionProbeRelightingData.debugMode = Dvar_GetInt_Internal(r_reflectionProbeLightingDebugMode);
+    v4->reflectionProbeRelightingData.debugTimestamp = s_reflectionProbeRelighting.updateTicksElapsed;
+    v19 = r_reflectionProbeLightingSunOverride;
     if ( !r_reflectionProbeLightingSunOverride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 648, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBP);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+28h]
-      vxorps  xmm6, xmm6, xmm6
-      vcomiss xmm0, xmm6
-    }
-    if ( !v28 )
-      __asm { vmovss  dword ptr [rbx+7B34h], xmm0 }
+    Dvar_CheckFrontendServerThread(v19);
+    value = v19->current.value;
+    if ( value >= 0.0 )
+      v4->reflectionProbeRelightingData.sunIntensityScale = value;
     Int_Internal = Dvar_GetInt_Internal(r_reflectionProbeLightingSunShadowmapOverride);
     if ( Int_Internal >= 0 )
     {
-      *((_DWORD *)&_RBX->reflectionProbeRelightingData + 12) &= ~1u;
-      *((_DWORD *)&_RBX->reflectionProbeRelightingData + 12) |= Int_Internal != 1;
+      *((_DWORD *)&v4->reflectionProbeRelightingData + 12) &= ~1u;
+      *((_DWORD *)&v4->reflectionProbeRelightingData + 12) |= Int_Internal != 1;
     }
-    v30 = Dvar_GetInt_Internal(r_reflectionProbeLightingSunMaskOverride);
-    if ( v30 >= 0 )
+    v22 = Dvar_GetInt_Internal(r_reflectionProbeLightingSunMaskOverride);
+    if ( v22 >= 0 )
     {
-      *((_DWORD *)&_RBX->reflectionProbeRelightingData + 12) &= ~2u;
-      v31 = 0;
-      if ( v30 != 1 )
-        v31 = 2;
-      *((_DWORD *)&_RBX->reflectionProbeRelightingData + 12) |= v31;
+      *((_DWORD *)&v4->reflectionProbeRelightingData + 12) &= ~2u;
+      v23 = 0;
+      if ( v22 != 1 )
+        v23 = 2;
+      *((_DWORD *)&v4->reflectionProbeRelightingData + 12) |= v23;
     }
-    v32 = Dvar_GetInt_Internal(r_reflectionProbeLightingOtherShadowmapOverride);
-    if ( v32 >= 0 )
+    v24 = Dvar_GetInt_Internal(r_reflectionProbeLightingOtherShadowmapOverride);
+    if ( v24 >= 0 )
     {
-      *((_DWORD *)&_RBX->reflectionProbeRelightingData + 12) &= ~4u;
-      if ( v32 != 1 )
-        v22 = 4;
-      *((_DWORD *)&_RBX->reflectionProbeRelightingData + 12) |= v22;
+      *((_DWORD *)&v4->reflectionProbeRelightingData + 12) &= ~4u;
+      if ( v24 != 1 )
+        v16 = 4;
+      *((_DWORD *)&v4->reflectionProbeRelightingData + 12) |= v16;
     }
-    __asm
-    {
-      vmovss  cs:s_reflectionProbeRelighting.bufferState.radiometricScale, xmm6
-      vmovaps xmm6, [rsp+78h+var_18]
-    }
+    s_reflectionProbeRelighting.bufferState[0].radiometricScale = 0.0;
     s_reflectionProbeRelighting.bufferState[0].labelIndex = s_reflectionProbeRelighting.frameIndex;
-    s_reflectionProbeRelighting.bufferState[0].currentProbeRelightingIndex = v20;
+    s_reflectionProbeRelighting.bufferState[0].currentProbeRelightingIndex = v15;
   }
   return 0;
 }
@@ -712,13 +635,7 @@ R_ReflectionProbeRelighting_RegisterDvars
 */
 void R_ReflectionProbeRelighting_RegisterDvars(void)
 {
-  __asm
-  {
-    vmovss  xmm1, cs:__real@bf800000; value
-    vmovss  xmm3, cs:__real@3f800000; max
-    vmovaps xmm2, xmm1; min
-  }
-  r_reflectionProbeLightingSunOverride = Dvar_RegisterFloat("LKPMNRSKRT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Reflection probe relighting sun intensity override");
+  r_reflectionProbeLightingSunOverride = Dvar_RegisterFloat("LKPMNRSKRT", -1.0, -1.0, 1.0, 0, "Reflection probe relighting sun intensity override");
   r_reflectionProbeLightingSunShadowmapOverride = Dvar_RegisterInt("LLSQQOKNLN", -1, -1, 1, 0, "Reflection probe relighting sun shadowmap override");
   r_reflectionProbeLightingSunMaskOverride = Dvar_RegisterInt("LKNMLKRTRL", -1, -1, 1, 0, "Reflection probe relighting sun gbuffer mask override");
   r_reflectionProbeLightingOtherShadowmapOverride = Dvar_RegisterInt("NKQNMMMNLR", -1, -1, 1, 0, "Reflection probe relighting other (not sun) shadowmap override");
@@ -794,83 +711,72 @@ R_ReflectionProbeRelighting_RelightReflectionProbe_BindCommonInput
 */
 void R_ReflectionProbeRelighting_RelightReflectionProbe_BindCommonInput(ComputeCmdBufState *state, const GfxBackEndData *data, const GfxImage **sunShadowImages, const GfxImage *translucentSunShadowImage, const GfxImage *translucentSunShadowMaskImage, const GfxImage *spotShadowArrayImage)
 {
-  GfxViewInfo *v11; 
-  int v12; 
+  GfxViewInfo *v10; 
+  int v11; 
+  float v13; 
   GfxImage *iesLookupTexture; 
   GfxImage *blackImage; 
-  ID3D12Resource **p_buffer; 
+  GfxWrappedBuffer *globalSceneConstantBuffer; 
   __int64 voxelTreeZoneIndex; 
   GfxTexture *Resident; 
   ID3D12Resource *buffers; 
   GfxTexture *textures; 
   int dataa[4]; 
+  vec4_t reflectionProbeRotation; 
+  float sunIntensityScale; 
+  int v33; 
+  int v34; 
+  int v35; 
   unsigned int debugMode; 
   unsigned int debugTimestamp; 
-  int v51; 
+  int v38; 
 
   textures = (GfxTexture *)translucentSunShadowMaskImage;
   Resident = (GfxTexture *)spotShadowArrayImage;
-  _RSI = data;
-  v11 = &data->viewInfo[data->viewInfoIndex];
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_relighting.cpp", 158, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo", Resident) )
+  v10 = &data->viewInfo[data->viewInfoIndex];
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_relighting.cpp", 158, ASSERT_TYPE_ASSERT, "(viewInfo)", (const char *)&queryFormat, "viewInfo", Resident) )
     __debugbreak();
-  if ( v11->input.data != _RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_relighting.cpp", 160, ASSERT_TYPE_ASSERT, "(viewInfo->input.data == data)", (const char *)&queryFormat, "viewInfo->input.data == data") )
+  if ( v10->input.data != data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_relighting.cpp", 160, ASSERT_TYPE_ASSERT, "(viewInfo->input.data == data)", (const char *)&queryFormat, "viewInfo->input.data == data") )
     __debugbreak();
-  v12 = *((_DWORD *)&_RSI->reflectionProbeRelightingData + 12);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000
-    vmovss  xmm1, dword ptr [rsi+7B1Ch]
-    vmovss  xmm0, dword ptr [rsi+7B18h]
-  }
+  v11 = *((_DWORD *)&data->reflectionProbeRelightingData + 12);
+  _XMM3 = LODWORD(FLOAT_1_0);
+  v13 = data->reflectionProbeRelightingData.reflectionProbePosition.v[1];
   iesLookupTexture = g_worldDraw->iesLookupTexture;
   blackImage = rgp.blackImage;
-  if ( (*((_BYTE *)&v11->viewportFeatures + 44) & 4) != 0 )
+  if ( (*((_BYTE *)&v10->viewportFeatures + 44) & 4) != 0 )
     blackImage = rgp.cloudNoiseImage;
-  _EAX = v12 & 1;
-  __asm
-  {
-    vmovss  [rbp+47h+data], xmm0
-    vmovss  xmm0, dword ptr [rsi+7B20h]
-    vmovss  [rbp+47h+var_88], xmm0
-    vmovss  [rbp+47h+var_8C], xmm1
-    vmovups xmm1, xmmword ptr [rsi+7B24h]
-    vmovd   xmm0, eax
-    vmovaps [rbp+47h+var_80], xmm1
-    vmovss  xmm1, dword ptr [rsi+7B34h]
-  }
-  _EDX = 0;
-  LOBYTE(_EAX) = v12;
-  __asm
-  {
-    vmovss  [rbp+47h+var_70], xmm1
-    vmovd   xmm1, edx
-    vpcmpeqd xmm2, xmm0, xmm1
-    vxorps  xmm4, xmm4, xmm4
-    vblendvps xmm0, xmm3, xmm4, xmm2
-    vmovss  [rbp+47h+var_6C], xmm0
-    vmovd   xmm1, edx
-  }
-  _ECX = v12 & 2;
-  _EAX = _EAX & 4;
-  __asm { vmovd   xmm0, eax }
-  p_buffer = &_RSI->globalSceneConstantBuffer->buffer;
+  dataa[0] = LODWORD(data->reflectionProbeRelightingData.reflectionProbePosition.v[0]);
+  dataa[2] = LODWORD(data->reflectionProbeRelightingData.reflectionProbePosition.v[2]);
+  *(float *)&dataa[1] = v13;
+  _XMM0 = v11 & 1;
+  reflectionProbeRotation = data->reflectionProbeRelightingData.reflectionProbeRotation;
+  sunIntensityScale = data->reflectionProbeRelightingData.sunIntensityScale;
   __asm
   {
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm3, xmm4, xmm2
-    vmovss  [rbp+47h+var_64], xmm0
-    vmovd   xmm0, ecx
-    vmovd   xmm1, edx
+  }
+  v33 = _XMM0;
+  _XMM0 = v11 & 4;
+  globalSceneConstantBuffer = data->globalSceneConstantBuffer;
+  __asm
+  {
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm3, xmm4, xmm2
-    vmovss  [rbp+47h+var_68], xmm0
   }
-  buffers = *p_buffer;
+  v35 = _XMM0;
+  _XMM0 = v11 & 2;
+  __asm
+  {
+    vpcmpeqd xmm2, xmm0, xmm1
+    vblendvps xmm0, xmm3, xmm4, xmm2
+  }
+  v34 = _XMM0;
+  buffers = globalSceneConstantBuffer->buffer;
   R_SetComputeConstantBuffers(state, 7, 1, &buffers);
-  debugMode = _RSI->reflectionProbeRelightingData.debugMode;
-  debugTimestamp = _RSI->reflectionProbeRelightingData.debugTimestamp;
-  v51 = 0;
+  debugMode = data->reflectionProbeRelightingData.debugMode;
+  debugTimestamp = data->reflectionProbeRelightingData.debugTimestamp;
+  v38 = 0;
   R_UploadAndSetComputeConstants(state, 0, dataa, 0x40u, NULL);
   buffers = (ID3D12Resource *)R_Texture_GetResident((*sunShadowImages)->textureId);
   R_SetComputeTextures(state, 5, 1, (const GfxTexture *const *)&buffers);
@@ -888,16 +794,16 @@ void R_ReflectionProbeRelighting_RelightReflectionProbe_BindCommonInput(ComputeC
   R_SetComputeTextures(state, 12, 1, (const GfxTexture *const *)&Resident);
   Resident = (GfxTexture *)R_Texture_GetResident(iesLookupTexture->textureId);
   R_SetComputeTextures(state, 13, 1, (const GfxTexture *const *)&Resident);
-  voxelTreeZoneIndex = v11->input.voxelTreeZoneIndex;
+  voxelTreeZoneIndex = v10->input.voxelTreeZoneIndex;
   Resident = (GfxTexture *)deviceGlobals.voxelTreeHeaderConstantBuffer[voxelTreeZoneIndex].buffer;
   R_SetComputeConstantBuffers(state, 1, 1, (ID3D12Resource *const *const)&Resident);
   Resident = (GfxTexture *)deviceGlobals.voxelTreeHeaderConstantBuffer[(unsigned int)voxelTreeZoneIndex].buffer;
   R_SetComputeConstantBuffers(state, 1, 1, (ID3D12Resource *const *const)&Resident);
   Resident = (GfxTexture *)&R_CompressedSunShadow_GetBuffer()->view;
   R_SetComputeViews(state, 1, 1, (const GfxShaderBufferView *const *)&Resident);
-  Resident = (GfxTexture *)&v11->input.data->globalLightConstantBuffer->view;
+  Resident = (GfxTexture *)&v10->input.data->globalLightConstantBuffer->view;
   R_SetComputeViews(state, 19, 1, (const GfxShaderBufferView *const *)&Resident);
-  Resident = (GfxTexture *)&v11->input.data->globalShadowConstantBuffer->view;
+  Resident = (GfxTexture *)&v10->input.data->globalShadowConstantBuffer->view;
   R_SetComputeViews(state, 20, 1, (const GfxShaderBufferView *const *)&Resident);
   Resident = (GfxTexture *)&deviceGlobals.voxelTopDownViewNodeStructuredBuffer[voxelTreeZoneIndex].view;
   R_SetComputeViews(state, 21, 1, (const GfxShaderBufferView *const *)&Resident);
@@ -907,7 +813,7 @@ void R_ReflectionProbeRelighting_RelightReflectionProbe_BindCommonInput(ComputeC
   R_SetComputeViews(state, 23, 1, (const GfxShaderBufferView *const *)&Resident);
   Resident = (GfxTexture *)&deviceGlobals.voxelLightListDataBuffer[voxelTreeZoneIndex].view;
   R_SetComputeViews(state, 24, 1, (const GfxShaderBufferView *const *)&Resident);
-  Resident = (GfxTexture *)(&deviceGlobals.voxelInternalNodeDynamicLightList[0][0].view + 4 * voxelTreeZoneIndex + 2 * v11->input.data->dynamicLightListBufferIndex);
+  Resident = (GfxTexture *)(&deviceGlobals.voxelInternalNodeDynamicLightList[0][0].view + 4 * voxelTreeZoneIndex + 2 * v10->input.data->dynamicLightListBufferIndex);
   R_SetComputeViews(state, 25, 1, (const GfxShaderBufferView *const *)&Resident);
 }
 
@@ -1036,82 +942,57 @@ void R_ReflectionProbeRelighting_Shutdown(void)
 R_ReflectionProbeRelighting_Startup
 ==============
 */
-
-void __fastcall R_ReflectionProbeRelighting_Startup(double _XMM0_8)
+void R_ReflectionProbeRelighting_Startup(void)
 {
-  GfxImage *v3; 
-  GfxImage *v7; 
-  __m256i v11; 
-  __m256i v12; 
-  GfxBufferCreationContext v13; 
+  GfxImage *v2; 
+  GfxImage *v4; 
+  __m256i v5; 
+  __m256i v6; 
+  GfxBufferCreationContext v7; 
   Image_SetupParams params; 
 
   s_reflectionProbeRelighting.bufferState[0].currentProbeRelightingIndex = -1;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  _XMM0 = 0i64;
   s_reflectionProbeRelighting.updateTicksElapsed = 0;
   s_reflectionProbeRelighting.bufferState[0].labelIndex = 0;
   s_reflectionProbeRelighting.bufferState[1].labelIndex = 0;
-  __asm
-  {
-    vmovss  cs:s_reflectionProbeRelighting.bufferState.radiometricScale, xmm0
-    vmovss  cs:s_reflectionProbeRelighting.bufferState.radiometricScale+0Ch, xmm0
-    vmovss  cs:s_reflectionProbeRelighting.bufferState.radiometricScale+18h, xmm0
-  }
+  s_reflectionProbeRelighting.bufferState[0].radiometricScale = 0.0;
+  s_reflectionProbeRelighting.bufferState[1].radiometricScale = 0.0;
+  s_reflectionProbeRelighting.bufferState[2].radiometricScale = 0.0;
   s_reflectionProbeRelighting.bufferState[2].labelIndex = 0;
   s_reflectionProbeRelighting.bufferState[1].currentProbeRelightingIndex = -1;
   s_reflectionProbeRelighting.bufferState[2].currentProbeRelightingIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+var_70+8], xmm0
-  }
-  v11.m256i_i32[2] = 1;
-  *(__int64 *)((char *)&v11.m256i_i64[1] + 4) = 6i64;
-  v12.m256i_i64[0] = 0i64;
-  v3 = Image_AllocProg(IMAGE_PROG_REFLECTION_PROBE_RELIGHTING, IMG_CATEGORY_RAW, TS_FUNCTION);
-  v12.m256i_i32[6] = -1;
-  __asm { vmovups ymm1, [rbp+57h+var_70] }
-  v11.m256i_i64[0] = 0x8000000080i64;
-  v11.m256i_i32[5] = 8519682;
-  v11.m256i_i32[6] = 32;
-  __asm
-  {
-    vmovups ymm0, [rbp+57h+var_90]
-    vmovups ymmword ptr [rbp+57h+params.width], ymm0
-    vmovups ymmword ptr [rbp+57h+params.customAllocFunc], ymm1
-  }
-  Image_Setup(v3, &params);
-  s_reflectionProbeRelighting.m_relightingImage = v3;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+var_70+8], xmm0
-  }
-  v11.m256i_i32[2] = 1;
-  *(__int64 *)((char *)&v11.m256i_i64[1] + 4) = 1i64;
-  v12.m256i_i64[0] = 0i64;
-  v7 = Image_AllocProg(IMAGE_PROG_REFLECTION_PROBE_RELIGHTING_OCTAHEDRON, IMG_CATEGORY_RAW, TS_FUNCTION);
-  v12.m256i_i32[6] = -1;
-  __asm { vmovups ymm1, [rbp+57h+var_70] }
-  v11.m256i_i64[0] = 0x10000000100i64;
-  v11.m256i_i32[5] = 8519682;
-  v11.m256i_i32[6] = 32;
-  __asm
-  {
-    vmovups ymm0, [rbp+57h+var_90]
-    vmovups ymmword ptr [rbp+57h+params.width], ymm0
-    vmovups ymmword ptr [rbp+57h+params.customAllocFunc], ymm1
-  }
-  Image_Setup(v7, &params);
-  s_reflectionProbeRelighting.m_relightingImageOctahedron = v7;
-  v13.zoneName = (char *)&queryFormat.fmt + 3;
-  v13.objectName = "Relighting sync data";
-  __asm
-  {
-    vmovups xmm0, [rbp+57h+var_50]
-    vmovdqa [rbp+57h+var_50], xmm0
-  }
-  s_reflectionProbeRelighting.gpuLabelRelightingComplete = (unsigned __int64 *)R_AllocGfxBufferMemory(8u, &v13);
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v6.m256i_u64[1] = _XMM0;
+  v5.m256i_i32[2] = 1;
+  *(__int64 *)((char *)&v5.m256i_i64[1] + 4) = 6i64;
+  v6.m256i_i64[0] = 0i64;
+  v2 = Image_AllocProg(IMAGE_PROG_REFLECTION_PROBE_RELIGHTING, IMG_CATEGORY_RAW, TS_FUNCTION);
+  v6.m256i_i32[6] = -1;
+  v5.m256i_i64[0] = 0x8000000080i64;
+  v5.m256i_i32[5] = 8519682;
+  v5.m256i_i32[6] = 32;
+  *(__m256i *)&params.width = v5;
+  *(__m256i *)&params.customAllocFunc = v6;
+  Image_Setup(v2, &params);
+  s_reflectionProbeRelighting.m_relightingImage = v2;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v6.m256i_u64[1] = _XMM0;
+  v5.m256i_i32[2] = 1;
+  *(__int64 *)((char *)&v5.m256i_i64[1] + 4) = 1i64;
+  v6.m256i_i64[0] = 0i64;
+  v4 = Image_AllocProg(IMAGE_PROG_REFLECTION_PROBE_RELIGHTING_OCTAHEDRON, IMG_CATEGORY_RAW, TS_FUNCTION);
+  v6.m256i_i32[6] = -1;
+  v5.m256i_i64[0] = 0x10000000100i64;
+  v5.m256i_i32[5] = 8519682;
+  v5.m256i_i32[6] = 32;
+  *(__m256i *)&params.width = v5;
+  *(__m256i *)&params.customAllocFunc = v6;
+  Image_Setup(v4, &params);
+  s_reflectionProbeRelighting.m_relightingImageOctahedron = v4;
+  v7.zoneName = (char *)&queryFormat.fmt + 3;
+  v7.objectName = "Relighting sync data";
+  s_reflectionProbeRelighting.gpuLabelRelightingComplete = (unsigned __int64 *)R_AllocGfxBufferMemory(8u, &v7);
   PIXSetDebugFenceName(s_reflectionProbeRelighting.gpuLabelRelightingComplete, "Probe Relight");
   *(_QWORD *)&s_reflectionProbeRelighting.frameIndex = 0i64;
   s_reflectionProbeRelighting.bufferState[0].currentProbeRelightingIndex = -1;
@@ -1295,33 +1176,35 @@ void R_ReflectionProbeRelighting_WorldShutdown(void)
 R_ReflectionProbeRelighting_WorldStartup
 ==============
 */
-
-void __fastcall R_ReflectionProbeRelighting_WorldStartup(__int64 a1, __int64 a2, __int64 a3, double _XMM3_8)
+void R_ReflectionProbeRelighting_WorldStartup(void)
 {
-  GfxWorldDraw *v5; 
+  GfxWorldDraw *v0; 
   unsigned int probeRelightingCount; 
-  unsigned int v7; 
-  unsigned int v11; 
-  __int64 v12; 
-  __int64 v13; 
+  unsigned int v2; 
+  float *v4; 
+  unsigned int v5; 
+  __int64 v6; 
+  __int64 v7; 
   GfxReflectionProbeRelightingData *probeRelightingData; 
-  GfxWorldDraw *v16; 
+  GfxWorldDraw *v9; 
   GfxReflectionProbe *reflectionProbes; 
   __int64 reflectionProbeIndex; 
-  GfxReflectionProbeRelightingData *v24; 
-  GfxWorldDraw *v26; 
-  GfxReflectionProbe *v28; 
+  GfxReflectionProbeRelightingData *v15; 
+  GfxWorldDraw *v16; 
+  GfxReflectionProbe *v17; 
+  __int64 v18; 
+  GfxReflectionProbeRelightingData *v22; 
+  __int64 v23; 
+  GfxWorldDraw *v24; 
+  GfxReflectionProbeRelightingData *v28; 
   __int64 v29; 
-  GfxReflectionProbeRelightingData *v34; 
-  GfxWorldDraw *v36; 
-  GfxReflectionProbeRelightingData *v42; 
-  __int64 v45; 
-  GfxReflectionProbe *v46; 
-  __int64 v50; 
-  __int64 v51; 
-  GfxReflectionProbeRelightingData *v53; 
+  GfxReflectionProbe *v30; 
+  __int64 v34; 
+  __int64 v35; 
+  float *v36; 
+  GfxReflectionProbeRelightingData *v37; 
+  __int64 v38; 
 
-  _ER14 = 0;
   *(_QWORD *)&s_reflectionProbeRelighting.frameIndex = 0i64;
   s_reflectionProbeRelighting.bufferState[0].labelIndex = 0;
   s_reflectionProbeRelighting.bufferState[1].labelIndex = 0;
@@ -1331,160 +1214,137 @@ void __fastcall R_ReflectionProbeRelighting_WorldStartup(__int64 a1, __int64 a2,
   s_reflectionProbeRelighting.bufferState[1].currentProbeRelightingIndex = -1;
   s_reflectionProbeRelighting.bufferState[2].currentProbeRelightingIndex = -1;
   R_GPULabel_SetCPU(s_reflectionProbeRelighting.gpuLabelRelightingComplete, 0);
-  v5 = g_worldDraw;
+  v0 = g_worldDraw;
   probeRelightingCount = g_worldDraw->reflectionProbeData.probeRelightingCount;
   if ( probeRelightingCount >= 0x80 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_reflection_probe_relighting.cpp", 596, ASSERT_TYPE_ASSERT, "( ( probeRelightingCount < ( sizeof( *array_counter( s_reflectionProbeRelighting.probeRelightingState ) ) + 0 ) ) )", "( probeRelightingCount ) = %u", g_worldDraw->reflectionProbeData.probeRelightingCount) )
       __debugbreak();
-    v5 = g_worldDraw;
+    v0 = g_worldDraw;
   }
   s_reflectionProbeRelighting.probeRelightingCount = probeRelightingCount;
-  v7 = 0;
-  __asm
-  {
-    vmovss  xmm4, cs:__real@3f800000
-    vxorps  xmm3, xmm3, xmm3
-  }
+  v2 = 0;
+  _XMM4 = LODWORD(FLOAT_1_0);
   if ( probeRelightingCount >= 4 )
   {
-    _R10 = &s_reflectionProbeRelighting.probeRelightingState[0].reflectionProbePosition.v[2];
-    v11 = ((probeRelightingCount - 4) >> 2) + 1;
-    v12 = 0i64;
-    v13 = v11;
-    v7 = 4 * v11;
+    v4 = &s_reflectionProbeRelighting.probeRelightingState[0].reflectionProbePosition.v[2];
+    v5 = ((probeRelightingCount - 4) >> 2) + 1;
+    v6 = 0i64;
+    v7 = v5;
+    v2 = 4 * v5;
     do
     {
-      *(_R10 - 3) = 0.0;
-      probeRelightingData = v5->reflectionProbeData.probeRelightingData;
-      __asm { vmovd   xmm1, r14d }
-      probeRelightingData[v12].relightingScale = 1.0;
-      v16 = g_worldDraw;
-      __asm { vmovaps xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity }
+      *(v4 - 3) = 0.0;
+      probeRelightingData = v0->reflectionProbeData.probeRelightingData;
+      probeRelightingData[v6].relightingScale = 1.0;
+      v9 = g_worldDraw;
       reflectionProbes = g_worldDraw->reflectionProbeData.reflectionProbes;
-      reflectionProbeIndex = probeRelightingData[v12].reflectionProbeIndex;
-      *(_R10 - 2) = reflectionProbes[probeRelightingData[v12].reflectionProbeIndex].origin.v[0];
-      *(_R10 - 1) = reflectionProbes[reflectionProbeIndex].origin.v[1];
-      *_R10 = reflectionProbes[reflectionProbeIndex].origin.v[2];
-      __asm { vmovups xmmword ptr [r10+4], xmm0 }
-      _EAX = probeRelightingData[v12].relightingFlags & 1;
+      reflectionProbeIndex = probeRelightingData[v6].reflectionProbeIndex;
+      *(v4 - 2) = reflectionProbes[probeRelightingData[v6].reflectionProbeIndex].origin.v[0];
+      *(v4 - 1) = reflectionProbes[reflectionProbeIndex].origin.v[1];
+      *v4 = reflectionProbes[reflectionProbeIndex].origin.v[2];
+      *(vec4_t *)(v4 + 1) = quat_identity;
+      _XMM0 = probeRelightingData[v6].relightingFlags & 1;
       __asm
       {
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm4, xmm3, xmm2
-        vmovss  dword ptr [r10+14h], xmm0
       }
-      *((_BYTE *)_R10 + 24) = (probeRelightingData[v12].relightingFlags & 2) == 0;
-      *((_BYTE *)_R10 + 26) = (probeRelightingData[v12].relightingFlags & 4) == 0;
-      *((_BYTE *)_R10 + 25) = (probeRelightingData[v12].relightingFlags & 8) == 0;
-      _R10[7] = 0.0;
-      v24 = v16->reflectionProbeData.probeRelightingData;
-      __asm { vmovd   xmm1, r14d }
-      v24[v12 + 1].relightingScale = 1.0;
-      v26 = g_worldDraw;
-      __asm { vmovaps xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity }
-      v28 = g_worldDraw->reflectionProbeData.reflectionProbes;
-      v29 = v24[v12 + 1].reflectionProbeIndex;
-      _R10[8] = v28[v24[v12 + 1].reflectionProbeIndex].origin.v[0];
-      _R10[9] = v28[v29].origin.v[1];
-      _R10[10] = v28[v29].origin.v[2];
-      __asm { vmovups xmmword ptr [r10+2Ch], xmm0 }
-      _EAX = v24[v12 + 1].relightingFlags & 1;
+      v4[5] = *(float *)&_XMM0;
+      *((_BYTE *)v4 + 24) = (probeRelightingData[v6].relightingFlags & 2) == 0;
+      *((_BYTE *)v4 + 26) = (probeRelightingData[v6].relightingFlags & 4) == 0;
+      *((_BYTE *)v4 + 25) = (probeRelightingData[v6].relightingFlags & 8) == 0;
+      v4[7] = 0.0;
+      v15 = v9->reflectionProbeData.probeRelightingData;
+      v15[v6 + 1].relightingScale = 1.0;
+      v16 = g_worldDraw;
+      v17 = g_worldDraw->reflectionProbeData.reflectionProbes;
+      v18 = v15[v6 + 1].reflectionProbeIndex;
+      v4[8] = v17[v15[v6 + 1].reflectionProbeIndex].origin.v[0];
+      v4[9] = v17[v18].origin.v[1];
+      v4[10] = v17[v18].origin.v[2];
+      *(vec4_t *)(v4 + 11) = quat_identity;
+      _XMM0 = v15[v6 + 1].relightingFlags & 1;
       __asm
       {
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm4, xmm3, xmm2
-        vmovss  dword ptr [r10+3Ch], xmm0
       }
-      *((_BYTE *)_R10 + 64) = (v24[v12 + 1].relightingFlags & 2) == 0;
-      *((_BYTE *)_R10 + 66) = (v24[v12 + 1].relightingFlags & 4) == 0;
-      *((_BYTE *)_R10 + 65) = (v24[v12 + 1].relightingFlags & 8) == 0;
-      _R10[17] = 0.0;
-      v34 = v26->reflectionProbeData.probeRelightingData;
-      v34[v12 + 2].relightingScale = 1.0;
-      _RAX = v34[v12 + 2].reflectionProbeIndex;
-      _R10 += 40;
-      v36 = g_worldDraw;
-      v12 += 4i64;
+      v4[15] = *(float *)&_XMM0;
+      *((_BYTE *)v4 + 64) = (v15[v6 + 1].relightingFlags & 2) == 0;
+      *((_BYTE *)v4 + 66) = (v15[v6 + 1].relightingFlags & 4) == 0;
+      *((_BYTE *)v4 + 65) = (v15[v6 + 1].relightingFlags & 8) == 0;
+      v4[17] = 0.0;
+      v22 = v16->reflectionProbeData.probeRelightingData;
+      v22[v6 + 2].relightingScale = 1.0;
+      v23 = v22[v6 + 2].reflectionProbeIndex;
+      v4 += 40;
+      v24 = g_worldDraw;
+      v6 += 4i64;
+      *(vec3_t *)(v4 - 22) = g_worldDraw->reflectionProbeData.reflectionProbes[v23].origin;
+      *(vec4_t *)(v4 - 19) = quat_identity;
+      _XMM0 = *((_WORD *)&v22[v6 - 1] - 14) & 1;
       __asm
       {
-        vmovaps xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-        vmovd   xmm1, r14d
-      }
-      *(vec3_t *)(_R10 - 22) = g_worldDraw->reflectionProbeData.reflectionProbes[_RAX].origin;
-      __asm { vmovups xmmword ptr [r10-4Ch], xmm0 }
-      LODWORD(_RAX) = *((_WORD *)&v34[v12 - 1] - 14) & 1;
-      __asm
-      {
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm4, xmm3, xmm2
-        vmovss  dword ptr [r10-3Ch], xmm0
       }
-      *((_BYTE *)_R10 - 56) = (*((_BYTE *)&v34[v12 - 1] - 28) & 2) == 0;
-      *((_BYTE *)_R10 - 54) = (*((_BYTE *)&v34[v12 - 1] - 28) & 4) == 0;
-      *((_BYTE *)_R10 - 55) = (*((_BYTE *)&v34[v12 - 1] - 28) & 8) == 0;
-      *(_R10 - 13) = 0.0;
-      v42 = v36->reflectionProbeData.probeRelightingData;
-      __asm { vmovd   xmm1, r14d }
-      v42[v12 - 1].relightingScale = 1.0;
-      __asm { vmovaps xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity }
-      v5 = g_worldDraw;
-      v45 = v42[v12 - 1].reflectionProbeIndex;
-      v46 = g_worldDraw->reflectionProbeData.reflectionProbes;
-      *(_R10 - 12) = v46[v42[v12 - 1].reflectionProbeIndex].origin.v[0];
-      *(_R10 - 11) = v46[v45].origin.v[1];
-      *(_R10 - 10) = v46[v45].origin.v[2];
-      __asm { vmovups xmmword ptr [r10-24h], xmm0 }
-      LODWORD(_RAX) = v42[v12 - 1].relightingFlags & 1;
+      *(v4 - 15) = *(float *)&_XMM0;
+      *((_BYTE *)v4 - 56) = (*((_BYTE *)&v22[v6 - 1] - 28) & 2) == 0;
+      *((_BYTE *)v4 - 54) = (*((_BYTE *)&v22[v6 - 1] - 28) & 4) == 0;
+      *((_BYTE *)v4 - 55) = (*((_BYTE *)&v22[v6 - 1] - 28) & 8) == 0;
+      *(v4 - 13) = 0.0;
+      v28 = v24->reflectionProbeData.probeRelightingData;
+      v28[v6 - 1].relightingScale = 1.0;
+      v0 = g_worldDraw;
+      v29 = v28[v6 - 1].reflectionProbeIndex;
+      v30 = g_worldDraw->reflectionProbeData.reflectionProbes;
+      *(v4 - 12) = v30[v28[v6 - 1].reflectionProbeIndex].origin.v[0];
+      *(v4 - 11) = v30[v29].origin.v[1];
+      *(v4 - 10) = v30[v29].origin.v[2];
+      *(vec4_t *)(v4 - 9) = quat_identity;
+      _XMM0 = v28[v6 - 1].relightingFlags & 1;
       __asm
       {
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm4, xmm3, xmm2
-        vmovss  dword ptr [r10-14h], xmm0
       }
-      *((_BYTE *)_R10 - 16) = (v42[v12 - 1].relightingFlags & 2) == 0;
-      *((_BYTE *)_R10 - 14) = (v42[v12 - 1].relightingFlags & 4) == 0;
-      *((_BYTE *)_R10 - 15) = (v42[v12 - 1].relightingFlags & 8) == 0;
-      --v13;
+      *(v4 - 5) = *(float *)&_XMM0;
+      *((_BYTE *)v4 - 16) = (v28[v6 - 1].relightingFlags & 2) == 0;
+      *((_BYTE *)v4 - 14) = (v28[v6 - 1].relightingFlags & 4) == 0;
+      *((_BYTE *)v4 - 15) = (v28[v6 - 1].relightingFlags & 8) == 0;
+      --v7;
     }
-    while ( v13 );
+    while ( v7 );
   }
-  if ( v7 < probeRelightingCount )
+  if ( v2 < probeRelightingCount )
   {
-    v50 = v7;
-    v51 = probeRelightingCount - v7;
-    _R9 = &s_reflectionProbeRelighting.probeRelightingState[v7].reflectionProbePosition.v[2];
+    v34 = v2;
+    v35 = probeRelightingCount - v2;
+    v36 = &s_reflectionProbeRelighting.probeRelightingState[v2].reflectionProbePosition.v[2];
     do
     {
-      *(_R9 - 3) = 0.0;
-      _R9 += 10;
-      v53 = v5->reflectionProbeData.probeRelightingData;
-      ++v50;
-      __asm { vmovd   xmm1, r14d }
-      _RAX = v53[v50 - 1].reflectionProbeIndex;
-      v53[v50 - 1].relightingScale = 1.0;
-      __asm { vmovaps xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity }
-      v5 = g_worldDraw;
-      *((vec3_t *)_R9 - 4) = g_worldDraw->reflectionProbeData.reflectionProbes[_RAX].origin;
-      __asm { vmovups xmmword ptr [r9-24h], xmm0 }
-      LODWORD(_RAX) = v53[v50 - 1].relightingFlags & 1;
+      *(v36 - 3) = 0.0;
+      v36 += 10;
+      v37 = v0->reflectionProbeData.probeRelightingData;
+      v38 = v37[v34++].reflectionProbeIndex;
+      v37[v34 - 1].relightingScale = 1.0;
+      v0 = g_worldDraw;
+      *((vec3_t *)v36 - 4) = g_worldDraw->reflectionProbeData.reflectionProbes[v38].origin;
+      *(vec4_t *)(v36 - 9) = quat_identity;
+      _XMM0 = v37[v34 - 1].relightingFlags & 1;
       __asm
       {
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm4, xmm3, xmm2
-        vmovss  dword ptr [r9-14h], xmm0
       }
-      *((_BYTE *)_R9 - 16) = (v53[v50 - 1].relightingFlags & 2) == 0;
-      *((_BYTE *)_R9 - 14) = (v53[v50 - 1].relightingFlags & 4) == 0;
-      *((_BYTE *)_R9 - 15) = (v53[v50 - 1].relightingFlags & 8) == 0;
-      --v51;
+      *(v36 - 5) = *(float *)&_XMM0;
+      *((_BYTE *)v36 - 16) = (v37[v34 - 1].relightingFlags & 2) == 0;
+      *((_BYTE *)v36 - 14) = (v37[v34 - 1].relightingFlags & 4) == 0;
+      *((_BYTE *)v36 - 15) = (v37[v34 - 1].relightingFlags & 8) == 0;
+      --v35;
     }
-    while ( v51 );
+    while ( v35 );
   }
 }
 

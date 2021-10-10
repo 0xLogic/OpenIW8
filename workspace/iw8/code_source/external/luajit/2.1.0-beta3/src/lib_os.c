@@ -117,17 +117,9 @@ lj_cf_os_clock
 __int64 lj_cf_os_clock(lua_State *L)
 {
   clock();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, eax
-  }
-  _RAX = L->top;
-  __asm
-  {
-    vmulsd  xmm1, xmm0, cs:__real@3f50624dd2f1a9fc
-    vmovsd  qword ptr [rax], xmm1
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, eax }
+  *(double *)&L->top->u64 = *(double *)&_XMM0 * 0.001;
   ++L->top;
   return 1i64;
 }
@@ -307,85 +299,81 @@ __int64 lj_cf_os_date(lua_State *L)
 lj_cf_os_time
 ==============
 */
-
-__int64 __fastcall lj_cf_os_time(lua_State *L, double _XMM1_8)
+__int64 lj_cf_os_time(lua_State *L)
 {
-  __time64_t v3; 
+  __time64_t v2; 
+  int v3; 
   int v4; 
   int v5; 
   int v6; 
   int v7; 
   int v8; 
   int v9; 
-  int v10; 
   struct tm Tm; 
 
   if ( j_lua_type(L, 1) > 0 )
   {
     j_luaL_checktype(L, 1, 5);
     j_lua_settop(L, 1);
-    v4 = -1;
+    v3 = -1;
     j_lua_getfield(L, -1, "sec");
+    if ( j_lua_isnumber(L, -1) )
+      v4 = j_lua_tointeger(L, -1);
+    else
+      v4 = 0;
+    j_lua_settop(L, -2);
+    Tm.tm_sec = v4;
+    j_lua_getfield(L, -1, "min");
     if ( j_lua_isnumber(L, -1) )
       v5 = j_lua_tointeger(L, -1);
     else
       v5 = 0;
     j_lua_settop(L, -2);
-    Tm.tm_sec = v5;
-    j_lua_getfield(L, -1, "min");
+    Tm.tm_min = v5;
+    j_lua_getfield(L, -1, "hour");
     if ( j_lua_isnumber(L, -1) )
       v6 = j_lua_tointeger(L, -1);
     else
-      v6 = 0;
+      v6 = 12;
     j_lua_settop(L, -2);
-    Tm.tm_min = v6;
-    j_lua_getfield(L, -1, "hour");
-    if ( j_lua_isnumber(L, -1) )
-      v7 = j_lua_tointeger(L, -1);
-    else
-      v7 = 12;
-    j_lua_settop(L, -2);
-    Tm.tm_hour = v7;
+    Tm.tm_hour = v6;
     j_lua_getfield(L, -1, "day");
     if ( !j_lua_isnumber(L, -1) )
       j_lj_err_callerv(L, LJ_ERR_OSDATEF, "day");
-    v8 = j_lua_tointeger(L, -1);
+    v7 = j_lua_tointeger(L, -1);
     j_lua_settop(L, -2);
-    Tm.tm_mday = v8;
+    Tm.tm_mday = v7;
     j_lua_getfield(L, -1, "month");
     if ( !j_lua_isnumber(L, -1) )
       j_lj_err_callerv(L, LJ_ERR_OSDATEF, "month");
-    v9 = j_lua_tointeger(L, -1);
+    v8 = j_lua_tointeger(L, -1);
     j_lua_settop(L, -2);
-    Tm.tm_mon = v9 - 1;
+    Tm.tm_mon = v8 - 1;
     j_lua_getfield(L, -1, "year");
     if ( !j_lua_isnumber(L, -1) )
       j_lj_err_callerv(L, LJ_ERR_OSDATEF, "year");
-    v10 = j_lua_tointeger(L, -1);
+    v9 = j_lua_tointeger(L, -1);
     j_lua_settop(L, -2);
-    Tm.tm_year = v10 - 1900;
+    Tm.tm_year = v9 - 1900;
     j_lua_getfield(L, -1, "isdst");
     if ( j_lua_type(L, -1) )
-      v4 = j_lua_toboolean(L, -1);
+      v3 = j_lua_toboolean(L, -1);
     j_lua_settop(L, -2);
-    Tm.tm_isdst = v4;
-    v3 = _mktime64(&Tm);
+    Tm.tm_isdst = v3;
+    v2 = _mktime64(&Tm);
   }
   else
   {
-    v3 = _time64(NULL);
+    v2 = _time64(NULL);
   }
-  if ( v3 == -1 )
+  if ( v2 == -1 )
   {
     j_lua_pushnil(L);
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, rax; n
-    }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, rax; n }
     j_lua_pushnumber(L, *(long double *)&_XMM1);
   }
   return 1i64;
@@ -399,14 +387,15 @@ lj_cf_os_difftime
 
 __int64 __fastcall lj_cf_os_difftime(lua_State *L, __int64 a2, double _XMM2_8)
 {
+  double v8; 
+
   __asm { vxorpd  xmm2, xmm2, xmm2; def }
   *(double *)&_XMM0 = j_luaL_optnumber(L, 2, *(long double *)&_XMM2);
   __asm { vcvttsd2si rbx, xmm0 }
   *(double *)&_XMM0 = j_luaL_checknumber(L, 1);
   __asm { vcvttsd2si rcx, xmm0; Time1 }
-  *(double *)&_XMM0 = _difftime64(_RCX, _RBX);
-  __asm { vmovaps xmm1, xmm0; n }
-  j_lua_pushnumber(L, *(long double *)&_XMM1);
+  v8 = _difftime64(_RCX, _RBX);
+  j_lua_pushnumber(L, v8);
   return 1i64;
 }
 

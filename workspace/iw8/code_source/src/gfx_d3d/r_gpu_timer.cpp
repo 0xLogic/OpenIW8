@@ -343,37 +343,32 @@ __int64 GetGPUTimerLevel(GPUTimerId id)
 MoveToTargetPos
 ==============
 */
-void MoveToTargetPos()
+void MoveToTargetPos(void)
 {
+  float v0; 
+  __int128 v1; 
+  float v5; 
+  float v6; 
+
+  v1 = LODWORD(s_drawTopOffsetTarget.v[1]);
+  v0 = s_drawTopOffsetTarget.v[1] - s_drawTopOffset.v[1];
+  *(float *)&v1 = fsqrt((float)(v0 * v0) + (float)((float)(s_drawTopOffsetTarget.v[0] - s_drawTopOffset.v[0]) * (float)(s_drawTopOffsetTarget.v[0] - s_drawTopOffset.v[0])));
+  _XMM3 = v1;
   __asm
   {
-    vmovss  xmm0, dword ptr cs:s_drawTopOffsetTarget
-    vmovss  xmm1, dword ptr cs:s_drawTopOffsetTarget+4
-    vmovaps [rsp+28h+var_18], xmm6
-    vmovss  xmm6, dword ptr cs:s_drawTopOffset
-    vsubss  xmm5, xmm0, xmm6
-    vmulss  xmm0, xmm5, xmm5
-    vmovaps [rsp+28h+var_28], xmm7
-    vmovss  xmm7, dword ptr cs:s_drawTopOffset+4
-    vsubss  xmm4, xmm1, xmm7
-    vmulss  xmm2, xmm4, xmm4
-    vaddss  xmm1, xmm2, xmm0
-    vsqrtss xmm3, xmm1, xmm1
-    vcomiss xmm3, cs:__real@43310000
     vcmpless xmm0, xmm3, cs:__real@80000000
-    vmovss  xmm1, cs:__real@3f800000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm1
-    vmulss  xmm5, xmm4, xmm1
-    vmulss  xmm0, xmm0, cs:__real@42fa0000
-    vmulss  xmm2, xmm5, cs:__real@42fa0000
-    vaddss  xmm1, xmm6, xmm0
-    vaddss  xmm0, xmm7, xmm2
-    vmovss  dword ptr cs:s_drawTopOffset+4, xmm0
-    vmovss  dword ptr cs:s_drawTopOffset, xmm1
-    vmovaps xmm6, [rsp+28h+var_18]
-    vmovaps xmm7, [rsp+28h+var_28]
+  }
+  v5 = 1.0 / *(float *)&_XMM0;
+  v6 = (float)(s_drawTopOffsetTarget.v[0] - s_drawTopOffset.v[0]) * (float)(1.0 / *(float *)&_XMM0);
+  if ( *(float *)&v1 <= 177.0 )
+  {
+    s_drawTopOffset = s_drawTopOffsetTarget;
+  }
+  else
+  {
+    s_drawTopOffset.v[1] = s_drawTopOffset.v[1] + (float)((float)(v0 * v5) * 125.0);
+    s_drawTopOffset.v[0] = s_drawTopOffset.v[0] + (float)(v6 * 125.0);
   }
 }
 
@@ -382,36 +377,27 @@ void MoveToTargetPos()
 RB_GPU_AddDynamicResolution
 ==============
 */
-
-void __fastcall RB_GPU_AddDynamicResolution(unsigned int dynamicWidthIndex, int delta, double previousFrameDuration)
+void RB_GPU_AddDynamicResolution(unsigned int dynamicWidthIndex, int delta, float previousFrameDuration)
 {
-  char v4; 
-  __int64 v5; 
+  char v3; 
+  __int64 v4; 
   __int64 swapIndex; 
-  int v12; 
+  int v7; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v4 = delta;
-  v5 = dynamicWidthIndex;
-  __asm { vmovaps xmm6, xmm2 }
+  v3 = delta;
+  v4 = dynamicWidthIndex;
   if ( dynamicWidthIndex >= 0x10 )
   {
-    v12 = 16;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_timer.cpp", 1074, ASSERT_TYPE_ASSERT, "(unsigned)( dynamicWidthIndex ) < (unsigned)( 16 )", "dynamicWidthIndex doesn't index R_DYNAMIC_SCENE_RESOLUTION_COUNT\n\t%i not in [0, %i)", dynamicWidthIndex, v12) )
+    v7 = 16;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_timer.cpp", 1074, ASSERT_TYPE_ASSERT, "(unsigned)( dynamicWidthIndex ) < (unsigned)( 16 )", "dynamicWidthIndex doesn't index R_DYNAMIC_SCENE_RESOLUTION_COUNT\n\t%i not in [0, %i)", dynamicWidthIndex, v7) )
       __debugbreak();
   }
   swapIndex = s_frameHistogram.swapIndex;
-  _RCX = 0x140000000ui64;
-  ++*(_QWORD *)s_gpuDynamicResolutionHistogram.horror[2 * v5 - 32].array;
-  s_gpuDynamicResolutionHistogram.current = v5;
-  s_frameHistogram.dynamicWidth[swapIndex] = v5;
-  s_frameHistogram.delta[s_frameHistogram.swapIndex] = v4;
-  _RAX = s_frameHistogram.swapIndex;
-  __asm
-  {
-    vmovss  rva s_frameHistogram.previousFrameDuration[rcx+rax*4], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  ++*(_QWORD *)s_gpuDynamicResolutionHistogram.horror[2 * v4 - 32].array;
+  s_gpuDynamicResolutionHistogram.current = v4;
+  s_frameHistogram.dynamicWidth[swapIndex] = v4;
+  s_frameHistogram.delta[s_frameHistogram.swapIndex] = v3;
+  s_frameHistogram.previousFrameDuration[s_frameHistogram.swapIndex] = previousFrameDuration;
 }
 
 /*
@@ -421,373 +407,211 @@ RB_GPU_DrawFrameHistogram
 */
 void RB_GPU_DrawFrameHistogram(GfxCmdBufContext *context)
 {
+  __int128 leftEdgeX_low; 
+  __int128 topEdgeY_low; 
+  float tickWidth; 
+  float tickHeight; 
+  float v5; 
+  float v6; 
   unsigned __int64 *swapTime; 
   char *delta; 
-  unsigned int v23; 
+  unsigned int v10; 
   float *previousFrameDuration; 
-  __int64 v25; 
-  unsigned __int64 v27; 
-  unsigned __int64 v28; 
+  __int64 v12; 
+  unsigned __int64 v13; 
+  signed __int64 v14; 
+  __int128 v15; 
+  __int128 v16; 
+  __int128 v17; 
+  __int128 v18; 
+  float tickMaxUs; 
+  float v20; 
+  __int128 v22; 
   unsigned int packed; 
-  int v42; 
-  int v45; 
-  int v63; 
-  int v65; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float v138; 
-  float v139; 
-  float v140; 
-  float v141; 
-  float v142; 
-  float v143; 
-  float v144; 
-  float v145; 
-  float v146; 
-  float v147; 
-  float v148; 
-  float v149; 
-  float v150; 
-  float v151; 
-  float v152; 
-  float v153; 
-  float v154; 
-  float v155; 
-  float v156; 
-  float v157; 
-  float v158; 
-  float v159; 
-  float v160; 
-  float v161; 
-  GfxCmdBufContext v162; 
-  char v163; 
-  void *retaddr; 
+  float v25; 
+  int v26; 
+  float v27; 
+  int v28; 
+  float v29; 
+  int v30; 
+  float v31; 
+  int v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  const dvar_t *v36; 
+  float value; 
+  float v38; 
+  float v39; 
+  const dvar_t *v40; 
+  float v41; 
+  GfxCmdBufContext v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  __int128 v46; 
+  __int128 v47; 
+  GfxCmdBufContext v48; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-    vmovss  xmm6, cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.leftEdgeX; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-    vmovss  xmm12, cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.topEdgeY; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-    vmovss  xmm14, cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.tickWidth; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-    vmovss  xmm11, cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.tickHeight; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-    vmovss  xmm15, cs:__real@5f800000
-    vmovss  xmm10, cs:__real@3f800000
-    vmovss  xmm7, cs:__real@3f000000
-  }
-  _RBP = context;
+  leftEdgeX_low = LODWORD(s_gpuFrameHistogramStyle.leftEdgeX);
+  topEdgeY_low = LODWORD(s_gpuFrameHistogramStyle.topEdgeY);
+  tickWidth = s_gpuFrameHistogramStyle.tickWidth;
+  tickHeight = s_gpuFrameHistogramStyle.tickHeight;
+  v5 = FLOAT_1_8446744e19;
+  v6 = FLOAT_0_5;
   swapTime = s_frameHistogram.swapTime;
   delta = s_frameHistogram.delta;
-  v23 = 1;
+  v10 = 1;
   previousFrameDuration = s_frameHistogram.previousFrameDuration;
-  v25 = 180i64;
-  __asm { vxorps  xmm9, xmm9, xmm9 }
+  v12 = 180i64;
   do
   {
-    v27 = *(_QWORD *)&s_frameHistogram.dynamicWidth[8 * ((v23 + 178) % 0xB4) - 1440];
-    v28 = 0i64;
-    if ( *swapTime > v27 )
-      v28 = 16667 * ((*swapTime - v27 + 8334) / 0x411B);
-    __asm
+    v13 = *(_QWORD *)&s_frameHistogram.dynamicWidth[8 * ((v10 + 178) % 0xB4) - 1440];
+    v14 = 0i64;
+    if ( *swapTime > v13 )
+      v14 = 16667 * ((*swapTime - v13 + 8334) / 0x411B);
+    v16 = 0i64;
+    *(float *)&v16 = (float)v14;
+    v15 = v16;
+    if ( v14 < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rcx
+      *(float *)&v16 = *(float *)&v16 + v5;
+      v15 = v16;
     }
-    if ( (v28 & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, xmm15 }
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm11
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-    }
+    v18 = v15;
+    *(float *)&v18 = *(float *)&v15 * tickHeight;
+    v17 = v18;
+    tickMaxUs = (float)(__int64)s_gpuFrameHistogramStyle.tickMaxUs;
     if ( (s_gpuFrameHistogramStyle.tickMaxUs & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, xmm15 }
-    __asm
     {
-      vdivss  xmm0, xmm1, xmm0
-      vminss  xmm2, xmm0, xmm11
+      v20 = (float)(__int64)s_gpuFrameHistogramStyle.tickMaxUs;
+      tickMaxUs = v20 + v5;
     }
-    if ( v28 <= s_gpuFrameHistogramStyle.tickMaxUs )
+    v22 = v17;
+    *(float *)&v22 = *(float *)&v17 / tickMaxUs;
+    _XMM0 = v22;
+    __asm { vminss  xmm2, xmm0, xmm11 }
+    if ( v14 <= s_gpuFrameHistogramStyle.tickMaxUs )
     {
       packed = s_gpuFrameHistogramStyle.swapColor.packed;
-      if ( v28 > s_gpuFrameHistogramStyle.tickBudgetUs )
+      if ( v14 > s_gpuFrameHistogramStyle.tickBudgetUs )
         packed = s_gpuFrameHistogramStyle.overBudgetColor.packed;
     }
     else
     {
       packed = s_gpuFrameHistogramStyle.overMaxColor.packed;
     }
-    __asm
+    v25 = tickHeight + *(float *)&topEdgeY_low;
+    v48 = *context;
+    RB_DrawStretchPic(&v48, rgp.whiteMaterial, *(float *)&leftEdgeX_low, (float)(tickHeight + *(float *)&topEdgeY_low) - *(float *)&_XMM2, tickWidth, *(float *)&_XMM2, 0.0, 0.0, 1.0, 1.0, packed, GFX_PRIM_STATS_DEBUG);
+    if ( *delta <= 0 )
     {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovss  [rsp+148h+var_100], xmm10
-      vmovss  [rsp+148h+var_108], xmm10
-      vmovss  [rsp+148h+var_110], xmm9
-      vmovss  dword ptr [rsp+148h+var_118], xmm9
-      vmovss  dword ptr [rsp+148h+var_120], xmm2
-      vaddss  xmm13, xmm11, xmm12
-      vsubss  xmm3, xmm13, xmm2
-      vmovaps xmm2, xmm6
-      vmovss  dword ptr [rsp+148h+fmt], xmm14
-      vmovups [rsp+148h+var_E8], xmm0
-    }
-    RB_DrawStretchPic(&v162, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v138, v144, v150, v154, v158, packed, GFX_PRIM_STATS_DEBUG);
-    if ( *delta > 0 )
-    {
-      v42 = 0;
-      __asm
+      if ( *delta < 0 )
       {
-        vmulss  xmm7, xmm14, xmm7
-        vaddss  xmm8, xmm7, xmm6
-      }
-      v45 = 0;
-      __asm { vaddss  xmm9, xmm14, xmm6 }
-      do
-      {
-        __asm
+        v30 = 0;
+        v31 = tickWidth * v6;
+        v32 = 0;
+        do
         {
-          vmovups xmm0, xmmword ptr [rbp+0]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, edi
-          vaddss  xmm2, xmm1, xmm12
-          vmovups [rsp+148h+var_E8], xmm0
-          vaddss  xmm0, xmm2, xmm11
-          vaddss  xmm2, xmm0, xmm10
-          vaddss  xmm1, xmm2, xmm7
-          vmovss  dword ptr [rsp+148h+var_118], xmm1
-          vmovss  dword ptr [rsp+148h+var_120], xmm8
-          vmovaps xmm1, xmm6
-          vmovaps xmm3, xmm9
-          vmovss  dword ptr [rsp+148h+fmt], xmm2
+          v48 = *context;
+          RB_DrawTriangle2D(&v48, v31 + *(float *)&leftEdgeX_low, (float)((float)((float)v32 + *(float *)&topEdgeY_low) + tickHeight) + 2.0, tickWidth + *(float *)&leftEdgeX_low, (float)((float)((float)((float)v32 + *(float *)&topEdgeY_low) + tickHeight) + 2.0) + v31, *(float *)&leftEdgeX_low, (float)((float)((float)((float)v32 + *(float *)&topEdgeY_low) + tickHeight) + 2.0) + v31, s_gpuFrameHistogramStyle.endFrameColor.packed);
+          --v30;
+          v32 += 3;
         }
-        RB_DrawTriangle2D(&v162, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v139, v145, s_gpuFrameHistogramStyle.endFrameColor.packed);
-        ++v42;
-        v45 += 3;
-      }
-      while ( v42 < *delta );
-      if ( *(delta - 180) != 15 )
-        goto LABEL_23;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+0]
-        vmovups [rsp+148h+var_E8], xmm0
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vaddss  xmm1, xmm0, xmm12
-        vaddss  xmm2, xmm1, xmm11
-        vaddss  xmm4, xmm2, xmm10
-        vaddss  xmm2, xmm4, xmm7
-      }
-      goto LABEL_22;
-    }
-    if ( *delta >= 0 )
-      goto LABEL_24;
-    __asm { vmovss  xmm15, cs:__real@40000000 }
-    v63 = 0;
-    __asm
-    {
-      vmulss  xmm7, xmm14, xmm7
-      vaddss  xmm9, xmm7, xmm6
-    }
-    v65 = 0;
-    __asm { vaddss  xmm8, xmm14, xmm6 }
-    do
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+0]
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, edi
-        vaddss  xmm2, xmm1, xmm12
-        vmovups [rsp+148h+var_E8], xmm0
-        vaddss  xmm0, xmm2, xmm11
-        vaddss  xmm2, xmm0, xmm15
-        vaddss  xmm1, xmm2, xmm7
-        vmovss  dword ptr [rsp+148h+var_118], xmm1
-        vmovss  dword ptr [rsp+148h+var_120], xmm6
-        vmovss  dword ptr [rsp+148h+fmt], xmm1
-        vmovaps xmm1, xmm9
-        vmovaps xmm3, xmm8
-      }
-      RB_DrawTriangle2D(&v162, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, v140, v146, s_gpuFrameHistogramStyle.endFrameColor.packed);
-      --v63;
-      v65 += 3;
-    }
-    while ( v63 > *delta );
-    __asm { vmovss  xmm15, cs:__real@5f800000 }
-    if ( !*(delta - 180) )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+0]
-        vmovups [rsp+148h+var_E8], xmm0
-        vaddss  xmm2, xmm13, xmm10
-      }
-LABEL_22:
-      __asm
-      {
-        vsubss  xmm3, xmm14, xmm10
-        vmovaps xmm1, xmm6
-        vmovss  dword ptr [rsp+148h+fmt], xmm10
-      }
-      RB_DrawRect2D(&v162, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, s_gpuFrameHistogramStyle.endFrameColor);
-    }
-LABEL_23:
-    __asm { vxorps  xmm9, xmm9, xmm9 }
-LABEL_24:
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmulss  xmm1, xmm11, dword ptr [r15]
-      vmulss  xmm2, xmm1, cs:__real@447a0000
-      vmovups [rsp+148h+var_E8], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-    }
-    if ( (s_gpuFrameHistogramStyle.tickMaxUs & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, xmm15 }
-    __asm
-    {
-      vmovss  xmm8, cs:__real@40000000
-      vmovss  [rsp+148h+var_100], xmm10
-      vmovss  [rsp+148h+var_108], xmm10
-      vmovss  [rsp+148h+var_110], xmm9
-      vdivss  xmm0, xmm2, xmm0
-      vmovss  dword ptr [rsp+148h+var_118], xmm9
-      vmovss  dword ptr [rsp+148h+var_120], xmm10
-      vsubss  xmm3, xmm13, xmm0
-      vaddss  xmm2, xmm6, xmm8
-      vmovss  dword ptr [rsp+148h+fmt], xmm8
-    }
-    RB_DrawStretchPic(&v162, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, v141, v147, v151, v155, v159, s_gpuFrameHistogramStyle.durationColor.packed, GFX_PRIM_STATS_DEBUG);
-    _RBX = DVARFLT_r_sceneResDynamicTarget;
-    if ( !DVARFLT_r_sceneResDynamicTarget && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_sceneResDynamicTarget") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovss  xmm7, dword ptr [rbx+28h]
-      vmovups [rsp+148h+var_E8], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm7, xmm11
-      vmulss  xmm2, xmm1, cs:__real@447a0000
-      vcvtsi2ss xmm0, xmm0, rax
-    }
-    if ( (s_gpuFrameHistogramStyle.tickMaxUs & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, xmm15 }
-    __asm
-    {
-      vmovss  [rsp+148h+var_100], xmm10
-      vmovss  [rsp+148h+var_108], xmm10
-      vmovss  [rsp+148h+var_110], xmm9
-      vdivss  xmm0, xmm2, xmm0
-      vmovss  dword ptr [rsp+148h+var_118], xmm9
-      vmovss  dword ptr [rsp+148h+var_120], xmm10
-      vsubss  xmm3, xmm13, xmm0
-      vmovaps xmm2, xmm6
-      vmovss  dword ptr [rsp+148h+fmt], xmm8
-    }
-    RB_DrawStretchPic(&v162, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmte, v142, v148, v152, v156, v160, s_gpuFrameHistogramStyle.overBudgetColor.packed, GFX_PRIM_STATS_DEBUG);
-    _RBX = DCONST_DVARVEC4_r_sceneResDynamicThreshold;
-    if ( !DCONST_DVARVEC4_r_sceneResDynamicThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_sceneResDynamicThreshold") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmovss  xmm1, dword ptr [rbx+2Ch]
-      vmovss  dword ptr [rsp+148h+var_E8], xmm0
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vmovss  dword ptr [rsp+148h+var_E8+8], xmm0
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovss  dword ptr [rsp+148h+var_E8+4], xmm1
-      vmovss  xmm1, dword ptr [rbx+34h]
-      vmovss  dword ptr [rsp+148h+var_E8+0Ch], xmm1
-      vmovups [rsp+148h+var_E8], xmm0
-      vmulss  xmm1, xmm1, xmm7
-      vxorps  xmm0, xmm0, xmm0
-      vmulss  xmm2, xmm1, xmm11
-      vmulss  xmm3, xmm2, cs:__real@447a0000
-      vcvtsi2ss xmm0, xmm0, rax
-    }
-    if ( (s_gpuFrameHistogramStyle.tickMaxUs & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, xmm15 }
-    __asm
-    {
-      vmovss  [rsp+148h+var_100], xmm10
-      vmovss  [rsp+148h+var_108], xmm10
-      vmovss  [rsp+148h+var_110], xmm9
-      vdivss  xmm0, xmm3, xmm0
-      vmovss  dword ptr [rsp+148h+var_118], xmm9
-      vmovss  dword ptr [rsp+148h+var_120], xmm10
-      vsubss  xmm3, xmm13, xmm0
-      vmovaps xmm2, xmm6
-      vmovss  dword ptr [rsp+148h+fmt], xmm8
-    }
-    RB_DrawStretchPic(&v162, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, v143, v149, v153, v157, v161, s_gpuFrameHistogramStyle.endFrameColor.packed, GFX_PRIM_STATS_DEBUG);
-    if ( v23 % s_gpuFrameHistogramStyle.swapColumns )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.padWidth; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-        vaddss  xmm1, xmm0, cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.tickWidth; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-        vaddss  xmm6, xmm6, xmm1
+        while ( v30 > *delta );
+        v5 = FLOAT_1_8446744e19;
+        if ( !*(delta - 180) )
+        {
+          v48 = *context;
+          v29 = (float)(tickHeight + *(float *)&topEdgeY_low) + 1.0;
+          goto LABEL_22;
+        }
       }
     }
     else
     {
-      __asm
+      v26 = 0;
+      v27 = tickWidth * v6;
+      v28 = 0;
+      do
       {
-        vmovss  xmm0, cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.rowPadHeight; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-        vaddss  xmm1, xmm0, cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.tickHeight; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-        vmovss  xmm6, cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.leftEdgeX; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-        vaddss  xmm12, xmm12, xmm1
+        v48 = *context;
+        RB_DrawTriangle2D(&v48, *(float *)&leftEdgeX_low, (float)((float)((float)v28 + *(float *)&topEdgeY_low) + tickHeight) + 1.0, tickWidth + *(float *)&leftEdgeX_low, (float)((float)((float)v28 + *(float *)&topEdgeY_low) + tickHeight) + 1.0, v27 + *(float *)&leftEdgeX_low, (float)((float)((float)((float)v28 + *(float *)&topEdgeY_low) + tickHeight) + 1.0) + v27, s_gpuFrameHistogramStyle.endFrameColor.packed);
+        ++v26;
+        v28 += 3;
+      }
+      while ( v26 < *delta );
+      if ( *(delta - 180) == 15 )
+      {
+        v48 = *context;
+        v29 = (float)((float)((float)((float)(3 * v26 - 3) + *(float *)&topEdgeY_low) + tickHeight) + 1.0) + v27;
+LABEL_22:
+        RB_DrawRect2D(&v48, *(float *)&leftEdgeX_low, v29, tickWidth - 1.0, 1.0, s_gpuFrameHistogramStyle.endFrameColor);
       }
     }
-    __asm { vmovss  xmm7, cs:__real@3f000000 }
-    ++v23;
+    v33 = (float)(tickHeight * *previousFrameDuration) * 1000.0;
+    v48 = *context;
+    v34 = (float)(__int64)s_gpuFrameHistogramStyle.tickMaxUs;
+    if ( (s_gpuFrameHistogramStyle.tickMaxUs & 0x8000000000000000ui64) != 0i64 )
+    {
+      v35 = (float)(__int64)s_gpuFrameHistogramStyle.tickMaxUs;
+      v34 = v35 + v5;
+    }
+    RB_DrawStretchPic(&v48, rgp.whiteMaterial, *(float *)&leftEdgeX_low + 2.0, v25 - (float)(v33 / v34), 2.0, 1.0, 0.0, 0.0, 1.0, 1.0, s_gpuFrameHistogramStyle.durationColor.packed, GFX_PRIM_STATS_DEBUG);
+    v36 = DVARFLT_r_sceneResDynamicTarget;
+    if ( !DVARFLT_r_sceneResDynamicTarget && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_sceneResDynamicTarget") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v36);
+    value = v36->current.value;
+    v48 = *context;
+    v38 = (float)(__int64)s_gpuFrameHistogramStyle.tickMaxUs;
+    if ( (s_gpuFrameHistogramStyle.tickMaxUs & 0x8000000000000000ui64) != 0i64 )
+    {
+      v39 = (float)(__int64)s_gpuFrameHistogramStyle.tickMaxUs;
+      v38 = v39 + v5;
+    }
+    RB_DrawStretchPic(&v48, rgp.whiteMaterial, *(float *)&leftEdgeX_low, v25 - (float)((float)((float)(value * tickHeight) * 1000.0) / v38), 2.0, 1.0, 0.0, 0.0, 1.0, 1.0, s_gpuFrameHistogramStyle.overBudgetColor.packed, GFX_PRIM_STATS_DEBUG);
+    v40 = DCONST_DVARVEC4_r_sceneResDynamicThreshold;
+    if ( !DCONST_DVARVEC4_r_sceneResDynamicThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 741, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_sceneResDynamicThreshold") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v40);
+    v41 = v40->current.vector.v[1];
+    LODWORD(v48.source) = v40->current.integer;
+    *(float *)&v48.state = v40->current.vector.v[2];
+    v42 = *context;
+    *((float *)&v48.source + 1) = v41;
+    v43 = v40->current.vector.v[3];
+    v48 = v42;
+    v44 = (float)(__int64)s_gpuFrameHistogramStyle.tickMaxUs;
+    if ( (s_gpuFrameHistogramStyle.tickMaxUs & 0x8000000000000000ui64) != 0i64 )
+    {
+      v45 = (float)(__int64)s_gpuFrameHistogramStyle.tickMaxUs;
+      v44 = v45 + v5;
+    }
+    RB_DrawStretchPic(&v48, rgp.whiteMaterial, *(float *)&leftEdgeX_low, v25 - (float)((float)((float)((float)(v43 * value) * tickHeight) * 1000.0) / v44), 2.0, 1.0, 0.0, 0.0, 1.0, 1.0, s_gpuFrameHistogramStyle.endFrameColor.packed, GFX_PRIM_STATS_DEBUG);
+    if ( v10 % s_gpuFrameHistogramStyle.swapColumns )
+    {
+      v47 = leftEdgeX_low;
+      *(float *)&v47 = *(float *)&leftEdgeX_low + (float)(s_gpuFrameHistogramStyle.padWidth + s_gpuFrameHistogramStyle.tickWidth);
+      leftEdgeX_low = v47;
+    }
+    else
+    {
+      leftEdgeX_low = LODWORD(s_gpuFrameHistogramStyle.leftEdgeX);
+      v46 = topEdgeY_low;
+      *(float *)&v46 = *(float *)&topEdgeY_low + (float)(s_gpuFrameHistogramStyle.rowPadHeight + s_gpuFrameHistogramStyle.tickHeight);
+      topEdgeY_low = v46;
+    }
+    v6 = FLOAT_0_5;
+    ++v10;
     ++swapTime;
     ++delta;
     ++previousFrameDuration;
-    --v25;
+    --v12;
   }
-  while ( v25 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+0]
-    vmovups [rsp+148h+var_E8], xmm0
-  }
-  RB_EndSurfaceIfNeeded(&v162);
-  _R11 = &v163;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  while ( v12 );
+  v48 = *context;
+  RB_EndSurfaceIfNeeded(&v48);
 }
 
 /*
@@ -797,163 +621,129 @@ RB_GPU_DrawLatencyHistogram
 */
 void RB_GPU_DrawLatencyHistogram(GfxCmdBufContext *context)
 {
-  int v14; 
-  volatile bool calcEnabled; 
+  int v1; 
+  __int128 width_low; 
+  float rightTime; 
+  __int128 v5; 
+  __int128 v6; 
   volatile unsigned int latencyIndex; 
-  unsigned int v38; 
-  __int64 v49; 
+  unsigned int v8; 
+  double v9; 
+  float v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int64 v13; 
+  __int128 v14; 
+  __int128 v16; 
+  float v17; 
+  __int64 v18; 
+  __int128 v21; 
+  __int128 v23; 
   Material *whiteMaterial; 
-  char v74; 
-  const char *v78; 
-  char v85; 
-  int v91; 
-  const char **v92; 
-  GfxColor *v94; 
-  GfxColor v96; 
-  const char *v97; 
+  __int128 v28; 
+  __int128 v34; 
+  __int128 v35; 
+  __int128 v36; 
+  __int128 v37; 
+  float v38; 
+  const char *v39; 
+  float v40; 
+  GfxCmdBufContext v41; 
+  __int128 v42; 
+  GfxCmdBufContext v43; 
+  int v44; 
+  const char **v45; 
+  __int64 v46; 
+  GfxColor *v47; 
+  GfxColor v48; 
+  const char *v49; 
+  float v50; 
   GfxColor textColor; 
   GfxFont *eventFont; 
-  const char *v112; 
-  GfxColor v116; 
-  GfxFont *v117; 
-  const char *v122; 
-  GfxColor v126; 
-  GfxFont *v127; 
-  const char *v131; 
-  const wchar_t **v143; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float v155; 
-  float v156; 
-  float v157; 
-  float v158; 
-  float v159; 
-  float v160; 
-  float v161; 
-  float v162; 
-  float v163; 
-  float v164; 
+  float v53; 
+  const char *v54; 
+  GfxColor v55; 
+  GfxFont *v56; 
+  float v57; 
+  const char *v58; 
+  GfxColor v59; 
+  GfxFont *v60; 
+  float v61; 
+  const char *v62; 
+  const wchar_t **v63; 
+  __int128 v66; 
+  __int128 v68; 
   unsigned int packed; 
-  _QWORD v168[3]; 
-  GfxCmdBufContext v169; 
-  GfxCmdBufContext v170; 
-  GfxCmdBufContext v171; 
-  GfxCmdBufContext v172; 
-  GfxCmdBufContext v173; 
-  GfxCmdBufContext v174; 
-  GfxCmdBufContext v175; 
-  GfxCmdBufContext v176; 
-  GfxCmdBufContext v177; 
-  GfxPointVertex v178; 
-  __int64 v179; 
-  __int64 v180; 
-  void *retaddr; 
+  float v71; 
+  float v72; 
+  _QWORD v73[3]; 
+  GfxCmdBufContext v74; 
+  GfxCmdBufContext v75; 
+  GfxCmdBufContext v76; 
+  GfxCmdBufContext v77; 
+  GfxCmdBufContext v78; 
+  GfxCmdBufContext v79; 
+  GfxCmdBufContext v80; 
+  GfxCmdBufContext v81; 
+  GfxCmdBufContext v82; 
+  GfxPointVertex v83; 
+  __int64 v84; 
+  __int64 v85; 
+  __int128 v86; 
+  int v87; 
+  int v88; 
+  int v89[5]; 
+  float v90; 
+  int v91[5]; 
+  float v92; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-68h], xmm9
-    vmovsd  xmm9, cs:__real@43f0000000000000
-  }
-  v14 = 0;
-  _R15 = context;
+  v1 = 0;
   if ( s_gpuLatencyHistogram.drawEnabled )
   {
-    calcEnabled = s_gpuLatencyHistogram.calcEnabled;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-38h], xmm6
-      vmovaps xmmword ptr [r11-48h], xmm7
-      vmovaps xmmword ptr [r11-58h], xmm8
-      vmovaps xmmword ptr [r11-78h], xmm10
-      vmovaps xmmword ptr [r11-88h], xmm11
-      vmovaps xmmword ptr [r11-98h], xmm12
-      vmovaps xmmword ptr [r11-0A8h], xmm13
-      vmovaps xmmword ptr [r11-0B8h], xmm14
-      vmovaps xmmword ptr [r11-0C8h], xmm15
-    }
-    if ( !calcEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_timer.cpp", 1219, ASSERT_TYPE_ASSERT, "(s_gpuLatencyHistogram.calcEnabled)", (const char *)&queryFormat, "s_gpuLatencyHistogram.calcEnabled") )
+    if ( !s_gpuLatencyHistogram.calcEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_timer.cpp", 1219, ASSERT_TYPE_ASSERT, "(s_gpuLatencyHistogram.calcEnabled)", (const char *)&queryFormat, "s_gpuLatencyHistogram.calcEnabled") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm11, cs:s_gpuLatencyHistogram.width
-      vmovss  xmm10, cs:__real@3f800000
-      vmovss  xmm8, cs:s_gpuLatencyHistogram.rightTime
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vsubss  xmm1, xmm0, xmm11
-      vsubss  xmm12, xmm1, cs:s_gpuLatencyHistogram.rightPad
-      vmovss  xmm0, cs:s_gpuLatencyHistogram.eventFontHeight
-      vmulss  xmm1, xmm0, cs:__real@40800000
-      vaddss  xmm2, xmm1, cs:__real@43480000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmovss  [rsp+240h+var_1F8], xmm10
-      vmovss  [rsp+240h+var_200], xmm10
-      vsubss  xmm1, xmm0, xmm2
-      vsubss  xmm15, xmm1, cs:s_gpuLatencyHistogram.bottomPad
-      vmovups xmm0, xmmword ptr [r15]
-      vxorps  xmm7, xmm7, xmm7
-      vmovss  [rsp+240h+var_208], xmm7
-      vmovss  [rsp+240h+var_210], xmm7
-      vmovss  [rsp+240h+var_218], xmm2
-      vmovaps xmm2, xmm12
-      vmovaps xmm3, xmm15
-      vmovss  [rsp+240h+var_1E0], xmm8
-      vmovss  dword ptr [rsp+240h+var_1D8+4], xmm15
-      vmovss  dword ptr [rsp+240h+fmt], xmm11
-      vmovups xmmword ptr [rsp+240h+var_1D8+8], xmm0
-    }
-    RB_DrawStretchPic((GfxCmdBufContext *)&v168[1], rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v155, v157, v159, v161, v163, s_gpuLatencyHistogram.backColor.packed, GFX_PRIM_STATS_DEBUG);
-    __asm
-    {
-      vmovaps xmm0, cs:__xmm@7f7fffff7f7fffff7f7fffff7f7fffff
-      vaddss  xmm2, xmm15, cs:__real@43480000
-    }
+    width_low = LODWORD(s_gpuLatencyHistogram.width);
+    rightTime = s_gpuLatencyHistogram.rightTime;
+    v5 = 0i64;
+    *(float *)&v5 = (float)vidConfig.displayWidth;
+    *(float *)&v5 = (float)(*(float *)&v5 - s_gpuLatencyHistogram.width) - s_gpuLatencyHistogram.rightPad;
+    v6 = v5;
+    *(float *)&v5 = (float)vidConfig.displayHeight;
+    v71 = s_gpuLatencyHistogram.rightTime;
+    *((float *)v73 + 1) = (float)(*(float *)&v5 - (float)((float)(s_gpuLatencyHistogram.eventFontHeight * 4.0) + 200.0)) - s_gpuLatencyHistogram.bottomPad;
+    *(GfxCmdBufContext *)&v73[1] = *context;
+    RB_DrawStretchPic((GfxCmdBufContext *)&v73[1], rgp.whiteMaterial, *(float *)&v6, *((float *)v73 + 1), s_gpuLatencyHistogram.width, (float)(s_gpuLatencyHistogram.eventFontHeight * 4.0) + 200.0, 0.0, 0.0, 1.0, 1.0, s_gpuLatencyHistogram.backColor.packed, GFX_PRIM_STATS_DEBUG);
     latencyIndex = s_gpuLatencyHistogram.latencyIndex;
-    v38 = 0;
-    __asm
-    {
-      vmovsd  xmm14, cs:__real@3f747ae147ae147b
-      vcvtss2sd xmm1, xmm8, xmm8
-      vmovss  [rbp+140h+var_100], xmm0
-      vmovss  [rbp+140h+var_FC], xmm0
-      vmovups [rbp+140h+var_110], xmm0
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vdivsd  xmm13, xmm0, xmm1
-      vaddss  xmm1, xmm15, cs:__real@43470000
-      vmovss  dword ptr [rsp+240h+var_1D8], xmm1
-      vmovss  [rbp+140h+var_E0], xmm7
-      vmovss  [rbp+140h+var_F8], xmm7
-      vmovss  [rbp+140h+var_DC], xmm7
-      vmovss  [rbp+140h+var_F4], xmm7
-      vmovss  [rbp+140h+var_D8], xmm7
-      vmovss  [rbp+140h+var_F0], xmm7
-      vmovss  [rbp+140h+var_D4], xmm7
-      vmovss  [rbp+140h+var_EC], xmm7
-      vmovss  [rbp+140h+var_D0], xmm7
-      vmovss  [rbp+140h+var_E8], xmm7
-      vmovss  [rbp+140h+var_CC], xmm7
-      vmovss  [rbp+140h+var_E4], xmm7
-      vmovss  [rsp+240h+var_1DC], xmm2
-      vaddss  xmm15, xmm12, xmm11
-    }
+    v8 = 0;
+    v87 = _xmm;
+    v88 = _xmm;
+    v86 = _xmm;
+    v9 = 1.0 / rightTime;
+    v10 = *((float *)v73 + 1) + 199.0;
+    *(float *)v91 = 0.0;
+    *(float *)v89 = 0.0;
+    *(float *)&v91[1] = 0.0;
+    *(float *)&v89[1] = 0.0;
+    *(float *)&v91[2] = 0.0;
+    *(float *)&v89[2] = 0.0;
+    *(float *)&v91[3] = 0.0;
+    *(float *)&v89[3] = 0.0;
+    *(float *)&v91[4] = 0.0;
+    *(float *)&v89[4] = 0.0;
+    v92 = 0.0;
+    v90 = 0.0;
+    v12 = v6;
+    *(float *)&v12 = *(float *)&v6 + *(float *)&width_low;
+    v11 = v12;
     do
     {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      _RBX = 0i64;
-      __asm
-      {
-        vmovaps xmm5, xmm15
-        vcvtsi2ss xmm0, xmm0, rax
-        vsubss  xmm8, xmm1, xmm0
-      }
-      v49 = 6 * ((v38 + latencyIndex) % 0xC8) + 5;
+      v13 = 0i64;
+      v14 = v11;
+      v16 = 0i64;
+      *(float *)&v16 = (float)v8;
+      _XMM0 = v16;
+      v17 = v10 - *(float *)&v16;
+      v18 = 6 * ((v8 + latencyIndex) % 0xC8) + 5;
       do
       {
         __asm
@@ -961,262 +751,161 @@ void RB_GPU_DrawLatencyHistogram(GfxCmdBufContext *context)
           vxorpd  xmm0, xmm0, xmm0
           vcvtsi2sd xmm0, xmm0, rcx
         }
-        if ( (s_gpuLatencyHistogram.latency[v49] & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddsd  xmm0, xmm0, xmm9 }
-        __asm { vmulsd  xmm4, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick }
+        if ( (s_gpuLatencyHistogram.latency[v18] & 0x8000000000000000ui64) != 0i64 )
+        {
+          *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v21 = *(double *)&_XMM0 + 1.844674407370955e19;
+          _XMM0 = v21;
+        }
+        *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v23 = *(double *)&_XMM0 * msecPerRawTimerTick;
+        _XMM4 = v23;
         whiteMaterial = rgp.whiteMaterial;
-        packed = s_latencyEventColors[_RBX + 5].packed;
+        packed = s_latencyEventColors[v13 + 5].packed;
         __asm
         {
-          vmovss  [rsp+240h+var_1F8], xmm10
           vcvtsd2ss xmm1, xmm4, xmm4
           vminss  xmm0, xmm1, [rbp+rbx+140h+var_FC]
           vmaxss  xmm1, xmm1, [rbp+rbx+140h+var_CC]
-          vmovss  [rbp+rbx+140h+var_FC], xmm0
-          vmovss  [rbp+rbx+140h+var_CC], xmm1
-          vcvtss2sd xmm3, xmm11, xmm11
-          vmovss  [rsp+240h+var_200], xmm10
-          vmulsd  xmm0, xmm4, xmm14
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vaddss  xmm2, xmm1, [rbp+rbx+140h+var_E4]
-          vmulsd  xmm0, xmm3, xmm4
-          vmulsd  xmm1, xmm0, xmm13
-          vmovss  [rbp+rbx+140h+var_E4], xmm2
-          vsubsd  xmm2, xmm3, xmm1
-          vmovups xmm1, xmmword ptr [r15]
+        }
+        v89[v13 - 1] = _XMM0;
+        *(float *)((char *)&v92 + v13 * 4) = *(float *)&_XMM1;
+        *((_QWORD *)&v23 + 1) = *((_QWORD *)&width_low + 1);
+        *(double *)&v23 = *(float *)&width_low;
+        v28 = v23;
+        *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM4 + 1);
+        *(double *)&v23 = *(double *)&_XMM4 * 0.005;
+        _XMM0 = v23;
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        *(float *)&v91[v13 - 1] = *(float *)&_XMM1 + *(float *)&v91[v13 - 1];
+        *((_QWORD *)&v23 + 1) = *((_QWORD *)&v28 + 1);
+        *(double *)&v23 = *(double *)&v28 - *(double *)&v28 * *(double *)&_XMM4 * v9;
+        _XMM2 = v23;
+        __asm
+        {
           vcvtsd2ss xmm3, xmm2, xmm2
           vmaxss  xmm0, xmm3, xmm7
-          vaddss  xmm6, xmm0, xmm12
-          vmovss  [rsp+240h+var_208], xmm7
-          vsubss  xmm0, xmm5, xmm6
-          vmovss  [rsp+240h+var_210], xmm7
-          vmovss  [rsp+240h+var_218], xmm10
-          vmovaps xmm3, xmm8
-          vmovaps xmm2, xmm6
-          vmovss  dword ptr [rsp+240h+fmt], xmm0
-          vmovups [rbp+140h+var_1C0], xmm1
         }
-        RB_DrawStretchPic(&v169, whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v156, v158, v160, v162, v164, packed, GFX_PRIM_STATS_DEBUG);
-        v49 = (unsigned int)(v49 - 1);
-        --_RBX;
-        __asm { vmovaps xmm5, xmm6 }
+        v35 = _XMM0;
+        *(float *)&v35 = *(float *)&_XMM0 + *(float *)&v6;
+        v34 = v35;
+        v36 = v14;
+        *(float *)&v36 = *(float *)&v14 - *(float *)&v34;
+        _XMM0 = v36;
+        v74 = *context;
+        RB_DrawStretchPic(&v74, whiteMaterial, *(float *)&v34, v17, *(float *)&v14 - *(float *)&v34, 1.0, 0.0, 0.0, 1.0, 1.0, packed, GFX_PRIM_STATS_DEBUG);
+        v18 = (unsigned int)(v18 - 1);
+        --v13;
+        v14 = v34;
       }
-      while ( _RBX >= -5 );
-      __asm { vmovss  xmm1, dword ptr [rsp+240h+var_1D8] }
-      ++v38;
+      while ( v13 >= -5 );
+      v10 = *((float *)v73 + 1) + 199.0;
+      ++v8;
     }
-    while ( v38 < 0xC8 );
-    __asm
+    while ( v8 < 0xC8 );
+    v72 = *((float *)v73 + 1) + 200.0;
+    *(_QWORD *)&v83.xyz.z = 0x3CFFFFFF00000000i64;
+    v85 = 0x3CFFFFFF00000000i64;
+    *(_QWORD *)v83.xyz.v = 0i64;
+    v84 = 0i64;
+    v37 = 0i64;
+    v38 = *(float *)&v6 + *(float *)&width_low;
+    if ( v71 >= 0.0 )
     {
-      vmovss  xmm0, [rsp+240h+var_1E0]
-      vmovss  xmm15, dword ptr [rsp+240h+var_1D8+4]
-      vmovss  xmm14, [rsp+240h+var_1DC]
+      do
+      {
+        if ( *(float *)&v37 == 0.0 )
+          v39 = "vblank";
+        else
+          v39 = j_va("%dms", (unsigned int)(int)*(float *)&v37);
+        v40 = (float)(*(float *)&v37 * *(float *)&width_low) * (float)(1.0 / v71);
+        v75 = *context;
+        RB_DrawText(&v75, v39, s_gpuLatencyHistogram.tickFont, v38 - v40, *((float *)v73 + 1), s_gpuLatencyHistogram.textColor);
+        v41 = *context;
+        v83.xyz.v[0] = v38 - v40;
+        v83.xyz.v[1] = *((float *)v73 + 1);
+        v83.xyz.v[2] = 0.0;
+        *(float *)&v84 = v38 - v40;
+        *((float *)&v84 + 1) = *((float *)v73 + 1) + 200.0;
+        *(float *)&v85 = 0.0;
+        v76 = v41;
+        RB_DrawLines2D(&v76, 1, 1, &v83);
+        v42 = v37;
+        *(float *)&v42 = *(float *)&v37 + s_gpuLatencyHistogram.tickTime;
+        v37 = v42;
+      }
+      while ( *(float *)&v42 <= v71 );
     }
-    v74 = 1;
-    __asm { vcomiss xmm0, xmm7 }
-    *(_QWORD *)&v178.xyz.z = 0x3CFFFFFF00000000i64;
-    v180 = 0x3CFFFFFF00000000i64;
-    *(_QWORD *)v178.xyz.v = 0i64;
-    v179 = 0i64;
-    __asm
-    {
-      vmovaps xmm8, xmm7
-      vaddss  xmm13, xmm12, xmm11
-      vdivss  xmm10, xmm10, xmm0
-    }
+    v43 = *context;
+    v83.xyz.v[0] = *(float *)&v6;
+    v83.xyz.v[1] = *((float *)v73 + 1) + 200.0;
+    v83.xyz.v[2] = 0.0;
+    *(float *)&v84 = *(float *)&v6 + *(float *)&width_low;
+    *((float *)&v84 + 1) = *((float *)v73 + 1) + 200.0;
+    *(float *)&v85 = 0.0;
+    v77 = v43;
+    RB_DrawLines2D(&v77, 1, 1, &v83);
+    v44 = 0;
+    v45 = s_latencyEventNames;
+    v46 = 0i64;
+    v47 = s_latencyEventColors;
     do
     {
-      __asm { vucomiss xmm8, xmm7 }
-      if ( v74 )
-      {
-        v78 = "vblank";
-      }
-      else
-      {
-        __asm { vcvttss2si edx, xmm8 }
-        v78 = j_va("%dms", _RDX);
-      }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r15]
-        vmulss  xmm1, xmm8, xmm11
-        vmulss  xmm2, xmm1, xmm10
-        vsubss  xmm6, xmm13, xmm2
-        vmovaps xmm3, xmm6
-        vmovss  dword ptr [rsp+240h+fmt], xmm15
-        vmovups [rbp+140h+var_1B0], xmm0
-      }
-      RB_DrawText(&v170, v78, s_gpuLatencyHistogram.tickFont, *(float *)&_XMM3, fmtb, s_gpuLatencyHistogram.textColor);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r15]
-        vmovss  dword ptr [rbp+140h+var_130], xmm6
-        vmovss  dword ptr [rbp+140h+var_130+4], xmm15
-        vmovss  dword ptr [rbp+140h+var_128], xmm7
-        vmovss  dword ptr [rbp+140h+var_120], xmm6
-        vmovss  dword ptr [rbp+140h+var_120+4], xmm14
-        vmovss  dword ptr [rbp+140h+var_118], xmm7
-        vmovups [rbp+140h+var_1A0], xmm0
-      }
-      RB_DrawLines2D(&v171, 1, 1, &v178);
-      __asm
-      {
-        vaddss  xmm8, xmm8, cs:s_gpuLatencyHistogram.tickTime
-        vcomiss xmm8, [rsp+240h+var_1E0]
-      }
-    }
-    while ( v85 | v74 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15]
-      vmovss  dword ptr [rbp+140h+var_130], xmm12
-      vmovss  dword ptr [rbp+140h+var_130+4], xmm14
-      vmovss  dword ptr [rbp+140h+var_128], xmm7
-      vmovss  dword ptr [rbp+140h+var_120], xmm13
-      vmovss  dword ptr [rbp+140h+var_120+4], xmm14
-      vmovss  dword ptr [rbp+140h+var_118], xmm7
-      vmovups [rbp+140h+var_190], xmm0
-    }
-    RB_DrawLines2D(&v172, 1, 1, &v178);
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3e2aaaab
-      vmovss  xmm10, cs:__real@40000000
-      vmovss  xmm13, cs:__real@40400000
-      vmovss  xmm15, cs:__real@40800000
-    }
-    v91 = 0;
-    v92 = s_latencyEventNames;
-    _R14 = 0i64;
-    v94 = s_latencyEventColors;
-    do
-    {
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v96 = *v94;
-      v97 = *v92;
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, r12d
-        vmulss  xmm2, xmm1, xmm11
-        vaddss  xmm1, xmm14, cs:s_gpuLatencyHistogram.eventFontHeight
-        vmovups [rbp+140h+var_180], xmm0
-        vmulss  xmm0, xmm2, xmm8
-        vaddss  xmm7, xmm0, xmm12
-        vmovaps xmm3, xmm7
-        vmovss  dword ptr [rsp+240h+fmt], xmm1
-      }
-      RB_DrawText(&v173, v97, s_gpuLatencyHistogram.eventFont, *(float *)&_XMM3, fmtc, v96);
-      __asm { vmulss  xmm1, xmm10, cs:s_gpuLatencyHistogram.eventFontHeight }
+      v48 = *v47;
+      v49 = *v45;
+      v78 = *context;
+      v50 = (float)((float)((float)v44 * *(float *)&width_low) * 0.16666667) + *(float *)&v6;
+      RB_DrawText(&v78, v49, s_gpuLatencyHistogram.eventFont, v50, v72 + s_gpuLatencyHistogram.eventFontHeight, v48);
       textColor = s_gpuLatencyHistogram.textColor;
       eventFont = s_gpuLatencyHistogram.eventFont;
-      __asm
-      {
-        vaddss  xmm6, xmm1, xmm14
-        vmovss  xmm1, dword ptr [rbp+r14+140h+var_110]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v112 = j_va("%.2fms", _RDX);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r15]
-        vmovaps xmm3, xmm7
-        vmovups [rbp+140h+var_170], xmm0
-        vmovss  dword ptr [rsp+240h+fmt], xmm6
-      }
-      RB_DrawText(&v174, v112, eventFont, *(float *)&_XMM3, fmtd, textColor);
-      __asm { vmulss  xmm1, xmm13, cs:s_gpuLatencyHistogram.eventFontHeight }
-      v116 = s_gpuLatencyHistogram.textColor;
-      v117 = s_gpuLatencyHistogram.eventFont;
-      __asm
-      {
-        vaddss  xmm6, xmm1, xmm14
-        vmovss  xmm1, [rbp+r14+140h+var_F8]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v122 = j_va("%.2fms", _RDX);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r15]
-        vmovaps xmm3, xmm7
-        vmovups [rbp+140h+var_160], xmm0
-        vmovss  dword ptr [rsp+240h+fmt], xmm6
-      }
-      RB_DrawText(&v175, v122, v117, *(float *)&_XMM3, fmte, v116);
-      __asm { vmulss  xmm1, xmm15, cs:s_gpuLatencyHistogram.eventFontHeight }
-      v126 = s_gpuLatencyHistogram.textColor;
-      v127 = s_gpuLatencyHistogram.eventFont;
-      __asm
-      {
-        vaddss  xmm6, xmm1, xmm14
-        vmovss  xmm1, [rbp+r14+140h+var_E0]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v131 = j_va("%.2fms", _RDX);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r15]
-        vmovaps xmm3, xmm7
-        vmovups [rbp+140h+var_150], xmm0
-        vmovss  dword ptr [rsp+240h+fmt], xmm6
-      }
-      RB_DrawText(&v176, v131, v127, *(float *)&_XMM3, fmtf, v126);
-      ++v91;
-      ++v94;
-      ++v92;
-      _R14 += 4i64;
+      v53 = (float)(2.0 * s_gpuLatencyHistogram.eventFontHeight) + v72;
+      v54 = j_va("%.2fms", *(float *)((char *)&v86 + v46 * 4));
+      v79 = *context;
+      RB_DrawText(&v79, v54, eventFont, v50, v53, textColor);
+      v55 = s_gpuLatencyHistogram.textColor;
+      v56 = s_gpuLatencyHistogram.eventFont;
+      v57 = (float)(3.0 * s_gpuLatencyHistogram.eventFontHeight) + v72;
+      v58 = j_va("%.2fms", v89[v46]);
+      v80 = *context;
+      RB_DrawText(&v80, v58, v56, v50, v57, v55);
+      v59 = s_gpuLatencyHistogram.textColor;
+      v60 = s_gpuLatencyHistogram.eventFont;
+      v61 = (float)(4.0 * s_gpuLatencyHistogram.eventFontHeight) + v72;
+      v62 = j_va("%.2fms", v91[v46]);
+      v81 = *context;
+      RB_DrawText(&v81, v62, v60, (float)((float)((float)v44++ * *(float *)&width_low) * 0.16666667) + *(float *)&v6, v61, v59);
+      ++v47;
+      ++v45;
+      ++v46;
     }
-    while ( v91 < 6 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15]
-      vmovups [rbp+140h+var_140], xmm0
-    }
-    RB_EndSurfaceIfNeeded(&v177);
-    __asm
-    {
-      vmovaps xmm15, [rsp+240h+var_C8+8]
-      vmovaps xmm14, [rsp+240h+var_B8+8]
-    }
-    v14 = 0;
-    __asm
-    {
-      vmovaps xmm13, [rsp+240h+var_A8+8]
-      vmovaps xmm12, [rsp+240h+var_98+8]
-      vmovaps xmm11, [rsp+240h+var_88+8]
-      vmovaps xmm10, [rsp+240h+var_78+8]
-      vmovaps xmm8, [rsp+240h+var_58+8]
-      vmovaps xmm7, [rsp+240h+var_48+8]
-      vmovaps xmm6, xmmword ptr [rsp+240h+var_38+8]
-    }
+    while ( v44 < 6 );
+    v82 = *context;
+    RB_EndSurfaceIfNeeded(&v82);
+    v1 = 0;
   }
   if ( s_gpuLatencyHistogram.calcEnabled )
   {
-    v143 = s_latencyEventNamesW;
+    v63 = s_latencyEventNamesW;
     do
     {
-      __asm
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      if ( (s_gpuLatencyHistogram.latency[v1 + 6 * s_gpuLatencyHistogram.latencyIndex] & 0x8000000000000000ui64) != 0i64 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
+        *((_QWORD *)&v66 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v66 = *(double *)&_XMM0 + 1.844674407370955e19;
+        _XMM0 = v66;
       }
-      if ( (s_gpuLatencyHistogram.latency[v14 + 6 * s_gpuLatencyHistogram.latencyIndex] & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddsd  xmm0, xmm0, xmm9 }
-      __asm
-      {
-        vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vcvtsd2ss xmm1, xmm0, xmm0
-      }
-      *(double *)&_XMM0 = PIXReportCounter_0(*v143);
-      ++v14;
-      ++v143;
+      *((_QWORD *)&v68 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v68 = *(double *)&_XMM0 * msecPerRawTimerTick;
+      _XMM0 = v68;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      PIXReportCounter_0(*v63);
+      ++v1;
+      ++v63;
     }
-    while ( (__int64)v143 < (__int64)&RDBG_WELCOME_RAW_1462 );
+    while ( (__int64)v63 < (__int64)&RDBG_WELCOME_RAW_1462 );
   }
-  __asm { vmovaps xmm9, [rsp+240h+var_68+8] }
 }
 
 /*
@@ -1226,49 +915,58 @@ RB_GPU_DrawTimerTrees
 */
 void RB_GPU_DrawTimerTrees(GfxCmdBufContext *gfxContext)
 {
+  __int128 v1; 
+  __int128 v2; 
   TimerTree *DrawTree; 
   TimerTree *v5; 
+  __int128 v6; 
+  float v10; 
+  float v11; 
+  float displayWidth; 
+  float v13; 
+  float displayHeight; 
+  GfxCmdBufContext v15; 
   GpuTimerView::DisplayType m_dispType; 
-  int v43; 
+  int v17; 
+  GfxCmdBufContext v18; 
   __int64 m_historyIdx; 
-  unsigned int v46; 
-  __int64 v47; 
-  unsigned int v48; 
-  __int64 v49; 
-  unsigned int v50; 
-  __int64 v51; 
-  unsigned int v52; 
-  __int64 v53; 
-  unsigned int v54; 
-  __int64 v55; 
-  unsigned int v56; 
-  __int64 v57; 
-  unsigned int v58; 
-  __int64 v59; 
-  unsigned int v60; 
-  __int64 v61; 
-  unsigned int v62; 
-  __int64 v63; 
-  unsigned int v64; 
-  __int64 v65; 
-  unsigned int v66; 
-  __int64 v67; 
-  unsigned int v68; 
-  __int64 v69; 
-  float v70; 
-  float v71; 
-  GfxCmdBufContext v72; 
-  GfxCmdBufContext v73; 
-  GfxCmdBufContext v74; 
-  GfxCmdBufContext v75; 
-  GfxCmdBufContext v76; 
-  GfxCmdBufContext v77; 
-  GfxCmdBufContext v78; 
-  GfxCmdBufContext v79; 
-  vec2_t v80; 
-  vec2_t v81; 
+  unsigned int v20; 
+  __int64 v21; 
+  unsigned int v22; 
+  __int64 v23; 
+  unsigned int v24; 
+  __int64 v25; 
+  unsigned int v26; 
+  __int64 v27; 
+  unsigned int v28; 
+  __int64 v29; 
+  unsigned int v30; 
+  __int64 v31; 
+  unsigned int v32; 
+  __int64 v33; 
+  unsigned int v34; 
+  __int64 v35; 
+  unsigned int v36; 
+  __int64 v37; 
+  unsigned int v38; 
+  __int64 v39; 
+  unsigned int v40; 
+  __int64 v41; 
+  unsigned int v42; 
+  __int64 v43; 
+  GfxCmdBufContext v44; 
+  GfxCmdBufContext v45; 
+  GfxCmdBufContext v46; 
+  GfxCmdBufContext v47; 
+  GfxCmdBufContext v48; 
+  GfxCmdBufContext v49; 
+  GfxCmdBufContext v50; 
+  GfxCmdBufContext v51; 
+  vec2_t v52; 
+  vec2_t v53; 
+  __int128 v54; 
+  __int128 v55; 
 
-  _RSI = gfxContext;
   DrawTree = GPUTimerTree::GetDrawTree();
   v5 = DrawTree;
   if ( s_treeDisplayMode && DrawTree )
@@ -1279,144 +977,88 @@ void RB_GPU_DrawTimerTrees(GfxCmdBufContext *gfxContext)
     s_totalTime = s_totalFrameTime - TimerTree::GetRootNode(v5)->m_exclusiveTimeUs;
     if ( s_treeDisplayMode != GPU_TIMERTREE_DISPLAY_MODE_HIDDEN )
     {
+      v55 = v1;
+      v54 = v2;
+      v6 = LODWORD(s_drawTopOffsetTarget.v[1]);
+      *(float *)&v6 = fsqrt((float)((float)(s_drawTopOffsetTarget.v[1] - s_drawTopOffset.v[1]) * (float)(s_drawTopOffsetTarget.v[1] - s_drawTopOffset.v[1])) + (float)((float)(s_drawTopOffsetTarget.v[0] - s_drawTopOffset.v[0]) * (float)(s_drawTopOffsetTarget.v[0] - s_drawTopOffset.v[0])));
+      _XMM3 = v6;
       __asm
       {
-        vmovss  xmm0, dword ptr cs:s_drawTopOffsetTarget
-        vmovss  xmm1, dword ptr cs:s_drawTopOffsetTarget+4
-        vmovaps [rsp+130h+var_30], xmm6
-        vmovss  xmm6, dword ptr cs:s_drawTopOffset
-        vsubss  xmm5, xmm0, xmm6
-        vmulss  xmm0, xmm5, xmm5
-        vmovaps [rsp+130h+var_40], xmm7
-        vmovss  xmm7, dword ptr cs:s_drawTopOffset+4
-        vsubss  xmm4, xmm1, xmm7
-        vmulss  xmm2, xmm4, xmm4
-        vaddss  xmm1, xmm2, xmm0
-        vsqrtss xmm3, xmm1, xmm1
-        vcomiss xmm3, cs:__real@43310000
-        vmovss  xmm1, cs:__real@3f800000
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm1, xmm0
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm2, xmm5, xmm1
-        vmulss  xmm5, xmm4, xmm1
       }
-      if ( (unsigned int)s_treeDisplayMode <= GPU_TIMERTREE_DISPLAY_MODE_HIDDEN )
+      if ( *(float *)&v6 <= 177.0 )
       {
         s_drawTopOffset = s_drawTopOffsetTarget;
-        __asm
-        {
-          vmovss  xmm3, dword ptr cs:s_drawTopOffset+4
-          vmovss  xmm2, dword ptr cs:s_drawTopOffset
-        }
+        v11 = s_drawTopOffsetTarget.v[1];
+        v10 = s_drawTopOffsetTarget.v[0];
       }
       else
       {
-        __asm
-        {
-          vmulss  xmm0, xmm2, cs:__real@42fa0000
-          vmulss  xmm1, xmm5, cs:__real@42fa0000
-          vaddss  xmm2, xmm6, xmm0
-          vaddss  xmm3, xmm7, xmm1
-          vmovss  dword ptr cs:s_drawTopOffset, xmm2
-          vmovss  dword ptr cs:s_drawTopOffset+4, xmm3
-        }
+        v10 = s_drawTopOffset.v[0] + (float)((float)((float)(s_drawTopOffsetTarget.v[0] - s_drawTopOffset.v[0]) * (float)(1.0 / *(float *)&_XMM0)) * 125.0);
+        v11 = s_drawTopOffset.v[1] + (float)((float)((float)(s_drawTopOffsetTarget.v[1] - s_drawTopOffset.v[1]) * (float)(1.0 / *(float *)&_XMM0)) * 125.0);
+        s_drawTopOffset.v[0] = v10;
+        s_drawTopOffset.v[1] = v11;
       }
-      __asm
-      {
-        vaddss  xmm2, xmm2, cs:__real@42480000
-        vmovaps xmm7, [rsp+130h+var_40]
-        vmovaps xmm6, [rsp+130h+var_30]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm4, xmm0, cs:__real@3f000000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm1, xmm0, cs:__real@3f666666
-        vaddss  xmm0, xmm3, cs:__real@41f00000
-        vmovss  [rbp+30h+var_58], xmm4
-        vmovss  [rbp+30h+var_54], xmm1
-        vmovss  [rbp+30h+var_60], xmm2
-        vmovss  [rbp+30h+var_5C], xmm0
-      }
+      displayWidth = (float)vidConfig.displayWidth;
+      v13 = displayWidth * 0.5;
+      displayHeight = (float)vidConfig.displayHeight;
+      v53.v[0] = v13;
+      v53.v[1] = displayHeight * 0.89999998;
+      v52.v[0] = v10 + 50.0;
+      v52.v[1] = v11 + 30.0;
       switch ( s_treeDisplayMode )
       {
         case GPU_TIMERTREE_DISPLAY_MODE_FRAMEBUDGET:
           R_GPU_SetMainPageDisplayType();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups [rsp+130h+var_E0], xmm0
-          }
-          GpuTimerPage::Draw(&s_MainTimerPage, &v72, v5, &v80, &v81, s_showAvgTimeOnly);
+          v44 = *gfxContext;
+          GpuTimerPage::Draw(&s_MainTimerPage, &v44, v5, &v52, &v53, s_showAvgTimeOnly);
           break;
         case GPU_TIMERTREE_DISPLAY_MODE_FRAMEBUDGET_EXPAND:
           R_GPU_SetMainPageDisplayType();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups [rsp+130h+var_D0], xmm0
-          }
-          GpuTimerPage::Draw(&s_MainTimerPage, &v73, v5, &v80, &v81, s_showAvgTimeOnly);
+          v45 = *gfxContext;
+          GpuTimerPage::Draw(&s_MainTimerPage, &v45, v5, &v52, &v53, s_showAvgTimeOnly);
           break;
         case GPU_TIMERTREE_DISPLAY_MODE_ALL:
           R_GPU_SetAllTimerPageDisplayType();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups [rbp+30h+var_A0], xmm0
-          }
-          GpuTimerPage::Draw(&s_AllTimerPage, &v76, v5, &v80, &v81, s_showAvgTimeOnly);
+          v48 = *gfxContext;
+          GpuTimerPage::Draw(&s_AllTimerPage, &v48, v5, &v52, &v53, s_showAvgTimeOnly);
           break;
         case GPU_TIMERTREE_DISPLAY_MODE_ALL_ACTIVE:
           R_GPU_SetAllTimerPageDisplayType();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups [rsp+130h+var_C0], xmm0
-          }
-          GpuTimerPage::Draw(&s_AllTimerPage, &v74, v5, &v80, &v81, s_showAvgTimeOnly);
+          v46 = *gfxContext;
+          GpuTimerPage::Draw(&s_AllTimerPage, &v46, v5, &v52, &v53, s_showAvgTimeOnly);
           break;
         case GPU_TIMERTREE_DISPLAY_MODE_ALL_ACTIVE_IN_PLACE:
           R_GPU_SetAllTimerPageDisplayType();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups [rbp+30h+var_B0], xmm0
-          }
-          GpuTimerPage::Draw(&s_AllTimerPage, &v75, v5, &v80, &v81, s_showAvgTimeOnly);
+          v47 = *gfxContext;
+          GpuTimerPage::Draw(&s_AllTimerPage, &v47, v5, &v52, &v53, s_showAvgTimeOnly);
           break;
         case GPU_TIMERTREE_DISPLAY_MODE_ALL_IN_PLACE:
           R_GPU_SetAllTimerPageDisplayType();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups [rbp+30h+var_90], xmm0
-          }
-          GpuTimerPage::Draw(&s_AllTimerPage, &v77, v5, &v80, &v81, s_showAvgTimeOnly);
+          v49 = *gfxContext;
+          GpuTimerPage::Draw(&s_AllTimerPage, &v49, v5, &v52, &v53, s_showAvgTimeOnly);
           break;
         case GPU_TIMERTREE_DISPLAY_MODE_ALL_ACTIVE_COM_ONLY:
-          __asm { vmovups xmm0, xmmword ptr [rsi]; jumptable 00000001422BE0E3 case 8 }
+          v15 = *gfxContext;
           m_dispType = s_TimerFrameView.m_dispType;
-          __asm { vmovss  [rsp+130h+var_F8], xmm4 }
           s_TimerFrameView.m_dispType = PRINT;
-          __asm { vmovups [rbp+30h+var_80], xmm0 }
-          GpuTimerView::Draw(&s_TimerFrameView, &v78, v5, 0, 0, 1, &v80, v70, NULL);
-          v43 = 5;
+          v50 = v15;
+          GpuTimerView::Draw(&s_TimerFrameView, &v50, v5, 0, 0, 1, &v52, v13, NULL);
+          v17 = 5;
           s_treeDisplayMode = GPU_TIMERTREE_DISPLAY_MODE_ALL_ACTIVE;
           goto LABEL_16;
         case GPU_TIMERTREE_DISPLAY_MODE_ALL_COM_ONLY:
-          __asm { vmovups xmm0, xmmword ptr [rsi]; jumptable 00000001422BE0E3 case 9 }
+          v18 = *gfxContext;
           m_dispType = s_TimerFrameView.m_dispType;
-          __asm { vmovss  [rsp+130h+var_F8], xmm4 }
           s_TimerFrameView.m_dispType = PRINT;
-          __asm { vmovups [rbp+30h+var_70], xmm0 }
-          GpuTimerView::Draw(&s_TimerFrameView, &v79, v5, 0, 1, 1, &v80, v71, NULL);
-          v43 = 4;
+          v51 = v18;
+          GpuTimerView::Draw(&s_TimerFrameView, &v51, v5, 0, 1, 1, &v52, v13, NULL);
+          v17 = 4;
           s_treeDisplayMode = GPU_TIMERTREE_DISPLAY_MODE_ALL;
 LABEL_16:
           s_TimerFrameView.m_dispType = m_dispType;
-          Dvar_SetInt_Internal(r_gpuTimers, v43);
+          Dvar_SetInt_Internal(r_gpuTimers, v17);
           break;
         default:
           break;
@@ -1441,67 +1083,67 @@ LABEL_16:
     m_historyIdx = s_SunShadowView.m_historyIdx;
     if ( s_SunShadowView.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v46 = s_SunShadowView.m_ViewTotalUs.m_data[m_historyIdx];
-    v47 = s_SpotShadowView.m_historyIdx;
-    bbperf_sunshadow_total = v46;
+    v20 = s_SunShadowView.m_ViewTotalUs.m_data[m_historyIdx];
+    v21 = s_SpotShadowView.m_historyIdx;
+    bbperf_sunshadow_total = v20;
     if ( s_SpotShadowView.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v48 = s_SpotShadowView.m_ViewTotalUs.m_data[v47];
-    v49 = s_DepthHackView.m_historyIdx;
-    bbperf_spotshadow_total = v48;
+    v22 = s_SpotShadowView.m_ViewTotalUs.m_data[v21];
+    v23 = s_DepthHackView.m_historyIdx;
+    bbperf_spotshadow_total = v22;
     if ( s_DepthHackView.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v50 = s_DepthHackView.m_ViewTotalUs.m_data[v49];
-    v51 = s_OpaqueView.m_historyIdx;
-    bbperf_depthhack_total = v50;
+    v24 = s_DepthHackView.m_ViewTotalUs.m_data[v23];
+    v25 = s_OpaqueView.m_historyIdx;
+    bbperf_depthhack_total = v24;
     if ( s_OpaqueView.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v52 = s_OpaqueView.m_ViewTotalUs.m_data[v51];
-    v53 = s_TransView.m_historyIdx;
-    bbperf_opaque_total = v52;
+    v26 = s_OpaqueView.m_ViewTotalUs.m_data[v25];
+    v27 = s_TransView.m_historyIdx;
+    bbperf_opaque_total = v26;
     if ( s_TransView.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v54 = s_TransView.m_ViewTotalUs.m_data[v53];
-    v55 = s_EmissView.m_historyIdx;
-    bbperf_trans_total = v54;
+    v28 = s_TransView.m_ViewTotalUs.m_data[v27];
+    v29 = s_EmissView.m_historyIdx;
+    bbperf_trans_total = v28;
     if ( s_EmissView.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v56 = s_EmissView.m_ViewTotalUs.m_data[v55];
-    v57 = s_LightingView.m_historyIdx;
-    bbperf_emissive_total = v56;
+    v30 = s_EmissView.m_ViewTotalUs.m_data[v29];
+    v31 = s_LightingView.m_historyIdx;
+    bbperf_emissive_total = v30;
     if ( s_LightingView.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v58 = s_LightingView.m_ViewTotalUs.m_data[v57];
-    v59 = s_VolumetricsView.m_historyIdx;
-    bbperf_lighting_total = v58;
+    v32 = s_LightingView.m_ViewTotalUs.m_data[v31];
+    v33 = s_VolumetricsView.m_historyIdx;
+    bbperf_lighting_total = v32;
     if ( s_VolumetricsView.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v60 = s_VolumetricsView.m_ViewTotalUs.m_data[v59];
-    v61 = s_Dxr.m_historyIdx;
-    bbperf_volumetrics_total = v60;
+    v34 = s_VolumetricsView.m_ViewTotalUs.m_data[v33];
+    v35 = s_Dxr.m_historyIdx;
+    bbperf_volumetrics_total = v34;
     if ( s_Dxr.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v62 = s_Dxr.m_ViewTotalUs.m_data[v61];
-    v63 = s_PostFxView.m_historyIdx;
-    bbperf_dxr_total = v62;
+    v36 = s_Dxr.m_ViewTotalUs.m_data[v35];
+    v37 = s_PostFxView.m_historyIdx;
+    bbperf_dxr_total = v36;
     if ( s_PostFxView.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v64 = s_PostFxView.m_ViewTotalUs.m_data[v63];
-    v65 = s_AntiAliasView.m_historyIdx;
-    bbperf_postfx_total = v64;
+    v38 = s_PostFxView.m_ViewTotalUs.m_data[v37];
+    v39 = s_AntiAliasView.m_historyIdx;
+    bbperf_postfx_total = v38;
     if ( s_AntiAliasView.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v66 = s_AntiAliasView.m_ViewTotalUs.m_data[v65];
-    v67 = s_UIView.m_historyIdx;
-    bbperf_antialias_total = v66;
+    v40 = s_AntiAliasView.m_ViewTotalUs.m_data[v39];
+    v41 = s_UIView.m_historyIdx;
+    bbperf_antialias_total = v40;
     if ( s_UIView.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v68 = s_UIView.m_ViewTotalUs.m_data[v67];
-    v69 = s_ComputeView.m_historyIdx;
-    bbperf_ui_total = v68;
+    v42 = s_UIView.m_ViewTotalUs.m_data[v41];
+    v43 = s_ComputeView.m_historyIdx;
+    bbperf_ui_total = v42;
     if ( s_ComputeView.m_historyIdx >= 0x40ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    bbperf_compute_total = s_ComputeView.m_ViewTotalUs.m_data[v69];
+    bbperf_compute_total = s_ComputeView.m_ViewTotalUs.m_data[v43];
     TimerTree::Unlock(v5);
   }
 }
@@ -1514,72 +1156,54 @@ RB_GPU_DrawTimers
 
 void __fastcall RB_GPU_DrawTimers(GfxCmdBufContext *gfxContext, double _XMM1_8, double _XMM2_8)
 {
-  const dvar_t *v14; 
+  const dvar_t *v4; 
   unsigned __int64 *counts; 
-  unsigned __int64 *v17; 
-  __int64 v18; 
+  unsigned __int64 *v6; 
+  __int64 v7; 
+  float cellWidth; 
+  float topEdgeY; 
+  float cellHeight; 
+  float v13; 
+  __int128 v17; 
+  __int128 rightEdgeX_low; 
+  float v19; 
+  float v20; 
   GfxColor *horror; 
-  __int64 v46; 
-  __int64 v47; 
-  float v66; 
-  float v67; 
-  float v68; 
-  float v69; 
-  float v70; 
-  float v71; 
-  float v72; 
-  float v73; 
-  float v74; 
-  float v75; 
-  float v76; 
-  float v77; 
-  GfxCmdBufContext v78; 
+  __int64 v22; 
+  __int64 v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v29; 
+  GfxCmdBufContext v30; 
 
-  _RSI = gfxContext;
   if ( s_treeDisplayMode )
   {
     GPUTimerTree::BeginTimer(GPU_TIMER_OVERHEAD, DRAWLIST_BACKEND_COUNT, r_glob.backEndFrameCount);
-    R_ProfBeginNamedEvent(_RSI->state, "GpuTimer Overhead");
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+108h+var_A8], xmm0
-    }
-    RB_GPU_DrawTimerTrees(&v78);
-    R_ProfEndNamedEvent(_RSI->state);
+    R_ProfBeginNamedEvent(gfxContext->state, "GpuTimer Overhead");
+    v30 = *gfxContext;
+    RB_GPU_DrawTimerTrees(&v30);
+    R_ProfEndNamedEvent(gfxContext->state);
     if ( s_treeDisplayMode )
       GPUTimerTree::EndTimer(r_glob.backEndFrameCount);
   }
-  v14 = r_gpuFrameHistogram;
+  v4 = r_gpuFrameHistogram;
   if ( r_gpuFrameHistogram->current.enabled )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+108h+var_A8], xmm0
-    }
-    RB_GPU_DrawFrameHistogram(&v78);
-    v14 = r_gpuFrameHistogram;
+    v30 = *gfxContext;
+    RB_GPU_DrawFrameHistogram(&v30);
+    v4 = r_gpuFrameHistogram;
   }
-  if ( v14->current.enabled )
+  if ( v4->current.enabled )
   {
     counts = s_gpuDynamicResolutionHistogram.counts;
-    __asm { vmovaps [rsp+108h+var_18], xmm6 }
-    v17 = s_gpuDynamicResolutionHistogram.counts;
-    __asm { vmovaps [rsp+108h+var_28], xmm7 }
-    v18 = 4i64;
+    v6 = s_gpuDynamicResolutionHistogram.counts;
+    v7 = 4i64;
+    cellWidth = s_gpuDynamicResolutionHistogram.cellWidth;
+    topEdgeY = s_gpuDynamicResolutionHistogram.topEdgeY;
+    cellHeight = s_gpuDynamicResolutionHistogram.cellHeight;
     __asm
     {
-      vmovaps [rsp+108h+var_38], xmm8
-      vmovaps [rsp+108h+var_48], xmm9
-      vmovaps [rsp+108h+var_58], xmm10
-      vmovaps [rsp+108h+var_68], xmm11
-      vmovss  xmm11, cs:s_gpuDynamicResolutionHistogram.cellWidth
-      vmovaps [rsp+108h+var_78], xmm12
-      vmovss  xmm12, cs:s_gpuDynamicResolutionHistogram.topEdgeY
-      vmovaps [rsp+108h+var_88], xmm13
-      vmovss  xmm13, cs:s_gpuDynamicResolutionHistogram.cellHeight
-      vmovaps [rsp+108h+var_98], xmm14
       vpxor   xmm1, xmm1, xmm1
       vpxor   xmm2, xmm2, xmm2
     }
@@ -1590,111 +1214,66 @@ void __fastcall RB_GPU_DrawTimers(GfxCmdBufContext *gfxContext, double _XMM1_8, 
         vpaddq  xmm1, xmm1, xmmword ptr [rax]
         vpaddq  xmm2, xmm2, xmmword ptr [rax+10h]
       }
-      v17 += 4;
-      --v18;
+      v6 += 4;
+      --v7;
     }
-    while ( v18 );
+    while ( v7 );
+    v13 = s_gpuDynamicResolutionHistogram.cellWidth + s_gpuDynamicResolutionHistogram.gutterWidth;
     __asm
     {
-      vaddss  xmm14, xmm11, cs:s_gpuDynamicResolutionHistogram.gutterWidth
-      vmovss  xmm6, cs:__real@3f800000
-      vsubss  xmm3, xmm12, cs:__real@40c00000
       vpaddq  xmm1, xmm2, xmm1
       vpsrldq xmm0, xmm1, 8
       vpaddq  xmm1, xmm1, xmm0
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+108h+var_A8], xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmovss  [rsp+108h+var_C0], xmm6
-      vmovss  [rsp+108h+var_C8], xmm6
-      vmovq   rbx, xmm1
-      vmovss  xmm1, cs:s_gpuDynamicResolutionHistogram.rightEdgeX
-      vsubss  xmm7, xmm1, xmm14
-      vmulss  xmm1, xmm0, xmm14
-      vmovss  xmm0, cs:__real@40800000
-      vxorps  xmm8, xmm8, xmm8
-      vmovss  [rsp+108h+var_D0], xmm8
-      vmovss  [rsp+108h+var_D8], xmm8
-      vmovss  [rsp+108h+var_E0], xmm0
-      vsubss  xmm2, xmm7, xmm1
-      vmovss  [rsp+108h+var_E8], xmm11
     }
-    RB_DrawStretchPic(&v78, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, v66, v68, v70, v72, v74, v76, s_gpuDynamicResolutionHistogram.currentHorror.packed, GFX_PRIM_STATS_DEBUG);
-    __asm
+    v30 = *gfxContext;
+    *(float *)&_XMM0 = (float)s_gpuDynamicResolutionHistogram.current;
+    rightEdgeX_low = LODWORD(s_gpuDynamicResolutionHistogram.rightEdgeX);
+    *(float *)&rightEdgeX_low = s_gpuDynamicResolutionHistogram.rightEdgeX - (float)(s_gpuDynamicResolutionHistogram.cellWidth + s_gpuDynamicResolutionHistogram.gutterWidth);
+    v17 = rightEdgeX_low;
+    RB_DrawStretchPic(&v30, rgp.whiteMaterial, *(float *)&rightEdgeX_low - (float)(*(float *)&_XMM0 * (float)(s_gpuDynamicResolutionHistogram.cellWidth + s_gpuDynamicResolutionHistogram.gutterWidth)), s_gpuDynamicResolutionHistogram.topEdgeY - 6.0, s_gpuDynamicResolutionHistogram.cellWidth, 4.0, 0.0, 0.0, 1.0, 1.0, s_gpuDynamicResolutionHistogram.currentHorror.packed, GFX_PRIM_STATS_DEBUG);
+    v19 = (float)(__int64)_XMM1;
+    if ( (__int64)_XMM1 < 0 )
     {
-      vmovss  xmm9, cs:__real@5f800000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rbx
+      v20 = (float)(__int64)_XMM1;
+      v19 = v20 + 1.8446744e19;
     }
-    if ( _RBX < 0 )
-      __asm { vaddss  xmm0, xmm0, xmm9 }
-    __asm { vdivss  xmm10, xmm6, xmm0 }
     horror = s_gpuDynamicResolutionHistogram.horror;
-    v46 = 16i64;
+    v22 = 16i64;
     do
     {
-      v47 = *counts;
-      __asm
+      v23 = *counts;
+      v30 = *gfxContext;
+      v25 = 0i64;
+      *(float *)&v25 = (float)v23;
+      v24 = v25;
+      if ( v23 < 0 )
       {
-        vmovups xmm0, xmmword ptr [rsi]
-        vxorps  xmm1, xmm1, xmm1
-        vmovups [rsp+108h+var_A8], xmm0
-        vcvtsi2ss xmm1, xmm1, rax
+        *(float *)&v25 = *(float *)&v25 + 1.8446744e19;
+        v24 = v25;
       }
-      if ( v47 < 0 )
-        __asm { vaddss  xmm1, xmm1, xmm9 }
-      __asm
-      {
-        vmovss  [rsp+108h+var_C0], xmm6
-        vmovss  [rsp+108h+var_C8], xmm6
-        vmovss  [rsp+108h+var_D0], xmm8
-        vmulss  xmm0, xmm1, xmm10
-        vmulss  xmm1, xmm0, xmm13
-        vmaxss  xmm2, xmm1, xmm6
-        vmovss  [rsp+108h+var_D8], xmm8
-        vmovss  [rsp+108h+var_E0], xmm2
-        vmovaps xmm2, xmm7
-        vmovaps xmm3, xmm12
-        vmovss  [rsp+108h+var_E8], xmm11
-      }
-      RB_DrawStretchPic(&v78, rgp.whiteMaterial, *(float *)&_XMM2, *(float *)&_XMM3, v67, v69, v71, v73, v75, v77, horror->packed, GFX_PRIM_STATS_DEBUG);
+      v26 = v24;
+      *(float *)&v26 = (float)(*(float *)&v24 * (float)(1.0 / v19)) * cellHeight;
+      _XMM1 = v26;
+      __asm { vmaxss  xmm2, xmm1, xmm6 }
+      RB_DrawStretchPic(&v30, rgp.whiteMaterial, *(float *)&v17, topEdgeY, cellWidth, *(float *)&_XMM2, 0.0, 0.0, 1.0, 1.0, horror->packed, GFX_PRIM_STATS_DEBUG);
       ++horror;
       ++counts;
-      __asm { vsubss  xmm7, xmm7, xmm14 }
-      --v46;
+      v29 = v17;
+      *(float *)&v29 = *(float *)&v17 - v13;
+      v17 = v29;
+      --v22;
     }
-    while ( v46 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+108h+var_A8], xmm0
-    }
-    RB_EndSurfaceIfNeeded(&v78);
-    __asm
-    {
-      vmovaps xmm14, [rsp+108h+var_98]
-      vmovaps xmm13, [rsp+108h+var_88]
-      vmovaps xmm12, [rsp+108h+var_78]
-      vmovaps xmm11, [rsp+108h+var_68]
-      vmovaps xmm10, [rsp+108h+var_58]
-      vmovaps xmm9, [rsp+108h+var_48]
-      vmovaps xmm8, [rsp+108h+var_38]
-      vmovaps xmm7, [rsp+108h+var_28]
-      vmovaps xmm6, [rsp+108h+var_18]
-    }
+    while ( v22 );
+    v30 = *gfxContext;
+    RB_EndSurfaceIfNeeded(&v30);
   }
   else
   {
     memset_0(s_gpuDynamicResolutionHistogram.counts, 0, sizeof(s_gpuDynamicResolutionHistogram.counts));
     s_gpuDynamicResolutionHistogram.current = 0;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+108h+var_A8], xmm0
-  }
-  RB_GPU_DrawLatencyHistogram(&v78);
+  v30 = *gfxContext;
+  RB_GPU_DrawLatencyHistogram(&v30);
 }
 
 /*
@@ -1891,98 +1470,54 @@ R_GPU_GetMainTotals
 */
 void R_GPU_GetMainTotals(float *pOutSunShadow, float *pOutSpotShadow, float *pOutDepthHack, float *pOutOpaque, float *pOutTrans, float *pOutEmiss, float *pOutLighting, float *pOutVolumetrics, float *pOutDxr, float *pOutPostFx, float *pOutAntiAliasing, float *pOutUI, float *pOutCompute)
 {
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3a83126f
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, xmm2
-    vmovss  dword ptr [rcx], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm0, xmm1, xmm2
-    vmovss  dword ptr [rdx], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm0, xmm1, xmm2
-    vmovss  dword ptr [r8], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm0, xmm1, xmm2
-    vmovss  dword ptr [r9], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-  }
-  _RAX = pOutTrans;
-  __asm
-  {
-    vmulss  xmm0, xmm1, xmm2
-    vmovss  dword ptr [rax], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  _RAX = pOutEmiss;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rax], xmm1
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  _RAX = pOutLighting;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rax], xmm1
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  _RAX = pOutVolumetrics;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rax], xmm1
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  _RAX = pOutDxr;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rax], xmm1
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  _RAX = pOutPostFx;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rax], xmm1
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  _RAX = pOutAntiAliasing;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rax], xmm1
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  _RAX = pOutUI;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rax], xmm1
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  _RAX = pOutCompute;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm2
-    vmovss  dword ptr [rax], xmm1
-  }
+  float v13; 
+  __int64 v14; 
+  float v15; 
+  __int64 v16; 
+  float v17; 
+  __int64 v18; 
+  float v19; 
+  __int64 v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+
+  v13 = (float)(unsigned int)bbperf_sunshadow_total;
+  v14 = (unsigned int)bbperf_spotshadow_total;
+  *pOutSunShadow = v13 * 0.001;
+  v15 = (float)v14;
+  v16 = (unsigned int)bbperf_depthhack_total;
+  *pOutSpotShadow = v15 * 0.001;
+  v17 = (float)v16;
+  v18 = (unsigned int)bbperf_opaque_total;
+  *pOutDepthHack = v17 * 0.001;
+  v19 = (float)v18;
+  v20 = (unsigned int)bbperf_trans_total;
+  *pOutOpaque = v19 * 0.001;
+  v21 = (float)v20;
+  *pOutTrans = v21 * 0.001;
+  v22 = (float)(unsigned int)bbperf_emissive_total;
+  *pOutEmiss = v22 * 0.001;
+  v23 = (float)(unsigned int)bbperf_lighting_total;
+  *pOutLighting = v23 * 0.001;
+  v24 = (float)(unsigned int)bbperf_volumetrics_total;
+  *pOutVolumetrics = v24 * 0.001;
+  v25 = (float)(unsigned int)bbperf_dxr_total;
+  *pOutDxr = v25 * 0.001;
+  v26 = (float)(unsigned int)bbperf_postfx_total;
+  *pOutPostFx = v26 * 0.001;
+  v27 = (float)(unsigned int)bbperf_antialias_total;
+  *pOutAntiAliasing = v27 * 0.001;
+  v28 = (float)(unsigned int)bbperf_ui_total;
+  *pOutUI = v28 * 0.001;
+  v29 = (float)(unsigned int)bbperf_compute_total;
+  *pOutCompute = v29 * 0.001;
 }
 
 /*
@@ -2027,74 +1562,66 @@ __int64 R_GPU_GetTimerIdForDrawListType(const GfxDrawListType drawListType)
 R_GPU_InitTimers
 ==============
 */
-
-void __fastcall R_GPU_InitTimers(__int64 a1, __int64 a2, double _XMM2_8, double _XMM3_8)
+void R_GPU_InitTimers(void)
 {
-  unsigned int v5; 
+  unsigned int v0; 
   const char **p_name; 
-  const char *v7; 
-  unsigned __int64 v8; 
-  GfxFont *v9; 
-  __int64 v42; 
-  __int64 v43; 
+  const char *v2; 
+  unsigned __int64 v3; 
+  GfxFont *v4; 
+  float displayWidth; 
+  float v6; 
+  float displayHeight; 
+  float v8; 
+  float v9; 
+  int v10; 
+  float v11; 
+  float v12; 
+  __int64 v13; 
+  __int64 v14; 
 
   if ( !s_timersInited )
   {
-    v5 = 0;
+    v0 = 0;
     p_name = &s_timerBarInfo[0].name;
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
     do
     {
-      if ( *((_DWORD *)p_name - 2) != v5 )
+      if ( *((_DWORD *)p_name - 2) != v0 )
       {
-        LODWORD(v43) = v5;
-        LODWORD(v42) = *((_DWORD *)p_name - 2);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_timer.cpp", 2535, ASSERT_TYPE_ASSERT, "(s_timerBarInfo[i].id == static_cast<GPUTimerId>(i))", "%s\n\tTimerbarInfo Id (%d) doesn't match enum value (%d)\n", "s_timerBarInfo[i].id == static_cast<GPUTimerId>(i)", v42, v43) )
+        LODWORD(v14) = v0;
+        LODWORD(v13) = *((_DWORD *)p_name - 2);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_gpu_timer.cpp", 2535, ASSERT_TYPE_ASSERT, "(s_timerBarInfo[i].id == static_cast<GPUTimerId>(i))", "%s\n\tTimerbarInfo Id (%d) doesn't match enum value (%d)\n", "s_timerBarInfo[i].id == static_cast<GPUTimerId>(i)", v13, v14) )
           __debugbreak();
       }
-      v7 = *p_name;
-      v8 = -1i64;
+      v2 = *p_name;
+      v3 = -1i64;
       do
-        ++v8;
-      while ( v7[v8] );
-      if ( v8 >= 0x18 )
-        Com_PrintWarning(8, "Warning: GPU Timers - timer description '%s' exceeds suggested %d character limit, will likely overlap time column.\n", v7, 24i64);
-      ++v5;
+        ++v3;
+      while ( v2[v3] );
+      if ( v3 >= 0x18 )
+        Com_PrintWarning(8, "Warning: GPU Timers - timer description '%s' exceeds suggested %d character limit, will likely overlap time column.\n", v2, 24i64);
+      ++v0;
       p_name += 2;
     }
-    while ( v5 < 0x81 );
+    while ( v0 < 0x81 );
     GPUTimerTree::Init();
     GPUTimerTree::RegisterSystemOverheadTimerId(GPU_TIMER_WAIT_FLIP);
     GPUTimerTree::RegisterSystemOverheadTimerId(GPU_TIMER_OVERHEAD);
-    v9 = R_RegisterFont("fonts/fira_mono_regular.ttf", 18);
-    GpuTimerView::InitViews(v9);
+    v4 = R_RegisterFont("fonts/fira_mono_regular.ttf", 18);
+    GpuTimerView::InitViews(v4);
     GpuTimerPage::InitPages();
     R_GPU_SetupGpuTimerPage();
-    __asm
-    {
-      vmovss  xmm6, cs:__real@40800000
-      vxorps  xmm3, xmm3, xmm3
-      vcvtsi2ss xmm3, xmm3, rax
-      vmulss  xmm0, xmm3, cs:__real@3e5f3b64
-      vsubss  xmm1, xmm3, xmm0
-      vmovss  cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.leftEdgeX, xmm1; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-      vmulss  xmm1, xmm3, cs:__real@3b8882f1
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, rax
-      vmulss  xmm0, xmm2, cs:__real@3e6353f8
-      vmovss  cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.tickWidth, xmm1; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-      vmovss  xmm1, cs:__real@40000000
-      vmovss  cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.topEdgeY, xmm0; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-      vmulss  xmm0, xmm2, cs:__real@3d978d50
-    }
+    displayWidth = (float)vidConfig.displayWidth;
+    s_gpuFrameHistogramStyle.leftEdgeX = displayWidth - (float)(displayWidth * 0.21799999);
+    v6 = displayWidth * 0.0041660001;
+    displayHeight = (float)vidConfig.displayHeight;
+    s_gpuFrameHistogramStyle.tickWidth = v6;
+    s_gpuFrameHistogramStyle.topEdgeY = displayHeight * 0.222;
     s_gpuFrameHistogramStyle.overMaxColor.packed = 1428165298;
     s_gpuFrameHistogramStyle.overBudgetColor.packed = 1427765503;
-    __asm
-    {
-      vmovss  cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.padWidth, xmm1; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-      vmovss  cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.tickHeight, xmm0; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-      vmovss  cs:?s_gpuFrameHistogramStyle@@3UGPUFrameHistogramStyle@@A.rowPadHeight, xmm6; GPUFrameHistogramStyle s_gpuFrameHistogramStyle
-    }
+    s_gpuFrameHistogramStyle.padWidth = FLOAT_2_0;
+    s_gpuFrameHistogramStyle.tickHeight = displayHeight * 0.074000001;
+    s_gpuFrameHistogramStyle.rowPadHeight = FLOAT_4_0;
     s_gpuFrameHistogramStyle.swapColor.packed = 1426063360;
     s_gpuFrameHistogramStyle.endFrameColor.packed = 1442840575;
     s_gpuFrameHistogramStyle.durationColor.packed = 1442810506;
@@ -2102,26 +1629,14 @@ void __fastcall R_GPU_InitTimers(__int64 a1, __int64 a2, double _XMM2_8, double 
     s_gpuFrameHistogramStyle.tickBudgetUs = 18000i64;
     s_gpuFrameHistogramStyle.tickMaxUs = 50000i64;
     r_gpuFrameHistogram = Dvar_RegisterBool("SLLPMLT", 0, 0, "Enables a visual histogram of time between page flips.");
-    __asm
-    {
-      vxorps  xmm3, xmm3, xmm3
-      vcvtsi2ss xmm3, xmm3, rax
-      vmulss  xmm0, xmm3, cs:__real@3d7837b5
-      vsubss  xmm1, xmm3, xmm0
-      vmovss  cs:s_gpuDynamicResolutionHistogram.rightEdgeX, xmm1
-      vmulss  xmm1, xmm3, cs:__real@3c087a8d
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, rax
-      vmulss  xmm0, xmm2, cs:__real@3f46e979
-      vmovss  cs:s_gpuDynamicResolutionHistogram.topEdgeY, xmm0
-      vmulss  xmm0, xmm2, cs:__real@3d72b021
-      vmovss  cs:s_gpuDynamicResolutionHistogram.cellHeight, xmm0
-      vmulss  xmm0, xmm3, cs:__real@3e555476
-      vmovss  cs:s_gpuDynamicResolutionHistogram.cellWidth, xmm1
-      vmovss  xmm1, cs:__real@42700000
-      vmovss  cs:s_gpuLatencyHistogram.width, xmm0
-      vmovss  cs:s_gpuDynamicResolutionHistogram.gutterWidth, xmm6
-    }
+    v8 = (float)vidConfig.displayWidth;
+    s_gpuDynamicResolutionHistogram.rightEdgeX = v8 - (float)(v8 * 0.060600001);
+    v9 = (float)vidConfig.displayHeight;
+    s_gpuDynamicResolutionHistogram.topEdgeY = v9 * 0.77700001;
+    s_gpuDynamicResolutionHistogram.cellHeight = v9 * 0.059250001;
+    s_gpuDynamicResolutionHistogram.cellWidth = v8 * 0.0083299996;
+    s_gpuLatencyHistogram.width = v8 * 0.20833001;
+    s_gpuDynamicResolutionHistogram.gutterWidth = FLOAT_4_0;
     s_gpuDynamicResolutionHistogram.horror[15].packed = -8388353;
     s_gpuDynamicResolutionHistogram.horror[14].packed = -8384528;
     s_gpuDynamicResolutionHistogram.horror[13].packed = -8380703;
@@ -2139,29 +1654,16 @@ void __fastcall R_GPU_InitTimers(__int64 a1, __int64 a2, double _XMM2_8, double 
     s_gpuDynamicResolutionHistogram.horror[1].packed = -8334803;
     s_gpuDynamicResolutionHistogram.horror[0].packed = -8330978;
     s_gpuDynamicResolutionHistogram.currentHorror.packed = -16719105;
-    __asm
-    {
-      vmovss  xmm0, cs:__real@40a00000
-      vmovss  cs:s_gpuLatencyHistogram.tickTime, xmm0
-      vmovss  cs:s_gpuLatencyHistogram.rightTime, xmm1
-    }
+    s_gpuLatencyHistogram.tickTime = FLOAT_5_0;
+    s_gpuLatencyHistogram.rightTime = FLOAT_60_0;
     s_gpuLatencyHistogram.eventFont = R_RegisterFont("fonts/fira_mono_regular.ttf", 12);
     s_gpuLatencyHistogram.tickFont = R_RegisterFont("fonts/fira_mono_regular.ttf", 10);
-    R_TextHeight(s_gpuLatencyHistogram.eventFont);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vmovss  cs:s_gpuLatencyHistogram.eventFontHeight, xmm0
-      vmulss  xmm0, xmm1, cs:__real@3d000000
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vmovss  cs:s_gpuLatencyHistogram.rightPad, xmm0
-      vmulss  xmm0, xmm1, cs:__real@3ecccccd
-      vmovss  cs:s_gpuLatencyHistogram.bottomPad, xmm0
-    }
+    v10 = R_TextHeight(s_gpuLatencyHistogram.eventFont);
+    v11 = (float)vidConfig.displayWidth;
+    s_gpuLatencyHistogram.eventFontHeight = (float)v10;
+    v12 = (float)vidConfig.displayHeight;
+    s_gpuLatencyHistogram.rightPad = v11 * 0.03125;
+    s_gpuLatencyHistogram.bottomPad = v12 * 0.40000001;
     s_gpuLatencyHistogram.backColor.packed = 1426063360;
     s_gpuLatencyHistogram.textColor.packed = -1;
     Dvar_BeginPermanentRegistration();
@@ -2173,7 +1675,6 @@ void __fastcall R_GPU_InitTimers(__int64 a1, __int64 a2, double _XMM2_8, double 
     r_gpuTimers = Dvar_RegisterEnum("LQSQNMSSLS", s_displayTreeModeNames, 0, 0, "GPU Timer displays");
     Dvar_EndPermanentRegistration();
     GPUFrameTimer::Init();
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
     s_timersInited = 1;
   }
 }
@@ -2286,14 +1787,16 @@ void R_GPU_RecordLatencyStatistics(unsigned int frameCount, const _DXGIX_FRAME_S
   __int64 v12; 
   unsigned int latencyIndex; 
   unsigned __int64 nextVsyncCount; 
-  __int64 v17; 
-  __int64 v18; 
-  int v19; 
-  unsigned int v23; 
+  __int64 v15; 
+  __int64 v16; 
+  int v17; 
+  unsigned __int64 v18; 
+  __int128 v20; 
+  unsigned int v22; 
   unsigned __int64 CPUTimeVSync; 
-  int v25; 
+  int v24; 
   unsigned int i; 
-  unsigned __int64 v27; 
+  unsigned __int64 v26; 
 
   if ( s_gpuLatencyHistogram.calcEnabled )
   {
@@ -2335,55 +1838,54 @@ LABEL_8:
     nextVsyncCount = s_gpuLatencyHistogram.nextVsyncCount;
     if ( s_gpuLatencyHistogram.nextVsyncCount < statistics[v6].VSyncCount )
     {
-      __asm
-      {
-        vmovsd  xmm2, cs:__real@4030aaaaaaaaaaab
-        vmovsd  xmm1, cs:__real@43e0000000000000
-      }
       do
       {
-        v17 = 6i64;
-        v18 = 6 * latencyIndex;
-        v19 = 4 * ((latencyIndex + 199) % 0xC8) - v18;
+        v15 = 6i64;
+        v16 = 6 * latencyIndex;
+        v17 = 4 * ((latencyIndex + 199) % 0xC8) - v16;
         do
         {
-          __asm
+          v18 = 0i64;
+          *((_QWORD *)&v20 + 1) = 0i64;
+          *(double *)&v20 = 16.66666666666667 / msecPerRawTimerTick;
+          _XMM0 = v20;
+          if ( 16.66666666666667 / msecPerRawTimerTick >= 9.223372036854776e18 )
           {
-            vdivsd  xmm0, xmm2, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-            vcomisd xmm0, xmm1
-            vsubsd  xmm0, xmm0, xmm1
-            vcomisd xmm0, xmm1
-            vcvttsd2si rax, xmm0
+            *(double *)&v20 = *(double *)&v20 - 9.223372036854776e18;
+            _XMM0 = v20;
+            if ( *(double *)&v20 < 9.223372036854776e18 )
+              v18 = 0x8000000000000000ui64;
           }
-          s_gpuLatencyHistogram.latency[v18] = _RAX + s_gpuLatencyHistogram.latency[(unsigned int)(v19 + v18)];
-          v18 = (unsigned int)(v18 + 1);
-          --v17;
+          __asm { vcvttsd2si rax, xmm0 }
+          s_gpuLatencyHistogram.latency[v16] = v18 + _RAX + s_gpuLatencyHistogram.latency[(unsigned int)(v17 + v16)];
+          v16 = (unsigned int)(v16 + 1);
+          --v15;
         }
-        while ( v17 );
+        while ( v15 );
         latencyIndex = (latencyIndex + 1) % 0xC8;
         nextVsyncCount = s_gpuLatencyHistogram.nextVsyncCount + 1;
         s_gpuLatencyHistogram.nextVsyncCount = nextVsyncCount;
       }
       while ( nextVsyncCount < statistics[v8].VSyncCount );
     }
-    v23 = 0;
+    v22 = 0;
     s_gpuLatencyHistogram.nextVsyncCount = nextVsyncCount + 1;
     CPUTimeVSync = statistics[v8].CPUTimeVSync;
-    v25 = 6 * latencyIndex;
+    v24 = 6 * latencyIndex;
     do
     {
       for ( i = 0; i < 4; ++i )
       {
-        if ( s_gpuLatencyHistogram.eventFrame[4 * v23 + i] == v3 )
+        if ( s_gpuLatencyHistogram.eventFrame[4 * v22 + i] == v3 )
           break;
       }
-      if ( i == 4 || (v27 = s_gpuLatencyHistogram.eventTime[4 * v23 + i], CPUTimeVSync < v27) )
-        s_gpuLatencyHistogram.latency[v25 + v23] = 0i64;
+      if ( i == 4 || (v26 = s_gpuLatencyHistogram.eventTime[4 * v22 + i], CPUTimeVSync < v26) )
+        s_gpuLatencyHistogram.latency[v24 + v22] = 0i64;
       else
-        s_gpuLatencyHistogram.latency[v25 + v23] = CPUTimeVSync - v27;
-      ++v23;
+        s_gpuLatencyHistogram.latency[v24 + v22] = CPUTimeVSync - v26;
+      ++v22;
     }
-    while ( v23 < 6 );
+    while ( v22 < 6 );
     s_gpuLatencyHistogram.latencyIndex = (latencyIndex + 1) % 0xC8;
   }
 }
@@ -2435,14 +1937,10 @@ LABEL_10:
 R_GPU_SetDrawTopOffset
 ==============
 */
-
-void __fastcall R_GPU_SetDrawTopOffset(double x, double y)
+void R_GPU_SetDrawTopOffset(float x, float y)
 {
-  __asm
-  {
-    vmovss  dword ptr cs:s_drawTopOffsetTarget, xmm0
-    vmovss  dword ptr cs:s_drawTopOffsetTarget+4, xmm1
-  }
+  s_drawTopOffsetTarget.v[0] = x;
+  s_drawTopOffsetTarget.v[1] = y;
 }
 
 /*

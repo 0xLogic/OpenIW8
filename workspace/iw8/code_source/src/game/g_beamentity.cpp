@@ -366,22 +366,25 @@ G_BeamEntity_Update
 */
 void G_BeamEntity_Update(gentity_s *beamEnt)
 {
-  gentity_s *v5; 
-  gentity_s *v6; 
-  const scrContext_t *v7; 
+  gentity_s *v2; 
+  gentity_s *v3; 
+  const scrContext_t *v4; 
+  const Weapon *Weapon; 
   const playerState_s *EntityPlayerStateConst; 
   GWeaponMap *Instance; 
-  GWeaponMap *v14; 
-  const Weapon *Weapon; 
+  __int128 v8; 
+  double v9; 
+  GWeaponMap *v10; 
+  const Weapon *v11; 
   ThreatSight *threatSight; 
-  __int64 v17; 
-  __int64 v18; 
-  __int64 v19; 
-  gentity_s *v20; 
+  __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
+  gentity_s *v16; 
   __m256i Buf1; 
-  __int128 v22; 
-  __int64 v23; 
-  __int64 v24; 
+  __int128 v18; 
+  double v19; 
+  __int64 v20; 
 
   if ( !beamEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_beamentity.cpp", 104, ASSERT_TYPE_ASSERT, "(beamEnt)", (const char *)&queryFormat, "beamEnt") )
     __debugbreak();
@@ -389,85 +392,72 @@ void G_BeamEntity_Update(gentity_s *beamEnt)
     __debugbreak();
   if ( beamEnt->s.lerp.u.anonymous.data[0] )
     goto LABEL_31;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups [rsp+0A8h+Buf1], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  [rsp+0A8h+var_48], xmm0
-    vmovups [rsp+0A8h+var_58], xmm1
-  }
-  LODWORD(v24) = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  if ( !EntHandle::isDefined(&beamEnt->parent) || (v5 = EntHandle::ent(&beamEnt->parent), (v6 = v5) == NULL) || v5->s.eType == ET_ACTOR_CORPSE )
+  Buf1 = *(__m256i *)&NULL_WEAPON.weaponIdx;
+  v19 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
+  v18 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+  LODWORD(v20) = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+  if ( !EntHandle::isDefined(&beamEnt->parent) || (v2 = EntHandle::ent(&beamEnt->parent), (v3 = v2) == NULL) || v2->s.eType == ET_ACTOR_CORPSE )
   {
 LABEL_30:
     G_BeamEntity_Destroy(beamEnt);
     return;
   }
-  if ( v5->actor )
+  if ( v2->actor )
   {
-    v7 = ScriptContext_Server();
-    _RAX = GScr_Weapon_GetWeapon(v7, (const scr_weapon_t)v6->actor->currentWeapon);
+    v4 = ScriptContext_Server();
+    Weapon = GScr_Weapon_GetWeapon(v4, (const scr_weapon_t)v3->actor->currentWeapon);
   }
   else
   {
-    if ( !v5->client && !v5->agent )
+    if ( !v2->client && !v2->agent )
       goto LABEL_31;
-    EntityPlayerStateConst = G_GetEntityPlayerStateConst(v5);
-    if ( !EntityPlayerStateConst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_beamentity.cpp", 131, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps", Buf1.m256i_i64[0], Buf1.m256i_i64[1], Buf1.m256i_i64[2], Buf1.m256i_i64[3], v22, v23, v24) )
+    EntityPlayerStateConst = G_GetEntityPlayerStateConst(v2);
+    if ( !EntityPlayerStateConst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_beamentity.cpp", 131, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps", Buf1.m256i_i64[0], Buf1.m256i_i64[1], Buf1.m256i_i64[2], Buf1.m256i_i64[3], v18, v19, v20) )
       __debugbreak();
     Instance = GWeaponMap::GetInstance();
     if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 885, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
       __debugbreak();
     if ( !EntityPlayerStateConst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 886, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    _RAX = BgWeaponMap::GetWeapon(Instance, EntityPlayerStateConst->weapCommon.weaponHandle);
+    Weapon = BgWeaponMap::GetWeapon(Instance, EntityPlayerStateConst->weapCommon.weaponHandle);
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups xmm1, xmmword ptr [rax+20h]
-    vmovups [rsp+0A8h+Buf1], ymm0
-    vmovsd  xmm0, qword ptr [rax+30h]
-  }
-  LODWORD(v24) = *(_DWORD *)&_RAX->weaponCamo;
-  __asm
-  {
-    vmovsd  [rsp+0A8h+var_48], xmm0
-    vmovups [rsp+0A8h+var_58], xmm1
-  }
+  v8 = *(_OWORD *)&Weapon->attachmentVariationIndices[5];
+  Buf1 = *(__m256i *)&Weapon->weaponIdx;
+  v9 = *(double *)&Weapon->attachmentVariationIndices[21];
+  LODWORD(v20) = *(_DWORD *)&Weapon->weaponCamo;
+  v19 = v9;
+  v18 = v8;
   if ( !Buf1.m256i_i16[0] )
     goto LABEL_30;
-  v14 = GWeaponMap::GetInstance();
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+  v10 = GWeaponMap::GetInstance();
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
-  Weapon = BgWeaponMap::GetWeapon(v14, beamEnt->s.weaponHandle);
-  if ( memcmp_0(&Buf1, Weapon, 0x3Cui64) )
+  v11 = BgWeaponMap::GetWeapon(v10, beamEnt->s.weaponHandle);
+  if ( memcmp_0(&Buf1, v11, 0x3Cui64) )
     goto LABEL_30;
 LABEL_31:
   threatSight = beamEnt->s.lerp.u.actor.threatSight;
-  v17 = 7i64;
+  v13 = 7i64;
   do
   {
-    v18 = *(_DWORD *)threatSight & 0x7FF;
+    v14 = *(_DWORD *)threatSight & 0x7FF;
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
       __debugbreak();
-    v19 = v18;
-    if ( g_entities[v18].r.isInUse != g_entityIsInUse[v18] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+    v15 = v14;
+    if ( g_entities[v14].r.isInUse != g_entityIsInUse[v14] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
       __debugbreak();
-    if ( !g_entityIsInUse[v18] )
+    if ( !g_entityIsInUse[v14] )
       goto LABEL_43;
-    v20 = &g_entities[v19];
-    if ( !&g_entities[v19] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2004, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+    v16 = &g_entities[v15];
+    if ( !&g_entities[v15] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2004, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
       __debugbreak();
-    if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&v20->s.lerp.eFlags, ACTIVE, 0x11u) )
+    if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&v16->s.lerp.eFlags, ACTIVE, 0x11u) )
 LABEL_43:
       *(_DWORD *)threatSight |= 0x7FFu;
     threatSight += 2;
-    --v17;
+    --v13;
   }
-  while ( v17 );
+  while ( v13 );
 }
 
 /*

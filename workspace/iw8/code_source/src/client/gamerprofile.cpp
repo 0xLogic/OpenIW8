@@ -3762,45 +3762,34 @@ void HoldSprintToggle_f(__int64 a1, __int64 a2, __int64 a3, __int64 a4, __int64 
 SetVertViewSensitivity_f
 ==============
 */
-
-void __fastcall SetVertViewSensitivity_f(double _XMM0_8)
+void SetVertViewSensitivity_f()
 {
-  int v1; 
+  int v0; 
+  __int64 v1; 
   __int64 v2; 
-  const char *v4; 
-  char v7; 
+  const char *v3; 
+  double v4; 
 
-  v1 = Cmd_LocalControllerIndex();
-  v2 = v1;
-  if ( (unsigned int)v1 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5434, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v1, 0i64, 8) )
+  v0 = Cmd_LocalControllerIndex();
+  v1 = v0;
+  if ( (unsigned int)v0 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5434, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v0, 0i64, 8) )
     __debugbreak();
-  _RDI = v2;
+  v2 = v1;
   if ( Cmd_Argc() >= 2 )
   {
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm
+    v4 = Cmd_ArgFloat(1);
+    s_gamerSettings[v2].config.viewVertSensitivity = *(float *)&v4;
+    if ( *(float *)&v4 < 0.0099999998 )
     {
-      vmovss  xmm1, cs:__real@3c23d70a
-      vcomiss xmm0, xmm1
+      s_gamerSettings[v2].config.viewVertSensitivity = 0.0099999998;
+      *(float *)&v4 = FLOAT_0_0099999998;
     }
-    _RAX = &s_gamerSettings[0].config;
-    __asm { vmovss  dword ptr [rdi+rax], xmm0 }
-    if ( v7 )
-    {
-      s_gamerSettings[_RDI].config.viewVertSensitivity = 0.0099999998;
-      __asm { vmovaps xmm0, xmm1 }
-    }
-    __asm
-    {
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovq   r8, xmm2
-    }
-    Com_Printf(14, "View sensitivity set to %.2f for controller #%i.\n", *(double *)&_XMM2, (unsigned int)v2);
+    Com_Printf(14, "View sensitivity set to %.2f for controller #%i.\n", *(float *)&v4, (unsigned int)v1);
   }
   else
   {
-    v4 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v4);
+    v3 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v3);
   }
 }
 
@@ -3809,45 +3798,34 @@ void __fastcall SetVertViewSensitivity_f(double _XMM0_8)
 SetHorzViewSensitivity_f
 ==============
 */
-
-void __fastcall SetHorzViewSensitivity_f(double _XMM0_8)
+void SetHorzViewSensitivity_f()
 {
-  int v1; 
+  int v0; 
+  __int64 v1; 
   __int64 v2; 
-  const char *v4; 
-  char v7; 
+  const char *v3; 
+  double v4; 
 
-  v1 = Cmd_LocalControllerIndex();
-  v2 = v1;
-  if ( (unsigned int)v1 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5457, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v1, 0i64, 8) )
+  v0 = Cmd_LocalControllerIndex();
+  v1 = v0;
+  if ( (unsigned int)v0 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5457, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v0, 0i64, 8) )
     __debugbreak();
-  _RDI = v2;
+  v2 = v1;
   if ( Cmd_Argc() >= 2 )
   {
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm
+    v4 = Cmd_ArgFloat(1);
+    s_gamerSettings[v2].config.viewHorzSensitivity = *(float *)&v4;
+    if ( *(float *)&v4 < 0.0099999998 )
     {
-      vmovss  xmm1, cs:__real@3c23d70a
-      vcomiss xmm0, xmm1
+      s_gamerSettings[v2].config.viewHorzSensitivity = 0.0099999998;
+      *(float *)&v4 = FLOAT_0_0099999998;
     }
-    _RAX = &s_gamerSettings[0].config.viewHorzSensitivity;
-    __asm { vmovss  dword ptr [rdi+rax], xmm0 }
-    if ( v7 )
-    {
-      s_gamerSettings[_RDI].config.viewHorzSensitivity = 0.0099999998;
-      __asm { vmovaps xmm0, xmm1 }
-    }
-    __asm
-    {
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovq   r8, xmm2
-    }
-    Com_Printf(14, "View sensitivity set to %.2f for controller #%i.\n", *(double *)&_XMM2, (unsigned int)v2);
+    Com_Printf(14, "View sensitivity set to %.2f for controller #%i.\n", *(float *)&v4, (unsigned int)v1);
   }
   else
   {
-    v4 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v4);
+    v3 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v3);
   }
 }
 
@@ -4301,8 +4279,8 @@ void GamerProfile_UpdateProfileMenuOptionsHDRLumDvars_f(void)
 {
   int v0; 
   __int64 v1; 
-  __int64 v6; 
-  __int64 v7; 
+  __int64 v2; 
+  __int64 v3; 
 
   v0 = Cmd_LocalControllerIndex();
   v1 = v0;
@@ -4310,24 +4288,20 @@ void GamerProfile_UpdateProfileMenuOptionsHDRLumDvars_f(void)
     __debugbreak();
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v7) = 8;
-    LODWORD(v6) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4356, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v6, v7) )
+    LODWORD(v3) = 8;
+    LODWORD(v2) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4356, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v2, v3) )
       __debugbreak();
   }
-  _RSI = s_gamerSettings;
-  _RDI = 8072 * v1;
-  __asm { vmovss  xmm1, dword ptr [rdi+rsi+50h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrMinLum, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrMinLum, s_gamerSettings[v1].config.hdrMinLum);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v7) = 8;
-    LODWORD(v6) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4376, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v6, v7) )
+    LODWORD(v3) = 8;
+    LODWORD(v2) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4376, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v2, v3) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+rsi+54h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrMaxLum, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrMaxLum, s_gamerSettings[v1].config.hdrMaxLum);
 }
 
 /*
@@ -4339,17 +4313,15 @@ void GamerProfile_UpdateSafeareaDvars_f(void)
 {
   int v0; 
   __int64 v1; 
+  __int64 v2; 
 
   v0 = Cmd_LocalControllerIndex();
   v1 = v0;
   if ( (unsigned int)v0 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5734, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v0, 0i64, 8) )
     __debugbreak();
-  _RDI = s_gamerSettings;
-  _RBX = 8072 * v1;
-  __asm { vmovss  xmm1, dword ptr [rbx+rdi+64h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_safeAreaHorz, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+rdi+68h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_safeAreaVert, *(float *)&_XMM1);
+  v2 = v1;
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_safeAreaHorz, s_gamerSettings[v2].config.safearea_adjusted_horizontal);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_safeAreaVert, s_gamerSettings[v2].config.safearea_adjusted_vertical);
 }
 
 /*
@@ -5100,21 +5072,22 @@ SetVolume_f
 ==============
 */
 
-void __fastcall SetVolume_f(double _XMM0_8, double _XMM1_8)
+void __fastcall SetVolume_f(double _XMM0_8)
 {
+  unsigned int v1; 
   unsigned int v2; 
-  unsigned int v3; 
-  const char *v4; 
-  unsigned int v10; 
-  int v11; 
+  const char *v3; 
+  double SoundVolume; 
+  unsigned int v7; 
+  int v8; 
 
-  v2 = Cmd_LocalControllerIndex();
-  v3 = v2;
-  if ( v2 > 8 )
+  v1 = Cmd_LocalControllerIndex();
+  v2 = v1;
+  if ( v1 > 8 )
   {
-    v11 = 8;
-    v10 = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 6815, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v10, 0i64, v11) )
+    v8 = 8;
+    v7 = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 6815, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v7, 0i64, v8) )
       __debugbreak();
   }
   if ( Cmd_Argc() >= 2 )
@@ -5122,23 +5095,17 @@ void __fastcall SetVolume_f(double _XMM0_8, double _XMM1_8)
     _XMM0_8 = Cmd_ArgFloat(1);
     __asm
     {
-      vxorps  xmm1, xmm1, xmm1
       vmaxss  xmm0, xmm0, xmm1
       vminss  xmm1, xmm0, cs:__real@40a00000; value
     }
-    GamerProfile_SetSoundVolume(v3, *(float *)&_XMM1);
-    *(float *)&_XMM0 = GamerProfile_GetSoundVolume(v3);
-    __asm
-    {
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovq   r8, xmm2
-    }
-    Com_Printf(14, "Profile: Volume set to %.2f for controller #%i.\n", *(double *)&_XMM2, v3);
+    GamerProfile_SetSoundVolume(v2, *(float *)&_XMM1);
+    SoundVolume = GamerProfile_GetSoundVolume(v2);
+    Com_Printf(14, "Profile: Volume set to %.2f for controller #%i.\n", SoundVolume, v2);
   }
   else
   {
-    v4 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v4);
+    v3 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v3);
   }
 }
 
@@ -5147,40 +5114,29 @@ void __fastcall SetVolume_f(double _XMM0_8, double _XMM1_8)
 SetFilmGrain_f
 ==============
 */
-
-void __fastcall SetFilmGrain_f(double _XMM0_8, double _XMM1_8)
+void SetFilmGrain_f()
 {
-  int v2; 
-  __int64 v3; 
-  const char *v5; 
+  int v0; 
+  __int64 v1; 
+  const char *v2; 
+  double v3; 
+  double v4; 
 
-  v2 = Cmd_LocalControllerIndex();
-  v3 = v2;
-  if ( (unsigned int)v2 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 6836, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v2, 0i64, 8) )
+  v0 = Cmd_LocalControllerIndex();
+  v1 = v0;
+  if ( (unsigned int)v0 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 6836, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v0, 0i64, 8) )
     __debugbreak();
-  _RDI = 8072 * v3;
   if ( Cmd_Argc() >= 2 )
   {
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    _XMM0_8 = I_fclamp(*(float *)&_XMM0_8, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vcvtss2sd xmm2, xmm0, xmm0 }
-    _RAX = &s_gamerSettings[0].config.filmGrainAttenuation;
-    __asm
-    {
-      vmovq   r8, xmm2
-      vmovss  dword ptr [rdi+rax], xmm0
-    }
-    Com_Printf(14, "Profile: Film grain attenuation set to %.2f for controller #%i.\n", *(double *)&_XMM2, (unsigned int)v3);
+    v3 = Cmd_ArgFloat(1);
+    v4 = I_fclamp(*(float *)&v3, 0.0, 1.0);
+    s_gamerSettings[v1].config.filmGrainAttenuation = *(float *)&v4;
+    Com_Printf(14, "Profile: Film grain attenuation set to %.2f for controller #%i.\n", *(float *)&v4, (unsigned int)v1);
   }
   else
   {
-    v5 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v5);
+    v2 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v2);
   }
 }
 
@@ -5379,31 +5335,91 @@ void ToggleMountPullAwayEnabledKBM_f(__int64 a1, __int64 a2, __int64 a3, __int64
 SetBlacklevel_f
 ==============
 */
-
-void __fastcall SetBlacklevel_f(double _XMM0_8)
+void SetBlacklevel_f()
 {
-  unsigned int v1; 
-  const char *v2; 
+  unsigned int v0; 
+  const char *v1; 
+  double v2; 
+  double v3; 
+  double BlackLevel; 
 
-  v1 = Cmd_LocalControllerIndex();
+  v0 = Cmd_LocalControllerIndex();
   if ( Cmd_Argc() >= 2 )
   {
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f7d70a4; max
-      vmovss  xmm1, cs:__real@bf7d70a4; min
-    }
-    _XMM0_8 = I_fclamp(*(float *)&_XMM0_8, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm0; value }
-    GamerProfile_SetBlackLevel(v1, *(float *)&_XMM1);
-    *(float *)&_XMM0_8 = GamerProfile_GetBlackLevel(v1);
-    __asm
-    {
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovq   r8, xmm2
-    }
-    Com_Printf(14, "Profile: Blacklevel set to %.2f for controller #%i.\n", *(double *)&_XMM2, v1);
+    v2 = Cmd_ArgFloat(1);
+    v3 = I_fclamp(*(float *)&v2, -0.99000001, 0.99000001);
+    GamerProfile_SetBlackLevel(v0, *(float *)&v3);
+    BlackLevel = GamerProfile_GetBlackLevel(v0);
+    Com_Printf(14, "Profile: Blacklevel set to %.2f for controller #%i.\n", BlackLevel, v0);
+  }
+  else
+  {
+    v1 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v1);
+  }
+}
+
+/*
+==============
+SetHdrMinLum_f
+==============
+*/
+void SetHdrMinLum_f()
+{
+  unsigned int v0; 
+  const char *v1; 
+  double v2; 
+  double v3; 
+  double HDRMinLum; 
+
+  v0 = Cmd_LocalControllerIndex();
+  if ( Cmd_Argc() >= 2 )
+  {
+    v2 = Cmd_ArgFloat(1);
+    v3 = I_fclamp(*(float *)&v2, 0.0, 0.2);
+    GamerProfile_SetHDRMinLum(v0, *(float *)&v3);
+    HDRMinLum = GamerProfile_GetHDRMinLum(v0);
+    Com_Printf(14, "Profile: HdrMinLum set to %.2f for controller #%i.\n", HDRMinLum, v0);
+  }
+  else
+  {
+    v1 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v1);
+  }
+}
+
+/*
+==============
+SetHdrMaxLum_f
+==============
+*/
+void SetHdrMaxLum_f()
+{
+  unsigned int v0; 
+  unsigned int v1; 
+  const char *v2; 
+  double v3; 
+  double v4; 
+  double HDRMaxLum; 
+  unsigned int v6; 
+  int v7; 
+
+  v0 = Cmd_LocalControllerIndex();
+  v1 = v0;
+  if ( v0 > 8 )
+  {
+    v7 = 8;
+    v6 = v0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 6991, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v6, 0i64, v7) )
+      __debugbreak();
+  }
+  if ( Cmd_Argc() >= 2 )
+  {
+    v3 = Cmd_ArgFloat(1);
+    v4 = I_fclamp(*(float *)&v3, 0.60000002, 1.0);
+    GamerProfile_SetHDRMaxLum(v1, *(float *)&v4);
+    HDRMaxLum = GamerProfile_GetHDRMaxLum(v1);
+    Com_Printf(14, "Profile: HdrMaxLum set to %.2f for controller #%i.\n", HDRMaxLum, v1);
   }
   else
   {
@@ -5414,130 +5430,32 @@ void __fastcall SetBlacklevel_f(double _XMM0_8)
 
 /*
 ==============
-SetHdrMinLum_f
-==============
-*/
-
-void __fastcall SetHdrMinLum_f(double _XMM0_8, double _XMM1_8)
-{
-  unsigned int v2; 
-  const char *v3; 
-
-  v2 = Cmd_LocalControllerIndex();
-  if ( Cmd_Argc() >= 2 )
-  {
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3e4ccccd; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    _XMM0_8 = I_fclamp(*(float *)&_XMM0_8, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm0; value }
-    GamerProfile_SetHDRMinLum(v2, *(float *)&_XMM1);
-    *(float *)&_XMM0_8 = GamerProfile_GetHDRMinLum(v2);
-    __asm
-    {
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovq   r8, xmm2
-    }
-    Com_Printf(14, "Profile: HdrMinLum set to %.2f for controller #%i.\n", *(double *)&_XMM2, v2);
-  }
-  else
-  {
-    v3 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v3);
-  }
-}
-
-/*
-==============
-SetHdrMaxLum_f
-==============
-*/
-
-void __fastcall SetHdrMaxLum_f(double _XMM0_8)
-{
-  unsigned int v1; 
-  unsigned int v2; 
-  const char *v3; 
-  unsigned int v9; 
-  int v10; 
-
-  v1 = Cmd_LocalControllerIndex();
-  v2 = v1;
-  if ( v1 > 8 )
-  {
-    v10 = 8;
-    v9 = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 6991, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v9, 0i64, v10) )
-      __debugbreak();
-  }
-  if ( Cmd_Argc() >= 2 )
-  {
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vmovss  xmm1, cs:__real@3f19999a; min
-    }
-    _XMM0_8 = I_fclamp(*(float *)&_XMM0_8, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm0; value }
-    GamerProfile_SetHDRMaxLum(v2, *(float *)&_XMM1);
-    *(float *)&_XMM0_8 = GamerProfile_GetHDRMaxLum(v2);
-    __asm
-    {
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovq   r8, xmm2
-    }
-    Com_Printf(14, "Profile: HdrMaxLum set to %.2f for controller #%i.\n", *(double *)&_XMM2, v2);
-  }
-  else
-  {
-    v3 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v3);
-  }
-}
-
-/*
-==============
 SetHdrGamma_f
 ==============
 */
-
-void __fastcall SetHdrGamma_f(double _XMM0_8)
+void SetHdrGamma_f()
 {
-  int v1; 
-  __int64 v2; 
-  const char *v4; 
+  int v0; 
+  __int64 v1; 
+  const char *v2; 
+  double v3; 
+  double v4; 
 
-  v1 = Cmd_LocalControllerIndex();
-  v2 = v1;
-  if ( (unsigned int)v1 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 7011, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v1, 0i64, 8) )
+  v0 = Cmd_LocalControllerIndex();
+  v1 = v0;
+  if ( (unsigned int)v0 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 7011, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v0, 0i64, 8) )
     __debugbreak();
-  _RDI = 8072 * v2;
   if ( Cmd_Argc() >= 2 )
   {
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3fc00000; max
-      vmovss  xmm1, cs:__real@3f000000; min
-    }
-    _XMM0_8 = I_fclamp(*(float *)&_XMM0_8, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vcvtss2sd xmm2, xmm0, xmm0 }
-    _RAX = &s_gamerSettings[0].config.hdrGamma;
-    __asm
-    {
-      vmovq   r8, xmm2
-      vmovss  dword ptr [rdi+rax], xmm0
-    }
-    Com_Printf(14, "Profile: HdrGamma set to %.2f for controller #%i.\n", *(double *)&_XMM2, (unsigned int)v2);
+    v3 = Cmd_ArgFloat(1);
+    v4 = I_fclamp(*(float *)&v3, 0.5, 1.5);
+    s_gamerSettings[v1].config.hdrGamma = *(float *)&v4;
+    Com_Printf(14, "Profile: HdrGamma set to %.2f for controller #%i.\n", *(float *)&v4, (unsigned int)v1);
   }
   else
   {
-    v4 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v4);
+    v2 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v2);
   }
 }
 
@@ -5804,50 +5722,42 @@ void SetAdsSensitivityMultiplierTiming_f()
 SetMouseMonitorDistanceCoef_f
 ==============
 */
-
-void __fastcall SetMouseMonitorDistanceCoef_f(double _XMM0_8)
+void SetMouseMonitorDistanceCoef_f()
 {
-  int v2; 
-  __int64 v3; 
-  const char *v8; 
-  __int64 v9; 
-  int v10; 
-  __int64 v11; 
-  int v12; 
+  int v0; 
+  __int64 v1; 
+  double v2; 
+  const char *v3; 
+  __int64 v4; 
+  int v5; 
+  __int64 v6; 
+  int v7; 
 
-  v2 = Cmd_LocalControllerIndex();
-  v3 = v2;
-  if ( (unsigned int)v2 > 8 )
+  v0 = Cmd_LocalControllerIndex();
+  v1 = v0;
+  if ( (unsigned int)v0 > 8 )
   {
-    v12 = 8;
-    v10 = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 7231, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v10, 0i64, v12) )
+    v7 = 8;
+    v5 = v0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 7231, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v5, 0i64, v7) )
       __debugbreak();
   }
   if ( Cmd_Argc() < 2 )
   {
-    v8 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v8);
+    v3 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v3);
   }
   else
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( (unsigned int)v3 > 8 )
+    v2 = Cmd_ArgFloat(1);
+    if ( (unsigned int)v1 > 8 )
     {
-      LODWORD(v11) = 8;
-      LODWORD(v9) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3308, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v9, 0i64, v11) )
+      LODWORD(v6) = 8;
+      LODWORD(v4) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3308, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v4, 0i64, v6) )
         __debugbreak();
     }
-    _RCX = 8072 * v3;
-    _RAX = &s_gamerSettings[0].config.mouseMonitorDistanceCoef;
-    __asm
-    {
-      vmovss  dword ptr [rcx+rax], xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    s_gamerSettings[v1].config.mouseMonitorDistanceCoef = *(float *)&v2;
   }
 }
 
@@ -5856,50 +5766,42 @@ void __fastcall SetMouseMonitorDistanceCoef_f(double _XMM0_8)
 SetMouseFilter_f
 ==============
 */
-
-void __fastcall SetMouseFilter_f(double _XMM0_8)
+void SetMouseFilter_f()
 {
-  int v2; 
-  __int64 v3; 
-  const char *v8; 
-  __int64 v9; 
-  int v10; 
-  __int64 v11; 
-  int v12; 
+  int v0; 
+  __int64 v1; 
+  double v2; 
+  const char *v3; 
+  __int64 v4; 
+  int v5; 
+  __int64 v6; 
+  int v7; 
 
-  v2 = Cmd_LocalControllerIndex();
-  v3 = v2;
-  if ( (unsigned int)v2 > 8 )
+  v0 = Cmd_LocalControllerIndex();
+  v1 = v0;
+  if ( (unsigned int)v0 > 8 )
   {
-    v12 = 8;
-    v10 = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 7247, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v10, 0i64, v12) )
+    v7 = 8;
+    v5 = v0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 7247, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v5, 0i64, v7) )
       __debugbreak();
   }
   if ( Cmd_Argc() < 2 )
   {
-    v8 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v8);
+    v3 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v3);
   }
   else
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( (unsigned int)v3 > 8 )
+    v2 = Cmd_ArgFloat(1);
+    if ( (unsigned int)v1 > 8 )
     {
-      LODWORD(v11) = 8;
-      LODWORD(v9) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3338, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v9, 0i64, v11) )
+      LODWORD(v6) = 8;
+      LODWORD(v4) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3338, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v4, 0i64, v6) )
         __debugbreak();
     }
-    _RCX = 8072 * v3;
-    _RAX = &s_gamerSettings[0].config.mouseFilter;
-    __asm
-    {
-      vmovss  dword ptr [rcx+rax], xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    s_gamerSettings[v1].config.mouseFilter = *(float *)&v2;
   }
 }
 
@@ -5952,50 +5854,42 @@ void SetFreeLook_f()
 SetMouseAccel_f
 ==============
 */
-
-void __fastcall SetMouseAccel_f(double _XMM0_8)
+void SetMouseAccel_f()
 {
-  int v2; 
-  __int64 v3; 
-  const char *v8; 
-  __int64 v9; 
-  int v10; 
-  __int64 v11; 
-  int v12; 
+  int v0; 
+  __int64 v1; 
+  double v2; 
+  const char *v3; 
+  __int64 v4; 
+  int v5; 
+  __int64 v6; 
+  int v7; 
 
-  v2 = Cmd_LocalControllerIndex();
-  v3 = v2;
-  if ( (unsigned int)v2 > 8 )
+  v0 = Cmd_LocalControllerIndex();
+  v1 = v0;
+  if ( (unsigned int)v0 > 8 )
   {
-    v12 = 8;
-    v10 = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 7280, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v10, 0i64, v12) )
+    v7 = 8;
+    v5 = v0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 7280, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v5, 0i64, v7) )
       __debugbreak();
   }
   if ( Cmd_Argc() < 2 )
   {
-    v8 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v8);
+    v3 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v3);
   }
   else
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( (unsigned int)v3 > 8 )
+    v2 = Cmd_ArgFloat(1);
+    if ( (unsigned int)v1 > 8 )
     {
-      LODWORD(v11) = 8;
-      LODWORD(v9) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3398, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v9, 0i64, v11) )
+      LODWORD(v6) = 8;
+      LODWORD(v4) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3398, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v4, 0i64, v6) )
         __debugbreak();
     }
-    _RCX = 8072 * v3;
-    _RAX = &s_gamerSettings[0].config.mouseAccel;
-    __asm
-    {
-      vmovss  dword ptr [rcx+rax], xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    s_gamerSettings[v1].config.mouseAccel = *(float *)&v2;
   }
 }
 
@@ -6317,44 +6211,31 @@ bool ToggleEnableGamepad_f()
 SetAdsHighZoomGamepadSensitivityMultiplier_f
 ==============
 */
-
-void __fastcall SetAdsHighZoomGamepadSensitivityMultiplier_f(double _XMM0_8)
+void SetAdsHighZoomGamepadSensitivityMultiplier_f()
 {
-  const char *v2; 
-  __int64 v3; 
-  int v10; 
-  int v11; 
+  const char *v0; 
+  __int64 v1; 
+  double v2; 
+  int v3; 
+  int v4; 
 
   if ( Cmd_Argc() >= 2 )
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    v3 = Cmd_LocalControllerIndex();
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm
+    v1 = Cmd_LocalControllerIndex();
+    v2 = Cmd_ArgFloat(1);
+    if ( (unsigned int)v1 >= 8 )
     {
-      vcvttss2si ecx, xmm0
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, edx
-    }
-    if ( (unsigned int)v3 >= 8 )
-    {
-      v11 = 8;
-      v10 = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2894, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v10, v11) )
+      v4 = 8;
+      v3 = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2894, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v3, v4) )
         __debugbreak();
     }
-    _RCX = 8072 * v3;
-    _RAX = &s_gamerSettings[0].config.adsHighZoomGamepadSensitivityMultiplier;
-    __asm
-    {
-      vmovss  dword ptr [rcx+rax], xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    s_gamerSettings[v1].config.adsHighZoomGamepadSensitivityMultiplier = (float)(unsigned __int8)(int)*(float *)&v2;
   }
   else
   {
-    v2 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v2);
+    v0 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v0);
   }
 }
 
@@ -6363,44 +6244,31 @@ void __fastcall SetAdsHighZoomGamepadSensitivityMultiplier_f(double _XMM0_8)
 SetAdsLowZoomGamepadSensitivityMultiplier_f
 ==============
 */
-
-void __fastcall SetAdsLowZoomGamepadSensitivityMultiplier_f(double _XMM0_8)
+void SetAdsLowZoomGamepadSensitivityMultiplier_f()
 {
-  const char *v2; 
-  __int64 v3; 
-  int v10; 
-  int v11; 
+  const char *v0; 
+  __int64 v1; 
+  double v2; 
+  int v3; 
+  int v4; 
 
   if ( Cmd_Argc() >= 2 )
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    v3 = Cmd_LocalControllerIndex();
-    _XMM0_8 = Cmd_ArgFloat(1);
-    __asm
+    v1 = Cmd_LocalControllerIndex();
+    v2 = Cmd_ArgFloat(1);
+    if ( (unsigned int)v1 >= 8 )
     {
-      vcvttss2si ecx, xmm0
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, edx
-    }
-    if ( (unsigned int)v3 >= 8 )
-    {
-      v11 = 8;
-      v10 = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2910, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v10, v11) )
+      v4 = 8;
+      v3 = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2910, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v3, v4) )
         __debugbreak();
     }
-    _RCX = 8072 * v3;
-    _RAX = &s_gamerSettings[0].config.adsLowZoomGamepadSensitivityMultiplier;
-    __asm
-    {
-      vmovss  dword ptr [rcx+rax], xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    s_gamerSettings[v1].config.adsLowZoomGamepadSensitivityMultiplier = (float)(unsigned __int8)(int)*(float *)&v2;
   }
   else
   {
-    v2 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v2);
+    v0 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v0);
   }
 }
 
@@ -7243,379 +7111,268 @@ GamerProfile_DebugDrawFullscreenInfo
 ==============
 */
 
-void __fastcall GamerProfile_DebugDrawFullscreenInfo(double _XMM0_8, double _XMM1_8, double _XMM2_8)
+void __fastcall GamerProfile_DebugDrawFullscreenInfo(double _XMM0_8)
 {
-  const dvar_t *v13; 
-  bool v14; 
-  const ScreenPlacement *v15; 
+  const dvar_t *v1; 
+  bool v2; 
+  const ScreenPlacement *v3; 
+  char *gpadBRButtonsConfig; 
+  int i; 
+  const char *v6; 
+  const char *v7; 
+  const char *v8; 
+  double v9; 
+  const char *v10; 
+  const char *v11; 
+  double v12; 
+  double SoundLicencedContentVolume; 
+  double SoundVolume; 
+  const char *v15; 
+  float v16; 
+  const char *v17; 
+  const char *v18; 
+  const char *v19; 
+  const char *v20; 
+  const char *v21; 
+  const char *v22; 
   const char *v23; 
-  const char *v26; 
-  const char *v27; 
+  double v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  const char *v28; 
   const char *v29; 
-  const char *v30; 
-  const char *v34; 
-  const char *v39; 
+  const char *LocalClientName; 
+  char v31; 
+  const char *v32; 
+  const char *v33; 
+  LocalClientNum_t ClientFromController; 
+  bool IsControllerActive; 
+  const char *v36; 
+  float v38; 
+  float v39; 
   const char *v40; 
   const char *v41; 
   const char *v42; 
-  const char *v43; 
-  const char *v44; 
-  const char *v45; 
-  const char *v51; 
-  const char *v52; 
-  const char *LocalClientName; 
-  char v54; 
-  const char *v55; 
-  const char *v56; 
-  LocalClientNum_t ClientFromController; 
-  bool IsControllerActive; 
-  const char *v59; 
+  float v47; 
+  char *fmt; 
+  __int64 horzAlign; 
+  __int64 horzAligna; 
+  __int64 vertAlign; 
+  __int64 v52; 
+  __int64 style; 
+  __int64 v54; 
+  __int64 v55; 
+  __int64 v56; 
+  __int64 v57; 
+  __int64 v58; 
+  __int64 v59; 
+  int v60; 
+  int v61; 
+  int v62; 
+  int v63; 
+  int v64; 
+  int v65; 
+  const char *v66; 
   const char *v67; 
   const char *v68; 
   const char *v69; 
-  float fmta; 
-  float fmtb; 
-  char *fmt; 
-  float fmtc; 
-  float fmtd; 
-  __int64 horzAlign; 
-  int horzAlignb; 
-  __int64 horzAligna; 
-  int horzAlignc; 
-  int horzAlignd; 
-  __int64 vertAlign; 
-  int v106; 
-  __int64 v107; 
-  float scale; 
-  float scalea; 
-  float scaleb; 
-  float scalec; 
-  float v112; 
-  int stylea; 
-  __int64 style; 
-  double v115; 
-  double v116; 
-  double v117; 
-  double v118; 
-  double v119; 
-  double v120; 
-  double v121; 
-  double v122; 
-  double v123; 
-  __int128 v124; 
-  __int64 v125; 
-  __int64 v126; 
-  __int64 v127; 
-  __int64 v128; 
-  __int64 v129; 
-  __int64 v130; 
-  int v131; 
-  int v132; 
-  int v133; 
-  int v134; 
-  int v135; 
-  int v136; 
-  const char *v137; 
-  const char *v138; 
-  const char *v139; 
-  const char *v140; 
-  const char *v141; 
-  const char *v142; 
-  const char *v143; 
-  const char *v144; 
-  const char *v145; 
-  const char *v146; 
-  const char *v147; 
-  const char *v148; 
-  const char *v149; 
+  const char *v70; 
+  const char *v71; 
+  const char *v72; 
+  const char *v73; 
+  const char *v74; 
+  const char *v75; 
+  const char *v76; 
+  const char *v77; 
+  const char *v78; 
   GfxFont *font; 
   char dest[2048]; 
 
   if ( !cls.consoleFont )
     return;
-  v13 = DVARINT_debugOverlay;
+  v1 = DVARINT_debugOverlay;
   if ( !DVARINT_debugOverlay )
     return;
   Dvar_CheckFrontendServerThread(DVARINT_debugOverlay);
-  if ( v13->current.integer != 4 )
+  if ( v1->current.integer != 4 )
     return;
   if ( activeScreenPlacementMode == SCRMODE_FULL )
     goto LABEL_10;
   if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
   {
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v2 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v14 )
+      v2 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v2 )
       __debugbreak();
 LABEL_10:
-    v15 = &scrPlaceFull;
+    v3 = &scrPlaceFull;
     goto LABEL_11;
   }
-  v15 = scrPlaceViewDisplay;
+  v3 = scrPlaceViewDisplay;
 LABEL_11:
   font = cls.smallDevFont;
   if ( cls.smallDevFont )
   {
-    __asm
-    {
-      vmovaps [rsp+0AC8h+var_38], xmm6
-      vmovaps [rsp+0AC8h+var_48], xmm7
-      vmovaps [rsp+0AC8h+var_58], xmm8
-      vmovaps [rsp+0AC8h+var_68], xmm9
-      vmovaps [rsp+0AC8h+var_78], xmm10
-      vmovaps [rsp+0AC8h+var_88], xmm11
-      vmovaps [rsp+0AC8h+var_98], xmm12
-      vmovaps [rsp+0AC8h+var_A8], xmm13
-      vmovaps [rsp+0AC8h+var_B8], xmm14
-      vmovaps [rsp+0AC8h+var_C8], xmm15
-      vxorps  xmm7, xmm7, xmm7
-    }
     if ( cls.whiteMaterial )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  xmm3, cs:__real@44200000; w
-        vmovss  [rsp+0AC8h+style], xmm0
-        vmovss  dword ptr [rsp+0AC8h+var_A80], xmm0
-        vmovss  xmm0, cs:__real@43f00000
-        vmovss  [rsp+0AC8h+scale], xmm7
-        vmovss  [rsp+0AC8h+var_A90], xmm7
-        vxorps  xmm2, xmm2, xmm2; y
-        vxorps  xmm1, xmm1, xmm1; x
-        vmovss  dword ptr [rsp+0AC8h+fmt], xmm0
-      }
-      CL_DrawStretchPic(v15, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, 4, 4, *(float *)&v106, scale, v112, *(float *)&stylea, &MY_BACKCOLOR, cls.whiteMaterial);
+      *(_OWORD *)&_XMM0_8 = LODWORD(FLOAT_480_0);
+      CL_DrawStretchPic(v3, 0.0, 0.0, 640.0, 480.0, 4, 4, 0.0, 0.0, 1.0, 1.0, &MY_BACKCOLOR, cls.whiteMaterial);
     }
-    _RBX = s_gamerSettings[0].config.gpadBRButtonsConfig;
-    for ( _EDI = 0; _EDI < 8; ++_EDI )
+    gpadBRButtonsConfig = s_gamerSettings[0].config.gpadBRButtonsConfig;
+    for ( i = 0; i < 8; ++i )
     {
-      if ( (unsigned int)_EDI > 7 )
+      if ( (unsigned int)i > 7 )
       {
-        LODWORD(horzAlign) = _EDI;
+        LODWORD(horzAlign) = i;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1129, ASSERT_TYPE_ASSERT, "( ( (controllerIndex >= 0) && (controllerIndex < 8) ) )", "( controllerIndex ) = %i", horzAlign) )
           __debugbreak();
       }
+      v6 = "no";
+      if ( gpadBRButtonsConfig[101] )
+        v6 = "^2yes";
+      v7 = "no";
+      v8 = "no";
+      if ( *(gpadBRButtonsConfig - 56) )
+        v7 = "^2yes";
+      v9 = *(float *)(gpadBRButtonsConfig - 91);
+      if ( *(gpadBRButtonsConfig - 57) )
+        v8 = "^2yes";
+      v66 = v8;
+      v10 = "no";
+      if ( *(gpadBRButtonsConfig - 58) )
+        v10 = "^2yes";
+      v67 = v10;
+      v11 = "no";
+      if ( *(gpadBRButtonsConfig - 59) )
+        v11 = "^2yes";
+      v68 = v11;
+      v60 = *(_DWORD *)(gpadBRButtonsConfig - 67);
+      v61 = *(_DWORD *)(gpadBRButtonsConfig - 71);
+      v62 = *(_DWORD *)(gpadBRButtonsConfig - 75);
+      v63 = *(_DWORD *)(gpadBRButtonsConfig - 79);
+      v64 = *(_DWORD *)(gpadBRButtonsConfig - 83);
+      v65 = *(_DWORD *)(gpadBRButtonsConfig + 2861);
+      v12 = *(float *)(gpadBRButtonsConfig - 95);
+      SoundLicencedContentVolume = GamerProfile_GetSoundLicencedContentVolume(i);
+      SoundVolume = GamerProfile_GetSoundVolume(i);
+      *(float *)&_XMM0_8 = GamerProfile_GetBlackLevel(i);
+      v15 = "no";
+      v16 = *(float *)(gpadBRButtonsConfig - 191);
+      if ( *(gpadBRButtonsConfig - 47) )
+        v15 = "^2yes";
+      v69 = v15;
+      v17 = "no";
+      if ( *(gpadBRButtonsConfig - 53) )
+        v17 = "^2yes";
+      v70 = v17;
+      v18 = "no";
+      if ( *(gpadBRButtonsConfig - 54) )
+        v18 = "^2yes";
+      v71 = v18;
+      v19 = "no";
+      if ( gpadBRButtonsConfig[2768] )
+        v19 = "^2yes";
+      v72 = v19;
+      v20 = "no";
+      if ( gpadBRButtonsConfig[2767] )
+        v20 = "^2yes";
+      v73 = v20;
+      v21 = "no";
+      if ( gpadBRButtonsConfig[2766] )
+        v21 = "^2yes";
+      v74 = v21;
+      v22 = "no";
+      if ( gpadBRButtonsConfig[2765] )
+        v22 = "^2yes";
+      v75 = v22;
       v23 = "no";
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbx-5Bh]
-        vmovss  xmm8, dword ptr [rbx-5Fh]
-      }
-      if ( _RBX[101] )
+      v24 = *(float *)&_XMM0_8;
+      v25 = *(float *)(gpadBRButtonsConfig - 99);
+      v26 = *(float *)(gpadBRButtonsConfig - 103);
+      v27 = *(float *)(gpadBRButtonsConfig - 187);
+      if ( gpadBRButtonsConfig[2764] )
         v23 = "^2yes";
-      v26 = "no";
-      v27 = "no";
-      if ( *(_RBX - 56) )
-        v26 = "^2yes";
-      __asm { vcvtss2sd xmm6, xmm6, xmm6 }
-      if ( *(_RBX - 57) )
-        v27 = "^2yes";
-      v137 = v27;
+      v76 = v23;
+      v28 = "no";
+      if ( *(gpadBRButtonsConfig - 33) )
+        v28 = "^2yes";
+      v77 = v28;
       v29 = "no";
-      if ( *(_RBX - 58) )
-        v29 = "^2yes";
-      v138 = v29;
-      v30 = "no";
-      if ( *(_RBX - 59) )
-        v30 = "^2yes";
-      v139 = v30;
-      v131 = *(_DWORD *)(_RBX - 67);
-      v132 = *(_DWORD *)(_RBX - 71);
-      v133 = *(_DWORD *)(_RBX - 75);
-      v134 = *(_DWORD *)(_RBX - 79);
-      v135 = *(_DWORD *)(_RBX - 83);
-      v136 = *(_DWORD *)(_RBX + 2861);
-      __asm { vcvtss2sd xmm8, xmm8, xmm8 }
-      *(float *)&_XMM0_8 = GamerProfile_GetSoundLicencedContentVolume(_EDI);
-      __asm { vcvtss2sd xmm9, xmm0, xmm0 }
-      *(float *)&_XMM0_8 = GamerProfile_GetSoundVolume(_EDI);
-      __asm { vcvtss2sd xmm10, xmm0, xmm0 }
-      *(float *)&_XMM0_8 = GamerProfile_GetBlackLevel(_EDI);
-      v34 = "no";
-      __asm
+      if ( *(gpadBRButtonsConfig - 194) )
+        v29 = "yes";
+      v78 = v29;
+      if ( *(gpadBRButtonsConfig - 195) )
       {
-        vmovss  xmm12, dword ptr [rbx-63h]
-        vmovss  xmm13, dword ptr [rbx-67h]
-        vmovss  xmm14, dword ptr [rbx-0BBh]
-        vmovss  xmm15, dword ptr [rbx-0BFh]
-      }
-      if ( *(_RBX - 47) )
-        v34 = "^2yes";
-      v140 = v34;
-      v39 = "no";
-      if ( *(_RBX - 53) )
-        v39 = "^2yes";
-      v141 = v39;
-      v40 = "no";
-      if ( *(_RBX - 54) )
-        v40 = "^2yes";
-      v142 = v40;
-      v41 = "no";
-      if ( _RBX[2768] )
-        v41 = "^2yes";
-      v143 = v41;
-      v42 = "no";
-      if ( _RBX[2767] )
-        v42 = "^2yes";
-      v144 = v42;
-      v43 = "no";
-      if ( _RBX[2766] )
-        v43 = "^2yes";
-      v145 = v43;
-      v44 = "no";
-      if ( _RBX[2765] )
-        v44 = "^2yes";
-      v146 = v44;
-      v45 = "no";
-      __asm
-      {
-        vcvtss2sd xmm11, xmm0, xmm0
-        vcvtss2sd xmm12, xmm12, xmm12
-        vcvtss2sd xmm13, xmm13, xmm13
-        vcvtss2sd xmm14, xmm14, xmm14
-        vcvtss2sd xmm15, xmm15, xmm15
-      }
-      if ( _RBX[2764] )
-        v45 = "^2yes";
-      v147 = v45;
-      v51 = "no";
-      if ( *(_RBX - 33) )
-        v51 = "^2yes";
-      v148 = v51;
-      v52 = "no";
-      if ( *(_RBX - 194) )
-        v52 = "yes";
-      v149 = v52;
-      if ( *(_RBX - 195) )
-      {
-        LocalClientName = Live_GetLocalClientName(_EDI);
-        v54 = *(_RBX - 195);
-        v55 = LocalClientName;
+        LocalClientName = Live_GetLocalClientName(i);
+        v31 = *(gpadBRButtonsConfig - 195);
+        v32 = LocalClientName;
       }
       else
       {
-        v55 = "N/A";
-        v54 = 0;
+        v32 = "N/A";
+        v31 = 0;
       }
-      v56 = "no";
-      if ( v54 )
-        v56 = "^2yes";
-      if ( CL_Mgr_IsControllerActive(_EDI) )
+      v33 = "no";
+      if ( v31 )
+        v33 = "^2yes";
+      if ( CL_Mgr_IsControllerActive(i) )
       {
-        if ( CL_Mgr_GetClientFromController(_EDI) == LOCAL_CLIENT_INVALID )
+        if ( CL_Mgr_GetClientFromController(i) == LOCAL_CLIENT_INVALID )
           ClientFromController = LOCAL_CLIENT_INVALID;
         else
-          ClientFromController = CL_Mgr_GetClientFromController(_EDI);
+          ClientFromController = CL_Mgr_GetClientFromController(i);
       }
       else
       {
         ClientFromController = LOCAL_CLIENT_INVALID;
       }
-      IsControllerActive = CL_Mgr_IsControllerActive(_EDI);
-      v59 = "(not active)";
+      IsControllerActive = CL_Mgr_IsControllerActive(i);
+      v36 = "(not active)";
       if ( IsControllerActive )
-        v59 = "^2-ACTIVE-";
-      LODWORD(v130) = v131;
-      LODWORD(v129) = v132;
-      LODWORD(v128) = v133;
-      LODWORD(v127) = v134;
-      LODWORD(v126) = v135;
-      LODWORD(v125) = v136;
-      __asm
-      {
-        vxorpd  xmm0, xmm0, xmm0
-        vmovups [rsp+0AC8h+var_9F0], xmm0
-        vmovsd  [rsp+0AC8h+var_9F8], xmm6
-        vmovsd  [rsp+0AC8h+var_A00], xmm8
-        vmovsd  [rsp+0AC8h+var_A08], xmm9
-        vmovsd  [rsp+0AC8h+var_A10], xmm10
-        vmovsd  [rsp+0AC8h+var_A18], xmm11
-        vmovsd  [rsp+0AC8h+var_A20], xmm12
-        vmovsd  [rsp+0AC8h+var_A28], xmm13
-        vmovsd  [rsp+0AC8h+var_A38], xmm14
-        vmovsd  [rsp+0AC8h+var_A40], xmm15
-      }
+        v36 = "^2-ACTIVE-";
+      LODWORD(v59) = v60;
+      LODWORD(v58) = v61;
+      LODWORD(v57) = v62;
+      LODWORD(v56) = v63;
+      LODWORD(v55) = v64;
+      LODWORD(v54) = v65;
+      __asm { vxorpd  xmm0, xmm0, xmm0 }
       LODWORD(horzAlign) = ClientFromController;
-      Com_sprintf(dest, 0x800ui64, "Controller #%i^7\n  %s^7\nLocalClient         - #%i^7\nisProfileLoggedIn   - %s^7\ngamertag            - %s^7\n^7\nerrorOnRead         - %s^7\ngpadRumble          - %s^7\nmp_weapon1          - %s^7\nmp_weapon2          - %s^7\nmp_weapon3          - %s^7\nmp_weapon4          - %s^7\nmp_weapon5\t\t\t - %s^7\nautoAim             - %s^7\ntargetAssist        - %s^7\nviewVertSensitivity - %.2f^7\nviewHorzSensitivity - %.2f^7\nsprintCancelsReload - %s^7\ngpadDeflectL        - %.2f^7\ngpadDeflectR        - %.2f^7\nblacklevel          - %.2f^7\nsnd_volume          - %.2f^7\nsnd_lic_cont_vol    - %.2f^7\nsafeAreaAdjust_h    - %.2f^7\nsafeAreaAdjust_v    - %.2f^7\nHUDBoundsAdjust_h   - %.2f^7\nHUDBoundsAdjust_v   - %.2f^7\nlootCardDetail      - %i^7\nplayTimeSP          - %i^7\nplayTimeMP          - %i^7\nplayTimeCP          - %i^7\npercentCompleteSP   - %i^7\npercentCompleteMP   - %i^7\nhasEverPlayed_MM    - %s^7\nhasEverPlayed_SP    - %s^7\nhasEverPlayed_MP    - %s^7\nhasEverPlayed_MLG   - %s^7\nspeechReduced       - %s^7\n^7\n\"%s\"^7\n\"%s\"^7\n\"%s\"^7\n", (unsigned int)_EDI, v59, horzAlign, v56, v55, v149, v148, v147, v146, v145, v144, v143, v142, v141, v115, v116, v140, v117, v118, v119, v120, v121, v122, v123, *(double *)&v124, *((double *)&v124 + 1), v125, v126, v127, v128, v129, v130, v139, v138, v137, v26, v23, _RBX - 32, _RBX, _RBX + 32);
+      Com_sprintf(dest, 0x800ui64, "Controller #%i^7\n  %s^7\nLocalClient         - #%i^7\nisProfileLoggedIn   - %s^7\ngamertag            - %s^7\n^7\nerrorOnRead         - %s^7\ngpadRumble          - %s^7\nmp_weapon1          - %s^7\nmp_weapon2          - %s^7\nmp_weapon3          - %s^7\nmp_weapon4          - %s^7\nmp_weapon5\t\t\t - %s^7\nautoAim             - %s^7\ntargetAssist        - %s^7\nviewVertSensitivity - %.2f^7\nviewHorzSensitivity - %.2f^7\nsprintCancelsReload - %s^7\ngpadDeflectL        - %.2f^7\ngpadDeflectR        - %.2f^7\nblacklevel          - %.2f^7\nsnd_volume          - %.2f^7\nsnd_lic_cont_vol    - %.2f^7\nsafeAreaAdjust_h    - %.2f^7\nsafeAreaAdjust_v    - %.2f^7\nHUDBoundsAdjust_h   - %.2f^7\nHUDBoundsAdjust_v   - %.2f^7\nlootCardDetail      - %i^7\nplayTimeSP          - %i^7\nplayTimeMP          - %i^7\nplayTimeCP          - %i^7\npercentCompleteSP   - %i^7\npercentCompleteMP   - %i^7\nhasEverPlayed_MM    - %s^7\nhasEverPlayed_SP    - %s^7\nhasEverPlayed_MP    - %s^7\nhasEverPlayed_MLG   - %s^7\nspeechReduced       - %s^7\n^7\n\"%s\"^7\n\"%s\"^7\n\"%s\"^7\n", (unsigned int)i, v36, horzAlign, v33, v32, v78, v77, v76, v75, v74, v73, v72, v71, v70, v16, v27, v69, v26, v25, v24, SoundVolume, SoundLicencedContentVolume, v12, v9, *(double *)&_XMM0, *((double *)&_XMM0 + 1), v54, v55, v56, v57, v58, v59, v68, v67, v66, v7, v6, gpadBRButtonsConfig - 32, gpadBRButtonsConfig, gpadBRButtonsConfig + 32);
+      v39 = (float)i;
+      v38 = v39;
+      UI_DrawText(v3, dest, 2048, font, (float)(v39 * MY_CONTROLLEROFFSET) + MY_X, MY_Y1, 4, 4, MY_SCALE_0, &colorWhite, 3);
+      v40 = "no";
+      if ( gpadBRButtonsConfig[137] )
+        v40 = "^2yes";
+      v41 = "no";
+      v42 = "no";
+      if ( gpadBRButtonsConfig[130] )
+        v41 = "^2yes";
+      if ( gpadBRButtonsConfig[129] )
+        v42 = "^2yes";
+      LODWORD(v52) = *(_DWORD *)(gpadBRButtonsConfig + 125);
+      LODWORD(vertAlign) = *(_DWORD *)(gpadBRButtonsConfig + 121);
+      LODWORD(horzAligna) = *(_DWORD *)(gpadBRButtonsConfig + 117);
+      LODWORD(fmt) = *(_DWORD *)(gpadBRButtonsConfig + 113);
+      LODWORD(style) = *(_DWORD *)(gpadBRButtonsConfig + 133);
+      Com_sprintf(dest, 0x800ui64, "curDifficulty     - %i^7\ntakeCoverWarnings - %i^7\ncheatPoints       - %i^7\ncheat_items_set1  - %i^7\ncheat_items_set2  - %i^7\nspecialistMode\t   - %s^7\nyoloMode\t\t   - %s^7\nyoloState\t\t   - %d^7\nshowSubtitles     - %s^7\n", *(unsigned int *)(gpadBRButtonsConfig + 109), fmt, horzAligna, vertAlign, v52, v42, v41, style, v40);
+      UI_DrawText(v3, dest, 2048, font, (float)(v39 * MY_CONTROLLEROFFSET) + MY_X, MY_Y2, 4, 4, MY_SCALE_0, &colorWhite, 3);
+      Com_sprintf(dest, 0x800ui64, "\"%s\"^7\n%s^7\n", gpadBRButtonsConfig + 204, gpadBRButtonsConfig + 140);
+      _XMM1 = LODWORD(MY_X_BACK);
+      _XMM0 = (unsigned int)i;
       __asm
       {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2ss xmm6, xmm6, edi
-        vmulss  xmm0, xmm6, cs:MY_CONTROLLEROFFSET
-        vaddss  xmm1, xmm0, cs:MY_X
-        vmovss  xmm0, cs:MY_SCALE_0
-        vmovss  [rsp+0AC8h+scale], xmm0
-        vmovss  xmm0, cs:MY_Y1
-        vmovss  dword ptr [rsp+0AC8h+horzAlign], xmm0
-        vmovss  dword ptr [rsp+0AC8h+fmt], xmm1
-      }
-      UI_DrawText(v15, dest, 2048, font, fmtb, *(float *)&horzAlignb, 4, 4, scalea, &colorWhite, 3);
-      v67 = "no";
-      if ( _RBX[137] )
-        v67 = "^2yes";
-      v68 = "no";
-      v69 = "no";
-      if ( _RBX[130] )
-        v68 = "^2yes";
-      if ( _RBX[129] )
-        v69 = "^2yes";
-      LODWORD(v107) = *(_DWORD *)(_RBX + 125);
-      LODWORD(vertAlign) = *(_DWORD *)(_RBX + 121);
-      LODWORD(horzAligna) = *(_DWORD *)(_RBX + 117);
-      LODWORD(fmt) = *(_DWORD *)(_RBX + 113);
-      LODWORD(style) = *(_DWORD *)(_RBX + 133);
-      Com_sprintf(dest, 0x800ui64, "curDifficulty     - %i^7\ntakeCoverWarnings - %i^7\ncheatPoints       - %i^7\ncheat_items_set1  - %i^7\ncheat_items_set2  - %i^7\nspecialistMode\t   - %s^7\nyoloMode\t\t   - %s^7\nyoloState\t\t   - %d^7\nshowSubtitles     - %s^7\n", *(unsigned int *)(_RBX + 109), fmt, horzAligna, vertAlign, v107, v69, v68, style, v67);
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:MY_CONTROLLEROFFSET
-        vaddss  xmm1, xmm0, cs:MY_X
-        vmovss  xmm0, cs:MY_SCALE_0
-        vmovss  [rsp+0AC8h+scale], xmm0
-        vmovss  xmm0, cs:MY_Y2
-        vmovss  dword ptr [rsp+0AC8h+horzAlign], xmm0
-        vmovss  dword ptr [rsp+0AC8h+fmt], xmm1
-      }
-      UI_DrawText(v15, dest, 2048, font, fmtc, *(float *)&horzAlignc, 4, 4, scaleb, &colorWhite, 3);
-      Com_sprintf(dest, 0x800ui64, "\"%s\"^7\n%s^7\n", _RBX + 204, _RBX + 140);
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:MY_Y4_STEP
-        vaddss  xmm5, xmm0, cs:MY_Y4
-        vmulss  xmm1, xmm6, cs:MY_CONTROLLEROFFSET
-        vaddss  xmm4, xmm1, cs:MY_X
-        vmovss  xmm1, cs:MY_X_BACK
-      }
-      _EAX = 0;
-      __asm
-      {
-        vmovd   xmm0, edi
-        vmovd   xmm2, eax
         vpcmpeqd xmm3, xmm0, xmm2
         vblendvps xmm0, xmm1, xmm7, xmm3
-        vsubss  xmm2, xmm4, xmm0
-        vmovss  xmm0, cs:MY_SCALE_0
-        vmovss  [rsp+0AC8h+scale], xmm0
-        vmovss  dword ptr [rsp+0AC8h+horzAlign], xmm5
-        vmovss  dword ptr [rsp+0AC8h+fmt], xmm2
       }
-      UI_DrawText(v15, dest, 2048, font, fmtd, *(float *)&horzAlignd, 4, 4, scalec, &colorWhite, 3);
-      _RBX += 8072;
-    }
-    __asm
-    {
-      vmovaps xmm15, [rsp+0AC8h+var_C8]
-      vmovaps xmm14, [rsp+0AC8h+var_B8]
-      vmovaps xmm13, [rsp+0AC8h+var_A8]
-      vmovaps xmm12, [rsp+0AC8h+var_98]
-      vmovaps xmm11, [rsp+0AC8h+var_88]
-      vmovaps xmm10, [rsp+0AC8h+var_78]
-      vmovaps xmm9, [rsp+0AC8h+var_68]
-      vmovaps xmm8, [rsp+0AC8h+var_58]
-      vmovaps xmm7, [rsp+0AC8h+var_48]
-      vmovaps xmm6, [rsp+0AC8h+var_38]
+      v47 = (float)((float)(v39 * MY_CONTROLLEROFFSET) + MY_X) - *(float *)&_XMM0;
+      *(_OWORD *)&_XMM0_8 = LODWORD(MY_SCALE_0);
+      UI_DrawText(v3, dest, 2048, font, v47, (float)(v38 * MY_Y4_STEP) + MY_Y4, 4, 4, MY_SCALE_0, &colorWhite, 3);
+      gpadBRButtonsConfig += 8072;
     }
   }
 }
@@ -7791,19 +7548,16 @@ GamerProfile_GetAdsHighZoomGamepadSensitivityMultiplier
 float GamerProfile_GetAdsHighZoomGamepadSensitivityMultiplier(int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2886, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2886, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.adsHighZoomGamepadSensitivityMultiplier;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.adsHighZoomGamepadSensitivityMultiplier;
 }
 
 /*
@@ -7814,19 +7568,16 @@ GamerProfile_GetAdsHighZoomMouseSensitivityMultiplier
 float GamerProfile_GetAdsHighZoomMouseSensitivityMultiplier(int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2862, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2862, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.adsHighZoomMouseSensitivityMultiplier;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.adsHighZoomMouseSensitivityMultiplier;
 }
 
 /*
@@ -7837,19 +7588,16 @@ GamerProfile_GetAdsLowZoomGamepadSensitivityMultiplier
 float GamerProfile_GetAdsLowZoomGamepadSensitivityMultiplier(int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2902, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2902, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.adsLowZoomGamepadSensitivityMultiplier;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.adsLowZoomGamepadSensitivityMultiplier;
 }
 
 /*
@@ -7860,19 +7608,16 @@ GamerProfile_GetAdsLowZoomMouseSensitivityMultiplier
 float GamerProfile_GetAdsLowZoomMouseSensitivityMultiplier(int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2874, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2874, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.adsLowZoomMouseSensitivityMultiplier;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.adsLowZoomMouseSensitivityMultiplier;
 }
 
 /*
@@ -7970,19 +7715,16 @@ GamerProfile_GetAirVehicleMouseSensitivityMultiplier
 float GamerProfile_GetAirVehicleMouseSensitivityMultiplier(int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2790, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2790, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.airVehicleMouseSensitivityMultiplier;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.airVehicleMouseSensitivityMultiplier;
 }
 
 /*
@@ -8203,19 +7945,16 @@ GamerProfile_GetBlackLevel
 float GamerProfile_GetBlackLevel(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4416, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4416, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.blacklevel;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.blacklevel;
 }
 
 /*
@@ -8365,15 +8104,9 @@ void GamerProfile_GetDDLState(DDLState *state, int controllerIndex, ProfileDDLTy
   DDLState result; 
 
   v4 = ddlType;
-  _RSI = state;
   GamerProfile_EnsureMountedDDL(controllerIndex, ddlType);
   GamerProfile_EnsureMountedDDL(controllerIndex, (ProfileDDLTypes)v4);
-  _RAX = DDL_GetRootState(&result, s_ddlDefs[v4]);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsi], ymm0
-  }
+  *state = *DDL_GetRootState(&result, s_ddlDefs[v4]);
 }
 
 /*
@@ -8384,24 +8117,18 @@ GamerProfile_GetDataByName
 GamerProfileData *GamerProfile_GetDataByName(GamerProfileData *result, const int controllerIndex, const char *settingName)
 {
   __int64 v3; 
-  int v10; 
+  int v8; 
   GamerProfileData resulta; 
 
   v3 = controllerIndex;
-  _RDI = result;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v10 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8754, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v10) )
+    v8 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8754, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v8) )
       __debugbreak();
   }
-  _RAX = GetDataByName(&resulta, &s_gamerSettings[v3], settingName);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rdi], xmm0
-  }
-  return _RDI;
+  *result = *GetDataByName(&resulta, &s_gamerSettings[v3], settingName);
+  return result;
 }
 
 /*
@@ -8412,34 +8139,26 @@ GamerProfile_GetDataDefaultValueByName
 float GamerProfile_GetDataDefaultValueByName(const int controllerIndex, const char *settingName)
 {
   int DataIndexByName; 
-  __int64 v5; 
-  __int64 v10; 
-  __int64 v11; 
+  __int64 v4; 
+  __int64 v6; 
+  __int64 v7; 
 
   if ( (unsigned int)controllerIndex > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8761, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, 8) )
     __debugbreak();
   if ( !settingName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8619, ASSERT_TYPE_ASSERT, "(settingName)", (const char *)&queryFormat, "settingName") )
     __debugbreak();
   DataIndexByName = GamerProfile_GetDataIndexByName(settingName);
-  v5 = DataIndexByName;
+  v4 = DataIndexByName;
   if ( DataIndexByName < 0 )
+    return 0.0;
+  if ( (unsigned int)DataIndexByName >= 0x8A )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(v7) = 138;
+    LODWORD(v6) = DataIndexByName;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8624, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", v6, v7) )
+      __debugbreak();
   }
-  else
-  {
-    if ( (unsigned int)DataIndexByName >= 0x8A )
-    {
-      LODWORD(v11) = 138;
-      LODWORD(v10) = DataIndexByName;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8624, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", v10, v11) )
-        __debugbreak();
-    }
-    _RCX = 6 * v5;
-    _RAX = &PROFILE_DATA_FIELDS[0].defaultVal;
-    __asm { vmovss  xmm0, dword ptr [rax+rcx*8] }
-  }
-  return *(float *)&_XMM0;
+  return PROFILE_DATA_FIELDS[v4].defaultVal;
 }
 
 /*
@@ -8511,34 +8230,26 @@ GamerProfile_GetDataMaxValueByName
 float GamerProfile_GetDataMaxValueByName(const int controllerIndex, const char *settingName)
 {
   int DataIndexByName; 
-  __int64 v5; 
-  __int64 v10; 
-  __int64 v11; 
+  __int64 v4; 
+  __int64 v6; 
+  __int64 v7; 
 
   if ( (unsigned int)controllerIndex > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8775, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, 8) )
     __debugbreak();
   if ( !settingName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8649, ASSERT_TYPE_ASSERT, "(settingName)", (const char *)&queryFormat, "settingName") )
     __debugbreak();
   DataIndexByName = GamerProfile_GetDataIndexByName(settingName);
-  v5 = DataIndexByName;
+  v4 = DataIndexByName;
   if ( DataIndexByName < 0 )
+    return 0.0;
+  if ( (unsigned int)DataIndexByName >= 0x8A )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(v7) = 138;
+    LODWORD(v6) = DataIndexByName;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8654, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", v6, v7) )
+      __debugbreak();
   }
-  else
-  {
-    if ( (unsigned int)DataIndexByName >= 0x8A )
-    {
-      LODWORD(v11) = 138;
-      LODWORD(v10) = DataIndexByName;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8654, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", v10, v11) )
-        __debugbreak();
-    }
-    _RCX = 6 * v5;
-    _RAX = &PROFILE_DATA_FIELDS[0].maxVal;
-    __asm { vmovss  xmm0, dword ptr [rax+rcx*8] }
-  }
-  return *(float *)&_XMM0;
+  return PROFILE_DATA_FIELDS[v4].maxVal;
 }
 
 /*
@@ -8549,34 +8260,26 @@ GamerProfile_GetDataMinValueByName
 float GamerProfile_GetDataMinValueByName(const int controllerIndex, const char *settingName)
 {
   int DataIndexByName; 
-  __int64 v5; 
-  __int64 v10; 
-  __int64 v11; 
+  __int64 v4; 
+  __int64 v6; 
+  __int64 v7; 
 
   if ( (unsigned int)controllerIndex > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8768, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, 8) )
     __debugbreak();
   if ( !settingName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8634, ASSERT_TYPE_ASSERT, "(settingName)", (const char *)&queryFormat, "settingName") )
     __debugbreak();
   DataIndexByName = GamerProfile_GetDataIndexByName(settingName);
-  v5 = DataIndexByName;
+  v4 = DataIndexByName;
   if ( DataIndexByName < 0 )
+    return 0.0;
+  if ( (unsigned int)DataIndexByName >= 0x8A )
   {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    LODWORD(v7) = 138;
+    LODWORD(v6) = DataIndexByName;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8639, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", v6, v7) )
+      __debugbreak();
   }
-  else
-  {
-    if ( (unsigned int)DataIndexByName >= 0x8A )
-    {
-      LODWORD(v11) = 138;
-      LODWORD(v10) = DataIndexByName;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8639, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", v10, v11) )
-        __debugbreak();
-    }
-    _RCX = 6 * v5;
-    _RAX = &PROFILE_DATA_FIELDS[0].minVal;
-    __asm { vmovss  xmm0, dword ptr [rax+rcx*8] }
-  }
-  return *(float *)&_XMM0;
+  return PROFILE_DATA_FIELDS[v4].minVal;
 }
 
 /*
@@ -8877,19 +8580,16 @@ GamerProfile_GetHDRMaxLum
 float GamerProfile_GetHDRMaxLum(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4376, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4376, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.hdrMaxLum;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.hdrMaxLum;
 }
 
 /*
@@ -8900,19 +8600,16 @@ GamerProfile_GetHDRMinLum
 float GamerProfile_GetHDRMinLum(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4356, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4356, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.hdrMinLum;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.hdrMinLum;
 }
 
 /*
@@ -9011,29 +8708,22 @@ __int64 GamerProfile_GetHorizontalSensitivityIndex(int controllerIndex)
 {
   __int64 v1; 
   unsigned int v2; 
-  bool v3; 
-  int v10; 
+  float *v3; 
+  int v6; 
 
   v1 = controllerIndex;
   v2 = 0;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v10 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 6105, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v10) )
+    v6 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 6105, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v6) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.viewHorzSensitivity;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  _RAX = SENSITIVITY_MAP;
-  while ( 1 )
+  v3 = (float *)SENSITIVITY_MAP;
+  while ( s_gamerSettings[v1].config.viewHorzSensitivity != *v3 )
   {
-    __asm { vucomiss xmm0, dword ptr [rax] }
-    if ( v3 )
-      break;
     ++v2;
-    v3 = ++_RAX == (const float *)PROFILE_KEY_MAP;
-    if ( (__int64)_RAX >= (__int64)PROFILE_KEY_MAP )
+    if ( (__int64)++v3 >= (__int64)PROFILE_KEY_MAP )
       return 0xFFFFFFFFi64;
   }
   return v2;
@@ -9047,24 +8737,18 @@ GamerProfile_GetInitialGameMode
 __int64 GamerProfile_GetInitialGameMode(const int controllerIndex)
 {
   __int64 v1; 
-  int v6; 
+  int v4; 
   GamerProfileData result; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v6 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8754, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v6) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8754, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v4) )
       __debugbreak();
   }
-  _RAX = GetDataByName(&result, &s_gamerSettings[v1], "initialGameMode");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovd   eax, xmm0
-    vmovups xmmword ptr [rsp+58h+result.type], xmm0
-  }
-  if ( (_DWORD)_RAX != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 9292, ASSERT_TYPE_ASSERT, "(profileData.type == TYPE_INT)", (const char *)&queryFormat, "profileData.type == TYPE_INT") )
+  result = *GetDataByName(&result, &s_gamerSettings[v1], "initialGameMode");
+  if ( result.type != TYPE_INT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 9292, ASSERT_TYPE_ASSERT, "(profileData.type == TYPE_INT)", (const char *)&queryFormat, "profileData.type == TYPE_INT") )
     __debugbreak();
   return (unsigned int)result.u.intVal;
 }
@@ -9076,18 +8760,17 @@ GamerProfile_GetInputSensitivity
 */
 float GamerProfile_GetInputSensitivity(const int sensitivityIndex)
 {
-  int v6; 
+  __int64 v1; 
+  int v4; 
 
-  _RBX = sensitivityIndex;
+  v1 = sensitivityIndex;
   if ( (unsigned int)sensitivityIndex >= 0x14 )
   {
-    v6 = 20;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 7469, ASSERT_TYPE_ASSERT, "(unsigned)( sensitivityIndex ) < (unsigned)( NUM_SENSITIVITY_VALUES )", "sensitivityIndex doesn't index NUM_SENSITIVITY_VALUES\n\t%i not in [0, %i)", sensitivityIndex, v6) )
+    v4 = 20;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 7469, ASSERT_TYPE_ASSERT, "(unsigned)( sensitivityIndex ) < (unsigned)( NUM_SENSITIVITY_VALUES )", "sensitivityIndex doesn't index NUM_SENSITIVITY_VALUES\n\t%i not in [0, %i)", sensitivityIndex, v4) )
       __debugbreak();
   }
-  _RCX = SENSITIVITY_MAP;
-  __asm { vmovss  xmm0, dword ptr [rcx+rbx*4] }
-  return *(float *)&_XMM0;
+  return SENSITIVITY_MAP[v1];
 }
 
 /*
@@ -9369,19 +9052,16 @@ GamerProfile_GetLandVehicleMouseSensitivityMultiplier
 float GamerProfile_GetLandVehicleMouseSensitivityMultiplier(int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2779, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2779, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.landVehicleMouseSensitivityMultiplier;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.landVehicleMouseSensitivityMultiplier;
 }
 
 /*
@@ -9432,19 +9112,16 @@ GamerProfile_GetLocationSelectorCursorGamepadSpeedMultiplier
 float GamerProfile_GetLocationSelectorCursorGamepadSpeedMultiplier(int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2769, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2769, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.locationSelectorCursorGamepadSpeedMultiplier;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.locationSelectorCursorGamepadSpeedMultiplier;
 }
 
 /*
@@ -9455,19 +9132,16 @@ GamerProfile_GetLocationSelectorCursorMouseSpeedMultiplier
 float GamerProfile_GetLocationSelectorCursorMouseSpeedMultiplier(int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2761, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2761, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.locationSelectorCursorMouseSpeedMultiplier;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.locationSelectorCursorMouseSpeedMultiplier;
 }
 
 /*
@@ -9535,19 +9209,16 @@ GamerProfile_GetMicrophoneVolume
 float GamerProfile_GetMicrophoneVolume(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4256, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4256, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.microphoneVolume;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.microphoneVolume;
 }
 
 /*
@@ -9698,19 +9369,16 @@ GamerProfile_GetMouseAccel
 float GamerProfile_GetMouseAccel(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3413, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3413, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.mouseAccel;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.mouseAccel;
 }
 
 /*
@@ -9741,19 +9409,16 @@ GamerProfile_GetMouseFilter
 float GamerProfile_GetMouseFilter(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3353, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3353, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.mouseFilter;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.mouseFilter;
 }
 
 /*
@@ -9764,19 +9429,16 @@ GamerProfile_GetMouseHorizontalSensitivity
 float GamerProfile_GetMouseHorizontalSensitivity(int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2920, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2920, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.viewMouseHorzSensitivity;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.viewMouseHorzSensitivity;
 }
 
 /*
@@ -9787,19 +9449,16 @@ GamerProfile_GetMouseMonitorDistanceCoef
 float GamerProfile_GetMouseMonitorDistanceCoef(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3323, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3323, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.mouseMonitorDistanceCoef;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.mouseMonitorDistanceCoef;
 }
 
 /*
@@ -9830,19 +9489,16 @@ GamerProfile_GetMouseVerticalSensitivity
 float GamerProfile_GetMouseVerticalSensitivity(int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2943, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2943, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.viewMouseVertSensitivity;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.viewMouseVertSensitivity;
 }
 
 /*
@@ -9853,19 +9509,16 @@ GamerProfile_GetOpenMicThreshold
 float GamerProfile_GetOpenMicThreshold(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4216, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4216, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.openMicThreshold;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.openMicThreshold;
 }
 
 /*
@@ -10042,19 +9695,16 @@ GamerProfile_GetSoundEffectsVolume
 float GamerProfile_GetSoundEffectsVolume(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4316, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4316, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.snd_effectsVolume;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.snd_effectsVolume;
 }
 
 /*
@@ -10065,19 +9715,16 @@ GamerProfile_GetSoundLicencedContentVolume
 float GamerProfile_GetSoundLicencedContentVolume(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4336, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4336, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.snd_licensed_content_volume;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.snd_licensed_content_volume;
 }
 
 /*
@@ -10088,19 +9735,16 @@ GamerProfile_GetSoundMusicVolume
 float GamerProfile_GetSoundMusicVolume(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4176, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4176, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.snd_musicVolume;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.snd_musicVolume;
 }
 
 /*
@@ -10131,19 +9775,16 @@ GamerProfile_GetSoundVoiceVolume
 float GamerProfile_GetSoundVoiceVolume(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4156, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4156, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.snd_voiceVolume;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.snd_voiceVolume;
 }
 
 /*
@@ -10154,19 +9795,16 @@ GamerProfile_GetSoundVolume
 float GamerProfile_GetSoundVolume(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4136, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4136, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.snd_volume;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.snd_volume;
 }
 
 /*
@@ -10465,29 +10103,22 @@ __int64 GamerProfile_GetVerticalSensitivityIndex(int controllerIndex)
 {
   __int64 v1; 
   unsigned int v2; 
-  bool v3; 
-  int v10; 
+  float *v3; 
+  int v6; 
 
   v1 = controllerIndex;
   v2 = 0;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v10 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 6116, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v10) )
+    v6 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 6116, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v6) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  _RAX = SENSITIVITY_MAP;
-  while ( 1 )
+  v3 = (float *)SENSITIVITY_MAP;
+  while ( s_gamerSettings[v1].config.viewVertSensitivity != *v3 )
   {
-    __asm { vucomiss xmm0, dword ptr [rax] }
-    if ( v3 )
-      break;
     ++v2;
-    v3 = ++_RAX == (const float *)PROFILE_KEY_MAP;
-    if ( (__int64)_RAX >= (__int64)PROFILE_KEY_MAP )
+    if ( (__int64)++v3 >= (__int64)PROFILE_KEY_MAP )
       return 0xFFFFFFFFi64;
   }
   return v2;
@@ -10541,19 +10172,16 @@ GamerProfile_GetVoiceChatVolume
 float GamerProfile_GetVoiceChatVolume(const int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4236, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4236, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v1;
-  _RAX = &s_gamerSettings[0].config.voiceChatVolume;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax] }
-  return *(float *)&_XMM0;
+  return s_gamerSettings[v1].config.voiceChatVolume;
 }
 
 /*
@@ -11304,325 +10932,341 @@ GamerProfile_OptionsMenuDvarsFinish
 */
 void GamerProfile_OptionsMenuDvarsFinish(int controllerIndex)
 {
+  __int64 v1; 
+  const dvar_t *v2; 
   __int64 v3; 
-  const dvar_t *v24; 
-  int integer; 
-  const dvar_t *v26; 
-  bool enabled; 
-  const dvar_t *v28; 
-  bool v29; 
-  int v30; 
-  const dvar_t *v37; 
-  int v38; 
-  const dvar_t *v39; 
-  int v40; 
-  const dvar_t *v41; 
+  const dvar_t *v4; 
+  const dvar_t *v5; 
+  const dvar_t *v6; 
   float value; 
-  const dvar_t *v43; 
-  float v44; 
-  const dvar_t *v45; 
-  int v46; 
-  const dvar_t *v51; 
-  float v52; 
-  const dvar_t *v53; 
-  float v54; 
-  const dvar_t *v55; 
-  bool v56; 
-  const dvar_t *v57; 
-  bool v58; 
-  const dvar_t *v59; 
-  bool v60; 
-  const dvar_t *v61; 
-  bool v62; 
-  const dvar_t *v63; 
-  int v64; 
-  __int64 v66; 
-  __int64 v67; 
-  void *retaddr; 
+  const dvar_t *v8; 
+  const dvar_t *v9; 
+  float v10; 
+  const dvar_t *v11; 
+  float v12; 
+  const dvar_t *v13; 
+  float v14; 
+  const dvar_t *v15; 
+  float v16; 
+  const dvar_t *v17; 
+  int integer; 
+  const dvar_t *v19; 
+  bool enabled; 
+  const dvar_t *v21; 
+  bool v22; 
+  int v23; 
+  const dvar_t *v24; 
+  float v25; 
+  const dvar_t *v26; 
+  float v27; 
+  const dvar_t *v28; 
+  float v29; 
+  const dvar_t *v30; 
+  int v31; 
+  const dvar_t *v32; 
+  int v33; 
+  const dvar_t *v34; 
+  float v35; 
+  const dvar_t *v36; 
+  float v37; 
+  const dvar_t *v38; 
+  int v39; 
+  const dvar_t *v40; 
+  float v41; 
+  const dvar_t *v42; 
+  float v43; 
+  const dvar_t *v44; 
+  float v45; 
+  const dvar_t *v46; 
+  float v47; 
+  const dvar_t *v48; 
+  bool v49; 
+  const dvar_t *v50; 
+  bool v51; 
+  const dvar_t *v52; 
+  bool v53; 
+  const dvar_t *v54; 
+  bool v55; 
+  const dvar_t *v56; 
+  int v57; 
+  __int64 v58; 
+  __int64 v59; 
 
-  _RAX = &retaddr;
-  v3 = controllerIndex;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
+  v1 = controllerIndex;
   if ( (unsigned int)controllerIndex > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5868, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, 8) )
     __debugbreak();
-  _RSI = DVARFLT_profileMenuOption_blacklevel;
-  _RDI = v3;
+  v2 = DVARFLT_profileMenuOption_blacklevel;
+  v3 = v1;
   if ( !DVARFLT_profileMenuOption_blacklevel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_blacklevel") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm1, dword ptr [rsi+28h]; value }
-  GamerProfile_SetBlackLevel(v3, *(float *)&_XMM1);
-  _RSI = DVARFLT_profileMenuOption_hdrMinLum;
+  Dvar_CheckFrontendServerThread(v2);
+  GamerProfile_SetBlackLevel(v1, v2->current.value);
+  v4 = DVARFLT_profileMenuOption_hdrMinLum;
   if ( !DVARFLT_profileMenuOption_hdrMinLum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_hdrMinLum") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm1, dword ptr [rsi+28h]; value }
-  GamerProfile_SetHDRMinLum(v3, *(float *)&_XMM1);
-  _RSI = DVARFLT_profileMenuOption_hdrMaxLum;
+  Dvar_CheckFrontendServerThread(v4);
+  GamerProfile_SetHDRMinLum(v1, v4->current.value);
+  v5 = DVARFLT_profileMenuOption_hdrMaxLum;
   if ( !DVARFLT_profileMenuOption_hdrMaxLum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_hdrMaxLum") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm1, dword ptr [rsi+28h]; value }
-  GamerProfile_SetHDRMaxLum(v3, *(float *)&_XMM1);
-  _RSI = DVARFLT_profileMenuOption_hdrGamma;
+  Dvar_CheckFrontendServerThread(v5);
+  GamerProfile_SetHDRMaxLum(v1, v5->current.value);
+  v6 = DVARFLT_profileMenuOption_hdrGamma;
   if ( !DVARFLT_profileMenuOption_hdrGamma && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_hdrGamma") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  if ( (unsigned int)v3 >= 8 )
+  Dvar_CheckFrontendServerThread(v6);
+  value = v6->current.value;
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4406, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4406, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
       __debugbreak();
   }
-  _RSI = DVARFLT_profileMenuOption_volume;
-  _RBP = s_gamerSettings;
-  __asm { vmovss  dword ptr [rdi+rbp+58h], xmm6 }
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_volume") )
+  v8 = DVARFLT_profileMenuOption_volume;
+  s_gamerSettings[v3].config.hdrGamma = value;
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_volume") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm1, dword ptr [rsi+28h]; value }
-  GamerProfile_SetSoundVolume(v3, *(float *)&_XMM1);
-  _RSI = DVARFLT_profileMenuOption_voiceVolume;
+  Dvar_CheckFrontendServerThread(v8);
+  GamerProfile_SetSoundVolume(v1, v8->current.value);
+  v9 = DVARFLT_profileMenuOption_voiceVolume;
   if ( !DVARFLT_profileMenuOption_voiceVolume && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_voiceVolume") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  if ( (unsigned int)v3 >= 8 )
+  Dvar_CheckFrontendServerThread(v9);
+  v10 = v9->current.value;
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4166, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4166, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
       __debugbreak();
   }
-  _RSI = DVARFLT_profileMenuOption_musicVolume;
-  __asm { vmovss  dword ptr [rdi+rbp+20h], xmm6 }
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_musicVolume") )
+  v11 = DVARFLT_profileMenuOption_musicVolume;
+  s_gamerSettings[v3].config.snd_voiceVolume = v10;
+  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_musicVolume") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  if ( (unsigned int)v3 >= 8 )
+  Dvar_CheckFrontendServerThread(v11);
+  v12 = v11->current.value;
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4186, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4186, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
       __debugbreak();
   }
-  _RSI = DVARFLT_profileMenuOption_effectsVolume;
-  __asm { vmovss  dword ptr [rdi+rbp+24h], xmm6 }
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_effectsVolume") )
+  v13 = DVARFLT_profileMenuOption_effectsVolume;
+  s_gamerSettings[v3].config.snd_musicVolume = v12;
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_effectsVolume") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  if ( (unsigned int)v3 >= 8 )
+  Dvar_CheckFrontendServerThread(v13);
+  v14 = v13->current.value;
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4326, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4326, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
       __debugbreak();
   }
-  _RSI = DVARFLT_profileMenuOption_licensedMusicVolume;
-  __asm { vmovss  dword ptr [rdi+rbp+28h], xmm6 }
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_licensedMusicVolume") )
+  v15 = DVARFLT_profileMenuOption_licensedMusicVolume;
+  s_gamerSettings[v3].config.snd_effectsVolume = v14;
+  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_licensedMusicVolume") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  if ( (unsigned int)v3 >= 8 )
+  Dvar_CheckFrontendServerThread(v15);
+  v16 = v15->current.value;
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4346, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4346, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
       __debugbreak();
   }
-  v24 = DVARINT_profileMenuOption_presetMix;
-  __asm { vmovss  dword ptr [rdi+rbp+34h], xmm6 }
-  if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_presetMix") )
+  v17 = DVARINT_profileMenuOption_presetMix;
+  s_gamerSettings[v3].config.snd_licensed_content_volume = v16;
+  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_presetMix") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v24);
-  integer = v24->current.integer;
-  if ( (unsigned int)v3 >= 8 )
+  Dvar_CheckFrontendServerThread(v17);
+  integer = v17->current.integer;
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4126, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4126, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
       __debugbreak();
   }
-  s_gamerSettings[_RDI].config.snd_mixPreset = integer;
-  v26 = DVARBOOL_profileMenuOption_controllerSpeakerEnabled;
+  s_gamerSettings[v3].config.snd_mixPreset = integer;
+  v19 = DVARBOOL_profileMenuOption_controllerSpeakerEnabled;
   if ( !DVARBOOL_profileMenuOption_controllerSpeakerEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_controllerSpeakerEnabled") )
     __debugbreak();
+  Dvar_CheckFrontendServerThread(v19);
+  enabled = v19->current.enabled;
+  v21 = DVARBOOL_cl_voice;
+  s_gamerSettings[v3].config.snd_controllerSpeakerEnabled = enabled;
+  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_voice") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v21);
+  v22 = v21->current.enabled;
+  if ( (unsigned int)v1 >= 8 )
+  {
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4206, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
+      __debugbreak();
+  }
+  v23 = v22;
+  v24 = DVARFLT_voice_mic_threshold;
+  s_gamerSettings[v3].config.voiceChatEnabled = v23;
+  if ( !v24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_mic_threshold") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v24);
+  v25 = v24->current.value;
+  if ( (unsigned int)v1 >= 8 )
+  {
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4226, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
+      __debugbreak();
+  }
+  v26 = DVARFLT_voice_output_scaler;
+  s_gamerSettings[v3].config.openMicThreshold = v25;
+  if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_output_scaler") )
+    __debugbreak();
   Dvar_CheckFrontendServerThread(v26);
-  enabled = v26->current.enabled;
-  v28 = DVARBOOL_cl_voice;
-  s_gamerSettings[_RDI].config.snd_controllerSpeakerEnabled = enabled;
-  if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_voice") )
+  v27 = v26->current.value;
+  if ( (unsigned int)v1 >= 8 )
+  {
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4246, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
+      __debugbreak();
+  }
+  v28 = DVARFLT_voice_mic_scaler;
+  s_gamerSettings[v3].config.voiceChatVolume = v27;
+  if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_mic_scaler") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v28);
-  v29 = v28->current.enabled;
-  if ( (unsigned int)v3 >= 8 )
+  v29 = v28->current.value;
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4206, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4266, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
       __debugbreak();
   }
-  v30 = v29;
-  _RSI = DVARFLT_voice_mic_threshold;
-  s_gamerSettings[_RDI].config.voiceChatEnabled = v30;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_mic_threshold") )
+  v30 = DVARINT_snd_voicefutz;
+  s_gamerSettings[v3].config.microphoneVolume = v29;
+  if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_voicefutz") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  if ( (unsigned int)v3 >= 8 )
+  Dvar_CheckFrontendServerThread(v30);
+  v31 = v30->current.integer;
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4226, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4286, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
       __debugbreak();
   }
-  _RSI = DVARFLT_voice_output_scaler;
-  __asm { vmovss  dword ptr [rdi+rbp+3Ch], xmm6 }
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_output_scaler") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  if ( (unsigned int)v3 >= 8 )
-  {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4246, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
-      __debugbreak();
-  }
-  _RSI = DVARFLT_voice_mic_scaler;
-  __asm { vmovss  dword ptr [rdi+rbp+40h], xmm6 }
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "voice_mic_scaler") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  if ( (unsigned int)v3 >= 8 )
-  {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4266, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
-      __debugbreak();
-  }
-  v37 = DVARINT_snd_voicefutz;
-  __asm { vmovss  dword ptr [rdi+rbp+44h], xmm6 }
-  if ( !v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_voicefutz") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v37);
-  v38 = v37->current.integer;
-  if ( (unsigned int)v3 >= 8 )
-  {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4286, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
-      __debugbreak();
-  }
-  s_gamerSettings[_RDI].config.voiceFutz = v38;
-  v39 = DVARINT_snd_voiceChatDeviceType;
+  s_gamerSettings[v3].config.voiceFutz = v31;
+  v32 = DVARINT_snd_voiceChatDeviceType;
   if ( !DVARINT_snd_voiceChatDeviceType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_voiceChatDeviceType") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v39);
-  v40 = v39->current.integer;
-  if ( (unsigned int)v3 >= 8 )
+  Dvar_CheckFrontendServerThread(v32);
+  v33 = v32->current.integer;
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4306, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4306, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
       __debugbreak();
   }
-  s_gamerSettings[_RDI].config.profileFlags &= ~1u;
-  s_gamerSettings[_RDI].config.profileFlags |= v40 & 1;
-  v41 = DVARFLT_profileMenuOption_safeAreaHorz;
+  s_gamerSettings[v3].config.profileFlags &= ~1u;
+  s_gamerSettings[v3].config.profileFlags |= v33 & 1;
+  v34 = DVARFLT_profileMenuOption_safeAreaHorz;
   if ( !DVARFLT_profileMenuOption_safeAreaHorz && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_safeAreaHorz") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v41);
-  value = v41->current.value;
-  v43 = DVARFLT_profileMenuOption_safeAreaVert;
-  s_gamerSettings[_RDI].config.safearea_adjusted_horizontal = value;
-  if ( !v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_safeAreaVert") )
+  Dvar_CheckFrontendServerThread(v34);
+  v35 = v34->current.value;
+  v36 = DVARFLT_profileMenuOption_safeAreaVert;
+  s_gamerSettings[v3].config.safearea_adjusted_horizontal = v35;
+  if ( !v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_safeAreaVert") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v43);
-  v44 = v43->current.value;
-  v45 = DVARINT_profileMenuOption_lootCardDetail;
-  s_gamerSettings[_RDI].config.safearea_adjusted_vertical = v44;
-  if ( !v45 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_lootCardDetail") )
+  Dvar_CheckFrontendServerThread(v36);
+  v37 = v36->current.value;
+  v38 = DVARINT_profileMenuOption_lootCardDetail;
+  s_gamerSettings[v3].config.safearea_adjusted_vertical = v37;
+  if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_lootCardDetail") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v45);
-  v46 = v45->current.integer;
-  _RSI = DVARFLT_profileMenuOption_mousevertsensitivity;
-  s_gamerSettings[_RDI].config.lootCardDetail = v46;
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_mousevertsensitivity") )
+  Dvar_CheckFrontendServerThread(v38);
+  v39 = v38->current.integer;
+  v40 = DVARFLT_profileMenuOption_mousevertsensitivity;
+  s_gamerSettings[v3].config.lootCardDetail = v39;
+  if ( !v40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_mousevertsensitivity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  if ( (unsigned int)v3 >= 8 )
+  Dvar_CheckFrontendServerThread(v40);
+  v41 = v40->current.value;
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2955, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2955, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
       __debugbreak();
   }
-  _RSI = DVARFLT_profileMenuOption_mousehorzsensitivity;
-  __asm { vmovss  dword ptr [rdi+rbp+0Ch], xmm6 }
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_mousehorzsensitivity") )
+  v42 = DVARFLT_profileMenuOption_mousehorzsensitivity;
+  s_gamerSettings[v3].config.viewMouseVertSensitivity = v41;
+  if ( !v42 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_mousehorzsensitivity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm { vmovss  xmm6, dword ptr [rsi+28h] }
-  if ( (unsigned int)v3 >= 8 )
+  Dvar_CheckFrontendServerThread(v42);
+  v43 = v42->current.value;
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2932, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v59) = 8;
+    LODWORD(v58) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2932, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v58, v59) )
       __debugbreak();
   }
-  v51 = DVARFLT_profileMenuOption_mouseflightvertsensitivity;
-  __asm { vmovss  dword ptr [rdi+rbp+10h], xmm6 }
-  if ( !v51 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_mouseflightvertsensitivity") )
+  v44 = DVARFLT_profileMenuOption_mouseflightvertsensitivity;
+  s_gamerSettings[v3].config.viewMouseHorzSensitivity = v43;
+  if ( !v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_mouseflightvertsensitivity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v51);
-  v52 = v51->current.value;
-  v53 = DVARFLT_profileMenuOption_mouseflighthorzsensitivity;
-  s_gamerSettings[_RDI].config.viewMouseFlightVertSensitivity = v52;
-  if ( !v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_mouseflighthorzsensitivity") )
+  Dvar_CheckFrontendServerThread(v44);
+  v45 = v44->current.value;
+  v46 = DVARFLT_profileMenuOption_mouseflighthorzsensitivity;
+  s_gamerSettings[v3].config.viewMouseFlightVertSensitivity = v45;
+  if ( !v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_mouseflighthorzsensitivity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v53);
-  v54 = v53->current.value;
-  v55 = DVARBOOL_profileMenuOption_netRegionHide;
-  s_gamerSettings[_RDI].config.viewMouseFlightHorzSensitivity = v54;
-  if ( !v55 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_netRegionHide") )
+  Dvar_CheckFrontendServerThread(v46);
+  v47 = v46->current.value;
+  v48 = DVARBOOL_profileMenuOption_netRegionHide;
+  s_gamerSettings[v3].config.viewMouseFlightHorzSensitivity = v47;
+  if ( !v48 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_netRegionHide") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v55);
-  v56 = v55->current.enabled;
-  v57 = DVARBOOL_profileMenuOption_netExternalIPHide;
-  s_gamerSettings[_RDI].config.net_regionHide = v56;
-  if ( !v57 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_netExternalIPHide") )
+  Dvar_CheckFrontendServerThread(v48);
+  v49 = v48->current.enabled;
+  v50 = DVARBOOL_profileMenuOption_netExternalIPHide;
+  s_gamerSettings[v3].config.net_regionHide = v49;
+  if ( !v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_netExternalIPHide") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v57);
-  v58 = v57->current.enabled;
-  v59 = DVARBOOL_profileMenuOption_netInternalIPHide;
-  s_gamerSettings[_RDI].config.net_externalIPHide = v58;
-  if ( !v59 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_netInternalIPHide") )
+  Dvar_CheckFrontendServerThread(v50);
+  v51 = v50->current.enabled;
+  v52 = DVARBOOL_profileMenuOption_netInternalIPHide;
+  s_gamerSettings[v3].config.net_externalIPHide = v51;
+  if ( !v52 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_netInternalIPHide") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v59);
-  v60 = v59->current.enabled;
-  v61 = DVARBOOL_profileMenuOption_netConnectionMeterHide;
-  s_gamerSettings[_RDI].config.net_internalIPHide = v60;
-  if ( !v61 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_netConnectionMeterHide") )
+  Dvar_CheckFrontendServerThread(v52);
+  v53 = v52->current.enabled;
+  v54 = DVARBOOL_profileMenuOption_netConnectionMeterHide;
+  s_gamerSettings[v3].config.net_internalIPHide = v53;
+  if ( !v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_netConnectionMeterHide") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v61);
-  v62 = v61->current.enabled;
-  v63 = DVARBOOL_profileMenuOption_gore;
-  s_gamerSettings[_RDI].config.net_connectionMeterHide = v62;
-  if ( !v63 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_gore") )
+  Dvar_CheckFrontendServerThread(v54);
+  v55 = v54->current.enabled;
+  v56 = DVARBOOL_profileMenuOption_gore;
+  s_gamerSettings[v3].config.net_connectionMeterHide = v55;
+  if ( !v56 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "profileMenuOption_gore") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v63);
-  v64 = v63->current.color[0];
-  s_gamerSettings[_RDI].config.gore = v64;
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
-  GamerProfile_OnSetGore(v64 != 0);
+  Dvar_CheckFrontendServerThread(v56);
+  v57 = v56->current.color[0];
+  s_gamerSettings[v3].config.gore = v57;
+  GamerProfile_OnSetGore(v57 != 0);
 }
 
 /*
@@ -11633,18 +11277,19 @@ GamerProfile_OptionsMenuDvarsSetup
 void GamerProfile_OptionsMenuDvarsSetup(int controllerIndex)
 {
   __int64 v1; 
+  __int64 v2; 
   bool IsMainThread; 
   bool v4; 
   __int64 v5; 
   int v6; 
   int VoiceChatDeviceType; 
-  __int64 v27; 
-  __int64 v28; 
+  __int64 v8; 
+  __int64 v9; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5775, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, 8) )
     __debugbreak();
-  _RDI = v1;
+  v2 = v1;
   Com_Printf(14, "Profile: Setting option-menu dvars from controller #%i's profile.\n", (unsigned int)v1);
   IsMainThread = Sys_IsMainThread();
   v4 = !IsMainThread;
@@ -11654,172 +11299,153 @@ void GamerProfile_OptionsMenuDvarsSetup(int controllerIndex)
     *(_DWORD *)(v5 + 1052) = v6 | 4;
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4416, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4416, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  _R15 = s_gamerSettings;
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+4Ch]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_blacklevel, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_blacklevel, s_gamerSettings[v2].config.blacklevel);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4356, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4356, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+50h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrMinLum, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrMinLum, s_gamerSettings[v2].config.hdrMinLum);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4376, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4376, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+54h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrMaxLum, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrMaxLum, s_gamerSettings[v2].config.hdrMaxLum);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4396, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4396, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+58h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrGamma, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrGamma, s_gamerSettings[v2].config.hdrGamma);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4136, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4136, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+1Ch]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_volume, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_volume, s_gamerSettings[v2].config.snd_volume);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4156, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4156, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+20h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_voiceVolume, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_voiceVolume, s_gamerSettings[v2].config.snd_voiceVolume);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4176, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4176, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+24h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_musicVolume, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_musicVolume, s_gamerSettings[v2].config.snd_musicVolume);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4316, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4316, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+28h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_effectsVolume, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_effectsVolume, s_gamerSettings[v2].config.snd_effectsVolume);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4336, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4336, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+34h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_licensedMusicVolume, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_licensedMusicVolume, s_gamerSettings[v2].config.snd_licensed_content_volume);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4116, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4116, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  Dvar_SetInt_Internal(DVARINT_profileMenuOption_presetMix, s_gamerSettings[_RDI].config.snd_mixPreset);
-  Dvar_SetBool_Internal(DVARBOOL_profileMenuOption_controllerSpeakerEnabled, s_gamerSettings[_RDI].config.snd_controllerSpeakerEnabled);
+  Dvar_SetInt_Internal(DVARINT_profileMenuOption_presetMix, s_gamerSettings[v2].config.snd_mixPreset);
+  Dvar_SetBool_Internal(DVARBOOL_profileMenuOption_controllerSpeakerEnabled, s_gamerSettings[v2].config.snd_controllerSpeakerEnabled);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4196, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4196, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  Dvar_SetBool_Internal(DVARBOOL_cl_voice, s_gamerSettings[_RDI].config.voiceChatEnabled != 0);
+  Dvar_SetBool_Internal(DVARBOOL_cl_voice, s_gamerSettings[v2].config.voiceChatEnabled != 0);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4216, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4216, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+3Ch]; value }
-  Dvar_SetFloat_Internal(DVARFLT_voice_mic_threshold, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_voice_mic_threshold, s_gamerSettings[v2].config.openMicThreshold);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4236, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4236, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+40h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_voice_output_scaler, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_voice_output_scaler, s_gamerSettings[v2].config.voiceChatVolume);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4256, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4256, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+44h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_voice_mic_scaler, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_voice_mic_scaler, s_gamerSettings[v2].config.microphoneVolume);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4276, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4276, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  Dvar_SetInt_Internal(DVARINT_snd_voicefutz, s_gamerSettings[_RDI].config.voiceFutz);
+  Dvar_SetInt_Internal(DVARINT_snd_voicefutz, s_gamerSettings[v2].config.voiceFutz);
   VoiceChatDeviceType = GamerProfile_GetVoiceChatDeviceType(v1);
   Dvar_SetInt_Internal(DVARINT_snd_voiceChatDeviceType, VoiceChatDeviceType);
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+64h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_safeAreaHorz, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+68h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_safeAreaVert, *(float *)&_XMM1);
-  Dvar_SetInt_Internal(DVARINT_profileMenuOption_lootCardDetail, s_gamerSettings[_RDI].config.lootCardDetail);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_safeAreaHorz, s_gamerSettings[v2].config.safearea_adjusted_horizontal);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_safeAreaVert, s_gamerSettings[v2].config.safearea_adjusted_vertical);
+  Dvar_SetInt_Internal(DVARINT_profileMenuOption_lootCardDetail, s_gamerSettings[v2].config.lootCardDetail);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2943, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2943, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+0Ch]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_mousevertsensitivity, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_mousevertsensitivity, s_gamerSettings[v2].config.viewMouseVertSensitivity);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v28) = 8;
-    LODWORD(v27) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2920, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v27, v28) )
+    LODWORD(v9) = 8;
+    LODWORD(v8) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2920, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+10h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_mousehorzsensitivity, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+14h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_mouseflightvertsensitivity, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+r15+18h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_mouseflighthorzsensitivity, *(float *)&_XMM1);
-  Dvar_SetBool_Internal(DVARBOOL_profileMenuOption_netRegionHide, s_gamerSettings[_RDI].config.net_regionHide);
-  Dvar_SetBool_Internal(DVARBOOL_profileMenuOption_netExternalIPHide, s_gamerSettings[_RDI].config.net_externalIPHide);
-  Dvar_SetBool_Internal(DVARBOOL_profileMenuOption_netInternalIPHide, s_gamerSettings[_RDI].config.net_internalIPHide);
-  Dvar_SetBool_Internal(DVARBOOL_profileMenuOption_netConnectionMeterHide, s_gamerSettings[_RDI].config.net_connectionMeterHide);
-  Dvar_SetBool_Internal(DVARBOOL_profileMenuOption_gore, s_gamerSettings[_RDI].config.gore != 0);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_mousehorzsensitivity, s_gamerSettings[v2].config.viewMouseHorzSensitivity);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_mouseflightvertsensitivity, s_gamerSettings[v2].config.viewMouseFlightVertSensitivity);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_mouseflighthorzsensitivity, s_gamerSettings[v2].config.viewMouseFlightHorzSensitivity);
+  Dvar_SetBool_Internal(DVARBOOL_profileMenuOption_netRegionHide, s_gamerSettings[v2].config.net_regionHide);
+  Dvar_SetBool_Internal(DVARBOOL_profileMenuOption_netExternalIPHide, s_gamerSettings[v2].config.net_externalIPHide);
+  Dvar_SetBool_Internal(DVARBOOL_profileMenuOption_netInternalIPHide, s_gamerSettings[v2].config.net_internalIPHide);
+  Dvar_SetBool_Internal(DVARBOOL_profileMenuOption_netConnectionMeterHide, s_gamerSettings[v2].config.net_connectionMeterHide);
+  Dvar_SetBool_Internal(DVARBOOL_profileMenuOption_gore, s_gamerSettings[v2].config.gore != 0);
   if ( v4 )
     *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1052i64) = v6;
 }
@@ -11968,24 +11594,19 @@ GamerProfile_ResetDataByIndex
 void GamerProfile_ResetDataByIndex(const int controllerIndex, const int dataIndex)
 {
   __int64 v2; 
-  int v8; 
+  int v5; 
 
   if ( dataIndex >= 0 )
   {
     v2 = dataIndex;
     if ( (unsigned int)dataIndex >= 0x8A )
     {
-      v8 = 138;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8863, ASSERT_TYPE_ASSERT, "(unsigned)( dataIndex ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "dataIndex doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", dataIndex, v8) )
+      v5 = 138;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8863, ASSERT_TYPE_ASSERT, "(unsigned)( dataIndex ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "dataIndex doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", dataIndex, v5) )
         __debugbreak();
     }
-    _RCX = 6 * v2;
-    _RAX = PROFILE_DATA_FIELDS;
     if ( PROFILE_DATA_FIELDS[v2].isGameOption )
-    {
-      __asm { vmovss  xmm2, dword ptr [rax+rcx*8+18h]; settingValue }
-      GamerProfile_SetDataByIndex(controllerIndex, v2, *(const float *)&_XMM2);
-    }
+      GamerProfile_SetDataByIndex(controllerIndex, v2, PROFILE_DATA_FIELDS[v2].defaultVal);
   }
 }
 
@@ -12128,31 +11749,19 @@ void GamerProfile_SaveProfile(int controllerIndex)
 GamerProfile_SetAdsHighZoomGamepadSensitivityMultiplier
 ==============
 */
-
-void __fastcall GamerProfile_SetAdsHighZoomGamepadSensitivityMultiplier(int controllerIndex, double sensitivityMultiplier)
+void GamerProfile_SetAdsHighZoomGamepadSensitivityMultiplier(int controllerIndex, float sensitivityMultiplier)
 {
-  __int64 v3; 
-  int v9; 
+  __int64 v2; 
+  int v4; 
 
-  v3 = controllerIndex;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v2 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v9 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2894, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v9) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2894, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v3;
-  _RAX = &s_gamerSettings[0].config.adsHighZoomGamepadSensitivityMultiplier;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_gamerSettings[v2].config.adsHighZoomGamepadSensitivityMultiplier = sensitivityMultiplier;
 }
 
 /*
@@ -12160,31 +11769,19 @@ void __fastcall GamerProfile_SetAdsHighZoomGamepadSensitivityMultiplier(int cont
 GamerProfile_SetAdsLowZoomGamepadSensitivityMultiplier
 ==============
 */
-
-void __fastcall GamerProfile_SetAdsLowZoomGamepadSensitivityMultiplier(int controllerIndex, double sensitivityMultiplier)
+void GamerProfile_SetAdsLowZoomGamepadSensitivityMultiplier(int controllerIndex, float sensitivityMultiplier)
 {
-  __int64 v3; 
-  int v9; 
+  __int64 v2; 
+  int v4; 
 
-  v3 = controllerIndex;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v2 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v9 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2910, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v9) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 2910, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v3;
-  _RAX = &s_gamerSettings[0].config.adsLowZoomGamepadSensitivityMultiplier;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_gamerSettings[v2].config.adsLowZoomGamepadSensitivityMultiplier = sensitivityMultiplier;
 }
 
 /*
@@ -12588,31 +12185,19 @@ void GamerProfile_SetBindingsConfig(int controllerIndex, const char *id, bool is
 GamerProfile_SetBlackLevel
 ==============
 */
-
-void __fastcall GamerProfile_SetBlackLevel(const int controllerIndex, double value)
+void GamerProfile_SetBlackLevel(const int controllerIndex, float value)
 {
-  __int64 v3; 
-  int v9; 
+  __int64 v2; 
+  int v4; 
 
-  v3 = controllerIndex;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v2 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v9 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4426, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v9) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4426, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v3;
-  _RAX = &s_gamerSettings[0].config.blacklevel;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_gamerSettings[v2].config.blacklevel = value;
 }
 
 /*
@@ -12740,23 +12325,18 @@ GamerProfile_SetData
 void GamerProfile_SetData(const int controllerIndex, int dataIndex, GamerProfileData *data)
 {
   __int64 v3; 
-  int v8; 
-  GamerProfileData v9; 
+  int v7; 
+  GamerProfileData v8; 
 
   v3 = controllerIndex;
-  _RDI = data;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v8 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8981, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v8) )
+    v7 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8981, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v7) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsp+58h+var_18.type], xmm0
-  }
-  SetData(&s_gamerSettings[v3], dataIndex, &v9);
+  v8 = *data;
+  SetData(&s_gamerSettings[v3], dataIndex, &v8);
 }
 
 /*
@@ -12764,77 +12344,62 @@ void GamerProfile_SetData(const int controllerIndex, int dataIndex, GamerProfile
 GamerProfile_SetDataByIndex
 ==============
 */
-
-void __fastcall GamerProfile_SetDataByIndex(const int controllerIndex, const int dataIndex, double settingValue)
+void GamerProfile_SetDataByIndex(const int controllerIndex, const int dataIndex, const float settingValue)
 {
-  __int64 v5; 
-  __int64 v6; 
+  __int64 v3; 
+  __int64 v4; 
   GamerProfileDataType type; 
-  __int64 v15; 
-  int v17; 
-  int v18; 
-  GamerProfileData v19; 
+  __int64 v6; 
+  int v8; 
+  int v9; 
+  GamerProfileData v10; 
 
   if ( dataIndex >= 0 )
   {
-    v5 = dataIndex;
-    __asm { vmovaps [rsp+68h+var_18], xmm6 }
-    v6 = controllerIndex;
-    __asm { vmovaps xmm6, xmm2 }
+    v3 = dataIndex;
+    v4 = controllerIndex;
     if ( (unsigned int)dataIndex >= 0x8A )
     {
-      v17 = 138;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8931, ASSERT_TYPE_ASSERT, "(unsigned)( dataIndex ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "dataIndex doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", dataIndex, v17) )
+      v8 = 138;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8931, ASSERT_TYPE_ASSERT, "(unsigned)( dataIndex ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "dataIndex doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", dataIndex, v8) )
         __debugbreak();
     }
-    type = PROFILE_DATA_FIELDS[v5].type;
-    v19.type = type;
+    type = PROFILE_DATA_FIELDS[v3].type;
+    v10.type = type;
     switch ( type )
     {
       case TYPE_BYTE:
-        __asm { vcvttss2si eax, xmm6; jumptable 0000000141A6AA71 case 1 }
-        v19.u.byteVal = _EAX;
+        v10.u.byteVal = (int)settingValue;
         goto LABEL_11;
       case TYPE_BOOL:
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0; jumptable 0000000141A6AA71 case 2
-          vucomiss xmm6, xmm0
-        }
-        v19.u.byteVal = 6 * v5 != 0;
+        v10.u.byteVal = settingValue != 0.0;
         goto LABEL_11;
       case TYPE_SHORT:
-        __asm { vcvttss2si eax, xmm6; jumptable 0000000141A6AA71 case 3 }
-        v19.u.shortVal = _EAX;
+        v10.u.shortVal = (int)settingValue;
         goto LABEL_11;
       case TYPE_INT:
       case TYPE_FLAG:
-        __asm { vcvttss2si eax, xmm6; jumptable 0000000141A6AA71 cases 4,8 }
-        v19.u.intVal = _EAX;
+        v10.u.intVal = (int)settingValue;
         goto LABEL_11;
       case TYPE_FLOAT:
-        __asm { vmovss  dword ptr [rsp+68h+var_28+8], xmm6; jumptable 0000000141A6AA71 case 5 }
+        v10.u.floatVal = settingValue;
         goto LABEL_11;
       case TYPE_STRING:
       case TYPE_BUFFER:
-        goto $LN18_86;
+        return;
       default:
 LABEL_11:
         if ( type )
         {
-          __asm { vmovups xmm6, [rsp+68h+var_28] }
-          if ( (unsigned int)v6 > 8 )
+          if ( (unsigned int)v4 > 8 )
           {
-            v18 = 8;
-            LODWORD(v15) = v6;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8981, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v15, 0i64, v18) )
+            v9 = 8;
+            LODWORD(v6) = v4;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8981, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v6, 0i64, v9) )
               __debugbreak();
           }
-          __asm { vmovdqa [rsp+68h+var_28], xmm6 }
-          SetData(&s_gamerSettings[v6], v5, &v19);
+          SetData(&s_gamerSettings[v4], v3, &v10);
         }
-$LN18_86:
-        __asm { vmovaps xmm6, [rsp+68h+var_18] }
         break;
     }
   }
@@ -12845,25 +12410,14 @@ $LN18_86:
 GamerProfile_SetDataByName
 ==============
 */
-
-void __fastcall GamerProfile_SetDataByName(const int controllerIndex, const char *settingName, double settingValue)
+void GamerProfile_SetDataByName(const int controllerIndex, const char *settingName, const float settingValue)
 {
   int DataIndexByName; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !settingName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8915, ASSERT_TYPE_ASSERT, "(settingName)", (const char *)&queryFormat, "settingName") )
     __debugbreak();
   DataIndexByName = GamerProfile_GetDataIndexByName(settingName);
-  __asm
-  {
-    vmovaps xmm2, xmm6; settingValue
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  GamerProfile_SetDataByIndex(controllerIndex, DataIndexByName, *(const float *)&_XMM2);
+  GamerProfile_SetDataByIndex(controllerIndex, DataIndexByName, settingValue);
 }
 
 /*
@@ -13168,31 +12722,19 @@ void GamerProfile_SetGamepadUseReloadProfile(const int controllerIndex, unsigned
 GamerProfile_SetHDRMaxLum
 ==============
 */
-
-void __fastcall GamerProfile_SetHDRMaxLum(const int controllerIndex, double value)
+void GamerProfile_SetHDRMaxLum(const int controllerIndex, float value)
 {
-  __int64 v3; 
-  int v9; 
+  __int64 v2; 
+  int v4; 
 
-  v3 = controllerIndex;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v2 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v9 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4386, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v9) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4386, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v3;
-  _RAX = &s_gamerSettings[0].config.hdrMaxLum;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_gamerSettings[v2].config.hdrMaxLum = value;
 }
 
 /*
@@ -13200,31 +12742,19 @@ void __fastcall GamerProfile_SetHDRMaxLum(const int controllerIndex, double valu
 GamerProfile_SetHDRMinLum
 ==============
 */
-
-void __fastcall GamerProfile_SetHDRMinLum(const int controllerIndex, double value)
+void GamerProfile_SetHDRMinLum(const int controllerIndex, float value)
 {
-  __int64 v3; 
-  int v9; 
+  __int64 v2; 
+  int v4; 
 
-  v3 = controllerIndex;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v2 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v9 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4366, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v9) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4366, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v3;
-  _RAX = &s_gamerSettings[0].config.hdrMinLum;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_gamerSettings[v2].config.hdrMinLum = value;
 }
 
 /*
@@ -13869,31 +13399,19 @@ void GamerProfile_SetMountPullAwayEnabledKBM(const int controllerIndex, bool ena
 GamerProfile_SetMouseAccel
 ==============
 */
-
-void __fastcall GamerProfile_SetMouseAccel(const int controllerIndex, double mouseAccel)
+void GamerProfile_SetMouseAccel(const int controllerIndex, float mouseAccel)
 {
-  __int64 v3; 
-  int v9; 
+  __int64 v2; 
+  int v4; 
 
-  v3 = controllerIndex;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v2 = controllerIndex;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v9 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3398, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v9) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3398, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v3;
-  _RAX = &s_gamerSettings[0].config.mouseAccel;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_gamerSettings[v2].config.mouseAccel = mouseAccel;
 }
 
 /*
@@ -13921,31 +13439,19 @@ void GamerProfile_SetMouseAdsUseMonitorDistance(int controllerIndex, bool useAds
 GamerProfile_SetMouseFilter
 ==============
 */
-
-void __fastcall GamerProfile_SetMouseFilter(const int controllerIndex, double filter)
+void GamerProfile_SetMouseFilter(const int controllerIndex, float filter)
 {
-  __int64 v3; 
-  int v9; 
+  __int64 v2; 
+  int v4; 
 
-  v3 = controllerIndex;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v2 = controllerIndex;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v9 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3338, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v9) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3338, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v3;
-  _RAX = &s_gamerSettings[0].config.mouseFilter;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_gamerSettings[v2].config.mouseFilter = filter;
 }
 
 /*
@@ -13953,31 +13459,19 @@ void __fastcall GamerProfile_SetMouseFilter(const int controllerIndex, double fi
 GamerProfile_SetMouseMonitorDistanceCoef
 ==============
 */
-
-void __fastcall GamerProfile_SetMouseMonitorDistanceCoef(const int controllerIndex, double coef)
+void GamerProfile_SetMouseMonitorDistanceCoef(const int controllerIndex, float coef)
 {
-  __int64 v3; 
-  int v9; 
+  __int64 v2; 
+  int v4; 
 
-  v3 = controllerIndex;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v2 = controllerIndex;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v9 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3308, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v9) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 3308, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v3;
-  _RAX = &s_gamerSettings[0].config.mouseMonitorDistanceCoef;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_gamerSettings[v2].config.mouseMonitorDistanceCoef = coef;
 }
 
 /*
@@ -14152,31 +13646,19 @@ void GamerProfile_SetShowVoiceChatMuted(int controllerIndex, bool enabled)
 GamerProfile_SetSoundVolume
 ==============
 */
-
-void __fastcall GamerProfile_SetSoundVolume(const int controllerIndex, double value)
+void GamerProfile_SetSoundVolume(const int controllerIndex, float value)
 {
-  __int64 v3; 
-  int v9; 
+  __int64 v2; 
+  int v4; 
 
-  v3 = controllerIndex;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v2 = controllerIndex;
   if ( (unsigned int)controllerIndex >= 8 )
   {
-    v9 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4146, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v9) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4146, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, v4) )
       __debugbreak();
   }
-  _RCX = 8072 * v3;
-  _RAX = &s_gamerSettings[0].config.snd_volume;
-  __asm
-  {
-    vmovss  dword ptr [rcx+rax], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_gamerSettings[v2].config.snd_volume = value;
 }
 
 /*
@@ -15010,37 +14492,33 @@ GamerProfile_UpdateProfileMenuOptionsHDRLumDvars
 void GamerProfile_UpdateProfileMenuOptionsHDRLumDvars(int controllerIndex)
 {
   __int64 v1; 
-  __int64 v6; 
-  __int64 v8; 
-  int v9; 
+  __int64 v2; 
+  __int64 v4; 
+  int v5; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v9 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5706, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v9) )
+    v5 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5706, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v5) )
       __debugbreak();
   }
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v8) = 8;
-    LODWORD(v6) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4356, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v6, v8) )
+    LODWORD(v4) = 8;
+    LODWORD(v2) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4356, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v2, v4) )
       __debugbreak();
   }
-  _RSI = s_gamerSettings;
-  _RDI = 8072 * v1;
-  __asm { vmovss  xmm1, dword ptr [rdi+rsi+50h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrMinLum, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrMinLum, s_gamerSettings[v1].config.hdrMinLum);
   if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v8) = 8;
-    LODWORD(v6) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4376, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v6, v8) )
+    LODWORD(v4) = 8;
+    LODWORD(v2) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4376, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v2, v4) )
       __debugbreak();
   }
-  __asm { vmovss  xmm1, dword ptr [rdi+rsi+54h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrMaxLum, *(float *)&_XMM1);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_hdrMaxLum, s_gamerSettings[v1].config.hdrMaxLum);
 }
 
 /*
@@ -15113,21 +14591,19 @@ GamerProfile_UpdateSafeareaDvars
 void GamerProfile_UpdateSafeareaDvars(int controllerIndex)
 {
   __int64 v1; 
-  int v7; 
+  __int64 v2; 
+  int v4; 
 
   v1 = controllerIndex;
   if ( (unsigned int)controllerIndex > 8 )
   {
-    v7 = 8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5734, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v7) )
+    v4 = 8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5734, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", controllerIndex, 0i64, v4) )
       __debugbreak();
   }
-  _RDI = s_gamerSettings;
-  _RBX = 8072 * v1;
-  __asm { vmovss  xmm1, dword ptr [rbx+rdi+64h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_safeAreaHorz, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+rdi+68h]; value }
-  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_safeAreaVert, *(float *)&_XMM1);
+  v2 = v1;
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_safeAreaHorz, s_gamerSettings[v2].config.safearea_adjusted_horizontal);
+  Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_safeAreaVert, s_gamerSettings[v2].config.safearea_adjusted_vertical);
 }
 
 /*
@@ -15135,326 +14611,296 @@ void GamerProfile_UpdateSafeareaDvars(int controllerIndex)
 GamerProfile_UpdateSystemDvars
 ==============
 */
-
-void __fastcall GamerProfile_UpdateSystemDvars(double _XMM0_8)
+void GamerProfile_UpdateSystemDvars(void)
 {
   int ControllerFromClient; 
+  __int64 v1; 
+  int v2; 
   __int64 v3; 
-  int v4; 
+  float blacklevel; 
   float HDRMinLum; 
-  char v18; 
-  const dvar_t *v32; 
+  double AdjustedHDRMinLum; 
+  float HDRMaxLum; 
+  float hdrGamma; 
+  const dvar_t *v9; 
+  float value; 
+  float SoundVolume; 
+  const dvar_t *v12; 
+  float v13; 
+  float SoundLicencedContentVolume; 
+  const dvar_t *v15; 
+  float v16; 
+  float SoundEffectsVolume; 
+  const dvar_t *v18; 
+  float v19; 
+  float SoundMusicVolume; 
+  const dvar_t *v21; 
+  float v22; 
+  float SoundVoiceVolume; 
+  const dvar_t *v24; 
   bool snd_mpVoiceEnabled; 
-  const dvar_t *v34; 
+  const dvar_t *v26; 
   int integer; 
   int SoundPresetMix; 
-  const dvar_t *v37; 
-  int v38; 
+  const dvar_t *v29; 
+  int v30; 
   int VoiceChatEnabled; 
-  const dvar_t *v49; 
-  int v51; 
+  const dvar_t *v32; 
+  float v33; 
+  float OpenMicThreshold; 
+  const dvar_t *v35; 
+  float v36; 
+  float VoiceChatVolume; 
+  const dvar_t *v38; 
+  float v39; 
+  float MicrophoneVolume; 
+  const dvar_t *v41; 
+  int v42; 
   int VoiceFutz; 
-  const dvar_t *v53; 
-  int v54; 
+  const dvar_t *v44; 
+  int v45; 
   int VoiceChatDeviceType; 
+  const dvar_t *v47; 
+  float safearea_adjusted_horizontal; 
+  const dvar_t *v49; 
+  float safearea_adjusted_vertical; 
   bool motionBlurEnabled; 
-  bool v61; 
+  bool v52; 
   bool weaponMotionBlurEnabled; 
-  bool v63; 
-  const dvar_t *v64; 
+  bool v54; 
+  const dvar_t *v55; 
   int splitscreenSunShadows; 
-  __int64 v66; 
-  __int64 v67; 
+  __int64 v57; 
+  __int64 v58; 
 
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
-  v3 = ControllerFromClient;
-  v4 = 0;
+  v1 = ControllerFromClient;
+  v2 = 0;
   if ( (unsigned int)ControllerFromClient > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8467, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", ControllerFromClient, 0i64, 8) )
     __debugbreak();
-  _RSI = v3;
-  if ( (unsigned int)v3 >= 8 )
+  v3 = v1;
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4416, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v58) = 8;
+    LODWORD(v57) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4416, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v57, v58) )
       __debugbreak();
   }
-  _RCX = r_blacklevel;
-  _R12 = s_gamerSettings;
   if ( r_blacklevel )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+r12+4Ch]; value
-      vucomiss xmm1, dword ptr [rcx+28h]
-    }
-    if ( r_blacklevel )
-      Dvar_SetFloat_Internal(r_blacklevel, *(float *)&_XMM1);
+    blacklevel = s_gamerSettings[v3].config.blacklevel;
+    if ( blacklevel != r_blacklevel->current.value )
+      Dvar_SetFloat_Internal(r_blacklevel, blacklevel);
   }
   if ( !r_displayMappingHdrLuminanceSource->current.integer )
   {
-    HDRMinLum = GamerProfile_GetHDRMinLum(v3);
-    _XMM0_8 = R_DisplayMappingGetAdjustedHDRMinLum(HDRMinLum);
-    _RCX = r_displayMappingHdrMinLum;
-    if ( r_displayMappingHdrMinLum )
-    {
-      __asm { vucomiss xmm0, dword ptr [rcx+28h] }
-      if ( r_displayMappingHdrMinLum )
-      {
-        __asm { vmovaps xmm1, xmm0; value }
-        Dvar_SetFloat_Internal(r_displayMappingHdrMinLum, *(float *)&_XMM1);
-      }
-    }
-    *(float *)&_XMM0_8 = GamerProfile_GetHDRMaxLum(v3);
-    _RCX = r_displayMappingHdrMaxLum;
-    if ( r_displayMappingHdrMaxLum )
-    {
-      __asm { vucomiss xmm0, dword ptr [rcx+28h] }
-      if ( r_displayMappingHdrMaxLum )
-      {
-        __asm { vmovaps xmm1, xmm0; value }
-        Dvar_SetFloat_Internal(r_displayMappingHdrMaxLum, *(float *)&_XMM1);
-      }
-    }
+    HDRMinLum = GamerProfile_GetHDRMinLum(v1);
+    AdjustedHDRMinLum = R_DisplayMappingGetAdjustedHDRMinLum(HDRMinLum);
+    if ( r_displayMappingHdrMinLum && *(float *)&AdjustedHDRMinLum != r_displayMappingHdrMinLum->current.value )
+      Dvar_SetFloat_Internal(r_displayMappingHdrMinLum, *(float *)&AdjustedHDRMinLum);
+    HDRMaxLum = GamerProfile_GetHDRMaxLum(v1);
+    if ( r_displayMappingHdrMaxLum && HDRMaxLum != r_displayMappingHdrMaxLum->current.value )
+      Dvar_SetFloat_Internal(r_displayMappingHdrMaxLum, HDRMaxLum);
   }
-  if ( (unsigned int)v3 >= 8 )
+  if ( (unsigned int)v1 >= 8 )
   {
-    LODWORD(v67) = 8;
-    LODWORD(v66) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4396, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v66, v67) )
+    LODWORD(v58) = 8;
+    LODWORD(v57) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 4396, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", v57, v58) )
       __debugbreak();
   }
-  _RCX = r_displayMappingHdrGamma;
   if ( r_displayMappingHdrGamma )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+r12+58h]; value
-      vucomiss xmm1, dword ptr [rcx+28h]
-    }
-    if ( r_displayMappingHdrGamma )
-      Dvar_SetFloat_Internal(r_displayMappingHdrGamma, *(float *)&_XMM1);
+    hdrGamma = s_gamerSettings[v3].config.hdrGamma;
+    if ( hdrGamma != r_displayMappingHdrGamma->current.value )
+      Dvar_SetFloat_Internal(r_displayMappingHdrGamma, hdrGamma);
   }
-  _RBX = DVARFLT_profileMenuOption_volume;
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
+  v9 = DVARFLT_profileMenuOption_volume;
   if ( DVARFLT_profileMenuOption_volume )
   {
     Dvar_CheckFrontendServerThread(DVARFLT_profileMenuOption_volume);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    *(float *)&_XMM0_8 = GamerProfile_GetSoundVolume(v3);
-    __asm { vucomiss xmm6, xmm0 }
-    if ( !v18 )
+    value = v9->current.value;
+    if ( value != GamerProfile_GetSoundVolume(v1) )
     {
-      *(float *)&_XMM0_8 = GamerProfile_GetSoundVolume(v3);
-      __asm { vmovaps xmm1, xmm0; value }
-      Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_volume, *(float *)&_XMM1);
+      SoundVolume = GamerProfile_GetSoundVolume(v1);
+      Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_volume, SoundVolume);
     }
   }
-  _RBX = DVARFLT_profileMenuOption_licensedMusicVolume;
+  v12 = DVARFLT_profileMenuOption_licensedMusicVolume;
   if ( DVARFLT_profileMenuOption_licensedMusicVolume )
   {
     Dvar_CheckFrontendServerThread(DVARFLT_profileMenuOption_licensedMusicVolume);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    *(float *)&_XMM0_8 = GamerProfile_GetSoundLicencedContentVolume(v3);
-    __asm { vucomiss xmm6, xmm0 }
-    if ( !v18 )
+    v13 = v12->current.value;
+    if ( v13 != GamerProfile_GetSoundLicencedContentVolume(v1) )
     {
-      *(float *)&_XMM0_8 = GamerProfile_GetSoundLicencedContentVolume(v3);
-      __asm { vmovaps xmm1, xmm0; value }
-      Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_licensedMusicVolume, *(float *)&_XMM1);
+      SoundLicencedContentVolume = GamerProfile_GetSoundLicencedContentVolume(v1);
+      Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_licensedMusicVolume, SoundLicencedContentVolume);
     }
   }
-  _RBX = DVARFLT_profileMenuOption_effectsVolume;
+  v15 = DVARFLT_profileMenuOption_effectsVolume;
   if ( DVARFLT_profileMenuOption_effectsVolume )
   {
     Dvar_CheckFrontendServerThread(DVARFLT_profileMenuOption_effectsVolume);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    *(float *)&_XMM0_8 = GamerProfile_GetSoundEffectsVolume(v3);
-    __asm { vucomiss xmm6, xmm0 }
-    if ( !v18 )
+    v16 = v15->current.value;
+    if ( v16 != GamerProfile_GetSoundEffectsVolume(v1) )
     {
-      *(float *)&_XMM0_8 = GamerProfile_GetSoundEffectsVolume(v3);
-      __asm { vmovaps xmm1, xmm0; value }
-      Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_effectsVolume, *(float *)&_XMM1);
+      SoundEffectsVolume = GamerProfile_GetSoundEffectsVolume(v1);
+      Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_effectsVolume, SoundEffectsVolume);
     }
   }
-  _RBX = DVARFLT_profileMenuOption_musicVolume;
+  v18 = DVARFLT_profileMenuOption_musicVolume;
   if ( DVARFLT_profileMenuOption_musicVolume )
   {
     Dvar_CheckFrontendServerThread(DVARFLT_profileMenuOption_musicVolume);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    *(float *)&_XMM0_8 = GamerProfile_GetSoundMusicVolume(v3);
-    __asm { vucomiss xmm6, xmm0 }
-    if ( !v18 )
+    v19 = v18->current.value;
+    if ( v19 != GamerProfile_GetSoundMusicVolume(v1) )
     {
-      *(float *)&_XMM0_8 = GamerProfile_GetSoundMusicVolume(v3);
-      __asm { vmovaps xmm1, xmm0; value }
-      Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_musicVolume, *(float *)&_XMM1);
+      SoundMusicVolume = GamerProfile_GetSoundMusicVolume(v1);
+      Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_musicVolume, SoundMusicVolume);
     }
   }
-  _RBX = DVARFLT_profileMenuOption_voiceVolume;
+  v21 = DVARFLT_profileMenuOption_voiceVolume;
   if ( DVARFLT_profileMenuOption_voiceVolume )
   {
     Dvar_CheckFrontendServerThread(DVARFLT_profileMenuOption_voiceVolume);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    *(float *)&_XMM0_8 = GamerProfile_GetSoundVoiceVolume(v3);
-    __asm { vucomiss xmm6, xmm0 }
-    if ( !v18 )
+    v22 = v21->current.value;
+    if ( v22 != GamerProfile_GetSoundVoiceVolume(v1) )
     {
-      *(float *)&_XMM0_8 = GamerProfile_GetSoundVoiceVolume(v3);
-      __asm { vmovaps xmm1, xmm0; value }
-      Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_voiceVolume, *(float *)&_XMM1);
+      SoundVoiceVolume = GamerProfile_GetSoundVoiceVolume(v1);
+      Dvar_SetFloat_Internal(DVARFLT_profileMenuOption_voiceVolume, SoundVoiceVolume);
     }
   }
-  v32 = DVARBOOL_snd_mute_player_dialogue;
+  v24 = DVARBOOL_snd_mute_player_dialogue;
   if ( DVARBOOL_snd_mute_player_dialogue )
   {
     Dvar_CheckFrontendServerThread(DVARBOOL_snd_mute_player_dialogue);
-    snd_mpVoiceEnabled = s_gamerSettings[_RSI].config.snd_mpVoiceEnabled;
-    if ( v32->current.enabled != snd_mpVoiceEnabled )
+    snd_mpVoiceEnabled = s_gamerSettings[v3].config.snd_mpVoiceEnabled;
+    if ( v24->current.enabled != snd_mpVoiceEnabled )
       Dvar_SetBool_Internal(DVARBOOL_snd_mute_player_dialogue, snd_mpVoiceEnabled);
   }
-  v34 = DVARINT_profileMenuOption_presetMix;
+  v26 = DVARINT_profileMenuOption_presetMix;
   if ( DVARINT_profileMenuOption_presetMix )
   {
     Dvar_CheckFrontendServerThread(DVARINT_profileMenuOption_presetMix);
-    integer = v34->current.integer;
-    if ( integer != (unsigned int)GamerProfile_GetSoundPresetMix(v3) )
+    integer = v26->current.integer;
+    if ( integer != (unsigned int)GamerProfile_GetSoundPresetMix(v1) )
     {
-      SoundPresetMix = GamerProfile_GetSoundPresetMix(v3);
+      SoundPresetMix = GamerProfile_GetSoundPresetMix(v1);
       Dvar_SetInt_Internal(DVARINT_profileMenuOption_presetMix, SoundPresetMix);
     }
   }
-  v37 = DVARBOOL_cl_voice;
+  v29 = DVARBOOL_cl_voice;
   if ( DVARBOOL_cl_voice )
   {
     Dvar_CheckFrontendServerThread(DVARBOOL_cl_voice);
-    v38 = v37->current.color[0];
-    LOBYTE(v4) = (unsigned int)GamerProfile_GetVoiceChatEnabled(v3) != 0;
-    if ( v38 != v4 )
+    v30 = v29->current.color[0];
+    LOBYTE(v2) = (unsigned int)GamerProfile_GetVoiceChatEnabled(v1) != 0;
+    if ( v30 != v2 )
     {
-      VoiceChatEnabled = GamerProfile_GetVoiceChatEnabled(v3);
+      VoiceChatEnabled = GamerProfile_GetVoiceChatEnabled(v1);
       Dvar_SetBool_Internal(DVARBOOL_cl_voice, VoiceChatEnabled != 0);
     }
   }
-  _RBX = DVARFLT_voice_mic_threshold;
+  v32 = DVARFLT_voice_mic_threshold;
   if ( DVARFLT_voice_mic_threshold )
   {
     Dvar_CheckFrontendServerThread(DVARFLT_voice_mic_threshold);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    *(float *)&_XMM0_8 = GamerProfile_GetOpenMicThreshold(v3);
-    __asm { vucomiss xmm6, xmm0 }
-    if ( !v18 )
+    v33 = v32->current.value;
+    if ( v33 != GamerProfile_GetOpenMicThreshold(v1) )
     {
-      *(float *)&_XMM0_8 = GamerProfile_GetOpenMicThreshold(v3);
-      __asm { vmovaps xmm1, xmm0; value }
-      Dvar_SetFloat_Internal(DVARFLT_voice_mic_threshold, *(float *)&_XMM1);
+      OpenMicThreshold = GamerProfile_GetOpenMicThreshold(v1);
+      Dvar_SetFloat_Internal(DVARFLT_voice_mic_threshold, OpenMicThreshold);
     }
   }
-  _RBX = DVARFLT_voice_output_scaler;
+  v35 = DVARFLT_voice_output_scaler;
   if ( DVARFLT_voice_output_scaler )
   {
     Dvar_CheckFrontendServerThread(DVARFLT_voice_output_scaler);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    *(float *)&_XMM0_8 = GamerProfile_GetVoiceChatVolume(v3);
-    __asm { vucomiss xmm6, xmm0 }
-    if ( !v18 )
+    v36 = v35->current.value;
+    if ( v36 != GamerProfile_GetVoiceChatVolume(v1) )
     {
-      *(float *)&_XMM0_8 = GamerProfile_GetVoiceChatVolume(v3);
-      __asm { vmovaps xmm1, xmm0; value }
-      Dvar_SetFloat_Internal(DVARFLT_voice_output_scaler, *(float *)&_XMM1);
+      VoiceChatVolume = GamerProfile_GetVoiceChatVolume(v1);
+      Dvar_SetFloat_Internal(DVARFLT_voice_output_scaler, VoiceChatVolume);
     }
   }
-  _RBX = DVARFLT_voice_mic_scaler;
+  v38 = DVARFLT_voice_mic_scaler;
   if ( DVARFLT_voice_mic_scaler )
   {
     Dvar_CheckFrontendServerThread(DVARFLT_voice_mic_scaler);
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    *(float *)&_XMM0_8 = GamerProfile_GetMicrophoneVolume(v3);
-    __asm { vucomiss xmm6, xmm0 }
-    if ( !v18 )
+    v39 = v38->current.value;
+    if ( v39 != GamerProfile_GetMicrophoneVolume(v1) )
     {
-      *(float *)&_XMM0_8 = GamerProfile_GetMicrophoneVolume(v3);
-      __asm { vmovaps xmm1, xmm0; value }
-      Dvar_SetFloat_Internal(DVARFLT_voice_mic_scaler, *(float *)&_XMM1);
+      MicrophoneVolume = GamerProfile_GetMicrophoneVolume(v1);
+      Dvar_SetFloat_Internal(DVARFLT_voice_mic_scaler, MicrophoneVolume);
     }
   }
-  v49 = DVARINT_snd_voicefutz;
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
+  v41 = DVARINT_snd_voicefutz;
   if ( DVARINT_snd_voicefutz )
   {
     Dvar_CheckFrontendServerThread(DVARINT_snd_voicefutz);
-    v51 = v49->current.integer;
-    if ( v51 != (unsigned int)GamerProfile_GetVoiceFutz(v3) )
+    v42 = v41->current.integer;
+    if ( v42 != (unsigned int)GamerProfile_GetVoiceFutz(v1) )
     {
-      VoiceFutz = GamerProfile_GetVoiceFutz(v3);
+      VoiceFutz = GamerProfile_GetVoiceFutz(v1);
       Dvar_SetInt_Internal(DVARINT_snd_voicefutz, VoiceFutz);
     }
   }
-  v53 = DVARINT_snd_voiceChatDeviceType;
+  v44 = DVARINT_snd_voiceChatDeviceType;
   if ( DVARINT_snd_voiceChatDeviceType )
   {
     Dvar_CheckFrontendServerThread(DVARINT_snd_voiceChatDeviceType);
-    v54 = v53->current.integer;
-    if ( v54 != (unsigned int)GamerProfile_GetVoiceChatDeviceType(v3) )
+    v45 = v44->current.integer;
+    if ( v45 != (unsigned int)GamerProfile_GetVoiceChatDeviceType(v1) )
     {
-      VoiceChatDeviceType = GamerProfile_GetVoiceChatDeviceType(v3);
+      VoiceChatDeviceType = GamerProfile_GetVoiceChatDeviceType(v1);
       Dvar_SetInt_Internal(DVARINT_snd_voiceChatDeviceType, VoiceChatDeviceType);
     }
   }
-  _RBX = DVARFLT_safeArea_adjusted_horizontal;
+  v47 = DVARFLT_safeArea_adjusted_horizontal;
   if ( DVARFLT_safeArea_adjusted_horizontal )
   {
     Dvar_CheckFrontendServerThread(DVARFLT_safeArea_adjusted_horizontal);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+r12+64h]; value
-      vucomiss xmm1, dword ptr [rbx+28h]
-    }
-    if ( !v18 )
-      Dvar_SetFloat_Internal(DVARFLT_safeArea_adjusted_horizontal, *(float *)&_XMM1);
+    safearea_adjusted_horizontal = s_gamerSettings[v3].config.safearea_adjusted_horizontal;
+    if ( safearea_adjusted_horizontal != v47->current.value )
+      Dvar_SetFloat_Internal(DVARFLT_safeArea_adjusted_horizontal, safearea_adjusted_horizontal);
   }
-  _RBX = DVARFLT_safeArea_adjusted_vertical;
+  v49 = DVARFLT_safeArea_adjusted_vertical;
   if ( DVARFLT_safeArea_adjusted_vertical )
   {
     Dvar_CheckFrontendServerThread(DVARFLT_safeArea_adjusted_vertical);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+r12+68h]; value
-      vucomiss xmm1, dword ptr [rbx+28h]
-    }
-    if ( !v18 )
-      Dvar_SetFloat_Internal(DVARFLT_safeArea_adjusted_vertical, *(float *)&_XMM1);
+    safearea_adjusted_vertical = s_gamerSettings[v3].config.safearea_adjusted_vertical;
+    if ( safearea_adjusted_vertical != v49->current.value )
+      Dvar_SetFloat_Internal(DVARFLT_safeArea_adjusted_vertical, safearea_adjusted_vertical);
   }
   if ( r_mbWorldEnable )
   {
-    motionBlurEnabled = s_gamerSettings[_RSI].config.motionBlurEnabled;
+    motionBlurEnabled = s_gamerSettings[v3].config.motionBlurEnabled;
     if ( r_mbWorldEnable->current.enabled != motionBlurEnabled )
     {
       Dvar_SetBool_Internal(r_mbWorldEnable, motionBlurEnabled);
-      v61 = r_mbViewModelEnable->current.enabled || r_mbWorldEnable->current.enabled;
-      Dvar_SetBool_Internal(r_mbEnableA, v61);
+      v52 = r_mbViewModelEnable->current.enabled || r_mbWorldEnable->current.enabled;
+      Dvar_SetBool_Internal(r_mbEnableA, v52);
     }
   }
   if ( r_mbViewModelEnable )
   {
-    weaponMotionBlurEnabled = s_gamerSettings[_RSI].config.weaponMotionBlurEnabled;
+    weaponMotionBlurEnabled = s_gamerSettings[v3].config.weaponMotionBlurEnabled;
     if ( r_mbViewModelEnable->current.enabled != weaponMotionBlurEnabled )
     {
       Dvar_SetBool_Internal(r_mbViewModelEnable, weaponMotionBlurEnabled);
-      v63 = r_mbViewModelEnable->current.enabled || r_mbWorldEnable->current.enabled;
-      Dvar_SetBool_Internal(r_mbEnableA, v63);
+      v54 = r_mbViewModelEnable->current.enabled || r_mbWorldEnable->current.enabled;
+      Dvar_SetBool_Internal(r_mbEnableA, v54);
     }
   }
-  v64 = sm_sunSplitscreen;
+  v55 = sm_sunSplitscreen;
   if ( sm_sunSplitscreen )
   {
     Dvar_CheckFrontendServerThread(sm_sunSplitscreen);
-    splitscreenSunShadows = s_gamerSettings[_RSI].config.splitscreenSunShadows;
-    if ( v64->current.integer != splitscreenSunShadows )
+    splitscreenSunShadows = s_gamerSettings[v3].config.splitscreenSunShadows;
+    if ( v55->current.integer != splitscreenSunShadows )
       Dvar_SetInt_Internal(sm_sunSplitscreen, splitscreenSunShadows);
   }
-  GamerProfile_OnSetGore(s_gamerSettings[_RSI].config.gore != 0);
+  GamerProfile_OnSetGore(s_gamerSettings[v3].config.gore != 0);
 }
 
 /*
@@ -15469,6 +14915,7 @@ void GamerProfile_UpdateSystemVarsFromProfile(int controllerIndex)
   bool IsControllerMappedToClient; 
   LocalClientNum_t v4; 
   int PlaylistCount; 
+  __int64 v6; 
   int playlist; 
   LocalClientNum_t outLocalClientNum; 
 
@@ -15484,17 +14931,13 @@ void GamerProfile_UpdateSystemVarsFromProfile(int controllerIndex)
   outLocalClientNum = v4;
   Cmd_ExecuteSingleCommand_Internal(v4, v1, "resetViewport", 0);
   PlaylistCount = Playlist_GetPlaylistCount();
-  _RBX = v1;
-  _RDI = s_gamerSettings;
-  playlist = s_gamerSettings[_RBX].config.playlist;
+  v6 = v1;
+  playlist = s_gamerSettings[v6].config.playlist;
   if ( playlist >= PlaylistCount || playlist < 0 )
     playlist = 0;
   Dvar_SetInt_Internal(DVARINT_playlist, playlist);
   if ( DVARFLT_r_filmGrainAtten )
-  {
-    __asm { vmovss  xmm1, dword ptr [rbx+rdi+6Ch]; value }
-    Dvar_SetFloat_Internal(DVARFLT_r_filmGrainAtten, *(float *)&_XMM1);
-  }
+    Dvar_SetFloat_Internal(DVARFLT_r_filmGrainAtten, s_gamerSettings[v6].config.filmGrainAttenuation);
 }
 
 /*
@@ -15630,120 +15073,89 @@ GetDataByName
 GamerProfileData *GetDataByName(GamerProfileData *result, GamerSettingState *settings, const char *settingName)
 {
   int DataIndexByName; 
-  __int64 v8; 
+  __int64 v7; 
+  float minVal; 
   GamerProfileDataType type; 
-  char v15; 
-  unsigned __int8 v16; 
-  GamerProfileData *v19; 
-  __int16 v20; 
-  int v23; 
-  __int64 v28; 
+  float maxVal; 
+  bool v11; 
+  unsigned __int8 v12; 
+  GamerProfileData *v13; 
+  __int16 v14; 
+  int v15; 
+  float v16; 
+  double v17; 
+  __int64 v18; 
 
-  _RDI = settings;
-  _RBX = result;
   if ( !settingName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8668, ASSERT_TYPE_ASSERT, "(settingName)", (const char *)&queryFormat, "settingName") )
     __debugbreak();
-  _RBX->type = TYPE_INVALID;
-  _RBX->u.intVal = 0;
+  result->type = TYPE_INVALID;
+  result->u.intVal = 0;
   DataIndexByName = GamerProfile_GetDataIndexByName(settingName);
-  v8 = DataIndexByName;
+  v7 = DataIndexByName;
   if ( DataIndexByName < 0 )
-    return _RBX;
+    return result;
   if ( (unsigned int)DataIndexByName >= 0x8A )
   {
-    LODWORD(v28) = DataIndexByName;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8686, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", v28, 138) )
+    LODWORD(v18) = DataIndexByName;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8686, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", v18, 138) )
       __debugbreak();
   }
-  _R10 = 0x140000000ui64;
-  _RDX = 6 * v8;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, rva PROFILE_DATA_FIELDS.minVal[r10+rdx*8]; min
-    vucomiss xmm1, xmm0
-  }
-  type = PROFILE_DATA_FIELDS[v8].type;
-  __asm { vmovss  xmm2, rva PROFILE_DATA_FIELDS.maxVal[r10+rdx*8]; max }
-  _RBX->type = type;
-  if ( !(6 * v8) )
-    goto LABEL_11;
-  __asm { vucomiss xmm2, xmm0 }
-  if ( 6 * v8 )
-    v15 = 1;
-  else
-LABEL_11:
-    v15 = 0;
+  minVal = PROFILE_DATA_FIELDS[v7].minVal;
+  type = PROFILE_DATA_FIELDS[v7].type;
+  maxVal = PROFILE_DATA_FIELDS[v7].maxVal;
+  result->type = type;
+  v11 = minVal != 0.0 && maxVal != 0.0;
   switch ( type )
   {
     case TYPE_BYTE:
-      v16 = *(&_RDI->isProfileLoggedIn + PROFILE_DATA_FIELDS[v8].offset);
-      _RBX->u.byteVal = v16;
-      if ( !v15 )
-        return _RBX;
-      __asm
-      {
-        vcvttss2si r8d, xmm2; max
-        vcvttss2si edx, xmm1; min
-      }
-      _RBX->u.byteVal = I_tclamp<unsigned char>(v16, _EDX, _ER8);
-      v19 = _RBX;
+      v12 = *(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v7].offset);
+      result->u.byteVal = v12;
+      if ( !v11 )
+        return result;
+      result->u.byteVal = I_tclamp<unsigned char>(v12, (int)minVal, (int)maxVal);
+      v13 = result;
       break;
     case TYPE_BOOL:
-      v19 = _RBX;
-      _RBX->u.byteVal = *(&_RDI->isProfileLoggedIn + PROFILE_DATA_FIELDS[v8].offset);
+      v13 = result;
+      result->u.byteVal = *(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v7].offset);
       break;
     case TYPE_SHORT:
-      v20 = *(_WORD *)(&_RDI->isProfileLoggedIn + PROFILE_DATA_FIELDS[v8].offset);
-      _RBX->u.shortVal = v20;
-      if ( !v15 )
-        return _RBX;
-      __asm
-      {
-        vcvttss2si r8d, xmm2; max
-        vcvttss2si edx, xmm1; min
-      }
-      _RBX->u.shortVal = I_tclamp<short>(v20, _EDX, _ER8);
-      v19 = _RBX;
+      v14 = *(_WORD *)(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v7].offset);
+      result->u.shortVal = v14;
+      if ( !v11 )
+        return result;
+      result->u.shortVal = I_tclamp<short>(v14, (int)minVal, (int)maxVal);
+      v13 = result;
       break;
     case TYPE_INT:
-      v23 = *(_DWORD *)(&_RDI->isProfileLoggedIn + PROFILE_DATA_FIELDS[v8].offset);
-      _RBX->u.intVal = v23;
-      if ( !v15 )
-        return _RBX;
-      __asm
-      {
-        vcvttss2si r8d, xmm2; max
-        vcvttss2si edx, xmm1; min
-      }
-      _RBX->u.intVal = I_clamp(v23, _EDX, _ER8);
-      v19 = _RBX;
+      v15 = *(_DWORD *)(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v7].offset);
+      result->u.intVal = v15;
+      if ( !v11 )
+        return result;
+      result->u.intVal = I_clamp(v15, (int)minVal, (int)maxVal);
+      v13 = result;
       break;
     case TYPE_FLOAT:
-      _RAX = PROFILE_DATA_FIELDS[v8].offset;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+rax]; val
-        vmovss  dword ptr [rbx+8], xmm0
-      }
-      if ( !v15 )
-        return _RBX;
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rbx+8], xmm0 }
-      v19 = _RBX;
+      v16 = *(float *)(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v7].offset);
+      result->u.floatVal = v16;
+      if ( !v11 )
+        return result;
+      v17 = I_fclamp(v16, minVal, maxVal);
+      result->u.floatVal = *(float *)&v17;
+      v13 = result;
       break;
     case TYPE_STRING:
     case TYPE_BUFFER:
-      v19 = _RBX;
-      _RBX->u.stringVal = (const char *)(&_RDI->isProfileLoggedIn + PROFILE_DATA_FIELDS[v8].offset);
+      v13 = result;
+      result->u.stringVal = (const char *)(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v7].offset);
       break;
     case TYPE_FLAG:
-      _RBX->u.intVal = (*(int *)(&_RDI->isProfileLoggedIn + PROFILE_DATA_FIELDS[v8].offset) & (unsigned __int64)(((1i64 << PROFILE_DATA_FIELDS[v8].size) - 1) << PROFILE_DATA_FIELDS[v8].bitShift)) >> PROFILE_DATA_FIELDS[v8].bitShift;
-      return _RBX;
+      result->u.intVal = (*(int *)(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v7].offset) & (unsigned __int64)(((1i64 << PROFILE_DATA_FIELDS[v7].size) - 1) << PROFILE_DATA_FIELDS[v7].bitShift)) >> PROFILE_DATA_FIELDS[v7].bitShift;
+      return result;
     default:
-      return _RBX;
+      return result;
   }
-  return v19;
+  return v13;
 }
 
 /*
@@ -16094,34 +15506,33 @@ ReadKeyPairValueAfterIndex
 bool ReadKeyPairValueAfterIndex(const char **const buf, int *const size, GamerSettingKeyPair *kp, char *keyPairsStringBuf)
 {
   unsigned __int8 Type_unsigned_char; 
-  int v10; 
+  int v9; 
   bool result; 
-  __int64 v12; 
-  unsigned __int8 v13; 
-  __int64 v14; 
+  __int64 v11; 
+  unsigned __int8 v12; 
+  __int64 v13; 
   __int16 Type_short; 
   int shortVal; 
-  char *v19; 
+  char *v16; 
   __int64 maxSize; 
-  int v21; 
+  int v18; 
   __int64 i; 
-  __int64 v23; 
-  __int64 v24; 
-  bool v26; 
-  __int16 v27; 
-  int v28; 
-  char *v29; 
-  __int64 v30; 
-  __int64 v31; 
-  unsigned int v32; 
-  int v33; 
+  __int64 v20; 
+  __int64 v21; 
+  bool v23; 
+  __int16 v24; 
+  int v25; 
+  char *v26; 
+  __int64 v27; 
+  __int64 v28; 
+  unsigned int v29; 
+  float v30; 
 
-  _R15 = kp;
   if ( !kp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1538, ASSERT_TYPE_ASSERT, "(kp)", (const char *)&queryFormat, "kp") )
     __debugbreak();
   Type_unsigned_char = ReadType_unsigned_char_(buf, size);
-  _R15->type = Type_unsigned_char;
-  v10 = *size;
+  kp->type = Type_unsigned_char;
+  v9 = *size;
   if ( !*size || !Type_unsigned_char )
     return 0;
   if ( Type_unsigned_char > 7u )
@@ -16133,140 +15544,138 @@ bool ReadKeyPairValueAfterIndex(const char **const buf, int *const size, GamerSe
   switch ( Type_unsigned_char )
   {
     case 1u:
-      _R15->u.byteVal = ReadType_unsigned_char_(buf, size);
+      kp->u.byteVal = ReadType_unsigned_char_(buf, size);
       return 1;
     case 2u:
-      if ( v10 >= 1 )
+      if ( v9 >= 1 )
         goto LABEL_18;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1459, ASSERT_TYPE_ASSERT, "(*size >= (int)sizeof( ReadT ))", (const char *)&queryFormat, "*size >= (int)sizeof( ReadT )") )
         __debugbreak();
-      v12 = *size;
-      if ( (int)v12 >= 1 )
+      v11 = *size;
+      if ( (int)v11 >= 1 )
       {
 LABEL_18:
-        v13 = *(*buf)++;
+        v12 = *(*buf)++;
         result = 1;
         --*size;
-        _R15->u.byteVal = v13;
+        kp->u.byteVal = v12;
       }
       else
       {
-        *buf += v12;
+        *buf += v11;
         *size = 0;
-        _R15->u.byteVal = 0;
+        kp->u.byteVal = 0;
         return 1;
       }
       return result;
     case 3u:
-      _R15->u.shortVal = ReadType_short_(buf, size);
+      kp->u.shortVal = ReadType_short_(buf, size);
       return 1;
     case 4u:
-      _R15->u.intVal = ReadType_int_(buf, size);
+      kp->u.intVal = ReadType_int_(buf, size);
       return 1;
     case 5u:
-      if ( v10 >= 4 )
+      if ( v9 >= 4 )
         goto LABEL_26;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1459, ASSERT_TYPE_ASSERT, "(*size >= (int)sizeof( ReadT ))", (const char *)&queryFormat, "*size >= (int)sizeof( ReadT )") )
         __debugbreak();
-      v14 = *size;
-      if ( (int)v14 >= 4 )
+      v13 = *size;
+      if ( (int)v13 >= 4 )
       {
 LABEL_26:
-        v33 = *(_DWORD *)*buf;
-        __asm { vmovss  xmm0, [rsp+78h+arg_8] }
+        v30 = *(float *)*buf;
         *buf += 4;
         result = 1;
         *size -= 4;
-        __asm { vmovss  dword ptr [r15+4], xmm0 }
+        kp->u.floatVal = v30;
       }
       else
       {
-        *buf += v14;
+        *buf += v13;
         result = 1;
-        __asm { vxorps  xmm0, xmm0, xmm0 }
         *size = 0;
-        __asm { vmovss  dword ptr [r15+4], xmm0 }
+        kp->u.floatVal = 0;
       }
       return result;
     case 6u:
-      _R15->u.shortVal = ReadType_short_(buf, size);
+      kp->u.shortVal = ReadType_short_(buf, size);
       Type_short = ReadType_short_(buf, size);
-      shortVal = _R15->u.shortVal;
-      _R15->u.stringData.maxSize = Type_short;
+      shortVal = kp->u.shortVal;
+      kp->u.stringData.maxSize = Type_short;
       if ( shortVal < 0 )
         return 0;
       if ( Type_short <= 0 )
         return 0;
       if ( Type_short + shortVal >= 3048 )
         return 0;
-      v19 = &keyPairsStringBuf[(__int16)shortVal];
-      *v19 = 0;
+      v16 = &keyPairsStringBuf[(__int16)shortVal];
+      *v16 = 0;
       if ( !*size )
         return 0;
-      maxSize = _R15->u.stringData.maxSize;
-      v21 = 0;
+      maxSize = kp->u.stringData.maxSize;
+      v18 = 0;
       if ( (int)maxSize > 0 )
       {
         for ( i = 0i64; i < maxSize; ++i )
         {
-          if ( v21 >= *size )
+          if ( v18 >= *size )
             return 0;
-          v19[i] = (*buf)[i];
+          v16[i] = (*buf)[i];
           if ( !(*buf)[i] )
             break;
-          ++v21;
+          ++v18;
         }
       }
-      if ( v21 >= (int)maxSize )
+      if ( v18 >= (int)maxSize )
         return 0;
-      if ( v21 >= *size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1405, ASSERT_TYPE_SANITY, "( index < *srcSize )", (const char *)&queryFormat, "index < *srcSize") )
+      if ( v18 >= *size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1405, ASSERT_TYPE_SANITY, "( index < *srcSize )", (const char *)&queryFormat, "index < *srcSize") )
         __debugbreak();
-      if ( v19[v21] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1406, ASSERT_TYPE_SANITY, "( dest[index] == '\\0' )", (const char *)&queryFormat, "dest[index] == '\\0'") )
+      if ( v16[v18] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1406, ASSERT_TYPE_SANITY, "( dest[index] == '\\0' )", (const char *)&queryFormat, "dest[index] == '\\0'") )
         __debugbreak();
-      v19[v21] = 0;
-      *buf += v21 + 1;
-      v23 = -1i64;
-      v24 = -1i64;
-      *size += -1 - v21;
+      v16[v18] = 0;
+      *buf += v18 + 1;
+      v20 = -1i64;
+      v21 = -1i64;
+      *size += -1 - v18;
       do
-        ++v24;
-      while ( v19[v24] );
-      if ( _R15->u.stringData.maxSize >= truncate_cast<unsigned int,unsigned __int64>(v24 + 1) )
+        ++v21;
+      while ( v16[v21] );
+      if ( kp->u.stringData.maxSize >= truncate_cast<unsigned int,unsigned __int64>(v21 + 1) )
         goto LABEL_57;
-      while ( v19[++v23] != 0 )
+      while ( v16[++v20] != 0 )
         ;
-      v32 = truncate_cast<unsigned int,unsigned __int64>(v23 + 1);
-      v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1580, ASSERT_TYPE_ASSERT, "( (uint)kp->u.stringData.maxSize ) >= ( truncate_cast<uint>( strlen( destPos ) + 1 ) )", "%s >= %s\n\t%i, %i", "(uint)kp->u.stringData.maxSize", "truncate_cast<uint>( strlen( destPos ) + 1 )", _R15->u.stringData.maxSize, v32);
+      v29 = truncate_cast<unsigned int,unsigned __int64>(v20 + 1);
+      v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1580, ASSERT_TYPE_ASSERT, "( (uint)kp->u.stringData.maxSize ) >= ( truncate_cast<uint>( strlen( destPos ) + 1 ) )", "%s >= %s\n\t%i, %i", "(uint)kp->u.stringData.maxSize", "truncate_cast<uint>( strlen( destPos ) + 1 )", kp->u.stringData.maxSize, v29);
       goto LABEL_55;
     case 7u:
-      _R15->u.shortVal = ReadType_short_(buf, size);
-      v27 = ReadType_short_(buf, size);
-      v28 = _R15->u.shortVal;
-      _R15->u.stringData.maxSize = v27;
-      if ( v28 < 0 )
+      kp->u.shortVal = ReadType_short_(buf, size);
+      v24 = ReadType_short_(buf, size);
+      v25 = kp->u.shortVal;
+      kp->u.stringData.maxSize = v24;
+      if ( v25 < 0 )
         return 0;
-      if ( v27 <= 0 )
+      if ( v24 <= 0 )
         return 0;
-      if ( v28 + v27 >= 3048 )
+      if ( v25 + v24 >= 3048 )
         return 0;
-      v29 = &keyPairsStringBuf[(__int16)v28];
-      memset_0(v29, 0, v27);
-      v30 = _R15->u.stringData.maxSize;
-      if ( (int)v30 > *size )
+      v26 = &keyPairsStringBuf[(__int16)v25];
+      memset_0(v26, 0, v24);
+      v27 = kp->u.stringData.maxSize;
+      if ( (int)v27 > *size )
         return 0;
-      memcpy_0(v29, *buf, _R15->u.stringData.maxSize);
-      *buf += v30;
+      memcpy_0(v26, *buf, kp->u.stringData.maxSize);
+      *buf += v27;
       result = 1;
-      *size -= v30;
+      *size -= v27;
       return result;
     case 8u:
-      v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1600, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "TYPE_FLAG is only meant to be used in PROFILE_DATA_FIELDS to register flag bit, use TYPE_INT instead when registering the flag field in PROFILE_KEY_MAP");
+      v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1600, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "TYPE_FLAG is only meant to be used in PROFILE_DATA_FIELDS to register flag bit, use TYPE_INT instead when registering the flag field in PROFILE_KEY_MAP");
       goto LABEL_55;
     default:
-      LODWORD(v31) = Type_unsigned_char;
-      v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1603, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled type '%i'.", v31);
+      LODWORD(v28) = Type_unsigned_char;
+      v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1603, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled type '%i'.", v28);
 LABEL_55:
-      if ( v26 )
+      if ( v23 )
         __debugbreak();
 LABEL_57:
       result = 1;
@@ -16447,34 +15856,28 @@ SetDataByNameFromCommand
 */
 void SetDataByNameFromCommand(const char *optionName)
 {
-  unsigned int v4; 
-  int v5; 
-  const char *v6; 
+  unsigned int v2; 
+  int v3; 
+  const char *v4; 
+  double v5; 
   int DataIndexByName; 
 
-  v4 = Cmd_LocalControllerIndex();
-  v5 = v4;
-  if ( v4 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5252, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v4, 0i64, 8) )
+  v2 = Cmd_LocalControllerIndex();
+  v3 = v2;
+  if ( v2 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 5252, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v2, 0i64, 8) )
     __debugbreak();
   if ( Cmd_Argc() >= 2 )
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    *(double *)&_XMM0 = Cmd_ArgFloat(1);
-    __asm { vmovaps xmm6, xmm0 }
+    v5 = Cmd_ArgFloat(1);
     if ( !optionName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8915, ASSERT_TYPE_ASSERT, "(settingName)", (const char *)&queryFormat, "settingName") )
       __debugbreak();
     DataIndexByName = GamerProfile_GetDataIndexByName(optionName);
-    __asm
-    {
-      vmovaps xmm2, xmm6; settingValue
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-    GamerProfile_SetDataByIndex(v5, DataIndexByName, *(const float *)&_XMM2);
+    GamerProfile_SetDataByIndex(v3, DataIndexByName, *(const float *)&v5);
   }
   else
   {
-    v6 = Cmd_Argv(0);
-    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v6);
+    v4 = Cmd_Argv(0);
+    Com_PrintError(15, "Not enough arguments for \"%s\".\n", v4);
   }
 }
 
@@ -16485,43 +15888,33 @@ SetProfileDDLTypeDefaults
 */
 void SetProfileDDLTypeDefaults(const int controllerIndex, ProfileDDLTypes ddlType, const bool forceReset)
 {
-  __int64 v5; 
-  __int64 v8; 
-  DDLContext *v9; 
-  bool v12; 
+  __int64 v4; 
+  __int64 v7; 
+  DDLContext *v8; 
+  bool v9; 
   DDLState fromState; 
   DDLState result; 
-  void *retaddr; 
 
   if ( ddlType == MLG_SETTINGS )
   {
-    _RAX = &retaddr;
-    v5 = controllerIndex;
+    v4 = controllerIndex;
     fromState.isValid = 0;
     fromState.offset = 0;
     fromState.arrayIndex = -1;
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rax-38h], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&fromState.member = _XMM0;
     if ( (unsigned int)controllerIndex >= 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1160, ASSERT_TYPE_ASSERT, "(unsigned)( controllerIndex ) < (unsigned)( 8 )", "controllerIndex doesn't index MAX_GPAD_COUNT\n\t%i not in [0, %i)", controllerIndex, 8) )
       __debugbreak();
-    v8 = v5;
-    v9 = &s_gamerSettings[v5].ddlContexts[1];
-    _RAX = DDL_GetRootState(&result, v9->def);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+88h+fromState.isValid], ymm0
-    }
+    v7 = v4;
+    v8 = &s_gamerSettings[v4].ddlContexts[1];
+    fromState = *DDL_GetRootState(&result, v8->def);
     if ( DDL_MoveToName(&fromState, &fromState, "shoutcaster_hasbeenread") )
     {
-      v12 = DDL_GetInt(&fromState, v9) != 0;
-      if ( (forceReset || !v12) && DDL_ResetContext(s_gamerSettings[v8].config.mlgSettings, 1024, v9->def, v9, v9->accessCB, v9->userData) )
+      v9 = DDL_GetInt(&fromState, v8) != 0;
+      if ( (forceReset || !v9) && DDL_ResetContext(s_gamerSettings[v7].config.mlgSettings, 1024, v8->def, v8, v8->accessCB, v8->userData) )
       {
-        if ( Com_DDL_ReadFromDBText(v9, "mp/mlgsettings.txt") )
-          DDL_SetInt(&fromState, v9, 1);
+        if ( Com_DDL_ReadFromDBText(v8, "mp/mlgsettings.txt") )
+          DDL_SetInt(&fromState, v8, 1);
         else
           Com_PrintError(16, "Failed to set defaults for gamer profile DDL type %i.\n", 1i64);
       }
@@ -16538,96 +15931,88 @@ void SetProfileDefaults(GamerSettingState *state, const int controllerIndex)
 {
   __int64 v2; 
   unsigned int v3; 
-  const char *v8; 
+  float *p_defaultVal; 
+  GfxDisplayMappingParams *DefaultHDRMappingParams; 
+  const char *v7; 
+  __m128 v8; 
   bool CurrentLanguageDefaultShowSubtitles; 
-  const char *v13; 
-  const char *v14; 
-  int v15; 
+  const char *v10; 
+  const char *v11; 
   GfxDisplayMappingParams result; 
 
   v2 = controllerIndex;
   v3 = 0;
-  _RDI = &PROFILE_DATA_FIELDS[0].defaultVal;
-  _RSI = state;
+  p_defaultVal = &PROFILE_DATA_FIELDS[0].defaultVal;
   do
   {
-    if ( *((_BYTE *)_RDI + 12) )
-    {
-      __asm { vmovss  xmm2, dword ptr [rdi]; settingValue }
-      GamerProfile_SetDataByIndex(v2, v3, *(const float *)&_XMM2);
-    }
+    if ( *((_BYTE *)p_defaultVal + 12) )
+      GamerProfile_SetDataByIndex(v2, v3, *p_defaultVal);
     ++v3;
-    _RDI += 12;
+    p_defaultVal += 12;
   }
   while ( v3 < 0x8A );
-  _RSI->config.gpadButtonLStickDeflect = 1.0;
-  _RSI->config.gpadButtonRStickDeflect = 1.0;
-  _RSI->config.safearea_adjusted_horizontal = 0.89999998;
-  _RSI->config.safearea_adjusted_vertical = 0.89999998;
-  _RSI->config.hudBoundsHorizontal = 1.0;
-  _RSI->config.hudBoundsVertical = 1.0;
-  _RSI->config.lootCardDetail = 1;
-  _RSI->config.blacklevel = 0.0;
-  _RAX = R_GetDefaultHDRMappingParams(&result);
-  v8 = MY_DEF_BUTTONS;
-  __asm { vmovsd  xmm2, qword ptr [rax] }
-  *(float *)&_RAX = _RAX->maxLuminance;
-  _RSI->config.profileFlags &= ~1u;
-  v15 = (int)_RAX;
-  __asm
-  {
-    vmovss  xmm1, [rsp+78h+var_30]
-    vshufps xmm0, xmm2, xmm2, 55h ; 'U'
-    vmovss  dword ptr [rsi+54h], xmm1
-    vmovss  dword ptr [rsi+50h], xmm0
-    vmovss  dword ptr [rsi+58h], xmm2
-  }
-  _RSI->config.language = 21;
-  _RSI->config.snd_volume = 1.0;
-  _RSI->config.snd_voiceVolume = 1.0;
-  _RSI->config.snd_musicVolume = 1.0;
-  *(_QWORD *)&_RSI->config.snd_effectsVolume = 1065353216i64;
-  *(_WORD *)&_RSI->config.snd_mpVoiceEnabled = 257;
-  _RSI->config.openMicThreshold = 2072.4302;
-  _RSI->config.voiceChatVolume = 1.0;
-  *(_QWORD *)&_RSI->config.microphoneVolume = 1065353216i64;
-  _RSI->config.voiceChatEnabled = 1;
-  _RSI->config.gpadMinDeadzone = 0.07;
-  _RSI->config.snd_licensed_content_volume = 1.0;
-  _RSI->config.viewVertSensitivity = 1.2;
-  _RSI->config.viewHorzSensitivity = 1.2;
-  _RSI->config.viewMouseHorzSensitivity = 12.0;
-  _RSI->config.viewMouseVertSensitivity = 1.0;
-  _RSI->config.viewMouseFlightHorzSensitivity = 40.0;
-  _RSI->config.viewMouseFlightVertSensitivity = 1.0;
-  _RSI->config.filmGrainAttenuation = 0.25;
-  Core_strcpy(_RSI->config.gpadButtonsConfig, 0x20ui64, v8);
-  Core_strcpy(_RSI->config.gpadBRButtonsConfig, 0x20ui64, MY_DEF_BR_BUTTONS);
-  Core_strcpy(_RSI->config.gpadSticksConfig, 0x20ui64, MY_DEF_STICKS);
-  _RSI->config.takeCoverWarnings = -1;
+  state->config.gpadButtonLStickDeflect = 1.0;
+  state->config.gpadButtonRStickDeflect = 1.0;
+  state->config.safearea_adjusted_horizontal = 0.89999998;
+  state->config.safearea_adjusted_vertical = 0.89999998;
+  state->config.hudBoundsHorizontal = 1.0;
+  state->config.hudBoundsVertical = 1.0;
+  state->config.lootCardDetail = 1;
+  state->config.blacklevel = 0.0;
+  DefaultHDRMappingParams = R_GetDefaultHDRMappingParams(&result);
+  v7 = MY_DEF_BUTTONS;
+  v8 = (__m128)*(unsigned __int64 *)&DefaultHDRMappingParams->gamma;
+  *(float *)&DefaultHDRMappingParams = DefaultHDRMappingParams->maxLuminance;
+  state->config.profileFlags &= ~1u;
+  state->config.hdrMaxLum = *(float *)&DefaultHDRMappingParams;
+  state->config.hdrMinLum = _mm_shuffle_ps(v8, v8, 85).m128_f32[0];
+  state->config.hdrGamma = v8.m128_f32[0];
+  state->config.language = 21;
+  state->config.snd_volume = 1.0;
+  state->config.snd_voiceVolume = 1.0;
+  state->config.snd_musicVolume = 1.0;
+  *(_QWORD *)&state->config.snd_effectsVolume = 1065353216i64;
+  *(_WORD *)&state->config.snd_mpVoiceEnabled = 257;
+  state->config.openMicThreshold = 2072.4302;
+  state->config.voiceChatVolume = 1.0;
+  *(_QWORD *)&state->config.microphoneVolume = 1065353216i64;
+  state->config.voiceChatEnabled = 1;
+  state->config.gpadMinDeadzone = 0.07;
+  state->config.snd_licensed_content_volume = 1.0;
+  state->config.viewVertSensitivity = 1.2;
+  state->config.viewHorzSensitivity = 1.2;
+  state->config.viewMouseHorzSensitivity = 12.0;
+  state->config.viewMouseVertSensitivity = 1.0;
+  state->config.viewMouseFlightHorzSensitivity = 40.0;
+  state->config.viewMouseFlightVertSensitivity = 1.0;
+  state->config.filmGrainAttenuation = 0.25;
+  Core_strcpy(state->config.gpadButtonsConfig, 0x20ui64, v7);
+  Core_strcpy(state->config.gpadBRButtonsConfig, 0x20ui64, MY_DEF_BR_BUTTONS);
+  Core_strcpy(state->config.gpadSticksConfig, 0x20ui64, MY_DEF_STICKS);
+  state->config.takeCoverWarnings = -1;
   CurrentLanguageDefaultShowSubtitles = SEH_GetCurrentLanguageDefaultShowSubtitles();
-  v13 = MY_DEF_HIGHESTDIFFS;
-  _RSI->config.showSubtitles = CurrentLanguageDefaultShowSubtitles;
-  Core_strcpy(_RSI->config.missionHighestDifficulty, 0x40ui64, v13);
-  v14 = MY_DEF_HITMARKER_ALIAS;
-  _RSI->config.splitscreenSunShadows = 0;
-  _RSI->config.initialGameMode = INITIAL_GAME_MODE_NONE;
-  _RSI->config.firstTimePlayedSPTime = 0;
-  _RSI->config.speechReduced = 0;
-  *(_DWORD *)&_RSI->config.mp_weapon1 = 0;
-  _RSI->config.mp_weapon5 = 0;
-  _RSI->config.yoloState = 0;
-  _RSI->config.durangoKeyboardController = 0;
-  _RSI->config.matchEndShouldRecordDLog = 1;
-  _RSI->config.matchEndShouldRecordDLogInt = 63;
-  Core_strcpy(_RSI->config.sndHitMarkerAlias, 0x20ui64, v14);
-  _RSI->config.gore = 1;
-  _RSI->config.chatProfanityFilterEnabled = 1;
-  _RSI->config.minimapStyle = 0;
+  v10 = MY_DEF_HIGHESTDIFFS;
+  state->config.showSubtitles = CurrentLanguageDefaultShowSubtitles;
+  Core_strcpy(state->config.missionHighestDifficulty, 0x40ui64, v10);
+  v11 = MY_DEF_HITMARKER_ALIAS;
+  state->config.splitscreenSunShadows = 0;
+  state->config.initialGameMode = INITIAL_GAME_MODE_NONE;
+  state->config.firstTimePlayedSPTime = 0;
+  state->config.speechReduced = 0;
+  *(_DWORD *)&state->config.mp_weapon1 = 0;
+  state->config.mp_weapon5 = 0;
+  state->config.yoloState = 0;
+  state->config.durangoKeyboardController = 0;
+  state->config.matchEndShouldRecordDLog = 1;
+  state->config.matchEndShouldRecordDLogInt = 63;
+  Core_strcpy(state->config.sndHitMarkerAlias, 0x20ui64, v11);
+  state->config.gore = 1;
+  state->config.chatProfanityFilterEnabled = 1;
+  state->config.minimapStyle = 0;
   if ( (unsigned int)v2 > 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8140, ASSERT_TYPE_ASSERT, "( 0 ) <= ( controllerIndex ) && ( controllerIndex ) <= ( 8 )", "controllerIndex not in [0, MAX_GPAD_COUNT]\n\t%i not in [%i, %i]", v2, 0i64, 8) )
     __debugbreak();
   s_gamerSettings[v2].config.profileFlags &= ~0x4000u;
-  CG_GameInterface_SetGamerProfileDefaults(_RSI);
+  CG_GameInterface_SetGamerProfileDefaults(state);
 }
 
 /*
@@ -16837,102 +16222,97 @@ WriteKeyPair
 void WriteKeyPair(char **const buf, int *const size, const GamerSettingKeyPair *kp, int keyIndex, const char *keyPairsStringBuf)
 {
   unsigned __int8 v5; 
-  char boolVal; 
+  unsigned __int8 byteVal; 
   const char *KeyPairString; 
-  unsigned __int64 v12; 
-  int v13; 
+  unsigned __int64 v11; 
+  int v12; 
   size_t maxSize; 
   int shortVal; 
-  int v16; 
-  const char *v17; 
-  char *v18; 
-  bool v19; 
-  __int64 v20; 
-  int v21; 
+  int v15; 
+  const char *v16; 
+  char *v17; 
+  bool v18; 
+  __int64 v19; 
+  KeyPairDataUnion u; 
 
   v5 = keyIndex;
-  _RSI = kp;
   if ( !kp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1648, ASSERT_TYPE_ASSERT, "(kp)", (const char *)&queryFormat, "kp") )
     __debugbreak();
-  if ( _RSI->type )
+  if ( kp->type )
   {
     WriteType_unsigned_char_(buf, size, v5);
-    WriteType_unsigned_char_(buf, size, _RSI->type);
-    switch ( _RSI->type )
+    WriteType_unsigned_char_(buf, size, kp->type);
+    switch ( kp->type )
     {
       case 0u:
         return;
       case 1u:
-        WriteType_unsigned_char_(buf, size, _RSI->u.byteVal);
+        WriteType_unsigned_char_(buf, size, kp->u.byteVal);
         break;
       case 2u:
-        boolVal = _RSI->u.boolVal;
+        byteVal = kp->u.byteVal;
         if ( *size < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1482, ASSERT_TYPE_ASSERT, "(*size >= (int)sizeof( WriteT ))", (const char *)&queryFormat, "*size >= (int)sizeof( WriteT )") )
           __debugbreak();
-        *(*buf)++ = boolVal;
+        *(*buf)++ = byteVal;
         --*size;
         break;
       case 3u:
-        WriteType_short_(buf, size, _RSI->u.shortVal);
+        WriteType_short_(buf, size, kp->u.shortVal);
         break;
       case 4u:
-        WriteType_int_(buf, size, _RSI->u.intVal);
+        WriteType_int_(buf, size, kp->u.intVal);
         break;
       case 5u:
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+4]
-          vmovss  [rsp+48h+arg_10], xmm0
-        }
+        u = kp->u;
         if ( *size < 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1482, ASSERT_TYPE_ASSERT, "(*size >= (int)sizeof( WriteT ))", (const char *)&queryFormat, "*size >= (int)sizeof( WriteT )") )
           __debugbreak();
-        *(_DWORD *)*buf = v21;
+        *(KeyPairDataUnion *)*buf = u;
         *buf += 4;
         *size -= 4;
         break;
       case 6u:
-        WriteType_short_(buf, size, _RSI->u.shortVal);
-        WriteType_short_(buf, size, _RSI->u.stringData.maxSize);
-        KeyPairString = GetKeyPairString(_RSI, keyPairsStringBuf);
+        WriteType_short_(buf, size, kp->u.shortVal);
+        WriteType_short_(buf, size, kp->u.stringData.maxSize);
+        KeyPairString = GetKeyPairString(kp, keyPairsStringBuf);
         Core_strcpy(*buf, *size, KeyPairString);
-        v12 = -1i64;
+        v11 = -1i64;
         do
-          ++v12;
-        while ( (*buf)[v12] );
-        v13 = truncate_cast<int,unsigned __int64>(v12);
-        *buf += v13 + 1;
-        *size += -1 - v13;
+          ++v11;
+        while ( (*buf)[v11] );
+        v12 = truncate_cast<int,unsigned __int64>(v11);
+        *buf += v12 + 1;
+        *size += -1 - v12;
         break;
       case 7u:
-        WriteType_short_(buf, size, _RSI->u.shortVal);
-        WriteType_short_(buf, size, _RSI->u.stringData.maxSize);
-        maxSize = _RSI->u.stringData.maxSize;
+        WriteType_short_(buf, size, kp->u.shortVal);
+        WriteType_short_(buf, size, kp->u.stringData.maxSize);
+        maxSize = kp->u.stringData.maxSize;
         if ( !keyPairsStringBuf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1634, ASSERT_TYPE_ASSERT, "(keyPairsStringBuf)", (const char *)&queryFormat, "keyPairsStringBuf") )
           __debugbreak();
-        if ( _RSI->type == 7 && (shortVal = _RSI->u.shortVal, shortVal >= 0) && (v16 = _RSI->u.stringData.maxSize, v16 > 0) && shortVal + v16 < 3048 )
-          v17 = &keyPairsStringBuf[(__int16)shortVal];
+        if ( kp->type == 7 && (shortVal = kp->u.shortVal, shortVal >= 0) && (v15 = kp->u.stringData.maxSize, v15 > 0) && shortVal + v15 < 3048 )
+          v16 = &keyPairsStringBuf[(__int16)shortVal];
         else
-          v17 = NULL;
+          v16 = NULL;
         if ( (!buf || !*buf) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1441, ASSERT_TYPE_ASSERT, "(destBuf && *destBuf)", (const char *)&queryFormat, "destBuf && *destBuf") )
           __debugbreak();
         if ( *size < (int)maxSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1442, ASSERT_TYPE_ASSERT, "(*destSize >= srcSize)", (const char *)&queryFormat, "*destSize >= srcSize") )
           __debugbreak();
-        v18 = *buf;
-        if ( v17 )
-          memcpy_0(v18, v17, maxSize);
+        v17 = *buf;
+        if ( v16 )
+          memcpy_0(v17, v16, maxSize);
         else
-          memset_0(v18, 0, maxSize);
+          memset_0(v17, 0, maxSize);
         *buf += maxSize;
         *size -= maxSize;
         break;
       case 8u:
-        v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1686, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "TYPE_FLAG is only meant to be used in PROFILE_DATA_FIELDS to register flag bit, use TYPE_INT instead when registering the flag field in PROFILE_KEY_MAP");
+        v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1686, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "TYPE_FLAG is only meant to be used in PROFILE_DATA_FIELDS to register flag bit, use TYPE_INT instead when registering the flag field in PROFILE_KEY_MAP");
         goto LABEL_42;
       default:
-        LODWORD(v20) = _RSI->type;
-        v19 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1689, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled type '%i'.", v20);
+        LODWORD(v19) = kp->type;
+        v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 1689, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled type '%i'.", v19);
 LABEL_42:
-        if ( v19 )
+        if ( v18 )
           __debugbreak();
         break;
     }

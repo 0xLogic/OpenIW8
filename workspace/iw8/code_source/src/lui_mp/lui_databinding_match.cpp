@@ -20,9 +20,9 @@ int LUI_DataBinding_Match_GetEnemyScore(LocalClientNum_t localClientNum)
   unsigned __int64 v3; 
   const score_t *OurClientScore; 
   const score_t *ScoreAtRank; 
-  int v8; 
+  int v7; 
   int team[8]; 
-  int v10; 
+  int v9; 
 
   PlayerTeam = Game_GetPlayerTeam(localClientNum);
   v3 = PlayerTeam;
@@ -32,13 +32,12 @@ int LUI_DataBinding_Match_GetEnemyScore(LocalClientNum_t localClientNum)
   {
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 186, ASSERT_TYPE_ASSERT, "(!Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ))", (const char *)&queryFormat, "!Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER )") )
       __debugbreak();
-    __asm { vmovdqu ymm0, cs:__ymm@0000000000000001000000010000000100000001000000010000000200000000 }
-    v8 = 0;
-    v10 = 0;
-    __asm { vmovdqu ymmword ptr [rsp+68h+team], ymm0 }
+    v7 = 0;
+    v9 = 0;
+    *(__m256i *)team = _ymm;
     if ( v3 < 9 )
-      v8 = team[v3];
-    return Game_GetTeamScore(localClientNum, v8);
+      v7 = team[v3];
+    return Game_GetTeamScore(localClientNum, v7);
   }
   else
   {
@@ -229,22 +228,18 @@ int __fastcall s_LUI_DataBinding_Get_ScoreEnemy(LocalClientNum_t localClientNum)
 s_LUI_DataBinding_Get_ScoreEnemyWinProgress
 ==============
 */
-
-float __fastcall s_LUI_DataBinding_Get_ScoreEnemyWinProgress(LocalClientNum_t localClientNum, double _XMM1_8)
+float s_LUI_DataBinding_Get_ScoreEnemyWinProgress(LocalClientNum_t localClientNum)
 {
-  LUI_DataBinding_Match_GetEnemyScore(localClientNum);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  if ( (unsigned int)LUI_DataBinding_Match_GetScoreLimit() )
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ebx
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm0, xmm1, xmm0
-    }
-  }
-  return *(float *)&_XMM0;
+  int EnemyScore; 
+  int ScoreLimit; 
+  float result; 
+
+  EnemyScore = LUI_DataBinding_Match_GetEnemyScore(localClientNum);
+  ScoreLimit = LUI_DataBinding_Match_GetScoreLimit();
+  result = 0.0;
+  if ( ScoreLimit )
+    return (float)EnemyScore / (float)ScoreLimit;
+  return result;
 }
 
 /*
@@ -263,22 +258,18 @@ int __fastcall s_LUI_DataBinding_Get_ScoreFriendly(LocalClientNum_t localClientN
 s_LUI_DataBinding_Get_ScoreFriendlyWinProgress
 ==============
 */
-
-float __fastcall s_LUI_DataBinding_Get_ScoreFriendlyWinProgress(LocalClientNum_t localClientNum, double _XMM1_8)
+float s_LUI_DataBinding_Get_ScoreFriendlyWinProgress(LocalClientNum_t localClientNum)
 {
-  LUI_DataBinding_Match_GetFriendlyScore(localClientNum);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  if ( (unsigned int)LUI_DataBinding_Match_GetScoreLimit() )
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ebx
-      vcvtsi2ss xmm0, xmm0, eax
-      vdivss  xmm0, xmm1, xmm0
-    }
-  }
-  return *(float *)&_XMM0;
+  int FriendlyScore; 
+  int ScoreLimit; 
+  float result; 
+
+  FriendlyScore = LUI_DataBinding_Match_GetFriendlyScore(localClientNum);
+  ScoreLimit = LUI_DataBinding_Match_GetScoreLimit();
+  result = 0.0;
+  if ( ScoreLimit )
+    return (float)FriendlyScore / (float)ScoreLimit;
+  return result;
 }
 
 /*

@@ -1224,142 +1224,150 @@ void CL_TransientsCommonMP_ProcessFastfileLoadRequests()
   int v0; 
   __int64 v1; 
   __int64 v2; 
-  __int64 v5; 
-  unsigned int v19; 
-  _DWORD *v20; 
-  const dvar_t *v21; 
+  __int64 v3; 
+  __int64 v4; 
+  unsigned int v17; 
+  _DWORD *v18; 
+  const dvar_t *v19; 
+  __int64 v20; 
+  unsigned int *v21; 
   __int64 v22; 
-  unsigned int *v23; 
+  unsigned int v23; 
   __int64 v24; 
   unsigned int v25; 
-  __int64 v26; 
-  unsigned int v27; 
-  unsigned __int64 v28; 
+  unsigned __int64 v26; 
   unsigned __int16 FileIndexForAssetIndex; 
-  unsigned __int64 v30; 
-  unsigned int v31; 
+  unsigned __int64 v28; 
+  unsigned int v29; 
+  __int64 v30; 
+  __int64 v31; 
   __int64 v32; 
   __int64 v33; 
-  __int64 v34; 
-  __int64 v35; 
-  _DWORD v36[514]; 
+  _DWORD v34[514]; 
 
   Sys_ProfBeginNamedEvent(0xFF808080, "CL_TransientsCommonMP_ProcessFastfileLoadRequests");
   v0 = 0;
   v1 = 0i64;
   v2 = 256i64;
-  _R15 = &s_transientsCommonMP;
   do
   {
-    v36[v1] = s_transientsCommonMP.assetsRequested.array[v1];
-    v36[v1 + 1] = s_transientsCommonMP.assetsRequested.array[v1 + 1];
+    v34[v1] = s_transientsCommonMP.assetsRequested.array[v1];
+    v34[v1 + 1] = s_transientsCommonMP.assetsRequested.array[v1 + 1];
     v1 += 2i64;
     --v2;
   }
   while ( v2 );
-  _RAX = 0i64;
-  v5 = 32i64;
-  __asm { vmovdqu xmm3, cs:__xmm@ffffffffffffffffffffffffffffffff }
+  v3 = 0i64;
+  v4 = 32i64;
   do
   {
+    _XMM0 = *(_OWORD *)&s_transientsCommonMP.assetsLoadSubmitted.array[v3];
     __asm
     {
-      vmovdqu xmm0, xmmword ptr [rax+r15+3D8D4h]
       vpandn  xmm2, xmm0, xmm3
       vpand   xmm0, xmm2, [rsp+rax+898h+var_838]
-      vmovdqu [rsp+rax+898h+var_838], xmm0
-      vmovdqu xmm0, xmmword ptr [rax+r15+3D8E4h]
+    }
+    *(_OWORD *)&v34[v3] = _XMM0;
+    _XMM0 = *(_OWORD *)&s_transientsCommonMP.assetsLoadSubmitted.array[v3 + 4];
+    __asm
+    {
       vpandn  xmm2, xmm0, xmm3
       vpand   xmm0, xmm2, [rsp+rax+898h+var_828]
-      vmovdqu [rsp+rax+898h+var_828], xmm0
-      vmovdqu xmm0, xmmword ptr [rax+r15+3D8F4h]
+    }
+    *(_OWORD *)&v34[v3 + 4] = _XMM0;
+    _XMM0 = *(_OWORD *)&s_transientsCommonMP.assetsLoadSubmitted.array[v3 + 8];
+    __asm
+    {
       vpandn  xmm2, xmm0, xmm3
       vpand   xmm0, xmm2, [rsp+rax+898h+var_818]
-      vmovdqu [rsp+rax+898h+var_818], xmm0
-      vmovdqu xmm0, xmmword ptr [rax+r15+3D904h]
+    }
+    *(_OWORD *)&v34[v3 + 8] = _XMM0;
+    _XMM0 = *(_OWORD *)&s_transientsCommonMP.assetsLoadSubmitted.array[v3 + 12];
+    __asm
+    {
       vpandn  xmm2, xmm0, xmm3
       vpand   xmm0, xmm2, [rsp+rax+898h+var_808]
-      vmovdqu [rsp+rax+898h+var_808], xmm0
     }
-    _RAX += 64i64;
-    --v5;
+    *(_OWORD *)&v34[v3 + 12] = _XMM0;
+    v3 += 16i64;
+    --v4;
   }
-  while ( v5 );
-  v19 = 0;
-  v20 = v36;
-  while ( !*v20 )
+  while ( v4 );
+  v17 = 0;
+  v18 = v34;
+  while ( !*v18 )
   {
-    ++v19;
-    ++v20;
-    if ( v19 >= 0x200 )
+    ++v17;
+    ++v18;
+    if ( v17 >= 0x200 )
       goto LABEL_16;
   }
-  v21 = DCONST_DVARBOOL_cl_transientCommon_debugVerbose;
+  v19 = DCONST_DVARBOOL_cl_transientCommon_debugVerbose;
   if ( !DCONST_DVARBOOL_cl_transientCommon_debugVerbose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transientCommon_debugVerbose") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v21);
-  if ( v21->current.enabled )
+  Dvar_CheckFrontendServerThread(v19);
+  if ( v19->current.enabled )
   {
-    LODWORD(v22) = 0;
-    v23 = v36;
-    v24 = 512i64;
+    LODWORD(v20) = 0;
+    v21 = v34;
+    v22 = 512i64;
     do
     {
-      v22 = __popcnt(*v23++) + (unsigned int)v22;
-      --v24;
+      v20 = __popcnt(*v21++) + (unsigned int)v20;
+      --v22;
     }
-    while ( v24 );
-    Com_Printf(14, "CL_TransientsCommonMP: loading %d fastfiles\n", v22);
+    while ( v22 );
+    Com_Printf(14, "CL_TransientsCommonMP: loading %d fastfiles\n", v20);
   }
 LABEL_16:
-  v25 = v36[0];
-  while ( v25 )
+  v23 = v34[0];
+  while ( v23 )
   {
 LABEL_20:
-    v27 = __lzcnt(v25);
-    LODWORD(v28) = v27 + 32 * v0;
-    if ( v27 >= 0x20 )
+    v25 = __lzcnt(v23);
+    LODWORD(v26) = v25 + 32 * v0;
+    if ( v25 >= 0x20 )
     {
-      LODWORD(v33) = 32;
-      LODWORD(v32) = v27;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v32, v33) )
+      LODWORD(v31) = 32;
+      LODWORD(v30) = v25;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v30, v31) )
         __debugbreak();
     }
-    if ( (v25 & (0x80000000 >> v27)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v23 & (0x80000000 >> v25)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v25 &= ~(0x80000000 >> v27);
-    if ( (unsigned int)v28 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)(v27 + 32 * v0), "unsigned", (unsigned int)v28) )
+    v23 &= ~(0x80000000 >> v25);
+    if ( (unsigned int)v26 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)(v25 + 32 * v0), "unsigned", (unsigned int)v26) )
       __debugbreak();
-    FileIndexForAssetIndex = CL_TransientsMP_GetFileIndexForAssetIndex(v27 + 32 * v0);
-    CL_TransientsCommonMP_LoadAssetInternal(FileIndexForAssetIndex, v27 + 32 * v0);
-    v28 = (unsigned __int16)v28;
-    if ( (unsigned __int16)v28 >= 0x4000u )
+    FileIndexForAssetIndex = CL_TransientsMP_GetFileIndexForAssetIndex(v25 + 32 * v0);
+    CL_TransientsCommonMP_LoadAssetInternal(FileIndexForAssetIndex, v25 + 32 * v0);
+    v26 = (unsigned __int16)v26;
+    if ( (unsigned __int16)v26 >= 0x4000u )
     {
-      LODWORD(v35) = 0x4000;
-      LODWORD(v34) = v28;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v34, v35) )
+      LODWORD(v33) = 0x4000;
+      LODWORD(v32) = v26;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v32, v33) )
         __debugbreak();
     }
-    v30 = v28 >> 5;
-    v31 = ~(0x80000000 >> (v28 & 0x1F));
-    s_transientsCommonMP.assetsRequested.array[v30] &= v31;
-    if ( (unsigned int)v28 >= 0x4000 )
+    v28 = v26 >> 5;
+    v29 = ~(0x80000000 >> (v26 & 0x1F));
+    s_transientsCommonMP.assetsRequested.array[v28] &= v29;
+    if ( (unsigned int)v26 >= 0x4000 )
     {
-      LODWORD(v35) = 0x4000;
-      LODWORD(v34) = v28;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v34, v35) )
+      LODWORD(v33) = 0x4000;
+      LODWORD(v32) = v26;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v32, v33) )
         __debugbreak();
     }
-    s_transientsCommonMP.assetsModifiedPriority.array[v30] &= v31;
+    s_transientsCommonMP.assetsModifiedPriority.array[v28] &= v29;
   }
   while ( 1 )
   {
-    v26 = (unsigned int)(v0 + 1);
-    v0 = v26;
-    if ( (unsigned int)v26 >= 0x200 )
+    v24 = (unsigned int)(v0 + 1);
+    v0 = v24;
+    if ( (unsigned int)v24 >= 0x200 )
       break;
-    v25 = v36[v26];
-    if ( v25 )
+    v23 = v34[v24];
+    if ( v23 )
       goto LABEL_20;
   }
   Sys_ProfEndNamedEvent();
@@ -1514,6 +1522,8 @@ void CL_TransientsCommonMP_ProcessFastfilePriorityUpdates(const bitarray<16384> 
   bitarray<16384> *v4; 
   signed __int64 v5; 
   __int64 v6; 
+  unsigned int *v7; 
+  signed __int64 v8; 
   __int64 v9; 
   __int64 v18; 
   unsigned int v19; 
@@ -1541,27 +1551,24 @@ void CL_TransientsCommonMP_ProcessFastfilePriorityUpdates(const bitarray<16384> 
       Com_Printf(14, "CL_TransientsCommonMP: system priotiziation flagging changed from %d => %d\n", (unsigned int)s_transientsCommonMP.prevPrioritizationFlags, (unsigned int)s_transientsCommonMP.nextPrioritizationFlags);
     if ( &s_transientsCommonMP.assetsModifiedPriority > (bitarray<16384> *)&pendingLoadMaskConstPtr->array[511] || &s_transientsCommonMP.assetsModifiedPriority.array[511] < (unsigned int *)pendingLoadMaskConstPtr )
     {
-      _RAX = &s_transientsCommonMP.assetsModifiedPriority.array[4];
-      _RBX = (char *)pendingLoadMaskConstPtr - (char *)&s_transientsCommonMP.assetsModifiedPriority.array[4];
+      v7 = &s_transientsCommonMP.assetsModifiedPriority.array[4];
+      v8 = (char *)pendingLoadMaskConstPtr - (char *)&s_transientsCommonMP.assetsModifiedPriority.array[4];
       v9 = 32i64;
       do
       {
-        __asm
-        {
-          vmovdqu xmm1, xmmword ptr [rbx+rax]
-          vpor    xmm1, xmm1, xmmword ptr [rax-10h]
-          vmovdqu xmmword ptr [rax-10h], xmm1
-          vmovdqu xmm2, xmmword ptr [rbx+rax+10h]
-          vpor    xmm1, xmm2, xmmword ptr [rax]
-          vmovdqu xmmword ptr [rax], xmm1
-          vmovdqu xmm1, xmmword ptr [rbx+rax+20h]
-          vpor    xmm1, xmm1, xmmword ptr [rax+10h]
-          vmovdqu xmmword ptr [rax+10h], xmm1
-          vmovdqu xmm1, xmmword ptr [rbx+rax+30h]
-          vpor    xmm1, xmm1, xmmword ptr [rax+20h]
-          vmovdqu xmmword ptr [rax+20h], xmm1
-        }
-        _RAX += 16;
+        _XMM1 = *(_OWORD *)((char *)v7 + v8);
+        __asm { vpor    xmm1, xmm1, xmmword ptr [rax-10h] }
+        *((_OWORD *)v7 - 1) = _XMM1;
+        _XMM2 = *(_OWORD *)((char *)v7 + v8 + 16);
+        __asm { vpor    xmm1, xmm2, xmmword ptr [rax] }
+        *(_OWORD *)v7 = _XMM1;
+        _XMM1 = *(_OWORD *)((char *)v7 + v8 + 32);
+        __asm { vpor    xmm1, xmm1, xmmword ptr [rax+10h] }
+        *((_OWORD *)v7 + 1) = _XMM1;
+        _XMM1 = *(_OWORD *)((char *)v7 + v8 + 48);
+        __asm { vpor    xmm1, xmm1, xmmword ptr [rax+20h] }
+        *((_OWORD *)v7 + 2) = _XMM1;
+        v7 += 16;
         --v9;
       }
       while ( v9 );
@@ -1660,143 +1667,140 @@ void CL_TransientsCommonMP_ProcessFastfileUnloads()
   int v0; 
   __int64 v1; 
   __int64 v2; 
-  __int64 v5; 
-  unsigned int v14; 
-  _DWORD *v15; 
-  const dvar_t *v16; 
-  __int64 v17; 
-  unsigned int *v18; 
-  __int64 v19; 
-  unsigned int v20; 
-  _DWORD *v21; 
-  bool v22; 
-  unsigned int v23; 
-  __int64 v24; 
-  unsigned int v25; 
-  unsigned __int64 v26; 
+  __int64 v3; 
+  __int64 v4; 
+  unsigned int v13; 
+  _DWORD *v14; 
+  const dvar_t *v15; 
+  __int64 v16; 
+  unsigned int *v17; 
+  __int64 v18; 
+  unsigned int v19; 
+  _DWORD *v20; 
+  bool v21; 
+  unsigned int v22; 
+  __int64 v23; 
+  unsigned int v24; 
+  unsigned __int64 v25; 
   unsigned __int16 FileIndexForAssetIndex; 
+  __int64 v27; 
   __int64 v28; 
   __int64 v29; 
   __int64 v30; 
-  __int64 v31; 
-  _DWORD v32[514]; 
+  _DWORD v31[514]; 
 
   Sys_ProfBeginNamedEvent(0xFF808080, "CL_TransientsCommonMP_ProcessFastfileUnloads");
   v0 = 0;
   v1 = 0i64;
   v2 = 256i64;
-  _R15 = &s_transientsCommonMP;
   do
   {
-    v32[v1] = s_transientsCommonMP.assetsLoadSubmitted.array[v1];
-    v32[v1 + 1] = s_transientsCommonMP.assetsLoadSubmitted.array[v1 + 1];
+    v31[v1] = s_transientsCommonMP.assetsLoadSubmitted.array[v1];
+    v31[v1 + 1] = s_transientsCommonMP.assetsLoadSubmitted.array[v1 + 1];
     v1 += 2i64;
     --v2;
   }
   while ( v2 );
-  _RAX = 0i64;
-  v5 = 32i64;
+  v3 = 0i64;
+  v4 = 32i64;
   do
   {
-    __asm
-    {
-      vmovdqu xmm1, xmmword ptr [rax+r15+3E0D4h]
-      vpand   xmm1, xmm1, [rsp+rax+898h+var_838]
-      vmovdqu [rsp+rax+898h+var_838], xmm1
-      vmovdqu xmm1, xmmword ptr [rax+r15+3E0E4h]
-      vpand   xmm1, xmm1, [rsp+rax+898h+var_828]
-      vmovdqu [rsp+rax+898h+var_828], xmm1
-      vmovdqu xmm1, xmmword ptr [rax+r15+3E0F4h]
-      vpand   xmm1, xmm1, [rsp+rax+898h+var_818]
-      vmovdqu [rsp+rax+898h+var_818], xmm1
-      vmovdqu xmm1, xmmword ptr [rax+r15+3E104h]
-      vpand   xmm1, xmm1, [rsp+rax+898h+var_808]
-      vmovdqu [rsp+rax+898h+var_808], xmm1
-    }
-    _RAX += 64i64;
-    --v5;
+    _XMM1 = *(_OWORD *)&s_transientsCommonMP.assetsRequested.array[v3];
+    __asm { vpand   xmm1, xmm1, [rsp+rax+898h+var_838] }
+    *(_OWORD *)&v31[v3] = _XMM1;
+    _XMM1 = *(_OWORD *)&s_transientsCommonMP.assetsRequested.array[v3 + 4];
+    __asm { vpand   xmm1, xmm1, [rsp+rax+898h+var_828] }
+    *(_OWORD *)&v31[v3 + 4] = _XMM1;
+    _XMM1 = *(_OWORD *)&s_transientsCommonMP.assetsRequested.array[v3 + 8];
+    __asm { vpand   xmm1, xmm1, [rsp+rax+898h+var_818] }
+    *(_OWORD *)&v31[v3 + 8] = _XMM1;
+    _XMM1 = *(_OWORD *)&s_transientsCommonMP.assetsRequested.array[v3 + 12];
+    __asm { vpand   xmm1, xmm1, [rsp+rax+898h+var_808] }
+    *(_OWORD *)&v31[v3 + 12] = _XMM1;
+    v3 += 16i64;
+    --v4;
   }
-  while ( v5 );
-  v14 = 0;
-  v15 = v32;
-  while ( !*v15 )
+  while ( v4 );
+  v13 = 0;
+  v14 = v31;
+  while ( !*v14 )
   {
+    ++v13;
     ++v14;
-    ++v15;
-    if ( v14 >= 0x200 )
+    if ( v13 >= 0x200 )
       goto LABEL_16;
   }
-  v16 = DCONST_DVARBOOL_cl_transientCommon_debugVerbose;
+  v15 = DCONST_DVARBOOL_cl_transientCommon_debugVerbose;
   if ( !DCONST_DVARBOOL_cl_transientCommon_debugVerbose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transientCommon_debugVerbose") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v16);
-  if ( v16->current.enabled )
+  Dvar_CheckFrontendServerThread(v15);
+  if ( v15->current.enabled )
   {
-    LODWORD(v17) = 0;
-    v18 = v32;
-    v19 = 512i64;
+    LODWORD(v16) = 0;
+    v17 = v31;
+    v18 = 512i64;
     do
     {
-      v17 = __popcnt(*v18++) + (unsigned int)v17;
-      --v19;
+      v16 = __popcnt(*v17++) + (unsigned int)v16;
+      --v18;
     }
-    while ( v19 );
-    Com_Printf(14, "CL_TransientsCommonMP: unloading %d fastfiles\n", v17);
+    while ( v18 );
+    Com_Printf(14, "CL_TransientsCommonMP: unloading %d fastfiles\n", v16);
   }
 LABEL_16:
-  v20 = 0;
-  v21 = v32;
-  while ( !*v21 )
+  v19 = 0;
+  v20 = v31;
+  while ( !*v20 )
   {
+    ++v19;
     ++v20;
-    ++v21;
-    if ( v20 >= 0x200 )
+    if ( v19 >= 0x200 )
     {
-      v22 = 0;
+      v21 = 0;
       goto LABEL_21;
     }
   }
-  v22 = 1;
+  v21 = 1;
 LABEL_21:
-  s_transientsCommonMP.anyUnloadsProcessed = v22;
-  v23 = v32[0];
-  while ( v23 )
+  s_transientsCommonMP.anyUnloadsProcessed = v21;
+  v22 = v31[0];
+  while ( v22 )
   {
 LABEL_25:
-    v25 = __lzcnt(v23);
-    LODWORD(v26) = v25 + 32 * v0;
-    if ( v25 >= 0x20 )
+    v24 = __lzcnt(v22);
+    LODWORD(v25) = v24 + 32 * v0;
+    if ( v24 >= 0x20 )
     {
-      LODWORD(v29) = 32;
-      LODWORD(v28) = v25;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v28, v29) )
+      LODWORD(v28) = 32;
+      LODWORD(v27) = v24;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v27, v28) )
         __debugbreak();
     }
-    if ( (v23 & (0x80000000 >> v25)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+    if ( (v22 & (0x80000000 >> v24)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
       __debugbreak();
-    v23 &= ~(0x80000000 >> v25);
-    if ( (unsigned int)v26 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)(v25 + 32 * v0), "unsigned", (unsigned int)v26) )
+    v22 &= ~(0x80000000 >> v24);
+    if ( (unsigned int)v25 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)(v24 + 32 * v0), "unsigned", (unsigned int)v25) )
       __debugbreak();
-    FileIndexForAssetIndex = CL_TransientsMP_GetFileIndexForAssetIndex(v25 + 32 * v0);
-    CL_TransientsCommonMP_UnloadAssetInternal(FileIndexForAssetIndex, v25 + 32 * v0);
-    v26 = (unsigned __int16)v26;
-    if ( (unsigned __int16)v26 >= 0x4000u )
+    FileIndexForAssetIndex = CL_TransientsMP_GetFileIndexForAssetIndex(v24 + 32 * v0);
+    CL_TransientsCommonMP_UnloadAssetInternal(FileIndexForAssetIndex, v24 + 32 * v0);
+    v25 = (unsigned __int16)v25;
+    if ( (unsigned __int16)v25 >= 0x4000u )
     {
-      LODWORD(v31) = 0x4000;
-      LODWORD(v30) = v26;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v30, v31) )
+      LODWORD(v30) = 0x4000;
+      LODWORD(v29) = v25;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v29, v30) )
         __debugbreak();
     }
-    s_transientsCommonMP.assetsRequested.array[v26 >> 5] &= ~(0x80000000 >> (v26 & 0x1F));
+    s_transientsCommonMP.assetsRequested.array[v25 >> 5] &= ~(0x80000000 >> (v25 & 0x1F));
   }
   while ( 1 )
   {
-    v24 = (unsigned int)(v0 + 1);
-    v0 = v24;
-    if ( (unsigned int)v24 >= 0x200 )
+    v23 = (unsigned int)(v0 + 1);
+    v0 = v23;
+    if ( (unsigned int)v23 >= 0x200 )
       break;
-    v23 = v32[v24];
-    if ( v23 )
+    v22 = v31[v23];
+    if ( v22 )
       goto LABEL_25;
   }
   Sys_ProfEndNamedEvent();
@@ -1826,17 +1830,20 @@ CL_TransientsCommonMP_ProcessFastfilesInternal
 */
 void CL_TransientsCommonMP_ProcessFastfilesInternal()
 {
-  int v1; 
-  __int64 v4; 
-  unsigned int v17; 
+  int v0; 
+  unsigned __int64 v1; 
+  __int64 v2; 
+  unsigned int v15; 
   bitarray<16384> *p_pendingLoadMask; 
-  int v19; 
+  int v17; 
+  bitarray<16384> *v18; 
+  __int64 v19; 
   bitarray<16384> *v20; 
-  __int64 v21; 
-  bitarray<16384> *v22; 
-  unsigned int v23; 
+  unsigned int v21; 
   bitarray<16384> *p_assetsModifiedPriority; 
   bitarray<16384> *i; 
+  __int128 v24[3]; 
+  char *fmt[2]; 
   bitarray<16384> pendingLoadMask; 
 
   CL_TransientsCommonMP_ProcessFastfileUnloads();
@@ -1845,80 +1852,87 @@ void CL_TransientsCommonMP_ProcessFastfilesInternal()
     if ( s_transientsCommonMP.pendingLoadCount )
     {
       memcpy_0(&pendingLoadMask, &s_transientsCommonMP.assetsLoadSubmitted, sizeof(pendingLoadMask));
-      __asm { vmovdqu xmm3, cs:__xmm@ffffffffffffffffffffffffffffffff }
-      v1 = 0;
-      _RDX = &s_transientsCommonMP;
-      _RAX = 0i64;
-      v4 = 32i64;
+      v0 = 0;
+      v1 = 0i64;
+      v2 = 32i64;
       do
       {
-        __asm { vmovdqu xmm0, xmmword ptr [rax+rdx+3D0D4h] }
-        _RAX += 64i64;
+        _XMM0 = *(_OWORD *)&s_transientsCommonMP.assetsLoadCompleted.array[v1 / 4];
+        v1 += 64i64;
         __asm
         {
           vpandn  xmm2, xmm0, xmm3
           vpand   xmm0, xmm2, [rsp+rax+848h+var_858]
-          vmovdqu [rsp+rax+848h+var_858], xmm0
-          vmovdqu xmm0, xmmword ptr [rax+rdx+3D0A4h]
+        }
+        v24[v1 / 0x10] = _XMM0;
+        _XMM0 = *(_OWORD *)&s_transientsCommonMP.perTypeCost[4].loaded.array[v1 / 4 + 245];
+        __asm
+        {
           vpandn  xmm2, xmm0, xmm3
           vpand   xmm0, xmm2, [rsp+rax+848h+var_848]
-          vmovdqu [rsp+rax+848h+var_848], xmm0
-          vmovdqu xmm0, xmmword ptr [rax+rdx+3D0B4h]
+        }
+        v24[v1 / 0x10 + 1] = _XMM0;
+        _XMM0 = *(_OWORD *)&s_transientsCommonMP.perTypeCost[4].loaded.array[v1 / 4 + 249];
+        __asm
+        {
           vpandn  xmm2, xmm0, xmm3
           vpand   xmm0, xmm2, [rsp+rax+848h+var_838]
-          vmovdqu [rsp+rax+848h+var_838], xmm0
-          vmovdqu xmm0, xmmword ptr [rax+rdx+3D0C4h]
+        }
+        v24[v1 / 0x10 + 2] = _XMM0;
+        _XMM0 = *(_OWORD *)&s_transientsCommonMP.perTypeCost[4].loaded.array[v1 / 4 + 253];
+        __asm
+        {
           vpandn  xmm2, xmm0, xmm3
           vpand   xmm0, xmm2, xmmword ptr [rsp+rax+848h+fmt]
-          vmovdqu xmmword ptr [rsp+rax+848h+fmt], xmm0
         }
-        --v4;
+        *(_OWORD *)&fmt[v1 / 8] = _XMM0;
+        --v2;
       }
-      while ( v4 );
-      v17 = 0;
+      while ( v2 );
+      v15 = 0;
       p_pendingLoadMask = &pendingLoadMask;
       while ( !p_pendingLoadMask->array[0] )
       {
-        ++v17;
+        ++v15;
         p_pendingLoadMask = (bitarray<16384> *)((char *)p_pendingLoadMask + 4);
-        if ( v17 >= 0x200 )
+        if ( v15 >= 0x200 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_common_mp.cpp", 951, ASSERT_TYPE_ASSERT, "(pendingLoadsMask.anyBitsOn())", (const char *)&queryFormat, "pendingLoadsMask.anyBitsOn()") )
             __debugbreak();
           break;
         }
       }
-      v19 = 0;
-      v20 = &pendingLoadMask;
-      v21 = 512i64;
+      v17 = 0;
+      v18 = &pendingLoadMask;
+      v19 = 512i64;
       do
       {
-        v19 += __popcnt(v20->array[0]);
-        v20 = (bitarray<16384> *)((char *)v20 + 4);
-        --v21;
+        v17 += __popcnt(v18->array[0]);
+        v18 = (bitarray<16384> *)((char *)v18 + 4);
+        --v19;
       }
-      while ( v21 );
-      if ( s_transientsCommonMP.pendingLoadCount != v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_common_mp.cpp", 952, ASSERT_TYPE_ASSERT, "(s_transientsCommonMP.pendingLoadCount == pendingLoadsMask.popCnt())", (const char *)&queryFormat, "s_transientsCommonMP.pendingLoadCount == pendingLoadsMask.popCnt()") )
+      while ( v19 );
+      if ( s_transientsCommonMP.pendingLoadCount != v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_common_mp.cpp", 952, ASSERT_TYPE_ASSERT, "(s_transientsCommonMP.pendingLoadCount == pendingLoadsMask.popCnt())", (const char *)&queryFormat, "s_transientsCommonMP.pendingLoadCount == pendingLoadsMask.popCnt()") )
         __debugbreak();
       CL_TransientsCommonMP_ProcessFastfilePendingLoads(&pendingLoadMask);
-      v22 = &pendingLoadMask;
+      v20 = &pendingLoadMask;
     }
     else
     {
-      v1 = 0;
-      v22 = NULL;
+      v0 = 0;
+      v20 = NULL;
     }
     CL_TransientsCommonMP_ProcessFastfileLoadRequests();
-    CL_TransientsCommonMP_ProcessFastfilePriorityUpdates(v22);
+    CL_TransientsCommonMP_ProcessFastfilePriorityUpdates(v20);
     if ( s_transientsCommonMP.prevPrioritizationFlags != s_transientsCommonMP.nextPrioritizationFlags && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_common_mp.cpp", 967, ASSERT_TYPE_ASSERT, "(s_transientsCommonMP.prevPrioritizationFlags == s_transientsCommonMP.nextPrioritizationFlags)", (const char *)&queryFormat, "s_transientsCommonMP.prevPrioritizationFlags == s_transientsCommonMP.nextPrioritizationFlags") )
       __debugbreak();
-    v23 = 0;
+    v21 = 0;
     p_assetsModifiedPriority = &s_transientsCommonMP.assetsModifiedPriority;
     while ( !p_assetsModifiedPriority->array[0] )
     {
-      ++v23;
+      ++v21;
       p_assetsModifiedPriority = (bitarray<16384> *)((char *)p_assetsModifiedPriority + 4);
-      if ( v23 >= 0x200 )
+      if ( v21 >= 0x200 )
         goto LABEL_26;
     }
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_common_mp.cpp", 968, ASSERT_TYPE_ASSERT, "(s_transientsCommonMP.assetsModifiedPriority.noBitsOn())", (const char *)&queryFormat, "s_transientsCommonMP.assetsModifiedPriority.noBitsOn()") )
@@ -1926,7 +1940,7 @@ void CL_TransientsCommonMP_ProcessFastfilesInternal()
 LABEL_26:
     for ( i = &s_transientsCommonMP.assetsRequested; !i->array[0]; i = (bitarray<16384> *)((char *)i + 4) )
     {
-      if ( (unsigned int)++v1 >= 0x200 )
+      if ( (unsigned int)++v0 >= 0x200 )
         return;
     }
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_common_mp.cpp", 969, ASSERT_TYPE_ASSERT, "(s_transientsCommonMP.assetsRequested.noBitsOn())", (const char *)&queryFormat, "s_transientsCommonMP.assetsRequested.noBitsOn()") )
@@ -2530,216 +2544,186 @@ void CL_TransientsCommonMP_UnregisterTransientInfo(const TransientInfo *const tr
 CL_TransientsCommonMP_Update
 ==============
 */
-void CL_TransientsCommonMP_Update()
+void CL_TransientsCommonMP_Update(void)
 {
-  const dvar_t *v4; 
-  unsigned int v5; 
-  __int64 v6; 
-  unsigned int v7; 
-  unsigned int v8; 
-  char v9; 
+  const dvar_t *v0; 
+  unsigned int v1; 
+  __int64 v2; 
+  unsigned int v3; 
+  unsigned int v4; 
+  char v5; 
   unsigned __int16 FileIndexForAssetIndex; 
   const char *AssetName; 
-  const dvar_t *v12; 
+  const dvar_t *v8; 
   int integer; 
-  unsigned int v14; 
-  int v15; 
-  unsigned int v16; 
-  __int64 v17; 
-  unsigned int v22; 
-  char v23; 
-  unsigned __int16 v24; 
-  const char *v25; 
+  unsigned int v10; 
+  int v11; 
+  unsigned int v12; 
+  __int64 v13; 
+  __int128 i; 
+  unsigned int v15; 
+  char v16; 
+  unsigned __int16 v17; 
+  const char *v18; 
+  __int128 v19; 
   char *fmt; 
   __int64 fromServer; 
   __int64 duration; 
-  unsigned int v39; 
+  unsigned int v23; 
   char dest[1024]; 
 
   if ( s_transientsCommonMP.transientInfo )
   {
-    v4 = DVARBOOL_cl_transientCommon_debugDump;
+    v0 = DVARBOOL_cl_transientCommon_debugDump;
     if ( !DVARBOOL_cl_transientCommon_debugDump && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transientCommon_debugDump") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v4);
-    if ( v4->current.enabled )
+    Dvar_CheckFrontendServerThread(v0);
+    if ( v0->current.enabled )
     {
       Dvar_SetBool_Internal(DVARBOOL_cl_transientCommon_debugDump, 0);
       Com_Printf(14, "CL_TransientsCommonMP currently submitted requests:\n");
-      v5 = s_transientsCommonMP.assetsLoadSubmitted.array[0];
-      LODWORD(v6) = 0;
-      v7 = v39;
+      v1 = s_transientsCommonMP.assetsLoadSubmitted.array[0];
+      LODWORD(v2) = 0;
+      v3 = v23;
       while ( 1 )
       {
-        if ( v5 )
+        if ( v1 )
         {
 LABEL_10:
-          v8 = __lzcnt(v5);
-          v7 = v8 + 32 * v6;
-          if ( v8 >= 0x20 )
+          v4 = __lzcnt(v1);
+          v3 = v4 + 32 * v2;
+          if ( v4 >= 0x20 )
           {
             LODWORD(duration) = 32;
-            LODWORD(fromServer) = v8;
+            LODWORD(fromServer) = v4;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", fromServer, duration) )
               __debugbreak();
           }
-          if ( (v5 & (0x80000000 >> v8)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+          if ( (v1 & (0x80000000 >> v4)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
             __debugbreak();
-          v5 &= ~(0x80000000 >> v8);
-          v9 = 1;
+          v1 &= ~(0x80000000 >> v4);
+          v5 = 1;
         }
         else
         {
           while ( 1 )
           {
-            v6 = (unsigned int)(v6 + 1);
-            if ( (unsigned int)v6 >= 0x200 )
+            v2 = (unsigned int)(v2 + 1);
+            if ( (unsigned int)v2 >= 0x200 )
               break;
-            v5 = s_transientsCommonMP.assetsLoadSubmitted.array[v6];
-            if ( v5 )
+            v1 = s_transientsCommonMP.assetsLoadSubmitted.array[v2];
+            if ( v1 )
               goto LABEL_10;
           }
-          v9 = 0;
+          v5 = 0;
         }
-        if ( !v9 )
+        if ( !v5 )
           break;
-        if ( v7 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v7, "unsigned", v7) )
+        if ( v3 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v3, "unsigned", v3) )
           __debugbreak();
-        FileIndexForAssetIndex = CL_TransientsMP_GetFileIndexForAssetIndex(v7);
-        if ( (_WORD)v7 == 0xFFFF )
+        FileIndexForAssetIndex = CL_TransientsMP_GetFileIndexForAssetIndex(v3);
+        if ( (_WORD)v3 == 0xFFFF )
         {
           AssetName = "UNUSED_ASSET";
         }
         else
         {
-          AssetName = CL_TransientsMP_GetAssetName(v7);
-          if ( (unsigned __int16)v7 < 0x4000u )
+          AssetName = CL_TransientsMP_GetAssetName(v3);
+          if ( (unsigned __int16)v3 < 0x4000u )
             goto LABEL_28;
         }
         LODWORD(duration) = 0x4000;
-        LODWORD(fromServer) = (unsigned __int16)v7;
+        LODWORD(fromServer) = (unsigned __int16)v3;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_common_mp.cpp", 363, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( s_transientsCommonMP.assetsPriorities ) ) + 0 ) )", "assetIndex doesn't index s_transientsCommonMP.assetsPriorities\n\t%i not in [0, %i)", fromServer, duration) )
           __debugbreak();
 LABEL_28:
         LODWORD(duration) = FileIndexForAssetIndex;
-        LODWORD(fromServer) = (unsigned __int16)v7;
-        LODWORD(fmt) = CL_TransientsCommonMP_GetTransientPriorityForAssetStreamingPriority(s_transientsCommonMP.assetsPriorities[(unsigned __int16)v7]);
+        LODWORD(fromServer) = (unsigned __int16)v3;
+        LODWORD(fmt) = CL_TransientsCommonMP_GetTransientPriorityForAssetStreamingPriority(s_transientsCommonMP.assetsPriorities[(unsigned __int16)v3]);
         Com_sprintf_truncate(dest, 0x400ui64, "%s, prio=%u, asset=%u, file=%u", AssetName, fmt, fromServer, duration);
         Com_Printf(14, "\t%s\n", dest);
       }
     }
-    v12 = DCONST_DVARINT_cl_transientCommon_debugListLoadingAssets;
+    v8 = DCONST_DVARINT_cl_transientCommon_debugListLoadingAssets;
     if ( !DCONST_DVARINT_cl_transientCommon_debugListLoadingAssets && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transientCommon_debugListLoadingAssets") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    integer = v12->current.integer;
+    Dvar_CheckFrontendServerThread(v8);
+    integer = v8->current.integer;
     if ( integer )
     {
-      v14 = s_transientsCommonMP.assetsLoadSubmitted.array[0];
-      v15 = 0;
-      v16 = v39;
-      LODWORD(v17) = 0;
-      __asm
-      {
-        vmovaps [rsp+4D8h+var_38], xmm6
-        vmovaps [rsp+4D8h+var_48], xmm7
-        vmovss  xmm7, cs:__real@41a00000
-        vmovaps [rsp+4D8h+var_58], xmm8
-        vmovss  xmm8, cs:__real@3f99999a
-        vmovaps [rsp+4D8h+var_68], xmm9
-        vmovss  xmm9, cs:__real@41800000
-        vmovaps xmm6, xmm7
-      }
-      while ( 1 )
+      v10 = s_transientsCommonMP.assetsLoadSubmitted.array[0];
+      v11 = 0;
+      v12 = v23;
+      LODWORD(v13) = 0;
+      for ( i = LODWORD(FLOAT_20_0); ; i = v19 )
       {
         do
         {
-          if ( v14 )
+          if ( v10 )
           {
 LABEL_37:
-            v22 = __lzcnt(v14);
-            v16 = v22 + 32 * v17;
-            if ( v22 >= 0x20 )
+            v15 = __lzcnt(v10);
+            v12 = v15 + 32 * v13;
+            if ( v15 >= 0x20 )
             {
               LODWORD(duration) = 32;
-              LODWORD(fromServer) = v22;
+              LODWORD(fromServer) = v15;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", fromServer, duration) )
                 __debugbreak();
             }
-            if ( (v14 & (0x80000000 >> v22)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
+            if ( (v10 & (0x80000000 >> v15)) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
               __debugbreak();
-            v23 = 1;
-            v14 &= ~(0x80000000 >> v22);
+            v16 = 1;
+            v10 &= ~(0x80000000 >> v15);
           }
           else
           {
             while ( 1 )
             {
-              v17 = (unsigned int)(v17 + 1);
-              if ( (unsigned int)v17 >= 0x200 )
+              v13 = (unsigned int)(v13 + 1);
+              if ( (unsigned int)v13 >= 0x200 )
                 break;
-              v14 = s_transientsCommonMP.assetsLoadSubmitted.array[v17];
-              if ( v14 )
+              v10 = s_transientsCommonMP.assetsLoadSubmitted.array[v13];
+              if ( v10 )
                 goto LABEL_37;
             }
-            v23 = 0;
+            v16 = 0;
           }
-          if ( !v23 )
+          if ( !v16 )
+            return;
+          if ( v12 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v12, "unsigned", v12) )
+            __debugbreak();
+          if ( v11 >= integer )
           {
-LABEL_59:
-            __asm
-            {
-              vmovaps xmm8, [rsp+4D8h+var_58]
-              vmovaps xmm7, [rsp+4D8h+var_48]
-              vmovaps xmm6, [rsp+4D8h+var_38]
-              vmovaps xmm9, [rsp+4D8h+var_68]
-            }
+            CL_AddDebugString2D(20.0, *(float *)&i, &colorWhite, 1.2, "...", 0, 0);
             return;
           }
-          if ( v16 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v16, "unsigned", v16) )
-            __debugbreak();
-          if ( v15 >= integer )
-          {
-            __asm
-            {
-              vmovaps xmm3, xmm8; scale
-              vmovaps xmm1, xmm6; y
-              vmovaps xmm0, xmm7; x
-            }
-            CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorWhite, *(float *)&_XMM3, "...", 0, 0);
-            goto LABEL_59;
-          }
         }
-        while ( CL_TransientsMP_IsXModelAssetIndexLoaded(v16) );
-        v24 = CL_TransientsMP_GetFileIndexForAssetIndex(v16);
-        if ( (_WORD)v16 == 0xFFFF )
+        while ( CL_TransientsMP_IsXModelAssetIndexLoaded(v12) );
+        v17 = CL_TransientsMP_GetFileIndexForAssetIndex(v12);
+        if ( (_WORD)v12 == 0xFFFF )
         {
-          v25 = "UNUSED_ASSET";
+          v18 = "UNUSED_ASSET";
         }
         else
         {
-          v25 = CL_TransientsMP_GetAssetName(v16);
-          if ( (unsigned __int16)v16 < 0x4000u )
+          v18 = CL_TransientsMP_GetAssetName(v12);
+          if ( (unsigned __int16)v12 < 0x4000u )
             goto LABEL_57;
         }
         LODWORD(duration) = 0x4000;
-        LODWORD(fromServer) = (unsigned __int16)v16;
+        LODWORD(fromServer) = (unsigned __int16)v12;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_common_mp.cpp", 363, ASSERT_TYPE_ASSERT, "(unsigned)( assetIndex ) < (unsigned)( ( sizeof( *array_counter( s_transientsCommonMP.assetsPriorities ) ) + 0 ) )", "assetIndex doesn't index s_transientsCommonMP.assetsPriorities\n\t%i not in [0, %i)", fromServer, duration) )
           __debugbreak();
 LABEL_57:
-        LODWORD(duration) = v24;
-        LODWORD(fromServer) = (unsigned __int16)v16;
-        LODWORD(fmt) = CL_TransientsCommonMP_GetTransientPriorityForAssetStreamingPriority(s_transientsCommonMP.assetsPriorities[(unsigned __int16)v16]);
-        Com_sprintf_truncate(dest, 0x400ui64, "%s, prio=%u, asset=%u, file=%u", v25, fmt, fromServer, duration);
-        __asm
-        {
-          vmovaps xmm3, xmm8; scale
-          vmovaps xmm1, xmm6; y
-          vmovaps xmm0, xmm7; x
-        }
-        CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorWhite, *(float *)&_XMM3, dest, 0, 0);
-        ++v15;
-        __asm { vaddss  xmm6, xmm6, xmm9 }
+        LODWORD(duration) = v17;
+        LODWORD(fromServer) = (unsigned __int16)v12;
+        LODWORD(fmt) = CL_TransientsCommonMP_GetTransientPriorityForAssetStreamingPriority(s_transientsCommonMP.assetsPriorities[(unsigned __int16)v12]);
+        Com_sprintf_truncate(dest, 0x400ui64, "%s, prio=%u, asset=%u, file=%u", v18, fmt, fromServer, duration);
+        CL_AddDebugString2D(20.0, *(float *)&i, &colorWhite, 1.2, dest, 0, 0);
+        ++v11;
+        v19 = i;
+        *(float *)&v19 = *(float *)&i + 16.0;
       }
     }
   }

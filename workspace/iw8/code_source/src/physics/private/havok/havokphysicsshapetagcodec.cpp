@@ -71,97 +71,60 @@ SetData
 */
 void SetData(GamerSettingState *settings, int dataIndex, GamerProfileData *data)
 {
-  __int64 v4; 
-  __int64 v8; 
+  __int64 v3; 
+  __int64 v6; 
+  float minVal; 
+  float maxVal; 
   bool v9; 
-  char v14; 
-  int v22; 
-  __int64 v23; 
+  double v10; 
+  int bitShift; 
+  __int64 v12; 
 
-  v4 = dataIndex;
-  _RBX = data;
+  v3 = dataIndex;
   if ( (unsigned int)dataIndex >= 0x8A && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\gamerprofile.cpp", 8784, ASSERT_TYPE_ASSERT, "(unsigned)( dataIndex ) < (unsigned)( ( sizeof( *array_counter( PROFILE_DATA_FIELDS ) ) + 0 ) )", "dataIndex doesn't index ARRAY_COUNT( PROFILE_DATA_FIELDS )\n\t%i not in [0, %i)", dataIndex, 138) )
     __debugbreak();
-  _RBP = 0x140000000ui64;
-  v8 = 3 * v4;
-  v9 = 2 * v8 == 0;
-  _RDI = 2 * v8;
-  __asm
+  v6 = v3;
+  minVal = PROFILE_DATA_FIELDS[v6].minVal;
+  maxVal = PROFILE_DATA_FIELDS[v6].maxVal;
+  v9 = minVal != 0.0 && maxVal != 0.0;
+  switch ( PROFILE_DATA_FIELDS[v6].type )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm1, ss:rva PROFILE_DATA_FIELDS.minVal[rbp+rdi*8]; min
-    vucomiss xmm1, xmm0
-    vmovss  xmm2, ss:rva PROFILE_DATA_FIELDS.maxVal[rbp+rdi*8]; max
-  }
-  if ( v9 )
-  {
-    v14 = 0;
-  }
-  else
-  {
-    __asm { vucomiss xmm2, xmm0 }
-    v14 = 1;
-  }
-  switch ( *((_DWORD *)&PROFILE_DATA_FIELDS[0].type + 2 * _RDI) )
-  {
-    case 1:
-      if ( v14 )
-      {
-        __asm
-        {
-          vcvttss2si r8d, xmm2; max
-          vcvttss2si edx, xmm1; min
-        }
-        _RBX->u.byteVal = I_tclamp<unsigned char>(_RBX->u.byteVal, _EDX, _ER8);
-      }
+    case TYPE_BYTE:
+      if ( v9 )
+        data->u.byteVal = I_tclamp<unsigned char>(data->u.byteVal, (int)minVal, (int)maxVal);
       goto $LN10_130;
-    case 2:
+    case TYPE_BOOL:
 $LN10_130:
-      *(&settings->isProfileLoggedIn + *(&PROFILE_DATA_FIELDS[0].offset + _RDI)) = _RBX->u.byteVal;
+      *(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v6].offset) = data->u.byteVal;
       break;
-    case 3:
-      if ( v14 )
+    case TYPE_SHORT:
+      if ( v9 )
+        data->u.shortVal = I_tclamp<short>(data->u.shortVal, (int)minVal, (int)maxVal);
+      *(_WORD *)(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v6].offset) = data->u.shortVal;
+      break;
+    case TYPE_INT:
+      if ( v9 )
+        data->u.intVal = I_clamp(data->u.intVal, (int)minVal, (int)maxVal);
+      *(_DWORD *)(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v6].offset) = data->u.intVal;
+      break;
+    case TYPE_FLOAT:
+      if ( v9 )
       {
-        __asm
-        {
-          vcvttss2si r8d, xmm2; max
-          vcvttss2si edx, xmm1; min
-        }
-        _RBX->u.shortVal = I_tclamp<short>(_RBX->u.shortVal, _EDX, _ER8);
+        v10 = I_fclamp(data->u.floatVal, minVal, maxVal);
+        data->u.floatVal = *(float *)&v10;
       }
-      *(_WORD *)(&settings->isProfileLoggedIn + *(&PROFILE_DATA_FIELDS[0].offset + _RDI)) = _RBX->u.shortVal;
+      *(_DWORD *)(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v6].offset) = data->u.intVal;
       break;
-    case 4:
-      if ( v14 )
-      {
-        __asm
-        {
-          vcvttss2si r8d, xmm2; max
-          vcvttss2si edx, xmm1; min
-        }
-        _RBX->u.intVal = I_clamp(_RBX->u.intVal, _EDX, _ER8);
-      }
-      *(_DWORD *)(&settings->isProfileLoggedIn + *(&PROFILE_DATA_FIELDS[0].offset + _RDI)) = _RBX->u.intVal;
+    case TYPE_STRING:
+      Core_strcpy((char *)&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v6].offset, PROFILE_DATA_FIELDS[v6].size, data->u.stringVal);
       break;
-    case 5:
-      if ( v14 )
-      {
-        __asm { vmovss  xmm0, dword ptr [rbx+8]; val }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovss  dword ptr [rbx+8], xmm0 }
-      }
-      *(_DWORD *)(&settings->isProfileLoggedIn + *(&PROFILE_DATA_FIELDS[0].offset + _RDI)) = _RBX->u.intVal;
+    case TYPE_BUFFER:
+      memcpy_0(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v6].offset, data->u.stringVal, PROFILE_DATA_FIELDS[v6].size);
       break;
-    case 6:
-      Core_strcpy((char *)&settings->isProfileLoggedIn + *(&PROFILE_DATA_FIELDS[0].offset + _RDI), *(&PROFILE_DATA_FIELDS[0].size + 2 * _RDI), _RBX->u.stringVal);
-      break;
-    case 7:
-      memcpy_0(&settings->isProfileLoggedIn + *(&PROFILE_DATA_FIELDS[0].offset + _RDI), _RBX->u.stringVal, *(&PROFILE_DATA_FIELDS[0].size + 2 * _RDI));
-      break;
-    case 8:
-      v22 = *(&PROFILE_DATA_FIELDS[0].bitShift + 2 * _RDI);
-      v23 = ((1i64 << *(&PROFILE_DATA_FIELDS[0].size + 2 * _RDI)) - 1) << v22;
-      *(_DWORD *)(&settings->isProfileLoggedIn + *(&PROFILE_DATA_FIELDS[0].offset + _RDI)) = *(_DWORD *)(&settings->isProfileLoggedIn + *(&PROFILE_DATA_FIELDS[0].offset + _RDI)) & ~(_DWORD)v23 | v23 & (_RBX->u.intVal << v22);
+    case TYPE_FLAG:
+      bitShift = PROFILE_DATA_FIELDS[v6].bitShift;
+      v12 = ((1i64 << PROFILE_DATA_FIELDS[v6].size) - 1) << bitShift;
+      *(_DWORD *)(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v6].offset) = *(_DWORD *)(&settings->isProfileLoggedIn + PROFILE_DATA_FIELDS[v6].offset) & ~(_DWORD)v12 | v12 & (data->u.intVal << bitShift);
       break;
     default:
       return;
@@ -344,16 +307,16 @@ unsigned __int16 HavokPhysicsShapeTagCodec::findShapeTag(HavokPhysicsShapeTagCod
   hkMemoryAllocator *v8; 
   int v9; 
   int v10; 
-  unsigned int v14; 
-  unsigned int v15; 
+  HavokPhysicsShapeList::ShapeTagData *v11; 
+  unsigned int v12; 
+  unsigned int v13; 
 
   v2 = 0;
-  _R14 = shapeTagData;
   v5 = 0;
   m_size = this->m_pregeneratedShapeTagData->m_size;
   if ( m_size )
   {
-    while ( !HavokPhysicsShapeList::ShapeTagData::Matches(_R14, &this->m_pregeneratedShapeTagData->m_data[v5]) )
+    while ( !HavokPhysicsShapeList::ShapeTagData::Matches(shapeTagData, &this->m_pregeneratedShapeTagData->m_data[v5]) )
     {
       if ( ++v5 >= m_size )
         goto LABEL_4;
@@ -376,33 +339,29 @@ LABEL_7:
         v9 = this->m_additionalShapeTagData.m_size;
         v10 = v9;
       }
-      if ( &this->m_additionalShapeTagData.m_data[v9] )
+      v11 = &this->m_additionalShapeTagData.m_data[v9];
+      if ( v11 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r14]
-          vmovups xmmword ptr [rdx], xmm0
-          vmovsd  xmm1, qword ptr [r14+10h]
-          vmovsd  qword ptr [rdx+10h], xmm1
-        }
+        *(_OWORD *)&v11->m_collisionFilterInfo = *(_OWORD *)&shapeTagData->m_collisionFilterInfo;
+        v11->m_userData = shapeTagData->m_userData;
         v10 = this->m_additionalShapeTagData.m_size;
       }
-      v14 = m_size + v7;
+      v12 = m_size + v7;
       this->m_additionalShapeTagData.m_size = v10 + 1;
-      if ( v14 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsshapetagcodec.cpp", 189, ASSERT_TYPE_ASSERT, "(numPregeneratedShapeTags + numAdditionalTags <= 0xffff)", (const char *)&queryFormat, "numPregeneratedShapeTags + numAdditionalTags <= 0xffff") )
+      if ( v12 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsshapetagcodec.cpp", 189, ASSERT_TYPE_ASSERT, "(numPregeneratedShapeTags + numAdditionalTags <= 0xffff)", (const char *)&queryFormat, "numPregeneratedShapeTags + numAdditionalTags <= 0xffff") )
         __debugbreak();
-      v15 = v14;
+      v13 = v12;
     }
     else
     {
-      while ( !HavokPhysicsShapeList::ShapeTagData::Matches(_R14, &this->m_additionalShapeTagData.m_data[v2]) )
+      while ( !HavokPhysicsShapeList::ShapeTagData::Matches(shapeTagData, &this->m_additionalShapeTagData.m_data[v2]) )
       {
         if ( ++v2 >= v7 )
           goto LABEL_7;
       }
-      v15 = m_size + v2;
+      v13 = m_size + v2;
     }
-    return truncate_cast<unsigned short,unsigned int>(v15);
+    return truncate_cast<unsigned short,unsigned int>(v13);
   }
 }
 

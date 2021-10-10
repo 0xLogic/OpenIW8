@@ -278,9 +278,8 @@ InGameStoreHookup::FenceBegin
 void InGameStoreHookup::FenceBegin(InGameStoreHookup *this, int controllerIndex, InGameStoreFence fence)
 {
   const char *StatusString; 
-  __int128 v7; 
-  __int64 v8; 
-  FenceStartParameters v9; 
+  __int128 v5; 
+  FenceStartParameters v6; 
 
   if ( fence == INGAMESTORE_FENCE_FETCH_CATALOG )
   {
@@ -288,18 +287,12 @@ void InGameStoreHookup::FenceBegin(InGameStoreHookup *this, int controllerIndex,
   }
   else
   {
-    LOBYTE(v7) = 0;
-    v8 = 0i64;
+    LOBYTE(v5) = 0;
     StatusString = InGameStoreHookup::GetStatusString(fence);
-    __asm { vmovsd  xmm1, [rsp+68h+var_38] }
-    *((_QWORD *)&v7 + 1) = SEH_SafeTranslateString(StatusString);
-    __asm
-    {
-      vmovups xmm0, [rsp+68h+var_48]
-      vmovups [rsp+68h+var_28], xmm0
-      vmovsd  [rsp+68h+var_18], xmm1
-    }
-    OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, controllerIndex, &v9);
+    *((_QWORD *)&v5 + 1) = SEH_SafeTranslateString(StatusString);
+    *(_OWORD *)&v6.m_shouldBlock = v5;
+    *(double *)&v6.m_channel = 0.0;
+    OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, controllerIndex, &v6);
   }
 }
 
@@ -312,9 +305,8 @@ void InGameStoreHookup::FenceEnd(InGameStoreHookup *this, int controllerIndex, I
 {
   const char *v7; 
   const char *StatusString; 
-  __int128 v12; 
-  __int64 v13; 
-  FenceFailureParameters v14; 
+  __int128 v9; 
+  FenceFailureParameters v10; 
 
   if ( fence == INGAMESTORE_FENCE_FETCH_CATALOG )
   {
@@ -328,31 +320,20 @@ void InGameStoreHookup::FenceEnd(InGameStoreHookup *this, int controllerIndex, I
   }
   else if ( error == INGAMESTORE_ERROR_NONE || error == INGAMESTORE_ERROR_PURCHASE_PRODUCT_CANCELED )
   {
-    v13 = 0i64;
     StatusString = InGameStoreHookup::GetStatusString(fence);
-    __asm { vmovsd  xmm1, [rsp+68h+var_38] }
-    *(_QWORD *)&v12 = SEH_SafeTranslateString(StatusString);
-    BYTE8(v12) = 0;
-    __asm
-    {
-      vmovups xmm0, [rsp+68h+var_48]
-      vmovups xmmword ptr [rsp+68h+var_28.m_statusString], xmm0
-      vmovsd  [rsp+68h+var_28.m_channel], xmm1
-    }
-    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, controllerIndex, (FenceSuccessParameters *)&v14);
+    *(_QWORD *)&v9 = SEH_SafeTranslateString(StatusString);
+    BYTE8(v9) = 0;
+    *(_OWORD *)&v10.m_statusString = v9;
+    *(double *)&v10.m_channel = 0.0;
+    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, controllerIndex, (FenceSuccessParameters *)&v10);
   }
   else
   {
     OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_COMMERCE_t)*(_QWORD *)&InGameStoreHookup::s_commerceErrorLookup[2 * error], message);
     v7 = InGameStoreHookup::GetStatusString(fence);
-    v14.m_statusString = SEH_SafeTranslateString(v7);
-    memset(&v14.m_failureAction, 0, 17);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+68h+var_28.m_statusString]
-      vmovups ymmword ptr [rsp+68h+var_28.m_statusString], ymm0
-    }
-    OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v14);
+    v10.m_statusString = SEH_SafeTranslateString(v7);
+    memset(&v10.m_failureAction, 0, 17);
+    OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v10);
   }
 }
 

@@ -348,54 +348,47 @@ void CG_PhysicsCoverWall_CreatePhysics(LocalClientNum_t localClientNum, unsigned
   hkMonitorStream *v5; 
   __int64 v6; 
   __int64 v7; 
+  centity_t *v8; 
   const unsigned int *CoverGrid; 
   int v10; 
   __int64 v11; 
   unsigned __int16 v12; 
   int Ref; 
   vec3_t outOrigin; 
-  __int64 v18; 
-  __int64 v19; 
-  hkMonitorStream *v20; 
+  __int64 v15; 
+  __int64 v16; 
+  hkMonitorStream *v17; 
   vec3_t angles; 
   vec4_t quat; 
 
-  v19 = -2i64;
+  v16 = -2i64;
   v2 = entityId;
   v3 = localClientNum;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
   v5 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtCG_PhysicsCoverWall_CreatePhysics");
-  v20 = v5;
+  v17 = v5;
   if ( (unsigned int)v2 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 818, ASSERT_TYPE_ASSERT, "(entityId < 16)", (const char *)&queryFormat, "entityId < PHYSICS_COVERWALL_MAX_NUM") )
     __debugbreak();
   v6 = v2;
   v7 = v2 + 16 * v3;
-  _RSI = s_physicsCoverWallCGEntities[0][v7];
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 822, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
+  v8 = s_physicsCoverWallCGEntities[0][v7];
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 822, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
     __debugbreak();
-  CoverGrid = CG_CoverWall_GetCoverGrid(_RSI);
+  CoverGrid = CG_CoverWall_GetCoverGrid(v8);
   if ( !CoverGrid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 826, ASSERT_TYPE_ASSERT, "(coverGrid)", (const char *)&queryFormat, "coverGrid") )
     __debugbreak();
   v10 = 3 * v3;
   v11 = v6 + 48i64 * (_DWORD)v3;
   s_physicsCoverWallCGCompoundShapes[0][v11] = PhysicsCoverWall_CreateDynamicCompoundShape(CoverGrid);
-  v18 = v11;
+  v15 = v11;
   s_physicsCoverWallCGCompoundShapes[1][v11] = PhysicsCoverWall_CreateDynamicCompoundShape(CoverGrid);
   s_physicsCoverWallCGCompoundShapes[2][v11] = PhysicsCoverWall_CreateDynamicCompoundShape(CoverGrid);
-  v12 = truncate_cast<unsigned short,short>(_RSI->nextState.number);
+  v12 = truncate_cast<unsigned short,short>(v8->nextState.number);
   Ref = Physics_MakeRef(Physics_RefSystem_CEntities, Physics_RelationshipSystem_None, 0, v12);
-  CG_GetPoseOrigin(&_RSI->pose, &outOrigin);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+48h]
-    vmovss  dword ptr [rsp+0E8h+angles], xmm0
-    vmovss  xmm1, dword ptr [rsi+4Ch]
-    vmovss  dword ptr [rsp+0E8h+angles+4], xmm1
-    vmovss  xmm0, dword ptr [rsi+50h]
-    vmovss  dword ptr [rsp+0E8h+angles+8], xmm0
-  }
+  CG_GetPoseOrigin(&v8->pose, &outOrigin);
+  angles = v8->pose.angles;
   AnglesToQuat(&angles, &quat);
   if ( s_physicsCoverWallCGPredInstances[0][v7] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 840, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallCGPredInstances[localClientNum][entityId] == 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallCGPredInstances[localClientNum][entityId] == PHYSICSINSTANCEID_INVALID") )
     __debugbreak();
@@ -404,7 +397,7 @@ void CG_PhysicsCoverWall_CreatePhysics(LocalClientNum_t localClientNum, unsigned
   if ( s_physicsCoverWallCGAuthInstances[0][v7] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 842, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallCGAuthInstances[localClientNum][entityId] == 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallCGAuthInstances[localClientNum][entityId] == PHYSICSINSTANCEID_INVALID") )
     __debugbreak();
   s_physicsCoverWallCGPredInstances[0][v7] = Physics_InstantiateKeyframedBody((Physics_WorldId)(v10 + 2), s_physicsCoverWallCGCompoundShapes[0][v11], Ref, "dynamic cover", "PM_Plaster", 1, &outOrigin, &quat, 1, 1, 0);
-  s_physicsCoverWallCGDetailInstances[0][v7] = Physics_InstantiateKeyframedBody((Physics_WorldId)(v10 + 4), s_physicsCoverWallCGCompoundShapes[1][v18], Ref, "dynamic cover", "PM_Plaster", 1, &outOrigin, &quat, 1, 1, 0);
+  s_physicsCoverWallCGDetailInstances[0][v7] = Physics_InstantiateKeyframedBody((Physics_WorldId)(v10 + 4), s_physicsCoverWallCGCompoundShapes[1][v15], Ref, "dynamic cover", "PM_Plaster", 1, &outOrigin, &quat, 1, 1, 0);
   s_physicsCoverWallCGAuthInstances[0][v7] = Physics_InstantiateKeyframedBody((Physics_WorldId)(v10 + 3), s_physicsCoverWallCGCompoundShapes[2][v11], Ref, "dynamic cover", "PM_Plaster", 1, &outOrigin, &quat, 1, 1, 0);
   if ( s_physicsCoverWallCGPredInstances[0][v7] == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 847, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallCGPredInstances[localClientNum][entityId] != 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallCGPredInstances[localClientNum][entityId] != PHYSICSINSTANCEID_INVALID") )
     __debugbreak();
@@ -430,25 +423,26 @@ void CG_PhysicsCoverWall_CreatePlayerClip(LocalClientNum_t localClientNum, unsig
   hkMonitorStream *v5; 
   const dvar_t *v6; 
   __int64 v7; 
+  centity_t *v8; 
   const unsigned int *CoverGrid; 
   hknpConvexShape *PlayerClipShape; 
   unsigned __int16 v11; 
   int Ref; 
-  unsigned int v16; 
+  unsigned int v13; 
   vec3_t outOrigin; 
-  __int64 v18; 
-  hkMonitorStream *v19; 
+  __int64 v15; 
+  hkMonitorStream *v16; 
   vec3_t angles; 
   vec4_t quat; 
 
-  v18 = -2i64;
+  v15 = -2i64;
   v2 = entityId;
   v3 = localClientNum;
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
   v5 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtCG_PhysicsCoverWall_CreatePhysics");
-  v19 = v5;
+  v16 = v5;
   if ( (unsigned int)v2 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 861, ASSERT_TYPE_ASSERT, "(entityId < 16)", (const char *)&queryFormat, "entityId < PHYSICS_COVERWALL_MAX_NUM") )
     __debugbreak();
   v6 = DCONST_DVARMPSPBOOL_g_coverWall_usePlayerClip;
@@ -458,34 +452,26 @@ void CG_PhysicsCoverWall_CreatePlayerClip(LocalClientNum_t localClientNum, unsig
   if ( v6->current.enabled )
   {
     v7 = v2 + 16 * v3;
-    _RSI = s_physicsCoverWallCGEntities[0][v7];
-    if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 870, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
+    v8 = s_physicsCoverWallCGEntities[0][v7];
+    if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 870, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
       __debugbreak();
-    CoverGrid = CG_CoverWall_GetCoverGrid(_RSI);
+    CoverGrid = CG_CoverWall_GetCoverGrid(v8);
     if ( !CoverGrid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 874, ASSERT_TYPE_ASSERT, "(coverGrid)", (const char *)&queryFormat, "coverGrid") )
       __debugbreak();
     PlayerClipShape = PhysicsCoverWall_CreatePlayerClipShape(CoverGrid);
     s_physicsCoverWallCGPlayerClipShapes[0][v7] = PlayerClipShape;
     if ( !PlayerClipShape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 878, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallCGPlayerClipShapes[localClientNum][entityId])", (const char *)&queryFormat, "s_physicsCoverWallCGPlayerClipShapes[localClientNum][entityId]") )
       __debugbreak();
-    v11 = truncate_cast<unsigned short,short>(_RSI->nextState.number);
+    v11 = truncate_cast<unsigned short,short>(v8->nextState.number);
     Ref = Physics_MakeRef(Physics_RefSystem_CEntities, Physics_RelationshipSystem_None, 0, v11);
-    CG_GetPoseOrigin(&_RSI->pose, &outOrigin);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+48h]
-      vmovss  dword ptr [rsp+0D8h+angles], xmm0
-      vmovss  xmm1, dword ptr [rsi+4Ch]
-      vmovss  dword ptr [rsp+0D8h+angles+4], xmm1
-      vmovss  xmm0, dword ptr [rsi+50h]
-      vmovss  dword ptr [rsp+0D8h+angles+8], xmm0
-    }
+    CG_GetPoseOrigin(&v8->pose, &outOrigin);
+    angles = v8->pose.angles;
     AnglesToQuat(&angles, &quat);
     if ( s_physicsCoverWallCGPlayerClipInstances[0][v7] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 887, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallCGPlayerClipInstances[localClientNum][entityId] == 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallCGPlayerClipInstances[localClientNum][entityId] == PHYSICSINSTANCEID_INVALID") )
       __debugbreak();
-    v16 = Physics_InstantiateKeyframedBody((Physics_WorldId)(3 * v3 + 2), s_physicsCoverWallCGPlayerClipShapes[0][v7], Ref, "dynamic cover", "PM_Plaster", 0x10000, &outOrigin, &quat, 1, 1, 0);
-    s_physicsCoverWallCGPlayerClipInstances[0][v7] = v16;
-    if ( v16 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 891, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallCGPlayerClipInstances[localClientNum][entityId] != 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallCGPlayerClipInstances[localClientNum][entityId] != PHYSICSINSTANCEID_INVALID") )
+    v13 = Physics_InstantiateKeyframedBody((Physics_WorldId)(3 * v3 + 2), s_physicsCoverWallCGPlayerClipShapes[0][v7], Ref, "dynamic cover", "PM_Plaster", 0x10000, &outOrigin, &quat, 1, 1, 0);
+    s_physicsCoverWallCGPlayerClipInstances[0][v7] = v13;
+    if ( v13 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 891, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallCGPlayerClipInstances[localClientNum][entityId] != 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallCGPlayerClipInstances[localClientNum][entityId] != PHYSICSINSTANCEID_INVALID") )
       __debugbreak();
   }
   memset(&outOrigin, 0, sizeof(outOrigin));
@@ -899,11 +885,12 @@ void G_PhysicsCoverWall_CreatePhysics(unsigned int entityId)
   __int64 v1; 
   hkMonitorStream *Value; 
   hkMonitorStream *v3; 
+  gentity_s *v4; 
   const unsigned int *CoverGrid; 
   unsigned __int16 v6; 
   int Ref; 
-  unsigned int v14; 
-  unsigned int v15; 
+  unsigned int v8; 
+  unsigned int v9; 
   vec3_t position; 
   vec3_t angles; 
   vec4_t quat; 
@@ -915,43 +902,30 @@ void G_PhysicsCoverWall_CreatePhysics(unsigned int entityId)
     hkMonitorStream::timerBegin(Value, "TtG_PhysicsCoverWall_CreatePhysics");
   if ( (unsigned int)v1 >= 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 499, ASSERT_TYPE_ASSERT, "(entityId < 16)", (const char *)&queryFormat, "entityId < PHYSICS_COVERWALL_MAX_NUM") )
     __debugbreak();
-  _RSI = s_physicsCoverWallGEntities[v1];
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 503, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
+  v4 = s_physicsCoverWallGEntities[v1];
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 503, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
     __debugbreak();
-  CoverGrid = G_CoverWall_GetCoverGrid(_RSI);
+  CoverGrid = G_CoverWall_GetCoverGrid(v4);
   if ( !CoverGrid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 507, ASSERT_TYPE_ASSERT, "(coverGrid)", (const char *)&queryFormat, "coverGrid") )
     __debugbreak();
   s_physicsCoverWallGCompoundShapes[0][v1] = PhysicsCoverWall_CreateDynamicCompoundShape(CoverGrid);
   s_physicsCoverWallGCompoundShapes[1][v1] = PhysicsCoverWall_CreateDynamicCompoundShape(CoverGrid);
-  v6 = truncate_cast<unsigned short,short>(_RSI->s.number);
+  v6 = truncate_cast<unsigned short,short>(v4->s.number);
   Ref = Physics_MakeRef(Physics_RefSystem_GEntities, Physics_RelationshipSystem_None, 0, v6);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+130h]
-    vmovss  dword ptr [rsp+0C8h+var_58], xmm0
-    vmovss  xmm1, dword ptr [rsi+134h]
-    vmovss  dword ptr [rsp+0C8h+var_58+4], xmm1
-    vmovss  xmm0, dword ptr [rsi+138h]
-    vmovss  dword ptr [rsp+0C8h+var_58+8], xmm0
-    vmovss  xmm1, dword ptr [rsi+13Ch]
-    vmovss  dword ptr [rsp+0C8h+angles], xmm1
-    vmovss  xmm0, dword ptr [rsi+140h]
-    vmovss  dword ptr [rsp+0C8h+angles+4], xmm0
-    vmovss  xmm1, dword ptr [rsi+144h]
-    vmovss  dword ptr [rsp+0C8h+angles+8], xmm1
-  }
+  position = v4->r.currentOrigin;
+  angles = v4->r.currentAngles;
   AnglesToQuat(&angles, &quat);
   if ( s_physicsCoverWallGInstances[v1] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 520, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallGInstances[entityId] == 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallGInstances[entityId] == PHYSICSINSTANCEID_INVALID") )
     __debugbreak();
-  v14 = Physics_InstantiateKeyframedBody(PHYSICS_WORLD_ID_FIRST, s_physicsCoverWallGCompoundShapes[0][v1], Ref, "dynamic cover", "PM_Plaster", 1, &position, &quat, 1, 1, 0);
-  s_physicsCoverWallGInstances[v1] = v14;
-  if ( v14 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 522, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallGInstances[entityId] != 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallGInstances[entityId] != PHYSICSINSTANCEID_INVALID") )
+  v8 = Physics_InstantiateKeyframedBody(PHYSICS_WORLD_ID_FIRST, s_physicsCoverWallGCompoundShapes[0][v1], Ref, "dynamic cover", "PM_Plaster", 1, &position, &quat, 1, 1, 0);
+  s_physicsCoverWallGInstances[v1] = v8;
+  if ( v8 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 522, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallGInstances[entityId] != 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallGInstances[entityId] != PHYSICSINSTANCEID_INVALID") )
     __debugbreak();
   if ( s_physicsCoverWallGDetailInstances[v1] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 524, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallGDetailInstances[entityId] == 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallGDetailInstances[entityId] == PHYSICSINSTANCEID_INVALID") )
     __debugbreak();
-  v15 = Physics_InstantiateKeyframedBody(PHYSICS_WORLD_ID_SERVER_DETAIL, s_physicsCoverWallGCompoundShapes[1][v1], Ref, "dynamic cover", "PM_Plaster", 1, &position, &quat, 1, 1, 0);
-  s_physicsCoverWallGDetailInstances[v1] = v15;
-  if ( v15 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 526, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallGDetailInstances[entityId] != 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallGDetailInstances[entityId] != PHYSICSINSTANCEID_INVALID") )
+  v9 = Physics_InstantiateKeyframedBody(PHYSICS_WORLD_ID_SERVER_DETAIL, s_physicsCoverWallGCompoundShapes[1][v1], Ref, "dynamic cover", "PM_Plaster", 1, &position, &quat, 1, 1, 0);
+  s_physicsCoverWallGDetailInstances[v1] = v9;
+  if ( v9 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 526, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallGDetailInstances[entityId] != 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallGDetailInstances[entityId] != PHYSICSINSTANCEID_INVALID") )
     __debugbreak();
   if ( v3 )
     hkMonitorStream::timerEnd(v3, "Et");
@@ -969,11 +943,12 @@ void G_PhysicsCoverWall_CreatePlayerClip(unsigned int entityId)
   hkMonitorStream *v3; 
   const dvar_t *v4; 
   __int64 v5; 
+  gentity_s *v6; 
   const unsigned int *CoverGrid; 
   hknpConvexShape *PlayerClipShape; 
   unsigned __int16 v9; 
   int Ref; 
-  unsigned int v17; 
+  unsigned int v11; 
   vec3_t angles; 
   vec3_t position; 
   vec4_t quat; 
@@ -992,39 +967,26 @@ void G_PhysicsCoverWall_CreatePlayerClip(unsigned int entityId)
   if ( v4->current.enabled )
   {
     v5 = v1;
-    _RSI = s_physicsCoverWallGEntities[v1];
-    if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 548, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
+    v6 = s_physicsCoverWallGEntities[v1];
+    if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 548, ASSERT_TYPE_ASSERT, "(entity)", (const char *)&queryFormat, "entity") )
       __debugbreak();
-    CoverGrid = G_CoverWall_GetCoverGrid(_RSI);
+    CoverGrid = G_CoverWall_GetCoverGrid(v6);
     if ( !CoverGrid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 552, ASSERT_TYPE_ASSERT, "(coverGrid)", (const char *)&queryFormat, "coverGrid") )
       __debugbreak();
     PlayerClipShape = PhysicsCoverWall_CreatePlayerClipShape(CoverGrid);
     s_physicsCoverWallGPlayerClipShapes[v5] = PlayerClipShape;
     if ( !PlayerClipShape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 556, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallGPlayerClipShapes[entityId])", (const char *)&queryFormat, "s_physicsCoverWallGPlayerClipShapes[entityId]") )
       __debugbreak();
-    v9 = truncate_cast<unsigned short,short>(_RSI->s.number);
+    v9 = truncate_cast<unsigned short,short>(v6->s.number);
     Ref = Physics_MakeRef(Physics_RefSystem_GEntities, Physics_RelationshipSystem_None, 0, v9);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+130h]
-      vmovss  dword ptr [rsp+0C8h+var_48], xmm0
-      vmovss  xmm1, dword ptr [rsi+134h]
-      vmovss  dword ptr [rsp+0C8h+var_48+4], xmm1
-      vmovss  xmm0, dword ptr [rsi+138h]
-      vmovss  dword ptr [rsp+0C8h+var_48+8], xmm0
-      vmovss  xmm1, dword ptr [rsi+13Ch]
-      vmovss  dword ptr [rsp+0C8h+angles], xmm1
-      vmovss  xmm0, dword ptr [rsi+140h]
-      vmovss  dword ptr [rsp+0C8h+angles+4], xmm0
-      vmovss  xmm1, dword ptr [rsi+144h]
-      vmovss  dword ptr [rsp+0C8h+angles+8], xmm1
-    }
+    position = v6->r.currentOrigin;
+    angles = v6->r.currentAngles;
     AnglesToQuat(&angles, &quat);
     if ( s_physicsCoverWallGPlayerClipInstances[v5] != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 564, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallGPlayerClipInstances[entityId] == 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallGPlayerClipInstances[entityId] == PHYSICSINSTANCEID_INVALID") )
       __debugbreak();
-    v17 = Physics_InstantiateKeyframedBody(PHYSICS_WORLD_ID_FIRST, s_physicsCoverWallGPlayerClipShapes[v5], Ref, "dynamic cover", "PM_Plaster", 0x10000, &position, &quat, 1, 1, 0);
-    s_physicsCoverWallGPlayerClipInstances[v5] = v17;
-    if ( v17 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 566, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallGPlayerClipInstances[entityId] != 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallGPlayerClipInstances[entityId] != PHYSICSINSTANCEID_INVALID") )
+    v11 = Physics_InstantiateKeyframedBody(PHYSICS_WORLD_ID_FIRST, s_physicsCoverWallGPlayerClipShapes[v5], Ref, "dynamic cover", "PM_Plaster", 0x10000, &position, &quat, 1, 1, 0);
+    s_physicsCoverWallGPlayerClipInstances[v5] = v11;
+    if ( v11 == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 566, ASSERT_TYPE_ASSERT, "(s_physicsCoverWallGPlayerClipInstances[entityId] != 0xFFFFFFFF)", (const char *)&queryFormat, "s_physicsCoverWallGPlayerClipInstances[entityId] != PHYSICSINSTANCEID_INVALID") )
       __debugbreak();
   }
   if ( v3 )
@@ -1416,181 +1378,142 @@ PhysicsCoverWall_CreateDynamicCompoundShape
 */
 hknpCompoundShape *PhysicsCoverWall_CreateDynamicCompoundShape(const unsigned int *coverGrid)
 {
-  hknpShape *v8; 
-  int v9; 
-  int v12; 
-  hkMemoryAllocator *v29; 
-  int v30; 
-  hknpShapeInstance *v31; 
-  hknpShapeInstance *v36; 
+  double CollisionRadius; 
+  hknpShape *v3; 
+  int v4; 
+  int v5; 
+  __m128 v7; 
+  hkMemoryAllocator *v10; 
+  int v11; 
+  hknpShapeInstance *v12; 
+  __m256i *v13; 
+  hknpShapeInstance *v14; 
   hkMemoryRouter *Value; 
-  hknpCompoundShape *v38; 
-  hknpCompoundShape *v39; 
-  hknpCompoundShape *v40; 
-  hkMemoryAllocator *v41; 
-  __int64 v42; 
+  hknpCompoundShape *v16; 
+  __int64 v17; 
+  __int64 v18; 
+  hkMemoryAllocator *v19; 
+  __int64 v20; 
   hkReferencedObject **p_m_shape; 
-  hknpCompoundShape *result; 
   hknpShapeInstance *array; 
   int numInstances; 
-  int v50; 
-  __int64 v51; 
+  int v25; 
+  __int64 v26; 
   hknpCompoundShapeCinfo cinfo; 
   vec3_t center; 
+  int v29; 
   vec3_t outLocalPos; 
   vec3_t outNoise; 
+  __m128 m_quad; 
   hkTransformf transform; 
-  char v59; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v51 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rsp+148h+center], xmm6
-    vmovss  dword ptr [rsp+148h+center+4], xmm6
-    vmovss  dword ptr [rsp+148h+center+8], xmm6
-  }
-  *(double *)&_XMM0 = BG_CoverWall_GetCollisionRadius();
-  __asm
-  {
-    vmovss  [rsp+148h+var_CC], xmm0
-    vmovaps xmm1, xmm0; radius
-  }
-  v8 = Physics_CreateShapeSphere(&center, *(float *)&_XMM1, NULL, 0);
-  v8->m_userData = BG_CoverWall_GetSurfaceType();
+  v26 = -2i64;
+  center.v[0] = 0.0;
+  center.v[1] = 0.0;
+  center.v[2] = 0.0;
+  CollisionRadius = BG_CoverWall_GetCollisionRadius();
+  v29 = SLODWORD(CollisionRadius);
+  v3 = Physics_CreateShapeSphere(&center, *(float *)&CollisionRadius, NULL, 0);
+  v3->m_userData = BG_CoverWall_GetSurfaceType();
   array = NULL;
   numInstances = 0;
-  v50 = 0x80000000;
-  __asm { vmovss  [rsp+148h+var_9C], xmm6 }
-  v9 = -4;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm6, cs:__real@3d000000
-  }
+  v25 = 0x80000000;
+  m_quad.m128_f32[3] = 0.0;
+  v4 = -4;
   do
   {
-    v12 = -6;
+    v5 = -6;
     do
     {
-      __asm { vmovaps xmm3, xmm7; sagAnimWeight }
-      BG_CoverWall_GridPosToLocalPos(v12, 0, v9, *(float *)&_XMM3, &outLocalPos);
-      BG_CoverWall_CalcNoiseForPosition(v12, 0, v9, &outNoise);
+      BG_CoverWall_GridPosToLocalPos(v5, 0, v4, 1.0, &outLocalPos);
+      BG_CoverWall_CalcNoiseForPosition(v5, 0, v4, &outNoise);
+      outLocalPos.v[0] = outLocalPos.v[0] + outNoise.v[0];
+      outLocalPos.v[1] = outLocalPos.v[1] + outNoise.v[1];
+      outLocalPos.v[2] = outLocalPos.v[2] + outNoise.v[2];
+      transform.m_rotation = *(hkRotationImpl<float> *)g_vectorfConstants[32].m128_f32;
+      v7 = m_quad;
+      v7.m128_f32[0] = outLocalPos.v[0] * 0.03125;
+      _XMM1 = v7;
       __asm
       {
-        vmovss  xmm0, dword ptr [rsp+148h+var_C8]
-        vaddss  xmm3, xmm0, dword ptr [rsp+148h+outNoise]
-        vmovss  dword ptr [rsp+148h+var_C8], xmm3
-        vmovss  xmm1, dword ptr [rsp+148h+var_C8+4]
-        vaddss  xmm2, xmm1, dword ptr [rsp+148h+outNoise+4]
-        vmovss  dword ptr [rsp+148h+var_C8+4], xmm2
-        vmovss  xmm0, dword ptr [rsp+148h+var_C8+8]
-        vaddss  xmm1, xmm0, dword ptr [rsp+148h+outNoise+8]
-        vmovss  dword ptr [rsp+148h+var_C8+8], xmm1
-        vmulss  xmm4, xmm3, xmm6
-        vmulss  xmm5, xmm2, xmm6
-        vmulss  xmm3, xmm1, xmm6
-        vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-        vmovups ymmword ptr [rsp+148h+transform.m_rotation.baseclass_0.m_col0.m_quad], ymm0
-        vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-        vmovups xmmword ptr [rsp+148h+transform.m_rotation.baseclass_0.m_col2.m_quad], xmm0
-        vmovups xmm1, xmmword ptr [rsp+0A0h]
-        vmovss  xmm1, xmm1, xmm4
         vinsertps xmm1, xmm1, xmm5, 10h
         vinsertps xmm1, xmm1, xmm3, 20h ; ' '
-        vmovups xmmword ptr [rsp+0A0h], xmm1
-        vmovups xmmword ptr [rsp+148h+transform.m_translation.m_quad], xmm1
       }
-      v29 = hkMemHeapAllocator();
-      v30 = numInstances;
-      if ( numInstances == (v50 & 0x3FFFFFFF) )
+      m_quad = _XMM1.m_quad;
+      transform.m_translation = (hkVector4f)_XMM1.m_quad;
+      v10 = hkMemHeapAllocator();
+      v11 = numInstances;
+      if ( numInstances == (v25 & 0x3FFFFFFF) )
       {
-        hkArrayUtil::_reserveMore(v29, &array, 112);
-        v30 = numInstances;
+        hkArrayUtil::_reserveMore(v10, &array, 112);
+        v11 = numInstances;
       }
-      v31 = array;
-      _RCX = &array[v30];
-      if ( _RCX )
+      v12 = array;
+      v13 = (__m256i *)&array[v11];
+      if ( v13 )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+200h; __m128 const near * const g_vectorfConstants
-          vmovups ymmword ptr [rcx], ymm0
-          vmovups ymm1, ymmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+220h; __m128 const near * const g_vectorfConstants
-          vmovups ymmword ptr [rcx+20h], ymm1
-          vmovups xmm0, xmmword ptr cs:?g_vectorfConstants@@3QBT__m128@@B+60h; __m128 const near * const g_vectorfConstants
-          vmovups xmmword ptr [rcx+40h], xmm0
-        }
-        _RCX->m_shape.m_ptr = NULL;
-        *(_DWORD *)&_RCX->m_shapeTag = -1;
-        _RCX->m_isEmpty = 0;
-        _RCX->m_nextEmptyElement = 0;
-        _RCX->m_instanceId.m_value = -1;
-        _RCX->m_parentShape = NULL;
-        _RCX->m_transform.m_rotation.m_col0.m_quad.m128_i32[3] = 1056964672;
-        v30 = numInstances;
-        v31 = array;
+        *v13 = *(__m256i *)g_vectorfConstants[32].m128_f32;
+        v13[1] = *(__m256i *)g_vectorfConstants[34].m128_f32;
+        *(__m128 *)v13[2].m256i_i8 = g_vectorfConstants[6];
+        v13[2].m256i_i64[2] = 0i64;
+        v13[2].m256i_i32[6] = -1;
+        v13[2].m256i_i8[28] = 0;
+        v13[3].m256i_i32[0] = 0;
+        v13[3].m256i_i16[2] = -1;
+        v13[3].m256i_i64[1] = 0i64;
+        v13->m256i_i32[3] = 1056964672;
+        v11 = numInstances;
+        v12 = array;
       }
-      v36 = &v31[v30];
-      numInstances = v30 + 1;
-      hknpShapeInstance::setShape(v36, v8);
-      hknpShapeInstance::setTransform(v36, &transform);
-      if ( !BG_CoverWall_GetGridPos(coverGrid, v12, 0, v9) )
+      v14 = &v12[v11];
+      numInstances = v11 + 1;
+      hknpShapeInstance::setShape(v14, v3);
+      hknpShapeInstance::setTransform(v14, &transform);
+      if ( !BG_CoverWall_GetGridPos(coverGrid, v5, 0, v4) )
       {
-        v36->m_transform.m_rotation.m_col0.m_quad.m128_i32[3] &= ~0x40u;
-        v36->m_transform.m_rotation.m_col0.m_quad.m128_i32[3] |= 0x3F000000u;
+        v14->m_transform.m_rotation.m_col0.m_quad.m128_i32[3] &= ~0x40u;
+        v14->m_transform.m_rotation.m_col0.m_quad.m128_i32[3] |= 0x3F000000u;
       }
-      ++v12;
+      ++v5;
     }
-    while ( v12 <= 6 );
-    ++v9;
+    while ( v5 <= 6 );
+    ++v4;
   }
-  while ( v9 <= 9 );
-  hkReferencedObject::removeReference(v8);
+  while ( v4 <= 9 );
+  hkReferencedObject::removeReference(v3);
   hknpCompoundShapeCinfo::hknpCompoundShapeCinfo(&cinfo, array, numInstances, NULL);
   Value = (hkMemoryRouter *)TlsGetValue(hkMemoryRouter::s_memoryRouter.m_slotID);
   if ( !Value )
     Value = hkMemoryRouter::s_fallbackRouter;
-  v38 = (hknpCompoundShape *)Value->m_heap->blockAlloc(Value->m_heap, 288i64);
-  *(_QWORD *)outLocalPos.v = v38;
-  if ( v38 )
+  v16 = (hknpCompoundShape *)Value->m_heap->blockAlloc(Value->m_heap, 288i64);
+  *(_QWORD *)outLocalPos.v = v16;
+  if ( v16 )
   {
-    hknpCompoundShape::hknpCompoundShape(v38, &cinfo);
-    v40 = v39;
+    hknpCompoundShape::hknpCompoundShape(v16, &cinfo);
+    v18 = v17;
   }
   else
   {
-    v40 = NULL;
+    v18 = 0i64;
   }
-  v41 = hkMemHeapAllocator();
-  v42 = numInstances - 1;
+  v19 = hkMemHeapAllocator();
+  v20 = numInstances - 1;
   if ( numInstances - 1 >= 0 )
   {
-    p_m_shape = (hkReferencedObject **)&array[v42].m_shape;
+    p_m_shape = (hkReferencedObject **)&array[v20].m_shape;
     do
     {
       if ( *p_m_shape )
         hkReferencedObject::removeReference(*p_m_shape);
       p_m_shape -= 14;
-      --v42;
+      --v20;
     }
-    while ( v42 >= 0 );
+    while ( v20 >= 0 );
   }
   numInstances = 0;
-  if ( v50 >= 0 )
-    hkMemoryAllocator::bufFree2(v41, array, 112, v50 & 0x3FFFFFFF);
-  result = v40;
-  _R11 = &v59;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  if ( v25 >= 0 )
+    hkMemoryAllocator::bufFree2(v19, array, 112, v25 & 0x3FFFFFFF);
+  return (hknpCompoundShape *)v18;
 }
 
 /*
@@ -1598,167 +1521,123 @@ hknpCompoundShape *PhysicsCoverWall_CreateDynamicCompoundShape(const unsigned in
 PhysicsCoverWall_CreatePlayerClipShape
 ==============
 */
-hknpConvexShape *PhysicsCoverWall_CreatePlayerClipShape(const unsigned int *coverGrid)
+hknpShape *PhysicsCoverWall_CreatePlayerClipShape(const unsigned int *coverGrid)
 {
-  int v9; 
-  int v10; 
-  int v11; 
-  bool v40; 
-  hknpConvexShape *result; 
+  int v2; 
+  int v3; 
+  int v4; 
+  __int128 v7; 
+  __int128 v9; 
+  __int128 v11; 
+  double CollisionRadius; 
   vec3_t maxs; 
   vec3_t mins; 
   vec3_t outLocalPos; 
   vec3_t outNoise; 
-  char v64; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovss  xmm7, cs:__real@459c4000
-    vmovss  xmm0, cs:__real@c59c4000
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  dword ptr [rbp+57h+mins], xmm7
-    vmovss  dword ptr [rbp+57h+mins+4], xmm7
-    vmovss  dword ptr [rbp+57h+mins+8], xmm7
-    vmovss  dword ptr [rbp+57h+maxs], xmm0
-    vmovss  dword ptr [rbp+57h+maxs+4], xmm0
-    vmovss  dword ptr [rbp+57h+maxs+8], xmm0
-  }
-  v9 = 0;
-  v10 = -4;
+  mins.v[0] = FLOAT_5000_0;
+  mins.v[1] = FLOAT_5000_0;
+  mins.v[2] = FLOAT_5000_0;
+  maxs.v[0] = FLOAT_N5000_0;
+  maxs.v[1] = FLOAT_N5000_0;
+  maxs.v[2] = FLOAT_N5000_0;
+  v2 = 0;
+  v3 = -4;
   do
   {
-    v11 = -6;
+    v4 = -6;
     do
     {
-      if ( BG_CoverWall_GetGridPos(coverGrid, v11, 0, v10) )
+      if ( BG_CoverWall_GetGridPos(coverGrid, v4, 0, v3) )
       {
-        __asm { vmovaps xmm3, xmm8; sagAnimWeight }
-        ++v9;
-        BG_CoverWall_GridPosToLocalPos(v11, 0, v10, *(float *)&_XMM3, &outLocalPos);
-        BG_CoverWall_CalcNoiseForPosition(v11, 0, v10, &outNoise);
+        ++v2;
+        BG_CoverWall_GridPosToLocalPos(v4, 0, v3, 1.0, &outLocalPos);
+        BG_CoverWall_CalcNoiseForPosition(v4, 0, v3, &outNoise);
+        _XMM1 = LODWORD(mins.v[0]);
+        v7 = LODWORD(outNoise.v[0]);
+        *(float *)&v7 = outNoise.v[0] + outLocalPos.v[0];
+        _XMM2 = v7;
+        v9 = LODWORD(outNoise.v[1]);
+        *(float *)&v9 = outNoise.v[1] + outLocalPos.v[1];
+        _XMM3 = v9;
+        v11 = LODWORD(outLocalPos.v[2]);
+        *(float *)&v11 = outLocalPos.v[2] + outNoise.v[2];
+        _XMM4 = v11;
         __asm
         {
-          vmovss  xmm1, dword ptr [rbp+57h+mins]
-          vmovss  xmm0, dword ptr [rbp+57h+outNoise]
-          vaddss  xmm2, xmm0, dword ptr [rbp+57h+var_70]
-          vmovss  xmm0, dword ptr [rbp+57h+outNoise+4]
-          vaddss  xmm3, xmm0, dword ptr [rbp+57h+var_70+4]
-          vmovss  xmm0, dword ptr [rbp+57h+var_70+8]
-          vaddss  xmm4, xmm0, dword ptr [rbp+57h+outNoise+8]
           vcmpltss xmm0, xmm2, xmm1
           vblendvps xmm0, xmm1, xmm2, xmm0
-          vmovss  xmm1, dword ptr [rbp+57h+maxs]
-          vmovss  dword ptr [rbp+57h+mins], xmm0
+        }
+        _XMM1 = LODWORD(maxs.v[0]);
+        mins.v[0] = *(float *)&_XMM0;
+        __asm
+        {
           vcmpltss xmm0, xmm1, xmm2
           vblendvps xmm0, xmm1, xmm2, xmm0
-          vmovss  xmm1, dword ptr [rbp+57h+maxs+4]
-          vmovss  dword ptr [rbp+57h+maxs], xmm0
-          vmovss  dword ptr [rbp+57h+var_70], xmm2
-          vmovss  xmm2, dword ptr [rbp+57h+mins+4]
+        }
+        _XMM1 = LODWORD(maxs.v[1]);
+        maxs.v[0] = *(float *)&_XMM0;
+        outLocalPos.v[0] = *(float *)&_XMM2;
+        _XMM2 = LODWORD(mins.v[1]);
+        __asm
+        {
           vcmpltss xmm0, xmm3, xmm2
           vblendvps xmm0, xmm2, xmm3, xmm0
-          vmovss  xmm2, dword ptr [rbp+57h+mins+8]
-          vmovss  dword ptr [rbp+57h+mins+4], xmm0
+        }
+        _XMM2 = LODWORD(mins.v[2]);
+        mins.v[1] = *(float *)&_XMM0;
+        __asm
+        {
           vcmpltss xmm0, xmm1, xmm3
           vblendvps xmm0, xmm1, xmm3, xmm0
-          vmovss  xmm1, dword ptr [rbp+57h+maxs+8]
-          vmovss  dword ptr [rbp+57h+maxs+4], xmm0
+        }
+        _XMM1 = LODWORD(maxs.v[2]);
+        maxs.v[1] = *(float *)&_XMM0;
+        __asm
+        {
           vcmpltss xmm0, xmm4, xmm2
           vblendvps xmm0, xmm2, xmm4, xmm0
-          vmovss  dword ptr [rbp+57h+mins+8], xmm0
+        }
+        mins.v[2] = *(float *)&_XMM0;
+        __asm
+        {
           vcmpltss xmm0, xmm1, xmm4
           vblendvps xmm0, xmm1, xmm4, xmm0
-          vmovss  dword ptr [rbp+57h+maxs+8], xmm0
-          vmovss  dword ptr [rbp+57h+var_70+4], xmm3
-          vmovss  dword ptr [rbp+57h+var_70+8], xmm4
         }
+        maxs.v[2] = *(float *)&_XMM0;
+        outLocalPos.v[1] = *(float *)&_XMM3;
+        outLocalPos.v[2] = outLocalPos.v[2] + outNoise.v[2];
       }
-      ++v11;
+      ++v4;
     }
-    while ( v11 <= 6 );
-    ++v10;
+    while ( v4 <= 6 );
+    ++v3;
   }
-  while ( v10 <= 9 );
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+mins]
-    vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vandps  xmm0, xmm0, xmm6
-    vcomiss xmm0, xmm7
-  }
-  v40 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 304, ASSERT_TYPE_ASSERT, "(abs( minExtents[0] ) <= 5000 && abs( minExtents[1] ) <= 5000 && abs( minExtents[1] ) <= 5000)", (const char *)&queryFormat, "abs( minExtents[0] ) <= 5000 && abs( minExtents[1] ) <= 5000 && abs( minExtents[1] ) <= 5000");
-  if ( v40 )
+  while ( v3 <= 9 );
+  if ( (COERCE_FLOAT(LODWORD(mins.v[0]) & _xmm) > 5000.0 || COERCE_FLOAT(LODWORD(mins.v[1]) & _xmm) > 5000.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 304, ASSERT_TYPE_ASSERT, "(abs( minExtents[0] ) <= 5000 && abs( minExtents[1] ) <= 5000 && abs( minExtents[1] ) <= 5000)", (const char *)&queryFormat, "abs( minExtents[0] ) <= 5000 && abs( minExtents[1] ) <= 5000 && abs( minExtents[1] ) <= 5000") )
     __debugbreak();
-  __asm
+  if ( (COERCE_FLOAT(LODWORD(maxs.v[0]) & _xmm) > 5000.0 || COERCE_FLOAT(LODWORD(maxs.v[1]) & _xmm) > 5000.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 305, ASSERT_TYPE_ASSERT, "(abs( maxExtents[0] ) <= 5000 && abs( maxExtents[1] ) <= 5000 && abs( maxExtents[1] ) <= 5000)", (const char *)&queryFormat, "abs( maxExtents[0] ) <= 5000 && abs( maxExtents[1] ) <= 5000 && abs( maxExtents[1] ) <= 5000") )
+    __debugbreak();
+  if ( v2 <= 0 )
   {
-    vmovss  xmm0, dword ptr [rbp+57h+maxs]
-    vandps  xmm0, xmm0, xmm6
-    vcomiss xmm0, xmm7
-  }
-  if ( v40 )
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 305, ASSERT_TYPE_ASSERT, "(abs( maxExtents[0] ) <= 5000 && abs( maxExtents[1] ) <= 5000 && abs( maxExtents[1] ) <= 5000)", (const char *)&queryFormat, "abs( maxExtents[0] ) <= 5000 && abs( maxExtents[1] ) <= 5000 && abs( maxExtents[1] ) <= 5000") )
-      __debugbreak();
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+57h+maxs+4]
-      vandps  xmm0, xmm0, xmm6
-      vcomiss xmm0, xmm7
-    }
-  }
-  if ( v9 <= 0 )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@bf800000
-      vmovss  dword ptr [rbp+57h+mins], xmm0
-      vmovss  dword ptr [rbp+57h+mins+4], xmm0
-      vmovss  dword ptr [rbp+57h+mins+8], xmm0
-      vmovss  dword ptr [rbp+57h+maxs], xmm8
-      vmovss  dword ptr [rbp+57h+maxs+4], xmm8
-      vmovss  dword ptr [rbp+57h+maxs+8], xmm8
-    }
+    mins.v[0] = FLOAT_N1_0;
+    mins.v[1] = FLOAT_N1_0;
+    mins.v[2] = FLOAT_N1_0;
+    maxs.v[0] = FLOAT_1_0;
+    maxs.v[1] = FLOAT_1_0;
+    maxs.v[2] = FLOAT_1_0;
   }
   else
   {
-    *(double *)&_XMM0 = BG_CoverWall_GetCollisionRadius();
-    __asm
-    {
-      vaddss  xmm3, xmm0, cs:__real@3f000000
-      vmovss  xmm1, dword ptr [rbp+57h+mins]
-      vmovss  xmm0, dword ptr [rbp+57h+mins+4]
-      vsubss  xmm2, xmm1, xmm3
-      vsubss  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rbp+57h+mins], xmm2
-      vmovss  xmm2, dword ptr [rbp+57h+mins+8]
-      vsubss  xmm0, xmm2, xmm3
-      vaddss  xmm2, xmm3, dword ptr [rbp+57h+maxs]
-      vmovss  dword ptr [rbp+57h+mins+8], xmm0
-      vaddss  xmm0, xmm3, dword ptr [rbp+57h+maxs+8]
-      vmovss  dword ptr [rbp+57h+mins+4], xmm1
-      vaddss  xmm1, xmm3, dword ptr [rbp+57h+maxs+4]
-      vmovss  dword ptr [rbp+57h+maxs+8], xmm0
-      vmovss  dword ptr [rbp+57h+maxs], xmm2
-      vmovss  dword ptr [rbp+57h+maxs+4], xmm1
-    }
+    CollisionRadius = BG_CoverWall_GetCollisionRadius();
+    mins.v[0] = mins.v[0] - (float)(*(float *)&CollisionRadius + 0.5);
+    mins.v[2] = mins.v[2] - (float)(*(float *)&CollisionRadius + 0.5);
+    mins.v[1] = mins.v[1] - (float)(*(float *)&CollisionRadius + 0.5);
+    maxs.v[2] = (float)(*(float *)&CollisionRadius + 0.5) + maxs.v[2];
+    maxs.v[0] = (float)(*(float *)&CollisionRadius + 0.5) + maxs.v[0];
+    maxs.v[1] = (float)(*(float *)&CollisionRadius + 0.5) + maxs.v[1];
   }
-  result = (hknpConvexShape *)Physics_CreateShapeConvexHullFromAABB(&mins, &maxs);
-  _R11 = &v64;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  return Physics_CreateShapeConvexHullFromAABB(&mins, &maxs);
 }
 
 /*
@@ -2202,176 +2081,129 @@ PhysicsCoverWall_ReadShapeData_PlayerClip
 */
 hknpShape *PhysicsCoverWall_ReadShapeData_PlayerClip(MemoryFile *memFile)
 {
-  int v5; 
+  int v1; 
   __int64 i; 
-  int v11; 
-  int v12; 
-  bool v41; 
-  hknpShape *result; 
+  int v4; 
+  int v5; 
+  __int128 v8; 
+  __int128 v10; 
+  __int128 v12; 
+  double CollisionRadius; 
   unsigned int p; 
   vec3_t maxs; 
   vec3_t mins; 
   vec3_t outLocalPos; 
   vec3_t outNoise; 
   unsigned int grid[8]; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
-  v5 = 0;
+  v1 = 0;
   for ( i = 0i64; i < 7; ++i )
   {
     MemFile_ReadData(memFile, 4ui64, &p);
     grid[i] = p;
   }
-  __asm
-  {
-    vmovss  xmm6, cs:__real@459c4000
-    vmovss  xmm0, cs:__real@c59c4000
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  dword ptr [rbp+57h+mins], xmm6
-    vmovss  dword ptr [rbp+57h+mins+4], xmm6
-    vmovss  dword ptr [rbp+57h+mins+8], xmm6
-    vmovss  dword ptr [rbp+57h+maxs], xmm0
-    vmovss  dword ptr [rbp+57h+maxs+4], xmm0
-    vmovss  dword ptr [rbp+57h+maxs+8], xmm0
-  }
-  v11 = -4;
+  mins.v[0] = FLOAT_5000_0;
+  mins.v[1] = FLOAT_5000_0;
+  mins.v[2] = FLOAT_5000_0;
+  maxs.v[0] = FLOAT_N5000_0;
+  maxs.v[1] = FLOAT_N5000_0;
+  maxs.v[2] = FLOAT_N5000_0;
+  v4 = -4;
   do
   {
-    v12 = -6;
+    v5 = -6;
     do
     {
-      if ( BG_CoverWall_GetGridPos(grid, v12, 0, v11) )
+      if ( BG_CoverWall_GetGridPos(grid, v5, 0, v4) )
       {
-        __asm { vmovaps xmm3, xmm8; sagAnimWeight }
-        ++v5;
-        BG_CoverWall_GridPosToLocalPos(v12, 0, v11, *(float *)&_XMM3, &outLocalPos);
-        BG_CoverWall_CalcNoiseForPosition(v12, 0, v11, &outNoise);
+        ++v1;
+        BG_CoverWall_GridPosToLocalPos(v5, 0, v4, 1.0, &outLocalPos);
+        BG_CoverWall_CalcNoiseForPosition(v5, 0, v4, &outNoise);
+        _XMM1 = LODWORD(mins.v[0]);
+        v8 = LODWORD(outNoise.v[0]);
+        *(float *)&v8 = outNoise.v[0] + outLocalPos.v[0];
+        _XMM2 = v8;
+        v10 = LODWORD(outNoise.v[1]);
+        *(float *)&v10 = outNoise.v[1] + outLocalPos.v[1];
+        _XMM3 = v10;
+        v12 = LODWORD(outLocalPos.v[2]);
+        *(float *)&v12 = outLocalPos.v[2] + outNoise.v[2];
+        _XMM4 = v12;
         __asm
         {
-          vmovss  xmm1, dword ptr [rbp+57h+mins]
-          vmovss  xmm0, dword ptr [rbp+57h+outNoise]
-          vaddss  xmm2, xmm0, dword ptr [rbp+57h+var_78]
-          vmovss  xmm0, dword ptr [rbp+57h+outNoise+4]
-          vaddss  xmm3, xmm0, dword ptr [rbp+57h+var_78+4]
-          vmovss  xmm0, dword ptr [rbp+57h+var_78+8]
-          vaddss  xmm4, xmm0, dword ptr [rbp+57h+outNoise+8]
           vcmpltss xmm0, xmm2, xmm1
           vblendvps xmm0, xmm1, xmm2, xmm0
-          vmovss  xmm1, dword ptr [rbp+57h+maxs]
-          vmovss  dword ptr [rbp+57h+mins], xmm0
+        }
+        _XMM1 = LODWORD(maxs.v[0]);
+        mins.v[0] = *(float *)&_XMM0;
+        __asm
+        {
           vcmpltss xmm0, xmm1, xmm2
           vblendvps xmm0, xmm1, xmm2, xmm0
-          vmovss  xmm1, dword ptr [rbp+57h+maxs+4]
-          vmovss  dword ptr [rbp+57h+maxs], xmm0
-          vmovss  dword ptr [rbp+57h+var_78], xmm2
-          vmovss  xmm2, dword ptr [rbp+57h+mins+4]
+        }
+        _XMM1 = LODWORD(maxs.v[1]);
+        maxs.v[0] = *(float *)&_XMM0;
+        outLocalPos.v[0] = *(float *)&_XMM2;
+        _XMM2 = LODWORD(mins.v[1]);
+        __asm
+        {
           vcmpltss xmm0, xmm3, xmm2
           vblendvps xmm0, xmm2, xmm3, xmm0
-          vmovss  xmm2, dword ptr [rbp+57h+mins+8]
-          vmovss  dword ptr [rbp+57h+mins+4], xmm0
+        }
+        _XMM2 = LODWORD(mins.v[2]);
+        mins.v[1] = *(float *)&_XMM0;
+        __asm
+        {
           vcmpltss xmm0, xmm1, xmm3
           vblendvps xmm0, xmm1, xmm3, xmm0
-          vmovss  xmm1, dword ptr [rbp+57h+maxs+8]
-          vmovss  dword ptr [rbp+57h+maxs+4], xmm0
+        }
+        _XMM1 = LODWORD(maxs.v[2]);
+        maxs.v[1] = *(float *)&_XMM0;
+        __asm
+        {
           vcmpltss xmm0, xmm4, xmm2
           vblendvps xmm0, xmm2, xmm4, xmm0
-          vmovss  dword ptr [rbp+57h+mins+8], xmm0
+        }
+        mins.v[2] = *(float *)&_XMM0;
+        __asm
+        {
           vcmpltss xmm0, xmm1, xmm4
           vblendvps xmm0, xmm1, xmm4, xmm0
-          vmovss  dword ptr [rbp+57h+maxs+8], xmm0
-          vmovss  dword ptr [rbp+57h+var_78+4], xmm3
-          vmovss  dword ptr [rbp+57h+var_78+8], xmm4
         }
+        maxs.v[2] = *(float *)&_XMM0;
+        outLocalPos.v[1] = *(float *)&_XMM3;
+        outLocalPos.v[2] = outLocalPos.v[2] + outNoise.v[2];
       }
-      ++v12;
+      ++v5;
     }
-    while ( v12 <= 6 );
-    ++v11;
+    while ( v5 <= 6 );
+    ++v4;
   }
-  while ( v11 <= 9 );
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+mins]
-    vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vandps  xmm0, xmm0, xmm7
-    vcomiss xmm0, xmm6
-  }
-  v41 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 304, ASSERT_TYPE_ASSERT, "(abs( minExtents[0] ) <= 5000 && abs( minExtents[1] ) <= 5000 && abs( minExtents[1] ) <= 5000)", (const char *)&queryFormat, "abs( minExtents[0] ) <= 5000 && abs( minExtents[1] ) <= 5000 && abs( minExtents[1] ) <= 5000");
-  if ( v41 )
+  while ( v4 <= 9 );
+  if ( (COERCE_FLOAT(LODWORD(mins.v[0]) & _xmm) > 5000.0 || COERCE_FLOAT(LODWORD(mins.v[1]) & _xmm) > 5000.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 304, ASSERT_TYPE_ASSERT, "(abs( minExtents[0] ) <= 5000 && abs( minExtents[1] ) <= 5000 && abs( minExtents[1] ) <= 5000)", (const char *)&queryFormat, "abs( minExtents[0] ) <= 5000 && abs( minExtents[1] ) <= 5000 && abs( minExtents[1] ) <= 5000") )
     __debugbreak();
-  __asm
+  if ( (COERCE_FLOAT(LODWORD(maxs.v[0]) & _xmm) > 5000.0 || COERCE_FLOAT(LODWORD(maxs.v[1]) & _xmm) > 5000.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 305, ASSERT_TYPE_ASSERT, "(abs( maxExtents[0] ) <= 5000 && abs( maxExtents[1] ) <= 5000 && abs( maxExtents[1] ) <= 5000)", (const char *)&queryFormat, "abs( maxExtents[0] ) <= 5000 && abs( maxExtents[1] ) <= 5000 && abs( maxExtents[1] ) <= 5000") )
+    __debugbreak();
+  if ( v1 <= 0 )
   {
-    vmovss  xmm0, dword ptr [rbp+57h+maxs]
-    vandps  xmm0, xmm0, xmm7
-    vcomiss xmm0, xmm6
-  }
-  if ( v41 )
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicscoverwall.cpp", 305, ASSERT_TYPE_ASSERT, "(abs( maxExtents[0] ) <= 5000 && abs( maxExtents[1] ) <= 5000 && abs( maxExtents[1] ) <= 5000)", (const char *)&queryFormat, "abs( maxExtents[0] ) <= 5000 && abs( maxExtents[1] ) <= 5000 && abs( maxExtents[1] ) <= 5000") )
-      __debugbreak();
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+57h+maxs+4]
-      vandps  xmm0, xmm0, xmm7
-      vcomiss xmm0, xmm6
-    }
-  }
-  if ( v5 <= 0 )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@bf800000
-      vmovss  dword ptr [rbp+57h+mins], xmm0
-      vmovss  dword ptr [rbp+57h+mins+4], xmm0
-      vmovss  dword ptr [rbp+57h+mins+8], xmm0
-      vmovss  dword ptr [rbp+57h+maxs], xmm8
-      vmovss  dword ptr [rbp+57h+maxs+4], xmm8
-      vmovss  dword ptr [rbp+57h+maxs+8], xmm8
-    }
+    mins.v[0] = FLOAT_N1_0;
+    mins.v[1] = FLOAT_N1_0;
+    mins.v[2] = FLOAT_N1_0;
+    maxs.v[0] = FLOAT_1_0;
+    maxs.v[1] = FLOAT_1_0;
+    maxs.v[2] = FLOAT_1_0;
   }
   else
   {
-    *(double *)&_XMM0 = BG_CoverWall_GetCollisionRadius();
-    __asm
-    {
-      vaddss  xmm3, xmm0, cs:__real@3f000000
-      vmovss  xmm1, dword ptr [rbp+57h+mins]
-      vmovss  xmm0, dword ptr [rbp+57h+mins+4]
-      vsubss  xmm2, xmm1, xmm3
-      vsubss  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rbp+57h+mins], xmm2
-      vmovss  xmm2, dword ptr [rbp+57h+mins+8]
-      vsubss  xmm0, xmm2, xmm3
-      vaddss  xmm2, xmm3, dword ptr [rbp+57h+maxs]
-      vmovss  dword ptr [rbp+57h+mins+8], xmm0
-      vaddss  xmm0, xmm3, dword ptr [rbp+57h+maxs+8]
-      vmovss  dword ptr [rbp+57h+mins+4], xmm1
-      vaddss  xmm1, xmm3, dword ptr [rbp+57h+maxs+4]
-      vmovss  dword ptr [rbp+57h+maxs+8], xmm0
-      vmovss  dword ptr [rbp+57h+maxs], xmm2
-      vmovss  dword ptr [rbp+57h+maxs+4], xmm1
-    }
+    CollisionRadius = BG_CoverWall_GetCollisionRadius();
+    mins.v[0] = mins.v[0] - (float)(*(float *)&CollisionRadius + 0.5);
+    mins.v[2] = mins.v[2] - (float)(*(float *)&CollisionRadius + 0.5);
+    mins.v[1] = mins.v[1] - (float)(*(float *)&CollisionRadius + 0.5);
+    maxs.v[2] = (float)(*(float *)&CollisionRadius + 0.5) + maxs.v[2];
+    maxs.v[0] = (float)(*(float *)&CollisionRadius + 0.5) + maxs.v[0];
+    maxs.v[1] = (float)(*(float *)&CollisionRadius + 0.5) + maxs.v[1];
   }
-  result = Physics_CreateShapeConvexHullFromAABB(&mins, &maxs);
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  return Physics_CreateShapeConvexHullFromAABB(&mins, &maxs);
 }
 
 /*

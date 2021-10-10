@@ -60,20 +60,12 @@ bdRelayInitBind::bdRelayInitBind
 */
 void bdRelayInitBind::bdRelayInitBind(bdRelayInitBind *this, bdRelayAuthToken *relayAuthToken, bdClientAuthToken *clientAuthToken, const unsigned __int8 *clientRandom)
 {
-  _RBP = clientRandom;
-  _RSI = this;
   bdRelayBasePacket::bdRelayBasePacket(this, BD_RELAY_PACKET_INIT_BIND, 0x10u);
-  _RSI->m_relayAuthToken = relayAuthToken;
-  _RSI->__vftable = (bdRelayInitBind_vtbl *)&bdRelayInitBind::`vftable';
-  _RSI->m_clientAuthToken = clientAuthToken;
-  if ( _RBP )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovups xmmword ptr [rsi+30h], xmm0
-    }
-  }
+  this->m_relayAuthToken = relayAuthToken;
+  this->__vftable = (bdRelayInitBind_vtbl *)&bdRelayInitBind::`vftable';
+  this->m_clientAuthToken = clientAuthToken;
+  if ( clientRandom )
+    *(_OWORD *)this->m_clientRandom = *(_OWORD *)clientRandom;
 }
 
 /*

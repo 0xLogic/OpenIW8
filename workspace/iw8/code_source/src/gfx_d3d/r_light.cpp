@@ -179,86 +179,16 @@ R_BoxInPlanes
 */
 __int64 R_BoxInPlanes(const vec4_t (*planes)[6], const Bounds *bounds)
 {
-  unsigned int v17; 
-  bool v19; 
-  __int64 result; 
-  void *retaddr; 
+  int v2; 
+  vec3_t *i; 
 
-  _RAX = &retaddr;
-  __asm
+  v2 = 0;
+  for ( i = &(*planes)[0].xyz + 1; (float)((float)((float)((float)((float)(bounds->midPoint.v[0] * i[-1].v[0]) - (float)(COERCE_FLOAT(LODWORD(i[-1].v[0]) & _xmm) * bounds->halfSize.v[0])) + i->v[0]) + (float)((float)(bounds->midPoint.v[1] * i[-1].v[1]) - (float)(COERCE_FLOAT(LODWORD(i[-1].v[1]) & _xmm) * bounds->halfSize.v[1]))) + (float)((float)(bounds->midPoint.v[2] * i[-1].v[2]) - (float)(COERCE_FLOAT(LODWORD(i[-1].v[2]) & _xmm) * bounds->halfSize.v[2]))) < 0.0; i = (vec3_t *)((char *)i + 16) )
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovss  xmm7, dword ptr [rdx]
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovss  xmm8, dword ptr [rdx+0Ch]
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovss  xmm9, dword ptr [rdx+4]
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovss  xmm10, dword ptr [rdx+10h]
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovss  xmm11, dword ptr [rdx+8]
-    vmovaps xmmword ptr [rax-78h], xmm12
+    if ( (unsigned int)++v2 >= 6 )
+      return 1i64;
   }
-  v17 = 0;
-  __asm
-  {
-    vmovss  xmm12, dword ptr [rdx+14h]
-    vmovaps [rsp+88h+var_88], xmm13
-  }
-  v19 = __CFADD__(planes, 12i64);
-  _RCX = &(*planes)[0].xyz + 1;
-  __asm { vxorps  xmm13, xmm13, xmm13 }
-  while ( 1 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx-0Ch]
-      vmovss  xmm4, dword ptr [rcx-8]
-      vmovss  xmm5, dword ptr [rcx-4]
-      vmulss  xmm1, xmm7, xmm0
-      vmulss  xmm2, xmm9, xmm4
-      vandps  xmm0, xmm0, xmm6
-      vmulss  xmm0, xmm0, xmm8
-      vsubss  xmm1, xmm1, xmm0
-      vaddss  xmm3, xmm1, dword ptr [rcx]
-      vandps  xmm4, xmm4, xmm6
-      vmulss  xmm0, xmm4, xmm10
-      vsubss  xmm1, xmm2, xmm0
-      vaddss  xmm4, xmm3, xmm1
-      vmulss  xmm3, xmm11, xmm5
-      vandps  xmm5, xmm5, xmm6
-      vmulss  xmm0, xmm5, xmm12
-      vsubss  xmm1, xmm3, xmm0
-      vaddss  xmm2, xmm4, xmm1
-      vcomiss xmm2, xmm13
-    }
-    if ( !v19 )
-      break;
-    ++v17;
-    _RCX = (vec3_t *)((char *)_RCX + 16);
-    v19 = v17 < 6;
-    if ( v17 >= 6 )
-    {
-      result = 1i64;
-      goto LABEL_6;
-    }
-  }
-  result = 0i64;
-LABEL_6:
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm9, [rsp+88h+var_48]
-    vmovaps xmm10, [rsp+88h+var_58]
-    vmovaps xmm11, [rsp+88h+var_68]
-    vmovaps xmm12, [rsp+88h+var_78]
-    vmovaps xmm13, [rsp+88h+var_88]
-  }
-  return result;
+  return 0i64;
 }
 
 /*
@@ -269,320 +199,432 @@ R_CalcSpotLightPlanesAndBoundingBox
 void R_CalcSpotLightPlanesAndBoundingBox(const GfxLight *light, vec4_t (*planes)[6], Bounds *bounds)
 {
   signed __int64 v3; 
-  void *v14; 
+  void *v4; 
+  float bulbRadius; 
   vec3_t *bulbLengthVec; 
+  __int128 v7; 
+  float cosHalfFovOuter; 
+  __int128 v9; 
+  float v11; 
+  __int128 v16; 
+  float v17; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  __int128 v27; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float radius; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  int v64; 
+  float v65; 
+  float v66; 
+  __int64 v67; 
+  int *v68; 
+  float v69; 
+  __m128 v71; 
+  __m128 v75; 
+  __int128 v79; 
+  __int128 v87; 
+  __m128 v88; 
+  __int128 v90; 
+  __int128 v94; 
+  __m128 v97; 
   __int64 numVerts; 
-  float v212; 
-  __int128 v222; 
-  __int128 v223; 
+  float *v108; 
+  float v109; 
+  __int128 v111; 
+  __m128 v115; 
+  __m128 v119; 
+  float v128; 
+  float v129; 
+  float v130; 
+  float v131; 
+  float v132; 
+  float v133; 
+  float v134; 
+  float v135; 
+  float v136; 
+  __m128 v137; 
+  __m128 v138; 
+  __m128 v139; 
+  __int128 v140; 
   GfxLightModel lightModel; 
-  __int128 v225[19]; 
-  char v226; 
+  __int128 v142; 
+  float v143; 
+  float v144; 
+  float v145; 
+  float v146; 
+  float v147; 
+  float v148; 
+  float v149; 
+  int v150[19]; 
 
-  v14 = alloca(v3);
-  __asm
-  {
-    vmovaps [rsp+1E00h+var_40], xmm6
-    vmovaps [rsp+1E00h+var_50], xmm7
-    vmovaps [rsp+1E00h+var_60], xmm8
-    vmovaps [rsp+1E00h+var_70], xmm9
-    vmovaps [rsp+1E00h+var_80], xmm10
-    vmovaps [rsp+1E00h+var_90], xmm11
-    vmovaps [rsp+1E00h+var_A0], xmm12
-    vmovaps [rsp+1E00h+var_B0], xmm13
-    vmovaps [rsp+1E00h+var_C0], xmm14
-    vmovaps [rsp+1E00h+var_D0], xmm15
-    vmovss  xmm11, cs:__real@3f800000
-    vmovss  xmm8, dword ptr [rcx+50h]
-    vmovsd  xmm9, qword ptr [rcx+20h]
-  }
+  v4 = alloca(v3);
+  bulbRadius = light->bulbRadius;
   bulbLengthVec = &light->bulbLength;
-  __asm
-  {
-    vmovsd  xmm6, qword ptr [r13+0]
-    vmovss  xmm10, dword ptr [rcx+60h]
-    vmulss  xmm1, xmm6, xmm6
-    vmovsd  qword ptr [rsp+1E00h+var_1D90], xmm6
-    vmovss  xmm5, dword ptr [rsp+1E00h+var_1D90+4]
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-  }
-  DWORD2(v222) = LODWORD(light->bulbLength.v[2]);
+  v7 = *(unsigned __int64 *)light->bulbLength.v;
+  cosHalfFovOuter = light->cosHalfFovOuter;
+  v9 = v7;
+  *(vec3_t *)v137.m128_f32 = light->bulbLength;
   _RDI = bounds;
-  __asm { vmovss  xmm7, dword ptr [rsp+1E00h+var_1D90+8] }
-  _RBX = planes;
+  v11 = v137.m128_f32[2];
+  *(float *)&v9 = fsqrt((float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(v137.m128_f32[1] * v137.m128_f32[1])) + (float)(v11 * v11));
+  _XMM3 = v9;
   __asm
   {
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm11, xmm0
-    vdivss  xmm4, xmm11, xmm0
-    vmulss  xmm2, xmm5, xmm4
-    vmulss  xmm0, xmm6, xmm4
-    vmulss  xmm1, xmm0, xmm8
-    vaddss  xmm6, xmm1, xmm6
-    vmulss  xmm0, xmm2, xmm8
-    vaddss  xmm5, xmm0, xmm5
-    vmulss  xmm1, xmm7, xmm4
-    vmulss  xmm2, xmm1, xmm8
-    vaddss  xmm4, xmm2, xmm7
-    vshufps xmm0, xmm9, xmm9, 55h ; 'U'
-    vmulss  xmm1, xmm0, xmm5
-    vmulss  xmm0, xmm9, xmm6
-    vaddss  xmm3, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
   }
-  DWORD2(v223) = LODWORD(light->dir.v[2]);
-  _RSI = light;
+  v16 = v137.m128_u32[1];
+  *(float *)&v7 = (float)((float)(*(float *)&v7 * (float)(1.0 / *(float *)&_XMM0)) * bulbRadius) + *(float *)&v7;
+  *(float *)&v16 = (float)((float)(v137.m128_f32[1] * (float)(1.0 / *(float *)&_XMM0)) * bulbRadius) + v137.m128_f32[1];
+  v17 = (float)((float)(v11 * (float)(1.0 / *(float *)&_XMM0)) * bulbRadius) + v11;
+  *(vec3_t *)v139.m128_f32 = light->dir;
+  LODWORD(v19) = COERCE_UNSIGNED_INT((float)((float)(_mm_shuffle_ps((__m128)*(unsigned __int64 *)light->dir.v, (__m128)*(unsigned __int64 *)light->dir.v, 85).m128_f32[0] * *(float *)&v16) + (float)(COERCE_FLOAT(*(_QWORD *)light->dir.v) * *(float *)&v7)) + (float)(v17 * v139.m128_f32[2])) & _xmm;
+  *(float *)&_XMM3 = light->dir.v[1];
+  *(float *)&v16 = fsqrt((float)((float)((float)(*(float *)&v16 * *(float *)&v16) + (float)(*(float *)&v7 * *(float *)&v7)) + (float)(v17 * v17)) - (float)(v19 * v19)) * cosHalfFovOuter;
+  v20 = light->dir.v[0];
+  *(float *)&v16 = (float)(*(float *)&v16 / fsqrt(1.0 - (float)(cosHalfFovOuter * cosHalfFovOuter))) + v19;
+  v21 = v16;
+  v22 = (float)(v20 * *(float *)&v16) + light->origin.v[0];
+  v23 = (float)(*(float *)&v16 * *(float *)&_XMM3) + light->origin.v[1];
+  v24 = (float)(*(float *)&v16 * v139.m128_f32[2]) + light->origin.v[2];
+  *(float *)&v16 = (float)(*(float *)&v16 + v19) + light->shadowNearPlaneBias;
+  _XMM0 = v16;
+  v27 = v21;
+  *(float *)&v27 = *(float *)&v21 + light->radius;
+  _XMM1 = v27;
   __asm
   {
-    vmulss  xmm2, xmm4, dword ptr [rbp+1D00h+var_1D80+8]
-    vaddss  xmm7, xmm3, xmm2
-    vandps  xmm7, xmm7, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vsubss  xmm2, xmm3, xmm0
-    vmovss  xmm3, dword ptr [rcx+24h]
-    vsqrtss xmm1, xmm2, xmm2
-    vmulss  xmm4, xmm1, xmm10
-    vmulss  xmm0, xmm10, xmm10
-    vsubss  xmm0, xmm11, xmm0
-    vsqrtss xmm1, xmm0, xmm0
-    vdivss  xmm2, xmm4, xmm1
-    vmovss  xmm4, dword ptr [rcx+20h]
-    vaddss  xmm5, xmm2, xmm7
-    vmovss  xmm2, dword ptr [rcx+28h]
-    vaddss  xmm1, xmm5, xmm7
-    vmulss  xmm0, xmm4, xmm5
-    vaddss  xmm14, xmm0, dword ptr [rcx+38h]
-    vmulss  xmm0, xmm5, xmm3
-    vaddss  xmm13, xmm0, dword ptr [rcx+3Ch]
-    vmulss  xmm0, xmm5, xmm2
-    vaddss  xmm12, xmm0, dword ptr [rcx+40h]
-    vaddss  xmm0, xmm1, dword ptr [rcx+74h]
-    vaddss  xmm1, xmm5, dword ptr [rcx+44h]
     vmaxss  xmm7, xmm0, xmm11
-    vaddss  xmm0, xmm7, xmm11
     vmaxss  xmm5, xmm1, xmm0
-    vxorps  xmm10, xmm4, xmm6
-    vmulss  xmm0, xmm10, xmm7
-    vmovsd  qword ptr [rbp+1D00h+var_1D80], xmm9
-    vxorps  xmm9, xmm2, xmm6
-    vaddss  xmm2, xmm0, xmm14
-    vxorps  xmm8, xmm3, xmm6
-    vmovss  [rsp+1E00h+var_1DA4], xmm2
-    vmovss  [rsp+1E00h+var_1DA8], xmm7
-    vmovss  [rsp+1E00h+var_1DB8], xmm5
-    vmulss  xmm1, xmm8, xmm7
-    vmovss  dword ptr [rdx], xmm4
   }
+  LODWORD(v30) = LODWORD(v20) ^ _xmm;
+  LODWORD(v31) = _XMM3 ^ _xmm;
+  v135 = (float)(COERCE_FLOAT(LODWORD(v20) ^ _xmm) * *(float *)&_XMM7) + v22;
+  v134 = *(float *)&_XMM7;
+  v130 = *(float *)&_XMM5;
+  (*planes)[0].v[0] = v20;
   *(_QWORD *)&(*planes)[0].xyz.y = *(_QWORD *)&light->dir.y;
-  __asm
-  {
-    vaddss  xmm1, xmm1, xmm13
-    vmulss  xmm0, xmm9, xmm7
-    vaddss  xmm3, xmm0, xmm12
-    vmulss  xmm0, xmm2, dword ptr [rcx+20h]
-    vmovss  [rsp+1E00h+var_1DC0], xmm1
-    vmulss  xmm1, xmm1, dword ptr [rcx+24h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, dword ptr [rcx+28h]
-    vaddss  xmm0, xmm2, xmm1
-    vxorps  xmm2, xmm0, xmm6
-    vmovss  dword ptr [rdx+0Ch], xmm2
-    vmovss  [rsp+1E00h+var_1DBC], xmm3
-  }
-  R_ComputeSpotLightCrossDirs(light, (vec3_t *)v225);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rsi+60h]
-    vmovss  xmm15, dword ptr [rbp+1D00h+var_160]
-    vmulss  xmm0, xmm3, xmm3
-    vsubss  xmm0, xmm11, xmm0
-    vmovss  xmm11, dword ptr [rbp+1D00h+var_160+4]
-    vsqrtss xmm0, xmm0, xmm0
-    vxorps  xmm2, xmm0, xmm6
-    vmovss  [rsp+1E00h+var_1DAC], xmm0
-    vmulss  xmm5, xmm9, xmm2
-    vmulss  xmm7, xmm10, xmm2
-    vmulss  xmm6, xmm8, xmm2
-    vmulss  xmm0, xmm15, xmm3
-    vaddss  xmm4, xmm0, xmm7
-    vmovss  dword ptr [rbx+10h], xmm4
-    vmulss  xmm0, xmm11, xmm3
-    vaddss  xmm1, xmm0, xmm6
-    vmulss  xmm0, xmm3, dword ptr [rbp+1D00h+var_160+8]
-    vmovss  dword ptr [rbx+14h], xmm1
-    vaddss  xmm3, xmm0, xmm5
-    vmovss  dword ptr [rbx+18h], xmm3
-    vmulss  xmm1, xmm13, xmm1
-    vmulss  xmm0, xmm14, xmm4
-    vmovss  xmm4, dword ptr cs:__xmm@80000000800000008000000080000000
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm12, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vxorps  xmm0, xmm2, xmm4
-    vmovss  dword ptr [rbx+1Ch], xmm0
-    vmovss  xmm3, dword ptr [rsi+60h]
-    vmulss  xmm0, xmm3, dword ptr [rbp+1D00h+var_160+0Ch]
-    vaddss  xmm2, xmm0, xmm7
-    vmulss  xmm0, xmm3, [rbp+1D00h+var_150]
-    vaddss  xmm1, xmm0, xmm6
-    vmulss  xmm0, xmm3, [rbp+1D00h+var_14C]
-    vaddss  xmm3, xmm0, xmm5
-    vmovss  dword ptr [rbx+24h], xmm1
-    vmovss  dword ptr [rbx+20h], xmm2
-    vmulss  xmm0, xmm2, xmm14
-    vmulss  xmm1, xmm13, xmm1
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  dword ptr [rbx+28h], xmm3
-    vmulss  xmm1, xmm3, xmm12
-    vaddss  xmm2, xmm2, xmm1
-    vxorps  xmm0, xmm2, xmm4
-    vmovss  dword ptr [rbx+2Ch], xmm0
-    vmovss  xmm1, dword ptr [rsi+60h]
-    vxorps  xmm3, xmm1, xmm4
-    vmulss  xmm0, xmm15, xmm3
-    vaddss  xmm4, xmm0, xmm7
-    vmulss  xmm0, xmm3, dword ptr [rbp+1D00h+var_160+8]
-    vmulss  xmm1, xmm11, xmm3
-    vaddss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm0, xmm5
-    vmulss  xmm0, xmm13, xmm2
-    vmulss  xmm1, xmm4, xmm14
-    vmovss  dword ptr [rbx+34h], xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm12
-    vaddss  xmm2, xmm2, xmm1
-    vxorps  xmm0, xmm2, cs:__xmm@80000000800000008000000080000000
-    vmovss  dword ptr [rbx+30h], xmm4
-    vmovss  dword ptr [rbx+38h], xmm3
-    vmovss  dword ptr [rbx+3Ch], xmm0
-    vmovss  xmm1, dword ptr [rsi+60h]
-    vxorps  xmm3, xmm1, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm0, xmm3, dword ptr [rbp+1D00h+var_160+0Ch]
-    vmulss  xmm1, xmm3, [rbp+1D00h+var_150]
-    vaddss  xmm4, xmm0, xmm7
-    vmulss  xmm0, xmm3, [rbp+1D00h+var_14C]
-    vaddss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm0, xmm5
-    vmovss  dword ptr [rbx+44h], xmm2
-    vmulss  xmm0, xmm13, xmm2
-    vmovss  dword ptr [rbx+48h], xmm3
-    vmovss  dword ptr [rbx+40h], xmm4
-    vmulss  xmm1, xmm4, xmm14
-    vmovss  xmm4, dword ptr cs:__xmm@80000000800000008000000080000000
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm12
-    vmovss  xmm3, [rsp+1E00h+var_1DB8]
-    vaddss  xmm2, xmm2, xmm1
-    vxorps  xmm0, xmm2, xmm4
-    vmovss  dword ptr [rbx+4Ch], xmm0
-    vmulss  xmm1, xmm10, xmm3
-    vaddss  xmm2, xmm1, xmm14
-    vmulss  xmm0, xmm8, xmm3
-    vaddss  xmm0, xmm0, xmm13
-    vmulss  xmm1, xmm9, xmm3
-    vaddss  xmm3, xmm1, xmm12
-    vmulss  xmm1, xmm8, xmm0
-    vmovss  [rsp+1E00h+var_1DB4], xmm0
-    vmulss  xmm0, xmm2, xmm10
-    vmovss  [rsp+1E00h+var_1DA0], xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vxorps  xmm0, xmm2, xmm4
-    vmovss  dword ptr [rbx+5Ch], xmm0
-    vmovss  [rsp+1E00h+var_1DB0], xmm3
-    vmovss  dword ptr [rbx+50h], xmm10
-    vmovss  dword ptr [rbx+54h], xmm8
-    vmovss  dword ptr [rbx+58h], xmm9
-  }
+  v128 = (float)(COERCE_FLOAT(_XMM3 ^ _xmm) * *(float *)&_XMM7) + v23;
+  (*planes)[0].v[3] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v128 * light->dir.v[1]) + (float)(v135 * light->dir.v[0])) + (float)((float)((float)(COERCE_FLOAT(v139.m128_i32[2] ^ _xmm) * *(float *)&_XMM7) + v24) * light->dir.v[2])) ^ _xmm);
+  v129 = (float)(COERCE_FLOAT(v139.m128_i32[2] ^ _xmm) * *(float *)&_XMM7) + v24;
+  R_ComputeSpotLightCrossDirs(light, (vec3_t *)&v142);
+  *(float *)&_XMM3 = light->cosHalfFovOuter;
+  v32 = *(float *)&v142;
+  v33 = *((float *)&v142 + 1);
+  v133 = fsqrt(1.0 - (float)(*(float *)&_XMM3 * *(float *)&_XMM3));
+  v34 = COERCE_FLOAT(v139.m128_i32[2] ^ _xmm) * COERCE_FLOAT(LODWORD(v133) ^ _xmm);
+  *(float *)&_XMM7 = v30 * COERCE_FLOAT(LODWORD(v133) ^ _xmm);
+  *(float *)&v27 = v31 * COERCE_FLOAT(LODWORD(v133) ^ _xmm);
+  v35 = (float)(*(float *)&v142 * *(float *)&_XMM3) + *(float *)&_XMM7;
+  (*planes)[1].v[0] = v35;
+  *(float *)&_XMM1 = (float)(v33 * *(float *)&_XMM3) + *(float *)&v27;
+  *(float *)&_XMM0 = *(float *)&_XMM3 * *((float *)&v142 + 2);
+  (*planes)[1].v[1] = *(float *)&_XMM1;
+  (*planes)[1].v[2] = *(float *)&_XMM0 + v34;
+  (*planes)[1].v[3] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v23 * *(float *)&_XMM1) + (float)(v22 * v35)) + (float)(v24 * (float)(*(float *)&_XMM0 + v34))) ^ _xmm);
+  *(float *)&_XMM3 = light->cosHalfFovOuter;
+  v36 = (float)(*(float *)&_XMM3 * *((float *)&v142 + 3)) + *(float *)&_XMM7;
+  *(float *)&_XMM1 = (float)(*(float *)&_XMM3 * v143) + *(float *)&v27;
+  *(float *)&_XMM3 = (float)(*(float *)&_XMM3 * v144) + v34;
+  (*planes)[2].v[1] = *(float *)&_XMM1;
+  (*planes)[2].v[0] = v36;
+  (*planes)[2].v[2] = *(float *)&_XMM3;
+  (*planes)[2].v[3] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v23 * *(float *)&_XMM1) + (float)(v36 * v22)) + (float)(*(float *)&_XMM3 * v24)) ^ _xmm);
+  LODWORD(_XMM3) = LODWORD(light->cosHalfFovOuter) ^ _xmm;
+  v37 = (float)(v32 * *(float *)&_XMM3) + *(float *)&_XMM7;
+  v38 = (float)(v33 * *(float *)&_XMM3) + *(float *)&v27;
+  *(float *)&_XMM3 = (float)(*(float *)&_XMM3 * *((float *)&v142 + 2)) + v34;
+  (*planes)[3].v[1] = v38;
+  (*planes)[3].v[0] = v37;
+  (*planes)[3].v[2] = *(float *)&_XMM3;
+  (*planes)[3].v[3] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v37 * v22) + (float)(v23 * v38)) + (float)(*(float *)&_XMM3 * v24)) ^ _xmm);
+  LODWORD(_XMM3) = LODWORD(light->cosHalfFovOuter) ^ _xmm;
+  v39 = (float)(*(float *)&_XMM3 * *((float *)&v142 + 3)) + *(float *)&_XMM7;
+  v40 = (float)(*(float *)&_XMM3 * v143) + *(float *)&v27;
+  *(float *)&_XMM3 = (float)(*(float *)&_XMM3 * v144) + v34;
+  (*planes)[4].v[1] = v40;
+  (*planes)[4].v[2] = *(float *)&_XMM3;
+  (*planes)[4].v[0] = v39;
+  (*planes)[4].v[3] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v39 * v22) + (float)(v23 * v40)) + (float)(*(float *)&_XMM3 * v24)) ^ _xmm);
+  v131 = (float)(v31 * v130) + v23;
+  v136 = (float)(v30 * v130) + v22;
+  (*planes)[5].v[3] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v31 * v131) + (float)(v136 * v30)) + (float)(COERCE_FLOAT(v139.m128_i32[2] ^ _xmm) * (float)((float)(COERCE_FLOAT(v139.m128_i32[2] ^ _xmm) * v130) + v24))) ^ _xmm);
+  v132 = (float)(COERCE_FLOAT(v139.m128_i32[2] ^ _xmm) * v130) + v24;
+  (*planes)[5].v[0] = v30;
+  (*planes)[5].v[1] = v31;
+  (*planes)[5].v[2] = COERCE_FLOAT(v139.m128_i32[2] ^ _xmm);
   if ( _RDI )
   {
-    __asm
+    v41 = light->cosHalfFovOuter;
+    radius = light->radius;
+    if ( v41 < 0.5 || radius > 1200.0 )
     {
-      vmovss  xmm2, dword ptr [rsi+60h]; coneCosHalfFov
-      vcomiss xmm2, cs:__real@3f000000
-      vmovss  xmm3, dword ptr [rsi+44h]; radius
-      vcomiss xmm3, cs:__real@44960000
-      vmovss  xmm0, dword ptr [rsi+50h]
-      vmovss  [rsp+1E00h+var_1DD8], xmm0
+      R_GenerateSpotLightModel(&light->origin, &light->dir, v41, radius, bulbLengthVec, light->bulbRadius, &lightModel);
+      numVerts = lightModel.numVerts;
+      *(_QWORD *)_RDI->midPoint.v = 0i64;
+      _RDI->midPoint.v[2] = 0.0;
+      _RDI->halfSize.v[0] = -3.4028235e38;
+      _RDI->halfSize.v[1] = -3.4028235e38;
+      _RDI->halfSize.v[2] = -3.4028235e38;
+      if ( (_DWORD)numVerts )
+      {
+        v108 = &lightModel.verts[0].v[2];
+        do
+        {
+          v109 = *(v108 - 2);
+          v108 += 3;
+          HIDWORD(v142) = 0;
+          v139.m128_i32[3] = 0;
+          v137.m128_i32[3] = 0;
+          v111 = v142;
+          *(float *)&v111 = v109;
+          _XMM5 = v111;
+          __asm
+          {
+            vinsertps xmm5, xmm5, dword ptr [rax-10h], 10h
+            vinsertps xmm5, xmm5, dword ptr [rax-0Ch], 20h ; ' '
+          }
+          v115 = v139;
+          v115.m128_f32[0] = _RDI->midPoint.v[0];
+          _XMM4 = v115;
+          __asm
+          {
+            vinsertps xmm4, xmm4, dword ptr [rdi+4], 10h
+            vinsertps xmm4, xmm4, dword ptr [rdi+8], 20h ; ' '
+          }
+          v119 = v137;
+          v119.m128_f32[0] = _RDI->halfSize.v[0];
+          _XMM3 = v119;
+          __asm
+          {
+            vinsertps xmm3, xmm3, dword ptr [rdi+10h], 10h
+            vinsertps xmm3, xmm3, dword ptr [rdi+14h], 20h ; ' '
+          }
+          _XMM0 = _mm128_sub_ps(_XMM4, _XMM3);
+          _XMM1 = _mm128_add_ps(_XMM4, _XMM3);
+          __asm
+          {
+            vminps  xmm2, xmm0, xmm5
+            vmaxps  xmm0, xmm1, xmm5
+          }
+          v137 = _XMM3;
+          _XMM3 = _mm128_mul_ps(_mm128_add_ps(_XMM2, _XMM0), g_oneHalf.v);
+          _RDI->midPoint.v[0] = _XMM3.m128_f32[0];
+          __asm
+          {
+            vextractps dword ptr [rdi+4], xmm3, 1
+            vextractps dword ptr [rdi+8], xmm3, 2
+          }
+          v139 = _XMM4;
+          _XMM4 = _mm128_sub_ps(_XMM3, _XMM2);
+          _RDI->halfSize.v[0] = _XMM4.m128_f32[0];
+          __asm
+          {
+            vextractps dword ptr [rdi+10h], xmm4, 1
+            vextractps dword ptr [rdi+14h], xmm4, 2
+          }
+          v142 = _XMM5;
+          --numVerts;
+        }
+        while ( numVerts );
+      }
     }
-    R_GenerateSpotLightModel(&_RSI->origin, &_RSI->dir, *(float *)&_XMM2, *(float *)&_XMM3, bulbLengthVec, v212, &lightModel);
-    numVerts = lightModel.numVerts;
-    *(_QWORD *)_RDI->midPoint.v = 0i64;
-    _RDI->midPoint.v[2] = 0.0;
-    _RDI->halfSize.v[0] = -3.4028235e38;
-    _RDI->halfSize.v[1] = -3.4028235e38;
-    _RDI->halfSize.v[2] = -3.4028235e38;
-    if ( (_DWORD)numVerts )
+    else
     {
-      _RAX = &lightModel.verts[0].v[2];
+      v43 = v143;
+      v44 = v133 / v41;
+      v45 = (float)(v133 / v41) * v134;
+      v46 = COERCE_FLOAT(LODWORD(v45) ^ _xmm) * *((float *)&v142 + 3);
+      v47 = COERCE_FLOAT(LODWORD(v45) ^ _xmm) * v143;
+      v48 = (float)(COERCE_FLOAT(LODWORD(v45) ^ _xmm) * v32) + v135;
+      v49 = (float)(COERCE_FLOAT(LODWORD(v45) ^ _xmm) * v33) + v128;
+      v145 = v46 + v48;
+      v146 = v47 + v49;
+      v50 = (float)(COERCE_FLOAT(LODWORD(v45) ^ _xmm) * *((float *)&v142 + 2)) + v129;
+      v51 = COERCE_FLOAT(LODWORD(v45) ^ _xmm) * v144;
+      v147 = v51 + v50;
+      v52 = (float)(v32 * v45) + v135;
+      v148 = v46 + v52;
+      v53 = (float)(v33 * v45) + v128;
+      v149 = v47 + v53;
+      v54 = (float)(*((float *)&v142 + 2) * v45) + v129;
+      *(float *)v150 = v54 + v51;
+      *(float *)&v150[1] = (float)(*((float *)&v142 + 3) * v45) + v52;
+      *(float *)&v150[2] = v53 + (float)(v143 * v45);
+      *(float *)&v150[3] = v54 + (float)(v45 * v144);
+      *(float *)&v150[5] = v49 + (float)(v143 * v45);
+      v55 = COERCE_FLOAT(COERCE_UNSIGNED_INT(v44 * v130) ^ _xmm) * v144;
+      *(float *)&v150[4] = v48 + (float)(*((float *)&v142 + 3) * v45);
+      *(float *)&v150[6] = v50 + (float)(v45 * v144);
+      v56 = COERCE_FLOAT(COERCE_UNSIGNED_INT(v44 * v130) ^ _xmm) * v143;
+      v57 = (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v44 * v130) ^ _xmm) * v32) + v136;
+      v58 = (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v44 * v130) ^ _xmm) * *((float *)&v142 + 1)) + v131;
+      v59 = COERCE_FLOAT(COERCE_UNSIGNED_INT(v44 * v130) ^ _xmm) * *((float *)&v142 + 3);
+      v60 = (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v44 * v130) ^ _xmm) * *((float *)&v142 + 2)) + v132;
+      *(float *)&v150[7] = v57 + v59;
+      *(float *)&v150[8] = v58 + v56;
+      *(float *)&v150[9] = v60 + v55;
+      v61 = (float)((float)(v44 * v130) * *((float *)&v142 + 1)) + v131;
+      v62 = (float)(v32 * (float)(v44 * v130)) + v136;
+      v63 = (float)(*((float *)&v142 + 2) * (float)(v44 * v130)) + v132;
+      *(float *)&v64 = v61 + v56;
+      v65 = *((float *)&v142 + 3) * (float)(v44 * v130);
+      v150[11] = v64;
+      *(float *)&v150[10] = v62 + v59;
+      *(float *)&v150[13] = v65 + v62;
+      *(float *)&v150[12] = v63 + v55;
+      v66 = (float)(v44 * v130) * v144;
+      v67 = 4i64;
+      *(_QWORD *)_RDI->midPoint.v = 0i64;
+      _RDI->midPoint.v[2] = 0.0;
+      v68 = v150;
+      *(float *)&v150[14] = v61 + (float)(v43 * (float)(v44 * v130));
+      *(float *)&v150[16] = v57 + v65;
+      *(float *)&v150[15] = v63 + v66;
+      *(float *)&v150[18] = v60 + v66;
+      *(float *)&v150[17] = v58 + (float)(v43 * (float)(v44 * v130));
+      _RDI->halfSize.v[0] = -3.4028235e38;
+      _RDI->halfSize.v[1] = -3.4028235e38;
+      _RDI->halfSize.v[2] = -3.4028235e38;
       do
       {
-        __asm { vmovss  xmm0, dword ptr [rax-8] }
-        _RAX += 3;
-        HIDWORD(v225[0]) = 0;
-        HIDWORD(v223) = 0;
-        HIDWORD(v222) = 0;
+        v69 = *((float *)v68 - 5);
+        v68 += 6;
+        v139.m128_i32[3] = 0;
+        v137.m128_i32[3] = 0;
+        HIDWORD(v142) = 0;
+        v71 = v139;
+        v71.m128_f32[0] = v69;
+        _XMM5 = v71;
         __asm
         {
-          vmovups xmm5, [rbp+1D00h+var_160]
-          vmovups xmm4, [rbp+1D00h+var_1D80]
-          vmovups xmm3, [rsp+1E00h+var_1D90]
-          vmovss  xmm5, xmm5, xmm0
-          vmovss  xmm0, dword ptr [rdi]
-          vinsertps xmm5, xmm5, dword ptr [rax-10h], 10h
-          vinsertps xmm5, xmm5, dword ptr [rax-0Ch], 20h ; ' '
-          vmovss  xmm4, xmm4, xmm0
-          vmovss  xmm0, dword ptr [rdi+0Ch]
+          vinsertps xmm5, xmm5, dword ptr [rax-28h], 10h
+          vinsertps xmm5, xmm5, dword ptr [rax-24h], 20h ; ' '
+        }
+        v75 = v137;
+        v75.m128_f32[0] = _RDI->midPoint.v[0];
+        _XMM4 = v75;
+        __asm
+        {
           vinsertps xmm4, xmm4, dword ptr [rdi+4], 10h
           vinsertps xmm4, xmm4, dword ptr [rdi+8], 20h ; ' '
-          vmovss  xmm3, xmm3, xmm0
+        }
+        v79 = v142;
+        *(float *)&v79 = _RDI->halfSize.v[0];
+        _XMM3 = v79;
+        __asm
+        {
           vinsertps xmm3, xmm3, dword ptr [rdi+10h], 10h
           vinsertps xmm3, xmm3, dword ptr [rdi+14h], 20h ; ' '
-          vsubps  xmm0, xmm4, xmm3
-          vaddps  xmm1, xmm4, xmm3
+        }
+        _XMM0 = _mm128_sub_ps(_XMM4, _XMM3);
+        _XMM1 = _mm128_add_ps(_XMM4, _XMM3);
+        __asm
+        {
           vminps  xmm2, xmm0, xmm5
           vmaxps  xmm0, xmm1, xmm5
-          vaddps  xmm1, xmm2, xmm0
-          vmovups [rsp+1E00h+var_1D90], xmm3
-          vmulps  xmm3, xmm1, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-          vmovss  dword ptr [rdi], xmm3
+        }
+        v142 = (__int128)_XMM3;
+        HIDWORD(v142) = 0;
+        _XMM3 = _mm128_mul_ps(_mm128_add_ps(_XMM2, _XMM0), g_oneHalf.v);
+        _XMM0.m128_i32[0] = *(v68 - 8);
+        v87 = v142;
+        _RDI->midPoint.v[0] = _XMM3.m128_f32[0];
+        __asm
+        {
           vextractps dword ptr [rdi+4], xmm3, 1
           vextractps dword ptr [rdi+8], xmm3, 2
-          vmovups [rbp+1D00h+var_1D80], xmm4
-          vsubps  xmm4, xmm3, xmm2
-          vmovss  dword ptr [rdi+0Ch], xmm4
+        }
+        v88 = _mm128_sub_ps(_XMM3, _XMM2);
+        _RDI->halfSize.v[0] = v88.m128_f32[0];
+        v138 = _XMM4;
+        v138.m128_i32[3] = 0;
+        v140 = _XMM5;
+        HIDWORD(v140) = 0;
+        v90 = v140;
+        *(float *)&v90 = _XMM0.m128_f32[0];
+        _XMM6 = v90;
+        __asm
+        {
+          vinsertps xmm6, xmm6, dword ptr [rax-1Ch], 10h
+          vinsertps xmm6, xmm6, dword ptr [rax-18h], 20h ; ' '
+        }
+        v94 = v87;
+        *(float *)&v94 = v88.m128_f32[0];
+        _XMM1 = v94;
+        _RDI->halfSize.v[1] = _mm_shuffle_ps(v88, v88, 85).m128_f32[0];
+        __asm { vinsertps xmm1, xmm1, xmm4, 10h }
+        _RDI->halfSize.v[2] = _mm_shuffle_ps(v88, v88, 170).m128_f32[0];
+        v97 = v138;
+        v97.m128_f32[0] = _RDI->midPoint.v[0];
+        _XMM3 = v97;
+        __asm
+        {
+          vinsertps xmm3, xmm3, dword ptr [rdi+4], 10h
+          vinsertps xmm3, xmm3, dword ptr [rdi+8], 20h ; ' '
+          vinsertps xmm1, xmm1, xmm5, 20h ; ' '
+        }
+        _XMM0 = _mm128_sub_ps(_XMM3, _XMM1);
+        __asm { vminps  xmm2, xmm0, xmm6 }
+        v142 = (__int128)_XMM1;
+        _XMM1 = _mm128_add_ps(_XMM3, _XMM1);
+        __asm { vmaxps  xmm0, xmm1, xmm6 }
+        v137 = _XMM3;
+        _XMM3 = _mm128_mul_ps(_mm128_add_ps(_XMM2, _XMM0), g_oneHalf.v);
+        _RDI->midPoint.v[0] = _XMM3.m128_f32[0];
+        _XMM4 = _mm128_sub_ps(_XMM3, _XMM2);
+        __asm
+        {
+          vextractps dword ptr [rdi+4], xmm3, 1
+          vextractps dword ptr [rdi+8], xmm3, 2
+        }
+        _RDI->halfSize.v[0] = _XMM4.m128_f32[0];
+        __asm
+        {
           vextractps dword ptr [rdi+10h], xmm4, 1
           vextractps dword ptr [rdi+14h], xmm4, 2
-          vmovups [rbp+1D00h+var_160], xmm5
         }
-        --numVerts;
+        v139 = _XMM6;
+        --v67;
       }
-      while ( numVerts );
+      while ( v67 );
     }
-  }
-  _R11 = &v226;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -597,13 +639,16 @@ __int64 R_ChooseVisibleDynamicOmniLights(GfxBackEndData *data, GfxViewInfo *view
   int v4; 
   __int64 v5; 
   volatile int v6; 
+  float *v7; 
   unsigned int visDynamicOmniLightCount; 
+  float v9; 
+  float v10; 
   unsigned int dynamicOmniLightLimit; 
   __int64 result; 
-  GfxDynamicLight *v14; 
-  unsigned int v15; 
+  GfxDynamicLight *v13; 
+  unsigned int v14; 
+  __int64 v15; 
   __int64 v16; 
-  __int64 v17; 
   GfxDynamicLight *lights[64]; 
 
   v3 = data;
@@ -616,45 +661,38 @@ __int64 R_ChooseVisibleDynamicOmniLights(GfxBackEndData *data, GfxViewInfo *view
   v6 = 0;
   if ( scene.dynamicOmniLightCount > 0 )
   {
-    _RBX = &scene.dynamicOmniLight[0].bounds.midPoint.v[2];
+    v7 = &scene.dynamicOmniLight[0].bounds.midPoint.v[2];
     do
     {
       if ( (unsigned int)v6 >= 0x40 )
       {
-        LODWORD(v17) = 64;
-        LODWORD(v16) = v6;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 14, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v16, v17) )
+        LODWORD(v16) = 64;
+        LODWORD(v15) = v6;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_bitset.h", 14, ASSERT_TYPE_ASSERT, "(unsigned)( bitNum ) < (unsigned)( size * 8 )", "bitNum doesn't index size * 8\n\t%i not in [0, %i)", v15, v16) )
           __debugbreak();
       }
       if ( (v4 & scene.isDynamicOmniLightCulled[(__int64)v6 >> 5]) == 0 )
       {
         visDynamicOmniLightCount = scene.visDynamicOmniLightCount;
-        lights[scene.visDynamicOmniLightCount] = (GfxDynamicLight *)(_RBX - 64);
+        lights[scene.visDynamicOmniLightCount] = (GfxDynamicLight *)(v7 - 64);
         scene.visDynamicOmniLightCount = visDynamicOmniLightCount + 1;
-        *(_RBX - 2) = *(_RBX - 50);
-        *(_RBX - 1) = *(_RBX - 49);
-        *_RBX = *(_RBX - 48);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx-0BCh]
-          vmovss  dword ptr [rbx+4], xmm0
-          vmovss  dword ptr [rbx+8], xmm0
-          vmovss  dword ptr [rbx+0Ch], xmm0
-        }
-        _RBX[4] = *(_RBX - 50);
-        _RBX[5] = *(_RBX - 49);
-        _RBX[6] = *(_RBX - 48);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx-0BCh]
-          vmovss  dword ptr [rbx+1Ch], xmm0
-          vmulss  xmm0, xmm0, xmm0
-          vmovss  dword ptr [rbx+20h], xmm0
-        }
+        *(v7 - 2) = *(v7 - 50);
+        *(v7 - 1) = *(v7 - 49);
+        *v7 = *(v7 - 48);
+        v9 = *(v7 - 47);
+        v7[1] = v9;
+        v7[2] = v9;
+        v7[3] = v9;
+        v7[4] = *(v7 - 50);
+        v7[5] = *(v7 - 49);
+        v7[6] = *(v7 - 48);
+        v10 = *(v7 - 47);
+        v7[7] = v10;
+        v7[8] = v10 * v10;
       }
       ++v6;
       v4 = __ROL4__(v4, 1);
-      _RBX += 76;
+      v7 += 76;
     }
     while ( v6 < scene.dynamicOmniLightCount );
     v3 = data;
@@ -664,8 +702,8 @@ __int64 R_ChooseVisibleDynamicOmniLights(GfxBackEndData *data, GfxViewInfo *view
     dynamicOmniLightLimit = scene.dynamicOmniLightLimit;
   if ( dynamicOmniLightLimit > 0x20 )
   {
-    LODWORD(v16) = dynamicOmniLightLimit;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 543, ASSERT_TYPE_ASSERT, "( ( visibleLimit <= 32 ) )", "( visibleLimit ) = %i", v16) )
+    LODWORD(v15) = dynamicOmniLightLimit;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 543, ASSERT_TYPE_ASSERT, "( ( visibleLimit <= 32 ) )", "( visibleLimit ) = %i", v15) )
       __debugbreak();
   }
   result = scene.visDynamicOmniLightCount;
@@ -680,12 +718,12 @@ __int64 R_ChooseVisibleDynamicOmniLights(GfxBackEndData *data, GfxViewInfo *view
   {
     do
     {
-      v14 = lights[v5];
-      v15 = R_AddDynamicSceneLight(v3, viewInfo, &v14->lightCommon);
-      if ( v15 < rgp.world->primaryLightCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 738, ASSERT_TYPE_ASSERT, "(sceneLightIndex >= rgp.world->primaryLightCount)", (const char *)&queryFormat, "sceneLightIndex >= rgp.world->primaryLightCount") )
+      v13 = lights[v5];
+      v14 = R_AddDynamicSceneLight(v3, viewInfo, &v13->lightCommon);
+      if ( v14 < rgp.world->primaryLightCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 738, ASSERT_TYPE_ASSERT, "(sceneLightIndex >= rgp.world->primaryLightCount)", (const char *)&queryFormat, "sceneLightIndex >= rgp.world->primaryLightCount") )
         __debugbreak();
       v5 = (unsigned int)(v5 + 1);
-      scene.sceneDynamicLight[v15 - rgp.world->primaryLightCount] = v14;
+      scene.sceneDynamicLight[v14 - rgp.world->primaryLightCount] = v13;
       result = scene.visDynamicOmniLightCount;
     }
     while ( (unsigned int)v5 < scene.visDynamicOmniLightCount );
@@ -782,126 +820,93 @@ R_ComputeSpotLightCrossDirs
 */
 void R_ComputeSpotLightCrossDirs(const GfxLight *light, vec3_t *crossDirs)
 {
+  vec3_t *p_dir; 
+  __int64 v3; 
+  int v4; 
   __int64 v5; 
-  int v7; 
-  bool v13; 
-  bool v14; 
-  __int64 v16; 
-  unsigned int v18; 
-  __int64 v52; 
-  __int64 v53; 
+  __int64 v6; 
+  float v8; 
+  __int64 v9; 
+  float v10; 
+  unsigned int v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v17; 
+  __int128 v18; 
+  __int64 v22; 
+  __int64 v23; 
 
-  __asm { vmovaps [rsp+78h+var_28], xmm6 }
-  _R14 = &light->dir;
-  LODWORD(v5) = 0;
-  __asm
-  {
-    vmovaps [rsp+78h+var_38], xmm7
-    vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  v7 = 1;
-  _RBP = 0i64;
-  _RSI = 1i64;
-  _R15 = crossDirs;
+  p_dir = &light->dir;
+  LODWORD(v3) = 0;
+  v4 = 1;
+  v5 = 0i64;
+  v6 = 1i64;
   do
   {
-    if ( (unsigned int)v5 >= 3 )
+    if ( (unsigned int)v3 >= 3 )
     {
-      LODWORD(v53) = 3;
-      LODWORD(v52) = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v52, v53) )
+      LODWORD(v23) = 3;
+      LODWORD(v22) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v22, v23) )
         __debugbreak();
     }
-    __asm
+    LODWORD(v8) = LODWORD(p_dir->v[v5]) & _xmm;
+    if ( (unsigned int)v4 >= 3 )
     {
-      vmovss  xmm6, dword ptr [r14+rbp*4]
-      vandps  xmm6, xmm6, xmm7
-    }
-    v13 = (unsigned int)v7 <= 3;
-    if ( (unsigned int)v7 >= 3 )
-    {
-      LODWORD(v53) = 3;
-      LODWORD(v52) = v7;
-      v14 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v52, v53);
-      v13 = !v14;
-      if ( v14 )
+      LODWORD(v23) = 3;
+      LODWORD(v22) = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v22, v23) )
         __debugbreak();
     }
-    __asm { vmovss  xmm0, dword ptr [r14+rsi*4] }
-    v16 = _RSI;
-    __asm
-    {
-      vandps  xmm0, xmm0, xmm7
-      vcomiss xmm6, xmm0
-    }
-    if ( v13 )
-      v16 = _RBP;
-    _RBP = v16;
-    v18 = v7;
-    if ( v13 )
-      v18 = v5;
-    ++v7;
-    ++_RSI;
-    v5 = (int)v18;
+    v9 = v6;
+    LODWORD(v10) = LODWORD(p_dir->v[v6]) & _xmm;
+    if ( v8 <= v10 )
+      v9 = v5;
+    v5 = v9;
+    v11 = v4;
+    if ( v8 <= v10 )
+      v11 = v3;
+    ++v4;
+    ++v6;
+    v3 = (int)v11;
   }
-  while ( v7 < 3 );
-  *(_QWORD *)_R15->v = 0i64;
-  _R15->v[2] = 0.0;
-  if ( v18 >= 3 )
+  while ( v4 < 3 );
+  *(_QWORD *)crossDirs->v = 0i64;
+  crossDirs->v[2] = 0.0;
+  if ( v11 >= 3 )
   {
-    LODWORD(v53) = 3;
-    LODWORD(v52) = v18;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v52, v53) )
+    LODWORD(v23) = 3;
+    LODWORD(v22) = v11;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v22, v23) )
       __debugbreak();
   }
-  _R15->v[v5] = 1.0;
-  Vec3Cross(_R14, _R15, _R15 + 1);
+  crossDirs->v[v3] = 1.0;
+  Vec3Cross(p_dir, crossDirs, crossDirs + 1);
+  v12 = LODWORD(crossDirs[1].v[0]);
+  v13 = v12;
+  *(float *)&v13 = fsqrt((float)((float)(*(float *)&v12 * *(float *)&v12) + (float)(crossDirs[1].v[1] * crossDirs[1].v[1])) + (float)(crossDirs[1].v[2] * crossDirs[1].v[2]));
+  _XMM4 = v13;
   __asm
   {
-    vmovss  xmm0, dword ptr [r15+10h]
-    vmovss  xmm5, dword ptr [r15+0Ch]
-    vmovss  xmm3, dword ptr [r15+14h]
-    vmovss  xmm7, cs:__real@3f800000
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [r15+0Ch], xmm0
-    vmulss  xmm1, xmm2, dword ptr [r15+10h]
-    vmovss  dword ptr [r15+10h], xmm1
-    vmulss  xmm0, xmm2, dword ptr [r15+14h]
-    vmovss  dword ptr [r15+14h], xmm0
   }
-  Vec3Cross(_R15 + 1, _R14, _R15);
+  crossDirs[1].v[0] = *(float *)&v12 * (float)(1.0 / *(float *)&_XMM0);
+  crossDirs[1].v[1] = (float)(1.0 / *(float *)&_XMM0) * crossDirs[1].v[1];
+  crossDirs[1].v[2] = (float)(1.0 / *(float *)&_XMM0) * crossDirs[1].v[2];
+  Vec3Cross(crossDirs + 1, p_dir, crossDirs);
+  v17 = LODWORD(crossDirs->v[0]);
+  v18 = v17;
+  *(float *)&v18 = fsqrt((float)((float)(*(float *)&v17 * *(float *)&v17) + (float)(crossDirs->v[1] * crossDirs->v[1])) + (float)(crossDirs->v[2] * crossDirs->v[2]));
+  _XMM4 = v18;
   __asm
   {
-    vmovss  xmm0, dword ptr [r15+4]
-    vmovss  xmm5, dword ptr [r15]
-    vmovss  xmm3, dword ptr [r15+8]
-    vmovaps xmm6, [rsp+78h+var_28]
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
     vblendvps xmm0, xmm4, xmm7, xmm0
-    vdivss  xmm2, xmm7, xmm0
-    vmovaps xmm7, [rsp+78h+var_38]
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [r15], xmm0
-    vmulss  xmm1, xmm2, dword ptr [r15+4]
-    vmovss  dword ptr [r15+4], xmm1
-    vmulss  xmm0, xmm2, dword ptr [r15+8]
-    vmovss  dword ptr [r15+8], xmm0
   }
+  crossDirs->v[0] = *(float *)&v17 * (float)(1.0 / *(float *)&_XMM0);
+  crossDirs->v[1] = (float)(1.0 / *(float *)&_XMM0) * crossDirs->v[1];
+  crossDirs->v[2] = (float)(1.0 / *(float *)&_XMM0) * crossDirs->v[2];
 }
 
 /*
@@ -911,47 +916,30 @@ R_GetBspSpotLightSurfs
 */
 void R_GetBspSpotLightSurfs(const GfxLight *light, const vec4_t *planes, const R_CollInfo *collInfo, const unsigned int dynLightIndex, GfxDrawList *drawListShadow, GfxDrawListType drawlistyType)
 {
-  char *fmt; 
+  __m256i v9; 
+  __m256i v10; 
+  __m256i v11; 
   unsigned int surfArraySize; 
   GfxSurface **surfLists; 
   GfxBspSurfListOut out; 
   __int64 callbackContext; 
-  char v28; 
+  __m256i v16; 
+  __m256i v17; 
+  __m256i v18; 
+  char v19; 
 
-  _RSI = planes;
-  _RBX = light;
   if ( !drawListShadow && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 663, ASSERT_TYPE_ASSERT, "(drawListShadow)", (const char *)&queryFormat, "drawListShadow") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymm1, ymmword ptr [rsi+20h]
-  }
-  surfLists = (GfxSurface **)&v28;
+  v9 = *(__m256i *)planes->v;
+  v10 = *(__m256i *)planes[2].v;
+  surfLists = (GfxSurface **)&v19;
   callbackContext = 0i64;
-  __asm
-  {
-    vmovups [rsp+4108h+var_4090], ymm0
-    vmovups ymm0, ymmword ptr [rsi+40h]
-    vmovups [rsp+4108h+var_4070], ymm1
-    vmovups [rsp+4108h+var_4050], ymm0
-  }
+  v16 = v9;
+  v11 = *(__m256i *)planes[4].v;
+  v17 = v10;
+  v18 = v11;
   if ( R_SphereSurfaces(collInfo, allowSurf, &callbackContext, &surfLists, 0x800u, &surfArraySize, 1u) )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbx+3Ch]
-      vmovss  xmm2, dword ptr [rbx+38h]
-      vmovss  xmm0, dword ptr [rbx+40h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+4108h+fmt], xmm0
-    }
-    R_WarnOncePerFrame(R_WARN_BSPSURF_SPOT_LIGHT_LIMIT, 2048i64, _R8, _R9, fmt);
-  }
+    R_WarnOncePerFrame(R_WARN_BSPSURF_SPOT_LIGHT_LIMIT, 2048i64, light->origin.v[0], light->origin.v[1], light->origin.v[2]);
   if ( surfArraySize )
   {
     out.drawlistType = drawlistyType;
@@ -972,9 +960,17 @@ void R_GetStaticGeoDynamicLightSurfs(GfxViewInfo *viewInfo, unsigned int spotSha
   __int64 sceneLightIndex; 
   GfxLight *v5; 
   __int64 v6; 
-  unsigned int v27; 
+  const GfxDynamicLight *v7; 
+  float v8; 
+  vec4_t *planes; 
+  float v10; 
+  __m256i v11; 
+  unsigned int v12; 
   unsigned int *callbackContext; 
   bool enabled; 
+  __m256i v15; 
+  __m256i v16; 
+  __m256i v17; 
   R_CollInfo collInfo; 
   unsigned __int16 smodelList[1024]; 
 
@@ -998,55 +994,30 @@ void R_GetStaticGeoDynamicLightSurfs(GfxViewInfo *viewInfo, unsigned int spotSha
   if ( (unsigned int)sceneLightIndex < rgp.world->primaryLightCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 738, ASSERT_TYPE_ASSERT, "(sceneLightIndex >= rgp.world->primaryLightCount)", (const char *)&queryFormat, "sceneLightIndex >= rgp.world->primaryLightCount") )
     __debugbreak();
   v6 = (unsigned int)(sceneLightIndex - rgp.world->primaryLightCount);
-  _RCX = scene.sceneDynamicLight[v6];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+104h]
-    vmovss  xmm2, dword ptr [rcx+108h]
-    vmovss  xmm3, dword ptr [rcx+10Ch]
-    vmulss  xmm1, xmm0, xmm0
-  }
-  _RBX = _RCX->planes;
-  __asm
-  {
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmovss  xmm0, dword ptr [rcx+0F8h]
-    vmovss  dword ptr [rsp+4958h+collInfo.sphere.origin], xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm4, xmm2, xmm1
-    vmovss  xmm1, dword ptr [rcx+0FCh]
-    vmovss  dword ptr [rsp+4958h+collInfo.sphere.origin+4], xmm1
-    vmovss  xmm0, dword ptr [rcx+100h]
-    vmovss  dword ptr [rsp+4958h+collInfo.sphere.origin+8], xmm0
-    vmovss  [rsp+4958h+collInfo.sphere.radiusSq], xmm4
-    vsqrtss xmm1, xmm4, xmm4
-    vmovss  [rsp+4958h+collInfo.sphere.radius], xmm1
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rsp+4958h+collInfo.planes], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rsp+4958h+collInfo.planes+20h], ymm1
-    vmovups ymm0, ymmword ptr [rbx+40h]
-  }
+  v7 = scene.sceneDynamicLight[v6];
+  v8 = v7->bounds.halfSize.v[2];
+  planes = v7->planes;
+  v10 = (float)(v7->bounds.halfSize.v[0] * v7->bounds.halfSize.v[0]) + (float)(v7->bounds.halfSize.v[1] * v7->bounds.halfSize.v[1]);
+  *(_QWORD *)collInfo.sphere.origin.v = *(_QWORD *)v7->bounds.midPoint.v;
+  collInfo.sphere.origin.v[2] = v7->bounds.midPoint.v[2];
+  collInfo.sphere.radiusSq = v10 + (float)(v8 * v8);
+  collInfo.sphere.radius = fsqrt(collInfo.sphere.radiusSq);
+  *(__m256i *)collInfo.planes[0].v = *(__m256i *)v7->planes[0].v;
+  *(__m256i *)collInfo.planes[2].v = *(__m256i *)v7->planes[2].v;
+  v11 = *(__m256i *)v7->planes[4].v;
   collInfo.planeCount = 6;
-  __asm { vmovups ymmword ptr [rsp+4958h+collInfo.planes+40h], ymm0 }
+  *(__m256i *)collInfo.planes[4].v = v11;
   R_SetupSphereStaticGeo(&collInfo, &frontEndDataOut->transientDrawContext);
-  R_GetBspSpotLightSurfs(v5, _RBX, &collInfo, v6, &viewInfo->drawList[(int)v2 + 29], (GfxDrawListType)(v2 + 29));
+  R_GetBspSpotLightSurfs(v5, planes, &collInfo, v6, &viewInfo->drawList[(int)v2 + 29], (GfxDrawListType)(v2 + 29));
   callbackContext = rgp.world->dpvs.smodelVisData[0];
   enabled = sm_dynlightAllSModels->current.enabled;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups [rsp+4958h+var_491C], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups [rsp+4958h+var_48FC], ymm1
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups [rsp+4958h+var_48DC], ymm0
-  }
-  v27 = R_SphereStaticModels(&collInfo, R_AllowStaticModelSpotLight, &callbackContext, smodelList, 0x400u);
-  if ( v27 == 1024 )
+  v15 = *(__m256i *)planes->v;
+  v16 = *(__m256i *)planes[2].v;
+  v17 = *(__m256i *)planes[4].v;
+  v12 = R_SphereStaticModels(&collInfo, R_AllowStaticModelSpotLight, &callbackContext, smodelList, 0x400u);
+  if ( v12 == 1024 )
     R_WarnOncePerFrame(R_WARN_DLIGHT_SMODEL_LIMIT, 1024i64);
-  R_AddAllStaticModelSurfacesDynLight(viewInfo, sceneLightIndex, smodelList, v27, &viewInfo->drawList[(int)v2 + 29], v2);
+  R_AddAllStaticModelSurfacesDynLight(viewInfo, sceneLightIndex, smodelList, v12, &viewInfo->drawList[(int)v2 + 29], v2);
 }
 
 /*
@@ -1066,89 +1037,39 @@ R_LightFadeOffsetRuntimeEncoding
 */
 void R_LightFadeOffsetRuntimeEncoding(vec2_t *fadeOffsetStartEnd, unsigned __int8 type)
 {
-  bool v8; 
-  bool v9; 
-  bool v12; 
-  bool v13; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  _RBX = fadeOffsetStartEnd;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [rcx+4]
-  }
-  v8 = type < 3u;
-  v9 = type <= 3u;
+  v4 = fadeOffsetStartEnd->v[0];
+  v5 = fadeOffsetStartEnd->v[1];
   if ( type == 3 )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm0, xmm0
-      vmulss  xmm1, xmm1, xmm1
-      vmovss  dword ptr [rcx], xmm0
-      vmovss  dword ptr [rcx+4], xmm1
-    }
+    v4 = v4 * v4;
+    v5 = v5 * v5;
+    fadeOffsetStartEnd->v[0] = v4;
+    fadeOffsetStartEnd->v[1] = v5;
   }
-  __asm
+  v6 = 0.0;
+  v8 = v5 - v4;
+  v7 = v5 - v4;
+  if ( v4 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 241, ASSERT_TYPE_ASSERT, "(fadeOffsetStartEnd[0] >= 0.0f)", (const char *)&queryFormat, "fadeOffsetStartEnd[0] >= 0.0f") )
+    __debugbreak();
+  if ( v8 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 242, ASSERT_TYPE_ASSERT, "(endMinusStart >= 0.0f)", (const char *)&queryFormat, "endMinusStart >= 0.0f") )
+    __debugbreak();
+  v9 = FLOAT_1_0;
+  if ( v8 > 0.001 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-    vsubss  xmm7, xmm1, xmm0
+    v6 = 1.0 / v7;
+    LODWORD(v9) = COERCE_UNSIGNED_INT((float)(1.0 / v7) * fadeOffsetStartEnd->v[0]) ^ _xmm;
   }
-  if ( type < 3u )
-  {
-    v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 241, ASSERT_TYPE_ASSERT, "(fadeOffsetStartEnd[0] >= 0.0f)", (const char *)&queryFormat, "fadeOffsetStartEnd[0] >= 0.0f");
-    v8 = 0;
-    v9 = !v12;
-    if ( v12 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm6 }
-  if ( v8 )
-  {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 242, ASSERT_TYPE_ASSERT, "(endMinusStart >= 0.0f)", (const char *)&queryFormat, "endMinusStart >= 0.0f");
-    v9 = !v13;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm7, cs:__real@3a83126f
-    vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, cs:__real@3f800000
-  }
-  if ( !v9 )
-  {
-    __asm
-    {
-      vdivss  xmm6, xmm0, xmm7
-      vmulss  xmm1, xmm6, dword ptr [rbx]
-      vxorps  xmm0, xmm1, xmm2
-    }
-  }
-  __asm
-  {
-    vmovss  dword ptr [rbx+4], xmm0
-    vmovss  dword ptr [rbx], xmm6
-  }
+  fadeOffsetStartEnd->v[1] = v9;
+  fadeOffsetStartEnd->v[0] = v6;
   if ( type == 3 )
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm0, xmm2
-      vmovss  dword ptr [rbx+4], xmm1
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
+    fadeOffsetStartEnd->v[1] = COERCE_FLOAT(LODWORD(v9) ^ _xmm);
 }
 
 /*
@@ -1158,181 +1079,92 @@ R_MostImportantLights
 */
 void R_MostImportantLights(const GfxDynamicLight **lights, int lightCount, int keepCount)
 {
+  int v4; 
+  const GfxDynamicLight *v6; 
   int v7; 
-  int v10; 
+  int v8; 
+  __int64 v9; 
+  __int64 v10; 
   int v11; 
   __int64 v12; 
-  __int64 v13; 
-  int v14; 
+  const GfxDynamicLight *v13; 
   __int64 v15; 
-  unsigned __int8 type; 
-  bool v18; 
-  __int64 v44; 
-  unsigned __int8 v46; 
-  bool v47; 
-  const GfxDynamicLight *v73; 
-  const GfxDynamicLight *v74; 
-  int v78; 
-  int v79; 
+  const GfxDynamicLight *v16; 
+  const GfxDynamicLight *v18; 
+  const GfxDynamicLight *v19; 
+  int v20; 
+  int v21; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_48], xmm6
-    vmovaps [rsp+0A8h+var_58], xmm7
-  }
-  v7 = lightCount;
-  __asm { vmovaps [rsp+0A8h+var_68], xmm8 }
-  v79 = keepCount;
-  v78 = lightCount;
+  v4 = lightCount;
+  v21 = keepCount;
+  v20 = lightCount;
   if ( lightCount <= keepCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 391, ASSERT_TYPE_ASSERT, "(lightCount > keepCount)", (const char *)&queryFormat, "lightCount > keepCount") )
     __debugbreak();
   if ( keepCount < 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 392, ASSERT_TYPE_ASSERT, "(keepCount >= 1)", (const char *)&queryFormat, "keepCount >= 1") )
     __debugbreak();
   while ( 1 )
   {
-    _R14 = *lights;
-    v10 = 0;
-    v11 = v7;
-    v12 = v7;
-    v13 = 0i64;
+    v6 = *lights;
+    v7 = 0;
+    v8 = v4;
+    v9 = v4;
+    v10 = 0i64;
     while ( 1 )
     {
-      if ( v12 < v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 405, ASSERT_TYPE_SANITY, "( top >= bot )", (const char *)&queryFormat, "top >= bot") )
+      if ( v9 < v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 405, ASSERT_TYPE_SANITY, "( top >= bot )", (const char *)&queryFormat, "top >= bot") )
         __debugbreak();
       do
       {
-        v14 = v10;
-        v15 = v13;
-        ++v10;
-        if ( ++v13 >= v12 )
+        v11 = v7;
+        v12 = v10;
+        ++v7;
+        if ( ++v10 >= v9 )
           break;
-        _RCX = lights[v13];
-        type = _RCX->lightCommon.type;
-        if ( _RCX->lightCommon.type == _R14->lightCommon.type )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg+4; r_globals_t rg
-            vsubss  xmm4, xmm0, dword ptr [rcx+3Ch]
-            vsubss  xmm0, xmm0, dword ptr [r14+3Ch]
-            vmovss  xmm2, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg; r_globals_t rg
-            vsubss  xmm7, xmm2, dword ptr [rcx+38h]
-            vsubss  xmm2, xmm2, dword ptr [r14+38h]
-            vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg+8; r_globals_t rg
-            vsubss  xmm6, xmm1, dword ptr [rcx+40h]
-            vsubss  xmm3, xmm1, dword ptr [r14+40h]
-            vmovss  xmm5, dword ptr [rcx+44h]
-            vmovss  xmm8, dword ptr [r14+44h]
-            vmulss  xmm1, xmm0, xmm0
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm2, xmm4, xmm4
-            vmulss  xmm0, xmm5, xmm5
-            vmulss  xmm5, xmm3, xmm0
-            vmulss  xmm1, xmm7, xmm7
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm6
-            vaddss  xmm4, xmm3, xmm0
-            vmulss  xmm1, xmm8, xmm8
-            vmulss  xmm2, xmm4, xmm1
-            vcomiss xmm5, xmm2
-          }
-          v18 = type >= _R14->lightCommon.type;
-        }
-        else
-        {
-          v18 = type == 2;
-        }
+        v13 = lights[v10];
       }
-      while ( v18 );
-      if ( v15 >= v12 )
+      while ( v13->lightCommon.type == v6->lightCommon.type ? (float)((float)((float)((float)((float)(rg.viewOrg.v[1] - v6->lightCommon.origin.v[1]) * (float)(rg.viewOrg.v[1] - v6->lightCommon.origin.v[1])) + (float)((float)(rg.viewOrg.v[0] - v6->lightCommon.origin.v[0]) * (float)(rg.viewOrg.v[0] - v6->lightCommon.origin.v[0]))) + (float)((float)(rg.viewOrg.v[2] - v6->lightCommon.origin.v[2]) * (float)(rg.viewOrg.v[2] - v6->lightCommon.origin.v[2]))) * (float)(v13->lightCommon.radius * v13->lightCommon.radius)) >= (float)((float)((float)((float)((float)(rg.viewOrg.v[1] - v13->lightCommon.origin.v[1]) * (float)(rg.viewOrg.v[1] - v13->lightCommon.origin.v[1])) + (float)((float)(rg.viewOrg.v[0] - v13->lightCommon.origin.v[0]) * (float)(rg.viewOrg.v[0] - v13->lightCommon.origin.v[0]))) + (float)((float)(rg.viewOrg.v[2] - v13->lightCommon.origin.v[2]) * (float)(rg.viewOrg.v[2] - v13->lightCommon.origin.v[2]))) * (float)(v6->lightCommon.radius * v6->lightCommon.radius)) : v13->lightCommon.type == 2 );
+      if ( v12 >= v9 )
         break;
       do
       {
-        --v11;
-        v44 = v12--;
-        if ( v44 <= v13 )
+        --v8;
+        v15 = v9--;
+        if ( v15 <= v10 )
           break;
-        _RCX = lights[v12];
-        v46 = _R14->lightCommon.type;
-        if ( _R14->lightCommon.type == _RCX->lightCommon.type )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg+4; r_globals_t rg
-            vsubss  xmm4, xmm0, dword ptr [r14+3Ch]
-            vsubss  xmm0, xmm0, dword ptr [rcx+3Ch]
-            vmovss  xmm2, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg; r_globals_t rg
-            vsubss  xmm7, xmm2, dword ptr [r14+38h]
-            vsubss  xmm2, xmm2, dword ptr [rcx+38h]
-            vmovss  xmm1, dword ptr cs:?rg@@3Ur_globals_t@@A.viewOrg+8; r_globals_t rg
-            vsubss  xmm6, xmm1, dword ptr [r14+40h]
-            vsubss  xmm3, xmm1, dword ptr [rcx+40h]
-            vmovss  xmm5, dword ptr [r14+44h]
-            vmovss  xmm8, dword ptr [rcx+44h]
-            vmulss  xmm1, xmm0, xmm0
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm2, xmm4, xmm4
-            vmulss  xmm0, xmm5, xmm5
-            vmulss  xmm5, xmm3, xmm0
-            vmulss  xmm1, xmm7, xmm7
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm6
-            vaddss  xmm4, xmm3, xmm0
-            vmulss  xmm1, xmm8, xmm8
-            vmulss  xmm2, xmm4, xmm1
-            vcomiss xmm5, xmm2
-          }
-          v47 = v46 >= _RCX->lightCommon.type;
-        }
-        else
-        {
-          v47 = v46 == 2;
-        }
+        v16 = lights[v9];
       }
-      while ( v47 );
-      if ( v15 >= v12 )
+      while ( v6->lightCommon.type == v16->lightCommon.type ? (float)((float)((float)((float)((float)(rg.viewOrg.v[1] - v16->lightCommon.origin.v[1]) * (float)(rg.viewOrg.v[1] - v16->lightCommon.origin.v[1])) + (float)((float)(rg.viewOrg.v[0] - v16->lightCommon.origin.v[0]) * (float)(rg.viewOrg.v[0] - v16->lightCommon.origin.v[0]))) + (float)((float)(rg.viewOrg.v[2] - v16->lightCommon.origin.v[2]) * (float)(rg.viewOrg.v[2] - v16->lightCommon.origin.v[2]))) * (float)(v6->lightCommon.radius * v6->lightCommon.radius)) >= (float)((float)((float)((float)((float)(rg.viewOrg.v[1] - v6->lightCommon.origin.v[1]) * (float)(rg.viewOrg.v[1] - v6->lightCommon.origin.v[1])) + (float)((float)(rg.viewOrg.v[0] - v6->lightCommon.origin.v[0]) * (float)(rg.viewOrg.v[0] - v6->lightCommon.origin.v[0]))) + (float)((float)(rg.viewOrg.v[2] - v6->lightCommon.origin.v[2]) * (float)(rg.viewOrg.v[2] - v6->lightCommon.origin.v[2]))) * (float)(v16->lightCommon.radius * v16->lightCommon.radius)) : v6->lightCommon.type == 2 );
+      if ( v12 >= v9 )
         break;
-      v73 = lights[v13];
-      lights[v13] = lights[v12];
-      lights[v12] = v73;
+      v18 = lights[v10];
+      lights[v10] = lights[v9];
+      lights[v9] = v18;
     }
-    if ( v10 != v11 + 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 427, ASSERT_TYPE_SANITY, "( bot == top + 1 )", (const char *)&queryFormat, "bot == top + 1") )
+    if ( v7 != v8 + 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 427, ASSERT_TYPE_SANITY, "( bot == top + 1 )", (const char *)&queryFormat, "bot == top + 1") )
       __debugbreak();
-    if ( v10 == v78 )
+    if ( v7 == v20 )
     {
-      v74 = *lights;
-      v10 = v14;
-      *lights = lights[v11];
-      lights[v11] = v74;
+      v19 = *lights;
+      v7 = v11;
+      *lights = lights[v8];
+      lights[v8] = v19;
     }
-    if ( v10 == v79 )
+    if ( v7 == v21 )
       break;
-    if ( v78 <= v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 443, ASSERT_TYPE_SANITY, "( lightCount > bot )", (const char *)&queryFormat, "lightCount > bot") )
+    if ( v20 <= v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_light.cpp", 443, ASSERT_TYPE_SANITY, "( lightCount > bot )", (const char *)&queryFormat, "lightCount > bot") )
       __debugbreak();
-    if ( v10 >= v79 )
+    if ( v7 >= v21 )
     {
-      v7 = v10;
-      v78 = v10;
+      v4 = v7;
+      v20 = v7;
     }
     else
     {
-      v7 = v78 - v10;
-      v78 -= v10;
-      v79 -= v10;
-      lights += v10;
+      v4 = v20 - v7;
+      v20 -= v7;
+      v21 -= v7;
+      lights += v7;
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_48]
-    vmovaps xmm7, [rsp+0A8h+var_58]
-    vmovaps xmm8, [rsp+0A8h+var_68]
   }
 }
 
@@ -1383,69 +1215,18 @@ void R_ShutdownLightDefs(void)
 R_SphereInPlanes
 ==============
 */
-
-__int64 __fastcall R_SphereInPlanes(const vec4_t (*planes)[6], const vec3_t *center, double radius)
+__int64 R_SphereInPlanes(const vec4_t (*planes)[6], const vec3_t *center, const float radius)
 {
-  unsigned int v7; 
-  bool v9; 
-  float *v10; 
-  __int64 result; 
+  int v3; 
+  float *i; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  v7 = 0;
-  __asm
+  v3 = 0;
+  for ( i = &(*planes)[0].v[2]; (float)((float)((float)((float)((float)(center->v[1] * *(i - 1)) + (float)(center->v[0] * *(i - 2))) + (float)(center->v[2] * *i)) + i[1]) - radius) <= 0.0; i += 4 )
   {
-    vmovss  xmm6, dword ptr [rdx+4]
-    vmovaps [rsp+38h+var_28], xmm7
+    if ( (unsigned int)++v3 >= 6 )
+      return 1i64;
   }
-  v9 = __CFADD__(planes, 8i64) || (const vec4_t *)&(*planes)[0].xyz.z == NULL;
-  v10 = &(*planes)[0].v[2];
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rdx]
-    vmovaps [rsp+38h+var_38], xmm8
-    vmovss  xmm8, dword ptr [rdx+8]
-    vmovaps xmm4, xmm2
-    vxorps  xmm5, xmm5, xmm5
-  }
-  while ( 1 )
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rcx-4]
-      vmulss  xmm0, xmm7, dword ptr [rcx-8]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm8, dword ptr [rcx]
-      vaddss  xmm0, xmm2, xmm1
-      vaddss  xmm2, xmm0, dword ptr [rcx+4]
-      vsubss  xmm3, xmm2, xmm4
-      vcomiss xmm3, xmm5
-    }
-    if ( !v9 )
-      break;
-    ++v7;
-    v10 += 4;
-    v9 = v7 <= 6;
-    if ( v7 >= 6 )
-    {
-      result = 1i64;
-      __asm
-      {
-        vmovaps xmm6, [rsp+38h+var_18]
-        vmovaps xmm7, [rsp+38h+var_28]
-        vmovaps xmm8, [rsp+38h+var_38]
-      }
-      return result;
-    }
-  }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  result = 0i64;
-  __asm
-  {
-    vmovaps xmm7, [rsp+38h+var_28]
-    vmovaps xmm8, [rsp+38h+var_38]
-  }
-  return result;
+  return 0i64;
 }
 
 /*

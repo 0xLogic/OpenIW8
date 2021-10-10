@@ -105,7 +105,8 @@ bdSecurityKeyMap::bdSecurityKeyMap
 void bdSecurityKeyMap::bdSecurityKeyMap(bdSecurityKeyMap *this)
 {
   unsigned int PowerOf2; 
-  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **v8; 
+  float v3; 
+  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **v4; 
 
   this->m_listener = NULL;
   this->m_map.m_numIterators.m_value._My_val = 0;
@@ -113,17 +114,11 @@ void bdSecurityKeyMap::bdSecurityKeyMap(bdSecurityKeyMap *this)
   PowerOf2 = bdBitOperations::nextPowerOf2(4u);
   this->m_map.m_capacity = PowerOf2;
   this->m_map.m_loadFactor = 0.75;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, cs:__real@3f400000
-    vcvttss2si rcx, xmm1
-  }
-  this->m_map.m_threshold = _RCX;
-  v8 = (bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-  this->m_map.m_map = v8;
-  memset_0(v8, 0, 8i64 * this->m_map.m_capacity);
+  v3 = (float)PowerOf2;
+  this->m_map.m_threshold = (int)(float)(v3 * 0.75);
+  v4 = (bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  this->m_map.m_map = v4;
+  memset_0(v4, 0, 8i64 * this->m_map.m_capacity);
   bdSharedMutex::bdSharedMutex(&this->m_mutex);
 }
 
@@ -235,36 +230,33 @@ __int64 bdSecurityKeyMap::get(bdSecurityKeyMap *this, const bdSecurityID *id, bd
 {
   bdSharedMutex *p_m_mutex; 
   bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass> *p_m_map; 
-  unsigned __int8 v10; 
-  bdSharedMutex *v12; 
+  bdSecurityKey *Iterator; 
+  unsigned __int8 v9; 
+  bdSharedMutex *v11; 
   char buffer[40]; 
 
-  _RBP = key;
   p_m_mutex = &this->m_mutex;
-  v12 = &this->m_mutex;
+  v11 = &this->m_mutex;
   bdSharedMutex::lock_shared(&this->m_mutex);
   p_m_map = &this->m_map;
-  if ( bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::getIterator(p_m_map, id) )
+  Iterator = (bdSecurityKey *)bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::getIterator(p_m_map, id);
+  if ( Iterator )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbp+0], xmm0
-    }
+    *key = *Iterator;
     bdHandleAssert(p_m_map->m_numIterators.m_value._My_val != 0, "m_numIterators != 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdSecurityID,class bdSecurityKey,class bdHashingClass>::releaseIterator", 0x18Au, "bdHashMap::releaseIterator Iterator count reached 0, can't release iterator");
     _InterlockedExchangeAdd((volatile signed __int32 *)&p_m_map->m_numIterators, 0xFFFFFFFF);
-    v10 = 1;
-    p_m_mutex = v12;
+    v9 = 1;
+    p_m_mutex = v11;
   }
   else
   {
-    v10 = 0;
+    v9 = 0;
   }
   bdSecurityInfo::toString(id, buffer, 0x24u);
   bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/bdSecurityKeyMap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsecuritykeymap.cpp", "bdSecurityKeyMap::get", 0x67u, "Searching for bdSecurityID: [%s]", buffer);
-  if ( v10 )
+  if ( v9 )
   {
-    bdSecurityInfo::toString(_RBP, buffer, 0x24u);
+    bdSecurityInfo::toString(key, buffer, 0x24u);
     bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/bdSecurityKeyMap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsecuritykeymap.cpp", "bdSecurityKeyMap::get", 0x6Cu, "Found bdSecurityKey: [%s]", buffer);
   }
   else
@@ -272,7 +264,7 @@ __int64 bdSecurityKeyMap::get(bdSecurityKeyMap *this, const bdSecurityID *id, bd
     bdLogMessage(BD_LOG_INFO, "info/", "bdSocket/bdSecurityKeyMap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bdsecuritykeymap.cpp", "bdSecurityKeyMap::get", 0x70u, "bdSecurityID: [%s] not present", buffer);
   }
   bdSharedMutex::unlock_shared(p_m_mutex);
-  return v10;
+  return v9;
 }
 
 /*

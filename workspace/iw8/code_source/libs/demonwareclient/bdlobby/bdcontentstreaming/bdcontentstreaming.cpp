@@ -1796,23 +1796,19 @@ void bdContentStreaming::batchDownloadStop(bdContentStreaming *this)
   __int64 m_batchIndex; 
   bdBatchDownloadInfo *m_batchDownloadInfo; 
   bdContentStreamingBase::bdStatus State; 
-  bdBatchDownloadInfoStatus v7; 
+  bdBatchDownloadInfoStatus v5; 
   float dataRate; 
 
   m_batchIndex = this->m_batchIndex;
   m_batchDownloadInfo = this->m_batchDownloadInfo;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+28h+dataRate], xmm0
-  }
+  dataRate = 0.0;
   this->m_batchDownload = BATCH_NONE;
   bdContentStreamingBase::checkProgress(this, &m_batchDownloadInfo[m_batchIndex].bytesDownloaded, &dataRate);
   State = bdContentStreamingBase::getState(this);
-  v7 = BATCH_STOPPED;
+  v5 = BATCH_STOPPED;
   if ( State == AUTHENTICATED )
-    v7 = BATCH_FILE_COMPLETED;
-  this->m_batchDownloadInfo[this->m_batchIndex].status = v7;
+    v5 = BATCH_FILE_COMPLETED;
+  this->m_batchDownloadInfo[this->m_batchIndex].status = v5;
   this->m_batchOverallTaskRef.m_ptr->m_status = BD_CANCELLED;
 }
 
@@ -3020,35 +3016,31 @@ void bdContentStreaming::pump(bdContentStreaming *this)
 {
   __int64 m_batchIndex; 
   bdBatchDownloadInfo *m_batchDownloadInfo; 
-  unsigned int v6; 
-  const bdReference<bdRemoteTask> *v7; 
+  unsigned int v4; 
+  const bdReference<bdRemoteTask> *v5; 
   bdRemoteTask *m_ptr; 
-  unsigned int v9; 
-  const bdReference<bdRemoteTask> *v10; 
-  bdRemoteTask *v11; 
+  unsigned int v7; 
+  const bdReference<bdRemoteTask> *v8; 
+  bdRemoteTask *v9; 
   float dataRate; 
   bdReference<bdRemoteTask> result; 
-  bdReference<bdRemoteTask> v14; 
+  bdReference<bdRemoteTask> v12; 
 
   bdContentStreamingBase::pump(this);
   if ( this->m_batchDownload == BATCH_NONE )
     return;
   m_batchIndex = this->m_batchIndex;
   m_batchDownloadInfo = this->m_batchDownloadInfo;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+28h+dataRate], xmm0
-  }
+  dataRate = 0.0;
   bdContentStreamingBase::checkProgress(this, &m_batchDownloadInfo[m_batchIndex].bytesDownloaded, &dataRate);
   if ( bdContentStreamingBase::getState(this) == AUTHENTICATED )
   {
     this->m_batchDownloadInfo[this->m_batchIndex++].status = BATCH_FILE_COMPLETED;
-    v6 = this->m_batchIndex;
-    if ( v6 < this->m_batchNumFiles )
+    v4 = this->m_batchIndex;
+    if ( v4 < this->m_batchNumFiles )
     {
-      v7 = bdContentStreaming::_batchDownloadFile(this, &result, v6);
-      bdReference<bdRemoteTask>::operator=(&this->m_batchRemoteTaskRef, v7);
+      v5 = bdContentStreaming::_batchDownloadFile(this, &result, v4);
+      bdReference<bdRemoteTask>::operator=(&this->m_batchRemoteTaskRef, v5);
       if ( result.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&result.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
       {
         m_ptr = result.m_ptr;
@@ -3057,23 +3049,23 @@ void bdContentStreaming::pump(bdContentStreaming *this)
       return;
     }
 LABEL_14:
-    v11 = this->m_batchOverallTaskRef.m_ptr;
+    v9 = this->m_batchOverallTaskRef.m_ptr;
     this->m_batchDownload = BATCH_NONE;
-    v11->m_status = BD_DONE;
+    v9->m_status = BD_DONE;
     return;
   }
   if ( bdContentStreamingBase::getState(this) != CROSSPLAY_LOG_IN )
     return;
   this->m_batchDownloadInfo[this->m_batchIndex].status = BATCH_ERROR;
   this->m_batchOverallTaskRef.m_ptr->m_errorCode = BD_CONTENTSTREAMING_BATCH_DOWNLOAD_PARTIAL_FAILURE;
-  v9 = ++this->m_batchIndex;
-  if ( v9 >= this->m_batchNumFiles )
+  v7 = ++this->m_batchIndex;
+  if ( v7 >= this->m_batchNumFiles )
     goto LABEL_14;
-  v10 = bdContentStreaming::_batchDownloadFile(this, &v14, v9);
-  bdReference<bdRemoteTask>::operator=(&this->m_batchRemoteTaskRef, v10);
-  if ( v14.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v14.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+  v8 = bdContentStreaming::_batchDownloadFile(this, &v12, v7);
+  bdReference<bdRemoteTask>::operator=(&this->m_batchRemoteTaskRef, v8);
+  if ( v12.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v12.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
   {
-    m_ptr = v14.m_ptr;
+    m_ptr = v12.m_ptr;
 LABEL_12:
     if ( m_ptr )
       ((void (__fastcall *)(bdRemoteTask *, __int64))m_ptr->~bdReferencable)(m_ptr, 1i64);

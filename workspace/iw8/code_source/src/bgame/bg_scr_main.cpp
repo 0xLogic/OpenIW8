@@ -763,68 +763,57 @@ BGScr_EasePower
 */
 void BGScr_EasePower(scrContext_t *scrContext)
 {
-  bool v6; 
-  bool v8; 
-  unsigned int v9; 
-  unsigned int v10; 
-  unsigned int v11; 
+  float v2; 
+  bool v3; 
+  float v4; 
+  bool v5; 
+  unsigned int v6; 
+  unsigned int v7; 
+  unsigned int v8; 
+  double Float; 
+  double v10; 
+  double v11; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-  }
   if ( !Scr_GetNumParam(scrContext) || Scr_GetType(scrContext, 0) == VAR_UNDEFINED )
     Scr_Error(COM_ERR_2582, scrContext, "EasePower() requires a percentage parameter.\n");
-  __asm { vmovss  xmm7, cs:__real@40000000 }
-  v6 = 0;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v8 = 0;
-  v9 = Scr_GetNumParam(scrContext) - 1;
-  if ( !v9 )
+  v2 = FLOAT_2_0;
+  v3 = 0;
+  v4 = 0.0;
+  v5 = 0;
+  v6 = Scr_GetNumParam(scrContext) - 1;
+  if ( !v6 )
     goto LABEL_14;
-  v10 = v9 - 1;
-  if ( !v10 )
+  v7 = v6 - 1;
+  if ( !v7 )
   {
 LABEL_12:
     if ( Scr_GetType(scrContext, 1u) )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm { vmovaps xmm7, xmm0 }
+      Float = Scr_GetFloat(scrContext, 1u);
+      v2 = *(float *)&Float;
     }
 LABEL_14:
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm6, xmm0 }
+    v10 = Scr_GetFloat(scrContext, 0);
+    v4 = *(float *)&v10;
     goto LABEL_15;
   }
-  v11 = v10 - 1;
-  if ( !v11 )
+  v8 = v7 - 1;
+  if ( !v8 )
   {
 LABEL_10:
     if ( Scr_GetType(scrContext, 2u) )
-      v6 = Scr_GetInt(scrContext, 2u) != 0;
+      v3 = Scr_GetInt(scrContext, 2u) != 0;
     goto LABEL_12;
   }
-  if ( v11 == 1 )
+  if ( v8 == 1 )
   {
     if ( Scr_GetType(scrContext, 3u) )
-      v8 = Scr_GetInt(scrContext, 3u) != 0;
+      v5 = Scr_GetInt(scrContext, 3u) != 0;
     goto LABEL_10;
   }
 LABEL_15:
-  __asm
-  {
-    vmovaps xmm1, xmm7; power
-    vmovaps xmm0, xmm6; pct
-  }
-  *(double *)&_XMM0 = EasePower(*(float *)&_XMM0, *(float *)&_XMM1, v6, v8);
-  __asm
-  {
-    vmovaps xmm1, xmm0; value
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v11 = EasePower(v4, v2, v3, v5);
+  Scr_AddFloat(scrContext, *(float *)&v11);
 }
 
 /*
@@ -834,68 +823,57 @@ BGScr_EaseExponential
 */
 void BGScr_EaseExponential(scrContext_t *scrContext)
 {
-  bool v6; 
-  bool v8; 
-  unsigned int v9; 
-  unsigned int v10; 
-  unsigned int v11; 
+  float v2; 
+  bool v3; 
+  float v4; 
+  bool v5; 
+  unsigned int v6; 
+  unsigned int v7; 
+  unsigned int v8; 
+  double Float; 
+  double v10; 
+  double v11; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-  }
   if ( !Scr_GetNumParam(scrContext) || Scr_GetType(scrContext, 0) == VAR_UNDEFINED )
     Scr_Error(COM_ERR_2583, scrContext, "EaseExponential() requires a percentage parameter.\n");
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
-  v6 = 0;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v8 = 0;
-  v9 = Scr_GetNumParam(scrContext) - 1;
-  if ( !v9 )
+  v2 = FLOAT_1_0;
+  v3 = 0;
+  v4 = 0.0;
+  v5 = 0;
+  v6 = Scr_GetNumParam(scrContext) - 1;
+  if ( !v6 )
     goto LABEL_14;
-  v10 = v9 - 1;
-  if ( !v10 )
+  v7 = v6 - 1;
+  if ( !v7 )
   {
 LABEL_12:
     if ( Scr_GetType(scrContext, 1u) )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm { vmovaps xmm7, xmm0 }
+      Float = Scr_GetFloat(scrContext, 1u);
+      v2 = *(float *)&Float;
     }
 LABEL_14:
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm6, xmm0 }
+    v10 = Scr_GetFloat(scrContext, 0);
+    v4 = *(float *)&v10;
     goto LABEL_15;
   }
-  v11 = v10 - 1;
-  if ( !v11 )
+  v8 = v7 - 1;
+  if ( !v8 )
   {
 LABEL_10:
     if ( Scr_GetType(scrContext, 2u) )
-      v6 = Scr_GetInt(scrContext, 2u) != 0;
+      v3 = Scr_GetInt(scrContext, 2u) != 0;
     goto LABEL_12;
   }
-  if ( v11 == 1 )
+  if ( v8 == 1 )
   {
     if ( Scr_GetType(scrContext, 3u) )
-      v8 = Scr_GetInt(scrContext, 3u) != 0;
+      v5 = Scr_GetInt(scrContext, 3u) != 0;
     goto LABEL_10;
   }
 LABEL_15:
-  __asm
-  {
-    vmovaps xmm1, xmm7; scale
-    vmovaps xmm0, xmm6; pct
-  }
-  *(double *)&_XMM0 = EaseExponential(*(float *)&_XMM0, *(float *)&_XMM1, v6, v8);
-  __asm
-  {
-    vmovaps xmm1, xmm0; value
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v11 = EaseExponential(v4, v2, v3, v5);
+  Scr_AddFloat(scrContext, *(float *)&v11);
 }
 
 /*
@@ -905,68 +883,57 @@ BGScr_EaseLogarithmic
 */
 void BGScr_EaseLogarithmic(scrContext_t *scrContext)
 {
-  bool v6; 
-  bool v8; 
-  unsigned int v9; 
-  unsigned int v10; 
-  unsigned int v11; 
+  float v2; 
+  bool v3; 
+  float v4; 
+  bool v5; 
+  unsigned int v6; 
+  unsigned int v7; 
+  unsigned int v8; 
+  double Float; 
+  double v10; 
+  double v11; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-  }
   if ( !Scr_GetNumParam(scrContext) || Scr_GetType(scrContext, 0) == VAR_UNDEFINED )
     Scr_Error(COM_ERR_2584, scrContext, "EaseLogarithmic() requires a percentage parameter.\n");
-  __asm { vmovss  xmm7, cs:__real@40000000 }
-  v6 = 0;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v8 = 0;
-  v9 = Scr_GetNumParam(scrContext) - 1;
-  if ( !v9 )
+  v2 = FLOAT_2_0;
+  v3 = 0;
+  v4 = 0.0;
+  v5 = 0;
+  v6 = Scr_GetNumParam(scrContext) - 1;
+  if ( !v6 )
     goto LABEL_14;
-  v10 = v9 - 1;
-  if ( !v10 )
+  v7 = v6 - 1;
+  if ( !v7 )
   {
 LABEL_12:
     if ( Scr_GetType(scrContext, 1u) )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm { vmovaps xmm7, xmm0 }
+      Float = Scr_GetFloat(scrContext, 1u);
+      v2 = *(float *)&Float;
     }
 LABEL_14:
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm6, xmm0 }
+    v10 = Scr_GetFloat(scrContext, 0);
+    v4 = *(float *)&v10;
     goto LABEL_15;
   }
-  v11 = v10 - 1;
-  if ( !v11 )
+  v8 = v7 - 1;
+  if ( !v8 )
   {
 LABEL_10:
     if ( Scr_GetType(scrContext, 2u) )
-      v6 = Scr_GetInt(scrContext, 2u) != 0;
+      v3 = Scr_GetInt(scrContext, 2u) != 0;
     goto LABEL_12;
   }
-  if ( v11 == 1 )
+  if ( v8 == 1 )
   {
     if ( Scr_GetType(scrContext, 3u) )
-      v8 = Scr_GetInt(scrContext, 3u) != 0;
+      v5 = Scr_GetInt(scrContext, 3u) != 0;
     goto LABEL_10;
   }
 LABEL_15:
-  __asm
-  {
-    vmovaps xmm1, xmm7; logBase
-    vmovaps xmm0, xmm6; pct
-  }
-  *(double *)&_XMM0 = EaseLogarithmic(*(float *)&_XMM0, *(float *)&_XMM1, v6, v8);
-  __asm
-  {
-    vmovaps xmm1, xmm0; value
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v11 = EaseLogarithmic(v4, v2, v3, v5);
+  Scr_AddFloat(scrContext, *(float *)&v11);
 }
 
 /*
@@ -976,46 +943,42 @@ BGScr_EaseSine
 */
 void BGScr_EaseSine(scrContext_t *scrContext)
 {
+  bool v2; 
+  float v3; 
   bool v4; 
-  bool v6; 
-  unsigned int v7; 
-  unsigned int v8; 
+  unsigned int v5; 
+  unsigned int v6; 
+  double Float; 
+  double v8; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
   if ( !Scr_GetNumParam(scrContext) || Scr_GetType(scrContext, 0) == VAR_UNDEFINED )
     Scr_Error(COM_ERR_2585, scrContext, "EaseSine() requires a percentage parameter.\n");
+  v2 = 0;
+  v3 = 0.0;
   v4 = 0;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v6 = 0;
-  v7 = Scr_GetNumParam(scrContext) - 1;
-  if ( !v7 )
+  v5 = Scr_GetNumParam(scrContext) - 1;
+  if ( !v5 )
     goto LABEL_11;
-  v8 = v7 - 1;
-  if ( !v8 )
+  v6 = v5 - 1;
+  if ( !v6 )
   {
 LABEL_9:
     if ( Scr_GetType(scrContext, 1u) )
-      v4 = Scr_GetInt(scrContext, 1u) != 0;
+      v2 = Scr_GetInt(scrContext, 1u) != 0;
 LABEL_11:
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 0);
+    v3 = *(float *)&Float;
     goto LABEL_12;
   }
-  if ( v8 == 1 )
+  if ( v6 == 1 )
   {
     if ( Scr_GetType(scrContext, 2u) )
-      v6 = Scr_GetInt(scrContext, 2u) != 0;
+      v4 = Scr_GetInt(scrContext, 2u) != 0;
     goto LABEL_9;
   }
 LABEL_12:
-  __asm { vmovaps xmm0, xmm6; pct }
-  *(double *)&_XMM0 = EaseSine(*(float *)&_XMM0, v4, v6);
-  __asm
-  {
-    vmovaps xmm1, xmm0; value
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v8 = EaseSine(v3, v2, v4);
+  Scr_AddFloat(scrContext, *(float *)&v8);
 }
 
 /*
@@ -1025,87 +988,72 @@ BGScr_EaseBack
 */
 void BGScr_EaseBack(scrContext_t *scrContext)
 {
-  bool v8; 
+  float v2; 
+  float v3; 
+  bool v4; 
+  float v5; 
   bool easeOut; 
-  unsigned int v11; 
-  unsigned int v12; 
-  unsigned int v13; 
-  unsigned int v14; 
+  unsigned int v7; 
+  unsigned int v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  double v11; 
+  double Float; 
+  double v13; 
+  double v14; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-  }
   if ( !Scr_GetNumParam(scrContext) || Scr_GetType(scrContext, 0) == VAR_UNDEFINED )
     Scr_Error(COM_ERR_2586, scrContext, "EaseBack() requires a percentage parameter.\n");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3eb33333
-    vmovss  xmm8, cs:__real@40400000
-  }
-  v8 = 0;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v2 = FLOAT_0_34999999;
+  v3 = FLOAT_3_0;
+  v4 = 0;
+  v5 = 0.0;
   easeOut = 0;
-  v11 = Scr_GetNumParam(scrContext) - 1;
-  if ( !v11 )
+  v7 = Scr_GetNumParam(scrContext) - 1;
+  if ( !v7 )
     goto LABEL_17;
-  v12 = v11 - 1;
-  if ( !v12 )
+  v8 = v7 - 1;
+  if ( !v8 )
   {
 LABEL_15:
     if ( Scr_GetType(scrContext, 1u) )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm { vmovaps xmm7, xmm0 }
+      Float = Scr_GetFloat(scrContext, 1u);
+      v2 = *(float *)&Float;
     }
 LABEL_17:
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm6, xmm0 }
+    v13 = Scr_GetFloat(scrContext, 0);
+    v5 = *(float *)&v13;
     goto LABEL_18;
   }
-  v13 = v12 - 1;
-  if ( !v13 )
+  v9 = v8 - 1;
+  if ( !v9 )
   {
 LABEL_13:
     if ( Scr_GetType(scrContext, 2u) )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm { vmovaps xmm8, xmm0 }
+      v11 = Scr_GetFloat(scrContext, 2u);
+      v3 = *(float *)&v11;
     }
     goto LABEL_15;
   }
-  v14 = v13 - 1;
-  if ( !v14 )
+  v10 = v9 - 1;
+  if ( !v10 )
   {
 LABEL_11:
     if ( Scr_GetType(scrContext, 3u) )
-      v8 = Scr_GetInt(scrContext, 3u) != 0;
+      v4 = Scr_GetInt(scrContext, 3u) != 0;
     goto LABEL_13;
   }
-  if ( v14 == 1 )
+  if ( v10 == 1 )
   {
     if ( Scr_GetType(scrContext, 4u) )
       easeOut = Scr_GetInt(scrContext, 4u) != 0;
     goto LABEL_11;
   }
 LABEL_18:
-  __asm
-  {
-    vmovaps xmm2, xmm8; power
-    vmovaps xmm1, xmm7; overshootScalar
-    vmovaps xmm0, xmm6; pct
-  }
-  *(double *)&_XMM0 = EaseBack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, v8, easeOut);
-  __asm
-  {
-    vmovaps xmm1, xmm0; value
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v14 = EaseBack(v5, v2, v3, v4, easeOut);
+  Scr_AddFloat(scrContext, *(float *)&v14);
 }
 
 /*
@@ -1115,30 +1063,25 @@ BGScr_EaseElastic
 */
 void BGScr_EaseElastic(scrContext_t *scrContext)
 {
+  float v2; 
+  float v3; 
   bool easeIn; 
+  float v5; 
+  float v6; 
   bool easeOut; 
-  char v27; 
+  double Float; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm9
-  }
   if ( !Scr_GetNumParam(scrContext) || Scr_GetType(scrContext, 0) == VAR_UNDEFINED )
     Scr_Error(COM_ERR_2587, scrContext, "EaseElastic() requires a percentage parameter.\n");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@40800000
-    vmovss  xmm8, cs:__real@3f800000
-  }
+  v2 = FLOAT_4_0;
+  v3 = FLOAT_1_0;
   easeIn = 0;
-  __asm
-  {
-    vmovaps xmm9, xmm7
-    vxorps  xmm6, xmm6, xmm6
-  }
+  v5 = FLOAT_4_0;
+  v6 = 0.0;
   easeOut = 0;
   switch ( Scr_GetNumParam(scrContext) )
   {
@@ -1161,49 +1104,30 @@ $LN7_0:
 $LN9_0:
       if ( Scr_GetType(scrContext, 3u) )
       {
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-        __asm { vmovaps xmm9, xmm0 }
+        Float = Scr_GetFloat(scrContext, 3u);
+        v5 = *(float *)&Float;
       }
 $LN11_3:
       if ( Scr_GetType(scrContext, 2u) )
       {
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-        __asm { vmovaps xmm7, xmm0 }
+        v9 = Scr_GetFloat(scrContext, 2u);
+        v2 = *(float *)&v9;
       }
 $LN13_4:
       if ( Scr_GetType(scrContext, 1u) )
       {
-        *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-        __asm { vmovaps xmm8, xmm0 }
+        v10 = Scr_GetFloat(scrContext, 1u);
+        v3 = *(float *)&v10;
       }
 $LN15_5:
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-      __asm { vmovaps xmm6, xmm0 }
+      v11 = Scr_GetFloat(scrContext, 0);
+      v6 = *(float *)&v11;
       break;
     default:
       break;
   }
-  __asm
-  {
-    vmovaps xmm3, xmm9; fadeScalar
-    vmovaps xmm2, xmm7; frequency
-    vmovaps xmm1, xmm8; amplitude
-    vmovaps xmm0, xmm6; pct
-  }
-  *(double *)&_XMM0 = EaseElastic(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, easeIn, easeOut);
-  __asm
-  {
-    vmovaps xmm1, xmm0; value
-    vmovaps xmm6, [rsp+78h+var_18]
-  }
-  _R11 = &v27;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v12 = EaseElastic(v6, v3, v2, v5, easeIn, easeOut);
+  Scr_AddFloat(scrContext, *(float *)&v12);
 }
 
 /*
@@ -1213,79 +1137,68 @@ BGScr_EaseBounce
 */
 void BGScr_EaseBounce(scrContext_t *scrContext)
 {
+  float v2; 
   int Int; 
-  bool v8; 
+  float v4; 
+  bool v5; 
   bool easeOut; 
+  unsigned int v7; 
+  unsigned int v8; 
+  unsigned int v9; 
   unsigned int v10; 
-  unsigned int v11; 
-  unsigned int v12; 
-  unsigned int v13; 
+  double v11; 
+  double Float; 
+  double v13; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
   if ( !Scr_GetNumParam(scrContext) || Scr_GetType(scrContext, 0) == VAR_UNDEFINED )
     Scr_Error(COM_ERR_2588, scrContext, "EaseBounce() requires a percentage parameter.\n");
-  __asm { vmovss  xmm7, cs:__real@3e800000 }
+  v2 = FLOAT_0_25;
   Int = 4;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  v8 = 0;
+  v4 = 0.0;
+  v5 = 0;
   easeOut = 0;
-  v10 = Scr_GetNumParam(scrContext) - 1;
-  if ( !v10 )
+  v7 = Scr_GetNumParam(scrContext) - 1;
+  if ( !v7 )
     goto LABEL_17;
-  v11 = v10 - 1;
-  if ( !v11 )
+  v8 = v7 - 1;
+  if ( !v8 )
   {
 LABEL_15:
     if ( Scr_GetType(scrContext, 1u) )
       Int = Scr_GetInt(scrContext, 1u);
 LABEL_17:
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 0);
+    v4 = *(float *)&Float;
     goto LABEL_18;
   }
-  v12 = v11 - 1;
-  if ( !v12 )
+  v9 = v8 - 1;
+  if ( !v9 )
   {
 LABEL_13:
     if ( Scr_GetType(scrContext, 2u) )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm { vmovaps xmm7, xmm0 }
+      v11 = Scr_GetFloat(scrContext, 2u);
+      v2 = *(float *)&v11;
     }
     goto LABEL_15;
   }
-  v13 = v12 - 1;
-  if ( !v13 )
+  v10 = v9 - 1;
+  if ( !v10 )
   {
 LABEL_11:
     if ( Scr_GetType(scrContext, 3u) )
-      v8 = Scr_GetInt(scrContext, 3u) != 0;
+      v5 = Scr_GetInt(scrContext, 3u) != 0;
     goto LABEL_13;
   }
-  if ( v13 == 1 )
+  if ( v10 == 1 )
   {
     if ( Scr_GetType(scrContext, 4u) )
       easeOut = Scr_GetInt(scrContext, 4u) != 0;
     goto LABEL_11;
   }
 LABEL_18:
-  __asm
-  {
-    vmovaps xmm2, xmm7; decayScalar
-    vmovaps xmm0, xmm6; pct
-  }
-  *(double *)&_XMM0 = EaseBounce(*(float *)&_XMM0, Int, *(float *)&_XMM2, v8, easeOut);
-  __asm
-  {
-    vmovaps xmm1, xmm0; value
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v13 = EaseBounce(v4, Int, v2, v5, easeOut);
+  Scr_AddFloat(scrContext, *(float *)&v13);
 }
 
 /*
@@ -1295,11 +1208,13 @@ BGScr_sin
 */
 void BGScr_sin(scrContext_t *scrContext)
 {
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmulss  xmm0, xmm0, cs:__real@3c8efa35; X }
-  *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  double Float; 
+  float v3; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  v3 = *(float *)&Float * 0.017453292;
+  sinf_0(*(float *)&Float * 0.017453292);
+  Scr_AddFloat(scrContext, v3);
 }
 
 /*
@@ -1309,11 +1224,13 @@ BGScr_cos
 */
 void BGScr_cos(scrContext_t *scrContext)
 {
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmulss  xmm0, xmm0, cs:__real@3c8efa35; X }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  double Float; 
+  float v3; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  v3 = *(float *)&Float * 0.017453292;
+  cosf_0(*(float *)&Float * 0.017453292);
+  Scr_AddFloat(scrContext, v3);
 }
 
 /*
@@ -1323,30 +1240,20 @@ BGScr_tan
 */
 void BGScr_tan(scrContext_t *scrContext)
 {
-  char v6; 
+  double Float; 
+  float v3; 
   float c; 
   float s; 
 
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians }
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  __asm
-  {
-    vmovss  xmm1, [rsp+28h+c]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm1, xmm0
-  }
-  if ( v6 )
+  Float = Scr_GetFloat(scrContext, 0);
+  FastSinCos(*(float *)&Float * 0.017453292, &s, &c);
+  v3 = c;
+  if ( c == 0.0 )
   {
     Scr_Error(COM_ERR_2538, scrContext, "divide by 0");
-    __asm { vmovss  xmm1, [rsp+28h+c] }
+    v3 = c;
   }
-  __asm
-  {
-    vmovss  xmm0, [rsp+28h+s]
-    vdivss  xmm1, xmm0, xmm1; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, s / v3);
 }
 
 /*
@@ -1356,39 +1263,18 @@ BGScr_asin
 */
 void BGScr_asin(scrContext_t *scrContext)
 {
-  char v4; 
-  char v5; 
-  const char *v9; 
+  double Float; 
+  const char *v3; 
+  float v4; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float < -1.0 || *(float *)&Float > 1.0 )
   {
-    vcomiss xmm0, cs:__real@bf800000
-    vmovaps xmm6, xmm0
+    v3 = j_va("%g out of range", *(float *)&Float);
+    Scr_Error(COM_ERR_2539, scrContext, v3);
   }
-  if ( v4 )
-    goto LABEL_3;
-  __asm { vcomiss xmm0, cs:__real@3f800000 }
-  if ( !(v4 | v5) )
-  {
-LABEL_3:
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
-    }
-    v9 = j_va("%g out of range", _RDX);
-    Scr_Error(COM_ERR_2539, scrContext, v9);
-  }
-  __asm { vmovaps xmm0, xmm6; X }
-  *(float *)&_XMM0 = asinf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@42652ee0; value
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v4 = asinf_0(*(float *)&Float);
+  Scr_AddFloat(scrContext, v4 * 57.295776);
 }
 
 /*
@@ -1398,39 +1284,18 @@ BGScr_acos
 */
 void BGScr_acos(scrContext_t *scrContext)
 {
-  char v4; 
-  char v5; 
-  const char *v9; 
+  double Float; 
+  const char *v3; 
+  float v4; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( *(float *)&Float < -1.0 || *(float *)&Float > 1.0 )
   {
-    vcomiss xmm0, cs:__real@bf800000
-    vmovaps xmm6, xmm0
+    v3 = j_va("%g out of range", *(float *)&Float);
+    Scr_Error(COM_ERR_2540, scrContext, v3);
   }
-  if ( v4 )
-    goto LABEL_3;
-  __asm { vcomiss xmm0, cs:__real@3f800000 }
-  if ( !(v4 | v5) )
-  {
-LABEL_3:
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
-    }
-    v9 = j_va("%g out of range", _RDX);
-    Scr_Error(COM_ERR_2540, scrContext, v9);
-  }
-  __asm { vmovaps xmm0, xmm6; X }
-  *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@42652ee0; value
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v4 = acosf_0(*(float *)&Float);
+  Scr_AddFloat(scrContext, v4 * 57.295776);
 }
 
 /*
@@ -1440,10 +1305,11 @@ BGScr_atan
 */
 void BGScr_atan(scrContext_t *scrContext)
 {
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  *(float *)&_XMM0 = atanf_0(*(float *)&_XMM0);
-  __asm { vmulss  xmm1, xmm0, cs:__real@42652ee0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  double Float; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  *(float *)&Float = atanf_0(*(float *)&Float);
+  Scr_AddFloat(scrContext, *(float *)&Float * 57.295776);
 }
 
 /*
@@ -1455,23 +1321,23 @@ void BGScr_CastInt(scrContext_t *scrContext)
 {
   VariableType Type; 
   const char *TypeName; 
-  const char *v5; 
+  const char *v4; 
   int Int; 
+  double Float; 
   const char *String; 
-  int v9; 
+  int v8; 
 
   Type = Scr_GetType(scrContext, 0);
   switch ( Type )
   {
     case VAR_STRING:
       String = Scr_GetString(scrContext, 0);
-      v9 = atoi(String);
-      Scr_AddInt(scrContext, v9);
+      v8 = atoi(String);
+      Scr_AddInt(scrContext, v8);
       break;
     case VAR_FLOAT:
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-      __asm { vcvttss2si edx, xmm0; value }
-      Scr_AddInt(scrContext, _EDX);
+      Float = Scr_GetFloat(scrContext, 0);
+      Scr_AddInt(scrContext, (int)*(float *)&Float);
       break;
     case VAR_INTEGER:
       Int = Scr_GetInt(scrContext, 0);
@@ -1479,8 +1345,8 @@ void BGScr_CastInt(scrContext_t *scrContext)
       break;
     default:
       TypeName = Scr_GetTypeName(scrContext, 0);
-      v5 = j_va("cannot cast %s to int", TypeName);
-      Scr_ParamError(COM_ERR_2541, scrContext, 0, v5);
+      v4 = j_va("cannot cast %s to int", TypeName);
+      Scr_ParamError(COM_ERR_2541, scrContext, 0, v4);
       break;
   }
 }
@@ -1490,12 +1356,13 @@ void BGScr_CastInt(scrContext_t *scrContext)
 BGScr_CastFloat
 ==============
 */
-
-void __fastcall BGScr_CastFloat(scrContext_t *scrContext, double _XMM1_8)
+void BGScr_CastFloat(scrContext_t *scrContext)
 {
   VariableType Type; 
   const char *TypeName; 
-  const char *v6; 
+  const char *v5; 
+  int Int; 
+  double Float; 
   const char *String; 
 
   Type = Scr_GetType(scrContext, 0);
@@ -1508,23 +1375,17 @@ void __fastcall BGScr_CastFloat(scrContext_t *scrContext, double _XMM1_8)
       Scr_AddFloat(scrContext, *(float *)&_XMM1);
       break;
     case VAR_FLOAT:
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-      __asm { vmovaps xmm1, xmm0; value }
-      Scr_AddFloat(scrContext, *(float *)&_XMM1);
+      Float = Scr_GetFloat(scrContext, 0);
+      Scr_AddFloat(scrContext, *(float *)&Float);
       break;
     case VAR_INTEGER:
-      Scr_GetInt(scrContext, 0);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax; value
-      }
-      Scr_AddFloat(scrContext, *(float *)&_XMM1);
+      Int = Scr_GetInt(scrContext, 0);
+      Scr_AddFloat(scrContext, (float)Int);
       break;
     default:
       TypeName = Scr_GetTypeName(scrContext, 0);
-      v6 = j_va("cannot cast %s to float", TypeName);
-      Scr_ParamError(COM_ERR_2542, scrContext, 0, v6);
+      v5 = j_va("cannot cast %s to float", TypeName);
+      Scr_ParamError(COM_ERR_2542, scrContext, 0, v5);
       break;
   }
 }
@@ -1536,9 +1397,10 @@ BGScr_abs
 */
 void BGScr_abs(scrContext_t *scrContext)
 {
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  double Float; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  Scr_AddFloat(scrContext, COERCE_FLOAT(LODWORD(Float) & _xmm));
 }
 
 /*
@@ -1548,15 +1410,9 @@ BGScr_min
 */
 void BGScr_min(scrContext_t *scrContext)
 {
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm6, xmm0 }
+  Scr_GetFloat(scrContext, 0);
   *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vminss  xmm1, xmm0, xmm6; value
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
+  __asm { vminss  xmm1, xmm0, xmm6; value }
   Scr_AddFloat(scrContext, *(float *)&_XMM1);
 }
 
@@ -1567,15 +1423,9 @@ BGScr_max
 */
 void BGScr_max(scrContext_t *scrContext)
 {
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm6, xmm0 }
+  Scr_GetFloat(scrContext, 0);
   *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmaxss  xmm1, xmm0, xmm6; value
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
+  __asm { vmaxss  xmm1, xmm0, xmm6; value }
   Scr_AddFloat(scrContext, *(float *)&_XMM1);
 }
 
@@ -1584,15 +1434,11 @@ void BGScr_max(scrContext_t *scrContext)
 BGScr_floor
 ==============
 */
-
-void __fastcall BGScr_floor(scrContext_t *scrContext, double _XMM1_8)
+void BGScr_floor(scrContext_t *scrContext)
 {
   Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm1, xmm1, xmm0, 1; value
-  }
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm0, 1; value }
   Scr_AddFloat(scrContext, *(float *)&_XMM1);
 }
 
@@ -1601,15 +1447,11 @@ void __fastcall BGScr_floor(scrContext_t *scrContext, double _XMM1_8)
 BGScr_ceil
 ==============
 */
-
-void __fastcall BGScr_ceil(scrContext_t *scrContext, double _XMM1_8)
+void BGScr_ceil(scrContext_t *scrContext)
 {
   Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm1, xmm1, xmm0, 2; value
-  }
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm0, 2; value }
   Scr_AddFloat(scrContext, *(float *)&_XMM1);
 }
 
@@ -1620,10 +1462,11 @@ BGScr_exp
 */
 void BGScr_exp(scrContext_t *scrContext)
 {
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  *(float *)&_XMM0 = expf_0(*(float *)&_XMM0);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  double Float; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  *(float *)&Float = expf_0(*(float *)&Float);
+  Scr_AddFloat(scrContext, *(float *)&Float);
 }
 
 /*
@@ -1633,10 +1476,11 @@ BGScr_log
 */
 void BGScr_log(scrContext_t *scrContext)
 {
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  *(float *)&_XMM0 = logf_0(*(float *)&_XMM0);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  double Float; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  *(float *)&Float = logf_0(*(float *)&Float);
+  Scr_AddFloat(scrContext, *(float *)&Float);
 }
 
 /*
@@ -1646,9 +1490,10 @@ BGScr_sqrt
 */
 void BGScr_sqrt(scrContext_t *scrContext)
 {
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vsqrtss xmm1, xmm0, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  double Float; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  Scr_AddFloat(scrContext, fsqrt(*(float *)&Float));
 }
 
 /*
@@ -1658,9 +1503,10 @@ BGScr_squared
 */
 void BGScr_squared(scrContext_t *scrContext)
 {
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmulss  xmm1, xmm0, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  double Float; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  Scr_AddFloat(scrContext, *(float *)&Float * *(float *)&Float);
 }
 
 /*
@@ -1670,30 +1516,20 @@ BGScr_clamp
 */
 void BGScr_clamp(scrContext_t *scrContext)
 {
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-  }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm7, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vmovaps xmm2, xmm0; max
-    vmovaps xmm0, xmm7; val
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm1, xmm0; value
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  double Float; 
+  float v3; 
+  double v4; 
+  float v5; 
+  double v6; 
+  double v7; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  v3 = *(float *)&Float;
+  v4 = Scr_GetFloat(scrContext, 1u);
+  v5 = *(float *)&v4;
+  v6 = Scr_GetFloat(scrContext, 2u);
+  v7 = I_fclamp(v3, v5, *(float *)&v6);
+  Scr_AddFloat(scrContext, *(float *)&v7);
 }
 
 /*
@@ -1703,22 +1539,15 @@ BGScr_pow
 */
 void BGScr_pow(scrContext_t *scrContext)
 {
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmovaps xmm1, xmm0; Y
-    vmovaps xmm0, xmm6; X
-  }
-  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm1, xmm0; value
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  double Float; 
+  float v3; 
+  double v4; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  v3 = *(float *)&Float;
+  v4 = Scr_GetFloat(scrContext, 1u);
+  *(float *)&v4 = powf_0(v3, *(float *)&v4);
+  Scr_AddFloat(scrContext, *(float *)&v4);
 }
 
 /*
@@ -1728,91 +1557,45 @@ BGScr_VectorFromLineToPoint
 */
 void BGScr_VectorFromLineToPoint(scrContext_t *scrContext)
 {
-  char v23; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
   vec3_t vectorValue; 
-  vec3_t v54; 
-  vec3_t v55; 
+  vec3_t v13; 
+  vec3_t v14; 
   float value[4]; 
-  char v57; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-  }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  Scr_GetVector(scrContext, 1u, &v54);
-  Scr_GetVector(scrContext, 2u, &v55);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0D8h+var_A8]
-    vmovss  xmm3, dword ptr [rsp+0D8h+vectorValue]
-    vmovss  xmm4, dword ptr [rsp+0D8h+vectorValue+4]
-    vmovss  xmm7, dword ptr [rsp+0D8h+vectorValue+8]
-    vsubss  xmm8, xmm0, xmm3
-    vmovss  xmm0, dword ptr [rsp+0D8h+var_A8+4]
-    vsubss  xmm9, xmm0, xmm4
-    vmovss  xmm0, dword ptr [rsp+0D8h+var_A8+8]
-    vsubss  xmm10, xmm0, xmm7
-    vmulss  xmm1, xmm9, xmm9
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm11, xmm2, xmm1
-    vcomiss xmm11, cs:__real@3a83126f
-  }
-  if ( v23 )
+  Scr_GetVector(scrContext, 1u, &v13);
+  Scr_GetVector(scrContext, 2u, &v14);
+  v2 = vectorValue.v[0];
+  v3 = vectorValue.v[1];
+  v4 = vectorValue.v[2];
+  v5 = v13.v[0] - vectorValue.v[0];
+  v6 = v13.v[1] - vectorValue.v[1];
+  v7 = v13.v[2] - vectorValue.v[2];
+  v8 = (float)((float)(v6 * v6) + (float)(v5 * v5)) + (float)(v7 * v7);
+  if ( v8 < 0.001 )
   {
     Scr_ParamError(COM_ERR_2543, scrContext, 0, "The two points on the line must be different from each other");
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rsp+0D8h+vectorValue+4]
-      vmovss  xmm3, dword ptr [rsp+0D8h+vectorValue]
-      vmovss  xmm7, dword ptr [rsp+0D8h+vectorValue+8]
-    }
+    v3 = vectorValue.v[1];
+    v2 = vectorValue.v[0];
+    v4 = vectorValue.v[2];
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0D8h+var_98]
-    vmovss  xmm1, dword ptr [rsp+0D8h+var_98+4]
-    vsubss  xmm5, xmm0, xmm3
-    vmovss  xmm0, dword ptr [rsp+0D8h+var_98+8]
-    vsubss  xmm6, xmm1, xmm4
-    vsubss  xmm7, xmm0, xmm7
-    vmulss  xmm2, xmm5, xmm8
-    vmulss  xmm1, xmm6, xmm9
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm10
-    vaddss  xmm2, xmm3, xmm0
-    vdivss  xmm1, xmm2, xmm11
-    vxorps  xmm4, xmm1, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm0, xmm4, xmm8
-    vaddss  xmm2, xmm0, xmm5
-    vmulss  xmm1, xmm4, xmm9
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  [rsp+0D8h+value], xmm2
-    vmulss  xmm2, xmm4, xmm10
-    vaddss  xmm1, xmm2, xmm7
-    vmovss  [rsp+0D8h+var_80], xmm1
-    vmovss  [rsp+0D8h+var_84], xmm0
-  }
+  v9 = v14.v[1] - v3;
+  v10 = v14.v[2] - v4;
+  LODWORD(v11) = COERCE_UNSIGNED_INT((float)((float)((float)((float)(v14.v[0] - v2) * v5) + (float)((float)(v14.v[1] - v3) * v6)) + (float)(v10 * v7)) / v8) ^ _xmm;
+  value[0] = (float)(v11 * v5) + (float)(v14.v[0] - v2);
+  value[2] = (float)(v11 * v7) + v10;
+  value[1] = (float)(v11 * v6) + v9;
   Scr_AddVector(scrContext, value);
-  _R11 = &v57;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
 }
 
 /*
@@ -1822,115 +1605,59 @@ BGScr_PointOnSegmentNearestToPoint
 */
 void BGScr_PointOnSegmentNearestToPoint(scrContext_t *scrContext)
 {
-  char v10; 
-  char v11; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
   vec3_t *p_vectorValue; 
   vec3_t vectorValue; 
-  vec3_t v58; 
-  vec3_t v59; 
+  vec3_t v13; 
+  vec3_t v14; 
   float value[4]; 
-  char v61; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-  }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  Scr_GetVector(scrContext, 1u, &v58);
-  Scr_GetVector(scrContext, 2u, &v59);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0E8h+var_B8]
-    vmovss  xmm6, dword ptr [rsp+0E8h+vectorValue]
-    vmovss  xmm7, dword ptr [rsp+0E8h+vectorValue+4]
-    vmovss  xmm8, dword ptr [rsp+0E8h+vectorValue+8]
-    vsubss  xmm9, xmm0, xmm6
-    vmovss  xmm0, dword ptr [rsp+0E8h+var_B8+4]
-    vsubss  xmm10, xmm0, xmm7
-    vmovss  xmm0, dword ptr [rsp+0E8h+var_B8+8]
-    vsubss  xmm11, xmm0, xmm8
-    vmulss  xmm1, xmm10, xmm10
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm11, xmm11
-    vaddss  xmm12, xmm2, xmm1
-    vcomiss xmm12, cs:__real@3a83126f
-  }
-  if ( v10 )
+  Scr_GetVector(scrContext, 1u, &v13);
+  Scr_GetVector(scrContext, 2u, &v14);
+  v2 = vectorValue.v[0];
+  v3 = vectorValue.v[1];
+  v4 = vectorValue.v[2];
+  v5 = v13.v[0] - vectorValue.v[0];
+  v6 = v13.v[1] - vectorValue.v[1];
+  v8 = v13.v[2] - vectorValue.v[2];
+  v7 = v13.v[2] - vectorValue.v[2];
+  v9 = (float)((float)(v6 * v6) + (float)(v5 * v5)) + (float)(v7 * v7);
+  if ( v9 < 0.001 )
   {
     Scr_ParamError(COM_ERR_2544, scrContext, 0, "Line segment must not have zero length");
-    __asm
+    v4 = vectorValue.v[2];
+    v3 = vectorValue.v[1];
+    v2 = vectorValue.v[0];
+  }
+  v10 = (float)((float)((float)((float)(v14.v[1] - v3) * v6) + (float)((float)(v14.v[0] - v2) * v5)) + (float)((float)(v14.v[2] - v4) * v8)) / v9;
+  if ( v10 >= 0.0 )
+  {
+    if ( v10 <= 1.0 )
     {
-      vmovss  xmm8, dword ptr [rsp+0E8h+vectorValue+8]
-      vmovss  xmm7, dword ptr [rsp+0E8h+vectorValue+4]
-      vmovss  xmm6, dword ptr [rsp+0E8h+vectorValue]
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0E8h+var_A8+4]
-    vmovss  xmm2, dword ptr [rsp+0E8h+var_A8]
-    vsubss  xmm1, xmm0, xmm7
-    vmulss  xmm3, xmm1, xmm10
-    vsubss  xmm0, xmm2, xmm6
-    vmovss  xmm2, dword ptr [rsp+0E8h+var_A8+8]
-    vmulss  xmm1, xmm0, xmm9
-    vsubss  xmm0, xmm2, xmm8
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm1, xmm0, xmm11
-    vaddss  xmm3, xmm4, xmm1
-    vdivss  xmm5, xmm3, xmm12
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm5, xmm0
-  }
-  if ( v10 )
-  {
-    p_vectorValue = &vectorValue;
-  }
-  else
-  {
-    __asm { vcomiss xmm5, cs:__real@3f800000 }
-    if ( v10 | v11 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm9, xmm5
-        vaddss  xmm1, xmm0, xmm6
-        vmulss  xmm2, xmm10, xmm5
-        vaddss  xmm0, xmm2, xmm7
-        vmovss  [rsp+0E8h+value], xmm1
-        vmulss  xmm1, xmm11, xmm5
-        vaddss  xmm2, xmm1, xmm8
-        vmovss  [rsp+0E8h+var_90], xmm2
-        vmovss  [rsp+0E8h+var_94], xmm0
-      }
+      value[0] = (float)(v5 * v10) + v2;
+      value[2] = (float)(v7 * v10) + v4;
+      value[1] = (float)(v6 * v10) + v3;
       p_vectorValue = (vec3_t *)value;
     }
     else
     {
-      p_vectorValue = &v58;
+      p_vectorValue = &v13;
     }
   }
-  Scr_AddVector(scrContext, p_vectorValue->v);
-  _R11 = &v61;
-  __asm
+  else
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
+    p_vectorValue = &vectorValue;
   }
+  Scr_AddVector(scrContext, p_vectorValue->v);
 }
 
 /*
@@ -1940,27 +1667,12 @@ BGScr_Distance
 */
 void BGScr_Distance(scrContext_t *scrContext)
 {
-  vec3_t v14; 
+  vec3_t v2; 
   vec3_t vectorValue; 
 
   Scr_GetVector(scrContext, 0, &vectorValue);
-  Scr_GetVector(scrContext, 1u, &v14);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+58h+var_38]
-    vsubss  xmm3, xmm0, dword ptr [rsp+58h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+58h+var_38+4]
-    vsubss  xmm2, xmm1, dword ptr [rsp+58h+vectorValue+4]
-    vmovss  xmm0, dword ptr [rsp+58h+var_38+8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+58h+vectorValue+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_GetVector(scrContext, 1u, &v2);
+  Scr_AddFloat(scrContext, fsqrt((float)((float)((float)(v2.v[1] - vectorValue.v[1]) * (float)(v2.v[1] - vectorValue.v[1])) + (float)((float)(v2.v[0] - vectorValue.v[0]) * (float)(v2.v[0] - vectorValue.v[0]))) + (float)((float)(v2.v[2] - vectorValue.v[2]) * (float)(v2.v[2] - vectorValue.v[2]))));
 }
 
 /*
@@ -1970,23 +1682,12 @@ BGScr_Distance2D
 */
 void BGScr_Distance2D(scrContext_t *scrContext)
 {
-  vec3_t v10; 
+  vec3_t v2; 
   vec3_t vectorValue; 
 
   Scr_GetVector(scrContext, 0, &vectorValue);
-  Scr_GetVector(scrContext, 1u, &v10);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+58h+var_38]
-    vmovss  xmm1, dword ptr [rsp+58h+var_38+4]
-    vsubss  xmm2, xmm1, dword ptr [rsp+58h+vectorValue+4]
-    vsubss  xmm4, xmm0, dword ptr [rsp+58h+vectorValue]
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm1, xmm3, xmm0
-    vsqrtss xmm1, xmm1, xmm1; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_GetVector(scrContext, 1u, &v2);
+  Scr_AddFloat(scrContext, fsqrt((float)((float)(v2.v[1] - vectorValue.v[1]) * (float)(v2.v[1] - vectorValue.v[1])) + (float)((float)(v2.v[0] - vectorValue.v[0]) * (float)(v2.v[0] - vectorValue.v[0]))));
 }
 
 /*
@@ -1996,22 +1697,12 @@ BGScr_Distance2DSquared
 */
 void BGScr_Distance2DSquared(scrContext_t *scrContext)
 {
-  vec3_t v9; 
+  vec3_t v2; 
   vec3_t vectorValue; 
 
   Scr_GetVector(scrContext, 0, &vectorValue);
-  Scr_GetVector(scrContext, 1u, &v9);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+58h+var_38]
-    vmovss  xmm1, dword ptr [rsp+58h+var_38+4]
-    vsubss  xmm2, xmm1, dword ptr [rsp+58h+vectorValue+4]
-    vsubss  xmm4, xmm0, dword ptr [rsp+58h+vectorValue]
-    vmulss  xmm3, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm1, xmm3, xmm0; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_GetVector(scrContext, 1u, &v2);
+  Scr_AddFloat(scrContext, (float)((float)(v2.v[1] - vectorValue.v[1]) * (float)(v2.v[1] - vectorValue.v[1])) + (float)((float)(v2.v[0] - vectorValue.v[0]) * (float)(v2.v[0] - vectorValue.v[0])));
 }
 
 /*
@@ -2021,26 +1712,12 @@ BGScr_DistanceSquared
 */
 void BGScr_DistanceSquared(scrContext_t *scrContext)
 {
-  vec3_t v13; 
+  vec3_t v2; 
   vec3_t vectorValue; 
 
   Scr_GetVector(scrContext, 0, &vectorValue);
-  Scr_GetVector(scrContext, 1u, &v13);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+58h+var_38]
-    vsubss  xmm3, xmm0, dword ptr [rsp+58h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+58h+var_38+4]
-    vsubss  xmm2, xmm1, dword ptr [rsp+58h+vectorValue+4]
-    vmovss  xmm0, dword ptr [rsp+58h+var_38+8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+58h+vectorValue+8]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm1, xmm3, xmm0; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_GetVector(scrContext, 1u, &v2);
+  Scr_AddFloat(scrContext, (float)((float)((float)(v2.v[1] - vectorValue.v[1]) * (float)(v2.v[1] - vectorValue.v[1])) + (float)((float)(v2.v[0] - vectorValue.v[0]) * (float)(v2.v[0] - vectorValue.v[0]))) + (float)((float)(v2.v[2] - vectorValue.v[2]) * (float)(v2.v[2] - vectorValue.v[2])));
 }
 
 /*
@@ -2053,19 +1730,7 @@ void BGScr_Length(scrContext_t *scrContext)
   vec3_t vectorValue; 
 
   Scr_GetVector(scrContext, 0, &vectorValue);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+48h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+48h+vectorValue+4]
-    vmulss  xmm2, xmm1, xmm1
-    vmulss  xmm3, xmm0, xmm0
-    vmovss  xmm0, dword ptr [rsp+48h+vectorValue+8]
-    vmulss  xmm1, xmm0, xmm0
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vsqrtss xmm1, xmm2, xmm2; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, fsqrt((float)((float)(vectorValue.v[0] * vectorValue.v[0]) + (float)(vectorValue.v[1] * vectorValue.v[1])) + (float)(vectorValue.v[2] * vectorValue.v[2])));
 }
 
 /*
@@ -2078,16 +1743,7 @@ void BGScr_Length2D(scrContext_t *scrContext)
   vec3_t vectorValue; 
 
   Scr_GetVector(scrContext, 0, &vectorValue);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+48h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+48h+vectorValue+4]
-    vmulss  xmm2, xmm1, xmm1
-    vmulss  xmm3, xmm0, xmm0
-    vaddss  xmm0, xmm3, xmm2
-    vsqrtss xmm1, xmm0, xmm0; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, fsqrt((float)(vectorValue.v[0] * vectorValue.v[0]) + (float)(vectorValue.v[1] * vectorValue.v[1])));
 }
 
 /*
@@ -2100,18 +1756,7 @@ void BGScr_LengthSquared(scrContext_t *scrContext)
   vec3_t vectorValue; 
 
   Scr_GetVector(scrContext, 0, &vectorValue);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+48h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+48h+vectorValue+4]
-    vmulss  xmm2, xmm1, xmm1
-    vmulss  xmm3, xmm0, xmm0
-    vmovss  xmm0, dword ptr [rsp+48h+vectorValue+8]
-    vmulss  xmm1, xmm0, xmm0
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm1, xmm4, xmm1; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, (float)((float)(vectorValue.v[0] * vectorValue.v[0]) + (float)(vectorValue.v[1] * vectorValue.v[1])) + (float)(vectorValue.v[2] * vectorValue.v[2]));
 }
 
 /*
@@ -2124,15 +1769,7 @@ void BGScr_Length2DSquared(scrContext_t *scrContext)
   vec3_t vectorValue; 
 
   Scr_GetVector(scrContext, 0, &vectorValue);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+48h+vectorValue+4]
-    vmovss  xmm0, dword ptr [rsp+48h+vectorValue]
-    vmulss  xmm3, xmm0, xmm0
-    vmulss  xmm2, xmm1, xmm1
-    vaddss  xmm1, xmm3, xmm2; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_AddFloat(scrContext, (float)(vectorValue.v[0] * vectorValue.v[0]) + (float)(vectorValue.v[1] * vectorValue.v[1]));
 }
 
 /*
@@ -2143,48 +1780,13 @@ BGScr_Closer
 void BGScr_Closer(scrContext_t *scrContext)
 {
   vec3_t vectorValue; 
-  vec3_t v28; 
-  vec3_t v29; 
+  vec3_t v3; 
+  vec3_t v4; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_18], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps [rsp+98h+var_38], xmm8
-  }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  Scr_GetVector(scrContext, 1u, &v28);
-  Scr_GetVector(scrContext, 2u, &v29);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsp+98h+vectorValue]
-    vsubss  xmm6, xmm2, dword ptr [rsp+98h+var_68]
-    vmovss  xmm1, dword ptr [rsp+98h+vectorValue+4]
-    vsubss  xmm3, xmm1, dword ptr [rsp+98h+var_68+4]
-    vsubss  xmm5, xmm1, dword ptr [rsp+98h+var_58+4]
-    vmovss  xmm0, dword ptr [rsp+98h+vectorValue+8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+98h+var_68+8]
-    vsubss  xmm8, xmm0, dword ptr [rsp+98h+var_58+8]
-    vsubss  xmm7, xmm2, dword ptr [rsp+98h+var_58]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm6, xmm2, xmm1
-    vmulss  xmm3, xmm5, xmm5
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm4, xmm2, xmm1
-    vcomiss xmm4, xmm6
-  }
-  Scr_AddInt(scrContext, 0);
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_18]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, [rsp+98h+var_38]
-  }
+  Scr_GetVector(scrContext, 1u, &v3);
+  Scr_GetVector(scrContext, 2u, &v4);
+  Scr_AddInt(scrContext, (float)((float)((float)((float)(vectorValue.v[1] - v4.v[1]) * (float)(vectorValue.v[1] - v4.v[1])) + (float)((float)(vectorValue.v[0] - v4.v[0]) * (float)(vectorValue.v[0] - v4.v[0]))) + (float)((float)(vectorValue.v[2] - v4.v[2]) * (float)(vectorValue.v[2] - v4.v[2]))) > (float)((float)((float)((float)(vectorValue.v[1] - v3.v[1]) * (float)(vectorValue.v[1] - v3.v[1])) + (float)((float)(vectorValue.v[0] - v3.v[0]) * (float)(vectorValue.v[0] - v3.v[0]))) + (float)((float)(vectorValue.v[2] - v3.v[2]) * (float)(vectorValue.v[2] - v3.v[2]))));
 }
 
 /*
@@ -2194,23 +1796,12 @@ BGScr_VectorDot
 */
 void BGScr_VectorDot(scrContext_t *scrContext)
 {
-  vec3_t v10; 
+  vec3_t v2; 
   vec3_t vectorValue; 
 
   Scr_GetVector(scrContext, 0, &vectorValue);
-  Scr_GetVector(scrContext, 1u, &v10);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+58h+var_38]
-    vmovss  xmm1, dword ptr [rsp+58h+var_38+4]
-    vmulss  xmm2, xmm1, dword ptr [rsp+58h+vectorValue+4]
-    vmulss  xmm3, xmm0, dword ptr [rsp+58h+vectorValue]
-    vmovss  xmm0, dword ptr [rsp+58h+var_38+8]
-    vmulss  xmm1, xmm0, dword ptr [rsp+58h+vectorValue+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm1, xmm4, xmm1; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  Scr_GetVector(scrContext, 1u, &v2);
+  Scr_AddFloat(scrContext, (float)((float)(v2.v[0] * vectorValue.v[0]) + (float)(v2.v[1] * vectorValue.v[1])) + (float)(v2.v[2] * vectorValue.v[2]));
 }
 
 /*
@@ -2221,32 +1812,15 @@ BGScr_VectorCross
 void BGScr_VectorCross(scrContext_t *scrContext)
 {
   vec3_t vectorValue; 
-  vec3_t v17; 
+  vec3_t v3; 
   float value[4]; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  Scr_GetVector(scrContext, 1u, &v17);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rsp+78h+var_48+8]
-    vmovss  xmm6, dword ptr [rsp+78h+var_48+4]
-    vmulss  xmm1, xmm5, dword ptr [rsp+78h+vectorValue+4]
-    vmulss  xmm0, xmm6, dword ptr [rsp+78h+vectorValue+8]
-    vmovss  xmm4, dword ptr [rsp+78h+var_48]
-    vmulss  xmm2, xmm4, dword ptr [rsp+78h+vectorValue+8]
-    vsubss  xmm1, xmm1, xmm0
-    vmulss  xmm0, xmm5, dword ptr [rsp+78h+vectorValue]
-    vmovss  [rsp+78h+value], xmm1
-    vsubss  xmm1, xmm2, xmm0
-    vmulss  xmm2, xmm6, dword ptr [rsp+78h+vectorValue]
-    vmulss  xmm0, xmm4, dword ptr [rsp+78h+vectorValue+4]
-    vmovss  [rsp+78h+var_34], xmm1
-    vsubss  xmm1, xmm2, xmm0
-    vmovss  [rsp+78h+var_30], xmm1
-  }
+  Scr_GetVector(scrContext, 1u, &v3);
+  value[0] = (float)(v3.v[2] * vectorValue.v[1]) - (float)(v3.v[1] * vectorValue.v[2]);
+  value[1] = (float)(v3.v[0] * vectorValue.v[2]) - (float)(v3.v[2] * vectorValue.v[0]);
+  value[2] = (float)(v3.v[1] * vectorValue.v[0]) - (float)(v3.v[0] * vectorValue.v[1]);
   Scr_AddVector(scrContext, value);
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -2256,36 +1830,24 @@ BGScr_VectorNormalize
 */
 void BGScr_VectorNormalize(scrContext_t *scrContext)
 {
+  __int128 v2; 
   vec3_t vectorValue; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_2545, scrContext, "wrong number of arguments to vectornormalize!");
   Scr_GetVector(scrContext, 0, &vectorValue);
+  v2 = LODWORD(vectorValue.v[0]);
+  *(float *)&v2 = fsqrt((float)((float)(*(float *)&v2 * *(float *)&v2) + (float)(vectorValue.v[1] * vectorValue.v[1])) + (float)(vectorValue.v[2] * vectorValue.v[2]));
+  _XMM3 = v2;
   __asm
   {
-    vmovss  xmm5, dword ptr [rsp+58h+vectorValue]
-    vmovss  xmm6, dword ptr [rsp+58h+vectorValue+4]
-    vmovss  xmm4, dword ptr [rsp+58h+vectorValue+8]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+58h+vectorValue], xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+58h+vectorValue+8], xmm0
-    vmovss  dword ptr [rsp+58h+vectorValue+4], xmm1
   }
+  vectorValue.v[0] = vectorValue.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  vectorValue.v[2] = vectorValue.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  vectorValue.v[1] = vectorValue.v[1] * (float)(1.0 / *(float *)&_XMM0);
   Scr_AddVector(scrContext, vectorValue.v);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -2341,14 +1903,14 @@ BGScr_VectorToYaw
 */
 void BGScr_VectorToYaw(scrContext_t *scrContext)
 {
+  double v2; 
   vec3_t vectorValue; 
 
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_2548, scrContext, "wrong number of arguments to vectortoyaw!");
   Scr_GetVector(scrContext, 0, &vectorValue);
-  *(double *)&_XMM0 = vectoyaw((const vec2_t *)&vectorValue);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v2 = vectoyaw((const vec2_t *)&vectorValue);
+  Scr_AddFloat(scrContext, *(float *)&v2);
 }
 
 /*
@@ -2358,14 +1920,14 @@ BGScr_VectorToPitch
 */
 void BGScr_VectorToPitch(scrContext_t *scrContext)
 {
+  double v2; 
   vec3_t vectorValue; 
 
   if ( Scr_GetNumParam(scrContext) != 1 )
     Scr_Error(COM_ERR_2549, scrContext, "wrong number of arguments to vectortopitch!");
   Scr_GetVector(scrContext, 0, &vectorValue);
-  *(double *)&_XMM0 = vectopitch(&vectorValue);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  v2 = vectopitch(&vectorValue);
+  Scr_AddFloat(scrContext, *(float *)&v2);
 }
 
 /*
@@ -2375,37 +1937,20 @@ BGScr_VectorLerp
 */
 void BGScr_VectorLerp(scrContext_t *scrContext)
 {
+  double Float; 
   vec3_t vectorValue; 
-  vec3_t v19; 
+  vec3_t v4; 
   float value[4]; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
   if ( Scr_GetNumParam(scrContext) != 3 )
     Scr_Error(COM_ERR_2550, scrContext, "wrong number of arguments to vectorlerp");
   Scr_GetVector(scrContext, 0, &vectorValue);
-  Scr_GetVector(scrContext, 1u, &v19);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+78h+var_48]
-    vsubss  xmm2, xmm1, dword ptr [rsp+78h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+78h+var_48+4]
-    vmulss  xmm3, xmm2, xmm0
-    vaddss  xmm4, xmm3, dword ptr [rsp+78h+vectorValue]
-    vsubss  xmm2, xmm1, dword ptr [rsp+78h+vectorValue+4]
-    vmovss  xmm1, dword ptr [rsp+78h+var_48+8]
-    vmulss  xmm3, xmm2, xmm0
-    vmovaps xmm6, xmm0
-    vsubss  xmm0, xmm1, dword ptr [rsp+78h+vectorValue+8]
-    vmulss  xmm2, xmm0, xmm6
-    vmovss  [rsp+78h+value], xmm4
-    vaddss  xmm4, xmm3, dword ptr [rsp+78h+vectorValue+4]
-    vaddss  xmm3, xmm2, dword ptr [rsp+78h+vectorValue+8]
-    vmovss  [rsp+78h+var_30], xmm3
-    vmovss  [rsp+78h+var_34], xmm4
-  }
+  Scr_GetVector(scrContext, 1u, &v4);
+  Float = Scr_GetFloat(scrContext, 2u);
+  value[0] = (float)((float)(v4.v[0] - vectorValue.v[0]) * *(float *)&Float) + vectorValue.v[0];
+  value[2] = (float)((float)(v4.v[2] - vectorValue.v[2]) * *(float *)&Float) + vectorValue.v[2];
+  value[1] = (float)((float)(v4.v[1] - vectorValue.v[1]) * *(float *)&Float) + vectorValue.v[1];
   Scr_AddVector(scrContext, value);
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -2456,39 +2001,14 @@ void BGScr_RotateVectorInverted(scrContext_t *scrContext)
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
 
-  __asm { vmovaps [rsp+0C8h+var_18], xmm6 }
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &angles);
   AnglesToAxis(&angles, &axis);
   MatrixTranspose(&axis, &out);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rsp+0C8h+vectorValue+4]
-    vmovss  xmm6, dword ptr [rsp+0C8h+vectorValue+8]
-    vmovss  xmm0, dword ptr [rsp+0C8h+out]
-    vmulss  xmm2, xmm0, dword ptr [rsp+0C8h+vectorValue]
-    vmulss  xmm1, xmm5, dword ptr [rsp+0C8h+out+0Ch]
-    vmulss  xmm0, xmm6, dword ptr [rsp+0C8h+out+18h]
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm2, dword ptr [rsp+0C8h+out+4]
-    vaddss  xmm1, xmm3, xmm0
-    vmulss  xmm3, xmm2, dword ptr [rsp+0C8h+vectorValue]
-    vmulss  xmm0, xmm6, dword ptr [rsp+0C8h+out+1Ch]
-    vmovss  xmm2, dword ptr [rsp+0C8h+out+8]
-    vmovss  [rsp+0C8h+value], xmm1
-    vmulss  xmm1, xmm5, dword ptr [rsp+0C8h+out+10h]
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm3, xmm2, dword ptr [rsp+0C8h+vectorValue]
-    vaddss  xmm1, xmm4, xmm0
-    vmulss  xmm0, xmm6, dword ptr [rsp+0C8h+out+20h]
-    vmovss  [rsp+0C8h+var_94], xmm1
-    vmulss  xmm1, xmm5, dword ptr [rsp+0C8h+out+14h]
-    vaddss  xmm4, xmm3, xmm1
-    vaddss  xmm1, xmm4, xmm0
-    vmovss  [rsp+0C8h+var_90], xmm1
-  }
+  value[0] = (float)((float)(out.m[0].v[0] * vectorValue.v[0]) + (float)(vectorValue.v[1] * out.m[1].v[0])) + (float)(vectorValue.v[2] * out.m[2].v[0]);
+  value[1] = (float)((float)(out.m[0].v[1] * vectorValue.v[0]) + (float)(vectorValue.v[1] * out.m[1].v[1])) + (float)(vectorValue.v[2] * out.m[2].v[1]);
+  value[2] = (float)((float)(out.m[0].v[2] * vectorValue.v[0]) + (float)(vectorValue.v[1] * out.m[1].v[2])) + (float)(vectorValue.v[2] * out.m[2].v[2]);
   Scr_AddVector(scrContext, value);
-  __asm { vmovaps xmm6, [rsp+0C8h+var_18] }
 }
 
 /*
@@ -2498,45 +2018,29 @@ BGScr_CalculateStartOrientation
 */
 void BGScr_CalculateStartOrientation(scrContext_t *scrContext)
 {
-  vec3_t v8; 
+  vec3_t v2; 
   vec3_t vectorValue; 
   vec3_t angles; 
-  vec3_t v11; 
+  vec3_t v5; 
   tmat43_t<vec3_t> axis; 
-  tmat43_t<vec3_t> v13; 
+  tmat43_t<vec3_t> v7; 
   tmat43_t<vec3_t> out; 
 
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &angles);
-  Scr_GetVector(scrContext, 2u, &v8);
-  Scr_GetVector(scrContext, 3u, &v11);
+  Scr_GetVector(scrContext, 2u, &v2);
+  Scr_GetVector(scrContext, 3u, &v5);
   AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&axis);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+vectorValue]
-    vmovss  xmm1, dword ptr [rbp+57h+vectorValue+4]
-    vmovss  [rbp+57h+value], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+vectorValue+8]
-    vmovss  [rbp+57h+var_74], xmm0
-    vmovss  [rbp+57h+var_78], xmm1
-  }
-  AnglesToAxis(&v11, (tmat33_t<vec3_t> *)&v13);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+100h+var_E0]
-    vmovss  xmm1, dword ptr [rsp+100h+var_E0+4]
-    vmovss  [rbp+57h+var_4C], xmm0
-    vmovss  xmm0, dword ptr [rsp+100h+var_E0+8]
-    vmovss  [rbp+57h+var_44], xmm0
-    vmovss  [rbp+57h+var_48], xmm1
-  }
+  axis.m[3] = vectorValue;
+  AnglesToAxis(&v5, (tmat33_t<vec3_t> *)&v7);
+  v7.m[3] = v2;
   MatrixInverseOrthogonal43(&axis, &out);
-  MatrixMultiply43(&out, &v13, &axis);
-  AxisToAngles((const tmat33_t<vec3_t> *)&axis, &v8);
+  MatrixMultiply43(&out, &v7, &axis);
+  AxisToAngles((const tmat33_t<vec3_t> *)&axis, &v2);
   Scr_MakeArray(scrContext);
   Scr_AddVector(scrContext, axis.m[3].v);
   Scr_AddArray(scrContext);
-  Scr_AddVector(scrContext, v8.v);
+  Scr_AddVector(scrContext, v2.v);
   Scr_AddArray(scrContext);
 }
 
@@ -2552,38 +2056,13 @@ void BGScr_RotateVector(scrContext_t *scrContext)
   tmat33_t<vec3_t> axis; 
   vec3_t angles; 
 
-  __asm { vmovaps [rsp+98h+var_18], xmm6 }
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &angles);
   AnglesToAxis(&angles, &axis);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rsp+98h+vectorValue+4]
-    vmovss  xmm6, dword ptr [rsp+98h+vectorValue+8]
-    vmovss  xmm0, dword ptr [rsp+98h+axis]
-    vmulss  xmm2, xmm0, dword ptr [rsp+98h+vectorValue]
-    vmulss  xmm1, xmm5, dword ptr [rsp+98h+axis+0Ch]
-    vmulss  xmm0, xmm6, dword ptr [rsp+98h+axis+18h]
-    vaddss  xmm3, xmm2, xmm1
-    vmovss  xmm2, dword ptr [rsp+98h+axis+4]
-    vaddss  xmm1, xmm3, xmm0
-    vmulss  xmm3, xmm2, dword ptr [rsp+98h+vectorValue]
-    vmulss  xmm0, xmm6, dword ptr [rsp+98h+axis+1Ch]
-    vmovss  xmm2, dword ptr [rsp+98h+axis+8]
-    vmovss  [rsp+98h+value], xmm1
-    vmulss  xmm1, xmm5, dword ptr [rsp+98h+axis+10h]
-    vaddss  xmm4, xmm3, xmm1
-    vmulss  xmm3, xmm2, dword ptr [rsp+98h+vectorValue]
-    vaddss  xmm1, xmm4, xmm0
-    vmulss  xmm0, xmm6, dword ptr [rsp+98h+axis+20h]
-    vmovss  [rsp+98h+var_64], xmm1
-    vmulss  xmm1, xmm5, dword ptr [rsp+98h+axis+14h]
-    vaddss  xmm4, xmm3, xmm1
-    vaddss  xmm1, xmm4, xmm0
-    vmovss  [rsp+98h+var_60], xmm1
-  }
+  value[0] = (float)((float)(axis.m[0].v[0] * vectorValue.v[0]) + (float)(vectorValue.v[1] * axis.m[1].v[0])) + (float)(vectorValue.v[2] * axis.m[2].v[0]);
+  value[1] = (float)((float)(axis.m[0].v[1] * vectorValue.v[0]) + (float)(vectorValue.v[1] * axis.m[1].v[1])) + (float)(vectorValue.v[2] * axis.m[2].v[1]);
+  value[2] = (float)((float)(axis.m[0].v[2] * vectorValue.v[0]) + (float)(vectorValue.v[1] * axis.m[1].v[2])) + (float)(vectorValue.v[2] * axis.m[2].v[2]);
   Scr_AddVector(scrContext, value);
-  __asm { vmovaps xmm6, [rsp+98h+var_18] }
 }
 
 /*
@@ -2593,62 +2072,39 @@ BGScr_RotatePointAroundVector
 */
 void BGScr_RotatePointAroundVector(scrContext_t *scrContext)
 {
-  char v3; 
-  char v4; 
+  __int128 v2; 
+  double Float; 
   vec3_t vectorValue; 
   vec3_t point; 
   vec3_t dst; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &point);
-  __asm
+  v2 = LODWORD(vectorValue.v[0]);
+  *(float *)&v2 = (float)((float)(*(float *)&v2 * *(float *)&v2) + (float)(vectorValue.v[1] * vectorValue.v[1])) + (float)(vectorValue.v[2] * vectorValue.v[2]);
+  if ( *(float *)&v2 >= 0.001 )
   {
-    vmovss  xmm4, dword ptr [rsp+78h+vectorValue]
-    vmovss  xmm5, dword ptr [rsp+78h+vectorValue+4]
-    vmovss  xmm6, dword ptr [rsp+78h+vectorValue+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vcomiss xmm3, cs:__real@3a83126f
-  }
-  if ( v3 )
-  {
-    Scr_Error(COM_ERR_2551, scrContext, "Zero length vector was passed as first parameter!");
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v2 - 1.0) & _xmm) > 0.0000010000001 )
+    {
+      *(float *)&v2 = fsqrt(*(float *)&v2);
+      _XMM1 = v2;
+      __asm
+      {
+        vcmpless xmm0, xmm1, cs:__real@80000000
+        vblendvps xmm0, xmm1, xmm2, xmm0
+      }
+      vectorValue.v[0] = vectorValue.v[0] * (float)(1.0 / *(float *)&_XMM0);
+      vectorValue.v[2] = vectorValue.v[2] * (float)(1.0 / *(float *)&_XMM0);
+      vectorValue.v[1] = vectorValue.v[1] * (float)(1.0 / *(float *)&_XMM0);
+    }
+    Float = Scr_GetFloat(scrContext, 2u);
+    RotatePointAroundVector(&dst, &vectorValue, &point, *(float *)&Float);
+    Scr_AddVector(scrContext, dst.v);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000
-      vsubss  xmm0, xmm3, xmm2
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@358637be
-    }
-    if ( !(v3 | v4) )
-    {
-      __asm
-      {
-        vsqrtss xmm1, xmm3, xmm3
-        vcmpless xmm0, xmm1, cs:__real@80000000
-        vblendvps xmm0, xmm1, xmm2, xmm0
-        vdivss  xmm2, xmm2, xmm0
-        vmulss  xmm0, xmm4, xmm2
-        vmovss  dword ptr [rsp+78h+vectorValue], xmm0
-        vmulss  xmm0, xmm6, xmm2
-        vmulss  xmm1, xmm5, xmm2
-        vmovss  dword ptr [rsp+78h+vectorValue+8], xmm0
-        vmovss  dword ptr [rsp+78h+vectorValue+4], xmm1
-      }
-    }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovaps xmm3, xmm0; degrees }
-    RotatePointAroundVector(&dst, &vectorValue, &point, *(float *)&_XMM3);
-    Scr_AddVector(scrContext, dst.v);
+    Scr_Error(COM_ERR_2551, scrContext, "Zero length vector was passed as first parameter!");
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -2656,27 +2112,17 @@ void BGScr_RotatePointAroundVector(scrContext_t *scrContext)
 BGScr_AveragePoint
 ==============
 */
-
-void __fastcall BGScr_AveragePoint(scrContext_t *scrContext, __int64 a2, __int64 a3, double _XMM3_8)
+void BGScr_AveragePoint(scrContext_t *scrContext)
 {
+  float v2; 
   unsigned int resultCnt; 
   vec3_t resultSum; 
 
   SummarizeArrayPoints(scrContext, &resultCnt, &resultSum);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+48h+resultSum]
-    vmovss  xmm2, dword ptr [rsp+48h+resultSum+4]
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, rax
-    vdivss  xmm1, xmm0, xmm3
-    vdivss  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rsp+48h+resultSum], xmm1
-    vmovss  xmm1, dword ptr [rsp+48h+resultSum+8]
-    vdivss  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rsp+48h+resultSum+8], xmm2
-    vmovss  dword ptr [rsp+48h+resultSum+4], xmm0
-  }
+  v2 = (float)resultCnt;
+  resultSum.v[0] = resultSum.v[0] / v2;
+  resultSum.v[2] = resultSum.v[2] / v2;
+  resultSum.v[1] = resultSum.v[1] / v2;
   Scr_AddVector(scrContext, resultSum.v);
 }
 
@@ -2687,35 +2133,23 @@ BGScr_AverageNormal
 */
 void BGScr_AverageNormal(scrContext_t *scrContext)
 {
+  __int128 v2; 
   unsigned int resultCnt; 
   vec3_t resultSum; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   SummarizeArrayPoints(scrContext, &resultCnt, &resultSum);
+  v2 = LODWORD(resultSum.v[0]);
+  *(float *)&v2 = fsqrt((float)((float)(*(float *)&v2 * *(float *)&v2) + (float)(resultSum.v[1] * resultSum.v[1])) + (float)(resultSum.v[2] * resultSum.v[2]));
+  _XMM3 = v2;
   __asm
   {
-    vmovss  xmm5, dword ptr [rsp+58h+resultSum]
-    vmovss  xmm6, dword ptr [rsp+58h+resultSum+4]
-    vmovss  xmm4, dword ptr [rsp+58h+resultSum+8]
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+58h+resultSum], xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+58h+resultSum+8], xmm0
-    vmovss  dword ptr [rsp+58h+resultSum+4], xmm1
   }
+  resultSum.v[0] = resultSum.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  resultSum.v[2] = resultSum.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  resultSum.v[1] = resultSum.v[1] * (float)(1.0 / *(float *)&_XMM0);
   Scr_AddVector(scrContext, resultSum.v);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
 }
 
 /*
@@ -2725,25 +2159,22 @@ BGScr_ProjectileIntercept
 */
 void BGScr_ProjectileIntercept(scrContext_t *scrContext)
 {
+  double Float; 
   vec3_t targetVel; 
   vec3_t targetPos; 
   vec3_t startVel; 
   vec3_t vectorValue; 
   vec3_t intercept; 
 
-  __asm { vmovaps [rsp+0A8h+var_18], xmm6 }
   if ( Scr_GetNumParam(scrContext) != 5 )
     Scr_Error(COM_ERR_2554, scrContext, "Incorrect number of parameters for ProjectileIntercept.");
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &startVel);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmovaps xmm6, xmm0 }
+  Float = Scr_GetFloat(scrContext, 2u);
   Scr_GetVector(scrContext, 3u, &targetPos);
   Scr_GetVector(scrContext, 4u, &targetVel);
-  __asm { vmovaps xmm2, xmm6; projSpeed }
-  if ( ProjectileIntercept(&vectorValue, &startVel, *(const float *)&_XMM2, &targetPos, &targetVel, &intercept) )
+  if ( ProjectileIntercept(&vectorValue, &startVel, *(const float *)&Float, &targetPos, &targetVel, &intercept) )
     Scr_AddVector(scrContext, intercept.v);
-  __asm { vmovaps xmm6, [rsp+0A8h+var_18] }
 }
 
 /*
@@ -2753,10 +2184,12 @@ BGScr_AngleClamp360
 */
 void BGScr_AngleClamp360(scrContext_t *scrContext)
 {
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-  __asm { vmovaps xmm1, xmm0; value }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  double Float; 
+  double v3; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  v3 = AngleNormalize360(*(const float *)&Float);
+  Scr_AddFloat(scrContext, *(float *)&v3);
 }
 
 /*
@@ -2764,22 +2197,16 @@ void BGScr_AngleClamp360(scrContext_t *scrContext)
 BGScr_AngleClamp180
 ==============
 */
-
-void __fastcall BGScr_AngleClamp180(scrContext_t *scrContext, double _XMM1_8)
+void BGScr_AngleClamp180(scrContext_t *scrContext)
 {
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vmulss  xmm5, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-    vsubss  xmm1, xmm5, xmm4
-    vmulss  xmm1, xmm1, cs:__real@43b40000; value
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+  double Float; 
+  float v3; 
+
+  Float = Scr_GetFloat(scrContext, 0);
+  v3 = *(float *)&Float * 0.0027777778;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
+  Scr_AddFloat(scrContext, (float)(v3 - *(float *)&_XMM4) * 360.0);
 }
 
 /*
@@ -2797,19 +2224,9 @@ void BGScr_AnglesToAxis(scrContext_t *scrContext)
   Scr_MakeArray(scrContext);
   Scr_AddVector(scrContext, (const float *)&axis);
   Scr_AddArrayStringIndexed(scrContext, scr_const.forward);
-  __asm
-  {
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, dword ptr [rsp+68h+axis+0Ch]
-    vmovss  xmm2, dword ptr [rsp+68h+axis+10h]
-    vxorps  xmm1, xmm0, xmm3
-    vxorps  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rsp+68h+axis+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rsp+68h+axis+14h]
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rsp+68h+axis+14h], xmm2
-    vmovss  dword ptr [rsp+68h+axis+10h], xmm0
-  }
+  LODWORD(axis.m[1].v[0]) ^= _xmm;
+  LODWORD(axis.m[1].v[2]) ^= _xmm;
+  LODWORD(axis.m[1].v[1]) ^= _xmm;
   Scr_AddVector(scrContext, axis.m[1].v);
   Scr_AddArrayStringIndexed(scrContext, scr_const.right);
   Scr_AddVector(scrContext, axis.m[2].v);
@@ -2861,16 +2278,9 @@ void BGScr_AnglesToLeft(scrContext_t *scrContext)
 
   Scr_GetVector(scrContext, 0, &vectorValue);
   AngleVectors(&vectorValue, NULL, &right, NULL);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@bf800000
-    vmulss  xmm1, xmm3, dword ptr [rsp+68h+right]
-    vmulss  xmm0, xmm3, dword ptr [rsp+68h+right+4]
-    vmulss  xmm2, xmm3, dword ptr [rsp+68h+right+8]
-    vmovss  [rsp+68h+value], xmm1
-    vmovss  [rsp+68h+var_34], xmm0
-    vmovss  [rsp+68h+var_30], xmm2
-  }
+  value[0] = -1.0 * right.v[0];
+  value[1] = -1.0 * right.v[1];
+  value[2] = -1.0 * right.v[2];
   Scr_AddVector(scrContext, value);
 }
 
@@ -2896,9 +2306,9 @@ BGScr_AnglesDelta
 */
 void BGScr_AnglesDelta(scrContext_t *scrContext)
 {
-  char v14; 
-  char v15; 
-  vec4_t v17; 
+  float v2; 
+  float v3; 
+  vec4_t v4; 
   vec4_t quat; 
   vec3_t vectorValue; 
   vec3_t angles; 
@@ -2906,33 +2316,13 @@ void BGScr_AnglesDelta(scrContext_t *scrContext)
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &angles);
   AnglesToQuat(&vectorValue, &quat);
-  AnglesToQuat(&angles, &v17);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+78h+var_58]
-    vmulss  xmm3, xmm0, dword ptr [rsp+78h+quat]
-    vmovss  xmm1, dword ptr [rsp+78h+var_58+4]
-    vmulss  xmm2, xmm1, dword ptr [rsp+78h+quat+4]
-    vmovss  xmm0, dword ptr [rsp+78h+var_58+8]
-    vmulss  xmm1, xmm0, dword ptr [rsp+78h+quat+8]
-    vaddss  xmm4, xmm3, xmm2
-    vmovss  xmm2, dword ptr [rsp+78h+var_58+0Ch]
-    vmulss  xmm0, xmm2, dword ptr [rsp+78h+quat+0Ch]
-    vaddss  xmm3, xmm4, xmm1
-    vaddss  xmm0, xmm3, xmm0
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; X
-    vcomiss xmm0, cs:__real@3f800000
-  }
-  if ( v14 | v15 )
-  {
-    *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-    __asm { vmulss  xmm1, xmm0, cs:__real@42e52ee0; value }
-  }
+  AnglesToQuat(&angles, &v4);
+  LODWORD(v2) = COERCE_UNSIGNED_INT((float)((float)((float)(v4.v[0] * quat.v[0]) + (float)(v4.v[1] * quat.v[1])) + (float)(v4.v[2] * quat.v[2])) + (float)(v4.v[3] * quat.v[3])) & _xmm;
+  if ( v2 <= 1.0 )
+    v3 = acosf_0(v2) * 114.59155;
   else
-  {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-  }
-  Scr_AddFloat(scrContext, *(float *)&_XMM1);
+    v3 = 0.0;
+  Scr_AddFloat(scrContext, v3);
 }
 
 /*
@@ -2965,29 +2355,26 @@ BGScr_AngleLerpQuat
 */
 void BGScr_AngleLerpQuat(scrContext_t *scrContext)
 {
+  double Float; 
   vec3_t vectorValue; 
   vec3_t angles; 
-  vec3_t v9; 
+  vec3_t v5; 
   vec4_t to; 
   vec4_t quat; 
   vec4_t result; 
   tmat33_t<vec3_t> axis; 
 
-  __asm { vmovaps [rsp+0C8h+var_18], xmm6 }
   if ( Scr_GetNumParam(scrContext) != 3 )
     Scr_Error(COM_ERR_2556, scrContext, "Wrong number of arguments to AngleLerpQuat( <startAngles>, <end>, <maxAngleDelta> )");
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &angles);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmovaps xmm6, xmm0 }
+  Float = Scr_GetFloat(scrContext, 2u);
   AnglesToQuat(&vectorValue, &quat);
   AnglesToQuat(&angles, &to);
-  __asm { vmulss  xmm2, xmm6, cs:__real@3c8efa35; limit }
-  QuatSlerpLimited(&quat, &to, *(float *)&_XMM2, &result);
+  QuatSlerpLimited(&quat, &to, *(float *)&Float * 0.017453292, &result);
   QuatToAxis(&result, &axis);
-  AxisToAngles(&axis, &v9);
-  Scr_AddVector(scrContext, v9.v);
-  __asm { vmovaps xmm6, [rsp+0C8h+var_18] }
+  AxisToAngles(&axis, &v5);
+  Scr_AddVector(scrContext, v5.v);
 }
 
 /*
@@ -2997,29 +2384,26 @@ BGScr_AngleLerpQuatFrac
 */
 void BGScr_AngleLerpQuatFrac(scrContext_t *scrContext)
 {
+  double Float; 
   vec3_t vectorValue; 
   vec3_t angles; 
-  vec3_t v9; 
+  vec3_t v5; 
   vec4_t to; 
   vec4_t quat; 
   vec4_t result; 
   tmat33_t<vec3_t> axis; 
 
-  __asm { vmovaps [rsp+0C8h+var_18], xmm6 }
   if ( Scr_GetNumParam(scrContext) != 3 )
     Scr_Error(COM_ERR_2557, scrContext, "Wrong number of arguments to AngleLerpQuatFrac( <startAngles>, <end>, <fraction> )");
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &angles);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm { vmovaps xmm6, xmm0 }
+  Float = Scr_GetFloat(scrContext, 2u);
   AnglesToQuat(&vectorValue, &quat);
   AnglesToQuat(&angles, &to);
-  __asm { vmovaps xmm2, xmm6; frac }
-  QuatSlerp(&quat, &to, *(float *)&_XMM2, &result);
+  QuatSlerp(&quat, &to, *(float *)&Float, &result);
   QuatToAxis(&result, &axis);
-  AxisToAngles(&axis, &v9);
-  Scr_AddVector(scrContext, v9.v);
-  __asm { vmovaps xmm6, [rsp+0C8h+var_18] }
+  AxisToAngles(&axis, &v5);
+  Scr_AddVector(scrContext, v5.v);
 }
 
 /*
@@ -3055,19 +2439,9 @@ void BGScr_AxisToAngles(scrContext_t *scrContext)
   Scr_GetVector(scrContext, 0, vectorValue.m);
   Scr_GetVector(scrContext, 1u, &vectorValue.m[1]);
   Scr_GetVector(scrContext, 2u, &vectorValue.m[2]);
-  __asm
-  {
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, dword ptr [rsp+68h+var_3C]
-    vmovss  xmm2, dword ptr [rsp+68h+var_3C+4]
-    vxorps  xmm1, xmm0, xmm3
-    vxorps  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rsp+68h+var_3C], xmm1
-    vmovss  xmm1, dword ptr [rsp+68h+var_3C+8]
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rsp+68h+var_3C+8], xmm2
-    vmovss  dword ptr [rsp+68h+var_3C+4], xmm0
-  }
+  LODWORD(vectorValue.m[1].v[0]) ^= _xmm;
+  LODWORD(vectorValue.m[1].v[2]) ^= _xmm;
+  LODWORD(vectorValue.m[1].v[1]) ^= _xmm;
   AxisToAngles(&vectorValue, &angles);
   Scr_AddVector(scrContext, angles.v);
 }
@@ -3429,8 +2803,9 @@ void SummarizeArrayPoints(scrContext_t *scrContext, unsigned int *resultCnt, vec
   unsigned int ArraySize; 
   unsigned int v10; 
   unsigned int ArrayVariable; 
+  VariableUnion *VariableValueAddress; 
+  float *scriptCodePosValue; 
 
-  _RDI = resultSum;
   if ( !resultCnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_scr_main.cpp", 1158, ASSERT_TYPE_ASSERT, "(resultCnt)", (const char *)&queryFormat, "resultCnt") )
     __debugbreak();
   if ( Scr_GetPointerType(scrContext, 0) != VAR_ARRAY )
@@ -3444,27 +2819,17 @@ void SummarizeArrayPoints(scrContext_t *scrContext, unsigned int *resultCnt, vec
   if ( !ArraySize )
     Scr_Error(COM_ERR_2552, scrContext, "An empty array is not valid.");
   v10 = 0;
-  *(_QWORD *)_RDI->v = 0i64;
-  _RDI->v[2] = 0.0;
-  while ( v10 < ArraySize )
+  *(_QWORD *)resultSum->v = 0i64;
+  for ( resultSum->v[2] = 0.0; v10 < ArraySize; resultSum->v[2] = scriptCodePosValue[2] + resultSum->v[2] )
   {
     ArrayVariable = GetArrayVariable(scrContext, Object, v10);
     if ( GetValueType(scrContext, ArrayVariable) != VAR_VECTOR )
       Scr_Error(COM_ERR_2553, scrContext, "All elements need to be 3d points.");
+    VariableValueAddress = GetVariableValueAddress(scrContext, ArrayVariable);
     ++v10;
-    _RCX = GetVariableValueAddress(scrContext, ArrayVariable)->scriptCodePosValue;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx]
-      vaddss  xmm1, xmm0, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm2, dword ptr [rcx+4]
-      vaddss  xmm0, xmm2, dword ptr [rdi+4]
-      vmovss  dword ptr [rdi+4], xmm0
-      vmovss  xmm1, dword ptr [rcx+8]
-      vaddss  xmm2, xmm1, dword ptr [rdi+8]
-      vmovss  dword ptr [rdi+8], xmm2
-    }
+    scriptCodePosValue = (float *)VariableValueAddress->scriptCodePosValue;
+    resultSum->v[0] = *VariableValueAddress->vectorValue + resultSum->v[0];
+    resultSum->v[1] = scriptCodePosValue[1] + resultSum->v[1];
   }
   *resultCnt = ArraySize;
 }

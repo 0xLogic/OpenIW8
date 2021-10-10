@@ -49,21 +49,17 @@ winrt::Windows::Xbox::ApplicationModel::Store::impl_IProductStatics<winrt::Windo
 */
 winrt::Windows::Foundation::IAsyncAction *winrt::Windows::Xbox::ApplicationModel::Store::impl_IProductStatics<winrt::Windows::Xbox::ApplicationModel::Store::IProductStatics>::ShowDetailsAsync(winrt::Windows::Xbox::ApplicationModel::Store::impl_IProductStatics<winrt::Windows::Xbox::ApplicationModel::Store::IProductStatics> *this, winrt::Windows::Foundation::IAsyncAction *result, const winrt::Windows::Xbox::System::IUser *requestingUser, winrt::hstring_view *productId)
 {
-  winrt::Windows::Xbox::ApplicationModel::Store::impl_IProductStatics<winrt::Windows::Xbox::ApplicationModel::Store::IProductStatics> *v7; 
-  HRESULT v10; 
+  __int64 v4; 
+  winrt::Windows::Xbox::ApplicationModel::Store::impl_IProductStatics<winrt::Windows::Xbox::ApplicationModel::Store::IProductStatics> *v6; 
+  HRESULT v7; 
 
   result->m_ptr = NULL;
-  v7 = this - 8;
+  v6 = this - 8;
   if ( !this )
-    v7 = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r9]
-    vmovq   r8, xmm0
-  }
-  v10 = (*(__int64 (__fastcall **)(_QWORD, IUnknown *, __int64, winrt::Windows::Foundation::IAsyncAction *, int, __int64))(**(_QWORD **)v7 + 56i64))(*(_QWORD *)v7, requestingUser->m_ptr, _R8, result, 1, -2i64);
-  if ( v10 )
-    winrt::impl::throw_hresult(v10);
+    v6 = NULL;
+  v7 = (*(__int64 (__fastcall **)(_QWORD, IUnknown *, __int64, winrt::Windows::Foundation::IAsyncAction *, int, __int64))(**(_QWORD **)v6 + 56i64))(*(_QWORD *)v6, requestingUser->m_ptr, v4, result, 1, -2i64);
+  if ( v7 )
+    winrt::impl::throw_hresult(v7);
   return result;
 }
 
@@ -104,21 +100,17 @@ winrt::Windows::Xbox::ApplicationModel::Store::impl_IProductStatics<winrt::Windo
 */
 winrt::Windows::Foundation::IAsyncAction *winrt::Windows::Xbox::ApplicationModel::Store::impl_IProductStatics<winrt::Windows::Xbox::ApplicationModel::Store::IProductStatics>::ShowPurchaseAsync(winrt::Windows::Xbox::ApplicationModel::Store::impl_IProductStatics<winrt::Windows::Xbox::ApplicationModel::Store::IProductStatics> *this, winrt::Windows::Foundation::IAsyncAction *result, const winrt::Windows::Xbox::System::IUser *requestingUser, winrt::hstring_view *offer)
 {
-  winrt::Windows::Xbox::ApplicationModel::Store::impl_IProductStatics<winrt::Windows::Xbox::ApplicationModel::Store::IProductStatics> *v7; 
-  HRESULT v10; 
+  __int64 v4; 
+  winrt::Windows::Xbox::ApplicationModel::Store::impl_IProductStatics<winrt::Windows::Xbox::ApplicationModel::Store::IProductStatics> *v6; 
+  HRESULT v7; 
 
   result->m_ptr = NULL;
-  v7 = this - 8;
+  v6 = this - 8;
   if ( !this )
-    v7 = NULL;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r9]
-    vmovq   r8, xmm0
-  }
-  v10 = (*(__int64 (__fastcall **)(_QWORD, IUnknown *, __int64, winrt::Windows::Foundation::IAsyncAction *, int, __int64))(**(_QWORD **)v7 + 48i64))(*(_QWORD *)v7, requestingUser->m_ptr, _R8, result, 1, -2i64);
-  if ( v10 )
-    winrt::impl::throw_hresult(v10);
+    v6 = NULL;
+  v7 = (*(__int64 (__fastcall **)(_QWORD, IUnknown *, __int64, winrt::Windows::Foundation::IAsyncAction *, int, __int64))(**(_QWORD **)v6 + 48i64))(*(_QWORD *)v6, requestingUser->m_ptr, v4, result, 1, -2i64);
+  if ( v7 )
+    winrt::impl::throw_hresult(v7);
   return result;
 }
 

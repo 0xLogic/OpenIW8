@@ -115,36 +115,20 @@ Pow2TexturePacker<6,512>::GetUVs
 */
 char Pow2TexturePacker<6,512>::GetUVs(Pow2TexturePacker<6,512> *this, unsigned int level, unsigned int *textureOffset, float *u, float *v, float *d)
 {
+  char v8; 
   unsigned int Offset; 
+  float v10; 
+  float v11; 
 
-  _RDI = u;
+  v8 = level;
   Offset = Pow2TexturePacker<6,512>::GetOffset(this, level);
   if ( Offset == -1 )
     return 0;
-  __asm { vmovss  xmm3, cs:__real@3b000000 }
-  _RAX = v;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm3
-    vaddss  xmm0, xmm1, cs:__real@3a800000
-    vmovss  dword ptr [rdi], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm3
-    vaddss  xmm2, xmm1, cs:__real@3a800000
-    vmovss  dword ptr [rax], xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-  }
-  _RAX = d;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm3
-    vsubss  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rax], xmm2
-  }
+  v10 = (float)HIWORD(Offset);
+  *u = (float)(v10 * 0.001953125) + 0.0009765625;
+  v11 = (float)(unsigned __int16)Offset;
+  *v = (float)(v11 * 0.001953125) + 0.0009765625;
+  *d = (float)((float)(1 << v8) * 0.001953125) - 0.001953125;
   *textureOffset = Offset;
   return 1;
 }

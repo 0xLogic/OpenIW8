@@ -801,343 +801,343 @@ bdUnicastConnection::getDataToSend
 */
 __int64 bdUnicastConnection::getDataToSend(bdUnicastConnection *this, unsigned __int8 *const buffer, const unsigned int bufferSize)
 {
-  unsigned __int8 *v5; 
-  bdUnicastConnection *v6; 
-  char v7; 
-  char v8; 
-  unsigned int v9; 
-  bool v10; 
+  unsigned __int8 *v4; 
+  bdUnicastConnection *v5; 
+  double ElapsedTimeInSeconds; 
+  unsigned int v7; 
+  double v8; 
+  bool v9; 
+  double v10; 
   bdInitAckChunk *m_ptr; 
+  double v12; 
   bdUnicastConnection::bdUnicastConnectionStatus m_state; 
   bdQueue<bdUnicastConnection::bdControlChunkStore> *p_m_outQueue; 
   bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *m_head; 
-  bdChunk *v15; 
-  bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *v16; 
+  bdChunk *v16; 
+  bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *v17; 
   bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *m_prev; 
-  bdChunk *v18; 
-  signed __int32 v19; 
+  double v19; 
+  bdChunk *v20; 
+  signed __int32 v21; 
   bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *m_tail; 
-  bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *v21; 
-  bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *v22; 
-  bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *m_next; 
+  bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *v23; 
   bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *v24; 
+  bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *m_next; 
+  bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *v26; 
   unsigned int m_peerTag; 
-  bdInitAckChunk *v26; 
-  bdChunk *v27; 
-  unsigned int v28; 
+  bdInitAckChunk *v28; 
+  bdChunk *v29; 
+  unsigned int v30; 
   bdReliableReceiveWindow *m_reliableRecvWindow; 
   bdReliableSendWindow *m_reliableSendWindow; 
-  bdUnicastConnection::bdUnicastConnectionStatus v31; 
-  bdHeartbeatChunk *v33; 
-  bdChunk *v34; 
-  bdChunk *v35; 
-  double v37; 
-  bdReference<bdChunk> v38; 
+  bdUnicastConnection::bdUnicastConnectionStatus v33; 
+  double v34; 
+  bdHeartbeatChunk *v35; 
+  bdChunk *v36; 
+  bdChunk *v37; 
+  bdReference<bdChunk> v39; 
   bdReference<bdInitAckChunk> chunk; 
-  bdReference<bdChunk> v40; 
   bdReference<bdChunk> v41; 
   bdReference<bdChunk> v42; 
-  bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *v43; 
+  bdReference<bdChunk> v43; 
+  bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *v44; 
   bdPacket packet; 
-  bdChunk *v45; 
-  char v46; 
-  __int64 v47; 
-  bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *v48; 
-  bdInitAckChunk *v49; 
-  bdChunk *v50; 
-  bdPacket v51; 
-  bdChunk *v55; 
+  bdChunk *v46; 
+  char v47; 
+  __int64 v48; 
+  bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *v49; 
+  bdInitAckChunk *v50; 
+  bdChunk *v51; 
+  bdPacket v52; 
+  bdChunk *v56; 
 
-  v47 = -2i64;
-  v5 = buffer;
-  v6 = this;
+  v48 = -2i64;
+  v4 = buffer;
+  v5 = this;
   bdPacket::bdPacket(&packet, this->m_peerTag, bufferSize);
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v6->m_shutdownGuard);
-  __asm { vcomiss xmm0, cs:__real@40a00000 }
-  if ( !(v7 | v8) )
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&v5->m_shutdownGuard);
+  if ( *(float *)&ElapsedTimeInSeconds > 5.0 )
   {
-    v6->close(v6);
-    v9 = 0;
-    goto LABEL_111;
+    v5->close(v5);
+    v7 = 0;
+    goto LABEL_112;
   }
-  if ( !v6->m_outQueue.m_list.m_size )
+  if ( !v5->m_outQueue.m_list.m_size )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v6->m_initTimer);
-    __asm { vcomiss xmm0, cs:__real@3f000000 }
-    if ( v7 | v8 )
+    v8 = bdStopwatch::getElapsedTimeInSeconds(&v5->m_initTimer);
+    if ( *(float *)&v8 <= 0.5 )
     {
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v6->m_cookieTimer);
-      __asm { vcomiss xmm0, cs:__real@3f000000 }
-      if ( v7 | v8 )
+      v10 = bdStopwatch::getElapsedTimeInSeconds(&v5->m_cookieTimer);
+      if ( *(float *)&v10 <= 0.5 )
       {
-        *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v6->m_shutdownTimer);
-        __asm { vcomiss xmm0, cs:__real@3f000000 }
-        if ( v7 | v8 )
+        v12 = bdStopwatch::getElapsedTimeInSeconds(&v5->m_shutdownTimer);
+        if ( *(float *)&v12 <= 0.5 )
           goto LABEL_17;
-        m_state = v6->m_state;
+        m_state = v5->m_state;
         if ( m_state == BD_UC_SHUTDOWN_SENT )
         {
-          v10 = bdUnicastConnection::sendShutdown(v6);
+          v9 = bdUnicastConnection::sendShutdown(v5);
         }
         else
         {
           if ( (unsigned int)(m_state - 6) > 1 )
             goto LABEL_17;
-          v10 = bdUnicastConnection::sendShutdownAck(v6);
+          v9 = bdUnicastConnection::sendShutdownAck(v5);
         }
       }
       else
       {
-        m_ptr = v6->m_initAckChunk.m_ptr;
+        m_ptr = v5->m_initAckChunk.m_ptr;
         chunk.m_ptr = m_ptr;
         if ( m_ptr )
           _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-        v10 = bdUnicastConnection::sendCookieEcho(v6, (bdReference<bdInitAckChunk>)&chunk);
+        v9 = bdUnicastConnection::sendCookieEcho(v5, (bdReference<bdInitAckChunk>)&chunk);
       }
     }
     else
     {
-      v10 = bdUnicastConnection::sendInit(v6);
+      v9 = bdUnicastConnection::sendInit(v5);
     }
-    if ( !v10 )
-      v6->close(v6);
+    if ( !v9 )
+      v5->close(v5);
   }
 LABEL_17:
-  v9 = 0;
-  if ( !v6->m_outQueue.m_list.m_size )
+  v7 = 0;
+  if ( !v5->m_outQueue.m_list.m_size )
   {
 LABEL_35:
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v6->m_receiveTimer);
-    if ( (unsigned int)(v6->m_state - 3) <= 3 )
+    v19 = bdStopwatch::getElapsedTimeInSeconds(&v5->m_receiveTimer);
+    if ( (unsigned int)(v5->m_state - 3) <= 3 )
     {
-      __asm { vcomiss xmm0, cs:__real@44e10000 }
-      m_reliableRecvWindow = v6->m_reliableRecvWindow;
-      if ( m_reliableRecvWindow )
-        bdReliableReceiveWindow::getDataToSend(m_reliableRecvWindow, &packet);
-      m_reliableSendWindow = v6->m_reliableSendWindow;
-      if ( m_reliableSendWindow )
-        bdReliableSendWindow::getDataToSend(m_reliableSendWindow, &packet);
-      bdUnreliableSendWindow::getDataToSend(&v6->m_unreliableSendWindow, &packet);
-    }
-    v31 = v6->m_state;
-    if ( v31 == BD_UC_SHUTDOWN_PENDING )
-    {
-      if ( !bdPacket::isEmpty(&packet) || !bdUnicastConnection::windowsEmpty(v6) )
-        goto LABEL_93;
-      if ( bdUnicastConnection::sendShutdown(v6) )
+      if ( *(float *)&v19 <= 1800.0 )
       {
-        v6->m_state = BD_UC_SHUTDOWN_SENT;
-        goto LABEL_93;
+        m_reliableRecvWindow = v5->m_reliableRecvWindow;
+        if ( m_reliableRecvWindow )
+          bdReliableReceiveWindow::getDataToSend(m_reliableRecvWindow, &packet);
+        m_reliableSendWindow = v5->m_reliableSendWindow;
+        if ( m_reliableSendWindow )
+          bdReliableSendWindow::getDataToSend(m_reliableSendWindow, &packet);
+        bdUnreliableSendWindow::getDataToSend(&v5->m_unreliableSendWindow, &packet);
+      }
+      else
+      {
+        bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::getDataToSend", 0x281u, "bdUnicastConnection: Connection timed out.");
+        v5->close(v5);
+      }
+    }
+    v33 = v5->m_state;
+    if ( v33 == BD_UC_SHUTDOWN_PENDING )
+    {
+      if ( !bdPacket::isEmpty(&packet) || !bdUnicastConnection::windowsEmpty(v5) )
+        goto LABEL_94;
+      if ( bdUnicastConnection::sendShutdown(v5) )
+      {
+        v5->m_state = BD_UC_SHUTDOWN_SENT;
+        goto LABEL_94;
       }
     }
     else
     {
-      if ( v31 != BD_UC_SHUTDOWN_RECEIVED || !bdPacket::isEmpty(&packet) || !bdUnicastConnection::windowsEmpty(v6) )
-        goto LABEL_93;
-      if ( bdUnicastConnection::sendShutdownAck(v6) )
+      if ( v33 != BD_UC_SHUTDOWN_RECEIVED || !bdPacket::isEmpty(&packet) || !bdUnicastConnection::windowsEmpty(v5) )
+        goto LABEL_94;
+      if ( bdUnicastConnection::sendShutdownAck(v5) )
       {
-        v6->m_state = BD_UC_SHUTDOWN_ACK_SENT;
-        goto LABEL_93;
+        v5->m_state = BD_UC_SHUTDOWN_ACK_SENT;
+        goto LABEL_94;
       }
     }
-    v6->close(v6);
-LABEL_93:
-    if ( v6->m_state == BD_UC_ESTABLISHED && bdPacket::isEmpty(&packet) )
+    v5->close(v5);
+LABEL_94:
+    if ( v5->m_state == BD_UC_ESTABLISHED && bdPacket::isEmpty(&packet) )
     {
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&v6->m_sendTimer);
-      __asm { vcomiss xmm0, cs:__real@41200000 }
-      if ( !(v7 | v8) )
+      v34 = bdStopwatch::getElapsedTimeInSeconds(&v5->m_sendTimer);
+      if ( *(float *)&v34 > 10.0 )
       {
-        __asm
+        bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::getDataToSend", 0x2CFu, "Sending Heartbeat. Last send %.2fs ago.", *(float *)&v34);
+        v35 = (bdHeartbeatChunk *)bdMemory::allocate(0x20ui64);
+        if ( v35 )
         {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+150h+var_118], xmm0
-        }
-        bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::getDataToSend", 0x2CFu, "Sending Heartbeat. Last send %.2fs ago.", v37);
-        v33 = (bdHeartbeatChunk *)bdMemory::allocate(0x20ui64);
-        if ( v33 )
-        {
-          bdHeartbeatChunk::bdHeartbeatChunk(v33);
-          v35 = v34;
+          bdHeartbeatChunk::bdHeartbeatChunk(v35);
+          v37 = v36;
         }
         else
         {
-          v35 = NULL;
+          v37 = NULL;
         }
-        v50 = v35;
-        if ( v35 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v35->m_refCount, 1u);
-        v42.m_ptr = v35;
-        if ( v35 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v35->m_refCount, 1u);
-        bdPacket::addChunk(&packet, (bdReference<bdChunk>)&v42);
-        if ( v35 && _InterlockedExchangeAdd((volatile signed __int32 *)&v35->m_refCount, 0xFFFFFFFF) == 1 )
-          ((void (__fastcall *)(bdChunk *, __int64))v35->~bdReferencable)(v35, 1i64);
+        v51 = v37;
+        if ( v37 )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v37->m_refCount, 1u);
+        v43.m_ptr = v37;
+        if ( v37 )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v37->m_refCount, 1u);
+        bdPacket::addChunk(&packet, (bdReference<bdChunk>)&v43);
+        if ( v37 && _InterlockedExchangeAdd((volatile signed __int32 *)&v37->m_refCount, 0xFFFFFFFF) == 1 )
+          ((void (__fastcall *)(bdChunk *, __int64))v37->~bdReferencable)(v37, 1i64);
       }
     }
     if ( !bdPacket::isEmpty(&packet) )
     {
-      v9 = bdPacket::serialize(&packet, v5, bufferSize);
-      if ( v9 > bufferSize )
+      v7 = bdPacket::serialize(&packet, v4, bufferSize);
+      if ( v7 > bufferSize )
         bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::getDataToSend", 0x2E3u, "buffer overflow!");
-      bdStopwatch::start(&v6->m_sendTimer);
-      if ( v9 )
+      bdStopwatch::start(&v5->m_sendTimer);
+      if ( v7 )
       {
-        bdConnectionStatistics::addBytesSent(&v6->m_stats, v9 + 28);
-        bdConnectionStatistics::addPacketsSent(&v6->m_stats, 1u);
-        bdConnectionStatistics::addPacketSizeSent(&v6->m_stats, v9);
+        bdConnectionStatistics::addBytesSent(&v5->m_stats, v7 + 28);
+        bdConnectionStatistics::addPacketsSent(&v5->m_stats, 1u);
+        bdConnectionStatistics::addPacketSizeSent(&v5->m_stats, v7);
       }
     }
-    goto LABEL_111;
+    goto LABEL_112;
   }
-  p_m_outQueue = &v6->m_outQueue;
+  p_m_outQueue = &v5->m_outQueue;
   while ( 1 )
   {
-    bdHandleAssert(v6->m_outQueue.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<class bdUnicastConnection::bdControlChunkStore>::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
+    bdHandleAssert(v5->m_outQueue.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<class bdUnicastConnection::bdControlChunkStore>::peek", 0x19u, "bdQueue::dequeue, queue empty, can't peek.");
     bdHandleAssert(p_m_outQueue->m_list.m_head != NULL, "m_head != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<class bdUnicastConnection::bdControlChunkStore>::getHead", 0x42u, "bdLinkedList::GetHead, list is empty so has no head.");
     m_head = p_m_outQueue->m_list.m_head;
-    v43 = m_head;
+    v44 = m_head;
     if ( m_head->m_data.m_lone )
       break;
-    v15 = m_head->m_data.m_chunk.m_ptr;
-    v40.m_ptr = v15;
-    if ( v15 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)&v15->m_refCount, 1u);
-    if ( bdPacket::addChunk(&packet, (bdReference<bdChunk>)&v40) )
+    v16 = m_head->m_data.m_chunk.m_ptr;
+    v41.m_ptr = v16;
+    if ( v16 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)&v16->m_refCount, 1u);
+    if ( bdPacket::addChunk(&packet, (bdReference<bdChunk>)&v41) )
     {
-      bdHandleAssert(v6->m_outQueue.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<class bdUnicastConnection::bdControlChunkStore>::dequeue", 0x12u, "bdQueue::dequeue, queue empty, can't dequeue.");
-      v16 = p_m_outQueue->m_list.m_head;
+      bdHandleAssert(v5->m_outQueue.m_list.m_size != 0, "getSize() > 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdqueue.inl", "bdQueue<class bdUnicastConnection::bdControlChunkStore>::dequeue", 0x12u, "bdQueue::dequeue, queue empty, can't dequeue.");
+      v17 = p_m_outQueue->m_list.m_head;
       if ( p_m_outQueue->m_list.m_head )
       {
-        p_m_outQueue->m_list.m_head = v16->m_next;
-        m_prev = v16->m_prev;
-        if ( v16 == v6->m_outQueue.m_list.m_tail )
-          v6->m_outQueue.m_list.m_tail = m_prev;
+        p_m_outQueue->m_list.m_head = v17->m_next;
+        m_prev = v17->m_prev;
+        if ( v17 == v5->m_outQueue.m_list.m_tail )
+          v5->m_outQueue.m_list.m_tail = m_prev;
         else
-          v16->m_next->m_prev = m_prev;
-        if ( v16->m_data.m_chunk.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v16->m_data.m_chunk.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+          v17->m_next->m_prev = m_prev;
+        if ( v17->m_data.m_chunk.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v17->m_data.m_chunk.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
         {
-          if ( v16->m_data.m_chunk.m_ptr )
-            ((void (__fastcall *)(bdChunk *, __int64))v16->m_data.m_chunk.m_ptr->~bdReferencable)(v16->m_data.m_chunk.m_ptr, 1i64);
-          v16->m_data.m_chunk.m_ptr = NULL;
+          if ( v17->m_data.m_chunk.m_ptr )
+            ((void (__fastcall *)(bdChunk *, __int64))v17->m_data.m_chunk.m_ptr->~bdReferencable)(v17->m_data.m_chunk.m_ptr, 1i64);
+          v17->m_data.m_chunk.m_ptr = NULL;
         }
-        bdMemory::deallocate(v16);
-        --v6->m_outQueue.m_list.m_size;
+        bdMemory::deallocate(v17);
+        --v5->m_outQueue.m_list.m_size;
       }
-      if ( v6->m_outQueue.m_list.m_size )
+      if ( v5->m_outQueue.m_list.m_size )
         continue;
     }
-    v5 = buffer;
+    v4 = buffer;
     goto LABEL_35;
   }
-  v38.m_ptr = NULL;
-  if ( bdPacket::getNextChunk(&packet, &v38) )
+  v39.m_ptr = NULL;
+  if ( bdPacket::getNextChunk(&packet, &v39) )
   {
     do
     {
-      v18 = v38.m_ptr;
-      v55 = v38.m_ptr;
-      if ( v38.m_ptr )
+      v20 = v39.m_ptr;
+      v56 = v39.m_ptr;
+      if ( v39.m_ptr )
       {
-        _InterlockedExchangeAdd((volatile signed __int32 *)&v38.m_ptr->m_refCount, 1u);
-        v18 = v55;
+        _InterlockedExchangeAdd((volatile signed __int32 *)&v39.m_ptr->m_refCount, 1u);
+        v20 = v56;
       }
-      v45 = v18;
-      if ( v18 )
+      v46 = v20;
+      if ( v20 )
       {
-        _InterlockedExchangeAdd((volatile signed __int32 *)&v18->m_refCount, 1u);
-        v18 = v55;
+        _InterlockedExchangeAdd((volatile signed __int32 *)&v20->m_refCount, 1u);
+        v20 = v56;
       }
-      v46 = 0;
-      if ( v18 )
+      v47 = 0;
+      if ( v20 )
       {
-        v19 = _InterlockedExchangeAdd((volatile signed __int32 *)&v18->m_refCount, 0xFFFFFFFF);
-        v18 = v55;
-        if ( v19 == 1 )
-          ((void (__fastcall *)(bdChunk *, __int64))v55->~bdReferencable)(v55, 1i64);
+        v21 = _InterlockedExchangeAdd((volatile signed __int32 *)&v20->m_refCount, 0xFFFFFFFF);
+        v20 = v56;
+        if ( v21 == 1 )
+          ((void (__fastcall *)(bdChunk *, __int64))v56->~bdReferencable)(v56, 1i64);
       }
-      m_tail = v6->m_outQueue.m_list.m_tail;
-      v21 = (bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *)bdMemory::allocate(0x20ui64);
-      v22 = v21;
-      v48 = v21;
-      if ( v21 )
+      m_tail = v5->m_outQueue.m_list.m_tail;
+      v23 = (bdLinkedList<bdUnicastConnection::bdControlChunkStore>::Node *)bdMemory::allocate(0x20ui64);
+      v24 = v23;
+      v49 = v23;
+      if ( v23 )
       {
-        v21->m_data.m_chunk.m_ptr = v18;
-        if ( v18 )
+        v23->m_data.m_chunk.m_ptr = v20;
+        if ( v20 )
         {
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v18->m_refCount, 1u);
-          v18 = v55;
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v20->m_refCount, 1u);
+          v20 = v56;
         }
-        v21->m_data.m_lone = 0;
+        v23->m_data.m_lone = 0;
       }
       else
       {
-        v22 = NULL;
+        v24 = NULL;
       }
       if ( m_tail )
       {
-        v22->m_next = m_tail->m_next;
-        v22->m_prev = m_tail;
+        v24->m_next = m_tail->m_next;
+        v24->m_prev = m_tail;
         m_next = m_tail->m_next;
         if ( m_next )
         {
-          m_next->m_prev = v22;
+          m_next->m_prev = v24;
         }
         else
         {
-          bdHandleAssert(m_tail == v6->m_outQueue.m_list.m_tail, "node == m_tail", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<class bdUnicastConnection::bdControlChunkStore>::insertAfter", 0x176u, "bdLinkedList::insertAfter, node has no next entry, but is not the tail.");
-          v6->m_outQueue.m_list.m_tail = v22;
+          bdHandleAssert(m_tail == v5->m_outQueue.m_list.m_tail, "node == m_tail", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdlinkedlist.inl", "bdLinkedList<class bdUnicastConnection::bdControlChunkStore>::insertAfter", 0x176u, "bdLinkedList::insertAfter, node has no next entry, but is not the tail.");
+          v5->m_outQueue.m_list.m_tail = v24;
         }
-        m_tail->m_next = v22;
+        m_tail->m_next = v24;
       }
       else
       {
-        v22->m_next = NULL;
-        v22->m_prev = v6->m_outQueue.m_list.m_tail;
-        v24 = v6->m_outQueue.m_list.m_tail;
-        if ( v24 )
-          v24->m_next = v22;
+        v24->m_next = NULL;
+        v24->m_prev = v5->m_outQueue.m_list.m_tail;
+        v26 = v5->m_outQueue.m_list.m_tail;
+        if ( v26 )
+          v26->m_next = v24;
         else
-          p_m_outQueue->m_list.m_head = v22;
-        v6->m_outQueue.m_list.m_tail = v22;
+          p_m_outQueue->m_list.m_head = v24;
+        v5->m_outQueue.m_list.m_tail = v24;
       }
-      ++v6->m_outQueue.m_list.m_size;
-      if ( v18 && _InterlockedExchangeAdd((volatile signed __int32 *)&v18->m_refCount, 0xFFFFFFFF) == 1 )
+      ++v5->m_outQueue.m_list.m_size;
+      if ( v20 && _InterlockedExchangeAdd((volatile signed __int32 *)&v20->m_refCount, 0xFFFFFFFF) == 1 )
       {
-        ((void (__fastcall *)(bdChunk *, __int64))v55->~bdReferencable)(v55, 1i64);
-        v45 = NULL;
+        ((void (__fastcall *)(bdChunk *, __int64))v56->~bdReferencable)(v56, 1i64);
+        v46 = NULL;
       }
     }
-    while ( bdPacket::getNextChunk(&packet, &v38) );
-    v6 = this;
-    m_head = v43;
+    while ( bdPacket::getNextChunk(&packet, &v39) );
+    v5 = this;
+    m_head = v44;
   }
-  m_peerTag = v6->m_peerTag;
+  m_peerTag = v5->m_peerTag;
   if ( m_head->m_data.m_chunk.m_ptr->getType(m_head->m_data.m_chunk.m_ptr) == BD_CT_INIT_ACK )
   {
-    v26 = (bdInitAckChunk *)m_head->m_data.m_chunk.m_ptr;
-    v49 = v26;
-    if ( v26 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)&v26->m_refCount, 1u);
-    m_peerTag = bdInitAckChunk::getPeerTag(v26);
-    if ( v26 && _InterlockedExchangeAdd((volatile signed __int32 *)&v26->m_refCount, 0xFFFFFFFF) == 1 )
-      ((void (__fastcall *)(bdInitAckChunk *, __int64))v26->~bdReferencable)(v26, 1i64);
+    v28 = (bdInitAckChunk *)m_head->m_data.m_chunk.m_ptr;
+    v50 = v28;
+    if ( v28 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)&v28->m_refCount, 1u);
+    m_peerTag = bdInitAckChunk::getPeerTag(v28);
+    if ( v28 && _InterlockedExchangeAdd((volatile signed __int32 *)&v28->m_refCount, 0xFFFFFFFF) == 1 )
+      ((void (__fastcall *)(bdInitAckChunk *, __int64))v28->~bdReferencable)(v28, 1i64);
   }
-  bdPacket::bdPacket(&v51, m_peerTag, bufferSize);
-  v27 = m_head->m_data.m_chunk.m_ptr;
-  v41.m_ptr = v27;
-  if ( v27 )
-    _InterlockedExchangeAdd((volatile signed __int32 *)&v27->m_refCount, 1u);
-  bdPacket::addChunk(&v51, (bdReference<bdChunk>)&v41);
+  bdPacket::bdPacket(&v52, m_peerTag, bufferSize);
+  v29 = m_head->m_data.m_chunk.m_ptr;
+  v42.m_ptr = v29;
+  if ( v29 )
+    _InterlockedExchangeAdd((volatile signed __int32 *)&v29->m_refCount, 1u);
+  bdPacket::addChunk(&v52, (bdReference<bdChunk>)&v42);
   bdQueue<bdUnicastConnection::bdControlChunkStore>::dequeue(p_m_outQueue);
-  v28 = bdPacket::serialize(&v51, buffer, bufferSize);
-  bdPacket::~bdPacket(&v51);
-  if ( v38.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v38.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v38.m_ptr )
-    ((void (__fastcall *)(bdChunk *, __int64))v38.m_ptr->~bdReferencable)(v38.m_ptr, 1i64);
-  v9 = v28;
-LABEL_111:
+  v30 = bdPacket::serialize(&v52, buffer, bufferSize);
+  bdPacket::~bdPacket(&v52);
+  if ( v39.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v39.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && v39.m_ptr )
+    ((void (__fastcall *)(bdChunk *, __int64))v39.m_ptr->~bdReferencable)(v39.m_ptr, 1i64);
+  v7 = v30;
+LABEL_112:
   bdPacket::~bdPacket(&packet);
-  return v9;
+  return v7;
 }
 
 /*
@@ -1862,119 +1862,106 @@ bdUnicastConnection::handleSAck
 */
 _BOOL8 bdUnicastConnection::handleSAck(bdUnicastConnection *this, bdReference<bdChunk> *chunk)
 {
-  bool v4; 
+  bool v3; 
   bdChunk *m_ptr; 
-  bdSAckChunk *v6; 
-  signed __int32 v7; 
-  bdSAckChunk *v8; 
+  bdSAckChunk *v5; 
+  signed __int32 v6; 
+  bdSAckChunk *v7; 
   bdReliableSendWindow *m_reliableSendWindow; 
-  char v23; 
-  char v25; 
-  _BOOL8 result; 
+  float v9; 
+  float m_smoothedRTT; 
+  float *p_m_RTTVariation; 
+  float v12; 
+  __int128 v13; 
+  __int128 v14; 
   float rtt; 
-  bdChunk *v34; 
+  bdChunk *v19; 
   bdReference<bdSAckChunk> chunka; 
-  bdSAckChunk *v36; 
+  bdSAckChunk *v21; 
 
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  _RSI = this;
-  v4 = 0;
+  v3 = 0;
   m_ptr = chunk->m_ptr;
-  v6 = (bdSAckChunk *)m_ptr;
-  v34 = chunk->m_ptr;
+  v5 = (bdSAckChunk *)m_ptr;
+  v19 = chunk->m_ptr;
   if ( m_ptr )
   {
     _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-    v6 = (bdSAckChunk *)v34;
+    v5 = (bdSAckChunk *)v19;
   }
   if ( m_ptr )
   {
-    v7 = _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 0xFFFFFFFF);
-    v6 = (bdSAckChunk *)v34;
-    if ( v7 == 1 )
-      ((void (__fastcall *)(bdChunk *, __int64))v34->~bdReferencable)(v34, 1i64);
+    v6 = _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 0xFFFFFFFF);
+    v5 = (bdSAckChunk *)v19;
+    if ( v6 == 1 )
+      ((void (__fastcall *)(bdChunk *, __int64))v19->~bdReferencable)(v19, 1i64);
   }
-  v36 = v6;
-  v8 = v6;
-  if ( v6 )
+  v21 = v5;
+  v7 = v5;
+  if ( v5 )
   {
-    _InterlockedExchangeAdd((volatile signed __int32 *)&v6->m_refCount, 1u);
-    v6 = (bdSAckChunk *)v34;
+    _InterlockedExchangeAdd((volatile signed __int32 *)&v5->m_refCount, 1u);
+    v5 = (bdSAckChunk *)v19;
   }
-  m_reliableSendWindow = _RSI->m_reliableSendWindow;
+  m_reliableSendWindow = this->m_reliableSendWindow;
   if ( m_reliableSendWindow )
   {
-    chunka.m_ptr = v6;
-    if ( v8 )
+    chunka.m_ptr = v5;
+    if ( v7 )
     {
-      _InterlockedExchangeAdd((volatile signed __int32 *)&v8->m_refCount, 1u);
-      v6 = (bdSAckChunk *)v34;
+      _InterlockedExchangeAdd((volatile signed __int32 *)&v7->m_refCount, 1u);
+      v5 = (bdSAckChunk *)v19;
     }
-    v4 = bdReliableSendWindow::handleAck(m_reliableSendWindow, (bdReference<bdSAckChunk>)&chunka, &rtt);
-    if ( v4 )
+    v3 = bdReliableSendWindow::handleAck(m_reliableSendWindow, (bdReference<bdSAckChunk>)&chunka, &rtt);
+    if ( v3 )
     {
-      __asm
+      v9 = rtt;
+      if ( rtt > 0.0 )
       {
-        vxorps  xmm6, xmm6, xmm6
-        vmovss  xmm4, [rsp+88h+rtt]
-        vcomiss xmm4, xmm6
-        vmovss  xmm3, dword ptr [rsi+168h]
+        m_smoothedRTT = this->m_smoothedRTT;
+        p_m_RTTVariation = &this->m_RTTVariation;
+        if ( m_smoothedRTT == 0.0 && *p_m_RTTVariation == 0.0 )
+        {
+          *p_m_RTTVariation = rtt * 0.5;
+        }
+        else
+        {
+          if ( m_smoothedRTT <= rtt )
+            v12 = rtt - m_smoothedRTT;
+          else
+            v12 = m_smoothedRTT - rtt;
+          *p_m_RTTVariation = (float)(*p_m_RTTVariation * 0.75) + (float)(v12 * 0.25);
+          v9 = (float)(m_smoothedRTT * 0.875) + (float)(v9 * 0.125);
+        }
+        this->m_smoothedRTT = v9;
+        bdConnectionStatistics::setLastRTT(&this->m_stats, v9);
+        v13 = *(unsigned int *)p_m_RTTVariation;
+        if ( *(float *)&v13 == 0.0 )
+        {
+          *p_m_RTTVariation = 100.0;
+          v13 = LODWORD(FLOAT_100_0);
+        }
+        v14 = v13;
+        *(float *)&v14 = (float)(*(float *)&v13 * 2.0) + this->m_smoothedRTT;
+        _XMM3 = v14;
+        *(float *)&_XMM1 = FLOAT_0_02;
+        if ( *(float *)&v14 >= 0.02 )
+          __asm { vminss  xmm1, xmm3, xmm2; secs }
+        bdReliableSendWindow::setTimeoutPeriod(this->m_reliableSendWindow, *(const float *)&_XMM1);
       }
-      _RDI = (_DWORD *)&_RSI->m_RTTVariation;
-      __asm
-      {
-        vucomiss xmm3, xmm6
-        vcomiss xmm3, xmm4
-        vsubss  xmm1, xmm3, xmm4
-        vmovss  xmm0, dword ptr [rdi]
-        vmulss  xmm2, xmm0, cs:__real@3f400000
-        vmulss  xmm1, xmm1, cs:__real@3e800000
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rdi], xmm2
-        vmulss  xmm3, xmm3, cs:__real@3f600000
-        vmulss  xmm0, xmm4, cs:__real@3e000000
-        vaddss  xmm4, xmm3, xmm0
-        vmovss  dword ptr [rsi+168h], xmm4
-        vmovaps xmm1, xmm4; time
-      }
-      bdConnectionStatistics::setLastRTT(&_RSI->m_stats, *(const float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]
-        vucomiss xmm0, xmm6
-      }
-      if ( v25 )
-      {
-        *_RDI = 1120403456;
-        __asm { vmovss  xmm0, cs:__real@42c80000 }
-      }
-      __asm
-      {
-        vmovss  xmm2, cs:__real@40000000
-        vmulss  xmm0, xmm0, xmm2
-        vaddss  xmm3, xmm0, dword ptr [rsi+168h]
-        vmovss  xmm1, cs:__real@3ca3d70a
-        vcomiss xmm3, xmm1
-      }
-      if ( !v23 )
-        __asm { vminss  xmm1, xmm3, xmm2; secs }
-      bdReliableSendWindow::setTimeoutPeriod(_RSI->m_reliableSendWindow, *(const float *)&_XMM1);
     }
     else
     {
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleSAck", 0x3A0u, "Unable to handle ack. disconnecting connection.");
-      _RSI->disconnect(_RSI);
+      this->disconnect(this);
     }
   }
   else
   {
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleSAck", 0x3A6u, "invalid stream id.");
   }
-  if ( v6 && _InterlockedExchangeAdd((volatile signed __int32 *)&v6->m_refCount, 0xFFFFFFFF) == 1 )
-    ((void (__fastcall *)(bdChunk *, __int64))v34->~bdReferencable)(v34, 1i64);
-  result = v4;
-  __asm { vmovaps xmm6, [rsp+88h+var_38] }
-  return result;
+  if ( v5 && _InterlockedExchangeAdd((volatile signed __int32 *)&v5->m_refCount, 0xFFFFFFFF) == 1 )
+    ((void (__fastcall *)(bdChunk *, __int64))v19->~bdReferencable)(v19, 1i64);
+  return v3;
 }
 
 /*
@@ -2070,32 +2057,31 @@ bdUnicastConnection::receive
 */
 bool bdUnicastConnection::receive(bdUnicastConnection *this, const unsigned __int8 *buffer, const unsigned int bufferSize)
 {
-  char v7; 
-  char v9; 
+  double ElapsedTimeInSeconds; 
+  char v8; 
+  bool v9; 
   bool v10; 
-  bool v11; 
-  bdChunkTypes v12; 
+  bdChunkTypes v11; 
+  unsigned int v12; 
   unsigned int v13; 
-  unsigned int v14; 
-  bool v15; 
-  bdConnectionListener *v16; 
+  bool v14; 
+  bdConnectionListener *v15; 
   void (__fastcall *onConnect)(bdConnectionListener *, bdReference<bdConnection>); 
-  unsigned int v18; 
+  unsigned int v17; 
   bool inited; 
   unsigned int VerificationTag; 
   bdUnicastConnection::bdUnicastConnectionStatus m_state; 
-  bdUnicastConnection::bdUnicastConnectionStatus v22; 
-  __int64 v23; 
+  bdUnicastConnection::bdUnicastConnectionStatus v21; 
+  __int64 v22; 
   bdReference<bdInitChunk> __formal; 
-  __int64 v25; 
-  bdPacket v26; 
+  __int64 v24; 
+  bdPacket v25; 
   bdReference<bdChunk> chunk; 
-  bdUnicastConnection *v28; 
+  bdUnicastConnection *v27; 
 
-  v25 = -2i64;
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_shutdownGuard);
-  __asm { vcomiss xmm0, cs:__real@40a00000 }
-  if ( !(v15 | v7) )
+  v24 = -2i64;
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_shutdownGuard);
+  if ( *(float *)&ElapsedTimeInSeconds > 5.0 )
   {
     this->close(this);
     return 0;
@@ -2105,59 +2091,59 @@ bool bdUnicastConnection::receive(bdUnicastConnection *this, const unsigned __in
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::receive", 0x17Du, "Received zero size packet passed.");
     return 0;
   }
+  v8 = 0;
   v9 = 0;
-  v10 = 0;
-  bdPacket::bdPacket(&v26);
-  v11 = bdPacket::deserialize(&v26, buffer, bufferSize);
+  bdPacket::bdPacket(&v25);
+  v10 = bdPacket::deserialize(&v25, buffer, bufferSize);
   bdConnectionStatistics::addBytesRecv(&this->m_stats, bufferSize + 28);
-  if ( v11 )
+  if ( v10 )
   {
     bdConnectionStatistics::addPacketsRecv(&this->m_stats, 1u);
     bdConnectionStatistics::addPacketSizeRecv(&this->m_stats, bufferSize);
     chunk.m_ptr = NULL;
-    bdPacket::getNextChunk(&v26, &chunk);
+    bdPacket::getNextChunk(&v25, &chunk);
     if ( !chunk.m_ptr || !bdChunk::isControl(chunk.m_ptr) )
       goto LABEL_30;
-    v12 = chunk.m_ptr->getType(chunk.m_ptr);
-    switch ( v12 )
+    v11 = chunk.m_ptr->getType(chunk.m_ptr);
+    switch ( v11 )
     {
       case BD_CT_INIT:
         inited = bdUnicastConnection::handleInit(this, &chunk);
         break;
       case BD_CT_INIT_ACK:
-        VerificationTag = bdPacket::getVerificationTag(&v26);
+        VerificationTag = bdPacket::getVerificationTag(&v25);
         inited = bdUnicastConnection::handleInitAck(this, &chunk, VerificationTag);
         break;
       case BD_CT_COOKIE_ECHO:
-        v18 = bdPacket::getVerificationTag(&v26);
-        inited = bdUnicastConnection::handleCookieEcho(this, &chunk, v18);
+        v17 = bdPacket::getVerificationTag(&v25);
+        inited = bdUnicastConnection::handleCookieEcho(this, &chunk, v17);
         break;
       case BD_CT_COOKIE_ACK:
-        v13 = bdPacket::getVerificationTag(&v26);
-        if ( v13 == this->m_localTag )
+        v12 = bdPacket::getVerificationTag(&v25);
+        if ( v12 == this->m_localTag )
         {
           if ( this->m_state == BD_UC_COOKIE_ECHOED )
           {
             bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleCookieAck", 0x4B7u, "uc::handling cookie ack: m_localTag/m_peerTag: %X/%X", this->m_localTag, this->m_peerTag);
             this->m_state = BD_UC_ESTABLISHED;
-            v14 = 0;
+            v13 = 0;
             if ( this->m_listeners.m_size )
             {
-              v15 = this->m_listeners.m_size != 0;
+              v14 = this->m_listeners.m_size != 0;
               do
               {
-                bdHandleAssert(v15, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdfastarray.inl", "bdFastArray<class bdConnectionListener *>::operator []", 0x50u, "bdFastArray<T>::operator[], rangecheck failed");
-                v16 = this->m_listeners.m_data[v14];
-                onConnect = v16->onConnect;
-                v28 = this;
+                bdHandleAssert(v14, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdfastarray.inl", "bdFastArray<class bdConnectionListener *>::operator []", 0x50u, "bdFastArray<T>::operator[], rangecheck failed");
+                v15 = this->m_listeners.m_data[v13];
+                onConnect = v15->onConnect;
+                v27 = this;
                 _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_refCount, 1u);
-                ((void (__fastcall *)(bdConnectionListener *, bdUnicastConnection **))onConnect)(v16, &v28);
-                v15 = ++v14 < this->m_listeners.m_size;
+                ((void (__fastcall *)(bdConnectionListener *, bdUnicastConnection **))onConnect)(v15, &v27);
+                v14 = ++v13 < this->m_listeners.m_size;
               }
-              while ( v14 < this->m_listeners.m_size );
+              while ( v13 < this->m_listeners.m_size );
             }
             bdStopwatch::reset(&this->m_cookieTimer);
-            v10 = 1;
+            v9 = 1;
           }
           else
           {
@@ -2166,12 +2152,12 @@ bool bdUnicastConnection::receive(bdUnicastConnection *this, const unsigned __in
         }
         else
         {
-          bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleCookieAck", 0x4C7u, "Invalid verification tag on cookie ack. (%X)", v13);
+          bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleCookieAck", 0x4C7u, "Invalid verification tag on cookie ack. (%X)", v12);
         }
         goto LABEL_24;
       default:
 LABEL_30:
-        if ( this->m_localTag == bdPacket::getVerificationTag(&v26) )
+        if ( this->m_localTag == bdPacket::getVerificationTag(&v25) )
         {
           do
           {
@@ -2180,18 +2166,18 @@ LABEL_30:
               switch ( chunk.m_ptr->getType(chunk.m_ptr) )
               {
                 case BD_CT_DATA:
-                  v10 = bdUnicastConnection::handleData(this, &chunk);
-                  v9 |= v10;
+                  v9 = bdUnicastConnection::handleData(this, &chunk);
+                  v8 |= v9;
                   break;
                 case BD_CT_SACK:
-                  v10 = bdUnicastConnection::handleSAck(this, &chunk);
+                  v9 = bdUnicastConnection::handleSAck(this, &chunk);
                   break;
                 case BD_CT_HEARTBEAT:
                   bdStopwatch::start(&this->m_receiveTimer);
                   __formal.m_ptr = (bdInitChunk *)chunk.m_ptr;
                   if ( chunk.m_ptr )
                     _InterlockedExchangeAdd((volatile signed __int32 *)&chunk.m_ptr->m_refCount, 1u);
-                  v10 = bdUnicastConnection::sendHeartbeatAck(this, (bdReference<bdInitChunk>)&__formal);
+                  v9 = bdUnicastConnection::sendHeartbeatAck(this, (bdReference<bdInitChunk>)&__formal);
                   break;
                 case BD_CT_HEARTBEAT_ACK:
                   bdStopwatch::start(&this->m_receiveTimer);
@@ -2209,8 +2195,8 @@ LABEL_45:
                   }
                   if ( m_state != BD_UC_SHUTDOWN_SENT )
                   {
-                    LODWORD(v23) = this->m_state;
-                    bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleShutdown", 0x4ECu, "uc::handling shutdown (c) - unexpected (%u)!", v23);
+                    LODWORD(v22) = this->m_state;
+                    bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleShutdown", 0x4ECu, "uc::handling shutdown (c) - unexpected (%u)!", v22);
                     goto LABEL_55;
                   }
                   bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleShutdown", 0x4E7u, "uc::handling shutdown (b)");
@@ -2218,21 +2204,21 @@ LABEL_45:
                   if ( bdUnicastConnection::sendShutdownAck(this) )
                     goto LABEL_45;
 LABEL_55:
-                  v10 = 1;
+                  v9 = 1;
                   break;
                 case BD_CT_SHUTDOWN_ACK:
-                  v10 = 0;
-                  v22 = this->m_state;
-                  if ( v22 == BD_UC_SHUTDOWN_SENT )
+                  v9 = 0;
+                  v21 = this->m_state;
+                  if ( v21 == BD_UC_SHUTDOWN_SENT )
                   {
                     bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleShutdownAck", 0x500u, "uc::handling shutdown ack (a)");
                   }
                   else
                   {
-                    if ( v22 != BD_UC_SHUTDOWN_ACK_SENT )
+                    if ( v21 != BD_UC_SHUTDOWN_ACK_SENT )
                     {
-                      LODWORD(v23) = this->m_state;
-                      bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleShutdownAck", 0x50Eu, "uc::handling shutdown ack (c) - unexpected (%u).", v23);
+                      LODWORD(v22) = this->m_state;
+                      bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleShutdownAck", 0x50Eu, "uc::handling shutdown ack (c) - unexpected (%u).", v22);
                       break;
                     }
                     bdLogMessage(BD_LOG_INFO, "info/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleShutdownAck", 0x507u, "uc::handling shutdown ack (b)");
@@ -2242,7 +2228,7 @@ LABEL_55:
                   bdStopwatch::reset(&this->m_shutdownTimer);
                   goto LABEL_55;
                 case BD_CT_SHUTDOWN_COMPLETE:
-                  v10 = 0;
+                  v9 = 0;
                   if ( this->m_state != BD_UC_SHUTDOWN_ACK_SENT )
                   {
                     bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::handleShutdownComplete", 0x522u, "uc::handling shutdown complete (b) - unexpected!");
@@ -2257,17 +2243,17 @@ LABEL_55:
               }
             }
           }
-          while ( bdPacket::getNextChunk(&v26, &chunk) );
+          while ( bdPacket::getNextChunk(&v25, &chunk) );
         }
-        if ( v10 )
+        if ( v9 )
           bdStopwatch::start(&this->m_receiveTimer);
         if ( chunk.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&chunk.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && chunk.m_ptr )
           ((void (__fastcall *)(bdChunk *, __int64))chunk.m_ptr->~bdReferencable)(chunk.m_ptr, 1i64);
         goto LABEL_64;
     }
-    v10 = inited;
+    v9 = inited;
 LABEL_24:
-    if ( v10 )
+    if ( v9 )
     {
       if ( chunk.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&chunk.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && chunk.m_ptr )
         ((void (__fastcall *)(bdChunk *, __int64))chunk.m_ptr->~bdReferencable)(chunk.m_ptr, 1i64);
@@ -2277,10 +2263,10 @@ LABEL_24:
   }
   bdLogMessage(BD_LOG_WARNING, "warn/", "bdConnection/connections", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdconnection\\bdunicastconnection.cpp", "bdUnicastConnection::receive", 0x1ECu, "bdUnicastConnection::receive(): Invalid packet received.");
 LABEL_64:
-  if ( this->m_state == BD_UC_SHUTDOWN_SENT && v9 && !bdUnicastConnection::sendShutdown(this) )
+  if ( this->m_state == BD_UC_SHUTDOWN_SENT && v8 && !bdUnicastConnection::sendShutdown(this) )
     this->close(this);
-  bdPacket::~bdPacket(&v26);
-  return v10;
+  bdPacket::~bdPacket(&v25);
+  return v9;
 }
 
 /*

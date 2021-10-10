@@ -92,14 +92,14 @@ TacGraph_DebugDraw
 void TacGraph_DebugDraw(const TacticalGraphData *pTacData)
 {
   signed __int64 v1; 
-  void *v4; 
-  const TacticalGraphData *v5; 
-  const dvar_t *v6; 
-  __int64 v7; 
-  unsigned int v8; 
-  sentient_s *v9; 
-  const tacpoint_t *v10; 
-  const dvar_t *v12; 
+  void *v2; 
+  const TacticalGraphData *v3; 
+  const dvar_t *v4; 
+  __int64 v5; 
+  unsigned int i; 
+  sentient_s *v7; 
+  const tacpoint_t *v8; 
+  const dvar_t *v9; 
   int integer; 
   cg_t *LocalClientGlobals; 
   RefdefView *p_view; 
@@ -107,21 +107,21 @@ void TacGraph_DebugDraw(const TacticalGraphData *pTacData)
   _DWORD *v; 
   nav_space_s *MostLikelySpaceWithRadius; 
   const tacpoint_t *ClosestPointWithStaticNavLos; 
-  const tacpoint_t *v26; 
-  const TacticalGraph *v30; 
+  const tacpoint_t *v17; 
+  const TacticalGraph *v18; 
   unsigned __int16 PointIndex; 
   int PointsInRadiusWithinCone; 
-  __int64 v34; 
-  const tacpoint_t *v35; 
-  unsigned __int16 v36; 
+  __int64 v21; 
+  const tacpoint_t *v22; 
+  unsigned __int16 v23; 
   bool HasVis; 
-  const vec4_t *v38; 
-  unsigned __int16 v39; 
-  const dvar_t *v40; 
+  const vec4_t *v25; 
+  unsigned __int16 v26; 
+  const dvar_t *v27; 
   bool enabled; 
-  float fmt; 
+  tacpoint_t *m_Points; 
   bfx::AreaHandle hArea; 
-  __int64 v56; 
+  __int64 v32; 
   vec3_t pos; 
   vec3_t vEyePosOut; 
   vec3_t forward; 
@@ -131,57 +131,40 @@ void TacGraph_DebugDraw(const TacticalGraphData *pTacData)
   tacpoint_t *ppOutPoints[512]; 
   char text[16]; 
   char dest[512]; 
-  char v68; 
 
-  v4 = alloca(v1);
-  v56 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+1370h+var_30], xmm6
-    vmovaps [rsp+1370h+var_40], xmm7
-  }
-  v5 = pTacData;
-  v6 = DVARBOOL_ai_showNearestTacPoints;
+  v2 = alloca(v1);
+  v32 = -2i64;
+  v3 = pTacData;
+  v4 = DVARBOOL_ai_showNearestTacPoints;
   if ( !DVARBOOL_ai_showNearestTacPoints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showNearestTacPoints") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  v7 = 0i64;
-  if ( v6->current.enabled && Nav_IsRunning() )
+  Dvar_CheckFrontendServerThread(v4);
+  v5 = 0i64;
+  if ( v4->current.enabled && Nav_IsRunning() )
   {
     if ( !level.sentients && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\tactical_graph_debug.cpp", 251, ASSERT_TYPE_ASSERT, "(level.sentients != 0)", (const char *)&queryFormat, "level.sentients != NULL") )
       __debugbreak();
-    v8 = 0;
-    if ( level.maxSentients )
+    for ( i = 0; i < level.maxSentients; ++i )
     {
-      __asm { vmovss  xmm6, cs:__real@c0a00000 }
-      do
+      v7 = &level.sentients[i];
+      if ( v7->inuse && v7->ent->s.eType != ET_INVISIBLE )
       {
-        v9 = &level.sentients[v8];
-        if ( v9->inuse && v9->ent->s.eType != ET_INVISIBLE )
+        v8 = Sentient_NearestTacPoint(&level.sentients[i]);
+        if ( v8 )
         {
-          v10 = Sentient_NearestTacPoint(&level.sentients[v8]);
-          if ( v10 )
-          {
-            Sentient_GetDebugEyePosition(v9, &vEyePosOut);
-            __asm
-            {
-              vaddss  xmm1, xmm6, dword ptr [rbp+1270h+vEyePosOut+8]
-              vmovss  dword ptr [rbp+1270h+vEyePosOut+8], xmm1
-            }
-            G_DebugLine(&vEyePosOut, &v10->m_Pos, &colorGreen, 1);
-            TacGraph_DebugDraw_Point(v10, &colorGreen, 0);
-          }
+          Sentient_GetDebugEyePosition(v7, &vEyePosOut);
+          vEyePosOut.v[2] = vEyePosOut.v[2] + -5.0;
+          G_DebugLine(&vEyePosOut, &v8->m_Pos, &colorGreen, 1);
+          TacGraph_DebugDraw_Point(v8, &colorGreen, 0);
         }
-        ++v8;
       }
-      while ( v8 < level.maxSentients );
     }
   }
-  v12 = DVARINT_ai_showTacGraph;
+  v9 = DVARINT_ai_showTacGraph;
   if ( !DVARINT_ai_showTacGraph && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showTacGraph") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  integer = v12->current.integer;
+  Dvar_CheckFrontendServerThread(v9);
+  integer = v9->current.integer;
   if ( integer && Nav_IsRunning() && cg_t::ms_allocatedCount > 0 )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
@@ -195,152 +178,106 @@ void TacGraph_DebugDraw(const TacticalGraphData *pTacData)
     LODWORD(pos.v[0]) = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
     LODWORD(pos.v[1]) = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
     LODWORD(pos.v[2]) = v[2] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2));
-    _RAX = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+6944h]
-      vmovss  dword ptr [rbp+1270h+forward], xmm0
-      vmovss  xmm1, dword ptr [rax+6948h]
-      vmovss  dword ptr [rbp+1270h+forward+4], xmm1
-      vmovss  xmm0, dword ptr [rax+694Ch]
-      vmovss  dword ptr [rbp+1270h+forward+8], xmm0
-    }
+    forward = CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->refdef.view.axis.m[0];
     bfx::AreaHandle::AreaHandle(&hArea);
     pPathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
     *(_QWORD *)&pPathSpec.m_obstacleBlockageFlags = -1i64;
     *(_QWORD *)&pPathSpec.m_areaPenaltyFlags = -1i64;
     pPathSpec.m_usePathSharingPenalty = 0;
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vmovss  [rbp+1270h+pPathSpec.m_pathSharingPenalty], xmm6
-      vmovss  [rbp+1270h+pPathSpec.m_maxPathSharingPenalty], xmm6
-      vmovss  [rbp+1270h+pPathSpec.m_maxSearchDist], xmm6
-    }
+    pPathSpec.m_pathSharingPenalty = 0.0;
+    pPathSpec.m_maxPathSharingPenalty = 0.0;
+    pPathSpec.m_maxSearchDist = 0.0;
     bfx::PenaltyTable::PenaltyTable(&pPathSpec.m_penaltyTable);
     pPathSpec.m_snapMode = SNAP_CLOSEST;
     pPathSpec.m_obstacleBlockageFlags = 0;
-    __asm { vmovss  xmm1, cs:__real@41700000; radius }
-    MostLikelySpaceWithRadius = Nav_FindMostLikelySpaceWithRadius(&pos, *(float *)&_XMM1, NAV_LAYER_HUMAN, NULL);
+    MostLikelySpaceWithRadius = Nav_FindMostLikelySpaceWithRadius(&pos, 15.0, NAV_LAYER_HUMAN, NULL);
     if ( !MostLikelySpaceWithRadius )
     {
       MostLikelySpaceWithRadius = Nav_GetDefaultSpace();
       if ( !MostLikelySpaceWithRadius )
-        goto LABEL_55;
+        goto LABEL_53;
     }
     Nav_GetSpaceUp(MostLikelySpaceWithRadius, &outUp);
     Nav_GetClosestVerticalPos(&pos, &outUp, 0, &MostLikelySpaceWithRadius->hSpace, &pPathSpec, &outClosestPos, &hArea);
-    ClosestPointWithStaticNavLos = TacGraphSearch_FindClosestPointWithStaticNavLos(v5, &pos, &pos, &hArea);
-    v26 = ClosestPointWithStaticNavLos;
+    ClosestPointWithStaticNavLos = TacGraphSearch_FindClosestPointWithStaticNavLos(v3, &pos, &pos, &hArea);
+    v17 = ClosestPointWithStaticNavLos;
     if ( ClosestPointWithStaticNavLos )
     {
       Com_sprintf(dest, 0x200ui64, "tacgraph %d", ClosestPointWithStaticNavLos->m_GraphIdx);
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3f99999a; scale
-        vmovss  xmm1, cs:__real@44228000; y
-        vmovss  xmm0, cs:__real@41f00000; x
-      }
-      G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorBlue, *(float *)&_XMM3, dest);
-      v30 = &v5->m_TacGraphs[v26->m_GraphIdx];
+      G_Main_AddDebugString2D(30.0, 650.0, &colorBlue, 1.2, dest);
+      v18 = &v3->m_TacGraphs[v17->m_GraphIdx];
       if ( integer == 1 )
       {
-        PointIndex = TacGraph_GetPointIndex(v26);
-        TacGraph_DebugDraw_Point(v26, &colorYellow, 0);
-        TacGraph_DebugDraw_Area(v26, &colorYellow);
-        __asm
-        {
-          vmovss  dword ptr [rsp+1370h+fmt], xmm6
-          vmovss  xmm2, cs:__real@44000000; radius
-        }
-        PointsInRadiusWithinCone = TacGraphSearch_FindPointsInRadiusWithinCone(v30, &pos, *(float *)&_XMM2, &forward, fmt, (const tacpoint_t **)ppOutPoints, 512);
-        v34 = PointsInRadiusWithinCone;
+        PointIndex = TacGraph_GetPointIndex(v17);
+        TacGraph_DebugDraw_Point(v17, &colorYellow, 0);
+        TacGraph_DebugDraw_Area(v17, &colorYellow);
+        PointsInRadiusWithinCone = TacGraphSearch_FindPointsInRadiusWithinCone(v18, &pos, 512.0, &forward, 0.0, (const tacpoint_t **)ppOutPoints, 512);
+        v21 = PointsInRadiusWithinCone;
         if ( PointsInRadiusWithinCone > 0 )
         {
           do
           {
-            v35 = ppOutPoints[v7];
-            if ( v26 != v35 )
+            v22 = ppOutPoints[v5];
+            if ( v17 != v22 )
             {
-              v36 = TacGraph_GetPointIndex(v35);
-              HasVis = TacVisGraph_HasVis(v30, PointIndex, v36);
-              v38 = &colorRed;
+              v23 = TacGraph_GetPointIndex(v22);
+              HasVis = TacVisGraph_HasVis(v18, PointIndex, v23);
+              v25 = &colorRed;
               if ( HasVis )
-                v38 = &colorGreen;
-              TacGraph_DebugDraw_Point(ppOutPoints[v7], v38, 0);
+                v25 = &colorGreen;
+              TacGraph_DebugDraw_Point(ppOutPoints[v5], v25, 0);
             }
-            ++v7;
+            ++v5;
           }
-          while ( v7 < v34 );
+          while ( v5 < v21 );
         }
-LABEL_55:
+LABEL_53:
         bfx::AreaHandle::~AreaHandle(&hArea);
-        goto LABEL_56;
+        return;
       }
       if ( (unsigned int)(integer - 2) <= 1 )
       {
-        v39 = TacGraph_GetPointIndex(v26);
-        TacGraph_DebugDraw_Point(v26, &colorYellow, 0);
-        TacGraph_DebugDraw_Area(v26, &colorYellow);
-        v40 = DVARBOOL_ai_showTacGraphIDs;
+        v26 = TacGraph_GetPointIndex(v17);
+        TacGraph_DebugDraw_Point(v17, &colorYellow, 0);
+        TacGraph_DebugDraw_Area(v17, &colorYellow);
+        v27 = DVARBOOL_ai_showTacGraphIDs;
         if ( !DVARBOOL_ai_showTacGraphIDs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showTacGraphIDs") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v40);
-        enabled = v40->current.enabled;
-        if ( v30->m_NumPoints )
+        Dvar_CheckFrontendServerThread(v27);
+        enabled = v27->current.enabled;
+        if ( v18->m_NumPoints )
         {
-          __asm
-          {
-            vmovss  xmm6, cs:__real@40c00000
-            vmovss  xmm7, cs:__real@3f800000
-          }
           do
           {
-            if ( (_WORD)v7 != v39 && TacVisGraph_HasVis(v30, v7, v39) )
+            if ( (_WORD)v5 != v26 && TacVisGraph_HasVis(v18, v5, v26) )
             {
               if ( integer == 2 )
               {
-                _RSI = 5i64 * (unsigned __int16)v7;
-                G_DebugLine(&v26->m_Pos, &v30->m_Points[(unsigned __int16)v7].m_Pos, &colorGreen, 0);
+                G_DebugLine(&v17->m_Pos, &v18->m_Points[(unsigned __int16)v5].m_Pos, &colorGreen, 0);
                 if ( enabled )
                 {
-                  _RAX = v30->m_Points;
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rax+rsi*8]
-                    vmovss  dword ptr [rsp+1370h+vEyePosOut], xmm0
-                    vmovss  xmm1, dword ptr [rax+rsi*8+4]
-                    vmovss  dword ptr [rsp+1370h+vEyePosOut+4], xmm1
-                    vaddss  xmm2, xmm6, dword ptr [rax+rsi*8+8]
-                    vmovss  dword ptr [rbp+1270h+vEyePosOut+8], xmm2
-                  }
-                  Com_sprintf(text, 0x10ui64, "%d", (unsigned __int16)v7);
-                  __asm { vmovaps xmm2, xmm7; scale }
-                  G_Main_AddDebugString(&vEyePosOut, &colorYellow, *(float *)&_XMM2, text);
+                  m_Points = v18->m_Points;
+                  *(_QWORD *)vEyePosOut.v = *(_QWORD *)v18->m_Points[(unsigned __int16)v5].m_Pos.v;
+                  vEyePosOut.v[2] = m_Points[(unsigned __int16)v5].m_Pos.v[2] + 6.0;
+                  Com_sprintf(text, 0x10ui64, "%d", (unsigned __int16)v5);
+                  G_Main_AddDebugString(&vEyePosOut, &colorYellow, 1.0, text);
                 }
               }
               else
               {
-                TacGraph_DebugDraw_Point(&v30->m_Points[(unsigned __int16)v7], &colorGreen, 0);
+                TacGraph_DebugDraw_Point(&v18->m_Points[(unsigned __int16)v5], &colorGreen, 0);
               }
             }
-            LOWORD(v7) = v7 + 1;
+            LOWORD(v5) = v5 + 1;
           }
-          while ( (unsigned __int16)v7 < v30->m_NumPoints );
+          while ( (unsigned __int16)v5 < v18->m_NumPoints );
         }
-        v5 = pTacData;
+        v3 = pTacData;
       }
     }
     if ( integer == 4 )
-      TacGraph_DebugDraw_Stats(v5);
-    goto LABEL_55;
-  }
-LABEL_56:
-  _R11 = &v68;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+      TacGraph_DebugDraw_Stats(v3);
+    goto LABEL_53;
   }
 }
 
@@ -352,55 +289,45 @@ TacGraph_DebugDraw_Area
 void TacGraph_DebugDraw_Area(const tacpoint_t *pPoint, const vec4_t *color)
 {
   bfx::AreaHandle *AreaForPoint; 
-  int v5; 
+  int v4; 
   int NumEdges; 
+  bfx::Vector3 *EdgeStartPos; 
+  float m_z; 
+  float m_y; 
+  bfx::Vector3 *EdgeEndPos; 
+  float v10; 
+  float v11; 
   bfx::Vector3 result; 
-  bfx::Vector3 v20; 
+  bfx::Vector3 v13; 
   vec3_t start; 
   vec3_t end; 
 
   AreaForPoint = TacGraph_GetAreaForPoint(pPoint);
   if ( bfx::AreaHandle::IsValid(AreaForPoint) )
   {
-    v5 = 0;
+    v4 = 0;
     NumEdges = bfx::AreaHandle::GetNumEdges(AreaForPoint);
     if ( NumEdges > 0 )
     {
-      __asm
-      {
-        vmovaps [rsp+88h+var_28], xmm6
-        vmovss  xmm6, cs:__real@40000000
-      }
       do
       {
-        _RAX = bfx::AreaHandle::GetEdgeStartPos(AreaForPoint, &result, v5);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rax+8]
-          vmovss  xmm1, dword ptr [rax+4]
-          vmovss  xmm0, dword ptr [rax]
-          vmovss  dword ptr [rsp+88h+start], xmm0
-          vmovss  dword ptr [rsp+88h+start+4], xmm1
-          vmovss  dword ptr [rsp+88h+start+8], xmm2
-        }
-        _RAX = bfx::AreaHandle::GetEdgeEndPos(AreaForPoint, &v20, v5);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vmovss  xmm2, dword ptr [rax+8]
-          vmovss  xmm1, dword ptr [rax+4]
-          vmovss  dword ptr [rsp+88h+end], xmm0
-          vaddss  xmm0, xmm6, dword ptr [rsp+88h+start+8]
-          vaddss  xmm2, xmm6, xmm2
-          vmovss  dword ptr [rsp+88h+start+8], xmm0
-          vmovss  dword ptr [rsp+88h+end+4], xmm1
-          vmovss  dword ptr [rsp+88h+end+8], xmm2
-        }
+        EdgeStartPos = bfx::AreaHandle::GetEdgeStartPos(AreaForPoint, &result, v4);
+        m_z = EdgeStartPos->m_z;
+        m_y = EdgeStartPos->m_y;
+        start.v[0] = EdgeStartPos->m_x;
+        start.v[1] = m_y;
+        start.v[2] = m_z;
+        EdgeEndPos = bfx::AreaHandle::GetEdgeEndPos(AreaForPoint, &v13, v4);
+        v10 = EdgeEndPos->m_z;
+        v11 = EdgeEndPos->m_y;
+        end.v[0] = EdgeEndPos->m_x;
+        start.v[2] = start.v[2] + 2.0;
+        end.v[1] = v11;
+        end.v[2] = v10 + 2.0;
         G_DebugLine(&start, &end, color, 0);
-        ++v5;
+        ++v4;
       }
-      while ( v5 < NumEdges );
-      __asm { vmovaps xmm6, [rsp+88h+var_28] }
+      while ( v4 < NumEdges );
     }
   }
 }
@@ -412,85 +339,63 @@ TacGraph_DebugDraw_Point
 */
 void TacGraph_DebugDraw_Point(const tacpoint_t *pPoint, const vec4_t *color, int duration)
 {
-  const dvar_t *v23; 
+  float v3; 
+  float v4; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  const dvar_t *v12; 
   unsigned __int16 PointIndex; 
+  float v14; 
+  float v15; 
   vec3_t end; 
   vec3_t start; 
   vec3_t xyz; 
   char dest[16]; 
 
-  __asm
-  {
-    vmovaps [rsp+0C0h+var_30], xmm6
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  xmm2, dword ptr [rcx]
-    vmovss  xmm6, cs:__real@40800000
-    vmovss  dword ptr [rbp+57h+start+4], xmm1
-    vmovss  dword ptr [rbp+57h+start+8], xmm0
-    vmovss  dword ptr [rbp+57h+end+4], xmm1
-    vmovss  dword ptr [rbp+57h+end+8], xmm0
-    vsubss  xmm0, xmm2, xmm6
-    vaddss  xmm1, xmm2, xmm6
-  }
-  _RBX = pPoint;
-  __asm
-  {
-    vmovss  dword ptr [rbp+57h+start], xmm0
-    vmovss  dword ptr [rbp+57h+end], xmm1
-  }
+  v3 = pPoint->m_Pos.v[2];
+  v4 = pPoint->m_Pos.v[0];
+  start.v[1] = pPoint->m_Pos.v[1];
+  start.v[2] = v3;
+  end.v[1] = start.v[1];
+  end.v[2] = v3;
+  start.v[0] = v4 - 4.0;
+  end.v[0] = v4 + 4.0;
   G_DebugLineWithDuration(&start, &end, color, 0, duration);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rbp+57h+start], xmm1
-    vmovss  dword ptr [rbp+57h+start+8], xmm0
-    vmovss  dword ptr [rbp+57h+end], xmm1
-    vmovss  dword ptr [rbp+57h+end+8], xmm0
-    vsubss  xmm0, xmm2, xmm6
-    vaddss  xmm1, xmm2, xmm6
-    vmovss  dword ptr [rbp+57h+start+4], xmm0
-    vmovss  dword ptr [rbp+57h+end+4], xmm1
-  }
+  v8 = pPoint->m_Pos.v[2];
+  v9 = pPoint->m_Pos.v[1];
+  start.v[0] = pPoint->m_Pos.v[0];
+  start.v[2] = v8;
+  end.v[0] = start.v[0];
+  end.v[2] = v8;
+  start.v[1] = v9 - 4.0;
+  end.v[1] = v9 + 4.0;
   G_DebugLineWithDuration(&start, &end, color, 0, duration);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  xmm2, dword ptr [rbx+8]
-    vmovss  dword ptr [rbp+57h+start], xmm1
-    vmovss  dword ptr [rbp+57h+start+4], xmm0
-    vmovss  dword ptr [rbp+57h+end], xmm1
-    vmovss  dword ptr [rbp+57h+end+4], xmm0
-    vsubss  xmm0, xmm2, xmm6
-    vaddss  xmm1, xmm2, xmm6
-    vmovss  dword ptr [rbp+57h+start+8], xmm0
-    vmovss  dword ptr [rbp+57h+end+8], xmm1
-  }
+  v10 = pPoint->m_Pos.v[1];
+  v11 = pPoint->m_Pos.v[2];
+  start.v[0] = pPoint->m_Pos.v[0];
+  start.v[1] = v10;
+  end.v[0] = start.v[0];
+  end.v[1] = v10;
+  start.v[2] = v11 - 4.0;
+  end.v[2] = v11 + 4.0;
   G_DebugLineWithDuration(&start, &end, color, 0, duration);
-  v23 = DVARBOOL_ai_showTacGraphIDs;
+  v12 = DVARBOOL_ai_showTacGraphIDs;
   if ( !DVARBOOL_ai_showTacGraphIDs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showTacGraphIDs") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  if ( v23->current.enabled )
+  Dvar_CheckFrontendServerThread(v12);
+  if ( v12->current.enabled )
   {
-    PointIndex = TacGraph_GetPointIndex(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rbx+4]
-      vaddss  xmm2, xmm6, dword ptr [rbx+8]
-      vmovss  dword ptr [rbp+57h+xyz], xmm0
-      vmovss  dword ptr [rbp+57h+xyz+4], xmm1
-      vmovss  dword ptr [rbp+57h+xyz+8], xmm2
-    }
+    PointIndex = TacGraph_GetPointIndex(pPoint);
+    v14 = pPoint->m_Pos.v[1];
+    v15 = pPoint->m_Pos.v[2] + 4.0;
+    xyz.v[0] = pPoint->m_Pos.v[0];
+    xyz.v[1] = v14;
+    xyz.v[2] = v15;
     Com_sprintf(dest, 0x10ui64, "%d", PointIndex);
-    __asm { vmovss  xmm2, cs:__real@3f400000; scale }
-    G_Main_AddDebugStringWithDuration(&xyz, color, *(float *)&_XMM2, dest, duration);
+    G_Main_AddDebugStringWithDuration(&xyz, color, 0.75, dest, duration);
   }
-  __asm { vmovaps xmm6, [rsp+0C0h+var_30] }
 }
 
 /*
@@ -500,111 +405,50 @@ TacGraph_DebugDraw_Stats
 */
 void TacGraph_DebugDraw_Stats(const TacticalGraphData *pTacData)
 {
-  int v13; 
-  __int64 v14; 
-  TacticalGraph *v16; 
+  __int128 v2; 
+  int v3; 
+  __int64 v4; 
+  TacticalGraph *v5; 
+  __int128 v6; 
   unsigned int MaxDepth_r; 
   unsigned int MostPointsInNode_r; 
   char dest[512]; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm8, cs:__real@41f00000
-    vmovss  xmm1, cs:__real@42480000; y
-    vmovaps xmm3, xmm7; scale
-    vmovaps xmm0, xmm8; x
-  }
-  G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, "TacGraph Stats");
-  __asm { vmovss  xmm0, cs:__real@42880000 }
-  v13 = 0;
+  G_Main_AddDebugString2D(30.0, 50.0, &colorYellow, 1.0, "TacGraph Stats");
+  v2 = LODWORD(FLOAT_68_0);
+  v3 = 0;
   if ( pTacData->m_NumTacGraphs > 0 )
   {
-    v14 = 0i64;
-    __asm
-    {
-      vmovaps [rsp+298h+var_28], xmm6
-      vmovaps [rsp+298h+var_58], xmm9
-      vmovss  xmm9, cs:__real@41900000
-    }
+    v4 = 0i64;
     do
     {
-      v16 = &pTacData->m_TacGraphs[v14];
-      __asm { vaddss  xmm6, xmm0, xmm9 }
-      Com_sprintf(dest, 0x200ui64, "TacGraph %d", (unsigned int)v13);
-      __asm
-      {
-        vmovaps xmm3, xmm7; scale
-        vmovaps xmm1, xmm6; y
-        vmovaps xmm0, xmm8; x
-      }
-      G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest);
-      __asm { vaddss  xmm6, xmm6, xmm9 }
-      Com_sprintf(dest, 0x200ui64, "Num tacpoints: %d", v16->m_NumPoints);
-      __asm
-      {
-        vmovaps xmm3, xmm7; scale
-        vmovaps xmm1, xmm6; y
-        vmovaps xmm0, xmm8; x
-      }
-      G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest);
-      __asm { vaddss  xmm6, xmm6, xmm9 }
-      Com_sprintf(dest, 0x200ui64, "Tacpoints bytes: %zu", 40i64 * v16->m_NumPoints);
-      __asm
-      {
-        vmovaps xmm3, xmm7; scale
-        vmovaps xmm1, xmm6; y
-        vmovaps xmm0, xmm8; x
-      }
-      G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest);
-      __asm { vaddss  xmm6, xmm6, xmm9 }
-      Com_sprintf(dest, 0x200ui64, "Vis bytes: %d", (unsigned int)v16->m_NumVisBytes);
-      __asm
-      {
-        vmovaps xmm3, xmm7; scale
-        vmovaps xmm1, xmm6; y
-        vmovaps xmm0, xmm8; x
-      }
-      G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest);
-      __asm { vaddss  xmm6, xmm6, xmm9 }
-      MaxDepth_r = TacGraphSearch_GetMaxDepth_r(&v16->m_SearchRoot);
+      v5 = &pTacData->m_TacGraphs[v4];
+      v6 = v2;
+      Com_sprintf(dest, 0x200ui64, "TacGraph %d", (unsigned int)v3);
+      G_Main_AddDebugString2D(30.0, *(float *)&v2 + 18.0, &colorYellow, 1.0, dest);
+      *(float *)&v6 = (float)(*(float *)&v2 + 18.0) + 18.0;
+      Com_sprintf(dest, 0x200ui64, "Num tacpoints: %d", v5->m_NumPoints);
+      G_Main_AddDebugString2D(30.0, *(float *)&v6, &colorYellow, 1.0, dest);
+      *(float *)&v6 = *(float *)&v6 + 18.0;
+      Com_sprintf(dest, 0x200ui64, "Tacpoints bytes: %zu", 40i64 * v5->m_NumPoints);
+      G_Main_AddDebugString2D(30.0, *(float *)&v6, &colorYellow, 1.0, dest);
+      *(float *)&v6 = *(float *)&v6 + 18.0;
+      Com_sprintf(dest, 0x200ui64, "Vis bytes: %d", (unsigned int)v5->m_NumVisBytes);
+      G_Main_AddDebugString2D(30.0, *(float *)&v6, &colorYellow, 1.0, dest);
+      *(float *)&v6 = *(float *)&v6 + 18.0;
+      MaxDepth_r = TacGraphSearch_GetMaxDepth_r(&v5->m_SearchRoot);
       Com_sprintf(dest, 0x200ui64, "Max search depth: %d", MaxDepth_r);
-      __asm
-      {
-        vmovaps xmm3, xmm7; scale
-        vmovaps xmm1, xmm6; y
-        vmovaps xmm0, xmm8; x
-      }
-      G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest);
-      __asm { vaddss  xmm6, xmm6, xmm9 }
-      MostPointsInNode_r = TacGraphSearch_GetMostPointsInNode_r(v16, &v16->m_SearchRoot);
+      G_Main_AddDebugString2D(30.0, *(float *)&v6, &colorYellow, 1.0, dest);
+      *(float *)&v6 = *(float *)&v6 + 18.0;
+      MostPointsInNode_r = TacGraphSearch_GetMostPointsInNode_r(v5, &v5->m_SearchRoot);
       Com_sprintf(dest, 0x200ui64, "Most points in search node: %d", MostPointsInNode_r);
-      __asm
-      {
-        vmovaps xmm3, xmm7; scale
-        vmovaps xmm1, xmm6; y
-        vmovaps xmm0, xmm8; x
-      }
-      G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest);
-      ++v13;
-      ++v14;
-      __asm { vaddss  xmm0, xmm6, xmm9 }
+      G_Main_AddDebugString2D(30.0, *(float *)&v6, &colorYellow, 1.0, dest);
+      ++v3;
+      ++v4;
+      *(float *)&v6 = *(float *)&v6 + 18.0;
+      v2 = v6;
     }
-    while ( v13 < pTacData->m_NumTacGraphs );
-    __asm
-    {
-      vmovaps xmm9, [rsp+298h+var_58]
-      vmovaps xmm6, [rsp+298h+var_28]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+298h+var_38]
-    vmovaps xmm8, [rsp+298h+var_48]
+    while ( v3 < pTacData->m_NumTacGraphs );
   }
 }
 

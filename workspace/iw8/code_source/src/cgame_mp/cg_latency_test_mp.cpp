@@ -135,116 +135,107 @@ void __fastcall CG_LatencyTestMP_EntityEvent(LocalClientNum_t localClientNum, co
 CG_LatencyTestMP_BaseLag_CalcStats
 ==============
 */
-
-void __fastcall CG_LatencyTestMP_BaseLag_CalcStats(LocalClientNum_t localClientNum, double _XMM1_8)
+void CG_LatencyTestMP_BaseLag_CalcStats(LocalClientNum_t localClientNum)
 {
   const cg_t *LocalClientGlobals; 
-  int v5; 
+  int v3; 
+  int *p_maxTime; 
   CgLatencyTestBaseLagTestSample (*samples)[64]; 
-  __int64 v8; 
+  __int64 v6; 
   int sampleCount; 
-  int v10; 
+  int v8; 
+  int v9; 
+  __int64 v10; 
   int v11; 
   __int64 v12; 
-  int v13; 
-  __int64 v14; 
-  CgLatencyTestBaseLagTestSample (*v15)[64]; 
+  CgLatencyTestBaseLagTestSample (*v13)[64]; 
   int clientTime; 
-  int v17; 
+  int v15; 
+  int v16; 
+  bool v17; 
   int v18; 
-  bool v19; 
-  int v20; 
-  int v21; 
-  __int64 v22; 
-  CgLatencyTestBaseLagTestSample *v23; 
-  int v24; 
+  int v19; 
+  __int64 v20; 
+  CgLatencyTestBaseLagTestSample *v21; 
+  int v22; 
 
   Com_Printf(31, "CalcStats\n");
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v5 = 0;
+  v3 = 0;
   if ( cls.maxClients > 0 )
   {
-    _RBX = &s_baseLagTest.results[0].maxTime;
+    p_maxTime = &s_baseLagTest.results[0].maxTime;
     samples = s_baseLagTest.samples;
-    v8 = 0i64;
+    v6 = 0i64;
     do
     {
-      if ( v5 != s_baseLagTest.testingClientNum && CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v5) )
+      if ( v3 != s_baseLagTest.testingClientNum && CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v3) )
       {
         sampleCount = 64;
         if ( s_baseLagTest.sampleCount < 64 )
           sampleCount = s_baseLagTest.sampleCount;
-        *(_QWORD *)(_RBX - 1) = 0x7FFFFFFFi64;
-        v10 = 0;
-        *(_RBX - 4) = 0;
+        *(_QWORD *)(p_maxTime - 1) = 0x7FFFFFFFi64;
+        v8 = 0;
+        *(p_maxTime - 4) = 0;
+        v9 = 0;
+        v10 = sampleCount;
         v11 = 0;
-        v12 = sampleCount;
-        v13 = 0;
-        v14 = 0i64;
+        v12 = 0i64;
         if ( sampleCount > 0 )
         {
-          v15 = samples;
+          v13 = samples;
           do
           {
-            clientTime = s_baseLagTest.samples[(__int64)s_baseLagTest.testingClientNum][v14].clientTime;
-            if ( clientTime > 0 && *(_DWORD *)v15 > 0 )
+            clientTime = s_baseLagTest.samples[(__int64)s_baseLagTest.testingClientNum][v12].clientTime;
+            if ( clientTime > 0 && *(_DWORD *)v13 > 0 )
             {
-              v13 += (*v15)[0].ping;
-              v17 = *(_DWORD *)v15 - clientTime;
-              v11 += v17;
-              v18 = v17;
-              if ( *_RBX > v17 )
-                v18 = *_RBX;
-              v19 = *(_RBX - 1) < v17;
-              *_RBX = v18;
-              if ( v19 )
-                v17 = *(_RBX - 1);
-              ++*(_RBX - 4);
-              *(_RBX - 1) = v17;
+              v11 += (*v13)[0].ping;
+              v15 = *(_DWORD *)v13 - clientTime;
+              v9 += v15;
+              v16 = v15;
+              if ( *p_maxTime > v15 )
+                v16 = *p_maxTime;
+              v17 = *(p_maxTime - 1) < v15;
+              *p_maxTime = v16;
+              if ( v17 )
+                v15 = *(p_maxTime - 1);
+              ++*(p_maxTime - 4);
+              *(p_maxTime - 1) = v15;
             }
-            ++v14;
-            v15 = (CgLatencyTestBaseLagTestSample (*)[64])((char *)v15 + 8);
+            ++v12;
+            v13 = (CgLatencyTestBaseLagTestSample (*)[64])((char *)v13 + 8);
           }
-          while ( v14 < v12 );
-          v20 = *(_RBX - 4);
-          if ( v20 )
+          while ( v12 < v10 );
+          v18 = *(p_maxTime - 4);
+          if ( v18 )
           {
-            *(_RBX - 2) = v11 / v20;
-            v21 = v11 / v20;
-            v22 = 0i64;
-            *(_RBX - 3) = v13 / v20;
-            v23 = s_baseLagTest.samples[(__int64)s_baseLagTest.testingClientNum];
+            *(p_maxTime - 2) = v9 / v18;
+            v19 = v9 / v18;
+            v20 = 0i64;
+            *(p_maxTime - 3) = v11 / v18;
+            v21 = s_baseLagTest.samples[(__int64)s_baseLagTest.testingClientNum];
             do
             {
-              if ( v23->clientTime > 0 )
+              if ( v21->clientTime > 0 )
               {
-                v24 = s_baseLagTest.samples[v8][v22].clientTime;
-                if ( v24 > 0 )
-                  v10 += (v24 - v23->clientTime - v21) * (v24 - v23->clientTime - v21);
+                v22 = s_baseLagTest.samples[v6][v20].clientTime;
+                if ( v22 > 0 )
+                  v8 += (v22 - v21->clientTime - v19) * (v22 - v21->clientTime - v19);
               }
-              ++v22;
-              ++v23;
+              ++v20;
+              ++v21;
             }
-            while ( v22 < v12 );
-            __asm
-            {
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, r11d
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, r14d
-              vdivss  xmm1, xmm1, xmm0
-              vsqrtss xmm2, xmm1, xmm1
-              vmovss  dword ptr [rbx+4], xmm2
-            }
+            while ( v20 < v10 );
+            *((float *)p_maxTime + 1) = fsqrt((float)v8 / (float)v18);
           }
         }
       }
-      ++v5;
-      _RBX += 6;
+      ++v3;
+      p_maxTime += 6;
       ++samples;
-      ++v8;
+      ++v6;
     }
-    while ( v5 < cls.maxClients );
+    while ( v3 < cls.maxClients );
   }
 }
 
@@ -255,243 +246,133 @@ CG_LatencyTestMP_BaseLag_DrawResults
 */
 void CG_LatencyTestMP_BaseLag_DrawResults(LocalClientNum_t localClientNum)
 {
-  unsigned int testingClientNum; 
-  unsigned int maxClients; 
   cg_t *LocalClientGlobals; 
   const ScreenPlacement *ActivePlacement; 
   int sampleCount; 
   GfxFont *FontHandle; 
-  char v32; 
-  unsigned int v33; 
+  __int128 v6; 
+  char v7; 
+  unsigned int v8; 
   int *p_avgTime; 
-  __int64 v35; 
-  __int64 v36; 
+  __int64 v10; 
+  __int64 v11; 
   int clientNum; 
-  __int64 v38; 
+  __int64 v13; 
   int clientTime; 
-  int v40; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
+  int v15; 
+  vec4_t v16; 
+  vec4_t v17; 
+  __int128 v18; 
   char *fmt; 
-  float fmte; 
-  float fmtf; 
   int horzAligna; 
-  int horzAlignb; 
-  int horzAlignc; 
   __int64 horzAlign; 
-  int horzAlignd; 
   int vertAligna; 
   __int64 vertAlign; 
-  float s1a; 
-  float s1b; 
   __int64 s1; 
-  float s1c; 
-  float v71; 
-  float v72; 
-  float v73; 
-  float v74; 
-  float v75; 
-  float v76; 
-  float v77; 
-  float v78; 
-  float v79; 
-  int style; 
-  int stylea; 
-  int styleb; 
   vec4_t color; 
-  vec4_t v84; 
+  vec4_t v26; 
   char dest[64]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  testingClientNum = s_baseLagTest.testingClientNum;
   if ( s_baseLagTest.testingClientNum >= 0 )
   {
-    maxClients = cls.maxClients;
-    __asm { vmovaps xmmword ptr [r11-88h], xmm11 }
-    if ( testingClientNum >= maxClients )
+    if ( s_baseLagTest.testingClientNum >= (unsigned int)cls.maxClients )
     {
-      vertAligna = maxClients;
-      horzAligna = testingClientNum;
+      vertAligna = cls.maxClients;
+      horzAligna = s_baseLagTest.testingClientNum;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 2941, ASSERT_TYPE_ASSERT, "(unsigned)( s_baseLagTest.testingClientNum ) < (unsigned)( cls.maxClients )", "s_baseLagTest.testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", horzAligna, vertAligna) )
         __debugbreak();
     }
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    __asm { vmovss  xmm2, cs:__real@3f000000; scale }
     ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-    UI_GetFontHandle(ActivePlacement, 5, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm11, cs:__real@3e4ccccd
-      vmovaps xmm2, xmm11; scale
-    }
+    UI_GetFontHandle(ActivePlacement, 5, 0.5);
     sampleCount = 64;
-    FontHandle = UI_GetFontHandle(ActivePlacement, 5, *(float *)&_XMM2);
+    FontHandle = UI_GetFontHandle(ActivePlacement, 5, 0.2);
     if ( s_baseLagTest.sampleCount < 64 )
       sampleCount = s_baseLagTest.sampleCount;
     if ( sampleCount > 0 )
     {
-      __asm
-      {
-        vmovss  xmm2, cs:__real@41f00000; y
-        vmovaps [rsp+178h+var_38], xmm6
-        vmovaps [rsp+178h+var_48], xmm7
-        vmovss  xmm7, cs:__real@3f800000
-        vmovss  [rsp+178h+style], xmm7
-        vmovss  dword ptr [rsp+178h+var_130], xmm7
-        vmovaps [rsp+178h+var_58], xmm8
-        vmovaps [rsp+178h+var_68], xmm9
-        vmovss  xmm9, cs:__real@41a00000
-        vxorps  xmm8, xmm8, xmm8
-        vmovss  [rsp+178h+var_138], xmm8
-        vmovss  [rsp+178h+s1], xmm8
-        vmovaps [rsp+178h+var_78], xmm10
-        vmovss  xmm10, cs:__real@41200000
-        vmovaps [rsp+178h+var_98], xmm12
-        vmovss  xmm12, cs:__real@43520000
-        vmovaps xmm3, xmm12; w
-        vmovaps xmm1, xmm9; x
-        vmovss  dword ptr [rsp+178h+fmt], xmm10
-      }
-      CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, 4, 4, s1a, v71, v77, *(float *)&style, &colorWhite, cgMedia.whiteMaterial);
+      CL_DrawStretchPic(ActivePlacement, 20.0, 30.0, 210.0, 10.0, 4, 4, 0.0, 0.0, 1.0, 1.0, &colorWhite, cgMedia.whiteMaterial);
       Com_sprintf(dest, 0x40ui64, " LATENCY TEST BASE LAG  Samples: %i", (unsigned int)sampleCount);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@42200000
-        vmovss  [rsp+178h+var_138], xmm11
-        vmovss  dword ptr [rsp+178h+horzAlign], xmm6
-        vmovss  dword ptr [rsp+178h+fmt], xmm9
-      }
-      UI_DrawText(ActivePlacement, dest, 64, FontHandle, fmtb, *(float *)&horzAlignb, 4, 4, v72, &colorBlack, 3);
-      __asm
-      {
-        vmovss  [rsp+178h+style], xmm7
-        vmovss  dword ptr [rsp+178h+var_130], xmm7
-        vmovss  [rsp+178h+var_138], xmm8
-        vmovss  [rsp+178h+s1], xmm8
-        vmovaps xmm3, xmm12; w
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm9; x
-        vmovss  dword ptr [rsp+178h+fmt], xmm10
-      }
-      CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, 4, 4, s1b, v73, v78, *(float *)&stylea, &colorBlack, cgMedia.whiteMaterial);
-      __asm { vmovss  xmm6, cs:__real@42480000 }
+      UI_DrawText(ActivePlacement, dest, 64, FontHandle, 20.0, 40.0, 4, 4, 0.2, &colorBlack, 3);
+      CL_DrawStretchPic(ActivePlacement, 20.0, 40.0, 210.0, 10.0, 4, 4, 0.0, 0.0, 1.0, 1.0, &colorBlack, cgMedia.whiteMaterial);
+      v6 = LODWORD(FLOAT_50_0);
       Com_sprintf(dest, 0x40ui64, " CL | PING |  TIME | DELTA |  AVG");
-      __asm
-      {
-        vmovss  [rsp+178h+var_138], xmm11
-        vmovss  dword ptr [rsp+178h+horzAlign], xmm6
-        vmovss  dword ptr [rsp+178h+fmt], xmm9
-      }
-      UI_DrawText(ActivePlacement, dest, 64, FontHandle, fmtd, *(float *)&horzAlignc, 4, 4, v74, &colorWhite, 3);
-      v32 = LOBYTE(s_baseLagTest.sampleCount) - 1;
-      v33 = 0;
+      UI_DrawText(ActivePlacement, dest, 64, FontHandle, 20.0, 50.0, 4, 4, 0.2, &colorWhite, 3);
+      v7 = LOBYTE(s_baseLagTest.sampleCount) - 1;
+      v8 = 0;
       if ( cls.maxClients > 0 )
       {
         p_avgTime = &s_baseLagTest.results[0].avgTime;
-        v35 = 0i64;
-        v36 = v32 & 0x3F;
+        v10 = 0i64;
+        v11 = v7 & 0x3F;
         do
         {
-          if ( CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v33) )
+          if ( CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v8) )
           {
             clientNum = LocalClientGlobals->clientNum;
-            if ( clientNum == s_baseLagTest.testingClientNum || clientNum == v33 )
+            if ( clientNum == s_baseLagTest.testingClientNum || clientNum == v8 )
             {
-              v38 = v36 + v35;
-              if ( clientNum != s_baseLagTest.testingClientNum || v33 == s_baseLagTest.testingClientNum )
+              v13 = v11 + v10;
+              if ( clientNum != s_baseLagTest.testingClientNum || v8 == s_baseLagTest.testingClientNum )
               {
-                LODWORD(horzAlign) = s_baseLagTest.samples[0][v38].clientTime % 100000;
-                LODWORD(fmt) = s_baseLagTest.samples[0][v38].ping;
-                Com_sprintf(dest, 0x40ui64, " %2i | %4i | %05i |       |", v33, fmt, horzAlign);
+                LODWORD(horzAlign) = s_baseLagTest.samples[0][v13].clientTime % 100000;
+                LODWORD(fmt) = s_baseLagTest.samples[0][v13].ping;
+                Com_sprintf(dest, 0x40ui64, " %2i | %4i | %05i |       |", v8, fmt, horzAlign);
               }
               else
               {
-                clientTime = s_baseLagTest.samples[0][v38].clientTime;
+                clientTime = s_baseLagTest.samples[0][v13].clientTime;
                 if ( clientTime > 0 )
                 {
-                  v40 = s_baseLagTest.samples[(__int64)s_baseLagTest.testingClientNum][v36].clientTime;
-                  if ( v40 > 0 )
+                  v15 = s_baseLagTest.samples[(__int64)s_baseLagTest.testingClientNum][v11].clientTime;
+                  if ( v15 > 0 )
                   {
                     LODWORD(s1) = *p_avgTime;
-                    LODWORD(vertAlign) = clientTime - v40;
+                    LODWORD(vertAlign) = clientTime - v15;
                     LODWORD(horzAlign) = clientTime % 100000;
-                    LODWORD(fmt) = s_baseLagTest.samples[0][v38].ping;
-                    Com_sprintf(dest, 0x40ui64, " %2i | %4i | %05i | %5i | %4i", v33, fmt, horzAlign, vertAlign, s1);
+                    LODWORD(fmt) = s_baseLagTest.samples[0][v13].ping;
+                    Com_sprintf(dest, 0x40ui64, " %2i | %4i | %05i | %5i | %4i", v8, fmt, horzAlign, vertAlign, s1);
                   }
                   else
                   {
                     LODWORD(vertAlign) = *p_avgTime;
                     LODWORD(horzAlign) = clientTime % 100000;
-                    LODWORD(fmt) = s_baseLagTest.samples[0][v38].ping;
-                    Com_sprintf(dest, 0x40ui64, " %2i | %4i | %05i |   ... | %4i", v33, fmt, horzAlign, vertAlign);
+                    LODWORD(fmt) = s_baseLagTest.samples[0][v13].ping;
+                    Com_sprintf(dest, 0x40ui64, " %2i | %4i | %05i |   ... | %4i", v8, fmt, horzAlign, vertAlign);
                   }
                 }
                 else
                 {
                   LODWORD(fmt) = *p_avgTime;
-                  Com_sprintf(dest, 0x40ui64, " %2i |  ... |   ... |   ... | %4i", v33, fmt);
+                  Com_sprintf(dest, 0x40ui64, " %2i |  ... |   ... |   ... | %4i", v8, fmt);
                 }
               }
-              if ( (v32 & 1) != 0 )
+              if ( (v7 & 1) != 0 )
               {
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-                  vmovups xmm1, xmmword ptr cs:?colorBlack@@3Tvec4_t@@B; vec4_t const colorBlack
-                }
+                v16 = colorWhite;
+                v17 = colorBlack;
               }
               else
               {
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr cs:?colorBlack@@3Tvec4_t@@B; vec4_t const colorBlack
-                  vmovups xmm1, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-                }
+                v16 = colorBlack;
+                v17 = colorWhite;
               }
-              __asm
-              {
-                vmovss  [rsp+178h+style], xmm7
-                vmovss  dword ptr [rsp+178h+var_130], xmm7
-                vmovss  [rsp+178h+var_138], xmm8
-                vmovss  [rsp+178h+s1], xmm8
-                vmovups xmmword ptr [rsp+178h+var_F8], xmm1
-                vmovaps xmm3, xmm12; w
-                vmovaps xmm2, xmm6; y
-                vmovaps xmm1, xmm9; x
-                vmovss  dword ptr [rsp+178h+fmt], xmm10
-                vmovups xmmword ptr [rsp+178h+var_108], xmm0
-              }
-              CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmte, 4, 4, s1c, v75, v79, *(float *)&styleb, &color, cgMedia.whiteMaterial);
-              __asm
-              {
-                vmovss  [rsp+178h+var_138], xmm11
-                vaddss  xmm6, xmm6, xmm10
-                vmovss  dword ptr [rsp+178h+horzAlign], xmm6
-                vmovss  dword ptr [rsp+178h+fmt], xmm9
-              }
-              UI_DrawText(ActivePlacement, dest, 64, FontHandle, fmtf, *(float *)&horzAlignd, 4, 4, v76, &v84, 3);
+              v26 = v17;
+              color = v16;
+              CL_DrawStretchPic(ActivePlacement, 20.0, *(float *)&v6, 210.0, 10.0, 4, 4, 0.0, 0.0, 1.0, 1.0, &color, cgMedia.whiteMaterial);
+              v18 = v6;
+              *(float *)&v18 = *(float *)&v6 + 10.0;
+              v6 = v18;
+              UI_DrawText(ActivePlacement, dest, 64, FontHandle, 20.0, *(float *)&v18, 4, 4, 0.2, &v26, 3);
             }
           }
-          ++v33;
-          v35 += 64i64;
+          ++v8;
+          v10 += 64i64;
           p_avgTime += 6;
         }
-        while ( (int)v33 < cls.maxClients );
-      }
-      __asm
-      {
-        vmovaps xmm10, [rsp+178h+var_78]
-        vmovaps xmm9, [rsp+178h+var_68]
-        vmovaps xmm8, [rsp+178h+var_58]
-        vmovaps xmm7, [rsp+178h+var_48]
-        vmovaps xmm6, [rsp+178h+var_38]
-        vmovaps xmm12, [rsp+178h+var_98]
+        while ( (int)v8 < cls.maxClients );
       }
     }
-    __asm { vmovaps xmm11, [rsp+178h+var_88] }
   }
 }
 
@@ -505,11 +386,11 @@ void CG_LatencyTestMP_BaseLag_PrintResult_f()
   LocalClientNum_t v0; 
   const cg_t *LocalClientGlobals; 
   int v2; 
+  int *p_minTime; 
+  __int64 v4; 
+  __int64 v5; 
   __int64 v6; 
   __int64 v7; 
-  __int64 v8; 
-  double v9; 
-  __int64 v10; 
 
   v0 = Cmd_LocalClientNum();
   LocalClientGlobals = CG_GetLocalClientGlobals(v0);
@@ -521,25 +402,19 @@ void CG_LatencyTestMP_BaseLag_PrintResult_f()
   v2 = 0;
   if ( cls.maxClients > 0 )
   {
-    _RDI = &s_baseLagTest.results[0].minTime;
+    p_minTime = &s_baseLagTest.results[0].minTime;
     do
     {
       if ( v2 != s_baseLagTest.testingClientNum && CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v2) )
       {
-        __asm { vmovss  xmm0, dword ptr [rdi+8] }
-        LODWORD(v10) = s_baseLagTest.sampleCount;
-        __asm
-        {
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+58h+var_20], xmm0
-        }
-        LODWORD(v8) = *_RDI;
-        LODWORD(v7) = *(_RDI - 1);
-        LODWORD(v6) = _RDI[1];
-        Com_Printf(31, "Data,%i,%i,%i,%i,%i,%f,%i\n", (unsigned int)v2, (unsigned int)*(_RDI - 2), v6, v7, v8, v9, v10);
+        LODWORD(v7) = s_baseLagTest.sampleCount;
+        LODWORD(v6) = *p_minTime;
+        LODWORD(v5) = *(p_minTime - 1);
+        LODWORD(v4) = p_minTime[1];
+        Com_Printf(31, "Data,%i,%i,%i,%i,%i,%f,%i\n", (unsigned int)v2, (unsigned int)*(p_minTime - 2), v4, v5, v6, *((float *)p_minTime + 2), v7);
       }
       ++v2;
-      _RDI += 6;
+      p_minTime += 6;
     }
     while ( v2 < cls.maxClients );
   }
@@ -553,61 +428,60 @@ CG_LatencyTestMP_BaseLag_RecordSample
 */
 void CG_LatencyTestMP_BaseLag_RecordSample(LocalClientNum_t localClientNum, int observerClientNum, __int64 clientTime, int ping)
 {
-  double v4; 
-  int v6; 
-  __int64 v7; 
+  int v5; 
+  __int64 v6; 
   cg_t *LocalClientGlobals; 
   ClActiveClientMP *ClientMP; 
-  __int64 v11; 
-  ClActiveClientMP *v12; 
+  __int64 v10; 
+  ClActiveClientMP *v11; 
+  __int64 v12; 
   __int64 v13; 
-  __int64 v14; 
   __int64 maxClients; 
-  const char *v16; 
+  const char *v15; 
 
-  v6 = clientTime;
-  v7 = observerClientNum;
+  v5 = clientTime;
+  v6 = observerClientNum;
   if ( s_baseLagTest.testingClientNum >= 0 )
   {
     Com_Printf(31, "Record Sample time=%i observer=%i\n", clientTime, (unsigned int)observerClientNum);
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
-    v11 = s_baseLagTest.sampleCount & 0x3F;
-    v12 = ClientMP;
-    v13 = (v7 << 6) + ((LOBYTE(s_baseLagTest.sampleCount) - 1) & 0x3F);
-    if ( v6 >= s_baseLagTest.startTime + 1000 )
+    v10 = s_baseLagTest.sampleCount & 0x3F;
+    v11 = ClientMP;
+    v12 = (v6 << 6) + ((LOBYTE(s_baseLagTest.sampleCount) - 1) & 0x3F);
+    if ( v5 >= s_baseLagTest.startTime + 1000 )
     {
-      if ( s_baseLagTest.sampleCount <= 0 || s_baseLagTest.samples[0][v13].clientTime )
+      if ( s_baseLagTest.sampleCount <= 0 || s_baseLagTest.samples[0][v12].clientTime )
       {
         if ( cls.maxClients > 0 )
         {
-          v14 = 0i64;
+          v13 = 0i64;
           maxClients = (unsigned int)cls.maxClients;
           do
           {
-            s_baseLagTest.samples[v14++][v11] = 0i64;
+            s_baseLagTest.samples[v13++][v10] = 0i64;
             --maxClients;
           }
           while ( maxClients );
         }
-        s_baseLagTest.samples[v7][v11].clientTime = v6;
-        s_baseLagTest.samples[v7][v11].ping = ping;
+        s_baseLagTest.samples[v6][v10].clientTime = v5;
+        s_baseLagTest.samples[v6][v10].ping = ping;
         ++s_baseLagTest.sampleCount;
       }
       else
       {
-        s_baseLagTest.samples[0][v13].clientTime = v6;
-        s_baseLagTest.samples[0][v13].ping = ping;
+        s_baseLagTest.samples[0][v12].clientTime = v5;
+        s_baseLagTest.samples[0][v12].ping = ping;
       }
       if ( LocalClientGlobals->clientNum == s_baseLagTest.testingClientNum )
       {
-        CG_LatencyTestMP_BaseLag_CalcStats(localClientNum, v4);
+        CG_LatencyTestMP_BaseLag_CalcStats(localClientNum);
       }
       else
       {
-        Com_Printf(31, "CL_Main_AddReliableCommand baselag sample %i %i\n", (unsigned int)v12->serverTime, (unsigned int)v12->snap.ping);
-        v16 = j_va("latencyTest baselag sample %i %i", (unsigned int)v12->serverTime, (unsigned int)v12->snap.ping);
-        CL_Main_AddReliableCommand(localClientNum, v16);
+        Com_Printf(31, "CL_Main_AddReliableCommand baselag sample %i %i\n", (unsigned int)v11->serverTime, (unsigned int)v11->snap.ping);
+        v15 = j_va("latencyTest baselag sample %i %i", (unsigned int)v11->serverTime, (unsigned int)v11->snap.ping);
+        CL_Main_AddReliableCommand(localClientNum, v15);
       }
     }
   }
@@ -735,203 +609,185 @@ CG_LatencyTestMP_DeployServerCommandString
 void CG_LatencyTestMP_DeployServerCommandString(LocalClientNum_t localClientNum)
 {
   cg_t *LocalClientGlobals; 
-  const char *v10; 
-  __int64 v11; 
-  const char *v12; 
-  __int64 v13; 
-  char v14; 
+  const char *v4; 
+  __int64 v5; 
+  const char *v6; 
+  __int64 v7; 
+  char v8; 
+  const char *v9; 
+  unsigned int v10; 
+  const char *v11; 
+  const char *v13; 
   const char *v15; 
-  unsigned int v16; 
   const char *v17; 
   const char *v19; 
   const char *v21; 
   const char *v23; 
-  const char *v25; 
-  const char *v27; 
-  const char *v35; 
+  __int64 v24; 
+  char v25; 
+  const char *v26; 
+  char v27; 
+  const char *v28; 
+  int v29; 
+  const char *v30; 
+  int v31; 
+  const char *v32; 
+  int v33; 
+  const char *v34; 
+  int v35; 
   __int64 v36; 
-  char v37; 
-  const char *v38; 
+  const char *v37; 
+  __int64 v38; 
   char v39; 
   const char *v40; 
-  int v41; 
-  const char *v42; 
-  int v43; 
-  const char *v44; 
-  int v45; 
-  const char *v46; 
-  int v47; 
-  __int64 v48; 
-  const char *v49; 
-  __int64 v50; 
-  char v51; 
+  __int64 v41; 
+  char v42; 
+  const char *v43; 
+  unsigned int v44; 
+  const char *v45; 
+  __int64 v46; 
+  char v47; 
+  const char *v48; 
+  char v49; 
+  const char *v50; 
+  __int64 v51; 
   const char *v52; 
-  __int64 v53; 
-  char v54; 
-  const char *v55; 
-  unsigned int v56; 
-  const char *v57; 
-  __int64 v58; 
-  char v59; 
-  const char *v60; 
-  char v61; 
-  const char *v62; 
-  __int64 v63; 
-  const char *v64; 
-  int v65; 
-  const char *v66; 
-  int v67; 
-  const char *v68; 
-  int v69; 
-  unsigned int v70; 
-  __int64 v71; 
-  CgLatencyTestTtkTestResult *v72; 
-  __int64 v73; 
+  int v53; 
+  const char *v54; 
+  int v55; 
+  const char *v56; 
+  int v57; 
+  unsigned int v58; 
+  __int64 v59; 
+  CgLatencyTestTtkTestResult *v60; 
+  __int64 v61; 
   int sampleCount; 
-  const char *v75; 
-  const char *v76; 
-  __int64 v77; 
-  char v78; 
+  const char *v63; 
+  const char *v64; 
+  __int64 v65; 
+  char v66; 
+  const char *v67; 
+  unsigned int v68; 
+  const char *v69; 
+  char v70; 
+  const char *v71; 
+  __int64 v72; 
+  char v73; 
+  const char *v74; 
+  __int64 v75; 
+  char v76; 
+  const char *v77; 
+  unsigned int v78; 
   const char *v79; 
   unsigned int v80; 
   const char *v81; 
   char v82; 
   const char *v83; 
-  __int64 v84; 
-  char v85; 
-  const char *v86; 
-  __int64 v87; 
-  char v88; 
-  const char *v89; 
-  unsigned int v90; 
-  const char *v91; 
-  unsigned int v92; 
-  const char *v93; 
-  char v94; 
-  const char *v95; 
-  int v96; 
+  int v84; 
   unsigned int maxClients; 
   ClActiveClientMP *ClientMP; 
-  unsigned int v99; 
-  ClActiveClientMP *v100; 
-  const char *v101; 
-  __int64 v102; 
-  char v103; 
-  const char *v104; 
+  unsigned int v87; 
+  ClActiveClientMP *v88; 
+  const char *v89; 
+  __int64 v90; 
+  char v91; 
+  const char *v92; 
+  char v93; 
+  const char *v94; 
+  int v95; 
+  const char *v96; 
+  int v97; 
+  const char *v98; 
+  bool v99; 
+  const char *v100; 
+  int v101; 
+  const char *v102; 
+  const char *v103; 
+  __int64 v104; 
   char v105; 
   const char *v106; 
-  int v107; 
+  unsigned int v107; 
   const char *v108; 
-  int v109; 
+  char v109; 
   const char *v110; 
-  bool v111; 
-  const char *v112; 
-  int v113; 
-  const char *v114; 
-  const char *v115; 
-  __int64 v116; 
-  char v117; 
+  __int64 v111; 
+  char v112; 
+  const char *v113; 
+  __int64 v114; 
+  char v115; 
+  const char *v116; 
+  unsigned int v117; 
   const char *v118; 
-  unsigned int v119; 
+  char v119; 
   const char *v120; 
-  char v121; 
-  const char *v122; 
-  __int64 v123; 
-  char v124; 
-  const char *v125; 
-  __int64 v126; 
+  int v121; 
+  ClActiveClientMP *v122; 
+  const char *v123; 
+  __int64 v124; 
+  char v125; 
+  const char *v126; 
   char v127; 
   const char *v128; 
-  unsigned int v129; 
+  int v129; 
   const char *v130; 
-  char v131; 
+  unsigned int v131; 
   const char *v132; 
   int v133; 
-  ClActiveClientMP *v134; 
-  const char *v135; 
-  __int64 v136; 
-  char v137; 
-  const char *v138; 
-  char v139; 
-  const char *v140; 
-  int v141; 
-  const char *v142; 
-  unsigned int v143; 
-  const char *v144; 
-  int v145; 
   char *fmt; 
-  __int64 v147; 
-  __int64 v148; 
+  __int64 v135; 
+  __int64 v136; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  if ( Cmd_Argc() >= 2 && (v10 = Cmd_Argv(1), !strcmp_0(v10, "strafing")) )
+  if ( Cmd_Argc() >= 2 && (v4 = Cmd_Argv(1), !strcmp_0(v4, "strafing")) )
   {
-    v11 = 0i64;
+    v5 = 0i64;
     if ( Cmd_Argc() == 10 )
     {
-      v12 = Cmd_Argv(2);
-      v13 = 0i64;
+      v6 = Cmd_Argv(2);
+      v7 = 0i64;
       while ( 1 )
       {
-        v14 = v12[v13++];
-        if ( v14 != aStart[v13 - 1] )
+        v8 = v6[v7++];
+        if ( v8 != aStart[v7 - 1] )
           break;
-        if ( v13 == 6 )
+        if ( v7 == 6 )
         {
-          __asm
-          {
-            vmovaps [rsp+0C8h+var_38], xmm6
-            vmovaps [rsp+0C8h+var_48], xmm7
-            vmovaps [rsp+0C8h+var_58], xmm8
-            vmovaps [rsp+0C8h+var_68], xmm9
-            vmovaps [rsp+0C8h+var_78], xmm10
-            vmovaps [rsp+0C8h+var_88], xmm11
-          }
-          v15 = Cmd_Argv((int)v13 - 3);
-          v16 = atoi(v15);
-          if ( v16 == LocalClientGlobals->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3106, ASSERT_TYPE_ASSERT, "(testingClientNum != cgameGlob->clientNum)", (const char *)&queryFormat, "testingClientNum != cgameGlob->clientNum") )
+          v9 = Cmd_Argv(3);
+          v10 = atoi(v9);
+          if ( v10 == LocalClientGlobals->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3106, ASSERT_TYPE_ASSERT, "(testingClientNum != cgameGlob->clientNum)", (const char *)&queryFormat, "testingClientNum != cgameGlob->clientNum") )
             __debugbreak();
-          v17 = Cmd_Argv(4);
-          *(double *)&_XMM0 = atof(v17);
+          v11 = Cmd_Argv(4);
+          *(double *)&_XMM0 = atof(v11);
           __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-          v19 = Cmd_Argv(5);
-          *(double *)&_XMM0 = atof(v19);
+          v13 = Cmd_Argv(5);
+          *(double *)&_XMM0 = atof(v13);
           __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
-          v21 = Cmd_Argv(6);
-          *(double *)&_XMM0 = atof(v21);
+          v15 = Cmd_Argv(6);
+          *(double *)&_XMM0 = atof(v15);
           __asm { vcvtsd2ss xmm8, xmm0, xmm0 }
-          v23 = Cmd_Argv(7);
-          *(double *)&_XMM0 = atof(v23);
+          v17 = Cmd_Argv(7);
+          *(double *)&_XMM0 = atof(v17);
           __asm { vcvtsd2ss xmm9, xmm0, xmm0 }
-          v25 = Cmd_Argv(8);
-          *(double *)&_XMM0 = atof(v25);
+          v19 = Cmd_Argv(8);
+          *(double *)&_XMM0 = atof(v19);
           __asm { vcvtsd2ss xmm10, xmm0, xmm0 }
-          v27 = Cmd_Argv(9);
-          *(double *)&_XMM0 = atof(v27);
+          v21 = Cmd_Argv(9);
+          *(double *)&_XMM0 = atof(v21);
           __asm { vcvtsd2ss xmm11, xmm0, xmm0 }
-          if ( v16 >= cls.maxClients )
+          if ( v10 >= cls.maxClients )
           {
-            LODWORD(v147) = v16;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 387, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v147, cls.maxClients) )
+            LODWORD(v135) = v10;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 387, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v135, cls.maxClients) )
               __debugbreak();
           }
           memset_0(s_strafingTest.samples, 0, 0x26E8Cui64);
-          s_strafingTest.testingClientNum = v16;
-          __asm
-          {
-            vmovss  dword ptr cs:s_strafingTest.pos, xmm6
-            vmovss  dword ptr cs:s_strafingTest.pos+4, xmm7
-            vmovss  dword ptr cs:s_strafingTest.pos+8, xmm8
-            vmovss  dword ptr cs:s_strafingTest.dir, xmm9
-            vmovss  dword ptr cs:s_strafingTest.dir+4, xmm10
-            vmovss  dword ptr cs:s_strafingTest.dir+8, xmm11
-            vmovaps xmm11, [rsp+0C8h+var_88]
-            vmovaps xmm10, [rsp+0C8h+var_78]
-            vmovaps xmm9, [rsp+0C8h+var_68]
-            vmovaps xmm8, [rsp+0C8h+var_58]
-            vmovaps xmm7, [rsp+0C8h+var_48]
-            vmovaps xmm6, [rsp+0C8h+var_38]
-          }
+          s_strafingTest.testingClientNum = v10;
+          s_strafingTest.pos.v[0] = *(float *)&_XMM6;
+          s_strafingTest.pos.v[1] = *(float *)&_XMM7;
+          s_strafingTest.pos.v[2] = *(float *)&_XMM8;
+          s_strafingTest.dir.v[0] = *(float *)&_XMM9;
+          s_strafingTest.dir.v[1] = *(float *)&_XMM10;
+          s_strafingTest.dir.v[2] = *(float *)&_XMM11;
           Com_Printf(31, "Strafing Test Started (Slave)\n");
           return;
         }
@@ -939,14 +795,14 @@ void CG_LatencyTestMP_DeployServerCommandString(LocalClientNum_t localClientNum)
     }
     if ( Cmd_Argc() == 3 )
     {
-      v35 = Cmd_Argv(2);
-      v36 = 0i64;
+      v23 = Cmd_Argv(2);
+      v24 = 0i64;
       while ( 1 )
       {
-        v37 = v35[v36++];
-        if ( v37 != aStop_0[v36 - 1] )
+        v25 = v23[v24++];
+        if ( v25 != aStop_0[v24 - 1] )
           break;
-        if ( v36 == 5 )
+        if ( v24 == 5 )
         {
           CG_LatencyTestMP_StrafingTest_Stop(localClientNum);
           return;
@@ -955,23 +811,23 @@ void CG_LatencyTestMP_DeployServerCommandString(LocalClientNum_t localClientNum)
     }
     if ( Cmd_Argc() == 7 )
     {
-      v38 = Cmd_Argv(2);
+      v26 = Cmd_Argv(2);
       while ( 1 )
       {
-        v39 = v38[v11++];
-        if ( v39 != aSample[v11 - 1] )
+        v27 = v26[v5++];
+        if ( v27 != aSample[v5 - 1] )
           break;
-        if ( v11 == 7 )
+        if ( v5 == 7 )
         {
-          v40 = Cmd_Argv(3);
-          v41 = atoi(v40);
-          v42 = Cmd_Argv(4);
-          v43 = atoi(v42);
-          v44 = Cmd_Argv(5);
-          v45 = atoi(v44);
-          v46 = Cmd_Argv(6);
-          v47 = atoi(v46);
-          CG_LatencyTestMP_StrafingTest_SetRemoteState(localClientNum, v41, v43, v45, v47);
+          v28 = Cmd_Argv(3);
+          v29 = atoi(v28);
+          v30 = Cmd_Argv(4);
+          v31 = atoi(v30);
+          v32 = Cmd_Argv(5);
+          v33 = atoi(v32);
+          v34 = Cmd_Argv(6);
+          v35 = atoi(v34);
+          CG_LatencyTestMP_StrafingTest_SetRemoteState(localClientNum, v29, v31, v33, v35);
           return;
         }
       }
@@ -980,41 +836,41 @@ void CG_LatencyTestMP_DeployServerCommandString(LocalClientNum_t localClientNum)
   }
   else
   {
-    v48 = 0i64;
+    v36 = 0i64;
     if ( Cmd_Argc() >= 2 )
     {
-      v49 = Cmd_Argv(1);
-      v50 = 0i64;
+      v37 = Cmd_Argv(1);
+      v38 = 0i64;
       while ( 1 )
       {
-        v51 = v49[v50++];
-        if ( v51 != aTtk[v50 - 1] )
+        v39 = v37[v38++];
+        if ( v39 != aTtk[v38 - 1] )
           break;
-        if ( v50 == 4 )
+        if ( v38 == 4 )
         {
           if ( Cmd_Argc() == 4 )
           {
-            v52 = Cmd_Argv(2);
-            v53 = 0i64;
+            v40 = Cmd_Argv(2);
+            v41 = 0i64;
             while ( 1 )
             {
-              v54 = v52[v53++];
-              if ( v54 != aStart[v53 - 1] )
+              v42 = v40[v41++];
+              if ( v42 != aStart[v41 - 1] )
                 break;
-              if ( v53 == 6 )
+              if ( v41 == 6 )
               {
-                v55 = Cmd_Argv(3);
-                v56 = atoi(v55);
-                if ( v56 == LocalClientGlobals->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3139, ASSERT_TYPE_ASSERT, "(testingClientNum != cgameGlob->clientNum)", (const char *)&queryFormat, "testingClientNum != cgameGlob->clientNum") )
+                v43 = Cmd_Argv(3);
+                v44 = atoi(v43);
+                if ( v44 == LocalClientGlobals->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3139, ASSERT_TYPE_ASSERT, "(testingClientNum != cgameGlob->clientNum)", (const char *)&queryFormat, "testingClientNum != cgameGlob->clientNum") )
                   __debugbreak();
-                if ( v56 >= cls.maxClients )
+                if ( v44 >= cls.maxClients )
                 {
-                  LODWORD(v147) = v56;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3140, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v147, cls.maxClients) )
+                  LODWORD(v135) = v44;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3140, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v135, cls.maxClients) )
                     __debugbreak();
                 }
                 memset_0(&s_ttkTest.sampleCount, 0, 0x26484ui64);
-                s_ttkTest.testingClientNum = v56;
+                s_ttkTest.testingClientNum = v44;
                 Com_Printf(31, "TTK Test Started (Slave)\n");
                 return;
               }
@@ -1022,14 +878,14 @@ void CG_LatencyTestMP_DeployServerCommandString(LocalClientNum_t localClientNum)
           }
           if ( Cmd_Argc() == 3 )
           {
-            v57 = Cmd_Argv(2);
-            v58 = 0i64;
+            v45 = Cmd_Argv(2);
+            v46 = 0i64;
             while ( 1 )
             {
-              v59 = v57[v58++];
-              if ( v59 != aStop_0[v58 - 1] )
+              v47 = v45[v46++];
+              if ( v47 != aStop_0[v46 - 1] )
                 break;
-              if ( v58 == 5 )
+              if ( v46 == 5 )
               {
                 CG_LatencyTestMP_TTKTest_Stop(localClientNum);
                 return;
@@ -1038,53 +894,53 @@ void CG_LatencyTestMP_DeployServerCommandString(LocalClientNum_t localClientNum)
           }
           if ( Cmd_Argc() == 7 )
           {
-            v60 = Cmd_Argv(2);
+            v48 = Cmd_Argv(2);
             while ( 1 )
             {
-              v61 = v60[v48++];
-              if ( v61 != aSample[v48 - 1] )
+              v49 = v48[v36++];
+              if ( v49 != aSample[v36 - 1] )
                 break;
-              if ( v48 == 7 )
+              if ( v36 == 7 )
               {
-                v62 = Cmd_Argv(3);
-                v63 = atoi(v62);
-                v64 = Cmd_Argv(4);
-                v65 = atoi(v64);
-                v66 = Cmd_Argv(5);
-                v67 = atoi(v66);
-                v68 = Cmd_Argv(6);
-                v69 = atoi(v68);
+                v50 = Cmd_Argv(3);
+                v51 = atoi(v50);
+                v52 = Cmd_Argv(4);
+                v53 = atoi(v52);
+                v54 = Cmd_Argv(5);
+                v55 = atoi(v54);
+                v56 = Cmd_Argv(6);
+                v57 = atoi(v56);
                 if ( s_ttkTest.testingClientNum != -1 )
                 {
-                  v70 = (LOBYTE(s_ttkTest.sampleCount) - 1) & 0x3F;
-                  if ( v65 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1039, ASSERT_TYPE_ASSERT, "(startFiringTime > 0)", (const char *)&queryFormat, "startFiringTime > 0") )
+                  v58 = (LOBYTE(s_ttkTest.sampleCount) - 1) & 0x3F;
+                  if ( v53 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1039, ASSERT_TYPE_ASSERT, "(startFiringTime > 0)", (const char *)&queryFormat, "startFiringTime > 0") )
                     __debugbreak();
-                  if ( v67 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1040, ASSERT_TYPE_ASSERT, "(deathTime > 0)", (const char *)&queryFormat, "deathTime > 0") )
+                  if ( v55 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1040, ASSERT_TYPE_ASSERT, "(deathTime > 0)", (const char *)&queryFormat, "deathTime > 0") )
                     __debugbreak();
-                  if ( (unsigned int)v63 >= cls.maxClients )
+                  if ( (unsigned int)v51 >= cls.maxClients )
                   {
-                    LODWORD(v147) = v63;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1042, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( cls.maxClients )", "clientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v147, cls.maxClients) )
+                    LODWORD(v135) = v51;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1042, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( cls.maxClients )", "clientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v135, cls.maxClients) )
                       __debugbreak();
                   }
-                  v71 = v70 + (v63 << 6);
-                  v72 = &s_ttkTest.results[v63];
-                  v73 = v71;
-                  if ( !s_ttkTest.samples[0][v71].deathTime )
+                  v59 = v58 + (v51 << 6);
+                  v60 = &s_ttkTest.results[v51];
+                  v61 = v59;
+                  if ( !s_ttkTest.samples[0][v59].deathTime )
                   {
-                    s_ttkTest.samples[0][v71].deathTime = v67;
+                    s_ttkTest.samples[0][v59].deathTime = v55;
                     sampleCount = 64;
-                    s_ttkTest.samples[0][v73].ping = v69;
-                    s_ttkTest.samples[0][v73].startFiringTime = v65;
+                    s_ttkTest.samples[0][v61].ping = v57;
+                    s_ttkTest.samples[0][v61].startFiringTime = v53;
                     if ( s_ttkTest.sampleCount < 64 )
                       sampleCount = s_ttkTest.sampleCount;
-                    v72->sumPing += v69;
-                    v72->sumTTK += v67 - v65;
-                    v72->avgPing = v72->sumPing / sampleCount;
-                    v72->avgTTK = v72->sumTTK / sampleCount;
-                    LODWORD(v147) = s_ttkTest.samples[0][v73].ping;
-                    LODWORD(fmt) = s_ttkTest.samples[0][v73].deathTime;
-                    Com_Printf(31, "TTK Sample: %i %06i, %06i, %i\n", (unsigned int)v63, (unsigned int)s_ttkTest.samples[0][v73].startFiringTime, fmt, v147);
+                    v60->sumPing += v57;
+                    v60->sumTTK += v55 - v53;
+                    v60->avgPing = v60->sumPing / sampleCount;
+                    v60->avgTTK = v60->sumTTK / sampleCount;
+                    LODWORD(v135) = s_ttkTest.samples[0][v61].ping;
+                    LODWORD(fmt) = s_ttkTest.samples[0][v61].deathTime;
+                    Com_Printf(31, "TTK Sample: %i %06i, %06i, %i\n", (unsigned int)v51, (unsigned int)s_ttkTest.samples[0][v61].startFiringTime, fmt, v135);
                   }
                 }
                 return;
@@ -1096,31 +952,31 @@ void CG_LatencyTestMP_DeployServerCommandString(LocalClientNum_t localClientNum)
         }
       }
     }
-    if ( Cmd_Argc() >= 2 && (v75 = Cmd_Argv(1), !strcmp_0(v75, "dropshot")) )
+    if ( Cmd_Argc() >= 2 && (v63 = Cmd_Argv(1), !strcmp_0(v63, "dropshot")) )
     {
       if ( Cmd_Argc() == 4 )
       {
-        v76 = Cmd_Argv(2);
-        v77 = 0i64;
+        v64 = Cmd_Argv(2);
+        v65 = 0i64;
         while ( 1 )
         {
-          v78 = v76[v77++];
-          if ( v78 != aStart[v77 - 1] )
+          v66 = v64[v65++];
+          if ( v66 != aStart[v65 - 1] )
             break;
-          if ( v77 == 6 )
+          if ( v65 == 6 )
           {
-            v79 = Cmd_Argv(3);
-            v80 = atoi(v79);
-            if ( v80 == LocalClientGlobals->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3168, ASSERT_TYPE_ASSERT, "(testingClientNum != cgameGlob->clientNum)", (const char *)&queryFormat, "testingClientNum != cgameGlob->clientNum") )
+            v67 = Cmd_Argv(3);
+            v68 = atoi(v67);
+            if ( v68 == LocalClientGlobals->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3168, ASSERT_TYPE_ASSERT, "(testingClientNum != cgameGlob->clientNum)", (const char *)&queryFormat, "testingClientNum != cgameGlob->clientNum") )
               __debugbreak();
-            if ( v80 >= cls.maxClients )
+            if ( v68 >= cls.maxClients )
             {
-              LODWORD(v147) = v80;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3169, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v147, cls.maxClients) )
+              LODWORD(v135) = v68;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3169, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v135, cls.maxClients) )
                 __debugbreak();
             }
             memset_0(&s_dropShotTest.shootTime, 0, 0x314ui64);
-            s_dropShotTest.testingClientNum = v80;
+            s_dropShotTest.testingClientNum = v68;
             Com_Printf(31, "Drop Shot Test Started (Slave)\n");
             return;
           }
@@ -1128,13 +984,13 @@ void CG_LatencyTestMP_DeployServerCommandString(LocalClientNum_t localClientNum)
       }
       if ( Cmd_Argc() == 3 )
       {
-        v81 = Cmd_Argv(2);
+        v69 = Cmd_Argv(2);
         while ( 1 )
         {
-          v82 = v81[v48++];
-          if ( v82 != aStop_0[v48 - 1] )
+          v70 = v69[v36++];
+          if ( v70 != aStop_0[v36 - 1] )
             break;
-          if ( v48 == 5 )
+          if ( v36 == 5 )
           {
             CG_LatencyTestMP_DropShotTest_Stop(localClientNum);
             return;
@@ -1147,77 +1003,77 @@ void CG_LatencyTestMP_DeployServerCommandString(LocalClientNum_t localClientNum)
     {
       if ( Cmd_Argc() >= 2 )
       {
-        v83 = Cmd_Argv(1);
-        v84 = 0i64;
+        v71 = Cmd_Argv(1);
+        v72 = 0i64;
         while ( 1 )
         {
-          v85 = v83[v84++];
-          if ( v85 != aLos[v84 - 1] )
+          v73 = v71[v72++];
+          if ( v73 != aLos[v72 - 1] )
             break;
-          if ( v84 == 4 )
+          if ( v72 == 4 )
           {
             if ( Cmd_Argc() == 7 )
             {
-              v86 = Cmd_Argv(2);
-              v87 = 0i64;
+              v74 = Cmd_Argv(2);
+              v75 = 0i64;
               while ( 1 )
               {
-                v88 = v86[v87++];
-                if ( v88 != aStart[v87 - 1] )
+                v76 = v74[v75++];
+                if ( v76 != aStart[v75 - 1] )
                   break;
-                if ( v87 == 6 )
+                if ( v75 == 6 )
                 {
-                  v89 = Cmd_Argv(3);
-                  v90 = atoi(v89);
-                  v91 = Cmd_Argv(4);
-                  v92 = atoi(v91);
-                  v93 = Cmd_Argv(5);
-                  v94 = atoi(v93);
-                  v95 = Cmd_Argv(6);
-                  v96 = atoi(v95);
-                  if ( v90 == LocalClientGlobals->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3193, ASSERT_TYPE_ASSERT, "(testingClientNum != cgameGlob->clientNum)", (const char *)&queryFormat, "testingClientNum != cgameGlob->clientNum") )
+                  v77 = Cmd_Argv(3);
+                  v78 = atoi(v77);
+                  v79 = Cmd_Argv(4);
+                  v80 = atoi(v79);
+                  v81 = Cmd_Argv(5);
+                  v82 = atoi(v81);
+                  v83 = Cmd_Argv(6);
+                  v84 = atoi(v83);
+                  if ( v78 == LocalClientGlobals->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3193, ASSERT_TYPE_ASSERT, "(testingClientNum != cgameGlob->clientNum)", (const char *)&queryFormat, "testingClientNum != cgameGlob->clientNum") )
                     __debugbreak();
                   maxClients = cls.maxClients;
-                  if ( v90 >= cls.maxClients )
+                  if ( v78 >= cls.maxClients )
                   {
-                    LODWORD(v147) = v90;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3194, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v147, cls.maxClients) )
+                    LODWORD(v135) = v78;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3194, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v135, cls.maxClients) )
                       __debugbreak();
                     maxClients = cls.maxClients;
                   }
-                  if ( v92 >= maxClients )
+                  if ( v80 >= maxClients )
                   {
-                    LODWORD(v148) = maxClients;
-                    LODWORD(v147) = v92;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3195, ASSERT_TYPE_ASSERT, "(unsigned)( targetClientNum ) < (unsigned)( cls.maxClients )", "targetClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v147, v148) )
+                    LODWORD(v136) = maxClients;
+                    LODWORD(v135) = v80;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3195, ASSERT_TYPE_ASSERT, "(unsigned)( targetClientNum ) < (unsigned)( cls.maxClients )", "targetClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v135, v136) )
                       __debugbreak();
                   }
                   ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
-                  v99 = cls.maxClients;
-                  v100 = ClientMP;
-                  if ( v90 >= cls.maxClients )
+                  v87 = cls.maxClients;
+                  v88 = ClientMP;
+                  if ( v78 >= cls.maxClients )
                   {
-                    LODWORD(v148) = cls.maxClients;
-                    LODWORD(v147) = v90;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1567, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v147, v148) )
+                    LODWORD(v136) = cls.maxClients;
+                    LODWORD(v135) = v78;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1567, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v135, v136) )
                       __debugbreak();
-                    v99 = cls.maxClients;
+                    v87 = cls.maxClients;
                   }
-                  if ( v92 >= v99 )
+                  if ( v80 >= v87 )
                   {
-                    LODWORD(v148) = v99;
-                    LODWORD(v147) = v92;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1568, ASSERT_TYPE_ASSERT, "(unsigned)( targetClientNum ) < (unsigned)( cls.maxClients )", "targetClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v147, v148) )
+                    LODWORD(v136) = v87;
+                    LODWORD(v135) = v80;
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1568, ASSERT_TYPE_ASSERT, "(unsigned)( targetClientNum ) < (unsigned)( cls.maxClients )", "targetClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v135, v136) )
                       __debugbreak();
                   }
-                  if ( v90 == v92 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1569, ASSERT_TYPE_ASSERT, "(testingClientNum != targetClientNum)", (const char *)&queryFormat, "testingClientNum != targetClientNum") )
+                  if ( v78 == v80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1569, ASSERT_TYPE_ASSERT, "(testingClientNum != targetClientNum)", (const char *)&queryFormat, "testingClientNum != targetClientNum") )
                     __debugbreak();
                   memset_0(&s_losTest, 0, sizeof(s_losTest));
-                  s_losTest.testingClientNum = v90;
-                  s_losTest.targetClientNum = v92;
-                  s_losTest.testMode[0] = v94;
-                  s_losTest.desiredSampleCount = v96;
-                  s_losTest.startTime = v100->serverTime;
+                  s_losTest.testingClientNum = v78;
+                  s_losTest.targetClientNum = v80;
+                  s_losTest.testMode[0] = v82;
+                  s_losTest.desiredSampleCount = v84;
+                  s_losTest.startTime = v88->serverTime;
                   s_losTest.hasLoS = 1;
                   Com_Printf(31, "LoS Test Started (Slave)\n");
                   return;
@@ -1226,14 +1082,14 @@ void CG_LatencyTestMP_DeployServerCommandString(LocalClientNum_t localClientNum)
             }
             if ( Cmd_Argc() == 3 )
             {
-              v101 = Cmd_Argv(2);
-              v102 = 0i64;
+              v89 = Cmd_Argv(2);
+              v90 = 0i64;
               while ( 1 )
               {
-                v103 = v101[v102++];
-                if ( v103 != aStop_0[v102 - 1] )
+                v91 = v89[v90++];
+                if ( v91 != aStop_0[v90 - 1] )
                   break;
-                if ( v102 == 5 )
+                if ( v90 == 5 )
                 {
                   CG_LatencyTestMP_LoS_Stop(localClientNum);
                   return;
@@ -1242,23 +1098,23 @@ void CG_LatencyTestMP_DeployServerCommandString(LocalClientNum_t localClientNum)
             }
             if ( Cmd_Argc() == 7 )
             {
-              v104 = Cmd_Argv(2);
+              v92 = Cmd_Argv(2);
               while ( 1 )
               {
-                v105 = v104[v48++];
-                if ( v105 != aSample[v48 - 1] )
+                v93 = v92[v36++];
+                if ( v93 != aSample[v36 - 1] )
                   break;
-                if ( v48 == 7 )
+                if ( v36 == 7 )
                 {
-                  v106 = Cmd_Argv(3);
-                  v107 = atoi(v106);
-                  v108 = Cmd_Argv(4);
-                  v109 = atoi(v108);
-                  v110 = Cmd_Argv(5);
-                  v111 = atoi(v110) != 0;
-                  v112 = Cmd_Argv(6);
-                  v113 = atoi(v112);
-                  CG_LatencyTestMP_LoS_RecordSample(localClientNum, v107, v109, v111, v113);
+                  v94 = Cmd_Argv(3);
+                  v95 = atoi(v94);
+                  v96 = Cmd_Argv(4);
+                  v97 = atoi(v96);
+                  v98 = Cmd_Argv(5);
+                  v99 = atoi(v98) != 0;
+                  v100 = Cmd_Argv(6);
+                  v101 = atoi(v100);
+                  CG_LatencyTestMP_LoS_RecordSample(localClientNum, v95, v97, v99, v101);
                   return;
                 }
               }
@@ -1269,31 +1125,31 @@ LABEL_122:
           }
         }
       }
-      if ( Cmd_Argc() >= 2 && (v114 = Cmd_Argv(1), !strcmp_0(v114, "shootfirst")) )
+      if ( Cmd_Argc() >= 2 && (v102 = Cmd_Argv(1), !strcmp_0(v102, "shootfirst")) )
       {
         if ( Cmd_Argc() == 4 )
         {
-          v115 = Cmd_Argv(2);
-          v116 = 0i64;
+          v103 = Cmd_Argv(2);
+          v104 = 0i64;
           while ( 1 )
           {
-            v117 = v115[v116++];
-            if ( v117 != aStart[v116 - 1] )
+            v105 = v103[v104++];
+            if ( v105 != aStart[v104 - 1] )
               break;
-            if ( v116 == 6 )
+            if ( v104 == 6 )
             {
-              v118 = Cmd_Argv(3);
-              v119 = atoi(v118);
-              if ( v119 == LocalClientGlobals->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3223, ASSERT_TYPE_ASSERT, "(testingClientNum != cgameGlob->clientNum)", (const char *)&queryFormat, "testingClientNum != cgameGlob->clientNum") )
+              v106 = Cmd_Argv(3);
+              v107 = atoi(v106);
+              if ( v107 == LocalClientGlobals->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3223, ASSERT_TYPE_ASSERT, "(testingClientNum != cgameGlob->clientNum)", (const char *)&queryFormat, "testingClientNum != cgameGlob->clientNum") )
                 __debugbreak();
-              if ( v119 >= cls.maxClients )
+              if ( v107 >= cls.maxClients )
               {
-                LODWORD(v147) = v119;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3224, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v147, cls.maxClients) )
+                LODWORD(v135) = v107;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3224, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v135, cls.maxClients) )
                   __debugbreak();
               }
               memset_0(&s_shootFirstTest.shootTime, 0, 0x708ui64);
-              s_shootFirstTest.testingClientNum = v119;
+              s_shootFirstTest.testingClientNum = v107;
               Com_Printf(31, "Shoot First Test Started (Slave)\n");
               return;
             }
@@ -1301,13 +1157,13 @@ LABEL_122:
         }
         if ( Cmd_Argc() == 3 )
         {
-          v120 = Cmd_Argv(2);
+          v108 = Cmd_Argv(2);
           while ( 1 )
           {
-            v121 = v120[v48++];
-            if ( v121 != aStop_0[v48 - 1] )
+            v109 = v108[v36++];
+            if ( v109 != aStop_0[v36 - 1] )
               break;
-            if ( v48 == 5 )
+            if ( v36 == 5 )
             {
               CG_LatencyTestMP_ShootFirstTest_Stop(localClientNum);
               return;
@@ -1320,53 +1176,53 @@ LABEL_122:
       {
         if ( Cmd_Argc() >= 2 )
         {
-          v122 = Cmd_Argv(1);
-          v123 = 0i64;
+          v110 = Cmd_Argv(1);
+          v111 = 0i64;
           while ( 1 )
           {
-            v124 = v122[v123++];
-            if ( v124 != aBaselag[v123 - 1] )
+            v112 = v110[v111++];
+            if ( v112 != aBaselag[v111 - 1] )
               break;
-            if ( v123 == 8 )
+            if ( v111 == 8 )
             {
               if ( Cmd_Argc() == 6 )
               {
-                v125 = Cmd_Argv(2);
-                v126 = 0i64;
+                v113 = Cmd_Argv(2);
+                v114 = 0i64;
                 while ( 1 )
                 {
-                  v127 = v125[v126++];
-                  if ( v127 != aStart[v126 - 1] )
+                  v115 = v113[v114++];
+                  if ( v115 != aStart[v114 - 1] )
                     break;
-                  if ( v126 == 6 )
+                  if ( v114 == 6 )
                   {
-                    v128 = Cmd_Argv(3);
-                    v129 = atoi(v128);
-                    v130 = Cmd_Argv(4);
-                    v131 = atoi(v130);
-                    v132 = Cmd_Argv(5);
-                    v133 = atoi(v132);
-                    if ( v129 == LocalClientGlobals->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3247, ASSERT_TYPE_ASSERT, "(testingClientNum != cgameGlob->clientNum)", (const char *)&queryFormat, "testingClientNum != cgameGlob->clientNum") )
+                    v116 = Cmd_Argv(3);
+                    v117 = atoi(v116);
+                    v118 = Cmd_Argv(4);
+                    v119 = atoi(v118);
+                    v120 = Cmd_Argv(5);
+                    v121 = atoi(v120);
+                    if ( v117 == LocalClientGlobals->clientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3247, ASSERT_TYPE_ASSERT, "(testingClientNum != cgameGlob->clientNum)", (const char *)&queryFormat, "testingClientNum != cgameGlob->clientNum") )
                       __debugbreak();
-                    if ( v129 >= cls.maxClients )
+                    if ( v117 >= cls.maxClients )
                     {
-                      LODWORD(v147) = v129;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3248, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v147, cls.maxClients) )
+                      LODWORD(v135) = v117;
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 3248, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v135, cls.maxClients) )
                         __debugbreak();
                     }
-                    v134 = ClActiveClientMP::GetClientMP(localClientNum);
-                    if ( v129 >= cls.maxClients )
+                    v122 = ClActiveClientMP::GetClientMP(localClientNum);
+                    if ( v117 >= cls.maxClients )
                     {
-                      LODWORD(v148) = cls.maxClients;
-                      LODWORD(v147) = v129;
-                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 2624, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v147, v148) )
+                      LODWORD(v136) = cls.maxClients;
+                      LODWORD(v135) = v117;
+                      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 2624, ASSERT_TYPE_ASSERT, "(unsigned)( testingClientNum ) < (unsigned)( cls.maxClients )", "testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", v135, v136) )
                         __debugbreak();
                     }
                     memset_0(&s_baseLagTest.testMode[1], 0, 0x1A2D7ui64);
-                    s_baseLagTest.testingClientNum = v129;
-                    s_baseLagTest.desiredSampleCount = v133;
-                    s_baseLagTest.testMode[0] = v131;
-                    s_baseLagTest.startTime = v134->serverTime;
+                    s_baseLagTest.testingClientNum = v117;
+                    s_baseLagTest.desiredSampleCount = v121;
+                    s_baseLagTest.testMode[0] = v119;
+                    s_baseLagTest.startTime = v122->serverTime;
                     Com_Printf(31, "BaseLag Test Started (Slave)\n");
                     return;
                   }
@@ -1374,14 +1230,14 @@ LABEL_122:
               }
               if ( Cmd_Argc() == 3 )
               {
-                v135 = Cmd_Argv(2);
-                v136 = 0i64;
+                v123 = Cmd_Argv(2);
+                v124 = 0i64;
                 while ( 1 )
                 {
-                  v137 = v135[v136++];
-                  if ( v137 != aStop_0[v136 - 1] )
+                  v125 = v123[v124++];
+                  if ( v125 != aStop_0[v124 - 1] )
                     break;
-                  if ( v136 == 5 )
+                  if ( v124 == 5 )
                   {
                     CG_LatencyTestMP_BaseLag_Stop(localClientNum);
                     return;
@@ -1390,21 +1246,21 @@ LABEL_122:
               }
               if ( Cmd_Argc() == 6 )
               {
-                v138 = Cmd_Argv(2);
+                v126 = Cmd_Argv(2);
                 while ( 1 )
                 {
-                  v139 = v138[v48++];
-                  if ( v139 != aSample[v48 - 1] )
+                  v127 = v126[v36++];
+                  if ( v127 != aSample[v36 - 1] )
                     break;
-                  if ( v48 == 7 )
+                  if ( v36 == 7 )
                   {
-                    v140 = Cmd_Argv(3);
-                    v141 = atoi(v140);
-                    v142 = Cmd_Argv(4);
-                    v143 = atoi(v142);
-                    v144 = Cmd_Argv(5);
-                    v145 = atoi(v144);
-                    CG_LatencyTestMP_BaseLag_RecordSample(localClientNum, v141, v143, v145);
+                    v128 = Cmd_Argv(3);
+                    v129 = atoi(v128);
+                    v130 = Cmd_Argv(4);
+                    v131 = atoi(v130);
+                    v132 = Cmd_Argv(5);
+                    v133 = atoi(v132);
+                    CG_LatencyTestMP_BaseLag_RecordSample(localClientNum, v129, v131, v133);
                     return;
                   }
                 }
@@ -1441,177 +1297,55 @@ CG_LatencyTestMP_DropShotTest_DrawResults
 */
 void CG_LatencyTestMP_DropShotTest_DrawResults(LocalClientNum_t localClientNum)
 {
+  float v1; 
   const ScreenPlacement *ActivePlacement; 
-  const ScreenPlacement *v8; 
   GfxFont *FontHandle; 
-  char v15; 
+  char v4; 
+  float v5; 
   __int64 sampleCount; 
-  const char *v35; 
-  float h; 
-  float ha; 
-  float hb; 
-  float hc; 
-  float hd; 
-  float he; 
-  int horzAlign; 
-  int horzAligna; 
-  double horzAlignb; 
-  int horzAlignc; 
-  float s1; 
-  float s1a; 
-  float s1b; 
-  float v62; 
-  float v63; 
-  float v64; 
-  float v65; 
-  float v66; 
-  float v67; 
-  float v68; 
-  float v69; 
-  float v70; 
-  int style; 
-  int stylea; 
-  int styleb; 
+  float v7; 
+  float v8; 
+  int v9; 
+  const char *v10; 
   vec4_t color; 
-  vec4_t v75; 
+  vec4_t v12; 
   char dest[64]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-28h], xmm6
-    vmovss  xmm6, cs:BOX_TOP_1
-  }
+  v1 = BOX_TOP_1;
   if ( s_dropShotTest.sampleCount > 0 )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-38h], xmm7
-      vmovaps xmmword ptr [r11-48h], xmm8
-    }
     ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-    __asm { vmovss  xmm2, cs:FONT_SCALE_2; scale }
-    v8 = ActivePlacement;
-    UI_GetFontHandle(ActivePlacement, FONT_TYPE_2, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, cs:HEADER_FONT_SCALE_2; scale
-      vmovss  xmm8, cs:__real@3f800000
-    }
-    FontHandle = UI_GetFontHandle(v8, FONT_TYPE_2, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm0, cs:LINE_HEIGHT_1
-      vmovss  xmm3, cs:BOX_WIDTH_1; w
-      vmovss  xmm1, cs:BOX_LEFT_1; x
-    }
-    v15 = LOBYTE(s_dropShotTest.sampleCount) - 1;
-    __asm
-    {
-      vmovss  [rsp+128h+style], xmm8
-      vmovss  dword ptr [rsp+128h+var_E0], xmm8
-      vxorps  xmm7, xmm7, xmm7
-      vmovss  [rsp+128h+var_E8], xmm7
-      vmovss  [rsp+128h+s1], xmm7
-      vmovaps xmm2, xmm6; y
-      vmovss  [rsp+128h+h], xmm0
-    }
-    CL_DrawStretchPic(v8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, h, 4, 4, s1, v62, v68, *(float *)&style, &colorWhite, cgMedia.whiteMaterial);
-    __asm { vaddss  xmm6, xmm6, cs:LINE_HEIGHT_1 }
+    UI_GetFontHandle(ActivePlacement, FONT_TYPE_2, FONT_SCALE_2);
+    FontHandle = UI_GetFontHandle(ActivePlacement, FONT_TYPE_2, HEADER_FONT_SCALE_2);
+    v4 = LOBYTE(s_dropShotTest.sampleCount) - 1;
+    CL_DrawStretchPic(ActivePlacement, BOX_LEFT_1, v1, BOX_WIDTH_1, LINE_HEIGHT_1, 4, 4, 0.0, 0.0, 1.0, 1.0, &colorWhite, cgMedia.whiteMaterial);
+    v5 = v1 + LINE_HEIGHT_1;
     sampleCount = 64i64;
     if ( s_dropShotTest.sampleCount < 64 )
       sampleCount = (unsigned int)s_dropShotTest.sampleCount;
     Com_sprintf(dest, 0x40ui64, " DROP SHOT TEST      Samples: %i", sampleCount);
-    __asm
-    {
-      vmovss  xmm0, cs:HEADER_FONT_SCALE_2
-      vmovss  [rsp+128h+var_E8], xmm0
-      vmovss  xmm0, cs:BOX_LEFT_1
-      vmovss  [rsp+128h+horzAlign], xmm6
-      vmovss  [rsp+128h+h], xmm0
-    }
-    UI_DrawText(v8, dest, 64, FontHandle, ha, *(float *)&horzAlign, 4, 4, v63, &colorBlack, 3);
-    __asm
-    {
-      vmovss  xmm0, cs:LINE_HEIGHT_1
-      vmovss  xmm3, cs:BOX_WIDTH_1; w
-      vmovss  xmm1, cs:BOX_LEFT_1; x
-      vmovss  [rsp+128h+style], xmm8
-      vmovss  dword ptr [rsp+128h+var_E0], xmm8
-      vmovss  [rsp+128h+var_E8], xmm7
-      vmovss  [rsp+128h+s1], xmm7
-      vmovaps xmm2, xmm6; y
-      vmovss  [rsp+128h+h], xmm0
-    }
-    CL_DrawStretchPic(v8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, hb, 4, 4, s1a, v64, v69, *(float *)&stylea, &colorBlack, cgMedia.whiteMaterial);
-    __asm { vaddss  xmm6, xmm6, cs:LINE_HEIGHT_1 }
+    UI_DrawText(ActivePlacement, dest, 64, FontHandle, BOX_LEFT_1, v5, 4, 4, HEADER_FONT_SCALE_2, &colorBlack, 3);
+    CL_DrawStretchPic(ActivePlacement, BOX_LEFT_1, v5, BOX_WIDTH_1, LINE_HEIGHT_1, 4, 4, 0.0, 0.0, 1.0, 1.0, &colorBlack, cgMedia.whiteMaterial);
+    v7 = v5 + LINE_HEIGHT_1;
     Com_sprintf(dest, 0x40ui64, " PING | HIT |  AVG");
-    __asm
-    {
-      vmovss  xmm0, cs:HEADER_FONT_SCALE_2
-      vmovss  [rsp+128h+var_E8], xmm0
-      vmovss  xmm0, cs:BOX_LEFT_1
-      vmovss  [rsp+128h+horzAlign], xmm6
-      vmovss  [rsp+128h+h], xmm0
-    }
-    UI_DrawText(v8, dest, 64, FontHandle, hc, *(float *)&horzAligna, 4, 4, v65, &colorWhite, 3);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    UI_DrawText(ActivePlacement, dest, 64, FontHandle, BOX_LEFT_1, v7, 4, 4, HEADER_FONT_SCALE_2, &colorWhite, 3);
+    v8 = 0.0;
     if ( s_dropShotTest.sumHit > 0 )
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vcvtsi2ss xmm1, xmm1, eax
-        vdivss  xmm1, xmm1, xmm0
-        vmulss  xmm0, xmm1, cs:__real@42c80000
-      }
+      v9 = 64;
+      if ( s_dropShotTest.sampleCount < 64 )
+        v9 = s_dropShotTest.sampleCount;
+      v8 = (float)((float)s_dropShotTest.sumHit / (float)v9) * 100.0;
     }
-    v35 = " ";
-    if ( s_dropShotTest.samples[v15 & 0x3F].hit )
-      v35 = "X";
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  qword ptr [rsp+128h+horzAlign], xmm0
-    }
-    Com_sprintf(dest, 0x40ui64, " %4i |  %s  | %3.f%%", (unsigned int)s_dropShotTest.samples[v15 & 0x3F].ping, v35, horzAlignb);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorBlack@@3Tvec4_t@@B; vec4_t const colorBlack
-      vmovups xmm1, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vmovss  xmm3, cs:BOX_WIDTH_1; w
-      vmovss  [rsp+128h+style], xmm8
-      vmovss  dword ptr [rsp+128h+var_E0], xmm8
-      vmovss  [rsp+128h+var_E8], xmm7
-      vmovss  [rsp+128h+s1], xmm7
-      vmovups xmmword ptr [rsp+128h+var_B8], xmm0
-      vmovss  xmm0, cs:LINE_HEIGHT_1
-      vmovups xmmword ptr [rsp+128h+var_A8], xmm1
-      vmovss  xmm1, cs:BOX_LEFT_1; x
-      vmovaps xmm2, xmm6; y
-      vmovss  [rsp+128h+h], xmm0
-    }
-    CL_DrawStretchPic(v8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, hd, 4, 4, s1b, v66, v70, *(float *)&styleb, &color, cgMedia.whiteMaterial);
-    __asm
-    {
-      vmovss  xmm0, cs:HEADER_FONT_SCALE_2
-      vaddss  xmm1, xmm6, cs:LINE_HEIGHT_1
-      vmovss  [rsp+128h+var_E8], xmm0
-      vmovss  xmm0, cs:BOX_LEFT_1
-      vmovss  [rsp+128h+horzAlign], xmm1
-      vmovss  [rsp+128h+h], xmm0
-    }
-    UI_DrawText(v8, dest, 64, FontHandle, he, *(float *)&horzAlignc, 4, 4, v67, &v75, 3);
-    __asm
-    {
-      vmovaps xmm8, [rsp+128h+var_48]
-      vmovaps xmm7, [rsp+128h+var_38]
-    }
+    v10 = " ";
+    if ( s_dropShotTest.samples[v4 & 0x3F].hit )
+      v10 = "X";
+    Com_sprintf(dest, 0x40ui64, " %4i |  %s  | %3.f%%", (unsigned int)s_dropShotTest.samples[v4 & 0x3F].ping, v10, v8);
+    color = colorBlack;
+    v12 = colorWhite;
+    CL_DrawStretchPic(ActivePlacement, BOX_LEFT_1, v7, BOX_WIDTH_1, LINE_HEIGHT_1, 4, 4, 0.0, 0.0, 1.0, 1.0, &color, cgMedia.whiteMaterial);
+    UI_DrawText(ActivePlacement, dest, 64, FontHandle, BOX_LEFT_1, v7 + LINE_HEIGHT_1, 4, 4, HEADER_FONT_SCALE_2, &v12, 3);
   }
-  __asm { vmovaps xmm6, [rsp+128h+var_28] }
 }
 
 /*
@@ -1920,136 +1654,127 @@ bool CG_LatencyTestMP_IsClientActive(const cg_t *const cgameGlob, int clientNum)
 CG_LatencyTestMP_LoS_CalcStats
 ==============
 */
-
-void __fastcall CG_LatencyTestMP_LoS_CalcStats(LocalClientNum_t localClientNum, double _XMM1_8)
+void CG_LatencyTestMP_LoS_CalcStats(LocalClientNum_t localClientNum)
 {
   const cg_t *LocalClientGlobals; 
-  int v4; 
+  int v2; 
   CgLatencyTestLosTestData *p_defense; 
-  int v6; 
-  __int64 v7; 
+  int v4; 
+  __int64 v5; 
   CgLatencyTestLosTestSample (*samples)[64]; 
+  int *p_maxTime; 
   int sampleCount; 
+  int v9; 
+  int v10; 
   int v11; 
-  int v12; 
+  __int64 v12; 
   int v13; 
-  __int64 v14; 
-  int v15; 
-  int *v16; 
+  int *v14; 
   int clientTime; 
-  int v18; 
+  int v16; 
+  int v17; 
+  bool v18; 
   int v19; 
-  bool v20; 
-  int v21; 
-  int v22; 
-  __int64 v23; 
-  CgLatencyTestLosTestSample *v24; 
-  int v25; 
-  int v30; 
-  const cg_t *v31; 
+  int v20; 
+  __int64 v21; 
+  CgLatencyTestLosTestSample *v22; 
+  int v23; 
+  int v24; 
+  const cg_t *v25; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v31 = LocalClientGlobals;
-  v4 = 0;
-  v30 = 0;
+  v25 = LocalClientGlobals;
+  v2 = 0;
+  v24 = 0;
   do
   {
     p_defense = &s_losTest.defense;
-    if ( !v4 )
+    if ( !v2 )
       p_defense = &s_losTest.offense;
-    v6 = 0;
+    v4 = 0;
     if ( cls.maxClients > 0 )
     {
-      v7 = 0i64;
+      v5 = 0i64;
       samples = p_defense->samples;
-      _RBX = &p_defense->results[0].maxTime;
+      p_maxTime = &p_defense->results[0].maxTime;
       do
       {
-        if ( v6 != s_losTest.testingClientNum )
+        if ( v4 != s_losTest.testingClientNum )
         {
-          if ( CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v6) )
+          if ( CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v4) )
           {
             sampleCount = p_defense->sampleCount;
+            v9 = 0;
+            v10 = 0;
+            *(_QWORD *)(p_maxTime - 1) = 0x7FFFFFFFi64;
             v11 = 0;
-            v12 = 0;
-            *(_QWORD *)(_RBX - 1) = 0x7FFFFFFFi64;
-            v13 = 0;
-            *(_RBX - 4) = 0;
-            v14 = 0i64;
-            v15 = 64;
+            *(p_maxTime - 4) = 0;
+            v12 = 0i64;
+            v13 = 64;
             if ( sampleCount < 64 )
-              v15 = sampleCount;
-            if ( v15 > 0 )
+              v13 = sampleCount;
+            if ( v13 > 0 )
             {
-              v16 = (int *)samples;
+              v14 = (int *)samples;
               do
               {
-                clientTime = p_defense->samples[(__int64)s_losTest.testingClientNum][v14].clientTime;
-                if ( clientTime > 0 && *v16 > 0 )
+                clientTime = p_defense->samples[(__int64)s_losTest.testingClientNum][v12].clientTime;
+                if ( clientTime > 0 && *v14 > 0 )
                 {
-                  v11 += v16[1];
-                  v18 = *v16 - clientTime;
-                  v13 += v18;
-                  v19 = v18;
-                  if ( *_RBX > v18 )
-                    v19 = *_RBX;
-                  v20 = *(_RBX - 1) < v18;
-                  *_RBX = v19;
-                  if ( v20 )
-                    v18 = *(_RBX - 1);
-                  ++*(_RBX - 4);
-                  *(_RBX - 1) = v18;
+                  v9 += v14[1];
+                  v16 = *v14 - clientTime;
+                  v11 += v16;
+                  v17 = v16;
+                  if ( *p_maxTime > v16 )
+                    v17 = *p_maxTime;
+                  v18 = *(p_maxTime - 1) < v16;
+                  *p_maxTime = v17;
+                  if ( v18 )
+                    v16 = *(p_maxTime - 1);
+                  ++*(p_maxTime - 4);
+                  *(p_maxTime - 1) = v16;
                 }
-                ++v14;
-                v16 += 2;
+                ++v12;
+                v14 += 2;
               }
-              while ( v14 < v15 );
-              v21 = *(_RBX - 4);
-              if ( v21 )
+              while ( v12 < v13 );
+              v19 = *(p_maxTime - 4);
+              if ( v19 )
               {
-                *(_RBX - 2) = v13 / v21;
-                v22 = v13 / v21;
-                v23 = 0i64;
-                *(_RBX - 3) = v11 / v21;
-                v24 = p_defense->samples[(__int64)s_losTest.testingClientNum];
+                *(p_maxTime - 2) = v11 / v19;
+                v20 = v11 / v19;
+                v21 = 0i64;
+                *(p_maxTime - 3) = v9 / v19;
+                v22 = p_defense->samples[(__int64)s_losTest.testingClientNum];
                 do
                 {
-                  if ( v24->clientTime > 0 )
+                  if ( v22->clientTime > 0 )
                   {
-                    v25 = p_defense->samples[v7][v23].clientTime;
-                    if ( v25 > 0 )
-                      v12 += (v25 - v24->clientTime - v22) * (v25 - v24->clientTime - v22);
+                    v23 = p_defense->samples[v5][v21].clientTime;
+                    if ( v23 > 0 )
+                      v10 += (v23 - v22->clientTime - v20) * (v23 - v22->clientTime - v20);
                   }
-                  ++v23;
-                  ++v24;
+                  ++v21;
+                  ++v22;
                 }
-                while ( v23 < v15 );
-                __asm
-                {
-                  vxorps  xmm1, xmm1, xmm1
-                  vcvtsi2ss xmm1, xmm1, ebp
-                  vxorps  xmm0, xmm0, xmm0
-                  vcvtsi2ss xmm0, xmm0, r14d
-                  vdivss  xmm1, xmm1, xmm0
-                  vsqrtss xmm2, xmm1, xmm1
-                  vmovss  dword ptr [rbx+4], xmm2
-                }
+                while ( v21 < v13 );
+                *((float *)p_maxTime + 1) = fsqrt((float)v10 / (float)v19);
               }
             }
           }
-          LocalClientGlobals = v31;
+          LocalClientGlobals = v25;
         }
-        ++v6;
-        _RBX += 6;
+        ++v4;
+        p_maxTime += 6;
         ++samples;
-        ++v7;
+        ++v5;
       }
-      while ( v6 < cls.maxClients );
-      v4 = v30;
+      while ( v4 < cls.maxClients );
+      v2 = v24;
     }
-    v30 = ++v4;
+    v24 = ++v2;
   }
-  while ( v4 < 2 );
+  while ( v2 < 2 );
 }
 
 /*
@@ -2059,80 +1784,49 @@ CG_LatencyTestMP_LoS_DrawResults
 */
 void CG_LatencyTestMP_LoS_DrawResults(LocalClientNum_t localClientNum)
 {
-  unsigned int testingClientNum; 
   unsigned int maxClients; 
+  __int128 v3; 
   cg_t *LocalClientGlobals; 
   const ScreenPlacement *ActivePlacement; 
-  unsigned __int8 v22; 
-  GfxFont *v23; 
+  unsigned __int8 v6; 
+  GfxFont *v7; 
   CgLatencyTestLosTestData *p_defense; 
   int sampleCount; 
-  const char *v30; 
-  unsigned int v36; 
-  int v37; 
+  const char *v10; 
+  __int128 v11; 
+  __int128 v12; 
+  unsigned int v13; 
+  int v14; 
   int *p_avgTime; 
-  __int64 v39; 
-  __int64 v40; 
+  __int64 v16; 
+  __int64 v17; 
   int clientNum; 
-  __int64 v42; 
+  __int64 v19; 
   int clientTime; 
-  int v44; 
-  float fmtb; 
+  int v21; 
+  vec4_t v22; 
+  vec4_t v23; 
+  __int128 v24; 
+  __int128 v25; 
   char *fmt; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
   char *fmta; 
-  float fmtf; 
-  float fmtg; 
   __int64 horzAlign; 
-  int horzAlignb; 
-  int horzAlignc; 
   __int64 horzAligna; 
-  int horzAlignd; 
   __int64 vertAlign; 
   __int64 vertAligna; 
-  float s1a; 
-  float s1b; 
   __int64 s1; 
-  float s1c; 
-  float v76; 
-  float v77; 
-  float v78; 
-  float v79; 
-  float v80; 
-  float v81; 
-  float v82; 
-  float v83; 
-  float v84; 
-  int style; 
-  int stylea; 
-  int styleb; 
-  char v88; 
+  char v33; 
   GfxFont *font; 
   vec4_t color; 
-  vec4_t v91; 
+  vec4_t v36; 
   char dest[64]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  testingClientNum = s_losTest.testingClientNum;
   if ( s_losTest.testingClientNum >= 0 )
   {
     maxClients = cls.maxClients;
-    __asm
+    if ( s_losTest.testingClientNum >= (unsigned int)cls.maxClients )
     {
-      vmovaps xmmword ptr [r11-38h], xmm6
-      vmovaps xmmword ptr [r11-48h], xmm7
-      vmovaps xmmword ptr [r11-58h], xmm8
-      vmovaps xmmword ptr [r11-68h], xmm9
-      vmovaps xmmword ptr [r11-78h], xmm10
-      vmovaps xmmword ptr [r11-88h], xmm11
-      vmovaps xmmword ptr [r11-98h], xmm12
-    }
-    if ( testingClientNum >= maxClients )
-    {
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1981, ASSERT_TYPE_ASSERT, "(unsigned)( s_losTest.testingClientNum ) < (unsigned)( cls.maxClients )", "s_losTest.testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", testingClientNum, maxClients) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1981, ASSERT_TYPE_ASSERT, "(unsigned)( s_losTest.testingClientNum ) < (unsigned)( cls.maxClients )", "s_losTest.testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", s_losTest.testingClientNum, cls.maxClients) )
         __debugbreak();
       maxClients = cls.maxClients;
     }
@@ -2143,193 +1837,120 @@ void CG_LatencyTestMP_LoS_DrawResults(LocalClientNum_t localClientNum)
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1982, ASSERT_TYPE_ASSERT, "(unsigned)( s_losTest.targetClientNum ) < (unsigned)( cls.maxClients )", "s_losTest.targetClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", horzAlign, vertAlign) )
         __debugbreak();
     }
-    __asm { vmovss  xmm6, cs:__real@41f00000 }
+    v3 = LODWORD(FLOAT_30_0);
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    __asm { vmovss  xmm2, cs:__real@3f000000; scale }
     ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-    UI_GetFontHandle(ActivePlacement, 5, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm11, cs:__real@3e4ccccd
-      vmovaps xmm2, xmm11; scale
-      vmovss  xmm8, cs:__real@3f800000
-      vmovss  xmm7, cs:__real@41200000
-      vmovss  xmm12, cs:__real@43520000
-      vmovss  xmm10, cs:__real@41a00000
-    }
-    v22 = 0;
-    font = UI_GetFontHandle(ActivePlacement, 5, *(float *)&_XMM2);
-    v23 = font;
-    v88 = 0;
-    __asm { vxorps  xmm9, xmm9, xmm9 }
+    UI_GetFontHandle(ActivePlacement, 5, 0.5);
+    v6 = 0;
+    font = UI_GetFontHandle(ActivePlacement, 5, 0.2);
+    v7 = font;
+    v33 = 0;
     do
     {
       p_defense = &s_losTest.defense;
       sampleCount = 64;
-      if ( !v22 )
+      if ( !v6 )
         p_defense = &s_losTest.offense;
       if ( p_defense->sampleCount < 64 )
         sampleCount = p_defense->sampleCount;
       if ( sampleCount > 0 )
       {
-        __asm
-        {
-          vmovss  [rsp+188h+style], xmm8
-          vmovss  dword ptr [rsp+188h+var_140], xmm8
-          vmovss  [rsp+188h+var_148], xmm9
-          vmovss  [rsp+188h+s1], xmm9
-          vmovaps xmm3, xmm12; w
-          vmovaps xmm2, xmm6; y
-          vmovaps xmm1, xmm10; x
-          vmovss  dword ptr [rsp+188h+fmt], xmm7
-        }
-        CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, 4, 4, s1a, v76, v82, *(float *)&style, &colorWhite, cgMedia.whiteMaterial);
+        CL_DrawStretchPic(ActivePlacement, 20.0, *(float *)&v3, 210.0, 10.0, 4, 4, 0.0, 0.0, 1.0, 1.0, &colorWhite, cgMedia.whiteMaterial);
         LODWORD(fmt) = sampleCount;
-        v30 = "DEFENSE";
-        if ( !v22 )
-          v30 = "OFFENSE";
-        __asm { vaddss  xmm6, xmm6, xmm7 }
-        Com_sprintf(dest, 0x40ui64, " LATENCY TEST LoS %s  Samples: %i", v30, fmt);
-        __asm
-        {
-          vmovss  [rsp+188h+var_148], xmm11
-          vmovss  dword ptr [rsp+188h+horzAlign], xmm6
-          vmovss  dword ptr [rsp+188h+fmt], xmm10
-        }
-        UI_DrawText(ActivePlacement, dest, 64, v23, fmtc, *(float *)&horzAlignb, 4, 4, v77, &colorBlack, 3);
-        __asm
-        {
-          vmovss  [rsp+188h+style], xmm8
-          vmovss  dword ptr [rsp+188h+var_140], xmm8
-          vmovss  [rsp+188h+var_148], xmm9
-          vmovss  [rsp+188h+s1], xmm9
-          vmovaps xmm3, xmm12; w
-          vmovaps xmm2, xmm6; y
-          vmovaps xmm1, xmm10; x
-          vmovss  dword ptr [rsp+188h+fmt], xmm7
-        }
-        CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, 4, 4, s1b, v78, v83, *(float *)&stylea, &colorBlack, cgMedia.whiteMaterial);
-        __asm { vaddss  xmm6, xmm6, xmm7 }
+        v10 = "DEFENSE";
+        if ( !v6 )
+          v10 = "OFFENSE";
+        v11 = v3;
+        Com_sprintf(dest, 0x40ui64, " LATENCY TEST LoS %s  Samples: %i", v10, fmt);
+        UI_DrawText(ActivePlacement, dest, 64, v7, 20.0, *(float *)&v3 + 10.0, 4, 4, 0.2, &colorBlack, 3);
+        CL_DrawStretchPic(ActivePlacement, 20.0, *(float *)&v3 + 10.0, 210.0, 10.0, 4, 4, 0.0, 0.0, 1.0, 1.0, &colorBlack, cgMedia.whiteMaterial);
+        *(float *)&v11 = (float)(*(float *)&v3 + 10.0) + 10.0;
+        v12 = v11;
         Com_sprintf(dest, 0x40ui64, " CL | PING |  TIME | DELTA |  AVG");
-        __asm
-        {
-          vmovss  [rsp+188h+var_148], xmm11
-          vmovss  dword ptr [rsp+188h+horzAlign], xmm6
-          vmovss  dword ptr [rsp+188h+fmt], xmm10
-        }
-        UI_DrawText(ActivePlacement, dest, 64, v23, fmte, *(float *)&horzAlignc, 4, 4, v79, &colorWhite, 3);
-        v36 = 0;
-        v37 = p_defense->sampleCount - 1;
+        UI_DrawText(ActivePlacement, dest, 64, v7, 20.0, *(float *)&v11, 4, 4, 0.2, &colorWhite, 3);
+        v13 = 0;
+        v14 = p_defense->sampleCount - 1;
         if ( cls.maxClients > 0 )
         {
           p_avgTime = &p_defense->results[0].avgTime;
-          v39 = v37 & 0x3F;
-          v40 = 0i64;
+          v16 = v14 & 0x3F;
+          v17 = 0i64;
           do
           {
-            if ( CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v36) )
+            if ( CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v13) )
             {
               clientNum = LocalClientGlobals->clientNum;
-              if ( clientNum == s_losTest.testingClientNum || clientNum == v36 )
+              if ( clientNum == s_losTest.testingClientNum || clientNum == v13 )
               {
-                v42 = v39 + v40;
-                if ( clientNum != s_losTest.testingClientNum || v36 == s_losTest.testingClientNum )
+                v19 = v16 + v17;
+                if ( clientNum != s_losTest.testingClientNum || v13 == s_losTest.testingClientNum )
                 {
-                  LODWORD(horzAligna) = p_defense->samples[0][v42].clientTime % 100000;
-                  LODWORD(fmta) = p_defense->samples[0][v42].ping;
-                  Com_sprintf(dest, 0x40ui64, " %2i | %4i | %05i |       |", v36, fmta, horzAligna);
+                  LODWORD(horzAligna) = p_defense->samples[0][v19].clientTime % 100000;
+                  LODWORD(fmta) = p_defense->samples[0][v19].ping;
+                  Com_sprintf(dest, 0x40ui64, " %2i | %4i | %05i |       |", v13, fmta, horzAligna);
                 }
                 else
                 {
-                  clientTime = p_defense->samples[0][v42].clientTime;
+                  clientTime = p_defense->samples[0][v19].clientTime;
                   if ( clientTime > 0 )
                   {
-                    v44 = p_defense->samples[(__int64)s_losTest.testingClientNum][v39].clientTime;
-                    if ( v44 > 0 )
+                    v21 = p_defense->samples[(__int64)s_losTest.testingClientNum][v16].clientTime;
+                    if ( v21 > 0 )
                     {
                       LODWORD(s1) = *p_avgTime;
-                      LODWORD(vertAligna) = clientTime - v44;
+                      LODWORD(vertAligna) = clientTime - v21;
                       LODWORD(horzAligna) = clientTime % 100000;
-                      LODWORD(fmta) = p_defense->samples[0][v42].ping;
-                      Com_sprintf(dest, 0x40ui64, " %2i | %4i | %05i | %5i | %4i", v36, fmta, horzAligna, vertAligna, s1);
+                      LODWORD(fmta) = p_defense->samples[0][v19].ping;
+                      Com_sprintf(dest, 0x40ui64, " %2i | %4i | %05i | %5i | %4i", v13, fmta, horzAligna, vertAligna, s1);
                     }
                     else
                     {
                       LODWORD(vertAligna) = *p_avgTime;
                       LODWORD(horzAligna) = clientTime % 100000;
-                      LODWORD(fmta) = p_defense->samples[0][v42].ping;
-                      Com_sprintf(dest, 0x40ui64, " %2i | %4i | %05i |   ... | %4i", v36, fmta, horzAligna, vertAligna);
+                      LODWORD(fmta) = p_defense->samples[0][v19].ping;
+                      Com_sprintf(dest, 0x40ui64, " %2i | %4i | %05i |   ... | %4i", v13, fmta, horzAligna, vertAligna);
                     }
                   }
                   else
                   {
                     LODWORD(fmta) = *p_avgTime;
-                    Com_sprintf(dest, 0x40ui64, " %2i |  ... |   ... |   ... | %4i", v36, fmta);
+                    Com_sprintf(dest, 0x40ui64, " %2i |  ... |   ... |   ... | %4i", v13, fmta);
                   }
                 }
-                if ( (v37 & 1) != 0 )
+                if ( (v14 & 1) != 0 )
                 {
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-                    vmovups xmm1, xmmword ptr cs:?colorBlack@@3Tvec4_t@@B; vec4_t const colorBlack
-                  }
+                  v22 = colorWhite;
+                  v23 = colorBlack;
                 }
                 else
                 {
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr cs:?colorBlack@@3Tvec4_t@@B; vec4_t const colorBlack
-                    vmovups xmm1, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-                  }
+                  v22 = colorBlack;
+                  v23 = colorWhite;
                 }
-                __asm
-                {
-                  vmovss  [rsp+188h+style], xmm8
-                  vmovss  dword ptr [rsp+188h+var_140], xmm8
-                  vmovss  [rsp+188h+var_148], xmm9
-                  vmovss  [rsp+188h+s1], xmm9
-                  vmovups xmmword ptr [rsp+188h+var_F8], xmm1
-                  vmovaps xmm3, xmm12; w
-                  vmovaps xmm2, xmm6; y
-                  vmovaps xmm1, xmm10; x
-                  vmovss  dword ptr [rsp+188h+fmt], xmm7
-                  vmovups xmmword ptr [rsp+188h+var_108], xmm0
-                }
-                CL_DrawStretchPic(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, 4, 4, s1c, v80, v84, *(float *)&styleb, &color, cgMedia.whiteMaterial);
-                __asm
-                {
-                  vmovss  [rsp+188h+var_148], xmm11
-                  vaddss  xmm6, xmm6, xmm7
-                  vmovss  dword ptr [rsp+188h+horzAlign], xmm6
-                  vmovss  dword ptr [rsp+188h+fmt], xmm10
-                }
-                UI_DrawText(ActivePlacement, dest, 64, font, fmtg, *(float *)&horzAlignd, 4, 4, v81, &v91, 3);
+                v36 = v23;
+                color = v22;
+                CL_DrawStretchPic(ActivePlacement, 20.0, *(float *)&v12, 210.0, 10.0, 4, 4, 0.0, 0.0, 1.0, 1.0, &color, cgMedia.whiteMaterial);
+                v24 = v12;
+                *(float *)&v24 = *(float *)&v12 + 10.0;
+                v12 = v24;
+                UI_DrawText(ActivePlacement, dest, 64, font, 20.0, *(float *)&v24, 4, 4, 0.2, &v36, 3);
               }
             }
-            ++v36;
-            v40 += 64i64;
+            ++v13;
+            v17 += 64i64;
             p_avgTime += 6;
           }
-          while ( (int)v36 < cls.maxClients );
-          v22 = v88;
-          v23 = font;
+          while ( (int)v13 < cls.maxClients );
+          v6 = v33;
+          v7 = font;
         }
-        __asm { vaddss  xmm6, xmm6, xmm7 }
+        v25 = v12;
+        *(float *)&v25 = *(float *)&v12 + 10.0;
+        v3 = v25;
       }
-      v88 = ++v22;
+      v33 = ++v6;
     }
-    while ( v22 < 2u );
-    __asm
-    {
-      vmovaps xmm12, [rsp+188h+var_98]
-      vmovaps xmm11, [rsp+188h+var_88]
-      vmovaps xmm10, [rsp+188h+var_78]
-      vmovaps xmm9, [rsp+188h+var_68]
-      vmovaps xmm8, [rsp+188h+var_58]
-      vmovaps xmm7, [rsp+188h+var_48]
-      vmovaps xmm6, [rsp+188h+var_38]
-    }
+    while ( v6 < 2u );
   }
 }
 
@@ -2468,12 +2089,12 @@ void CG_LatencyTestMP_LoS_PrintResult_f()
   const char *v3; 
   CgLatencyTestLosTestData *p_defense; 
   int v5; 
+  int *p_minTime; 
+  __int64 v7; 
+  __int64 v8; 
   __int64 v9; 
   __int64 v10; 
   __int64 v11; 
-  __int64 v12; 
-  double v13; 
-  __int64 v14; 
 
   v0 = Cmd_LocalClientNum();
   LocalClientGlobals = CG_GetLocalClientGlobals(v0);
@@ -2495,26 +2116,20 @@ void CG_LatencyTestMP_LoS_PrintResult_f()
     v5 = 0;
     if ( cls.maxClients > 0 )
     {
-      _RDI = &p_defense->results[0].minTime;
+      p_minTime = &p_defense->results[0].minTime;
       do
       {
         if ( v5 != s_losTest.testingClientNum && CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v5) )
         {
-          __asm { vmovss  xmm0, dword ptr [rdi+8] }
-          LODWORD(v14) = p_defense->sampleCount;
-          __asm
-          {
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  [rsp+78h+var_38], xmm0
-          }
-          LODWORD(v12) = *_RDI;
-          LODWORD(v11) = *(_RDI - 1);
-          LODWORD(v10) = _RDI[1];
-          LODWORD(v9) = *(_RDI - 2);
-          Com_Printf(31, "%sData,%i,%i,%i,%i,%i,%f,%i\n", v3, (unsigned int)v5, v9, v10, v11, v12, v13, v14);
+          LODWORD(v11) = p_defense->sampleCount;
+          LODWORD(v10) = *p_minTime;
+          LODWORD(v9) = *(p_minTime - 1);
+          LODWORD(v8) = p_minTime[1];
+          LODWORD(v7) = *(p_minTime - 2);
+          Com_Printf(31, "%sData,%i,%i,%i,%i,%i,%f,%i\n", v3, (unsigned int)v5, v7, v8, v9, v10, *((float *)p_minTime + 2), v11);
         }
         ++v5;
-        _RDI += 6;
+        p_minTime += 6;
       }
       while ( v5 < cls.maxClients );
     }
@@ -2529,50 +2144,49 @@ CG_LatencyTestMP_LoS_RecordSample
 */
 void CG_LatencyTestMP_LoS_RecordSample(LocalClientNum_t localClientNum, int observerClientNum, int clientTime, bool hasLoS, int ping)
 {
-  double v5; 
-  __int64 v7; 
+  __int64 v6; 
   cg_t *LocalClientGlobals; 
   ClActiveClientMP *ClientMP; 
   CgLatencyTestLosTestData *p_defense; 
   int sampleCount; 
-  __int64 v14; 
-  CgLatencyTestLosTestSample *v15; 
+  __int64 v13; 
+  CgLatencyTestLosTestSample *v14; 
   int i; 
-  __int64 v17; 
-  const char *v18; 
+  __int64 v16; 
+  const char *v17; 
 
-  v7 = observerClientNum;
+  v6 = observerClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
   p_defense = &s_losTest.defense;
   if ( hasLoS )
     p_defense = &s_losTest.offense;
   sampleCount = p_defense->sampleCount;
-  v14 = p_defense->sampleCount & 0x3F;
-  v15 = &p_defense->samples[v7][((unsigned __int8)p_defense->sampleCount - 1) & 0x3F];
+  v13 = p_defense->sampleCount & 0x3F;
+  v14 = &p_defense->samples[v6][((unsigned __int8)p_defense->sampleCount - 1) & 0x3F];
   if ( clientTime >= s_losTest.startTime + 1000 )
   {
-    if ( sampleCount <= 0 || v15->clientTime )
+    if ( sampleCount <= 0 || v14->clientTime )
     {
-      for ( i = 0; i < cls.maxClients; p_defense->samples[0][v14 + v17] = 0i64 )
-        v17 = (__int64)i++ << 6;
-      p_defense->samples[v7][v14].ping = ping;
-      p_defense->samples[v7][v14].clientTime = clientTime;
+      for ( i = 0; i < cls.maxClients; p_defense->samples[0][v13 + v16] = 0i64 )
+        v16 = (__int64)i++ << 6;
+      p_defense->samples[v6][v13].ping = ping;
+      p_defense->samples[v6][v13].clientTime = clientTime;
       ++p_defense->sampleCount;
     }
     else
     {
-      p_defense->samples[v7][((_BYTE)sampleCount - 1) & 0x3F].ping = ping;
-      v15->clientTime = clientTime;
+      p_defense->samples[v6][((_BYTE)sampleCount - 1) & 0x3F].ping = ping;
+      v14->clientTime = clientTime;
     }
     if ( LocalClientGlobals->clientNum == s_losTest.testingClientNum )
     {
-      CG_LatencyTestMP_LoS_CalcStats(localClientNum, v5);
+      CG_LatencyTestMP_LoS_CalcStats(localClientNum);
     }
     else
     {
-      v18 = j_va("latencyTest los sample %i %i %i", (unsigned int)ClientMP->serverTime, hasLoS, (unsigned int)ClientMP->snap.ping);
-      CL_Main_AddReliableCommand(localClientNum, v18);
+      v17 = j_va("latencyTest los sample %i %i %i", (unsigned int)ClientMP->serverTime, hasLoS, (unsigned int)ClientMP->snap.ping);
+      CL_Main_AddReliableCommand(localClientNum, v17);
     }
   }
 }
@@ -2713,14 +2327,14 @@ void CG_LatencyTestMP_LoS_Update(LocalClientNum_t localClientNum)
 {
   cg_t *LocalClientGlobals; 
   unsigned int maxClients; 
-  const dvar_t *v5; 
+  const dvar_t *v4; 
   bool HeadPosition; 
-  bool v8; 
+  bool v6; 
   ClActiveClientMP *ClientMP; 
   __int64 fromServer; 
   int fromServera; 
-  __int64 v14; 
-  int v15; 
+  __int64 v10; 
+  int v11; 
   Physics_RaycastExtendedData extendedData; 
   vec3_t end; 
   vec3_t outPosition; 
@@ -2731,17 +2345,17 @@ void CG_LatencyTestMP_LoS_Update(LocalClientNum_t localClientNum)
     maxClients = cls.maxClients;
     if ( s_losTest.testingClientNum >= (unsigned int)cls.maxClients )
     {
-      v15 = cls.maxClients;
+      v11 = cls.maxClients;
       fromServera = s_losTest.testingClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1764, ASSERT_TYPE_ASSERT, "(unsigned)( s_losTest.testingClientNum ) < (unsigned)( cls.maxClients )", "s_losTest.testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", fromServera, v15) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1764, ASSERT_TYPE_ASSERT, "(unsigned)( s_losTest.testingClientNum ) < (unsigned)( cls.maxClients )", "s_losTest.testingClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", fromServera, v11) )
         __debugbreak();
       maxClients = cls.maxClients;
     }
     if ( s_losTest.targetClientNum >= maxClients )
     {
-      LODWORD(v14) = maxClients;
+      LODWORD(v10) = maxClients;
       LODWORD(fromServer) = s_losTest.targetClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1765, ASSERT_TYPE_ASSERT, "(unsigned)( s_losTest.targetClientNum ) < (unsigned)( cls.maxClients )", "s_losTest.targetClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", fromServer, v14) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_latency_test_mp.cpp", 1765, ASSERT_TYPE_ASSERT, "(unsigned)( s_losTest.targetClientNum ) < (unsigned)( cls.maxClients )", "s_losTest.targetClientNum doesn't index cls.maxClients\n\t%i not in [0, %i)", fromServer, v10) )
         __debugbreak();
     }
     if ( s_losTest.testingClientNum == LocalClientGlobals->clientNum && s_losTest.desiredSampleCount > 0 && s_losTest.defense.sampleCount >= s_losTest.desiredSampleCount && s_losTest.offense.sampleCount >= s_losTest.desiredSampleCount )
@@ -2751,38 +2365,35 @@ void CG_LatencyTestMP_LoS_Update(LocalClientNum_t localClientNum)
     }
     else
     {
-      v5 = DVARBOOL_physics_allowQueryDisabling;
+      v4 = DVARBOOL_physics_allowQueryDisabling;
       if ( !DVARBOOL_physics_allowQueryDisabling && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_allowQueryDisabling") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v5);
-      if ( v5->current.enabled )
+      Dvar_CheckFrontendServerThread(v4);
+      if ( v4->current.enabled )
       {
         HeadPosition = CG_LatencyTestMP_LoS_GetHeadPosition(localClientNum, s_losTest.testingClientNum, &outPosition);
         if ( HeadPosition | CG_LatencyTestMP_LoS_GetHeadPosition(localClientNum, s_losTest.targetClientNum, &end) )
         {
-          __asm { vxorps  xmm0, xmm0, xmm0 }
           extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
           extendedData.ignoreBodies = NULL;
           extendedData.phaseSelection = All;
-          __asm { vmovss  [rsp+98h+extendedData.collisionBuffer], xmm0 }
+          extendedData.collisionBuffer = 0.0;
           extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
           *(_WORD *)&extendedData.collectInsideHits = 256;
           extendedData.contents = 6145;
-          v8 = PhysicsQuery_ImmediateRaycastSightCheck(PHYSICS_WORLD_ID_CLIENT_FIRST, &outPosition, &end, &extendedData);
-          if ( v8 && Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_drawLatencyTest, "cg_drawLatencyTest") )
+          v6 = PhysicsQuery_ImmediateRaycastSightCheck(PHYSICS_WORLD_ID_CLIENT_FIRST, &outPosition, &end, &extendedData);
+          if ( v6 && Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_drawLatencyTest, "cg_drawLatencyTest") )
           {
-            __asm { vmovss  xmm1, cs:__real@3f400000; radius }
-            CG_DebugSphere(&outPosition, *(float *)&_XMM1, &colorMagenta, 0, 0);
-            __asm { vmovss  xmm1, cs:__real@3f400000; radius }
-            CG_DebugSphere(&end, *(float *)&_XMM1, &colorMagenta, 0, 0);
+            CG_DebugSphere(&outPosition, 0.75, &colorMagenta, 0, 0);
+            CG_DebugSphere(&end, 0.75, &colorMagenta, 0, 0);
             CL_AddDebugLine(&outPosition, &end, &colorYellow, 0, 0, 0);
           }
-          if ( v8 != s_losTest.hasLoS )
+          if ( v6 != s_losTest.hasLoS )
           {
-            Com_Printf(31, "%i Line of sight change: hasLoS=%i\n", (unsigned int)LocalClientGlobals->time, v8);
-            s_losTest.hasLoS = v8;
+            Com_Printf(31, "%i Line of sight change: hasLoS=%i\n", (unsigned int)LocalClientGlobals->time, v6);
+            s_losTest.hasLoS = v6;
             ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
-            CG_LatencyTestMP_LoS_RecordSample(localClientNum, LocalClientGlobals->clientNum, LocalClientGlobals->time, v8, ClientMP->snap.ping);
+            CG_LatencyTestMP_LoS_RecordSample(localClientNum, LocalClientGlobals->clientNum, LocalClientGlobals->time, v6, ClientMP->snap.ping);
           }
         }
       }
@@ -3071,161 +2682,49 @@ CG_LatencyTestMP_ShootFirstTest_DrawResults
 */
 void CG_LatencyTestMP_ShootFirstTest_DrawResults(LocalClientNum_t localClientNum)
 {
+  float v1; 
   const ScreenPlacement *ActivePlacement; 
-  const ScreenPlacement *v8; 
   GfxFont *FontHandle; 
-  GfxFont *v15; 
+  float v4; 
   __int64 sampleCount; 
-  CgLatencyTestShootFirstTestSample *v29; 
-  float h; 
-  float ha; 
-  float hb; 
-  float hc; 
-  __int64 hd; 
-  float he; 
-  float hf; 
-  int horzAlign; 
-  int horzAligna; 
-  __int64 horzAlignb; 
-  int horzAlignc; 
+  float v6; 
+  CgLatencyTestShootFirstTestSample *v7; 
+  __int64 h; 
+  __int64 horzAlign; 
   __int64 vertAlign; 
-  float s1; 
-  float s1a; 
-  __int64 s1b; 
-  float s1c; 
-  float v58; 
-  float v59; 
-  float v60; 
-  float v61; 
-  float v62; 
-  float v63; 
-  float v64; 
-  float v65; 
-  float v66; 
-  int style; 
-  int stylea; 
-  int styleb; 
+  __int64 s1; 
   vec4_t color; 
-  vec4_t v71; 
+  vec4_t v13; 
   char dest[64]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-18h], xmm6
-    vmovss  xmm6, cs:BOX_TOP_2
-  }
+  v1 = BOX_TOP_2;
   if ( s_shootFirstTest.sampleCount > 0 )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-28h], xmm7
-      vmovaps xmmword ptr [r11-38h], xmm8
-    }
     ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-    __asm { vmovss  xmm2, cs:FONT_SCALE_3; scale }
-    v8 = ActivePlacement;
-    UI_GetFontHandle(ActivePlacement, FONT_TYPE_3, *(float *)&_XMM2);
-    __asm { vmovss  xmm2, cs:HEADER_FONT_SCALE_3; scale }
-    FontHandle = UI_GetFontHandle(v8, FONT_TYPE_3, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3f800000
-      vmovss  xmm0, cs:LINE_HEIGHT_2
-      vmovss  xmm3, cs:BOX_WIDTH_2; w
-      vmovss  xmm1, cs:BOX_LEFT_2; x
-    }
-    v15 = FontHandle;
-    __asm
-    {
-      vmovss  [rsp+118h+style], xmm8
-      vmovss  dword ptr [rsp+118h+var_D0], xmm8
-      vxorps  xmm7, xmm7, xmm7
-      vmovss  [rsp+118h+var_D8], xmm7
-      vmovss  [rsp+118h+s1], xmm7
-      vmovaps xmm2, xmm6; y
-      vmovss  [rsp+118h+h], xmm0
-    }
-    CL_DrawStretchPic(v8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, h, 4, 4, s1, v58, v64, *(float *)&style, &colorWhite, cgMedia.whiteMaterial);
-    __asm { vaddss  xmm6, xmm6, cs:LINE_HEIGHT_2 }
+    UI_GetFontHandle(ActivePlacement, FONT_TYPE_3, FONT_SCALE_3);
+    FontHandle = UI_GetFontHandle(ActivePlacement, FONT_TYPE_3, HEADER_FONT_SCALE_3);
+    CL_DrawStretchPic(ActivePlacement, BOX_LEFT_2, v1, BOX_WIDTH_2, LINE_HEIGHT_2, 4, 4, 0.0, 0.0, 1.0, 1.0, &colorWhite, cgMedia.whiteMaterial);
+    v4 = v1 + LINE_HEIGHT_2;
     sampleCount = 64i64;
     if ( s_shootFirstTest.sampleCount < 64 )
       sampleCount = (unsigned int)s_shootFirstTest.sampleCount;
     Com_sprintf(dest, 0x40ui64, " SHOOT FIRST TEST      Samples: %i", sampleCount);
-    __asm
-    {
-      vmovss  xmm0, cs:HEADER_FONT_SCALE_3
-      vmovss  [rsp+118h+var_D8], xmm0
-      vmovss  xmm0, cs:BOX_LEFT_2
-      vmovss  dword ptr [rsp+118h+horzAlign], xmm6
-      vmovss  [rsp+118h+h], xmm0
-    }
-    UI_DrawText(v8, dest, 64, v15, ha, *(float *)&horzAlign, 4, 4, v59, &colorBlack, 3);
-    __asm
-    {
-      vmovss  xmm0, cs:LINE_HEIGHT_2
-      vmovss  xmm3, cs:BOX_WIDTH_2; w
-      vmovss  xmm1, cs:BOX_LEFT_2; x
-      vmovss  [rsp+118h+style], xmm8
-      vmovss  dword ptr [rsp+118h+var_D0], xmm8
-      vmovss  [rsp+118h+var_D8], xmm7
-      vmovss  [rsp+118h+s1], xmm7
-      vmovaps xmm2, xmm6; y
-      vmovss  [rsp+118h+h], xmm0
-    }
-    CL_DrawStretchPic(v8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, hb, 4, 4, s1a, v60, v65, *(float *)&stylea, &colorBlack, cgMedia.whiteMaterial);
-    __asm { vaddss  xmm6, xmm6, cs:LINE_HEIGHT_2 }
+    UI_DrawText(ActivePlacement, dest, 64, FontHandle, BOX_LEFT_2, v4, 4, 4, HEADER_FONT_SCALE_3, &colorBlack, 3);
+    CL_DrawStretchPic(ActivePlacement, BOX_LEFT_2, v4, BOX_WIDTH_2, LINE_HEIGHT_2, 4, 4, 0.0, 0.0, 1.0, 1.0, &colorBlack, cgMedia.whiteMaterial);
+    v6 = v4 + LINE_HEIGHT_2;
     Com_sprintf(dest, 0x40ui64, " PING | SHOOT |  HIT |  DMG | DEATH");
-    __asm
-    {
-      vmovss  xmm0, cs:HEADER_FONT_SCALE_3
-      vmovss  [rsp+118h+var_D8], xmm0
-      vmovss  xmm0, cs:BOX_LEFT_2
-      vmovss  dword ptr [rsp+118h+horzAlign], xmm6
-      vmovss  [rsp+118h+h], xmm0
-    }
-    UI_DrawText(v8, dest, 64, v15, hc, *(float *)&horzAligna, 4, 4, v61, &colorWhite, 3);
-    v29 = &s_shootFirstTest.samples[(LOBYTE(s_shootFirstTest.sampleCount) - 1) & 0x3F];
-    LODWORD(s1b) = v29->deathTime % 10000;
-    LODWORD(vertAlign) = v29->dmgIndicatorTime % 10000;
-    LODWORD(horzAlignb) = v29->hitMarkerTime % 10000;
-    LODWORD(hd) = v29->shootTime % 10000;
-    Com_sprintf(dest, 0x40ui64, " %4i | %4i | %4i | %4i | %4i", (unsigned int)v29->ping, hd, horzAlignb, vertAlign, s1b);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorBlack@@3Tvec4_t@@B; vec4_t const colorBlack
-      vmovups xmm1, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vmovss  xmm3, cs:BOX_WIDTH_2; w
-      vmovss  [rsp+118h+style], xmm8
-      vmovss  dword ptr [rsp+118h+var_D0], xmm8
-      vmovss  [rsp+118h+var_D8], xmm7
-      vmovss  [rsp+118h+s1], xmm7
-      vmovups xmmword ptr [rsp+118h+var_A8], xmm0
-      vmovss  xmm0, cs:LINE_HEIGHT_2
-      vmovss  [rsp+118h+h], xmm0
-      vmovups xmmword ptr [rsp+118h+var_98], xmm1
-      vmovss  xmm1, cs:BOX_LEFT_2; x
-      vmovaps xmm2, xmm6; y
-    }
-    CL_DrawStretchPic(v8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, he, 4, 4, s1c, v62, v66, *(float *)&styleb, &color, cgMedia.whiteMaterial);
-    __asm
-    {
-      vmovss  xmm0, cs:HEADER_FONT_SCALE_3
-      vaddss  xmm1, xmm6, cs:LINE_HEIGHT_2
-      vmovss  [rsp+118h+var_D8], xmm0
-      vmovss  xmm0, cs:BOX_LEFT_2
-      vmovss  dword ptr [rsp+118h+horzAlign], xmm1
-      vmovss  [rsp+118h+h], xmm0
-    }
-    UI_DrawText(v8, dest, 64, v15, hf, *(float *)&horzAlignc, 4, 4, v63, &v71, 3);
-    __asm
-    {
-      vmovaps xmm8, [rsp+118h+var_38]
-      vmovaps xmm7, [rsp+118h+var_28]
-    }
+    UI_DrawText(ActivePlacement, dest, 64, FontHandle, BOX_LEFT_2, v6, 4, 4, HEADER_FONT_SCALE_3, &colorWhite, 3);
+    v7 = &s_shootFirstTest.samples[(LOBYTE(s_shootFirstTest.sampleCount) - 1) & 0x3F];
+    LODWORD(s1) = v7->deathTime % 10000;
+    LODWORD(vertAlign) = v7->dmgIndicatorTime % 10000;
+    LODWORD(horzAlign) = v7->hitMarkerTime % 10000;
+    LODWORD(h) = v7->shootTime % 10000;
+    Com_sprintf(dest, 0x40ui64, " %4i | %4i | %4i | %4i | %4i", (unsigned int)v7->ping, h, horzAlign, vertAlign, s1);
+    color = colorBlack;
+    v13 = colorWhite;
+    CL_DrawStretchPic(ActivePlacement, BOX_LEFT_2, v6, BOX_WIDTH_2, LINE_HEIGHT_2, 4, 4, 0.0, 0.0, 1.0, 1.0, &color, cgMedia.whiteMaterial);
+    UI_DrawText(ActivePlacement, dest, 64, FontHandle, BOX_LEFT_2, v6 + LINE_HEIGHT_2, 4, 4, HEADER_FONT_SCALE_3, &v13, 3);
   }
-  __asm { vmovaps xmm6, [rsp+118h+var_18] }
 }
 
 /*
@@ -3319,282 +2818,178 @@ CG_LatencyTestMP_StrafingTest_DrawResults
 */
 void CG_LatencyTestMP_StrafingTest_DrawResults(LocalClientNum_t localClientNum)
 {
+  __int128 v2; 
   cg_t *LocalClientGlobals; 
   const ScreenPlacement *ActivePlacement; 
-  const ScreenPlacement *v10; 
   GfxFont *FontHandle; 
   int sampleCount; 
   int *sampleCountDir; 
-  unsigned __int8 v17; 
-  __int64 v18; 
-  GfxFont *v19; 
-  int v21; 
-  int v22; 
-  CgLatencyTestStrafingTestSample *v25; 
-  int v28; 
-  const char *v29; 
-  unsigned int v39; 
-  __int64 v40; 
+  float v8; 
+  unsigned __int8 v9; 
+  __int64 v10; 
+  GfxFont *v11; 
+  int v12; 
+  int v13; 
+  CgLatencyTestStrafingTestSample *v14; 
+  __int128 v15; 
+  int v16; 
+  const char *v17; 
+  __int128 v18; 
+  unsigned int v19; 
+  __int64 v20; 
   CgLatencyTestStrafingTestRemoteClient *remoteClients; 
   int clientNum; 
+  vec4_t v23; 
+  vec4_t v24; 
   int remoteClientTime; 
-  float xb; 
+  __int128 v26; 
+  __int128 v27; 
   __int64 x; 
-  float xc; 
-  float xd; 
-  float xe; 
   __int64 xa; 
-  float xf; 
-  float xg; 
-  int horzAligna; 
-  int horzAlignb; 
   __int64 horzAlign; 
-  int horzAlignc; 
   __int64 vertAlign; 
-  float s1a; 
-  float s1b; 
   __int64 s1; 
-  float s1c; 
-  float v72; 
-  float v73; 
-  float v74; 
-  float v75; 
-  float v76; 
-  float v77; 
-  float v78; 
-  float v79; 
-  float v80; 
-  int style; 
-  int stylea; 
-  int styleb; 
-  unsigned __int8 v84; 
+  unsigned __int8 v33; 
   GfxFont *font; 
-  int *v86; 
+  int *v35; 
   vec4_t color; 
-  vec4_t v88; 
+  vec4_t v37; 
   char dest[64]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovss  xmm6, cs:BOX_TOP
-  }
+  v2 = LODWORD(BOX_TOP);
   if ( s_strafingTest.sampleCount > 0 )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-48h], xmm7
-      vmovaps xmmword ptr [r11-58h], xmm8
-    }
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-    __asm { vmovss  xmm2, cs:FONT_SCALE_0; scale }
-    v10 = ActivePlacement;
-    UI_GetFontHandle(ActivePlacement, FONT_TYPE_0, *(float *)&_XMM2);
-    __asm { vmovss  xmm2, cs:HEADER_FONT_SCALE_0; scale }
-    FontHandle = UI_GetFontHandle(v10, FONT_TYPE_0, *(float *)&_XMM2);
-    __asm { vmovss  xmm7, cs:__real@3f800000 }
+    UI_GetFontHandle(ActivePlacement, FONT_TYPE_0, FONT_SCALE_0);
+    FontHandle = UI_GetFontHandle(ActivePlacement, FONT_TYPE_0, HEADER_FONT_SCALE_0);
     sampleCount = s_strafingTest.sampleCount;
     sampleCountDir = s_strafingTest.sampleCountDir;
-    __asm { vmovss  xmm0, cs:LINE_HEIGHT }
-    v17 = 0;
-    v86 = s_strafingTest.sampleCountDir;
-    v84 = 0;
-    v18 = 0i64;
+    v8 = LINE_HEIGHT;
+    v9 = 0;
+    v35 = s_strafingTest.sampleCountDir;
+    v33 = 0;
+    v10 = 0i64;
     font = FontHandle;
-    v19 = FontHandle;
-    __asm { vxorps  xmm8, xmm8, xmm8 }
+    v11 = FontHandle;
     do
     {
       if ( *sampleCountDir > 0 )
       {
-        v21 = 1;
+        v12 = 1;
         if ( sampleCount >= 1 )
         {
           do
           {
-            v22 = ((_BYTE)sampleCount - (_BYTE)v21) & 0x3F;
-            if ( s_strafingTest.samples[((_BYTE)sampleCount - (_BYTE)v21) & 0x3F].strafeDir == v17 )
+            v13 = ((_BYTE)sampleCount - (_BYTE)v12) & 0x3F;
+            if ( s_strafingTest.samples[((_BYTE)sampleCount - (_BYTE)v12) & 0x3F].strafeDir == v9 )
               break;
-            ++v21;
+            ++v12;
           }
-          while ( v21 <= sampleCount );
-          __asm
-          {
-            vmovss  xmm3, cs:BOX_WIDTH; w
-            vmovss  xmm1, cs:BOX_LEFT; x
-          }
-          v25 = &s_strafingTest.samples[v22];
-          __asm
-          {
-            vmovss  [rsp+158h+style], xmm7
-            vmovss  dword ptr [rsp+158h+var_110], xmm7
-            vmovss  [rsp+158h+var_118], xmm8
-            vmovss  [rsp+158h+s1], xmm8
-            vmovaps xmm2, xmm6; y
-            vmovss  [rsp+158h+x], xmm0
-          }
-          CL_DrawStretchPic(v10, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, xb, 4, 4, s1a, v72, v78, *(float *)&style, &colorWhite, cgMedia.whiteMaterial);
-          __asm { vaddss  xmm6, xmm6, cs:LINE_HEIGHT }
-          v28 = 64;
-          v29 = "RIGHT";
+          while ( v12 <= sampleCount );
+          v14 = &s_strafingTest.samples[v13];
+          CL_DrawStretchPic(ActivePlacement, BOX_LEFT, *(float *)&v2, BOX_WIDTH, v8, 4, 4, 0.0, 0.0, 1.0, 1.0, &colorWhite, cgMedia.whiteMaterial);
+          v15 = v2;
+          *(float *)&v15 = *(float *)&v2 + LINE_HEIGHT;
+          v16 = 64;
+          v17 = "RIGHT";
           if ( *sampleCountDir < 64 )
-            v28 = *sampleCountDir;
-          LODWORD(x) = v28;
-          if ( !v17 )
-            v29 = "LEFT";
-          Com_sprintf(dest, 0x40ui64, " LATENCY TEST STRAFE %s      Samples: %i", v29, x);
-          __asm
-          {
-            vmovss  xmm0, cs:HEADER_FONT_SCALE_0
-            vmovss  [rsp+158h+var_118], xmm0
-            vmovss  xmm0, cs:BOX_LEFT
-            vmovss  dword ptr [rsp+158h+horzAlign], xmm6
-            vmovss  [rsp+158h+x], xmm0
-          }
-          UI_DrawText(v10, dest, 64, v19, xc, *(float *)&horzAligna, 4, 4, v73, &colorBlack, 3);
-          __asm
-          {
-            vmovss  xmm0, cs:LINE_HEIGHT
-            vmovss  xmm3, cs:BOX_WIDTH; w
-            vmovss  xmm1, cs:BOX_LEFT; x
-            vmovss  [rsp+158h+style], xmm7
-            vmovss  dword ptr [rsp+158h+var_110], xmm7
-            vmovss  [rsp+158h+var_118], xmm8
-            vmovss  [rsp+158h+s1], xmm8
-            vmovaps xmm2, xmm6; y
-            vmovss  [rsp+158h+x], xmm0
-          }
-          CL_DrawStretchPic(v10, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, xd, 4, 4, s1b, v74, v79, *(float *)&stylea, &colorBlack, cgMedia.whiteMaterial);
-          __asm { vaddss  xmm6, xmm6, cs:LINE_HEIGHT }
+            v16 = *sampleCountDir;
+          LODWORD(x) = v16;
+          if ( !v9 )
+            v17 = "LEFT";
+          Com_sprintf(dest, 0x40ui64, " LATENCY TEST STRAFE %s      Samples: %i", v17, x);
+          UI_DrawText(ActivePlacement, dest, 64, v11, BOX_LEFT, *(float *)&v15, 4, 4, HEADER_FONT_SCALE_0, &colorBlack, 3);
+          CL_DrawStretchPic(ActivePlacement, BOX_LEFT, *(float *)&v15, BOX_WIDTH, LINE_HEIGHT, 4, 4, 0.0, 0.0, 1.0, 1.0, &colorBlack, cgMedia.whiteMaterial);
+          *(float *)&v15 = *(float *)&v15 + LINE_HEIGHT;
+          v18 = v15;
           Com_sprintf(dest, 0x40ui64, " CL | PING | CL TIME | DELTA | AVG");
-          __asm
-          {
-            vmovss  xmm0, cs:HEADER_FONT_SCALE_0
-            vmovss  [rsp+158h+var_118], xmm0
-            vmovss  xmm0, cs:BOX_LEFT
-            vmovss  dword ptr [rsp+158h+horzAlign], xmm6
-            vmovss  [rsp+158h+x], xmm0
-          }
-          UI_DrawText(v10, dest, 64, v19, xe, *(float *)&horzAlignb, 4, 4, v75, &colorWhite, 3);
-          v39 = 0;
-          v40 = 0i64;
+          UI_DrawText(ActivePlacement, dest, 64, v11, BOX_LEFT, *(float *)&v15, 4, 4, HEADER_FONT_SCALE_0, &colorWhite, 3);
+          v19 = 0;
+          v20 = 0i64;
           if ( cls.maxClients > 0 )
           {
-            remoteClients = v25->remoteClients;
+            remoteClients = v14->remoteClients;
             while ( 1 )
             {
               clientNum = LocalClientGlobals->clientNum;
-              if ( clientNum == v39 || clientNum == s_strafingTest.testingClientNum && CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v39) )
+              if ( clientNum == v19 || clientNum == s_strafingTest.testingClientNum && CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v19) )
                 break;
 LABEL_29:
-              ++v39;
-              ++v40;
+              ++v19;
+              ++v20;
               ++remoteClients;
-              if ( (int)v39 >= cls.maxClients )
+              if ( (int)v19 >= cls.maxClients )
               {
-                v17 = v84;
-                sampleCountDir = v86;
+                v9 = v33;
+                sampleCountDir = v35;
                 goto LABEL_31;
               }
             }
-            if ( v39 == s_strafingTest.testingClientNum || remoteClients->remoteClientTime )
+            if ( v19 == s_strafingTest.testingClientNum || remoteClients->remoteClientTime )
             {
-              if ( v25->state[0] )
+              if ( v14->state[0] )
                 goto LABEL_21;
 LABEL_19:
-              __asm
-              {
-                vmovups xmm0, xmmword ptr cs:?colorBlack@@3Tvec4_t@@B; vec4_t const colorBlack
-                vmovups xmm1, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-              }
+              v23 = colorBlack;
+              v24 = colorWhite;
             }
             else
             {
-              if ( v25->state[0] )
+              if ( v14->state[0] )
                 goto LABEL_19;
 LABEL_21:
-              __asm
-              {
-                vmovups xmm1, xmmword ptr cs:?colorBlack@@3Tvec4_t@@B; vec4_t const colorBlack
-                vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-              }
+              v24 = colorBlack;
+              v23 = colorWhite;
             }
-            __asm
+            v37 = v24;
+            color = v23;
+            if ( v19 == s_strafingTest.testingClientNum || v19 == LocalClientGlobals->clientNum )
             {
-              vmovups xmmword ptr [rsp+158h+var_C0], xmm1
-              vmovups xmmword ptr [rsp+158h+var_D0], xmm0
-            }
-            if ( v39 == s_strafingTest.testingClientNum || v39 == LocalClientGlobals->clientNum )
-            {
-              LODWORD(horzAlign) = v25->clientTime % 10000;
-              LODWORD(xa) = v25->ping;
-              Com_sprintf(dest, 0x40ui64, " %2i | %4i |   %04i  |       |      ", v39, xa, horzAlign);
+              LODWORD(horzAlign) = v14->clientTime % 10000;
+              LODWORD(xa) = v14->ping;
+              Com_sprintf(dest, 0x40ui64, " %2i | %4i |   %04i  |       |      ", v19, xa, horzAlign);
             }
             else
             {
               remoteClientTime = remoteClients->remoteClientTime;
               if ( remoteClients->remoteClientTime )
               {
-                LODWORD(s1) = s_strafingTest.clientResults[0][v40 + v18].avgDeltaClientTime % 10000;
-                LODWORD(vertAlign) = (remoteClientTime - v25->clientTime) % 10000;
+                LODWORD(s1) = s_strafingTest.clientResults[0][v20 + v10].avgDeltaClientTime % 10000;
+                LODWORD(vertAlign) = (remoteClientTime - v14->clientTime) % 10000;
                 LODWORD(horzAlign) = remoteClientTime % 10000;
                 LODWORD(xa) = remoteClients->remotePing;
-                Com_sprintf(dest, 0x40ui64, " %2i | %4i |   %04i  | %5i | %4i", v39, xa, horzAlign, vertAlign, s1);
+                Com_sprintf(dest, 0x40ui64, " %2i | %4i |   %04i  | %5i | %4i", v19, xa, horzAlign, vertAlign, s1);
               }
               else
               {
-                Com_sprintf(dest, 0x40ui64, " %2i |  ... |     ... |   ... |  ...", v39);
+                Com_sprintf(dest, 0x40ui64, " %2i |  ... |     ... |   ... |  ...", v19);
               }
             }
-            __asm
-            {
-              vmovss  xmm0, cs:LINE_HEIGHT
-              vmovss  xmm3, cs:BOX_WIDTH; w
-              vmovss  xmm1, cs:BOX_LEFT; x
-              vmovss  [rsp+158h+style], xmm7
-              vmovss  dword ptr [rsp+158h+var_110], xmm7
-              vmovss  [rsp+158h+var_118], xmm8
-              vmovss  [rsp+158h+s1], xmm8
-              vmovaps xmm2, xmm6; y
-              vmovss  [rsp+158h+x], xmm0
-            }
-            CL_DrawStretchPic(v10, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, xf, 4, 4, s1c, v76, v80, *(float *)&styleb, &color, cgMedia.whiteMaterial);
-            __asm
-            {
-              vmovss  xmm0, cs:HEADER_FONT_SCALE_0
-              vaddss  xmm6, xmm6, cs:LINE_HEIGHT
-              vmovss  [rsp+158h+var_118], xmm0
-              vmovss  xmm0, cs:BOX_LEFT
-              vmovss  dword ptr [rsp+158h+horzAlign], xmm6
-              vmovss  [rsp+158h+x], xmm0
-            }
-            UI_DrawText(v10, dest, 64, font, xg, *(float *)&horzAlignc, 4, 4, v77, &v88, 3);
+            CL_DrawStretchPic(ActivePlacement, BOX_LEFT, *(float *)&v18, BOX_WIDTH, LINE_HEIGHT, 4, 4, 0.0, 0.0, 1.0, 1.0, &color, cgMedia.whiteMaterial);
+            v26 = v18;
+            *(float *)&v26 = *(float *)&v18 + LINE_HEIGHT;
+            v18 = v26;
+            UI_DrawText(ActivePlacement, dest, 64, font, BOX_LEFT, *(float *)&v26, 4, 4, HEADER_FONT_SCALE_0, &v37, 3);
             goto LABEL_29;
           }
 LABEL_31:
-          __asm { vmovss  xmm0, cs:LINE_HEIGHT }
+          v8 = LINE_HEIGHT;
           sampleCount = s_strafingTest.sampleCount;
-          v19 = font;
-          __asm { vaddss  xmm6, xmm6, xmm0 }
+          v11 = font;
+          v27 = v18;
+          *(float *)&v27 = *(float *)&v18 + LINE_HEIGHT;
+          v2 = v27;
         }
       }
-      ++v17;
+      ++v9;
       ++sampleCountDir;
-      v18 += 200i64;
-      v84 = v17;
-      v86 = sampleCountDir;
+      v10 += 200i64;
+      v33 = v9;
+      v35 = sampleCountDir;
     }
-    while ( v17 < 2u );
-    __asm
-    {
-      vmovaps xmm8, [rsp+158h+var_58]
-      vmovaps xmm7, [rsp+158h+var_48]
-    }
+    while ( v9 < 2u );
   }
-  __asm { vmovaps xmm6, [rsp+158h+var_38] }
 }
 
 /*
@@ -3602,126 +2997,113 @@ LABEL_31:
 CG_LatencyTestMP_StrafingTest_PrintResult_f
 ==============
 */
-
-void __fastcall CG_LatencyTestMP_StrafingTest_PrintResult_f(double _XMM0_8, double _XMM1_8)
+void CG_LatencyTestMP_StrafingTest_PrintResult_f()
 {
-  LocalClientNum_t v2; 
-  unsigned __int8 v3; 
+  LocalClientNum_t v0; 
+  unsigned __int8 v1; 
   int *sampleCountDir; 
-  __int64 v5; 
-  const cg_t *v6; 
-  const char *v7; 
-  int v8; 
+  __int64 v3; 
+  const cg_t *v4; 
+  const char *v5; 
+  int v6; 
+  __int64 v7; 
+  __int64 v8; 
   __int64 v9; 
   __int64 v10; 
-  __int64 v11; 
-  __int64 v12; 
+  int v11; 
+  int v12; 
   int v13; 
-  int v14; 
-  int v15; 
   int *p_clientTime; 
   __int64 sampleCount; 
-  int v18; 
+  int v16; 
+  int v17; 
+  unsigned int v18; 
   int v19; 
-  unsigned int v20; 
-  int v21; 
-  int v22; 
-  __int64 v28; 
-  __int64 v29; 
-  double v30; 
-  int *v31; 
+  int v20; 
+  __int64 v21; 
+  __int64 v22; 
+  int *v23; 
   cg_t *LocalClientGlobals; 
 
-  v2 = Cmd_LocalClientNum();
-  v3 = 0;
-  LocalClientGlobals = CG_GetLocalClientGlobals(v2);
+  v0 = Cmd_LocalClientNum();
+  v1 = 0;
+  LocalClientGlobals = CG_GetLocalClientGlobals(v0);
   sampleCountDir = s_strafingTest.sampleCountDir;
-  v5 = 0i64;
-  v31 = s_strafingTest.sampleCountDir;
-  v6 = LocalClientGlobals;
+  v3 = 0i64;
+  v23 = s_strafingTest.sampleCountDir;
+  v4 = LocalClientGlobals;
   do
   {
     if ( *sampleCountDir > 0 )
     {
-      v7 = "Left";
-      if ( v3 )
-        v7 = "Right";
-      Com_Printf(31, "Strafing %s\n", v7);
+      v5 = "Left";
+      if ( v1 )
+        v5 = "Right";
+      Com_Printf(31, "Strafing %s\n", v5);
       Com_Printf(31, "ClientNum, Max, Avg, Min, StdDev\n");
-      v8 = 0;
-      v9 = 0i64;
+      v6 = 0;
+      v7 = 0i64;
       if ( cls.maxClients > 0 )
       {
-        v10 = 10i64;
+        v8 = 10i64;
         do
         {
-          if ( v8 != s_strafingTest.testingClientNum && CG_LatencyTestMP_IsClientActive(v6, v8) )
+          if ( v6 != s_strafingTest.testingClientNum && CG_LatencyTestMP_IsClientActive(v4, v6) )
           {
-            v11 = v5 + v9;
-            v12 = 0i64;
-            v13 = 0;
-            v14 = 0;
-            v15 = 0x7FFFFFFF;
+            v9 = v3 + v7;
+            v10 = 0i64;
+            v11 = 0;
+            v12 = 0;
+            v13 = 0x7FFFFFFF;
             if ( s_strafingTest.sampleCount > 0 )
             {
               p_clientTime = &s_strafingTest.samples[0].clientTime;
               sampleCount = (unsigned int)s_strafingTest.sampleCount;
               do
               {
-                if ( *((_BYTE *)p_clientTime - 11) == v3 )
+                if ( *((_BYTE *)p_clientTime - 11) == v1 )
                 {
-                  v18 = p_clientTime[v10 - 3];
-                  if ( v18 > 0 )
+                  v16 = p_clientTime[v8 - 3];
+                  if ( v16 > 0 )
                   {
-                    v19 = v18 - *p_clientTime;
-                    v20 = v19;
-                    if ( (int)v12 > v19 )
-                      v20 = v12;
-                    v12 = v20;
-                    v21 = v19;
-                    if ( v15 < v19 )
-                      v21 = v15;
-                    v22 = v19 - s_strafingTest.clientResults[0][v11].avgDeltaClientTime;
-                    v15 = v21;
-                    v13 += v22 * v22;
-                    ++v14;
+                    v17 = v16 - *p_clientTime;
+                    v18 = v17;
+                    if ( (int)v10 > v17 )
+                      v18 = v10;
+                    v10 = v18;
+                    v19 = v17;
+                    if ( v13 < v17 )
+                      v19 = v13;
+                    v20 = v17 - s_strafingTest.clientResults[0][v9].avgDeltaClientTime;
+                    v13 = v19;
+                    v11 += v20 * v20;
+                    ++v12;
                   }
                 }
                 p_clientTime += 610;
                 --sampleCount;
               }
               while ( sampleCount );
-              v6 = LocalClientGlobals;
+              v4 = LocalClientGlobals;
             }
-            __asm
-            {
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, r11d
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, ebp
-              vdivss  xmm1, xmm1, xmm0
-              vsqrtss xmm2, xmm1, xmm1
-              vcvtss2sd xmm3, xmm2, xmm2
-              vmovsd  [rsp+78h+var_48], xmm3
-            }
-            LODWORD(v29) = v15;
-            LODWORD(v28) = s_strafingTest.clientResults[0][v11].avgDeltaClientTime;
-            Com_Printf(31, "%i, %i, %i, %i, %f\n", (unsigned int)v8, v12, v28, v29, v30);
+            LODWORD(v22) = v13;
+            LODWORD(v21) = s_strafingTest.clientResults[0][v9].avgDeltaClientTime;
+            Com_Printf(31, "%i, %i, %i, %i, %f\n", (unsigned int)v6, v10, v21, v22, fsqrt((float)v11 / (float)v12));
           }
-          ++v8;
-          ++v9;
-          v10 += 3i64;
+          ++v6;
+          ++v7;
+          v8 += 3i64;
         }
-        while ( v8 < cls.maxClients );
-        sampleCountDir = v31;
+        while ( v6 < cls.maxClients );
+        sampleCountDir = v23;
       }
     }
     ++sampleCountDir;
-    ++v3;
-    v5 += 200i64;
-    v31 = sampleCountDir;
+    ++v1;
+    v3 += 200i64;
+    v23 = sampleCountDir;
   }
-  while ( v3 < 2u );
+  while ( v1 < 2u );
 }
 
 /*
@@ -3784,48 +3166,23 @@ void CG_LatencyTestMP_StrafingTest_Start_f()
   LocalClientNum_t v1; 
   const char *v2; 
   cg_t *LocalClientGlobals; 
-  const char *v20; 
-  __int64 v21; 
-  __int64 v22; 
-  __int64 v23; 
+  centity_t *Entity; 
+  const char *v5; 
 
   v0 = Cmd_LocalClientNum();
   v1 = v0;
   if ( s_strafingTest.testingClientNum == -1 )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals(v0);
-    _RDI = CG_GetEntity(v1, LocalClientGlobals->clientNum);
-    if ( _RDI )
+    Entity = CG_GetEntity(v1, LocalClientGlobals->clientNum);
+    if ( Entity )
     {
       memset_0(&s_strafingTest, 0, sizeof(s_strafingTest));
       s_strafingTest.testingClientNum = LocalClientGlobals->clientNum;
-      CG_GetPoseOrigin(&_RDI->pose, &s_strafingTest.pos);
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rdi+48h]
-        vmovss  xmm3, dword ptr cs:s_strafingTest.pos+8
-        vmovss  xmm2, dword ptr cs:s_strafingTest.pos+4
-        vmovss  xmm1, dword ptr cs:s_strafingTest.pos
-        vmovss  dword ptr cs:s_strafingTest.dir, xmm5
-        vmovss  xmm4, dword ptr [rdi+4Ch]
-        vmovss  dword ptr cs:s_strafingTest.dir+4, xmm4
-        vmovss  xmm0, dword ptr [rdi+50h]
-        vmovss  dword ptr cs:s_strafingTest.dir+8, xmm0
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+48h+var_18], xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vcvtss2sd xmm4, xmm4, xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+48h+var_20], xmm4
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-        vmovsd  [rsp+48h+var_28], xmm5
-      }
-      v20 = j_va("latencyTest strafing start %.6f %.6f %.6f %.6f %.6f %.6f", _RDX, _R8, _R9, v21, v22, v23);
-      CL_Main_AddReliableCommand(v1, v20);
+      CG_GetPoseOrigin(&Entity->pose, &s_strafingTest.pos);
+      s_strafingTest.dir = Entity->pose.angles;
+      v5 = j_va("latencyTest strafing start %.6f %.6f %.6f %.6f %.6f %.6f", s_strafingTest.pos.v[0], s_strafingTest.pos.v[1], s_strafingTest.pos.v[2], s_strafingTest.dir.v[0], s_strafingTest.dir.v[1], s_strafingTest.dir.v[2]);
+      CL_Main_AddReliableCommand(v1, v5);
       Com_Printf(31, "Strafing Test Started (Master)\n");
     }
   }
@@ -3981,25 +3338,37 @@ CG_LatencyTestMP_StrafingTest_Update
 */
 void CG_LatencyTestMP_StrafingTest_Update(LocalClientNum_t localClientNum)
 {
+  __int128 v1; 
   cg_t *LocalClientGlobals; 
   centity_t *Entity; 
-  const dvar_t *v11; 
+  const dvar_t *v5; 
   const DObj *ClientDObj; 
-  const dvar_t *v14; 
-  const dvar_t *v37; 
-  const dvar_t *v73; 
-  char v75; 
-  bool v76; 
-  int v106; 
+  const dvar_t *v7; 
+  __int128 v8; 
+  __int128 v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
+  float v17; 
+  const dvar_t *v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  const dvar_t *v23; 
+  float v24; 
+  int v25; 
   vec3_t start; 
   vec3_t end; 
-  vec3_t v112; 
+  vec3_t v28; 
   vec3_t out; 
   vec3_t outOrigin; 
   tmat43_t<vec3_t> axis; 
   vec3_t in1; 
-  vec3_t v117; 
+  vec3_t v33; 
   tmat33_t<vec3_t> outTagMat; 
+  __int128 v35; 
 
   if ( s_strafingTest.testingClientNum == -1 )
     return;
@@ -4010,11 +3379,11 @@ void CG_LatencyTestMP_StrafingTest_Update(LocalClientNum_t localClientNum)
   memset(&axis, 0, sizeof(axis));
   if ( s_strafingTest.testingClientNum != LocalClientGlobals->clientNum )
   {
-    v11 = DVARINT_cg_latencyTestMode;
+    v5 = DVARINT_cg_latencyTestMode;
     if ( !DVARINT_cg_latencyTestMode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_latencyTestMode") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    if ( !v11->current.integer )
+    Dvar_CheckFrontendServerThread(v5);
+    if ( !v5->current.integer )
     {
       ClientDObj = Com_GetClientDObj(Entity->nextState.number, localClientNum);
       if ( !ClientDObj || !CG_DObjGetWorldTagMatrix(&Entity->pose, ClientDObj, scr_const.j_head, &outTagMat, &outOrigin) )
@@ -4026,219 +3395,99 @@ void CG_LatencyTestMP_StrafingTest_Update(LocalClientNum_t localClientNum)
   }
   CG_GetPoseOrigin(&Entity->pose, &outOrigin);
 LABEL_13:
-  __asm { vmovss  xmm0, dword ptr cs:s_strafingTest.pos+8 }
-  v14 = DVARBOOL_cg_drawLatencyTest;
-  __asm
-  {
-    vmovaps [rsp+1A0h+var_48+8], xmm7
-    vmovaps [rsp+1A0h+var_58+8], xmm8
-    vmovaps [rsp+1A0h+var_68+8], xmm9
-    vmovss  xmm1, dword ptr [rbp+0A0h+outOrigin]
-    vsubss  xmm7, xmm1, dword ptr cs:s_strafingTest.pos
-    vmovss  dword ptr [rbp+0A0h+outOrigin+8], xmm0
-    vmovss  xmm0, dword ptr [rbp+0A0h+outOrigin+4]
-    vsubss  xmm8, xmm0, dword ptr cs:s_strafingTest.pos+4
-    vxorps  xmm9, xmm9, xmm9
-  }
+  v7 = DVARBOOL_cg_drawLatencyTest;
+  v9 = LODWORD(outOrigin.v[0]);
+  *(float *)&v9 = outOrigin.v[0] - s_strafingTest.pos.v[0];
+  v8 = v9;
+  outOrigin.v[2] = s_strafingTest.pos.v[2];
+  v11 = outOrigin.v[1] - s_strafingTest.pos.v[1];
+  v10 = outOrigin.v[1] - s_strafingTest.pos.v[1];
   if ( !DVARBOOL_cg_drawLatencyTest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawLatencyTest") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( v14->current.enabled )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.enabled )
     CG_DebugLine(&s_strafingTest.pos, &outOrigin, &colorYellow, 0, 1);
-  __asm { vmulss  xmm3, xmm8, xmm8 }
-  if ( !s_strafingTest.sampleCount )
+  v12 = v11 * v11;
+  if ( s_strafingTest.sampleCount || (float)((float)((float)(*(float *)&v8 * *(float *)&v8) + v12) + (float)(0.0 * 0.0)) >= 400.0 )
   {
+    v35 = v1;
+    v13 = v8;
+    *(float *)&v13 = fsqrt((float)((float)(*(float *)&v8 * *(float *)&v8) + v12) + (float)(0.0 * 0.0));
+    _XMM3 = v13;
     __asm
     {
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm2, xmm0, xmm3
-      vmulss  xmm1, xmm9, xmm9
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, cs:__real@43c80000
+      vcmpless xmm0, xmm3, cs:__real@80000000
+      vblendvps xmm0, xmm3, xmm6, xmm0
     }
-  }
-  __asm
-  {
-    vmovaps [rsp+1A0h+var_38+8], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm0, xmm3
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
-    vcmpless xmm0, xmm3, cs:__real@80000000
-    vmovaps [rsp+1A0h+var_78+8], xmm10
-    vblendvps xmm0, xmm3, xmm6, xmm0
-    vdivss  xmm1, xmm6, xmm0
-    vmovaps [rsp+1A0h+var_88+8], xmm11
-    vmovaps [rsp+1A0h+var_98+8], xmm12
-    vmulss  xmm10, xmm7, xmm1
-    vmulss  xmm11, xmm8, xmm1
-    vmulss  xmm12, xmm9, xmm1
-  }
-  AnglesToAxis(&s_strafingTest.dir, (tmat33_t<vec3_t> *)&axis);
-  __asm
-  {
-    vmovss  dword ptr [rbp+0A0h+in1], xmm9
-    vmovss  dword ptr [rbp+0A0h+in1+4], xmm6
-    vmovss  dword ptr [rbp+0A0h+in1+8], xmm9
-  }
-  MatrixTransformVector43(&in1, &axis, &out);
-  v37 = DVARBOOL_cg_drawLatencyTest;
-  if ( !DVARBOOL_cg_drawLatencyTest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawLatencyTest") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v37);
-  if ( v37->current.enabled )
-  {
-    __asm
+    v17 = *(float *)&v8 * (float)(1.0 / *(float *)&_XMM0);
+    AnglesToAxis(&s_strafingTest.dir, (tmat33_t<vec3_t> *)&axis);
+    in1.v[0] = 0.0;
+    in1.v[1] = FLOAT_1_0;
+    in1.v[2] = 0.0;
+    MatrixTransformVector43(&in1, &axis, &out);
+    v18 = DVARBOOL_cg_drawLatencyTest;
+    if ( !DVARBOOL_cg_drawLatencyTest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawLatencyTest") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v18);
+    if ( v18->current.enabled )
     {
-      vmovss  xmm8, cs:__real@43480000
-      vmovss  dword ptr [rbp+0A0h+var_D0], xmm8
-      vmovss  dword ptr [rbp+0A0h+var_D0+4], xmm9
-      vmovss  dword ptr [rbp+0A0h+var_D0+8], xmm9
+      v33.v[0] = FLOAT_200_0;
+      v33.v[1] = 0.0;
+      v33.v[2] = 0.0;
+      MatrixTransformVector43(&v33, &axis, &v28);
+      start.v[0] = s_strafingTest.pos.v[0] + v28.v[0];
+      start.v[1] = s_strafingTest.pos.v[1] + v28.v[1];
+      start.v[2] = s_strafingTest.pos.v[2] + v28.v[2];
+      end.v[0] = s_strafingTest.pos.v[0] - v28.v[0];
+      end.v[1] = s_strafingTest.pos.v[1] - v28.v[1];
+      end.v[2] = s_strafingTest.pos.v[2] - v28.v[2];
+      CG_DebugLine(&start, &end, &colorYellow, 0, 1);
+      v19 = (float)(200.0 * out.v[0]) + s_strafingTest.pos.v[0];
+      v20 = (float)(200.0 * out.v[1]) + s_strafingTest.pos.v[1];
+      v21 = (float)(200.0 * out.v[2]) + s_strafingTest.pos.v[2];
+      start.v[0] = v19 + v28.v[0];
+      start.v[1] = v20 + v28.v[1];
+      start.v[2] = v21 + v28.v[2];
+      end.v[0] = v19 - v28.v[0];
+      end.v[1] = v20 - v28.v[1];
+      end.v[2] = v21 - v28.v[2];
+      CG_DebugLine(&start, &end, &colorYellow, 0, 1);
+      v22 = (float)(-200.0 * out.v[2]) + s_strafingTest.pos.v[2];
+      start.v[0] = (float)((float)(-200.0 * out.v[0]) + s_strafingTest.pos.v[0]) + v28.v[0];
+      start.v[1] = (float)((float)(-200.0 * out.v[1]) + s_strafingTest.pos.v[1]) + v28.v[1];
+      start.v[2] = v22 + v28.v[2];
+      end.v[0] = (float)((float)(-200.0 * out.v[0]) + s_strafingTest.pos.v[0]) - v28.v[0];
+      end.v[1] = (float)((float)(-200.0 * out.v[1]) + s_strafingTest.pos.v[1]) - v28.v[1];
+      end.v[2] = v22 - v28.v[2];
+      CG_DebugLine(&start, &end, &colorYellow, 0, 1);
     }
-    MatrixTransformVector43(&v117, &axis, &v112);
-    __asm
+    v23 = DVARBOOL_cg_drawLatencyTest;
+    if ( !DVARBOOL_cg_drawLatencyTest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawLatencyTest") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v23);
+    if ( v23->current.enabled )
     {
-      vmovss  xmm6, dword ptr cs:s_strafingTest.pos
-      vaddss  xmm0, xmm6, dword ptr [rsp+1A0h+var_140]
-      vmovss  xmm5, dword ptr cs:s_strafingTest.pos+4
-      vmovss  xmm2, dword ptr cs:s_strafingTest.pos+8
-      vsubss  xmm1, xmm6, dword ptr [rsp+1A0h+var_140]
-      vmovss  dword ptr [rsp+1A0h+start], xmm0
-      vaddss  xmm0, xmm5, dword ptr [rsp+1A0h+var_140+4]
-      vmovss  dword ptr [rsp+1A0h+start+4], xmm0
-      vaddss  xmm0, xmm2, dword ptr [rsp+1A0h+var_140+8]
-      vmovss  dword ptr [rsp+1A0h+start+8], xmm0
-      vsubss  xmm0, xmm5, dword ptr [rsp+1A0h+var_140+4]
-      vmovss  dword ptr [rsp+1A0h+end], xmm1
-      vsubss  xmm1, xmm2, dword ptr [rsp+1A0h+var_140+8]
-      vmovss  dword ptr [rsp+1A0h+end+4], xmm0
-      vmovss  dword ptr [rsp+1A0h+end+8], xmm1
+      start.v[0] = (float)(line_length * axis.m[0].v[0]) + s_strafingTest.pos.v[0];
+      start.v[1] = (float)(line_length * axis.m[0].v[1]) + s_strafingTest.pos.v[1];
+      start.v[2] = (float)(line_length * axis.m[0].v[2]) + s_strafingTest.pos.v[2];
+      CG_DebugLine(&s_strafingTest.pos, &start, &colorRed, 0, 1);
+      start.v[0] = (float)(line_length * axis.m[1].v[0]) + s_strafingTest.pos.v[0];
+      start.v[1] = (float)(line_length * axis.m[1].v[1]) + s_strafingTest.pos.v[1];
+      start.v[2] = (float)(line_length * axis.m[1].v[2]) + s_strafingTest.pos.v[2];
+      CG_DebugLine(&s_strafingTest.pos, &start, &colorGreen, 0, 1);
+      start.v[0] = (float)(line_length * axis.m[2].v[0]) + s_strafingTest.pos.v[0];
+      start.v[1] = (float)(line_length * axis.m[2].v[1]) + s_strafingTest.pos.v[1];
+      start.v[2] = (float)(line_length * axis.m[2].v[2]) + s_strafingTest.pos.v[2];
+      CG_DebugLine(&s_strafingTest.pos, &start, &colorBlue, 0, 1);
     }
-    CG_DebugLine(&start, &end, &colorYellow, 0, 1);
-    __asm
+    v24 = (float)((float)(v17 * out.v[0]) + (float)((float)(v10 * (float)(1.0 / *(float *)&_XMM0)) * out.v[1])) + (float)((float)(0.0 * (float)(1.0 / *(float *)&_XMM0)) * out.v[2]);
+    if ( v24 > 0.0 != lastSide )
     {
-      vmulss  xmm1, xmm8, dword ptr [rsp+1A0h+out]
-      vaddss  xmm7, xmm1, dword ptr cs:s_strafingTest.pos
-      vmulss  xmm0, xmm8, dword ptr [rsp+1A0h+out+4]
-      vaddss  xmm6, xmm0, dword ptr cs:s_strafingTest.pos+4
-      vaddss  xmm0, xmm7, dword ptr [rsp+1A0h+var_140]
-      vaddss  xmm1, xmm6, dword ptr [rsp+1A0h+var_140+4]
-      vmulss  xmm2, xmm8, dword ptr [rsp+1A0h+out+8]
-      vaddss  xmm5, xmm2, dword ptr cs:s_strafingTest.pos+8
-      vmovss  dword ptr [rsp+1A0h+start], xmm0
-      vaddss  xmm0, xmm5, dword ptr [rsp+1A0h+var_140+8]
-      vmovss  dword ptr [rsp+1A0h+start+4], xmm1
-      vsubss  xmm1, xmm7, dword ptr [rsp+1A0h+var_140]
-      vmovss  dword ptr [rsp+1A0h+start+8], xmm0
-      vsubss  xmm0, xmm6, dword ptr [rsp+1A0h+var_140+4]
-      vmovss  dword ptr [rsp+1A0h+end], xmm1
-      vsubss  xmm1, xmm5, dword ptr [rsp+1A0h+var_140+8]
-      vmovss  dword ptr [rsp+1A0h+end+4], xmm0
-      vmovss  dword ptr [rsp+1A0h+end+8], xmm1
+      lastSide = v24 > 0.0;
+      v25 = (lastState[v24 <= 0.0] - 1) & 1;
+      lastState[v24 <= 0.0] = v25;
+      CG_LatencyTestMP_StrafingTest_ToggleState(localClientNum, (CgLatencyTestState)v25, (CgLatencyTestStrafeDir)(v24 <= 0.0));
     }
-    CG_DebugLine(&start, &end, &colorYellow, 0, 1);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@c3480000
-      vmulss  xmm4, xmm2, dword ptr [rsp+1A0h+out]
-      vmulss  xmm3, xmm2, dword ptr [rsp+1A0h+out+4]
-      vaddss  xmm5, xmm4, dword ptr cs:s_strafingTest.pos
-      vaddss  xmm6, xmm3, dword ptr cs:s_strafingTest.pos+4
-      vaddss  xmm0, xmm5, dword ptr [rsp+1A0h+var_140]
-      vaddss  xmm1, xmm6, dword ptr [rsp+1A0h+var_140+4]
-      vmulss  xmm2, xmm2, dword ptr [rsp+1A0h+out+8]
-      vaddss  xmm7, xmm2, dword ptr cs:s_strafingTest.pos+8
-      vmovss  dword ptr [rsp+1A0h+start], xmm0
-      vaddss  xmm0, xmm7, dword ptr [rsp+1A0h+var_140+8]
-      vmovss  dword ptr [rsp+1A0h+start+4], xmm1
-      vsubss  xmm1, xmm5, dword ptr [rsp+1A0h+var_140]
-      vmovss  dword ptr [rsp+1A0h+start+8], xmm0
-      vsubss  xmm0, xmm6, dword ptr [rsp+1A0h+var_140+4]
-      vmovss  dword ptr [rsp+1A0h+end], xmm1
-      vsubss  xmm1, xmm7, dword ptr [rsp+1A0h+var_140+8]
-      vmovss  dword ptr [rsp+1A0h+end+4], xmm0
-      vmovss  dword ptr [rsp+1A0h+end+8], xmm1
-    }
-    CG_DebugLine(&start, &end, &colorYellow, 0, 1);
-  }
-  v73 = DVARBOOL_cg_drawLatencyTest;
-  __asm { vmovaps xmm6, [rsp+1A0h+var_38+8] }
-  if ( !DVARBOOL_cg_drawLatencyTest && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawLatencyTest") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v73);
-  v75 = 0;
-  v76 = !v73->current.enabled;
-  if ( v73->current.enabled )
-  {
-    __asm
-    {
-      vmovss  xmm3, cs:line_length
-      vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+axis]
-      vaddss  xmm2, xmm1, dword ptr cs:s_strafingTest.pos
-      vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+axis+4]
-      vmovss  dword ptr [rsp+1A0h+start], xmm2
-      vaddss  xmm2, xmm1, dword ptr cs:s_strafingTest.pos+4
-      vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+axis+8]
-      vmovss  dword ptr [rsp+1A0h+start+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr cs:s_strafingTest.pos+8
-      vmovss  dword ptr [rsp+1A0h+start+8], xmm2
-    }
-    CG_DebugLine(&s_strafingTest.pos, &start, &colorRed, 0, 1);
-    __asm
-    {
-      vmovss  xmm3, cs:line_length
-      vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+axis+0Ch]
-      vaddss  xmm2, xmm1, dword ptr cs:s_strafingTest.pos
-      vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+axis+10h]
-      vmovss  dword ptr [rsp+1A0h+start], xmm2
-      vaddss  xmm2, xmm1, dword ptr cs:s_strafingTest.pos+4
-      vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+axis+14h]
-      vmovss  dword ptr [rsp+1A0h+start+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr cs:s_strafingTest.pos+8
-      vmovss  dword ptr [rsp+1A0h+start+8], xmm2
-    }
-    CG_DebugLine(&s_strafingTest.pos, &start, &colorGreen, 0, 1);
-    __asm
-    {
-      vmovss  xmm3, cs:line_length
-      vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+axis+18h]
-      vaddss  xmm2, xmm1, dword ptr cs:s_strafingTest.pos
-      vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+axis+1Ch]
-      vmovss  dword ptr [rsp+1A0h+start], xmm2
-      vaddss  xmm2, xmm1, dword ptr cs:s_strafingTest.pos+4
-      vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+axis+20h]
-      vmovss  dword ptr [rsp+1A0h+start+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr cs:s_strafingTest.pos+8
-      vmovss  dword ptr [rsp+1A0h+start+8], xmm2
-    }
-    CG_DebugLine(&s_strafingTest.pos, &start, &colorBlue, 0, 1);
-  }
-  __asm
-  {
-    vmulss  xmm2, xmm11, dword ptr [rsp+1A0h+out+4]
-    vmulss  xmm3, xmm10, dword ptr [rsp+1A0h+out]
-    vmulss  xmm1, xmm12, dword ptr [rsp+1A0h+out+8]
-    vmovaps xmm12, [rsp+1A0h+var_98+8]
-    vmovaps xmm11, [rsp+1A0h+var_88+8]
-    vmovaps xmm10, [rsp+1A0h+var_78+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vcomiss xmm2, xmm9
-  }
-  if ( !(v75 | v76) != lastSide )
-  {
-    lastSide = !(v75 | v76);
-    v106 = (lastState[v75 | v76] - 1) & 1;
-    lastState[v75 | v76] = v106;
-    CG_LatencyTestMP_StrafingTest_ToggleState(localClientNum, (CgLatencyTestState)v106, (CgLatencyTestStrafeDir)(v75 | v76));
-  }
-  __asm
-  {
-    vmovaps xmm8, [rsp+1A0h+var_58+8]
-    vmovaps xmm7, [rsp+1A0h+var_48+8]
-    vmovaps xmm9, [rsp+1A0h+var_68+8]
   }
 }
 
@@ -4250,218 +3499,114 @@ CG_LatencyTestMP_TTKTest_DrawResults
 void CG_LatencyTestMP_TTKTest_DrawResults(LocalClientNum_t localClientNum)
 {
   ClActiveClientMP *ClientMP; 
+  __int128 v3; 
   cg_t *LocalClientGlobals; 
   const ScreenPlacement *ActivePlacement; 
-  const ScreenPlacement *v10; 
   GfxFont *FontHandle; 
-  __int64 v18; 
+  __int64 v7; 
+  __int128 v8; 
   __int64 sampleCount; 
-  int v31; 
+  __int128 v10; 
+  int v11; 
   int *p_ping; 
   int *p_avgTTK; 
   int clientNum; 
-  int v35; 
-  int v36; 
-  float ha; 
-  float hb; 
-  float hc; 
-  float hd; 
+  int v15; 
+  int v16; 
+  vec4_t v17; 
+  vec4_t v18; 
+  __int128 v19; 
   __int64 h; 
-  float he; 
-  float hf; 
-  int horzAligna; 
-  int horzAlignb; 
   __int64 horzAlign; 
-  int horzAlignc; 
   __int64 vertAlign; 
-  float s1a; 
-  float s1b; 
   __int64 s1; 
-  float s1c; 
-  float v64; 
-  float v65; 
-  float v66; 
-  float v67; 
-  __int64 v68; 
-  float v69; 
-  float v70; 
-  float v71; 
-  float v72; 
-  float v73; 
-  int style; 
-  int stylea; 
-  int styleb; 
+  __int64 v24; 
   vec4_t color; 
-  vec4_t v78; 
+  vec4_t v26; 
   char dest[64]; 
 
-  __asm { vmovaps [rsp+138h+var_38], xmm6 }
   ClientMP = ClActiveClientMP::GetClientMP(localClientNum);
-  __asm { vmovss  xmm6, cs:BOX_TOP_0 }
+  v3 = LODWORD(BOX_TOP_0);
   if ( s_ttkTest.sampleCount > 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+138h+var_48], xmm7
-      vmovaps [rsp+138h+var_58], xmm8
-    }
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-    __asm { vmovss  xmm2, cs:FONT_SCALE_1; scale }
-    v10 = ActivePlacement;
-    UI_GetFontHandle(ActivePlacement, FONT_TYPE_1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, cs:HEADER_FONT_SCALE_1; scale
-      vmovss  xmm7, cs:__real@3f800000
-    }
-    FontHandle = UI_GetFontHandle(v10, FONT_TYPE_1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm0, cs:LINE_HEIGHT_0
-      vmovss  xmm3, cs:BOX_WIDTH_0; w
-      vmovss  xmm1, cs:BOX_LEFT_0; x
-      vmovss  [rsp+138h+style], xmm7
-      vmovss  dword ptr [rsp+138h+var_F0], xmm7
-      vxorps  xmm8, xmm8, xmm8
-      vmovss  dword ptr [rsp+138h+var_F8], xmm8
-      vmovss  [rsp+138h+s1], xmm8
-    }
-    v18 = (LOBYTE(s_ttkTest.sampleCount) - 1) & 0x3F;
-    __asm
-    {
-      vmovaps xmm2, xmm6; y
-      vmovss  [rsp+138h+h], xmm0
-    }
-    CL_DrawStretchPic(v10, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, ha, 4, 4, s1a, v64, v71, *(float *)&style, &colorWhite, cgMedia.whiteMaterial);
-    __asm { vaddss  xmm6, xmm6, cs:LINE_HEIGHT_0 }
+    UI_GetFontHandle(ActivePlacement, FONT_TYPE_1, FONT_SCALE_1);
+    FontHandle = UI_GetFontHandle(ActivePlacement, FONT_TYPE_1, HEADER_FONT_SCALE_1);
+    v7 = (LOBYTE(s_ttkTest.sampleCount) - 1) & 0x3F;
+    CL_DrawStretchPic(ActivePlacement, BOX_LEFT_0, *(float *)&v3, BOX_WIDTH_0, LINE_HEIGHT_0, 4, 4, 0.0, 0.0, 1.0, 1.0, &colorWhite, cgMedia.whiteMaterial);
+    v8 = v3;
+    *(float *)&v8 = *(float *)&v3 + LINE_HEIGHT_0;
     sampleCount = 64i64;
     if ( s_ttkTest.sampleCount < 64 )
       sampleCount = (unsigned int)s_ttkTest.sampleCount;
     Com_sprintf(dest, 0x40ui64, " LATENCY TEST TTK      Samples: %i", sampleCount);
-    __asm
-    {
-      vmovss  xmm0, cs:HEADER_FONT_SCALE_1
-      vmovss  dword ptr [rsp+138h+var_F8], xmm0
-      vmovss  xmm0, cs:BOX_LEFT_0
-      vmovss  dword ptr [rsp+138h+horzAlign], xmm6
-      vmovss  [rsp+138h+h], xmm0
-    }
-    UI_DrawText(v10, dest, 64, FontHandle, hb, *(float *)&horzAligna, 4, 4, v65, &colorBlack, 3);
-    __asm
-    {
-      vmovss  xmm0, cs:LINE_HEIGHT_0
-      vmovss  xmm3, cs:BOX_WIDTH_0; w
-      vmovss  xmm1, cs:BOX_LEFT_0; x
-      vmovss  [rsp+138h+style], xmm7
-      vmovss  dword ptr [rsp+138h+var_F0], xmm7
-      vmovss  dword ptr [rsp+138h+var_F8], xmm8
-      vmovss  [rsp+138h+s1], xmm8
-      vmovss  [rsp+138h+h], xmm0
-      vmovaps xmm2, xmm6; y
-    }
-    CL_DrawStretchPic(v10, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, hc, 4, 4, s1b, v66, v72, *(float *)&stylea, &colorBlack, cgMedia.whiteMaterial);
-    __asm { vaddss  xmm6, xmm6, cs:LINE_HEIGHT_0 }
+    UI_DrawText(ActivePlacement, dest, 64, FontHandle, BOX_LEFT_0, *(float *)&v8, 4, 4, HEADER_FONT_SCALE_1, &colorBlack, 3);
+    CL_DrawStretchPic(ActivePlacement, BOX_LEFT_0, *(float *)&v8, BOX_WIDTH_0, LINE_HEIGHT_0, 4, 4, 0.0, 0.0, 1.0, 1.0, &colorBlack, cgMedia.whiteMaterial);
+    *(float *)&v8 = *(float *)&v8 + LINE_HEIGHT_0;
+    v10 = v8;
     Com_sprintf(dest, 0x40ui64, " CL | PING | FIRING | DEATH |  TTK |  AVG");
-    __asm
-    {
-      vmovss  xmm0, cs:HEADER_FONT_SCALE_1
-      vmovss  dword ptr [rsp+138h+var_F8], xmm0
-      vmovss  xmm0, cs:BOX_LEFT_0
-      vmovss  dword ptr [rsp+138h+horzAlign], xmm6
-      vmovss  [rsp+138h+h], xmm0
-    }
-    UI_DrawText(v10, dest, 64, FontHandle, hd, *(float *)&horzAlignb, 4, 4, v67, &colorWhite, 3);
-    v31 = 0;
+    UI_DrawText(ActivePlacement, dest, 64, FontHandle, BOX_LEFT_0, *(float *)&v8, 4, 4, HEADER_FONT_SCALE_1, &colorWhite, 3);
+    v11 = 0;
     if ( cls.maxClients > 0 )
     {
-      p_ping = &s_ttkTest.samples[0][v18].ping;
+      p_ping = &s_ttkTest.samples[0][v7].ping;
       p_avgTTK = &s_ttkTest.results[0].avgTTK;
       do
       {
-        if ( CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v31) && v31 < 3 )
+        if ( CG_LatencyTestMP_IsClientActive(LocalClientGlobals, v11) && v11 < 3 )
         {
           clientNum = LocalClientGlobals->clientNum;
-          if ( clientNum == s_ttkTest.testingClientNum || clientNum == v31 )
+          if ( clientNum == s_ttkTest.testingClientNum || clientNum == v11 )
           {
-            v35 = *(p_ping - 1);
-            v36 = *(p_ping - 2);
-            if ( v35 <= 0 )
+            v15 = *(p_ping - 1);
+            v16 = *(p_ping - 2);
+            if ( v15 <= 0 )
             {
-              if ( v36 <= 0 )
+              if ( v16 <= 0 )
               {
                 LODWORD(horzAlign) = *p_avgTTK % 10000;
                 LODWORD(h) = *p_ping;
-                Com_sprintf(dest, 0x40ui64, " %2i | %4i |    ... |   ... |  ... | %4i", (unsigned int)v31, h, horzAlign);
+                Com_sprintf(dest, 0x40ui64, " %2i | %4i |    ... |   ... |  ... | %4i", (unsigned int)v11, h, horzAlign);
               }
               else
               {
                 LODWORD(s1) = *p_avgTTK % 10000;
-                LODWORD(vertAlign) = (ClientMP->serverTime - v36) % 10000;
-                LODWORD(horzAlign) = v36 % 100000;
+                LODWORD(vertAlign) = (ClientMP->serverTime - v16) % 10000;
+                LODWORD(horzAlign) = v16 % 100000;
                 LODWORD(h) = *p_ping;
-                Com_sprintf(dest, 0x40ui64, " %2i | %4i |  %05i |   ... | %4i | %4i", (unsigned int)v31, h, horzAlign, vertAlign, s1);
+                Com_sprintf(dest, 0x40ui64, " %2i | %4i |  %05i |   ... | %4i | %4i", (unsigned int)v11, h, horzAlign, vertAlign, s1);
               }
-              __asm
-              {
-                vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-                vmovups xmm1, xmmword ptr cs:?colorBlack@@3Tvec4_t@@B; vec4_t const colorBlack
-              }
+              v17 = colorWhite;
+              v18 = colorBlack;
             }
             else
             {
-              LODWORD(v68) = *p_avgTTK % 10000;
-              LODWORD(s1) = (v35 - v36) % 10000;
-              LODWORD(vertAlign) = v35 % 100000;
-              LODWORD(horzAlign) = v36 % 100000;
+              LODWORD(v24) = *p_avgTTK % 10000;
+              LODWORD(s1) = (v15 - v16) % 10000;
+              LODWORD(vertAlign) = v15 % 100000;
+              LODWORD(horzAlign) = v16 % 100000;
               LODWORD(h) = *p_ping;
-              Com_sprintf(dest, 0x40ui64, " %2i | %4i |  %05i | %05i | %4i | %4i", (unsigned int)v31, h, horzAlign, vertAlign, s1, v68);
-              __asm
-              {
-                vmovups xmm0, xmmword ptr cs:?colorBlack@@3Tvec4_t@@B; vec4_t const colorBlack
-                vmovups xmm1, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-              }
+              Com_sprintf(dest, 0x40ui64, " %2i | %4i |  %05i | %05i | %4i | %4i", (unsigned int)v11, h, horzAlign, vertAlign, s1, v24);
+              v17 = colorBlack;
+              v18 = colorWhite;
             }
-            __asm
-            {
-              vmovss  xmm3, cs:BOX_WIDTH_0; w
-              vmovss  [rsp+138h+style], xmm7
-              vmovss  dword ptr [rsp+138h+var_F0], xmm7
-              vmovss  dword ptr [rsp+138h+var_F8], xmm8
-              vmovss  [rsp+138h+s1], xmm8
-              vmovups xmmword ptr [rsp+138h+var_C8], xmm0
-              vmovss  xmm0, cs:LINE_HEIGHT_0
-              vmovups xmmword ptr [rsp+138h+var_B8], xmm1
-              vmovss  xmm1, cs:BOX_LEFT_0; x
-              vmovaps xmm2, xmm6; y
-              vmovss  [rsp+138h+h], xmm0
-            }
-            CL_DrawStretchPic(v10, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, he, 4, 4, s1c, v69, v73, *(float *)&styleb, &color, cgMedia.whiteMaterial);
-            __asm
-            {
-              vmovss  xmm0, cs:HEADER_FONT_SCALE_1
-              vaddss  xmm6, xmm6, cs:LINE_HEIGHT_0
-              vmovss  dword ptr [rsp+138h+var_F8], xmm0
-              vmovss  xmm0, cs:BOX_LEFT_0
-              vmovss  dword ptr [rsp+138h+horzAlign], xmm6
-              vmovss  [rsp+138h+h], xmm0
-            }
-            UI_DrawText(v10, dest, 64, FontHandle, hf, *(float *)&horzAlignc, 4, 4, v70, &v78, 3);
+            color = v17;
+            v26 = v18;
+            CL_DrawStretchPic(ActivePlacement, BOX_LEFT_0, *(float *)&v10, BOX_WIDTH_0, LINE_HEIGHT_0, 4, 4, 0.0, 0.0, 1.0, 1.0, &color, cgMedia.whiteMaterial);
+            v19 = v10;
+            *(float *)&v19 = *(float *)&v10 + LINE_HEIGHT_0;
+            v10 = v19;
+            UI_DrawText(ActivePlacement, dest, 64, FontHandle, BOX_LEFT_0, *(float *)&v19, 4, 4, HEADER_FONT_SCALE_1, &v26, 3);
           }
         }
-        ++v31;
+        ++v11;
         p_ping += 192;
         p_avgTTK += 4;
       }
-      while ( v31 < cls.maxClients );
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+138h+var_48]
-      vmovaps xmm8, [rsp+138h+var_58]
+      while ( v11 < cls.maxClients );
     }
   }
-  __asm { vmovaps xmm6, [rsp+138h+var_38] }
 }
 
 /*

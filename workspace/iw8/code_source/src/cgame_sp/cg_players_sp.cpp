@@ -67,128 +67,105 @@ CG_PlayersSP_AddPlayerToScene
 */
 void CG_PlayersSP_AddPlayerToScene(LocalClientNum_t localClientNum, centity_t *cent, bool isFirstPerson)
 {
+  cg_t *LocalClientGlobals; 
   DObj *ClientDObj; 
   CgHandler *Handler; 
-  bool v17; 
+  __int128 viewHeightCurrent_low; 
+  float v12; 
   bool drawLegs; 
   bool drawShadow; 
-  int v22; 
+  int v15; 
   const HudOutlineDef *HudOutlineDef; 
   int outlineWidth; 
-  float v28; 
+  __m256i v18; 
   vec3_t outOrigin; 
   float characterEVOffset; 
-  GfxSceneHudOutlineInfo v31; 
-  shaderOverride_t v32; 
-  __int64 v33; 
+  GfxSceneHudOutlineInfo v21; 
+  shaderOverride_t v22; 
+  __int64 v23; 
   vec3_t outlinedEntityOrigin; 
   vec3_t playerViewOrigin; 
-  WorldUpReferenceFrame v36; 
-  void *retaddr; 
+  WorldUpReferenceFrame v26; 
 
-  _RAX = &retaddr;
-  v33 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovups ymm0, ymmword ptr cs:NULL_HUDOUTLINE_INFO_10.color
-    vmovups [rbp+70h+var_D0], ymm0
-    vmovups ymmword ptr [rsp+170h+var_108.drawOccludedPixels], ymm0
-  }
+  v23 = -2i64;
+  *(__m256i *)&v22.scrollRateX = *(__m256i *)&NULL_HUDOUTLINE_INFO_10.color;
+  *(__m256i *)&v21.color = *(__m256i *)&NULL_HUDOUTLINE_INFO_10.color;
   characterEVOffset = NULL_HUDOUTLINE_INFO_10.characterEVOffset;
-  _R13 = CG_GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( cent->pose.player.control )
   {
     ClientDObj = Com_GetClientDObj(cent->nextState.number, localClientNum);
     if ( !ClientDObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_players_sp.cpp", 446, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
       __debugbreak();
     CG_GetPoseOrigin(&cent->pose, &outOrigin);
-    if ( _R13->localClientNum == cent->nextState.number )
+    if ( LocalClientGlobals->localClientNum == cent->nextState.number )
     {
       Handler = CgHandler::getHandler(localClientNum);
-      WorldUpReferenceFrame::WorldUpReferenceFrame(&v36, &_R13->predictedPlayerState, Handler);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r13+1F0h]
-        vmulss  xmm1, xmm0, cs:__real@3f000000
-        vmaxss  xmm1, xmm1, cs:__real@41400000; height
-      }
-      WorldUpReferenceFrame::AddUpContribution(&v36, *(float *)&_XMM1, &outOrigin);
+      WorldUpReferenceFrame::WorldUpReferenceFrame(&v26, &LocalClientGlobals->predictedPlayerState, Handler);
+      viewHeightCurrent_low = LODWORD(LocalClientGlobals->predictedPlayerState.viewHeightCurrent);
+      *(float *)&viewHeightCurrent_low = LocalClientGlobals->predictedPlayerState.viewHeightCurrent * 0.5;
+      _XMM1 = viewHeightCurrent_low;
+      __asm { vmaxss  xmm1, xmm1, cs:__real@41400000; height }
+      WorldUpReferenceFrame::AddUpContribution(&v26, *(float *)&_XMM1, &outOrigin);
     }
     else
     {
       if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->nextState.lerp.eFlags, ACTIVE, 4u) )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+170h+outOrigin+8]
-          vaddss  xmm1, xmm0, cs:__real@41400000
-        }
+        v12 = outOrigin.v[2] + 12.0;
+      }
+      else if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->nextState.lerp.eFlags, ACTIVE, 3u) )
+      {
+        v12 = outOrigin.v[2] + 20.0;
       }
       else
       {
-        v17 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&cent->nextState.lerp.eFlags, ACTIVE, 3u);
-        __asm { vmovss  xmm0, dword ptr [rsp+170h+outOrigin+8] }
-        if ( v17 )
-          __asm { vaddss  xmm1, xmm0, cs:__real@41a00000 }
-        else
-          __asm { vaddss  xmm1, xmm0, cs:__real@42000000 }
+        v12 = outOrigin.v[2] + 32.0;
       }
-      __asm { vmovss  dword ptr [rsp+170h+outOrigin+8], xmm1 }
+      outOrigin.v[2] = v12;
     }
     if ( isFirstPerson )
     {
       drawLegs = CG_PlayersSP_ShouldDrawPlayerLegs(localClientNum);
       drawShadow = CG_PlayersSP_ShouldDrawPlayerShadow(localClientNum);
-      CG_Players_CalcFirstPersonModelPlacement(localClientNum, &_R13->predictedPlayerState, cent);
+      CG_Players_CalcFirstPersonModelPlacement(localClientNum, &LocalClientGlobals->predictedPlayerState, cent);
       CG_Players_AddFirstPersonBodyModelsToScene(localClientNum, cent, ClientDObj, 0x1400u, &outOrigin, 0, drawLegs, drawShadow);
     }
     else
     {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      if ( (*(_DWORD *)&_R13->predictedPlayerState.outlineData.viewmodel & 0x3F) != 0 )
+      if ( (*(_DWORD *)&LocalClientGlobals->predictedPlayerState.outlineData.viewmodel & 0x3F) != 0 )
       {
-        v22 = _R13->time - _R13->predictedPlayerState.deltaTime;
-        HudOutlineDef = BG_GetHudOutlineDef(*(_DWORD *)&_R13->predictedPlayerState.outlineData.viewmodel & 0x3F);
-        __asm
-        {
-          vmovss  dword ptr [rbp+70h+outlinedEntityOrigin], xmm6
-          vmovss  dword ptr [rbp+70h+outlinedEntityOrigin+4], xmm6
-          vmovss  dword ptr [rbp+70h+outlinedEntityOrigin+8], xmm6
-          vmovss  dword ptr [rbp+70h+playerViewOrigin], xmm6
-          vmovss  dword ptr [rbp+70h+playerViewOrigin+4], xmm6
-          vmovss  dword ptr [rbp+70h+playerViewOrigin+8], xmm6
-        }
-        v31.color = BG_HudOutline_GetColor(HudOutlineDef, _R13->hudOutlineStartTime, v22, &playerViewOrigin, &outlinedEntityOrigin);
-        v31.drawOccludedPixels = HudOutlineDef->drawOccludedPixels;
-        v31.drawNonOccludedPixels = HudOutlineDef->drawNonOccludedPixels;
+        v15 = LocalClientGlobals->time - LocalClientGlobals->predictedPlayerState.deltaTime;
+        HudOutlineDef = BG_GetHudOutlineDef(*(_DWORD *)&LocalClientGlobals->predictedPlayerState.outlineData.viewmodel & 0x3F);
+        outlinedEntityOrigin.v[0] = 0.0;
+        outlinedEntityOrigin.v[1] = 0.0;
+        outlinedEntityOrigin.v[2] = 0.0;
+        playerViewOrigin.v[0] = 0.0;
+        playerViewOrigin.v[1] = 0.0;
+        playerViewOrigin.v[2] = 0.0;
+        v21.color = BG_HudOutline_GetColor(HudOutlineDef, LocalClientGlobals->hudOutlineStartTime, v15, &playerViewOrigin, &outlinedEntityOrigin);
+        v21.drawOccludedPixels = HudOutlineDef->drawOccludedPixels;
+        v21.drawNonOccludedPixels = HudOutlineDef->drawNonOccludedPixels;
         outlineWidth = HudOutlineDef->outlineWidth;
         if ( (outlineWidth < 0 || (unsigned int)outlineWidth > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)outlineWidth, "signed", outlineWidth) )
           __debugbreak();
-        v31.lineWidth = outlineWidth;
-        v31.renderMode = HudOutlineDef->outlineType;
-        v31.fill = HudOutlineDef->drawFill;
-        __asm { vmovups ymm0, ymmword ptr [rsp+170h+var_108.drawOccludedPixels] }
+        v21.lineWidth = outlineWidth;
+        v21.renderMode = HudOutlineDef->outlineType;
+        v21.fill = HudOutlineDef->drawFill;
+        v18 = *(__m256i *)&v21.color;
       }
       else
       {
         cent->currentHudOutlineIndex = 0;
-        __asm { vmovups ymm0, [rbp+70h+var_D0] }
+        v18 = *(__m256i *)&v22.scrollRateX;
       }
-      __asm { vmovups ymmword ptr [rsp+170h+var_108.drawOccludedPixels], ymm0 }
-      v31.characterEVOffset = characterEVOffset;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_14.scrollRateX
-        vmovups [rbp+70h+var_D0], ymm0
-      }
-      v32.atlasTime = NULL_SHADER_OVERRIDE_14.atlasTime;
-      __asm { vmovss  dword ptr [rsp+170h+var_130], xmm6 }
-      CG_Entity_AddDObjToScene(localClientNum, ClientDObj, &cent->pose, cent->nextState.clientNum, 0x1400u, &v32, &v31, &outOrigin, v28, 0);
+      *(__m256i *)&v21.color = v18;
+      v21.characterEVOffset = characterEVOffset;
+      memset(&v22, 0, sizeof(v22));
+      CG_Entity_AddDObjToScene(localClientNum, ClientDObj, &cent->pose, cent->nextState.clientNum, 0x1400u, &v22, &v21, &outOrigin, 0.0, 0);
     }
   }
   memset(&outOrigin, 0, sizeof(outOrigin));
-  __asm { vmovaps xmm6, xmmword ptr [rsp+170h+var_48+8] }
 }
 
 /*
@@ -258,15 +235,15 @@ void CG_PlayersSP_AddWeaponsToPlayerShadowDObj(LocalClientNum_t localClientNum, 
   const XModel *model; 
   bool v22; 
   const char *WeaponName; 
-  const WeaponDef *v27; 
-  XModel *v28; 
-  const centity_t *v29; 
+  const WeaponDef *v24; 
+  XModel *v25; 
+  const centity_t *v26; 
   DObjModel *outDObjModel; 
   unsigned __int16 *inoutModelIndex; 
   unsigned __int16 numModels[2]; 
-  LocalClientNum_t v33; 
+  LocalClientNum_t v30; 
   playerState_s *p_predictedPlayerState; 
-  const centity_t *v35; 
+  const centity_t *v32; 
   XAnimIKTagRequest result; 
   XAnimIKTagRequest tagRequest; 
   XAnimWeaponIKModelsContainer weaponModels; 
@@ -274,9 +251,9 @@ void CG_PlayersSP_AddWeaponsToPlayerShadowDObj(LocalClientNum_t localClientNum, 
   DObjModel inoutDObjModels[32]; 
   char output[1024]; 
 
-  v35 = cent;
+  v32 = cent;
   v3 = localClientNum;
-  v33 = localClientNum;
+  v30 = localClientNum;
   LocalClientGlobals = CgGlobalsSP::GetLocalClientGlobals(localClientNum);
   v5 = CG_GetLocalClientGlobals(v3);
   number = cent->nextState.number;
@@ -314,7 +291,7 @@ void CG_PlayersSP_AddWeaponsToPlayerShadowDObj(LocalClientNum_t localClientNum, 
     while ( v9 <= v12 );
     if ( v13 < numModels[0] )
       v10 = v13;
-    v3 = v33;
+    v3 = v30;
   }
   if ( CharacterInfo->dobjThrownWeapon.weaponIdx )
   {
@@ -358,24 +335,17 @@ void CG_PlayersSP_AddWeaponsToPlayerShadowDObj(LocalClientNum_t localClientNum, 
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_players_sp.cpp", 203, ASSERT_TYPE_ASSERT, "(modelAdded)", "%s\n\tFailed to add IK target in xmodel because we reached the maximum number of %d for weapon %s", "modelAdded", inoutModelIndex, WeaponName) )
         __debugbreak();
     }
-    _RAX = XAnimIKSetupTagRequest(&result, &CharacterInfo->dobjHeldWeapon, CharacterInfo->isUsingWeaponAltMode == 1, v22, 0, CharacterInfo->dualWielding == 1);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+0F40h+tagRequest.weapon.weaponIdx], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rbp+0F40h+tagRequest.weapon.attachmentVariationIndices+5], ymm1
-    }
+    tagRequest = *XAnimIKSetupTagRequest(&result, &CharacterInfo->dobjHeldWeapon, CharacterInfo->isUsingWeaponAltMode == 1, v22, 0, CharacterInfo->dualWielding == 1);
     XAnimIKAttachTargetToWeapon(XANIM_IK_ACTOR_RIGHT_HAND, cg_tagIKTargetModelRight, &weaponModels, &tagRequest, inoutDObjModels, numModels, (CharacterModelType (*)[32])outModelTypes);
     if ( CharacterInfo->dualWielding )
     {
       tagRequest.requiresAkimboIK = 1;
-      v27 = BG_WeaponDef(&CharacterInfo->dobjHeldWeapon, 0);
-      v28 = BG_Weapons_SelectModel(WEAPON_HAND_LEFT, v27->playerShadowModel, v27->playerShadowModelLeftHand, v27->playerShadowModelRightHand);
-      if ( v28 )
+      v24 = BG_WeaponDef(&CharacterInfo->dobjHeldWeapon, 0);
+      v25 = BG_Weapons_SelectModel(WEAPON_HAND_LEFT, v24->playerShadowModel, v24->playerShadowModelLeftHand, v24->playerShadowModelRightHand);
+      if ( v25 )
       {
-        if ( v28 != model )
-          model = v28;
+        if ( v25 != model )
+          model = v25;
       }
     }
     XAnimWeaponIKModelsContainer::ReplaceXModel(&weaponModels, 0, WEAPON_HAND_LEFT, model);
@@ -383,9 +353,9 @@ void CG_PlayersSP_AddWeaponsToPlayerShadowDObj(LocalClientNum_t localClientNum, 
   }
   if ( numModels[0] != 1 || ClientDObj->numModels != 1 || ClientDObj->tree != CharacterInfo->pXAnimTree )
   {
-    v29 = v35;
-    Com_SafeClientDObjFree(v35->nextState.number, v3);
-    Com_ClientDObjCreate(inoutDObjModels, numModels[0], CharacterInfo->pXAnimTree, v29->nextState.number, v3, v10 >= 0, v29->nextState.number);
+    v26 = v32;
+    Com_SafeClientDObjFree(v32->nextState.number, v3);
+    Com_ClientDObjCreate(inoutDObjModels, numModels[0], CharacterInfo->pXAnimTree, v26->nextState.number, v3, v10 >= 0, v26->nextState.number);
   }
 }
 
@@ -439,14 +409,23 @@ CG_PlayersSP_PrePlayer
 */
 void CG_PlayersSP_PrePlayer(LocalClientNum_t localClientNum, centity_t *cent)
 {
+  __int128 v2; 
   cg_t *LocalClientGlobalsForEnt; 
   const DObj *ClientDObj; 
   int number; 
   CgStatic *LocalClientStatics; 
+  const Weapon *p_weapon; 
+  characterInfo_t *CharacterInfo; 
   bool hideWeapon; 
-  double v18; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
   unsigned int Animset; 
-  XAnimOwner v20; 
+  XAnimOwner v18; 
+  double v19; 
+  double v20; 
   const PlayerEquippedWeaponState *EquippedWeaponStateConst; 
   BOOL v22; 
   int enableVehicleOccupancyAnimations; 
@@ -456,13 +435,16 @@ void CG_PlayersSP_PrePlayer(LocalClientNum_t localClientNum, centity_t *cent)
   int hybridScope; 
   bool v28; 
   CgWeaponMap *Instance; 
-  bool v36; 
+  bool v30; 
   __int16 groundRefEnt; 
-  char v38; 
-  LocalClientNum_t v39; 
-  CgGlobalsSP *v40; 
-  CgStatic *v41; 
-  bool v43; 
+  char v32; 
+  LocalClientNum_t v33; 
+  CgGlobalsSP *v34; 
+  CgStatic *v35; 
+  characterInfo_t *v36; 
+  double v37; 
+  double v38; 
+  bool v39; 
   int offhandShieldDeployed; 
   int dualWielding; 
   CgGlobalsSP *LocalClientGlobals; 
@@ -471,6 +453,7 @@ void CG_PlayersSP_PrePlayer(LocalClientNum_t localClientNum, centity_t *cent)
   vec3_t outAngles; 
   vec3_t movingPlatformOrigin; 
   vec3_t outOrigin; 
+  __int128 v49; 
 
   if ( !Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_CUT_CHUTE_LOW) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_players_sp.cpp", 266, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ANIMATION ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::PLAYER_ANIMATION )") )
     __debugbreak();
@@ -501,131 +484,104 @@ void CG_PlayersSP_PrePlayer(LocalClientNum_t localClientNum, centity_t *cent)
 LABEL_22:
       if ( number == LocalClientGlobalsForEnt->predictedPlayerState.clientNum )
       {
-        __asm { vmovaps [rsp+0E8h+var_48], xmm6 }
+        v49 = v2;
         LocalClientStatics = CgStatic::GetLocalClientStatics(localClientNum);
         LocalClientGlobals = CgGlobalsSP::GetLocalClientGlobals(localClientNum);
-        _R12 = &LocalClientGlobals->playerWeaponInfo.weapon;
+        p_weapon = &LocalClientGlobals->playerWeaponInfo.weapon;
         weaponMap = CgWeaponMap::GetInstance(localClientNum);
         handler = CgHandler::getHandler(localClientNum);
-        _RDI = CgStatic::GetCharacterInfo(LocalClientStatics, cent->nextState.number);
-        offhandShieldDeployed = _RDI->offhandShieldDeployed;
-        dualWielding = _RDI->dualWielding;
-        hideWeapon = _RDI->hideWeapon;
-        _RDI->playerAngles = LocalClientGlobalsForEnt->predictedPlayerState.viewangles;
-        v43 = hideWeapon;
-        *(double *)&_XMM0 = BG_MovementDirToDegrees(cent->nextState.lerp.u.player.movementDir);
-        __asm { vmovss  dword ptr [rdi+8BCh], xmm0 }
-        BG_SlopeWorldmodel_Unpack(&cent->nextState.lerp.u.player.slopePacked, &_RDI->groundNormalInterpolated);
-        _RDI->leftStickInputInterpolated = BG_PackedPolarCoordsToCartesian(cent->nextState.lerp.u.player.leftStickPolarPacked);
-        __asm { vmovss  xmm6, cs:__real@3f800000 }
-        _RDI->rightStickInputInterpolated = BG_PackedPolarCoordsToCartesian(cent->nextState.lerp.u.player.rightStickPolarPacked);
-        __asm { vmovaps xmm1, xmm6; maxAbsValueSize }
-        *(double *)&_XMM0 = MSG_UnpackSignedFloat(cent->nextState.lerp.u.player.extraAnimData.anonymous.data[0], *(float *)&_XMM1, 0x10u);
-        __asm
-        {
-          vmovss  dword ptr [rdi+904h], xmm0
-          vmovaps xmm1, xmm6; maxAbsValueSize
-        }
-        *(double *)&_XMM0 = MSG_UnpackSignedFloat(cent->nextState.lerp.u.player.extraAnimData.anonymous.data[1], *(float *)&_XMM1, 0x10u);
-        __asm
-        {
-          vmovss  dword ptr [rdi+908h], xmm0
-          vmovaps xmm1, xmm6; maxAbsValueSize
-        }
-        *(double *)&_XMM0 = MSG_UnpackSignedFloat(cent->nextState.lerp.u.player.extraAnimData.anonymous.data[2], *(float *)&_XMM1, 0x10u);
-        __asm
-        {
-          vmovss  dword ptr [rdi+90Ch], xmm0
-          vmovaps xmm6, [rsp+0E8h+var_48]
-        }
+        CharacterInfo = CgStatic::GetCharacterInfo(LocalClientStatics, cent->nextState.number);
+        offhandShieldDeployed = CharacterInfo->offhandShieldDeployed;
+        dualWielding = CharacterInfo->dualWielding;
+        hideWeapon = CharacterInfo->hideWeapon;
+        CharacterInfo->playerAngles = LocalClientGlobalsForEnt->predictedPlayerState.viewangles;
+        v39 = hideWeapon;
+        v12 = BG_MovementDirToDegrees(cent->nextState.lerp.u.player.movementDir);
+        CharacterInfo->lerpMoveDir = *(float *)&v12;
+        BG_SlopeWorldmodel_Unpack(&cent->nextState.lerp.u.player.slopePacked, &CharacterInfo->groundNormalInterpolated);
+        CharacterInfo->leftStickInputInterpolated = BG_PackedPolarCoordsToCartesian(cent->nextState.lerp.u.player.leftStickPolarPacked);
+        CharacterInfo->rightStickInputInterpolated = BG_PackedPolarCoordsToCartesian(cent->nextState.lerp.u.player.rightStickPolarPacked);
+        v13 = MSG_UnpackSignedFloat(cent->nextState.lerp.u.player.extraAnimData.anonymous.data[0], 1.0, 0x10u);
+        CharacterInfo->skydivePitchInterpolated = *(float *)&v13;
+        v14 = MSG_UnpackSignedFloat(cent->nextState.lerp.u.player.extraAnimData.anonymous.data[1], 1.0, 0x10u);
+        CharacterInfo->skydiveRollInterpolated = *(float *)&v14;
+        v15 = MSG_UnpackSignedFloat(cent->nextState.lerp.u.player.extraAnimData.anonymous.data[2], 1.0, 0x10u);
+        CharacterInfo->skydiveThrottleInterpolated = *(float *)&v15;
         if ( PlayerASM_IsEnabled() )
         {
-          v18 = BG_MovementDirToDegrees(cent->nextState.lerp.u.player.velocityDir);
-          BG_PlayerASM_UpdateAngles(*(const float *)&v18, _RDI);
+          v16 = BG_MovementDirToDegrees(cent->nextState.lerp.u.player.velocityDir);
+          BG_PlayerASM_UpdateAngles(*(const float *)&v16, CharacterInfo);
         }
-        CG_Players_CopyAnimStateFromEntity(_RDI, &cent->nextState);
+        CG_Players_CopyAnimStateFromEntity(CharacterInfo, &cent->nextState);
         if ( PlayerASM_IsEnabled() )
         {
-          Animset = BG_PlayerASM_GetAnimset(_RDI);
-          LOBYTE(v20) = 1;
-          if ( BG_PlayersASM_ResetAnimTree(Animset, CG_MainSP_AllocXAnimClient, v20, _RDI) )
-            _RDI->dobjDirty = 1;
+          Animset = BG_PlayerASM_GetAnimset(CharacterInfo);
+          LOBYTE(v18) = 1;
+          if ( BG_PlayersASM_ResetAnimTree(Animset, CG_MainSP_AllocXAnimClient, v18, CharacterInfo) )
+            CharacterInfo->dobjDirty = 1;
         }
-        *(double *)&_XMM0 = BG_AnimationMP_UnpackPitch(cent->nextState.lerp.u.player.torsoPitchPacked);
-        __asm { vmovss  dword ptr [rdi+0AD0h], xmm0 }
-        *(double *)&_XMM0 = BG_AnimationMP_UnpackPitch(cent->nextState.lerp.u.player.waistPitchPacked);
-        _RDI->offhandShieldDeployed = 0;
-        __asm { vmovss  dword ptr [rdi+0AD4h], xmm0 }
+        v19 = BG_AnimationMP_UnpackPitch(cent->nextState.lerp.u.player.torsoPitchPacked);
+        CharacterInfo->fTorsoPitch = *(float *)&v19;
+        v20 = BG_AnimationMP_UnpackPitch(cent->nextState.lerp.u.player.waistPitchPacked);
+        CharacterInfo->offhandShieldDeployed = 0;
+        CharacterInfo->fWaistPitch = *(float *)&v20;
         if ( !weaponMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1135, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
           __debugbreak();
         if ( LocalClientGlobalsForEnt == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1136, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
           __debugbreak();
-        v22 = !BG_Skydive_IsSkydiving(&LocalClientGlobalsForEnt->predictedPlayerState) && BG_Ladder_IsDualWieldingAllowed(&LocalClientGlobalsForEnt->predictedPlayerState) && (EquippedWeaponStateConst = BG_GetEquippedWeaponStateConst(weaponMap, &LocalClientGlobalsForEnt->predictedPlayerState, _R12)) != NULL && EquippedWeaponStateConst->dualWielding;
-        enableVehicleOccupancyAnimations = _RDI->enableVehicleOccupancyAnimations;
-        _RDI->dualWielding = v22;
-        _RDI->hideWeapon = LocalClientGlobals->playerWeaponInfo.isWeaponHidden;
-        *(_QWORD *)&_RDI->isOnWall = 0i64;
-        _RDI->animLinkedToType = ANIM_LINKEDTO_NONE;
+        v22 = !BG_Skydive_IsSkydiving(&LocalClientGlobalsForEnt->predictedPlayerState) && BG_Ladder_IsDualWieldingAllowed(&LocalClientGlobalsForEnt->predictedPlayerState) && (EquippedWeaponStateConst = BG_GetEquippedWeaponStateConst(weaponMap, &LocalClientGlobalsForEnt->predictedPlayerState, p_weapon)) != NULL && EquippedWeaponStateConst->dualWielding;
+        enableVehicleOccupancyAnimations = CharacterInfo->enableVehicleOccupancyAnimations;
+        CharacterInfo->dualWielding = v22;
+        CharacterInfo->hideWeapon = LocalClientGlobals->playerWeaponInfo.isWeaponHidden;
+        *(_QWORD *)&CharacterInfo->isOnWall = 0i64;
+        CharacterInfo->animLinkedToType = ANIM_LINKEDTO_NONE;
         v24 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobalsForEnt->predictedPlayerState.otherFlags, ACTIVE, 0x1Bu);
-        _RDI->enableVehicleOccupancyAnimations = v24;
+        CharacterInfo->enableVehicleOccupancyAnimations = v24;
         if ( enableVehicleOccupancyAnimations != v24 )
-          _RDI->dobjDirty = 1;
+          CharacterInfo->dobjDirty = 1;
         CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(weaponMap, &LocalClientGlobalsForEnt->predictedPlayerState);
         v26 = BG_GetEquippedWeaponStateConst(weaponMap, &LocalClientGlobalsForEnt->predictedPlayerState, CurrentWeaponForPlayer);
         if ( v26 )
           hybridScope = v26->hybridScope;
         else
           hybridScope = 0;
-        _RDI->hybridScopeState = hybridScope;
+        CharacterInfo->hybridScopeState = hybridScope;
         if ( LocalClientGlobalsForEnt == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2222, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
           __debugbreak();
-        _RDI->usingNVG = GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&LocalClientGlobalsForEnt->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 7u);
-        v28 = memcmp_0(&_RDI->dobjHeldWeapon, _R12, 0x3Cui64) || memcmp_0(&_RDI->dobjThrownWeapon, &LocalClientGlobals->gestureWeapInfo, 0x3Cui64) || _RDI->offhandShieldDeployed != offhandShieldDeployed || _RDI->dualWielding != dualWielding || _RDI->hideWeapon != v43;
-        if ( _RDI->dobjDirty || v28 )
+        CharacterInfo->usingNVG = GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&LocalClientGlobalsForEnt->predictedPlayerState.weapCommon.weapFlags, ACTIVE, 7u);
+        v28 = memcmp_0(&CharacterInfo->dobjHeldWeapon, p_weapon, 0x3Cui64) || memcmp_0(&CharacterInfo->dobjThrownWeapon, &LocalClientGlobals->gestureWeapInfo, 0x3Cui64) || CharacterInfo->offhandShieldDeployed != offhandShieldDeployed || CharacterInfo->dualWielding != dualWielding || CharacterInfo->hideWeapon != v39;
+        if ( CharacterInfo->dobjDirty || v28 )
         {
-          __asm { vmovups ymm0, ymmword ptr [r12] }
-          _RCX = LocalClientGlobals;
-          __asm
-          {
-            vmovups ymmword ptr [rdi+5F4h], ymm0
-            vmovups xmm1, xmmword ptr [r12+20h]
-            vmovups xmmword ptr [rdi+614h], xmm1
-            vmovsd  xmm0, qword ptr [r12+30h]
-            vmovsd  qword ptr [rdi+624h], xmm0
-          }
-          *(_DWORD *)&_RDI->dobjHeldWeapon.weaponCamo = *(_DWORD *)&LocalClientGlobals->playerWeaponInfo.weapon.weaponCamo;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rcx+77E10h]
-            vmovups ymmword ptr [rdi+66Ch], ymm0
-            vmovups xmm1, xmmword ptr [rcx+77E30h]
-            vmovups xmmword ptr [rdi+68Ch], xmm1
-            vmovsd  xmm0, qword ptr [rcx+77E40h]
-            vmovsd  qword ptr [rdi+69Ch], xmm0
-          }
-          *(_DWORD *)&_RDI->dobjThrownWeapon.weaponCamo = *(_DWORD *)&LocalClientGlobals->gestureWeapInfo.offhandGestureWeapon.weaponCamo;
-          _RDI->dobjDirty = 0;
+          *(__m256i *)&CharacterInfo->dobjHeldWeapon.weaponIdx = *(__m256i *)&p_weapon->weaponIdx;
+          *(_OWORD *)&CharacterInfo->dobjHeldWeapon.attachmentVariationIndices[5] = *(_OWORD *)&LocalClientGlobals->playerWeaponInfo.weapon.attachmentVariationIndices[5];
+          *(double *)&CharacterInfo->dobjHeldWeapon.attachmentVariationIndices[21] = *(double *)&LocalClientGlobals->playerWeaponInfo.weapon.attachmentVariationIndices[21];
+          *(_DWORD *)&CharacterInfo->dobjHeldWeapon.weaponCamo = *(_DWORD *)&LocalClientGlobals->playerWeaponInfo.weapon.weaponCamo;
+          *(__m256i *)&CharacterInfo->dobjThrownWeapon.weaponIdx = *(__m256i *)&LocalClientGlobals->gestureWeapInfo.offhandGestureWeapon.weaponIdx;
+          *(_OWORD *)&CharacterInfo->dobjThrownWeapon.attachmentVariationIndices[5] = *(_OWORD *)&LocalClientGlobals->gestureWeapInfo.offhandGestureWeapon.attachmentVariationIndices[5];
+          *(double *)&CharacterInfo->dobjThrownWeapon.attachmentVariationIndices[21] = *(double *)&LocalClientGlobals->gestureWeapInfo.offhandGestureWeapon.attachmentVariationIndices[21];
+          *(_DWORD *)&CharacterInfo->dobjThrownWeapon.weaponCamo = *(_DWORD *)&LocalClientGlobals->gestureWeapInfo.offhandGestureWeapon.weaponCamo;
+          CharacterInfo->dobjDirty = 0;
           CG_PlayersSP_AddWeaponsToPlayerShadowDObj(LocalClientGlobalsForEnt->localClientNum, cent);
         }
-        BG_ContextMount_GetWorldmodelProperties(handler, &LocalClientGlobalsForEnt->predictedPlayerState, &_RDI->mount);
+        BG_ContextMount_GetWorldmodelProperties(handler, &LocalClientGlobalsForEnt->predictedPlayerState, &CharacterInfo->mount);
         CG_Players_UpdatePlayerLegsDObj(LocalClientGlobalsForEnt->localClientNum, cent);
         if ( PlayerASM_IsEnabled() )
         {
           if ( !CG_PredictPlayerASMState(localClientNum, cent) )
-            _RDI->legsPredictingForThisAnim = 0;
+            CharacterInfo->legsPredictingForThisAnim = 0;
         }
         else
         {
           CG_PredictCharacterState(localClientNum, cent);
         }
-        v36 = 0;
+        v30 = 0;
         if ( !LocalClientGlobalsForEnt->renderingThirdPerson )
         {
           Instance = CgWeaponMap::GetInstance(localClientNum);
           if ( !BG_IsThirdPersonMode(Instance, &LocalClientGlobalsForEnt->predictedPlayerState) )
-            v36 = 1;
+            v30 = 1;
         }
-        CG_Players_SetUseShadowAnims(_RDI, v36);
+        CG_Players_SetUseShadowAnims(CharacterInfo, v30);
         if ( LocalClientGlobalsForEnt == (cg_t *)-8i64 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2605, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
@@ -645,35 +601,35 @@ LABEL_22:
           __debugbreak();
         if ( BG_IsPlayerZeroGWalking(&LocalClientGlobalsForEnt->predictedPlayerState) )
 LABEL_78:
-          v38 = 0;
+          v32 = 0;
         else
-          v38 = 1;
-        _RDI->zeroGravity = v38;
+          v32 = 1;
+        CharacterInfo->zeroGravity = v32;
         ClientDObj = Com_GetClientDObj(cent->nextState.number, LocalClientGlobalsForEnt->localClientNum);
         if ( !ClientDObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_players_sp.cpp", 404, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
           __debugbreak();
-        if ( _RDI->animTreeDirty )
+        if ( CharacterInfo->animTreeDirty )
         {
           XAnimClearTree(ClientDObj);
-          _RDI->animTreeDirty = 0;
+          CharacterInfo->animTreeDirty = 0;
         }
-        CG_GameInterface_PlayersSP_PrePlayer(_RDI);
+        CG_GameInterface_PlayersSP_PrePlayer(CharacterInfo);
         CG_GetPoseOrigin(&cent->pose, &outOrigin);
         CGMovingPlatformClient::GetMoverInfoFromClientEntity(LocalClientGlobalsForEnt->localClientNum, cent, &movingPlatformOrigin, &outAngles);
-        BG_PlayerAnimation(handler, weaponMap, &cent->nextState, _RDI, &outOrigin, &movingPlatformOrigin, &outAngles);
+        BG_PlayerAnimation(handler, weaponMap, &cent->nextState, CharacterInfo, &outOrigin, &movingPlatformOrigin, &outAngles);
       }
     }
-    v39 = LocalClientGlobalsForEnt->localClientNum;
-    v40 = CgGlobalsSP::GetLocalClientGlobals(v39);
-    v41 = CgStatic::GetLocalClientStatics(v39);
-    _RBX = CgStatic::GetCharacterInfo(v41, cent->nextState.number);
-    CG_Players_CopyAnimStateFromEntity(_RBX, &cent->nextState);
-    *(double *)&_XMM0 = BG_AnimationMP_UnpackPitch(cent->nextState.lerp.u.player.torsoPitchPacked);
-    __asm { vmovss  dword ptr [rbx+0AD0h], xmm0 }
-    *(double *)&_XMM0 = BG_AnimationMP_UnpackPitch(cent->nextState.lerp.u.player.waistPitchPacked);
-    __asm { vmovss  dword ptr [rbx+0AD4h], xmm0 }
-    BG_Player_DoControllersSetup(&cent->nextState, _RBX, v40->frametime);
-    BG_Player_SetPlayerInfo(ClientDObj, &_RBX->control, (CEntPlayerInfo *)&cent->pose.160);
+    v33 = LocalClientGlobalsForEnt->localClientNum;
+    v34 = CgGlobalsSP::GetLocalClientGlobals(v33);
+    v35 = CgStatic::GetLocalClientStatics(v33);
+    v36 = CgStatic::GetCharacterInfo(v35, cent->nextState.number);
+    CG_Players_CopyAnimStateFromEntity(v36, &cent->nextState);
+    v37 = BG_AnimationMP_UnpackPitch(cent->nextState.lerp.u.player.torsoPitchPacked);
+    v36->fTorsoPitch = *(float *)&v37;
+    v38 = BG_AnimationMP_UnpackPitch(cent->nextState.lerp.u.player.waistPitchPacked);
+    v36->fWaistPitch = *(float *)&v38;
+    BG_Player_DoControllersSetup(&cent->nextState, v36, v34->frametime);
+    BG_Player_SetPlayerInfo(ClientDObj, &v36->control, (CEntPlayerInfo *)&cent->pose.160);
   }
 }
 

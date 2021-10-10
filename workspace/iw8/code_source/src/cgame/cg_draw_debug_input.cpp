@@ -74,22 +74,21 @@ CG_DrawDebugInput_GetAxis
 */
 float CG_DrawDebugInput_GetAxis(const DrawDebugInputAxis axis)
 {
-  __int64 v5; 
-  int v6; 
+  __int64 v1; 
+  __int64 v3; 
+  int v4; 
 
-  _RBX = axis;
+  v1 = axis;
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_debug_input.cpp", 165, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
-  if ( (unsigned int)_RBX >= 4 )
+  if ( (unsigned int)v1 >= 4 )
   {
-    v6 = 4;
-    LODWORD(v5) = _RBX;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_debug_input.cpp", 166, ASSERT_TYPE_ASSERT, "(unsigned)( axis ) < (unsigned)( DRAW_DEBUG_INPUT_AXIS_COUNT )", "axis doesn't index DRAW_DEBUG_INPUT_AXIS_COUNT\n\t%i not in [0, %i)", v5, v6) )
+    v4 = 4;
+    LODWORD(v3) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_debug_input.cpp", 166, ASSERT_TYPE_ASSERT, "(unsigned)( axis ) < (unsigned)( DRAW_DEBUG_INPUT_AXIS_COUNT )", "axis doesn't index DRAW_DEBUG_INPUT_AXIS_COUNT\n\t%i not in [0, %i)", v3, v4) )
       __debugbreak();
   }
-  _RCX = s_drawDebugInputState.axis;
-  __asm { vmovss  xmm0, dword ptr [rcx+rbx*4] }
-  return *(float *)&_XMM0;
+  return s_drawDebugInputState.axis[v1];
 }
 
 /*
@@ -189,49 +188,42 @@ CG_DrawDebugInput_Update
 void CG_DrawDebugInput_Update(const LocalClientNum_t localClientNum)
 {
   int ControllerFromClient; 
-  unsigned __int64 v7; 
-  char v9; 
-  char v10; 
+  unsigned __int64 v3; 
+  unsigned __int64 i; 
+  double Button; 
   int gamePadIndex; 
+  double Stick; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw_debug_input.cpp", 111, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   if ( localClientNum == LOCAL_CLIENT_0 )
   {
-    __asm { vmovaps [rsp+48h+var_18], xmm6 }
     ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
     s_drawDebugInputState.gamePadIndex = ControllerFromClient;
     if ( ControllerFromClient < 0 || !GPad_IsActive(ControllerFromClient) )
       s_drawDebugInputState.gamePadIndex = -1;
-    _RDI = 0i64;
-    _RSI = 0x140000000ui64;
-    v7 = 0i64;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    do
+    v3 = 0i64;
+    for ( i = 0i64; i < 2; ++i )
     {
-      s_drawDebugInputState.prevButtonDown[v7] = s_drawDebugInputState.buttonDown[v7];
-      s_drawDebugInputState.buttonDown[v7] = 0;
+      s_drawDebugInputState.prevButtonDown[i] = s_drawDebugInputState.buttonDown[i];
+      s_drawDebugInputState.buttonDown[i] = 0;
       if ( s_drawDebugInputState.gamePadIndex >= 0 )
       {
-        *(double *)&_XMM0 = GPad_GetButton(s_drawDebugInputState.gamePadIndex, s_butMapsGamepad[v7]);
-        __asm { vcomiss xmm0, xmm6 }
-        s_drawDebugInputState.buttonDown[v7] = !(v9 | v10);
+        Button = GPad_GetButton(s_drawDebugInputState.gamePadIndex, s_butMapsGamepad[i]);
+        s_drawDebugInputState.buttonDown[i] = *(float *)&Button > 0.0;
       }
-      s_drawDebugInputState.buttonDown[v7] |= CL_Keys_IsKeyDown(LOCAL_CLIENT_0, s_butMapsKey[v7]) != 0;
-      ++v7;
+      s_drawDebugInputState.buttonDown[i] |= CL_Keys_IsKeyDown(LOCAL_CLIENT_0, s_butMapsKey[i]) != 0;
     }
-    while ( v7 < 2 );
     gamePadIndex = s_drawDebugInputState.gamePadIndex;
-    __asm { vmovaps xmm6, [rsp+48h+var_18] }
     *(_QWORD *)s_drawDebugInputState.axis = 0i64;
     *(_QWORD *)&s_drawDebugInputState.axis[2] = 0i64;
     if ( s_drawDebugInputState.gamePadIndex >= 0 )
     {
       while ( 1 )
       {
-        *(double *)&_XMM0 = GPad_GetStick(gamePadIndex, s_axisMapsGamepad[_RDI]);
-        __asm { vmovss  dword ptr [rdi+rsi+8C4BBA8h], xmm0 }
-        if ( (unsigned __int64)++_RDI >= 4 )
+        Stick = GPad_GetStick(gamePadIndex, s_axisMapsGamepad[v3]);
+        s_drawDebugInputState.axis[v3++] = *(float *)&Stick;
+        if ( v3 >= 4 )
           break;
         gamePadIndex = s_drawDebugInputState.gamePadIndex;
       }

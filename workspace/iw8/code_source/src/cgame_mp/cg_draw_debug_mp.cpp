@@ -599,46 +599,34 @@ CG_DrawDebugMP_ClearCommandsProcessed
 */
 void CG_DrawDebugMP_ClearCommandsProcessed(int clientNum)
 {
+  int *commandsProcessedOnSnapshot; 
   __int64 v2; 
+  int *commandsProcessed; 
+  __int128 v4; 
 
   if ( cg_t::ms_allocatedCount > 0 && clientNum == CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->predictedPlayerState.clientNum )
   {
-    _RDX = g_snapshotCollectedInfo[0].commandsProcessedOnSnapshot;
+    commandsProcessedOnSnapshot = g_snapshotCollectedInfo[0].commandsProcessedOnSnapshot;
     v2 = 6i64;
-    _RAX = g_snapshotCollectedInfo[0].commandsProcessed;
+    commandsProcessed = g_snapshotCollectedInfo[0].commandsProcessed;
     do
     {
-      _RDX += 32;
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      _RAX += 32;
-      __asm
-      {
-        vmovups xmmword ptr [rdx-80h], xmm0
-        vmovups xmm1, xmmword ptr [rax-70h]
-        vmovups xmmword ptr [rdx-70h], xmm1
-        vmovups xmm0, xmmword ptr [rax-60h]
-        vmovups xmmword ptr [rdx-60h], xmm0
-        vmovups xmm1, xmmword ptr [rax-50h]
-        vmovups xmmword ptr [rdx-50h], xmm1
-        vmovups xmm0, xmmword ptr [rax-40h]
-        vmovups xmmword ptr [rdx-40h], xmm0
-        vmovups xmm1, xmmword ptr [rax-30h]
-        vmovups xmmword ptr [rdx-30h], xmm1
-        vmovups xmm0, xmmword ptr [rax-20h]
-        vmovups xmmword ptr [rdx-20h], xmm0
-        vmovups xmm1, xmmword ptr [rax-10h]
-        vmovups xmmword ptr [rdx-10h], xmm1
-      }
+      commandsProcessedOnSnapshot += 32;
+      v4 = *(_OWORD *)commandsProcessed;
+      commandsProcessed += 32;
+      *((_OWORD *)commandsProcessedOnSnapshot - 8) = v4;
+      *((_OWORD *)commandsProcessedOnSnapshot - 7) = *((_OWORD *)commandsProcessed - 7);
+      *((_OWORD *)commandsProcessedOnSnapshot - 6) = *((_OWORD *)commandsProcessed - 6);
+      *((_OWORD *)commandsProcessedOnSnapshot - 5) = *((_OWORD *)commandsProcessed - 5);
+      *((_OWORD *)commandsProcessedOnSnapshot - 4) = *((_OWORD *)commandsProcessed - 4);
+      *((_OWORD *)commandsProcessedOnSnapshot - 3) = *((_OWORD *)commandsProcessed - 3);
+      *((_OWORD *)commandsProcessedOnSnapshot - 2) = *((_OWORD *)commandsProcessed - 2);
+      *((_OWORD *)commandsProcessedOnSnapshot - 1) = *((_OWORD *)commandsProcessed - 1);
       --v2;
     }
     while ( v2 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rdx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rdx+10h], xmm1
-    }
+    *(_OWORD *)commandsProcessedOnSnapshot = *(_OWORD *)commandsProcessed;
+    *((_OWORD *)commandsProcessedOnSnapshot + 1) = *((_OWORD *)commandsProcessed + 1);
     memset_0(g_snapshotCollectedInfo[0].commandsProcessed, 0, sizeof(g_snapshotCollectedInfo[0].commandsProcessed));
   }
 }
@@ -657,37 +645,36 @@ void CG_DrawDebugMP_DrawBoxAroundPlayer(const LocalClientNum_t localClientNum, c
   const characterInfo_t *CharacterInfo; 
   EffectiveStance v13; 
   Bounds *outCollisionBounds; 
-  __int64 v16; 
+  __int64 v15; 
   vec3_t outOrigin; 
-  __int64 v18; 
+  __int64 v17; 
   Bounds bounds; 
 
-  v18 = -2i64;
-  _RSI = cent;
+  v17 = -2i64;
   v8 = localClientNum;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 2723, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
-  if ( (_RSI->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 2724, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
+  if ( (cent->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 2724, ASSERT_TYPE_ASSERT, "(CENextValid( cent ))", (const char *)&queryFormat, "CENextValid( cent )") )
     __debugbreak();
   if ( !(_BYTE)CgStatic::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 110, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the client game statics for localClientNum %d but the ype is not known\n", "ms_allocatedType != GameModeType::NONE", v8) )
     __debugbreak();
   if ( (unsigned int)v8 >= LODWORD(CgStatic::ms_allocatedCount) )
   {
-    *(float *)&v16 = CgStatic::ms_allocatedCount;
+    *(float *)&v15 = CgStatic::ms_allocatedCount;
     LODWORD(outCollisionBounds) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 111, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", outCollisionBounds, v16) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 111, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", outCollisionBounds, v15) )
       __debugbreak();
   }
   if ( !CgStatic::ms_cgameStaticsArray[v8] )
   {
-    LODWORD(v16) = v8;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 112, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum])", "%s\n\tTrying to access unallocated client game statics for localClientNum %d\n", "ms_cgameStaticsArray[localClientNum]", v16) )
+    LODWORD(v15) = v8;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static.h", 112, ASSERT_TYPE_ASSERT, "(ms_cgameStaticsArray[localClientNum])", "%s\n\tTrying to access unallocated client game statics for localClientNum %d\n", "ms_cgameStaticsArray[localClientNum]", v15) )
       __debugbreak();
   }
   v9 = CgStatic::ms_cgameStaticsArray[v8];
   if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 2727, ASSERT_TYPE_ASSERT, "(cgameStatic)", (const char *)&queryFormat, "cgameStatic") )
     __debugbreak();
-  clientNum = _RSI->nextState.clientNum;
+  clientNum = cent->nextState.clientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v9->m_localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
@@ -695,9 +682,9 @@ void CG_DrawDebugMP_DrawBoxAroundPlayer(const LocalClientNum_t localClientNum, c
   {
     if ( (unsigned int)clientNum >= LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified )
     {
-      LODWORD(v16) = LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified;
+      LODWORD(v15) = LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified;
       LODWORD(outCollisionBounds) = clientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", outCollisionBounds, v16) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", outCollisionBounds, v15) )
         __debugbreak();
     }
     CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[62] + 14792 * clientNum);
@@ -708,11 +695,10 @@ void CG_DrawDebugMP_DrawBoxAroundPlayer(const LocalClientNum_t localClientNum, c
   }
   if ( !CharacterInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 2730, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  v13 = BG_EstimateEffectiveStance(&_RSI->nextState);
-  CG_PhysicsCharacterProxy_GetCollisionBounds(NULL, &_RSI->nextState, CharacterInfo->suitIndex, v13, 0, &bounds);
-  CG_GetPoseOrigin(&_RSI->pose, &outOrigin);
-  __asm { vmovss  xmm2, dword ptr [rsi+4Ch]; yaw }
-  CG_DebugBox(&outOrigin, &bounds, *(float *)&_XMM2, color, depthTest, duration);
+  v13 = BG_EstimateEffectiveStance(&cent->nextState);
+  CG_PhysicsCharacterProxy_GetCollisionBounds(NULL, &cent->nextState, CharacterInfo->suitIndex, v13, 0, &bounds);
+  CG_GetPoseOrigin(&cent->pose, &outOrigin);
+  CG_DebugBox(&outOrigin, &bounds, cent->pose.angles.v[1], color, depthTest, duration);
   memset(&outOrigin, 0, sizeof(outOrigin));
 }
 
@@ -721,105 +707,90 @@ void CG_DrawDebugMP_DrawBoxAroundPlayer(const LocalClientNum_t localClientNum, c
 CG_DrawDebugMP_DrawDebugOverlays
 ==============
 */
-
-void __fastcall CG_DrawDebugMP_DrawDebugOverlays(const LocalClientNum_t localClientNum, double _XMM1_8)
+void CG_DrawDebugMP_DrawDebugOverlays(const LocalClientNum_t localClientNum)
 {
-  __int64 v4; 
-  const dvar_t *v5; 
-  int v6; 
+  __int64 v1; 
+  const dvar_t *v2; 
+  int v3; 
   int ListOfATCLientRemoteDebugSubscribedTo; 
-  __int64 v8; 
-  __int64 v9; 
-  __int64 v11; 
-  const char *v12; 
-  bool v13; 
-  const ScreenPlacement *v14; 
+  __int64 v5; 
+  __int64 i; 
+  __int64 v7; 
+  const char *v8; 
+  bool v9; 
+  const ScreenPlacement *v10; 
   __int64 align; 
-  __int64 v19; 
+  __int64 v12; 
   int *outATClients; 
-  CgDrawDebug v22; 
+  CgDrawDebug v14; 
 
-  __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
-  v4 = localClientNum;
-  v22.__vftable = (CgDrawDebug_vtbl *)&CgDrawDebugMP::`vftable';
-  CgDrawDebug::DrawDebugOverlays(&v22, localClientNum);
-  v5 = DVARINT_bg_debugRewindPositions;
+  v1 = localClientNum;
+  v14.__vftable = (CgDrawDebug_vtbl *)&CgDrawDebugMP::`vftable';
+  CgDrawDebug::DrawDebugOverlays(&v14, localClientNum);
+  v2 = DVARINT_bg_debugRewindPositions;
   if ( !DVARINT_bg_debugRewindPositions && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_debugRewindPositions") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( v5->current.integer )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.integer )
   {
     if ( (_BYTE)CgDrawSystem::ms_allocatedType != HALF_HALF )
     {
-      LODWORD(v19) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 187, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::DRAW_SYSTEM_TYPE)", "%s\n\tTrying to access the draw system for localClientNum %d but the draw system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::DRAW_SYSTEM_TYPE", v19, 2, (unsigned __int8)CgDrawSystem::ms_allocatedType) )
+      LODWORD(v12) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 187, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::DRAW_SYSTEM_TYPE)", "%s\n\tTrying to access the draw system for localClientNum %d but the draw system type does not match-> System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::DRAW_SYSTEM_TYPE", v12, 2, (unsigned __int8)CgDrawSystem::ms_allocatedType) )
         __debugbreak();
     }
-    if ( (unsigned int)v4 >= CgDrawSystem::ms_allocatedCount )
+    if ( (unsigned int)v1 >= CgDrawSystem::ms_allocatedCount )
     {
-      LODWORD(v19) = CgDrawSystem::ms_allocatedCount;
-      LODWORD(align) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", align, v19) )
+      LODWORD(v12) = CgDrawSystem::ms_allocatedCount;
+      LODWORD(align) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 188, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", align, v12) )
         __debugbreak();
     }
-    if ( !CgDrawSystem::ms_drawSystemArray[v4] )
+    if ( !CgDrawSystem::ms_drawSystemArray[v1] )
     {
-      LODWORD(v19) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 189, ASSERT_TYPE_ASSERT, "(ms_drawSystemArray[localClientNum])", "%s\n\tTrying to access unallocated draw system for localClientNum %d\n", "ms_drawSystemArray[localClientNum]", v19) )
+      LODWORD(v12) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_draw.h", 189, ASSERT_TYPE_ASSERT, "(ms_drawSystemArray[localClientNum])", "%s\n\tTrying to access unallocated draw system for localClientNum %d\n", "ms_drawSystemArray[localClientNum]", v12) )
         __debugbreak();
     }
-    CgDrawSystemMP::DrawDebugCharacterPoses((CgDrawSystemMP *)CgDrawSystem::ms_drawSystemArray[v4]);
+    CgDrawSystemMP::DrawDebugCharacterPoses((CgDrawSystemMP *)CgDrawSystem::ms_drawSystemArray[v1]);
   }
-  v6 = 0;
+  v3 = 0;
   outATClients = NULL;
   ListOfATCLientRemoteDebugSubscribedTo = CG_ConsoleCmdsMP_GetListOfATCLientRemoteDebugSubscribedTo((const int **)&outATClients);
-  v8 = ListOfATCLientRemoteDebugSubscribedTo;
+  v5 = ListOfATCLientRemoteDebugSubscribedTo;
   if ( ListOfATCLientRemoteDebugSubscribedTo > 0 )
   {
-    v9 = 0i64;
-    __asm { vmovss  xmm6, cs:__real@42c80000 }
-    do
+    for ( i = 0i64; i < v5; ++i )
     {
-      v11 = outATClients[v9];
-      if ( (unsigned int)v11 >= 0xC8 )
+      v7 = outATClients[i];
+      if ( (unsigned int)v7 >= 0xC8 )
       {
-        LODWORD(v19) = 200;
-        LODWORD(align) = outATClients[v9];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 2665, ASSERT_TYPE_ASSERT, "(unsigned)( ATClientNum ) < (unsigned)( ( sizeof( *array_counter( s_remoteATClientStates ) ) + 0 ) )", "ATClientNum doesn't index ARRAY_COUNT( s_remoteATClientStates )\n\t%i not in [0, %i)", align, v19) )
+        LODWORD(v12) = 200;
+        LODWORD(align) = outATClients[i];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 2665, ASSERT_TYPE_ASSERT, "(unsigned)( ATClientNum ) < (unsigned)( ( sizeof( *array_counter( s_remoteATClientStates ) ) + 0 ) )", "ATClientNum doesn't index ARRAY_COUNT( s_remoteATClientStates )\n\t%i not in [0, %i)", align, v12) )
           __debugbreak();
       }
-      v12 = j_va("%s\n", s_remoteATClientStates[v11]);
+      v8 = j_va("%s\n", s_remoteATClientStates[v7]);
       if ( activeScreenPlacementMode )
       {
         if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
         {
-          v14 = &scrPlaceViewDisplay[v4];
+          v10 = &scrPlaceViewDisplay[v1];
           goto LABEL_27;
         }
         if ( activeScreenPlacementMode == SCRMODE_INVALID )
-          v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+          v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
         else
-          v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-        if ( v13 )
+          v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+        if ( v9 )
           __debugbreak();
       }
-      v14 = &scrPlaceFull;
+      v10 = &scrPlaceFull;
 LABEL_27:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebp
-        vmulss  xmm2, xmm0, xmm6; y
-        vxorps  xmm1, xmm1, xmm1; x
-      }
-      CG_DrawSmallDevStringColor(v14, *(float *)&_XMM1_8, *(float *)&_XMM2, v12, &colorGreen, 5);
-      ++v6;
-      ++v9;
+      CG_DrawSmallDevStringColor(v10, 0.0, (float)v3++ * 100.0, v8, &colorGreen, 5);
     }
-    while ( v9 < v8 );
   }
-  CG_DrawDebug_DrawATClientPos((const LocalClientNum_t)v4);
-  __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
+  CG_DrawDebug_DrawATClientPos((const LocalClientNum_t)v1);
 }
 
 /*
@@ -830,43 +801,37 @@ CG_DrawDebugMP_DrawFrontendOverlays
 void CG_DrawDebugMP_DrawFrontendOverlays(const LocalClientNum_t localClientNum)
 {
   const ScreenPlacement *ActivePlacement; 
-  const dvar_t *v7; 
-  const ScreenPlacement *v15; 
-  void *retaddr; 
-  CgDrawDebug v19; 
+  double v3; 
+  const dvar_t *v4; 
+  double v5; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  const ScreenPlacement *v10; 
+  CgDrawDebug v11; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  v19.__vftable = (CgDrawDebug_vtbl *)&CgDrawDebugMP::`vftable';
+  v11.__vftable = (CgDrawDebug_vtbl *)&CgDrawDebugMP::`vftable';
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  *(double *)&_XMM0 = CG_DrawDebugMP_DrawHostDebugInfo(localClientNum);
-  __asm { vmovaps xmm6, xmm0 }
-  v7 = DVARINT_cg_drawFPS;
+  v3 = CG_DrawDebugMP_DrawHostDebugInfo(localClientNum);
+  v4 = DVARINT_cg_drawFPS;
   if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.integer )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.integer )
   {
-    __asm { vmovaps xmm2, xmm6; posY }
-    *(double *)&_XMM0 = CgDrawDebug::PrintFrontendUpperRightDebugInfo(&v19, localClientNum, *(float *)&_XMM2);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebug::PrintFrontendSceneDebugInfo(&v19, localClientNum, ActivePlacement, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintEntityDebugInfo((CgDrawDebugMP *)&v19, localClientNum, ActivePlacement, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintPreloadDebugInfo((CgDrawDebugMP *)&v19, localClientNum, ActivePlacement, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; posY }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintStreamingPos((CgDrawDebugMP *)&v19, localClientNum, ActivePlacement, *(float *)&_XMM3);
-    __asm { vmovaps xmm6, xmm0 }
-    v19.DrawAnimationOverlays(&v19, localClientNum);
-    __asm { vmovaps xmm2, xmm6; y }
-    CG_DrawDebugMP_DrawLiveStatus(localClientNum, (const CgDrawDebugMP *)&v19, *(float *)&_XMM2);
+    v5 = CgDrawDebug::PrintFrontendUpperRightDebugInfo(&v11, localClientNum, *(float *)&v3);
+    v6 = CgDrawDebug::PrintFrontendSceneDebugInfo(&v11, localClientNum, ActivePlacement, *(float *)&v5);
+    v7 = CgDrawDebugMP::PrintEntityDebugInfo((CgDrawDebugMP *)&v11, localClientNum, ActivePlacement, *(float *)&v6);
+    v8 = CgDrawDebugMP::PrintPreloadDebugInfo((CgDrawDebugMP *)&v11, localClientNum, ActivePlacement, *(float *)&v7);
+    v9 = CgDrawDebugMP::PrintStreamingPos((CgDrawDebugMP *)&v11, localClientNum, ActivePlacement, *(float *)&v8);
+    v11.DrawAnimationOverlays(&v11, localClientNum);
+    CG_DrawDebugMP_DrawLiveStatus(localClientNum, (const CgDrawDebugMP *)&v11, *(float *)&v9);
     Cloth_Debug_SetRefDecoder(CG_Cloth_ConvertRefToString);
     Cloth_Debug_SetRefEntNumDecoder(CG_Cloth_ConvertRefToEntNum);
-    v15 = ScrPlace_GetActivePlacement(localClientNum);
-    Cloth_Debug_Draw(v15);
+    v10 = ScrPlace_GetActivePlacement(localClientNum);
+    Cloth_Debug_Draw(v10);
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
 }
 
 /*
@@ -898,134 +863,110 @@ CG_DrawDebugMP_DrawHostDebugInfo
 */
 float CG_DrawDebugMP_DrawHostDebugInfo(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v6; 
-  const dvar_t *v9; 
+  const dvar_t *v2; 
+  const dvar_t *v3; 
+  __int128 v4; 
+  const dvar_t *v5; 
+  double v6; 
   const ScreenPlacement *ActivePlacement; 
-  const dvar_t *v13; 
+  double CornerLabelWidth; 
+  float v9; 
+  const dvar_t *v10; 
+  double CornerFarRight; 
+  double v12; 
   unsigned int ProtocolVersion; 
   const char *text; 
-  const dvar_t *v22; 
+  double v15; 
+  double v16; 
+  __int128 v17; 
+  const dvar_t *v18; 
   const char *string; 
+  double v20; 
+  double v21; 
   __int64 i; 
-  __int64 v27; 
+  __int64 v23; 
   const bdSecurityID *SecurityId; 
-  const char *v29; 
-  const char *v30; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  CgDrawDebug v42; 
-  __int64 v43[3]; 
+  const char *v25; 
+  const char *v26; 
+  double v27; 
+  double v28; 
+  __int128 v29; 
+  CgDrawDebug v31; 
+  __int64 v32[3]; 
   char str[24]; 
-  char v45; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v43[2] = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  v6 = DVARSTR_party_hostname;
+  v32[2] = -2i64;
+  v2 = DVARSTR_party_hostname;
   if ( !DVARSTR_party_hostname && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_hostname") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( !v6->current.integer64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 1512, ASSERT_TYPE_ASSERT, "(Dvar_GetString_Internal_DebugName( DVARSTR_party_hostname, \"party_hostname\" ))", (const char *)&queryFormat, "Dvar_GetString( party_hostname )") )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( !v2->current.integer64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 1512, ASSERT_TYPE_ASSERT, "(Dvar_GetString_Internal_DebugName( DVARSTR_party_hostname, \"party_hostname\" ))", (const char *)&queryFormat, "Dvar_GetString( party_hostname )") )
     __debugbreak();
-  v42.__vftable = (CgDrawDebug_vtbl *)&CgDrawDebugMP::`vftable';
-  _RBX = DVARVEC2_cg_debugInfoCornerOffsetMP;
+  v31.__vftable = (CgDrawDebug_vtbl *)&CgDrawDebugMP::`vftable';
+  v3 = DVARVEC2_cg_debugInfoCornerOffsetMP;
   if ( !DVARVEC2_cg_debugInfoCornerOffsetMP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_debugInfoCornerOffsetMP") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+2Ch] }
-  v9 = DVARINT_cg_drawFPS;
+  Dvar_CheckFrontendServerThread(v3);
+  v4 = LODWORD(v3->current.vector.v[1]);
+  v5 = DVARINT_cg_drawFPS;
   if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( v9->current.integer )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.integer )
   {
     ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(&v42, " cg ms/frame");
-    __asm { vmovaps xmm7, xmm0 }
-    v13 = DVARSTR_party_hostname;
+    CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(&v31, " cg ms/frame");
+    v9 = *(float *)&CornerLabelWidth;
+    v10 = DVARSTR_party_hostname;
     if ( !DVARSTR_party_hostname && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_hostname") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    if ( *(_BYTE *)v13->current.integer64 )
+    Dvar_CheckFrontendServerThread(v10);
+    if ( *(_BYTE *)v10->current.integer64 )
     {
-      *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(&v42, ActivePlacement);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C8h+fmt], xmm7
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm0; posX
-      }
-      CgDrawDebug::CornerPrintCaption(&v42, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmt, "- MP -", &colorGreenFaded);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
+      CornerFarRight = CgDrawDebug::GetCornerFarRight(&v31, ActivePlacement);
+      v12 = CgDrawDebug::CornerPrintCaption(&v31, ActivePlacement, *(float *)&CornerFarRight, *(float *)&v4, v9, "- MP -", &colorGreenFaded);
+      v17 = v4;
+      *(float *)&v17 = *(float *)&v4 + *(float *)&v12;
       ProtocolVersion = GetProtocolVersion();
       text = j_va("%i", ProtocolVersion);
-      *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(&v42, ActivePlacement);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C8h+fmt], xmm7
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm0; posX
-      }
-      CgDrawDebug::CornerPrint(&v42, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmta, text, " protocol", &colorWhite);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      v22 = DVARSTR_party_hostname;
+      v15 = CgDrawDebug::GetCornerFarRight(&v31, ActivePlacement);
+      v16 = CgDrawDebug::CornerPrint(&v31, ActivePlacement, *(float *)&v15, *(float *)&v17, v9, text, " protocol", &colorWhite);
+      *(float *)&v17 = *(float *)&v17 + *(float *)&v16;
+      v18 = DVARSTR_party_hostname;
       if ( !DVARSTR_party_hostname && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_hostname") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v22);
-      string = v22->current.string;
-      *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(&v42, ActivePlacement);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C8h+fmt], xmm7
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm0; posX
-      }
-      CgDrawDebug::CornerPrint(&v42, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, string, " g-host", &colorWhite);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
+      Dvar_CheckFrontendServerThread(v18);
+      string = v18->current.string;
+      v20 = CgDrawDebug::GetCornerFarRight(&v31, ActivePlacement);
+      v21 = CgDrawDebug::CornerPrint(&v31, ActivePlacement, *(float *)&v20, *(float *)&v17, v9, string, " g-host", &colorWhite);
+      *(float *)&v17 = *(float *)&v17 + *(float *)&v21;
+      v4 = v17;
     }
-    v43[0] = (__int64)Lobby_GetPartyData();
-    v43[1] = (__int64)&g_partyData;
+    v32[0] = (__int64)Lobby_GetPartyData();
+    v32[1] = (__int64)&g_partyData;
     for ( i = 0i64; i < 2; ++i )
     {
-      v27 = v43[i];
-      if ( *(_DWORD *)(v27 + 314492) )
+      v23 = v32[i];
+      if ( *(_DWORD *)(v23 + 314492) )
       {
-        SecurityId = XSESSION_INFO::GetSecurityId((XSESSION_INFO *)(*(_QWORD *)v27 + 4i64));
+        SecurityId = XSESSION_INFO::GetSecurityId((XSESSION_INFO *)(*(_QWORD *)v23 + 4i64));
         XNKIDToString(SecurityId, str, 21);
-        v29 = *(const char **)(v27 + 314408);
-        v30 = j_va("%s ", str);
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(&v42, ActivePlacement);
-        __asm
-        {
-          vmovss  dword ptr [rsp+0C8h+fmt], xmm7
-          vmovaps xmm3, xmm6; posY
-          vmovaps xmm2, xmm0; posX
-        }
-        CgDrawDebug::CornerPrint(&v42, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, v30, v29, &colorWhite);
-        __asm { vaddss  xmm6, xmm6, xmm0 }
+        v25 = *(const char **)(v23 + 314408);
+        v26 = j_va("%s ", str);
+        v27 = CgDrawDebug::GetCornerFarRight(&v31, ActivePlacement);
+        v28 = CgDrawDebug::CornerPrint(&v31, ActivePlacement, *(float *)&v27, *(float *)&v4, v9, v26, v25, &colorWhite);
+        v29 = v4;
+        *(float *)&v29 = *(float *)&v4 + *(float *)&v28;
+        v4 = v29;
       }
     }
-    __asm { vmovaps xmm3, xmm6; y }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintPartyMemberInfo((CgDrawDebugMP *)&v42, localClientNum, ActivePlacement, *(float *)&_XMM3);
+    v6 = CgDrawDebugMP::PrintPartyMemberInfo((CgDrawDebugMP *)&v31, localClientNum, ActivePlacement, *(float *)&v4);
   }
   else
   {
-    __asm { vmovaps xmm0, xmm6 }
+    LODWORD(v6) = v4;
   }
-  _R11 = &v45;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&v6;
 }
 
 /*
@@ -1036,183 +977,121 @@ CG_DrawDebugMP_DrawLiveStatus
 
 double __fastcall CG_DrawDebugMP_DrawLiveStatus(const LocalClientNum_t localClientNum, const CgDrawDebugMP *r_drawDebug, double y)
 {
-  const dvar_t *v8; 
+  const dvar_t *v3; 
+  __int128 v6; 
   const ScreenPlacement *ActivePlacement; 
+  double CornerFarRight; 
+  float v10; 
   int ControllerFromClient; 
   const char *text; 
+  float v13; 
+  float v14; 
+  double v15; 
   DWServicesAccess *Instance; 
   const char *EnvironmentString; 
-  DWServicesAccess *v24; 
+  DWServicesAccess *v18; 
   unsigned int TitleID; 
-  const char *v26; 
+  const char *v20; 
+  double v21; 
+  __int128 v22; 
+  __int128 v23; 
   const char *Status; 
+  double v25; 
   const char *LobbyStatus; 
+  double v27; 
   unsigned __int64 CurrentLobbyId; 
-  const char *v39; 
-  unsigned int v42; 
+  const char *v29; 
+  double v30; 
+  unsigned int v31; 
   unsigned int PlayerCount; 
   const char *PlayerStatus; 
+  double CornerLabelWidth; 
   const char *label; 
+  double v36; 
+  __int128 v37; 
+  double v38; 
+  double v39; 
+  float v40; 
   const char *MatchJoinStateNameDebugString; 
+  double v42; 
+  double v43; 
+  float v44; 
   const char *AsyncTaskStateNameDebugString; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
+  double v46; 
+  double v47; 
 
-  v8 = DCONST_DVARBOOL_cg_drawLiveStatus;
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovaps xmm6, xmm2
-  }
+  v3 = DCONST_DVARBOOL_cg_drawLiveStatus;
+  v6 = *(_OWORD *)&y;
   if ( !DCONST_DVARBOOL_cg_drawLiveStatus && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawLiveStatus") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( !v3->current.enabled )
+    return y;
+  ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
+  CornerFarRight = CgDrawDebug::GetCornerFarRight(&r_drawDebug->CgDrawDebug, ActivePlacement);
+  v10 = *(float *)&CornerFarRight;
+  ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
+  FenceManager_DrawDebug(ControllerFromClient, r_drawDebug);
+  text = dwGetEnvironmentFlavorName();
+  v13 = *(float *)&y;
+  v14 = *(float *)&CornerFarRight;
+  v15 = CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, *(float *)&CornerFarRight, v13, 100.0, text, " dw server", &colorWhite);
+  v23 = v6;
+  *(float *)&v23 = *(float *)&v6 + *(float *)&v15;
+  Instance = DWServicesAccess::GetInstance();
+  EnvironmentString = DWServicesAccess::GetEnvironmentString(Instance);
+  v18 = DWServicesAccess::GetInstance();
+  TitleID = DWServicesAccess::GetTitleID(v18);
+  v20 = j_va("0x%x (%s)", TitleID, EnvironmentString);
+  v21 = CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, v14, *(float *)&v6 + *(float *)&v15, 100.0, v20, " dw titleID", &colorWhite);
+  *(float *)&v23 = *(float *)&v23 + *(float *)&v21;
+  LODWORD(v22) = v23;
+  if ( OnlineMatchmakerOmniscient::IsActive(&OnlineMatchmakerOmniscient::ms_instance) )
   {
-    __asm
+    Status = OnlineMatchmakerOmniscient::GetStatus(&OnlineMatchmakerOmniscient::ms_instance);
+    v25 = CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, v10, *(float *)&v23, 100.0, Status, " MM status", &colorWhite);
+    *(float *)&v23 = *(float *)&v23 + *(float *)&v25;
+    LobbyStatus = OnlineMatchmakerOmniscient::GetLobbyStatus(&OnlineMatchmakerOmniscient::ms_instance);
+    v27 = CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, v10, *(float *)&v23, 100.0, LobbyStatus, " MM lobby", &colorWhite);
+    *(float *)&v23 = *(float *)&v23 + *(float *)&v27;
+    CurrentLobbyId = OnlineMatchmakerOmniscient::GetCurrentLobbyId(&OnlineMatchmakerOmniscient::ms_instance);
+    v29 = j_va("%zu", CurrentLobbyId);
+    v30 = CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, v10, *(float *)&v23, 100.0, v29, " MM lobbyID", &colorWhite);
+    *(float *)&v23 = *(float *)&v23 + *(float *)&v30;
+    v22 = v23;
+    v31 = 0;
+    PlayerCount = OnlineMatchmakerOmniscient::GetPlayerCount(&OnlineMatchmakerOmniscient::ms_instance);
+    if ( PlayerCount )
     {
-      vmovaps [rsp+0A8h+var_48], xmm7
-      vmovaps [rsp+0A8h+var_58], xmm8
-      vmovaps [rsp+0A8h+var_68], xmm9
-    }
-    ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(&r_drawDebug->CgDrawDebug, ActivePlacement);
-    __asm { vmovaps xmm9, xmm0 }
-    ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-    FenceManager_DrawDebug(ControllerFromClient, r_drawDebug);
-    text = dwGetEnvironmentFlavorName();
-    __asm
-    {
-      vmovss  xmm8, cs:__real@42c80000
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm9; posX
-      vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-    }
-    CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmt, text, " dw server", &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    Instance = DWServicesAccess::GetInstance();
-    EnvironmentString = DWServicesAccess::GetEnvironmentString(Instance);
-    v24 = DWServicesAccess::GetInstance();
-    TitleID = DWServicesAccess::GetTitleID(v24);
-    v26 = j_va("0x%x (%s)", TitleID, EnvironmentString);
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm9; posX
-      vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-    }
-    CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v26, " dw titleID", &colorWhite);
-    __asm { vaddss  xmm7, xmm6, xmm0 }
-    if ( OnlineMatchmakerOmniscient::IsActive(&OnlineMatchmakerOmniscient::ms_instance) )
-    {
-      Status = OnlineMatchmakerOmniscient::GetStatus(&OnlineMatchmakerOmniscient::ms_instance);
-      __asm
+      do
       {
-        vmovaps xmm3, xmm7; posY
-        vmovaps xmm2, xmm9; posX
-        vmovss  dword ptr [rsp+0A8h+fmt], xmm8
+        PlayerStatus = OnlineMatchmakerOmniscient::GetPlayerStatus(&OnlineMatchmakerOmniscient::ms_instance, v31);
+        CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(&r_drawDebug->CgDrawDebug, PlayerStatus);
+        label = j_va("%s MM player %i", PlayerStatus, v31);
+        v36 = CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, v10, *(float *)&v22, *(float *)&CornerLabelWidth + 100.0, "> ", label, &colorWhite);
+        ++v31;
+        v37 = v22;
+        *(float *)&v37 = *(float *)&v22 + *(float *)&v36;
+        v22 = v37;
       }
-      CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, Status, " MM status", &colorWhite);
-      __asm { vaddss  xmm6, xmm7, xmm0 }
-      LobbyStatus = OnlineMatchmakerOmniscient::GetLobbyStatus(&OnlineMatchmakerOmniscient::ms_instance);
-      __asm
-      {
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm9; posX
-        vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-      }
-      CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, LobbyStatus, " MM lobby", &colorWhite);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      CurrentLobbyId = OnlineMatchmakerOmniscient::GetCurrentLobbyId(&OnlineMatchmakerOmniscient::ms_instance);
-      v39 = j_va("%zu", CurrentLobbyId);
-      __asm
-      {
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm9; posX
-        vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-      }
-      CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, v39, " MM lobbyID", &colorWhite);
-      __asm { vaddss  xmm7, xmm6, xmm0 }
-      v42 = 0;
-      PlayerCount = OnlineMatchmakerOmniscient::GetPlayerCount(&OnlineMatchmakerOmniscient::ms_instance);
-      if ( PlayerCount )
-      {
-        do
-        {
-          PlayerStatus = OnlineMatchmakerOmniscient::GetPlayerStatus(&OnlineMatchmakerOmniscient::ms_instance, v42);
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(&r_drawDebug->CgDrawDebug, PlayerStatus);
-          __asm { vmovaps xmm6, xmm0 }
-          label = j_va("%s MM player %i", PlayerStatus, v42);
-          __asm
-          {
-            vaddss  xmm0, xmm6, xmm8
-            vmovaps xmm3, xmm7; posY
-            vmovaps xmm2, xmm9; posX
-            vmovss  dword ptr [rsp+0A8h+fmt], xmm0
-          }
-          CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmte, "> ", label, &colorWhite);
-          ++v42;
-          __asm { vaddss  xmm7, xmm7, xmm0 }
-        }
-        while ( v42 < PlayerCount );
-      }
-    }
-    __asm { vmovaps xmm3, xmm7; y }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintMPDebugInfo((CgDrawDebugMP *)r_drawDebug, localClientNum, ActivePlacement, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintSessionDebugInfo((CgDrawDebugMP *)r_drawDebug, localClientNum, ActivePlacement, *(float *)&_XMM3);
-    __asm
-    {
-      vmovaps xmm6, xmm0
-      vmovaps xmm9, [rsp+0A8h+var_68]
-      vmovaps xmm7, [rsp+0A8h+var_48]
-    }
-    if ( GameBattles_IsScreenDebugEnabled() )
-    {
-      MatchJoinStateNameDebugString = GameBattles_GetMatchJoinStateNameDebugString(localClientNum);
-      *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(&r_drawDebug->CgDrawDebug, ActivePlacement);
-      __asm
-      {
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm0; posX
-        vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-      }
-      CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, MatchJoinStateNameDebugString, " MLG Join State", &colorWhite);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      AsyncTaskStateNameDebugString = GameBattles_GetAsyncTaskStateNameDebugString(localClientNum);
-      *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(&r_drawDebug->CgDrawDebug, ActivePlacement);
-      __asm
-      {
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm0; posX
-        vmovss  dword ptr [rsp+0A8h+fmt], xmm8
-      }
-      *(double *)&_XMM0 = CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmtg, AsyncTaskStateNameDebugString, " MLG Async Task", &colorWhite);
-      __asm { vaddss  xmm6, xmm0, xmm6 }
-    }
-    __asm
-    {
-      vmovaps xmm3, xmm6; y
-      vmovaps xmm8, [rsp+0A8h+var_58]
-      vmovaps xmm6, [rsp+0A8h+var_38]
-    }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintTournamentDebugInfo((CgDrawDebugMP *)r_drawDebug, localClientNum, ActivePlacement, *(float *)&_XMM3);
-  }
-  else
-  {
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+0A8h+var_38]
+      while ( v31 < PlayerCount );
     }
   }
-  return *(double *)&_XMM0;
+  v38 = CgDrawDebugMP::PrintMPDebugInfo((CgDrawDebugMP *)r_drawDebug, localClientNum, ActivePlacement, *(float *)&v22);
+  v39 = CgDrawDebugMP::PrintSessionDebugInfo((CgDrawDebugMP *)r_drawDebug, localClientNum, ActivePlacement, *(float *)&v38);
+  v40 = *(float *)&v39;
+  if ( GameBattles_IsScreenDebugEnabled() )
+  {
+    MatchJoinStateNameDebugString = GameBattles_GetMatchJoinStateNameDebugString(localClientNum);
+    v42 = CgDrawDebug::GetCornerFarRight(&r_drawDebug->CgDrawDebug, ActivePlacement);
+    v43 = CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, *(float *)&v42, v40, 100.0, MatchJoinStateNameDebugString, " MLG Join State", &colorWhite);
+    v44 = v40 + *(float *)&v43;
+    AsyncTaskStateNameDebugString = GameBattles_GetAsyncTaskStateNameDebugString(localClientNum);
+    v46 = CgDrawDebug::GetCornerFarRight(&r_drawDebug->CgDrawDebug, ActivePlacement);
+    v47 = CgDrawDebug::CornerPrint(&r_drawDebug->CgDrawDebug, ActivePlacement, *(float *)&v46, v44, 100.0, AsyncTaskStateNameDebugString, " MLG Async Task", &colorWhite);
+    v40 = *(float *)&v47 + v44;
+  }
+  return CgDrawDebugMP::PrintTournamentDebugInfo((CgDrawDebugMP *)r_drawDebug, localClientNum, ActivePlacement, v40);
 }
 
 /*
@@ -1251,131 +1130,40 @@ void CG_DrawDebugMP_DrawPSFlags(const LocalClientNum_t localClientNum)
   const playerState_s *p_predictedPlayerState; 
   const ScreenPlacement *ActivePlacement; 
   GfxFont *FontHandle; 
-  GfxFont *v16; 
-  GfxFont *v17; 
+  GfxFont *v7; 
   __int64 SharedPLFlags; 
-  bool v23; 
-  __int64 v24; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float y; 
-  float ya; 
-  float yb; 
-  float yc; 
-  float yd; 
-  float ye; 
-  float v46; 
-  float v47; 
-  float v48; 
-  float v49; 
-  float v50; 
-  float v51; 
+  bool v9; 
+  __int64 v10; 
   char outBuffer[2048]; 
-  char v53; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals->predictedPlayerEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 1441, ASSERT_TYPE_ASSERT, "(cgameGlob->predictedPlayerEntity)", (const char *)&queryFormat, "cgameGlob->predictedPlayerEntity") )
     __debugbreak();
   predictedPlayerEntity = LocalClientGlobals->predictedPlayerEntity;
   p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3e3851ec
-    vmovaps xmm2, xmm7; scale
-  }
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  FontHandle = UI_GetFontHandle(ActivePlacement, 6, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f000000
-    vmovaps xmm2, xmm6; scale
-  }
-  v16 = FontHandle;
-  v17 = UI_GetFontHandle(ActivePlacement, 6, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@c2f00000
-    vmovss  [rsp+8C8h+var_888], xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+8C8h+y], xmm0
-    vmovss  dword ptr [rsp+8C8h+fmt], xmm1
-  }
-  UI_DrawText(ActivePlacement, "Client View of Flags", 2048, v17, fmt, y, 2, 1, v46, &colorWhite, 3);
+  FontHandle = UI_GetFontHandle(ActivePlacement, 6, 0.18000001);
+  v7 = UI_GetFontHandle(ActivePlacement, 6, 0.5);
+  UI_DrawText(ActivePlacement, "Client View of Flags", 2048, v7, -120.0, 0.0, 2, 1, 0.5, &colorWhite, 3);
   CG_DrawDebugMP_GetPMFlags(p_predictedPlayerState, outBuffer, 2048);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41a00000
-    vmovss  xmm8, cs:__real@41f00000
-    vmovss  [rsp+8C8h+var_888], xmm7
-    vmovss  [rsp+8C8h+y], xmm6
-    vmovss  dword ptr [rsp+8C8h+fmt], xmm8
-  }
-  UI_DrawText(ActivePlacement, outBuffer, 2048, v16, fmta, ya, 1, 1, v47, &colorWhite, 3);
+  UI_DrawText(ActivePlacement, outBuffer, 2048, FontHandle, 30.0, 20.0, 1, 1, 0.18000001, &colorWhite, 3);
   if ( !p_predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 1368, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   SharedPLFlags = CG_DrawDebug_GetSharedPLFlags(p_predictedPlayerState, outBuffer, 2048);
   if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 190, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
     __debugbreak();
-  v23 = GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&p_predictedPlayerState->linkFlags, ACTIVE, 7u);
-  v24 = 55i64;
-  if ( v23 )
-    v24 = 50i64;
-  Com_sprintf(&outBuffer[SharedPLFlags], 2048 - (int)SharedPLFlags, "^%cFORCE_PARENT_VISIBLE\n", v24);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@43960000
-    vmovss  [rsp+8C8h+var_888], xmm7
-    vmovss  [rsp+8C8h+y], xmm0
-    vmovss  dword ptr [rsp+8C8h+fmt], xmm8
-  }
-  UI_DrawText(ActivePlacement, outBuffer, 2048, v16, fmtb, yb, 1, 1, v48, &colorWhite, 3);
+  v9 = GameModeFlagContainer<enum PLinkFlagsCommon,enum PLinkFlagsSP,enum PLinkFlagsMP,32>::TestFlagInternal(&p_predictedPlayerState->linkFlags, ACTIVE, 7u);
+  v10 = 55i64;
+  if ( v9 )
+    v10 = 50i64;
+  Com_sprintf(&outBuffer[SharedPLFlags], 2048 - (int)SharedPLFlags, "^%cFORCE_PARENT_VISIBLE\n", v10);
+  UI_DrawText(ActivePlacement, outBuffer, 2048, FontHandle, 30.0, 300.0, 1, 1, 0.18000001, &colorWhite, 3);
   CG_DrawDebugMP_GetPWFlags(p_predictedPlayerState, outBuffer, 2048);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@432f0000
-    vmovss  [rsp+8C8h+var_888], xmm7
-    vmovss  [rsp+8C8h+y], xmm6
-    vmovss  dword ptr [rsp+8C8h+fmt], xmm0
-  }
-  UI_DrawText(ActivePlacement, outBuffer, 2048, v16, fmtc, yc, 1, 1, v49, &colorWhite, 3);
+  UI_DrawText(ActivePlacement, outBuffer, 2048, FontHandle, 175.0, 20.0, 1, 1, 0.18000001, &colorWhite, 3);
   CG_DrawDebugMP_GetPOFlags(p_predictedPlayerState, outBuffer, 2048);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@43af0000
-    vmovss  [rsp+8C8h+var_888], xmm7
-    vmovss  [rsp+8C8h+y], xmm6
-    vmovss  dword ptr [rsp+8C8h+fmt], xmm0
-  }
-  UI_DrawText(ActivePlacement, outBuffer, 2048, v16, fmtd, yd, 1, 1, v50, &colorWhite, 3);
+  UI_DrawText(ActivePlacement, outBuffer, 2048, FontHandle, 350.0, 20.0, 1, 1, 0.18000001, &colorWhite, 3);
   CG_DrawDebugMP_GetPEFlags(&predictedPlayerEntity->nextState, outBuffer, 2048);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@42a00000
-    vmovss  xmm1, cs:__real@44098000
-    vmovss  [rsp+8C8h+var_888], xmm7
-    vmovss  [rsp+8C8h+y], xmm0
-    vmovss  dword ptr [rsp+8C8h+fmt], xmm1
-  }
-  UI_DrawText(ActivePlacement, outBuffer, 2048, v16, fmte, ye, 1, 1, v51, &colorWhite, 3);
-  _R11 = &v53;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  UI_DrawText(ActivePlacement, outBuffer, 2048, FontHandle, 550.0, 80.0, 1, 1, 0.18000001, &colorWhite, 3);
 }
 
 /*
@@ -1385,396 +1173,348 @@ CG_DrawDebugMP_DrawPaidUserOverlay
 */
 void CG_DrawDebugMP_DrawPaidUserOverlay(const CgDrawDebug *drawDebug)
 {
-  const dvar_t *v4; 
-  int v8; 
-  const char *v9; 
-  const ScreenPlacement *v10; 
+  const dvar_t *v1; 
+  __int128 v2; 
+  int v3; 
+  const char *v4; 
+  const ScreenPlacement *v5; 
+  vec4_t *v6; 
   bool IsPaidUserReady; 
-  const dvar_t *v13; 
-  bool v14; 
-  const dvar_t *v15; 
-  char v16; 
+  const dvar_t *v8; 
+  bool v9; 
+  const dvar_t *v10; 
+  char v11; 
   Online_Commerce *Instance; 
-  Online_Commerce *v18; 
-  bool v19; 
-  Online_Commerce *v20; 
+  Online_Commerce *v13; 
+  bool v14; 
+  Online_Commerce *v15; 
   bool HavePaidEntitlement; 
-  const dvar_t *v22; 
-  const char *v23; 
-  const dvar_t *v24; 
-  Online_Commerce *v25; 
-  Online_Commerce *v26; 
-  bool v27; 
-  Online_Commerce *v28; 
-  bool v29; 
-  bool v30; 
-  const char *v31; 
+  const dvar_t *v17; 
+  const char *v18; 
+  const dvar_t *v19; 
+  Online_Commerce *v20; 
+  Online_Commerce *v21; 
+  bool v22; 
+  Online_Commerce *v23; 
+  bool v24; 
+  bool v25; 
+  const char *v26; 
+  vec4_t *v27; 
   const char *LocalClientPlatformUsername; 
   const char *label; 
   const char *text; 
+  double v31; 
+  __int128 v32; 
+  __int128 v33; 
   bool BoolSafe; 
-  const char *v41; 
+  const char *v35; 
   bool HavePaidContentPackEntitlement; 
-  int v47; 
-  Online_Commerce *v49; 
-  Online_Commerce *v50; 
-  bool v51; 
-  Online_Commerce *v52; 
-  bool v53; 
-  const char *v54; 
+  vec4_t *v37; 
+  double v38; 
+  int v39; 
+  __int128 v40; 
+  Online_Commerce *v41; 
+  Online_Commerce *v42; 
+  bool v43; 
+  Online_Commerce *v44; 
+  bool v45; 
+  const char *v46; 
+  vec4_t *v47; 
+  const char *v48; 
+  const char *v49; 
+  double v50; 
+  __int128 v51; 
+  float v52; 
+  float v53; 
+  unsigned int v54; 
+  double v55; 
+  const dvar_t *v56; 
   const char *v57; 
-  const char *v58; 
-  unsigned int v62; 
-  const dvar_t *v65; 
-  const char *v66; 
-  const dvar_t *v67; 
+  const dvar_t *v58; 
   const dvar_t *VarByName; 
-  const char **v74; 
-  const dvar_t *v75; 
-  bool v76; 
-  const char *v77; 
-  char *v78; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
+  const char **v61; 
+  const dvar_t *v62; 
+  bool v63; 
+  const char *v64; 
+  char *v65; 
+  float v66; 
   ScreenPlacement *ActivePlacement; 
   vec4_t color; 
-  __int64 v93[6]; 
-  char v94; 
-  char v95[256]; 
+  __int64 v70[6]; 
+  char v71; 
+  char v72[256]; 
 
-  v4 = DVARBOOL_cg_drawPaidUserOverlay;
+  v1 = DVARBOOL_cg_drawPaidUserOverlay;
   if ( !DVARBOOL_cg_drawPaidUserOverlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawPaidUserOverlay") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( !v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( !v1->current.enabled )
     return;
-  __asm
-  {
-    vmovaps [rsp+208h+var_38], xmm6
-    vmovss  xmm6, cs:__real@43a28000
-    vmovaps [rsp+208h+var_48], xmm8
-    vmovaps [rsp+208h+var_58], xmm9
-    vmovss  xmm8, cs:__real@42480000
-    vmovss  xmm9, cs:__real@42c80000
-  }
+  v2 = LODWORD(FLOAT_325_0);
   ActivePlacement = (ScreenPlacement *)ScrPlace_GetActivePlacement(LOCAL_CLIENT_0);
-  v8 = 0;
-  v9 = " (dlc)";
-  v10 = ActivePlacement;
-  _R13 = &colorRed;
+  v3 = 0;
+  v4 = " (dlc)";
+  v5 = ActivePlacement;
+  v6 = &colorRed;
   do
   {
-    if ( !Live_IsUserSignedIn(v8) )
+    if ( !Live_IsUserSignedIn(v3) )
       goto LABEL_57;
-    IsPaidUserReady = LiveStorage_IsPaidUserReady(v8);
-    v13 = DVARBOOL_com_force_free_to_play;
-    v14 = IsPaidUserReady;
+    IsPaidUserReady = LiveStorage_IsPaidUserReady(v3);
+    v8 = DVARBOOL_com_force_free_to_play;
+    v9 = IsPaidUserReady;
     if ( !DVARBOOL_com_force_free_to_play && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_force_free_to_play") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    if ( v13->current.enabled )
+    Dvar_CheckFrontendServerThread(v8);
+    if ( v8->current.enabled )
       goto LABEL_27;
-    v15 = DVARBOOL_com_force_premium;
+    v10 = DVARBOOL_com_force_premium;
     if ( !DVARBOOL_com_force_premium && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_force_premium") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v15);
-    if ( v15->current.enabled )
+    Dvar_CheckFrontendServerThread(v10);
+    if ( v10->current.enabled )
     {
-      v16 = 1;
+      v11 = 1;
       goto LABEL_28;
     }
     if ( Content_IsEnumerationDone() && Content_DoWeHavePaidContentPackEntitlement() )
     {
-      v16 = 1;
+      v11 = 1;
       goto LABEL_28;
     }
     Instance = Online_Commerce::GetInstance();
-    v19 = 1;
-    if ( Online_Commerce::GetPaidEntitlementTaskState(Instance, v8) != ENTITLEMENT_STATE_COMPLETE )
+    v14 = 1;
+    if ( Online_Commerce::GetPaidEntitlementTaskState(Instance, v3) != ENTITLEMENT_STATE_COMPLETE )
     {
-      v18 = Online_Commerce::GetInstance();
-      if ( Online_Commerce::GetPaidEntitlementTaskState(v18, v8) != ENTITLEMENT_STATE_ERROR )
-        v19 = 0;
+      v13 = Online_Commerce::GetInstance();
+      if ( Online_Commerce::GetPaidEntitlementTaskState(v13, v3) != ENTITLEMENT_STATE_ERROR )
+        v14 = 0;
     }
-    v20 = Online_Commerce::GetInstance();
-    HavePaidEntitlement = Online_Commerce::HavePaidEntitlement(v20, v8);
-    if ( Live_IsUserSignedInToLive(v8) && v19 && HavePaidEntitlement )
-      v16 = 1;
+    v15 = Online_Commerce::GetInstance();
+    HavePaidEntitlement = Online_Commerce::HavePaidEntitlement(v15, v3);
+    if ( Live_IsUserSignedInToLive(v3) && v14 && HavePaidEntitlement )
+      v11 = 1;
     else
 LABEL_27:
-      v16 = 0;
+      v11 = 0;
 LABEL_28:
-    v22 = DVARBOOL_com_force_free_to_play;
+    v17 = DVARBOOL_com_force_free_to_play;
     if ( !DVARBOOL_com_force_free_to_play && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_force_free_to_play") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    if ( v22->current.enabled )
+    Dvar_CheckFrontendServerThread(v17);
+    if ( v17->current.enabled )
     {
-      v23 = " (dvar)";
+      v18 = " (dvar)";
     }
     else
     {
-      v24 = DVARBOOL_com_force_premium;
+      v19 = DVARBOOL_com_force_premium;
       if ( !DVARBOOL_com_force_premium && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_force_premium") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v24);
-      if ( v24->current.enabled )
+      Dvar_CheckFrontendServerThread(v19);
+      if ( v19->current.enabled )
       {
-        v23 = " (dvar)";
+        v18 = " (dvar)";
       }
       else if ( Content_IsEnumerationDone() && Content_DoWeHavePaidContentPackEntitlement() )
       {
-        v23 = " (dlc)";
+        v18 = " (dlc)";
       }
       else
       {
-        v25 = Online_Commerce::GetInstance();
-        v27 = 1;
-        if ( Online_Commerce::GetPaidEntitlementTaskState(v25, v8) != ENTITLEMENT_STATE_COMPLETE )
+        v20 = Online_Commerce::GetInstance();
+        v22 = 1;
+        if ( Online_Commerce::GetPaidEntitlementTaskState(v20, v3) != ENTITLEMENT_STATE_COMPLETE )
         {
-          v26 = Online_Commerce::GetInstance();
-          if ( Online_Commerce::GetPaidEntitlementTaskState(v26, v8) != ENTITLEMENT_STATE_ERROR )
-            v27 = 0;
+          v21 = Online_Commerce::GetInstance();
+          if ( Online_Commerce::GetPaidEntitlementTaskState(v21, v3) != ENTITLEMENT_STATE_ERROR )
+            v22 = 0;
         }
-        v28 = Online_Commerce::GetInstance();
-        v29 = Online_Commerce::HavePaidEntitlement(v28, v8);
-        if ( !Live_IsUserSignedInToLive(v8) || !v27 || (v30 = !v29, v23 = " (xbl)", v30) )
-          v23 = (char *)&queryFormat.fmt + 3;
+        v23 = Online_Commerce::GetInstance();
+        v24 = Online_Commerce::HavePaidEntitlement(v23, v3);
+        if ( !Live_IsUserSignedInToLive(v3) || !v22 || (v25 = !v24, v18 = " (xbl)", v25) )
+          v18 = (char *)&queryFormat.fmt + 3;
       }
     }
-    if ( v14 )
+    if ( v9 )
     {
-      v31 = "free";
-      if ( v16 )
-        v31 = "paid";
-      _RAX = &colorRed;
-      if ( v16 )
-        _RAX = &colorGreen;
+      v26 = "free";
+      if ( v11 )
+        v26 = "paid";
+      v27 = &colorRed;
+      if ( v11 )
+        v27 = &colorGreen;
     }
     else
     {
-      v31 = "pending";
-      _RAX = &colorYellow;
+      v26 = "pending";
+      v27 = &colorYellow;
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+208h+var_1B0], xmm0
-    }
-    LocalClientPlatformUsername = Live_GetLocalClientPlatformUsername(v8);
+    color = *v27;
+    LocalClientPlatformUsername = Live_GetLocalClientPlatformUsername(v3);
     label = j_va(" %s", LocalClientPlatformUsername);
-    text = j_va("%s%s", v31, v23);
-    v10 = ActivePlacement;
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm9; posX
-      vmovss  dword ptr [rsp+208h+fmt], xmm8
-    }
-    CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmt, text, label, &color);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
+    text = j_va("%s%s", v26, v18);
+    v5 = ActivePlacement;
+    v31 = CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, ActivePlacement, 100.0, *(float *)&v2, 50.0, text, label, &color);
+    v32 = v2;
+    *(float *)&v32 = *(float *)&v2 + *(float *)&v31;
+    v2 = v32;
 LABEL_57:
-    ++v8;
+    ++v3;
   }
-  while ( v8 < 8 );
-  __asm { vaddss  xmm6, xmm6, cs:__real@41000000 }
+  while ( v3 < 8 );
+  v33 = v2;
+  *(float *)&v33 = *(float *)&v2 + 8.0;
   BoolSafe = Dvar_GetBoolSafe("MTQLNMTRLS");
   if ( Content_IsEnumerationDone() )
   {
     if ( Content_DoWeHavePaidContentPackEntitlement() )
     {
       if ( BoolSafe )
-        v9 = " (dvar)";
-      v41 = j_va("entitled%s", v9);
+        v4 = " (dvar)";
+      v35 = j_va("entitled%s", v4);
     }
     else
     {
-      v41 = "not entitled";
+      v35 = "not entitled";
     }
   }
   else
   {
-    v41 = "pending";
+    v35 = "pending";
   }
   if ( Content_IsEnumerationDone() )
   {
     HavePaidContentPackEntitlement = Content_DoWeHavePaidContentPackEntitlement();
-    _RCX = &colorRed;
+    v37 = &colorRed;
     if ( HavePaidContentPackEntitlement )
-      _RCX = &colorGreen;
+      v37 = &colorGreen;
   }
   else
   {
-    _RCX = &colorYellow;
+    v37 = &colorYellow;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovaps xmm3, xmm6; posY
-    vmovaps xmm2, xmm9; posX
-    vmovss  dword ptr [rsp+208h+fmt], xmm8
-    vmovups xmmword ptr [rsp+208h+var_1B0], xmm0
-  }
-  CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, v10, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v41, " MP1 DLC", &color);
-  v47 = 0;
-  __asm { vaddss  xmm6, xmm6, xmm0 }
+  color = *v37;
+  v38 = CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, v5, 100.0, *(float *)&v33, 50.0, v35, " MP1 DLC", &color);
+  v39 = 0;
+  *(float *)&v33 = *(float *)&v33 + *(float *)&v38;
+  v40 = v33;
   do
   {
-    if ( Live_IsUserSignedIn(v47) )
+    if ( Live_IsUserSignedIn(v39) )
     {
-      v49 = Online_Commerce::GetInstance();
-      v51 = 1;
-      if ( Online_Commerce::GetPaidEntitlementTaskState(v49, v47) != ENTITLEMENT_STATE_COMPLETE )
+      v41 = Online_Commerce::GetInstance();
+      v43 = 1;
+      if ( Online_Commerce::GetPaidEntitlementTaskState(v41, v39) != ENTITLEMENT_STATE_COMPLETE )
       {
-        v50 = Online_Commerce::GetInstance();
-        if ( Online_Commerce::GetPaidEntitlementTaskState(v50, v47) != ENTITLEMENT_STATE_ERROR )
-          v51 = 0;
+        v42 = Online_Commerce::GetInstance();
+        if ( Online_Commerce::GetPaidEntitlementTaskState(v42, v39) != ENTITLEMENT_STATE_ERROR )
+          v43 = 0;
       }
-      v52 = Online_Commerce::GetInstance();
-      v53 = Online_Commerce::HavePaidEntitlement(v52, v47);
-      if ( Live_IsUserSignedInToLive(v47) )
+      v44 = Online_Commerce::GetInstance();
+      v45 = Online_Commerce::HavePaidEntitlement(v44, v39);
+      if ( Live_IsUserSignedInToLive(v39) )
       {
-        if ( v51 )
+        if ( v43 )
         {
-          v54 = "not entitled";
-          if ( v53 )
-            v54 = "entitled";
+          v46 = "not entitled";
+          if ( v45 )
+            v46 = "entitled";
         }
         else
         {
-          v54 = "pending";
+          v46 = "pending";
         }
       }
       else
       {
-        v54 = "signed out";
+        v46 = "signed out";
       }
-      if ( Live_IsUserSignedInToLive(v47) )
+      if ( Live_IsUserSignedInToLive(v39) )
       {
-        if ( v51 )
+        if ( v43 )
         {
-          _RAX = &colorRed;
-          if ( v53 )
-            _RAX = &colorGreen;
+          v47 = &colorRed;
+          if ( v45 )
+            v47 = &colorGreen;
         }
         else
         {
-          _RAX = &colorYellow;
+          v47 = &colorYellow;
         }
       }
       else
       {
-        _RAX = &colorDkGrey;
+        v47 = &colorDkGrey;
       }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+208h+var_1B0], xmm0
-      }
-      v57 = Live_GetLocalClientPlatformUsername(v47);
-      v58 = j_va(" %s", v57);
-      v10 = ActivePlacement;
-      __asm
-      {
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm9; posX
-        vmovss  dword ptr [rsp+208h+fmt], xmm8
-      }
-      CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, ActivePlacement, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, v54, v58, &color);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
+      color = *v47;
+      v48 = Live_GetLocalClientPlatformUsername(v39);
+      v49 = j_va(" %s", v48);
+      v5 = ActivePlacement;
+      v50 = CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, ActivePlacement, 100.0, *(float *)&v40, 50.0, v46, v49, &color);
+      v51 = v40;
+      *(float *)&v51 = *(float *)&v40 + *(float *)&v50;
+      v40 = v51;
     }
-    ++v47;
+    ++v39;
   }
-  while ( v47 < 8 );
-  __asm { vaddss  xmm6, xmm6, cs:__real@41000000 }
-  v62 = 0;
+  while ( v39 < 8 );
+  v53 = *(float *)&v40 + 8.0;
+  v52 = *(float *)&v40 + 8.0;
+  v54 = 0;
   if ( BoolSafe )
   {
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm9; posX
-      vmovss  dword ptr [rsp+208h+fmt], xmm8
-    }
-    CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, v10, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, "enabled", " bypassDLCCheck", &colorGreen);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
+    v55 = CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, v5, 100.0, v53, 50.0, "enabled", " bypassDLCCheck", &colorGreen);
+    v52 = v53 + *(float *)&v55;
   }
-  v65 = DVARBOOL_com_force_free_to_play;
+  v56 = DVARBOOL_com_force_free_to_play;
   if ( !DVARBOOL_com_force_free_to_play && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_force_free_to_play") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v65);
-  if ( v65->current.enabled )
+  Dvar_CheckFrontendServerThread(v56);
+  if ( v56->current.enabled )
   {
-    v66 = " com_force_free_to_play";
+    v57 = " com_force_free_to_play";
     goto LABEL_104;
   }
-  v67 = DVARBOOL_com_force_premium;
+  v58 = DVARBOOL_com_force_premium;
   if ( !DVARBOOL_com_force_premium && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "com_force_premium") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v67);
-  if ( v67->current.enabled )
+  Dvar_CheckFrontendServerThread(v58);
+  if ( v58->current.enabled )
   {
-    v66 = " com_force_premium";
+    v57 = " com_force_premium";
 LABEL_104:
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm9; posX
-      vmovss  dword ptr [rsp+208h+fmt], xmm8
-    }
-    CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, v10, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, "enabled", v66, &colorGreen);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
+    CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, v5, 100.0, v52, 50.0, "enabled", v57, &colorGreen);
   }
-  __asm { vaddss  xmm6, xmm6, cs:__real@41000000 }
-  v93[0] = (__int64)"OMPKROKQPL";
-  v93[1] = (__int64)"OKPORRORMM";
-  v93[2] = (__int64)"MOMKSMKTOQ";
-  v93[3] = (__int64)"LPKNOPTMLP";
-  v93[4] = (__int64)"MKKKSTPNQL";
-  v93[5] = (__int64)"LRONQNKRKM";
+  v70[0] = (__int64)"OMPKROKQPL";
+  v70[1] = (__int64)"OKPORRORMM";
+  v70[2] = (__int64)"MOMKSMKTOQ";
+  v70[3] = (__int64)"LPKNOPTMLP";
+  v70[4] = (__int64)"MKKKSTPNQL";
+  v70[5] = (__int64)"LRONQNKRKM";
   VarByName = Dvar_FindVarByName("SSRQTKMLQ");
   if ( VarByName && VarByName->current.enabled )
-    _R13 = &colorGreen;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r13+0]
-    vmovups xmmword ptr [rsp+208h+var_1B0], xmm0
-  }
-  memset_0(v95, 0, sizeof(v95));
-  v74 = (const char **)v93;
+    v6 = &colorGreen;
+  color = *v6;
+  memset_0(v72, 0, sizeof(v72));
+  v61 = (const char **)v70;
   do
   {
-    v75 = Dvar_FindVarByName(*v74);
-    v76 = v75 && v75->current.enabled;
-    v77 = " 0";
-    if ( v76 )
-      v77 = " 1";
-    v78 = &v94;
+    v62 = Dvar_FindVarByName(*v61);
+    v63 = v62 && v62->current.enabled;
+    v64 = " 0";
+    if ( v63 )
+      v64 = " 1";
+    v65 = &v71;
     do
-      v30 = *++v78 == 0;
-    while ( !v30 );
-    strcpy(v78, v77);
-    ++v62;
-    ++v74;
+      v25 = *++v65 == 0;
+    while ( !v25 );
+    LODWORD(v66) = (unsigned int)strcpy(v65, v64);
+    ++v54;
+    ++v61;
   }
-  while ( v62 < 6 );
-  __asm
-  {
-    vmovaps xmm3, xmm6; posY
-    vmovaps xmm2, xmm9; posX
-    vmovss  dword ptr [rsp+208h+fmt], xmm8
-  }
-  CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, v10, *(float *)&_XMM2, *(float *)&_XMM3, fmte, "upsell", v95, &color);
-  __asm
-  {
-    vmovaps xmm9, [rsp+208h+var_58]
-    vmovaps xmm8, [rsp+208h+var_48]
-    vmovaps xmm6, [rsp+208h+var_38]
-  }
+  while ( v54 < 6 );
+  CgDrawDebug::CornerPrint((CgDrawDebug *)drawDebug, v5, 100.0, v66, 50.0, "upsell", v72, &color);
 }
 
 /*
@@ -1786,140 +1526,77 @@ void CG_DrawDebugMP_DrawStreamSyncOverlay(const LocalClientNum_t localClientNum)
 {
   const ScreenPlacement *ActivePlacement; 
   GfxFont *FontHandle; 
-  unsigned int v13; 
-  CustomizationModelType v18; 
-  __int64 v19; 
+  unsigned int v4; 
+  __int128 v5; 
+  CustomizationModelType v6; 
+  __int64 v7; 
   StreamSyncClientType StreamTypeForCustomization; 
-  unsigned int v21; 
-  const char *ModelName; 
-  __int64 v25; 
-  char *v26; 
-  const vec4_t *color; 
+  unsigned int v9; 
+  float v10; 
   float x; 
-  float xa; 
-  float xb; 
-  float xc; 
-  float v38; 
-  float v39; 
-  float v40; 
-  float v41; 
-  float v42; 
-  float v43; 
-  float v44; 
-  float v45; 
+  const char *ModelName; 
+  __int64 v13; 
+  char *v14; 
+  const vec4_t *color; 
+  __int128 v16; 
   ClientCustomizationInfo outCustomization; 
   unsigned int outCustomizationLoaded[4]; 
   char dest[128]; 
   char text[256]; 
-  char v52; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovss  xmm8, cs:__real@3e99999a
-    vmovaps xmm2, xmm8; scale
-  }
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  __asm
-  {
-    vmovss  [rsp+298h+var_258], xmm8
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  [rsp+298h+var_270], xmm6
-  }
-  FontHandle = UI_GetFontHandle(ActivePlacement, 6, *(float *)&_XMM2);
-  __asm { vmovss  [rsp+298h+x], xmm6 }
-  v13 = 0;
-  UI_DrawText(ActivePlacement, "Head", 256, FontHandle, x, v38, 1, 1, v42, &colorWhite, 8);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@435c0000
-    vmovss  [rsp+298h+var_258], xmm8
-    vmovss  [rsp+298h+var_270], xmm6
-    vmovss  [rsp+298h+x], xmm9
-  }
-  UI_DrawText(ActivePlacement, "Body", 256, FontHandle, xa, v39, 1, 1, v43, &colorWhite, 8);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@43dc0000
-    vmovss  [rsp+298h+var_258], xmm8
-    vmovss  [rsp+298h+var_270], xmm6
-    vmovss  [rsp+298h+x], xmm0
-  }
-  UI_DrawText(ActivePlacement, "Viewarms", 256, FontHandle, xb, v40, 1, 1, v44, &colorWhite, 8);
-  __asm { vmovss  xmm7, cs:__real@41c00000 }
+  FontHandle = UI_GetFontHandle(ActivePlacement, 6, 0.30000001);
+  v4 = 0;
+  UI_DrawText(ActivePlacement, "Head", 256, FontHandle, 0.0, 0.0, 1, 1, 0.30000001, &colorWhite, 8);
+  UI_DrawText(ActivePlacement, "Body", 256, FontHandle, 220.0, 0.0, 1, 1, 0.30000001, &colorWhite, 8);
+  UI_DrawText(ActivePlacement, "Viewarms", 256, FontHandle, 440.0, 0.0, 1, 1, 0.30000001, &colorWhite, 8);
+  v5 = LODWORD(FLOAT_24_0);
   if ( CL_Streamsync_DebugGetClientData(localClientNum, 0, &outCustomization, outCustomizationLoaded) )
   {
-    __asm
-    {
-      vmovaps [rsp+298h+var_78], xmm10
-      vmovss  xmm10, cs:__real@41400000
-    }
     do
     {
-      v18 = CUSTOMIZATION_TYPE_HEAD;
-      v19 = 0i64;
+      v6 = CUSTOMIZATION_TYPE_HEAD;
+      v7 = 0i64;
       do
       {
-        StreamTypeForCustomization = Com_StreamSync_GetStreamTypeForCustomization(v18);
-        v21 = outCustomization.modelIndex[v19];
-        if ( v21 < Com_StreamSync_GetModelLimit(StreamTypeForCustomization) )
+        StreamTypeForCustomization = Com_StreamSync_GetStreamTypeForCustomization(v6);
+        v9 = outCustomization.modelIndex[v7];
+        if ( v9 < Com_StreamSync_GetModelLimit(StreamTypeForCustomization) )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vmulss  xmm6, xmm0, xmm9
-          }
-          ModelName = BG_Customization_GetModelName(v18, v21);
+          v10 = (float)(unsigned int)v6;
+          x = v10 * 220.0;
+          ModelName = BG_Customization_GetModelName(v6, v9);
           Core_strcpy(dest, 0x80ui64, ModelName);
-          v25 = -1i64;
+          v13 = -1i64;
           do
-            ++v25;
-          while ( dest[v25] );
-          if ( (unsigned int)v25 > 0x19 )
+            ++v13;
+          while ( dest[v13] );
+          if ( (unsigned int)v13 > 0x19 )
           {
-            v26 = &dest[(unsigned int)(v25 - 25)];
-            *(_WORD *)v26 = 11822;
-            v26[2] = 46;
+            v14 = &dest[(unsigned int)(v13 - 25)];
+            *(_WORD *)v14 = 11822;
+            v14[2] = 46;
           }
           else
           {
-            v26 = dest;
+            v14 = dest;
           }
-          Com_sprintf(text, 0x100ui64, "%04d - %s", outCustomization.modelIndex[v19], v26);
+          Com_sprintf(text, 0x100ui64, "%04d - %s", outCustomization.modelIndex[v7], v14);
           color = &colorRed;
-          if ( outCustomizationLoaded[v19] )
+          if ( outCustomizationLoaded[v7] )
             color = &colorWhite;
-          __asm
-          {
-            vmovss  [rsp+298h+var_258], xmm8
-            vmovss  [rsp+298h+var_270], xmm7
-            vmovss  [rsp+298h+x], xmm6
-          }
-          UI_DrawText(ActivePlacement, text, 256, FontHandle, xc, v41, 1, 1, v45, color, 8);
+          UI_DrawText(ActivePlacement, text, 256, FontHandle, x, *(float *)&v5, 1, 1, 0.30000001, color, 8);
         }
-        ++v18;
-        ++v19;
+        ++v6;
+        ++v7;
       }
-      while ( (unsigned int)v18 < CUSTOMIZATION_TYPE_COUNT );
-      ++v13;
-      __asm { vaddss  xmm7, xmm7, xmm10 }
+      while ( (unsigned int)v6 < CUSTOMIZATION_TYPE_COUNT );
+      ++v4;
+      v16 = v5;
+      *(float *)&v16 = *(float *)&v5 + 12.0;
+      v5 = v16;
     }
-    while ( CL_Streamsync_DebugGetClientData(localClientNum, v13, &outCustomization, outCustomizationLoaded) );
-    __asm { vmovaps xmm10, [rsp+298h+var_78] }
-  }
-  _R11 = &v52;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
+    while ( CL_Streamsync_DebugGetClientData(localClientNum, v4, &outCustomization, outCustomizationLoaded) );
   }
 }
 
@@ -2618,8 +2295,11 @@ void CG_DrawDebugMP_UpdateClientInterpolation(LocalClientNum_t localClientNum, i
   __int64 v10; 
   __int64 v12; 
   unsigned int maxClients; 
-  __int64 v20; 
-  __int64 v21; 
+  SnapshotCollectedNonLocalClient *v14; 
+  float v15; 
+  float v16; 
+  __int64 v17; 
+  __int64 v18; 
 
   v8 = DVARINT_cg_drawSnapshot;
   v10 = clientIndex;
@@ -2638,34 +2318,26 @@ void CG_DrawDebugMP_UpdateClientInterpolation(LocalClientNum_t localClientNum, i
     }
     if ( (unsigned int)v10 >= maxClients )
     {
-      LODWORD(v21) = maxClients;
-      LODWORD(v20) = v10;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 1569, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( cls.maxClients )", "clientIndex doesn't index cls.maxClients\n\t%i not in [0, %i)", v20, v21) )
+      LODWORD(v18) = maxClients;
+      LODWORD(v17) = v10;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 1569, ASSERT_TYPE_ASSERT, "(unsigned)( clientIndex ) < (unsigned)( cls.maxClients )", "clientIndex doesn't index cls.maxClients\n\t%i not in [0, %i)", v17, v18) )
         __debugbreak();
     }
-    _RDX = &g_snapshotCollectedInfo[v12].clientInterpolationData[v10];
-    _RDX->prevSnapOrigin.v[0] = prevSnapOrigin->v[0];
-    _RDX->prevSnapOrigin.v[1] = prevSnapOrigin->v[1];
-    _RDX->prevSnapOrigin.v[2] = prevSnapOrigin->v[2];
-    _RDX->nextSnapOrigin.v[0] = nextSnapOrigin->v[0];
-    _RDX->nextSnapOrigin.v[1] = nextSnapOrigin->v[1];
-    _RDX->nextSnapOrigin.v[2] = nextSnapOrigin->v[2];
-    _RDX->poseOrigin = *poseOrigin;
-    _RAX = prevTrajectory;
-    __asm { vmovups ymm0, ymmword ptr [rax] }
-    *(float *)&_RAX = prevTrajectory->trDelta.v[2];
-    __asm { vmovups ymmword ptr [rdx+24h], ymm0 }
-    LODWORD(_RDX->prevTrajectory.trDelta.v[2]) = (_DWORD)_RAX;
-    _RAX = nextTrajectory;
-    __asm { vmovups ymm0, ymmword ptr [rax] }
-    *(float *)&_RAX = nextTrajectory->trDelta.v[2];
-    __asm
-    {
-      vmovups ymmword ptr [rdx+48h], ymm0
-      vmovss  xmm0, [rsp+58h+arg_38]
-      vmovss  dword ptr [rdx+6Ch], xmm0
-    }
-    LODWORD(_RDX->nextTrajectory.trDelta.v[2]) = (_DWORD)_RAX;
+    v14 = &g_snapshotCollectedInfo[v12].clientInterpolationData[v10];
+    v14->prevSnapOrigin.v[0] = prevSnapOrigin->v[0];
+    v14->prevSnapOrigin.v[1] = prevSnapOrigin->v[1];
+    v14->prevSnapOrigin.v[2] = prevSnapOrigin->v[2];
+    v14->nextSnapOrigin.v[0] = nextSnapOrigin->v[0];
+    v14->nextSnapOrigin.v[1] = nextSnapOrigin->v[1];
+    v14->nextSnapOrigin.v[2] = nextSnapOrigin->v[2];
+    v14->poseOrigin = *poseOrigin;
+    v15 = prevTrajectory->trDelta.v[2];
+    *(__m256i *)&v14->prevTrajectory.trType = *(__m256i *)&prevTrajectory->trType;
+    v14->prevTrajectory.trDelta.v[2] = v15;
+    v16 = nextTrajectory->trDelta.v[2];
+    *(__m256i *)&v14->nextTrajectory.trType = *(__m256i *)&nextTrajectory->trType;
+    v14->frameInterpolation = frameInterpolation;
+    v14->nextTrajectory.trDelta.v[2] = v16;
   }
 }
 
@@ -2718,141 +2390,92 @@ CG_DrawDebug_DrawATClientPos
 */
 void CG_DrawDebug_DrawATClientPos(const LocalClientNum_t localClientNum)
 {
-  __int64 v2; 
+  __int64 v1; 
   __int64 ListOfATClientPosSubscribedTo; 
-  int v4; 
+  int v3; 
   cg_t *LocalClientGlobals; 
-  __int64 v6; 
+  __int64 v5; 
+  __int64 i; 
   __int64 v7; 
-  __int64 v9; 
   CgEntitySystem *EntitySystem; 
-  __int64 v11; 
-  const char *v25; 
-  bool v26; 
-  const ScreenPlacement *v27; 
+  __int64 v9; 
+  __int64 v10; 
+  float v11; 
+  const char *v12; 
+  bool v13; 
+  const ScreenPlacement *v14; 
   __int64 align; 
   __int64 duration; 
   vec3_t *p_origin; 
   int *outATClients; 
   vec3_t origin; 
 
-  v2 = localClientNum;
+  v1 = localClientNum;
   outATClients = NULL;
   ListOfATClientPosSubscribedTo = CG_ConsoleCmdsMP_GetListOfATClientPosSubscribedTo((const int **)&outATClients);
-  v4 = 0;
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v2);
-  v6 = ListOfATClientPosSubscribedTo;
+  v3 = 0;
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
+  v5 = ListOfATClientPosSubscribedTo;
   if ( (int)ListOfATClientPosSubscribedTo > 0 )
   {
-    v7 = 0i64;
-    __asm
+    for ( i = 0i64; i < v5; ++i )
     {
-      vmovaps [rsp+0A8h+var_38], xmm6
-      vmovss  xmm6, cs:__real@42c80000
-    }
-    while ( 1 )
-    {
-      v9 = outATClients[v7];
-      EntitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)v2);
-      if ( (unsigned int)v9 >= 0x800 )
+      v7 = outATClients[i];
+      EntitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)v1);
+      if ( (unsigned int)v7 >= 0x800 )
       {
         LODWORD(duration) = 2048;
-        LODWORD(align) = v9;
+        LODWORD(align) = v7;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", align, duration) )
           __debugbreak();
       }
-      v11 = (__int64)&EntitySystem->m_entities[v9];
-      if ( !v11 )
+      v9 = (__int64)&EntitySystem->m_entities[v7];
+      if ( !v9 )
         goto LABEL_25;
-      _RDI = v11 + 416;
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+      v10 = v9 + 416;
+      if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
         __debugbreak();
-      if ( *(_DWORD *)_RDI == 4 )
+      if ( *(_DWORD *)v10 == 4 )
       {
         p_origin = &origin;
-        *(_QWORD *)&origin.y = *(_QWORD *)(_RDI + 12) ^ __PAIR64__(s_trbase_aab_Z ^ *(_DWORD *)(_RDI + 20), *(_DWORD *)(_RDI + 16) ^ s_trbase_aab_Y);
-        LODWORD(origin.v[0]) = *(_DWORD *)(_RDI + 12) ^ ~s_trbase_aab_X;
-        __asm { vmovss  xmm0, dword ptr [rsp+0A8h+origin] }
+        *(_QWORD *)&origin.y = *(_QWORD *)(v10 + 12) ^ __PAIR64__(s_trbase_aab_Z ^ *(_DWORD *)(v10 + 20), *(_DWORD *)(v10 + 16) ^ s_trbase_aab_Y);
+        LODWORD(origin.v[0]) = *(_DWORD *)(v10 + 12) ^ ~s_trbase_aab_X;
         memset(&p_origin, 0, sizeof(p_origin));
-        __asm { vmovss  dword ptr [rsp+0A8h+var_68], xmm0 }
-        if ( ((unsigned int)p_origin & 0x7F800000) == 2139095040 )
-          goto LABEL_32;
-        __asm
+        *(float *)&p_origin = origin.v[0];
+        if ( (LODWORD(origin.v[0]) & 0x7F800000) == 2139095040 || (*(float *)&p_origin = origin.v[1], (LODWORD(origin.v[1]) & 0x7F800000) == 2139095040) || (*(float *)&p_origin = origin.v[2], (LODWORD(origin.v[2]) & 0x7F800000) == 2139095040) )
         {
-          vmovss  xmm0, dword ptr [rsp+0A8h+origin+4]
-          vmovss  dword ptr [rsp+0A8h+var_68], xmm0
-        }
-        if ( ((unsigned int)p_origin & 0x7F800000) == 2139095040 )
-          goto LABEL_32;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0A8h+origin+8]
-          vmovss  dword ptr [rsp+0A8h+var_68], xmm0
-        }
-        if ( ((unsigned int)p_origin & 0x7F800000) == 2139095040 )
-        {
-LABEL_32:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
             __debugbreak();
         }
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+0Ch]
-          vmovss  xmm1, dword ptr [rdi+10h]
-          vmovss  dword ptr [rsp+0A8h+origin], xmm0
-          vmovss  xmm0, dword ptr [rdi+14h]
-          vmovss  dword ptr [rsp+0A8h+origin+8], xmm0
-          vmovss  dword ptr [rsp+0A8h+origin+4], xmm1
-        }
+        v11 = *(float *)(v10 + 16);
+        origin.v[0] = *(float *)(v10 + 12);
+        origin.v[2] = *(float *)(v10 + 20);
+        origin.v[1] = v11;
       }
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rsp+0A8h+origin+8]
-        vmovss  xmm2, dword ptr [rsp+0A8h+origin+4]
-        vmovss  xmm1, dword ptr [rsp+0A8h+origin]
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm2, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      v25 = j_va("%f, %f, %f\n", _RDX, _R8, _R9);
+      v12 = j_va("%f, %f, %f\n", origin.v[0], origin.v[1], origin.v[2]);
       if ( activeScreenPlacementMode )
       {
         if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
         {
-          v27 = &scrPlaceViewDisplay[v2];
+          v14 = &scrPlaceViewDisplay[v1];
           goto LABEL_24;
         }
         if ( activeScreenPlacementMode == SCRMODE_INVALID )
-          v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+          v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
         else
-          v26 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-        if ( v26 )
+          v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+        if ( v13 )
           __debugbreak();
       }
-      v27 = &scrPlaceFull;
+      v14 = &scrPlaceFull;
 LABEL_24:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebp
-        vmulss  xmm2, xmm0, xmm6; y
-        vxorps  xmm1, xmm1, xmm1; x
-      }
-      CG_DrawSmallDevStringColor(v27, *(float *)&_XMM1, *(float *)&_XMM2, v25, &colorGreen, 5);
+      CG_DrawSmallDevStringColor(v14, 0.0, (float)v3 * 100.0, v12, &colorGreen, 5);
       CL_AddDebugBox(&LocalClientGlobals->refdef.view.axis, &origin, &s_boxLower_0, &s_boxUpper_0, &colorRed, 0, 0, 0);
 LABEL_25:
-      ++v4;
-      if ( ++v7 >= v6 )
-      {
-        __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-        return;
-      }
+      ++v3;
     }
   }
 }
@@ -2862,76 +2485,56 @@ LABEL_25:
 CG_DrawDebug_DrawATClientStates
 ==============
 */
-
-void __fastcall CG_DrawDebug_DrawATClientStates(const LocalClientNum_t localClientNum, double _XMM1_8)
+void CG_DrawDebug_DrawATClientStates(const LocalClientNum_t localClientNum)
 {
-  __int64 v4; 
-  int v5; 
+  __int64 v1; 
+  int v2; 
   int ListOfATCLientRemoteDebugSubscribedTo; 
-  __int64 v7; 
-  __int64 v8; 
-  __int64 v10; 
-  const char *v11; 
-  bool v12; 
-  const ScreenPlacement *v13; 
+  __int64 v4; 
+  __int64 i; 
+  __int64 v6; 
+  const char *v7; 
+  bool v8; 
+  const ScreenPlacement *v9; 
   __int64 align; 
-  __int64 v18; 
-  const int *v20; 
+  __int64 v11; 
+  const int *v12; 
 
-  v4 = localClientNum;
-  v5 = 0;
-  v20 = NULL;
-  ListOfATCLientRemoteDebugSubscribedTo = CG_ConsoleCmdsMP_GetListOfATCLientRemoteDebugSubscribedTo(&v20);
-  v7 = ListOfATCLientRemoteDebugSubscribedTo;
+  v1 = localClientNum;
+  v2 = 0;
+  v12 = NULL;
+  ListOfATCLientRemoteDebugSubscribedTo = CG_ConsoleCmdsMP_GetListOfATCLientRemoteDebugSubscribedTo(&v12);
+  v4 = ListOfATCLientRemoteDebugSubscribedTo;
   if ( ListOfATCLientRemoteDebugSubscribedTo > 0 )
   {
-    v8 = 0i64;
-    __asm
+    for ( i = 0i64; i < v4; ++i )
     {
-      vmovaps [rsp+78h+var_38], xmm6
-      vmovss  xmm6, cs:__real@42c80000
-    }
-    while ( 1 )
-    {
-      v10 = v20[v8];
-      if ( (unsigned int)v10 >= 0xC8 )
+      v6 = v12[i];
+      if ( (unsigned int)v6 >= 0xC8 )
       {
-        LODWORD(v18) = 200;
-        LODWORD(align) = v20[v8];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 2665, ASSERT_TYPE_ASSERT, "(unsigned)( ATClientNum ) < (unsigned)( ( sizeof( *array_counter( s_remoteATClientStates ) ) + 0 ) )", "ATClientNum doesn't index ARRAY_COUNT( s_remoteATClientStates )\n\t%i not in [0, %i)", align, v18) )
+        LODWORD(v11) = 200;
+        LODWORD(align) = v12[i];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 2665, ASSERT_TYPE_ASSERT, "(unsigned)( ATClientNum ) < (unsigned)( ( sizeof( *array_counter( s_remoteATClientStates ) ) + 0 ) )", "ATClientNum doesn't index ARRAY_COUNT( s_remoteATClientStates )\n\t%i not in [0, %i)", align, v11) )
           __debugbreak();
       }
-      v11 = j_va("%s\n", s_remoteATClientStates[v10]);
+      v7 = j_va("%s\n", s_remoteATClientStates[v6]);
       if ( activeScreenPlacementMode )
       {
         if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
         {
-          v13 = &scrPlaceViewDisplay[v4];
+          v9 = &scrPlaceViewDisplay[v1];
           goto LABEL_13;
         }
         if ( activeScreenPlacementMode == SCRMODE_INVALID )
-          v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+          v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
         else
-          v12 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-        if ( v12 )
+          v8 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+        if ( v8 )
           __debugbreak();
       }
-      v13 = &scrPlaceFull;
+      v9 = &scrPlaceFull;
 LABEL_13:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, esi
-        vmulss  xmm2, xmm0, xmm6; y
-        vxorps  xmm1, xmm1, xmm1; x
-      }
-      CG_DrawSmallDevStringColor(v13, *(float *)&_XMM1_8, *(float *)&_XMM2, v11, &colorGreen, 5);
-      ++v5;
-      if ( ++v8 >= v7 )
-      {
-        __asm { vmovaps xmm6, [rsp+78h+var_38] }
-        return;
-      }
+      CG_DrawSmallDevStringColor(v9, 0.0, (float)v2++ * 100.0, v7, &colorGreen, 5);
     }
   }
 }
@@ -2943,21 +2546,19 @@ CG_DrawDebug_DrawEntityOverlay
 */
 void CG_DrawDebug_DrawEntityOverlay(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v2; 
-  __int64 v3; 
-  Physics_WorldId v4; 
+  const dvar_t *v1; 
+  __int64 v2; 
+  Physics_WorldId v3; 
   playerState_s *p_predictedPlayerState; 
-  CgWeaponMap *v7; 
+  CgWeaponMap *v5; 
   CgHandler *Handler; 
-  CgHandler *v9; 
+  CgHandler *v7; 
   trace_t *p_results; 
-  char v19; 
-  char v20; 
   unsigned __int16 EntityHitId; 
   CgEntitySystem *EntitySystem; 
-  unsigned int v23; 
-  unsigned int v24; 
-  char *v25; 
+  unsigned int v11; 
+  unsigned int v12; 
+  char *v13; 
   bool Bool_Internal_DebugName; 
   __int64 ignoreArbitraryUp; 
   __int64 ignoreArbitraryUpa; 
@@ -2971,67 +2572,48 @@ void CG_DrawDebug_DrawEntityOverlay(const LocalClientNum_t localClientNum)
   vec3_t up; 
   vec3_t right; 
 
-  v2 = DVARBOOL_entityLeakDisplay;
-  v3 = localClientNum;
+  v1 = DVARBOOL_entityLeakDisplay;
+  v2 = localClientNum;
   if ( !DVARBOOL_entityLeakDisplay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "entityLeakDisplay") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v2);
-  if ( !v2->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( !v1->current.enabled )
   {
-    if ( (unsigned int)v3 >= 2 )
+    if ( (unsigned int)v2 >= 2 )
     {
       LODWORD(skipChildren) = 2;
-      LODWORD(ignoreArbitraryUp) = v3;
+      LODWORD(ignoreArbitraryUp) = v2;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", ignoreArbitraryUp, skipChildren) )
         __debugbreak();
     }
-    if ( (int)v3 < cg_t::ms_allocatedCount )
+    if ( (int)v2 < cg_t::ms_allocatedCount )
     {
-      v4 = 3 * v3 + 3;
-      if ( PhysicsQuery_IsWorldInitialized((Physics_WorldId)(3 * v3 + 2)) && PhysicsQuery_IsWorldInitialized(v4) )
+      v3 = 3 * v2 + 3;
+      if ( PhysicsQuery_IsWorldInitialized((Physics_WorldId)(3 * v2 + 2)) && PhysicsQuery_IsWorldInitialized(v3) )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  dword ptr [rbp+0A0h+outOrigin], xmm0
-          vmovss  dword ptr [rbp+0A0h+outOrigin+4], xmm0
-          vmovss  dword ptr [rbp+0A0h+outOrigin+8], xmm0
-        }
-        p_predictedPlayerState = &CG_GetLocalClientGlobals((const LocalClientNum_t)v3)->predictedPlayerState;
-        if ( !CgWeaponMap::ms_instance[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+        outOrigin.v[0] = 0.0;
+        outOrigin.v[1] = 0.0;
+        outOrigin.v[2] = 0.0;
+        p_predictedPlayerState = &CG_GetLocalClientGlobals((const LocalClientNum_t)v2)->predictedPlayerState;
+        if ( !CgWeaponMap::ms_instance[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
           __debugbreak();
-        v7 = CgWeaponMap::ms_instance[v3];
-        Handler = CgHandler::getHandler((LocalClientNum_t)v3);
-        BG_GetPlayerEyePosition(v7, p_predictedPlayerState, &outOrigin, Handler);
-        v9 = CgHandler::getHandler((LocalClientNum_t)v3);
-        BG_GetPlayerViewDirection(p_predictedPlayerState, &forward, &right, &up, v9, 0);
-        __asm
-        {
-          vmovss  xmm3, cs:__real@467a0000
-          vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+forward]
-          vaddss  xmm2, xmm1, dword ptr [rbp+0A0h+outOrigin]
-          vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+forward+4]
-          vmovss  dword ptr [rbp+0A0h+end], xmm2
-          vaddss  xmm2, xmm1, dword ptr [rbp+0A0h+outOrigin+4]
-          vmulss  xmm1, xmm3, dword ptr [rbp+0A0h+forward+8]
-          vmovss  dword ptr [rbp+0A0h+end+4], xmm2
-          vaddss  xmm2, xmm1, dword ptr [rbp+0A0h+outOrigin+8]
-          vmovss  dword ptr [rbp+0A0h+end+8], xmm2
-        }
-        PhysicsQuery_LegacyTrace((Physics_WorldId)(3 * v3 + 2), &results, &outOrigin, &end, &bounds_origin, p_predictedPlayerState->clientNum, 0, 33570816, 0, NULL, All);
-        PhysicsQuery_LegacyTrace(v4, &trace, &outOrigin, &end, &bounds_origin, p_predictedPlayerState->clientNum, 0, 256, 0, NULL, All);
-        __asm
-        {
-          vmovss  xmm0, [rsp+1A0h+trace.fraction]
-          vcomiss xmm0, [rbp+0A0h+results.fraction]
-        }
+        v5 = CgWeaponMap::ms_instance[v2];
+        Handler = CgHandler::getHandler((LocalClientNum_t)v2);
+        BG_GetPlayerEyePosition(v5, p_predictedPlayerState, &outOrigin, Handler);
+        v7 = CgHandler::getHandler((LocalClientNum_t)v2);
+        BG_GetPlayerViewDirection(p_predictedPlayerState, &forward, &right, &up, v7, 0);
+        end.v[0] = (float)(16000.0 * forward.v[0]) + outOrigin.v[0];
+        end.v[1] = (float)(16000.0 * forward.v[1]) + outOrigin.v[1];
+        end.v[2] = (float)(16000.0 * forward.v[2]) + outOrigin.v[2];
+        PhysicsQuery_LegacyTrace((Physics_WorldId)(3 * v2 + 2), &results, &outOrigin, &end, &bounds_origin, p_predictedPlayerState->clientNum, 0, 33570816, 0, NULL, All);
+        PhysicsQuery_LegacyTrace(v3, &trace, &outOrigin, &end, &bounds_origin, p_predictedPlayerState->clientNum, 0, 256, 0, NULL, All);
         p_results = &results;
-        if ( v19 | v20 )
+        if ( trace.fraction <= results.fraction )
           p_results = &trace;
         EntityHitId = Trace_GetEntityHitId(p_results);
         if ( EntityHitId != 2047 )
         {
-          EntitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)v3);
+          EntitySystem = CgEntitySystem::GetEntitySystem((const LocalClientNum_t)v2);
           if ( !EntitySystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 1958, ASSERT_TYPE_ASSERT, "(entitySystem)", (const char *)&queryFormat, "entitySystem") )
             __debugbreak();
           if ( (CgEntitySystem::GetEntity(EntitySystem, EntityHitId)->flags & 1) != 0 )
@@ -3042,44 +2624,41 @@ void CG_DrawDebug_DrawEntityOverlay(const LocalClientNum_t localClientNum)
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", skipChildrena) )
                 __debugbreak();
             }
-            if ( (unsigned int)v3 >= 2 )
+            if ( (unsigned int)v2 >= 2 )
             {
               LODWORD(skipChildrena) = 2;
-              LODWORD(ignoreArbitraryUpa) = v3;
+              LODWORD(ignoreArbitraryUpa) = v2;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", ignoreArbitraryUpa, skipChildrena) )
                 __debugbreak();
             }
-            v23 = 2533 * v3 + EntityHitId;
-            if ( v23 >= 0x13CA )
+            v11 = 2533 * v2 + EntityHitId;
+            if ( v11 >= 0x13CA )
             {
-              LODWORD(skipChildrena) = 2533 * v3 + EntityHitId;
+              LODWORD(skipChildrena) = 2533 * v2 + EntityHitId;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", skipChildrena) )
                 __debugbreak();
             }
-            v24 = clientObjMap[v23];
-            if ( v24 )
+            v12 = clientObjMap[v11];
+            if ( v12 )
             {
-              if ( v24 >= (unsigned int)s_objCount )
+              if ( v12 >= (unsigned int)s_objCount )
               {
-                LODWORD(skipChildrena) = v24;
+                LODWORD(skipChildrena) = v12;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", skipChildrena) )
                   __debugbreak();
               }
-              v25 = s_objBuf[v24];
-              if ( v25 )
+              v13 = s_objBuf[v12];
+              if ( v13 )
               {
                 if ( Dvar_GetInt_Internal_DebugName(DVARINT_bg_entinfo, "bg_entinfo") == 4 || Dvar_GetInt_Internal_DebugName(DVARINT_bg_entinfo, "bg_entinfo") == 6 )
                 {
-                  if ( *(_QWORD *)v25 )
-                  {
-                    __asm { vmovss  xmm2, cs:__real@41a00000; yPos }
-                    CG_DrawDebug_DrawAnims((LocalClientNum_t)v3, EntityHitId, *(float *)&_XMM2);
-                  }
+                  if ( *(_QWORD *)v13 )
+                    CG_DrawDebug_DrawAnims((LocalClientNum_t)v2, EntityHitId, 20.0);
                 }
                 else
                 {
                   Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_drawDebugBonesBind, "cg_drawDebugBonesBind");
-                  CG_DrawDebug_DrawBones((const LocalClientNum_t)v3, Bool_Internal_DebugName, CG_DEBUG_DRAW_BONES_SHARED_ONLY, NULL, EntityHitId);
+                  CG_DrawDebug_DrawBones((const LocalClientNum_t)v2, Bool_Internal_DebugName, CG_DEBUG_DRAW_BONES_SHARED_ONLY, NULL, EntityHitId);
                 }
               }
             }
@@ -3095,29 +2674,19 @@ void CG_DrawDebug_DrawEntityOverlay(const LocalClientNum_t localClientNum)
 CG_DrawDebug_PlayerAnimScriptInfo_Server
 ==============
 */
-
-void __fastcall CG_DrawDebug_PlayerAnimScriptInfo_Server(LocalClientNum_t localClientNum, double requestedYPos, int handle, AnimScriptDebugMode eventsMode)
+void CG_DrawDebug_PlayerAnimScriptInfo_Server(LocalClientNum_t localClientNum, float requestedYPos, int handle, AnimScriptDebugMode eventsMode)
 {
-  _QWORD *v5; 
   playerState_s *ps; 
   characterInfo_t *ci; 
 
-  v5 = NtCurrentTeb()->Reserved1[11];
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
-  if ( *(_QWORD *)(v5[tls_index] + 272i64) && G_MainMP_GetDebugInfoForAnimScriptOverlay(handle, (const characterInfo_t **)&ci, (const playerState_s **)&ps) )
+  if ( *(_QWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 272i64) && G_MainMP_GetDebugInfoForAnimScriptOverlay(handle, (const characterInfo_t **)&ci, (const playerState_s **)&ps) )
   {
     if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 1998, ASSERT_TYPE_ASSERT, "( ( ci != nullptr ) )", "( ci ) = %p", NULL) )
       __debugbreak();
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 1999, ASSERT_TYPE_ASSERT, "( ( ps != nullptr ) )", "( ps ) = %p", NULL) )
       __debugbreak();
-    __asm { vmovaps xmm1, xmm6; requestedYPos }
-    CG_DrawDebug_PlayerAnimScriptInfo(localClientNum, *(float *)&_XMM1, ci, ps, handle, ANIM_SCRIPT_DEBUG_MODE_SERVER, eventsMode);
+    CG_DrawDebug_PlayerAnimScriptInfo(localClientNum, requestedYPos, ci, ps, handle, ANIM_SCRIPT_DEBUG_MODE_SERVER, eventsMode);
   }
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
 }
 
 /*
@@ -3174,206 +2743,164 @@ CgDrawDebugMP::DrawAnimationOverlays
 */
 void CgDrawDebugMP::DrawAnimationOverlays(CgDrawDebugMP *this, const LocalClientNum_t localClientNum)
 {
+  const dvar_t *v3; 
+  const dvar_t *v4; 
+  const dvar_t *v5; 
+  const dvar_t *v6; 
+  const dvar_t *v7; 
   const dvar_t *v8; 
   const dvar_t *v9; 
-  const dvar_t *v10; 
+  float v10; 
   const dvar_t *v11; 
   const dvar_t *v12; 
-  const dvar_t *v13; 
+  float v13; 
+  const dvar_t *v14; 
   const dvar_t *v15; 
-  const dvar_t *v19; 
-  const dvar_t *v20; 
-  const dvar_t *v24; 
-  const dvar_t *v26; 
   int integer; 
+  const dvar_t *v17; 
+  int v18; 
+  float v19; 
+  AnimScriptDebugMode v20; 
+  const dvar_t *v25; 
+  const dvar_t *v26; 
+  const dvar_t *v27; 
   const dvar_t *v28; 
-  int v29; 
-  int v31; 
-  const dvar_t *v45; 
-  const dvar_t *v46; 
-  const dvar_t *v47; 
-  const dvar_t *v48; 
   bool enabled; 
-  const dvar_t *v50; 
-  void *retaddr; 
+  const dvar_t *v30; 
+  float v31; 
   float yPos; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rax+18h], xmm0
-  }
+  yPos = 0.0;
   CG_DrawDebug_DrawScriptedAnims(localClientNum, &yPos);
-  v8 = DVARINT_cg_drawBoneVisibility;
+  v3 = DVARINT_cg_drawBoneVisibility;
   if ( !DVARINT_cg_drawBoneVisibility && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawBoneVisibility") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.integer >= 0 )
+  {
+    v4 = DVARINT_cg_drawBoneVisibility;
+    if ( !DVARINT_cg_drawBoneVisibility && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawBoneVisibility") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v4);
+    CG_DrawDebug_DrawBoneVisibility(localClientNum, v4->current.integer, &yPos);
+  }
+  v5 = DVARINT_cg_debugCharacterController;
+  if ( !DVARINT_cg_debugCharacterController && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_debugCharacterController") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.integer >= 0 )
+  {
+    v6 = DVARINT_cg_debugCharacterController;
+    if ( !DVARINT_cg_debugCharacterController && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_debugCharacterController") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v6);
+    CG_DrawDebug_CharacterController(localClientNum, v6->current.integer, &yPos);
+  }
+  v7 = DVARINT_bg_entinfo;
+  if ( !DVARINT_bg_entinfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_entinfo") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.integer >= 4 )
+    CG_DrawDebug_DrawEntityOverlay(localClientNum);
+  v8 = DVARINT_cg_dumpAnimsToScreen;
+  if ( !DVARINT_cg_dumpAnimsToScreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_dumpAnimsToScreen") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v8);
   if ( v8->current.integer >= 0 )
   {
-    v9 = DVARINT_cg_drawBoneVisibility;
-    if ( !DVARINT_cg_drawBoneVisibility && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawBoneVisibility") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v9);
-    CG_DrawDebug_DrawBoneVisibility(localClientNum, v9->current.integer, &yPos);
-  }
-  v10 = DVARINT_cg_debugCharacterController;
-  if ( !DVARINT_cg_debugCharacterController && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_debugCharacterController") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.integer >= 0 )
-  {
-    v11 = DVARINT_cg_debugCharacterController;
-    if ( !DVARINT_cg_debugCharacterController && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_debugCharacterController") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    CG_DrawDebug_CharacterController(localClientNum, v11->current.integer, &yPos);
-  }
-  v12 = DVARINT_bg_entinfo;
-  if ( !DVARINT_bg_entinfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_entinfo") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.integer >= 4 )
-    CG_DrawDebug_DrawEntityOverlay(localClientNum);
-  v13 = DVARINT_cg_dumpAnimsToScreen;
-  if ( !DVARINT_cg_dumpAnimsToScreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_dumpAnimsToScreen") )
-    __debugbreak();
-  __asm { vmovaps [rsp+78h+var_38], xmm7 }
-  Dvar_CheckFrontendServerThread(v13);
-  __asm { vmovss  xmm6, cs:__real@43660000 }
-  if ( v13->current.integer >= 0 )
-  {
-    v15 = DVARINT_cg_dumpAnimsToScreen;
-    __asm { vmovss  xmm7, [rsp+78h+yPos] }
+    v9 = DVARINT_cg_dumpAnimsToScreen;
+    v10 = yPos;
     if ( !DVARINT_cg_dumpAnimsToScreen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_dumpAnimsToScreen") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v15);
-    __asm { vmovaps xmm2, xmm7; yPos }
-    if ( CG_DrawDebug_DrawAnims(localClientNum, v15->current.integer, *(float *)&_XMM2) )
-    {
-      __asm
-      {
-        vaddss  xmm1, xmm6, [rsp+78h+yPos]
-        vmovss  [rsp+78h+yPos], xmm1
-      }
-    }
+    Dvar_CheckFrontendServerThread(v9);
+    if ( CG_DrawDebug_DrawAnims(localClientNum, v9->current.integer, v10) )
+      yPos = yPos + 230.0;
   }
-  v19 = DVARINT_cg_dumpAnimsToScreen2;
+  v11 = DVARINT_cg_dumpAnimsToScreen2;
   if ( !DVARINT_cg_dumpAnimsToScreen2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_dumpAnimsToScreen2") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  if ( v19->current.integer >= 0 )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.integer >= 0 )
   {
-    v20 = DVARINT_cg_dumpAnimsToScreen2;
-    __asm { vmovss  xmm7, [rsp+78h+yPos] }
+    v12 = DVARINT_cg_dumpAnimsToScreen2;
+    v13 = yPos;
     if ( !DVARINT_cg_dumpAnimsToScreen2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_dumpAnimsToScreen2") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v20);
-    __asm { vmovaps xmm2, xmm7; yPos }
-    if ( CG_DrawDebug_DrawAnims(localClientNum, v20->current.integer, *(float *)&_XMM2) )
-    {
-      __asm
-      {
-        vaddss  xmm1, xmm6, [rsp+78h+yPos]
-        vmovss  [rsp+78h+yPos], xmm1
-      }
-    }
+    Dvar_CheckFrontendServerThread(v12);
+    if ( CG_DrawDebug_DrawAnims(localClientNum, v12->current.integer, v13) )
+      yPos = yPos + 230.0;
   }
-  v24 = DVARINT_animscript_debug;
-  __asm { vmovaps xmm7, [rsp+78h+var_38] }
+  v14 = DVARINT_animscript_debug;
   if ( !DVARINT_animscript_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "animscript_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v24);
-  if ( v24->current.integer >= 0 )
+  Dvar_CheckFrontendServerThread(v14);
+  if ( v14->current.integer >= 0 )
   {
-    v26 = DVARINT_animscript_debug;
+    v15 = DVARINT_animscript_debug;
     if ( !DVARINT_animscript_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "animscript_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v26);
-    integer = v26->current.integer;
-    v28 = DCONST_DVARINT_animscript_debug_mode;
+    Dvar_CheckFrontendServerThread(v15);
+    integer = v15->current.integer;
+    v17 = DCONST_DVARINT_animscript_debug_mode;
     if ( !DCONST_DVARINT_animscript_debug_mode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "animscript_debug_mode") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v28);
-    v29 = v28->current.integer;
-    switch ( v29 )
+    Dvar_CheckFrontendServerThread(v17);
+    v18 = v17->current.integer;
+    switch ( v18 )
     {
       case 0:
-        __asm { vmovss  xmm1, [rsp+78h+yPos] }
-        v31 = (unsigned __int8)v29 + 2;
+        v19 = yPos;
+        v20 = ANIM_SCRIPT_DEBUG_MODE_BOTH;
 LABEL_56:
-        CG_DrawDebug_PlayerAnimScriptInfo_Client(localClientNum, *(float *)&_XMM1, integer, (AnimScriptDebugMode)v31);
+        CG_DrawDebug_PlayerAnimScriptInfo_Client(localClientNum, v19, integer, v20);
         break;
       case 1:
-        __asm { vmovss  xmm1, [rsp+78h+yPos]; requestedYPos }
-        CG_DrawDebug_PlayerAnimScriptInfo_Server(localClientNum, *(float *)&_XMM1, integer, (AnimScriptDebugMode)(v29 + 1));
+        CG_DrawDebug_PlayerAnimScriptInfo_Server(localClientNum, yPos, integer, ANIM_SCRIPT_DEBUG_MODE_BOTH);
         break;
       case 2:
-        __asm { vmovss  xmm1, [rsp+78h+yPos]; requestedYPos }
-        CG_DrawDebug_PlayerAnimScriptInfo_Server(localClientNum, *(float *)&_XMM1, integer, (AnimScriptDebugMode)(v29 - 1));
-        LOBYTE(_EAX) = Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_animscript_debug_show_conditions, "animscript_debug_show_conditions");
-        __asm { vmovss  xmm2, cs:__real@428c0000 }
-        _ECX = 0;
-        _EAX = (unsigned __int8)_EAX;
-        __asm
-        {
-          vmovd   xmm1, ecx
-          vmovd   xmm0, eax
-          vpcmpeqd xmm3, xmm0, xmm1
-          vmovss  xmm0, [rsp+78h+yPos]
-          vmovss  xmm1, cs:__real@431b0000
-          vblendvps xmm4, xmm1, xmm2, xmm3
-          vaddss  xmm1, xmm4, xmm0; requestedYPos
-          vmovss  [rsp+78h+yPos], xmm4
-          vmovss  [rsp+78h+yPos], xmm1
-        }
-        v31 = 0;
+        CG_DrawDebug_PlayerAnimScriptInfo_Server(localClientNum, yPos, integer, ANIM_SCRIPT_DEBUG_MODE_SERVER);
+        _XMM0 = Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_animscript_debug_show_conditions, "animscript_debug_show_conditions");
+        __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+        _XMM1 = LODWORD(FLOAT_155_0);
+        __asm { vblendvps xmm4, xmm1, xmm2, xmm3 }
+        v19 = *(float *)&_XMM4 + yPos;
+        yPos = *(float *)&_XMM4 + yPos;
+        v20 = ANIM_SCRIPT_DEBUG_MODE_CLIENT;
         goto LABEL_56;
     }
-    __asm
-    {
-      vaddss  xmm1, xmm6, [rsp+78h+yPos]
-      vmovss  [rsp+78h+yPos], xmm1
-    }
+    yPos = yPos + 230.0;
   }
-  v45 = DVARINT_playerasm_debugMode;
+  v25 = DVARINT_playerasm_debugMode;
   if ( !DVARINT_playerasm_debugMode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_debugMode") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v45);
-  if ( v45->current.integer >= 0 )
+  Dvar_CheckFrontendServerThread(v25);
+  if ( v25->current.integer >= 0 )
   {
-    v46 = DVARINT_playerasm_debugMode;
+    v26 = DVARINT_playerasm_debugMode;
     if ( !DVARINT_playerasm_debugMode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_debugMode") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v46);
-    if ( v46->current.integer )
+    Dvar_CheckFrontendServerThread(v26);
+    if ( v26->current.integer )
       CG_DrawDebug_PlayerASM_ExecutionOverlay(localClientNum);
   }
-  v47 = DVARINT_cg_dumpBlendSpaces;
+  v27 = DVARINT_cg_dumpBlendSpaces;
   if ( !DVARINT_cg_dumpBlendSpaces && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_dumpBlendSpaces") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v47);
-  if ( v47->current.integer >= 0 )
+  Dvar_CheckFrontendServerThread(v27);
+  if ( v27->current.integer >= 0 )
   {
-    v48 = DVARBOOL_cg_dumpblendspaces_coverage;
+    v28 = DVARBOOL_cg_dumpblendspaces_coverage;
     if ( !DVARBOOL_cg_dumpblendspaces_coverage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_dumpblendspaces_coverage") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v48);
-    enabled = v48->current.enabled;
-    v50 = DVARINT_cg_dumpBlendSpaces;
-    __asm { vmovss  xmm6, [rsp+78h+yPos] }
+    Dvar_CheckFrontendServerThread(v28);
+    enabled = v28->current.enabled;
+    v30 = DVARINT_cg_dumpBlendSpaces;
+    v31 = yPos;
     if ( !DVARINT_cg_dumpBlendSpaces && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_dumpBlendSpaces") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v50);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@41200000; startX
-      vmovaps xmm3, xmm6; startY
-    }
-    CG_DrawDebug_DrawBlendSpaces(localClientNum, v50->current.integer, *(float *)&_XMM2, *(float *)&_XMM3, enabled);
+    Dvar_CheckFrontendServerThread(v30);
+    CG_DrawDebug_DrawBlendSpaces(localClientNum, v30->current.integer, 10.0, v31, enabled);
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
 }
 
 /*
@@ -3381,134 +2908,71 @@ LABEL_56:
 CgDrawDebugMP::DrawClientNetPerf
 ==============
 */
-
-float __fastcall CgDrawDebugMP::DrawClientNetPerf(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::DrawClientNetPerf(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
-  const dvar_t *v12; 
+  const dvar_t *v7; 
   cg_t *LocalClientGlobals; 
+  double CornerFarRight; 
+  float v10; 
   const char *text; 
+  double CornerLabelWidth; 
+  double v13; 
+  float v14; 
+  const char *v15; 
+  double v16; 
+  double v17; 
+  float v18; 
+  const char *v19; 
+  double v20; 
+  double v21; 
+  float v22; 
+  const char *v23; 
+  double v24; 
+  double v25; 
+  float v26; 
   const char *v27; 
-  const char *v35; 
-  const char *v39; 
-  const char *v43; 
-  const char *v47; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
+  double v28; 
+  double v29; 
+  float v30; 
+  const char *v31; 
+  double v32; 
+  double v33; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !CG_ClientNetPerf_IsSystemEnabled() )
-    goto LABEL_7;
-  v12 = DVARBOOL_cg_drawClientNetPerf;
+    return y;
+  v7 = DVARBOOL_cg_drawClientNetPerf;
   if ( !DVARBOOL_cg_drawClientNetPerf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawClientNetPerf") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.enabled )
-  {
-    __asm { vmovaps [rsp+78h+var_38], xmm8 }
-    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, dword ptr [rdi+52D0h]
-      vmulss  xmm1, xmm1, cs:__real@407afafb
-      vcvttss2si edx, xmm1
-      vmovaps xmm8, xmm0
-    }
-    text = j_va("%d", _RDX);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " ping");
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm8; posX
-      vmovss  dword ptr [rsp+78h+fmt], xmm0
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmt, text, " ping", &colorWhite);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, dword ptr [rdi+52D8h]
-      vmulss  xmm2, xmm1, cs:__real@407afafb
-      vcvttss2si edx, xmm2
-      vaddss  xmm6, xmm6, xmm0
-    }
-    v27 = j_va("%d", _RDX);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " extrapolation");
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm8; posX
-      vmovss  dword ptr [rsp+78h+fmt], xmm0
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v27, " extrapolation", &colorWhite);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, dword ptr [rdi+52D4h]
-      vmulss  xmm2, xmm1, cs:__real@407afafb
-      vcvttss2si edx, xmm2
-      vaddss  xmm6, xmm6, xmm0
-    }
-    v35 = j_va("%d", _RDX);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " interpolation");
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm8; posX
-      vmovss  dword ptr [rsp+78h+fmt], xmm0
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, v35, " interpolation", &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    v39 = j_va("%d", (unsigned int)LocalClientGlobals->predictedPlayerState.netPerf.maxUserCmdReceivedTime);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " cmdReceived");
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm8; posX
-      vmovss  dword ptr [rsp+78h+fmt], xmm0
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, v39, " cmdReceived", &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    v43 = j_va("%d", (unsigned int)LocalClientGlobals->predictedPlayerState.netPerf.maxUserCmdQueuedTime);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " cmdQueued");
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm8; posX
-      vmovss  dword ptr [rsp+78h+fmt], xmm0
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, v43, " cmdQueued", &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    v47 = j_va("%d", (unsigned int)LocalClientGlobals->predictedPlayerState.netPerf.maxUserCmdDroppedCount);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " cmdDropped");
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm8; posX
-      vmovss  dword ptr [rsp+78h+fmt], xmm0
-    }
-    *(double *)&_XMM0 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmte, v47, " cmdDropped", &colorWhite);
-    __asm
-    {
-      vmovaps xmm8, [rsp+78h+var_38]
-      vaddss  xmm0, xmm0, xmm6
-    }
-  }
-  else
-  {
-LABEL_7:
-    __asm { vmovaps xmm0, xmm6 }
-  }
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v7);
+  if ( !v7->current.enabled )
+    return y;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v10 = *(float *)&CornerFarRight;
+  text = j_va("%d", (unsigned int)(int)(float)((float)LocalClientGlobals->predictedPlayerState.netPerf.pingMs * 3.9215686));
+  CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, " ping");
+  v13 = CgDrawDebug::CornerPrint(this, scrPlace, v10, y, *(float *)&CornerLabelWidth, text, " ping", &colorWhite);
+  v14 = y + *(float *)&v13;
+  v15 = j_va("%d", (unsigned int)(int)(float)((float)LocalClientGlobals->predictedPlayerState.netPerf.maxExtrapolationMs * 3.9215686));
+  v16 = CgDrawDebug::GetCornerLabelWidth(this, " extrapolation");
+  v17 = CgDrawDebug::CornerPrint(this, scrPlace, v10, v14, *(float *)&v16, v15, " extrapolation", &colorWhite);
+  v18 = v14 + *(float *)&v17;
+  v19 = j_va("%d", (unsigned int)(int)(float)((float)LocalClientGlobals->predictedPlayerState.netPerf.maxInterpolationMs * 3.9215686));
+  v20 = CgDrawDebug::GetCornerLabelWidth(this, " interpolation");
+  v21 = CgDrawDebug::CornerPrint(this, scrPlace, v10, v18, *(float *)&v20, v19, " interpolation", &colorWhite);
+  v22 = v18 + *(float *)&v21;
+  v23 = j_va("%d", (unsigned int)LocalClientGlobals->predictedPlayerState.netPerf.maxUserCmdReceivedTime);
+  v24 = CgDrawDebug::GetCornerLabelWidth(this, " cmdReceived");
+  v25 = CgDrawDebug::CornerPrint(this, scrPlace, v10, v22, *(float *)&v24, v23, " cmdReceived", &colorWhite);
+  v26 = v22 + *(float *)&v25;
+  v27 = j_va("%d", (unsigned int)LocalClientGlobals->predictedPlayerState.netPerf.maxUserCmdQueuedTime);
+  v28 = CgDrawDebug::GetCornerLabelWidth(this, " cmdQueued");
+  v29 = CgDrawDebug::CornerPrint(this, scrPlace, v10, v26, *(float *)&v28, v27, " cmdQueued", &colorWhite);
+  v30 = v26 + *(float *)&v29;
+  v31 = j_va("%d", (unsigned int)LocalClientGlobals->predictedPlayerState.netPerf.maxUserCmdDroppedCount);
+  v32 = CgDrawDebug::GetCornerLabelWidth(this, " cmdDropped");
+  v33 = CgDrawDebug::CornerPrint(this, scrPlace, v10, v30, *(float *)&v32, v31, " cmdDropped", &colorWhite);
+  return *(float *)&v33 + v30;
 }
 
 /*
@@ -3518,225 +2982,159 @@ CgDrawDebugMP::DrawEntitiesLoD
 */
 void CgDrawDebugMP::DrawEntitiesLoD(CgDrawDebugMP *this, const LocalClientNum_t localClientNum)
 {
-  _QWORD *v5; 
+  _QWORD *v2; 
+  unsigned int v3; 
+  LocalClientNum_t v4; 
+  int v5; 
   unsigned int v6; 
-  LocalClientNum_t v7; 
-  int v8; 
-  unsigned int v9; 
-  unsigned int v10; 
-  __int64 v11; 
+  unsigned int v7; 
+  __int64 v8; 
   const CgSnapshotMP *NextSnap; 
-  const vec3_t *v16; 
-  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *v19; 
-  bool v20; 
+  const dvar_t *v10; 
+  float v11; 
+  const vec3_t *v12; 
+  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *p_z; 
+  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *v14; 
+  bool v15; 
+  unsigned int v16; 
+  bool v17; 
+  char v18; 
+  unsigned __int64 v19; 
+  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *v20; 
   unsigned int v21; 
-  bool v22; 
-  char v23; 
-  unsigned __int64 v24; 
-  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *v25; 
-  unsigned int v26; 
-  unsigned int v27; 
-  int v28; 
-  unsigned int v29; 
-  const char *v36; 
-  bool v38; 
-  __int64 v39; 
+  unsigned int v22; 
+  int v23; 
+  unsigned int v24; 
+  float v25; 
+  const char *v26; 
+  bool v27; 
+  __int64 v28; 
   const ScreenPlacement *ActivePlacement; 
   GfxFont *FontHandle; 
-  float fmt; 
-  float fmta; 
   __int64 depthTest; 
-  int depthTesta; 
-  int depthTestb; 
   __int64 duration; 
-  float v58; 
-  float v59; 
-  int v60; 
+  int v33; 
   vec3_t *p_origin; 
-  __int64 v62; 
-  __int64 v63; 
-  LocalClientNum_t v64; 
+  __int64 v35; 
+  __int64 v36; 
+  LocalClientNum_t v37; 
   cg_t *LocalClientGlobals; 
   vec3_t origin; 
   char dest[32]; 
-  char v68; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  v5 = NtCurrentTeb()->Reserved1[11];
+  v2 = NtCurrentTeb()->Reserved1[11];
+  v3 = 0;
+  v4 = localClientNum;
+  v37 = localClientNum;
+  v5 = 0;
   v6 = 0;
-  v7 = localClientNum;
-  v64 = localClientNum;
-  v8 = 0;
-  v9 = 0;
-  v62 = 0i64;
-  v10 = 0;
-  v11 = v5[tls_index];
-  v63 = 0i64;
-  if ( dword_151446978 > *(_DWORD *)(v11 + 1772) )
+  v35 = 0i64;
+  v7 = 0;
+  v8 = v2[tls_index];
+  v36 = 0i64;
+  if ( dword_151446978 > *(_DWORD *)(v8 + 1772) )
   {
     j__Init_thread_header(&dword_151446978);
     if ( dword_151446978 == -1 )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen
-        vmovups xmm1, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-        vmovups xmmword ptr cs:s_color, xmm0
-        vmovups xmmword ptr cs:s_color+10h, xmm1
-      }
+      s_color[0] = colorGreen;
+      s_color[1] = colorRed;
       j__Init_thread_footer(&dword_151446978);
     }
   }
-  LocalClientGlobals = CG_GetLocalClientGlobals(v7);
-  NextSnap = CG_SnapshotMP_GetNextSnap(v7);
+  LocalClientGlobals = CG_GetLocalClientGlobals(v4);
+  NextSnap = CG_SnapshotMP_GetNextSnap(v4);
   if ( !NextSnap )
-    NextSnap = CG_SnapshotMP_GetPrevSnap(v7);
-  _RDI = DVARFLT_sv_netfieldHighLoDDistSq;
+    NextSnap = CG_SnapshotMP_GetPrevSnap(v4);
+  v10 = DVARFLT_sv_netfieldHighLoDDistSq;
   if ( !DVARFLT_sv_netfieldHighLoDDistSq && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "sv_netfieldHighLoDDistSq") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rdi+28h]
-    vsqrtss xmm6, xmm6, xmm6
-  }
-  v16 = (const vec3_t *)NextSnap->GetPlayerState(&NextSnap->snapshot_t, (const LocalClientNum_t)v7);
-  __asm { vmovaps xmm1, xmm6; radius }
-  CG_DebugSphere(v16 + 4, *(float *)&_XMM1, &colorRed, 0, 0);
+  Dvar_CheckFrontendServerThread(v10);
+  v11 = fsqrt(v10->current.value);
+  v12 = (const vec3_t *)NextSnap->GetPlayerState(&NextSnap->snapshot_t, (const LocalClientNum_t)v4);
+  CG_DebugSphere(v12 + 4, v11, &colorRed, 0, 0);
   if ( (NextSnap->snapFlags & 8) == 0 )
   {
-    v60 = 0;
+    v33 = 0;
     if ( NextSnap->numEntities > 0 )
     {
-      __asm { vmovss  xmm6, cs:__real@3f800000 }
-      _RBX = (GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *)&NextSnap->entities[0].lerp.pos.trBase.z;
+      p_z = (GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *)&NextSnap->entities[0].lerp.pos.trBase.z;
       do
       {
-        v19 = _RBX - 9;
-        if ( _RBX != (GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *)36 )
+        v14 = p_z - 9;
+        if ( p_z != (GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *)36 )
         {
           if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 190, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
             __debugbreak();
-          v20 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(_RBX - 6, ACTIVE, 0x1Eu);
-          v21 = SLOWORD(v19->m_flags[0]);
-          v22 = v20;
-          if ( v21 >= 0x800 )
+          v15 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(p_z - 6, ACTIVE, 0x1Eu);
+          v16 = SLOWORD(v14->m_flags[0]);
+          v17 = v15;
+          if ( v16 >= 0x800 )
           {
             LODWORD(duration) = 2048;
-            LODWORD(depthTest) = SLOWORD(v19->m_flags[0]);
+            LODWORD(depthTest) = SLOWORD(v14->m_flags[0]);
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", depthTest, duration) )
               __debugbreak();
           }
-          v23 = v21;
-          v24 = (unsigned __int64)v21 >> 5;
-          v25 = _RBX - 5;
-          v26 = NextSnap->entitiesLoD.array[v24] & (0x80000000 >> (v23 & 0x1F));
-          if ( _RBX == (GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *)20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", (_DWORD)v25 + 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+          v18 = v16;
+          v19 = (unsigned __int64)v16 >> 5;
+          v20 = p_z - 5;
+          v21 = NextSnap->entitiesLoD.array[v19] & (0x80000000 >> (v18 & 0x1F));
+          if ( p_z == (GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32> *)20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", (_DWORD)v20 + 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
             __debugbreak();
-          if ( v25->m_flags[0] == 4 )
+          if ( v20->m_flags[0] == 4 )
           {
-            v27 = _RBX[-1].m_flags[0];
+            v22 = p_z[-1].m_flags[0];
             p_origin = &origin;
-            v28 = v27 ^ _RBX->m_flags[0];
-            v29 = _RBX[-2].m_flags[0] ^ s_trbase_aab_Y ^ v27;
-            LODWORD(origin.v[2]) = s_trbase_aab_Z ^ v28;
-            LODWORD(origin.v[1]) = v29;
-            LODWORD(origin.v[0]) = _RBX[-2].m_flags[0] ^ ~s_trbase_aab_X;
-            __asm { vmovss  xmm0, dword ptr [rbp+57h+origin] }
+            v23 = v22 ^ p_z->m_flags[0];
+            v24 = p_z[-2].m_flags[0] ^ s_trbase_aab_Y ^ v22;
+            LODWORD(origin.v[2]) = s_trbase_aab_Z ^ v23;
+            LODWORD(origin.v[1]) = v24;
+            LODWORD(origin.v[0]) = p_z[-2].m_flags[0] ^ ~s_trbase_aab_X;
             memset(&p_origin, 0, sizeof(p_origin));
-            __asm { vmovss  dword ptr [rbp+57h+var_A8], xmm0 }
-            if ( ((unsigned int)p_origin & 0x7F800000) == 2139095040 )
-              goto LABEL_37;
-            __asm
+            *(float *)&p_origin = origin.v[0];
+            if ( (LODWORD(origin.v[0]) & 0x7F800000) == 2139095040 || (*(float *)&p_origin = origin.v[1], (LODWORD(origin.v[1]) & 0x7F800000) == 2139095040) || (*(float *)&p_origin = origin.v[2], (LODWORD(origin.v[2]) & 0x7F800000) == 2139095040) )
             {
-              vmovss  xmm0, dword ptr [rbp+57h+origin+4]
-              vmovss  dword ptr [rbp+57h+var_A8], xmm0
-            }
-            if ( ((unsigned int)p_origin & 0x7F800000) == 2139095040 )
-              goto LABEL_37;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+57h+origin+8]
-              vmovss  dword ptr [rbp+57h+var_A8], xmm0
-            }
-            if ( ((unsigned int)p_origin & 0x7F800000) == 2139095040 )
-            {
-LABEL_37:
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
                 __debugbreak();
             }
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbx-8]
-              vmovss  xmm1, dword ptr [rbx-4]
-              vmovss  dword ptr [rbp+57h+origin], xmm0
-              vmovss  xmm0, dword ptr [rbx]
-              vmovss  dword ptr [rbp+57h+origin+8], xmm0
-              vmovss  dword ptr [rbp+57h+origin+4], xmm1
-            }
+            v25 = *(float *)p_z[-1].m_flags;
+            LODWORD(origin.v[0]) = (GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>)p_z[-2].m_flags[0];
+            LODWORD(origin.z) = (GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>)p_z->m_flags[0];
+            origin.v[1] = v25;
           }
-          CL_AddDebugBox(&LocalClientGlobals->refdef.view.axis, &origin, &s_boxLower, &s_boxUpper, (const vec4_t *)((char *)s_color + (v26 != 0 ? 0x10 : 0)), 0, 0, 0);
-          v36 = j_va("%d /%d", (unsigned int)SLOWORD(v19->m_flags[0]), (unsigned int)SLOWORD(_RBX[-7].m_flags[0]));
-          __asm { vmovaps xmm2, xmm6; scale }
-          CL_AddDebugString(&origin, (const vec4_t *)((char *)s_color + (v26 != 0 ? 0x10 : 0)), *(float *)&_XMM2, v36, 0, 0);
-          v38 = v26 != 0;
-          v8 = v60;
-          v39 = v38 ? 4 : 0;
-          if ( v22 )
-            ++*(_DWORD *)((char *)&v63 + v39);
+          CL_AddDebugBox(&LocalClientGlobals->refdef.view.axis, &origin, &s_boxLower, &s_boxUpper, (const vec4_t *)((char *)s_color + (v21 != 0 ? 0x10 : 0)), 0, 0, 0);
+          v26 = j_va("%d /%d", (unsigned int)SLOWORD(v14->m_flags[0]), (unsigned int)SLOWORD(p_z[-7].m_flags[0]));
+          CL_AddDebugString(&origin, (const vec4_t *)((char *)s_color + (v21 != 0 ? 0x10 : 0)), 1.0, v26, 0, 0);
+          v27 = v21 != 0;
+          v5 = v33;
+          v28 = v27 ? 4 : 0;
+          if ( v17 )
+            ++*(_DWORD *)((char *)&v36 + v28);
           else
-            ++*(_DWORD *)((char *)&v62 + v39);
+            ++*(_DWORD *)((char *)&v35 + v28);
         }
-        ++v8;
-        _RBX += 62;
-        v60 = v8;
+        ++v5;
+        p_z += 62;
+        v33 = v5;
       }
-      while ( v8 < NextSnap->numEntities );
-      v8 = HIDWORD(v62);
-      v6 = v62;
-      v10 = HIDWORD(v63);
-      v9 = v63;
-      v7 = v64;
+      while ( v5 < NextSnap->numEntities );
+      v5 = HIDWORD(v35);
+      v3 = v35;
+      v7 = HIDWORD(v36);
+      v6 = v36;
+      v4 = v37;
     }
   }
-  __asm { vmovss  xmm2, cs:__real@3e4ccccd; scale }
-  ActivePlacement = ScrPlace_GetActivePlacement(v7);
-  FontHandle = UI_GetFontHandle(ActivePlacement, 6, *(float *)&_XMM2);
-  Com_sprintf<32>((char (*)[32])dest, "entities Low LoD: %d (%d)", v6, v9);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@41a00000
-    vmovss  xmm7, cs:__real@3e99999a
-    vmovss  dword ptr [rsp+110h+var_D0], xmm7
-    vmovss  [rsp+110h+depthTest], xmm0
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rsp+110h+fmt], xmm6
-  }
-  UI_DrawText(ActivePlacement, dest, 32, FontHandle, fmt, *(float *)&depthTesta, 1, 1, v58, s_color, 3);
-  Com_sprintf<32>((char (*)[32])dest, "entities High LoD: %d (%d)", (unsigned int)v8, v10);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@420c0000
-    vmovss  dword ptr [rsp+110h+var_D0], xmm7
-    vmovss  [rsp+110h+depthTest], xmm0
-    vmovss  dword ptr [rsp+110h+fmt], xmm6
-  }
-  UI_DrawText(ActivePlacement, dest, 32, FontHandle, fmta, *(float *)&depthTestb, 1, 1, v59, &s_color[1], 3);
-  _R11 = &v68;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  ActivePlacement = ScrPlace_GetActivePlacement(v4);
+  FontHandle = UI_GetFontHandle(ActivePlacement, 6, 0.2);
+  Com_sprintf<32>((char (*)[32])dest, "entities Low LoD: %d (%d)", v3, v6);
+  UI_DrawText(ActivePlacement, dest, 32, FontHandle, 0.0, 20.0, 1, 1, 0.30000001, s_color, 3);
+  Com_sprintf<32>((char (*)[32])dest, "entities High LoD: %d (%d)", (unsigned int)v5, v7);
+  UI_DrawText(ActivePlacement, dest, 32, FontHandle, 0.0, 35.0, 1, 1, 0.30000001, &s_color[1], 3);
 }
 
 /*
@@ -3756,87 +3154,61 @@ CgDrawDebugMP::DrawTransientOverlays
 */
 void CgDrawDebugMP::DrawTransientOverlays(CgDrawDebugMP *this, const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v7; 
+  __int128 v2; 
+  const dvar_t *v4; 
+  float y; 
+  unsigned int v6; 
+  unsigned int v7; 
+  unsigned int v8; 
+  unsigned int v9; 
+  unsigned int v10; 
   unsigned int v11; 
   unsigned int v12; 
-  unsigned int v13; 
-  unsigned int v14; 
-  unsigned int v15; 
-  unsigned int v16; 
-  unsigned int v17; 
   unsigned int i; 
   unsigned int ZoneFlagsFromIndex; 
   unsigned __int16 WorldTransientIndexFromZoneIndex; 
   unsigned int MPAttachmentAvailCount; 
-  unsigned int v22; 
+  unsigned int v17; 
   unsigned int MPCustomizationAvailCount; 
   unsigned int MPPhysicsAvailCount; 
   unsigned int MPInfilAvailCount; 
   unsigned int LODFileCount; 
-  unsigned int v27; 
-  GfxFont *v30; 
-  const ScreenPlacement *v31; 
-  __int64 v33; 
+  unsigned int v22; 
+  GfxFont *v23; 
+  const ScreenPlacement *v24; 
+  __int64 v25; 
   char *fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float y; 
-  float ya; 
-  float yb; 
-  float yc; 
-  float yd; 
-  float ye; 
-  float yf; 
-  float v53; 
-  float v54; 
-  float v55; 
-  float v56; 
-  float v57; 
-  float v58; 
-  float v59; 
-  unsigned int v60; 
-  unsigned int v61; 
-  unsigned int v62; 
-  unsigned int v63; 
-  unsigned int v64; 
+  unsigned int v27; 
+  unsigned int v28; 
+  unsigned int v29; 
+  unsigned int v30; 
+  unsigned int v31; 
   ScreenPlacement *scrPlace; 
   GfxFont *font; 
   vec4_t color; 
   char dest[512]; 
+  __int128 v36; 
 
   if ( Com_GameMode_SupportsFeature(WEAPON_DROPPING_LADDER_AIM|0x80) )
   {
-    v7 = DVARBOOL_cg_drawTransients;
+    v4 = DVARBOOL_cg_drawTransients;
     if ( !DVARBOOL_cg_drawTransients && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawTransients") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v7);
-    if ( v7->current.enabled )
+    Dvar_CheckFrontendServerThread(v4);
+    if ( v4->current.enabled )
     {
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@3f3333333f8000003f3333333ecccccd
-        vmovaps [rsp+318h+var_38], xmm6
-        vmovaps [rsp+318h+var_48], xmm7
-        vmovaps [rsp+318h+var_58], xmm8
-        vmovaps [rsp+318h+var_68], xmm9
-        vmovss  xmm9, cs:__real@43d48000
-        vmovups xmmword ptr [rsp+318h+var_290], xmm0
-        vmovss  xmm2, cs:__real@3f155555; scale
-      }
+      v36 = v2;
+      y = FLOAT_425_0;
+      color = (vec4_t)_xmm;
       scrPlace = (ScreenPlacement *)ScrPlace_GetActivePlacement(localClientNum);
-      font = UI_GetFontHandle(scrPlace, 0, *(float *)&_XMM2);
+      font = UI_GetFontHandle(scrPlace, 0, 0.58333331);
+      v6 = 0;
+      v7 = 0;
+      v8 = 0;
+      v9 = 0;
+      v10 = 0;
       v11 = 0;
       v12 = 0;
-      v13 = 0;
-      v14 = 0;
-      v15 = 0;
-      v16 = 0;
-      v17 = 0;
       for ( i = 0; i < 0x7A4; ++i )
       {
         if ( DB_Zones_IsValidZoneIndex(i) )
@@ -3844,159 +3216,104 @@ void CgDrawDebugMP::DrawTransientOverlays(CgDrawDebugMP *this, const LocalClient
           ZoneFlagsFromIndex = DB_Zones_GetZoneFlagsFromIndex(i);
           if ( (ZoneFlagsFromIndex & 0x3800000) != 0 )
           {
-            ++v16;
+            ++v11;
           }
           else if ( (ZoneFlagsFromIndex & 0xFF000) != 0 )
           {
             if ( (ZoneFlagsFromIndex & 0x80000) != 0 )
             {
-              ++v11;
+              ++v6;
             }
             else if ( (ZoneFlagsFromIndex & 0x8000) != 0 )
             {
               WorldTransientIndexFromZoneIndex = DB_Zones_GetWorldTransientIndexFromZoneIndex(i);
               if ( CL_TransientsWorldMP_IsLOD0(WorldTransientIndexFromZoneIndex) )
-                ++v17;
-              ++v13;
+                ++v12;
+              ++v8;
             }
             else if ( (ZoneFlagsFromIndex & 0x10000) != 0 )
             {
-              ++v14;
+              ++v9;
             }
             else if ( (ZoneFlagsFromIndex & 0x60000) != 0 )
             {
-              ++v15;
+              ++v10;
             }
             else
             {
-              ++v12;
+              ++v7;
             }
           }
         }
       }
-      v64 = v15;
-      v63 = v14;
-      v62 = v13;
-      v61 = v12;
-      v60 = v17;
+      v31 = v10;
+      v30 = v9;
+      v29 = v8;
+      v28 = v7;
+      v27 = v12;
       MPAttachmentAvailCount = DB_Transients_GetMPAttachmentAvailCount();
-      v22 = DB_Transients_GetMPWeaponAvailCount() + MPAttachmentAvailCount;
+      v17 = DB_Transients_GetMPWeaponAvailCount() + MPAttachmentAvailCount;
       MPCustomizationAvailCount = DB_Transients_GetMPCustomizationAvailCount();
       MPPhysicsAvailCount = DB_Transients_GetMPPhysicsAvailCount();
       MPInfilAvailCount = DB_Transients_GetMPInfilAvailCount();
       LODFileCount = CL_TransientsWorldMP_GetLODFileCount(0);
-      v27 = CL_TransientsWorldMP_GetLODFileCount(1u);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@3e3851ec
-        vmovss  xmm7, cs:__real@c0f00000
-      }
+      v22 = CL_TransientsWorldMP_GetLODFileCount(1u);
       if ( MPCustomizationAvailCount )
       {
         LODWORD(fmt) = MPCustomizationAvailCount;
-        Com_sprintf(dest, 0x200ui64, "%u / %u Customization Transients", v11, fmt);
-        v30 = font;
-        v31 = scrPlace;
-        __asm
-        {
-          vmovss  [rsp+318h+var_2D8], xmm6
-          vmovss  [rsp+318h+y], xmm9
-          vmovss  dword ptr [rsp+318h+fmt], xmm7
-        }
-        UI_DrawText(scrPlace, dest, 512, font, fmta, y, 1, 1, v53, &color, 3);
-        __asm { vmovss  xmm9, cs:__real@43d10000 }
+        Com_sprintf(dest, 0x200ui64, "%u / %u Customization Transients", v6, fmt);
+        v23 = font;
+        v24 = scrPlace;
+        UI_DrawText(scrPlace, dest, 512, font, -7.5, 425.0, 1, 1, 0.18000001, &color, 3);
+        y = FLOAT_418_0;
       }
       else
       {
-        v31 = scrPlace;
-        v30 = font;
+        v24 = scrPlace;
+        v23 = font;
       }
-      __asm { vmovss  xmm8, cs:__real@c0e00000 }
-      if ( v22 )
+      if ( v17 )
       {
-        LODWORD(fmt) = v22;
-        Com_sprintf(dest, 0x200ui64, "%u / %u Weapon Transients", v61, fmt);
-        __asm
-        {
-          vmovss  [rsp+318h+var_2D8], xmm6
-          vmovss  [rsp+318h+y], xmm9
-          vmovss  dword ptr [rsp+318h+fmt], xmm7
-        }
-        UI_DrawText(v31, dest, 512, v30, fmtb, ya, 1, 1, v54, &color, 3);
-        __asm { vaddss  xmm9, xmm9, xmm8 }
+        LODWORD(fmt) = v17;
+        Com_sprintf(dest, 0x200ui64, "%u / %u Weapon Transients", v28, fmt);
+        UI_DrawText(v24, dest, 512, v23, -7.5, y, 1, 1, 0.18000001, &color, 3);
+        y = y + -7.0;
       }
       if ( LODFileCount )
       {
         LODWORD(fmt) = LODFileCount;
-        Com_sprintf(dest, 0x200ui64, "%u / %u World LOD0 Transients", v60, fmt);
-        __asm
-        {
-          vmovss  [rsp+318h+var_2D8], xmm6
-          vmovss  [rsp+318h+y], xmm9
-          vmovss  dword ptr [rsp+318h+fmt], xmm7
-        }
-        UI_DrawText(v31, dest, 512, v30, fmtc, yb, 1, 1, v55, &color, 3);
-        __asm { vaddss  xmm9, xmm9, xmm8 }
+        Com_sprintf(dest, 0x200ui64, "%u / %u World LOD0 Transients", v27, fmt);
+        UI_DrawText(v24, dest, 512, v23, -7.5, y, 1, 1, 0.18000001, &color, 3);
+        y = y + -7.0;
       }
-      if ( v27 )
+      if ( v22 )
       {
-        v33 = v62 - v60;
-        LODWORD(fmt) = v27;
-        if ( v62 <= v60 )
-          v33 = 0i64;
-        Com_sprintf(dest, 0x200ui64, "%u / %u World LOD1 Transients", v33, fmt);
-        __asm
-        {
-          vmovss  [rsp+318h+var_2D8], xmm6
-          vmovss  [rsp+318h+y], xmm9
-          vmovss  dword ptr [rsp+318h+fmt], xmm7
-        }
-        UI_DrawText(v31, dest, 512, v30, fmtd, yc, 1, 1, v56, &color, 3);
-        __asm { vaddss  xmm9, xmm9, xmm8 }
+        v25 = v29 - v27;
+        LODWORD(fmt) = v22;
+        if ( v29 <= v27 )
+          v25 = 0i64;
+        Com_sprintf(dest, 0x200ui64, "%u / %u World LOD1 Transients", v25, fmt);
+        UI_DrawText(v24, dest, 512, v23, -7.5, y, 1, 1, 0.18000001, &color, 3);
+        y = y + -7.0;
       }
       if ( MPPhysicsAvailCount )
       {
         LODWORD(fmt) = MPPhysicsAvailCount;
-        Com_sprintf(dest, 0x200ui64, "%u / %u Physics Transients", v63, fmt);
-        __asm
-        {
-          vmovss  [rsp+318h+var_2D8], xmm6
-          vmovss  [rsp+318h+y], xmm9
-          vmovss  dword ptr [rsp+318h+fmt], xmm7
-        }
-        UI_DrawText(v31, dest, 512, v30, fmte, yd, 1, 1, v57, &color, 3);
-        __asm { vaddss  xmm9, xmm9, xmm8 }
+        Com_sprintf(dest, 0x200ui64, "%u / %u Physics Transients", v30, fmt);
+        UI_DrawText(v24, dest, 512, v23, -7.5, y, 1, 1, 0.18000001, &color, 3);
+        y = y + -7.0;
       }
       if ( MPInfilAvailCount )
       {
         LODWORD(fmt) = MPInfilAvailCount;
-        Com_sprintf(dest, 0x200ui64, "%u / %u Infil Transients", v64, fmt);
-        __asm
-        {
-          vmovss  [rsp+318h+var_2D8], xmm6
-          vmovss  [rsp+318h+y], xmm9
-          vmovss  dword ptr [rsp+318h+fmt], xmm7
-        }
-        UI_DrawText(v31, dest, 512, v30, fmtf, ye, 1, 1, v58, &color, 3);
-        __asm { vaddss  xmm9, xmm9, xmm8 }
+        Com_sprintf(dest, 0x200ui64, "%u / %u Infil Transients", v31, fmt);
+        UI_DrawText(v24, dest, 512, v23, -7.5, y, 1, 1, 0.18000001, &color, 3);
+        y = y + -7.0;
       }
-      __asm { vmovaps xmm8, [rsp+318h+var_58] }
-      if ( v16 )
+      if ( v11 )
       {
-        Com_sprintf(dest, 0x200ui64, "%u Preload Transients", v16);
-        __asm
-        {
-          vmovss  [rsp+318h+var_2D8], xmm6
-          vmovss  [rsp+318h+y], xmm9
-          vmovss  dword ptr [rsp+318h+fmt], xmm7
-        }
-        UI_DrawText(v31, dest, 512, v30, fmtg, yf, 1, 1, v59, &color, 3);
-      }
-      __asm
-      {
-        vmovaps xmm7, [rsp+318h+var_48]
-        vmovaps xmm6, [rsp+318h+var_38]
-        vmovaps xmm9, [rsp+318h+var_68]
+        Com_sprintf(dest, 0x200ui64, "%u Preload Transients", v11);
+        UI_DrawText(v24, dest, 512, v23, -7.5, y, 1, 1, 0.18000001, &color, 3);
       }
     }
   }
@@ -4007,11 +3324,9 @@ void CgDrawDebugMP::DrawTransientOverlays(CgDrawDebugMP *this, const LocalClient
 CgDrawDebugMP::PrintAntilagInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintAntilagInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintAntilagInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
-  __asm { vmovaps xmm0, xmm3 }
-  return *(float *)&_XMM0;
+  return y;
 }
 
 /*
@@ -4019,15 +3334,22 @@ float __fastcall CgDrawDebugMP::PrintAntilagInfo(CgDrawDebugMP *this, const Loca
 CgDrawDebugMP::PrintEntityDebugInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintEntityDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintEntityDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
+  const dvar_t *v4; 
+  float v7; 
   const dvar_t *v8; 
-  const dvar_t *v12; 
-  char v13; 
+  double CornerLabelWidth; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   const vec4_t *color; 
+  float v15; 
+  float v16; 
+  double CornerFarRight; 
+  double v18; 
   char *fmt; 
-  float fmta; 
   char *text; 
   char *label; 
   unsigned int outTotalCount; 
@@ -4036,53 +3358,43 @@ float __fastcall CgDrawDebugMP::PrintEntityDebugInfo(CgDrawDebugMP *this, const 
   unsigned int outHighestClientVisibleCount; 
   char dest[64]; 
 
-  __asm { vmovaps [rsp+0E8h+var_38], xmm6 }
-  v8 = DVARINT_cg_drawFPS;
-  __asm { vmovaps xmm6, xmm3 }
+  v4 = DVARINT_cg_drawFPS;
+  v7 = y;
   if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.integer )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.integer )
   {
-    v12 = DVARBOOL_cg_drawentitycounts;
+    v8 = DVARBOOL_cg_drawentitycounts;
     if ( !DVARBOOL_cg_drawentitycounts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawentitycounts") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    if ( v12->current.enabled && Com_IsAnyLocalServerRunning() )
+    Dvar_CheckFrontendServerThread(v8);
+    if ( v8->current.enabled && Com_IsAnyLocalServerRunning() )
     {
       SV_MainMP_GetDebugEntityCounts(&outHighestClientVisibleCount, &outTotalCount, &outMaxPerSnapshotCount, &outMaxPerClientCount);
       if ( outMaxPerSnapshotCount )
       {
         if ( outMaxPerClientCount && (outTotalCount || outHighestClientVisibleCount) )
         {
-          __asm { vmovaps [rsp+0E8h+var_48], xmm7 }
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " entities");
-          __asm
+          CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, " entities");
+          v10 = *(float *)&CornerLabelWidth;
+          v11 = (float)outMaxPerSnapshotCount;
+          v12 = v11 * 0.85000002;
+          v13 = (float)outTotalCount;
+          if ( v13 < v12 )
           {
-            vmovss  xmm3, cs:__real@3f59999a
-            vmovaps xmm7, xmm0
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, r8
-            vxorps  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm0, xmm3
-            vcvtsi2ss xmm2, xmm2, rdx
-            vcomiss xmm2, xmm1
-          }
-          if ( v13 )
-          {
-            __asm
+            v15 = (float)outHighestClientVisibleCount;
+            v16 = (float)outMaxPerClientCount;
+            if ( v15 < v16 )
             {
-              vxorps  xmm1, xmm1, xmm1
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm1, xmm1, r9
-              vcvtsi2ss xmm0, xmm0, rcx
-              vcomiss xmm1, xmm0
-              vmulss  xmm0, xmm0, xmm3
-              vcomiss xmm1, xmm0
+              color = &colorYellow;
+              if ( v15 < (float)(v16 * 0.85000002) )
+                color = &colorWhite;
             }
-            color = &colorYellow;
-            if ( v13 )
-              color = &colorWhite;
+            else
+            {
+              color = &colorOrangeHeat;
+            }
           }
           else
           {
@@ -4092,29 +3404,14 @@ float __fastcall CgDrawDebugMP::PrintEntityDebugInfo(CgDrawDebugMP *this, const 
           LODWORD(text) = outTotalCount;
           LODWORD(fmt) = outMaxPerClientCount;
           Com_sprintf(dest, 0x40ui64, "CL %i / %i SV %i / %i", outHighestClientVisibleCount, fmt, text, label);
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-          __asm
-          {
-            vmovaps xmm2, xmm0; posX
-            vmovaps xmm3, xmm6; posY
-            vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-          }
-          CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmta, dest, " entities", color);
-          __asm
-          {
-            vmovaps xmm7, [rsp+0E8h+var_48]
-            vaddss  xmm6, xmm6, xmm0
-          }
+          CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+          v18 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&CornerFarRight, y, v10, dest, " entities", color);
+          return y + *(float *)&v18;
         }
       }
     }
   }
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+0E8h+var_38]
-  }
-  return *(float *)&_XMM0;
+  return v7;
 }
 
 /*
@@ -4122,54 +3419,26 @@ float __fastcall CgDrawDebugMP::PrintEntityDebugInfo(CgDrawDebugMP *this, const 
 CgDrawDebugMP::PrintGameBattlesDebugInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintGameBattlesDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintGameBattlesDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
   const char *text; 
+  double CornerFarRight; 
+  double v9; 
+  float v10; 
   const char *AsyncTaskStateNameDebugString; 
-  float v23; 
-  float v24; 
+  double v12; 
+  double v13; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
-  if ( GameBattles_IsScreenDebugEnabled() )
-  {
-    __asm { vmovaps [rsp+68h+var_28], xmm7 }
-    text = GameBattles_GetMatchJoinStateNameDebugString(localClientNum);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovss  xmm7, cs:__real@42c80000
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm0; posX
-      vmovss  [rsp+68h+var_48], xmm7
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v23, text, " MLG Join State", &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    AsyncTaskStateNameDebugString = GameBattles_GetAsyncTaskStateNameDebugString(localClientNum);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm0; posX
-      vmovss  [rsp+68h+var_48], xmm7
-    }
-    *(double *)&_XMM0 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v24, AsyncTaskStateNameDebugString, " MLG Async Task", &colorWhite);
-    __asm
-    {
-      vmovaps xmm7, [rsp+68h+var_28]
-      vaddss  xmm0, xmm0, xmm6
-    }
-  }
-  else
-  {
-    __asm { vmovaps xmm0, xmm6 }
-  }
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
-  return *(float *)&_XMM0;
+  if ( !GameBattles_IsScreenDebugEnabled() )
+    return y;
+  text = GameBattles_GetMatchJoinStateNameDebugString(localClientNum);
+  CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v9 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&CornerFarRight, y, 100.0, text, " MLG Join State", &colorWhite);
+  v10 = y + *(float *)&v9;
+  AsyncTaskStateNameDebugString = GameBattles_GetAsyncTaskStateNameDebugString(localClientNum);
+  v12 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v13 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v12, v10, 100.0, AsyncTaskStateNameDebugString, " MLG Async Task", &colorWhite);
+  return *(float *)&v13 + v10;
 }
 
 /*
@@ -4180,35 +3449,51 @@ CgDrawDebugMP::PrintMPDebugInfo
 
 float __fastcall CgDrawDebugMP::PrintMPDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
 {
-  const dvar_t *v8; 
-  __int64 v10; 
+  const dvar_t *v4; 
+  __int64 v6; 
+  __int128 v8; 
+  double CornerFarRight; 
+  float v10; 
+  double CornerLabelWidth; 
+  float v12; 
   int ControllerFromClient; 
-  const char *v16; 
+  const char *v14; 
   bool HaveStats; 
-  const char *v18; 
-  const char *v19; 
+  const char *v16; 
+  const char *v17; 
+  double v18; 
+  __int128 v19; 
   const char *MatchIdString; 
-  const dvar_t *v26; 
-  cg_t *v27; 
-  const char *v29; 
+  double v21; 
+  const dvar_t *v22; 
+  cg_t *v23; 
+  double v24; 
+  float v25; 
+  const char *v26; 
+  double v27; 
+  double v28; 
   const snapshot_t *nextSnap; 
   const vec4_t *color; 
-  const char *v35; 
+  __int128 v31; 
+  const char *v32; 
+  double v33; 
+  float v34; 
+  double v35; 
   const snapshot_t *snap; 
-  const char *v40; 
-  const snapshot_t *v43; 
-  const char *v44; 
-  const dvar_t *v47; 
+  const char *v37; 
+  double v38; 
+  double v39; 
+  const snapshot_t *v40; 
+  const char *v41; 
+  double v42; 
+  double v43; 
+  __int128 v44; 
+  const dvar_t *v45; 
   int i; 
   characterInfo_t *CharacterInfo; 
-  const char *v50; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
+  const char *v48; 
+  double v49; 
+  __int128 v50; 
   char *text; 
   char *texta; 
   char *textb; 
@@ -4216,83 +3501,67 @@ float __fastcall CgDrawDebugMP::PrintMPDebugInfo(CgDrawDebugMP *this, const Loca
   char *labela; 
   char *labelb; 
 
-  v8 = DVARBOOL_cg_drawStatsSource;
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
-  v10 = localClientNum;
-  __asm { vmovaps xmm6, xmm3 }
+  v4 = DVARBOOL_cg_drawStatsSource;
+  v6 = localClientNum;
+  v8 = *(_OWORD *)&y;
   if ( !DVARBOOL_cg_drawStatsSource && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawStatsSource") )
     __debugbreak();
-  __asm
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.enabled )
   {
-    vmovaps [rsp+98h+var_48], xmm7
-    vmovaps [rsp+98h+var_58], xmm8
-  }
-  Dvar_CheckFrontendServerThread(v8);
-  if ( v8->current.enabled )
-  {
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " cg ms/frame");
-    __asm { vmovaps xmm7, xmm0 }
-    ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v10);
-    v16 = "offline";
+    CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+    v10 = *(float *)&CornerFarRight;
+    CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, " cg ms/frame");
+    v12 = *(float *)&CornerLabelWidth;
+    ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v6);
+    v14 = "offline";
     if ( LiveStorage_GetActiveStatsSource(ControllerFromClient) != STATS_OFFLINE )
-      v16 = "online";
+      v14 = "online";
     HaveStats = LiveStorage_DoWeHaveStats(ControllerFromClient);
-    v18 = " (not fetched)";
+    v16 = " (not fetched)";
     if ( HaveStats )
-      v18 = (char *)&queryFormat.fmt + 3;
-    v19 = j_va("%s%s", v16, v18);
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm8; posX
-      vmovss  dword ptr [rsp+98h+fmt], xmm7
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v19, " stats", &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
+      v16 = (char *)&queryFormat.fmt + 3;
+    v17 = j_va("%s%s", v14, v16);
+    v18 = CgDrawDebug::CornerPrint(this, scrPlace, v10, *(float *)&y, *(float *)&CornerLabelWidth, v17, " stats", &colorWhite);
+    v19 = *(_OWORD *)&y;
+    *(float *)&v19 = *(float *)&y + *(float *)&v18;
     MatchIdString = OnlineMatchId::GetMatchIdString();
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm8; posX
-      vmovss  dword ptr [rsp+98h+fmt], xmm7
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmta, MatchIdString, " match id", &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
+    v21 = CgDrawDebug::CornerPrint(this, scrPlace, v10, *(float *)&y + *(float *)&v18, v12, MatchIdString, " match id", &colorWhite);
+    *(float *)&v19 = *(float *)&v19 + *(float *)&v21;
+    v8 = v19;
   }
-  v26 = DVARBOOL_cg_drawSystemTime;
+  v22 = DVARBOOL_cg_drawSystemTime;
   if ( !DVARBOOL_cg_drawSystemTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawSystemTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v26);
-  if ( v26->current.enabled )
+  Dvar_CheckFrontendServerThread(v22);
+  if ( v22->current.enabled )
   {
-    if ( (unsigned int)v10 >= 2 )
+    if ( (unsigned int)v6 >= 2 )
     {
       LODWORD(label) = 2;
-      LODWORD(text) = v10;
+      LODWORD(text) = v6;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", text, label) )
         __debugbreak();
       LODWORD(labela) = 2;
-      LODWORD(texta) = v10;
+      LODWORD(texta) = v6;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", texta, labela) )
         __debugbreak();
     }
-    if ( !clientUIActives[v10].frontEndSceneState[0] )
+    if ( !clientUIActives[v6].frontEndSceneState[0] )
     {
-      if ( (unsigned int)v10 >= 2 )
+      if ( (unsigned int)v6 >= 2 )
       {
         LODWORD(label) = 2;
-        LODWORD(text) = v10;
+        LODWORD(text) = v6;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 174, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", text, label) )
           __debugbreak();
       }
-      if ( clientUIActives[v10].connectionState == CA_ACTIVE )
+      if ( clientUIActives[v6].connectionState == CA_ACTIVE )
       {
-        if ( (unsigned int)v10 >= cg_t::ms_allocatedCount )
+        if ( (unsigned int)v6 >= cg_t::ms_allocatedCount )
         {
           LODWORD(label) = cg_t::ms_allocatedCount;
-          LODWORD(text) = v10;
+          LODWORD(text) = v6;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp.h", 217, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", text, label) )
             __debugbreak();
         }
@@ -4302,117 +3571,87 @@ float __fastcall CgDrawDebugMP::PrintMPDebugInfo(CgDrawDebugMP *this, const Loca
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp.h", 218, ASSERT_TYPE_ASSERT, "(CG_Globals_GetType() == CgGlobalsType::GLOB_TYPE_MP)", "%s\n\tCgGlobalsMP::GetLocalClientGlobals: Trying to get multiplayer globals but the globals were not allocated as multiplayer. Allocated type is:%d\n", "CG_Globals_GetType() == CgGlobalsType::GLOB_TYPE_MP", label) )
             __debugbreak();
         }
-        v27 = cg_t::ms_cgArray[v10];
-        ClActiveClientMP::GetClientMP((const LocalClientNum_t)v10);
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-        __asm { vmovaps xmm8, xmm0 }
-        v29 = j_va("%i", (unsigned int)v27->oldTime);
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " cOldTime");
-        __asm
-        {
-          vmovaps xmm3, xmm6; posY
-          vmovaps xmm2, xmm8; posX
-          vmovss  dword ptr [rsp+98h+fmt], xmm0
-        }
-        CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, v29, " cOldTime", &colorWhite);
-        nextSnap = v27->nextSnap;
+        v23 = cg_t::ms_cgArray[v6];
+        ClActiveClientMP::GetClientMP((const LocalClientNum_t)v6);
+        v24 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+        v25 = *(float *)&v24;
+        v26 = j_va("%i", (unsigned int)v23->oldTime);
+        v27 = CgDrawDebug::GetCornerLabelWidth(this, " cOldTime");
+        v28 = CgDrawDebug::CornerPrint(this, scrPlace, v25, *(float *)&v8, *(float *)&v27, v26, " cOldTime", &colorWhite);
+        nextSnap = v23->nextSnap;
         color = &colorWhite;
-        __asm { vaddss  xmm6, xmm6, xmm0 }
+        v31 = v8;
+        *(float *)&v31 = *(float *)&v8 + *(float *)&v28;
         if ( nextSnap )
         {
           color = &colorRed;
-          if ( v27->time < nextSnap->serverTime )
+          if ( v23->time < nextSnap->serverTime )
             color = &colorWhite;
         }
-        v35 = j_va("%i", (unsigned int)v27->time);
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " cCurTime");
-        __asm
-        {
-          vmovaps xmm3, xmm6; posY
-          vmovaps xmm2, xmm8; posX
-          vmovss  dword ptr [rsp+98h+fmt], xmm0
-          vmovaps xmm7, xmm0
-        }
-        CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, v35, " cCurTime", color);
-        snap = v27->snap;
-        __asm { vaddss  xmm6, xmm6, xmm0 }
+        v32 = j_va("%i", (unsigned int)v23->time);
+        v33 = CgDrawDebug::GetCornerLabelWidth(this, " cCurTime");
+        v34 = *(float *)&v33;
+        v35 = CgDrawDebug::CornerPrint(this, scrPlace, v25, *(float *)&v31, *(float *)&v33, v32, " cCurTime", color);
+        snap = v23->snap;
+        *(float *)&v31 = *(float *)&v31 + *(float *)&v35;
+        v8 = v31;
         if ( snap )
         {
-          v40 = j_va("%i", (unsigned int)snap->serverTime);
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " snapTime");
-          __asm
-          {
-            vmovaps xmm3, xmm6; posY
-            vmovaps xmm2, xmm8; posX
-            vmovss  dword ptr [rsp+98h+fmt], xmm0
-            vmovaps xmm7, xmm0
-          }
-          CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, v40, " snapTime", &colorWhite);
-          __asm { vaddss  xmm6, xmm6, xmm0 }
+          v37 = j_va("%i", (unsigned int)snap->serverTime);
+          v38 = CgDrawDebug::GetCornerLabelWidth(this, " snapTime");
+          v34 = *(float *)&v38;
+          v39 = CgDrawDebug::CornerPrint(this, scrPlace, v25, *(float *)&v31, *(float *)&v38, v37, " snapTime", &colorWhite);
+          *(float *)&v31 = *(float *)&v31 + *(float *)&v39;
+          v8 = v31;
         }
-        v43 = v27->nextSnap;
-        if ( v43 )
+        v40 = v23->nextSnap;
+        if ( v40 )
         {
-          v44 = j_va("%i", (unsigned int)v43->serverTime);
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " nextTime");
-          __asm
-          {
-            vmovaps xmm3, xmm6; posY
-            vmovaps xmm2, xmm8; posX
-            vmovss  dword ptr [rsp+98h+fmt], xmm0
-            vmovaps xmm7, xmm0
-          }
-          CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmte, v44, " nextTime", &colorWhite);
-          __asm { vaddss  xmm6, xmm6, xmm0 }
+          v41 = j_va("%i", (unsigned int)v40->serverTime);
+          v42 = CgDrawDebug::GetCornerLabelWidth(this, " nextTime");
+          v34 = *(float *)&v42;
+          v43 = CgDrawDebug::CornerPrint(this, scrPlace, v25, *(float *)&v8, *(float *)&v42, v41, " nextTime", &colorWhite);
+          v44 = v8;
+          *(float *)&v44 = *(float *)&v8 + *(float *)&v43;
+          v8 = v44;
         }
-        v47 = DCONST_DVARBOOL_scriptedAsmDebug;
+        v45 = DCONST_DVARBOOL_scriptedAsmDebug;
         if ( !DCONST_DVARBOOL_scriptedAsmDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scriptedAsmDebug") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v47);
-        if ( v47->current.enabled )
+        Dvar_CheckFrontendServerThread(v45);
+        if ( v45->current.enabled )
         {
           for ( i = 0; i < cls.maxClients; ++i )
           {
-            if ( v27->IsMP(v27) )
+            if ( v23->IsMP(v23) )
             {
-              if ( i >= v27[1].predictedPlayerState.rxvOmnvars[64].timeModified )
+              if ( i >= v23[1].predictedPlayerState.rxvOmnvars[64].timeModified )
               {
-                LODWORD(labelb) = v27[1].predictedPlayerState.rxvOmnvars[64].timeModified;
+                LODWORD(labelb) = v23[1].predictedPlayerState.rxvOmnvars[64].timeModified;
                 LODWORD(textb) = i;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 12, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", textb, labelb) )
                   __debugbreak();
               }
-              CharacterInfo = (characterInfo_t *)(*(_QWORD *)&v27[1].predictedPlayerState.rxvOmnvars[62] + 14792i64 * i);
+              CharacterInfo = (characterInfo_t *)(*(_QWORD *)&v23[1].predictedPlayerState.rxvOmnvars[62] + 14792i64 * i);
             }
             else
             {
-              CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v27, i);
+              CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)v23, i);
             }
             if ( CharacterInfo && CharacterInfo->infoValid )
             {
-              v50 = j_va("%i", (unsigned int)CharacterInfo->playerASM_scripted_anim_start_time);
-              __asm
-              {
-                vmovaps xmm3, xmm6; posY
-                vmovaps xmm2, xmm8; posX
-                vmovss  dword ptr [rsp+98h+fmt], xmm7
-              }
-              CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, v50, (const char *)&queryFormat.fmt + 3, &colorWhite);
-              __asm { vaddss  xmm6, xmm6, xmm0 }
+              v48 = j_va("%i", (unsigned int)CharacterInfo->playerASM_scripted_anim_start_time);
+              v49 = CgDrawDebug::CornerPrint(this, scrPlace, v25, *(float *)&v8, v34, v48, (const char *)&queryFormat.fmt + 3, &colorWhite);
+              v50 = v8;
+              *(float *)&v50 = *(float *)&v8 + *(float *)&v49;
+              v8 = v50;
             }
           }
         }
       }
     }
   }
-  __asm
-  {
-    vmovaps xmm8, [rsp+98h+var_58]
-    vmovaps xmm7, [rsp+98h+var_48]
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+98h+var_38]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&v8;
 }
 
 /*
@@ -4420,31 +3659,21 @@ float __fastcall CgDrawDebugMP::PrintMPDebugInfo(CgDrawDebugMP *this, const Loca
 CgDrawDebugMP::PrintMpFrontendDebugInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintMpFrontendDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintMpFrontendDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
-  __asm
-  {
-    vmovaps xmm2, xmm3; posY
-    vmovaps [rsp+38h+var_18], xmm6
-  }
-  *(double *)&_XMM0 = CgDrawDebug::PrintFrontendUpperRightDebugInfo(this, localClientNum, *(float *)&_XMM2);
-  __asm { vmovaps xmm3, xmm0; y }
-  *(double *)&_XMM0 = CgDrawDebug::PrintFrontendSceneDebugInfo(this, localClientNum, scrPlace, *(float *)&_XMM3);
-  __asm { vmovaps xmm3, xmm0; y }
-  *(double *)&_XMM0 = CgDrawDebugMP::PrintEntityDebugInfo(this, localClientNum, scrPlace, *(float *)&_XMM3);
-  __asm { vmovaps xmm3, xmm0; y }
-  *(double *)&_XMM0 = CgDrawDebugMP::PrintPreloadDebugInfo(this, localClientNum, scrPlace, *(float *)&_XMM3);
-  __asm { vmovaps xmm3, xmm0; posY }
-  *(double *)&_XMM0 = CgDrawDebugMP::PrintStreamingPos(this, localClientNum, scrPlace, *(float *)&_XMM3);
-  __asm { vmovaps xmm6, xmm0 }
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+
+  v7 = CgDrawDebug::PrintFrontendUpperRightDebugInfo(this, localClientNum, y);
+  v8 = CgDrawDebug::PrintFrontendSceneDebugInfo(this, localClientNum, scrPlace, *(float *)&v7);
+  v9 = CgDrawDebugMP::PrintEntityDebugInfo(this, localClientNum, scrPlace, *(float *)&v8);
+  v10 = CgDrawDebugMP::PrintPreloadDebugInfo(this, localClientNum, scrPlace, *(float *)&v9);
+  v11 = CgDrawDebugMP::PrintStreamingPos(this, localClientNum, scrPlace, *(float *)&v10);
   this->DrawAnimationOverlays(this, localClientNum);
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&v11;
 }
 
 /*
@@ -4452,79 +3681,58 @@ float __fastcall CgDrawDebugMP::PrintMpFrontendDebugInfo(CgDrawDebugMP *this, co
 CgDrawDebugMP::PrintPartyDebugInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintPartyDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintPartyDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
+  const dvar_t *v4; 
   const dvar_t *v8; 
-  const dvar_t *v13; 
-  const dvar_t *v18; 
-  const dvar_t *v20; 
+  double v9; 
+  double CornerLabelWidth; 
+  float v11; 
+  double CornerFarRight; 
+  double v13; 
+  const dvar_t *v14; 
+  float v15; 
+  float v16; 
+  const dvar_t *v17; 
   const char *text; 
-  float fmt; 
-  float fmta; 
-  void *retaddr; 
+  double v19; 
+  double v20; 
 
-  _RAX = &retaddr;
-  v8 = DVARSTR_party_hostname;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmm6, xmm3
-  }
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_hostname") )
+  v4 = DVARSTR_party_hostname;
+  if ( !DVARSTR_party_hostname && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_hostname") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v8);
-  if ( !v8->current.integer64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 909, ASSERT_TYPE_ASSERT, "(Dvar_GetString_Internal_DebugName( DVARSTR_party_hostname, \"party_hostname\" ))", (const char *)&queryFormat, "Dvar_GetString( party_hostname )") )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( !v4->current.integer64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 909, ASSERT_TYPE_ASSERT, "(Dvar_GetString_Internal_DebugName( DVARSTR_party_hostname, \"party_hostname\" ))", (const char *)&queryFormat, "Dvar_GetString( party_hostname )") )
     __debugbreak();
-  v13 = DVARINT_cg_drawFPS;
+  v8 = DVARINT_cg_drawFPS;
   if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  if ( v13->current.integer )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.integer )
+    return y;
+  CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, " cg ms/frame");
+  v11 = *(float *)&CornerLabelWidth;
+  CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v13 = CgDrawDebug::CornerPrintCaption(this, scrPlace, *(float *)&CornerFarRight, y, v11, "- MP -", &colorGreenFaded);
+  v14 = DVARSTR_party_hostname;
+  v16 = y + *(float *)&v13;
+  v15 = y + *(float *)&v13;
+  if ( !DVARSTR_party_hostname && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_hostname") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v14);
+  if ( *(_BYTE *)v14->current.integer64 )
   {
-    __asm { vmovaps [rsp+78h+var_38], xmm7 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " cg ms/frame");
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm2, xmm0; posX
-      vmovaps xmm3, xmm6; posY
-      vmovss  dword ptr [rsp+78h+fmt], xmm7
-    }
-    CgDrawDebug::CornerPrintCaption(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmt, "- MP -", &colorGreenFaded);
-    v18 = DVARSTR_party_hostname;
-    __asm { vaddss  xmm6, xmm6, xmm0 }
+    v17 = DVARSTR_party_hostname;
     if ( !DVARSTR_party_hostname && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_hostname") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v18);
-    if ( *(_BYTE *)v18->current.integer64 )
-    {
-      v20 = DVARSTR_party_hostname;
-      if ( !DVARSTR_party_hostname && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 748, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_hostname") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v20);
-      text = v20->current.string;
-      *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-      __asm
-      {
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm0; posX
-        vmovss  dword ptr [rsp+78h+fmt], xmm7
-      }
-      CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmta, text, " g-host", &colorWhite);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-    }
-    __asm { vmovaps xmm3, xmm6; y }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintPartyMemberInfo(this, localClientNum, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm7, [rsp+78h+var_38] }
+    Dvar_CheckFrontendServerThread(v17);
+    text = v17->current.string;
+    v19 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+    v20 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v19, v16, v11, text, " g-host", &colorWhite);
+    v15 = v16 + *(float *)&v20;
   }
-  else
-  {
-    __asm { vmovaps xmm0, xmm6 }
-  }
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
-  return *(float *)&_XMM0;
+  v9 = CgDrawDebugMP::PrintPartyMemberInfo(this, localClientNum, scrPlace, v15);
+  return *(float *)&v9;
 }
 
 /*
@@ -4535,42 +3743,43 @@ CgDrawDebugMP::PrintPartyMemberInfo
 
 float __fastcall CgDrawDebugMP::PrintPartyMemberInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
 {
+  __int128 v5; 
+  double CornerLabelWidth; 
+  float v8; 
   const dvar_t *VarByName; 
   unsigned __int8 BotsConnectType; 
-  unsigned __int8 v14; 
-  const char *v15; 
-  unsigned int v18; 
+  unsigned __int8 v11; 
+  const char *v12; 
+  double CornerFarRight; 
+  double v14; 
+  __int128 v15; 
+  unsigned int v16; 
   unsigned __int8 *p_status; 
+  double v18; 
+  double v19; 
   const char *MemberStatus; 
   const char *MemberName; 
-  bool v24; 
-  const char *v25; 
-  float fmta; 
+  bool v22; 
+  const char *v23; 
+  double v24; 
+  __int128 v25; 
+  double v26; 
+  double v27; 
   char *fmt; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
   char *text; 
   int label; 
   char dest[64]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmm6, xmm3
-  }
+  LODWORD(v5) = LODWORD(y);
   if ( !g_partyData.inParty )
-    goto LABEL_20;
-  __asm { vmovaps xmmword ptr [r11-58h], xmm7 }
-  *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " cg ms/frame");
-  __asm { vmovaps xmm7, xmm0 }
+    return *(float *)&v5;
+  CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, " cg ms/frame");
+  v8 = *(float *)&CornerLabelWidth;
   VarByName = Dvar_FindVarByName("OMSOSSSORO");
   if ( VarByName->type != 8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 874, ASSERT_TYPE_ASSERT, "(bot_SystemStatus->type == DVAR_TYPE_ENUM)", (const char *)&queryFormat, "bot_SystemStatus->type == DVAR_TYPE_ENUM") )
     __debugbreak();
   BotsConnectType = BG_GetBotsConnectType();
-  v14 = BotsConnectType;
+  v11 = BotsConnectType;
   if ( (unsigned int)BotsConnectType >= VarByName->domain.enumeration.stringCount )
   {
     label = VarByName->domain.enumeration.stringCount;
@@ -4578,78 +3787,51 @@ float __fastcall CgDrawDebugMP::PrintPartyMemberInfo(CgDrawDebugMP *this, const 
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_draw_debug_mp.cpp", 877, ASSERT_TYPE_ASSERT, "(unsigned)( botConnectType ) < (unsigned)( bot_SystemStatus->domain.enumeration.stringCount )", "botConnectType doesn't index bot_SystemStatus->domain.enumeration.stringCount\n\t%i not in [0, %i)", text, label) )
       __debugbreak();
   }
-  v15 = *(const char **)(VarByName->domain.integer64.max + 8i64 * v14);
-  *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-  __asm
-  {
-    vmovaps xmm3, xmm6; posY
-    vmovaps xmm2, xmm0; posX
-    vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-  }
-  CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v15, " bots", &colorGreen);
-  __asm { vaddss  xmm6, xmm6, xmm0 }
-  v18 = 0;
+  v12 = *(const char **)(VarByName->domain.integer64.max + 8i64 * v11);
+  CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v14 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&CornerFarRight, *(float *)&y, v8, v12, " bots", &colorGreen);
+  v15 = *(_OWORD *)&y;
+  *(float *)&v15 = *(float *)&y + *(float *)&v14;
+  v5 = v15;
+  v16 = 0;
   p_status = &g_partyData.partyMembers[0].status;
   do
   {
     if ( *p_status )
     {
-      MemberStatus = Party_GetMemberStatus(&g_partyData, v18);
-      MemberName = Party_GetMemberName(&g_partyData, v18);
-      v24 = !Party_IsHost(&g_partyData, v18);
-      v25 = (char *)&queryFormat.fmt + 3;
-      if ( !v24 )
-        v25 = " (h)";
-      LODWORD(fmt) = v18;
-      Com_sprintf(dest, 0x40ui64, "%s %i%s ", MemberName, fmt, v25);
-      *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-      __asm
-      {
-        vmovaps xmm2, xmm0; posX
-        vmovaps xmm3, xmm6; posY
-        vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-      }
-      CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, dest, MemberStatus, &colorWhite);
+      MemberStatus = Party_GetMemberStatus(&g_partyData, v16);
+      MemberName = Party_GetMemberName(&g_partyData, v16);
+      v22 = !Party_IsHost(&g_partyData, v16);
+      v23 = (char *)&queryFormat.fmt + 3;
+      if ( !v22 )
+        v23 = " (h)";
+      LODWORD(fmt) = v16;
+      Com_sprintf(dest, 0x40ui64, "%s %i%s ", MemberName, fmt, v23);
+      v24 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+      v19 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v24, *(float *)&v5, v8, dest, MemberStatus, &colorWhite);
     }
     else
     {
-      if ( !Party_IsHost(&g_partyData, v18) )
+      if ( !Party_IsHost(&g_partyData, v16) )
         goto LABEL_16;
-      *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-      __asm
-      {
-        vmovaps xmm2, xmm0; posX
-        vmovaps xmm3, xmm6; posY
-        vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-      }
-      CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, "missing", " host", &colorRed);
+      v18 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+      v19 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v18, *(float *)&v5, v8, "missing", " host", &colorRed);
     }
-    __asm { vaddss  xmm6, xmm6, xmm0 }
+    v25 = v5;
+    *(float *)&v25 = *(float *)&v5 + *(float *)&v19;
+    v5 = v25;
 LABEL_16:
-    ++v18;
+    ++v16;
     p_status += 504;
   }
-  while ( v18 < 0xC8 );
+  while ( v16 < 0xC8 );
   if ( g_partyData.backingOut )
   {
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm2, xmm0; posX
-      vmovaps xmm3, xmm6; posY
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm7
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, "backing out", (const char *)&queryFormat.fmt + 3, &colorYellow);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
+    v26 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+    v27 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v26, *(float *)&v5, v8, "backing out", (const char *)&queryFormat.fmt + 3, &colorYellow);
+    *(float *)&v5 = *(float *)&v5 + *(float *)&v27;
   }
-  __asm { vmovaps xmm7, [rsp+0E8h+var_58] }
-LABEL_20:
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+0E8h+var_48]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&v5;
 }
 
 /*
@@ -4657,80 +3839,89 @@ LABEL_20:
 CgDrawDebugMP::PrintPreloadDebugInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintPreloadDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintPreloadDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
-  const dvar_t *v7; 
-  const dvar_t *v12; 
+  const dvar_t *v4; 
+  float v8; 
+  const dvar_t *v9; 
+  double CornerLabelWidth; 
+  float v11; 
+  double CornerFarRight; 
+  double v13; 
+  double v14; 
+  float v15; 
+  double v16; 
+  double v17; 
+  float v18; 
+  double v19; 
+  double v20; 
   const char *v21; 
   char v22; 
-  const dvar_t *v24; 
+  double v23; 
+  float v24; 
+  const dvar_t *v25; 
   bool enabled; 
-  const char *v28; 
+  double v27; 
+  double v28; 
   const dvar_t *v29; 
   bool v30; 
-  const ScreenPlacement *v31; 
-  CgDrawDebugMP *v32; 
-  const char *v35; 
-  const dvar_t *v38; 
-  const dvar_t *v41; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
+  double v31; 
+  const ScreenPlacement *v32; 
+  CgDrawDebugMP *v33; 
+  float v34; 
+  float v35; 
+  double v36; 
+  const char *v37; 
+  double v38; 
+  double v39; 
+  float v40; 
+  double v41; 
+  const dvar_t *v42; 
+  double v43; 
+  double v44; 
+  const dvar_t *v45; 
+  double v46; 
+  double v47; 
+  float v48; 
+  double v49; 
+  double v50; 
+  double v51; 
+  double v52; 
+  double v53; 
+  double v54; 
   char *text; 
   char *label; 
-  vec4_t *color; 
-  vec4_t *colora; 
   char outString[1024]; 
 
-  __asm { vmovaps [rsp+4B8h+var_68], xmm7 }
-  v7 = DVARINT_cg_drawFPS;
-  __asm { vmovaps xmm7, xmm3 }
+  v4 = DVARINT_cg_drawFPS;
+  v8 = y;
   if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.integer )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.integer )
   {
-    v12 = DVARBOOL_cg_drawpreload;
+    v9 = DVARBOOL_cg_drawpreload;
     if ( !DVARBOOL_cg_drawpreload && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawpreload") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    if ( v12->current.enabled )
+    Dvar_CheckFrontendServerThread(v9);
+    if ( v9->current.enabled )
     {
-      __asm { vmovaps [rsp+4B8h+var_58], xmm6 }
       if ( CL_UIStreaming_IsStartingMatch() )
       {
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " game");
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-        __asm
-        {
-          vmovaps xmm2, xmm0; posX
-          vmovaps xmm3, xmm7; posY
-          vmovss  dword ptr [rsp+4B8h+fmt], xmm6
-        }
-        CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmt, "starting", " game", &colorGreen);
-        __asm { vaddss  xmm7, xmm7, xmm0 }
+        CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, " game");
+        v11 = *(float *)&CornerLabelWidth;
+        CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+        v13 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&CornerFarRight, y, v11, "starting", " game", &colorGreen);
+        v8 = y + *(float *)&v13;
       }
       if ( Com_GameStart_GetShortLoadInfoString(outString, 0x400u) )
       {
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " gamestart");
-        __asm { vmovaps xmm6, xmm0 }
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-        __asm
-        {
-          vmovaps xmm2, xmm0; posX
-          vmovaps xmm3, xmm7; posY
-          vmovss  dword ptr [rsp+4B8h+fmt], xmm6
-        }
-        CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmta, outString, " gamestart", &colorWhite);
-        __asm { vaddss  xmm7, xmm7, xmm0 }
+        v14 = CgDrawDebug::GetCornerLabelWidth(this, " gamestart");
+        v15 = *(float *)&v14;
+        v16 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+        v17 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v16, v8, v15, outString, " gamestart", &colorWhite);
+        v18 = v8 + *(float *)&v17;
+        v8 = v8 + *(float *)&v17;
         if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
         {
           LODWORD(label) = 2;
@@ -4741,46 +3932,28 @@ float __fastcall CgDrawDebugMP::PrintPreloadDebugInfo(CgDrawDebugMP *this, const
         if ( localClientNum < cgs_t::ms_allocatedCount )
         {
           CL_CGameMP_DebugDrawIsNearCommandOverflow(localClientNum, outString, 0x400u);
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-          __asm
-          {
-            vsubss  xmm2, xmm0, cs:__real@40a00000; posX
-            vmovaps xmm3, xmm7; posY
-          }
-          CgDrawDebug::CornerPrintNoLabel(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, outString, &colorWhite);
-          __asm { vaddss  xmm7, xmm7, xmm0 }
+          v19 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+          v20 = CgDrawDebug::CornerPrintNoLabel(this, scrPlace, *(float *)&v19 - 5.0, v18, outString, &colorWhite);
+          v8 = v18 + *(float *)&v20;
         }
       }
       v21 = " preload";
       v22 = 1;
-      *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " preload");
-      __asm { vmovaps xmm6, xmm0 }
+      v23 = CgDrawDebug::GetCornerLabelWidth(this, " preload");
+      v24 = *(float *)&v23;
       if ( !CG_FrontendScene_AreRequiredTransientsLoaded() )
       {
-        v24 = DVARBOOL_frontEndPrioritizeLevelLoadExceptNeededTransients;
+        v25 = DVARBOOL_frontEndPrioritizeLevelLoadExceptNeededTransients;
         if ( !DVARBOOL_frontEndPrioritizeLevelLoadExceptNeededTransients && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "frontEndPrioritizeLevelLoadExceptNeededTransients") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v24);
-        enabled = v24->current.enabled;
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-        __asm
-        {
-          vmovaps xmm3, xmm7; posY
-          vmovaps xmm2, xmm0; posX
-        }
+        Dvar_CheckFrontendServerThread(v25);
+        enabled = v25->current.enabled;
+        v27 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
         if ( enabled )
-        {
-          color = &colorYellow;
-          v28 = "trans block";
-        }
+          v28 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v27, v8, v24, "trans block", " preload", &colorYellow);
         else
-        {
-          color = &colorWhite;
-          v28 = "trans want";
-        }
-        __asm { vmovss  dword ptr [rsp+4B8h+fmt], xmm6 }
-        CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, v28, " preload", color);
-        __asm { vaddss  xmm7, xmm7, xmm0 }
+          v28 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v27, v8, v24, "trans want", " preload", &colorWhite);
+        v8 = v8 + *(float *)&v28;
         v22 = 0;
       }
       if ( Com_FrontEndScene_NeedsStreamingForVisiblity() )
@@ -4790,122 +3963,80 @@ float __fastcall CgDrawDebugMP::PrintPreloadDebugInfo(CgDrawDebugMP *this, const
           __debugbreak();
         Dvar_CheckFrontendServerThread(v29);
         v30 = v29->current.enabled;
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-        v31 = scrPlace;
-        v32 = this;
-        __asm
-        {
-          vmovaps xmm3, xmm7
-          vmovaps xmm2, xmm0
-        }
+        v31 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+        v32 = scrPlace;
+        v33 = this;
+        v34 = v8;
+        v35 = *(float *)&v31;
         if ( v30 )
         {
-          colora = &colorWhite;
-          v35 = "stream block";
+          v36 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v31, v8, v24, "stream block", " preload", &colorWhite);
 LABEL_44:
-          __asm { vmovss  dword ptr [rsp+4B8h+fmt], xmm6 }
-          CgDrawDebug::CornerPrint(v32, v31, *(float *)&_XMM2, *(float *)&_XMM3, fmte, v35, v21, colora);
-          __asm { vaddss  xmm7, xmm7, xmm0 }
+          v8 = v8 + *(float *)&v36;
 LABEL_45:
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " paused preload");
-          __asm { vmovaps xmm6, xmm0 }
+          v47 = CgDrawDebug::GetCornerLabelWidth(this, " paused preload");
+          v48 = *(float *)&v47;
           if ( Com_FrontEndScene_NeedsDatabaseAccess() )
           {
-            *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-            __asm
-            {
-              vmovaps xmm2, xmm0; posX
-              vmovaps xmm3, xmm7; posY
-              vmovss  dword ptr [rsp+4B8h+fmt], xmm6
-            }
-            CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, "database", " paused preload", &colorYellow);
-            __asm { vaddss  xmm7, xmm7, xmm0 }
+            v49 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+            v50 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v49, v8, v48, "database", " paused preload", &colorYellow);
+            v8 = v8 + *(float *)&v50;
           }
           if ( CL_TransientsMP_NeedsProcessing() )
           {
-            *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-            __asm
-            {
-              vmovaps xmm2, xmm0; posX
-              vmovaps xmm3, xmm7; posY
-              vmovss  dword ptr [rsp+4B8h+fmt], xmm6
-            }
-            CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtg, "transients", " paused preload", &colorYellow);
-            __asm { vaddss  xmm7, xmm7, xmm0 }
+            v51 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+            v52 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v51, v8, v48, "transients", " paused preload", &colorYellow);
+            v8 = v8 + *(float *)&v52;
           }
           if ( CL_UIStreaming_NeedsDatabaseAccess() )
           {
-            *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-            __asm
-            {
-              vmovaps xmm2, xmm0; posX
-              vmovaps xmm3, xmm7; posY
-              vmovss  dword ptr [rsp+4B8h+fmt], xmm6
-            }
-            CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmth, "uistreaming", " paused preload", &colorYellow);
-            __asm { vaddss  xmm7, xmm7, xmm0 }
+            v53 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+            v54 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v53, v8, v48, "uistreaming", " paused preload", &colorYellow);
+            return v8 + *(float *)&v54;
           }
-          __asm { vmovaps xmm6, [rsp+4B8h+var_58] }
-          goto LABEL_52;
+          return v8;
         }
-        v35 = "stream want";
+        v37 = "stream want";
       }
       else
       {
         if ( !v22 )
           goto LABEL_45;
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-        __asm
-        {
-          vmovaps xmm2, xmm0; posX
-          vmovaps xmm3, xmm7; posY
-          vmovss  dword ptr [rsp+4B8h+fmt], xmm6
-        }
-        CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, "active", " preload", &colorGreen);
+        v38 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+        v39 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v38, v8, v24, "active", " preload", &colorGreen);
         v21 = " preload override";
-        __asm { vaddss  xmm7, xmm7, xmm0 }
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " preload override");
-        v38 = DVARBOOL_frontEndPrioritizeLevelLoadTransients;
-        __asm { vmovaps xmm6, xmm0 }
+        v40 = v8 + *(float *)&v39;
+        v8 = v8 + *(float *)&v39;
+        v41 = CgDrawDebug::GetCornerLabelWidth(this, " preload override");
+        v42 = DVARBOOL_frontEndPrioritizeLevelLoadTransients;
+        v24 = *(float *)&v41;
         if ( !DVARBOOL_frontEndPrioritizeLevelLoadTransients && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "frontEndPrioritizeLevelLoadTransients") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v38);
-        if ( !v38->current.enabled )
+        Dvar_CheckFrontendServerThread(v42);
+        if ( !v42->current.enabled )
         {
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-          __asm
-          {
-            vmovaps xmm2, xmm0; posX
-            vmovaps xmm3, xmm7; posY
-            vmovss  dword ptr [rsp+4B8h+fmt], xmm6
-          }
-          CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, "transient", " preload override", &colorYellow);
-          __asm { vaddss  xmm7, xmm7, xmm0 }
+          v43 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+          v44 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v43, v40, v24, "transient", " preload override", &colorYellow);
+          v8 = v40 + *(float *)&v44;
         }
-        v41 = DVARBOOL_frontEndPrioritizeLevelLoadImages;
+        v45 = DVARBOOL_frontEndPrioritizeLevelLoadImages;
         if ( !DVARBOOL_frontEndPrioritizeLevelLoadImages && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "frontEndPrioritizeLevelLoadImages") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v41);
-        if ( v41->current.enabled )
+        Dvar_CheckFrontendServerThread(v45);
+        if ( v45->current.enabled )
           goto LABEL_45;
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-        __asm { vmovaps xmm2, xmm0; posX }
-        v35 = "image";
-        v31 = scrPlace;
-        __asm { vmovaps xmm3, xmm7; posY }
-        v32 = this;
+        v46 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+        v35 = *(float *)&v46;
+        v37 = "image";
+        v32 = scrPlace;
+        v34 = v8;
+        v33 = this;
       }
-      colora = &colorYellow;
+      v36 = CgDrawDebug::CornerPrint(v33, v32, v35, v34, v24, v37, v21, &colorYellow);
       goto LABEL_44;
     }
   }
-LABEL_52:
-  __asm
-  {
-    vmovaps xmm0, xmm7
-    vmovaps xmm7, [rsp+4B8h+var_68]
-  }
-  return *(float *)&_XMM0;
+  return v8;
 }
 
 /*
@@ -4913,68 +4044,46 @@ LABEL_52:
 CgDrawDebugMP::PrintServerDebugInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintServerDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintServerDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
-  const dvar_t *v7; 
-  __int64 v8; 
-  const dvar_t *v12; 
+  const dvar_t *v4; 
+  __int64 v5; 
+  const dvar_t *v8; 
+  double CornerLabelWidth; 
+  int svHudOutlineUsage; 
+  float v11; 
+  float v12; 
   const vec4_t *color; 
-  char v17; 
+  double CornerFarRight; 
+  double v15; 
   char *fmt; 
-  float fmta; 
   char dest[64]; 
 
-  __asm { vmovaps [rsp+0E8h+var_58], xmm7 }
-  v7 = DVARINT_cg_drawFPS;
-  v8 = localClientNum;
-  __asm { vmovaps xmm7, xmm3 }
+  v4 = DVARINT_cg_drawFPS;
+  v5 = localClientNum;
   if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( !v7->current.integer )
-    goto LABEL_12;
-  v12 = DVARBOOL_cg_drawservercounts;
+  Dvar_CheckFrontendServerThread(v4);
+  if ( !v4->current.integer )
+    return y;
+  v8 = DVARBOOL_cg_drawservercounts;
   if ( !DVARBOOL_cg_drawservercounts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawservercounts") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.enabled )
-  {
-    __asm { vmovaps [rsp+0E8h+var_48], xmm6 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " outlines");
-    LODWORD(fmt) = 63;
-    __asm { vmovaps xmm6, xmm0 }
-    Com_sprintf(dest, 0x40ui64, "%i / %i", s_serverCollectedInfo[v8].svHudOutlineUsage, fmt);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ebx
-      vcomiss xmm0, cs:__real@42563334
-    }
-    color = &colorWhite;
-    if ( !v17 )
-      color = &colorRed;
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm2, xmm0; posX
-      vmovaps xmm3, xmm7; posY
-      vmovss  dword ptr [rsp+0E8h+fmt], xmm6
-    }
-    *(double *)&_XMM0 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmta, dest, " outlines", color);
-    __asm
-    {
-      vmovaps xmm6, [rsp+0E8h+var_48]
-      vaddss  xmm0, xmm0, xmm7
-    }
-  }
-  else
-  {
-LABEL_12:
-    __asm { vmovaps xmm0, xmm7 }
-  }
-  __asm { vmovaps xmm7, [rsp+0E8h+var_58] }
-  return *(float *)&_XMM0;
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.enabled )
+    return y;
+  CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, " outlines");
+  LODWORD(fmt) = 63;
+  svHudOutlineUsage = s_serverCollectedInfo[v5].svHudOutlineUsage;
+  v11 = *(float *)&CornerLabelWidth;
+  Com_sprintf(dest, 0x40ui64, "%i / %i", s_serverCollectedInfo[v5].svHudOutlineUsage, fmt);
+  v12 = (float)svHudOutlineUsage;
+  color = &colorWhite;
+  if ( v12 >= 53.550003 )
+    color = &colorRed;
+  CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v15 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&CornerFarRight, y, v11, dest, " outlines", color);
+  return *(float *)&v15 + y;
 }
 
 /*
@@ -4982,128 +4091,84 @@ LABEL_12:
 CgDrawDebugMP::PrintSessionDebugInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintSessionDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintSessionDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
+  double CornerLabelWidth; 
+  float v7; 
+  double v8; 
+  float v9; 
+  double v10; 
+  float v11; 
   PrivatePartySessionHSM *Instance; 
-  GameLobbySessionHSM *v16; 
-  PrivatePartySessionHSM *v17; 
+  GameLobbySessionHSM *v13; 
+  PrivatePartySessionHSM *v14; 
   const char *text; 
-  PrivatePartySessionHSM *v25; 
+  double CornerFarRight; 
+  double v17; 
+  float v18; 
+  double v19; 
+  double v20; 
+  float v21; 
+  PrivatePartySessionHSM *v22; 
   const char *CurrentFrameStatusString; 
-  GameLobbySessionHSM *v30; 
+  double v24; 
+  double v25; 
+  float v26; 
+  GameLobbySessionHSM *v27; 
   const char *CurrentStateString; 
-  GameLobbySessionHSM *v38; 
-  const char *v39; 
-  float v48; 
-  float v49; 
-  float v50; 
-  float v51; 
-  float v52; 
-  float v53; 
+  double v29; 
+  double v30; 
+  float v31; 
+  double v32; 
+  double v33; 
+  float v34; 
+  GameLobbySessionHSM *v35; 
+  const char *v36; 
+  double v37; 
+  double v38; 
   char sessionIdStringOut[256]; 
-  char v55[256]; 
+  char v41[256]; 
 
-  __asm
-  {
-    vmovaps [rsp+2A8h+var_28], xmm6
-    vmovaps xmm6, xmm3
-  }
-  if ( PlatformSessionsHSMEnabled() )
-  {
-    __asm
-    {
-      vmovaps [rsp+2A8h+var_38], xmm7
-      vmovaps [rsp+2A8h+var_48], xmm8
-      vmovaps [rsp+2A8h+var_58], xmm9
-    }
-    memset_0(sessionIdStringOut, 0, sizeof(sessionIdStringOut));
-    memset_0(v55, 0, sizeof(v55));
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, "    HSM State");
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, "    SessionID");
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, "    Frame Status");
-    __asm { vmovaps xmm9, xmm0 }
-    Instance = PrivatePartySessionHSM::GetInstance();
-    PrivatePartySessionHSM::GetCurrentSessionIdString(Instance, sessionIdStringOut);
-    v16 = GameLobbySessionHSM::GetInstance();
-    GameLobbySessionHSM::GetCurrentSessionIdString(v16, v55);
-    v17 = PrivatePartySessionHSM::GetInstance();
-    text = PrivatePartySessionHSM::GetCurrentStateString(v17);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm0; posX
-      vmovss  [rsp+2A8h+var_288], xmm7
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v48, text, " PP HSM State", &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm2, xmm0; posX
-      vmovaps xmm3, xmm6; posY
-      vmovss  [rsp+2A8h+var_288], xmm8
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v49, sessionIdStringOut, " PP SessionID", &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    v25 = PrivatePartySessionHSM::GetInstance();
-    CurrentFrameStatusString = PrivatePartySessionHSM::GetCurrentFrameStatusString(v25);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovss  [rsp+2A8h+var_288], xmm9
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm0; posX
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v50, CurrentFrameStatusString, " PP Frame Status", &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    v30 = GameLobbySessionHSM::GetInstance();
-    CurrentStateString = GameLobbySessionHSM::GetCurrentStateString(v30);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm0; posX
-      vmovss  [rsp+2A8h+var_288], xmm7
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v51, CurrentStateString, " GL HSM State", &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm2, xmm0; posX
-      vmovaps xmm3, xmm6; posY
-      vmovss  [rsp+2A8h+var_288], xmm8
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v52, v55, " GL SessionID", &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    v38 = GameLobbySessionHSM::GetInstance();
-    v39 = GameLobbySessionHSM::GetCurrentFrameStatusString(v38);
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm0; posX
-      vmovss  [rsp+2A8h+var_288], xmm9
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v53, v39, " GL Frame Status", &colorWhite);
-    __asm
-    {
-      vmovaps xmm9, [rsp+2A8h+var_58]
-      vmovaps xmm8, [rsp+2A8h+var_48]
-      vmovaps xmm7, [rsp+2A8h+var_38]
-      vaddss  xmm0, xmm6, xmm0
-    }
-  }
-  else
-  {
-    __asm { vmovaps xmm0, xmm6 }
-  }
-  __asm { vmovaps xmm6, [rsp+2A8h+var_28] }
-  return *(float *)&_XMM0;
+  if ( !PlatformSessionsHSMEnabled() )
+    return y;
+  memset_0(sessionIdStringOut, 0, sizeof(sessionIdStringOut));
+  memset_0(v41, 0, sizeof(v41));
+  CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, "    HSM State");
+  v7 = *(float *)&CornerLabelWidth;
+  v8 = CgDrawDebug::GetCornerLabelWidth(this, "    SessionID");
+  v9 = *(float *)&v8;
+  v10 = CgDrawDebug::GetCornerLabelWidth(this, "    Frame Status");
+  v11 = *(float *)&v10;
+  Instance = PrivatePartySessionHSM::GetInstance();
+  PrivatePartySessionHSM::GetCurrentSessionIdString(Instance, sessionIdStringOut);
+  v13 = GameLobbySessionHSM::GetInstance();
+  GameLobbySessionHSM::GetCurrentSessionIdString(v13, v41);
+  v14 = PrivatePartySessionHSM::GetInstance();
+  text = PrivatePartySessionHSM::GetCurrentStateString(v14);
+  CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v17 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&CornerFarRight, y, v7, text, " PP HSM State", &colorWhite);
+  v18 = y + *(float *)&v17;
+  v19 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v20 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v19, v18, v9, sessionIdStringOut, " PP SessionID", &colorWhite);
+  v21 = v18 + *(float *)&v20;
+  v22 = PrivatePartySessionHSM::GetInstance();
+  CurrentFrameStatusString = PrivatePartySessionHSM::GetCurrentFrameStatusString(v22);
+  v24 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v25 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v24, v21, v11, CurrentFrameStatusString, " PP Frame Status", &colorWhite);
+  v26 = v21 + *(float *)&v25;
+  v27 = GameLobbySessionHSM::GetInstance();
+  CurrentStateString = GameLobbySessionHSM::GetCurrentStateString(v27);
+  v29 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v30 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v29, v26, v7, CurrentStateString, " GL HSM State", &colorWhite);
+  v31 = v26 + *(float *)&v30;
+  v32 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v33 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v32, v31, v9, v41, " GL SessionID", &colorWhite);
+  v34 = v31 + *(float *)&v33;
+  v35 = GameLobbySessionHSM::GetInstance();
+  v36 = GameLobbySessionHSM::GetCurrentFrameStatusString(v35);
+  v37 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v38 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v37, v34, v11, v36, " GL Frame Status", &colorWhite);
+  return v34 + *(float *)&v38;
 }
 
 /*
@@ -5114,758 +4179,443 @@ CgDrawDebugMP::PrintSnapshotInfo
 
 float __fastcall CgDrawDebugMP::PrintSnapshotInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
 {
-  const ScreenPlacement *v15; 
-  __int64 v16; 
-  CgDrawDebugMP *v17; 
-  const dvar_t *v18; 
+  const ScreenPlacement *v4; 
+  __int64 v5; 
+  CgDrawDebugMP *v6; 
+  const dvar_t *v7; 
   cg_t *LocalClientGlobals; 
+  double CornerFarRight; 
+  float v10; 
   ClActiveClientMP *ClientMP; 
-  ClConnectionMP *v22; 
+  ClConnectionMP *v12; 
   int deltaNum; 
-  const char *v25; 
-  SnapshotCollectedInfo *v30; 
-  const char *v31; 
-  const dvar_t *v35; 
-  unsigned int v36; 
-  int v37; 
-  unsigned int v38; 
-  const char *v39; 
+  double CornerLabelWidth; 
+  const char *v15; 
+  double v16; 
+  __int128 v17; 
+  double v18; 
+  float v19; 
+  SnapshotCollectedInfo *v20; 
+  const char *v21; 
+  double v22; 
+  __int128 v23; 
+  const dvar_t *v24; 
+  unsigned int v25; 
+  int v26; 
+  unsigned int v27; 
+  const char *v28; 
   unsigned int maxClients; 
-  int v43; 
-  const char *v44; 
-  __int64 v48; 
-  const char *v49; 
-  const char *v53; 
+  double v30; 
+  __int128 v31; 
+  int v32; 
+  const char *v33; 
+  double v34; 
+  float v35; 
+  __int64 v36; 
+  const char *v37; 
+  double v38; 
+  float v39; 
+  const char *v40; 
+  double v41; 
+  float v42; 
   unsigned int PacketBackupCount; 
-  const char *v58; 
-  const char *v62; 
-  const char *v69; 
-  __int64 v72; 
-  cgs_t *v73; 
-  LocalClientNum_t v77; 
+  const char *v44; 
+  double v45; 
+  float v46; 
+  const char *v47; 
+  double v48; 
+  float v49; 
+  const char *v50; 
+  double v51; 
+  __int64 v52; 
+  cgs_t *v53; 
+  LocalClientNum_t v54; 
   CgEntitySystem *EntitySystem; 
-  const cpose_t *v79; 
-  __int64 v106; 
-  __int64 v126; 
-  int v127; 
-  _DWORD *v147; 
-  char *v148; 
-  LocalClientNum_t v149; 
+  const cpose_t *v56; 
+  unsigned __int64 v57; 
+  __int64 v58; 
+  __int64 v59; 
+  int v60; 
+  __int128 v61; 
+  _DWORD *v62; 
+  char *v63; 
+  LocalClientNum_t v64; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  int v164; 
+  __int128 v69; 
+  int v79; 
+  float v80; 
+  double v81; 
+  float v82; 
   GfxFont *bigDevFont; 
-  const dvar_t *v191; 
-  const char *v192; 
-  const char *v196; 
-  const char *v200; 
-  float fmtc; 
-  float fmtd; 
+  __int128 v84; 
+  const dvar_t *v85; 
+  const char *v86; 
+  double v87; 
+  float v88; 
+  const char *v89; 
+  double v90; 
+  float v91; 
+  const char *v92; 
+  double v93; 
   char *fmt; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
-  float fmti; 
-  float fmtj; 
-  float fmtk; 
-  char *fmtl; 
-  char *fmtm; 
   char *fmta; 
   char *fmtb; 
-  float fmtn; 
-  float fmto; 
-  float fmtp; 
-  float fmtq; 
   char *text; 
   char *texta; 
-  char *textd; 
-  char *texte; 
   char *textb; 
   char *textc; 
-  float textf; 
   char *label; 
   char *labela; 
-  char *labelb; 
-  char *labelc; 
-  char *labeld; 
-  float labele; 
+  int v104; 
   vec4_t *color; 
-  vec4_t *colora; 
-  vec4_t *colorb; 
-  float colorc; 
-  double v250; 
-  double v251; 
-  double v252; 
-  float v253; 
-  vec4_t *v254; 
-  vec4_t *v255; 
-  double v256; 
-  double v257; 
-  double v258; 
-  double v259; 
-  int v260; 
-  int v261; 
-  int v262; 
-  int v263; 
-  int v264; 
-  int v265; 
-  int v266; 
-  vec4_t *v267; 
-  int v268[4]; 
-  int v269[4]; 
+  int v106[4]; 
+  int v107[4]; 
   vec3_t worldPos; 
   LocalClientNum_t localClientNuma; 
-  cgs_t *v272; 
-  int v273[3]; 
-  unsigned __int64 v274; 
+  cgs_t *v110; 
+  int v111[3]; 
+  unsigned __int64 v112; 
   ScreenPlacement *scrPlacea; 
-  SnapshotCollectedInfo *v276; 
-  ClActiveClientMP *v277; 
-  cg_t *v278; 
-  __int64 v279; 
-  CgDrawDebug *v280; 
-  __int64 v281; 
+  SnapshotCollectedInfo *v114; 
+  ClActiveClientMP *v115; 
+  cg_t *v116; 
+  __int64 v117; 
+  CgDrawDebug *v118; 
+  __int64 v119; 
   vec2_t outScreenPos; 
-  char v283[128]; 
+  char v121[128]; 
   char dest[512]; 
-  char v285[512]; 
-  char v286[512]; 
-  char v287[512]; 
-  char v288[512]; 
-  char v289; 
-  void *retaddr; 
+  char v123[512]; 
+  char v124[512]; 
+  char v125[512]; 
+  char v126[512]; 
 
-  _RAX = &retaddr;
-  v281 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-    vmovaps xmmword ptr [rax-0C8h], xmm13
-    vmovaps xmm7, xmm3
-  }
-  v15 = scrPlace;
+  v119 = -2i64;
+  v4 = scrPlace;
   scrPlacea = (ScreenPlacement *)scrPlace;
-  v16 = localClientNum;
+  v5 = localClientNum;
   localClientNuma = localClientNum;
-  v17 = this;
-  v280 = this;
-  v274 = 24036i64 * (int)localClientNum;
-  v276 = &g_snapshotCollectedInfo[v274 / 0x5DE4];
-  v18 = DVARINT_cg_drawSnapshot;
+  v6 = this;
+  v118 = this;
+  v112 = 24036i64 * (int)localClientNum;
+  v114 = &g_snapshotCollectedInfo[v112 / 0x5DE4];
+  v7 = DVARINT_cg_drawSnapshot;
   if ( !DVARINT_cg_drawSnapshot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawSnapshot") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  if ( v18->current.integer )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( !v7->current.integer )
+    return *(float *)&y;
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v5);
+  v116 = LocalClientGlobals;
+  if ( (unsigned int)v5 >= cgs_t::ms_allocatedCount )
   {
-    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v16);
-    v278 = LocalClientGlobals;
-    if ( (unsigned int)v16 >= cgs_t::ms_allocatedCount )
-    {
-      LODWORD(label) = cgs_t::ms_allocatedCount;
-      LODWORD(text) = v16;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 112, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cgs_t::ms_allocatedCount )", "localClientNum doesn't index cgs_t::ms_allocatedCount\n\t%i not in [0, %i)", text, label) )
-        __debugbreak();
-    }
-    if ( !cgs_t::ms_cgsArray[v16] )
-    {
-      LODWORD(label) = v16;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 113, ASSERT_TYPE_ASSERT, "(cgs_t::ms_cgsArray[localClientNum])", "%s\n\tTrying to access unallocated client static globals for localClientNum %d\n", "cgs_t::ms_cgsArray[localClientNum]", label) )
-        __debugbreak();
-    }
-    if ( cgs_t::ms_allocatedType == STATIC_GLOB_TYPE_UNKNOWN )
-    {
-      LODWORD(label) = v16;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 114, ASSERT_TYPE_ASSERT, "(cgs_t::ms_allocatedType != CgStaticGlobalsType::STATIC_GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client static globals for localClientNum %d but the client static global type is not known\n", "cgs_t::ms_allocatedType != CgStaticGlobalsType::STATIC_GLOB_TYPE_UNKNOWN", label) )
-        __debugbreak();
-    }
-    v272 = cgs_t::ms_cgsArray[v16];
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(v17, v15);
-    __asm { vmovaps xmm10, xmm0 }
-    ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v16);
-    v277 = ClientMP;
-    if ( (unsigned int)v16 >= LODWORD(cl_maxLocalClients) )
-    {
-      *(float *)&label = cl_maxLocalClients;
-      LODWORD(text) = v16;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 148, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", text, label) )
-        __debugbreak();
-    }
-    if ( !BG_GameInterface_GameModeIsMP((GameModeType)(unsigned __int8)ClConnection::ms_activeConnectionType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 149, ASSERT_TYPE_ASSERT, "(BG_GameInterface_GameModeIsMP( ms_activeConnectionType ))", (const char *)&queryFormat, "BG_GameInterface_GameModeIsMP( ms_activeConnectionType )") )
+    LODWORD(label) = cgs_t::ms_allocatedCount;
+    LODWORD(text) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 112, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cgs_t::ms_allocatedCount )", "localClientNum doesn't index cgs_t::ms_allocatedCount\n\t%i not in [0, %i)", text, label) )
       __debugbreak();
-    if ( !ClConnection::ms_connections[v16] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 150, ASSERT_TYPE_ASSERT, "(ms_connections[localClientNum])", (const char *)&queryFormat, "ms_connections[localClientNum]") )
+  }
+  if ( !cgs_t::ms_cgsArray[v5] )
+  {
+    LODWORD(label) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 113, ASSERT_TYPE_ASSERT, "(cgs_t::ms_cgsArray[localClientNum])", "%s\n\tTrying to access unallocated client static globals for localClientNum %d\n", "cgs_t::ms_cgsArray[localClientNum]", label) )
       __debugbreak();
-    v22 = (ClConnectionMP *)ClConnection::ms_connections[v16];
-    outScreenPos = (vec2_t)v22;
-    deltaNum = ClientMP->snap.deltaNum;
-    v260 = deltaNum;
-    if ( deltaNum > 0 )
-    {
-      deltaNum = ClientMP->snap.messageNum - deltaNum;
-      v260 = deltaNum;
-      v22 = (ClConnectionMP *)outScreenPos;
-    }
-    if ( deltaNum <= 0 || (v267 = &colorWhite, ClConnectionMP::GetPacketBackupCount(v22) < deltaNum) )
-      v267 = &colorRed;
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(v17, " cl num");
-    __asm { vmovaps xmm6, xmm0 }
-    v25 = j_va("%i / %i", (unsigned int)LocalClientGlobals->predictedPlayerState.clientNum, ClientMP->snap.numClients);
-    __asm
-    {
-      vmovss  dword ptr [rsp+0C60h+fmt], xmm6
-      vmovaps xmm3, xmm7; posY
-      vmovaps xmm2, xmm10; posX
-    }
-    CgDrawDebug::CornerPrint(v17, v15, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, v25, " cl num", &colorWhite);
-    __asm { vaddss  xmm6, xmm7, xmm0 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(v17, " time dilation");
-    __asm { vmovaps xmm11, xmm0 }
-    v30 = v276;
-    v31 = j_va("%i", (unsigned int)v276->serverTimeDilation);
-    __asm
-    {
-      vmovss  dword ptr [rsp+0C60h+fmt], xmm11
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm10; posX
-    }
-    CgDrawDebug::CornerPrint(v17, v15, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, v31, " time dilation", &colorWhite);
-    __asm { vaddss  xmm9, xmm6, xmm0 }
-    v35 = DVARINT_cg_drawSnapshot;
-    if ( !DVARINT_cg_drawSnapshot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawSnapshot") )
+  }
+  if ( cgs_t::ms_allocatedType == STATIC_GLOB_TYPE_UNKNOWN )
+  {
+    LODWORD(label) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 114, ASSERT_TYPE_ASSERT, "(cgs_t::ms_allocatedType != CgStaticGlobalsType::STATIC_GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client static globals for localClientNum %d but the client static global type is not known\n", "cgs_t::ms_allocatedType != CgStaticGlobalsType::STATIC_GLOB_TYPE_UNKNOWN", label) )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v35);
-    if ( v35->current.integer == 2 )
+  }
+  v110 = cgs_t::ms_cgsArray[v5];
+  CornerFarRight = CgDrawDebug::GetCornerFarRight(v6, v4);
+  v10 = *(float *)&CornerFarRight;
+  ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v5);
+  v115 = ClientMP;
+  if ( (unsigned int)v5 >= LODWORD(cl_maxLocalClients) )
+  {
+    *(float *)&label = cl_maxLocalClients;
+    LODWORD(text) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 148, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( (cl_maxLocalClients) )", "localClientNum doesn't index MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", text, label) )
+      __debugbreak();
+  }
+  if ( !BG_GameInterface_GameModeIsMP((GameModeType)(unsigned __int8)ClConnection::ms_activeConnectionType) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 149, ASSERT_TYPE_ASSERT, "(BG_GameInterface_GameModeIsMP( ms_activeConnectionType ))", (const char *)&queryFormat, "BG_GameInterface_GameModeIsMP( ms_activeConnectionType )") )
+    __debugbreak();
+  if ( !ClConnection::ms_connections[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_connection_mp.h", 150, ASSERT_TYPE_ASSERT, "(ms_connections[localClientNum])", (const char *)&queryFormat, "ms_connections[localClientNum]") )
+    __debugbreak();
+  v12 = (ClConnectionMP *)ClConnection::ms_connections[v5];
+  outScreenPos = (vec2_t)v12;
+  deltaNum = ClientMP->snap.deltaNum;
+  v104 = deltaNum;
+  if ( deltaNum > 0 )
+  {
+    deltaNum = ClientMP->snap.messageNum - deltaNum;
+    v104 = deltaNum;
+    v12 = (ClConnectionMP *)outScreenPos;
+  }
+  if ( deltaNum <= 0 || (color = &colorWhite, ClConnectionMP::GetPacketBackupCount(v12) < deltaNum) )
+    color = &colorRed;
+  CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(v6, " cl num");
+  v15 = j_va("%i / %i", (unsigned int)LocalClientGlobals->predictedPlayerState.clientNum, ClientMP->snap.numClients);
+  v16 = CgDrawDebug::CornerPrint(v6, v4, v10, *(float *)&y, *(float *)&CornerLabelWidth, v15, " cl num", &colorWhite);
+  v17 = *(_OWORD *)&y;
+  *(float *)&v17 = *(float *)&y + *(float *)&v16;
+  v18 = CgDrawDebug::GetCornerLabelWidth(v6, " time dilation");
+  v19 = *(float *)&v18;
+  v20 = v114;
+  v21 = j_va("%i", (unsigned int)v114->serverTimeDilation);
+  v22 = CgDrawDebug::CornerPrint(v6, v4, v10, *(float *)&v17, *(float *)&v18, v21, " time dilation", &colorWhite);
+  *(float *)&v17 = *(float *)&v17 + *(float *)&v22;
+  v23 = v17;
+  v24 = DVARINT_cg_drawSnapshot;
+  if ( !DVARINT_cg_drawSnapshot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawSnapshot") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v24);
+  if ( v24->current.integer == 2 )
+  {
+    v25 = 0;
+    v117 = 0i64;
+    v26 = 0;
+    if ( Com_IsAnyLocalServerRunning() )
     {
-      v36 = 0;
-      v279 = 0i64;
-      v37 = 0;
-      if ( Com_IsAnyLocalServerRunning() )
+      dest[0] = 0;
+      v27 = 0;
+      if ( cls.maxClients )
       {
-        dest[0] = 0;
-        v38 = 0;
-        if ( cls.maxClients )
-        {
-          do
-          {
-            v39 = j_va(" %i", (unsigned int)v276->commandsProcessedOnSnapshot[v38]);
-            I_strcat(dest, 0x100ui64, v39);
-            if ( v37 == 8 || (maxClients = cls.maxClients, v38 == cls.maxClients - 1) )
-            {
-              __asm
-              {
-                vmovss  dword ptr [rsp+0C60h+fmt], xmm11
-                vmovaps xmm3, xmm9; posY
-                vmovaps xmm2, xmm10; posX
-              }
-              CgDrawDebug::CornerPrint(v17, v15, *(float *)&_XMM2, *(float *)&_XMM3, fmte, dest, " cmds", &colorWhite);
-              __asm { vaddss  xmm9, xmm9, xmm0 }
-              dest[0] = 0;
-              v37 = -1;
-              maxClients = cls.maxClients;
-            }
-            ++v38;
-            ++v37;
-          }
-          while ( v38 < maxClients );
-          deltaNum = v260;
-          v36 = 0;
-        }
-      }
-      v43 = 0;
-      v283[0] = 0;
-      v44 = S_BUFFER_TYPE_ID;
-      do
-      {
-        LODWORD(fmt) = *v44;
-        v43 += Com_sprintf(&v283[v43], 128i64 - v43, "%2d%c ", g_snapshotCollectedInfo[0].snapshotBufferUsagePercent[v274 - (_QWORD)S_BUFFER_TYPE_ID + (_QWORD)v44], fmt);
-        ++v36;
-        ++v44;
-      }
-      while ( v36 < 0xA );
-      Com_sprintf(&v283[v43], 128i64 - v43, "%3df", g_snapshotCollectedInfo[v274 / 0x5DE4].snapshotFullFramePercent);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C60h+fmt], xmm11
-        vmovaps xmm3, xmm9; posY
-        vmovaps xmm2, xmm10; posX
-      }
-      v15 = scrPlacea;
-      v17 = (CgDrawDebugMP *)v280;
-      CgDrawDebug::CornerPrint(v280, scrPlacea, *(float *)&_XMM2, *(float *)&_XMM3, fmtf, v283, " snap bufs", &colorWhite);
-      __asm { vaddss  xmm6, xmm9, xmm0 }
-      v48 = (__int64)v278;
-      v49 = j_va("%i", (unsigned int)v278->latestSnapshotNum);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C60h+fmt], xmm11
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm10; posX
-      }
-      CgDrawDebug::CornerPrint(v280, scrPlacea, *(float *)&_XMM2, *(float *)&_XMM3, fmtg, v49, " snap num", &colorWhite);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      v53 = j_va("%i", (unsigned int)v272->serverCommandSequence);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C60h+fmt], xmm11
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm10; posX
-      }
-      CgDrawDebug::CornerPrint(v280, scrPlacea, *(float *)&_XMM2, *(float *)&_XMM3, fmth, v53, " cmd", &colorWhite);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      PacketBackupCount = ClConnectionMP::GetPacketBackupCount(*(ClConnectionMP **)&outScreenPos);
-      v58 = j_va("%i/%i", (unsigned int)deltaNum, PacketBackupCount);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C60h+fmt], xmm11
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm10; posX
-      }
-      CgDrawDebug::CornerPrint(v280, scrPlacea, *(float *)&_XMM2, *(float *)&_XMM3, fmti, v58, " delta", v267);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      v62 = j_va("%i", (unsigned int)v277->snap.ping);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C60h+fmt], xmm11
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm10; posX
-      }
-      CgDrawDebug::CornerPrint(v280, scrPlacea, *(float *)&_XMM2, *(float *)&_XMM3, fmtj, v62, " ms ping", &colorWhite);
-      __asm
-      {
-        vaddss  xmm6, xmm6, xmm0
-        vmovss  xmm1, cs:?com_timescaleValue@@3MA; float com_timescaleValue
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v69 = j_va("%f", _RDX);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C60h+fmt], xmm11
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm10; posX
-      }
-      CgDrawDebug::CornerPrint(v280, scrPlacea, *(float *)&_XMM2, *(float *)&_XMM3, fmtk, v69, " com_timescaleValue", &colorWhite);
-      __asm { vaddss  xmm9, xmm6, xmm0 }
-      if ( cls.maxClients > 0 )
-      {
-        LODWORD(v72) = 0;
-        v73 = NULL;
-        v272 = NULL;
-        __asm
-        {
-          vmovss  xmm12, cs:__real@3f800000
-          vxorps  xmm13, xmm13, xmm13
-          vmovsd  xmm7, cs:__real@3f30000000000000
-        }
-        v77 = localClientNuma;
         do
         {
-          if ( *(_DWORD *)(v48 + 468) != (_DWORD)v72 )
+          v28 = j_va(" %i", (unsigned int)v114->commandsProcessedOnSnapshot[v27]);
+          I_strcat(dest, 0x100ui64, v28);
+          if ( v26 == 8 || (maxClients = cls.maxClients, v27 == cls.maxClients - 1) )
           {
-            EntitySystem = CgEntitySystem::GetEntitySystem(v77);
-            if ( (unsigned int)v72 >= 0x800 )
-            {
-              LODWORD(labela) = 2048;
-              LODWORD(texta) = v72;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", texta, labela) )
-                __debugbreak();
-            }
-            v79 = (cpose_t *)((char *)&EntitySystem->m_entities[0].pose + (_QWORD)v73);
-            if ( (*((_BYTE *)&EntitySystem->m_entities[0].flags + (_QWORD)v73) & 1) != 0 )
-            {
-              _RBX = v274 + 112i64 * *(int *)((char *)&EntitySystem->m_entities[0].nextState.clientNum + (_QWORD)v73);
-              _R15 = 0x140000000ui64;
-              __asm
-              {
-                vmovss  xmm3, dword ptr [rbx+r15+1141AEA4h]
-                vcvtss2sd xmm3, xmm3, xmm3
-                vmovq   r9, xmm3
-              }
-              Com_sprintf(dest, 0x200ui64, "Frame Interpolation: %f", *(double *)&_XMM3);
-              __asm
-              {
-                vmovss  xmm4, dword ptr [rbx+r15+1141AE4Ch]
-                vcvtss2sd xmm4, xmm4, xmm4
-                vmovss  xmm5, dword ptr [rbx+r15+1141AE48h]
-                vcvtss2sd xmm5, xmm5, xmm5
-                vmovss  xmm0, dword ptr [rbx+r15+1141AE44h]
-                vcvtss2sd xmm0, xmm0, xmm0
-                vmovss  xmm1, dword ptr [rbx+r15+1141AE40h]
-                vcvtss2sd xmm1, xmm1, xmm1
-                vmovss  xmm2, dword ptr [rbx+r15+1141AE3Ch]
-                vcvtss2sd xmm2, xmm2, xmm2
-                vmovss  xmm3, dword ptr [rbx+r15+1141AE38h]
-                vcvtss2sd xmm3, xmm3, xmm3
-                vmovsd  [rsp+0C60h+var_C20], xmm4
-                vmovsd  [rsp+0C60h+color], xmm5
-                vmovsd  [rsp+0C60h+label], xmm0
-                vmovsd  [rsp+0C60h+text], xmm1
-                vmovsd  [rsp+0C60h+fmt], xmm2
-                vmovq   r9, xmm3
-              }
-              Com_sprintf(v285, 0x200ui64, "Snaps: %.1f %.1f %.1f, %.1f %.1f %.1f", *(double *)&_XMM3, *(double *)&fmtl, *(double *)&textd, *(double *)&labelb, *(double *)&color, v250);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbx+r15+1141AE58h]
-                vcvtss2sd xmm0, xmm0, xmm0
-                vmovss  xmm1, dword ptr [rbx+r15+1141AE54h]
-                vcvtss2sd xmm1, xmm1, xmm1
-                vmovss  xmm3, dword ptr [rbx+r15+1141AE50h]
-                vcvtss2sd xmm3, xmm3, xmm3
-                vmovsd  [rsp+0C60h+text], xmm0
-                vmovsd  [rsp+0C60h+fmt], xmm1
-                vmovq   r9, xmm3
-              }
-              Com_sprintf(v286, 0x200ui64, "Pose: %.1f %.1f %.1f", *(double *)&_XMM3, *(double *)&fmtm, *(double *)&texte);
-              _RDI = (unsigned int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory + _RBX);
-              if ( _RBX == 0xFFFFFFFEAEBE51A4ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", _RBX + 0x40000000 + 289517255, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
-                __debugbreak();
-              v106 = *_RDI;
-              if ( (_DWORD)v106 == 4 )
-              {
-                v267 = (vec4_t *)v269;
-                v269[2] = *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v[1] + _RBX) ^ *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v[2] + _RBX) ^ s_trbase_aab_Z;
-                v269[1] = *(_DWORD *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v + _RBX) ^ *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v[1] + _RBX) ^ s_trbase_aab_Y;
-                v269[0] = *(_DWORD *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v + _RBX) ^ ~s_trbase_aab_X;
-                memset(&v267, 0, sizeof(v267));
-                __asm
-                {
-                  vmovss  xmm0, [rbp+0B60h+var_BE0]
-                  vmovss  dword ptr [rsp+0C60h+var_C00], xmm0
-                }
-                if ( (v261 & 0x7F800000) == 2139095040 )
-                  goto LABEL_102;
-                __asm
-                {
-                  vmovss  xmm0, [rbp+0B60h+var_BDC]
-                  vmovss  dword ptr [rsp+0C60h+var_C00], xmm0
-                }
-                if ( (v262 & 0x7F800000) == 2139095040 )
-                  goto LABEL_102;
-                __asm
-                {
-                  vmovss  xmm0, [rbp+0B60h+var_BD8]
-                  vmovss  dword ptr [rsp+0C60h+var_C00], xmm0
-                }
-                if ( (v263 & 0x7F800000) == 2139095040 )
-                {
-LABEL_102:
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
-                    __debugbreak();
-                }
-                v106 = *(unsigned int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trType + _RBX);
-              }
-              else
-              {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rdi+0Ch]
-                  vmovss  [rbp+0B60h+var_BE0], xmm0
-                  vmovss  xmm1, dword ptr [rdi+10h]
-                  vmovss  [rbp+0B60h+var_BDC], xmm1
-                  vmovss  xmm0, dword ptr [rdi+14h]
-                  vmovss  [rbp+0B60h+var_BD8], xmm0
-                }
-              }
-              __asm
-              {
-                vmovss  xmm4, dword ptr [rbx+r15+1141AE7Ch]
-                vcvtss2sd xmm4, xmm4, xmm4
-                vmovss  xmm5, dword ptr [rbx+r15+1141AE78h]
-                vcvtss2sd xmm5, xmm5, xmm5
-                vmovss  xmm0, dword ptr [rbx+r15+1141AE74h]
-                vcvtss2sd xmm0, xmm0, xmm0
-                vmovss  xmm1, [rbp+0B60h+var_BD8]
-                vcvtss2sd xmm1, xmm1, xmm1
-                vmovss  xmm2, [rbp+0B60h+var_BDC]
-                vcvtss2sd xmm2, xmm2, xmm2
-                vmovss  xmm3, [rbp+0B60h+var_BE0]
-                vcvtss2sd xmm3, xmm3, xmm3
-                vmovsd  [rsp+0C60h+var_C08], xmm4
-                vmovsd  [rsp+0C60h+var_C10], xmm5
-                vmovsd  [rsp+0C60h+var_C18], xmm0
-                vmovsd  [rsp+0C60h+var_C20], xmm1
-                vmovsd  [rsp+0C60h+color], xmm2
-                vmovsd  [rsp+0C60h+label], xmm3
-              }
-              LODWORD(textb) = *(int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trDuration + _RBX);
-              LODWORD(fmta) = *(int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trTime + _RBX);
-              Com_sprintf(v287, 0x200ui64, "PTraj: %d %d %d, %.1f %.1f %.1f, %.1f %.1f %.1f", v106, fmta, textb, *(double *)&labelc, *(double *)&colora, v251, *(double *)&v254, v256, v258);
-              _RDI = (unsigned int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory + _RBX);
-              if ( _RBX == 0xFFFFFFFEAEBE5180ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", _RBX + 0x40000000 + 289517291, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
-                __debugbreak();
-              v126 = *_RDI;
-              if ( (_DWORD)v126 == 4 )
-              {
-                v267 = (vec4_t *)v268;
-                v127 = *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trBase.v[1] + _RBX);
-                v268[2] = s_trbase_aab_Z ^ v127 ^ *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trBase.v[2] + _RBX);
-                v268[1] = s_trbase_aab_Y ^ *(_DWORD *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trBase.v + _RBX) ^ v127;
-                v268[0] = *(_DWORD *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trBase.v + _RBX) ^ ~s_trbase_aab_X;
-                memset(&v267, 0, sizeof(v267));
-                __asm
-                {
-                  vmovss  xmm0, [rsp+0C60h+var_BF0]
-                  vmovss  dword ptr [rsp+0C60h+var_C00], xmm0
-                }
-                if ( (v264 & 0x7F800000) == 2139095040 )
-                  goto LABEL_103;
-                __asm
-                {
-                  vmovss  xmm0, [rsp+0C60h+var_BEC]
-                  vmovss  dword ptr [rsp+0C60h+var_C00], xmm0
-                }
-                if ( (v265 & 0x7F800000) == 2139095040 )
-                  goto LABEL_103;
-                __asm
-                {
-                  vmovss  xmm0, [rsp+0C60h+var_BE8]
-                  vmovss  dword ptr [rsp+0C60h+var_C00], xmm0
-                }
-                if ( (v266 & 0x7F800000) == 2139095040 )
-                {
-LABEL_103:
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
-                    __debugbreak();
-                }
-                v126 = *(unsigned int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trType + _RBX);
-              }
-              else
-              {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rdi+0Ch]
-                  vmovss  [rsp+0C60h+var_BF0], xmm0
-                  vmovss  xmm1, dword ptr [rdi+10h]
-                  vmovss  [rsp+0C60h+var_BEC], xmm1
-                  vmovss  xmm0, dword ptr [rdi+14h]
-                  vmovss  [rsp+0C60h+var_BE8], xmm0
-                }
-              }
-              __asm
-              {
-                vmovss  xmm4, dword ptr [rbx+r15+1141AEA0h]
-                vcvtss2sd xmm4, xmm4, xmm4
-                vmovss  xmm5, dword ptr [rbx+r15+1141AE9Ch]
-                vcvtss2sd xmm5, xmm5, xmm5
-                vmovss  xmm0, dword ptr [rbx+r15+1141AE98h]
-                vcvtss2sd xmm0, xmm0, xmm0
-                vmovss  xmm1, [rsp+0C60h+var_BE8]
-                vcvtss2sd xmm1, xmm1, xmm1
-                vmovss  xmm2, [rsp+0C60h+var_BEC]
-                vcvtss2sd xmm2, xmm2, xmm2
-                vmovss  xmm3, [rsp+0C60h+var_BF0]
-                vcvtss2sd xmm3, xmm3, xmm3
-                vmovsd  [rsp+0C60h+var_C08], xmm4
-                vmovsd  [rsp+0C60h+var_C10], xmm5
-                vmovsd  [rsp+0C60h+var_C18], xmm0
-                vmovsd  [rsp+0C60h+var_C20], xmm1
-                vmovsd  [rsp+0C60h+color], xmm2
-                vmovsd  [rsp+0C60h+label], xmm3
-              }
-              LODWORD(textc) = *(int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trDuration + _RBX);
-              LODWORD(fmtb) = *(int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trTime + _RBX);
-              Com_sprintf(v288, 0x200ui64, "NTraj: %d %d %d, %.1f %.1f %.1f, %.1f %.1f %.1f", v126, fmtb, textc, *(double *)&labeld, *(double *)&colorb, v252, *(double *)&v255, v257, v259);
-              if ( dword_151446948 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
-              {
-                j__Init_thread_header(&dword_151446948);
-                if ( dword_151446948 == -1 )
-                {
-                  __asm
-                  {
-                    vaddss  xmm1, xmm12, cs:SCREEN_LINE_HEIGHT
-                    vmovss  cs:SCREEN_Y_OFFSET, xmm1
-                  }
-                  j__Init_thread_footer(&dword_151446948);
-                }
-              }
-              __asm { vmovaps xmm8, xmm13 }
-              v147 = (_DWORD *)(v48 + 26928);
-              v148 = dest;
-              v267 = (vec4_t *)5;
-              v149 = localClientNuma;
-              do
-              {
-                if ( !v79->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
-                  __debugbreak();
-                FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(v79->origin.Get_origin, v79);
-                FunctionPointer_origin(&v79->origin.origin.origin, &worldPos);
-                if ( v79->isPosePrecise )
-                {
-                  __asm
-                  {
-                    vmovd   xmm0, dword ptr [rbp+0B60h+worldPos]
-                    vcvtdq2pd xmm0, xmm0
-                    vmulsd  xmm1, xmm0, xmm7
-                    vcvtsd2ss xmm2, xmm1, xmm1
-                    vmovss  dword ptr [rbp+0B60h+worldPos], xmm2
-                    vmovd   xmm0, dword ptr [rbp+0B60h+worldPos+4]
-                    vcvtdq2pd xmm0, xmm0
-                    vmulsd  xmm1, xmm0, xmm7
-                    vcvtsd2ss xmm2, xmm1, xmm1
-                    vmovss  dword ptr [rbp+0B60h+worldPos+4], xmm2
-                    vmovd   xmm0, dword ptr [rbp+0B60h+worldPos+8]
-                    vcvtdq2pd xmm0, xmm0
-                    vmulsd  xmm1, xmm0, xmm7
-                    vcvtsd2ss xmm2, xmm1, xmm1
-                  }
-                }
-                else
-                {
-                  __asm { vmovss  xmm2, dword ptr [rbp+0B60h+worldPos+8] }
-                }
-                __asm
-                {
-                  vaddss  xmm0, xmm2, cs:WORLD_HEIGHT_OFFSET
-                  vmovss  dword ptr [rbp+0B60h+worldPos+8], xmm0
-                }
-                if ( !v147 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
-                  __debugbreak();
-                v164 = v147[25];
-                if ( v147 == (_DWORD *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
-                  __debugbreak();
-                v273[0] = v147[2] ^ ((((_DWORD)v147 + 8) ^ v164) * ((((_DWORD)v147 + 8) ^ v164) + 2));
-                v273[1] = v147[3] ^ ((((_DWORD)v147 + 12) ^ v164) * ((((_DWORD)v147 + 12) ^ v164) + 2));
-                v273[2] = ((((_DWORD)v147 + 16) ^ v164) * ((((_DWORD)v147 + 16) ^ v164) + 2)) ^ v147[4];
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbp+0B60h+worldPos]
-                  vsubss  xmm2, xmm0, [rbp+0B60h+var_BB0]
-                  vmovss  xmm1, dword ptr [rbp+0B60h+worldPos+4]
-                  vsubss  xmm3, xmm1, [rbp+0B60h+var_BAC]
-                  vmovss  xmm0, dword ptr [rbp+0B60h+worldPos+8]
-                  vsubss  xmm4, xmm0, [rbp+0B60h+var_BA8]
-                }
-                v48 = (__int64)v278;
-                __asm
-                {
-                  vmulss  xmm1, xmm2, dword ptr [r14+6944h]
-                  vmulss  xmm0, xmm3, dword ptr [r14+6948h]
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm4, dword ptr [r14+694Ch]
-                  vaddss  xmm0, xmm2, xmm1; value
-                  vmovss  xmm2, cs:SCREEN_MAX_LINE_DIST; max
-                  vmovss  xmm1, cs:SCREEN_MIN_LINE_DIST; min
-                }
-                *(double *)&_XMM0 = ApplyLinearMap(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-                __asm
-                {
-                  vmovaps xmm2, xmm0
-                  vsubss  xmm0, xmm12, xmm0
-                  vmulss  xmm3, xmm0, cs:SCREEN_MAX_SCALE
-                  vmulss  xmm2, xmm2, cs:SCREEN_MIN_SCALE
-                  vaddss  xmm6, xmm3, xmm2
-                }
-                bigDevFont = cls.bigDevFont;
-                CG_WorldPosToScreenPosReal(v149, scrPlacea, &worldPos, &outScreenPos);
-                __asm
-                {
-                  vmulss  xmm2, xmm6, cs:SCREEN_X_OFFSET
-                  vaddss  xmm3, xmm2, dword ptr [rbp+0B60h+outScreenPos]
-                  vmovss  dword ptr [rbp+0B60h+outScreenPos], xmm3
-                  vmulss  xmm1, xmm6, xmm8
-                  vaddss  xmm2, xmm1, dword ptr [rbp+0B60h+outScreenPos+4]
-                  vmovss  dword ptr [rbp+0B60h+outScreenPos+4], xmm2
-                  vmulss  xmm1, xmm6, cs:SCREEN_LINE_HEIGHT
-                  vcvttss2si r9d, xmm1; fontHeight
-                  vmovss  dword ptr [rsp+0C60h+var_C20], xmm13
-                  vmovss  dword ptr [rsp+0C60h+color], xmm12
-                  vmovss  dword ptr [rsp+0C60h+label], xmm12
-                  vmovss  dword ptr [rsp+0C60h+text], xmm2
-                  vmovss  dword ptr [rsp+0C60h+fmt], xmm3
-                }
-                R_AddCmdDrawText(v148, 512, bigDevFont, _ER9, fmtn, textf, labele, colorc, v253, &colorRed);
-                __asm
-                {
-                  vmulss  xmm1, xmm6, cs:SCREEN_Y_OFFSET
-                  vaddss  xmm8, xmm8, xmm1
-                }
-                memset(v273, 0, sizeof(v273));
-                memset(&worldPos, 0, sizeof(worldPos));
-                v148 += 512;
-                v267 = (vec4_t *)((char *)v267 - 1);
-              }
-              while ( v267 );
-              memset(v268, 0, 0xCui64);
-              memset(v269, 0, 0xCui64);
-              LODWORD(v72) = v279;
-              v77 = localClientNuma;
-              v73 = v272;
-            }
+            v30 = CgDrawDebug::CornerPrint(v6, v4, v10, *(float *)&v23, v19, dest, " cmds", &colorWhite);
+            v31 = v23;
+            *(float *)&v31 = *(float *)&v23 + *(float *)&v30;
+            v23 = v31;
+            dest[0] = 0;
+            v26 = -1;
+            maxClients = cls.maxClients;
           }
-          v72 = (unsigned int)(v72 + 1);
-          v279 = v72;
-          v73 = (cgs_t *)((char *)v73 + 760);
-          v272 = v73;
+          ++v27;
+          ++v26;
         }
-        while ( (int)v72 < cls.maxClients );
-        v15 = scrPlacea;
-        v17 = (CgDrawDebugMP *)v280;
+        while ( v27 < maxClients );
+        deltaNum = v104;
+        v25 = 0;
       }
-      ClientMP = v277;
-      v30 = v276;
     }
-    v191 = DVARINT_cg_drawSnapshot;
-    if ( !DVARINT_cg_drawSnapshot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawSnapshot") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v191);
-    if ( v191->current.integer == 3 )
+    v32 = 0;
+    v121[0] = 0;
+    v33 = S_BUFFER_TYPE_ID;
+    do
     {
-      v192 = j_va("%i", (unsigned int)v30->networkOffsetTime);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C60h+fmt], xmm11
-        vmovaps xmm3, xmm9; posY
-        vmovaps xmm2, xmm10; posX
-      }
-      CgDrawDebug::CornerPrint(v17, v15, *(float *)&_XMM2, *(float *)&_XMM3, fmto, v192, " Network Offset", &colorWhite);
-      __asm { vaddss  xmm6, xmm9, xmm0 }
-      v196 = j_va("%i", (unsigned int)v30->currOffsetTime);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C60h+fmt], xmm11
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm10; posX
-      }
-      CgDrawDebug::CornerPrint(v17, v15, *(float *)&_XMM2, *(float *)&_XMM3, fmtp, v196, " Total Offset", &colorWhite);
-      __asm { vaddss  xmm6, xmm6, xmm0 }
-      v200 = j_va("%i", (unsigned int)ClientMP->snap.info.serverTime);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C60h+fmt], xmm11
-        vmovaps xmm3, xmm6; posY
-        vmovaps xmm2, xmm10; posX
-      }
-      CgDrawDebug::CornerPrint(v17, v15, *(float *)&_XMM2, *(float *)&_XMM3, fmtq, v200, " Snapshot Time", &colorWhite);
-      __asm { vaddss  xmm0, xmm6, xmm0 }
+      LODWORD(fmt) = *v33;
+      v32 += Com_sprintf(&v121[v32], 128i64 - v32, "%2d%c ", g_snapshotCollectedInfo[0].snapshotBufferUsagePercent[v112 - (_QWORD)S_BUFFER_TYPE_ID + (_QWORD)v33], fmt);
+      ++v25;
+      ++v33;
     }
-    else
+    while ( v25 < 0xA );
+    Com_sprintf(&v121[v32], 128i64 - v32, "%3df", g_snapshotCollectedInfo[v112 / 0x5DE4].snapshotFullFramePercent);
+    v4 = scrPlacea;
+    v6 = (CgDrawDebugMP *)v118;
+    v34 = CgDrawDebug::CornerPrint(v118, scrPlacea, v10, *(float *)&v23, v19, v121, " snap bufs", &colorWhite);
+    v35 = *(float *)&v23 + *(float *)&v34;
+    v36 = (__int64)v116;
+    v37 = j_va("%i", (unsigned int)v116->latestSnapshotNum);
+    v38 = CgDrawDebug::CornerPrint(v118, scrPlacea, v10, *(float *)&v23 + *(float *)&v34, v19, v37, " snap num", &colorWhite);
+    v39 = v35 + *(float *)&v38;
+    v40 = j_va("%i", (unsigned int)v110->serverCommandSequence);
+    v41 = CgDrawDebug::CornerPrint(v118, scrPlacea, v10, v39, v19, v40, " cmd", &colorWhite);
+    v42 = v39 + *(float *)&v41;
+    PacketBackupCount = ClConnectionMP::GetPacketBackupCount(*(ClConnectionMP **)&outScreenPos);
+    v44 = j_va("%i/%i", (unsigned int)deltaNum, PacketBackupCount);
+    v45 = CgDrawDebug::CornerPrint(v118, scrPlacea, v10, v42, v19, v44, " delta", color);
+    v46 = v42 + *(float *)&v45;
+    v47 = j_va("%i", (unsigned int)v115->snap.ping);
+    v48 = CgDrawDebug::CornerPrint(v118, scrPlacea, v10, v46, v19, v47, " ms ping", &colorWhite);
+    v49 = v46 + *(float *)&v48;
+    v50 = j_va("%f", com_timescaleValue);
+    v51 = CgDrawDebug::CornerPrint(v118, scrPlacea, v10, v49, v19, v50, " com_timescaleValue", &colorWhite);
+    *(float *)&v23 = v49 + *(float *)&v51;
+    if ( cls.maxClients > 0 )
     {
-      __asm { vmovaps xmm0, xmm9 }
+      LODWORD(v52) = 0;
+      v53 = NULL;
+      v110 = NULL;
+      v54 = localClientNuma;
+      do
+      {
+        if ( *(_DWORD *)(v36 + 468) != (_DWORD)v52 )
+        {
+          EntitySystem = CgEntitySystem::GetEntitySystem(v54);
+          if ( (unsigned int)v52 >= 0x800 )
+          {
+            LODWORD(labela) = 2048;
+            LODWORD(texta) = v52;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", texta, labela) )
+              __debugbreak();
+          }
+          v56 = (cpose_t *)((char *)&EntitySystem->m_entities[0].pose + (_QWORD)v53);
+          if ( (*((_BYTE *)&EntitySystem->m_entities[0].flags + (_QWORD)v53) & 1) != 0 )
+          {
+            v57 = v112 + 112i64 * *(int *)((char *)&EntitySystem->m_entities[0].nextState.clientNum + (_QWORD)v53);
+            Com_sprintf(dest, 0x200ui64, "Frame Interpolation: %f", *(float *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].frameInterpolation + v57));
+            Com_sprintf(v123, 0x200ui64, "Snaps: %.1f %.1f %.1f, %.1f %.1f %.1f", *(float *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].prevSnapOrigin.v + v57), *(float *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevSnapOrigin.v[1] + v57), *(float *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevSnapOrigin.v[2] + v57), *(float *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].nextSnapOrigin.v + v57), *(float *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextSnapOrigin.v[1] + v57), *(float *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextSnapOrigin.v[2] + v57));
+            Com_sprintf(v124, 0x200ui64, "Pose: %.1f %.1f %.1f", *(float *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].poseOrigin.v + v57), *(float *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].poseOrigin.v[1] + v57), *(float *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].poseOrigin.v[2] + v57));
+            if ( v57 == 0xFFFFFFFEAEBE51A4ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", v57 + 0x40000000 + 289517255, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+              __debugbreak();
+            v58 = *(unsigned int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trType + v57);
+            if ( (_DWORD)v58 == 4 )
+            {
+              color = (vec4_t *)v107;
+              v107[2] = *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v[1] + v57) ^ *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v[2] + v57) ^ s_trbase_aab_Z;
+              v107[1] = *(_DWORD *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v + v57) ^ *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v[1] + v57) ^ s_trbase_aab_Y;
+              v107[0] = *(_DWORD *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v + v57) ^ ~s_trbase_aab_X;
+              memset(&color, 0, sizeof(color));
+              if ( ((v107[0] & 0x7F800000) == 2139095040 || (v107[1] & 0x7F800000) == 2139095040 || (v107[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
+                __debugbreak();
+              v58 = *(unsigned int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trType + v57);
+            }
+            else
+            {
+              v107[0] = *(_DWORD *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v + v57);
+              v107[1] = *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v[1] + v57);
+              v107[2] = *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trBase.v[2] + v57);
+            }
+            LODWORD(textb) = *(int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trDuration + v57);
+            LODWORD(fmta) = *(int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trTime + v57);
+            Com_sprintf(v125, 0x200ui64, "PTraj: %d %d %d, %.1f %.1f %.1f, %.1f %.1f %.1f", v58, fmta, textb, *(float *)v107, *(float *)&v107[1], *(float *)&v107[2], *(float *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trDelta.v + v57), *(float *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trDelta.v[1] + v57), *(float *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].prevTrajectory.trDelta.v[2] + v57));
+            if ( v57 == 0xFFFFFFFEAEBE5180ui64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", v57 + 0x40000000 + 289517291, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+              __debugbreak();
+            v59 = *(unsigned int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trType + v57);
+            if ( (_DWORD)v59 == 4 )
+            {
+              color = (vec4_t *)v106;
+              v60 = *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trBase.v[1] + v57);
+              v106[2] = s_trbase_aab_Z ^ v60 ^ *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trBase.v[2] + v57);
+              v106[1] = s_trbase_aab_Y ^ *(_DWORD *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trBase.v + v57) ^ v60;
+              v106[0] = *(_DWORD *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trBase.v + v57) ^ ~s_trbase_aab_X;
+              memset(&color, 0, sizeof(color));
+              if ( ((v106[0] & 0x7F800000) == 2139095040 || (v106[1] & 0x7F800000) == 2139095040 || (v106[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
+                __debugbreak();
+              v59 = *(unsigned int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trType + v57);
+            }
+            else
+            {
+              v106[0] = *(_DWORD *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trBase.v + v57);
+              v106[1] = *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trBase.v[1] + v57);
+              v106[2] = *(_DWORD *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trBase.v[2] + v57);
+            }
+            LODWORD(textc) = *(int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trDuration + v57);
+            LODWORD(fmtb) = *(int *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trTime + v57);
+            Com_sprintf(v126, 0x200ui64, "NTraj: %d %d %d, %.1f %.1f %.1f, %.1f %.1f %.1f", v59, fmtb, textc, *(float *)v106, *(float *)&v106[1], *(float *)&v106[2], *(float *)((char *)g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trDelta.v + v57), *(float *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trDelta.v[1] + v57), *(float *)((char *)&g_snapshotCollectedInfo[0].clientInterpolationData[0].nextTrajectory.trDelta.v[2] + v57));
+            if ( dword_151446948 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
+            {
+              j__Init_thread_header(&dword_151446948);
+              if ( dword_151446948 == -1 )
+              {
+                SCREEN_Y_OFFSET = SCREEN_LINE_HEIGHT + 1.0;
+                j__Init_thread_footer(&dword_151446948);
+              }
+            }
+            v61 = 0i64;
+            v62 = (_DWORD *)(v36 + 26928);
+            v63 = dest;
+            color = (vec4_t *)5;
+            v64 = localClientNuma;
+            do
+            {
+              if ( !v56->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
+                __debugbreak();
+              FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(v56->origin.Get_origin, v56);
+              FunctionPointer_origin(&v56->origin.origin.origin, &worldPos);
+              if ( v56->isPosePrecise )
+              {
+                _XMM0 = LODWORD(worldPos.v[0]);
+                __asm { vcvtdq2pd xmm0, xmm0 }
+                *((_QWORD *)&v69 + 1) = *((_QWORD *)&_XMM0 + 1);
+                *(double *)&v69 = *(double *)&_XMM0 * 0.000244140625;
+                _XMM1 = v69;
+                __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+                worldPos.v[0] = *(float *)&_XMM2;
+                _XMM0 = LODWORD(worldPos.v[1]);
+                __asm { vcvtdq2pd xmm0, xmm0 }
+                *((_QWORD *)&v69 + 1) = *((_QWORD *)&_XMM0 + 1);
+                *(double *)&v69 = *(double *)&_XMM0 * 0.000244140625;
+                _XMM1 = v69;
+                __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+                worldPos.v[1] = *(float *)&_XMM2;
+                _XMM0 = LODWORD(worldPos.v[2]);
+                __asm { vcvtdq2pd xmm0, xmm0 }
+                *((_QWORD *)&v69 + 1) = *((_QWORD *)&_XMM0 + 1);
+                *(double *)&v69 = *(double *)&_XMM0 * 0.000244140625;
+                _XMM1 = v69;
+                __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+              }
+              else
+              {
+                *(float *)&_XMM2 = worldPos.v[2];
+              }
+              worldPos.v[2] = *(float *)&_XMM2 + WORLD_HEIGHT_OFFSET;
+              if ( !v62 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
+                __debugbreak();
+              v79 = v62[25];
+              if ( v62 == (_DWORD *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
+                __debugbreak();
+              v111[0] = v62[2] ^ ((((_DWORD)v62 + 8) ^ v79) * ((((_DWORD)v62 + 8) ^ v79) + 2));
+              v111[1] = v62[3] ^ ((((_DWORD)v62 + 12) ^ v79) * ((((_DWORD)v62 + 12) ^ v79) + 2));
+              v111[2] = ((((_DWORD)v62 + 16) ^ v79) * ((((_DWORD)v62 + 16) ^ v79) + 2)) ^ v62[4];
+              v36 = (__int64)v116;
+              v80 = (float)((float)((float)(worldPos.v[0] - *(float *)v111) * v116->refdef.view.axis.m[0].v[0]) + (float)((float)(worldPos.v[1] - *(float *)&v111[1]) * v116->refdef.view.axis.m[0].v[1])) + (float)((float)(worldPos.v[2] - *(float *)&v111[2]) * v116->refdef.view.axis.m[0].v[2]);
+              v81 = ApplyLinearMap(v80, SCREEN_MIN_LINE_DIST, SCREEN_MAX_LINE_DIST);
+              v82 = (float)((float)(1.0 - *(float *)&v81) * SCREEN_MAX_SCALE) + (float)(v80 * SCREEN_MIN_SCALE);
+              bigDevFont = cls.bigDevFont;
+              CG_WorldPosToScreenPosReal(v64, scrPlacea, &worldPos, &outScreenPos);
+              outScreenPos.v[0] = (float)(v82 * SCREEN_X_OFFSET) + outScreenPos.v[0];
+              outScreenPos.v[1] = (float)(v82 * *(float *)&v61) + outScreenPos.v[1];
+              R_AddCmdDrawText(v63, 512, bigDevFont, (int)(float)(v82 * SCREEN_LINE_HEIGHT), outScreenPos.v[0], outScreenPos.v[1], 1.0, 1.0, 0.0, &colorRed);
+              v84 = v61;
+              *(float *)&v84 = *(float *)&v61 + (float)(v82 * SCREEN_Y_OFFSET);
+              v61 = v84;
+              memset(v111, 0, sizeof(v111));
+              memset(&worldPos, 0, sizeof(worldPos));
+              v63 += 512;
+              color = (vec4_t *)((char *)color - 1);
+            }
+            while ( color );
+            memset(v106, 0, 0xCui64);
+            memset(v107, 0, 0xCui64);
+            LODWORD(v52) = v117;
+            v54 = localClientNuma;
+            v53 = v110;
+          }
+        }
+        v52 = (unsigned int)(v52 + 1);
+        v117 = v52;
+        v53 = (cgs_t *)((char *)v53 + 760);
+        v110 = v53;
+      }
+      while ( (int)v52 < cls.maxClients );
+      v4 = scrPlacea;
+      v6 = (CgDrawDebugMP *)v118;
     }
+    ClientMP = v115;
+    v20 = v114;
   }
-  else
-  {
-    __asm { vmovaps xmm0, xmm7 }
-  }
-  _R11 = &v289;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-  }
-  return *(float *)&_XMM0;
+  v85 = DVARINT_cg_drawSnapshot;
+  if ( !DVARINT_cg_drawSnapshot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawSnapshot") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v85);
+  if ( v85->current.integer != 3 )
+    return *(float *)&v23;
+  v86 = j_va("%i", (unsigned int)v20->networkOffsetTime);
+  v87 = CgDrawDebug::CornerPrint(v6, v4, v10, *(float *)&v23, v19, v86, " Network Offset", &colorWhite);
+  v88 = *(float *)&v23 + *(float *)&v87;
+  v89 = j_va("%i", (unsigned int)v20->currOffsetTime);
+  v90 = CgDrawDebug::CornerPrint(v6, v4, v10, *(float *)&v23 + *(float *)&v87, v19, v89, " Total Offset", &colorWhite);
+  v91 = v88 + *(float *)&v90;
+  v92 = j_va("%i", (unsigned int)ClientMP->snap.info.serverTime);
+  v93 = CgDrawDebug::CornerPrint(v6, v4, v10, v91, v19, v92, " Snapshot Time", &colorWhite);
+  return v91 + *(float *)&v93;
 }
 
 /*
@@ -5873,11 +4623,9 @@ LABEL_103:
 CgDrawDebugMP::PrintSteamLobbyInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintSteamLobbyInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintSteamLobbyInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
-  __asm { vmovaps xmm0, xmm3 }
-  return *(float *)&_XMM0;
+  return y;
 }
 
 /*
@@ -5885,171 +4633,133 @@ float __fastcall CgDrawDebugMP::PrintSteamLobbyInfo(CgDrawDebugMP *this, const L
 CgDrawDebugMP::PrintStreamLoadingInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintStreamLoadingInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintStreamLoadingInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
-  const dvar_t *v9; 
-  const dvar_t *v13; 
-  __int64 v14; 
+  const dvar_t *v4; 
+  float v7; 
+  const dvar_t *v8; 
+  __int64 v9; 
+  const StreamDistance *v10; 
+  unsigned int v11; 
+  unsigned int v12; 
+  double Float_Internal_DebugName; 
+  unsigned int v14; 
   const StreamDistance *v15; 
-  unsigned int v16; 
+  const dvar_t *v16; 
   unsigned int v17; 
-  unsigned int v19; 
-  const StreamDistance *v20; 
-  unsigned int v24; 
-  unsigned int v27; 
+  unsigned int v18; 
   unsigned __int64 *wantedImageMemoryByDistance; 
-  unsigned int v29; 
-  unsigned int v33; 
-  float fmt; 
-  StreamDistance v47; 
-  unsigned int v48; 
+  unsigned int i; 
+  float v21; 
+  float v22; 
+  unsigned int v23; 
+  vec4_t v24; 
+  double CornerLabelWidth; 
+  float v26; 
+  double CornerFarRight; 
+  double v28; 
+  StreamDistance v30; 
+  unsigned int mValue; 
   vec4_t color; 
   StreamFrontendMemoryStats outStats; 
   char dest[128]; 
 
-  __asm { vmovaps [rsp+1D8h+var_78], xmm9 }
-  v9 = DVARINT_cg_drawFPS;
-  __asm { vmovaps xmm9, xmm3 }
+  v4 = DVARINT_cg_drawFPS;
+  v7 = y;
   if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( v9->current.integer )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.integer )
   {
-    v13 = DCONST_DVARBOOL_cg_drawStreamerWantedImageLoads;
+    v8 = DCONST_DVARBOOL_cg_drawStreamerWantedImageLoads;
     if ( !DCONST_DVARBOOL_cg_drawStreamerWantedImageLoads && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawStreamerWantedImageLoads") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    if ( v13->current.enabled )
+    Dvar_CheckFrontendServerThread(v8);
+    if ( v8->current.enabled )
     {
-      v14 = 0i64;
-      __asm { vmovaps [rsp+1D8h+var_48], xmm6 }
+      v9 = 0i64;
       dest[0] = 0;
       if ( Stream_IsEnabled() )
       {
-        v15 = STREAM_FRONTEND_WANTED_IMAGE_MEMORY_DISTANCE_BUCKETS;
-        __asm { vmovaps [rsp+1D8h+var_58], xmm7 }
-        v16 = 0;
-        __asm { vmovaps [rsp+1D8h+var_68], xmm8 }
-        v17 = 0;
+        v10 = STREAM_FRONTEND_WANTED_IMAGE_MEMORY_DISTANCE_BUCKETS;
+        v11 = 0;
+        v12 = 0;
         if ( DVARFLT_cg_worldStreamingMaxImageQuality )
         {
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cg_worldStreamingMaxImageQuality, "cg_worldStreamingMaxImageQuality");
-          __asm { vmulss  xmm1, xmm0, xmm0; distance }
-          StreamDistance::StreamDistance(&v47, *(float *)&_XMM1);
-          v19 = 0;
-          v20 = STREAM_FRONTEND_WANTED_IMAGE_MEMORY_DISTANCE_BUCKETS;
-          while ( v20->mValue < v47.mValue )
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_cg_worldStreamingMaxImageQuality, "cg_worldStreamingMaxImageQuality");
+          StreamDistance::StreamDistance(&v30, *(float *)&Float_Internal_DebugName * *(float *)&Float_Internal_DebugName);
+          v14 = 0;
+          v15 = STREAM_FRONTEND_WANTED_IMAGE_MEMORY_DISTANCE_BUCKETS;
+          while ( v15->mValue < v30.mValue )
           {
-            ++v19;
-            ++v20;
-            if ( v19 >= 0xA )
+            ++v14;
+            ++v15;
+            if ( v14 >= 0xA )
               goto LABEL_16;
           }
-          v16 = v19;
+          v11 = v14;
         }
 LABEL_16:
-        _RSI = DCONST_DVARFLT_stream_syncMP_imageQuality;
+        v16 = DCONST_DVARFLT_stream_syncMP_imageQuality;
         if ( !DCONST_DVARFLT_stream_syncMP_imageQuality && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_syncMP_imageQuality") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RSI);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+28h]
-          vmulss  xmm1, xmm0, xmm0
-          vmovss  [rsp+1D8h+var_198.mValue], xmm1
-          vmovss  [rsp+1D8h+var_190], xmm1
-        }
-        if ( (v47.mValue & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
+        Dvar_CheckFrontendServerThread(v16);
+        *(float *)&v30.mValue = v16->current.value * v16->current.value;
+        mValue = v30.mValue;
+        if ( (v30.mValue & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_distance.h", 188, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
           __debugbreak();
-        v24 = 0;
-        while ( v15->mValue < v48 >> 7 )
+        v17 = 0;
+        while ( v10->mValue < mValue >> 7 )
         {
-          ++v24;
-          ++v15;
-          if ( v24 >= 0xA )
+          ++v17;
+          ++v10;
+          if ( v17 >= 0xA )
             goto LABEL_27;
         }
-        v17 = v24;
+        v12 = v17;
 LABEL_27:
         Stream_GetMemoryStats(&outStats);
-        __asm
-        {
-          vmovss  xmm6, cs:__real@5f800000
-          vmovss  xmm7, cs:__real@35800000
-        }
-        v27 = 10;
+        v18 = 10;
         wantedImageMemoryByDistance = outStats.wantedImageMemoryByDistance;
-        v29 = 0;
-        __asm { vxorps  xmm8, xmm8, xmm8 }
-        do
+        for ( i = 0; i < 0xA; ++i )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-          }
+          v21 = (float)(__int64)*wantedImageMemoryByDistance;
           if ( (*wantedImageMemoryByDistance & 0x8000000000000000ui64) != 0i64 )
-            __asm { vaddss  xmm0, xmm0, xmm6 }
-          __asm
           {
-            vmulss  xmm1, xmm0, xmm7
-            vucomiss xmm1, xmm8
+            v22 = (float)(__int64)*wantedImageMemoryByDistance;
+            v21 = v22 + 1.8446744e19;
           }
-          if ( *wantedImageMemoryByDistance )
+          if ( (float)(v21 * 0.00000095367432) != 0.0 )
           {
-            v33 = v29;
-            if ( v29 > v27 )
-              v33 = v27;
-            v27 = v33;
+            v23 = i;
+            if ( i > v18 )
+              v23 = v18;
+            v18 = v23;
           }
-          __asm
-          {
-            vcvtss2sd xmm3, xmm1, xmm1
-            vmovq   r9, xmm3
-          }
-          v14 += Com_sprintf_truncate(&dest[v14], 128 - v14, "%.2f", *(double *)&_XMM3);
-          if ( v29 != 9 )
-            v14 += Com_sprintf_truncate(&dest[v14], 128 - v14, " ");
-          ++v29;
+          v9 += Com_sprintf_truncate(&dest[v9], 128 - v9, "%.2f", (float)(v21 * 0.00000095367432));
+          if ( i != 9 )
+            v9 += Com_sprintf_truncate(&dest[v9], 128 - v9, " ");
           ++wantedImageMemoryByDistance;
         }
-        while ( v29 < 0xA );
-        __asm
+        if ( !v18 )
         {
-          vmovaps xmm8, [rsp+1D8h+var_68]
-          vmovaps xmm7, [rsp+1D8h+var_58]
-        }
-        if ( !v27 )
-        {
-          __asm { vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed }
+          v24 = colorRed;
 LABEL_45:
-          __asm { vmovups xmmword ptr [rsp+1D8h+var_188], xmm0 }
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, "Stm Loading");
-          __asm { vmovaps xmm6, xmm0 }
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-          __asm
-          {
-            vmovaps xmm3, xmm9; posY
-            vmovaps xmm2, xmm0; posX
-            vmovss  dword ptr [rsp+1D8h+fmt], xmm6
-          }
-          CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmt, dest, "Stm Loading", &color);
-          __asm
-          {
-            vmovaps xmm6, [rsp+1D8h+var_48]
-            vaddss  xmm9, xmm9, xmm0
-          }
-          goto LABEL_46;
+          color = v24;
+          CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, "Stm Loading");
+          v26 = *(float *)&CornerLabelWidth;
+          CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+          v28 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&CornerFarRight, y, v26, dest, "Stm Loading", &color);
+          return y + *(float *)&v28;
         }
-        if ( v27 <= v16 )
+        if ( v18 <= v11 )
         {
-          __asm { vmovups xmm0, xmmword ptr cs:?colorMagenta@@3Tvec4_t@@B; vec4_t const colorMagenta }
+          v24 = colorMagenta;
           goto LABEL_45;
         }
-        if ( v27 <= v17 )
+        if ( v18 <= v12 )
         {
-          __asm { vmovups xmm0, xmmword ptr cs:?colorYellow@@3Tvec4_t@@B; vec4_t const colorYellow }
+          v24 = colorYellow;
           goto LABEL_45;
         }
       }
@@ -6057,17 +4767,11 @@ LABEL_45:
       {
         Com_sprintf_truncate(dest, 0x80ui64, "<Disabled>");
       }
-      __asm { vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite }
+      v24 = colorWhite;
       goto LABEL_45;
     }
   }
-LABEL_46:
-  __asm
-  {
-    vmovaps xmm0, xmm9
-    vmovaps xmm9, [rsp+1D8h+var_78]
-  }
-  return *(float *)&_XMM0;
+  return v7;
 }
 
 /*
@@ -6078,90 +4782,90 @@ CgDrawDebugMP::PrintStreamingPos
 
 float __fastcall CgDrawDebugMP::PrintStreamingPos(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double posY)
 {
-  char *m_activeGameMapName; 
-  const ScreenPlacement *v14; 
-  const dvar_t *v17; 
-  int v19; 
+  __int128 v4; 
+  char *label; 
+  __int128 v7; 
+  const ScreenPlacement *v8; 
+  double CornerFarRight; 
+  float v11; 
+  double CornerLabelWidth; 
+  const dvar_t *v13; 
+  float v14; 
+  int v15; 
   unsigned int i; 
   const char *NameForViewType; 
-  const vec4_t *v25; 
+  const vec3_t *NextStreamPosition; 
+  const vec3_t *NextStreamVelocity; 
+  const vec4_t *color; 
   BgWorldStreamingViewMode NextStreamViewMode; 
-  bool v27; 
   const char *NameForViewMode; 
-  const char *v42; 
+  const char *v23; 
+  double v24; 
+  __int128 v25; 
   unsigned int j; 
-  const char *v47; 
-  const char *v50; 
-  const dvar_t *v53; 
-  const dvar_t *v54; 
+  double LoadDist; 
+  const char *v28; 
+  const char *v29; 
+  double v30; 
+  __int128 v31; 
+  const dvar_t *v32; 
+  const dvar_t *v33; 
+  double v34; 
+  float v35; 
   int k; 
-  char v58; 
-  const char *v76; 
-  const dvar_t *v79; 
-  const char *v81; 
-  bool v82; 
-  const char *v99; 
-  char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  char *fmtc; 
-  float fmtd; 
-  char *fmte; 
-  char *fmtf; 
-  float fmtg; 
-  vec4_t *color; 
-  vec4_t *colora; 
-  char *label; 
+  const vec3_t *ManualViewOrigin; 
+  const vec3_t *ManualViewVelocity; 
+  const char *v39; 
+  double v40; 
+  __int128 v41; 
+  const dvar_t *v42; 
+  const char *v43; 
+  StreamUpdateMultiView *p_multiView; 
+  __m128 v; 
+  float v46; 
+  float v47; 
+  const char *v48; 
+  double v49; 
+  __int128 v50; 
   unsigned int CurrentStateFrameDelta; 
-  char *v121; 
+  char *v53; 
   const char *CurrentStateName; 
   StreamUpdateMultiView multiView; 
-  char v125[64]; 
+  char v57[64]; 
   char dest[64]; 
-  char v128; 
-  void *retaddr; 
+  __int128 v59; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm6
-    vmovaps xmmword ptr [r11-68h], xmm7
-    vmovaps xmmword ptr [r11-88h], xmm9
-    vmovaps xmmword ptr [r11-98h], xmm10
-  }
-  m_activeGameMapName = cls.m_activeGameMapName;
+  label = cls.m_activeGameMapName;
   if ( !cls.m_activeGameMapName[0] )
-    m_activeGameMapName = "<none>";
-  v121 = m_activeGameMapName;
-  __asm { vmovaps xmm7, xmm3 }
-  v14 = scrPlace;
-  *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-  __asm { vmovaps xmm9, xmm0 }
-  *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, m_activeGameMapName);
-  v17 = DCONST_DVARBOOL_cg_drawStreamPos;
-  __asm { vmovaps xmm10, xmm0 }
+    label = "<none>";
+  v53 = label;
+  v7 = *(_OWORD *)&posY;
+  v8 = scrPlace;
+  CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v11 = *(float *)&CornerFarRight;
+  CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, label);
+  v13 = DCONST_DVARBOOL_cg_drawStreamPos;
+  v14 = *(float *)&CornerLabelWidth;
   if ( !DCONST_DVARBOOL_cg_drawStreamPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawStreamPos") )
     __debugbreak();
-  __asm { vmovaps [rsp+5E8h+var_78], xmm8 }
-  Dvar_CheckFrontendServerThread(v17);
-  v19 = 0;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  if ( v17->current.enabled )
+  v59 = v4;
+  Dvar_CheckFrontendServerThread(v13);
+  v15 = 0;
+  if ( v13->current.enabled )
   {
     for ( i = 0; i < 3; ++i )
     {
       if ( CG_WorldStreaming_HasNextStreamPosition(localClientNum, (const BgWorldStreamingViewType)(unsigned __int8)i) )
       {
         NameForViewType = BG_WorldStreaming_GetNameForViewType((const BgWorldStreamingViewType)(unsigned __int8)i);
-        _RBP = CG_WorldStreaming_GetNextStreamPosition(localClientNum, (const BgWorldStreamingViewType)(unsigned __int8)i);
-        _RDI = CG_WorldStreaming_GetNextStreamVelocity(localClientNum, (const BgWorldStreamingViewType)(unsigned __int8)i);
+        NextStreamPosition = CG_WorldStreaming_GetNextStreamPosition(localClientNum, (const BgWorldStreamingViewType)(unsigned __int8)i);
+        NextStreamVelocity = CG_WorldStreaming_GetNextStreamVelocity(localClientNum, (const BgWorldStreamingViewType)(unsigned __int8)i);
         CurrentStateName = CG_WorldStreaming_GetCurrentStateName(localClientNum, (const BgWorldStreamingViewType)(unsigned __int8)i);
-        v25 = &colorGreen;
+        color = &colorGreen;
         if ( CG_WorldStreaming_IsNextStreamPositionLoading(localClientNum, (const BgWorldStreamingViewType)(unsigned __int8)i) )
-          v25 = &colorRed;
+          color = &colorRed;
         CurrentStateFrameDelta = CG_WorldStreaming_GetCurrentStateFrameDelta(localClientNum, (const BgWorldStreamingViewType)(unsigned __int8)i);
         NextStreamViewMode = CG_WorldStreaming_GetNextStreamViewMode(localClientNum, (const BgWorldStreamingViewType)(unsigned __int8)i);
-        v27 = NextStreamViewMode == LINEAR;
         if ( NextStreamViewMode )
         {
           NameForViewMode = BG_WorldStreaming_GetNameForViewMode(NextStreamViewMode);
@@ -6171,252 +4875,102 @@ float __fastcall CgDrawDebugMP::PrintStreamingPos(CgDrawDebugMP *this, const Loc
         {
           dest[0] = 0;
         }
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rdi]
-          vucomiss xmm1, xmm6
-        }
-        if ( !v27 )
-          goto LABEL_18;
-        __asm { vucomiss xmm6, dword ptr [rdi+4] }
-        if ( !v27 )
-          goto LABEL_18;
-        __asm { vucomiss xmm6, dword ptr [rdi+8] }
-        if ( v27 )
-        {
-          v125[0] = 0;
-        }
+        if ( NextStreamVelocity->v[0] == 0.0 && NextStreamVelocity->v[1] == 0.0 && NextStreamVelocity->v[2] == 0.0 )
+          v57[0] = 0;
         else
-        {
-LABEL_18:
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rdi+4]
-            vmovss  xmm0, dword ptr [rdi+8]
-            vcvtss2sd xmm3, xmm3, xmm3
-            vcvtss2sd xmm2, xmm1, xmm1
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovq   r9, xmm3
-            vmovq   r8, xmm2
-            vmovsd  [rsp+5E8h+fmt], xmm0
-          }
-          Com_sprintf<64>((char (*)[64])v125, "(%.0f %.0f %.0f)", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt);
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+8]
-          vmovss  xmm1, dword ptr [rbp+4]
-          vmovss  xmm2, dword ptr [rbp+0]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+5E8h+label], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcvtss2sd xmm2, xmm2, xmm2
-          vmovsd  [rsp+5E8h+color], xmm1
-          vmovsd  [rsp+5E8h+fmt], xmm2
-        }
-        v42 = j_va("%s: %s [%3d] (%.0f %.0f %.0f)%s %s\n", NameForViewType, CurrentStateName, CurrentStateFrameDelta, *(double *)&fmta, *(double *)&color, *(double *)&label, v125, dest);
-        v14 = scrPlace;
-        __asm
-        {
-          vmovaps xmm3, xmm7; posY
-          vmovaps xmm2, xmm9; posX
-        }
-        CgDrawDebug::CornerPrintNoLabel(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v42, v25);
-        __asm { vaddss  xmm7, xmm7, xmm0 }
+          Com_sprintf<64>((char (*)[64])v57, "(%.0f %.0f %.0f)", NextStreamVelocity->v[0], NextStreamVelocity->v[1], NextStreamVelocity->v[2]);
+        v23 = j_va("%s: %s [%3d] (%.0f %.0f %.0f)%s %s\n", NameForViewType, CurrentStateName, CurrentStateFrameDelta, NextStreamPosition->v[0], NextStreamPosition->v[1], NextStreamPosition->v[2], v57, dest);
+        v8 = scrPlace;
+        v24 = CgDrawDebug::CornerPrintNoLabel(this, scrPlace, v11, *(float *)&v7, v23, color);
+        v25 = v7;
+        *(float *)&v25 = *(float *)&v7 + *(float *)&v24;
+        v7 = v25;
       }
     }
-    v19 = 0;
+    v15 = 0;
     for ( j = 0; j < 3; ++j )
     {
-      *(double *)&_XMM0 = CG_WorldStreaming_GetLoadDist(localClientNum, (const BgWorldStreamingViewType)(unsigned __int8)j);
-      __asm
+      LoadDist = CG_WorldStreaming_GetLoadDist(localClientNum, (const BgWorldStreamingViewType)(unsigned __int8)j);
+      if ( *(float *)&LoadDist != 0.0 )
       {
-        vucomiss xmm0, xmm6
-        vmovaps xmm8, xmm0
-      }
-      if ( !v27 )
-      {
-        v47 = BG_WorldStreaming_GetNameForViewType((const BgWorldStreamingViewType)(unsigned __int8)j);
-        __asm
-        {
-          vcvtss2sd xmm2, xmm8, xmm8
-          vmovq   r8, xmm2
-        }
-        v50 = j_va("%s LOAD DIST: %g", v47, _R8);
-        __asm
-        {
-          vmovaps xmm3, xmm7; posY
-          vmovaps xmm2, xmm9; posX
-        }
-        CgDrawDebug::CornerPrintNoLabel(this, v14, *(float *)&_XMM2, *(float *)&_XMM3, v50, &colorWhite);
-        __asm { vaddss  xmm7, xmm7, xmm0 }
+        v28 = BG_WorldStreaming_GetNameForViewType((const BgWorldStreamingViewType)(unsigned __int8)j);
+        v29 = j_va("%s LOAD DIST: %g", v28, *(float *)&LoadDist);
+        v30 = CgDrawDebug::CornerPrintNoLabel(this, v8, v11, *(float *)&v7, v29, &colorWhite);
+        v31 = v7;
+        *(float *)&v31 = *(float *)&v7 + *(float *)&v30;
+        v7 = v31;
       }
     }
-    m_activeGameMapName = v121;
+    label = v53;
   }
-  v53 = DCONST_DVARBOOL_cg_drawClientStreamManualView;
+  v32 = DCONST_DVARBOOL_cg_drawClientStreamManualView;
   if ( !DCONST_DVARBOOL_cg_drawClientStreamManualView && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawClientStreamManualView") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v53);
-  if ( v53->current.enabled )
+  Dvar_CheckFrontendServerThread(v32);
+  if ( v32->current.enabled )
   {
-    v54 = DVARINT_cg_drawFPS;
+    v33 = DVARINT_cg_drawFPS;
     if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v54);
-    if ( v54->current.integer )
+    Dvar_CheckFrontendServerThread(v33);
+    if ( v33->current.integer )
     {
-      *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " ClientStreamManualView");
-      __asm { vmovaps xmm8, xmm0 }
+      v34 = CgDrawDebug::GetCornerLabelWidth(this, " ClientStreamManualView");
+      v35 = *(float *)&v34;
       for ( k = 0; k < 5; ++k )
       {
         if ( CL_StreamViews_IsManualViewSet((StreamManualViewType)k, localClientNum) )
         {
-          _RDI = CL_StreamViews_GetManualViewOrigin((StreamManualViewType)k, localClientNum);
-          _RAX = CL_StreamViews_GetManualViewVelocity((StreamManualViewType)k, localClientNum);
-          __asm
-          {
-            vmovss  xmm1, dword ptr [rax]
-            vucomiss xmm1, xmm6
-          }
-          if ( !v58 )
-            goto LABEL_40;
-          __asm { vucomiss xmm6, dword ptr [rax+4] }
-          if ( !v58 )
-            goto LABEL_40;
-          __asm { vucomiss xmm6, dword ptr [rax+8] }
-          if ( v58 )
-          {
-            v125[0] = 0;
-          }
+          ManualViewOrigin = CL_StreamViews_GetManualViewOrigin((StreamManualViewType)k, localClientNum);
+          ManualViewVelocity = CL_StreamViews_GetManualViewVelocity((StreamManualViewType)k, localClientNum);
+          if ( ManualViewVelocity->v[0] == 0.0 && ManualViewVelocity->v[1] == 0.0 && ManualViewVelocity->v[2] == 0.0 )
+            v57[0] = 0;
           else
-          {
-LABEL_40:
-            __asm
-            {
-              vmovss  xmm3, dword ptr [rax+4]
-              vmovss  xmm0, dword ptr [rax+8]
-              vcvtss2sd xmm3, xmm3, xmm3
-              vcvtss2sd xmm2, xmm1, xmm1
-              vcvtss2sd xmm0, xmm0, xmm0
-              vmovq   r9, xmm3
-              vmovq   r8, xmm2
-              vmovsd  [rsp+5E8h+fmt], xmm0
-            }
-            Com_sprintf<64>((char (*)[64])v125, "(%.0f %.0f %.0f)", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmtb);
-          }
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rdi+4]
-            vmovss  xmm2, dword ptr [rdi]
-            vmovss  xmm0, dword ptr [rdi+8]
-            vcvtss2sd xmm3, xmm3, xmm3
-            vcvtss2sd xmm2, xmm2, xmm2
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovq   r9, xmm3
-            vmovq   r8, xmm2
-            vmovsd  [rsp+5E8h+fmt], xmm0
-          }
-          v76 = j_va("[%d] (%.0f %.0f %.0f)%s\n", (unsigned int)k, _R8, _R9, fmtc, v125);
-          __asm
-          {
-            vmovaps xmm3, xmm7; posY
-            vmovaps xmm2, xmm9; posX
-            vmovss  dword ptr [rsp+5E8h+fmt], xmm8
-          }
-          CgDrawDebug::CornerPrint(this, v14, *(float *)&_XMM2, *(float *)&_XMM3, fmtd, v76, " ClientStreamManualView", &colorWhite);
-          __asm { vaddss  xmm7, xmm7, xmm0 }
+            Com_sprintf<64>((char (*)[64])v57, "(%.0f %.0f %.0f)", ManualViewVelocity->v[0], ManualViewVelocity->v[1], ManualViewVelocity->v[2]);
+          v39 = j_va("[%d] (%.0f %.0f %.0f)%s\n", (unsigned int)k, ManualViewOrigin->v[0], ManualViewOrigin->v[1], ManualViewOrigin->v[2], v57);
+          v40 = CgDrawDebug::CornerPrint(this, v8, v11, *(float *)&v7, v35, v39, " ClientStreamManualView", &colorWhite);
+          v41 = v7;
+          *(float *)&v41 = *(float *)&v7 + *(float *)&v40;
+          v7 = v41;
         }
       }
-      m_activeGameMapName = v121;
+      label = v53;
     }
   }
-  v79 = DVARINT_cg_drawFPS;
-  __asm { vmovaps xmm8, [rsp+5E8h+var_78] }
+  v42 = DVARINT_cg_drawFPS;
   if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v79);
-  if ( v79->current.integer )
+  Dvar_CheckFrontendServerThread(v42);
+  if ( v42->current.integer )
   {
     Stream_ViewPos_GetStaticMultiView(&multiView);
-    v81 = "Stream Update";
+    v43 = "Stream Update";
     if ( Stream_LoadSync_IsActive() )
-      v81 = "Stream Sync";
-    v82 = multiView.viewCount == 0;
+      v43 = "Stream Sync";
     if ( multiView.viewCount > 0 )
     {
-      _RBX = &multiView;
+      p_multiView = &multiView;
       do
       {
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rbx+200h]
-          vucomiss xmm1, xmm6
-          vshufps xmm2, xmm1, xmm1, 55h ; 'U'
-          vshufps xmm0, xmm1, xmm1, 0AAh ; 'ª'
-        }
-        if ( !v82 )
-          goto LABEL_56;
-        __asm { vucomiss xmm2, xmm6 }
-        if ( !v82 )
-          goto LABEL_56;
-        __asm { vucomiss xmm0, xmm6 }
-        if ( v82 )
-        {
-          v125[0] = 0;
-        }
+        v = p_multiView->viewVelocityDir[0].v;
+        LODWORD(v46) = _mm_shuffle_ps(v, v, 85).m128_u32[0];
+        LODWORD(v47) = _mm_shuffle_ps(v, v, 170).m128_u32[0];
+        if ( v.m128_f32[0] == 0.0 && v46 == 0.0 && v47 == 0.0 )
+          v57[0] = 0;
         else
-        {
-LABEL_56:
-          __asm
-          {
-            vcvtss2sd xmm3, xmm2, xmm2
-            vcvtss2sd xmm2, xmm1, xmm1
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovq   r8, xmm2
-            vmovq   r9, xmm3
-            vmovsd  [rsp+5E8h+fmt], xmm0
-          }
-          Com_sprintf<64>((char (*)[64])v125, "(%.2f %.2f %.2f)", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmte);
-        }
-        __asm
-        {
-          vmovups xmm2, xmmword ptr [rbx]
-          vshufps xmm0, xmm2, xmm2, 0AAh ; 'ª'
-          vcvtss2sd xmm4, xmm0, xmm0
-          vshufps xmm1, xmm2, xmm2, 55h ; 'U'
-          vcvtss2sd xmm3, xmm2, xmm2
-          vcvtss2sd xmm0, xmm1, xmm1
-          vmovsd  [rsp+5E8h+color], xmm4
-          vmovq   r9, xmm3
-          vmovsd  [rsp+5E8h+fmt], xmm0
-        }
-        v99 = j_va("%s[%d] (%.0f %.0f %.0f)%s \n", v81, (unsigned int)v19, _R9, fmtf, colora, v125);
-        __asm
-        {
-          vmovaps xmm3, xmm7; posY
-          vmovaps xmm2, xmm9; posX
-          vmovss  dword ptr [rsp+5E8h+fmt], xmm10
-        }
-        CgDrawDebug::CornerPrint(this, v14, *(float *)&_XMM2, *(float *)&_XMM3, fmtg, v99, m_activeGameMapName, &colorWhite);
-        ++v19;
-        _RBX = (StreamUpdateMultiView *)((char *)_RBX + 16);
-        __asm { vaddss  xmm7, xmm7, xmm0 }
-        v82 = v19 == multiView.viewCount;
+          Com_sprintf<64>((char (*)[64])v57, "(%.2f %.2f %.2f)", v.m128_f32[0], v46, v47);
+        v48 = j_va("%s[%d] (%.0f %.0f %.0f)%s \n", v43, (unsigned int)v15, COERCE_FLOAT(*(_OWORD *)p_multiView->viewPos), _mm_shuffle_ps(p_multiView->viewPos[0].v, p_multiView->viewPos[0].v, 85).m128_f32[0], _mm_shuffle_ps(p_multiView->viewPos[0].v, p_multiView->viewPos[0].v, 170).m128_f32[0], v57);
+        v49 = CgDrawDebug::CornerPrint(this, v8, v11, *(float *)&v7, v14, v48, label, &colorWhite);
+        ++v15;
+        p_multiView = (StreamUpdateMultiView *)((char *)p_multiView + 16);
+        v50 = v7;
+        *(float *)&v50 = *(float *)&v7 + *(float *)&v49;
+        v7 = v50;
       }
-      while ( v19 < multiView.viewCount );
+      while ( v15 < multiView.viewCount );
     }
   }
-  __asm { vmovaps xmm0, xmm7 }
-  _R11 = &v128;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-28h]
-    vmovaps xmm7, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-58h]
-    vmovaps xmm10, xmmword ptr [r11-68h]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&v7;
 }
 
 /*
@@ -6424,54 +4978,37 @@ LABEL_56:
 CgDrawDebugMP::PrintTeamDebugInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintTeamDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintTeamDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
-  const dvar_t *v7; 
-  const dvar_t *v11; 
-  float fmt; 
+  const dvar_t *v4; 
+  float v7; 
+  const dvar_t *v8; 
+  double CornerLabelWidth; 
+  float v10; 
+  double CornerFarRight; 
+  double v12; 
 
-  v7 = DVARINT_cg_drawFPS;
-  __asm
-  {
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm7, xmm3
-  }
+  v4 = DVARINT_cg_drawFPS;
+  v7 = y;
   if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.integer )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.integer )
   {
-    v11 = DVARBOOL_cg_drawteamdebuginfo;
+    v8 = DVARBOOL_cg_drawteamdebuginfo;
     if ( !DVARBOOL_cg_drawteamdebuginfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawteamdebuginfo") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    if ( v11->current.enabled && party_drawTeamDebug[0] )
+    Dvar_CheckFrontendServerThread(v8);
+    if ( v8->current.enabled && party_drawTeamDebug[0] )
     {
-      __asm { vmovaps [rsp+68h+var_18], xmm6 }
-      *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " cg ms/frame");
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-      __asm
-      {
-        vmovaps xmm3, xmm7; posY
-        vmovaps xmm2, xmm0; posX
-        vmovss  dword ptr [rsp+68h+fmt], xmm6
-      }
-      CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmt, party_drawTeamDebug, " teams", &colorWhite);
-      __asm
-      {
-        vmovaps xmm6, [rsp+68h+var_18]
-        vaddss  xmm7, xmm7, xmm0
-      }
+      CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, " cg ms/frame");
+      v10 = *(float *)&CornerLabelWidth;
+      CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+      v12 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&CornerFarRight, y, v10, party_drawTeamDebug, " teams", &colorWhite);
+      return y + *(float *)&v12;
     }
   }
-  __asm
-  {
-    vmovaps xmm0, xmm7
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return *(float *)&_XMM0;
+  return v7;
 }
 
 /*
@@ -6479,148 +5016,85 @@ float __fastcall CgDrawDebugMP::PrintTeamDebugInfo(CgDrawDebugMP *this, const Lo
 CgDrawDebugMP::PrintTournamentDebugInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintTournamentDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintTournamentDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
+  double CornerLabelWidth; 
+  float v7; 
+  double v8; 
+  float v9; 
+  double v10; 
+  float v11; 
+  double v12; 
+  float v13; 
   const char *text; 
+  double CornerFarRight; 
+  double v16; 
+  float v17; 
   const char *CurrentTournamentLobbyTaskString; 
+  double v19; 
+  double v20; 
+  float v21; 
   const char *CurrentTournamentChatChannelCommunicationStateString; 
+  double v23; 
+  double v24; 
+  float v25; 
   const char *MyParticipationStatusString; 
+  double v27; 
+  double v28; 
+  float v29; 
   const char *MyTourneyDataString; 
-  float v52; 
-  float v53; 
-  float v54; 
-  float v55; 
-  float v56; 
-  char v57[16]; 
-  char v58; 
-  char v59[16]; 
-  char v61[8]; 
-  __int128 v62; 
-  char v63[8]; 
-  char v64[16]; 
-  char v66[8]; 
-  char v67[16]; 
-  char v68[8]; 
+  double v31; 
+  double v32; 
+  char v34[24]; 
+  char v35[16]; 
+  __int64 v36; 
+  char v37[8]; 
+  char v38[24]; 
+  char v39[16]; 
+  __int64 v40; 
+  char v41[8]; 
+  char v42[24]; 
 
-  __asm
-  {
-    vmovaps [rsp+150h+var_80], xmm11
-    vmovaps xmm11, xmm3
-  }
-  if ( OnlineTournament_IsScreenDebugEnabled() )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:aTourneyState; "    Tourney State"
-      vmovsd  xmm1, qword ptr cs:aTourneyChatCha+10h; " channel state"
-    }
-    strcpy(v63, "e");
-    v58 = aTourneyTask[16];
-    strcpy(v61, " state");
-    __asm
-    {
-      vmovups [rsp+150h+anonymous_0], xmm0
-      vmovups xmm0, xmmword ptr cs:aTourneyTask; "    Tourney Task"
-      vmovups xmmword ptr [rsp+150h+var_110], xmm0
-      vmovups xmm0, xmmword ptr cs:aTourneyChatCha; "    Tourney Chat channel state"
-      vmovaps [rsp+150h+var_30], xmm6
-      vmovups xmmword ptr [rsp+150h+var_F8], xmm0
-      vmovups xmm0, xmmword ptr cs:aTourneyMyParti; "    Tourney My Participation"
-    }
-    strcpy(v66, "tion");
-    __asm
-    {
-      vmovaps [rsp+150h+var_40], xmm7
-      vmovsd  [rsp+150h+var_E8], xmm1
-      vmovsd  xmm1, qword ptr cs:aTourneyMyParti+10h; "articipation"
-      vmovups xmmword ptr [rbp+50h+var_C0], xmm0
-      vmovups xmm0, xmmword ptr cs:aTourneyMyData; "    Tourney My Data"
-      vmovaps [rsp+150h+var_50], xmm8
-      vmovaps [rsp+150h+var_60], xmm9
-    }
-    strcpy(v68, "ata");
-    __asm
-    {
-      vmovaps [rsp+150h+var_70], xmm10
-      vmovsd  [rbp+50h+var_B0], xmm1
-      vmovups xmmword ptr [rbp+50h+var_A0], xmm0
-    }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, (const char *)&v62);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, v57);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, v59);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, v64);
-    __asm { vmovaps xmm9, xmm0 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, v67);
-    __asm { vmovaps xmm10, xmm0 }
-    text = OnlineTournament_GetCurrentTournamentStateString();
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm3, xmm11; posY
-      vmovaps xmm2, xmm0; posX
-      vmovss  [rsp+150h+var_130], xmm6
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v52, text, (const char *)&v62, &colorWhite);
-    __asm { vaddss  xmm6, xmm11, xmm0 }
-    CurrentTournamentLobbyTaskString = OnlineTournament_GetCurrentTournamentLobbyTaskString();
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm0; posX
-      vmovss  [rsp+150h+var_130], xmm7
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v53, CurrentTournamentLobbyTaskString, v57, &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    CurrentTournamentChatChannelCommunicationStateString = OnlineTournament_GetCurrentTournamentChatChannelCommunicationStateString();
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm0; posX
-      vmovss  [rsp+150h+var_130], xmm8
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v54, CurrentTournamentChatChannelCommunicationStateString, v59, &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    MyParticipationStatusString = OnlineTournament_GetMyParticipationStatusString();
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm0; posX
-      vmovss  [rsp+150h+var_130], xmm9
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v55, MyParticipationStatusString, v64, &colorWhite);
-    __asm { vaddss  xmm6, xmm6, xmm0 }
-    MyTourneyDataString = OnlineTournament_GetMyTourneyDataString();
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm3, xmm6; posY
-      vmovaps xmm2, xmm0; posX
-      vmovss  [rsp+150h+var_130], xmm10
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, v56, MyTourneyDataString, v67, &colorWhite);
-    __asm
-    {
-      vmovaps xmm10, [rsp+150h+var_70]
-      vmovaps xmm9, [rsp+150h+var_60]
-      vmovaps xmm8, [rsp+150h+var_50]
-      vmovaps xmm7, [rsp+150h+var_40]
-      vaddss  xmm0, xmm6, xmm0
-      vmovaps xmm6, [rsp+150h+var_30]
-    }
-  }
-  else
-  {
-    __asm { vmovaps xmm0, xmm11 }
-  }
-  __asm { vmovaps xmm11, [rsp+150h+var_80] }
-  return *(float *)&_XMM0;
+  if ( !OnlineTournament_IsScreenDebugEnabled() )
+    return y;
+  strcpy(v37, " state");
+  strcpy(v38, "    Tourney State");
+  strcpy(v34, "    Tourney Task");
+  *(_OWORD *)v35 = *(_OWORD *)"    Tourney Chat channel state";
+  strcpy(v41, "tion");
+  v36 = *(__int64 *)" channel state";
+  *(_OWORD *)v39 = *(_OWORD *)"    Tourney My Participation";
+  v40 = *(__int64 *)"articipation";
+  strcpy(v42, "    Tourney My Data");
+  CgDrawDebug::GetCornerLabelWidth(this, v38);
+  CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, v34);
+  v7 = *(float *)&CornerLabelWidth;
+  v8 = CgDrawDebug::GetCornerLabelWidth(this, v35);
+  v9 = *(float *)&v8;
+  v10 = CgDrawDebug::GetCornerLabelWidth(this, v39);
+  v11 = *(float *)&v10;
+  v12 = CgDrawDebug::GetCornerLabelWidth(this, v42);
+  v13 = *(float *)&v12;
+  text = OnlineTournament_GetCurrentTournamentStateString();
+  CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v16 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&CornerFarRight, y, 1.3563156e-19, text, v38, &colorWhite);
+  v17 = y + *(float *)&v16;
+  CurrentTournamentLobbyTaskString = OnlineTournament_GetCurrentTournamentLobbyTaskString();
+  v19 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v20 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v19, v17, v7, CurrentTournamentLobbyTaskString, v34, &colorWhite);
+  v21 = v17 + *(float *)&v20;
+  CurrentTournamentChatChannelCommunicationStateString = OnlineTournament_GetCurrentTournamentChatChannelCommunicationStateString();
+  v23 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v24 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v23, v21, v9, CurrentTournamentChatChannelCommunicationStateString, v35, &colorWhite);
+  v25 = v21 + *(float *)&v24;
+  MyParticipationStatusString = OnlineTournament_GetMyParticipationStatusString();
+  v27 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v28 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v27, v25, v11, MyParticipationStatusString, v39, &colorWhite);
+  v29 = v25 + *(float *)&v28;
+  MyTourneyDataString = OnlineTournament_GetMyTourneyDataString();
+  v31 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+  v32 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v31, v29, v13, MyTourneyDataString, v42, &colorWhite);
+  return v29 + *(float *)&v32;
 }
 
 /*
@@ -6628,99 +5102,67 @@ float __fastcall CgDrawDebugMP::PrintTournamentDebugInfo(CgDrawDebugMP *this, co
 CgDrawDebugMP::PrintTransientFastfileDebugInfo
 ==============
 */
-
-float __fastcall CgDrawDebugMP::PrintTransientFastfileDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double y)
+float CgDrawDebugMP::PrintTransientFastfileDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, float y)
 {
-  const dvar_t *v6; 
-  const dvar_t *v10; 
+  __int128 v4; 
+  const dvar_t *v5; 
+  float v8; 
+  const dvar_t *v9; 
   bool enabled; 
-  const dvar_t *v12; 
-  bool v13; 
+  const dvar_t *v11; 
+  bool v12; 
   TransientDebugStats *p_outStats; 
-  __int64 v15; 
+  __int64 v14; 
+  vec4_t v15; 
+  double v16; 
+  float v17; 
+  double v18; 
+  double v19; 
   unsigned int *queuedWorldTiles; 
   __int64 v21; 
+  vec4_t v22; 
+  double CornerLabelWidth; 
+  float v24; 
+  double CornerFarRight; 
+  double v26; 
   const dvar_t *v27; 
   unsigned int YieldTimeout; 
   unsigned int YieldTimeProgress; 
   GfxFont *FontHandle; 
-  __int64 v32; 
+  __int64 v31; 
   char *fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float text; 
-  float v44; 
   int destPos; 
   vec4_t color; 
   TransientDebugStats outStats; 
   char dest[128]; 
+  __int128 v38; 
 
-  __asm { vmovaps [rsp+1B0h+var_50], xmm7 }
-  v6 = DVARINT_cg_drawFPS;
-  __asm { vmovaps xmm7, xmm3 }
+  v5 = DVARINT_cg_drawFPS;
+  v8 = y;
   if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.integer )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.integer )
   {
-    v10 = DCONST_DVARBOOL_cg_drawWorldTileLoadCounts;
+    v9 = DCONST_DVARBOOL_cg_drawWorldTileLoadCounts;
     if ( !DCONST_DVARBOOL_cg_drawWorldTileLoadCounts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawWorldTileLoadCounts") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v10);
-    enabled = v10->current.enabled;
-    v12 = DCONST_DVARBOOL_cg_drawTransientCommonLoadCounts;
+    Dvar_CheckFrontendServerThread(v9);
+    enabled = v9->current.enabled;
+    v11 = DCONST_DVARBOOL_cg_drawTransientCommonLoadCounts;
     if ( !DCONST_DVARBOOL_cg_drawTransientCommonLoadCounts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawTransientCommonLoadCounts") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    v13 = v12->current.enabled;
-    if ( !enabled && !v13 )
-      goto LABEL_42;
-    __asm { vmovaps [rsp+1B0h+var_40], xmm6 }
+    Dvar_CheckFrontendServerThread(v11);
+    v12 = v11->current.enabled;
+    if ( !enabled && !v12 )
+      goto LABEL_41;
+    v38 = v4;
     CL_TransientsMP_GetTransientStats(&outStats);
-    if ( !v13 )
+    if ( !v12 )
     {
 LABEL_30:
       if ( !enabled )
-      {
-LABEL_41:
-        __asm { vmovaps xmm6, [rsp+1B0h+var_40] }
-LABEL_42:
-        v27 = DCONST_DVARBOOL_stream_drawCameraVelocity;
-        if ( !DCONST_DVARBOOL_stream_drawCameraVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawCameraVelocity") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v27);
-        if ( v27->current.enabled )
-        {
-          YieldTimeout = CL_TransientsMP_GetYieldTimeout();
-          if ( CL_TransientsMP_IsYielding() )
-          {
-            YieldTimeProgress = CL_TransientsMP_GetYieldTimeProgress();
-            Com_sprintf_truncate<64>((char (*)[64])&outStats, "Yield %dms. In yield:%dms.", YieldTimeout, YieldTimeProgress);
-          }
-          else
-          {
-            Com_sprintf_truncate<64>((char (*)[64])&outStats, "Yield %dms.", YieldTimeout);
-          }
-          __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-          FontHandle = UI_GetFontHandle(scrPlace, 5, *(float *)&_XMM2);
-          v32 = -1i64;
-          do
-            ++v32;
-          while ( *((_BYTE *)outStats.queuedCommon + v32) );
-          __asm
-          {
-            vmovss  xmm0, cs:__real@3e800000
-            vmovss  xmm1, cs:__real@43988000
-            vmovss  [rsp+1B0h+var_170], xmm0
-            vmovss  xmm0, cs:__real@43dd0000
-            vmovss  dword ptr [rsp+1B0h+text], xmm0
-            vmovss  dword ptr [rsp+1B0h+fmt], xmm1
-          }
-          UI_DrawText(scrPlace, (const char *)&outStats, v32, FontHandle, fmtc, text, 1, 1, v44, &colorWhite, 3);
-        }
-        goto LABEL_52;
-      }
+        goto LABEL_41;
       destPos = 0;
       queuedWorldTiles = outStats.queuedWorldTiles;
       v21 = 5i64;
@@ -6732,94 +5174,92 @@ LABEL_42:
         --v21;
       }
       while ( v21 );
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-        vmovups xmmword ptr [rsp+1B0h+var_148], xmm0
-      }
+      color = colorWhite;
       if ( outStats.queuedWorldTiles[0] )
       {
-        __asm { vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed }
+        v22 = colorRed;
       }
       else if ( outStats.queuedWorldTiles[1] )
       {
-        __asm { vmovups xmm0, xmmword ptr cs:?colorMagenta@@3Tvec4_t@@B; vec4_t const colorMagenta }
+        v22 = colorMagenta;
       }
       else
       {
         if ( !outStats.queuedWorldTiles[2] )
         {
 LABEL_40:
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, "TR World Tiles Loading");
-          __asm { vmovaps xmm6, xmm0 }
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-          __asm
+          CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, "TR World Tiles Loading");
+          v24 = *(float *)&CornerLabelWidth;
+          CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+          v26 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&CornerFarRight, v8, v24, dest, "TR World Tiles Loading", &color);
+          v8 = v8 + *(float *)&v26;
+LABEL_41:
+          v27 = DCONST_DVARBOOL_stream_drawCameraVelocity;
+          if ( !DCONST_DVARBOOL_stream_drawCameraVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_drawCameraVelocity") )
+            __debugbreak();
+          Dvar_CheckFrontendServerThread(v27);
+          if ( v27->current.enabled )
           {
-            vmovaps xmm3, xmm7; posY
-            vmovaps xmm2, xmm0; posX
-            vmovss  dword ptr [rsp+1B0h+fmt], xmm6
+            YieldTimeout = CL_TransientsMP_GetYieldTimeout();
+            if ( CL_TransientsMP_IsYielding() )
+            {
+              YieldTimeProgress = CL_TransientsMP_GetYieldTimeProgress();
+              Com_sprintf_truncate<64>((char (*)[64])&outStats, "Yield %dms. In yield:%dms.", YieldTimeout, YieldTimeProgress);
+            }
+            else
+            {
+              Com_sprintf_truncate<64>((char (*)[64])&outStats, "Yield %dms.", YieldTimeout);
+            }
+            FontHandle = UI_GetFontHandle(scrPlace, 5, 1.0);
+            v31 = -1i64;
+            do
+              ++v31;
+            while ( *((_BYTE *)outStats.queuedCommon + v31) );
+            UI_DrawText(scrPlace, (const char *)&outStats, v31, FontHandle, 305.0, 442.0, 1, 1, 0.25, &colorWhite, 3);
           }
-          CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, dest, "TR World Tiles Loading", &color);
-          __asm { vaddss  xmm7, xmm7, xmm0 }
-          goto LABEL_41;
+          return v8;
         }
-        __asm { vmovups xmm0, xmmword ptr cs:?colorYellow@@3Tvec4_t@@B; vec4_t const colorYellow }
+        v22 = colorYellow;
       }
-      __asm { vmovups xmmword ptr [rsp+1B0h+var_148], xmm0 }
+      color = v22;
       goto LABEL_40;
     }
     destPos = 0;
     p_outStats = &outStats;
-    v15 = 12i64;
+    v14 = 12i64;
     do
     {
       LODWORD(fmt) = p_outStats->queuedCommon[0];
       Com_sprintfPos_truncate(dest, 0x80ui64, &destPos, "%u ", fmt);
       p_outStats = (TransientDebugStats *)((char *)p_outStats + 4);
-      --v15;
+      --v14;
     }
-    while ( v15 );
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite
-      vmovups xmmword ptr [rsp+1B0h+var_148], xmm0
-    }
+    while ( v14 );
+    color = colorWhite;
     if ( outStats.queuedCommon[0] || outStats.queuedCommon[1] || outStats.queuedCommon[2] || outStats.queuedCommon[3] || outStats.queuedCommon[6] )
     {
-      __asm { vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed }
+      v15 = colorRed;
     }
     else if ( outStats.queuedCommon[4] || outStats.queuedCommon[5] )
     {
-      __asm { vmovups xmm0, xmmword ptr cs:?colorMagenta@@3Tvec4_t@@B; vec4_t const colorMagenta }
+      v15 = colorMagenta;
     }
     else
     {
       if ( !outStats.queuedCommon[7] && !outStats.queuedCommon[8] )
         goto LABEL_29;
-      __asm { vmovups xmm0, xmmword ptr cs:?colorYellow@@3Tvec4_t@@B; vec4_t const colorYellow }
+      v15 = colorYellow;
     }
-    __asm { vmovups xmmword ptr [rsp+1B0h+var_148], xmm0 }
+    color = v15;
 LABEL_29:
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, "TR Common Loading     ");
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-    __asm
-    {
-      vmovaps xmm3, xmm7; posY
-      vmovaps xmm2, xmm0; posX
-      vmovss  dword ptr [rsp+1B0h+fmt], xmm6
-    }
-    CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmta, dest, "TR Common Loading     ", &color);
-    __asm { vaddss  xmm7, xmm7, xmm0 }
+    v16 = CgDrawDebug::GetCornerLabelWidth(this, "TR Common Loading     ");
+    v17 = *(float *)&v16;
+    v18 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+    v19 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v18, y, v17, dest, "TR Common Loading     ", &color);
+    v8 = y + *(float *)&v19;
     goto LABEL_30;
   }
-LABEL_52:
-  __asm
-  {
-    vmovaps xmm0, xmm7
-    vmovaps xmm7, [rsp+1B0h+var_50]
-  }
-  return *(float *)&_XMM0;
+  return v8;
 }
 
 /*
@@ -6829,140 +5269,125 @@ CgDrawDebugMP::PrintUpperRightDebugInfo
 */
 void CgDrawDebugMP::PrintUpperRightDebugInfo(CgDrawDebugMP *this, const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace)
 {
-  __int64 v7; 
-  const dvar_t *v19; 
-  const dvar_t *v21; 
+  __int64 v3; 
+  const dvar_t *v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  const dvar_t *v15; 
+  float v16; 
+  const dvar_t *v17; 
+  double CornerLabelWidth; 
+  int svHudOutlineUsage; 
+  float v20; 
+  float v21; 
   const vec4_t *color; 
-  char v26; 
-  const dvar_t *v32; 
-  const dvar_t *v34; 
+  double CornerFarRight; 
+  double v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  const dvar_t *v28; 
+  float v29; 
+  const dvar_t *v30; 
+  double v31; 
+  float v32; 
+  double v33; 
+  double v34; 
+  double v35; 
+  double v36; 
+  double v37; 
+  double v38; 
+  double v39; 
+  double v40; 
+  double v41; 
+  double v42; 
   char *fmt; 
-  float fmta; 
-  float fmtb; 
   char dest[64]; 
 
-  v7 = localClientNum;
+  v3 = localClientNum;
   if ( CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState.pm_type != 4 )
   {
-    _RBX = DVARVEC2_cg_debugInfoCornerOffsetMP;
-    __asm { vmovaps [rsp+0E8h+var_58], xmm7 }
+    v6 = DVARVEC2_cg_debugInfoCornerOffsetMP;
     if ( !DVARVEC2_cg_debugInfoCornerOffsetMP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_debugInfoCornerOffsetMP") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm3, dword ptr [rbx+2Ch]; y }
-    *(double *)&_XMM0 = CgDrawDebug::PrintCinematicInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebug::PrintPerformanceInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; posY }
-    *(double *)&_XMM0 = CgDrawDebug::PrintBuildName(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebug::PrintFastfileDebugInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintStreamLoadingInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintTransientFastfileDebugInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintEntityDebugInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebug::PrintScriptableDebugInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    v19 = DVARINT_cg_drawFPS;
-    __asm { vmovaps xmm7, xmm0 }
+    Dvar_CheckFrontendServerThread(v6);
+    v7 = CgDrawDebug::PrintCinematicInfo(this, (const LocalClientNum_t)v3, scrPlace, v6->current.vector.v[1]);
+    v8 = CgDrawDebug::PrintPerformanceInfo(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v7);
+    v9 = CgDrawDebug::PrintBuildName(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v8);
+    v10 = CgDrawDebug::PrintFastfileDebugInfo(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v9);
+    v11 = CgDrawDebugMP::PrintStreamLoadingInfo(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v10);
+    v12 = CgDrawDebugMP::PrintTransientFastfileDebugInfo(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v11);
+    v13 = CgDrawDebugMP::PrintEntityDebugInfo(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v12);
+    v14 = CgDrawDebug::PrintScriptableDebugInfo(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v13);
+    v15 = DVARINT_cg_drawFPS;
+    v16 = *(float *)&v14;
     if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
       __debugbreak();
-    __asm { vmovaps [rsp+0E8h+var_48], xmm6 }
-    Dvar_CheckFrontendServerThread(v19);
-    if ( v19->current.integer )
+    Dvar_CheckFrontendServerThread(v15);
+    if ( v15->current.integer )
     {
-      v21 = DVARBOOL_cg_drawservercounts;
+      v17 = DVARBOOL_cg_drawservercounts;
       if ( !DVARBOOL_cg_drawservercounts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawservercounts") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v21);
-      if ( v21->current.enabled )
+      Dvar_CheckFrontendServerThread(v17);
+      if ( v17->current.enabled )
       {
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " outlines");
+        CornerLabelWidth = CgDrawDebug::GetCornerLabelWidth(this, " outlines");
         LODWORD(fmt) = 63;
-        __asm { vmovaps xmm6, xmm0 }
-        Com_sprintf(dest, 0x40ui64, "%i / %i", s_serverCollectedInfo[v7].svHudOutlineUsage, fmt);
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, ebx
-          vcomiss xmm1, cs:__real@42563334
-        }
+        svHudOutlineUsage = s_serverCollectedInfo[v3].svHudOutlineUsage;
+        v20 = *(float *)&CornerLabelWidth;
+        Com_sprintf(dest, 0x40ui64, "%i / %i", s_serverCollectedInfo[v3].svHudOutlineUsage, fmt);
+        v21 = (float)svHudOutlineUsage;
         color = &colorWhite;
-        if ( !v26 )
+        if ( v21 >= 53.550003 )
           color = &colorRed;
-        *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-        __asm
-        {
-          vmovaps xmm2, xmm0; posX
-          vmovaps xmm3, xmm7; posY
-          vmovss  dword ptr [rsp+0E8h+fmt], xmm6
-        }
-        *(double *)&_XMM0 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmta, dest, " outlines", color);
-        __asm { vaddss  xmm7, xmm0, xmm7 }
+        CornerFarRight = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+        v24 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&CornerFarRight, v16, v20, dest, " outlines", color);
+        v16 = *(float *)&v24 + v16;
       }
     }
-    __asm { vmovaps xmm3, xmm7; y }
-    *(double *)&_XMM0 = CgDrawDebug::PrintNativeScriptDebugInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebug::PrintWallRunDebugInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebug::PrintEventProfile(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    v32 = DVARINT_cg_drawFPS;
-    __asm { vmovaps xmm7, xmm0 }
+    v25 = CgDrawDebug::PrintNativeScriptDebugInfo(this, (const LocalClientNum_t)v3, scrPlace, v16);
+    v26 = CgDrawDebug::PrintWallRunDebugInfo(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v25);
+    v27 = CgDrawDebug::PrintEventProfile(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v26);
+    v28 = DVARINT_cg_drawFPS;
+    v29 = *(float *)&v27;
     if ( !DVARINT_cg_drawFPS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawFPS") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v32);
-    if ( v32->current.integer )
+    Dvar_CheckFrontendServerThread(v28);
+    if ( v28->current.integer )
     {
-      v34 = DVARBOOL_cg_drawteamdebuginfo;
+      v30 = DVARBOOL_cg_drawteamdebuginfo;
       if ( !DVARBOOL_cg_drawteamdebuginfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawteamdebuginfo") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v34);
-      if ( v34->current.enabled )
+      Dvar_CheckFrontendServerThread(v30);
+      if ( v30->current.enabled )
       {
         if ( party_drawTeamDebug[0] )
         {
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerLabelWidth(this, " cg ms/frame");
-          __asm { vmovaps xmm6, xmm0 }
-          *(double *)&_XMM0 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
-          __asm
-          {
-            vmovaps xmm3, xmm7; posY
-            vmovaps xmm2, xmm0; posX
-            vmovss  dword ptr [rsp+0E8h+fmt], xmm6
-          }
-          CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, party_drawTeamDebug, " teams", &colorWhite);
-          __asm { vaddss  xmm7, xmm7, xmm0 }
+          v31 = CgDrawDebug::GetCornerLabelWidth(this, " cg ms/frame");
+          v32 = *(float *)&v31;
+          v33 = CgDrawDebug::GetCornerFarRight(this, scrPlace);
+          v34 = CgDrawDebug::CornerPrint(this, scrPlace, *(float *)&v33, v29, v32, party_drawTeamDebug, " teams", &colorWhite);
+          v29 = v29 + *(float *)&v34;
         }
       }
     }
-    __asm { vmovaps xmm3, xmm7; y }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintSnapshotInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebug::PrintClientTaskDebugInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; posY }
-    *(double *)&_XMM0 = CgDrawDebug::PrintReplayTime(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; posY }
-    *(double *)&_XMM0 = CgDrawDebug::PrintViewpos(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; posY }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintStreamingPos(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; posY }
-    *(double *)&_XMM0 = CgDrawDebug::PrintCamAndMovementInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebug::PrintSystemTime(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintPartyDebugInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0; y }
-    *(double *)&_XMM0 = CgDrawDebugMP::PrintMPDebugInfo(this, (const LocalClientNum_t)v7, scrPlace, *(float *)&_XMM3);
-    __asm { vmovaps xmm3, xmm0 }
-    ((void (__fastcall *)(CgDrawDebugMP *, _QWORD, const ScreenPlacement *))this->DrawClientNetPerf)(this, (unsigned int)v7, scrPlace);
-    __asm
-    {
-      vmovaps xmm7, [rsp+0E8h+var_58]
-      vmovaps xmm6, [rsp+0E8h+var_48]
-    }
+    v35 = CgDrawDebugMP::PrintSnapshotInfo(this, (const LocalClientNum_t)v3, scrPlace, v29);
+    v36 = CgDrawDebug::PrintClientTaskDebugInfo(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v35);
+    v37 = CgDrawDebug::PrintReplayTime(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v36);
+    v38 = CgDrawDebug::PrintViewpos(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v37);
+    v39 = CgDrawDebugMP::PrintStreamingPos(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v38);
+    v40 = CgDrawDebug::PrintCamAndMovementInfo(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v39);
+    v41 = CgDrawDebug::PrintSystemTime(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v40);
+    v42 = CgDrawDebugMP::PrintPartyDebugInfo(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v41);
+    CgDrawDebugMP::PrintMPDebugInfo(this, (const LocalClientNum_t)v3, scrPlace, *(float *)&v42);
+    ((void (__fastcall *)(CgDrawDebugMP *, _QWORD, const ScreenPlacement *))this->DrawClientNetPerf)(this, (unsigned int)v3, scrPlace);
   }
 }
 

@@ -1784,19 +1784,19 @@ void dwMail_PumpStateIdle()
   DWServicesAccess *v6; 
   dwOutgoingMail *p_outgoingmail; 
   __int64 messagesize; 
-  __int64 v11; 
-  __int64 v12; 
+  __int64 v9; 
+  __int64 v10; 
   TempThreadPriority tempPriority; 
-  TempThreadPriority v14; 
-  int v15; 
-  int *v16; 
+  TempThreadPriority v12; 
+  int v13; 
+  int *v14; 
 
   if ( !s_dwMailManager.enabled )
     return;
   p_newmailcounter = &s_dwMailManager.user[0].newmailcounter;
   v1 = &s_dwMailManager.user[0].newmailcounter;
   v2 = 0;
-  v16 = &s_dwMailManager.user[0].newmailcounter;
+  v14 = &s_dwMailManager.user[0].newmailcounter;
   do
   {
     if ( !*(v1 - 1) )
@@ -1852,7 +1852,7 @@ LABEL_7:
     return;
   v5 = 0;
   s_dwMailManager.time_idle = v4;
-  v15 = 0;
+  v13 = 0;
   while ( 2 )
   {
     if ( !*(p_newmailcounter - 1) )
@@ -1891,37 +1891,32 @@ LABEL_33:
         __debugbreak();
       goto LABEL_33;
     }
-    p_newmailcounter = v16;
-    __asm { vmovups xmm0, xmmword ptr [rsp+0A8h+tempPriority.threadHandle] }
-    v5 = v15;
-    __asm { vmovups xmmword ptr cs:?s_dwMailManager@@3UdwMailManager@@A.fastcriticalsection.tempPriority.threadHandle, xmm0; dwMailManager s_dwMailManager }
-    if ( !*v16 )
-      *v16 = 1;
+    p_newmailcounter = v14;
+    v5 = v13;
+    s_dwMailManager.fastcriticalsection.tempPriority = tempPriority;
+    if ( !*v14 )
+      *v14 = 1;
     if ( s_dwMailManager.fastcriticalsection.writeCount != 1 )
     {
-      LODWORD(v12) = 1;
-      LODWORD(v11) = s_dwMailManager.fastcriticalsection.writeCount;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 184, ASSERT_TYPE_ASSERT, "( critSect->writeCount ) == ( 1 )", "%s == %s\n\t%i, %i", "critSect->writeCount", "1", v11, v12) )
+      LODWORD(v10) = 1;
+      LODWORD(v9) = s_dwMailManager.fastcriticalsection.writeCount;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 184, ASSERT_TYPE_ASSERT, "( critSect->writeCount ) == ( 1 )", "%s == %s\n\t%i, %i", "critSect->writeCount", "1", v9, v10) )
         __debugbreak();
     }
     if ( s_dwMailManager.fastcriticalsection.writeThreadId != Sys_GetCurrentThreadId() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 186, ASSERT_TYPE_ASSERT, "(critSect->writeThreadId == Sys_GetCurrentThreadId())", (const char *)&queryFormat, "critSect->writeThreadId == Sys_GetCurrentThreadId()") )
       __debugbreak();
     s_dwMailManager.fastcriticalsection.writeThreadId = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?s_dwMailManager@@3UdwMailManager@@A.fastcriticalsection.tempPriority.threadHandle; dwMailManager s_dwMailManager
-      vmovups xmmword ptr [rsp+0A8h+var_48.threadHandle], xmm0
-    }
+    v12 = s_dwMailManager.fastcriticalsection.tempPriority;
     if ( ((unsigned __int8)&s_dwMailManager.fastcriticalsection.writeCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_dwMailManager.fastcriticalsection.writeCount) )
       __debugbreak();
     if ( _InterlockedCompareExchange(&s_dwMailManager.fastcriticalsection.writeCount, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock.h", 192, ASSERT_TYPE_ASSERT, "((Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 )) == (1))", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &critSect->writeCount, 0, 1 ) == 1") )
       __debugbreak();
-    Sys_TempThreadPriorityEnd(&v14);
+    Sys_TempThreadPriorityEnd(&v12);
 LABEL_57:
     ++v5;
     p_newmailcounter += 668;
-    v15 = v5;
-    v16 = p_newmailcounter;
+    v13 = v5;
+    v14 = p_newmailcounter;
     if ( v5 < 8 )
       continue;
     break;

@@ -589,13 +589,14 @@ Scr_GetDiffLineMap
 int *Scr_GetDiffLineMap(scrContext_t *scrContext, const char *filename, unsigned __int8 *fromBuf, int fromLen, unsigned __int8 *toBuf, int toLen, const _ScrDiffFiles *request)
 {
   __int64 v7; 
-  int v13; 
-  unsigned __int8 *v14; 
-  int v15; 
-  void *v16; 
-  __int128 v18; 
+  ProtobufCBinaryData v11; 
+  int v12; 
+  unsigned __int8 *v13; 
+  int v14; 
+  void *v15; 
+  ProtobufCBinaryData v17; 
   _DebugMessage message; 
-  _ScrDiffFiles v20; 
+  _ScrDiffFiles v19; 
 
   v7 = fromLen;
   if ( Sys_IsRemoteDebugServer(scrContext) )
@@ -603,42 +604,38 @@ int *Scr_GetDiffLineMap(scrContext_t *scrContext, const char *filename, unsigned
     if ( !request && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_codepos.cpp", 824, ASSERT_TYPE_ASSERT, "(request)", (const char *)&queryFormat, "request") )
       __debugbreak();
     _DebugMessage::_DebugMessage(&message);
-    _ScrDiffFiles::_ScrDiffFiles(&v20);
-    *(_QWORD *)&v18 = v7;
-    message.scrreadfile = (const _ScrReadFile *)&v20;
-    *((_QWORD *)&v18 + 1) = fromBuf;
-    __asm { vmovups xmm0, [rsp+0D8h+var_A8] }
-    *(_QWORD *)&v18 = toLen;
-    *((_QWORD *)&v18 + 1) = toBuf;
-    __asm
-    {
-      vmovups xmmword ptr [rsp+0D8h+var_70.frombuf.len], xmm0
-      vmovups xmm0, [rsp+0D8h+var_A8]
-      vmovups xmmword ptr [rsp+0D8h+var_70.tobuf.len], xmm0
-    }
+    _ScrDiffFiles::_ScrDiffFiles(&v19);
+    v17.len = v7;
+    message.scrreadfile = (const _ScrReadFile *)&v19;
+    v17.data = fromBuf;
+    v11 = v17;
+    v17.len = toLen;
+    v17.data = toBuf;
+    v19.frombuf = v11;
+    v19.tobuf = v17;
     message.debug_message_case = DEBUG_MESSAGE__DEBUG_MESSAGE_SCR_DIFF_FILES;
-    v20.filename = filename;
-    v20.has_frombuf = 1;
-    v20.has_tobuf = 1;
+    v19.filename = filename;
+    v19.has_frombuf = 1;
+    v19.has_tobuf = 1;
     Sys_WriteDebugSocketMessage(scrContext, &message);
-    v13 = 0;
-    v14 = fromBuf;
+    v12 = 0;
+    v13 = fromBuf;
     if ( v7 > 0 )
     {
       do
       {
-        ++v13;
-        for ( ; *v14; ++v14 )
+        ++v12;
+        for ( ; *v13; ++v13 )
           ;
-        ++v14;
+        ++v13;
       }
-      while ( v14 - fromBuf < v7 );
+      while ( v13 - fromBuf < v7 );
     }
-    v15 = 4 * v13;
+    v14 = 4 * v12;
     if ( !scrContext->m_varPub.readWriteTempHunkUser && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_codepos.cpp", 47, ASSERT_TYPE_ASSERT, "( scrContext.m_varPub.readWriteTempHunkUser )", (const char *)&queryFormat, "scrContext.m_varPub.readWriteTempHunkUser") )
       __debugbreak();
-    v16 = Mem_HunkUser_AllocInternal(scrContext->m_varPub.readWriteTempHunkUser, v15 + 4i64, 0x10ui64, "Scr_CodePos_AllocTempMemory");
-    memset_0(v16, 0, v15 + 4i64);
+    v15 = Mem_HunkUser_AllocInternal(scrContext->m_varPub.readWriteTempHunkUser, v14 + 4i64, 0x10ui64, "Scr_CodePos_AllocTempMemory");
+    memset_0(v15, 0, v14 + 4i64);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_codepos.cpp", 842, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "todo") )
       __debugbreak();
     if ( !scrContext->m_varPub.readWriteTempHunkUser && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_codepos.cpp", 56, ASSERT_TYPE_ASSERT, "( scrContext.m_varPub.readWriteTempHunkUser )", (const char *)&queryFormat, "scrContext.m_varPub.readWriteTempHunkUser") )

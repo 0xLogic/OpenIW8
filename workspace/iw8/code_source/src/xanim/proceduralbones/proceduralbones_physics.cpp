@@ -261,43 +261,11 @@ void Copy_DObjPhysicsState(DObjPhysicsState *out, const DObjPhysicsState *in)
   vec3_t outPrevRootTrans; 
   vec3_t outRootTrans; 
 
-  _RDI = in;
-  _RBX = out;
   DObjPhysicsState_GetRootTrans(in, &outRootTrans);
-  DObjPhysicsState_GetPrevRootTrans(_RDI, &outPrevRootTrans);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups xmmword ptr [rbx], xmm0
-    vmovups xmm1, xmmword ptr [rdi+10h]
-    vmovups xmmword ptr [rbx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rbx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+30h]
-    vmovups xmmword ptr [rbx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+40h]
-    vmovups xmmword ptr [rbx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+50h]
-    vmovups xmmword ptr [rbx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+60h]
-    vmovups xmmword ptr [rbx+60h], xmm0
-    vmovups xmm0, xmmword ptr [rdi+70h]
-    vmovups xmmword ptr [rbx+70h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+80h]
-    vmovups xmmword ptr [rbx+80h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+90h]
-    vmovups xmmword ptr [rbx+90h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+0A0h]
-    vmovups xmmword ptr [rbx+0A0h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+0B0h]
-    vmovups xmmword ptr [rbx+0B0h], xmm0
-    vmovups xmm1, xmmword ptr [rdi+0C0h]
-    vmovups xmmword ptr [rbx+0C0h], xmm1
-    vmovups xmm0, xmmword ptr [rdi+0D0h]
-    vmovups xmmword ptr [rbx+0D0h], xmm0
-  }
-  DObjPhysicsState_SetRootTrans(_RBX, &outRootTrans);
-  DObjPhysicsState_SetPrevRootTrans(_RBX, &outPrevRootTrans);
+  DObjPhysicsState_GetPrevRootTrans(in, &outPrevRootTrans);
+  *out = *in;
+  DObjPhysicsState_SetRootTrans(out, &outRootTrans);
+  DObjPhysicsState_SetPrevRootTrans(out, &outPrevRootTrans);
   memset(&outPrevRootTrans, 0, sizeof(outPrevRootTrans));
   memset(&outRootTrans, 0, sizeof(outRootTrans));
 }
@@ -395,39 +363,25 @@ void GetSecureRootVec3(const vec3_t *from, vec3_t *to, const unsigned int xConst
   float v6; 
   float v7; 
   int v8; 
-  __int64 v12; 
-  int v13; 
+  float v9; 
+  __int64 v10; 
+  int v11; 
 
   v5 = from->v[2];
   v6 = from->v[0];
-  LOBYTE(v13) = BYTE3(from);
-  HIBYTE(v13) = BYTE2(from);
+  LOBYTE(v11) = BYTE3(from);
+  HIBYTE(v11) = BYTE2(from);
   v7 = from->v[1];
-  *(_WORD *)((char *)&v13 + 1) = (_WORD)from;
-  v8 = v13;
-  LODWORD(to->v[0]) = xConst ^ LODWORD(v5) ^ v13 ^ LODWORD(v7);
+  *(_WORD *)((char *)&v11 + 1) = (_WORD)from;
+  v8 = v11;
+  LODWORD(to->v[0]) = xConst ^ LODWORD(v5) ^ v11 ^ LODWORD(v7);
   LODWORD(to->v[1]) = yConst ^ LODWORD(v6) ^ LODWORD(v5) ^ v8;
   LODWORD(to->v[2]) = LODWORD(v6) ^ v8 ^ ~zConst;
-  __asm { vmovss  xmm0, dword ptr [rdx] }
-  memset(&v12, 0, sizeof(v12));
-  __asm { vmovss  [rsp+38h+zConst], xmm0 }
-  if ( (zConst & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm
+  v9 = to->v[0];
+  memset(&v10, 0, sizeof(v10));
+  *(float *)&zConst = v9;
+  if ( (LODWORD(v9) & 0x7F800000) == 2139095040 || (zConst = LODWORD(to->v[1]), (zConst & 0x7F800000) == 2139095040) || (zConst = LODWORD(to->v[2]), (zConst & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  [rsp+38h+zConst], xmm0
-  }
-  if ( (zConst & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+38h+zConst], xmm0
-  }
-  if ( (zConst & 0x7F800000) == 2139095040 )
-  {
-LABEL_8:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 138, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
       __debugbreak();
   }
@@ -440,58 +394,37 @@ SetSecureRootVec3
 */
 void SetSecureRootVec3(const vec3_t *from, vec3_t *to, const unsigned int xConst, const unsigned int yConst, const unsigned int zConst)
 {
-  const vec3_t *v9; 
+  float v9; 
+  float v10; 
+  float v11; 
   float v12; 
-  float v13; 
+  unsigned int v13; 
   int v14; 
-  float v15; 
-  unsigned int v16; 
-  int v17; 
-  unsigned int v18; 
-  vec3_t *v19; 
-  int v20; 
+  unsigned int v15; 
+  vec3_t *v16; 
+  float v17; 
 
-  v19 = to;
-  __asm
+  v16 = to;
+  v17 = from->v[0];
+  if ( (LODWORD(v17) & 0x7F800000) == 2139095040 || (v17 = from->v[1], (LODWORD(v17) & 0x7F800000) == 2139095040) || (v17 = from->v[2], (LODWORD(v17) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  v9 = from;
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+48h+arg_10], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 88, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
       __debugbreak();
   }
-  v12 = v9->v[2];
-  v13 = v9->v[1];
-  LOBYTE(v20) = BYTE3(to);
-  HIBYTE(v20) = BYTE2(v19);
-  *(_WORD *)((char *)&v20 + 1) = (_WORD)to;
-  v14 = v20;
-  v15 = v9->v[0];
-  v16 = v20 ^ ~zConst ^ LODWORD(v12);
-  v17 = v20 ^ v16 ^ LODWORD(v13);
-  LODWORD(to->v[0]) = v16;
-  v18 = yConst ^ v17;
-  LODWORD(to->v[2]) = v18;
-  LODWORD(to->v[1]) = xConst ^ v14 ^ v18 ^ LODWORD(v15);
-  memset(&v19, 0, sizeof(v19));
+  v9 = from->v[2];
+  v10 = from->v[1];
+  LOBYTE(v17) = BYTE3(to);
+  HIBYTE(v17) = BYTE2(v16);
+  *(_WORD *)((char *)&v17 + 1) = (_WORD)to;
+  v11 = v17;
+  v12 = from->v[0];
+  v13 = LODWORD(v17) ^ ~zConst ^ LODWORD(v9);
+  v14 = LODWORD(v17) ^ v13 ^ LODWORD(v10);
+  LODWORD(to->v[0]) = v13;
+  v15 = yConst ^ v14;
+  LODWORD(to->v[2]) = v15;
+  LODWORD(to->v[1]) = xConst ^ LODWORD(v11) ^ v15 ^ LODWORD(v12);
+  memset(&v16, 0, sizeof(v16));
 }
 
 /*
@@ -669,12 +602,13 @@ void XAnimBonePhysicsRestoreState(const DObj *dobj, const XAnimBonePhysicsStateB
   bool v12; 
   unsigned int v13; 
   int v14; 
+  __int64 v15; 
   float timer; 
-  __int64 v24; 
-  __int64 v25; 
+  __int64 v17; 
+  __int64 v18; 
   int i; 
-  unsigned int v28; 
-  __int64 v29; 
+  unsigned int v21; 
+  __int64 v22; 
 
   v3 = dobj;
   if ( !stateBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 587, ASSERT_TYPE_ASSERT, "(stateBuffer != 0)", (const char *)&queryFormat, "stateBuffer != NULL") )
@@ -690,12 +624,12 @@ void XAnimBonePhysicsRestoreState(const DObj *dobj, const XAnimBonePhysicsStateB
         __debugbreak();
       v6 = 0;
       v7 = 0i64;
-      v28 = 0;
+      v21 = 0;
       for ( i = 0; (unsigned int)v7 < stateBuffer->numModels; i = v7 )
       {
         v8 = stateBuffer->models[v7];
         v9 = (unsigned int)v7;
-        v29 = (unsigned int)v7;
+        v22 = (unsigned int)v7;
         if ( !XModelIsDefaultAsset(v8) )
         {
           if ( !v8->dynamicBones )
@@ -726,56 +660,46 @@ void XAnimBonePhysicsRestoreState(const DObj *dobj, const XAnimBonePhysicsStateB
               v14 = -v6;
               do
               {
-                _RSI = (__int64)&v5->physicsBones[v13 + v14 + v11[20]];
-                _RBP = &stateBuffer->boneStates[v13];
+                v15 = (__int64)&v5->physicsBones[v13 + v14 + v11[20]];
                 if ( v13 >= stateBuffer->numDynamicBones )
                 {
-                  LODWORD(v25) = stateBuffer->numDynamicBones;
-                  LODWORD(v24) = v13;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 664, ASSERT_TYPE_ASSERT, "(unsigned)( dynamicBoneStateOffset + physicsBoneNum ) < (unsigned)( stateBuffer->numDynamicBones )", "dynamicBoneStateOffset + physicsBoneNum doesn't index stateBuffer->numDynamicBones\n\t%i not in [0, %i)", v24, v25) )
+                  LODWORD(v18) = stateBuffer->numDynamicBones;
+                  LODWORD(v17) = v13;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 664, ASSERT_TYPE_ASSERT, "(unsigned)( dynamicBoneStateOffset + physicsBoneNum ) < (unsigned)( stateBuffer->numDynamicBones )", "dynamicBoneStateOffset + physicsBoneNum doesn't index stateBuffer->numDynamicBones\n\t%i not in [0, %i)", v17, v18) )
                     __debugbreak();
                 }
                 if ( v13 >= 0x60 )
                 {
-                  LODWORD(v25) = 96;
-                  LODWORD(v24) = v13;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v24, v25) )
+                  LODWORD(v18) = 96;
+                  LODWORD(v17) = v13;
+                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v17, v18) )
                     __debugbreak();
                 }
                 if ( ((0x80000000 >> (v13 & 0x1F)) & stateBuffer->validBoneStates.array[(unsigned __int64)v13 >> 5]) != 0 )
                 {
-                  __asm
-                  {
-                    vmovups ymm0, ymmword ptr [rbp+0]
-                    vmovups ymmword ptr [rsi+1Ch], ymm0
-                    vmovups ymm1, ymmword ptr [rbp+20h]
-                    vmovups ymmword ptr [rsi+3Ch], ymm1
-                    vmovups ymm0, ymmword ptr [rbp+40h]
-                    vmovups ymmword ptr [rsi+5Ch], ymm0
-                    vmovups ymm1, ymmword ptr [rbp+60h]
-                    vmovups ymmword ptr [rsi+7Ch], ymm1
-                    vmovups xmm0, xmmword ptr [rbp+80h]
-                    vmovups xmmword ptr [rsi+9Ch], xmm0
-                    vmovsd  xmm1, qword ptr [rbp+90h]
-                    vmovsd  qword ptr [rsi+0ACh], xmm1
-                  }
+                  *(__m256i *)(v15 + 28) = *(__m256i *)stateBuffer->boneStates[v13].rotationQuat.v;
+                  *(__m256i *)(v15 + 60) = *(__m256i *)&stateBuffer->boneStates[v13].prevRotationQuat.xyz.y;
+                  *(__m256i *)(v15 + 92) = *(__m256i *)&stateBuffer->boneStates[v13].velocity.z;
+                  *(__m256i *)(v15 + 124) = *(__m256i *)&stateBuffer->boneStates[v13].noise.translation[1].strengthMul;
+                  *(_OWORD *)(v15 + 156) = *(_OWORD *)&stateBuffer->boneStates[v13].noise.rotation[0].timer;
+                  *(double *)(v15 + 172) = *(double *)&stateBuffer->boneStates[v13].noise.rotation[2].strengthMul;
                   timer = stateBuffer->boneStates[v13].noise.rotation[2].timer;
-                  *(_BYTE *)(_RSI + 16) &= ~8u;
-                  *(float *)(_RSI + 180) = timer;
+                  *(_BYTE *)(v15 + 16) &= ~8u;
+                  *(float *)(v15 + 180) = timer;
                 }
                 ++v13;
               }
               while ( v14 + v13 < v11[21] );
               v3 = dobj;
-              v9 = v29;
-              v6 = v28;
+              v9 = v22;
+              v6 = v21;
             }
           }
 LABEL_38:
           LODWORD(v7) = i;
         }
         v6 += stateBuffer->numModelDynamicBones[v9];
-        v28 = v6;
+        v21 = v6;
 LABEL_40:
         v7 = (unsigned int)(v7 + 1);
       }
@@ -800,19 +724,20 @@ void XAnimBonePhysicsSaveState(const DObj *dobj, XAnimBonePhysicsStateBuffer *ou
   const XModel *Model; 
   unsigned int v10; 
   unsigned int v11; 
-  unsigned int v14; 
-  unsigned int *v21; 
-  __int64 v22; 
-  __int64 v23; 
-  __int64 v24; 
-  __int64 v25; 
+  __int64 v12; 
+  unsigned int v13; 
+  __int64 v14; 
+  unsigned int *v15; 
+  __int64 v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
   unsigned int i; 
 
-  _R14 = outStateBuffer;
   v3 = dobj;
   if ( !outStateBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 514, ASSERT_TYPE_ASSERT, "(outStateBuffer != 0)", (const char *)&queryFormat, "outStateBuffer != NULL") )
     __debugbreak();
-  *(_QWORD *)&_R14->numModels = 0i64;
+  *(_QWORD *)&outStateBuffer->numModels = 0i64;
   if ( v3 )
   {
     if ( (v3->proceduralBonesHandle.m_value & 0x80000000) != 0 )
@@ -825,10 +750,10 @@ void XAnimBonePhysicsSaveState(const DObj *dobj, XAnimBonePhysicsStateBuffer *ou
           __debugbreak();
         if ( !v5->physicsState.firstUpdate )
         {
-          Copy_DObjPhysicsState(&_R14->dobjPhysicsState, &v5->physicsState);
-          *(_QWORD *)_R14->validBoneStates.array = 0i64;
+          Copy_DObjPhysicsState(&outStateBuffer->dobjPhysicsState, &v5->physicsState);
+          *(_QWORD *)outStateBuffer->validBoneStates.array = 0i64;
           v6 = 0;
-          _R14->validBoneStates.array[2] = 0;
+          outStateBuffer->validBoneStates.array[2] = 0;
           for ( i = 0; v6 < v5->numModels; i = ++v6 )
           {
             v7 = (unsigned __int8 *)&v5->modelInfo[v6];
@@ -842,14 +767,14 @@ void XAnimBonePhysicsSaveState(const DObj *dobj, XAnimBonePhysicsStateBuffer *ou
                 {
                   if ( !Model->dynamicBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 557, ASSERT_TYPE_ASSERT, "(model->dynamicBones != nullptr)", (const char *)&queryFormat, "model->dynamicBones != nullptr") )
                     __debugbreak();
-                  _R14->models[_R14->numModels] = Model;
-                  _R14->modelParentBoneNames[_R14->numModels] = DObjGetModelParentBoneNameScriptString(v3, v8);
-                  _R14->numModelDynamicBones[_R14->numModels++] = v7[21];
-                  if ( _R14->numDynamicBones + v7[21] > 0x46 )
+                  outStateBuffer->models[outStateBuffer->numModels] = Model;
+                  outStateBuffer->modelParentBoneNames[outStateBuffer->numModels] = DObjGetModelParentBoneNameScriptString(v3, v8);
+                  outStateBuffer->numModelDynamicBones[outStateBuffer->numModels++] = v7[21];
+                  if ( outStateBuffer->numDynamicBones + v7[21] > 0x46 )
                   {
-                    LODWORD(v23) = 70;
-                    LODWORD(v22) = _R14->numDynamicBones + v7[21];
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 563, ASSERT_TYPE_ASSERT, "( outStateBuffer->numDynamicBones + modelInfo->numPhysicsBones ) <= ( ( sizeof( *array_counter( outStateBuffer->boneStates ) ) + 0 ) )", "outStateBuffer->numDynamicBones + modelInfo->numPhysicsBones not in [0, ARRAY_COUNT( outStateBuffer->boneStates )]\n\t%u not in [0, %u]", v22, v23) )
+                    LODWORD(v17) = 70;
+                    LODWORD(v16) = outStateBuffer->numDynamicBones + v7[21];
+                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 563, ASSERT_TYPE_ASSERT, "( outStateBuffer->numDynamicBones + modelInfo->numPhysicsBones ) <= ( ( sizeof( *array_counter( outStateBuffer->boneStates ) ) + 0 ) )", "outStateBuffer->numDynamicBones + modelInfo->numPhysicsBones not in [0, ARRAY_COUNT( outStateBuffer->boneStates )]\n\t%u not in [0, %u]", v16, v17) )
                       __debugbreak();
                   }
                   LOBYTE(v10) = v7[21];
@@ -858,36 +783,27 @@ void XAnimBonePhysicsSaveState(const DObj *dobj, XAnimBonePhysicsStateBuffer *ou
                   {
                     do
                     {
-                      _RAX = (__int64)&v5->physicsBones[v11 + v7[20]];
-                      if ( *(_WORD *)_RAX != 255 )
+                      v12 = (__int64)&v5->physicsBones[v11 + v7[20]];
+                      if ( *(_WORD *)v12 != 255 )
                       {
-                        __asm { vmovups ymm0, ymmword ptr [rax+1Ch] }
-                        v14 = v11 + _R14->numDynamicBones;
-                        _RDX = (int)v14;
-                        __asm
+                        v13 = v11 + outStateBuffer->numDynamicBones;
+                        v14 = (int)v13;
+                        *(__m256i *)outStateBuffer->boneStates[v14].rotationQuat.v = *(__m256i *)(v12 + 28);
+                        *(__m256i *)&outStateBuffer->boneStates[v14].prevRotationQuat.xyz.y = *(__m256i *)(v12 + 60);
+                        *(__m256i *)&outStateBuffer->boneStates[v14].velocity.z = *(__m256i *)(v12 + 92);
+                        *(__m256i *)&outStateBuffer->boneStates[v14].noise.translation[1].strengthMul = *(__m256i *)(v12 + 124);
+                        *(_OWORD *)&outStateBuffer->boneStates[v14].noise.rotation[0].timer = *(_OWORD *)(v12 + 156);
+                        *(double *)&outStateBuffer->boneStates[v14].noise.rotation[2].strengthMul = *(double *)(v12 + 172);
+                        outStateBuffer->boneStates[v14].noise.rotation[2].timer = *(float *)(v12 + 180);
+                        if ( v13 >= 0x60 )
                         {
-                          vmovups ymmword ptr [rdx+r14+430h], ymm0
-                          vmovups ymm1, ymmword ptr [rax+3Ch]
-                          vmovups ymmword ptr [rdx+r14+450h], ymm1
-                          vmovups ymm0, ymmword ptr [rax+5Ch]
-                          vmovups ymmword ptr [rdx+r14+470h], ymm0
-                          vmovups ymm1, ymmword ptr [rax+7Ch]
-                          vmovups ymmword ptr [rdx+r14+490h], ymm1
-                          vmovups xmm0, xmmword ptr [rax+9Ch]
-                          vmovups xmmword ptr [rdx+r14+4B0h], xmm0
-                          vmovsd  xmm1, qword ptr [rax+0ACh]
-                          vmovsd  qword ptr [rdx+r14+4C0h], xmm1
-                        }
-                        _R14->boneStates[_RDX].noise.rotation[2].timer = *(float *)(_RAX + 180);
-                        if ( v14 >= 0x60 )
-                        {
-                          LODWORD(v25) = 96;
-                          LODWORD(v24) = v14;
-                          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v24, v25) )
+                          LODWORD(v19) = 96;
+                          LODWORD(v18) = v13;
+                          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v18, v19) )
                             __debugbreak();
                         }
-                        v21 = &_R14->validBoneStates.array[(unsigned __int64)v14 >> 5];
-                        *v21 |= 0x80000000 >> (v14 & 0x1F);
+                        v15 = &outStateBuffer->validBoneStates.array[(unsigned __int64)v13 >> 5];
+                        *v15 |= 0x80000000 >> (v13 & 0x1F);
                       }
                       v10 = v7[21];
                       ++v11;
@@ -896,7 +812,7 @@ void XAnimBonePhysicsSaveState(const DObj *dobj, XAnimBonePhysicsStateBuffer *ou
                     v6 = i;
                     v3 = dobj;
                   }
-                  _R14->numDynamicBones += (unsigned __int8)v10;
+                  outStateBuffer->numDynamicBones += (unsigned __int8)v10;
                 }
               }
             }
@@ -972,30 +888,23 @@ void XAnimBonePhysicsSetGroundPlaneEnabled(DObj *dobj, bool groundPlaneEnabled)
 XAnimBonePhysicsSetGroundPlaneHeight
 ==============
 */
-
-void __fastcall XAnimBonePhysicsSetGroundPlaneHeight(DObj *dobj, double height)
+void XAnimBonePhysicsSetGroundPlaneHeight(DObj *dobj, float height)
 {
-  int v8; 
+  DObjProceduralBones *v3; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( !dobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 771, ASSERT_TYPE_ASSERT, "(dobj != nullptr)", (const char *)&queryFormat, "dobj != nullptr") )
     __debugbreak();
   if ( (dobj->proceduralBonesHandle.m_value & 0x80000000) != 0 )
   {
-    if ( DObjProceduralBones_TryLock(dobj) )
+    v3 = DObjProceduralBones_TryLock(dobj);
+    if ( v3 )
     {
-      __asm { vmovss  [rsp+48h+arg_0], xmm6 }
-      if ( (v8 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 784, ASSERT_TYPE_ASSERT, "(!IS_NAN( height ))", (const char *)&queryFormat, "!IS_NAN( height )") )
+      if ( (LODWORD(height) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 784, ASSERT_TYPE_ASSERT, "(!IS_NAN( height ))", (const char *)&queryFormat, "!IS_NAN( height )") )
         __debugbreak();
-      __asm { vmovss  dword ptr [rdi+12Ch], xmm6 }
+      v3->physicsState.groundPlaneHeight = height;
       DObjProceduralBones_Unlock(dobj);
     }
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -1077,106 +986,101 @@ XAnimBonePhysicsUpdate
 void XAnimBonePhysicsUpdate(DObjProceduralBones *procBones, XAnimProcNodeCalcParams *params)
 {
   signed __int64 v2; 
-  void *v10; 
+  void *v3; 
   const DObj *obj; 
   char *Value; 
-  unsigned int *v15; 
-  unsigned int v16; 
-  _QWORD *v17; 
-  char *v18; 
-  __int64 v19; 
-  unsigned __int64 v20; 
+  unsigned int *v8; 
+  unsigned int v9; 
+  _QWORD *v10; 
+  char *v11; 
+  __int64 v12; 
+  unsigned __int64 v13; 
   ThreadContext CurrentThreadContext; 
   unsigned int numPhysicsBones; 
-  const dvar_t *v29; 
-  char v30; 
-  bool v31; 
-  unsigned int v32; 
+  const dvar_t *v16; 
+  float v17; 
+  float v18; 
+  const dvar_t *v20; 
+  char v21; 
+  bool v22; 
+  unsigned int v23; 
+  XAnimPhysicsBone *v24; 
   unsigned __int64 boneIndex; 
-  bool v48; 
+  bool v26; 
+  __m128 v; 
   unsigned __int16 parentBoneIndex; 
-  unsigned __int64 v58; 
-  bool v59; 
-  const dvar_t *v70; 
-  const dvar_t *v71; 
-  bool v73; 
-  int i; 
+  unsigned __int64 v29; 
+  bool v30; 
+  const dvar_t *v32; 
+  const dvar_t *v33; 
+  __int128 timeSinceLastUpdate_low; 
+  int v35; 
+  __int128 v36; 
+  double v37; 
   float4 *outModelTranslation; 
   float4 *outModelTranslationa; 
-  __int64 v91; 
-  char v92; 
+  __int64 v40; 
+  char v41; 
   bool teleportBones; 
-  char v94; 
-  unsigned int v95; 
+  char v43; 
+  unsigned int v44; 
   XAnimBonePhysicsUpdateContext context; 
-  __int64 v97; 
+  __int64 v46; 
   vec3_t inoutTrans1; 
   vec3_t out; 
   vec3_t outRootTrans; 
   vec4_t inoutQuat1; 
   vec3_t trans; 
-  vec3_t v103; 
+  vec3_t v52; 
   vec3_t outInvTrans; 
   vec4_t outInvQuat; 
   float4 outModelQuat; 
-  float4 v107; 
+  float4 v56; 
   vec4_t quat; 
-  float4 v109; 
-  float4 v110; 
-  float4 v111; 
-  float4 v112; 
+  float4 v58; 
+  float4 v59; 
+  float4 v60; 
+  float4 v61; 
   vec3_t outPinConstraintPoints; 
   DObjAnimMat outTransforms; 
   XAnimCollisionShape outShapes; 
-  char v116; 
-  char v124; 
+  char v65; 
 
-  v10 = alloca(v2);
-  v97 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+1950h+var_40], xmm6
-    vmovaps [rsp+1950h+var_50], xmm7
-    vmovaps [rsp+1950h+var_60], xmm8
-    vmovaps [rsp+1950h+var_70], xmm9
-    vmovaps [rsp+1950h+var_80], xmm10
-    vmovaps [rsp+1950h+var_90], xmm11
-    vmovaps [rsp+1950h+var_A0], xmm12
-  }
-  _R14 = procBones;
+  v3 = alloca(v2);
+  v46 = -2i64;
   obj = params->obj;
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2966, ASSERT_TYPE_ASSERT, "(dobj != 0)", (const char *)&queryFormat, "dobj != NULL") )
     __debugbreak();
   Value = (char *)Sys_GetValue(0);
-  v15 = (unsigned int *)(Value + 19336);
+  v8 = (unsigned int *)(Value + 19336);
   if ( (unsigned int)(*((_DWORD *)Value + 4834) + 1) >= 3 )
   {
     LODWORD(outModelTranslation) = *((_DWORD *)Value + 4834) + 1;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", outModelTranslation, 3) )
       __debugbreak();
   }
-  v16 = *v15 + 1;
-  *v15 = v16;
-  if ( v16 >= 3 )
+  v9 = *v8 + 1;
+  *v8 = v9;
+  if ( v9 >= 3 )
   {
-    LODWORD(v91) = 3;
-    LODWORD(outModelTranslation) = v16;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", outModelTranslation, v91) )
+    LODWORD(v40) = 3;
+    LODWORD(outModelTranslation) = v9;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", outModelTranslation, v40) )
       __debugbreak();
   }
-  v17 = Value + 2088;
-  v18 = Value + 40;
-  if ( *v17 < (unsigned __int64)v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
+  v10 = Value + 2088;
+  v11 = Value + 40;
+  if ( *v10 < (unsigned __int64)v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
     __debugbreak();
-  *v17 += 8i64;
-  if ( *v17 >= (unsigned __int64)v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
+  *v10 += 8i64;
+  if ( *v10 >= (unsigned __int64)v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
     __debugbreak();
-  *(_QWORD *)*v17 = v15;
-  if ( *v17 <= (unsigned __int64)v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
+  *(_QWORD *)*v10 = v8;
+  if ( *v10 <= (unsigned __int64)v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
     __debugbreak();
-  v19 = (int)*v15;
-  v20 = __rdtsc();
-  v15[v19 + 2] = v20;
+  v12 = (int)*v8;
+  v13 = __rdtsc();
+  v8[v12 + 2] = v13;
   if ( Sys_HasValidCurrentThreadContext() )
     CurrentThreadContext = Sys_GetCurrentThreadContext();
   else
@@ -1184,291 +1088,220 @@ void XAnimBonePhysicsUpdate(DObjProceduralBones *procBones, XAnimProcNodeCalcPar
   CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 431, NULL, 0);
   if ( (obj->proceduralBonesHandle.m_value & 0x80000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2970, ASSERT_TYPE_ASSERT, "(dobj->proceduralBonesHandle.HasDynamicBones())", (const char *)&queryFormat, "dobj->proceduralBonesHandle.HasDynamicBones()") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2971, ASSERT_TYPE_ASSERT, "(procBones != 0)", (const char *)&queryFormat, "procBones != NULL") )
+  if ( !procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2971, ASSERT_TYPE_ASSERT, "(procBones != 0)", (const char *)&queryFormat, "procBones != NULL") )
     __debugbreak();
-  XAnimBonePhysics_ClearAudioEvents(_R14);
-  numPhysicsBones = _R14->numPhysicsBones;
-  v95 = numPhysicsBones;
-  _RDI = DCONST_DVARFLT_xanim_physicsBonesUpdateRate;
+  XAnimBonePhysics_ClearAudioEvents(procBones);
+  numPhysicsBones = procBones->numPhysicsBones;
+  v44 = numPhysicsBones;
+  v16 = DCONST_DVARFLT_xanim_physicsBonesUpdateRate;
   if ( !DCONST_DVARFLT_xanim_physicsBonesUpdateRate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsBonesUpdateRate") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
+  Dvar_CheckFrontendServerThread(v16);
+  v17 = v16->current.value;
+  v18 = 1.0 / v17;
+  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, 0, &outModelQuat, &v56);
+  quat = (vec4_t)outModelQuat.v;
+  _XMM1 = v56.v;
+  trans.v[0] = v56.v.m128_f32[0];
   __asm
   {
-    vmovss  xmm11, dword ptr [rdi+28h]
-    vmovss  xmm12, cs:__real@3f800000
-    vdivss  xmm9, xmm12, xmm11
-  }
-  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, 0, &outModelQuat, &v107);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+1850h+outModelQuat.v]
-    vmovups xmmword ptr [rbp+1850h+quat], xmm0
-    vmovups xmm1, xmmword ptr [rbp+1850h+var_1810.v]
-    vmovss  dword ptr [rbp+1850h+trans], xmm1
     vextractps dword ptr [rbp+1850h+trans+4], xmm1, 1
     vextractps dword ptr [rbp+1850h+trans+8], xmm1, 2
   }
   QuatTrans_Inverse(&quat, &trans, &outInvQuat, &outInvTrans);
-  if ( _R14->physicsState.firstUpdate )
+  if ( procBones->physicsState.firstUpdate )
     goto LABEL_36;
-  v29 = DCONST_DVARBOOL_xanim_physicsForceSettle;
+  v20 = DCONST_DVARBOOL_xanim_physicsForceSettle;
   if ( !DCONST_DVARBOOL_xanim_physicsForceSettle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsForceSettle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v29);
-  v92 = 0;
-  if ( v29->current.enabled )
+  Dvar_CheckFrontendServerThread(v20);
+  v41 = 0;
+  if ( v20->current.enabled )
 LABEL_36:
-    v92 = 1;
-  _R14->physicsState.firstUpdate = 0;
-  v30 = 0;
-  v94 = 0;
-  teleportBones = _R14->physicsState.teleportBones;
-  v31 = teleportBones;
-  _R14->physicsState.teleportBones = 0;
+    v41 = 1;
+  procBones->physicsState.firstUpdate = 0;
+  v21 = 0;
+  v43 = 0;
+  teleportBones = procBones->physicsState.teleportBones;
+  v22 = teleportBones;
+  procBones->physicsState.teleportBones = 0;
   if ( teleportBones )
   {
-    QuatTransform(&outInvQuat, &_R14->physicsState.teleportTranslationDelta, &out);
-    DObjPhysicsState_GetRootTrans(&_R14->physicsState, &outRootTrans);
-    DObjPhysicsState_SetPrevRootTrans(&_R14->physicsState, &outRootTrans);
+    QuatTransform(&outInvQuat, &procBones->physicsState.teleportTranslationDelta, &out);
+    DObjPhysicsState_GetRootTrans(&procBones->physicsState, &outRootTrans);
+    DObjPhysicsState_SetPrevRootTrans(&procBones->physicsState, &outRootTrans);
     memset(&outRootTrans, 0, sizeof(outRootTrans));
-    v31 = teleportBones;
+    v22 = teleportBones;
   }
-  v32 = 1;
-  __asm { vxorps  xmm10, xmm10, xmm10 }
+  v23 = 1;
   if ( numPhysicsBones > 1 )
   {
     do
     {
-      _RSI = &_R14->physicsBones[v32];
-      if ( _RSI->boneIndex != 255 )
+      v24 = &procBones->physicsBones[v23];
+      if ( v24->boneIndex != 255 )
       {
-        if ( !DObjIsValidBoneIndex(obj, _RSI->boneIndex) )
+        if ( !DObjIsValidBoneIndex(obj, v24->boneIndex) )
         {
-          LODWORD(outModelTranslationa) = _RSI->boneIndex;
+          LODWORD(outModelTranslationa) = v24->boneIndex;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 3017, ASSERT_TYPE_ASSERT, "( ( DObjIsValidBoneIndex( dobj, physicsBone->boneIndex ) ) )", "( physicsBone->boneIndex ) = %i", outModelTranslationa) )
             __debugbreak();
         }
-        if ( v92 || (_RSI->flags & 8) != 0 )
+        if ( v41 || (v24->flags & 8) != 0 )
         {
-          boneIndex = _RSI->boneIndex;
-          if ( _RSI->boneIndex >> 15 )
+          boneIndex = v24->boneIndex;
+          if ( v24->boneIndex >> 15 )
           {
-            v48 = (obj->skel.partBits.anim.array[7] & 2) != 0;
+            v26 = (obj->skel.partBits.anim.array[7] & 2) != 0;
           }
           else
           {
             if ( (unsigned int)boneIndex >= 0x100 )
             {
-              LODWORD(v91) = 256;
-              LODWORD(outModelTranslationa) = _RSI->boneIndex;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", outModelTranslationa, v91) )
+              LODWORD(v40) = 256;
+              LODWORD(outModelTranslationa) = v24->boneIndex;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", outModelTranslationa, v40) )
                 __debugbreak();
             }
-            v48 = ((0x80000000 >> (boneIndex & 0x1F)) & obj->skel.partBits.anim.array[boneIndex >> 5]) != 0;
+            v26 = ((0x80000000 >> (boneIndex & 0x1F)) & obj->skel.partBits.anim.array[boneIndex >> 5]) != 0;
           }
-          if ( !v48 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 3027, ASSERT_TYPE_ASSERT, "(XAnimTestPartBit( &dobj->skel.partBits.anim, physicsBone->boneIndex ))", (const char *)&queryFormat, "XAnimTestPartBit( &dobj->skel.partBits.anim, physicsBone->boneIndex )") )
+          if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 3027, ASSERT_TYPE_ASSERT, "(XAnimTestPartBit( &dobj->skel.partBits.anim, physicsBone->boneIndex ))", (const char *)&queryFormat, "XAnimTestPartBit( &dobj->skel.partBits.anim, physicsBone->boneIndex )") )
             __debugbreak();
-          _RSI->flags &= ~8u;
-          v94 = 1;
-          XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, _RSI->boneIndex, &v109, &v110);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbp+1850h+var_17F0.v]
-            vmovups xmmword ptr [rsi+1Ch], xmm0
-            vmovups xmm6, xmmword ptr [rbp+1850h+var_17E0.v]
-            vshufps xmm7, xmm6, xmm6, 55h ; 'U'
-            vshufps xmm8, xmm6, xmm6, 0AAh ; 'ª'
-          }
-          QuatTransform(&_RSI->state.rotationQuat, &_RSI->jointOffset, &v103);
-          _RDI = (unsigned __int16 *)&_RSI->state.position;
-          __asm
-          {
-            vsubss  xmm0, xmm6, dword ptr [rbp+1850h+var_1858]
-            vmovss  dword ptr [rdi], xmm0
-            vsubss  xmm1, xmm7, dword ptr [rbp+1850h+var_1858+4]
-            vmovss  dword ptr [rdi+4], xmm1
-            vsubss  xmm0, xmm8, dword ptr [rbp+1850h+var_1858+8]
-            vmovss  dword ptr [rdi+8], xmm0
-          }
-          QuatTrans_MultiplyEquals(&_RSI->state.rotationQuat, &_RSI->state.position, &outInvQuat, &outInvTrans);
-          _RSI->state.prevRotationQuat.v[0] = _RSI->state.rotationQuat.v[0];
-          _RSI->state.prevRotationQuat.v[1] = _RSI->state.rotationQuat.v[1];
-          _RSI->state.prevRotationQuat.v[2] = _RSI->state.rotationQuat.v[2];
-          _RSI->state.prevRotationQuat.v[3] = _RSI->state.rotationQuat.v[3];
-          _RSI->state.prevPosition.v[0] = _RSI->state.position.v[0];
-          _RSI->state.prevPosition.v[1] = _RSI->state.position.v[1];
-          _RSI->state.prevPosition.v[2] = _RSI->state.position.v[2];
+          v24->flags &= ~8u;
+          v43 = 1;
+          XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, v24->boneIndex, &v58, &v59);
+          v24->state.rotationQuat = (vec4_t)v58.v;
+          v = v59.v;
+          QuatTransform(&v24->state.rotationQuat, &v24->jointOffset, &v52);
+          v24->state.position.v[0] = v.m128_f32[0] - v52.v[0];
+          v24->state.position.v[1] = _mm_shuffle_ps(v, v, 85).m128_f32[0] - v52.v[1];
+          v24->state.position.v[2] = _mm_shuffle_ps(v, v, 170).m128_f32[0] - v52.v[2];
+          QuatTrans_MultiplyEquals(&v24->state.rotationQuat, &v24->state.position, &outInvQuat, &outInvTrans);
+          v24->state.prevRotationQuat.v[0] = v24->state.rotationQuat.v[0];
+          v24->state.prevRotationQuat.v[1] = v24->state.rotationQuat.v[1];
+          v24->state.prevRotationQuat.v[2] = v24->state.rotationQuat.v[2];
+          v24->state.prevRotationQuat.v[3] = v24->state.rotationQuat.v[3];
+          v24->state.prevPosition.v[0] = v24->state.position.v[0];
+          v24->state.prevPosition.v[1] = v24->state.position.v[1];
+          v24->state.prevPosition.v[2] = v24->state.position.v[2];
         }
-        else if ( v31 )
+        else if ( v22 )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+1850h+out]
-            vaddss  xmm1, xmm0, dword ptr [rsi+2Ch]
-            vmovss  dword ptr [rsi+2Ch], xmm1
-            vmovss  xmm2, dword ptr [rbp+1850h+out+4]
-            vaddss  xmm0, xmm2, dword ptr [rsi+30h]
-            vmovss  dword ptr [rsi+30h], xmm0
-            vmovss  xmm1, dword ptr [rbp+1850h+out+8]
-            vaddss  xmm2, xmm1, dword ptr [rsi+34h]
-            vmovss  dword ptr [rsi+34h], xmm2
-            vmovss  xmm0, dword ptr [rbp+1850h+out]
-            vaddss  xmm1, xmm0, dword ptr [rsi+48h]
-            vmovss  dword ptr [rsi+48h], xmm1
-            vmovss  xmm2, dword ptr [rbp+1850h+out+4]
-            vaddss  xmm0, xmm2, dword ptr [rsi+4Ch]
-            vmovss  dword ptr [rsi+4Ch], xmm0
-            vmovss  xmm1, dword ptr [rbp+1850h+out+8]
-            vaddss  xmm2, xmm1, dword ptr [rsi+50h]
-            vmovss  dword ptr [rsi+50h], xmm2
-          }
+          v24->state.position.v[0] = out.v[0] + v24->state.position.v[0];
+          v24->state.position.v[1] = out.v[1] + v24->state.position.v[1];
+          v24->state.position.v[2] = out.v[2] + v24->state.position.v[2];
+          v24->state.prevPosition.v[0] = out.v[0] + v24->state.prevPosition.v[0];
+          v24->state.prevPosition.v[1] = out.v[1] + v24->state.prevPosition.v[1];
+          v24->state.prevPosition.v[2] = out.v[2] + v24->state.prevPosition.v[2];
         }
-        if ( _RSI->parentPhysicsBoneIndex == 0xFF )
+        if ( v24->parentPhysicsBoneIndex == 0xFF )
         {
-          if ( _RSI->rootPhysicsBoneIndex != v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 3056, ASSERT_TYPE_ASSERT, "(physicsBone->rootPhysicsBoneIndex == physicsBoneIndex)", (const char *)&queryFormat, "physicsBone->rootPhysicsBoneIndex == physicsBoneIndex") )
+          if ( v24->rootPhysicsBoneIndex != v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 3056, ASSERT_TYPE_ASSERT, "(physicsBone->rootPhysicsBoneIndex == physicsBoneIndex)", (const char *)&queryFormat, "physicsBone->rootPhysicsBoneIndex == physicsBoneIndex") )
             __debugbreak();
-          parentBoneIndex = _RSI->parentBoneIndex;
+          parentBoneIndex = v24->parentBoneIndex;
           if ( parentBoneIndex == 255 )
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-              vmovups xmmword ptr [rbp+1850h+inoutQuat1], xmm0
-              vmovss  dword ptr [rbp+1850h+inoutTrans1], xmm10
-              vmovss  dword ptr [rbp+1850h+inoutTrans1+4], xmm10
-              vmovss  dword ptr [rbp+1850h+inoutTrans1+8], xmm10
-            }
+            inoutQuat1 = quat_identity;
+            inoutTrans1.v[0] = 0.0;
+            inoutTrans1.v[1] = 0.0;
+            inoutTrans1.v[2] = 0.0;
           }
           else
           {
             if ( !DObjIsValidBoneIndex(obj, parentBoneIndex) )
             {
-              LODWORD(outModelTranslationa) = _RSI->parentBoneIndex;
+              LODWORD(outModelTranslationa) = v24->parentBoneIndex;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 3068, ASSERT_TYPE_ASSERT, "( ( DObjIsValidBoneIndex( dobj, physicsBone->parentBoneIndex ) ) )", "( physicsBone->parentBoneIndex ) = %i", outModelTranslationa) )
                 __debugbreak();
             }
-            v58 = _RSI->parentBoneIndex;
-            if ( _RSI->parentBoneIndex >> 15 )
+            v29 = v24->parentBoneIndex;
+            if ( v24->parentBoneIndex >> 15 )
             {
-              v59 = (obj->skel.partBits.anim.array[7] & 2) != 0;
+              v30 = (obj->skel.partBits.anim.array[7] & 2) != 0;
             }
             else
             {
-              if ( (unsigned int)v58 >= 0x100 )
+              if ( (unsigned int)v29 >= 0x100 )
               {
-                LODWORD(v91) = 256;
-                LODWORD(outModelTranslationa) = _RSI->parentBoneIndex;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", outModelTranslationa, v91) )
+                LODWORD(v40) = 256;
+                LODWORD(outModelTranslationa) = v24->parentBoneIndex;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", outModelTranslationa, v40) )
                   __debugbreak();
               }
-              v59 = ((0x80000000 >> (v58 & 0x1F)) & obj->skel.partBits.anim.array[v58 >> 5]) != 0;
+              v30 = ((0x80000000 >> (v29 & 0x1F)) & obj->skel.partBits.anim.array[v29 >> 5]) != 0;
             }
-            if ( !v59 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 3070, ASSERT_TYPE_ASSERT, "(XAnimTestPartBit( &dobj->skel.partBits.anim, physicsBone->parentBoneIndex ))", (const char *)&queryFormat, "XAnimTestPartBit( &dobj->skel.partBits.anim, physicsBone->parentBoneIndex )") )
+            if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 3070, ASSERT_TYPE_ASSERT, "(XAnimTestPartBit( &dobj->skel.partBits.anim, physicsBone->parentBoneIndex ))", (const char *)&queryFormat, "XAnimTestPartBit( &dobj->skel.partBits.anim, physicsBone->parentBoneIndex )") )
               __debugbreak();
-            XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, _RSI->parentBoneIndex, &v111, &v112);
+            XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, v24->parentBoneIndex, &v60, &v61);
+            inoutQuat1 = (vec4_t)v60.v;
+            _XMM1 = v61.v;
+            inoutTrans1.v[0] = v61.v.m128_f32[0];
             __asm
             {
-              vmovups xmm0, xmmword ptr [rbp+1850h+var_17D0.v]
-              vmovups xmmword ptr [rbp+1850h+inoutQuat1], xmm0
-              vmovups xmm1, xmmword ptr [rbp+1850h+var_17C0.v]
-              vmovss  dword ptr [rbp+1850h+inoutTrans1], xmm1
               vextractps dword ptr [rbp+1850h+inoutTrans1+4], xmm1, 1
               vextractps dword ptr [rbp+1850h+inoutTrans1+8], xmm1, 2
             }
             QuatTrans_MultiplyEquals(&inoutQuat1, &inoutTrans1, &outInvQuat, &outInvTrans);
           }
-          QuatTransform(&inoutQuat1, &_RSI->localBasePoseTrans, &outRootTrans);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+1850h+outRootTrans]
-            vaddss  xmm1, xmm0, dword ptr [rbp+1850h+inoutTrans1]
-            vmovss  dword ptr [rsi+0E0h], xmm1
-            vmovss  xmm2, dword ptr [rbp+1850h+outRootTrans+4]
-            vaddss  xmm0, xmm2, dword ptr [rbp+1850h+inoutTrans1+4]
-            vmovss  dword ptr [rsi+0E4h], xmm0
-            vmovss  xmm1, dword ptr [rbp+1850h+outRootTrans+8]
-            vaddss  xmm2, xmm1, dword ptr [rbp+1850h+inoutTrans1+8]
-            vmovss  dword ptr [rsi+0E8h], xmm2
-            vmovups xmm0, xmmword ptr [rbp+1850h+inoutQuat1]
-            vmovups xmmword ptr [rsi+0D0h], xmm0
-          }
+          QuatTransform(&inoutQuat1, &v24->localBasePoseTrans, &outRootTrans);
+          v24->modelPinPoint.v[0] = outRootTrans.v[0] + inoutTrans1.v[0];
+          v24->modelPinPoint.v[1] = outRootTrans.v[1] + inoutTrans1.v[1];
+          v24->modelPinPoint.v[2] = outRootTrans.v[2] + inoutTrans1.v[2];
+          v24->parentBoneQuat = inoutQuat1;
         }
       }
-      ++v32;
-      v31 = teleportBones;
+      ++v23;
+      v22 = teleportBones;
     }
-    while ( v32 < v95 );
-    v30 = v94;
+    while ( v23 < v44 );
+    v21 = v43;
   }
-  XAnimBonePhysics_CalculateCustomPinConstraintPoints(params, _R14, &outInvQuat, &outInvTrans, &outPinConstraintPoints);
-  XAnimBonePhysics_SnapshotCollidableBoneTransforms_UseProcNodeParams(params, _R14, &outTransforms, 0x20u);
-  XAnimBonePhysics_PreTransformCollidableBoneShapes(_R14, &outTransforms, &outShapes, 0x40u);
-  XAnimBonePhysics_CalculateInheritedAcceleration(_R14);
-  __asm { vmovss  [rbp+1850h+context.timeStep], xmm9 }
-  v70 = DCONST_DVARINT_xanim_physicsMaxPositionSolverIterations;
+  XAnimBonePhysics_CalculateCustomPinConstraintPoints(params, procBones, &outInvQuat, &outInvTrans, &outPinConstraintPoints);
+  XAnimBonePhysics_SnapshotCollidableBoneTransforms_UseProcNodeParams(params, procBones, &outTransforms, 0x20u);
+  XAnimBonePhysics_PreTransformCollidableBoneShapes(procBones, &outTransforms, &outShapes, 0x40u);
+  XAnimBonePhysics_CalculateInheritedAcceleration(procBones);
+  context.timeStep = 1.0 / v17;
+  v32 = DCONST_DVARINT_xanim_physicsMaxPositionSolverIterations;
   if ( !DCONST_DVARINT_xanim_physicsMaxPositionSolverIterations && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxPositionSolverIterations") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v70);
-  context.maxPositionSolverIterations = v70->current.unsignedInt;
-  context.contacts = (XAnimCollisionContact *)&v116;
+  Dvar_CheckFrontendServerThread(v32);
+  context.maxPositionSolverIterations = v32->current.unsignedInt;
+  context.contacts = (XAnimCollisionContact *)&v65;
   context.maxContacts = 55;
   context.pinConstraintPoints = &outPinConstraintPoints;
   context.collidableBoneCollisionShapes = &outShapes;
   context.collidableBoneTransforms = &outTransforms;
   context.dobj = obj;
-  context.procBones = _R14;
+  context.procBones = procBones;
   context.firstPhysicsBoneIndex = 1;
-  context.endPhysicsBoneIndex = _R14->numPhysicsBones;
-  if ( v30 )
+  context.endPhysicsBoneIndex = procBones->numPhysicsBones;
+  if ( v21 )
     goto LABEL_88;
-  v71 = DCONST_DVARBOOL_xanim_physicsForceSettle;
+  v33 = DCONST_DVARBOOL_xanim_physicsForceSettle;
   if ( !DCONST_DVARBOOL_xanim_physicsForceSettle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsForceSettle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v71);
-  if ( v71->current.enabled )
+  Dvar_CheckFrontendServerThread(v33);
+  if ( v33->current.enabled )
 LABEL_88:
     XAnimBonePhysics_Settle(&context, params);
-  __asm { vmovss  xmm6, dword ptr [r14+60h] }
-  v73 = 0;
-  for ( i = 0; i < 2; v73 = (unsigned int)i < 2 )
+  timeSinceLastUpdate_low = LODWORD(procBones->physicsState.timeSinceLastUpdate);
+  v35 = 0;
+  do
   {
-    __asm { vcomiss xmm6, xmm9 }
-    if ( v73 )
+    if ( *(float *)&timeSinceLastUpdate_low < v18 )
       break;
     XAnimBonePhysics_Simulate(&context, params);
-    ++i;
-    __asm { vsubss  xmm6, xmm6, xmm9 }
+    ++v35;
+    v36 = timeSinceLastUpdate_low;
+    *(float *)&v36 = *(float *)&timeSinceLastUpdate_low - v18;
+    timeSinceLastUpdate_low = v36;
   }
-  __asm
-  {
-    vmovaps xmm1, xmm9; Y
-    vmovaps xmm0, xmm6; X
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm { vmovss  dword ptr [r14+60h], xmm0 }
-  _R14->physicsState.deltaTime = 0.0;
-  __asm
-  {
-    vmulss  xmm0, xmm11, xmm6; val
-    vmovaps xmm2, xmm12; max
-    vmovaps xmm1, xmm10; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm3, xmm0; lerpFraction }
-  XAnimBonePhysics_SetDynamicBoneTransforms(params, _R14->physicsBones, _R14->numPhysicsBones, *(float *)&_XMM3);
+  while ( v35 < 2 );
+  procBones->physicsState.timeSinceLastUpdate = fmodf_0(*(float *)&timeSinceLastUpdate_low, v18);
+  procBones->physicsState.deltaTime = 0.0;
+  v37 = I_fclamp(v17 * *(float *)&timeSinceLastUpdate_low, 0.0, 1.0);
+  XAnimBonePhysics_SetDynamicBoneTransforms(params, procBones->physicsBones, procBones->numPhysicsBones, *(float *)&v37);
   Profile_EndInternal(NULL);
-  _R11 = &v124;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
 }
 
 /*
@@ -1476,35 +1309,26 @@ LABEL_88:
 XAnimBonePhysicsUpdateTime
 ==============
 */
-
-void __fastcall XAnimBonePhysicsUpdateTime(DObj *dobj, double deltaTime)
+void XAnimBonePhysicsUpdateTime(DObj *dobj, float deltaTime)
 {
-  DObjProceduralBones *v5; 
+  DObjProceduralBones *v3; 
+  DObjProceduralBones *v4; 
+  float v5; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   if ( (dobj->proceduralBonesHandle.m_value & 0x80000000) != 0 )
   {
-    v5 = DObjProceduralBones_TryLock(dobj);
-    _RBX = v5;
-    if ( v5 )
+    v3 = DObjProceduralBones_TryLock(dobj);
+    v4 = v3;
+    if ( v3 )
     {
-      if ( !v5->numPhysicsBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 311, ASSERT_TYPE_ASSERT, "(procBones->numPhysicsBones > 0)", (const char *)&queryFormat, "procBones->numPhysicsBones > 0") )
+      if ( !v3->numPhysicsBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 311, ASSERT_TYPE_ASSERT, "(procBones->numPhysicsBones > 0)", (const char *)&queryFormat, "procBones->numPhysicsBones > 0") )
         __debugbreak();
-      __asm
-      {
-        vaddss  xmm0, xmm6, dword ptr [rbx+64h]
-        vaddss  xmm1, xmm6, dword ptr [rbx+60h]
-        vmovss  dword ptr [rbx+64h], xmm0
-        vmovss  dword ptr [rbx+60h], xmm1
-      }
+      v5 = deltaTime + v4->physicsState.timeSinceLastUpdate;
+      v4->physicsState.deltaTime = deltaTime + v4->physicsState.deltaTime;
+      v4->physicsState.timeSinceLastUpdate = v5;
       DObjProceduralBones_Unlock(dobj);
     }
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -1515,32 +1339,31 @@ XAnimBonePhysics_AddAudioEvent
 bool XAnimBonePhysics_AddAudioEvent(DObjProceduralBones *procBones, unsigned int physicsBoneIndex, const vec3_t *position, const SndAliasLookup *sound, float strength)
 {
   unsigned __int8 numAudioEvents; 
+  __int64 v10; 
   bool result; 
-  __int64 v13; 
+  __int64 v12; 
 
-  _RBX = procBones;
   if ( !procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 436, ASSERT_TYPE_ASSERT, "(procBones != 0)", (const char *)&queryFormat, "procBones != NULL") )
     __debugbreak();
-  if ( physicsBoneIndex >= _RBX->numPhysicsBones )
+  if ( physicsBoneIndex >= procBones->numPhysicsBones )
   {
-    LODWORD(v13) = physicsBoneIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 437, ASSERT_TYPE_ASSERT, "(unsigned)( physicsBoneIndex ) < (unsigned)( procBones->numPhysicsBones )", "physicsBoneIndex doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", v13, _RBX->numPhysicsBones) )
+    LODWORD(v12) = physicsBoneIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 437, ASSERT_TYPE_ASSERT, "(unsigned)( physicsBoneIndex ) < (unsigned)( procBones->numPhysicsBones )", "physicsBoneIndex doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", v12, procBones->numPhysicsBones) )
       __debugbreak();
   }
   if ( !sound && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 438, ASSERT_TYPE_ASSERT, "(sound != 0)", (const char *)&queryFormat, "sound != NULL") )
     __debugbreak();
-  numAudioEvents = _RBX->physicsState.numAudioEvents;
+  numAudioEvents = procBones->physicsState.numAudioEvents;
   if ( numAudioEvents >= 3u || !sound->name )
     return 0;
-  __asm { vmovss  xmm0, [rsp+48h+strength] }
-  _RCX = numAudioEvents;
-  _RBX->physicsState.audioEvents[_RCX].localPosition.v[0] = position->v[0];
-  _RBX->physicsState.audioEvents[_RCX].localPosition.v[1] = position->v[1];
-  _RBX->physicsState.audioEvents[_RCX].localPosition.v[2] = position->v[2];
-  _RBX->physicsState.audioEvents[_RCX].sound = (SndAliasLookup)sound->name;
+  v10 = numAudioEvents;
+  procBones->physicsState.audioEvents[v10].localPosition.v[0] = position->v[0];
+  procBones->physicsState.audioEvents[v10].localPosition.v[1] = position->v[1];
+  procBones->physicsState.audioEvents[v10].localPosition.v[2] = position->v[2];
+  procBones->physicsState.audioEvents[v10].sound = (SndAliasLookup)sound->name;
   result = 1;
-  __asm { vmovss  dword ptr [rbx+rcx*8+0F4h], xmm0 }
-  ++_RBX->physicsState.numAudioEvents;
+  procBones->physicsState.audioEvents[v10].strength = strength;
+  ++procBones->physicsState.numAudioEvents;
   return result;
 }
 
@@ -1551,37 +1374,32 @@ XAnimBonePhysics_ApplyPositionDelta
 */
 void XAnimBonePhysics_ApplyPositionDelta(XAnimPhysicsBone *physicsBone, const float4 *deltaPos)
 {
-  int v10; 
-  int v11; 
-  int v12; 
-  __int128 v13; 
+  __int128 v3; 
+  __m128 v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
 
-  __asm { vmovss  xmm0, dword ptr [rcx+2Ch] }
-  HIDWORD(v13) = 0;
+  HIDWORD(v10) = 0;
+  v3 = v10;
+  *(float *)&v3 = physicsBone->state.position.v[0];
+  _XMM3 = v3;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+40h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rcx+30h], 10h
     vinsertps xmm3, xmm3, dword ptr [rcx+34h], 20h ; ' '
-    vaddps  xmm2, xmm3, xmmword ptr [rdx]
-    vmovss  [rsp+68h+var_38], xmm2
-    vshufps xmm0, xmm2, xmm2, 55h ; 'U'
-    vshufps xmm1, xmm2, xmm2, 0AAh ; 'ª'
-    vmovss  dword ptr [rcx+2Ch], xmm2
-    vmovss  dword ptr [rcx+30h], xmm0
-    vmovss  dword ptr [rcx+34h], xmm1
   }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+68h+var_38], xmm0 }
-  if ( (v11 & 0x7F800000) == 2139095040 )
-    goto LABEL_8;
-  __asm { vmovss  [rsp+68h+var_38], xmm1 }
-  if ( (v12 & 0x7F800000) == 2139095040 )
+  v6 = _mm128_add_ps(_XMM3, deltaPos->v);
+  v9 = v6.m128_f32[0];
+  LODWORD(v7) = _mm_shuffle_ps(v6, v6, 85).m128_u32[0];
+  LODWORD(v8) = _mm_shuffle_ps(v6, v6, 170).m128_u32[0];
+  physicsBone->state.position.v[0] = v6.m128_f32[0];
+  physicsBone->state.position.v[1] = v7;
+  physicsBone->state.position.v[2] = v8;
+  if ( (v6.m128_i32[0] & 0x7F800000) == 2139095040 || (v9 = v7, (LODWORD(v7) & 0x7F800000) == 2139095040) || (v9 = v8, (LODWORD(v8) & 0x7F800000) == 2139095040) )
   {
-LABEL_8:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 295, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.position)[0]) && IS_FINITE((physicsBone->state.position)[1]) && IS_FINITE((physicsBone->state.position)[2]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.position)[0]) && IS_FINITE((physicsBone->state.position)[1]) && IS_FINITE((physicsBone->state.position)[2])") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 295, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.position)[0]) && IS_FINITE((physicsBone->state.position)[1]) && IS_FINITE((physicsBone->state.position)[2]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.position)[0]) && IS_FINITE((physicsBone->state.position)[1]) && IS_FINITE((physicsBone->state.position)[2])", v9) )
       __debugbreak();
   }
 }
@@ -1593,92 +1411,44 @@ XAnimBonePhysics_ApplyRotationDelta
 */
 void XAnimBonePhysics_ApplyRotationDelta(XAnimPhysicsBone *physicsBone, const float4 *deltaRot)
 {
-  int v47; 
-  int v48; 
-  int v49; 
-  int v50; 
-  char v54; 
+  vec4_t rotationQuat; 
+  __m128 v5; 
+  __m128 v6; 
+  __m128 v11; 
+  __m128 v14; 
+  vec4_t v18; 
+  float v19; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-  }
-  _RDI = deltaRot;
-  _RBX = physicsBone;
   if ( !physicsBone && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 268, ASSERT_TYPE_ASSERT, "(physicsBone != 0)", (const char *)&queryFormat, "physicsBone != NULL") )
     __debugbreak();
+  rotationQuat = physicsBone->state.rotationQuat;
+  v5 = _mm128_mul_ps(_mm_shuffle_ps(deltaRot->v, _mm_shuffle_ps(deltaRot->v, (__m128)0i64, 250), 132), (__m128)_xmm);
+  v6 = _mm_shuffle_ps(v5, v5, 255);
+  _XMM1 = _mm128_mul_ps((__m128)rotationQuat, v5);
   __asm
   {
-    vmovups xmm8, xmmword ptr [rbx+1Ch]
-    vmovups xmm2, xmmword ptr [rdi]
-    vxorps  xmm0, xmm0, xmm0
-    vshufps xmm1, xmm2, xmm0, 0FAh ; 'ú'
-    vshufps xmm3, xmm2, xmm1, 84h ; '„'
-    vmulps  xmm4, xmm3, cs:__xmm@3f0000003f0000003f0000003f000000
-    vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-    vshufps xmm6, xmm4, xmm4, 0FFh
-    vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-    vshufps xmm2, xmm8, xmm8, 0D2h ; 'Ò'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm5, xmm0, xmm3
-    vmulps  xmm1, xmm8, xmm4
     vinsertps xmm0, xmm1, xmm1, 8
     vhaddps xmm2, xmm0, xmm0
     vhaddps xmm3, xmm2, xmm2
-    vshufps xmm7, xmm8, xmm8, 0FFh
-    vmulps  xmm0, xmm7, xmm6
-    vsubps  xmm2, xmm0, xmm3
-    vmulps  xmm4, xmm7, xmm4
-    vmulps  xmm1, xmm8, xmm6
-    vaddps  xmm1, xmm4, xmm1
-    vaddps  xmm0, xmm5, xmm1
-    vblendps xmm1, xmm2, xmm0, 7
-    vaddps  xmm3, xmm1, xmm8
-    vmulps  xmm0, xmm3, xmm3
+  }
+  v11 = _mm_shuffle_ps((__m128)rotationQuat, (__m128)rotationQuat, 255);
+  _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v11, v6), _XMM3);
+  _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)rotationQuat, (__m128)rotationQuat, 210), _mm_shuffle_ps(v5, v5, 201)), _mm128_mul_ps(_mm_shuffle_ps((__m128)rotationQuat, (__m128)rotationQuat, 201), _mm_shuffle_ps(v5, v5, 210))), _mm128_add_ps(_mm128_mul_ps(v11, v5), _mm128_mul_ps((__m128)rotationQuat, v6)));
+  __asm { vblendps xmm1, xmm2, xmm0, 7 }
+  v14 = _mm128_add_ps(_XMM1, (__m128)rotationQuat);
+  _XMM0 = _mm128_mul_ps(v14, v14);
+  __asm
+  {
     vhaddps xmm1, xmm0, xmm0
     vhaddps xmm0, xmm1, xmm1
-    vsqrtps xmm1, xmm0
-    vdivps  xmm2, xmm3, xmm1
-    vmovss  [rsp+78h+var_48], xmm2
-    vmovups xmmword ptr [rbx+1Ch], xmm2
   }
-  if ( (v47 & 0x7F800000) == 2139095040 )
-    goto LABEL_13;
-  __asm
+  v18 = (vec4_t)_mm128_div_ps(v14, _mm_sqrt_ps(_XMM0));
+  v19 = v18.v[0];
+  physicsBone->state.rotationQuat = v18;
+  if ( (LODWORD(v18.v[0]) & 0x7F800000) == 2139095040 || (v19 = physicsBone->state.rotationQuat.v[1], (LODWORD(v19) & 0x7F800000) == 2139095040) || (v19 = physicsBone->state.rotationQuat.v[2], (LODWORD(v19) & 0x7F800000) == 2139095040) || (v19 = physicsBone->state.rotationQuat.v[3], (LODWORD(v19) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbx+20h]
-    vmovss  [rsp+78h+var_48], xmm0
-  }
-  if ( (v48 & 0x7F800000) == 2139095040 )
-    goto LABEL_13;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+24h]
-    vmovss  [rsp+78h+var_48], xmm0
-  }
-  if ( (v49 & 0x7F800000) == 2139095040 )
-    goto LABEL_13;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  [rsp+78h+var_48], xmm0
-  }
-  if ( (v50 & 0x7F800000) == 2139095040 )
-  {
-LABEL_13:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 282, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.rotationQuat)[0]) && IS_FINITE((physicsBone->state.rotationQuat)[1]) && IS_FINITE((physicsBone->state.rotationQuat)[2]) && IS_FINITE((physicsBone->state.rotationQuat)[3]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.rotationQuat)[0]) && IS_FINITE((physicsBone->state.rotationQuat)[1]) && IS_FINITE((physicsBone->state.rotationQuat)[2]) && IS_FINITE((physicsBone->state.rotationQuat)[3])") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 282, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.rotationQuat)[0]) && IS_FINITE((physicsBone->state.rotationQuat)[1]) && IS_FINITE((physicsBone->state.rotationQuat)[2]) && IS_FINITE((physicsBone->state.rotationQuat)[3]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.rotationQuat)[0]) && IS_FINITE((physicsBone->state.rotationQuat)[1]) && IS_FINITE((physicsBone->state.rotationQuat)[2]) && IS_FINITE((physicsBone->state.rotationQuat)[3])", v19) )
       __debugbreak();
-  }
-  _R11 = &v54;
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -1689,165 +1459,119 @@ XAnimBonePhysics_ApplyTranslationalSpringDamping
 */
 float4 *XAnimBonePhysics_ApplyTranslationalSpringDamping(float4 *result, DObjProceduralBones *procBones, int physicsBoneIndex, const float4 *velocity)
 {
-  __int64 v10; 
+  __int64 v4; 
   XAnimPhysicsBone *physicsBones; 
+  __int64 v9; 
+  __int128 v11; 
+  XAnimPhysicsBone *v14; 
   unsigned __int8 parentPhysicsBoneIndex; 
-  float4 *v100; 
-  __int64 v107; 
-  __int64 v108; 
-  __int128 v109; 
-  char v111; 
-  void *retaddr; 
+  vec4_t parentBoneQuat; 
+  __m128 v17; 
+  __m128 localBasePoseQuat; 
+  __m128 v23; 
+  __m128 v33; 
+  __m128 v34; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v37; 
+  __m128 v38; 
+  __m128 v39; 
+  __m128 v40; 
+  __m128 v41; 
+  __m128 v42; 
+  __m128 v43; 
+  __m128 v44; 
+  __int64 v46; 
+  __int64 v47; 
+  __int128 v48; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps [rsp+0E8h+var_88], xmm10
-  }
-  v10 = physicsBoneIndex;
-  _R15 = velocity;
-  _R14 = result;
+  v4 = physicsBoneIndex;
   if ( !procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2125, ASSERT_TYPE_ASSERT, "(procBones)", (const char *)&queryFormat, "procBones") )
     __debugbreak();
-  if ( (unsigned int)v10 >= procBones->numPhysicsBones )
+  if ( (unsigned int)v4 >= procBones->numPhysicsBones )
   {
-    LODWORD(v107) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2126, ASSERT_TYPE_ASSERT, "(unsigned)( physicsBoneIndex ) < (unsigned)( procBones->numPhysicsBones )", "physicsBoneIndex doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", v107, procBones->numPhysicsBones) )
+    LODWORD(v46) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2126, ASSERT_TYPE_ASSERT, "(unsigned)( physicsBoneIndex ) < (unsigned)( procBones->numPhysicsBones )", "physicsBoneIndex doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", v46, procBones->numPhysicsBones) )
       __debugbreak();
   }
   physicsBones = procBones->physicsBones;
-  _RSI = v10;
-  _RAX = physicsBones[v10].properties;
+  v9 = v4;
+  HIDWORD(v48) = 0;
+  v11 = v48;
+  *(float *)&v11 = physicsBones[v4].properties->translationalSpring.damping.v[0];
+  _XMM10 = v11;
   __asm
   {
-    vmovss  xmm0, dword ptr [rax+98h]
-    vmovss  xmm1, dword ptr [rax+9Ch]
-    vmovss  xmm2, dword ptr [rax+0A0h]
-  }
-  HIDWORD(v109) = 0;
-  __asm
-  {
-    vmovups xmm10, xmmword ptr [rsp+40h]
-    vmovss  xmm10, xmm10, xmm0
     vinsertps xmm10, xmm10, xmm1, 10h
     vinsertps xmm10, xmm10, xmm2, 20h ; ' '
   }
-  if ( (unsigned int)v10 >= procBones->numPhysicsBones )
+  if ( (unsigned int)v4 >= procBones->numPhysicsBones )
   {
-    LODWORD(v108) = procBones->numPhysicsBones;
-    LODWORD(v107) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1004, ASSERT_TYPE_ASSERT, "(unsigned)( physicsBoneIndex ) < (unsigned)( procBones->numPhysicsBones )", "physicsBoneIndex doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", v107, v108) )
+    LODWORD(v47) = procBones->numPhysicsBones;
+    LODWORD(v46) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1004, ASSERT_TYPE_ASSERT, "(unsigned)( physicsBoneIndex ) < (unsigned)( procBones->numPhysicsBones )", "physicsBoneIndex doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", v46, v47) )
       __debugbreak();
   }
-  _RDI = procBones->physicsBones;
-  parentPhysicsBoneIndex = _RDI[_RSI].parentPhysicsBoneIndex;
+  v14 = procBones->physicsBones;
+  parentPhysicsBoneIndex = v14[v9].parentPhysicsBoneIndex;
   if ( parentPhysicsBoneIndex == 0xFF )
   {
-    __asm { vmovups xmm4, xmmword ptr [rsi+rdi+0D0h] }
+    parentBoneQuat = v14[v9].parentBoneQuat;
   }
   else
   {
     if ( parentPhysicsBoneIndex >= procBones->numPhysicsBones )
     {
-      LODWORD(v108) = procBones->numPhysicsBones;
-      LODWORD(v107) = parentPhysicsBoneIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1008, ASSERT_TYPE_ASSERT, "(unsigned)( physicsBone->parentPhysicsBoneIndex ) < (unsigned)( procBones->numPhysicsBones )", "physicsBone->parentPhysicsBoneIndex doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", v107, v108) )
+      LODWORD(v47) = procBones->numPhysicsBones;
+      LODWORD(v46) = parentPhysicsBoneIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1008, ASSERT_TYPE_ASSERT, "(unsigned)( physicsBone->parentPhysicsBoneIndex ) < (unsigned)( procBones->numPhysicsBones )", "physicsBone->parentPhysicsBoneIndex doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", v46, v47) )
         __debugbreak();
     }
-    _RCX = 264i64 * _RDI[_RSI].parentPhysicsBoneIndex;
-    _RAX = procBones->physicsBones;
-    __asm { vmovups xmm4, xmmword ptr [rcx+rax+1Ch] }
+    parentBoneQuat = procBones->physicsBones[v14[v9].parentPhysicsBoneIndex].state.rotationQuat;
   }
-  _RAX = physicsBones[_RSI].properties;
+  v17 = _mm_shuffle_ps((__m128)parentBoneQuat, (__m128)parentBoneQuat, 255);
+  localBasePoseQuat = (__m128)physicsBones[v9].properties->localBasePoseQuat;
+  _mm_shuffle_ps(localBasePoseQuat, localBasePoseQuat, 85);
+  _mm_shuffle_ps(localBasePoseQuat, localBasePoseQuat, 170);
+  _XMM8 = localBasePoseQuat;
   __asm
   {
-    vshufps xmm6, xmm4, xmm4, 0FFh
-    vmovups xmm2, xmmword ptr [rax+44h]
-    vshufps xmm0, xmm2, xmm2, 55h ; 'U'
-    vshufps xmm1, xmm2, xmm2, 0AAh ; 'ª'
-    vmovaps xmm8, xmm2
     vinsertps xmm8, xmm8, xmm0, 10h
     vinsertps xmm8, xmm8, xmm1, 20h ; ' '
-    vshufps xmm2, xmm2, xmm2, 0FFh
-    vinsertps xmm8, xmm8, xmm2, 30h ; '0'
-    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-    vshufps xmm2, xmm4, xmm4, 0D2h ; 'Ò'
-    vshufps xmm7, xmm8, xmm8, 0FFh
-    vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm5, xmm3, xmm0
-    vmulps  xmm1, xmm4, xmm8
+  }
+  _mm_shuffle_ps(localBasePoseQuat, localBasePoseQuat, 255);
+  __asm { vinsertps xmm8, xmm8, xmm2, 30h ; '0' }
+  v23 = _mm_shuffle_ps(_XMM8, _XMM8, 255);
+  _XMM1 = _mm128_mul_ps((__m128)parentBoneQuat, _XMM8);
+  __asm
+  {
     vinsertps xmm0, xmm1, xmm1, 8
     vhaddps xmm2, xmm0, xmm0
     vhaddps xmm3, xmm2, xmm2
-    vmulps  xmm0, xmm7, xmm6
-    vsubps  xmm2, xmm0, xmm3
-    vmulps  xmm4, xmm4, xmm7
-    vmovups xmm7, xmmword ptr [r15]
-    vmulps  xmm1, xmm6, xmm8
-    vaddps  xmm1, xmm4, xmm1
-    vaddps  xmm0, xmm5, xmm1
-    vblendps xmm3, xmm2, xmm0, 7
-    vmulps  xmm1, xmm3, xmm3
-    vhaddps xmm0, xmm1, xmm1
-    vhaddps xmm0, xmm0, xmm0
-    vsqrtps xmm1, xmm0
-    vdivps  xmm9, xmm3, xmm1
-    vmulps  xmm0, xmm9, cs:__xmm@3f800000bf800000bf800000bf800000
-    vshufps xmm8, xmm0, xmm0, 0D2h ; 'Ò'
-    vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-    vshufps xmm5, xmm0, xmm0, 0FFh
-    vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm8
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm7
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm8
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm3, xmm1, xmm5
-    vmulps  xmm7, xmm10, xmm3
-    vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-    vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-    vshufps xmm8, xmm9, xmm9, 0D2h ; 'Ò'
-    vmulps  xmm2, xmm1, xmm8
-    vshufps xmm6, xmm9, xmm9, 0C9h ; 'É'
-    vmulps  xmm3, xmm0, xmm6
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vshufps xmm5, xmm9, xmm9, 0FFh
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm7
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm8
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm3, xmm1, xmm5
-    vmovups xmmword ptr [r14], xmm3
   }
-  v100 = _R14;
-  _R11 = &v111;
+  _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v23, v17), _XMM3);
+  _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)parentBoneQuat, (__m128)parentBoneQuat, 201), _mm_shuffle_ps(_XMM8, _XMM8, 210)), _mm128_mul_ps(_mm_shuffle_ps((__m128)parentBoneQuat, (__m128)parentBoneQuat, 210), _mm_shuffle_ps(_XMM8, _XMM8, 201))), _mm128_add_ps(_mm128_mul_ps((__m128)parentBoneQuat, v23), _mm128_mul_ps(v17, _XMM8)));
+  __asm { vblendps xmm3, xmm2, xmm0, 7 }
+  _XMM1 = _mm128_mul_ps(_XMM3, _XMM3);
   __asm
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    vhaddps xmm0, xmm1, xmm1
+    vhaddps xmm0, xmm0, xmm0
   }
-  return v100;
+  v33 = _mm128_div_ps(_XMM3, _mm_sqrt_ps(_XMM0));
+  v34 = _mm128_mul_ps(v33, (__m128)_xmm);
+  v35 = _mm_shuffle_ps(v34, v34, 210);
+  v36 = _mm_shuffle_ps(v34, v34, 201);
+  v37 = _mm_shuffle_ps(v34, v34, 255);
+  v38 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(velocity->v, velocity->v, 210), v36), _mm128_mul_ps(_mm_shuffle_ps(velocity->v, velocity->v, 201), v35));
+  v39 = _mm128_add_ps(v38, v38);
+  v40 = _mm128_mul_ps(_XMM10, _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v39, v39, 210), v36), _mm128_mul_ps(_mm_shuffle_ps(v39, v39, 201), v35)), _mm128_add_ps(_mm128_mul_ps(v37, v39), velocity->v)));
+  v41 = _mm_shuffle_ps(v33, v33, 210);
+  v42 = _mm_shuffle_ps(v33, v33, 201);
+  v43 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v40, v40, 210), v42), _mm128_mul_ps(_mm_shuffle_ps(v40, v40, 201), v41));
+  v44 = _mm128_add_ps(v43, v43);
+  result->v = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v44, v44, 210), v42), _mm128_mul_ps(_mm_shuffle_ps(v44, v44, 201), v41)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v33, v33, 255), v44), v40));
+  return result;
 }
 
 /*
@@ -1857,122 +1581,90 @@ XAnimBonePhysics_CalcNoiseAcceleration
 */
 float4 *XAnimBonePhysics_CalcNoiseAcceleration(float4 *result, const XAnimDynamicBoneNoiseAxisSpace relative, const float4 *invRootQuat, const vec4_t *boneQuatV, const float4 *currentVelocity, const vec3_t *noiseVelocityV, const float invDeltaTime)
 {
-  float4 *v12; 
-  __int128 v89; 
+  __int128 v9; 
+  __m128 v; 
+  __m128 v13; 
+  __m128 v14; 
+  __m128 v15; 
+  __m128 v16; 
+  __m128 v17; 
+  __m128 v18; 
+  __m128 v19; 
+  __m128 v20; 
+  __m128 v24; 
+  __m128 v25; 
+  __m128 v26; 
+  __m128 v33; 
+  __m128 v34; 
+  __m128 v35; 
+  __m128 v36; 
+  __int128 v42; 
 
-  _RAX = noiseVelocityV;
-  v12 = result;
+  HIDWORD(v42) = 0;
+  v9 = v42;
+  *(float *)&v9 = noiseVelocityV->v[0];
+  _XMM9 = v9;
   __asm
   {
-    vmovaps [rsp+98h+var_18], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps [rsp+98h+var_48], xmm9
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  xmm1, dword ptr [rax+4]
-    vmovss  xmm2, dword ptr [rax+8]
-  }
-  HIDWORD(v89) = 0;
-  __asm
-  {
-    vmovups xmm9, xmmword ptr [rsp+30h]
-    vmovss  xmm9, xmm9, xmm0
     vinsertps xmm9, xmm9, xmm1, 10h
     vinsertps xmm9, xmm9, xmm2, 20h ; ' '
   }
   if ( relative == DYNAMIC_BONE_NOISE_AXIS_WORLD )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r8]
-      vshufps xmm7, xmm0, xmm0, 0D2h ; 'Ò'
-      vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-      vshufps xmm5, xmm0, xmm0, 0FFh
-      vshufps xmm0, xmm9, xmm9, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm0, xmm6
-      vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-      vmulps  xmm2, xmm1, xmm7
-      vsubps  xmm0, xmm3, xmm2
-      vaddps  xmm4, xmm0, xmm0
-      vmulps  xmm0, xmm5, xmm4
-      vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-      vaddps  xmm5, xmm0, xmm9
-      vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-      vmulps  xmm2, xmm0, xmm7
-      vmulps  xmm3, xmm1, xmm6
-      vsubps  xmm1, xmm3, xmm2
-    }
+    v = invRootQuat->v;
+    v13 = _mm_shuffle_ps(v, v, 210);
+    v14 = _mm_shuffle_ps(v, v, 201);
+    v15 = _mm_shuffle_ps(v, v, 255);
+    v16 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 210), v14), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 201), v13));
+    v17 = _mm128_add_ps(v16, v16);
+    v18 = _mm128_add_ps(_mm128_mul_ps(v15, v17), _XMM9);
+    v19 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v17, v17, 210), v14), _mm128_mul_ps(_mm_shuffle_ps(v17, v17, 201), v13));
 LABEL_5:
-    __asm { vaddps  xmm9, xmm1, xmm5 }
+    _XMM9 = _mm128_add_ps(v19, v18);
     goto LABEL_6;
   }
   if ( relative == DYNAMIC_BONE_NOISE_AXIS_JOINT )
   {
+    v20 = invRootQuat->v;
+    _XMM0 = _mm128_mul_ps(*(__m128 *)boneQuatV, *(__m128 *)boneQuatV);
     __asm
     {
-      vmovups xmm4, xmmword ptr [r8]
-      vmovups xmm2, xmmword ptr [r9]
-      vmulps  xmm0, xmm2, xmm2
       vhaddps xmm1, xmm0, xmm0
       vhaddps xmm0, xmm1, xmm1
-      vsqrtps xmm1, xmm0
-      vshufps xmm6, xmm4, xmm4, 0FFh
-      vmovaps [rsp+98h+var_38], xmm8
-      vdivps  xmm8, xmm2, xmm1
-      vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-      vshufps xmm2, xmm4, xmm4, 0D2h ; 'Ò'
-      vshufps xmm7, xmm8, xmm8, 0FFh
-      vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm1, xmm0
-      vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-      vmulps  xmm0, xmm2, xmm1
-      vsubps  xmm5, xmm3, xmm0
-      vmulps  xmm1, xmm8, xmm4
+    }
+    v24 = _mm_shuffle_ps(v20, v20, 255);
+    v25 = _mm128_div_ps(*(__m128 *)boneQuatV, _mm_sqrt_ps(_XMM0));
+    v26 = _mm_shuffle_ps(v25, v25, 255);
+    _XMM1 = _mm128_mul_ps(v25, invRootQuat->v);
+    __asm
+    {
       vinsertps xmm0, xmm1, xmm1, 8
       vhaddps xmm2, xmm0, xmm0
       vhaddps xmm3, xmm2, xmm2
-      vmulps  xmm0, xmm7, xmm6
-      vsubps  xmm2, xmm0, xmm3
-      vmulps  xmm4, xmm7, xmm4
-      vmulps  xmm1, xmm6, xmm8
-      vmovaps xmm8, [rsp+98h+var_38]
-      vaddps  xmm1, xmm4, xmm1
-      vaddps  xmm0, xmm5, xmm1
-      vblendps xmm3, xmm2, xmm0, 7
-      vshufps xmm7, xmm3, xmm3, 0C9h ; 'É'
-      vshufps xmm5, xmm3, xmm3, 0FFh
-      vshufps xmm6, xmm3, xmm3, 0D2h ; 'Ò'
-      vshufps xmm0, xmm9, xmm9, 0C9h ; 'É'
-      vmulps  xmm3, xmm0, xmm6
-      vshufps xmm1, xmm9, xmm9, 0D2h ; 'Ò'
-      vmulps  xmm2, xmm1, xmm7
-      vsubps  xmm0, xmm2, xmm3
-      vaddps  xmm4, xmm0, xmm0
-      vmulps  xmm0, xmm5, xmm4
-      vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-      vaddps  xmm5, xmm0, xmm9
-      vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-      vmulps  xmm2, xmm0, xmm7
-      vmulps  xmm3, xmm1, xmm6
-      vsubps  xmm1, xmm2, xmm3
     }
+    _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v26, v24), _XMM3);
+    _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v20, v20, 201), _mm_shuffle_ps(v25, v25, 210)), _mm128_mul_ps(_mm_shuffle_ps(v20, v20, 210), _mm_shuffle_ps(v25, v25, 201))), _mm128_add_ps(_mm128_mul_ps(v26, invRootQuat->v), _mm128_mul_ps(v24, v25)));
+    __asm { vblendps xmm3, xmm2, xmm0, 7 }
+    v33 = _mm_shuffle_ps(_XMM3, _XMM3, 201);
+    v34 = _mm_shuffle_ps(_XMM3, _XMM3, 210);
+    v35 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 210), v33), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 201), v34));
+    v36 = _mm128_add_ps(v35, v35);
+    v18 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM3, _XMM3, 255), v36), _XMM9);
+    v19 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v36, v36, 210), v33), _mm128_mul_ps(_mm_shuffle_ps(v36, v36, 201), v34));
     goto LABEL_5;
   }
 LABEL_6:
+  __asm { vbroadcastss xmm0, [rsp+98h+arg_30] }
+  _XMM1.v = _mm128_mul_ps(_XMM0, _mm128_sub_ps(_XMM9, currentVelocity->v));
   __asm
   {
-    vbroadcastss xmm0, [rsp+98h+arg_30]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm6, [rsp+98h+var_18]
-    vsubps  xmm1, xmm9, xmmword ptr [rax]
-    vmovaps xmm9, [rsp+98h+var_48]
-    vmulps  xmm1, xmm0, xmm1
     vcmpneqps xmm0, xmm1, xmm1
     vmovmskps eax, xmm0
-    vmovups xmmword ptr [rcx], xmm1
   }
+  *result = (float4)_XMM1.v;
   if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 920, ASSERT_TYPE_SANITY, "( !Float4IsNaN( noiseAccel ) )", (const char *)&queryFormat, "!Float4IsNaN( noiseAccel )") )
     __debugbreak();
-  return v12;
+  return result;
 }
 
 /*
@@ -1984,120 +1676,107 @@ void XAnimBonePhysics_CalculateCustomPinConstraintPoints(const XAnimProcNodeCalc
 {
   const DObjProceduralBones *v5; 
   unsigned __int8 numModels; 
+  __int64 v7; 
   __int64 v8; 
-  __int64 v9; 
   DObjProceduralBonesModelInfo *modelInfo; 
   unsigned int numPinConstraints; 
-  unsigned int v12; 
+  unsigned int v11; 
   __int64 p_boneNameIndexA; 
-  __int64 v14; 
-  unsigned __int16 v15; 
-  int v16; 
-  __int64 v26; 
+  __int64 v13; 
+  unsigned __int16 v14; 
+  int v15; 
+  __int64 v17; 
+  __int64 v18; 
   float4 *outModelTranslation; 
-  __int64 v28; 
-  __int64 v29; 
+  __int64 v20; 
+  __int64 v21; 
   vec3_t inoutTrans1; 
   vec3_t out; 
   vec4_t inoutQuat1; 
   float4 outModelQuat; 
-  float4 v38; 
+  float4 v30; 
 
   v5 = procBones;
-  _R15 = outPinConstraintPoints;
   if ( procBones->numCustomPinConstraints )
   {
     numModels = procBones->numModels;
     if ( numModels )
     {
-      v8 = 0i64;
-      v9 = numModels;
-      v29 = numModels;
+      v7 = 0i64;
+      v8 = numModels;
+      v21 = numModels;
       do
       {
         modelInfo = v5->modelInfo;
-        numPinConstraints = modelInfo[v8].numPinConstraints;
-        if ( modelInfo[v8].numPinConstraints )
+        numPinConstraints = modelInfo[v7].numPinConstraints;
+        if ( modelInfo[v7].numPinConstraints )
         {
-          if ( !modelInfo[v8].dynamicBonesAsset )
+          if ( !modelInfo[v7].dynamicBonesAsset )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2775, ASSERT_TYPE_ASSERT, "(modelInfo->dynamicBonesAsset)", (const char *)&queryFormat, "modelInfo->dynamicBonesAsset") )
               __debugbreak();
-            v9 = v29;
+            v8 = v21;
           }
-          v12 = 0;
+          v11 = 0;
           if ( numPinConstraints )
           {
-            p_boneNameIndexA = (__int64)&modelInfo[v8].dynamicBonesAsset->customPinConstraints->boneNameIndexA;
+            p_boneNameIndexA = (__int64)&modelInfo[v7].dynamicBonesAsset->customPinConstraints->boneNameIndexA;
             do
             {
-              v14 = v12 + modelInfo[v8].firstPinConstraintIndex;
+              v13 = v11 + modelInfo[v7].firstPinConstraintIndex;
               if ( *(int *)(p_boneNameIndexA - 4) < 0 )
               {
-                LODWORD(v28) = *(_DWORD *)(p_boneNameIndexA - 4);
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2784, ASSERT_TYPE_ASSERT, "( pin->dynamicBoneIndexB ) >= ( 0 )", "%s >= %s\n\t%i, %i", "pin->dynamicBoneIndexB", "0", v28, 0i64) )
+                LODWORD(v20) = *(_DWORD *)(p_boneNameIndexA - 4);
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2784, ASSERT_TYPE_ASSERT, "( pin->dynamicBoneIndexB ) >= ( 0 )", "%s >= %s\n\t%i, %i", "pin->dynamicBoneIndexB", "0", v20, 0i64) )
                   __debugbreak();
               }
               if ( *(int *)(p_boneNameIndexA - 8) < 0 )
               {
-                v15 = v5->pinConstraintBoneIndices[*(_DWORD *)p_boneNameIndexA + modelInfo[v8].firstBoneIndex];
-                if ( (unsigned __int16)(v15 - 254) <= 1u )
+                v14 = v5->pinConstraintBoneIndices[*(_DWORD *)p_boneNameIndexA + modelInfo[v7].firstBoneIndex];
+                if ( (unsigned __int16)(v14 - 254) <= 1u )
                 {
-                  v26 = v14;
-                  *(_QWORD *)outPinConstraintPoints[v26].v = 0i64;
-                  outPinConstraintPoints[v26].v[2] = 0.0;
+                  v18 = v13;
+                  *(_QWORD *)outPinConstraintPoints[v18].v = 0i64;
+                  outPinConstraintPoints[v18].v[2] = 0.0;
                 }
                 else
                 {
-                  v16 = v15;
-                  if ( !DObjIsValidBoneIndex(params->obj, v15) )
+                  v15 = v14;
+                  if ( !DObjIsValidBoneIndex(params->obj, v14) )
                   {
-                    LODWORD(outModelTranslation) = v16;
+                    LODWORD(outModelTranslation) = v15;
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2800, ASSERT_TYPE_ASSERT, "( ( DObjIsValidBoneIndex( params->obj, boneIndex ) ) )", "( boneIndex ) = %i", outModelTranslation) )
                       __debugbreak();
                   }
-                  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, v16, &outModelQuat, &v38);
+                  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, v15, &outModelQuat, &v30);
+                  _XMM1 = v30.v;
+                  inoutTrans1.v[0] = v30.v.m128_f32[0];
                   __asm
                   {
-                    vmovups xmm1, xmmword ptr [rsp+128h+var_68.v]
-                    vmovups xmm0, xmmword ptr [rsp+128h+outModelQuat.v]
-                    vmovss  dword ptr [rsp+128h+inoutTrans1], xmm1
                     vextractps dword ptr [rsp+128h+inoutTrans1+4], xmm1, 1
                     vextractps dword ptr [rsp+128h+inoutTrans1+8], xmm1, 2
-                    vmovups xmmword ptr [rsp+128h+inoutQuat1], xmm0
                   }
+                  inoutQuat1 = (vec4_t)outModelQuat.v;
                   QuatTrans_MultiplyEquals(&inoutQuat1, &inoutTrans1, invRootQuat, invRootTrans);
                   QuatTransform(&inoutQuat1, (const vec3_t *)(p_boneNameIndexA + 4), &out);
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rsp+128h+out]
-                    vaddss  xmm1, xmm0, dword ptr [rsp+128h+inoutTrans1]
-                  }
                   v5 = procBones;
-                  _RCX = 3 * v14;
-                  __asm
-                  {
-                    vmovss  dword ptr [r15+rcx*4], xmm1
-                    vmovss  xmm2, dword ptr [rsp+128h+out+4]
-                    vaddss  xmm0, xmm2, dword ptr [rsp+128h+inoutTrans1+4]
-                    vmovss  dword ptr [r15+rcx*4+4], xmm0
-                    vmovss  xmm1, dword ptr [rsp+128h+out+8]
-                    vaddss  xmm2, xmm1, dword ptr [rsp+128h+inoutTrans1+8]
-                    vmovss  dword ptr [r15+rcx*4+8], xmm2
-                  }
+                  v17 = v13;
+                  outPinConstraintPoints[v17].v[0] = out.v[0] + inoutTrans1.v[0];
+                  outPinConstraintPoints[v17].v[1] = out.v[1] + inoutTrans1.v[1];
+                  outPinConstraintPoints[v17].v[2] = out.v[2] + inoutTrans1.v[2];
                 }
               }
-              ++v12;
+              ++v11;
               p_boneNameIndexA += 44i64;
             }
-            while ( v12 < numPinConstraints );
-            v9 = v29;
+            while ( v11 < numPinConstraints );
+            v8 = v21;
           }
         }
-        ++v8;
-        v29 = --v9;
+        ++v7;
+        v21 = --v8;
       }
-      while ( v9 );
+      while ( v8 );
     }
   }
 }
@@ -2109,399 +1788,216 @@ XAnimBonePhysics_CalculateInheritedAcceleration
 */
 void XAnimBonePhysics_CalculateInheritedAcceleration(DObjProceduralBones *procBones)
 {
-  bool v13; 
-  bool v14; 
-  char v90; 
-  char v91; 
-  const dvar_t *v106; 
-  int v185; 
-  int v186; 
-  int v187; 
+  float deltaTime; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  const dvar_t *v22; 
+  const dvar_t *v23; 
+  float value; 
+  const dvar_t *v25; 
+  const dvar_t *v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  const dvar_t *v30; 
+  float v31; 
+  const dvar_t *v32; 
+  float v33; 
+  const dvar_t *v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  const dvar_t *v39; 
+  float v40; 
+  const dvar_t *v41; 
+  float v42; 
+  double Float_Internal_DebugName; 
+  double v44; 
+  double v45; 
+  double v46; 
   vec3_t outRootTrans; 
   vec3_t outPrevRootTrans; 
-  __int64 v190; 
+  __int64 v49; 
   vec3_t v; 
   vec4_t out; 
   vec4_t in1; 
   vec4_t in2; 
-  char v195; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v190 = -2i64;
-  __asm
+  v49 = -2i64;
+  if ( !procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2599, ASSERT_TYPE_ASSERT, "(procBones != 0)", (const char *)&queryFormat, "procBones != NULL") )
+    __debugbreak();
+  deltaTime = procBones->physicsState.deltaTime;
+  if ( deltaTime != 0.0 )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  _RDI = procBones;
-  v13 = procBones == NULL;
-  if ( !procBones )
-  {
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2599, ASSERT_TYPE_ASSERT, "(procBones != 0)", (const char *)&queryFormat, "procBones != NULL");
-    v13 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+64h]
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm0, xmm6
-  }
-  if ( !v13 )
-  {
-    __asm
+    v4 = 1.0 / deltaTime;
+    v3 = 1.0 / deltaTime;
+    DObjPhysicsState_GetRootTrans(&procBones->physicsState, &outRootTrans);
+    DObjPhysicsState_GetPrevRootTrans(&procBones->physicsState, &outPrevRootTrans);
+    v.v[0] = (float)(outRootTrans.v[0] - outPrevRootTrans.v[0]) * (float)(1.0 / deltaTime);
+    v.v[1] = (float)(outRootTrans.v[1] - outPrevRootTrans.v[1]) * (float)(1.0 / deltaTime);
+    v.v[2] = (float)(outRootTrans.v[2] - outPrevRootTrans.v[2]) * (float)(1.0 / deltaTime);
+    v5 = procBones->physicsState.prevRootQuat.v[0];
+    LODWORD(in2.v[0]) = LODWORD(v5) ^ _xmm;
+    v6 = procBones->physicsState.prevRootQuat.v[1];
+    LODWORD(in2.v[1]) = LODWORD(v6) ^ _xmm;
+    v7 = procBones->physicsState.prevRootQuat.v[2];
+    LODWORD(in2.v[2]) = LODWORD(v7) ^ _xmm;
+    in2.v[3] = procBones->physicsState.prevRootQuat.v[3];
+    v8 = procBones->physicsState.rootQuat.v[0];
+    v9 = procBones->physicsState.rootQuat.v[1];
+    v10 = procBones->physicsState.rootQuat.v[2];
+    v11 = procBones->physicsState.rootQuat.v[3];
+    if ( (float)((float)((float)((float)(v6 * v9) + (float)(v5 * v8)) + (float)(v7 * v10)) + (float)(in2.v[3] * v11)) < 0.0 )
     {
-      vmovss  xmm1, cs:__real@3f800000
-      vdivss  xmm11, xmm1, xmm0
+      LODWORD(v8) ^= _xmm;
+      LODWORD(v9) ^= _xmm;
+      LODWORD(v10) ^= _xmm;
+      LODWORD(v11) ^= _xmm;
     }
-    DObjPhysicsState_GetRootTrans(&_RDI->physicsState, &outRootTrans);
-    DObjPhysicsState_GetPrevRootTrans(&_RDI->physicsState, &outPrevRootTrans);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+180h+outRootTrans]
-      vsubss  xmm2, xmm0, dword ptr [rsp+180h+outPrevRootTrans]
-      vmovss  xmm1, dword ptr [rsp+180h+outRootTrans+4]
-      vsubss  xmm3, xmm1, dword ptr [rsp+180h+outPrevRootTrans+4]
-      vmovss  xmm0, dword ptr [rsp+180h+outRootTrans+8]
-      vsubss  xmm4, xmm0, dword ptr [rsp+180h+outPrevRootTrans+8]
-      vmulss  xmm0, xmm2, xmm11
-      vmovss  dword ptr [rsp+180h+v], xmm0
-      vmulss  xmm0, xmm3, xmm11
-      vmovss  dword ptr [rsp+180h+v+4], xmm0
-      vmulss  xmm0, xmm4, xmm11
-      vmovss  dword ptr [rsp+180h+v+8], xmm0
-      vmovss  xmm12, dword ptr [rdi+84h]
-      vmovss  xmm7, dword ptr cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm0, xmm12, xmm7
-      vmovss  dword ptr [rbp+80h+in2], xmm0
-      vmovss  xmm13, dword ptr [rdi+88h]
-      vxorps  xmm1, xmm13, xmm7
-      vmovss  dword ptr [rbp+80h+in2+4], xmm1
-      vmovss  xmm14, dword ptr [rdi+8Ch]
-      vxorps  xmm0, xmm14, xmm7
-      vmovss  dword ptr [rbp+80h+in2+8], xmm0
-      vmovss  xmm15, dword ptr [rdi+90h]
-      vmovss  dword ptr [rbp+80h+in2+0Ch], xmm15
-      vmovss  xmm5, dword ptr [rdi+68h]
-      vmovss  xmm8, dword ptr [rdi+6Ch]
-      vmovss  xmm9, dword ptr [rdi+70h]
-      vmovss  xmm10, dword ptr [rdi+74h]
-      vmulss  xmm1, xmm13, xmm8
-      vmulss  xmm0, xmm12, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm14, xmm9
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm15, xmm10
-      vaddss  xmm4, xmm3, xmm0
-      vcomiss xmm4, xmm6
-    }
-    if ( v90 )
-    {
-      __asm
-      {
-        vxorps  xmm5, xmm5, xmm7
-        vxorps  xmm8, xmm8, xmm7
-        vxorps  xmm9, xmm9, xmm7
-        vxorps  xmm10, xmm10, xmm7
-      }
-    }
-    __asm
-    {
-      vsubss  xmm0, xmm5, xmm12
-      vsubss  xmm1, xmm8, xmm13
-      vsubss  xmm2, xmm9, xmm14
-      vsubss  xmm4, xmm10, xmm15
-      vmulss  xmm3, xmm11, cs:__real@40000000
-      vmulss  xmm0, xmm3, xmm0
-      vmovss  dword ptr [rbp+80h+in1], xmm0
-      vmulss  xmm1, xmm3, xmm1
-      vmovss  dword ptr [rbp+80h+in1+4], xmm1
-      vmulss  xmm0, xmm3, xmm2
-      vmovss  dword ptr [rbp+80h+in1+8], xmm0
-      vmulss  xmm1, xmm3, xmm4
-      vmovss  dword ptr [rbp+80h+in1+0Ch], xmm1
-    }
+    in1.v[0] = (float)(v4 * 2.0) * (float)(v8 - v5);
+    in1.v[1] = (float)(v4 * 2.0) * (float)(v9 - v6);
+    in1.v[2] = (float)(v4 * 2.0) * (float)(v10 - v7);
+    in1.v[3] = (float)(v4 * 2.0) * (float)(v11 - in2.v[3]);
     QuatMultiply(&in1, &in2, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+80h+out]
-      vxorps  xmm5, xmm0, xmm7
-      vmovss  xmm1, dword ptr [rbp+80h+out+4]
-      vxorps  xmm4, xmm1, xmm7
-      vmovss  xmm0, dword ptr [rbp+80h+out+8]
-      vxorps  xmm3, xmm0, xmm7
-      vmovss  xmm10, dword ptr [rsp+180h+v]
-      vsubss  xmm0, xmm10, dword ptr [rdi+0A0h]
-      vmovss  xmm9, dword ptr [rsp+180h+v+4]
-      vsubss  xmm1, xmm9, dword ptr [rdi+0A4h]
-      vmovss  xmm8, dword ptr [rsp+180h+v+8]
-      vsubss  xmm2, xmm8, dword ptr [rdi+0A8h]
-      vmulss  xmm13, xmm0, xmm11
-      vmulss  xmm14, xmm1, xmm11
-      vmulss  xmm12, xmm2, xmm11
-      vsubss  xmm0, xmm5, dword ptr [rdi+0B8h]
-      vsubss  xmm1, xmm4, dword ptr [rdi+0BCh]
-      vsubss  xmm2, xmm3, dword ptr [rdi+0C0h]
-      vmulss  xmm0, xmm0, xmm11
-      vmovss  dword ptr [rbp+80h+in2], xmm0
-      vmulss  xmm1, xmm1, xmm11
-      vmovss  dword ptr [rbp+80h+in2+4], xmm1
-      vmulss  xmm0, xmm2, xmm11
-      vmovss  dword ptr [rbp+80h+in2+8], xmm0
-      vmovss  dword ptr [rdi+0A0h], xmm10
-      vmovss  dword ptr [rdi+0A4h], xmm9
-      vmovss  dword ptr [rdi+0A8h], xmm8
-      vmovss  dword ptr [rdi+0B8h], xmm5
-      vmovss  dword ptr [rdi+0BCh], xmm4
-      vmovss  dword ptr [rdi+0C0h], xmm3
-    }
-    _RDI->physicsState.prevRootQuat.v[0] = _RDI->physicsState.rootQuat.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+6Ch]
-      vmovss  dword ptr [rdi+88h], xmm0
-      vmovss  xmm1, dword ptr [rdi+70h]
-      vmovss  dword ptr [rdi+8Ch], xmm1
-      vmovss  xmm0, dword ptr [rdi+74h]
-      vmovss  dword ptr [rdi+90h], xmm0
-    }
-    DObjPhysicsState_SetPrevRootTrans(&_RDI->physicsState, &outRootTrans);
-    _RBX = DCONST_DVARFLT_xanim_physicsExtAngularAccelCap;
+    LODWORD(v12) = LODWORD(out.v[0]) ^ _xmm;
+    LODWORD(v13) = LODWORD(out.v[1]) ^ _xmm;
+    LODWORD(v14) = LODWORD(out.v[2]) ^ _xmm;
+    v15 = v.v[1];
+    v16 = v.v[2];
+    v17 = (float)(v.v[0] - procBones->physicsState.prevVelocity.v[0]) * v3;
+    v18 = (float)(v.v[1] - procBones->physicsState.prevVelocity.v[1]) * v3;
+    v19 = (float)(v.v[2] - procBones->physicsState.prevVelocity.v[2]) * v3;
+    v20 = COERCE_FLOAT(LODWORD(out.v[1]) ^ _xmm) - procBones->physicsState.prevAngularVelocity.v[1];
+    v21 = COERCE_FLOAT(LODWORD(out.v[2]) ^ _xmm) - procBones->physicsState.prevAngularVelocity.v[2];
+    in2.v[0] = (float)(COERCE_FLOAT(LODWORD(out.v[0]) ^ _xmm) - procBones->physicsState.prevAngularVelocity.v[0]) * v3;
+    in2.v[1] = v20 * v3;
+    in2.v[2] = v21 * v3;
+    procBones->physicsState.prevVelocity.v[0] = v.v[0];
+    procBones->physicsState.prevVelocity.v[1] = v15;
+    procBones->physicsState.prevVelocity.v[2] = v16;
+    procBones->physicsState.prevAngularVelocity.v[0] = v12;
+    procBones->physicsState.prevAngularVelocity.v[1] = v13;
+    procBones->physicsState.prevAngularVelocity.v[2] = v14;
+    procBones->physicsState.prevRootQuat.v[0] = procBones->physicsState.rootQuat.v[0];
+    procBones->physicsState.prevRootQuat.v[1] = procBones->physicsState.rootQuat.v[1];
+    procBones->physicsState.prevRootQuat.v[2] = procBones->physicsState.rootQuat.v[2];
+    procBones->physicsState.prevRootQuat.v[3] = procBones->physicsState.rootQuat.v[3];
+    DObjPhysicsState_SetPrevRootTrans(&procBones->physicsState, &outRootTrans);
+    v22 = DCONST_DVARFLT_xanim_physicsExtAngularAccelCap;
     if ( !DCONST_DVARFLT_xanim_physicsExtAngularAccelCap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsExtAngularAccelCap") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm1, dword ptr [rbx+28h]; maxLength }
-    Vec3LimitLength((vec3_t *)&in2, *(float *)&_XMM1);
-    __asm
-    {
-      vmovss  dword ptr [rbp+80h+out], xmm6
-      vmovss  dword ptr [rbp+80h+out+4], xmm6
-      vmovss  dword ptr [rbp+80h+out+8], xmm12
-    }
-    _RBX = DCONST_DVARFLT_xanim_physicsAccelScale;
+    Dvar_CheckFrontendServerThread(v22);
+    Vec3LimitLength((vec3_t *)&in2, v22->current.value);
+    out.v[0] = 0.0;
+    out.v[1] = 0.0;
+    out.v[2] = v19;
+    v23 = DCONST_DVARFLT_xanim_physicsAccelScale;
     if ( !DCONST_DVARFLT_xanim_physicsAccelScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsAccelScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx+28h]
-      vmulss  xmm0, xmm13, xmm2
-      vmovss  dword ptr [rbp+80h+in1], xmm0
-      vmulss  xmm1, xmm14, xmm2
-      vmovss  dword ptr [rbp+80h+in1+4], xmm1
-      vmulss  xmm0, xmm6, xmm2
-      vmovss  dword ptr [rbp+80h+in1+8], xmm0
-    }
-    _RBX = DCONST_DVARFLT_xanim_physicsMaxWorldAccel;
+    Dvar_CheckFrontendServerThread(v23);
+    value = v23->current.value;
+    in1.v[0] = v17 * value;
+    in1.v[1] = v18 * value;
+    in1.v[2] = 0.0 * value;
+    v25 = DCONST_DVARFLT_xanim_physicsMaxWorldAccel;
     if ( !DCONST_DVARFLT_xanim_physicsMaxWorldAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxWorldAccel") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm1, dword ptr [rbx+28h]; maxLength }
-    Vec3LimitLength((vec3_t *)&in1, *(float *)&_XMM1);
-    _RBX = DCONST_DVARFLT_xanim_physicsWorldAccelDeadZone;
+    Dvar_CheckFrontendServerThread(v25);
+    Vec3LimitLength((vec3_t *)&in1, v25->current.value);
+    v26 = DCONST_DVARFLT_xanim_physicsWorldAccelDeadZone;
     if ( !DCONST_DVARFLT_xanim_physicsWorldAccelDeadZone && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsWorldAccelDeadZone") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v26);
+    v27 = in1.v[1];
+    v28 = in1.v[0];
+    v29 = in1.v[2];
+    if ( (float)((float)((float)(v27 * v27) + (float)(v28 * v28)) + (float)(v29 * v29)) < (float)(v26->current.value * v26->current.value) )
     {
-      vmovss  xmm3, dword ptr [rbx+28h]
-      vmovss  xmm8, dword ptr [rbp+80h+in1+4]
-      vmulss  xmm1, xmm8, xmm8
-      vmovss  xmm9, dword ptr [rbp+80h+in1]
-      vmulss  xmm0, xmm9, xmm9
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  xmm10, dword ptr [rbp+80h+in1+8]
-      vmulss  xmm1, xmm10, xmm10
-      vaddss  xmm2, xmm2, xmm1
-      vmulss  xmm0, xmm3, xmm3
-      vcomiss xmm2, xmm0
+      v28 = 0.0;
+      v27 = 0.0;
+      v29 = 0.0;
     }
-    if ( v90 )
+    if ( v19 <= -0.0 )
     {
-      __asm
-      {
-        vxorps  xmm9, xmm9, xmm9
-        vxorps  xmm8, xmm8, xmm8
-        vxorps  xmm10, xmm10, xmm10
-      }
-    }
-    __asm { vcomiss xmm12, cs:__real@80000000 }
-    if ( v90 | v91 )
-    {
-      _RBX = DVARFLT_xanim_physicsGravity;
+      v32 = DVARFLT_xanim_physicsGravity;
       if ( !DVARFLT_xanim_physicsGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsGravity") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-      v106 = DCONST_DVARFLT_xanim_physicsMaxWorldAccel;
+      Dvar_CheckFrontendServerThread(v32);
+      v33 = v32->current.value;
+      v34 = DCONST_DVARFLT_xanim_physicsMaxWorldAccel;
       if ( !DCONST_DVARFLT_xanim_physicsMaxWorldAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxWorldAccel") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v106);
-      __asm { vaddss  xmm1, xmm6, dword ptr [rbx+28h]; maxLength }
+      Dvar_CheckFrontendServerThread(v34);
+      v31 = v33 + v34->current.value;
     }
     else
     {
-      _RBX = DCONST_DVARFLT_xanim_physicsMaxWorldAccel;
+      v30 = DCONST_DVARFLT_xanim_physicsMaxWorldAccel;
       if ( !DCONST_DVARFLT_xanim_physicsMaxWorldAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxWorldAccel") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm { vmovss  xmm1, dword ptr [rbx+28h] }
+      Dvar_CheckFrontendServerThread(v30);
+      v31 = v30->current.value;
     }
-    Vec3LimitLength((vec3_t *)&out, *(float *)&_XMM1);
-    __asm
-    {
-      vaddss  xmm0, xmm9, dword ptr [rbp+80h+out]
-      vaddss  xmm1, xmm8, dword ptr [rbp+80h+out+4]
-      vaddss  xmm2, xmm10, dword ptr [rbp+80h+out+8]
-      vxorps  xmm8, xmm0, xmm7
-      vxorps  xmm6, xmm1, xmm7
-      vxorps  xmm7, xmm2, xmm7
-      vmovss  [rsp+180h+var_140], xmm8
-    }
-    if ( (v185 & 0x7F800000) == 2139095040 )
-      goto LABEL_50;
-    __asm { vmovss  [rsp+180h+var_140], xmm6 }
-    if ( (v186 & 0x7F800000) == 2139095040 )
-      goto LABEL_50;
-    __asm { vmovss  [rsp+180h+var_140], xmm7 }
-    if ( (v187 & 0x7F800000) == 2139095040 )
-    {
-LABEL_50:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2677, ASSERT_TYPE_ASSERT, "(IS_FINITE((accel)[0]) && IS_FINITE((accel)[1]) && IS_FINITE((accel)[2]))", (const char *)&queryFormat, "IS_FINITE((accel)[0]) && IS_FINITE((accel)[1]) && IS_FINITE((accel)[2])") )
-        __debugbreak();
-    }
-    _RBX = DCONST_DVARFLT_xanim_physicsAccelSmoothing;
+    Vec3LimitLength((vec3_t *)&out, v31);
+    v35 = v27 + out.v[1];
+    LODWORD(v36) = COERCE_UNSIGNED_INT(v28 + out.v[0]) ^ _xmm;
+    LODWORD(v37) = LODWORD(v35) ^ _xmm;
+    LODWORD(v38) = COERCE_UNSIGNED_INT(v29 + out.v[2]) ^ _xmm;
+    if ( ((LODWORD(v36) & 0x7F800000) == 2139095040 || (LODWORD(v37) & 0x7F800000) == 2139095040 || (LODWORD(v38) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2677, ASSERT_TYPE_ASSERT, "(IS_FINITE((accel)[0]) && IS_FINITE((accel)[1]) && IS_FINITE((accel)[2]))", (const char *)&queryFormat, "IS_FINITE((accel)[0]) && IS_FINITE((accel)[1]) && IS_FINITE((accel)[2])") )
+      __debugbreak();
+    v39 = DCONST_DVARFLT_xanim_physicsAccelSmoothing;
     if ( !DCONST_DVARFLT_xanim_physicsAccelSmoothing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsAccelSmoothing") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm5, dword ptr [rbx+28h]
-      vmovss  xmm2, dword ptr [rdi+0ACh]
-      vsubss  xmm0, xmm8, xmm2
-      vmulss  xmm1, xmm0, xmm5
-      vaddss  xmm2, xmm1, xmm2
-      vmovss  dword ptr [rdi+0ACh], xmm2
-      vmovss  xmm3, dword ptr [rdi+0B0h]
-      vsubss  xmm0, xmm6, xmm3
-      vmulss  xmm1, xmm0, xmm5
-      vaddss  xmm2, xmm1, xmm3
-      vmovss  dword ptr [rdi+0B0h], xmm2
-      vmovss  xmm4, dword ptr [rdi+0B4h]
-      vsubss  xmm0, xmm7, xmm4
-      vmulss  xmm1, xmm0, xmm5
-      vaddss  xmm2, xmm1, xmm4
-      vmovss  dword ptr [rdi+0B4h], xmm2
-    }
-    _RBX = DCONST_DVARFLT_xanim_physicsAccelSmoothing;
+    Dvar_CheckFrontendServerThread(v39);
+    v40 = v39->current.value;
+    procBones->physicsState.inheritedAcceleration.v[0] = (float)((float)(v36 - procBones->physicsState.inheritedAcceleration.v[0]) * v40) + procBones->physicsState.inheritedAcceleration.v[0];
+    procBones->physicsState.inheritedAcceleration.v[1] = (float)((float)(v37 - procBones->physicsState.inheritedAcceleration.v[1]) * v40) + procBones->physicsState.inheritedAcceleration.v[1];
+    procBones->physicsState.inheritedAcceleration.v[2] = (float)((float)(v38 - procBones->physicsState.inheritedAcceleration.v[2]) * v40) + procBones->physicsState.inheritedAcceleration.v[2];
+    v41 = DCONST_DVARFLT_xanim_physicsAccelSmoothing;
     if ( !DCONST_DVARFLT_xanim_physicsAccelSmoothing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsAccelSmoothing") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v41);
+    v42 = v41->current.value;
+    procBones->physicsState.inheritedAngularAcceleration.v[0] = (float)((float)(in2.v[0] - procBones->physicsState.inheritedAngularAcceleration.v[0]) * v42) + procBones->physicsState.inheritedAngularAcceleration.v[0];
+    procBones->physicsState.inheritedAngularAcceleration.v[1] = (float)((float)(in2.v[1] - procBones->physicsState.inheritedAngularAcceleration.v[1]) * v42) + procBones->physicsState.inheritedAngularAcceleration.v[1];
+    procBones->physicsState.inheritedAngularAcceleration.v[2] = (float)((float)(in2.v[2] - procBones->physicsState.inheritedAngularAcceleration.v[2]) * v42) + procBones->physicsState.inheritedAngularAcceleration.v[2];
+    Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_physicsExtVelocityCap, "xanim_physicsExtVelocityCap");
+    Vec3LimitLength(&v, *(float *)&Float_Internal_DebugName);
+    v44 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_physicsExtVelocitySmoothing, "xanim_physicsExtVelocitySmoothing");
+    procBones->physicsState.inheritedVelocity.v[0] = (float)((float)(v.v[0] - procBones->physicsState.inheritedVelocity.v[0]) * *(float *)&v44) + procBones->physicsState.inheritedVelocity.v[0];
+    procBones->physicsState.inheritedVelocity.v[1] = (float)((float)(v.v[1] - procBones->physicsState.inheritedVelocity.v[1]) * *(float *)&v44) + procBones->physicsState.inheritedVelocity.v[1];
+    procBones->physicsState.inheritedVelocity.v[2] = (float)((float)(v.v[2] - procBones->physicsState.inheritedVelocity.v[2]) * *(float *)&v44) + procBones->physicsState.inheritedVelocity.v[2];
+    v45 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_physicsIdleAngularVelocityThreshold, "xanim_physicsIdleAngularVelocityThreshold");
+    if ( (float)((float)((float)(procBones->physicsState.prevAngularVelocity.v[0] * procBones->physicsState.prevAngularVelocity.v[0]) + (float)(procBones->physicsState.prevAngularVelocity.v[1] * procBones->physicsState.prevAngularVelocity.v[1])) + (float)(procBones->physicsState.prevAngularVelocity.v[2] * procBones->physicsState.prevAngularVelocity.v[2])) > (float)(*(float *)&v45 * *(float *)&v45) )
     {
-      vmovss  xmm6, dword ptr [rbx+28h]
-      vmovss  xmm3, dword ptr [rdi+0C4h]
-      vmovss  xmm0, dword ptr [rbp+80h+in2]
-      vsubss  xmm1, xmm0, xmm3
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, xmm3
-      vmovss  dword ptr [rdi+0C4h], xmm3
-      vmovss  xmm4, dword ptr [rdi+0C8h]
-      vmovss  xmm0, dword ptr [rbp+80h+in2+4]
-      vsubss  xmm1, xmm0, xmm4
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, xmm4
-      vmovss  dword ptr [rdi+0C8h], xmm3
-      vmovss  xmm5, dword ptr [rdi+0CCh]
-      vmovss  xmm0, dword ptr [rbp+80h+in2+8]
-      vsubss  xmm1, xmm0, xmm5
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, xmm5
-      vmovss  dword ptr [rdi+0CCh], xmm3
-    }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_physicsExtVelocityCap, "xanim_physicsExtVelocityCap");
-    __asm { vmovaps xmm1, xmm0; maxLength }
-    Vec3LimitLength(&v, *(float *)&_XMM1);
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_physicsExtVelocitySmoothing, "xanim_physicsExtVelocitySmoothing");
-    __asm
-    {
-      vmovaps xmm6, xmm0
-      vmovss  xmm4, dword ptr [rdi+0D0h]
-      vmovss  xmm1, dword ptr [rsp+180h+v]
-      vsubss  xmm2, xmm1, xmm4
-      vmulss  xmm3, xmm2, xmm0
-      vaddss  xmm4, xmm3, xmm4
-      vmovss  dword ptr [rdi+0D0h], xmm4
-      vmovss  xmm5, dword ptr [rdi+0D4h]
-      vmovss  xmm1, dword ptr [rsp+180h+v+4]
-      vsubss  xmm2, xmm1, xmm5
-      vmulss  xmm3, xmm2, xmm0
-      vaddss  xmm4, xmm3, xmm5
-      vmovss  dword ptr [rdi+0D4h], xmm4
-      vmovss  xmm3, dword ptr [rdi+0D8h]
-      vmovss  xmm0, dword ptr [rsp+180h+v+8]
-      vsubss  xmm1, xmm0, xmm3
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, xmm3
-      vmovss  dword ptr [rdi+0D8h], xmm3
-    }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_physicsIdleAngularVelocityThreshold, "xanim_physicsIdleAngularVelocityThreshold");
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+0BCh]
-      vmovss  xmm1, dword ptr [rdi+0B8h]
-      vmovss  xmm4, dword ptr [rdi+0C0h]
-      vmulss  xmm2, xmm1, xmm1
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm4, xmm4
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm0, xmm0, xmm0
-      vcomiss xmm4, xmm0
-    }
-    if ( v90 | v13 )
-    {
-      Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_physicsIdleVelocitySmoothing, "xanim_physicsIdleVelocitySmoothing");
-      __asm
-      {
-        vmovss  xmm1, cs:__real@3f800000
-        vsubss  xmm1, xmm1, xmm0
-        vmulss  xmm2, xmm1, dword ptr [rdi+0DCh]
-        vaddss  xmm0, xmm2, xmm0
-        vmovss  dword ptr [rdi+0DCh], xmm0
-      }
+      procBones->physicsState.idleVelocityWeight = 0.0;
     }
     else
     {
-      _RDI->physicsState.idleVelocityWeight = 0.0;
+      v46 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_xanim_physicsIdleVelocitySmoothing, "xanim_physicsIdleVelocitySmoothing");
+      procBones->physicsState.idleVelocityWeight = (float)((float)(1.0 - *(float *)&v46) * procBones->physicsState.idleVelocityWeight) + *(float *)&v46;
     }
   }
   memset(&outPrevRootTrans, 0, sizeof(outPrevRootTrans));
   memset(&outRootTrans, 0, sizeof(outRootTrans));
-  _R11 = &v195;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
 }
 
 /*
@@ -2533,11 +2029,29 @@ float XAnimBonePhysics_FindMaxBoneVelocitySquared(const XAnimBonePhysicsUpdateCo
   __int64 firstPhysicsBoneIndex; 
   unsigned int endPhysicsBoneIndex; 
   XAnimPhysicsBone *physicsBones; 
-  unsigned int v10; 
-  __int64 v12; 
-  __int64 v85; 
+  unsigned int v6; 
+  __int64 p_z; 
+  __int64 v8; 
+  __int128 v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  __int128 v15; 
+  __int128 v18; 
+  __int128 v21; 
+  __int128 v24; 
+  float *v26; 
+  __int64 v27; 
+  __int128 v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  __int128 v34; 
 
-  __asm { vmovaps [rsp+68h+var_38], xmm8 }
   if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2879, ASSERT_TYPE_ASSERT, "(context != 0)", (const char *)&queryFormat, "context != NULL") )
     __debugbreak();
   if ( !context->procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2880, ASSERT_TYPE_ASSERT, "(context->procBones != 0)", (const char *)&queryFormat, "context->procBones != NULL") )
@@ -2545,157 +2059,66 @@ float XAnimBonePhysics_FindMaxBoneVelocitySquared(const XAnimBonePhysicsUpdateCo
   firstPhysicsBoneIndex = context->firstPhysicsBoneIndex;
   endPhysicsBoneIndex = context->endPhysicsBoneIndex;
   physicsBones = context->procBones->physicsBones;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
+  LODWORD(_XMM8) = 0;
   if ( (unsigned int)firstPhysicsBoneIndex >= endPhysicsBoneIndex )
+    return 0.0;
+  if ( endPhysicsBoneIndex - (unsigned int)firstPhysicsBoneIndex >= 4 )
   {
-    __asm
+    v6 = ((endPhysicsBoneIndex - (unsigned int)firstPhysicsBoneIndex - 4) >> 2) + 1;
+    p_z = (__int64)&physicsBones[firstPhysicsBoneIndex + 2].state.angularVelocity.z;
+    v8 = v6;
+    LODWORD(firstPhysicsBoneIndex) = firstPhysicsBoneIndex + 4 * v6;
+    do
     {
-      vmovaps xmm8, [rsp+68h+var_38]
-      vxorps  xmm0, xmm0, xmm0
+      v9 = *(unsigned int *)(p_z - 548);
+      v10 = *(float *)(p_z - 544);
+      v11 = *(float *)(p_z - 540);
+      v12 = *(float *)(p_z - 532);
+      v13 = *(float *)(p_z - 536);
+      v14 = *(float *)(p_z - 528);
+      p_z += 1056i64;
+      v15 = v9;
+      *(float *)&v15 = (float)((float)((float)(*(float *)&v9 * *(float *)&v9) + (float)(v10 * v10)) + (float)(v11 * v11)) + (float)((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v14 * v14));
+      _XMM0 = v15;
+      __asm { vmaxss  xmm8, xmm0, xmm8 }
+      v18 = *(unsigned int *)(p_z - 1328);
+      *(float *)&v18 = (float)((float)((float)(*(float *)(p_z - 1328) * *(float *)(p_z - 1328)) + (float)(*(float *)(p_z - 1324) * *(float *)(p_z - 1324))) + (float)(*(float *)(p_z - 1320) * *(float *)(p_z - 1320))) + (float)((float)((float)(*(float *)(p_z - 1340) * *(float *)(p_z - 1340)) + (float)(*(float *)(p_z - 1336) * *(float *)(p_z - 1336))) + (float)(*(float *)(p_z - 1332) * *(float *)(p_z - 1332)));
+      _XMM0 = v18;
+      __asm { vmaxss  xmm8, xmm0, xmm8 }
+      v21 = *(unsigned int *)(p_z - 1060);
+      *(float *)&v21 = (float)((float)((float)(*(float *)(p_z - 1060) * *(float *)(p_z - 1060)) + (float)(*(float *)(p_z - 1064) * *(float *)(p_z - 1064))) + (float)(*(float *)(p_z - 1056) * *(float *)(p_z - 1056))) + (float)((float)((float)(*(float *)(p_z - 1072) * *(float *)(p_z - 1072)) + (float)(*(float *)(p_z - 1076) * *(float *)(p_z - 1076))) + (float)(*(float *)(p_z - 1068) * *(float *)(p_z - 1068)));
+      _XMM0 = v21;
+      __asm { vmaxss  xmm8, xmm0, xmm8 }
+      v24 = *(unsigned int *)(p_z - 808);
+      *(float *)&v24 = (float)((float)((float)(*(float *)(p_z - 808) * *(float *)(p_z - 808)) + (float)(*(float *)(p_z - 812) * *(float *)(p_z - 812))) + (float)(*(float *)(p_z - 804) * *(float *)(p_z - 804))) + (float)((float)((float)(*(float *)(p_z - 796) * *(float *)(p_z - 796)) + (float)(*(float *)(p_z - 800) * *(float *)(p_z - 800))) + (float)(*(float *)(p_z - 792) * *(float *)(p_z - 792)));
+      _XMM0 = v24;
+      __asm { vmaxss  xmm8, xmm0, xmm8 }
+      --v8;
     }
+    while ( v8 );
   }
-  else
+  if ( (unsigned int)firstPhysicsBoneIndex < endPhysicsBoneIndex )
   {
-    __asm
+    v26 = &physicsBones[(unsigned int)firstPhysicsBoneIndex].state.angularVelocity.v[2];
+    v27 = endPhysicsBoneIndex - (unsigned int)firstPhysicsBoneIndex;
+    do
     {
-      vmovaps [rsp+68h+var_18], xmm6
-      vmovaps [rsp+68h+var_28], xmm7
+      v28 = *((unsigned int *)v26 - 5);
+      v29 = *(v26 - 4);
+      v30 = *(v26 - 3);
+      v31 = *(v26 - 2);
+      v32 = *(v26 - 1);
+      v33 = *v26;
+      v26 += 66;
+      v34 = v28;
+      *(float *)&v34 = (float)((float)((float)(*(float *)&v28 * *(float *)&v28) + (float)(v29 * v29)) + (float)(v30 * v30)) + (float)((float)((float)(v31 * v31) + (float)(v32 * v32)) + (float)(v33 * v33));
+      _XMM2 = v34;
+      __asm { vmaxss  xmm8, xmm2, xmm8 }
+      --v27;
     }
-    if ( endPhysicsBoneIndex - (unsigned int)firstPhysicsBoneIndex >= 4 )
-    {
-      v10 = ((endPhysicsBoneIndex - (unsigned int)firstPhysicsBoneIndex - 4) >> 2) + 1;
-      _R9 = (__int64)&physicsBones[firstPhysicsBoneIndex + 2].state.angularVelocity.z;
-      v12 = v10;
-      LODWORD(firstPhysicsBoneIndex) = firstPhysicsBoneIndex + 4 * v10;
-      do
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r9-224h]
-          vmovss  xmm2, dword ptr [r9-220h]
-          vmovss  xmm3, dword ptr [r9-21Ch]
-          vmovss  xmm6, dword ptr [r9-214h]
-          vmovss  xmm5, dword ptr [r9-218h]
-          vmovss  xmm7, dword ptr [r9-210h]
-        }
-        _R9 += 1056i64;
-        __asm
-        {
-          vmulss  xmm1, xmm0, xmm0
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm4, xmm2, xmm1
-          vmulss  xmm3, xmm5, xmm5
-          vmovss  xmm5, dword ptr [r9-53Ch]
-          vmulss  xmm0, xmm6, xmm6
-          vmovss  xmm6, dword ptr [r9-538h]
-          vaddss  xmm2, xmm3, xmm0
-          vmovss  xmm3, dword ptr [r9-528h]
-          vmulss  xmm1, xmm7, xmm7
-          vmovss  xmm7, dword ptr [r9-534h]
-          vaddss  xmm2, xmm2, xmm1
-          vaddss  xmm0, xmm4, xmm2
-          vmovss  xmm2, dword ptr [r9-52Ch]
-          vmaxss  xmm8, xmm0, xmm8
-          vmovss  xmm0, dword ptr [r9-530h]
-          vmulss  xmm1, xmm0, xmm0
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm4, xmm2, xmm1
-          vmulss  xmm3, xmm5, xmm5
-          vmovss  xmm5, dword ptr [r9-430h]
-          vmulss  xmm0, xmm6, xmm6
-          vmovss  xmm6, dword ptr [r9-434h]
-          vaddss  xmm2, xmm3, xmm0
-          vmovss  xmm3, dword ptr [r9-420h]
-          vmulss  xmm1, xmm7, xmm7
-          vmovss  xmm7, dword ptr [r9-42Ch]
-          vaddss  xmm2, xmm2, xmm1
-          vmovss  xmm1, dword ptr [r9-424h]
-          vaddss  xmm0, xmm4, xmm2
-          vmaxss  xmm8, xmm0, xmm8
-          vmovss  xmm0, dword ptr [r9-428h]
-          vmulss  xmm0, xmm0, xmm0
-          vmulss  xmm1, xmm1, xmm1
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm4, xmm2, xmm1
-          vmulss  xmm3, xmm5, xmm5
-          vmovss  xmm5, dword ptr [r9-31Ch]
-          vmulss  xmm0, xmm6, xmm6
-          vmovss  xmm6, dword ptr [r9-320h]
-          vaddss  xmm2, xmm3, xmm0
-          vmovss  xmm3, dword ptr [r9-324h]
-          vmulss  xmm1, xmm7, xmm7
-          vmovss  xmm7, dword ptr [r9-318h]
-          vaddss  xmm2, xmm2, xmm1
-          vaddss  xmm0, xmm4, xmm2
-          vmovss  xmm2, dword ptr [r9-32Ch]
-          vmaxss  xmm8, xmm0, xmm8
-          vmovss  xmm0, dword ptr [r9-328h]
-          vmulss  xmm1, xmm0, xmm0
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm4, xmm2, xmm1
-          vmulss  xmm0, xmm6, xmm6
-          vmulss  xmm3, xmm5, xmm5
-          vaddss  xmm2, xmm3, xmm0
-          vmulss  xmm1, xmm7, xmm7
-          vaddss  xmm2, xmm2, xmm1
-          vaddss  xmm0, xmm4, xmm2
-          vmaxss  xmm8, xmm0, xmm8
-        }
-        --v12;
-      }
-      while ( v12 );
-    }
-    if ( (unsigned int)firstPhysicsBoneIndex < endPhysicsBoneIndex )
-    {
-      _RAX = (__int64)&physicsBones[(unsigned int)firstPhysicsBoneIndex].state.angularVelocity.z;
-      v85 = endPhysicsBoneIndex - (unsigned int)firstPhysicsBoneIndex;
-      do
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax-14h]
-          vmovss  xmm2, dword ptr [rax-10h]
-          vmovss  xmm3, dword ptr [rax-0Ch]
-          vmovss  xmm4, dword ptr [rax-8]
-          vmovss  xmm6, dword ptr [rax-4]
-          vmovss  xmm7, dword ptr [rax]
-        }
-        _RAX += 264i64;
-        __asm
-        {
-          vmulss  xmm1, xmm0, xmm0
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm5, xmm2, xmm1
-          vmulss  xmm2, xmm6, xmm6
-          vmulss  xmm3, xmm4, xmm4
-          vaddss  xmm4, xmm3, xmm2
-          vmulss  xmm1, xmm7, xmm7
-          vaddss  xmm3, xmm4, xmm1
-          vaddss  xmm2, xmm5, xmm3
-          vmaxss  xmm8, xmm2, xmm8
-        }
-        --v85;
-      }
-      while ( v85 );
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+68h+var_18]
-      vmovaps xmm7, [rsp+68h+var_28]
-      vmovaps xmm0, xmm8
-      vmovaps xmm8, [rsp+68h+var_38]
-    }
+    while ( v27 );
   }
-  return *(float *)&_XMM0;
+  return *(float *)&_XMM8;
 }
 
 /*
@@ -2705,303 +2128,258 @@ XAnimBonePhysics_FindTwistAngle
 */
 float XAnimBonePhysics_FindTwistAngle(const XAnimPhysicsBone *physicsBoneA, const XAnimPhysicsBone *physicsBoneB, const vec3_t *twistAxis, const vec3_t *twistU, const vec3_t *twistV, float4 *outCorrectionAxis)
 {
-  float4 v250; 
-  float4 v251; 
-  __int128 v255; 
-  float4 v256; 
-  char v257; 
-  void *retaddr; 
+  vec4_t rotationQuat; 
+  vec4_t parentBoneQuat; 
+  float v12; 
+  __m128 v14; 
+  float v15; 
+  __m128 v19; 
+  float v22; 
+  __m128 v; 
+  vec4_t localBasePoseQuat; 
+  __m128 v28; 
+  __m128 v29; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v32; 
+  __m128 v33; 
+  __m128 v34; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v37; 
+  __m128 v38; 
+  __m128 v39; 
+  __m128 v40; 
+  __m128 v41; 
+  __m128 v42; 
+  __m128 v43; 
+  __m128 v44; 
+  __m128 v45; 
+  __m128 v46; 
+  __m128 v47; 
+  __m128 v48; 
+  __m128 v49; 
+  __m128 v50; 
+  __m128 v51; 
+  __m128 v52; 
+  __m128 v53; 
+  __m128 v54; 
+  __m128 v55; 
+  __m128 v56; 
+  __m128 v57; 
+  __m128 v58; 
+  __m128 v59; 
+  __m128 v60; 
+  __m128 v67; 
+  __m128 v68; 
+  __m128 v72; 
+  __m128 v79; 
+  __m128 v80; 
+  __m128 v81; 
+  __m128 v82; 
+  __m128 v83; 
+  __m128 v84; 
+  __m128 v85; 
+  __m128 v86; 
+  __m128 v87; 
+  __m128 v93; 
+  float4 v99; 
+  __int128 v101; 
+  __int128 v102; 
+  __int128 v108; 
+  __int128 v111; 
+  float result; 
+  __m128 v119; 
+  float4 v120; 
+  float4 v121; 
+  __m128 v122; 
+  __m128 v123; 
+  __m128 v124; 
+  __m128 v125; 
+  float4 v126; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  _R14 = twistV;
-  _RBP = twistU;
-  _R15 = outCorrectionAxis;
-  _RSI = twistAxis;
-  _RDI = physicsBoneB;
-  _RBX = physicsBoneA;
   if ( !physicsBoneA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1837, ASSERT_TYPE_ASSERT, "(physicsBoneA != 0)", (const char *)&queryFormat, "physicsBoneA != NULL") )
     __debugbreak();
-  if ( !_RBX->properties && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1838, ASSERT_TYPE_ASSERT, "(physicsBoneA->properties != 0)", (const char *)&queryFormat, "physicsBoneA->properties != NULL") )
+  if ( !physicsBoneA->properties && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1838, ASSERT_TYPE_ASSERT, "(physicsBoneA->properties != 0)", (const char *)&queryFormat, "physicsBoneA->properties != NULL") )
     __debugbreak();
-  __asm
+  rotationQuat = physicsBoneA->state.rotationQuat;
+  v122 = (__m128)rotationQuat;
+  if ( physicsBoneB )
   {
-    vmovups xmm6, xmmword ptr [rbx+1Ch]
-    vmovups [rsp+188h+var_128], xmm6
-  }
-  if ( _RDI )
-  {
-    __asm { vmovups xmm7, xmmword ptr [rdi+1Ch] }
+    parentBoneQuat = physicsBoneB->state.rotationQuat;
   }
   else
   {
-    if ( _RBX->parentPhysicsBoneIndex != 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1848, ASSERT_TYPE_ASSERT, "(physicsBoneA->parentPhysicsBoneIndex == XANIM_NO_PHYSICS_BONE_INDEX)", (const char *)&queryFormat, "physicsBoneA->parentPhysicsBoneIndex == XANIM_NO_PHYSICS_BONE_INDEX") )
+    if ( physicsBoneA->parentPhysicsBoneIndex != 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1848, ASSERT_TYPE_ASSERT, "(physicsBoneA->parentPhysicsBoneIndex == XANIM_NO_PHYSICS_BONE_INDEX)", (const char *)&queryFormat, "physicsBoneA->parentPhysicsBoneIndex == XANIM_NO_PHYSICS_BONE_INDEX") )
       __debugbreak();
-    __asm { vmovups xmm7, xmmword ptr [rbx+0D0h] }
+    parentBoneQuat = physicsBoneA->parentBoneQuat;
   }
-  __asm { vmovss  xmm0, dword ptr [rsi] }
-  HIDWORD(v255) = 0;
+  v12 = twistAxis->v[0];
+  v125.m128_i32[3] = 0;
+  v14 = v125;
+  v14.m128_f32[0] = v12;
+  _XMM11 = v14;
+  v15 = twistU->v[0];
   __asm
   {
-    vmovups xmm11, xmmword ptr [rsp+90h]
-    vmovss  xmm11, xmm11, xmm0
-    vmovss  xmm0, dword ptr [rbp+0]
     vinsertps xmm11, xmm11, dword ptr [rsi+4], 10h
     vinsertps xmm11, xmm11, dword ptr [rsi+8], 20h ; ' '
-    vmovups xmmword ptr [rsp+90h], xmm11
   }
-  HIDWORD(v255) = 0;
+  v125 = _XMM11;
+  v125.m128_i32[3] = 0;
+  v19 = v125;
+  v19.m128_f32[0] = v15;
+  _XMM3 = v19;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+90h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rbp+4], 10h
     vinsertps xmm3, xmm3, dword ptr [rbp+8], 20h ; ' '
-    vmovss  xmm0, dword ptr [r14]
-    vmovups xmmword ptr [rsp+90h], xmm3
   }
-  v256.v.m128_i32[3] = 0;
-  __asm { vmovups xmm15, [rsp+188h+var_E8] }
-  _RAX = _RBX->properties;
+  v22 = twistV->v[0];
+  v125 = _XMM3;
+  v126.v.m128_i32[3] = 0;
+  v = v126.v;
+  v.m128_f32[0] = v22;
+  _XMM15 = v;
   __asm
   {
-    vmovss  xmm15, xmm15, xmm0
     vinsertps xmm15, xmm15, dword ptr [r14+4], 10h
     vinsertps xmm15, xmm15, dword ptr [r14+8], 20h ; ' '
-    vmovups xmm0, xmmword ptr [rax+44h]
-    vshufps xmm12, xmm0, xmm0, 0C9h ; 'É'
-    vshufps xmm14, xmm0, xmm0, 0D2h ; 'Ò'
-    vshufps xmm13, xmm0, xmm0, 0FFh
-    vshufps xmm9, xmm11, xmm11, 0C9h ; 'É'
-    vshufps xmm8, xmm11, xmm11, 0D2h ; 'Ò'
-    vmulps  xmm1, xmm12, xmm8
-    vmulps  xmm0, xmm14, xmm9
-    vsubps  xmm2, xmm1, xmm0
-    vaddps  xmm4, xmm2, xmm2
-    vmulps  xmm0, xmm13, xmm4
-    vaddps  xmm5, xmm0, xmm11
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm14
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm12
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm10, xmm1, xmm5
-    vshufps xmm3, xmm6, xmm6, 0FFh
-    vmovups [rsp+188h+var_158], xmm7
-    vshufps xmm7, xmm6, xmm6, 0D2h ; 'Ò'
-    vmulps  xmm0, xmm7, xmm9
-    vshufps xmm6, xmm6, xmm6, 0C9h ; 'É'
-    vmulps  xmm1, xmm6, xmm8
-    vsubps  xmm2, xmm1, xmm0
-    vaddps  xmm4, xmm2, xmm2
-    vmulps  xmm0, xmm3, xmm4
-    vaddps  xmm5, xmm0, xmm11
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm7
-    vmovups xmm0, [rsp+188h+var_158]
-    vshufps xmm7, xmm0, xmm0, 0D2h ; 'Ò'
-    vshufps xmm8, xmm0, xmm0, 0FFh
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm9, xmm1, xmm5
-    vshufps xmm1, xmm10, xmm10, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm7
-    vshufps xmm0, xmm10, xmm10, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm8, xmm4
-    vaddps  xmm5, xmm0, xmm10
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm2, xmm0, xmm7
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm0, xmm1, xmm5
-    vmovups [rsp+188h+var_E8], xmm15
-    vmovups [rsp+188h+var_108], xmm0
-    vmovdqa [rsp+188h+var_148], xmm0
-    vmovups [rsp+188h+var_118], xmm9
-    vmovdqa [rsp+188h+var_E8], xmm9
   }
-  XAnimBonePhysics_CalculateShortestRotationQuaternion(&v250, &v256, &v251);
+  localBasePoseQuat = physicsBoneA->properties->localBasePoseQuat;
+  v28 = _mm_shuffle_ps((__m128)localBasePoseQuat, (__m128)localBasePoseQuat, 201);
+  v29 = _mm_shuffle_ps((__m128)localBasePoseQuat, (__m128)localBasePoseQuat, 210);
+  v30 = _mm_shuffle_ps((__m128)localBasePoseQuat, (__m128)localBasePoseQuat, 255);
+  v31 = _mm_shuffle_ps(_XMM11, _XMM11, 201);
+  v32 = _mm_shuffle_ps(_XMM11, _XMM11, 210);
+  v33 = _mm128_sub_ps(_mm128_mul_ps(v28, v32), _mm128_mul_ps(v29, v31));
+  v34 = _mm128_add_ps(v33, v33);
+  v35 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v34, v34, 210), v28), _mm128_mul_ps(_mm_shuffle_ps(v34, v34, 201), v29)), _mm128_add_ps(_mm128_mul_ps(v30, v34), _XMM11));
+  v36 = _mm_shuffle_ps((__m128)rotationQuat, (__m128)rotationQuat, 255);
+  v119 = (__m128)parentBoneQuat;
+  v37 = _mm_shuffle_ps((__m128)rotationQuat, (__m128)rotationQuat, 210);
+  v38 = _mm_shuffle_ps((__m128)rotationQuat, (__m128)rotationQuat, 201);
+  v39 = _mm128_sub_ps(_mm128_mul_ps(v38, v32), _mm128_mul_ps(v37, v31));
+  v40 = _mm128_add_ps(v39, v39);
+  v41 = _mm128_add_ps(_mm128_mul_ps(v36, v40), _XMM11);
+  v42 = _mm128_mul_ps(_mm_shuffle_ps(v40, v40, 201), v37);
+  v43 = v119;
+  v44 = _mm_shuffle_ps(v43, v43, 210);
+  v45 = _mm_shuffle_ps(v43, v43, 255);
+  v46 = _mm128_mul_ps(_mm_shuffle_ps(v40, v40, 210), v38);
+  v47 = _mm_shuffle_ps(v43, v43, 201);
+  v48 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v35, v35, 210), v47), _mm128_mul_ps(_mm_shuffle_ps(v35, v35, 201), v44));
+  v49 = _mm128_add_ps(v48, v48);
+  v124 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v49, v49, 210), v47), _mm128_mul_ps(_mm_shuffle_ps(v49, v49, 201), v44)), _mm128_add_ps(_mm128_mul_ps(v45, v49), v35));
+  v120.v = v124;
+  v123 = _mm128_add_ps(_mm128_sub_ps(v46, v42), v41);
+  v126.v = v123;
+  XAnimBonePhysics_CalculateShortestRotationQuaternion(&v120, &v126, &v121);
+  v50 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v125, v125, 210), v28), _mm128_mul_ps(_mm_shuffle_ps(v125, v125, 201), v29));
+  v51 = _mm128_add_ps(v50, v50);
+  v52 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v51, v51, 210), v28), _mm128_mul_ps(_mm_shuffle_ps(v51, v51, 201), v29)), _mm128_add_ps(_mm128_mul_ps(v30, v51), v125));
+  v53 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM15, _XMM15, 210), v28), _mm128_mul_ps(_mm_shuffle_ps(_XMM15, _XMM15, 201), v29));
+  v54 = _mm128_add_ps(v53, v53);
+  v55 = _mm128_add_ps(_mm128_mul_ps(v30, v54), _XMM15);
+  v56 = _mm128_mul_ps(_mm_shuffle_ps(v54, v54, 201), v29);
+  v57 = _mm_shuffle_ps(v54, v54, 210);
+  v58 = v121.v;
+  v59 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(v57, v28), v56), v55);
+  v60 = _mm_shuffle_ps(v58, v58, 255);
+  _XMM0 = _mm128_mul_ps(v121.v, v119);
   __asm
   {
-    vmovups xmm5, xmmword ptr [rsp+90h]
-    vshufps xmm0, xmm5, xmm5, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm12
-    vshufps xmm1, xmm5, xmm5, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm14
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm13, xmm4
-    vaddps  xmm5, xmm0, xmm5
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm14
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm12
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm10, xmm1, xmm5
-    vshufps xmm1, xmm15, xmm15, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm14
-    vshufps xmm0, xmm15, xmm15, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm12
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm13, xmm4
-    vaddps  xmm5, xmm0, xmm15
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm14
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmovups xmm4, [rsp+188h+var_138]
-    vmulps  xmm3, xmm1, xmm12
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm11, xmm1, xmm5
-    vshufps xmm5, xmm4, xmm4, 0FFh
-    vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vmulps  xmm0, xmm4, [rsp+188h+var_158]
-    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm7
     vinsertps xmm1, xmm0, xmm0, 8
-    vsubps  xmm6, xmm2, xmm3
     vhaddps xmm2, xmm1, xmm1
-    vmulps  xmm1, xmm5, [rsp+188h+var_158]
     vhaddps xmm3, xmm2, xmm2
-    vmulps  xmm4, xmm4, xmm8
-    vaddps  xmm1, xmm4, xmm1
-    vmulps  xmm0, xmm8, xmm5
-    vsubps  xmm2, xmm0, xmm3
-    vaddps  xmm0, xmm6, xmm1
-    vblendps xmm8, xmm2, xmm0, 7
-    vmovups xmm0, [rsp+188h+var_128]
-    vmulps  xmm4, xmm0, cs:__xmm@3f800000bf800000bf800000bf800000
-    vshufps xmm7, xmm8, xmm8, 0FFh
-    vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-    vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-    vshufps xmm2, xmm8, xmm8, 0D2h ; 'Ò'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm5, xmm0, xmm3
-    vmulps  xmm1, xmm8, xmm4
+  }
+  _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v45, v60), _XMM3);
+  _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v58, v58, 201), v44), _mm128_mul_ps(_mm_shuffle_ps(v58, v58, 210), v47)), _mm128_add_ps(_mm128_mul_ps(v121.v, v45), _mm128_mul_ps(v60, v119)));
+  __asm { vblendps xmm8, xmm2, xmm0, 7 }
+  v67 = _mm128_mul_ps(v122, (__m128)_xmm);
+  v68 = _mm_shuffle_ps(_XMM8, _XMM8, 255);
+  _XMM1 = _mm128_mul_ps(_XMM8, v67);
+  __asm
+  {
     vinsertps xmm0, xmm1, xmm1, 8
     vhaddps xmm2, xmm0, xmm0
-    vshufps xmm6, xmm4, xmm4, 0FFh
-    vhaddps xmm3, xmm2, xmm2
-    vmulps  xmm0, xmm7, xmm6
-    vsubps  xmm2, xmm0, xmm3
-    vmulps  xmm4, xmm7, xmm4
-    vmulps  xmm1, xmm8, xmm6
-    vaddps  xmm1, xmm4, xmm1
-    vaddps  xmm0, xmm5, xmm1
-    vblendps xmm3, xmm2, xmm0, 7
-    vmulps  xmm1, xmm3, xmm3
-    vhaddps xmm0, xmm1, xmm1
-    vhaddps xmm0, xmm0, xmm0
-    vsqrtps xmm1, xmm0
-    vdivps  xmm2, xmm3, xmm1
-    vshufps xmm7, xmm2, xmm2, 0C9h ; 'É'
-    vshufps xmm0, xmm10, xmm10, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm7
-    vshufps xmm8, xmm2, xmm2, 0FFh
-    vshufps xmm9, xmm2, xmm2, 0D2h ; 'Ò'
-    vshufps xmm1, xmm10, xmm10, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm9
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm8, xmm4
-    vaddps  xmm5, xmm0, xmm10
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm9
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm7
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm6, xmm1, xmm5
-    vshufps xmm1, xmm11, xmm11, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm9
-    vshufps xmm0, xmm11, xmm11, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm7
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm8, xmm4
-    vaddps  xmm5, xmm0, xmm11
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm9
-    vmulps  xmm0, xmm6, xmmword ptr [rsp+90h]
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm7
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm4, xmm1, xmm5
-    vinsertps xmm1, xmm0, xmm0, 8
-    vmulps  xmm0, xmm4, xmmword ptr [rsp+90h]
-    vhaddps xmm5, xmm1, xmm1
-    vinsertps xmm1, xmm0, xmm0, 8
-    vmovups xmm0, [rsp+188h+var_118]
-    vaddps  xmm2, xmm0, [rsp+188h+var_108]
-    vhaddps xmm3, xmm1, xmm1
-    vhaddps xmm6, xmm5, xmm5
-    vmulps  xmm0, xmm2, xmm2
-    vhaddps xmm1, xmm0, xmm0
-    vhaddps xmm0, xmm1, xmm1
-    vsqrtps xmm1, xmm0
-    vdivps  xmm2, xmm2, xmm1
-    vhaddps xmm7, xmm3, xmm3
-    vandps  xmm0, xmm7, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm3, xmm0, cs:__real@2edbe6ff
-    vaddss  xmm4, xmm3, xmm6
-    vxorps  xmm5, xmm5, xmm5
-    vsubss  xmm1, xmm6, xmm3
-    vcmpless xmm0, xmm5, xmm6
-    vmovups xmmword ptr [r15], xmm2
-    vblendvps xmm2, xmm4, xmm1, xmm0
-    vsubss  xmm1, xmm3, xmm6
-    vcmpless xmm0, xmm5, xmm6
-    vblendvps xmm0, xmm1, xmm4, xmm0
-    vdivss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm3, cs:__real@3e4902de
-    vmulss  xmm2, xmm1, xmm3
-    vsubss  xmm0, xmm2, cs:__real@3f7b50b1
-    vmovss  xmm1, cs:__real@3f490fdb
-    vmulss  xmm4, xmm0, xmm3
-    vmovss  xmm0, cs:__real@4016cbe4
-    vcmpless xmm2, xmm5, xmm6
-    vblendvps xmm1, xmm0, xmm1, xmm2
-    vaddss  xmm3, xmm4, xmm1
-    vxorps  xmm1, xmm3, cs:__xmm@80000000800000008000000080000000
-    vcmpless xmm0, xmm5, xmm7
-    vblendvps xmm0, xmm1, xmm3, xmm0
-    vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
   }
-  _R11 = &v257;
+  v72 = _mm_shuffle_ps(v67, v67, 255);
+  __asm { vhaddps xmm3, xmm2, xmm2 }
+  _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v68, v72), _XMM3);
+  _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 210), _mm_shuffle_ps(v67, v67, 201)), _mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 201), _mm_shuffle_ps(v67, v67, 210))), _mm128_add_ps(_mm128_mul_ps(v68, v67), _mm128_mul_ps(_XMM8, v72)));
+  __asm { vblendps xmm3, xmm2, xmm0, 7 }
+  _XMM1 = _mm128_mul_ps(_XMM3, _XMM3);
   __asm
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+    vhaddps xmm0, xmm1, xmm1
+    vhaddps xmm0, xmm0, xmm0
   }
-  return *(float *)&_XMM0;
+  v79 = _mm128_div_ps(_XMM3, _mm_sqrt_ps(_XMM0));
+  v80 = _mm_shuffle_ps(v79, v79, 201);
+  v81 = _mm_shuffle_ps(v79, v79, 255);
+  v82 = _mm_shuffle_ps(v79, v79, 210);
+  v83 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v52, v52, 210), v80), _mm128_mul_ps(_mm_shuffle_ps(v52, v52, 201), v82));
+  v84 = _mm128_add_ps(v83, v83);
+  v85 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v84, v84, 210), v80), _mm128_mul_ps(_mm_shuffle_ps(v84, v84, 201), v82)), _mm128_add_ps(_mm128_mul_ps(v81, v84), v52));
+  v86 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v59, v59, 210), v80), _mm128_mul_ps(_mm_shuffle_ps(v59, v59, 201), v82));
+  v87 = _mm128_add_ps(v86, v86);
+  _XMM0 = _mm128_mul_ps(v85, v125);
+  __asm { vinsertps xmm1, xmm0, xmm0, 8 }
+  _XMM0 = _mm128_mul_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v87, v87, 210), v80), _mm128_mul_ps(_mm_shuffle_ps(v87, v87, 201), v82)), _mm128_add_ps(_mm128_mul_ps(v81, v87), v59)), v125);
+  __asm
+  {
+    vhaddps xmm5, xmm1, xmm1
+    vinsertps xmm1, xmm0, xmm0, 8
+  }
+  v93 = _mm128_add_ps(v123, v124);
+  __asm
+  {
+    vhaddps xmm3, xmm1, xmm1
+    vhaddps xmm6, xmm5, xmm5
+  }
+  _XMM0 = _mm128_mul_ps(v93, v93);
+  __asm
+  {
+    vhaddps xmm1, xmm0, xmm0
+    vhaddps xmm0, xmm1, xmm1
+  }
+  v99.v = _mm128_div_ps(v93, _mm_sqrt_ps(_XMM0));
+  __asm { vhaddps xmm7, xmm3, xmm3 }
+  v102 = _XMM7 & _xmm;
+  *(float *)&v102 = COERCE_FLOAT(_XMM7 & _xmm) + 1.0e-10;
+  v101 = v102;
+  *(float *)&v102 = *(float *)&v102 + *(float *)&_XMM6;
+  _XMM4 = v102;
+  _XMM5 = 0i64;
+  __asm { vcmpless xmm0, xmm5, xmm6 }
+  *outCorrectionAxis = (float4)v99.v;
+  __asm { vblendvps xmm2, xmm4, xmm1, xmm0 }
+  v108 = v101;
+  *(float *)&v108 = *(float *)&v101 - *(float *)&_XMM6;
+  _XMM1 = v108;
+  __asm
+  {
+    vcmpless xmm0, xmm5, xmm6
+    vblendvps xmm0, xmm1, xmm4, xmm0
+  }
+  v111 = _XMM2;
+  *(float *)&v111 = (float)((float)((float)((float)(*(float *)&_XMM2 / *(float *)&_XMM0) * 0.1963) * (float)(*(float *)&_XMM2 / *(float *)&_XMM0)) - 0.9817) * (float)(*(float *)&_XMM2 / *(float *)&_XMM0);
+  _XMM0 = LODWORD(FLOAT_2_3561945);
+  __asm
+  {
+    vcmpless xmm2, xmm5, xmm6
+    vblendvps xmm1, xmm0, xmm1, xmm2
+  }
+  *(float *)&v111 = *(float *)&v111 + *(float *)&_XMM1;
+  _XMM1 = v111 ^ _xmm;
+  __asm
+  {
+    vcmpless xmm0, xmm5, xmm7
+    vblendvps xmm0, xmm1, xmm3, xmm0
+  }
+  LODWORD(result) = _XMM0 ^ _xmm;
+  return result;
 }
 
 /*
@@ -3011,161 +2389,99 @@ XAnimBonePhysics_GenerateAudioEvents
 */
 void XAnimBonePhysics_GenerateAudioEvents(XAnimBonePhysicsUpdateContext *context, int numContacts)
 {
-  __int64 v8; 
-  const dvar_t *v11; 
+  const dvar_t *v2; 
+  __int64 v3; 
+  float value; 
+  const dvar_t *v6; 
   int integer; 
-  __int64 v14; 
-  __int64 v15; 
-  __int64 v16; 
+  __int64 v8; 
+  __int64 v9; 
+  __int64 v10; 
   XAnimCollisionContact *contacts; 
   __int64 bodyIndex; 
-  char v42; 
-  bool v43; 
-  unsigned __int8 v57; 
-  const SndAliasLookup *p_lightHitSound; 
-  float fmt; 
-  __int64 v65; 
-  char v66[16]; 
+  XAnimPhysicsBone *v13; 
+  char *p_pointA; 
+  float v15; 
+  const XAnimDynamicBoneProperties *properties; 
+  unsigned __int8 v17; 
+  const SndAliasLookup *p_heavyHitSound; 
+  __int64 v19; 
+  char v20[16]; 
   vec3_t outTransformedPoint; 
 
-  __asm { vmovaps [rsp+0F8h+var_68], xmm9 }
-  _RBX = DCONST_DVARFLT_xanim_physicsAudioMinHitDistance;
-  v8 = (unsigned int)numContacts;
+  v2 = DCONST_DVARFLT_xanim_physicsAudioMinHitDistance;
+  v3 = (unsigned int)numContacts;
   if ( !DCONST_DVARFLT_xanim_physicsAudioMinHitDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsAudioMinHitDistance") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm9, dword ptr [rbx+28h] }
-  v11 = DCONST_DVARINT_xanim_physicsAudioEventWaitTime;
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  v6 = DCONST_DVARINT_xanim_physicsAudioEventWaitTime;
   if ( !DCONST_DVARINT_xanim_physicsAudioEventWaitTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsAudioEventWaitTime") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  integer = v11->current.integer;
+  Dvar_CheckFrontendServerThread(v6);
+  integer = v6->current.integer;
   if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2704, ASSERT_TYPE_ASSERT, "(context != 0)", (const char *)&queryFormat, "context != NULL") )
     __debugbreak();
-  if ( (int)v8 > 0 )
+  if ( (int)v3 > 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_78], xmm10
-      vmovss  xmm10, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+0F8h+var_38], xmm6
-    }
-    v14 = 0i64;
-    v15 = v8;
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_48], xmm7
-      vmovaps [rsp+0F8h+var_58], xmm8
-    }
-    v16 = 0i64;
-    v65 = v8;
+    v8 = 0i64;
+    v9 = v3;
+    v10 = 0i64;
+    v19 = v3;
     while ( 1 )
     {
       contacts = context->contacts;
-      bodyIndex = context->contacts[v14].bodyIndex;
-      _RBX = &context->procBones->physicsBones[bodyIndex];
-      if ( (_RBX->flags & 0x10) != 0 )
+      bodyIndex = context->contacts[v8].bodyIndex;
+      v13 = &context->procBones->physicsBones[bodyIndex];
+      if ( (v13->flags & 0x10) != 0 )
         break;
 LABEL_35:
-      ++v16;
-      ++v14;
-      v65 = --v15;
-      if ( !v15 )
-      {
-        __asm
-        {
-          vmovaps xmm10, [rsp+0F8h+var_78]
-          vmovaps xmm8, [rsp+0F8h+var_58]
-          vmovaps xmm7, [rsp+0F8h+var_48]
-          vmovaps xmm6, [rsp+0F8h+var_38]
-        }
-        goto LABEL_37;
-      }
+      ++v10;
+      ++v8;
+      v19 = --v9;
+      if ( !v9 )
+        return;
     }
-    if ( _RBX->state.audioEventTimer )
+    if ( v13->state.audioEventTimer )
     {
       if ( integer < 0 || (unsigned int)integer > 0xFF )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)integer, "signed", integer) )
           __debugbreak();
-        v15 = v65;
+        v9 = v19;
       }
-      _RBX->state.audioEventTimer = integer;
+      v13->state.audioEventTimer = integer;
       goto LABEL_35;
     }
-    _R13 = (char *)&contacts[v14].pointA;
-    if ( &_RBX->state.angularVelocity == (vec3_t *)v66 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
+    p_pointA = (char *)&contacts[v8].pointA;
+    if ( &v13->state.angularVelocity == (vec3_t *)v20 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
       __debugbreak();
-    if ( _R13 == v66 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
+    if ( p_pointA == v20 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
       __debugbreak();
-    __asm
+    v15 = (float)((float)((float)((float)((float)(v13->state.angularVelocity.v[2] * *(float *)p_pointA) - (float)(contacts[v8].pointA.v[2] * v13->state.angularVelocity.v[0])) + v13->state.velocity.v[1]) * context->contacts[v8].normal.v[1]) + (float)((float)((float)((float)(v13->state.angularVelocity.v[1] * contacts[v8].pointA.v[2]) - (float)(v13->state.angularVelocity.v[2] * contacts[v8].pointA.v[1])) + v13->state.velocity.v[0]) * context->contacts[v8].normal.v[0])) + (float)((float)((float)((float)(contacts[v8].pointA.v[1] * v13->state.angularVelocity.v[0]) - (float)(v13->state.angularVelocity.v[1] * *(float *)p_pointA)) + v13->state.velocity.v[2]) * context->contacts[v8].normal.v[2]);
+    QuatTrans_TransformPoint(&v13->state.rotationQuat, &v13->state.position, &contacts[v8].pointA, &outTransformedPoint);
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(outTransformedPoint.v[1] - contacts[v8].pointB.v[1]) * contacts[v8].normal.v[1]) + (float)((float)(outTransformedPoint.v[0] - contacts[v8].pointB.v[0]) * contacts[v8].normal.v[0])) + (float)((float)(outTransformedPoint.v[2] - contacts[v8].pointB.v[2]) * contacts[v8].normal.v[2])) & _xmm) >= value )
     {
-      vmovss  xmm3, dword ptr [r13+8]
-      vmovss  xmm8, dword ptr [rbx+64h]
-      vmovss  xmm2, dword ptr [rbx+68h]
-      vmovss  xmm5, dword ptr [r13+4]
-      vmulss  xmm0, xmm2, xmm5
-      vmulss  xmm2, xmm2, dword ptr [r13+0]
-      vmulss  xmm1, xmm8, xmm3
-      vsubss  xmm1, xmm1, xmm0
-      vaddss  xmm7, xmm1, dword ptr [rbx+54h]
-      vmulss  xmm0, xmm3, dword ptr [rbx+60h]
-      vsubss  xmm1, xmm2, xmm0
-      vaddss  xmm3, xmm1, dword ptr [rbx+58h]
-      vmulss  xmm2, xmm5, dword ptr [rbx+60h]
-      vmulss  xmm0, xmm8, dword ptr [r13+0]
-      vsubss  xmm1, xmm2, xmm0
-      vaddss  xmm4, xmm1, dword ptr [rbx+5Ch]
-      vmulss  xmm1, xmm3, dword ptr [r14+rax+20h]
-      vmulss  xmm0, xmm7, dword ptr [r14+rax+1Ch]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, dword ptr [r14+rax+24h]
-      vaddss  xmm6, xmm2, xmm1
-    }
-    QuatTrans_TransformPoint(&_RBX->state.rotationQuat, &_RBX->state.position, &contacts[v14].pointA, &outTransformedPoint);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0F8h+outTransformedPoint+4]
-      vsubss  xmm1, xmm0, dword ptr [r14+rbp+14h]
-      vmulss  xmm3, xmm1, dword ptr [r14+rbp+20h]
-      vmovss  xmm2, dword ptr [rsp+0F8h+outTransformedPoint]
-      vsubss  xmm0, xmm2, dword ptr [r14+rbp+10h]
-      vmulss  xmm1, xmm0, dword ptr [r14+rbp+1Ch]
-      vmovss  xmm2, dword ptr [rsp+0F8h+outTransformedPoint+8]
-      vsubss  xmm0, xmm2, dword ptr [r14+rbp+18h]
-      vaddss  xmm4, xmm3, xmm1
-      vmulss  xmm1, xmm0, dword ptr [r14+rbp+24h]
-      vaddss  xmm3, xmm4, xmm1
-      vandps  xmm3, xmm3, xmm10
-      vcomiss xmm3, xmm9
-    }
-    if ( !v42 )
-    {
-      _RAX = _RBX->properties;
-      __asm { vcomiss xmm6, dword ptr [rax+7Ch] }
-      if ( v42 | v43 || (v42 = 0, v43 = _RAX->heavyHitSound.name == NULL, !_RAX->heavyHitSound.name) )
+      properties = v13->properties;
+      if ( v15 > properties->heavyHitThreshold && properties->heavyHitSound.name )
       {
-        __asm { vcomiss xmm6, dword ptr [rax+78h] }
-        if ( v42 | v43 || !_RAX->lightHitSound.name )
-          goto LABEL_34;
-        v57 = truncate_cast<unsigned char,int>(integer);
-        p_lightHitSound = &_RBX->properties->lightHitSound;
+        v17 = truncate_cast<unsigned char,int>(integer);
+        p_heavyHitSound = &v13->properties->heavyHitSound;
       }
       else
       {
-        v57 = truncate_cast<unsigned char,int>(integer);
-        p_lightHitSound = &_RBX->properties->heavyHitSound;
+        if ( v15 <= properties->lightHitThreshold || !properties->lightHitSound.name )
+          goto LABEL_34;
+        v17 = truncate_cast<unsigned char,int>(integer);
+        p_heavyHitSound = &v13->properties->lightHitSound;
       }
-      _RBX->state.audioEventTimer = v57;
-      __asm { vmovss  dword ptr [rsp+0F8h+fmt], xmm6 }
-      XAnimBonePhysics_AddAudioEvent(context->procBones, (unsigned __int8)bodyIndex, &context->contacts[v16].pointB, p_lightHitSound, fmt);
+      v13->state.audioEventTimer = v17;
+      XAnimBonePhysics_AddAudioEvent(context->procBones, (unsigned __int8)bodyIndex, &context->contacts[v10].pointB, p_heavyHitSound, v15);
     }
 LABEL_34:
-    v15 = v65;
+    v9 = v19;
     goto LABEL_35;
   }
-LABEL_37:
-  __asm { vmovaps xmm9, [rsp+0F8h+var_68] }
 }
 
 /*
@@ -3175,52 +2491,28 @@ XAnimBonePhysics_GetModelSpaceGroundPlane
 */
 void XAnimBonePhysics_GetModelSpaceGroundPlane(const DObjProceduralBones *procBones, vec4_t *outModelGroundPlane)
 {
-  const DObjProceduralBones *v6; 
-  int v19; 
-  vec3_t in; 
-  __int128 v22; 
+  float groundPlaneHeight; 
+  __int128 in; 
+  __int128 v8; 
   vec3_t outInvTrans; 
   vec3_t to; 
   vec4_t outInvQuat; 
 
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rcx+12Ch]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0A8h+var_78], xmm1
-  }
-  _RSI = outModelGroundPlane;
-  v6 = procBones;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0A8h+in], xmm0
-    vmovss  dword ptr [rsp+0A8h+in+4], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  dword ptr [rsp+0A8h+in+8], xmm0
-    vmovss  [rsp+0A8h+var_64], xmm1
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 987, ASSERT_TYPE_ASSERT, "(!IS_NAN( worldGroundPlane[3] ))", (const char *)&queryFormat, "!IS_NAN( worldGroundPlane[3] )") )
+  groundPlaneHeight = procBones->physicsState.groundPlaneHeight;
+  *(float *)&in = 0.0;
+  *((float *)&in + 1) = 0.0;
+  *((float *)&in + 2) = FLOAT_1_0;
+  *((float *)&in + 3) = groundPlaneHeight;
+  if ( (LODWORD(groundPlaneHeight) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 987, ASSERT_TYPE_ASSERT, "(!IS_NAN( worldGroundPlane[3] ))", (const char *)&queryFormat, "!IS_NAN( worldGroundPlane[3] )", groundPlaneHeight, in) )
     __debugbreak();
-  if ( v6 == (const DObjProceduralBones *)-96i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 145, ASSERT_TYPE_ASSERT, "(dObjPhysicsState)", (const char *)&queryFormat, "dObjPhysicsState") )
+  if ( procBones == (const DObjProceduralBones *)-96i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 145, ASSERT_TYPE_ASSERT, "(dObjPhysicsState)", (const char *)&queryFormat, "dObjPhysicsState") )
     __debugbreak();
-  GetSecureRootVec3(&v6->physicsState.rootTrans.rootTrans, &to, s_bones_aab_X, s_bones_aab_Y, s_bones_aab_Z);
-  QuatTrans_Inverse(&v6->physicsState.rootQuat, &to, &outInvQuat, &outInvTrans);
-  QuatTransform(&outInvQuat, &in, (vec3_t *)&v22);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0A8h+var_60]
-    vmulss  xmm3, xmm0, dword ptr [rsp+0A8h+outInvTrans]
-    vmovss  xmm1, dword ptr [rsp+0A8h+var_60+4]
-    vmulss  xmm2, xmm1, dword ptr [rsp+0A8h+outInvTrans+4]
-    vmovss  xmm0, dword ptr [rsp+0A8h+var_60+8]
-    vmulss  xmm1, xmm0, dword ptr [rsp+0A8h+outInvTrans+8]
-    vmovups xmm0, [rsp+0A8h+var_60]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vaddss  xmm3, xmm2, [rsp+0A8h+var_64]
-    vinsertps xmm0, xmm0, xmm3, 30h ; '0'
-    vmovups xmmword ptr [rsi], xmm0
-  }
+  GetSecureRootVec3(&procBones->physicsState.rootTrans.rootTrans, &to, s_bones_aab_X, s_bones_aab_Y, s_bones_aab_Z);
+  QuatTrans_Inverse(&procBones->physicsState.rootQuat, &to, &outInvQuat, &outInvTrans);
+  QuatTransform(&outInvQuat, (const vec3_t *)&in, (vec3_t *)&v8);
+  _XMM0 = v8;
+  __asm { vinsertps xmm0, xmm0, xmm3, 30h ; '0' }
+  *outModelGroundPlane = _XMM0;
 }
 
 /*
@@ -3230,770 +2522,423 @@ XAnimBonePhysics_Integrate
 */
 void XAnimBonePhysics_Integrate(XAnimProcNodeCalcParams *params, DObjProceduralBones *procBones, unsigned int firstPhysicsBoneIndex, unsigned int endPhysicsBoneIndex, float timeStep)
 {
-  __int64 v16; 
+  __int64 v5; 
   const DObj *obj; 
-  const dvar_t *v52; 
-  __int64 v142; 
-  char v171; 
-  char v172; 
+  __m128 v10; 
+  __m128 v11; 
+  float v12; 
+  __m128 v15; 
+  float v16; 
+  __m128 v20; 
+  float v23; 
+  __m128 v25; 
+  __m128 v30; 
+  const dvar_t *v32; 
+  __m128 v33; 
+  __m128 v35; 
+  __m128 idleVelocityWeight_low; 
+  __m128 v39; 
+  __m128 v40; 
+  __m128 v41; 
+  __m128 v42; 
+  __m128 v43; 
+  __m128 v44; 
+  __m128 v45; 
+  __m128 v46; 
+  __m128 v47; 
+  __m128 v48; 
+  __m128 v49; 
+  __m128 v50; 
+  __m128 v51; 
+  __m128 v52; 
+  __m128 v53; 
+  __m128 v54; 
+  __m128 v56; 
+  __m128 v57; 
+  __m128 v59; 
+  __int64 v60; 
+  float v62; 
+  __m128 rotationQuat; 
+  __m128 v65; 
+  float v66; 
+  __m128 v70; 
+  float v71; 
+  __m128 v75; 
+  float v78; 
+  __m128 v81; 
+  __m128 v82; 
+  float v83; 
   XAnimDynamicBoneNoiseAxisSpace relative; 
-  XAnimDynamicBoneNoiseAxisSpace v200; 
+  float4 *v85; 
+  __m128 v87; 
+  __m128 v89; 
+  XAnimDynamicBoneNoiseAxisSpace v90; 
+  float4 *v91; 
+  __m128 v93; 
+  const dvar_t *v95; 
+  __m128 v96; 
+  float v103; 
+  const dvar_t *v109; 
+  float v114; 
+  __m128 v120; 
+  __m128 v121; 
+  __m128 v127; 
+  __m128 v130; 
   unsigned __int8 audioEventTimer; 
   float4 *outModelTranslation; 
-  float v310; 
-  float v311; 
-  int v312; 
-  int v313; 
-  int v314; 
-  int v315; 
-  int v316; 
-  int v317; 
-  int v318; 
-  int v319; 
-  int v320; 
-  int v321; 
-  int v322; 
-  int v323; 
-  int v324; 
-  int v325; 
-  int v326; 
-  int v327; 
-  int v328; 
-  int v329; 
-  int v330; 
-  int v331; 
-  int v332; 
-  int v333; 
-  int v334; 
-  int v335; 
-  int v336; 
-  int v337; 
   XAnimPhysicsBone *physicsBones; 
-  float4 v339; 
-  float4 v340; 
-  float4 v348; 
-  float4 v349; 
-  __int128 outAngularVelocity; 
+  float4 v137; 
+  float4 v138; 
+  __m128 v139; 
+  __m128 v140; 
+  __m128 v141; 
+  __m128 v142; 
+  __m128 v143; 
+  __m128 v144; 
+  __m128 v145; 
+  float4 v146; 
+  float4 v147; 
+  __m128 outAngularVelocity; 
   vec3_t outVelocity; 
-  __int128 v352; 
-  __int128 v353; 
-  __int128 v354; 
-  vec4_t v355; 
+  __m128 v150; 
+  __m128 v151; 
+  __m128 v152; 
+  __m128 v; 
   float4 outModelQuat; 
-  float4 v357; 
-  float4 v358; 
-  float4 v359; 
-  char v362; 
-  void *retaddr; 
+  float4 v155; 
+  float4 v156; 
+  float4 v157; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm11
-    vmovaps xmmword ptr [rax-0B8h], xmm12
-    vmovaps xmmword ptr [rax-0D8h], xmm14
-  }
-  v16 = firstPhysicsBoneIndex;
-  _RBX = procBones;
+  v5 = firstPhysicsBoneIndex;
   if ( !params && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1031, ASSERT_TYPE_ASSERT, "(params != 0)", (const char *)&queryFormat, "params != NULL") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1032, ASSERT_TYPE_ASSERT, "(procBones != 0)", (const char *)&queryFormat, "procBones != NULL") )
+  if ( !procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1032, ASSERT_TYPE_ASSERT, "(procBones != 0)", (const char *)&queryFormat, "procBones != NULL") )
     __debugbreak();
   obj = params->obj;
-  physicsBones = _RBX->physicsBones;
-  if ( endPhysicsBoneIndex > _RBX->numPhysicsBones )
+  physicsBones = procBones->physicsBones;
+  if ( endPhysicsBoneIndex > procBones->numPhysicsBones )
   {
     LODWORD(outModelTranslation) = endPhysicsBoneIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1038, ASSERT_TYPE_ASSERT, "( endPhysicsBoneIndex ) <= ( procBones->numPhysicsBones )", "endPhysicsBoneIndex not in [0, procBones->numPhysicsBones]\n\t%u not in [0, %u]", outModelTranslation, _RBX->numPhysicsBones) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1038, ASSERT_TYPE_ASSERT, "( endPhysicsBoneIndex ) <= ( procBones->numPhysicsBones )", "endPhysicsBoneIndex not in [0, procBones->numPhysicsBones]\n\t%u not in [0, %u]", outModelTranslation, procBones->numPhysicsBones) )
       __debugbreak();
   }
-  if ( !(_DWORD)v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1039, ASSERT_TYPE_ASSERT, "( firstPhysicsBoneIndex ) >= ( XANIM_NUM_RESERVED_PHYSICS_BONES )", "%s >= %s\n\t%i, %i", "firstPhysicsBoneIndex", "XANIM_NUM_RESERVED_PHYSICS_BONES", 0, 1) )
+  if ( !(_DWORD)v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1039, ASSERT_TYPE_ASSERT, "( firstPhysicsBoneIndex ) >= ( XANIM_NUM_RESERVED_PHYSICS_BONES )", "%s >= %s\n\t%i, %i", "firstPhysicsBoneIndex", "XANIM_NUM_RESERVED_PHYSICS_BONES", 0, 1) )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, [rbp+1A0h+timeStep]
-    vmovaps xmm14, xmm0
-    vmulss  xmm0, xmm0, cs:__real@3f000000
-    vshufps xmm0, xmm0, xmm0, 0
-    vmovups [rbp+1A0h+var_1C0], xmm0
-    vmovss  xmm0, dword ptr [rbx+0ACh]
-    vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-    vshufps xmm14, xmm14, xmm14, 0
-  }
-  if ( (v312 & 0x7F800000) == 2139095040 )
-    goto LABEL_110;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0B0h]
-    vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-  }
-  if ( (v313 & 0x7F800000) == 2139095040 )
-    goto LABEL_110;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0B4h]
-    vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-  }
-  if ( (v314 & 0x7F800000) == 2139095040 )
-  {
-LABEL_110:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1044, ASSERT_TYPE_ASSERT, "(IS_FINITE((procBones->physicsState.inheritedAcceleration)[0]) && IS_FINITE((procBones->physicsState.inheritedAcceleration)[1]) && IS_FINITE((procBones->physicsState.inheritedAcceleration)[2]))", (const char *)&queryFormat, "IS_FINITE((procBones->physicsState.inheritedAcceleration)[0]) && IS_FINITE((procBones->physicsState.inheritedAcceleration)[1]) && IS_FINITE((procBones->physicsState.inheritedAcceleration)[2])") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0C4h]
-    vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-  }
-  if ( (v315 & 0x7F800000) == 2139095040 )
-    goto LABEL_111;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0C8h]
-    vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-  }
-  if ( (v316 & 0x7F800000) == 2139095040 )
-    goto LABEL_111;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0CCh]
-    vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-  }
-  if ( (v317 & 0x7F800000) == 2139095040 )
-  {
-LABEL_111:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1045, ASSERT_TYPE_ASSERT, "(IS_FINITE((procBones->physicsState.inheritedAngularAcceleration)[0]) && IS_FINITE((procBones->physicsState.inheritedAngularAcceleration)[1]) && IS_FINITE((procBones->physicsState.inheritedAngularAcceleration)[2]))", (const char *)&queryFormat, "IS_FINITE((procBones->physicsState.inheritedAngularAcceleration)[0]) && IS_FINITE((procBones->physicsState.inheritedAngularAcceleration)[1]) && IS_FINITE((procBones->physicsState.inheritedAngularAcceleration)[2])") )
-      __debugbreak();
-  }
-  __asm { vmovss  xmm0, dword ptr [rbx+0ACh] }
+  v10 = (__m128)LODWORD(timeStep);
+  v10.m128_f32[0] = timeStep * 0.5;
+  v145 = _mm_shuffle_ps(v10, v10, 0);
+  v11 = _mm_shuffle_ps((__m128)LODWORD(timeStep), (__m128)LODWORD(timeStep), 0);
+  if ( ((LODWORD(procBones->physicsState.inheritedAcceleration.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(procBones->physicsState.inheritedAcceleration.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(procBones->physicsState.inheritedAcceleration.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1044, ASSERT_TYPE_ASSERT, "(IS_FINITE((procBones->physicsState.inheritedAcceleration)[0]) && IS_FINITE((procBones->physicsState.inheritedAcceleration)[1]) && IS_FINITE((procBones->physicsState.inheritedAcceleration)[2]))", (const char *)&queryFormat, "IS_FINITE((procBones->physicsState.inheritedAcceleration)[0]) && IS_FINITE((procBones->physicsState.inheritedAcceleration)[1]) && IS_FINITE((procBones->physicsState.inheritedAcceleration)[2])") )
+    __debugbreak();
+  if ( ((LODWORD(procBones->physicsState.inheritedAngularAcceleration.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(procBones->physicsState.inheritedAngularAcceleration.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(procBones->physicsState.inheritedAngularAcceleration.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1045, ASSERT_TYPE_ASSERT, "(IS_FINITE((procBones->physicsState.inheritedAngularAcceleration)[0]) && IS_FINITE((procBones->physicsState.inheritedAngularAcceleration)[1]) && IS_FINITE((procBones->physicsState.inheritedAngularAcceleration)[2]))", (const char *)&queryFormat, "IS_FINITE((procBones->physicsState.inheritedAngularAcceleration)[0]) && IS_FINITE((procBones->physicsState.inheritedAngularAcceleration)[1]) && IS_FINITE((procBones->physicsState.inheritedAngularAcceleration)[2])") )
+    __debugbreak();
+  v12 = procBones->physicsState.inheritedAcceleration.v[0];
   _RDI = DCONST_DVARFLT_xanim_physicsExtVelocityScale;
-  HIDWORD(outAngularVelocity) = 0;
+  outAngularVelocity.m128_i32[3] = 0;
+  v15 = outAngularVelocity;
+  v15.m128_f32[0] = v12;
+  _XMM9 = v15;
+  v16 = procBones->physicsState.inheritedAngularAcceleration.v[0];
   __asm
   {
-    vmovups xmm9, xmmword ptr [rbp+10h]
-    vmovss  xmm9, xmm9, xmm0
-    vmovss  xmm0, dword ptr [rbx+0C4h]
     vinsertps xmm9, xmm9, dword ptr [rbx+0B0h], 10h
     vinsertps xmm9, xmm9, dword ptr [rbx+0B4h], 20h ; ' '
-    vmovups xmmword ptr [rbp+10h], xmm9
   }
-  HIDWORD(outAngularVelocity) = 0;
+  outAngularVelocity = _XMM9;
+  outAngularVelocity.m128_i32[3] = 0;
+  v20 = outAngularVelocity;
+  v20.m128_f32[0] = v16;
+  _XMM7 = v20;
   __asm
   {
-    vmovups xmm7, xmmword ptr [rbp+10h]
-    vmovss  xmm7, xmm7, xmm0
     vinsertps xmm7, xmm7, dword ptr [rbx+0C8h], 10h
     vinsertps xmm7, xmm7, dword ptr [rbx+0CCh], 20h ; ' '
-    vmovss  xmm0, dword ptr [rbx+0D0h]
-    vmovups xmmword ptr [rbp+10h], xmm7
   }
-  HIDWORD(outAngularVelocity) = 0;
+  v23 = procBones->physicsState.inheritedVelocity.v[0];
+  outAngularVelocity = _XMM7;
+  outAngularVelocity.m128_i32[3] = 0;
+  v25 = outAngularVelocity;
+  v25.m128_f32[0] = v23;
+  _XMM6 = v25;
   __asm
   {
-    vmovups xmm6, xmmword ptr [rbp+10h]
-    vmovss  xmm6, xmm6, xmm0
     vinsertps xmm6, xmm6, dword ptr [rbx+0D4h], 10h
     vinsertps xmm6, xmm6, dword ptr [rbx+0D8h], 20h ; ' '
-    vmovups xmmword ptr [rbp+10h], xmm6
   }
+  outAngularVelocity = _XMM6;
   if ( !DCONST_DVARFLT_xanim_physicsExtVelocityScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsExtVelocityScale") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(_RDI);
   __asm { vbroadcastss xmm0, dword ptr [rdi+28h] }
   _RDI = DCONST_DVARFLT_xanim_physicsExtAngularAccelScale;
-  __asm { vmulps  xmm12, xmm0, xmm6 }
+  v30 = _mm128_mul_ps(_XMM0, _XMM6);
   if ( !DCONST_DVARFLT_xanim_physicsExtAngularAccelScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsExtAngularAccelScale") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(_RDI);
   __asm { vbroadcastss xmm0, dword ptr [rdi+28h] }
-  v52 = DCONST_DVARFLT_xanim_physicsIdleVelocityScale;
-  HIDWORD(outAngularVelocity) = 0;
+  v32 = DCONST_DVARFLT_xanim_physicsIdleVelocityScale;
+  outAngularVelocity.m128_i32[3] = 0;
+  v33 = _mm128_mul_ps(_XMM0, _XMM7);
+  v35 = outAngularVelocity;
+  v35.m128_f32[0] = procBones->physicsState.prevAngularVelocity.v[0];
+  _XMM6 = v35;
   __asm
   {
-    vmovups xmm6, xmmword ptr [rbp+10h]
-    vmulps  xmm11, xmm0, xmm7
-    vmovss  xmm0, dword ptr [rbx+0B8h]
-    vmovss  xmm6, xmm6, xmm0
     vinsertps xmm6, xmm6, dword ptr [rbx+0BCh], 10h
     vinsertps xmm6, xmm6, dword ptr [rbx+0C0h], 20h ; ' '
-    vmovups xmmword ptr [rbp+10h], xmm6
   }
+  outAngularVelocity = _XMM6;
   if ( !DCONST_DVARFLT_xanim_physicsIdleVelocityScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsIdleVelocityScale") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v52);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0DCh]
-    vmulss  xmm1, xmm0, dword ptr [rdi+28h]
-    vshufps xmm1, xmm1, xmm1, 0
-    vmulps  xmm10, xmm1, xmm6
-  }
+  Dvar_CheckFrontendServerThread(v32);
+  idleVelocityWeight_low = (__m128)LODWORD(procBones->physicsState.idleVelocityWeight);
+  idleVelocityWeight_low.m128_f32[0] = procBones->physicsState.idleVelocityWeight * v32->current.value;
+  v39 = _mm128_mul_ps(_mm_shuffle_ps(idleVelocityWeight_low, idleVelocityWeight_low, 0), _XMM6);
   if ( (obj->skel.partBits.anim.array[0] & 0x80000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1057, ASSERT_TYPE_ASSERT, "(dobj->skel.partBits.anim.testBit( 0 ))", (const char *)&queryFormat, "dobj->skel.partBits.anim.testBit( 0 )") )
     __debugbreak();
-  XAnimGetLocalBoneTransform(params->animCalcInfo, obj, params->destBuffer, 0, &outModelQuat, &v358);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+1A0h+outModelQuat.v]
-    vmulps  xmm0, xmm0, cs:__xmm@3f800000bf800000bf800000bf800000
-    vshufps xmm8, xmm0, xmm0, 0D2h ; 'Ò'
-    vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-    vmovups [rbp+1A0h+var_220], xmm0
-    vshufps xmm7, xmm0, xmm0, 0FFh
-    vshufps xmm0, xmm9, xmm9, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm8
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm7, xmm4
-    vaddps  xmm5, xmm0, xmm9
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm8
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm0, xmm1, xmm5
-    vmovups [rbp+1A0h+var_1F0], xmm0
-    vshufps xmm0, xmm11, xmm11, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vshufps xmm1, xmm11, xmm11, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm8
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm7, xmm4
-    vaddps  xmm5, xmm0, xmm11
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm8
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm11, xmm1, xmm5
-    vshufps xmm1, xmm10, xmm10, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm8
-    vshufps xmm0, xmm10, xmm10, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm7, xmm4
-    vaddps  xmm5, xmm0, xmm10
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm8
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm4, xmm1, xmm5
-    vshufps xmm1, xmm12, xmm12, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm8
-    vshufps xmm0, xmm12, xmm12, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vsubps  xmm0, xmm3, xmm2
-    vmovups [rbp+1A0h+var_1D0], xmm4
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm7, xmm4
-    vaddps  xmm5, xmm0, xmm12
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm8
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm12, xmm1, xmm5
-    vmovups xmm5, cs:__xmm@00000000bf8000000000000000000000
-    vshufps xmm0, xmm5, xmm5, 0D2h ; 'Ò'
-    vshufps xmm1, xmm5, xmm5, 0C9h ; 'É'
-    vmulps  xmm3, xmm0, xmm6
-    vmulps  xmm2, xmm1, xmm8
-    vsubps  xmm0, xmm3, xmm2
-    vmovups [rbp+1A0h+var_200], xmm11
-    vmovups [rbp+1A0h+var_1E0], xmm12
-  }
+  XAnimGetLocalBoneTransform(params->animCalcInfo, obj, params->destBuffer, 0, &outModelQuat, &v156);
+  v40 = _mm128_mul_ps(outModelQuat.v, (__m128)_xmm);
+  v41 = _mm_shuffle_ps(v40, v40, 210);
+  v42 = _mm_shuffle_ps(v40, v40, 201);
+  v139 = v40;
+  v43 = _mm_shuffle_ps(v40, v40, 255);
+  v44 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 210), v42), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 201), v41));
+  v45 = _mm128_add_ps(v44, v44);
+  v142 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v45, v45, 210), v42), _mm128_mul_ps(_mm_shuffle_ps(v45, v45, 201), v41)), _mm128_add_ps(_mm128_mul_ps(v43, v45), _XMM9));
+  v46 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v33, v33, 210), v42), _mm128_mul_ps(_mm_shuffle_ps(v33, v33, 201), v41));
+  v47 = _mm128_add_ps(v46, v46);
+  v48 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v47, v47, 210), v42), _mm128_mul_ps(_mm_shuffle_ps(v47, v47, 201), v41)), _mm128_add_ps(_mm128_mul_ps(v43, v47), v33));
+  v49 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v39, v39, 210), v42), _mm128_mul_ps(_mm_shuffle_ps(v39, v39, 201), v41));
+  v50 = _mm128_add_ps(v49, v49);
+  v51 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v30, v30, 210), v42), _mm128_mul_ps(_mm_shuffle_ps(v30, v30, 201), v41));
+  v144 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v50, v50, 210), v42), _mm128_mul_ps(_mm_shuffle_ps(v50, v50, 201), v41)), _mm128_add_ps(_mm128_mul_ps(v43, v50), v39));
+  v52 = _mm128_add_ps(v51, v51);
+  v53 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v52, v52, 210), v42), _mm128_mul_ps(_mm_shuffle_ps(v52, v52, 201), v41)), _mm128_add_ps(_mm128_mul_ps(v43, v52), v30));
+  v54 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)_xmm, (__m128)_xmm, 210), v42), _mm128_mul_ps(_mm_shuffle_ps((__m128)_xmm, (__m128)_xmm, 201), v41));
+  v141 = v48;
+  v143 = v53;
   _RBX = DVARFLT_xanim_physicsGravity;
-  __asm
-  {
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm7, xmm4
-    vaddps  xmm5, xmm0, xmm5
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm8
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm6, xmm1, xmm5
-  }
+  v56 = _mm128_add_ps(v54, v54);
+  v57 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v56, v56, 210), v42), _mm128_mul_ps(_mm_shuffle_ps(v56, v56, 201), v41)), _mm128_add_ps(_mm128_mul_ps(v43, v56), (__m128)_xmm));
   if ( !DVARFLT_xanim_physicsGravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsGravity") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  __asm { vbroadcastss xmm0, dword ptr [rbx+28h] }
+  v59 = _mm128_mul_ps(_XMM0, v57);
+  v140 = v59;
+  if ( (unsigned int)v5 < endPhysicsBoneIndex )
   {
-    vbroadcastss xmm0, dword ptr [rbx+28h]
-    vmulps  xmm8, xmm0, xmm6
-    vmovups [rbp+1A0h+var_210], xmm8
-  }
-  if ( (unsigned int)v16 < endPhysicsBoneIndex )
-  {
-    __asm
-    {
-      vmovaps xmmword ptr [rsp+2A0h+var_E8+8], xmm15
-      vmovaps xmmword ptr [rsp+2A0h+var_C8+8], xmm13
-    }
-    v142 = v16;
-    __asm { vxorps  xmm15, xmm15, xmm15 }
+    v60 = v5;
     do
     {
-      _RBX = &physicsBones[v142];
+      _RBX = &physicsBones[v60];
       if ( _RBX->boneIndex != 255 )
       {
         if ( _RBX->boneIndex == 254 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1092, ASSERT_TYPE_ASSERT, "(physicsBone->boneIndex != 254)", (const char *)&queryFormat, "physicsBone->boneIndex != UNDEFINED_BONEINDEX") )
           __debugbreak();
+        v62 = _RBX->state.position.v[0];
+        rotationQuat = (__m128)_RBX->state.rotationQuat;
+        v150.m128_i32[3] = 0;
+        v65 = v150;
+        v65.m128_f32[0] = v62;
+        _XMM9 = v65;
+        v66 = _RBX->state.velocity.v[0];
         __asm
         {
-          vmovss  xmm0, dword ptr [rbx+2Ch]
-          vmovups xmm13, xmmword ptr [rbx+1Ch]
-        }
-        HIDWORD(v352) = 0;
-        __asm
-        {
-          vmovups xmm9, xmmword ptr [rbp+30h]
-          vmovss  xmm9, xmm9, xmm0
-          vmovss  xmm0, dword ptr [rbx+54h]
           vinsertps xmm9, xmm9, dword ptr [rbx+30h], 10h
           vinsertps xmm9, xmm9, dword ptr [rbx+34h], 20h ; ' '
         }
-        HIDWORD(v353) = 0;
+        v151.m128_i32[3] = 0;
+        v70 = v151;
+        v70.m128_f32[0] = v66;
+        _XMM7 = v70;
+        v71 = _RBX->state.angularVelocity.v[0];
         __asm
         {
-          vmovups xmm7, xmmword ptr [rbp+40h]
-          vmovss  xmm7, xmm7, xmm0
-          vmovss  xmm0, dword ptr [rbx+60h]
           vinsertps xmm7, xmm7, dword ptr [rbx+58h], 10h
           vinsertps xmm7, xmm7, dword ptr [rbx+5Ch], 20h ; ' '
         }
-        HIDWORD(v354) = 0;
+        v152.m128_i32[3] = 0;
+        v75 = v152;
+        v75.m128_f32[0] = v71;
+        _XMM6 = v75;
         __asm
         {
-          vmovups xmm6, xmmword ptr [rbp+50h]
-          vmovss  xmm6, xmm6, xmm0
           vinsertps xmm6, xmm6, dword ptr [rbx+64h], 10h
           vinsertps xmm6, xmm6, dword ptr [rbx+68h], 20h ; ' '
-          vshufps xmm0, xmm6, xmm6, 0FFh
-          vucomiss xmm0, xmm15
-          vmovups xmmword ptr [rbp+30h], xmm9
-          vmovups xmmword ptr [rbp+40h], xmm7
-          vmovups xmmword ptr [rbp+50h], xmm6
         }
+        v78 = _mm_shuffle_ps(_XMM6, _XMM6, 255).m128_f32[0];
+        v150 = _XMM9;
+        v151 = _XMM7;
+        v152 = _XMM6;
+        if ( v78 != 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1118, ASSERT_TYPE_ASSERT, "( ( Float4ExtractW( angularVelocity ) == 0.0f ) )", "( Float4ExtractW( angularVelocity ) ) = %g", v78) )
+          __debugbreak();
         _RAX = _RBX->properties;
-        __asm
+        __asm { vbroadcastss xmm0, dword ptr [rax+3Ch] }
+        v81 = _mm128_add_ps(_mm128_mul_ps(_XMM0, v59), v142);
+        v82 = v48;
+        if ( XAnimBonePhysics_UpdateNoise(_RBX, timeStep, &outVelocity, (vec3_t *)&outAngularVelocity) )
         {
-          vbroadcastss xmm0, dword ptr [rax+3Ch]
-          vmulps  xmm1, xmm0, xmm8
-          vaddps  xmm10, xmm1, [rbp+1A0h+var_1F0]
-          vmovdqa xmm8, xmm11
-          vmovss  xmm11, [rbp+1A0h+timeStep]
-          vmovaps xmm1, xmm11; timeStep
-        }
-        if ( XAnimBonePhysics_UpdateNoise(_RBX, *(const float *)&_XMM1, &outVelocity, (vec3_t *)&outAngularVelocity) )
-        {
-          __asm
+          v83 = 1.0 / timeStep;
+          XAnimGetLocalBoneTransform(params->animCalcInfo, obj, params->destBuffer, _RBX->boneIndex, &v155, &v157);
+          v = v155.v;
+          if ( (float)((float)((float)(outVelocity.v[0] * outVelocity.v[0]) + (float)(outVelocity.v[1] * outVelocity.v[1])) + (float)(outVelocity.v[2] * outVelocity.v[2])) > 0.0 )
           {
-            vmovss  xmm0, cs:__real@3f800000
-            vdivss  xmm11, xmm0, xmm11
-          }
-          XAnimGetLocalBoneTransform(params->animCalcInfo, obj, params->destBuffer, _RBX->boneIndex, &v357, &v359);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbp+1A0h+var_120.v]
-            vmovss  xmm1, dword ptr [rbp+1A0h+outVelocity]
-            vmovups [rbp+1A0h+var_140], xmm0
-            vmovss  xmm0, dword ptr [rbp+1A0h+outVelocity+4]
-            vmulss  xmm2, xmm0, xmm0
-            vmulss  xmm3, xmm1, xmm1
-            vmovss  xmm1, dword ptr [rbp+1A0h+outVelocity+8]
-            vaddss  xmm4, xmm3, xmm2
-            vmulss  xmm0, xmm1, xmm1
-            vaddss  xmm2, xmm4, xmm0
-            vcomiss xmm2, xmm15
-          }
-          if ( !(v171 | v172) )
-          {
-            __asm
-            {
-              vmovups xmm0, [rbp+1A0h+var_220]
-              vmovss  [rsp+2A0h+var_270], xmm11
-            }
             relative = _RBX->properties->noise.translation.relative;
-            __asm
-            {
-              vmovdqa [rsp+2A0h+var_248+8], xmm7
-              vmovdqa xmmword ptr [rsp+2A0h+var_238+8], xmm0
-            }
-            _RAX = XAnimBonePhysics_CalcNoiseAcceleration(&v348, relative, &v340, &v355, &v339, &outVelocity, v310);
+            v137.v = _XMM7;
+            v138.v = v139;
+            v85 = XAnimBonePhysics_CalcNoiseAcceleration(&v146, relative, &v138, (const vec4_t *)&v, &v137, &outVelocity, v83);
             _RDI = DCONST_DVARFLT_xanim_physicsNoiseAccelSmoothing;
-            __asm { vmovups xmm12, xmmword ptr [rax] }
+            v87 = v85->v;
             if ( !DCONST_DVARFLT_xanim_physicsNoiseAccelSmoothing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsNoiseAccelSmoothing") )
               __debugbreak();
             Dvar_CheckFrontendServerThread(_RDI);
-            __asm
-            {
-              vbroadcastss xmm0, dword ptr [rdi+28h]
-              vmulps  xmm0, xmm0, xmm12
-              vmovups xmm12, [rbp+1A0h+var_1E0]
-              vaddps  xmm10, xmm0, xmm10
-            }
+            __asm { vbroadcastss xmm0, dword ptr [rdi+28h] }
+            v89 = _mm128_mul_ps(_XMM0, v87);
+            v53 = v143;
+            v81 = _mm128_add_ps(v89, v81);
           }
-          __asm
+          if ( (float)((float)((float)(outAngularVelocity.m128_f32[0] * outAngularVelocity.m128_f32[0]) + (float)(outAngularVelocity.m128_f32[1] * outAngularVelocity.m128_f32[1])) + (float)(outAngularVelocity.m128_f32[2] * outAngularVelocity.m128_f32[2])) > 0.0 )
           {
-            vmovss  xmm0, dword ptr [rbp+1A0h+outAngularVelocity]
-            vmovss  xmm1, dword ptr [rbp+1A0h+outAngularVelocity+4]
-            vmulss  xmm2, xmm1, xmm1
-            vmulss  xmm3, xmm0, xmm0
-            vmovss  xmm0, dword ptr [rbp+1A0h+outAngularVelocity+8]
-            vmulss  xmm1, xmm0, xmm0
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm2, xmm4, xmm1
-            vcomiss xmm2, xmm15
-          }
-          if ( !(v171 | v172) )
-          {
-            __asm
-            {
-              vmovups xmm0, [rbp+1A0h+var_220]
-              vmovss  [rsp+2A0h+var_270], xmm11
-            }
-            v200 = _RBX->properties->noise.rotation.relative;
-            __asm
-            {
-              vmovdqa xmmword ptr [rsp+2A0h+var_238+8], xmm6
-              vmovdqa [rsp+2A0h+var_248+8], xmm0
-            }
-            _RAX = XAnimBonePhysics_CalcNoiseAcceleration(&v349, v200, &v339, &v355, &v340, (const vec3_t *)&outAngularVelocity, v311);
+            v90 = _RBX->properties->noise.rotation.relative;
+            v138.v = _XMM6;
+            v137.v = v139;
+            v91 = XAnimBonePhysics_CalcNoiseAcceleration(&v147, v90, &v137, (const vec4_t *)&v, &v138, (const vec3_t *)&outAngularVelocity, v83);
             _RDI = DCONST_DVARFLT_xanim_physicsNoiseAccelSmoothing;
-            __asm { vmovups xmm11, xmmword ptr [rax] }
+            v93 = v91->v;
             if ( !DCONST_DVARFLT_xanim_physicsNoiseAccelSmoothing && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsNoiseAccelSmoothing") )
               __debugbreak();
             Dvar_CheckFrontendServerThread(_RDI);
-            __asm
-            {
-              vbroadcastss xmm0, dword ptr [rdi+28h]
-              vmulps  xmm0, xmm0, xmm11
-              vaddps  xmm8, xmm0, xmm8
-            }
+            __asm { vbroadcastss xmm0, dword ptr [rdi+28h] }
+            v82 = _mm128_add_ps(_mm128_mul_ps(_XMM0, v93), v82);
           }
         }
-        _RDI = DCONST_DVARFLT_xanim_physicsMaxVelocity;
+        v95 = DCONST_DVARFLT_xanim_physicsMaxVelocity;
+        v96 = _mm128_add_ps(_mm128_mul_ps(v11, v81), _mm128_sub_ps(_XMM7, v53));
+        _XMM10 = _mm128_add_ps(_mm128_mul_ps(v11, v82), _XMM6);
+        _XMM11 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v144, v144, 201), _mm_shuffle_ps(_XMM9, _XMM9, 210)), _mm128_mul_ps(_mm_shuffle_ps(v144, v144, 210), _mm_shuffle_ps(_XMM9, _XMM9, 201))), v96);
+        _XMM0 = _mm128_mul_ps(_XMM11, _XMM11);
         __asm
         {
-          vmulps  xmm0, xmm14, xmm10
-          vsubps  xmm1, xmm7, xmm12
-          vaddps  xmm5, xmm0, xmm1
-          vmulps  xmm1, xmm14, xmm8
-          vaddps  xmm10, xmm1, xmm6
-          vmovups xmm1, [rbp+1A0h+var_1D0]
-          vshufps xmm2, xmm1, xmm1, 0C9h ; 'É'
-          vshufps xmm3, xmm1, xmm1, 0D2h ; 'Ò'
-          vshufps xmm0, xmm9, xmm9, 0D2h ; 'Ò'
-          vmulps  xmm4, xmm2, xmm0
-          vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-          vmulps  xmm0, xmm3, xmm1
-          vsubps  xmm2, xmm4, xmm0
-          vaddps  xmm11, xmm2, xmm5
-          vmulps  xmm0, xmm11, xmm11
           vinsertps xmm1, xmm0, xmm0, 8
           vhaddps xmm2, xmm1, xmm1
           vhaddps xmm0, xmm2, xmm2
-          vsqrtps xmm6, xmm0
         }
+        LODWORD(v103) = _mm_sqrt_ps(_XMM0).m128_u32[0];
         if ( !DCONST_DVARFLT_xanim_physicsMaxVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxVelocity") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RDI);
-        __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-        if ( !(v171 | v172) )
+        Dvar_CheckFrontendServerThread(v95);
+        if ( v103 > v95->current.value )
         {
           _RDI = DCONST_DVARFLT_xanim_physicsMaxVelocity;
           if ( !DCONST_DVARFLT_xanim_physicsMaxVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxVelocity") )
             __debugbreak();
           Dvar_CheckFrontendServerThread(_RDI);
+          __asm { vbroadcastss xmm3, dword ptr [rdi+28h] }
+          _XMM0 = _mm128_mul_ps(_XMM11, _XMM11);
           __asm
           {
-            vbroadcastss xmm3, dword ptr [rdi+28h]
-            vmulps  xmm0, xmm11, xmm11
             vhaddps xmm1, xmm0, xmm0
             vhaddps xmm0, xmm1, xmm1
-            vsqrtps xmm1, xmm0
-            vdivps  xmm2, xmm11, xmm1
-            vmulps  xmm11, xmm3, xmm2
           }
+          _XMM11 = _mm128_mul_ps(_XMM3, _mm128_div_ps(_XMM11, _mm_sqrt_ps(_XMM0)));
         }
-        _RDI = DCONST_DVARFLT_xanim_physicsMaxAngularVelocity;
+        v109 = DCONST_DVARFLT_xanim_physicsMaxAngularVelocity;
+        _XMM0 = _mm128_mul_ps(_XMM10, _XMM10);
         __asm
         {
-          vmulps  xmm0, xmm10, xmm10
           vinsertps xmm1, xmm0, xmm0, 8
           vhaddps xmm2, xmm1, xmm1
           vhaddps xmm0, xmm2, xmm2
-          vsqrtps xmm6, xmm0
         }
+        LODWORD(v114) = _mm_sqrt_ps(_XMM0).m128_u32[0];
         if ( !DCONST_DVARFLT_xanim_physicsMaxAngularVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxAngularVelocity") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RDI);
-        __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-        if ( !(v171 | v172) )
+        Dvar_CheckFrontendServerThread(v109);
+        if ( v114 > v109->current.value )
         {
           _RDI = DCONST_DVARFLT_xanim_physicsMaxAngularVelocity;
           if ( !DCONST_DVARFLT_xanim_physicsMaxAngularVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxAngularVelocity") )
             __debugbreak();
           Dvar_CheckFrontendServerThread(_RDI);
+          __asm { vbroadcastss xmm3, dword ptr [rdi+28h] }
+          _XMM0 = _mm128_mul_ps(_XMM10, _XMM10);
           __asm
           {
-            vbroadcastss xmm3, dword ptr [rdi+28h]
-            vmulps  xmm0, xmm10, xmm10
             vhaddps xmm1, xmm0, xmm0
             vhaddps xmm0, xmm1, xmm1
-            vsqrtps xmm1, xmm0
-            vdivps  xmm2, xmm10, xmm1
-            vmulps  xmm10, xmm3, xmm2
           }
+          _XMM10 = _mm128_mul_ps(_XMM3, _mm128_div_ps(_XMM10, _mm_sqrt_ps(_XMM0)));
         }
+        v120 = _mm128_mul_ps(_XMM10, v145);
+        v121 = _mm_shuffle_ps(v120, v120, 255);
+        _XMM8 = _mm128_add_ps(_mm128_mul_ps(v11, _XMM11), _XMM9);
+        _RBX->state.position.v[0] = _XMM8.m128_f32[0];
         __asm
         {
-          vmulps  xmm4, xmm10, [rbp+1A0h+var_1C0]
-          vshufps xmm6, xmm4, xmm4, 0FFh
-          vmulps  xmm0, xmm14, xmm11
-          vaddps  xmm8, xmm0, xmm9
-          vmovss  dword ptr [rbx+2Ch], xmm8
           vextractps dword ptr [rbx+30h], xmm8, 1
           vextractps dword ptr [rbx+34h], xmm8, 2
-          vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-          vshufps xmm1, xmm13, xmm13, 0C9h ; 'É'
-          vmulps  xmm3, xmm1, xmm0
-          vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-          vshufps xmm2, xmm13, xmm13, 0D2h ; 'Ò'
-          vmulps  xmm0, xmm2, xmm1
-          vsubps  xmm5, xmm0, xmm3
-          vmulps  xmm1, xmm13, xmm4
+        }
+        _XMM1 = _mm128_mul_ps(rotationQuat, v120);
+        __asm
+        {
           vinsertps xmm0, xmm1, xmm1, 8
           vhaddps xmm2, xmm0, xmm0
           vhaddps xmm3, xmm2, xmm2
-          vshufps xmm7, xmm13, xmm13, 0FFh
-          vmulps  xmm0, xmm7, xmm6
-          vsubps  xmm2, xmm0, xmm3
-          vmulps  xmm4, xmm7, xmm4
-          vmulps  xmm1, xmm6, xmm13
-          vaddps  xmm1, xmm4, xmm1
-          vaddps  xmm0, xmm5, xmm1
-          vblendps xmm1, xmm2, xmm0, 7
-          vaddps  xmm3, xmm1, xmm13
-          vmulps  xmm0, xmm3, xmm3
+        }
+        v127 = _mm_shuffle_ps(rotationQuat, rotationQuat, 255);
+        _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v127, v121), _XMM3);
+        _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(rotationQuat, rotationQuat, 210), _mm_shuffle_ps(v120, v120, 201)), _mm128_mul_ps(_mm_shuffle_ps(rotationQuat, rotationQuat, 201), _mm_shuffle_ps(v120, v120, 210))), _mm128_add_ps(_mm128_mul_ps(v127, v120), _mm128_mul_ps(v121, rotationQuat)));
+        __asm { vblendps xmm1, xmm2, xmm0, 7 }
+        v130 = _mm128_add_ps(_XMM1, rotationQuat);
+        _XMM0 = _mm128_mul_ps(v130, v130);
+        __asm
+        {
           vhaddps xmm2, xmm0, xmm0
           vhaddps xmm0, xmm2, xmm2
-          vsqrtps xmm1, xmm0
-          vdivps  xmm2, xmm3, xmm1
-          vmovups xmmword ptr [rbx+1Ch], xmm2
-          vmovss  dword ptr [rbx+48h], xmm9
+        }
+        _RBX->state.rotationQuat = (vec4_t)_mm128_div_ps(v130, _mm_sqrt_ps(_XMM0));
+        _RBX->state.prevPosition.v[0] = _XMM9.m128_f32[0];
+        __asm
+        {
           vextractps dword ptr [rbx+4Ch], xmm9, 1
           vextractps dword ptr [rbx+50h], xmm9, 2
-          vmovups xmmword ptr [rbx+38h], xmm13
-          vmovss  dword ptr [rbx+54h], xmm11
+        }
+        _RBX->state.prevRotationQuat = (vec4_t)rotationQuat;
+        _RBX->state.velocity.v[0] = _XMM11.m128_f32[0];
+        __asm
+        {
           vextractps dword ptr [rbx+58h], xmm11, 1
           vextractps dword ptr [rbx+5Ch], xmm11, 2
-          vmovss  dword ptr [rbx+60h], xmm10
+        }
+        _RBX->state.angularVelocity.v[0] = _XMM10.m128_f32[0];
+        __asm
+        {
           vextractps dword ptr [rbx+64h], xmm10, 1
           vextractps dword ptr [rbx+68h], xmm10, 2
-          vmovss  xmm0, dword ptr [rbx+38h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
         }
-        if ( (v318 & 0x7F800000) == 2139095040 )
-          goto LABEL_112;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+3Ch]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v319 & 0x7F800000) == 2139095040 )
-          goto LABEL_112;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+40h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v320 & 0x7F800000) == 2139095040 )
-          goto LABEL_112;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+44h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v321 & 0x7F800000) == 2139095040 )
-        {
-LABEL_112:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1215, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.prevRotationQuat)[0]) && IS_FINITE((physicsBone->state.prevRotationQuat)[1]) && IS_FINITE((physicsBone->state.prevRotationQuat)[2]) && IS_FINITE((physicsBone->state.prevRotationQuat)[3]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.prevRotationQuat)[0]) && IS_FINITE((physicsBone->state.prevRotationQuat)[1]) && IS_FINITE((physicsBone->state.prevRotationQuat)[2]) && IS_FINITE((physicsBone->state.prevRotationQuat)[3])") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+1Ch]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v322 & 0x7F800000) == 2139095040 )
-          goto LABEL_113;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+20h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v323 & 0x7F800000) == 2139095040 )
-          goto LABEL_113;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+24h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v324 & 0x7F800000) == 2139095040 )
-          goto LABEL_113;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v325 & 0x7F800000) == 2139095040 )
-        {
-LABEL_113:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1216, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.rotationQuat)[0]) && IS_FINITE((physicsBone->state.rotationQuat)[1]) && IS_FINITE((physicsBone->state.rotationQuat)[2]) && IS_FINITE((physicsBone->state.rotationQuat)[3]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.rotationQuat)[0]) && IS_FINITE((physicsBone->state.rotationQuat)[1]) && IS_FINITE((physicsBone->state.rotationQuat)[2]) && IS_FINITE((physicsBone->state.rotationQuat)[3])") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+48h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v326 & 0x7F800000) == 2139095040 )
-          goto LABEL_114;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+4Ch]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v327 & 0x7F800000) == 2139095040 )
-          goto LABEL_114;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+50h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v328 & 0x7F800000) == 2139095040 )
-        {
-LABEL_114:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1217, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.prevPosition)[0]) && IS_FINITE((physicsBone->state.prevPosition)[1]) && IS_FINITE((physicsBone->state.prevPosition)[2]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.prevPosition)[0]) && IS_FINITE((physicsBone->state.prevPosition)[1]) && IS_FINITE((physicsBone->state.prevPosition)[2])") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+2Ch]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v329 & 0x7F800000) == 2139095040 )
-          goto LABEL_115;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+30h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v330 & 0x7F800000) == 2139095040 )
-          goto LABEL_115;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+34h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v331 & 0x7F800000) == 2139095040 )
-        {
-LABEL_115:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1218, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.position)[0]) && IS_FINITE((physicsBone->state.position)[1]) && IS_FINITE((physicsBone->state.position)[2]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.position)[0]) && IS_FINITE((physicsBone->state.position)[1]) && IS_FINITE((physicsBone->state.position)[2])") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+54h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v332 & 0x7F800000) == 2139095040 )
-          goto LABEL_116;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+58h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v333 & 0x7F800000) == 2139095040 )
-          goto LABEL_116;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+5Ch]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v334 & 0x7F800000) == 2139095040 )
-        {
-LABEL_116:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1219, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.velocity)[0]) && IS_FINITE((physicsBone->state.velocity)[1]) && IS_FINITE((physicsBone->state.velocity)[2]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.velocity)[0]) && IS_FINITE((physicsBone->state.velocity)[1]) && IS_FINITE((physicsBone->state.velocity)[2])") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+60h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v335 & 0x7F800000) == 2139095040 )
-          goto LABEL_117;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+64h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v336 & 0x7F800000) == 2139095040 )
-          goto LABEL_117;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+68h]
-          vmovss  dword ptr [rsp+2A0h+var_250], xmm0
-        }
-        if ( (v337 & 0x7F800000) == 2139095040 )
-        {
-LABEL_117:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1220, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.angularVelocity)[0]) && IS_FINITE((physicsBone->state.angularVelocity)[1]) && IS_FINITE((physicsBone->state.angularVelocity)[2]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.angularVelocity)[0]) && IS_FINITE((physicsBone->state.angularVelocity)[1]) && IS_FINITE((physicsBone->state.angularVelocity)[2])") )
-            __debugbreak();
-        }
+        if ( ((LODWORD(_RBX->state.prevRotationQuat.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.prevRotationQuat.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.prevRotationQuat.v[2]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.prevRotationQuat.v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1215, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.prevRotationQuat)[0]) && IS_FINITE((physicsBone->state.prevRotationQuat)[1]) && IS_FINITE((physicsBone->state.prevRotationQuat)[2]) && IS_FINITE((physicsBone->state.prevRotationQuat)[3]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.prevRotationQuat)[0]) && IS_FINITE((physicsBone->state.prevRotationQuat)[1]) && IS_FINITE((physicsBone->state.prevRotationQuat)[2]) && IS_FINITE((physicsBone->state.prevRotationQuat)[3])") )
+          __debugbreak();
+        if ( ((LODWORD(_RBX->state.rotationQuat.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.rotationQuat.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.rotationQuat.v[2]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.rotationQuat.v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1216, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.rotationQuat)[0]) && IS_FINITE((physicsBone->state.rotationQuat)[1]) && IS_FINITE((physicsBone->state.rotationQuat)[2]) && IS_FINITE((physicsBone->state.rotationQuat)[3]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.rotationQuat)[0]) && IS_FINITE((physicsBone->state.rotationQuat)[1]) && IS_FINITE((physicsBone->state.rotationQuat)[2]) && IS_FINITE((physicsBone->state.rotationQuat)[3])") )
+          __debugbreak();
+        if ( ((LODWORD(_RBX->state.prevPosition.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.prevPosition.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.prevPosition.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1217, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.prevPosition)[0]) && IS_FINITE((physicsBone->state.prevPosition)[1]) && IS_FINITE((physicsBone->state.prevPosition)[2]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.prevPosition)[0]) && IS_FINITE((physicsBone->state.prevPosition)[1]) && IS_FINITE((physicsBone->state.prevPosition)[2])") )
+          __debugbreak();
+        if ( ((LODWORD(_RBX->state.position.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.position.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.position.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1218, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.position)[0]) && IS_FINITE((physicsBone->state.position)[1]) && IS_FINITE((physicsBone->state.position)[2]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.position)[0]) && IS_FINITE((physicsBone->state.position)[1]) && IS_FINITE((physicsBone->state.position)[2])") )
+          __debugbreak();
+        if ( ((LODWORD(_RBX->state.velocity.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.velocity.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.velocity.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1219, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.velocity)[0]) && IS_FINITE((physicsBone->state.velocity)[1]) && IS_FINITE((physicsBone->state.velocity)[2]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.velocity)[0]) && IS_FINITE((physicsBone->state.velocity)[1]) && IS_FINITE((physicsBone->state.velocity)[2])") )
+          __debugbreak();
+        if ( ((LODWORD(_RBX->state.angularVelocity.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.angularVelocity.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(_RBX->state.angularVelocity.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1220, ASSERT_TYPE_ASSERT, "(IS_FINITE((physicsBone->state.angularVelocity)[0]) && IS_FINITE((physicsBone->state.angularVelocity)[1]) && IS_FINITE((physicsBone->state.angularVelocity)[2]))", (const char *)&queryFormat, "IS_FINITE((physicsBone->state.angularVelocity)[0]) && IS_FINITE((physicsBone->state.angularVelocity)[1]) && IS_FINITE((physicsBone->state.angularVelocity)[2])") )
+          __debugbreak();
         audioEventTimer = _RBX->state.audioEventTimer;
-        __asm
-        {
-          vmovups xmm8, [rbp+1A0h+var_210]
-          vmovups xmm11, [rbp+1A0h+var_200]
-        }
+        v59 = v140;
+        v48 = v141;
         if ( audioEventTimer )
           _RBX->state.audioEventTimer = audioEventTimer - 1;
       }
-      LODWORD(v16) = v16 + 1;
-      ++v142;
+      LODWORD(v5) = v5 + 1;
+      ++v60;
     }
-    while ( (unsigned int)v16 < endPhysicsBoneIndex );
-    __asm
-    {
-      vmovaps xmm15, xmmword ptr [rsp+2A0h+var_E8+8]
-      vmovaps xmm13, xmmword ptr [rsp+2A0h+var_C8+8]
-    }
-  }
-  _R11 = &v362;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
+    while ( (unsigned int)v5 < endPhysicsBoneIndex );
   }
 }
 
@@ -4002,167 +2947,149 @@ LABEL_117:
 XAnimBonePhysics_SetCurveState
 ==============
 */
-
-void __fastcall XAnimBonePhysics_SetCurveState(DObj *dobj, XAnimCurve *const curve, double strengthMul, double rateMul)
+void XAnimBonePhysics_SetCurveState(DObj *dobj, XAnimCurve *const curve, const float strengthMul, const float rateMul)
 {
-  DObjProceduralBones *v10; 
-  DObjProceduralBones *v11; 
-  unsigned int v12; 
-  __int64 v13; 
-  unsigned int v14; 
-  __int64 v15; 
-  __int64 v16; 
-  __int64 v18; 
-  XAnimCurve *v19; 
+  DObjProceduralBones *v6; 
+  DObjProceduralBones *v7; 
+  unsigned int v8; 
+  __int64 v9; 
+  unsigned int v10; 
+  __int64 v11; 
+  __int64 v12; 
+  float *v13; 
+  __int64 v14; 
+  XAnimCurve *v15; 
   const char *name; 
+  __int64 v17; 
+  const char *v18; 
+  signed __int64 v19; 
+  char v20; 
   __int64 v21; 
-  const char *v22; 
-  signed __int64 v23; 
-  char v24; 
+  char v22; 
+  XAnimCurve *v23; 
+  const char *v24; 
   __int64 v25; 
-  char v26; 
-  XAnimCurve *v27; 
-  const char *v28; 
+  const char *v26; 
+  signed __int64 v27; 
+  char v28; 
   __int64 v29; 
-  const char *v30; 
-  signed __int64 v31; 
-  char v32; 
-  __int64 v33; 
-  char v34; 
+  char v30; 
   unsigned int i; 
-  __int64 v38; 
-  DObjProceduralBones *v39; 
-  unsigned int v43; 
+  __int64 v32; 
+  DObjProceduralBones *v33; 
+  unsigned int v35; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_48], xmm6
-    vmovaps [rsp+0A8h+var_58], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm3
-  }
   if ( !curve && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 689, ASSERT_TYPE_ASSERT, "(curve)", (const char *)&queryFormat, "curve") )
     __debugbreak();
   if ( !dobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 690, ASSERT_TYPE_ASSERT, "(dobj)", (const char *)&queryFormat, "dobj") )
     __debugbreak();
   if ( (dobj->proceduralBonesHandle.m_value & 0x80000000) != 0 )
   {
-    v10 = DObjProceduralBones_TryLock(dobj);
-    v39 = v10;
-    v11 = v10;
-    if ( v10 )
+    v6 = DObjProceduralBones_TryLock(dobj);
+    v33 = v6;
+    v7 = v6;
+    if ( v6 )
     {
-      if ( !v10->numPhysicsBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 704, ASSERT_TYPE_ASSERT, "(procBones->numPhysicsBones > 0)", (const char *)&queryFormat, "procBones->numPhysicsBones > 0") )
+      if ( !v6->numPhysicsBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 704, ASSERT_TYPE_ASSERT, "(procBones->numPhysicsBones > 0)", (const char *)&queryFormat, "procBones->numPhysicsBones > 0") )
         __debugbreak();
-      v12 = 0;
-      for ( i = 0; v12 < v11->numModels; i = ++v12 )
+      v8 = 0;
+      for ( i = 0; v8 < v7->numModels; i = ++v8 )
       {
-        v13 = (__int64)&v11->modelInfo[v12];
-        v38 = v13;
-        if ( *(_BYTE *)(v13 + 21) )
+        v9 = (__int64)&v7->modelInfo[v8];
+        v32 = v9;
+        if ( *(_BYTE *)(v9 + 21) )
         {
-          v14 = 0;
-          v43 = 0;
+          v10 = 0;
+          v35 = 0;
           do
           {
-            v15 = (__int64)&v11->physicsBones[v14 + *(unsigned __int8 *)(v13 + 20)];
-            if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 715, ASSERT_TYPE_ASSERT, "(physicsBone)", (const char *)&queryFormat, "physicsBone") )
+            v11 = (__int64)&v7->physicsBones[v10 + *(unsigned __int8 *)(v9 + 20)];
+            if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 715, ASSERT_TYPE_ASSERT, "(physicsBone)", (const char *)&queryFormat, "physicsBone") )
               __debugbreak();
-            if ( *(_BYTE *)(*(_QWORD *)(v15 + 8) + 192i64) )
+            if ( *(_BYTE *)(*(_QWORD *)(v11 + 8) + 192i64) )
             {
-              v16 = 0i64;
-              _RBP = v15 + 116;
+              v12 = 0i64;
+              v13 = (float *)(v11 + 116);
               do
               {
-                v18 = *(_QWORD *)(v15 + 8);
-                v19 = *(XAnimCurve **)(v16 + v18 + 208);
-                if ( v19 == curve )
+                v14 = *(_QWORD *)(v11 + 8);
+                v15 = *(XAnimCurve **)(v12 + v14 + 208);
+                if ( v15 == curve )
                 {
-                  name = v19->name;
-                  v21 = 0x7FFFFFFFi64;
-                  v22 = curve->name;
-                  if ( !v19->name && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+                  name = v15->name;
+                  v17 = 0x7FFFFFFFi64;
+                  v18 = curve->name;
+                  if ( !v15->name && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                     __debugbreak();
-                  if ( !v22 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                     __debugbreak();
-                  v23 = name - v22;
+                  v19 = name - v18;
                   do
                   {
-                    v24 = v22[v23];
-                    v25 = v21;
-                    v26 = *v22++;
-                    --v21;
-                    if ( !v25 )
+                    v20 = v18[v19];
+                    v21 = v17;
+                    v22 = *v18++;
+                    --v17;
+                    if ( !v21 )
                       break;
-                    if ( v24 != v26 )
+                    if ( v20 != v22 )
                     {
                       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 725, ASSERT_TYPE_ASSERT, "(I_strcmp( physicsBone->properties->noise.translation.axis[index].curve->name, curve->name ) == 0)", (const char *)&queryFormat, "I_strcmp( physicsBone->properties->noise.translation.axis[index].curve->name, curve->name ) == 0") )
                         __debugbreak();
                       break;
                     }
                   }
-                  while ( v24 );
-                  __asm
-                  {
-                    vmovss  dword ptr [rbp-4], xmm7
-                    vmovss  dword ptr [rbp+0], xmm6
-                  }
-                  v18 = *(_QWORD *)(v15 + 8);
+                  while ( v20 );
+                  *(v13 - 1) = strengthMul;
+                  *v13 = rateMul;
+                  v14 = *(_QWORD *)(v11 + 8);
                 }
-                v27 = *(XAnimCurve **)(v16 + v18 + 288);
-                if ( v27 == curve )
+                v23 = *(XAnimCurve **)(v12 + v14 + 288);
+                if ( v23 == curve )
                 {
-                  v28 = v27->name;
-                  v29 = 0x7FFFFFFFi64;
-                  v30 = curve->name;
-                  if ( !v27->name && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+                  v24 = v23->name;
+                  v25 = 0x7FFFFFFFi64;
+                  v26 = curve->name;
+                  if ( !v23->name && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
                     __debugbreak();
-                  if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                  if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                     __debugbreak();
-                  v31 = v28 - v30;
+                  v27 = v24 - v26;
                   do
                   {
-                    v32 = v30[v31];
-                    v33 = v29;
-                    v34 = *v30++;
-                    --v29;
-                    if ( !v33 )
+                    v28 = v26[v27];
+                    v29 = v25;
+                    v30 = *v26++;
+                    --v25;
+                    if ( !v29 )
                       break;
-                    if ( v32 != v34 )
+                    if ( v28 != v30 )
                     {
                       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 733, ASSERT_TYPE_ASSERT, "(I_strcmp( physicsBone->properties->noise.rotation.axis[index].curve->name, curve->name ) == 0)", (const char *)&queryFormat, "I_strcmp( physicsBone->properties->noise.rotation.axis[index].curve->name, curve->name ) == 0") )
                         __debugbreak();
                       break;
                     }
                   }
-                  while ( v32 );
-                  __asm
-                  {
-                    vmovss  dword ptr [rbp+20h], xmm7
-                    vmovss  dword ptr [rbp+24h], xmm6
-                  }
+                  while ( v28 );
+                  v13[8] = strengthMul;
+                  v13[9] = rateMul;
                 }
-                v16 += 24i64;
-                _RBP += 12i64;
+                v12 += 24i64;
+                v13 += 3;
               }
-              while ( v16 < 72 );
-              v14 = v43;
-              v11 = v39;
+              while ( v12 < 72 );
+              v10 = v35;
+              v7 = v33;
             }
-            v43 = ++v14;
-            v13 = v38;
+            v35 = ++v10;
+            v9 = v32;
           }
-          while ( v14 < *(unsigned __int8 *)(v38 + 21) );
-          v12 = i;
+          while ( v10 < *(unsigned __int8 *)(v32 + 21) );
+          v8 = i;
         }
       }
       DObjProceduralBones_Unlock(dobj);
     }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_48]
-    vmovaps xmm7, [rsp+0A8h+var_58]
   }
 }
 
@@ -4174,548 +3101,382 @@ XAnimBonePhysics_SetDynamicBoneTransforms
 
 void __fastcall XAnimBonePhysics_SetDynamicBoneTransforms(XAnimProcNodeCalcParams *params, const XAnimPhysicsBone *physicsBones, unsigned int numPhysicsBones, double lerpFraction)
 {
-  const dvar_t *v18; 
-  const XAnimCalcBuffer *destBuffer; 
+  const dvar_t *v8; 
+  XAnimCalcBuffer *destBuffer; 
   const DObj *obj; 
-  const XAnimCalcAnimInfo *animCalcInfo; 
-  unsigned int v30; 
-  unsigned __int8 v32; 
-  unsigned __int64 v33; 
-  const DObj *v34; 
-  bool v35; 
-  const dvar_t *v38; 
-  unsigned __int16 v69; 
-  const float4 *v70; 
-  const float4 *v71; 
-  bool v73; 
-  int v293; 
-  const DObj *v294; 
-  __int64 v295; 
+  XAnimCalcAnimInfo *animCalcInfo; 
+  __m128 v15; 
+  unsigned int v16; 
+  float *v17; 
+  unsigned __int8 v18; 
+  unsigned __int64 v19; 
+  const DObj *v20; 
+  bool v21; 
+  float v22; 
+  __m128 v23; 
+  const dvar_t *v24; 
+  __m128 v26; 
+  __m128 v30; 
+  __m128 v34; 
+  __m128 v40; 
+  __m128 v44; 
+  unsigned __int16 v45; 
+  const float4 *v46; 
+  const float4 *v47; 
+  float v48; 
+  bool v49; 
+  __m128 v51; 
+  __int64 v54; 
+  __m128 v55; 
+  __m128 v56; 
+  float v57; 
+  __m128 v58; 
+  __m128 v59; 
+  __m128 v60; 
+  __m128 v61; 
+  __m128 v62; 
+  __m128 v63; 
+  __m128 v64; 
+  __m128 v65; 
+  __m128 v66; 
+  __m128 v67; 
+  __m128 v68; 
+  __m128 v69; 
+  __m128 v70; 
+  __m128 v71; 
+  __m128 v72; 
+  __m128 v73; 
+  __m128 v74; 
+  __m128 v79; 
+  __m128 v82; 
+  __m128 v83; 
+  __m128 v84; 
+  __m128 v85; 
+  __m128 v86; 
+  __m128 v87; 
+  __m128 v88; 
+  __m128 v89; 
+  __m128 v90; 
+  __m128 v92; 
+  __m128 v93; 
+  __int128 v95; 
+  __m128 v100; 
+  __m128 v101; 
+  __m128 v102; 
+  __m128 v103; 
+  __m128 v104; 
+  __m128 v105; 
+  __m128 v106; 
+  __m128 v107; 
+  __m128 v108; 
+  __m128 v109; 
+  __m128 v110; 
+  __m128 v111; 
+  __m128 v112; 
+  __m128 v113; 
+  __m128 v114; 
+  __m128 v115; 
+  __m128 v116; 
+  __m128 v; 
+  __m128 v119; 
+  __m128 v120; 
+  __m128 v121; 
+  __m128 v127; 
+  __m128 v128; 
+  int v129; 
+  const DObj *v130; 
+  __int64 v131; 
+  __int64 v132; 
+  DObjAnimMat *rotTransArray; 
+  DObjAnimMat *v134; 
   const float4 *fmt; 
   float4 *outModelTranslation; 
-  __int64 v318; 
-  float v319; 
-  int v320; 
-  int v321; 
-  int v322; 
-  int v323; 
-  int v324; 
-  int v325; 
-  int v326; 
-  float4 v328; 
-  __int128 v330; 
-  __int128 v331; 
-  __int128 v332; 
-  __int128 v333; 
-  __int128 v334; 
+  __int64 v137; 
+  __m128 v138; 
+  float4 v139; 
+  __m128 v140; 
+  __m128 v141; 
+  __m128 v142; 
+  __m128 v143; 
+  __m128 v144; 
+  __int128 v145; 
   float4 outModelQuat; 
-  float4 v336; 
-  float4 v337; 
-  float4 v338; 
+  float4 v147; 
+  float4 v148; 
+  float4 v149; 
 
-  __asm
-  {
-    vmovaps [rsp+1F0h+var_40], xmm6
-    vmovaps [rsp+1F0h+var_A0], xmm12
-    vmovaps xmm6, xmm3
-  }
-  _RDI = params;
+  _XMM6 = *(_OWORD *)&lerpFraction;
   if ( !params->obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2441, ASSERT_TYPE_ASSERT, "(params->obj != 0)", (const char *)&queryFormat, "params->obj != NULL") )
     __debugbreak();
   if ( !physicsBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2442, ASSERT_TYPE_ASSERT, "(physicsBones != 0)", (const char *)&queryFormat, "physicsBones != NULL") )
     __debugbreak();
-  v18 = DCONST_DVARBOOL_xanim_physicsEnableInterpolation;
+  v8 = DCONST_DVARBOOL_xanim_physicsEnableInterpolation;
   if ( !DCONST_DVARBOOL_xanim_physicsEnableInterpolation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsEnableInterpolation") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  destBuffer = _RDI->destBuffer;
-  _EAX = 0;
-  obj = _RDI->obj;
-  animCalcInfo = _RDI->animCalcInfo;
-  __asm { vmovd   xmm1, eax }
-  _EAX = v18->current.color[0];
+  Dvar_CheckFrontendServerThread(v8);
+  destBuffer = params->destBuffer;
+  obj = params->obj;
+  animCalcInfo = params->animCalcInfo;
+  _XMM0 = v8->current.color[0];
   __asm
   {
-    vmovd   xmm0, eax
     vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm1, cs:__real@3f800000
     vblendvps xmm12, xmm6, xmm1, xmm2
-    vshufps xmm12, xmm12, xmm12, 0
-    vmovups [rsp+1F0h+var_180], xmm12
   }
-  XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, 0, &outModelQuat, &v338);
-  v30 = 1;
+  v15 = _mm_shuffle_ps(_XMM12, _XMM12, 0);
+  v140 = v15;
+  XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, 0, &outModelQuat, &v149);
+  v16 = 1;
   if ( numPhysicsBones > 1 )
   {
-    _RBX = (char *)&physicsBones[1].state.prevPosition.z;
-    __asm
-    {
-      vmovaps [rsp+1F0h+var_50], xmm7
-      vmovaps [rsp+1F0h+var_60], xmm8
-      vmovaps [rsp+1F0h+var_70], xmm9
-      vmovaps [rsp+1F0h+var_80], xmm10
-      vmovaps [rsp+1F0h+var_90], xmm11
-      vmovaps [rsp+1F0h+var_B0], xmm13
-      vmovaps [rsp+1F0h+var_C0], xmm14
-      vmovaps [rsp+1F0h+var_D0], xmm15
-    }
+    v17 = &physicsBones[1].state.prevPosition.v[2];
     do
     {
-      if ( *((_WORD *)_RBX - 40) != 255 )
+      if ( *((_WORD *)v17 - 40) != 255 )
       {
-        v32 = *(_RBX - 63);
-        if ( v32 != 0xFF && v32 >= v30 )
+        v18 = *((_BYTE *)v17 - 63);
+        if ( v18 != 0xFF && v18 >= v16 )
         {
           outModelTranslation = (float4 *)"physicsBone->parentPhysicsBoneIndex == XANIM_NO_PHYSICS_BONE_INDEX || (physicsBone->parentPhysicsBoneIndex < physicsBoneIndex)";
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2472, ASSERT_TYPE_ASSERT, "(physicsBone->parentPhysicsBoneIndex == XANIM_NO_PHYSICS_BONE_INDEX || (physicsBone->parentPhysicsBoneIndex < physicsBoneIndex))", (const char *)&queryFormat) )
             __debugbreak();
         }
-        v33 = *((unsigned __int16 *)_RBX - 40);
-        v34 = _RDI->obj;
-        if ( *((unsigned __int16 *)_RBX - 40) >> 15 )
+        v19 = *((unsigned __int16 *)v17 - 40);
+        v20 = params->obj;
+        if ( *((unsigned __int16 *)v17 - 40) >> 15 )
         {
-          v35 = (v34->skel.partBits.anim.array[7] & 2) != 0;
+          v21 = (v20->skel.partBits.anim.array[7] & 2) != 0;
         }
         else
         {
-          if ( (unsigned int)v33 >= 0x100 )
+          if ( (unsigned int)v19 >= 0x100 )
           {
-            LODWORD(v318) = 256;
-            LODWORD(outModelTranslation) = *((unsigned __int16 *)_RBX - 40);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", outModelTranslation, v318) )
+            LODWORD(v137) = 256;
+            LODWORD(outModelTranslation) = *((unsigned __int16 *)v17 - 40);
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", outModelTranslation, v137) )
               __debugbreak();
           }
-          v35 = ((0x80000000 >> (v33 & 0x1F)) & v34->skel.partBits.anim.array[v33 >> 5]) != 0;
+          v21 = ((0x80000000 >> (v19 & 0x1F)) & v20->skel.partBits.anim.array[v19 >> 5]) != 0;
         }
-        if ( !v35 )
+        if ( !v21 )
         {
           outModelTranslation = (float4 *)"XAnimTestPartBit( &params->obj->skel.partBits.anim, physicsBone->boneIndex )";
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2475, ASSERT_TYPE_ASSERT, "(XAnimTestPartBit( &params->obj->skel.partBits.anim, physicsBone->boneIndex ))", (const char *)&queryFormat) )
             __debugbreak();
         }
+        v22 = *(v17 - 2);
+        v23 = *(__m128 *)(v17 - 6);
+        v24 = DCONST_DVARBOOL_xanim_physicsMaintainBindPoseTranslation;
+        v142.m128_i32[3] = 0;
+        v143.m128_i32[3] = 0;
+        v144.m128_i32[3] = 0;
+        v26 = v142;
+        v26.m128_f32[0] = v22;
+        _XMM7 = v26;
         __asm
         {
-          vmovss  xmm0, dword ptr [rbx-8]
-          vmovups xmm4, xmmword ptr [rbx-18h]
-        }
-        v38 = DCONST_DVARBOOL_xanim_physicsMaintainBindPoseTranslation;
-        HIDWORD(v331) = 0;
-        HIDWORD(v332) = 0;
-        HIDWORD(v333) = 0;
-        __asm
-        {
-          vmovups xmm7, xmmword ptr [rbp-70h]
-          vmovups xmm8, xmmword ptr [rbp-60h]
-          vmovups xmm9, xmmword ptr [rbp-50h]
-          vmovss  xmm7, xmm7, xmm0
-          vmovss  xmm0, dword ptr [rbx-24h]
           vinsertps xmm7, xmm7, dword ptr [rbx-4], 10h
           vinsertps xmm7, xmm7, dword ptr [rbx], 20h ; ' '
-          vmovss  xmm8, xmm8, xmm0
-          vmovss  xmm0, dword ptr [rbx+68h]
+        }
+        v30 = v143;
+        v30.m128_f32[0] = *(v17 - 9);
+        _XMM8 = v30;
+        __asm
+        {
           vinsertps xmm8, xmm8, dword ptr [rbx-20h], 10h
           vinsertps xmm8, xmm8, dword ptr [rbx-1Ch], 20h ; ' '
-          vmovss  xmm9, xmm9, xmm0
-          vmulps  xmm0, xmm4, xmmword ptr [rbx-34h]
+        }
+        v34 = v144;
+        v34.m128_f32[0] = v17[26];
+        _XMM9 = v34;
+        _XMM0 = _mm128_mul_ps(v23, *(__m128 *)(v17 - 13));
+        __asm
+        {
           vinsertps xmm9, xmm9, dword ptr [rbx+6Ch], 10h
           vinsertps xmm9, xmm9, dword ptr [rbx+70h], 20h ; ' '
           vhaddps xmm1, xmm0, xmm0
           vhaddps xmm0, xmm1, xmm1
-          vandps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-          vorps   xmm3, xmm2, cs:__xmm@3f8000003f8000003f8000003f800000
-          vmovups xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-          vsubps  xmm1, xmm0, xmm12
-          vmulps  xmm2, xmm1, xmm4
-          vmulps  xmm0, xmm12, xmm3
-          vmulps  xmm0, xmm0, xmmword ptr [rbx-34h]
-          vaddps  xmm3, xmm0, xmm2
-          vmulps  xmm1, xmm3, xmm3
+        }
+        v40 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(v15, (__m128)(_XMM0 & *(_OWORD *)&g_negativeZero.v | _xmm)), *(__m128 *)(v17 - 13)), _mm128_mul_ps(_mm128_sub_ps(g_one.v, v15), v23));
+        _XMM1 = _mm128_mul_ps(v40, v40);
+        __asm
+        {
           vhaddps xmm0, xmm1, xmm1
           vhaddps xmm0, xmm0, xmm0
-          vsqrtps xmm1, xmm0
-          vdivps  xmm11, xmm3, xmm1
-          vmovups [rsp+1F0h+var_1A0], xmm11
-          vmovups xmmword ptr [rbp-70h], xmm7
-          vmovups xmmword ptr [rbp-60h], xmm8
-          vmovups xmmword ptr [rbp-50h], xmm9
         }
+        v44 = _mm128_div_ps(v40, _mm_sqrt_ps(_XMM0));
+        v138 = v44;
+        v142 = _XMM7;
+        v143 = _XMM8;
+        v144 = _XMM9;
         if ( !DCONST_DVARBOOL_xanim_physicsMaintainBindPoseTranslation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaintainBindPoseTranslation") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v38);
-        if ( !v38->current.enabled || (v69 = *((_WORD *)_RBX - 39), v69 == 255) )
+        Dvar_CheckFrontendServerThread(v24);
+        if ( !v24->current.enabled || (v45 = *((_WORD *)v17 - 39), v45 == 255) )
         {
+          v110 = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM8, _XMM7), v15), _XMM7);
+          v111 = _mm_shuffle_ps(v44, v44, 201);
+          v112 = _mm_shuffle_ps(v44, v44, 210);
+          v113 = _mm_shuffle_ps(v44, v44, 255);
+          v114 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 210), v111), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 201), v112));
+          v115 = _mm128_add_ps(v114, v114);
+          v116 = _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v115, v115, 210), v111), _mm128_mul_ps(_mm_shuffle_ps(v115, v115, 201), v112)), _mm128_add_ps(_mm128_mul_ps(v113, v115), _XMM9)), v110);
+          v = outModelQuat.v;
+          _XMM2 = _mm128_mul_ps(outModelQuat.v, v138);
+          v119 = _mm_shuffle_ps(v, v, 255);
+          v120 = _mm_shuffle_ps(v, v, 210);
+          v121 = _mm_shuffle_ps(v, v, 201);
           __asm
           {
-            vsubps  xmm0, xmm8, xmm7
-            vmulps  xmm1, xmm0, xmm12
-            vaddps  xmm6, xmm1, xmm7
-            vshufps xmm7, xmm11, xmm11, 0C9h ; 'É'
-            vshufps xmm8, xmm11, xmm11, 0D2h ; 'Ò'
-            vshufps xmm12, xmm11, xmm11, 0FFh
-            vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-            vmulps  xmm2, xmm1, xmm8
-            vshufps xmm0, xmm9, xmm9, 0D2h ; 'Ò'
-            vmulps  xmm3, xmm0, xmm7
-            vsubps  xmm0, xmm3, xmm2
-            vaddps  xmm4, xmm0, xmm0
-            vmulps  xmm0, xmm12, xmm4
-            vaddps  xmm5, xmm0, xmm9
-            vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-            vmulps  xmm2, xmm0, xmm8
-            vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-            vmulps  xmm3, xmm1, xmm7
-            vsubps  xmm1, xmm3, xmm2
-            vaddps  xmm3, xmm1, xmm5
-            vaddps  xmm11, xmm3, xmm6
-            vmovups xmm3, xmmword ptr [rbp+0F0h+outModelQuat.v]
-            vmulps  xmm2, xmm3, [rsp+1F0h+var_1A0]
-            vshufps xmm6, xmm3, xmm3, 0FFh
-            vshufps xmm10, xmm3, xmm3, 0D2h ; 'Ò'
-            vshufps xmm9, xmm3, xmm3, 0C9h ; 'É'
-            vmulps  xmm1, xmm10, xmm7
-            vmulps  xmm3, xmm3, xmm12
-            vmulps  xmm0, xmm9, xmm8
-            vsubps  xmm4, xmm0, xmm1
             vinsertps xmm0, xmm2, xmm2, 8
             vhaddps xmm1, xmm0, xmm0
             vhaddps xmm2, xmm1, xmm1
-            vmulps  xmm1, xmm6, [rsp+1F0h+var_1A0]
-            vaddps  xmm1, xmm3, xmm1
-            vmulps  xmm0, xmm12, xmm6
-            vsubps  xmm2, xmm0, xmm2
-            vaddps  xmm0, xmm4, xmm1
-            vblendps xmm7, xmm2, xmm0, 7
-            vshufps xmm0, xmm11, xmm11, 0D2h ; 'Ò'
-            vmulps  xmm3, xmm0, xmm9
-            vshufps xmm1, xmm11, xmm11, 0C9h ; 'É'
-            vmulps  xmm2, xmm1, xmm10
-            vsubps  xmm0, xmm3, xmm2
-            vaddps  xmm5, xmm0, xmm0
-            vshufps xmm1, xmm5, xmm5, 0D2h ; 'Ò'
-            vmulps  xmm0, xmm6, xmm5
-            vshufps xmm2, xmm5, xmm5, 0C9h ; 'É'
-            vaddps  xmm6, xmm0, xmm11
-            vmulps  xmm4, xmm1, xmm9
-            vmulps  xmm3, xmm2, xmm10
-            vsubps  xmm1, xmm4, xmm3
-            vaddps  xmm5, xmm1, xmm6
-            vaddps  xmm6, xmm5, xmmword ptr [rbp+0F0h+var_F0.v]
-            vmovups [rsp+1F0h+var_190], xmm7
           }
+          _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v113, v119), _XMM2);
+          _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(v121, v112), _mm128_mul_ps(v120, v111)), _mm128_add_ps(_mm128_mul_ps(outModelQuat.v, v113), _mm128_mul_ps(v119, v138)));
+          __asm { vblendps xmm7, xmm2, xmm0, 7 }
+          v127 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v116, v116, 210), v121), _mm128_mul_ps(_mm_shuffle_ps(v116, v116, 201), v120));
+          v128 = _mm128_add_ps(v127, v127);
+          _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v128, v128, 210), v121), _mm128_mul_ps(_mm_shuffle_ps(v128, v128, 201), v120)), _mm128_add_ps(_mm128_mul_ps(v119, v128), v116)), v149.v);
+          v139.v = _XMM7;
         }
         else
         {
-          XAnimGetLocalBoneTransform(_RDI->animCalcInfo, _RDI->obj, _RDI->destBuffer, v69, &v336, &v337);
-          __asm { vmovss  xmm0, dword ptr [rbx+74h] }
-          v73 = (*(_RBX - 64) & 0x20) == 0;
-          HIDWORD(v330) = 0;
+          XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, v45, &v147, &v148);
+          v48 = v17[29];
+          v49 = (*(_BYTE *)(v17 - 16) & 0x20) == 0;
+          v141.m128_i32[3] = 0;
+          v51 = v141;
+          v51.m128_f32[0] = v48;
+          _XMM6 = v51;
           __asm
           {
-            vmovups xmm6, xmmword ptr [rbp-80h]
-            vmovss  xmm6, xmm6, xmm0
             vinsertps xmm6, xmm6, dword ptr [rbx+78h], 10h
             vinsertps xmm6, xmm6, dword ptr [rbx+7Ch], 20h ; ' '
-            vmovups xmmword ptr [rbp-80h], xmm6
           }
-          if ( v73 )
+          v141 = _XMM6;
+          if ( v49 )
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rbp+0F0h+var_110.v]
-              vshufps xmm8, xmm0, xmm0, 0D2h ; 'Ò'
-              vshufps xmm7, xmm0, xmm0, 0C9h ; 'É'
-              vshufps xmm5, xmm0, xmm0, 0FFh
-              vshufps xmm0, xmm6, xmm6, 0D2h ; 'Ò'
-              vshufps xmm1, xmm6, xmm6, 0C9h ; 'É'
-              vmulps  xmm3, xmm0, xmm7
-              vmulps  xmm2, xmm1, xmm8
-              vsubps  xmm0, xmm3, xmm2
-              vaddps  xmm4, xmm0, xmm0
-              vshufps xmm2, xmm4, xmm4, 0D2h ; 'Ò'
-              vmulps  xmm0, xmm5, xmm4
-              vshufps xmm3, xmm4, xmm4, 0C9h ; 'É'
-              vmulps  xmm4, xmm3, xmm8
-              vaddps  xmm6, xmm0, xmm6
-              vmulps  xmm5, xmm2, xmm7
-              vsubps  xmm2, xmm5, xmm4
-              vaddps  xmm4, xmm2, xmm6
-              vaddps  xmm6, xmm4, xmmword ptr [rbp+0F0h+var_100.v]
-            }
+            v104 = v147.v;
+            v105 = _mm_shuffle_ps(v104, v104, 210);
+            v106 = _mm_shuffle_ps(v104, v104, 201);
+            v107 = _mm_shuffle_ps(v104, v104, 255);
+            v108 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM6, _XMM6, 210), v106), _mm128_mul_ps(_mm_shuffle_ps(_XMM6, _XMM6, 201), v105));
+            v109 = _mm128_add_ps(v108, v108);
+            _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v109, v109, 210), v106), _mm128_mul_ps(_mm_shuffle_ps(v109, v109, 201), v105)), _mm128_add_ps(_mm128_mul_ps(v107, v109), _XMM6)), v148.v);
           }
           else
           {
-            _RAX = *((_QWORD *)_RBX - 9);
-            v71 = NULL;
+            v54 = *((_QWORD *)v17 - 9);
+            v47 = NULL;
+            v55 = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM8, _XMM7), v15), _XMM7);
+            v56 = *(__m128 *)(v54 + 68);
+            v57 = *(float *)(v54 + 140);
+            v58 = _mm_shuffle_ps(v44, v44, 210);
+            v59 = _mm_shuffle_ps(v44, v44, 201);
+            v60 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 210), v59), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 201), v58));
+            v61 = _mm128_add_ps(v60, v60);
+            v62 = outModelQuat.v;
+            v63 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v61, v61, 210), v59), _mm128_mul_ps(_mm_shuffle_ps(v61, v61, 201), v58)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v44, v44, 255), v61), _XMM9));
+            v64 = _mm_shuffle_ps(v62, v62, 201);
+            v65 = _mm_shuffle_ps(v62, v62, 255);
+            v66 = _mm128_add_ps(v55, v63);
+            v67 = _mm_shuffle_ps(v62, v62, 210);
+            v68 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v66, v66, 210), v64), _mm128_mul_ps(_mm_shuffle_ps(v66, v66, 201), v67));
+            v69 = _mm128_add_ps(v68, v68);
+            v70 = _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v69, v69, 210), v64), _mm128_mul_ps(_mm_shuffle_ps(v69, v69, 201), v67)), _mm128_add_ps(_mm128_mul_ps(v65, v69), v66)), v149.v);
+            v71 = v147.v;
+            v72 = _mm_shuffle_ps(v71, v71, 201);
+            v73 = _mm_shuffle_ps(v71, v71, 210);
+            v74 = _mm_shuffle_ps(v71, v71, 255);
+            _XMM0 = _mm128_mul_ps(v147.v, v56);
             __asm
             {
-              vsubps  xmm0, xmm8, xmm7
-              vmulps  xmm1, xmm0, xmm12
-              vaddps  xmm8, xmm1, xmm7
-              vmovups xmm10, xmmword ptr [rax+44h]
-              vmovss  xmm13, dword ptr [rax+8Ch]
-              vshufps xmm7, xmm11, xmm11, 0D2h ; 'Ò'
-              vshufps xmm6, xmm11, xmm11, 0C9h ; 'É'
-              vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-              vmulps  xmm2, xmm1, xmm7
-              vshufps xmm0, xmm9, xmm9, 0D2h ; 'Ò'
-              vmulps  xmm3, xmm0, xmm6
-              vsubps  xmm0, xmm3, xmm2
-              vaddps  xmm4, xmm0, xmm0
-              vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-              vmulps  xmm3, xmm1, xmm6
-              vshufps xmm5, xmm11, xmm11, 0FFh
-              vmulps  xmm0, xmm5, xmm4
-              vaddps  xmm5, xmm0, xmm9
-              vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-              vmulps  xmm2, xmm0, xmm7
-              vmovups xmm0, xmmword ptr [rbp+0F0h+outModelQuat.v]
-              vsubps  xmm1, xmm3, xmm2
-              vaddps  xmm3, xmm1, xmm5
-              vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-              vshufps xmm5, xmm0, xmm0, 0FFh
-              vaddps  xmm7, xmm8, xmm3
-              vshufps xmm8, xmm0, xmm0, 0D2h ; 'Ò'
-              vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-              vmulps  xmm3, xmm0, xmm6
-              vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-              vmulps  xmm2, xmm1, xmm8
-              vsubps  xmm0, xmm3, xmm2
-              vaddps  xmm4, xmm0, xmm0
-              vmulps  xmm0, xmm5, xmm4
-              vaddps  xmm5, xmm0, xmm7
-              vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-              vmulps  xmm2, xmm0, xmm8
-              vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-              vmulps  xmm3, xmm1, xmm6
-              vsubps  xmm1, xmm3, xmm2
-              vaddps  xmm4, xmm1, xmm5
-              vaddps  xmm12, xmm4, xmmword ptr [rbp+0F0h+var_F0.v]
-              vmovups xmm4, xmmword ptr [rbp+0F0h+var_110.v]
-              vshufps xmm7, xmm4, xmm4, 0C9h ; 'É'
-              vshufps xmm9, xmm4, xmm4, 0D2h ; 'Ò'
-              vshufps xmm8, xmm4, xmm4, 0FFh
-              vshufps xmm0, xmm10, xmm10, 0D2h ; 'Ò'
-              vmulps  xmm3, xmm0, xmm7
-              vmulps  xmm0, xmm4, xmm10
-              vshufps xmm1, xmm10, xmm10, 0C9h ; 'É'
-              vmulps  xmm2, xmm1, xmm9
-              vsubps  xmm5, xmm3, xmm2
               vinsertps xmm1, xmm0, xmm0, 8
               vhaddps xmm2, xmm1, xmm1
               vhaddps xmm3, xmm2, xmm2
-              vshufps xmm6, xmm10, xmm10, 0FFh
-              vmulps  xmm4, xmm4, xmm6
-              vmulps  xmm0, xmm6, xmm8
-              vsubps  xmm2, xmm0, xmm3
-              vmulps  xmm1, xmm10, xmm8
-              vaddps  xmm1, xmm4, xmm1
-              vaddps  xmm0, xmm5, xmm1
-              vmovups xmm5, xmmword ptr [rbp-80h]
-              vblendps xmm11, xmm2, xmm0, 7
-              vshufps xmm0, xmm5, xmm5, 0D2h ; 'Ò'
-              vmulps  xmm3, xmm0, xmm7
-              vshufps xmm1, xmm5, xmm5, 0C9h ; 'É'
-              vmulps  xmm2, xmm1, xmm9
-              vsubps  xmm0, xmm3, xmm2
-              vaddps  xmm4, xmm0, xmm0
-              vmulps  xmm0, xmm8, xmm4
-              vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-              vaddps  xmm5, xmm0, xmm5
-              vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-              vmulps  xmm2, xmm0, xmm9
-              vmulps  xmm3, xmm1, xmm7
-              vsubps  xmm1, xmm3, xmm2
-              vaddps  xmm4, xmm1, xmm5
             }
-            HIDWORD(v334) = 0;
+            v79 = _mm_shuffle_ps(v56, v56, 255);
+            _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v79, v74), _XMM3);
+            _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v56, v56, 210), v72), _mm128_mul_ps(_mm_shuffle_ps(v56, v56, 201), v73)), _mm128_add_ps(_mm128_mul_ps(v147.v, v79), _mm128_mul_ps(v56, v74)));
+            __asm { vblendps xmm11, xmm2, xmm0, 7 }
+            v82 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v141, v141, 210), v72), _mm128_mul_ps(_mm_shuffle_ps(v141, v141, 201), v73));
+            v83 = _mm128_add_ps(v82, v82);
+            HIDWORD(v145) = 0;
+            v84 = _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v83, v83, 210), v72), _mm128_mul_ps(_mm_shuffle_ps(v83, v83, 201), v73)), _mm128_add_ps(_mm128_mul_ps(v74, v83), v141)), v148.v);
+            v85 = _mm128_mul_ps(_XMM11, (__m128)_xmm);
+            v86 = _mm_shuffle_ps(v85, v85, 210);
+            v87 = _mm_shuffle_ps(v85, v85, 201);
+            v88 = _mm_shuffle_ps(v85, v85, 255);
+            v89 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v84, v84, 210), v87), _mm128_mul_ps(_mm_shuffle_ps(v84, v84, 201), v86));
+            v90 = _mm128_add_ps(v89, v89);
+            _XMM9 = 0i64;
+            v92 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v70, v70, 210), v87), _mm128_mul_ps(_mm_shuffle_ps(v70, v70, 201), v86));
+            v93 = _mm128_add_ps(v92, v92);
+            v95 = v145;
+            *(float *)&v95 = v57;
+            _XMM0 = v95;
             __asm
             {
-              vaddps  xmm10, xmm4, xmmword ptr [rbp+0F0h+var_100.v]
-              vmulps  xmm0, xmm11, cs:__xmm@3f800000bf800000bf800000bf800000
-              vshufps xmm8, xmm0, xmm0, 0D2h ; 'Ò'
-              vshufps xmm7, xmm0, xmm0, 0C9h ; 'É'
-              vshufps xmm5, xmm0, xmm0, 0FFh
-              vshufps xmm0, xmm10, xmm10, 0D2h ; 'Ò'
-              vmulps  xmm3, xmm0, xmm7
-              vshufps xmm1, xmm10, xmm10, 0C9h ; 'É'
-              vmulps  xmm2, xmm1, xmm8
-              vsubps  xmm0, xmm3, xmm2
-              vaddps  xmm1, xmm0, xmm0
-              vmulps  xmm0, xmm5, xmm1
-              vaddps  xmm4, xmm0, xmm10
-              vshufps xmm0, xmm1, xmm1, 0D2h ; 'Ò'
-              vmulps  xmm3, xmm0, xmm7
-              vshufps xmm1, xmm1, xmm1, 0C9h ; 'É'
-              vmulps  xmm2, xmm1, xmm8
-              vsubps  xmm0, xmm3, xmm2
-              vaddps  xmm3, xmm0, xmm4
-              vxorps  xmm9, xmm9, xmm9
-              vsubps  xmm6, xmm9, xmm3
-              vshufps xmm0, xmm12, xmm12, 0D2h ; 'Ò'
-              vmulps  xmm3, xmm0, xmm7
-              vshufps xmm1, xmm12, xmm12, 0C9h ; 'É'
-              vmulps  xmm2, xmm1, xmm8
-              vsubps  xmm0, xmm3, xmm2
-              vaddps  xmm4, xmm0, xmm0
-              vmulps  xmm0, xmm5, xmm4
-              vaddps  xmm5, xmm0, xmm12
-              vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-              vmulps  xmm2, xmm0, xmm8
-              vmovups xmm0, xmmword ptr [rbp-40h]
-              vmovss  xmm0, xmm0, xmm13
               vinsertps xmm0, xmm0, dword ptr [rax+90h], 10h
               vinsertps xmm0, xmm0, dword ptr [rax+94h], 20h ; ' '
-              vmovups xmmword ptr [rbp-40h], xmm0
-              vcmpneqps xmm0, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-              vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-              vmulps  xmm3, xmm1, xmm7
-              vsubps  xmm1, xmm3, xmm2
-              vaddps  xmm3, xmm1, xmm5
-              vaddps  xmm2, xmm6, xmm3
-              vblendvps xmm7, xmm9, xmm2, xmm0
-              vshufps xmm6, xmm11, xmm11, 0C9h ; 'É'
-              vshufps xmm8, xmm11, xmm11, 0D2h ; 'Ò'
-              vshufps xmm5, xmm11, xmm11, 0FFh
-              vmovups xmm11, [rsp+1F0h+var_1A0]
-              vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-              vmulps  xmm3, xmm0, xmm6
-              vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-              vmulps  xmm2, xmm1, xmm8
-              vsubps  xmm0, xmm3, xmm2
-              vaddps  xmm4, xmm0, xmm0
-              vmulps  xmm0, xmm5, xmm4
-              vaddps  xmm5, xmm0, xmm7
-              vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-              vmulps  xmm3, xmm1, xmm6
-              vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-              vmulps  xmm2, xmm0, xmm8
-              vsubps  xmm1, xmm3, xmm2
-              vaddps  xmm3, xmm1, xmm5
-              vaddps  xmm6, xmm10, xmm3
             }
+            v145 = _XMM0;
+            __asm { vcmpneqps xmm0, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one }
+            _mm128_add_ps(_mm128_sub_ps((__m128)0i64, _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v90, v90, 210), v87), _mm128_mul_ps(_mm_shuffle_ps(v90, v90, 201), v86)), _mm128_add_ps(_mm128_mul_ps(v88, v90), v84))), _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v93, v93, 210), v87), _mm128_mul_ps(_mm_shuffle_ps(v93, v93, 201), v86)), _mm128_add_ps(_mm128_mul_ps(v88, v93), v70)));
+            __asm { vblendvps xmm7, xmm9, xmm2, xmm0 }
+            v100 = _mm_shuffle_ps(_XMM11, _XMM11, 201);
+            v101 = _mm_shuffle_ps(_XMM11, _XMM11, 210);
+            v102 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM7, _XMM7, 210), v100), _mm128_mul_ps(_mm_shuffle_ps(_XMM7, _XMM7, 201), v101));
+            v103 = _mm128_add_ps(v102, v102);
+            _mm128_add_ps(v84, _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v103, v103, 210), v100), _mm128_mul_ps(_mm_shuffle_ps(v103, v103, 201), v101)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM11, _XMM11, 255), v103), _XMM7)));
           }
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rbp+0F0h+outModelQuat.v]
-            vmovups xmm0, xmm11
-          }
-          Float4QuatMultiply(v71, v70, &v328);
-          __asm { vmovups xmm7, [rsp+1F0h+var_190] }
+          Float4QuatMultiply(v47, v46, &v139);
         }
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi+18h]
-          vmovups xmm1, xmm6
-          vmovups xmm0, xmm7
-          vmovss  [rsp+1F0h+var_1C0], xmm2
-        }
-        XAnimSetLocalBoneTransform(_RDI->animCalcInfo, _RDI->obj, _RDI->destBuffer, *((unsigned __int16 *)_RBX - 40), fmt, outModelTranslation, v319);
-        v293 = *((unsigned __int16 *)_RBX - 40);
-        v294 = _RDI->obj;
-        if ( (unsigned int)(v293 - 254) <= 1 )
+        XAnimSetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, *((unsigned __int16 *)v17 - 40), fmt, outModelTranslation, params->weightScale);
+        v129 = *((unsigned __int16 *)v17 - 40);
+        v130 = params->obj;
+        if ( (unsigned int)(v129 - 254) <= 1 )
         {
           outModelTranslation = (float4 *)"boneIndex != NO_BONEINDEX && boneIndex != UNDEFINED_BONEINDEX";
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_client.h", 278, ASSERT_TYPE_ASSERT, "(boneIndex != 255 && boneIndex != 254)", (const char *)&queryFormat) )
             __debugbreak();
         }
-        v295 = v293 & 0x7FFF;
-        if ( (unsigned int)v295 >= DObjTotalNumBones(v294) )
+        v131 = v129 & 0x7FFF;
+        if ( (unsigned int)v131 >= DObjTotalNumBones(v130) )
         {
-          LODWORD(v318) = DObjTotalNumBones(v294);
-          LODWORD(outModelTranslation) = v293 & 0x7FFF;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_client.h", 279, ASSERT_TYPE_ASSERT, "(unsigned)( boneIndex & ((1 << 15) - 1) ) < (unsigned)( DObjTotalNumBones( obj ) )", "boneIndex & CLIENT_BONEINDEX_MASK doesn't index DObjTotalNumBones( obj )\n\t%i not in [0, %i)", outModelTranslation, v318) )
+          LODWORD(v137) = DObjTotalNumBones(v130);
+          LODWORD(outModelTranslation) = v129 & 0x7FFF;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_client.h", 279, ASSERT_TYPE_ASSERT, "(unsigned)( boneIndex & ((1 << 15) - 1) ) < (unsigned)( DObjTotalNumBones( obj ) )", "boneIndex & CLIENT_BONEINDEX_MASK doesn't index DObjTotalNumBones( obj )\n\t%i not in [0, %i)", outModelTranslation, v137) )
             __debugbreak();
         }
-        if ( (v293 & 0x8000) != 0 && (int)v295 < DObjNumBones(v294) )
+        if ( (v129 & 0x8000) != 0 && (int)v131 < DObjNumBones(v130) )
         {
           outModelTranslation = (float4 *)"!(boneIndex & CLIENT_BONEINDEX_FLAG) || ((boneIndex & CLIENT_BONEINDEX_MASK) >= DObjNumBones( obj ))";
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_client.h", 280, ASSERT_TYPE_ASSERT, "(!(boneIndex & (1 << 15)) || ((boneIndex & ((1 << 15) - 1)) >= DObjNumBones( obj )))", (const char *)&queryFormat) )
             __debugbreak();
         }
-        _RSI = 32 * v295;
-        _RCX = _RDI->destBuffer->rotTransArray;
-        __asm
+        v132 = v131;
+        rotTransArray = params->destBuffer->rotTransArray;
+        if ( (LODWORD(rotTransArray[v132].quat.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(rotTransArray[v132].quat.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(rotTransArray[v132].quat.v[2]) & 0x7F800000) == 2139095040 || (LODWORD(rotTransArray[v132].quat.v[3]) & 0x7F800000) == 2139095040 )
         {
-          vmovss  xmm0, dword ptr [rcx+rsi]
-          vmovss  [rsp+1F0h+var_1B0], xmm0
-        }
-        if ( (v320 & 0x7F800000) == 2139095040 )
-          goto LABEL_63;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rsi+4]
-          vmovss  [rsp+1F0h+var_1B0], xmm0
-        }
-        if ( (v321 & 0x7F800000) == 2139095040 )
-          goto LABEL_63;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rsi+8]
-          vmovss  [rsp+1F0h+var_1B0], xmm0
-        }
-        if ( (v322 & 0x7F800000) == 2139095040 )
-          goto LABEL_63;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rsi+0Ch]
-          vmovss  [rsp+1F0h+var_1B0], xmm0
-        }
-        if ( (v323 & 0x7F800000) == 2139095040 )
-        {
-LABEL_63:
           outModelTranslation = (float4 *)"IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].quat)[0]) && IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].quat)[1]) && IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].quat)[2]) && IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].quat)[3])";
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2578, ASSERT_TYPE_ASSERT, "(IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].quat)[0]) && IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].quat)[1]) && IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].quat)[2]) && IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].quat)[3]))", (const char *)&queryFormat) )
             __debugbreak();
         }
-        _RCX = _RDI->destBuffer->rotTransArray;
-        __asm
+        v134 = params->destBuffer->rotTransArray;
+        if ( (LODWORD(v134[v132].trans.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v134[v132].trans.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v134[v132].trans.v[2]) & 0x7F800000) == 2139095040 )
         {
-          vmovss  xmm0, dword ptr [rcx+rsi+10h]
-          vmovss  [rsp+1F0h+var_1B0], xmm0
-        }
-        if ( (v324 & 0x7F800000) == 2139095040 )
-          goto LABEL_55;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rsi+14h]
-          vmovss  [rsp+1F0h+var_1B0], xmm0
-        }
-        if ( (v325 & 0x7F800000) == 2139095040 )
-          goto LABEL_55;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rsi+18h]
-          vmovss  [rsp+1F0h+var_1B0], xmm0
-        }
-        if ( (v326 & 0x7F800000) == 2139095040 )
-        {
-LABEL_55:
           outModelTranslation = (float4 *)"IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].trans)[0]) && IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].trans)[1]) && IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].trans)[2])";
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2579, ASSERT_TYPE_ASSERT, "(IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].trans)[0]) && IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].trans)[1]) && IS_FINITE((params->destBuffer->rotTransArray[physSkelBoneIndex].trans)[2]))", (const char *)&queryFormat) )
             __debugbreak();
         }
-        __asm { vmovups xmm12, [rsp+1F0h+var_180] }
+        v15 = v140;
       }
-      ++v30;
-      _RBX += 264;
+      ++v16;
+      v17 += 66;
     }
-    while ( v30 < numPhysicsBones );
-    __asm
-    {
-      vmovaps xmm15, [rsp+1F0h+var_D0]
-      vmovaps xmm14, [rsp+1F0h+var_C0]
-      vmovaps xmm13, [rsp+1F0h+var_B0]
-      vmovaps xmm11, [rsp+1F0h+var_90]
-      vmovaps xmm10, [rsp+1F0h+var_80]
-      vmovaps xmm9, [rsp+1F0h+var_70]
-      vmovaps xmm8, [rsp+1F0h+var_60]
-      vmovaps xmm7, [rsp+1F0h+var_50]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+1F0h+var_40]
-    vmovaps xmm12, [rsp+1F0h+var_A0]
+    while ( v16 < numPhysicsBones );
   }
 }
 
@@ -4726,135 +3487,122 @@ XAnimBonePhysics_Settle
 */
 void XAnimBonePhysics_Settle(const XAnimBonePhysicsUpdateContext *context, XAnimProcNodeCalcParams *params)
 {
+  const XAnimBonePhysicsUpdateContext *v3; 
   DObjProceduralBones *procBones; 
-  const dvar_t *v13; 
+  const dvar_t *v5; 
+  float v6; 
+  const dvar_t *v7; 
   int integer; 
-  const dvar_t *v15; 
-  const dvar_t *v16; 
+  const dvar_t *v9; 
+  const dvar_t *v10; 
   bool enabled; 
-  unsigned int v18; 
-  DObjProceduralBones *v19; 
-  unsigned __int8 *v20; 
-  unsigned __int8 v21; 
+  unsigned int v12; 
+  DObjProceduralBones *v13; 
+  unsigned __int8 *v14; 
+  unsigned __int8 v15; 
   unsigned int firstPhysicsBoneIndex; 
   unsigned int endPhysicsBoneIndex; 
-  int v24; 
-  char v25; 
+  int v18; 
   _QWORD *p_z; 
-  __int64 v27; 
-  DObjProceduralBones *v28; 
+  __int64 v20; 
+  DObjProceduralBones *v21; 
   XAnimBonePhysicsUpdateContext contexta; 
-  void *retaddr; 
-  bool v34; 
+  bool v24; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  _RDI = context;
+  v3 = context;
   if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2900, ASSERT_TYPE_ASSERT, "(context != 0)", (const char *)&queryFormat, "context != NULL") )
     __debugbreak();
-  if ( !_RDI->procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2901, ASSERT_TYPE_ASSERT, "(context->procBones != 0)", (const char *)&queryFormat, "context->procBones != NULL") )
+  if ( !v3->procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2901, ASSERT_TYPE_ASSERT, "(context->procBones != 0)", (const char *)&queryFormat, "context->procBones != NULL") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF80FFFF, "XAnimBonePhysics_Settle");
-  procBones = _RDI->procBones;
-  _RBX = DCONST_DVARFLT_xanim_physicsSettleVelocityThreshold;
+  procBones = v3->procBones;
+  v5 = DCONST_DVARFLT_xanim_physicsSettleVelocityThreshold;
   if ( !DCONST_DVARFLT_xanim_physicsSettleVelocityThreshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsSettleVelocityThreshold") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm6, xmm0, xmm0
-    vmovups ymm1, ymmword ptr [rdi]
-    vmovups ymmword ptr [rsp+0F8h+context.contacts], ymm1
-    vmovups ymm0, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rsp+0F8h+context.dobj], ymm0
-    vmovsd  xmm1, qword ptr [rdi+40h]
-    vmovsd  qword ptr [rsp+0F8h+context.maxContacts], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = v5->current.value * v5->current.value;
+  contexta = *v3;
   if ( procBones->settlingEnabled )
   {
-    v13 = DCONST_DVARINT_xanim_physicsMaxSettleIterations;
+    v7 = DCONST_DVARINT_xanim_physicsMaxSettleIterations;
     if ( !DCONST_DVARINT_xanim_physicsMaxSettleIterations && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxSettleIterations") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    integer = v13->current.integer;
+    Dvar_CheckFrontendServerThread(v7);
+    integer = v7->current.integer;
   }
   else
   {
     integer = 0;
   }
-  v15 = DCONST_DVARINT_xanim_physicsMaxSettlePositionSolverIterations;
+  v9 = DCONST_DVARINT_xanim_physicsMaxSettlePositionSolverIterations;
   if ( !DCONST_DVARINT_xanim_physicsMaxSettlePositionSolverIterations && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxSettlePositionSolverIterations") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  contexta.maxPositionSolverIterations = v15->current.unsignedInt;
-  v16 = DCONST_DVARBOOL_xanim_physicsForceSettle;
+  Dvar_CheckFrontendServerThread(v9);
+  contexta.maxPositionSolverIterations = v9->current.unsignedInt;
+  v10 = DCONST_DVARBOOL_xanim_physicsForceSettle;
   if ( !DCONST_DVARBOOL_xanim_physicsForceSettle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsForceSettle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v16);
-  enabled = v16->current.enabled;
-  v34 = enabled;
-  v18 = 0;
+  Dvar_CheckFrontendServerThread(v10);
+  enabled = v10->current.enabled;
+  v24 = enabled;
+  v12 = 0;
   if ( procBones->numModels )
   {
-    v19 = contexta.procBones;
+    v13 = contexta.procBones;
     do
     {
-      v20 = (unsigned __int8 *)&procBones->modelInfo[v18];
-      v21 = v20[21];
-      if ( v21 && (v20[26] || enabled) )
+      v14 = (unsigned __int8 *)&procBones->modelInfo[v12];
+      v15 = v14[21];
+      if ( v15 && (v14[26] || enabled) )
       {
-        v20[26] = 0;
-        firstPhysicsBoneIndex = v20[20];
+        v14[26] = 0;
+        firstPhysicsBoneIndex = v14[20];
         contexta.firstPhysicsBoneIndex = firstPhysicsBoneIndex;
-        endPhysicsBoneIndex = firstPhysicsBoneIndex + v21;
+        endPhysicsBoneIndex = firstPhysicsBoneIndex + v15;
         contexta.endPhysicsBoneIndex = endPhysicsBoneIndex;
-        v24 = 0;
+        v18 = 0;
         if ( integer > 0 )
         {
           do
           {
             XAnimBonePhysics_Simulate(&contexta, params);
-            *(float *)&_XMM0 = XAnimBonePhysics_FindMaxBoneVelocitySquared(&contexta);
-            __asm { vcomiss xmm0, xmm6 }
-            if ( v25 )
+            if ( XAnimBonePhysics_FindMaxBoneVelocitySquared(&contexta) < v6 )
               break;
-            ++v24;
+            ++v18;
           }
-          while ( v24 < integer );
+          while ( v18 < integer );
           endPhysicsBoneIndex = contexta.endPhysicsBoneIndex;
           firstPhysicsBoneIndex = contexta.firstPhysicsBoneIndex;
-          v19 = contexta.procBones;
+          v13 = contexta.procBones;
         }
-        if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2865, ASSERT_TYPE_ASSERT, "(context->procBones != 0)", (const char *)&queryFormat, "context->procBones != NULL") )
+        if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2865, ASSERT_TYPE_ASSERT, "(context->procBones != 0)", (const char *)&queryFormat, "context->procBones != NULL") )
           __debugbreak();
         if ( firstPhysicsBoneIndex < endPhysicsBoneIndex )
         {
-          p_z = (_QWORD *)&v19->physicsBones[firstPhysicsBoneIndex].state.velocity.z;
-          v27 = endPhysicsBoneIndex - firstPhysicsBoneIndex;
+          p_z = (_QWORD *)&v13->physicsBones[firstPhysicsBoneIndex].state.velocity.z;
+          v20 = endPhysicsBoneIndex - firstPhysicsBoneIndex;
           do
           {
             *(p_z - 1) = 0i64;
             *p_z = 0i64;
             p_z[1] = 0i64;
             p_z += 33;
-            --v27;
+            --v20;
           }
-          while ( v27 );
+          while ( v20 );
         }
-        enabled = v34;
+        enabled = v24;
       }
-      ++v18;
+      ++v12;
     }
-    while ( v18 < procBones->numModels );
-    _RDI = context;
+    while ( v12 < procBones->numModels );
+    v3 = context;
   }
-  v28 = _RDI->procBones;
-  if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 428, ASSERT_TYPE_ASSERT, "(procBones != 0)", (const char *)&queryFormat, "procBones != NULL") )
+  v21 = v3->procBones;
+  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 428, ASSERT_TYPE_ASSERT, "(procBones != 0)", (const char *)&queryFormat, "procBones != NULL") )
     __debugbreak();
-  v28->physicsState.numAudioEvents = 0;
+  v21->physicsState.numAudioEvents = 0;
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+0F8h+var_48] }
 }
 
 /*
@@ -4866,91 +3614,83 @@ void XAnimBonePhysics_Simulate(XAnimBonePhysicsUpdateContext *context, XAnimProc
 {
   DObjProceduralBones *procBones; 
   int Collisions; 
-  const dvar_t *v7; 
-  XAnimCollisionContact *v9; 
-  const dvar_t *v10; 
+  const dvar_t *v6; 
+  XAnimCollisionContact *v7; 
+  const dvar_t *v8; 
   unsigned int numPhysicsBones; 
   XAnimPhysicsBone *physicsBones; 
   __int64 unsignedInt; 
+  __int64 v12; 
+  XAnimCollisionContact *v13; 
   __int64 v14; 
-  XAnimCollisionContact *v15; 
-  __int64 v16; 
-  float fmt; 
   XAnimCollisionContact *contacts; 
   __int64 numContacts; 
 
-  _RBX = context;
   if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2826, ASSERT_TYPE_ASSERT, "(context != 0)", (const char *)&queryFormat, "context != NULL") )
     __debugbreak();
-  if ( !_RBX->dobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2827, ASSERT_TYPE_ASSERT, "(context->dobj != 0)", (const char *)&queryFormat, "context->dobj != NULL") )
+  if ( !context->dobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2827, ASSERT_TYPE_ASSERT, "(context->dobj != 0)", (const char *)&queryFormat, "context->dobj != NULL") )
     __debugbreak();
-  if ( !_RBX->procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2828, ASSERT_TYPE_ASSERT, "(context->procBones != 0)", (const char *)&queryFormat, "context->procBones != NULL") )
+  if ( !context->procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2828, ASSERT_TYPE_ASSERT, "(context->procBones != 0)", (const char *)&queryFormat, "context->procBones != NULL") )
     __debugbreak();
-  procBones = _RBX->procBones;
-  if ( _RBX->firstPhysicsBoneIndex >= procBones->numPhysicsBones )
+  procBones = context->procBones;
+  if ( context->firstPhysicsBoneIndex >= procBones->numPhysicsBones )
   {
-    LODWORD(contacts) = _RBX->firstPhysicsBoneIndex;
+    LODWORD(contacts) = context->firstPhysicsBoneIndex;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2833, ASSERT_TYPE_ASSERT, "(unsigned)( context->firstPhysicsBoneIndex ) < (unsigned)( procBones->numPhysicsBones )", "context->firstPhysicsBoneIndex doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", contacts, procBones->numPhysicsBones) )
       __debugbreak();
   }
-  if ( _RBX->endPhysicsBoneIndex > procBones->numPhysicsBones )
+  if ( context->endPhysicsBoneIndex > procBones->numPhysicsBones )
   {
     LODWORD(numContacts) = procBones->numPhysicsBones;
-    LODWORD(contacts) = _RBX->endPhysicsBoneIndex;
+    LODWORD(contacts) = context->endPhysicsBoneIndex;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2834, ASSERT_TYPE_ASSERT, "( context->endPhysicsBoneIndex ) <= ( procBones->numPhysicsBones )", "context->endPhysicsBoneIndex not in [0, procBones->numPhysicsBones]\n\t%u not in [0, %u]", contacts, numContacts) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+30h]
-    vmovss  dword ptr [rsp+68h+fmt], xmm0
-  }
-  XAnimBonePhysics_Integrate(params, procBones, _RBX->firstPhysicsBoneIndex, _RBX->endPhysicsBoneIndex, fmt);
+  XAnimBonePhysics_Integrate(params, procBones, context->firstPhysicsBoneIndex, context->endPhysicsBoneIndex, context->timeStep);
   Collisions = 0;
-  XAnimBonePhysics_SolvePositionConstraints(procBones, _RBX->firstPhysicsBoneIndex, _RBX->endPhysicsBoneIndex, 1, _RBX->pinConstraintPoints, _RBX->contacts, 0);
-  v7 = DCONST_DVARBOOL_xanim_physicsEnableCollisions;
+  XAnimBonePhysics_SolvePositionConstraints(procBones, context->firstPhysicsBoneIndex, context->endPhysicsBoneIndex, 1, context->pinConstraintPoints, context->contacts, 0);
+  v6 = DCONST_DVARBOOL_xanim_physicsEnableCollisions;
   if ( !DCONST_DVARBOOL_xanim_physicsEnableCollisions && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsEnableCollisions") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.enabled )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( v6->current.enabled )
   {
-    Collisions = XAnimBonePhysics_FindCollisions(procBones, _RBX->firstPhysicsBoneIndex, _RBX->endPhysicsBoneIndex, _RBX->collidableBoneCollisionShapes, _RBX->collidableBoneTransforms, _RBX->contacts, _RBX->maxContacts);
-    XAnimBonePhysics_GenerateAudioEvents(_RBX, Collisions);
+    Collisions = XAnimBonePhysics_FindCollisions(procBones, context->firstPhysicsBoneIndex, context->endPhysicsBoneIndex, context->collidableBoneCollisionShapes, context->collidableBoneTransforms, context->contacts, context->maxContacts);
+    XAnimBonePhysics_GenerateAudioEvents(context, Collisions);
   }
-  XAnimBonePhysics_SolvePositionConstraints(procBones, _RBX->firstPhysicsBoneIndex, _RBX->endPhysicsBoneIndex, _RBX->maxPositionSolverIterations, _RBX->pinConstraintPoints, _RBX->contacts, Collisions);
-  __asm { vmovss  xmm3, dword ptr [rbx+30h]; timeStep }
-  XAnimBonePhysics_UpdateVelocities(procBones, _RBX->firstPhysicsBoneIndex, _RBX->endPhysicsBoneIndex, *(float *)&_XMM3);
-  v9 = _RBX->contacts;
-  v10 = DCONST_DVARINT_xanim_physicsMaxVelocitySolverIterations;
+  XAnimBonePhysics_SolvePositionConstraints(procBones, context->firstPhysicsBoneIndex, context->endPhysicsBoneIndex, context->maxPositionSolverIterations, context->pinConstraintPoints, context->contacts, Collisions);
+  XAnimBonePhysics_UpdateVelocities(procBones, context->firstPhysicsBoneIndex, context->endPhysicsBoneIndex, context->timeStep);
+  v7 = context->contacts;
+  v8 = DCONST_DVARINT_xanim_physicsMaxVelocitySolverIterations;
   numPhysicsBones = procBones->numPhysicsBones;
   physicsBones = procBones->physicsBones;
   if ( !DCONST_DVARINT_xanim_physicsMaxVelocitySolverIterations && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxVelocitySolverIterations") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  unsignedInt = v10->current.unsignedInt;
+  Dvar_CheckFrontendServerThread(v8);
+  unsignedInt = v8->current.unsignedInt;
   if ( !physicsBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2414, ASSERT_TYPE_ASSERT, "(physicsBones != 0)", (const char *)&queryFormat, "physicsBones != NULL") )
     __debugbreak();
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2415, ASSERT_TYPE_ASSERT, "(contacts != 0)", (const char *)&queryFormat, "contacts != NULL") )
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2415, ASSERT_TYPE_ASSERT, "(contacts != 0)", (const char *)&queryFormat, "contacts != NULL") )
     __debugbreak();
   if ( Collisions && (int)unsignedInt > 0 )
   {
-    v14 = unsignedInt;
+    v12 = unsignedInt;
     do
     {
       if ( Collisions > 0 )
       {
-        v15 = v9;
-        v16 = (unsigned int)Collisions;
+        v13 = v7;
+        v14 = (unsigned int)Collisions;
         do
         {
-          XAnimBonePhysics_SolveWorldContactVelocityConstraint(v15++, physicsBones, numPhysicsBones);
-          --v16;
+          XAnimBonePhysics_SolveWorldContactVelocityConstraint(v13++, physicsBones, numPhysicsBones);
+          --v14;
         }
-        while ( v16 );
+        while ( v14 );
       }
-      --v14;
+      --v12;
     }
-    while ( v14 );
+    while ( v12 );
   }
 }
 
@@ -4968,29 +3708,26 @@ void XAnimBonePhysics_SolveCustomPinConstraints(DObjProceduralBones *procBones, 
   DObjProceduralBonesModelInfo *modelInfo; 
   unsigned int numPinConstraints; 
   unsigned int v9; 
+  __int64 p_dynamicBoneIndexB; 
   unsigned int v11; 
   XAnimPhysicsBone *v12; 
   int v13; 
   unsigned int v14; 
   XAnimPhysicsBone *v15; 
-  float fmt; 
-  float fmta; 
   __int64 strength; 
-  float strengtha; 
-  float strengthb; 
   vec4_t *constraintQuat; 
-  __int64 v26; 
-  __int64 v27; 
-  XAnimPhysicsBone *v29; 
+  __int64 v18; 
+  __int64 v19; 
+  XAnimPhysicsBone *v21; 
 
   numModels = procBones->numModels;
   physicsBones = procBones->physicsBones;
-  v29 = physicsBones;
+  v21 = physicsBones;
   if ( numModels )
   {
     v5 = 0i64;
     v6 = numModels;
-    v27 = numModels;
+    v19 = numModels;
     do
     {
       modelInfo = procBones->modelInfo;
@@ -5001,42 +3738,35 @@ void XAnimBonePhysics_SolveCustomPinConstraints(DObjProceduralBones *procBones, 
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2240, ASSERT_TYPE_ASSERT, "(modelInfo->dynamicBonesAsset)", (const char *)&queryFormat, "modelInfo->dynamicBonesAsset") )
             __debugbreak();
-          v6 = v27;
+          v6 = v19;
         }
         v9 = 0;
         if ( numPinConstraints )
         {
-          _RBX = (__int64)&modelInfo[v5].dynamicBonesAsset->customPinConstraints->dynamicBoneIndexB;
+          p_dynamicBoneIndexB = (__int64)&modelInfo[v5].dynamicBonesAsset->customPinConstraints->dynamicBoneIndexB;
           do
           {
-            if ( *(int *)_RBX < 0 )
+            if ( *(int *)p_dynamicBoneIndexB < 0 )
             {
-              LODWORD(v26) = *(_DWORD *)_RBX;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2248, ASSERT_TYPE_ASSERT, "( pin->dynamicBoneIndexB ) >= ( 0 )", "%s >= %s\n\t%i, %i", "pin->dynamicBoneIndexB", "0", v26, 0i64) )
+              LODWORD(v18) = *(_DWORD *)p_dynamicBoneIndexB;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2248, ASSERT_TYPE_ASSERT, "( pin->dynamicBoneIndexB ) >= ( 0 )", "%s >= %s\n\t%i, %i", "pin->dynamicBoneIndexB", "0", v18, 0i64) )
                 __debugbreak();
             }
-            v11 = *(_DWORD *)_RBX + modelInfo[v5].firstPhysicsBoneIndex;
+            v11 = *(_DWORD *)p_dynamicBoneIndexB + modelInfo[v5].firstPhysicsBoneIndex;
             if ( v11 >= procBones->numPhysicsBones )
             {
               LODWORD(constraintQuat) = procBones->numPhysicsBones;
-              LODWORD(strength) = *(_DWORD *)_RBX + modelInfo[v5].firstPhysicsBoneIndex;
+              LODWORD(strength) = *(_DWORD *)p_dynamicBoneIndexB + modelInfo[v5].firstPhysicsBoneIndex;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2250, ASSERT_TYPE_ASSERT, "(unsigned)( dynamicBoneIndexB ) < (unsigned)( procBones->numPhysicsBones )", "dynamicBoneIndexB doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", strength, constraintQuat) )
                 __debugbreak();
             }
             v12 = &physicsBones[v11];
             if ( v12->boneIndex != 255 )
             {
-              v13 = *(_DWORD *)(_RBX - 4);
+              v13 = *(_DWORD *)(p_dynamicBoneIndexB - 4);
               if ( v13 < 0 )
               {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbx+24h]
-                  vmovss  xmm1, dword ptr [rbx+20h]
-                  vmovss  [rsp+88h+strength], xmm0
-                  vmovss  dword ptr [rsp+88h+fmt], xmm1
-                }
-                XAnimBonePhysics_SolvePinConstraint_Internal_1_1_0_(NULL, v12, &pinConstraintPoints[v9 + modelInfo[v5].firstPinConstraintIndex], (const vec3_t *)(_RBX + 20), fmta, strengthb, NULL);
+                XAnimBonePhysics_SolvePinConstraint_Internal_1_1_0_(NULL, v12, &pinConstraintPoints[v9 + modelInfo[v5].firstPinConstraintIndex], (const vec3_t *)(p_dynamicBoneIndexB + 20), *(float *)(p_dynamicBoneIndexB + 32), *(float *)(p_dynamicBoneIndexB + 36), NULL);
               }
               else
               {
@@ -5048,30 +3778,21 @@ void XAnimBonePhysics_SolveCustomPinConstraints(DObjProceduralBones *procBones, 
                   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2260, ASSERT_TYPE_ASSERT, "(unsigned)( dynamicBoneIndexA ) < (unsigned)( procBones->numPhysicsBones )", "dynamicBoneIndexA doesn't index procBones->numPhysicsBones\n\t%i not in [0, %i)", strength, constraintQuat) )
                     __debugbreak();
                 }
-                v15 = &v29[v14];
+                v15 = &v21[v14];
                 if ( v15->boneIndex != 255 )
-                {
-                  __asm
-                  {
-                    vmovss  xmm0, dword ptr [rbx+24h]
-                    vmovss  xmm1, dword ptr [rbx+20h]
-                    vmovss  [rsp+88h+strength], xmm0
-                    vmovss  dword ptr [rsp+88h+fmt], xmm1
-                  }
-                  XAnimBonePhysics_SolvePinConstraint_Internal_0_1_0_(v15, v12, (const vec3_t *)(_RBX + 8), (const vec3_t *)(_RBX + 20), fmt, strengtha, NULL);
-                }
+                  XAnimBonePhysics_SolvePinConstraint_Internal_0_1_0_(v15, v12, (const vec3_t *)(p_dynamicBoneIndexB + 8), (const vec3_t *)(p_dynamicBoneIndexB + 20), *(float *)(p_dynamicBoneIndexB + 32), *(float *)(p_dynamicBoneIndexB + 36), NULL);
               }
             }
-            physicsBones = v29;
+            physicsBones = v21;
             ++v9;
-            _RBX += 44i64;
+            p_dynamicBoneIndexB += 44i64;
           }
           while ( v9 < numPinConstraints );
-          v6 = v27;
+          v6 = v19;
         }
       }
       ++v5;
-      v27 = --v6;
+      v19 = --v6;
     }
     while ( v6 );
   }
@@ -5084,375 +3805,271 @@ XAnimBonePhysics_SolvePositionConstraints
 */
 void XAnimBonePhysics_SolvePositionConstraints(DObjProceduralBones *procBones, unsigned int firstPhysicsBoneIndex, unsigned int endPhysicsBoneIndex, int maxIterations, const vec3_t *pinConstraintPoints, XAnimCollisionContact *contacts, int numContacts)
 {
-  DObjProceduralBones *v14; 
-  XAnimCollisionContact *v15; 
-  unsigned int v16; 
-  unsigned int v17; 
-  __int64 v18; 
+  DObjProceduralBones *v7; 
+  XAnimCollisionContact *v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  __int64 v11; 
   XAnimPhysicsBone *physicsBones; 
-  const dvar_t *v20; 
+  const dvar_t *v13; 
   bool enabled; 
-  const dvar_t *v22; 
-  bool v23; 
-  const dvar_t *v24; 
-  int v25; 
-  __int64 v27; 
+  const dvar_t *v15; 
+  bool v16; 
+  const dvar_t *v17; 
+  int v18; 
+  __int64 v19; 
   __int64 p_flags; 
-  unsigned __int8 v30; 
+  const vec3_t *v21; 
+  unsigned __int8 v22; 
+  XAnimPhysicsBone *v23; 
+  char v24; 
+  XAnimCollisionContact *v25; 
+  __int64 v26; 
+  __int64 v27; 
+  const vec3_t *v28; 
+  unsigned __int8 v29; 
+  vec4_t *v30; 
   XAnimPhysicsBone *v31; 
-  char v32; 
-  XAnimCollisionContact *v36; 
-  __int64 v37; 
-  __int64 v38; 
-  unsigned __int8 v40; 
-  unsigned __int8 v124; 
-  const dvar_t *v132; 
-  __int64 v133; 
+  vec4_t *p_rotationQuat; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  vec4_t *v42; 
+  float *v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  unsigned __int8 v52; 
+  XAnimPhysicsBone *v53; 
+  float v54; 
+  const dvar_t *v55; 
+  __int64 v56; 
   __int64 p_properties; 
-  XAnimPhysicsBone *v135; 
-  bool v138; 
-  float fmta; 
-  float fmtb; 
-  float fmt; 
+  XAnimPhysicsBone *v58; 
+  bool v59; 
   __int64 minAngle; 
-  float minAngleb; 
-  float minAnglec; 
-  float minAngled; 
-  float minAnglea; 
-  float maxAngle; 
-  bool v155; 
-  bool v156; 
-  bool v157; 
-  __int64 v161; 
+  bool v61; 
+  bool v62; 
+  bool v63; 
+  __int64 v67; 
   vec4_t constraintQuat; 
   vec3_t bodyPinPointA; 
   vec3_t bodyPinPointB; 
 
-  v14 = procBones;
-  v15 = contacts;
-  v16 = endPhysicsBoneIndex;
-  v17 = firstPhysicsBoneIndex;
-  v18 = (unsigned int)maxIterations;
+  v7 = procBones;
+  v8 = contacts;
+  v9 = endPhysicsBoneIndex;
+  v10 = firstPhysicsBoneIndex;
+  v11 = (unsigned int)maxIterations;
   if ( !procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2281, ASSERT_TYPE_ASSERT, "(procBones != 0)", (const char *)&queryFormat, "procBones != NULL") )
     __debugbreak();
   if ( !contacts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2282, ASSERT_TYPE_ASSERT, "(contacts != 0)", (const char *)&queryFormat, "contacts != NULL") )
     __debugbreak();
-  physicsBones = v14->physicsBones;
-  if ( v16 > v14->numPhysicsBones )
+  physicsBones = v7->physicsBones;
+  if ( v9 > v7->numPhysicsBones )
   {
-    LODWORD(minAngle) = v16;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2286, ASSERT_TYPE_ASSERT, "( endPhysicsBoneIndex ) <= ( procBones->numPhysicsBones )", "endPhysicsBoneIndex not in [0, procBones->numPhysicsBones]\n\t%u not in [0, %u]", minAngle, v14->numPhysicsBones) )
+    LODWORD(minAngle) = v9;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2286, ASSERT_TYPE_ASSERT, "( endPhysicsBoneIndex ) <= ( procBones->numPhysicsBones )", "endPhysicsBoneIndex not in [0, procBones->numPhysicsBones]\n\t%u not in [0, %u]", minAngle, v7->numPhysicsBones) )
       __debugbreak();
   }
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2287, ASSERT_TYPE_ASSERT, "( firstPhysicsBoneIndex ) >= ( XANIM_NUM_RESERVED_PHYSICS_BONES )", "%s >= %s\n\t%i, %i", "firstPhysicsBoneIndex", "XANIM_NUM_RESERVED_PHYSICS_BONES", 0, 1) )
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2287, ASSERT_TYPE_ASSERT, "( firstPhysicsBoneIndex ) >= ( XANIM_NUM_RESERVED_PHYSICS_BONES )", "%s >= %s\n\t%i, %i", "firstPhysicsBoneIndex", "XANIM_NUM_RESERVED_PHYSICS_BONES", 0, 1) )
     __debugbreak();
-  v20 = DCONST_DVARBOOL_xanim_physicsEnableSwingLimits;
+  v13 = DCONST_DVARBOOL_xanim_physicsEnableSwingLimits;
   if ( !DCONST_DVARBOOL_xanim_physicsEnableSwingLimits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsEnableSwingLimits") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  enabled = v20->current.enabled;
-  v22 = DCONST_DVARBOOL_xanim_physicsEnableTwistLimits;
-  v155 = enabled;
+  Dvar_CheckFrontendServerThread(v13);
+  enabled = v13->current.enabled;
+  v15 = DCONST_DVARBOOL_xanim_physicsEnableTwistLimits;
+  v61 = enabled;
   if ( !DCONST_DVARBOOL_xanim_physicsEnableTwistLimits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsEnableTwistLimits") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v22);
-  v23 = v22->current.enabled;
-  v24 = DCONST_DVARBOOL_xanim_physicsEnableSprings;
-  v157 = v23;
+  Dvar_CheckFrontendServerThread(v15);
+  v16 = v15->current.enabled;
+  v17 = DCONST_DVARBOOL_xanim_physicsEnableSprings;
+  v63 = v16;
   if ( !DCONST_DVARBOOL_xanim_physicsEnableSprings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsEnableSprings") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v24);
-  v156 = v24->current.enabled;
-  if ( (int)v18 > 0 )
+  Dvar_CheckFrontendServerThread(v17);
+  v62 = v17->current.enabled;
+  if ( (int)v11 > 0 )
   {
-    v25 = numContacts;
-    __asm
-    {
-      vmovaps [rsp+168h+var_48], xmm6
-      vmovaps [rsp+168h+var_58], xmm7
-      vmovaps [rsp+168h+var_68], xmm8
-      vmovaps [rsp+168h+var_78], xmm9
-      vmovaps [rsp+168h+var_88], xmm10
-      vmovaps [rsp+168h+var_98], xmm11
-      vmovaps [rsp+168h+var_A8], xmm12
-      vxorps  xmm12, xmm12, xmm12
-    }
-    v161 = v18;
+    v18 = numContacts;
+    v67 = v11;
     do
     {
-      if ( v17 < v16 )
+      if ( v10 < v9 )
       {
-        v27 = v16 - v17;
-        p_flags = (__int64)&physicsBones[v17].flags;
+        v19 = v9 - v10;
+        p_flags = (__int64)&physicsBones[v10].flags;
         do
         {
           if ( *(_WORD *)(p_flags - 16) != 255 && (*(_BYTE *)p_flags & 3) != 0 )
           {
-            _RDI = *(const vec3_t **)(p_flags - 8);
-            if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2308, ASSERT_TYPE_ASSERT, "(properties != 0)", (const char *)&queryFormat, "properties != NULL") )
+            v21 = *(const vec3_t **)(p_flags - 8);
+            if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2308, ASSERT_TYPE_ASSERT, "(properties != 0)", (const char *)&queryFormat, "properties != NULL") )
               __debugbreak();
-            v30 = *(_BYTE *)(p_flags + 1);
-            if ( v30 == 0xFF )
-              v31 = NULL;
+            v22 = *(_BYTE *)(p_flags + 1);
+            if ( v22 == 0xFF )
+              v23 = NULL;
             else
-              v31 = &physicsBones[v30];
-            v32 = *(_BYTE *)p_flags;
-            if ( (*(_BYTE *)p_flags & 1) != 0 && v155 )
+              v23 = &physicsBones[v22];
+            v24 = *(_BYTE *)p_flags;
+            if ( (*(_BYTE *)p_flags & 1) != 0 && v61 )
             {
-              __asm { vmovss  xmm3, dword ptr [rdi+40h]; cosMaxAngle }
-              XAnimBonePhysics_SolveSwingLimitConstraint((XAnimPhysicsBone *)(p_flags - 16), v31, _RDI + 3, *(float *)&_XMM3);
-              v32 = *(_BYTE *)p_flags;
+              XAnimBonePhysics_SolveSwingLimitConstraint((XAnimPhysicsBone *)(p_flags - 16), v23, v21 + 3, v21[5].v[1]);
+              v24 = *(_BYTE *)p_flags;
             }
-            if ( (v32 & 2) != 0 && v23 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rdi+34h]
-                vmovss  xmm1, dword ptr [rdi+30h]
-                vmovss  [rsp+168h+maxAngle], xmm0
-                vmovss  [rsp+168h+minAngle], xmm1
-              }
-              XAnimBonePhysics_SolveTwistLimitConstraint((XAnimPhysicsBone *)(p_flags - 16), v31, _RDI + 3, (const vec3_t *)(p_flags + 220), (const vec3_t *)(p_flags + 232), minAngleb, maxAngle);
-            }
+            if ( (v24 & 2) != 0 && v16 )
+              XAnimBonePhysics_SolveTwistLimitConstraint((XAnimPhysicsBone *)(p_flags - 16), v23, v21 + 3, (const vec3_t *)(p_flags + 220), (const vec3_t *)(p_flags + 232), v21[4].v[0], v21[4].v[1]);
           }
           p_flags += 264i64;
+          --v19;
+        }
+        while ( v19 );
+        v10 = firstPhysicsBoneIndex;
+        v7 = procBones;
+        v9 = endPhysicsBoneIndex;
+        v18 = numContacts;
+        v8 = contacts;
+      }
+      if ( v18 > 0 )
+      {
+        v25 = v8;
+        v26 = (unsigned int)v18;
+        do
+        {
+          XAnimBonePhysics_SolveWorldContactPositionConstraint(v25++, physicsBones, v7->numPhysicsBones);
+          --v26;
+        }
+        while ( v26 );
+      }
+      if ( v7->numCustomPinConstraints )
+        XAnimBonePhysics_SolveCustomPinConstraints(v7, pinConstraintPoints);
+      if ( v10 < v9 )
+      {
+        v27 = v9 - v10;
+        v28 = (const vec3_t *)&physicsBones[v10].parentBoneQuat.xyz.v[1];
+        do
+        {
+          if ( LOWORD(v28[-18].y) != 255 )
+          {
+            if ( (LOBYTE(v28[-17].z) & 0x20) != 0 && v62 )
+            {
+              v29 = BYTE1(v28[-17].z);
+              if ( v29 == 0xFF )
+              {
+                v42 = (vec4_t *)(*(_QWORD *)v28[-17].v + 68i64);
+                if ( v42 == &constraintQuat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+                  __debugbreak();
+                v43 = &v28[-1].v[2];
+                if ( (vec4_t *)&v28[-1].z == &constraintQuat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 723, ASSERT_TYPE_SANITY, "( &in2 != &out )", (const char *)&queryFormat, "&in2 != &out") )
+                  __debugbreak();
+                v44 = v28->v[2];
+                v45 = v42->v[0];
+                v46 = v42->v[3];
+                v47 = *v43;
+                v48 = v42->v[2];
+                v49 = v28->v[0];
+                v50 = v42->v[1];
+                v51 = v28->v[1];
+                constraintQuat.v[0] = (float)((float)((float)(v46 * *v43) + (float)(v42->v[0] * v44)) + (float)(v48 * v28->v[0])) - (float)(v50 * v51);
+                constraintQuat.v[1] = (float)((float)((float)(v50 * v44) - (float)(v48 * v47)) + (float)(v46 * v49)) + (float)(v45 * v51);
+                constraintQuat.v[2] = (float)((float)((float)(v50 * v47) + (float)(v48 * v44)) - (float)(v45 * v49)) + (float)(v46 * v51);
+                constraintQuat.v[3] = (float)((float)((float)(v46 * v44) - (float)(v45 * v47)) - (float)(v50 * v49)) - (float)(v48 * v51);
+                XAnimBonePhysics_SolvePinConstraint_Internal_1_0_1_(NULL, (XAnimPhysicsBone *)&v28[-18].y, v28 + 1, (const vec3_t *)((char *)v28 - 28), 0.0, 0.0, &constraintQuat);
+              }
+              else
+              {
+                v30 = (vec4_t *)(*(_QWORD *)v28[-17].v + 68i64);
+                v31 = &physicsBones[v29];
+                p_rotationQuat = &v31->state.rotationQuat;
+                v33 = v31->jointOffset.v[1] + v28[-1].v[0];
+                bodyPinPointA.v[0] = v28[-2].v[2] + v31->jointOffset.v[0];
+                bodyPinPointA.v[2] = v31->jointOffset.v[2] + v28[-1].v[1];
+                bodyPinPointA.v[1] = v33;
+                if ( v30 == &constraintQuat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+                  __debugbreak();
+                if ( p_rotationQuat == &constraintQuat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 723, ASSERT_TYPE_SANITY, "( &in2 != &out )", (const char *)&queryFormat, "&in2 != &out") )
+                  __debugbreak();
+                v34 = v31->state.rotationQuat.v[3];
+                v35 = v30->v[0];
+                v36 = v30->v[3];
+                v37 = p_rotationQuat->v[0];
+                v38 = v31->state.rotationQuat.v[1];
+                v39 = v30->v[2];
+                v40 = v31->state.rotationQuat.v[2];
+                v41 = v30->v[1];
+                constraintQuat.v[0] = (float)((float)((float)(p_rotationQuat->v[0] * v36) + (float)(v30->v[0] * v34)) + (float)(v39 * v38)) - (float)(v41 * v40);
+                constraintQuat.v[1] = (float)((float)((float)(v41 * v34) - (float)(v39 * v37)) + (float)(v38 * v36)) + (float)(v40 * v35);
+                constraintQuat.v[2] = (float)((float)((float)(v41 * v37) + (float)(v39 * v34)) - (float)(v38 * v35)) + (float)(v40 * v36);
+                constraintQuat.v[3] = (float)((float)((float)(v36 * v34) - (float)(v37 * v35)) - (float)(v41 * v38)) - (float)(v40 * v39);
+                XAnimBonePhysics_SolvePinConstraint_Internal_0_0_1_(v31, (XAnimPhysicsBone *)&v28[-18].y, &bodyPinPointA, (const vec3_t *)((char *)v28 - 28), 0.0, 0.0, &constraintQuat);
+              }
+            }
+            else
+            {
+              v52 = BYTE1(v28[-17].z);
+              if ( v52 == 0xFF )
+              {
+                XAnimBonePhysics_SolvePinConstraint_Internal_1_0_0_(NULL, (XAnimPhysicsBone *)&v28[-18].y, v28 + 1, (const vec3_t *)((char *)v28 - 28), 0.0, 0.0, NULL);
+              }
+              else
+              {
+                v53 = &physicsBones[v52];
+                v54 = v53->jointOffset.v[1] + v28[-1].v[0];
+                bodyPinPointB.v[0] = v28[-2].v[2] + v53->jointOffset.v[0];
+                bodyPinPointB.v[2] = v53->jointOffset.v[2] + v28[-1].v[1];
+                bodyPinPointB.v[1] = v54;
+                XAnimBonePhysics_SolvePinConstraint_Internal_0_0_0_((XAnimPhysicsBone *)&v28[-18].y, v53, (const vec3_t *)((char *)v28 - 28), &bodyPinPointB, 0.0, 0.0, NULL);
+              }
+            }
+          }
+          v28 += 22;
           --v27;
         }
         while ( v27 );
-        v17 = firstPhysicsBoneIndex;
-        v14 = procBones;
-        v16 = endPhysicsBoneIndex;
-        v25 = numContacts;
-        v15 = contacts;
+        v10 = firstPhysicsBoneIndex;
+        v7 = procBones;
+        v9 = endPhysicsBoneIndex;
+        v16 = v63;
       }
-      if ( v25 > 0 )
-      {
-        v36 = v15;
-        v37 = (unsigned int)v25;
-        do
-        {
-          XAnimBonePhysics_SolveWorldContactPositionConstraint(v36++, physicsBones, v14->numPhysicsBones);
-          --v37;
-        }
-        while ( v37 );
-      }
-      if ( v14->numCustomPinConstraints )
-        XAnimBonePhysics_SolveCustomPinConstraints(v14, pinConstraintPoints);
-      if ( v17 < v16 )
-      {
-        v38 = v16 - v17;
-        _RBX = (const vec3_t *)&physicsBones[v17].parentBoneQuat.xyz.v[1];
-        do
-        {
-          if ( LOWORD(_RBX[-18].y) != 255 )
-          {
-            if ( (LOBYTE(_RBX[-17].z) & 0x20) != 0 && v156 )
-            {
-              v40 = BYTE1(_RBX[-17].z);
-              if ( v40 == 0xFF )
-              {
-                _RDI = (vec4_t *)(*(_QWORD *)_RBX[-17].v + 68i64);
-                if ( _RDI == &constraintQuat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
-                  __debugbreak();
-                _RSI = (char *)&_RBX[-1].z;
-                if ( (vec4_t *)&_RBX[-1].z == &constraintQuat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 723, ASSERT_TYPE_SANITY, "( &in2 != &out )", (const char *)&queryFormat, "&in2 != &out") )
-                  __debugbreak();
-                __asm
-                {
-                  vmovss  xmm9, dword ptr [rbx+8]
-                  vmovss  xmm10, dword ptr [rdi]
-                  vmovss  xmm5, dword ptr [rdi+0Ch]
-                  vmovss  xmm6, dword ptr [rsi]
-                  vmovss  xmm11, dword ptr [rdi+8]
-                  vmovss  xmm7, dword ptr [rbx]
-                  vmovss  xmm4, dword ptr [rdi+4]
-                  vmovss  xmm8, dword ptr [rbx+4]
-                  vmulss  xmm1, xmm5, xmm6
-                  vmulss  xmm0, xmm10, xmm9
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm11, xmm7
-                  vaddss  xmm3, xmm2, xmm1
-                  vmulss  xmm0, xmm4, xmm8
-                  vsubss  xmm2, xmm3, xmm0
-                  vmovss  dword ptr [rsp+168h+constraintQuat], xmm2
-                  vmulss  xmm0, xmm11, xmm6
-                  vmulss  xmm1, xmm4, xmm9
-                  vsubss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm5, xmm7
-                  vaddss  xmm3, xmm2, xmm1
-                  vmulss  xmm0, xmm10, xmm8
-                  vaddss  xmm2, xmm3, xmm0
-                  vmovss  dword ptr [rsp+168h+constraintQuat+4], xmm2
-                  vmulss  xmm0, xmm11, xmm9
-                  vmulss  xmm1, xmm4, xmm6
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm10, xmm7
-                  vsubss  xmm3, xmm2, xmm1
-                  vmulss  xmm0, xmm5, xmm8
-                  vaddss  xmm2, xmm3, xmm0
-                  vmulss  xmm0, xmm10, xmm6
-                  vmulss  xmm1, xmm5, xmm9
-                  vmovss  dword ptr [rsp+168h+constraintQuat+8], xmm2
-                  vsubss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm4, xmm7
-                  vsubss  xmm3, xmm2, xmm1
-                  vmulss  xmm0, xmm11, xmm8
-                  vsubss  xmm2, xmm3, xmm0
-                  vmovss  [rsp+168h+minAngle], xmm12
-                  vmovss  dword ptr [rsp+168h+constraintQuat+0Ch], xmm2
-                  vmovss  dword ptr [rsp+168h+fmt], xmm12
-                }
-                XAnimBonePhysics_SolvePinConstraint_Internal_1_0_1_(NULL, (XAnimPhysicsBone *)&_RBX[-18].y, _RBX + 1, (const vec3_t *)((char *)_RBX - 28), fmtb, minAngled, &constraintQuat);
-              }
-              else
-              {
-                __asm { vmovss  xmm0, dword ptr [rbx-10h] }
-                _RSI = (vec4_t *)(*(_QWORD *)_RBX[-17].v + 68i64);
-                _RDI = &physicsBones[v40];
-                _R14 = &_RDI->state.rotationQuat;
-                __asm
-                {
-                  vaddss  xmm1, xmm0, dword ptr [rdi+0B8h]
-                  vmovss  xmm2, dword ptr [rdi+0BCh]
-                  vaddss  xmm0, xmm2, dword ptr [rbx-0Ch]
-                  vmovss  dword ptr [rsp+168h+bodyPinPointA], xmm1
-                  vmovss  xmm1, dword ptr [rdi+0C0h]
-                  vaddss  xmm2, xmm1, dword ptr [rbx-8]
-                  vmovss  dword ptr [rsp+168h+bodyPinPointA+8], xmm2
-                  vmovss  dword ptr [rsp+168h+bodyPinPointA+4], xmm0
-                }
-                if ( _RSI == &constraintQuat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
-                  __debugbreak();
-                if ( _R14 == &constraintQuat && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 723, ASSERT_TYPE_SANITY, "( &in2 != &out )", (const char *)&queryFormat, "&in2 != &out") )
-                  __debugbreak();
-                __asm
-                {
-                  vmovss  xmm9, dword ptr [r14+0Ch]
-                  vmovss  xmm10, dword ptr [rsi]
-                  vmovss  xmm5, dword ptr [rsi+0Ch]
-                  vmovss  xmm6, dword ptr [r14]
-                  vmovss  xmm7, dword ptr [r14+4]
-                  vmovss  xmm11, dword ptr [rsi+8]
-                  vmovss  xmm8, dword ptr [r14+8]
-                  vmovss  xmm4, dword ptr [rsi+4]
-                  vmulss  xmm1, xmm6, xmm5
-                  vmulss  xmm0, xmm10, xmm9
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm11, xmm7
-                  vaddss  xmm3, xmm2, xmm1
-                  vmulss  xmm0, xmm4, xmm8
-                  vsubss  xmm2, xmm3, xmm0
-                  vmovss  dword ptr [rsp+168h+constraintQuat], xmm2
-                  vmulss  xmm0, xmm11, xmm6
-                  vmulss  xmm1, xmm4, xmm9
-                  vsubss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm7, xmm5
-                  vaddss  xmm3, xmm2, xmm1
-                  vmulss  xmm0, xmm8, xmm10
-                  vaddss  xmm2, xmm3, xmm0
-                  vmovss  dword ptr [rsp+168h+constraintQuat+4], xmm2
-                  vmulss  xmm0, xmm11, xmm9
-                  vmulss  xmm1, xmm4, xmm6
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm7, xmm10
-                  vsubss  xmm3, xmm2, xmm1
-                  vmulss  xmm0, xmm8, xmm5
-                  vaddss  xmm2, xmm3, xmm0
-                  vmulss  xmm0, xmm6, xmm10
-                  vmulss  xmm1, xmm5, xmm9
-                  vmovss  dword ptr [rsp+168h+constraintQuat+8], xmm2
-                  vsubss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm4, xmm7
-                  vsubss  xmm3, xmm2, xmm1
-                  vmulss  xmm0, xmm8, xmm11
-                  vsubss  xmm2, xmm3, xmm0
-                  vmovss  [rsp+168h+minAngle], xmm12
-                  vmovss  dword ptr [rsp+168h+constraintQuat+0Ch], xmm2
-                  vmovss  dword ptr [rsp+168h+fmt], xmm12
-                }
-                XAnimBonePhysics_SolvePinConstraint_Internal_0_0_1_(_RDI, (XAnimPhysicsBone *)&_RBX[-18].y, &bodyPinPointA, (const vec3_t *)((char *)_RBX - 28), fmta, minAnglec, &constraintQuat);
-              }
-            }
-            else
-            {
-              v124 = BYTE1(_RBX[-17].z);
-              __asm
-              {
-                vmovss  [rsp+168h+minAngle], xmm12
-                vmovss  dword ptr [rsp+168h+fmt], xmm12
-              }
-              if ( v124 == 0xFF )
-              {
-                XAnimBonePhysics_SolvePinConstraint_Internal_1_0_0_(NULL, (XAnimPhysicsBone *)&_RBX[-18].y, _RBX + 1, (const vec3_t *)((char *)_RBX - 28), fmt, minAnglea, NULL);
-              }
-              else
-              {
-                __asm { vmovss  xmm0, dword ptr [rbx-10h] }
-                _RDX = &physicsBones[v124];
-                __asm
-                {
-                  vaddss  xmm1, xmm0, dword ptr [rdx+0B8h]
-                  vmovss  xmm2, dword ptr [rdx+0BCh]
-                  vaddss  xmm0, xmm2, dword ptr [rbx-0Ch]
-                  vmovss  dword ptr [rsp+168h+bodyPinPointB], xmm1
-                  vmovss  xmm1, dword ptr [rdx+0C0h]
-                  vaddss  xmm2, xmm1, dword ptr [rbx-8]
-                  vmovss  dword ptr [rsp+168h+bodyPinPointB+8], xmm2
-                  vmovss  dword ptr [rsp+168h+bodyPinPointB+4], xmm0
-                }
-                XAnimBonePhysics_SolvePinConstraint_Internal_0_0_0_((XAnimPhysicsBone *)&_RBX[-18].y, _RDX, (const vec3_t *)((char *)_RBX - 28), &bodyPinPointB, fmt, minAnglea, NULL);
-              }
-            }
-          }
-          _RBX += 22;
-          --v38;
-        }
-        while ( v38 );
-        v17 = firstPhysicsBoneIndex;
-        v14 = procBones;
-        v16 = endPhysicsBoneIndex;
-        v23 = v157;
-      }
-      v132 = DCONST_DVARBOOL_xanim_physicsEnableMaxDistanceConstraint;
+      v55 = DCONST_DVARBOOL_xanim_physicsEnableMaxDistanceConstraint;
       if ( !DCONST_DVARBOOL_xanim_physicsEnableMaxDistanceConstraint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsEnableMaxDistanceConstraint") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v132);
-      if ( v132->current.enabled && v17 < v16 )
+      Dvar_CheckFrontendServerThread(v55);
+      if ( v55->current.enabled && v10 < v9 )
       {
-        v133 = v16 - v17;
-        p_properties = (__int64)&physicsBones[v17].properties;
+        v56 = v9 - v10;
+        p_properties = (__int64)&physicsBones[v10].properties;
         do
         {
           if ( *(_WORD *)(p_properties - 8) != 255 )
           {
-            v135 = &physicsBones[*(unsigned __int8 *)(p_properties + 10)];
-            if ( v135->boneIndex != 255 )
-            {
-              _RAX = *(_QWORD *)p_properties;
-              __asm { vmovss  xmm3, dword ptr [rax+0Ch]; maxDistance }
-              XAnimBonePhysics_SolveWorldMaxDistanceConstraint((XAnimPhysicsBone *)(p_properties - 8), (const vec3_t *)(p_properties + 176), &v135->modelPinPoint, *(float *)&_XMM3);
-            }
+            v58 = &physicsBones[*(unsigned __int8 *)(p_properties + 10)];
+            if ( v58->boneIndex != 255 )
+              XAnimBonePhysics_SolveWorldMaxDistanceConstraint((XAnimPhysicsBone *)(p_properties - 8), (const vec3_t *)(p_properties + 176), &v58->modelPinPoint, *(float *)(*(_QWORD *)p_properties + 12i64));
           }
           p_properties += 264i64;
-          --v133;
+          --v56;
         }
-        while ( v133 );
+        while ( v56 );
       }
-      v138 = v161-- == 1;
-      v25 = numContacts;
-      v15 = contacts;
+      v59 = v67-- == 1;
+      v18 = numContacts;
+      v8 = contacts;
     }
-    while ( !v138 );
-    __asm
-    {
-      vmovaps xmm12, [rsp+168h+var_A8]
-      vmovaps xmm11, [rsp+168h+var_98]
-      vmovaps xmm10, [rsp+168h+var_88]
-      vmovaps xmm9, [rsp+168h+var_78]
-      vmovaps xmm8, [rsp+168h+var_68]
-      vmovaps xmm7, [rsp+168h+var_58]
-      vmovaps xmm6, [rsp+168h+var_48]
-    }
+    while ( !v59 );
   }
 }
 
@@ -5463,10 +4080,10 @@ XAnimBonePhysics_SolveRotationConstraint1D
 */
 void XAnimBonePhysics_SolveRotationConstraint1D(XAnimPhysicsBone *physicsBoneA, XAnimPhysicsBone *physicsBoneB, const float4 *scalarConstraintError, const float4 *constraintAxis)
 {
+  __m128 v12; 
   float4 deltaRot; 
-  float4 v26; 
+  float4 v14; 
 
-  __asm { vmovaps [rsp+88h+var_28], xmm6 }
   _RBX = physicsBoneB;
   _RDI = physicsBoneA;
   if ( !physicsBoneA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1525, ASSERT_TYPE_ASSERT, "(physicsBoneA != 0)", (const char *)&queryFormat, "physicsBoneA != NULL") )
@@ -5477,26 +4094,14 @@ void XAnimBonePhysics_SolveRotationConstraint1D(XAnimPhysicsBone *physicsBoneA, 
   {
     vbroadcastss xmm5, dword ptr [rdi+18h]
     vbroadcastss xmm6, dword ptr [rbx+18h]
-    vaddps  xmm2, xmm5, xmm6
-    vrcpps  xmm1, xmm2
-    vmulps  xmm0, xmm1, xmm1
-    vmulps  xmm2, xmm0, xmm2
-    vaddps  xmm1, xmm1, xmm1
-    vsubps  xmm3, xmm1, xmm2
-    vmulps  xmm0, xmm3, xmmword ptr [rbp+0]
-    vxorps  xmm4, xmm4, xmm4
-    vsubps  xmm2, xmm4, xmm0
-    vmulps  xmm1, xmm2, xmmword ptr [rsi]
-    vmulps  xmm0, xmm5, xmm1
-    vmovups xmmword ptr [rsp+88h+deltaRot.v], xmm0
-    vmulps  xmm0, xmm2, xmmword ptr [rsi]
-    vsubps  xmm2, xmm4, xmm0
-    vmulps  xmm1, xmm6, xmm2
-    vmovups xmmword ptr [rsp+88h+var_48.v], xmm1
   }
+  _XMM2 = _mm128_add_ps(_XMM5, _XMM6);
+  __asm { vrcpps  xmm1, xmm2 }
+  v12 = _mm128_sub_ps((__m128)0i64, _mm128_mul_ps(_mm128_sub_ps(_mm128_add_ps(_XMM1, _XMM1), _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM1), _XMM2)), scalarConstraintError->v));
+  deltaRot.v = _mm128_mul_ps(_XMM5, _mm128_mul_ps(v12, constraintAxis->v));
+  v14.v = _mm128_mul_ps(_XMM6, _mm128_sub_ps((__m128)0i64, _mm128_mul_ps(v12, constraintAxis->v)));
   XAnimBonePhysics_ApplyRotationDelta(_RDI, &deltaRot);
-  XAnimBonePhysics_ApplyRotationDelta(_RBX, &v26);
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
+  XAnimBonePhysics_ApplyRotationDelta(_RBX, &v14);
 }
 
 /*
@@ -5507,257 +4112,192 @@ XAnimBonePhysics_SolveSwingLimitConstraint
 
 void __fastcall XAnimBonePhysics_SolveSwingLimitConstraint(XAnimPhysicsBone *physicsBoneA, XAnimPhysicsBone *physicsBoneB, const vec3_t *axis, double cosMaxAngle)
 {
-  bool v18; 
-  bool v20; 
-  const dvar_t *v23; 
-  char v24; 
-  const float4 *v149; 
-  const float4 *v150; 
-  const float4 *v151; 
+  __m128 v7; 
+  vec4_t rotationQuat; 
+  const dvar_t *v9; 
+  char v10; 
+  float v11; 
+  vec4_t v12; 
+  __m128 v13; 
+  __m128 v; 
+  vec4_t localBasePoseQuat; 
+  __m128 v19; 
+  __m128 v26; 
+  __m128 v27; 
+  __m128 v28; 
+  __m128 v29; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v32; 
+  __m128 v33; 
+  __m128 v34; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v37; 
+  __m128 v38; 
+  bool v43; 
+  __m128 v44; 
+  __m128 v53; 
+  __m128 v54; 
+  __m128 v55; 
+  __m128 v56; 
+  __m128 v68; 
+  __m128 v69; 
+  __m128 v70; 
+  const float4 *v77; 
+  const float4 *v78; 
+  const float4 *v79; 
   float4 constraintAxis; 
   float4 scalarConstraintError; 
-  char v165; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps [rsp+138h+var_C8], xmm14
-  }
-  _RBP = axis;
-  _RDI = physicsBoneB;
-  _RBX = physicsBoneA;
-  __asm { vmovaps xmm14, xmm3 }
+  v7 = *(__m128 *)&cosMaxAngle;
   if ( !physicsBoneA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1723, ASSERT_TYPE_ASSERT, "(physicsBoneA != 0)", (const char *)&queryFormat, "physicsBoneA != NULL") )
     __debugbreak();
-  if ( !_RBX->properties && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1724, ASSERT_TYPE_ASSERT, "(physicsBoneA->properties != 0)", (const char *)&queryFormat, "physicsBoneA->properties != NULL") )
+  if ( !physicsBoneA->properties && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1724, ASSERT_TYPE_ASSERT, "(physicsBoneA->properties != 0)", (const char *)&queryFormat, "physicsBoneA->properties != NULL") )
     __debugbreak();
-  v18 = _RDI == NULL;
-  if ( _RDI )
+  if ( physicsBoneB )
   {
-    __asm { vmovups xmm9, xmmword ptr [rdi+1Ch] }
+    rotationQuat = physicsBoneB->state.rotationQuat;
   }
   else
   {
-    v18 = _RBX->parentPhysicsBoneIndex == 0xFF;
-    if ( _RBX->parentPhysicsBoneIndex != 0xFF )
-    {
-      v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1732, ASSERT_TYPE_ASSERT, "(physicsBoneA->parentPhysicsBoneIndex == XANIM_NO_PHYSICS_BONE_INDEX)", (const char *)&queryFormat, "physicsBoneA->parentPhysicsBoneIndex == XANIM_NO_PHYSICS_BONE_INDEX");
-      v18 = !v20;
-      if ( v20 )
-        __debugbreak();
-    }
-    __asm { vmovups xmm9, xmmword ptr [rbx+0D0h] }
+    if ( physicsBoneA->parentPhysicsBoneIndex != 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1732, ASSERT_TYPE_ASSERT, "(physicsBoneA->parentPhysicsBoneIndex == XANIM_NO_PHYSICS_BONE_INDEX)", (const char *)&queryFormat, "physicsBoneA->parentPhysicsBoneIndex == XANIM_NO_PHYSICS_BONE_INDEX") )
+      __debugbreak();
+    rotationQuat = physicsBoneA->parentBoneQuat;
   }
-  _RAX = _RBX->properties;
-  __asm
-  {
-    vxorps  xmm13, xmm13, xmm13
-    vucomiss xmm13, dword ptr [rax+84h]
-  }
-  if ( v18 )
+  if ( physicsBoneA->properties->rotationalSpring.swingStrength == 0.0 )
     goto LABEL_19;
-  v23 = DCONST_DVARBOOL_xanim_physicsEnableSprings;
+  v9 = DCONST_DVARBOOL_xanim_physicsEnableSprings;
   if ( !DCONST_DVARBOOL_xanim_physicsEnableSprings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsEnableSprings") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  if ( !v23->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( !v9->current.enabled )
 LABEL_19:
-    v24 = 0;
+    v10 = 0;
   else
-    v24 = 1;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+0]
-    vmovups xmm10, xmmword ptr [rbx+1Ch]
-    vshufps xmm6, xmm9, xmm9, 0FFh
-  }
+    v10 = 1;
+  v11 = axis->v[0];
+  v12 = physicsBoneA->state.rotationQuat;
+  v13 = _mm_shuffle_ps((__m128)rotationQuat, (__m128)rotationQuat, 255);
   scalarConstraintError.v.m128_i32[3] = 0;
-  __asm { vmovups xmm11, xmmword ptr [rsp+138h+scalarConstraintError.v] }
-  _RAX = _RBX->properties;
+  v = scalarConstraintError.v;
+  v.m128_f32[0] = v11;
+  _XMM11 = v;
   __asm
   {
-    vmovss  xmm11, xmm11, xmm0
     vinsertps xmm11, xmm11, dword ptr [rbp+4], 10h
     vinsertps xmm11, xmm11, dword ptr [rbp+8], 20h ; ' '
-    vmovups xmm7, xmmword ptr [rax+44h]
-    vshufps xmm8, xmm7, xmm7, 0FFh
-    vmulps  xmm4, xmm9, xmm8
-    vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-    vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-    vshufps xmm2, xmm9, xmm9, 0D2h ; 'Ò'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm5, xmm3, xmm0
-    vmulps  xmm1, xmm9, xmm7
+  }
+  localBasePoseQuat = physicsBoneA->properties->localBasePoseQuat;
+  v19 = _mm_shuffle_ps((__m128)localBasePoseQuat, (__m128)localBasePoseQuat, 255);
+  _XMM1 = _mm128_mul_ps((__m128)rotationQuat, (__m128)localBasePoseQuat);
+  __asm
+  {
     vinsertps xmm0, xmm1, xmm1, 8
     vhaddps xmm2, xmm0, xmm0
     vhaddps xmm3, xmm2, xmm2
-    vmulps  xmm0, xmm8, xmm6
-    vsubps  xmm2, xmm0, xmm3
-    vmulps  xmm1, xmm7, xmm6
-    vaddps  xmm1, xmm4, xmm1
-    vaddps  xmm0, xmm5, xmm1
-    vblendps xmm3, xmm2, xmm0, 7
-    vshufps xmm6, xmm3, xmm3, 0D2h ; 'Ò'
-    vshufps xmm5, xmm3, xmm3, 0FFh
-    vshufps xmm3, xmm3, xmm3, 0C9h ; 'É'
-    vshufps xmm9, xmm11, xmm11, 0C9h ; 'É'
-    vmulps  xmm0, xmm6, xmm9
-    vshufps xmm8, xmm11, xmm11, 0D2h ; 'Ò'
-    vmulps  xmm1, xmm3, xmm8
-    vsubps  xmm2, xmm1, xmm0
-    vaddps  xmm4, xmm2, xmm2
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm11
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm6
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm3
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm12, xmm1, xmm5
-    vshufps xmm6, xmm10, xmm10, 0C9h ; 'É'
-    vmulps  xmm1, xmm6, xmm8
-    vshufps xmm7, xmm10, xmm10, 0D2h ; 'Ò'
-    vmulps  xmm0, xmm7, xmm9
-    vsubps  xmm2, xmm1, xmm0
-    vaddps  xmm4, xmm2, xmm2
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vshufps xmm3, xmm10, xmm10, 0FFh
-    vmulps  xmm0, xmm3, xmm4
-    vaddps  xmm5, xmm0, xmm11
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm7
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm4, xmm1, xmm5
-    vmulps  xmm0, xmm12, xmm4
+  }
+  _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v19, v13), _XMM3);
+  _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)rotationQuat, (__m128)rotationQuat, 201), _mm_shuffle_ps((__m128)localBasePoseQuat, (__m128)localBasePoseQuat, 210)), _mm128_mul_ps(_mm_shuffle_ps((__m128)rotationQuat, (__m128)rotationQuat, 210), _mm_shuffle_ps((__m128)localBasePoseQuat, (__m128)localBasePoseQuat, 201))), _mm128_add_ps(_mm128_mul_ps((__m128)rotationQuat, v19), _mm128_mul_ps((__m128)localBasePoseQuat, v13)));
+  __asm { vblendps xmm3, xmm2, xmm0, 7 }
+  v26 = _mm_shuffle_ps(_XMM3, _XMM3, 210);
+  v27 = _mm_shuffle_ps(_XMM3, _XMM3, 255);
+  v28 = _mm_shuffle_ps(_XMM3, _XMM3, 201);
+  v29 = _mm_shuffle_ps(_XMM11, _XMM11, 201);
+  v30 = _mm_shuffle_ps(_XMM11, _XMM11, 210);
+  v31 = _mm128_sub_ps(_mm128_mul_ps(v28, v30), _mm128_mul_ps(v26, v29));
+  v32 = _mm128_add_ps(v31, v31);
+  v33 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v32, v32, 210), v28), _mm128_mul_ps(_mm_shuffle_ps(v32, v32, 201), v26)), _mm128_add_ps(_mm128_mul_ps(v27, v32), _XMM11));
+  v34 = _mm_shuffle_ps((__m128)v12, (__m128)v12, 201);
+  v35 = _mm_shuffle_ps((__m128)v12, (__m128)v12, 210);
+  v36 = _mm128_sub_ps(_mm128_mul_ps(v34, v30), _mm128_mul_ps(v35, v29));
+  v37 = _mm128_add_ps(v36, v36);
+  v38 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v37, v37, 210), v34), _mm128_mul_ps(_mm_shuffle_ps(v37, v37, 201), v35)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps((__m128)v12, (__m128)v12, 255), v37), _XMM11));
+  _XMM0 = _mm128_mul_ps(v33, v38);
+  __asm
+  {
     vinsertps xmm1, xmm0, xmm0, 8
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm6, xmm2, xmm2
-    vcomiss xmm14, xmm6
-    vmovups xmmword ptr [rsp+138h+scalarConstraintError.v], xmm11
   }
-  if ( v24 )
+  scalarConstraintError.v = _XMM11;
+  v43 = v7.m128_f32[0] > _XMM6.m128_f32[0];
+  if ( v7.m128_f32[0] > _XMM6.m128_f32[0] || v10 )
   {
+    v44 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v33, v33, 210), _mm_shuffle_ps(v38, v38, 201)), _mm128_mul_ps(_mm_shuffle_ps(v33, v33, 201), _mm_shuffle_ps(v38, v38, 210)));
+    _XMM1 = _mm128_mul_ps(v44, v44);
     __asm
     {
-      vshufps xmm1, xmm12, xmm12, 0C9h ; 'É'
-      vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm1, xmm0
-      vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-      vshufps xmm2, xmm12, xmm12, 0D2h ; 'Ò'
-      vmulps  xmm0, xmm2, xmm1
-      vsubps  xmm5, xmm0, xmm3
-      vmulps  xmm1, xmm5, xmm5
       vinsertps xmm0, xmm1, xmm1, 8
       vhaddps xmm2, xmm0, xmm0
       vhaddps xmm1, xmm2, xmm2
-      vucomiss xmm1, xmm13
-      vrsqrtps xmm4, xmm1
-      vmulps  xmm0, xmm4, xmm4
-      vmulps  xmm2, xmm0, xmm1
-      vmulps  xmm0, xmm4, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-      vmovups xmm1, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-      vsubps  xmm3, xmm1, xmm2
-      vmulps  xmm2, xmm3, xmm0
-      vaddps  xmm1, xmm2, xmm4
-      vmulps  xmm4, xmm1, xmm5
-      vcmpneqps xmm0, xmm4, xmm4
-      vmovmskps eax, xmm0
-      vmovups xmmword ptr [rsp+138h+constraintAxis.v], xmm4
     }
-    if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1770, ASSERT_TYPE_SANITY, "( !Float4IsNaN( normalizedConstraintAxis ) )", (const char *)&queryFormat, "!Float4IsNaN( normalizedConstraintAxis )") )
-      __debugbreak();
-    __asm
+    if ( _XMM1.m128_f32[0] != 0.0 )
     {
-      vmovaps xmm0, xmm14
-      vshufps xmm0, xmm0, xmm0, 0
-      vshufps xmm0, xmm6, xmm0, 50h ; 'P'
-      vshufps xmm1, xmm0, xmm6, 0E8h ; 'è'
-      vmovups xmm0, xmmword ptr cs:s_acosConstants.v
-      vshufps xmm8, xmm0, xmm0, 0
-      vshufps xmm9, xmm0, xmm0, 55h ; 'U'
-      vshufps xmm10, xmm0, xmm0, 0AAh ; 'ª'
-      vshufps xmm7, xmm0, xmm0, 0FFh
-      vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vxorps  xmm6, xmm6, xmm6
-      vandnps xmm12, xmm0, xmm1
-      vcmpltps xmm0, xmm7, xmm6
-      vmovmskps eax, xmm0
-      vcmpleps xmm11, xmm6, xmm1
+      __asm { vrsqrtps xmm4, xmm1 }
+      _XMM4 = _mm128_mul_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(g_one.v, _mm128_mul_ps(_mm128_mul_ps(_XMM4, _XMM4), _XMM1)), _mm128_mul_ps(_XMM4, g_oneHalf.v)), _XMM4), v44);
+      __asm
+      {
+        vcmpneqps xmm0, xmm4, xmm4
+        vmovmskps eax, xmm0
+      }
+      constraintAxis.v = _XMM4;
+      if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1770, ASSERT_TYPE_SANITY, "( !Float4IsNaN( normalizedConstraintAxis ) )", (const char *)&queryFormat, "!Float4IsNaN( normalizedConstraintAxis )") )
+        __debugbreak();
+      _mm_shuffle_ps(_mm_shuffle_ps(_XMM6, _mm_shuffle_ps(v7, v7, 0), 80), _XMM6, 232);
+      v53 = s_acosConstants.v;
+      v54 = _mm_shuffle_ps(v53, v53, 0);
+      v55 = _mm_shuffle_ps(v53, v53, 85);
+      v56 = _mm_shuffle_ps(v53, v53, 170);
+      _XMM7 = _mm_shuffle_ps(v53, v53, 255);
+      _XMM0 = g_negativeZero.v;
+      _XMM6 = 0i64;
+      __asm
+      {
+        vandnps xmm12, xmm0, xmm1
+        vcmpltps xmm0, xmm7, xmm6
+        vmovmskps eax, xmm0
+        vcmpleps xmm11, xmm6, xmm1
+      }
+      if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 2854, ASSERT_TYPE_SANITY, "( Float4AllLe( vmin, vmax ) )", (const char *)&queryFormat, "Float4AllLe( vmin, vmax )") )
+        __debugbreak();
+      __asm
+      {
+        vmaxps  xmm1, xmm12, xmm6
+        vminps  xmm4, xmm1, xmm7
+      }
+      _XMM1 = _mm128_sub_ps(v54, _mm128_mul_ps(_mm_sqrt_ps(_mm128_sub_ps(_XMM7, _XMM4)), _mm128_add_ps(_mm128_mul_ps(v56, _XMM4), v55)));
+      __asm { vblendvps xmm2, xmm1, xmm5, xmm0 }
+      v68 = _mm_shuffle_ps(_XMM2, _XMM2, 0);
+      v69 = _mm_shuffle_ps(_XMM2, _XMM2, 85);
+      if ( v43 )
+      {
+        v70 = _mm128_sub_ps(v69, v68);
+      }
+      else
+      {
+        _RAX = physicsBoneA->properties;
+        __asm { vbroadcastss xmm0, dword ptr [rax+84h] }
+        v70 = _mm128_mul_ps(_mm128_sub_ps((__m128)0i64, v68), _XMM0);
+      }
+      _RSI = DCONST_DVARFLT_xanim_physicsSwingStiffness;
+      if ( !DCONST_DVARFLT_xanim_physicsSwingStiffness && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsSwingStiffness") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(_RSI);
+      __asm { vbroadcastss xmm0, dword ptr [rsi+28h] }
+      _RSI = DCONST_DVARFLT_xanim_physicsMaxSwingAdjustment;
+      scalarConstraintError.v = _mm128_mul_ps(_XMM0, v70);
+      if ( !DCONST_DVARFLT_xanim_physicsMaxSwingAdjustment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxSwingAdjustment") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(_RSI);
+      __asm { vbroadcastss xmm2, dword ptr [rsi+28h] }
+      _mm128_sub_ps((__m128)0i64, _XMM2);
+      Float4Clamp(v78, v77, v79, &scalarConstraintError);
+      if ( physicsBoneB )
+        XAnimBonePhysics_SolveRotationConstraint1D(physicsBoneA, physicsBoneB, &scalarConstraintError, &constraintAxis);
+      else
+        XAnimBonePhysics_SolveWorldRotationConstraint1D(physicsBoneA, &scalarConstraintError, &constraintAxis);
     }
-    if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 2854, ASSERT_TYPE_SANITY, "( Float4AllLe( vmin, vmax ) )", (const char *)&queryFormat, "Float4AllLe( vmin, vmax )") )
-      __debugbreak();
-    __asm
-    {
-      vmaxps  xmm1, xmm12, xmm6
-      vminps  xmm4, xmm1, xmm7
-      vmulps  xmm2, xmm10, xmm4
-      vaddps  xmm3, xmm2, xmm9
-      vsubps  xmm1, xmm7, xmm4
-      vsqrtps xmm2, xmm1
-      vmulps  xmm5, xmm2, xmm3
-      vmovups xmm0, xmm11
-      vsubps  xmm1, xmm8, xmm5
-      vblendvps xmm2, xmm1, xmm5, xmm0
-      vshufps xmm3, xmm2, xmm2, 0
-      vshufps xmm0, xmm2, xmm2, 55h ; 'U'
-    }
-    _RAX = _RBX->properties;
-    __asm
-    {
-      vsubps  xmm1, xmm6, xmm3
-      vbroadcastss xmm0, dword ptr [rax+84h]
-      vmulps  xmm7, xmm1, xmm0
-    }
-    _RSI = DCONST_DVARFLT_xanim_physicsSwingStiffness;
-    if ( !DCONST_DVARFLT_xanim_physicsSwingStiffness && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsSwingStiffness") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm { vbroadcastss xmm0, dword ptr [rsi+28h] }
-    _RSI = DCONST_DVARFLT_xanim_physicsMaxSwingAdjustment;
-    __asm
-    {
-      vmulps  xmm7, xmm0, xmm7
-      vmovups xmmword ptr [rsp+138h+scalarConstraintError.v], xmm7
-    }
-    if ( !DCONST_DVARFLT_xanim_physicsMaxSwingAdjustment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxSwingAdjustment") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm
-    {
-      vbroadcastss xmm2, dword ptr [rsi+28h]
-      vsubps  xmm1, xmm6, xmm2
-      vmovups xmm0, xmm7
-    }
-    Float4Clamp(v150, v149, v151, &scalarConstraintError);
-    if ( _RDI )
-      XAnimBonePhysics_SolveRotationConstraint1D(_RBX, _RDI, &scalarConstraintError, &constraintAxis);
-    else
-      XAnimBonePhysics_SolveWorldRotationConstraint1D(_RBX, &scalarConstraintError, &constraintAxis);
-  }
-  _R11 = &v165;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+138h+var_C8]
   }
 }
 
@@ -5768,177 +4308,140 @@ XAnimBonePhysics_SolveTwistLimitConstraint
 */
 void XAnimBonePhysics_SolveTwistLimitConstraint(XAnimPhysicsBone *physicsBoneA, XAnimPhysicsBone *physicsBoneB, const vec3_t *twistAxis, const vec3_t *twistU, const vec3_t *twistV, float minAngle, float maxAngle)
 {
-  char v17; 
-  char v18; 
-  char v22; 
-  const dvar_t *v25; 
-  char v26; 
-  const dvar_t *v52; 
-  const dvar_t *v70; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  float v13; 
+  bool v14; 
+  const dvar_t *v15; 
+  char v16; 
+  __int128 v23; 
+  __int128 v26; 
+  __int128 v27; 
+  __int128 v29; 
+  __int128 v35; 
+  __int128 v39; 
+  const dvar_t *v40; 
+  __int128 v45; 
+  __int128 v50; 
+  const dvar_t *v51; 
+  float v52; 
+  const dvar_t *v53; 
+  __m128 v54; 
   float4 constraintAxis; 
   float4 scalarConstraintError; 
-  char v86; 
-  void *retaddr; 
+  __int128 v57; 
+  __int128 v58; 
+  __int128 v59; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm12
-  }
-  *(float *)&_XMM0 = XAnimBonePhysics_FindTwistAngle(physicsBoneA, physicsBoneB, twistAxis, twistU, twistV, &constraintAxis);
-  __asm
-  {
-    vmovss  xmm6, [rsp+0D8h+minAngle]
-    vcomiss xmm0, xmm6
-    vmovss  xmm12, [rsp+0D8h+maxAngle]
-    vmovaps xmm10, xmm0
-  }
-  if ( v17 )
-    goto LABEL_4;
-  __asm { vcomiss xmm0, xmm12 }
-  if ( !(v17 | v18) )
-  {
-LABEL_4:
-    v22 = 1;
-  }
-  else
-  {
-    v22 = 0;
-    v18 = 1;
-  }
-  _RAX = physicsBoneA->properties;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rax+88h]
-  }
-  if ( v18 )
+  *(float *)&v7 = XAnimBonePhysics_FindTwistAngle(physicsBoneA, physicsBoneB, twistAxis, twistU, twistV, &constraintAxis);
+  v13 = *(float *)&v7;
+  v14 = *(float *)&v7 < minAngle || *(float *)&v7 > maxAngle;
+  if ( physicsBoneA->properties->rotationalSpring.twistStrength == 0.0 )
     goto LABEL_11;
-  v25 = DCONST_DVARBOOL_xanim_physicsEnableSprings;
+  v15 = DCONST_DVARBOOL_xanim_physicsEnableSprings;
   if ( !DCONST_DVARBOOL_xanim_physicsEnableSprings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsEnableSprings") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v25);
-  if ( !v25->current.enabled )
+  Dvar_CheckFrontendServerThread(v15);
+  if ( !v15->current.enabled )
 LABEL_11:
-    v26 = 0;
+    v16 = 0;
   else
-    v26 = 1;
-  if ( v22 )
+    v16 = 1;
+  if ( v14 )
   {
+    v59 = v8;
+    v58 = v9;
+    v57 = v10;
+    v29 = LODWORD(minAngle);
+    *(float *)&v29 = minAngle - *(float *)&v7;
+    _XMM0 = v29;
+    *(float *)&_XMM0 = fmodf_0(minAngle - v13, 6.2831855);
+    _XMM7 = LODWORD(FLOAT_3_1415927);
+    _XMM6 = LODWORD(FLOAT_N3_1415927);
     __asm
     {
-      vmovaps [rsp+0D8h+var_38], xmm7
-      vmovaps [rsp+0D8h+var_48], xmm8
-      vmovaps [rsp+0D8h+var_58], xmm9
-      vmovss  xmm9, cs:__real@40c90fdb
-      vmovaps xmm1, xmm9; Y
-      vsubss  xmm0, xmm6, xmm10; X
-    }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm7, cs:__real@40490fdb
-      vmovss  xmm6, cs:__real@c0490fdb
       vcmpless xmm1, xmm7, xmm0
-      vsubss  xmm2, xmm0, xmm9
       vblendvps xmm3, xmm0, xmm2, xmm1
-      vaddss  xmm1, xmm3, xmm9
+    }
+    v35 = _XMM3;
+    *(float *)&v35 = *(float *)&_XMM3 + 6.2831855;
+    _XMM1 = v35;
+    __asm
+    {
       vcmpless xmm0, xmm6, xmm3
       vblendvps xmm8, xmm1, xmm3, xmm0
-      vsubss  xmm0, xmm12, xmm10; X
-      vmovaps xmm1, xmm9; Y
-      vmovss  [rsp+0D8h+minAngle], xmm3
     }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    v52 = DCONST_DVARFLT_xanim_physicsTwistStiffness;
+    v39 = LODWORD(maxAngle);
+    *(float *)&v39 = maxAngle - v13;
+    _XMM0 = v39;
+    *(float *)&_XMM0 = fmodf_0(maxAngle - v13, 6.2831855);
+    v40 = DCONST_DVARFLT_xanim_physicsTwistStiffness;
     __asm
     {
-      vsubss  xmm2, xmm0, xmm9
       vcmpless xmm1, xmm7, xmm0
-      vmovaps xmm7, [rsp+0D8h+var_38]
       vblendvps xmm3, xmm0, xmm2, xmm1
-      vandps  xmm2, xmm8, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vaddss  xmm1, xmm3, xmm9
-      vmovaps xmm9, [rsp+0D8h+var_58]
+    }
+    _XMM2 = _XMM8 & _xmm;
+    v45 = _XMM3;
+    *(float *)&v45 = *(float *)&_XMM3 + 6.2831855;
+    _XMM1 = v45;
+    __asm
+    {
       vcmpless xmm0, xmm6, xmm3
       vblendvps xmm4, xmm1, xmm3, xmm0
-      vandps  xmm0, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
       vcmpltss xmm1, xmm2, xmm0
       vblendvps xmm0, xmm4, xmm8, xmm1
-      vmovss  [rsp+0D8h+minAngle], xmm3
-      vmovss  [rsp+0D8h+minAngle], xmm8
-      vmovaps xmm8, [rsp+0D8h+var_48]
-      vmovss  [rsp+0D8h+minAngle], xmm4
-      vmovss  [rsp+0D8h+minAngle], xmm0
     }
     if ( !DCONST_DVARFLT_xanim_physicsTwistStiffness && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsTwistStiffness") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v52);
-    __asm
-    {
-      vmovss  xmm0, [rsp+0D8h+minAngle]
-      vmulss  xmm6, xmm0, dword ptr [rdi+28h]
-    }
+    Dvar_CheckFrontendServerThread(v40);
+    v50 = (unsigned int)_XMM0;
+    *(float *)&v50 = *(float *)&_XMM0 * v40->current.value;
+    v26 = v50;
   }
   else
   {
-    if ( !v26 )
-      goto LABEL_28;
+    if ( !v16 )
+      return;
+    _XMM0 = v7 ^ _xmm;
+    *(float *)&_XMM0 = fmodf_0(COERCE_FLOAT(LODWORD(v13) ^ _xmm), 6.2831855);
+    _XMM1 = LODWORD(FLOAT_3_1415927);
     __asm
     {
-      vmovss  xmm6, cs:__real@40c90fdb
-      vxorps  xmm0, xmm10, cs:__xmm@80000000800000008000000080000000; X
-      vmovaps xmm1, xmm6; Y
-    }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@40490fdb
       vcmpless xmm2, xmm1, xmm0
-      vsubss  xmm3, xmm0, xmm6
       vblendvps xmm4, xmm0, xmm3, xmm2
-      vmovss  xmm0, cs:__real@c0490fdb
-      vaddss  xmm2, xmm4, xmm6
+    }
+    _XMM0 = LODWORD(FLOAT_N3_1415927);
+    v23 = _XMM4;
+    *(float *)&v23 = *(float *)&_XMM4 + 6.2831855;
+    _XMM2 = v23;
+    __asm
+    {
       vcmpless xmm1, xmm0, xmm4
       vblendvps xmm2, xmm2, xmm4, xmm1
-      vmulss  xmm6, xmm2, dword ptr [rax+88h]
     }
+    v27 = _XMM2;
+    *(float *)&v27 = *(float *)&_XMM2 * physicsBoneA->properties->rotationalSpring.twistStrength;
+    v26 = v27;
   }
-  v70 = DCONST_DVARFLT_xanim_physicsTwistStiffness;
+  v51 = DCONST_DVARFLT_xanim_physicsTwistStiffness;
   if ( !DCONST_DVARFLT_xanim_physicsTwistStiffness && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsTwistStiffness") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v70);
-  __asm { vmulss  xmm6, xmm6, dword ptr [rdi+28h] }
-  _RDI = DCONST_DVARFLT_xanim_physicsMaxTwistAdjustment;
+  Dvar_CheckFrontendServerThread(v51);
+  v52 = *(float *)&v26 * v51->current.value;
+  v53 = DCONST_DVARFLT_xanim_physicsMaxTwistAdjustment;
   if ( !DCONST_DVARFLT_xanim_physicsMaxTwistAdjustment && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsMaxTwistAdjustment") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+28h]; max
-    vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000; min
-    vmovaps xmm0, xmm6; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vshufps xmm0, xmm0, xmm0, 0
-    vmovups xmmword ptr [rsp+0D8h+scalarConstraintError.v], xmm0
-  }
+  Dvar_CheckFrontendServerThread(v53);
+  v54.m128_u64[1] = *((_QWORD *)&v26 + 1);
+  *(double *)v54.m128_u64 = I_fclamp(v52, COERCE_FLOAT(v53->current.integer ^ _xmm), v53->current.value);
+  scalarConstraintError.v = _mm_shuffle_ps(v54, v54, 0);
   if ( physicsBoneB )
     XAnimBonePhysics_SolveRotationConstraint1D(physicsBoneA, physicsBoneB, &scalarConstraintError, &constraintAxis);
   else
     XAnimBonePhysics_SolveWorldRotationConstraint1D(physicsBoneA, &scalarConstraintError, &constraintAxis);
-LABEL_28:
-  _R11 = &v86;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
-  }
 }
 
 /*
@@ -5948,153 +4451,116 @@ XAnimBonePhysics_SolveWorldContactPositionConstraint
 */
 void XAnimBonePhysics_SolveWorldContactPositionConstraint(XAnimCollisionContact *contact, XAnimPhysicsBone *physicsBones, unsigned int numPhysicsBones)
 {
-  __int64 bodyIndex; 
-  bool v14; 
-  __int64 v93; 
+  __m128 rotationQuat; 
+  __m128 v; 
+  float v10; 
+  __m128 v13; 
+  __m128 v15; 
+  float v16; 
+  __m128 v20; 
+  float v21; 
+  __m128 v25; 
+  __m128 v28; 
+  __m128 v29; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v36; 
+  __m128 v45; 
+  __int64 v46; 
   float4 deltaRot; 
   float4 deltaPos; 
-  char v97; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rsp+0F0h+var_88+8], xmm11
-  }
-  _RDI = contact;
   if ( !contact && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1973, ASSERT_TYPE_ASSERT, "(contact != 0)", (const char *)&queryFormat, "contact != NULL") )
     __debugbreak();
   if ( !physicsBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1974, ASSERT_TYPE_ASSERT, "(physicsBones != 0)", (const char *)&queryFormat, "physicsBones != NULL") )
     __debugbreak();
-  if ( _RDI->bodyIndex >= numPhysicsBones )
+  if ( contact->bodyIndex >= numPhysicsBones )
   {
-    LODWORD(v93) = _RDI->bodyIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1976, ASSERT_TYPE_ASSERT, "(unsigned)( contact->bodyIndex ) < (unsigned)( numPhysicsBones )", "contact->bodyIndex doesn't index numPhysicsBones\n\t%i not in [0, %i)", v93, numPhysicsBones) )
+    LODWORD(v46) = contact->bodyIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1976, ASSERT_TYPE_ASSERT, "(unsigned)( contact->bodyIndex ) < (unsigned)( numPhysicsBones )", "contact->bodyIndex doesn't index numPhysicsBones\n\t%i not in [0, %i)", v46, numPhysicsBones) )
       __debugbreak();
   }
-  bodyIndex = _RDI->bodyIndex;
-  v14 = __CFADD__(physicsBones, bodyIndex * 264);
-  _RBX = &physicsBones[bodyIndex];
+  _RBX = &physicsBones[contact->bodyIndex];
   deltaPos.v.m128_i32[3] = 0;
+  rotationQuat = (__m128)_RBX->state.rotationQuat;
+  v = deltaPos.v;
+  v.m128_f32[0] = _RBX->state.position.v[0];
+  _XMM10 = v;
+  v10 = contact->normal.v[0];
   __asm
   {
-    vmovups xmm10, xmmword ptr [rbp-49h]
-    vmovups xmm3, xmmword ptr [rbx+1Ch]
-    vmovss  xmm0, dword ptr [rbx+2Ch]
-    vmovss  xmm10, xmm10, xmm0
-    vmovss  xmm0, dword ptr [rdi+1Ch]
     vinsertps xmm10, xmm10, dword ptr [rbx+30h], 10h
     vinsertps xmm10, xmm10, dword ptr [rbx+34h], 20h ; ' '
-    vshufps xmm7, xmm3, xmm3, 0D2h ; 'Ò'
-    vshufps xmm5, xmm3, xmm3, 0FFh
-    vmovups xmmword ptr [rbp-49h], xmm10
   }
+  v13 = _mm_shuffle_ps(rotationQuat, rotationQuat, 210);
+  deltaPos.v = _XMM10;
   deltaPos.v.m128_i32[3] = 0;
+  v15 = deltaPos.v;
+  v15.m128_f32[0] = v10;
+  _XMM11 = v15;
+  v16 = contact->pointA.v[0];
   __asm
   {
-    vmovups xmm11, xmmword ptr [rbp-49h]
-    vmovss  xmm11, xmm11, xmm0
-    vmovss  xmm0, dword ptr [rdi+4]
     vinsertps xmm11, xmm11, dword ptr [rdi+20h], 10h
     vinsertps xmm11, xmm11, dword ptr [rdi+24h], 20h ; ' '
-    vmovups xmmword ptr [rbp-49h], xmm11
   }
+  deltaPos.v = _XMM11;
   deltaPos.v.m128_i32[3] = 0;
+  v20 = deltaPos.v;
+  v20.m128_f32[0] = v16;
+  _XMM9 = v20;
+  v21 = contact->pointB.v[0];
   __asm
   {
-    vmovups xmm9, xmmword ptr [rbp-49h]
-    vmovss  xmm9, xmm9, xmm0
-    vmovss  xmm0, dword ptr [rdi+10h]
     vinsertps xmm9, xmm9, dword ptr [rdi+8], 10h
     vinsertps xmm9, xmm9, dword ptr [rdi+0Ch], 20h ; ' '
-    vmovups xmmword ptr [rbp-49h], xmm9
   }
+  deltaPos.v = _XMM9;
   deltaPos.v.m128_i32[3] = 0;
+  v25 = deltaPos.v;
+  v25.m128_f32[0] = v21;
+  _XMM8 = v25;
   __asm
   {
-    vmovups xmm8, xmmword ptr [rbp-49h]
-    vmovss  xmm8, xmm8, xmm0
     vinsertps xmm8, xmm8, dword ptr [rdi+14h], 10h
     vinsertps xmm8, xmm8, dword ptr [rdi+18h], 20h ; ' '
-    vshufps xmm0, xmm9, xmm9, 0D2h ; 'Ò'
-    vshufps xmm6, xmm3, xmm3, 0C9h ; 'É'
-    vmulps  xmm3, xmm0, xmm6
-    vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm7
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm9
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm7
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm4, xmm1, xmm5
-    vaddps  xmm0, xmm10, xmm4
-    vsubps  xmm1, xmm8, xmm0
-    vmulps  xmm2, xmm11, xmm1
+  }
+  v28 = _mm_shuffle_ps(rotationQuat, rotationQuat, 201);
+  v29 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 210), v28), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 201), v13));
+  v30 = _mm128_add_ps(v29, v29);
+  v31 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v30, v30, 210), v28), _mm128_mul_ps(_mm_shuffle_ps(v30, v30, 201), v13)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(rotationQuat, rotationQuat, 255), v30), _XMM9));
+  _XMM2 = _mm128_mul_ps(_XMM11, _mm128_sub_ps(_XMM8, _mm128_add_ps(_XMM10, v31)));
+  __asm
+  {
     vinsertps xmm0, xmm2, xmm2, 8
     vhaddps xmm1, xmm0, xmm0
-    vmovups xmmword ptr [rbp-49h], xmm8
-    vhaddps xmm8, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm8, xmm0
   }
-  if ( v14 )
+  deltaPos.v = _XMM8;
+  __asm { vhaddps xmm8, xmm1, xmm1 }
+  if ( _XMM8.m128_f32[0] < 0.0 )
   {
-    __asm
-    {
-      vshufps xmm1, xmm11, xmm11, 0C9h ; 'É'
-      vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm1, xmm0
-      vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-      vshufps xmm2, xmm11, xmm11, 0D2h ; 'Ò'
-      vmulps  xmm0, xmm2, xmm1
-      vsubps  xmm7, xmm0, xmm3
-    }
+    v36 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM11, _XMM11, 210), _mm_shuffle_ps(v31, v31, 201)), _mm128_mul_ps(_mm_shuffle_ps(_XMM11, _XMM11, 201), _mm_shuffle_ps(v31, v31, 210)));
     if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1592, ASSERT_TYPE_ASSERT, "(physicsBone != 0)", (const char *)&queryFormat, "physicsBone != NULL") )
       __debugbreak();
     __asm
     {
       vbroadcastss xmm6, dword ptr [rbx+18h]
       vbroadcastss xmm5, dword ptr [rbx+14h]
-      vmulps  xmm0, xmm7, xmm6
-      vmulps  xmm1, xmm0, xmm7
+    }
+    _XMM1 = _mm128_mul_ps(_mm128_mul_ps(v36, _XMM6), v36);
+    __asm
+    {
       vinsertps xmm2, xmm1, xmm1, 8
       vhaddps xmm0, xmm2, xmm2
       vhaddps xmm1, xmm0, xmm0
-      vaddps  xmm2, xmm5, xmm1
-      vrcpps  xmm3, xmm2
-      vmulps  xmm0, xmm3, xmm3
-      vmulps  xmm2, xmm0, xmm2
-      vaddps  xmm1, xmm3, xmm3
-      vsubps  xmm2, xmm1, xmm2
-      vmulps  xmm4, xmm2, xmm8
-      vmulps  xmm0, xmm11, xmm4
-      vmulps  xmm1, xmm7, xmm4
-      vmulps  xmm0, xmm5, xmm0
-      vmulps  xmm2, xmm1, xmm6
-      vmovups xmmword ptr [rbp+57h+deltaPos.v], xmm0
-      vmovups xmmword ptr [rbp+57h+deltaRot.v], xmm2
     }
+    _XMM2 = _mm128_add_ps(_XMM5, _XMM1);
+    __asm { vrcpps  xmm3, xmm2 }
+    v45 = _mm128_mul_ps(_mm128_sub_ps(_mm128_add_ps(_XMM3, _XMM3), _mm128_mul_ps(_mm128_mul_ps(_XMM3, _XMM3), _XMM2)), _XMM8);
+    deltaPos.v = _mm128_mul_ps(_XMM5, _mm128_mul_ps(_XMM11, v45));
+    deltaRot.v = _mm128_mul_ps(_mm128_mul_ps(v36, v45), _XMM6);
     XAnimBonePhysics_ApplyPositionDelta(_RBX, &deltaPos);
     XAnimBonePhysics_ApplyRotationDelta(_RBX, &deltaRot);
-  }
-  _R11 = &v97;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
   }
 }
 
@@ -6105,277 +4571,248 @@ XAnimBonePhysics_SolveWorldContactVelocityConstraint
 */
 void XAnimBonePhysics_SolveWorldContactVelocityConstraint(XAnimCollisionContact *contact, XAnimPhysicsBone *physicsBones, unsigned int numPhysicsBones)
 {
-  __int64 v210; 
-  __int128 v212; 
-  __int128 v213; 
-  __int128 v214; 
-  __int128 v215; 
-  char v218; 
-  void *retaddr; 
+  __m128 rotationQuat; 
+  __int128 v11; 
+  __m128 v14; 
+  __m128 v15; 
+  __m128 v17; 
+  __m128 v20; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v23; 
+  __m128 v25; 
+  __m128 v29; 
+  __m128 v32; 
+  __m128 v41; 
+  __m128 v48; 
+  __m128 v56; 
+  __m128 v66; 
+  __m128 v67; 
+  __m128 v68; 
+  __m128 v69; 
+  __m128 v75; 
+  __m128 v76; 
+  __m128 v77; 
+  __m128 v78; 
+  __m128 v79; 
+  __m128 v88; 
+  __m128 v95; 
+  __m128 v96; 
+  __m128 v97; 
+  __m128 v98; 
+  __m128 v99; 
+  __m128 v108; 
+  __m128 v115; 
+  __int64 v116; 
+  __m128 v117; 
+  __int128 v118; 
+  __m128 v119; 
+  __m128 v120; 
+  __m128 v121; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-28h], xmm6
-    vmovaps xmmword ptr [r11-38h], xmm7
-    vmovaps xmmword ptr [r11-48h], xmm8
-    vmovaps xmmword ptr [r11-58h], xmm9
-    vmovaps xmmword ptr [r11-68h], xmm10
-    vmovaps xmmword ptr [r11-88h], xmm12
-    vmovaps xmmword ptr [r11-98h], xmm13
-    vmovaps xmmword ptr [r11-0A8h], xmm14
-    vmovaps [rsp+128h+var_B8], xmm15
-  }
-  _RDI = contact;
   if ( !contact && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2069, ASSERT_TYPE_ASSERT, "(contact != 0)", (const char *)&queryFormat, "contact != NULL") )
     __debugbreak();
   if ( !physicsBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2070, ASSERT_TYPE_ASSERT, "(physicsBones != 0)", (const char *)&queryFormat, "physicsBones != NULL") )
     __debugbreak();
-  if ( _RDI->bodyIndex >= numPhysicsBones )
+  if ( contact->bodyIndex >= numPhysicsBones )
   {
-    LODWORD(v210) = _RDI->bodyIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2071, ASSERT_TYPE_ASSERT, "(unsigned)( contact->bodyIndex ) < (unsigned)( numPhysicsBones )", "contact->bodyIndex doesn't index numPhysicsBones\n\t%i not in [0, %i)", v210, numPhysicsBones) )
+    LODWORD(v116) = contact->bodyIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2071, ASSERT_TYPE_ASSERT, "(unsigned)( contact->bodyIndex ) < (unsigned)( numPhysicsBones )", "contact->bodyIndex doesn't index numPhysicsBones\n\t%i not in [0, %i)", v116, numPhysicsBones) )
       __debugbreak();
   }
+  _RBX = &physicsBones[contact->bodyIndex];
+  HIDWORD(v118) = 0;
+  rotationQuat = (__m128)_RBX->state.rotationQuat;
   __asm
   {
-    vmovss  xmm0, dword ptr [rdi+1Ch]
-    vxorps  xmm10, xmm10, xmm10
-  }
-  _RBX = &physicsBones[_RDI->bodyIndex];
-  HIDWORD(v212) = 0;
-  __asm
-  {
-    vmovups xmm9, xmmword ptr [rsp+50h]
-    vmovups xmm3, xmmword ptr [rbx+1Ch]
     vbroadcastss xmm15, dword ptr [rbx+18h]
     vbroadcastss xmm14, dword ptr [rbx+14h]
-    vmovss  xmm9, xmm9, xmm0
-    vmovss  xmm0, dword ptr [rdi+4]
+  }
+  v11 = v118;
+  *(float *)&v11 = contact->normal.v[0];
+  _XMM9 = v11;
+  __asm
+  {
     vinsertps xmm9, xmm9, dword ptr [rdi+20h], 10h
     vinsertps xmm9, xmm9, dword ptr [rdi+24h], 20h ; ' '
-    vshufps xmm7, xmm3, xmm3, 0D2h ; 'Ò'
-    vshufps xmm5, xmm3, xmm3, 0FFh
-    vshufps xmm6, xmm3, xmm3, 0C9h ; 'É'
-    vmovups xmmword ptr [rsp+50h], xmm9
   }
-  HIDWORD(v213) = 0;
+  v14 = _mm_shuffle_ps(rotationQuat, rotationQuat, 210);
+  v15 = _mm_shuffle_ps(rotationQuat, rotationQuat, 201);
+  v119 = _XMM9;
+  v119.m128_i32[3] = 0;
+  v17 = v119;
+  v17.m128_f32[0] = contact->pointA.v[0];
+  _XMM8 = v17;
   __asm
   {
-    vmovups xmm8, xmmword ptr [rsp+50h]
-    vmovss  xmm8, xmm8, xmm0
     vinsertps xmm8, xmm8, dword ptr [rdi+8], 10h
     vinsertps xmm8, xmm8, dword ptr [rdi+0Ch], 20h ; ' '
-    vmovups xmmword ptr [rsp+50h], xmm8
-    vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm7
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm8
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm7
-    vmovss  xmm0, dword ptr [rbx+54h]
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm4, xmm1, xmm5
-    vsubps  xmm8, xmm10, xmm9
-    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-    vshufps xmm2, xmm4, xmm4, 0D2h ; 'Ò'
   }
-  HIDWORD(v214) = 0;
+  v120 = _XMM8;
+  v20 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 210), v15), _mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 201), v14));
+  v21 = _mm128_add_ps(v20, v20);
+  v22 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v21, v21, 210), v15), _mm128_mul_ps(_mm_shuffle_ps(v21, v21, 201), v14)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(rotationQuat, rotationQuat, 255), v21), _XMM8));
+  v23 = _mm128_sub_ps((__m128)0i64, _XMM9);
+  v120.m128_i32[3] = 0;
+  v25 = v120;
+  v25.m128_f32[0] = _RBX->state.velocity.v[0];
+  _XMM7 = v25;
   __asm
   {
-    vmovups xmm7, xmmword ptr [rsp+50h]
-    vmovss  xmm7, xmm7, xmm0
-    vmovss  xmm0, dword ptr [rbx+60h]
     vinsertps xmm7, xmm7, dword ptr [rbx+58h], 10h
     vinsertps xmm7, xmm7, dword ptr [rbx+5Ch], 20h ; ' '
-    vmovups xmmword ptr [rsp+50h], xmm7
   }
-  HIDWORD(v215) = 0;
+  v121 = _XMM7;
+  v121.m128_i32[3] = 0;
+  v29 = v121;
+  v29.m128_f32[0] = _RBX->state.angularVelocity.v[0];
+  _XMM6 = v29;
   __asm
   {
-    vmovups xmm6, xmmword ptr [rsp+50h]
-    vmovss  xmm6, xmm6, xmm0
     vinsertps xmm6, xmm6, dword ptr [rbx+64h], 10h
     vinsertps xmm6, xmm6, dword ptr [rbx+68h], 20h ; ' '
-    vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm5, xmm3, xmm0
-    vmulps  xmm1, xmm7, xmm8
+  }
+  v32 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v22, v22, 201), _mm_shuffle_ps(v23, v23, 210)), _mm128_mul_ps(_mm_shuffle_ps(v22, v22, 210), _mm_shuffle_ps(v23, v23, 201)));
+  _XMM1 = _mm128_mul_ps(_XMM7, v23);
+  __asm
+  {
     vinsertps xmm0, xmm1, xmm1, 8
     vhaddps xmm2, xmm0, xmm0
     vhaddps xmm3, xmm2, xmm2
-    vmulps  xmm0, xmm5, xmm6
+  }
+  _XMM0 = _mm128_mul_ps(v32, _XMM6);
+  __asm
+  {
     vinsertps xmm1, xmm0, xmm0, 8
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vmulps  xmm1, xmm15, xmm5
-    vmovups [rsp+128h+var_E8], xmm4
-    vaddps  xmm4, xmm0, xmm3
-    vmulps  xmm0, xmm1, xmm5
+  }
+  v117 = v22;
+  v41 = _mm128_add_ps(_XMM0, _XMM3);
+  _XMM0 = _mm128_mul_ps(_mm128_mul_ps(_XMM15, v32), v32);
+  __asm
+  {
     vinsertps xmm2, xmm0, xmm0, 8
     vhaddps xmm1, xmm2, xmm2
     vhaddps xmm0, xmm1, xmm1
-    vaddps  xmm2, xmm0, xmm14
-    vrcpps  xmm1, xmm2
-    vmulps  xmm0, xmm1, xmm1
-    vmulps  xmm2, xmm0, xmm2
-    vaddps  xmm1, xmm1, xmm1
-    vsubps  xmm2, xmm1, xmm2
-    vmulps  xmm0, xmm2, xmm4
-    vmulps  xmm3, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vsubps  xmm1, xmm10, xmm3
-    vmulps  xmm0, xmm1, xmm8
-    vmulps  xmm2, xmm0, xmm14
-    vmulps  xmm1, xmm5, xmm1
-    vmulps  xmm0, xmm1, xmm15
-    vaddps  xmm13, xmm0, xmm6
-    vaddps  xmm12, xmm2, xmm7
   }
-  if ( _RDI->groundPlane )
+  _XMM2 = _mm128_add_ps(_XMM0, _XMM14);
+  __asm { vrcpps  xmm1, xmm2 }
+  v48 = _mm128_sub_ps((__m128)0i64, _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(_mm128_add_ps(_XMM1, _XMM1), _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM1), _XMM2)), v41), g_one.v));
+  _XMM13 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(v32, v48), _XMM15), _XMM6);
+  _XMM12 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(v48, v23), _XMM14), _XMM7);
+  if ( contact->groundPlane )
   {
     _RDI = DCONST_DVARFLT_xanim_physicsGroundPlaneFriction;
-    __asm { vmovaps [rsp+128h+var_78], xmm11 }
     if ( !DCONST_DVARFLT_xanim_physicsGroundPlaneFriction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsGroundPlaneFriction") )
       __debugbreak();
     Dvar_CheckFrontendServerThread(_RDI);
+    __asm { vbroadcastss xmm11, dword ptr [rdi+28h] }
+    _XMM5 = _mm_shuffle_ps(v23, v23, 89);
+    __asm { vcmpltps xmm1, xmm5, xmm10 }
+    _XMM6 = _mm_shuffle_ps(v23, v23, 170);
+    v56 = _mm128_sub_ps((__m128)0i64, v23);
     __asm
     {
-      vbroadcastss xmm11, dword ptr [rdi+28h]
-      vshufps xmm5, xmm8, xmm8, 59h ; 'Y'
-      vcmpltps xmm1, xmm5, xmm10
-      vshufps xmm6, xmm8, xmm8, 0AAh ; 'ª'
-      vsubps  xmm3, xmm10, xmm8
       vcmpltps xmm0, xmm6, xmm10
       vpcmpeqd xmm0, xmm0, xmm1
-      vaddps  xmm1, xmm6, xmm5
-      vshufps xmm2, xmm1, xmm3, 0
-      vshufps xmm4, xmm2, xmm3, 8
-      vsubps  xmm1, xmm5, xmm6
-      vshufps xmm2, xmm1, xmm8, 0
-      vshufps xmm3, xmm2, xmm8, 8
-      vblendvps xmm5, xmm3, xmm4, xmm0
-      vmulps  xmm1, xmm5, xmm5
+    }
+    _mm_shuffle_ps(_mm_shuffle_ps(_mm128_add_ps(_XMM6, _XMM5), v56, 0), v56, 8);
+    _XMM3 = _mm_shuffle_ps(_mm_shuffle_ps(_mm128_sub_ps(_XMM5, _XMM6), v23, 0), v23, 8);
+    __asm { vblendvps xmm5, xmm3, xmm4, xmm0 }
+    _XMM1 = _mm128_mul_ps(_XMM5, _XMM5);
+    __asm
+    {
       vinsertps xmm0, xmm1, xmm1, 8
       vhaddps xmm2, xmm0, xmm0
       vhaddps xmm0, xmm2, xmm2
       vrsqrtps xmm1, xmm0
-      vmulps  xmm7, xmm1, xmm5
-      vshufps xmm6, xmm7, xmm7, 0C9h ; 'É'
-      vshufps xmm5, xmm7, xmm7, 0D2h ; 'Ò'
-      vshufps xmm0, xmm8, xmm8, 0C9h ; 'É'
-      vmulps  xmm3, xmm0, xmm5
-      vshufps xmm1, xmm8, xmm8, 0D2h ; 'Ò'
-      vmulps  xmm2, xmm1, xmm6
-      vsubps  xmm4, xmm3, xmm2
-      vmulps  xmm0, xmm4, xmm4
+    }
+    v66 = _mm128_mul_ps(_XMM1, _XMM5);
+    v67 = _mm_shuffle_ps(v66, v66, 201);
+    v68 = _mm_shuffle_ps(v66, v66, 210);
+    v69 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v23, v23, 201), v68), _mm128_mul_ps(_mm_shuffle_ps(v23, v23, 210), v67));
+    _XMM0 = _mm128_mul_ps(v69, v69);
+    __asm
+    {
       vinsertps xmm1, xmm0, xmm0, 8
       vhaddps xmm2, xmm1, xmm1
       vhaddps xmm0, xmm2, xmm2
       vrsqrtps xmm1, xmm0
-      vmovups xmm0, [rsp+128h+var_E8]
-      vshufps xmm8, xmm0, xmm0, 0C9h ; 'É'
-      vmulps  xmm10, xmm1, xmm4
-      vshufps xmm9, xmm0, xmm0, 0D2h ; 'Ò'
-      vmulps  xmm1, xmm5, xmm8
-      vmulps  xmm0, xmm6, xmm9
-      vsubps  xmm5, xmm1, xmm0
-      vmulps  xmm2, xmm7, xmm12
+    }
+    v75 = v117;
+    v76 = _mm_shuffle_ps(v75, v75, 201);
+    v77 = _mm128_mul_ps(_XMM1, v69);
+    v78 = _mm_shuffle_ps(v75, v75, 210);
+    v79 = _mm128_sub_ps(_mm128_mul_ps(v68, v76), _mm128_mul_ps(v67, v78));
+    _XMM2 = _mm128_mul_ps(v66, _XMM12);
+    __asm
+    {
       vinsertps xmm0, xmm2, xmm2, 8
       vhaddps xmm1, xmm0, xmm0
       vhaddps xmm3, xmm1, xmm1
-      vmulps  xmm0, xmm5, xmm13
+    }
+    _XMM0 = _mm128_mul_ps(v79, _XMM13);
+    __asm
+    {
       vinsertps xmm1, xmm0, xmm0, 8
       vhaddps xmm2, xmm1, xmm1
       vhaddps xmm0, xmm2, xmm2
-      vaddps  xmm4, xmm0, xmm3
-      vmulps  xmm1, xmm15, xmm5
-      vmulps  xmm0, xmm1, xmm5
+    }
+    v88 = _mm128_add_ps(_XMM0, _XMM3);
+    _XMM0 = _mm128_mul_ps(_mm128_mul_ps(_XMM15, v79), v79);
+    __asm
+    {
       vinsertps xmm2, xmm0, xmm0, 8
       vhaddps xmm1, xmm2, xmm2
       vhaddps xmm0, xmm1, xmm1
-      vaddps  xmm2, xmm0, xmm14
-      vrcpps  xmm1, xmm2
-      vmulps  xmm0, xmm1, xmm1
-      vmulps  xmm2, xmm0, xmm2
-      vaddps  xmm1, xmm1, xmm1
-      vsubps  xmm2, xmm1, xmm2
-      vmulps  xmm0, xmm2, xmm4
-      vmulps  xmm3, xmm0, xmm11
-      vxorps  xmm1, xmm1, xmm1
-      vsubps  xmm1, xmm1, xmm3
-      vmulps  xmm0, xmm7, xmm1
-      vmulps  xmm2, xmm0, xmm14
-      vmulps  xmm1, xmm5, xmm1
-      vmulps  xmm0, xmm1, xmm15
-      vaddps  xmm7, xmm0, xmm13
-      vaddps  xmm6, xmm2, xmm12
-      vshufps xmm0, xmm10, xmm10, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm0, xmm8
-      vshufps xmm1, xmm10, xmm10, 0C9h ; 'É'
-      vmulps  xmm2, xmm1, xmm9
-      vsubps  xmm5, xmm3, xmm2
-      vmulps  xmm0, xmm10, xmm6
+    }
+    _XMM2 = _mm128_add_ps(_XMM0, _XMM14);
+    __asm { vrcpps  xmm1, xmm2 }
+    v95 = _mm128_sub_ps((__m128)0i64, _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(_mm128_add_ps(_XMM1, _XMM1), _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM1), _XMM2)), v88), _XMM11));
+    v96 = _mm128_mul_ps(_mm128_mul_ps(v66, v95), _XMM14);
+    v97 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(v79, v95), _XMM15), _XMM13);
+    v98 = _mm128_add_ps(v96, _XMM12);
+    v99 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v77, v77, 210), v76), _mm128_mul_ps(_mm_shuffle_ps(v77, v77, 201), v78));
+    _XMM0 = _mm128_mul_ps(v77, v98);
+    __asm
+    {
       vinsertps xmm1, xmm0, xmm0, 8
       vhaddps xmm2, xmm1, xmm1
       vhaddps xmm3, xmm2, xmm2
-      vmulps  xmm0, xmm5, xmm7
+    }
+    _XMM0 = _mm128_mul_ps(v99, v97);
+    __asm
+    {
       vinsertps xmm1, xmm0, xmm0, 8
       vhaddps xmm2, xmm1, xmm1
       vhaddps xmm0, xmm2, xmm2
-      vaddps  xmm4, xmm0, xmm3
-      vmulps  xmm1, xmm15, xmm5
-      vmulps  xmm0, xmm1, xmm5
+    }
+    v108 = _mm128_add_ps(_XMM0, _XMM3);
+    _XMM0 = _mm128_mul_ps(_mm128_mul_ps(_XMM15, v99), v99);
+    __asm
+    {
       vinsertps xmm2, xmm0, xmm0, 8
       vhaddps xmm1, xmm2, xmm2
       vhaddps xmm0, xmm1, xmm1
-      vaddps  xmm2, xmm0, xmm14
-      vrcpps  xmm1, xmm2
-      vmulps  xmm0, xmm1, xmm1
-      vmulps  xmm2, xmm0, xmm2
-      vaddps  xmm1, xmm1, xmm1
-      vsubps  xmm2, xmm1, xmm2
-      vmulps  xmm0, xmm2, xmm4
-      vmulps  xmm3, xmm0, xmm11
-      vmovaps xmm11, [rsp+128h+var_78]
-      vxorps  xmm0, xmm0, xmm0
-      vsubps  xmm1, xmm0, xmm3
-      vmulps  xmm0, xmm10, xmm1
-      vmulps  xmm2, xmm0, xmm14
-      vmulps  xmm1, xmm5, xmm1
-      vmulps  xmm0, xmm1, xmm15
-      vaddps  xmm13, xmm0, xmm7
-      vaddps  xmm12, xmm2, xmm6
     }
+    _XMM2 = _mm128_add_ps(_XMM0, _XMM14);
+    __asm { vrcpps  xmm1, xmm2 }
+    v115 = _mm128_sub_ps((__m128)0i64, _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(_mm128_add_ps(_XMM1, _XMM1), _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM1), _XMM2)), v108), _XMM11));
+    _XMM13 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(v99, v115), _XMM15), v97);
+    _XMM12 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(v77, v115), _XMM14), v98);
   }
+  _RBX->state.velocity.v[0] = _XMM12.m128_f32[0];
   __asm
   {
-    vmovss  dword ptr [rbx+54h], xmm12
     vextractps dword ptr [rbx+58h], xmm12, 1
     vextractps dword ptr [rbx+5Ch], xmm12, 2
-    vmovss  dword ptr [rbx+60h], xmm13
-    vextractps dword ptr [rbx+64h], xmm13, 1
-    vextractps dword ptr [rbx+68h], xmm13, 2
   }
-  _R11 = &v218;
+  _RBX->state.angularVelocity.v[0] = _XMM13.m128_f32[0];
   __asm
   {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, [rsp+128h+var_B8]
+    vextractps dword ptr [rbx+64h], xmm13, 1
+    vextractps dword ptr [rbx+68h], xmm13, 2
   }
 }
 
@@ -6387,100 +4824,106 @@ XAnimBonePhysics_SolveWorldMaxDistanceConstraint
 
 void __fastcall XAnimBonePhysics_SolveWorldMaxDistanceConstraint(XAnimPhysicsBone *physicsBone, const vec3_t *bodyPinPoint, const vec3_t *worldPinPoint, double maxDistance)
 {
+  __m128 v7; 
+  __m128 rotationQuat; 
+  float v9; 
+  __m128 v10; 
+  __m128 v11; 
+  __m128 v; 
+  float v14; 
+  __m128 v18; 
+  float v21; 
+  __m128 v23; 
+  __m128 v26; 
+  __m128 v27; 
+  __m128 v28; 
+  __m128 v29; 
+  __m128 v34; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v37; 
+  __m128 v46; 
+  float4 deltaRot; 
   float4 deltaPos; 
-  float4 deltaPosa; 
-  float4 deltaPosb; 
-  char v71; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps [rsp+0E8h+var_88], xmm11
-  }
-  _RSI = worldPinPoint;
-  _RDI = bodyPinPoint;
   _RBX = physicsBone;
-  __asm { vmovaps xmm11, xmm3 }
+  v7 = *(__m128 *)&maxDistance;
   if ( !physicsBone && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1632, ASSERT_TYPE_ASSERT, "(physicsBone != 0)", (const char *)&queryFormat, "physicsBone != NULL") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm3, xmmword ptr [rbx+1Ch]
-    vmovss  xmm0, dword ptr [rbx+2Ch]
-    vshufps xmm7, xmm3, xmm3, 0D2h ; 'Ò'
-    vshufps xmm5, xmm3, xmm3, 0FFh
-    vshufps xmm6, xmm3, xmm3, 0C9h ; 'É'
-  }
+  rotationQuat = (__m128)_RBX->state.rotationQuat;
+  v9 = _RBX->state.position.v[0];
+  v10 = _mm_shuffle_ps(rotationQuat, rotationQuat, 210);
+  v11 = _mm_shuffle_ps(rotationQuat, rotationQuat, 201);
   deltaPos.v.m128_i32[3] = 0;
+  v = deltaPos.v;
+  v.m128_f32[0] = v9;
+  _XMM10 = v;
+  v14 = bodyPinPoint->v[0];
   __asm
   {
-    vmovups xmm10, xmmword ptr [rsp+0E8h+deltaPos.v]
-    vmovss  xmm10, xmm10, xmm0
-    vmovss  xmm0, dword ptr [rdi]
     vinsertps xmm10, xmm10, dword ptr [rbx+30h], 10h
     vinsertps xmm10, xmm10, dword ptr [rbx+34h], 20h ; ' '
-    vmovups xmmword ptr [rsp+0E8h+deltaPos.v], xmm10
   }
-  deltaPosa.v.m128_i32[3] = 0;
+  deltaPos.v = _XMM10;
+  deltaPos.v.m128_i32[3] = 0;
+  v18 = deltaPos.v;
+  v18.m128_f32[0] = v14;
+  _XMM9 = v18;
   __asm
   {
-    vmovups xmm9, xmmword ptr [rsp+0E8h+deltaPos.v]
-    vmovss  xmm9, xmm9, xmm0
     vinsertps xmm9, xmm9, dword ptr [rdi+4], 10h
     vinsertps xmm9, xmm9, dword ptr [rdi+8], 20h ; ' '
-    vmovss  xmm0, dword ptr [rsi]
-    vmovups xmmword ptr [rsp+0E8h+deltaPos.v], xmm9
-    vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm7
   }
-  deltaPosb.v.m128_i32[3] = 0;
+  v21 = worldPinPoint->v[0];
+  deltaPos.v = _XMM9;
+  deltaPos.v.m128_i32[3] = 0;
+  v23 = deltaPos.v;
+  v23.m128_f32[0] = v21;
+  _XMM8 = v23;
   __asm
   {
-    vmovups xmm8, xmmword ptr [rsp+0E8h+deltaPos.v]
-    vmovss  xmm8, xmm8, xmm0
     vinsertps xmm8, xmm8, dword ptr [rsi+4], 10h
     vinsertps xmm8, xmm8, dword ptr [rsi+8], 20h ; ' '
-    vshufps xmm0, xmm9, xmm9, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm9
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm7
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm4, xmm1, xmm5
-    vaddps  xmm0, xmm10, xmm4
-    vsubps  xmm5, xmm8, xmm0
-    vmulps  xmm0, xmm5, xmm5
+  }
+  v26 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 210), v11), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 201), v10));
+  v27 = _mm128_add_ps(v26, v26);
+  v28 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v27, v27, 210), v11), _mm128_mul_ps(_mm_shuffle_ps(v27, v27, 201), v10)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(rotationQuat, rotationQuat, 255), v27), _XMM9));
+  v29 = _mm128_sub_ps(_XMM8, _mm128_add_ps(_XMM10, v28));
+  _XMM0 = _mm128_mul_ps(v29, v29);
+  __asm
+  {
     vinsertps xmm1, xmm0, xmm0, 8
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vsqrtps xmm1, xmm0
-    vmovaps xmm3, xmm11
-    vshufps xmm3, xmm3, xmm3, 0
-    vsubps  xmm9, xmm1, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm9, xmm0
-    vmovups xmmword ptr [rsp+0E8h+deltaPos.v], xmm8
   }
-  _R11 = &v71;
-  __asm
+  v34 = _mm_sqrt_ps(_XMM0);
+  v35 = _mm128_sub_ps(v34, _mm_shuffle_ps(v7, v7, 0));
+  deltaPos.v = _XMM8;
+  if ( v35.m128_f32[0] > 0.0 )
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
+    v36 = _mm128_div_ps(v29, v34);
+    v37 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v28, v28, 201), _mm_shuffle_ps(v36, v36, 210)), _mm128_mul_ps(_mm_shuffle_ps(v28, v28, 210), _mm_shuffle_ps(v36, v36, 201)));
+    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1592, ASSERT_TYPE_ASSERT, "(physicsBone != 0)", (const char *)&queryFormat, "physicsBone != NULL") )
+      __debugbreak();
+    __asm
+    {
+      vbroadcastss xmm6, dword ptr [rbx+18h]
+      vbroadcastss xmm5, dword ptr [rbx+14h]
+    }
+    _XMM1 = _mm128_mul_ps(_mm128_mul_ps(v37, _XMM6), v37);
+    __asm
+    {
+      vinsertps xmm2, xmm1, xmm1, 8
+      vhaddps xmm0, xmm2, xmm2
+      vhaddps xmm1, xmm0, xmm0
+    }
+    _XMM2 = _mm128_add_ps(_XMM5, _XMM1);
+    __asm { vrcpps  xmm3, xmm2 }
+    v46 = _mm128_mul_ps(_mm128_sub_ps(_mm128_add_ps(_XMM3, _XMM3), _mm128_mul_ps(_mm128_mul_ps(_XMM3, _XMM3), _XMM2)), v35);
+    deltaPos.v = _mm128_mul_ps(_XMM5, _mm128_mul_ps(v36, v46));
+    deltaRot.v = _mm128_mul_ps(_mm128_mul_ps(v37, v46), _XMM6);
+    XAnimBonePhysics_ApplyPositionDelta(_RBX, &deltaPos);
+    XAnimBonePhysics_ApplyRotationDelta(_RBX, &deltaRot);
   }
 }
 
@@ -6491,34 +4934,14 @@ XAnimBonePhysics_SolveWorldRotationConstraint1D
 */
 void XAnimBonePhysics_SolveWorldRotationConstraint1D(XAnimPhysicsBone *physicsBone, const float4 *scalarConstraintError, const float4 *constraintAxis)
 {
-  bool v5; 
-  bool v6; 
   float4 deltaRot; 
 
-  _RBX = physicsBone;
-  v5 = physicsBone == NULL;
-  if ( !physicsBone )
-  {
-    v6 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1564, ASSERT_TYPE_ASSERT, "(physicsBone != 0)", (const char *)&queryFormat, "physicsBone != NULL");
-    v5 = !v6;
-    if ( v6 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rbx+18h]
-  }
-  if ( v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1565, ASSERT_TYPE_ASSERT, "(physicsBone->invInertiaTensor != 0.0f)", (const char *)&queryFormat, "physicsBone->invInertiaTensor != 0.0f") )
+  if ( !physicsBone && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1564, ASSERT_TYPE_ASSERT, "(physicsBone != 0)", (const char *)&queryFormat, "physicsBone != NULL") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vsubps  xmm2, xmm0, xmmword ptr [rsi]
-    vmulps  xmm0, xmm2, xmmword ptr [rdi]
-    vmovups xmmword ptr [rsp+58h+deltaRot.v], xmm0
-  }
-  XAnimBonePhysics_ApplyRotationDelta(_RBX, &deltaRot);
+  if ( physicsBone->invInertiaTensor == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 1565, ASSERT_TYPE_ASSERT, "(physicsBone->invInertiaTensor != 0.0f)", (const char *)&queryFormat, "physicsBone->invInertiaTensor != 0.0f") )
+    __debugbreak();
+  deltaRot.v = _mm128_mul_ps(_mm128_sub_ps((__m128)0i64, scalarConstraintError->v), constraintAxis->v);
+  XAnimBonePhysics_ApplyRotationDelta(physicsBone, &deltaRot);
 }
 
 /*
@@ -6526,167 +4949,103 @@ void XAnimBonePhysics_SolveWorldRotationConstraint1D(XAnimPhysicsBone *physicsBo
 XAnimBonePhysics_UpdateNoise
 ==============
 */
-
-bool __fastcall XAnimBonePhysics_UpdateNoise(XAnimPhysicsBone *physicsBone, double timeStep, vec3_t *outVelocity, vec3_t *outAngularVelocity)
+bool XAnimBonePhysics_UpdateNoise(XAnimPhysicsBone *physicsBone, const float timeStep, vec3_t *outVelocity, vec3_t *outAngularVelocity)
 {
   const XAnimDynamicBoneProperties *properties; 
   XAnimDynamicBoneNoiseState *p_noise; 
-  unsigned int v12; 
-  const dvar_t *v13; 
-  XAnimPhysicsNoiseStateInfo *v15; 
-  __int64 v16; 
+  unsigned int v9; 
+  const dvar_t *v10; 
+  XAnimPhysicsNoiseStateInfo *v11; 
+  __int64 v12; 
   const XAnimDynamicBoneNoiseAxis *axis; 
-  const XAnimCurve **v22; 
-  bool v24; 
-  bool v25; 
-  const XAnimCurve **v31; 
-  bool v32; 
-  bool v33; 
+  XAnimPhysicsNoiseStateInfo *rotation; 
+  float *p_strength; 
+  const XAnimCurve **v16; 
+  float *p_strengthMul; 
+  double Value; 
+  float v19; 
+  __int64 v20; 
+  const XAnimCurve **v21; 
+  double v22; 
+  float v23; 
+  float v24; 
+  float v25; 
   bool result; 
 
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  _R12 = outAngularVelocity;
-  _R13 = outVelocity;
-  __asm { vmovaps xmm6, xmm1 }
   if ( !physicsBone && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 930, ASSERT_TYPE_ASSERT, "(physicsBone)", (const char *)&queryFormat, "physicsBone") )
     __debugbreak();
   properties = physicsBone->properties;
   p_noise = &physicsBone->state.noise;
-  v12 = 0;
-  *(_QWORD *)_R13->v = 0i64;
-  _R13->v[2] = 0.0;
-  *(_QWORD *)_R12->v = 0i64;
-  _R12->v[2] = 0.0;
-  v13 = DCONST_DVARBOOL_xanim_physicsNoiseEnable;
+  v9 = 0;
+  *(_QWORD *)outVelocity->v = 0i64;
+  outVelocity->v[2] = 0.0;
+  *(_QWORD *)outAngularVelocity->v = 0i64;
+  outAngularVelocity->v[2] = 0.0;
+  v10 = DCONST_DVARBOOL_xanim_physicsNoiseEnable;
   if ( !DCONST_DVARBOOL_xanim_physicsNoiseEnable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsNoiseEnable") )
     __debugbreak();
-  __asm { vmovaps [rsp+88h+var_48], xmm7 }
-  Dvar_CheckFrontendServerThread(v13);
-  if ( !v13->current.enabled )
-    goto LABEL_35;
-  if ( !properties->noise.enable )
-    goto LABEL_35;
-  __asm
+  Dvar_CheckFrontendServerThread(v10);
+  if ( !v10->current.enabled || !properties->noise.enable || timeStep == 0.0 )
+    return 0;
+  v11 = (XAnimPhysicsNoiseStateInfo *)p_noise;
+  v12 = 3i64;
+  axis = properties->noise.rotation.axis;
+  do
   {
-    vxorps  xmm7, xmm7, xmm7
-    vucomiss xmm6, xmm7
+    XAnimBonePhysics_UpdateNoiseTimer((const XAnimDynamicBoneNoiseAxis *)((char *)axis - 80), v11, timeStep);
+    XAnimBonePhysics_UpdateNoiseTimer(axis, v11 + 3, timeStep);
+    ++v11;
+    ++axis;
+    --v12;
   }
-  if ( properties->noise.enable )
+  while ( v12 );
+  rotation = p_noise->rotation;
+  p_strength = &properties->noise.rotation.axis[0].strength;
+  do
   {
-    v15 = (XAnimPhysicsNoiseStateInfo *)p_noise;
-    v16 = 3i64;
-    axis = properties->noise.rotation.axis;
-    do
+    v16 = (const XAnimCurve **)(p_strength - 22);
+    if ( p_strength == (float *)88 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 877, ASSERT_TYPE_ASSERT, "(properties)", (const char *)&queryFormat, "properties") )
+      __debugbreak();
+    p_strengthMul = &rotation[-3].strengthMul;
+    if ( rotation == (XAnimPhysicsNoiseStateInfo *)36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 878, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
+      __debugbreak();
+    if ( *(p_strength - 20) == 0.0 || *p_strengthMul == 0.0 || !*v16 )
     {
-      __asm { vmovaps xmm2, xmm6; timeStep }
-      XAnimBonePhysics_UpdateNoiseTimer((const XAnimDynamicBoneNoiseAxis *)((char *)axis - 80), v15, *(const float *)&_XMM2);
-      __asm { vmovaps xmm2, xmm6; timeStep }
-      XAnimBonePhysics_UpdateNoiseTimer(axis, v15 + 3, *(const float *)&_XMM2);
-      ++v15;
-      ++axis;
-      --v16;
+      v19 = 0.0;
     }
-    while ( v16 );
-    _R15 = p_noise->rotation;
-    _R14 = &properties->noise.rotation.axis[0].strength;
-    do
+    else
     {
-      v22 = (const XAnimCurve **)(_R14 - 22);
-      if ( _R14 == (float *)88 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 877, ASSERT_TYPE_ASSERT, "(properties)", (const char *)&queryFormat, "properties") )
-        __debugbreak();
-      _RBX = _R15 - 3;
-      v24 = _R15 == (XAnimPhysicsNoiseStateInfo *)36;
-      if ( _R15 == (XAnimPhysicsNoiseStateInfo *)36 )
-      {
-        v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 878, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state");
-        v24 = !v25;
-        if ( v25 )
-          __debugbreak();
-      }
-      __asm { vucomiss xmm7, dword ptr [r14-50h] }
-      if ( v24 )
-        goto LABEL_22;
-      __asm { vucomiss xmm7, dword ptr [rbx] }
-      if ( !*v22 )
-      {
-LABEL_22:
-        __asm { vmovaps xmm6, xmm7 }
-      }
-      else
-      {
-        __asm { vmovss  xmm1, dword ptr [r15-1Ch]; time }
-        XAnimCurve_GetValue(*v22, *(const float *)&_XMM1);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [r14-50h]
-          vmulss  xmm2, xmm1, dword ptr [rbx]
-          vmulss  xmm6, xmm2, xmm0
-        }
-      }
-      _RDI = (int)v12;
-      v31 = (const XAnimCurve **)(_R14 - 2);
-      __asm { vmovss  dword ptr [r13+rdi*4+0], xmm6 }
-      if ( _R14 == (float *)8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 877, ASSERT_TYPE_ASSERT, "(properties)", (const char *)&queryFormat, "properties") )
-        __debugbreak();
-      v32 = _R15 == NULL;
-      if ( !_R15 )
-      {
-        v33 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 878, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state");
-        v32 = !v33;
-        if ( v33 )
-          __debugbreak();
-      }
-      __asm { vucomiss xmm7, dword ptr [r14] }
-      if ( v32 )
-        goto LABEL_32;
-      __asm { vucomiss xmm7, dword ptr [r15] }
-      if ( !*v31 )
-      {
-LABEL_32:
-        __asm { vmovaps xmm6, xmm7 }
-      }
-      else
-      {
-        __asm { vmovss  xmm1, dword ptr [r15+8]; time }
-        XAnimCurve_GetValue(*v31, *(const float *)&_XMM1);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [r15]
-          vmulss  xmm2, xmm1, dword ptr [r14]
-          vmulss  xmm6, xmm2, xmm0
-        }
-      }
-      ++v12;
-      ++_R15;
-      _R14 += 6;
-      __asm { vmovss  dword ptr [r12+rdi*4], xmm6 }
+      Value = XAnimCurve_GetValue(*v16, rotation[-3].timer);
+      v19 = (float)(*(p_strength - 20) * *p_strengthMul) * *(float *)&Value;
     }
-    while ( v12 < 3 );
-    __asm
+    v20 = (int)v9;
+    v21 = (const XAnimCurve **)(p_strength - 2);
+    outVelocity->v[v9] = v19;
+    if ( p_strength == (float *)8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 877, ASSERT_TYPE_ASSERT, "(properties)", (const char *)&queryFormat, "properties") )
+      __debugbreak();
+    if ( !rotation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 878, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
+      __debugbreak();
+    if ( *p_strength == 0.0 || rotation->strengthMul == 0.0 || !*v21 )
     {
-      vmovss  xmm3, cs:__real@3c8efa35
-      vmulss  xmm0, xmm3, dword ptr [r12]
-      vmulss  xmm2, xmm3, dword ptr [r12+4]
-      vmulss  xmm1, xmm3, dword ptr [r12+8]
+      v23 = 0.0;
     }
-    result = 1;
-    __asm
+    else
     {
-      vmovss  dword ptr [r12], xmm0
-      vmovss  dword ptr [r12+4], xmm2
-      vmovss  dword ptr [r12+8], xmm1
+      v22 = XAnimCurve_GetValue(*v21, rotation->timer);
+      v23 = (float)(rotation->strengthMul * *p_strength) * *(float *)&v22;
     }
+    ++v9;
+    ++rotation;
+    p_strength += 6;
+    outAngularVelocity->v[v20] = v23;
   }
-  else
-  {
-LABEL_35:
-    result = 0;
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+88h+var_48]
-    vmovaps xmm6, [rsp+88h+var_38]
-  }
+  while ( v9 < 3 );
+  v24 = 0.017453292 * outAngularVelocity->v[1];
+  v25 = 0.017453292 * outAngularVelocity->v[2];
+  result = 1;
+  outAngularVelocity->v[0] = 0.017453292 * outAngularVelocity->v[0];
+  outAngularVelocity->v[1] = v24;
+  outAngularVelocity->v[2] = v25;
   return result;
 }
 
@@ -6695,43 +5054,18 @@ LABEL_35:
 XAnimBonePhysics_UpdateNoiseTimer
 ==============
 */
-
-void __fastcall XAnimBonePhysics_UpdateNoiseTimer(const XAnimDynamicBoneNoiseAxis *properties, XAnimPhysicsNoiseStateInfo *outState, double timeStep)
+void XAnimBonePhysics_UpdateNoiseTimer(const XAnimDynamicBoneNoiseAxis *properties, XAnimPhysicsNoiseStateInfo *outState, const float timeStep)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = outState;
-  _RDI = properties;
-  __asm { vmovaps xmm6, xmm2 }
+  float v5; 
+
   if ( !properties && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 862, ASSERT_TYPE_ASSERT, "(properties)", (const char *)&queryFormat, "properties") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 863, ASSERT_TYPE_ASSERT, "(outState)", (const char *)&queryFormat, "outState") )
+  if ( !outState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 863, ASSERT_TYPE_ASSERT, "(outState)", (const char *)&queryFormat, "outState") )
     __debugbreak();
-  _RAX = _RDI->curve;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  if ( _RDI->curve )
-  {
-    __asm { vucomiss xmm0, dword ptr [rdi+8] }
-    if ( _RDI->curve )
-    {
-      __asm { vucomiss xmm0, dword ptr [rbx] }
-      if ( _RDI->curve )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm6, dword ptr [rdi+0Ch]
-          vmulss  xmm2, xmm0, dword ptr [rbx+4]
-          vaddss  xmm0, xmm2, dword ptr [rbx+8]; X
-          vmovss  xmm1, dword ptr [rax+18h]; Y
-        }
-        *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      }
-    }
-  }
-  __asm
-  {
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
+  v5 = 0.0;
+  if ( properties->curve && properties->strength != 0.0 && outState->strengthMul != 0.0 )
+    v5 = fmodf_0((float)((float)(timeStep * properties->rate) * outState->rateMul) + outState->timer, properties->curve->duration);
+  outState->timer = v5;
 }
 
 /*
@@ -6739,195 +5073,145 @@ void __fastcall XAnimBonePhysics_UpdateNoiseTimer(const XAnimDynamicBoneNoiseAxi
 XAnimBonePhysics_UpdateVelocities
 ==============
 */
-
-void __fastcall XAnimBonePhysics_UpdateVelocities(DObjProceduralBones *procBones, unsigned int firstPhysicsBoneIndex, unsigned int endPhysicsBoneIndex, double timeStep)
+void XAnimBonePhysics_UpdateVelocities(DObjProceduralBones *procBones, unsigned int firstPhysicsBoneIndex, unsigned int endPhysicsBoneIndex, float timeStep)
 {
-  __int64 v16; 
+  __int64 v6; 
   XAnimPhysicsBone *physicsBones; 
-  bool v19; 
-  bool v20; 
-  const dvar_t *v23; 
-  const dvar_t *v26; 
-  bool v41; 
-  __int64 v87; 
-  double v88; 
-  double v89; 
+  const dvar_t *v8; 
+  float v9; 
+  const dvar_t *v10; 
+  __m128 v11; 
+  __m128 v12; 
+  __m128 v13; 
+  __m128 v14; 
+  __m128 v15; 
+  __m128 v16; 
+  __m128 v17; 
+  __m128 v18; 
+  __m128 v19; 
+  __m128 v21; 
+  float v23; 
+  __m128 v24; 
+  bool v26; 
+  __m128 v27; 
+  __m128 v29; 
+  float v30; 
+  __m128 v34; 
+  __m128 v; 
+  __m128 v41; 
+  __m128 v45; 
+  __int64 v48; 
   float4 velocity; 
   float4 result; 
-  __int128 v92; 
-  __int128 v93; 
-  char v97; 
-  void *retaddr; 
+  __m128 v51; 
+  __m128 v52; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-0A8h], xmm12
-    vmovaps xmmword ptr [r11-0B8h], xmm13
-  }
-  v16 = firstPhysicsBoneIndex;
-  __asm { vmovaps xmm7, xmm3 }
+  v6 = firstPhysicsBoneIndex;
   if ( !procBones && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2158, ASSERT_TYPE_ASSERT, "(procBones != 0)", (const char *)&queryFormat, "procBones != NULL") )
     __debugbreak();
   physicsBones = procBones->physicsBones;
   if ( endPhysicsBoneIndex > procBones->numPhysicsBones )
   {
-    LODWORD(v87) = endPhysicsBoneIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2162, ASSERT_TYPE_ASSERT, "( endPhysicsBoneIndex ) <= ( procBones->numPhysicsBones )", "endPhysicsBoneIndex not in [0, procBones->numPhysicsBones]\n\t%u not in [0, %u]", v87, procBones->numPhysicsBones) )
+    LODWORD(v48) = endPhysicsBoneIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2162, ASSERT_TYPE_ASSERT, "( endPhysicsBoneIndex ) <= ( procBones->numPhysicsBones )", "endPhysicsBoneIndex not in [0, procBones->numPhysicsBones]\n\t%u not in [0, %u]", v48, procBones->numPhysicsBones) )
       __debugbreak();
   }
-  v19 = (unsigned int)v16 <= 1;
-  if ( !(_DWORD)v16 )
-  {
-    v20 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2163, ASSERT_TYPE_ASSERT, "( firstPhysicsBoneIndex ) >= ( XANIM_NUM_RESERVED_PHYSICS_BONES )", "%s >= %s\n\t%i, %i", "firstPhysicsBoneIndex", "XANIM_NUM_RESERVED_PHYSICS_BONES", 0, 1);
-    v19 = !v20;
-    if ( v20 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm7, xmm0
-  }
-  if ( v19 )
-  {
-    __asm
-    {
-      vmovsd  [rsp+158h+var_118], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+158h+var_120], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2164, ASSERT_TYPE_ASSERT, "( timeStep ) > ( 0.0f )", "%s > %s\n\t%g, %g", "timeStep", "0.0f", v88, v89) )
-      __debugbreak();
-  }
-  v23 = DCONST_DVARFLT_xanim_physicsVelocityDamping;
+  if ( !(_DWORD)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2163, ASSERT_TYPE_ASSERT, "( firstPhysicsBoneIndex ) >= ( XANIM_NUM_RESERVED_PHYSICS_BONES )", "%s >= %s\n\t%i, %i", "firstPhysicsBoneIndex", "XANIM_NUM_RESERVED_PHYSICS_BONES", 0, 1) )
+    __debugbreak();
+  if ( timeStep <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_physics.cpp", 2164, ASSERT_TYPE_ASSERT, "( timeStep ) > ( 0.0f )", "%s > %s\n\t%g, %g", "timeStep", "0.0f", timeStep, 0.0) )
+    __debugbreak();
+  v8 = DCONST_DVARFLT_xanim_physicsVelocityDamping;
   if ( !DCONST_DVARFLT_xanim_physicsVelocityDamping && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsVelocityDamping") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vsubss  xmm8, xmm6, dword ptr [rbx+28h]
-  }
-  v26 = DCONST_DVARFLT_xanim_physicsAngularVelocityDamping;
+  Dvar_CheckFrontendServerThread(v8);
+  v9 = 1.0 - v8->current.value;
+  v10 = DCONST_DVARFLT_xanim_physicsAngularVelocityDamping;
   if ( !DCONST_DVARFLT_xanim_physicsAngularVelocityDamping && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xanim_physicsAngularVelocityDamping") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v26);
-  __asm
+  Dvar_CheckFrontendServerThread(v10);
+  v11 = (__m128)LODWORD(FLOAT_1_0);
+  v11.m128_f32[0] = (float)(1.0 - v10->current.value) * 2.0;
+  v12 = v11;
+  v14 = (__m128)LODWORD(FLOAT_1_0);
+  v14.m128_f32[0] = 1.0 / timeStep;
+  v13 = v14;
+  v16 = v12;
+  v16.m128_f32[0] = v12.m128_f32[0] * v13.m128_f32[0];
+  v15 = v16;
+  v17 = v13;
+  v17.m128_f32[0] = v13.m128_f32[0] * v9;
+  v18 = _mm_shuffle_ps(v15, v15, 0);
+  v19 = _mm_shuffle_ps(v17, v17, 0);
+  if ( (unsigned int)v6 < endPhysicsBoneIndex )
   {
-    vsubss  xmm0, xmm6, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, cs:__real@40000000
-    vdivss  xmm2, xmm6, xmm7
-    vmulss  xmm13, xmm1, xmm2
-    vmulss  xmm12, xmm2, xmm8
-    vshufps xmm13, xmm13, xmm13, 0
-    vshufps xmm12, xmm12, xmm12, 0
-  }
-  if ( (unsigned int)v16 < endPhysicsBoneIndex )
-  {
-    __asm
-    {
-      vmovaps [rsp+158h+var_78], xmm9
-      vmovaps [rsp+158h+var_88], xmm10
-      vmovaps [rsp+158h+var_98], xmm11
-    }
-    _RBX = (__int64)&physicsBones[v16].state.position.z;
+    _RBX = (__int64)&physicsBones[v6].state.position.z;
     do
     {
       if ( *(_WORD *)(_RBX - 52) != 255 )
       {
-        __asm { vmovups xmm9, xmmword ptr [rbx-18h] }
+        v21 = *(__m128 *)(_RBX - 24);
         _RAX = *(_QWORD *)(_RBX - 44);
+        v23 = *(float *)(_RBX - 8);
+        v24 = _mm128_mul_ps(*(__m128 *)(_RBX + 4), (__m128)_xmm);
+        __asm { vbroadcastss xmm11, dword ptr [rax+38h] }
+        v26 = (*(_BYTE *)(_RBX - 36) & 0x20) == 0;
+        v27 = _mm_shuffle_ps(v21, v21, 255);
+        v51.m128_i32[3] = 0;
+        v29 = v51;
+        v29.m128_f32[0] = v23;
+        _XMM4 = v29;
+        v30 = *(float *)(_RBX + 20);
         __asm
         {
-          vmovss  xmm0, dword ptr [rbx-8]
-          vmovups xmm1, xmmword ptr [rbx+4]
-          vmulps  xmm7, xmm1, cs:__xmm@3f800000bf800000bf800000bf800000
-          vbroadcastss xmm11, dword ptr [rax+38h]
-        }
-        v41 = (*(_BYTE *)(_RBX - 36) & 0x20) == 0;
-        __asm { vshufps xmm6, xmm9, xmm9, 0FFh }
-        HIDWORD(v92) = 0;
-        __asm
-        {
-          vmovups xmm4, xmmword ptr [rsp+70h]
-          vmovss  xmm4, xmm4, xmm0
-          vmovss  xmm0, dword ptr [rbx+14h]
           vinsertps xmm4, xmm4, dword ptr [rbx-4], 10h
           vinsertps xmm4, xmm4, dword ptr [rbx], 20h ; ' '
         }
-        HIDWORD(v93) = 0;
+        v52.m128_i32[3] = 0;
+        v34 = v52;
+        v34.m128_f32[0] = v30;
+        _XMM3 = v34;
         __asm
         {
-          vmovups xmm3, xmmword ptr [rsp+80h]
-          vmovss  xmm3, xmm3, xmm0
           vinsertps xmm3, xmm3, dword ptr [rbx+18h], 10h
           vinsertps xmm3, xmm3, dword ptr [rbx+1Ch], 20h ; ' '
-          vsubps  xmm0, xmm4, xmm3
-          vmulps  xmm10, xmm12, xmm0
-          vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-          vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-          vmovups xmmword ptr [rsp+80h], xmm3
-          vmulps  xmm3, xmm1, xmm0
-          vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-          vshufps xmm2, xmm9, xmm9, 0D2h ; 'Ò'
-          vmulps  xmm0, xmm2, xmm1
-          vsubps  xmm5, xmm3, xmm0
-          vmulps  xmm1, xmm9, xmm7
-          vinsertps xmm0, xmm1, xmm1, 8
-          vhaddps xmm2, xmm0, xmm0
-          vshufps xmm8, xmm7, xmm7, 0FFh
-          vmulps  xmm0, xmm8, xmm6
-          vmulps  xmm1, xmm7, xmm6
-          vhaddps xmm3, xmm2, xmm2
-          vsubps  xmm2, xmm0, xmm3
-          vmovups xmmword ptr [rsp+70h], xmm4
-          vmulps  xmm4, xmm9, xmm8
-          vaddps  xmm1, xmm4, xmm1
-          vaddps  xmm0, xmm5, xmm1
-          vblendps xmm2, xmm2, xmm0, 7
-          vmulps  xmm6, xmm13, xmm2
-          vmovups xmmword ptr [rsp+158h+velocity.v], xmm10
         }
-        if ( !v41 )
-        {
-          _RAX = XAnimBonePhysics_ApplyTranslationalSpringDamping(&result, procBones, v16, &velocity);
-          __asm { vmovups xmm10, xmmword ptr [rax] }
-        }
+        v = _mm128_mul_ps(v19, _mm128_sub_ps(_XMM4, _XMM3));
+        v52 = _XMM3;
+        _XMM1 = _mm128_mul_ps(v21, v24);
         __asm
         {
-          vmulps  xmm1, xmm11, xmm10
-          vmulps  xmm2, xmm11, xmm6
-          vmovss  dword ptr [rbx+20h], xmm1
+          vinsertps xmm0, xmm1, xmm1, 8
+          vhaddps xmm2, xmm0, xmm0
+        }
+        v41 = _mm_shuffle_ps(v24, v24, 255);
+        __asm { vhaddps xmm3, xmm2, xmm2 }
+        _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v41, v27), _XMM3);
+        v51 = _XMM4;
+        _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v21, v21, 201), _mm_shuffle_ps(v24, v24, 210)), _mm128_mul_ps(_mm_shuffle_ps(v21, v21, 210), _mm_shuffle_ps(v24, v24, 201))), _mm128_add_ps(_mm128_mul_ps(v21, v41), _mm128_mul_ps(v24, v27)));
+        __asm { vblendps xmm2, xmm2, xmm0, 7 }
+        v45 = _mm128_mul_ps(v18, _XMM2);
+        velocity.v = v;
+        if ( !v26 )
+          v = XAnimBonePhysics_ApplyTranslationalSpringDamping(&result, procBones, v6, &velocity)->v;
+        _XMM1 = _mm128_mul_ps(_XMM11, v);
+        _XMM2 = _mm128_mul_ps(_XMM11, v45);
+        *(float *)(_RBX + 32) = _XMM1.m128_f32[0];
+        __asm
+        {
           vextractps dword ptr [rbx+24h], xmm1, 1
           vextractps dword ptr [rbx+28h], xmm1, 2
-          vmovss  dword ptr [rbx+2Ch], xmm2
+        }
+        *(float *)(_RBX + 44) = _XMM2.m128_f32[0];
+        __asm
+        {
           vextractps dword ptr [rbx+30h], xmm2, 1
           vextractps dword ptr [rbx+34h], xmm2, 2
         }
       }
-      LODWORD(v16) = v16 + 1;
+      LODWORD(v6) = v6 + 1;
       _RBX += 264i64;
     }
-    while ( (unsigned int)v16 < endPhysicsBoneIndex );
-    __asm
-    {
-      vmovaps xmm11, [rsp+158h+var_98]
-      vmovaps xmm10, [rsp+158h+var_88]
-      vmovaps xmm9, [rsp+158h+var_78]
-    }
-  }
-  _R11 = &v97;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-20h]
-    vmovaps xmm7, xmmword ptr [r11-30h]
-    vmovaps xmm8, xmmword ptr [r11-40h]
-    vmovaps xmm12, xmmword ptr [r11-80h]
-    vmovaps xmm13, xmmword ptr [r11-90h]
+    while ( (unsigned int)v6 < endPhysicsBoneIndex );
   }
 }
 

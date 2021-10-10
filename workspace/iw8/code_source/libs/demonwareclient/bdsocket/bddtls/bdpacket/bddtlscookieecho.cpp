@@ -105,85 +105,61 @@ bdDTLSCookieEcho::bdDTLSCookieEcho
 void bdDTLSCookieEcho::bdDTLSCookieEcho(bdDTLSCookieEcho *this, unsigned __int16 vtag, const bdDTLSInitAck *cookie, bdReference<bdCommonAddr> localCommonAddr, bdECCKey *const ECCKey)
 {
   unsigned int keylen; 
-  __int64 v20; 
-  bdDTLSCookieEcho *v21; 
+  __int64 v9; 
+  bdDTLSCookieEcho *v10; 
   bdCommonAddr *m_ptr; 
   bdDTLSInitAck *p_m_cookie; 
   bdSecurityID secID; 
   unsigned __int8 buffer[32]; 
-  int v28; 
+  __m256i v15; 
+  __int128 v16; 
+  int v17; 
   unsigned __int8 pubKey[32]; 
-  int v32; 
+  __m256i v19; 
+  __m256i v20; 
+  int v21; 
 
-  v20 = -2i64;
-  _RSI = (bdDTLSInitAck *)cookie;
-  _R14 = this;
-  v21 = this;
+  v9 = -2i64;
+  v10 = this;
   m_ptr = localCommonAddr.m_ptr;
   bdDTLSHeader::bdDTLSHeader(this, BD_DTLS_COOKIE_ECHO, vtag, 0);
-  _R14->__vftable = (bdDTLSCookieEcho_vtbl *)&bdDTLSCookieEcho::`vftable';
-  _RBX = &_R14->m_cookie;
-  p_m_cookie = &_R14->m_cookie;
-  _R14->m_cookie.__vftable = (bdDTLSInitAck_vtbl *)&bdDTLSHeader::`vftable';
-  _R14->m_cookie.m_type = _RSI->m_type;
-  _R14->m_cookie.m_version = _RSI->m_version;
-  _R14->m_cookie.m_vtag = _RSI->m_vtag;
-  _R14->m_cookie.m_counter = _RSI->m_counter;
-  _R14->m_cookie.__vftable = (bdDTLSInitAck_vtbl *)&bdDTLSInitAck::`vftable';
-  _R14->m_cookie.m_cypherSuite = _RSI->m_cypherSuite;
-  _R14->m_cookie.m_timestamp = _RSI->m_timestamp;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+18h]
-    vmovups xmmword ptr [rbx+18h], xmm0
-  }
-  _R14->m_cookie.m_initTag = _RSI->m_initTag;
-  _R14->m_cookie.m_localTag = _RSI->m_localTag;
-  _R14->m_cookie.m_peerTag = _RSI->m_peerTag;
-  _R14->m_cookie.m_localTieTag = _RSI->m_localTieTag;
-  _R14->m_cookie.m_peerTieTag = _RSI->m_peerTieTag;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+32h]
-    vmovups ymmword ptr [rbx+32h], ymm0
-  }
-  _R14->m_cookie.m_localRandom.m_initialized = 1;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+53h]
-    vmovups ymmword ptr [rbx+53h], ymm0
-  }
-  _R14->m_cookie.m_peerRandom.m_initialized = 1;
-  bdAddr::bdAddr(&_R14->m_cookie.m_peerAddr, &_RSI->m_peerAddr);
-  bdSecurityID::bdSecurityID(&_R14->m_cookie.m_secID, &_RSI->m_secID);
+  this->__vftable = (bdDTLSCookieEcho_vtbl *)&bdDTLSCookieEcho::`vftable';
+  p_m_cookie = &this->m_cookie;
+  this->m_cookie.__vftable = (bdDTLSInitAck_vtbl *)&bdDTLSHeader::`vftable';
+  this->m_cookie.m_type = cookie->m_type;
+  this->m_cookie.m_version = cookie->m_version;
+  this->m_cookie.m_vtag = cookie->m_vtag;
+  this->m_cookie.m_counter = cookie->m_counter;
+  this->m_cookie.__vftable = (bdDTLSInitAck_vtbl *)&bdDTLSInitAck::`vftable';
+  this->m_cookie.m_cypherSuite = cookie->m_cypherSuite;
+  this->m_cookie.m_timestamp = cookie->m_timestamp;
+  *(_OWORD *)this->m_cookie.m_signature = *(_OWORD *)cookie->m_signature;
+  this->m_cookie.m_initTag = cookie->m_initTag;
+  this->m_cookie.m_localTag = cookie->m_localTag;
+  this->m_cookie.m_peerTag = cookie->m_peerTag;
+  this->m_cookie.m_localTieTag = cookie->m_localTieTag;
+  this->m_cookie.m_peerTieTag = cookie->m_peerTieTag;
+  *(__m256i *)this->m_cookie.m_localRandom.m_dtlsRandom = *(__m256i *)cookie->m_localRandom.m_dtlsRandom;
+  this->m_cookie.m_localRandom.m_initialized = 1;
+  *(__m256i *)this->m_cookie.m_peerRandom.m_dtlsRandom = *(__m256i *)cookie->m_peerRandom.m_dtlsRandom;
+  this->m_cookie.m_peerRandom.m_initialized = 1;
+  bdAddr::bdAddr(&this->m_cookie.m_peerAddr, &cookie->m_peerAddr);
+  bdSecurityID::bdSecurityID(&this->m_cookie.m_secID, &cookie->m_secID);
   bdSecurityID::bdSecurityID(&secID);
-  bdDTLSInitAck::getSecID(_RSI, &secID);
+  bdDTLSInitAck::getSecID((bdDTLSInitAck *)cookie, &secID);
   bdCommonAddr::serialize((bdCommonAddr *)localCommonAddr.m_ptr->__vftable, buffer);
   keylen = 100;
   if ( !bdECCKey::exportKey(ECCKey, pubKey, &keylen) || keylen != 100 )
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdDTLSCookieEcho", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bdpacket\\bddtlscookieecho.cpp", "bdDTLSCookieEcho::bdDTLSCookieEcho", 0x29u, "Problem with key");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+178h+buffer]
-    vmovups ymmword ptr [r14+128h], ymm0
-    vmovups ymm1, [rsp+178h+var_E8]
-    vmovups ymmword ptr [r14+148h], ymm1
-    vmovups xmm0, [rsp+178h+var_C8]
-    vmovups xmmword ptr [r14+168h], xmm0
-  }
-  *(_DWORD *)&_R14->m_ca[80] = v28;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsp+178h+secID.ab]
-    vmovsd  qword ptr [r14+17Ch], xmm0
-    vmovups ymm1, ymmword ptr [rsp+178h+pubKey]
-    vmovups ymmword ptr [r14+184h], ymm1
-    vmovups ymm0, [rsp+178h+var_88]
-    vmovups ymmword ptr [r14+1A4h], ymm0
-    vmovups ymm1, [rsp+178h+var_68]
-    vmovups ymmword ptr [r14+1C4h], ymm1
-  }
-  *(_DWORD *)&_R14->m_ECCKey[96] = v32;
+  *(__m256i *)this->m_ca = *(__m256i *)buffer;
+  *(__m256i *)&this->m_ca[32] = v15;
+  *(_OWORD *)&this->m_ca[64] = v16;
+  *(_DWORD *)&this->m_ca[80] = v17;
+  *(double *)this->m_secID = *(double *)&secID;
+  *(__m256i *)this->m_ECCKey = *(__m256i *)pubKey;
+  *(__m256i *)&this->m_ECCKey[32] = v19;
+  *(__m256i *)&this->m_ECCKey[64] = v20;
+  *(_DWORD *)&this->m_ECCKey[96] = v21;
   bdSecurityID::~bdSecurityID(&secID);
   if ( localCommonAddr.m_ptr->__vftable && _InterlockedExchangeAdd((volatile signed __int32 *)&localCommonAddr.m_ptr->__vftable[1], 0xFFFFFFFF) == 1 )
   {

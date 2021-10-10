@@ -333,44 +333,21 @@ void __fastcall R_SetBoundingBoxDataForSource(GfxCmdBufSourceState *source, cons
 R_CalculateGameTime
 ==============
 */
-
-void __fastcall R_CalculateGameTime(double sceneDefFloatTime, float materialTime, vec4_t *outGameTime)
+void R_CalculateGameTime(float sceneDefFloatTime, float materialTime, vec4_t *outGameTime)
 {
+  float v6; 
   float s; 
   float c; 
 
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vxorps  xmm2, xmm2, xmm2
-  }
-  _RBX = outGameTime;
-  __asm
-  {
-    vmovaps [rsp+48h+var_28], xmm7
-    vsubss  xmm7, xmm0, xmm1
-    vroundss xmm2, xmm2, xmm7, 1
-    vsubss  xmm6, xmm7, xmm2
-    vmulss  xmm0, xmm6, cs:__real@40c90fdb; radians
-  }
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  __asm
-  {
-    vmovss  xmm1, [rsp+48h+s]
-    vmovss  xmm2, [rsp+48h+c]
-    vmovss  dword ptr [rbx], xmm1
-    vmovss  xmm1, cs:__real@4728c000; Y
-    vmovaps xmm0, xmm7; X
-    vmovss  dword ptr [rbx+4], xmm2
-    vmovss  dword ptr [rbx+8], xmm6
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovaps xmm7, [rsp+48h+var_28]
-    vmovss  dword ptr [rbx+0Ch], xmm0
-  }
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm7, 1 }
+  v6 = (float)(sceneDefFloatTime - materialTime) - *(float *)&_XMM2;
+  FastSinCos(v6 * 6.2831855, &s, &c);
+  *(float *)&_XMM2 = c;
+  outGameTime->v[0] = s;
+  outGameTime->v[1] = *(float *)&_XMM2;
+  outGameTime->v[2] = v6;
+  outGameTime->v[3] = fmodf_0(sceneDefFloatTime - materialTime, 43200.0);
 }
 
 /*
@@ -522,19 +499,15 @@ R_SetBoundingBoxData
 */
 void R_SetBoundingBoxData(const Bounds *bounds, vec4_t *outBoundingBoxData)
 {
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vmovsd  qword ptr [rdx], xmm0
-  }
+  *(double *)outBoundingBoxData->v = *(double *)bounds->midPoint.v;
   outBoundingBoxData->v[2] = bounds->midPoint.v[2];
+  _XMM0 = LODWORD(bounds->halfSize.v[1]);
   __asm
   {
-    vmovss  xmm0, dword ptr [rcx+10h]
     vmaxss  xmm1, xmm0, dword ptr [rcx+0Ch]
     vmaxss  xmm2, xmm1, dword ptr [rcx+14h]
-    vmovss  dword ptr [rdx+0Ch], xmm2
   }
+  outBoundingBoxData->v[3] = *(float *)&_XMM2;
 }
 
 /*
@@ -555,30 +528,18 @@ R_SetBoundingBoxDataForSource
 */
 void R_SetBoundingBoxDataForSource(GfxCmdBufSourceState *source, const Bounds *bounds)
 {
+  __m128 v4; 
   float v5; 
-  float v9; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+10h]
-    vmaxss  xmm1, xmm0, dword ptr [rdx+0Ch]
-    vmovsd  xmm3, qword ptr [rdx]
-  }
+  _XMM0 = LODWORD(bounds->halfSize.v[1]);
+  __asm { vmaxss  xmm1, xmm0, dword ptr [rdx+0Ch] }
+  v4 = (__m128)*(unsigned __int64 *)bounds->midPoint.v;
   v5 = bounds->midPoint.v[2];
-  __asm
-  {
-    vmaxss  xmm2, xmm1, dword ptr [rdx+14h]
-    vmovss  dword ptr [rcx+1070h], xmm3
-    vshufps xmm0, xmm3, xmm3, 55h ; 'U'
-    vmovss  dword ptr [rcx+1074h], xmm0
-  }
-  v9 = v5;
-  __asm
-  {
-    vmovss  xmm0, [rsp+28h+var_20]
-    vmovss  dword ptr [rcx+1078h], xmm0
-    vmovss  dword ptr [rcx+107Ch], xmm2
-  }
+  __asm { vmaxss  xmm2, xmm1, dword ptr [rdx+14h] }
+  source->input.consts[151].v[0] = v4.m128_f32[0];
+  source->input.consts[151].v[1] = _mm_shuffle_ps(v4, v4, 85).m128_f32[0];
+  source->input.consts[151].v[2] = v5;
+  source->input.consts[151].v[3] = *(float *)&_XMM2;
   ++source->constVersions[151];
 }
 
@@ -589,18 +550,8 @@ R_SetDecalVolumeIndexMiscParams
 */
 void R_SetDecalVolumeIndexMiscParams(unsigned int volumeIndex, unsigned int uvbVirtPageStartOrSubdivCacheOffset, vec4_t *miscObjectParams)
 {
-  unsigned int v5; 
-  unsigned int v6; 
-
-  v6 = uvbVirtPageStartOrSubdivCacheOffset;
-  __asm { vmovss  xmm0, [rsp+arg_8] }
-  v5 = volumeIndex;
-  __asm
-  {
-    vmovss  xmm1, [rsp+arg_0]
-    vmovss  dword ptr [r8], xmm0
-    vmovss  dword ptr [r8+0Ch], xmm1
-  }
+  miscObjectParams->v[0] = *(float *)&uvbVirtPageStartOrSubdivCacheOffset;
+  miscObjectParams->v[3] = *(float *)&volumeIndex;
 }
 
 /*
@@ -610,18 +561,8 @@ R_SetDecalVolumeIndexMiscParamsForSource
 */
 void R_SetDecalVolumeIndexMiscParamsForSource(GfxCmdBufSourceState *source, unsigned int decalVolumeIndex)
 {
-  unsigned int v4; 
-  int v5; 
-
-  v5 = 0;
-  __asm { vmovss  xmm0, [rsp+arg_8] }
-  v4 = decalVolumeIndex;
-  __asm
-  {
-    vmovss  xmm1, [rsp+arg_0]
-    vmovss  dword ptr [rcx+1060h], xmm0
-    vmovss  dword ptr [rcx+106Ch], xmm1
-  }
+  source->input.consts[150].v[0] = 0;
+  source->input.consts[150].v[3] = *(float *)&decalVolumeIndex;
   ++source->constVersions[150];
 }
 
@@ -630,39 +571,20 @@ void R_SetDecalVolumeIndexMiscParamsForSource(GfxCmdBufSourceState *source, unsi
 R_SetEyeSensorPupilSize
 ==============
 */
-
-void __fastcall R_SetEyeSensorPupilSize(GfxCmdBufSourceState *source, double eyePupilSize, __int64 a3, double _XMM3_8)
+void R_SetEyeSensorPupilSize(GfxCmdBufSourceState *source, float eyePupilSize)
 {
-  int IsEnabled; 
-  bool v10; 
+  unsigned int v4; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RBX = source;
-  __asm { vmovaps xmm6, xmm1 }
-  IsEnabled = R_EyeSensor_IsEnabled();
-  _ECX = 0;
-  __asm { vxorps  xmm3, xmm3, xmm3 }
-  v10 = IsEnabled == 0;
-  if ( !IsEnabled )
-    goto LABEL_3;
-  __asm { vucomiss xmm6, xmm3 }
-  _EAX = 1;
-  if ( v10 )
-LABEL_3:
-    _EAX = 0;
-  __asm
-  {
-    vmovd   xmm1, ecx
-    vmovd   xmm0, eax
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vmovss  dword ptr [rbx+844h], xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-    vblendvps xmm0, xmm1, xmm3, xmm2
-    vmovss  dword ptr [rbx+840h], xmm0
-  }
-  *(_QWORD *)&_RBX->input.consts[20].xyz.z = 0i64;
-  ++_RBX->constVersions[20];
+  if ( !R_EyeSensor_IsEnabled() || (v4 = 1, eyePupilSize == 0.0) )
+    v4 = 0;
+  _XMM0 = v4;
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_1_0);
+  source->input.consts[20].v[1] = eyePupilSize;
+  __asm { vblendvps xmm0, xmm1, xmm3, xmm2 }
+  source->input.consts[20].v[0] = *(float *)&_XMM0;
+  *(_QWORD *)&source->input.consts[20].xyz.z = 0i64;
+  ++source->constVersions[20];
 }
 
 /*
@@ -670,42 +592,26 @@ LABEL_3:
 R_SetGameTime
 ==============
 */
-
-void __fastcall R_SetGameTime(GfxCmdBufSourceState *source, float gameTime, double _XMM2_8)
+void R_SetGameTime(GfxCmdBufSourceState *source, float gameTime)
 {
+  float floatTime; 
+  float v5; 
+  float v7; 
   float s; 
   float c[3]; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rcx+2CE8h]
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm6, 1
-    vmovaps [rsp+58h+var_28], xmm7
-    vsubss  xmm7, xmm6, xmm2
-    vmulss  xmm0, xmm7, cs:__real@40c90fdb; radians
-  }
-  _RBX = source;
-  FastSinCos(*(const float *)&_XMM0, &s, c);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@4728c000; Y
-    vmovaps xmm0, xmm6; X
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, [rsp+58h+s]
-    vmovss  xmm2, [rsp+58h+c]
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovss  dword ptr [rbx+720h], xmm1
-    vmovss  dword ptr [rbx+724h], xmm2
-    vmovss  dword ptr [rbx+728h], xmm7
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovss  dword ptr [rbx+72Ch], xmm0
-  }
-  ++_RBX->constVersions[2];
+  floatTime = source->sceneDef.floatTime;
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm6, 1 }
+  v5 = floatTime - *(float *)&_XMM2;
+  FastSinCos((float)(floatTime - *(float *)&_XMM2) * 6.2831855, &s, c);
+  v7 = fmodf_0(floatTime, 43200.0);
+  *(float *)&_XMM2 = c[0];
+  source->input.consts[2].v[0] = s;
+  source->input.consts[2].v[1] = *(float *)&_XMM2;
+  source->input.consts[2].v[2] = v5;
+  source->input.consts[2].v[3] = v7;
+  ++source->constVersions[2];
 }
 
 /*
@@ -752,22 +658,9 @@ R_SetMaterialEntityID
 */
 void R_SetMaterialEntityID(GfxCmdBufSourceState *source, unsigned __int16 entityID)
 {
-  int v10; 
-
-  v10 = entityID;
-  __asm
-  {
-    vmovss  xmm2, [rsp+arg_8]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, cs:__real@3b808081
-    vmovss  dword ptr [rcx+7F0h], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3b808081
-    vmovss  dword ptr [rcx+7F4h], xmm1
-    vmovss  dword ptr [rcx+7F8h], xmm2
-  }
+  source->input.consts[15].v[0] = (float)(unsigned __int8)entityID * 0.0039215689;
+  source->input.consts[15].v[1] = (float)HIBYTE(entityID) * 0.0039215689;
+  source->input.consts[15].v[2] = COERCE_FLOAT(entityID);
   source->input.consts[15].v[3] = 1.0;
   ++source->constVersions[15];
 }
@@ -789,22 +682,17 @@ R_SetMiscObjectParamsForSource
 */
 void R_SetMiscObjectParamsForSource(GfxCmdBufSourceState *source, const vec4_t *miscObjectParams)
 {
-  float v5; 
+  float v2; 
+  float v3; 
+  float v4; 
 
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdx+0Ch]
-    vmovss  xmm1, dword ptr [rdx+8]
-    vmovss  xmm0, dword ptr [rdx+4]
-  }
-  v5 = miscObjectParams->v[0];
-  __asm
-  {
-    vmovss  dword ptr [rcx+1064h], xmm0
-    vmovss  dword ptr [rcx+1068h], xmm1
-    vmovss  dword ptr [rcx+106Ch], xmm2
-  }
-  source->input.consts[150].v[0] = v5;
+  v2 = miscObjectParams->v[3];
+  v3 = miscObjectParams->v[2];
+  v4 = miscObjectParams->v[0];
+  source->input.consts[150].v[1] = miscObjectParams->v[1];
+  source->input.consts[150].v[2] = v3;
+  source->input.consts[150].v[3] = v2;
+  source->input.consts[150].v[0] = v4;
   ++source->constVersions[150];
 }
 
@@ -823,12 +711,11 @@ void R_SetMiscObjectSurfData(GfxBaseXModelSurfData *surfData, const vec4_t *srcM
 R_SetPrecisePrevWorldMatrixInstanceDataFromPrecise
 ==============
 */
-
-void __fastcall R_SetPrecisePrevWorldMatrixInstanceDataFromPrecise(GfxVelocityInstanceData *instanceData, const base_vec3_t<int> *preciseOrigin, const vec4_t *orientation, double scale)
+void R_SetPrecisePrevWorldMatrixInstanceDataFromPrecise(GfxVelocityInstanceData *instanceData, const base_vec3_t<int> *preciseOrigin, const vec4_t *orientation, const float scale)
 {
   instanceData->prevFrameQuat = *orientation;
   instanceData->prevFramePreciseOrigin = *preciseOrigin;
-  __asm { vmovss  dword ptr [rcx+3Ch], xmm3 }
+  instanceData->prevFrameScale = scale;
 }
 
 /*
@@ -836,12 +723,11 @@ void __fastcall R_SetPrecisePrevWorldMatrixInstanceDataFromPrecise(GfxVelocityIn
 R_SetPreciseWorldMatrixInstanceDataFromPrecise
 ==============
 */
-
-void __fastcall R_SetPreciseWorldMatrixInstanceDataFromPrecise(GfxBaseInstanceData *instanceData, const base_vec3_t<int> *preciseOrigin, const vec4_t *orientation, double scale)
+void R_SetPreciseWorldMatrixInstanceDataFromPrecise(GfxBaseInstanceData *instanceData, const base_vec3_t<int> *preciseOrigin, const vec4_t *orientation, const float scale)
 {
   instanceData->quat = *orientation;
   instanceData->preciseOrigin = *preciseOrigin;
-  __asm { vmovss  dword ptr [rcx+1Ch], xmm3 }
+  instanceData->scale = scale;
 }
 
 /*
@@ -851,14 +737,7 @@ R_SetSModelIndexMiscParams
 */
 void R_SetSModelIndexMiscParams(unsigned int smodelIndex, vec4_t *miscObjectParams)
 {
-  unsigned int v3; 
-
-  v3 = smodelIndex;
-  __asm
-  {
-    vmovss  xmm0, [rsp+arg_0]
-    vmovss  dword ptr [rdx], xmm0
-  }
+  miscObjectParams->v[0] = *(float *)&smodelIndex;
 }
 
 /*
@@ -879,10 +758,12 @@ R_SetScriptableTemperature
 */
 void R_SetScriptableTemperature(GfxCmdBufSourceState *source, const vec2_t *temperature)
 {
-  __asm { vmovss  xmm0, dword ptr [rdx+4] }
+  float v2; 
+
+  v2 = temperature->v[1];
   source->input.consts[19].v[0] = temperature->v[0];
   *(_QWORD *)&source->input.consts[19].xyz.z = 0i64;
-  __asm { vmovss  dword ptr [rcx+834h], xmm0 }
+  source->input.consts[19].v[1] = v2;
   ++source->constVersions[19];
 }
 
@@ -893,17 +774,23 @@ R_SetSubdivPatchVelocitySkinnedParmsSurfData
 */
 void R_SetSubdivPatchVelocitySkinnedParmsSurfData(GfxVelSkinSurfData *surfData, const GfxModelSkinnedSurface *modelSurf, const GfxModelMotionblurSkinnedSurface *motionblurSurf, int subdivLevel)
 {
-  _RBP = surfData;
+  unsigned int subdivCacheOffset; 
+  XSurface *xsurf; 
+  XSurfaceSubdivLevel *levels; 
+  float v8; 
+
+  if ( !motionblurSurf || (subdivCacheOffset = motionblurSurf->cacheOffset[1], subdivCacheOffset == -1) )
+    subdivCacheOffset = modelSurf->subdivCacheOffset;
   if ( subdivLevel > 0 )
-    R_GetSubdivVertex1Stride(modelSurf->xsurf);
-  __asm
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  dword ptr [rbp+2Ch], xmm0
+    xsurf = modelSurf->xsurf;
+    levels = xsurf->subdiv->levels;
+    subdivCacheOffset += (R_GetSubdivVertex1Stride(xsurf) + 12) * levels[subdivLevel - 1].vertOffset;
   }
-  *(_QWORD *)_RBP->velocitySkinnedParms.v = 1065353216i64;
-  _RBP->velocitySkinnedParms.v[2] = 12.0;
+  v8 = (float)subdivCacheOffset;
+  surfData->velocitySkinnedParms.v[3] = v8;
+  *(_QWORD *)surfData->velocitySkinnedParms.v = 1065353216i64;
+  surfData->velocitySkinnedParms.v[2] = 12.0;
 }
 
 /*
@@ -913,16 +800,15 @@ R_SetSubdivVelocitySkinnedParmsSurfData
 */
 void R_SetSubdivVelocitySkinnedParmsSurfData(GfxVelSkinSurfData *surfData, const GfxModelSkinnedSurface *modelSurf, const GfxModelMotionblurSkinnedSurface *motionblurSurf, int subdivLevel)
 {
-  _RSI = surfData;
-  R_GetSubdivVertex1Stride(modelSurf->xsurf);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  *(_QWORD *)_RSI->velocitySkinnedParms.v = 1065353216i64;
-  _RSI->velocitySkinnedParms.v[2] = 12.0;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, ebx
-    vmovss  dword ptr [rsi+2Ch], xmm0
-  }
+  int subdivCacheOffset; 
+  unsigned int v6; 
+
+  if ( !motionblurSurf || (subdivCacheOffset = motionblurSurf->cacheOffset[1], subdivCacheOffset == -1) )
+    subdivCacheOffset = modelSurf->subdivCacheOffset;
+  v6 = (R_GetSubdivVertex1Stride(modelSurf->xsurf) + 12) * modelSurf->xsurf->subdiv->levels[subdivLevel].vertOffset;
+  *(_QWORD *)surfData->velocitySkinnedParms.v = 1065353216i64;
+  surfData->velocitySkinnedParms.v[2] = 12.0;
+  surfData->velocitySkinnedParms.v[3] = (float)(int)(v6 + subdivCacheOffset);
 }
 
 /*
@@ -932,12 +818,9 @@ R_SetVelocitySkinnedParmsSurfData
 */
 void R_SetVelocitySkinnedParmsSurfData(GfxVelSkinSurfData *surfData, const GfxModelSkinnedSurface *modelSurf, const GfxModelMotionblurSkinnedSurface *motionblurSurf)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [rcx+2Ch], xmm0
-  }
+  if ( !motionblurSurf )
+    motionblurSurf = (const GfxModelMotionblurSkinnedSurface *)modelSurf;
+  surfData->velocitySkinnedParms.v[3] = (float)motionblurSurf->cacheOffset[0];
   *(_QWORD *)surfData->velocitySkinnedParms.v = 1065353216i64;
   surfData->velocitySkinnedParms.v[2] = 20.0;
 }
@@ -1243,52 +1126,25 @@ LABEL_116:
 R_UpdateEyeSensorPupilSize
 ==============
 */
-
-__int64 __fastcall R_UpdateEyeSensorPupilSize(GfxCmdBufSourceState *source, double eyePupilSize, __int64 a3, double _XMM3_8)
+__int64 R_UpdateEyeSensorPupilSize(GfxCmdBufSourceState *source, float eyePupilSize)
 {
-  int IsEnabled; 
-  bool v10; 
   __int64 result; 
+  unsigned int v5; 
 
-  __asm
-  {
-    vucomiss xmm1, dword ptr [rcx+2D98h]
-    vmovaps [rsp+38h+var_18], xmm6
-  }
-  _RBX = source;
-  __asm
-  {
-    vmovaps xmm6, xmm1
-    vmovss  dword ptr [rcx+2D98h], xmm6
-  }
-  IsEnabled = R_EyeSensor_IsEnabled();
-  _ECX = 0;
-  __asm { vxorps  xmm3, xmm3, xmm3 }
-  v10 = IsEnabled == 0;
-  if ( !IsEnabled )
-    goto LABEL_3;
-  __asm { vucomiss xmm6, xmm3 }
-  _EAX = 1;
-  if ( v10 )
-LABEL_3:
-    _EAX = 0;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vmovd   xmm1, ecx
-    vpcmpeqd xmm2, xmm0, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vmovss  dword ptr [rbx+844h], xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-  }
+  if ( eyePupilSize == source->eyePupilSize )
+    return 0i64;
+  source->eyePupilSize = eyePupilSize;
+  if ( !R_EyeSensor_IsEnabled() || (v5 = 1, eyePupilSize == 0.0) )
+    v5 = 0;
+  _XMM0 = v5;
+  __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_1_0);
+  source->input.consts[20].v[1] = eyePupilSize;
   result = 1i64;
-  __asm
-  {
-    vblendvps xmm0, xmm1, xmm3, xmm2
-    vmovss  dword ptr [rbx+840h], xmm0
-  }
-  *(_QWORD *)&_RBX->input.consts[20].xyz.z = 0i64;
-  ++_RBX->constVersions[20];
+  __asm { vblendvps xmm0, xmm1, xmm3, xmm2 }
+  source->input.consts[20].v[0] = *(float *)&_XMM0;
+  *(_QWORD *)&source->input.consts[20].xyz.z = 0i64;
+  ++source->constVersions[20];
   return result;
 }
 
@@ -1300,25 +1156,13 @@ R_UpdateMaterialEntityID
 __int64 R_UpdateMaterialEntityID(GfxCmdBufSourceState *source, unsigned __int16 entityID)
 {
   __int64 result; 
-  int v11; 
 
   if ( entityID == source->materialEntityId )
     return 0i64;
   source->materialEntityId = entityID;
-  v11 = entityID;
-  __asm
-  {
-    vmovss  xmm2, [rsp+arg_8]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm0, xmm0, cs:__real@3b808081
-    vmovss  dword ptr [rcx+7F0h], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3b808081
-    vmovss  dword ptr [rcx+7F4h], xmm1
-    vmovss  dword ptr [rcx+7F8h], xmm2
-  }
+  source->input.consts[15].v[0] = (float)(unsigned __int8)entityID * 0.0039215689;
+  source->input.consts[15].v[1] = (float)HIBYTE(entityID) * 0.0039215689;
+  source->input.consts[15].v[2] = COERCE_FLOAT(entityID);
   source->input.consts[15].v[3] = 1.0;
   result = 1i64;
   ++source->constVersions[15];
@@ -1330,49 +1174,31 @@ __int64 R_UpdateMaterialEntityID(GfxCmdBufSourceState *source, unsigned __int16 
 R_UpdateMaterialTime
 ==============
 */
-
-__int64 __fastcall R_UpdateMaterialTime(GfxCmdBufSourceState *source, double materialTime, double _XMM2_8)
+__int64 R_UpdateMaterialTime(GfxCmdBufSourceState *source, float materialTime)
 {
   __int64 result; 
+  float floatTime; 
+  float v7; 
+  float v8; 
   float s; 
   float c[3]; 
 
-  __asm { vucomiss xmm1, dword ptr [rcx+2D28h] }
-  _RBX = source;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rcx+2CE8h]
-    vxorps  xmm2, xmm2, xmm2
-    vroundss xmm2, xmm2, xmm6, 1
-    vmovaps [rsp+58h+var_28], xmm7
-    vsubss  xmm7, xmm6, xmm2
-    vmulss  xmm0, xmm7, cs:__real@40c90fdb; radians
-    vmovss  dword ptr [rcx+2D28h], xmm1
-  }
-  FastSinCos(*(const float *)&_XMM0, &s, c);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@4728c000; Y
-    vmovaps xmm0, xmm6; X
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm1, [rsp+58h+s]
-    vmovss  xmm2, [rsp+58h+c]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  if ( materialTime == source->materialTime )
+    return 0i64;
+  floatTime = source->sceneDef.floatTime;
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm6, 1 }
+  v7 = floatTime - *(float *)&_XMM2;
+  source->materialTime = materialTime;
+  FastSinCos((float)(floatTime - *(float *)&_XMM2) * 6.2831855, &s, c);
+  v8 = fmodf_0(floatTime, 43200.0);
+  *(float *)&_XMM2 = c[0];
   result = 1i64;
-  __asm
-  {
-    vmovss  dword ptr [rbx+720h], xmm1
-    vmovss  dword ptr [rbx+724h], xmm2
-    vmovss  dword ptr [rbx+728h], xmm7
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovss  dword ptr [rbx+72Ch], xmm0
-  }
-  ++_RBX->constVersions[2];
+  source->input.consts[2].v[0] = s;
+  source->input.consts[2].v[1] = *(float *)&_XMM2;
+  source->input.consts[2].v[2] = v7;
+  source->input.consts[2].v[3] = v8;
+  ++source->constVersions[2];
   return result;
 }
 
@@ -1387,11 +1213,7 @@ __int64 R_UpdateScriptablePackedColorEmissive(GfxCmdBufSourceState *source, cons
 
   if ( scriptablePackedColorEmissive->v[0] == source->scriptablePackedColorEmissive.v[0] && scriptablePackedColorEmissive->v[1] == source->scriptablePackedColorEmissive.v[1] && scriptablePackedColorEmissive->v[2] == source->scriptablePackedColorEmissive.v[2] && scriptablePackedColorEmissive->v[3] == source->scriptablePackedColorEmissive.v[3] )
     return 0i64;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx+2D2Ch], xmm0
-  }
+  source->scriptablePackedColorEmissive = *scriptablePackedColorEmissive;
   source->input.consts[18] = (vec4_t)*scriptablePackedColorEmissive;
   result = 1i64;
   ++source->constVersions[18];
@@ -1405,30 +1227,17 @@ R_UpdateScriptableTemperature
 */
 __int64 R_UpdateScriptableTemperature(GfxCmdBufSourceState *source, const vec2_t *temperature)
 {
-  char v2; 
   __int64 result; 
+  float v3; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+2D3Ch]
-    vucomiss xmm0, dword ptr [rdx]
-  }
-  if ( v2 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+2D40h]
-      vucomiss xmm0, dword ptr [rdx+4]
-    }
-    if ( v2 )
-      return 0i64;
-  }
+  if ( source->scriptableTemperature.v[0] == temperature->v[0] && source->scriptableTemperature.v[1] == temperature->v[1] )
+    return 0i64;
   source->scriptableTemperature = *temperature;
-  __asm { vmovss  xmm0, dword ptr [rdx+4] }
+  v3 = temperature->v[1];
   source->input.consts[19].v[0] = temperature->v[0];
   *(_QWORD *)&source->input.consts[19].xyz.z = 0i64;
   result = 1i64;
-  __asm { vmovss  dword ptr [rcx+834h], xmm0 }
+  source->input.consts[19].v[1] = v3;
   ++source->constVersions[19];
   return result;
 }

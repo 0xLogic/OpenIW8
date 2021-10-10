@@ -789,32 +789,20 @@ __int64 CL_TransientsMP_ConvertShiftedToFlags(const unsigned __int8 shiftedFlags
 CL_TransientsMP_DebugDrawQueue
 ==============
 */
-
-void __fastcall CL_TransientsMP_DebugDrawQueue(const ScreenPlacement *const scrPlace, double x, double y)
+void CL_TransientsMP_DebugDrawQueue(const ScreenPlacement *const scrPlace, const float x, const float y)
 {
   signed __int64 v3; 
-  void *v6; 
+  void *v4; 
   unsigned int i; 
   TransientFile *file; 
   char *fmt; 
-  float fmta; 
   char *s; 
   vec4_t *color; 
   int destPos[4]; 
   char dest[4000]; 
 
-  v6 = alloca(v3);
-  __asm
-  {
-    vmovaps [rsp+1048h+var_28], xmm6
-    vmovaps [rsp+1048h+var_38], xmm7
-  }
+  v4 = alloca(v3);
   destPos[0] = 0;
-  __asm
-  {
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
   dest[0] = 0;
   for ( i = (s_debugLoadedRingBufferSize + 1) % 0x32; i != s_debugLoadedRingBufferSize; i = (i + 1) % 0x32 )
   {
@@ -832,19 +820,7 @@ void __fastcall CL_TransientsMP_DebugDrawQueue(const ScreenPlacement *const scrP
       Com_sprintfPos_truncate(dest, 0xFA0ui64, destPos, "%4u '%s'\n", fmt, file->filename);
     }
   }
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f000000; xScale
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm6; x
-    vmovss  dword ptr [rsp+1048h+fmt], xmm3
-  }
-  CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, dest, &colorWhite, 5, cls.smallDevFont);
-  __asm
-  {
-    vmovaps xmm6, [rsp+1048h+var_28]
-    vmovaps xmm7, [rsp+1048h+var_38]
-  }
+  CG_DrawDevString(scrPlace, x, y, 0.5, 0.5, dest, &colorWhite, 5, cls.smallDevFont);
 }
 
 /*
@@ -1984,136 +1960,97 @@ CL_TransientsMP_GetYieldTimeout
 
 int __fastcall CL_TransientsMP_GetYieldTimeout(double _XMM0_8)
 {
-  char v10; 
-  char v13; 
+  const dvar_t *v1; 
+  float v2; 
+  float value; 
+  char v5; 
   LocalClientNum_t i; 
+  const dvar_t *v7; 
+  const dvar_t *v8; 
+  const dvar_t *v10; 
+  float v11; 
+  const dvar_t *v12; 
+  float v13; 
+  int v14; 
   const dvar_t *v15; 
-  const dvar_t *v16; 
-  int result; 
-  const dvar_t *v28; 
-  const dvar_t *v30; 
-  double v44; 
-  double v45; 
-  double v46; 
-  double v47; 
-  char v49; 
-  void *retaddr; 
+  float v16; 
+  float v17; 
+  const dvar_t *v18; 
+  float v19; 
+  int integer; 
+  const dvar_t *v21; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
   _XMM0_8 = CL_StreamViews_GetMaxLocalClientVelocity();
-  _RBX = DVARFLT_cl_transient_mp_yield_mid_velocity;
-  __asm { vmovaps xmm8, xmm0 }
+  v1 = DVARFLT_cl_transient_mp_yield_mid_velocity;
+  v2 = *(float *)&_XMM0_8;
   if ( !DVARFLT_cl_transient_mp_yield_mid_velocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_mid_velocity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v1);
+  value = v1->current.value;
+  if ( value < 0.0 )
   {
-    vmovss  xmm6, dword ptr [rbx+28h]
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm6, xmm9
-  }
-  if ( v10 )
-  {
-    __asm
-    {
-      vxorpd  xmm0, xmm0, xmm0
-      vmovsd  [rsp+0A8h+var_68], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+0A8h+var_70], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 1510, ASSERT_TYPE_ASSERT, "( midVelocity ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "midVelocity", "0.0f", v44, v46) )
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 1510, ASSERT_TYPE_ASSERT, "( midVelocity ) >= ( 0.0f )", "%s >= %s\n\t%g, %g", "midVelocity", "0.0f", value, *(double *)&_XMM0) )
       __debugbreak();
   }
-  v13 = 0;
+  v5 = 0;
   for ( i = LOCAL_CLIENT_0; i < SLODWORD(cl_maxLocalClients); ++i )
-    v13 |= CL_TransientsWorldMP_IsZoomLoadActive(i);
-  v15 = DVARBOOL_cl_transient_mp_yield_for_streamer_zoom_enabled;
+    v5 |= CL_TransientsWorldMP_IsZoomLoadActive(i);
+  v7 = DVARBOOL_cl_transient_mp_yield_for_streamer_zoom_enabled;
   if ( !DVARBOOL_cl_transient_mp_yield_for_streamer_zoom_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_for_streamer_zoom_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( v15->current.enabled && v13 )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.enabled && v5 )
   {
-    v16 = DVARINT_cl_transient_mp_yield_timeout_zoom;
+    v8 = DVARINT_cl_transient_mp_yield_timeout_zoom;
     if ( !DVARINT_cl_transient_mp_yield_timeout_zoom && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_timeout_zoom") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v16);
-    result = v16->current.integer;
+    Dvar_CheckFrontendServerThread(v8);
+    return v8->current.integer;
   }
   else
   {
-    __asm
+    if ( v2 < value )
     {
-      vcomiss xmm8, xmm6
-      vmovaps [rsp+0A8h+var_38], xmm7
-    }
-    _RBX = DVARFLT_cl_transient_mp_yield_max_velocity;
-    if ( !DVARFLT_cl_transient_mp_yield_max_velocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_max_velocity") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rbx+28h]
-      vcomiss xmm7, xmm6
-    }
-    if ( v10 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+0A8h+var_68], xmm0
-        vcvtss2sd xmm1, xmm7, xmm7
-        vmovsd  [rsp+0A8h+var_70], xmm1
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 1527, ASSERT_TYPE_ASSERT, "( maxVelocity ) >= ( midVelocity )", "%s >= %s\n\t%g, %g", "maxVelocity", "midVelocity", v45, v47) )
+      I_fclamp(v2 / value, 0.0, 1.0);
+      v18 = DVARINT_cl_transient_mp_yield_timeout_at_min_velocity;
+      v19 = v2 / value;
+      if ( !DVARINT_cl_transient_mp_yield_timeout_at_min_velocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_timeout_at_min_velocity") )
         __debugbreak();
+      Dvar_CheckFrontendServerThread(v18);
+      integer = v18->current.integer;
+      v21 = DVARINT_cl_transient_mp_yield_timeout_at_mid_velocity;
+      if ( !DVARINT_cl_transient_mp_yield_timeout_at_mid_velocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_timeout_at_mid_velocity") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v21);
+      v16 = (float)(1.0 - v19) * (float)integer;
+      v17 = (float)v21->current.integer * v19;
     }
-    __asm
+    else
     {
-      vsubss  xmm2, xmm8, xmm6
-      vsubss  xmm0, xmm7, xmm6
-      vmovss  xmm7, cs:__real@3f800000
-      vdivss  xmm0, xmm2, xmm0; val
-      vmovaps xmm2, xmm7; max
-      vmovaps xmm1, xmm9; min
+      v10 = DVARFLT_cl_transient_mp_yield_max_velocity;
+      if ( !DVARFLT_cl_transient_mp_yield_max_velocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_max_velocity") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v10);
+      v11 = v10->current.value;
+      if ( v11 < value && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 1527, ASSERT_TYPE_ASSERT, "( maxVelocity ) >= ( midVelocity )", "%s >= %s\n\t%g, %g", "maxVelocity", "midVelocity", v11, value) )
+        __debugbreak();
+      I_fclamp((float)(v2 - value) / (float)(v11 - value), 0.0, 1.0);
+      v12 = DVARINT_cl_transient_mp_yield_timeout_at_mid_velocity;
+      v13 = (float)(v2 - value) / (float)(v11 - value);
+      if ( !DVARINT_cl_transient_mp_yield_timeout_at_mid_velocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_timeout_at_mid_velocity") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v12);
+      v14 = v12->current.integer;
+      v15 = DVARINT_cl_transient_mp_yield_timeout_at_max_velocity;
+      if ( !DVARINT_cl_transient_mp_yield_timeout_at_max_velocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_timeout_at_max_velocity") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v15);
+      v16 = (float)(1.0 - v13) * (float)v14;
+      v17 = (float)v15->current.integer * v13;
     }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    v28 = DVARINT_cl_transient_mp_yield_timeout_at_mid_velocity;
-    __asm { vmovaps xmm6, xmm0 }
-    if ( !DVARINT_cl_transient_mp_yield_timeout_at_mid_velocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_timeout_at_mid_velocity") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v28);
-    v30 = DVARINT_cl_transient_mp_yield_timeout_at_max_velocity;
-    if ( !DVARINT_cl_transient_mp_yield_timeout_at_max_velocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_timeout_at_max_velocity") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v30);
-    __asm
-    {
-      vsubss  xmm1, xmm7, xmm6
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edi
-      vmulss  xmm3, xmm1, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, dword ptr [rbx+28h]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm0, xmm3, xmm2; val
-    }
-    result = float_to_integral_cast<int,float>(*(float *)&_XMM0);
-    __asm { vmovaps xmm7, [rsp+0A8h+var_38] }
+    return float_to_integral_cast<int,float>(v16 + v17);
   }
-  _R11 = &v49;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
 }
 
 /*
@@ -2982,30 +2919,29 @@ char CL_TransientsMP_NeedsProcessing()
 CL_TransientsMP_OnLevelLoad
 ==============
 */
-
-void __fastcall CL_TransientsMP_OnLevelLoad(double _XMM0_8)
+void CL_TransientsMP_OnLevelLoad(void)
 {
-  unsigned int v1; 
-  unsigned __int64 v2; 
+  unsigned int v0; 
+  unsigned __int64 v1; 
   unsigned int i; 
   const char *ZoneNameFromIndex; 
-  int v9; 
-  unsigned __int8 *v10; 
-  unsigned __int8 v11; 
+  int v6; 
+  unsigned __int8 *v7; 
+  unsigned __int8 v8; 
   unsigned __int16 FileIndexByHash; 
   TransientFile *FileByIndex; 
-  __int64 v14; 
-  unsigned __int64 v15; 
-  __int64 v20; 
-  __int64 v21; 
+  __int64 v11; 
+  unsigned __int64 v12; 
+  __int64 v15; 
+  __int64 v16; 
   DB_FastfileInfo zoneInfo[1857]; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 2205, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
   if ( s_transientMPLoadMode == Frontend )
   {
-    v1 = 0;
-    v2 = __rdtsc();
+    v0 = 0;
+    v1 = __rdtsc();
     if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 2406, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
       __debugbreak();
     if ( CL_TransientsMP_IsInHostMigration() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 2407, ASSERT_TYPE_ASSERT, "(!CL_TransientsMP_IsInHostMigration())", (const char *)&queryFormat, "!CL_TransientsMP_IsInHostMigration()") )
@@ -3013,81 +2949,65 @@ void __fastcall CL_TransientsMP_OnLevelLoad(double _XMM0_8)
     R_BeginRemoteScreenUpdateWithAnimatedTexture();
     Sys_ProcessWorkerCmdsWithTimeout(CL_TransientsMP_WaitUntilProcessingDone, NULL);
     R_EndRemoteScreenUpdateWithAnimatedTexture();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
-    if ( (__int64)(__rdtsc() - v2) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
-    {
-      vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vmovq   rdx, xmm1
-    }
-    CL_TransientMP_StatusPrint("CL_TransientsMP_OnLevelLoad: StallUntilCompletion took %.2fms\n", _RDX);
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    if ( (__int64)(__rdtsc() - v1) < 0 )
+      *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+    CL_TransientMP_StatusPrint("CL_TransientsMP_OnLevelLoad: StallUntilCompletion took %.2fms\n", *(double *)&_XMM0 * msecPerRawTimerTick);
     for ( i = 0; i < 0x7A4; ++i )
     {
       if ( DB_Zones_IsValidZoneIndex(i) && (DB_Zones_GetZoneFlagsFromIndex(i) & 0x3800000) != 0 )
       {
         ZoneNameFromIndex = DB_Zones_GetZoneNameFromIndex(i);
-        v9 = 0;
-        v10 = (unsigned __int8 *)ZoneNameFromIndex;
-        v11 = *ZoneNameFromIndex;
+        v6 = 0;
+        v7 = (unsigned __int8 *)ZoneNameFromIndex;
+        v8 = *ZoneNameFromIndex;
         if ( !*ZoneNameFromIndex )
           goto LABEL_39;
         do
         {
-          ++v10;
-          v9 = v11 ^ (16777619 * v9);
-          v11 = *v10;
+          ++v7;
+          v6 = v8 ^ (16777619 * v6);
+          v8 = *v7;
         }
-        while ( *v10 );
-        if ( !v9 )
+        while ( *v7 );
+        if ( !v6 )
         {
 LABEL_39:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 2234, ASSERT_TYPE_ASSERT, "(fileHash != 0)", (const char *)&queryFormat, "fileHash != 0") )
             __debugbreak();
         }
-        FileIndexByHash = CL_TransientsMP_FindFileIndexByHash(v9);
+        FileIndexByHash = CL_TransientsMP_FindFileIndexByHash(v6);
         if ( FileIndexByHash == 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 2237, ASSERT_TYPE_ASSERT, "( ( fileIndex != UNUSED_FILE ) )", "( filename ) = %s", ZoneNameFromIndex) )
           __debugbreak();
         FileByIndex = CL_TransientsMP_GetFileByIndex(FileIndexByHash);
         if ( !FileByIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 2240, ASSERT_TYPE_ASSERT, "(file)", (const char *)&queryFormat, "file") )
           __debugbreak();
-        if ( v1 >= 0x741 )
+        if ( v0 >= 0x741 )
         {
-          LODWORD(v21) = 1857;
-          LODWORD(v20) = v1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 2242, ASSERT_TYPE_ASSERT, "(unsigned)( fileCount ) < (unsigned)( ( sizeof( *array_counter( zoneInfo ) ) + 0 ) )", "fileCount doesn't index ARRAY_COUNT( zoneInfo )\n\t%i not in [0, %i)", v20, v21) )
+          LODWORD(v16) = 1857;
+          LODWORD(v15) = v0;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 2242, ASSERT_TYPE_ASSERT, "(unsigned)( fileCount ) < (unsigned)( ( sizeof( *array_counter( zoneInfo ) ) + 0 ) )", "fileCount doesn't index ARRAY_COUNT( zoneInfo )\n\t%i not in [0, %i)", v15, v16) )
             __debugbreak();
         }
-        v14 = v1;
-        zoneInfo[v14].failureMode = REQUIRED;
-        zoneInfo[v14].name = ZoneNameFromIndex;
-        zoneInfo[v1++].zoneFlags = CL_TransientsMP_ConvertShiftedToFlags(FileByIndex->zoneFlagShifted);
+        v11 = v0;
+        zoneInfo[v11].failureMode = REQUIRED;
+        zoneInfo[v11].name = ZoneNameFromIndex;
+        zoneInfo[v0++].zoneFlags = CL_TransientsMP_ConvertShiftedToFlags(FileByIndex->zoneFlagShifted);
       }
     }
-    if ( v1 )
+    if ( v0 )
     {
-      v15 = __rdtsc();
+      v12 = __rdtsc();
       R_BeginRemoteScreenUpdate();
-      DB_LoadFastfiles(zoneInfo, v1, 2u, 0);
+      DB_LoadFastfiles(zoneInfo, v0, 2u, 0);
       DB_Update();
       R_EndRemoteScreenUpdate();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-      }
-      if ( (__int64)(__rdtsc() - v15) < 0 )
-        __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-      __asm
-      {
-        vmulsd  xmm2, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vmovq   r8, xmm2
-      }
-      CL_TransientMP_StatusPrint("CL_TransientsMP_OnLevelLoad: LoadFastfiles (%i) took %.2fms\n", v1, _R8);
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      if ( (__int64)(__rdtsc() - v12) < 0 )
+        *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+      CL_TransientMP_StatusPrint("CL_TransientsMP_OnLevelLoad: LoadFastfiles (%i) took %.2fms\n", v0, *(double *)&_XMM0 * msecPerRawTimerTick);
     }
     s_transientMPLoadMode = InGame;
   }
@@ -3181,25 +3101,23 @@ void CL_TransientsMP_PostLoadUpdate()
 {
   unsigned int v0; 
   TransientFile *file; 
+  DB_FastfileState v2; 
+  unsigned int v3; 
   DB_FastfileState v4; 
-  unsigned int v5; 
-  DB_FastfileState v8; 
-  bool v9; 
-  int v10; 
+  bool v5; 
+  int v6; 
   char *fmt; 
   const char *filename; 
-  const char *v13; 
+  const char *v9; 
 
   if ( !DB_AreFastfileLoadsCompleted() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 561, ASSERT_TYPE_ASSERT, "(DB_AreFastfileLoadsCompleted())", (const char *)&queryFormat, "DB_AreFastfileLoadsCompleted()") )
     __debugbreak();
   v0 = 0;
   if ( s_transientQueueSize )
   {
-    _RBP = 0x140000000ui64;
     while ( 2 )
     {
       file = s_transientQueue[v0].file;
-      _RSI = &s_transientQueue[v0];
       if ( !file && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 566, ASSERT_TYPE_ASSERT, "(file)", (const char *)&queryFormat, "file") )
         __debugbreak();
       switch ( file->state[0] )
@@ -3209,62 +3127,60 @@ void CL_TransientsMP_PostLoadUpdate()
           ++v0;
           if ( DB_PollFastfileState(file->filename) )
           {
-            v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 617, ASSERT_TYPE_ASSERT, "( ( (DB_PollFastfileState( file->filename ) == DB_FastfileState::NOT_LOADED) ) )", "( file->filename ) = %s", file->filename);
-            goto LABEL_34;
+            v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 617, ASSERT_TYPE_ASSERT, "( ( (DB_PollFastfileState( file->filename ) == DB_FastfileState::NOT_LOADED) ) )", "( file->filename ) = %s", file->filename);
+            goto LABEL_33;
           }
-          goto LABEL_36;
+          goto LABEL_35;
         case 2:
           if ( !file->referenceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 572, ASSERT_TYPE_ASSERT, "(file->referenceCount)", (const char *)&queryFormat, "file->referenceCount") )
             __debugbreak();
-          v4 = DB_PollFastfileState(file->filename);
-          if ( v4 == AWAITING_COMMIT )
+          v2 = DB_PollFastfileState(file->filename);
+          if ( v2 == AWAITING_COMMIT )
           {
-            v5 = s_debugLoadedRingBufferSize;
+            v3 = s_debugLoadedRingBufferSize;
             if ( s_debugLoadedRingBufferSize >= 0x32 )
             {
-              LODWORD(v13) = 50;
+              LODWORD(v9) = 50;
               LODWORD(filename) = s_debugLoadedRingBufferSize;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 399, ASSERT_TYPE_ASSERT, "(unsigned)( s_debugLoadedRingBufferSize ) < (unsigned)( ( sizeof( *array_counter( s_debugLoadedRingBufferEnties ) ) + 0 ) )", "s_debugLoadedRingBufferSize doesn't index ARRAY_COUNT( s_debugLoadedRingBufferEnties )\n\t%i not in [0, %i)", filename, v13) )
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 399, ASSERT_TYPE_ASSERT, "(unsigned)( s_debugLoadedRingBufferSize ) < (unsigned)( ( sizeof( *array_counter( s_debugLoadedRingBufferEnties ) ) + 0 ) )", "s_debugLoadedRingBufferSize doesn't index ARRAY_COUNT( s_debugLoadedRingBufferEnties )\n\t%i not in [0, %i)", filename, v9) )
                 __debugbreak();
-              v5 = s_debugLoadedRingBufferSize;
+              v3 = s_debugLoadedRingBufferSize;
             }
-            __asm { vmovups xmm0, xmmword ptr [rsi] }
-            _RAX = 2i64 * v5;
-            __asm { vmovups xmmword ptr ss:rva s_debugLoadedRingBufferEnties.file[rbp+rax*8], xmm0 }
+            s_debugLoadedRingBufferEnties[v3] = s_transientQueue[v0];
             file->state[0] = 3;
-            s_debugLoadedRingBufferSize = (v5 + 1) % 0x32;
+            s_debugLoadedRingBufferSize = (v3 + 1) % 0x32;
             CL_TransientsMP_RemoveFromQueue(v0);
           }
           else
           {
-            Sys_Error((const ObfuscateErrorText)&stru_144224268, file->filename, (unsigned int)v4);
+            Sys_Error((const ObfuscateErrorText)&stru_144224268, file->filename, (unsigned int)v2);
           }
-          goto LABEL_36;
+          goto LABEL_35;
         case 3:
         case 7:
           ++v0;
           if ( DB_PollFastfileState(file->filename) != AWAITING_COMMIT )
           {
-            v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 611, ASSERT_TYPE_ASSERT, "( ( (DB_PollFastfileState( file->filename ) == DB_FastfileState::LOADED) ) )", "( file->filename ) = %s", file->filename);
-            goto LABEL_34;
+            v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 611, ASSERT_TYPE_ASSERT, "( ( (DB_PollFastfileState( file->filename ) == DB_FastfileState::LOADED) ) )", "( file->filename ) = %s", file->filename);
+            goto LABEL_33;
           }
-          goto LABEL_36;
+          goto LABEL_35;
         case 4:
         case 0xA:
         case 0xB:
-          LODWORD(v13) = (unsigned __int8)file->state[0];
-          v10 = 629;
+          LODWORD(v9) = (unsigned __int8)file->state[0];
+          v6 = 629;
           filename = file->filename;
           fmt = "Unloading transient file not correctly removed from the load queue: %s (%d)";
-          goto LABEL_33;
+          goto LABEL_32;
         case 8:
         case 9:
           goto $LN51_24;
         case 0xC:
           if ( file->referenceCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 591, ASSERT_TYPE_ASSERT, "(file->referenceCount == 0)", (const char *)&queryFormat, "file->referenceCount == 0") )
             __debugbreak();
-          v8 = DB_PollFastfileState(file->filename);
-          if ( v8 == AWAITING_COMMIT )
+          v4 = DB_PollFastfileState(file->filename);
+          if ( v4 == AWAITING_COMMIT )
           {
             file->state[0] = 7;
 $LN51_24:
@@ -3272,24 +3188,24 @@ $LN51_24:
           }
           else
           {
-            Sys_Error((const ObfuscateErrorText)&stru_1442242D8, file->filename, (unsigned int)v8);
+            Sys_Error((const ObfuscateErrorText)&stru_1442242D8, file->filename, (unsigned int)v4);
           }
-LABEL_36:
+LABEL_35:
           if ( v0 >= s_transientQueueSize )
             return;
           continue;
         default:
-          v13 = file->filename;
+          v9 = file->filename;
           LODWORD(filename) = (unsigned __int8)file->state[0];
-          v10 = 634;
+          v6 = 634;
           fmt = "Unknown transient file state %d for %s";
-LABEL_33:
+LABEL_32:
           ++v0;
-          v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", v10, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, fmt, filename, v13);
-LABEL_34:
-          if ( v9 )
+          v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", v6, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, fmt, filename, v9);
+LABEL_33:
+          if ( v5 )
             __debugbreak();
-          goto LABEL_36;
+          goto LABEL_35;
       }
     }
   }
@@ -3891,11 +3807,14 @@ void CL_TransientsMP_ProcessUnloadingPrimedQueue(const bool waitForGPU)
   unsigned int v14; 
   unsigned int v15; 
   TransientFile *file; 
+  unsigned int v17; 
   unsigned int v18; 
-  unsigned int v19; 
-  TransientFile **v23; 
-  __int64 v24; 
-  TransientFile *v25; 
+  TransientQueueEntry *v19; 
+  TransientQueueEntry v20; 
+  __int64 v21; 
+  TransientFile **v22; 
+  __int64 v23; 
+  TransientFile *v24; 
   TransientFile *files[1858]; 
   DB_FastfileInfo outZoneInfo; 
 
@@ -3942,7 +3861,6 @@ void CL_TransientsMP_ProcessUnloadingPrimedQueue(const bool waitForGPU)
     if ( s_transientQueueSize )
     {
       v15 = 1;
-      _RSI = s_transientQueue;
       do
       {
         file = s_transientQueue[v15 - 1].file;
@@ -3956,23 +3874,22 @@ void CL_TransientsMP_ProcessUnloadingPrimedQueue(const bool waitForGPU)
         {
           if ( DB_Zones_GetZoneIndexFromName(file->filename) != 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 469, ASSERT_TYPE_ASSERT, "( ( DB_Zones_GetZoneIndexFromName( file->filename ) == INVALID_ZONE_INDEX ) )", "( file->filename ) = %s", file->filename) )
             __debugbreak();
-          v18 = s_transientQueueSize;
-          v19 = v15;
+          v17 = s_transientQueueSize;
+          v18 = v15;
           file->state[0] = 0;
-          if ( v15 < v18 )
+          if ( v15 < v17 )
           {
-            _R8 = &s_transientQueue[v15];
+            v19 = &s_transientQueue[v15];
             do
             {
-              __asm { vmovups xmm0, xmmword ptr [r8] }
-              _RCX = v19++ - 1;
-              _RCX *= 2i64;
-              ++_R8;
-              __asm { vmovups xmmword ptr [rsi+rcx*8], xmm0 }
+              v20 = *v19;
+              v21 = v18++ - 1;
+              ++v19;
+              s_transientQueue[v21] = v20;
             }
-            while ( v19 < v18 );
+            while ( v18 < v17 );
           }
-          v14 = v18 - 1;
+          v14 = v17 - 1;
           s_transientQueueSize = v14;
         }
         else
@@ -3984,19 +3901,19 @@ void CL_TransientsMP_ProcessUnloadingPrimedQueue(const bool waitForGPU)
     }
     if ( (_DWORD)v8 )
     {
-      v23 = files;
-      v24 = v8;
+      v22 = files;
+      v23 = v8;
       do
       {
-        v25 = *v23;
-        if ( !*v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 1051, ASSERT_TYPE_ASSERT, "(file)", (const char *)&queryFormat, "file") )
+        v24 = *v22;
+        if ( !*v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 1051, ASSERT_TYPE_ASSERT, "(file)", (const char *)&queryFormat, "file") )
           __debugbreak();
-        if ( v25->state[0] == 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 1052, ASSERT_TYPE_ASSERT, "( ( file->state != TransientMPZoneState::UNLOADING ) )", "( file->filename ) = %s", v25->filename) )
+        if ( v24->state[0] == 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 1052, ASSERT_TYPE_ASSERT, "( ( file->state != TransientMPZoneState::UNLOADING ) )", "( file->filename ) = %s", v24->filename) )
           __debugbreak();
-        ++v23;
-        --v24;
+        ++v22;
+        --v23;
       }
-      while ( v24 );
+      while ( v23 );
     }
   }
 }
@@ -4101,14 +4018,16 @@ __int64 CL_TransientsMP_PurgeStaleQueueItems()
   __int64 result; 
   unsigned int v1; 
   TransientFile *file; 
-  char v4; 
-  unsigned int v5; 
+  char v3; 
+  unsigned int v4; 
+  TransientQueueEntry *v5; 
+  TransientQueueEntry v6; 
+  __int64 v7; 
 
   result = s_transientQueueSize;
   if ( s_transientQueueSize )
   {
     v1 = 1;
-    _RSI = s_transientQueue;
     do
     {
       file = s_transientQueue[v1 - 1].file;
@@ -4118,22 +4037,21 @@ __int64 CL_TransientsMP_PurgeStaleQueueItems()
           __debugbreak();
         result = s_transientQueueSize;
       }
-      v4 = file->state[0];
-      if ( !v4 || v4 == 3 )
+      v3 = file->state[0];
+      if ( !v3 || v3 == 3 )
       {
-        v5 = v1;
+        v4 = v1;
         if ( v1 < (unsigned int)result )
         {
-          _R8 = &s_transientQueue[v1];
+          v5 = &s_transientQueue[v1];
           do
           {
-            __asm { vmovups xmm0, xmmword ptr [r8] }
-            _RDX = v5++ - 1;
-            _RDX *= 2i64;
-            ++_R8;
-            __asm { vmovups xmmword ptr [rsi+rdx*8], xmm0 }
+            v6 = *v5;
+            v7 = v4++ - 1;
+            ++v5;
+            s_transientQueue[v7] = v6;
           }
-          while ( v5 < (unsigned int)result );
+          while ( v4 < (unsigned int)result );
         }
         result = (unsigned int)(result - 1);
         s_transientQueueSize = result;
@@ -4353,20 +4271,21 @@ void CL_TransientsMP_RemoveFromQueue(unsigned int removeIndex)
 {
   unsigned int v1; 
   unsigned int v2; 
+  TransientQueueEntry *v3; 
+  TransientQueueEntry v4; 
+  __int64 v5; 
 
   v1 = s_transientQueueSize;
   v2 = removeIndex + 1;
   if ( removeIndex + 1 < s_transientQueueSize )
   {
-    _R10 = s_transientQueue;
-    _R9 = &s_transientQueue[v2];
+    v3 = &s_transientQueue[v2];
     do
     {
-      __asm { vmovups xmm0, xmmword ptr [r9] }
-      _RDX = v2++ - 1;
-      _RDX *= 2i64;
-      ++_R9;
-      __asm { vmovups xmmword ptr [r10+rdx*8], xmm0 }
+      v4 = *v3;
+      v5 = v2++ - 1;
+      ++v3;
+      s_transientQueue[v5] = v4;
     }
     while ( v2 < v1 );
   }
@@ -4722,109 +4641,71 @@ void CL_TransientsMP_SetOverridden(const char *name, const XAssetType type)
 CL_TransientsMP_ShouldStopYieldingToStreamer
 ==============
 */
-
-bool __fastcall CL_TransientsMP_ShouldStopYieldingToStreamer(double _XMM0_8)
+char CL_TransientsMP_ShouldStopYieldingToStreamer()
 {
-  int v6; 
-  bool result; 
-  const dvar_t *v13; 
-  const dvar_t *v24; 
-  char v29; 
+  int v0; 
+  const dvar_t *v2; 
+  double v3; 
+  float v4; 
+  double Quality_Image; 
+  const dvar_t *v6; 
+  float value; 
+  float v8; 
+  const dvar_t *v9; 
 
   if ( s_transientSystemLoadState != ERRORING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 1572, ASSERT_TYPE_ASSERT, "(s_transientSystemLoadState == TransientMPLoadState::YIELDING)", (const char *)&queryFormat, "s_transientSystemLoadState == TransientMPLoadState::YIELDING") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+98h+var_18], xmm6
-    vmovaps [rsp+98h+var_28], xmm7
-    vmovaps [rsp+98h+var_38], xmm8
-    vmovaps [rsp+98h+var_48], xmm9
-    vmovaps [rsp+98h+var_58], xmm10
-  }
-  v6 = Sys_Milliseconds();
-  if ( v6 <= s_transientYieldTime + CL_TransientsMP_GetYieldTimeout() )
+  v0 = Sys_Milliseconds();
+  if ( v0 <= s_transientYieldTime + CL_TransientsMP_GetYieldTimeout() )
   {
     if ( Stream_CanStreamMore() )
     {
-      v13 = DVARINT_cl_transient_mp_yield_priority_timeout;
+      v2 = DVARINT_cl_transient_mp_yield_priority_timeout;
       if ( !DVARINT_cl_transient_mp_yield_priority_timeout && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_priority_timeout") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v13);
-      if ( s_transientYieldTime < v6 - v13->current.integer )
+      Dvar_CheckFrontendServerThread(v2);
+      if ( s_transientYieldTime < v0 - v2->current.integer )
       {
-        _XMM0_8 = CL_StreamViews_MaxParametricVelocity();
-        __asm { vmovaps xmm6, xmm0 }
-        _XMM0_8 = Stream_LoadQuality_Image();
-        __asm { vmovaps xmm8, xmm0 }
+        v3 = CL_StreamViews_MaxParametricVelocity();
+        v4 = *(float *)&v3;
+        Quality_Image = Stream_LoadQuality_Image();
         if ( CL_TransientsMP_HasLoadRequestsAtPriority(0xFA1u) )
         {
           if ( DB_Transients_VerbosePrint() )
-            CL_TransientMP_StatusPrint("Yield for streamer timed out for loading near tiles after %d milliseconds\n", (unsigned int)(v6 - s_transientYieldTime));
-          goto LABEL_7;
+            CL_TransientMP_StatusPrint("Yield for streamer timed out for loading near tiles after %d milliseconds\n", (unsigned int)(v0 - s_transientYieldTime));
+          return 1;
         }
-        _RDI = DVARVEC2_cl_transient_mp_yield_medium_priority;
+        v6 = DVARVEC2_cl_transient_mp_yield_medium_priority;
         if ( !DVARVEC2_cl_transient_mp_yield_medium_priority && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_medium_priority") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RDI);
-        __asm
+        Dvar_CheckFrontendServerThread(v6);
+        value = v6->current.value;
+        v8 = v6->current.vector.v[1];
+        if ( CL_TransientsMP_HasLoadRequestsAtPriority(0xBB9u) && *(float *)&Quality_Image >= (float)((float)((float)(1.0 - v4) * value) + (float)(v8 * v4)) )
         {
-          vmovss  xmm9, dword ptr [rdi+28h]
-          vmovss  xmm10, dword ptr [rdi+2Ch]
-          vmovss  xmm7, cs:__real@3f800000
-        }
-        if ( CL_TransientsMP_HasLoadRequestsAtPriority(0xBB9u) )
-        {
-          __asm
-          {
-            vsubss  xmm0, xmm7, xmm6
-            vmulss  xmm2, xmm0, xmm9
-            vmulss  xmm1, xmm10, xmm6
-            vaddss  xmm2, xmm2, xmm1
-            vcomiss xmm8, xmm2
-          }
           if ( DB_Transients_VerbosePrint() )
-            CL_TransientMP_StatusPrint("Yield for streamer timed out for loading medium tiles after %d milliseconds\n", (unsigned int)(v6 - s_transientYieldTime));
-          goto LABEL_7;
+            CL_TransientMP_StatusPrint("Yield for streamer timed out for loading medium tiles after %d milliseconds\n", (unsigned int)(v0 - s_transientYieldTime));
+          return 1;
         }
-        v24 = DVARVEC2_cl_transient_mp_yield_far_priority;
+        v9 = DVARVEC2_cl_transient_mp_yield_far_priority;
         if ( !DVARVEC2_cl_transient_mp_yield_far_priority && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_far_priority") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v24);
-        __asm
-        {
-          vmulss  xmm2, xmm6, dword ptr [rdi+2Ch]
-          vsubss  xmm0, xmm7, xmm6
-          vmulss  xmm1, xmm0, dword ptr [rdi+28h]
-          vaddss  xmm2, xmm2, xmm1
-          vcomiss xmm8, xmm2
-        }
-        if ( !v29 )
+        Dvar_CheckFrontendServerThread(v9);
+        if ( *(float *)&Quality_Image >= (float)((float)(v4 * v9->current.vector.v[1]) + (float)((float)(1.0 - v4) * v9->current.value)) )
         {
           if ( DB_Transients_VerbosePrint() )
-            CL_TransientMP_StatusPrint("Yield for streamer finished loading far tiles after %d milliseconds\n", (unsigned int)(v6 - s_transientYieldTime));
-          goto LABEL_7;
+            CL_TransientMP_StatusPrint("Yield for streamer finished loading far tiles after %d milliseconds\n", (unsigned int)(v0 - s_transientYieldTime));
+          return 1;
         }
       }
-      result = 0;
-      goto LABEL_8;
+      return 0;
     }
   }
   else if ( DB_Transients_VerbosePrint() )
   {
-    CL_TransientMP_StatusPrint("Yield for streamer timed out after %d milliseconds\n", (unsigned int)(v6 - s_transientYieldTime));
+    CL_TransientMP_StatusPrint("Yield for streamer timed out after %d milliseconds\n", (unsigned int)(v0 - s_transientYieldTime));
   }
-LABEL_7:
-  result = 1;
-LABEL_8:
-  __asm
-  {
-    vmovaps xmm10, [rsp+98h+var_58]
-    vmovaps xmm9, [rsp+98h+var_48]
-    vmovaps xmm8, [rsp+98h+var_38]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm6, [rsp+98h+var_18]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -4832,122 +4713,76 @@ LABEL_8:
 CL_TransientsMP_ShouldYieldToStreamer
 ==============
 */
-
-bool __fastcall CL_TransientsMP_ShouldYieldToStreamer(double _XMM0_8)
+char CL_TransientsMP_ShouldYieldToStreamer()
 {
+  double v0; 
+  float v1; 
+  double Quality_Image; 
+  const dvar_t *v3; 
+  float v4; 
   const dvar_t *v5; 
-  char v12; 
-  char v13; 
-  const dvar_t *v14; 
-  bool result; 
-  const dvar_t *v20; 
-  const char *v24; 
-  const dvar_t *v25; 
-  char v34; 
+  const dvar_t *v7; 
+  const char *v8; 
+  const dvar_t *v9; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-  }
   if ( s_transientSystemLoadState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_mp.cpp", 1419, ASSERT_TYPE_ASSERT, "(s_transientSystemLoadState == TransientMPLoadState::IDLE)", (const char *)&queryFormat, "s_transientSystemLoadState == TransientMPLoadState::IDLE") )
     __debugbreak();
-  _XMM0_8 = CL_StreamViews_MaxParametricVelocity();
-  __asm { vmovaps xmm7, xmm0 }
-  _XMM0_8 = Stream_LoadQuality_Image();
-  v5 = DVARVEC2_cl_transient_mp_yield_to_streamer_quality_threshold;
-  __asm { vmovaps xmm6, xmm0 }
+  v0 = CL_StreamViews_MaxParametricVelocity();
+  v1 = *(float *)&v0;
+  Quality_Image = Stream_LoadQuality_Image();
+  v3 = DVARVEC2_cl_transient_mp_yield_to_streamer_quality_threshold;
   if ( !DVARVEC2_cl_transient_mp_yield_to_streamer_quality_threshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_to_streamer_quality_threshold") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmulss  xmm1, xmm7, dword ptr [rbx+2Ch]
-    vsubss  xmm8, xmm0, xmm7
-    vmulss  xmm0, xmm8, dword ptr [rbx+28h]
-    vaddss  xmm1, xmm1, xmm0
-    vcomiss xmm6, xmm1
-  }
-  if ( !(v12 | v13) || !CL_TransientsMP_PeekTransientQueueActive() )
-    goto LABEL_16;
-  v14 = DVARBOOL_cl_transient_mp_streamer_interrupt_enabled;
+  Dvar_CheckFrontendServerThread(v3);
+  v4 = 1.0 - v1;
+  if ( *(float *)&Quality_Image > (float)((float)(v1 * v3->current.vector.v[1]) + (float)((float)(1.0 - v1) * v3->current.value)) || !CL_TransientsMP_PeekTransientQueueActive() )
+    return 0;
+  v5 = DVARBOOL_cl_transient_mp_streamer_interrupt_enabled;
   if ( !DVARBOOL_cl_transient_mp_streamer_interrupt_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_streamer_interrupt_enabled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( !v14->current.enabled || !CL_TransientsMP_HasPendingLoadsAbovePriority(0xFA1u) )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( !v5->current.enabled || !CL_TransientsMP_HasPendingLoadsAbovePriority(0xFA1u) )
   {
     if ( !Stream_CanStreamMore() )
     {
       if ( DB_Transients_VerbosePrint() )
         CL_TransientMP_StatusPrint("Not yielding to streamer since streamer cannot load more\n");
-      goto LABEL_16;
+      return 0;
     }
     if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cl_transient_mp_streamer_interrupt_enabled, "cl_transient_mp_streamer_interrupt_enabled") && CL_TransientsMP_HasPendingLoadsAbovePriority(0xBB9u) )
     {
-      v20 = DVARVEC2_cl_transient_mp_yield_medium_priority;
+      v7 = DVARVEC2_cl_transient_mp_yield_medium_priority;
       if ( !DVARVEC2_cl_transient_mp_yield_medium_priority && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_medium_priority") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v20);
-      __asm
-      {
-        vmulss  xmm1, xmm7, dword ptr [rbx+2Ch]
-        vmulss  xmm0, xmm8, dword ptr [rbx+28h]
-        vaddss  xmm1, xmm1, xmm0
-        vcomiss xmm6, xmm1
-      }
-      if ( !v12 )
-        goto LABEL_16;
+      Dvar_CheckFrontendServerThread(v7);
+      if ( *(float *)&Quality_Image >= (float)((float)(v1 * v7->current.vector.v[1]) + (float)(v4 * v7->current.value)) )
+        return 0;
       if ( DB_Transients_VerbosePrint() )
       {
-        v24 = "Yield to streamer before loading medium tiles (Streaming quality: %f)\n";
+        v8 = "Yield to streamer before loading medium tiles (Streaming quality: %f)\n";
 LABEL_35:
-        __asm
-        {
-          vcvtss2sd xmm1, xmm6, xmm6
-          vmovq   rdx, xmm1
-        }
-        CL_TransientMP_StatusPrint(v24, _RDX);
+        CL_TransientMP_StatusPrint(v8, *(float *)&Quality_Image);
       }
     }
     else
     {
-      v25 = DVARVEC2_cl_transient_mp_yield_far_priority;
+      v9 = DVARVEC2_cl_transient_mp_yield_far_priority;
       if ( !DVARVEC2_cl_transient_mp_yield_far_priority && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transient_mp_yield_far_priority") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v25);
-      __asm
-      {
-        vmulss  xmm1, xmm7, dword ptr [rbx+2Ch]
-        vmulss  xmm0, xmm8, dword ptr [rbx+28h]
-        vaddss  xmm1, xmm1, xmm0
-        vcomiss xmm6, xmm1
-      }
-      if ( !v12 )
-        goto LABEL_16;
+      Dvar_CheckFrontendServerThread(v9);
+      if ( *(float *)&Quality_Image >= (float)((float)(v1 * v9->current.vector.v[1]) + (float)(v4 * v9->current.value)) )
+        return 0;
       if ( DB_Transients_VerbosePrint() )
       {
-        v24 = "Yield to streamer before loading far tiles (Streaming quality: %f)\n";
+        v8 = "Yield to streamer before loading far tiles (Streaming quality: %f)\n";
         goto LABEL_35;
       }
     }
-    result = 1;
-    goto LABEL_17;
+    return 1;
   }
   if ( DB_Transients_VerbosePrint() )
     CL_TransientMP_StatusPrint("Not yielding to streamer because we have near tiles to load\n");
-LABEL_16:
-  result = 0;
-LABEL_17:
-  _R11 = &v34;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  return result;
+  return 0;
 }
 
 /*

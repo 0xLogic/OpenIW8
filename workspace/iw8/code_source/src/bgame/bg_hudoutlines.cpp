@@ -186,321 +186,176 @@ __int64 BG_HudOutline_GetColor(const HudOutlineDef *hudOutlineDef, const int out
 {
   bool fadeOverTimeEnable; 
   bool distanceFadeEnable; 
-  __int64 result; 
-  bool v26; 
-  bool v47; 
-  int v56; 
-  int fadeOverTimeCurveType; 
-  int v104; 
-  int v109; 
-  int v110; 
-  int v115; 
-  int v116; 
-  float v127; 
+  __m128 v14; 
+  float v17; 
+  float v19; 
+  float v20; 
+  float v21; 
+  int v24; 
+  int v25; 
+  int v26; 
+  int v27; 
+  int v28; 
+  float v29; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v32; 
+  __m128 v33; 
+  bool v34; 
+  __m128 v35; 
+  float fadeOverTimeMinAlpha; 
+  __m128 v37; 
+  __m128 v38; 
+  __m128 v39; 
+  __m128 v40; 
+  __m128 v41; 
+  __m128 v42; 
+  __m128 v43; 
+  __m128 v45; 
+  int v49; 
+  int v50; 
+  int v52; 
+  int v54; 
+  float v55; 
+  __m128 v56; 
 
-  _RBX = hudOutlineDef;
   if ( !hudOutlineDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_hudoutlines.cpp", 277, ASSERT_TYPE_ASSERT, "(hudOutlineDef)", (const char *)&queryFormat, "hudOutlineDef") )
     __debugbreak();
-  fadeOverTimeEnable = _RBX->fadeOverTimeEnable;
-  distanceFadeEnable = _RBX->distanceFadeEnable;
+  fadeOverTimeEnable = hudOutlineDef->fadeOverTimeEnable;
+  distanceFadeEnable = hudOutlineDef->distanceFadeEnable;
   if ( !fadeOverTimeEnable && !distanceFadeEnable )
-    return _RBX->outlineColor;
-  __asm
-  {
-    vmovaps [rsp+0F8h+var_48], xmm6
-    vmovaps [rsp+0F8h+var_58], xmm7
-    vmovaps [rsp+0F8h+var_68], xmm8
-    vmovaps [rsp+0F8h+var_78], xmm9
-    vmovaps [rsp+0F8h+var_88], xmm10
-    vmovd   xmm0, dword ptr [rbx+34h]
-    vmovss  xmm7, cs:__real@3f800000
-    vpmovzxbd xmm1, xmm0
-    vcvtdq2ps xmm3, xmm1
-    vmulps  xmm8, xmm3, cs:__xmm@3b8080813b8080813b8080813b808081
-    vmovups [rsp+0F8h+var_C0], xmm8
-    vshufps xmm8, xmm8, xmm8, 0FFh
-    vmovaps xmm9, xmm8
-    vmovaps xmm6, xmm8
-    vmovaps xmm10, xmm7
-  }
-  v26 = !distanceFadeEnable;
+    return hudOutlineDef->outlineColor;
+  _XMM0 = hudOutlineDef->outlineColor;
+  __asm { vpmovzxbd xmm1, xmm0 }
+  v56 = _mm128_mul_ps(_mm_cvtepi32_ps(_XMM1), (__m128)_xmm);
+  v14 = _mm_shuffle_ps(v56, v56, 255);
+  LODWORD(_XMM9) = v14.m128_i32[0];
+  _XMM6 = v14;
+  v17 = FLOAT_1_0;
   if ( distanceFadeEnable )
   {
-    _RAX = outlinedEntityOrigin;
-    __asm
+    _XMM5 = LODWORD(hudOutlineDef->distanceFadeEndDistance);
+    v19 = outlinedEntityOrigin->v[1] - playerViewOrigin->v[1];
+    v20 = outlinedEntityOrigin->v[2] - playerViewOrigin->v[2];
+    v21 = fsqrt((float)((float)(v19 * v19) + (float)((float)(outlinedEntityOrigin->v[0] - playerViewOrigin->v[0]) * (float)(outlinedEntityOrigin->v[0] - playerViewOrigin->v[0]))) + (float)(v20 * v20));
+    if ( v21 <= hudOutlineDef->distanceFadeStartDistance || v21 >= *(float *)&_XMM5 )
     {
-      vmovss  xmm10, dword ptr [rbx+2Ch]
-      vmovss  xmm5, dword ptr [rbx+30h]
-      vmovss  xmm9, dword ptr [rbx+28h]
-      vmovss  xmm0, dword ptr [rax]
-      vsubss  xmm3, xmm0, dword ptr [rsi]
-      vmovss  xmm1, dword ptr [rax+4]
-      vsubss  xmm2, xmm1, dword ptr [rsi+4]
-      vmovss  xmm0, dword ptr [rax+8]
-      vsubss  xmm4, xmm0, dword ptr [rsi+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
-      vcomiss xmm1, xmm10
+      __asm
+      {
+        vcmpless xmm0, xmm5, xmm1
+        vblendvps xmm0, xmm6, xmm9, xmm0
+      }
+      v55 = *(float *)&_XMM0;
     }
-    if ( !v26 )
-      __asm { vcomiss xmm1, xmm5 }
-    __asm
-    {
-      vcmpless xmm0, xmm5, xmm1
-      vblendvps xmm0, xmm6, xmm9, xmm0
-      vmovaps xmm2, xmm0
-      vmovss  [rsp+0F8h+var_C8], xmm0
-      vminss  xmm9, xmm6, xmm2
-      vmovaps xmm10, xmm9
-    }
+    __asm { vminss  xmm9, xmm6, xmm2 }
+    v17 = *(float *)&_XMM9;
   }
-  v47 = !fadeOverTimeEnable;
   if ( fadeOverTimeEnable )
   {
-    __asm
+    v24 = currentTime - outlineStartTime;
+    v25 = (int)(float)(1000.0 * hudOutlineDef->fadeOverTimeOutTime);
+    v26 = (int)(float)(1000.0 * hudOutlineDef->fadeOverTimeMaxAlphaTime);
+    v27 = (int)(float)(1000.0 * hudOutlineDef->fadeOverTimeInTime);
+    v28 = v27 + v26 + v25;
+    if ( hudOutlineDef->fadeOverTimeLooping )
     {
-      vmovss  xmm3, cs:__real@447a0000
-      vmulss  xmm2, xmm3, dword ptr [rbx+20h]
-      vmulss  xmm1, xmm3, dword ptr [rbx+14h]
-      vmulss  xmm0, xmm3, dword ptr [rbx+1Ch]
+      v29 = (float)(v27 + v25 + v26 - (int)(float)(hudOutlineDef->fadeOverTimeMinAlphaTime * -1000.0));
+      v24 = (int)(float)(modff((float)v24 / v29, &v55) * v29);
     }
-    _EDI = currentTime - outlineStartTime;
-    __asm
+    _XMM6 = v14;
+    if ( v24 < v27 && (float)v27 > 0.0 )
     {
-      vcvttss2si r15d, xmm2
-      vcvttss2si r14d, xmm1
-      vcvttss2si esi, xmm0
+      v30 = 0i64;
+      v30.m128_f32[0] = (float)v24 / (float)v27;
+      v14 = v30;
+LABEL_24:
+      v32.m128_u64[1] = v14.m128_u64[1];
+      *(double *)v32.m128_u64 = I_fclamp(v14.m128_f32[0], 0.0, 1.0);
+      v33 = v32;
+      v34 = v32.m128_f32[0] == 1.0;
+      v35 = _XMM6;
+      if ( !v34 )
+      {
+        fadeOverTimeMinAlpha = hudOutlineDef->fadeOverTimeMinAlpha;
+        switch ( hudOutlineDef->fadeOverTimeCurveType )
+        {
+          case 1u:
+            v37 = v33;
+            v37.m128_f32[0] = (float)(v33.m128_f32[0] * v33.m128_f32[0]) * v33.m128_f32[0];
+            v33 = v37;
+            break;
+          case 2u:
+            v38 = v33;
+            v38.m128_f32[0] = (float)((float)((float)(v33.m128_f32[0] - 1.0) * (float)(v33.m128_f32[0] - 1.0)) * (float)(v33.m128_f32[0] - 1.0)) + 1.0;
+            v33 = v38;
+            break;
+          case 3u:
+            v39 = v33;
+            v39.m128_f32[0] = (float)((float)(v33.m128_f32[0] * v33.m128_f32[0]) * v33.m128_f32[0]) * v33.m128_f32[0];
+            v33 = v39;
+            break;
+          case 4u:
+            v40 = (__m128)LODWORD(FLOAT_1_0);
+            v40.m128_f32[0] = 1.0 - (float)((float)((float)((float)(v33.m128_f32[0] - 1.0) * (float)(v33.m128_f32[0] - 1.0)) * (float)(v33.m128_f32[0] - 1.0)) * (float)(v33.m128_f32[0] - 1.0));
+            v33 = v40;
+            break;
+          case 5u:
+            v41 = (__m128)LODWORD(FLOAT_2_0);
+            v41.m128_f32[0] = powf_0(2.0, (float)(v33.m128_f32[0] - 1.0) * 10.0);
+            v33 = v41;
+            break;
+          case 6u:
+            v42 = (__m128)LODWORD(FLOAT_1_0);
+            v42.m128_f32[0] = 1.0 - powf_0(2.0, v33.m128_f32[0] * -10.0);
+            v33 = v42;
+            break;
+          default:
+            break;
+        }
+        v43 = v33;
+        v43.m128_f32[0] = (float)(v33.m128_f32[0] * (float)(_XMM6.m128_f32[0] - fadeOverTimeMinAlpha)) + fadeOverTimeMinAlpha;
+        v35 = v43;
+      }
+      v45 = v35;
+      v45.m128_f32[0] = v35.m128_f32[0] * v17;
+      _XMM0 = v45;
+      __asm { vminss  xmm9, xmm0, xmm9 }
+      goto LABEL_34;
     }
-    v56 = _ESI + _ER14 + _ER15;
-    if ( _RBX->fadeOverTimeLooping )
+    if ( v24 > v26 + v27 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+18h]
-        vmulss  xmm1, xmm0, cs:__real@c47a0000
-        vxorps  xmm0, xmm0, xmm0
-        vcvttss2si eax, xmm1
-        vcvtsi2ss xmm0, xmm0, edi
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2ss xmm6, xmm6, ecx
-        vdivss  xmm0, xmm0, xmm6; X
-      }
-      *(float *)&_XMM0 = modff(*(float *)&_XMM0, &v127);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vcvttss2si edi, xmm1
-      }
-    }
-    __asm
-    {
-      vmovaps xmm6, xmm8
-      vxorps  xmm3, xmm3, xmm3
-    }
-    if ( _EDI < _ESI )
-    {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, esi
-        vcomiss xmm1, xmm3
-      }
-      if ( _EDI > (unsigned int)_ESI )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, edi
-          vdivss  xmm8, xmm0, xmm1
-        }
-LABEL_23:
-        __asm
-        {
-          vmovaps xmm2, xmm7; max
-          vxorps  xmm1, xmm1, xmm1; min
-          vmovaps xmm0, xmm8; val
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovaps xmm2, xmm0
-          vucomiss xmm2, xmm7
-          vmovaps xmm0, xmm6
-        }
-        if ( !v47 )
-        {
-          fadeOverTimeCurveType = _RBX->fadeOverTimeCurveType;
-          __asm
-          {
-            vmovaps [rsp+0F8h+var_98], xmm11
-            vmovss  xmm8, dword ptr [rbx+10h]
-            vsubss  xmm11, xmm6, xmm8
-          }
-          switch ( fadeOverTimeCurveType )
-          {
-            case 1:
-              __asm
-              {
-                vmulss  xmm0, xmm2, xmm2; jumptable 00000001402BE051 case 1
-                vmulss  xmm2, xmm0, xmm2
-              }
-              break;
-            case 2:
-              __asm
-              {
-                vsubss  xmm1, xmm2, xmm7; jumptable 00000001402BE051 case 2
-                vmulss  xmm0, xmm1, xmm1
-                vmulss  xmm1, xmm0, xmm1
-                vaddss  xmm2, xmm1, xmm7
-              }
-              break;
-            case 3:
-              __asm
-              {
-                vmulss  xmm0, xmm2, xmm2; jumptable 00000001402BE051 case 3
-                vmulss  xmm1, xmm0, xmm2
-                vmulss  xmm2, xmm1, xmm2
-              }
-              break;
-            case 4:
-              __asm
-              {
-                vsubss  xmm2, xmm2, xmm7; jumptable 00000001402BE051 case 4
-                vmulss  xmm0, xmm2, xmm2
-                vmulss  xmm1, xmm0, xmm2
-                vmulss  xmm2, xmm1, xmm2
-                vsubss  xmm2, xmm7, xmm2
-              }
-              break;
-            case 5:
-              __asm
-              {
-                vsubss  xmm0, xmm2, xmm7; jumptable 00000001402BE051 case 5
-                vmulss  xmm1, xmm0, cs:__real@41200000; Y
-                vmovss  xmm0, cs:__real@40000000; X
-              }
-              *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-              __asm { vmovaps xmm2, xmm0 }
-              break;
-            case 6:
-              __asm
-              {
-                vmulss  xmm1, xmm2, cs:__real@c1200000; jumptable 00000001402BE051 case 6
-                vmovss  xmm0, cs:__real@40000000; X
-              }
-              powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-              __asm { vsubss  xmm2, xmm7, xmm0 }
-              break;
-            default:
-              break;
-          }
-          __asm
-          {
-            vmulss  xmm0, xmm2, xmm11; jumptable 00000001402BE051 default case, case 0
-            vmovaps xmm11, [rsp+0F8h+var_98]
-            vaddss  xmm0, xmm0, xmm8
-          }
-        }
-        __asm
-        {
-          vmulss  xmm0, xmm0, xmm10
-          vminss  xmm9, xmm0, xmm9
-        }
-        goto LABEL_33;
-      }
-    }
-    if ( _EDI > _ER14 + _ESI )
-    {
-      if ( _EDI >= v56 )
-        goto LABEL_22;
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, r15d
-        vcomiss xmm1, xmm3
-      }
-      if ( _EDI > (unsigned int)v56 )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, edi
-          vdivss  xmm1, xmm0, xmm1
-          vsubss  xmm8, xmm7, xmm1
-        }
+      if ( v24 >= v28 )
         goto LABEL_23;
+      if ( (float)v25 > 0.0 )
+      {
+        v31 = (__m128)LODWORD(FLOAT_1_0);
+        v31.m128_f32[0] = 1.0 - (float)((float)(v24 - v26 - v27) / (float)v25);
+        v14 = v31;
+        goto LABEL_24;
       }
     }
-    if ( _EDI < v56 )
-      goto LABEL_23;
-LABEL_22:
-    __asm { vxorps  xmm8, xmm8, xmm8 }
-    goto LABEL_23;
+    if ( v24 < v28 )
+      goto LABEL_24;
+LABEL_23:
+    v14 = 0i64;
+    goto LABEL_24;
   }
-LABEL_33:
+LABEL_34:
+  if ( *(float *)&_XMM9 == _XMM6.m128_f32[0] )
+    return hudOutlineDef->outlineColor;
+  _XMM8 = 0i64;
   __asm
   {
-    vucomiss xmm9, xmm6
-    vmovaps xmm10, [rsp+0F8h+var_88]
+    vroundss xmm3, xmm8, xmm2, 1
+    vroundss xmm1, xmm8, xmm3, 1
   }
-  if ( v47 )
-  {
-    result = _RBX->outlineColor;
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm7, cs:__real@437f0000
-      vmulss  xmm1, xmm7, dword ptr [rsp+0F8h+var_C0]
-      vmovss  xmm6, cs:__real@3f000000
-      vaddss  xmm2, xmm1, xmm6
-      vxorps  xmm8, xmm8, xmm8
-      vroundss xmm3, xmm8, xmm2, 1
-      vcvttss2si ecx, xmm3; val
-    }
-    v104 = I_clamp(_ECX, 0, 255);
-    __asm
-    {
-      vmulss  xmm1, xmm7, dword ptr [rsp+0F8h+var_C0+4]
-      vaddss  xmm3, xmm1, xmm6
-      vroundss xmm1, xmm8, xmm3, 1
-      vcvttss2si ecx, xmm1; val
-    }
-    v109 = v104;
-    v110 = I_clamp(_ECX, 0, 255);
-    __asm
-    {
-      vmulss  xmm1, xmm7, dword ptr [rsp+0F8h+var_C0+8]
-      vaddss  xmm3, xmm1, xmm6
-      vroundss xmm1, xmm8, xmm3, 1
-      vcvttss2si ecx, xmm1; val
-    }
-    v115 = v110;
-    v116 = I_clamp(_ECX, 0, 255);
-    __asm
-    {
-      vmulss  xmm0, xmm9, xmm7
-      vaddss  xmm2, xmm0, xmm6
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm2, xmm1, xmm2
-      vroundss xmm0, xmm8, xmm2, 1
-      vcvttss2si ecx, xmm0; val
-    }
-    result = v109 | ((v115 | ((v116 | (unsigned int)(I_clamp(_ECX, 0, 255) << 8)) << 8)) << 8);
-  }
-  __asm
-  {
-    vmovaps xmm8, [rsp+0F8h+var_68]
-    vmovaps xmm7, [rsp+0F8h+var_58]
-    vmovaps xmm6, [rsp+0F8h+var_48]
-    vmovaps xmm9, [rsp+0F8h+var_78]
-  }
-  return result;
+  v49 = I_clamp((int)*(float *)&_XMM3, 0, 255);
+  v50 = I_clamp((int)*(float *)&_XMM1, 0, 255);
+  __asm { vroundss xmm1, xmm8, xmm3, 1 }
+  v52 = v50;
+  __asm { vroundss xmm0, xmm8, xmm2, 1 }
+  v54 = I_clamp((int)*(float *)&_XMM1, 0, 255);
+  return v49 | ((v52 | ((v54 | (unsigned int)(I_clamp((int)*(float *)&_XMM0, 0, 255) << 8)) << 8)) << 8);
 }
 
 /*

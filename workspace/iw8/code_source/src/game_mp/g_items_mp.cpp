@@ -535,67 +535,56 @@ GItemsMP::UpdateDefaultVelocity
 */
 void GItemsMP::UpdateDefaultVelocity(GItemsMP *this, vec3_t *velocity)
 {
-  _RDI = DVARFLT_g_dropForwardSpeed;
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  _RBX = velocity;
-  __asm { vmovaps [rsp+68h+var_28], xmm7 }
+  const dvar_t *v2; 
+  float value; 
+  float v5; 
+  const dvar_t *v6; 
+  float v7; 
+  const dvar_t *v8; 
+  float v9; 
+  double v10; 
+  const dvar_t *v11; 
+  float v12; 
+  double v13; 
+  const dvar_t *v14; 
+  float v15; 
+  double v16; 
+
+  v2 = DVARFLT_g_dropForwardSpeed;
   if ( !DVARFLT_g_dropForwardSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dropForwardSpeed") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rdi+28h]
-    vmulss  xmm0, xmm2, dword ptr [rbx]
-    vmulss  xmm1, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx], xmm0
-    vmulss  xmm0, xmm2, dword ptr [rbx+8]
-    vmovss  dword ptr [rbx+8], xmm0
-    vmovss  dword ptr [rbx+4], xmm1
-  }
-  _RDI = DVARFLT_g_dropUpSpeedBase;
+  Dvar_CheckFrontendServerThread(v2);
+  value = v2->current.value;
+  v5 = value * velocity->v[1];
+  velocity->v[0] = value * velocity->v[0];
+  velocity->v[2] = value * velocity->v[2];
+  velocity->v[1] = v5;
+  v6 = DVARFLT_g_dropUpSpeedBase;
   if ( !DVARFLT_g_dropUpSpeedBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dropUpSpeedBase") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm7, dword ptr [rdi+28h] }
-  _RDI = DVARFLT_g_dropUpSpeedRand;
+  Dvar_CheckFrontendServerThread(v6);
+  v7 = v6->current.value;
+  v8 = DVARFLT_g_dropUpSpeedRand;
   if ( !DVARFLT_g_dropUpSpeedRand && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dropUpSpeedRand") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  *(double *)&_XMM0 = G_crandom();
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm6
-    vaddss  xmm2, xmm1, xmm7
-    vaddss  xmm3, xmm2, dword ptr [rbx+8]
-    vmovss  dword ptr [rbx+8], xmm3
-  }
-  _RDI = DVARFLT_g_dropHorzSpeedRand;
+  Dvar_CheckFrontendServerThread(v8);
+  v9 = v8->current.value;
+  v10 = G_crandom();
+  velocity->v[2] = (float)((float)(*(float *)&v10 * v9) + v7) + velocity->v[2];
+  v11 = DVARFLT_g_dropHorzSpeedRand;
   if ( !DVARFLT_g_dropHorzSpeedRand && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dropHorzSpeedRand") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  *(double *)&_XMM0 = G_crandom();
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm6
-    vaddss  xmm1, xmm1, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm1
-  }
-  _RDI = DVARFLT_g_dropHorzSpeedRand;
+  Dvar_CheckFrontendServerThread(v11);
+  v12 = v11->current.value;
+  v13 = G_crandom();
+  velocity->v[0] = (float)(*(float *)&v13 * v12) + velocity->v[0];
+  v14 = DVARFLT_g_dropHorzSpeedRand;
   if ( !DVARFLT_g_dropHorzSpeedRand && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dropHorzSpeedRand") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  *(double *)&_XMM0 = G_crandom();
-  __asm
-  {
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmulss  xmm1, xmm0, xmm6
-    vaddss  xmm2, xmm1, dword ptr [rbx+4]
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovss  dword ptr [rbx+4], xmm2
-  }
+  Dvar_CheckFrontendServerThread(v14);
+  v15 = v14->current.value;
+  v16 = G_crandom();
+  velocity->v[1] = (float)(*(float *)&v16 * v15) + velocity->v[1];
 }
 
 /*

@@ -125,73 +125,59 @@ DB_InitStreams
 */
 void DB_InitStreams(const XArchiveBlocks *const archiveBlocks)
 {
+  const XArchiveBlocks *v1; 
   unsigned __int8 **posArray; 
-  const unsigned int *v15; 
-  unsigned int v16; 
+  const unsigned int *v3; 
+  unsigned int v4; 
   unsigned __int8 *data; 
-  __int64 v18; 
-  __int64 v19; 
-  __int64 v20; 
+  __int64 v6; 
+  __int64 v7; 
+  __int64 v8; 
 
-  _RSI = archiveBlocks;
+  v1 = archiveBlocks;
   if ( !archiveBlocks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream.cpp", 57, ASSERT_TYPE_ASSERT, "(archiveBlocks)", (const char *)&queryFormat, "archiveBlocks") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  _RCX = &g_streamPosGlob;
-  __asm
-  {
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rsi+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rcx+20h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+30h]
-    vmovups xmmword ptr [rcx+30h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+40h]
-    vmovups xmmword ptr [rcx+40h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+50h]
-    vmovups xmmword ptr [rcx+50h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+60h]
-    vmovups xmmword ptr [rcx+60h], xmm0
-    vmovups xmm0, xmmword ptr [rsi+70h]
-    vmovups xmmword ptr [rcx+70h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+80h]
-    vmovups xmmword ptr [rcx+80h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+90h]
-    vmovups xmmword ptr [rcx+90h], xmm0
-    vmovups xmm1, xmmword ptr [rsi+0A0h]
-    vmovups xmmword ptr [rcx+0A0h], xmm1
-  }
+  g_streamPosGlob.archiveBlocks.blocks[0] = v1->blocks[0];
+  g_streamPosGlob.archiveBlocks.blocks[1] = v1->blocks[1];
+  g_streamPosGlob.archiveBlocks.blocks[2] = v1->blocks[2];
+  g_streamPosGlob.archiveBlocks.blocks[3] = v1->blocks[3];
+  g_streamPosGlob.archiveBlocks.blocks[4] = v1->blocks[4];
+  g_streamPosGlob.archiveBlocks.blocks[5] = v1->blocks[5];
+  g_streamPosGlob.archiveBlocks.blocks[6] = v1->blocks[6];
+  g_streamPosGlob.archiveBlocks.blocks[7] = v1->blocks[7];
+  g_streamPosGlob.archiveBlocks.blocks[8] = v1->blocks[8];
+  g_streamPosGlob.archiveBlocks.blocks[9] = v1->blocks[9];
+  g_streamPosGlob.archiveBlocks.blocks[10] = v1->blocks[10];
   g_streamPosGlob.posIndex = 1;
   posArray = g_streamPosGlob.posArray;
-  v15 = DB_XFILE_ALIGNMENT_0;
-  v16 = 0;
-  g_streamPosGlob.pos = _RSI->blocks[1].data;
+  v3 = DB_XFILE_ALIGNMENT_0;
+  v4 = 0;
+  g_streamPosGlob.pos = v1->blocks[1].data;
   g_streamPosGlob.posStackIndex = 0;
   do
   {
-    data = _RSI->blocks[0].data;
-    if ( _RSI->blocks[0].data )
+    data = v1->blocks[0].data;
+    if ( v1->blocks[0].data )
     {
-      v18 = *v15;
-      if ( (!*v15 || ((v18 - 1) & v18) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 670, ASSERT_TYPE_ASSERT, "(align > 0 && IsPowerOf2( align ))", (const char *)&queryFormat, "align > 0 && IsPowerOf2( align )") )
+      v6 = *v3;
+      if ( (!*v3 || ((v6 - 1) & v6) != 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 670, ASSERT_TYPE_ASSERT, "(align > 0 && IsPowerOf2( align ))", (const char *)&queryFormat, "align > 0 && IsPowerOf2( align )") )
         __debugbreak();
-      if ( ((v18 - 1) & (unsigned __int64)data) != 0 )
+      if ( ((v6 - 1) & (unsigned __int64)data) != 0 )
       {
-        LODWORD(v20) = *v15;
-        LODWORD(v19) = v16;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream.cpp", 77, ASSERT_TYPE_ASSERT, "( IsAligned( archiveBlocks->blocks[i].data, DB_XFILE_ALIGNMENT[i] ) )", "stream %d has bad alignment, wanted %u", v19, v20) )
+        LODWORD(v8) = *v3;
+        LODWORD(v7) = v4;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream.cpp", 77, ASSERT_TYPE_ASSERT, "( IsAligned( archiveBlocks->blocks[i].data, DB_XFILE_ALIGNMENT[i] ) )", "stream %d has bad alignment, wanted %u", v7, v8) )
           __debugbreak();
       }
-      data = _RSI->blocks[0].data;
+      data = v1->blocks[0].data;
     }
     *posArray = data;
-    ++v16;
+    ++v4;
     ++posArray;
-    ++v15;
-    _RSI = (const XArchiveBlocks *)((char *)_RSI + 16);
+    ++v3;
+    v1 = (const XArchiveBlocks *)((char *)v1 + 16);
   }
-  while ( v16 < 0xB );
+  while ( v4 < 0xB );
 }
 
 /*
@@ -431,12 +417,11 @@ void DB_RefreshStream(const XArchiveBlocks *const archiveBlocks, unsigned int bl
   signed __int64 v6; 
 
   v2 = blockIndex;
-  _R14 = archiveBlocks;
   if ( !archiveBlocks && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_stream.cpp", 87, ASSERT_TYPE_ASSERT, "(archiveBlocks)", (const char *)&queryFormat, "archiveBlocks") )
     __debugbreak();
   v4 = 0;
   v5 = &g_streamPosGlob;
-  v6 = (char *)_R14 - (char *)&g_streamPosGlob;
+  v6 = (char *)archiveBlocks - (char *)&g_streamPosGlob;
   do
   {
     if ( v4 != (_DWORD)v2 )
@@ -450,14 +435,8 @@ void DB_RefreshStream(const XArchiveBlocks *const archiveBlocks, unsigned int bl
     v5 = (StreamPosGlob *)((char *)v5 + 16);
   }
   while ( v4 < 0xB );
-  _R12 = &g_streamPosGlob;
-  _RAX = 2 * v2;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14+rax*8]
-    vmovups xmmword ptr [r12+rax*8], xmm0
-  }
-  g_streamPosGlob.posArray[v2] = _R14->blocks[v2].data;
+  g_streamPosGlob.archiveBlocks.blocks[v2] = archiveBlocks->blocks[v2];
+  g_streamPosGlob.posArray[v2] = archiveBlocks->blocks[v2].data;
 }
 
 /*

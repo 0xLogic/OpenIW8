@@ -124,55 +124,41 @@ void __fastcall G_FlagAnimForUpdate(gentity_s *ent)
 GScr_GetAnglesForAnimTime
 ==============
 */
-
-void __fastcall GScr_GetAnglesForAnimTime(scrContext_t *scrContext, double _XMM1_8)
+void GScr_GetAnglesForAnimTime(scrContext_t *scrContext)
 {
+  float v2; 
+  double Float; 
+  double v4; 
   const XAnim_s *Anims; 
-  float v13; 
   int linkPointer; 
   vec3_t vectorValue; 
   vec3_t angles; 
-  vec3_t v17; 
+  vec3_t v9; 
   vec4_t rot; 
   tmat33_t<vec3_t> axis; 
+  vec3_t v12; 
   vec3_t trans; 
   tmat33_t<vec3_t> in1; 
   tmat33_t<vec3_t> out; 
 
-  __asm { vmovaps [rsp+128h+var_18], xmm6 }
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &angles);
   linkPointer = Scr_GetAnim(scrContext, 2u, NULL).linkPointer;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v2 = 0.0;
   if ( Scr_GetNumParam(scrContext) > 3 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 3u);
+    v4 = I_fclamp(*(float *)&Float, 0.0, 1.0);
+    v2 = *(float *)&v4;
   }
   Anims = Scr_GetAnims(scrContext, HIWORD(linkPointer));
-  __asm { vmovss  [rsp+128h+var_108], xmm6 }
-  XAnimGetAbsDelta(Anims, (unsigned __int16)linkPointer, &rot, &trans, v13);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+128h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+128h+vectorValue+4]
-    vmovss  [rsp+128h+var_8C], xmm0
-    vmovss  xmm0, dword ptr [rsp+128h+vectorValue+8]
-    vmovss  [rsp+128h+var_84], xmm0
-    vmovss  [rsp+128h+var_88], xmm1
-  }
+  XAnimGetAbsDelta(Anims, (unsigned __int16)linkPointer, &rot, &trans, v2);
+  v12 = vectorValue;
   AnglesToAxis(&angles, &axis);
   QuatToAxis(&rot, &in1);
   MatrixMultiply(&in1, &axis, &out);
-  AxisToAngles(&out, &v17);
-  Scr_AddVector(scrContext, v17.v);
-  __asm { vmovaps xmm6, [rsp+128h+var_18] }
+  AxisToAngles(&out, &v9);
+  Scr_AddVector(scrContext, v9.v);
 }
 
 /*
@@ -183,71 +169,24 @@ GScr_GetCycleOriginOffset
 void GScr_GetCycleOriginOffset(scrContext_t *scrContext)
 {
   const XAnim_s *Anims; 
-  float v33; 
-  float v34; 
   int linkPointer; 
-  vec3_t v36; 
+  vec3_t v4; 
   vec3_t trans; 
   float value[4]; 
   tmat33_t<vec3_t> axis; 
   vec3_t vectorValue; 
   vec4_t rot; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-  }
   Scr_GetVector(scrContext, 0, &vectorValue);
   linkPointer = Scr_GetAnim(scrContext, 1u, NULL).linkPointer;
   AnglesToAxis(&vectorValue, &axis);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   Anims = Scr_GetAnims(scrContext, HIWORD(linkPointer));
-  __asm { vmovss  [rsp+0E0h+var_C0], xmm0 }
-  XAnimGetAbsDelta(Anims, (unsigned __int16)linkPointer, &rot, &trans, v33);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+0E0h+var_C0], xmm0
-  }
-  XAnimGetAbsDelta(Anims, (unsigned __int16)linkPointer, &rot, &v36, v34);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+var_A8]
-    vsubss  xmm5, xmm0, dword ptr [rbp+57h+trans]
-    vmovss  xmm0, dword ptr [rbp+57h+var_A8+8]
-    vsubss  xmm7, xmm0, dword ptr [rbp+57h+trans+8]
-    vmulss  xmm3, xmm5, dword ptr [rbp+57h+axis]
-    vmulss  xmm0, xmm7, dword ptr [rbp+57h+axis+18h]
-    vmovss  xmm1, dword ptr [rbp+57h+var_A8+4]
-    vsubss  xmm6, xmm1, dword ptr [rbp+57h+trans+4]
-    vmulss  xmm2, xmm6, dword ptr [rbp+57h+axis+0Ch]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm5, dword ptr [rbp+57h+axis+4]
-    vaddss  xmm2, xmm4, xmm0
-    vmulss  xmm0, xmm7, dword ptr [rbp+57h+axis+1Ch]
-    vmovss  [rbp+57h+value], xmm2
-    vmulss  xmm2, xmm6, dword ptr [rbp+57h+axis+10h]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm5, dword ptr [rbp+57h+axis+8]
-    vaddss  xmm2, xmm4, xmm0
-    vmulss  xmm0, xmm7, dword ptr [rbp+57h+axis+20h]
-    vmovss  [rbp+57h+var_84], xmm2
-    vmulss  xmm2, xmm6, dword ptr [rbp+57h+axis+14h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm0
-    vmovss  [rbp+57h+var_80], xmm2
-  }
+  XAnimGetAbsDelta(Anims, (unsigned __int16)linkPointer, &rot, &trans, 0.0);
+  XAnimGetAbsDelta(Anims, (unsigned __int16)linkPointer, &rot, &v4, 1.0);
+  value[0] = (float)((float)((float)(v4.v[0] - trans.v[0]) * axis.m[0].v[0]) + (float)((float)(v4.v[1] - trans.v[1]) * axis.m[1].v[0])) + (float)((float)(v4.v[2] - trans.v[2]) * axis.m[2].v[0]);
+  value[1] = (float)((float)((float)(v4.v[0] - trans.v[0]) * axis.m[0].v[1]) + (float)((float)(v4.v[1] - trans.v[1]) * axis.m[1].v[1])) + (float)((float)(v4.v[2] - trans.v[2]) * axis.m[2].v[1]);
+  value[2] = (float)((float)((float)(v4.v[0] - trans.v[0]) * axis.m[0].v[2]) + (float)((float)(v4.v[1] - trans.v[1]) * axis.m[1].v[2])) + (float)((float)(v4.v[2] - trans.v[2]) * axis.m[2].v[2]);
   Scr_AddVector(scrContext, value);
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
 }
 
 /*
@@ -258,56 +197,26 @@ GScr_GetEntAnimTree
 XAnimTree *GScr_GetEntAnimTree(gentity_s *ent)
 {
   XAnimTree *result; 
-  scrContext_t *v6; 
-  scrContext_t *v10; 
-  const char *v14; 
+  scrContext_t *v3; 
+  double v4; 
+  double v5; 
+  double v6; 
+  const char *v7; 
   const char *EntityTypeName; 
-  const char *v18; 
-  __int64 v22; 
-  __int64 v23; 
+  const char *v9; 
 
-  _RBP = ent;
   result = G_Utils_GetEntAnimTree(ent);
   if ( !result )
   {
-    __asm
-    {
-      vmovaps [rsp+68h+var_18], xmm6
-      vmovaps [rsp+68h+var_28], xmm7
-      vmovaps [rsp+68h+var_38], xmm8
-    }
-    v6 = ScriptContext_Server();
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbp+138h]
-      vmovss  xmm7, dword ptr [rbp+134h]
-      vmovss  xmm8, dword ptr [rbp+130h]
-    }
-    v10 = v6;
-    __asm
-    {
-      vcvtss2sd xmm6, xmm6, xmm6
-      vcvtss2sd xmm7, xmm7, xmm7
-      vcvtss2sd xmm8, xmm8, xmm8
-    }
-    v14 = SL_ConvertToString(_RBP->classname);
-    EntityTypeName = G_GetEntityTypeName(_RBP);
-    __asm
-    {
-      vmovaps xmm3, xmm8
-      vmovq   r9, xmm3
-      vmovsd  [rsp+68h+var_40], xmm6
-      vmovsd  [rsp+68h+var_48], xmm7
-    }
-    v18 = j_va("entity of type '%s', classname '%s', origin (%f, %f, %f) does not have an animation tree", EntityTypeName, v14, _R9, v22, v23);
-    Scr_Error(COM_ERR_1779, v10, v18);
-    __asm { vmovaps xmm8, [rsp+68h+var_38] }
-    result = NULL;
-    __asm
-    {
-      vmovaps xmm7, [rsp+68h+var_28]
-      vmovaps xmm6, [rsp+68h+var_18]
-    }
+    v3 = ScriptContext_Server();
+    v4 = ent->r.currentOrigin.v[2];
+    v5 = ent->r.currentOrigin.v[1];
+    v6 = ent->r.currentOrigin.v[0];
+    v7 = SL_ConvertToString(ent->classname);
+    EntityTypeName = G_GetEntityTypeName(ent);
+    v9 = j_va("entity of type '%s', classname '%s', origin (%f, %f, %f) does not have an animation tree", EntityTypeName, v7, v6, v5, v4);
+    Scr_Error(COM_ERR_1779, v3, v9);
+    return 0i64;
   }
   return result;
 }
@@ -317,11 +226,12 @@ XAnimTree *GScr_GetEntAnimTree(gentity_s *ent)
 GScr_GetOriginForAnimTime
 ==============
 */
-
-void __fastcall GScr_GetOriginForAnimTime(scrContext_t *scrContext, double _XMM1_8)
+void GScr_GetOriginForAnimTime(scrContext_t *scrContext)
 {
+  float v2; 
+  double Float; 
+  double v4; 
   const XAnim_s *Anims; 
-  float v13; 
   int linkPointer; 
   vec3_t vectorValue; 
   vec3_t angles; 
@@ -330,38 +240,22 @@ void __fastcall GScr_GetOriginForAnimTime(scrContext_t *scrContext, double _XMM1
   tmat43_t<vec3_t> axis; 
   vec4_t rot; 
 
-  __asm { vmovaps [rsp+0D8h+var_18], xmm6 }
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &angles);
   linkPointer = Scr_GetAnim(scrContext, 2u, NULL).linkPointer;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v2 = 0.0;
   if ( Scr_GetNumParam(scrContext) > 3 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 3u);
+    v4 = I_fclamp(*(float *)&Float, 0.0, 1.0);
+    v2 = *(float *)&v4;
   }
   Anims = Scr_GetAnims(scrContext, HIWORD(linkPointer));
-  __asm { vmovss  [rsp+0D8h+var_B8], xmm6 }
-  XAnimGetAbsDelta(Anims, (unsigned __int16)linkPointer, &rot, &trans, v13);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0D8h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+0D8h+vectorValue+4]
-    vmovss  [rsp+0D8h+var_3C], xmm0
-    vmovss  xmm0, dword ptr [rsp+0D8h+vectorValue+8]
-    vmovss  [rsp+0D8h+var_34], xmm0
-    vmovss  [rsp+0D8h+var_38], xmm1
-  }
+  XAnimGetAbsDelta(Anims, (unsigned __int16)linkPointer, &rot, &trans, v2);
+  axis.m[3] = vectorValue;
   AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&axis);
   MatrixTransformVector43(&trans, &axis, &out);
   Scr_AddVector(scrContext, out.v);
-  __asm { vmovaps xmm6, [rsp+0D8h+var_18] }
 }
 
 /*
@@ -369,55 +263,41 @@ void __fastcall GScr_GetOriginForAnimTime(scrContext_t *scrContext, double _XMM1
 GScr_GetStartAngles
 ==============
 */
-
-void __fastcall GScr_GetStartAngles(scrContext_t *scrContext, double _XMM1_8)
+void GScr_GetStartAngles(scrContext_t *scrContext)
 {
+  float v2; 
+  double Float; 
+  double v4; 
   const XAnim_s *Anims; 
-  float v13; 
   int linkPointer; 
   vec3_t vectorValue; 
   vec3_t angles; 
-  vec3_t v17; 
+  vec3_t v9; 
   vec4_t rot; 
   tmat33_t<vec3_t> axis; 
+  vec3_t v12; 
   vec3_t trans; 
   tmat33_t<vec3_t> in1; 
   tmat33_t<vec3_t> out; 
 
-  __asm { vmovaps [rsp+128h+var_18], xmm6 }
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &angles);
   linkPointer = Scr_GetAnim(scrContext, 2u, NULL).linkPointer;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v2 = 0.0;
   if ( Scr_GetNumParam(scrContext) > 3 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 3u);
+    v4 = I_fclamp(*(float *)&Float, 0.0, 1.0);
+    v2 = *(float *)&v4;
   }
   Anims = Scr_GetAnims(scrContext, HIWORD(linkPointer));
-  __asm { vmovss  [rsp+128h+var_108], xmm6 }
-  XAnimGetAbsDelta(Anims, (unsigned __int16)linkPointer, &rot, &trans, v13);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+128h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+128h+vectorValue+4]
-    vmovss  [rsp+128h+var_8C], xmm0
-    vmovss  xmm0, dword ptr [rsp+128h+vectorValue+8]
-    vmovss  [rsp+128h+var_84], xmm0
-    vmovss  [rsp+128h+var_88], xmm1
-  }
+  XAnimGetAbsDelta(Anims, (unsigned __int16)linkPointer, &rot, &trans, v2);
+  v12 = vectorValue;
   AnglesToAxis(&angles, &axis);
   QuatToAxis(&rot, &in1);
   MatrixMultiply(&in1, &axis, &out);
-  AxisToAngles(&out, &v17);
-  Scr_AddVector(scrContext, v17.v);
-  __asm { vmovaps xmm6, [rsp+128h+var_18] }
+  AxisToAngles(&out, &v9);
+  Scr_AddVector(scrContext, v9.v);
 }
 
 /*
@@ -425,11 +305,12 @@ void __fastcall GScr_GetStartAngles(scrContext_t *scrContext, double _XMM1_8)
 GScr_GetStartOrigin
 ==============
 */
-
-void __fastcall GScr_GetStartOrigin(scrContext_t *scrContext, double _XMM1_8)
+void GScr_GetStartOrigin(scrContext_t *scrContext)
 {
+  float v2; 
+  double Float; 
+  double v4; 
   const XAnim_s *Anims; 
-  float v13; 
   int linkPointer; 
   vec3_t vectorValue; 
   vec3_t angles; 
@@ -438,38 +319,22 @@ void __fastcall GScr_GetStartOrigin(scrContext_t *scrContext, double _XMM1_8)
   tmat43_t<vec3_t> axis; 
   vec4_t rot; 
 
-  __asm { vmovaps [rsp+0D8h+var_18], xmm6 }
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &angles);
   linkPointer = Scr_GetAnim(scrContext, 2u, NULL).linkPointer;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v2 = 0.0;
   if ( Scr_GetNumParam(scrContext) > 3 )
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 3u);
+    v4 = I_fclamp(*(float *)&Float, 0.0, 1.0);
+    v2 = *(float *)&v4;
   }
   Anims = Scr_GetAnims(scrContext, HIWORD(linkPointer));
-  __asm { vmovss  [rsp+0D8h+var_B8], xmm6 }
-  XAnimGetAbsDelta(Anims, (unsigned __int16)linkPointer, &rot, &trans, v13);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0D8h+vectorValue]
-    vmovss  xmm1, dword ptr [rsp+0D8h+vectorValue+4]
-    vmovss  [rsp+0D8h+var_3C], xmm0
-    vmovss  xmm0, dword ptr [rsp+0D8h+vectorValue+8]
-    vmovss  [rsp+0D8h+var_34], xmm0
-    vmovss  [rsp+0D8h+var_38], xmm1
-  }
+  XAnimGetAbsDelta(Anims, (unsigned __int16)linkPointer, &rot, &trans, v2);
+  axis.m[3] = vectorValue;
   AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&axis);
   MatrixTransformVector43(&trans, &axis, &out);
   Scr_AddVector(scrContext, out.v);
-  __asm { vmovaps xmm6, [rsp+0D8h+var_18] }
 }
 
 /*
@@ -479,100 +344,73 @@ G_AnimScripted_Think_DeathPlant
 */
 void G_AnimScripted_Think_DeathPlant(gentity_s *ent, XAnimTree *tree, vec3_t *origin, vec3_t *angles)
 {
+  __int128 v4; 
+  __int128 v5; 
+  float v6; 
+  EntityAnimScript *scripted; 
+  float v9; 
+  float v10; 
   int passEntityNum; 
-  bool v23; 
-  bool v24; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  double Time; 
+  float v19; 
   vec3_t start; 
   vec3_t end; 
   trace_t results; 
-  void *retaddr; 
+  __int128 v23; 
+  __int128 v24; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovss  xmm3, dword ptr [r8+8]
-  }
-  _RBX = ent->scripted;
-  _RDI = angles;
-  __asm
-  {
-    vmovss  xmm5, dword ptr [r8]
-    vmovss  xmm4, dword ptr [r8+4]
-  }
+  v6 = origin->v[2];
+  scripted = ent->scripted;
+  v9 = origin->v[0];
+  v10 = origin->v[1];
   passEntityNum = ent->s.number;
-  __asm
-  {
-    vmovss  dword ptr [rsp+118h+start+8], xmm3
-    vmovss  dword ptr [rsp+118h+start], xmm5
-    vmovss  dword ptr [rsp+118h+start+4], xmm4
-    vmovss  xmm0, dword ptr [rbx+50h]
-    vaddss  xmm0, xmm0, cs:__real@41900000
-    vaddss  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rsp+118h+start+8], xmm1
-    vmovss  dword ptr [rsp+118h+end+8], xmm3
-    vmovss  dword ptr [rsp+118h+end], xmm5
-    vmovss  dword ptr [rsp+118h+end+4], xmm4
-    vaddss  xmm0, xmm3, dword ptr [rbx+50h]
-    vsubss  xmm1, xmm0, cs:__real@41900000
-    vmovss  dword ptr [rsp+118h+end+8], xmm1
-  }
+  start.v[2] = v6;
+  start.v[0] = v9;
+  start.v[1] = v10;
+  start.v[2] = (float)(scripted->fHeightOfs + 18.0) + v6;
+  end.v[2] = v6;
+  end.v[0] = v9;
+  end.v[1] = v10;
+  end.v[2] = (float)(v6 + scripted->fHeightOfs) - 18.0;
   G_Main_TraceCapsule(&results, &start, &end, &ent->r.box, passEntityNum, 131089);
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
+  v14 = FLOAT_1_0;
   if ( !results.allsolid )
   {
-    __asm
+    v23 = v5;
+    if ( results.fraction < 1.0 )
     {
-      vmovaps [rsp+118h+var_58], xmm8
-      vmovss  xmm8, [rsp+118h+results.fraction]
-      vcomiss xmm8, xmm7
-      vmovaps xmm8, [rsp+118h+var_58]
+      v24 = v4;
+      v15 = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+      v16 = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+      v17 = (float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2];
+      scripted->fHeightOfs = v17 - origin->v[2];
+      origin->v[0] = v15;
+      origin->v[1] = v16;
+      origin->v[2] = v17;
     }
   }
-  __asm
+  if ( scripted->fOrientLerp >= 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rbx+5Ch]
-  }
-  if ( results.allsolid )
-  {
-    *(double *)&_XMM0 = XAnimGetTime(tree, 0, XANIM_SUBTREE_DEFAULT, _RBX->anim);
-    __asm { vmovaps xmm7, xmm0 }
+    if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
+      __debugbreak();
+    v19 = (float)((float)level.frameDuration * 0.001) + scripted->fOrientLerp;
+    scripted->fOrientLerp = v19;
+    if ( v19 <= 1.0 )
+      v14 = v19;
+    else
+      scripted->fOrientLerp = 1.0;
   }
   else
   {
-    v23 = level.frameDuration == 0;
-    if ( !level.frameDuration )
-    {
-      v24 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration");
-      v23 = !v24;
-      if ( v24 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vaddss  xmm2, xmm1, dword ptr [rbx+5Ch]
-      vcomiss xmm2, xmm7
-      vmovss  dword ptr [rbx+5Ch], xmm2
-    }
-    if ( v23 )
-      __asm { vmovaps xmm7, xmm2 }
-    else
-      _RBX->fOrientLerp = 1.0;
+    Time = XAnimGetTime(tree, 0, XANIM_SUBTREE_DEFAULT, scripted->anim);
+    v14 = *(float *)&Time;
   }
-  __asm
-  {
-    vmulss  xmm0, xmm7, dword ptr [rbx+54h]
-    vaddss  xmm1, xmm0, dword ptr [rdi]
-    vmovss  dword ptr [rdi], xmm1
-    vmulss  xmm0, xmm7, dword ptr [rbx+58h]
-    vaddss  xmm1, xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr [rdi+8], xmm1
-    vmovaps xmm7, [rsp+118h+var_48]
-  }
+  angles->v[0] = (float)(v14 * scripted->fEndPitch) + angles->v[0];
+  angles->v[2] = (float)(v14 * scripted->fEndRoll) + angles->v[2];
 }
 
 /*
@@ -582,169 +420,96 @@ G_Animscripted
 */
 void G_Animscripted(scrContext_t *scrContext, gentity_s *ent, const vec3_t *origin, const vec3_t *angles, unsigned int anim, unsigned int root, scr_string_t notifyName, unsigned __int8 animMode, float goalTime, float animRate)
 {
-  const char *v18; 
-  const char *v19; 
+  const char *v14; 
+  const char *v15; 
   XAnimTree *EntAnimTree; 
-  scrContext_t *v21; 
-  scrContext_t *v25; 
-  const char *v29; 
+  scrContext_t *v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  const char *v21; 
   const char *EntityTypeName; 
-  const char *v33; 
-  const XAnim_s *v35; 
-  DObj *ServerDObjForEnt; 
-  const dvar_t *v38; 
+  const char *v23; 
+  EntityAnimScript *scripted; 
+  const XAnim_s *v25; 
+  DObj *objID; 
+  const dvar_t *v27; 
   bool IsLooped; 
-  char *fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  void *objID; 
-  float objIDa; 
-  float objIDb; 
-  float curveID; 
-  float curveIDa; 
   vec3_t anims; 
   vec3_t out; 
   vec3_t anglesa; 
   vec4_t rot; 
   tmat33_t<vec3_t> axis; 
-  tmat33_t<vec3_t> v66; 
-  char v67; 
-  void *retaddr; 
+  tmat33_t<vec3_t> v34; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
-  _RSI = ent;
   if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
     Scr_Error(COM_ERR_1781, scrContext, "AnimScripted entities are not supported in this game mode");
-  if ( (_RSI->flags.m_flags[0] & 0x80000000) == 0 )
+  if ( (ent->flags.m_flags[0] & 0x80000000) == 0 )
   {
-    v18 = SL_ConvertToString(_RSI->classname);
-    v19 = j_va("entity (classname: '%s') does not currently support animscripted", v18);
-    Scr_ObjectError(COM_ERR_1782, scrContext, v19);
+    v14 = SL_ConvertToString(ent->classname);
+    v15 = j_va("entity (classname: '%s') does not currently support animscripted", v14);
+    Scr_ObjectError(COM_ERR_1782, scrContext, v15);
   }
-  EntAnimTree = G_Utils_GetEntAnimTree(_RSI);
+  EntAnimTree = G_Utils_GetEntAnimTree(ent);
   if ( !EntAnimTree )
   {
-    v21 = ScriptContext_Server();
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rsi+138h]
-      vmovss  xmm7, dword ptr [rsi+134h]
-      vmovss  xmm8, dword ptr [rsi+130h]
-    }
-    v25 = v21;
-    __asm
-    {
-      vcvtss2sd xmm6, xmm6, xmm6
-      vcvtss2sd xmm7, xmm7, xmm7
-      vcvtss2sd xmm8, xmm8, xmm8
-    }
-    v29 = SL_ConvertToString(_RSI->classname);
-    EntityTypeName = G_GetEntityTypeName(_RSI);
-    __asm
-    {
-      vmovaps xmm3, xmm8
-      vmovq   r9, xmm3
-      vmovsd  [rsp+178h+objID], xmm6
-      vmovsd  [rsp+178h+fmt], xmm7
-    }
-    v33 = j_va("entity of type '%s', classname '%s', origin (%f, %f, %f) does not have an animation tree", EntityTypeName, v29, _R9, fmt, objID);
-    Scr_Error(COM_ERR_1779, v25, v33);
+    v17 = ScriptContext_Server();
+    v18 = ent->r.currentOrigin.v[2];
+    v19 = ent->r.currentOrigin.v[1];
+    v20 = ent->r.currentOrigin.v[0];
+    v21 = SL_ConvertToString(ent->classname);
+    EntityTypeName = G_GetEntityTypeName(ent);
+    v23 = j_va("entity of type '%s', classname '%s', origin (%f, %f, %f) does not have an animation tree", EntityTypeName, v21, v20, v19, v18);
+    Scr_Error(COM_ERR_1779, v17, v23);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animscripted.cpp", 167, ASSERT_TYPE_ASSERT, "( pAnimTree )", (const char *)&queryFormat, "pAnimTree") )
       __debugbreak();
   }
-  _RDI = _RSI->scripted;
-  if ( !_RDI )
+  scripted = ent->scripted;
+  if ( !scripted )
   {
-    _RDI = (EntityAnimScript *)MT_Alloc(0x60ui64, 19);
-    _RSI->scripted = _RDI;
+    scripted = (EntityAnimScript *)MT_Alloc(0x60ui64, 19);
+    ent->scripted = scripted;
   }
-  if ( _RSI->s.eType == ET_SCRIPTMOVER )
-    _RSI->s.lerp.u.anonymous.data[2] |= 0x40u;
-  _RDI->mode = animMode;
-  _RDI->bStarted = 0;
-  _RDI->anim = anim;
-  _RDI->root = root;
-  v35 = XAnimGetAnims(EntAnimTree);
-  *(_QWORD *)anims.v = v35;
+  if ( ent->s.eType == ET_SCRIPTMOVER )
+    ent->s.lerp.u.anonymous.data[2] |= 0x40u;
+  scripted->mode = animMode;
+  scripted->bStarted = 0;
+  scripted->anim = anim;
+  scripted->root = root;
+  v25 = XAnimGetAnims(EntAnimTree);
+  *(_QWORD *)anims.v = v25;
   if ( animMode == 1 )
   {
-    G_Animscripted_DeathPlant(_RSI, v35, anim, origin, angles);
+    G_Animscripted_DeathPlant(ent, v25, anim, origin, angles);
   }
   else
   {
-    _RDI->axis.m[3].v[0] = origin->v[0];
-    _RDI->axis.m[3].v[1] = origin->v[1];
-    _RDI->axis.m[3].v[2] = origin->v[2];
-    AnglesToAxis(angles, (tmat33_t<vec3_t> *)_RDI);
+    scripted->axis.m[3].v[0] = origin->v[0];
+    scripted->axis.m[3].v[1] = origin->v[1];
+    scripted->axis.m[3].v[2] = origin->v[2];
+    AnglesToAxis(angles, (tmat33_t<vec3_t> *)scripted);
   }
-  __asm
-  {
-    vmovss  xmm6, [rsp+178h+goalTime]
-    vmovss  dword ptr [rsp+178h+fmt], xmm6
-  }
-  ServerDObjForEnt = Com_GetServerDObjForEnt(_RSI);
-  XAnimClearTreeGoalWeightsStrict(EntAnimTree, 0, XANIM_SUBTREE_DEFAULT, root, fmta, ServerDObjForEnt, LINEAR);
-  v38 = DVARINT_g_dumpAnimsCommands;
+  objID = Com_GetServerDObjForEnt(ent);
+  XAnimClearTreeGoalWeightsStrict(EntAnimTree, 0, XANIM_SUBTREE_DEFAULT, root, goalTime, objID, LINEAR);
+  v27 = DVARINT_g_dumpAnimsCommands;
   if ( !DVARINT_g_dumpAnimsCommands && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dumpAnimsCommands") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v38);
-  __asm
-  {
-    vmovss  xmm7, [rsp+178h+animRate]
-    vmovss  xmm8, cs:__real@3f800000
-  }
-  if ( v38->current.integer == _RSI->s.number )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rsp+178h+curveID], xmm7
-      vmovss  dword ptr [rsp+178h+objID], xmm6
-      vmovss  dword ptr [rsp+178h+fmt], xmm8
-    }
-    DumpAnimCommand("animscripted(internal)", EntAnimTree, _RSI->scripted->anim, -1, fmtb, objIDa, curveID);
-  }
+  Dvar_CheckFrontendServerThread(v27);
+  if ( v27->current.integer == ent->s.number )
+    DumpAnimCommand("animscripted(internal)", EntAnimTree, ent->scripted->anim, -1, 1.0, goalTime, animRate);
   IsLooped = XAnimIsLooped(*(const XAnim_s **)anims.v, anim);
-  __asm
-  {
-    vmovss  dword ptr [rsp+178h+curveID], xmm7
-    vmovss  dword ptr [rsp+178h+objID], xmm6
-    vmovss  dword ptr [rsp+178h+fmt], xmm8
-  }
-  XAnimSetCompleteGoalWeight(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, anim, fmtc, objIDb, curveIDa, notifyName, 0, !IsLooped, LINEAR, NULL);
-  if ( (_RSI->flags.m_flags[0] & 0x800) == 0 )
-    _RSI->flags.m_flags[1] |= 2 * GameModeFlagValues::ms_spValue;
-  XAnimCalcAbsDelta(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, anim, &rot, &anims);
-  MatrixTransformVector43(&anims, &_RDI->axis, &out);
+  XAnimSetCompleteGoalWeight(objID, 0, XANIM_SUBTREE_DEFAULT, anim, 1.0, goalTime, animRate, notifyName, 0, !IsLooped, LINEAR, NULL);
+  if ( (ent->flags.m_flags[0] & 0x800) == 0 )
+    ent->flags.m_flags[1] |= 2 * GameModeFlagValues::ms_spValue;
+  XAnimCalcAbsDelta(objID, 0, XANIM_SUBTREE_DEFAULT, anim, &rot, &anims);
+  MatrixTransformVector43(&anims, &scripted->axis, &out);
   QuatToAxis(&rot, &axis);
-  MatrixMultiply(&axis, (const tmat33_t<vec3_t> *)_RDI, &v66);
-  AxisToAngles(&v66, &anglesa);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+130h]
-    vsubss  xmm1, xmm0, dword ptr [rsp+178h+out]
-    vmovss  dword ptr [rdi+30h], xmm1
-    vmovss  xmm2, dword ptr [rsi+134h]
-    vsubss  xmm0, xmm2, dword ptr [rsp+178h+out+4]
-    vmovss  dword ptr [rdi+34h], xmm0
-    vmovss  xmm1, dword ptr [rsi+138h]
-    vsubss  xmm2, xmm1, dword ptr [rsp+178h+out+8]
-    vmovss  dword ptr [rdi+38h], xmm2
-  }
-  AnglesSubtract(&_RSI->r.currentAngles, &anglesa, &_RDI->anglesError);
-  _R11 = &v67;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
+  MatrixMultiply(&axis, (const tmat33_t<vec3_t> *)scripted, &v34);
+  AxisToAngles(&v34, &anglesa);
+  scripted->originError.v[0] = ent->r.currentOrigin.v[0] - out.v[0];
+  scripted->originError.v[1] = ent->r.currentOrigin.v[1] - out.v[1];
+  scripted->originError.v[2] = ent->r.currentOrigin.v[2] - out.v[2];
+  AnglesSubtract(&ent->r.currentAngles, &anglesa, &scripted->anglesError);
 }
 
 /*
@@ -754,131 +519,97 @@ G_Animscripted_DeathPlant
 */
 void G_Animscripted_DeathPlant(gentity_s *ent, const XAnim_s *anims, unsigned int anim, const vec3_t *origin, const vec3_t *angles)
 {
+  EntityAnimScript *scripted; 
+  float v10; 
+  float v11; 
+  float v12; 
   int number; 
-  int v29; 
-  float fmt; 
+  float fraction; 
+  float v15; 
+  float v16; 
+  int v18; 
+  float v19; 
+  int v21; 
   vec3_t start; 
   vec3_t end; 
-  vec3_t v54; 
+  vec3_t v26; 
   vec3_t trans; 
   vec3_t out; 
+  vec3_t vOrigin; 
   vec4_t rot; 
   trace_t results; 
   tmat33_t<vec3_t> axis; 
-  tmat33_t<vec3_t> v60; 
-  void *retaddr; 
+  tmat33_t<vec3_t> v33; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-68h], xmm8
-  }
-  _RBX = ent->scripted;
-  _RDI = origin;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animscripted.cpp", 90, ASSERT_TYPE_ASSERT, "( scripted )", (const char *)&queryFormat, "scripted") )
+  scripted = ent->scripted;
+  if ( !scripted && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animscripted.cpp", 90, ASSERT_TYPE_ASSERT, "( scripted )", (const char *)&queryFormat, "scripted") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+8]
-    vaddss  xmm0, xmm1, cs:__real@42100000
-    vmovss  xmm3, dword ptr [rdi]
-    vmovss  xmm2, dword ptr [rdi+4]
-  }
+  v10 = origin->v[2];
+  v11 = origin->v[0];
+  v12 = origin->v[1];
   number = ent->s.number;
-  __asm
-  {
-    vmovss  dword ptr [rsp+1E0h+start+8], xmm0
-    vsubss  xmm0, xmm1, cs:__real@41900000
-    vmovaps [rsp+1E0h+var_48+8], xmm6
-    vmovss  dword ptr [rsp+1E0h+end+8], xmm0
-    vmovss  dword ptr [rsp+1E0h+start], xmm3
-    vmovss  dword ptr [rsp+1E0h+start+4], xmm2
-    vmovss  dword ptr [rsp+1E0h+end], xmm3
-    vmovss  dword ptr [rsp+1E0h+end+4], xmm2
-  }
+  start.v[2] = v10 + 36.0;
+  end.v[2] = v10 - 18.0;
+  start.v[0] = v11;
+  start.v[1] = v12;
+  end.v[0] = v11;
+  end.v[1] = v12;
   G_Main_TraceCapsule(&results, &start, &end, &ent->r.box, number, 131089);
-  __asm { vmovss  xmm7, cs:__real@3f800000 }
-  if ( !results.allsolid )
+  if ( results.allsolid || (fraction = results.fraction, results.fraction >= 1.0) )
   {
-    __asm
-    {
-      vmovss  xmm6, [rbp+0E0h+results.fraction]
-      vcomiss xmm6, xmm7
-    }
+    scripted->axis.m[3].v[0] = origin->v[0];
+    scripted->axis.m[3].v[1] = origin->v[1];
+    v15 = origin->v[2];
   }
-  _RBX->axis.m[3].v[0] = _RDI->v[0];
-  _RBX->axis.m[3].v[1] = _RDI->v[1];
-  __asm { vmovss  xmm3, dword ptr [rdi+8] }
-  _RAX = angles;
-  __asm { vmovss  dword ptr [rbx+2Ch], xmm3 }
-  _RBX->fHeightOfs = 0.0;
-  __asm
+  else
   {
-    vmovss  xmm0, dword ptr [rax+4]
-    vmovss  xmm1, dword ptr [rax+8]
-    vxorps  xmm8, xmm8, xmm8
-    vmovss  dword ptr [rsp+1E0h+var_178+4], xmm0
-    vmovss  dword ptr [rsp+1E0h+var_178+8], xmm1
-    vmovss  dword ptr [rsp+1E0h+var_178], xmm8
+    scripted->axis.m[3].v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+    scripted->axis.m[3].v[1] = (float)((float)(end.v[1] - start.v[1]) * fraction) + start.v[1];
+    v15 = (float)((float)(end.v[2] - start.v[2]) * fraction) + start.v[2];
   }
-  AnglesToAxis(&v54, (tmat33_t<vec3_t> *)_RBX);
-  __asm { vmovss  dword ptr [rsp+1E0h+fmt], xmm7 }
-  XAnimGetAbsDelta(anims, anim, &rot, &trans, fmt);
-  MatrixTransformVector43(&trans, &_RBX->axis, &out);
+  scripted->axis.m[3].v[2] = v15;
+  scripted->fHeightOfs = 0.0;
+  v16 = angles->v[2];
+  _XMM8 = 0i64;
+  v26.v[1] = angles->v[1];
+  v26.v[2] = v16;
+  v26.v[0] = 0.0;
+  AnglesToAxis(&v26, (tmat33_t<vec3_t> *)scripted);
+  XAnimGetAbsDelta(anims, anim, &rot, &trans, 1.0);
+  MatrixTransformVector43(&trans, &scripted->axis, &out);
   QuatToAxis(&rot, &axis);
-  MatrixMultiply(&axis, (const tmat33_t<vec3_t> *)_RBX, &v60);
-  AxisToAngles(&v60, &v54);
-  __asm
+  MatrixMultiply(&axis, (const tmat33_t<vec3_t> *)scripted, &v33);
+  AxisToAngles(&v33, &v26);
+  v18 = ent->s.number;
+  v19 = fsqrt((float)((float)(trans.v[0] * trans.v[0]) + (float)(trans.v[1] * trans.v[1])) + (float)(trans.v[2] * trans.v[2]));
+  start.v[2] = (float)(v19 + 64.0) + out.v[2];
+  *((_QWORD *)&_XMM0 + 1) = 0i64;
+  end.v[2] = out.v[2] - (float)(v19 + 128.0);
+  start.v[0] = out.v[0];
+  start.v[1] = out.v[1];
+  end.v[0] = out.v[0];
+  end.v[1] = out.v[1];
+  G_Main_TraceCapsule(&results, &start, &end, &ent->r.box, v18, 131089);
+  if ( results.allsolid || results.fraction >= 1.0 )
   {
-    vmovss  xmm0, dword ptr [rsp+1E0h+trans]
-    vmovss  xmm1, dword ptr [rsp+1E0h+trans+4]
+    *(_QWORD *)&scripted->fEndPitch = 0i64;
   }
-  v29 = ent->s.number;
-  __asm
+  else
   {
-    vmulss  xmm3, xmm0, xmm0
-    vmovss  xmm0, dword ptr [rbp+0E0h+trans+8]
-    vmulss  xmm2, xmm1, xmm1
-    vmulss  xmm1, xmm0, xmm0
-    vaddss  xmm4, xmm3, xmm2
-    vmovss  xmm3, dword ptr [rbp+0E0h+out]
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  xmm1, dword ptr [rbp+0E0h+out+8]
-    vsqrtss xmm5, xmm2, xmm2
-    vaddss  xmm0, xmm5, cs:__real@42800000
-    vmovss  xmm2, dword ptr [rbp+0E0h+out+4]
-    vaddss  xmm0, xmm0, xmm1
-    vmovss  dword ptr [rsp+1E0h+start+8], xmm0
-    vaddss  xmm0, xmm5, cs:__real@43000000
-    vsubss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rsp+1E0h+end+8], xmm1
-    vmovss  dword ptr [rsp+1E0h+start], xmm3
-    vmovss  dword ptr [rsp+1E0h+start+4], xmm2
-    vmovss  dword ptr [rsp+1E0h+end], xmm3
-    vmovss  dword ptr [rsp+1E0h+end+4], xmm2
+    v21 = ent->s.number;
+    _XMM0 = LODWORD(end.v[2]);
+    vOrigin.v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+    vOrigin.v[1] = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+    vOrigin.v[2] = (float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2];
+    AIScriptedInterface::GetBodyPlantAngles(v21, 131089, &vOrigin, v26.v[1], &scripted->fEndPitch, &scripted->fEndRoll, NULL);
   }
-  G_Main_TraceCapsule(&results, &start, &end, &ent->r.box, v29, 131089);
-  if ( !results.allsolid )
-  {
-    __asm
-    {
-      vmovss  xmm6, [rbp+0E0h+results.fraction]
-      vcomiss xmm6, xmm7
-    }
-  }
-  *(_QWORD *)&_RBX->fEndPitch = 0i64;
   *(double *)&_XMM0 = XAnimGetLength(anims, anim);
   __asm
   {
-    vmovss  xmm1, cs:__real@bf800000
     vcmpltss xmm2, xmm0, xmm7
     vblendvps xmm0, xmm8, xmm1, xmm2
-    vmovss  dword ptr [rbx+5Ch], xmm0
-    vmovaps xmm6, [rsp+1E0h+var_48+8]
-    vmovaps xmm7, [rsp+1E0h+var_58+8]
-    vmovaps xmm8, [rsp+1E0h+var_68+8]
   }
+  scripted->fOrientLerp = *(float *)&_XMM0;
 }
 
 /*
@@ -888,229 +619,206 @@ G_Animscripted_Think
 */
 void G_Animscripted_Think(gentity_s *ent)
 {
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  EntityAnimScript *scripted; 
   XAnimTree *EntAnimTree; 
   const DObj *ServerDObjForEnt; 
-  bool v24; 
-  char v42; 
-  bool v43; 
-  AIAgentInterface *v63; 
+  __int128 v9; 
+  __int128 v10; 
+  float v11; 
+  float frameDuration; 
+  float v13; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  bool v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  AIAgentInterface *v30; 
   ai_agent_t *ScriptedAgentInfo; 
-  AIAgentInterface *v65; 
+  AIAgentInterface *v32; 
   actor_s *actor; 
   ai_scripted_t *m_pAI; 
-  float fmt; 
-  float trans; 
-  float v72; 
-  AIActorInterface v73; 
-  AIAgentInterface v74; 
-  AIAgentInterface *v75; 
+  bool v35; 
+  AIActorInterface v36; 
+  AIAgentInterface v37; 
+  AIAgentInterface *v38; 
   vec3_t out; 
   vec3_t angles; 
   vec3_t in1; 
   tmat43_t<vec3_t> axis; 
-  tmat43_t<vec3_t> v80; 
+  tmat43_t<vec3_t> v43; 
   vec4_t rot; 
   tmat43_t<vec3_t> parentRelAxis; 
+  __int128 v46; 
+  __int128 v47; 
+  __int128 v48; 
+  __int128 v49; 
 
-  _RDI = ent->scripted;
-  _RBX = ent;
-  if ( !_RDI )
-    return;
-  if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animscripted.cpp", 381, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION )") )
-    __debugbreak();
-  EntAnimTree = G_Utils_GetEntAnimTree(_RBX);
-  if ( EntAnimTree && _RDI->anim )
+  scripted = ent->scripted;
+  if ( scripted )
   {
-    __asm
-    {
-      vmovaps [rsp+200h+var_38+8], xmm6
-      vmovaps [rsp+200h+var_68+8], xmm9
-      vmovaps [rsp+200h+var_78+8], xmm10
-    }
-    ServerDObjForEnt = Com_GetServerDObjForEnt(_RBX);
-    XAnimCalcAbsDelta(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, _RDI->anim, &rot, &in1);
-    MatrixTransformVector43(&in1, &_RDI->axis, &out);
-    QuatToAxis(&rot, (tmat33_t<vec3_t> *)&axis);
-    MatrixMultiply((const tmat33_t<vec3_t> *)&axis, (const tmat33_t<vec3_t> *)_RDI, (tmat33_t<vec3_t> *)&v80);
-    AxisToAngles((const tmat33_t<vec3_t> *)&v80, &angles);
-    if ( _RDI->mode == 1 )
-      G_AnimScripted_Think_DeathPlant(_RBX, EntAnimTree, &out, &angles);
-    if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
+    if ( !Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_animscripted.cpp", 381, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_SCRIPTED_ANIMATION )") )
       __debugbreak();
-    __asm
+    EntAnimTree = G_Utils_GetEntAnimTree(ent);
+    if ( EntAnimTree && scripted->anim )
     {
-      vmovss  xmm0, dword ptr [rdi+30h]
-      vmovss  xmm2, dword ptr [rdi+34h]
-      vmovss  xmm3, dword ptr [rdi+38h]
-      vmovss  xmm10, cs:__real@3f800000
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm6, xmm2, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vmovaps [rsp+200h+var_48+8], xmm7
-      vucomiss xmm6, xmm0
-      vxorps  xmm9, xmm9, xmm9
-      vcvtsi2ss xmm9, xmm9, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-      vmulss  xmm0, xmm9, dword ptr [rbx+490h]
-      vmulss  xmm2, xmm0, cs:__real@3a83126f; maxChange
-    }
-    G_ReduceAnglesError(&angles, &_RDI->anglesError, *(float *)&_XMM2);
-    __asm { vmovaps xmm9, [rsp+200h+var_68+8] }
-    v24 = _RBX->tagInfo == NULL;
-    if ( _RBX->tagInfo )
-    {
-      G_CalcTagParentRelAxis(_RBX, &parentRelAxis);
-      __asm
+      v49 = v1;
+      v46 = v4;
+      ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
+      XAnimCalcAbsDelta(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, scripted->anim, &rot, &in1);
+      MatrixTransformVector43(&in1, &scripted->axis, &out);
+      QuatToAxis(&rot, (tmat33_t<vec3_t> *)&axis);
+      MatrixMultiply((const tmat33_t<vec3_t> *)&axis, (const tmat33_t<vec3_t> *)scripted, (tmat33_t<vec3_t> *)&v43);
+      AxisToAngles((const tmat33_t<vec3_t> *)&v43, &angles);
+      if ( scripted->mode == 1 )
+        G_AnimScripted_Think_DeathPlant(ent, EntAnimTree, &out, &angles);
+      if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
+        __debugbreak();
+      v9 = LODWORD(scripted->originError.v[0]);
+      *(float *)&v9 = (float)((float)(scripted->originError.v[0] * scripted->originError.v[0]) + (float)(scripted->originError.v[1] * scripted->originError.v[1])) + (float)(scripted->originError.v[2] * scripted->originError.v[2]);
+      v10 = v9;
+      v48 = v2;
+      frameDuration = (float)level.frameDuration;
+      v11 = frameDuration;
+      if ( *(float *)&v10 != 0.0 )
       {
-        vmovss  xmm0, dword ptr [rbp+100h+out]
-        vmovss  xmm1, dword ptr [rbp+100h+out+4]
-        vmovss  [rbp+100h+var_CC], xmm0
-        vmovss  xmm0, dword ptr [rbp+100h+out+8]
-        vmovss  [rbp+100h+var_C4], xmm0
-        vmovss  [rbp+100h+var_C8], xmm1
-      }
-      AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&v80);
-      MatrixMultiply43(&v80, &parentRelAxis, &axis);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+130h]
-        vmovss  xmm1, dword ptr [rbx+134h]
-        vmovss  xmm7, [rbp+100h+var_FC]
-        vmovss  xmm6, [rbp+100h+var_F8]
-        vmovss  xmm5, [rbp+100h+var_F4]
-        vsubss  xmm2, xmm1, xmm6
-        vmulss  xmm1, xmm2, xmm2
-        vsubss  xmm4, xmm0, xmm7
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vsubss  xmm3, xmm0, xmm5
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vcomiss xmm2, cs:__real@461c4000
-      }
-      v43 = !(v42 | v24);
-      __asm
-      {
-        vmovss  dword ptr [rbx+130h], xmm7
-        vmovss  dword ptr [rbx+134h], xmm6
-        vmovss  dword ptr [rbx+138h], xmm5
-      }
-      AxisToAngles((const tmat33_t<vec3_t> *)&axis, &_RBX->r.currentAngles);
-      G_CalcTagAxis(_RBX, 0);
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+130h]
-        vmovss  xmm1, dword ptr [rbx+134h]
-        vmovss  xmm7, dword ptr [rbp+100h+out]
-        vmovss  xmm6, dword ptr [rbp+100h+out+4]
-        vmovss  xmm5, dword ptr [rbp+100h+out+8]
-        vsubss  xmm4, xmm0, xmm7
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vsubss  xmm2, xmm1, xmm6
-        vsubss  xmm3, xmm0, xmm5
-        vmulss  xmm1, xmm2, xmm2
-        vmovss  dword ptr [rbx+130h], xmm7
-        vmovss  dword ptr [rbx+134h], xmm6
-        vmovss  dword ptr [rbx+138h], xmm5
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmovss  xmm0, dword ptr [rbp+100h+angles]
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vcomiss xmm2, cs:__real@461c4000
-        vmovss  xmm1, dword ptr [rbp+100h+angles+4]
-        vmovss  dword ptr [rbx+13Ch], xmm0
-        vmovss  xmm0, dword ptr [rbp+100h+angles+8]
-      }
-      v43 = !v24;
-      __asm
-      {
-        vmovss  dword ptr [rbx+140h], xmm1
-        vmovss  dword ptr [rbx+144h], xmm0
-      }
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+200h+var_48+8]
-      vmovaps xmm6, [rsp+200h+var_38+8]
-    }
-    if ( v43 )
-      G_PhysicsObject_WarpToCurrentTransform(_RBX, 0);
-    AIActorInterface::AIActorInterface(&v73);
-    AIAgentInterface::AIAgentInterface(&v74);
-    v63 = NULL;
-    v74.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-    v75 = NULL;
-    if ( _RBX->agent )
-    {
-      if ( SV_Agent_IsScripted(_RBX->s.number) )
-      {
-        ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(_RBX);
-        if ( !ScriptedAgentInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 97, ASSERT_TYPE_ASSERT, "( pInfo )", (const char *)&queryFormat, "pInfo") )
+        v47 = v3;
+        if ( *(float *)&v10 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
           __debugbreak();
-        if ( !ScriptedAgentInfo->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 98, ASSERT_TYPE_ASSERT, "( pInfo->sentientInfo )", (const char *)&queryFormat, "pInfo->sentientInfo") )
-          __debugbreak();
-        AINewAgentInterface::SetAgent((AINewAgentInterface *)&v74, ScriptedAgentInfo);
-        v63 = &v74;
-        v75 = &v74;
-        v65 = &v74;
-LABEL_33:
-        m_pAI = v63->AIScriptedInterface::m_pAI;
-        m_pAI->Physics.vOrigin.v[0] = _RBX->r.currentOrigin.v[0];
-        m_pAI->Physics.vOrigin.v[1] = _RBX->r.currentOrigin.v[1];
-        m_pAI->Physics.vOrigin.v[2] = _RBX->r.currentOrigin.v[2];
-        AIScriptedInterface::GetGroundTraceOrigin(v65, &m_pAI->Physics.groundTraceOrigin);
-        AIScriptedInterface::Physics_GroundTraceOnly(v65);
-LABEL_34:
-        if ( _RDI->bStarted )
+        v13 = scripted->originError.v[0];
+        _XMM1 = v10;
+        __asm { vrsqrtss xmm2, xmm1, xmm6 }
+        v16 = (float)(frameDuration * 0.0049999999) * *(float *)&_XMM2;
+        if ( v16 >= 1.0 )
         {
-          if ( XAnimHasFinished(EntAnimTree, 0, XANIM_SUBTREE_DEFAULT, _RDI->anim) )
-          {
-            __asm
-            {
-              vmovss  xmm0, cs:__real@3e4ccccd
-              vmovss  [rsp+200h+var_1D0], xmm10
-              vmovss  dword ptr [rsp+200h+trans], xmm0
-              vmovss  dword ptr [rsp+200h+fmt], xmm10
-            }
-            XAnimSetCompleteGoalWeight(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, _RDI->anim, fmt, trans, v72, (scr_string_t)0, 0, 0, LINEAR, NULL);
-            _RDI->anim = 0;
-          }
+          out.v[0] = v13 + out.v[0];
+          out.v[1] = out.v[1] + scripted->originError.v[1];
+          out.v[2] = out.v[2] + scripted->originError.v[2];
+          *(_QWORD *)scripted->originError.v = 0i64;
+          scripted->originError.v[2] = 0.0;
         }
         else
         {
-          _RDI->bStarted = 1;
+          v17 = v13 + out.v[0];
+          v18 = out.v[1] + scripted->originError.v[1];
+          v19 = out.v[2] + scripted->originError.v[2];
+          out.v[0] = (float)(v13 * v16) + out.v[0];
+          out.v[1] = out.v[1] + (float)(v16 * scripted->originError.v[1]);
+          out.v[2] = out.v[2] + (float)(v16 * scripted->originError.v[2]);
+          scripted->originError.v[0] = v17 - out.v[0];
+          scripted->originError.v[1] = v18 - out.v[1];
+          scripted->originError.v[2] = v19 - out.v[2];
         }
-        __asm { vmovaps xmm10, [rsp+200h+var_78+8] }
-        return;
       }
-      v63 = v75;
+      G_ReduceAnglesError(&angles, &scripted->anglesError, (float)(v11 * ent->angleLerpRate) * 0.001);
+      if ( ent->tagInfo )
+      {
+        G_CalcTagParentRelAxis(ent, &parentRelAxis);
+        v43.m[3] = out;
+        AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&v43);
+        MatrixMultiply43(&v43, &parentRelAxis, &axis);
+        v20 = axis.m[3].v[1];
+        v21 = axis.m[3].v[2];
+        v22 = (float)((float)((float)((float)(ent->r.currentOrigin.v[1] - axis.m[3].v[1]) * (float)(ent->r.currentOrigin.v[1] - axis.m[3].v[1])) + (float)((float)(ent->r.currentOrigin.v[0] - axis.m[3].v[0]) * (float)(ent->r.currentOrigin.v[0] - axis.m[3].v[0]))) + (float)((float)(ent->r.currentOrigin.v[2] - axis.m[3].v[2]) * (float)(ent->r.currentOrigin.v[2] - axis.m[3].v[2]))) > 10000.0;
+        ent->r.currentOrigin.v[0] = axis.m[3].v[0];
+        ent->r.currentOrigin.v[1] = v20;
+        ent->r.currentOrigin.v[2] = v21;
+        AxisToAngles((const tmat33_t<vec3_t> *)&axis, &ent->r.currentAngles);
+        G_CalcTagAxis(ent, 0);
+      }
+      else
+      {
+        v23 = out.v[1];
+        v24 = out.v[2];
+        v25 = ent->r.currentOrigin.v[0] - out.v[0];
+        v26 = ent->r.currentOrigin.v[1] - out.v[1];
+        v27 = ent->r.currentOrigin.v[2] - out.v[2];
+        ent->r.currentOrigin.v[0] = out.v[0];
+        ent->r.currentOrigin.v[1] = v23;
+        ent->r.currentOrigin.v[2] = v24;
+        v28 = angles.v[1];
+        ent->r.currentAngles.v[0] = angles.v[0];
+        v29 = angles.v[2];
+        v22 = (float)((float)((float)(v26 * v26) + (float)(v25 * v25)) + (float)(v27 * v27)) > 10000.0;
+        ent->r.currentAngles.v[1] = v28;
+        ent->r.currentAngles.v[2] = v29;
+      }
+      if ( v22 )
+        G_PhysicsObject_WarpToCurrentTransform(ent, 0);
+      AIActorInterface::AIActorInterface(&v36);
+      AIAgentInterface::AIAgentInterface(&v37);
+      v30 = NULL;
+      v37.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+      v38 = NULL;
+      if ( ent->agent )
+      {
+        if ( SV_Agent_IsScripted(ent->s.number) )
+        {
+          ScriptedAgentInfo = AIAgentInterface::GetScriptedAgentInfo(ent);
+          if ( !ScriptedAgentInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 97, ASSERT_TYPE_ASSERT, "( pInfo )", (const char *)&queryFormat, "pInfo") )
+            __debugbreak();
+          if ( !ScriptedAgentInfo->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 98, ASSERT_TYPE_ASSERT, "( pInfo->sentientInfo )", (const char *)&queryFormat, "pInfo->sentientInfo") )
+            __debugbreak();
+          AINewAgentInterface::SetAgent((AINewAgentInterface *)&v37, ScriptedAgentInfo);
+          v30 = &v37;
+          v38 = &v37;
+          v32 = &v37;
+LABEL_40:
+          m_pAI = v30->AIScriptedInterface::m_pAI;
+          m_pAI->Physics.vOrigin.v[0] = ent->r.currentOrigin.v[0];
+          m_pAI->Physics.vOrigin.v[1] = ent->r.currentOrigin.v[1];
+          m_pAI->Physics.vOrigin.v[2] = ent->r.currentOrigin.v[2];
+          AIScriptedInterface::GetGroundTraceOrigin(v32, &m_pAI->Physics.groundTraceOrigin);
+          AIScriptedInterface::Physics_GroundTraceOnly(v32);
+LABEL_41:
+          if ( scripted->bStarted )
+          {
+            if ( XAnimHasFinished(EntAnimTree, 0, XANIM_SUBTREE_DEFAULT, scripted->anim) )
+            {
+              XAnimSetCompleteGoalWeight(ServerDObjForEnt, 0, XANIM_SUBTREE_DEFAULT, scripted->anim, 1.0, 0.2, 1.0, (scr_string_t)0, 0, 0, LINEAR, NULL);
+              scripted->anim = 0;
+            }
+          }
+          else
+          {
+            scripted->bStarted = 1;
+          }
+          return;
+        }
+        v30 = v38;
+      }
+      actor = ent->actor;
+      if ( actor )
+      {
+        if ( !actor->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 105, ASSERT_TYPE_ASSERT, "( ent->actor->sentientInfo )", (const char *)&queryFormat, "ent->actor->sentientInfo") )
+          __debugbreak();
+        AIActorInterface::SetActor(&v36, ent->actor);
+        v30 = (AIAgentInterface *)&v36;
+        v38 = (AIAgentInterface *)&v36;
+      }
+      v32 = v30;
+      if ( !v30 )
+        goto LABEL_41;
+      goto LABEL_40;
     }
-    actor = _RBX->actor;
-    if ( actor )
-    {
-      if ( !actor->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 105, ASSERT_TYPE_ASSERT, "( ent->actor->sentientInfo )", (const char *)&queryFormat, "ent->actor->sentientInfo") )
-        __debugbreak();
-      AIActorInterface::SetActor(&v73, _RBX->actor);
-      v63 = (AIAgentInterface *)&v73;
-      v75 = (AIAgentInterface *)&v73;
-    }
-    v65 = v63;
-    if ( !v63 )
-      goto LABEL_34;
-    goto LABEL_33;
+    MT_Free(scripted, 0x60ui64);
+    v35 = ent->s.eType == ET_SCRIPTMOVER;
+    ent->scripted = NULL;
+    if ( v35 )
+      ent->s.lerp.u.anonymous.data[2] &= ~0x40u;
   }
-  MT_Free(_RDI, 0x60ui64);
-  v24 = _RBX->s.eType == ET_SCRIPTMOVER;
-  _RBX->scripted = NULL;
-  if ( v24 )
-    _RBX->s.lerp.u.anonymous.data[2] &= ~0x40u;
 }
 
 /*
@@ -1129,170 +837,113 @@ void G_FlagAnimForUpdate(gentity_s *ent)
 G_ReduceAnglesError
 ==============
 */
-
-void __fastcall G_ReduceAnglesError(vec3_t *angles, vec3_t *anglesError, double maxChange)
+void G_ReduceAnglesError(vec3_t *angles, vec3_t *anglesError, float maxChange)
 {
-  unsigned int v15; 
-  bool v17; 
-  bool v18; 
-  bool v19; 
-  bool v20; 
-  bool v21; 
-  __int64 v44; 
-  __int64 v45; 
-  __int64 v46; 
-  __int64 v47; 
-  void *retaddr; 
+  signed __int64 v5; 
+  vec3_t *v6; 
+  unsigned int v7; 
+  bool v8; 
+  double v9; 
+  float v10; 
+  float *v11; 
+  float v12; 
+  float *v13; 
+  float v14; 
+  double v15; 
+  float *v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
 
-  _RAX = &retaddr;
-  __asm
+  if ( maxChange != 0.0 )
   {
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vxorps  xmm9, xmm9, xmm9
-    vucomiss xmm2, xmm9
-    vmovaps xmm8, xmm2
-  }
-  _RBP = (char *)angles - (char *)anglesError;
-  _RSI = anglesError;
-  __asm { vmovaps xmmword ptr [rax-78h], xmm10 }
-  v15 = 0;
-  __asm { vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000 }
-  v17 = 1;
-  v18 = 0;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
-  do
-  {
-    if ( !v17 )
+    v5 = (char *)angles - (char *)anglesError;
+    v6 = anglesError;
+    v7 = 0;
+    v8 = 1;
+    do
     {
-      LODWORD(v46) = 3;
-      LODWORD(v44) = v15;
-      v19 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v44, v46);
-      v18 = !v19;
-      if ( v19 )
-        __debugbreak();
-    }
-    __asm { vucomiss xmm9, dword ptr [rsi] }
-    if ( !v18 )
-    {
-      v20 = v15 < 3;
-      if ( v15 >= 3 )
+      if ( !v8 )
       {
-        LODWORD(v46) = 3;
-        LODWORD(v44) = v15;
-        v21 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v44, v46);
-        v20 = 0;
-        if ( v21 )
+        LODWORD(v19) = 3;
+        LODWORD(v17) = v7;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v17, v19) )
           __debugbreak();
       }
-      __asm { vcomiss xmm8, dword ptr [rsi] }
-      if ( v20 )
+      if ( v6->v[0] != 0.0 )
       {
-        if ( v15 >= 3 )
+        if ( v7 >= 3 )
         {
-          LODWORD(v46) = 3;
-          LODWORD(v44) = v15;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v44, v46) )
+          LODWORD(v19) = 3;
+          LODWORD(v17) = v7;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v17, v19) )
             __debugbreak();
         }
-        __asm
+        if ( maxChange >= v6->v[0] )
         {
-          vmovss  xmm0, dword ptr [rsi]
-          vsubss  xmm1, xmm0, xmm8
-          vmovss  dword ptr [rsi], xmm1
-        }
-        if ( v15 >= 3 )
-        {
-          LODWORD(v46) = 3;
-          LODWORD(v44) = v15;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v44, v46) )
-            __debugbreak();
-          LODWORD(v47) = 3;
-          LODWORD(v45) = v15;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v45, v47) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+rbp]
-          vaddss  xmm0, xmm0, dword ptr [rsi]; angle
-        }
-        *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-        __asm { vmovaps xmm6, xmm0 }
-        if ( v15 >= 3 )
-        {
-          LODWORD(v46) = 3;
-          LODWORD(v44) = v15;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v44, v46) )
-            __debugbreak();
-        }
-        __asm { vmovss  dword ptr [rsi+rbp], xmm6 }
-      }
-      else
-      {
-        if ( v15 >= 3 )
-        {
-          LODWORD(v46) = 3;
-          LODWORD(v44) = v15;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v44, v46) )
-            __debugbreak();
-        }
-        __asm { vmovss  xmm6, dword ptr [rsi] }
-        _RAX = vec3_t::operator[](anglesError, v15);
-        __asm
-        {
-          vxorps  xmm0, xmm8, xmm10
-          vcomiss xmm6, xmm0
-          vmovss  xmm7, dword ptr [rax]
-        }
-        if ( v17 )
-        {
-          __asm
+          if ( v7 >= 3 )
           {
-            vaddss  xmm0, xmm7, xmm8
-            vmovss  dword ptr [rax], xmm0
+            LODWORD(v19) = 3;
+            LODWORD(v17) = v7;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v17, v19) )
+              __debugbreak();
           }
-          _RBX = vec3_t::operator[](angles, v15);
-          vec3_t::operator[](anglesError, v15);
-          __asm
+          v10 = v6->v[0];
+          v11 = vec3_t::operator[](anglesError, v7);
+          v12 = *v11;
+          if ( v10 >= COERCE_FLOAT(LODWORD(maxChange) ^ _xmm) )
           {
-            vmovss  xmm0, dword ptr [rbx]
-            vaddss  xmm0, xmm0, dword ptr [rax]; angle
+            v16 = vec3_t::operator[](angles, v7);
+            *v16 = v12 + *v16;
+            *vec3_t::operator[](anglesError, v7) = 0.0;
           }
-          *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-          __asm { vmovaps xmm6, xmm0 }
-          _RAX = vec3_t::operator[](angles, v15);
-          __asm { vmovss  dword ptr [rax], xmm6 }
+          else
+          {
+            *v11 = v12 + maxChange;
+            v13 = vec3_t::operator[](angles, v7);
+            v14 = *v13 + *vec3_t::operator[](anglesError, v7);
+            v15 = AngleNormalize360(v14);
+            *vec3_t::operator[](angles, v7) = *(float *)&v15;
+          }
         }
         else
         {
-          _RAX = vec3_t::operator[](angles, v15);
-          __asm
+          if ( v7 >= 3 )
           {
-            vaddss  xmm0, xmm7, dword ptr [rax]
-            vmovss  dword ptr [rax], xmm0
+            LODWORD(v19) = 3;
+            LODWORD(v17) = v7;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v17, v19) )
+              __debugbreak();
           }
-          *vec3_t::operator[](anglesError, v15) = 0.0;
+          v6->v[0] = v6->v[0] - maxChange;
+          if ( v7 >= 3 )
+          {
+            LODWORD(v19) = 3;
+            LODWORD(v17) = v7;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v17, v19) )
+              __debugbreak();
+            LODWORD(v20) = 3;
+            LODWORD(v18) = v7;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v18, v20) )
+              __debugbreak();
+          }
+          v9 = AngleNormalize360(*(float *)((char *)v6->v + v5) + v6->v[0]);
+          if ( v7 >= 3 )
+          {
+            LODWORD(v19) = 3;
+            LODWORD(v17) = v7;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v17, v19) )
+              __debugbreak();
+          }
+          *(float *)((char *)v6->v + v5) = *(float *)&v9;
         }
       }
+      ++v7;
+      v6 = (vec3_t *)((char *)v6 + 4);
+      v8 = v7 < 3;
     }
-    ++v15;
-    _RSI = (vec3_t *)((char *)_RSI + 4);
-    v17 = v15 < 3;
-    v18 = v15 == 3;
-  }
-  while ( (int)v15 < 3 );
-  __asm
-  {
-    vmovaps xmm10, [rsp+0B8h+var_78]
-    vmovaps xmm7, [rsp+0B8h+var_48]
-    vmovaps xmm6, [rsp+0B8h+var_38]
-    vmovaps xmm8, [rsp+0B8h+var_58]
-    vmovaps xmm9, [rsp+0B8h+var_68]
+    while ( (int)v7 < 3 );
   }
 }
 
@@ -1301,56 +952,53 @@ void __fastcall G_ReduceAnglesError(vec3_t *angles, vec3_t *anglesError, double 
 G_ReduceOriginError
 ==============
 */
-
-void __fastcall G_ReduceOriginError(vec3_t *origin, vec3_t *originError, double maxChange)
+void G_ReduceOriginError(vec3_t *origin, vec3_t *originError, float maxChange)
 {
-  __asm
+  __int128 v6; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+
+  v6 = LODWORD(originError->v[0]);
+  *(float *)&v6 = (float)((float)(originError->v[0] * originError->v[0]) + (float)(originError->v[1] * originError->v[1])) + (float)(originError->v[2] * originError->v[2]);
+  if ( *(float *)&v6 != 0.0 )
   {
-    vmovss  xmm0, dword ptr [rdx]
-    vmovss  xmm4, dword ptr [rdx+4]
-    vmovss  xmm3, dword ptr [rdx+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmovaps [rsp+68h+var_18], xmm6
-  }
-  _RBX = originError;
-  __asm
-  {
-    vmulss  xmm0, xmm4, xmm4
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  _RDI = origin;
-  __asm
-  {
-    vmovaps xmm7, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm6, xmm2, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm6, xmm0
-    vcomiss xmm6, xmm0
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovss  xmm0, dword ptr [rbx]
-    vmovaps xmm1, xmm6
-    vrsqrtss xmm2, xmm1, xmm6
-    vmovss  xmm1, dword ptr [rdi]
-    vmulss  xmm8, xmm2, xmm7
-    vcomiss xmm8, cs:__real@3f800000
-    vaddss  xmm7, xmm1, xmm0
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  xmm2, dword ptr [rdi+8]
-    vmovss  dword ptr [rdi], xmm7
-    vaddss  xmm1, xmm0, dword ptr [rbx+4]
-    vmovss  dword ptr [rdi+4], xmm1
-    vaddss  xmm0, xmm2, dword ptr [rbx+8]
-    vmovss  dword ptr [rdi+8], xmm0
-  }
-  *(_QWORD *)originError->v = 0i64;
-  originError->v[2] = 0.0;
-  __asm
-  {
-    vmovaps xmm8, [rsp+68h+var_38]
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
+    if ( *(float *)&v6 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
+      __debugbreak();
+    _XMM1 = v6;
+    __asm { vrsqrtss xmm2, xmm1, xmm6 }
+    v9 = *(float *)&_XMM2 * maxChange;
+    v10 = origin->v[0] + originError->v[0];
+    if ( (float)(*(float *)&_XMM2 * maxChange) >= 1.0 )
+    {
+      v16 = origin->v[1];
+      v17 = origin->v[2];
+      origin->v[0] = v10;
+      origin->v[1] = v16 + originError->v[1];
+      origin->v[2] = v17 + originError->v[2];
+      *(_QWORD *)originError->v = 0i64;
+      originError->v[2] = 0.0;
+    }
+    else
+    {
+      v11 = origin->v[1];
+      v12 = origin->v[2];
+      v13 = originError->v[1];
+      v14 = originError->v[2];
+      v15 = (float)(originError->v[0] * v9) + origin->v[0];
+      origin->v[0] = v15;
+      origin->v[1] = (float)(v9 * originError->v[1]) + v11;
+      origin->v[2] = (float)(v9 * originError->v[2]) + v12;
+      originError->v[0] = v10 - v15;
+      originError->v[1] = (float)(v11 + v13) - origin->v[1];
+      originError->v[2] = (float)(v12 + v14) - origin->v[2];
+    }
   }
 }
 

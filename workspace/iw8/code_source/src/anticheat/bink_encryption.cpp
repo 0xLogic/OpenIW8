@@ -197,41 +197,33 @@ BinkCrypt_Seek
 void BinkCrypt_Seek(const unsigned __int64 seekPos, BinkCryptFile *cryptFile)
 {
   unsigned __int64 blocklen; 
-  BinkCryptFile *v3; 
-  unsigned __int64 v7; 
+  __int128 v5; 
   int cipher; 
-  int v10; 
-  int v11; 
+  int v7; 
+  int v8; 
   __int64 ctr_mode; 
   unsigned __int8 IV[16]; 
 
   if ( cryptFile )
   {
     blocklen = cryptFile->encryptionKey.blocklen;
-    v3 = cryptFile;
     if ( (_DWORD)blocklen )
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx+19h]
-        vmovups xmmword ptr [rsp+78h+IV], xmm0
-      }
-      *(_QWORD *)&IV[8] = *((_QWORD *)&_RT0 + 1);
-      v7 = seekPos / blocklen;
-      __asm { vmovq   rax, xmm0 }
-      *(_QWORD *)IV = v7 + _RAX;
+      v5 = *(_OWORD *)cryptFile->ivBytes;
+      *(_QWORD *)&IV[8] = *(_QWORD *)&cryptFile->ivBytes[8];
+      *(_QWORD *)IV = seekPos / blocklen + v5;
       cipher = j_find_cipher("aes");
-      v10 = j_ctr_start(cipher, IV, v3->keyBytes, 24, 0, 0, &v3->encryptionKey);
-      if ( v10 )
+      v7 = j_ctr_start(cipher, IV, cryptFile->keyBytes, 24, 0, 0, &cryptFile->encryptionKey);
+      if ( v7 )
       {
-        LODWORD(ctr_mode) = v10;
+        LODWORD(ctr_mode) = v7;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\anticheat\\bink_encryption.cpp", 140, ASSERT_TYPE_ASSERT, "( ( result == CRYPT_OK ) )", "( result ) = %i", ctr_mode) )
           __debugbreak();
       }
-      v11 = j_ctr_decrypt(IV, IV, seekPos % v3->encryptionKey.blocklen, &v3->encryptionKey);
-      if ( v11 )
+      v8 = j_ctr_decrypt(IV, IV, seekPos % cryptFile->encryptionKey.blocklen, &cryptFile->encryptionKey);
+      if ( v8 )
       {
-        LODWORD(ctr_mode) = v11;
+        LODWORD(ctr_mode) = v8;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\anticheat\\bink_encryption.cpp", 147, ASSERT_TYPE_ASSERT, "( ( result == CRYPT_OK ) )", "( result ) = %i", ctr_mode) )
           __debugbreak();
       }

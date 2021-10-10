@@ -525,51 +525,32 @@ void DB_AsyncIWFileLoad::CopyFrom(DB_AsyncIWFileLoad *this, DB_AsyncIWFileLoad *
 {
   DBFile *m_dbFile; 
 
-  _RBX = other;
-  _RSI = this;
   if ( this == other && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_async_file_load.cpp", 165, ASSERT_TYPE_ASSERT, "( this ) != ( &other )", "%s != %s\n\t%p, %p", "this", "&other", this, other) )
     __debugbreak();
-  m_dbFile = _RBX->m_dbFile;
+  m_dbFile = other->m_dbFile;
   if ( m_dbFile == file && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_async_file_load.cpp", 166, ASSERT_TYPE_ASSERT, "( other.m_dbFile ) != ( file )", "%s != %s\n\t%p, %p", "other.m_dbFile", "file", m_dbFile, file) )
     __debugbreak();
-  if ( *(_DWORD *)_RBX->m_dbFile->dbFileHandle.fileID != *(_DWORD *)file->dbFileHandle.fileID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_async_file_load.cpp", 167, ASSERT_TYPE_ASSERT, "(other.m_dbFile->dbFileHandle.fileID == file->dbFileHandle.fileID)", (const char *)&queryFormat, "other.m_dbFile->dbFileHandle.fileID == file->dbFileHandle.fileID") )
+  if ( *(_DWORD *)other->m_dbFile->dbFileHandle.fileID != *(_DWORD *)file->dbFileHandle.fileID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_async_file_load.cpp", 167, ASSERT_TYPE_ASSERT, "(other.m_dbFile->dbFileHandle.fileID == file->dbFileHandle.fileID)", (const char *)&queryFormat, "other.m_dbFile->dbFileHandle.fileID == file->dbFileHandle.fileID") )
     __debugbreak();
-  if ( _RBX->m_dbFile->dbFileHandle.dcacheFileID != file->dbFileHandle.dcacheFileID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_async_file_load.cpp", 169, ASSERT_TYPE_ASSERT, "(other.m_dbFile->dbFileHandle.dcacheFileID == file->dbFileHandle.dcacheFileID)", (const char *)&queryFormat, "other.m_dbFile->dbFileHandle.dcacheFileID == file->dbFileHandle.dcacheFileID") )
+  if ( other->m_dbFile->dbFileHandle.dcacheFileID != file->dbFileHandle.dcacheFileID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\database\\db_async_file_load.cpp", 169, ASSERT_TYPE_ASSERT, "(other.m_dbFile->dbFileHandle.dcacheFileID == file->dbFileHandle.dcacheFileID)", (const char *)&queryFormat, "other.m_dbFile->dbFileHandle.dcacheFileID == file->dbFileHandle.dcacheFileID") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rsi], xmm0
-    vmovups xmm1, xmmword ptr [rbx+10h]
-    vmovups xmmword ptr [rsi+10h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [rsi+20h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+30h]
-    vmovups xmmword ptr [rsi+30h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+40h]
-    vmovups xmmword ptr [rsi+40h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+50h]
-    vmovups xmmword ptr [rsi+50h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+60h]
-    vmovups xmmword ptr [rsi+60h], xmm0
-    vmovups xmm0, xmmword ptr [rbx+70h]
-    vmovups xmmword ptr [rsi+70h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+80h]
-    vmovups xmmword ptr [rsi+80h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+90h]
-    vmovups xmmword ptr [rsi+90h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0A0h]
-    vmovups xmmword ptr [rsi+0A0h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+0B0h]
-    vmovups xmmword ptr [rsi+0B0h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0C0h]
-    vmovups xmmword ptr [rsi+0C0h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+0D0h]
-    vmovups xmmword ptr [rsi+0D0h], xmm0
-  }
-  *(_QWORD *)&_RSI->m_isFirstCompressedRead = *(_QWORD *)&_RBX->m_isFirstCompressedRead;
-  memset_0(_RBX, 0, sizeof(DB_AsyncIWFileLoad));
-  _RSI->m_dbFile = file;
+  *(_OWORD *)&this->m_reader = *(_OWORD *)&other->m_reader;
+  *(_OWORD *)&this->m_readBuffers[1] = *(_OWORD *)&other->m_readBuffers[1];
+  *(_OWORD *)&this->m_readBuffers[3] = *(_OWORD *)&other->m_readBuffers[3];
+  *(_OWORD *)&this->m_readBuffers[5] = *(_OWORD *)&other->m_readBuffers[5];
+  *(_OWORD *)&this->m_readBuffers[7] = *(_OWORD *)&other->m_readBuffers[7];
+  *(_OWORD *)&this->m_readBuffers[9] = *(_OWORD *)&other->m_readBuffers[9];
+  *(_OWORD *)&this->m_readBuffers[11] = *(_OWORD *)&other->m_readBuffers[11];
+  *(_OWORD *)&this->m_readBuffers[13] = *(_OWORD *)&other->m_readBuffers[13];
+  *(_OWORD *)&this->m_readBuffers[15] = *(_OWORD *)&other->m_readBuffers[15];
+  *(_OWORD *)&this->m_readBuffers[17] = *(_OWORD *)&other->m_readBuffers[17];
+  *(_OWORD *)&this->m_readBuffers[19] = *(_OWORD *)&other->m_readBuffers[19];
+  *(_OWORD *)&this->m_dbFile = *(_OWORD *)&other->m_dbFile;
+  *(_OWORD *)&this->m_sizeInflated = *(_OWORD *)&other->m_sizeInflated;
+  *(_OWORD *)&this->m_fileSize = *(_OWORD *)&other->m_fileSize;
+  *(_QWORD *)&this->m_isFirstCompressedRead = *(_QWORD *)&other->m_isFirstCompressedRead;
+  memset_0(other, 0, sizeof(DB_AsyncIWFileLoad));
+  this->m_dbFile = file;
 }
 
 /*

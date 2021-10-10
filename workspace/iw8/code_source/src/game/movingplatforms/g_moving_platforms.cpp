@@ -648,7 +648,6 @@ GMovingPlatformClient::ApplyMoverDelta
 */
 void GMovingPlatformClient::ApplyMoverDelta(GMovingPlatformClient *this, playerState_s *ps)
 {
-  _RBX = ps;
   if ( !ps )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 2169, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
@@ -656,25 +655,16 @@ void GMovingPlatformClient::ApplyMoverDelta(GMovingPlatformClient *this, playerS
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2510, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
   }
-  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RBX->otherFlags, GameModeFlagValues::ms_mpValue, 0x38u) )
+  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, GameModeFlagValues::ms_mpValue, 0x38u) )
     goto LABEL_11;
   if ( !Com_GameMode_SupportsFeature(WEAPON_LADDER_CLIMB|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2514, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::MELEE_EXECUTION ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::MELEE_EXECUTION )") )
     __debugbreak();
-  if ( !_RBX->activeExecutionIsVictim )
+  if ( !ps->activeExecutionIsVictim )
   {
 LABEL_11:
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vaddss  xmm1, xmm0, dword ptr [rdi+48h]
-      vmovss  dword ptr [rbx+30h], xmm1
-      vmovss  xmm2, dword ptr [rbx+34h]
-      vaddss  xmm0, xmm2, dword ptr [rdi+4Ch]
-      vmovss  dword ptr [rbx+34h], xmm0
-      vmovss  xmm1, dword ptr [rbx+38h]
-      vaddss  xmm2, xmm1, dword ptr [rdi+50h]
-      vmovss  dword ptr [rbx+38h], xmm2
-    }
+    ps->origin.v[0] = ps->origin.v[0] + this->m_moverAppliedDelta.v[0];
+    ps->origin.v[1] = ps->origin.v[1] + this->m_moverAppliedDelta.v[1];
+    ps->origin.v[2] = ps->origin.v[2] + this->m_moverAppliedDelta.v[2];
   }
 }
 
@@ -714,29 +704,26 @@ GMovingPlatforms::BoltImpactEffectToMovingPlatform
 */
 __int64 GMovingPlatforms::BoltImpactEffectToMovingPlatform(gentity_s *ent, unsigned int event, unsigned int eventParm, int createTempEnt, gentity_s *baseEnt, int allowBolt, int additionalTrace, gentity_s *other)
 {
+  gentity_s *v12; 
   GWeaponMap *Instance; 
   const Weapon *Weapon; 
-  char v25; 
-  const dvar_t *v63; 
-  __int64 result; 
+  float v15; 
+  float fraction; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  const dvar_t *v23; 
   vec3_t trBase; 
-  __int64 v70; 
+  __int64 v26; 
   vec3_t start; 
   vec3_t end; 
   tmat33_t<vec3_t> axis; 
   trace_t results; 
-  char v75; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v70 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  _RDI = ent;
+  v26 = -2i64;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "GMovingPlatforms BoltImpactEffectToMovingPlatform");
   if ( !GMovingPlatforms::ms_instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.h", 189, ASSERT_TYPE_ASSERT, "( ms_instance )", (const char *)&queryFormat, "ms_instance") )
     __debugbreak();
@@ -744,144 +731,75 @@ __int64 GMovingPlatforms::BoltImpactEffectToMovingPlatform(gentity_s *ent, unsig
   {
     if ( createTempEnt )
     {
-      _RBX = G_Utils_SpawnEventEntity(&_RDI->r.currentOrigin, event);
+      v12 = G_Utils_SpawnEventEntity(&ent->r.currentOrigin, event);
       Instance = GWeaponMap::GetInstance();
       if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
         __debugbreak();
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 439, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+      if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 439, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
         __debugbreak();
-      Weapon = BgWeaponMap::GetWeapon(Instance, _RDI->s.weaponHandle);
+      Weapon = BgWeaponMap::GetWeapon(Instance, ent->s.weaponHandle);
       if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 447, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
         __debugbreak();
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 448, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 448, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
         __debugbreak();
-      Instance->SetWeapon(Instance, &_RBX->s.weaponHandle, Weapon);
-      _RBX->s.surfType = _RDI->s.surfType;
-      _RDI->r.eventTime = level.time;
+      Instance->SetWeapon(Instance, &v12->s.weaponHandle, Weapon);
+      v12->s.surfType = ent->s.surfType;
+      ent->r.eventTime = level.time;
     }
     else
     {
-      _RBX = _RDI;
-      G_Utils_AddEvent(_RDI, event, eventParm);
+      v12 = ent;
+      G_Utils_AddEvent(ent, event, eventParm);
     }
     if ( additionalTrace )
     {
-      __asm
+      *(_QWORD *)start.v = *(_QWORD *)ent->r.currentOrigin.v;
+      v15 = ent->r.currentOrigin.v[2];
+      start.v[2] = v15 + 30.0;
+      end.v[0] = start.v[0];
+      end.v[1] = start.v[1];
+      end.v[2] = v15 - 30.0;
+      G_Missile_Trace(ent, &results, &start, &end, &ent->r.box, ent->s.number, 2047, baseEnt->clipmask, 1);
+      if ( results.fraction < 1.0 && results.hitType == TRACE_HITTYPE_ENTITY && BGMovingPlatforms::IsMovingPlatform(results.hitId) && BGMovingPlatforms::IsPlatformType(g_entities[results.hitId].s.eType) )
       {
-        vmovss  xmm4, dword ptr [rdi+130h]
-        vmovss  dword ptr [rsp+180h+start], xmm4
-        vmovss  xmm3, dword ptr [rdi+134h]
-        vmovss  dword ptr [rsp+180h+start+4], xmm3
-        vmovss  xmm2, dword ptr [rdi+138h]
-        vaddss  xmm0, xmm2, cs:__real@41f00000
-        vmovss  dword ptr [rsp+180h+start+8], xmm0
-        vmovss  dword ptr [rsp+180h+end], xmm4
-        vmovss  dword ptr [rsp+180h+end+4], xmm3
-        vsubss  xmm0, xmm2, cs:__real@41f00000
-        vmovss  dword ptr [rbp+80h+end+8], xmm0
-      }
-      G_Missile_Trace(_RDI, &results, &start, &end, &_RDI->r.box, _RDI->s.number, 2047, baseEnt->clipmask, 1);
-      __asm
-      {
-        vmovss  xmm0, [rbp+80h+results.fraction]
-        vcomiss xmm0, cs:__real@3f800000
-      }
-      if ( v25 )
-      {
-        if ( results.hitType == TRACE_HITTYPE_ENTITY && BGMovingPlatforms::IsMovingPlatform(results.hitId) && BGMovingPlatforms::IsPlatformType(g_entities[results.hitId].s.eType) )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+180h+end]
-            vsubss  xmm1, xmm0, dword ptr [rsp+180h+start]
-            vmovss  xmm5, [rbp+80h+results.fraction]
-            vmulss  xmm1, xmm1, xmm5
-            vaddss  xmm0, xmm1, dword ptr [rsp+180h+start]
-            vmovss  dword ptr [rbx+130h], xmm0
-            vmovss  xmm1, dword ptr [rsp+180h+end+4]
-            vsubss  xmm0, xmm1, dword ptr [rsp+180h+start+4]
-            vmulss  xmm2, xmm0, xmm5
-            vaddss  xmm3, xmm2, dword ptr [rsp+180h+start+4]
-            vmovss  dword ptr [rbx+134h], xmm3
-            vmovss  xmm0, dword ptr [rbp+80h+end+8]
-            vsubss  xmm1, xmm0, dword ptr [rsp+180h+start+8]
-            vmulss  xmm2, xmm1, xmm5
-            vaddss  xmm3, xmm2, dword ptr [rsp+180h+start+8]
-            vmovss  dword ptr [rbx+138h], xmm3
-          }
-        }
+        fraction = results.fraction;
+        v12->r.currentOrigin.v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+        v12->r.currentOrigin.v[1] = (float)((float)(end.v[1] - start.v[1]) * fraction) + start.v[1];
+        v12->r.currentOrigin.v[2] = (float)((float)(end.v[2] - start.v[2]) * fraction) + start.v[2];
       }
     }
-    _RBX->s.otherEntityNum = other->s.number;
-    _RBX->s.lerp.u.anonymous.data[4] |= 1u;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+130h]
-      vsubss  xmm8, xmm0, dword ptr [r14+130h]
-      vmovss  xmm1, dword ptr [rbx+134h]
-      vsubss  xmm6, xmm1, dword ptr [r14+134h]
-      vmovss  xmm0, dword ptr [rbx+138h]
-      vsubss  xmm7, xmm0, dword ptr [r14+138h]
-    }
+    v12->s.otherEntityNum = other->s.number;
+    v12->s.lerp.u.anonymous.data[4] |= 1u;
+    v17 = v12->r.currentOrigin.v[0] - other->r.currentOrigin.v[0];
+    v18 = v12->r.currentOrigin.v[1] - other->r.currentOrigin.v[1];
+    v19 = v12->r.currentOrigin.v[2] - other->r.currentOrigin.v[2];
     AnglesToAxis(&other->r.currentAngles, &axis);
-    __asm
-    {
-      vmulss  xmm3, xmm6, dword ptr [rbp+80h+axis+4]
-      vmulss  xmm2, xmm8, dword ptr [rbp+80h+axis]
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm1, xmm7, dword ptr [rbp+80h+axis+8]
-      vaddss  xmm2, xmm4, xmm1
-      vmovss  dword ptr [rsp+180h+trBase], xmm2
-      vmulss  xmm3, xmm6, dword ptr [rbp+80h+axis+10h]
-      vmulss  xmm2, xmm8, dword ptr [rbp+80h+axis+0Ch]
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm1, xmm7, dword ptr [rbp+80h+axis+14h]
-      vaddss  xmm2, xmm4, xmm1
-      vmovss  dword ptr [rsp+180h+trBase+4], xmm2
-      vmulss  xmm3, xmm6, dword ptr [rbp+80h+axis+1Ch]
-      vmulss  xmm2, xmm8, dword ptr [rbp+80h+axis+18h]
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm1, xmm7, dword ptr [rbp+80h+axis+20h]
-      vaddss  xmm2, xmm4, xmm1
-      vmovss  dword ptr [rsp+180h+trBase+8], xmm2
-    }
-    Trajectory_SetTrBase(&_RBX->s.lerp.pos, &trBase);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+130h]
-      vmovss  xmm7, dword ptr [rbx+134h]
-      vmovss  xmm8, dword ptr [rbx+138h]
-    }
-    G_SetOriginAndAngle(_RBX, &trBase, &_RDI->r.currentAngles, 1, 1);
-    __asm
-    {
-      vmovss  dword ptr [rbx+28h], xmm6
-      vmovss  dword ptr [rbx+2Ch], xmm7
-      vmovss  dword ptr [rbx+30h], xmm8
-    }
-    v63 = DVARBOOL_killswitch_mover_missile_impact_lod_fix_enabled;
+    trBase.v[0] = (float)((float)(v18 * axis.m[0].v[1]) + (float)(v17 * axis.m[0].v[0])) + (float)(v19 * axis.m[0].v[2]);
+    trBase.v[1] = (float)((float)(v18 * axis.m[1].v[1]) + (float)(v17 * axis.m[1].v[0])) + (float)(v19 * axis.m[1].v[2]);
+    trBase.v[2] = (float)((float)(v18 * axis.m[2].v[1]) + (float)(v17 * axis.m[2].v[0])) + (float)(v19 * axis.m[2].v[2]);
+    Trajectory_SetTrBase(&v12->s.lerp.pos, &trBase);
+    v20 = v12->r.currentOrigin.v[0];
+    v21 = v12->r.currentOrigin.v[1];
+    v22 = v12->r.currentOrigin.v[2];
+    G_SetOriginAndAngle(v12, &trBase, &ent->r.currentAngles, 1, 1);
+    v12->s.lerp.pos.trDelta.v[0] = v20;
+    v12->s.lerp.pos.trDelta.v[1] = v21;
+    v12->s.lerp.pos.trDelta.v[2] = v22;
+    v23 = DVARBOOL_killswitch_mover_missile_impact_lod_fix_enabled;
     if ( !DVARBOOL_killswitch_mover_missile_impact_lod_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_mover_missile_impact_lod_fix_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v63);
-    if ( v63->current.enabled )
-      GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::SetFlagInternal(&_RBX->flags, GameModeFlagValues::ms_mpValue, 0x25u);
+    Dvar_CheckFrontendServerThread(v23);
+    if ( v23->current.enabled )
+      GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::SetFlagInternal(&v12->flags, GameModeFlagValues::ms_mpValue, 0x25u);
     Sys_ProfEndNamedEvent();
     memset(&trBase, 0, sizeof(trBase));
-    result = 1i64;
+    return 1i64;
   }
   else
   {
     Sys_ProfEndNamedEvent();
-    result = 0i64;
+    return 0i64;
   }
-  _R11 = &v75;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
 }
 
 /*
@@ -941,57 +859,40 @@ GMovingPlatforms::ComputeMoverPushDeltas
 */
 void GMovingPlatforms::ComputeMoverPushDeltas(const gentity_s *ent, const vec3_t *deltaOrigin, const vec3_t *deltaAngles, vec3_t *outMove, vec3_t *outAMove)
 {
-  GTrajectory v21; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  GTrajectory v12; 
   vec3_t outPos; 
   vec3_t outAng; 
 
-  _RDI = outMove;
-  _RSI = outAMove;
   if ( ent->tagInfo )
   {
     *outMove = *deltaOrigin;
-    *(_QWORD *)outAMove->v = *(_QWORD *)deltaAngles->v;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r8+8]
-      vmovss  dword ptr [rsi+8], xmm0
-    }
+    *outAMove = *deltaAngles;
   }
   else if ( ent->s.eType == ET_SCRIPTMOVER && (ent->s.lerp.u.anonymous.data[2] & 0x200) != 0 && ent->s.lerp.pos.trType == TR_PHYSICS_SERVER_AUTH && ent->s.lerp.apos.trType == TR_PHYSICS_SERVER_AUTH )
   {
     *outMove = ent->moverInfo.m_deltaOrigin;
-    *(_QWORD *)outAMove->v = *(_QWORD *)ent->moverInfo.m_deltaAngles.v;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+2BCh]
-      vmovss  dword ptr [rsi+8], xmm0
-    }
+    *outAMove = ent->moverInfo.m_deltaAngles;
   }
   else
   {
-    GTrajectory::GTrajectory(&v21, ent);
-    BgTrajectory::EvaluateTrajectories(&v21, level.time, &outPos, &outAng);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+78h+outPos]
-      vsubss  xmm1, xmm0, dword ptr [rbx+130h]
-      vmovss  xmm2, dword ptr [rsp+78h+outPos+4]
-      vmovss  dword ptr [rdi], xmm1
-      vsubss  xmm0, xmm2, dword ptr [rbx+134h]
-      vmovss  xmm1, dword ptr [rsp+78h+outPos+8]
-      vmovss  dword ptr [rdi+4], xmm0
-      vsubss  xmm2, xmm1, dword ptr [rbx+138h]
-      vmovss  xmm0, dword ptr [rsp+78h+outAng]
-      vmovss  dword ptr [rdi+8], xmm2
-      vsubss  xmm1, xmm0, dword ptr [rbx+13Ch]
-      vmovss  xmm2, dword ptr [rsp+78h+outAng+4]
-      vmovss  dword ptr [rsi], xmm1
-      vsubss  xmm0, xmm2, dword ptr [rbx+140h]
-      vmovss  xmm1, dword ptr [rsp+78h+outAng+8]
-      vmovss  dword ptr [rsi+4], xmm0
-      vsubss  xmm2, xmm1, dword ptr [rbx+144h]
-      vmovss  dword ptr [rsi+8], xmm2
-    }
+    GTrajectory::GTrajectory(&v12, ent);
+    BgTrajectory::EvaluateTrajectories(&v12, level.time, &outPos, &outAng);
+    v7 = outPos.v[1];
+    outMove->v[0] = outPos.v[0] - ent->r.currentOrigin.v[0];
+    v8 = outPos.v[2];
+    outMove->v[1] = v7 - ent->r.currentOrigin.v[1];
+    v9 = outAng.v[0];
+    outMove->v[2] = v8 - ent->r.currentOrigin.v[2];
+    v10 = outAng.v[1];
+    outAMove->v[0] = v9 - ent->r.currentAngles.v[0];
+    v11 = outAng.v[2];
+    outAMove->v[1] = v10 - ent->r.currentAngles.v[1];
+    outAMove->v[2] = v11 - ent->r.currentAngles.v[2];
   }
 }
 
@@ -1002,11 +903,8 @@ GMovingPlatforms::ComputeMovingPlatformEntityDeltas
 */
 char GMovingPlatforms::ComputeMovingPlatformEntityDeltas(gentity_s *ent, const vec3_t *prevOrigin, const vec3_t *prevAngles, vec3_t *outDeltaOrigin, vec3_t *outDeltaAngles, bool warp)
 {
-  _RSI = outDeltaAngles;
   *(_QWORD *)outDeltaOrigin->v = 0i64;
-  _RDI = outDeltaOrigin;
   outDeltaOrigin->v[2] = 0.0;
-  _RBX = ent;
   *(_QWORD *)outDeltaAngles->v = 0i64;
   outDeltaAngles->v[2] = 0.0;
   if ( ent->tagInfo )
@@ -1014,37 +912,22 @@ char GMovingPlatforms::ComputeMovingPlatformEntityDeltas(gentity_s *ent, const v
     if ( GMovingPlatformClient::CanPush(ent) )
     {
       if ( warp )
-        G_GeneralLink(_RBX);
+        G_GeneralLink(ent);
       else
-        G_GeneralLinkNoWarp(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+130h]
-        vsubss  xmm1, xmm0, dword ptr [r15]
-        vmovss  dword ptr [rdi], xmm1
-        vmovss  xmm0, dword ptr [rbx+134h]
-        vsubss  xmm1, xmm0, dword ptr [r15+4]
-        vmovss  dword ptr [rdi+4], xmm1
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vsubss  xmm1, xmm0, dword ptr [r15+8]
-        vmovss  dword ptr [rdi+8], xmm1
-        vmovss  xmm0, dword ptr [rbx+13Ch]
-        vsubss  xmm1, xmm0, dword ptr [r14]
-        vmovss  dword ptr [rsi], xmm1
-        vmovss  xmm0, dword ptr [rbx+140h]
-        vsubss  xmm1, xmm0, dword ptr [r14+4]
-        vmovss  dword ptr [rsi+4], xmm1
-        vmovss  xmm0, dword ptr [rbx+144h]
-        vsubss  xmm1, xmm0, dword ptr [r14+8]
-        vmovss  dword ptr [rsi+8], xmm1
-      }
-      _RBX->r.currentOrigin.v[0] = prevOrigin->v[0];
-      _RBX->r.currentOrigin.v[1] = prevOrigin->v[1];
-      _RBX->r.currentOrigin.v[2] = prevOrigin->v[2];
-      _RBX->r.currentAngles.v[0] = prevAngles->v[0];
-      _RBX->r.currentAngles.v[1] = prevAngles->v[1];
-      _RBX->r.currentAngles.v[2] = prevAngles->v[2];
-      SV_LinkEntity(_RBX);
+        G_GeneralLinkNoWarp(ent);
+      outDeltaOrigin->v[0] = ent->r.currentOrigin.v[0] - prevOrigin->v[0];
+      outDeltaOrigin->v[1] = ent->r.currentOrigin.v[1] - prevOrigin->v[1];
+      outDeltaOrigin->v[2] = ent->r.currentOrigin.v[2] - prevOrigin->v[2];
+      outDeltaAngles->v[0] = ent->r.currentAngles.v[0] - prevAngles->v[0];
+      outDeltaAngles->v[1] = ent->r.currentAngles.v[1] - prevAngles->v[1];
+      outDeltaAngles->v[2] = ent->r.currentAngles.v[2] - prevAngles->v[2];
+      ent->r.currentOrigin.v[0] = prevOrigin->v[0];
+      ent->r.currentOrigin.v[1] = prevOrigin->v[1];
+      ent->r.currentOrigin.v[2] = prevOrigin->v[2];
+      ent->r.currentAngles.v[0] = prevAngles->v[0];
+      ent->r.currentAngles.v[1] = prevAngles->v[1];
+      ent->r.currentAngles.v[2] = prevAngles->v[2];
+      SV_LinkEntity(ent);
       return 1;
     }
   }
@@ -1065,7 +948,7 @@ void GMovingPlatformClient::DeferredAddCharacter(GMovingPlatformClient *this, ge
   playerState_s *EntityPlayerState; 
   const dvar_t *v10; 
   char v11; 
-  bool v14; 
+  bool v12; 
   int number; 
   int m_movingPlatformEntity; 
   GHandler *Handler; 
@@ -1093,25 +976,19 @@ void GMovingPlatformClient::DeferredAddCharacter(GMovingPlatformClient *this, ge
     v11 = 0;
     if ( BGMovingPlatforms::IsOnMovingPlatform(EntityPlayerState) && EntityPlayerState->movingPlatforms.m_movingPlatformEntity != platform->s.number )
     {
-      if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_playerCharacterCollisionMantleFloorFix, "playerCharacterCollisionMantleFloorFix") && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityPlayerState->pm_flags, ACTIVE, 5u) )
-        return;
-      __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-      if ( !VecNCompareCustomEpsilon(g_entities[EntityPlayerState->movingPlatforms.m_movingPlatformEntity].s.lerp.pos.trDelta.v, vec3_origin.v, *(float *)&_XMM2, 3) )
-        return;
-      __asm { vmovss  xmm2, cs:__real@3a83126f; epsilon }
-      if ( !VecNCompareCustomEpsilon(g_entities[EntityPlayerState->movingPlatforms.m_movingPlatformEntity].s.lerp.apos.trDelta.v, vec3_origin.v, *(float *)&_XMM2, 3) )
+      if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_playerCharacterCollisionMantleFloorFix, "playerCharacterCollisionMantleFloorFix") && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityPlayerState->pm_flags, ACTIVE, 5u) || !VecNCompareCustomEpsilon(g_entities[EntityPlayerState->movingPlatforms.m_movingPlatformEntity].s.lerp.pos.trDelta.v, vec3_origin.v, 0.001, 3) || !VecNCompareCustomEpsilon(g_entities[EntityPlayerState->movingPlatforms.m_movingPlatformEntity].s.lerp.apos.trDelta.v, vec3_origin.v, 0.001, 3) )
         return;
       v11 = 1;
     }
-    v14 = v11;
+    v12 = v11;
     if ( !BGMovingPlatforms::IsOnMovingPlatform(EntityPlayerState) )
-      v14 = 1;
-    if ( !BG_IsPlayerZeroG(EntityPlayerState) || BG_IsPlayerZeroGWalking(EntityPlayerState) && !v14 )
+      v12 = 1;
+    if ( !BG_IsPlayerZeroG(EntityPlayerState) || BG_IsPlayerZeroGWalking(EntityPlayerState) && !v12 )
     {
       number = platform->s.number;
       m_movingPlatformEntity = EntityPlayerState->movingPlatforms.m_movingPlatformEntity;
       Handler = GHandler::getHandler();
-      BGMovingPlatformPS::SetMoverEntityID(&EntityPlayerState->movingPlatforms, EntityPlayerState, Handler, m_movingPlatformEntity, number, v14, 1);
+      BGMovingPlatformPS::SetMoverEntityID(&EntityPlayerState->movingPlatforms, EntityPlayerState, Handler, m_movingPlatformEntity, number, v12, 1);
       this->m_deferredData.platformId = platform->s.number;
       this->m_deferredData.deltaOrigin.v[0] = move->v[0];
       this->m_deferredData.deltaOrigin.v[1] = move->v[1];
@@ -1171,144 +1048,99 @@ GMovingPlatformClient::DeferredUpdate
 */
 void GMovingPlatformClient::DeferredUpdate(GMovingPlatformClient *this, gentity_s *character, bool *outNeedsBroadPhaseWarp)
 {
+  playerState_s *EntityPlayerState; 
+  vec3_t *p_deltaAngles; 
+  gentity_s *v8; 
+  float v9; 
+  float v10; 
   GMovingPlatforms *MovingPlatforms; 
-  int v20; 
-  char v21; 
+  int v12; 
+  float v13; 
+  float v14; 
+  float v15; 
   __int16 viewlocked_entNum; 
   gentity_s *GEntity; 
-  gentity_s *v33; 
-  __int64 v34; 
+  gentity_s *v18; 
+  __int64 v19; 
+  GTurret *v20; 
   vec3_t *outNewOrigin; 
   vec3_t trBase; 
   vec3_t platformAngles; 
   vec3_t outAppliedDelta; 
 
-  _RDI = this;
-  _RSI = character;
-  _RBX = G_GetEntityPlayerState(character);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 969, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  EntityPlayerState = G_GetEntityPlayerState(character);
+  if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 969, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  *(_QWORD *)_RDI->m_moverAppliedDelta.v = 0i64;
-  _RDI->m_moverAppliedDelta.v[2] = 0.0;
-  if ( BGMovingPlatforms::IsMovingPlatform(_RDI->m_deferredData.platformId) )
+  *(_QWORD *)this->m_moverAppliedDelta.v = 0i64;
+  this->m_moverAppliedDelta.v[2] = 0.0;
+  if ( BGMovingPlatforms::IsMovingPlatform(this->m_deferredData.platformId) )
   {
     if ( !GMovingPlatforms::ms_instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.h", 189, ASSERT_TYPE_ASSERT, "( ms_instance )", (const char *)&queryFormat, "ms_instance") )
       __debugbreak();
-    if ( GMovingPlatforms::ms_instance->ShouldAllowPlatformMovement(GMovingPlatforms::ms_instance, _RSI) && G_IsEntityInUse(_RDI->m_deferredData.platformId) )
+    if ( GMovingPlatforms::ms_instance->ShouldAllowPlatformMovement(GMovingPlatforms::ms_instance, character) && G_IsEntityInUse(this->m_deferredData.platformId) )
     {
-      _RBP = &_RDI->m_deferredData.deltaAngles;
-      _R14 = &_RDI->m_deferredData.deltaOrigin;
-      _R15 = &g_entities[_RDI->m_deferredData.platformId];
-      GMovingPlatformClient::TryPushingClient(_RDI, _RSI, _R15, &_RDI->m_deferredData.deltaOrigin, &_RDI->m_deferredData.deltaAngles, &trBase);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0B8h+trBase]
-        vmovss  xmm1, dword ptr [rsp+0B8h+trBase+4]
-        vmovss  dword ptr [rsi+130h], xmm0
-        vmovss  xmm0, dword ptr [rsp+0B8h+trBase+8]
-        vmovss  dword ptr [rsi+138h], xmm0
-        vmovss  dword ptr [rsi+134h], xmm1
-      }
-      Trajectory_SetTrBase(&_RSI->s.lerp.pos, &trBase);
-      G_PhysicsCharacterProxy_Teleport(_RSI, 0);
+      p_deltaAngles = &this->m_deferredData.deltaAngles;
+      v8 = &g_entities[this->m_deferredData.platformId];
+      GMovingPlatformClient::TryPushingClient(this, character, v8, &this->m_deferredData.deltaOrigin, &this->m_deferredData.deltaAngles, &trBase);
+      v9 = trBase.v[1];
+      character->r.currentOrigin.v[0] = trBase.v[0];
+      character->r.currentOrigin.v[2] = trBase.v[2];
+      character->r.currentOrigin.v[1] = v9;
+      Trajectory_SetTrBase(&character->s.lerp.pos, &trBase);
+      G_PhysicsCharacterProxy_Teleport(character, 0);
       *outNeedsBroadPhaseWarp = 1;
-      if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RBX->otherFlags, ACTIVE, 0xDu) )
+      if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&EntityPlayerState->otherFlags, ACTIVE, 0xDu) )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15+13Ch]
-          vsubss  xmm1, xmm0, dword ptr [rbp+0]
-          vmovss  xmm2, dword ptr [r15+140h]
-          vsubss  xmm0, xmm2, dword ptr [rbp+4]
-          vmovss  dword ptr [rsp+0B8h+platformAngles], xmm1
-          vmovss  xmm1, dword ptr [r15+144h]
-          vsubss  xmm2, xmm1, dword ptr [rbp+8]
-          vmovss  dword ptr [rsp+0B8h+platformAngles+8], xmm2
-          vmovss  dword ptr [rsp+0B8h+platformAngles+4], xmm0
-        }
+        v10 = v8->r.currentAngles.v[1] - this->m_deferredData.deltaAngles.v[1];
+        platformAngles.v[0] = v8->r.currentAngles.v[0] - p_deltaAngles->v[0];
+        platformAngles.v[2] = v8->r.currentAngles.v[2] - this->m_deferredData.deltaAngles.v[2];
+        platformAngles.v[1] = v10;
         MovingPlatforms = GMovingPlatforms::GetMovingPlatforms();
-        v20 = MovingPlatforms->ShouldUseImprovedAimAlgorithm(MovingPlatforms);
-        BGMovingPlatformClient::UpdatePlayerAngles(_RDI, _RBX, &_RDI->m_deferredData.deltaAngles, &platformAngles, &outAppliedDelta, v20);
-        BGMovingPlatforms::UpdateDirection(&_RBX->velocity, &_R15->r.currentAngles, &_RDI->m_deferredData.deltaAngles);
-        if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 5u) )
+        v12 = MovingPlatforms->ShouldUseImprovedAimAlgorithm(MovingPlatforms);
+        BGMovingPlatformClient::UpdatePlayerAngles(this, EntityPlayerState, &this->m_deferredData.deltaAngles, &platformAngles, &outAppliedDelta, v12);
+        BGMovingPlatforms::UpdateDirection(&EntityPlayerState->velocity, &v8->r.currentAngles, &this->m_deferredData.deltaAngles);
+        if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityPlayerState->pm_flags, ACTIVE, 5u) )
         {
-          BGMovingPlatforms::UpdatePoint(&_RBX->mantleState.startPosition, &_R15->r.currentOrigin, &_R15->r.currentAngles, &_RDI->m_deferredData.deltaAngles, &_RDI->m_deferredData.deltaOrigin);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vucomiss xmm0, dword ptr [rbp+0]
-          }
-          if ( !v21 )
-            goto LABEL_19;
-          __asm { vucomiss xmm0, dword ptr [rbp+4] }
-          if ( !v21 )
-            goto LABEL_19;
-          __asm { vucomiss xmm0, dword ptr [rbp+8] }
-          if ( !v21 )
-            goto LABEL_19;
-          __asm { vucomiss xmm0, dword ptr [r14] }
-          if ( !v21 )
-            goto LABEL_19;
-          __asm { vucomiss xmm0, dword ptr [r14+4] }
-          if ( !v21 )
-            goto LABEL_19;
-          __asm { vucomiss xmm0, dword ptr [r14+8] }
-          if ( !v21 )
-LABEL_19:
-            _RBX->mantleState.flags |= 0x1000u;
+          BGMovingPlatforms::UpdatePoint(&EntityPlayerState->mantleState.startPosition, &v8->r.currentOrigin, &v8->r.currentAngles, &this->m_deferredData.deltaAngles, &this->m_deferredData.deltaOrigin);
+          if ( p_deltaAngles->v[0] != 0.0 || this->m_deferredData.deltaAngles.v[1] != 0.0 || this->m_deferredData.deltaAngles.v[2] != 0.0 || this->m_deferredData.deltaOrigin.v[0] != 0.0 || this->m_deferredData.deltaOrigin.v[1] != 0.0 || this->m_deferredData.deltaOrigin.v[2] != 0.0 )
+            EntityPlayerState->mantleState.flags |= 0x1000u;
         }
       }
-      __asm
+      v13 = trBase.v[1];
+      v14 = trBase.v[0];
+      this->m_moverAppliedDelta.v[0] = trBase.v[0] - EntityPlayerState->origin.v[0];
+      v15 = trBase.v[2];
+      this->m_moverAppliedDelta.v[1] = v13 - EntityPlayerState->origin.v[1];
+      this->m_moverAppliedDelta.v[2] = v15 - EntityPlayerState->origin.v[2];
+      EntityPlayerState->origin.v[0] = v14;
+      EntityPlayerState->origin.v[1] = trBase.v[1];
+      EntityPlayerState->origin.v[2] = trBase.v[2];
+      if ( BG_IsTurretActive(EntityPlayerState) && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&EntityPlayerState->pm_flags, ACTIVE, 0x1Cu) )
       {
-        vmovss  xmm1, dword ptr [rsp+0B8h+trBase+4]
-        vmovss  xmm3, dword ptr [rsp+0B8h+trBase]
-        vsubss  xmm0, xmm3, dword ptr [rbx+30h]
-        vmovss  dword ptr [rdi+48h], xmm0
-        vsubss  xmm2, xmm1, dword ptr [rbx+34h]
-        vmovss  xmm0, dword ptr [rsp+0B8h+trBase+8]
-        vmovss  dword ptr [rdi+4Ch], xmm2
-        vsubss  xmm1, xmm0, dword ptr [rbx+38h]
-        vmovss  dword ptr [rdi+50h], xmm1
-        vmovss  dword ptr [rbx+30h], xmm3
-        vmovss  xmm0, dword ptr [rsp+0B8h+trBase+4]
-        vmovss  dword ptr [rbx+34h], xmm0
-        vmovss  xmm1, dword ptr [rsp+0B8h+trBase+8]
-        vmovss  dword ptr [rbx+38h], xmm1
-      }
-      if ( BG_IsTurretActive(_RBX) && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RBX->pm_flags, ACTIVE, 0x1Cu) )
-      {
-        viewlocked_entNum = _RBX->viewlocked_entNum;
+        viewlocked_entNum = EntityPlayerState->viewlocked_entNum;
         if ( viewlocked_entNum != 2047 )
         {
           GEntity = G_GetGEntity(viewlocked_entNum);
-          v33 = GEntity;
+          v18 = GEntity;
           if ( GEntity->s.eType == ET_TURRET )
           {
             if ( !GEntity->turretHandle.m_objIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_object_handle.h", 36, ASSERT_TYPE_ASSERT, "(IsDefined())", "%s\n\tCan't get the index of an undefined handle", "IsDefined()") )
               __debugbreak();
-            v34 = v33->turretHandle.m_objIndex - 1;
+            v19 = v18->turretHandle.m_objIndex - 1;
             if ( !(_BYTE)GTurret::ms_allocatedType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 226, ASSERT_TYPE_ASSERT, "( ms_allocatedType != GameModeType::NONE )", (const char *)&queryFormat, "ms_allocatedType != GameModeType::NONE") )
               __debugbreak();
-            if ( (unsigned int)v34 >= 0x80 )
+            if ( (unsigned int)v19 >= 0x80 )
             {
-              LODWORD(outNewOrigin) = v34;
+              LODWORD(outNewOrigin) = v19;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 227, ASSERT_TYPE_ASSERT, "(unsigned)( turretIndex ) < (unsigned)( ( sizeof( *array_counter( ms_turretArray ) ) + 0 ) )", "turretIndex doesn't index ARRAY_COUNT( ms_turretArray )\n\t%i not in [0, %i)", outNewOrigin, 128) )
                 __debugbreak();
             }
-            if ( !GTurret::ms_turretArray[v34] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 228, ASSERT_TYPE_ASSERT, "( ms_turretArray[turretIndex] )", (const char *)&queryFormat, "ms_turretArray[turretIndex]") )
+            if ( !GTurret::ms_turretArray[v19] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_turret.h", 228, ASSERT_TYPE_ASSERT, "( ms_turretArray[turretIndex] )", (const char *)&queryFormat, "ms_turretArray[turretIndex]") )
               __debugbreak();
-            _RBX = GTurret::ms_turretArray[v34];
-            if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1051, ASSERT_TYPE_ASSERT, "(turret)", (const char *)&queryFormat, "turret") )
+            v20 = GTurret::ms_turretArray[v19];
+            if ( !v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1051, ASSERT_TYPE_ASSERT, "(turret)", (const char *)&queryFormat, "turret") )
               __debugbreak();
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+0B8h+trBase]
-              vmovss  dword ptr [rbx+3Ch], xmm0
-              vmovss  xmm1, dword ptr [rsp+0B8h+trBase+4]
-              vmovss  dword ptr [rbx+40h], xmm1
-              vmovss  xmm0, dword ptr [rsp+0B8h+trBase+8]
-              vmovss  dword ptr [rbx+44h], xmm0
-            }
+            v20->m_data.userOrigin = trBase;
           }
         }
       }
@@ -1316,7 +1148,7 @@ LABEL_19:
   }
   else
   {
-    GMovingPlatformClient::UnresolvedCollisionOnlyUpdate(_RDI, _RSI, _RBX);
+    GMovingPlatformClient::UnresolvedCollisionOnlyUpdate(this, character, EntityPlayerState);
   }
 }
 
@@ -1517,16 +1349,14 @@ _BOOL8 G_DebugMovingPlatforms_GetCurrAndPrevTransforms(const gentity_s *player, 
   float v10; 
   int v11; 
   float v12; 
-  int v17; 
-  int v18; 
-  int v19; 
-  int v20; 
-  char v21[8]; 
+  float v13; 
+  int v15; 
+  float v16; 
+  char v17[8]; 
   BgAntiLagEntityInfo outInfo; 
 
   outInfo.boneInfo.boneList.m_usedSize = 0;
   outInfo.boneInfo.boneList.m_maxSize = 0;
-  _R14 = outPrev;
   if ( !player && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 2187, ASSERT_TYPE_ASSERT, "( player )", (const char *)&queryFormat, rowName) )
     __debugbreak();
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 2188, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
@@ -1543,36 +1373,21 @@ _BOOL8 G_DebugMovingPlatforms_GetCurrAndPrevTransforms(const gentity_s *player, 
   EntityInfoAtTime = BgAntiLag::GetEntityInfoAtTime(v8, player->s.number, ent->s.number, 3u, level.time - level.frameDuration, &outInfo);
   if ( EntityInfoAtTime )
   {
-    AnglesToAxis(&outInfo.angles, (tmat33_t<vec3_t> *)_R14);
+    AnglesToAxis(&outInfo.angles, (tmat33_t<vec3_t> *)outPrev);
     v10 = outInfo.origin.origin.v[1];
     v12 = outInfo.origin.origin.v[2];
-    BYTE2(v17) = (unsigned int)(v11 + 80) >> 24;
-    LOWORD(v17) = (unsigned int)&outInfo >> 8;
-    HIBYTE(v17) = (unsigned __int8)&outInfo;
-    LODWORD(_R14->m[3].v[1]) = LODWORD(outInfo.origin.origin.v[2]) ^ v17 ^ s_antilag_aab_Y ^ LODWORD(outInfo.origin.origin.v[0]);
-    LODWORD(_R14->m[3].v[2]) = LODWORD(v10) ^ LODWORD(v12) ^ v17 ^ s_antilag_aab_Z;
-    LODWORD(_R14->m[3].v[0]) = LODWORD(v10) ^ v17 ^ ~s_antilag_aab_X;
-    __asm { vmovss  xmm0, dword ptr [r14+24h] }
-    memset(v21, 0, sizeof(v21));
-    __asm { vmovss  [rsp+138h+var_108], xmm0 }
-    if ( (v18 & 0x7F800000) == 2139095040 )
-      goto LABEL_29;
-    __asm
+    BYTE2(v15) = (unsigned int)(v11 + 80) >> 24;
+    LOWORD(v15) = (unsigned int)&outInfo >> 8;
+    HIBYTE(v15) = (unsigned __int8)&outInfo;
+    LODWORD(outPrev->m[3].v[1]) = LODWORD(outInfo.origin.origin.v[2]) ^ v15 ^ s_antilag_aab_Y ^ LODWORD(outInfo.origin.origin.v[0]);
+    LODWORD(outPrev->m[3].v[2]) = LODWORD(v10) ^ LODWORD(v12) ^ v15 ^ s_antilag_aab_Z;
+    LODWORD(outPrev->m[3].v[0]) = LODWORD(v10) ^ v15 ^ ~s_antilag_aab_X;
+    v13 = outPrev->m[3].v[0];
+    memset(v17, 0, sizeof(v17));
+    v16 = v13;
+    if ( (LODWORD(v13) & 0x7F800000) == 2139095040 || (v16 = outPrev->m[3].v[1], (LODWORD(v16) & 0x7F800000) == 2139095040) || (v16 = outPrev->m[3].v[2], (LODWORD(v16) & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm0, dword ptr [r14+28h]
-      vmovss  [rsp+138h+var_108], xmm0
-    }
-    if ( (v19 & 0x7F800000) == 2139095040 )
-      goto LABEL_29;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+2Ch]
-      vmovss  [rsp+138h+var_108], xmm0
-    }
-    if ( (v20 & 0x7F800000) == 2139095040 )
-    {
-LABEL_29:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 803, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_antilag.h", 803, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )", v16, &outInfo) )
         __debugbreak();
     }
     AnglesToAxis(&ent->r.currentAngles, (tmat33_t<vec3_t> *)outCurr);
@@ -1590,252 +1405,135 @@ G_DebugMovingPlatforms_ValidateChildTransform
 */
 void G_DebugMovingPlatforms_ValidateChildTransform(const gentity_s *player, const gentity_s *childEnt, const tmat43_t<vec3_t> *platformPrevToLocal, const tmat43_t<vec3_t> *platformCurrToLocal)
 {
-  const gentity_s *v13; 
-  const tmat43_t<vec3_t> *v14; 
-  const tmat43_t<vec3_t> *v15; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  const gentity_s *v7; 
+  const tmat43_t<vec3_t> *v8; 
+  const tmat43_t<vec3_t> *v9; 
   unsigned int Instance; 
-  unsigned int v18; 
-  unsigned int v23; 
+  unsigned int v12; 
+  unsigned int v13; 
   unsigned int NumRigidBodys; 
   hknpBodyId *RigidBodyID; 
-  char v77; 
-  char v78; 
-  __int64 v140; 
+  bool v17; 
+  float v18; 
+  float v20; 
+  float v22; 
+  float v24; 
+  float v26; 
+  float v28; 
+  bool v30; 
+  float v36; 
+  float v38; 
+  __int64 v40; 
   hknpBodyId result; 
-  const gentity_s *v142; 
-  const tmat43_t<vec3_t> *v143; 
+  const gentity_s *v42; 
+  const tmat43_t<vec3_t> *v43; 
   vec3_t angles; 
-  vec3_t v145; 
+  vec3_t v45; 
   vec3_t position; 
   vec4_t orientation; 
   tmat43_t<vec3_t> out; 
-  tmat43_t<vec3_t> v149; 
+  tmat43_t<vec3_t> v49; 
   tmat43_t<vec3_t> outPrev; 
   tmat43_t<vec3_t> outCurr; 
+  __int128 v52; 
+  __int128 v53; 
+  __int128 v54; 
 
-  v13 = player;
-  v142 = player;
-  *(_QWORD *)v145.v = platformCurrToLocal;
-  v14 = platformCurrToLocal;
-  v143 = platformPrevToLocal;
-  v15 = platformPrevToLocal;
-  _RBX = childEnt;
-  if ( GMovingPlatformClient::CanPush(childEnt) && !BG_IsCharacterEntity(&_RBX->s) )
+  v7 = player;
+  v42 = player;
+  *(_QWORD *)v45.v = platformCurrToLocal;
+  v8 = platformCurrToLocal;
+  v43 = platformPrevToLocal;
+  v9 = platformPrevToLocal;
+  if ( GMovingPlatformClient::CanPush(childEnt) && !BG_IsCharacterEntity(&childEnt->s) )
   {
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1935, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+    if ( !childEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1935, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
       __debugbreak();
-    if ( _RBX->s.eType != ET_SCRIPTMOVER || _RBX->s.un.scriptMoverType != 1 )
+    if ( childEnt->s.eType != ET_SCRIPTMOVER || childEnt->s.un.scriptMoverType != 1 )
     {
-      Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, _RBX);
-      v18 = Instance;
+      Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, childEnt);
+      v12 = Instance;
       if ( Instance != -1 )
       {
-        __asm
-        {
-          vmovaps [rsp+230h+var_50], xmm6
-          vmovaps [rsp+230h+var_60], xmm7
-          vmovaps [rsp+230h+var_90], xmm10
-          vmovaps [rsp+230h+var_A0], xmm11
-          vmovaps [rsp+230h+var_B0], xmm12
-          vmovaps [rsp+230h+var_D0], xmm14
-          vmovss  xmm14, cs:__real@3c23d70a
-          vmovss  xmm10, cs:__real@3b360b61
-          vmovss  xmm11, cs:__real@3f000000
-          vmovss  xmm12, cs:__real@43b40000
-        }
-        v23 = 0;
+        v13 = 0;
         NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, Instance);
         if ( NumRigidBodys )
         {
-          __asm
-          {
-            vmovaps [rsp+230h+var_70], xmm8
-            vmovaps [rsp+230h+var_80], xmm9
-            vmovaps [rsp+230h+var_C0], xmm13
-            vxorps  xmm13, xmm13, xmm13
-          }
+          v54 = v4;
+          v53 = v5;
+          v52 = v6;
+          _XMM13 = 0i64;
           do
           {
             if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
               __debugbreak();
             if ( !g_physicsServerWorldsCreated )
             {
-              LODWORD(v140) = 0;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v140) )
+              LODWORD(v40) = 0;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v40) )
                 __debugbreak();
             }
-            RigidBodyID = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_FIRST, v18, v23);
+            RigidBodyID = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_FIRST, v12, v13);
             Physics_GetRigidBodyTransform(PHYSICS_WORLD_ID_FIRST, RigidBodyID->m_serialAndIndex, &position, &orientation);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbx+130h]
-              vsubss  xmm3, xmm0, dword ptr [rsp+230h+position]
-              vmovss  xmm1, dword ptr [rbx+134h]
-              vsubss  xmm2, xmm1, dword ptr [rsp+230h+position+4]
-              vmovss  xmm0, dword ptr [rbx+138h]
-              vsubss  xmm4, xmm0, dword ptr [rbp+130h+position+8]
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm1, xmm3, xmm3
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm2, xmm3, xmm0
-              vsqrtss xmm1, xmm2, xmm2
-              vcomiss xmm1, xmm14
-            }
+            v17 = fsqrt((float)((float)((float)(childEnt->r.currentOrigin.v[1] - position.v[1]) * (float)(childEnt->r.currentOrigin.v[1] - position.v[1])) + (float)((float)(childEnt->r.currentOrigin.v[0] - position.v[0]) * (float)(childEnt->r.currentOrigin.v[0] - position.v[0]))) + (float)((float)(childEnt->r.currentOrigin.v[2] - position.v[2]) * (float)(childEnt->r.currentOrigin.v[2] - position.v[2]))) > 0.0099999998;
             UnitQuatToAngles(&orientation, &angles);
-            __asm
+            v18 = 0.0027777778 * childEnt->r.currentAngles.v[2];
+            __asm { vroundss xmm3, xmm13, xmm2, 1 }
+            v20 = (float)((float)(0.0027777778 * angles.v[0]) - *(float *)&_XMM3) * 360.0;
+            __asm { vroundss xmm3, xmm13, xmm2, 1 }
+            v22 = (float)((float)(0.0027777778 * angles.v[1]) - *(float *)&_XMM3) * 360.0;
+            __asm { vroundss xmm3, xmm13, xmm2, 1 }
+            v24 = (float)((float)(0.0027777778 * angles.v[2]) - *(float *)&_XMM3) * 360.0;
+            __asm { vroundss xmm3, xmm13, xmm2, 1 }
+            v26 = (float)((float)(0.0027777778 * childEnt->r.currentAngles.v[0]) - *(float *)&_XMM3) * 360.0;
+            __asm { vroundss xmm3, xmm13, xmm2, 1 }
+            v28 = (float)(0.0027777778 * childEnt->r.currentAngles.v[1]) - *(float *)&_XMM3;
+            __asm { vroundss xmm3, xmm13, xmm2, 1 }
+            angles.v[0] = v20;
+            angles.v[1] = v22;
+            angles.v[2] = v24;
+            if ( fsqrt((float)((float)((float)((float)(v28 * 360.0) - v22) * (float)((float)(v28 * 360.0) - v22)) + (float)((float)(v26 - v20) * (float)(v26 - v20))) + (float)((float)((float)((float)(v18 - *(float *)&_XMM3) * 360.0) - v24) * (float)((float)((float)(v18 - *(float *)&_XMM3) * 360.0) - v24))) > 0.0099999998 || v17 )
             {
-              vmulss  xmm4, xmm10, dword ptr [rsp+230h+angles]
-              vmulss  xmm5, xmm10, dword ptr [rbx+140h]
-              vmulss  xmm7, xmm10, dword ptr [rbx+144h]
-              vaddss  xmm2, xmm4, xmm11
-              vroundss xmm3, xmm13, xmm2, 1
-              vsubss  xmm1, xmm4, xmm3
-              vmulss  xmm4, xmm10, dword ptr [rsp+230h+angles+4]
-              vmulss  xmm6, xmm1, xmm12
-              vaddss  xmm2, xmm4, xmm11
-              vroundss xmm3, xmm13, xmm2, 1
-              vsubss  xmm1, xmm4, xmm3
-              vmulss  xmm4, xmm10, dword ptr [rsp+230h+angles+8]
-              vmulss  xmm9, xmm1, xmm12
-              vaddss  xmm2, xmm4, xmm11
-              vroundss xmm3, xmm13, xmm2, 1
-              vsubss  xmm1, xmm4, xmm3
-              vmulss  xmm4, xmm10, dword ptr [rbx+13Ch]
-              vmulss  xmm8, xmm1, xmm12
-              vaddss  xmm2, xmm4, xmm11
-              vroundss xmm3, xmm13, xmm2, 1
-              vsubss  xmm1, xmm4, xmm3
-              vmulss  xmm0, xmm1, xmm12
-              vaddss  xmm2, xmm5, xmm11
-              vroundss xmm3, xmm13, xmm2, 1
-              vsubss  xmm1, xmm5, xmm3
-              vaddss  xmm2, xmm7, xmm11
-              vroundss xmm3, xmm13, xmm2, 1
-              vmovss  dword ptr [rsp+230h+angles], xmm6
-              vsubss  xmm6, xmm0, xmm6
-              vmulss  xmm0, xmm1, xmm12
-              vsubss  xmm1, xmm7, xmm3
-              vsubss  xmm5, xmm0, xmm9
-              vmulss  xmm0, xmm1, xmm12
-              vmulss  xmm2, xmm5, xmm5
-              vmulss  xmm1, xmm6, xmm6
-              vaddss  xmm3, xmm2, xmm1
-              vsubss  xmm4, xmm0, xmm8
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm2, xmm3, xmm0
-              vsqrtss xmm1, xmm2, xmm2
-              vcomiss xmm1, xmm14
-              vmovss  dword ptr [rsp+230h+angles+4], xmm9
-              vmovss  dword ptr [rsp+230h+angles+8], xmm8
+              Com_PrintWarning(1, "Moving platform rigid body mismatch is not allowed. This will cause collision errors. Entity %d\n", (unsigned int)childEnt->s.number);
+              g_serverMoverDebugRigidBodyMismatch = childEnt->s.number;
             }
-            if ( !(v77 | v78) )
-            {
-              Com_PrintWarning(1, "Moving platform rigid body mismatch is not allowed. This will cause collision errors. Entity %d\n", (unsigned int)_RBX->s.number);
-              g_serverMoverDebugRigidBodyMismatch = _RBX->s.number;
-            }
-            ++v23;
+            ++v13;
           }
-          while ( v23 < NumRigidBodys );
-          v13 = v142;
-          v15 = v143;
-          v14 = *(const tmat43_t<vec3_t> **)v145.v;
-          __asm
-          {
-            vmovaps xmm13, [rsp+230h+var_C0]
-            vmovaps xmm9, [rsp+230h+var_80]
-            vmovaps xmm8, [rsp+230h+var_70]
-          }
+          while ( v13 < NumRigidBodys );
+          v7 = v42;
+          v9 = v43;
+          v8 = *(const tmat43_t<vec3_t> **)v45.v;
         }
-        if ( G_DebugMovingPlatforms_GetCurrAndPrevTransforms(v13, _RBX, &outPrev, &outCurr) )
+        if ( G_DebugMovingPlatforms_GetCurrAndPrevTransforms(v7, childEnt, &outPrev, &outCurr) )
         {
-          MatrixMultiply43(&outPrev, v15, &out);
-          MatrixMultiply43(&outCurr, v14, &v149);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+130h+var_168+24h]
-            vsubss  xmm3, xmm0, dword ptr [rbp+130h+out+24h]
-            vmovss  xmm1, dword ptr [rbp+130h+var_168+28h]
-            vsubss  xmm2, xmm1, dword ptr [rbp+130h+out+28h]
-            vmovss  xmm0, dword ptr [rbp+130h+var_168+2Ch]
-            vsubss  xmm4, xmm0, dword ptr [rbp+130h+out+2Ch]
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm2, xmm3, xmm0
-            vsqrtss xmm1, xmm2, xmm2
-            vcomiss xmm1, cs:__real@3dfdf3b6
-          }
-          AxisToAngles((const tmat33_t<vec3_t> *)&out, &v145);
-          __asm
-          {
-            vmulss  xmm3, xmm10, dword ptr [rsp+230h+var_1C8]
-            vaddss  xmm1, xmm3, xmm11
-            vxorps  xmm7, xmm7, xmm7
-            vroundss xmm2, xmm7, xmm1, 1
-            vsubss  xmm0, xmm3, xmm2
-            vmulss  xmm3, xmm10, dword ptr [rsp+230h+var_1C8+4]
-            vmulss  xmm1, xmm0, xmm12
-            vmovss  dword ptr [rsp+230h+var_1C8], xmm1
-            vaddss  xmm1, xmm3, xmm11
-            vroundss xmm2, xmm7, xmm1, 1
-            vsubss  xmm0, xmm3, xmm2
-            vmulss  xmm3, xmm10, dword ptr [rsp+230h+var_1C8+8]
-            vmulss  xmm1, xmm0, xmm12
-            vmovss  dword ptr [rsp+230h+var_1C8+4], xmm1
-            vaddss  xmm1, xmm3, xmm11
-            vroundss xmm2, xmm7, xmm1, 1
-            vsubss  xmm0, xmm3, xmm2
-            vmulss  xmm1, xmm0, xmm12
-            vmovss  dword ptr [rsp+230h+var_1C8+8], xmm1
-          }
-          AxisToAngles((const tmat33_t<vec3_t> *)&v149, &angles);
-          __asm
-          {
-            vmulss  xmm4, xmm10, dword ptr [rsp+230h+angles]
-            vaddss  xmm2, xmm4, xmm11
-            vroundss xmm3, xmm7, xmm2, 1
-            vsubss  xmm1, xmm4, xmm3
-            vmulss  xmm4, xmm10, dword ptr [rsp+230h+angles+4]
-            vmulss  xmm6, xmm1, xmm12
-            vaddss  xmm2, xmm4, xmm11
-            vroundss xmm3, xmm7, xmm2, 1
-            vsubss  xmm1, xmm4, xmm3
-            vmulss  xmm4, xmm10, dword ptr [rsp+230h+angles+8]
-            vmulss  xmm5, xmm1, xmm12
-            vsubss  xmm0, xmm5, dword ptr [rsp+230h+var_1C8+4]
-            vaddss  xmm2, xmm4, xmm11
-            vroundss xmm3, xmm7, xmm2, 1
-            vsubss  xmm1, xmm4, xmm3
-            vsubss  xmm3, xmm6, dword ptr [rsp+230h+var_1C8]
-            vmulss  xmm2, xmm1, xmm12
-            vsubss  xmm4, xmm2, dword ptr [rsp+230h+var_1C8+8]
-            vmulss  xmm1, xmm0, xmm0
-            vmulss  xmm0, xmm3, xmm3
-            vmovss  dword ptr [rsp+230h+angles+8], xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm4, xmm4
-            vaddss  xmm2, xmm2, xmm1
-            vsqrtss xmm0, xmm2, xmm2
-            vcomiss xmm0, xmm14
-            vmovss  dword ptr [rsp+230h+angles], xmm6
-            vmovss  dword ptr [rsp+230h+angles+4], xmm5
-          }
-          if ( !(v77 | v78) )
+          MatrixMultiply43(&outPrev, v9, &out);
+          MatrixMultiply43(&outCurr, v8, &v49);
+          v30 = fsqrt((float)((float)((float)(v49.m[3].v[1] - out.m[3].v[1]) * (float)(v49.m[3].v[1] - out.m[3].v[1])) + (float)((float)(v49.m[3].v[0] - out.m[3].v[0]) * (float)(v49.m[3].v[0] - out.m[3].v[0]))) + (float)((float)(v49.m[3].v[2] - out.m[3].v[2]) * (float)(v49.m[3].v[2] - out.m[3].v[2]))) > 0.124;
+          AxisToAngles((const tmat33_t<vec3_t> *)&out, &v45);
+          _XMM7 = 0i64;
+          __asm { vroundss xmm2, xmm7, xmm1, 1 }
+          v45.v[0] = (float)((float)(0.0027777778 * v45.v[0]) - *(float *)&_XMM2) * 360.0;
+          __asm { vroundss xmm2, xmm7, xmm1, 1 }
+          v45.v[1] = (float)((float)(0.0027777778 * v45.v[1]) - *(float *)&_XMM2) * 360.0;
+          __asm { vroundss xmm2, xmm7, xmm1, 1 }
+          v45.v[2] = (float)((float)(0.0027777778 * v45.v[2]) - *(float *)&_XMM2) * 360.0;
+          AxisToAngles((const tmat33_t<vec3_t> *)&v49, &angles);
+          __asm { vroundss xmm3, xmm7, xmm2, 1 }
+          v36 = (float)((float)(0.0027777778 * angles.v[0]) - *(float *)&_XMM3) * 360.0;
+          __asm { vroundss xmm3, xmm7, xmm2, 1 }
+          v38 = (float)((float)(0.0027777778 * angles.v[1]) - *(float *)&_XMM3) * 360.0;
+          __asm { vroundss xmm3, xmm7, xmm2, 1 }
+          angles.v[2] = (float)((float)(0.0027777778 * angles.v[2]) - *(float *)&_XMM3) * 360.0;
+          angles.v[0] = v36;
+          angles.v[1] = v38;
+          if ( fsqrt((float)((float)((float)(v38 - v45.v[1]) * (float)(v38 - v45.v[1])) + (float)((float)(v36 - v45.v[0]) * (float)(v36 - v45.v[0]))) + (float)((float)(angles.v[2] - v45.v[2]) * (float)(angles.v[2] - v45.v[2]))) > 0.0099999998 || v30 )
           {
             Com_PrintWarning(1, "Moving platform sub skeletal displacement is not allowed. This will cause collision errors. Entity %d\n", (unsigned int)g_serverMoverDebugSkeletonMismatch);
-            g_serverMoverDebugSkeletonMismatch = _RBX->s.number;
+            g_serverMoverDebugSkeletonMismatch = childEnt->s.number;
           }
-        }
-        __asm
-        {
-          vmovaps xmm12, [rsp+230h+var_B0]
-          vmovaps xmm11, [rsp+230h+var_A0]
-          vmovaps xmm10, [rsp+230h+var_90]
-          vmovaps xmm7, [rsp+230h+var_60]
-          vmovaps xmm6, [rsp+230h+var_50]
-          vmovaps xmm14, [rsp+230h+var_D0]
         }
       }
     }
@@ -2131,40 +1829,19 @@ GMovingPlatformClient::IsMovingPlatformMoving
 */
 bool GMovingPlatformClient::IsMovingPlatformMoving(GMovingPlatformClient *this, int entityNum)
 {
+  __int64 v2; 
   __int64 v3; 
-  char v5; 
-  int v10; 
+  int v6; 
 
-  v3 = entityNum;
+  v2 = entityNum;
   if ( (unsigned int)entityNum >= 0x800 )
   {
-    v10 = 2048;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1596, ASSERT_TYPE_ASSERT, "(unsigned)( entityNum ) < (unsigned)( ( 2048 ) )", "entityNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entityNum, v10) )
+    v6 = 2048;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1596, ASSERT_TYPE_ASSERT, "(unsigned)( entityNum ) < (unsigned)( ( 2048 ) )", "entityNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entityNum, v6) )
       __debugbreak();
   }
-  _RAX = g_entities;
-  _RCX = 1456 * v3;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rcx+rax+2B4h]
-  }
-  if ( !v5 )
-    return 1;
-  __asm { vucomiss xmm0, dword ptr [rcx+rax+2B8h] }
-  if ( !v5 )
-    return 1;
-  __asm { vucomiss xmm0, dword ptr [rcx+rax+2BCh] }
-  if ( !v5 )
-    return 1;
-  __asm { vucomiss xmm0, dword ptr [rcx+rax+2A8h] }
-  if ( !v5 )
-    return 1;
-  __asm { vucomiss xmm0, dword ptr [rcx+rax+2ACh] }
-  if ( !v5 )
-    return 1;
-  __asm { vucomiss xmm0, dword ptr [rcx+rax+2B0h] }
-  return !v5;
+  v3 = v2;
+  return g_entities[v2].moverInfo.m_deltaAngles.v[0] != 0.0 || g_entities[v3].moverInfo.m_deltaAngles.v[1] != 0.0 || g_entities[v3].moverInfo.m_deltaAngles.v[2] != 0.0 || g_entities[v3].moverInfo.m_deltaOrigin.v[0] != 0.0 || g_entities[v3].moverInfo.m_deltaOrigin.v[1] != 0.0 || g_entities[v3].moverInfo.m_deltaOrigin.v[2] != 0.0;
 }
 
 /*
@@ -2175,16 +1852,26 @@ GMovingPlatforms::KeyframeMarkedEntities
 void GMovingPlatforms::KeyframeMarkedEntities(int numEntities)
 {
   unsigned int m_characterCount; 
-  __int64 v11; 
-  __int64 v13; 
-  G_PhysicsObject *v16; 
-  unsigned int v17; 
-  unsigned int v18; 
-  bool v30; 
-  float fmt; 
+  __int64 v3; 
+  __int64 v4; 
+  gentity_s *v5; 
+  G_PhysicsObject *v6; 
+  unsigned int v7; 
+  unsigned int v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  bool v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   __int64 canWarp; 
   __int64 updateBroadphaseIfWarping; 
-  float v67; 
   vec3_t position; 
   vec3_t deltaAngles; 
   vec3_t deltaOrigin; 
@@ -2198,22 +1885,9 @@ void GMovingPlatforms::KeyframeMarkedEntities(int numEntities)
   m_characterCount = ComCharacterLimits::ms_gameData.m_characterCount;
   if ( (int)ComCharacterLimits::ms_gameData.m_characterCount < numEntities )
   {
-    v11 = (int)ComCharacterLimits::ms_gameData.m_characterCount;
-    __asm
-    {
-      vmovaps [rsp+160h+var_30], xmm6
-      vmovaps [rsp+160h+var_A0], xmm13
-      vmovss  xmm13, cs:__real@3f800000
-      vmovaps [rsp+160h+var_40], xmm7
-      vmovaps [rsp+160h+var_50], xmm8
-      vmovaps [rsp+160h+var_60], xmm9
-      vmovaps [rsp+160h+var_70], xmm10
-      vmovaps [rsp+160h+var_80], xmm11
-      vmovaps [rsp+160h+var_90], xmm12
-    }
-    v13 = (int)ComCharacterLimits::ms_gameData.m_characterCount;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    while ( 1 )
+    v3 = (int)ComCharacterLimits::ms_gameData.m_characterCount;
+    v4 = (int)ComCharacterLimits::ms_gameData.m_characterCount;
+    do
     {
       if ( m_characterCount >= 0x800 )
       {
@@ -2224,7 +1898,7 @@ void GMovingPlatforms::KeyframeMarkedEntities(int numEntities)
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 189, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      _RBX = &g_entities[v13];
+      v5 = &g_entities[v4];
       if ( m_characterCount >= 0x800 )
       {
         LODWORD(updateBroadphaseIfWarping) = 2048;
@@ -2234,163 +1908,91 @@ void GMovingPlatforms::KeyframeMarkedEntities(int numEntities)
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v13].r.isInUse != g_entityIsInUse[v11] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v4].r.isInUse != g_entityIsInUse[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( !g_entityIsInUse[v11] )
+      if ( !g_entityIsInUse[v3] )
         goto LABEL_38;
-      if ( !GMovingPlatforms::IsEntityKeyframedMover(_RBX) )
+      if ( !GMovingPlatforms::IsEntityKeyframedMover(v5) )
         goto LABEL_38;
-      v16 = G_PhysicsObject_Get(_RBX);
-      if ( !v16 )
+      v6 = G_PhysicsObject_Get(v5);
+      if ( !v6 )
         goto LABEL_38;
-      v17 = v16->physicsInstances[0];
-      v18 = v16->physicsInstances[1];
-      if ( v17 == -1 && v18 != -1 )
+      v7 = v6->physicsInstances[0];
+      v8 = v6->physicsInstances[1];
+      if ( v7 == -1 && v8 != -1 )
         goto LABEL_38;
-      memcpy_0(&dummyEnt, _RBX, sizeof(dummyEnt));
-      __asm
+      memcpy_0(&dummyEnt, v5, sizeof(dummyEnt));
+      v9 = v5->r.currentOrigin.v[0];
+      v10 = v5->r.currentOrigin.v[1];
+      v11 = v5->r.currentOrigin.v[2];
+      v12 = v5->r.currentAngles.v[0];
+      v13 = v5->r.currentAngles.v[1];
+      v14 = v5->r.currentAngles.v[2];
+      position = v5->r.currentOrigin;
+      angles = v5->r.currentAngles;
+      v15 = v5->tagInfo == NULL;
+      deltaOrigin.v[0] = 0.0;
+      deltaOrigin.v[1] = 0.0;
+      deltaOrigin.v[2] = 0.0;
+      deltaAngles.v[0] = 0.0;
+      deltaAngles.v[1] = 0.0;
+      deltaAngles.v[2] = 0.0;
+      if ( v15 )
       {
-        vmovss  xmm7, dword ptr [rbx+130h]
-        vmovss  xmm8, dword ptr [rbx+134h]
-        vmovss  xmm9, dword ptr [rbx+138h]
-        vmovss  xmm10, dword ptr [rbx+13Ch]
-        vmovss  xmm11, dword ptr [rbx+140h]
-        vmovss  xmm12, dword ptr [rbx+144h]
-        vmovss  dword ptr [rsp+160h+position], xmm7
-        vmovss  xmm0, dword ptr [rbx+134h]
-        vmovss  dword ptr [rsp+160h+position+4], xmm0
-        vmovss  xmm1, dword ptr [rbx+138h]
-        vmovss  dword ptr [rsp+160h+position+8], xmm1
-        vmovss  xmm0, dword ptr [rbx+13Ch]
-        vmovss  dword ptr [rbp+60h+angles], xmm0
-        vmovss  xmm1, dword ptr [rbx+140h]
-        vmovss  dword ptr [rbp+60h+angles+4], xmm1
-        vmovss  xmm0, dword ptr [rbx+144h]
-        vmovss  dword ptr [rbp+60h+angles+8], xmm0
-      }
-      v30 = _RBX->tagInfo == NULL;
-      __asm
-      {
-        vmovss  dword ptr [rsp+160h+deltaOrigin], xmm6
-        vmovss  dword ptr [rsp+160h+deltaOrigin+4], xmm6
-        vmovss  dword ptr [rsp+160h+deltaOrigin+8], xmm6
-        vmovss  dword ptr [rsp+160h+deltaAngles], xmm6
-        vmovss  dword ptr [rsp+160h+deltaAngles+4], xmm6
-        vmovss  dword ptr [rsp+160h+deltaAngles+8], xmm6
-      }
-      if ( v30 )
-      {
-        if ( !BgTrajectory::IsAnimatedTrajectory(&_RBX->s.lerp.pos) )
+        if ( !BgTrajectory::IsAnimatedTrajectory(&v5->s.lerp.pos) )
           goto LABEL_30;
       }
-      else if ( GMovingPlatformClient::CanPush(_RBX) )
+      else if ( GMovingPlatformClient::CanPush(v5) )
       {
-        G_GeneralLinkNoWarp(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+130h]
-          vmovss  xmm2, dword ptr [rbx+134h]
-          vsubss  xmm1, xmm0, xmm7
-          vsubss  xmm0, xmm2, xmm8
-          vmovss  dword ptr [rsp+160h+deltaOrigin], xmm1
-          vmovss  xmm1, dword ptr [rbx+138h]
-          vsubss  xmm2, xmm1, xmm9
-          vmovss  dword ptr [rsp+160h+deltaOrigin+4], xmm0
-          vmovss  xmm0, dword ptr [rbx+13Ch]
-          vsubss  xmm1, xmm0, xmm10
-          vmovss  dword ptr [rsp+160h+deltaOrigin+8], xmm2
-          vmovss  xmm2, dword ptr [rbx+140h]
-          vsubss  xmm0, xmm2, xmm11
-          vmovss  dword ptr [rsp+160h+deltaAngles], xmm1
-          vmovss  xmm1, dword ptr [rbx+144h]
-          vmovss  dword ptr [rbx+130h], xmm7
-          vmovss  dword ptr [rbx+134h], xmm8
-          vmovss  dword ptr [rbx+138h], xmm9
-          vsubss  xmm2, xmm1, xmm12
-          vmovss  dword ptr [rsp+160h+deltaAngles+8], xmm2
-          vmovss  dword ptr [rsp+160h+deltaAngles+4], xmm0
-          vmovss  dword ptr [rbx+13Ch], xmm10
-          vmovss  dword ptr [rbx+140h], xmm11
-          vmovss  dword ptr [rbx+144h], xmm12
-        }
-        SV_LinkEntity(_RBX);
+        G_GeneralLinkNoWarp(v5);
+        v16 = v5->r.currentOrigin.v[1] - v10;
+        deltaOrigin.v[0] = v5->r.currentOrigin.v[0] - v9;
+        v17 = v5->r.currentOrigin.v[2] - v11;
+        deltaOrigin.v[1] = v16;
+        v18 = v5->r.currentAngles.v[0] - v12;
+        deltaOrigin.v[2] = v17;
+        v19 = v5->r.currentAngles.v[1] - v13;
+        deltaAngles.v[0] = v18;
+        v20 = v5->r.currentAngles.v[2];
+        v5->r.currentOrigin.v[0] = v9;
+        v5->r.currentOrigin.v[1] = v10;
+        v5->r.currentOrigin.v[2] = v11;
+        deltaAngles.v[2] = v20 - v14;
+        deltaAngles.v[1] = v19;
+        v5->r.currentAngles.v[0] = v12;
+        v5->r.currentAngles.v[1] = v13;
+        v5->r.currentAngles.v[2] = v14;
+        SV_LinkEntity(v5);
 LABEL_30:
-        __asm
-        {
-          vmovss  dword ptr [rsp+160h+outMove], xmm6
-          vmovss  dword ptr [rsp+160h+outMove+4], xmm6
-          vmovss  dword ptr [rsp+160h+outMove+8], xmm6
-          vmovss  dword ptr [rbp+60h+outAMove], xmm6
-          vmovss  dword ptr [rbp+60h+outAMove+4], xmm6
-          vmovss  dword ptr [rbp+60h+outAMove+8], xmm6
-        }
-        GMovingPlatforms::ComputeMoverPushDeltas(_RBX, &deltaOrigin, &deltaAngles, &outMove, &outAMove);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+160h+outMove]
-          vaddss  xmm1, xmm0, dword ptr [rbx+130h]
-          vmovss  xmm2, dword ptr [rsp+160h+outMove+4]
-          vmovss  dword ptr [rsp+160h+position], xmm1
-          vaddss  xmm0, xmm2, dword ptr [rbx+134h]
-          vmovss  xmm1, dword ptr [rsp+160h+outMove+8]
-          vmovss  dword ptr [rsp+160h+position+4], xmm0
-          vaddss  xmm2, xmm1, dword ptr [rbx+138h]
-          vmovss  xmm0, dword ptr [rbp+60h+outAMove]
-          vmovss  dword ptr [rsp+160h+position+8], xmm2
-          vaddss  xmm1, xmm0, dword ptr [rbx+13Ch]
-          vmovss  xmm2, dword ptr [rbp+60h+outAMove+4]
-          vmovss  dword ptr [rbp+60h+angles], xmm1
-          vaddss  xmm0, xmm2, dword ptr [rbx+140h]
-          vmovss  xmm1, dword ptr [rbp+60h+outAMove+8]
-          vmovss  dword ptr [rbp+60h+angles+4], xmm0
-          vaddss  xmm2, xmm1, dword ptr [rbx+144h]
-          vmovss  dword ptr [rbp+60h+angles+8], xmm2
-        }
+        outMove.v[0] = 0.0;
+        outMove.v[1] = 0.0;
+        outMove.v[2] = 0.0;
+        outAMove.v[0] = 0.0;
+        outAMove.v[1] = 0.0;
+        outAMove.v[2] = 0.0;
+        GMovingPlatforms::ComputeMoverPushDeltas(v5, &deltaOrigin, &deltaAngles, &outMove, &outAMove);
+        position.v[0] = outMove.v[0] + v5->r.currentOrigin.v[0];
+        position.v[1] = outMove.v[1] + v5->r.currentOrigin.v[1];
+        position.v[2] = outMove.v[2] + v5->r.currentOrigin.v[2];
+        angles.v[0] = outAMove.v[0] + v5->r.currentAngles.v[0];
+        angles.v[1] = outAMove.v[1] + v5->r.currentAngles.v[1];
+        angles.v[2] = outAMove.v[2] + v5->r.currentAngles.v[2];
       }
-      memcpy_0(_RBX, &dummyEnt, sizeof(gentity_s));
-      if ( ((_RBX->r.modelType - 1) & 0xFD) != 0 )
-      {
+      memcpy_0(v5, &dummyEnt, sizeof(gentity_s));
+      if ( ((v5->r.modelType - 1) & 0xFD) != 0 )
         AnglesToQuat(&angles, &quat);
-      }
       else
-      {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-          vmovups xmmword ptr [rbp+60h+quat], xmm0
-        }
-      }
-      if ( v17 != -1 )
-      {
-        __asm
-        {
-          vmovss  [rsp+160h+var_128], xmm6
-          vmovss  dword ptr [rsp+160h+fmt], xmm13
-        }
-        Physics_KeyframeInstanceTo(PHYSICS_WORLD_ID_FIRST, v17, &position, &quat, fmt, 1, 0, v67);
-      }
-      if ( v18 != -1 )
-        Physics_WarpInstanceTo(PHYSICS_WORLD_ID_SERVER_DETAIL, v18, &position, &quat, 0);
+        quat = quat_identity;
+      if ( v7 != -1 )
+        Physics_KeyframeInstanceTo(PHYSICS_WORLD_ID_FIRST, v7, &position, &quat, 1.0, 1, 0, 0.0);
+      if ( v8 != -1 )
+        Physics_WarpInstanceTo(PHYSICS_WORLD_ID_SERVER_DETAIL, v8, &position, &quat, 0);
 LABEL_38:
       ++m_characterCount;
-      ++v11;
-      ++v13;
-      if ( (int)m_characterCount >= numEntities )
-      {
-        __asm
-        {
-          vmovaps xmm13, [rsp+160h+var_A0]
-          vmovaps xmm12, [rsp+160h+var_90]
-          vmovaps xmm11, [rsp+160h+var_80]
-          vmovaps xmm10, [rsp+160h+var_70]
-          vmovaps xmm9, [rsp+160h+var_60]
-          vmovaps xmm8, [rsp+160h+var_50]
-          vmovaps xmm7, [rsp+160h+var_40]
-          vmovaps xmm6, [rsp+160h+var_30]
-        }
-        return;
-      }
+      ++v3;
+      ++v4;
     }
+    while ( (int)m_characterCount < numEntities );
   }
 }
 
@@ -2423,51 +2025,46 @@ GMovingPlatforms::MoverLinkAndRotate
 */
 void GMovingPlatforms::MoverLinkAndRotate(gentity_s *ent, const TagInfoLinkedRotation *const linkedRotationData)
 {
+  float v4; 
   void (__fastcall *reached)(gentity_s *); 
   tmat43_t<vec3_t> axis; 
   tmat33_t<vec3_t> in1; 
   tmat33_t<vec3_t> out; 
 
-  _RDI = ent;
   if ( !Com_GameMode_SupportsFeature(WEAPON_MELEE_FATAL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1493, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_LINKED_ROTATION ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_LINKED_ROTATION )") )
     __debugbreak();
-  G_CalcFixedLinkTargetAxis(_RDI, &axis);
-  if ( G_VerifyLinkedMoveTarget(_RDI, &axis.m[3], 2065) )
+  G_CalcFixedLinkTargetAxis(ent, &axis);
+  if ( G_VerifyLinkedMoveTarget(ent, &axis.m[3], 2065) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+0D8h+axis+24h]
-      vmovss  xmm1, dword ptr [rsp+0D8h+axis+28h]
-      vmovss  dword ptr [rdi+130h], xmm0
-      vmovss  xmm0, dword ptr [rsp+0D8h+axis+2Ch]
-      vmovss  dword ptr [rdi+138h], xmm0
-      vmovss  dword ptr [rdi+134h], xmm1
-    }
+    v4 = axis.m[3].v[1];
+    ent->r.currentOrigin.v[0] = axis.m[3].v[0];
+    ent->r.currentOrigin.v[2] = axis.m[3].v[2];
+    ent->r.currentOrigin.v[1] = v4;
   }
   if ( linkedRotationData->aposLocal.trType <= (unsigned int)TR_INTERPOLATE )
   {
     AnglesToAxis(&linkedRotationData->aposLocal.trBase, &in1);
     MatrixMultiply(&in1, (const tmat33_t<vec3_t> *)&axis, &out);
-    AxisToAngles(&out, &_RDI->r.currentAngles);
-    G_SetOriginAndAngle(_RDI, &_RDI->r.currentOrigin, &_RDI->r.currentAngles, 1, 1);
+    AxisToAngles(&out, &ent->r.currentAngles);
+    G_SetOriginAndAngle(ent, &ent->r.currentOrigin, &ent->r.currentAngles, 1, 1);
   }
   else
   {
-    BgTrajectory::LegacyEvaluateTrajectory(&linkedRotationData->aposLocal, level.time, &_RDI->r.currentAngles);
-    AnglesToAxis(&_RDI->r.currentAngles, &in1);
+    BgTrajectory::LegacyEvaluateTrajectory(&linkedRotationData->aposLocal, level.time, &ent->r.currentAngles);
+    AnglesToAxis(&ent->r.currentAngles, &in1);
     MatrixMultiply(&in1, (const tmat33_t<vec3_t> *)&axis, &out);
-    AxisToAngles(&out, &_RDI->r.currentAngles);
-    G_SetOriginAndAngle(_RDI, &_RDI->r.currentOrigin, &_RDI->r.currentAngles, 1, 1);
+    AxisToAngles(&out, &ent->r.currentAngles);
+    G_SetOriginAndAngle(ent, &ent->r.currentOrigin, &ent->r.currentAngles, 1, 1);
     if ( level.time >= linkedRotationData->aposLocal.trTime + linkedRotationData->aposLocal.trDuration )
     {
-      reached = G_Main_GetEntHandlerList(_RDI)->reached;
+      reached = G_Main_GetEntHandlerList(ent)->reached;
       if ( reached )
-        reached(_RDI);
+        reached(ent);
     }
   }
-  _RDI->s.lerp.pos.trType = TR_INTERPOLATE;
-  _RDI->s.lerp.apos.trType = TR_INTERPOLATE;
-  SV_LinkEntity(_RDI);
+  ent->s.lerp.pos.trType = TR_INTERPOLATE;
+  ent->s.lerp.apos.trType = TR_INTERPOLATE;
+  SV_LinkEntity(ent);
 }
 
 /*
@@ -2477,33 +2074,69 @@ GMovingPlatforms::MoverPush
 */
 void GMovingPlatforms::MoverPush(gentity_s *pusher, const vec3_t *move, const vec3_t *amove)
 {
-  char v15; 
-  unsigned int v59; 
-  int v62; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  const vec3_t *v13; 
+  const vec3_t *v15; 
+  double v16; 
+  vec3_t *p_currentAngles; 
+  bool v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  unsigned int v36; 
+  int v37; 
+  float v38; 
+  __int64 v39; 
   playerState_s *EntityPlayerState; 
-  const playerState_s *v66; 
+  const playerState_s *v41; 
   int number; 
   int m_movingPlatformEntity; 
+  gentity_s *v44; 
+  double v45; 
   GHandler *Handler; 
-  char v73; 
-  int v91; 
-  __int64 v92; 
-  __int64 v113; 
-  char v114; 
-  unsigned int v115; 
-  gentity_s *v116; 
+  double v47; 
+  int v48; 
+  __int64 v49; 
+  __int64 v50; 
+  char v51; 
+  unsigned int v52; 
+  gentity_s *v53; 
   entityType_s eType; 
-  playerState_s *v118; 
-  __int64 v119; 
-  vec3_t *v120; 
-  __int16 *v121; 
-  vec3_t *v122; 
-  __int64 v123; 
-  gentity_s *v124; 
-  GMovingPlatformClient *v125; 
+  playerState_s *v55; 
+  __int64 v56; 
+  vec3_t *v57; 
+  __int16 *v58; 
+  vec3_t *v59; 
+  __int64 v60; 
+  gentity_s *v61; 
+  GMovingPlatformClient *v62; 
   int *ignoreEnts; 
   PhysicsQuery_Collected<unsigned short> *collectedEnts; 
-  PhysicsQuery_Collected<unsigned short> v128; 
+  PhysicsQuery_Collected<unsigned short> v65; 
+  float v66; 
   vec3_t *amovea; 
   vec3_t *movea; 
   Bounds rotatedBounds; 
@@ -2511,366 +2144,235 @@ void GMovingPlatforms::MoverPush(gentity_s *pusher, const vec3_t *move, const ve
   vec3_t aabbMax; 
   vec3_t aabbMin; 
   tmat33_t<vec3_t> axis; 
-  WorldUpReferenceFrame v137; 
-  __int16 v138[2048]; 
-  __int16 v139[2048]; 
+  WorldUpReferenceFrame v74; 
+  __int16 v75[2048]; 
+  __int16 v76[2048]; 
+  __int128 v77; 
+  __int128 v78; 
+  __int128 v79; 
+  __int128 v80; 
+  __int128 v81; 
+  __int128 v82; 
+  __int128 v83; 
+  __int128 v84; 
+  __int128 v85; 
+  __int128 v86; 
 
-  __asm
-  {
-    vmovaps [rsp+21F0h+var_30], xmm6
-    vmovaps [rsp+21F0h+var_40], xmm7
-  }
-  _RDI = pusher;
-  __asm
-  {
-    vmovaps [rsp+21F0h+var_50], xmm8
-    vmovaps [rsp+21F0h+var_60], xmm9
-  }
-  _R15 = amove;
-  __asm
-  {
-    vmovaps [rsp+21F0h+var_70], xmm10
-    vmovaps [rsp+21F0h+var_80], xmm11
-    vmovaps [rsp+21F0h+var_90], xmm12
-    vmovaps [rsp+21F0h+var_A0], xmm13
-  }
+  v86 = v3;
+  v13 = move;
+  v85 = v4;
+  v84 = v5;
+  v83 = v6;
+  v15 = amove;
+  v82 = v7;
+  v81 = v8;
+  v80 = v9;
+  v79 = v10;
   movea = (vec3_t *)move;
-  __asm
-  {
-    vmovaps [rsp+21F0h+var_B0], xmm14
-    vmovaps [rsp+21F0h+var_C0], xmm15
-  }
+  v78 = v11;
+  v77 = v12;
   amovea = (vec3_t *)amove;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_MovingPlatform MoverPush");
-  __asm
+  v16 = *(double *)&pusher->r.box.halfSize.y;
+  *(_OWORD *)baseBounds.midPoint.v = *(_OWORD *)pusher->r.box.midPoint.v;
+  p_currentAngles = &pusher->r.currentAngles;
+  v18 = pusher->r.currentAngles.v[0] == 0.0;
+  *(double *)&baseBounds.halfSize.y = v16;
+  if ( v18 && pusher->r.currentAngles.v[1] == 0.0 && pusher->r.currentAngles.v[2] == 0.0 && v15->v[0] == 0.0 && v15->v[1] == 0.0 && v15->v[2] == 0.0 )
   {
-    vmovups xmm0, xmmword ptr [rdi+100h]
-    vmovsd  xmm1, qword ptr [rdi+110h]
-    vmovups xmmword ptr [rbp+20F0h+baseBounds.midPoint], xmm0
-    vxorps  xmm0, xmm0, xmm0
-  }
-  _R14 = &_RDI->r.currentAngles;
-  __asm
-  {
-    vucomiss xmm0, dword ptr [r14]
-    vmovsd  qword ptr [rbp+20F0h+baseBounds.halfSize+4], xmm1
-  }
-  if ( !v15 )
-    goto LABEL_8;
-  __asm { vucomiss xmm0, dword ptr [rdi+140h] }
-  if ( !v15 )
-    goto LABEL_8;
-  __asm { vucomiss xmm0, dword ptr [rdi+144h] }
-  if ( !v15 )
-    goto LABEL_8;
-  __asm { vucomiss xmm0, dword ptr [r15] }
-  if ( !v15 )
-    goto LABEL_8;
-  __asm { vucomiss xmm0, dword ptr [r15+4] }
-  if ( !v15 )
-    goto LABEL_8;
-  __asm { vucomiss xmm0, dword ptr [r15+8] }
-  if ( v15 )
-  {
-    __asm
-    {
-      vmovss  xmm9, cs:__real@3f800000
-      vmovss  xmm0, dword ptr [rbp+20F0h+baseBounds.midPoint]
-      vmovss  xmm1, dword ptr [rbp+20F0h+baseBounds.midPoint+4]
-      vaddss  xmm4, xmm0, dword ptr [rdi+130h]
-      vaddss  xmm5, xmm1, dword ptr [rdi+134h]
-      vmovss  xmm0, dword ptr [rbp+20F0h+baseBounds.midPoint+8]
-      vmovss  xmm1, dword ptr [rbp+20F0h+baseBounds.halfSize]
-      vaddss  xmm8, xmm0, dword ptr [rdi+138h]
-      vmovss  xmm0, dword ptr [rbp+20F0h+baseBounds.halfSize+4]
-      vaddss  xmm11, xmm1, xmm9
-      vmovss  xmm1, dword ptr [rbp+20F0h+baseBounds.halfSize+8]
-      vaddss  xmm12, xmm0, xmm9
-      vaddss  xmm13, xmm1, xmm9
-    }
+    v19 = FLOAT_1_0;
+    v20 = baseBounds.midPoint.v[0] + pusher->r.currentOrigin.v[0];
+    v21 = baseBounds.midPoint.v[1] + pusher->r.currentOrigin.v[1];
+    v22 = baseBounds.midPoint.v[2] + pusher->r.currentOrigin.v[2];
+    v23 = baseBounds.halfSize.v[0] + 1.0;
+    v24 = baseBounds.halfSize.v[1] + 1.0;
+    v25 = baseBounds.halfSize.v[2] + 1.0;
   }
   else
   {
-LABEL_8:
-    AnglesToAxis(&_RDI->r.currentAngles, &axis);
-    Bounds_Transform(&baseBounds, &_RDI->r.currentOrigin, &axis, &rotatedBounds);
-    __asm
-    {
-      vmovss  xmm9, cs:__real@3f800000
-      vmovss  xmm0, dword ptr [rbp+20F0h+rotatedBounds.halfSize]
-      vmovss  xmm1, dword ptr [rbp+20F0h+rotatedBounds.halfSize+4]
-      vmovss  xmm8, dword ptr [rbp+20F0h+rotatedBounds.midPoint+8]
-      vmovss  xmm5, dword ptr [rsp+21F0h+rotatedBounds.midPoint+4]
-      vmovss  xmm4, dword ptr [rsp+21F0h+rotatedBounds.midPoint]
-      vaddss  xmm11, xmm0, xmm9
-      vmovss  xmm0, dword ptr [rbp+20F0h+rotatedBounds.halfSize+8]
-      vaddss  xmm13, xmm0, xmm9
-      vaddss  xmm12, xmm1, xmm9
-    }
+    AnglesToAxis(&pusher->r.currentAngles, &axis);
+    Bounds_Transform(&baseBounds, &pusher->r.currentOrigin, &axis, &rotatedBounds);
+    v19 = FLOAT_1_0;
+    v22 = rotatedBounds.midPoint.v[2];
+    v21 = rotatedBounds.midPoint.v[1];
+    v20 = rotatedBounds.midPoint.v[0];
+    v23 = rotatedBounds.halfSize.v[0] + 1.0;
+    v25 = rotatedBounds.halfSize.v[2] + 1.0;
+    v24 = rotatedBounds.halfSize.v[1] + 1.0;
   }
-  __asm
-  {
-    vaddss  xmm2, xmm8, dword ptr [r12+8]
-    vmovss  xmm10, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm15, xmm5, dword ptr [r12+4]
-    vaddss  xmm14, xmm4, dword ptr [r12]
-    vmovss  [rsp+21F0h+var_2190], xmm2
-    vmovss  xmm2, cs:__real@3f000000
-    vmulss  xmm0, xmm2, dword ptr [r12]
-    vaddss  xmm7, xmm0, xmm4
-    vandps  xmm0, xmm0, xmm10
-    vaddss  xmm6, xmm0, xmm11
-    vmulss  xmm0, xmm2, dword ptr [r12+4]
-    vaddss  xmm5, xmm0, xmm5
-    vandps  xmm0, xmm0, xmm10
-    vaddss  xmm4, xmm0, xmm12
-    vmulss  xmm0, xmm2, dword ptr [r12+8]
-    vaddss  xmm3, xmm0, xmm8
-    vandps  xmm0, xmm0, xmm10
-    vaddss  xmm2, xmm0, xmm13
-    vsubss  xmm0, xmm7, xmm6
-    vsubss  xmm1, xmm5, xmm4
-    vmovss  dword ptr [rbp+20F0h+aabbMin], xmm0
-    vmovss  dword ptr [rbp+20F0h+aabbMin+4], xmm1
-    vsubss  xmm0, xmm3, xmm2
-    vaddss  xmm1, xmm7, xmm6
-    vmovss  dword ptr [rbp+20F0h+aabbMin+8], xmm0
-    vmovss  dword ptr [rbp+20F0h+aabbMax], xmm1
-    vaddss  xmm0, xmm4, xmm5
-    vaddss  xmm1, xmm3, xmm2
-    vmovss  dword ptr [rbp+20F0h+aabbMax+4], xmm0
-    vmovss  dword ptr [rsp+21F0h+rotatedBounds.midPoint], xmm7
-    vmovss  dword ptr [rbp+20F0h+rotatedBounds.halfSize], xmm6
-    vmovss  dword ptr [rsp+21F0h+rotatedBounds.midPoint+4], xmm5
-    vmovss  dword ptr [rbp+20F0h+rotatedBounds.halfSize+4], xmm4
-    vmovss  dword ptr [rbp+20F0h+rotatedBounds.midPoint+8], xmm3
-    vmovss  dword ptr [rbp+20F0h+rotatedBounds.halfSize+8], xmm2
-    vmovss  dword ptr [rbp+20F0h+aabbMax+8], xmm1
-  }
-  SV_UnlinkEntity(_RDI);
-  v59 = 0;
-  v128.ids = (unsigned __int16 *)v138;
-  v128.count = 0;
-  v128.countMax = 2048;
-  PhysicsQuery_ImmediateAABBBroadphaseQuery(PHYSICS_WORLD_ID_FIRST, &aabbMin, &aabbMax, 24960, 0, NULL, &v128, NULL, 1);
-  __asm
-  {
-    vmovaps xmm8, [rsp+21F0h+var_50]
-    vmovaps xmm7, [rsp+21F0h+var_40]
-  }
-  v62 = 0;
+  v26 = v21 + v13->v[1];
+  v27 = v20 + v13->v[0];
+  v66 = v22 + v13->v[2];
+  v28 = 0.5 * v13->v[0];
+  v29 = v28 + v20;
+  v30 = COERCE_FLOAT(LODWORD(v28) & _xmm) + v23;
+  v31 = 0.5 * v13->v[1];
+  v32 = v31 + v21;
+  v33 = COERCE_FLOAT(LODWORD(v31) & _xmm) + v24;
+  v34 = 0.5 * v13->v[2];
+  v35 = COERCE_FLOAT(LODWORD(v34) & _xmm) + v25;
+  aabbMin.v[0] = v29 - v30;
+  aabbMin.v[1] = v32 - v33;
+  aabbMin.v[2] = (float)(v34 + v22) - v35;
+  aabbMax.v[0] = v29 + v30;
+  aabbMax.v[1] = v33 + v32;
+  rotatedBounds.midPoint.v[0] = v29;
+  rotatedBounds.halfSize.v[0] = v30;
+  rotatedBounds.midPoint.v[1] = v32;
+  rotatedBounds.halfSize.v[1] = v33;
+  rotatedBounds.midPoint.v[2] = v34 + v22;
+  rotatedBounds.halfSize.v[2] = v35;
+  aabbMax.v[2] = (float)(v34 + v22) + v35;
+  SV_UnlinkEntity(pusher);
+  v36 = 0;
+  v65.ids = (unsigned __int16 *)v75;
+  v65.count = 0;
+  v65.countMax = 2048;
+  PhysicsQuery_ImmediateAABBBroadphaseQuery(PHYSICS_WORLD_ID_FIRST, &aabbMin, &aabbMax, 24960, 0, NULL, &v65, NULL, 1);
+  v37 = 0;
   if ( level.maxclients > 0 )
   {
-    __asm { vmovss  xmm6, [rsp+21F0h+var_2190] }
+    v38 = v66;
     do
     {
-      if ( (unsigned int)v62 >= 0x800 )
+      if ( (unsigned int)v37 >= 0x800 )
       {
         LODWORD(collectedEnts) = 2048;
-        LODWORD(ignoreEnts) = v62;
+        LODWORD(ignoreEnts) = v37;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", ignoreEnts, collectedEnts) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      _RSI = v62;
-      if ( g_entities[_RSI].r.isInUse != g_entityIsInUse[v62] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      v39 = v37;
+      if ( g_entities[v39].r.isInUse != g_entityIsInUse[v37] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( g_entityIsInUse[v62] )
+      if ( g_entityIsInUse[v37] )
       {
-        EntityPlayerState = G_GetEntityPlayerState(&g_entities[_RSI]);
-        v66 = EntityPlayerState;
+        EntityPlayerState = G_GetEntityPlayerState(&g_entities[v39]);
+        v41 = EntityPlayerState;
         if ( EntityPlayerState )
         {
-          number = _RDI->s.number;
+          number = pusher->s.number;
           m_movingPlatformEntity = EntityPlayerState->movingPlatforms.m_movingPlatformEntity;
           if ( number == m_movingPlatformEntity )
             goto LABEL_29;
-          _R15 = g_entities;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi+r15+118h]
-            vmovsd  xmm1, qword ptr [rsi+r15+128h]
-            vmovups xmmword ptr [rsp+21F0h+rotatedBounds.midPoint], xmm0
-            vmovsd  qword ptr [rbp+20F0h+rotatedBounds.halfSize+4], xmm1
-          }
+          v44 = g_entities;
+          v45 = *(double *)&g_entities[v39].r.absBox.halfSize.y;
+          *(_OWORD *)rotatedBounds.midPoint.v = *(_OWORD *)g_entities[v39].r.absBox.midPoint.v;
+          *(double *)&rotatedBounds.halfSize.y = v45;
           Handler = GHandler::getHandler();
-          WorldUpReferenceFrame::WorldUpReferenceFrame(&v137, v66, Handler);
-          v73 = 0;
-          if ( v137.m_axisAdjusted )
+          WorldUpReferenceFrame::WorldUpReferenceFrame(&v74, v41, Handler);
+          if ( v74.m_axisAdjusted )
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsi+r15+100h]
-              vmovsd  xmm1, qword ptr [rsi+r15+110h]
-              vmovups xmmword ptr [rbp+20F0h+baseBounds.midPoint], xmm0
-              vmovsd  qword ptr [rbp+20F0h+baseBounds.halfSize+4], xmm1
-            }
-            AnglesToAxis(&v66->viewangles, &axis);
-            WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&v137, &axis);
-            Bounds_Transform(&baseBounds, &_R15[_RSI].r.currentOrigin, &axis, &rotatedBounds);
-            __asm
-            {
-              vaddss  xmm1, xmm9, dword ptr [rbp+20F0h+baseBounds.halfSize]
-              vaddss  xmm0, xmm9, dword ptr [rbp+20F0h+baseBounds.halfSize+4]
-              vaddss  xmm2, xmm9, dword ptr [rbp+20F0h+baseBounds.halfSize+8]
-              vmovss  dword ptr [rbp+20F0h+baseBounds.halfSize], xmm1
-              vmovss  dword ptr [rbp+20F0h+baseBounds.halfSize+4], xmm0
-              vmovss  dword ptr [rbp+20F0h+baseBounds.halfSize+8], xmm2
-            }
+            v47 = *(double *)&v44[v39].r.box.halfSize.y;
+            *(_OWORD *)baseBounds.midPoint.v = *(_OWORD *)v44[v39].r.box.midPoint.v;
+            *(double *)&baseBounds.halfSize.y = v47;
+            AnglesToAxis(&v41->viewangles, &axis);
+            WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&v74, &axis);
+            Bounds_Transform(&baseBounds, &v44[v39].r.currentOrigin, &axis, &rotatedBounds);
+            baseBounds.halfSize.v[0] = v19 + baseBounds.halfSize.v[0];
+            baseBounds.halfSize.v[1] = v19 + baseBounds.halfSize.v[1];
+            baseBounds.halfSize.v[2] = v19 + baseBounds.halfSize.v[2];
           }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+21F0h+rotatedBounds.midPoint]
-            vaddss  xmm1, xmm11, dword ptr [rbp+20F0h+rotatedBounds.halfSize]
-            vsubss  xmm2, xmm0, xmm14
-            vandps  xmm2, xmm2, xmm10
-            vcomiss xmm2, xmm1
-          }
-          if ( v73 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+21F0h+rotatedBounds.midPoint+4]
-              vaddss  xmm1, xmm12, dword ptr [rbp+20F0h+rotatedBounds.halfSize+4]
-              vsubss  xmm2, xmm0, xmm15
-              vandps  xmm2, xmm2, xmm10
-              vcomiss xmm2, xmm1
-            }
-            if ( v73 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbp+20F0h+rotatedBounds.midPoint+8]
-                vaddss  xmm1, xmm13, dword ptr [rbp+20F0h+rotatedBounds.halfSize+8]
-                vsubss  xmm2, xmm0, xmm6
-                vandps  xmm2, xmm2, xmm10
-                vcomiss xmm2, xmm1
-              }
-              if ( v73 )
-                goto LABEL_29;
-            }
-          }
-          if ( number == m_movingPlatformEntity )
+          if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(rotatedBounds.midPoint.v[0] - v27) & _xmm) < (float)(v23 + rotatedBounds.halfSize.v[0]) && COERCE_FLOAT(COERCE_UNSIGNED_INT(rotatedBounds.midPoint.v[1] - v26) & _xmm) < (float)(v24 + rotatedBounds.halfSize.v[1]) && COERCE_FLOAT(COERCE_UNSIGNED_INT(rotatedBounds.midPoint.v[2] - v38) & _xmm) < (float)(v25 + rotatedBounds.halfSize.v[2]) || number == m_movingPlatformEntity )
           {
 LABEL_29:
-            v59 = 0;
-            v91 = 0;
-            if ( v128.count )
+            v36 = 0;
+            v48 = 0;
+            if ( v65.count )
             {
-              while ( (unsigned __int16)v138[v91] != v62 )
+              while ( (unsigned __int16)v75[v48] != v37 )
               {
-                if ( ++v91 >= v128.count )
+                if ( ++v48 >= v65.count )
                   goto LABEL_32;
               }
             }
             else
             {
 LABEL_32:
-              if ( (v62 < 0 || (unsigned int)v62 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v62, "signed", v62) )
+              if ( (v37 < 0 || (unsigned int)v37 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v37, "signed", v37) )
                 __debugbreak();
-              v92 = v128.count++;
-              v138[v92] = v62;
+              v49 = v65.count++;
+              v75[v49] = v37;
             }
           }
           else
           {
-            v59 = 0;
+            v36 = 0;
           }
         }
       }
-      ++v62;
+      ++v37;
     }
-    while ( v62 < level.maxclients );
-    _R15 = amovea;
-    _R14 = &_RDI->r.currentAngles;
+    while ( v37 < level.maxclients );
+    v15 = amovea;
+    p_currentAngles = &pusher->r.currentAngles;
+    v13 = movea;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+130h]
-    vaddss  xmm1, xmm0, dword ptr [r12]
-    vmovaps xmm15, [rsp+21F0h+var_C0]
-    vmovaps xmm14, [rsp+21F0h+var_B0]
-    vmovaps xmm13, [rsp+21F0h+var_A0]
-    vmovaps xmm12, [rsp+21F0h+var_90]
-    vmovaps xmm11, [rsp+21F0h+var_80]
-    vmovaps xmm10, [rsp+21F0h+var_70]
-    vmovaps xmm9, [rsp+21F0h+var_60]
-    vmovaps xmm6, [rsp+21F0h+var_30]
-    vmovss  dword ptr [rdi+130h], xmm1
-    vmovss  xmm2, dword ptr [rdi+134h]
-    vaddss  xmm0, xmm2, dword ptr [r12+4]
-    vmovss  dword ptr [rdi+134h], xmm0
-    vmovss  xmm1, dword ptr [rdi+138h]
-    vaddss  xmm2, xmm1, dword ptr [r12+8]
-    vmovss  dword ptr [rdi+138h], xmm2
-    vmovss  xmm0, dword ptr [r15]
-    vaddss  xmm1, xmm0, dword ptr [r14]
-    vmovss  dword ptr [r14], xmm1
-    vmovss  xmm2, dword ptr [r14+4]
-    vaddss  xmm0, xmm2, dword ptr [r15+4]
-    vmovss  dword ptr [r14+4], xmm0
-    vmovss  xmm1, dword ptr [r14+8]
-    vaddss  xmm2, xmm1, dword ptr [r15+8]
-    vmovss  dword ptr [r14+8], xmm2
-  }
-  if ( (_RDI->flags.m_flags[0] & 0x20) == 0 || (v113 = 1i64, !GMovingPlatformClient::CanPush(_RDI)) )
-    v113 = 0i64;
-  v114 = 0;
-  v115 = 0;
-  if ( !v128.count )
+  pusher->r.currentOrigin.v[0] = pusher->r.currentOrigin.v[0] + v13->v[0];
+  pusher->r.currentOrigin.v[1] = pusher->r.currentOrigin.v[1] + v13->v[1];
+  pusher->r.currentOrigin.v[2] = pusher->r.currentOrigin.v[2] + v13->v[2];
+  p_currentAngles->v[0] = v15->v[0] + p_currentAngles->v[0];
+  p_currentAngles->v[1] = p_currentAngles->v[1] + v15->v[1];
+  p_currentAngles->v[2] = p_currentAngles->v[2] + v15->v[2];
+  if ( (pusher->flags.m_flags[0] & 0x20) == 0 || (v50 = 1i64, !GMovingPlatformClient::CanPush(pusher)) )
+    v50 = 0i64;
+  v51 = 0;
+  v52 = 0;
+  if ( !v65.count )
     goto LABEL_73;
   do
   {
-    v116 = &g_entities[(unsigned __int16)v138[v115]];
-    if ( v113 )
+    v53 = &g_entities[(unsigned __int16)v75[v52]];
+    if ( v50 )
     {
-      if ( !v116 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+      if ( !v53 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
         __debugbreak();
-      eType = v116->s.eType;
-      if ( (((eType - 1) & 0xFFED) != 0 || eType == ET_ITEM) && !GUtils::AreEntsInSameLinkTree(v116, _RDI) )
+      eType = v53->s.eType;
+      if ( (((eType - 1) & 0xFFED) != 0 || eType == ET_ITEM) && !GUtils::AreEntsInSameLinkTree(v53, pusher) )
       {
-        GScr_AddEntity(_RDI);
-        GScr_Notify(v116, scr_const.touching_platform, 1u);
+        GScr_AddEntity(pusher);
+        GScr_Notify(v53, scr_const.touching_platform, 1u);
       }
     }
-    v118 = G_GetEntityPlayerState(v116);
-    if ( v118 )
+    v55 = G_GetEntityPlayerState(v53);
+    if ( v55 )
     {
-      if ( v116->s.groundEntityNum == _RDI->s.number || v118->movingPlatforms.m_movingPlatformEntity == _RDI->s.number || (G_PhysicsObject_WarpToCurrentTransform(_RDI, 1), SV_LinkEntity(_RDI), v114 = 1, GMovingPlatformClient::TestEntityPosition(v116, &v116->r.currentOrigin) == _RDI) )
+      if ( v53->s.groundEntityNum == pusher->s.number || v55->movingPlatforms.m_movingPlatformEntity == pusher->s.number || (G_PhysicsObject_WarpToCurrentTransform(pusher, 1), SV_LinkEntity(pusher), v51 = 1, GMovingPlatformClient::TestEntityPosition(v53, &v53->r.currentOrigin) == pusher) )
       {
-        v119 = v59++;
-        v139[v119] = v138[v115];
+        v56 = v36++;
+        v76[v56] = v75[v52];
       }
     }
-    ++v115;
+    ++v52;
   }
-  while ( v115 < v128.count );
-  if ( !v114 )
+  while ( v52 < v65.count );
+  if ( !v51 )
   {
 LABEL_73:
-    if ( !GMovingPlatforms::IsEntityKeyframedMover(_RDI) )
-      G_PhysicsObject_WarpToCurrentTransform(_RDI, 0);
-    SV_LinkEntity(_RDI);
+    if ( !GMovingPlatforms::IsEntityKeyframedMover(pusher) )
+      G_PhysicsObject_WarpToCurrentTransform(pusher, 0);
+    SV_LinkEntity(pusher);
   }
-  if ( v59 )
+  if ( v36 )
   {
-    v120 = amovea;
-    v121 = v139;
-    v122 = movea;
-    v123 = v59;
+    v57 = amovea;
+    v58 = v76;
+    v59 = movea;
+    v60 = v36;
     do
     {
-      v124 = &g_entities[(unsigned __int16)*v121];
+      v61 = &g_entities[(unsigned __int16)*v58];
       if ( !GMovingPlatforms::ms_instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.h", 189, ASSERT_TYPE_ASSERT, "( ms_instance )", (const char *)&queryFormat, "ms_instance") )
         __debugbreak();
-      v125 = GMovingPlatforms::ms_instance->GetClientFromEntity(GMovingPlatforms::ms_instance, v124);
-      if ( v125 )
-        GMovingPlatformClient::DeferredAddCharacter(v125, v124, _RDI, v122, v120);
-      ++v121;
-      --v123;
+      v62 = GMovingPlatforms::ms_instance->GetClientFromEntity(GMovingPlatforms::ms_instance, v61);
+      if ( v62 )
+        GMovingPlatformClient::DeferredAddCharacter(v62, v61, pusher, v59, v57);
+      ++v58;
+      --v60;
     }
-    while ( v123 );
+    while ( v60 );
   }
   Sys_ProfEndNamedEvent();
 }
@@ -2885,13 +2387,7 @@ void GMovingPlatforms::MoverSlide(gentity_s *ent)
   GStepSlideMove stepSlide; 
 
   stepSlide.__vftable = (GStepSlideMove_vtbl *)&GStepSlideMove::`vftable';
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vmovss  [rsp+0C8h+stepSlide.baseclass_0.deltaTime], xmm1
-  }
+  stepSlide.deltaTime = (float)(level.time - level.previousTime) * 0.001;
   stepSlide.origin = &ent->r.currentOrigin;
   stepSlide.velocity = &ent->c.mover.pos.pos2;
   stepSlide.bounds = (const Bounds *)&ent->c;
@@ -2919,7 +2415,7 @@ void GMovingPlatforms::MoverTeam(gentity_s *ent, const vec3_t *deltaOrigin, cons
   trajectory_t_secure *p_pos; 
   GMovingPlatforms *MovingPlatforms; 
   void (__fastcall *reached)(gentity_s *); 
-  void (__fastcall *v14)(gentity_s *); 
+  void (__fastcall *v9)(gentity_s *); 
   GStepSlideMove stepSlide; 
   vec3_t outAMove; 
   vec3_t outMove; 
@@ -2946,16 +2442,12 @@ void GMovingPlatforms::MoverTeam(gentity_s *ent, const vec3_t *deltaOrigin, cons
       if ( (ent->flags.m_flags[0] & 0x80000) == 0 )
       {
 LABEL_19:
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  dword ptr [rbp+57h+outMove], xmm0
-          vmovss  dword ptr [rbp+57h+outMove+4], xmm0
-          vmovss  dword ptr [rbp+57h+outMove+8], xmm0
-          vmovss  dword ptr [rbp+57h+outAMove], xmm0
-          vmovss  dword ptr [rbp+57h+outAMove+4], xmm0
-          vmovss  dword ptr [rbp+57h+outAMove+8], xmm0
-        }
+        outMove.v[0] = 0.0;
+        outMove.v[1] = 0.0;
+        outMove.v[2] = 0.0;
+        outAMove.v[0] = 0.0;
+        outAMove.v[1] = 0.0;
+        outAMove.v[2] = 0.0;
         GMovingPlatforms::ComputeMoverPushDeltas(ent, deltaOrigin, deltaAngles, &outMove, &outAMove);
         GMovingPlatforms::MoverPush(ent, &outMove, &outAMove);
         if ( p_pos->trType )
@@ -2971,22 +2463,16 @@ LABEL_19:
         {
           if ( p_pos->trType != TR_PHYSICS_SERVER_AUTH && !ent->tagInfo && level.time >= ent->s.lerp.apos.trTime + ent->s.lerp.apos.trDuration )
           {
-            v14 = G_Main_GetEntHandlerList(ent)->reached;
-            if ( v14 )
-              v14(ent);
+            v9 = G_Main_GetEntHandlerList(ent)->reached;
+            if ( v9 )
+              v9(ent);
           }
         }
       }
       else
       {
         stepSlide.__vftable = (GStepSlideMove_vtbl *)&GStepSlideMove::`vftable';
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, cs:__real@3a83126f
-          vmovss  [rbp+57h+stepSlide.baseclass_0.deltaTime], xmm1
-        }
+        stepSlide.deltaTime = (float)(level.time - level.previousTime) * 0.001;
         stepSlide.origin = &ent->r.currentOrigin;
         stepSlide.velocity = &ent->c.mover.pos.pos2;
         stepSlide.bounds = (const Bounds *)&ent->c;
@@ -3014,7 +2500,13 @@ GMovingPlatformClient::PredictPosition
 */
 void GMovingPlatformClient::PredictPosition(GMovingPlatformClient *this, gentity_s *character)
 {
+  gentity_s *v4; 
   playerState_s *EntityPlayerState; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
   vec3_t angles; 
   tmat43_t<vec3_t> axis; 
   vec3_t in1; 
@@ -3025,58 +2517,30 @@ void GMovingPlatformClient::PredictPosition(GMovingPlatformClient *this, gentity
     this->m_deferredData.backupOrigin.v[0] = character->r.currentOrigin.v[0];
     this->m_deferredData.backupOrigin.v[1] = character->r.currentOrigin.v[1];
     this->m_deferredData.backupOrigin.v[2] = character->r.currentOrigin.v[2];
-    _RBP = &g_entities[this->m_deferredData.platformId];
+    v4 = &g_entities[this->m_deferredData.platformId];
     EntityPlayerState = G_GetEntityPlayerState(character);
     if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&EntityPlayerState->otherFlags, ACTIVE, 0xDu) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+130h]
-        vmovss  xmm1, dword ptr [rbp+134h]
-        vmovss  xmm2, dword ptr [rbp+140h]
-        vmovaps [rsp+0F8h+var_28], xmm6
-        vmovaps [rsp+0F8h+var_38], xmm7
-        vsubss  xmm7, xmm1, dword ptr [rdi+30h]
-        vmovaps [rsp+0F8h+var_48], xmm8
-        vsubss  xmm8, xmm0, dword ptr [rdi+2Ch]
-        vmovss  xmm0, dword ptr [rbp+138h]
-        vsubss  xmm6, xmm0, dword ptr [rdi+34h]
-        vmovss  xmm0, dword ptr [rbp+13Ch]
-        vsubss  xmm1, xmm0, dword ptr [rdi+38h]
-        vsubss  xmm0, xmm2, dword ptr [rdi+3Ch]
-        vmovss  dword ptr [rsp+0F8h+angles], xmm1
-        vmovss  xmm1, dword ptr [rbp+144h]
-        vsubss  xmm2, xmm1, dword ptr [rdi+40h]
-        vmovss  dword ptr [rsp+0F8h+angles+8], xmm2
-        vmovss  dword ptr [rsp+0F8h+angles+4], xmm0
-      }
+      v6 = v4->r.currentOrigin.v[1] - this->m_deferredData.deltaOrigin.v[1];
+      v7 = v4->r.currentOrigin.v[0] - this->m_deferredData.deltaOrigin.v[0];
+      v8 = v4->r.currentOrigin.v[2] - this->m_deferredData.deltaOrigin.v[2];
+      v9 = v4->r.currentAngles.v[1] - this->m_deferredData.deltaAngles.v[1];
+      angles.v[0] = v4->r.currentAngles.v[0] - this->m_deferredData.deltaAngles.v[0];
+      angles.v[2] = v4->r.currentAngles.v[2] - this->m_deferredData.deltaAngles.v[2];
+      angles.v[1] = v9;
       AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&axis);
-      __asm
-      {
-        vmovss  [rsp+0F8h+var_A4], xmm8
-        vmovss  [rsp+0F8h+var_A0], xmm7
-        vmovss  [rsp+0F8h+var_9C], xmm6
-      }
+      axis.m[3].v[0] = v7;
+      axis.m[3].v[1] = v6;
+      axis.m[3].v[2] = v8;
       MatrixInverseOrthogonal43(&axis, &out);
       MatrixTransformVector43(&character->r.currentOrigin, &out, &in1);
-      AnglesToAxis(&_RBP->r.currentAngles, (tmat33_t<vec3_t> *)&axis);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+130h]
-        vmovss  xmm1, dword ptr [rbp+134h]
-        vmovss  [rsp+0F8h+var_A4], xmm0
-        vmovss  xmm0, dword ptr [rbp+138h]
-        vmovss  [rsp+0F8h+var_9C], xmm0
-        vmovss  [rsp+0F8h+var_A0], xmm1
-      }
+      AnglesToAxis(&v4->r.currentAngles, (tmat33_t<vec3_t> *)&axis);
+      v10 = v4->r.currentOrigin.v[1];
+      axis.m[3].v[0] = v4->r.currentOrigin.v[0];
+      axis.m[3].v[2] = v4->r.currentOrigin.v[2];
+      axis.m[3].v[1] = v10;
       MatrixTransformVector43(&in1, &axis, &character->r.currentOrigin);
       G_PhysicsCharacterProxy_Teleport(character, 1);
-      __asm
-      {
-        vmovaps xmm8, [rsp+0F8h+var_48]
-        vmovaps xmm7, [rsp+0F8h+var_38]
-        vmovaps xmm6, [rsp+0F8h+var_28]
-      }
     }
   }
 }
@@ -3086,27 +2550,25 @@ void GMovingPlatformClient::PredictPosition(GMovingPlatformClient *this, gentity
 GMovingPlatforms::PredictPositions
 ==============
 */
-void GMovingPlatforms::PredictPositions()
+void GMovingPlatforms::PredictPositions(void)
 {
   unsigned int i; 
-  gentity_s *v5; 
-  GMovingPlatformClient *v6; 
+  gentity_s *v1; 
+  GMovingPlatformClient *v2; 
+  gentity_s *v3; 
   playerState_s *EntityPlayerState; 
-  __int64 v27; 
-  __int64 v28; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  __int64 v10; 
+  __int64 v11; 
   vec3_t angles; 
   tmat43_t<vec3_t> axis; 
   vec3_t in1; 
   tmat43_t<vec3_t> out; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-48h], xmm7
-    vmovaps xmmword ptr [r11-58h], xmm8
-  }
   for ( i = 0; ; ++i )
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
@@ -3115,9 +2577,9 @@ void GMovingPlatforms::PredictPositions()
       break;
     if ( i >= 0x800 )
     {
-      LODWORD(v28) = 2048;
-      LODWORD(v27) = i;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v27, v28) )
+      LODWORD(v11) = 2048;
+      LODWORD(v10) = i;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v10, v11) )
         __debugbreak();
     }
     if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
@@ -3126,69 +2588,44 @@ void GMovingPlatforms::PredictPositions()
       __debugbreak();
     if ( g_entityIsInUse[i] )
     {
-      v5 = &g_entities[i];
+      v1 = &g_entities[i];
       if ( !GMovingPlatforms::ms_instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.h", 189, ASSERT_TYPE_ASSERT, "( ms_instance )", (const char *)&queryFormat, "ms_instance") )
         __debugbreak();
-      v6 = GMovingPlatforms::ms_instance->GetClientFromEntity(GMovingPlatforms::ms_instance, v5);
-      if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 871, ASSERT_TYPE_ASSERT, "(movingPlatformClient)", (const char *)&queryFormat, "movingPlatformClient") )
+      v2 = GMovingPlatforms::ms_instance->GetClientFromEntity(GMovingPlatforms::ms_instance, v1);
+      if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 871, ASSERT_TYPE_ASSERT, "(movingPlatformClient)", (const char *)&queryFormat, "movingPlatformClient") )
         __debugbreak();
-      if ( BGMovingPlatforms::IsMovingPlatform(v6->m_deferredData.platformId) )
+      if ( BGMovingPlatforms::IsMovingPlatform(v2->m_deferredData.platformId) )
       {
-        v6->m_deferredData.backupOrigin.v[0] = v5->r.currentOrigin.v[0];
-        v6->m_deferredData.backupOrigin.v[1] = v5->r.currentOrigin.v[1];
-        v6->m_deferredData.backupOrigin.v[2] = v5->r.currentOrigin.v[2];
-        _R15 = &g_entities[v6->m_deferredData.platformId];
-        EntityPlayerState = G_GetEntityPlayerState(v5);
+        v2->m_deferredData.backupOrigin.v[0] = v1->r.currentOrigin.v[0];
+        v2->m_deferredData.backupOrigin.v[1] = v1->r.currentOrigin.v[1];
+        v2->m_deferredData.backupOrigin.v[2] = v1->r.currentOrigin.v[2];
+        v3 = &g_entities[v2->m_deferredData.platformId];
+        EntityPlayerState = G_GetEntityPlayerState(v1);
         if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&EntityPlayerState->otherFlags, ACTIVE, 0xDu) )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r15+130h]
-            vsubss  xmm8, xmm0, dword ptr [rsi+2Ch]
-            vmovss  xmm0, dword ptr [r15+138h]
-            vsubss  xmm6, xmm0, dword ptr [rsi+34h]
-            vmovss  xmm1, dword ptr [r15+134h]
-            vmovss  xmm0, dword ptr [r15+13Ch]
-            vsubss  xmm7, xmm1, dword ptr [rsi+30h]
-            vsubss  xmm1, xmm0, dword ptr [rsi+38h]
-            vmovss  xmm2, dword ptr [r15+140h]
-            vsubss  xmm0, xmm2, dword ptr [rsi+3Ch]
-            vmovss  dword ptr [rsp+128h+angles], xmm1
-            vmovss  xmm1, dword ptr [r15+144h]
-            vsubss  xmm2, xmm1, dword ptr [rsi+40h]
-            vmovss  dword ptr [rsp+128h+angles+8], xmm2
-            vmovss  dword ptr [rsp+128h+angles+4], xmm0
-          }
+          v5 = v3->r.currentOrigin.v[0] - v2->m_deferredData.deltaOrigin.v[0];
+          v6 = v3->r.currentOrigin.v[2] - v2->m_deferredData.deltaOrigin.v[2];
+          v7 = v3->r.currentOrigin.v[1] - v2->m_deferredData.deltaOrigin.v[1];
+          v8 = v3->r.currentAngles.v[1] - v2->m_deferredData.deltaAngles.v[1];
+          angles.v[0] = v3->r.currentAngles.v[0] - v2->m_deferredData.deltaAngles.v[0];
+          angles.v[2] = v3->r.currentAngles.v[2] - v2->m_deferredData.deltaAngles.v[2];
+          angles.v[1] = v8;
           AnglesToAxis(&angles, (tmat33_t<vec3_t> *)&axis);
-          __asm
-          {
-            vmovss  [rsp+128h+var_B4], xmm8
-            vmovss  [rsp+128h+var_B0], xmm7
-            vmovss  [rsp+128h+var_AC], xmm6
-          }
+          axis.m[3].v[0] = v5;
+          axis.m[3].v[1] = v7;
+          axis.m[3].v[2] = v6;
           MatrixInverseOrthogonal43(&axis, &out);
-          MatrixTransformVector43(&v5->r.currentOrigin, &out, &in1);
-          AnglesToAxis(&_R15->r.currentAngles, (tmat33_t<vec3_t> *)&axis);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r15+130h]
-            vmovss  xmm1, dword ptr [r15+134h]
-            vmovss  [rsp+128h+var_B4], xmm0
-            vmovss  xmm0, dword ptr [r15+138h]
-            vmovss  [rsp+128h+var_AC], xmm0
-            vmovss  [rsp+128h+var_B0], xmm1
-          }
-          MatrixTransformVector43(&in1, &axis, &v5->r.currentOrigin);
-          G_PhysicsCharacterProxy_Teleport(v5, 1);
+          MatrixTransformVector43(&v1->r.currentOrigin, &out, &in1);
+          AnglesToAxis(&v3->r.currentAngles, (tmat33_t<vec3_t> *)&axis);
+          v9 = v3->r.currentOrigin.v[1];
+          axis.m[3].v[0] = v3->r.currentOrigin.v[0];
+          axis.m[3].v[2] = v3->r.currentOrigin.v[2];
+          axis.m[3].v[1] = v9;
+          MatrixTransformVector43(&in1, &axis, &v1->r.currentOrigin);
+          G_PhysicsCharacterProxy_Teleport(v1, 1);
         }
       }
     }
-  }
-  __asm
-  {
-    vmovaps xmm8, [rsp+128h+var_58]
-    vmovaps xmm7, [rsp+128h+var_48]
-    vmovaps xmm6, [rsp+128h+var_38]
   }
 }
 
@@ -3266,9 +2703,8 @@ void GMovingPlatforms::RunMoverNonScriptedAnim(gentity_s *ent)
 {
   const DObj *ServerDObjForEnt; 
   const DObj *v3; 
-  char v4; 
-  char v6; 
-  char v16; 
+  bool v4; 
+  bool v5; 
   vec3_t in1; 
   vec4_t quat; 
   vec3_t origin; 
@@ -3285,46 +2721,16 @@ void GMovingPlatforms::RunMoverNonScriptedAnim(gentity_s *ent)
       if ( DObjGetTree(ServerDObjForEnt) )
       {
         XAnimCalcDelta3D(v3, 0, XANIM_SUBTREE_DEFAULT, 0, &quat, &in1, 1);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+108h+quat+0Ch]
-          vucomiss xmm0, cs:__real@3f800000
-        }
+        v4 = quat.v[3] != 1.0 && quat.v[3] != -1.0;
+        v5 = (float)((float)((float)(in1.v[0] * in1.v[0]) + (float)(in1.v[1] * in1.v[1])) + (float)(in1.v[2] * in1.v[2])) != 0.0;
         if ( v4 )
-        {
-          v6 = 0;
-          v4 = 1;
-        }
-        else
-        {
-          __asm { vucomiss xmm0, cs:__real@bf800000 }
-          v6 = 1;
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+108h+in1]
-          vmovss  xmm1, dword ptr [rsp+108h+in1+4]
-          vmulss  xmm3, xmm0, xmm0
-          vmovss  xmm0, dword ptr [rsp+108h+in1+8]
-          vmulss  xmm2, xmm1, xmm1
-          vaddss  xmm4, xmm3, xmm2
-          vmulss  xmm1, xmm0, xmm0
-          vaddss  xmm3, xmm4, xmm1
-          vxorps  xmm2, xmm2, xmm2
-          vucomiss xmm3, xmm2
-        }
-        if ( v4 )
-          v16 = 0;
-        else
-          v16 = 1;
-        if ( v6 )
         {
           QuatToAxis(&quat, &axis);
           AnglesToAxis(&ent->r.currentAngles, (tmat33_t<vec3_t> *)&in2);
           MatrixMultiply(&axis, (const tmat33_t<vec3_t> *)&in2, &out);
           AxisToAngles(&out, &ent->r.currentAngles);
         }
-        if ( v16 )
+        if ( v5 )
         {
           AnglesAndOriginToMatrix43(&ent->r.currentAngles, &ent->r.currentOrigin, &in2);
           MatrixTransformVector43(&in1, &in2, &origin);
@@ -3332,7 +2738,7 @@ void GMovingPlatforms::RunMoverNonScriptedAnim(gentity_s *ent)
           if ( ent->r.isLinked )
             SV_LinkEntity(ent);
         }
-        else if ( v6 )
+        else if ( v4 )
         {
           G_SetAngle(ent, &ent->r.currentAngles, 1, 1);
         }
@@ -3348,29 +2754,27 @@ GMovingPlatformClient::SendUnresolvedCollision
 */
 void GMovingPlatformClient::SendUnresolvedCollision(GMovingPlatformClient *this, gentity_s *pusher, gentity_s *character, int touchingEnt)
 {
-  __int64 v5; 
+  __int64 v4; 
   playerState_s *ps; 
   GPlayerTraceInfo *PlayerTraceInfo; 
-  scrContext_t *v15; 
-  BgTrace v16; 
+  scrContext_t *v9; 
+  BgTrace v10; 
   float value; 
+  float v12; 
+  float v13; 
   trace_t results; 
 
-  v5 = touchingEnt;
-  if ( G_MovingPlatforms_DoesMoveTypeSupportMovers(character) && (!BGMovingPlatforms::IsMovingPlatform(v5) || g_entities[v5].s.eType != ET_INVISIBLE) )
+  v4 = touchingEnt;
+  if ( G_MovingPlatforms_DoesMoveTypeSupportMovers(character) && (!BGMovingPlatforms::IsMovingPlatform(v4) || g_entities[v4].s.eType != ET_INVISIBLE) )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+108h+value], xmm0
-      vmovss  [rsp+108h+var_94], xmm0
-      vmovss  [rsp+108h+var_90], xmm0
-    }
+    value = 0.0;
+    v12 = 0.0;
+    v13 = 0.0;
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_LADDER_CLIMB|0x100) )
     {
 LABEL_14:
-      v15 = ScriptContext_Server();
-      Scr_AddVector(v15, &value);
+      v9 = ScriptContext_Server();
+      Scr_AddVector(v9, &value);
       GScr_AddEntity(pusher);
       GScr_Notify(character, scr_const.unresolved_collision, 2u);
       GScr_AddEntity(character);
@@ -3383,20 +2787,13 @@ LABEL_14:
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 620, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
     PlayerTraceInfo = GPlayerTraceInfo::GetPlayerTraceInfo(character->s.number);
-    BgTrace::BgTrace(&v16, PlayerTraceInfo);
-    BgTrace::LegacyTraceHandler(&v16, PHYSICS_WORLD_ID_FIRST, &results, &ps->origin, &ps->origin, &character->client->playerBox, ps->clientNum, character->clipmask & 0xFDFFBFFF, ps);
+    BgTrace::BgTrace(&v10, PlayerTraceInfo);
+    BgTrace::LegacyTraceHandler(&v10, PHYSICS_WORLD_ID_FIRST, &results, &ps->origin, &ps->origin, &character->client->playerBox, ps->clientNum, character->clipmask & 0xFDFFBFFF, ps);
     if ( results.startsolid || results.allsolid )
     {
-      __asm
-      {
-        vmovss  xmm3, [rsp+108h+results.closestPointsPenetration]
-        vmulss  xmm1, xmm3, dword ptr [rsp+108h+results.normal]
-        vmulss  xmm0, xmm3, dword ptr [rsp+108h+results.normal+4]
-        vmulss  xmm2, xmm3, dword ptr [rsp+108h+results.normal+8]
-        vmovss  [rsp+108h+value], xmm1
-        vmovss  [rsp+108h+var_94], xmm0
-        vmovss  [rsp+108h+var_90], xmm2
-      }
+      value = results.closestPointsPenetration * results.normal.v[0];
+      v12 = results.closestPointsPenetration * results.normal.v[1];
+      v13 = results.closestPointsPenetration * results.normal.v[2];
       goto LABEL_14;
     }
   }
@@ -3411,13 +2808,13 @@ gentity_s *GMovingPlatformClient::TestEntityPosition(gentity_s *ent, const vec3_
 {
   const dvar_t *v4; 
   entityType_s eType; 
+  double v6; 
   const playerState_s *ps; 
   unsigned __int16 EntityHitId; 
   int skipEntities; 
   Bounds bounds; 
   trace_t results; 
 
-  _RBX = ent;
   if ( !BG_IsCharacterEntity(&ent->s) )
     return 0i64;
   v4 = DCONST_DVARBOOL_useBgTraceSystem;
@@ -3426,24 +2823,20 @@ gentity_s *GMovingPlatformClient::TestEntityPosition(gentity_s *ent, const vec3_
   Dvar_CheckFrontendServerThread(v4);
   if ( v4->current.enabled )
     return 0i64;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  eType = _RBX->s.eType;
+  eType = ent->s.eType;
   if ( (((eType - 1) & 0xFFED) != 0 || eType == ET_ITEM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 128, ASSERT_TYPE_ASSERT, "(BG_IsCharacterEntity( &ent->s ))", (const char *)&queryFormat, "BG_IsCharacterEntity( &ent->s )") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+100h]
-    vmovsd  xmm1, qword ptr [rbx+110h]
-    vmovups xmmword ptr [rsp+108h+bounds.midPoint], xmm0
-    vmovsd  qword ptr [rsp+108h+bounds.halfSize+4], xmm1
-  }
+  v6 = *(double *)&ent->r.box.halfSize.y;
+  *(_OWORD *)bounds.midPoint.v = *(_OWORD *)ent->r.box.midPoint.v;
+  *(double *)&bounds.halfSize.y = v6;
   Bounds_ExpandToWidth(&bounds);
-  ps = G_GetEntityPlayerState(_RBX);
+  ps = G_GetEntityPlayerState(ent);
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 134, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  skipEntities = _RBX->s.number;
-  PhysicsQuery_LegacyCapsuleTrace(PHYSICS_WORLD_ID_FIRST, &results, vOrigin, vOrigin, &bounds, &skipEntities, 1, _RBX->clipmask & 0xFDFFFFFF, ps, 0, NULL, NULL);
+  skipEntities = ent->s.number;
+  PhysicsQuery_LegacyCapsuleTrace(PHYSICS_WORLD_ID_FIRST, &results, vOrigin, vOrigin, &bounds, &skipEntities, 1, ent->clipmask & 0xFDFFFFFF, ps, 0, NULL, NULL);
   EntityHitId = Trace_GetEntityHitId(&results);
   if ( results.startsolid || results.allsolid )
     return &g_entities[EntityHitId];
@@ -3458,25 +2851,10 @@ GMovingPlatforms::TraceHitMovingPlatform
 */
 int GMovingPlatforms::TraceHitMovingPlatform(const trace_t *trace)
 {
-  bool v2; 
-  bool v3; 
-
-  _RBX = trace;
-  v2 = trace == NULL;
-  if ( !trace )
-  {
-    v3 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 184, ASSERT_TYPE_ASSERT, "(trace)", (const char *)&queryFormat, "trace");
-    v2 = !v3;
-    if ( v3 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vcomiss xmm0, dword ptr [rbx]
-  }
-  if ( !v2 && _RBX->hitType == TRACE_HITTYPE_ENTITY && BGMovingPlatforms::IsMovingPlatform(_RBX->hitId) )
-    return BGMovingPlatforms::IsPlatformType(g_entities[_RBX->hitId].s.eType);
+  if ( !trace && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 184, ASSERT_TYPE_ASSERT, "(trace)", (const char *)&queryFormat, "trace") )
+    __debugbreak();
+  if ( trace->fraction < 1.0 && trace->hitType == TRACE_HITTYPE_ENTITY && BGMovingPlatforms::IsMovingPlatform(trace->hitId) )
+    return BGMovingPlatforms::IsPlatformType(g_entities[trace->hitId].s.eType);
   else
     return 0;
 }
@@ -3488,240 +2866,139 @@ GMovingPlatformClient::TryPushingClient
 */
 void GMovingPlatformClient::TryPushingClient(GMovingPlatformClient *this, gentity_s *check, gentity_s *pusher, const vec3_t *move, const vec3_t *amove, vec3_t *outNewOrigin)
 {
-  int number; 
-  int m_movingPlatformEntity; 
-  bool v17; 
-  bool v18; 
-  const dvar_t *v23; 
-  GHandler *v29; 
+  __int128 v6; 
+  playerState_s *EntityPlayerState; 
+  gclient_s *client; 
+  const dvar_t *v12; 
+  double v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  GHandler *v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
   GMovingPlatformClient *ClientFromGEntity; 
   int clipMask; 
   GHandler *handler; 
-  int v48; 
-  char v50; 
-  bool v51; 
-  scrContext_t *v63; 
-  bool v64; 
-  float v65; 
+  scrContext_t *v26; 
+  bool v27; 
   BOOL flags; 
   vec3_t outVel; 
   vec3_t oldAngles; 
   vec3_t oldOrigin; 
   Bounds bounds; 
-  BGMovingPlatformSolver v71; 
+  BGMovingPlatformSolver v33; 
+  __int128 v34; 
 
-  __asm { vmovaps [rsp+230h+var_50], xmm6 }
-  _RBX = move;
-  _R13 = pusher;
   *(_QWORD *)outVel.v = this;
-  _RSI = check;
-  _RDI = G_GetEntityPlayerState(check);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 649, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+  EntityPlayerState = G_GetEntityPlayerState(check);
+  if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 649, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  number = _R13->s.number;
-  m_movingPlatformEntity = _RDI->movingPlatforms.m_movingPlatformEntity;
-  v17 = m_movingPlatformEntity == number;
-  if ( m_movingPlatformEntity != number )
-  {
-    v18 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 650, ASSERT_TYPE_ASSERT, "(ps->movingPlatforms.GetMoverEntityID() == pusher->s.number)", "%s\n\tclient = %d, platform = %d, pusher = %d", "ps->movingPlatforms.GetMoverEntityID() == pusher->s.number", _RSI->s.number, _RDI->movingPlatforms.m_movingPlatformEntity, _R13->s.number);
-    v17 = !v18;
-    if ( v18 )
-      __debugbreak();
-  }
-  *outNewOrigin = _RSI->r.currentOrigin;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm6, dword ptr [rsi+10Ch]
-  }
-  if ( v17 )
+  if ( EntityPlayerState->movingPlatforms.m_movingPlatformEntity != pusher->s.number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 650, ASSERT_TYPE_ASSERT, "(ps->movingPlatforms.GetMoverEntityID() == pusher->s.number)", "%s\n\tclient = %d, platform = %d, pusher = %d", "ps->movingPlatforms.GetMoverEntityID() == pusher->s.number", check->s.number, EntityPlayerState->movingPlatforms.m_movingPlatformEntity, pusher->s.number) )
+    __debugbreak();
+  *outNewOrigin = check->r.currentOrigin;
+  if ( check->r.box.halfSize.v[0] == 0.0 || check->r.box.halfSize.v[2] == 0.0 )
   {
     Com_PrintWarning(1, "Bounds for player is 0, but is expecting a volume. Penetration will not be resolved.\n");
-    goto LABEL_37;
+    return;
   }
-  __asm { vucomiss xmm6, dword ptr [rsi+114h] }
-  if ( BGMovingPlatformPS::IsNewRockingMoverCollisionEnabled() )
+  if ( !BGMovingPlatformPS::IsNewRockingMoverCollisionEnabled() )
   {
-    __asm { vucomiss xmm6, dword ptr [rbx] }
-    goto LABEL_10;
+    if ( !Vec3ZeroEpsilon(move) || !Vec3ZeroEpsilon(amove) )
+      goto LABEL_16;
+LABEL_21:
+    v12 = DVARBOOL_playerCharacterCollisionUnresolvedCollisionFix;
+    if ( !DVARBOOL_playerCharacterCollisionUnresolvedCollisionFix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerCharacterCollisionUnresolvedCollisionFix") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v12);
+    if ( v12->current.enabled && Com_GameMode_SupportsFeature(WEAPON_DROPPING_AKIMBO|0x100) )
+      GMovingPlatformClient::UnresolvedCollisionOnlyUpdate(*(GMovingPlatformClient **)outVel.v, check, EntityPlayerState);
+    return;
   }
-  if ( !Vec3ZeroEpsilon(_RBX) || !Vec3ZeroEpsilon(amove) )
+  if ( move->v[0] == 0.0 && move->v[1] == 0.0 && move->v[2] == 0.0 && amove->v[0] == 0.0 && amove->v[1] == 0.0 && amove->v[2] == 0.0 )
+    goto LABEL_21;
+LABEL_16:
+  v34 = v6;
+  if ( BGMovingPlatformPS::UseRockingMoverWallFix2() && (client = check->client) != NULL )
   {
-LABEL_10:
-    __asm
-    {
-      vmovaps [rsp+230h+var_60], xmm7
-      vmovaps [rsp+230h+var_70], xmm8
-      vmovaps [rsp+230h+var_80], xmm9
-      vmovaps [rsp+230h+var_90], xmm10
-    }
-    if ( BGMovingPlatformPS::UseRockingMoverWallFix2() && (_RAX = _RSI->client) != NULL )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax+0AA84h]
-        vmovups xmmword ptr [rbp+130h+bounds.midPoint], xmm0
-        vmovsd  xmm1, qword ptr [rax+0AA94h]
-        vmovsd  qword ptr [rbp+130h+bounds.halfSize+4], xmm1
-      }
-    }
-    else
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi+100h]
-        vmovsd  xmm1, qword ptr [rsi+110h]
-        vmovups xmmword ptr [rbp+130h+bounds.midPoint], xmm0
-        vmovsd  qword ptr [rbp+130h+bounds.halfSize+4], xmm1
-      }
-      Bounds_ExpandToWidth(&bounds);
-    }
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rdi+60h]
-      vmovss  xmm8, dword ptr [rdi+64h]
-      vmovss  xmm9, dword ptr [rdi+68h]
-    }
-    v29 = GHandler::getHandler();
-    BGMovingPlatformPS::UpdateMoverUpAngles(&_RDI->movingPlatforms, _RDI, v29, &bounds);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r13+130h]
-      vsubss  xmm1, xmm0, dword ptr [rbx]
-      vmovss  xmm2, dword ptr [r13+134h]
-      vsubss  xmm0, xmm2, dword ptr [rbx+4]
-      vmovss  dword ptr [rbp+130h+var_188], xmm1
-      vmovss  xmm1, dword ptr [r13+138h]
-      vsubss  xmm2, xmm1, dword ptr [rbx+8]
-      vmovss  dword ptr [rbp+130h+var_188+4], xmm0
-      vmovss  xmm0, dword ptr [r13+13Ch]
-      vsubss  xmm1, xmm0, dword ptr [r12]
-      vmovss  dword ptr [rbp+130h+var_188+8], xmm2
-      vmovss  xmm2, dword ptr [r13+140h]
-      vsubss  xmm0, xmm2, dword ptr [r12+4]
-      vmovss  dword ptr [rbp+130h+var_198], xmm1
-      vmovss  xmm1, dword ptr [r13+144h]
-      vsubss  xmm2, xmm1, dword ptr [r12+8]
-      vmovss  dword ptr [rbp+130h+var_198+8], xmm2
-      vmovss  dword ptr [rbp+130h+var_198+4], xmm0
-    }
-    if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
-      __debugbreak();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-      vmulss  xmm10, xmm0, cs:__real@3a83126f
-    }
-    flags = BGMovingPlatforms::IsMoverOptimized(&_R13->s);
-    ClientFromGEntity = GMovingPlatforms::GetClientFromGEntity(_RSI);
-    if ( !ClientFromGEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 709, ASSERT_TYPE_ASSERT, "(movingPlatformClient)", (const char *)&queryFormat, "movingPlatformClient") )
-      __debugbreak();
-    clipMask = _RSI->clipmask & 0xFDFFFFFF;
-    handler = GHandler::getHandler();
-    __asm { vmovss  [rsp+230h+var_1C8], xmm10 }
-    BGMovingPlatformSolver::BGMovingPlatformSolver(&v71, _RDI, ClientFromGEntity, &_R13->r.currentOrigin, &_R13->r.currentAngles, &oldOrigin, &oldAngles, &_RSI->r.currentOrigin, _R13->s.number, _R13->s.index.brushModel, handler, LOCAL_CLIENT_INVALID, &bounds, v65, clipMask, flags);
-    v48 = BGMovingPlatformSolver::SolveSystem(&v71);
-    __asm { vmovaps xmm10, [rsp+230h+var_90] }
-    if ( v48 )
-    {
-      v51 = v71.m_push == 0;
-      if ( v71.m_push )
-      {
-        BGMovingPlatformSolver::GetLinearPlatformVelcity(&v71, &outVel);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+130h+outVel]
-          vucomiss xmm0, xmm6
-          vmovss  xmm3, dword ptr [rbp+130h+outVel+8]
-          vmovss  xmm1, dword ptr [rbp+130h+outVel+4]
-        }
-        if ( !v51 )
-          goto LABEL_42;
-        __asm { vucomiss xmm1, xmm6 }
-        if ( !v51 )
-          goto LABEL_42;
-        __asm { vucomiss xmm3, xmm6 }
-        if ( !v51 )
-        {
-LABEL_42:
-          __asm
-          {
-            vmovss  xmm2, cs:__real@3f91745d
-            vmulss  xmm0, xmm0, xmm2
-            vmovss  dword ptr [rbp+130h+outVel], xmm0
-            vmulss  xmm0, xmm3, xmm2
-            vmulss  xmm1, xmm1, xmm2
-            vmovss  dword ptr [rbp+130h+outVel+8], xmm0
-            vmovss  dword ptr [rbp+130h+outVel+4], xmm1
-          }
-          v63 = ScriptContext_Server();
-          Scr_AddVector(v63, outVel.v);
-          GScr_AddEntity(_RSI);
-          GScr_Notify(_R13, scr_const.player_pushed, 2u);
-        }
-      }
-    }
-    else
-    {
-      if ( BGMovingPlatformClient::NeedToResolveCollision(ClientFromGEntity, _RDI) && !v71.m_actorResolve && _RDI->pm_type < 7 )
-        GMovingPlatformClient::SendUnresolvedCollision(*(GMovingPlatformClient **)outVel.v, _R13, _RSI, v71.m_failedTraceHitId);
-      v50 = (*(__int64 (__fastcall **)(_QWORD, _QWORD, _QWORD))(**(_QWORD **)outVel.v + 16i64))(*(_QWORD *)outVel.v, (unsigned int)_R13->s.number, (unsigned int)v71.m_failedTraceHitId);
-      v51 = v50 == 0;
-      if ( !v50 )
-      {
-        *outNewOrigin = _RSI->r.currentOrigin;
-        if ( BGMovingPlatformPS::IsNewRockingMoverCollisionEnabled() )
-        {
-          __asm
-          {
-            vmovss  dword ptr [rdi+60h], xmm7
-            vmovss  dword ptr [rdi+64h], xmm8
-            vmovss  dword ptr [rdi+68h], xmm9
-          }
-        }
-LABEL_36:
-        __asm
-        {
-          vmovaps xmm8, [rsp+230h+var_70]
-          vmovaps xmm7, [rsp+230h+var_60]
-          vmovaps xmm9, [rsp+230h+var_80]
-        }
-        goto LABEL_37;
-      }
-    }
-    __asm { vucomiss xmm7, dword ptr [rdi+60h] }
-    if ( !v51 )
-      goto LABEL_47;
-    __asm { vucomiss xmm8, dword ptr [rdi+64h] }
-    if ( !v51 )
-      goto LABEL_47;
-    __asm { vucomiss xmm9, dword ptr [rdi+68h] }
-    if ( v51 )
-      v64 = 0;
-    else
-LABEL_47:
-      v64 = 1;
-    if ( !BGMovingPlatformSolver::ValidateFinalPositionVsStaticWorld(&v71, v64) && BGMovingPlatformPS::IsNewRockingMoverCollisionEnabled() )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rdi+60h], xmm7
-        vmovss  dword ptr [rdi+64h], xmm8
-        vmovss  dword ptr [rdi+68h], xmm9
-      }
-    }
-    BGMovingPlatformSolver::GetTransformedOrigin(&v71, outNewOrigin);
-    goto LABEL_36;
+    bounds = client->playerBox;
   }
-  v23 = DVARBOOL_playerCharacterCollisionUnresolvedCollisionFix;
-  if ( !DVARBOOL_playerCharacterCollisionUnresolvedCollisionFix && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerCharacterCollisionUnresolvedCollisionFix") )
+  else
+  {
+    v13 = *(double *)&check->r.box.halfSize.y;
+    *(_OWORD *)bounds.midPoint.v = *(_OWORD *)check->r.box.midPoint.v;
+    *(double *)&bounds.halfSize.y = v13;
+    Bounds_ExpandToWidth(&bounds);
+  }
+  v14 = EntityPlayerState->movingPlatforms.m_moverUpAngles.v[0];
+  v15 = EntityPlayerState->movingPlatforms.m_moverUpAngles.v[1];
+  v16 = EntityPlayerState->movingPlatforms.m_moverUpAngles.v[2];
+  v17 = GHandler::getHandler();
+  BGMovingPlatformPS::UpdateMoverUpAngles(&EntityPlayerState->movingPlatforms, EntityPlayerState, v17, &bounds);
+  v18 = pusher->r.currentOrigin.v[1] - move->v[1];
+  oldOrigin.v[0] = pusher->r.currentOrigin.v[0] - move->v[0];
+  v19 = pusher->r.currentOrigin.v[2] - move->v[2];
+  oldOrigin.v[1] = v18;
+  v20 = pusher->r.currentAngles.v[0] - amove->v[0];
+  oldOrigin.v[2] = v19;
+  v21 = pusher->r.currentAngles.v[1] - amove->v[1];
+  oldAngles.v[0] = v20;
+  oldAngles.v[2] = pusher->r.currentAngles.v[2] - amove->v[2];
+  oldAngles.v[1] = v21;
+  if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  if ( v23->current.enabled && Com_GameMode_SupportsFeature(WEAPON_DROPPING_AKIMBO|0x100) )
-    GMovingPlatformClient::UnresolvedCollisionOnlyUpdate(*(GMovingPlatformClient **)outVel.v, _RSI, _RDI);
-LABEL_37:
-  __asm { vmovaps xmm6, [rsp+230h+var_50] }
+  v22 = (float)level.frameDuration * 0.001;
+  flags = BGMovingPlatforms::IsMoverOptimized(&pusher->s);
+  ClientFromGEntity = GMovingPlatforms::GetClientFromGEntity(check);
+  if ( !ClientFromGEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 709, ASSERT_TYPE_ASSERT, "(movingPlatformClient)", (const char *)&queryFormat, "movingPlatformClient") )
+    __debugbreak();
+  clipMask = check->clipmask & 0xFDFFFFFF;
+  handler = GHandler::getHandler();
+  BGMovingPlatformSolver::BGMovingPlatformSolver(&v33, EntityPlayerState, ClientFromGEntity, &pusher->r.currentOrigin, &pusher->r.currentAngles, &oldOrigin, &oldAngles, &check->r.currentOrigin, pusher->s.number, pusher->s.index.brushModel, handler, LOCAL_CLIENT_INVALID, &bounds, v22, clipMask, flags);
+  if ( BGMovingPlatformSolver::SolveSystem(&v33) )
+  {
+    if ( v33.m_push )
+    {
+      BGMovingPlatformSolver::GetLinearPlatformVelcity(&v33, &outVel);
+      if ( outVel.v[0] != 0.0 || outVel.v[1] != 0.0 || outVel.v[2] != 0.0 )
+      {
+        outVel.v[0] = outVel.v[0] * 1.1363636;
+        outVel.v[2] = outVel.v[2] * 1.1363636;
+        outVel.v[1] = outVel.v[1] * 1.1363636;
+        v26 = ScriptContext_Server();
+        Scr_AddVector(v26, outVel.v);
+        GScr_AddEntity(check);
+        GScr_Notify(pusher, scr_const.player_pushed, 2u);
+      }
+    }
+  }
+  else
+  {
+    if ( BGMovingPlatformClient::NeedToResolveCollision(ClientFromGEntity, EntityPlayerState) && !v33.m_actorResolve && EntityPlayerState->pm_type < 7 )
+      GMovingPlatformClient::SendUnresolvedCollision(*(GMovingPlatformClient **)outVel.v, pusher, check, v33.m_failedTraceHitId);
+    if ( !(*(unsigned __int8 (__fastcall **)(_QWORD, _QWORD, _QWORD))(**(_QWORD **)outVel.v + 16i64))(*(_QWORD *)outVel.v, (unsigned int)pusher->s.number, (unsigned int)v33.m_failedTraceHitId) )
+    {
+      *outNewOrigin = check->r.currentOrigin;
+      if ( BGMovingPlatformPS::IsNewRockingMoverCollisionEnabled() )
+      {
+        EntityPlayerState->movingPlatforms.m_moverUpAngles.v[0] = v14;
+        EntityPlayerState->movingPlatforms.m_moverUpAngles.v[1] = v15;
+        EntityPlayerState->movingPlatforms.m_moverUpAngles.v[2] = v16;
+      }
+      return;
+    }
+  }
+  v27 = v14 != EntityPlayerState->movingPlatforms.m_moverUpAngles.v[0] || v15 != EntityPlayerState->movingPlatforms.m_moverUpAngles.v[1] || v16 != EntityPlayerState->movingPlatforms.m_moverUpAngles.v[2];
+  if ( !BGMovingPlatformSolver::ValidateFinalPositionVsStaticWorld(&v33, v27) && BGMovingPlatformPS::IsNewRockingMoverCollisionEnabled() )
+  {
+    EntityPlayerState->movingPlatforms.m_moverUpAngles.v[0] = v14;
+    EntityPlayerState->movingPlatforms.m_moverUpAngles.v[1] = v15;
+    EntityPlayerState->movingPlatforms.m_moverUpAngles.v[2] = v16;
+  }
+  BGMovingPlatformSolver::GetTransformedOrigin(&v33, outNewOrigin);
 }
 
 /*
@@ -3751,37 +3028,33 @@ GMovingPlatformClient::UnresolvedCollisionOnlyUpdate
 void GMovingPlatformClient::UnresolvedCollisionOnlyUpdate(GMovingPlatformClient *this, gentity_s *character, playerState_s *ps)
 {
   GMovingPlatformClient *ClientFromGEntity; 
+  double v7; 
   GPlayerTraceInfo *PlayerTraceInfo; 
-  BgTrace v10; 
+  BgTrace v9; 
   Bounds bounds; 
   trace_t results; 
 
-  _RDI = character;
   if ( BGMovingPlatforms::IsOnMovingPlatform(ps) && G_IsEntityInUse(ps->movingPlatforms.m_movingPlatformEntity) )
   {
-    ClientFromGEntity = GMovingPlatforms::GetClientFromGEntity(_RDI);
+    ClientFromGEntity = GMovingPlatforms::GetClientFromGEntity(character);
     if ( !ClientFromGEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 890, ASSERT_TYPE_ASSERT, "(movingPlatformClient)", (const char *)&queryFormat, "movingPlatformClient") )
       __debugbreak();
     if ( BGMovingPlatformClient::NeedToResolveCollision(ClientFromGEntity, ps) )
     {
       if ( ps->pm_type < 7 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi+100h]
-          vmovsd  xmm1, qword ptr [rdi+110h]
-          vmovups xmmword ptr [rsp+118h+bounds.midPoint], xmm0
-          vmovsd  qword ptr [rsp+118h+bounds.halfSize+4], xmm1
-        }
+        v7 = *(double *)&character->r.box.halfSize.y;
+        *(_OWORD *)bounds.midPoint.v = *(_OWORD *)character->r.box.midPoint.v;
+        *(double *)&bounds.halfSize.y = v7;
         Bounds_ExpandToWidth(&bounds);
-        PlayerTraceInfo = GPlayerTraceInfo::GetPlayerTraceInfo(_RDI->s.number);
-        BgTrace::BgTrace(&v10, PlayerTraceInfo);
-        BgTrace::LegacyTraceHandler(&v10, PHYSICS_WORLD_ID_FIRST, &results, &_RDI->r.currentOrigin, &_RDI->r.currentOrigin, &bounds, _RDI->s.number, _RDI->clipmask & 0xFDFFBFFF, ps);
+        PlayerTraceInfo = GPlayerTraceInfo::GetPlayerTraceInfo(character->s.number);
+        BgTrace::BgTrace(&v9, PlayerTraceInfo);
+        BgTrace::LegacyTraceHandler(&v9, PHYSICS_WORLD_ID_FIRST, &results, &character->r.currentOrigin, &character->r.currentOrigin, &bounds, character->s.number, character->clipmask & 0xFDFFBFFF, ps);
         if ( results.startsolid )
         {
           if ( !G_IsEntityInUse(ps->movingPlatforms.m_movingPlatformEntity) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 914, ASSERT_TYPE_ASSERT, "(G_IsEntityInUse( ps->movingPlatforms.GetMoverEntityID() ))", (const char *)&queryFormat, "G_IsEntityInUse( ps->movingPlatforms.GetMoverEntityID() )") )
             __debugbreak();
-          GMovingPlatformClient::SendUnresolvedCollision(this, &g_entities[ps->movingPlatforms.m_movingPlatformEntity], _RDI, results.hitId);
+          GMovingPlatformClient::SendUnresolvedCollision(this, &g_entities[ps->movingPlatforms.m_movingPlatformEntity], character, results.hitId);
         }
       }
     }
@@ -3867,64 +3140,43 @@ GMovingPlatforms::UpdateEntityMoveFlag
 */
 void GMovingPlatforms::UpdateEntityMoveFlag(gentity_s *ent, const vec3_t *prevOrigin, const vec3_t *prevAngles)
 {
+  Vehicle *vehicle; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+
   if ( ent->s.eType == ET_VEHICLE )
   {
     if ( !ent->vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 230, ASSERT_TYPE_ASSERT, "(ent->vehicle)", (const char *)&queryFormat, "ent->vehicle") )
       __debugbreak();
-    _RAX = ent->vehicle;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+0FCh]
-      vsubss  xmm2, xmm0, dword ptr [rbx+130h]
-      vmovss  xmm1, dword ptr [rax+100h]
-      vsubss  xmm3, xmm1, dword ptr [rbx+134h]
-      vmovss  xmm0, dword ptr [rax+104h]
-      vsubss  xmm4, xmm0, dword ptr [rbx+138h]
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vmulss  xmm2, xmm2, xmm2
-      vaddss  xmm3, xmm2, xmm1
-      vmovss  xmm1, dword ptr [rax+118h]
-      vaddss  xmm5, xmm3, xmm0
-      vmovss  xmm0, dword ptr [rax+114h]
-      vsubss  xmm3, xmm0, dword ptr [rbx+13Ch]
-      vmovss  xmm0, dword ptr [rax+11Ch]
-    }
+    vehicle = ent->vehicle;
+    v5 = vehicle->phys.prevOrigin.v[0] - ent->r.currentOrigin.v[0];
+    v6 = vehicle->phys.prevOrigin.v[1] - ent->r.currentOrigin.v[1];
+    v7 = vehicle->phys.prevOrigin.v[2] - ent->r.currentOrigin.v[2];
+    v8 = vehicle->phys.prevAngles.v[1];
+    v9 = (float)((float)(v5 * v5) + (float)(v6 * v6)) + (float)(v7 * v7);
+    v10 = vehicle->phys.prevAngles.v[0] - ent->r.currentAngles.v[0];
+    v11 = vehicle->phys.prevAngles.v[2];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx]
-      vsubss  xmm3, xmm0, dword ptr [rcx+130h]
-      vmovss  xmm1, dword ptr [rdx+4]
-      vsubss  xmm2, xmm1, dword ptr [rcx+134h]
-      vmovss  xmm0, dword ptr [rdx+8]
-      vsubss  xmm4, xmm0, dword ptr [rcx+138h]
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vmulss  xmm2, xmm2, xmm2
-      vaddss  xmm3, xmm2, xmm1
-      vmovss  xmm1, dword ptr [r8+4]
-      vaddss  xmm5, xmm3, xmm0
-      vmovss  xmm0, dword ptr [r8]
-      vsubss  xmm3, xmm0, dword ptr [rbx+13Ch]
-      vmovss  xmm0, dword ptr [r8+8]
-    }
+    v12 = prevOrigin->v[1] - ent->r.currentOrigin.v[1];
+    v13 = prevOrigin->v[2] - ent->r.currentOrigin.v[2];
+    v8 = prevAngles->v[1];
+    v9 = (float)((float)(v12 * v12) + (float)((float)(prevOrigin->v[0] - ent->r.currentOrigin.v[0]) * (float)(prevOrigin->v[0] - ent->r.currentOrigin.v[0]))) + (float)(v13 * v13);
+    v10 = prevAngles->v[0] - ent->r.currentAngles.v[0];
+    v11 = prevAngles->v[2];
   }
-  __asm
-  {
-    vsubss  xmm2, xmm1, dword ptr [rbx+140h]
-    vsubss  xmm4, xmm0, dword ptr [rbx+144h]
-    vcomiss xmm5, cs:__real@358637be
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm0
-    vcomiss xmm4, cs:__real@358637be
-  }
-  ent->flags.m_flags[0] &= ~0x20u;
+  if ( v9 > 0.0000010000001 || (float)((float)((float)((float)(v8 - ent->r.currentAngles.v[1]) * (float)(v8 - ent->r.currentAngles.v[1])) + (float)(v10 * v10)) + (float)((float)(v11 - ent->r.currentAngles.v[2]) * (float)(v11 - ent->r.currentAngles.v[2]))) > 0.0000010000001 )
+    GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::SetFlagInternal(&ent->flags, ACTIVE, 5u);
+  else
+    ent->flags.m_flags[0] &= ~0x20u;
 }
 
 /*
@@ -3958,27 +3210,12 @@ GMovingPlatforms::UpdateMoverInternalVelocity
 */
 void GMovingPlatforms::UpdateMoverInternalVelocity(gentity_s *ent, const vec3_t *prevOrigin, const vec3_t *prevAngles)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+130h]
-    vsubss  xmm1, xmm0, dword ptr [rdx]
-    vmovss  dword ptr [rcx+2A8h], xmm1
-    vmovss  xmm2, dword ptr [rcx+134h]
-    vsubss  xmm0, xmm2, dword ptr [rdx+4]
-    vmovss  dword ptr [rcx+2ACh], xmm0
-    vmovss  xmm1, dword ptr [rcx+138h]
-    vsubss  xmm2, xmm1, dword ptr [rdx+8]
-    vmovss  dword ptr [rcx+2B0h], xmm2
-    vmovss  xmm0, dword ptr [rcx+13Ch]
-    vsubss  xmm1, xmm0, dword ptr [r8]
-    vmovss  dword ptr [rcx+2B4h], xmm1
-    vmovss  xmm2, dword ptr [rcx+140h]
-    vsubss  xmm0, xmm2, dword ptr [r8+4]
-    vmovss  dword ptr [rcx+2B8h], xmm0
-    vmovss  xmm1, dword ptr [rcx+144h]
-    vsubss  xmm2, xmm1, dword ptr [r8+8]
-    vmovss  dword ptr [rcx+2BCh], xmm2
-  }
+  ent->moverInfo.m_deltaOrigin.v[0] = ent->r.currentOrigin.v[0] - prevOrigin->v[0];
+  ent->moverInfo.m_deltaOrigin.v[1] = ent->r.currentOrigin.v[1] - prevOrigin->v[1];
+  ent->moverInfo.m_deltaOrigin.v[2] = ent->r.currentOrigin.v[2] - prevOrigin->v[2];
+  ent->moverInfo.m_deltaAngles.v[0] = ent->r.currentAngles.v[0] - prevAngles->v[0];
+  ent->moverInfo.m_deltaAngles.v[1] = ent->r.currentAngles.v[1] - prevAngles->v[1];
+  ent->moverInfo.m_deltaAngles.v[2] = ent->r.currentAngles.v[2] - prevAngles->v[2];
 }
 
 /*
@@ -3988,36 +3225,20 @@ GMovingPlatforms::UpdateMoverPhysicsVelocity
 */
 void GMovingPlatforms::UpdateMoverPhysicsVelocity(gentity_s *ent, const vec3_t *prevOrigin, const vec3_t *prevAngles)
 {
-  _RBX = ent;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1614, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( _RBX->s.eType == ET_SCRIPTMOVER && (_RBX->s.lerp.u.anonymous.data[2] & 0x200) != 0 )
+  if ( ent->s.eType == ET_SCRIPTMOVER && (ent->s.lerp.u.anonymous.data[2] & 0x200) != 0 )
   {
-    if ( _RBX->s.lerp.pos.trType != TR_PHYSICS_SERVER_AUTH && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1617, ASSERT_TYPE_ASSERT, "( ent->s.lerp.pos.trType == TR_PHYSICS_SERVER_AUTH )", (const char *)&queryFormat, "ent->s.lerp.pos.trType == TR_PHYSICS_SERVER_AUTH") )
+    if ( ent->s.lerp.pos.trType != TR_PHYSICS_SERVER_AUTH && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1617, ASSERT_TYPE_ASSERT, "( ent->s.lerp.pos.trType == TR_PHYSICS_SERVER_AUTH )", (const char *)&queryFormat, "ent->s.lerp.pos.trType == TR_PHYSICS_SERVER_AUTH") )
       __debugbreak();
-    if ( _RBX->s.lerp.apos.trType != TR_PHYSICS_SERVER_AUTH && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1618, ASSERT_TYPE_ASSERT, "( ent->s.lerp.apos.trType == TR_PHYSICS_SERVER_AUTH )", (const char *)&queryFormat, "ent->s.lerp.apos.trType == TR_PHYSICS_SERVER_AUTH") )
+    if ( ent->s.lerp.apos.trType != TR_PHYSICS_SERVER_AUTH && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1618, ASSERT_TYPE_ASSERT, "( ent->s.lerp.apos.trType == TR_PHYSICS_SERVER_AUTH )", (const char *)&queryFormat, "ent->s.lerp.apos.trType == TR_PHYSICS_SERVER_AUTH") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+130h]
-      vsubss  xmm1, xmm0, dword ptr [rsi]
-      vmovss  dword ptr [rbx+2A8h], xmm1
-      vmovss  xmm2, dword ptr [rbx+134h]
-      vsubss  xmm0, xmm2, dword ptr [rsi+4]
-      vmovss  dword ptr [rbx+2ACh], xmm0
-      vmovss  xmm1, dword ptr [rbx+138h]
-      vsubss  xmm2, xmm1, dword ptr [rsi+8]
-      vmovss  dword ptr [rbx+2B0h], xmm2
-      vmovss  xmm0, dword ptr [rbx+13Ch]
-      vsubss  xmm1, xmm0, dword ptr [rdi]
-      vmovss  dword ptr [rbx+2B4h], xmm1
-      vmovss  xmm2, dword ptr [rbx+140h]
-      vsubss  xmm0, xmm2, dword ptr [rdi+4]
-      vmovss  dword ptr [rbx+2B8h], xmm0
-      vmovss  xmm1, dword ptr [rbx+144h]
-      vsubss  xmm2, xmm1, dword ptr [rdi+8]
-      vmovss  dword ptr [rbx+2BCh], xmm2
-    }
+    ent->moverInfo.m_deltaOrigin.v[0] = ent->r.currentOrigin.v[0] - prevOrigin->v[0];
+    ent->moverInfo.m_deltaOrigin.v[1] = ent->r.currentOrigin.v[1] - prevOrigin->v[1];
+    ent->moverInfo.m_deltaOrigin.v[2] = ent->r.currentOrigin.v[2] - prevOrigin->v[2];
+    ent->moverInfo.m_deltaAngles.v[0] = ent->r.currentAngles.v[0] - prevAngles->v[0];
+    ent->moverInfo.m_deltaAngles.v[1] = ent->r.currentAngles.v[1] - prevAngles->v[1];
+    ent->moverInfo.m_deltaAngles.v[2] = ent->r.currentAngles.v[2] - prevAngles->v[2];
   }
 }
 
@@ -4028,260 +3249,175 @@ GMovingPlatforms::UpdateMovingPlatformEntity
 */
 void GMovingPlatforms::UpdateMovingPlatformEntity(gentity_s *ent)
 {
+  float v1; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
   trajectory_t_secure *p_pos; 
   bool IsRagdollTrajectory; 
-  const dvar_t *v19; 
-  bool v20; 
+  const dvar_t *v10; 
+  bool v11; 
   GHandler *Handler; 
-  bool v22; 
+  bool v13; 
   const DObj *ServerDObjForEnt; 
-  const DObj *v36; 
-  bool v37; 
-  char v39; 
-  char v48; 
+  const DObj *v15; 
+  bool v16; 
+  bool v17; 
   bool IsEntityKeyframedMover; 
-  bool v50; 
+  bool v19; 
+  bool v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
   vec3_t in1; 
   vec3_t origin; 
   vec4_t rot; 
   tmat43_t<vec3_t> in2; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
-  char v89; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovss  xmm7, dword ptr [rcx+130h]
-    vmovss  xmm8, dword ptr [rcx+134h]
-    vmovss  xmm9, dword ptr [rcx+138h]
-    vmovss  xmm10, dword ptr [rcx+13Ch]
-    vmovss  xmm11, dword ptr [rcx+140h]
-    vmovss  xmm12, dword ptr [rcx+144h]
-  }
-  _RBX = ent;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v1 = ent->r.currentOrigin.v[0];
+  v2 = ent->r.currentOrigin.v[1];
+  v3 = ent->r.currentOrigin.v[2];
+  v4 = ent->r.currentAngles.v[0];
+  v5 = ent->r.currentAngles.v[1];
+  v6 = ent->r.currentAngles.v[2];
   if ( Com_GameMode_SupportsFeature(WEAPON_OFFHAND_INIT) )
   {
-    if ( _RBX->scripted )
+    if ( ent->scripted )
     {
-      G_Animscripted_Think(_RBX);
-      p_pos = &_RBX->s.lerp.pos;
-      IsRagdollTrajectory = Com_IsRagdollTrajectory(&_RBX->s.lerp.pos);
-      v19 = DVARBOOL_g_useCheapScriptedMoversForLargeMap;
-      v20 = IsRagdollTrajectory;
+      G_Animscripted_Think(ent);
+      p_pos = &ent->s.lerp.pos;
+      IsRagdollTrajectory = Com_IsRagdollTrajectory(&ent->s.lerp.pos);
+      v10 = DVARBOOL_g_useCheapScriptedMoversForLargeMap;
+      v11 = IsRagdollTrajectory;
       if ( !DVARBOOL_g_useCheapScriptedMoversForLargeMap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_useCheapScriptedMoversForLargeMap") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v19);
-      v22 = 1;
-      if ( v19->current.enabled )
+      Dvar_CheckFrontendServerThread(v10);
+      v13 = 1;
+      if ( v10->current.enabled )
       {
         Handler = GHandler::getHandler();
         if ( BG_IsGameTypeQuick_BR(Handler) )
-          v22 = 0;
+          v13 = 0;
       }
-      G_SetOriginAndAngle(_RBX, &_RBX->r.currentOrigin, &_RBX->r.currentAngles, 1, v22);
-      SV_LinkEntity(_RBX);
-      if ( _RBX->scripted )
+      G_SetOriginAndAngle(ent, &ent->r.currentOrigin, &ent->r.currentAngles, 1, v13);
+      SV_LinkEntity(ent);
+      if ( ent->scripted )
       {
         p_pos->trType = TR_INTERPOLATE;
-        _RBX->s.lerp.apos.trType = TR_INTERPOLATE;
-        G_Main_RunThink(_RBX);
-        if ( v20 )
+        ent->s.lerp.apos.trType = TR_INTERPOLATE;
+        G_Main_RunThink(ent);
+        if ( v11 )
         {
           p_pos->trType = TR_FIRST_RAGDOLL;
-          _RBX->s.lerp.apos.trType = TR_FIRST_RAGDOLL;
+          ent->s.lerp.apos.trType = TR_FIRST_RAGDOLL;
         }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+130h]
-          vsubss  xmm1, xmm0, xmm7
-          vmovss  dword ptr [rbx+2A8h], xmm1
-          vmovss  xmm2, dword ptr [rbx+134h]
-          vsubss  xmm0, xmm2, xmm8
-          vmovss  dword ptr [rbx+2ACh], xmm0
-          vmovss  xmm1, dword ptr [rbx+138h]
-          vsubss  xmm2, xmm1, xmm9
-          vmovss  dword ptr [rbx+2B0h], xmm2
-          vmovss  xmm0, dword ptr [rbx+13Ch]
-          vsubss  xmm1, xmm0, xmm10
-          vmovss  dword ptr [rbx+2B4h], xmm1
-          vmovss  xmm2, dword ptr [rbx+140h]
-          vsubss  xmm0, xmm2, xmm11
-          vmovss  dword ptr [rbx+2B8h], xmm0
-          vmovss  xmm1, dword ptr [rbx+144h]
-          vsubss  xmm2, xmm1, xmm12
-          vmovss  dword ptr [rbx+2BCh], xmm2
-        }
-        goto LABEL_48;
+        ent->moverInfo.m_deltaOrigin.v[0] = ent->r.currentOrigin.v[0] - v1;
+        ent->moverInfo.m_deltaOrigin.v[1] = ent->r.currentOrigin.v[1] - v2;
+        ent->moverInfo.m_deltaOrigin.v[2] = ent->r.currentOrigin.v[2] - v3;
+        ent->moverInfo.m_deltaAngles.v[0] = ent->r.currentAngles.v[0] - v4;
+        ent->moverInfo.m_deltaAngles.v[1] = ent->r.currentAngles.v[1] - v5;
+        ent->moverInfo.m_deltaAngles.v[2] = ent->r.currentAngles.v[2] - v6;
+        return;
       }
-      if ( v20 )
+      if ( v11 )
       {
         p_pos->trType = TR_FIRST_RAGDOLL;
-        _RBX->s.lerp.apos.trType = TR_FIRST_RAGDOLL;
+        ent->s.lerp.apos.trType = TR_FIRST_RAGDOLL;
       }
       else
       {
         if ( p_pos->trType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1850, ASSERT_TYPE_ASSERT, "( isRagdoll || ent->s.lerp.pos.trType == TR_STATIONARY )", (const char *)&queryFormat, "isRagdoll || ent->s.lerp.pos.trType == TR_STATIONARY") )
           __debugbreak();
-        if ( _RBX->s.lerp.apos.trType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1851, ASSERT_TYPE_ASSERT, "( isRagdoll || ent->s.lerp.apos.trType == TR_STATIONARY )", (const char *)&queryFormat, "isRagdoll || ent->s.lerp.apos.trType == TR_STATIONARY") )
+        if ( ent->s.lerp.apos.trType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1851, ASSERT_TYPE_ASSERT, "( isRagdoll || ent->s.lerp.apos.trType == TR_STATIONARY )", (const char *)&queryFormat, "isRagdoll || ent->s.lerp.apos.trType == TR_STATIONARY") )
           __debugbreak();
       }
     }
-    else if ( !_RBX->tagInfo && !BgTrajectory::IsAnimatedTrajectory(&_RBX->s.lerp.pos) )
+    else if ( !ent->tagInfo && !BgTrajectory::IsAnimatedTrajectory(&ent->s.lerp.pos) )
     {
-      ServerDObjForEnt = Com_GetServerDObjForEnt(_RBX);
-      v36 = ServerDObjForEnt;
+      ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
+      v15 = ServerDObjForEnt;
       if ( ServerDObjForEnt )
       {
         if ( DObjGetTree(ServerDObjForEnt) )
         {
-          XAnimCalcDelta3D(v36, 0, XANIM_SUBTREE_DEFAULT, 0, &rot, &in1, 1);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+190h+rot+0Ch]
-            vucomiss xmm0, cs:__real@3f800000
-          }
-          if ( v37 )
-          {
-            v39 = 0;
-            v37 = 1;
-          }
-          else
-          {
-            __asm { vucomiss xmm0, cs:__real@bf800000 }
-            v39 = 1;
-          }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+190h+in1]
-            vmovss  xmm1, dword ptr [rsp+190h+in1+4]
-            vmulss  xmm2, xmm1, xmm1
-            vmulss  xmm3, xmm0, xmm0
-            vmovss  xmm0, dword ptr [rsp+190h+in1+8]
-            vmulss  xmm1, xmm0, xmm0
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm2, xmm4, xmm1
-            vucomiss xmm2, xmm6
-          }
-          v48 = !v37;
-          if ( v39 )
+          XAnimCalcDelta3D(v15, 0, XANIM_SUBTREE_DEFAULT, 0, &rot, &in1, 1);
+          v16 = rot.v[3] != 1.0 && rot.v[3] != -1.0;
+          v17 = (float)((float)((float)(in1.v[0] * in1.v[0]) + (float)(in1.v[1] * in1.v[1])) + (float)(in1.v[2] * in1.v[2])) != 0.0;
+          if ( v16 )
           {
             QuatToAxis(&rot, &axis);
-            AnglesToAxis(&_RBX->r.currentAngles, (tmat33_t<vec3_t> *)&in2);
+            AnglesToAxis(&ent->r.currentAngles, (tmat33_t<vec3_t> *)&in2);
             MatrixMultiply(&axis, (const tmat33_t<vec3_t> *)&in2, &out);
-            AxisToAngles(&out, &_RBX->r.currentAngles);
+            AxisToAngles(&out, &ent->r.currentAngles);
           }
-          if ( v48 )
+          if ( v17 )
           {
-            AnglesAndOriginToMatrix43(&_RBX->r.currentAngles, &_RBX->r.currentOrigin, &in2);
+            AnglesAndOriginToMatrix43(&ent->r.currentAngles, &ent->r.currentOrigin, &in2);
             MatrixTransformVector43(&in1, &in2, &origin);
-            G_SetOriginAndAngle(_RBX, &origin, &_RBX->r.currentAngles, 1, 1);
-            if ( _RBX->r.isLinked )
-              SV_LinkEntity(_RBX);
+            G_SetOriginAndAngle(ent, &origin, &ent->r.currentAngles, 1, 1);
+            if ( ent->r.isLinked )
+              SV_LinkEntity(ent);
           }
-          else if ( v39 )
+          else if ( v16 )
           {
-            G_SetAngle(_RBX, &_RBX->r.currentAngles, 1, 1);
+            G_SetAngle(ent, &ent->r.currentAngles, 1, 1);
           }
         }
       }
     }
   }
-  IsEntityKeyframedMover = GMovingPlatforms::IsEntityKeyframedMover(_RBX);
-  __asm { vmovss  dword ptr [rsp+190h+in1], xmm6 }
-  v50 = !IsEntityKeyframedMover;
-  v37 = _RBX->tagInfo == NULL;
-  __asm
+  IsEntityKeyframedMover = GMovingPlatforms::IsEntityKeyframedMover(ent);
+  in1.v[0] = 0.0;
+  v19 = !IsEntityKeyframedMover;
+  v20 = ent->tagInfo == NULL;
+  in1.v[1] = 0.0;
+  in1.v[2] = 0.0;
+  origin.v[0] = 0.0;
+  origin.v[1] = 0.0;
+  origin.v[2] = 0.0;
+  if ( v20 )
   {
-    vmovss  dword ptr [rsp+190h+in1+4], xmm6
-    vmovss  dword ptr [rsp+190h+in1+8], xmm6
-    vmovss  dword ptr [rsp+190h+origin], xmm6
-    vmovss  dword ptr [rsp+190h+origin+4], xmm6
-    vmovss  dword ptr [rsp+190h+origin+8], xmm6
+    BgTrajectory::IsAnimatedTrajectory(&ent->s.lerp.pos);
   }
-  if ( v37 )
+  else if ( GMovingPlatformClient::CanPush(ent) )
   {
-    BgTrajectory::IsAnimatedTrajectory(&_RBX->s.lerp.pos);
-  }
-  else if ( GMovingPlatformClient::CanPush(_RBX) )
-  {
-    if ( v50 )
-      G_GeneralLink(_RBX);
+    if ( v19 )
+      G_GeneralLink(ent);
     else
-      G_GeneralLinkNoWarp(_RBX);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+130h]
-      vmovss  xmm2, dword ptr [rbx+134h]
-      vsubss  xmm1, xmm0, xmm7
-      vsubss  xmm0, xmm2, xmm8
-      vmovss  dword ptr [rsp+190h+in1], xmm1
-      vmovss  xmm1, dword ptr [rbx+138h]
-      vsubss  xmm2, xmm1, xmm9
-      vmovss  dword ptr [rsp+190h+in1+4], xmm0
-      vmovss  xmm0, dword ptr [rbx+13Ch]
-      vsubss  xmm1, xmm0, xmm10
-      vmovss  dword ptr [rsp+190h+in1+8], xmm2
-      vmovss  xmm2, dword ptr [rbx+140h]
-      vsubss  xmm0, xmm2, xmm11
-      vmovss  dword ptr [rsp+190h+origin], xmm1
-      vmovss  xmm1, dword ptr [rbx+144h]
-      vmovss  dword ptr [rbx+130h], xmm7
-      vmovss  dword ptr [rbx+134h], xmm8
-      vmovss  dword ptr [rbx+138h], xmm9
-      vsubss  xmm2, xmm1, xmm12
-      vmovss  dword ptr [rsp+190h+origin+8], xmm2
-      vmovss  dword ptr [rsp+190h+origin+4], xmm0
-      vmovss  dword ptr [rbx+13Ch], xmm10
-      vmovss  dword ptr [rbx+140h], xmm11
-      vmovss  dword ptr [rbx+144h], xmm12
-    }
-    SV_LinkEntity(_RBX);
+      G_GeneralLinkNoWarp(ent);
+    v21 = ent->r.currentOrigin.v[1] - v2;
+    in1.v[0] = ent->r.currentOrigin.v[0] - v1;
+    v22 = ent->r.currentOrigin.v[2] - v3;
+    in1.v[1] = v21;
+    v23 = ent->r.currentAngles.v[0] - v4;
+    in1.v[2] = v22;
+    v24 = ent->r.currentAngles.v[1] - v5;
+    origin.v[0] = v23;
+    v25 = ent->r.currentAngles.v[2];
+    ent->r.currentOrigin.v[0] = v1;
+    ent->r.currentOrigin.v[1] = v2;
+    ent->r.currentOrigin.v[2] = v3;
+    origin.v[2] = v25 - v6;
+    origin.v[1] = v24;
+    ent->r.currentAngles.v[0] = v4;
+    ent->r.currentAngles.v[1] = v5;
+    ent->r.currentAngles.v[2] = v6;
+    SV_LinkEntity(ent);
   }
-  GMovingPlatforms::UpdateMovingPlatformEntityInternal(_RBX, &in1, &origin);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+130h]
-    vsubss  xmm1, xmm0, xmm7
-    vmovss  dword ptr [rbx+2A8h], xmm1
-    vmovss  xmm2, dword ptr [rbx+134h]
-    vsubss  xmm0, xmm2, xmm8
-    vmovss  dword ptr [rbx+2ACh], xmm0
-    vmovss  xmm1, dword ptr [rbx+138h]
-    vsubss  xmm2, xmm1, xmm9
-    vmovss  dword ptr [rbx+2B0h], xmm2
-    vmovss  xmm0, dword ptr [rbx+13Ch]
-    vsubss  xmm1, xmm0, xmm10
-    vmovss  dword ptr [rbx+2B4h], xmm1
-    vmovss  xmm2, dword ptr [rbx+140h]
-    vsubss  xmm0, xmm2, xmm11
-    vmovss  dword ptr [rbx+2B8h], xmm0
-    vmovss  xmm1, dword ptr [rbx+144h]
-    vsubss  xmm2, xmm1, xmm12
-    vmovss  dword ptr [rbx+2BCh], xmm2
-  }
-  G_Main_RunThink(_RBX);
-LABEL_48:
-  _R11 = &v89;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
+  GMovingPlatforms::UpdateMovingPlatformEntityInternal(ent, &in1, &origin);
+  ent->moverInfo.m_deltaOrigin.v[0] = ent->r.currentOrigin.v[0] - v1;
+  ent->moverInfo.m_deltaOrigin.v[1] = ent->r.currentOrigin.v[1] - v2;
+  ent->moverInfo.m_deltaOrigin.v[2] = ent->r.currentOrigin.v[2] - v3;
+  ent->moverInfo.m_deltaAngles.v[0] = ent->r.currentAngles.v[0] - v4;
+  ent->moverInfo.m_deltaAngles.v[1] = ent->r.currentAngles.v[1] - v5;
+  ent->moverInfo.m_deltaAngles.v[2] = ent->r.currentAngles.v[2] - v6;
+  G_Main_RunThink(ent);
 }
 
 /*
@@ -4292,117 +3428,104 @@ GMovingPlatforms::UpdateMovingPlatformEntityInternal
 void GMovingPlatforms::UpdateMovingPlatformEntityInternal(gentity_s *ent, const vec3_t *deltaOrigin, const vec3_t *deltaAngles)
 {
   const vec3_t *v3; 
+  const vec3_t *v4; 
+  gentity_s *v5; 
   int time; 
   EntityTagInfo *tagInfo; 
   __int64 p_extraDataUnion; 
+  float v9; 
   void (__fastcall *reached)(gentity_s *); 
-  tmat33_t<vec3_t> v21; 
+  tmat33_t<vec3_t> v11; 
   tmat43_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
 
   v3 = deltaAngles;
-  _RBX = deltaOrigin;
-  _RDI = ent;
+  v4 = deltaOrigin;
+  v5 = ent;
   if ( ent->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
-    GTrajectory::GTrajectory((GTrajectory *)&v21, _RDI);
-    if ( _RDI->s.eType != ET_SCRIPTMOVER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1738, ASSERT_TYPE_ASSERT, "(ent->s.eType == ET_SCRIPTMOVER)", (const char *)&queryFormat, "ent->s.eType == ET_SCRIPTMOVER") )
+    GTrajectory::GTrajectory((GTrajectory *)&v11, v5);
+    if ( v5->s.eType != ET_SCRIPTMOVER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1738, ASSERT_TYPE_ASSERT, "(ent->s.eType == ET_SCRIPTMOVER)", (const char *)&queryFormat, "ent->s.eType == ET_SCRIPTMOVER") )
       __debugbreak();
-    time = _RDI->s.lerp.u.anonymous.data[5];
+    time = v5->s.lerp.u.anonymous.data[5];
     if ( time <= 0 )
       time = level.time;
-    BgTrajectory::EvaluateTrajectories((BgTrajectory *)&v21, time, &_RDI->r.currentOrigin, &_RDI->r.currentAngles);
-    SV_LinkEntity(_RDI);
+    BgTrajectory::EvaluateTrajectories((BgTrajectory *)&v11, time, &v5->r.currentOrigin, &v5->r.currentAngles);
+    SV_LinkEntity(v5);
     return;
   }
   if ( !ent->tagInfo )
   {
-LABEL_14:
+LABEL_16:
     GMovingPlatforms::MoverTeam(ent, deltaOrigin, deltaAngles);
     return;
   }
   if ( GMovingPlatformClient::CanPush(ent) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  xmm2, dword ptr [rbx+4]
-      vmovss  xmm3, dword ptr [rbx+8]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vcomiss xmm2, cs:__real@461c4000
-    }
-    G_PhysicsObject_WarpToCurrentTransform(_RDI, 0);
+    if ( (float)((float)((float)(v4->v[0] * v4->v[0]) + (float)(v4->v[1] * v4->v[1])) + (float)(v4->v[2] * v4->v[2])) > 10000.0 )
+      G_PhysicsObject_WarpToCurrentTransform(v5, 0);
     deltaAngles = v3;
-    deltaOrigin = _RBX;
-    ent = _RDI;
-    goto LABEL_14;
+    deltaOrigin = v4;
+    ent = v5;
+    goto LABEL_16;
   }
   if ( !Com_GameMode_SupportsFeature(WEAPON_MELEE_FATAL) )
-    goto LABEL_42;
-  tagInfo = _RDI->tagInfo;
+    goto LABEL_44;
+  tagInfo = v5->tagInfo;
   if ( tagInfo->animScriptedDataInUse )
-    goto LABEL_42;
+    goto LABEL_44;
   if ( !tagInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_tag.h", 59, ASSERT_TYPE_ASSERT, "( ent->tagInfo )", (const char *)&queryFormat, "ent->tagInfo") )
     __debugbreak();
-  if ( _RDI->tagInfo->animScriptedDataInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_tag.h", 60, ASSERT_TYPE_ASSERT, "(!ent->tagInfo->animScriptedDataInUse)", "%s\n\tLinked rotation data is not valid on linked entities that are animscripted.  They share the same memory space.\n", "!ent->tagInfo->animScriptedDataInUse") )
+  if ( v5->tagInfo->animScriptedDataInUse && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_tag.h", 60, ASSERT_TYPE_ASSERT, "(!ent->tagInfo->animScriptedDataInUse)", "%s\n\tLinked rotation data is not valid on linked entities that are animscripted.  They share the same memory space.\n", "!ent->tagInfo->animScriptedDataInUse") )
     __debugbreak();
   if ( !Com_GameMode_SupportsFeature(WEAPON_MELEE_FATAL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_entity_tag.h", 61, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_LINKED_ROTATION ))", "%s\n\tLinked rotation data is not available in this game mode", "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_LINKED_ROTATION )") )
     __debugbreak();
-  p_extraDataUnion = (__int64)&_RDI->tagInfo->extraDataUnion;
-  if ( _RDI->tagInfo == (EntityTagInfo *)-80i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1769, ASSERT_TYPE_ASSERT, "( linkedRotationData )", (const char *)&queryFormat, "linkedRotationData") )
+  p_extraDataUnion = (__int64)&v5->tagInfo->extraDataUnion;
+  if ( v5->tagInfo == (EntityTagInfo *)-80i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1769, ASSERT_TYPE_ASSERT, "( linkedRotationData )", (const char *)&queryFormat, "linkedRotationData") )
     __debugbreak();
-  if ( _RDI->s.eType == ET_SCRIPTMOVER && *(_BYTE *)(p_extraDataUnion + 36) )
+  if ( v5->s.eType == ET_SCRIPTMOVER && *(_BYTE *)(p_extraDataUnion + 36) )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_MELEE_FATAL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 1493, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_LINKED_ROTATION ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_LINKED_ROTATION )") )
       __debugbreak();
-    G_CalcFixedLinkTargetAxis(_RDI, &axis);
-    if ( G_VerifyLinkedMoveTarget(_RDI, &axis.m[3], 2065) )
+    G_CalcFixedLinkTargetAxis(v5, &axis);
+    if ( G_VerifyLinkedMoveTarget(v5, &axis.m[3], 2065) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0C8h+axis+24h]
-        vmovss  xmm1, dword ptr [rsp+0C8h+axis+28h]
-        vmovss  dword ptr [rdi+130h], xmm0
-        vmovss  xmm0, dword ptr [rsp+0C8h+axis+2Ch]
-        vmovss  dword ptr [rdi+138h], xmm0
-        vmovss  dword ptr [rdi+134h], xmm1
-      }
+      v9 = axis.m[3].v[1];
+      v5->r.currentOrigin.v[0] = axis.m[3].v[0];
+      v5->r.currentOrigin.v[2] = axis.m[3].v[2];
+      v5->r.currentOrigin.v[1] = v9;
     }
     if ( *(_DWORD *)p_extraDataUnion <= 1u )
     {
-      AnglesToAxis((const vec3_t *)(p_extraDataUnion + 12), &v21);
-      MatrixMultiply(&v21, (const tmat33_t<vec3_t> *)&axis, &out);
-      AxisToAngles(&out, &_RDI->r.currentAngles);
-      G_SetOriginAndAngle(_RDI, &_RDI->r.currentOrigin, &_RDI->r.currentAngles, 1, 1);
+      AnglesToAxis((const vec3_t *)(p_extraDataUnion + 12), &v11);
+      MatrixMultiply(&v11, (const tmat33_t<vec3_t> *)&axis, &out);
+      AxisToAngles(&out, &v5->r.currentAngles);
+      G_SetOriginAndAngle(v5, &v5->r.currentOrigin, &v5->r.currentAngles, 1, 1);
     }
     else
     {
-      BgTrajectory::LegacyEvaluateTrajectory((const trajectory_t_secure *)p_extraDataUnion, level.time, &_RDI->r.currentAngles);
-      AnglesToAxis(&_RDI->r.currentAngles, &v21);
-      MatrixMultiply(&v21, (const tmat33_t<vec3_t> *)&axis, &out);
-      AxisToAngles(&out, &_RDI->r.currentAngles);
-      G_SetOriginAndAngle(_RDI, &_RDI->r.currentOrigin, &_RDI->r.currentAngles, 1, 1);
+      BgTrajectory::LegacyEvaluateTrajectory((const trajectory_t_secure *)p_extraDataUnion, level.time, &v5->r.currentAngles);
+      AnglesToAxis(&v5->r.currentAngles, &v11);
+      MatrixMultiply(&v11, (const tmat33_t<vec3_t> *)&axis, &out);
+      AxisToAngles(&out, &v5->r.currentAngles);
+      G_SetOriginAndAngle(v5, &v5->r.currentOrigin, &v5->r.currentAngles, 1, 1);
       if ( level.time >= *(_DWORD *)(p_extraDataUnion + 4) + *(_DWORD *)(p_extraDataUnion + 8) )
       {
-        reached = G_Main_GetEntHandlerList(_RDI)->reached;
+        reached = G_Main_GetEntHandlerList(v5)->reached;
         if ( reached )
-          reached(_RDI);
+          reached(v5);
       }
     }
-    _RDI->s.lerp.pos.trType = TR_INTERPOLATE;
-    _RDI->s.lerp.apos.trType = TR_INTERPOLATE;
-    SV_LinkEntity(_RDI);
+    v5->s.lerp.pos.trType = TR_INTERPOLATE;
+    v5->s.lerp.apos.trType = TR_INTERPOLATE;
+    SV_LinkEntity(v5);
   }
   else
   {
-LABEL_42:
-    G_GeneralLink(_RDI);
+LABEL_44:
+    G_GeneralLink(v5);
   }
 }
 
@@ -4413,66 +3536,80 @@ GMovingPlatformClient::UpdatePlatformTrace
 */
 void GMovingPlatformClient::UpdatePlatformTrace(GMovingPlatformClient *this, gentity_s *clientEnt, int forceLongTrace)
 {
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
   playerState_s *ps; 
+  const dvar_t *v10; 
   const dvar_t *v11; 
-  const dvar_t *v12; 
   gclient_s *client; 
-  int v14; 
+  int v13; 
   __int64 m_movingPlatformEntity; 
-  gentity_s *v16; 
+  gentity_s *v15; 
   int number; 
   int entity; 
   GPlayerTraceInfo *PlayerTraceInfo; 
-  char v20; 
+  char v19; 
   bool IsMoverOptimized; 
   unsigned int *p_movingPlatforms; 
-  bool v23; 
+  bool v22; 
   GMovingPlatformClient *ClientFromGEntity; 
   int clipmask; 
+  float v25; 
   unsigned int EntityHitId; 
-  gentity_s *v52; 
+  gentity_s *v27; 
   unsigned int Instance; 
-  char v54; 
   GMovingPlatforms *MovingPlatforms; 
-  unsigned int v56; 
+  unsigned int v30; 
   GHandler *Handler; 
   unsigned int m_contactEnt; 
-  int v59; 
-  GHandler *v60; 
-  unsigned int v88; 
-  GHandler *v90; 
-  int v91; 
-  int v96; 
+  int v33; 
+  GHandler *v34; 
+  gclient_s *v35; 
+  float v36; 
+  __int128 v37; 
+  float v38; 
+  float v39; 
+  float v43; 
+  float v44; 
+  unsigned int v45; 
+  GHandler *v46; 
+  int v47; 
   GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64> *p_otherFlags; 
-  GHandler *v98; 
-  GHandler *v99; 
-  GHandler *v100; 
+  GHandler *v49; 
+  GHandler *v50; 
+  GHandler *v51; 
   Bounds *bounds; 
   __int64 passEntityNum; 
-  char v103; 
+  char v54; 
   int integer; 
-  int v105; 
-  BgTrace v107; 
+  int v56; 
+  BgTrace v58; 
   vec3_t end; 
   vec3_t start; 
   vec3_t outUp; 
   vec3_t forward; 
-  vec3_t v112; 
+  vec3_t v63; 
   vec3_t right; 
   trace_t results; 
   tmat33_t<vec3_t> axis; 
-  WorldUpReferenceFrame v116; 
+  WorldUpReferenceFrame v67; 
+  __int128 v68; 
+  __int128 v69; 
+  __int128 v70; 
+  __int128 v71; 
 
   if ( !clientEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 292, ASSERT_TYPE_ASSERT, "(clientEnt)", (const char *)&queryFormat, "clientEnt") )
     __debugbreak();
   ps = G_GetEntityPlayerState(clientEnt);
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 295, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v11 = DCONST_DVARBOOL_usePmoveMoverSystem;
+  v10 = DCONST_DVARBOOL_usePmoveMoverSystem;
   if ( !DCONST_DVARBOOL_usePmoveMoverSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "usePmoveMoverSystem") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( !v11->current.enabled && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 5u) )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( !v10->current.enabled && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 5u) )
   {
     if ( !G_MovingPlatforms_DoesMoveTypeSupportMovers(clientEnt) )
     {
@@ -4481,12 +3618,12 @@ void GMovingPlatformClient::UpdatePlatformTrace(GMovingPlatformClient *this, gen
     }
     if ( ps->groundEntityNum != 2047 )
       this->m_lastValidGroundTime = level.time;
-    v12 = DVARINT_movingPlatformTrackLastPlatformInAirTimerMS;
+    v11 = DVARINT_movingPlatformTrackLastPlatformInAirTimerMS;
     if ( !DVARINT_movingPlatformTrackLastPlatformInAirTimerMS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "movingPlatformTrackLastPlatformInAirTimerMS") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    v105 = level.time - this->m_lastValidGroundTime;
-    integer = v12->current.integer;
+    Dvar_CheckFrontendServerThread(v11);
+    v56 = level.time - this->m_lastValidGroundTime;
+    integer = v11->current.integer;
     client = clientEnt->client;
     if ( client && (client->flags & 0x20) != 0 )
     {
@@ -4495,39 +3632,35 @@ void GMovingPlatformClient::UpdatePlatformTrace(GMovingPlatformClient *this, gen
       GMovingPlatformClient::ClearPlatformEntity(this, ps);
       clientEnt->client->flags &= ~0x20u;
     }
-    v14 = 0;
+    v13 = 0;
     m_movingPlatformEntity = ps->movingPlatforms.m_movingPlatformEntity;
-    v16 = NULL;
-    if ( !G_EntIsLinked(clientEnt) && !BG_IsTurretActive(ps) || (v103 = 0, (ps->linkFlags.m_flags[0] & 4) != 0) )
-      v103 = 1;
+    v15 = NULL;
+    if ( !G_EntIsLinked(clientEnt) && !BG_IsTurretActive(ps) || (v54 = 0, (ps->linkFlags.m_flags[0] & 4) != 0) )
+      v54 = 1;
     number = clientEnt->s.number;
     entity = ps->vehicleState.entity;
-    __asm
-    {
-      vmovaps [rsp+220h+var_40], xmm6
-      vmovaps [rsp+220h+var_50], xmm7
-      vmovaps [rsp+220h+var_60], xmm8
-      vmovaps [rsp+220h+var_70], xmm9
-    }
+    v71 = v3;
+    v70 = v4;
+    v69 = v5;
+    v68 = v6;
     PlayerTraceInfo = GPlayerTraceInfo::GetPlayerTraceInfo(number);
-    BgTrace::BgTrace(&v107, PlayerTraceInfo);
-    v20 = 0;
+    BgTrace::BgTrace(&v58, PlayerTraceInfo);
+    v19 = 0;
     if ( entity == 2047 )
-      v20 = v103;
-    if ( !v20 )
+      v19 = v54;
+    if ( !v19 )
     {
       GMovingPlatformClient::ClearPlatformEntity(this, ps);
-      goto LABEL_86;
+      goto LABEL_89;
     }
     IsMoverOptimized = 0;
     p_movingPlatforms = (unsigned int *)&ps->movingPlatforms;
     if ( BGMovingPlatforms::IsOnMovingPlatform(ps) )
       IsMoverOptimized = BGMovingPlatforms::IsMoverOptimized(&g_entities[*p_movingPlatforms].s);
-    v23 = BGMovingPlatforms::IsOnMovingPlatform(ps) && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xDu) && !BG_IsPlayerZeroG(ps);
-    __asm { vmovss  xmm9, cs:__real@3f800000 }
+    v22 = BGMovingPlatforms::IsOnMovingPlatform(ps) && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xDu) && !BG_IsPlayerZeroG(ps);
     if ( forceLongTrace )
       goto LABEL_41;
-    if ( v23 )
+    if ( v22 )
     {
       if ( !IsMoverOptimized )
       {
@@ -4536,100 +3669,55 @@ LABEL_41:
         if ( !ClientFromGEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 377, ASSERT_TYPE_ASSERT, "(movingPlatformClient)", (const char *)&queryFormat, "movingPlatformClient") )
           __debugbreak();
         BGMovingPlatformClient::ResolvePlatformUp(ClientFromGEntity, ps, &outUp);
-        __asm
-        {
-          vmovss  xmm3, cs:LONG_TRACE_DOWN
-          vmovss  xmm8, cs:__real@3c23d70a
-          vmulss  xmm0, xmm8, dword ptr [rbp+120h+outUp]
-          vaddss  xmm1, xmm0, dword ptr [rdi+30h]
-          vmulss  xmm0, xmm8, dword ptr [rbp+120h+outUp+4]
-          vmulss  xmm2, xmm3, dword ptr [rbp+120h+outUp+4]
-        }
         clipmask = clientEnt->clipmask;
-        __asm
-        {
-          vmovss  dword ptr [rbp+120h+start], xmm1
-          vaddss  xmm5, xmm0, dword ptr [rdi+34h]
-          vmulss  xmm0, xmm8, dword ptr [rbp+120h+outUp+8]
-          vmovss  dword ptr [rbp+120h+start+4], xmm5
-          vaddss  xmm4, xmm0, dword ptr [rdi+38h]
-          vmulss  xmm0, xmm3, dword ptr [rbp+120h+outUp]
-          vaddss  xmm1, xmm0, xmm1
-          vmovss  dword ptr [rbp+120h+end], xmm1
-          vmulss  xmm1, xmm3, dword ptr [rbp+120h+outUp+8]
-          vaddss  xmm0, xmm2, xmm5
-          vaddss  xmm2, xmm1, xmm4
-          vmovss  dword ptr [rbp+120h+end+8], xmm2
-          vmovss  dword ptr [rbp+120h+start+8], xmm4
-          vmovss  dword ptr [rbp+120h+end+4], xmm0
-        }
-        BgTrace::LegacyTraceHandler(&v107, PHYSICS_WORLD_ID_FIRST, &results, &start, &end, &clientEnt->r.box, ps->clientNum, clipmask & 0xFDFFBFFF, ps);
+        start.v[0] = (float)(0.0099999998 * outUp.v[0]) + ps->origin.v[0];
+        start.v[1] = (float)(0.0099999998 * outUp.v[1]) + ps->origin.v[1];
+        v25 = (float)(0.0099999998 * outUp.v[2]) + ps->origin.v[2];
+        end.v[0] = (float)(LONG_TRACE_DOWN * outUp.v[0]) + start.v[0];
+        end.v[2] = (float)(LONG_TRACE_DOWN * outUp.v[2]) + v25;
+        start.v[2] = v25;
+        end.v[1] = (float)(LONG_TRACE_DOWN * outUp.v[1]) + start.v[1];
+        BgTrace::LegacyTraceHandler(&v58, PHYSICS_WORLD_ID_FIRST, &results, &start, &end, &clientEnt->r.box, ps->clientNum, clipmask & 0xFDFFBFFF, ps);
         EntityHitId = Trace_GetEntityHitId(&results);
-        if ( results.allsolid || results.startsolid )
+        if ( results.allsolid || results.startsolid || results.fraction < 0.0099999998 && EntityHitId != *p_movingPlatforms )
         {
-          __asm
-          {
-            vmovss  xmm4, cs:__real@40a00000
-            vmovss  xmm1, dword ptr [rbp+120h+start]
-            vmulss  xmm3, xmm4, dword ptr [rbp+120h+outUp+4]
-            vmulss  xmm2, xmm4, dword ptr [rbp+120h+outUp]
-            vsubss  xmm2, xmm1, xmm2
-            vmovss  xmm1, dword ptr [rbp+120h+start+4]
-            vmovss  dword ptr [rbp+120h+end], xmm2
-            vsubss  xmm2, xmm1, xmm3
-            vmulss  xmm3, xmm4, dword ptr [rbp+120h+outUp+8]
-            vmovss  xmm1, dword ptr [rbp+120h+start+8]
-            vmovss  dword ptr [rbp+120h+end+4], xmm2
-            vsubss  xmm2, xmm1, xmm3
-            vmovss  dword ptr [rbp+120h+end+8], xmm2
-          }
-          v52 = &g_entities[*p_movingPlatforms];
-          Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v52);
-          PhysicsQuery_LegacyCapsuleBrushEntityTrace(PHYSICS_WORLD_ID_FIRST, &results, &start, &end, &clientEnt->r.box, clientEnt->clipmask & 0xFDFFBFFF, Instance, v52->s.index.brushModel, &v52->r.currentOrigin, &v52->r.currentAngles, ps);
-          __asm
-          {
-            vmovss  xmm0, [rbp+120h+results.fraction]
-            vcomiss xmm0, xmm9
-          }
-          if ( v54 )
+          end.v[0] = start.v[0] - (float)(5.0 * outUp.v[0]);
+          end.v[1] = start.v[1] - (float)(5.0 * outUp.v[1]);
+          end.v[2] = start.v[2] - (float)(5.0 * outUp.v[2]);
+          v27 = &g_entities[*p_movingPlatforms];
+          Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v27);
+          PhysicsQuery_LegacyCapsuleBrushEntityTrace(PHYSICS_WORLD_ID_FIRST, &results, &start, &end, &clientEnt->r.box, clientEnt->clipmask & 0xFDFFBFFF, Instance, v27->s.index.brushModel, &v27->r.currentOrigin, &v27->r.currentAngles, ps);
+          if ( results.fraction < 1.0 )
             EntityHitId = *p_movingPlatforms;
-        }
-        else
-        {
-          __asm
-          {
-            vmovss  xmm0, [rbp+120h+results.fraction]
-            vcomiss xmm0, xmm8
-          }
         }
         MovingPlatforms = GMovingPlatforms::GetMovingPlatforms();
         if ( MovingPlatforms->ShouldJumpBetweenPlatforms(MovingPlatforms) )
         {
-          v56 = m_movingPlatformEntity;
+          v30 = m_movingPlatformEntity;
           if ( EntityHitId != 2047 )
-            v56 = EntityHitId;
-          EntityHitId = v56;
+            v30 = EntityHitId;
+          EntityHitId = v30;
         }
-        else if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_movingPlatformJumpMomentumFix2, "movingPlatformJumpMomentumFix2") && v105 <= integer && EntityHitId != (_DWORD)m_movingPlatformEntity && ps->groundEntityNum == 2047 )
+        else if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_movingPlatformJumpMomentumFix2, "movingPlatformJumpMomentumFix2") && v56 <= integer && EntityHitId != (_DWORD)m_movingPlatformEntity && ps->groundEntityNum == 2047 )
         {
           EntityHitId = m_movingPlatformEntity;
         }
-        goto LABEL_63;
+        goto LABEL_64;
       }
     }
     else if ( !IsMoverOptimized )
     {
-      goto LABEL_57;
+      goto LABEL_58;
     }
-    if ( ps->groundEntityNum == 2047 && v105 <= integer )
+    if ( ps->groundEntityNum == 2047 && v56 <= integer )
     {
       EntityHitId = m_movingPlatformEntity;
-LABEL_63:
+LABEL_64:
       GMovingPlatformClient::ClearPlatformEntity(this, ps);
       if ( EntityHitId == 2047 )
       {
-        v14 = 0;
-        v16 = NULL;
+        v13 = 0;
+        v15 = NULL;
       }
       else
       {
@@ -4640,15 +3728,15 @@ LABEL_63:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 451, ASSERT_TYPE_ASSERT, "(unsigned)( entBelowPlayer ) < (unsigned)( ( 2048 ) )", "entBelowPlayer doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", bounds, passEntityNum) )
             __debugbreak();
         }
-        v16 = &g_entities[EntityHitId];
-        if ( v16 && BGMovingPlatforms::IsPlatformType(v16->s.eType) )
+        v15 = &g_entities[EntityHitId];
+        if ( v15 && BGMovingPlatforms::IsPlatformType(v15->s.eType) )
         {
           Handler = GHandler::getHandler();
           BGMovingPlatformPS::SetMoverEntityID(&ps->movingPlatforms, ps, Handler, m_movingPlatformEntity, EntityHitId, 0, 1);
-          v14 = 0;
-          goto LABEL_86;
+          v13 = 0;
+          goto LABEL_89;
         }
-        v14 = 0;
+        v13 = 0;
       }
       m_contactEnt = this->m_contactEnt;
       if ( m_contactEnt )
@@ -4662,113 +3750,81 @@ LABEL_63:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\movingplatforms\\g_moving_platforms.cpp", 468, ASSERT_TYPE_ASSERT, "(unsigned)( m_contactEnt ) < (unsigned)( ( 2048 ) )", "m_contactEnt doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", bounds, passEntityNum) )
               __debugbreak();
           }
-          v16 = &g_entities[this->m_contactEnt];
+          v15 = &g_entities[this->m_contactEnt];
         }
-        if ( v16 && BGMovingPlatforms::IsPlatformType(v16->s.eType) )
+        if ( v15 && BGMovingPlatforms::IsPlatformType(v15->s.eType) )
         {
-          v59 = v16->s.number;
-          v60 = GHandler::getHandler();
-          BGMovingPlatformPS::SetMoverEntityID(&ps->movingPlatforms, ps, v60, m_movingPlatformEntity, v59, 1, 0);
+          v33 = v15->s.number;
+          v34 = GHandler::getHandler();
+          BGMovingPlatformPS::SetMoverEntityID(&ps->movingPlatforms, ps, v34, m_movingPlatformEntity, v33, 1, 0);
         }
       }
       else if ( (unsigned int)m_movingPlatformEntity < 0x7FE )
       {
-        if ( clientEnt->client )
+        v35 = clientEnt->client;
+        if ( v35 )
         {
-          __asm
+          v36 = (float)v35->sess.cmd.forwardmove * 0.0078740157;
+          v37 = 0i64;
+          *(float *)&v37 = (float)v35->sess.cmd.rightmove * 0.0078740157;
+          if ( v36 != 0.0 || *(float *)&v37 != 0.0 )
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm8, xmm0, cs:__real@3c010204
-            vxorps  xmm0, xmm0, xmm0
-            vxorps  xmm6, xmm6, xmm6
-            vucomiss xmm8, xmm6
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm7, xmm0, cs:__real@3c010204
-          }
-          AngleVectors(&ps->viewangles, &forward, &right, NULL);
-          __asm
-          {
-            vmulss  xmm2, xmm8, dword ptr [rbp+120h+forward]
-            vmulss  xmm4, xmm7, dword ptr [rbp+120h+right+4]
-            vmulss  xmm3, xmm7, dword ptr [rbp+120h+right]
-            vaddss  xmm3, xmm3, xmm2
-            vmulss  xmm2, xmm8, dword ptr [rbp+120h+forward+4]
-            vaddss  xmm5, xmm4, xmm2
-            vmulss  xmm0, xmm3, xmm3
-            vmulss  xmm1, xmm5, xmm5
-            vaddss  xmm1, xmm1, xmm0
-            vsqrtss xmm2, xmm1, xmm1
-            vcmpless xmm0, xmm2, cs:__real@80000000
-            vblendvps xmm0, xmm2, xmm9, xmm0
-            vdivss  xmm1, xmm9, xmm0
-            vmulss  xmm3, xmm3, xmm1
-            vmulss  xmm0, xmm3, cs:__real@41200000
-            vmulss  xmm4, xmm5, xmm1
-            vaddss  xmm1, xmm0, dword ptr [rdi+30h]
-            vmulss  xmm2, xmm4, cs:__real@41200000
-            vaddss  xmm0, xmm2, dword ptr [rdi+34h]
-            vmovss  dword ptr [rbp+120h+var_150], xmm1
-            vmovss  xmm1, dword ptr [rdi+38h]
-          }
-          v16 = &g_entities[m_movingPlatformEntity];
-          __asm
-          {
-            vmovss  dword ptr [rbp+120h+var_150+8], xmm1
-            vmovss  dword ptr [rbp+120h+forward+8], xmm6
-            vmovss  dword ptr [rbp+120h+forward], xmm3
-            vmovss  dword ptr [rbp+120h+forward+4], xmm4
-            vmovss  dword ptr [rbp+120h+var_150+4], xmm0
-          }
-          v88 = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v16);
-          PhysicsQuery_LegacyCapsuleBrushEntityTrace(PHYSICS_WORLD_ID_FIRST, &results, &ps->origin, &v112, &clientEnt->r.box, clientEnt->clipmask & 0xFDFFBFFF, v88, v16->s.index.brushModel, &v16->r.currentOrigin, &v16->r.currentAngles, ps);
-          __asm
-          {
-            vmovss  xmm0, [rbp+120h+results.fraction]
-            vcomiss xmm0, xmm9
-          }
-          if ( v54 )
-          {
-            v90 = GHandler::getHandler();
-            BGMovingPlatformPS::SetMoverEntityID(&ps->movingPlatforms, ps, v90, m_movingPlatformEntity, m_movingPlatformEntity, 1, 0);
+            AngleVectors(&ps->viewangles, &forward, &right, NULL);
+            v38 = (float)(*(float *)&v37 * right.v[0]) + (float)(v36 * forward.v[0]);
+            v39 = (float)(*(float *)&v37 * right.v[1]) + (float)(v36 * forward.v[1]);
+            *(float *)&v37 = fsqrt((float)(v39 * v39) + (float)(v38 * v38));
+            _XMM2 = v37;
+            __asm
+            {
+              vcmpless xmm0, xmm2, cs:__real@80000000
+              vblendvps xmm0, xmm2, xmm9, xmm0
+            }
+            v43 = v38 * (float)(1.0 / *(float *)&_XMM0);
+            v44 = (float)((float)(v39 * (float)(1.0 / *(float *)&_XMM0)) * 10.0) + ps->origin.v[1];
+            v63.v[0] = (float)(v43 * 10.0) + ps->origin.v[0];
+            v15 = &g_entities[m_movingPlatformEntity];
+            v63.v[2] = ps->origin.v[2];
+            forward.v[2] = 0.0;
+            forward.v[0] = v43;
+            forward.v[1] = v39 * (float)(1.0 / *(float *)&_XMM0);
+            v63.v[1] = v44;
+            v45 = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v15);
+            PhysicsQuery_LegacyCapsuleBrushEntityTrace(PHYSICS_WORLD_ID_FIRST, &results, &ps->origin, &v63, &clientEnt->r.box, clientEnt->clipmask & 0xFDFFBFFF, v45, v15->s.index.brushModel, &v15->r.currentOrigin, &v15->r.currentAngles, ps);
+            if ( results.fraction < 1.0 )
+            {
+              v46 = GHandler::getHandler();
+              BGMovingPlatformPS::SetMoverEntityID(&ps->movingPlatforms, ps, v46, m_movingPlatformEntity, m_movingPlatformEntity, 1, 0);
+            }
           }
         }
       }
-LABEL_86:
-      v91 = BGMovingPlatforms::IsOnMovingPlatform(ps);
-      __asm
+LABEL_89:
+      if ( BGMovingPlatforms::IsOnMovingPlatform(ps) )
       {
-        vmovaps xmm9, [rsp+220h+var_70]
-        vmovaps xmm8, [rsp+220h+var_60]
-        vmovaps xmm7, [rsp+220h+var_50]
-        vmovaps xmm6, [rsp+220h+var_40]
-      }
-      if ( v91 )
-      {
-        if ( v16 )
+        if ( v15 )
         {
-          v96 = 1;
-          if ( (v16->flags.m_flags[0] & 0x20) != 0 )
-            goto LABEL_91;
+          v47 = 1;
+          if ( (v15->flags.m_flags[0] & 0x20) != 0 )
+            goto LABEL_94;
         }
       }
       else
       {
-        v16 = NULL;
+        v15 = NULL;
       }
-      v96 = 0;
-LABEL_91:
+      v47 = 0;
+LABEL_94:
       g_serverMoverWorldUpInvalid = 0;
-      if ( v16 )
+      if ( v15 )
       {
-        if ( WorldUpReferenceFrame::HasValidWorldUpInPs(ps) && v96 && v16->s.number != ps->worldUpRefEnt && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xFu) && !GUtils::AreEntsInSameLinkTree(&g_entities[ps->worldUpRefEnt], v16) )
+        if ( WorldUpReferenceFrame::HasValidWorldUpInPs(ps) && v47 && v15->s.number != ps->worldUpRefEnt && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xFu) && !GUtils::AreEntsInSameLinkTree(&g_entities[ps->worldUpRefEnt], v15) )
         {
           Com_PrintWarning(1, "SetWorldUpReference() is being used on an entity that is not linked to or the actual moving platform the player is on.\n");
           g_serverMoverWorldUpInvalid = 1;
         }
         p_otherFlags = &ps->otherFlags;
         if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xDu) )
-          v14 = 1;
+          v13 = 1;
       }
       else
       {
@@ -4776,39 +3832,39 @@ LABEL_91:
       }
       if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(p_otherFlags, ACTIVE, 0xEu) )
       {
-        if ( !v14 || !v96 )
+        if ( !v13 || !v47 )
         {
           GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal(p_otherFlags, ACTIVE, 0xEu);
-          BgTrace::LegacyTraceHandler(&v107, PHYSICS_WORLD_ID_FIRST, &results, &ps->origin, &ps->origin, &clientEnt->r.box, ps->clientNum, clientEnt->clipmask & 0xFDFFBFFF, ps);
+          BgTrace::LegacyTraceHandler(&v58, PHYSICS_WORLD_ID_FIRST, &results, &ps->origin, &ps->origin, &clientEnt->r.box, ps->clientNum, clientEnt->clipmask & 0xFDFFBFFF, ps);
           if ( results.allsolid )
           {
-            v100 = GHandler::getHandler();
-            BGMovingPlatforms::SetAlternateCollision(ps, v100);
+            v51 = GHandler::getHandler();
+            BGMovingPlatforms::SetAlternateCollision(ps, v51);
           }
         }
       }
-      else if ( v14 && v96 )
+      else if ( v13 && v47 )
       {
-        v98 = GHandler::getHandler();
-        BGMovingPlatforms::SetAlternateCollision(ps, v98);
-        BgTrace::LegacyTraceHandler(&v107, PHYSICS_WORLD_ID_FIRST, &results, &ps->origin, &ps->origin, &clientEnt->r.box, ps->clientNum, clientEnt->clipmask & 0xFDFFBFFF, ps);
+        v49 = GHandler::getHandler();
+        BGMovingPlatforms::SetAlternateCollision(ps, v49);
+        BgTrace::LegacyTraceHandler(&v58, PHYSICS_WORLD_ID_FIRST, &results, &ps->origin, &ps->origin, &clientEnt->r.box, ps->clientNum, clientEnt->clipmask & 0xFDFFBFFF, ps);
         if ( results.allsolid )
         {
           GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::ClearFlagInternal(p_otherFlags, ACTIVE, 0xEu);
         }
         else
         {
-          AnglesToAxis(&v16->r.currentAngles, &axis);
-          v99 = GHandler::getHandler();
-          WorldUpReferenceFrame::WorldUpReferenceFrame(&v116, ps, v99);
-          WorldUpReferenceFrame::GetUpContribution(&v116, &axis.m[2]);
+          AnglesToAxis(&v15->r.currentAngles, &axis);
+          v50 = GHandler::getHandler();
+          WorldUpReferenceFrame::WorldUpReferenceFrame(&v67, ps, v50);
+          WorldUpReferenceFrame::GetUpContribution(&v67, &axis.m[2]);
         }
       }
       return;
     }
-LABEL_57:
+LABEL_58:
     EntityHitId = ps->groundEntityNum;
-    goto LABEL_63;
+    goto LABEL_64;
   }
 }
 

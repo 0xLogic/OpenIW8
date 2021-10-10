@@ -156,8 +156,10 @@ bdCryptoConfig::init
 */
 bool bdCryptoConfig::init()
 {
+  ltc_math_descriptor *v1; 
+  ltc_math_descriptor *v2; 
   __int64 v3; 
-  char v10; 
+  char v4; 
 
   if ( j_set_ltc_memory_functions(bdCryptoConfig::libTomCryptMalloc, bdCryptoConfig::libTomCryptRealloc, bdCryptoConfig::libTomCryptCalloc, bdCryptoConfig::libTomCryptFree) )
   {
@@ -165,37 +167,22 @@ bool bdCryptoConfig::init()
     return 0;
   }
   bdMutex::lock(&bdCryptoConfig::s_ltcMutex);
-  _RCX = &ltc_mp;
-  _RAX = &ltm_desc;
+  v1 = &ltc_mp;
+  v2 = &ltm_desc;
   v3 = 3i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (ltc_math_descriptor *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX = (ltc_math_descriptor *)((char *)_RAX + 128);
+    *(__m256i *)&v1->name = *(__m256i *)&v2->name;
+    *(__m256i *)&v1->deinit = *(__m256i *)&v2->deinit;
+    *(__m256i *)&v1->get_int = *(__m256i *)&v2->get_int;
+    *(_OWORD *)&v1->compare_d = *(_OWORD *)&v2->compare_d;
+    v1 = (ltc_math_descriptor *)((char *)v1 + 128);
+    *(_OWORD *)&v1[-1].submod = *(_OWORD *)&v2->count_lsb_bits;
+    v2 = (ltc_math_descriptor *)((char *)v2 + 128);
     --v3;
   }
   while ( v3 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rcx], ymm0
-  }
+  *(__m256i *)&v1->name = *(__m256i *)&v2->name;
   bdCryptoConfig::s_cypherAES = j_register_cipher(&aes_desc);
   if ( bdCryptoConfig::s_cypherAES == -1 )
     goto LABEL_16;
@@ -203,16 +190,16 @@ bool bdCryptoConfig::init()
   if ( bdCryptoConfig::s_cypher3DES == -1 || (bdCryptoConfig::s_hashMD5 = j_register_hash(&md5_desc), bdCryptoConfig::s_hashMD5 == -1) || (bdCryptoConfig::s_hashSHA1 = j_register_hash(&sha1_desc), bdCryptoConfig::s_hashSHA1 == -1) || (bdCryptoConfig::s_hashSHA256 = j_register_hash(&sha256_desc), bdCryptoConfig::s_hashSHA256 == -1) || (bdCryptoConfig::s_hashSHA384 = j_register_hash(&sha384_desc), bdCryptoConfig::s_hashSHA384 == -1) || (bdCryptoConfig::s_hashSHA512 = j_register_hash(&sha512_desc), bdCryptoConfig::s_hashSHA512 == -1) || (bdCryptoConfig::s_hashTIGER192 = j_register_hash(&tiger_desc), bdCryptoConfig::s_hashTIGER192 == -1) || (bdCryptoConfig::s_prngYarrow = j_register_prng(&yarrow_desc), bdCryptoConfig::s_prngYarrow == -1) )
   {
 LABEL_16:
-    v10 = 0;
+    v4 = 0;
     bdHandleAssert(0, "\"ok\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcryptoconfig.cpp", "bdCryptoConfig::initLibTomCrypt", 0x100u, "Unable to register LTC ciphers / hashes / PRNGs");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcryptoconfig.cpp", "bdCryptoConfig::initLibTomCrypt", 0x100u, "Unable to register LTC ciphers / hashes / PRNGs");
   }
   else
   {
-    v10 = 1;
+    v4 = 1;
   }
   bdMutex::unlock(&bdCryptoConfig::s_ltcMutex);
-  return v10 != 0;
+  return v4 != 0;
 }
 
 /*
@@ -222,41 +209,28 @@ bdCryptoConfig::initLibTomCrypt
 */
 __int64 bdCryptoConfig::initLibTomCrypt()
 {
+  ltc_math_descriptor *v0; 
+  ltc_math_descriptor *v1; 
   __int64 v2; 
-  unsigned __int8 v9; 
+  unsigned __int8 v3; 
 
   bdMutex::lock(&bdCryptoConfig::s_ltcMutex);
-  _RCX = &ltc_mp;
-  _RAX = &ltm_desc;
+  v0 = &ltc_mp;
+  v1 = &ltm_desc;
   v2 = 3i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX = (ltc_math_descriptor *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX = (ltc_math_descriptor *)((char *)_RAX + 128);
+    *(__m256i *)&v0->name = *(__m256i *)&v1->name;
+    *(__m256i *)&v0->deinit = *(__m256i *)&v1->deinit;
+    *(__m256i *)&v0->get_int = *(__m256i *)&v1->get_int;
+    *(_OWORD *)&v0->compare_d = *(_OWORD *)&v1->compare_d;
+    v0 = (ltc_math_descriptor *)((char *)v0 + 128);
+    *(_OWORD *)&v0[-1].submod = *(_OWORD *)&v1->count_lsb_bits;
+    v1 = (ltc_math_descriptor *)((char *)v1 + 128);
     --v2;
   }
   while ( v2 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rcx], ymm0
-  }
+  *(__m256i *)&v0->name = *(__m256i *)&v1->name;
   bdCryptoConfig::s_cypherAES = j_register_cipher(&aes_desc);
   if ( bdCryptoConfig::s_cypherAES == -1 )
     goto LABEL_13;
@@ -264,16 +238,16 @@ __int64 bdCryptoConfig::initLibTomCrypt()
   if ( bdCryptoConfig::s_cypher3DES == -1 || (bdCryptoConfig::s_hashMD5 = j_register_hash(&md5_desc), bdCryptoConfig::s_hashMD5 == -1) || (bdCryptoConfig::s_hashSHA1 = j_register_hash(&sha1_desc), bdCryptoConfig::s_hashSHA1 == -1) || (bdCryptoConfig::s_hashSHA256 = j_register_hash(&sha256_desc), bdCryptoConfig::s_hashSHA256 == -1) || (bdCryptoConfig::s_hashSHA384 = j_register_hash(&sha384_desc), bdCryptoConfig::s_hashSHA384 == -1) || (bdCryptoConfig::s_hashSHA512 = j_register_hash(&sha512_desc), bdCryptoConfig::s_hashSHA512 == -1) || (bdCryptoConfig::s_hashTIGER192 = j_register_hash(&tiger_desc), bdCryptoConfig::s_hashTIGER192 == -1) || (bdCryptoConfig::s_prngYarrow = j_register_prng(&yarrow_desc), bdCryptoConfig::s_prngYarrow == -1) )
   {
 LABEL_13:
-    v9 = 0;
+    v3 = 0;
     bdHandleAssert(0, "\"ok\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcryptoconfig.cpp", "bdCryptoConfig::initLibTomCrypt", 0x100u, "Unable to register LTC ciphers / hashes / PRNGs");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcryptoconfig.cpp", "bdCryptoConfig::initLibTomCrypt", 0x100u, "Unable to register LTC ciphers / hashes / PRNGs");
   }
   else
   {
-    v9 = 1;
+    v3 = 1;
   }
   bdMutex::unlock(&bdCryptoConfig::s_ltcMutex);
-  return v9;
+  return v3;
 }
 
 /*

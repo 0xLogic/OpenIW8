@@ -27,7 +27,7 @@ bdPlatformInfo::getConsoleId
 */
 __int64 bdPlatformInfo::getConsoleId(unsigned __int8 *id, unsigned int size)
 {
-  int v5; 
+  int v4; 
 
   if ( id )
   {
@@ -38,15 +38,11 @@ __int64 bdPlatformInfo::getConsoleId(unsigned __int8 *id, unsigned int size)
     }
     if ( size < 0x14 )
     {
-      v5 = 20;
-      bdLogMessage(BD_LOG_WARNING, "warn/", "bdPlatform", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatforminfo\\bdplatforminfo-xboxone.cpp", "bdPlatformInfo::getConsoleId", 0x2Eu, "id[%u] is too small to write %u byte console ID to", size, v5);
+      v4 = 20;
+      bdLogMessage(BD_LOG_WARNING, "warn/", "bdPlatform", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatforminfo\\bdplatforminfo-xboxone.cpp", "bdPlatformInfo::getConsoleId", 0x2Eu, "id[%u] is too small to write %u byte console ID to", size, v4);
       return 0i64;
     }
-    __asm
-    {
-      vmovups xmm0, cs:?s_deviceID@bdPlatformInfo@@1PAEA; uchar near * bdPlatformInfo::s_deviceID
-      vmovups xmmword ptr [rcx], xmm0
-    }
+    *(_OWORD *)id = *(_OWORD *)bdPlatformInfo::s_deviceID;
     *((_DWORD *)id + 4) = dword_1564C5CD8;
   }
   return 20i64;

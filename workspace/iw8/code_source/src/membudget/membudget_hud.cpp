@@ -71,116 +71,129 @@ DrawBars::DrawBar
 */
 void DrawBars::DrawBar(DrawBars *this, const __int64 size, const vec4_t *color)
 {
-  char *v16; 
-  const char *v17; 
-  __int64 v18; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v10; 
+  char *v11; 
+  const char *v12; 
+  __int64 v13; 
+  float v15; 
+  float barCursorX; 
+  float barAreaEndX; 
   float barAreaX; 
-  bool v37; 
+  float v20; 
+  char v21; 
+  __int128 barAreaEndX_low; 
+  __int128 v24; 
+  __int128 v27; 
+  bool v28; 
+  unsigned __int64 v29; 
   char p_destString[32]; 
-  _BYTE v50[20]; 
-  void *retaddr; 
+  __m256i v31; 
+  _BYTE v32[20]; 
+  __int128 v33; 
+  __int128 v34; 
+  __int128 v35; 
+  __int128 v36; 
+  __int128 v37; 
 
   if ( size )
   {
-    _R11 = &retaddr;
-    _RBX = this;
-    _R14 = color;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-68h], xmm8
-      vmovaps xmmword ptr [r11-78h], xmm9
-      vmovaps xmmword ptr [r11-88h], xmm10
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, rdx
-      vmulss  xmm0, xmm6, cs:__real@35800000
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovq   rdx, xmm1
-      vmovaps xmmword ptr [r11-98h], xmm11
-    }
-    v16 = j_va("%.1fmb", _RDX);
-    v17 = v16;
-    v18 = -1i64;
+    v10 = 0i64;
+    *(float *)&v10 = (float)size;
+    v11 = j_va("%.1fmb", (float)(*(float *)&v10 * 0.00000095367432));
+    v12 = v11;
+    v13 = -1i64;
     do
-      ++v18;
-    while ( v16[v18] );
-    __asm
+      ++v13;
+    while ( v11[v13] );
+    *(float *)&v10 = *(float *)&v10 * 0.000000095367433;
+    _XMM1 = v10 & _xmm;
+    v15 = (float)(int)v13 * this->charWidth;
+    __asm { vmaxss  xmm8, xmm1, xmm6 }
+    if ( v15 > *(float *)&_XMM8 )
     {
-      vmulss  xmm1, xmm6, cs:__real@33cccccd
-      vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm6, cs:__real@3f800000
-      vmovss  xmm10, cs:__real@41300000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edi
-      vmulss  xmm9, xmm0, dword ptr [rbx+10h]
-      vmaxss  xmm8, xmm1, xmm6
-      vcomiss xmm9, xmm8
+      barCursorX = this->barCursorX;
+      barAreaEndX = this->barAreaEndX;
+      if ( (float)((float)(barCursorX + v15) + *(float *)&_XMM8) > barAreaEndX && barCursorX > barAreaEndX )
+      {
+        barAreaX = this->barAreaX;
+        this->barCursorY = this->barCursorY + 11.0;
+        this->barCursorX = barAreaX;
+      }
     }
-    if ( v16[v18] )
+    v20 = this->barCursorX;
+    if ( v20 >= this->barAreaEndX )
     {
+      this->barCursorY = this->barCursorY + 11.0;
+      v20 = this->barAreaX;
+      this->barCursorX = v20;
+    }
+    v21 = 0;
+    if ( *(float *)&_XMM8 <= 0.0 )
+      goto LABEL_23;
+    v37 = v3;
+    v36 = v4;
+    v35 = v5;
+    v34 = v6;
+    v33 = v7;
+    do
+    {
+      barAreaEndX_low = LODWORD(this->barAreaEndX);
+      if ( (float)(v20 + 1.0) >= *(float *)&barAreaEndX_low )
+      {
+        this->barCursorY = this->barCursorY + 11.0;
+        v20 = this->barAreaX;
+        this->barCursorX = v20;
+      }
+      v24 = barAreaEndX_low;
+      *(float *)&v24 = *(float *)&barAreaEndX_low - v20;
+      _XMM7 = v24;
+      if ( (float)(*(float *)&barAreaEndX_low - v20) < 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 773, ASSERT_TYPE_SANITY, "( min <= max )", (const char *)&queryFormat, "min <= max") )
+        __debugbreak();
       __asm
       {
-        vmovss  xmm2, dword ptr [rbx+20h]
-        vmovss  xmm3, dword ptr [rbx+1Ch]
-        vaddss  xmm0, xmm2, xmm9
-        vaddss  xmm1, xmm0, xmm8
-        vcomiss xmm1, xmm3
+        vminss  xmm0, xmm7, xmm8
+        vmaxss  xmm7, xmm0, xmm6
       }
-      if ( v16[v18] )
+      v27 = _XMM8;
+      *(float *)&v27 = *(float *)&_XMM8 - *(float *)&_XMM7;
+      _XMM8 = v27;
+      UI_FillRect(this->scrPlace, this->barCursorX, this->barCursorY, *(float *)&_XMM7, 12.0, 1, 1, &colorBlack);
+      if ( *(float *)&_XMM7 > 2.0 )
       {
-        __asm { vcomiss xmm2, xmm3 }
-        if ( v16[v18] )
+        UI_FillRect(this->scrPlace, this->barCursorX + 1.0, this->barCursorY + 1.0, *(float *)&_XMM7 - 2.0, 10.0, 1, 1, color);
+        if ( !v21 && *(float *)&_XMM7 >= v15 )
         {
-          __asm { vaddss  xmm1, xmm10, dword ptr [rbx+24h] }
-          barAreaX = _RBX->barAreaX;
-          __asm { vmovss  dword ptr [rbx+24h], xmm1 }
-          _RBX->barCursorX = barAreaX;
+          UI_DrawText(this->scrPlace, v12, v13, this->font, this->barCursorX + 1.0, this->barCursorY + 10.0, 1, 1, 0.2, color, 3);
+          v21 = 1;
         }
       }
+      v20 = (float)(*(float *)&_XMM7 - 1.0) + this->barCursorX;
+      this->barCursorX = v20;
     }
-    __asm
+    while ( *(float *)&v27 > 0.0 );
+    if ( !v21 )
     {
-      vmovss  xmm1, dword ptr [rbx+20h]
-      vcomiss xmm1, dword ptr [rbx+1Ch]
-      vaddss  xmm1, xmm10, dword ptr [rbx+24h]
-      vmovss  dword ptr [rbx+24h], xmm1
-      vmovss  xmm1, dword ptr [rbx+14h]
-      vmovss  dword ptr [rbx+20h], xmm1
-      vxorps  xmm11, xmm11, xmm11
-      vcomiss xmm8, xmm11
-    }
-    p_destString[0] = 0;
-    if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\string\\string_storage.h", 41, ASSERT_TYPE_ASSERT, "( p_constString != 0 )", (const char *)&queryFormat, "p_constString != NULL") )
-      __debugbreak();
-    ntl::internal::string_assign(p_destString, 0x40ui64, v17);
-    v37 = _RBX->curBarTexts.m_size < 4;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rsp+1B8h+var_108+4], xmm0
-      vmovss  dword ptr [rsp+1B8h+var_108], xmm9
-    }
-    if ( !v37 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
-      __debugbreak();
-    _RCX = 84 * _RBX->curBarTexts.m_size;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsp+1B8h+p_destString]
-      vmovups ymmword ptr [rcx+rbx+0D0h], ymm0
-      vmovups ymm1, [rsp+1B8h+var_128]
-      vmovups ymmword ptr [rcx+rbx+0F0h], ymm1
-      vmovups xmm0, [rsp+1B8h+var_108]
-      vmovups xmmword ptr [rcx+rbx+110h], xmm0
-    }
-    *(_DWORD *)&_RBX->curBarTexts.m_data.m_buffer[_RCX + 80] = *(_DWORD *)&v50[16];
-    ++_RBX->curBarTexts.m_size;
-    __asm
-    {
-      vmovaps xmm10, [rsp+1B8h+var_88]
-      vmovaps xmm9, [rsp+1B8h+var_78]
-      vmovaps xmm8, [rsp+1B8h+var_68]
-      vmovaps xmm6, [rsp+1B8h+var_48]
-      vmovaps xmm11, [rsp+1B8h+var_98]
+LABEL_23:
+      p_destString[0] = 0;
+      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\string\\string_storage.h", 41, ASSERT_TYPE_ASSERT, "( p_constString != 0 )", (const char *)&queryFormat, "p_constString != NULL") )
+        __debugbreak();
+      ntl::internal::string_assign(p_destString, 0x40ui64, v12);
+      v28 = this->curBarTexts.m_size < 4;
+      *(vec4_t *)&v32[4] = *color;
+      *(float *)v32 = v15;
+      if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\vector\\vector.h", 190, ASSERT_TYPE_ASSERT, "( size() < max_size() )", (const char *)&queryFormat, "size() < max_size()") )
+        __debugbreak();
+      v29 = 84 * this->curBarTexts.m_size;
+      *(__m256i *)&this->curBarTexts.m_data.m_buffer[v29] = *(__m256i *)p_destString;
+      *(__m256i *)&this->curBarTexts.m_data.m_buffer[v29 + 32] = v31;
+      *(_OWORD *)&this->curBarTexts.m_data.m_buffer[v29 + 64] = *(_OWORD *)v32;
+      *(_DWORD *)&this->curBarTexts.m_data.m_buffer[v29 + 80] = *(_DWORD *)&v32[16];
+      ++this->curBarTexts.m_size;
     }
   }
 }
@@ -193,145 +206,81 @@ DrawBars::DrawBudgetPoll
 void DrawBars::DrawBudgetPoll(DrawBars *this, const MemBudget_PollData *poll, const MemBudget_HardwareType hardware, const MemBudget_BuildType build)
 {
   signed __int64 v4; 
-  void *v6; 
+  void *v5; 
+  unsigned __int8 v6; 
   unsigned __int8 v7; 
-  unsigned __int8 v8; 
   unsigned __int8 CurrentGameModeType; 
   char *m_activeGameMapName; 
-  unsigned __int8 v13; 
+  unsigned __int8 v12; 
+  const char *v13; 
   const char *v14; 
-  const char *v15; 
-  __int64 v18; 
-  __int64 v19; 
+  __int64 v15; 
+  __int64 v16; 
   const char *GameModeTypeName; 
   const char *BuildTypeName; 
   const char *HardwareTypeName; 
-  const char *v27; 
-  __int64 v30; 
-  const char *v36; 
-  MemBudget_BuildType v40; 
-  MemBudget_HardwareType v41; 
+  const char *v20; 
+  __int64 v21; 
+  const char *v22; 
+  MemBudget_BuildType v23; 
+  MemBudget_HardwareType v24; 
   const MemBudget_PollData *p_outProject; 
-  float v44; 
-  float v45; 
-  float v46; 
-  float v47; 
-  float v48; 
-  float v49; 
-  float v50; 
-  float v51; 
-  float v52; 
   MemBudget_PollData outProject; 
 
-  v6 = alloca(v4);
-  __asm { vmovaps [rsp+40A8h+var_58], xmm7 }
-  v7 = build;
-  v8 = hardware;
-  _RSI = this;
+  v5 = alloca(v4);
+  v6 = build;
+  v7 = hardware;
   CurrentGameModeType = MemBudget_GetCurrentGameModeType();
   m_activeGameMapName = cls.m_activeGameMapName;
-  v13 = CurrentGameModeType;
-  v14 = "This Run";
+  v12 = CurrentGameModeType;
+  v13 = "This Run";
   if ( !cls.m_activeGameMapName[0] )
     m_activeGameMapName = (char *)&queryFormat.fmt + 3;
-  if ( _RSI->projectedBudget )
-    v14 = "Projected";
-  v15 = j_va("%s %s", m_activeGameMapName, v14);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+24h]
-    vaddss  xmm1, xmm0, cs:__real@41200000
-  }
-  v18 = -1i64;
-  v19 = -1i64;
+  if ( this->projectedBudget )
+    v13 = "Projected";
+  v14 = j_va("%s %s", m_activeGameMapName, v13);
+  v15 = -1i64;
+  v16 = -1i64;
   do
-    ++v19;
-  while ( v15[v19] );
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+20h]
-    vmovss  xmm7, cs:__real@3e4ccccd
-    vmovss  [rsp+40A8h+var_4068], xmm7
-    vmovss  [rsp+40A8h+var_4080], xmm1
-    vmovss  [rsp+40A8h+var_4088], xmm0
-  }
-  UI_DrawText(_RSI->scrPlace, v15, v19, _RSI->font, v44, v47, 1, 1, v50, &colorWhite, 3);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+24h]
-    vaddss  xmm0, xmm0, cs:__real@41400000
-    vmovss  dword ptr [rsi+24h], xmm0
-  }
-  GameModeTypeName = MemBudget_GetGameModeTypeName((MemBudget_GameModeType)v13);
-  BuildTypeName = MemBudget_GetBuildTypeName((MemBudget_BuildType)v7);
-  HardwareTypeName = MemBudget_GetHardwareTypeName((MemBudget_HardwareType)v8);
-  v27 = j_va("%s %s %s", HardwareTypeName, BuildTypeName, GameModeTypeName);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+24h]
-    vaddss  xmm1, xmm0, cs:__real@41200000
-  }
-  v30 = -1i64;
+    ++v16;
+  while ( v14[v16] );
+  UI_DrawText(this->scrPlace, v14, v16, this->font, this->barCursorX, this->barCursorY + 10.0, 1, 1, 0.2, &colorWhite, 3);
+  this->barCursorY = this->barCursorY + 12.0;
+  GameModeTypeName = MemBudget_GetGameModeTypeName((MemBudget_GameModeType)v12);
+  BuildTypeName = MemBudget_GetBuildTypeName((MemBudget_BuildType)v6);
+  HardwareTypeName = MemBudget_GetHardwareTypeName((MemBudget_HardwareType)v7);
+  v20 = j_va("%s %s %s", HardwareTypeName, BuildTypeName, GameModeTypeName);
+  v21 = -1i64;
   do
-    ++v30;
-  while ( v27[v30] );
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+20h]
-    vmovss  [rsp+40A8h+var_4068], xmm7
-    vmovss  [rsp+40A8h+var_4080], xmm1
-    vmovss  [rsp+40A8h+var_4088], xmm0
-  }
-  UI_DrawText(_RSI->scrPlace, v27, v30, _RSI->font, v45, v48, 1, 1, v51, &colorWhite, 3);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+24h]
-    vaddss  xmm1, xmm0, cs:__real@41400000
-    vmovss  dword ptr [rsi+24h], xmm1
-  }
+    ++v21;
+  while ( v20[v21] );
+  UI_DrawText(this->scrPlace, v20, v21, this->font, this->barCursorX, this->barCursorY + 10.0, 1, 1, 0.2, &colorWhite, 3);
+  this->barCursorY = this->barCursorY + 12.0;
   if ( Sys_GetXB3ConsoleType() == XB3_CONSOLE_SCORPIO )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+24h]
-      vaddss  xmm1, xmm0, cs:__real@41200000
-    }
-    v36 = "UHD";
-    if ( _RSI->projectedBudget )
-      v36 = "INACCURATE PROJECTION (UHD FFS)";
+    v22 = "UHD";
+    if ( this->projectedBudget )
+      v22 = "INACCURATE PROJECTION (UHD FFS)";
     do
-      ++v18;
-    while ( v36[v18] );
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+20h]
-      vmovss  [rsp+40A8h+var_4068], xmm7
-      vmovss  [rsp+40A8h+var_4080], xmm1
-      vmovss  [rsp+40A8h+var_4088], xmm0
-    }
-    UI_DrawText(_RSI->scrPlace, v36, v18, _RSI->font, v46, v49, 1, 1, v52, &colorRed, 3);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+24h]
-      vaddss  xmm1, xmm0, cs:__real@41400000
-      vmovss  dword ptr [rsi+24h], xmm1
-    }
+      ++v15;
+    while ( v22[v15] );
+    UI_DrawText(this->scrPlace, v22, v15, this->font, this->barCursorX, this->barCursorY + 10.0, 1, 1, 0.2, &colorRed, 3);
+    this->barCursorY = this->barCursorY + 12.0;
   }
-  v40 = v7;
-  v41 = v8;
-  if ( _RSI->projectedBudget )
+  v23 = v6;
+  v24 = v7;
+  if ( this->projectedBudget )
   {
-    MemBudget_Project(poll, &outProject, (MemBudget_HardwareType)v8, (MemBudget_BuildType)v7);
-    v40 = v7;
+    MemBudget_Project(poll, &outProject, (MemBudget_HardwareType)v7, (MemBudget_BuildType)v6);
+    v23 = v6;
     p_outProject = &outProject;
-    v41 = v8;
+    v24 = v7;
   }
   else
   {
     p_outProject = poll;
   }
-  DrawBars::DrawBudgetPollInternal(_RSI, p_outProject, v41, v40);
-  __asm { vmovaps xmm7, [rsp+40A8h+var_58] }
+  DrawBars::DrawBudgetPollInternal(this, p_outProject, v24, v23);
 }
 
 /*
@@ -343,258 +292,177 @@ void DrawBars::DrawBudgetPollInternal(DrawBars *this, const MemBudget_PollData *
 {
   ntl::fixed_vector<DrawBars::BarText,4,0> *p_curBarTexts; 
   MemBudget_PollArray *p_readings; 
-  unsigned __int8 v19; 
-  unsigned __int8 v21; 
-  unsigned int v23; 
-  __int64 v24; 
+  unsigned __int8 v7; 
+  unsigned __int8 v8; 
+  unsigned int v9; 
+  __int64 v10; 
   const char *PollTypeName; 
-  unsigned int v26; 
+  unsigned int v12; 
   unsigned __int8 ParentPollType; 
-  __int64 v29; 
-  __int64 v32; 
-  const vec4_t *v33; 
-  __int64 v34; 
+  __int64 v14; 
+  float v15; 
+  float v16; 
+  __int64 v17; 
+  const vec4_t *v18; 
+  __int64 v19; 
   const MemBudget_PollArray *ProjectedBudgets; 
-  __int64 v36; 
+  __int64 v21; 
   const vec4_t *Color; 
-  const vec4_t *v38; 
+  const vec4_t *v23; 
   unsigned __int64 m_size; 
-  ntl::fixed_vector<DrawBars::BarText,4,0> *v40; 
-  ntl::fixed_vector<DrawBars::BarText,4,0> *v41; 
-  bool v42; 
-  __int64 v47; 
-  ntl::fixed_vector<DrawBars::BarText,4,0> *v50; 
-  unsigned __int64 v51; 
-  float fmt; 
-  float fmta; 
-  float y; 
-  float ya; 
-  float v64; 
-  float v65; 
-  char v68; 
-  void *retaddr; 
-  unsigned __int8 v70; 
-  unsigned __int8 v71; 
+  ntl::fixed_vector<DrawBars::BarText,4,0> *v25; 
+  float barCursorX; 
+  float barCursorY; 
+  __int64 v28; 
+  unsigned __int64 v29; 
+  float v30; 
+  unsigned __int8 v31; 
+  unsigned __int8 v32; 
 
-  _RAX = &retaddr;
-  v71 = build;
-  v70 = hardware;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
+  v32 = build;
+  v31 = hardware;
   p_curBarTexts = &this->curBarTexts;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@40000000
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
   p_readings = &poll->readings;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@41300000
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
-  _RDI = this;
-  __asm
-  {
-    vmovss  xmm8, cs:__real@41200000
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovss  xmm9, cs:__real@3f800000
-    vmovaps [rsp+0F8h+var_88], xmm10
-  }
-  v19 = build;
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3e4ccccd
-    vmovaps [rsp+0F8h+var_98], xmm11
-  }
-  v21 = hardware;
-  __asm { vmovss  xmm11, cs:__real@c0a00000 }
-  v23 = 0;
+  v7 = build;
+  v8 = hardware;
+  v9 = 0;
   do
   {
-    v24 = p_readings->pollValues[0];
-    if ( _RDI->wroteLabels )
+    v10 = p_readings->pollValues[0];
+    if ( this->wroteLabels )
     {
-      v32 = (unsigned __int8)v23;
-      _RDI->barCursorY = _RDI->labelYPos[(unsigned __int8)v23];
+      v17 = (unsigned __int8)v9;
+      this->barCursorY = this->labelYPos[(unsigned __int8)v9];
     }
     else
     {
-      PollTypeName = MemBudget_GetPollTypeName((MemBudget_PollType)(unsigned __int8)v23);
-      v26 = 0;
-      ParentPollType = MemBudget_Poll_GetParentPollType((MemBudget_PollType)(unsigned __int8)v23);
+      PollTypeName = MemBudget_GetPollTypeName((MemBudget_PollType)(unsigned __int8)v9);
+      v12 = 0;
+      ParentPollType = MemBudget_Poll_GetParentPollType((MemBudget_PollType)(unsigned __int8)v9);
       if ( ParentPollType != 38 )
       {
         do
         {
-          ++v26;
+          ++v12;
           ParentPollType = MemBudget_Poll_GetParentPollType((MemBudget_PollType)ParentPollType);
         }
         while ( ParentPollType != 38 );
-        if ( v26 > 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_hud.cpp", 164, ASSERT_TYPE_ASSERT, "(depth <= MAX_DEPTH)", (const char *)&queryFormat, "depth <= MAX_DEPTH") )
+        if ( v12 > 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_hud.cpp", 164, ASSERT_TYPE_ASSERT, "(depth <= MAX_DEPTH)", (const char *)&queryFormat, "depth <= MAX_DEPTH") )
           __debugbreak();
       }
-      __asm { vaddss  xmm1, xmm8, dword ptr [rdi+24h] }
-      v29 = -1i64;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm2, xmm0, xmm11
-      }
+      v14 = -1i64;
+      v15 = (float)(2 - v12);
+      v16 = v15 * -5.0;
       do
-        ++v29;
-      while ( PollTypeName[v29] );
-      __asm
-      {
-        vmovss  [rsp+0F8h+var_B8], xmm10
-        vmovss  [rsp+0F8h+y], xmm1
-        vmovss  dword ptr [rsp+0F8h+fmt], xmm2
-      }
-      UI_DrawText(_RDI->scrPlace, PollTypeName, v29, _RDI->font, fmt, y, 1, 1, v64, &colorWhite, 3);
-      v21 = v70;
-      v32 = (unsigned __int8)v23;
-      _RDI->labelYPos[(unsigned __int8)v23] = _RDI->barCursorY;
+        ++v14;
+      while ( PollTypeName[v14] );
+      UI_DrawText(this->scrPlace, PollTypeName, v14, this->font, v16, this->barCursorY + 10.0, 1, 1, 0.2, &colorWhite, 3);
+      v8 = v31;
+      v17 = (unsigned __int8)v9;
+      this->labelYPos[(unsigned __int8)v9] = this->barCursorY;
     }
-    if ( v24 < 0 )
+    if ( v10 < 0 )
     {
-      v33 = &COLOR_NEGATIVE;
-      v34 = v24;
+      v18 = &COLOR_NEGATIVE;
+      v19 = v10;
 LABEL_27:
-      DrawBars::DrawBar(_RDI, v34, v33);
+      DrawBars::DrawBar(this, v19, v18);
       goto LABEL_28;
     }
-    if ( _RDI->projectedBudget )
-      ProjectedBudgets = MemBudget_BudgetFile_GetProjectedBudgets((MemBudget_HardwareType)v21, (MemBudget_BuildType)v19);
+    if ( this->projectedBudget )
+      ProjectedBudgets = MemBudget_BudgetFile_GetProjectedBudgets((MemBudget_HardwareType)v8, (MemBudget_BuildType)v7);
     else
       ProjectedBudgets = MemBudget_BudgetFile_GetCurrentBudgets();
-    v36 = ProjectedBudgets->pollValues[v32];
-    if ( v36 && v24 > v36 )
+    v21 = ProjectedBudgets->pollValues[v17];
+    if ( v21 && v10 > v21 )
     {
-      Color = DrawBars::GetColor(_RDI, (const MemBudget_PollType)(unsigned __int8)v23);
-      DrawBars::DrawBar(_RDI, v36, Color);
-      v33 = &COLOR_OVERBUDGET;
-      v34 = v24 - v36;
+      Color = DrawBars::GetColor(this, (const MemBudget_PollType)(unsigned __int8)v9);
+      DrawBars::DrawBar(this, v21, Color);
+      v18 = &COLOR_OVERBUDGET;
+      v19 = v10 - v21;
       goto LABEL_27;
     }
-    switch ( (char)v23 )
+    switch ( (char)v9 )
     {
       case 0:
       case 1:
       case 2:
       case 37:
-        v38 = &COLOR_FREE;
+        v23 = &COLOR_FREE;
         break;
       case 3:
       case 4:
-        v38 = &COLOR_OSEXE;
+        v23 = &COLOR_OSEXE;
         break;
       case 5:
       case 6:
       case 7:
       case 8:
       case 9:
-        v38 = &COLOR_STREAM;
+        v23 = &COLOR_STREAM;
         break;
       default:
-        v38 = &COLOR_COMMIT;
+        v23 = &COLOR_COMMIT;
         break;
     }
-    DrawBars::DrawBar(_RDI, v24, v38);
-    if ( v36 )
+    DrawBars::DrawBar(this, v10, v23);
+    if ( v21 )
     {
-      v33 = &COLOR_UNDERBUDGET;
-      v34 = v36 - v24;
+      v18 = &COLOR_UNDERBUDGET;
+      v19 = v21 - v10;
       goto LABEL_27;
     }
 LABEL_28:
     m_size = p_curBarTexts->m_size;
-    v40 = p_curBarTexts;
-    v41 = (ntl::fixed_vector<DrawBars::BarText,4,0> *)((char *)p_curBarTexts + 84 * m_size);
-    v42 = p_curBarTexts <= v41;
-    if ( p_curBarTexts != v41 )
+    v25 = p_curBarTexts;
+    if ( p_curBarTexts != (ntl::fixed_vector<DrawBars::BarText,4,0> *)((char *)p_curBarTexts + 84 * m_size) )
     {
-      __asm { vmovss  xmm3, dword ptr [rdi+20h] }
+      barCursorX = this->barCursorX;
       do
       {
-        __asm
+        barCursorY = this->barCursorY;
+        if ( (float)((float)(barCursorX + *(float *)&v25->m_data.m_buffer[64]) + 2.0) > this->barAreaEndX )
         {
-          vaddss  xmm0, xmm3, dword ptr [rbx+40h]
-          vmovss  xmm2, dword ptr [rdi+24h]
-          vaddss  xmm1, xmm0, xmm6
-          vcomiss xmm1, dword ptr [rdi+1Ch]
+          barCursorX = this->barAreaX;
+          barCursorY = barCursorY + 11.0;
+          this->barCursorY = barCursorY;
+          this->barCursorX = barCursorX;
         }
-        if ( !v42 )
-        {
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rdi+14h]
-            vaddss  xmm2, xmm2, xmm7
-            vmovss  dword ptr [rdi+24h], xmm2
-            vmovss  dword ptr [rdi+20h], xmm3
-          }
-        }
-        v47 = -1i64;
-        __asm
-        {
-          vaddss  xmm0, xmm2, xmm8
-          vaddss  xmm1, xmm3, xmm9
-        }
+        v28 = -1i64;
         do
-          ++v47;
-        while ( v40->m_data.m_buffer[v47] );
-        __asm
-        {
-          vmovss  [rsp+0F8h+var_B8], xmm10
-          vmovss  [rsp+0F8h+y], xmm0
-          vmovss  dword ptr [rsp+0F8h+fmt], xmm1
-        }
-        UI_DrawText(_RDI->scrPlace, v40->m_data.m_buffer, v47, _RDI->font, fmta, ya, 1, 1, v65, (const vec4_t *)&v40->m_data.m_buffer[68], 3);
-        __asm
-        {
-          vaddss  xmm1, xmm6, dword ptr [rbx+40h]
-          vaddss  xmm3, xmm1, dword ptr [rdi+20h]
-          vmovss  dword ptr [rdi+20h], xmm3
-        }
+          ++v28;
+        while ( v25->m_data.m_buffer[v28] );
+        UI_DrawText(this->scrPlace, v25->m_data.m_buffer, v28, this->font, barCursorX + 1.0, barCursorY + 10.0, 1, 1, 0.2, (const vec4_t *)&v25->m_data.m_buffer[68], 3);
+        barCursorX = (float)(*(float *)&v25->m_data.m_buffer[64] + 2.0) + this->barCursorX;
+        this->barCursorX = barCursorX;
         m_size = p_curBarTexts->m_size;
-        v40 = (ntl::fixed_vector<DrawBars::BarText,4,0> *)((char *)v40 + 84);
-        v50 = (ntl::fixed_vector<DrawBars::BarText,4,0> *)((char *)p_curBarTexts + 84 * m_size);
-        v42 = v40 <= v50;
+        v25 = (ntl::fixed_vector<DrawBars::BarText,4,0> *)((char *)v25 + 84);
       }
-      while ( v40 != v50 );
+      while ( v25 != (ntl::fixed_vector<DrawBars::BarText,4,0> *)((char *)p_curBarTexts + 84 * m_size) );
     }
-    v51 = 0i64;
+    v29 = 0i64;
     if ( m_size )
     {
       do
       {
-        if ( v51 >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
+        if ( v29 >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\memory_block\\fixed_memory_block.h", 107, ASSERT_TYPE_ASSERT, "( index < num_elements )", (const char *)&queryFormat, "index < num_elements") )
           __debugbreak();
-        ++v51;
+        ++v29;
       }
-      while ( v51 < _RDI->curBarTexts.m_size );
-      v19 = v71;
-      p_curBarTexts = &_RDI->curBarTexts;
+      while ( v29 < this->curBarTexts.m_size );
+      v7 = v32;
+      p_curBarTexts = &this->curBarTexts;
     }
-    v21 = v70;
-    _RDI->curBarTexts.m_size = 0i64;
-    ++v23;
-    __asm { vaddss  xmm1, xmm7, dword ptr [rdi+24h] }
+    v8 = v31;
+    this->curBarTexts.m_size = 0i64;
+    ++v9;
+    v30 = this->barCursorY + 11.0;
     p_readings = (MemBudget_PollArray *)((char *)p_readings + 8);
-    _RDI->barCursorX = _RDI->barAreaX;
-    __asm { vmovss  dword ptr [rdi+24h], xmm1 }
+    this->barCursorX = this->barAreaX;
+    this->barCursorY = v30;
   }
-  while ( v23 < 0x26 );
-  _R11 = &v68;
-  _RDI->wroteLabels = 1;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  while ( v9 < 0x26 );
+  this->wroteLabels = 1;
 }
 
 /*
@@ -602,255 +470,66 @@ LABEL_28:
 DrawBars::DrawLegend
 ==============
 */
-
-void __fastcall DrawBars::DrawLegend(DrawBars *this, double x, double y, const float width, const float height)
+void DrawBars::DrawLegend(DrawBars *this, const float x, const float y, const float width, const float height)
 {
   const ScreenPlacement *scrPlace; 
+  float v7; 
+  float v8; 
+  float legendX; 
+  const ScreenPlacement *v10; 
+  float v11; 
+  float v12; 
+  const ScreenPlacement *v13; 
+  float v14; 
+  float v15; 
   const ScreenPlacement *v16; 
-  const ScreenPlacement *v30; 
-  const ScreenPlacement *v39; 
-  const ScreenPlacement *v48; 
-  const ScreenPlacement *v65; 
-  float v78; 
-  float v79; 
-  float v80; 
-  float v81; 
-  float v82; 
-  float v83; 
-  float v84; 
-  float v85; 
-  float v86; 
-  float v87; 
-  float v88; 
-  float v89; 
-  float v90; 
-  float v91; 
-  float v92; 
-  float v93; 
-  float v94; 
-  float v95; 
-  float v96; 
-  int horzAlign; 
-  int horzAligna; 
-  int horzAlignb; 
-  int horzAlignc; 
-  int horzAlignd; 
-  int horzAligne; 
-  float v103; 
-  float v104; 
-  float v105; 
-  float v106; 
-  float v107; 
-  float v108; 
-  char v109; 
-  void *retaddr; 
+  float v17; 
+  float v18; 
+  float v19; 
+  const ScreenPlacement *v20; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, [rsp+0A8h+height]
-    vmovaps xmmword ptr [rax-18h], xmm6
-  }
-  _RBX = this;
+  UI_FillRect(this->scrPlace, x, y, width, height, 1, 1, &colorWhiteMoreFaded);
   scrPlace = this->scrPlace;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovss  [rsp+0A8h+var_88], xmm0
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-  }
-  UI_FillRect(scrPlace, *(float *)&x, *(float *)&y, width, v78, 1, 1, &colorWhiteMoreFaded);
-  __asm { vmovss  xmm9, cs:__real@41400000 }
-  v16 = _RBX->scrPlace;
-  __asm
-  {
-    vaddss  xmm1, xmm6, xmm9; x
-    vaddss  xmm2, xmm7, xmm9; y
-    vmovaps xmm3, xmm9; width
-    vmovss  [rsp+0A8h+var_88], xmm9
-    vmovss  dword ptr [rbx+0C8h], xmm1
-    vmovss  dword ptr [rbx+0C4h], xmm2
-  }
-  UI_FillRect(v16, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v79, 1, 1, &colorBlack);
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm7, cs:__real@41200000
-    vaddss  xmm2, xmm8, dword ptr [rbx+0C4h]; y
-    vaddss  xmm1, xmm8, dword ptr [rbx+0C8h]; x
-    vmovaps xmm3, xmm7; width
-    vmovss  [rsp+0A8h+var_88], xmm7
-  }
-  UI_FillRect(_RBX->scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v80, 1, 1, &COLOR_FREE);
-  __asm
-  {
-    vaddss  xmm3, xmm9, dword ptr [rbx+0C4h]
-    vaddss  xmm2, xmm9, dword ptr [rbx+0C8h]
-    vmovss  xmm6, cs:__real@3e4ccccd
-    vmovss  [rsp+0A8h+var_68], xmm6
-    vmovss  [rsp+0A8h+horzAlign], xmm3
-    vmovss  [rsp+0A8h+var_88], xmm2
-  }
-  UI_DrawText(_RBX->scrPlace, "Free Space", 10, _RBX->font, v81, *(float *)&horzAlign, 1, 1, v103, &colorWhite, 3);
-  __asm
-  {
-    vaddss  xmm2, xmm9, dword ptr [rbx+0C4h]; y
-    vmovss  xmm1, dword ptr [rbx+0C8h]; x
-  }
-  v30 = _RBX->scrPlace;
-  __asm
-  {
-    vmovaps xmm3, xmm9; width
-    vmovss  dword ptr [rbx+0C4h], xmm2
-    vmovss  [rsp+0A8h+var_88], xmm9
-  }
-  UI_FillRect(v30, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v82, 1, 1, &colorBlack);
-  __asm
-  {
-    vaddss  xmm2, xmm8, dword ptr [rbx+0C4h]; y
-    vaddss  xmm1, xmm8, dword ptr [rbx+0C8h]; x
-    vmovaps xmm3, xmm7; width
-    vmovss  [rsp+0A8h+var_88], xmm7
-  }
-  UI_FillRect(_RBX->scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v83, 1, 1, &COLOR_STREAM);
-  __asm
-  {
-    vaddss  xmm3, xmm9, dword ptr [rbx+0C4h]
-    vaddss  xmm2, xmm9, dword ptr [rbx+0C8h]
-    vmovss  [rsp+0A8h+var_68], xmm6
-    vmovss  [rsp+0A8h+horzAlign], xmm3
-    vmovss  [rsp+0A8h+var_88], xmm2
-  }
-  UI_DrawText(_RBX->scrPlace, "Streamer Memory", 15, _RBX->font, v84, *(float *)&horzAligna, 1, 1, v104, &colorWhite, 3);
-  __asm
-  {
-    vaddss  xmm2, xmm9, dword ptr [rbx+0C4h]; y
-    vmovss  xmm1, dword ptr [rbx+0C8h]; x
-  }
-  v39 = _RBX->scrPlace;
-  __asm
-  {
-    vmovaps xmm3, xmm9; width
-    vmovss  dword ptr [rbx+0C4h], xmm2
-    vmovss  [rsp+0A8h+var_88], xmm9
-  }
-  UI_FillRect(v39, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v85, 1, 1, &colorBlack);
-  __asm
-  {
-    vaddss  xmm2, xmm8, dword ptr [rbx+0C4h]; y
-    vaddss  xmm1, xmm8, dword ptr [rbx+0C8h]; x
-    vmovaps xmm3, xmm7; width
-    vmovss  [rsp+0A8h+var_88], xmm7
-  }
-  UI_FillRect(_RBX->scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v86, 1, 1, &COLOR_OSEXE);
-  __asm
-  {
-    vaddss  xmm3, xmm9, dword ptr [rbx+0C4h]
-    vaddss  xmm2, xmm9, dword ptr [rbx+0C8h]
-    vmovss  [rsp+0A8h+var_68], xmm6
-    vmovss  [rsp+0A8h+horzAlign], xmm3
-    vmovss  [rsp+0A8h+var_88], xmm2
-  }
-  UI_DrawText(_RBX->scrPlace, "OS / EXE Memory", 15, _RBX->font, v87, *(float *)&horzAlignb, 1, 1, v105, &colorWhite, 3);
-  __asm
-  {
-    vaddss  xmm2, xmm9, dword ptr [rbx+0C4h]; y
-    vmovss  xmm1, dword ptr [rbx+0C8h]; x
-  }
-  v48 = _RBX->scrPlace;
-  __asm
-  {
-    vmovaps xmm3, xmm9; width
-    vmovss  dword ptr [rbx+0C4h], xmm2
-    vmovss  [rsp+0A8h+var_88], xmm9
-  }
-  UI_FillRect(v48, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v88, 1, 1, &colorBlack);
-  __asm
-  {
-    vaddss  xmm2, xmm8, dword ptr [rbx+0C4h]; y
-    vaddss  xmm1, xmm8, dword ptr [rbx+0C8h]; x
-    vmovaps xmm3, xmm7; width
-    vmovss  [rsp+0A8h+var_88], xmm7
-  }
-  UI_FillRect(_RBX->scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v89, 1, 1, &COLOR_COMMIT);
-  __asm
-  {
-    vaddss  xmm3, xmm9, dword ptr [rbx+0C4h]
-    vaddss  xmm2, xmm9, dword ptr [rbx+0C8h]
-    vmovss  [rsp+0A8h+var_68], xmm6
-    vmovss  [rsp+0A8h+horzAlign], xmm3
-    vmovss  [rsp+0A8h+var_88], xmm2
-  }
-  UI_DrawText(_RBX->scrPlace, "Commit Memory", 13, _RBX->font, v90, *(float *)&horzAlignc, 1, 1, v106, &colorWhite, 3);
-  __asm
-  {
-    vaddss  xmm2, xmm9, dword ptr [rbx+0C4h]; y
-    vmovss  dword ptr [rbx+0C4h], xmm2
-    vmovss  xmm1, dword ptr [rbx+0C8h]; x
-    vmovaps xmm3, xmm9; width
-    vmovss  [rsp+0A8h+var_88], xmm9
-  }
-  UI_FillRect(_RBX->scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v91, 1, 1, &colorBlack);
-  __asm
-  {
-    vaddss  xmm2, xmm8, dword ptr [rbx+0C4h]; y
-    vaddss  xmm1, xmm8, dword ptr [rbx+0C8h]; x
-    vmovaps xmm3, xmm7; width
-    vmovss  [rsp+0A8h+var_88], xmm7
-  }
-  UI_FillRect(_RBX->scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v92, 1, 1, &COLOR_OVERBUDGET);
-  __asm
-  {
-    vaddss  xmm3, xmm9, dword ptr [rbx+0C4h]
-    vaddss  xmm2, xmm9, dword ptr [rbx+0C8h]
-    vmovss  [rsp+0A8h+var_68], xmm6
-    vmovss  [rsp+0A8h+horzAlign], xmm3
-    vmovss  [rsp+0A8h+var_88], xmm2
-  }
-  UI_DrawText(_RBX->scrPlace, "Overbudget", 10, _RBX->font, v93, *(float *)&horzAlignd, 1, 1, v107, &colorWhite, 3);
-  __asm
-  {
-    vaddss  xmm2, xmm9, dword ptr [rbx+0C4h]; y
-    vmovss  xmm1, dword ptr [rbx+0C8h]; x
-  }
-  v65 = _RBX->scrPlace;
-  __asm
-  {
-    vmovaps xmm3, xmm9; width
-    vmovss  dword ptr [rbx+0C4h], xmm2
-    vmovss  [rsp+0A8h+var_88], xmm9
-  }
-  UI_FillRect(v65, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v94, 1, 1, &colorBlack);
-  __asm
-  {
-    vaddss  xmm2, xmm8, dword ptr [rbx+0C4h]; y
-    vaddss  xmm1, xmm8, dword ptr [rbx+0C8h]; x
-    vmovaps xmm3, xmm7; width
-    vmovss  [rsp+0A8h+var_88], xmm7
-  }
-  UI_FillRect(_RBX->scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v95, 1, 1, &COLOR_UNDERBUDGET);
-  __asm
-  {
-    vaddss  xmm3, xmm9, dword ptr [rbx+0C4h]
-    vaddss  xmm2, xmm9, dword ptr [rbx+0C8h]
-    vmovss  [rsp+0A8h+var_68], xmm6
-    vmovss  [rsp+0A8h+horzAlign], xmm3
-    vmovss  [rsp+0A8h+var_88], xmm2
-  }
-  UI_DrawText(_RBX->scrPlace, "Underbudget", 11, _RBX->font, v96, *(float *)&horzAligne, 1, 1, v108, &colorWhite, 3);
-  __asm { vaddss  xmm1, xmm9, dword ptr [rbx+0C4h] }
-  _R11 = &v109;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovss  dword ptr [rbx+0C4h], xmm1
-  }
+  v7 = x + 12.0;
+  this->legendX = v7;
+  this->legendY = y + 12.0;
+  UI_FillRect(scrPlace, v7, y + 12.0, 12.0, 12.0, 1, 1, &colorBlack);
+  UI_FillRect(this->scrPlace, this->legendX + 1.0, this->legendY + 1.0, 10.0, 10.0, 1, 1, &COLOR_FREE);
+  UI_DrawText(this->scrPlace, "Free Space", 10, this->font, this->legendX + 12.0, this->legendY + 12.0, 1, 1, 0.2, &colorWhite, 3);
+  v8 = this->legendY + 12.0;
+  legendX = this->legendX;
+  v10 = this->scrPlace;
+  this->legendY = v8;
+  UI_FillRect(v10, legendX, v8, 12.0, 12.0, 1, 1, &colorBlack);
+  UI_FillRect(this->scrPlace, this->legendX + 1.0, this->legendY + 1.0, 10.0, 10.0, 1, 1, &COLOR_STREAM);
+  UI_DrawText(this->scrPlace, "Streamer Memory", 15, this->font, this->legendX + 12.0, this->legendY + 12.0, 1, 1, 0.2, &colorWhite, 3);
+  v11 = this->legendY + 12.0;
+  v12 = this->legendX;
+  v13 = this->scrPlace;
+  this->legendY = v11;
+  UI_FillRect(v13, v12, v11, 12.0, 12.0, 1, 1, &colorBlack);
+  UI_FillRect(this->scrPlace, this->legendX + 1.0, this->legendY + 1.0, 10.0, 10.0, 1, 1, &COLOR_OSEXE);
+  UI_DrawText(this->scrPlace, "OS / EXE Memory", 15, this->font, this->legendX + 12.0, this->legendY + 12.0, 1, 1, 0.2, &colorWhite, 3);
+  v14 = this->legendY + 12.0;
+  v15 = this->legendX;
+  v16 = this->scrPlace;
+  this->legendY = v14;
+  UI_FillRect(v16, v15, v14, 12.0, 12.0, 1, 1, &colorBlack);
+  UI_FillRect(this->scrPlace, this->legendX + 1.0, this->legendY + 1.0, 10.0, 10.0, 1, 1, &COLOR_COMMIT);
+  UI_DrawText(this->scrPlace, "Commit Memory", 13, this->font, this->legendX + 12.0, this->legendY + 12.0, 1, 1, 0.2, &colorWhite, 3);
+  v17 = this->legendY + 12.0;
+  this->legendY = v17;
+  UI_FillRect(this->scrPlace, this->legendX, v17, 12.0, 12.0, 1, 1, &colorBlack);
+  UI_FillRect(this->scrPlace, this->legendX + 1.0, this->legendY + 1.0, 10.0, 10.0, 1, 1, &COLOR_OVERBUDGET);
+  UI_DrawText(this->scrPlace, "Overbudget", 10, this->font, this->legendX + 12.0, this->legendY + 12.0, 1, 1, 0.2, &colorWhite, 3);
+  v18 = this->legendY + 12.0;
+  v19 = this->legendX;
+  v20 = this->scrPlace;
+  this->legendY = v18;
+  UI_FillRect(v20, v19, v18, 12.0, 12.0, 1, 1, &colorBlack);
+  UI_FillRect(this->scrPlace, this->legendX + 1.0, this->legendY + 1.0, 10.0, 10.0, 1, 1, &COLOR_UNDERBUDGET);
+  UI_DrawText(this->scrPlace, "Underbudget", 11, this->font, this->legendX + 12.0, this->legendY + 12.0, 1, 1, 0.2, &colorWhite, 3);
+  this->legendY = this->legendY + 12.0;
 }
 
 /*
@@ -896,175 +575,81 @@ MemBudget_HUD_Draw
 void MemBudget_HUD_Draw(const ScreenPlacement *scrPlace, int overlayType)
 {
   signed __int64 v2; 
-  void *v8; 
+  void *v3; 
+  float v5; 
+  double v6; 
   unsigned __int8 CurrentBuildType; 
   unsigned __int8 CurrentHardwareType; 
-  MemBudget_BuildType v26; 
-  MemBudget_HardwareType v27; 
-  unsigned __int8 v35; 
-  unsigned __int8 v36; 
-  MemBudget_BuildType v42; 
-  MemBudget_HardwareType v43; 
-  float v57; 
-  float v58; 
-  float v59; 
-  float v60; 
-  float v61; 
+  MemBudget_BuildType v9; 
+  MemBudget_HardwareType v10; 
+  unsigned __int8 v11; 
+  unsigned __int8 v12; 
+  MemBudget_BuildType v13; 
+  MemBudget_HardwareType v14; 
   DrawBars font; 
   MemBudget_PollData outPoll; 
-  char vars0; 
 
-  v8 = alloca(v2);
-  __asm
-  {
-    vmovaps [rsp+42B0h+var_10], xmm6
-    vmovaps [rsp+42B0h+var_20], xmm7
-    vmovaps [rsp+42B0h+var_30], xmm8
-    vmovaps [rsp+42B0h+var_40], xmm9
-  }
+  v3 = alloca(v2);
   font.curBarTexts.m_size = 0i64;
   *(_WORD *)&font.wroteLabels = 0;
   font.scrPlace = scrPlace;
-  __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-  font.font = UI_GetFontHandle(scrPlace, 5, *(float *)&_XMM2);
-  R_TextWidth("#", 1, font.font);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, eax
-    vmovss  xmm1, cs:__real@3e4ccccd; scale
-  }
-  *(double *)&_XMM0 = R_NormalizedTextScale(font.font, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  [rsp+42B0h+var_4250], xmm1
-  }
+  font.font = UI_GetFontHandle(scrPlace, 5, 1.0);
+  v5 = (float)R_TextWidth("#", 1, font.font);
+  v6 = R_NormalizedTextScale(font.font, 0.2);
+  font.charWidth = *(float *)&v6 * v5;
   MemBudget_Poll_GetLastUpdateForHUD(&outPoll);
-  __asm
-  {
-    vmovss  xmm8, cs:__real@42c80000
-    vmovss  xmm9, cs:__real@43160000
-  }
   if ( overlayType == 1 )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42d20000
-      vmovss  [rsp+42B0h+var_424C], xmm2
-      vmovss  xmm1, cs:__real@40a00000
-      vmovss  [rsp+42B0h+var_4248], xmm1
-      vmovss  xmm0, cs:__real@43c30000
-      vmovss  [rsp+42B0h+var_4244], xmm0
-      vmovss  [rsp+42B0h+var_4240], xmm2
-      vmovss  [rsp+42B0h+var_423C], xmm1
-    }
+    font.barAreaX = FLOAT_105_0;
+    font.barAreaY = FLOAT_5_0;
+    font.barAreaEndX = FLOAT_390_0;
+    font.barCursorX = FLOAT_105_0;
+    font.barCursorY = FLOAT_5_0;
     font.projectedBudget = 0;
-    __asm
-    {
-      vmovss  xmm0, cs:__real@447a0000
-      vmovss  [rsp+42B0h+var_4290], xmm0
-      vmovss  xmm3, cs:__real@43960000; width
-      vxorps  xmm2, xmm2, xmm2; y
-      vmovaps xmm1, xmm8; x
-    }
-    UI_FillRect(font.scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v57, overlayType, overlayType, &colorWhiteMoreFaded);
+    UI_FillRect(font.scrPlace, 100.0, 0.0, 300.0, 1000.0, 1, 1, &colorWhiteMoreFaded);
     CurrentBuildType = MemBudget_GetCurrentBuildType();
     CurrentHardwareType = MemBudget_GetCurrentHardwareType();
-    v26 = CurrentBuildType;
-    v27 = CurrentHardwareType;
+    v9 = CurrentBuildType;
+    v10 = CurrentHardwareType;
 LABEL_5:
-    DrawBars::DrawBudgetPoll(&font, &outPoll, v27, v26);
+    DrawBars::DrawBudgetPoll(&font, &outPoll, v10, v9);
     goto LABEL_6;
   }
   if ( overlayType == 2 )
   {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@42d20000
-      vmovss  [rsp+42B0h+var_424C], xmm1
-      vmovss  xmm7, cs:__real@40a00000
-      vmovss  [rsp+42B0h+var_4248], xmm7
-      vmovss  xmm0, cs:__real@43700000
-      vmovss  [rsp+42B0h+var_4244], xmm0
-      vmovss  [rsp+42B0h+var_4240], xmm1
-      vmovss  [rsp+42B0h+var_423C], xmm7
-    }
+    font.barAreaX = FLOAT_105_0;
+    font.barAreaY = FLOAT_5_0;
+    font.barAreaEndX = FLOAT_240_0;
+    font.barCursorX = FLOAT_105_0;
+    font.barCursorY = FLOAT_5_0;
     font.projectedBudget = 0;
-    __asm
-    {
-      vmovss  xmm6, cs:__real@447a0000
-      vmovss  [rsp+42B0h+var_4290], xmm6
-      vmovaps xmm3, xmm9; width
-      vxorps  xmm2, xmm2, xmm2; y
-      vmovaps xmm1, xmm8; x
-    }
-    UI_FillRect(font.scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v58, 1, 1, &colorWhiteMoreFaded);
-    v35 = MemBudget_GetCurrentBuildType();
-    v36 = MemBudget_GetCurrentHardwareType();
-    DrawBars::DrawBudgetPoll(&font, &outPoll, (const MemBudget_HardwareType)v36, (const MemBudget_BuildType)v35);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@43848000
-      vmovss  [rsp+42B0h+var_424C], xmm1
-      vmovss  [rsp+42B0h+var_4248], xmm7
-      vmovss  xmm0, cs:__real@43c80000
-      vmovss  [rsp+42B0h+var_4244], xmm0
-      vmovss  [rsp+42B0h+var_4240], xmm1
-      vmovss  [rsp+42B0h+var_423C], xmm7
-    }
+    UI_FillRect(font.scrPlace, 100.0, 0.0, 150.0, 1000.0, 1, 1, &colorWhiteMoreFaded);
+    v11 = MemBudget_GetCurrentBuildType();
+    v12 = MemBudget_GetCurrentHardwareType();
+    DrawBars::DrawBudgetPoll(&font, &outPoll, (const MemBudget_HardwareType)v12, (const MemBudget_BuildType)v11);
+    font.barAreaX = FLOAT_265_0;
+    font.barAreaY = FLOAT_5_0;
+    font.barAreaEndX = FLOAT_400_0;
+    font.barCursorX = FLOAT_265_0;
+    font.barCursorY = FLOAT_5_0;
     font.projectedBudget = 1;
-    __asm
-    {
-      vmovss  [rsp+42B0h+var_4290], xmm6
-      vmovaps xmm3, xmm9; width
-      vxorps  xmm2, xmm2, xmm2; y
-      vmovss  xmm1, cs:__real@43820000; x
-    }
-    UI_FillRect(font.scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v59, 1, 1, &colorWhiteMoreFaded);
-    LOBYTE(v42) = 1;
-    LOBYTE(v43) = 2;
-    DrawBars::DrawBudgetPoll(&font, &outPoll, v43, v42);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@43d48000
-      vmovss  [rsp+42B0h+var_424C], xmm1
-      vmovss  [rsp+42B0h+var_4248], xmm7
-      vmovss  xmm0, cs:__real@440c0000
-      vmovss  [rsp+42B0h+var_4244], xmm0
-      vmovss  [rsp+42B0h+var_4240], xmm1
-      vmovss  [rsp+42B0h+var_423C], xmm7
-    }
+    UI_FillRect(font.scrPlace, 260.0, 0.0, 150.0, 1000.0, 1, 1, &colorWhiteMoreFaded);
+    LOBYTE(v13) = 1;
+    LOBYTE(v14) = 2;
+    DrawBars::DrawBudgetPoll(&font, &outPoll, v14, v13);
+    font.barAreaX = FLOAT_425_0;
+    font.barAreaY = FLOAT_5_0;
+    font.barAreaEndX = FLOAT_560_0;
+    font.barCursorX = FLOAT_425_0;
+    font.barCursorY = FLOAT_5_0;
     font.projectedBudget = 1;
-    __asm
-    {
-      vmovss  [rsp+42B0h+var_4290], xmm6
-      vmovaps xmm3, xmm9; width
-      vxorps  xmm2, xmm2, xmm2; y
-      vmovss  xmm1, cs:__real@43d20000; x
-    }
-    UI_FillRect(font.scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v60, 1, 1, &colorWhiteMoreFaded);
-    LOBYTE(v26) = 2;
-    v27 = PhaseSpace;
+    UI_FillRect(font.scrPlace, 420.0, 0.0, 150.0, 1000.0, 1, 1, &colorWhiteMoreFaded);
+    LOBYTE(v9) = 2;
+    v10 = PhaseSpace;
     goto LABEL_5;
   }
 LABEL_6:
-  __asm
-  {
-    vmovss  [rsp+42B0h+var_4290], xmm8
-    vmovaps xmm3, xmm9; width
-    vmovss  xmm2, cs:__real@43af0000; y
-    vmovss  xmm1, cs:__real@44160000; x
-  }
-  DrawBars::DrawLegend(&font, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3, v61);
+  DrawBars::DrawLegend(&font, 600.0, 350.0, 150.0, 100.0);
   ntl::fixed_vector<DrawBars::BarText,4,0>::~fixed_vector<DrawBars::BarText,4,0>(&font.curBarTexts);
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
 }
 

@@ -49,18 +49,10 @@ bdRelayVerify::bdRelayVerify
 */
 void bdRelayVerify::bdRelayVerify(bdRelayVerify *this, unsigned int counter, unsigned int routingID, const unsigned __int8 *verification)
 {
-  _RDI = verification;
-  _RBX = this;
   bdRelayBasePacket::bdRelayBasePacket(this, BD_RELAY_PACKET_VERIFY, counter, routingID, 0x10u);
-  _RBX->__vftable = (bdRelayVerify_vtbl *)&bdRelayVerify::`vftable';
-  if ( _RDI )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovups xmmword ptr [rbx+20h], xmm0
-    }
-  }
+  this->__vftable = (bdRelayVerify_vtbl *)&bdRelayVerify::`vftable';
+  if ( verification )
+    *(_OWORD *)this->m_verification = *(_OWORD *)verification;
 }
 
 /*

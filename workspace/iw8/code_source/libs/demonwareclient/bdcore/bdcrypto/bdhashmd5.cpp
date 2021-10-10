@@ -177,15 +177,15 @@ __int64 bdHashMD5::hash(bdHashMD5 *this, const unsigned __int8 *data, const unsi
   NTSTATUS Hash_0; 
   NTSTATUS v14; 
   NTSTATUS v15; 
+  __int128 v16; 
   NTSTATUS v17; 
   unsigned __int8 pbOutput[16]; 
 
-  _RSI = result;
   v9 = 0;
   bdHandleAssert(data != NULL, "(data != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashmd5.cpp", "bdHashMD5::hash", 0xA7u, "MD5 input cannot be NULL");
-  bdHandleAssert(_RSI != NULL, "(result != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashmd5.cpp", "bdHashMD5::hash", 0xA8u, "MD5 digest buffer cannot be NULL");
+  bdHandleAssert(result != NULL, "(result != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashmd5.cpp", "bdHashMD5::hash", 0xA8u, "MD5 digest buffer cannot be NULL");
   bdHandleAssert(*resultSize >= 0x10, "(resultSize >= BD_MD5_HASH_SIZE)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdhashmd5.cpp", "bdHashMD5::hash", 0xA9u, "MD5 requires digest buffer >= 16 bytes");
-  if ( data && _RSI && *resultSize >= 0x10 )
+  if ( data && result && *resultSize >= 0x10 )
   {
     v10 = bdHashMD5::s_provider;
     if ( bdHashMD5::s_provider )
@@ -213,10 +213,10 @@ LABEL_13:
             }
             else
             {
-              __asm { vmovups xmm0, xmmword ptr [rsp+98h+pbOutput] }
+              v16 = *(_OWORD *)pbOutput;
               *resultSize = 16;
               v9 = 1;
-              __asm { vmovups xmmword ptr [rsi], xmm0 }
+              *(_OWORD *)result = v16;
             }
           }
           return v9;

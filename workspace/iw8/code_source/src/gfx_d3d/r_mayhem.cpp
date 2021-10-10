@@ -179,171 +179,89 @@ void __fastcall R_ExecuteMayhemChannelsComputeCmds(ComputeCmdBufState *cmdBufSta
 R_Mayhem_SplineDecompressPos<vec3_t>
 ==============
 */
-
-void __fastcall R_Mayhem_SplineDecompressPos<vec3_t>(const MayhemAnim *mayhemAnim, float4 *numFrames, double t, float4 *absFrame, const float4 *transMin, const float4 *transSize, unsigned __int16 *frameIndices, const vec3_t *posKeys, float4 *posFrame)
+void R_Mayhem_SplineDecompressPos<vec3_t>(const MayhemAnim *mayhemAnim, float4 *numFrames, float t, float4 *absFrame, const float4 *transMin, const float4 *transSize, unsigned __int16 *frameIndices, const vec3_t *posKeys, float4 *posFrame)
 {
   float4 *v9; 
+  unsigned __int16 v11; 
+  int v12; 
+  float v14; 
   unsigned __int16 v17; 
-  int v19; 
-  unsigned __int16 v27; 
-  __int64 v81; 
-  char *fmt; 
-  float4 *v83; 
-  double v84; 
-  double v85; 
-  int v86; 
-  __int128 v87; 
-  char v88; 
-  void *retaddr; 
+  __int64 v18; 
+  float v19; 
+  float v20; 
+  __int128 v22; 
+  __int128 v26; 
+  __int128 v30; 
+  __int128 v34; 
+  float4 *fmt; 
+  __int128 v38; 
+  __int128 v39; 
+  __int128 v40; 
+  __int128 v41; 
 
-  _RAX = &retaddr;
-  __asm
+  v11 = (unsigned __int16)absFrame;
+  v12 = (int)numFrames;
+  v14 = FLOAT_1_0;
+  if ( t < 0.0 || t > 1.0 )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
-  v17 = (unsigned __int16)absFrame;
-  _R15 = posKeys;
-  v19 = (int)numFrames;
-  _RSI = posFrame;
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps xmm6, xmm2
-    vcomiss xmm2, xmm9
-  }
-  if ( (unsigned __int64)&v81 != _security_cookie )
-  {
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+0D8h+var_A0], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+0D8h+var_A8], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+0D8h+var_B0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 198, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( t ) && ( t ) <= ( 1.0f )", "t not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&v83, v84, v85) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 198, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( t ) && ( t ) <= ( 1.0f )", "t not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", t, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
-  if ( v17 == mayhemAnim->numFrames )
+  if ( v11 == mayhemAnim->numFrames )
   {
-    v27 = v19 - 1;
+    v17 = v12 - 1;
   }
   else
   {
-    v27 = R_Mayhem_FindFrame(frameIndices + 1, &frameIndices[v19 - 1], v17) + 1;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm9, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm2, xmm0, xmm1
-      vsubss  xmm3, xmm6, xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm1
-      vsubss  xmm2, xmm1, xmm2
-      vdivss  xmm9, xmm3, xmm2
-    }
+    v18 = (unsigned __int16)(R_Mayhem_FindFrame(frameIndices + 1, &frameIndices[v12 - 1], v11) + 1);
+    v17 = v18;
+    v19 = (float)(mayhemAnim->numFrames - 1);
+    v20 = (float)frameIndices[v18 - 1] * (float)(1.0 / v19);
+    v14 = (float)(t - v20) / (float)((float)((float)frameIndices[v18] * (float)(1.0 / v19)) - v20);
   }
-  v83 = posFrame;
-  _RAX = 9i64 * v27 - 9;
+  HIDWORD(v38) = 0;
+  v22 = v38;
+  *(float *)&v22 = posKeys[3 * v17 - 3].v[0];
+  _XMM8 = v22;
   __asm
   {
-    vmovss  xmm0, dword ptr [r15+rax*4]
-    vmovss  xmm1, dword ptr [r15+rax*4+4]
-    vmovss  xmm2, dword ptr [r15+rax*4+8]
-  }
-  HIDWORD(v87) = 0;
-  _RAX = 9i64 * v27 - 6;
-  __asm
-  {
-    vmovups xmm8, xmmword ptr [rsp+50h]
-    vmovss  xmm8, xmm8, xmm0
-    vmovss  xmm0, dword ptr [r15+rax*4]
     vinsertps xmm8, xmm8, xmm1, 10h
-    vmovss  xmm1, dword ptr [r15+rax*4+4]
     vinsertps xmm8, xmm8, xmm2, 20h ; ' '
-    vmovss  xmm2, dword ptr [r15+rax*4+8]
-    vmovups xmmword ptr [rsp+50h], xmm8
   }
-  HIDWORD(v87) = 0;
-  _RAX = 9i64 * v27;
+  v39 = _XMM8;
+  HIDWORD(v39) = 0;
+  v26 = v39;
+  *(float *)&v26 = posKeys[3 * v17 - 2].v[0];
+  _XMM7 = v26;
   __asm
   {
-    vmovups xmm7, xmmword ptr [rsp+50h]
-    vmovss  xmm7, xmm7, xmm0
-    vmovss  xmm0, dword ptr [r15+rax*4-0Ch]
     vinsertps xmm7, xmm7, xmm1, 10h
-    vmovss  xmm1, dword ptr [r15+rax*4-8]
     vinsertps xmm7, xmm7, xmm2, 20h ; ' '
-    vmovss  xmm2, dword ptr [r15+rax*4-4]
-    vmovups xmmword ptr [rsp+50h], xmm7
   }
-  HIDWORD(v87) = 0;
+  v40 = _XMM7;
+  HIDWORD(v40) = 0;
+  v30 = v40;
+  *(float *)&v30 = posKeys[3 * v17 - 1].v[0];
+  _XMM3 = v30;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+50h]
-    vmovss  xmm5, dword ptr [r15+rax*4+4]
-    vmovss  xmm6, dword ptr [r15+rax*4+8]
-    vmovss  xmm3, xmm3, xmm0
-    vmovss  xmm0, dword ptr [r15+rax*4]
     vinsertps xmm3, xmm3, xmm1, 10h
     vinsertps xmm3, xmm3, xmm2, 20h ; ' '
-    vmovups xmmword ptr [rsp+50h], xmm3
   }
-  HIDWORD(v87) = 0;
+  v41 = _XMM3;
+  HIDWORD(v41) = 0;
+  v34 = v41;
+  *(float *)&v34 = posKeys[3 * v17].v[0];
+  _XMM4 = v34;
   __asm
   {
-    vmovups xmm4, xmmword ptr [rsp+50h]
-    vmovss  xmm4, xmm4, xmm0
     vinsertps xmm4, xmm4, xmm5, 10h
     vinsertps xmm4, xmm4, xmm6, 20h ; ' '
-    vmovups xmm2, xmm7
-    vmovups xmm1, xmm8
-    vmovaps xmm0, xmm9
   }
-  Float4EvalCubicBezierSpline(*(float *)&_XMM0, numFrames, v9, absFrame, (float4 *)fmt, posFrame);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  [rsp+0D8h+var_98], xmm0
-  }
-  if ( (v86 & 0x7F800000) == 2139095040 )
-    goto LABEL_15;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4]
-    vmovss  [rsp+0D8h+var_98], xmm0
-  }
-  if ( (v86 & 0x7F800000) == 2139095040 )
-    goto LABEL_15;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+8]
-    vmovss  [rsp+0D8h+var_98], xmm0
-  }
-  if ( (v86 & 0x7F800000) == 2139095040 )
-  {
-LABEL_15:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 228, ASSERT_TYPE_SANITY, "( !IS_NAN( ( *reinterpret_cast< vec3_t * >( posFrame ) )[0] ) && !IS_NAN( ( *reinterpret_cast< vec3_t * >( posFrame ) )[1] ) && !IS_NAN( ( *reinterpret_cast< vec3_t * >( posFrame ) )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( *reinterpret_cast< vec3_t * >( posFrame ) )[0] ) && !IS_NAN( ( *reinterpret_cast< vec3_t * >( posFrame ) )[1] ) && !IS_NAN( ( *reinterpret_cast< vec3_t * >( posFrame ) )[2] )") )
-      __debugbreak();
-  }
-  _R11 = &v88;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  Float4EvalCubicBezierSpline(v14, numFrames, v9, absFrame, fmt, posFrame);
+  if ( ((posFrame->v.m128_i32[0] & 0x7F800000) == 2139095040 || (posFrame->v.m128_i32[1] & 0x7F800000) == 2139095040 || (posFrame->v.m128_i32[2] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 228, ASSERT_TYPE_SANITY, "( !IS_NAN( ( *reinterpret_cast< vec3_t * >( posFrame ) )[0] ) && !IS_NAN( ( *reinterpret_cast< vec3_t * >( posFrame ) )[1] ) && !IS_NAN( ( *reinterpret_cast< vec3_t * >( posFrame ) )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( *reinterpret_cast< vec3_t * >( posFrame ) )[0] ) && !IS_NAN( ( *reinterpret_cast< vec3_t * >( posFrame ) )[1] ) && !IS_NAN( ( *reinterpret_cast< vec3_t * >( posFrame ) )[2] )") )
+    __debugbreak();
 }
 
 /*
@@ -354,132 +272,64 @@ R_Mayhem_SplineDecompressQuat<float4>
 
 void __fastcall R_Mayhem_SplineDecompressQuat<float4>(const MayhemAnim *mayhemAnim, unsigned int numFrames, double t, unsigned __int16 absFrame, unsigned __int16 *frameIndices, const float4 *quatKeys, float4 *quatFrame)
 {
-  int v61; 
-  __int64 v68; 
-  double v69; 
-  double v70; 
-  double v71; 
-  int v72; 
+  __m128 v11; 
+  unsigned __int16 v13; 
+  __m128 v14; 
+  __int64 v15; 
+  float v16; 
+  float v17; 
+  __m128 v18; 
+  __m128 v19; 
+  __m128 v20; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v23; 
+  __m128 v24; 
+  __m128 v25; 
+  float4 v29; 
 
-  __asm
+  v11 = *(__m128 *)&t;
+  if ( *(float *)&t < 0.0 || *(float *)&t > 1.0 )
   {
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovaps [rsp+0A8h+var_48], xmm7
-    vmovaps [rsp+0A8h+var_58], xmm8
-  }
-  _RBX = quatFrame;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps xmm6, xmm2
-    vcomiss xmm2, xmm7
-  }
-  if ( (unsigned __int64)&v68 != _security_cookie )
-  {
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+0A8h+var_70], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+0A8h+var_78], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+0A8h+var_80], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 114, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( t ) && ( t ) <= ( 1.0f )", "t not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v69, v70, v71) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 114, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( t ) && ( t ) <= ( 1.0f )", "t not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&t, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
   if ( absFrame == mayhemAnim->numFrames )
   {
-    __asm { vmovaps xmm8, xmm7 }
+    v13 = numFrames - 1;
+    v14 = (__m128)LODWORD(FLOAT_1_0);
   }
   else
   {
-    R_Mayhem_FindFrame(frameIndices + 1, &frameIndices[numFrames - 1], absFrame);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vdivss  xmm1, xmm7, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm2, xmm0, xmm1
-      vsubss  xmm3, xmm6, xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm1
-      vsubss  xmm2, xmm1, xmm2
-      vdivss  xmm8, xmm3, xmm2
-    }
+    v15 = (unsigned __int16)(R_Mayhem_FindFrame(frameIndices + 1, &frameIndices[numFrames - 1], absFrame) + 1);
+    v13 = v15;
+    v16 = (float)(mayhemAnim->numFrames - 1);
+    v17 = (float)frameIndices[v15 - 1] * (float)(1.0 / v16);
+    v18 = v11;
+    v18.m128_f32[0] = (float)(v11.m128_f32[0] - v17) / (float)((float)((float)frameIndices[v15] * (float)(1.0 / v16)) - v17);
+    v14 = v18;
   }
+  v19 = v14;
+  v19.m128_f32[0] = v14.m128_f32[0] * v14.m128_f32[0];
+  v20 = _mm_shuffle_ps(v19, v19, 0);
+  v19.m128_f32[0] = (float)(v14.m128_f32[0] * v14.m128_f32[0]) * v14.m128_f32[0];
+  v21 = _mm_shuffle_ps(v19, v19, 0);
+  v22 = (__m128)LODWORD(FLOAT_1_0);
+  v22.m128_f32[0] = 1.0 - v14.m128_f32[0];
+  v23 = _mm_shuffle_ps(v22, v22, 0);
+  v24 = _mm128_mul_ps(v23, v23);
+  v25 = _mm128_add_ps(_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps((__m128)_xmm, quatKeys[3 * v13 - 1].v), _mm128_mul_ps(v20, v23)), _mm128_mul_ps(v21, quatKeys[3 * v13].v)), _mm128_mul_ps(_mm128_mul_ps((__m128)_xmm, quatKeys[3 * v13 - 2].v), _mm128_mul_ps(_mm_shuffle_ps(v14, v14, 0), v24))), _mm128_mul_ps(_mm128_mul_ps(v24, v23), quatKeys[3 * v13 - 3].v));
+  _XMM0 = _mm128_mul_ps(v25, v25);
   __asm
   {
-    vmovups xmm5, cs:__xmm@40400000404000004040000040400000
-    vmulss  xmm2, xmm8, xmm8
-    vmovaps xmm0, xmm2
-    vshufps xmm0, xmm0, xmm0, 0
-    vmulss  xmm2, xmm2, xmm8
-    vshufps xmm2, xmm2, xmm2, 0
-    vsubss  xmm7, xmm7, xmm8
-    vshufps xmm7, xmm7, xmm7, 0
-    vmulps  xmm0, xmm0, xmm7
-    vmulps  xmm6, xmm7, xmm7
-    vmulps  xmm1, xmm5, xmmword ptr [r15+rcx*8-10h]
-    vmulps  xmm3, xmm1, xmm0
-    vmulps  xmm0, xmm2, xmmword ptr [r15+rcx*8]
-    vmulps  xmm1, xmm5, xmmword ptr [r15+rcx*8-20h]
-    vaddps  xmm4, xmm3, xmm0
-    vmovaps xmm0, xmm8
-    vshufps xmm0, xmm0, xmm0, 0
-    vmulps  xmm0, xmm0, xmm6
-    vmulps  xmm1, xmm1, xmm0
-    vaddps  xmm2, xmm4, xmm1
-    vmulps  xmm0, xmm6, xmm7
-    vmulps  xmm1, xmm0, xmmword ptr [r15+rcx*8-30h]
-    vaddps  xmm3, xmm2, xmm1
-    vmulps  xmm0, xmm3, xmm3
     vhaddps xmm1, xmm0, xmm0
     vhaddps xmm0, xmm1, xmm1
-    vsqrtps xmm1, xmm0
-    vdivps  xmm2, xmm3, xmm1
-    vmovss  [rsp+0A8h+var_68], xmm2
   }
-  v61 = v72 & 0x7F800000;
-  __asm { vmovups xmmword ptr [rbx], xmm2 }
-  if ( v61 == 2139095040 )
-    goto LABEL_16;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+0A8h+var_68], xmm0
-  }
-  if ( (v72 & 0x7F800000) == 2139095040 )
-    goto LABEL_16;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+0A8h+var_68], xmm0
-  }
-  if ( (v72 & 0x7F800000) == 2139095040 )
-    goto LABEL_16;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rsp+0A8h+var_68], xmm0
-  }
-  if ( (v72 & 0x7F800000) == 2139095040 )
-  {
-LABEL_16:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 145, ASSERT_TYPE_SANITY, "( !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[0] ) && !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[1] ) && !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[2] ) && !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[0] ) && !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[1] ) && !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[2] ) && !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[3] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_38]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-    vmovaps xmm8, [rsp+0A8h+var_58]
-  }
+  v29.v = _mm128_div_ps(v25, _mm_sqrt_ps(_XMM0));
+  *quatFrame = (float4)v29.v;
+  if ( ((v29.v.m128_i32[0] & 0x7F800000) == 2139095040 || (quatFrame->v.m128_i32[1] & 0x7F800000) == 2139095040 || (quatFrame->v.m128_i32[2] & 0x7F800000) == 2139095040 || (quatFrame->v.m128_i32[3] & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 145, ASSERT_TYPE_SANITY, "( !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[0] ) && !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[1] ) && !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[2] ) && !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[0] ) && !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[1] ) && !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[2] ) && !IS_NAN( ( *reinterpret_cast< vec4_t * >( quatFrame ) )[3] )") )
+    __debugbreak();
 }
 
 /*
@@ -645,8 +495,8 @@ void R_ExecuteMayhemChannelsComputeCmds(ComputeCmdBufState *cmdBufState, const C
   unsigned int v9; 
   ComputeShader *mayhemChannelsSkinnedComputeShader; 
   _DWORD *bufferData; 
-  __int64 v14; 
-  __int64 v15; 
+  __int64 v12; 
+  __int64 v13; 
   GfxShaderBufferView *views; 
   GfxConstantBufferDesc cbDesc; 
   GfxConstantBufferDesc result; 
@@ -675,25 +525,20 @@ void R_ExecuteMayhemChannelsComputeCmds(ComputeCmdBufState *cmdBufState, const C
     {
       v9 = *(unsigned __int8 *)(v8 + 8);
       data[0] = v9;
-      _RAX = R_BeginComputeConstants(&result, cmdBufState, 1, 4 * v9);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+0A8h+cbDesc.bufferData], xmm0
-      }
+      cbDesc = *R_BeginComputeConstants(&result, cmdBufState, 1, 4 * v9);
       if ( v9 )
       {
         bufferData = cbDesc.bufferData;
-        v14 = 0i64;
-        v15 = v9;
+        v12 = 0i64;
+        v13 = v9;
         do
         {
           ++bufferData;
-          v14 += 8i64;
-          *(bufferData - 1) = *((_DWORD *)ComputeCmdData + 2) + *(unsigned __int16 *)(*(_QWORD *)(v8 + 88) + v14 - 8);
-          --v15;
+          v12 += 8i64;
+          *(bufferData - 1) = *((_DWORD *)ComputeCmdData + 2) + *(unsigned __int16 *)(*(_QWORD *)(v8 + 88) + v12 - 8);
+          --v13;
         }
-        while ( v15 );
+        while ( v13 );
       }
       R_EndComputeConstants(cmdBufState, &cbDesc);
       mayhemChannelsSkinnedComputeShader = rgp.mayhemChannelsRigidComputeShader;
@@ -725,108 +570,64 @@ R_MayhemSelfVis_GetPerModelData
 */
 char R_MayhemSelfVis_GetPerModelData(const GfxBackEndData *data, const GfxSceneEntity *sceneEnt, const DObj *obj, const XModel *model, const MayhemSelfVisChannel **outChannel, unsigned int *outAnimDataIndex)
 {
+  __int128 v6; 
+  MayhemSelfVisFrameData *v11; 
   volatile signed __int32 *p_selfVisAnimDataCount; 
-  unsigned int v17; 
-  char v25; 
-  bool v26; 
+  unsigned int v13; 
+  bool v15; 
+  float v16; 
+  double v18; 
+  float v19; 
   MayhemSelfVisChannel *p_selfVisChannel; 
-  double v46; 
-  double v47; 
-  double v48; 
+  __int64 numFrames; 
+  float v24; 
+  float v26; 
   MayhemAnimInfo outAnimInfo; 
+  __int128 v28; 
 
   if ( (model->flags & 0x8000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 1038, ASSERT_TYPE_ASSERT, "(model->flags & XMODEL_FLAG_HAS_MAYHEM_SELFVIS)", (const char *)&queryFormat, "model->flags & XMODEL_FLAG_HAS_MAYHEM_SELFVIS") )
     __debugbreak();
   if ( !Mayhem_GetAnimInfo(sceneEnt->info.pose->mayhemInstanceId, obj, model, &outAnimInfo) )
     return 0;
-  _RSI = &s_mayhemGlob.frameData[data->smpFrame];
-  p_selfVisAnimDataCount = &_RSI->selfVisAnimDataCount;
-  if ( ((unsigned __int8)_RSI & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &_RSI->selfVisAnimDataCount) )
+  v11 = &s_mayhemGlob.frameData[data->smpFrame];
+  p_selfVisAnimDataCount = &v11->selfVisAnimDataCount;
+  if ( ((unsigned __int8)v11 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 79, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &v11->selfVisAnimDataCount) )
     __debugbreak();
-  v17 = _InterlockedExchangeAdd(p_selfVisAnimDataCount, 1u);
-  if ( v17 >= 0x100 )
+  v13 = _InterlockedExchangeAdd(p_selfVisAnimDataCount, 1u);
+  if ( v13 >= 0x100 )
   {
     R_WarnOncePerFrame(R_WARN_TOO_MANY_MAYHEM_SELFVIS_ANIM_DATA, *(unsigned int *)p_selfVisAnimDataCount);
     return 0;
   }
-  _RAX = outAnimInfo.anim;
-  __asm
+  v15 = !outAnimInfo.anim->isLooping;
+  v16 = outAnimInfo.anim->frequency * outAnimInfo.curTime;
+  v28 = v6;
+  if ( v15 )
   {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-    vmovss  xmm7, cs:__real@3f800000
-  }
-  v26 = !outAnimInfo.anim->isLooping;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+14h]
-    vmulss  xmm0, xmm0, [rsp+88h+outAnimInfo.curTime]; X
-    vmovaps [rsp+88h+var_38], xmm8
-    vxorps  xmm8, xmm8, xmm8
-  }
-  if ( v26 )
-  {
-    __asm
-    {
-      vmovaps xmm2, xmm7; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+    _XMM1 = 0i64;
+    v18 = I_fclamp(v16, 0.0, 1.0);
   }
   else
   {
-    __asm { vmovaps xmm1, xmm7; Y }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
+    _XMM1 = LODWORD(FLOAT_1_0);
+    *(float *)&v18 = fmodf_0(v16, 1.0);
   }
-  __asm
+  v19 = *(float *)&v18;
+  if ( *(float *)&v18 < 0.0 || *(float *)&v18 > 1.0 )
   {
-    vcomiss xmm0, xmm8
-    vmovaps xmm8, [rsp+88h+var_38]
-    vmovaps xmm6, xmm0
-  }
-  if ( v25 )
-    goto LABEL_16;
-  __asm { vcomiss xmm0, xmm7 }
-  if ( !(v25 | v26) )
-  {
-LABEL_16:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+88h+var_50], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+88h+var_58], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+88h+var_60], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 1049, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( normalizedAnimTime ) && ( normalizedAnimTime ) <= ( 1.0f )", "normalizedAnimTime not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v46, v47, v48) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 1049, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( normalizedAnimTime ) && ( normalizedAnimTime ) <= ( 1.0f )", "normalizedAnimTime not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&v18, *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
   p_selfVisChannel = &outAnimInfo.anim->selfVisChannel;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm0, xmm0, rcx
-    vsubss  xmm3, xmm0, xmm7
-    vmovaps xmm7, [rsp+88h+var_28]
-    vmulss  xmm1, xmm3, xmm6
-    vroundss xmm2, xmm2, xmm1, 1
-    vcvttss2si rax, xmm2
-  }
-  _RAX = v17;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vdivss  xmm1, xmm0, xmm3
-    vsubss  xmm2, xmm6, xmm1
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmulss  xmm3, xmm2, xmm3
-    vmovss  dword ptr [rsi+rax*4], xmm3
-  }
+  _XMM2 = 0i64;
+  numFrames = outAnimInfo.anim->selfVisChannel.numFrames;
+  v24 = (float)numFrames;
+  __asm { vroundss xmm2, xmm2, xmm1, 1 }
+  v26 = (float)((int)*(float *)&_XMM2 % (unsigned int)numFrames);
+  v11->selfVisAnimData[v13].lerpValue = (float)(v19 - (float)(v26 / (float)(v24 - 1.0))) * (float)(v24 - 1.0);
   *outChannel = p_selfVisChannel;
-  *outAnimDataIndex = v17;
+  *outAnimDataIndex = v13;
   return 1;
 }
 
@@ -980,254 +781,210 @@ R_Mayhem_ProcessUncompressedAnim
 
 void __fastcall R_Mayhem_ProcessUncompressedAnim(const MayhemAnim *mayhemAnim, double t, DObjAnimMat *skel, const vec3_t *placementPos, const vec4_t *placementQuat)
 {
-  DObjAnimMat *v17; 
-  bool v23; 
-  bool v24; 
-  unsigned int numFrames; 
-  __int64 v30; 
-  unsigned int v36; 
-  unsigned int v38; 
+  DObjAnimMat *v6; 
+  __m128 v7; 
+  __m128 v8; 
+  __m128 v11; 
+  __int64 numFrames; 
+  __int64 v16; 
+  __int64 v19; 
+  unsigned int v20; 
+  float v21; 
+  __m128 v23; 
   unsigned int numBones; 
-  unsigned int v44; 
-  unsigned int v50; 
+  unsigned int v25; 
+  __m128 v26; 
+  unsigned int v27; 
   MayhemAnimFramesSplineCompressed *splineCompressedFrames; 
-  __int64 v70; 
-  __int64 v146; 
-  double v213; 
-  double v214; 
-  double v215; 
+  unsigned __int16 *diskQuatFrames; 
+  __m128 v31; 
+  float v32; 
+  __m128 v37; 
+  __int64 v43; 
+  __m128 v52; 
+  __m128 v54; 
+  __m128 v55; 
+  unsigned __int8 *diskPos; 
+  __int64 v57; 
+  bool v58; 
+  float v65; 
+  float v66; 
+  float v67; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float *v75; 
+  float *v76; 
+  DObjAnimMat *v83; 
+  float v84; 
+  __m128 v85; 
+  float v86; 
+  float v87; 
+  float v88; 
+  __m128 v89; 
+  float v90; 
+  __m128 v91; 
+  __m128 v92; 
+  float v93; 
+  float v95; 
+  float v96; 
+  float v97; 
+  float v98; 
+  __m128 v99; 
   vec3_t in; 
   vec3_t out; 
-  __int128 v230; 
-  __int128 v231; 
-  __int128 v232; 
-  char v240; 
-  void *retaddr; 
+  __m128 v102; 
+  __m128 v103; 
+  __m128 v104; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-88h], xmm10
-  }
-  v17 = skel;
-  __asm
-  {
-    vmulss  xmm0, xmm1, dword ptr [rcx+14h]; X
-    vmovss  xmm7, cs:__real@3f800000
-    vxorps  xmm10, xmm10, xmm10
-  }
+  v6 = skel;
+  v8 = *(__m128 *)&t;
+  v8.m128_f32[0] = *(float *)&t * mayhemAnim->frequency;
+  v7 = v8;
   if ( mayhemAnim->isLooping )
   {
-    __asm { vmovaps xmm1, xmm7; Y }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
+    _XMM1 = LODWORD(FLOAT_1_0);
+    v7.m128_f32[0] = fmodf_0(v8.m128_f32[0], 1.0);
   }
   else
   {
-    __asm
-    {
-      vmovaps xmm2, xmm7; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+    _XMM1 = 0i64;
+    *(double *)v7.m128_u64 = I_fclamp(v8.m128_f32[0], 0.0, 1.0);
   }
-  __asm
+  v11 = v7;
+  if ( v7.m128_f32[0] < 0.0 || v7.m128_f32[0] > 1.0 )
   {
-    vcomiss xmm0, xmm10
-    vmovaps xmm6, xmm0
-  }
-  if ( v23 )
-    goto LABEL_31;
-  __asm { vcomiss xmm0, xmm7 }
-  if ( !v23 && !v24 )
-  {
-LABEL_31:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vmovsd  [rsp+1E0h+var_1A8], xmm0
-      vxorpd  xmm1, xmm1, xmm1
-      vmovsd  [rsp+1E0h+var_1B0], xmm1
-      vcvtss2sd xmm2, xmm6, xmm6
-      vmovsd  [rsp+1E0h+var_1B8], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 419, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( t ) && ( t ) <= ( 1.0f )", "t not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v213, v214, v215) )
+    __asm { vxorpd  xmm1, xmm1, xmm1 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 419, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( t ) && ( t ) <= ( 1.0f )", "t not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", v7.m128_f32[0], *(double *)&_XMM1, DOUBLE_1_0) )
       __debugbreak();
   }
   numFrames = mayhemAnim->numFrames;
+  _XMM2 = 0i64;
+  _XMM1 = 0i64;
+  v16 = 0i64;
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm2, xmm2, xmm2
-    vxorps  xmm1, xmm1, xmm1
-  }
-  v30 = 0i64;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm3, xmm0, xmm6
     vroundss xmm2, xmm2, xmm3, 1
-    vcvttss2si rax, xmm2
     vroundss xmm1, xmm1, xmm3, 2
   }
-  v36 = (unsigned int)_RAX % numFrames;
-  __asm { vcvttss2si rax, xmm1 }
-  v38 = (unsigned int)_RAX % numFrames;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r13
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, r8
-  }
+  v19 = (int)*(float *)&_XMM2 % (unsigned int)numFrames;
+  v20 = (int)*(float *)&_XMM1 % (unsigned int)numFrames;
+  v21 = (float)v19;
+  v23 = 0i64;
+  v23.m128_f32[0] = (float)numFrames;
+  _XMM3 = v23;
   numBones = mayhemAnim->numBones;
-  v44 = v38;
-  __asm
-  {
-    vdivss  xmm1, xmm0, xmm3
-    vsubss  xmm2, xmm6, xmm1
-    vmulss  xmm4, xmm2, xmm3
-    vmovaps xmm0, xmm4
-    vshufps xmm0, xmm0, xmm0, 0
-    vmovss  dword ptr [rsp+1E0h+var_1A0], xmm4
-    vmovups [rbp+0E0h+var_150], xmm0
-  }
+  v25 = v20;
+  *(float *)&_XMM1 = v21 / v23.m128_f32[0];
+  v26 = v11;
+  v26.m128_f32[0] = (float)(v11.m128_f32[0] - *(float *)&_XMM1) * _XMM3.m128_f32[0];
+  v93 = v26.m128_f32[0];
+  v99 = _mm_shuffle_ps(v26, v26, 0);
   if ( numBones )
   {
-    __asm { vmovaps xmmword ptr [rsp+1E0h+var_68+8], xmm8 }
-    v50 = numBones;
-    __asm
-    {
-      vmovaps [rsp+1E0h+var_78+8], xmm9
-      vmovaps xmmword ptr [rsp+1E0h+var_98+8], xmm11
-      vmovaps [rsp+1E0h+var_A8+8], xmm12
-      vmovaps [rsp+1E0h+var_B8+8], xmm13
-      vmovaps [rsp+1E0h+var_C8+8], xmm14
-      vmovaps [rsp+1E0h+var_D8+8], xmm15
-    }
+    v27 = mayhemAnim->numBones;
     do
     {
       splineCompressedFrames = mayhemAnim->frames.splineCompressedFrames;
       if ( mayhemAnim->quantizeTrans )
       {
-        _RAX = splineCompressedFrames->diskQuatFrames;
-        _RCX = 3 * v30;
-        HIDWORD(v230) = 0;
+        diskQuatFrames = splineCompressedFrames->diskQuatFrames;
+        v102.m128_i32[3] = 0;
+        v31 = v102;
+        v31.m128_f32[0] = *(float *)&diskQuatFrames[12 * v16];
+        _XMM6 = v31;
+        v32 = *(float *)&diskQuatFrames[12 * v16 + 6];
         __asm
         {
-          vmovups xmm6, xmmword ptr [rbp-30h]
-          vmovss  xmm0, dword ptr [rax+rcx*8]
-          vmovss  xmm1, dword ptr [rax+rcx*8+10h]
-          vmovss  xmm2, dword ptr [rax+rcx*8+14h]
-          vmovss  xmm6, xmm6, xmm0
-          vmovss  xmm0, dword ptr [rax+rcx*8+0Ch]
           vinsertps xmm6, xmm6, dword ptr [rax+rcx*8+4], 10h
           vinsertps xmm6, xmm6, dword ptr [rax+rcx*8+8], 20h ; ' '
         }
         _RCX = splineCompressedFrames->diskPos;
-        HIDWORD(v231) = 0;
+        v103.m128_i32[3] = 0;
+        v37 = v103;
+        v37.m128_f32[0] = v32;
+        _XMM5 = v37;
         __asm
         {
-          vmovups xmm5, xmmword ptr [rbp-20h]
-          vmovss  xmm5, xmm5, xmm0
           vinsertps xmm5, xmm5, xmm1, 10h
           vinsertps xmm5, xmm5, xmm2, 20h ; ' '
           vpxor   xmm3, xmm3, xmm3
-          vmovups xmmword ptr [rbp-30h], xmm6
-          vmovups xmmword ptr [rbp-20h], xmm5
         }
-        _RAX = (unsigned int)v30 + v36 * numBones;
+        v102 = _XMM6;
+        v103 = _XMM5;
+        _RAX = (unsigned int)v16 + (_DWORD)v19 * numBones;
         _RDX = (unsigned int)_RAX;
-        v70 = (unsigned int)v30 + v44 * numBones;
+        v43 = (unsigned int)v16 + v25 * numBones;
         _RAX *= 3i64;
         __asm
         {
           vlddqu  xmm0, xmmword ptr [rcx+rax*2]
           vpunpcklwd xmm1, xmm0, xmm3
-          vcvtdq2ps xmm2, xmm1
-          vinsertps xmm4, xmm2, xmm2, 8
         }
-        _RAX = 3 * v70;
+        _XMM2 = _mm_cvtepi32_ps(_XMM1);
+        __asm { vinsertps xmm4, xmm2, xmm2, 8 }
+        _RAX = 3 * v43;
         __asm
         {
           vlddqu  xmm0, xmmword ptr [rcx+rax*2]
           vpunpcklwd xmm1, xmm0, xmm3
-          vcvtdq2ps xmm2, xmm1
-          vmulps  xmm0, xmm5, xmm4
-          vaddps  xmm8, xmm0, xmm6
-          vshufps xmm0, xmm8, xmm8, 55h ; 'U'
-          vmovups [rsp+1E0h+var_188+8], xmm0
-          vshufps xmm0, xmm8, xmm8, 0AAh ; 'ª'
-          vmovups [rbp+0E0h+var_160], xmm0
-          vinsertps xmm3, xmm2, xmm2, 8
-          vmulps  xmm1, xmm5, xmm3
-          vaddps  xmm1, xmm1, xmm6
-          vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-          vmovups [rsp+1E0h+var_178+8], xmm0
-          vshufps xmm0, xmm1, xmm1, 0AAh ; 'ª'
-          vmovups [rsp+1E0h+var_198+8], xmm1
         }
+        _XMM2 = _mm_cvtepi32_ps(_XMM1);
+        v52 = _mm128_add_ps(_mm128_mul_ps(_XMM5, _XMM4), _XMM6);
+        LODWORD(v96) = _mm_shuffle_ps(v52, v52, 85).m128_u32[0];
+        LODWORD(v98) = _mm_shuffle_ps(v52, v52, 170).m128_u32[0];
+        __asm { vinsertps xmm3, xmm2, xmm2, 8 }
+        v54 = _mm128_add_ps(_mm128_mul_ps(_XMM5, _XMM3), _XMM6);
+        LODWORD(v97) = _mm_shuffle_ps(v54, v54, 85).m128_u32[0];
+        v55 = _mm_shuffle_ps(v54, v54, 170);
+        v95 = v54.m128_f32[0];
       }
       else
       {
-        _RCX = splineCompressedFrames->diskPos;
-        _RAX = (unsigned int)v30 + v36 * numBones;
-        _RDX = (unsigned int)_RAX;
-        v70 = (unsigned int)v30 + v44 * numBones;
-        _RAX *= 3i64;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rax*4+4]
-          vmovss  xmm8, dword ptr [rcx+rax*4]
-          vmovups [rsp+1E0h+var_188+8], xmm0
-          vmovss  xmm0, dword ptr [rcx+rax*4+8]
-        }
-        _RAX = 3 * v70;
-        __asm
-        {
-          vmovups [rbp+0E0h+var_160], xmm0
-          vmovss  xmm0, dword ptr [rcx+rax*4]
-          vmovups [rsp+1E0h+var_198+8], xmm0
-          vmovss  xmm0, dword ptr [rcx+rax*4+4]
-          vmovups [rsp+1E0h+var_178+8], xmm0
-          vmovss  xmm0, dword ptr [rcx+rax*4+8]
-        }
+        diskPos = splineCompressedFrames->diskPos;
+        v57 = (unsigned int)v16 + (_DWORD)v19 * numBones;
+        _RDX = (unsigned int)v57;
+        v43 = (unsigned int)v16 + v25 * numBones;
+        v57 *= 3i64;
+        v52.m128_i32[0] = *(_DWORD *)&diskPos[4 * v57];
+        v96 = *(float *)&diskPos[4 * v57 + 4];
+        v98 = *(float *)&diskPos[4 * v57 + 8];
+        v95 = *(float *)&diskPos[12 * v43];
+        v97 = *(float *)&diskPos[12 * v43 + 4];
+        v55 = (__m128)*(unsigned int *)&diskPos[12 * v43 + 8];
       }
-      v24 = !mayhemAnim->quantizeQuats;
+      v58 = !mayhemAnim->quantizeQuats;
       _RAX = splineCompressedFrames->diskQuat;
-      __asm { vmovups [rbp+0E0h+var_F0], xmm0 }
-      _R11 = (unsigned int)v70;
-      if ( v24 )
+      v104 = v55;
+      _R11 = (unsigned int)v43;
+      if ( v58 )
       {
-        _RDX = &_RAX[16 * _RDX];
+        v75 = (float *)&_RAX[16 * _RDX];
+        v67 = *v75;
+        v66 = v75[1];
+        v65 = v75[2];
+        v73 = v75[3];
+        v76 = (float *)&splineCompressedFrames->diskQuat[16 * (unsigned int)v16 + 16 * v25 * v27];
+        _XMM7 = *(unsigned int *)v75;
         __asm
         {
-          vmovss  xmm12, dword ptr [rdx]
-          vmovss  xmm11, dword ptr [rdx+4]
-          vmovss  xmm10, dword ptr [rdx+8]
-          vmovss  xmm9, dword ptr [rdx+0Ch]
-        }
-        _RAX = (__int64)&splineCompressedFrames->diskQuat[16 * (unsigned int)v30 + 16 * v44 * v50];
-        __asm
-        {
-          vmovaps xmm7, xmm12
           vinsertps xmm7, xmm7, xmm11, 10h
           vinsertps xmm7, xmm7, xmm10, 20h ; ' '
-          vmovss  xmm0, dword ptr [rax]
-          vmovss  xmm15, dword ptr [rax+4]
-          vmovss  xmm14, dword ptr [rax+8]
-          vmovss  xmm13, dword ptr [rax+0Ch]
-          vmovaps xmm6, xmm0
+        }
+        v71 = v76[1];
+        v70 = v76[2];
+        v74 = v76[3];
+        _XMM6 = *(unsigned int *)v76;
+        __asm
+        {
           vinsertps xmm6, xmm6, xmm15, 10h
           vinsertps xmm6, xmm6, xmm14, 20h ; ' '
           vinsertps xmm7, xmm7, xmm9, 30h ; '0'
           vinsertps xmm6, xmm6, xmm13, 30h ; '0'
-          vmovups [rbp+0E0h+var_140], xmm7
-          vmovups [rbp+0E0h+var_140], xmm6
-          vmovss  dword ptr [rsp+1E0h+var_1A0+4], xmm0
-          vmovaps xmm3, xmm0
         }
+        v72 = *v76;
       }
       else
       {
@@ -1236,169 +993,63 @@ LABEL_31:
           vlddqu  xmm0, xmmword ptr [rax+rdx*8]
           vpmovsxwd xmm1, xmm0
           vlddqu  xmm0, xmmword ptr [rax+r11*8]
-          vcvtdq2ps xmm3, xmm1
-          vmulps  xmm7, xmm3, cs:__xmm@38000100380001003800010038000100
-          vmovups [rbp+0E0h+var_140], xmm7
-          vmovss  xmm10, dword ptr [rbp+0E0h+var_140+8]
-          vmovss  xmm11, dword ptr [rbp+0E0h+var_140+4]
-          vmovss  xmm12, dword ptr [rbp+0E0h+var_140]
-          vpmovsxwd xmm1, xmm0
-          vcvtdq2ps xmm2, xmm1
-          vmulps  xmm6, xmm2, cs:__xmm@38000100380001003800010038000100
-          vmovups [rbp+0E0h+var_140], xmm6
-          vmovss  xmm14, dword ptr [rbp+0E0h+var_140+8]
-          vmovss  xmm15, dword ptr [rbp+0E0h+var_140+4]
-          vmovss  xmm3, dword ptr [rbp+0E0h+var_140]
-          vshufps xmm9, xmm7, xmm7, 0FFh
-          vshufps xmm13, xmm6, xmm6, 0FFh
         }
+        _XMM7 = _mm128_mul_ps(_mm_cvtepi32_ps(_XMM1), (__m128)_xmm);
+        v65 = _XMM7.m128_f32[2];
+        v66 = _XMM7.m128_f32[1];
+        v67 = _XMM7.m128_f32[0];
+        __asm { vpmovsxwd xmm1, xmm0 }
+        _XMM6 = _mm128_mul_ps(_mm_cvtepi32_ps(_XMM1), (__m128)_xmm);
+        v70 = _XMM6.m128_f32[2];
+        v71 = _XMM6.m128_f32[1];
+        v72 = _XMM6.m128_f32[0];
+        LODWORD(v73) = _mm_shuffle_ps(_XMM7, _XMM7, 255).m128_u32[0];
+        LODWORD(v74) = _mm_shuffle_ps(_XMM6, _XMM6, 255).m128_u32[0];
       }
-      __asm
-      {
-        vmovups xmm4, [rsp+1E0h+var_188+8]
-        vmovups xmm0, [rsp+1E0h+var_198+8]
-        vmovups xmm5, [rbp+0E0h+var_160]
-        vsubss  xmm0, xmm0, xmm8
-        vmulss  xmm1, xmm0, dword ptr [rsp+1E0h+var_1A0]
-        vmovups xmm0, [rsp+1E0h+var_178+8]
-        vsubss  xmm0, xmm0, xmm4
-        vaddss  xmm2, xmm1, xmm8
-        vmulss  xmm1, xmm0, dword ptr [rsp+1E0h+var_1A0]
-        vmovups xmm0, [rbp+0E0h+var_F0]
-        vsubss  xmm0, xmm0, xmm5
-        vmovss  dword ptr [rbp+0E0h+in], xmm2
-        vaddss  xmm2, xmm1, xmm4
-        vmulss  xmm1, xmm0, dword ptr [rsp+1E0h+var_1A0]
-        vmovss  dword ptr [rbp+0E0h+in+4], xmm2
-        vaddss  xmm2, xmm1, xmm5
-        vmulss  xmm3, xmm12, xmm3
-        vmulss  xmm0, xmm11, xmm15
-        vmulss  xmm1, xmm10, xmm14
-      }
-      v146 = (unsigned int)v30;
-      v23 = __CFADD__(v146 * 32, v17);
-      _RDI = &v17[v146];
-      __asm
-      {
-        vmovss  dword ptr [rbp+0E0h+in+8], xmm2
-        vaddss  xmm2, xmm3, xmm0
-        vaddss  xmm4, xmm2, xmm1
-        vmulss  xmm0, xmm9, xmm13
-        vaddss  xmm3, xmm4, xmm0
-        vxorps  xmm10, xmm10, xmm10
-        vcomiss xmm3, xmm10
-      }
-      _RDI->transWeight = 2.0;
-      if ( v23 )
-      {
-        __asm
-        {
-          vxorps  xmm6, xmm6, cs:__xmm@80000000800000008000000080000000
-          vmovups [rbp+0E0h+var_140], xmm6
-        }
-      }
+      in.v[0] = (float)((float)(v95 - v52.m128_f32[0]) * v93) + v52.m128_f32[0];
+      in.v[1] = (float)((float)(v97 - v96) * v93) + v96;
+      v83 = &v6[(unsigned int)v16];
+      in.v[2] = (float)((float)(v104.m128_f32[0] - v98) * v93) + v98;
+      v83->transWeight = 2.0;
+      if ( (float)((float)((float)((float)(v67 * v72) + (float)(v66 * v71)) + (float)(v65 * v70)) + (float)(v73 * v74)) < 0.0 )
+        *(_OWORD *)&_XMM6 ^= _xmm;
       QuatTransform(placementQuat, &in, &out);
-      __asm
+      v84 = out.v[1];
+      v85 = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM6, _XMM7), v99), _XMM7);
+      v83->trans.v[0] = out.v[0] + placementPos->v[0];
+      v86 = out.v[2];
+      v83->trans.v[1] = v84 + placementPos->v[1];
+      v83->trans.v[2] = v86 + placementPos->v[2];
+      v87 = _mm_shuffle_ps(v85, v85, 85).m128_f32[0];
+      v88 = _mm_shuffle_ps(v85, v85, 170).m128_f32[0];
+      v89 = _mm_shuffle_ps(v85, v85, 255);
+      v90 = fsqrt((float)((float)((float)(v87 * v87) + (float)(v85.m128_f32[0] * v85.m128_f32[0])) + (float)(v88 * v88)) + (float)(v89.m128_f32[0] * v89.m128_f32[0]));
+      if ( v90 != 0.0 )
       {
-        vmovss  xmm2, dword ptr [rbp+0E0h+out+4]
-        vsubps  xmm0, xmm6, xmm7
-        vmulps  xmm1, xmm0, [rbp+0E0h+var_150]
-        vmovss  xmm0, dword ptr [rbp+0E0h+out]
-        vaddps  xmm6, xmm1, xmm7
-        vaddss  xmm1, xmm0, dword ptr [r15]
-        vmovss  dword ptr [rdi+10h], xmm1
-        vaddss  xmm0, xmm2, dword ptr [r15+4]
-        vmovss  xmm1, dword ptr [rbp+0E0h+out+8]
-        vmovss  dword ptr [rdi+14h], xmm0
-        vaddss  xmm2, xmm1, dword ptr [r15+8]
-        vmulss  xmm0, xmm6, xmm6
-        vmovss  dword ptr [rdi+18h], xmm2
-        vshufps xmm7, xmm6, xmm6, 55h ; 'U'
-        vmulss  xmm1, xmm7, xmm7
-        vaddss  xmm2, xmm1, xmm0
-        vshufps xmm8, xmm6, xmm6, 0AAh ; 'ª'
-        vmulss  xmm0, xmm8, xmm8
-        vaddss  xmm1, xmm2, xmm0
-        vshufps xmm9, xmm6, xmm6, 0FFh
-        vmulss  xmm0, xmm9, xmm9
-        vaddss  xmm1, xmm1, xmm0
-        vsqrtss xmm2, xmm1, xmm1
-        vucomiss xmm2, xmm10
+        v85.m128_f32[0] = v85.m128_f32[0] * (float)(1.0 / v90);
+        v87 = v87 * (float)(1.0 / v90);
+        v88 = v88 * (float)(1.0 / v90);
+        v91 = v89;
+        v91.m128_f32[0] = v89.m128_f32[0] * (float)(1.0 / v90);
+        v89 = v91;
       }
-      if ( !v24 )
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vdivss  xmm0, xmm0, xmm2
-          vmulss  xmm6, xmm6, xmm0
-          vmulss  xmm7, xmm7, xmm0
-          vmulss  xmm8, xmm8, xmm0
-          vmulss  xmm9, xmm9, xmm0
-        }
-      }
-      if ( &v232 == (__int128 *)_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+      if ( &v104 == (__m128 *)v83 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
         __debugbreak();
-      if ( placementQuat == (const vec4_t *)_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 723, ASSERT_TYPE_SANITY, "( &in2 != &out )", (const char *)&queryFormat, "&in2 != &out") )
+      if ( placementQuat == (const vec4_t *)v83 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 723, ASSERT_TYPE_SANITY, "( &in2 != &out )", (const char *)&queryFormat, "&in2 != &out") )
         __debugbreak();
-      __asm
-      {
-        vmulss  xmm1, xmm6, dword ptr [rbx+0Ch]
-        vmulss  xmm0, xmm9, dword ptr [rbx]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm8, dword ptr [rbx+4]
-        vmulss  xmm0, xmm7, dword ptr [rbx+8]
-        vaddss  xmm3, xmm2, xmm1
-        vsubss  xmm1, xmm3, xmm0
-        vmovss  dword ptr [rdi], xmm1
-        vmulss  xmm2, xmm7, dword ptr [rbx+0Ch]
-        vmulss  xmm0, xmm8, dword ptr [rbx]
-        vmulss  xmm1, xmm9, dword ptr [rbx+4]
-        vsubss  xmm3, xmm2, xmm0
-        vmulss  xmm0, xmm6, dword ptr [rbx+8]
-        vaddss  xmm4, xmm3, xmm1
-        vaddss  xmm1, xmm4, xmm0
-        vmovss  dword ptr [rdi+4], xmm1
-        vmulss  xmm2, xmm8, dword ptr [rbx+0Ch]
-        vmulss  xmm0, xmm7, dword ptr [rbx]
-        vmulss  xmm1, xmm6, dword ptr [rbx+4]
-        vaddss  xmm3, xmm2, xmm0
-        vmulss  xmm0, xmm9, dword ptr [rbx+8]
-        vsubss  xmm4, xmm3, xmm1
-        vaddss  xmm1, xmm4, xmm0
-        vmovss  dword ptr [rdi+8], xmm1
-        vmulss  xmm0, xmm6, dword ptr [rbx]
-        vmulss  xmm1, xmm7, dword ptr [rbx+4]
-        vmulss  xmm2, xmm9, dword ptr [rbx+0Ch]
-        vsubss  xmm3, xmm2, xmm0
-        vmulss  xmm0, xmm8, dword ptr [rbx+8]
-        vsubss  xmm4, xmm3, xmm1
-        vsubss  xmm1, xmm4, xmm0
-        vmovss  dword ptr [rdi+0Ch], xmm1
-      }
+      v83->quat.v[0] = (float)((float)((float)(v85.m128_f32[0] * placementQuat->v[3]) + (float)(v89.m128_f32[0] * placementQuat->v[0])) + (float)(v88 * placementQuat->v[1])) - (float)(v87 * placementQuat->v[2]);
+      v83->quat.v[1] = (float)((float)((float)(v87 * placementQuat->v[3]) - (float)(v88 * placementQuat->v[0])) + (float)(v89.m128_f32[0] * placementQuat->v[1])) + (float)(v85.m128_f32[0] * placementQuat->v[2]);
+      v83->quat.v[2] = (float)((float)((float)(v88 * placementQuat->v[3]) + (float)(v87 * placementQuat->v[0])) - (float)(v85.m128_f32[0] * placementQuat->v[1])) + (float)(v89.m128_f32[0] * placementQuat->v[2]);
+      v92 = v89;
+      v92.m128_f32[0] = (float)(v89.m128_f32[0] * placementQuat->v[3]) - (float)(v85.m128_f32[0] * placementQuat->v[0]);
+      _XMM3 = v92;
+      v83->quat.v[3] = (float)(v92.m128_f32[0] - (float)(v87 * placementQuat->v[1])) - (float)(v88 * placementQuat->v[2]);
       numBones = mayhemAnim->numBones;
-      v30 = (unsigned int)(v30 + 1);
-      v17 = skel;
-      v50 = numBones;
+      v16 = (unsigned int)(v16 + 1);
+      v6 = skel;
+      v27 = numBones;
     }
-    while ( (unsigned int)v30 < numBones );
-    __asm
-    {
-      vmovaps xmm15, [rsp+1E0h+var_D8+8]
-      vmovaps xmm14, [rsp+1E0h+var_C8+8]
-      vmovaps xmm13, [rsp+1E0h+var_B8+8]
-      vmovaps xmm12, [rsp+1E0h+var_A8+8]
-      vmovaps xmm11, xmmword ptr [rsp+1E0h+var_98+8]
-      vmovaps xmm9, [rsp+1E0h+var_78+8]
-      vmovaps xmm8, xmmword ptr [rsp+1E0h+var_68+8]
-    }
-  }
-  _R11 = &v240;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    while ( (unsigned int)v16 < numBones );
   }
 }
 
@@ -1407,23 +1058,18 @@ LABEL_31:
 R_Mayhem_RegisterCustomDataChannels
 ==============
 */
-
-void __fastcall R_Mayhem_RegisterCustomDataChannels(const MayhemAnim *mayhemAnim, const DObj *obj, double t, unsigned int elemOffset)
+void R_Mayhem_RegisterCustomDataChannels(const MayhemAnim *mayhemAnim, const DObj *obj, float t, unsigned int elemOffset)
 {
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
+  float *CustomDataChannelRecord; 
+
   if ( mayhemAnim->dataChannelCount )
   {
-    _RAX = Com_GetCustomDataChannelRecord(obj);
-    __asm { vmovss  dword ptr [rax+10h], xmm6 }
-    _RAX[2] = 0;
-    *(_QWORD *)_RAX = mayhemAnim;
-    _RAX[3] = elemOffset;
+    CustomDataChannelRecord = (float *)Com_GetCustomDataChannelRecord(obj);
+    CustomDataChannelRecord[4] = t;
+    CustomDataChannelRecord[2] = 0.0;
+    *(_QWORD *)CustomDataChannelRecord = mayhemAnim;
+    *((_DWORD *)CustomDataChannelRecord + 3) = elemOffset;
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -1468,208 +1114,172 @@ R_Mayhem_SetCustomDataChannels
 */
 void R_Mayhem_SetCustomDataChannels(int objBufIndex, ComputeCmdBufState *state, int startIndex)
 {
+  __int128 v3; 
+  __int128 v4; 
+  int v5; 
+  ComputeCmdBufState *v6; 
   int v7; 
-  ComputeCmdBufState *v8; 
-  int v9; 
-  DObjCustomDataChannelRecord *v11; 
-  const MayhemAnim *v12; 
-  char v18; 
-  bool v19; 
-  __int64 v26; 
-  __int64 v27; 
-  MayhemDataChannelsUnion v28; 
+  DObjCustomDataChannelRecord *CustomDataChannelRecordFromIndex; 
+  DObjCustomDataChannelRecord *v9; 
+  const MayhemAnim *userDataPtr; 
+  bool v11; 
+  float userFloat; 
+  float v13; 
+  double v15; 
+  float v16; 
+  __int64 v18; 
+  __int64 v19; 
+  MayhemDataChannelsUnion v20; 
   int numStreams; 
   unsigned int userUint; 
-  unsigned __int16 v33; 
+  float numFrames; 
+  float v24; 
+  unsigned __int16 v25; 
   unsigned __int16 *numKeys; 
   unsigned __int16 *keyFrames; 
-  const base_vec4_t<short> *v36; 
-  __int64 v37; 
+  const base_vec4_t<short> *v28; 
+  __int64 v29; 
   GfxComputeBufferState *mayhemChannelsBuffer; 
-  unsigned int v40; 
-  unsigned int v41; 
-  unsigned __int16 v44; 
-  unsigned __int16 *v45; 
-  unsigned __int16 *v46; 
-  const vec4_t *v47; 
-  __int64 v48; 
+  unsigned int v31; 
+  unsigned int v32; 
+  float v33; 
+  float v34; 
+  unsigned __int16 v35; 
+  unsigned __int16 *v36; 
+  unsigned __int16 *v37; 
+  const vec4_t *v38; 
+  __int64 v39; 
   ID3D12Resource *buffer; 
   const GfxShaderBufferView *p_view; 
   unsigned __int8 *data; 
   base_vec4_t<short> *keys; 
-  base_vec4_t<short> *keysa; 
-  float4 *frame; 
-  double v58; 
   int dstElemOffset; 
   unsigned int bufferOffset; 
   int i; 
-  const MayhemAnim **v62; 
-  unsigned __int8 *v63; 
+  DObjCustomDataChannelRecord *v47; 
+  unsigned __int8 *v48; 
+  __int128 v49; 
+  __int128 v50; 
   GfxShaderBufferView *views; 
 
-  v7 = startIndex;
-  v8 = state;
-  v9 = objBufIndex;
-  _RAX = (const MayhemAnim **)Com_GetCustomDataChannelRecordFromIndex(objBufIndex);
-  v11 = (DObjCustomDataChannelRecord *)_RAX;
-  v62 = _RAX;
-  v12 = *_RAX;
-  if ( *_RAX )
+  v5 = startIndex;
+  v6 = state;
+  v7 = objBufIndex;
+  CustomDataChannelRecordFromIndex = (DObjCustomDataChannelRecord *)Com_GetCustomDataChannelRecordFromIndex(objBufIndex);
+  v9 = CustomDataChannelRecordFromIndex;
+  v47 = CustomDataChannelRecordFromIndex;
+  userDataPtr = (const MayhemAnim *)CustomDataChannelRecordFromIndex->channel.userDataPtr;
+  if ( CustomDataChannelRecordFromIndex->channel.userDataPtr )
   {
-    v19 = v12->dataChannelCount == 0;
-    __asm
-    {
-      vmovaps [rsp+0D8h+var_58], xmm6
-      vmovss  xmm6, dword ptr [rax+10h]
-      vmovaps [rsp+0D8h+var_78], xmm8
-    }
-    if ( v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 698, ASSERT_TYPE_ASSERT, "(mayhemAnim->dataChannelCount)", (const char *)&queryFormat, "mayhemAnim->dataChannelCount") )
+    v11 = userDataPtr->dataChannelCount == 0;
+    userFloat = CustomDataChannelRecordFromIndex->channel.userFloat;
+    v49 = v4;
+    if ( v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 698, ASSERT_TYPE_ASSERT, "(mayhemAnim->dataChannelCount)", (const char *)&queryFormat, "mayhemAnim->dataChannelCount") )
       __debugbreak();
-    v19 = !v12->isLooping;
-    __asm
+    v11 = !userDataPtr->isLooping;
+    v13 = userFloat * userDataPtr->frequency;
+    v50 = v3;
+    if ( v11 )
     {
-      vmulss  xmm0, xmm6, dword ptr [rsi+14h]; X
-      vmovaps [rsp+0D8h+var_68], xmm7
-      vmovss  xmm7, cs:__real@3f800000
-      vxorps  xmm8, xmm8, xmm8
-    }
-    if ( v19 )
-    {
-      __asm
-      {
-        vmovaps xmm2, xmm7; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+      _XMM1 = 0i64;
+      v15 = I_fclamp(v13, 0.0, 1.0);
     }
     else
     {
-      __asm { vmovaps xmm1, xmm7; Y }
-      *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
+      _XMM1 = LODWORD(FLOAT_1_0);
+      *(float *)&v15 = fmodf_0(v13, 1.0);
     }
-    __asm
+    v16 = *(float *)&v15;
+    if ( *(float *)&v15 < 0.0 || *(float *)&v15 > 1.0 )
     {
-      vcomiss xmm0, xmm8
-      vmovaps xmm8, [rsp+0D8h+var_78]
-      vmovaps xmm6, xmm0
-    }
-    if ( v18 )
-      goto LABEL_37;
-    __asm { vcomiss xmm0, xmm7 }
-    if ( !(v18 | v19) )
-    {
-LABEL_37:
-      __asm
-      {
-        vmovsd  xmm0, cs:__real@3ff0000000000000
-        vmovsd  [rsp+0D8h+var_A0], xmm0
-        vxorpd  xmm1, xmm1, xmm1
-        vmovsd  [rsp+0D8h+frame], xmm1
-        vcvtss2sd xmm2, xmm6, xmm6
-        vmovsd  [rsp+0D8h+keys], xmm2
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 700, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( t ) && ( t ) <= ( 1.0f )", "t not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(double *)&keysa, *(double *)&frame, v58) )
+      __asm { vxorpd  xmm1, xmm1, xmm1 }
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 700, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( t ) && ( t ) <= ( 1.0f )", "t not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&v15, *(double *)&_XMM1, DOUBLE_1_0) )
         __debugbreak();
     }
-    __asm { vmovaps xmm7, [rsp+0D8h+var_68] }
-    if ( v12->dataChannelCount != 1 )
+    if ( userDataPtr->dataChannelCount != 1 )
     {
-      LODWORD(keys) = v12->dataChannelCount;
+      LODWORD(keys) = userDataPtr->dataChannelCount;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 705, ASSERT_TYPE_ASSERT, "( ( mayhemAnim->dataChannelCount == 1 ) )", "( mayhemAnim->dataChannelCount ) = %i", keys) )
         __debugbreak();
     }
-    v26 = 0i64;
-    for ( i = 0; (unsigned int)v26 < v12->dataChannelCount; i = v26 )
+    v18 = 0i64;
+    for ( i = 0; (unsigned int)v18 < userDataPtr->dataChannelCount; i = v18 )
     {
-      if ( v12->isSplineCompressed )
+      if ( userDataPtr->isSplineCompressed )
       {
-        v27 = v26;
-        v28.splineCompressedKeys = (MayhemDataKeysSplineCompressed *)v12->dataChannels;
-        numStreams = v28.splineCompressedKeys[v26].numStreams;
-        if ( v12->quantizeChannels )
+        v19 = v18;
+        v20.splineCompressedKeys = (MayhemDataKeysSplineCompressed *)userDataPtr->dataChannels;
+        numStreams = v20.splineCompressedKeys[v18].numStreams;
+        if ( userDataPtr->quantizeChannels )
         {
-          v63 = R_Mayhem_BeginSetupDataChannelBuffer(v8, 16, numStreams, &dstElemOffset);
-          if ( ((unsigned __int8)v63 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 592, ASSERT_TYPE_ASSERT, "(( reinterpret_cast< uintptr_t >( bufStream ) & 0xf ) == 0)", (const char *)&queryFormat, "( reinterpret_cast< uintptr_t >( bufStream ) & 0xf ) == 0") )
+          v48 = R_Mayhem_BeginSetupDataChannelBuffer(v6, 16, numStreams, &dstElemOffset);
+          if ( ((unsigned __int8)v48 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 592, ASSERT_TYPE_ASSERT, "(( reinterpret_cast< uintptr_t >( bufStream ) & 0xf ) == 0)", (const char *)&queryFormat, "( reinterpret_cast< uintptr_t >( bufStream ) & 0xf ) == 0") )
             __debugbreak();
-          userUint = v11->channel.userUint;
-          __asm { vxorps  xmm0, xmm0, xmm0 }
-          v11->channel.cacheOffset = dstElemOffset;
-          __asm
+          userUint = v9->channel.userUint;
+          v9->channel.cacheOffset = dstElemOffset;
+          numFrames = (float)userDataPtr->numFrames;
+          v24 = roundf(numFrames * v16);
+          v25 = float_to_integral_cast<unsigned short,float>(v24);
+          numKeys = v20.splineCompressedKeys[v19].numKeys;
+          keyFrames = v20.splineCompressedKeys[v19].keyFrames;
+          v28 = (const base_vec4_t<short> *)v20.splineCompressedKeys[v19].keys;
+          for ( LOWORD(views) = v25; userUint < v20.splineCompressedKeys[v19].numStreams; keyFrames += v29 )
           {
-            vcvtsi2ss xmm0, xmm0, rax
-            vmulss  xmm0, xmm0, xmm6; X
-          }
-          *(float *)&_XMM0 = roundf(*(float *)&_XMM0);
-          v33 = float_to_integral_cast<unsigned short,float>(*(float *)&_XMM0);
-          numKeys = v28.splineCompressedKeys[v27].numKeys;
-          keyFrames = v28.splineCompressedKeys[v27].keyFrames;
-          v36 = (const base_vec4_t<short> *)v28.splineCompressedKeys[v27].keys;
-          for ( LOWORD(views) = v33; userUint < v28.splineCompressedKeys[v27].numStreams; keyFrames += v37 )
-          {
-            v37 = *numKeys;
-            __asm { vmovaps xmm2, xmm6; t }
-            R_Mayhem_SplineDecompressVec4_base_vec4_t_short___(v12, *numKeys, *(float *)&_XMM2, v33, keyFrames, v36, (float4 *)&v63[16 * userUint++]);
-            v36 += 3 * v37;
-            v33 = (unsigned __int16)views;
+            v29 = *numKeys;
+            R_Mayhem_SplineDecompressVec4_base_vec4_t_short___(userDataPtr, *numKeys, v16, v25, keyFrames, v28, (float4 *)&v48[16 * userUint++]);
+            v28 += 3 * v29;
+            v25 = (unsigned __int16)views;
             ++numKeys;
           }
-          v8 = state;
+          v6 = state;
           mayhemChannelsBuffer = state->data->mayhemChannelsBuffer;
           R_EndWrappedBufferDataWrite(&mayhemChannelsBuffer->wrappedBuffer);
-          v40 = dstElemOffset;
+          v31 = dstElemOffset;
         }
         else
         {
-          v63 = R_Mayhem_BeginSetupDataChannelBuffer(v8, 16, numStreams, (int *)&bufferOffset);
-          if ( ((unsigned __int8)v63 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 592, ASSERT_TYPE_ASSERT, "(( reinterpret_cast< uintptr_t >( bufStream ) & 0xf ) == 0)", (const char *)&queryFormat, "( reinterpret_cast< uintptr_t >( bufStream ) & 0xf ) == 0") )
+          v48 = R_Mayhem_BeginSetupDataChannelBuffer(v6, 16, numStreams, (int *)&bufferOffset);
+          if ( ((unsigned __int8)v48 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_mayhem.cpp", 592, ASSERT_TYPE_ASSERT, "(( reinterpret_cast< uintptr_t >( bufStream ) & 0xf ) == 0)", (const char *)&queryFormat, "( reinterpret_cast< uintptr_t >( bufStream ) & 0xf ) == 0") )
             __debugbreak();
-          v41 = v11->channel.userUint;
-          __asm { vxorps  xmm0, xmm0, xmm0 }
-          v11->channel.cacheOffset = bufferOffset;
-          __asm
+          v32 = v9->channel.userUint;
+          v9->channel.cacheOffset = bufferOffset;
+          v33 = (float)userDataPtr->numFrames;
+          v34 = roundf(v33 * v16);
+          v35 = float_to_integral_cast<unsigned short,float>(v34);
+          v36 = v20.splineCompressedKeys[v19].numKeys;
+          v37 = v20.splineCompressedKeys[v19].keyFrames;
+          v38 = (const vec4_t *)v20.splineCompressedKeys[v19].keys;
+          for ( LOWORD(views) = v35; v32 < v20.splineCompressedKeys[v19].numStreams; v35 = (unsigned __int16)views )
           {
-            vcvtsi2ss xmm0, xmm0, rax
-            vmulss  xmm0, xmm0, xmm6; X
+            v39 = *v36;
+            R_Mayhem_SplineDecompressVec4_vec4_t_(userDataPtr, *v36++, v16, v35, v37, v38, (float4 *)&v48[16 * v32++]);
+            v38 += 3 * v39;
+            v37 += v39;
           }
-          *(float *)&_XMM0 = roundf(*(float *)&_XMM0);
-          v44 = float_to_integral_cast<unsigned short,float>(*(float *)&_XMM0);
-          v45 = v28.splineCompressedKeys[v27].numKeys;
-          v46 = v28.splineCompressedKeys[v27].keyFrames;
-          v47 = (const vec4_t *)v28.splineCompressedKeys[v27].keys;
-          for ( LOWORD(views) = v44; v41 < v28.splineCompressedKeys[v27].numStreams; v44 = (unsigned __int16)views )
-          {
-            v48 = *v45;
-            __asm { vmovaps xmm2, xmm6; t }
-            R_Mayhem_SplineDecompressVec4_vec4_t_(v12, *v45++, *(float *)&_XMM2, v44, v46, v47, (float4 *)&v63[16 * v41++]);
-            v47 += 3 * v48;
-            v46 += v48;
-          }
-          v8 = state;
+          v6 = state;
           mayhemChannelsBuffer = state->data->mayhemChannelsBuffer;
           R_EndWrappedBufferDataWrite(&mayhemChannelsBuffer->wrappedBuffer);
-          v40 = bufferOffset;
+          v31 = bufferOffset;
         }
         buffer = mayhemChannelsBuffer->wrappedBuffer.buffer;
         p_view = &mayhemChannelsBuffer->wrappedBuffer.view;
         data = (unsigned __int8 *)mayhemChannelsBuffer->wrappedBuffer.data;
-        v7 = startIndex;
-        R_SetComputeViewWithOffset(v8, startIndex, data, v40, 0x10u, p_view, buffer);
-        v11 = (DObjCustomDataChannelRecord *)v62;
-        v9 = objBufIndex;
+        v5 = startIndex;
+        R_SetComputeViewWithOffset(v6, startIndex, data, v31, 0x10u, p_view, buffer);
+        v9 = v47;
+        v7 = objBufIndex;
       }
       else
       {
-        __asm { vmovaps xmm3, xmm6; t }
-        R_Mayhem_SetUncompressedCustomDataChannels(v12, v11, (const MayhemDataKeysUncompressed *)v12->dataChannels.splineCompressedKeys + (unsigned int)v26, *(float *)&_XMM3, v9, v8, v7);
+        R_Mayhem_SetUncompressedCustomDataChannels(userDataPtr, v9, (const MayhemDataKeysUncompressed *)userDataPtr->dataChannels.splineCompressedKeys + (unsigned int)v18, v16, v7, v6, v5);
       }
-      v26 = (unsigned int)(i + 1);
+      v18 = (unsigned int)(i + 1);
     }
-    __asm { vmovaps xmm6, [rsp+0D8h+var_58] }
   }
   else
   {
     views = &gfxBuf.dummyStructuredBuffer32.view;
-    R_SetComputeViews(v8, v7, 1, (const GfxShaderBufferView *const *)&views);
+    R_SetComputeViews(v6, v5, 1, (const GfxShaderBufferView *const *)&views);
   }
 }
 
@@ -1678,154 +1288,97 @@ LABEL_37:
 R_Mayhem_SetUncompressedCustomDataChannels
 ==============
 */
-
-void __fastcall R_Mayhem_SetUncompressedCustomDataChannels(const MayhemAnim *mayhemAnim, DObjCustomDataChannelRecord *dobjChannelRecord, const MayhemDataKeysUncompressed *channel, double t, int objBufIndex, ComputeCmdBufState *state, int startIndex)
+void R_Mayhem_SetUncompressedCustomDataChannels(const MayhemAnim *mayhemAnim, DObjCustomDataChannelRecord *dobjChannelRecord, const MayhemDataKeysUncompressed *channel, float t, int objBufIndex, ComputeCmdBufState *state, int startIndex)
 {
-  unsigned int numFrames; 
-  unsigned int v25; 
-  unsigned __int8 *v33; 
+  __int64 numFrames; 
+  __int64 v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  unsigned __int8 *v18; 
   unsigned int userUint; 
-  unsigned __int8 *v35; 
-  int v36; 
-  unsigned int v37; 
-  unsigned int v38; 
-  unsigned int v42; 
-  __int64 v68; 
+  unsigned __int8 *v20; 
+  int v21; 
+  unsigned int v22; 
+  int v23; 
+  unsigned int i; 
+  __m128 v32; 
+  __m128 v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  __int64 v43; 
+  float *v44; 
   GfxComputeBufferState *mayhemChannelsBuffer; 
   int dstElemOffset; 
-  void *retaddr; 
+  __m128 v47; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-  }
   numFrames = mayhemAnim->numFrames;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm0, xmm0, r9
-    vmulss  xmm6, xmm0, xmm3
-    vroundss xmm2, xmm2, xmm6, 1
-    vcvttss2si rax, xmm2
-    vmovaps xmm4, xmm3
-  }
-  v25 = (unsigned int)_RAX % numFrames;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, rdi
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rbx
-    vdivss  xmm1, xmm0, xmm3
-    vsubss  xmm2, xmm4, xmm1
-    vmulss  xmm7, xmm2, xmm3
-  }
-  v33 = R_Mayhem_BeginSetupDataChannelBuffer(state, 16, channel->numStreams, &dstElemOffset);
+  _XMM2 = 0i64;
+  __asm { vroundss xmm2, xmm2, xmm6, 1 }
+  v14 = (int)*(float *)&_XMM2 % (unsigned int)numFrames;
+  v15 = (float)numFrames;
+  v16 = (float)v14;
+  v17 = (float)(t - (float)(v16 / v15)) * v15;
+  v18 = R_Mayhem_BeginSetupDataChannelBuffer(state, 16, channel->numStreams, &dstElemOffset);
   userUint = dobjChannelRecord->channel.userUint;
-  v35 = v33;
-  v36 = dstElemOffset;
+  v20 = v18;
+  v21 = dstElemOffset;
   dobjChannelRecord->channel.cacheOffset = dstElemOffset;
-  v37 = mayhemAnim->numFrames * channel->keyStride;
-  v38 = v25 * channel->keyStride;
-  __asm
+  v22 = mayhemAnim->numFrames * channel->keyStride;
+  v23 = v14 * channel->keyStride;
+  _XMM1 = 0i64;
+  __asm { vroundss xmm1, xmm1, xmm6, 2 }
+  for ( i = channel->keyStride * ((int)*(float *)&_XMM1 % (unsigned int)numFrames); userUint < channel->numStreams; v44[3] = (float)((float)(v42 - v40) * v17) + v40 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm1, xmm1, xmm6, 2
-    vcvttss2si rax, xmm1
-  }
-  v42 = channel->keyStride * ((unsigned int)_RAX % numFrames);
-  if ( userUint < channel->numStreams )
-  {
-    __asm
+    _R8 = (float *)&channel->keys[i + userUint * v22];
+    _RDX = (float *)&channel->keys[v23 + userUint * v22];
+    if ( mayhemAnim->quantizeChannels )
     {
-      vmovaps [rsp+0D8h+var_68], xmm8
-      vmovaps [rsp+0D8h+var_78], xmm9
-    }
-    do
-    {
-      _R8 = &channel->keys[v42 + userUint * v37];
-      _RDX = &channel->keys[v38 + userUint * v37];
-      if ( mayhemAnim->quantizeChannels )
-      {
-        __asm
-        {
-          vlddqu  xmm0, xmmword ptr [rdx]
-          vpmovsxwd xmm1, xmm0
-          vlddqu  xmm0, xmmword ptr [r8]
-          vcvtdq2ps xmm3, xmm1
-          vpmovsxwd xmm1, xmm0
-          vmulps  xmm0, xmm3, cs:__xmm@38000100380001003800010038000100
-          vmovups [rsp+0D8h+var_90], xmm0
-          vmovss  xmm3, dword ptr [rsp+0D8h+var_90+8]
-          vmovss  xmm4, dword ptr [rsp+0D8h+var_90+4]
-          vcvtdq2ps xmm2, xmm1
-          vmulps  xmm1, xmm2, cs:__xmm@38000100380001003800010038000100
-          vmovss  xmm2, dword ptr [rsp+0D8h+var_90]
-          vmovups [rsp+0D8h+var_90], xmm1
-          vmovss  xmm8, dword ptr [rsp+0D8h+var_90+8]
-          vmovss  xmm9, dword ptr [rsp+0D8h+var_90+4]
-          vshufps xmm5, xmm0, xmm0, 0FFh
-          vmovss  xmm0, dword ptr [rsp+0D8h+var_90]
-          vshufps xmm6, xmm1, xmm1, 0FFh
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdx]
-          vmovss  xmm4, dword ptr [rdx+4]
-          vmovss  xmm3, dword ptr [rdx+8]
-          vmovss  xmm5, dword ptr [rdx+0Ch]
-          vmovss  xmm0, dword ptr [r8]
-          vmovss  xmm9, dword ptr [r8+4]
-          vmovss  xmm8, dword ptr [r8+8]
-          vmovss  xmm6, dword ptr [r8+0Ch]
-        }
-      }
       __asm
       {
-        vsubss  xmm0, xmm0, xmm2
-        vmulss  xmm1, xmm0, xmm7
-        vaddss  xmm2, xmm1, xmm2
+        vlddqu  xmm0, xmmword ptr [rdx]
+        vpmovsxwd xmm1, xmm0
+        vlddqu  xmm0, xmmword ptr [r8]
       }
-      v68 = userUint++;
-      _RAX = &v35[16 * v68];
-      __asm
-      {
-        vsubss  xmm0, xmm9, xmm4
-        vmulss  xmm1, xmm0, xmm7
-        vsubss  xmm0, xmm8, xmm3
-        vmovss  dword ptr [rax], xmm2
-        vaddss  xmm2, xmm1, xmm4
-        vmovss  dword ptr [rax+4], xmm2
-        vmulss  xmm1, xmm0, xmm7
-        vaddss  xmm2, xmm1, xmm3
-        vmovss  dword ptr [rax+8], xmm2
-        vsubss  xmm0, xmm6, xmm5
-        vmulss  xmm1, xmm0, xmm7
-        vaddss  xmm2, xmm1, xmm5
-        vmovss  dword ptr [rax+0Ch], xmm2
-      }
+      v32 = _mm_cvtepi32_ps(_XMM1);
+      __asm { vpmovsxwd xmm1, xmm0 }
+      v34 = _mm128_mul_ps(v32, (__m128)_xmm);
+      v35 = v34.m128_f32[2];
+      v36 = v34.m128_f32[1];
+      v37 = v34.m128_f32[0];
+      v47 = _mm128_mul_ps(_mm_cvtepi32_ps(_XMM1), (__m128)_xmm);
+      v38 = v47.m128_f32[2];
+      v39 = v47.m128_f32[1];
+      LODWORD(v40) = _mm_shuffle_ps(v34, v34, 255).m128_u32[0];
+      v41 = v47.m128_f32[0];
+      LODWORD(v42) = _mm_shuffle_ps(v47, v47, 255).m128_u32[0];
     }
-    while ( userUint < channel->numStreams );
-    __asm
+    else
     {
-      vmovaps xmm9, [rsp+0D8h+var_78]
-      vmovaps xmm8, [rsp+0D8h+var_68]
+      v37 = *_RDX;
+      v36 = _RDX[1];
+      v35 = _RDX[2];
+      v40 = _RDX[3];
+      v41 = *_R8;
+      v39 = _R8[1];
+      v38 = _R8[2];
+      v42 = _R8[3];
     }
+    v43 = userUint++;
+    v44 = (float *)&v20[16 * v43];
+    *v44 = (float)((float)(v41 - v37) * v17) + v37;
+    v44[1] = (float)((float)(v39 - v36) * v17) + v36;
+    v44[2] = (float)((float)(v38 - v35) * v17) + v35;
   }
   mayhemChannelsBuffer = state->data->mayhemChannelsBuffer;
   R_EndWrappedBufferDataWrite(&mayhemChannelsBuffer->wrappedBuffer);
-  R_SetComputeViewWithOffset(state, startIndex, (unsigned __int8 *)mayhemChannelsBuffer->wrappedBuffer.data, v36, 0x10u, &mayhemChannelsBuffer->wrappedBuffer.view, mayhemChannelsBuffer->wrappedBuffer.buffer);
-  __asm
-  {
-    vmovaps xmm6, [rsp+0D8h+var_48]
-    vmovaps xmm7, [rsp+0D8h+var_58]
-  }
+  R_SetComputeViewWithOffset(state, startIndex, (unsigned __int8 *)mayhemChannelsBuffer->wrappedBuffer.data, v21, 0x10u, &mayhemChannelsBuffer->wrappedBuffer.view, mayhemChannelsBuffer->wrappedBuffer.buffer);
 }
 
 /*

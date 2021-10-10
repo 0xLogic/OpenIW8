@@ -359,16 +359,20 @@ void ConvertStringGamertagToDisplayableBuffer(Platform::String *string, char *pD
   char *v10; 
   int v11; 
   int v12; 
+  unsigned __int8 *v13; 
   __int64 v14; 
-  unsigned __int8 *v21; 
+  char *v15; 
+  __m256i v16; 
+  __int128 v17; 
+  unsigned __int8 *v18; 
+  __int64 v19; 
+  __int64 v20; 
+  unsigned __int64 v21; 
   __int64 v22; 
   __int64 v23; 
-  unsigned __int64 v24; 
-  __int64 v25; 
-  __int64 v26; 
-  char v27; 
-  unsigned __int64 v28; 
-  char *v29; 
+  char v24; 
+  unsigned __int64 v25; 
+  char *v26; 
   int numBytesConsumed[4]; 
   char dest[256]; 
   char safeName[256]; 
@@ -401,87 +405,78 @@ void ConvertStringGamertagToDisplayableBuffer(Platform::String *string, char *pD
     {
       v12 = 0;
       memset_0(dest, 0, sizeof(dest));
-      _RAX = utf8Stream;
+      v13 = utf8Stream;
       v14 = 2i64;
-      _RCX = safeName;
+      v15 = safeName;
       do
       {
-        _RAX += 128;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rcx]
-          vmovups xmm1, xmmword ptr [rcx+70h]
-        }
-        _RCX += 128;
-        __asm
-        {
-          vmovups ymmword ptr [rax-80h], ymm0
-          vmovups ymm0, ymmword ptr [rcx-60h]
-          vmovups ymmword ptr [rax-60h], ymm0
-          vmovups ymm0, ymmword ptr [rcx-40h]
-          vmovups ymmword ptr [rax-40h], ymm0
-          vmovups xmm0, xmmword ptr [rcx-20h]
-          vmovups xmmword ptr [rax-20h], xmm0
-          vmovups xmmword ptr [rax-10h], xmm1
-        }
+        v13 += 128;
+        v16 = *(__m256i *)v15;
+        v17 = *((_OWORD *)v15 + 7);
+        v15 += 128;
+        *((__m256i *)v13 - 4) = v16;
+        *((__m256i *)v13 - 3) = *((__m256i *)v15 - 3);
+        *((__m256i *)v13 - 2) = *((__m256i *)v15 - 2);
+        *((_OWORD *)v13 - 2) = *((_OWORD *)v15 - 2);
+        *((_OWORD *)v13 - 1) = v17;
         --v14;
       }
       while ( v14 );
-      v21 = utf8Stream;
-      v22 = 0i64;
-      v23 = 0x800002400000000i64;
+      v18 = utf8Stream;
+      v19 = 0i64;
+      v20 = 0x800002400000000i64;
       do
       {
         if ( v12 >= 16 )
           break;
-        LODWORD(v24) = GetGlyphFromUTF8(v21, numBytesConsumed);
-        v25 = numBytesConsumed[0];
-        _RCX = (char *)(destBufferMax - 4);
+        LODWORD(v21) = GetGlyphFromUTF8(v18, numBytesConsumed);
+        v22 = numBytesConsumed[0];
+        v15 = (char *)(destBufferMax - 4);
         if ( numBytesConsumed[0] + v8 > destBufferMax - 4 )
           break;
-        if ( (unsigned int)v24 <= 0x3B && _bittest64(&v23, v24) || (_DWORD)v24 == 338 || (_DWORD)v24 == 210 )
+        if ( (unsigned int)v21 <= 0x3B && _bittest64(&v20, v21) || (_DWORD)v21 == 338 || (_DWORD)v21 == 210 )
         {
           ++v8;
-          dest[v22++] = 46;
+          dest[v19++] = 46;
         }
         else if ( numBytesConsumed[0] > 0 )
         {
-          _RCX = (char *)v21;
-          v26 = (unsigned int)numBytesConsumed[0];
+          v15 = (char *)v18;
+          v23 = (unsigned int)numBytesConsumed[0];
           v8 += numBytesConsumed[0];
           do
           {
-            v27 = *_RCX++;
-            dest[v22++] = v27;
-            --v26;
+            v24 = *v15++;
+            dest[v19++] = v24;
+            --v23;
           }
-          while ( v26 );
+          while ( v23 );
         }
-        v21 += v25;
+        v18 += v22;
         ++v12;
       }
-      while ( *v21 );
+      while ( *v18 );
       if ( (unsigned __int64)v8 >= 0x100 )
       {
-        j___report_rangecheckfailure(_RCX);
+        j___report_rangecheckfailure(v15);
         JUMPOUT(0x1428DB265i64);
       }
       dest[v8] = 0;
-      v28 = -1i64;
+      v25 = -1i64;
       do
-        ++v28;
-      while ( dest[v28] );
-      if ( v28 > destBufferMax - 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_utils.cpp", 302, ASSERT_TYPE_ASSERT, "(strlen(filteredNickname) <= (destBufferMax-kCharsNeededForSuffix))", (const char *)&queryFormat, "strlen(filteredNickname) <= (destBufferMax-kCharsNeededForSuffix)") )
+        ++v25;
+      while ( dest[v25] );
+      if ( v25 > destBufferMax - 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_utils.cpp", 302, ASSERT_TYPE_ASSERT, "(strlen(filteredNickname) <= (destBufferMax-kCharsNeededForSuffix))", (const char *)&queryFormat, "strlen(filteredNickname) <= (destBufferMax-kCharsNeededForSuffix)") )
         __debugbreak();
       I_strcat(dest, 0x100ui64, "...");
-      v29 = dest;
+      v26 = dest;
     }
     else
     {
 LABEL_33:
-      v29 = safeName;
+      v26 = safeName;
     }
-    Core_strcpy(pDestBuffer, destBufferMax, v29);
+    Core_strcpy(pDestBuffer, destBufferMax, v26);
   }
 }
 

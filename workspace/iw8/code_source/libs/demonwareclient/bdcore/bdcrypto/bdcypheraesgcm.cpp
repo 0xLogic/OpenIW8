@@ -151,6 +151,7 @@ bdCypherAESGCM::decrypt
 */
 bool bdCypherAESGCM::decrypt(bdCypherAESGCM *this, const unsigned __int8 *iv, const unsigned __int8 *cypherText, unsigned __int8 *plainText, unsigned int size)
 {
+  double v9; 
   NTSTATUS v10; 
   ULONG pcbResult[4]; 
   int pPaddingInfo[2]; 
@@ -164,10 +165,9 @@ bool bdCypherAESGCM::decrypt(bdCypherAESGCM *this, const unsigned __int8 *iv, co
   __int64 v21; 
   __int64 v22; 
   int v23; 
-  __int64 v24; 
+  double v24; 
   int v25; 
 
-  _RBX = iv;
   if ( !iv )
   {
     bdHandleAssert(0, "\"(iv != BD_NULL)\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcypheraesgcm.cpp", "bdCypherAESGCM::decrypt", 0x135u, "bdCypherAESGCM: IV cannot be NULL");
@@ -183,10 +183,10 @@ bool bdCypherAESGCM::decrypt(bdCypherAESGCM *this, const unsigned __int8 *iv, co
     bdHandleAssert(0, "\"(plainText != BD_NULL)\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcypheraesgcm.cpp", "bdCypherAESGCM::decrypt", 0x137u, "bdCypherAESGCM: Plaintext buffer cannot be NULL");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcypheraesgcm.cpp", "bdCypherAESGCM::decrypt", 0x137u, "bdCypherAESGCM: Plaintext buffer cannot be NULL");
   }
-  if ( _RBX && cypherText && plainText )
+  if ( iv && cypherText && plainText )
   {
-    __asm { vmovsd  xmm0, qword ptr [rbx] }
-    v25 = *((_DWORD *)_RBX + 2);
+    v9 = *(double *)iv;
+    v25 = *((_DWORD *)iv + 2);
     pPaddingInfo[0] = 88;
     v16 = 0ui64;
     v17 = 0;
@@ -195,8 +195,8 @@ bool bdCypherAESGCM::decrypt(bdCypherAESGCM *this, const unsigned __int8 *iv, co
     v21 = 0i64;
     v22 = 0i64;
     v23 = 0;
-    v14 = &v24;
-    __asm { vmovsd  [rsp+118h+var_58], xmm0 }
+    v14 = (__int64 *)&v24;
+    v24 = v9;
     pPaddingInfo[1] = 1;
     v15 = 12;
     v18[0] = bdAuthenticationTag::getTag(&this->m_authenticationTag);
@@ -226,6 +226,7 @@ bdCypherAESGCM::encrypt
 */
 bool bdCypherAESGCM::encrypt(bdCypherAESGCM *this, const unsigned __int8 *iv, const unsigned __int8 *plainText, unsigned __int8 *cypherText, unsigned int size)
 {
+  double v9; 
   NTSTATUS v10; 
   ULONG pcbResult[4]; 
   int pPaddingInfo[2]; 
@@ -239,10 +240,9 @@ bool bdCypherAESGCM::encrypt(bdCypherAESGCM *this, const unsigned __int8 *iv, co
   __int64 v21; 
   __int64 v22; 
   int v23; 
-  __int64 v24; 
+  double v24; 
   int v25; 
 
-  _RBX = iv;
   if ( !iv )
   {
     bdHandleAssert(0, "\"(iv != BD_NULL)\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcypheraesgcm.cpp", "bdCypherAESGCM::encrypt", 0xFFu, "bdCypherAESGCM: IV cannot be NULL");
@@ -258,10 +258,10 @@ bool bdCypherAESGCM::encrypt(bdCypherAESGCM *this, const unsigned __int8 *iv, co
     bdHandleAssert(0, "\"(cypherText != BD_NULL)\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcypheraesgcm.cpp", "bdCypherAESGCM::encrypt", 0x101u, "bdCypherAESGCM: Cyphertext buffer cannot be NULL");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcrypto\\bdcypheraesgcm.cpp", "bdCypherAESGCM::encrypt", 0x101u, "bdCypherAESGCM: Cyphertext buffer cannot be NULL");
   }
-  if ( _RBX && plainText && cypherText )
+  if ( iv && plainText && cypherText )
   {
-    __asm { vmovsd  xmm0, qword ptr [rbx] }
-    v25 = *((_DWORD *)_RBX + 2);
+    v9 = *(double *)iv;
+    v25 = *((_DWORD *)iv + 2);
     pPaddingInfo[0] = 88;
     v16 = 0ui64;
     v17 = 0;
@@ -270,8 +270,8 @@ bool bdCypherAESGCM::encrypt(bdCypherAESGCM *this, const unsigned __int8 *iv, co
     v21 = 0i64;
     v22 = 0i64;
     v23 = 0;
-    v14 = &v24;
-    __asm { vmovsd  [rsp+118h+var_58], xmm0 }
+    v14 = (__int64 *)&v24;
+    v24 = v9;
     pPaddingInfo[1] = 1;
     v15 = 12;
     v18[0] = bdAuthenticationTag::getTag(&this->m_authenticationTag);

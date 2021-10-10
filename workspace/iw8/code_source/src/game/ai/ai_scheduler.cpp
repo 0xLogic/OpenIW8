@@ -472,26 +472,13 @@ void AIScheduler::AddDebugString(AIScheduler *this, const char *s)
   const dvar_t *v2; 
 
   v2 = DVARBOOL_ai_showScheduler;
-  _RDI = this;
   if ( !DVARBOOL_ai_showScheduler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showScheduler") )
     __debugbreak();
   Dvar_CheckFrontendServerThread(v2);
   if ( v2->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vaddss  xmm1, xmm0, cs:__real@42480000; y
-      vmovss  xmm0, cs:__real@41f00000; x
-      vmovss  xmm3, cs:__real@3f800000; scale
-    }
-    G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, s);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vaddss  xmm1, xmm0, cs:__real@41900000
-      vmovss  dword ptr [rdi], xmm1
-    }
+    G_Main_AddDebugString2D(30.0, this->m_Y + 50.0, &colorYellow, 1.0, s);
+    this->m_Y = this->m_Y + 18.0;
   }
 }
 
@@ -612,23 +599,23 @@ void __fastcall AIScheduler::Init(double _XMM0_8)
   s_AIScheduler.m_ThreatBucket.m_Name = "ThreatUpdate";
   __asm { vpxor   xmm0, xmm0, xmm0 }
   s_AIScheduler.m_CoverFindBucket.m_TaskList.status[0] = 0;
-  __asm { vmovdqu xmmword ptr cs:s_AIScheduler.m_CoverFindBucket.m_TaskList.pNext, xmm0 }
+  *(_OWORD *)&s_AIScheduler.m_CoverFindBucket.m_TaskList.pNext = _XMM0;
   s_AIScheduler.m_CoverFindBucket.m_MaxUpdatesPerFrame = 1;
   s_AIScheduler.m_ThreatBucket.m_NumFramesInWhichToCrunch = 400 / level.frameDuration + 1;
   s_AIScheduler.m_CoverFindBucket.m_MinTimeBetweenUpdates = level.frameDuration;
   s_AIScheduler.m_CoverFindBucket.m_TimeOfLastUpdate = 0;
-  __asm { vmovdqu xmmword ptr cs:s_AIScheduler.m_PathFindBucket.m_TaskList.pNext, xmm0 }
+  *(_OWORD *)&s_AIScheduler.m_PathFindBucket.m_TaskList.pNext = _XMM0;
   *(_QWORD *)&s_AIScheduler.m_PathFindBucket.m_TaskList.entNum = 2047i64;
   s_AIScheduler.m_PathFindBucket.m_TaskList.status[0] = 0;
   s_AIScheduler.m_PathFindBucket.m_MaxUpdatesPerFrame = 1;
   s_AIScheduler.m_PathFindBucket.m_MinTimeBetweenUpdates = level.frameDuration;
   s_AIScheduler.m_PathFindBucket.m_TimeOfLastUpdate = 0;
-  __asm { vmovdqu xmmword ptr cs:s_AIScheduler.m_ReEvalPathBucket.baseclass_0.m_TaskList.pNext, xmm0 }
+  *(_OWORD *)&s_AIScheduler.m_ReEvalPathBucket.m_TaskList.pNext = _XMM0;
   *(_QWORD *)&s_AIScheduler.m_ReEvalPathBucket.m_TaskList.entNum = 2047i64;
   s_AIScheduler.m_ReEvalPathBucket.m_TaskList.status[0] = 0;
   s_AIScheduler.m_ReEvalPathBucket.m_MaxUpdatesPerFrame = 1;
   s_AIScheduler.m_ReEvalPathBucket.m_TimeOfLastUpdate = 0;
-  __asm { vmovdqu xmmword ptr cs:s_AIScheduler.m_ThreatBucket.baseclass_0.m_TaskList.pNext, xmm0 }
+  *(_OWORD *)&s_AIScheduler.m_ThreatBucket.m_TaskList.pNext = _XMM0;
   *(_QWORD *)&s_AIScheduler.m_ThreatBucket.m_TaskList.entNum = 2047i64;
   s_AIScheduler.m_ThreatBucket.m_TaskList.status[0] = 0;
   s_AIScheduler.m_ThreatBucket.m_MaxUpdatesPerFrame = 4;
@@ -790,45 +777,28 @@ void AIScheduler::RemoveThreatTask(AITask *pTask)
 AIScheduler::Update
 ==============
 */
-
-void __fastcall AIScheduler::Update(double _XMM0_8)
+void AIScheduler::Update(void)
 {
-  const dvar_t *v1; 
-  bool v9; 
-  bool v10; 
-  bool v11; 
+  const dvar_t *v0; 
+  bool v1; 
+  bool v2; 
+  bool v3; 
 
-  v1 = DVARBOOL_ai_showScheduler;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  cs:s_AIScheduler.m_Y, xmm0
-  }
+  v0 = DVARBOOL_ai_showScheduler;
+  s_AIScheduler.m_Y = 0.0;
   if ( !DVARBOOL_ai_showScheduler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showScheduler") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v1);
-  if ( v1->current.enabled )
+  Dvar_CheckFrontendServerThread(v0);
+  if ( v0->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:s_AIScheduler.m_Y
-      vaddss  xmm1, xmm0, cs:__real@42480000; y
-      vmovss  xmm0, cs:__real@41f00000; x
-      vmovss  xmm3, cs:__real@3f800000; scale
-    }
-    G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, "AIScheduler Stats");
-    __asm
-    {
-      vmovss  xmm0, cs:s_AIScheduler.m_Y
-      vaddss  xmm1, xmm0, cs:__real@41900000
-      vmovss  cs:s_AIScheduler.m_Y, xmm1
-    }
+    G_Main_AddDebugString2D(30.0, s_AIScheduler.m_Y + 50.0, &colorYellow, 1.0, "AIScheduler Stats");
+    s_AIScheduler.m_Y = s_AIScheduler.m_Y + 18.0;
   }
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "AISchedulerUpdate");
-  v9 = AITaskBucket::Update(&s_AIScheduler.m_CoverFindBucket, 0);
-  v10 = AITaskBucket::Update(&s_AIScheduler.m_PathFindBucket, v9) || v9;
-  v11 = AITaskBucket::Update(&s_AIScheduler.m_ReEvalPathBucket, v10);
-  AITaskBucket_Spread::Update(&s_AIScheduler.m_ThreatBucket, v11 || v10);
+  v1 = AITaskBucket::Update(&s_AIScheduler.m_CoverFindBucket, 0);
+  v2 = AITaskBucket::Update(&s_AIScheduler.m_PathFindBucket, v1) || v1;
+  v3 = AITaskBucket::Update(&s_AIScheduler.m_ReEvalPathBucket, v2);
+  AITaskBucket_Spread::Update(&s_AIScheduler.m_ThreatBucket, v3 || v2);
   Sys_ProfEndNamedEvent();
 }
 
@@ -848,9 +818,9 @@ bool AITaskBucket::Update(AITaskBucket *this, _BOOL8 bOtherStuffWasDone)
   const dvar_t *v9; 
   int fmt; 
   int fmta; 
-  int v19; 
-  int v20; 
-  int v21; 
+  int v13; 
+  int v14; 
+  int v15; 
   char dest[512]; 
 
   v3 = 0;
@@ -880,16 +850,16 @@ bool AITaskBucket::Update(AITaskBucket *this, _BOOL8 bOtherStuffWasDone)
   m_Name = this->m_Name;
   if ( v6 )
   {
-    v21 = level.time - pNext->timestamp;
-    v20 = v3;
+    v15 = level.time - pNext->timestamp;
+    v14 = v3;
     fmta = v6;
-    Com_sprintf(dest, 0x200ui64, "%s pending: %d   processed: %d   oldest: %d", m_Name, fmta, v20, v21);
+    Com_sprintf(dest, 0x200ui64, "%s pending: %d   processed: %d   oldest: %d", m_Name, fmta, v14, v15);
   }
   else
   {
-    v19 = v3;
+    v13 = v3;
     fmt = 0;
-    Com_sprintf(dest, 0x200ui64, "%s pending: %d   processed: %d", m_Name, fmt, v19);
+    Com_sprintf(dest, 0x200ui64, "%s pending: %d   processed: %d", m_Name, fmt, v13);
   }
   v9 = DVARBOOL_ai_showScheduler;
   if ( !DVARBOOL_ai_showScheduler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showScheduler") )
@@ -897,20 +867,8 @@ bool AITaskBucket::Update(AITaskBucket *this, _BOOL8 bOtherStuffWasDone)
   Dvar_CheckFrontendServerThread(v9);
   if ( v9->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:s_AIScheduler.m_Y
-      vaddss  xmm1, xmm0, cs:__real@42480000; y
-      vmovss  xmm0, cs:__real@41f00000; x
-      vmovss  xmm3, cs:__real@3f800000; scale
-    }
-    G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest);
-    __asm
-    {
-      vmovss  xmm0, cs:s_AIScheduler.m_Y
-      vaddss  xmm1, xmm0, cs:__real@41900000
-      vmovss  cs:s_AIScheduler.m_Y, xmm1
-    }
+    G_Main_AddDebugString2D(30.0, s_AIScheduler.m_Y + 50.0, &colorYellow, 1.0, dest);
+    s_AIScheduler.m_Y = s_AIScheduler.m_Y + 18.0;
   }
   return v3 > 0;
 }
@@ -922,128 +880,112 @@ AITaskBucket_Spread::Update
 */
 bool AITaskBucket_Spread::Update(AITaskBucket_Spread *this, _BOOL8 bOtherStuffWasDone)
 {
-  int v4; 
-  char v6; 
+  int v2; 
+  char v4; 
   int time; 
   AITask *pNext; 
-  int v9; 
-  AITask *v10; 
+  int v7; 
+  AITask *v8; 
+  int m_NumFramesInWhichToCrunch; 
   int m_MaxUpdatesPerFrame; 
+  float v11; 
+  int v12; 
+  float v13; 
+  AITask *v14; 
   int v15; 
-  AITask *v20; 
-  int v21; 
   AITask *i; 
-  const dvar_t *v23; 
+  const dvar_t *v17; 
   int fmt; 
   int fmta; 
-  int v33; 
-  int v34; 
-  int v35; 
+  int v21; 
+  int v22; 
+  int v23; 
   char dest[512]; 
 
-  v4 = 0;
-  v6 = this->ShouldUpdate(this, bOtherStuffWasDone);
+  v2 = 0;
+  v4 = this->ShouldUpdate(this, bOtherStuffWasDone);
   time = level.time;
-  if ( v6 )
+  if ( v4 )
   {
     pNext = this->m_TaskList.pNext;
-    v9 = 0;
-    v10 = pNext;
+    v7 = 0;
+    v8 = pNext;
     if ( pNext )
     {
       if ( pNext != &this->m_TaskList )
       {
         do
         {
-          if ( this->m_MaxDesiredTimeBetweenTaskUpdates + v10->timestamp > this->m_MaxDesiredTimeBetweenTaskUpdates + level.time )
+          if ( this->m_MaxDesiredTimeBetweenTaskUpdates + v8->timestamp > this->m_MaxDesiredTimeBetweenTaskUpdates + level.time )
             break;
-          v10 = v10->pNext;
-          ++v9;
+          v8 = v8->pNext;
+          ++v7;
         }
-        while ( v10 != &this->m_TaskList );
-        if ( v9 > 0 && (v9 >= this->m_NumFramesInWhichToCrunch || this->m_MinDesiredTimeBetweenTaskUpdates + pNext->timestamp <= level.time) )
+        while ( v8 != &this->m_TaskList );
+        if ( v7 > 0 )
         {
-          m_MaxUpdatesPerFrame = this->m_MaxUpdatesPerFrame;
-          __asm
+          m_NumFramesInWhichToCrunch = this->m_NumFramesInWhichToCrunch;
+          if ( v7 >= m_NumFramesInWhichToCrunch || this->m_MinDesiredTimeBetweenTaskUpdates + pNext->timestamp <= level.time )
           {
-            vxorps  xmm1, xmm1, xmm1
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, ecx
+            m_MaxUpdatesPerFrame = this->m_MaxUpdatesPerFrame;
+            v11 = (float)m_NumFramesInWhichToCrunch;
+            v12 = 1;
+            v13 = (float)((float)v7 / v11) + 0.5;
+            if ( (int)v13 > 1 )
+              v12 = (int)v13;
+            if ( v12 < m_MaxUpdatesPerFrame )
+              m_MaxUpdatesPerFrame = v12;
+            do
+            {
+              if ( v2 >= m_MaxUpdatesPerFrame )
+                break;
+              pNext->status[0] = 2;
+              if ( this->m_fnTaskUpdate(pNext) )
+                ++v2;
+              pNext->status[0] = 1;
+              AITaskBucket::RemoveTask(this, pNext);
+              pNext->status[0] = 3;
+              pNext = this->m_TaskList.pNext;
+            }
+            while ( pNext );
+            this->m_TimeOfLastUpdate = level.time;
+            time = level.time;
           }
-          v15 = 1;
-          __asm
-          {
-            vcvtsi2ss xmm1, xmm1, r8d
-            vdivss  xmm1, xmm1, xmm0
-            vaddss  xmm2, xmm1, cs:__real@3f000000
-            vcvttss2si eax, xmm2
-          }
-          if ( _EAX > 1 )
-            v15 = _EAX;
-          if ( v15 < m_MaxUpdatesPerFrame )
-            m_MaxUpdatesPerFrame = v15;
-          do
-          {
-            if ( v4 >= m_MaxUpdatesPerFrame )
-              break;
-            pNext->status[0] = 2;
-            if ( this->m_fnTaskUpdate(pNext) )
-              ++v4;
-            pNext->status[0] = 1;
-            AITaskBucket::RemoveTask(this, pNext);
-            pNext->status[0] = 3;
-            pNext = this->m_TaskList.pNext;
-          }
-          while ( pNext );
-          this->m_TimeOfLastUpdate = level.time;
-          time = level.time;
         }
       }
     }
   }
-  v20 = this->m_TaskList.pNext;
-  v21 = 0;
-  for ( i = v20; i; ++v21 )
+  v14 = this->m_TaskList.pNext;
+  v15 = 0;
+  for ( i = v14; i; ++v15 )
   {
     if ( i == &this->m_TaskList )
       break;
     i = i->pNext;
   }
-  if ( v21 )
+  if ( v15 )
   {
-    v35 = time - v20->timestamp;
-    v34 = v4;
-    fmta = v21;
-    Com_sprintf(dest, 0x200ui64, "%s pending: %d   processed: %d   oldest: %d", this->m_Name, fmta, v34, v35);
+    v23 = time - v14->timestamp;
+    v22 = v2;
+    fmta = v15;
+    Com_sprintf(dest, 0x200ui64, "%s pending: %d   processed: %d   oldest: %d", this->m_Name, fmta, v22, v23);
   }
   else
   {
-    v33 = v4;
+    v21 = v2;
     fmt = 0;
-    Com_sprintf(dest, 0x200ui64, "%s pending: %d   processed: %d", this->m_Name, fmt, v33);
+    Com_sprintf(dest, 0x200ui64, "%s pending: %d   processed: %d", this->m_Name, fmt, v21);
   }
-  v23 = DVARBOOL_ai_showScheduler;
+  v17 = DVARBOOL_ai_showScheduler;
   if ( !DVARBOOL_ai_showScheduler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showScheduler") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  if ( v23->current.enabled )
+  Dvar_CheckFrontendServerThread(v17);
+  if ( v17->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:s_AIScheduler.m_Y
-      vaddss  xmm1, xmm0, cs:__real@42480000; y
-      vmovss  xmm0, cs:__real@41f00000; x
-      vmovss  xmm3, cs:__real@3f800000; scale
-    }
-    G_Main_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest);
-    __asm
-    {
-      vmovss  xmm0, cs:s_AIScheduler.m_Y
-      vaddss  xmm1, xmm0, cs:__real@41900000
-      vmovss  cs:s_AIScheduler.m_Y, xmm1
-    }
+    G_Main_AddDebugString2D(30.0, s_AIScheduler.m_Y + 50.0, &colorYellow, 1.0, dest);
+    s_AIScheduler.m_Y = s_AIScheduler.m_Y + 18.0;
   }
-  return v4 > 0;
+  return v2 > 0;
 }
 
 /*

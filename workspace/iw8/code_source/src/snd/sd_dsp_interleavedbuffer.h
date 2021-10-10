@@ -45,6 +45,8 @@ void SD_DSP::InterleavedBufferRefType<SD_DSP::AtmosFrame,256>::CopyFrom(SD_DSP::
   const SD_DSP::AtmosFrame *v5; 
   __m256 *v6; 
   const __m256 *v7; 
+  __m256i *v8; 
+  signed __int64 v9; 
   __int64 v10; 
 
   if ( !this->data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\sd_dsp_interleavedbuffer.h", 39, ASSERT_TYPE_ASSERT, "(data != nullptr)", (const char *)&queryFormat, "data != nullptr", -2i64) )
@@ -65,19 +67,14 @@ void SD_DSP::InterleavedBufferRefType<SD_DSP::AtmosFrame,256>::CopyFrom(SD_DSP::
     __debugbreak();
   v6 = SD_DSP::RegisterTraits<__m256>::Upcast(data->val.lo.m256_f32);
   v7 = SD_DSP::RegisterTraits<__m256>::Upcast(v5->val.lo.m256_f32);
-  _RCX = v6 + 1;
-  _RAX = (char *)v7 - (char *)v6;
+  v8 = (__m256i *)&v6[1];
+  v9 = (char *)v7 - (char *)v6;
   v10 = 256i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax+rcx-20h]
-      vmovups ymmword ptr [rcx-20h], ymm0
-      vmovups ymm1, ymmword ptr [rax+rcx]
-      vmovups ymmword ptr [rcx], ymm1
-    }
-    _RCX += 2;
+    v8[-1] = *(__m256i *)((char *)&v8[-1] + v9);
+    *v8 = *(__m256i *)((char *)v8 + v9);
+    v8 += 2;
     --v10;
   }
   while ( v10 );

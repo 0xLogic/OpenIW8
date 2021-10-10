@@ -226,42 +226,35 @@ CG_PlayerSecondaryCollision_GetBroadphaseWorkerResult
 bool CG_PlayerSecondaryCollision_GetBroadphaseWorkerResult(const LocalClientNum_t localClientNum, workerTrace_t *outResult)
 {
   __int64 v3; 
-  volatile unsigned int state; 
-  __int64 v11; 
+  __m256i *v4; 
+  int v5; 
+  __int64 v7; 
 
-  _RDI = outResult;
   v3 = localClientNum;
   if ( !outResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 698, ASSERT_TYPE_ASSERT, "(outResult)", (const char *)&queryFormat, "outResult") )
     __debugbreak();
   if ( (unsigned int)v3 >= 2 )
   {
-    LODWORD(v11) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 699, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_playerSecondaryCollisionResults ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_playerSecondaryCollisionResults )\n\t%i not in [0, %i)", v11, 2) )
+    LODWORD(v7) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 699, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_playerSecondaryCollisionResults ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_playerSecondaryCollisionResults )\n\t%i not in [0, %i)", v7, 2) )
       __debugbreak();
   }
-  _RBX = &s_playerSecondaryCollisionResults[v3];
-  state = _RBX->state;
-  if ( state )
+  v4 = (__m256i *)&s_playerSecondaryCollisionResults[v3];
+  v5 = v4[2].m256i_i32[6];
+  if ( v5 )
   {
     Sys_ProfBeginNamedEvent(0xFF808080, "CG_PlayerSecondaryCollision_GetBroadphaseWorkerResult");
     Sys_WaitWorkerCmdsOnlyOfType(WRKCMD_TRACE_REAR_COLLISION);
-    if ( _RBX->state != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 711, ASSERT_TYPE_ASSERT, "( results->state ) == ( WORKER_TRACE_FINISHED )", "%s == %s\n\t%i, %i", "results->state", "WORKER_TRACE_FINISHED", _RBX->state, 2) )
+    if ( v4[2].m256i_i32[6] != 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 711, ASSERT_TYPE_ASSERT, "( results->state ) == ( WORKER_TRACE_FINISHED )", "%s == %s\n\t%i, %i", "results->state", "WORKER_TRACE_FINISHED", v4[2].m256i_i32[6], 2) )
       __debugbreak();
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups ymm1, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rdi+20h], ymm1
-      vmovups ymm0, ymmword ptr [rbx+40h]
-      vmovups ymmword ptr [rdi+40h], ymm0
-      vmovups ymm1, ymmword ptr [rbx+60h]
-      vmovups ymmword ptr [rdi+60h], ymm1
-    }
+    *(__m256i *)&outResult->trace.fraction = *v4;
+    *(__m256i *)&outResult->trace.contents = v4[1];
+    *(__m256i *)&outResult->trace.allsolid = v4[2];
+    *(__m256i *)&outResult->start.y = v4[3];
     Sys_ProfEndNamedEvent();
-    LOBYTE(state) = 1;
+    LOBYTE(v5) = 1;
   }
-  return state;
+  return v5;
 }
 
 /*
@@ -271,121 +264,84 @@ CG_PlayerSecondaryCollision_GetParameters
 */
 void CG_PlayerSecondaryCollision_GetParameters(const playerState_s *ps, float *outCylinderRadius, float *outCylinderTopHeight, float *outCylinderBottomHeight)
 {
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
   int suitIndex; 
+  const SuitDef *SuitDef; 
   EffectiveStance EffectiveStanceForWorldModelAnimation; 
-  const dvar_t *v16; 
-  char v23; 
-  const dvar_t *v31; 
-  double v43; 
-  double v44; 
+  float v14; 
+  const dvar_t *v15; 
+  __int128 v16; 
+  double BoundsHeight; 
+  __int128 v19; 
+  const dvar_t *v21; 
+  float value; 
+  const dvar_t *v23; 
+  double v24; 
+  const dvar_t *v25; 
   Bounds bounds; 
+  __int128 v28; 
+  __int128 v29; 
+  __int128 v30; 
 
-  _R15 = outCylinderBottomHeight;
-  _R14 = outCylinderTopHeight;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 573, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   suitIndex = ps->suitIndex;
-  __asm { vmovaps [rsp+0F8h+var_58], xmm6 }
-  BG_GetSuitDef(suitIndex);
+  v30 = v5;
+  SuitDef = BG_GetSuitDef(suitIndex);
   EffectiveStanceForWorldModelAnimation = PM_GetEffectiveStanceForWorldModelAnimation(ps);
   if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu) )
   {
-    __asm
-    {
-      vmovaps [rsp+0F8h+var_68], xmm7
-      vmovaps [rsp+0F8h+var_78], xmm8
-    }
-    *(double *)&_XMM0 = BG_Suit_GetBoundsRadius(ps);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(ps, PM_EFF_STANCE_LASTSTANDCRAWL);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vxorps  xmm7, xmm7, xmm7
-      vmovss  dword ptr [rsp+0F8h+bounds.midPoint+8], xmm1
-      vmovss  dword ptr [rsp+0F8h+bounds.halfSize+8], xmm1
-      vmovss  dword ptr [rsp+0F8h+bounds.midPoint], xmm7
-      vmovss  dword ptr [rsp+0F8h+bounds.midPoint+4], xmm7
-      vmovss  dword ptr [rsp+0F8h+bounds.halfSize], xmm6
-      vmovss  dword ptr [rsp+0F8h+bounds.halfSize+4], xmm6
-    }
-    *(double *)&_XMM0 = BG_PlayerCollision_GetCollisionStickLength(&bounds);
-    v16 = DVARINT_playerLastStandCollisionTestSteps;
-    __asm { vmovaps xmm8, xmm0 }
+    v29 = v6;
+    v28 = v7;
+    *(double *)&v4 = BG_Suit_GetBoundsRadius(ps);
+    v14 = *(float *)&v4;
+    *(double *)&v4 = BG_Suit_GetBoundsHeight(ps, PM_EFF_STANCE_LASTSTANDCRAWL);
+    bounds.midPoint.v[2] = *(float *)&v4 * 0.5;
+    bounds.halfSize.v[2] = *(float *)&v4 * 0.5;
+    bounds.midPoint.v[0] = 0.0;
+    bounds.midPoint.v[1] = 0.0;
+    bounds.halfSize.v[0] = v14;
+    bounds.halfSize.v[1] = v14;
+    *(double *)&v4 = BG_PlayerCollision_GetCollisionStickLength(&bounds);
+    v15 = DVARINT_playerLastStandCollisionTestSteps;
+    v16 = v4;
     if ( !DVARINT_playerLastStandCollisionTestSteps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerLastStandCollisionTestSteps") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v16);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-    }
-    _RAX = outCylinderRadius;
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm6
-      vaddss  xmm2, xmm1, cs:horizPadding
-      vmovss  dword ptr [rax], xmm2
-    }
-    *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(ps, PM_EFF_STANCE_LASTSTANDCRAWL);
-    __asm
-    {
-      vaddss  xmm0, xmm0, cs:vertPadding
-      vsubss  xmm1, xmm8, cs:vertPadding
-      vmovaps xmm8, [rsp+0F8h+var_78]
-      vmovss  dword ptr [r14], xmm0
-      vmaxss  xmm0, xmm1, xmm7
-      vmovaps xmm7, [rsp+0F8h+var_68]
-    }
+    Dvar_CheckFrontendServerThread(v15);
+    *outCylinderRadius = (float)((float)(v15->current.integer + 1) * v14) + horizPadding;
+    BoundsHeight = BG_Suit_GetBoundsHeight(ps, PM_EFF_STANCE_LASTSTANDCRAWL);
+    v19 = v16;
+    *(float *)&v19 = *(float *)&v16 - vertPadding;
+    _XMM1 = v19;
+    *outCylinderTopHeight = *(float *)&BoundsHeight + vertPadding;
+    __asm { vmaxss  xmm0, xmm1, xmm7 }
   }
   else
   {
-    _RDI = DVARFLT_playerButtCollisionOffset;
+    v21 = DVARFLT_playerButtCollisionOffset;
     if ( !DVARFLT_playerButtCollisionOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerButtCollisionOffset") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-    v31 = DVARFLT_playerButtCollisionClientBroadphaseExtraRadius;
+    Dvar_CheckFrontendServerThread(v21);
+    value = v21->current.value;
+    v23 = DVARFLT_playerButtCollisionClientBroadphaseExtraRadius;
     if ( !DVARFLT_playerButtCollisionClientBroadphaseExtraRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerButtCollisionClientBroadphaseExtraRadius") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v31);
-    _RAX = outCylinderRadius;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [r12+220h]
-      vaddss  xmm1, xmm0, xmm6
-      vaddss  xmm2, xmm1, dword ptr [rdi+28h]
-      vmovss  dword ptr [rax], xmm2
-    }
-    *(double *)&_XMM0 = BG_Suit_GetBoundsHeight(ps, EffectiveStanceForWorldModelAnimation);
-    __asm { vmovss  dword ptr [r14], xmm0 }
-    _RBX = DCONST_DVARMPFLT_playerCollisionStandingStickHeight;
+    Dvar_CheckFrontendServerThread(v23);
+    *outCylinderRadius = (float)((float)SuitDef->bounds_radius + value) + v23->current.value;
+    v24 = BG_Suit_GetBoundsHeight(ps, EffectiveStanceForWorldModelAnimation);
+    *outCylinderTopHeight = *(float *)&v24;
+    v25 = DCONST_DVARMPFLT_playerCollisionStandingStickHeight;
     if ( !DCONST_DVARMPFLT_playerCollisionStandingStickHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerCollisionStandingStickHeight") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v25);
+    LODWORD(_XMM0) = v25->current.integer;
   }
-  __asm
-  {
-    vmovss  dword ptr [r15], xmm0
-    vmovss  xmm1, dword ptr [r14]
-    vcomiss xmm0, xmm1
-    vmovaps xmm6, [rsp+0F8h+var_58]
-  }
-  if ( !v23 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm1, xmm1
-      vmovss  xmm1, dword ptr [r15]
-      vmovsd  [rsp+0F8h+var_B8], xmm0
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovsd  [rsp+0F8h+var_C0], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 600, ASSERT_TYPE_ASSERT, "( outCylinderBottomHeight ) < ( outCylinderTopHeight )", "%s < %s\n\t%g, %g", "outCylinderBottomHeight", "outCylinderTopHeight", v43, v44) )
-      __debugbreak();
-  }
+  *outCylinderBottomHeight = *(float *)&_XMM0;
+  if ( *(float *)&_XMM0 >= *outCylinderTopHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 600, ASSERT_TYPE_ASSERT, "( outCylinderBottomHeight ) < ( outCylinderTopHeight )", "%s < %s\n\t%g, %g", "outCylinderBottomHeight", "outCylinderTopHeight", *outCylinderBottomHeight, *outCylinderTopHeight) )
+    __debugbreak();
 }
 
 /*
@@ -412,164 +368,124 @@ CG_PlayerSecondaryCollision_StartBroadphaseWorker
 */
 void CG_PlayerSecondaryCollision_StartBroadphaseWorker(const LocalClientNum_t localClientNum, bool shouldRunPrediction, const playerState_s *const ps)
 {
-  __int64 v6; 
-  workerTrace_t *v9; 
+  __int64 v3; 
+  workerTrace_t *v6; 
   cg_t *LocalClientGlobals; 
-  bool v25; 
+  float frametime; 
+  float v9; 
+  float v10; 
+  cg_t *v11; 
+  bool v12; 
+  float v13; 
+  float v14; 
+  float v16; 
+  float v17; 
+  float v18; 
   int clientNum; 
   float outCylinderBottomHeight; 
   float outCylinderTopHeight; 
   float outCylinderRadius; 
   workerTrace_t *data; 
-  int v54; 
-  float v56; 
-  float v58; 
-  int v61; 
-  float v63; 
-  int v64; 
-  int v65; 
+  int v29; 
+  vec3_t v30; 
+  vec3_t v31; 
+  __int128 v32; 
+  __int64 v33; 
+  int v34; 
+  __int64 v35; 
+  float v36; 
+  int v37; 
+  int v38; 
   TraceExtents extents; 
-  int v67; 
-  int v68; 
-  int v69; 
-  __int64 v70; 
-  __int64 v71; 
-  __int64 v72; 
-  int v73; 
-  char v74; 
+  int v40; 
+  int v41; 
+  int v42; 
+  __int64 v43; 
+  __int64 v44; 
+  __int64 v45; 
+  int v46; 
+  char v47; 
   playerState_s *p_predictedPlayerState; 
-  float v77; 
+  vec3_t v49; 
   vec3_t end; 
   vec3_t start; 
 
-  v6 = localClientNum;
-  _RDI = ps;
+  v3 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 607, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_playerSecondaryCollisionResults ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_playerSecondaryCollisionResults )\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  v9 = &s_playerSecondaryCollisionResults[v6];
-  if ( v9->state == 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 610, ASSERT_TYPE_ASSERT, "( results->state ) != ( WORKER_TRACE_STARTED )", "%s != %s\n\t%i, %i", "results->state", "WORKER_TRACE_STARTED", v9->state, 1) )
+  v6 = &s_playerSecondaryCollisionResults[v3];
+  if ( v6->state == 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 610, ASSERT_TYPE_ASSERT, "( results->state ) != ( WORKER_TRACE_STARTED )", "%s != %s\n\t%i, %i", "results->state", "WORKER_TRACE_STARTED", v6->state, 1) )
     __debugbreak();
-  v9->state = 0;
+  v6->state = 0;
   if ( shouldRunPrediction && Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_TO_IDLE|0x80) )
   {
-    if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 624, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 624, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( !_RDI->pm_type )
+    if ( !ps->pm_type )
     {
-      __asm
+      v6->state = 1;
+      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v3);
+      frametime = (float)LocalClientGlobals->frametime;
+      v9 = frametime * ps->velocity.v[1];
+      v49.v[0] = (float)((float)(frametime * ps->velocity.v[0]) * 0.001) + ps->origin.v[0];
+      v10 = (float)(frametime * ps->velocity.v[2]) * 0.001;
+      v49.v[1] = (float)(v9 * 0.001) + ps->origin.v[1];
+      v11 = LocalClientGlobals;
+      v49.v[2] = v10 + ps->origin.v[2];
+      CG_PlayerSecondaryCollision_GetParameters(ps, &outCylinderRadius, &outCylinderTopHeight, &outCylinderBottomHeight);
+      v12 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xBu);
+      v13 = outCylinderBottomHeight;
+      v14 = outCylinderTopHeight;
+      _XMM6 = LODWORD(outCylinderRadius);
+      if ( v12 && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_playerLastStandDebug, "playerLastStandDebug") )
       {
-        vmovaps [rsp+220h+var_30], xmm6
-        vmovaps [rsp+220h+var_40], xmm7
-        vmovaps [rsp+220h+var_50], xmm8
+        v16 = ps->origin.v[1];
+        v17 = ps->origin.v[0];
+        start.v[2] = v13 + ps->origin.v[2];
+        v18 = v14 + ps->origin.v[2];
+        start.v[1] = v16;
+        end.v[1] = v16;
+        end.v[2] = v18;
+        start.v[0] = v17;
+        end.v[0] = v17;
+        CG_DebugCylinder(&start, &end, *(float *)&_XMM6, &colorBlue, depthTest_1, duration_2);
       }
-      v9->state = 1;
-      LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v6);
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3a83126f
-        vxorps  xmm4, xmm4, xmm4
-        vcvtsi2ss xmm4, xmm4, dword ptr [rax+65E4h]
-        vmulss  xmm0, xmm4, dword ptr [rdi+3Ch]
-        vmulss  xmm0, xmm0, xmm3
-        vaddss  xmm1, xmm0, dword ptr [rdi+30h]
-        vmulss  xmm0, xmm4, dword ptr [rdi+40h]
-        vmovss  dword ptr [rbp+120h+var_A0], xmm1
-        vmulss  xmm1, xmm0, xmm3
-        vaddss  xmm2, xmm1, dword ptr [rdi+34h]
-        vmulss  xmm0, xmm4, dword ptr [rdi+44h]
-        vmulss  xmm1, xmm0, xmm3
-        vmovss  dword ptr [rbp+120h+var_A0+4], xmm2
-        vaddss  xmm2, xmm1, dword ptr [rdi+38h]
-      }
-      _R14 = LocalClientGlobals;
-      __asm { vmovss  [rbp+120h+var_98], xmm2 }
-      CG_PlayerSecondaryCollision_GetParameters(_RDI, &outCylinderRadius, &outCylinderTopHeight, &outCylinderBottomHeight);
-      v25 = GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RDI->otherFlags, ACTIVE, 0xBu);
-      __asm
-      {
-        vmovss  xmm7, [rsp+220h+outCylinderBottomHeight]
-        vmovss  xmm8, [rsp+220h+outCylinderTopHeight]
-        vmovss  xmm6, [rsp+220h+outCylinderRadius]
-      }
-      if ( v25 && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_playerLastStandDebug, "playerLastStandDebug") )
-      {
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi+34h]
-          vaddss  xmm0, xmm7, dword ptr [rdi+38h]
-          vmovss  xmm3, dword ptr [rdi+30h]
-          vmovss  dword ptr [rbp+120h+start+8], xmm0
-          vaddss  xmm0, xmm8, dword ptr [rdi+38h]
-          vmovss  dword ptr [rbp+120h+start+4], xmm2
-          vmovss  dword ptr [rbp+120h+end+4], xmm2
-          vmovaps xmm2, xmm6; radius
-          vmovss  dword ptr [rbp+120h+end+8], xmm0
-          vmovss  dword ptr [rbp+120h+start], xmm3
-          vmovss  dword ptr [rbp+120h+end], xmm3
-        }
-        CG_DebugCylinder(&start, &end, *(float *)&_XMM2, &colorBlue, depthTest_1, duration_2);
-      }
-      __asm
-      {
-        vmulss  xmm0, xmm7, cs:__real@3f000000
-        vmovsd  xmm5, [rbp+120h+var_A0]
-        vmulss  xmm1, xmm8, cs:__real@3f000000
-        vxorps  xmm4, xmm4, xmm4
-        vaddss  xmm2, xmm0, xmm1
-      }
-      v56 = v77;
-      v58 = v77;
+      _XMM4 = 0i64;
+      v30 = v49;
+      v31 = v49;
       __asm
       {
         vinsertps xmm4, xmm4, xmm4, 10h
-        vsubss  xmm3, xmm1, xmm0
         vunpcklps xmm0, xmm6, xmm3
       }
-      v64 = v6;
-      v73 = 0;
-      data = &s_playerSecondaryCollisionResults[v6];
-      v54 = 1;
-      v61 = 65553;
-      __asm
-      {
-        vmovsd  [rsp+220h+var_1B4], xmm5
-        vmovsd  [rsp+220h+var_1A8], xmm5
-        vmovsd  [rbp+120h+var_18C], xmm0
-      }
-      v74 = 1;
+      v37 = v3;
+      v46 = 0;
+      data = &s_playerSecondaryCollisionResults[v3];
+      v29 = 1;
+      v34 = 65553;
+      v33 = *(__int64 *)&_XMM0;
+      v47 = 1;
       __asm
       {
         vinsertps xmm4, xmm4, xmm6, 30h ; '0'
         vinsertps xmm4, xmm4, xmm2, 20h ; ' '
-        vmovups [rbp+120h+var_19C], xmm4
-        vmovsd  xmm0, qword ptr [r14+699Ch]
-        vmovsd  [rbp+120h+var_180], xmm0
       }
-      v63 = _R14->refdef.viewOffset.v[2];
-      p_predictedPlayerState = &_R14->predictedPlayerState;
-      clientNum = _RDI->clientNum;
-      extents.start.v[2] = v77;
-      extents.end.v[2] = v77;
-      v67 = clientNum;
-      v65 = 0;
-      v72 = -1i64;
-      v70 = 0i64;
-      v69 = 65553;
-      v68 = 1;
-      v71 = 0i64;
-      __asm
-      {
-        vmovsd  qword ptr [rbp+120h+extents.start], xmm5
-        vmovsd  qword ptr [rbp+120h+extents.end], xmm5
-      }
+      v32 = _XMM4;
+      v35 = *(_QWORD *)v11->refdef.viewOffset.v;
+      v36 = v11->refdef.viewOffset.v[2];
+      p_predictedPlayerState = &v11->predictedPlayerState;
+      clientNum = ps->clientNum;
+      extents.start = v49;
+      extents.end = v49;
+      v40 = clientNum;
+      v38 = 0;
+      v45 = -1i64;
+      v43 = 0i64;
+      v42 = 65553;
+      v41 = 1;
+      v44 = 0i64;
       CM_CalcTraceExtents(&extents);
       Sys_AddWorkerCmd(WRKCMD_TRACE_REAR_COLLISION, &data);
-      __asm
-      {
-        vmovaps xmm8, [rsp+220h+var_50]
-        vmovaps xmm7, [rsp+220h+var_40]
-        vmovaps xmm6, [rsp+220h+var_30]
-      }
     }
   }
 }
@@ -581,139 +497,129 @@ CollAvoid_AddAvoidTarget
 */
 void CollAvoid_AddAvoidTarget(LocalClientNum_t localClientNum, cg_t *cgameGlob, const centity_t *cent, CollAvoidData *caData)
 {
+  __int64 v8; 
   unsigned int number; 
-  unsigned int v13; 
-  unsigned int v14; 
-  const DObj *v15; 
-  bool v16; 
+  unsigned int v10; 
+  unsigned int v11; 
+  const DObj *v12; 
+  vec3_t *p_origin; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v18; 
   const snapshot_t *nextSnap; 
   const snapshot_t *snap; 
+  float v30; 
+  float v31; 
   int serverTime; 
-  __int64 v48; 
+  float v33; 
+  float v34; 
+  __int64 v35; 
   unsigned int avoidItemCount; 
-  __int64 v50; 
-  int v51; 
-  CgTrajectory v52; 
-  vec3_t v53; 
+  __int64 v37; 
+  int v38; 
+  CgTrajectory v39; 
+  vec3_t v40; 
   vec3_t outPos; 
 
-  _RBX = caData;
   if ( caData->avoidItemCount >= 0xC8 )
   {
-    v51 = 200;
+    v38 = 200;
     avoidItemCount = caData->avoidItemCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 473, ASSERT_TYPE_ASSERT, "(unsigned)( caData->avoidItemCount ) < (unsigned)( 200 )", "caData->avoidItemCount doesn't index MAX_AVOID_ITEMS\n\t%i not in [0, %i)", avoidItemCount, v51) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 473, ASSERT_TYPE_ASSERT, "(unsigned)( caData->avoidItemCount ) < (unsigned)( 200 )", "caData->avoidItemCount doesn't index MAX_AVOID_ITEMS\n\t%i not in [0, %i)", avoidItemCount, v38) )
       __debugbreak();
   }
-  _RSI = _RBX->avoidItemCount;
-  _RBX->avoidItems[_RSI].entityNum = cent->nextState.number;
+  v8 = caData->avoidItemCount;
+  caData->avoidItems[v8].entityNum = cent->nextState.number;
   number = cent->nextState.number;
   if ( number > 0x9E4 )
   {
-    LODWORD(v50) = cent->nextState.number;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v50) )
+    LODWORD(v37) = cent->nextState.number;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v37) )
       __debugbreak();
   }
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    LODWORD(v50) = 2;
-    LODWORD(v48) = localClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v48, v50) )
+    LODWORD(v37) = 2;
+    LODWORD(v35) = localClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v35, v37) )
       __debugbreak();
   }
-  v13 = 2533 * localClientNum + number;
-  if ( v13 >= 0x13CA )
+  v10 = 2533 * localClientNum + number;
+  if ( v10 >= 0x13CA )
   {
-    LODWORD(v50) = v13;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v50) )
+    LODWORD(v37) = v10;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v37) )
       __debugbreak();
   }
-  v14 = clientObjMap[v13];
-  if ( v14 )
+  v11 = clientObjMap[v10];
+  if ( v11 )
   {
-    if ( v14 >= (unsigned int)s_objCount )
+    if ( v11 >= (unsigned int)s_objCount )
     {
-      LODWORD(v50) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v50) )
+      LODWORD(v37) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v37) )
         __debugbreak();
     }
-    v15 = (const DObj *)s_objBuf[v14];
-    if ( v15 && DObjGetFirstModel(v15) )
+    v12 = (const DObj *)s_objBuf[v11];
+    if ( v12 && DObjGetFirstModel(v12) )
     {
-      v16 = cent->pose.origin.Get_origin == NULL;
-      _RDI = (__int64)&_RBX->avoidItems[_RSI].origin;
-      __asm { vmovaps [rsp+0D8h+var_48], xmm6 }
-      if ( v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
+      p_origin = &caData->avoidItems[v8].origin;
+      if ( !cent->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
         __debugbreak();
       FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(cent->pose.origin.Get_origin, &cent->pose);
-      FunctionPointer_origin(&cent->pose.origin.origin.origin, &_RBX->avoidItems[_RSI].origin);
+      FunctionPointer_origin(&cent->pose.origin.origin.origin, &caData->avoidItems[v8].origin);
       if ( cent->pose.isPosePrecise )
       {
+        _XMM0 = LODWORD(p_origin->v[0]);
+        __asm { vcvtdq2pd xmm0, xmm0 }
+        *((_QWORD *)&v18 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v18 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM0 = v18;
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        _XMM0 = LODWORD(caData->avoidItems[v8].origin.v[1]);
+        __asm { vcvtdq2pd xmm0, xmm0 }
+        p_origin->v[0] = *(float *)&_XMM1;
+        *((_QWORD *)&v18 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v18 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM1 = v18;
+        _XMM0 = LODWORD(caData->avoidItems[v8].origin.v[2]);
         __asm
         {
-          vmovsd  xmm3, cs:__real@3f30000000000000
-          vmovd   xmm0, dword ptr [rdi]
-          vcvtdq2pd xmm0, xmm0
-          vmulsd  xmm0, xmm0, xmm3
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovd   xmm0, dword ptr [rdi+4]
-          vcvtdq2pd xmm0, xmm0
-          vmovss  dword ptr [rdi], xmm1
-          vmulsd  xmm1, xmm0, xmm3
-          vmovd   xmm0, dword ptr [rdi+8]
           vcvtsd2ss xmm2, xmm1, xmm1
           vcvtdq2pd xmm0, xmm0
-          vmulsd  xmm1, xmm0, xmm3
-          vmovss  dword ptr [rdi+4], xmm2
-          vcvtsd2ss xmm2, xmm1, xmm1
-          vmovss  dword ptr [rdi+8], xmm2
         }
+        *((_QWORD *)&v18 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v18 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM1 = v18;
+        caData->avoidItems[v8].origin.v[1] = *(float *)&_XMM2;
+        __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+        caData->avoidItems[v8].origin.v[2] = *(float *)&_XMM2;
       }
-      DObjPhysicsGetBounds(v15, &_RBX->avoidItems[_RSI].bounds);
+      DObjPhysicsGetBounds(v12, &caData->avoidItems[v8].bounds);
       nextSnap = cgameGlob->nextSnap;
       snap = cgameGlob->snap;
-      __asm
+      v30 = 0.0;
+      v31 = (float)(nextSnap->serverTime - snap->serverTime) * 0.001;
+      if ( v31 <= 0.0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm6, xmm0, cs:__real@3a83126f
-        vcomiss xmm6, xmm1
-      }
-      if ( nextSnap->serverTime <= (unsigned int)snap->serverTime )
-      {
-        *(_QWORD *)_RBX->avoidItems[_RSI].velocity.v = 0i64;
+        *(_QWORD *)caData->avoidItems[v8].velocity.v = 0i64;
       }
       else
       {
-        CgTrajectory::CgTrajectory(&v52, localClientNum, cent, &cent->prevState);
-        BgTrajectory::EvaluatePosTrajectory(&v52, snap->serverTime, &outPos);
+        CgTrajectory::CgTrajectory(&v39, localClientNum, cent, &cent->prevState);
+        BgTrajectory::EvaluatePosTrajectory(&v39, snap->serverTime, &outPos);
         serverTime = nextSnap->serverTime;
-        v52.m_es = &cent->nextState.lerp;
-        BgTrajectory::EvaluatePosTrajectory(&v52, serverTime, &v53);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0D8h+var_70+4]
-          vsubss  xmm1, xmm0, dword ptr [rsp+0D8h+outPos+4]
-          vmovss  xmm2, dword ptr [rsp+0D8h+var_70+8]
-          vsubss  xmm0, xmm2, dword ptr [rsp+0D8h+outPos+8]
-          vmovss  dword ptr [rsi+rbx+18h], xmm1
-          vmovss  xmm1, dword ptr [rsp+0D8h+var_70]
-          vmovss  dword ptr [rsi+rbx+1Ch], xmm0
-          vsubss  xmm0, xmm1, dword ptr [rsp+0D8h+outPos]
-          vdivss  xmm2, xmm0, xmm6
-          vmovss  dword ptr [rsi+rbx+14h], xmm2
-          vmovss  xmm1, dword ptr [rsi+rbx+18h]
-          vdivss  xmm0, xmm1, xmm6
-          vmovss  dword ptr [rsi+rbx+18h], xmm0
-          vmovss  xmm2, dword ptr [rsi+rbx+1Ch]
-          vdivss  xmm1, xmm2, xmm6
-        }
+        v39.m_es = &cent->nextState.lerp;
+        BgTrajectory::EvaluatePosTrajectory(&v39, serverTime, &v40);
+        v33 = v40.v[2] - outPos.v[2];
+        caData->avoidItems[v8].velocity.v[1] = v40.v[1] - outPos.v[1];
+        v34 = v40.v[0];
+        caData->avoidItems[v8].velocity.v[2] = v33;
+        caData->avoidItems[v8].velocity.v[0] = (float)(v34 - outPos.v[0]) / v31;
+        caData->avoidItems[v8].velocity.v[1] = caData->avoidItems[v8].velocity.v[1] / v31;
+        v30 = caData->avoidItems[v8].velocity.v[2] / v31;
       }
-      __asm { vmovss  dword ptr [rsi+rbx+1Ch], xmm1 }
-      ++_RBX->avoidItemCount;
-      __asm { vmovaps xmm6, [rsp+0D8h+var_48] }
+      caData->avoidItems[v8].velocity.v[2] = v30;
+      ++caData->avoidItemCount;
     }
   }
 }
@@ -725,347 +631,230 @@ CollAvoid_CalculateCmdAvoidance
 */
 void CollAvoid_CalculateCmdAvoidance(LocalClientNum_t localClientNum, const playerState_s *ps, float deltaTime, CollAvoidItem *avoidItem, usercmd_s *cmd)
 {
+  __int128 v5; 
+  float v9; 
   CgHandler *Handler; 
-  char v91; 
-  char v108; 
-  const dvar_t *v136; 
-  const dvar_t *v147; 
-  const dvar_t *v173; 
+  __int128 v11; 
+  __int128 v15; 
+  float rightmove; 
+  float forwardmove; 
+  __int128 v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  vec3_t *p_origin; 
+  __int128 v33; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  __int128 v42; 
+  __int128 v46; 
+  __int128 v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  const dvar_t *v51; 
+  float v52; 
+  __int128 v53; 
+  __int128 v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  const dvar_t *v58; 
+  float v59; 
+  __int128 v60; 
+  int v64; 
+  int v65; 
+  const dvar_t *v66; 
+  float v67; 
+  __m128 v68; 
+  float v69; 
   vec3_t forward; 
   vec3_t end; 
   vec3_t vec; 
   vec3_t right; 
   vec3_t outVec; 
   vec3_t angles; 
-  WorldUpReferenceFrame v215; 
-  char v217; 
-  void *retaddr; 
+  WorldUpReferenceFrame v79; 
+  __int128 v80; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-  }
-  _RDI = avoidItem;
-  _RSI = ps;
   ClActiveClientMP::GetClientMP(localClientNum);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+1D8h]
-    vmovss  xmm1, dword ptr [rsi+1DCh]
-    vmovss  dword ptr [rbp+0A0h+angles], xmm0
-    vmovss  xmm0, dword ptr [rsi+1E0h]
-    vmovss  dword ptr [rbp+0A0h+angles+8], xmm0
-    vmovss  dword ptr [rbp+0A0h+angles+4], xmm1
-  }
+  v9 = ps->viewangles.v[1];
+  angles.v[0] = ps->viewangles.v[0];
+  angles.v[2] = ps->viewangles.v[2];
+  angles.v[1] = v9;
   AngleVectors(&angles, &forward, &right, NULL);
   Handler = CgHandler::getHandler(localClientNum);
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v215, _RSI, Handler);
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v79, ps, Handler);
+  WorldUpReferenceFrame::SetUpContribution(&v79, 0.0, &forward);
+  v11 = LODWORD(forward.v[0]);
+  *(float *)&v11 = fsqrt((float)((float)(*(float *)&v11 * *(float *)&v11) + (float)(forward.v[1] * forward.v[1])) + (float)(forward.v[2] * forward.v[2]));
+  _XMM3 = v11;
   __asm
   {
-    vxorps  xmm1, xmm1, xmm1; height
-    vxorps  xmm11, xmm11, xmm11
-  }
-  WorldUpReferenceFrame::SetUpContribution(&v215, *(float *)&_XMM1, &forward);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rsp+1A0h+forward]
-    vmovss  xmm6, dword ptr [rsp+1A0h+forward+4]
-    vmovss  xmm4, dword ptr [rsp+1A0h+forward+8]
-    vmovss  xmm13, cs:__real@3f800000
-    vmovss  xmm14, cs:__real@80000000
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, xmm14
     vblendvps xmm0, xmm3, xmm13, xmm0
-    vdivss  xmm2, xmm13, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmulss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rsp+1A0h+forward], xmm0
-    vmulss  xmm0, xmm4, xmm2
-    vmovss  dword ptr [rsp+1A0h+forward+4], xmm1
-    vxorps  xmm1, xmm1, xmm1; height
-    vmovss  dword ptr [rsp+1A0h+forward+8], xmm0
   }
-  WorldUpReferenceFrame::SetUpContribution(&v215, *(float *)&_XMM1, &right);
+  forward.v[0] = forward.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  forward.v[1] = forward.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  forward.v[2] = forward.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  WorldUpReferenceFrame::SetUpContribution(&v79, 0.0, &right);
+  v15 = LODWORD(right.v[0]);
+  *(float *)&v15 = fsqrt((float)((float)(*(float *)&v15 * *(float *)&v15) + (float)(right.v[1] * right.v[1])) + (float)(right.v[2] * right.v[2]));
+  _XMM3 = v15;
   __asm
   {
-    vmovss  xmm4, dword ptr [rsp+1A0h+right]
-    vmovss  xmm5, dword ptr [rsp+1A0h+right+4]
-    vmovss  xmm6, dword ptr [rsp+1A0h+right+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, xmm14
     vblendvps xmm0, xmm3, xmm13, xmm0
-    vdivss  xmm1, xmm13, xmm0
-    vmulss  xmm7, xmm5, xmm1
-    vmulss  xmm3, xmm4, xmm1
-    vmulss  xmm6, xmm6, xmm1
-    vxorps  xmm5, xmm5, xmm5
-    vcvtsi2ss xmm5, xmm5, eax
-    vmulss  xmm1, xmm3, xmm5
-    vxorps  xmm4, xmm4, xmm4
-    vcvtsi2ss xmm4, xmm4, eax
-    vmulss  xmm2, xmm4, dword ptr [rsp+1A0h+forward]
-    vaddss  xmm8, xmm2, xmm1
-    vmovss  dword ptr [rsp+1A0h+right], xmm3
-    vmulss  xmm3, xmm4, dword ptr [rsp+1A0h+forward+4]
-    vmulss  xmm1, xmm7, xmm5
-    vmovss  dword ptr [rsp+1A0h+right+4], xmm7
-    vaddss  xmm7, xmm3, xmm1
-    vmovss  dword ptr [rsp+1A0h+right+8], xmm6
-    vmulss  xmm2, xmm4, dword ptr [rsp+1A0h+forward+8]
-    vmulss  xmm0, xmm8, xmm8
-    vmulss  xmm1, xmm6, xmm5
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm3, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm9, xmm2, xmm2
-    vmovss  xmm2, dword ptr [rdi+8]
+  }
+  rightmove = (float)cmd->rightmove;
+  v21 = 0i64;
+  forwardmove = (float)cmd->forwardmove;
+  v22 = (float)(forwardmove * forward.v[0]) + (float)((float)(right.v[0] * (float)(1.0 / *(float *)&_XMM0)) * rightmove);
+  right.v[0] = right.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  right.v[1] = right.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  v23 = (float)(forwardmove * forward.v[1]) + (float)(right.v[1] * rightmove);
+  right.v[2] = right.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  v24 = (float)(forwardmove * forward.v[2]) + (float)(right.v[2] * rightmove);
+  *(float *)&v21 = fsqrt((float)((float)(v23 * v23) + (float)(v22 * v22)) + (float)(v24 * v24));
+  _XMM9 = v21;
+  __asm
+  {
     vcmpless xmm0, xmm9, xmm14
     vblendvps xmm0, xmm9, xmm13, xmm0
-    vdivss  xmm1, xmm13, xmm0
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmulss  xmm8, xmm8, xmm1
-    vmulss  xmm7, xmm7, xmm1
-    vmulss  xmm10, xmm4, xmm1
-    vsubss  xmm1, xmm0, dword ptr [rsi+30h]
-    vsubss  xmm0, xmm2, dword ptr [rsi+34h]
   }
-  _RDI = &_RDI->origin;
+  v28 = v22 * (float)(1.0 / *(float *)&_XMM0);
+  v29 = v23 * (float)(1.0 / *(float *)&_XMM0);
+  v30 = v24 * (float)(1.0 / *(float *)&_XMM0);
+  v31 = avoidItem->origin.v[0] - ps->origin.v[0];
+  *(float *)&v21 = avoidItem->origin.v[1] - ps->origin.v[1];
+  p_origin = &avoidItem->origin;
+  vec.v[0] = v31;
+  vec.v[1] = *(float *)&v21;
+  vec.v[2] = p_origin->v[2] - ps->origin.v[2];
+  WorldUpReferenceFrame::SetUpContribution(&v79, 0.0, &vec);
+  v33 = LODWORD(vec.v[1]);
+  *(float *)&v33 = fsqrt((float)((float)(*(float *)&v33 * *(float *)&v33) + (float)(vec.v[0] * vec.v[0])) + (float)(vec.v[2] * vec.v[2]));
+  _XMM3 = v33;
   __asm
   {
-    vmovss  dword ptr [rsp+1A0h+vec], xmm1
-    vmovss  dword ptr [rsp+1A0h+vec+4], xmm0
-    vmovss  xmm1, dword ptr [rdi+8]
-    vsubss  xmm2, xmm1, dword ptr [rsi+38h]
-    vxorps  xmm1, xmm1, xmm1; height
-    vmovss  dword ptr [rsp+1A0h+vec+8], xmm2
-  }
-  WorldUpReferenceFrame::SetUpContribution(&v215, *(float *)&_XMM1, &vec);
-  __asm
-  {
-    vcomiss xmm9, xmm11
-    vmovss  xmm4, dword ptr [rsp+1A0h+vec]
-    vmovss  xmm6, dword ptr [rsp+1A0h+vec+4]
-    vmovss  xmm5, dword ptr [rsp+1A0h+vec+8]
-    vmovss  xmm12, cs:__real@42700000
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, xmm14
     vblendvps xmm0, xmm3, xmm13, xmm0
-    vdivss  xmm1, xmm13, xmm0
-    vmulss  xmm2, xmm4, xmm1
-    vmulss  xmm0, xmm6, xmm1
-    vmulss  xmm3, xmm5, xmm1
-    vmovss  dword ptr [rsp+1A0h+vec], xmm2
-    vmovss  dword ptr [rsp+1A0h+vec+4], xmm0
-    vmovss  dword ptr [rsp+1A0h+vec+8], xmm3
   }
-  if ( v91 | v108 )
+  v37 = 1.0 / *(float *)&_XMM0;
+  v38 = vec.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  v39 = vec.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  v41 = vec.v[2] * v37;
+  v40 = vec.v[2] * v37;
+  vec.v[0] = v38;
+  vec.v[1] = v39;
+  vec.v[2] = vec.v[2] * v37;
+  if ( *(float *)&_XMM9 <= 0.0 )
   {
-    __asm
-    {
-      vmovaps xmm9, xmm12
-      vmovaps xmm8, xmm2
-      vmovaps xmm7, xmm0
-      vmovaps xmm10, xmm3
-    }
+    *(float *)&_XMM9 = FLOAT_60_0;
+    v28 = v38;
+    v29 = v39;
+    v30 = v41;
   }
-  else
+  else if ( (float)((float)((float)(v29 * v39) + (float)(v28 * v38)) + (float)(v30 * v40)) < 0.0 )
   {
-    __asm
-    {
-      vmulss  xmm1, xmm7, xmm0
-      vmulss  xmm0, xmm8, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm10, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vcomiss xmm3, xmm11
-    }
-    if ( v91 )
-      goto LABEL_22;
+    return;
   }
-  __asm { vmovaps [rsp+1A0h+var_D0], xmm15 }
-  WorldUpReferenceFrame::CrossWithUp(&v215, &vec, &outVec);
+  v80 = v5;
+  WorldUpReferenceFrame::CrossWithUp(&v79, &vec, &outVec);
+  v42 = LODWORD(outVec.v[0]);
+  *(float *)&v42 = fsqrt((float)((float)(*(float *)&v42 * *(float *)&v42) + (float)(outVec.v[1] * outVec.v[1])) + (float)(outVec.v[2] * outVec.v[2]));
+  _XMM3 = v42;
   __asm
   {
-    vmovss  xmm4, dword ptr [rbp+0A0h+outVec]
-    vmovss  xmm5, dword ptr [rbp+0A0h+outVec+4]
-    vmovss  xmm6, dword ptr [rbp+0A0h+outVec+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, xmm14
     vblendvps xmm0, xmm3, xmm13, xmm0
-    vdivss  xmm1, xmm13, xmm0
-    vmulss  xmm4, xmm4, xmm1
-    vmulss  xmm5, xmm5, xmm1
-    vmulss  xmm6, xmm6, xmm1
-    vmulss  xmm1, xmm7, xmm5
-    vmulss  xmm0, xmm8, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm6
-    vaddss  xmm3, xmm2, xmm1
-    vcomiss xmm3, xmm11
-    vmovss  dword ptr [rbp+0A0h+outVec], xmm4
-    vmovss  dword ptr [rbp+0A0h+outVec+4], xmm5
-    vmovss  dword ptr [rbp+0A0h+outVec+8], xmm6
   }
-  if ( v91 )
+  v47 = LODWORD(outVec.v[0]);
+  *(float *)&v47 = outVec.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  v46 = v47;
+  v48 = outVec.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  v50 = outVec.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  v49 = v50;
+  outVec.v[0] = *(float *)&v46;
+  outVec.v[1] = v48;
+  outVec.v[2] = v50;
+  if ( (float)((float)((float)(v29 * v48) + (float)(v28 * *(float *)&v46)) + (float)(v30 * v50)) < 0.0 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm4, xmm4, xmm0
-      vxorps  xmm5, xmm5, xmm0
-      vxorps  xmm6, xmm6, xmm0
-      vmovss  dword ptr [rbp+0A0h+outVec], xmm4
-      vmovss  dword ptr [rbp+0A0h+outVec+4], xmm5
-      vmovss  dword ptr [rbp+0A0h+outVec+8], xmm6
-    }
+    v46 ^= (unsigned int)_xmm;
+    LODWORD(v48) ^= _xmm;
+    LODWORD(v49) = LODWORD(v50) ^ _xmm;
+    outVec.v[0] = *(float *)&v46;
+    outVec.v[1] = v48;
+    LODWORD(outVec.v[2]) = LODWORD(v50) ^ _xmm;
   }
-  v136 = DCONST_DVARBOOL_collAvoid_debug;
-  __asm
-  {
-    vmulss  xmm0, xmm8, xmm12
-    vaddss  xmm1, xmm0, dword ptr [rdi]
-    vmulss  xmm2, xmm7, xmm12
-    vaddss  xmm0, xmm2, dword ptr [rdi+4]
-    vmovss  dword ptr [rsp+1A0h+end], xmm1
-    vmulss  xmm1, xmm10, xmm12
-    vaddss  xmm2, xmm1, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+1A0h+end+8], xmm2
-    vmovss  dword ptr [rsp+1A0h+end+4], xmm0
-    vmulss  xmm14, xmm4, xmm9
-    vmulss  xmm15, xmm5, xmm9
-    vmulss  xmm6, xmm6, xmm9
-  }
+  v51 = DCONST_DVARBOOL_collAvoid_debug;
+  v52 = (float)(v29 * 60.0) + p_origin->v[1];
+  end.v[0] = (float)(v28 * 60.0) + p_origin->v[0];
+  end.v[2] = (float)(v30 * 60.0) + p_origin->v[2];
+  end.v[1] = v52;
+  v54 = v46;
+  *(float *)&v54 = *(float *)&v46 * *(float *)&_XMM9;
+  v53 = v54;
+  v55 = v48 * *(float *)&_XMM9;
+  v57 = v49 * *(float *)&_XMM9;
+  v56 = v49 * *(float *)&_XMM9;
   if ( !DCONST_DVARBOOL_collAvoid_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v136);
-  if ( v136->current.enabled )
-    CG_DebugLine(_RDI, &end, &colorGreen, 0, 0);
-  __asm { vaddss  xmm0, xmm14, dword ptr [rdi] }
-  v147 = DCONST_DVARBOOL_collAvoid_debug;
-  __asm
-  {
-    vaddss  xmm1, xmm15, dword ptr [rdi+4]
-    vmovss  dword ptr [rsp+1A0h+end], xmm0
-    vaddss  xmm0, xmm6, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+1A0h+end+8], xmm0
-    vmovss  dword ptr [rsp+1A0h+end+4], xmm1
-  }
+  Dvar_CheckFrontendServerThread(v51);
+  if ( v51->current.enabled )
+    CG_DebugLine(p_origin, &end, &colorGreen, 0, 0);
+  v58 = DCONST_DVARBOOL_collAvoid_debug;
+  v59 = v55 + p_origin->v[1];
+  end.v[0] = *(float *)&v53 + p_origin->v[0];
+  end.v[2] = v57 + p_origin->v[2];
+  end.v[1] = v59;
   if ( !DCONST_DVARBOOL_collAvoid_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v147);
-  if ( v147->current.enabled )
-    CG_DebugLine(_RDI, &end, &colorRed, 0, 0);
+  Dvar_CheckFrontendServerThread(v58);
+  if ( v58->current.enabled )
+    CG_DebugLine(p_origin, &end, &colorRed, 0, 0);
+  v60 = v53;
+  *(float *)&v60 = (float)((float)(*(float *)&v53 * right.v[0]) + (float)(v55 * right.v[1])) + (float)(v56 * right.v[2]);
+  _XMM4 = v60 & _xmm;
   __asm
   {
-    vmovss  xmm5, cs:__real@42fe0000
-    vmulss  xmm0, xmm15, dword ptr [rsp+1A0h+forward+4]
-    vmulss  xmm2, xmm6, dword ptr [rsp+1A0h+forward+8]
-    vmulss  xmm1, xmm14, dword ptr [rsp+1A0h+forward]
-    vaddss  xmm3, xmm1, xmm0
-    vmulss  xmm0, xmm15, dword ptr [rsp+1A0h+right+4]
-    vmulss  xmm1, xmm14, dword ptr [rsp+1A0h+right]
-    vmovaps xmm15, [rsp+1A0h+var_D0]
-    vaddss  xmm7, xmm3, xmm2
-    vmulss  xmm2, xmm6, dword ptr [rsp+1A0h+right+8]
-    vaddss  xmm3, xmm1, xmm0
-    vandps  xmm0, xmm7, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm6, xmm3, xmm2
-    vandps  xmm4, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
     vmaxss  xmm1, xmm4, xmm0
     vmaxss  xmm2, xmm1, xmm5
-    vdivss  xmm3, xmm13, xmm2
-    vmulss  xmm0, xmm3, xmm7
-    vmulss  xmm1, xmm0, xmm5
-    vcvttss2si ecx, xmm1
-    vmulss  xmm0, xmm3, xmm6
-    vmulss  xmm1, xmm0, xmm5
-    vcvttss2si eax, xmm1
   }
-  cmd->rightmove = _EAX;
-  cmd->forwardmove = _ECX;
-  v173 = DCONST_DVARBOOL_collAvoid_debug;
-  _EAX = (char)_EAX;
-  __asm { vmovd   xmm3, eax }
-  _EAX = (char)_ECX;
+  v64 = (int)(float)((float)((float)(1.0 / *(float *)&_XMM2) * (float)((float)((float)(*(float *)&v53 * forward.v[0]) + (float)(v55 * forward.v[1])) + (float)(v56 * forward.v[2]))) * 127.0);
+  v65 = (int)(float)((float)((float)(1.0 / *(float *)&_XMM2) * *(float *)&v60) * 127.0);
+  cmd->rightmove = v65;
+  cmd->forwardmove = v64;
+  v66 = DCONST_DVARBOOL_collAvoid_debug;
+  v67 = _mm_cvtepi32_ps((__m128i)(unsigned int)(char)v65).m128_f32[0];
+  v68 = _mm_cvtepi32_ps((__m128i)(unsigned int)(char)v64);
+  *(float *)&_XMM4 = (float)(v68.m128_f32[0] * forward.v[0]) + (float)(v67 * right.v[0]);
+  v69 = (float)(v68.m128_f32[0] * forward.v[1]) + (float)(v67 * right.v[1]);
+  v68.m128_f32[0] = fsqrt((float)(v69 * v69) + (float)(*(float *)&_XMM4 * *(float *)&_XMM4));
+  _XMM2 = v68;
   __asm
   {
-    vcvtdq2ps xmm3, xmm3
-    vmulss  xmm0, xmm3, dword ptr [rsp+1A0h+right]
-    vmovd   xmm2, eax
-    vcvtdq2ps xmm2, xmm2
-    vmulss  xmm1, xmm2, dword ptr [rsp+1A0h+forward]
-    vmulss  xmm2, xmm2, dword ptr [rsp+1A0h+forward+4]
-    vaddss  xmm4, xmm1, xmm0
-    vmulss  xmm1, xmm3, dword ptr [rsp+1A0h+right+4]
-    vaddss  xmm5, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm3, xmm5, xmm5
-    vaddss  xmm1, xmm3, xmm0
-    vsqrtss xmm2, xmm1, xmm1
     vcmpless xmm0, xmm2, cs:__real@80000000
     vblendvps xmm0, xmm2, xmm13, xmm0
-    vdivss  xmm3, xmm13, xmm0
-    vmulss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm12
-    vaddss  xmm2, xmm1, dword ptr [rdi]
-    vmulss  xmm0, xmm5, xmm3
-    vmulss  xmm1, xmm0, xmm12
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr [rsp+1A0h+end], xmm2
-    vaddss  xmm2, xmm1, dword ptr [rdi+4]
-    vmovss  dword ptr [rsp+1A0h+end+4], xmm2
-    vmovss  dword ptr [rsp+1A0h+end+8], xmm0
   }
+  _XMM2.m128_f32[0] = (float)((float)(*(float *)&_XMM4 * (float)(1.0 / *(float *)&_XMM0)) * 60.0) + p_origin->v[0];
+  v68.m128_f32[0] = (float)(v69 * (float)(1.0 / *(float *)&_XMM0)) * 60.0;
+  *(float *)&_XMM0 = p_origin->v[2];
+  end.v[0] = _XMM2.m128_f32[0];
+  end.v[1] = v68.m128_f32[0] + p_origin->v[1];
+  end.v[2] = *(float *)&_XMM0;
   if ( !DCONST_DVARBOOL_collAvoid_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v173);
-  if ( v173->current.enabled )
-    CG_DebugLine(_RDI, &end, &colorYellow, 0, 0);
-LABEL_22:
-  _R11 = &v217;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-20h]
-    vmovaps xmm7, xmmword ptr [r11-30h]
-    vmovaps xmm8, xmmword ptr [r11-40h]
-    vmovaps xmm9, xmmword ptr [r11-50h]
-    vmovaps xmm10, xmmword ptr [r11-60h]
-    vmovaps xmm11, xmmword ptr [r11-70h]
-    vmovaps xmm12, xmmword ptr [r11-80h]
-    vmovaps xmm13, xmmword ptr [r11-90h]
-    vmovaps xmm14, xmmword ptr [r11-0A0h]
-  }
+  Dvar_CheckFrontendServerThread(v66);
+  if ( v66->current.enabled )
+    CG_DebugLine(p_origin, &end, &colorYellow, 0, 0);
 }
 
 /*
@@ -1076,390 +865,229 @@ CollAvoid_CalculateLinearAvoidance
 
 void __fastcall CollAvoid_CalculateLinearAvoidance(LocalClientNum_t localClientNum, const playerState_s *ps, double deltaTime, CollAvoidItem *avoidItem, usercmd_s *cmd, vec3_t *inOutAvoidAgg)
 {
+  __int128 v7; 
+  float v10; 
+  float v11; 
+  float v12; 
   CgHandler *Handler; 
-  unsigned __int8 v39; 
-  unsigned __int8 v64; 
-  bool v65; 
-  char v66; 
-  const dvar_t *v88; 
-  const dvar_t *v133; 
-  const dvar_t *v144; 
-  const dvar_t *v151; 
-  const dvar_t *v176; 
+  vec3_t *p_origin; 
+  float v15; 
+  float v16; 
+  __int128 v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  __int128 v21; 
+  bool v22; 
+  bool v23; 
+  __int128 v28; 
+  const dvar_t *v29; 
+  const dvar_t *v30; 
+  const dvar_t *v31; 
+  __int128 v32; 
+  __int128 v37; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  const dvar_t *v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  const dvar_t *v53; 
+  float v54; 
+  const dvar_t *v55; 
+  const dvar_t *v56; 
+  const dvar_t *v57; 
+  float v58; 
+  float value; 
+  const dvar_t *v60; 
+  const dvar_t *v61; 
   vec3_t outVec; 
   vec3_t end; 
-  vec3_t v188; 
+  vec3_t v67; 
   vec3_t vec; 
-  vec3_t v190; 
-  WorldUpReferenceFrame v191; 
-  char v192; 
-  void *retaddr; 
+  vec3_t v69; 
+  WorldUpReferenceFrame v70; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
-  _RSI = inOutAvoidAgg;
-  _R14 = avoidItem;
-  __asm { vmovaps xmm15, xmm2 }
-  _RDI = ps;
+  v7 = *(_OWORD *)&deltaTime;
   ClActiveClientMP::GetClientMP(localClientNum);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vaddss  xmm1, xmm0, dword ptr [rdi+3Ch]
-    vmovss  xmm0, dword ptr [rdi+40h]
-    vmovss  dword ptr [rsp+1A0h+vec], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsi+4]
-    vmovss  xmm0, dword ptr [rdi+44h]
-    vmovss  dword ptr [rsp+1A0h+vec+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rsi+8]
-    vmovss  dword ptr [rbp+0A0h+vec+8], xmm1
-  }
+  v10 = ps->velocity.v[1];
+  vec.v[0] = inOutAvoidAgg->v[0] + ps->velocity.v[0];
+  v11 = v10 + inOutAvoidAgg->v[1];
+  v12 = ps->velocity.v[2];
+  vec.v[1] = v11;
+  vec.v[2] = v12 + inOutAvoidAgg->v[2];
   Handler = CgHandler::getHandler(localClientNum);
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v191, _RDI, Handler);
-  __asm
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v70, ps, Handler);
+  WorldUpReferenceFrame::SetUpContribution(&v70, 0.0, &vec);
+  p_origin = &avoidItem->origin;
+  v15 = avoidItem->origin.v[1] - ps->origin.v[1];
+  v69.v[0] = avoidItem->origin.v[0] - ps->origin.v[0];
+  v69.v[2] = avoidItem->origin.v[2] - ps->origin.v[2];
+  v69.v[1] = v15;
+  WorldUpReferenceFrame::SetUpContribution(&v70, 0.0, &v69);
+  v16 = vec.v[0] - avoidItem->velocity.v[0];
+  v18 = LODWORD(vec.v[1]);
+  *(float *)&v18 = vec.v[1] - avoidItem->velocity.v[1];
+  v17 = v18;
+  v19 = vec.v[2] - avoidItem->velocity.v[2];
+  if ( (float)((float)((float)(vec.v[0] * vec.v[0]) + (float)(vec.v[1] * vec.v[1])) + (float)(vec.v[2] * vec.v[2])) < (float)((float)((float)(*(float *)&v17 * *(float *)&v17) + (float)(v16 * v16)) + (float)(v19 * v19)) )
   {
-    vxorps  xmm1, xmm1, xmm1; height
-    vxorps  xmm14, xmm14, xmm14
+    v16 = vec.v[0];
+    v17 = LODWORD(vec.v[1]);
+    v19 = vec.v[2];
   }
-  WorldUpReferenceFrame::SetUpContribution(&v191, *(float *)&_XMM1, &vec);
-  _RBX = &_R14->origin;
-  __asm
+  v21 = LODWORD(v69.v[1]);
+  v20 = (float)(v69.v[1] * v69.v[1]) + (float)(v69.v[0] * v69.v[0]);
+  *(float *)&v21 = v20 + (float)(v69.v[2] * v69.v[2]);
+  v22 = *(float *)&v21 < 225.0;
+  v23 = cmd->forwardmove || cmd->rightmove;
+  if ( (float)((float)((float)(vec.v[0] * v69.v[0]) + (float)(v69.v[1] * vec.v[1])) + (float)(v69.v[2] * vec.v[2])) > 0.0 || !v23 || (float)(v20 + (float)(v69.v[2] * v69.v[2])) < 225.0 )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm1, xmm0, dword ptr [rdi+30h]
-    vmovss  xmm2, dword ptr [rbx+4]
-    vsubss  xmm0, xmm2, dword ptr [rdi+34h]
-    vmovss  dword ptr [rbp+0A0h+var_118], xmm1
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm2, xmm1, dword ptr [rdi+38h]
-    vxorps  xmm1, xmm1, xmm1; height
-    vmovss  dword ptr [rbp+0A0h+var_118+8], xmm2
-    vmovss  dword ptr [rbp+0A0h+var_118+4], xmm0
-  }
-  WorldUpReferenceFrame::SetUpContribution(&v191, *(float *)&_XMM1, &v190);
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rsp+1A0h+vec]
-    vmovss  xmm8, dword ptr [rsp+1A0h+vec+4]
-    vmovss  xmm9, dword ptr [rbp+0A0h+vec+8]
-    vsubss  xmm11, xmm7, dword ptr [r14+10h]
-    vsubss  xmm12, xmm8, dword ptr [r14+14h]
-    vsubss  xmm13, xmm9, dword ptr [r14+18h]
-    vmulss  xmm1, xmm7, xmm7
-    vmulss  xmm0, xmm8, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm3, xmm12, xmm12
-    vmulss  xmm0, xmm11, xmm11
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm1, xmm13, xmm13
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm4, xmm2
-  }
-  if ( v39 )
-  {
+    *(float *)&v21 = fsqrt(*(float *)&v21);
+    _XMM1 = v21;
     __asm
     {
-      vmovaps xmm11, xmm7
-      vmovaps xmm12, xmm8
-      vmovaps xmm13, xmm9
-    }
-  }
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbp+0A0h+var_118+4]
-    vmovss  xmm5, dword ptr [rbp+0A0h+var_118]
-    vmovss  xmm6, dword ptr [rbp+0A0h+var_118+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm10, xmm2, xmm1
-    vcomiss xmm10, cs:__real@43610000
-  }
-  v64 = v39;
-  v65 = cmd->forwardmove == 0;
-  if ( cmd->forwardmove || (v65 = cmd->rightmove == 0, cmd->rightmove) )
-  {
-    v66 = 1;
-  }
-  else
-  {
-    v66 = 0;
-    v65 = 1;
-  }
-  __asm
-  {
-    vmulss  xmm1, xmm7, xmm5
-    vmulss  xmm0, xmm4, xmm8
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm9
-    vaddss  xmm3, xmm2, xmm1
-    vcomiss xmm3, xmm14
-  }
-  if ( !v65 || (v65 = v66 == 0, !v66) || (v65 = v39 == 0, v39) )
-  {
-    __asm
-    {
-      vmovss  xmm9, cs:__real@3f800000
-      vsqrtss xmm1, xmm10, xmm10
-      vmovss  xmm10, cs:__real@80000000
       vcmpless xmm0, xmm1, xmm10
       vblendvps xmm0, xmm1, xmm9, xmm0
-      vdivss  xmm1, xmm9, xmm0
-      vmulss  xmm2, xmm5, xmm1
-      vmulss  xmm0, xmm4, xmm1
-      vmulss  xmm3, xmm6, xmm1
-      vmulss  xmm1, xmm12, xmm0
-      vmovss  dword ptr [rsp+1A0h+var_138+4], xmm0
-      vmulss  xmm0, xmm11, xmm2
-      vmovss  dword ptr [rsp+1A0h+var_138], xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm13, xmm3
-      vaddss  xmm6, xmm2, xmm1
-      vcomiss xmm6, xmm14
-      vmovss  dword ptr [rsp+1A0h+var_138+8], xmm3
     }
-    if ( v65 )
+    v28 = v17;
+    v67.v[1] = v69.v[1] * (float)(1.0 / *(float *)&_XMM0);
+    v67.v[0] = v69.v[0] * (float)(1.0 / *(float *)&_XMM0);
+    *(float *)&v28 = (float)((float)(*(float *)&v17 * v67.v[1]) + (float)(v16 * v67.v[0])) + (float)(v19 * (float)(v69.v[2] * (float)(1.0 / *(float *)&_XMM0)));
+    _XMM6 = v28;
+    v67.v[2] = v69.v[2] * (float)(1.0 / *(float *)&_XMM0);
+    if ( *(float *)&v28 <= 0.0 )
       goto LABEL_40;
-    _RDI = DCONST_DVARFLT_collAvoid_linearMinSpeed;
+    v29 = DCONST_DVARFLT_collAvoid_linearMinSpeed;
     if ( !DCONST_DVARFLT_collAvoid_linearMinSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_linearMinSpeed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-    if ( !v39 )
+    Dvar_CheckFrontendServerThread(v29);
+    if ( *(float *)&v28 >= v29->current.value )
     {
 LABEL_40:
-      _RDI = DCONST_DVARFLT_collAvoid_linearNearlyStoppedSpeed;
+      v56 = DCONST_DVARFLT_collAvoid_linearNearlyStoppedSpeed;
       if ( !DCONST_DVARFLT_collAvoid_linearNearlyStoppedSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_linearNearlyStoppedSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vcomiss xmm6, dword ptr [rdi+28h] }
-      if ( v39 )
+      Dvar_CheckFrontendServerThread(v56);
+      if ( *(float *)&v28 < v56->current.value )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+10h]
-          vmovss  xmm2, dword ptr [r14+14h]
-          vmovss  xmm3, dword ptr [r14+18h]
-        }
-        _RDI = DCONST_DVARFLT_collAvoid_linearNearlyStoppedSpeed;
-        __asm
-        {
-          vmulss  xmm1, xmm0, xmm0
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm8, xmm2, xmm1
-        }
+        v57 = DCONST_DVARFLT_collAvoid_linearNearlyStoppedSpeed;
+        v58 = (float)((float)(avoidItem->velocity.v[0] * avoidItem->velocity.v[0]) + (float)(avoidItem->velocity.v[1] * avoidItem->velocity.v[1])) + (float)(avoidItem->velocity.v[2] * avoidItem->velocity.v[2]);
         if ( !DCONST_DVARFLT_collAvoid_linearNearlyStoppedSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_linearNearlyStoppedSpeed") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RDI);
-        __asm { vmovss  xmm7, dword ptr [rdi+28h] }
-        v176 = DCONST_DVARFLT_collAvoid_linearNearlyStoppedSpeed;
+        Dvar_CheckFrontendServerThread(v57);
+        value = v57->current.value;
+        v60 = DCONST_DVARFLT_collAvoid_linearNearlyStoppedSpeed;
         if ( !DCONST_DVARFLT_collAvoid_linearNearlyStoppedSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_linearNearlyStoppedSpeed") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v176);
-        __asm
+        Dvar_CheckFrontendServerThread(v60);
+        if ( v58 < (float)(value * v60->current.value) )
         {
-          vmulss  xmm0, xmm7, dword ptr [rdi+28h]
-          vcomiss xmm8, xmm0
-        }
-        if ( v39 )
-        {
-          _RDI = DCONST_DVARFLT_collAvoid_linearMinSpeed;
+          v61 = DCONST_DVARFLT_collAvoid_linearMinSpeed;
           if ( !DCONST_DVARFLT_collAvoid_linearMinSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_linearMinSpeed") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RDI);
-          __asm { vmovss  xmm3, dword ptr [rdi+28h] }
-          _ER14 = 0;
-          _EAX = v64;
-          __asm
-          {
-            vmovd   xmm1, r14d
-            vmovd   xmm0, eax
-            vpcmpeqd xmm2, xmm0, xmm1
-            vmovss  xmm1, cs:__real@43160000
-            vblendvps xmm6, xmm1, xmm3, xmm2
-          }
+          Dvar_CheckFrontendServerThread(v61);
+          _XMM0 = v22;
+          __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+          _XMM1 = LODWORD(FLOAT_150_0);
+          __asm { vblendvps xmm6, xmm1, xmm3, xmm2 }
         }
       }
     }
     else
     {
-      _RDI = DCONST_DVARFLT_collAvoid_linearMinSpeed;
+      v30 = DCONST_DVARFLT_collAvoid_linearMinSpeed;
       if ( !DCONST_DVARFLT_collAvoid_linearMinSpeed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_linearMinSpeed") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vmovss  xmm6, dword ptr [rdi+28h] }
+      Dvar_CheckFrontendServerThread(v30);
+      _XMM6 = v30->current.unsignedInt;
     }
-    v88 = DCONST_DVARFLT_collAvoid_linearAccel;
+    v31 = DCONST_DVARFLT_collAvoid_linearAccel;
     if ( !DCONST_DVARFLT_collAvoid_linearAccel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_linearAccel") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v88);
+    Dvar_CheckFrontendServerThread(v31);
+    v32 = v7;
+    *(float *)&v32 = (float)(*(float *)&v7 * v31->current.value) * *(float *)&_XMM6;
+    _XMM3 = v32;
+    _XMM0 = _XMM6 & _xmm;
     __asm
     {
-      vmulss  xmm0, xmm15, dword ptr [rdi+28h]
-      vmovss  xmm7, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm3, xmm0, xmm6
-      vandps  xmm2, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vandps  xmm0, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
       vcmpltss xmm2, xmm0, xmm2
       vblendvps xmm8, xmm3, xmm6, xmm2
-      vxorps  xmm3, xmm8, xmm7
-      vmulss  xmm0, xmm3, dword ptr [rsp+1A0h+var_138]
-      vaddss  xmm1, xmm0, dword ptr [rsi]
-      vmulss  xmm2, xmm3, dword ptr [rsp+1A0h+var_138+4]
-      vaddss  xmm0, xmm2, dword ptr [rsi+4]
-      vmovss  dword ptr [rsi], xmm1
-      vmulss  xmm1, xmm3, dword ptr [rsp+1A0h+var_138+8]
-      vaddss  xmm2, xmm1, dword ptr [rsi+8]
-      vmovss  dword ptr [rsi+8], xmm2
-      vmovss  dword ptr [rsi+4], xmm0
     }
-    WorldUpReferenceFrame::CrossWithUp(&v191, &v188, &outVec);
+    *(float *)&_XMM0 = (float)(COERCE_FLOAT(_XMM8 ^ _xmm) * v67.v[1]) + inOutAvoidAgg->v[1];
+    inOutAvoidAgg->v[0] = (float)(COERCE_FLOAT(_XMM8 ^ _xmm) * v67.v[0]) + inOutAvoidAgg->v[0];
+    inOutAvoidAgg->v[2] = (float)(COERCE_FLOAT(_XMM8 ^ _xmm) * v67.v[2]) + inOutAvoidAgg->v[2];
+    inOutAvoidAgg->v[1] = *(float *)&_XMM0;
+    WorldUpReferenceFrame::CrossWithUp(&v70, &v67, &outVec);
+    v37 = LODWORD(outVec.v[0]);
+    *(float *)&v37 = fsqrt((float)((float)(*(float *)&v37 * *(float *)&v37) + (float)(outVec.v[1] * outVec.v[1])) + (float)(outVec.v[2] * outVec.v[2]));
+    _XMM3 = v37;
     __asm
     {
-      vmovss  xmm4, dword ptr [rsp+1A0h+outVec]
-      vmovss  xmm5, dword ptr [rsp+1A0h+outVec+4]
-      vmovss  xmm6, dword ptr [rsp+1A0h+outVec+8]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm0, xmm2, xmm1
-      vsqrtss xmm3, xmm0, xmm0
       vcmpless xmm0, xmm3, xmm10
       vblendvps xmm0, xmm3, xmm9, xmm0
-      vdivss  xmm1, xmm9, xmm0
-      vmulss  xmm4, xmm1, xmm4
-      vmulss  xmm5, xmm1, xmm5
-      vmulss  xmm6, xmm1, xmm6
-      vmulss  xmm1, xmm12, xmm5
-      vmulss  xmm0, xmm11, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm13
-      vaddss  xmm3, xmm2, xmm1
-      vcomiss xmm3, xmm14
-      vmovss  dword ptr [rsp+1A0h+outVec], xmm4
-      vmovss  dword ptr [rsp+1A0h+outVec+4], xmm5
-      vmovss  dword ptr [rsp+1A0h+outVec+8], xmm6
     }
-    if ( v39 )
+    v41 = (float)(1.0 / *(float *)&_XMM0) * outVec.v[0];
+    v42 = (float)(1.0 / *(float *)&_XMM0) * outVec.v[1];
+    v44 = (float)(1.0 / *(float *)&_XMM0) * outVec.v[2];
+    v43 = v44;
+    outVec.v[0] = v41;
+    outVec.v[1] = v42;
+    outVec.v[2] = v44;
+    if ( (float)((float)((float)(*(float *)&v17 * v42) + (float)(v16 * v41)) + (float)(v44 * v19)) < 0.0 )
     {
-      __asm
-      {
-        vxorps  xmm4, xmm4, xmm7
-        vxorps  xmm5, xmm5, xmm7
-        vxorps  xmm6, xmm6, xmm7
-        vmovss  dword ptr [rsp+1A0h+outVec], xmm4
-        vmovss  dword ptr [rsp+1A0h+outVec+4], xmm5
-        vmovss  dword ptr [rsp+1A0h+outVec+8], xmm6
-      }
+      LODWORD(v41) ^= _xmm;
+      LODWORD(v42) ^= _xmm;
+      LODWORD(v43) = LODWORD(v44) ^ _xmm;
+      outVec.v[0] = v41;
+      outVec.v[1] = v42;
+      LODWORD(outVec.v[2]) = LODWORD(v44) ^ _xmm;
     }
-    __asm
-    {
-      vmulss  xmm0, xmm4, xmm8
-      vaddss  xmm1, xmm0, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vmulss  xmm1, xmm6, xmm8
-      vmovss  xmm6, cs:__real@42700000
-      vmulss  xmm3, xmm6, dword ptr [rsp+1A0h+var_138+4]
-      vmulss  xmm2, xmm5, xmm8
-      vaddss  xmm0, xmm2, dword ptr [rsi+4]
-      vaddss  xmm2, xmm1, dword ptr [rsi+8]
-      vmovss  dword ptr [rsi+8], xmm2
-      vmulss  xmm2, xmm6, dword ptr [rsp+1A0h+var_138]
-      vmovss  dword ptr [rsi+4], xmm0
-      vmovss  xmm1, dword ptr [rbx]
-    }
-    v133 = DCONST_DVARBOOL_collAvoid_debug;
-    __asm
-    {
-      vsubss  xmm2, xmm1, xmm2
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmovss  dword ptr [rsp+1A0h+end], xmm2
-      vsubss  xmm2, xmm1, xmm3
-      vmulss  xmm3, xmm6, dword ptr [rsp+1A0h+var_138+8]
-      vmovss  xmm1, dword ptr [rbx+8]
-      vmovss  dword ptr [rsp+1A0h+end+4], xmm2
-      vsubss  xmm2, xmm1, xmm3
-      vmovss  dword ptr [rsp+1A0h+end+8], xmm2
-    }
+    inOutAvoidAgg->v[0] = (float)(v41 * *(float *)&_XMM8) + inOutAvoidAgg->v[0];
+    v45 = 60.0 * v67.v[1];
+    v46 = (float)(v42 * *(float *)&_XMM8) + inOutAvoidAgg->v[1];
+    inOutAvoidAgg->v[2] = (float)(v43 * *(float *)&_XMM8) + inOutAvoidAgg->v[2];
+    v47 = 60.0 * v67.v[0];
+    inOutAvoidAgg->v[1] = v46;
+    v48 = DCONST_DVARBOOL_collAvoid_debug;
+    v49 = avoidItem->origin.v[1];
+    end.v[0] = p_origin->v[0] - v47;
+    v50 = v49 - v45;
+    v51 = avoidItem->origin.v[2];
+    end.v[1] = v50;
+    end.v[2] = v51 - (float)(60.0 * v67.v[2]);
     if ( !DCONST_DVARBOOL_collAvoid_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v133);
-    if ( v133->current.enabled )
-      CG_DebugLine(_RBX, &end, &colorYellow, 0, 0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+1A0h+vec]
-      vaddss  xmm1, xmm0, dword ptr [rbx]
-      vmovss  xmm2, dword ptr [rsp+1A0h+vec+4]
-      vaddss  xmm0, xmm2, dword ptr [rbx+4]
-    }
-    v144 = DCONST_DVARBOOL_collAvoid_debug;
-    __asm
-    {
-      vmovss  dword ptr [rsp+1A0h+end], xmm1
-      vmovss  xmm1, dword ptr [rbp+0A0h+vec+8]
-      vaddss  xmm2, xmm1, dword ptr [rbx+8]
-      vmovss  dword ptr [rsp+1A0h+end+8], xmm2
-      vmovss  dword ptr [rsp+1A0h+end+4], xmm0
-    }
+    Dvar_CheckFrontendServerThread(v48);
+    if ( v48->current.enabled )
+      CG_DebugLine(p_origin, &end, &colorYellow, 0, 0);
+    v52 = vec.v[1] + avoidItem->origin.v[1];
+    v53 = DCONST_DVARBOOL_collAvoid_debug;
+    end.v[0] = vec.v[0] + p_origin->v[0];
+    end.v[2] = vec.v[2] + avoidItem->origin.v[2];
+    end.v[1] = v52;
     if ( !DCONST_DVARBOOL_collAvoid_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v144);
-    if ( v144->current.enabled )
-      CG_DebugLine(_RBX, &end, &colorGreen, 0, 0);
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rsp+1A0h+outVec]
-      vaddss  xmm2, xmm1, dword ptr [rbx]
-      vmulss  xmm1, xmm6, dword ptr [rsp+1A0h+outVec+4]
-      vaddss  xmm1, xmm1, dword ptr [rbx+4]
-    }
-    v151 = DCONST_DVARBOOL_collAvoid_debug;
-    __asm
-    {
-      vmovss  dword ptr [rsp+1A0h+end], xmm2
-      vmulss  xmm2, xmm6, dword ptr [rsp+1A0h+outVec+8]
-      vmovss  dword ptr [rsp+1A0h+end+4], xmm1
-      vaddss  xmm1, xmm2, dword ptr [rbx+8]
-      vmovss  dword ptr [rsp+1A0h+end+8], xmm1
-    }
+    Dvar_CheckFrontendServerThread(v53);
+    if ( v53->current.enabled )
+      CG_DebugLine(p_origin, &end, &colorGreen, 0, 0);
+    v54 = (float)(60.0 * outVec.v[1]) + avoidItem->origin.v[1];
+    v55 = DCONST_DVARBOOL_collAvoid_debug;
+    end.v[0] = (float)(60.0 * outVec.v[0]) + p_origin->v[0];
+    end.v[1] = v54;
+    end.v[2] = (float)(60.0 * outVec.v[2]) + avoidItem->origin.v[2];
     if ( !DCONST_DVARBOOL_collAvoid_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v151);
-    if ( v151->current.enabled )
-      CG_DebugLine(_RBX, &end, &colorRed, 0, 0);
-  }
-  _R11 = &v192;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, xmmword ptr [r11-0A8h]
+    Dvar_CheckFrontendServerThread(v55);
+    if ( v55->current.enabled )
+      CG_DebugLine(p_origin, &end, &colorRed, 0, 0);
   }
 }
 
@@ -1532,42 +1160,26 @@ void CollAvoid_DebugStar(const vec3_t *pos, const vec4_t *color, const int time)
 CollAvoid_DebugTraceLine
 ==============
 */
-
-void __fastcall CollAvoid_DebugTraceLine(const vec3_t *startPos, const vec3_t *endPos, double fraction, const vec4_t *color, const int time)
+void CollAvoid_DebugTraceLine(const vec3_t *startPos, const vec3_t *endPos, const float fraction, const vec4_t *color, const int time)
 {
-  const dvar_t *v6; 
+  const dvar_t *v5; 
+  float v10; 
+  float v11; 
   vec3_t end; 
 
-  __asm { vmovaps [rsp+88h+var_28], xmm6 }
-  v6 = DCONST_DVARBOOL_collAvoid_debug;
-  _RSI = endPos;
-  __asm { vmovaps xmm6, xmm2 }
+  v5 = DCONST_DVARBOOL_collAvoid_debug;
   if ( !DCONST_DVARBOOL_collAvoid_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm1, xmm0, dword ptr [rdi]
-      vmovss  xmm0, dword ptr [rsi+4]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rdi]
-      vsubss  xmm1, xmm0, dword ptr [rdi+4]
-      vmovss  xmm0, dword ptr [rsi+8]
-      vmulss  xmm2, xmm1, xmm6
-      vsubss  xmm1, xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rsp+88h+end], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rdi+4]
-      vmulss  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rsp+88h+end+4], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rdi+8]
-      vmovss  dword ptr [rsp+88h+end+8], xmm3
-    }
+    v10 = (float)(endPos->v[1] - startPos->v[1]) * fraction;
+    v11 = endPos->v[2] - startPos->v[2];
+    end.v[0] = (float)((float)(endPos->v[0] - startPos->v[0]) * fraction) + startPos->v[0];
+    end.v[1] = v10 + startPos->v[1];
+    end.v[2] = (float)(v11 * fraction) + startPos->v[2];
     CG_DebugLine(startPos, &end, color, 0, time);
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
 }
 
 /*
@@ -1575,42 +1187,26 @@ void __fastcall CollAvoid_DebugTraceLine(const vec3_t *startPos, const vec3_t *e
 CollAvoid_DebugTraceStar
 ==============
 */
-
-void __fastcall CollAvoid_DebugTraceStar(const vec3_t *startPos, const vec3_t *endPos, double fraction, const vec4_t *color, const int time)
+void CollAvoid_DebugTraceStar(const vec3_t *startPos, const vec3_t *endPos, const float fraction, const vec4_t *color, const int time)
 {
-  const dvar_t *v6; 
+  const dvar_t *v5; 
+  float v10; 
+  float v11; 
   vec3_t point; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  v6 = DCONST_DVARBOOL_collAvoid_debug;
-  _RDI = endPos;
-  __asm { vmovaps xmm6, xmm2 }
+  v5 = DCONST_DVARBOOL_collAvoid_debug;
   if ( !DCONST_DVARBOOL_collAvoid_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm1, xmm0, dword ptr [rsi]
-      vmovss  xmm0, dword ptr [rdi+4]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [rsi]
-      vsubss  xmm1, xmm0, dword ptr [rsi+4]
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmulss  xmm2, xmm1, xmm6
-      vsubss  xmm1, xmm0, dword ptr [rsi+8]
-      vmovss  dword ptr [rsp+78h+point], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rsi+4]
-      vmulss  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rsp+78h+point+4], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rsi+8]
-      vmovss  dword ptr [rsp+78h+point+8], xmm3
-    }
+    v10 = (float)(endPos->v[1] - startPos->v[1]) * fraction;
+    v11 = endPos->v[2] - startPos->v[2];
+    point.v[0] = (float)((float)(endPos->v[0] - startPos->v[0]) * fraction) + startPos->v[0];
+    point.v[1] = v10 + startPos->v[1];
+    point.v[2] = (float)(v11 * fraction) + startPos->v[2];
     CG_DebugStar(&point, color, 0, time);
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -1661,34 +1257,18 @@ bool CollAvoid_IsUsingAvoidance()
 CollAvoid_PredictAvoidItems
 ==============
 */
-
-void __fastcall CollAvoid_PredictAvoidItems(CollAvoidData *caData, double deltaTime)
+void CollAvoid_PredictAvoidItems(CollAvoidData *caData, float deltaTime)
 {
-  unsigned int v2; 
+  unsigned int i; 
+  __int64 v3; 
   __int64 v4; 
 
-  v2 = 0;
-  __asm { vmovaps xmm2, xmm1 }
-  if ( caData->avoidItemCount )
+  for ( i = 0; i < caData->avoidItemCount; caData->avoidItems[v4].origin.v[2] = (float)(deltaTime * caData->avoidItems[v3].velocity.v[2]) + caData->avoidItems[v3].origin.v[2] )
   {
-    do
-    {
-      v4 = v2++;
-      _RDX = 52 * v4;
-      __asm
-      {
-        vmulss  xmm0, xmm2, dword ptr [rdx+rcx+14h]
-        vaddss  xmm1, xmm0, dword ptr [rdx+rcx+8]
-        vmovss  dword ptr [rdx+rcx+8], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rdx+rcx+18h]
-        vaddss  xmm1, xmm0, dword ptr [rdx+rcx+0Ch]
-        vmovss  dword ptr [rdx+rcx+0Ch], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rdx+rcx+1Ch]
-        vaddss  xmm1, xmm0, dword ptr [rdx+rcx+10h]
-        vmovss  dword ptr [rdx+rcx+10h], xmm1
-      }
-    }
-    while ( v2 < caData->avoidItemCount );
+    v3 = i++;
+    v4 = v3;
+    caData->avoidItems[v4].origin.v[0] = (float)(deltaTime * caData->avoidItems[v3].velocity.v[0]) + caData->avoidItems[v3].origin.v[0];
+    caData->avoidItems[v4].origin.v[1] = (float)(deltaTime * caData->avoidItems[v3].velocity.v[1]) + caData->avoidItems[v3].origin.v[1];
   }
 }
 
@@ -1768,46 +1348,46 @@ CollAvoid_ShouldAvoidTarget
 bool CollAvoid_ShouldAvoidTarget(LocalClientNum_t localClientNum, const playerState_s *ps, CollAvoidItem *avoidItem)
 {
   EffectiveStance EffectiveStance; 
-  bool result; 
+  const Bounds *Bounds; 
+  double v8; 
+  float v9; 
+  const dvar_t *v10; 
+  float v11; 
+  CgHandler *Handler; 
+  float v13; 
+  vec3_t vec; 
+  __int128 v16; 
+  double v17; 
+  WorldUpReferenceFrame v18; 
 
-  __asm { vmovaps [rsp+0C8h+var_28], xmm6 }
-  if ( avoidItem->entityNum != ps->clientNum )
-  {
-    EffectiveStance = PM_GetEffectiveStance(ps);
-    _RAX = BG_Suit_GetBounds(ps->suitIndex, EffectiveStance);
-    _RDI = &avoidItem->bounds;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax]
-      vmovsd  xmm0, qword ptr [rax+10h]
-      vmovups [rsp+0C8h+var_78], xmm1
-      vmovsd  [rsp+0C8h+var_68], xmm0
-      vmovss  xmm0, dword ptr [rsp+0C8h+var_78+8]
-      vaddss  xmm6, xmm0, dword ptr [rbx+38h]
-      vmovss  xmm0, dword ptr [rdi]
-      vaddss  xmm1, xmm0, dword ptr [rsi+4]
-      vmovss  dword ptr [rdi], xmm1
-      vmovss  xmm2, dword ptr [rdi+4]
-      vaddss  xmm0, xmm2, dword ptr [rsi+8]
-      vmovss  dword ptr [rdi+4], xmm0
-      vmovss  xmm1, dword ptr [rdi+8]
-      vaddss  xmm2, xmm1, dword ptr [rsi+0Ch]
-      vmovss  dword ptr [rdi+8], xmm2
-    }
-    if ( avoidItem == (CollAvoidItem *)-28i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 581, ASSERT_TYPE_ASSERT, "(b1)", (const char *)&queryFormat, "b1") )
-      __debugbreak();
-    __asm
-    {
-      vsubss  xmm2, xmm6, dword ptr [rdi+8]
-      vmovss  xmm0, dword ptr [rsp+0C8h+var_68+4]
-      vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vaddss  xmm1, xmm0, dword ptr [rdi+14h]
-      vcomiss xmm2, xmm1
-    }
-  }
-  result = 0;
-  __asm { vmovaps xmm6, [rsp+0C8h+var_28] }
-  return result;
+  if ( avoidItem->entityNum == ps->clientNum )
+    return 0;
+  EffectiveStance = PM_GetEffectiveStance(ps);
+  Bounds = BG_Suit_GetBounds(ps->suitIndex, EffectiveStance);
+  v8 = *(double *)&Bounds->halfSize.y;
+  v16 = *(_OWORD *)Bounds->midPoint.v;
+  v17 = v8;
+  v9 = *((float *)&v16 + 2) + ps->origin.v[2];
+  avoidItem->bounds.midPoint.v[0] = avoidItem->bounds.midPoint.v[0] + avoidItem->origin.v[0];
+  avoidItem->bounds.midPoint.v[1] = avoidItem->bounds.midPoint.v[1] + avoidItem->origin.v[1];
+  avoidItem->bounds.midPoint.v[2] = avoidItem->bounds.midPoint.v[2] + avoidItem->origin.v[2];
+  if ( avoidItem == (CollAvoidItem *)-28i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 581, ASSERT_TYPE_ASSERT, "(b1)", (const char *)&queryFormat, "b1") )
+    __debugbreak();
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v9 - avoidItem->bounds.midPoint.v[2]) & _xmm) >= (float)(*((float *)&v17 + 1) + avoidItem->bounds.halfSize.v[2]) )
+    return 0;
+  v10 = DCONST_DVARFLT_collAvoid_additionalAvoidDistance;
+  if ( !DCONST_DVARFLT_collAvoid_additionalAvoidDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_additionalAvoidDistance") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v10);
+  v11 = (float)(avoidItem->bounds.halfSize.v[0] + 15.0) + v10->current.value;
+  Handler = CgHandler::getHandler(localClientNum);
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v18, ps, Handler);
+  v13 = avoidItem->origin.v[1] - ps->origin.v[1];
+  vec.v[0] = avoidItem->origin.v[0] - ps->origin.v[0];
+  vec.v[2] = avoidItem->origin.v[2] - ps->origin.v[2];
+  vec.v[1] = v13;
+  WorldUpReferenceFrame::SetUpContribution(&v18, 0.0, &vec);
+  return (float)((float)((float)(vec.v[1] * vec.v[1]) + (float)(vec.v[0] * vec.v[0])) + (float)(vec.v[2] * vec.v[2])) < (float)(v11 * v11);
 }
 
 /*
@@ -1912,189 +1492,109 @@ void CollAvoid_UpdateAvoidTargets(LocalClientNum_t localClientNum)
 CollAvoid_UpdateMoveCmd
 ==============
 */
-
-void __fastcall CollAvoid_UpdateMoveCmd(LocalClientNum_t localClientNum, const playerState_s *ps, double deltaTime, usercmd_s *cmd)
+void CollAvoid_UpdateMoveCmd(LocalClientNum_t localClientNum, const playerState_s *ps, double deltaTime, usercmd_s *cmd)
 {
+  __int64 v4; 
+  unsigned int v7; 
+  CollAvoidData *v8; 
+  unsigned int i; 
+  __int64 v10; 
   __int64 v11; 
-  unsigned int v15; 
-  unsigned int v17; 
-  __int64 v18; 
-  const dvar_t *v29; 
+  float v12; 
+  float v13; 
+  float v14; 
+  const dvar_t *v15; 
+  float v16; 
   CgHandler *Handler; 
-  int v91; 
+  __int128 v18; 
+  __int128 v22; 
+  int v27; 
   vec3_t forward; 
   vec3_t right; 
   vec3_t angles; 
-  WorldUpReferenceFrame v95; 
-  char v96; 
-  void *retaddr; 
+  WorldUpReferenceFrame v31; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-  }
-  v11 = localClientNum;
-  _R12 = ps;
-  __asm { vmovaps xmm6, xmm2 }
+  v4 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v91 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 95, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v91) )
+    v27 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_collision_avoid.cpp", 95, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v27) )
       __debugbreak();
   }
-  v15 = 0;
-  _RBX = &s_collAvoidDatas[v11];
-  v17 = 0;
-  while ( v17 < _RBX->avoidItemCount )
+  v7 = 0;
+  v8 = &s_collAvoidDatas[v4];
+  for ( i = 0; i < v8->avoidItemCount; v8->avoidItems[v11].origin.v[2] = (float)(*(float *)&deltaTime * v8->avoidItems[v10].velocity.v[2]) + v8->avoidItems[v10].origin.v[2] )
   {
-    v18 = v17++;
-    _RCX = 52 * v18;
-    __asm
-    {
-      vmulss  xmm0, xmm6, dword ptr [rcx+rbx+14h]
-      vaddss  xmm1, xmm0, dword ptr [rcx+rbx+8]
-      vmovss  dword ptr [rcx+rbx+8], xmm1
-      vmulss  xmm0, xmm6, dword ptr [rcx+rbx+18h]
-      vaddss  xmm1, xmm0, dword ptr [rcx+rbx+0Ch]
-      vmovss  dword ptr [rcx+rbx+0Ch], xmm1
-      vmulss  xmm0, xmm6, dword ptr [rcx+rbx+1Ch]
-      vaddss  xmm1, xmm0, dword ptr [rcx+rbx+10h]
-      vmovss  dword ptr [rcx+rbx+10h], xmm1
-    }
+    v10 = i++;
+    v11 = v10;
+    v8->avoidItems[v11].origin.v[0] = (float)(*(float *)&deltaTime * v8->avoidItems[v10].velocity.v[0]) + v8->avoidItems[v10].origin.v[0];
+    v8->avoidItems[v11].origin.v[1] = (float)(*(float *)&deltaTime * v8->avoidItems[v10].velocity.v[1]) + v8->avoidItems[v10].origin.v[1];
   }
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vxorps  xmm10, xmm10, xmm10
-    vxorps  xmm11, xmm11, xmm11
-  }
+  v12 = 0.0;
+  v13 = 0.0;
+  v14 = 0.0;
   *(_DWORD *)&cmd->avoidForward = 0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+130h+forward], xmm9
-    vmovss  dword ptr [rsp+130h+forward+4], xmm10
-    vmovss  dword ptr [rsp+130h+forward+8], xmm11
-  }
-  if ( _RBX->avoidItemCount )
+  forward.v[0] = 0.0;
+  forward.v[1] = 0.0;
+  forward.v[2] = 0.0;
+  if ( v8->avoidItemCount )
   {
     do
     {
-      if ( CollAvoid_ShouldAvoidTarget((LocalClientNum_t)v11, _R12, &_RBX->avoidItems[v15]) )
+      if ( CollAvoid_ShouldAvoidTarget((LocalClientNum_t)v4, ps, &v8->avoidItems[v7]) )
       {
-        v29 = DCONST_DVARINT_collAvoid_avoidType;
+        v15 = DCONST_DVARINT_collAvoid_avoidType;
         if ( !DCONST_DVARINT_collAvoid_avoidType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "collAvoid_avoidType") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v29);
-        if ( v29->current.integer == 1 )
+        Dvar_CheckFrontendServerThread(v15);
+        if ( v15->current.integer == 1 )
         {
-          __asm { vmovaps xmm2, xmm6; deltaTime }
-          CollAvoid_CalculateLinearAvoidance((LocalClientNum_t)v11, _R12, *(double *)&_XMM2, &_RBX->avoidItems[v15], cmd, &forward);
+          CollAvoid_CalculateLinearAvoidance((LocalClientNum_t)v4, ps, deltaTime, &v8->avoidItems[v7], cmd, &forward);
         }
-        else if ( v29->current.integer == 2 )
+        else if ( v15->current.integer == 2 )
         {
-          __asm { vmovaps xmm2, xmm6; deltaTime }
-          CollAvoid_CalculateCmdAvoidance((LocalClientNum_t)v11, _R12, *(float *)&_XMM2, &_RBX->avoidItems[v15], cmd);
+          CollAvoid_CalculateCmdAvoidance((LocalClientNum_t)v4, ps, *(float *)&deltaTime, &v8->avoidItems[v7], cmd);
         }
       }
-      ++v15;
+      ++v7;
     }
-    while ( v15 < _RBX->avoidItemCount );
-    __asm
-    {
-      vmovss  xmm11, dword ptr [rsp+130h+forward+8]
-      vmovss  xmm10, dword ptr [rsp+130h+forward+4]
-      vmovss  xmm9, dword ptr [rsp+130h+forward]
-    }
+    while ( v7 < v8->avoidItemCount );
+    v14 = forward.v[2];
+    v13 = forward.v[1];
+    v12 = forward.v[0];
   }
-  ClActiveClientMP::GetClientMP((const LocalClientNum_t)v11);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r12+1D8h]
-    vmovss  xmm1, dword ptr [r12+1DCh]
-    vmovss  dword ptr [rsp+130h+angles], xmm0
-    vmovss  xmm0, dword ptr [r12+1E0h]
-    vmovss  dword ptr [rsp+130h+angles+8], xmm0
-    vmovss  dword ptr [rsp+130h+angles+4], xmm1
-  }
+  ClActiveClientMP::GetClientMP((const LocalClientNum_t)v4);
+  v16 = ps->viewangles.v[1];
+  angles.v[0] = ps->viewangles.v[0];
+  angles.v[2] = ps->viewangles.v[2];
+  angles.v[1] = v16;
   AngleVectors(&angles, &forward, &right, NULL);
-  Handler = CgHandler::getHandler((LocalClientNum_t)v11);
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v95, _R12, Handler);
-  __asm { vxorps  xmm1, xmm1, xmm1; height }
-  WorldUpReferenceFrame::SetUpContribution(&v95, *(float *)&_XMM1, &forward);
+  Handler = CgHandler::getHandler((LocalClientNum_t)v4);
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v31, ps, Handler);
+  WorldUpReferenceFrame::SetUpContribution(&v31, 0.0, &forward);
+  v18 = LODWORD(forward.v[0]);
+  *(float *)&v18 = fsqrt((float)((float)(*(float *)&v18 * *(float *)&v18) + (float)(forward.v[1] * forward.v[1])) + (float)(forward.v[2] * forward.v[2]));
+  _XMM3 = v18;
   __asm
   {
-    vmovss  xmm5, dword ptr [rsp+130h+forward]
-    vmovss  xmm6, dword ptr [rsp+130h+forward+4]
-    vmovss  xmm4, dword ptr [rsp+130h+forward+8]
-    vmovss  xmm8, cs:__real@3f800000
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm3, xmm8, xmm0
-    vmulss  xmm0, xmm5, xmm3
-    vmovss  dword ptr [rsp+130h+forward], xmm0
-    vmulss  xmm0, xmm4, xmm3
-    vmulss  xmm2, xmm6, xmm3
-    vxorps  xmm1, xmm1, xmm1; height
-    vmovss  dword ptr [rsp+130h+forward+8], xmm0
-    vmovss  dword ptr [rsp+130h+forward+4], xmm2
   }
-  WorldUpReferenceFrame::SetUpContribution(&v95, *(float *)&_XMM1, &right);
+  forward.v[0] = forward.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  forward.v[2] = forward.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  forward.v[1] = forward.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  WorldUpReferenceFrame::SetUpContribution(&v31, 0.0, &right);
+  v22 = LODWORD(right.v[0]);
+  *(float *)&v22 = fsqrt((float)((float)(*(float *)&v22 * *(float *)&v22) + (float)(right.v[1] * right.v[1])) + (float)(right.v[2] * right.v[2]));
+  _XMM3 = v22;
   __asm
   {
-    vmovss  xmm4, dword ptr [rsp+130h+right+8]
-    vmovss  xmm5, dword ptr [rsp+130h+right+4]
-    vmovss  xmm6, dword ptr [rsp+130h+right]
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vmulss  xmm2, xmm9, dword ptr [rsp+130h+forward]
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vmulss  xmm3, xmm10, dword ptr [rsp+130h+forward+4]
-    vdivss  xmm1, xmm8, xmm0
-    vmulss  xmm6, xmm6, xmm1
-    vmulss  xmm7, xmm4, xmm1
-    vmulss  xmm5, xmm5, xmm1
-    vmulss  xmm1, xmm11, dword ptr [rsp+130h+forward+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm0, xmm2, cs:__real@42c80000
-    vcvttss2si eax, xmm0
-    vmulss  xmm0, xmm6, xmm9
-    vmulss  xmm1, xmm5, xmm10
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm11
-    vaddss  xmm2, xmm2, xmm1
-    vmulss  xmm0, xmm2, cs:__real@42c80000
   }
-  cmd->avoidForward = _EAX;
-  __asm { vcvttss2si eax, xmm0 }
-  cmd->avoidRight = _EAX;
-  _R11 = &v96;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-  }
+  *(float *)&v22 = (float)((float)((float)((float)(right.v[1] * (float)(1.0 / *(float *)&_XMM0)) * v13) + (float)((float)(right.v[0] * (float)(1.0 / *(float *)&_XMM0)) * v12)) + (float)((float)(right.v[2] * (float)(1.0 / *(float *)&_XMM0)) * v14)) * 100.0;
+  cmd->avoidForward = (int)(float)((float)((float)((float)(v13 * forward.v[1]) + (float)(v12 * forward.v[0])) + (float)(v14 * forward.v[2])) * 100.0);
+  cmd->avoidRight = (int)*(float *)&v22;
 }
 
 /*
@@ -2104,111 +1604,51 @@ CollAvoid_WriteAvoidanceToCmd
 */
 void CollAvoid_WriteAvoidanceToCmd(LocalClientNum_t localClientNum, const playerState_s *ps, usercmd_s *cmd, const vec3_t *avoidAgg)
 {
+  float v8; 
   CgHandler *Handler; 
+  __int128 v10; 
+  __int128 v14; 
+  float v15; 
+  float v16; 
+  __int128 v17; 
   vec3_t forward; 
   vec3_t right; 
   vec3_t angles; 
-  WorldUpReferenceFrame v76; 
-  char v77; 
-  void *retaddr; 
+  WorldUpReferenceFrame v24; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-  }
-  _RDI = ps;
   ClActiveClientMP::GetClientMP(localClientNum);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+1D8h]
-    vmovss  xmm1, dword ptr [rdi+1DCh]
-    vmovss  dword ptr [rsp+0E8h+angles], xmm0
-    vmovss  xmm0, dword ptr [rdi+1E0h]
-    vmovss  dword ptr [rsp+0E8h+angles+8], xmm0
-    vmovss  dword ptr [rsp+0E8h+angles+4], xmm1
-  }
+  v8 = ps->viewangles.v[1];
+  angles.v[0] = ps->viewangles.v[0];
+  angles.v[2] = ps->viewangles.v[2];
+  angles.v[1] = v8;
   AngleVectors(&angles, &forward, &right, NULL);
   Handler = CgHandler::getHandler(localClientNum);
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v76, _RDI, Handler);
-  __asm { vxorps  xmm1, xmm1, xmm1; height }
-  WorldUpReferenceFrame::SetUpContribution(&v76, *(float *)&_XMM1, &forward);
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v24, ps, Handler);
+  WorldUpReferenceFrame::SetUpContribution(&v24, 0.0, &forward);
+  v10 = LODWORD(forward.v[0]);
+  *(float *)&v10 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(forward.v[1] * forward.v[1])) + (float)(forward.v[2] * forward.v[2]));
+  _XMM3 = v10;
   __asm
   {
-    vmovss  xmm5, dword ptr [rsp+0E8h+forward]
-    vmovss  xmm6, dword ptr [rsp+0E8h+forward+4]
-    vmovss  xmm4, dword ptr [rsp+0E8h+forward+8]
-    vmovss  xmm11, cs:__real@3f800000
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm11, xmm0
-    vdivss  xmm3, xmm11, xmm0
-    vmulss  xmm0, xmm5, xmm3
-    vmovss  dword ptr [rsp+0E8h+forward], xmm0
-    vmulss  xmm0, xmm4, xmm3
-    vmulss  xmm2, xmm6, xmm3
-    vxorps  xmm1, xmm1, xmm1; height
-    vmovss  dword ptr [rsp+0E8h+forward+8], xmm0
-    vmovss  dword ptr [rsp+0E8h+forward+4], xmm2
   }
-  WorldUpReferenceFrame::SetUpContribution(&v76, *(float *)&_XMM1, &right);
+  forward.v[0] = forward.v[0] * (float)(1.0 / *(float *)&_XMM0);
+  forward.v[2] = forward.v[2] * (float)(1.0 / *(float *)&_XMM0);
+  forward.v[1] = forward.v[1] * (float)(1.0 / *(float *)&_XMM0);
+  WorldUpReferenceFrame::SetUpContribution(&v24, 0.0, &right);
+  v14 = LODWORD(right.v[0]);
+  v15 = right.v[1];
+  v16 = right.v[2];
+  v17 = v14;
+  *(float *)&v17 = fsqrt((float)((float)(*(float *)&v14 * *(float *)&v14) + (float)(v15 * v15)) + (float)(v16 * v16));
+  _XMM3 = v17;
   __asm
   {
-    vmovss  xmm8, dword ptr [rsp+0E8h+right]
-    vmovss  xmm9, dword ptr [rsp+0E8h+right+4]
-    vmovss  xmm10, dword ptr [rsp+0E8h+right+8]
-    vmulss  xmm1, xmm8, xmm8
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  xmm1, dword ptr [rsp+0E8h+forward+4]
-    vmulss  xmm2, xmm1, dword ptr [rsi+4]
-    vsqrtss xmm3, xmm0, xmm0
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm11, xmm0
-    vdivss  xmm6, xmm11, xmm0
-    vmovss  xmm0, dword ptr [rsp+0E8h+forward]
-    vmulss  xmm3, xmm0, dword ptr [rsi]
-    vmovss  xmm0, dword ptr [rsp+0E8h+forward+8]
-    vmulss  xmm1, xmm0, dword ptr [rsi+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm0, xmm2, cs:__real@42c80000
-    vcvttss2si eax, xmm0
   }
-  cmd->avoidForward = _EAX;
-  __asm
-  {
-    vmulss  xmm1, xmm8, xmm6
-    vmulss  xmm3, xmm1, dword ptr [rsi]
-    vmulss  xmm0, xmm9, xmm6
-    vmulss  xmm2, xmm0, dword ptr [rsi+4]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm1, xmm10, xmm6
-    vmulss  xmm0, xmm1, dword ptr [rsi+8]
-    vaddss  xmm2, xmm4, xmm0
-    vmulss  xmm3, xmm2, cs:__real@42c80000
-    vcvttss2si eax, xmm3
-  }
-  cmd->avoidRight = _EAX;
-  _R11 = &v77;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
-  }
+  cmd->avoidForward = (int)(float)((float)((float)((float)(forward.v[0] * avoidAgg->v[0]) + (float)(forward.v[1] * avoidAgg->v[1])) + (float)(forward.v[2] * avoidAgg->v[2])) * 100.0);
+  cmd->avoidRight = (int)(float)((float)((float)((float)((float)(*(float *)&v14 * (float)(1.0 / *(float *)&_XMM0)) * avoidAgg->v[0]) + (float)((float)(v15 * (float)(1.0 / *(float *)&_XMM0)) * avoidAgg->v[1])) + (float)((float)(v16 * (float)(1.0 / *(float *)&_XMM0)) * avoidAgg->v[2])) * 100.0);
 }
 

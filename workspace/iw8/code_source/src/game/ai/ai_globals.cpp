@@ -285,145 +285,125 @@ const float *Get3DCoverAngleLimits(unsigned __int16 nodeType, int *outLimitsCoun
 GetAnimSpeedBetweenThresholdEntries
 ==============
 */
-
-float __fastcall GetAnimSpeedBetweenThresholdEntries(scr_string_t archetypeName, scr_string_t firstThresholdName, scr_string_t secondThresholdName, double fractionValue)
+float GetAnimSpeedBetweenThresholdEntries(scr_string_t archetypeName, scr_string_t firstThresholdName, scr_string_t secondThresholdName, float fractionValue)
 {
-  scr_string_t *v9; 
+  scr_string_t *v6; 
+  int v7; 
+  int v9; 
+  __int64 v10; 
   int v11; 
+  int v12; 
+  int v13; 
   int v14; 
-  __int64 v15; 
+  int v15; 
   int v16; 
   int v17; 
   int v18; 
   int v19; 
-  int v20; 
-  int v21; 
-  int v22; 
-  int v23; 
-  int v24; 
-  const char *v25; 
-  const char *v26; 
-  const char *v27; 
-  const char *v28; 
+  const char *v20; 
+  const char *v21; 
+  const char *v22; 
+  const char *v23; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  v9 = &s_animSpeedThresholdTables;
-  __asm { vmovaps xmm6, xmm3 }
-  v11 = 0;
-  while ( *v9 != archetypeName )
+  v6 = &s_animSpeedThresholdTables;
+  v7 = 0;
+  while ( *v6 != archetypeName )
   {
-    ++v11;
-    v9 += 17;
-    if ( (__int64)v9 >= (__int64)s_MaxSpeedForPathTable )
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@bf800000
-        vmovaps xmm6, [rsp+68h+var_28]
-      }
-      return *(float *)&_XMM0;
-    }
+    ++v7;
+    v6 += 17;
+    if ( (__int64)v6 >= (__int64)s_MaxSpeedForPathTable )
+      return FLOAT_N1_0;
   }
-  v14 = -1;
-  v15 = 68i64 * v11;
-  v16 = -1;
-  v17 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 4);
+  v9 = -1;
+  v10 = 68i64 * v7;
+  v11 = -1;
+  v12 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 4);
+  if ( v12 == firstThresholdName )
+  {
+    v9 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 8);
+  }
+  else if ( v12 == secondThresholdName )
+  {
+    v11 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 8);
+  }
+  v13 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 12);
+  if ( v13 == firstThresholdName )
+  {
+    v9 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 16);
+  }
+  else if ( v13 == secondThresholdName )
+  {
+    v11 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 16);
+  }
+  v14 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 20);
+  if ( v14 == firstThresholdName )
+  {
+    v9 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 24);
+  }
+  else if ( v14 == secondThresholdName )
+  {
+    v11 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 24);
+  }
+  v15 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 28);
+  if ( v15 == firstThresholdName )
+  {
+    v9 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 32);
+  }
+  else if ( v15 == secondThresholdName )
+  {
+    v11 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 32);
+  }
+  v16 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 36);
+  if ( v16 == firstThresholdName )
+  {
+    v9 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 40);
+  }
+  else if ( v16 == secondThresholdName )
+  {
+    v11 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 40);
+  }
+  v17 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 44);
   if ( v17 == firstThresholdName )
   {
-    v14 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 8);
+    v9 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 48);
   }
   else if ( v17 == secondThresholdName )
   {
-    v16 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 8);
+    v11 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 48);
   }
-  v18 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 12);
+  v18 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 52);
   if ( v18 == firstThresholdName )
   {
-    v14 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 16);
+    v9 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 56);
   }
   else if ( v18 == secondThresholdName )
   {
-    v16 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 16);
+    v11 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 56);
   }
-  v19 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 20);
+  v19 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 60);
   if ( v19 == firstThresholdName )
   {
-    v14 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 24);
+    v9 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 64);
   }
   else if ( v19 == secondThresholdName )
   {
-    v16 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 24);
+    v11 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v10 + 64);
   }
-  v20 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 28);
-  if ( v20 == firstThresholdName )
+  if ( v9 <= 0 )
   {
-    v14 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 32);
-  }
-  else if ( v20 == secondThresholdName )
-  {
-    v16 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 32);
-  }
-  v21 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 36);
-  if ( v21 == firstThresholdName )
-  {
-    v14 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 40);
-  }
-  else if ( v21 == secondThresholdName )
-  {
-    v16 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 40);
-  }
-  v22 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 44);
-  if ( v22 == firstThresholdName )
-  {
-    v14 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 48);
-  }
-  else if ( v22 == secondThresholdName )
-  {
-    v16 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 48);
-  }
-  v23 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 52);
-  if ( v23 == firstThresholdName )
-  {
-    v14 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 56);
-  }
-  else if ( v23 == secondThresholdName )
-  {
-    v16 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 56);
-  }
-  v24 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 60);
-  if ( v24 == firstThresholdName )
-  {
-    v14 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 64);
-  }
-  else if ( v24 == secondThresholdName )
-  {
-    v16 = *(scr_string_t *)((char *)&s_animSpeedThresholdTables + v15 + 64);
-  }
-  if ( v14 <= 0 )
-  {
-    v25 = SL_ConvertToString(firstThresholdName);
-    v26 = SL_ConvertToString(archetypeName);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_globals.cpp", 585, ASSERT_TYPE_ASSERT, "(firstValue > 0)", "%s\n\t%s archetype does not have a %s speed threshold table entry", "firstValue > 0", v26, v25) )
+    v20 = SL_ConvertToString(firstThresholdName);
+    v21 = SL_ConvertToString(archetypeName);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_globals.cpp", 585, ASSERT_TYPE_ASSERT, "(firstValue > 0)", "%s\n\t%s archetype does not have a %s speed threshold table entry", "firstValue > 0", v21, v20) )
       __debugbreak();
   }
-  if ( v16 <= 0 )
+  if ( v11 <= 0 )
   {
-    v27 = SL_ConvertToString(secondThresholdName);
-    v28 = SL_ConvertToString(archetypeName);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_globals.cpp", 586, ASSERT_TYPE_ASSERT, "(secondValue > 0)", "%s\n\t%s archetype does not have a %s speed threshold table entry", "secondValue > 0", v28, v27) )
+    v22 = SL_ConvertToString(secondThresholdName);
+    v23 = SL_ConvertToString(archetypeName);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_globals.cpp", 586, ASSERT_TYPE_ASSERT, "(secondValue > 0)", "%s\n\t%s archetype does not have a %s speed threshold table entry", "secondValue > 0", v23, v22) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edi
-    vmulss  xmm2, xmm0, xmm6
-    vmovaps xmm6, [rsp+68h+var_28]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, esi
-    vaddss  xmm0, xmm2, xmm1
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)(v11 - v9) * fractionValue) + (float)v9;
 }
 
 /*
@@ -471,16 +451,9 @@ void GetApproxGunParams(const weapClass_t weaponClass, ApproxGunParams *paramsOu
   __int64 v2; 
 
   v2 = weaponClass;
-  _RDI = paramsOut;
   if ( weaponClass >= WEAPCLASS_NUM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_globals.cpp", 641, ASSERT_TYPE_ASSERT, "(weaponClass < WEAPCLASS_NUM)", (const char *)&queryFormat, "weaponClass < WEAPCLASS_NUM") )
     __debugbreak();
-  _RCX = g_ApproxGunParamTable;
-  _RAX = 2 * v2;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx+rax*8]
-    vmovups xmmword ptr [rdi], xmm0
-  }
+  *paramsOut = g_ApproxGunParamTable[v2];
 }
 
 /*
@@ -565,42 +538,36 @@ GetMaxAnimSpeedThreshold
 */
 float GetMaxAnimSpeedThreshold(scr_string_t archetypeName)
 {
-  scr_string_t *v2; 
-  __int64 v3; 
-  _DWORD *v4; 
-  int v5; 
-  const char *v6; 
+  scr_string_t *v1; 
+  __int64 v2; 
+  _DWORD *v3; 
+  int v4; 
+  const char *v5; 
 
-  v2 = &s_animSpeedThresholdTables;
-  while ( *v2 != archetypeName )
+  v1 = &s_animSpeedThresholdTables;
+  while ( *v1 != archetypeName )
   {
 LABEL_6:
-    v2 += 17;
-    if ( (__int64)v2 >= (__int64)s_MaxSpeedForPathTable )
+    v1 += 17;
+    if ( (__int64)v1 >= (__int64)s_MaxSpeedForPathTable )
     {
-      v6 = SL_ConvertToString(archetypeName);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_globals.cpp", 610, ASSERT_TYPE_ASSERT, "(false)", "%s\n\t%s archetype has no valid max anim speed threshold", "false", v6) )
+      v5 = SL_ConvertToString(archetypeName);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_globals.cpp", 610, ASSERT_TYPE_ASSERT, "(false)", "%s\n\t%s archetype has no valid max anim speed threshold", "false", v5) )
         __debugbreak();
-      __asm { vmovss  xmm0, cs:__real@437a0000 }
-      return *(float *)&_XMM0;
+      return FLOAT_250_0;
     }
   }
-  v3 = 7i64;
-  v4 = v2 + 15;
-  v5 = 7;
-  while ( !*v4 )
+  v2 = 7i64;
+  v3 = v1 + 15;
+  v4 = 7;
+  while ( !*v3 )
   {
-    --v5;
-    v4 -= 2;
-    if ( --v3 < 0 )
+    --v4;
+    v3 -= 2;
+    if ( --v2 < 0 )
       goto LABEL_6;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [r9+rax*8+8]
-  }
-  return *(float *)&_XMM0;
+  return (float)v1[2 * v4 + 2];
 }
 
 /*
@@ -608,43 +575,27 @@ LABEL_6:
 GetMaxSpeedForPathLength
 ==============
 */
-
-float __fastcall GetMaxSpeedForPathLength(double pathLength)
+float GetMaxSpeedForPathLength(float pathLength)
 {
-  bool v1; 
-  unsigned int v3; 
+  unsigned int v2; 
+  float *p_arrivalExitDist; 
 
-  v1 = 0;
-  if ( s_MaxSpeedForPathTableInitialized )
+  if ( !s_MaxSpeedForPathTableInitialized )
+    return FLOAT_250_0;
+  v2 = 4;
+  p_arrivalExitDist = &s_MaxSpeedForPathTable[4].arrivalExitDist;
+  do
   {
-    v3 = 4;
-    _RCX = &s_MaxSpeedForPathTable[4].arrivalExitDist;
-    do
-    {
-      __asm { vcomiss xmm0, dword ptr [rcx] }
-      if ( v1 )
-        break;
-      ++v3;
-      _RCX += 4;
-      v1 = v3 < 6;
-    }
-    while ( v3 < 6 );
-    if ( v3 )
-    {
-      _RCX = 2i64 * (v3 - 1);
-      _RAX = &s_MaxSpeedForPathTable[0].maxSpeed;
-      __asm { vmovss  xmm0, dword ptr [rax+rcx*8] }
-    }
-    else
-    {
-      __asm { vmovss  xmm0, cs:__real@41f00000 }
-    }
+    if ( pathLength < *p_arrivalExitDist )
+      break;
+    ++v2;
+    p_arrivalExitDist += 4;
   }
+  while ( v2 < 6 );
+  if ( v2 )
+    return s_MaxSpeedForPathTable[v2 - 1].maxSpeed;
   else
-  {
-    __asm { vmovss  xmm0, cs:__real@437a0000 }
-  }
-  return *(float *)&_XMM0;
+    return FLOAT_30_0;
 }
 
 /*
@@ -652,74 +603,53 @@ float __fastcall GetMaxSpeedForPathLength(double pathLength)
 GetNearestSpeedThresholdString
 ==============
 */
-
-__int64 __fastcall GetNearestSpeedThresholdString(scr_string_t archetypeName, double desiredSpeed)
+__int64 GetNearestSpeedThresholdString(scr_string_t archetypeName, float desiredSpeed)
 {
+  int v2; 
   int v3; 
-  int v4; 
-  scr_string_t *v5; 
-  __int64 v7; 
-  __int64 v8; 
-  bool v9; 
-  char *v10; 
-  _DWORD *v11; 
-  unsigned int v13; 
+  scr_string_t *v4; 
+  __int64 v6; 
+  scr_string_t *v7; 
+  _DWORD *v8; 
+  scr_string_t v9; 
 
+  v2 = 0;
   v3 = 0;
-  v4 = 0;
-  v5 = &s_animSpeedThresholdTables;
-  while ( *v5 != archetypeName )
+  v4 = &s_animSpeedThresholdTables;
+  while ( *v4 != archetypeName )
   {
-    ++v4;
-    v5 += 17;
-    if ( (__int64)v5 >= (__int64)s_MaxSpeedForPathTable )
+    ++v3;
+    v4 += 17;
+    if ( (__int64)v4 >= (__int64)s_MaxSpeedForPathTable )
       return 0i64;
   }
-  v7 = 0i64;
-  v8 = 68i64 * v4;
-  v9 = __CFADD__(&s_animSpeedThresholdTables, v8) || (scr_string_t *)((char *)&s_animSpeedThresholdTables + v8) == NULL;
-  v10 = (char *)&s_animSpeedThresholdTables + v8;
-  v11 = v10 + 4;
+  v6 = 0i64;
+  v7 = &s_animSpeedThresholdTables + 17 * v3;
+  v8 = v7 + 1;
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rax+4]
-      vcomiss xmm0, xmm1
-    }
-    if ( !v9 )
+    if ( (float)(int)v8[1] > desiredSpeed )
       break;
-    if ( !*v11 )
+    if ( !*v8 )
       break;
-    ++v3;
-    ++v7;
-    v11 += 2;
-    v9 = (unsigned __int64)v7 <= 8;
+    ++v2;
+    ++v6;
+    v8 += 2;
   }
-  while ( v7 < 8 );
-  v13 = *(_DWORD *)&v10[8 * v3 + 4];
-  if ( !v3 )
-    return v13;
-  if ( !v13 )
-    return *(unsigned int *)&v10[8 * v3 - 4];
-  if ( v3 == 8 )
-    return *(unsigned int *)&v10[8 * v3 - 4];
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [r8+rax*8]
-    vsubss  xmm1, xmm1, xmm0
-    vcvtss2sd xmm2, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, ecx
-    vmulsd  xmm1, xmm0, cs:__real@3fe0000000000000
-    vcomisd xmm2, xmm1
-  }
-  if ( *(_DWORD *)&v10[8 * v3 + 8] <= *(_DWORD *)&v10[8 * v3] )
-    return *(unsigned int *)&v10[8 * v3 - 4];
+  while ( v6 < 8 );
+  v9 = v7[2 * v2 + 1];
+  if ( !v2 )
+    return (unsigned int)v9;
+  if ( !v9 )
+    return (unsigned int)v7[2 * v2 - 1];
+  if ( v2 == 8 )
+    return (unsigned int)v7[2 * v2 - 1];
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, ecx }
+  if ( (float)(desiredSpeed - (float)v7[2 * v2]) <= *(double *)&_XMM0 * 0.5 )
+    return (unsigned int)v7[2 * v2 - 1];
   else
-    return v13;
+    return (unsigned int)v9;
 }
 
 /*
@@ -727,55 +657,43 @@ __int64 __fastcall GetNearestSpeedThresholdString(scr_string_t archetypeName, do
 GetNextLowestSpeedThresholdName
 ==============
 */
-
-__int64 __fastcall GetNextLowestSpeedThresholdName(scr_string_t archetypeName, double desiredSpeed)
+__int64 GetNextLowestSpeedThresholdName(scr_string_t archetypeName, float desiredSpeed)
 {
+  int v2; 
   int v3; 
-  int v4; 
-  scr_string_t *v5; 
-  __int64 v7; 
-  __int64 v8; 
-  bool v9; 
-  char *v10; 
-  _DWORD *v11; 
+  scr_string_t *v4; 
+  __int64 v6; 
+  scr_string_t *v7; 
+  _DWORD *v8; 
 
+  v2 = 0;
   v3 = 0;
-  v4 = 0;
-  v5 = &s_animSpeedThresholdTables;
-  while ( *v5 != archetypeName )
+  v4 = &s_animSpeedThresholdTables;
+  while ( *v4 != archetypeName )
   {
-    ++v4;
-    v5 += 17;
-    if ( (__int64)v5 >= (__int64)s_MaxSpeedForPathTable )
+    ++v3;
+    v4 += 17;
+    if ( (__int64)v4 >= (__int64)s_MaxSpeedForPathTable )
       return 0i64;
   }
-  v7 = 0i64;
-  v8 = 68i64 * v4;
-  v9 = __CFADD__(&s_animSpeedThresholdTables, v8) || (scr_string_t *)((char *)&s_animSpeedThresholdTables + v8) == NULL;
-  v10 = (char *)&s_animSpeedThresholdTables + v8;
-  v11 = v10 + 4;
+  v6 = 0i64;
+  v7 = &s_animSpeedThresholdTables + 17 * v3;
+  v8 = v7 + 1;
   do
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rax+4]
-      vcomiss xmm0, xmm1
-    }
-    if ( !v9 )
+    if ( (float)(int)v8[1] > desiredSpeed )
       break;
-    if ( !*v11 )
+    if ( !*v8 )
       break;
-    ++v3;
-    ++v7;
-    v11 += 2;
-    v9 = (unsigned __int64)v7 <= 8;
+    ++v2;
+    ++v6;
+    v8 += 2;
   }
-  while ( v7 < 8 );
-  if ( v3 )
-    return *(unsigned int *)&v10[8 * v3 - 4];
+  while ( v6 < 8 );
+  if ( v2 )
+    return (unsigned int)v7[2 * v2 - 1];
   else
-    return *((unsigned int *)v10 + 1);
+    return *((unsigned int *)v7 + 1);
 }
 
 /*
@@ -810,57 +728,44 @@ void GetNodeExposedEyeOffset(unsigned __int16 nodeType, ai_stance_e stance, vec3
       outEyeOffset->v[2] = 13.0;
       break;
     case 6u:
-      __asm { vmovss  xmm4, cs:__real@42100000; jumptable 00000001409F3595 case 6 }
-      _EAX = 1;
+      _XMM4 = LODWORD(FLOAT_36_0);
+      _XMM0 = (unsigned int)stance;
+      __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+      _XMM0 = LODWORD(FLOAT_43_5);
+      __asm { vblendvps xmm1, xmm0, xmm4, xmm2 }
+      _XMM0 = (unsigned int)stance;
+      outEyeOffset->v[0] = *(float *)&_XMM1;
+      _XMM1 = LODWORD(FLOAT_11_0);
       __asm
       {
-        vmovd   xmm1, eax
-        vmovd   xmm0, edx
-        vpcmpeqd xmm2, xmm0, xmm1
-        vmovss  xmm0, cs:__real@422e0000
-        vblendvps xmm1, xmm0, xmm4, xmm2
-        vmovd   xmm0, edx
-        vmovss  dword ptr [r8], xmm1
-        vmovss  xmm1, cs:__real@41300000
-        vmovd   xmm2, eax
         vpcmpeqd xmm3, xmm0, xmm2
-        vmovss  xmm2, cs:__real@4104cccd
         vblendvps xmm0, xmm1, xmm2, xmm3
-        vmovss  dword ptr [r8+4], xmm0
-        vmovd   xmm0, edx
-        vmovd   xmm1, eax
-        vpcmpeqd xmm2, xmm0, xmm1
-        vmovss  xmm1, cs:__real@427c0000
-        vblendvps xmm0, xmm4, xmm1, xmm2
-        vmovss  dword ptr [r8+8], xmm0
       }
+      outEyeOffset->v[1] = *(float *)&_XMM0;
+      _XMM0 = (unsigned int)stance;
+      __asm
+      {
+        vpcmpeqd xmm2, xmm0, xmm1
+        vblendvps xmm0, xmm4, xmm1, xmm2
+      }
+      outEyeOffset->v[2] = *(float *)&_XMM0;
       break;
     case 7u:
-      __asm { vmovss  xmm2, cs:__real@c2000000; jumptable 00000001409F3595 case 7 }
-      _EAX = 1;
-      __asm
-      {
-        vmovd   xmm0, edx
-        vmovd   xmm1, eax
-        vpcmpeqd xmm3, xmm0, xmm1
-        vmovss  xmm1, cs:__real@c1d00000
-        vblendvps xmm0, xmm1, xmm2, xmm3
-        vmovss  xmm2, cs:__real@40e00000
-        vmovss  dword ptr [r8], xmm0
-        vmovd   xmm0, edx
-        vmovd   xmm1, eax
-        vpcmpeqd xmm3, xmm0, xmm1
-        vmovss  xmm1, cs:__real@3ecccccd
-        vblendvps xmm0, xmm1, xmm2, xmm3
-        vmovss  xmm2, cs:__real@427c0000
-        vmovss  dword ptr [r8+4], xmm0
-        vmovd   xmm0, edx
-        vmovd   xmm1, eax
-        vpcmpeqd xmm3, xmm0, xmm1
-        vmovss  xmm1, cs:__real@42100000
-        vblendvps xmm0, xmm1, xmm2, xmm3
-        vmovss  dword ptr [r8+8], xmm0
-      }
+      _XMM0 = (unsigned int)stance;
+      __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+      _XMM1 = LODWORD(FLOAT_N26_0);
+      __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+      outEyeOffset->v[0] = *(float *)&_XMM0;
+      _XMM0 = (unsigned int)stance;
+      __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+      _XMM1 = LODWORD(FLOAT_0_40000001);
+      __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+      outEyeOffset->v[1] = *(float *)&_XMM0;
+      _XMM0 = (unsigned int)stance;
+      __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+      _XMM1 = LODWORD(FLOAT_36_0);
+      __asm { vblendvps xmm0, xmm1, xmm2, xmm3 }
+      outEyeOffset->v[2] = *(float *)&_XMM0;
       break;
     default:
       return;
@@ -943,58 +848,28 @@ void InitializeMaxSpeedForPathLengthTable(void)
   }
   if ( !s_MaxSpeedForPathTableInitialized )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@42d20000
-      vmovss  xmm1, cs:__real@421e0000
-      vmovss  cs:s_MaxSpeedForPathTable.arrivalExitDist, xmm0
-      vmovss  xmm0, cs:__real@42e60000
-      vmovss  cs:s_MaxSpeedForPathTable.maxSpeed, xmm1
-      vmovss  xmm1, cs:__real@42b00000
-    }
+    s_MaxSpeedForPathTable[0].arrivalExitDist = FLOAT_105_0;
+    s_MaxSpeedForPathTable[0].maxSpeed = FLOAT_39_5;
     s_MaxSpeedForPathTable[0].arrivalSpeed = s_Speeds[0];
     s_MaxSpeedForPathTable[0].exitSpeed = s_Speeds[0];
-    __asm
-    {
-      vmovss  cs:s_MaxSpeedForPathTable.arrivalExitDist+10h, xmm0
-      vmovss  xmm0, cs:__real@42fa0000
-      vmovss  cs:s_MaxSpeedForPathTable.maxSpeed+10h, xmm1
-      vmovss  xmm1, cs:__real@43110000
-    }
+    s_MaxSpeedForPathTable[1].arrivalExitDist = FLOAT_115_0;
+    s_MaxSpeedForPathTable[1].maxSpeed = FLOAT_88_0;
     s_MaxSpeedForPathTable[1].arrivalSpeed = s_Speeds[1];
     s_MaxSpeedForPathTable[1].exitSpeed = s_Speeds[1];
-    __asm
-    {
-      vmovss  cs:s_MaxSpeedForPathTable.arrivalExitDist+20h, xmm0
-      vmovss  xmm0, cs:__real@430c0000
-      vmovss  cs:s_MaxSpeedForPathTable.maxSpeed+20h, xmm1
-      vmovss  xmm1, cs:__real@43430000
-    }
+    s_MaxSpeedForPathTable[2].arrivalExitDist = FLOAT_125_0;
+    s_MaxSpeedForPathTable[2].maxSpeed = FLOAT_145_0;
     s_MaxSpeedForPathTable[2].arrivalSpeed = s_Speeds[2];
     s_MaxSpeedForPathTable[2].exitSpeed = s_Speeds[2];
-    __asm
-    {
-      vmovss  cs:s_MaxSpeedForPathTable.arrivalExitDist+30h, xmm0
-      vmovss  xmm0, cs:__real@43150000
-      vmovss  cs:s_MaxSpeedForPathTable.maxSpeed+30h, xmm1
-      vmovss  xmm1, cs:__real@436b0000
-    }
+    s_MaxSpeedForPathTable[3].arrivalExitDist = FLOAT_140_0;
+    s_MaxSpeedForPathTable[3].maxSpeed = FLOAT_195_0;
     s_MaxSpeedForPathTable[3].arrivalSpeed = s_Speeds[3];
     s_MaxSpeedForPathTable[3].exitSpeed = s_Speeds[3];
-    __asm
-    {
-      vmovss  cs:s_MaxSpeedForPathTable.arrivalExitDist+40h, xmm0
-      vmovss  xmm0, cs:__real@431c0000
-      vmovss  cs:s_MaxSpeedForPathTable.maxSpeed+40h, xmm1
-      vmovss  xmm1, cs:__real@437a0000
-    }
+    s_MaxSpeedForPathTable[4].arrivalExitDist = FLOAT_149_0;
+    s_MaxSpeedForPathTable[4].maxSpeed = FLOAT_235_0;
     s_MaxSpeedForPathTable[4].arrivalSpeed = s_Speeds[4];
     s_MaxSpeedForPathTable[4].exitSpeed = s_Speeds[4];
-    __asm
-    {
-      vmovss  cs:s_MaxSpeedForPathTable.arrivalExitDist+50h, xmm0
-      vmovss  cs:s_MaxSpeedForPathTable.maxSpeed+50h, xmm1
-    }
+    s_MaxSpeedForPathTable[5].arrivalExitDist = FLOAT_156_0;
+    s_MaxSpeedForPathTable[5].maxSpeed = FLOAT_250_0;
     s_MaxSpeedForPathTable[5].arrivalSpeed = s_Speeds[5];
     s_MaxSpeedForPathTable[5].exitSpeed = s_Speeds[5];
     s_MaxSpeedForPathTableInitialized = 1;

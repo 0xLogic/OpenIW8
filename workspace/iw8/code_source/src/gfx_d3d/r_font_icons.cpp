@@ -126,100 +126,64 @@ FontIcons_GetIcon
 
 bool __fastcall FontIcons_GetIcon(unsigned int unicodeCodePoint, int fontHeight, double fontScale, int noMinSize, FontIconRenderInfo *outIcon)
 {
-  __int64 v13; 
-  FontIcon *v18; 
-  unsigned int v19; 
+  __int64 v9; 
+  FontIcon *i; 
+  unsigned int v13; 
   bool result; 
+  __int64 v15; 
   const GfxImage *image; 
+  float scale; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
 
-  _RDI = outIcon;
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
+  _XMM6 = *(_OWORD *)&fontScale;
   if ( !outIcon && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font_icons.cpp", 178, ASSERT_TYPE_ASSERT, "(outIcon)", (const char *)&queryFormat, "outIcon") )
     __debugbreak();
-  __asm { vmovss  xmm1, cs:__real@3f800000 }
-  v13 = 0i64;
+  v9 = 0i64;
   __asm
   {
-    vxorps  xmm0, xmm0, xmm0
     vcmpeqss xmm2, xmm6, xmm0
     vblendvps xmm0, xmm6, xmm1, xmm2
-    vmovss  [rsp+48h+arg_10], xmm0
   }
   if ( !fontIconsTableRowCount )
-    goto LABEL_10;
-  _R9 = s_fontIconsTable;
-  v18 = s_fontIconsTable;
-  while ( 1 )
+    return 0;
+  for ( i = s_fontIconsTable; ; ++i )
   {
-    v19 = v18->unicodeCodePoint;
-    if ( v18->unicodeCodePoint )
+    v13 = i->unicodeCodePoint;
+    if ( i->unicodeCodePoint )
       break;
 LABEL_9:
-    v13 = (unsigned int)(v13 + 1);
-    ++v18;
-    if ( (unsigned int)v13 >= fontIconsTableRowCount )
-      goto LABEL_10;
+    v9 = (unsigned int)(v9 + 1);
+    if ( (unsigned int)v9 >= fontIconsTableRowCount )
+      return 0;
   }
-  if ( v19 != unicodeCodePoint )
+  if ( v13 != unicodeCodePoint )
   {
-    if ( v19 > unicodeCodePoint )
-      goto LABEL_10;
+    if ( v13 > unicodeCodePoint )
+      return 0;
     goto LABEL_9;
   }
-  _RCX = v13;
-  image = s_fontIconsTable[_RCX].image;
+  v15 = v9;
+  image = s_fontIconsTable[v15].image;
   if ( !image )
-  {
-LABEL_10:
-    result = 0;
-    goto LABEL_11;
-  }
+    return 0;
   outIcon->image = image;
-  __asm
-  {
-    vmovss  xmm5, dword ptr [r9+rcx*8+4]
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vxorps  xmm3, xmm3, xmm3
-    vdivss  xmm6, xmm1, xmm0
-    vcvtsi2ss xmm3, xmm3, ebp
-  }
-  if ( !noMinSize )
-  {
-    __asm
-    {
-      vmovss  xmm2, [rsp+48h+arg_10]
-      vmovss  xmm4, cs:__real@41a00000
-      vmulss  xmm0, xmm3, xmm5
-      vmulss  xmm1, xmm0, xmm2
-      vcomiss xmm1, xmm4
-    }
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm3, xmm5
-    vmovss  dword ptr [rdi+18h], xmm0
-    vmulss  xmm2, xmm0, xmm6
-    vsubss  xmm0, xmm3, dword ptr [rdi+18h]
-    vmovss  dword ptr [rdi+14h], xmm2
-  }
+  scale = s_fontIconsTable[v15].scale;
+  v18 = (float)image->width / (float)image->height;
+  v19 = (float)fontHeight;
+  if ( noMinSize || (float)((float)(v19 * scale) * *(float *)&_XMM0) >= 20.0 )
+    v20 = v19 * scale;
+  else
+    v20 = 20.0 / *(float *)&_XMM0;
+  outIcon->height = v20;
+  v21 = v19 - outIcon->height;
+  outIcon->width = v20 * v18;
   outIcon->xOffset = 0.0;
   result = 1;
-  __asm
-  {
-    vmulss  xmm0, xmm0, dword ptr [r9+rcx*8+8]
-    vsubss  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rdi+10h], xmm1
-    vmovss  dword ptr [rdi+8], xmm2
-  }
-LABEL_11:
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
+  outIcon->yOffset = (float)(v21 * s_fontIconsTable[v15].verticalAlignment) - (float)fontHeight;
+  outIcon->advance = v20 * v18;
   return result;
 }
 
@@ -306,8 +270,7 @@ char FontIcons_GetIconNameForDirective(LocalClientNum_t localClientNum, const ch
   GlyphFromUTF8 = GetGlyphFromUTF8((const unsigned __int8 *)dstString, &numBytesConsumed);
   if ( numBytesConsumed <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font_icons.cpp", 271, ASSERT_TYPE_ASSERT, "(bytesConsumed > 0)", (const char *)&queryFormat, "bytesConsumed > 0") )
     __debugbreak();
-  __asm { vmovss  xmm2, cs:__real@3f800000; fontScale }
-  if ( !FontIcons_GetIcon(GlyphFromUTF8, 16, *(float *)&_XMM2, 0, &outIcon) )
+  if ( !FontIcons_GetIcon(GlyphFromUTF8, 16, 1.0, 0, &outIcon) )
     return 0;
   Core_strcpy(outIconName, outIconNameSize, outIcon.image->name);
   return 1;
@@ -552,24 +515,24 @@ FontIcons_Init
 void __fastcall FontIcons_Init(double _XMM0_8)
 {
   unsigned int v1; 
-  __int64 v3; 
+  __int64 v2; 
   const char *ColumnValueForRow; 
-  int v6; 
-  StringTable *v7; 
-  const char *v8; 
-  const GfxImage *v9; 
+  int v4; 
+  StringTable *v5; 
+  const char *v6; 
+  const GfxImage *v7; 
+  StringTable *v8; 
+  const char *v9; 
   StringTable *v10; 
-  const char *v11; 
-  StringTable *v12; 
-  const char *v14; 
-  StringTable *v15; 
+  const char *v12; 
+  StringTable *v13; 
+  const char *v15; 
+  StringTable *v16; 
   const char *v17; 
-  StringTable *v18; 
-  const char *v19; 
   const char *stringRef; 
+  const char *v19; 
+  const char *v20; 
   const char *v21; 
-  const char *v22; 
-  const char *v23; 
   StringTable *tablePtr; 
 
   StringTable_GetAsset("fontIcons.csv", (const StringTable **)&tablePtr);
@@ -581,76 +544,68 @@ void __fastcall FontIcons_Init(double _XMM0_8)
       __debugbreak();
     v1 = fontIconsTableRowCount;
   }
-  _RBP = s_fontIconsTable;
   memset_0(s_fontIconsTable, 0, sizeof(s_fontIconsTable));
-  v3 = 0i64;
+  v2 = 0i64;
   if ( v1 )
   {
     do
     {
-      _RDI = 6 * v3;
-      ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v3, 1);
-      v6 = atoi(ColumnValueForRow);
-      v7 = tablePtr;
-      s_fontIconsTable[v3].unicodeCodePoint = v6;
-      v8 = StringTable_GetColumnValueForRow(v7, v3, 2);
-      if ( *v8 )
+      ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v2, 1);
+      v4 = atoi(ColumnValueForRow);
+      v5 = tablePtr;
+      s_fontIconsTable[v2].unicodeCodePoint = v4;
+      v6 = StringTable_GetColumnValueForRow(v5, v2, 2);
+      if ( *v6 )
       {
-        v9 = Image_Register(v8, IMAGE_TRACK_MISC);
+        v7 = Image_Register(v6, IMAGE_TRACK_MISC);
+        v8 = tablePtr;
+        s_fontIconsTable[v2].image = v7;
+        v9 = StringTable_GetColumnValueForRow(v8, v2, 8);
+        _XMM0_8 = atof(v9);
         v10 = tablePtr;
-        s_fontIconsTable[v3].image = v9;
-        v11 = StringTable_GetColumnValueForRow(v10, v3, 8);
-        _XMM0_8 = atof(v11);
-        v12 = tablePtr;
-        __asm
-        {
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovss  dword ptr [rbp+rdi*8+8], xmm1
-        }
-        v14 = StringTable_GetColumnValueForRow(v12, v3, 6);
-        _XMM0_8 = atof(v14);
-        v15 = tablePtr;
-        __asm
-        {
-          vcvtsd2ss xmm1, xmm0, xmm0
-          vmovss  dword ptr [rbp+rdi*8+4], xmm1
-        }
-        v17 = StringTable_GetColumnValueForRow(v15, v3, 0);
-        v18 = tablePtr;
-        s_fontIconsTable[v3].stringRef = v17;
-        v19 = StringTable_GetColumnValueForRow(v18, v3, 4);
-        stringRef = s_fontIconsTable[v3].stringRef;
-        s_fontIconsTable[v3].keyboardKeyName = v19;
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        s_fontIconsTable[v2].verticalAlignment = *(float *)&_XMM1;
+        v12 = StringTable_GetColumnValueForRow(v10, v2, 6);
+        _XMM0_8 = atof(v12);
+        v13 = tablePtr;
+        __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+        s_fontIconsTable[v2].scale = *(float *)&_XMM1;
+        v15 = StringTable_GetColumnValueForRow(v13, v2, 0);
+        v16 = tablePtr;
+        s_fontIconsTable[v2].stringRef = v15;
+        v17 = StringTable_GetColumnValueForRow(v16, v2, 4);
+        stringRef = s_fontIconsTable[v2].stringRef;
+        s_fontIconsTable[v2].keyboardKeyName = v17;
         if ( !strcmp_0(stringRef, "left_stick_forward") )
         {
-          ICON_LEFT_STICK_FORWARD = s_fontIconsTable[v3].unicodeCodePoint;
-          v21 = StringTable_GetColumnValueForRow(tablePtr, (int)v3 + 1, 0);
-          if ( strcmp_0(v21, "right_stick_forward") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font_icons.cpp", 128, ASSERT_TYPE_ASSERT, "(strcmp( StringTable_GetColumnValueForRow( table, rowIndex + 1, 0 ), \"right_stick_forward\" ) == 0)", (const char *)&queryFormat, "strcmp( StringTable_GetColumnValueForRow( table, rowIndex + 1, FONT_ICONS_COL_STRING_REF ), \"right_stick_forward\" ) == 0") )
+          ICON_LEFT_STICK_FORWARD = s_fontIconsTable[v2].unicodeCodePoint;
+          v19 = StringTable_GetColumnValueForRow(tablePtr, (int)v2 + 1, 0);
+          if ( strcmp_0(v19, "right_stick_forward") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font_icons.cpp", 128, ASSERT_TYPE_ASSERT, "(strcmp( StringTable_GetColumnValueForRow( table, rowIndex + 1, 0 ), \"right_stick_forward\" ) == 0)", (const char *)&queryFormat, "strcmp( StringTable_GetColumnValueForRow( table, rowIndex + 1, FONT_ICONS_COL_STRING_REF ), \"right_stick_forward\" ) == 0") )
             __debugbreak();
-          stringRef = s_fontIconsTable[v3].stringRef;
+          stringRef = s_fontIconsTable[v2].stringRef;
         }
         if ( !strcmp_0(stringRef, "left_stick_centered") )
         {
-          ICON_LEFT_STICK_CENTERED = s_fontIconsTable[v3].unicodeCodePoint;
-          v22 = StringTable_GetColumnValueForRow(tablePtr, (int)v3 + 1, 0);
-          if ( strcmp_0(v22, "right_stick_centered") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font_icons.cpp", 133, ASSERT_TYPE_ASSERT, "(strcmp( StringTable_GetColumnValueForRow( table, rowIndex + 1, 0 ), \"right_stick_centered\" ) == 0)", (const char *)&queryFormat, "strcmp( StringTable_GetColumnValueForRow( table, rowIndex + 1, FONT_ICONS_COL_STRING_REF ), \"right_stick_centered\" ) == 0") )
+          ICON_LEFT_STICK_CENTERED = s_fontIconsTable[v2].unicodeCodePoint;
+          v20 = StringTable_GetColumnValueForRow(tablePtr, (int)v2 + 1, 0);
+          if ( strcmp_0(v20, "right_stick_centered") && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font_icons.cpp", 133, ASSERT_TYPE_ASSERT, "(strcmp( StringTable_GetColumnValueForRow( table, rowIndex + 1, 0 ), \"right_stick_centered\" ) == 0)", (const char *)&queryFormat, "strcmp( StringTable_GetColumnValueForRow( table, rowIndex + 1, FONT_ICONS_COL_STRING_REF ), \"right_stick_centered\" ) == 0") )
             __debugbreak();
-          stringRef = s_fontIconsTable[v3].stringRef;
+          stringRef = s_fontIconsTable[v2].stringRef;
         }
         if ( !strcmp_0(stringRef, "right_stick_centered") )
         {
-          ICON_RIGHT_STICK_CENTERED = s_fontIconsTable[v3].unicodeCodePoint;
-          v23 = StringTable_GetColumnValueForRow(tablePtr, (int)v3 - 1, 0);
-          if ( strcmp_0(v23, "left_stick_centered") )
+          ICON_RIGHT_STICK_CENTERED = s_fontIconsTable[v2].unicodeCodePoint;
+          v21 = StringTable_GetColumnValueForRow(tablePtr, (int)v2 - 1, 0);
+          if ( strcmp_0(v21, "left_stick_centered") )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_font_icons.cpp", 138, ASSERT_TYPE_ASSERT, "(strcmp( StringTable_GetColumnValueForRow( table, rowIndex - 1, 0 ), \"left_stick_centered\" ) == 0)", (const char *)&queryFormat, "strcmp( StringTable_GetColumnValueForRow( table, rowIndex - 1, FONT_ICONS_COL_STRING_REF ), \"left_stick_centered\" ) == 0") )
               __debugbreak();
           }
         }
       }
-      v3 = (unsigned int)(v3 + 1);
+      v2 = (unsigned int)(v2 + 1);
     }
-    while ( (unsigned int)v3 < fontIconsTableRowCount );
+    while ( (unsigned int)v2 < fontIconsTableRowCount );
   }
   s_fontIconsPCKeyImageBackground = Image_Register("ui_keybind_backing", IMAGE_TRACK_MISC);
   s_fontIconsPCKeyImageUnboundBackground = Image_Register("ui_keybind_backing_unbound", IMAGE_TRACK_MISC);

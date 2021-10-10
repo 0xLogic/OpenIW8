@@ -602,17 +602,15 @@ PlayerASM_IsMovingForward
 _BOOL8 PlayerASM_IsMovingForward(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
   characterInfo_t *ci; 
+  characterInfo_t *v4; 
 
-  _RDI = parameters->ci;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 674, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
-    __debugbreak();
   ci = parameters->ci;
-  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 122, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 674, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  if ( ci->speed <= 0 )
-    return 0i64;
-  __asm { vmovss  xmm0, dword ptr [rdi+0A14h]; angle }
-  return PlayerASM_IsForwardAngle(*(const float *)&_XMM0);
+  v4 = parameters->ci;
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 122, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+    __debugbreak();
+  return v4->speed > 0 && PlayerASM_IsForwardAngle(ci->playerASMLocomotion.strafeAngle);
 }
 
 /*
@@ -623,17 +621,15 @@ PlayerASM_IsMovingBackward
 _BOOL8 PlayerASM_IsMovingBackward(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
   characterInfo_t *ci; 
+  characterInfo_t *v4; 
 
-  _RDI = parameters->ci;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 689, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
-    __debugbreak();
   ci = parameters->ci;
-  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 122, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 689, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  if ( ci->speed <= 0 )
-    return 0i64;
-  __asm { vmovss  xmm0, dword ptr [rdi+0A14h]; angle }
-  return PlayerASM_IsBackwardAngle(*(const float *)&_XMM0);
+  v4 = parameters->ci;
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 122, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+    __debugbreak();
+  return v4->speed > 0 && PlayerASM_IsBackwardAngle(ci->playerASMLocomotion.strafeAngle);
 }
 
 /*
@@ -648,24 +644,7 @@ _BOOL8 PlayerASM_IsStopping(const PlayerASM_Context *context, const PlayerASM_Pa
   ci = parameters->ci;
   if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 131, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  if ( !ci->speed )
-    return 1i64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
-  }
-  if ( ci->speed )
-    return 0i64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vucomiss xmm0, xmm1
-  }
-  return !ci->speed;
+  return !ci->speed || (float)ci->playerASMLocomotion.cmdBuffer[0].length == 0.0 && (float)ci->playerASMLocomotion.cmdBuffer[1].length == 0.0;
 }
 
 /*
@@ -695,18 +674,15 @@ PlayerASM_IsTurningLeft
 _BOOL8 PlayerASM_IsTurningLeft(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
   playerState_s *PlayerState; 
-  _BOOL8 result; 
+  characterInfo_t *ci; 
 
   PlayerState = BG_PlayerASM_GetPlayerState(context);
   if ( PlayerState )
     return PlayerState->turnRemaining && PlayerState->turnDirection;
-  _RBX = parameters->ci;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 169, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  ci = parameters->ci;
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 169, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  __asm { vmovss  xmm0, cs:__real@3a83126f }
-  result = 0i64;
-  __asm { vcomiss xmm0, dword ptr [rbx+8C0h] }
-  return result;
+  return ci->deltaLerpMoveDir > 0.001;
 }
 
 /*
@@ -717,19 +693,15 @@ PlayerASM_IsTurningRight
 _BOOL8 PlayerASM_IsTurningRight(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
   playerState_s *PlayerState; 
+  characterInfo_t *ci; 
 
   PlayerState = BG_PlayerASM_GetPlayerState(context);
   if ( PlayerState )
     return PlayerState->turnRemaining && !PlayerState->turnDirection;
-  _RBX = parameters->ci;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 189, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  ci = parameters->ci;
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 189, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@ba83126f
-    vcomiss xmm0, dword ptr [rbx+8C0h]
-  }
-  return 0i64;
+  return ci->deltaLerpMoveDir < -0.001;
 }
 
 /*
@@ -800,7 +772,6 @@ __int64 PlayerASM_UpdateAnimChoice(const PlayerASM_Context *context, const Playe
   int entryIndex; 
   char v5; 
   int gameTime; 
-  float v9; 
   PlayerASM_AnimSlot slot; 
 
   if ( PlayerASM_IsAnimChoiceUpdateNeeded(context, parameters->asmName, parameters->entNum, (const PlayerASM_AnimSlot)(unsigned __int8)parameters->slot[0]) )
@@ -808,10 +779,8 @@ __int64 PlayerASM_UpdateAnimChoice(const PlayerASM_Context *context, const Playe
     entryIndex = PlayerASM_GetAnim(context, parameters);
     v5 = parameters->slot[0];
     gameTime = parameters->pAsm->GetGameTime(parameters->pAsm);
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
     LOBYTE(slot) = v5;
-    __asm { vmovss  [rsp+58h+var_20], xmm0 }
-    BG_PlayerASM_SetAnimState(context, parameters->pAsm, parameters->entNum, (const scr_string_t)parameters->asmName, parameters->stateName, entryIndex, gameTime, v9, slot);
+    BG_PlayerASM_SetAnimState(context, parameters->pAsm, parameters->entNum, (const scr_string_t)parameters->asmName, parameters->stateName, entryIndex, gameTime, 1.0, slot);
   }
   return 0i64;
 }
@@ -826,16 +795,13 @@ __int64 PlayerASM_PlayAnimState(const PlayerASM_Context *context, const PlayerAS
   int entryIndex; 
   char v5; 
   int gameTime; 
-  float v9; 
   PlayerASM_AnimSlot slot; 
 
   entryIndex = PlayerASM_GetAnim(context, parameters);
   v5 = parameters->slot[0];
   gameTime = parameters->pAsm->GetGameTime(parameters->pAsm);
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
   LOBYTE(slot) = v5;
-  __asm { vmovss  [rsp+58h+var_20], xmm0 }
-  BG_PlayerASM_SetAnimState(context, parameters->pAsm, parameters->entNum, (const scr_string_t)parameters->asmName, parameters->stateName, entryIndex, gameTime, v9, slot);
+  BG_PlayerASM_SetAnimState(context, parameters->pAsm, parameters->entNum, (const scr_string_t)parameters->asmName, parameters->stateName, entryIndex, gameTime, 1.0, slot);
   return 0i64;
 }
 
@@ -854,7 +820,6 @@ __int64 PlayerASM_LoopAnimState(const PlayerASM_Context *context, const PlayerAS
   int entryIndex; 
   char v10; 
   int gameTime; 
-  float v14; 
   PlayerASM_AnimSlot slot; 
   PlayerASM_Parameters parametersa; 
 
@@ -882,10 +847,8 @@ __int64 PlayerASM_LoopAnimState(const PlayerASM_Context *context, const PlayerAS
     entryIndex = PlayerASM_GetAnim(context, &parametersa);
     v10 = parameters->slot[0];
     gameTime = parameters->pAsm->GetGameTime(parameters->pAsm);
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
     LOBYTE(slot) = v10;
-    __asm { vmovss  [rsp+98h+var_60], xmm0 }
-    BG_PlayerASM_SetAnimState(context, parameters->pAsm, parameters->entNum, (const scr_string_t)parameters->asmName, parameters->stateName, entryIndex, gameTime, v14, slot);
+    BG_PlayerASM_SetAnimState(context, parameters->pAsm, parameters->entNum, (const scr_string_t)parameters->asmName, parameters->stateName, entryIndex, gameTime, 1.0, slot);
   }
   return 0i64;
 }
@@ -923,72 +886,47 @@ __int64 PlayerASM_ClearAnimState(const PlayerASM_Context *context, const PlayerA
 PlayerASM_IsForwardToBackTransition
 ==============
 */
-
-__int64 __fastcall PlayerASM_IsForwardToBackTransition(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters, __int64 a3, double _XMM3_8)
+__int64 PlayerASM_IsForwardToBackTransition(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
-  char v12; 
-  char v13; 
-  __int64 result; 
+  characterInfo_t *ci; 
+  const dvar_t *v3; 
+  float value; 
+  const dvar_t *v5; 
+  float v6; 
+  const dvar_t *v7; 
+  float strafeAngle; 
+  float v9; 
 
-  _RDI = parameters->ci;
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 705, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  ci = parameters->ci;
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 705, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  _RBX = DCONST_DVARFLT_playerasm_loco_transition_ccw_angle;
+  v3 = DCONST_DVARFLT_playerasm_loco_transition_ccw_angle;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_ccw_angle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_ccw_angle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_playerasm_loco_transition_cw_angle;
+  Dvar_CheckFrontendServerThread(v3);
+  value = v3->current.value;
+  v5 = DCONST_DVARFLT_playerasm_loco_transition_cw_angle;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_cw_angle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_cw_angle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_playerasm_loco_transition_overlap_range;
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = v5->current.value;
+  v7 = DCONST_DVARFLT_playerasm_loco_transition_overlap_range;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_overlap_range && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_overlap_range") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v7);
+  strafeAngle = ci->playerASMLocomotion.strafeAngle;
+  v9 = v7->current.value;
+  if ( strafeAngle >= 0.0 )
+    goto LABEL_16;
+  if ( strafeAngle < (float)(v6 - v9) )
+    return 1i64;
+  if ( strafeAngle >= 0.0 )
   {
-    vmovss  xmm1, dword ptr [rdi+0A14h]
-    vmovss  xmm2, dword ptr [rbx+28h]
-    vxorps  xmm3, xmm3, xmm3
-    vcomiss xmm1, xmm3
+LABEL_16:
+    if ( strafeAngle > (float)(v9 + value) )
+      return 1i64;
   }
-  if ( v12 )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm6, xmm2
-      vcomiss xmm1, xmm0
-    }
-    if ( v12 )
-      goto LABEL_17;
-    __asm { vcomiss xmm1, xmm3 }
-  }
-  __asm
-  {
-    vaddss  xmm0, xmm2, xmm7
-    vcomiss xmm1, xmm0
-  }
-  if ( v12 | v13 )
-  {
-    result = 0i64;
-    goto LABEL_19;
-  }
-LABEL_17:
-  result = 1i64;
-LABEL_19:
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return result;
+  return 0i64;
 }
 
 /*
@@ -996,77 +934,47 @@ LABEL_19:
 PlayerASM_IsBackToForwardTransition
 ==============
 */
-
-__int64 __fastcall PlayerASM_IsBackToForwardTransition(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters, __int64 a3, double _XMM3_8)
+__int64 PlayerASM_IsBackToForwardTransition(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
-  char v12; 
-  char v13; 
-  __int64 result; 
+  characterInfo_t *ci; 
+  const dvar_t *v3; 
+  float value; 
+  const dvar_t *v5; 
+  float v6; 
+  const dvar_t *v7; 
+  float strafeAngle; 
+  float v9; 
 
-  _RDI = parameters->ci;
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 728, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  ci = parameters->ci;
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 728, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  _RBX = DCONST_DVARFLT_playerasm_loco_transition_ccw_angle;
+  v3 = DCONST_DVARFLT_playerasm_loco_transition_ccw_angle;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_ccw_angle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_ccw_angle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_playerasm_loco_transition_cw_angle;
+  Dvar_CheckFrontendServerThread(v3);
+  value = v3->current.value;
+  v5 = DCONST_DVARFLT_playerasm_loco_transition_cw_angle;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_cw_angle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_cw_angle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_playerasm_loco_transition_overlap_range;
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = v5->current.value;
+  v7 = DCONST_DVARFLT_playerasm_loco_transition_overlap_range;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_overlap_range && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_overlap_range") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+0A14h]
-    vmovss  xmm2, dword ptr [rbx+28h]
-    vxorps  xmm3, xmm3, xmm3
-    vcomiss xmm1, xmm3
-  }
-  if ( !v12 )
+  Dvar_CheckFrontendServerThread(v7);
+  strafeAngle = ci->playerASMLocomotion.strafeAngle;
+  v9 = v7->current.value;
+  if ( strafeAngle >= 0.0 )
+    goto LABEL_16;
+  if ( strafeAngle > (float)(v9 + v6) )
+    return 1i64;
+  if ( strafeAngle >= 0.0 )
   {
 LABEL_16:
-    __asm
-    {
-      vsubss  xmm0, xmm7, xmm2
-      vcomiss xmm1, xmm0
-    }
-    if ( v12 )
-      goto LABEL_17;
-LABEL_18:
-    result = 0i64;
-    goto LABEL_19;
+    if ( strafeAngle < (float)(value - v9) )
+      return 1i64;
   }
-  __asm
-  {
-    vaddss  xmm0, xmm2, xmm6
-    vcomiss xmm1, xmm0
-  }
-  if ( v12 | v13 )
-  {
-    __asm { vcomiss xmm1, xmm3 }
-    if ( v12 )
-      goto LABEL_18;
-    goto LABEL_16;
-  }
-LABEL_17:
-  result = 1i64;
-LABEL_19:
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return result;
+  return 0i64;
 }
 
 /*
@@ -1074,113 +982,72 @@ LABEL_19:
 PlayerASM_IsTransitionReverse
 ==============
 */
-__int64 PlayerASM_IsTransitionReverse(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
+_BOOL8 PlayerASM_IsTransitionReverse(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
   characterInfo_t *ci; 
-  int v10; 
-  const char *v12; 
-  __int64 v17; 
+  int v5; 
+  const dvar_t *v6; 
+  const char *v7; 
+  float value; 
+  const dvar_t *v9; 
+  float v10; 
+  playerASMCmdBufferEntry *v11; 
+  __int64 v12; 
   int time; 
-  char v25; 
-  char v26; 
-  __int64 result; 
+  double v14; 
 
   ci = parameters->ci;
-  __asm { vmovaps [rsp+88h+var_38], xmm7 }
   if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 895, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  __asm { vmovaps [rsp+88h+var_28], xmm6 }
-  v10 = context->const_ps->serverTime - 250;
-  if ( v10 < 0 )
-    v10 = 0;
+  v5 = context->const_ps->serverTime - 250;
+  if ( v5 < 0 )
+    v5 = 0;
   if ( ci->clientConditions[4][0] == 1 )
   {
-    _RDI = DCONST_DVARFLT_playerasm_loco_reverse_min_strength_crouch;
+    v6 = DCONST_DVARFLT_playerasm_loco_reverse_min_strength_crouch;
     if ( DCONST_DVARFLT_playerasm_loco_reverse_min_strength_crouch )
       goto LABEL_13;
-    v12 = "playerasm_loco_reverse_min_strength_crouch";
+    v7 = "playerasm_loco_reverse_min_strength_crouch";
   }
   else
   {
-    _RDI = DCONST_DVARFLT_playerasm_loco_reverse_min_strength;
+    v6 = DCONST_DVARFLT_playerasm_loco_reverse_min_strength;
     if ( DCONST_DVARFLT_playerasm_loco_reverse_min_strength )
       goto LABEL_13;
-    v12 = "playerasm_loco_reverse_min_strength";
+    v7 = "playerasm_loco_reverse_min_strength";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v12) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v7) )
     __debugbreak();
 LABEL_13:
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  _RDI = DCONST_DVARFLT_playerasm_loco_reverse_angle_delta;
+  Dvar_CheckFrontendServerThread(v6);
+  value = v6->current.value;
+  v9 = DCONST_DVARFLT_playerasm_loco_reverse_angle_delta;
   if ( !DCONST_DVARFLT_playerasm_loco_reverse_angle_delta && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_reverse_angle_delta") )
     __debugbreak();
-  __asm { vmovaps [rsp+88h+var_48], xmm8 }
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm7, dword ptr [rdi+28h] }
-  if ( ci->playerASMLocomotion.cmdBuffer[0].time )
+  Dvar_CheckFrontendServerThread(v9);
+  v10 = v9->current.value;
+  if ( !ci->playerASMLocomotion.cmdBuffer[0].time )
+    return 1i64;
+  if ( ci->playerASMLocomotion.cmdBuffer[1].time > 0 )
   {
-    if ( ci->playerASMLocomotion.cmdBuffer[1].time > 0 )
+    v11 = &ci->playerASMLocomotion.cmdBuffer[1];
+    v12 = 1i64;
+    time = ci->playerASMLocomotion.cmdBuffer[1].time;
+    while ( time >= v5 && v12 < 6 )
     {
-      __asm { vmovss  xmm8, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-      v17 = 1i64;
-      time = ci->playerASMLocomotion.cmdBuffer[1].time;
-      while ( time >= v10 && v17 < 6 )
+      if ( (float)ci->playerASMLocomotion.cmdBuffer[0].length >= value && (float)v11->length >= value )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vcomiss xmm0, xmm6
-        }
-        if ( (unsigned __int64)v17 >= 6 )
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vcomiss xmm0, xmm6
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, eax; angle2
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax; angle1
-          }
-          *(double *)&_XMM0 = AngleDelta(*(const float *)&_XMM0, *(const float *)&_XMM1);
-          __asm
-          {
-            vandps  xmm0, xmm0, xmm8
-            vcomiss xmm0, xmm7
-          }
-          if ( !(v25 | v26) )
-          {
-            if ( !PlayerASM_ET_IsAnyStanceTransition(context, parameters) )
-              goto LABEL_28;
-            break;
-          }
-        }
-        time = ci->playerASMLocomotion.cmdBuffer[++v17].time;
-        if ( time <= 0 )
-        {
-          result = 0i64;
-          goto LABEL_29;
-        }
+        v14 = AngleDelta((float)ci->playerASMLocomotion.cmdBuffer[0].angle, (float)v11->angle);
+        if ( COERCE_FLOAT(LODWORD(v14) & _xmm) > v10 )
+          return !PlayerASM_ET_IsAnyStanceTransition(context, parameters);
       }
+      v11 = &ci->playerASMLocomotion.cmdBuffer[++v12];
+      time = ci->playerASMLocomotion.cmdBuffer[v12].time;
+      if ( time <= 0 )
+        return 0i64;
     }
-    result = 0i64;
   }
-  else
-  {
-LABEL_28:
-    result = 1i64;
-  }
-LABEL_29:
-  __asm
-  {
-    vmovaps xmm8, [rsp+88h+var_48]
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
-  return result;
+  return 0i64;
 }
 
 /*
@@ -1191,29 +1058,19 @@ PlayerASM_IsStickMovingForward
 _BOOL8 PlayerASM_IsStickMovingForward(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
   characterInfo_t *ci; 
+  unsigned __int16 angle; 
 
   ci = parameters->ci;
   if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 816, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  LOWORD(_EAX) = ci->playerASMLocomotion.cmdBuffer[0].angle;
-  if ( !(_WORD)_EAX )
+  angle = ci->playerASMLocomotion.cmdBuffer[0].angle;
+  if ( !angle )
     return 0i64;
   if ( !ci->playerASMLocomotion.cmdBuffer[0].length )
     return 0i64;
-  _EAX = (unsigned __int16)_EAX;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm5, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vsubss  xmm1, xmm5, xmm4
-    vmulss  xmm0, xmm1, cs:__real@43b40000
-    vsubss  xmm0, xmm0, cs:__real@42b40000; angle
-  }
-  return PlayerASM_IsForwardAngle(*(const float *)&_XMM0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  return PlayerASM_IsForwardAngle((float)((float)((float)(_mm_cvtepi32_ps((__m128i)angle).m128_f32[0] * 0.0027777778) - *(float *)&_XMM4) * 360.0) - 90.0);
 }
 
 /*
@@ -1224,29 +1081,19 @@ PlayerASM_IsStickMovingBackward
 _BOOL8 PlayerASM_IsStickMovingBackward(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
   characterInfo_t *ci; 
+  unsigned __int16 angle; 
 
   ci = parameters->ci;
   if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 796, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  LOWORD(_EAX) = ci->playerASMLocomotion.cmdBuffer[0].angle;
-  if ( !(_WORD)_EAX )
+  angle = ci->playerASMLocomotion.cmdBuffer[0].angle;
+  if ( !angle )
     return 0i64;
   if ( !ci->playerASMLocomotion.cmdBuffer[0].length )
     return 0i64;
-  _EAX = (unsigned __int16)_EAX;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vmulss  xmm5, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vsubss  xmm1, xmm5, xmm4
-    vmulss  xmm0, xmm1, cs:__real@43b40000
-    vsubss  xmm0, xmm0, cs:__real@42b40000; angle
-  }
-  return PlayerASM_IsBackwardAngle(*(const float *)&_XMM0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  return PlayerASM_IsBackwardAngle((float)((float)((float)(_mm_cvtepi32_ps((__m128i)angle).m128_f32[0] * 0.0027777778) - *(float *)&_XMM4) * 360.0) - 90.0);
 }
 
 /*
@@ -1254,20 +1101,23 @@ _BOOL8 PlayerASM_IsStickMovingBackward(const PlayerASM_Context *context, const P
 PlayerASM_IsStopForwardTransition
 ==============
 */
-__int64 PlayerASM_IsStopForwardTransition(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
+_BOOL8 PlayerASM_IsStopForwardTransition(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
-  _RBX = parameters->ci;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 946, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  characterInfo_t *ci; 
+  float strafeAngle; 
+  _BOOL8 result; 
+
+  ci = parameters->ci;
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 946, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  if ( _RBX->speed > 0 )
+  result = 0;
+  if ( ci->speed > 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0A14h]
-      vcomiss xmm0, cs:__real@43070000
-    }
+    strafeAngle = ci->playerASMLocomotion.strafeAngle;
+    if ( strafeAngle < 135.0 && strafeAngle > -134.0 )
+      return 1;
   }
-  return 0i64;
+  return result;
 }
 
 /*
@@ -1275,19 +1125,23 @@ __int64 PlayerASM_IsStopForwardTransition(const PlayerASM_Context *context, cons
 PlayerASM_IsStopBackwardTransition
 ==============
 */
-__int64 PlayerASM_IsStopBackwardTransition(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
+_BOOL8 PlayerASM_IsStopBackwardTransition(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
-  _RBX = parameters->ci;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 962, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  characterInfo_t *ci; 
+  float strafeAngle; 
+  _BOOL8 result; 
+
+  ci = parameters->ci;
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 962, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  if ( _RBX->speed <= 0 )
-    return 0i64;
-  __asm
+  result = 0;
+  if ( ci->speed > 0 )
   {
-    vmovss  xmm0, dword ptr [rbx+0A14h]
-    vcomiss xmm0, cs:__real@43070000
+    strafeAngle = ci->playerASMLocomotion.strafeAngle;
+    if ( strafeAngle >= 135.0 || strafeAngle <= -135.0 )
+      return 1;
   }
-  return 1i64;
+  return result;
 }
 
 /*
@@ -1297,43 +1151,33 @@ PlayerASM_SkipHipFlipForwardToBackwardCrouch
 */
 int PlayerASM_SkipHipFlipForwardToBackwardCrouch(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
+  characterInfo_t *ci; 
+  const dvar_t *v3; 
+  float value; 
+  const dvar_t *v5; 
+  float v6; 
   int result; 
+  float strafeAngle; 
 
-  _RBX = parameters->ci;
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 751, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  ci = parameters->ci;
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 751, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  _RDI = DCONST_DVARFLT_playerasm_loco_transition_ccw_angle;
+  v3 = DCONST_DVARFLT_playerasm_loco_transition_ccw_angle;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_ccw_angle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_ccw_angle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm7, dword ptr [rdi+28h] }
-  _RDI = DCONST_DVARFLT_playerasm_loco_transition_overlap_range;
+  Dvar_CheckFrontendServerThread(v3);
+  value = v3->current.value;
+  v5 = DCONST_DVARFLT_playerasm_loco_transition_overlap_range;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_overlap_range && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_overlap_range") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  if ( BG_GetConditionValue(_RBX, 4) == 1 )
-  {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+0A14h]
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm1, xmm0
-      vaddss  xmm0, xmm6, xmm7
-      vcomiss xmm1, xmm0
-    }
-  }
-  result = 0;
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = v5->current.value;
+  result = BG_GetConditionValue(ci, 4);
+  if ( result != 1 )
+    return 0;
+  strafeAngle = ci->playerASMLocomotion.strafeAngle;
+  if ( strafeAngle < 0.0 || strafeAngle <= (float)(v6 + value) )
+    return 0;
   return result;
 }
 
@@ -1344,43 +1188,33 @@ PlayerASM_SkipHipFlipBackwardToForwardCrouch
 */
 int PlayerASM_SkipHipFlipBackwardToForwardCrouch(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
+  characterInfo_t *ci; 
+  const dvar_t *v3; 
+  float value; 
+  const dvar_t *v5; 
+  float v6; 
   int result; 
+  float strafeAngle; 
 
-  _RBX = parameters->ci;
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-  }
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 773, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  ci = parameters->ci;
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 773, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  _RDI = DCONST_DVARFLT_playerasm_loco_transition_ccw_angle;
+  v3 = DCONST_DVARFLT_playerasm_loco_transition_ccw_angle;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_ccw_angle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_ccw_angle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm7, dword ptr [rdi+28h] }
-  _RDI = DCONST_DVARFLT_playerasm_loco_transition_overlap_range;
+  Dvar_CheckFrontendServerThread(v3);
+  value = v3->current.value;
+  v5 = DCONST_DVARFLT_playerasm_loco_transition_overlap_range;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_overlap_range && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_overlap_range") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  if ( BG_GetConditionValue(_RBX, 4) == 1 )
-  {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+0A14h]
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm1, xmm0
-      vsubss  xmm0, xmm7, xmm6
-      vcomiss xmm1, xmm0
-    }
-  }
-  result = 0;
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
+  Dvar_CheckFrontendServerThread(v5);
+  v6 = v5->current.value;
+  result = BG_GetConditionValue(ci, 4);
+  if ( result != 1 )
+    return 0;
+  strafeAngle = ci->playerASMLocomotion.strafeAngle;
+  if ( strafeAngle < 0.0 || strafeAngle >= (float)(value - v6) )
+    return 0;
   return result;
 }
 
@@ -1389,21 +1223,19 @@ int PlayerASM_SkipHipFlipBackwardToForwardCrouch(const PlayerASM_Context *contex
 PlayerASM_IsStopSpeedGreaterThanThreshold
 ==============
 */
-__int64 PlayerASM_IsStopSpeedGreaterThanThreshold(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
+_BOOL8 PlayerASM_IsStopSpeedGreaterThanThreshold(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
-  __int64 result; 
+  characterInfo_t *ci; 
+  const dvar_t *v3; 
 
-  _RDI = parameters->ci;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 983, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  ci = parameters->ci;
+  if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 983, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  _RBX = DCONST_DVARFLT_playerasm_loco_stop_speed_threshold;
+  v3 = DCONST_DVARFLT_playerasm_loco_stop_speed_threshold;
   if ( !DCONST_DVARFLT_playerasm_loco_stop_speed_threshold && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_stop_speed_threshold") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  result = 0i64;
-  __asm { vcomiss xmm0, dword ptr [rdi+0A1Ch] }
-  return result;
+  Dvar_CheckFrontendServerThread(v3);
+  return v3->current.value < ci->playerASMLocomotion.stopSpeed;
 }
 
 /*
@@ -1537,37 +1369,27 @@ int PlayerASM_IsMovingMoveType(const PlayerASM_Context *context, const PlayerASM
 PlayerASM_IsAnimationTimerBiggerThan
 ==============
 */
-__int64 PlayerASM_IsAnimationTimerBiggerThan(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
+_BOOL8 PlayerASM_IsAnimationTimerBiggerThan(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
-  unsigned __int8 v5; 
-  __int64 result; 
-  __int64 v11; 
-  int v12; 
+  float TimerThreshold; 
+  unsigned __int8 v4; 
+  __int64 v6; 
+  int v7; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( context->useEntityState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 854, ASSERT_TYPE_ASSERT, "(!context->useEntityState)", "%s\n\tPlayerASM_IsAnimationTimerBiggerThan() can be used only inside pmove execution path.", "!context->useEntityState") )
     __debugbreak();
-  *(float *)&_XMM0 = PlayerASM_GetTimerThreshold(parameters);
-  v5 = parameters->slot[0];
-  __asm { vmovaps xmm6, xmm0 }
-  if ( v5 >= 2u )
+  TimerThreshold = PlayerASM_GetTimerThreshold(parameters);
+  v4 = parameters->slot[0];
+  if ( v4 >= 2u )
   {
-    v12 = 2;
-    LODWORD(v11) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 858, ASSERT_TYPE_ASSERT, "(unsigned)( parameters->slot ) < (unsigned)( PlayerASM_AnimSlot::COUNT )", "parameters->slot doesn't index PlayerASM_AnimSlot::COUNT\n\t%i not in [0, %i)", v11, v12) )
+    v7 = 2;
+    LODWORD(v6) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 858, ASSERT_TYPE_ASSERT, "(unsigned)( parameters->slot ) < (unsigned)( PlayerASM_AnimSlot::COUNT )", "parameters->slot doesn't index PlayerASM_AnimSlot::COUNT\n\t%i not in [0, %i)", v6, v7) )
       __debugbreak();
   }
   if ( !parameters->ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 859, ASSERT_TYPE_ASSERT, "(parameters->ci)", (const char *)&queryFormat, "parameters->ci") )
     __debugbreak();
-  _RCX = parameters->ci;
-  _RDX = 5i64 * (unsigned __int8)parameters->slot[0];
-  result = 0i64;
-  __asm
-  {
-    vcomiss xmm6, dword ptr [rcx+rdx*8+0A94h]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return result;
+  return TimerThreshold < parameters->ci->playerASMLocomotion.animCache[(unsigned __int8)parameters->slot[0]].animTimer;
 }
 
 /*
@@ -1575,35 +1397,27 @@ __int64 PlayerASM_IsAnimationTimerBiggerThan(const PlayerASM_Context *context, c
 PlayerASM_IsAnimationTimerLessThan
 ==============
 */
-__int64 PlayerASM_IsAnimationTimerLessThan(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
+_BOOL8 PlayerASM_IsAnimationTimerLessThan(const PlayerASM_Context *context, const PlayerASM_Parameters *parameters)
 {
-  unsigned __int8 v5; 
-  __int64 v11; 
-  int v12; 
+  float TimerThreshold; 
+  unsigned __int8 v4; 
+  __int64 v6; 
+  int v7; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
   if ( context->useEntityState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 874, ASSERT_TYPE_ASSERT, "(!context->useEntityState)", "%s\n\tPlayerASM_IsAnimationTimerLessThan() can be used only inside pmove execution path.", "!context->useEntityState") )
     __debugbreak();
-  *(float *)&_XMM0 = PlayerASM_GetTimerThreshold(parameters);
-  v5 = parameters->slot[0];
-  __asm { vmovaps xmm6, xmm0 }
-  if ( v5 >= 2u )
+  TimerThreshold = PlayerASM_GetTimerThreshold(parameters);
+  v4 = parameters->slot[0];
+  if ( v4 >= 2u )
   {
-    v12 = 2;
-    LODWORD(v11) = v5;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 878, ASSERT_TYPE_ASSERT, "(unsigned)( parameters->slot ) < (unsigned)( PlayerASM_AnimSlot::COUNT )", "parameters->slot doesn't index PlayerASM_AnimSlot::COUNT\n\t%i not in [0, %i)", v11, v12) )
+    v7 = 2;
+    LODWORD(v6) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 878, ASSERT_TYPE_ASSERT, "(unsigned)( parameters->slot ) < (unsigned)( PlayerASM_AnimSlot::COUNT )", "parameters->slot doesn't index PlayerASM_AnimSlot::COUNT\n\t%i not in [0, %i)", v6, v7) )
       __debugbreak();
   }
   if ( !parameters->ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 879, ASSERT_TYPE_ASSERT, "(parameters->ci)", (const char *)&queryFormat, "parameters->ci") )
     __debugbreak();
-  _RCX = parameters->ci;
-  _RDX = 5i64 * (unsigned __int8)parameters->slot[0];
-  __asm
-  {
-    vcomiss xmm6, dword ptr [rcx+rdx*8+0A94h]
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return 0i64;
+  return TimerThreshold > parameters->ci->playerASMLocomotion.animCache[(unsigned __int8)parameters->slot[0]].animTimer;
 }
 
 /*
@@ -1787,44 +1601,23 @@ __int64 PlayerASM_GetStateNameTransitionFrom(const PlayerASM_Context *context, c
 PlayerASM_GetTimerThreshold
 ==============
 */
-
-float __fastcall PlayerASM_GetTimerThreshold(const PlayerASM_Parameters *parameters, double _XMM1_8)
+float PlayerASM_GetTimerThreshold(const PlayerASM_Parameters *parameters)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
+  ASM_Function_Param *pParams; 
+  float m_Float; 
+
   if ( !parameters && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\asm\\bg_player_asm_builtin.cpp", 834, ASSERT_TYPE_ASSERT, "(parameters)", (const char *)&queryFormat, "parameters") )
     __debugbreak();
   if ( parameters->numParams != 1 || (unsigned int)(parameters->pParams->m_Type - 3) > 1 )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CB2850, 6010i64);
-  _RAX = parameters->pParams;
-  if ( _RAX->m_Type == ParamType_Float )
-  {
-    __asm { vmovss  xmm6, dword ptr [rax] }
-  }
+  pParams = parameters->pParams;
+  if ( pParams->m_Type == ParamType_Float )
+    m_Float = pParams->u.m_Float;
   else
-  {
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, dword ptr [rax]
-    }
-  }
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm6, xmm1
-  }
-  if ( _RAX->m_Type < (unsigned int)ParamType_Float )
-    goto LABEL_12;
-  __asm { vcomiss xmm6, cs:__real@3f800000 }
-  if ( _RAX->m_Type > (unsigned int)ParamType_Float )
-LABEL_12:
+    m_Float = (float)pParams->u.m_Int;
+  if ( m_Float < 0.0 || m_Float > 1.0 )
     Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CB28B0, 6011i64);
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return m_Float;
 }
 
 /*
@@ -1962,43 +1755,22 @@ LABEL_39:
 PlayerASM_IsBackwardAngle
 ==============
 */
-
-bool __fastcall PlayerASM_IsBackwardAngle(double angle)
+bool PlayerASM_IsBackwardAngle(const float angle)
 {
-  char v7; 
-  char v8; 
-  bool result; 
+  const dvar_t *v1; 
+  float value; 
+  const dvar_t *v3; 
 
-  _RBX = DCONST_DVARFLT_playerasm_loco_transition_ccw_angle;
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm6, xmm0
-  }
+  v1 = DCONST_DVARFLT_playerasm_loco_transition_ccw_angle;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_ccw_angle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_ccw_angle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_playerasm_loco_transition_cw_angle;
+  Dvar_CheckFrontendServerThread(v1);
+  value = v1->current.value;
+  v3 = DCONST_DVARFLT_playerasm_loco_transition_cw_angle;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_cw_angle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_cw_angle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vcomiss xmm6, xmm7 }
-  if ( !(v7 | v8) )
-    goto LABEL_10;
-  __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-  if ( v7 )
-LABEL_10:
-    result = 1;
-  else
-    result = 0;
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return result;
+  Dvar_CheckFrontendServerThread(v3);
+  return angle > value || angle < v3->current.value;
 }
 
 /*
@@ -2006,60 +1778,32 @@ LABEL_10:
 PlayerASM_IsForwardAngle
 ==============
 */
-
-bool __fastcall PlayerASM_IsForwardAngle(double angle)
+char PlayerASM_IsForwardAngle(const float angle)
 {
-  char v7; 
-  char v8; 
-  bool result; 
+  const dvar_t *v1; 
+  float value; 
+  const dvar_t *v3; 
 
-  _RBX = DCONST_DVARFLT_playerasm_loco_transition_ccw_angle;
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps xmm6, xmm0
-  }
+  v1 = DCONST_DVARFLT_playerasm_loco_transition_ccw_angle;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_ccw_angle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_ccw_angle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_playerasm_loco_transition_cw_angle;
+  Dvar_CheckFrontendServerThread(v1);
+  value = v1->current.value;
+  v3 = DCONST_DVARFLT_playerasm_loco_transition_cw_angle;
   if ( !DCONST_DVARFLT_playerasm_loco_transition_cw_angle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerasm_loco_transition_cw_angle") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( !v7 )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( angle >= 0.0 )
+    goto LABEL_10;
+  if ( angle > v3->current.value )
+    return 1;
+  if ( angle >= 0.0 )
   {
 LABEL_10:
-    __asm { vcomiss xmm6, xmm7 }
-    if ( v7 )
-      goto LABEL_11;
-LABEL_12:
-    result = 0;
-    goto LABEL_13;
+    if ( angle < value )
+      return 1;
   }
-  __asm { vcomiss xmm6, dword ptr [rbx+28h] }
-  if ( v7 | v8 )
-  {
-    __asm { vcomiss xmm6, xmm0 }
-    if ( v7 )
-      goto LABEL_12;
-    goto LABEL_10;
-  }
-LABEL_11:
-  result = 1;
-LABEL_13:
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -2112,7 +1856,6 @@ __int64 PlayerASM_PlayPredictedAnim(const PlayerASM_Context *context, const Play
   int entryIndex; 
   char v5; 
   int gameTime; 
-  float v9; 
   PlayerASM_AnimSlot slot; 
 
   entryIndex = PlayerASM_ChooseAnimByConditions<1>(context, parameters);
@@ -2120,10 +1863,8 @@ __int64 PlayerASM_PlayPredictedAnim(const PlayerASM_Context *context, const Play
     return 0i64;
   v5 = parameters->slot[0];
   gameTime = parameters->pAsm->GetGameTime(parameters->pAsm);
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
   LOBYTE(slot) = v5;
-  __asm { vmovss  [rsp+58h+var_20], xmm0 }
-  BG_PlayerASM_SetAnimState(context, parameters->pAsm, parameters->entNum, (const scr_string_t)parameters->asmName, parameters->stateName, entryIndex, gameTime, v9, slot);
+  BG_PlayerASM_SetAnimState(context, parameters->pAsm, parameters->entNum, (const scr_string_t)parameters->asmName, parameters->stateName, entryIndex, gameTime, 1.0, slot);
   return 1i64;
 }
 

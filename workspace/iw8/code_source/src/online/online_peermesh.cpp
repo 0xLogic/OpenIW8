@@ -893,123 +893,95 @@ PeerMesh_Draw
 */
 void PeerMesh_Draw(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v5; 
-  int v6; 
-  __int64 v7; 
+  const dvar_t *v1; 
+  int v2; 
+  __int64 v3; 
   const PartyData *CurrentParty; 
   int ControllerFromClient; 
-  const dvar_t *v10; 
-  bool v11; 
-  const ScreenPlacement *v12; 
+  const dvar_t *v6; 
+  bool v7; 
+  const ScreenPlacement *v8; 
   int OurClientNum; 
-  int v15; 
-  int i; 
-  float fmt; 
-  float fmta; 
+  const dvar_t *v10; 
+  int v11; 
+  float value; 
   float y; 
-  float ya; 
-  float v28; 
-  float v29; 
-  float v30; 
-  float v31; 
+  double v14; 
+  float v15; 
+  double v16; 
+  int i; 
+  double Float_Internal_DebugName; 
+  float v19; 
+  double v20; 
 
-  v5 = DVARBOOL_estrangedClientList;
-  v6 = 0;
-  v7 = localClientNum;
+  v1 = DVARBOOL_estrangedClientList;
+  v2 = 0;
+  v3 = localClientNum;
   if ( !DVARBOOL_estrangedClientList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "estrangedClientList") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v5);
-  if ( v5->current.enabled )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.enabled )
   {
     CurrentParty = Live_GetCurrentParty();
     if ( Party_GetNumGameSlots(CurrentParty) <= 24 && (!Party_IsHostDedicated(CurrentParty) || Party_IsPrivateDSMatch(CurrentParty)) )
     {
-      ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v7);
+      ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v3);
       if ( Live_IsSignedIn(ControllerFromClient) )
       {
-        v10 = DVARBOOL_onlinegame;
+        v6 = DVARBOOL_onlinegame;
         if ( !DVARBOOL_onlinegame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "onlinegame") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v10);
-        if ( v10->current.enabled || CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v7) == CA_ACTIVE && Dvar_GetBool_Internal_DebugName(DVARBOOL_systemlink, "systemlink") )
+        Dvar_CheckFrontendServerThread(v6);
+        if ( v6->current.enabled || CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v3) == CA_ACTIVE && Dvar_GetBool_Internal_DebugName(DVARBOOL_systemlink, "systemlink") )
         {
-          __asm
-          {
-            vmovaps [rsp+0B8h+var_48], xmm7
-            vmovaps [rsp+0B8h+var_58], xmm8
-          }
           if ( activeScreenPlacementMode )
           {
             if ( activeScreenPlacementMode == SCRMODE_DISPLAY )
             {
-              v12 = &scrPlaceViewDisplay[v7];
+              v8 = &scrPlaceViewDisplay[v3];
 LABEL_22:
               OurClientNum = Live_GetOurClientNum(ControllerFromClient, CurrentParty);
-              _RBX = DVARVEC2_estrangedClientPos;
-              v15 = OurClientNum;
+              v10 = DVARVEC2_estrangedClientPos;
+              v11 = OurClientNum;
               if ( !DVARVEC2_estrangedClientPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "estrangedClientPos") )
                 __debugbreak();
-              __asm { vmovaps [rsp+0B8h+var_38], xmm6 }
-              Dvar_CheckFrontendServerThread(_RBX);
-              __asm
-              {
-                vmovss  xmm7, dword ptr [rbx+28h]
-                vmovss  xmm8, dword ptr [rbx+2Ch]
-              }
-              if ( v15 >= 0 )
+              Dvar_CheckFrontendServerThread(v10);
+              value = v10->current.value;
+              y = v10->current.vector.v[1];
+              if ( v11 >= 0 )
               {
                 for ( i = 0; i < 32; ++i )
                 {
-                  if ( Party_IsMemberRegistered(CurrentParty, i) && v15 != i && !PeerMesh_CanClientConnect(CurrentParty, i) )
+                  if ( Party_IsMemberRegistered(CurrentParty, i) && v11 != i && !PeerMesh_CanClientConnect(CurrentParty, i) )
                   {
-                    if ( !v6 )
+                    if ( !v2 )
                     {
-                      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_estrangedClientSize, "estrangedClientSize");
-                      __asm { vmovaps xmm6, xmm0 }
-                      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_estrangedClientSize, "estrangedClientSize");
-                      __asm
-                      {
-                        vmovss  [rsp+0B8h+var_70], xmm6
-                        vmovss  [rsp+0B8h+var_78], xmm0
-                        vmovss  [rsp+0B8h+y], xmm8
-                        vmovss  dword ptr [rsp+0B8h+fmt], xmm7
-                      }
-                      CL_DrawText(v12, "Can't get packets to:", 0x7FFFFFFF, cls.smallDevFont, fmta, ya, 1, 1, v29, v31, &colorRedFaded, 0);
+                      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_estrangedClientSize, "estrangedClientSize");
+                      v19 = *(float *)&Float_Internal_DebugName;
+                      v20 = Dvar_GetFloat_Internal_DebugName(DVARFLT_estrangedClientSize, "estrangedClientSize");
+                      CL_DrawText(v8, "Can't get packets to:", 0x7FFFFFFF, cls.smallDevFont, value, y, 1, 1, *(float *)&v20, v19, &colorRedFaded, 0);
                     }
-                    PeerMesh_DrawEstrangedClient(v12, (LocalClientNum_t)v7, i, v6++);
+                    PeerMesh_DrawEstrangedClient(v8, (LocalClientNum_t)v3, i, v2++);
                   }
                 }
               }
               else if ( g_partyData.inParty || Lobby_IsInLobby() )
               {
-                *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_estrangedClientSize, "estrangedClientSize");
-                __asm { vmovaps xmm6, xmm0 }
-                *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_estrangedClientSize, "estrangedClientSize");
-                __asm
-                {
-                  vmovss  [rsp+0B8h+var_70], xmm6
-                  vmovss  [rsp+0B8h+var_78], xmm0
-                  vmovss  [rsp+0B8h+y], xmm8
-                  vmovss  dword ptr [rsp+0B8h+fmt], xmm7
-                }
-                CL_DrawText(v12, "We don't know our client num", 0x7FFFFFFF, cls.smallDevFont, fmt, y, 1, 1, v28, v30, &colorRedFaded, 0);
-              }
-              __asm
-              {
-                vmovaps xmm6, [rsp+0B8h+var_38]
-                vmovaps xmm7, [rsp+0B8h+var_48]
-                vmovaps xmm8, [rsp+0B8h+var_58]
+                v14 = Dvar_GetFloat_Internal_DebugName(DVARFLT_estrangedClientSize, "estrangedClientSize");
+                v15 = *(float *)&v14;
+                v16 = Dvar_GetFloat_Internal_DebugName(DVARFLT_estrangedClientSize, "estrangedClientSize");
+                CL_DrawText(v8, "We don't know our client num", 0x7FFFFFFF, cls.smallDevFont, value, y, 1, 1, *(float *)&v16, v15, &colorRedFaded, 0);
               }
               return;
             }
             if ( activeScreenPlacementMode == SCRMODE_INVALID )
-              v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+              v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
             else
-              v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-            if ( v11 )
+              v7 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+            if ( v7 )
               __debugbreak();
           }
-          v12 = &scrPlaceFull;
+          v8 = &scrPlaceFull;
           goto LABEL_22;
         }
       }
@@ -1024,67 +996,39 @@ PeerMesh_DrawEstrangedClient
 */
 void PeerMesh_DrawEstrangedClient(const ScreenPlacement *scrPlace, LocalClientNum_t localClientNum, int estrangedClientNum, int drawPos)
 {
-  const dvar_t *v19; 
-  float fmt; 
-  float y; 
-  float v30; 
-  float v31; 
+  const dvar_t *v7; 
+  float value; 
+  float v9; 
+  const dvar_t *v10; 
+  float v11; 
+  const dvar_t *v12; 
+  float v13; 
+  const dvar_t *v14; 
   char buf[64]; 
-  char v33; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
   if ( !CL_GetClientName(localClientNum, estrangedClientNum, buf, 0x40ui64) )
     Com_sprintf(buf, 0x40ui64, "client %i", (unsigned int)estrangedClientNum);
-  _RBX = DVARVEC2_estrangedClientPos;
+  v7 = DVARVEC2_estrangedClientPos;
   if ( !DVARVEC2_estrangedClientPos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 727, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "estrangedClientPos") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rbx+28h]
-    vmovss  xmm9, dword ptr [rbx+2Ch]
-  }
-  _RBX = DVARFLT_estrangedClientSize;
+  Dvar_CheckFrontendServerThread(v7);
+  value = v7->current.value;
+  v9 = v7->current.vector.v[1];
+  v10 = DVARFLT_estrangedClientSize;
   if ( !DVARFLT_estrangedClientSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "estrangedClientSize") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm7, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_estrangedClientSize;
+  Dvar_CheckFrontendServerThread(v10);
+  v11 = v10->current.value;
+  v12 = DVARFLT_estrangedClientSize;
   if ( !DVARFLT_estrangedClientSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "estrangedClientSize") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  v19 = DVARINT_estrangedClientHeight;
+  Dvar_CheckFrontendServerThread(v12);
+  v13 = v12->current.value;
+  v14 = DVARINT_estrangedClientHeight;
   if ( !DVARINT_estrangedClientHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "estrangedClientHeight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  [rsp+128h+var_E0], xmm7
-    vmovss  [rsp+128h+var_E8], xmm6
-    vaddss  xmm1, xmm0, xmm9
-    vmovss  [rsp+128h+y], xmm1
-    vmovss  dword ptr [rsp+128h+fmt], xmm8
-  }
-  CL_DrawText(scrPlace, buf, 0x7FFFFFFF, cls.smallDevFont, fmt, y, 1, 1, v30, v31, &colorRedFaded, 0);
-  _R11 = &v33;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-  }
+  Dvar_CheckFrontendServerThread(v14);
+  CL_DrawText(scrPlace, buf, 0x7FFFFFFF, cls.smallDevFont, value, (float)(v14->current.integer * (drawPos + 1)) + v9, 1, 1, v13, v11, &colorRedFaded, 0);
 }
 
 /*
@@ -1509,37 +1453,30 @@ PeerMesh_HandleConnectionTestPacket
 void PeerMesh_HandleConnectionTestPacket(PartyData *party, LocalClientNum_t localClientNum, msg_t *msg, const netadr_t *from)
 {
   unsigned int Byte; 
-  const char *v9; 
+  const char *v8; 
   bdSecurityID *SecurityId; 
   XUID *Xuid; 
+  const char *v11; 
   const char *v12; 
   const char *v13; 
-  const char *v15; 
   const char *MemberName; 
   int LocalConnectivity; 
-  unsigned int v18; 
   XUID result; 
-  netadr_t v20; 
-  __int64 v21; 
-  XUID v22; 
+  netadr_t v17; 
+  __int64 v18; 
+  XUID v19; 
   bdSecurityID buffer; 
 
-  v21 = -2i64;
-  _RBP = from;
+  v18 = -2i64;
   bdSecurityID::bdSecurityID(&buffer);
   MSG_ReadData(msg, 8, &buffer, 8);
   Byte = MSG_ReadByte(msg);
   XUID::FromMsg(&result, msg);
   if ( msg->overflowed )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovups [rsp+98h+var_58], xmm0
-    }
-    v20.addrHandleIndex = _RBP->addrHandleIndex;
-    v9 = NET_AdrToString(&v20);
-    Com_Printf(25, "Invalid voice test packet - overflowed (%s)\n", v9);
+    v17 = *from;
+    v8 = NET_AdrToString(&v17);
+    Com_Printf(25, "Invalid voice test packet - overflowed (%s)\n", v8);
   }
   else if ( Party_GetNumGameSlots(party) > 24 || Party_IsHostDedicated(party) && !Party_IsPrivateDSMatch(party) )
   {
@@ -1564,11 +1501,11 @@ void PeerMesh_HandleConnectionTestPacket(PartyData *party, LocalClientNum_t loca
       }
       else
       {
-        Xuid = Party_GetXuid(&v22, party, Byte);
+        Xuid = Party_GetXuid(&v19, party, Byte);
         if ( XUID::operator!=(Xuid, &result) )
         {
-          v12 = XUID::ToDevString(&result);
-          Com_Printf(25, "Invalid voice test packet, XUID %s didn't match our clientNum %i's XUID\n", v12, Byte);
+          v11 = XUID::ToDevString(&result);
+          Com_Printf(25, "Invalid voice test packet, XUID %s didn't match our clientNum %i's XUID\n", v11, Byte);
         }
         else if ( Party_AreWeHost(party) )
         {
@@ -1576,21 +1513,15 @@ void PeerMesh_HandleConnectionTestPacket(PartyData *party, LocalClientNum_t loca
         }
         else if ( Party_IsHost(party, Byte) )
         {
-          v13 = XUID::ToDevString(&result);
-          Com_Printf(25, "Invalid voice test packet, from the host (%s, %i)\n", v13, Byte);
+          v12 = XUID::ToDevString(&result);
+          Com_Printf(25, "Invalid voice test packet, from the host (%s, %i)\n", v12, Byte);
         }
         else
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbp+0]
-            vmovups [rsp+98h+var_58], xmm0
-          }
-          v20.addrHandleIndex = _RBP->addrHandleIndex;
-          v15 = NET_AdrToString(&v20);
+          v17 = *from;
+          v13 = NET_AdrToString(&v17);
           MemberName = Party_GetMemberName(party, Byte);
-          v18 = Byte;
-          Com_Printf(25, "[%s] We can hear '%s' (%i) at addr %s\n", party->partyName, MemberName, v18, v15);
+          Com_Printf(25, "[%s] We can hear '%s' (%i) at addr %s\n", party->partyName, MemberName, Byte, v13);
           LocalConnectivity = PeerMesh_GetLocalConnectivity(party);
           PeerMesh_SetLocalConnectivity(party, LocalConnectivity | (1 << Byte));
         }

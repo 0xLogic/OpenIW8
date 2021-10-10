@@ -102,430 +102,296 @@ R_ChopWorldPolyBehindPlane
 */
 __int64 R_ChopWorldPolyBehindPlane(int inPointCount, const FxWorldMarkPoint *inPoints, FxWorldMarkPoint *outPoints, const vec4_t *plane)
 {
-  __int64 v8; 
-  int v14; 
-  int v15; 
-  bool v21; 
-  bool v22; 
-  unsigned __int64 v23; 
-  char *p_z; 
-  int v31; 
-  __int64 *v32; 
-  int v39; 
-  __int64 *v40; 
-  int v47; 
-  __int64 *v48; 
-  int v55; 
-  __int64 *v56; 
-  __int64 v62; 
-  bool v63; 
-  bool v64; 
-  int v71; 
-  __int64 *v72; 
-  int v74; 
-  __int64 result; 
-  int v78; 
-  int v81; 
-  int v86; 
-  bool v87; 
-  bool v88; 
-  __int64 v122; 
-  double v123; 
-  __int64 v124; 
-  int v125; 
-  int v126[10]; 
+  __int128 v4; 
+  __int128 v5; 
+  __int64 v6; 
+  int v10; 
+  int v11; 
+  __int64 v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float *v17; 
+  float v18; 
+  int v19; 
+  __int64 *v20; 
+  float v21; 
+  int v22; 
+  __int64 *v23; 
+  float v24; 
+  int v25; 
+  __int64 *v26; 
+  float v27; 
+  int v28; 
+  __int64 *v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float *v34; 
+  float v35; 
+  int v36; 
+  __int64 *v37; 
+  int v38; 
+  int v40; 
+  float *v41; 
+  __int64 v42; 
+  int v43; 
+  int v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  __int64 v49; 
+  __int64 v50; 
+  __int64 v51; 
+  int v52; 
+  int v53[10]; 
+  int v54[10]; 
+  __int128 v55; 
+  __int128 v56; 
 
-  v8 = inPointCount;
-  _RDI = plane;
-  _RSI = outPoints;
-  _R13 = inPoints;
+  v6 = inPointCount;
   if ( inPointCount > 9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 64, ASSERT_TYPE_ASSERT, "( ( inPointCount <= 3 + 6 ) )", "( inPointCount ) = %i", inPointCount) )
     __debugbreak();
-  __asm
+  v10 = 0;
+  v11 = 0;
+  v56 = v4;
+  v12 = 0i64;
+  v51 = 0i64;
+  v52 = 0;
+  if ( v6 >= 4 )
   {
-    vmovss  xmm5, cs:__real@3f000000
-    vmovss  xmm3, cs:__real@bf000000
-  }
-  v14 = 0;
-  __asm
-  {
-    vmovaps [rsp+110h+var_40], xmm6
-    vmovaps [rsp+110h+var_50], xmm7
-  }
-  v15 = 0;
-  __asm { vmovaps [rsp+110h+var_60], xmm8 }
-  _RCX = 0i64;
-  v124 = 0i64;
-  v125 = 0;
-  if ( v8 >= 4 )
-  {
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rdi+4]
-      vmovss  xmm7, dword ptr [rdi]
-      vmovss  xmm6, dword ptr [rdi+0Ch]
-      vmovaps [rsp+110h+var_70], xmm9
-      vmovss  xmm9, dword ptr [rdi+8]
-    }
-    v21 = __CFSHR__(v8 - 4, 2);
-    v22 = v21 || (unsigned __int64)(v8 - 4) >> 2 == 0;
-    v23 = v8 - 3;
-    p_z = (char *)&_R13[1].xyz.z;
-    v15 = 4 * ((unsigned __int64)(v8 - 4) >> 2) + 4;
+    v13 = plane->v[1];
+    v14 = plane->v[0];
+    v15 = plane->v[3];
+    v55 = v5;
+    v16 = plane->v[2];
+    v17 = &inPoints[1].xyz.v[2];
+    v11 = 4 * ((unsigned __int64)(v6 - 4) >> 2) + 4;
     do
     {
-      __asm
+      v18 = (float)((float)((float)(v14 * *(v17 - 8)) + (float)(v13 * *(v17 - 7))) + (float)(v16 * *(v17 - 6))) - v15;
+      *(float *)&v54[v12] = v18;
+      if ( v18 <= 0.5 )
       {
-        vmulss  xmm1, xmm7, dword ptr [rdx-20h]
-        vmulss  xmm0, xmm8, dword ptr [rdx-1Ch]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm9, dword ptr [rdx-18h]
-        vaddss  xmm0, xmm2, xmm1
-        vsubss  xmm4, xmm0, xmm6
-        vcomiss xmm4, xmm5
-        vmovss  [rbp+rcx*4+57h+var_A8], xmm4
-      }
-      if ( v22 )
-      {
-        __asm { vcomiss xmm4, xmm3 }
-        if ( v21 )
+        if ( v18 >= -0.5 )
         {
-          v31 = HIDWORD(v124);
-          v32 = (__int64 *)((char *)&v124 + 4);
-          v126[_RCX] = 1;
+          v19 = v52;
+          v20 = (__int64 *)&v52;
+          v53[v12] = 2;
         }
         else
         {
-          v31 = v125;
-          v32 = (__int64 *)&v125;
-          v126[_RCX] = 2;
+          v19 = HIDWORD(v51);
+          v20 = (__int64 *)((char *)&v51 + 4);
+          v53[v12] = 1;
         }
       }
       else
       {
-        v31 = v124;
-        v32 = &v124;
-        v126[_RCX] = 0;
+        v19 = v51;
+        v20 = &v51;
+        v53[v12] = 0;
       }
-      __asm
+      v21 = (float)((float)((float)(v14 * *(v17 - 2)) + (float)(v13 * *(v17 - 1))) + (float)(v16 * *v17)) - v15;
+      *(float *)&v54[v12 + 1] = v21;
+      *(_DWORD *)v20 = v19 + 1;
+      if ( v21 <= 0.5 )
       {
-        vmulss  xmm1, xmm7, dword ptr [rdx-8]
-        vmulss  xmm0, xmm8, dword ptr [rdx-4]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm9, dword ptr [rdx]
-        vaddss  xmm0, xmm2, xmm1
-        vsubss  xmm4, xmm0, xmm6
-        vcomiss xmm4, xmm5
-        vmovss  [rbp+rcx*4+57h+var_A4], xmm4
-      }
-      *(_DWORD *)v32 = v31 + 1;
-      if ( v21 || v31 == -1 )
-      {
-        __asm { vcomiss xmm4, xmm3 }
-        if ( v21 )
+        if ( v21 >= -0.5 )
         {
-          v39 = HIDWORD(v124);
-          v40 = (__int64 *)((char *)&v124 + 4);
-          v126[_RCX + 1] = 1;
+          v22 = v52;
+          v23 = (__int64 *)&v52;
+          v53[v12 + 1] = 2;
         }
         else
         {
-          v39 = v125;
-          v40 = (__int64 *)&v125;
-          v126[_RCX + 1] = 2;
+          v22 = HIDWORD(v51);
+          v23 = (__int64 *)((char *)&v51 + 4);
+          v53[v12 + 1] = 1;
         }
       }
       else
       {
-        v39 = v124;
-        v40 = &v124;
-        v126[_RCX + 1] = 0;
+        v22 = v51;
+        v23 = &v51;
+        v53[v12 + 1] = 0;
       }
-      __asm
+      v24 = (float)((float)((float)(v14 * v17[4]) + (float)(v13 * v17[5])) + (float)(v16 * v17[6])) - v15;
+      *(float *)&v54[v12 + 2] = v24;
+      *(_DWORD *)v23 = v22 + 1;
+      if ( v24 <= 0.5 )
       {
-        vmulss  xmm1, xmm7, dword ptr [rdx+10h]
-        vmulss  xmm0, xmm8, dword ptr [rdx+14h]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm9, dword ptr [rdx+18h]
-        vaddss  xmm0, xmm2, xmm1
-        vsubss  xmm4, xmm0, xmm6
-        vcomiss xmm4, xmm5
-        vmovss  [rbp+rcx*4+57h+var_A0], xmm4
-      }
-      *(_DWORD *)v40 = v39 + 1;
-      if ( v21 || v39 == -1 )
-      {
-        __asm { vcomiss xmm4, xmm3 }
-        if ( v21 )
+        if ( v24 >= -0.5 )
         {
-          v47 = HIDWORD(v124);
-          v48 = (__int64 *)((char *)&v124 + 4);
-          v126[_RCX + 2] = 1;
+          v25 = v52;
+          v26 = (__int64 *)&v52;
+          v53[v12 + 2] = 2;
         }
         else
         {
-          v47 = v125;
-          v48 = (__int64 *)&v125;
-          v126[_RCX + 2] = 2;
+          v25 = HIDWORD(v51);
+          v26 = (__int64 *)((char *)&v51 + 4);
+          v53[v12 + 2] = 1;
         }
       }
       else
       {
-        v47 = v124;
-        v48 = &v124;
-        v126[_RCX + 2] = 0;
+        v25 = v51;
+        v26 = &v51;
+        v53[v12 + 2] = 0;
       }
-      __asm
+      v27 = (float)((float)((float)(v14 * v17[10]) + (float)(v13 * v17[11])) + (float)(v16 * v17[12])) - v15;
+      *(float *)&v54[v12 + 3] = v27;
+      *(_DWORD *)v26 = v25 + 1;
+      if ( v27 <= 0.5 )
       {
-        vmulss  xmm1, xmm7, dword ptr [rdx+28h]
-        vmulss  xmm0, xmm8, dword ptr [rdx+2Ch]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm9, dword ptr [rdx+30h]
-        vaddss  xmm0, xmm2, xmm1
-        vsubss  xmm4, xmm0, xmm6
-        vcomiss xmm4, xmm5
-        vmovss  [rbp+rcx*4+57h+var_9C], xmm4
-      }
-      *(_DWORD *)v48 = v47 + 1;
-      if ( v21 || v47 == -1 )
-      {
-        __asm { vcomiss xmm4, xmm3 }
-        if ( v21 )
+        if ( v27 >= -0.5 )
         {
-          v55 = HIDWORD(v124);
-          v56 = (__int64 *)((char *)&v124 + 4);
-          v126[_RCX + 3] = 1;
+          v28 = v52;
+          v29 = (__int64 *)&v52;
+          v53[v12 + 3] = 2;
         }
         else
         {
-          v55 = v125;
-          v56 = (__int64 *)&v125;
-          v126[_RCX + 3] = 2;
+          v28 = HIDWORD(v51);
+          v29 = (__int64 *)((char *)&v51 + 4);
+          v53[v12 + 3] = 1;
         }
       }
       else
       {
-        v55 = v124;
-        v56 = &v124;
-        v126[_RCX + 3] = 0;
+        v28 = v51;
+        v29 = &v51;
+        v53[v12 + 3] = 0;
       }
-      _RCX += 4i64;
-      p_z += 96;
-      *(_DWORD *)v56 = v55 + 1;
-      v21 = _RCX < v23;
-      v22 = _RCX <= v23;
+      v12 += 4i64;
+      v17 += 24;
+      *(_DWORD *)v29 = v28 + 1;
     }
-    while ( (__int64)_RCX < (__int64)v23 );
-    __asm { vmovaps xmm9, [rsp+110h+var_70] }
+    while ( v12 < v6 - 3 );
   }
-  if ( (__int64)_RCX < v8 )
+  if ( v12 < v6 )
   {
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rdi+4]
-      vmovss  xmm7, dword ptr [rdi]
-      vmovss  xmm4, dword ptr [rdi+8]
-      vmovss  xmm6, dword ptr [rdi+0Ch]
-    }
-    v62 = (__int64)&_R13[_RCX].xyz.z;
-    v63 = __CFADD__(v8 - _RCX, v15);
-    v64 = v63 || (_DWORD)v8 - (_DWORD)_RCX + v15 == 0;
-    v15 += v8 - _RCX;
+    v30 = plane->v[1];
+    v31 = plane->v[0];
+    v32 = plane->v[2];
+    v33 = plane->v[3];
+    v34 = &inPoints[v12].xyz.v[2];
+    v11 += v6 - v12;
     do
     {
-      __asm
+      v35 = (float)((float)((float)(v31 * *(v34 - 2)) + (float)(v30 * *(v34 - 1))) + (float)(v32 * *v34)) - v33;
+      *(float *)&v54[v12] = v35;
+      if ( v35 <= 0.5 )
       {
-        vmulss  xmm1, xmm7, dword ptr [rdx-8]
-        vmulss  xmm0, xmm8, dword ptr [rdx-4]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, dword ptr [rdx]
-        vaddss  xmm2, xmm2, xmm1
-        vsubss  xmm0, xmm2, xmm6
-        vcomiss xmm0, xmm5
-        vmovss  [rbp+rcx*4+57h+var_A8], xmm0
-      }
-      if ( v64 )
-      {
-        __asm { vcomiss xmm0, xmm3 }
-        if ( v63 )
+        if ( v35 >= -0.5 )
         {
-          v71 = HIDWORD(v124);
-          v72 = (__int64 *)((char *)&v124 + 4);
-          v126[_RCX] = 1;
+          v36 = v52;
+          v37 = (__int64 *)&v52;
+          v53[v12] = 2;
         }
         else
         {
-          v71 = v125;
-          v72 = (__int64 *)&v125;
-          v126[_RCX] = 2;
+          v36 = HIDWORD(v51);
+          v37 = (__int64 *)((char *)&v51 + 4);
+          v53[v12] = 1;
         }
       }
       else
       {
-        v71 = v124;
-        v72 = &v124;
-        v126[_RCX] = 0;
+        v36 = v51;
+        v37 = &v51;
+        v53[v12] = 0;
       }
-      ++_RCX;
-      v62 += 24i64;
-      *(_DWORD *)v72 = v71 + 1;
-      v63 = _RCX < v8;
-      v64 = _RCX <= v8;
+      ++v12;
+      v34 += 6;
+      *(_DWORD *)v37 = v36 + 1;
     }
-    while ( (__int64)_RCX < v8 );
+    while ( v12 < v6 );
   }
-  __asm { vmovss  xmm0, [rbp+57h+var_A8] }
-  v74 = v126[0];
-  __asm { vmovaps xmm8, [rsp+110h+var_60] }
-  _RCX = v15;
-  __asm { vmovss  [rbp+rcx*4+57h+var_A8], xmm0 }
-  v126[v15] = v74;
-  if ( (_DWORD)v124 )
+  v38 = v53[0];
+  v54[v11] = v54[0];
+  v53[v11] = v38;
+  if ( !(_DWORD)v51 )
+    return 0i64;
+  if ( !HIDWORD(v51) )
   {
-    if ( !HIDWORD(v124) )
+    memmove_0(outPoints, inPoints, 24 * v6);
+    return (unsigned int)v6;
+  }
+  v40 = 0;
+  if ( (int)v6 > 0 )
+  {
+    v41 = &inPoints->vertWeights.v[2];
+    v42 = 0i64;
+    do
     {
-      memmove_0(_RSI, _R13, 24 * v8);
-      result = (unsigned int)v8;
-      goto LABEL_64;
-    }
-    v78 = 0;
-    if ( (int)v8 <= 0 )
-    {
-LABEL_63:
-      result = (unsigned int)v14;
-      goto LABEL_64;
-    }
-    _R14 = &_R13->vertWeights.v[2];
-    _RDI = 0i64;
-    while ( 1 )
-    {
-      v81 = v126[_RDI];
-      if ( v81 == 2 )
+      v43 = v53[v42];
+      if ( v43 == 2 )
       {
-        if ( v14 >= 9 )
+        if ( v10 >= 9 )
         {
-          LODWORD(v122) = v14;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 102, ASSERT_TYPE_ASSERT, "( ( outPointCount < 3 + 6 ) )", "( outPointCount ) = %i", v122) )
+          LODWORD(v50) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 102, ASSERT_TYPE_ASSERT, "( ( outPointCount < 3 + 6 ) )", "( outPointCount ) = %i", v50) )
             __debugbreak();
         }
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [r14-14h]
-          vmovups xmmword ptr [rsi], xmm0
-          vmovsd  xmm1, qword ptr [r14-4]
-          vmovsd  qword ptr [rsi+10h], xmm1
-        }
+        *(_OWORD *)outPoints->xyz.v = *(_OWORD *)(v41 - 5);
+        *(double *)&outPoints->vertWeights.y = *(double *)(v41 - 1);
       }
       else
       {
-        if ( !v81 )
+        if ( !v43 )
         {
-          if ( v14 >= 9 )
+          if ( v10 >= 9 )
           {
-            LODWORD(v122) = v14;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 110, ASSERT_TYPE_ASSERT, "( ( outPointCount < 3 + 6 ) )", "( outPointCount ) = %i", v122) )
+            LODWORD(v50) = v10;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 110, ASSERT_TYPE_ASSERT, "( ( outPointCount < 3 + 6 ) )", "( outPointCount ) = %i", v50) )
               __debugbreak();
           }
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [r14-14h]
-            vmovups xmmword ptr [rsi], xmm0
-            vmovsd  xmm1, qword ptr [r14-4]
-          }
-          ++v14;
-          __asm { vmovsd  qword ptr [rsi+10h], xmm1 }
-          ++_RSI;
+          *(_OWORD *)outPoints->xyz.v = *(_OWORD *)(v41 - 5);
+          ++v10;
+          *(double *)&outPoints->vertWeights.y = *(double *)(v41 - 1);
+          ++outPoints;
         }
-        v86 = v126[_RDI + 1];
-        if ( v86 == 2 || v86 == v126[_RDI] )
-          goto LABEL_62;
-        v87 = v14 == 9;
-        if ( v14 >= 9 )
+        v44 = v53[v42 + 1];
+        if ( v44 == 2 || v44 == v53[v42] )
+          goto LABEL_61;
+        if ( v10 >= 9 )
         {
-          LODWORD(v122) = v14;
-          v88 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 119, ASSERT_TYPE_ASSERT, "( ( outPointCount < 3 + 6 ) )", "( outPointCount ) = %i", v122);
-          v87 = !v88;
-          if ( v88 )
+          LODWORD(v50) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 119, ASSERT_TYPE_ASSERT, "( ( outPointCount < 3 + 6 ) )", "( outPointCount ) = %i", v50) )
             __debugbreak();
         }
-        __asm
+        v45 = *(float *)&v54[v42];
+        v46 = *(float *)&v54[v42 + 1];
+        v47 = v45;
+        if ( v45 == v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 120, ASSERT_TYPE_ASSERT, "( ( dists[pointIndex] != dists[pointIndex + 1] ) )", "( dists[pointIndex] ) = %g", v45) )
         {
-          vmovss  xmm0, [rbp+rdi+57h+var_A8]
-          vmovss  xmm6, [rbp+rdi+57h+var_A4]
-          vucomiss xmm0, xmm6
-          vmovaps xmm7, xmm0
+          __debugbreak();
+          v47 = *(float *)&v54[v42];
         }
-        if ( v87 )
-        {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  [rsp+110h+var_E8], xmm0
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 120, ASSERT_TYPE_ASSERT, "( ( dists[pointIndex] != dists[pointIndex + 1] ) )", "( dists[pointIndex] ) = %g", v123) )
-          {
-            __debugbreak();
-            __asm { vmovss  xmm7, [rbp+rdi+57h+var_A8] }
-          }
-        }
-        __asm
-        {
-          vsubss  xmm0, xmm7, xmm6
-          vdivss  xmm6, xmm7, xmm0
-        }
-        _RCX = 3i64 * ((v78 + 1) % (int)v8);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r13+rcx*8+0]
-          vsubss  xmm1, xmm0, dword ptr [r14-14h]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, dword ptr [r14-14h]
-          vmovss  dword ptr [rsi], xmm3
-          vmovss  xmm0, dword ptr [r13+rcx*8+4]
-          vsubss  xmm1, xmm0, dword ptr [r14-10h]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, dword ptr [r14-10h]
-          vmovss  dword ptr [rsi+4], xmm3
-          vmovss  xmm0, dword ptr [r13+rcx*8+8]
-          vsubss  xmm1, xmm0, dword ptr [r14-0Ch]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, dword ptr [r14-0Ch]
-          vmovss  dword ptr [rsi+8], xmm3
-          vmovss  xmm0, dword ptr [r13+rcx*8+0Ch]
-          vsubss  xmm1, xmm0, dword ptr [r14-8]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, dword ptr [r14-8]
-          vmovss  dword ptr [rsi+0Ch], xmm3
-          vmovss  xmm0, dword ptr [r13+rcx*8+10h]
-          vsubss  xmm1, xmm0, dword ptr [r14-4]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, dword ptr [r14-4]
-          vmovss  dword ptr [rsi+10h], xmm3
-          vmovss  xmm0, dword ptr [r13+rcx*8+14h]
-          vsubss  xmm1, xmm0, dword ptr [r14]
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, dword ptr [r14]
-          vmovss  dword ptr [rsi+14h], xmm3
-        }
+        v48 = v47 / (float)(v47 - v46);
+        v49 = (v40 + 1) % (int)v6;
+        outPoints->xyz.v[0] = (float)((float)(inPoints[v49].xyz.v[0] - *(v41 - 5)) * v48) + *(v41 - 5);
+        outPoints->xyz.v[1] = (float)((float)(inPoints[v49].xyz.v[1] - *(v41 - 4)) * v48) + *(v41 - 4);
+        outPoints->xyz.v[2] = (float)((float)(inPoints[v49].xyz.v[2] - *(v41 - 3)) * v48) + *(v41 - 3);
+        outPoints->vertWeights.v[0] = (float)((float)(inPoints[v49].vertWeights.v[0] - *(v41 - 2)) * v48) + *(v41 - 2);
+        outPoints->vertWeights.v[1] = (float)((float)(inPoints[v49].vertWeights.v[1] - *(v41 - 1)) * v48) + *(v41 - 1);
+        outPoints->vertWeights.v[2] = (float)((float)(inPoints[v49].vertWeights.v[2] - *v41) * v48) + *v41;
       }
-      ++v14;
-      ++_RSI;
-LABEL_62:
-      ++v78;
-      ++_RDI;
-      _R14 += 6;
-      if ( v78 >= (int)v8 )
-        goto LABEL_63;
+      ++v10;
+      ++outPoints;
+LABEL_61:
+      ++v40;
+      ++v42;
+      v41 += 6;
     }
+    while ( v40 < (int)v6 );
   }
-  result = 0i64;
-LABEL_64:
-  __asm
-  {
-    vmovaps xmm7, [rsp+110h+var_50]
-    vmovaps xmm6, [rsp+110h+var_40]
-  }
-  return result;
+  return (unsigned int)v10;
 }
 
 /*
@@ -535,78 +401,57 @@ R_GetMarkFragmentClipPlanes
 */
 void R_GetMarkFragmentClipPlanes(const Sphere *sphere, const tmat33_t<vec3_t> *axis, vec4_t (*planes)[6])
 {
-  int v4; 
-  bool v6; 
-  __int64 v31; 
-  __int64 v32; 
+  int v3; 
+  bool v4; 
+  float *v5; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int64 v14; 
+  __int64 v15; 
 
-  v4 = 0;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-  }
-  v6 = 1;
-  _RBP = &axis->m[0].v[2];
-  _RDI = planes;
+  v3 = 0;
+  v4 = 1;
+  v5 = &axis->m[0].v[2];
   do
   {
-    if ( !v6 )
+    if ( !v4 )
     {
-      LODWORD(v32) = 3;
-      LODWORD(v31) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v31, v32) )
+      LODWORD(v15) = 3;
+      LODWORD(v14) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v14, v15) )
         __debugbreak();
     }
-    __asm
+    v8 = *(v5 - 2);
+    (*planes)[0].v[0] = v8;
+    v9 = *(v5 - 1);
+    (*planes)[0].v[1] = v9;
+    v10 = *v5;
+    (*planes)[0].v[2] = *v5;
+    (*planes)[0].v[3] = (float)((float)((float)(v9 * sphere->origin.v[1]) + (float)(v8 * sphere->origin.v[0])) + (float)(v10 * sphere->origin.v[2])) - sphere->radius;
+    if ( (unsigned int)v3 >= 3 )
     {
-      vmovss  xmm2, dword ptr [rbp-8]
-      vmovss  dword ptr [rdi], xmm2
-      vmovss  xmm0, dword ptr [rbp-4]
-      vmovss  dword ptr [rdi+4], xmm0
-      vmovss  xmm3, dword ptr [rbp+0]
-      vmovss  dword ptr [rdi+8], xmm3
-      vmulss  xmm1, xmm0, dword ptr [rsi+4]
-      vmulss  xmm0, xmm2, dword ptr [rsi]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, dword ptr [rsi+8]
-      vaddss  xmm0, xmm2, xmm1
-      vsubss  xmm2, xmm0, dword ptr [rsi+0Ch]
-      vmovss  dword ptr [rdi+0Ch], xmm2
-    }
-    if ( (unsigned int)v4 >= 3 )
-    {
-      LODWORD(v32) = 3;
-      LODWORD(v31) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v31, v32) )
+      LODWORD(v15) = 3;
+      LODWORD(v14) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v14, v15) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp-8]
-      vxorps  xmm4, xmm0, xmm6
-      vmovss  dword ptr [rdi+10h], xmm4
-      vmovss  xmm1, dword ptr [rbp-4]
-      vxorps  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rdi+14h], xmm2
-      vmovss  xmm0, dword ptr [rbp+0]
-      vxorps  xmm3, xmm0, xmm6
-      vmovss  dword ptr [rdi+18h], xmm3
-      vmulss  xmm1, xmm2, dword ptr [rsi+4]
-      vmulss  xmm0, xmm4, dword ptr [rsi]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, dword ptr [rsi+8]
-      vaddss  xmm0, xmm2, xmm1
-      vsubss  xmm2, xmm0, dword ptr [rsi+0Ch]
-      vmovss  dword ptr [rdi+1Ch], xmm2
-    }
-    _RDI = (vec4_t (*)[6])((char *)_RDI + 32);
-    ++v4;
-    _RBP += 3;
-    v6 = (unsigned int)v4 < 3;
+    LODWORD(v11) = *((_DWORD *)v5 - 2) ^ _xmm;
+    (*planes)[1].v[0] = v11;
+    LODWORD(v12) = *((_DWORD *)v5 - 1) ^ _xmm;
+    (*planes)[1].v[1] = v12;
+    LODWORD(v13) = *(_DWORD *)v5 ^ _xmm;
+    (*planes)[1].v[2] = v13;
+    (*planes)[1].v[3] = (float)((float)((float)(v12 * sphere->origin.v[1]) + (float)(v11 * sphere->origin.v[0])) + (float)(v13 * sphere->origin.v[2])) - sphere->radius;
+    planes = (vec4_t (*)[6])((char *)planes + 32);
+    ++v3;
+    v5 += 3;
+    v4 = (unsigned int)v3 < 3;
   }
-  while ( v4 < 3 );
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  while ( v3 < 3 );
 }
 
 /*
@@ -704,29 +549,48 @@ R_MarkFragments_AnimatedXModel
 */
 void R_MarkFragments_AnimatedXModel(MarkInfo *markInfo, const XModel *model, unsigned int modelLod, const DObjAnimMat *poseBone, unsigned __int8 modelBoneIndex, GfxMarkContext *markContext)
 {
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
   const XModelLodInfo *LodInfo; 
   __int64 v18; 
   DObjAnimMat *baseMat; 
   Material *const *Skins; 
-  char v21; 
-  bool v22; 
-  __int64 v23; 
-  XSurface *v24; 
-  __int64 v25; 
+  bool v21; 
+  char v22; 
+  bool v23; 
+  __int64 v24; 
+  XSurface *v25; 
   __int64 v26; 
   __int64 v27; 
-  bool v36; 
-  bool v37; 
-  BOOL v57; 
-  BOOL v58; 
+  __int64 v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  BOOL v35; 
+  BOOL v36; 
   XSurface *surfaces; 
-  Material *const *v60; 
-  MarkInfo *v61; 
-  GfxMarkContext *v62; 
+  Material *const *v38; 
+  MarkInfo *v39; 
+  GfxMarkContext *v40; 
   Bounds bounds; 
+  __int128 v42; 
+  __int128 v43; 
+  __int128 v44; 
+  __int128 v45; 
+  __int128 v46; 
+  __int128 v47; 
+  __int128 v48; 
 
-  v61 = markInfo;
-  v62 = markContext;
+  v39 = markInfo;
+  v40 = markContext;
   Profile_Begin(239);
   if ( !model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 231, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
     __debugbreak();
@@ -739,109 +603,58 @@ void R_MarkFragments_AnimatedXModel(MarkInfo *markInfo, const XModel *model, uns
   baseMat = model->baseMat;
   Skins = XModelGetSkins(model, modelLod);
   markContext->lmapIndex = modelBoneIndex;
-  v36 = !markInfo->boltOffsetValid;
-  v60 = Skins;
-  if ( v36 )
+  v21 = !markInfo->boltOffsetValid;
+  v38 = Skins;
+  if ( v21 )
     R_MarkFragments_TransformMarkToModelSpace(markInfo, poseBone, &baseMat[modelBoneIndex]);
   else
     R_MarkFragments_TransformMarkToModelSpaceBolted(markInfo, &baseMat[modelBoneIndex]);
-  v21 = 0;
   v22 = 0;
+  v23 = 0;
   Bounds_ForOBB(&bounds, &markInfo->localOrigin, (const vec3_t *)&markInfo->markSize, &markInfo->localTexCoordAxisX, &markInfo->localTexCoordAxisY, &markInfo->localTexCoordAxisZ);
-  v23 = v18;
+  v24 = v18;
   if ( (_DWORD)v18 )
   {
-    v24 = surfaces;
-    v25 = (__int64)v60;
-    v26 = 0i64;
-    __asm { vmovaps [rsp+138h+var_58], xmm6 }
+    v25 = surfaces;
+    v26 = (__int64)v38;
     v27 = 0i64;
-    __asm
-    {
-      vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+138h+var_68], xmm7
-      vmovss  xmm7, dword ptr [rsp+138h+bounds.halfSize+8]
-      vmovaps [rsp+138h+var_78], xmm8
-      vmovss  xmm8, dword ptr [rsp+138h+bounds.halfSize+4]
-      vmovaps [rsp+138h+var_88], xmm9
-      vmovss  xmm9, dword ptr [rsp+138h+bounds.halfSize]
-      vmovaps [rsp+138h+var_98], xmm10
-      vmovss  xmm10, dword ptr [rsp+138h+bounds.midPoint+8]
-      vmovaps [rsp+138h+var_A8], xmm11
-      vmovss  xmm11, dword ptr [rsp+138h+bounds.midPoint+4]
-      vmovaps [rsp+138h+var_B8], xmm12
-      vmovss  xmm12, dword ptr [rsp+138h+bounds.midPoint]
-    }
+    v48 = v6;
+    v28 = 0i64;
+    v47 = v7;
+    v29 = bounds.halfSize.v[2];
+    v46 = v8;
+    v30 = bounds.halfSize.v[1];
+    v45 = v9;
+    v31 = bounds.halfSize.v[0];
+    v44 = v10;
+    v32 = bounds.midPoint.v[2];
+    v43 = v11;
+    v33 = bounds.midPoint.v[1];
+    v42 = v12;
+    v34 = bounds.midPoint.v[0];
     do
     {
-      if ( v22 )
+      if ( v23 )
         break;
-      if ( (*(_DWORD *)(*(_QWORD *)(v25 + 8 * v26) + 12i64) & 0x20) == 0 )
+      if ( (*(_DWORD *)(*(_QWORD *)(v26 + 8 * v27) + 12i64) & 0x20) == 0 )
       {
-        _RBX = (__int64)&v24[v27].surfBounds;
-        v36 = _RBX == 0;
-        if ( &v24[v27] == (XSurface *)-144i64 )
+        if ( &v25[v28] == (XSurface *)-144i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 607, ASSERT_TYPE_ASSERT, "(b0)", (const char *)&queryFormat, "b0") )
+          __debugbreak();
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v25[v28].surfBounds.midPoint.v[0] - v34) & _xmm) <= (float)(v31 + v25[v28].surfBounds.halfSize.v[0]) && COERCE_FLOAT(COERCE_UNSIGNED_INT(v25[v28].surfBounds.midPoint.v[1] - v33) & _xmm) <= (float)(v30 + v25[v28].surfBounds.halfSize.v[1]) && COERCE_FLOAT(COERCE_UNSIGNED_INT(v25[v28].surfBounds.midPoint.v[2] - v32) & _xmm) <= (float)(v29 + v25[v28].surfBounds.halfSize.v[2]) )
         {
-          v37 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 607, ASSERT_TYPE_ASSERT, "(b0)", (const char *)&queryFormat, "b0");
-          v36 = !v37;
-          if ( v37 )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vsubss  xmm1, xmm0, xmm12
-          vaddss  xmm0, xmm9, dword ptr [rbx+0Ch]
-          vandps  xmm1, xmm1, xmm6
-          vcomiss xmm1, xmm0
-        }
-        if ( v36 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbx+4]
-            vsubss  xmm1, xmm0, xmm11
-            vaddss  xmm0, xmm8, dword ptr [rbx+10h]
-            vandps  xmm1, xmm1, xmm6
-            vcomiss xmm1, xmm0
-          }
-          if ( v36 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbx+8]
-              vsubss  xmm1, xmm0, xmm10
-              vaddss  xmm0, xmm7, dword ptr [rbx+14h]
-              vandps  xmm1, xmm1, xmm6
-              vcomiss xmm1, xmm0
-            }
-            if ( v36 )
-            {
-              v21 = 1;
-              v22 = (v24[v27].flags & 2) != 0;
-            }
-          }
+          v22 = 1;
+          v23 = (v25[v28].flags & 2) != 0;
         }
       }
-      ++v26;
       ++v27;
+      ++v28;
     }
-    while ( v26 != v23 );
-    __asm
+    while ( v27 != v24 );
+    if ( v22 )
     {
-      vmovaps xmm12, [rsp+138h+var_B8]
-      vmovaps xmm11, [rsp+138h+var_A8]
-      vmovaps xmm10, [rsp+138h+var_98]
-      vmovaps xmm9, [rsp+138h+var_88]
-      vmovaps xmm8, [rsp+138h+var_78]
-      vmovaps xmm7, [rsp+138h+var_68]
-      vmovaps xmm6, [rsp+138h+var_58]
-    }
-    if ( v21 )
-    {
-      LOBYTE(v58) = v22;
-      LOBYTE(v57) = 0;
-      v61->callback(v61->callbackContext, v62, &v61->localOrigin, &v61->localTexCoordAxisX, &v61->localTexCoordAxisY, &v61->localTexCoordAxisZ, v57, v58);
+      LOBYTE(v36) = v23;
+      LOBYTE(v35) = 0;
+      v39->callback(v39->callbackContext, v40, &v39->localOrigin, &v39->localTexCoordAxisX, &v39->localTexCoordAxisY, &v39->localTexCoordAxisZ, v35, v36);
     }
   }
   Profile_EndInternal(NULL);
@@ -855,86 +668,73 @@ R_MarkFragments_Begin
 void R_MarkFragments_Begin(MarkInfo *markInfo, MarkFragmentsAgainstEnum markAgainst, const tmat33_t<vec3_t> *axis, const vec3_t *viewOffset, Material *material, Material *displacementMaterial, bool markGivenModelsOnly, bool markDynEnt, int viewmodelClientIndex)
 {
   tmat33_t<vec3_t> *p_axis; 
-  int v16; 
-  float v18; 
-  int v19; 
-  bool v20; 
-  __int64 v43; 
-  __int64 v44; 
+  vec4_t *planes; 
+  int v14; 
+  float *v15; 
+  float v16; 
+  int v17; 
+  bool v18; 
+  const R_CollInfo *collInfo; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  __int64 v26; 
+  __int64 v27; 
 
   p_axis = &markInfo->axis;
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
   AxisCopy(axis, &markInfo->axis);
-  _RSI = markInfo->planes;
-  __asm { vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000 }
+  planes = markInfo->planes;
   markInfo->viewOffset.v[0] = viewOffset->v[0];
-  v16 = 0;
+  v14 = 0;
   markInfo->viewOffset.v[1] = viewOffset->v[1];
-  _RDI = &p_axis->m[0].v[2];
-  v18 = viewOffset->v[2];
-  v19 = 0;
-  markInfo->viewOffset.v[2] = v18;
-  v20 = 1;
+  v15 = &p_axis->m[0].v[2];
+  v16 = viewOffset->v[2];
+  v17 = 0;
+  markInfo->viewOffset.v[2] = v16;
+  v18 = 1;
+  collInfo = markInfo->collInfo;
   markInfo->material = material;
   markInfo->viewmodelClientIndex = viewmodelClientIndex;
   markInfo->markAgainst = markAgainst;
   do
   {
-    if ( !v20 )
+    if ( !v18 )
     {
-      LODWORD(v44) = 3;
-      LODWORD(v43) = v19;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v43, v44) )
+      LODWORD(v27) = 3;
+      LODWORD(v26) = v17;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v26, v27) )
         __debugbreak();
     }
-    __asm
+    v20 = *(v15 - 2);
+    planes->v[0] = v20;
+    v21 = *(v15 - 1);
+    planes->v[1] = v21;
+    v22 = *v15;
+    planes->v[2] = *v15;
+    planes->v[3] = (float)((float)((float)(v21 * collInfo->sphere.origin.v[1]) + (float)(v20 * collInfo->sphere.origin.v[0])) + (float)(v22 * collInfo->sphere.origin.v[2])) - collInfo->sphere.radius;
+    if ( (unsigned int)v17 >= 3 )
     {
-      vmovss  xmm2, dword ptr [rdi-8]
-      vmovss  dword ptr [rsi], xmm2
-      vmovss  xmm0, dword ptr [rdi-4]
-      vmovss  dword ptr [rsi+4], xmm0
-      vmovss  xmm3, dword ptr [rdi]
-      vmovss  dword ptr [rsi+8], xmm3
-      vmulss  xmm1, xmm0, dword ptr [rbp+4008h]
-      vmulss  xmm0, xmm2, dword ptr [rbp+4004h]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, dword ptr [rbp+400Ch]
-      vaddss  xmm0, xmm2, xmm1
-      vsubss  xmm2, xmm0, dword ptr [rbp+4010h]
-      vmovss  dword ptr [rsi+0Ch], xmm2
-    }
-    if ( (unsigned int)v19 >= 3 )
-    {
-      LODWORD(v44) = 3;
-      LODWORD(v43) = v19;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v43, v44) )
+      LODWORD(v27) = 3;
+      LODWORD(v26) = v17;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v26, v27) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi-8]
-      vxorps  xmm4, xmm0, xmm6
-      vmovss  dword ptr [rsi+10h], xmm4
-      vmovss  xmm1, dword ptr [rdi-4]
-      vxorps  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rsi+14h], xmm2
-      vmovss  xmm0, dword ptr [rdi]
-      vxorps  xmm3, xmm0, xmm6
-      vmovss  dword ptr [rsi+18h], xmm3
-      vmulss  xmm1, xmm2, dword ptr [rbp+4008h]
-      vmulss  xmm0, xmm4, dword ptr [rbp+4004h]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, dword ptr [rbp+400Ch]
-      vaddss  xmm0, xmm2, xmm1
-      vsubss  xmm2, xmm0, dword ptr [rbp+4010h]
-      vmovss  dword ptr [rsi+1Ch], xmm2
-    }
-    _RSI += 2;
-    ++v19;
-    _RDI += 3;
-    v20 = (unsigned int)v19 < 3;
+    LODWORD(v23) = *((_DWORD *)v15 - 2) ^ _xmm;
+    planes[1].v[0] = v23;
+    LODWORD(v24) = *((_DWORD *)v15 - 1) ^ _xmm;
+    planes[1].v[1] = v24;
+    LODWORD(v25) = *(_DWORD *)v15 ^ _xmm;
+    planes[1].v[2] = v25;
+    planes[1].v[3] = (float)((float)((float)(v24 * collInfo->sphere.origin.v[1]) + (float)(v23 * collInfo->sphere.origin.v[0])) + (float)(v25 * collInfo->sphere.origin.v[2])) - collInfo->sphere.radius;
+    planes += 2;
+    ++v17;
+    v15 += 3;
+    v18 = (unsigned int)v17 < 3;
   }
-  while ( v19 < 3 );
+  while ( v17 < 3 );
   if ( markAgainst )
   {
     if ( markAgainst != MARK_FRAGMENTS_AGAINST_MODELS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 1173, ASSERT_TYPE_ASSERT, "(markAgainst == MARK_FRAGMENTS_AGAINST_MODELS)", (const char *)&queryFormat, "markAgainst == MARK_FRAGMENTS_AGAINST_MODELS") )
@@ -943,16 +743,15 @@ void R_MarkFragments_Begin(MarkInfo *markInfo, MarkFragmentsAgainstEnum markAgai
     markInfo->viewmodelDObjsCollidedCount = 0;
     markInfo->dynEntsCollidedCount = 0;
     if ( !markGivenModelsOnly )
-      v16 = R_SphereStaticModels(markInfo->collInfo, (int (__fastcall *)(int, void *))R_AllowSmodelMarks, NULL, markInfo->smodelsCollided, 0x20u);
-    markInfo->smodelCollidedCount = v16;
-    if ( v16 == 32 )
+      v14 = R_SphereStaticModels(markInfo->collInfo, (int (__fastcall *)(int, void *))R_AllowSmodelMarks, NULL, markInfo->smodelsCollided, 0x20u);
+    markInfo->smodelCollidedCount = v14;
+    if ( v14 == 32 )
       R_WarnOncePerFrame(R_WARN_MARK_SMODEL_COLLIDED_LIMIT);
   }
   else
   {
     markInfo->sceneBModelCollidedCount = 0;
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_38] }
 }
 
 /*
@@ -960,195 +759,141 @@ void R_MarkFragments_Begin(MarkInfo *markInfo, MarkFragmentsAgainstEnum markAgai
 R_MarkFragments_BrushSurface
 ==============
 */
-bool R_MarkFragments_BrushSurface(MarkInfo *markInfo, GfxMarkContext *markContext, const vec4_t *clipPlanes, const vec3_t *markDir, const GfxSurface *surface)
+char R_MarkFragments_BrushSurface(MarkInfo *markInfo, GfxMarkContext *markContext, const vec4_t *clipPlanes, const vec3_t *markDir, const GfxSurface *surface)
 {
-  GfxBackEndData *v12; 
+  const vec3_t *v5; 
+  GfxBackEndData *v6; 
   unsigned __int64 transientZone; 
-  unsigned int v14; 
-  GfxBackEndData *v15; 
-  GfxWorldDrawVerts *v16; 
-  unsigned int v18; 
-  unsigned __int16 *v19; 
-  bool v20; 
-  unsigned int v58; 
-  float *v59; 
-  unsigned __int16 *v60; 
-  __int64 v61; 
-  __int64 v62; 
-  int v63; 
-  int v64; 
-  int v65; 
-  __int64 v66; 
-  int v67; 
-  unsigned int triCount; 
-  bool result; 
-  __int64 v77; 
-  __int64 v78; 
+  unsigned int v8; 
+  GfxBackEndData *v9; 
+  GfxWorldDrawVerts *v10; 
+  unsigned __int8 *v11; 
+  int v12; 
+  unsigned __int16 *v13; 
+  __int64 v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  unsigned int v25; 
+  float *v26; 
+  unsigned __int16 *v27; 
+  __int64 v28; 
+  __int64 v29; 
+  int v30; 
+  int v31; 
+  int i; 
+  __int64 v33; 
+  int v34; 
+  __int64 v36; 
+  __int64 v37; 
   FxWorldMarkPoint inPoints[18]; 
 
+  v5 = markDir;
   if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 221, ASSERT_TYPE_ASSERT, "(frontEndDataOut)", (const char *)&queryFormat, "frontEndDataOut") )
     __debugbreak();
-  v12 = frontEndDataOut;
+  v6 = frontEndDataOut;
   transientZone = surface->transientZone;
   if ( !frontEndDataOut && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_backend_data.h", 447, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
   if ( (unsigned int)transientZone >= 0x600 )
   {
-    LODWORD(v77) = transientZone;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v77, 1536) )
+    LODWORD(v36) = transientZone;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v36, 1536) )
       __debugbreak();
   }
-  __asm
+  if ( ((0x80000000 >> (transientZone & 0x1F)) & v6->transientVisibility.array[transientZone >> 5]) == 0 )
+    return 0;
+  v8 = surface->transientZone;
+  v9 = frontEndDataOut;
+  if ( v8 >= frontEndDataOut->transientDrawContext.zoneCount )
   {
-    vmovaps [rsp+2B8h+var_38], xmm6
-    vmovaps [rsp+2B8h+var_48], xmm7
-    vmovaps [rsp+2B8h+var_58], xmm8
-    vmovaps [rsp+2B8h+var_68], xmm9
-    vmovaps [rsp+2B8h+var_78], xmm10
-    vmovaps [rsp+2B8h+var_88], xmm11
-    vmovaps [rsp+2B8h+var_98], xmm12
+    LODWORD(v37) = frontEndDataOut->transientDrawContext.zoneCount;
+    LODWORD(v36) = surface->transientZone;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 42, ASSERT_TYPE_ASSERT, "(unsigned)( transientZoneIndex ) < (unsigned)( worldTransientContext.zoneCount )", "transientZoneIndex doesn't index worldTransientContext.zoneCount\n\t%i not in [0, %i)", v36, v37) )
+      __debugbreak();
   }
-  if ( ((0x80000000 >> (transientZone & 0x1F)) & v12->transientVisibility.array[transientZone >> 5]) != 0 )
+  v10 = v9->transientDrawContext.drawVertsPtr[(unsigned __int16)v8];
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 232, ASSERT_TYPE_ASSERT, "(worldDrawVerts)", (const char *)&queryFormat, "worldDrawVerts") )
+    __debugbreak();
+  v11 = &v10->posData[surface->tris.posOffset];
+  if ( surface->tris.baseIndex + 3 * surface->tris.triCount > v10->indexCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 235, ASSERT_TYPE_ASSERT, "( triSurf->baseIndex + 3 * triSurf->triCount ) <= ( worldDrawVerts->indexCount )", "%s <= %s\n\t%u, %u", "triSurf->baseIndex + 3 * triSurf->triCount", "worldDrawVerts->indexCount", surface->tris.baseIndex + 3 * surface->tris.triCount, v10->indexCount) )
+    __debugbreak();
+  v12 = 0;
+  v13 = &v10->indices[surface->tris.baseIndex];
+  if ( !surface->tris.triCount )
+    return 0;
+  while ( 1 )
   {
-    v14 = surface->transientZone;
-    v15 = frontEndDataOut;
-    if ( v14 >= frontEndDataOut->transientDrawContext.zoneCount )
+    v14 = *v13;
+    v15 = *(float *)&v11[12 * v14] - *(float *)&v11[12 * v13[1]];
+    v16 = *(float *)&v11[12 * v14 + 4] - *(float *)&v11[12 * v13[1] + 4];
+    v17 = *(float *)&v11[12 * v14 + 8] - *(float *)&v11[12 * v13[1] + 8];
+    v18 = *(float *)&v11[12 * v13[2]] - *(float *)&v11[12 * v13[1]];
+    v19 = *(float *)&v11[12 * v13[2] + 4] - *(float *)&v11[12 * v13[1] + 4];
+    v20 = *(float *)&v11[12 * v13[2] + 8] - *(float *)&v11[12 * v13[1] + 8];
+    v21 = (float)(v20 * v16) - (float)(v19 * v17);
+    v22 = (float)(v18 * v17) - (float)(v20 * v15);
+    v23 = (float)(v19 * v15) - (float)(v18 * v16);
+    v24 = (float)((float)(v22 * v5->v[1]) + (float)(v21 * v5->v[0])) + (float)(v23 * v5->v[2]);
+    if ( v24 >= 0.0 && (float)(v24 * v24) >= (float)((float)((float)((float)(v22 * v22) + (float)(v21 * v21)) + (float)(v23 * v23)) * 0.0076000001) )
+      break;
+LABEL_35:
+    ++v12;
+    v13 += 3;
+    if ( v12 >= surface->tris.triCount )
+      return 0;
+  }
+  v25 = 0;
+  v26 = &inPoints[0].xyz.v[2];
+  v27 = v13;
+  do
+  {
+    v28 = 3i64 * *v27;
+    *(v26 - 2) = *(float *)&v11[12 * *v27];
+    *(v26 - 1) = *(float *)&v11[4 * v28 + 4];
+    *v26 = *(float *)&v11[4 * v28 + 8];
+    *(_QWORD *)(v26 + 1) = 0i64;
+    v26[3] = 0.0;
+    v29 = (int)v25;
+    ++v27;
+    ++v25;
+    v26[v29 + 1] = 1.0;
+    v26 += 6;
+  }
+  while ( v25 < 3 );
+  v30 = 0;
+  v31 = 3;
+  for ( i = 0; i < 6; ++i )
+  {
+    v33 = 0i64;
+    if ( !v30 )
+      v33 = 9i64;
+    v34 = R_ChopWorldPolyBehindPlane(v31, &inPoints[9 * v30], &inPoints[v33], &clipPlanes[i]);
+    v31 = v34;
+    if ( !v34 )
+      goto $cont;
+    if ( v34 > 9 )
     {
-      LODWORD(v78) = frontEndDataOut->transientDrawContext.zoneCount;
-      LODWORD(v77) = surface->transientZone;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_bsp.h", 42, ASSERT_TYPE_ASSERT, "(unsigned)( transientZoneIndex ) < (unsigned)( worldTransientContext.zoneCount )", "transientZoneIndex doesn't index worldTransientContext.zoneCount\n\t%i not in [0, %i)", v77, v78) )
+      LODWORD(v36) = v34;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 253, ASSERT_TYPE_ASSERT, "( ( fragmentPointCount <= 3 + 6 ) )", "( fragmentPointCount ) = %i", v36) )
         __debugbreak();
     }
-    v16 = v15->transientDrawContext.drawVertsPtr[(unsigned __int16)v14];
-    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 232, ASSERT_TYPE_ASSERT, "(worldDrawVerts)", (const char *)&queryFormat, "worldDrawVerts") )
-      __debugbreak();
-    _R14 = &v16->posData[surface->tris.posOffset];
-    if ( surface->tris.baseIndex + 3 * surface->tris.triCount > v16->indexCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 235, ASSERT_TYPE_ASSERT, "( triSurf->baseIndex + 3 * triSurf->triCount ) <= ( worldDrawVerts->indexCount )", "%s <= %s\n\t%u, %u", "triSurf->baseIndex + 3 * triSurf->triCount", "worldDrawVerts->indexCount", surface->tris.baseIndex + 3 * surface->tris.triCount, v16->indexCount) )
-      __debugbreak();
-    v18 = 0;
-    v19 = &v16->indices[surface->tris.baseIndex];
-    v20 = surface->tris.triCount != 0;
-    if ( surface->tris.triCount )
-    {
-      __asm
-      {
-        vmovss  xmm11, cs:__real@3bf9096c
-        vxorps  xmm12, xmm12, xmm12
-      }
-      do
-      {
-        _R8 = 3i64 * v19[2];
-        _RCX = 3i64 * *v19;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+rcx*4]
-          vsubss  xmm9, xmm0, dword ptr [r14+rdx*4]
-          vmovss  xmm1, dword ptr [r14+rcx*4+4]
-          vsubss  xmm8, xmm1, dword ptr [r14+rdx*4+4]
-          vmovss  xmm0, dword ptr [r14+rcx*4+8]
-          vsubss  xmm6, xmm0, dword ptr [r14+rdx*4+8]
-          vmovss  xmm1, dword ptr [r14+r8*4]
-          vsubss  xmm7, xmm1, dword ptr [r14+rdx*4]
-          vmovss  xmm0, dword ptr [r14+r8*4+4]
-          vsubss  xmm5, xmm0, dword ptr [r14+rdx*4+4]
-          vmovss  xmm1, dword ptr [r14+r8*4+8]
-          vsubss  xmm4, xmm1, dword ptr [r14+rdx*4+8]
-          vmulss  xmm2, xmm4, xmm8
-          vmulss  xmm0, xmm5, xmm6
-          vsubss  xmm10, xmm2, xmm0
-          vmulss  xmm3, xmm7, xmm6
-          vmulss  xmm1, xmm4, xmm9
-          vsubss  xmm4, xmm3, xmm1
-          vmulss  xmm1, xmm10, dword ptr [rsi]
-          vmulss  xmm3, xmm4, dword ptr [rsi+4]
-          vmulss  xmm2, xmm5, xmm9
-          vmulss  xmm0, xmm7, xmm8
-          vsubss  xmm5, xmm2, xmm0
-          vmulss  xmm0, xmm5, dword ptr [rsi+8]
-          vaddss  xmm2, xmm3, xmm1
-          vaddss  xmm1, xmm2, xmm0
-          vcomiss xmm1, xmm12
-        }
-        if ( !v20 )
-        {
-          __asm
-          {
-            vmulss  xmm3, xmm1, xmm1
-            vmulss  xmm1, xmm4, xmm4
-            vmulss  xmm0, xmm10, xmm10
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm5, xmm5
-            vaddss  xmm2, xmm2, xmm1
-            vmulss  xmm0, xmm2, xmm11
-            vcomiss xmm3, xmm0
-          }
-          v58 = 0;
-          v59 = &inPoints[0].xyz.v[2];
-          v60 = v19;
-          do
-          {
-            v61 = 3i64 * *v60;
-            *(v59 - 2) = *(float *)&_R14[12 * *v60];
-            *(v59 - 1) = *(float *)&_R14[4 * v61 + 4];
-            *v59 = *(float *)&_R14[4 * v61 + 8];
-            *(_QWORD *)(v59 + 1) = 0i64;
-            v59[3] = 0.0;
-            v62 = (int)v58;
-            ++v60;
-            ++v58;
-            v59[v62 + 1] = 1.0;
-            v59 += 6;
-          }
-          while ( v58 < 3 );
-          v63 = 0;
-          v64 = 3;
-          v65 = 0;
-          while ( 1 )
-          {
-            v66 = 0i64;
-            if ( !v63 )
-              v66 = 9i64;
-            v67 = R_ChopWorldPolyBehindPlane(v64, &inPoints[9 * v63], &inPoints[v66], &clipPlanes[v65]);
-            v64 = v67;
-            if ( !v67 )
-              break;
-            if ( v67 > 9 )
-            {
-              LODWORD(v77) = v67;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 253, ASSERT_TYPE_ASSERT, "( ( fragmentPointCount <= 3 + 6 ) )", "( fragmentPointCount ) = %i", v77) )
-                __debugbreak();
-            }
-            v63 ^= 1u;
-            if ( ++v65 >= 6 )
-            {
-              if ( v64 <= 3 )
-                break;
-              result = 1;
-              goto LABEL_36;
-            }
-          }
-        }
-        triCount = surface->tris.triCount;
-        ++v18;
-        v19 += 3;
-        v20 = v18 < triCount;
-      }
-      while ( (int)v18 < (int)triCount );
-    }
+    v30 ^= 1u;
   }
-  result = 0;
-LABEL_36:
-  __asm
+  if ( v31 <= 3 )
   {
-    vmovaps xmm12, [rsp+2B8h+var_98]
-    vmovaps xmm11, [rsp+2B8h+var_88]
-    vmovaps xmm10, [rsp+2B8h+var_78]
-    vmovaps xmm9, [rsp+2B8h+var_68]
-    vmovaps xmm8, [rsp+2B8h+var_58]
-    vmovaps xmm7, [rsp+2B8h+var_48]
-    vmovaps xmm6, [rsp+2B8h+var_38]
+$cont:
+    v5 = markDir;
+    goto LABEL_35;
   }
-  return result;
+  return 1;
 }
 
 /*
@@ -1158,48 +903,48 @@ R_MarkFragments_DynEnt
 */
 void R_MarkFragments_DynEnt(MarkInfo *markInfo, const XModel *model, unsigned int modelLod, const GfxPlacement *poseBone, GfxMarkContext *markContext)
 {
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
   const XModelLodInfo *LodInfo; 
   Material *const *Skins; 
+  float v17; 
   __int64 v18; 
+  float v19; 
+  char v20; 
+  bool v21; 
+  XSurface *v22; 
+  __int64 v23; 
+  __int64 v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
   float v29; 
-  char v44; 
-  bool v45; 
-  XSurface *v46; 
-  __int64 v47; 
-  __int64 v48; 
-  bool v57; 
-  bool v58; 
-  BOOL v78; 
-  BOOL v79; 
-  int v80; 
-  int v81; 
-  int v82; 
-  int v83; 
-  int v84; 
-  int v85; 
-  int v86; 
-  int v87; 
-  int v88; 
-  int v89; 
-  int v90; 
-  int v91; 
-  int v92; 
-  int v93; 
-  int v94; 
-  int v95; 
-  int v96; 
-  int v97; 
-  int v98; 
+  float v30; 
+  BOOL v31; 
+  BOOL v32; 
+  int v33; 
   XSurface *surfaces; 
-  Material *const *v100; 
-  MarkInfo *v101; 
-  GfxMarkContext *v102; 
+  Material *const *v35; 
+  MarkInfo *v36; 
+  GfxMarkContext *v37; 
   Bounds outInvQuat; 
   vec3_t quat; 
+  __int128 v40; 
+  __int128 v41; 
+  __int128 v42; 
+  __int128 v43; 
+  __int128 v44; 
+  __int128 v45; 
+  __int128 v46; 
 
-  _RBX = markInfo;
-  v101 = markInfo;
-  v102 = markContext;
+  v36 = markInfo;
+  v37 = markContext;
   *(_QWORD *)quat.v = poseBone;
   Profile_Begin(239);
   if ( !model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 231, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
@@ -1207,289 +952,88 @@ void R_MarkFragments_DynEnt(MarkInfo *markInfo, const XModel *model, unsigned in
   LodInfo = XModelGetLodInfo(model, modelLod);
   if ( (!LodInfo->surfs || !Stream_MeshIsSafeToUse(LodInfo->modelSurfsStaging)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 937, ASSERT_TYPE_ASSERT, "(XModelIsLodUsable( model, modelLod ))", "%s\n\tModel not usable: %s lod %u", "XModelIsLodUsable( model, modelLod )", model->name, modelLod) )
     __debugbreak();
-  v98 = XModelGetSurfaces(model, &surfaces, modelLod);
+  v33 = XModelGetSurfaces(model, &surfaces, modelLod);
   Skins = XModelGetSkins(model, modelLod);
-  __asm { vmovss  xmm0, dword ptr [rbx+38h] }
+  v17 = markInfo->axis.m[0].v[0];
   v18 = 0i64;
-  v100 = Skins;
-  __asm { vmovss  [rsp+158h+var_118], xmm0 }
+  v35 = Skins;
   markContext->lmapIndex = 0;
-  if ( (v80 & 0x7F800000) == 2139095040 )
-    goto LABEL_58;
-  __asm
+  if ( ((LODWORD(v17) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[0].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 945, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[0] )[0] ) && !IS_NAN( ( markInfo->axis[0] )[1] ) && !IS_NAN( ( markInfo->axis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[0] )[0] ) && !IS_NAN( ( markInfo->axis[0] )[1] ) && !IS_NAN( ( markInfo->axis[0] )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(markInfo->axis.m[1].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[1].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 946, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[1] )[0] ) && !IS_NAN( ( markInfo->axis[1] )[1] ) && !IS_NAN( ( markInfo->axis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[1] )[0] ) && !IS_NAN( ( markInfo->axis[1] )[1] ) && !IS_NAN( ( markInfo->axis[1] )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(markInfo->axis.m[2].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[2].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[2].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 947, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[2] )[0] ) && !IS_NAN( ( markInfo->axis[2] )[1] ) && !IS_NAN( ( markInfo->axis[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[2] )[0] ) && !IS_NAN( ( markInfo->axis[2] )[1] ) && !IS_NAN( ( markInfo->axis[2] )[2] )") )
+    __debugbreak();
+  if ( markInfo->boltOffsetValid )
   {
-    vmovss  xmm0, dword ptr [rbx+3Ch]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v81 & 0x7F800000) == 2139095040 )
-    goto LABEL_58;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+40h]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v82 & 0x7F800000) == 2139095040 )
-  {
-LABEL_58:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 945, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[0] )[0] ) && !IS_NAN( ( markInfo->axis[0] )[1] ) && !IS_NAN( ( markInfo->axis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[0] )[0] ) && !IS_NAN( ( markInfo->axis[0] )[1] ) && !IS_NAN( ( markInfo->axis[0] )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+44h]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v83 & 0x7F800000) == 2139095040 )
-    goto LABEL_59;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+48h]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v84 & 0x7F800000) == 2139095040 )
-    goto LABEL_59;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4Ch]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v85 & 0x7F800000) == 2139095040 )
-  {
-LABEL_59:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 946, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[1] )[0] ) && !IS_NAN( ( markInfo->axis[1] )[1] ) && !IS_NAN( ( markInfo->axis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[1] )[0] ) && !IS_NAN( ( markInfo->axis[1] )[1] ) && !IS_NAN( ( markInfo->axis[1] )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+50h]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v86 & 0x7F800000) == 2139095040 )
-    goto LABEL_60;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+54h]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v87 & 0x7F800000) == 2139095040 )
-    goto LABEL_60;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+58h]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v88 & 0x7F800000) == 2139095040 )
-  {
-LABEL_60:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 947, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[2] )[0] ) && !IS_NAN( ( markInfo->axis[2] )[1] ) && !IS_NAN( ( markInfo->axis[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[2] )[0] ) && !IS_NAN( ( markInfo->axis[2] )[1] ) && !IS_NAN( ( markInfo->axis[2] )[2] )") )
-      __debugbreak();
-  }
-  _R13 = &_RBX->localTexCoordAxisZ;
-  if ( _RBX->boltOffsetValid )
-  {
-    __asm { vmovsd  xmm0, qword ptr [rbx+780h] }
-    v29 = _RBX->boltOffsetPos.v[2];
-    __asm { vmovsd  qword ptr [rbx+8], xmm0 }
-    _RBX->localOrigin.v[2] = v29;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+44h]
-      vmovsd  qword ptr [rbx+14h], xmm0
-    }
-    _RBX->localTexCoordAxisX.v[2] = _RBX->axis.m[1].v[2];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+50h]
-      vmovsd  qword ptr [rbx+20h], xmm0
-    }
-    _RBX->localTexCoordAxisY.v[2] = _RBX->axis.m[2].v[2];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+38h]
-      vmovsd  qword ptr [r13+0], xmm0
-    }
-    _RBX->localTexCoordAxisZ.v[2] = _RBX->axis.m[0].v[2];
+    v19 = markInfo->boltOffsetPos.v[2];
+    *(double *)markInfo->localOrigin.v = *(double *)markInfo->boltOffsetPos.v;
+    markInfo->localOrigin.v[2] = v19;
+    *(double *)markInfo->localTexCoordAxisX.v = *(double *)markInfo->axis.row1.v;
+    markInfo->localTexCoordAxisX.v[2] = markInfo->axis.m[1].v[2];
+    *(double *)markInfo->localTexCoordAxisY.v = *(double *)markInfo->axis.row2.v;
+    markInfo->localTexCoordAxisY.v[2] = markInfo->axis.m[2].v[2];
+    *(double *)markInfo->localTexCoordAxisZ.v = *(double *)markInfo->axis.m[0].v;
+    markInfo->localTexCoordAxisZ.v[2] = markInfo->axis.m[0].v[2];
   }
   else
   {
     QuatTrans_Inverse(*(const vec4_t **)quat.v, (const vec3_t *)(*(_QWORD *)quat.v + 16i64), (vec4_t *)&outInvQuat, &quat);
-    QuatTrans_TransformPoint((const vec4_t *)&outInvQuat, &quat, &_RBX->collInfo->sphere.origin, &_RBX->localOrigin);
-    QuatTransform((const vec4_t *)&outInvQuat, &_RBX->axis.m[1], &_RBX->localTexCoordAxisX);
-    QuatTransform((const vec4_t *)&outInvQuat, &_RBX->axis.m[2], &_RBX->localTexCoordAxisY);
-    QuatTransform((const vec4_t *)&outInvQuat, _RBX->axis.m, &_RBX->localTexCoordAxisZ);
+    QuatTrans_TransformPoint((const vec4_t *)&outInvQuat, &quat, &markInfo->collInfo->sphere.origin, &markInfo->localOrigin);
+    QuatTransform((const vec4_t *)&outInvQuat, &markInfo->axis.m[1], &markInfo->localTexCoordAxisX);
+    QuatTransform((const vec4_t *)&outInvQuat, &markInfo->axis.m[2], &markInfo->localTexCoordAxisY);
+    QuatTransform((const vec4_t *)&outInvQuat, markInfo->axis.m, &markInfo->localTexCoordAxisZ);
   }
-  __asm
+  if ( ((LODWORD(markInfo->localTexCoordAxisX.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisX.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisX.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 969, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisX )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisX )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(markInfo->localTexCoordAxisY.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisY.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisY.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 970, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisY )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisY )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(markInfo->localTexCoordAxisZ.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisZ.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisZ.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 971, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisZ )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisZ )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[2] )") )
+    __debugbreak();
+  v20 = 0;
+  v21 = 0;
+  Bounds_ForOBB(&outInvQuat, &markInfo->localOrigin, (const vec3_t *)&markInfo->markSize, &markInfo->localTexCoordAxisX, &markInfo->localTexCoordAxisY, &markInfo->localTexCoordAxisZ);
+  if ( v33 )
   {
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v89 & 0x7F800000) == 2139095040 )
-    goto LABEL_61;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+18h]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v90 & 0x7F800000) == 2139095040 )
-    goto LABEL_61;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1Ch]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v91 & 0x7F800000) == 2139095040 )
-  {
-LABEL_61:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 969, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisX )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisX )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[2] )") )
-      __debugbreak();
-  }
-  _R14 = &_RBX->localTexCoordAxisY;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v92 & 0x7F800000) == 2139095040 )
-    goto LABEL_62;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+24h]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v93 & 0x7F800000) == 2139095040 )
-    goto LABEL_62;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v94 & 0x7F800000) == 2139095040 )
-  {
-LABEL_62:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 970, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisY )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisY )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[2] )") )
-      __debugbreak();
-  }
-  _RDI = &_RBX->localTexCoordAxisZ;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v95 & 0x7F800000) == 2139095040 )
-    goto LABEL_63;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+30h]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v96 & 0x7F800000) == 2139095040 )
-    goto LABEL_63;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+34h]
-    vmovss  [rsp+158h+var_118], xmm0
-  }
-  if ( (v97 & 0x7F800000) == 2139095040 )
-  {
-LABEL_63:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 971, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisZ )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisZ )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[2] )") )
-      __debugbreak();
-  }
-  v44 = 0;
-  v45 = 0;
-  Bounds_ForOBB(&outInvQuat, &_RBX->localOrigin, (const vec3_t *)&_RBX->markSize, &_RBX->localTexCoordAxisX, &_RBX->localTexCoordAxisY, &_RBX->localTexCoordAxisZ);
-  if ( v98 )
-  {
-    v46 = surfaces;
-    v47 = (__int64)v100;
-    v48 = 0i64;
-    __asm
-    {
-      vmovaps [rsp+158h+var_58], xmm6
-      vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+158h+var_68], xmm7
-      vmovss  xmm7, [rsp+158h+var_DC]
-      vmovaps [rsp+158h+var_78], xmm8
-      vmovss  xmm8, [rsp+158h+var_E0]
-      vmovaps [rsp+158h+var_88], xmm9
-      vmovss  xmm9, dword ptr [rsp+158h+outInvQuat+0Ch]
-      vmovaps [rsp+158h+var_98], xmm10
-      vmovss  xmm10, dword ptr [rsp+158h+outInvQuat+8]
-      vmovaps [rsp+158h+var_A8], xmm11
-      vmovss  xmm11, dword ptr [rsp+158h+outInvQuat+4]
-      vmovaps [rsp+158h+var_B8], xmm12
-      vmovss  xmm12, dword ptr [rsp+158h+outInvQuat]
-    }
+    v22 = surfaces;
+    v23 = (__int64)v35;
+    v24 = 0i64;
+    v46 = v5;
+    v45 = v6;
+    v25 = outInvQuat.halfSize.v[2];
+    v44 = v7;
+    v26 = outInvQuat.halfSize.v[1];
+    v43 = v8;
+    v27 = outInvQuat.halfSize.v[0];
+    v42 = v9;
+    v28 = outInvQuat.midPoint.v[2];
+    v41 = v10;
+    v29 = outInvQuat.midPoint.v[1];
+    v40 = v11;
+    v30 = outInvQuat.midPoint.v[0];
     do
     {
-      if ( v45 )
+      if ( v21 )
         break;
-      if ( (*(_DWORD *)(*(_QWORD *)(v47 + 8 * v18) + 12i64) & 0x20) == 0 )
+      if ( (*(_DWORD *)(*(_QWORD *)(v23 + 8 * v18) + 12i64) & 0x20) == 0 )
       {
-        _RDI = (__int64)&v46[v48].surfBounds;
-        v57 = _RDI == 0;
-        if ( &v46[v48] == (XSurface *)-144i64 )
+        if ( &v22[v24] == (XSurface *)-144i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 607, ASSERT_TYPE_ASSERT, "(b0)", (const char *)&queryFormat, "b0") )
+          __debugbreak();
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v22[v24].surfBounds.midPoint.v[0] - v30) & _xmm) <= (float)(v27 + v22[v24].surfBounds.halfSize.v[0]) && COERCE_FLOAT(COERCE_UNSIGNED_INT(v22[v24].surfBounds.midPoint.v[1] - v29) & _xmm) <= (float)(v26 + v22[v24].surfBounds.halfSize.v[1]) && COERCE_FLOAT(COERCE_UNSIGNED_INT(v22[v24].surfBounds.midPoint.v[2] - v28) & _xmm) <= (float)(v25 + v22[v24].surfBounds.halfSize.v[2]) )
         {
-          v58 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\bounds_inline.h", 607, ASSERT_TYPE_ASSERT, "(b0)", (const char *)&queryFormat, "b0");
-          v57 = !v58;
-          if ( v58 )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi]
-          vsubss  xmm1, xmm0, xmm12
-          vaddss  xmm0, xmm9, dword ptr [rdi+0Ch]
-          vandps  xmm1, xmm1, xmm6
-          vcomiss xmm1, xmm0
-        }
-        if ( v57 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+4]
-            vsubss  xmm1, xmm0, xmm11
-            vaddss  xmm0, xmm8, dword ptr [rdi+10h]
-            vandps  xmm1, xmm1, xmm6
-            vcomiss xmm1, xmm0
-          }
-          if ( v57 )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+8]
-              vsubss  xmm1, xmm0, xmm10
-              vaddss  xmm0, xmm7, dword ptr [rdi+14h]
-              vandps  xmm1, xmm1, xmm6
-              vcomiss xmm1, xmm0
-            }
-            if ( v57 )
-            {
-              v44 = 1;
-              v45 = (v46[v48].flags & 2) != 0;
-            }
-          }
+          v20 = 1;
+          v21 = (v22[v24].flags & 2) != 0;
         }
       }
       ++v18;
-      ++v48;
+      ++v24;
     }
-    while ( v18 != v98 );
-    __asm
+    while ( v18 != v33 );
+    if ( v20 )
     {
-      vmovaps xmm12, [rsp+158h+var_B8]
-      vmovaps xmm11, [rsp+158h+var_A8]
-      vmovaps xmm10, [rsp+158h+var_98]
-      vmovaps xmm9, [rsp+158h+var_88]
-      vmovaps xmm8, [rsp+158h+var_78]
-      vmovaps xmm7, [rsp+158h+var_68]
-      vmovaps xmm6, [rsp+158h+var_58]
-    }
-    if ( v44 )
-    {
-      LOBYTE(v79) = v45;
-      LOBYTE(v78) = 0;
-      v101->callback(v101->callbackContext, v102, &v101->localOrigin, &v101->localTexCoordAxisX, &v101->localTexCoordAxisY, &v101->localTexCoordAxisZ, v78, v79);
+      LOBYTE(v32) = v21;
+      LOBYTE(v31) = 0;
+      v36->callback(v36->callbackContext, v37, &v36->localOrigin, &v36->localTexCoordAxisX, &v36->localTexCoordAxisY, &v36->localTexCoordAxisZ, v31, v32);
     }
   }
   Profile_EndInternal(NULL);
@@ -1502,103 +1046,110 @@ R_MarkFragments_EntBrushes
 */
 char R_MarkFragments_EntBrushes(MarkInfo *markInfo)
 {
+  vec3_t *v2; 
   cpose_t **p_pose; 
-  __int16 v11; 
+  const cpose_t *v4; 
+  __int16 v5; 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  __int64 v28; 
-  char v29; 
-  __int64 v30; 
-  __int64 v31; 
-  __int64 v32; 
-  __int64 v33; 
+  __int128 v10; 
+  __int64 v20; 
+  char v21; 
+  __int64 v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
   Material *material; 
   const R_CollInfo *collInfo; 
+  vec3_t *v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  tmat33_t<vec3_t> *p_axis; 
+  float v36; 
+  float v37; 
+  float v38; 
   void *callbackContext; 
-  BOOL v118; 
-  BOOL v119; 
+  BOOL v41; 
+  BOOL v42; 
   __int64 sceneBModelCollidedCount; 
   tmat33_t<vec3_t> axis; 
-  int v122; 
-  _DWORD v125[4]; 
-  int v126[4]; 
-  int v127[4]; 
-  char v128[4]; 
-  __int16 v129; 
+  unsigned int v45; 
+  unsigned int v46; 
+  unsigned int v47; 
+  float v48[4]; 
+  int v49[4]; 
+  int v50[4]; 
+  char v51[4]; 
+  __int16 v52; 
   vec3_t angles; 
   tmat43_t<vec3_t> out; 
-  vec3_t v132; 
-  void *retaddr; 
+  vec3_t v55; 
 
-  _R11 = &retaddr;
   sceneBModelCollidedCount = markInfo->sceneBModelCollidedCount;
   if ( markInfo->sceneBModelCollidedCount )
   {
-    _RSI = (int *)markInfo->axis.m[2].v;
+    v2 = &markInfo->axis.m[2];
     p_pose = &markInfo->sceneBModelsCollided[0].pose;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-38h], xmm6
-      vmovaps xmmword ptr [r11-48h], xmm7
-      vmovsd  xmm7, cs:__real@3f30000000000000
-      vmovaps xmmword ptr [r11-58h], xmm8
-      vmovss  xmm8, dword ptr cs:__xmm@80000000800000008000000080000000
-    }
     do
     {
-      _RDI = *p_pose;
-      v11 = *((_WORD *)p_pose + 4);
-      v128[0] = 3;
-      v129 = v11;
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 552, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+      v4 = *p_pose;
+      v5 = *((_WORD *)p_pose + 4);
+      v51[0] = 3;
+      v52 = v5;
+      if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 552, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+48h]
-        vmovss  dword ptr [rbp+70h+angles], xmm0
-        vmovss  xmm1, dword ptr [rdi+4Ch]
-        vmovss  dword ptr [rbp+70h+angles+4], xmm1
-        vmovss  xmm0, dword ptr [rdi+50h]
-        vmovss  dword ptr [rbp+70h+angles+8], xmm0
-      }
+      angles = v4->angles;
       AnglesToAxis(&angles, &axis);
-      if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
+      if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 379, ASSERT_TYPE_ASSERT, "(pose)", (const char *)&queryFormat, "pose") )
         __debugbreak();
-      if ( !_RDI->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
+      if ( !v4->origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
         __debugbreak();
-      FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(_RDI->origin.Get_origin, _RDI);
-      FunctionPointer_origin(&_RDI->origin.origin.origin, (vec3_t *)&v122);
-      if ( _RDI->isPosePrecise )
+      FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(v4->origin.Get_origin, v4);
+      FunctionPointer_origin(&v4->origin.origin.origin, (vec3_t *)&v45);
+      if ( v4->isPosePrecise )
       {
+        _XMM0 = v45;
+        __asm { vcvtdq2pd xmm0, xmm0 }
+        *((_QWORD *)&v10 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v10 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM1 = v10;
+        _XMM0 = v46;
         __asm
         {
-          vmovd   xmm0, [rsp+170h+var_104]
-          vcvtdq2pd xmm0, xmm0
-          vmulsd  xmm1, xmm0, xmm7
-          vmovd   xmm0, [rsp+170h+var_100]
           vcvtsd2ss xmm2, xmm1, xmm1
           vcvtdq2pd xmm0, xmm0
-          vmulsd  xmm1, xmm0, xmm7
-          vmovd   xmm0, [rsp+170h+var_FC]
-          vmovss  [rsp+170h+var_104], xmm2
-          vcvtsd2ss xmm2, xmm1, xmm1
-          vcvtdq2pd xmm0, xmm0
-          vmulsd  xmm1, xmm0, xmm7
-          vmovss  [rsp+170h+var_100], xmm2
-          vcvtsd2ss xmm2, xmm1, xmm1
-          vmovss  [rsp+170h+var_FC], xmm2
         }
+        *((_QWORD *)&v10 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v10 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM1 = v10;
+        _XMM0 = v47;
+        v45 = _XMM2;
+        __asm
+        {
+          vcvtsd2ss xmm2, xmm1, xmm1
+          vcvtdq2pd xmm0, xmm0
+        }
+        *((_QWORD *)&v10 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v10 = *(double *)&_XMM0 * 0.000244140625;
+        _XMM1 = v10;
+        v46 = _XMM2;
+        __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+        v47 = _XMM2;
       }
-      v28 = (__int64)*(p_pose - 1);
-      v29 = 0;
-      v30 = *(int *)(v28 + 84);
-      v31 = v30;
-      v32 = (int)v30 + *(_DWORD *)(v28 + 88);
-      if ( v30 != v32 )
+      v20 = (__int64)*(p_pose - 1);
+      v21 = 0;
+      v22 = *(int *)(v20 + 84);
+      v23 = v22;
+      v24 = (int)v22 + *(_DWORD *)(v20 + 88);
+      if ( v22 != v24 )
       {
-        v33 = v30;
+        v25 = v22;
         while ( 1 )
         {
-          material = rgp.world->surfaces.surfaces[v33].material;
+          material = rgp.world->surfaces.surfaces[v25].material;
           if ( (material->surfaceFlags & 0x20) == 0 )
           {
             if ( !material && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_material_inline.h", 646, ASSERT_TYPE_ASSERT, "(material)", (const char *)&queryFormat, "material") )
@@ -1608,148 +1159,55 @@ char R_MarkFragments_EntBrushes(MarkInfo *markInfo)
             if ( (material->techniqueSet->flags & 0x20) == 0 )
               break;
           }
-          ++v31;
-          ++v33;
-          if ( v31 == v32 )
+          ++v23;
+          ++v25;
+          if ( v23 == v24 )
             goto LABEL_27;
         }
-        v29 = 1;
+        v21 = 1;
 LABEL_27:
-        _RSI = (int *)markInfo->axis.m[2].v;
+        v2 = &markInfo->axis.m[2];
       }
       MatrixTranspose(&axis, (tmat33_t<vec3_t> *)&out);
-      __asm { vmovss  xmm0, [rsp+170h+var_104] }
       collInfo = markInfo->collInfo;
-      __asm
-      {
-        vxorps  xmm6, xmm0, xmm8
-        vmovss  xmm0, [rsp+170h+var_100]
-        vmulss  xmm2, xmm6, dword ptr [rbp+70h+out]
-        vxorps  xmm5, xmm0, xmm8
-        vmulss  xmm1, xmm5, dword ptr [rbp+70h+out+0Ch]
-        vmovss  xmm0, [rsp+170h+var_FC]
-        vaddss  xmm3, xmm2, xmm1
-        vxorps  xmm4, xmm0, xmm8
-        vmulss  xmm2, xmm4, dword ptr [rbp+70h+out+18h]
-        vaddss  xmm1, xmm3, xmm2
-        vmulss  xmm2, xmm6, dword ptr [rbp+70h+out+4]
-        vmovss  [rbp+70h+var_8C], xmm1
-        vmulss  xmm1, xmm5, dword ptr [rbp+70h+out+10h]
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm2, xmm4, dword ptr [rbp+70h+out+1Ch]
-        vaddss  xmm1, xmm3, xmm2
-        vmulss  xmm2, xmm6, dword ptr [rbp+70h+out+8]
-        vmovss  [rbp+70h+var_88], xmm1
-        vmulss  xmm1, xmm5, dword ptr [rbp+70h+out+14h]
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm2, xmm4, dword ptr [rbp+70h+out+20h]
-        vaddss  xmm1, xmm3, xmm2
-        vmovss  [rbp+70h+var_84], xmm1
-      }
-      MatrixTransformVector43(&collInfo->sphere.origin, &out, &v132);
-      _RBX = &markInfo->axis.m[1];
-      if ( &markInfo->axis.row1 == (vec3_t *)v127 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
+      out.m[3].v[0] = (float)((float)(COERCE_FLOAT(v45 ^ _xmm) * out.m[0].v[0]) + (float)(COERCE_FLOAT(v46 ^ _xmm) * out.m[1].v[0])) + (float)(COERCE_FLOAT(v47 ^ _xmm) * out.m[2].v[0]);
+      out.m[3].v[1] = (float)((float)(COERCE_FLOAT(v45 ^ _xmm) * out.m[0].v[1]) + (float)(COERCE_FLOAT(v46 ^ _xmm) * out.m[1].v[1])) + (float)(COERCE_FLOAT(v47 ^ _xmm) * out.m[2].v[1]);
+      out.m[3].v[2] = (float)((float)(COERCE_FLOAT(v45 ^ _xmm) * out.m[0].v[2]) + (float)(COERCE_FLOAT(v46 ^ _xmm) * out.m[1].v[2])) + (float)(COERCE_FLOAT(v47 ^ _xmm) * out.m[2].v[2]);
+      MatrixTransformVector43(&collInfo->sphere.origin, &out, &v55);
+      v28 = &markInfo->axis.m[1];
+      if ( &markInfo->axis.row1 == (vec3_t *)v50 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rbx+4]
-        vmovss  xmm4, dword ptr [rbx]
-        vmovss  xmm6, dword ptr [rbx+8]
-        vmulss  xmm1, xmm4, dword ptr [rsp+170h+axis]
-        vmulss  xmm0, xmm5, dword ptr [rsp+170h+axis+4]
-        vmulss  xmm3, xmm4, dword ptr [rsp+170h+axis+0Ch]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, dword ptr [rsp+170h+axis+8]
-        vmulss  xmm0, xmm5, dword ptr [rsp+170h+axis+10h]
-        vaddss  xmm2, xmm2, xmm1
-        vmulss  xmm1, xmm6, dword ptr [rsp+170h+axis+14h]
-        vmovss  [rbp+70h+var_D8], xmm2
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm3, xmm4, dword ptr [rsp+170h+axis+18h]
-        vmulss  xmm0, xmm5, dword ptr [rsp+170h+axis+1Ch]
-        vaddss  xmm2, xmm2, xmm1
-        vmulss  xmm1, xmm6, dword ptr [rsp+170h+axis+20h]
-        vmovss  [rbp+70h+var_D4], xmm2
-        vaddss  xmm2, xmm3, xmm0
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  [rbp+70h+var_D0], xmm2
-      }
-      if ( _RSI == v126 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
+      v29 = markInfo->axis.m[1].v[1];
+      v30 = v28->v[0];
+      v31 = markInfo->axis.m[1].v[2];
+      *(float *)v50 = (float)((float)(v28->v[0] * axis.m[0].v[0]) + (float)(v29 * axis.m[0].v[1])) + (float)(v31 * axis.m[0].v[2]);
+      *(float *)&v50[1] = (float)((float)(v30 * axis.m[1].v[0]) + (float)(v29 * axis.m[1].v[1])) + (float)(v31 * axis.m[1].v[2]);
+      *(float *)&v50[2] = (float)((float)(v30 * axis.m[2].v[0]) + (float)(v29 * axis.m[2].v[1])) + (float)(v31 * axis.m[2].v[2]);
+      if ( v2 == (vec3_t *)v49 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rsi+4]
-        vmovss  xmm4, dword ptr [rsi]
-        vmovss  xmm6, dword ptr [rsi+8]
-        vmulss  xmm1, xmm4, dword ptr [rsp+170h+axis]
-        vmulss  xmm0, xmm5, dword ptr [rsp+170h+axis+4]
-        vmulss  xmm3, xmm4, dword ptr [rsp+170h+axis+0Ch]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, dword ptr [rsp+170h+axis+8]
-        vmulss  xmm0, xmm5, dword ptr [rsp+170h+axis+10h]
-        vaddss  xmm2, xmm2, xmm1
-        vmulss  xmm1, xmm6, dword ptr [rsp+170h+axis+14h]
-        vmovss  [rbp+70h+var_E8], xmm2
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm3, xmm4, dword ptr [rsp+170h+axis+18h]
-        vmulss  xmm0, xmm5, dword ptr [rsp+170h+axis+1Ch]
-        vaddss  xmm2, xmm2, xmm1
-        vmulss  xmm1, xmm6, dword ptr [rsp+170h+axis+20h]
-        vmovss  [rbp+70h+var_E4], xmm2
-        vaddss  xmm2, xmm3, xmm0
-      }
-      _R14 = &markInfo->axis;
-      __asm
-      {
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  [rbp+70h+var_E0], xmm2
-      }
-      if ( &markInfo->axis == (tmat33_t<vec3_t> *)v125 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
+      v32 = v2->v[1];
+      v33 = v2->v[0];
+      v34 = v2->v[2];
+      *(float *)v49 = (float)((float)(v2->v[0] * axis.m[0].v[0]) + (float)(v32 * axis.m[0].v[1])) + (float)(v34 * axis.m[0].v[2]);
+      *(float *)&v49[1] = (float)((float)(v33 * axis.m[1].v[0]) + (float)(v32 * axis.m[1].v[1])) + (float)(v34 * axis.m[1].v[2]);
+      p_axis = &markInfo->axis;
+      *(float *)&v49[2] = (float)((float)(v33 * axis.m[2].v[0]) + (float)(v32 * axis.m[2].v[1])) + (float)(v34 * axis.m[2].v[2]);
+      if ( &markInfo->axis == (tmat33_t<vec3_t> *)v48 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_math.h", 1103, ASSERT_TYPE_ASSERT, "(&in1 != &out)", (const char *)&queryFormat, "&in1 != &out") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm5, dword ptr [r14+4]
-        vmovss  xmm4, dword ptr [r14]
-        vmulss  xmm1, xmm4, dword ptr [rsp+170h+axis]
-        vmulss  xmm0, xmm5, dword ptr [rsp+170h+axis+4]
-        vmovss  xmm6, dword ptr [r14+8]
-        vmulss  xmm3, xmm4, dword ptr [rsp+170h+axis+0Ch]
-      }
+      v36 = markInfo->axis.m[0].v[1];
+      v37 = p_axis->m[0].v[0];
+      v38 = markInfo->axis.m[0].v[2];
       callbackContext = markInfo->callbackContext;
-      __asm
-      {
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, dword ptr [rsp+170h+axis+8]
-        vmulss  xmm0, xmm5, dword ptr [rsp+170h+axis+10h]
-        vaddss  xmm2, xmm2, xmm1
-        vmulss  xmm1, xmm6, dword ptr [rsp+170h+axis+14h]
-        vmovss  dword ptr [rsp+78h], xmm2
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm3, xmm4, dword ptr [rsp+170h+axis+18h]
-        vmulss  xmm0, xmm5, dword ptr [rsp+170h+axis+1Ch]
-        vaddss  xmm2, xmm2, xmm1
-        vmulss  xmm1, xmm6, dword ptr [rsp+170h+axis+20h]
-        vmovss  dword ptr [rsp+7Ch], xmm2
-      }
-      LOBYTE(v119) = 0;
-      __asm { vaddss  xmm2, xmm3, xmm0 }
-      LOBYTE(v118) = v29;
-      __asm
-      {
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  [rbp+70h+var_F0], xmm2
-      }
-      markInfo->callback(callbackContext, (const GfxMarkContext *)v128, &v132, (const vec3_t *)v127, (const vec3_t *)v126, (const vec3_t *)v125, v118, v119);
+      v48[0] = (float)((float)(p_axis->m[0].v[0] * axis.m[0].v[0]) + (float)(v36 * axis.m[0].v[1])) + (float)(v38 * axis.m[0].v[2]);
+      v48[1] = (float)((float)(v37 * axis.m[1].v[0]) + (float)(v36 * axis.m[1].v[1])) + (float)(v38 * axis.m[1].v[2]);
+      LOBYTE(v42) = 0;
+      LOBYTE(v41) = v21;
+      v48[2] = (float)((float)(v37 * axis.m[2].v[0]) + (float)(v36 * axis.m[2].v[1])) + (float)(v38 * axis.m[2].v[2]);
+      markInfo->callback(callbackContext, (const GfxMarkContext *)v51, &v55, (const vec3_t *)v50, (const vec3_t *)v49, (const vec3_t *)v48, v41, v42);
       p_pose += 3;
       --sceneBModelCollidedCount;
     }
     while ( sceneBModelCollidedCount );
-    __asm
-    {
-      vmovaps xmm8, [rsp+170h+var_58+8]
-      vmovaps xmm7, [rsp+170h+var_48+8]
-      vmovaps xmm6, [rsp+170h+var_38+8]
-    }
   }
   return 1;
 }
@@ -1772,35 +1230,39 @@ void R_MarkFragments_GatherBoneInfo(const DObj *dobj, const cpose_t *pose, const
   unsigned __int8 v15; 
   unsigned __int8 v16; 
   unsigned int v17; 
+  DObjPartBits *v18; 
   DObj *v20; 
-  unsigned int v22; 
-  int v23; 
-  const XModel *v24; 
+  unsigned int v21; 
+  int v22; 
+  const XModel *v23; 
+  unsigned int v24; 
   unsigned int v25; 
   unsigned int v26; 
-  unsigned int v27; 
-  unsigned __int8 v28; 
+  unsigned __int8 v27; 
   __int64 numBones; 
-  unsigned int v30; 
-  DObj *v31; 
+  unsigned int v29; 
+  DObj *v30; 
+  DObjAnimMat *v31; 
+  __int64 v32; 
+  __int64 v33; 
+  __int64 v34; 
+  __int64 v35; 
   __int64 v36; 
-  __int64 v37; 
-  __int64 v38; 
   unsigned __int8 index[4]; 
   int NumModels; 
   DObj *obj; 
   scr_string_t name; 
   cpose_t *posea; 
-  DObjPartBits v44; 
+  DObjPartBits v42; 
   DObjPartBits partBits; 
+  __int128 v44; 
 
   v5 = dobj;
   obj = (DObj *)dobj;
   posea = (cpose_t *)pose;
-  _RDI = outInfo;
   Profile_Begin(238);
   v8 = 0i64;
-  _RDI->numBones = 0;
+  outInfo->numBones = 0;
   NumModels = DObjGetNumModels(v5);
   v9 = 0;
   v10 = 0;
@@ -1813,8 +1275,8 @@ void R_MarkFragments_GatherBoneInfo(const DObj *dobj, const cpose_t *pose, const
     v13 = BestUsableLod;
     if ( BestUsableLod > 6 )
     {
-      LODWORD(v38) = BestUsableLod;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 670, ASSERT_TYPE_ASSERT, "(modelLod <= XMODEL_LOD_CULLED_OUT)", "%s\n\t%s %u", "modelLod <= XMODEL_LOD_CULLED_OUT", Model->name, v38) )
+      LODWORD(v36) = BestUsableLod;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 670, ASSERT_TYPE_ASSERT, "(modelLod <= XMODEL_LOD_CULLED_OUT)", "%s\n\t%s %u", "modelLod <= XMODEL_LOD_CULLED_OUT", Model->name, v36) )
         __debugbreak();
     }
     if ( v13 < 6 )
@@ -1830,8 +1292,8 @@ LABEL_16:
   LodInfo = XModelGetLodInfo(Model, v13);
   if ( !LodInfo->surfs || !Stream_MeshIsSafeToUse(LodInfo->modelSurfsStaging) )
   {
-    LODWORD(v38) = v13;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 678, ASSERT_TYPE_ASSERT, "(XModelIsLodUsable( model, modelLod ))", "%s\n\tModel not usable: %s lod %u", "XModelIsLodUsable( model, modelLod )", Model->name, v38) )
+    LODWORD(v36) = v13;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 678, ASSERT_TYPE_ASSERT, "(XModelIsLodUsable( model, modelLod ))", "%s\n\tModel not usable: %s lod %u", "XModelIsLodUsable( model, modelLod )", Model->name, v36) )
       __debugbreak();
   }
   if ( markBoneIndex >= v9 + Model->numBones )
@@ -1845,112 +1307,107 @@ LABEL_16:
     v16 = v15;
     if ( v15 >= Model->numBones )
     {
-      LODWORD(v36) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 694, ASSERT_TYPE_ASSERT, "( ( modelBoneIndx < model->numBones ) )", "( modelBoneIndx ) = %u", v36) )
+      LODWORD(v34) = v15;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 694, ASSERT_TYPE_ASSERT, "( ( modelBoneIndx < model->numBones ) )", "( modelBoneIndx ) = %u", v34) )
         __debugbreak();
     }
     name = Model->boneNames[v16];
     if ( name )
     {
       v17 = 0;
-      __asm { vmovaps [rsp+108h+var_48], xmm6 }
-      _RSI = &v44;
+      v44 = _XMM6;
+      v18 = &v42;
       __asm { vpxor   xmm6, xmm6, xmm6 }
       do
       {
-        __asm { vmovdqu xmmword ptr [rsi], xmm6 }
-        _RSI = (DObjPartBits *)((char *)_RSI + 16);
+        *(_OWORD *)v18->array = _XMM6;
+        v18 = (DObjPartBits *)((char *)v18 + 16);
         ++v17;
       }
       while ( v17 < 2 );
       v20 = obj;
       DObjLock(obj);
       DObjGetHidePartBits(obj, &partBits);
-      __asm { vmovaps xmm6, [rsp+108h+var_48] }
+      v21 = 0;
       v22 = 0;
-      v23 = 0;
       do
       {
-        v24 = DObjGetModel(v20, v23);
-        v25 = XModelGetBestUsableLod(v24, 0, 0);
-        v26 = v25;
-        if ( v25 > 6 )
+        v23 = DObjGetModel(v20, v22);
+        v24 = XModelGetBestUsableLod(v23, 0, 0);
+        v25 = v24;
+        if ( v24 > 6 )
         {
-          LODWORD(v38) = v25;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 758, ASSERT_TYPE_ASSERT, "(modelLod <= XMODEL_LOD_CULLED_OUT)", "%s\n\t%s %u", "modelLod <= XMODEL_LOD_CULLED_OUT", v24->name, v38) )
+          LODWORD(v36) = v24;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 758, ASSERT_TYPE_ASSERT, "(modelLod <= XMODEL_LOD_CULLED_OUT)", "%s\n\t%s %u", "modelLod <= XMODEL_LOD_CULLED_OUT", v23->name, v36) )
             __debugbreak();
         }
-        if ( v26 < 6 && XModelGetBoneIndex(v24, name, v22, index) )
+        if ( v25 < 6 && XModelGetBoneIndex(v23, name, v21, index) )
         {
-          v27 = DObjNumBones(v20);
-          if ( index[0] >= v27 )
+          v26 = DObjNumBones(v20);
+          if ( index[0] >= v26 )
           {
-            LODWORD(v37) = DObjNumBones(v20);
-            LODWORD(v36) = index[0];
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 772, ASSERT_TYPE_ASSERT, "(unsigned)( dobjBoneIndex ) < (unsigned)( DObjNumBones( dobj ) )", "dobjBoneIndex doesn't index DObjNumBones( dobj )\n\t%i not in [0, %i)", v36, v37) )
+            LODWORD(v35) = DObjNumBones(v20);
+            LODWORD(v34) = index[0];
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 772, ASSERT_TYPE_ASSERT, "(unsigned)( dobjBoneIndex ) < (unsigned)( DObjNumBones( dobj ) )", "dobjBoneIndex doesn't index DObjNumBones( dobj )\n\t%i not in [0, %i)", v34, v35) )
               __debugbreak();
           }
           if ( ((0x80000000 >> (index[0] & 0x1F)) & partBits.array[(unsigned __int64)index[0] >> 5]) == 0 )
           {
-            v28 = truncate_cast<unsigned char,int>(index[0] - v22);
-            if ( _RDI->numBones >= 0x20 )
+            v27 = truncate_cast<unsigned char,int>(index[0] - v21);
+            if ( outInfo->numBones >= 0x20 )
             {
-              LODWORD(v37) = 32;
-              LODWORD(v36) = _RDI->numBones;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 783, ASSERT_TYPE_ASSERT, "(unsigned)( outInfo.numBones ) < (unsigned)( MarkFragments_BoneInfo::MAX_BONES )", "outInfo.numBones doesn't index MarkFragments_BoneInfo::MAX_BONES\n\t%i not in [0, %i)", v36, v37) )
+              LODWORD(v35) = 32;
+              LODWORD(v34) = outInfo->numBones;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 783, ASSERT_TYPE_ASSERT, "(unsigned)( outInfo.numBones ) < (unsigned)( MarkFragments_BoneInfo::MAX_BONES )", "outInfo.numBones doesn't index MarkFragments_BoneInfo::MAX_BONES\n\t%i not in [0, %i)", v34, v35) )
                 __debugbreak();
             }
-            numBones = _RDI->numBones;
+            numBones = outInfo->numBones;
             if ( (_DWORD)numBones == 32 )
               goto LABEL_42;
-            _RDI->submodelIndex[numBones] = v23;
-            _RDI->modelBoneIndex[_RDI->numBones] = v28;
-            _RDI->dobjBoneIndex[_RDI->numBones] = index[0];
+            outInfo->submodelIndex[numBones] = v22;
+            outInfo->modelBoneIndex[outInfo->numBones] = v27;
+            outInfo->dobjBoneIndex[outInfo->numBones] = index[0];
             v20 = obj;
-            _RDI->submodelLod[_RDI->numBones] = v26;
-            v30 = index[0];
-            ++_RDI->numBones;
-            v44.array[(unsigned __int64)v30 >> 5] |= 0x80000000 >> (v30 & 0x1F);
+            outInfo->submodelLod[outInfo->numBones] = v25;
+            v29 = index[0];
+            ++outInfo->numBones;
+            v42.array[(unsigned __int64)v29 >> 5] |= 0x80000000 >> (v29 & 0x1F);
           }
         }
-        ++v23;
-        v22 += v24->numBones;
+        ++v22;
+        v21 += v23->numBones;
       }
-      while ( v23 != NumModels );
-      LODWORD(numBones) = _RDI->numBones;
+      while ( v22 != NumModels );
+      LODWORD(numBones) = outInfo->numBones;
 LABEL_42:
-      v31 = obj;
+      v30 = obj;
       if ( (_DWORD)numBones )
       {
-        if ( CG_Pose_CalcDObjPoseForMark(posea, obj, &v44) )
+        v31 = CG_Pose_CalcDObjPoseForMark(posea, obj, &v42);
+        if ( v31 )
         {
-          if ( !DObjSkelAreBonesUpToDate(v31, &v44) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 815, ASSERT_TYPE_ASSERT, "(boneMtxList == 0 || DObjSkelAreBonesUpToDate( dobj, &queryPartBits ))", (const char *)&queryFormat, "boneMtxList == NULL || DObjSkelAreBonesUpToDate( dobj, &queryPartBits )") )
+          if ( !DObjSkelAreBonesUpToDate(v30, &v42) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 815, ASSERT_TYPE_ASSERT, "(boneMtxList == 0 || DObjSkelAreBonesUpToDate( dobj, &queryPartBits ))", (const char *)&queryFormat, "boneMtxList == NULL || DObjSkelAreBonesUpToDate( dobj, &queryPartBits )") )
             __debugbreak();
-          if ( _RDI->numBones )
+          if ( outInfo->numBones )
           {
             do
             {
-              _RAX = 32i64 * _RDI->dobjBoneIndex[v8];
-              _RCX = (unsigned int)v8;
+              v32 = outInfo->dobjBoneIndex[v8];
+              v33 = (unsigned int)v8;
               v8 = (unsigned int)(v8 + 1);
-              _RCX *= 32i64;
-              __asm
-              {
-                vmovups ymm0, ymmword ptr [rax+rbx]
-                vmovups ymmword ptr [rcx+rdi+10h], ymm0
-              }
+              outInfo->poseBone[v33] = v31[v32];
             }
-            while ( (unsigned int)v8 < _RDI->numBones );
+            while ( (unsigned int)v8 < outInfo->numBones );
           }
           goto LABEL_49;
         }
-        DObjUnlock(v31);
-        _RDI->numBones = 0;
+        DObjUnlock(v30);
+        outInfo->numBones = 0;
       }
       else
       {
 LABEL_49:
-        DObjUnlock(v31);
+        DObjUnlock(v30);
       }
     }
   }
@@ -1963,225 +1420,159 @@ LABEL_50:
 R_MarkFragments_Glass
 ==============
 */
-bool R_MarkFragments_Glass(MarkInfo *markInfo)
+char R_MarkFragments_Glass(MarkInfo *markInfo)
 {
   signed __int64 v1; 
-  void *v9; 
-  __int64 v11; 
-  unsigned int v14; 
-  __int64 v15; 
-  bool i; 
-  GlassTri *v17; 
-  unsigned int v57; 
-  float *v58; 
-  __int64 v59; 
-  __int64 v60; 
-  int v61; 
-  int v62; 
-  int v63; 
-  __int64 v64; 
-  int v65; 
-  bool result; 
+  void *v2; 
+  __int64 v4; 
+  unsigned int v5; 
+  __int64 j; 
+  GlassTri *v7; 
+  __int64 v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  unsigned int v22; 
+  float *v23; 
+  __int64 v24; 
+  __int64 v25; 
+  int v26; 
+  int v27; 
+  int v28; 
+  __int64 v29; 
+  int v30; 
   __int64 maxVerts; 
   BOOL triCount; 
   BOOL outGlassNormal; 
-  unsigned int v78; 
-  int v79; 
+  unsigned int v35; 
+  int i; 
   unsigned int pieceCount; 
-  char v81[4]; 
-  __int16 v82; 
-  vec3_t v83; 
+  char v38[4]; 
+  __int16 v39; 
+  vec3_t v40; 
   FxWorldMarkPoint inPoints[18]; 
   GlassTri tris[64]; 
   vec3_t verts[256]; 
   unsigned __int16 pieceIndices[32]; 
-  char v95; 
 
-  v9 = alloca(v1);
-  __asm
+  v2 = alloca(v1);
+  v38[0] = 6;
+  if ( !FX_GlassPiecesInSphere(&markInfo->collInfo->sphere, pieceIndices, 0x20u, &pieceCount) )
+    return 0;
+  v4 = 0i64;
+  for ( i = 0; (unsigned int)v4 < pieceCount; i = v4 )
   {
-    vmovaps [rsp+1080h+var_30], xmm6
-    vmovaps [rsp+1080h+var_40], xmm7
-    vmovaps [rsp+1080h+var_50], xmm8
-    vmovaps [rsp+1080h+var_60], xmm9
-    vmovaps [rsp+1080h+var_70], xmm10
-    vmovaps [rsp+1080h+var_80], xmm11
-    vmovaps [rsp+1080h+var_90], xmm12
-  }
-  v81[0] = 6;
-  if ( FX_GlassPiecesInSphere(&markInfo->collInfo->sphere, pieceIndices, 0x20u, &pieceCount) )
-  {
-    v11 = 0i64;
-    v79 = 0;
-    if ( pieceCount )
+    v5 = pieceIndices[v4];
+    if ( (FX_GlassPieceMaterial(v5)->surfaceFlags & 0x20) == 0 )
     {
-      __asm
+      if ( !FX_GlassTrisInPiece(v5, markInfo->axis.m, tris, 0x40u, verts, 0x100u, &v35, &v40) )
+        return 0;
+      if ( v35 > 0x40 )
       {
-        vmovss  xmm11, cs:__real@3bf9096c
-        vxorps  xmm12, xmm12, xmm12
+        LODWORD(maxVerts) = v35;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 382, ASSERT_TYPE_ASSERT, "( ( triCount <= ( sizeof( *array_counter( glassTris ) ) + 0 ) ) )", "( triCount ) = %i", maxVerts) )
+          __debugbreak();
       }
-      do
+      if ( v38[0] != 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2165, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_GLASS)", (const char *)&queryFormat, "FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_GLASS") )
+        __debugbreak();
+      v39 = v5;
+      if ( v38[0] != 6 )
       {
-        v14 = pieceIndices[v11];
-        if ( (FX_GlassPieceMaterial(v14)->surfaceFlags & 0x20) == 0 )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2158, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_GLASS)", (const char *)&queryFormat, "FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_GLASS") )
+          __debugbreak();
+        if ( (_WORD)v5 != v39 )
         {
-          if ( !FX_GlassTrisInPiece(v14, markInfo->axis.m, tris, 0x40u, verts, 0x100u, &v78, &v83) )
-            goto LABEL_38;
-          if ( v78 > 0x40 )
-          {
-            LODWORD(maxVerts) = v78;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 382, ASSERT_TYPE_ASSERT, "( ( triCount <= ( sizeof( *array_counter( glassTris ) ) + 0 ) ) )", "( triCount ) = %i", maxVerts) )
-              __debugbreak();
-          }
-          if ( v81[0] != 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2165, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_GLASS)", (const char *)&queryFormat, "FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_GLASS") )
+          LODWORD(maxVerts) = v5;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2168, ASSERT_TYPE_ASSERT, "( ( glassPieceIndex == FX_GetMarkContext_GlassPieceIndex( context ) ) )", "( glassPieceIndex ) = %u", maxVerts) )
             __debugbreak();
-          v82 = v14;
-          if ( v81[0] != 6 )
+        }
+      }
+      for ( j = 0i64; (unsigned int)j < v35; j = (unsigned int)(j + 1) )
+      {
+        v7 = &tris[j];
+        v8 = v7->indices[0];
+        v9 = verts[v7->indices[1]].v[0];
+        v10 = verts[v7->indices[1]].v[1];
+        v11 = verts[v7->indices[1]].v[2];
+        v12 = verts[v8].v[0] - v9;
+        v13 = verts[v8].v[1] - v10;
+        v14 = verts[v8].v[2] - v11;
+        v15 = verts[tris[j].indices[2]].v[0] - v9;
+        v16 = verts[tris[j].indices[2]].v[1] - v10;
+        v17 = verts[tris[j].indices[2]].v[2] - v11;
+        v18 = (float)(v17 * v13) - (float)(v16 * v14);
+        v19 = (float)(v15 * v14) - (float)(v17 * v12);
+        v20 = (float)(v16 * v12) - (float)(v15 * v13);
+        v21 = (float)((float)(v19 * markInfo->axis.m[0].v[1]) + (float)(v18 * markInfo->axis.m[0].v[0])) + (float)(v20 * markInfo->axis.m[0].v[2]);
+        if ( v21 >= 0.0 && (float)(v21 * v21) >= (float)((float)((float)((float)(v19 * v19) + (float)(v18 * v18)) + (float)(v20 * v20)) * 0.0076000001) )
+        {
+          v22 = 0;
+          v23 = &inPoints[0].xyz.v[2];
+          do
           {
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2158, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_GLASS)", (const char *)&queryFormat, "FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_GLASS") )
-              __debugbreak();
-            if ( (_WORD)v14 != v82 )
+            v24 = v7->indices[0];
+            *(v23 - 2) = verts[v7->indices[0]].v[0];
+            *(v23 - 1) = verts[v24].v[1];
+            *v23 = verts[v24].v[2];
+            *(_QWORD *)(v23 + 1) = 0i64;
+            v23[3] = 0.0;
+            v25 = (int)v22;
+            v7 = (GlassTri *)((char *)v7 + 2);
+            ++v22;
+            v23[v25 + 1] = 1.0;
+            v23 += 6;
+          }
+          while ( v22 < 3 );
+          v26 = 0;
+          v27 = 0;
+          v28 = 3;
+          while ( 1 )
+          {
+            v29 = 0i64;
+            if ( !v26 )
+              v29 = 9i64;
+            v30 = R_ChopWorldPolyBehindPlane(v28, &inPoints[9 * v26], &inPoints[v29], &markInfo->planes[v27]);
+            v28 = v30;
+            if ( !v30 )
+              break;
+            if ( v30 > 9 )
             {
-              LODWORD(maxVerts) = v14;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2168, ASSERT_TYPE_ASSERT, "( ( glassPieceIndex == FX_GetMarkContext_GlassPieceIndex( context ) ) )", "( glassPieceIndex ) = %u", maxVerts) )
+              LODWORD(maxVerts) = v30;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 406, ASSERT_TYPE_ASSERT, "( ( fragmentPointCount <= 3 + 6 ) )", "( fragmentPointCount ) = %i", maxVerts) )
                 __debugbreak();
             }
-          }
-          v15 = 0i64;
-          for ( i = 0; (unsigned int)v15 < v78; i = (unsigned int)v15 < v78 )
-          {
-            v17 = &tris[v15];
-            _R8 = 3i64 * tris[v15].indices[2];
-            _RDX = 3i64 * v17->indices[1];
-            __asm
+            v26 ^= 1u;
+            if ( ++v27 >= 6 )
             {
-              vmovss  xmm4, dword ptr [rbp+rdx*4+0F80h+var_CE0]
-              vmovss  xmm3, dword ptr [rbp+rdx*4+0F80h+var_CE0+4]
-              vmovss  xmm2, dword ptr [rbp+rdx*4+0F80h+var_CE0+8]
-            }
-            _RCX = 3i64 * v17->indices[0];
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+rcx*4+0F80h+var_CE0]
-              vmovss  xmm1, dword ptr [rbp+rcx*4+0F80h+var_CE0+4]
-              vsubss  xmm9, xmm0, xmm4
-              vmovss  xmm0, dword ptr [rbp+rcx*4+0F80h+var_CE0+8]
-              vsubss  xmm8, xmm1, xmm3
-              vmovss  xmm1, dword ptr [rbp+r8*4+0F80h+var_CE0]
-              vsubss  xmm6, xmm0, xmm2
-              vmovss  xmm0, dword ptr [rbp+r8*4+0F80h+var_CE0+4]
-              vsubss  xmm7, xmm1, xmm4
-              vmovss  xmm1, dword ptr [rbp+r8*4+0F80h+var_CE0+8]
-              vsubss  xmm5, xmm0, xmm3
-              vsubss  xmm4, xmm1, xmm2
-              vmulss  xmm2, xmm4, xmm8
-              vmulss  xmm0, xmm5, xmm6
-              vsubss  xmm10, xmm2, xmm0
-              vmulss  xmm3, xmm7, xmm6
-              vmulss  xmm1, xmm4, xmm9
-              vsubss  xmm4, xmm3, xmm1
-              vmulss  xmm1, xmm10, dword ptr [r13+0]
-              vmulss  xmm3, xmm4, dword ptr [r13+4]
-              vmulss  xmm2, xmm5, xmm9
-              vmulss  xmm0, xmm7, xmm8
-              vsubss  xmm5, xmm2, xmm0
-              vmulss  xmm0, xmm5, dword ptr [r13+8]
-              vaddss  xmm2, xmm3, xmm1
-              vaddss  xmm1, xmm2, xmm0
-              vcomiss xmm1, xmm12
-            }
-            if ( !i )
-            {
-              __asm
+              if ( v28 < 3 )
               {
-                vmulss  xmm3, xmm1, xmm1
-                vmulss  xmm1, xmm4, xmm4
-                vmulss  xmm0, xmm10, xmm10
-                vaddss  xmm2, xmm1, xmm0
-                vmulss  xmm1, xmm5, xmm5
-                vaddss  xmm2, xmm2, xmm1
-                vmulss  xmm0, xmm2, xmm11
-                vcomiss xmm3, xmm0
+                LODWORD(maxVerts) = v28;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 414, ASSERT_TYPE_ASSERT, "( ( fragmentPointCount >= 3 ) )", "( fragmentPointCount ) = %i", maxVerts) )
+                  __debugbreak();
               }
-              v57 = 0;
-              v58 = &inPoints[0].xyz.v[2];
-              do
-              {
-                v59 = v17->indices[0];
-                *(v58 - 2) = verts[v17->indices[0]].v[0];
-                *(v58 - 1) = verts[v59].v[1];
-                *v58 = verts[v59].v[2];
-                *(_QWORD *)(v58 + 1) = 0i64;
-                v58[3] = 0.0;
-                v60 = (int)v57;
-                v17 = (GlassTri *)((char *)v17 + 2);
-                ++v57;
-                v58[v60 + 1] = 1.0;
-                v58 += 6;
-              }
-              while ( v57 < 3 );
-              v61 = 0;
-              v62 = 0;
-              v63 = 3;
-              while ( 1 )
-              {
-                v64 = 0i64;
-                if ( !v61 )
-                  v64 = 9i64;
-                v65 = R_ChopWorldPolyBehindPlane(v63, &inPoints[9 * v61], &inPoints[v64], &markInfo->planes[v62]);
-                v63 = v65;
-                if ( !v65 )
-                  break;
-                if ( v65 > 9 )
-                {
-                  LODWORD(maxVerts) = v65;
-                  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 406, ASSERT_TYPE_ASSERT, "( ( fragmentPointCount <= 3 + 6 ) )", "( fragmentPointCount ) = %i", maxVerts) )
-                    __debugbreak();
-                }
-                v61 ^= 1u;
-                if ( ++v62 >= 6 )
-                {
-                  if ( v63 < 3 )
-                  {
-                    LODWORD(maxVerts) = v63;
-                    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 414, ASSERT_TYPE_ASSERT, "( ( fragmentPointCount >= 3 ) )", "( fragmentPointCount ) = %i", maxVerts) )
-                      __debugbreak();
-                  }
-                  LOBYTE(outGlassNormal) = 0;
-                  LOBYTE(triCount) = 0;
-                  markInfo->callback(markInfo->callbackContext, (const GfxMarkContext *)v81, (const vec3_t *)&markInfo->collInfo->sphere, &markInfo->axis.row1, &markInfo->axis.row2, (const vec3_t *)&markInfo->axis, triCount, outGlassNormal);
-                  goto LABEL_34;
-                }
-              }
+              LOBYTE(outGlassNormal) = 0;
+              LOBYTE(triCount) = 0;
+              markInfo->callback(markInfo->callbackContext, (const GfxMarkContext *)v38, (const vec3_t *)&markInfo->collInfo->sphere, &markInfo->axis.row1, &markInfo->axis.row2, (const vec3_t *)&markInfo->axis, triCount, outGlassNormal);
+              goto LABEL_34;
             }
-            v15 = (unsigned int)(v15 + 1);
           }
         }
-LABEL_34:
-        v11 = (unsigned int)(v79 + 1);
-        v79 = v11;
       }
-      while ( (unsigned int)v11 < pieceCount );
     }
-    result = 1;
+LABEL_34:
+    v4 = (unsigned int)(i + 1);
   }
-  else
-  {
-LABEL_38:
-    result = 0;
-  }
-  _R11 = &v95;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -2585,324 +1976,72 @@ R_MarkFragments_TransformMarkToModelSpace
 */
 char R_MarkFragments_TransformMarkToModelSpace(MarkInfo *markInfo, const DObjAnimMat *poseBone, const DObjAnimMat *baseBone)
 {
-  int v84; 
-  int v85; 
-  int v86; 
-  int v87; 
-  int v88; 
-  int v89; 
-  int v90; 
-  int v91; 
-  int v92; 
-  int v93; 
-  int v94; 
-  int v95; 
-  int v96; 
-  int v97; 
-  int v98; 
-  int v99; 
-  int v100; 
-  int v101; 
+  float v6; 
   DObjSkelMat skelMat; 
-  DObjSkelMat v103; 
-  vec3_t v104; 
+  DObjSkelMat v10; 
+  vec3_t origin; 
   tmat43_t<vec3_t> in2; 
   tmat43_t<vec3_t> in1; 
-  tmat43_t<vec3_t> v107; 
-  tmat43_t<vec3_t> v108; 
+  tmat43_t<vec3_t> v14; 
+  tmat43_t<vec3_t> v15; 
   DObjAnimMat mat; 
   tmat43_t<vec3_t> out; 
-  tmat43_t<vec3_t> v111; 
+  tmat43_t<vec3_t> v18; 
 
-  _RSI = markInfo;
-  _RBX = poseBone;
   Profile_Begin(240);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rbp+150h+mat.quat], ymm0
-    vmovss  xmm1, dword ptr [rbp+150h+mat.trans+4]
-    vaddss  xmm2, xmm1, dword ptr [rsi+0CCh]
-    vextractf128 xmm0, ymm0, 1
-    vaddss  xmm0, xmm0, dword ptr [rsi+0C8h]
-    vmovss  dword ptr [rbp+150h+mat.trans], xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+mat.trans+8]
-    vaddss  xmm1, xmm0, dword ptr [rsi+0D0h]
-    vmovss  dword ptr [rbp+150h+mat.trans+8], xmm1
-    vmovss  dword ptr [rbp+150h+mat.trans+4], xmm2
-  }
+  mat = *poseBone;
+  v6 = mat.trans.v[1] + markInfo->viewOffset.v[1];
+  __asm { vextractf128 xmm0, ymm0, 1 }
+  mat.trans.v[0] = *(float *)&_XMM0 + markInfo->viewOffset.v[0];
+  mat.trans.v[2] = mat.trans.v[2] + markInfo->viewOffset.v[2];
+  mat.trans.v[1] = v6;
   LocalConvertQuatToSkelMat(&mat, &skelMat);
-  LocalConvertQuatToInverseSkelMat(baseBone, &v103);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+250h+skelMat.axis]
-    vmovss  xmm1, dword ptr [rsp+250h+skelMat.axis+4]
-    vmovss  dword ptr [rbp+150h+in2], xmm0
-    vmovss  xmm0, dword ptr [rsp+250h+skelMat.axis+8]
-    vmovss  dword ptr [rbp+150h+in2+4], xmm1
-    vmovss  xmm1, dword ptr [rsp+250h+skelMat.axis+10h]
-    vmovss  dword ptr [rbp+150h+in2+8], xmm0
-    vmovss  xmm0, dword ptr [rsp+250h+skelMat.axis+14h]
-    vmovss  dword ptr [rbp+150h+in2+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rsp+250h+skelMat.axis+18h]
-    vmovss  dword ptr [rbp+150h+in2+10h], xmm0
-    vmovss  xmm0, dword ptr [rsp+250h+skelMat.axis+20h]
-    vmovss  dword ptr [rbp+150h+in2+14h], xmm1
-    vmovss  xmm1, dword ptr [rsp+250h+skelMat.axis+24h]
-    vmovss  dword ptr [rbp+150h+in2+18h], xmm0
-    vmovss  xmm0, dword ptr [rsp+250h+skelMat.axis+28h]
-    vmovss  dword ptr [rbp+150h+in2+1Ch], xmm1
-    vmovss  xmm1, dword ptr [rsp+250h+skelMat.origin]
-    vmovss  dword ptr [rbp+150h+in2+20h], xmm0
-    vmovss  xmm0, dword ptr [rsp+250h+skelMat.origin+4]
-    vmovss  dword ptr [rbp+150h+in2+24h], xmm1
-    vmovss  xmm1, dword ptr [rsp+250h+skelMat.origin+8]
-    vmovss  dword ptr [rbp+150h+in2+28h], xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0.axis]
-    vmovss  dword ptr [rbp+150h+in2+2Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+150h+var_1D0.axis+4]
-    vmovss  dword ptr [rbp+150h+in1], xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0.axis+8]
-    vmovss  dword ptr [rbp+150h+in1+4], xmm1
-    vmovss  xmm1, dword ptr [rbp+150h+var_1D0.axis+10h]
-    vmovss  dword ptr [rbp+150h+in1+8], xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0.axis+14h]
-    vmovss  dword ptr [rbp+150h+in1+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+150h+var_1D0.axis+18h]
-    vmovss  dword ptr [rbp+150h+in1+10h], xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0.axis+20h]
-    vmovss  dword ptr [rbp+150h+in1+14h], xmm1
-    vmovss  xmm1, dword ptr [rbp+150h+var_1D0.axis+24h]
-    vmovss  dword ptr [rbp+150h+in1+18h], xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0.axis+28h]
-    vmovss  dword ptr [rbp+150h+in1+1Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+150h+var_1D0.origin]
-    vmovss  dword ptr [rbp+150h+in1+20h], xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0.origin+4]
-    vmovss  dword ptr [rbp+150h+in1+24h], xmm1
-    vmovss  xmm1, dword ptr [rbp+150h+var_1D0.origin+8]
-    vmovss  dword ptr [rbp+150h+in1+28h], xmm0
-    vmovss  dword ptr [rbp+150h+in1+2Ch], xmm1
-  }
+  LocalConvertQuatToInverseSkelMat(baseBone, &v10);
+  in2.m[0].v[0] = skelMat.axis.m[0].v[0];
+  in2.m[0].v[1] = skelMat.axis.m[0].v[1];
+  in2.m[0].v[2] = skelMat.axis.m[0].v[2];
+  in2.m[1] = skelMat.axis.m[1].xyz;
+  in2.m[2] = skelMat.axis.m[2].xyz;
+  in2.m[3] = skelMat.origin.xyz;
+  in1.m[0].v[0] = v10.axis.m[0].v[0];
+  in1.m[0].v[1] = v10.axis.m[0].v[1];
+  in1.m[0].v[2] = v10.axis.m[0].v[2];
+  in1.m[1] = v10.axis.m[1].xyz;
+  in1.m[2] = v10.axis.m[2].xyz;
+  in1.m[3] = v10.origin.xyz;
   MatrixMultiply43(&in1, &in2, &out);
   LocalConvertQuatToSkelMat(baseBone, &skelMat);
-  LocalConvertQuatToInverseSkelMat(&mat, &v103);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0.axis]
-    vmovss  xmm1, dword ptr [rbp+150h+var_1D0.axis+4]
-    vmovss  dword ptr [rbp+150h+var_F0+4], xmm1
-    vmovss  xmm1, dword ptr [rbp+150h+var_1D0.axis+10h]
-    vmovss  dword ptr [rbp+150h+var_F0], xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0.axis+8]
-    vmovss  dword ptr [rbp+150h+var_F0+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+150h+var_1D0.axis+18h]
-    vmovss  dword ptr [rbp+150h+var_F0+8], xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0.axis+14h]
-    vmovss  dword ptr [rbp+150h+var_F0+14h], xmm1
-    vmovss  xmm1, dword ptr [rbp+150h+var_1D0.axis+24h]
-    vmovss  dword ptr [rbp+150h+var_F0+10h], xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0.axis+20h]
-    vmovss  dword ptr [rbp+150h+var_F0+1Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+150h+var_1D0.origin]
-    vmovss  dword ptr [rbp+150h+var_F0+18h], xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0.axis+28h]
-    vmovss  dword ptr [rbp+150h+var_F0+24h], xmm1
-    vmovss  xmm1, dword ptr [rbp+150h+var_1D0.origin+8]
-    vmovss  dword ptr [rbp+150h+var_F0+20h], xmm0
-    vmovss  xmm0, dword ptr [rbp+150h+var_1D0.origin+4]
-    vmovss  dword ptr [rbp+150h+var_F0+2Ch], xmm1
-    vmovss  xmm1, dword ptr [rsp+250h+skelMat.axis+4]
-    vmovss  dword ptr [rbp+150h+var_F0+28h], xmm0
-    vmovss  xmm0, dword ptr [rsp+250h+skelMat.axis]
-    vmovss  dword ptr [rbp+150h+var_120+4], xmm1
-    vmovss  xmm1, dword ptr [rsp+250h+skelMat.axis+10h]
-    vmovss  dword ptr [rbp+150h+var_120], xmm0
-    vmovss  xmm0, dword ptr [rsp+250h+skelMat.axis+8]
-    vmovss  dword ptr [rbp+150h+var_120+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rsp+250h+skelMat.axis+18h]
-    vmovss  dword ptr [rbp+150h+var_120+8], xmm0
-    vmovss  xmm0, dword ptr [rsp+250h+skelMat.axis+14h]
-    vmovss  dword ptr [rbp+150h+var_120+14h], xmm1
-    vmovss  xmm1, dword ptr [rsp+250h+skelMat.axis+24h]
-    vmovss  dword ptr [rbp+150h+var_120+10h], xmm0
-    vmovss  xmm0, dword ptr [rsp+250h+skelMat.axis+20h]
-    vmovss  dword ptr [rbp+150h+var_120+1Ch], xmm1
-    vmovss  xmm1, dword ptr [rsp+250h+skelMat.origin]
-    vmovss  dword ptr [rbp+150h+var_120+18h], xmm0
-    vmovss  xmm0, dword ptr [rsp+250h+skelMat.axis+28h]
-    vmovss  dword ptr [rbp+150h+var_120+24h], xmm1
-    vmovss  xmm1, dword ptr [rsp+250h+skelMat.origin+8]
-    vmovss  dword ptr [rbp+150h+var_120+20h], xmm0
-    vmovss  xmm0, dword ptr [rsp+250h+skelMat.origin+4]
-    vmovss  dword ptr [rbp+150h+var_120+2Ch], xmm1
-    vmovss  dword ptr [rbp+150h+var_120+28h], xmm0
-  }
-  MatrixMultiply43(&v108, &v107, &v111);
-  _RAX = _RSI->collInfo;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+4004h]
-    vmovss  dword ptr [rbp+150h+var_190], xmm0
-    vmovss  xmm1, dword ptr [rax+4008h]
-    vmovss  dword ptr [rbp+150h+var_190+4], xmm1
-    vmovss  xmm0, dword ptr [rax+400Ch]
-    vmovss  dword ptr [rbp+150h+var_190+8], xmm0
-  }
-  MatrixTransformVector43(&v104, &v111, &_RSI->localOrigin);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+38h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v84 & 0x7F800000) == 2139095040 )
-    goto LABEL_34;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+3Ch]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v85 & 0x7F800000) == 2139095040 )
-    goto LABEL_34;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+40h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v86 & 0x7F800000) == 2139095040 )
-  {
-LABEL_34:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 548, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[0] )[0] ) && !IS_NAN( ( markInfo->axis[0] )[1] ) && !IS_NAN( ( markInfo->axis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[0] )[0] ) && !IS_NAN( ( markInfo->axis[0] )[1] ) && !IS_NAN( ( markInfo->axis[0] )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+44h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v87 & 0x7F800000) == 2139095040 )
-    goto LABEL_35;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+48h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v88 & 0x7F800000) == 2139095040 )
-    goto LABEL_35;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+4Ch]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v89 & 0x7F800000) == 2139095040 )
-  {
-LABEL_35:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 549, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[1] )[0] ) && !IS_NAN( ( markInfo->axis[1] )[1] ) && !IS_NAN( ( markInfo->axis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[1] )[0] ) && !IS_NAN( ( markInfo->axis[1] )[1] ) && !IS_NAN( ( markInfo->axis[1] )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+50h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v90 & 0x7F800000) == 2139095040 )
-    goto LABEL_36;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+54h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v91 & 0x7F800000) == 2139095040 )
-    goto LABEL_36;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+58h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v92 & 0x7F800000) == 2139095040 )
-  {
-LABEL_36:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 550, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[2] )[0] ) && !IS_NAN( ( markInfo->axis[2] )[1] ) && !IS_NAN( ( markInfo->axis[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[2] )[0] ) && !IS_NAN( ( markInfo->axis[2] )[1] ) && !IS_NAN( ( markInfo->axis[2] )[2] )") )
-      __debugbreak();
-  }
-  MatrixTransposeTransformVector(&_RSI->axis.m[1], (const tmat33_t<vec3_t> *)&out, &_RSI->localTexCoordAxisX);
-  MatrixTransposeTransformVector(&_RSI->axis.m[2], (const tmat33_t<vec3_t> *)&out, &_RSI->localTexCoordAxisY);
-  MatrixTransposeTransformVector(_RSI->axis.m, (const tmat33_t<vec3_t> *)&out, &_RSI->localTexCoordAxisZ);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+14h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v93 & 0x7F800000) == 2139095040 )
-    goto LABEL_37;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+18h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v94 & 0x7F800000) == 2139095040 )
-    goto LABEL_37;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+1Ch]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v95 & 0x7F800000) == 2139095040 )
-  {
-LABEL_37:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 556, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisX )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisX )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+20h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v96 & 0x7F800000) == 2139095040 )
-    goto LABEL_38;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+24h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v97 & 0x7F800000) == 2139095040 )
-    goto LABEL_38;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+28h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v98 & 0x7F800000) == 2139095040 )
-  {
-LABEL_38:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 557, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisY )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisY )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+2Ch]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v99 & 0x7F800000) == 2139095040 )
-    goto LABEL_39;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+30h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v100 & 0x7F800000) == 2139095040 )
-    goto LABEL_39;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+34h]
-    vmovss  [rsp+250h+var_220], xmm0
-  }
-  if ( (v101 & 0x7F800000) == 2139095040 )
-  {
-LABEL_39:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 558, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisZ )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisZ )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[2] )") )
-      __debugbreak();
-  }
+  LocalConvertQuatToInverseSkelMat(&mat, &v10);
+  v15.m[0].v[1] = v10.axis.m[0].v[1];
+  v15.m[0].v[0] = v10.axis.m[0].v[0];
+  v15.m[1] = v10.axis.m[1].xyz;
+  v15.m[0].v[2] = v10.axis.m[0].v[2];
+  v15.m[2] = v10.axis.m[2].xyz;
+  v15.m[3] = v10.origin.xyz;
+  v14.m[0].v[1] = skelMat.axis.m[0].v[1];
+  v14.m[0].v[0] = skelMat.axis.m[0].v[0];
+  v14.m[1] = skelMat.axis.m[1].xyz;
+  v14.m[0].v[2] = skelMat.axis.m[0].v[2];
+  v14.m[2] = skelMat.axis.m[2].xyz;
+  v14.m[3] = skelMat.origin.xyz;
+  MatrixMultiply43(&v15, &v14, &v18);
+  origin = markInfo->collInfo->sphere.origin;
+  MatrixTransformVector43(&origin, &v18, &markInfo->localOrigin);
+  if ( ((LODWORD(markInfo->axis.m[0].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[0].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 548, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[0] )[0] ) && !IS_NAN( ( markInfo->axis[0] )[1] ) && !IS_NAN( ( markInfo->axis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[0] )[0] ) && !IS_NAN( ( markInfo->axis[0] )[1] ) && !IS_NAN( ( markInfo->axis[0] )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(markInfo->axis.m[1].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[1].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 549, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[1] )[0] ) && !IS_NAN( ( markInfo->axis[1] )[1] ) && !IS_NAN( ( markInfo->axis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[1] )[0] ) && !IS_NAN( ( markInfo->axis[1] )[1] ) && !IS_NAN( ( markInfo->axis[1] )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(markInfo->axis.m[2].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[2].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[2].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 550, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[2] )[0] ) && !IS_NAN( ( markInfo->axis[2] )[1] ) && !IS_NAN( ( markInfo->axis[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[2] )[0] ) && !IS_NAN( ( markInfo->axis[2] )[1] ) && !IS_NAN( ( markInfo->axis[2] )[2] )") )
+    __debugbreak();
+  MatrixTransposeTransformVector(&markInfo->axis.m[1], (const tmat33_t<vec3_t> *)&out, &markInfo->localTexCoordAxisX);
+  MatrixTransposeTransformVector(&markInfo->axis.m[2], (const tmat33_t<vec3_t> *)&out, &markInfo->localTexCoordAxisY);
+  MatrixTransposeTransformVector(markInfo->axis.m, (const tmat33_t<vec3_t> *)&out, &markInfo->localTexCoordAxisZ);
+  if ( ((LODWORD(markInfo->localTexCoordAxisX.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisX.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisX.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 556, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisX )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisX )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(markInfo->localTexCoordAxisY.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisY.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisY.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 557, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisY )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisY )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(markInfo->localTexCoordAxisZ.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisZ.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisZ.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 558, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisZ )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisZ )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[2] )") )
+    __debugbreak();
   Profile_EndInternal(NULL);
   return 1;
 }
@@ -2914,242 +2053,48 @@ R_MarkFragments_TransformMarkToModelSpaceBolted
 */
 char R_MarkFragments_TransformMarkToModelSpaceBolted(MarkInfo *markInfo, const DObjAnimMat *baseBone)
 {
-  int v47; 
-  int v48; 
-  int v49; 
-  int v50; 
-  int v51; 
-  int v52; 
-  int v53; 
-  int v54; 
-  int v55; 
-  int v56; 
-  int v57; 
-  int v58; 
-  int v59; 
-  int v60; 
-  int v61; 
-  int v62; 
-  int v63; 
-  int v64; 
   DObjSkelMat skelMat; 
-  tmat33_t<vec3_t> v66; 
+  tmat33_t<vec3_t> v6; 
+  float v7; 
+  float v8; 
+  float v9; 
   tmat43_t<vec3_t> in2; 
 
-  _RDI = markInfo;
   Profile_Begin(240);
-  if ( !_RDI->boltOffsetValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 574, ASSERT_TYPE_SANITY, "( markInfo->boltOffsetValid )", (const char *)&queryFormat, "markInfo->boltOffsetValid") )
+  if ( !markInfo->boltOffsetValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 574, ASSERT_TYPE_SANITY, "( markInfo->boltOffsetValid )", (const char *)&queryFormat, "markInfo->boltOffsetValid") )
     __debugbreak();
   LocalConvertQuatToInverseSkelMat(baseBone, &skelMat);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+skelMat.axis]
-    vmovss  xmm1, dword ptr [rbp+57h+skelMat.axis+4]
-    vmovss  dword ptr [rbp+57h+var_90], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+skelMat.axis+8]
-    vmovss  dword ptr [rbp+57h+var_90+4], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+skelMat.axis+10h]
-    vmovss  dword ptr [rbp+57h+var_90+8], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+skelMat.axis+14h]
-    vmovss  dword ptr [rbp+57h+var_90+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+skelMat.axis+18h]
-    vmovss  dword ptr [rbp+57h+var_90+10h], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+skelMat.axis+20h]
-    vmovss  dword ptr [rbp+57h+var_90+14h], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+skelMat.axis+24h]
-    vmovss  dword ptr [rbp+57h+var_90+18h], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+skelMat.axis+28h]
-    vmovss  dword ptr [rbp+57h+var_90+1Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+skelMat.origin]
-    vmovss  dword ptr [rbp+57h+var_90+20h], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+skelMat.origin+4]
-    vmovss  [rbp+57h+var_6C], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+skelMat.origin+8]
-    vmovss  [rbp+57h+var_68], xmm0
-    vmovss  [rbp+57h+var_64], xmm1
-  }
+  v6.m[0].v[0] = skelMat.axis.m[0].v[0];
+  v6.m[0].v[1] = skelMat.axis.m[0].v[1];
+  v6.m[0].v[2] = skelMat.axis.m[0].v[2];
+  v6.m[1] = skelMat.axis.m[1].xyz;
+  v6.m[2] = skelMat.axis.m[2].xyz;
+  v7 = skelMat.origin.v[0];
+  v8 = skelMat.origin.v[1];
+  v9 = skelMat.origin.v[2];
   LocalConvertQuatToSkelMat(baseBone, &skelMat);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+57h+skelMat.axis]
-    vmovss  xmm1, dword ptr [rbp+57h+skelMat.axis+4]
-    vmovss  dword ptr [rbp+57h+in2], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+skelMat.axis+8]
-    vmovss  dword ptr [rbp+57h+in2+4], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+skelMat.axis+10h]
-    vmovss  dword ptr [rbp+57h+in2+8], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+skelMat.axis+14h]
-    vmovss  dword ptr [rbp+57h+in2+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+skelMat.axis+18h]
-    vmovss  dword ptr [rbp+57h+in2+10h], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+skelMat.axis+20h]
-    vmovss  dword ptr [rbp+57h+in2+14h], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+skelMat.axis+24h]
-    vmovss  dword ptr [rbp+57h+in2+18h], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+skelMat.axis+28h]
-    vmovss  dword ptr [rbp+57h+in2+1Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+skelMat.origin]
-    vmovss  dword ptr [rbp+57h+in2+20h], xmm0
-    vmovss  xmm0, dword ptr [rbp+57h+skelMat.origin+4]
-    vmovss  dword ptr [rbp+57h+in2+24h], xmm1
-    vmovss  xmm1, dword ptr [rbp+57h+skelMat.origin+8]
-    vmovss  dword ptr [rbp+57h+in2+28h], xmm0
-    vmovss  dword ptr [rbp+57h+in2+2Ch], xmm1
-  }
-  MatrixTransformVector43(&_RDI->boltOffsetPos, &in2, &_RDI->localOrigin);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+38h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v47 & 0x7F800000) == 2139095040 )
-    goto LABEL_37;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+3Ch]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v48 & 0x7F800000) == 2139095040 )
-    goto LABEL_37;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+40h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v49 & 0x7F800000) == 2139095040 )
-  {
-LABEL_37:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 583, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[0] )[0] ) && !IS_NAN( ( markInfo->axis[0] )[1] ) && !IS_NAN( ( markInfo->axis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[0] )[0] ) && !IS_NAN( ( markInfo->axis[0] )[1] ) && !IS_NAN( ( markInfo->axis[0] )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+44h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v50 & 0x7F800000) == 2139095040 )
-    goto LABEL_38;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+48h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v51 & 0x7F800000) == 2139095040 )
-    goto LABEL_38;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4Ch]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v52 & 0x7F800000) == 2139095040 )
-  {
-LABEL_38:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 584, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[1] )[0] ) && !IS_NAN( ( markInfo->axis[1] )[1] ) && !IS_NAN( ( markInfo->axis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[1] )[0] ) && !IS_NAN( ( markInfo->axis[1] )[1] ) && !IS_NAN( ( markInfo->axis[1] )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+50h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v53 & 0x7F800000) == 2139095040 )
-    goto LABEL_39;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+54h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v54 & 0x7F800000) == 2139095040 )
-    goto LABEL_39;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+58h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v55 & 0x7F800000) == 2139095040 )
-  {
-LABEL_39:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 585, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[2] )[0] ) && !IS_NAN( ( markInfo->axis[2] )[1] ) && !IS_NAN( ( markInfo->axis[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[2] )[0] ) && !IS_NAN( ( markInfo->axis[2] )[1] ) && !IS_NAN( ( markInfo->axis[2] )[2] )") )
-      __debugbreak();
-  }
-  MatrixTransposeTransformVector(&_RDI->axis.m[1], &v66, &_RDI->localTexCoordAxisX);
-  MatrixTransposeTransformVector(&_RDI->axis.m[2], &v66, &_RDI->localTexCoordAxisY);
-  MatrixTransposeTransformVector(_RDI->axis.m, &v66, &_RDI->localTexCoordAxisZ);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+14h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v56 & 0x7F800000) == 2139095040 )
-    goto LABEL_40;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+18h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v57 & 0x7F800000) == 2139095040 )
-    goto LABEL_40;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+1Ch]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v58 & 0x7F800000) == 2139095040 )
-  {
-LABEL_40:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 591, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisX )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisX )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+20h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v59 & 0x7F800000) == 2139095040 )
-    goto LABEL_41;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+24h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v60 & 0x7F800000) == 2139095040 )
-    goto LABEL_41;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+28h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v61 & 0x7F800000) == 2139095040 )
-  {
-LABEL_41:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 592, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisY )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisY )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+2Ch]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v62 & 0x7F800000) == 2139095040 )
-    goto LABEL_42;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+30h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v63 & 0x7F800000) == 2139095040 )
-    goto LABEL_42;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+34h]
-    vmovss  [rsp+110h+var_E0], xmm0
-  }
-  if ( (v64 & 0x7F800000) == 2139095040 )
-  {
-LABEL_42:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 593, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisZ )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisZ )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[2] )") )
-      __debugbreak();
-  }
+  in2.m[0].v[0] = skelMat.axis.m[0].v[0];
+  in2.m[0].v[1] = skelMat.axis.m[0].v[1];
+  in2.m[0].v[2] = skelMat.axis.m[0].v[2];
+  in2.m[1] = skelMat.axis.m[1].xyz;
+  in2.m[2] = skelMat.axis.m[2].xyz;
+  in2.m[3] = skelMat.origin.xyz;
+  MatrixTransformVector43(&markInfo->boltOffsetPos, &in2, &markInfo->localOrigin);
+  if ( ((LODWORD(markInfo->axis.m[0].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[0].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 583, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[0] )[0] ) && !IS_NAN( ( markInfo->axis[0] )[1] ) && !IS_NAN( ( markInfo->axis[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[0] )[0] ) && !IS_NAN( ( markInfo->axis[0] )[1] ) && !IS_NAN( ( markInfo->axis[0] )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(markInfo->axis.m[1].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[1].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 584, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[1] )[0] ) && !IS_NAN( ( markInfo->axis[1] )[1] ) && !IS_NAN( ( markInfo->axis[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[1] )[0] ) && !IS_NAN( ( markInfo->axis[1] )[1] ) && !IS_NAN( ( markInfo->axis[1] )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(markInfo->axis.m[2].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[2].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->axis.m[2].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 585, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->axis[2] )[0] ) && !IS_NAN( ( markInfo->axis[2] )[1] ) && !IS_NAN( ( markInfo->axis[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->axis[2] )[0] ) && !IS_NAN( ( markInfo->axis[2] )[1] ) && !IS_NAN( ( markInfo->axis[2] )[2] )") )
+    __debugbreak();
+  MatrixTransposeTransformVector(&markInfo->axis.m[1], &v6, &markInfo->localTexCoordAxisX);
+  MatrixTransposeTransformVector(&markInfo->axis.m[2], &v6, &markInfo->localTexCoordAxisY);
+  MatrixTransposeTransformVector(markInfo->axis.m, &v6, &markInfo->localTexCoordAxisZ);
+  if ( ((LODWORD(markInfo->localTexCoordAxisX.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisX.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisX.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 591, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisX )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisX )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisX )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(markInfo->localTexCoordAxisY.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisY.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisY.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 592, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisY )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisY )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisY )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(markInfo->localTexCoordAxisZ.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisZ.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(markInfo->localTexCoordAxisZ.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_marks.cpp", 593, ASSERT_TYPE_SANITY, "( !IS_NAN( ( markInfo->localTexCoordAxisZ )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( markInfo->localTexCoordAxisZ )[0] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[1] ) && !IS_NAN( ( markInfo->localTexCoordAxisZ )[2] )") )
+    __debugbreak();
   Profile_EndInternal(NULL);
   return 1;
 }

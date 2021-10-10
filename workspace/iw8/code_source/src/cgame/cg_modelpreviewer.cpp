@@ -204,61 +204,42 @@ CG_AddModelPreviewerModel
 void CG_AddModelPreviewerModel(LocalClientNum_t localClientNum, int frametime, bool a3)
 {
   DObj *currentObj; 
+  float stepCounter; 
+  float v7; 
   const XAnimTree *Tree; 
-  __int64 v59; 
-  float bUseGoalWeight; 
-  float v71; 
-  float v72; 
-  float v73; 
-  float v74; 
+  double Time; 
+  double v10; 
+  double Radius; 
+  cpose_t *p_pose; 
+  __int64 v13; 
   vec3_t inOrigin; 
   vec3_t outOrigin; 
-  __int64 v77; 
-  GfxSceneHudOutlineInfo v78; 
-  __int64 v79; 
-  vec3_t v80; 
-  vec2_t v81; 
-  vec4_t v82; 
-  vec3_t v83; 
+  __int64 v16; 
+  GfxSceneHudOutlineInfo v17; 
+  __int64 v18; 
+  vec3_t v19; 
+  vec2_t v20; 
+  vec4_t v21; 
+  vec3_t v22; 
   vec2_t rot; 
   vec3_t trans; 
   GfxSceneHudOutlineInfo quat; 
   tmat33_t<vec3_t> axis; 
-  char v88; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v79 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
+  v18 = -2i64;
   currentObj = g_mdlprv.model.currentObj;
   if ( g_mdlprv.model.currentObj && !modPrvHideModel->current.enabled )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edi
-      vmulss  xmm3, xmm0, cs:__real@3a83126f
-      vmovss  xmm1, cs:?g_mdlprv@@3UModelPreviewer@@A.anim.stepCounter; ModelPreviewer g_mdlprv
-      vsubss  xmm2, xmm1, xmm3
-      vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.anim.stepCounter, xmm2; ModelPreviewer g_mdlprv
-      vxorps  xmm6, xmm6, xmm6
-      vcomiss xmm2, xmm6
-    }
-    if ( g_mdlprv.anim.isAnimPlaying )
-      __asm { vmulss  xmm8, xmm3, dword ptr [rax+28h] }
-    else
-      __asm { vxorps  xmm8, xmm8, xmm8 }
+    stepCounter = g_mdlprv.anim.stepCounter;
+    g_mdlprv.anim.stepCounter = g_mdlprv.anim.stepCounter - (float)((float)frametime * 0.001);
+    if ( g_mdlprv.anim.stepCounter < 0.0 )
+      g_mdlprv.anim.isAnimPlaying = 0;
     if ( modPrvAnimForceLoop->current.enabled )
     {
       CG_ModPrvLoopAnimation();
       currentObj = g_mdlprv.model.currentObj;
     }
-    __asm { vxorps  xmm7, xmm7, xmm7 }
+    v7 = 0.0;
     if ( currentObj )
     {
       Tree = DObjGetTree(currentObj);
@@ -266,217 +247,113 @@ void CG_AddModelPreviewerModel(LocalClientNum_t localClientNum, int frametime, b
       {
         if ( g_mdlprv.anim.fromCurrentIndex >= 0 )
         {
-          *(double *)&_XMM0 = XAnimGetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, 1u);
-          __asm { vmovaps xmm7, xmm0 }
+          Time = XAnimGetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, 1u);
+          v7 = *(float *)&Time;
         }
-        if ( g_mdlprv.anim.toCurrentIndex >= 0 )
+        if ( g_mdlprv.anim.toCurrentIndex >= 0 && v7 >= modPrvAnimCrossBlendTime->current.value && !g_mdlprv.anim.isToAnimPlaying )
         {
-          _RAX = modPrvAnimCrossBlendTime;
-          __asm { vcomiss xmm7, dword ptr [rax+28h] }
-          if ( !g_mdlprv.anim.isToAnimPlaying )
-          {
-            _RAX = modPrvAnimCrossBlendDuration;
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rax+28h]
-              vmovss  xmm0, cs:__real@3f800000
-              vmovss  [rsp+1C0h+var_180], xmm0
-              vmovss  [rsp+1C0h+var_188], xmm1
-              vmovss  dword ptr [rsp+1C0h+bUseGoalWeight], xmm0
-            }
-            XAnimSetGoalWeightKnobAll(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 2u, XANIM_SUBTREE_DEFAULT, 0, bUseGoalWeight, v71, v72, (scr_string_t)0, 1, LINEAR);
-            g_mdlprv.anim.isToAnimPlaying = 1;
-          }
+          stepCounter = modPrvAnimCrossBlendDuration->current.value;
+          XAnimSetGoalWeightKnobAll(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 2u, XANIM_SUBTREE_DEFAULT, 0, 1.0, stepCounter, 1.0, (scr_string_t)0, 1, LINEAR);
+          g_mdlprv.anim.isToAnimPlaying = 1;
         }
       }
       if ( g_mdlprv.model.currentObj && DObjGetTree(g_mdlprv.model.currentObj) && modPrvAnimApplyDelta->current.enabled && g_mdlprv.anim.isAnimPlaying )
       {
-        __asm
-        {
-          vmovss  dword ptr [rbp+0C0h+rot], xmm6
-          vmovss  dword ptr [rbp+0C0h+rot+4], xmm6
-          vmovss  dword ptr [rbp+0C0h+var_E8], xmm6
-          vmovss  dword ptr [rbp+0C0h+var_E8+4], xmm6
-          vmovss  dword ptr [rbp+0C0h+trans], xmm6
-          vmovss  dword ptr [rbp+0C0h+trans+4], xmm6
-          vmovss  dword ptr [rbp+0C0h+trans+8], xmm6
-          vmovss  dword ptr [rbp+0C0h+var_F8], xmm6
-          vmovss  dword ptr [rbp+0C0h+var_F8+4], xmm6
-          vmovss  dword ptr [rbp+0C0h+var_F8+8], xmm6
-        }
+        rot.v[0] = 0.0;
+        rot.v[1] = 0.0;
+        v20.v[0] = 0.0;
+        v20.v[1] = 0.0;
+        trans.v[0] = 0.0;
+        trans.v[1] = 0.0;
+        trans.v[2] = 0.0;
+        v19.v[0] = 0.0;
+        v19.v[1] = 0.0;
+        v19.v[2] = 0.0;
         if ( g_mdlprv.anim.fromCurrentIndex >= 0 )
           XAnimCalcDelta(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 1u, &rot, &trans, 1);
         if ( g_mdlprv.anim.toCurrentIndex >= 0 )
-          XAnimCalcDelta(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 2u, &v81, &v80, 1);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0C0h+var_E8]
-          vaddss  xmm1, xmm0, dword ptr [rbp+0C0h+rot]
-          vmovss  dword ptr [rbp+0C0h+var_E8], xmm1
-          vmovss  xmm2, dword ptr [rbp+0C0h+var_E8+4]
-          vaddss  xmm0, xmm2, dword ptr [rbp+0C0h+rot+4]
-          vmovss  dword ptr [rbp+0C0h+var_E8+4], xmm0
-        }
-        *(double *)&_XMM0 = RotationToYaw(&v81);
-        __asm { vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.anim.deltaYaw, xmm0; ModelPreviewer g_mdlprv }
-        _RAX = modPrvRotationAngles;
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rax+28h]
-          vmovss  dword ptr [rbp+0C0h+var_E0], xmm1
-          vmovss  xmm2, dword ptr [rax+30h]
-          vmovss  dword ptr [rbp+0C0h+var_E0+8], xmm2
-          vaddss  xmm0, xmm0, cs:__real@43340000
-          vaddss  xmm0, xmm0, dword ptr [rax+2Ch]
-          vmovss  dword ptr [rbp+0C0h+var_E0+4], xmm0
-        }
-        AnglesToQuat((const vec3_t *)&v82, (vec4_t *)&quat);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbp+0C0h+quat]
-          vmovups xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat, xmm0; ModelPreviewer g_mdlprv
-          vmovss  xmm0, dword ptr [rbp+0C0h+trans]
-          vaddss  xmm2, xmm0, dword ptr [rbp+0C0h+var_F8]
-          vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-          vxorps  xmm1, xmm2, xmm3
-          vmovss  dword ptr [rbp+0C0h+var_F8], xmm1
-          vmovss  xmm0, dword ptr [rbp+0C0h+var_F8+4]
-          vaddss  xmm2, xmm0, dword ptr [rbp+0C0h+trans+4]
-          vxorps  xmm1, xmm2, xmm3
-          vmovss  dword ptr [rbp+0C0h+var_F8+4], xmm1
-          vmovss  xmm0, dword ptr [rbp+0C0h+var_F8+8]
-          vaddss  xmm2, xmm0, dword ptr [rbp+0C0h+trans+8]
-          vxorps  xmm1, xmm2, xmm3
-          vmovss  dword ptr [rbp+0C0h+var_F8+8], xmm1
-        }
+          XAnimCalcDelta(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 2u, &v20, &v19, 1);
+        v20.v[0] = v20.v[0] + rot.v[0];
+        v20.v[1] = v20.v[1] + rot.v[1];
+        v10 = RotationToYaw(&v20);
+        g_mdlprv.anim.deltaYaw = *(float *)&v10;
+        LODWORD(v21.v[0]) = modPrvRotationAngles->current.integer;
+        v21.v[2] = modPrvRotationAngles->current.vector.v[2];
+        v21.v[1] = (float)(*(float *)&v10 + 180.0) + modPrvRotationAngles->current.vector.v[1];
+        AnglesToQuat((const vec3_t *)&v21, (vec4_t *)&quat);
+        g_mdlprv.model.currentEntity.placement.placement.quat = *(vec4_t *)&quat.color;
+        LODWORD(v19.v[0]) = COERCE_UNSIGNED_INT(trans.v[0] + v19.v[0]) ^ _xmm;
+        LODWORD(v19.v[1]) = COERCE_UNSIGNED_INT(v19.v[1] + trans.v[1]) ^ _xmm;
+        LODWORD(v19.v[2]) = COERCE_UNSIGNED_INT(v19.v[2] + trans.v[2]) ^ _xmm;
         GfxSceneEntity_GetPlacementOrigin(&g_mdlprv.model.currentEntity, &outOrigin);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+1C0h+outOrigin]
-          vaddss  xmm1, xmm0, dword ptr [rbp+0C0h+var_F8]
-          vmovss  dword ptr [rsp+1C0h+outOrigin], xmm1
-          vmovss  xmm2, dword ptr [rsp+1C0h+outOrigin+4]
-          vaddss  xmm0, xmm2, dword ptr [rbp+0C0h+var_F8+4]
-          vmovss  dword ptr [rsp+1C0h+outOrigin+4], xmm0
-          vmovss  xmm1, dword ptr [rsp+1C0h+outOrigin+8]
-          vaddss  xmm2, xmm1, dword ptr [rbp+0C0h+var_F8+8]
-          vmovss  dword ptr [rsp+1C0h+outOrigin+8], xmm2
-        }
+        outOrigin.v[0] = outOrigin.v[0] + v19.v[0];
+        outOrigin.v[1] = outOrigin.v[1] + v19.v[1];
+        stepCounter = outOrigin.v[2];
+        outOrigin.v[2] = outOrigin.v[2] + v19.v[2];
         GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &outOrigin);
         memset(&outOrigin, 0, sizeof(outOrigin));
       }
     }
-    __asm { vmovaps xmm2, xmm8 }
-    DObjUpdateClientInfo((DObj *)&v77, *(float *)&_XMM1, a3, 0);
+    DObjUpdateClientInfo((DObj *)&v16, stepCounter, a3, 0);
     CG_Pose_ClearPose(&g_mdlprv.model.pose);
     g_mdlprv.model.pose.eType = 29;
     g_mdlprv.model.currentEntity.info.pose = &g_mdlprv.model.pose;
     CG_GetLocalClientGlobals(localClientNum);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat; ModelPreviewer g_mdlprv
-      vmovups xmmword ptr [rbp+0C0h+var_E0], xmm0
-    }
-    UnitQuatToAxis(&v82, &axis);
+    v21 = g_mdlprv.model.currentEntity.placement.placement.quat;
+    UnitQuatToAxis(&v21, &axis);
     AxisToAngles(&axis, &g_mdlprv.model.pose.angles);
     GfxSceneEntity_GetPlacementOrigin(&g_mdlprv.model.currentEntity, &inOrigin);
     CG_SetPoseOrigin(&g_mdlprv.model.pose, &inOrigin);
     if ( modPrvDrawBoneInfo->current.integer > 0 )
       CG_ModPrvDrawBones(localClientNum);
     CG_GetPoseOrigin(g_mdlprv.model.currentEntity.info.pose, &inOrigin);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+1C0h+inOrigin]
-      vmovss  [rbp+0C0h+var_D0], xmm0
-      vmovss  xmm1, dword ptr [rsp+1C0h+inOrigin+4]
-      vmovss  [rbp+0C0h+var_CC], xmm1
-      vmovss  xmm7, cs:__real@40800000
-      vaddss  xmm1, xmm7, dword ptr [rsp+1C0h+inOrigin+8]
-      vmovss  [rbp+0C0h+var_C8], xmm1
-      vmovups ymm2, ymmword ptr cs:NULL_HUDOUTLINE_INFO_4.color
-      vmovups ymmword ptr [rbp+0C0h+quat], ymm2
-    }
-    quat.characterEVOffset = NULL_HUDOUTLINE_INFO_4.characterEVOffset;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_3.scrollRateX
-      vmovups [rbp+0C0h+var_130], ymm0
-    }
-    v78.characterEVOffset = NULL_SHADER_OVERRIDE_3.atlasTime;
-    __asm { vmovss  [rsp+1C0h+var_180], xmm6 }
-    CG_Entity_AddDObjToScene(localClientNum, g_mdlprv.model.currentObj, g_mdlprv.model.currentEntity.info.pose, 0x844u, 0, (shaderOverride_t *)&v78, &quat, &v83, v73, 0);
+    v22.v[0] = inOrigin.v[0];
+    v22.v[1] = inOrigin.v[1];
+    v22.v[2] = inOrigin.v[2] + 4.0;
+    memset(&quat, 0, sizeof(quat));
+    memset(&v17, 0, sizeof(v17));
+    CG_Entity_AddDObjToScene(localClientNum, g_mdlprv.model.currentObj, g_mdlprv.model.currentEntity.info.pose, 0x844u, 0, (shaderOverride_t *)&v17, &quat, &v22, 0.0, 0);
     if ( !g_mdlprv.model.inited )
     {
       g_mdlprv.model.inited = 1;
-      *(double *)&_XMM0 = DObjGetRadius(g_mdlprv.model.currentObj);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsp+1C0h+inOrigin]
-        vmovss  dword ptr [rbp+0C0h+quat], xmm1
-        vmovss  xmm2, dword ptr [rsp+1C0h+inOrigin+4]
-        vmovss  dword ptr [rbp+0C0h+quat+4], xmm2
-        vmovss  xmm1, dword ptr [rsp+1C0h+inOrigin+8]
-        vmovss  dword ptr [rbp+0C0h+quat+8], xmm1
-        vmovss  dword ptr [rbp+0C0h+quat+0Ch], xmm0
-        vmovss  dword ptr [rbp+0C0h+quat+10h], xmm0
-        vmovss  dword ptr [rbp+0C0h+quat+14h], xmm0
-      }
+      Radius = DObjGetRadius(g_mdlprv.model.currentObj);
+      *(float *)&quat.color = inOrigin.v[0];
+      quat.scopeStencil = inOrigin.v[1];
+      *(float *)&quat.drawOccludedPixels = inOrigin.v[2];
+      *(float *)&quat.forSpectator = *(float *)&Radius;
+      *(float *)&quat.temperatureSet = *(float *)&Radius;
+      quat.mapEntLookup = LODWORD(Radius);
       GfxSceneEntity_SetBounds(&g_mdlprv.model.currentEntity.cull, (const Bounds *)&quat);
       FrameModel();
       memset(&quat, 0, 24);
     }
-    _RDI = &g_mdlprv.model.clones[0].pose;
-    v59 = 10i64;
+    p_pose = &g_mdlprv.model.clones[0].pose;
+    v13 = 10i64;
     do
     {
-      if ( *((_QWORD *)&_RDI[-1].moverFx + 15) )
+      if ( *((_QWORD *)&p_pose[-1].moverFx + 15) )
       {
-        CG_Pose_ClearPose(_RDI);
-        _RDI->eType = 29;
-        *((_QWORD *)&_RDI[-1].moverFx + 12) = _RDI;
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi-58Ch]
-          vmovups xmmword ptr [rbp+0C0h+var_E0], xmm0
-        }
-        UnitQuatToAxis(&v82, &axis);
-        AxisToAngles(&axis, &_RDI->angles);
-        GfxSceneEntity_GetPlacementOrigin((const GfxSceneEntity *)&_RDI[-5].ragdollFlags, &inOrigin);
-        CG_SetPoseOrigin(_RDI, &inOrigin);
-        CG_GetPoseOrigin(*((const cpose_t **)&_RDI[-1].moverFx + 12), &inOrigin);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+1C0h+inOrigin]
-          vmovss  [rbp+0C0h+var_D0], xmm0
-          vmovss  xmm1, dword ptr [rsp+1C0h+inOrigin+4]
-          vmovss  [rbp+0C0h+var_CC], xmm1
-          vaddss  xmm2, xmm7, dword ptr [rsp+1C0h+inOrigin+8]
-          vmovss  [rbp+0C0h+var_C8], xmm2
-          vmovups ymm1, ymmword ptr cs:NULL_HUDOUTLINE_INFO_4.color
-          vmovups [rbp+0C0h+var_130], ymm1
-        }
-        v78.characterEVOffset = NULL_HUDOUTLINE_INFO_4.characterEVOffset;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_3.scrollRateX
-          vmovups ymmword ptr [rbp+0C0h+quat], ymm0
-        }
-        quat.characterEVOffset = NULL_SHADER_OVERRIDE_3.atlasTime;
-        __asm { vmovss  [rsp+1C0h+var_180], xmm6 }
-        CG_Entity_AddDObjToScene(localClientNum, *((const DObj **)&_RDI[-1].moverFx + 15), *((const cpose_t **)&_RDI[-1].moverFx + 12), 0x844u, 0, (shaderOverride_t *)&quat, &v78, &v83, v74, 0);
+        CG_Pose_ClearPose(p_pose);
+        p_pose->eType = 29;
+        *((_QWORD *)&p_pose[-1].moverFx + 12) = p_pose;
+        v21 = *(vec4_t *)&p_pose[-5].killcamRagdollHandle;
+        UnitQuatToAxis(&v21, &axis);
+        AxisToAngles(&axis, &p_pose->angles);
+        GfxSceneEntity_GetPlacementOrigin((const GfxSceneEntity *)&p_pose[-5].ragdollFlags, &inOrigin);
+        CG_SetPoseOrigin(p_pose, &inOrigin);
+        CG_GetPoseOrigin(*((const cpose_t **)&p_pose[-1].moverFx + 12), &inOrigin);
+        v22.v[0] = inOrigin.v[0];
+        v22.v[1] = inOrigin.v[1];
+        v22.v[2] = inOrigin.v[2] + 4.0;
+        memset(&v17, 0, sizeof(v17));
+        memset(&quat, 0, sizeof(quat));
+        CG_Entity_AddDObjToScene(localClientNum, *((const DObj **)&p_pose[-1].moverFx + 15), *((const cpose_t **)&p_pose[-1].moverFx + 12), 0x844u, 0, (shaderOverride_t *)&quat, &v17, &v22, 0.0, 0);
       }
-      _RDI = (cpose_t *)((char *)_RDI + 2056);
-      --v59;
+      p_pose = (cpose_t *)((char *)p_pose + 2056);
+      --v13;
     }
-    while ( v59 );
+    while ( v13 );
     memset(&inOrigin, 0, sizeof(inOrigin));
-  }
-  _R11 = &v88;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -594,233 +471,171 @@ CG_ModPrvDrawBones
 void CG_ModPrvDrawBones(const LocalClientNum_t localClientNum)
 {
   int integer; 
-  _BOOL8 v11; 
+  _BOOL8 v2; 
   int NumModels; 
+  float v4; 
+  const char *v5; 
+  float v6; 
+  int v7; 
+  int v8; 
+  int v9; 
+  const XModel *Model; 
+  unsigned int numBones; 
+  unsigned int numRootBones; 
+  const char *BoneName; 
   int v14; 
-  char v15; 
-  const char *v18; 
+  __int64 v15; 
+  const char *v16; 
+  int v17; 
+  __int64 v18; 
+  int v19; 
   int v20; 
   int v21; 
-  int v22; 
-  const XModel *Model; 
-  int numBones; 
-  int numRootBones; 
-  const char *BoneName; 
-  int v29; 
-  __int64 v30; 
+  cg_t *LocalClientGlobals; 
+  float v23; 
+  float v24; 
+  float v25; 
+  cg_t *v26; 
+  __int128 v27; 
   const char *v31; 
   int v32; 
-  __int64 v33; 
-  int v34; 
+  int v33; 
   int v35; 
-  int v36; 
-  cg_t *LocalClientGlobals; 
-  char v66; 
-  const char *v74; 
-  int v78; 
-  int v79; 
-  int v81; 
-  _BOOL8 v82; 
-  _BOOL8 v83; 
+  _BOOL8 v36; 
+  _BOOL8 v37; 
   vec3_t outOrigin; 
   vec3_t outOrg; 
   vec3_t end; 
   tmat33_t<vec3_t> outTagMat; 
-  tmat33_t<vec3_t> v88; 
+  tmat33_t<vec3_t> v42; 
 
   if ( !g_mdlprv.model.currentObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 2304, ASSERT_TYPE_ASSERT, "(g_mdlprv.model.currentObj)", (const char *)&queryFormat, "g_mdlprv.model.currentObj") )
     __debugbreak();
   integer = modPrvDrawBoneInfo->current.integer;
   if ( integer )
   {
-    __asm { vmovaps [rsp+198h+var_88], xmm11 }
-    v11 = ((integer - 1) & 0xFFFFFFFD) == 0;
-    __asm { vmovaps [rsp+198h+var_98], xmm12 }
-    v82 = v11;
-    v83 = (unsigned int)(integer - 2) <= 1;
+    v2 = ((integer - 1) & 0xFFFFFFFD) == 0;
+    v36 = v2;
+    v37 = (unsigned int)(integer - 2) <= 1;
     NumModels = DObjGetNumModels(g_mdlprv.model.currentObj);
-    __asm
-    {
-      vmovss  xmm0, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius; ModelPreviewer g_mdlprv
-      vcomiss xmm0, cs:__real@41200000
-    }
-    v14 = NumModels;
-    v81 = NumModels;
-    if ( v15 )
-    {
-      __asm { vmovss  xmm12, cs:__real@3d4ccccd }
-    }
+    v35 = NumModels;
+    if ( g_mdlprv.viewer.centerRadius >= 10.0 )
+      v4 = (float)(g_mdlprv.viewer.centerRadius * 3.5) * 0.00050000002;
     else
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@40600000
-        vmulss  xmm12, xmm0, cs:__real@3a03126f
-      }
-    }
+      v4 = FLOAT_0_050000001;
     if ( modPrvDrawBoneInfo->current.integer < 4u )
-      v18 = NULL;
+      v5 = NULL;
     else
-      v18 = Dvar_EnumToString(modPrvDrawBoneInfo);
-    __asm { vmovss  xmm11, cs:__real@3f51b3f2 }
-    v20 = 0;
-    v21 = 0;
-    v22 = 0;
-    v79 = 0;
-    v78 = 0;
-    if ( v14 > 0 )
+      v5 = Dvar_EnumToString(modPrvDrawBoneInfo);
+    v6 = FLOAT_0_819152;
+    v7 = 0;
+    v8 = 0;
+    v9 = 0;
+    v33 = 0;
+    v32 = 0;
+    if ( NumModels > 0 )
     {
-      __asm
+      while ( 1 )
       {
-        vmovaps [rsp+198h+var_38], xmm6
-        vmovaps [rsp+198h+var_48], xmm7
-        vmovaps [rsp+198h+var_58], xmm8
-        vmovaps [rsp+198h+var_68], xmm9
-        vmovaps [rsp+198h+var_78], xmm10
-        vmovaps [rsp+198h+var_A8], xmm13
-        vmovss  xmm13, cs:__real@3f800000
-        vmovaps [rsp+198h+var_B8], xmm14
-        vmovss  xmm14, cs:__real@80000000
-      }
-      do
-      {
-        Model = DObjGetModel(g_mdlprv.model.currentObj, v22);
+        Model = DObjGetModel(g_mdlprv.model.currentObj, v9);
         if ( !Model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 136, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
           __debugbreak();
         numBones = Model->numBones;
         numRootBones = Model->numRootBones;
-        if ( numRootBones < (unsigned int)numBones )
+        if ( numRootBones < numBones )
+          break;
+LABEL_45:
+        if ( ++v9 >= v35 )
+          goto LABEL_46;
+      }
+      while ( 1 )
+      {
+        BoneName = CG_ModPrvModelGetBoneName(g_mdlprv.model.currentObj, v9, numRootBones);
+        CG_DObjGetWorldBoneMatrix(g_mdlprv.model.currentEntity.info.pose, g_mdlprv.model.currentObj, numRootBones, &outTagMat, &outOrigin);
+        v14 = numRootBones - Model->parentList[numRootBones - Model->numRootBones];
+        if ( v14 >= 0 && v14 < Model->numBones )
         {
+          CG_DObjGetWorldBoneMatrix(g_mdlprv.model.currentEntity.info.pose, g_mdlprv.model.currentObj, v14, &v42, &end);
+          CL_AddDebugLine(&outOrigin, &end, &colorWhite, 0, 0, 0);
+        }
+        if ( modPrvDrawBoneInfo->current.integer < 4u )
+        {
+LABEL_36:
+          if ( (!strncmp(BoneName, "tag_", 4ui64) || !v37) && (strncmp(BoneName, "tag_", 4ui64) || !v2) )
+            goto LABEL_43;
+        }
+        else
+        {
+          v15 = 0x7FFFFFFFi64;
+          v16 = BoneName;
+          if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+            __debugbreak();
+          if ( !BoneName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+            __debugbreak();
           do
           {
-            BoneName = CG_ModPrvModelGetBoneName(g_mdlprv.model.currentObj, v22, numRootBones);
-            CG_DObjGetWorldBoneMatrix(g_mdlprv.model.currentEntity.info.pose, g_mdlprv.model.currentObj, numRootBones, &outTagMat, &outOrigin);
-            v29 = numRootBones - Model->parentList[numRootBones - Model->numRootBones];
-            if ( v29 >= 0 && v29 < Model->numBones )
+            v17 = (unsigned __int8)v16[v5 - BoneName];
+            v18 = v15;
+            v19 = *(unsigned __int8 *)v16++;
+            --v15;
+            if ( !v18 )
+              break;
+            if ( v17 != v19 )
             {
-              CG_DObjGetWorldBoneMatrix(g_mdlprv.model.currentEntity.info.pose, g_mdlprv.model.currentObj, v29, &v88, &end);
-              CL_AddDebugLine(&outOrigin, &end, &colorWhite, 0, 0, 0);
-            }
-            if ( modPrvDrawBoneInfo->current.integer < 4u )
-            {
-LABEL_37:
-              if ( (!strncmp(BoneName, "tag_", 4ui64) || !v83) && (strncmp(BoneName, "tag_", 4ui64) || !v11) )
-                goto LABEL_44;
-            }
-            else
-            {
-              v30 = 0x7FFFFFFFi64;
-              v31 = BoneName;
-              if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
-                __debugbreak();
-              if ( !BoneName && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
-                __debugbreak();
-              do
+              v20 = v17 + 32;
+              if ( (unsigned int)(v17 - 65) > 0x19 )
+                v20 = v17;
+              v17 = v20;
+              v21 = v19 + 32;
+              if ( (unsigned int)(v19 - 65) > 0x19 )
+                v21 = v19;
+              if ( v17 != v21 )
               {
-                v32 = (unsigned __int8)v31[v18 - BoneName];
-                v33 = v30;
-                v34 = *(unsigned __int8 *)v31++;
-                --v30;
-                if ( !v33 )
-                  break;
-                if ( v32 != v34 )
-                {
-                  v35 = v32 + 32;
-                  if ( (unsigned int)(v32 - 65) > 0x19 )
-                    v35 = v32;
-                  v32 = v35;
-                  v36 = v34 + 32;
-                  if ( (unsigned int)(v34 - 65) > 0x19 )
-                    v36 = v34;
-                  if ( v32 != v36 )
-                  {
-                    v20 = v79;
-                    v11 = v82;
-                    goto LABEL_37;
-                  }
-                }
+                v7 = v33;
+                v2 = v36;
+                goto LABEL_36;
               }
-              while ( v32 );
             }
-            __asm { vmovaps xmm3, xmm12; size }
-            CL_AddOrientedDebugStar(&outOrigin, &outTagMat, &colorGreen, *(float *)&_XMM3, 0, 0);
-            _RAX = CG_GetLocalClientGlobals(localClientNum);
-            __asm
-            {
-              vmovss  xmm9, dword ptr [rax+6944h]
-              vmovss  xmm8, dword ptr [rax+6948h]
-              vmovss  xmm10, dword ptr [rax+694Ch]
-            }
-            LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-            RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsp+198h+outOrigin]
-              vsubss  xmm7, xmm0, dword ptr [rsp+198h+outOrg]
-              vmovss  xmm1, dword ptr [rsp+198h+outOrigin+4]
-              vsubss  xmm4, xmm1, dword ptr [rsp+198h+outOrg+4]
-              vmovss  xmm0, dword ptr [rsp+198h+outOrigin+8]
-              vsubss  xmm6, xmm0, dword ptr [rsp+198h+outOrg+8]
-              vmulss  xmm2, xmm4, xmm4
-              vmulss  xmm0, xmm6, xmm6
-              vmulss  xmm1, xmm7, xmm7
-              vaddss  xmm3, xmm2, xmm1
-              vaddss  xmm2, xmm3, xmm0
-              vsqrtss xmm1, xmm2, xmm2
-              vcmpless xmm0, xmm1, xmm14
-              vblendvps xmm0, xmm1, xmm13, xmm0
-              vdivss  xmm5, xmm13, xmm0
-              vmulss  xmm0, xmm5, xmm4
-              vmulss  xmm1, xmm5, xmm7
-              vmulss  xmm2, xmm1, xmm9
-              vmulss  xmm3, xmm0, xmm8
-              vmulss  xmm0, xmm5, xmm6
-              vmulss  xmm1, xmm0, xmm10
-              vaddss  xmm4, xmm3, xmm2
-              vaddss  xmm2, xmm4, xmm1
-              vcomiss xmm2, xmm11
-            }
-            if ( v15 | v66 )
-            {
-              v20 = v79;
-LABEL_44:
-              v21 = v78;
-              goto LABEL_45;
-            }
-            v20 = numRootBones;
-            v79 = numRootBones;
-            v21 = v22;
-            v78 = v22;
-            __asm { vmovaps xmm11, xmm2 }
-LABEL_45:
-            v11 = v82;
-            ++numRootBones;
           }
-          while ( numRootBones < numBones );
+          while ( v17 );
         }
-        ++v22;
-      }
-      while ( v22 < v81 );
-      __asm
-      {
-        vmovaps xmm14, [rsp+198h+var_B8]
-        vmovaps xmm13, [rsp+198h+var_A8]
-        vmovaps xmm10, [rsp+198h+var_78]
-        vmovaps xmm9, [rsp+198h+var_68]
-        vmovaps xmm8, [rsp+198h+var_58]
-        vmovaps xmm7, [rsp+198h+var_48]
-        vmovaps xmm6, [rsp+198h+var_38]
+        CL_AddOrientedDebugStar(&outOrigin, &outTagMat, &colorGreen, v4, 0, 0);
+        LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+        v23 = LocalClientGlobals->refdef.view.axis.m[0].v[0];
+        v24 = LocalClientGlobals->refdef.view.axis.m[0].v[1];
+        v25 = LocalClientGlobals->refdef.view.axis.m[0].v[2];
+        v26 = CG_GetLocalClientGlobals(localClientNum);
+        RefdefView_GetOrg(&v26->refdef.view, &outOrg);
+        v27 = LODWORD(outOrigin.v[1]);
+        *(float *)&v27 = fsqrt((float)((float)((float)(outOrigin.v[1] - outOrg.v[1]) * (float)(outOrigin.v[1] - outOrg.v[1])) + (float)((float)(outOrigin.v[0] - outOrg.v[0]) * (float)(outOrigin.v[0] - outOrg.v[0]))) + (float)((float)(outOrigin.v[2] - outOrg.v[2]) * (float)(outOrigin.v[2] - outOrg.v[2])));
+        _XMM1 = v27;
+        __asm
+        {
+          vcmpless xmm0, xmm1, xmm14
+          vblendvps xmm0, xmm1, xmm13, xmm0
+        }
+        if ( (float)((float)((float)((float)((float)(1.0 / *(float *)&_XMM0) * (float)(outOrigin.v[1] - outOrg.v[1])) * v24) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * (float)(outOrigin.v[0] - outOrg.v[0])) * v23)) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * (float)(outOrigin.v[2] - outOrg.v[2])) * v25)) <= v6 )
+        {
+          v7 = v33;
+LABEL_43:
+          v8 = v32;
+          goto LABEL_44;
+        }
+        v7 = numRootBones;
+        v33 = numRootBones;
+        v8 = v9;
+        v32 = v9;
+        v6 = (float)((float)((float)((float)(1.0 / *(float *)&_XMM0) * (float)(outOrigin.v[1] - outOrg.v[1])) * v24) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * (float)(outOrigin.v[0] - outOrg.v[0])) * v23)) + (float)((float)((float)(1.0 / *(float *)&_XMM0) * (float)(outOrigin.v[2] - outOrg.v[2])) * v25);
+LABEL_44:
+        v2 = v36;
+        if ( (int)++numRootBones >= (int)numBones )
+          goto LABEL_45;
       }
     }
-    v74 = CG_ModPrvModelGetBoneName(g_mdlprv.model.currentObj, v21, v20);
-    CG_DObjGetWorldBoneMatrix(g_mdlprv.model.currentEntity.info.pose, g_mdlprv.model.currentObj, v20, &outTagMat, &outOrigin);
-    __asm { vmovaps xmm2, xmm12; scale }
-    CL_AddDebugString(&outOrigin, &colorGreen, *(float *)&_XMM2, v74, 0, 1);
-    __asm
-    {
-      vmovaps xmm12, [rsp+198h+var_98]
-      vmovaps xmm11, [rsp+198h+var_88]
-    }
+LABEL_46:
+    v31 = CG_ModPrvModelGetBoneName(g_mdlprv.model.currentObj, v8, v7);
+    CG_DObjGetWorldBoneMatrix(g_mdlprv.model.currentEntity.info.pose, g_mdlprv.model.currentObj, v7, &outTagMat, &outOrigin);
+    CL_AddDebugString(&outOrigin, &colorGreen, v4, v31, 0, 1);
   }
 }
 
@@ -935,36 +750,26 @@ void CG_ModPrvGetAssetName(XAssetHeader header, void *data)
 CG_ModPrvLoadAnimations
 ==============
 */
-
-void __fastcall CG_ModPrvLoadAnimations(const char *animationFilename, double _XMM1_8)
+void CG_ModPrvLoadAnimations(const char *animationFilename)
 {
   const XAnimTree *Tree; 
-  XAnimTree *v6; 
+  XAnimTree *v3; 
   XAnim_s *Anims; 
-  XAnimOwner v8; 
-  XAnimTree *v9; 
+  XAnimOwner v5; 
+  XAnimTree *v6; 
   int fromCurrentIndex; 
+  float value; 
   XAnimSyncGroupID syncGroup; 
-  float syncGroupa; 
-  float syncGroupb; 
-  float allowAllocs; 
-  float allowAllocsa; 
-  float v29; 
-  float v30; 
   vec3_t origin; 
-  char v32; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
   if ( g_mdlprv.model.currentObj )
   {
     Tree = DObjGetTree(g_mdlprv.model.currentObj);
-    v6 = (XAnimTree *)Tree;
+    v3 = (XAnimTree *)Tree;
     if ( Tree )
     {
       XAnimGetAnims(Tree);
-      XAnimFreeTree(v6, NULL);
+      XAnimFreeTree(v3, NULL);
       DObjSetTree(g_mdlprv.model.currentObj, NULL);
       if ( !g_modPrvHunkUser && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 2394, ASSERT_TYPE_ASSERT, "(g_modPrvHunkUser)", (const char *)&queryFormat, "g_modPrvHunkUser") )
         __debugbreak();
@@ -986,47 +791,27 @@ void __fastcall CG_ModPrvLoadAnimations(const char *animationFilename, double _X
       BG_CreateXAnim(Anims, 1u, g_mdlprv.system.animNames[g_mdlprv.anim.fromCurrentIndex], 1);
     if ( g_mdlprv.anim.toCurrentIndex >= 0 )
       BG_CreateXAnim(Anims, 2u, g_mdlprv.system.animNames[g_mdlprv.anim.toCurrentIndex], 1);
-    LOBYTE(v8) = 1;
-    v9 = XAnimCreateTree(Anims, ModPrvAlloc, v8);
-    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 2419, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
+    LOBYTE(v5) = 1;
+    v6 = XAnimCreateTree(Anims, ModPrvAlloc, v5);
+    if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 2419, ASSERT_TYPE_ASSERT, "(animTree)", (const char *)&queryFormat, "animTree") )
       __debugbreak();
     XanimReleaseMemoryLocks();
-    DObjSetTree(g_mdlprv.model.currentObj, v9);
-    __asm { vmovss  xmm6, cs:__real@3f800000 }
+    DObjSetTree(g_mdlprv.model.currentObj, v6);
     fromCurrentIndex = g_mdlprv.anim.fromCurrentIndex;
     if ( g_mdlprv.anim.fromCurrentIndex >= 0 )
     {
       if ( g_mdlprv.anim.toCurrentIndex >= 0 && modPrvAnimBlendMode->current.integer == 1 )
-      {
-        _RAX = modPrvAnimBlendWeight;
-        __asm { vmovss  xmm0, dword ptr [rax+28h] }
-      }
+        value = modPrvAnimBlendWeight->current.value;
       else
-      {
-        __asm { vsubss  xmm0, xmm6, dword ptr [rax+28h] }
-      }
-      __asm
-      {
-        vmovss  [rsp+98h+var_58], xmm6
-        vmovss  dword ptr [rsp+98h+allowAllocs], xmm6
-        vmovss  [rsp+98h+syncGroup], xmm0
-      }
-      XAnimSetGoalWeightKnobAll(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 1u, XANIM_SUBTREE_DEFAULT, 0, syncGroupa, allowAllocs, v29, (scr_string_t)0, 1, LINEAR);
+        value = 1.0 - modPrvAnimBlendWeight->current.value;
+      XAnimSetGoalWeightKnobAll(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 1u, XANIM_SUBTREE_DEFAULT, 0, value, 1.0, 1.0, (scr_string_t)0, 1, LINEAR);
       g_mdlprv.anim.isFromLooped = XAnimIsLooped(Anims, 1u);
       fromCurrentIndex = g_mdlprv.anim.fromCurrentIndex;
     }
     if ( g_mdlprv.anim.toCurrentIndex >= 0 )
     {
       if ( fromCurrentIndex >= 0 && modPrvAnimBlendMode->current.integer == 1 )
-      {
-        __asm
-        {
-          vmovss  [rsp+98h+var_58], xmm6
-          vmovss  dword ptr [rsp+98h+allowAllocs], xmm6
-          vmovss  [rsp+98h+syncGroup], xmm6
-        }
-        XAnimSetGoalWeightKnobAll(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 2u, XANIM_SUBTREE_DEFAULT, 0, syncGroupb, allowAllocsa, v30, (scr_string_t)0, 1, LINEAR);
-      }
+        XAnimSetGoalWeightKnobAll(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 2u, XANIM_SUBTREE_DEFAULT, 0, 1.0, 1.0, 1.0, (scr_string_t)0, 1, LINEAR);
       g_mdlprv.anim.isToLooped = XAnimIsLooped(Anims, 2u);
     }
     if ( animationFilename )
@@ -1036,27 +821,14 @@ void __fastcall CG_ModPrvLoadAnimations(const char *animationFilename, double _X
     }
     g_mdlprv.anim.isToAnimPlaying = 0;
     g_mdlprv.anim.isAnimPlaying = 1;
-    __asm
-    {
-      vmovss  xmm0, cs:__real@7f7fffff
-      vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.anim.stepCounter, xmm0; ModelPreviewer g_mdlprv
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.anim.deltaYaw, xmm1; ModelPreviewer g_mdlprv
-      vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin; ModelPreviewer g_mdlprv
-      vaddss  xmm1, xmm0, dword ptr [rax+28h]
-      vmovss  dword ptr [rsp+98h+origin], xmm1
-      vmovss  xmm2, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4; ModelPreviewer g_mdlprv
-      vaddss  xmm0, xmm2, dword ptr [rax+2Ch]
-      vmovss  dword ptr [rsp+98h+origin+4], xmm0
-      vmovss  xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8; ModelPreviewer g_mdlprv
-      vaddss  xmm2, xmm1, dword ptr [rax+30h]
-      vmovss  dword ptr [rsp+98h+origin+8], xmm2
-    }
+    g_mdlprv.anim.stepCounter = FLOAT_3_4028235e38;
+    g_mdlprv.anim.deltaYaw = 0.0;
+    origin.v[0] = g_mdlprv.model.initialOrigin.v[0] + modPrvOrigin->current.value;
+    origin.v[1] = g_mdlprv.model.initialOrigin.v[1] + modPrvOrigin->current.vector.v[1];
+    origin.v[2] = g_mdlprv.model.initialOrigin.v[2] + modPrvOrigin->current.vector.v[2];
     GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &origin);
     memset(&origin, 0, sizeof(origin));
   }
-  _R11 = &v32;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -1094,87 +866,61 @@ void CG_ModPrvLoadDObjs(__int64 a1, __int64 a2, __int64 a3, XAnimOwner a4)
 CG_ModPrvLoadModel
 ==============
 */
-
-void __fastcall CG_ModPrvLoadModel(const cg_t *cgameGlob, const char *modelFilename, double _XMM2_8, double _XMM3_8)
+void CG_ModPrvLoadModel(const cg_t *cgameGlob, const char *modelFilename)
 {
-  signed __int64 v4; 
-  void *v6; 
-  const XModel *v20; 
+  signed __int64 v2; 
+  void *v3; 
+  const XModel *v6; 
   __int64 unsignedInt; 
   DObj *currentObj; 
   __int64 NumModels; 
   __int64 i; 
   int NumSurfaces; 
-  int v52; 
-  int v53; 
+  int v14; 
+  int v15; 
   int surfaceCount; 
-  __int64 v55; 
-  __int64 v56; 
-  Material *v57; 
-  __int64 v58; 
-  int v59; 
-  int v60; 
-  int v61; 
-  __int64 v62; 
-  __int64 v63; 
-  Material *v64; 
-  __int64 v65; 
+  __int64 v17; 
+  __int64 v18; 
+  Material *v19; 
+  __int64 v20; 
+  int v21; 
+  int v22; 
+  int v23; 
+  __int64 v24; 
+  __int64 v25; 
+  Material *v26; 
+  __int64 v27; 
   XAnimOwner outDObjModel; 
   DObjModel *outDObjModela; 
   vec3_t origin; 
   vec3_t outOrg; 
   vec4_t quat; 
   DObjModel dobjModels; 
-  __int64 v73[8192]; 
+  __int64 v34[8192]; 
   unsigned __int8 lods[254]; 
 
-  v6 = alloca(v4);
-  __asm { vmovaps [rsp+102D0h+var_40], xmm6 }
-  _RBX = cgameGlob;
+  v3 = alloca(v2);
   if ( g_mdlprv.model.currentObj )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin; ModelPreviewer g_mdlprv
-      vmovss  dword ptr [rsp+102D0h+origin], xmm0
-      vmovss  xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4; ModelPreviewer g_mdlprv
-      vmovss  dword ptr [rsp+102D0h+origin+4], xmm1
-      vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8; ModelPreviewer g_mdlprv
-      vmovss  dword ptr [rsp+102D0h+origin+8], xmm0
-    }
+    origin = g_mdlprv.model.initialOrigin;
   }
   else
   {
     RefdefView_GetOrg(&cgameGlob->refdef.view, &outOrg);
-    __asm
-    {
-      vmovss  xmm2, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius; ModelPreviewer g_mdlprv
-      vmulss  xmm0, xmm2, dword ptr [rbx+6944h]
-      vaddss  xmm1, xmm0, dword ptr [rsp+102D0h+outOrg]
-      vmovss  dword ptr [rsp+102D0h+origin], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+6948h]
-      vaddss  xmm1, xmm0, dword ptr [rsp+102D0h+outOrg+4]
-      vmovss  dword ptr [rsp+102D0h+origin+4], xmm1
-      vmovss  xmm2, dword ptr [rbx+40h]
-      vmovss  dword ptr [rsp+102D0h+origin+8], xmm2
-    }
-    SetViewerActive(_RBX->localClientNum, 1);
+    origin.v[0] = (float)(g_mdlprv.viewer.centerRadius * cgameGlob->refdef.view.axis.m[0].v[0]) + outOrg.v[0];
+    origin.v[1] = (float)(g_mdlprv.viewer.centerRadius * cgameGlob->refdef.view.axis.m[0].v[1]) + outOrg.v[1];
+    origin.v[2] = cgameGlob->predictedPlayerState.origin.v[2];
+    SetViewerActive(cgameGlob->localClientNum, 1);
     memset(&outOrg, 0, sizeof(outOrg));
   }
   CG_ModPrvUnloadModel();
-  _RCX = modPrvRStickDeflectMax;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+28h]
-    vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.system.gamePadRStickDeflect, xmm0; ModelPreviewer g_mdlprv
-    vmovss  xmm1, cs:__real@3f800000; value
-  }
-  Dvar_SetFloat_Internal(modPrvRStickDeflectMax, *(float *)&_XMM1);
+  LODWORD(g_mdlprv.system.gamePadRStickDeflect) = modPrvRStickDeflectMax->current.integer;
+  Dvar_SetFloat_Internal(modPrvRStickDeflectMax, 1.0);
   R_SetIgnorePrecacheErrors(1);
   R_RegisterModel(modelFilename);
   R_SetIgnorePrecacheErrors(0);
-  v20 = R_RegisterModel(modelFilename);
-  DObjInitModel(v20, (scr_string_t)0, 0, 0, NULL, &dobjModels);
+  v6 = R_RegisterModel(modelFilename);
+  DObjInitModel(v6, (scr_string_t)0, 0, 0, NULL, &dobjModels);
   if ( !dobjModels.model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 1738, ASSERT_TYPE_ASSERT, "(dobjModels[modelCount].model)", (const char *)&queryFormat, "dobjModels[modelCount].model") )
     __debugbreak();
   LOBYTE(outDObjModel) = 1;
@@ -1185,63 +931,19 @@ void __fastcall CG_ModPrvLoadModel(const cg_t *cgameGlob, const char *modelFilen
   g_mdlprv.model.currentObj = (DObj *)g_mdlprv.model.objBuf;
   g_mdlprv.model.inited = 0;
   CG_ModPrvModelGetBoneNameList();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+102D0h+origin]
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin, xmm0; ModelPreviewer g_mdlprv
-    vmovss  xmm1, dword ptr [rsp+102D0h+origin+4]
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4, xmm1; ModelPreviewer g_mdlprv
-    vmovss  xmm0, dword ptr [rsp+102D0h+origin+8]
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8, xmm0; ModelPreviewer g_mdlprv
-  }
+  g_mdlprv.model.initialOrigin = origin;
   GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &origin);
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-  }
-  Dvar_SetVec3_Internal(modPrvOrigin, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+178C4h]
-    vmulss  xmm6, xmm0, cs:__real@3b360b61
-    vaddss  xmm3, xmm6, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm5, xmm0, xmm3, 1
-    vsubss  xmm2, xmm6, xmm5
-    vmulss  xmm0, xmm2, cs:__real@43b40000
-    vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialYaw, xmm0; ModelPreviewer g_mdlprv
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-  }
-  Dvar_SetVec3_Internal(modPrvCenterOffset, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; z
-    vmovss  xmm2, cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialYaw; y
-    vxorps  xmm1, xmm1, xmm1; x
-  }
-  Dvar_SetVec3_Internal(modPrvRotationAngles, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  _RAX = modPrvRotationAngles;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmovss  dword ptr [rsp+102D0h+outOrg], xmm0
-    vmovss  xmm1, dword ptr [rax+30h]
-    vmovss  dword ptr [rsp+102D0h+outOrg+8], xmm1
-    vmovss  xmm0, cs:?g_mdlprv@@3UModelPreviewer@@A.anim.deltaYaw; ModelPreviewer g_mdlprv
-    vaddss  xmm2, xmm0, cs:__real@43340000
-    vaddss  xmm1, xmm2, dword ptr [rax+2Ch]
-    vmovss  dword ptr [rsp+102D0h+outOrg+4], xmm1
-  }
+  Dvar_SetVec3_Internal(modPrvOrigin, 0.0, 0.0, 0.0);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm5, xmm0, xmm3, 1 }
+  g_mdlprv.model.initialYaw = (float)((float)(cgameGlob->refdefViewAngles.v[1] * 0.0027777778) - *(float *)&_XMM5) * 360.0;
+  Dvar_SetVec3_Internal(modPrvCenterOffset, 0.0, 0.0, 0.0);
+  Dvar_SetVec3_Internal(modPrvRotationAngles, 0.0, g_mdlprv.model.initialYaw, 0.0);
+  LODWORD(outOrg.v[0]) = modPrvRotationAngles->current.integer;
+  outOrg.v[2] = modPrvRotationAngles->current.vector.v[2];
+  outOrg.v[1] = (float)(g_mdlprv.anim.deltaYaw + 180.0) + modPrvRotationAngles->current.vector.v[1];
   AnglesToQuat(&outOrg, &quat);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+102D0h+quat]
-    vmovups xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat, xmm0; ModelPreviewer g_mdlprv
-  }
+  g_mdlprv.model.currentEntity.placement.placement.quat = quat;
   Dvar_Reset(modPrvLod, DVAR_SOURCE_INTERNAL);
   PushMruEntry(modelFilename, g_mdlprv.model.mruNames, g_mdlprv.model.mruNameTable, modPrvModelMru);
   *(_QWORD *)&g_mdlprv.anim.fromCurrentIndex = -1i64;
@@ -1280,96 +982,95 @@ void __fastcall CG_ModPrvLoadModel(const cg_t *cgameGlob, const char *modelFilen
     g_mdlprv.mat.surfMatHandles = (Material **)Mem_Virtual_Alloc(8i64 * NumSurfaces, "MODPRV_MaterialHandles", TRACK_DEBUG);
     R_DObjGetSurfMaterials(g_mdlprv.model.currentObj, modPrvLod->current.integer, g_mdlprv.mat.surfMatHandles);
     g_mdlprv.mat.nameTable[0] = "<None>";
-    v52 = 0;
-    v53 = 0;
+    v14 = 0;
+    v15 = 0;
     surfaceCount = g_mdlprv.model.surfaceCount;
     if ( g_mdlprv.model.surfaceCount > 0 )
     {
-      v55 = 0i64;
-      v56 = 0i64;
+      v17 = 0i64;
+      v18 = 0i64;
       do
       {
-        v57 = g_mdlprv.mat.surfMatHandles[v56];
-        if ( v57 )
+        v19 = g_mdlprv.mat.surfMatHandles[v18];
+        if ( v19 )
         {
-          v58 = 0i64;
-          if ( v55 <= 0 )
+          v20 = 0i64;
+          if ( v17 <= 0 )
           {
 LABEL_29:
-            if ( (unsigned int)(v52 + 1) >= 0x82 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 1817, ASSERT_TYPE_ASSERT, "(uniqueMatCount + 1 < ( sizeof( *array_counter( g_mdlprv.mat.nameTable ) ) + 0 ))", (const char *)&queryFormat, "uniqueMatCount + 1 < ARRAY_COUNT( g_mdlprv.mat.nameTable )") )
+            if ( (unsigned int)(v14 + 1) >= 0x82 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 1817, ASSERT_TYPE_ASSERT, "(uniqueMatCount + 1 < ( sizeof( *array_counter( g_mdlprv.mat.nameTable ) ) + 0 ))", (const char *)&queryFormat, "uniqueMatCount + 1 < ARRAY_COUNT( g_mdlprv.mat.nameTable )") )
               __debugbreak();
-            g_mdlprv.mat.nameTable[v55 + 1] = Material_GetName(v57);
-            if ( (unsigned int)v52 >= 0x2000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 1820, ASSERT_TYPE_ASSERT, "(uniqueMatCount < ( sizeof( *array_counter( uniqueHash ) ) + 0 ))", (const char *)&queryFormat, "uniqueMatCount < ARRAY_COUNT( uniqueHash )") )
+            g_mdlprv.mat.nameTable[v17 + 1] = Material_GetName(v19);
+            if ( (unsigned int)v14 >= 0x2000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 1820, ASSERT_TYPE_ASSERT, "(uniqueMatCount < ( sizeof( *array_counter( uniqueHash ) ) + 0 ))", (const char *)&queryFormat, "uniqueMatCount < ARRAY_COUNT( uniqueHash )") )
               __debugbreak();
-            v73[v55] = (__int64)v57;
-            ++v52;
-            ++v55;
+            v34[v17] = (__int64)v19;
+            ++v14;
+            ++v17;
             surfaceCount = g_mdlprv.model.surfaceCount;
           }
           else
           {
-            while ( (Material *)v73[v58] != v57 )
+            while ( (Material *)v34[v20] != v19 )
             {
-              if ( ++v58 >= v55 )
+              if ( ++v20 >= v17 )
                 goto LABEL_29;
             }
           }
         }
-        ++v53;
-        ++v56;
+        ++v15;
+        ++v18;
       }
-      while ( v53 < surfaceCount );
+      while ( v15 < surfaceCount );
     }
-    g_mdlprv.mat.nameTable[v52 + 1] = NULL;
+    g_mdlprv.mat.nameTable[v14 + 1] = NULL;
     Dvar_UpdateEnumDomain(modPrvMatSelect, g_mdlprv.mat.nameTable);
     Dvar_UpdateEnumDomain(modPrvMatReplace, g_mdlprv.mat.nameTable);
-    g_mdlprv.mat.handleCount = v52;
-    g_mdlprv.mat.handleArray = (Material **)Mem_Virtual_Alloc(8i64 * v52, "MODPRV_MaterialHandles", TRACK_DEBUG);
-    v59 = 0;
-    v60 = 0;
-    v61 = g_mdlprv.model.surfaceCount;
+    g_mdlprv.mat.handleCount = v14;
+    g_mdlprv.mat.handleArray = (Material **)Mem_Virtual_Alloc(8i64 * v14, "MODPRV_MaterialHandles", TRACK_DEBUG);
+    v21 = 0;
+    v22 = 0;
+    v23 = g_mdlprv.model.surfaceCount;
     if ( g_mdlprv.model.surfaceCount > 0 )
     {
-      v62 = 0i64;
-      v63 = 0i64;
+      v24 = 0i64;
+      v25 = 0i64;
       do
       {
-        v64 = g_mdlprv.mat.surfMatHandles[v63];
-        if ( v64 )
+        v26 = g_mdlprv.mat.surfMatHandles[v25];
+        if ( v26 )
         {
-          v65 = 0i64;
-          if ( v62 <= 0 )
+          v27 = 0i64;
+          if ( v24 <= 0 )
           {
 LABEL_43:
-            if ( v59 >= g_mdlprv.mat.handleCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 1852, ASSERT_TYPE_ASSERT, "(uniqueMatCount < g_mdlprv.mat.handleCount)", (const char *)&queryFormat, "uniqueMatCount < g_mdlprv.mat.handleCount") )
+            if ( v21 >= g_mdlprv.mat.handleCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 1852, ASSERT_TYPE_ASSERT, "(uniqueMatCount < g_mdlprv.mat.handleCount)", (const char *)&queryFormat, "uniqueMatCount < g_mdlprv.mat.handleCount") )
               __debugbreak();
-            g_mdlprv.mat.handleArray[v62] = g_mdlprv.mat.surfMatHandles[v63];
-            if ( (unsigned int)v59 >= 0x2000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 1855, ASSERT_TYPE_ASSERT, "(uniqueMatCount < ( sizeof( *array_counter( uniqueHash ) ) + 0 ))", (const char *)&queryFormat, "uniqueMatCount < ARRAY_COUNT( uniqueHash )") )
+            g_mdlprv.mat.handleArray[v24] = g_mdlprv.mat.surfMatHandles[v25];
+            if ( (unsigned int)v21 >= 0x2000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 1855, ASSERT_TYPE_ASSERT, "(uniqueMatCount < ( sizeof( *array_counter( uniqueHash ) ) + 0 ))", (const char *)&queryFormat, "uniqueMatCount < ARRAY_COUNT( uniqueHash )") )
               __debugbreak();
-            v73[v62] = (__int64)v64;
-            ++v59;
-            ++v62;
-            v61 = g_mdlprv.model.surfaceCount;
+            v34[v24] = (__int64)v26;
+            ++v21;
+            ++v24;
+            v23 = g_mdlprv.model.surfaceCount;
           }
           else
           {
-            while ( (Material *)v73[v65] != v64 )
+            while ( (Material *)v34[v27] != v26 )
             {
-              if ( ++v65 >= v62 )
+              if ( ++v27 >= v24 )
                 goto LABEL_43;
             }
           }
         }
-        ++v60;
-        ++v63;
+        ++v22;
+        ++v25;
       }
-      while ( v60 < v61 );
+      while ( v22 < v23 );
     }
   }
   Dvar_Reset(modPrvMatSelect, DVAR_SOURCE_INTERNAL);
   *(_QWORD *)&g_mdlprv.mat.selectSliderIndex = 0i64;
   g_mdlprv.mat.replaceIndex = -1;
-  __asm { vmovaps xmm6, [rsp+102D0h+var_40] }
 }
 
 /*
@@ -1377,173 +1078,95 @@ LABEL_43:
 CG_ModPrvLoopAnimation
 ==============
 */
-
-bool __fastcall CG_ModPrvLoopAnimation(double _XMM0_8)
+bool CG_ModPrvLoopAnimation()
 {
+  float v0; 
+  float v1; 
   const XAnimTree *Tree; 
-  XAnimTree *v10; 
+  XAnimTree *v3; 
   int fromCurrentIndex; 
+  double Time; 
   int toCurrentIndex; 
+  double v7; 
   bool result; 
-  float rootSubTreeID; 
-  float objID; 
-  float objIDa; 
-  float objIDb; 
-  float v44; 
-  float v45; 
-  float v46; 
-  float v47; 
-  float v48; 
-  float v49; 
+  float value; 
   vec3_t origin; 
-  char v51; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vxorps  xmm8, xmm8, xmm8
-    vxorps  xmm9, xmm9, xmm9
-    vxorps  xmm7, xmm7, xmm7
-  }
+  v0 = 0.0;
+  v1 = 0.0;
   if ( !g_mdlprv.model.currentObj )
-    goto LABEL_22;
+    return 0;
   Tree = DObjGetTree(g_mdlprv.model.currentObj);
-  v10 = (XAnimTree *)Tree;
+  v3 = (XAnimTree *)Tree;
   if ( !Tree || !XAnimGetAnims(Tree) )
-    goto LABEL_22;
+    return 0;
   fromCurrentIndex = g_mdlprv.anim.fromCurrentIndex;
   if ( g_mdlprv.anim.fromCurrentIndex >= 0 )
   {
-    _XMM0_8 = XAnimGetTime(v10, 0, XANIM_SUBTREE_DEFAULT, 1u);
-    __asm { vmovaps xmm9, xmm0 }
+    Time = XAnimGetTime(v3, 0, XANIM_SUBTREE_DEFAULT, 1u);
+    v0 = *(float *)&Time;
     fromCurrentIndex = g_mdlprv.anim.fromCurrentIndex;
   }
   toCurrentIndex = g_mdlprv.anim.toCurrentIndex;
   if ( g_mdlprv.anim.toCurrentIndex >= 0 )
   {
-    _XMM0_8 = XAnimGetTime(v10, 0, XANIM_SUBTREE_DEFAULT, 2u);
-    __asm { vmovaps xmm7, xmm0 }
+    v7 = XAnimGetTime(v3, 0, XANIM_SUBTREE_DEFAULT, 2u);
+    v1 = *(float *)&v7;
     toCurrentIndex = g_mdlprv.anim.toCurrentIndex;
     fromCurrentIndex = g_mdlprv.anim.fromCurrentIndex;
   }
-  __asm { vmovss  xmm6, cs:__real@3f800000 }
-  if ( fromCurrentIndex < 0 )
-  {
-    if ( toCurrentIndex >= 0 )
-      goto LABEL_14;
-LABEL_22:
-    result = 0;
-    goto LABEL_23;
-  }
-  if ( toCurrentIndex < 0 )
-  {
-    __asm { vcomiss xmm9, xmm6 }
-    if ( !g_mdlprv.anim.isFromLooped )
-    {
-      __asm
-      {
-        vmovss  [rsp+0C8h+var_88], xmm6
-        vmovss  dword ptr [rsp+0C8h+var_90], xmm6
-        vmovss  dword ptr [rsp+0C8h+objID], xmm6
-      }
-      XAnimSetGoalWeightKnobAll(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 1u, XANIM_SUBTREE_DEFAULT, 0, objID, v44, v47, (scr_string_t)0, 1, LINEAR);
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin; ModelPreviewer g_mdlprv
-        vaddss  xmm1, xmm0, dword ptr [rax+28h]
-        vmovss  dword ptr [rsp+0C8h+origin], xmm1
-        vmovss  xmm2, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4; ModelPreviewer g_mdlprv
-        vaddss  xmm0, xmm2, dword ptr [rax+2Ch]
-        vmovss  dword ptr [rsp+0C8h+origin+4], xmm0
-        vmovss  xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8; ModelPreviewer g_mdlprv
-        vaddss  xmm2, xmm1, dword ptr [rax+30h]
-        vmovss  dword ptr [rsp+0C8h+origin+8], xmm2
-      }
-      GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &origin);
-      memset(&origin, 0, sizeof(origin));
-    }
-    result = 1;
-    goto LABEL_23;
-  }
-LABEL_14:
   if ( fromCurrentIndex >= 0 )
   {
-    __asm { vcomiss xmm7, xmm6 }
-    _RAX = modPrvAnimBlendWeight;
-    if ( modPrvAnimBlendMode->current.integer == 1 )
-      __asm { vmovss  xmm7, dword ptr [rax+28h] }
-    else
-      __asm { vsubss  xmm7, xmm6, dword ptr [rax+28h] }
-    __asm { vmovss  dword ptr [rsp+0C8h+rootSubTreeID], xmm8 }
-    XAnimClearTreeGoalWeights(v10, 0, XANIM_SUBTREE_DEFAULT, 2u, rootSubTreeID, 1, g_mdlprv.model.currentObj, LINEAR);
-    __asm
+    if ( toCurrentIndex >= 0 )
+      goto LABEL_15;
+    if ( v0 >= 1.0 )
     {
-      vmovss  [rsp+0C8h+var_88], xmm6
-      vmovss  dword ptr [rsp+0C8h+var_90], xmm6
-      vmovss  dword ptr [rsp+0C8h+objID], xmm7
+      if ( !g_mdlprv.anim.isFromLooped )
+      {
+        XAnimSetGoalWeightKnobAll(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 1u, XANIM_SUBTREE_DEFAULT, 0, 1.0, 1.0, 1.0, (scr_string_t)0, 1, LINEAR);
+        origin.v[0] = g_mdlprv.model.initialOrigin.v[0] + modPrvOrigin->current.value;
+        origin.v[1] = g_mdlprv.model.initialOrigin.v[1] + modPrvOrigin->current.vector.v[1];
+        origin.v[2] = g_mdlprv.model.initialOrigin.v[2] + modPrvOrigin->current.vector.v[2];
+        GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &origin);
+        memset(&origin, 0, sizeof(origin));
+      }
+      return 1;
     }
-    XAnimSetGoalWeightKnobAll(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 1u, XANIM_SUBTREE_DEFAULT, 0, objIDb, v46, v49, (scr_string_t)0, 1, LINEAR);
-    g_mdlprv.anim.isToAnimPlaying = 0;
-    __asm
+  }
+  if ( toCurrentIndex < 0 )
+    return 0;
+LABEL_15:
+  if ( fromCurrentIndex >= 0 || v1 < 1.0 )
+  {
+    if ( fromCurrentIndex >= 0 && v1 >= 1.0 )
     {
-      vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin; ModelPreviewer g_mdlprv
-      vaddss  xmm1, xmm0, dword ptr [rax+28h]
-      vmovss  dword ptr [rsp+0C8h+origin], xmm1
-      vmovss  xmm2, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4; ModelPreviewer g_mdlprv
-      vaddss  xmm0, xmm2, dword ptr [rax+2Ch]
-      vmovss  dword ptr [rsp+0C8h+origin+4], xmm0
-      vmovss  xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8; ModelPreviewer g_mdlprv
-      vaddss  xmm2, xmm1, dword ptr [rax+30h]
-      vmovss  dword ptr [rsp+0C8h+origin+8], xmm2
+      if ( modPrvAnimBlendMode->current.integer == 1 )
+        value = modPrvAnimBlendWeight->current.value;
+      else
+        value = 1.0 - modPrvAnimBlendWeight->current.value;
+      XAnimClearTreeGoalWeights(v3, 0, XANIM_SUBTREE_DEFAULT, 2u, 0.0, 1, g_mdlprv.model.currentObj, LINEAR);
+      XAnimSetGoalWeightKnobAll(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 1u, XANIM_SUBTREE_DEFAULT, 0, value, 1.0, 1.0, (scr_string_t)0, 1, LINEAR);
+      g_mdlprv.anim.isToAnimPlaying = 0;
+      origin.v[0] = g_mdlprv.model.initialOrigin.v[0] + modPrvOrigin->current.value;
+      origin.v[1] = g_mdlprv.model.initialOrigin.v[1] + modPrvOrigin->current.vector.v[1];
+      origin.v[2] = g_mdlprv.model.initialOrigin.v[2] + modPrvOrigin->current.vector.v[2];
+      GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &origin);
+      result = 1;
+      memset(&origin, 0, sizeof(origin));
+      return result;
     }
+    return 0;
+  }
+  if ( !g_mdlprv.anim.isToLooped )
+  {
+    XAnimSetGoalWeightKnobAll(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 2u, XANIM_SUBTREE_DEFAULT, 0, 1.0, 1.0, 1.0, (scr_string_t)0, 1, LINEAR);
+    origin.v[0] = g_mdlprv.model.initialOrigin.v[0] + modPrvOrigin->current.value;
+    origin.v[1] = g_mdlprv.model.initialOrigin.v[1] + modPrvOrigin->current.vector.v[1];
+    origin.v[2] = g_mdlprv.model.initialOrigin.v[2] + modPrvOrigin->current.vector.v[2];
     GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &origin);
-    result = 1;
     memset(&origin, 0, sizeof(origin));
   }
-  else
-  {
-    __asm { vcomiss xmm7, xmm6 }
-    if ( !g_mdlprv.anim.isToLooped )
-    {
-      __asm
-      {
-        vmovss  [rsp+0C8h+var_88], xmm6
-        vmovss  dword ptr [rsp+0C8h+var_90], xmm6
-        vmovss  dword ptr [rsp+0C8h+objID], xmm6
-      }
-      XAnimSetGoalWeightKnobAll(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 2u, XANIM_SUBTREE_DEFAULT, 0, objIDa, v45, v48, (scr_string_t)0, 1, LINEAR);
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin; ModelPreviewer g_mdlprv
-        vaddss  xmm1, xmm0, dword ptr [rax+28h]
-        vmovss  dword ptr [rsp+0C8h+origin], xmm1
-        vmovss  xmm2, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4; ModelPreviewer g_mdlprv
-        vaddss  xmm0, xmm2, dword ptr [rax+2Ch]
-        vmovss  dword ptr [rsp+0C8h+origin+4], xmm0
-        vmovss  xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8; ModelPreviewer g_mdlprv
-        vaddss  xmm2, xmm1, dword ptr [rax+30h]
-        vmovss  dword ptr [rsp+0C8h+origin+8], xmm2
-      }
-      GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &origin);
-      memset(&origin, 0, sizeof(origin));
-    }
-    result = 1;
-  }
-LABEL_23:
-  _R11 = &v51;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -1666,88 +1289,88 @@ void CG_ModPrvModelGetBoneNameList()
 CG_ModPrvModelRecentAccepted
 ==============
 */
-void CG_ModPrvModelRecentAccepted(const cg_t *cgameGlob, __int64 a2, double a3, double a4)
+void CG_ModPrvModelRecentAccepted(const cg_t *cgameGlob)
 {
-  int v5; 
+  int v2; 
+  const char *v3; 
+  __int64 v4; 
+  __int64 v5; 
   const char *v6; 
-  __int64 v7; 
-  __int64 v8; 
-  const char *v9; 
-  signed __int64 v10; 
+  signed __int64 v7; 
+  int v8; 
+  __int64 v9; 
+  int v10; 
   int v11; 
-  __int64 v12; 
-  int v13; 
-  int v14; 
-  int v15; 
-  const dvar_t *v16; 
-  __int64 v17; 
-  const dvar_t **v18; 
+  int v12; 
+  const dvar_t *v13; 
+  __int64 v14; 
+  const dvar_t **v15; 
 
   Dvar_ClearModified(modPrvModelMru);
-  v5 = 0;
-  v6 = Dvar_EnumToString(modPrvModelMru);
+  v2 = 0;
+  v3 = Dvar_EnumToString(modPrvModelMru);
   if ( g_mdlprv.system.modelCount > 0 )
   {
-    v7 = 0i64;
+    v4 = 0i64;
     do
     {
-      v8 = 0x7FFFFFFFi64;
-      v9 = g_mdlprv.system.modelNames[v7];
-      if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+      v5 = 0x7FFFFFFFi64;
+      v6 = g_mdlprv.system.modelNames[v4];
+      if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+      if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v10 = v6 - v9;
+      v7 = v3 - v6;
       while ( 1 )
       {
-        v11 = (unsigned __int8)v9[v10];
-        v12 = v8;
-        v13 = *(unsigned __int8 *)v9++;
-        --v8;
-        if ( !v12 )
+        v8 = (unsigned __int8)v6[v7];
+        v9 = v5;
+        v10 = *(unsigned __int8 *)v6++;
+        --v5;
+        if ( !v9 )
         {
 LABEL_18:
-          CG_ModPrvLoadModel(cgameGlob, v6, a3, a4);
-          g_mdlprv.model.currentIndex = v5;
+          CG_ModPrvLoadModel(cgameGlob, v3);
+          g_mdlprv.model.currentIndex = v2;
           return;
         }
-        if ( v11 != v13 )
+        if ( v8 != v10 )
         {
-          v14 = v11 + 32;
-          if ( (unsigned int)(v11 - 65) > 0x19 )
-            v14 = v11;
-          v11 = v14;
-          v15 = v13 + 32;
-          if ( (unsigned int)(v13 - 65) > 0x19 )
-            v15 = v13;
-          if ( v11 != v15 )
+          v11 = v8 + 32;
+          if ( (unsigned int)(v8 - 65) > 0x19 )
+            v11 = v8;
+          v8 = v11;
+          v12 = v10 + 32;
+          if ( (unsigned int)(v10 - 65) > 0x19 )
+            v12 = v10;
+          if ( v8 != v12 )
             break;
         }
-        if ( !v11 )
+        if ( !v8 )
           goto LABEL_18;
       }
-      ++v5;
-      ++v7;
+      ++v2;
+      ++v4;
     }
-    while ( v5 < g_mdlprv.system.modelCount );
+    while ( v2 < g_mdlprv.system.modelCount );
   }
-  Com_Printf(14, "Model previewer could not load <%s> because it does not exist.\n ", v6);
-  v16 = modPrvModelMru;
+  Com_Printf(14, "Model previewer could not load <%s> because it does not exist.\n ", v3);
+  v13 = modPrvModelMru;
   if ( !modPrvModelMru && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 433, ASSERT_TYPE_ASSERT, "(dvar)", (const char *)&queryFormat, "dvar") )
     __debugbreak();
-  v17 = v16->current.integer + 1i64;
-  if ( v17 < 4 )
+  v14 = v13->current.integer + 1i64;
+  if ( v14 < 4 )
   {
-    v18 = &g_mdlprv.model.mruNames[v17];
+    v15 = &g_mdlprv.model.mruNames[v14];
     do
     {
-      Dvar_SetString_Internal(*(v18 - 1), (*v18)->current.string);
-      ++v18;
+      Dvar_SetString_Internal(*(v15 - 1), (*v15)->current.string);
+      ++v15;
     }
-    while ( (__int64)v18 < (__int64)g_mdlprv.model.mruNameTable );
+    while ( (__int64)v15 < (__int64)g_mdlprv.model.mruNameTable );
   }
   Dvar_SetString_Internal(g_mdlprv.model.mruNames[3], (const char *)&queryFormat.fmt + 3);
-  UpdateMru(g_mdlprv.model.mruNames, g_mdlprv.model.mruNameTable, v16);
+  UpdateMru(g_mdlprv.model.mruNames, g_mdlprv.model.mruNameTable, v13);
 }
 
 /*
@@ -1755,37 +1378,19 @@ LABEL_18:
 CG_ModPrvModelResetRotation
 ==============
 */
-
-void __fastcall CG_ModPrvModelResetRotation(__int64 a1, double _XMM1_8, __int64 a3, double _XMM3_8)
+void CG_ModPrvModelResetRotation()
 {
+  float v0; 
   vec3_t angles; 
   vec4_t quat; 
 
-  __asm
-  {
-    vmovss  xmm2, cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialYaw; y
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm1, xmm1, xmm1; x
-  }
-  Dvar_SetVec3_Internal(modPrvRotationAngles, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  _RAX = modPrvRotationAngles;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmovss  xmm1, dword ptr [rax+30h]
-    vmovss  dword ptr [rsp+58h+angles], xmm0
-    vmovss  xmm0, cs:?g_mdlprv@@3UModelPreviewer@@A.anim.deltaYaw; ModelPreviewer g_mdlprv
-    vaddss  xmm2, xmm0, cs:__real@43340000
-    vmovss  dword ptr [rsp+58h+angles+8], xmm1
-    vaddss  xmm1, xmm2, dword ptr [rax+2Ch]
-    vmovss  dword ptr [rsp+58h+angles+4], xmm1
-  }
+  Dvar_SetVec3_Internal(modPrvRotationAngles, 0.0, g_mdlprv.model.initialYaw, 0.0);
+  v0 = modPrvRotationAngles->current.vector.v[2];
+  LODWORD(angles.v[0]) = modPrvRotationAngles->current.integer;
+  angles.v[2] = v0;
+  angles.v[1] = (float)(g_mdlprv.anim.deltaYaw + 180.0) + modPrvRotationAngles->current.vector.v[1];
   AnglesToQuat(&angles, &quat);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+58h+quat]
-    vmovups xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat, xmm0; ModelPreviewer g_mdlprv
-  }
+  g_mdlprv.model.currentEntity.placement.placement.quat = quat;
 }
 
 /*
@@ -1852,10 +1457,10 @@ void __fastcall CG_ModPrvShutdown(double _XMM0_8, double _XMM1_8)
     {
       vpxor   xmm0, xmm0, xmm0
       vpxor   xmm1, xmm1, xmm1
-      vmovdqu xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.mruNames, xmm0; ModelPreviewer g_mdlprv
-      vmovdqu xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.mruNames+10h, xmm1; ModelPreviewer g_mdlprv
-      vmovdqu xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.anim.mruNames+8, xmm0; ModelPreviewer g_mdlprv
     }
+    *(_OWORD *)g_mdlprv.model.mruNames = _XMM0;
+    *(_OWORD *)&g_mdlprv.model.mruNames[2] = _XMM1;
+    *(_OWORD *)&g_mdlprv.anim.mruNames[1] = _XMM0;
     g_mdlprv.anim.mruNames[0] = NULL;
     g_mdlprv.anim.mruNames[3] = NULL;
     modPrvModelMru = Dvar_Deregister(modPrvModelMru);
@@ -1932,10 +1537,7 @@ void CG_ModPrvUnloadModel()
   if ( VarByName )
     Dvar_Reset(VarByName, DVAR_SOURCE_INTERNAL);
   if ( modPrvRStickDeflectMax )
-  {
-    __asm { vmovss  xmm1, cs:?g_mdlprv@@3UModelPreviewer@@A.system.gamePadRStickDeflect; value }
-    Dvar_SetFloat_Internal(modPrvRStickDeflectMax, *(float *)&_XMM1);
-  }
+    Dvar_SetFloat_Internal(modPrvRStickDeflectMax, g_mdlprv.system.gamePadRStickDeflect);
 }
 
 /*
@@ -1945,53 +1547,22 @@ CG_ModelPreviewerBuildViewPosStr
 */
 void CG_ModelPreviewerBuildViewPosStr(char *buffer, unsigned int bufferSize)
 {
-  unsigned __int64 v3; 
-  double v22; 
-  double v23; 
-  double v24; 
-  double v25; 
-  double v26; 
+  unsigned __int64 v2; 
   vec3_t outOrigin; 
-  __int64 v28; 
+  __int64 v5; 
 
-  v28 = -2i64;
-  __asm { vmovaps [rsp+88h+var_18], xmm6 }
-  v3 = bufferSize;
+  v5 = -2i64;
+  v2 = bufferSize;
   if ( modPrvCenterOffset )
   {
     GfxSceneEntity_GetPlacementOrigin(&g_mdlprv.model.currentEntity, &outOrigin);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+88h+outOrigin]
-      vaddss  xmm6, xmm0, dword ptr [rax+28h]
-      vmovss  xmm1, dword ptr [rsp+88h+outOrigin+4]
-      vaddss  xmm3, xmm1, dword ptr [rax+2Ch]
-      vmovss  xmm0, dword ptr [rsp+88h+outOrigin+8]
-      vaddss  xmm2, xmm0, dword ptr [rax+30h]
-      vmovss  xmm1, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.horizontal; ModelPreviewer g_mdlprv
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovss  xmm4, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.vertical; ModelPreviewer g_mdlprv
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovss  xmm0, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius; ModelPreviewer g_mdlprv
-      vcvtss2sd xmm0, xmm0, xmm0
-      vcvtss2sd xmm5, xmm2, xmm2
-      vcvtss2sd xmm2, xmm3, xmm3
-      vcvtss2sd xmm3, xmm6, xmm6
-      vmovsd  [rsp+88h+var_48], xmm1
-      vmovsd  [rsp+88h+var_50], xmm4
-      vmovsd  [rsp+88h+var_58], xmm0
-      vmovsd  [rsp+88h+var_60], xmm5
-      vmovsd  [rsp+88h+var_68], xmm2
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(buffer, v3, "%.2f %.2f %.2f %.2f %.2f %.2f", *(double *)&_XMM3, v22, v23, v24, v25, v26);
+    Com_sprintf(buffer, v2, "%.2f %.2f %.2f %.2f %.2f %.2f", (float)(outOrigin.v[0] + modPrvCenterOffset->current.value), (float)(outOrigin.v[1] + modPrvCenterOffset->current.vector.v[1]), (float)(outOrigin.v[2] + modPrvCenterOffset->current.vector.v[2]), g_mdlprv.viewer.centerRadius, g_mdlprv.viewer.vertical, g_mdlprv.viewer.horizontal);
     memset(&outOrigin, 0, sizeof(outOrigin));
   }
   else
   {
     Com_sprintf(buffer, bufferSize, "#ERROR-NotInGame");
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
 }
 
 /*
@@ -2000,18 +1571,18 @@ CG_ModelPreviewerCreateDevGui
 ==============
 */
 
-void __fastcall CG_ModelPreviewerCreateDevGui(LocalClientNum_t localClientNum, double _XMM1_8, double _XMM2_8)
+void __fastcall CG_ModelPreviewerCreateDevGui(LocalClientNum_t localClientNum, double _XMM1_8)
 {
-  __int64 v4; 
-  __int64 v14; 
-  int v15; 
+  __int64 v3; 
+  __int64 v8; 
+  int v9; 
   int cmdsize; 
-  int v17; 
-  int v18; 
-  __int64 v19; 
-  unsigned __int8 *v20; 
+  int v11; 
+  int v12; 
+  __int64 v13; 
+  unsigned __int8 *v14; 
 
-  v4 = localClientNum;
+  v3 = localClientNum;
   if ( !g_mdlprv.inited )
   {
     memset_0(&g_mdlprv, 0, sizeof(g_mdlprv));
@@ -2023,26 +1594,19 @@ void __fastcall CG_ModelPreviewerCreateDevGui(LocalClientNum_t localClientNum, d
     CG_ModelPreviewer_RegisterDvars();
     Cmd_AddCommandInternal("modPrvResetOrientation", ResetOrientation_f, &stru_151224008);
     Cmd_AddCommandInternal("modPrvExit", ModPrvExit_f, &stru_151224038);
-    _RAX = r_zPlanes;
-    __asm
-    {
-      vxorps  xmm2, xmm2, xmm2
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.system.modelRotCamMode, xmm0; ModelPreviewer g_mdlprv
-      vmovdqu xmm0, cs:__xmm@000000280000001e000000140000000a
-      vmovdqu xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.lodDist, xmm0; ModelPreviewer g_mdlprv
-      vmovss  xmm0, cs:__real@42c80000
-      vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius, xmm0; ModelPreviewer g_mdlprv
-      vmovss  xmm0, cs:__real@c1a00000
-      vpxor   xmm1, xmm1, xmm1
-      vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.vertical, xmm0; ModelPreviewer g_mdlprv
-      vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.horizontal, xmm2; ModelPreviewer g_mdlprv
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&g_mdlprv.system.modelRotCamMode = _XMM0;
+    *(_OWORD *)g_mdlprv.model.lodDist = _xmm;
+    g_mdlprv.viewer.centerRadius = FLOAT_100_0;
+    _XMM0 = LODWORD(FLOAT_N20_0);
+    __asm { vpxor   xmm1, xmm1, xmm1 }
+    g_mdlprv.viewer.vertical = FLOAT_N20_0;
+    g_mdlprv.viewer.horizontal = 0.0;
     g_mdlprv.inited = 1;
     g_mdlprv.system.cachedAllModels = 0;
     g_mdlprv.system.uiModePC = SELECTION_MODE;
     *(_QWORD *)&g_mdlprv.system.uiModeGPad = 0i64;
-    __asm { vmovdqu xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.system.buttonTimes.camDown, xmm1; ModelPreviewer g_mdlprv }
+    *(_OWORD *)&g_mdlprv.system.buttonTimes.camDown = _XMM1;
     *(_QWORD *)&g_mdlprv.system.buttonTimes.walkabout = 0i64;
     g_mdlprv.system.walkaboutActive = 0;
     g_mdlprv.model.currentIndex = -1;
@@ -2058,17 +1622,13 @@ void __fastcall CG_ModelPreviewerCreateDevGui(LocalClientNum_t localClientNum, d
     g_mdlprv.model.clones[7].obj = NULL;
     g_mdlprv.model.clones[8].obj = NULL;
     g_mdlprv.model.clones[9].obj = NULL;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+30h]
-      vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.zNear, xmm1; ModelPreviewer g_mdlprv
-      vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+8, xmm2; ModelPreviewer g_mdlprv
-      vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+4, xmm2; ModelPreviewer g_mdlprv
-      vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin, xmm2; ModelPreviewer g_mdlprv
-      vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles+8, xmm2; ModelPreviewer g_mdlprv
-      vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles+4, xmm2; ModelPreviewer g_mdlprv
-      vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles, xmm2; ModelPreviewer g_mdlprv
-    }
+    g_mdlprv.viewer.zNear = r_zPlanes->current.vector.v[2];
+    g_mdlprv.viewer.freeModeOrigin.v[2] = 0.0;
+    g_mdlprv.viewer.freeModeOrigin.v[1] = 0.0;
+    g_mdlprv.viewer.freeModeOrigin.v[0] = 0.0;
+    g_mdlprv.viewer.freeModeAngles.v[2] = 0.0;
+    g_mdlprv.viewer.freeModeAngles.v[1] = 0.0;
+    g_mdlprv.viewer.freeModeAngles.v[0] = 0.0;
     g_mdlprv.viewer.freeModeSpeed = FREESPEED_NORMAL;
     *(_QWORD *)&g_mdlprv.anim.fromCurrentIndex = -1i64;
     Dvar_Reset(modPrvFromAnimMru, DVAR_SOURCE_INTERNAL);
@@ -2081,37 +1641,34 @@ void __fastcall CG_ModelPreviewerCreateDevGui(LocalClientNum_t localClientNum, d
     Dvar_Reset(modPrvAnimCrossBlendDuration, DVAR_SOURCE_INTERNAL);
     Dvar_Reset(modPrvAnimCrossBlendTime, DVAR_SOURCE_INTERNAL);
     Dvar_Reset(modPrvAnimApplyDelta, DVAR_SOURCE_INTERNAL);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.mat.handleArray, xmm0; ModelPreviewer g_mdlprv
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&g_mdlprv.mat.handleArray = _XMM0;
     g_mdlprv.mat.handleCount = -1;
     Dvar_Reset(modPrvMatSelect, DVAR_SOURCE_INTERNAL);
     g_mdlprv.mat.replaceIndex = -1;
     g_mdlprv.mat.prevReplaced = NULL;
     *(_QWORD *)&g_mdlprv.mat.selectSliderIndex = 0i64;
-    v14 = v4;
+    v8 = v3;
     Sys_EnterCriticalSection(CRITSECT_CBUF);
-    v15 = truncate_cast<int,unsigned __int64>(0x1Bui64);
-    cmdsize = s_cmd_superUser_textArray[v14].cmdsize;
-    v17 = v15 + 1;
-    if ( cmdsize + v15 + 1 <= s_cmd_superUser_textArray[v14].maxsize )
+    v9 = truncate_cast<int,unsigned __int64>(0x1Bui64);
+    cmdsize = s_cmd_superUser_textArray[v8].cmdsize;
+    v11 = v9 + 1;
+    if ( cmdsize + v9 + 1 <= s_cmd_superUser_textArray[v8].maxsize )
     {
-      v18 = cmdsize - 1;
-      v19 = cmdsize - 1;
-      if ( v18 >= 0 )
+      v12 = cmdsize - 1;
+      v13 = cmdsize - 1;
+      if ( v12 >= 0 )
       {
         do
         {
-          v20 = &s_cmd_superUser_textArray[v14].data[v19--];
-          v20[v17] = *v20;
+          v14 = &s_cmd_superUser_textArray[v8].data[v13--];
+          v14[v11] = *v14;
         }
-        while ( v19 >= 0 );
+        while ( v13 >= 0 );
       }
-      memcpy_0(s_cmd_superUser_textArray[v14].data, "exec devgui_modelpreviewer\n", v17 - 1);
-      s_cmd_superUser_textArray[v14].data[v17 - 1] = 10;
-      s_cmd_superUser_textArray[v14].cmdsize += v17;
+      memcpy_0(s_cmd_superUser_textArray[v8].data, "exec devgui_modelpreviewer\n", v11 - 1);
+      s_cmd_superUser_textArray[v8].data[v11 - 1] = 10;
+      s_cmd_superUser_textArray[v8].cmdsize += v11;
     }
     else
     {
@@ -2167,54 +1724,39 @@ void CG_ModelPreviewerEnumerateAssets(void)
 CG_ModelPreviewerFrame
 ==============
 */
-void CG_ModelPreviewerFrame(const cg_t *cgameGlob, __int64 unsignedInt, double a3, double a4)
+void CG_ModelPreviewerFrame(const cg_t *cgameGlob)
 {
   __int64 integer; 
-  const dvar_t *v22; 
-  const dvar_t *v23; 
-  int v24; 
+  const dvar_t *v3; 
+  const dvar_t *v4; 
+  int v5; 
   XAnimTree *Tree; 
   int fromCurrentIndex; 
-  int v32; 
-  int v33; 
-  __int64 v34; 
-  int v35; 
+  float v8; 
+  float value; 
+  int v10; 
+  int v11; 
+  __int64 v12; 
+  int v13; 
   int replaceIndex; 
   Material *prevReplaced; 
   int surfaceCount; 
-  int v39; 
-  __int64 v40; 
-  __int64 v41; 
+  int v17; 
+  __int64 v18; 
+  __int64 v19; 
   Material **handleArray; 
-  float v47; 
-  float v48; 
-  float v49; 
-  float v50; 
-  int forceBlendTime; 
-  int forceBlendTimea; 
-  float objID; 
-  float objIDa; 
   vec3_t origin; 
-  __int64 v56; 
+  __int64 v22; 
   vec3_t angles; 
   vec4_t quat; 
-  char v59; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v56 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
+  v22 = -2i64;
   if ( !g_mdlprv.inited )
-    goto LABEL_61;
+    return;
   if ( modPrvLoadModel->modified )
   {
     Dvar_ClearModified(modPrvLoadModel);
-    CG_ModPrvLoadModel(cgameGlob, g_mdlprv.system.modelNames[modPrvLoadModel->current.integer], a3, a4);
+    CG_ModPrvLoadModel(cgameGlob, g_mdlprv.system.modelNames[modPrvLoadModel->current.integer]);
     g_mdlprv.model.currentIndex = modPrvLoadModel->current.integer;
   }
   else if ( g_mdlprv.system.cachedAllModels )
@@ -2222,211 +1764,156 @@ void CG_ModelPreviewerFrame(const cg_t *cgameGlob, __int64 unsignedInt, double a
     integer = modPrvLoadModel->latched.integer;
     if ( (_DWORD)integer != g_mdlprv.system.lastLoadModel )
     {
-      CG_ModPrvLoadModel(cgameGlob, g_mdlprv.system.modelNames[integer], a3, a4);
-      unsignedInt = modPrvLoadModel->latched.unsignedInt;
+      CG_ModPrvLoadModel(cgameGlob, g_mdlprv.system.modelNames[integer]);
       g_mdlprv.system.lastLoadModel = modPrvLoadModel->latched.integer;
     }
   }
   if ( modPrvModelMru->modified )
-    CG_ModPrvModelRecentAccepted(cgameGlob, unsignedInt, a3, a4);
+    CG_ModPrvModelRecentAccepted(cgameGlob);
   if ( modPrvOrigin->modified )
   {
     Dvar_ClearModified(modPrvOrigin);
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin; ModelPreviewer g_mdlprv
-      vaddss  xmm1, xmm0, dword ptr [rax+28h]
-      vmovss  dword ptr [rsp+0D8h+origin], xmm1
-      vmovss  xmm2, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4; ModelPreviewer g_mdlprv
-      vaddss  xmm0, xmm2, dword ptr [rax+2Ch]
-      vmovss  dword ptr [rsp+0D8h+origin+4], xmm0
-      vmovss  xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8; ModelPreviewer g_mdlprv
-      vaddss  xmm2, xmm1, dword ptr [rax+30h]
-      vmovss  dword ptr [rsp+0D8h+origin+8], xmm2
-    }
+    origin.v[0] = g_mdlprv.model.initialOrigin.v[0] + modPrvOrigin->current.value;
+    origin.v[1] = g_mdlprv.model.initialOrigin.v[1] + modPrvOrigin->current.vector.v[1];
+    origin.v[2] = g_mdlprv.model.initialOrigin.v[2] + modPrvOrigin->current.vector.v[2];
     GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &origin);
     memset(&origin, 0, sizeof(origin));
   }
   if ( modPrvRotationAngles->modified )
   {
     Dvar_ClearModified(modPrvRotationAngles);
-    _RAX = modPrvRotationAngles;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+28h]
-      vmovss  dword ptr [rsp+0D8h+angles], xmm0
-      vmovss  xmm1, dword ptr [rax+30h]
-      vmovss  dword ptr [rsp+0D8h+angles+8], xmm1
-      vmovss  xmm0, cs:?g_mdlprv@@3UModelPreviewer@@A.anim.deltaYaw; ModelPreviewer g_mdlprv
-      vaddss  xmm2, xmm0, cs:__real@43340000
-      vaddss  xmm1, xmm2, dword ptr [rax+2Ch]
-      vmovss  dword ptr [rsp+0D8h+angles+4], xmm1
-    }
+    LODWORD(angles.v[0]) = modPrvRotationAngles->current.integer;
+    angles.v[2] = modPrvRotationAngles->current.vector.v[2];
+    angles.v[1] = (float)(g_mdlprv.anim.deltaYaw + 180.0) + modPrvRotationAngles->current.vector.v[1];
     AnglesToQuat(&angles, &quat);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+0D8h+quat]
-      vmovups xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat, xmm0; ModelPreviewer g_mdlprv
-    }
+    g_mdlprv.model.currentEntity.placement.placement.quat = quat;
   }
   if ( modPrvFromAnimMru->modified )
     CG_ModPrvAnimRecentAccept(modPrvFromAnimMru, &g_mdlprv.anim.fromCurrentIndex);
   if ( modPrvToAnimMru->modified )
     CG_ModPrvAnimRecentAccept(modPrvToAnimMru, &g_mdlprv.anim.toCurrentIndex);
-  v22 = modPrvLoadFromAnim;
+  v3 = modPrvLoadFromAnim;
   if ( modPrvLoadFromAnim->modified )
   {
     Dvar_ClearModified(modPrvLoadFromAnim);
-    g_mdlprv.anim.fromCurrentIndex = v22->current.integer;
-    CG_ModPrvLoadAnimations(g_mdlprv.system.animNames[v22->current.integer], *(double *)&_XMM1);
+    g_mdlprv.anim.fromCurrentIndex = v3->current.integer;
+    CG_ModPrvLoadAnimations(g_mdlprv.system.animNames[v3->current.integer]);
   }
-  v23 = modPrvLoadToAnim;
+  v4 = modPrvLoadToAnim;
   if ( modPrvLoadToAnim->modified )
   {
     Dvar_ClearModified(modPrvLoadToAnim);
-    g_mdlprv.anim.toCurrentIndex = v23->current.integer;
-    CG_ModPrvLoadAnimations(g_mdlprv.system.animNames[v23->current.integer], *(double *)&_XMM1);
+    g_mdlprv.anim.toCurrentIndex = v4->current.integer;
+    CG_ModPrvLoadAnimations(g_mdlprv.system.animNames[v4->current.integer]);
   }
   if ( modPrvAnimCrossBlendTime->modified || modPrvAnimCrossBlendDuration->modified )
   {
     Dvar_ClearModified(modPrvAnimCrossBlendTime);
     Dvar_ClearModified(modPrvAnimCrossBlendDuration);
-    CG_ModPrvLoadAnimations(NULL, *(double *)&_XMM1);
+    CG_ModPrvLoadAnimations(NULL);
   }
-  v24 = 0;
+  v5 = 0;
   if ( modPrvAnimBlendWeight->modified )
   {
     Dvar_ClearModified(modPrvAnimBlendWeight);
     if ( g_mdlprv.model.currentObj )
     {
       Tree = DObjGetTree(g_mdlprv.model.currentObj);
-      __asm
-      {
-        vmovss  xmm6, cs:__real@3f800000
-        vxorps  xmm8, xmm8, xmm8
-      }
       fromCurrentIndex = g_mdlprv.anim.fromCurrentIndex;
       if ( g_mdlprv.anim.fromCurrentIndex >= 0 )
       {
         if ( g_mdlprv.anim.toCurrentIndex >= 0 )
-          __asm { vsubss  xmm7, xmm6, dword ptr [rax+28h] }
+          v8 = 1.0 - modPrvAnimBlendWeight->current.value;
         else
-          __asm { vmovaps xmm7, xmm6 }
-        __asm { vmovss  [rsp+0D8h+var_B8], xmm8 }
-        XAnimClearTreeGoalWeights(Tree, 0, XANIM_SUBTREE_DEFAULT, 1u, v47, 1, g_mdlprv.model.currentObj, LINEAR);
-        __asm
-        {
-          vmovss  dword ptr [rsp+0D8h+objID], xmm6
-          vmovss  [rsp+0D8h+forceBlendTime], xmm6
-          vmovss  [rsp+0D8h+var_B8], xmm7
-        }
-        XAnimSetGoalWeight(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 1u, v48, *(float *)&forceBlendTime, objID, (scr_string_t)0, 0, 1, LINEAR, NULL);
+          v8 = FLOAT_1_0;
+        XAnimClearTreeGoalWeights(Tree, 0, XANIM_SUBTREE_DEFAULT, 1u, 0.0, 1, g_mdlprv.model.currentObj, LINEAR);
+        XAnimSetGoalWeight(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 1u, v8, 1.0, 1.0, (scr_string_t)0, 0, 1, LINEAR, NULL);
         fromCurrentIndex = g_mdlprv.anim.fromCurrentIndex;
       }
       if ( g_mdlprv.anim.toCurrentIndex >= 0 )
       {
         if ( fromCurrentIndex >= 0 )
-        {
-          _RAX = modPrvAnimBlendWeight;
-          __asm { vmovss  xmm7, dword ptr [rax+28h] }
-        }
+          value = modPrvAnimBlendWeight->current.value;
         else
-        {
-          __asm { vmovaps xmm7, xmm6 }
-        }
-        __asm { vmovss  [rsp+0D8h+var_B8], xmm8 }
-        XAnimClearTreeGoalWeights(Tree, 0, XANIM_SUBTREE_DEFAULT, 2u, v49, 1, g_mdlprv.model.currentObj, LINEAR);
-        __asm
-        {
-          vmovss  dword ptr [rsp+0D8h+objID], xmm6
-          vmovss  [rsp+0D8h+forceBlendTime], xmm6
-          vmovss  [rsp+0D8h+var_B8], xmm7
-        }
-        XAnimSetGoalWeight(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 2u, v50, *(float *)&forceBlendTimea, objIDa, (scr_string_t)0, 0, 1, LINEAR, NULL);
+          value = FLOAT_1_0;
+        XAnimClearTreeGoalWeights(Tree, 0, XANIM_SUBTREE_DEFAULT, 2u, 0.0, 1, g_mdlprv.model.currentObj, LINEAR);
+        XAnimSetGoalWeight(g_mdlprv.model.currentObj, 0, XANIM_SUBTREE_DEFAULT, 2u, value, 1.0, 1.0, (scr_string_t)0, 0, 1, LINEAR, NULL);
       }
     }
   }
   if ( !modPrvMatReplace->modified )
   {
     if ( modPrvMatReplace->latched.integer == g_mdlprv.system.lastMatReplace )
-      goto LABEL_61;
+      return;
     g_mdlprv.system.lastMatReplace = modPrvMatReplace->latched.integer;
     if ( !modPrvMatSelect->current.integer )
-      goto LABEL_61;
-    v35 = modPrvMatReplace->latched.integer;
-    if ( !v35 )
-      goto LABEL_61;
-    replaceIndex = v35 - 1;
+      return;
+    v13 = modPrvMatReplace->latched.integer;
+    if ( !v13 )
+      return;
+    replaceIndex = v13 - 1;
     g_mdlprv.mat.replaceIndex = replaceIndex;
     prevReplaced = g_mdlprv.mat.prevReplaced;
     surfaceCount = g_mdlprv.model.surfaceCount;
     if ( g_mdlprv.mat.prevReplaced )
     {
-      v39 = 0;
+      v17 = 0;
       if ( g_mdlprv.model.surfaceCount <= 0 )
         goto LABEL_59;
-      v40 = 0i64;
+      v18 = 0i64;
       do
       {
-        if ( g_mdlprv.mat.surfMatHandles[v40] == prevReplaced )
+        if ( g_mdlprv.mat.surfMatHandles[v18] == prevReplaced )
         {
-          R_DObjReplaceMaterial(g_mdlprv.model.currentObj, modPrvLod->current.integer, v39, prevReplaced);
+          R_DObjReplaceMaterial(g_mdlprv.model.currentObj, modPrvLod->current.integer, v17, prevReplaced);
           prevReplaced = g_mdlprv.mat.prevReplaced;
           surfaceCount = g_mdlprv.model.surfaceCount;
         }
-        ++v39;
-        ++v40;
+        ++v17;
+        ++v18;
       }
-      while ( v39 < surfaceCount );
+      while ( v17 < surfaceCount );
       replaceIndex = g_mdlprv.mat.replaceIndex;
     }
     if ( surfaceCount > 0 )
     {
-      v41 = 0i64;
+      v19 = 0i64;
       handleArray = g_mdlprv.mat.handleArray;
       do
       {
-        if ( g_mdlprv.mat.surfMatHandles[v41] == handleArray[modPrvMatSelect->current.integer - 1] )
+        if ( g_mdlprv.mat.surfMatHandles[v19] == handleArray[modPrvMatSelect->current.integer - 1] )
         {
-          R_DObjReplaceMaterial(g_mdlprv.model.currentObj, modPrvLod->current.integer, v24, handleArray[replaceIndex]);
+          R_DObjReplaceMaterial(g_mdlprv.model.currentObj, modPrvLod->current.integer, v5, handleArray[replaceIndex]);
           replaceIndex = g_mdlprv.mat.replaceIndex;
           handleArray = g_mdlprv.mat.handleArray;
           surfaceCount = g_mdlprv.model.surfaceCount;
         }
-        ++v24;
-        ++v41;
+        ++v5;
+        ++v19;
       }
-      while ( v24 < surfaceCount );
+      while ( v5 < surfaceCount );
       goto LABEL_60;
     }
 LABEL_59:
     handleArray = g_mdlprv.mat.handleArray;
 LABEL_60:
     g_mdlprv.mat.prevReplaced = handleArray[replaceIndex];
-    goto LABEL_61;
+    return;
   }
   Dvar_ClearModified(modPrvMatReplace);
-  v32 = g_mdlprv.mat.replaceIndex;
+  v10 = g_mdlprv.mat.replaceIndex;
   if ( !modPrvMatSelect->current.integer )
-    v32 = -1;
-  g_mdlprv.mat.replaceIndex = v32;
-  v33 = 0;
+    v10 = -1;
+  g_mdlprv.mat.replaceIndex = v10;
+  v11 = 0;
   if ( g_mdlprv.model.surfaceCount > 0 )
   {
-    v34 = 0i64;
+    v12 = 0i64;
     do
-      R_DObjReplaceMaterial(g_mdlprv.model.currentObj, modPrvLod->current.integer, v33++, g_mdlprv.mat.surfMatHandles[v34++]);
-    while ( v33 < g_mdlprv.model.surfaceCount );
+      R_DObjReplaceMaterial(g_mdlprv.model.currentObj, modPrvLod->current.integer, v11++, g_mdlprv.mat.surfMatHandles[v12++]);
+    while ( v11 < g_mdlprv.model.surfaceCount );
   }
   g_mdlprv.mat.prevReplaced = NULL;
-LABEL_61:
-  _R11 = &v59;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
 }
 
 /*
@@ -2447,60 +1934,40 @@ CG_ModelPreviewerHandleKeyEvents
 */
 void CG_ModelPreviewerHandleKeyEvents(LocalClientNum_t localClientNum, int key, int down, unsigned int time)
 {
-  __int64 v7; 
-  __int64 v8; 
-  int v9; 
-  int v10; 
-  int v11; 
-  int v12; 
+  int v5; 
+  int v6; 
+  int v7; 
+  int v8; 
+  float v9; 
   vec3_t angles; 
   vec4_t quat; 
 
   if ( CG_GetLocalClientGlobals(localClientNum)->predictedPlayerState.pm_type == 4 )
   {
-    v9 = key - 101;
-    if ( v9 )
+    v5 = key - 101;
+    if ( v5 )
     {
-      v10 = v9 - 12;
-      if ( v10 )
+      v6 = v5 - 12;
+      if ( v6 )
       {
-        v11 = v10 - 6;
-        if ( v11 )
+        v7 = v6 - 6;
+        if ( v7 )
         {
-          v12 = v11 - 1;
-          if ( v12 )
+          v8 = v7 - 1;
+          if ( v8 )
           {
-            if ( v12 == 2 )
-              CG_ModPrvModelResetRotation(v7, *(double *)&_XMM1, v8, *(double *)&_XMM3);
+            if ( v8 == 2 )
+              CG_ModPrvModelResetRotation();
           }
           else
           {
-            _RCX = modPrvRotationAngles;
-            __asm
-            {
-              vxorps  xmm3, xmm3, xmm3; z
-              vxorps  xmm1, xmm1, xmm1; x
-              vmovss  xmm2, dword ptr [rcx+2Ch]; y
-            }
-            Dvar_SetVec3_Internal(modPrvRotationAngles, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-            _RAX = modPrvRotationAngles;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax+28h]
-              vmovss  xmm1, dword ptr [rax+30h]
-              vmovss  dword ptr [rsp+58h+angles], xmm0
-              vmovss  xmm0, cs:?g_mdlprv@@3UModelPreviewer@@A.anim.deltaYaw; ModelPreviewer g_mdlprv
-              vaddss  xmm2, xmm0, cs:__real@43340000
-              vmovss  dword ptr [rsp+58h+angles+8], xmm1
-              vaddss  xmm1, xmm2, dword ptr [rax+2Ch]
-              vmovss  dword ptr [rsp+58h+angles+4], xmm1
-            }
+            Dvar_SetVec3_Internal(modPrvRotationAngles, 0.0, modPrvRotationAngles->current.vector.v[1], 0.0);
+            v9 = modPrvRotationAngles->current.vector.v[2];
+            LODWORD(angles.v[0]) = modPrvRotationAngles->current.integer;
+            angles.v[2] = v9;
+            angles.v[1] = (float)(g_mdlprv.anim.deltaYaw + 180.0) + modPrvRotationAngles->current.vector.v[1];
             AnglesToQuat(&angles, &quat);
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsp+58h+quat]
-              vmovups xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat, xmm0; ModelPreviewer g_mdlprv
-            }
+            g_mdlprv.model.currentEntity.placement.placement.quat = quat;
           }
         }
         else
@@ -2528,264 +1995,129 @@ CG_ModelPreviewerHandleMouseEvents
 void CG_ModelPreviewerHandleMouseEvents(LocalClientNum_t localClientNum, int dx, int dy)
 {
   cg_t *LocalClientGlobals; 
-  const dvar_t *v61; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  __int128 v11; 
+  __int128 v15; 
+  const dvar_t *v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   vec3_t origin; 
   vec4_t quat; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> in1; 
-  tmat33_t<vec3_t> v132; 
+  tmat33_t<vec3_t> v30; 
   tmat33_t<vec3_t> out; 
   tmat33_t<vec3_t> in2; 
-  char v135; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-  }
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( LocalClientGlobals->predictedPlayerState.pm_type == 4 )
   {
     if ( CL_Keys_IsModifierKeyDown(localClientNum, KMOD_ALT) )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vxorps  xmm7, xmm7, xmm7
-        vcvtsi2ss xmm6, xmm6, r14d
-        vcvtsi2ss xmm7, xmm7, esi
-      }
+      v7 = (float)dy;
+      v8 = (float)dx;
       if ( CL_Keys_IsKeyDown(localClientNum, 187) )
       {
-        __asm
-        {
-          vmulss  xmm1, xmm6, cs:__real@bdcccccd
-          vaddss  xmm1, xmm1, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.vertical; ModelPreviewer g_mdlprv
-          vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.vertical, xmm1; ModelPreviewer g_mdlprv
-          vmulss  xmm2, xmm7, cs:__real@bdcccccd
-          vaddss  xmm1, xmm2, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.horizontal; ModelPreviewer g_mdlprv
-          vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.horizontal, xmm1; ModelPreviewer g_mdlprv
-        }
+        g_mdlprv.viewer.vertical = (float)(v7 * -0.1) + g_mdlprv.viewer.vertical;
+        g_mdlprv.viewer.horizontal = (float)(v8 * -0.1) + g_mdlprv.viewer.horizontal;
       }
       if ( CL_Keys_IsKeyDown(localClientNum, 188) )
-      {
-        __asm
-        {
-          vmovaps xmm1, xmm6; dy
-          vmovaps xmm0, xmm7; dx
-        }
-        CG_ModelPreviewerZoomCamera(*(float *)&_XMM0, *(float *)&_XMM1);
-      }
+        CG_ModelPreviewerZoomCamera(v8, v7);
       if ( CL_Keys_IsKeyDown(localClientNum, 189) )
       {
         AnglesToAxis(&LocalClientGlobals->refdefViewAngles, &axis);
+        v9 = (float)(v8 * g_mdlprv.viewer.centerRadius) * 0.0012000001;
+        v10 = (float)(v7 * g_mdlprv.viewer.centerRadius) * 0.0012000001;
+        v11 = LODWORD(axis.m[1].v[0]);
+        *(float *)&v11 = fsqrt((float)((float)(*(float *)&v11 * *(float *)&v11) + (float)(axis.m[1].v[1] * axis.m[1].v[1])) + (float)(axis.m[1].v[2] * axis.m[1].v[2]));
+        _XMM2 = v11;
         __asm
         {
-          vmulss  xmm0, xmm7, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius; ModelPreviewer g_mdlprv
-          vmulss  xmm12, xmm0, cs:__real@3a9d4952
-          vmulss  xmm0, xmm6, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius; ModelPreviewer g_mdlprv
-          vmulss  xmm13, xmm0, cs:__real@3a9d4952
-          vmovss  xmm4, dword ptr [rsp+1C0h+axis+0Ch]
-          vmulss  xmm2, xmm4, xmm4
-          vmovss  xmm5, dword ptr [rsp+1C0h+axis+10h]
-          vmulss  xmm0, xmm5, xmm5
-          vaddss  xmm3, xmm2, xmm0
-          vmovss  xmm6, dword ptr [rsp+1C0h+axis+14h]
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm0, xmm3, xmm1
-          vsqrtss xmm2, xmm0, xmm0
           vcmpless xmm0, xmm2, cs:__real@80000000
-          vmovss  xmm8, cs:__real@3f800000
           vblendvps xmm0, xmm2, xmm8, xmm0
-          vdivss  xmm1, xmm8, xmm0
-          vmulss  xmm9, xmm4, xmm1
-          vmovss  dword ptr [rsp+1C0h+axis+0Ch], xmm9
-          vmulss  xmm10, xmm5, xmm1
-          vmovss  dword ptr [rsp+1C0h+axis+10h], xmm10
-          vmulss  xmm11, xmm6, xmm1
-          vmovss  dword ptr [rsp+1C0h+axis+14h], xmm11
-          vmovss  xmm4, dword ptr [rsp+1C0h+axis+18h]
-          vmulss  xmm1, xmm4, xmm4
-          vmovss  xmm5, dword ptr [rsp+1C0h+axis+1Ch]
-          vmulss  xmm0, xmm5, xmm5
-          vaddss  xmm2, xmm1, xmm0
-          vmovss  xmm6, dword ptr [rsp+1C0h+axis+20h]
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm0, xmm2, xmm1
-          vsqrtss xmm3, xmm0, xmm0
+        }
+        axis.m[1].v[0] = axis.m[1].v[0] * (float)(1.0 / *(float *)&_XMM0);
+        axis.m[1].v[1] = axis.m[1].v[1] * (float)(1.0 / *(float *)&_XMM0);
+        axis.m[1].v[2] = axis.m[1].v[2] * (float)(1.0 / *(float *)&_XMM0);
+        v15 = LODWORD(axis.m[2].v[0]);
+        *(float *)&v15 = fsqrt((float)((float)(*(float *)&v15 * *(float *)&v15) + (float)(axis.m[2].v[1] * axis.m[2].v[1])) + (float)(axis.m[2].v[2] * axis.m[2].v[2]));
+        _XMM3 = v15;
+        __asm
+        {
           vcmpless xmm0, xmm3, cs:__real@80000000
           vblendvps xmm0, xmm3, xmm8, xmm0
-          vdivss  xmm1, xmm8, xmm0
-          vmulss  xmm3, xmm4, xmm1
-          vmovss  dword ptr [rsp+1C0h+axis+18h], xmm3
-          vmulss  xmm4, xmm5, xmm1
-          vmovss  dword ptr [rsp+1C0h+axis+1Ch], xmm4
-          vmulss  xmm5, xmm6, xmm1
-          vmovss  dword ptr [rsp+1C0h+axis+20h], xmm5
         }
-        v61 = modPrvCenterOffset;
-        __asm
-        {
-          vmulss  xmm0, xmm9, xmm12
-          vaddss  xmm2, xmm0, dword ptr [rcx+28h]
-          vmulss  xmm1, xmm3, xmm13
-          vaddss  xmm1, xmm2, xmm1
-          vmulss  xmm0, xmm10, xmm12
-          vaddss  xmm3, xmm0, dword ptr [rcx+2Ch]
-          vmulss  xmm2, xmm4, xmm13
-          vaddss  xmm2, xmm3, xmm2
-          vmulss  xmm0, xmm11, xmm12
-          vaddss  xmm4, xmm0, dword ptr [rcx+30h]
-          vmulss  xmm3, xmm5, xmm13
-          vaddss  xmm3, xmm4, xmm3
-        }
+        axis.m[2].v[0] = axis.m[2].v[0] * (float)(1.0 / *(float *)&_XMM0);
+        axis.m[2].v[1] = axis.m[2].v[1] * (float)(1.0 / *(float *)&_XMM0);
+        axis.m[2].v[2] = axis.m[2].v[2] * (float)(1.0 / *(float *)&_XMM0);
+        v19 = modPrvCenterOffset;
+        v20 = (float)((float)(axis.m[1].v[0] * v9) + modPrvCenterOffset->current.value) + (float)(axis.m[2].v[0] * v10);
+        v21 = (float)((float)(axis.m[1].v[1] * v9) + modPrvCenterOffset->current.vector.v[1]) + (float)(axis.m[2].v[1] * v10);
+        v22 = (float)((float)(axis.m[1].v[2] * v9) + modPrvCenterOffset->current.vector.v[2]) + (float)(axis.m[2].v[2] * v10);
 LABEL_18:
-        Dvar_SetVec3_Internal(v61, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
+        Dvar_SetVec3_Internal(v19, v20, v21, v22);
       }
     }
-    else if ( g_mdlprv.system.uiModePC == MOVE_MODE )
+    else
     {
+      if ( g_mdlprv.system.uiModePC != MOVE_MODE )
+      {
+        if ( g_mdlprv.system.uiModePC != ROTATE_MODE )
+          return;
+        if ( CL_Keys_IsKeyDown(localClientNum, 187) )
+        {
+          origin.v[0] = (float)dy * -0.1;
+          origin.v[1] = 0.0;
+          origin.v[2] = (float)dx * 0.1;
+          AnglesToAxis(&origin, &in2);
+          MatrixTranspose(&LocalClientGlobals->refdef.view.axis, &out);
+          quat = g_mdlprv.model.currentEntity.placement.placement.quat;
+          UnitQuatToAxis(&quat, &axis);
+          MatrixMultiply(&axis, &out, &in1);
+          MatrixMultiply(&in1, &in2, &v30);
+          MatrixMultiply(&v30, &LocalClientGlobals->refdef.view.axis, &axis);
+        }
+        else
+        {
+          if ( !CL_Keys_IsKeyDown(localClientNum, 188) )
+            return;
+          origin.v[0] = 0.0;
+          origin.v[1] = (float)dx * 0.30000001;
+          origin.v[2] = 0.0;
+          AnglesToAxis(&origin, &v30);
+          quat = g_mdlprv.model.currentEntity.placement.placement.quat;
+          UnitQuatToAxis(&quat, &axis);
+          MatrixMultiply(&v30, &axis, &in1);
+          AxisCopy(&in1, &axis);
+        }
+        AxisToQuat(&axis, &quat);
+        g_mdlprv.model.currentEntity.placement.placement.quat = quat;
+        AxisToAngles(&axis, &origin);
+        _XMM1 = 0i64;
+        __asm { vroundss xmm2, xmm1, xmm3, 1 }
+        v21 = (float)((float)((float)(origin.v[1] * 0.0027777778) + 0.5) - *(float *)&_XMM2) * 360.0;
+        v19 = modPrvRotationAngles;
+        v20 = origin.v[0];
+        v22 = origin.v[2];
+        origin.v[1] = v21;
+        goto LABEL_18;
+      }
       if ( CL_Keys_IsKeyDown(localClientNum, 187) )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, esi
-          vmulss  xmm2, xmm0, cs:__real@bdcccccd
-          vmulss  xmm0, xmm2, dword ptr [rbx+6950h]
-          vaddss  xmm4, xmm0, dword ptr [rcx+28h]
-          vmulss  xmm1, xmm2, dword ptr [rbx+6954h]
-          vaddss  xmm5, xmm1, dword ptr [rcx+2Ch]
-          vmulss  xmm0, xmm2, dword ptr [rbx+6958h]
-          vaddss  xmm6, xmm0, dword ptr [rcx+30h]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, r14d
-          vmulss  xmm3, xmm1, cs:__real@bdcccccd
-          vmulss  xmm0, xmm3, dword ptr [rbx+695Ch]
-          vaddss  xmm1, xmm0, xmm4; x
-          vmulss  xmm2, xmm3, dword ptr [rbx+6960h]
-          vaddss  xmm2, xmm2, xmm5; y
-          vmulss  xmm0, xmm3, dword ptr [rbx+6964h]
-          vaddss  xmm3, xmm0, xmm6; z
-        }
-        Dvar_SetVec3_Internal(modPrvOrigin, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-        __asm
-        {
-          vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin; ModelPreviewer g_mdlprv
-          vaddss  xmm1, xmm0, dword ptr [rax+28h]
-          vmovss  dword ptr [rsp+1C0h+origin], xmm1
-          vmovss  xmm2, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4; ModelPreviewer g_mdlprv
-          vaddss  xmm0, xmm2, dword ptr [rax+2Ch]
-          vmovss  dword ptr [rsp+1C0h+origin+4], xmm0
-          vmovss  xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8; ModelPreviewer g_mdlprv
-          vaddss  xmm2, xmm1, dword ptr [rax+30h]
-          vmovss  dword ptr [rsp+1C0h+origin+8], xmm2
-        }
+        v23 = (float)dx * -0.1;
+        Dvar_SetVec3_Internal(modPrvOrigin, (float)((float)((float)dy * -0.1) * LocalClientGlobals->refdef.view.axis.m[2].v[0]) + (float)((float)(v23 * LocalClientGlobals->refdef.view.axis.m[1].v[0]) + modPrvOrigin->current.value), (float)((float)((float)dy * -0.1) * LocalClientGlobals->refdef.view.axis.m[2].v[1]) + (float)((float)(v23 * LocalClientGlobals->refdef.view.axis.m[1].v[1]) + modPrvOrigin->current.vector.v[1]), (float)((float)((float)dy * -0.1) * LocalClientGlobals->refdef.view.axis.m[2].v[2]) + (float)((float)(v23 * LocalClientGlobals->refdef.view.axis.m[1].v[2]) + modPrvOrigin->current.vector.v[2]));
+        origin.v[0] = g_mdlprv.model.initialOrigin.v[0] + modPrvOrigin->current.value;
+        origin.v[1] = g_mdlprv.model.initialOrigin.v[1] + modPrvOrigin->current.vector.v[1];
+        origin.v[2] = g_mdlprv.model.initialOrigin.v[2] + modPrvOrigin->current.vector.v[2];
         GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &origin);
         memset(&origin, 0, sizeof(origin));
       }
     }
-    else if ( g_mdlprv.system.uiModePC == ROTATE_MODE )
-    {
-      if ( CL_Keys_IsKeyDown(localClientNum, 187) )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r14d
-          vmulss  xmm1, xmm0, cs:__real@bdcccccd
-          vmovss  dword ptr [rsp+1C0h+origin], xmm1
-          vxorps  xmm2, xmm2, xmm2
-          vmovss  dword ptr [rsp+1C0h+origin+4], xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, esi
-          vmulss  xmm1, xmm0, cs:__real@3dcccccd
-          vmovss  dword ptr [rsp+1C0h+origin+8], xmm1
-        }
-        AnglesToAxis(&origin, &in2);
-        MatrixTranspose(&LocalClientGlobals->refdef.view.axis, &out);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat; ModelPreviewer g_mdlprv
-          vmovups xmmword ptr [rsp+1C0h+quat], xmm0
-        }
-        UnitQuatToAxis(&quat, &axis);
-        MatrixMultiply(&axis, &out, &in1);
-        MatrixMultiply(&in1, &in2, &v132);
-        MatrixMultiply(&v132, &LocalClientGlobals->refdef.view.axis, &axis);
-      }
-      else
-      {
-        if ( !CL_Keys_IsKeyDown(localClientNum, 188) )
-          goto LABEL_19;
-        __asm
-        {
-          vxorps  xmm2, xmm2, xmm2
-          vmovss  dword ptr [rsp+1C0h+origin], xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, esi
-          vmulss  xmm1, xmm0, cs:__real@3e99999a
-          vmovss  dword ptr [rsp+1C0h+origin+4], xmm1
-          vmovss  dword ptr [rsp+1C0h+origin+8], xmm2
-        }
-        AnglesToAxis(&origin, &v132);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat; ModelPreviewer g_mdlprv
-          vmovups xmmword ptr [rsp+1C0h+quat], xmm0
-        }
-        UnitQuatToAxis(&quat, &axis);
-        MatrixMultiply(&v132, &axis, &in1);
-        AxisCopy(&in1, &axis);
-      }
-      AxisToQuat(&axis, &quat);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+1C0h+quat]
-        vmovups xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat, xmm0; ModelPreviewer g_mdlprv
-      }
-      AxisToAngles(&axis, &origin);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+1C0h+origin+4]
-        vmulss  xmm1, xmm0, cs:__real@3b360b61
-        vaddss  xmm5, xmm1, cs:__real@3f000000
-        vaddss  xmm3, xmm5, cs:__real@3f000000
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm2, xmm1, xmm3, 1
-        vsubss  xmm0, xmm5, xmm2
-        vmulss  xmm2, xmm0, cs:__real@43b40000; y
-      }
-      v61 = modPrvRotationAngles;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsp+1C0h+origin]; x
-        vmovss  xmm3, dword ptr [rsp+1C0h+origin+8]; z
-        vmovss  dword ptr [rsp+1C0h+origin+4], xmm2
-      }
-      goto LABEL_18;
-    }
-  }
-LABEL_19:
-  _R11 = &v135;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
   }
 }
 
@@ -2808,9 +2140,8 @@ void CG_ModelPreviewerPauseAnim(void)
 {
   if ( g_mdlprv.model.currentObj && (g_mdlprv.anim.fromCurrentIndex >= 0 || g_mdlprv.anim.toCurrentIndex >= 0) )
   {
-    __asm { vmovss  xmm0, cs:__real@7f7fffff }
     g_mdlprv.anim.isAnimPlaying = !g_mdlprv.anim.isAnimPlaying;
-    __asm { vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.anim.stepCounter, xmm0; ModelPreviewer g_mdlprv }
+    g_mdlprv.anim.stepCounter = FLOAT_3_4028235e38;
   }
 }
 
@@ -2820,19 +2151,17 @@ CG_ModelPreviewerStepAnim
 ==============
 */
 
-void __fastcall CG_ModelPreviewerStepAnim(double deltaTime, double _XMM1_8)
+void __fastcall CG_ModelPreviewerStepAnim(double deltaTime)
 {
-  __asm { vmovaps xmm3, xmm0 }
+  _XMM3 = *(_OWORD *)&deltaTime;
   if ( g_mdlprv.model.currentObj && (g_mdlprv.anim.fromCurrentIndex >= 0 || g_mdlprv.anim.toCurrentIndex >= 0) )
   {
     __asm
     {
-      vmovss  xmm0, cs:__real@3d088889
-      vxorps  xmm1, xmm1, xmm1
       vcmpltss xmm2, xmm3, xmm1
       vblendvps xmm0, xmm3, xmm0, xmm2
-      vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.anim.stepCounter, xmm0; ModelPreviewer g_mdlprv
     }
+    g_mdlprv.anim.stepCounter = *(float *)&_XMM0;
     g_mdlprv.anim.isAnimPlaying = 1;
   }
 }
@@ -2844,45 +2173,17 @@ CG_ModelPreviewerUpdateView
 */
 void CG_ModelPreviewerUpdateView(vec3_t *outViewOrigin, tmat33_t<vec3_t> *outViewAxis, vec3_t *outViewAngles, float *zNear)
 {
-  _RBX = outViewAngles;
-  _RDI = outViewOrigin;
   if ( g_mdlprv.system.uiModeGPad )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin; ModelPreviewer g_mdlprv
-      vmovss  dword ptr [rcx], xmm0
-      vmovss  xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+4; ModelPreviewer g_mdlprv
-      vmovss  dword ptr [rcx+4], xmm1
-      vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+8; ModelPreviewer g_mdlprv
-      vmovss  dword ptr [rcx+8], xmm0
-      vmovss  xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles; ModelPreviewer g_mdlprv
-      vmovss  dword ptr [r8], xmm1
-      vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles+4; ModelPreviewer g_mdlprv
-      vmovss  dword ptr [r8+4], xmm0
-      vmovss  xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles+8; ModelPreviewer g_mdlprv
-      vmovss  dword ptr [r8+8], xmm1
-    }
+    *outViewOrigin = g_mdlprv.viewer.freeModeOrigin;
+    *outViewAngles = g_mdlprv.viewer.freeModeAngles;
     AnglesToAxis(outViewAngles, outViewAxis);
   }
   else
   {
     MdlPrvUpdateViewFocused(outViewOrigin, outViewAxis, outViewAngles, zNear);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin, xmm0; ModelPreviewer g_mdlprv
-      vmovss  xmm1, dword ptr [rdi+4]
-      vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+4, xmm1; ModelPreviewer g_mdlprv
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+8, xmm0; ModelPreviewer g_mdlprv
-      vmovss  xmm1, dword ptr [rbx]
-      vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles, xmm1; ModelPreviewer g_mdlprv
-      vmovss  xmm0, dword ptr [rbx+4]
-      vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles+4, xmm0; ModelPreviewer g_mdlprv
-      vmovss  xmm1, dword ptr [rbx+8]
-      vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles+8, xmm1; ModelPreviewer g_mdlprv
-    }
+    g_mdlprv.viewer.freeModeOrigin = *outViewOrigin;
+    g_mdlprv.viewer.freeModeAngles = *outViewAngles;
   }
 }
 
@@ -2892,45 +2193,34 @@ CG_ModelPreviewerZoomCamera
 ==============
 */
 
-void __fastcall CG_ModelPreviewerZoomCamera(double dx, double dy)
+void __fastcall CG_ModelPreviewerZoomCamera(double dx, float dy)
 {
-  char v2; 
+  __int128 centerRadius_low; 
+  __int128 v9; 
 
+  _XMM2 = *(_OWORD *)&dx & _xmm;
   __asm
   {
-    vandps  xmm4, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vandps  xmm2, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm5, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius; ModelPreviewer g_mdlprv
     vcmpltss xmm4, xmm2, xmm4
     vblendvps xmm2, xmm0, xmm1, xmm4
-    vmulss  xmm0, xmm5, cs:__real@3b83126f
-    vminss  xmm1, xmm0, cs:__real@40a00000
-    vmulss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vmulss  xmm3, xmm2, cs:__real@be99999a
-    vaddss  xmm4, xmm5, xmm3
+  }
+  centerRadius_low = LODWORD(g_mdlprv.viewer.centerRadius);
+  *(float *)&centerRadius_low = g_mdlprv.viewer.centerRadius * 0.0040000002;
+  _XMM0 = centerRadius_low;
+  __asm { vminss  xmm1, xmm0, cs:__real@40a00000 }
+  v9 = LODWORD(g_mdlprv.viewer.centerRadius);
+  *(float *)&v9 = g_mdlprv.viewer.centerRadius + (float)((float)(*(float *)&_XMM2 * *(float *)&_XMM1) * -0.30000001);
+  _XMM4 = v9;
+  __asm
+  {
     vcmpltss xmm0, xmm4, xmm1
     vblendvps xmm1, xmm4, xmm1, xmm0
-    vcomiss xmm1, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.zNearChangeLimit; ModelPreviewer g_mdlprv
-    vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius, xmm1; ModelPreviewer g_mdlprv
   }
-  if ( v2 )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3c23d70a
-      vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.zNear, xmm0; ModelPreviewer g_mdlprv
-    }
-  }
+  g_mdlprv.viewer.centerRadius = *(float *)&_XMM1;
+  if ( *(float *)&_XMM1 >= g_mdlprv.viewer.zNearChangeLimit )
+    g_mdlprv.viewer.zNear = r_zPlanes->current.vector.v[2];
   else
-  {
-    _RAX = r_zPlanes;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+30h]
-      vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.zNear, xmm0; ModelPreviewer g_mdlprv
-    }
-  }
+    g_mdlprv.viewer.zNear = FLOAT_0_0099999998;
 }
 
 /*
@@ -2958,28 +2248,14 @@ void CG_ModelPreviewer_RegisterCommonDvars(void)
 CG_ModelPreviewer_RegisterDvars
 ==============
 */
-
-const dvar_t *__fastcall CG_ModelPreviewer_RegisterDvars(__int64 a1, double _XMM1_8, double _XMM2_8, double _XMM3_8)
+const dvar_t *CG_ModelPreviewer_RegisterDvars()
 {
-  int v6; 
+  int v0; 
   __int64 i; 
-  const dvar_t *v13; 
-  int v22; 
+  int v2; 
   __int64 j; 
-  const dvar_t *v34; 
   const dvar_t *result; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float max; 
-  float maxa; 
-  float maxb; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps [rsp+78h+var_38], xmm7
-  }
   g_mdlprv.model.mruNames[0] = Dvar_FindVarByName("modPrvModelMruName0");
   g_mdlprv.model.mruNames[1] = Dvar_FindVarByName("modPrvModelMruName1");
   g_mdlprv.model.mruNames[2] = Dvar_FindVarByName("modPrvModelMruName2");
@@ -2988,69 +2264,37 @@ const dvar_t *__fastcall CG_ModelPreviewer_RegisterDvars(__int64 a1, double _XMM
   g_mdlprv.anim.mruNames[1] = Dvar_FindVarByName("modPrvAnimMruName1");
   g_mdlprv.anim.mruNames[2] = Dvar_FindVarByName("modPrvAnimMruName2");
   g_mdlprv.anim.mruNames[3] = Dvar_FindVarByName("modPrvAnimMruName3");
-  v6 = 0;
+  v0 = 0;
   for ( i = 0i64; i < 4; ++i )
   {
     if ( !g_mdlprv.model.mruNames[i] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 395, ASSERT_TYPE_ASSERT, "(mruDvars[dvarIndex])", (const char *)&queryFormat, "mruDvars[dvarIndex]") )
       __debugbreak();
     if ( i && !*(_BYTE *)g_mdlprv.model.mruNames[i]->current.integer64 )
       break;
-    ++v6;
+    ++v0;
     g_mdlprv.model.mruNameTable[i] = g_mdlprv.model.mruNames[i]->current.string;
   }
-  g_mdlprv.model.mruNameTable[v6] = NULL;
+  g_mdlprv.model.mruNameTable[v0] = NULL;
   modPrvModelMru = Dvar_RegisterEnum("modPrvModelMru", g_mdlprv.model.mruNameTable, 0, 0x2020u, "Model previewer most recently used model");
   modPrvLoadModel = Dvar_RegisterEnum("modPrvLoadModel", g_mdlprv.system.modelNames, 0, 0x20u, "Model previewer loaded model");
   Dvar_UpdateEnumDomain(modPrvLoadModel, g_mdlprv.system.modelNames);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@447a0000
-    vmovss  xmm6, cs:__real@c47a0000
-    vmovss  [rsp+78h+max], xmm7
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  dword ptr [rsp+78h+fmt], xmm6
-  }
-  v13 = Dvar_RegisterVec3("modPrvOrigin", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, max, 0, "Model previewer origin");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@c3340000
-    vmovss  xmm0, cs:__real@43340000
-  }
-  modPrvOrigin = v13;
-  __asm
-  {
-    vmovss  [rsp+78h+max], xmm0
-    vmovss  dword ptr [rsp+78h+fmt], xmm1
-    vxorps  xmm1, xmm1, xmm1; x
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-  }
-  modPrvRotationAngles = Dvar_RegisterVec3("modPrvRotationAngles", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, maxa, 0, "Model previwer rotation angles");
-  __asm
-  {
-    vmovss  [rsp+78h+max], xmm7
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  dword ptr [rsp+78h+fmt], xmm6
-  }
-  modPrvCenterOffset = Dvar_RegisterVec3("modPrvCenterOffset", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, maxb, 0, "Model previewer center offset");
+  modPrvOrigin = Dvar_RegisterVec3("modPrvOrigin", 0.0, 0.0, 0.0, -1000.0, 1000.0, 0, "Model previewer origin");
+  modPrvRotationAngles = Dvar_RegisterVec3("modPrvRotationAngles", 0.0, 0.0, 0.0, -180.0, 180.0, 0, "Model previwer rotation angles");
+  modPrvCenterOffset = Dvar_RegisterVec3("modPrvCenterOffset", 0.0, 0.0, 0.0, -1000.0, 1000.0, 0, "Model previewer center offset");
   modPrvLod = Dvar_RegisterEnum("modPrvLod", modPrvLodNames, 0, 0, "Model previewer level of detail");
   modPrvDrawAxis = Dvar_RegisterBool("modPrvDrawAxis", 0, 0, "Draw the model previewer axes");
   modPrvDrawBoneInfo = Dvar_RegisterEnum("modPrvDrawBoneInfo", g_mdlprv.model.boneNameTable, 0, 0, "Draw model previewer bone information");
-  v22 = 0;
+  v2 = 0;
   for ( j = 0i64; j < 4; ++j )
   {
     if ( !g_mdlprv.anim.mruNames[j] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 395, ASSERT_TYPE_ASSERT, "(mruDvars[dvarIndex])", (const char *)&queryFormat, "mruDvars[dvarIndex]") )
       __debugbreak();
     if ( j && !*(_BYTE *)g_mdlprv.anim.mruNames[j]->current.integer64 )
       break;
-    ++v22;
+    ++v2;
     g_mdlprv.anim.mruNameTable[j] = g_mdlprv.anim.mruNames[j]->current.string;
   }
-  g_mdlprv.anim.mruNameTable[v22] = NULL;
+  g_mdlprv.anim.mruNameTable[v2] = NULL;
   modPrvFromAnimMru = Dvar_RegisterEnum("modPrvFromAnimMru", g_mdlprv.anim.mruNameTable, 0, 0x2020u, "Model previewer most recently used 'from' animation");
   Dvar_UpdateEnumDomain(modPrvFromAnimMru, g_mdlprv.anim.mruNameTable);
   modPrvToAnimMru = Dvar_RegisterEnum("modPrvToAnimMru", g_mdlprv.anim.mruNameTable, 0, 0x2020u, "Model previewer most recently used 'to' animation");
@@ -3059,64 +2303,21 @@ const dvar_t *__fastcall CG_ModelPreviewer_RegisterDvars(__int64 a1, double _XMM
   Dvar_UpdateEnumDomain(modPrvLoadFromAnim, g_mdlprv.system.animNames);
   modPrvLoadToAnim = Dvar_RegisterEnum("modPrvLoadToAnim", g_mdlprv.system.animNames, 0, 0x20u, "Model previewer loaded 'to' animation");
   Dvar_UpdateEnumDomain(modPrvLoadToAnim, g_mdlprv.system.animNames);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovss  xmm3, cs:__real@40000000; max
-    vmovss  xmm2, cs:__real@3dcccccd; min
-  }
   modPrvAnimForceLoop = Dvar_RegisterBool("modPrvAnimForceLoop", 0, 0, "Model Previewer - Force an animation loop");
-  __asm { vmovaps xmm1, xmm7; value }
-  modPrvAnimRate = Dvar_RegisterFloat("modPrvAnimRate", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Model previewer - animation rate");
-  __asm { vmovss  xmm1, cs:__real@3f7d70a4; value }
+  modPrvAnimRate = Dvar_RegisterFloat("modPrvAnimRate", 1.0, 0.1, 2.0, 0, "Model previewer - animation rate");
   modPrvAnimBlendMode = Dvar_RegisterEnum("modPrvAnimBlendMode", modPrvAnimBlendModeNames, 0, 0, "Model previewer animation blending mode");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  modPrvAnimCrossBlendTime = Dvar_RegisterFloat("modPrvAnimCrossBlendTime", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Model previewer animation cross blending time");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40a00000; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v34 = Dvar_RegisterFloat("modPrvAnimCrossBlendDuration", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Model previewer animation cross blend duration");
-  __asm { vmovss  xmm1, cs:__real@3f000000; value }
-  modPrvAnimCrossBlendDuration = v34;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  modPrvAnimBlendWeight = Dvar_RegisterFloat("modPrvAnimBlendWeight", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Model previewer animation blend weight");
+  modPrvAnimCrossBlendTime = Dvar_RegisterFloat("modPrvAnimCrossBlendTime", 0.99000001, 0.0, 1.0, 0, "Model previewer animation cross blending time");
+  modPrvAnimCrossBlendDuration = Dvar_RegisterFloat("modPrvAnimCrossBlendDuration", 0.0, 0.0, 5.0, 0, "Model previewer animation cross blend duration");
+  modPrvAnimBlendWeight = Dvar_RegisterFloat("modPrvAnimBlendWeight", 0.5, 0.0, 1.0, 0, "Model previewer animation blend weight");
   modPrvAnimApplyDelta = Dvar_RegisterBool("modPrvAnimApplyDelta", 1, 0, "Model previewer animation apply delta");
   g_mdlprv.mat.nameTable[1] = NULL;
   g_mdlprv.mat.nameTable[0] = "<None>";
   modPrvMatSelect = Dvar_RegisterEnum("modPrvMatSelect", g_mdlprv.mat.nameTable, 0, 0x2020u, "Model previewer material select");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm2, cs:__real@3dcccccd; min
-  }
   modPrvMatReplace = Dvar_RegisterEnum("modPrvMatReplace", g_mdlprv.mat.nameTable, 0, 0x2020u, "Model previewer material replace");
-  __asm { vmovaps xmm1, xmm7; value }
-  modPrvGamepadControlSpeed = Dvar_RegisterFloat("modPrvGamepadControlSpeed", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Model previewer game pad control speed");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm7; value
-  }
-  modPrvRStickDeflectMax = Dvar_RegisterFloat("NOPKLKMSRM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Maximum right stick deflection");
+  modPrvGamepadControlSpeed = Dvar_RegisterFloat("modPrvGamepadControlSpeed", 1.0, 0.1, 10.0, 0, "Model previewer game pad control speed");
+  modPrvRStickDeflectMax = Dvar_RegisterFloat("NOPKLKMSRM", 1.0, 0.0, 1.0, 4u, "Maximum right stick deflection");
   modPrvHideModel = Dvar_RegisterBool("modPrvHideModel", 0, 4u, "Skip drawing the model.");
   result = Dvar_RegisterBool("modPrvDrawDistanceToModel", 1, 4u, "Print viewer's distance to model.");
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_28]
-    vmovaps xmm7, [rsp+78h+var_38]
-  }
   modPrvDrawDistanceToModel = result;
   return result;
 }
@@ -3126,44 +2327,31 @@ const dvar_t *__fastcall CG_ModelPreviewer_RegisterDvars(__int64 a1, double _XMM
 FrameModel
 ==============
 */
-
-void __fastcall FrameModel(__int64 a1, double _XMM1_8, double _XMM2_8)
+void FrameModel()
 {
+  const XModel *Model; 
+  float v1; 
+  float v2; 
+  __int128 v3; 
+  __int128 v5; 
+
+  Model = DObjGetModel(g_mdlprv.model.currentObj, 0);
+  v1 = Model->bounds.halfSize.v[2];
+  v2 = Model->bounds.halfSize.v[0];
+  v3 = LODWORD(Model->bounds.halfSize.v[1]);
+  Dvar_SetVec3_Internal(modPrvCenterOffset, 0.0, 0.0, v1);
+  _XMM4 = LODWORD(g_mdlprv.viewer.centerRadius);
+  v5 = v3;
+  *(float *)&v5 = fsqrt((float)((float)(*(float *)&v3 * *(float *)&v3) + (float)(v2 * v2)) + (float)(v1 * v1));
+  _XMM0 = v5;
   __asm
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-  }
-  _RAX = DObjGetModel(g_mdlprv.model.currentObj, 0);
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  xmm8, dword ptr [rax+40h]
-    vmovss  xmm7, dword ptr [rax+38h]
-    vmovss  xmm6, dword ptr [rax+3Ch]
-    vmovaps xmm3, xmm8; z
-  }
-  Dvar_SetVec3_Internal(modPrvCenterOffset, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  xmm4, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius; ModelPreviewer g_mdlprv
-    vmulss  xmm1, xmm6, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmulss  xmm0, xmm7, xmm7
-    vmovaps xmm7, [rsp+58h+var_28]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vmovaps xmm8, [rsp+58h+var_38]
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
     vmaxss  xmm3, xmm0, cs:__real@41200000
     vcmpltss xmm0, xmm4, xmm3
     vblendvps xmm0, xmm4, xmm3, xmm0
-    vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius, xmm0; ModelPreviewer g_mdlprv
-    vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.zNearChangeLimit, xmm4; ModelPreviewer g_mdlprv
   }
+  g_mdlprv.viewer.centerRadius = *(float *)&_XMM0;
+  g_mdlprv.viewer.zNearChangeLimit = *(float *)&_XMM4;
 }
 
 /*
@@ -3196,57 +2384,49 @@ void MdlPrvCloneClearAll()
 MdlPrvCloneModel
 ==============
 */
-
-void __fastcall MdlPrvCloneModel(const cg_t *cgGlob, __int64 a2, double _XMM2_8)
+void MdlPrvCloneModel(const cg_t *cgGlob)
 {
-  MdlPrvClone *v4; 
+  MdlPrvClone *v2; 
   DObj *obj; 
-  int v10; 
-  vec3_t v11; 
+  int v4; 
+  vec3_t v5; 
   vec3_t origin; 
   vec3_t outOrigin; 
-  __int64 v14; 
+  __int64 v8; 
   vec3_t right; 
   vec3_t up; 
   vec3_t forward; 
 
-  v14 = -2i64;
+  v8 = -2i64;
   if ( g_mdlprv.model.cloneNextIdx >= 0xAu && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 3849, ASSERT_TYPE_ASSERT, "(g_mdlprv.model.cloneNextIdx < CLONES_COUNT)", (const char *)&queryFormat, "g_mdlprv.model.cloneNextIdx < CLONES_COUNT") )
     __debugbreak();
-  v4 = &g_mdlprv.model.clones[g_mdlprv.model.cloneNextIdx];
-  obj = v4->obj;
+  v2 = &g_mdlprv.model.clones[g_mdlprv.model.cloneNextIdx];
+  obj = v2->obj;
   if ( obj )
   {
     DObjFree(obj);
-    v4->obj = NULL;
+    v2->obj = NULL;
   }
   DObjGetTree(g_mdlprv.model.currentObj);
-  DObjClone(g_mdlprv.model.currentObj, v4->objBuf);
-  v4->obj = (DObj *)v4->objBuf;
-  DObjSetTree((DObj *)v4->objBuf, NULL);
+  DObjClone(g_mdlprv.model.currentObj, v2->objBuf);
+  v2->obj = (DObj *)v2->objBuf;
+  DObjSetTree((DObj *)v2->objBuf, NULL);
   GfxSceneEntity_GetLightingOrigin(&g_mdlprv.model.currentEntity, &outOrigin);
   GfxSceneEntity_GetPlacementOrigin(&g_mdlprv.model.currentEntity, &origin);
-  GfxSceneEntity_GetPrevPlacementOrigin(&g_mdlprv.model.currentEntity, &v11);
-  memcpy_0(v4, &g_mdlprv.model.currentEntity, 0x590ui64);
-  GfxSceneEntity_SetLightingOrigin(&v4->ent, &outOrigin);
-  GfxSceneEntity_SetPlacementOrigin(&v4->ent, &origin);
-  GfxSceneEntity_SetPrevPlacementOrigin(&v4->ent, &v11);
-  memset(&v11, 0, sizeof(v11));
+  GfxSceneEntity_GetPrevPlacementOrigin(&g_mdlprv.model.currentEntity, &v5);
+  memcpy_0(v2, &g_mdlprv.model.currentEntity, 0x590ui64);
+  GfxSceneEntity_SetLightingOrigin(&v2->ent, &outOrigin);
+  GfxSceneEntity_SetPlacementOrigin(&v2->ent, &origin);
+  GfxSceneEntity_SetPrevPlacementOrigin(&v2->ent, &v5);
+  memset(&v5, 0, sizeof(v5));
   memset(&origin, 0, sizeof(origin));
   memset(&outOrigin, 0, sizeof(outOrigin));
   AngleVectors(&cgGlob->refdefViewAngles, &forward, &right, &up);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41800000
-    vmulss  xmm1, xmm3, dword ptr [rsp+0A8h+right+4]; dy
-    vmulss  xmm0, xmm3, dword ptr [rsp+0A8h+right]; dx
-    vxorps  xmm2, xmm2, xmm2; dz
-  }
-  MdlPrvModelOriginOffset(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  v10 = g_mdlprv.model.cloneNextIdx + 1;
+  MdlPrvModelOriginOffset(16.0 * right.v[0], 16.0 * right.v[1], 0.0);
+  v4 = g_mdlprv.model.cloneNextIdx + 1;
   if ( (unsigned int)(g_mdlprv.model.cloneNextIdx + 1) >= 0xA )
-    v10 = 0;
-  g_mdlprv.model.cloneNextIdx = v10;
+    v4 = 0;
+  g_mdlprv.model.cloneNextIdx = v4;
 }
 
 /*
@@ -3254,189 +2434,119 @@ void __fastcall MdlPrvCloneModel(const cg_t *cgGlob, __int64 a2, double _XMM2_8)
 MdlPrvControlsGamepad
 ==============
 */
-
-void __fastcall MdlPrvControlsGamepad(LocalClientNum_t localClientNum, double forward, double side, double pitch)
+void MdlPrvControlsGamepad(LocalClientNum_t localClientNum, float forward, float side, float pitch, float yaw)
 {
-  __int64 v16; 
-  int v18; 
-  __int64 v55; 
-  unsigned __int64 v56; 
-  int v57; 
+  __int64 v7; 
+  cg_t *LocalClientGlobals; 
+  int v9; 
+  __int128 v10; 
+  __int64 v15; 
+  unsigned __int64 v16; 
+  int v17; 
   int cmdsize; 
-  int v59; 
-  __int64 v60; 
+  int v19; 
+  __int64 v20; 
   MdlPrvFreeSpeed freeModeSpeed; 
-  __int32 v62; 
-  __int64 v222; 
-  __int64 v223; 
-  __int64 v227; 
-  Bounds *bounds; 
-  double skipEntity; 
-  double skipChildren; 
+  __int32 v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v30; 
+  float v31; 
+  __int128 v32; 
+  __int128 v36; 
+  const XModel *Model; 
+  float v41; 
+  __int128 v42; 
+  __int128 v46; 
+  double v50; 
+  float v51; 
   vec3_t end; 
   vec3_t outOrigin; 
-  Bounds v252; 
+  Bounds bounds; 
   vec3_t up; 
   tmat33_t<vec3_t> axis; 
   trace_t results; 
   char dest[256]; 
-  char v257; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmm12, xmm3
-    vmovaps xmm10, xmm2
-    vmovaps xmm7, xmm1
-  }
-  v16 = localClientNum;
+  v7 = localClientNum;
   if ( DevGui_IsActive() )
-    goto LABEL_73;
-  _R14 = CG_GetLocalClientGlobals((const LocalClientNum_t)v16);
-  v18 = Sys_Milliseconds();
-  __asm
+    return;
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+  v9 = Sys_Milliseconds();
+  v10 = 0i64;
+  *(float *)&v10 = (float)LocalClientGlobals->frametime * 0.001;
+  _XMM2 = v10;
+  __asm { vcmpneqss xmm1, xmm2, xmm11 }
+  _XMM0 = LODWORD(FLOAT_0_015);
+  __asm { vblendvps xmm1, xmm0, xmm2, xmm1 }
+  v51 = *(float *)&_XMM1;
+  if ( LocalClientGlobals->predictedPlayerState.pm_type != 4 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [r14+65E4h]
-    vmulss  xmm2, xmm0, cs:__real@3a83126f
-    vxorps  xmm11, xmm11, xmm11
-    vcmpneqss xmm1, xmm2, xmm11
-    vmovss  xmm0, cs:__real@3c75c28f
-    vblendvps xmm1, xmm0, xmm2, xmm1
-    vmovss  dword ptr [rsp+2E0h+var_280], xmm1
-  }
-  if ( _R14->predictedPlayerState.pm_type != 4 )
-  {
-    if ( g_mdlprv.system.walkaboutActive && CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[3].id) && v18 - g_mdlprv.system.buttonTimes.walkabout > 250 )
+    if ( g_mdlprv.system.walkaboutActive && CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[3].id) && v9 - g_mdlprv.system.buttonTimes.walkabout > 250 )
     {
-      g_mdlprv.system.buttonTimes.walkabout = v18;
-      RefdefView_GetOrg(&_R14->refdef.view, &g_mdlprv.viewer.freeModeOrigin);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+178C0h]
-        vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles, xmm0; ModelPreviewer g_mdlprv
-        vmovss  xmm1, dword ptr [r14+178C4h]
-        vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles+4, xmm1; ModelPreviewer g_mdlprv
-        vmovss  xmm0, dword ptr [r14+178C8h]
-        vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles+8, xmm0; ModelPreviewer g_mdlprv
-      }
+      g_mdlprv.system.buttonTimes.walkabout = v9;
+      RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &g_mdlprv.viewer.freeModeOrigin);
+      g_mdlprv.viewer.freeModeAngles = LocalClientGlobals->refdefViewAngles;
       g_mdlprv.system.walkaboutActive = 0;
-      SetViewerActive((LocalClientNum_t)v16, 1);
+      SetViewerActive((LocalClientNum_t)v7, 1);
     }
-    goto LABEL_73;
+    return;
   }
-  if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[0].id) && v18 - g_mdlprv.system.buttonTimes.mode > 500 )
+  if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[0].id) && v9 - g_mdlprv.system.buttonTimes.mode > 500 )
   {
-    g_mdlprv.system.buttonTimes.mode = v18;
+    g_mdlprv.system.buttonTimes.mode = v9;
     g_mdlprv.system.uiModeGPad = g_mdlprv.system.uiModeGPad != MDLPRVMODE_FREE;
-    goto LABEL_73;
+    return;
   }
-  if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[1].id) && v18 - g_mdlprv.system.buttonTimes.dropToFloor > 250 )
+  if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[1].id) && v9 - g_mdlprv.system.buttonTimes.dropToFloor > 250 )
   {
-    g_mdlprv.system.buttonTimes.dropToFloor = v18;
-    _RAX = DObjGetModel(g_mdlprv.model.currentObj, 0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+38h]
-      vmovss  dword ptr [rbp+1E0h+var_250.halfSize], xmm0
-      vmovss  xmm1, dword ptr [rax+3Ch]
-      vmovss  dword ptr [rbp+1E0h+var_250.halfSize+4], xmm1
-      vmovss  xmm0, dword ptr [rax+40h]
-      vmovss  dword ptr [rbp+1E0h+var_250.halfSize+8], xmm0
-      vmovss  xmm1, dword ptr [rax+2Ch]
-      vmovss  dword ptr [rbp+1E0h+var_250.midPoint], xmm1
-      vmovss  xmm0, dword ptr [rax+30h]
-      vmovss  dword ptr [rbp+1E0h+var_250.midPoint+4], xmm0
-      vmovss  xmm1, dword ptr [rax+34h]
-      vmovss  dword ptr [rbp+1E0h+var_250.midPoint+8], xmm1
-    }
+    g_mdlprv.system.buttonTimes.dropToFloor = v9;
+    bounds = DObjGetModel(g_mdlprv.model.currentObj, 0)->bounds;
     GfxSceneEntity_GetPlacementOrigin(&g_mdlprv.model.currentEntity, &outOrigin);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+1E0h+var_250.midPoint+8]
-      vsubss  xmm1, xmm0, dword ptr [rbp+1E0h+var_250.halfSize+8]
-      vmovss  xmm6, cs:__real@40a00000
-      vsubss  xmm2, xmm1, xmm6
-      vmovss  xmm0, dword ptr [rbp+1E0h+outOrigin+8]
-      vsubss  xmm1, xmm0, xmm2
-      vmovss  dword ptr [rbp+1E0h+outOrigin+8], xmm1
-    }
+    outOrigin.v[2] = outOrigin.v[2] - (float)((float)(bounds.midPoint.v[2] - bounds.halfSize.v[2]) - 5.0);
     GfxSceneEntity_GetPlacementOrigin(&g_mdlprv.model.currentEntity, &end);
-    __asm
-    {
-      vmovss  xmm7, cs:__real@c53b8000
-      vaddss  xmm1, xmm7, dword ptr [rsp+2E0h+end+8]
-      vmovss  dword ptr [rsp+2E0h+end+8], xmm1
-      vmovups xmm2, cs:__xmm@40a00000000000000000000000000000
-      vmovups xmmword ptr [rbp+1E0h+var_250.midPoint], xmm2
-      vmovss  dword ptr [rbp+1E0h+var_250.halfSize+4], xmm6
-      vmovss  dword ptr [rbp+1E0h+var_250.halfSize+8], xmm6
-    }
-    PhysicsQuery_LegacyTrace((Physics_WorldId)(3 * v16 + 2), &results, &outOrigin, &end, &v252, -1, 0, 1, 0, NULL, All);
-    if ( !results.allsolid )
-    {
-      __asm
-      {
-        vmovss  xmm0, [rbp+1E0h+results.fraction]
-        vucomiss xmm0, cs:__real@3f800000
-      }
-    }
-    goto LABEL_73;
+    end.v[2] = end.v[2] + -3000.0;
+    *(_OWORD *)bounds.midPoint.v = _xmm;
+    bounds.halfSize.v[1] = FLOAT_5_0;
+    bounds.halfSize.v[2] = FLOAT_5_0;
+    PhysicsQuery_LegacyTrace((Physics_WorldId)(3 * v7 + 2), &results, &outOrigin, &end, &bounds, -1, 0, 1, 0, NULL, All);
+    if ( !results.allsolid && results.fraction != 1.0 )
+      MdlPrvModelOriginOffset(0.0, 0.0, results.fraction * -3000.0);
+    return;
   }
-  if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[2].id) && v18 - g_mdlprv.system.buttonTimes.walkabout > 250 )
+  if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[2].id) && v9 - g_mdlprv.system.buttonTimes.walkabout > 250 )
   {
-    g_mdlprv.system.buttonTimes.walkabout = v18;
+    g_mdlprv.system.buttonTimes.walkabout = v9;
     g_mdlprv.system.walkaboutActive = 1;
-    SetViewerActive((LocalClientNum_t)v16, 0);
-    RefdefView_GetOrg(&_R14->refdef.view, &end);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14+178C4h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm1, dword ptr [rsp+2E0h+end+8]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovss  xmm2, dword ptr [rsp+2E0h+end+4]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovss  xmm3, dword ptr [rsp+2E0h+end]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovsd  [rsp+2E0h+skipChildren], xmm0
-      vmovsd  qword ptr [rsp+2E0h+skipEntity], xmm1
-      vmovsd  [rsp+2E0h+bounds], xmm2
-      vmovq   r9, xmm3
-    }
-    Com_sprintf(dest, 0x100ui64, "setviewpos %f %f %f %f\n", *(double *)&_XMM3, *(double *)&bounds, skipEntity, skipChildren);
-    v55 = v16;
+    SetViewerActive((LocalClientNum_t)v7, 0);
+    RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &end);
+    Com_sprintf(dest, 0x100ui64, "setviewpos %f %f %f %f\n", end.v[0], end.v[1], end.v[2], LocalClientGlobals->refdefViewAngles.v[1]);
+    v15 = v7;
     Sys_EnterCriticalSection(CRITSECT_CBUF);
-    v56 = -1i64;
+    v16 = -1i64;
     do
-      ++v56;
-    while ( dest[v56] );
-    v57 = truncate_cast<int,unsigned __int64>(v56) + 1;
-    cmdsize = s_cmd_textArray[v55].cmdsize;
-    if ( cmdsize + v57 <= s_cmd_textArray[v55].maxsize )
+      ++v16;
+    while ( dest[v16] );
+    v17 = truncate_cast<int,unsigned __int64>(v16) + 1;
+    cmdsize = s_cmd_textArray[v15].cmdsize;
+    if ( cmdsize + v17 <= s_cmd_textArray[v15].maxsize )
     {
-      v59 = cmdsize - 1;
-      v60 = cmdsize - 1;
-      if ( v59 >= 0 )
+      v19 = cmdsize - 1;
+      v20 = cmdsize - 1;
+      if ( v19 >= 0 )
       {
         do
         {
-          s_cmd_textArray[v55].data[v60 + v57] = s_cmd_textArray[v55].data[v60];
-          --v60;
+          s_cmd_textArray[v15].data[v20 + v17] = s_cmd_textArray[v15].data[v20];
+          --v20;
         }
-        while ( v60 >= 0 );
+        while ( v20 >= 0 );
       }
-      memcpy_0(s_cmd_textArray[v55].data, dest, v57 - 1);
-      s_cmd_textArray[v55].data[v57 - 1] = 10;
-      s_cmd_textArray[v55].cmdsize += v57;
+      memcpy_0(s_cmd_textArray[v15].data, dest, v17 - 1);
+      s_cmd_textArray[v15].data[v17 - 1] = 10;
+      s_cmd_textArray[v15].cmdsize += v17;
     }
     else
     {
@@ -3444,13 +2554,13 @@ void __fastcall MdlPrvControlsGamepad(LocalClientNum_t localClientNum, double fo
     }
     Sys_LeaveCriticalSection(CRITSECT_CBUF);
     memset(&end, 0, sizeof(end));
-    goto LABEL_73;
+    return;
   }
   if ( g_mdlprv.system.uiModeGPad == MDLPRVMODE_FREE )
   {
-    if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[6].id) && v18 - g_mdlprv.system.buttonTimes.freeSpeed > 250 )
+    if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[6].id) && v9 - g_mdlprv.system.buttonTimes.freeSpeed > 250 )
     {
-      g_mdlprv.system.buttonTimes.freeSpeed = v18;
+      g_mdlprv.system.buttonTimes.freeSpeed = v9;
       freeModeSpeed = g_mdlprv.viewer.freeModeSpeed;
       if ( g_mdlprv.viewer.freeModeSpeed )
       {
@@ -3475,381 +2585,180 @@ void __fastcall MdlPrvControlsGamepad(LocalClientNum_t localClientNum, double fo
     {
       freeModeSpeed = g_mdlprv.viewer.freeModeSpeed;
     }
-    v62 = freeModeSpeed - 1;
-    if ( v62 )
+    v22 = freeModeSpeed - 1;
+    if ( v22 )
     {
-      if ( v62 == 1 )
-        __asm { vmovss  xmm6, cs:__real@447a0000 }
+      if ( v22 == 1 )
+        v23 = FLOAT_1000_0;
       else
-        __asm { vmovss  xmm6, cs:__real@43960000 }
+        v23 = FLOAT_300_0;
     }
     else
     {
-      __asm { vmovss  xmm6, cs:__real@41a00000 }
+      v23 = FLOAT_20_0;
     }
-    __asm
+    if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, 20) || CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[8].id) )
     {
-      vmovss  xmm8, dword ptr [rsp+2E0h+var_280]
-      vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-    }
-    if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, 20) || CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[8].id) )
-    {
-      __asm { vmulss  xmm1, xmm6, xmm8; dz }
+      v24 = v23 * *(float *)&_XMM1;
     }
     else
     {
-      if ( !CL_Keys_IsKeyDown((LocalClientNum_t)v16, 21) && !CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[7].id) )
+      if ( !CL_Keys_IsKeyDown((LocalClientNum_t)v7, 21) && !CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[7].id) )
       {
-LABEL_46:
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm8
-          vmulss  xmm6, xmm0, xmm10
-          vmulss  xmm7, xmm0, xmm7
-        }
-        AngleVectors(&_R14->refdefViewAngles, &outOrigin, &end, &up);
-        __asm
-        {
-          vmulss  xmm2, xmm6, dword ptr [rsp+2E0h+end]
-          vmulss  xmm1, xmm7, dword ptr [rbp+1E0h+outOrigin]
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin; ModelPreviewer g_mdlprv
-          vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin, xmm2; ModelPreviewer g_mdlprv
-          vmulss  xmm3, xmm6, dword ptr [rsp+2E0h+end+4]
-          vmulss  xmm2, xmm7, dword ptr [rbp+1E0h+outOrigin+4]
-          vaddss  xmm3, xmm3, xmm2
-          vaddss  xmm0, xmm3, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+4; ModelPreviewer g_mdlprv
-          vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+4, xmm0; ModelPreviewer g_mdlprv
-          vmulss  xmm3, xmm6, dword ptr [rsp+2E0h+end+8]
-          vmulss  xmm1, xmm7, dword ptr [rbp+1E0h+outOrigin+8]
-          vaddss  xmm3, xmm3, xmm1
-          vaddss  xmm0, xmm3, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+8; ModelPreviewer g_mdlprv
-          vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+8, xmm0; ModelPreviewer g_mdlprv
-          vmulss  xmm7, xmm8, cs:__real@42b40000
-          vmulss  xmm1, xmm7, [rbp+1E0h+yaw]
-          vaddss  xmm0, xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles+4; ModelPreviewer g_mdlprv
-          vmulss  xmm3, xmm0, cs:__real@3b360b61
-          vxorps  xmm8, xmm8, xmm8
-          vaddss  xmm1, xmm3, cs:__real@3f000000
-          vroundss xmm2, xmm8, xmm1, 1
-          vsubss  xmm0, xmm3, xmm2
-          vmulss  xmm0, xmm0, cs:__real@43b40000
-          vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles+4, xmm0; ModelPreviewer g_mdlprv
-          vmulss  xmm1, xmm7, xmm12
-          vaddss  xmm2, xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles; ModelPreviewer g_mdlprv
-          vmulss  xmm4, xmm2, cs:__real@3b360b61
-          vaddss  xmm3, xmm4, cs:__real@3f000000
-          vroundss xmm2, xmm8, xmm3, 1
-          vsubss  xmm0, xmm4, xmm2
-          vmulss  xmm1, xmm0, cs:__real@43b40000
-          vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeAngles, xmm1; ModelPreviewer g_mdlprv
-        }
-        if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[5].id) )
+LABEL_47:
+        v25 = v23 * v51;
+        v26 = (float)(v23 * v51) * side;
+        AngleVectors(&LocalClientGlobals->refdefViewAngles, &outOrigin, &end, &up);
+        g_mdlprv.viewer.freeModeOrigin.v[0] = (float)((float)(v26 * end.v[0]) + (float)((float)(v25 * forward) * outOrigin.v[0])) + g_mdlprv.viewer.freeModeOrigin.v[0];
+        g_mdlprv.viewer.freeModeOrigin.v[1] = (float)((float)(v26 * end.v[1]) + (float)((float)(v25 * forward) * outOrigin.v[1])) + g_mdlprv.viewer.freeModeOrigin.v[1];
+        g_mdlprv.viewer.freeModeOrigin.v[2] = (float)((float)(v26 * end.v[2]) + (float)((float)(v25 * forward) * outOrigin.v[2])) + g_mdlprv.viewer.freeModeOrigin.v[2];
+        _XMM8 = 0i64;
+        __asm { vroundss xmm2, xmm8, xmm1, 1 }
+        g_mdlprv.viewer.freeModeAngles.v[1] = (float)((float)((float)((float)((float)(v51 * 90.0) * yaw) + g_mdlprv.viewer.freeModeAngles.v[1]) * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+        __asm { vroundss xmm2, xmm8, xmm3, 1 }
+        g_mdlprv.viewer.freeModeAngles.v[0] = (float)((float)((float)((float)((float)(v51 * 90.0) * pitch) + g_mdlprv.viewer.freeModeAngles.v[0]) * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+        if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[5].id) )
         {
           MdlPrvFreePlaceModel(&g_mdlprv.viewer.freeModeOrigin);
         }
-        else if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[4].id) )
+        else if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[4].id) )
         {
-          AngleVectors(&_R14->refdefViewAngles, &end, &v252.midPoint, &up);
-          __asm
-          {
-            vmovss  xmm1, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius; ModelPreviewer g_mdlprv
-            vmulss  xmm2, xmm1, dword ptr [rsp+2E0h+end]
-            vmovss  dword ptr [rsp+2E0h+end], xmm2
-            vmulss  xmm3, xmm1, dword ptr [rsp+2E0h+end+4]
-            vmovss  dword ptr [rsp+2E0h+end+4], xmm3
-            vmulss  xmm4, xmm1, dword ptr [rsp+2E0h+end+8]
-            vmovss  dword ptr [rsp+2E0h+end+8], xmm4
-            vaddss  xmm2, xmm2, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin; ModelPreviewer g_mdlprv
-            vmovss  dword ptr [rbp+1E0h+outOrigin], xmm2
-            vaddss  xmm3, xmm3, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+4; ModelPreviewer g_mdlprv
-            vmovss  dword ptr [rbp+1E0h+outOrigin+4], xmm3
-            vaddss  xmm4, xmm4, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+8; ModelPreviewer g_mdlprv
-            vmovss  dword ptr [rbp+1E0h+outOrigin+8], xmm4
-            vsubss  xmm0, xmm2, dword ptr [rax+28h]
-            vmovss  dword ptr [rbp+1E0h+outOrigin], xmm0
-            vsubss  xmm1, xmm3, dword ptr [rax+2Ch]
-            vmovss  dword ptr [rbp+1E0h+outOrigin+4], xmm1
-            vsubss  xmm0, xmm4, dword ptr [rax+30h]
-            vmovss  dword ptr [rbp+1E0h+outOrigin+8], xmm0
-            vmovss  xmm1, dword ptr [r14+178C4h]
-            vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.horizontal, xmm1; ModelPreviewer g_mdlprv
-            vmovss  xmm0, dword ptr [r14+178C0h]
-            vxorps  xmm2, xmm0, xmm9
-            vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.vertical, xmm2; ModelPreviewer g_mdlprv
-            vxorps  xmm3, xmm3, xmm3; z
-            vxorps  xmm2, xmm2, xmm2; y
-            vxorps  xmm1, xmm1, xmm1; x
-          }
-          Dvar_SetVec3_Internal(modPrvOrigin, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+1E0h+outOrigin]
-            vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin, xmm0; ModelPreviewer g_mdlprv
-            vmovss  xmm1, dword ptr [rbp+1E0h+outOrigin+4]
-            vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4, xmm1; ModelPreviewer g_mdlprv
-            vmovss  xmm0, dword ptr [rbp+1E0h+outOrigin+8]
-            vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8, xmm0; ModelPreviewer g_mdlprv
-          }
+          AngleVectors(&LocalClientGlobals->refdefViewAngles, &end, &bounds.midPoint, &up);
+          end.v[0] = g_mdlprv.viewer.centerRadius * end.v[0];
+          end.v[1] = g_mdlprv.viewer.centerRadius * end.v[1];
+          end.v[2] = g_mdlprv.viewer.centerRadius * end.v[2];
+          outOrigin.v[0] = end.v[0] + g_mdlprv.viewer.freeModeOrigin.v[0];
+          outOrigin.v[1] = end.v[1] + g_mdlprv.viewer.freeModeOrigin.v[1];
+          outOrigin.v[2] = end.v[2] + g_mdlprv.viewer.freeModeOrigin.v[2];
+          outOrigin.v[0] = (float)(end.v[0] + g_mdlprv.viewer.freeModeOrigin.v[0]) - modPrvCenterOffset->current.value;
+          outOrigin.v[1] = (float)(end.v[1] + g_mdlprv.viewer.freeModeOrigin.v[1]) - modPrvCenterOffset->current.vector.v[1];
+          outOrigin.v[2] = (float)(end.v[2] + g_mdlprv.viewer.freeModeOrigin.v[2]) - modPrvCenterOffset->current.vector.v[2];
+          g_mdlprv.viewer.horizontal = LocalClientGlobals->refdefViewAngles.v[1];
+          LODWORD(g_mdlprv.viewer.vertical) = LODWORD(LocalClientGlobals->refdefViewAngles.v[0]) ^ _xmm;
+          Dvar_SetVec3_Internal(modPrvOrigin, 0.0, 0.0, 0.0);
+          g_mdlprv.model.initialOrigin = outOrigin;
           GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &outOrigin);
         }
-        goto LABEL_73;
+        return;
       }
-      __asm
-      {
-        vmulss  xmm0, xmm6, xmm8
-        vxorps  xmm1, xmm0, xmm9
-      }
+      LODWORD(v24) = COERCE_UNSIGNED_INT(v23 * *(float *)&_XMM1) ^ _xmm;
     }
-    MdlPrvFreeMoveVertical(_R14, *(float *)&_XMM1);
-    goto LABEL_46;
+    MdlPrvFreeMoveVertical(LocalClientGlobals, v24);
+    goto LABEL_47;
   }
-  if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, 18) && CL_Keys_IsKeyDown((LocalClientNum_t)v16, 19) )
+  if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, 18) && CL_Keys_IsKeyDown((LocalClientNum_t)v7, 19) )
   {
     g_mdlprv.system.focusedMode = FOCUSEDMODE_FOCALMOVE;
-    _RCX = modPrvCenterOffset;
+    Dvar_SetVec3_Internal(modPrvCenterOffset, modPrvCenterOffset->current.value, modPrvCenterOffset->current.vector.v[1], modPrvCenterOffset->current.vector.v[2] - (float)((float)(*(float *)&_XMM1 * 100.0) * pitch));
+    v30 = (float)(side * *(float *)&_XMM1) * 200.0;
+    v31 = (float)(forward * *(float *)&_XMM1) * 200.0;
+    YawVectors(LocalClientGlobals->refdefViewAngles.v[1], &end, &outOrigin);
+    v32 = LODWORD(end.v[0]);
+    *(float *)&v32 = fsqrt((float)(*(float *)&v32 * *(float *)&v32) + (float)(end.v[1] * end.v[1]));
+    _XMM2 = v32;
     __asm
     {
-      vmovss  xmm6, dword ptr [rsp+2E0h+var_280]
-      vmulss  xmm0, xmm6, cs:__real@42c80000
-      vmulss  xmm4, xmm0, xmm12
-      vmovss  xmm3, dword ptr [rcx+30h]
-      vsubss  xmm3, xmm3, xmm4; z
-      vmovss  xmm2, dword ptr [rcx+2Ch]; y
-      vmovss  xmm1, dword ptr [rcx+28h]; x
-    }
-    Dvar_SetVec3_Internal(modPrvCenterOffset, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    __asm
-    {
-      vmulss  xmm0, xmm10, xmm6
-      vmulss  xmm9, xmm0, cs:__real@43480000
-      vmulss  xmm0, xmm7, xmm6
-      vmulss  xmm6, xmm0, cs:__real@43480000
-      vmovss  xmm0, dword ptr [r14+178C4h]; yaw
-    }
-    YawVectors(*(float *)&_XMM0, &end, &outOrigin);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsp+2E0h+end]
-      vmulss  xmm1, xmm3, xmm3
-      vmovss  xmm4, dword ptr [rsp+2E0h+end+4]
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vcmpless xmm0, xmm2, cs:__real@80000000
-      vmovss  xmm7, cs:__real@3f800000
-      vblendvps xmm0, xmm2, xmm7, xmm0
-      vdivss  xmm1, xmm7, xmm0
-      vmulss  xmm0, xmm3, xmm1
-      vmulss  xmm8, xmm0, xmm6
-      vmovss  dword ptr [rsp+2E0h+end], xmm8
-      vmulss  xmm1, xmm4, xmm1
-      vmulss  xmm6, xmm1, xmm6
-      vmovss  dword ptr [rsp+2E0h+end+4], xmm6
-      vmovss  dword ptr [rsp+2E0h+end+8], xmm11
-      vmovss  xmm3, dword ptr [rbp+1E0h+outOrigin]
-      vmulss  xmm1, xmm3, xmm3
-      vmovss  xmm4, dword ptr [rbp+1E0h+outOrigin+4]
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
       vcmpless xmm0, xmm2, cs:__real@80000000
       vblendvps xmm0, xmm2, xmm7, xmm0
-      vdivss  xmm1, xmm7, xmm0
-      vmulss  xmm0, xmm3, xmm1
-      vmulss  xmm3, xmm0, xmm9
-      vmovss  dword ptr [rbp+1E0h+outOrigin], xmm3
-      vmulss  xmm1, xmm4, xmm1
-      vmulss  xmm2, xmm1, xmm9
-      vmovss  dword ptr [rbp+1E0h+outOrigin+4], xmm2
-      vmovss  dword ptr [rbp+1E0h+outOrigin+8], xmm11
     }
-    _RCX = modPrvCenterOffset;
+    end.v[0] = (float)(end.v[0] * (float)(1.0 / *(float *)&_XMM0)) * v31;
+    end.v[1] = (float)(end.v[1] * (float)(1.0 / *(float *)&_XMM0)) * v31;
+    end.v[2] = 0.0;
+    v36 = LODWORD(outOrigin.v[0]);
+    *(float *)&v36 = fsqrt((float)(*(float *)&v36 * *(float *)&v36) + (float)(outOrigin.v[1] * outOrigin.v[1]));
+    _XMM2 = v36;
     __asm
     {
-      vaddss  xmm0, xmm3, xmm8
-      vaddss  xmm1, xmm0, dword ptr [rcx+28h]; x
-      vaddss  xmm2, xmm6, xmm2
-      vaddss  xmm2, xmm2, dword ptr [rcx+2Ch]; y
-      vmovss  xmm3, dword ptr [rcx+30h]; z
+      vcmpless xmm0, xmm2, cs:__real@80000000
+      vblendvps xmm0, xmm2, xmm7, xmm0
     }
-    Dvar_SetVec3_Internal(modPrvCenterOffset, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-    if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[25].id) && g_mdlprv.model.currentIndex >= 0 )
+    outOrigin.v[0] = (float)(outOrigin.v[0] * (float)(1.0 / *(float *)&_XMM0)) * v30;
+    outOrigin.v[1] = (float)(outOrigin.v[1] * (float)(1.0 / *(float *)&_XMM0)) * v30;
+    outOrigin.v[2] = 0.0;
+    Dvar_SetVec3_Internal(modPrvCenterOffset, (float)(outOrigin.v[0] + end.v[0]) + modPrvCenterOffset->current.value, (float)(end.v[1] + outOrigin.v[1]) + modPrvCenterOffset->current.vector.v[1], modPrvCenterOffset->current.vector.v[2]);
+    if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[25].id) && g_mdlprv.model.currentIndex >= 0 )
     {
-      _RAX = DObjGetModel(g_mdlprv.model.currentObj, 0);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rax+40h]; z
-        vxorps  xmm2, xmm2, xmm2; y
-        vxorps  xmm1, xmm1, xmm1; x
-      }
-      Dvar_SetVec3_Internal(modPrvCenterOffset, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
+      Model = DObjGetModel(g_mdlprv.model.currentObj, 0);
+      Dvar_SetVec3_Internal(modPrvCenterOffset, 0.0, 0.0, Model->bounds.halfSize.v[2]);
     }
   }
-  else if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[10].id) )
+  else if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[10].id) )
   {
     g_mdlprv.system.focusedMode = FOCUSEDMODE_MODELMOVE;
+    MdlPrvModelOriginOffset(0.0, 0.0, (float)(*(float *)&_XMM1 * -100.0) * pitch);
+    v41 = (float)(forward * *(float *)&_XMM1) * 200.0;
+    YawVectors(LocalClientGlobals->refdefViewAngles.v[1], &end, &outOrigin);
+    v42 = LODWORD(end.v[0]);
+    *(float *)&v42 = fsqrt((float)(*(float *)&v42 * *(float *)&v42) + (float)(end.v[1] * end.v[1]));
+    _XMM2 = v42;
     __asm
     {
-      vmovss  xmm6, dword ptr [rsp+2E0h+var_280]
-      vmulss  xmm0, xmm6, cs:__real@c2c80000
-      vmulss  xmm2, xmm0, xmm12; dz
-      vxorps  xmm1, xmm1, xmm1; dy
-      vxorps  xmm0, xmm0, xmm0; dx
-    }
-    MdlPrvModelOriginOffset(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmulss  xmm0, xmm10, xmm6
-      vmulss  xmm10, xmm0, cs:__real@43480000
-      vmulss  xmm0, xmm7, xmm6
-      vmulss  xmm6, xmm0, cs:__real@43480000
-      vmovss  xmm0, dword ptr [r14+178C4h]; yaw
-    }
-    YawVectors(*(float *)&_XMM0, &end, &outOrigin);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsp+2E0h+end]
-      vmulss  xmm1, xmm3, xmm3
-      vmovss  xmm4, dword ptr [rsp+2E0h+end+4]
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vcmpless xmm0, xmm2, cs:__real@80000000
-      vmovss  xmm8, cs:__real@3f800000
-      vblendvps xmm0, xmm2, xmm8, xmm0
-      vdivss  xmm1, xmm8, xmm0
-      vmulss  xmm0, xmm3, xmm1
-      vmulss  xmm9, xmm0, xmm6
-      vmovss  dword ptr [rsp+2E0h+end], xmm9
-      vmulss  xmm1, xmm4, xmm1
-      vmulss  xmm5, xmm1, xmm6
-      vmovss  dword ptr [rsp+2E0h+end+4], xmm5
-      vmovss  dword ptr [rsp+2E0h+end+8], xmm11
-      vmovss  xmm3, dword ptr [rbp+1E0h+outOrigin]
-      vmulss  xmm1, xmm3, xmm3
-      vmovss  xmm4, dword ptr [rbp+1E0h+outOrigin+4]
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
       vcmpless xmm0, xmm2, cs:__real@80000000
       vblendvps xmm0, xmm2, xmm8, xmm0
-      vdivss  xmm1, xmm8, xmm0
-      vmulss  xmm0, xmm3, xmm1
-      vmulss  xmm2, xmm0, xmm10
-      vmovss  dword ptr [rbp+1E0h+outOrigin], xmm2
-      vmulss  xmm1, xmm4, xmm1
-      vmulss  xmm0, xmm1, xmm10
-      vmovss  dword ptr [rbp+1E0h+outOrigin+4], xmm0
-      vmovss  dword ptr [rbp+1E0h+outOrigin+8], xmm11
-      vaddss  xmm1, xmm0, xmm5; dy
-      vaddss  xmm0, xmm2, xmm9; dx
-      vxorps  xmm2, xmm2, xmm2; dz
     }
-    MdlPrvModelOriginOffset(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+    end.v[0] = (float)(end.v[0] * (float)(1.0 / *(float *)&_XMM0)) * v41;
+    end.v[1] = (float)(end.v[1] * (float)(1.0 / *(float *)&_XMM0)) * v41;
+    end.v[2] = 0.0;
+    v46 = LODWORD(outOrigin.v[0]);
+    *(float *)&v46 = fsqrt((float)(*(float *)&v46 * *(float *)&v46) + (float)(outOrigin.v[1] * outOrigin.v[1]));
+    _XMM2 = v46;
+    __asm
+    {
+      vcmpless xmm0, xmm2, cs:__real@80000000
+      vblendvps xmm0, xmm2, xmm8, xmm0
+    }
+    outOrigin.v[2] = 0.0;
+    MdlPrvModelOriginOffset((float)((float)(outOrigin.v[0] * (float)(1.0 / *(float *)&_XMM0)) * (float)((float)(side * *(float *)&_XMM1) * 200.0)) + end.v[0], (float)((float)(outOrigin.v[1] * (float)(1.0 / *(float *)&_XMM0)) * (float)((float)(side * *(float *)&_XMM1) * 200.0)) + end.v[1], 0.0);
   }
-  else if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[11].id) )
+  else if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[11].id) )
   {
     g_mdlprv.system.focusedMode = FOCUSEDMODE_MODELROTATE;
     if ( g_mdlprv.system.modelRotCamMode == MROTCAMMODE_TRAVEL )
     {
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsp+2E0h+var_280]
-        vmulss  xmm0, xmm4, cs:__real@c3b40000
-        vmulss  xmm1, xmm0, [rbp+1E0h+yaw]
-        vaddss  xmm1, xmm1, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.horizontal; ModelPreviewer g_mdlprv
-        vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.horizontal, xmm1; ModelPreviewer g_mdlprv
-        vmulss  xmm2, xmm4, cs:__real@c3b40000
-        vmulss  xmm0, xmm2, [rbp+1E0h+yaw]; deg
-      }
-      MdlPrvSpinYawOffset(*(float *)&_XMM0);
+      g_mdlprv.viewer.horizontal = (float)((float)(*(float *)&_XMM1 * -360.0) * yaw) + g_mdlprv.viewer.horizontal;
+      MdlPrvSpinYawOffset((float)(*(float *)&_XMM1 * -360.0) * yaw);
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsp+2E0h+var_280]
-        vmulss  xmm0, xmm6, cs:__real@c3b40000
-        vmulss  xmm1, xmm0, [rbp+1E0h+yaw]; deg
-      }
-      MdlPrvSpin_(1u, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm6, xmm6, cs:__real@c3340000
-        vmulss  xmm1, xmm6, xmm7; deg
-      }
-      MdlPrvSpin_(0, *(float *)&_XMM1);
-      __asm { vmulss  xmm1, xmm6, xmm10; deg }
-      MdlPrvSpin_(2u, *(float *)&_XMM1);
+      MdlPrvSpin_(1u, (float)(*(float *)&_XMM1 * -360.0) * yaw);
+      MdlPrvSpin_(0, (float)(*(float *)&_XMM1 * -180.0) * forward);
+      MdlPrvSpin_(2u, (float)(*(float *)&_XMM1 * -180.0) * side);
     }
-    if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[22].id) )
-      CG_ModPrvModelResetRotation(v222, *(double *)&_XMM1, v223, pitch);
-    if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[19].id) && v18 - g_mdlprv.system.buttonTimes.mdlRotMode > 250 )
+    if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[22].id) )
+      CG_ModPrvModelResetRotation();
+    if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[19].id) && v9 - g_mdlprv.system.buttonTimes.mdlRotMode > 250 )
     {
-      g_mdlprv.system.buttonTimes.mdlRotMode = v18;
+      g_mdlprv.system.buttonTimes.mdlRotMode = v9;
       g_mdlprv.system.modelRotCamMode = g_mdlprv.system.modelRotCamMode == MROTCAMMODE_STATIC;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat; ModelPreviewer g_mdlprv
-        vmovups xmmword ptr [rbp+1E0h+var_250.midPoint], xmm0
-      }
-      UnitQuatToAxis((const vec4_t *)&v252, &axis);
+      *(vec4_t *)bounds.midPoint.v = g_mdlprv.model.currentEntity.placement.placement.quat;
+      UnitQuatToAxis((const vec4_t *)&bounds, &axis);
       AxisToAngles(&axis, &end);
-      __asm { vmovss  xmm0, dword ptr [rsp+2E0h+end+4]; yaw }
-      YawToAxis(*(float *)&_XMM0, &axis);
-      AxisToQuat(&axis, (vec4_t *)&v252);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+1E0h+var_250.midPoint]
-        vmovups xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat, xmm0; ModelPreviewer g_mdlprv
-      }
+      YawToAxis(end.v[1], &axis);
+      AxisToQuat(&axis, (vec4_t *)&bounds);
+      g_mdlprv.model.currentEntity.placement.placement.quat = *(vec4_t *)bounds.midPoint.v;
     }
   }
   else
   {
     g_mdlprv.system.focusedMode = FOCUSEDMODE_CAMERA;
-    if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[13].id) && v18 - g_mdlprv.system.buttonTimes.clone > 250 )
+    if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[13].id) && v9 - g_mdlprv.system.buttonTimes.clone > 250 )
     {
-      g_mdlprv.system.buttonTimes.clone = v18;
-      MdlPrvCloneModel(_R14, v227, *(double *)&_XMM2);
+      g_mdlprv.system.buttonTimes.clone = v9;
+      MdlPrvCloneModel(LocalClientGlobals);
     }
-    else if ( CL_Keys_IsKeyDown((LocalClientNum_t)v16, g_buttons[14].id) && v18 - g_mdlprv.system.buttonTimes.clearClones > 250 )
+    else if ( CL_Keys_IsKeyDown((LocalClientNum_t)v7, g_buttons[14].id) && v9 - g_mdlprv.system.buttonTimes.clearClones > 250 )
     {
-      g_mdlprv.system.buttonTimes.clearClones = v18;
+      g_mdlprv.system.buttonTimes.clearClones = v9;
       MdlPrvCloneClearAll();
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsp+2E0h+var_280]
-        vmulss  xmm0, xmm4, cs:__real@42c80000
-        vmulss  xmm2, xmm0, xmm12
-        vaddss  xmm2, xmm2, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.vertical; ModelPreviewer g_mdlprv
-        vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.vertical, xmm2; ModelPreviewer g_mdlprv
-        vmulss  xmm0, xmm4, cs:__real@c3340000
-        vmulss  xmm3, xmm0, [rbp+1E0h+yaw]
-        vaddss  xmm2, xmm3, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.horizontal; ModelPreviewer g_mdlprv
-        vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.horizontal, xmm2; ModelPreviewer g_mdlprv
-        vmulss  xmm0, xmm4, cs:__real@44e10000
-        vmulss  xmm0, xmm0, xmm7; dx
-        vxorps  xmm1, xmm1, xmm1; dy
-      }
-      CG_ModelPreviewerZoomCamera(*(double *)&_XMM0, *(double *)&_XMM1);
+      g_mdlprv.viewer.vertical = (float)((float)(*(float *)&_XMM1 * 100.0) * pitch) + g_mdlprv.viewer.vertical;
+      g_mdlprv.viewer.horizontal = (float)((float)(*(float *)&_XMM1 * -180.0) * yaw) + g_mdlprv.viewer.horizontal;
+      *(_QWORD *)&v50 = (unsigned int)_XMM1;
+      *(float *)&v50 = (float)(*(float *)&_XMM1 * 1800.0) * forward;
+      CG_ModelPreviewerZoomCamera(v50, 0.0);
     }
-  }
-LABEL_73:
-  _R11 = &v257;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
   }
 }
 
@@ -3858,30 +2767,34 @@ LABEL_73:
 MdlPrvDrawOverlayGamepad
 ==============
 */
-
-void __fastcall MdlPrvDrawOverlayGamepad(const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace, double _XMM2_8)
+void MdlPrvDrawOverlayGamepad(const LocalClientNum_t localClientNum, const ScreenPlacement *scrPlace)
 {
   cg_t *LocalClientGlobals; 
-  const char *v24; 
-  ButtonNames v29; 
-  const char *v32; 
-  const char *v52; 
-  const char *v94; 
+  const char *v4; 
+  float v5; 
+  ButtonNames v6; 
+  const char *v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  const char *v12; 
+  int v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  int v17; 
+  int v18; 
+  float v19; 
+  float v20; 
+  const char *v21; 
+  float v22; 
+  int v23; 
   vec3_t outOrg; 
   vec3_t outOrigin; 
-  __int64 v127; 
-  char v128; 
-  void *retaddr; 
+  __int64 v26; 
 
-  _RAX = &retaddr;
-  v127 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
+  v26 = -2i64;
   if ( g_mdlprv.model.currentIndex >= 0 && modPrvDisplayToggle->current.enabled )
   {
     if ( modPrvDrawDistanceToModel->current.enabled )
@@ -3889,287 +2802,91 @@ void __fastcall MdlPrvDrawOverlayGamepad(const LocalClientNum_t localClientNum, 
       LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
       GfxSceneEntity_GetPlacementOrigin(&g_mdlprv.model.currentEntity, &outOrigin);
       RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0A8h+outOrg]
-        vsubss  xmm3, xmm0, dword ptr [rsp+0A8h+outOrigin]
-        vmovss  xmm1, dword ptr [rsp+0A8h+outOrg+4]
-        vsubss  xmm2, xmm1, dword ptr [rsp+0A8h+outOrigin+4]
-        vmovss  xmm0, dword ptr [rsp+0A8h+outOrg+8]
-        vsubss  xmm4, xmm0, dword ptr [rsp+0A8h+outOrigin+8]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm3, xmm0
-        vsqrtss xmm1, xmm2, xmm2
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v24 = j_va("Distance to Model: %.0f", _RDX);
-      __asm
-      {
-        vmovss  xmm2, cs:__real@43c80000; y
-        vmovss  xmm1, cs:__real@43fa0000; x
-      }
-      CG_DrawSmallDevStringColor(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2_8, v24, &colorWhiteFaded, 7);
+      v4 = j_va("Distance to Model: %.0f", fsqrt((float)((float)((float)(outOrg.v[1] - outOrigin.v[1]) * (float)(outOrg.v[1] - outOrigin.v[1])) + (float)((float)(outOrg.v[0] - outOrigin.v[0]) * (float)(outOrg.v[0] - outOrigin.v[0]))) + (float)((float)(outOrg.v[2] - outOrigin.v[2]) * (float)(outOrg.v[2] - outOrigin.v[2]))));
+      CG_DrawSmallDevStringColor(scrPlace, 500.0, 400.0, v4, &colorWhiteFaded, 7);
       memset(&outOrg, 0, sizeof(outOrg));
       memset(&outOrigin, 0, sizeof(outOrigin));
     }
-    __asm { vxorps  xmm2, xmm2, xmm2; y }
     if ( g_mdlprv.system.walkaboutActive )
     {
-      __asm { vmovss  xmm1, cs:__real@43960000; x }
-      CG_DrawSmallDevStringColor(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Walkabout Mode", &colorRed, 7);
-      __asm { vmovss  xmm2, cs:__real@41a00000 }
-      v29 = BTN_WALKABOUT_EXIT;
+      CG_DrawSmallDevStringColor(scrPlace, 300.0, 0.0, "Walkabout Mode", &colorRed, 7);
+      v5 = FLOAT_20_0;
+      v6 = BTN_WALKABOUT_EXIT;
 LABEL_28:
-      MdlPrvPrintHelpLine(scrPlace, v29, *(float *)&_XMM2);
-      goto LABEL_29;
+      MdlPrvPrintHelpLine(scrPlace, v6, v5);
+      return;
     }
-    __asm
-    {
-      vmovss  xmm8, cs:__real@43960000
-      vmovaps xmm1, xmm8; x
-    }
-    v32 = "Freelook Mode";
+    v7 = "Freelook Mode";
     if ( g_mdlprv.system.uiModeGPad != MDLPRVMODE_FREE )
-      v32 = "Focused Mode";
-    CG_DrawSmallDevStringColor(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v32, &colorRed, 7);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmovss  xmm7, cs:__real@3f400000
-      vmulss  xmm9, xmm0, xmm7
-      vmovss  xmm2, cs:__real@41a00000; vPos
-    }
-    MdlPrvPrintHelpLine(scrPlace, BTN_MODESWITCH, *(float *)&_XMM2);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm7
-      vaddss  xmm6, xmm1, cs:__real@41a00000
-      vmovaps xmm2, xmm6; vPos
-    }
-    MdlPrvPrintHelpLine(scrPlace, BTN_DROPMDL, *(float *)&_XMM2);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm7
-      vaddss  xmm6, xmm6, xmm1
-      vmovaps xmm2, xmm6; vPos
-    }
-    MdlPrvPrintHelpLine(scrPlace, BTN_WALKABOUT_ENTER, *(float *)&_XMM2);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm7
-      vaddss  xmm6, xmm6, xmm1
-    }
+      v7 = "Focused Mode";
+    v8 = (float)CG_DrawSmallDevStringColor(scrPlace, 300.0, 0.0, v7, &colorRed, 7) * 0.75;
+    v9 = (float)((float)MdlPrvPrintHelpLine(scrPlace, BTN_MODESWITCH, 20.0) * 0.75) + 20.0;
+    v10 = v9 + (float)((float)MdlPrvPrintHelpLine(scrPlace, BTN_DROPMDL, v9) * 0.75);
+    v11 = v10 + (float)((float)MdlPrvPrintHelpLine(scrPlace, BTN_WALKABOUT_ENTER, v10) * 0.75);
     if ( g_mdlprv.system.uiModeGPad != MDLPRVMODE_FREE )
     {
-      __asm { vmovaps xmm2, xmm6; vPos }
-      MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_TOGGLEMOV, *(float *)&_XMM2);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm7
-        vaddss  xmm6, xmm6, xmm1
-        vmovaps xmm2, xmm6; vPos
-      }
-      MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_TOGGLEROT, *(float *)&_XMM2);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm7
-        vaddss  xmm6, xmm6, xmm1
-        vmovaps xmm2, xmm6; vPos
-      }
-      MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_TOGGLEFOCALMOVE, *(float *)&_XMM2);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm2, xmm0, xmm7
-        vaddss  xmm6, xmm6, xmm2
-      }
+      v18 = MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_TOGGLEMOV, v11);
+      v19 = (float)(v11 + (float)((float)v18 * 0.75)) + (float)((float)MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_TOGGLEROT, v11 + (float)((float)v18 * 0.75)) * 0.75);
+      v20 = v19 + (float)((float)MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_TOGGLEFOCALMOVE, v19) * 0.75);
+      v16 = v20;
       if ( g_mdlprv.system.focusedMode == FOCUSEDMODE_MODELMOVE )
       {
-        __asm
-        {
-          vmovaps xmm2, xmm9; y
-          vmovaps xmm1, xmm8; x
-        }
-        CG_DrawSmallDevStringColor(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Model Move", &colorWhiteFaded, 7);
-        __asm { vmovaps xmm2, xmm6; vPos }
-        MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_MMOV_2D, *(float *)&_XMM2);
-        v29 = BTN_FOCUS_MMOV_UPDOWN;
+        CG_DrawSmallDevStringColor(scrPlace, 300.0, v8, "Model Move", &colorWhiteFaded, 7);
+        v17 = MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_MMOV_2D, v20);
+        v6 = BTN_FOCUS_MMOV_UPDOWN;
       }
       else if ( g_mdlprv.system.focusedMode == FOCUSEDMODE_MODELROTATE )
       {
-        __asm
-        {
-          vmovaps xmm2, xmm9; y
-          vmovaps xmm1, xmm8; x
-        }
-        v94 = "Model Rotate";
+        v21 = "Model Rotate";
         if ( g_mdlprv.system.modelRotCamMode )
-          v94 = "Model Rotate (with camera)";
-        CG_DrawSmallDevStringColor(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v94, &colorWhiteFaded, 7);
-        __asm { vmovaps xmm2, xmm6; vPos }
-        MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_MROT_TOGGLECAM, *(float *)&_XMM2);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm6, xmm6, xmm1
-        }
+          v21 = "Model Rotate (with camera)";
+        CG_DrawSmallDevStringColor(scrPlace, 300.0, v8, v21, &colorWhiteFaded, 7);
+        v22 = v20 + (float)((float)MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_MROT_TOGGLECAM, v20) * 0.75);
+        v16 = v22;
         if ( g_mdlprv.system.modelRotCamMode == MROTCAMMODE_STATIC )
-        {
-          __asm { vmovaps xmm2, xmm6; vPos }
-          MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_MROT_PITCHROLL, *(float *)&_XMM2);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, xmm7
-            vaddss  xmm6, xmm6, xmm1
-          }
-        }
-        __asm { vmovaps xmm2, xmm6; vPos }
-        MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_MROT_YAW, *(float *)&_XMM2);
-        v29 = BTN_FOCUS_MROT_RESET;
+          v16 = v22 + (float)((float)MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_MROT_PITCHROLL, v22) * 0.75);
+        v17 = MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_MROT_YAW, v16);
+        v6 = BTN_FOCUS_MROT_RESET;
       }
       else if ( g_mdlprv.system.focusedMode )
       {
-        __asm
-        {
-          vmovaps xmm2, xmm9; y
-          vmovaps xmm1, xmm8; x
-        }
-        CG_DrawSmallDevStringColor(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Focus Move", &colorWhiteFaded, 7);
-        __asm { vmovaps xmm2, xmm6; vPos }
-        MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_FOCALMOVE_2D, *(float *)&_XMM2);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm6, xmm6, xmm1
-          vmovaps xmm2, xmm6; vPos
-        }
-        MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_FOCALMOVE_UPDOWN, *(float *)&_XMM2);
-        v29 = BTN_FOCUS_FOCALMOVE_RESET;
+        CG_DrawSmallDevStringColor(scrPlace, 300.0, v8, "Focus Move", &colorWhiteFaded, 7);
+        v16 = v20 + (float)((float)MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_FOCALMOVE_2D, v20) * 0.75);
+        v17 = MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_FOCALMOVE_UPDOWN, v16);
+        v6 = BTN_FOCUS_FOCALMOVE_RESET;
       }
       else
       {
-        __asm { vmovaps xmm2, xmm6; vPos }
-        MdlPrvPrintHelpLine(scrPlace, (ButtonNames)(LOBYTE(g_mdlprv.system.focusedMode) + 13), *(float *)&_XMM2);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm6, xmm6, xmm1
-          vmovaps xmm2, xmm6; vPos
-        }
-        MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_DEFAULT_CLEARCLONES, *(float *)&_XMM2);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm6, xmm6, xmm1
-          vmovaps xmm2, xmm6; vPos
-        }
-        MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_DEFAULT_ZOOM, *(float *)&_XMM2);
-        v29 = BTN_FOCUS_DEFAULT_ORBIT;
+        v23 = MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_DEFAULT_CLONEMODEL, v20);
+        v16 = (float)(v20 + (float)((float)v23 * 0.75)) + (float)((float)MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_DEFAULT_CLEARCLONES, v20 + (float)((float)v23 * 0.75)) * 0.75);
+        v17 = MdlPrvPrintHelpLine(scrPlace, BTN_FOCUS_DEFAULT_ZOOM, v16);
+        v6 = BTN_FOCUS_DEFAULT_ORBIT;
       }
       goto LABEL_27;
     }
     if ( g_mdlprv.viewer.freeModeSpeed == FREESPEED_SLOW )
     {
-      v52 = "Move Slow";
+      v12 = "Move Slow";
     }
     else
     {
       if ( g_mdlprv.viewer.freeModeSpeed != FREESPEED_FAST )
       {
 LABEL_15:
-        __asm { vmovaps xmm2, xmm6; vPos }
-        MdlPrvPrintHelpLine(scrPlace, BTN_FREE_DROPFRONT, *(float *)&_XMM2);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm6, xmm6, xmm1
-          vmovaps xmm2, xmm6; vPos
-        }
-        MdlPrvPrintHelpLine(scrPlace, BTN_FREE_DROPPOS, *(float *)&_XMM2);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm6, xmm6, xmm1
-          vmovaps xmm2, xmm6; vPos
-        }
-        MdlPrvPrintHelpLine(scrPlace, BTN_FREE_TOGGLEMOVESPEED, *(float *)&_XMM2);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm6, xmm6, xmm1
-          vmovaps xmm2, xmm6; vPos
-        }
-        MdlPrvPrintHelpLine(scrPlace, BTN_FREE_UP, *(float *)&_XMM2);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm6, xmm6, xmm1
-          vmovaps xmm2, xmm6; vPos
-        }
-        MdlPrvPrintHelpLine(scrPlace, BTN_FREE_DOWN, *(float *)&_XMM2);
-        v29 = BTN_FREE_UPDOWN;
+        v13 = MdlPrvPrintHelpLine(scrPlace, BTN_FREE_DROPFRONT, v11);
+        v14 = (float)(v11 + (float)((float)v13 * 0.75)) + (float)((float)MdlPrvPrintHelpLine(scrPlace, BTN_FREE_DROPPOS, v11 + (float)((float)v13 * 0.75)) * 0.75);
+        v15 = v14 + (float)((float)MdlPrvPrintHelpLine(scrPlace, BTN_FREE_TOGGLEMOVESPEED, v14) * 0.75);
+        v16 = v15 + (float)((float)MdlPrvPrintHelpLine(scrPlace, BTN_FREE_UP, v15) * 0.75);
+        v17 = MdlPrvPrintHelpLine(scrPlace, BTN_FREE_DOWN, v16);
+        v6 = BTN_FREE_UPDOWN;
 LABEL_27:
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, xmm7
-          vaddss  xmm2, xmm6, xmm1; vPos
-        }
+        v5 = v16 + (float)((float)v17 * 0.75);
         goto LABEL_28;
       }
-      v52 = "Move Fast";
+      v12 = "Move Fast";
     }
-    __asm
-    {
-      vmovaps xmm2, xmm9; y
-      vmovss  xmm1, cs:__real@439d8000; x
-    }
-    CG_DrawSmallDevStringColor(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v52, &colorWhiteFaded, 7);
+    CG_DrawSmallDevStringColor(scrPlace, 315.0, v8, v12, &colorWhiteFaded, 7);
     goto LABEL_15;
-  }
-LABEL_29:
-  _R11 = &v128;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 
@@ -4178,32 +2895,16 @@ LABEL_29:
 MdlPrvFreeMoveVertical
 ==============
 */
-
-void __fastcall MdlPrvFreeMoveVertical(const cg_t *cgGlob, double dz)
+void MdlPrvFreeMoveVertical(const cg_t *cgGlob, float dz)
 {
   vec3_t up; 
   vec3_t right; 
   vec3_t forward; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
   AngleVectors(&cgGlob->refdefViewAngles, &forward, &right, &up);
-  __asm
-  {
-    vmulss  xmm3, xmm6, dword ptr [rsp+78h+up]
-    vaddss  xmm3, xmm3, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin; ModelPreviewer g_mdlprv
-    vmulss  xmm2, xmm6, dword ptr [rsp+78h+up+4]
-    vaddss  xmm2, xmm2, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+4; ModelPreviewer g_mdlprv
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin, xmm3; ModelPreviewer g_mdlprv
-    vmulss  xmm3, xmm6, dword ptr [rsp+78h+up+8]
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+4, xmm2; ModelPreviewer g_mdlprv
-    vaddss  xmm2, xmm3, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+8; ModelPreviewer g_mdlprv
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.freeModeOrigin+8, xmm2; ModelPreviewer g_mdlprv
-    vmovaps xmm6, [rsp+78h+var_18]
-  }
+  g_mdlprv.viewer.freeModeOrigin.v[0] = (float)(dz * up.v[0]) + g_mdlprv.viewer.freeModeOrigin.v[0];
+  g_mdlprv.viewer.freeModeOrigin.v[1] = (float)(dz * up.v[1]) + g_mdlprv.viewer.freeModeOrigin.v[1];
+  g_mdlprv.viewer.freeModeOrigin.v[2] = (float)(dz * up.v[2]) + g_mdlprv.viewer.freeModeOrigin.v[2];
 }
 
 /*
@@ -4211,27 +2912,11 @@ void __fastcall MdlPrvFreeMoveVertical(const cg_t *cgGlob, double dz)
 MdlPrvFreePlaceModel
 ==============
 */
-
-void __fastcall MdlPrvFreePlaceModel(const vec3_t *pos, double _XMM1_8, double _XMM2_8, double _XMM3_8)
+void MdlPrvFreePlaceModel(const vec3_t *pos)
 {
-  _RBX = pos;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-  }
-  Dvar_SetVec3_Internal(modPrvOrigin, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin, xmm0; ModelPreviewer g_mdlprv
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4, xmm1; ModelPreviewer g_mdlprv
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8, xmm0; ModelPreviewer g_mdlprv
-  }
-  GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, _RBX);
+  Dvar_SetVec3_Internal(modPrvOrigin, 0.0, 0.0, 0.0);
+  g_mdlprv.model.initialOrigin = *pos;
+  GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, pos);
 }
 
 /*
@@ -4239,44 +2924,19 @@ void __fastcall MdlPrvFreePlaceModel(const vec3_t *pos, double _XMM1_8, double _
 MdlPrvModelOriginOffset
 ==============
 */
-
-void __fastcall MdlPrvModelOriginOffset(double dx, double dy, double dz)
+void MdlPrvModelOriginOffset(float dx, float dy, float dz)
 {
   vec3_t outOrigin; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps xmm8, xmm2
-    vmovaps xmm7, xmm1
-    vmovaps xmm6, xmm0
-    vaddss  xmm4, xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin; ModelPreviewer g_mdlprv
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin, xmm4; ModelPreviewer g_mdlprv
-    vaddss  xmm3, xmm1, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4; ModelPreviewer g_mdlprv
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4, xmm3; ModelPreviewer g_mdlprv
-    vaddss  xmm5, xmm2, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8; ModelPreviewer g_mdlprv
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8, xmm5; ModelPreviewer g_mdlprv
-  }
+  g_mdlprv.model.initialOrigin.v[0] = dx + g_mdlprv.model.initialOrigin.v[0];
+  g_mdlprv.model.initialOrigin.v[1] = dy + g_mdlprv.model.initialOrigin.v[1];
+  g_mdlprv.model.initialOrigin.v[2] = dz + g_mdlprv.model.initialOrigin.v[2];
   GfxSceneEntity_GetPlacementOrigin(&g_mdlprv.model.currentEntity, &outOrigin);
-  __asm
-  {
-    vaddss  xmm1, xmm6, dword ptr [rsp+78h+outOrigin]
-    vmovss  dword ptr [rsp+78h+outOrigin], xmm1
-    vaddss  xmm0, xmm7, dword ptr [rsp+78h+outOrigin+4]
-    vmovss  dword ptr [rsp+78h+outOrigin+4], xmm0
-    vaddss  xmm2, xmm8, dword ptr [rsp+78h+outOrigin+8]
-    vmovss  dword ptr [rsp+78h+outOrigin+8], xmm2
-  }
+  outOrigin.v[0] = dx + outOrigin.v[0];
+  outOrigin.v[1] = dy + outOrigin.v[1];
+  outOrigin.v[2] = dz + outOrigin.v[2];
   GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &outOrigin);
   memset(&outOrigin, 0, sizeof(outOrigin));
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
-  }
 }
 
 /*
@@ -4284,43 +2944,13 @@ void __fastcall MdlPrvModelOriginOffset(double dx, double dy, double dz)
 MdlPrvPrintHelpLine
 ==============
 */
-
-int __fastcall MdlPrvPrintHelpLine(const ScreenPlacement *scrPlace, ButtonNames idx, double vPos)
+int MdlPrvPrintHelpLine(const ScreenPlacement *scrPlace, ButtonNames idx, float vPos)
 {
-  __int64 v8; 
-  int result; 
-  float v18; 
-  float v19; 
+  __int64 v4; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f4ccccd
-    vmovaps [rsp+78h+var_28], xmm7
-  }
-  v8 = idx;
-  __asm
-  {
-    vmovaps xmm3, xmm6; xScale
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  [rsp+78h+var_58], xmm6
-    vmovaps xmm7, xmm2
-  }
-  CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&vPos, *(float *)&_XMM3, v18, g_buttons[idx].name, &g_buttons[idx].nameColor, 5, cls.smallDevFont);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@42480000; x
-    vmovaps xmm3, xmm6; xScale
-    vmovaps xmm2, xmm7; y
-    vmovss  [rsp+78h+var_58], xmm6
-  }
-  result = CG_DrawDevString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v19, g_buttons[v8].desc, &colorWhiteFaded, 5, cls.smallDevFont);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  return result;
+  v4 = idx;
+  CG_DrawDevString(scrPlace, 0.0, vPos, 0.80000001, 0.80000001, g_buttons[idx].name, &g_buttons[idx].nameColor, 5, cls.smallDevFont);
+  return CG_DrawDevString(scrPlace, 50.0, vPos, 0.80000001, 0.80000001, g_buttons[v4].desc, &colorWhiteFaded, 5, cls.smallDevFont);
 }
 
 /*
@@ -4328,132 +2958,57 @@ int __fastcall MdlPrvPrintHelpLine(const ScreenPlacement *scrPlace, ButtonNames 
 MdlPrvSpinYawOffset
 ==============
 */
-
-void __fastcall MdlPrvSpinYawOffset(double deg)
+void MdlPrvSpinYawOffset(float deg)
 {
+  float value; 
+  __int128 v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  __int128 v6; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
   vec3_t origin; 
   vec3_t angles; 
   vec3_t outOrigin; 
   tmat33_t<vec3_t> axis; 
-  __int64 v83; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  _RBP = &v83;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps xmmword ptr [rax-98h], xmm14
-    vxorps  xmm14, xmm14, xmm14
-    vmovaps xmm1, xmm0; deg
-    vmovss  dword ptr [rsp+110h+angles], xmm14
-    vmovss  dword ptr [rsp+110h+angles+4], xmm14
-    vmovss  dword ptr [rsp+110h+angles+8], xmm14
-    vmovaps xmm6, xmm0
-  }
-  MdlPrvSpin_(1u, *(float *)&_XMM1);
-  __asm
-  {
-    vxorps  xmm0, xmm6, cs:__xmm@80000000800000008000000080000000
-    vmovss  dword ptr [rsp+110h+angles+4], xmm0
-  }
+  angles.v[0] = 0.0;
+  angles.v[2] = 0.0;
+  MdlPrvSpin_(1u, deg);
+  LODWORD(angles.v[1]) = LODWORD(deg) ^ _xmm;
   AnglesToAxis(&angles, &axis);
-  _RAX = modPrvCenterOffset;
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rax+28h]
-    vmovss  xmm7, dword ptr [rax+2Ch]
-    vmovss  xmm6, dword ptr [rax+30h]
-  }
+  value = modPrvCenterOffset->current.value;
+  v2 = LODWORD(modPrvCenterOffset->current.vector.v[1]);
+  v3 = modPrvCenterOffset->current.vector.v[2];
   GfxSceneEntity_GetPlacementOrigin(&g_mdlprv.model.currentEntity, &outOrigin);
+  v4 = value + outOrigin.v[0];
+  v5 = v3 + outOrigin.v[2];
+  v6 = v2;
+  *(float *)&v6 = fsqrt((float)((float)(*(float *)&v2 * *(float *)&v2) + (float)(value * value)) + (float)(v3 * v3));
+  _XMM10 = v6;
   __asm
   {
-    vaddss  xmm13, xmm8, dword ptr [rsp+110h+outOrigin]
-    vaddss  xmm12, xmm7, dword ptr [rsp+110h+outOrigin+4]
-    vaddss  xmm11, xmm6, dword ptr [rsp+110h+outOrigin+8]
-    vmulss  xmm0, xmm8, xmm8
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm10, xmm2, xmm2
     vcmpless xmm0, xmm10, cs:__real@80000000
     vblendvps xmm0, xmm10, xmm1, xmm0
-    vdivss  xmm1, xmm1, xmm0
-    vmulss  xmm5, xmm7, xmm1
-    vmulss  xmm3, xmm5, dword ptr [rsp+110h+axis+4]
-    vmulss  xmm8, xmm8, xmm1
-    vmulss  xmm2, xmm8, dword ptr [rsp+110h+axis]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm9, xmm6, xmm1
-    vmulss  xmm1, xmm9, dword ptr [rsp+110h+axis+8]
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm1, xmm9, dword ptr [rsp+110h+axis+14h]
-    vmulss  xmm3, xmm2, xmm10
-    vmulss  xmm2, xmm8, dword ptr [rsp+110h+axis+0Ch]
-    vsubss  xmm7, xmm13, xmm3
-    vmulss  xmm3, xmm5, dword ptr [rsp+110h+axis+10h]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm4, xmm5, dword ptr [rsp+110h+axis+1Ch]
-    vmulss  xmm3, xmm2, xmm10
-    vmulss  xmm2, xmm9, dword ptr [rsp+110h+axis+20h]
-    vsubss  xmm6, xmm12, xmm3
-    vmulss  xmm3, xmm8, dword ptr [rsp+110h+axis+18h]
-    vaddss  xmm5, xmm4, xmm3
-    vaddss  xmm3, xmm5, xmm2
-    vmulss  xmm4, xmm3, xmm10
-    vsubss  xmm0, xmm11, xmm4
-    vmovss  dword ptr [rsp+110h+origin], xmm7
-    vmovss  dword ptr [rsp+110h+origin+4], xmm6
-    vsubss  xmm8, xmm13, xmm7
-    vsubss  xmm7, xmm12, xmm6
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  dword ptr [rsp+110h+origin+8], xmm0
-    vsubss  xmm6, xmm11, xmm0
   }
-  Dvar_SetVec3_Internal(modPrvOrigin, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+110h+origin]
-    vmovss  xmm4, dword ptr [rsp+110h+origin+4]
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin, xmm0; ModelPreviewer g_mdlprv
-    vmovss  xmm0, dword ptr [rsp+110h+origin+8]
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8, xmm0; ModelPreviewer g_mdlprv
-    vmovss  dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4, xmm4; ModelPreviewer g_mdlprv
-  }
+  v10 = *(float *)&v2 * (float)(1.0 / *(float *)&_XMM0);
+  v11 = value * (float)(1.0 / *(float *)&_XMM0);
+  v12 = v3 * (float)(1.0 / *(float *)&_XMM0);
+  *(float *)&_XMM0 = (float)(v3 + outOrigin.v[2]) - (float)((float)((float)((float)(v10 * axis.m[2].v[1]) + (float)(v11 * axis.m[2].v[0])) + (float)(v12 * axis.m[2].v[2])) * *(float *)&v6);
+  origin.v[0] = v4 - (float)((float)((float)((float)(v10 * axis.m[0].v[1]) + (float)(v11 * axis.m[0].v[0])) + (float)(v12 * axis.m[0].v[2])) * *(float *)&v6);
+  origin.v[1] = (float)(*(float *)&v2 + outOrigin.v[1]) - (float)((float)((float)((float)(v10 * axis.m[1].v[1]) + (float)(v11 * axis.m[1].v[0])) + (float)(v12 * axis.m[1].v[2])) * *(float *)&v6);
+  v13 = v4 - origin.v[0];
+  *(float *)&v2 = (float)(*(float *)&v2 + outOrigin.v[1]) - origin.v[1];
+  origin.v[2] = *(float *)&_XMM0;
+  Dvar_SetVec3_Internal(modPrvOrigin, 0.0, 0.0, 0.0);
+  g_mdlprv.model.initialOrigin.v[0] = origin.v[0];
+  g_mdlprv.model.initialOrigin.v[2] = *(float *)&_XMM0;
+  g_mdlprv.model.initialOrigin.v[1] = origin.v[1];
   GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &origin);
-  __asm
-  {
-    vmovaps xmm3, xmm6; z
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm8; x
-  }
-  Dvar_SetVec3_Internal(modPrvCenterOffset, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
+  Dvar_SetVec3_Internal(modPrvCenterOffset, v13, *(float *)&v2, v5 - *(float *)&_XMM0);
 }
 
 /*
@@ -4461,93 +3016,43 @@ void __fastcall MdlPrvSpinYawOffset(double deg)
 MdlPrvSpin_
 ==============
 */
-
-void __fastcall MdlPrvSpin_(unsigned int yprIdx, double deg)
+void MdlPrvSpin_(unsigned int yprIdx, float deg)
 {
-  int v38; 
+  __int64 v2; 
+  int v8; 
   vec3_t angles; 
   vec4_t quat; 
   tmat33_t<vec3_t> in2; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
-  __int64 v44; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  _RBP = &v44;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm8
-    vmovaps xmmword ptr [rax-38h], xmm9
-    vxorps  xmm0, xmm0, xmm0
-  }
-  _RBX = (int)yprIdx;
-  __asm
-  {
-    vmovss  dword ptr [rsp+110h+angles], xmm0
-    vmovss  dword ptr [rsp+110h+angles+4], xmm0
-    vmovss  dword ptr [rsp+110h+angles+8], xmm0
-    vmovaps xmm6, xmm1
-  }
+  v2 = (int)yprIdx;
+  angles.v[0] = 0.0;
+  angles.v[1] = 0.0;
+  angles.v[2] = 0.0;
   if ( yprIdx >= 3 )
   {
-    v38 = 3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", yprIdx, v38) )
+    v8 = 3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", yprIdx, v8) )
       __debugbreak();
   }
-  __asm { vmovss  dword ptr [rsp+rbx*4+110h+angles], xmm6 }
+  angles.v[v2] = deg;
   AnglesToAxis(&angles, &axis);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat; ModelPreviewer g_mdlprv
-    vmovups xmmword ptr [rsp+110h+quat], xmm0
-  }
+  quat = g_mdlprv.model.currentEntity.placement.placement.quat;
   UnitQuatToAxis(&quat, &in2);
   MatrixMultiply(&axis, &in2, &out);
   AxisCopy(&out, &in2);
   AxisToQuat(&in2, &quat);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+110h+quat]
-    vmovups xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat, xmm0; ModelPreviewer g_mdlprv
-  }
+  g_mdlprv.model.currentEntity.placement.placement.quat = quat;
   AxisToAngles(&in2, &angles);
+  _XMM9 = 0i64;
   __asm
   {
-    vmovss  xmm5, cs:__real@3f000000
-    vmovss  xmm6, cs:__real@3b360b61
-    vmulss  xmm4, xmm6, dword ptr [rsp+110h+angles]
-    vmulss  xmm1, xmm6, dword ptr [rsp+110h+angles+4]
-    vmulss  xmm6, xmm6, dword ptr [rsp+110h+angles+8]
-    vaddss  xmm3, xmm1, xmm5
-    vaddss  xmm1, xmm3, xmm5
-    vxorps  xmm9, xmm9, xmm9
     vroundss xmm2, xmm9, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm8, xmm0, cs:__real@43b40000
-    vaddss  xmm2, xmm4, xmm5
     vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm1, xmm4, xmm3
-    vmulss  xmm1, xmm1, cs:__real@43b40000; x
-    vaddss  xmm4, xmm6, xmm5
     vroundss xmm5, xmm9, xmm4, 1
-    vsubss  xmm3, xmm6, xmm5
-    vmulss  xmm3, xmm3, cs:__real@43b40000; z
-    vmovaps xmm2, xmm8; y
-    vmovss  dword ptr [rsp+110h+angles+8], xmm3
-    vmovss  dword ptr [rsp+110h+angles+4], xmm8
-    vmovss  dword ptr [rsp+110h+angles], xmm1
   }
-  Dvar_SetVec3_Internal(modPrvRotationAngles, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-  }
+  Dvar_SetVec3_Internal(modPrvRotationAngles, (float)((float)(0.0027777778 * angles.v[0]) - *(float *)&_XMM3) * 360.0, (float)((float)((float)(0.0027777778 * angles.v[1]) + 0.5) - *(float *)&_XMM2) * 360.0, (float)((float)(0.0027777778 * angles.v[2]) - *(float *)&_XMM5) * 360.0);
 }
 
 /*
@@ -4557,244 +3062,181 @@ MdlPrvUpdateViewFocused
 */
 void MdlPrvUpdateViewFocused(vec3_t *outViewOrigin, tmat33_t<vec3_t> *outViewAxis, vec3_t *outViewAngles, float *zNear)
 {
-  unsigned int v15; 
-  __int64 v16; 
-  __int64 v17; 
-  int v34; 
-  float *v35; 
-  float *v36; 
-  bool v37; 
-  int v38; 
-  __int64 v53; 
-  __int64 v54; 
+  unsigned int v7; 
+  __int64 v8; 
+  __int64 v9; 
+  float *v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  int v14; 
+  float *v15; 
+  float *v16; 
+  bool v17; 
+  int v18; 
+  __int64 v19; 
+  float v20; 
+  __int64 v21; 
+  __int64 v22; 
   vec3_t outOrigin; 
   vec3_t start; 
   vec4_t color; 
   tmat33_t<vec3_t> mat; 
-  tmat33_t<vec3_t> v59; 
+  tmat33_t<vec3_t> v27; 
   tmat44_t<vec4_t> in2; 
   tmat44_t<vec4_t> out; 
-  tmat44_t<vec4_t> v62; 
-  tmat44_t<vec4_t> v63; 
+  tmat44_t<vec4_t> v30; 
+  tmat44_t<vec4_t> v31; 
   tmat44_t<vec4_t> in1; 
-  char v65; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
   *(_QWORD *)outOrigin.v = zNear;
-  _R14 = outViewOrigin;
   if ( !zNear && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_modelpreviewer.cpp", 4186, ASSERT_TYPE_ASSERT, "(zNear)", (const char *)&queryFormat, "zNear") )
     __debugbreak();
   MatrixIdentity44(&out);
   MatrixIdentity44(&in2);
-  MatrixIdentity44(&v62);
-  __asm { vmovss  xmm1, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.vertical; degrees }
-  MatrixRotationY(&mat, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm0, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.horizontal; ModelPreviewer g_mdlprv
-    vxorps  xmm1, xmm0, xmm6; degrees
-  }
-  MatrixRotationZ(&v59, *(float *)&_XMM1);
-  v15 = 0;
-  v16 = 0i64;
-  v17 = 0i64;
+  MatrixIdentity44(&v30);
+  MatrixRotationY(&mat, g_mdlprv.viewer.vertical);
+  MatrixRotationZ(&v27, COERCE_FLOAT(LODWORD(g_mdlprv.viewer.horizontal) ^ _xmm));
+  v7 = 0;
+  v8 = 0i64;
+  v9 = 0i64;
   do
   {
-    if ( v15 >= 4 )
+    if ( v7 >= 4 )
     {
-      LODWORD(v54) = 4;
-      LODWORD(v53) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 370, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v53, v54) )
+      LODWORD(v22) = 4;
+      LODWORD(v21) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 370, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    if ( v15 >= 3 )
+    if ( v7 >= 3 )
     {
-      LODWORD(v54) = 3;
-      LODWORD(v53) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v53, v54) )
+      LODWORD(v22) = 3;
+      LODWORD(v21) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    in2.m[v17].v[0] = mat.m[v16].v[0];
-    in2.m[v17].v[1] = mat.m[v16].v[1];
-    in2.m[v17].v[2] = mat.m[v16].v[2];
-    if ( v15 >= 4 )
+    in2.m[v9].v[0] = mat.m[v8].v[0];
+    in2.m[v9].v[1] = mat.m[v8].v[1];
+    in2.m[v9].v[2] = mat.m[v8].v[2];
+    if ( v7 >= 4 )
     {
-      LODWORD(v54) = 4;
-      LODWORD(v53) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 370, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v53, v54) )
+      LODWORD(v22) = 4;
+      LODWORD(v21) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 370, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    if ( v15 >= 3 )
+    if ( v7 >= 3 )
     {
-      LODWORD(v54) = 3;
-      LODWORD(v53) = v15;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v53, v54) )
+      LODWORD(v22) = 3;
+      LODWORD(v21) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    v62.m[v17].v[0] = v59.m[v16].v[0];
-    v62.m[v17].v[1] = v59.m[v16].v[1];
-    v62.m[v17].v[2] = v59.m[v16].v[2];
-    ++v15;
-    ++v17;
-    ++v16;
+    v30.m[v9].v[0] = v27.m[v8].v[0];
+    v30.m[v9].v[1] = v27.m[v8].v[1];
+    v30.m[v9].v[2] = v27.m[v8].v[2];
+    ++v7;
+    ++v9;
+    ++v8;
   }
-  while ( (int)v15 < 3 );
-  __asm
-  {
-    vmovss  xmm0, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius; ModelPreviewer g_mdlprv
-    vxorps  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rbp+190h+out+30h], xmm1
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rbp+190h+out+34h], xmm6
-    vmovss  dword ptr [rbp+190h+out+38h], xmm6
-  }
+  while ( (int)v7 < 3 );
+  LODWORD(out.m[3].v[0]) = LODWORD(g_mdlprv.viewer.centerRadius) ^ _xmm;
+  out.m[3].v[1] = 0.0;
+  out.m[3].v[2] = 0.0;
   MatrixMultiply44Aligned(&out, &in2, &in1);
-  MatrixMultiply44Aligned(&in1, &v62, &v63);
-  _R13 = *(_QWORD *)outOrigin.v;
+  MatrixMultiply44Aligned(&in1, &v30, &v31);
+  v10 = *(float **)outOrigin.v;
   if ( modPrvAnimApplyDelta->current.enabled && g_mdlprv.anim.isAnimPlaying )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin; ModelPreviewer g_mdlprv
-      vaddss  xmm1, xmm0, dword ptr [rax+28h]
-      vmovss  dword ptr [rsp+290h+start], xmm1
-      vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+4; ModelPreviewer g_mdlprv
-      vaddss  xmm3, xmm0, dword ptr [rax+2Ch]
-      vmovss  dword ptr [rsp+290h+start+4], xmm3
-      vmovss  xmm0, dword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialOrigin+8; ModelPreviewer g_mdlprv
-      vaddss  xmm4, xmm0, dword ptr [rax+30h]
-      vmovss  dword ptr [rsp+290h+start+8], xmm4
-    }
+    v11 = g_mdlprv.model.initialOrigin.v[0] + modPrvCenterOffset->current.value;
+    start.v[0] = v11;
+    v12 = g_mdlprv.model.initialOrigin.v[1] + modPrvCenterOffset->current.vector.v[1];
+    start.v[1] = v12;
+    v13 = g_mdlprv.model.initialOrigin.v[2] + modPrvCenterOffset->current.vector.v[2];
+    start.v[2] = v13;
   }
   else
   {
     GfxSceneEntity_GetPlacementOrigin(&g_mdlprv.model.currentEntity, &outOrigin);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+290h+outOrigin]
-      vaddss  xmm1, xmm0, dword ptr [rax+28h]
-      vmovss  dword ptr [rsp+290h+start], xmm1
-      vmovss  xmm0, dword ptr [rsp+290h+outOrigin+4]
-      vaddss  xmm3, xmm0, dword ptr [rax+2Ch]
-      vmovss  dword ptr [rsp+290h+start+4], xmm3
-      vmovss  xmm0, dword ptr [rsp+290h+outOrigin+8]
-      vaddss  xmm4, xmm0, dword ptr [rax+30h]
-      vmovss  dword ptr [rsp+290h+start+8], xmm4
-    }
+    v11 = outOrigin.v[0] + modPrvCenterOffset->current.value;
+    start.v[0] = v11;
+    v12 = outOrigin.v[1] + modPrvCenterOffset->current.vector.v[1];
+    start.v[1] = v12;
+    v13 = outOrigin.v[2] + modPrvCenterOffset->current.vector.v[2];
+    start.v[2] = v13;
     memset(&outOrigin, 0, sizeof(outOrigin));
   }
-  __asm
-  {
-    vaddss  xmm1, xmm1, dword ptr [rbp+190h+var_100+30h]
-    vmovss  dword ptr [r14], xmm1
-    vaddss  xmm0, xmm3, dword ptr [rbp+190h+var_100+34h]
-    vmovss  dword ptr [r14+4], xmm0
-    vaddss  xmm2, xmm4, dword ptr [rbp+190h+var_100+38h]
-    vmovss  dword ptr [r14+8], xmm2
-  }
-  v34 = 0;
-  v35 = &outViewAxis->m[0].v[2];
-  v36 = &v63.m[0].v[2];
-  v37 = 1;
+  outViewOrigin->v[0] = v11 + v31.m[3].v[0];
+  outViewOrigin->v[1] = v12 + v31.m[3].v[1];
+  outViewOrigin->v[2] = v13 + v31.m[3].v[2];
+  v14 = 0;
+  v15 = &outViewAxis->m[0].v[2];
+  v16 = &v31.m[0].v[2];
+  v17 = 1;
   do
   {
-    if ( !v37 )
+    if ( !v17 )
     {
-      LODWORD(v54) = 3;
-      LODWORD(v53) = v34;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v53, v54) )
+      LODWORD(v22) = 3;
+      LODWORD(v21) = v14;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    if ( (unsigned int)v34 >= 4 )
+    if ( (unsigned int)v14 >= 4 )
     {
-      LODWORD(v54) = 4;
-      LODWORD(v53) = v34;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 370, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v53, v54) )
+      LODWORD(v22) = 4;
+      LODWORD(v21) = v14;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 370, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    *(v35 - 2) = *(v36 - 2);
-    *(v35 - 1) = *(v36 - 1);
-    *v35 = *v36;
-    ++v34;
-    v35 += 3;
-    v36 += 4;
-    v37 = (unsigned int)v34 < 3;
+    *(v15 - 2) = *(v16 - 2);
+    *(v15 - 1) = *(v16 - 1);
+    *v15 = *v16;
+    ++v14;
+    v15 += 3;
+    v16 += 4;
+    v17 = (unsigned int)v14 < 3;
   }
-  while ( v34 < 3 );
+  while ( v14 < 3 );
   AxisToAngles(outViewAxis, outViewAngles);
   if ( modPrvDrawAxis->current.enabled || g_mdlprv.system.focusedMode == FOCUSEDMODE_FOCALMOVE )
   {
-    v38 = 0;
-    _RBX = 0i64;
-    __asm { vmovss  xmm8, cs:__real@3dcccccd }
+    v18 = 0;
+    v19 = 0i64;
     do
     {
-      __asm
+      color = 0i64;
+      if ( (unsigned int)v18 >= 4 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vmovups xmmword ptr [rsp+290h+color], xmm0
-      }
-      if ( (unsigned int)v38 >= 4 )
-      {
-        LODWORD(v54) = 4;
-        LODWORD(v53) = v38;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v53, v54) )
+        LODWORD(v22) = 4;
+        LODWORD(v21) = v18;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 98, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v21, v22) )
           __debugbreak();
       }
-      color.v[_RBX] = 1.0;
-      __asm
+      color.v[v19] = 1.0;
+      outOrigin.v[0] = 0.0;
+      outOrigin.v[1] = 0.0;
+      outOrigin.v[2] = 0.0;
+      v20 = 0.1 * g_mdlprv.viewer.centerRadius;
+      if ( (unsigned int)v18 >= 3 )
       {
-        vmovss  dword ptr [rsp+290h+outOrigin], xmm6
-        vmovss  dword ptr [rsp+290h+outOrigin+4], xmm6
-        vmovss  dword ptr [rsp+290h+outOrigin+8], xmm6
-        vmulss  xmm7, xmm8, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius; ModelPreviewer g_mdlprv
-      }
-      if ( (unsigned int)v38 >= 3 )
-      {
-        LODWORD(v54) = 3;
-        LODWORD(v53) = v38;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v53, v54) )
+        LODWORD(v22) = 3;
+        LODWORD(v21) = v18;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v21, v22) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  dword ptr [rsp+rbx+290h+outOrigin], xmm7
-        vmovss  xmm0, dword ptr [rsp+290h+outOrigin]
-        vaddss  xmm1, xmm0, dword ptr [rsp+290h+start]
-        vmovss  dword ptr [rsp+290h+outOrigin], xmm1
-        vmovss  xmm2, dword ptr [rsp+290h+outOrigin+4]
-        vaddss  xmm0, xmm2, dword ptr [rsp+290h+start+4]
-        vmovss  dword ptr [rsp+290h+outOrigin+4], xmm0
-        vmovss  xmm1, dword ptr [rsp+290h+outOrigin+8]
-        vaddss  xmm2, xmm1, dword ptr [rsp+290h+start+8]
-        vmovss  dword ptr [rsp+290h+outOrigin+8], xmm2
-      }
+      outOrigin.v[v19] = v20;
+      outOrigin.v[0] = outOrigin.v[0] + start.v[0];
+      outOrigin.v[1] = outOrigin.v[1] + start.v[1];
+      outOrigin.v[2] = outOrigin.v[2] + start.v[2];
       CG_DebugLine(&start, &outOrigin, &color, 1, 0);
-      ++v38;
-      ++_RBX;
+      ++v18;
+      ++v19;
     }
-    while ( v38 < 3 );
+    while ( v18 < 3 );
   }
-  __asm
-  {
-    vmovss  xmm0, cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.zNear; ModelPreviewer g_mdlprv
-    vmovss  dword ptr [r13+0], xmm0
-  }
-  _R11 = &v65;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
+  *v10 = g_mdlprv.viewer.zNear;
 }
 
 /*
@@ -4910,63 +3352,27 @@ LABEL_2:
 ResetOrientation_f
 ==============
 */
-
-void __fastcall ResetOrientation_f(__int64 a1, __int64 a2, double _XMM2_8, double _XMM3_8)
+void ResetOrientation_f()
 {
-  __int64 v23; 
+  float v0; 
   vec3_t angles; 
   vec4_t quat; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovss  xmm1, cs:__real@42c80000
-    vmovss  xmm0, cs:__real@c1a00000
-    vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.centerRadius, xmm1; ModelPreviewer g_mdlprv
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm1, xmm1, xmm1; x
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.horizontal, xmm6; ModelPreviewer g_mdlprv
-    vmovss  cs:?g_mdlprv@@3UModelPreviewer@@A.viewer.vertical, xmm0; ModelPreviewer g_mdlprv
-  }
-  Dvar_SetVec3_Internal(modPrvCenterOffset, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
+  g_mdlprv.viewer.centerRadius = FLOAT_100_0;
+  g_mdlprv.viewer.horizontal = 0.0;
+  g_mdlprv.viewer.vertical = FLOAT_N20_0;
+  Dvar_SetVec3_Internal(modPrvCenterOffset, 0.0, 0.0, 0.0);
   GfxSceneEntity_SetPlacementOrigin(&g_mdlprv.model.currentEntity, &g_mdlprv.model.initialOrigin);
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-  }
-  Dvar_SetVec3_Internal(modPrvOrigin, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vmovss  xmm2, cs:?g_mdlprv@@3UModelPreviewer@@A.model.initialYaw; y
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm1, xmm1, xmm1; x
-  }
-  Dvar_SetVec3_Internal(modPrvRotationAngles, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  _RAX = modPrvRotationAngles;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+28h]
-    vmovss  xmm1, dword ptr [rax+30h]
-    vmovss  dword ptr [rsp+68h+angles], xmm0
-    vmovss  xmm0, cs:?g_mdlprv@@3UModelPreviewer@@A.anim.deltaYaw; ModelPreviewer g_mdlprv
-    vaddss  xmm2, xmm0, cs:__real@43340000
-    vmovss  dword ptr [rsp+68h+angles+8], xmm1
-    vaddss  xmm1, xmm2, dword ptr [rax+2Ch]
-    vmovss  dword ptr [rsp+68h+angles+4], xmm1
-  }
+  Dvar_SetVec3_Internal(modPrvOrigin, 0.0, 0.0, 0.0);
+  Dvar_SetVec3_Internal(modPrvRotationAngles, 0.0, g_mdlprv.model.initialYaw, 0.0);
+  v0 = modPrvRotationAngles->current.vector.v[2];
+  LODWORD(angles.v[0]) = modPrvRotationAngles->current.integer;
+  angles.v[2] = v0;
+  angles.v[1] = (float)(g_mdlprv.anim.deltaYaw + 180.0) + modPrvRotationAngles->current.vector.v[1];
   AnglesToQuat(&angles, &quat);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+68h+quat]
-    vmovups xmmword ptr cs:?g_mdlprv@@3UModelPreviewer@@A.model.currentEntity.placement.placement.quat, xmm0; ModelPreviewer g_mdlprv
-  }
+  g_mdlprv.model.currentEntity.placement.placement.quat = quat;
   if ( g_mdlprv.model.currentIndex >= 0 )
-    FrameModel(v23, *(double *)&_XMM1, *(double *)&_XMM2);
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
+    FrameModel();
 }
 
 /*

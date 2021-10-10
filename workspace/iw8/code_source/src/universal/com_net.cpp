@@ -1306,36 +1306,35 @@ __int64 Sys_GetPacket(netadr_t *net_from, msg_t *net_message, NetPingInfo *net_i
 {
   unsigned int v6; 
   int addrHandleIndex; 
-  const char *v9; 
+  const char *v8; 
   __int64 result; 
-  int v11; 
-  const char *v12; 
+  int v10; 
+  const char *v11; 
+  int v12; 
   int v13; 
-  int v14; 
-  netadr_t v15; 
+  netadr_t v14; 
   int dataLength; 
 
-  _RBX = net_from;
   *(_QWORD *)&net_from->type = 0i64;
   *(_QWORD *)&net_from->port = 0i64;
   net_from->addrHandleIndex = 0;
   if ( s_lan_socket && (dataLength = Sys_RecvFrom(s_lan_socket, net_from, net_message), v6 = dataLength, dataLength > 0) )
   {
-    _RBX->flags |= 1u;
-    _RBX->type = NA_BROADCAST;
-    _RBX->addrHandleIndex = -1;
+    net_from->flags |= 1u;
+    net_from->type = NA_BROADCAST;
+    net_from->addrHandleIndex = -1;
   }
   else
   {
-    v11 = NET_RecvFrom(net_message->data, net_message->maxsize, _RBX, net_info);
-    dataLength = v11;
-    v6 = v11;
-    if ( v11 == -2 || v11 == -9 )
+    v10 = NET_RecvFrom(net_message->data, net_message->maxsize, net_from, net_info);
+    dataLength = v10;
+    v6 = v10;
+    if ( v10 == -2 || v10 == -9 )
       return 0i64;
-    if ( v11 < 0 )
+    if ( v10 < 0 )
     {
-      v12 = NET_ErrorString();
-      Com_Printf(25, "Sys_GetPacket: NET_RecvFrom failed with %s (ret was %d)\n", v12, v6);
+      v11 = NET_ErrorString();
+      Com_Printf(25, "Sys_GetPacket: NET_RecvFrom failed with %s (ret was %d)\n", v11, v6);
       return 0i64;
     }
   }
@@ -1344,22 +1343,21 @@ __int64 Sys_GetPacket(netadr_t *net_from, msg_t *net_message, NetPingInfo *net_i
     return 0i64;
   if ( !v6 )
   {
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    addrHandleIndex = _RBX->addrHandleIndex;
-    __asm { vmovups [rsp+48h+var_28], xmm0 }
-    v15.addrHandleIndex = addrHandleIndex;
-    v9 = NET_AdrToString(&v15);
-    Com_Printf((unsigned __int8)v6 + 25, "Empty or discarded packet from %s\n", v9);
+    addrHandleIndex = net_from->addrHandleIndex;
+    *(_OWORD *)&v14.type = *(_OWORD *)&net_from->type;
+    v14.addrHandleIndex = addrHandleIndex;
+    v8 = NET_AdrToString(&v14);
+    Com_Printf(25, "Empty or discarded packet from %s\n", v8);
     return 0i64;
   }
   if ( !Sys_VerifyCheckSum(net_message->data, &dataLength) )
     return 0i64;
-  v13 = dataLength;
-  v14 = net_message->data[dataLength + 2] & 0xF;
+  v12 = dataLength;
+  v13 = net_message->data[dataLength + 2] & 0xF;
   net_message->targetLocalNetID = net_message->data[dataLength + 2] >> 4;
-  _RBX->localNetID = v14;
+  net_from->localNetID = v13;
   result = 1i64;
-  net_message->cursize = v13;
+  net_message->cursize = v12;
   return result;
 }
 
@@ -1385,23 +1383,22 @@ Sys_ResolveHostname
 */
 __int64 Sys_ResolveHostname(const char *s, addrinfo **results)
 {
-  INT v8; 
-  const char *v10; 
-  ADDRINFOA v11; 
-  void *retaddr; 
+  __m256i v3; 
+  INT v7; 
+  const char *v9; 
+  ADDRINFOA v10; 
 
-  _RAX = &retaddr;
-  HIDWORD(v11.ai_next) = 0;
+  HIDWORD(v10.ai_next) = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
-  v11.ai_family = 2;
-  v11.ai_socktype = 2;
-  v11.ai_flags = 3;
-  __asm { vmovdqu ymmword ptr [rax-2Ch], ymm0 }
-  v8 = getaddrinfo(s, NULL, &v11, results);
-  if ( v8 )
+  v10.ai_family = 2;
+  v10.ai_socktype = 2;
+  v10.ai_flags = 3;
+  *(__m256i *)&v10.ai_protocol = v3;
+  v7 = getaddrinfo(s, NULL, &v10, results);
+  if ( v7 )
   {
-    v10 = NET_ErrorString();
-    Com_PrintError(25, "Failed to resolve host name '%s': %s (%d)\n", s, v10, v8);
+    v9 = NET_ErrorString();
+    Com_PrintError(25, "Failed to resolve host name '%s': %s (%d)\n", s, v9, v7);
     return 0i64;
   }
   else
@@ -1438,22 +1435,21 @@ __int64 Sys_SendPacket(netsrc_t sock, int length, const void *data, const netadr
   int v25; 
   unsigned int v27; 
   int v28; 
-  int v30; 
-  netadrtype_t v31; 
-  const char *v32; 
+  int v29; 
+  netadrtype_t v30; 
+  const char *v31; 
   char *fmt; 
-  __int64 v35; 
-  int v37; 
-  netadr_t v38; 
+  __int64 v34; 
+  int v36; 
+  netadr_t v37; 
   char dataa[1264]; 
 
-  _R14 = to;
   v7 = length;
   v9 = sock;
   if ( (unsigned int)length > 0x4E7 )
   {
-    v37 = 1255;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_net.cpp", 1082, ASSERT_TYPE_ASSERT, "( length ) <= ( sizeof( buffer ) )", "length not in [0, sizeof( buffer )]\n\t%u not in [0, %u]", length, v37) )
+    v36 = 1255;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_net.cpp", 1082, ASSERT_TYPE_ASSERT, "( length ) <= ( sizeof( buffer ) )", "length not in [0, sizeof( buffer )]\n\t%u not in [0, %u]", length, v36) )
       __debugbreak();
   }
   v10 = 0;
@@ -1484,15 +1480,15 @@ __int64 Sys_SendPacket(netsrc_t sock, int length, const void *data, const netadr
   }
   for ( i = HIWORD(v10); HIWORD(v10); i = HIWORD(v10) )
     v10 = i + (unsigned __int16)v10;
-  __asm { vmovups xmm0, xmmword ptr [r14] }
-  type = _R14->type;
+  _XMM0 = *(_OWORD *)&to->type;
+  type = to->type;
   v20 = ~(_WORD)v10;
   dataa[v7 + 1] = v20;
   v21 = HIBYTE(v20);
-  addrHandleIndex = _R14->addrHandleIndex;
+  addrHandleIndex = to->addrHandleIndex;
   dataa[v7] = v21;
   v23 = v7 + 2;
-  v38.addrHandleIndex = addrHandleIndex;
+  v37.addrHandleIndex = addrHandleIndex;
   v24 = v23;
   v25 = v23 + 1;
   __asm { vpextrq rcx, xmm0, 1 }
@@ -1504,15 +1500,14 @@ __int64 Sys_SendPacket(netsrc_t sock, int length, const void *data, const netadr
       Com_Error_impl(ERR_FATAL, (const ObfuscateErrorText)&stru_144168878, 1083i64);
       v27 = -7;
 LABEL_19:
-      __asm { vmovups xmm0, xmmword ptr [r14] }
-      v30 = _R14->addrHandleIndex;
-      v31 = _R14->type;
-      __asm { vmovups [rsp+588h+var_548], xmm0 }
-      v38.addrHandleIndex = v30;
-      v32 = NET_AdrToString(&v38);
-      LODWORD(v35) = v31;
+      v29 = to->addrHandleIndex;
+      *(_OWORD *)&v37.type = *(_OWORD *)&to->type;
+      v30 = v37.type;
+      v37.addrHandleIndex = v29;
+      v31 = NET_AdrToString(&v37);
+      LODWORD(v34) = v30;
       LODWORD(fmt) = v25;
-      Com_PrintError(25, "[NET] Sys_SendPacket failed to %s: error=%d, length=%d, type=%d\n", v32, v27, fmt, v35);
+      Com_PrintError(25, "[NET] Sys_SendPacket failed to %s: error=%d, length=%d, type=%d\n", v31, v27, fmt, v34);
       return v27;
     }
     if ( !s_lan_socket )
@@ -1520,13 +1515,13 @@ LABEL_19:
       v27 = -9;
       goto LABEL_19;
     }
-    v38.addrHandleIndex = _R14->addrHandleIndex;
-    __asm { vmovups [rsp+588h+var_548], xmm0 }
-    v28 = Sys_SendTo(s_lan_socket, dataa, v25, &v38);
+    v37.addrHandleIndex = to->addrHandleIndex;
+    *(_OWORD *)&v37.type = _XMM0;
+    v28 = Sys_SendTo(s_lan_socket, dataa, v25, &v37);
   }
   else
   {
-    v28 = NET_SendTo(dataa, v25, _R14, flags, info);
+    v28 = NET_SendTo(dataa, v25, to, flags, info);
   }
   v27 = v28;
   if ( v28 < 0 )

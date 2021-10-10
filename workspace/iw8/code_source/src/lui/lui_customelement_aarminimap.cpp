@@ -35,13 +35,13 @@ const char *LUIElement_AARMinimap_GetPlayerFaction(const DDLState *rootState, co
   fromState.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   v16.isValid = 0;
   v16.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+var_40.member], xmm0 }
+  *(_OWORD *)&v16.member = _XMM0;
   toState.isValid = 0;
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.arrayIndex = -1;
   v16.arrayIndex = -1;
   toState.arrayIndex = -1;
@@ -73,157 +73,59 @@ const char *LUIElement_AARMinimap_GetPlayerFaction(const DDLState *rootState, co
 LUIElement_AARMinimap_Render
 ==============
 */
-
-void __fastcall LUIElement_AARMinimap_Render(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, double alpha, float red, float green, float blue, lua_State *luaVM)
+void LUIElement_AARMinimap_Render(const LocalClientNum_t localClientNum, LUIElement *element, LUIElement *root, float alpha, float red, float green, float blue, lua_State *luaVM)
 {
   AARMinimapData *Data; 
-  AARMinimapData *v27; 
   __int64 numDeaths; 
   bool playerOnly; 
-  __int64 v32; 
-  int v37; 
-  AARMinimapData *v41; 
-  __int64 v42; 
-  float quadVerts; 
-  float quadVertsa; 
-  float v72; 
-  float v73; 
-  float v74; 
-  float v75; 
-  float v76; 
-  float v77; 
-  char v80; 
+  __int64 v13; 
+  AARMinimapDeath *deaths; 
+  int v15; 
+  AARMinimapData *v16; 
+  __int64 v17; 
+  double CurrentUnitScale; 
+  float v19; 
+  float v20; 
+  vec2_t location; 
+  char v23; 
   vec4_t color; 
   vec4_t verts[4]; 
-  vec4_t v83[4]; 
-  char v93; 
+  vec4_t quadVerts[4]; 
 
-  __asm
-  {
-    vmovaps [rsp+1D8h+var_88], xmm10
-    vmovaps [rsp+1D8h+var_98], xmm11
-    vmovss  xmm0, [rsp+1D8h+red]
-    vmovss  xmm1, [rsp+1D8h+green]
-  }
-  _R14 = element;
-  __asm
-  {
-    vmovss  dword ptr [rsp+1D8h+var_170], xmm0
-    vmovss  xmm0, [rsp+1D8h+blue]
-    vmovss  dword ptr [rsp+1D8h+var_170+8], xmm0
-    vmovss  dword ptr [rsp+1D8h+var_170+4], xmm1
-    vmovss  dword ptr [rsp+1D8h+var_170+0Ch], xmm3
-  }
+  color.v[0] = red;
+  color.v[2] = blue;
+  color.v[1] = green;
+  color.v[3] = alpha;
   Data = LUIElement_AARMinimap_GetData(element, luaVM);
-  __asm
+  LUI_CoD_GenerateQuadVerts(element->left, element->top, element->right, element->bottom, (vec4_t (*)[4])verts);
+  LUI_Render_DrawImage(localClientNum, element, luaVM, (const vec4_t (*)[4])verts, 0.0, 0.0, 1.0, 1.0, &color, Data->mapMaterial);
+  numDeaths = Data->numDeaths;
+  playerOnly = Data->playerOnly;
+  if ( Data->numDeaths )
   {
-    vmovss  xmm3, dword ptr [r14+0D8h]; bottom
-    vmovss  xmm2, dword ptr [r14+0D4h]; right
-    vmovss  xmm1, dword ptr [r14+0D0h]; top
-    vmovss  xmm0, dword ptr [r14+0CCh]; left
-  }
-  v27 = Data;
-  LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])verts);
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3f800000
-    vmovss  [rsp+1D8h+var_1A0], xmm10
-    vxorps  xmm11, xmm11, xmm11
-    vmovss  [rsp+1D8h+var_1A8], xmm10
-    vmovss  [rsp+1D8h+var_1B0], xmm11
-    vmovss  dword ptr [rsp+1D8h+quadVerts], xmm11
-  }
-  LUI_Render_DrawImage(localClientNum, _R14, luaVM, (const vec4_t (*)[4])verts, quadVerts, v72, v74, v76, &color, v27->mapMaterial);
-  numDeaths = v27->numDeaths;
-  playerOnly = v27->playerOnly;
-  if ( v27->numDeaths )
-  {
-    v32 = 0i64;
-    __asm { vmovaps [rsp+1D8h+var_A8], xmm12 }
-    _RSI = v27->deaths;
-    __asm
-    {
-      vmovss  xmm12, cs:__real@3b808081
-      vmovaps [rsp+1D8h+var_B8], xmm13
-      vmovss  xmm13, cs:__real@40a00000
-      vmovaps [rsp+1D8h+var_C8], xmm14
-      vmovss  xmm14, cs:__real@41200000
-      vmovaps [rsp+1D8h+var_48], xmm6
-      vmovaps [rsp+1D8h+var_58], xmm7
-      vmovaps [rsp+1D8h+var_68], xmm8
-      vmovaps [rsp+1D8h+var_78], xmm9
-    }
+    v13 = 0i64;
+    deaths = Data->deaths;
     do
     {
-      v37 = *(_DWORD *)&_RSI->isKill;
-      v80 = v37;
-      __asm
+      v15 = *(_DWORD *)&deaths->isKill;
+      v23 = v15;
+      location = deaths->location;
+      if ( !playerOnly || BYTE1(v15) )
       {
-        vmovsd  xmm0, qword ptr [rsi]
-        vmovsd  [rsp+1D8h+var_180], xmm0
+        v16 = LUIElement_AARMinimap_GetData(element, luaVM);
+        v17 = 2436i64;
+        if ( v23 )
+          v17 = 2420i64;
+        CurrentUnitScale = LUI_Render_GetCurrentUnitScale();
+        v19 = (float)((float)((float)(element->right - element->left) * (float)(0.0039215689 * location.v[0])) + element->left) - (float)(*(float *)&CurrentUnitScale * 5.0);
+        v20 = (float)((float)((float)(element->bottom - element->top) * (float)(0.0039215689 * location.v[1])) + element->top) - (float)(*(float *)&CurrentUnitScale * 5.0);
+        LUI_CoD_GenerateQuadVerts(v19, v20, (float)(*(float *)&CurrentUnitScale * 10.0) + v19, (float)(*(float *)&CurrentUnitScale * 10.0) + v20, (vec4_t (*)[4])quadVerts);
+        LUI_Render_DrawImage(localClientNum, element, luaVM, (const vec4_t (*)[4])quadVerts, 0.0, 0.0, 1.0, 1.0, (const vec4_t *)((char *)v16 + v17), v16->mapMarkerMaterial);
       }
-      if ( !playerOnly || BYTE1(v37) )
-      {
-        __asm
-        {
-          vmulss  xmm8, xmm12, dword ptr [rsp+1D8h+var_180]
-          vmulss  xmm9, xmm12, dword ptr [rsp+1D8h+var_180+4]
-        }
-        v41 = LUIElement_AARMinimap_GetData(_R14, luaVM);
-        v42 = 2436i64;
-        if ( v80 )
-          v42 = 2420i64;
-        *(double *)&_XMM0 = LUI_Render_GetCurrentUnitScale();
-        __asm
-        {
-          vmovss  xmm4, dword ptr [r14+0CCh]
-          vmovss  xmm1, dword ptr [r14+0D4h]
-          vmovss  xmm5, dword ptr [r14+0D0h]
-          vsubss  xmm2, xmm1, xmm4
-          vmovss  xmm1, dword ptr [r14+0D8h]
-          vmulss  xmm3, xmm2, xmm8
-          vaddss  xmm4, xmm3, xmm4
-          vsubss  xmm2, xmm1, xmm5
-          vmulss  xmm3, xmm2, xmm9
-          vmulss  xmm6, xmm0, xmm13
-          vmovaps xmm7, xmm0
-          vsubss  xmm0, xmm4, xmm6; left
-          vaddss  xmm4, xmm3, xmm5
-          vmulss  xmm2, xmm7, xmm14
-          vsubss  xmm1, xmm4, xmm6; top
-          vaddss  xmm3, xmm2, xmm1; bottom
-          vaddss  xmm2, xmm2, xmm0; right
-        }
-        LUI_CoD_GenerateQuadVerts(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, (vec4_t (*)[4])v83);
-        __asm
-        {
-          vmovss  [rsp+1D8h+var_1A0], xmm10
-          vmovss  [rsp+1D8h+var_1A8], xmm10
-          vmovss  [rsp+1D8h+var_1B0], xmm11
-          vmovss  dword ptr [rsp+1D8h+quadVerts], xmm11
-        }
-        LUI_Render_DrawImage(localClientNum, _R14, luaVM, (const vec4_t (*)[4])v83, quadVertsa, v73, v75, v77, (const vec4_t *)((char *)v41 + v42), v41->mapMarkerMaterial);
-      }
-      ++v32;
-      ++_RSI;
+      ++v13;
+      ++deaths;
     }
-    while ( v32 < numDeaths );
-    __asm
-    {
-      vmovaps xmm14, [rsp+1D8h+var_C8]
-      vmovaps xmm13, [rsp+1D8h+var_B8]
-      vmovaps xmm12, [rsp+1D8h+var_A8]
-      vmovaps xmm9, [rsp+1D8h+var_78]
-      vmovaps xmm8, [rsp+1D8h+var_68]
-      vmovaps xmm7, [rsp+1D8h+var_58]
-      vmovaps xmm6, [rsp+1D8h+var_48]
-    }
-  }
-  _R11 = &v93;
-  __asm
-  {
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
+    while ( v13 < numDeaths );
   }
 }
 
@@ -234,220 +136,207 @@ LUIElement_AARMinimap_SetupMinimapData
 */
 void LUIElement_AARMinimap_SetupMinimapData(lua_State *luaVM, LUIElement *element, AARMinimapData *minimapData, const int controllerIndex)
 {
-  bool v8; 
+  AARMinimapData *v6; 
+  bool v7; 
   const char *UsernameForLocalClient; 
-  int v10; 
-  const char *v12; 
+  int v9; 
+  const char *v11; 
   const char *PlayerFaction; 
   const DDLDef *Asset; 
   StatsSource ActiveStatsSource; 
   unsigned int RawHash; 
-  const DDLDef *v19; 
-  unsigned int v22; 
-  unsigned int v23; 
-  unsigned int v24; 
+  const DDLDef *v16; 
+  unsigned int v17; 
+  unsigned int v18; 
+  unsigned int v19; 
   const char *String; 
-  unsigned int v27; 
+  unsigned int v22; 
   int Int; 
-  unsigned int v29; 
-  int v30; 
-  unsigned int v31; 
+  unsigned int v25; 
+  int v26; 
+  unsigned int v27; 
+  __int64 v28; 
+  const char *v29; 
+  signed __int64 v30; 
+  char v31; 
   __int64 v32; 
-  const char *v33; 
-  signed __int64 v34; 
-  char v35; 
-  __int64 v36; 
-  char v37; 
-  unsigned int v38; 
+  char v33; 
+  unsigned int v34; 
   unsigned __int8 Byte; 
-  bool v40; 
-  int v41; 
-  __int64 v42; 
-  char v43; 
+  bool v36; 
+  int v37; 
+  __int64 v38; 
+  char v39; 
   int numDeaths; 
+  AARMinimapDeath *deaths; 
+  int v42; 
+  unsigned int v43; 
+  unsigned int v44; 
+  int v45; 
   int v46; 
-  unsigned int v47; 
+  const char *v47; 
   unsigned int v48; 
   int v49; 
-  int v50; 
-  const char *v51; 
-  unsigned int v52; 
-  int v53; 
-  GfxImage *v54; 
-  lua_State *v55; 
-  lua_State *v56; 
-  const char *v57; 
-  bool v78; 
-  unsigned __int8 v79; 
-  int v80; 
+  GfxImage *v50; 
+  lua_State *v51; 
+  lua_State *v52; 
+  const char *v53; 
+  int v54; 
+  int v55; 
+  bool v56; 
+  unsigned __int8 v57; 
+  int v58; 
   DDLState state; 
-  const char *v82; 
-  AARMinimapData *v83; 
-  const char *v84; 
+  const char *v60; 
+  AARMinimapData *v61; 
+  const char *v62; 
   DDLState rootState; 
   lua_State *L; 
-  DDLState v87; 
-  DDLState v88; 
-  DDLState v89; 
+  DDLState v65; 
+  DDLState v66; 
+  DDLState v67; 
   DDLContext context; 
   DDLState result; 
   DDLState fromState; 
   DDLState toState; 
-  DDLState v94; 
-  DDLState v95; 
-  DDLState v96; 
+  DDLState v72; 
+  DDLState v73; 
+  DDLState v74; 
   vec2_t vec; 
-  int v98; 
+  int v76; 
   char dest[64]; 
 
-  __asm { vmovaps [rsp+290h+var_40], xmm6 }
-  v83 = minimapData;
-  v84 = (char *)&queryFormat.fmt + 3;
-  _R15 = minimapData;
+  v61 = minimapData;
+  v62 = (char *)&queryFormat.fmt + 3;
+  v6 = minimapData;
   L = luaVM;
-  v8 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == LONG;
-  v78 = v8;
+  v7 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == LONG;
+  v56 = v7;
   UsernameForLocalClient = CL_GetUsernameForLocalClient(controllerIndex);
-  v10 = 0;
+  v9 = 0;
   fromState.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
-  v12 = UsernameForLocalClient;
+  v11 = UsernameForLocalClient;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
-  v82 = "none";
+  v60 = "none";
   PlayerFaction = "none";
   toState.isValid = 0;
-  __asm { vmovdqu xmmword ptr [rbp+190h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   toState.offset = 0;
   toState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+190h+toState.member], xmm0 }
-  v96.isValid = 0;
-  v96.offset = 0;
-  v96.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+190h+var_C8.member], xmm0 }
-  v87.isValid = 0;
-  v87.offset = 0;
-  v87.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+190h+var_1F8.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
+  v74.isValid = 0;
+  v74.offset = 0;
+  v74.arrayIndex = -1;
+  *(_OWORD *)&v74.member = _XMM0;
+  v65.isValid = 0;
+  v65.offset = 0;
+  v65.arrayIndex = -1;
+  *(_OWORD *)&v65.member = _XMM0;
   rootState.isValid = 0;
   rootState.offset = 0;
   rootState.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+190h+rootState.member], xmm0 }
+  *(_OWORD *)&rootState.member = _XMM0;
   state.isValid = 0;
   state.offset = 0;
   state.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rsp+290h+state.member], xmm0 }
-  v95.isValid = 0;
-  v95.offset = 0;
-  v95.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+190h+var_E8.member], xmm0 }
-  v88.isValid = 0;
-  v88.offset = 0;
-  v88.arrayIndex = -1;
-  __asm { vmovdqu xmmword ptr [rbp+190h+var_1D8.member], xmm0 }
+  *(_OWORD *)&state.member = _XMM0;
+  v73.isValid = 0;
+  v73.offset = 0;
+  v73.arrayIndex = -1;
+  *(_OWORD *)&v73.member = _XMM0;
+  v66.isValid = 0;
+  v66.offset = 0;
+  v66.arrayIndex = -1;
+  *(_OWORD *)&v66.member = _XMM0;
   Asset = Com_DDL_LoadAsset("ddl/mp/commondata.ddl");
-  _RAX = DDL_GetRootState(&result, Asset);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+190h+fromState.isValid], ymm0
-  }
+  fromState = *DDL_GetRootState(&result, Asset);
   ActiveStatsSource = LiveStorage_GetActiveStatsSource(controllerIndex);
   CL_PlayerData_GetDDLBuffer(&context, controllerIndex, ActiveStatsSource, STATSGROUP_COMMON);
   DDL_MoveToName(&fromState, &toState, "commonData");
   RawHash = j_SL_GetRawHash(scr_const.round);
-  DDL_MoveToNameByHash(&toState, &v96, RawHash, NULL);
+  DDL_MoveToNameByHash(&toState, &v74, RawHash, NULL);
   if ( cls.matchData.def[0] )
   {
-    v19 = Com_DDL_LoadAsset(cls.matchData.def);
-    Com_DDL_CreateContext(cls.matchData.data, 24000, v19, &context, NULL, NULL);
-    _RAX = DDL_GetRootState(&v89, v19);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+290h+rootState.isValid], ymm0
-    }
-    v22 = j_SL_GetRawHash(scr_const.deathCount);
-    DDL_MoveToNameByHash(&rootState, &state, v22, NULL);
-    _R15->numDeaths = DDL_GetShort(&state, &context);
-    v23 = j_SL_GetRawHash(scr_const.deaths);
-    DDL_MoveToNameByHash(&rootState, &v95, v23, NULL);
-    v24 = j_SL_GetRawHash(scr_const.map);
-    DDL_MoveToNameByHash(&rootState, &state, v24, NULL);
+    v16 = Com_DDL_LoadAsset(cls.matchData.def);
+    Com_DDL_CreateContext(cls.matchData.data, 24000, v16, &context, NULL, NULL);
+    rootState = *DDL_GetRootState(&v67, v16);
+    v17 = j_SL_GetRawHash(scr_const.deathCount);
+    DDL_MoveToNameByHash(&rootState, &state, v17, NULL);
+    v6->numDeaths = DDL_GetShort(&state, &context);
+    v18 = j_SL_GetRawHash(scr_const.deaths);
+    DDL_MoveToNameByHash(&rootState, &v73, v18, NULL);
+    v19 = j_SL_GetRawHash(scr_const.map);
+    DDL_MoveToNameByHash(&rootState, &state, v19, NULL);
     String = DDL_GetString(&state, &context);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+190h+var_108.member], xmm0
-    }
-    v84 = String;
-    v94.isValid = 0;
-    v94.offset = 0;
-    v94.arrayIndex = -1;
-    v27 = j_SL_GetRawHash(scr_const.scoreboardPlayerCount);
-    DDL_MoveToNameByHash(&rootState, &v94, v27, NULL);
-    Int = DDL_GetInt(&v94, &context);
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rbp+190h+result.member], xmm0
-    }
-    v80 = Int;
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&v72.member = _XMM0;
+    v62 = String;
+    v72.isValid = 0;
+    v72.offset = 0;
+    v72.arrayIndex = -1;
+    v22 = j_SL_GetRawHash(scr_const.scoreboardPlayerCount);
+    DDL_MoveToNameByHash(&rootState, &v72, v22, NULL);
+    Int = DDL_GetInt(&v72, &context);
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&result.member = _XMM0;
+    v58 = Int;
     result.isValid = 0;
     result.offset = 0;
     result.arrayIndex = -1;
-    v29 = j_SL_GetRawHash(scr_const.players);
-    DDL_MoveToNameByHash(&rootState, &result, v29, NULL);
-    v30 = 0;
-    while ( v30 < Int )
+    v25 = j_SL_GetRawHash(scr_const.players);
+    DDL_MoveToNameByHash(&rootState, &result, v25, NULL);
+    v26 = 0;
+    while ( v26 < Int )
     {
       __asm { vpxor   xmm0, xmm0, xmm0 }
-      v89.isValid = 0;
-      v89.offset = 0;
-      v89.arrayIndex = -1;
-      __asm { vmovdqu xmmword ptr [rbp+190h+var_1B8.member], xmm0 }
-      DDL_MoveToIndex(&result, &v89, v30);
-      v31 = j_SL_GetRawHash(scr_const.username);
-      DDL_MoveToNameByHash(&v89, &v87, v31, NULL);
-      v32 = 0x7FFFFFFFi64;
-      v33 = DDL_GetString(&v87, &context);
-      if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+      v67.isValid = 0;
+      v67.offset = 0;
+      v67.arrayIndex = -1;
+      *(_OWORD *)&v67.member = _XMM0;
+      DDL_MoveToIndex(&result, &v67, v26);
+      v27 = j_SL_GetRawHash(scr_const.username);
+      DDL_MoveToNameByHash(&v67, &v65, v27, NULL);
+      v28 = 0x7FFFFFFFi64;
+      v29 = DDL_GetString(&v65, &context);
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+      if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v34 = v12 - v33;
+      v30 = v11 - v29;
       while ( 1 )
       {
-        v35 = v33[v34];
-        v36 = v32;
-        v37 = *v33++;
-        --v32;
-        if ( !v36 )
+        v31 = v29[v30];
+        v32 = v28;
+        v33 = *v29++;
+        --v28;
+        if ( !v32 )
         {
 LABEL_14:
-          v38 = j_SL_GetRawHash(scr_const.uniqueClientId);
-          DDL_MoveToNameByHash(&v89, &v87, v38, NULL);
-          Byte = DDL_GetByte(&v87, &context);
-          v8 = v78;
-          v79 = Byte;
-          if ( !v78 )
+          v34 = j_SL_GetRawHash(scr_const.uniqueClientId);
+          DDL_MoveToNameByHash(&v67, &v65, v34, NULL);
+          Byte = DDL_GetByte(&v65, &context);
+          v7 = v56;
+          v57 = Byte;
+          if ( !v56 )
           {
             PlayerFaction = LUIElement_AARMinimap_GetPlayerFaction(&rootState, &context, Byte);
-            v82 = PlayerFaction;
-            Byte = v79;
+            v60 = PlayerFaction;
+            Byte = v57;
           }
           goto LABEL_16;
         }
-        if ( v35 != v37 )
+        if ( v31 != v33 )
           break;
-        if ( !v35 )
+        if ( !v31 )
           goto LABEL_14;
       }
-      if ( ++v30 >= 200 )
+      if ( ++v26 >= 200 )
         break;
-      Int = v80;
+      Int = v58;
     }
-    v8 = v78;
+    v7 = v56;
     Byte = 0;
   }
   else
@@ -455,126 +344,96 @@ LABEL_14:
     Byte = 0;
   }
 LABEL_16:
-  v40 = 0;
-  v41 = 255;
-  v42 = 0i64;
+  v36 = 0;
+  v37 = 255;
+  v38 = 0i64;
   while ( 1 )
   {
-    v43 = PlayerFaction[v42++];
-    if ( v43 != val[v42 - 1] )
+    v39 = PlayerFaction[v38++];
+    if ( v39 != val[v38 - 1] )
       break;
-    if ( v42 == 5 )
+    if ( v38 == 5 )
     {
-      v40 = !v8;
+      v36 = !v7;
       break;
     }
   }
-  numDeaths = _R15->numDeaths;
-  if ( _R15->numDeaths )
+  numDeaths = v6->numDeaths;
+  if ( v6->numDeaths )
   {
-    _RBX = v83->deaths;
-    v46 = Byte;
+    deaths = v61->deaths;
+    v42 = Byte;
     while ( 1 )
     {
-      DDL_MoveToIndex(&v95, &v88, v10);
-      if ( !v8 )
+      DDL_MoveToIndex(&v73, &v66, v9);
+      if ( !v7 )
       {
-        v47 = j_SL_GetRawHash(scr_const.attacker);
-        DDL_MoveToNameByHash(&v88, &state, v47, NULL);
-        v41 = DDL_GetInt(&state, &context);
+        v43 = j_SL_GetRawHash(scr_const.attacker);
+        DDL_MoveToNameByHash(&v66, &state, v43, NULL);
+        v37 = DDL_GetInt(&state, &context);
       }
-      v48 = j_SL_GetRawHash(scr_const.player);
-      DDL_MoveToNameByHash(&v88, &state, v48, NULL);
-      v49 = DDL_GetInt(&state, &context);
-      v50 = v49;
-      if ( v78 || !v40 && (v51 = LUIElement_AARMinimap_GetPlayerFaction(&rootState, &context, v49), LOBYTE(v98) = 1, !strcmp(v82, v51)) )
-        LOBYTE(v98) = 0;
-      if ( v46 == v50 || v46 == v41 )
+      v44 = j_SL_GetRawHash(scr_const.player);
+      DDL_MoveToNameByHash(&v66, &state, v44, NULL);
+      v45 = DDL_GetInt(&state, &context);
+      v46 = v45;
+      if ( v56 || !v36 && (v47 = LUIElement_AARMinimap_GetPlayerFaction(&rootState, &context, v45), LOBYTE(v76) = 1, !strcmp(v60, v47)) )
+        LOBYTE(v76) = 0;
+      if ( v42 == v46 || v42 == v37 )
         break;
-      if ( !v40 )
+      if ( !v36 )
       {
-        BYTE1(v98) = 0;
+        BYTE1(v76) = 0;
 LABEL_37:
-        v52 = j_SL_GetRawHash(scr_const.deathPos);
-        DDL_MoveToNameByHash(&v88, &state, v52, NULL);
+        v48 = j_SL_GetRawHash(scr_const.deathPos);
+        DDL_MoveToNameByHash(&v66, &state, v48, NULL);
         Com_DDL_GetByteVec2(&state, &context, &vec);
-        __asm { vmovsd  xmm0, qword ptr [rbp+190h+vec] }
-        v53 = v98;
-        __asm { vmovsd  qword ptr [rbx], xmm0 }
-        *(_DWORD *)&_RBX->isKill = v53;
+        v49 = v76;
+        deaths->location = vec;
+        *(_DWORD *)&deaths->isKill = v49;
       }
-      v8 = v78;
-      ++v10;
-      ++_RBX;
-      if ( v10 >= numDeaths )
+      v7 = v56;
+      ++v9;
+      ++deaths;
+      if ( v9 >= numDeaths )
       {
-        _R15 = v83;
+        v6 = v61;
         goto LABEL_40;
       }
     }
-    BYTE1(v98) = 1;
+    BYTE1(v76) = 1;
     goto LABEL_37;
   }
 LABEL_40:
-  Com_sprintf(dest, 0x40ui64, "compass_map_%s", v84);
-  v54 = Image_Register(dest, IMAGE_TRACK_UI);
-  v55 = L;
-  v56 = L;
-  _R15->mapMaterial = v54;
-  j_lua_getfield(v56, 2, "markerMaterial");
-  if ( !j_lua_isstring(v55, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_aarminimap.cpp", 248, ASSERT_TYPE_ASSERT, "(lua_isstring( luaVM, -1 ))", (const char *)&queryFormat, "lua_isstring( luaVM, -1 )") )
+  Com_sprintf(dest, 0x40ui64, "compass_map_%s", v62);
+  v50 = Image_Register(dest, IMAGE_TRACK_UI);
+  v51 = L;
+  v52 = L;
+  v6->mapMaterial = v50;
+  j_lua_getfield(v52, 2, "markerMaterial");
+  if ( !j_lua_isstring(v51, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_aarminimap.cpp", 248, ASSERT_TYPE_ASSERT, "(lua_isstring( luaVM, -1 ))", (const char *)&queryFormat, "lua_isstring( luaVM, -1 )") )
     __debugbreak();
-  v57 = j_lua_tolstring(v55, -1, NULL);
-  j_lua_settop(v55, -2);
-  _R15->mapMarkerMaterial = Image_Register(v57, IMAGE_TRACK_UI);
-  j_lua_getfield(v55, 2, "killMarkerColor");
-  if ( !j_lua_isnumber(v55, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_aarminimap.cpp", 257, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
+  v53 = j_lua_tolstring(v51, -1, NULL);
+  j_lua_settop(v51, -2);
+  v6->mapMarkerMaterial = Image_Register(v53, IMAGE_TRACK_UI);
+  j_lua_getfield(v51, 2, "killMarkerColor");
+  if ( !j_lua_isnumber(v51, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_aarminimap.cpp", 257, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
     __debugbreak();
-  lui_tointeger32(v55, -1);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3b808081
-    vxorps  xmm0, xmm0, xmm0
-  }
-  _R15->killMarkerColor.v[3] = 1.0;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [r15+974h], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm1, xmm0, xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [r15+978h], xmm1
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [r15+97Ch], xmm1
-  }
-  j_lua_settop(v55, -2);
-  j_lua_getfield(v55, 2, "deathMarkerColor");
-  if ( !j_lua_isnumber(v55, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_aarminimap.cpp", 267, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
+  v54 = lui_tointeger32(v51, -1);
+  v6->killMarkerColor.v[3] = 1.0;
+  v6->killMarkerColor.v[0] = (float)BYTE2(v54) * 0.0039215689;
+  v6->killMarkerColor.v[1] = (float)BYTE1(v54) * 0.0039215689;
+  v6->killMarkerColor.v[2] = (float)(unsigned __int8)v54 * 0.0039215689;
+  j_lua_settop(v51, -2);
+  j_lua_getfield(v51, 2, "deathMarkerColor");
+  if ( !j_lua_isnumber(v51, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_aarminimap.cpp", 267, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
     __debugbreak();
-  lui_tointeger32(v55, -1);
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  _R15->deathMarkerColor.v[3] = 1.0;
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm1, xmm0, xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [r15+984h], xmm1
-    vcvtsi2ss xmm0, xmm0, r8d
-    vmulss  xmm1, xmm0, xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [r15+988h], xmm1
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [r15+98Ch], xmm1
-  }
-  j_lua_settop(v55, -2);
-  _R15->playerOnly = 0;
-  __asm { vmovaps xmm6, [rsp+290h+var_40] }
+  v55 = lui_tointeger32(v51, -1);
+  v6->deathMarkerColor.v[3] = 1.0;
+  v6->deathMarkerColor.v[0] = (float)BYTE2(v55) * 0.0039215689;
+  v6->deathMarkerColor.v[1] = (float)BYTE1(v55) * 0.0039215689;
+  v6->deathMarkerColor.v[2] = (float)(unsigned __int8)v55 * 0.0039215689;
+  j_lua_settop(v51, -2);
+  v6->playerOnly = 0;
 }
 
 /*
@@ -613,7 +472,7 @@ __int64 LUI_LuaCall_LUIElement_SetupAARMinimap_impl(lua_State *const luaVM)
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_istable( luaVM, 2 )");
   v2 = LUI_ToElement(luaVM, 1);
   v2->usageFlags |= 1u;
-  v2->renderFunction = (void (__fastcall *)(const LocalClientNum_t, LUIElement *, LUIElement *, float, float, float, float, lua_State *))LUIElement_AARMinimap_Render;
+  v2->renderFunction = LUIElement_AARMinimap_Render;
   j_lua_getfield(luaVM, 2, "controllerIndex");
   if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_aarminimap.cpp", 365, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
     __debugbreak();

@@ -368,37 +368,29 @@ bdAchievementClient::Achievement::Achievement
 */
 void bdAchievementClient::Achievement::Achievement(bdAchievementClient::Achievement *this, const bdAchievementDefinition *definition, const bdAchievementState *state)
 {
-  _RDI = state;
   bdAchievementDefinition::bdAchievementDefinition(&this->m_definition, definition);
-  _RBX = &this->m_state;
   *((_QWORD *)&this->m_state.__vftable + 1) = &bdAchievementState::`vbtable';
-  bdReferencable::bdReferencable((bdReferencable *)this->m_state.gap218, (const bdReferencable *)((char *)&_RDI->__vftable + *(int *)(*((_QWORD *)&_RDI->__vftable + 1) + 4i64) + 8));
-  bdStructBufferSerializable::bdStructBufferSerializable(&this->m_state, _RDI);
+  bdReferencable::bdReferencable((bdReferencable *)this->m_state.gap218, (const bdReferencable *)((char *)&state->__vftable + *(int *)(*((_QWORD *)&state->__vftable + 1) + 4i64) + 8));
+  bdStructBufferSerializable::bdStructBufferSerializable(&this->m_state, state);
   this->m_state.__vftable = (bdAchievementState_vtbl *)&bdAchievementState::`vftable'{for `bdStructBufferSerializable'};
   *(bdAchievementState_vtbl **)((char *)&this->m_state.__vftable + *(int *)(*((_QWORD *)&this->m_state.__vftable + 1) + 4i64) + 8) = (bdAchievementState_vtbl *)&bdAchievementState::`vftable'{for `bdReferencable'};
-  *((_QWORD *)&this->m_state.__vftable + 2) = *((_QWORD *)&_RDI->__vftable + 2);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+18h]
-    vmovups ymmword ptr [rbx+18h], ymm0
-    vmovups ymm1, ymmword ptr [rdi+38h]
-    vmovups ymmword ptr [rbx+38h], ymm1
-    vmovups ymm0, ymmword ptr [rdi+58h]
-    vmovups ymmword ptr [rbx+58h], ymm0
-  }
-  *(_DWORD *)&this->m_state.m_name[88] = *(_DWORD *)&_RDI->m_name[88];
-  this->m_state.m_name[92] = _RDI->m_name[92];
-  this->m_state.m_kind = _RDI->m_kind;
-  this->m_state.m_progress = _RDI->m_progress;
-  this->m_state.m_progressTarget = _RDI->m_progressTarget;
-  this->m_state.m_status = _RDI->m_status;
-  this->m_state.m_completionTimestamp = _RDI->m_completionTimestamp;
-  this->m_state.m_activationTimestamp = _RDI->m_activationTimestamp;
-  this->m_state.m_expirationTimestamp = _RDI->m_expirationTimestamp;
-  this->m_state.m_completionCount = _RDI->m_completionCount;
+  *((_QWORD *)&this->m_state.__vftable + 2) = *((_QWORD *)&state->__vftable + 2);
+  *(bdStructBufferSerializable *)((char *)&this->m_state.bdStructBufferSerializable + 24) = *(bdStructBufferSerializable *)((char *)&state->bdStructBufferSerializable + 24);
+  *(__m256i *)&this->m_state.m_name[24] = *(__m256i *)&state->m_name[24];
+  *(__m256i *)&this->m_state.m_name[56] = *(__m256i *)&state->m_name[56];
+  *(_DWORD *)&this->m_state.m_name[88] = *(_DWORD *)&state->m_name[88];
+  this->m_state.m_name[92] = state->m_name[92];
+  this->m_state.m_kind = state->m_kind;
+  this->m_state.m_progress = state->m_progress;
+  this->m_state.m_progressTarget = state->m_progressTarget;
+  this->m_state.m_status = state->m_status;
+  this->m_state.m_completionTimestamp = state->m_completionTimestamp;
+  this->m_state.m_activationTimestamp = state->m_activationTimestamp;
+  this->m_state.m_expirationTimestamp = state->m_expirationTimestamp;
+  this->m_state.m_completionCount = state->m_completionCount;
   `eh vector vbase constructor iterator'(&this->m_state.m_multiProgress, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::bdAchievementProgress, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
   this->m_state.m_multiProgress.m_size = 0;
-  bdStructFixedSizeArray<bdAchievementProgress,4>::copy(&this->m_state.m_multiProgress, &_RDI->m_multiProgress);
+  bdStructFixedSizeArray<bdAchievementProgress,4>::copy(&this->m_state.m_multiProgress, &state->m_multiProgress);
 }
 
 /*
@@ -417,47 +409,36 @@ void bdAchievementClient::Achievement::Achievement(bdAchievementClient::Achievem
 bdAchievementClient::bdAchievementClient
 ==============
 */
-
-void __fastcall bdAchievementClient::bdAchievementClient(bdAchievementClient *this, bdAchievementsEngineService *service, const char *context, double flushIntervalSeconds, int maxEventAttempts)
+void bdAchievementClient::bdAchievementClient(bdAchievementClient *this, bdAchievementsEngineService *service, const char *context, float flushIntervalSeconds, int maxEventAttempts)
 {
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmm6, xmm3
-  }
-  _RDI = this;
   this->m_service = service;
   if ( bdStrlcpy(this->m_context.m_buffer, context, 0x11ui64) > 0x10 )
   {
     bdHandleAssert(0, "\"sLength <= MaxLength\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
   }
-  __asm { vmovss  dword ptr [rdi+1Ch], xmm6 }
-  _RDI->m_predictionEnabled = 0;
-  _RDI->m_status = READY;
-  bdAchievementEventBuffer::bdAchievementEventBuffer(&_RDI->m_eventBuffer);
-  _RDI->m_users.m_size = 0;
-  `eh vector vbase constructor iterator'(_RDI->m_users.m_keys, 0x48ui64, 1ui64, (void (__fastcall *)(void *))bdUserAccountID::bdUserAccountID, (void (__fastcall *)(void *))bdUserAccountID::`vbase destructor);
-  `eh vector constructor iterator'(_RDI->m_users.m_values, 0xE80ui64, 1ui64, (void (__fastcall *)(void *))bdAchievementClient::UserAchievements::UserAchievements, (void (__fastcall *)(void *))bdAchievementClient::UserAchievements::~UserAchievements);
-  _RDI->m_archetypes.m_size = 0;
-  _RDI->m_archetypes.m_keys[0] = 0i64;
-  _RDI->m_archetypes.m_values[0] = NULL;
-  *(_WORD *)&_RDI->m_isDraining = 0;
-  bdAchievementEventBatch::bdAchievementEventBatch(&_RDI->m_eventBatch);
-  _RDI->m_getDefinitionsTask.m_ptr = NULL;
-  bdGetAchievementDefinitionsResponse::bdGetAchievementDefinitionsResponse(&_RDI->m_getDefinitionsResponse);
-  bdBackoffTimer::bdBackoffTimer(&_RDI->m_getDefinitionsBackoff);
-  _RDI->m_getDefinitionsIsBackingOff = 0;
-  _RDI->m_getStatesTask.m_ptr = NULL;
-  bdGetAchievementStatesResponse::bdGetAchievementStatesResponse(&_RDI->m_getStatesResponse);
-  bdBackoffTimer::bdBackoffTimer(&_RDI->m_getStatesBackoff);
-  _RDI->m_getStatesIsBackingOff = 0;
-  bdUserAccountID::bdUserAccountID(&_RDI->m_taskUser);
-  _RDI->m_maxEventAttempts = maxEventAttempts;
-  __asm { vmovaps xmm6, [rsp+68h+var_18] }
+  this->m_flushIntervalSeconds = flushIntervalSeconds;
+  this->m_predictionEnabled = 0;
+  this->m_status = READY;
+  bdAchievementEventBuffer::bdAchievementEventBuffer(&this->m_eventBuffer);
+  this->m_users.m_size = 0;
+  `eh vector vbase constructor iterator'(this->m_users.m_keys, 0x48ui64, 1ui64, (void (__fastcall *)(void *))bdUserAccountID::bdUserAccountID, (void (__fastcall *)(void *))bdUserAccountID::`vbase destructor);
+  `eh vector constructor iterator'(this->m_users.m_values, 0xE80ui64, 1ui64, (void (__fastcall *)(void *))bdAchievementClient::UserAchievements::UserAchievements, (void (__fastcall *)(void *))bdAchievementClient::UserAchievements::~UserAchievements);
+  this->m_archetypes.m_size = 0;
+  this->m_archetypes.m_keys[0] = 0i64;
+  this->m_archetypes.m_values[0] = NULL;
+  *(_WORD *)&this->m_isDraining = 0;
+  bdAchievementEventBatch::bdAchievementEventBatch(&this->m_eventBatch);
+  this->m_getDefinitionsTask.m_ptr = NULL;
+  bdGetAchievementDefinitionsResponse::bdGetAchievementDefinitionsResponse(&this->m_getDefinitionsResponse);
+  bdBackoffTimer::bdBackoffTimer(&this->m_getDefinitionsBackoff);
+  this->m_getDefinitionsIsBackingOff = 0;
+  this->m_getStatesTask.m_ptr = NULL;
+  bdGetAchievementStatesResponse::bdGetAchievementStatesResponse(&this->m_getStatesResponse);
+  bdBackoffTimer::bdBackoffTimer(&this->m_getStatesBackoff);
+  this->m_getStatesIsBackingOff = 0;
+  bdUserAccountID::bdUserAccountID(&this->m_taskUser);
+  this->m_maxEventAttempts = maxEventAttempts;
 }
 
 /*
@@ -867,6 +848,7 @@ void bdAchievementClient::handleResponses(bdAchievementClient *this)
   const char *Buffer; 
   unsigned int v7; 
   bdGetAchievementDefinitionsResponse *p_m_getDefinitionsResponse; 
+  bdAchievementState *State; 
   unsigned __int64 Id; 
   unsigned int NumDefinitions; 
   unsigned int v12; 
@@ -876,24 +858,24 @@ void bdAchievementClient::handleResponses(bdAchievementClient *this)
   const char *v16; 
   bdStructFixedSizeArray<bdAchievementClient::Achievement,1> *p_achievements; 
   __int64 m_size; 
-  int v22; 
-  unsigned int v23; 
+  int v19; 
+  unsigned int v20; 
   bdString result; 
-  bdAchievementClient *v25; 
-  bdString v26; 
-  bdAchievementClient::UserAchievements *v27; 
-  __int64 v28; 
+  bdAchievementClient *v22; 
+  bdString v23; 
+  bdAchievementClient::UserAchievements *v24; 
+  __int64 v25; 
   bdAchievementState *p_m_state; 
   bdStructFixedSizeArray<bdAchievementProgress,4> *p_m_multiProgress; 
-  bdAchievementClient::Achievement v31; 
+  bdAchievementClient::Achievement v28; 
 
-  v28 = -2i64;
-  v25 = this;
-  v22 = 0;
+  v25 = -2i64;
+  v22 = this;
+  v19 = 0;
   p_m_getStatesResponse = &this->m_getStatesResponse;
   result.m_string = (char *)&this->m_getStatesResponse;
   NumStates = bdGetAchievementStatesResponse::getNumStates(&this->m_getStatesResponse);
-  v23 = NumStates;
+  v20 = NumStates;
   v4 = 0i64;
   if ( !this->m_users.m_size )
     goto LABEL_4;
@@ -903,7 +885,7 @@ void bdAchievementClient::handleResponses(bdAchievementClient *this)
     if ( (unsigned int)v4 >= this->m_users.m_size )
       goto LABEL_4;
   }
-  v27 = &this->m_users.m_values[(unsigned int)v4];
+  v24 = &this->m_users.m_values[(unsigned int)v4];
   if ( (bdAchievementClient *)((char *)this + 3712 * (unsigned int)v4) == (bdAchievementClient *)-124040i64 )
   {
 LABEL_4:
@@ -921,8 +903,8 @@ LABEL_4:
       p_m_getDefinitionsResponse = &this->m_getDefinitionsResponse;
       do
       {
-        _R13 = (bdAchievementState *)bdGetAchievementStatesResponse::getState(p_m_getStatesResponse, v7);
-        Id = bdAchievementState::getId(_R13);
+        State = (bdAchievementState *)bdGetAchievementStatesResponse::getState(p_m_getStatesResponse, v7);
+        Id = bdAchievementState::getId(State);
         NumDefinitions = bdGetAchievementDefinitionsResponse::getNumDefinitions(p_m_getDefinitionsResponse);
         v12 = 0;
         if ( !NumDefinitions )
@@ -937,62 +919,56 @@ LABEL_4:
         }
         if ( Definition )
         {
-          v14 = bdAchievementState::getId(_R13);
-          v15 = bdUserAccountID::toString(&v25->m_taskUser, &v26);
+          v14 = bdAchievementState::getId(State);
+          v15 = bdUserAccountID::toString(&v22->m_taskUser, &v23);
           v16 = bdString::getBuffer(v15);
           bdLogMessage(BD_LOG_INFO, "info/", "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::handleResponses", 0x232u, "Got state and definitions for user %s achievement %u", v16, v14);
-          bdString::~bdString(&v26);
-          if ( v27->achievements.m_size )
+          bdString::~bdString(&v23);
+          if ( v24->achievements.m_size )
           {
             bdLogMessage(BD_LOG_WARNING, "warn/", "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::handleResponses", 0x239u, "Too many active achievements");
           }
           else
           {
-            p_achievements = &v27->achievements;
-            bdAchievementDefinition::bdAchievementDefinition(&v31.m_definition, Definition);
-            p_m_state = &v31.m_state;
-            *((_QWORD *)&v31.m_state.__vftable + 1) = &bdAchievementState::`vbtable';
-            bdReferencable::bdReferencable((bdReferencable *)v31.m_state.gap218, (const bdReferencable *)((char *)&_R13->__vftable + *(int *)(*((_QWORD *)&_R13->__vftable + 1) + 4i64) + 8));
-            v22 |= 1u;
-            bdStructBufferSerializable::bdStructBufferSerializable(&v31.m_state, _R13);
-            v31.m_state.__vftable = (bdAchievementState_vtbl *)&bdAchievementState::`vftable'{for `bdStructBufferSerializable'};
-            *(bdAchievementState_vtbl **)((char *)&v31.m_state.__vftable + *(int *)(*((_QWORD *)&v31.m_state.__vftable + 1) + 4i64) + 8) = (bdAchievementState_vtbl *)&bdAchievementState::`vftable'{for `bdReferencable'};
-            *((_QWORD *)&v31.m_state.__vftable + 2) = *((_QWORD *)&_R13->__vftable + 2);
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [r13+18h]
-              vmovups ymmword ptr [rbp+0DE0h+var_258+18h], ymm0
-              vmovups ymm1, ymmword ptr [r13+38h]
-              vmovups [rbp+0DE0h+var_220], ymm1
-              vmovups ymm0, ymmword ptr [r13+58h]
-              vmovups [rbp+0DE0h+var_200], ymm0
-            }
-            *(_DWORD *)&v31.m_state.m_name[88] = *(_DWORD *)&_R13->m_name[88];
-            v31.m_state.m_name[92] = _R13->m_name[92];
-            v31.m_state.m_kind = _R13->m_kind;
-            v31.m_state.m_progress = _R13->m_progress;
-            v31.m_state.m_progressTarget = _R13->m_progressTarget;
-            v31.m_state.m_status = _R13->m_status;
-            v31.m_state.m_completionTimestamp = _R13->m_completionTimestamp;
-            v31.m_state.m_activationTimestamp = _R13->m_activationTimestamp;
-            v31.m_state.m_expirationTimestamp = _R13->m_expirationTimestamp;
-            v31.m_state.m_completionCount = _R13->m_completionCount;
-            p_m_multiProgress = &v31.m_state.m_multiProgress;
-            `eh vector vbase constructor iterator'(&v31.m_state.m_multiProgress, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::bdAchievementProgress, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
-            v31.m_state.m_multiProgress.m_size = 0;
-            bdStructFixedSizeArray<bdAchievementProgress,4>::copy(&v31.m_state.m_multiProgress, &_R13->m_multiProgress);
+            p_achievements = &v24->achievements;
+            bdAchievementDefinition::bdAchievementDefinition(&v28.m_definition, Definition);
+            p_m_state = &v28.m_state;
+            *((_QWORD *)&v28.m_state.__vftable + 1) = &bdAchievementState::`vbtable';
+            bdReferencable::bdReferencable((bdReferencable *)v28.m_state.gap218, (const bdReferencable *)((char *)&State->__vftable + *(int *)(*((_QWORD *)&State->__vftable + 1) + 4i64) + 8));
+            v19 |= 1u;
+            bdStructBufferSerializable::bdStructBufferSerializable(&v28.m_state, State);
+            v28.m_state.__vftable = (bdAchievementState_vtbl *)&bdAchievementState::`vftable'{for `bdStructBufferSerializable'};
+            *(bdAchievementState_vtbl **)((char *)&v28.m_state.__vftable + *(int *)(*((_QWORD *)&v28.m_state.__vftable + 1) + 4i64) + 8) = (bdAchievementState_vtbl *)&bdAchievementState::`vftable'{for `bdReferencable'};
+            *((_QWORD *)&v28.m_state.__vftable + 2) = *((_QWORD *)&State->__vftable + 2);
+            *(bdStructBufferSerializable *)((char *)&v28.m_state.bdStructBufferSerializable + 24) = *(bdStructBufferSerializable *)((char *)&State->bdStructBufferSerializable + 24);
+            *(__m256i *)&v28.m_state.m_name[24] = *(__m256i *)&State->m_name[24];
+            *(__m256i *)&v28.m_state.m_name[56] = *(__m256i *)&State->m_name[56];
+            *(_DWORD *)&v28.m_state.m_name[88] = *(_DWORD *)&State->m_name[88];
+            v28.m_state.m_name[92] = State->m_name[92];
+            v28.m_state.m_kind = State->m_kind;
+            v28.m_state.m_progress = State->m_progress;
+            v28.m_state.m_progressTarget = State->m_progressTarget;
+            v28.m_state.m_status = State->m_status;
+            v28.m_state.m_completionTimestamp = State->m_completionTimestamp;
+            v28.m_state.m_activationTimestamp = State->m_activationTimestamp;
+            v28.m_state.m_expirationTimestamp = State->m_expirationTimestamp;
+            v28.m_state.m_completionCount = State->m_completionCount;
+            p_m_multiProgress = &v28.m_state.m_multiProgress;
+            `eh vector vbase constructor iterator'(&v28.m_state.m_multiProgress, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::bdAchievementProgress, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
+            v28.m_state.m_multiProgress.m_size = 0;
+            bdStructFixedSizeArray<bdAchievementProgress,4>::copy(&v28.m_state.m_multiProgress, &State->m_multiProgress);
             bdHandleAssert(p_achievements->m_size == 0, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdAchievementClient::Achievement,1>::pushBack", 0x40u, "No more capacity for pushBack");
             m_size = p_achievements->m_size;
             if ( !(_DWORD)m_size )
             {
               p_achievements->m_size = 1;
-              bdAchievementClient::Achievement::operator=(&p_achievements->m_elements[m_size], &v31);
+              bdAchievementClient::Achievement::operator=(&p_achievements->m_elements[m_size], &v28);
             }
-            `eh vector destructor iterator'(&v31.m_state.m_multiProgress, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
-            bdStructFixedSizeString<100>::~bdStructFixedSizeString<100>((bdStructFixedSizeString<100> *)(&v31.m_state.__vftable + 3));
-            bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v31.m_state.__vftable + 2));
-            bdReferencable::~bdReferencable((bdReferencable *)v31.m_state.gap218);
-            bdAchievementDefinition::`vbase destructor(&v31.m_definition);
+            `eh vector destructor iterator'(&v28.m_state.m_multiProgress, 0x58ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgress::`vbase destructor);
+            bdStructFixedSizeString<100>::~bdStructFixedSizeString<100>((bdStructFixedSizeString<100> *)(&v28.m_state.__vftable + 3));
+            bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v28.m_state.__vftable + 2));
+            bdReferencable::~bdReferencable((bdReferencable *)v28.m_state.gap218);
+            bdAchievementDefinition::`vbase destructor(&v28.m_definition);
           }
         }
         else
@@ -1003,7 +979,7 @@ LABEL_12:
         ++v7;
         p_m_getStatesResponse = (bdGetAchievementStatesResponse *)result.m_string;
       }
-      while ( v7 < v23 );
+      while ( v7 < v20 );
     }
   }
 }
@@ -1266,187 +1242,166 @@ bdAchievementClient::pump
 void bdAchievementClient::pump(bdAchievementClient *this)
 {
   bdAchievementClient::Status m_status; 
+  __int32 v3; 
   __int32 v4; 
-  __int32 v5; 
-  bdAchievementEventBuffer::Iterator *v6; 
+  bdAchievementEventBuffer::Iterator *v5; 
   const bdAchievementEventBuffer::Iterator *ProcessedBegin; 
-  int v8; 
+  int v7; 
+  bdLobbyErrorCode v8; 
   bdLobbyErrorCode v9; 
-  bdLobbyErrorCode v10; 
-  const char *v11; 
+  const char *v10; 
+  bdTask::bdStatus v11; 
   bdTask::bdStatus v12; 
-  bdTask::bdStatus v13; 
-  const char *v14; 
-  int v15; 
+  const char *v13; 
+  int v14; 
   bdLobbyErrorCode ErrorCode; 
-  bdLobbyErrorCode v17; 
-  const char *v18; 
+  bdLobbyErrorCode v16; 
+  const char *v17; 
+  bdTask::bdStatus v18; 
   bdTask::bdStatus v19; 
-  bdTask::bdStatus v20; 
-  const char *v21; 
-  bdAchievementClient::UserAchievements *v22; 
+  const char *v20; 
+  bdAchievementClient::UserAchievements *v21; 
   bdAchievementEventBuffer::Iterator *ProcessedEnd; 
-  bdAchievementEventBuffer::Entry *v24; 
+  bdAchievementEventBuffer::Entry *v23; 
   unsigned __int64 Timestamp; 
   unsigned __int64 HiResTimeStamp; 
-  char v29; 
+  double ElapsedTime; 
+  float v27; 
+  float m_flushIntervalSeconds; 
+  const char *v29; 
   const char *v30; 
-  const char *v31; 
   unsigned int NumDefinitions; 
   unsigned int NumStates; 
-  double v36; 
-  bdTask::bdStatus v37; 
-  bdTask::bdStatus v38; 
-  double v39; 
-  bdLobbyErrorCode v40; 
-  bdLobbyErrorCode v41; 
+  bdTask::bdStatus v33; 
+  bdTask::bdStatus v34; 
+  bdLobbyErrorCode v35; 
+  bdLobbyErrorCode v36; 
   bdAchievementEventBuffer::Iterator result; 
-  bdAchievementEventBuffer::Iterator v43; 
+  bdAchievementEventBuffer::Iterator v38; 
 
-  _RBP = this;
   m_status = this->m_status;
   if ( m_status == READY )
   {
-    bdAchievementClient::processEvents(_RBP);
-    bdAchievementEventBuffer::getProcessedBegin(&_RBP->m_eventBuffer, &result);
-    ProcessedEnd = bdAchievementEventBuffer::getProcessedEnd(&_RBP->m_eventBuffer, &v43);
-    if ( bdAchievementEventBuffer::Iterator::operator-(ProcessedEnd, &result) <= 0 )
-      goto LABEL_38;
-    v24 = (bdAchievementEventBuffer::Entry *)bdAchievementEventBuffer::Iterator::operator->(&result);
-    Timestamp = bdAchievementEventBuffer::Entry::getTimestamp(v24);
-    HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-    *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(Timestamp, HiResTimeStamp);
-    __asm
+    bdAchievementClient::processEvents(this);
+    bdAchievementEventBuffer::getProcessedBegin(&this->m_eventBuffer, &result);
+    ProcessedEnd = bdAchievementEventBuffer::getProcessedEnd(&this->m_eventBuffer, &v38);
+    if ( bdAchievementEventBuffer::Iterator::operator-(ProcessedEnd, &result) > 0 && ((v23 = (bdAchievementEventBuffer::Entry *)bdAchievementEventBuffer::Iterator::operator->(&result), Timestamp = bdAchievementEventBuffer::Entry::getTimestamp(v23), HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp(), ElapsedTime = bdPlatformTiming::getElapsedTime(Timestamp, HiResTimeStamp), v27 = *(float *)&ElapsedTime, m_flushIntervalSeconds = this->m_flushIntervalSeconds, v27 >= m_flushIntervalSeconds) || this->m_isDraining || this->m_achievementCompleted) )
     {
-      vmovaps xmm1, xmm0
-      vmovss  xmm0, dword ptr [rbp+1Ch]
-      vcomiss xmm1, xmm0
-    }
-    if ( !v29 || _RBP->m_isDraining || _RBP->m_achievementCompleted )
-    {
+      v29 = "false";
       v30 = "false";
-      v31 = "false";
-      if ( _RBP->m_achievementCompleted )
-        v31 = "true";
-      if ( _RBP->m_isDraining )
+      if ( this->m_achievementCompleted )
         v30 = "true";
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+88h+var_48], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+88h+var_50], xmm1
-      }
-      bdLogMessage(BD_LOG_INFO, "info/", "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::shouldFlush", 0x139u, "Flush required: %0.2f/%0.2f seconds - Is draining: %s - Achievement completed: %s", v36, v39, v30, v31);
-      bdAchievementClient::startFlush(_RBP);
+      if ( this->m_isDraining )
+        v29 = "true";
+      bdLogMessage(BD_LOG_INFO, "info/", "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::shouldFlush", 0x139u, "Flush required: %0.2f/%0.2f seconds - Is draining: %s - Achievement completed: %s", v27, m_flushIntervalSeconds, v29, v30);
+      bdAchievementClient::startFlush(this);
     }
     else
     {
-LABEL_38:
-      *(_WORD *)&_RBP->m_isDraining = 0;
+      *(_WORD *)&this->m_isDraining = 0;
     }
     return;
   }
-  v4 = m_status - 1;
-  if ( !v4 )
+  v3 = m_status - 1;
+  if ( !v3 )
   {
-    v15 = ((__int64 (__fastcall *)(bdRemoteTask *))_RBP->m_getStatesTask.m_ptr->getStatus)(_RBP->m_getStatesTask.m_ptr) - 1;
-    if ( !v15 )
+    v14 = ((__int64 (__fastcall *)(bdRemoteTask *))this->m_getStatesTask.m_ptr->getStatus)(this->m_getStatesTask.m_ptr) - 1;
+    if ( !v14 )
       return;
-    if ( v15 != 1 )
+    if ( v14 != 1 )
     {
-      if ( _RBP->m_getStatesIsBackingOff )
+      if ( this->m_getStatesIsBackingOff )
       {
-        if ( bdBackoffTimer::checkTimer(&_RBP->m_getStatesBackoff) )
+        if ( bdBackoffTimer::checkTimer(&this->m_getStatesBackoff) )
         {
-          _RBP->m_getStatesIsBackingOff = 0;
-          bdAchievementClient::startGetStates(_RBP, &_RBP->m_taskUser);
+          this->m_getStatesIsBackingOff = 0;
+          bdAchievementClient::startGetStates(this, &this->m_taskUser);
         }
       }
       else
       {
-        ErrorCode = bdRemoteTask::getErrorCode(_RBP->m_getStatesTask.m_ptr);
-        v17 = bdRemoteTask::getErrorCode(_RBP->m_getStatesTask.m_ptr);
-        v18 = bdLobbyErrorCodeToString(v17);
-        v19 = _RBP->m_getStatesTask.m_ptr->getStatus(_RBP->m_getStatesTask.m_ptr);
-        v20 = _RBP->m_getStatesTask.m_ptr->getStatus(_RBP->m_getStatesTask.m_ptr);
-        v21 = toString(v20);
-        v41 = ErrorCode;
-        v38 = v19;
-        bdLogMessage(BD_LOG_WARNING, "warn/", "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::checkGetStates", 0x20Eu, "Get states failed with status %s (%u) and code %s (%u)", v21, v38, v18, v41);
-        bdBackoffTimer::recordFailure(&_RBP->m_getStatesBackoff);
-        _RBP->m_getStatesIsBackingOff = 1;
+        ErrorCode = bdRemoteTask::getErrorCode(this->m_getStatesTask.m_ptr);
+        v16 = bdRemoteTask::getErrorCode(this->m_getStatesTask.m_ptr);
+        v17 = bdLobbyErrorCodeToString(v16);
+        v18 = this->m_getStatesTask.m_ptr->getStatus(this->m_getStatesTask.m_ptr);
+        v19 = this->m_getStatesTask.m_ptr->getStatus(this->m_getStatesTask.m_ptr);
+        v20 = toString(v19);
+        v36 = ErrorCode;
+        v34 = v18;
+        bdLogMessage(BD_LOG_WARNING, "warn/", "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::checkGetStates", 0x20Eu, "Get states failed with status %s (%u) and code %s (%u)", v20, v34, v17, v36);
+        bdBackoffTimer::recordFailure(&this->m_getStatesBackoff);
+        this->m_getStatesIsBackingOff = 1;
       }
       return;
     }
-    NumStates = bdGetAchievementStatesResponse::getNumStates(&_RBP->m_getStatesResponse);
+    NumStates = bdGetAchievementStatesResponse::getNumStates(&this->m_getStatesResponse);
     bdLogMessage(BD_LOG_INFO, "info/", "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::checkGetStates", 0x1FDu, "Got response containing %u active achievement states", NumStates);
-    bdBackoffTimer::reset(&_RBP->m_getStatesBackoff);
-    if ( bdAchievementClient::startGetDefinitions(_RBP, &_RBP->m_taskUser) )
+    bdBackoffTimer::reset(&this->m_getStatesBackoff);
+    if ( bdAchievementClient::startGetDefinitions(this, &this->m_taskUser) )
       return;
-    v22 = bdAchievementArrayMap<bdUserAccountID,bdAchievementClient::UserAchievements,1>::get(&_RBP->m_users, &_RBP->m_taskUser);
-    if ( v22 )
-      v22->isLoaded = 1;
+    v21 = bdAchievementArrayMap<bdUserAccountID,bdAchievementClient::UserAchievements,1>::get(&this->m_users, &this->m_taskUser);
+    if ( v21 )
+      v21->isLoaded = 1;
     goto LABEL_10;
   }
-  v5 = v4 - 1;
-  if ( !v5 )
+  v4 = v3 - 1;
+  if ( !v4 )
   {
-    v8 = ((__int64 (__fastcall *)(bdRemoteTask *))_RBP->m_getDefinitionsTask.m_ptr->getStatus)(_RBP->m_getDefinitionsTask.m_ptr) - 1;
-    if ( !v8 )
+    v7 = ((__int64 (__fastcall *)(bdRemoteTask *))this->m_getDefinitionsTask.m_ptr->getStatus)(this->m_getDefinitionsTask.m_ptr) - 1;
+    if ( !v7 )
       return;
-    if ( v8 == 1 )
+    if ( v7 == 1 )
     {
-      NumDefinitions = bdGetAchievementDefinitionsResponse::getNumDefinitions(&_RBP->m_getDefinitionsResponse);
+      NumDefinitions = bdGetAchievementDefinitionsResponse::getNumDefinitions(&this->m_getDefinitionsResponse);
       bdLogMessage(BD_LOG_INFO, "info/", "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::checkGetDefinitions", 0x1B8u, "Got response containing %u definitions", NumDefinitions);
-      bdBackoffTimer::reset(&_RBP->m_getDefinitionsBackoff);
-      bdAchievementClient::handleResponses(_RBP);
+      bdBackoffTimer::reset(&this->m_getDefinitionsBackoff);
+      bdAchievementClient::handleResponses(this);
     }
     else
     {
-      if ( !_RBP->m_getDefinitionsIsBackingOff )
+      if ( !this->m_getDefinitionsIsBackingOff )
       {
-        v9 = bdRemoteTask::getErrorCode(_RBP->m_getDefinitionsTask.m_ptr);
-        v10 = bdRemoteTask::getErrorCode(_RBP->m_getDefinitionsTask.m_ptr);
-        v11 = bdLobbyErrorCodeToString(v10);
-        v12 = _RBP->m_getDefinitionsTask.m_ptr->getStatus(_RBP->m_getDefinitionsTask.m_ptr);
-        v13 = _RBP->m_getDefinitionsTask.m_ptr->getStatus(_RBP->m_getDefinitionsTask.m_ptr);
-        v14 = toString(v13);
-        v40 = v9;
-        v37 = v12;
-        bdLogMessage(BD_LOG_WARNING, "warn/", "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::checkGetDefinitions", 0x1C9u, "Get definitions failed with status %s (%u) and code %s (%u)", v14, v37, v11, v40);
-        bdBackoffTimer::recordFailure(&_RBP->m_getDefinitionsBackoff);
-        _RBP->m_getDefinitionsIsBackingOff = 1;
+        v8 = bdRemoteTask::getErrorCode(this->m_getDefinitionsTask.m_ptr);
+        v9 = bdRemoteTask::getErrorCode(this->m_getDefinitionsTask.m_ptr);
+        v10 = bdLobbyErrorCodeToString(v9);
+        v11 = this->m_getDefinitionsTask.m_ptr->getStatus(this->m_getDefinitionsTask.m_ptr);
+        v12 = this->m_getDefinitionsTask.m_ptr->getStatus(this->m_getDefinitionsTask.m_ptr);
+        v13 = toString(v12);
+        v35 = v8;
+        v33 = v11;
+        bdLogMessage(BD_LOG_WARNING, "warn/", "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::checkGetDefinitions", 0x1C9u, "Get definitions failed with status %s (%u) and code %s (%u)", v13, v33, v10, v35);
+        bdBackoffTimer::recordFailure(&this->m_getDefinitionsBackoff);
+        this->m_getDefinitionsIsBackingOff = 1;
         return;
       }
-      if ( !bdBackoffTimer::checkTimer(&_RBP->m_getDefinitionsBackoff) )
+      if ( !bdBackoffTimer::checkTimer(&this->m_getDefinitionsBackoff) )
         return;
-      _RBP->m_getDefinitionsIsBackingOff = 0;
-      if ( bdAchievementClient::startGetDefinitions(_RBP, &_RBP->m_taskUser) )
+      this->m_getDefinitionsIsBackingOff = 0;
+      if ( bdAchievementClient::startGetDefinitions(this, &this->m_taskUser) )
         return;
       bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::checkGetDefinitions", 0x1D5u, "Retry found no missing definitions");
-      bdAchievementClient::handleResponses(_RBP);
+      bdAchievementClient::handleResponses(this);
     }
 LABEL_10:
-    _RBP->m_status = READY;
+    this->m_status = READY;
     return;
   }
-  if ( v5 != 1 )
+  if ( v4 != 1 )
   {
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::pump", 0x84u, "Invalid bdAchievementClient::Status");
     return;
   }
-  bdAchievementEventBatch::pump(&_RBP->m_eventBatch);
-  if ( bdAchievementEventBatch::getStatus(&_RBP->m_eventBatch) == BLOCKED )
+  bdAchievementEventBatch::pump(&this->m_eventBatch);
+  if ( bdAchievementEventBatch::getStatus(&this->m_eventBatch) == BLOCKED )
   {
-    v6 = bdAchievementEventBuffer::getProcessedEnd(&_RBP->m_eventBuffer, &result);
-    ProcessedBegin = bdAchievementEventBuffer::getProcessedBegin(&_RBP->m_eventBuffer, &v43);
-    if ( bdAchievementEventBuffer::Iterator::operator-(v6, ProcessedBegin) > 0 )
+    v5 = bdAchievementEventBuffer::getProcessedEnd(&this->m_eventBuffer, &result);
+    ProcessedBegin = bdAchievementEventBuffer::getProcessedBegin(&this->m_eventBuffer, &v38);
+    if ( bdAchievementEventBuffer::Iterator::operator-(v5, ProcessedBegin) > 0 )
     {
-      bdAchievementClient::startFlush(_RBP);
+      bdAchievementClient::startFlush(this);
       return;
     }
-    *(_WORD *)&_RBP->m_isDraining = 0;
+    *(_WORD *)&this->m_isDraining = 0;
     goto LABEL_10;
   }
 }
@@ -1556,10 +1511,9 @@ char bdAchievementClient::reportUserEvent(bdAchievementClient *this, const bdUse
 bdAchievementClient::setFlushIntervalSeconds
 ==============
 */
-
-void __fastcall bdAchievementClient::setFlushIntervalSeconds(bdAchievementClient *this, double flushIntervalSeconds)
+void bdAchievementClient::setFlushIntervalSeconds(bdAchievementClient *this, float flushIntervalSeconds)
 {
-  __asm { vmovss  dword ptr [rcx+1Ch], xmm1 }
+  this->m_flushIntervalSeconds = flushIntervalSeconds;
 }
 
 /*
@@ -1590,51 +1544,36 @@ bdAchievementClient::shouldFlush
 char bdAchievementClient::shouldFlush(bdAchievementClient *this)
 {
   bdAchievementEventBuffer::Iterator *ProcessedEnd; 
-  bdAchievementEventBuffer::Entry *v4; 
+  bdAchievementEventBuffer::Entry *v3; 
   unsigned __int64 Timestamp; 
   unsigned __int64 HiResTimeStamp; 
-  char v9; 
+  double ElapsedTime; 
+  float v7; 
+  float m_flushIntervalSeconds; 
+  const char *v9; 
   const char *v10; 
-  const char *v11; 
-  double v15; 
-  double v16; 
   bdAchievementEventBuffer::Iterator result; 
-  bdAchievementEventBuffer::Iterator v18; 
+  bdAchievementEventBuffer::Iterator v13; 
 
-  _RDI = this;
   bdAchievementEventBuffer::getProcessedBegin(&this->m_eventBuffer, &result);
-  ProcessedEnd = bdAchievementEventBuffer::getProcessedEnd(&_RDI->m_eventBuffer, &v18);
+  ProcessedEnd = bdAchievementEventBuffer::getProcessedEnd(&this->m_eventBuffer, &v13);
   if ( bdAchievementEventBuffer::Iterator::operator-(ProcessedEnd, &result) <= 0 )
     return 0;
-  v4 = (bdAchievementEventBuffer::Entry *)bdAchievementEventBuffer::Iterator::operator->(&result);
-  Timestamp = bdAchievementEventBuffer::Entry::getTimestamp(v4);
+  v3 = (bdAchievementEventBuffer::Entry *)bdAchievementEventBuffer::Iterator::operator->(&result);
+  Timestamp = bdAchievementEventBuffer::Entry::getTimestamp(v3);
   HiResTimeStamp = bdPlatformTiming::getHiResTimeStamp();
-  *(double *)&_XMM0 = bdPlatformTiming::getElapsedTime(Timestamp, HiResTimeStamp);
-  __asm
-  {
-    vmovaps xmm1, xmm0
-    vmovss  xmm0, dword ptr [rdi+1Ch]
-    vcomiss xmm1, xmm0
-  }
-  if ( v9 )
-  {
-    if ( !_RDI->m_isDraining && !_RDI->m_achievementCompleted )
-      return 0;
-  }
+  ElapsedTime = bdPlatformTiming::getElapsedTime(Timestamp, HiResTimeStamp);
+  v7 = *(float *)&ElapsedTime;
+  m_flushIntervalSeconds = this->m_flushIntervalSeconds;
+  if ( v7 < m_flushIntervalSeconds && !this->m_isDraining && !this->m_achievementCompleted )
+    return 0;
+  v9 = "false";
   v10 = "false";
-  v11 = "false";
-  if ( _RDI->m_achievementCompleted )
-    v11 = "true";
-  if ( _RDI->m_isDraining )
+  if ( this->m_achievementCompleted )
     v10 = "true";
-  __asm
-  {
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+88h+var_48], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vmovsd  [rsp+88h+var_50], xmm1
-  }
-  bdLogMessage(BD_LOG_INFO, "info/", "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::shouldFlush", 0x139u, "Flush required: %0.2f/%0.2f seconds - Is draining: %s - Achievement completed: %s", v15, v16, v10, v11);
+  if ( this->m_isDraining )
+    v9 = "true";
+  bdLogMessage(BD_LOG_INFO, "info/", "bdAchievementClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdachievementsengine\\bdachievementclient.cpp", "bdAchievementClient::shouldFlush", 0x139u, "Flush required: %0.2f/%0.2f seconds - Is draining: %s - Achievement completed: %s", v7, m_flushIntervalSeconds, v9, v10);
   return 1;
 }
 
@@ -1646,73 +1585,64 @@ bdAchievementClient::startFlush
 void bdAchievementClient::startFlush(bdAchievementClient *this)
 {
   const bdStructFixedSizeArray<bdAchievementEventBatch::Entry,16> *v2; 
-  unsigned int v8; 
+  const bdStructFixedSizeArray<bdAchievementEventBatch::Entry,16> *v3; 
+  unsigned int v4; 
   __int64 i; 
   bdAchievementEventBatch ptr; 
 
   bdAchievementEventBatch::bdAchievementEventBatch(&ptr, this->m_service, this->m_context.m_buffer, &this->m_eventBuffer, this);
-  _RDI = v2;
-  _RBX = &this->m_eventBatch;
+  v3 = v2;
   if ( &this->m_eventBatch != (bdAchievementEventBatch *)v2 )
     bdStructFixedSizeArray<bdAchievementEventBatch::Entry,16>::copy(&this->m_eventBatch.m_entries, v2);
-  this->m_eventBatch.m_status = (bdAchievementEventBatch::Status)_RDI[1].m_elements[0].m_user.__vftable;
-  this->m_eventBatch.m_service = (bdAchievementsEngineService *)*((_QWORD *)&_RDI[1].m_elements[0].m_user.__vftable + 1);
-  __asm
+  this->m_eventBatch.m_status = (bdAchievementEventBatch::Status)v3[1].m_elements[0].m_user.__vftable;
+  this->m_eventBatch.m_service = (bdAchievementsEngineService *)*((_QWORD *)&v3[1].m_elements[0].m_user.__vftable + 1);
+  *(_OWORD *)this->m_eventBatch.m_context.m_buffer = *((_OWORD *)&v3[1].m_elements[0].m_user.__vftable + 1);
+  this->m_eventBatch.m_context.m_buffer[16] = v3[1].m_elements[0].m_user._bytes_20[0];
+  this->m_eventBatch.m_eventBuffer = *(bdAchievementEventBuffer **)&v3[1].m_elements[0].m_user._bytes_20[8];
+  this->m_eventBatch.m_achievementClient = (bdAchievementClient *)v3[1].m_elements[0].m_user.m_userID;
+  bdReference<bdRemoteTask>::operator=(&this->m_eventBatch.m_remoteTask, (const bdReference<bdRemoteTask> *)v3[1].m_elements[0].m_user.gap38);
+  this->m_eventBatch.m_requestID[0] = v3[1].m_elements[0].m_user.gap38[8];
+  this->m_eventBatch.m_requestID[1] = v3[1].m_elements[0].m_user.gap38[9];
+  this->m_eventBatch.m_requestID[2] = v3[1].m_elements[0].m_user.gap38[10];
+  this->m_eventBatch.m_requestID[3] = v3[1].m_elements[0].m_user.gap38[11];
+  this->m_eventBatch.m_requestID[4] = v3[1].m_elements[0].m_user.gap38[12];
+  this->m_eventBatch.m_requestID[5] = v3[1].m_elements[0].m_user.gap38[13];
+  this->m_eventBatch.m_requestID[6] = v3[1].m_elements[0].m_user.gap38[14];
+  this->m_eventBatch.m_requestID[7] = v3[1].m_elements[0].m_user.gap38[15];
+  this->m_eventBatch.m_requestID[8] = (char)v3[1].m_elements[0].m_firstPartyUser.__vftable;
+  this->m_eventBatch.m_requestID[9] = BYTE1(v3[1].m_elements[0].m_firstPartyUser.__vftable);
+  this->m_eventBatch.m_requestID[10] = BYTE2(v3[1].m_elements[0].m_firstPartyUser.__vftable);
+  this->m_eventBatch.m_requestID[11] = BYTE3(v3[1].m_elements[0].m_firstPartyUser.__vftable);
+  this->m_eventBatch.m_requestID[12] = BYTE4(v3[1].m_elements[0].m_firstPartyUser.__vftable);
+  this->m_eventBatch.m_requestID[13] = BYTE5(v3[1].m_elements[0].m_firstPartyUser.__vftable);
+  this->m_eventBatch.m_requestID[14] = BYTE6(v3[1].m_elements[0].m_firstPartyUser.__vftable);
+  this->m_eventBatch.m_requestID[15] = HIBYTE(v3[1].m_elements[0].m_firstPartyUser.__vftable);
+  this->m_eventBatch.m_requestID[16] = *((_BYTE *)&v3[1].m_elements[0].m_firstPartyUser.__vftable + 8);
+  this->m_eventBatch.m_requestID[17] = *((_BYTE *)&v3[1].m_elements[0].m_firstPartyUser.__vftable + 9);
+  this->m_eventBatch.m_requestID[18] = *((_BYTE *)&v3[1].m_elements[0].m_firstPartyUser.__vftable + 10);
+  this->m_eventBatch.m_requestID[19] = *((_BYTE *)&v3[1].m_elements[0].m_firstPartyUser.__vftable + 11);
+  this->m_eventBatch.m_requestID[20] = *((_BYTE *)&v3[1].m_elements[0].m_firstPartyUser.__vftable + 12);
+  this->m_eventBatch.m_requestID[21] = *((_BYTE *)&v3[1].m_elements[0].m_firstPartyUser.__vftable + 13);
+  this->m_eventBatch.m_requestID[22] = *((_BYTE *)&v3[1].m_elements[0].m_firstPartyUser.__vftable + 14);
+  this->m_eventBatch.m_requestID[23] = *((_BYTE *)&v3[1].m_elements[0].m_firstPartyUser.__vftable + 15);
+  this->m_eventBatch.m_requestID[24] = *((_BYTE *)&v3[1].m_elements[0].m_firstPartyUser.__vftable + 16);
+  *(_OWORD *)&this->m_eventBatch.m_backoffTimer.m_timestamp = *(_OWORD *)((char *)&v3[1].m_elements[0].m_firstPartyUser.__vftable + 20);
+  *(double *)&this->m_eventBatch.m_backoffTimer.m_timeouts[4] = *(double *)&v3[1].m_elements[0].m_firstPartyUser._bytes_20[4];
+  *(_DWORD *)&this->m_eventBatch.m_backoffTimer.m_timeouts[12] = *(_DWORD *)&v3[1].m_elements[0].m_firstPartyUser._bytes_20[12];
+  this->m_eventBatch.m_reportEventsResponse.m_bdrest_status = *(_DWORD *)v3[1].m_elements[0].m_firstPartyUser.gap38;
+  this->m_eventBatch.m_reportEventsResponse.m_bdrest_retries = *(_DWORD *)&v3[1].m_elements[0].m_firstPartyUser.gap38[4];
+  this->m_eventBatch.m_reportEventsResponse.m_bdrest_handlerSetErrorCode = v3[1].m_elements[0].m_firstPartyUser.gap38[8];
+  this->m_eventBatch.m_reportEventsResponse.m_bdrest_handlerErrorCode = *(_DWORD *)&v3[1].m_elements[0].m_firstPartyUser.gap38[12];
+  this->m_eventBatch.m_reportEventsResponse.m_bdrest_spanID = v3[1].m_elements[0].m_platform;
+  this->m_eventBatch.m_reportEventsResponse.m_bdrest_transactionID = (unsigned __int64)v3[1].m_elements[0].m_events.m_elements[0].__vftable;
+  if ( &this->m_eventBatch.m_reportEventsResponse.m_results != (bdStructFixedSizeArray<enum bdLobbyErrorCode,64> *)(&v3[1].m_elements[0].m_events.m_elements[0].__vftable + 1) )
   {
-    vmovups xmm0, xmmword ptr [rdi+19E98h]
-    vmovups xmmword ptr [rbx+19E98h], xmm0
-  }
-  this->m_eventBatch.m_context.m_buffer[16] = _RDI[1].m_elements[0].m_user._bytes_20[0];
-  this->m_eventBatch.m_eventBuffer = *(bdAchievementEventBuffer **)&_RDI[1].m_elements[0].m_user._bytes_20[8];
-  this->m_eventBatch.m_achievementClient = (bdAchievementClient *)_RDI[1].m_elements[0].m_user.m_userID;
-  bdReference<bdRemoteTask>::operator=(&this->m_eventBatch.m_remoteTask, (const bdReference<bdRemoteTask> *)_RDI[1].m_elements[0].m_user.gap38);
-  this->m_eventBatch.m_requestID[0] = _RDI[1].m_elements[0].m_user.gap38[8];
-  this->m_eventBatch.m_requestID[1] = _RDI[1].m_elements[0].m_user.gap38[9];
-  this->m_eventBatch.m_requestID[2] = _RDI[1].m_elements[0].m_user.gap38[10];
-  this->m_eventBatch.m_requestID[3] = _RDI[1].m_elements[0].m_user.gap38[11];
-  this->m_eventBatch.m_requestID[4] = _RDI[1].m_elements[0].m_user.gap38[12];
-  this->m_eventBatch.m_requestID[5] = _RDI[1].m_elements[0].m_user.gap38[13];
-  this->m_eventBatch.m_requestID[6] = _RDI[1].m_elements[0].m_user.gap38[14];
-  this->m_eventBatch.m_requestID[7] = _RDI[1].m_elements[0].m_user.gap38[15];
-  this->m_eventBatch.m_requestID[8] = (char)_RDI[1].m_elements[0].m_firstPartyUser.__vftable;
-  this->m_eventBatch.m_requestID[9] = BYTE1(_RDI[1].m_elements[0].m_firstPartyUser.__vftable);
-  this->m_eventBatch.m_requestID[10] = BYTE2(_RDI[1].m_elements[0].m_firstPartyUser.__vftable);
-  this->m_eventBatch.m_requestID[11] = BYTE3(_RDI[1].m_elements[0].m_firstPartyUser.__vftable);
-  this->m_eventBatch.m_requestID[12] = BYTE4(_RDI[1].m_elements[0].m_firstPartyUser.__vftable);
-  this->m_eventBatch.m_requestID[13] = BYTE5(_RDI[1].m_elements[0].m_firstPartyUser.__vftable);
-  this->m_eventBatch.m_requestID[14] = BYTE6(_RDI[1].m_elements[0].m_firstPartyUser.__vftable);
-  this->m_eventBatch.m_requestID[15] = HIBYTE(_RDI[1].m_elements[0].m_firstPartyUser.__vftable);
-  this->m_eventBatch.m_requestID[16] = *((_BYTE *)&_RDI[1].m_elements[0].m_firstPartyUser.__vftable + 8);
-  this->m_eventBatch.m_requestID[17] = *((_BYTE *)&_RDI[1].m_elements[0].m_firstPartyUser.__vftable + 9);
-  this->m_eventBatch.m_requestID[18] = *((_BYTE *)&_RDI[1].m_elements[0].m_firstPartyUser.__vftable + 10);
-  this->m_eventBatch.m_requestID[19] = *((_BYTE *)&_RDI[1].m_elements[0].m_firstPartyUser.__vftable + 11);
-  this->m_eventBatch.m_requestID[20] = *((_BYTE *)&_RDI[1].m_elements[0].m_firstPartyUser.__vftable + 12);
-  this->m_eventBatch.m_requestID[21] = *((_BYTE *)&_RDI[1].m_elements[0].m_firstPartyUser.__vftable + 13);
-  this->m_eventBatch.m_requestID[22] = *((_BYTE *)&_RDI[1].m_elements[0].m_firstPartyUser.__vftable + 14);
-  this->m_eventBatch.m_requestID[23] = *((_BYTE *)&_RDI[1].m_elements[0].m_firstPartyUser.__vftable + 15);
-  this->m_eventBatch.m_requestID[24] = *((_BYTE *)&_RDI[1].m_elements[0].m_firstPartyUser.__vftable + 16);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+19EE4h]
-    vmovups xmmword ptr [rbx+19EE4h], xmm0
-    vmovsd  xmm1, qword ptr [rdi+19EF4h]
-    vmovsd  qword ptr [rbx+19EF4h], xmm1
-  }
-  *(_DWORD *)&this->m_eventBatch.m_backoffTimer.m_timeouts[12] = *(_DWORD *)&_RDI[1].m_elements[0].m_firstPartyUser._bytes_20[12];
-  this->m_eventBatch.m_reportEventsResponse.m_bdrest_status = *(_DWORD *)_RDI[1].m_elements[0].m_firstPartyUser.gap38;
-  this->m_eventBatch.m_reportEventsResponse.m_bdrest_retries = *(_DWORD *)&_RDI[1].m_elements[0].m_firstPartyUser.gap38[4];
-  this->m_eventBatch.m_reportEventsResponse.m_bdrest_handlerSetErrorCode = _RDI[1].m_elements[0].m_firstPartyUser.gap38[8];
-  this->m_eventBatch.m_reportEventsResponse.m_bdrest_handlerErrorCode = *(_DWORD *)&_RDI[1].m_elements[0].m_firstPartyUser.gap38[12];
-  this->m_eventBatch.m_reportEventsResponse.m_bdrest_spanID = _RDI[1].m_elements[0].m_platform;
-  this->m_eventBatch.m_reportEventsResponse.m_bdrest_transactionID = (unsigned __int64)_RDI[1].m_elements[0].m_events.m_elements[0].__vftable;
-  if ( &this->m_eventBatch.m_reportEventsResponse.m_results != (bdStructFixedSizeArray<enum bdLobbyErrorCode,64> *)(&_RDI[1].m_elements[0].m_events.m_elements[0].__vftable + 1) )
-  {
-    v8 = (unsigned int)_RDI[1].m_elements[0].m_events.m_elements[0].m_keyValues.m_elements[2].__vftable;
-    this->m_eventBatch.m_reportEventsResponse.m_results.m_size = v8;
+    v4 = (unsigned int)v3[1].m_elements[0].m_events.m_elements[0].m_keyValues.m_elements[2].__vftable;
+    this->m_eventBatch.m_reportEventsResponse.m_results.m_size = v4;
     for ( i = 0i64; (unsigned int)i < this->m_eventBatch.m_reportEventsResponse.m_results.m_size; i = (unsigned int)(i + 1) )
-      this->m_eventBatch.m_reportEventsResponse.m_results.m_elements[i] = *((_DWORD *)&_RDI[1].m_elements[0].m_events.m_elements[0].__vftable + i + 2);
+      this->m_eventBatch.m_reportEventsResponse.m_results.m_elements[i] = *((_DWORD *)&v3[1].m_elements[0].m_events.m_elements[0].__vftable + i + 2);
   }
-  this->m_eventBatch.m_reportEventsResponse.m_allSucceeded = BYTE4(_RDI[1].m_elements[0].m_events.m_elements[0].m_keyValues.m_elements[2].__vftable);
+  this->m_eventBatch.m_reportEventsResponse.m_allSucceeded = BYTE4(v3[1].m_elements[0].m_events.m_elements[0].m_keyValues.m_elements[2].__vftable);
   bdRESTResponse::~bdRESTResponse(&ptr.m_reportEventsResponse);
   if ( ptr.m_remoteTask.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&ptr.m_remoteTask.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
   {

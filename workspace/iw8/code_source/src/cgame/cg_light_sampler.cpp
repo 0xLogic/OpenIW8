@@ -49,172 +49,234 @@ CG_LightSampler_AddSamples
 */
 void CG_LightSampler_AddSamples(LocalClientNum_t clientNum)
 {
+  cg_t *LocalClientGlobals; 
+  const dvar_t *v2; 
+  const dvar_t *v3; 
+  float value; 
+  float viewHeightCurrent; 
+  const dvar_t *v6; 
+  float v7; 
+  const dvar_t *v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  vec3_t *v12; 
   const dvar_t *v13; 
-  bool v30; 
-  const dvar_t *v36; 
   int integer; 
-  __int64 v39; 
-  int v40; 
-  __int64 v49; 
-  __int64 v58; 
+  __int64 v15; 
+  int v16; 
+  float *v17; 
+  __int128 v18; 
+  __int64 v19; 
+  __int128 v20; 
+  __int128 v21; 
+  float v22; 
+  __int128 v23; 
+  float *v24; 
+  __int64 v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  __int128 v30; 
+  __int128 v31; 
+  float v32; 
+  __int128 v33; 
+  __int128 v34; 
+  __int128 v35; 
+  __int128 v36; 
+  float v37; 
+  __int128 v38; 
+  __int128 v39; 
+  __int128 v40; 
+  __int128 v41; 
+  float v42; 
+  __int128 v43; 
+  __int128 v44; 
+  __int128 v45; 
+  __int128 v46; 
+  float v47; 
+  __int128 v48; 
+  __int128 v49; 
+  __int128 v50; 
+  __int128 v51; 
+  float v52; 
+  __int128 v53; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v56; 
+  float v57; 
+  __int128 v58; 
+  __int128 v59; 
+  __int128 v60; 
+  __int128 v61; 
+  float v62; 
+  __int128 v63; 
+  __int128 v64; 
+  __int128 v65; 
+  __int128 v66; 
+  float v67; 
+  __int128 v68; 
+  __int128 v69; 
+  __int128 v70; 
+  __int128 v71; 
   unsigned int refdefViewOrg_aab; 
-  const dvar_t *v234; 
-  int v235; 
-  __int64 v236; 
-  vec3_t *p_center; 
-  __int64 v238; 
-  const dvar_t *v280; 
-  const vec3_t *v289; 
+  tmat33_t<vec3_t> *p_axis; 
+  float v74; 
+  __int128 v75; 
+  __int128 v76; 
+  float v80; 
+  float v81; 
+  float v82; 
+  const dvar_t *v83; 
+  int v84; 
+  __int64 v85; 
+  const vec3_t *v86; 
+  __int64 v87; 
+  unsigned __int64 v88; 
+  float v89; 
+  __int128 v90; 
+  float v91; 
+  float *v; 
+  __int128 v93; 
+  float v94; 
+  float v95; 
+  __int128 v96; 
+  float v97; 
+  __int128 v98; 
+  const dvar_t *v102; 
+  float v103; 
+  float v104; 
+  bool v105; 
+  const vec3_t *v106; 
   float c[2]; 
   float s[6]; 
-  __int64 v304; 
-  __int64 v305; 
-  __int64 v306; 
+  __int64 v109; 
+  __int64 v110; 
+  __int64 v111; 
   vec3_t out; 
   vec3_t end; 
-  _BYTE v309[64]; 
-  __int64 v345[28]; 
-  vec3_t center; 
-  char v347; 
-  void *retaddr; 
+  _BYTE v114[64]; 
+  __int128 v115; 
+  float v116; 
+  float v117; 
+  float v118; 
+  float v119; 
+  float v120; 
+  float v121; 
+  float v122; 
+  float v123; 
+  float v124; 
+  float v125; 
+  float v126; 
+  float v127; 
+  float v128; 
+  float v129; 
+  float v130; 
+  float v131; 
+  float v132; 
+  float v133; 
+  float v134; 
+  float v135; 
+  float v136; 
+  float v137; 
+  float v138; 
+  float v139; 
+  float v140; 
+  float v141; 
+  float v142; 
+  float v143; 
+  float v144; 
+  float v145; 
+  float v146; 
+  float v147; 
+  float v148; 
+  float v149; 
+  __int64 v150[28]; 
+  vec3_t center[18]; 
 
-  _RAX = &retaddr;
-  v306 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  _R12 = CG_GetLocalClientGlobals(clientNum);
-  if ( _R12->predictedPlayerState.pm_type != 3 )
+  v111 = -2i64;
+  LocalClientGlobals = CG_GetLocalClientGlobals(clientNum);
+  if ( LocalClientGlobals->predictedPlayerState.pm_type != 3 )
     goto LABEL_6;
-  v13 = DCONST_DVARBOOL_cg_drawPlayerLightSample;
+  v2 = DCONST_DVARBOOL_cg_drawPlayerLightSample;
   if ( !DCONST_DVARBOOL_cg_drawPlayerLightSample && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawPlayerLightSample") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  if ( v13->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
 LABEL_6:
-    _RDI = DVARFLT_cg_playerLightSampleSize;
+    v3 = DVARFLT_cg_playerLightSampleSize;
     if ( !DVARFLT_cg_playerLightSampleSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_playerLightSampleSize") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm14, dword ptr [rdi+28h]
-      vmovss  [rsp+410h+c], xmm14
-      vmovaps ymm0, cs:__ymm@c000000041100000400000004000000041100000000000000000000041100000
-      vmovups [rbp+310h+var_370], ymm0
-      vmovaps ymm0, cs:__ymm@40a00000c00000004000000040a00000000000000000000040a00000c0000000
-      vmovups [rbp+310h+var_350], ymm0
-      vmovups xmm0, cs:__xmm@00000000c0c0000040000000c0000000
-      vmovups [rbp+310h+var_330], xmm0
-      vmovss  xmm1, dword ptr [r12+1F0h]
-      vmulss  xmm5, xmm1, cs:__real@beb33333
-      vmovss  [rbp+310h+var_320], xmm5
-      vmovss  xmm6, cs:__real@c0c00000
-      vmovss  [rbp+310h+var_31C], xmm6
-      vxorps  xmm12, xmm12, xmm12
-      vmovss  [rbp+310h+var_318], xmm12
-      vmulss  xmm4, xmm1, cs:__real@bf000000
-      vmovss  [rbp+310h+var_314], xmm4
-      vmovss  [rbp+310h+var_310], xmm6
-      vmovss  [rbp+310h+var_30C], xmm12
-      vmulss  xmm3, xmm1, cs:__real@bf266666
-      vmovss  [rbp+310h+var_308], xmm3
-      vmovss  [rbp+310h+var_304], xmm6
-      vmovss  [rbp+310h+var_300], xmm12
-      vmulss  xmm2, xmm1, cs:__real@bf4ccccd
-      vmovss  [rbp+310h+var_2FC], xmm2
-      vmovss  [rbp+310h+var_2F8], xmm6
-      vmovss  xmm0, cs:__real@40c00000
-      vmovss  [rbp+310h+var_2F4], xmm0
-      vmovss  [rbp+310h+var_2F0], xmm5
-      vmovss  [rbp+310h+var_2EC], xmm6
-      vmovss  [rbp+310h+var_2E8], xmm0
-      vmovss  [rbp+310h+var_2E4], xmm4
-      vmovss  [rbp+310h+var_2E0], xmm6
-      vmovss  [rbp+310h+var_2DC], xmm0
-      vmovss  [rbp+310h+var_2D8], xmm3
-      vmovss  [rbp+310h+var_2D4], xmm6
-      vmovss  [rbp+310h+var_2D0], xmm0
-      vmovss  [rbp+310h+var_2CC], xmm2
-      vmovss  [rbp+310h+var_2C8], xmm6
-      vmovss  [rbp+310h+var_2C4], xmm6
-      vmovss  [rbp+310h+var_2C0], xmm5
-      vmovss  [rbp+310h+var_2BC], xmm6
-      vmovss  [rbp+310h+var_2B8], xmm6
-      vmovss  [rbp+310h+var_2B4], xmm4
-      vmovss  [rbp+310h+var_2B0], xmm6
-      vmovss  [rbp+310h+var_2AC], xmm6
-      vmovss  [rbp+310h+var_2A8], xmm3
-      vmovss  [rbp+310h+var_2A4], xmm6
-      vmovss  [rbp+310h+var_2A0], xmm6
-      vmovss  [rbp+310h+var_29C], xmm2
-    }
-    _RDI = DVARFLT_cg_playerLightSampleShapeSize;
+    Dvar_CheckFrontendServerThread(v3);
+    value = v3->current.value;
+    c[0] = value;
+    *(__m256i *)v114 = _ymm_c000000041100000400000004000000041100000000000000000000041100000;
+    *(__m256i *)&v114[32] = _ymm;
+    v115 = _xmm;
+    viewHeightCurrent = LocalClientGlobals->predictedPlayerState.viewHeightCurrent;
+    v116 = viewHeightCurrent * -0.34999999;
+    v117 = FLOAT_N6_0;
+    v118 = 0.0;
+    v119 = viewHeightCurrent * -0.5;
+    v120 = FLOAT_N6_0;
+    v121 = 0.0;
+    v122 = viewHeightCurrent * -0.64999998;
+    v123 = FLOAT_N6_0;
+    v124 = 0.0;
+    v125 = viewHeightCurrent * -0.80000001;
+    v126 = FLOAT_N6_0;
+    v127 = FLOAT_6_0;
+    v128 = viewHeightCurrent * -0.34999999;
+    v129 = FLOAT_N6_0;
+    v130 = FLOAT_6_0;
+    v131 = viewHeightCurrent * -0.5;
+    v132 = FLOAT_N6_0;
+    v133 = FLOAT_6_0;
+    v134 = viewHeightCurrent * -0.64999998;
+    v135 = FLOAT_N6_0;
+    v136 = FLOAT_6_0;
+    v137 = viewHeightCurrent * -0.80000001;
+    v138 = FLOAT_N6_0;
+    v139 = FLOAT_N6_0;
+    v140 = viewHeightCurrent * -0.34999999;
+    v141 = FLOAT_N6_0;
+    v142 = FLOAT_N6_0;
+    v143 = viewHeightCurrent * -0.5;
+    v144 = FLOAT_N6_0;
+    v145 = FLOAT_N6_0;
+    v146 = viewHeightCurrent * -0.64999998;
+    v147 = FLOAT_N6_0;
+    v148 = FLOAT_N6_0;
+    v149 = viewHeightCurrent * -0.80000001;
+    v6 = DVARFLT_cg_playerLightSampleShapeSize;
     if ( !DVARFLT_cg_playerLightSampleShapeSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_playerLightSampleShapeSize") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm9, dword ptr [rdi+28h] }
-    _RDI = DVARVEC3_cg_playerLightSampleShapeOffset;
+    Dvar_CheckFrontendServerThread(v6);
+    v7 = v6->current.value;
+    v8 = DVARVEC3_cg_playerLightSampleShapeOffset;
     if ( !DVARVEC3_cg_playerLightSampleShapeOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 734, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_playerLightSampleShapeOffset") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
+    Dvar_CheckFrontendServerThread(v8);
+    v9 = v8->current.value;
+    v10 = v8->current.vector.v[1];
+    v11 = v8->current.vector.v[2];
+    if ( s_radius != v7 || s_sampleOffset.v[0] != v9 || s_sampleOffset.v[1] != v10 || s_sampleOffset.v[2] != v11 )
     {
-      vmovss  xmm11, dword ptr [rdi+28h]
-      vmovss  xmm10, dword ptr [rdi+2Ch]
-      vmovss  xmm15, dword ptr [rdi+30h]
-      vmovss  xmm0, cs:s_radius
-      vucomiss xmm0, xmm9
-    }
-    if ( !v30 )
-      goto LABEL_19;
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:s_sampleOffset
-      vucomiss xmm0, xmm11
-    }
-    if ( !v30 )
-      goto LABEL_19;
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:s_sampleOffset+4
-      vucomiss xmm0, xmm10
-    }
-    if ( !v30 )
-      goto LABEL_19;
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:s_sampleOffset+8
-      vucomiss xmm0, xmm15
-    }
-    if ( !v30 )
-    {
-LABEL_19:
       s_offsetCylinderReady = 0;
       s_offsetHemisphereReady = 0;
     }
-    _R13 = (vec3_t *)v309;
-    v36 = DVARINT_cg_playerLightSamplePos;
+    v12 = (vec3_t *)v114;
+    v13 = DVARINT_cg_playerLightSamplePos;
     if ( !DVARINT_cg_playerLightSamplePos && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_playerLightSamplePos") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v36);
-    integer = v36->current.integer;
-    __asm { vmovss  xmm13, cs:__real@3f800000 }
+    Dvar_CheckFrontendServerThread(v13);
+    integer = v13->current.integer;
     if ( !integer )
     {
-      _R13 = (vec3_t *)v309;
-      v39 = 6i64;
+      v12 = (vec3_t *)v114;
+      v15 = 6i64;
       *(_QWORD *)s = 6i64;
       goto LABEL_40;
     }
@@ -222,479 +284,298 @@ LABEL_19:
     {
       if ( !s_offsetCylinderReady )
       {
-        v40 = 0;
-        _RDI = &s_offsetCylinder[0].v[1];
-        __asm { vmovss  xmm8, cs:__real@3f860a92 }
+        v16 = 0;
+        v17 = &s_offsetCylinder[0].v[1];
         do
         {
-          __asm
-          {
-            vmovaps xmm6, xmm12
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, esi
-            vsubss  xmm0, xmm13, xmm0
-            vmulss  xmm1, xmm0, cs:__real@41400000
-            vaddss  xmm7, xmm1, xmm15
-          }
-          v49 = 6i64;
+          v18 = 0i64;
+          v19 = 6i64;
           do
           {
-            __asm { vmovaps xmm0, xmm6; radians }
-            FastSinCos(*(const float *)&_XMM0, s, c);
-            __asm
-            {
-              vmulss  xmm1, xmm9, [rsp+410h+s]
-              vaddss  xmm2, xmm1, xmm11
-              vmovss  dword ptr [rdi-4], xmm2
-              vmulss  xmm1, xmm9, [rsp+410h+c]
-              vaddss  xmm2, xmm1, xmm10
-              vmovss  dword ptr [rdi], xmm2
-              vmovss  dword ptr [rdi+4], xmm7
-              vaddss  xmm6, xmm6, xmm8
-            }
-            _RDI += 3;
-            --v49;
+            FastSinCos(*(const float *)&v18, s, c);
+            *(v17 - 1) = (float)(v7 * s[0]) + v9;
+            *v17 = (float)(v7 * c[0]) + v10;
+            v17[1] = (float)((float)(1.0 - (float)v16) * 12.0) + v11;
+            v20 = v18;
+            *(float *)&v20 = *(float *)&v18 + 1.0471976;
+            v18 = v20;
+            v17 += 3;
+            --v19;
           }
-          while ( v49 );
-          ++v40;
+          while ( v19 );
+          ++v16;
         }
-        while ( v40 < 3 );
+        while ( v16 < 3 );
         s_offsetCylinderReady = 1;
       }
-      _R13 = s_offsetCylinder;
-      v39 = 0i64;
+      v12 = s_offsetCylinder;
+      v15 = 0i64;
     }
     else
     {
-      v39 = 0i64;
+      v15 = 0i64;
       *(_QWORD *)s = 0i64;
       if ( integer != 2 )
         goto LABEL_40;
       if ( !s_offsetHemisphereReady )
       {
-        __asm
-        {
-          vmovss  xmm7, cs:__real@3ce38e39
-          vxorps  xmm14, xmm14, xmm14
-          vmovaps xmm12, xmm13
-        }
-        _RAX = &s_offsetHemisphere[1].v[1];
-        v58 = 2i64;
-        __asm
-        {
-          vmovss  xmm6, cs:__real@3d638e39
-          vmovss  xmm4, cs:__real@bf2cecef
-          vmovss  xmm8, cs:__real@3f3cc435
-        }
+        v21 = LODWORD(FLOAT_0_027777778);
+        v22 = 0.0;
+        v23 = LODWORD(FLOAT_1_0);
+        v24 = &s_offsetHemisphere[1].v[1];
+        v25 = 2i64;
+        v26 = FLOAT_0_055555556;
+        v27 = FLOAT_N0_67549032;
+        v28 = FLOAT_0_73736888;
         do
         {
-          __asm
-          {
-            vmulss  xmm0, xmm7, xmm7
-            vsubss  xmm0, xmm13, xmm0
-            vsqrtss xmm1, xmm0, xmm0
-            vmulss  xmm3, xmm1, xmm9
-            vmulss  xmm2, xmm3, xmm12
-            vaddss  xmm0, xmm2, xmm11
-            vmovss  dword ptr [rax-10h], xmm0
-            vmulss  xmm1, xmm3, xmm14
-            vaddss  xmm2, xmm1, xmm10
-            vmovss  dword ptr [rax-0Ch], xmm2
-            vmulss  xmm0, xmm7, xmm9
-            vaddss  xmm1, xmm0, xmm15
-            vmovss  dword ptr [rax-8], xmm1
-            vaddss  xmm5, xmm7, xmm6
-            vmulss  xmm1, xmm12, xmm4
-            vmulss  xmm0, xmm14, xmm8
-            vsubss  xmm7, xmm1, xmm0
-            vmulss  xmm2, xmm12, cs:__real@bf3cc435
-            vmulss  xmm1, xmm14, xmm4
-            vsubss  xmm4, xmm2, xmm1
-            vmulss  xmm0, xmm5, xmm5
-            vsubss  xmm0, xmm13, xmm0
-            vsqrtss xmm1, xmm0, xmm0
-            vmulss  xmm3, xmm1, xmm9
-            vmulss  xmm2, xmm3, xmm4
-            vaddss  xmm0, xmm2, xmm11
-            vmovss  dword ptr [rax-4], xmm0
-            vmulss  xmm1, xmm3, xmm7
-            vaddss  xmm2, xmm1, xmm10
-            vmovss  dword ptr [rax], xmm2
-            vmulss  xmm0, xmm5, xmm9
-            vaddss  xmm1, xmm0, xmm15
-            vmovss  dword ptr [rax+4], xmm1
-            vaddss  xmm6, xmm5, xmm6
-            vmulss  xmm1, xmm4, cs:__real@bf2cecef
-            vmulss  xmm0, xmm7, xmm8
-            vsubss  xmm8, xmm1, xmm0
-            vmulss  xmm2, xmm4, cs:__real@bf3cc435
-            vmovss  xmm4, cs:__real@bf2cecef
-            vmulss  xmm1, xmm7, xmm4
-            vsubss  xmm5, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm6
-            vsubss  xmm0, xmm13, xmm0
-            vsqrtss xmm1, xmm0, xmm0
-            vmulss  xmm3, xmm1, xmm9
-            vmulss  xmm2, xmm3, xmm5
-            vaddss  xmm0, xmm2, xmm11
-            vmovss  dword ptr [rax+8], xmm0
-            vmulss  xmm1, xmm3, xmm8
-            vaddss  xmm2, xmm1, xmm10
-            vmovss  dword ptr [rax+0Ch], xmm2
-            vmulss  xmm0, xmm6, xmm9
-            vaddss  xmm1, xmm0, xmm15
-            vmovss  dword ptr [rax+10h], xmm1
-            vaddss  xmm6, xmm6, cs:__real@3d638e39
-            vmulss  xmm1, xmm5, xmm4
-            vmulss  xmm0, xmm8, cs:__real@3f3cc435
-            vsubss  xmm7, xmm1, xmm0
-            vmulss  xmm2, xmm5, cs:__real@bf3cc435
-            vmulss  xmm1, xmm8, xmm4
-            vsubss  xmm4, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm6
-            vsubss  xmm0, xmm13, xmm0
-            vsqrtss xmm1, xmm0, xmm0
-            vmulss  xmm3, xmm1, xmm9
-            vmulss  xmm2, xmm3, xmm4
-            vaddss  xmm0, xmm2, xmm11
-            vmovss  dword ptr [rax+14h], xmm0
-            vmulss  xmm1, xmm3, xmm7
-            vaddss  xmm2, xmm1, xmm10
-            vmovss  dword ptr [rax+18h], xmm2
-            vmulss  xmm0, xmm6, xmm9
-            vaddss  xmm1, xmm0, xmm15
-            vmovss  dword ptr [rax+1Ch], xmm1
-            vaddss  xmm6, xmm6, cs:__real@3d638e39
-            vmulss  xmm1, xmm4, cs:__real@bf2cecef
-            vmulss  xmm0, xmm7, cs:__real@3f3cc435
-            vsubss  xmm8, xmm1, xmm0
-            vmulss  xmm2, xmm4, cs:__real@bf3cc435
-            vmovss  xmm4, cs:__real@bf2cecef
-            vmulss  xmm1, xmm7, xmm4
-            vsubss  xmm5, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm6
-            vsubss  xmm0, xmm13, xmm0
-            vsqrtss xmm1, xmm0, xmm0
-            vmulss  xmm3, xmm1, xmm9
-            vmulss  xmm2, xmm3, xmm5
-            vaddss  xmm0, xmm2, xmm11
-            vmovss  dword ptr [rax+20h], xmm0
-            vmulss  xmm1, xmm3, xmm8
-            vaddss  xmm2, xmm1, xmm10
-            vmovss  dword ptr [rax+24h], xmm2
-            vmulss  xmm0, xmm6, xmm9
-            vaddss  xmm1, xmm0, xmm15
-            vmovss  dword ptr [rax+28h], xmm1
-            vaddss  xmm6, xmm6, cs:__real@3d638e39
-            vmulss  xmm1, xmm5, xmm4
-            vmulss  xmm0, xmm8, cs:__real@3f3cc435
-            vsubss  xmm7, xmm1, xmm0
-            vmulss  xmm2, xmm5, cs:__real@bf3cc435
-            vmulss  xmm1, xmm8, xmm4
-            vsubss  xmm4, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm6
-            vsubss  xmm0, xmm13, xmm0
-            vsqrtss xmm1, xmm0, xmm0
-            vmulss  xmm3, xmm1, xmm9
-            vmulss  xmm2, xmm3, xmm4
-            vaddss  xmm0, xmm2, xmm11
-            vmovss  dword ptr [rax+2Ch], xmm0
-            vmulss  xmm1, xmm3, xmm7
-            vaddss  xmm2, xmm1, xmm10
-            vmovss  dword ptr [rax+30h], xmm2
-            vmulss  xmm0, xmm6, xmm9
-            vaddss  xmm1, xmm0, xmm15
-            vmovss  dword ptr [rax+34h], xmm1
-            vaddss  xmm6, xmm6, cs:__real@3d638e39
-            vmulss  xmm1, xmm4, cs:__real@bf2cecef
-            vmulss  xmm0, xmm7, cs:__real@3f3cc435
-            vsubss  xmm8, xmm1, xmm0
-            vmulss  xmm2, xmm4, cs:__real@bf3cc435
-            vmovss  xmm4, cs:__real@bf2cecef
-            vmulss  xmm1, xmm7, xmm4
-            vsubss  xmm5, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm6
-            vsubss  xmm0, xmm13, xmm0
-            vsqrtss xmm1, xmm0, xmm0
-            vmulss  xmm3, xmm1, xmm9
-            vmulss  xmm2, xmm5, xmm3
-            vaddss  xmm0, xmm2, xmm11
-            vmovss  dword ptr [rax+38h], xmm0
-            vmulss  xmm1, xmm8, xmm3
-            vaddss  xmm2, xmm1, xmm10
-            vmovss  dword ptr [rax+3Ch], xmm2
-            vmulss  xmm0, xmm6, xmm9
-            vaddss  xmm1, xmm0, xmm15
-            vmovss  dword ptr [rax+40h], xmm1
-            vaddss  xmm6, xmm6, cs:__real@3d638e39
-            vmulss  xmm1, xmm5, xmm4
-            vmulss  xmm0, xmm8, cs:__real@3f3cc435
-            vsubss  xmm7, xmm1, xmm0
-            vmulss  xmm2, xmm5, cs:__real@bf3cc435
-            vmulss  xmm1, xmm8, xmm4
-            vsubss  xmm4, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm6
-            vsubss  xmm0, xmm13, xmm0
-            vsqrtss xmm1, xmm0, xmm0
-            vmulss  xmm3, xmm1, xmm9
-            vmulss  xmm2, xmm4, xmm3
-            vaddss  xmm0, xmm2, xmm11
-            vmovss  dword ptr [rax+44h], xmm0
-            vmulss  xmm1, xmm7, xmm3
-            vaddss  xmm2, xmm1, xmm10
-            vmovss  dword ptr [rax+48h], xmm2
-            vmulss  xmm0, xmm6, xmm9
-            vaddss  xmm1, xmm0, xmm15
-            vmovss  dword ptr [rax+4Ch], xmm1
-            vaddss  xmm6, xmm6, cs:__real@3d638e39
-            vmulss  xmm1, xmm4, cs:__real@bf2cecef
-            vmulss  xmm0, xmm7, cs:__real@3f3cc435
-            vsubss  xmm8, xmm1, xmm0
-            vmulss  xmm2, xmm4, cs:__real@bf3cc435
-            vmovss  xmm4, cs:__real@bf2cecef
-            vmulss  xmm1, xmm7, xmm4
-            vsubss  xmm5, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm6
-            vsubss  xmm0, xmm13, xmm0
-            vsqrtss xmm1, xmm0, xmm0
-            vmulss  xmm3, xmm1, xmm9
-            vmulss  xmm2, xmm5, xmm3
-            vaddss  xmm0, xmm2, xmm11
-            vmovss  dword ptr [rax+50h], xmm0
-            vmulss  xmm1, xmm8, xmm3
-            vaddss  xmm2, xmm1, xmm10
-            vmovss  dword ptr [rax+54h], xmm2
-            vmulss  xmm0, xmm6, xmm9
-            vaddss  xmm1, xmm0, xmm15
-            vmovss  dword ptr [rax+58h], xmm1
-            vaddss  xmm7, xmm6, cs:__real@3d638e39
-            vmulss  xmm1, xmm5, xmm4
-            vmulss  xmm0, xmm8, cs:__real@3f3cc435
-            vsubss  xmm14, xmm1, xmm0
-            vmulss  xmm2, xmm5, cs:__real@bf3cc435
-            vmulss  xmm1, xmm8, xmm4
-            vsubss  xmm12, xmm2, xmm1
-          }
-          _RAX += 27;
-          --v58;
-          __asm
-          {
-            vmovss  xmm6, cs:__real@3d638e39
-            vmovss  xmm8, cs:__real@3f3cc435
-          }
+          v29 = fsqrt(1.0 - (float)(*(float *)&v21 * *(float *)&v21));
+          *(v24 - 4) = (float)((float)(v29 * v7) * *(float *)&v23) + v9;
+          *(v24 - 3) = (float)((float)(v29 * v7) * v22) + v10;
+          *(v24 - 2) = (float)(*(float *)&v21 * v7) + v11;
+          v31 = v21;
+          *(float *)&v31 = *(float *)&v21 + v26;
+          v30 = v31;
+          v32 = (float)(*(float *)&v23 * v27) - (float)(v22 * v28);
+          v33 = v23;
+          *(float *)&v33 = (float)(*(float *)&v23 * -0.73736888) - (float)(v22 * v27);
+          v34 = v33;
+          *(float *)&v33 = fsqrt(1.0 - (float)(*(float *)&v30 * *(float *)&v30));
+          *(v24 - 1) = (float)((float)(*(float *)&v33 * v7) * *(float *)&v34) + v9;
+          *v24 = (float)((float)(*(float *)&v33 * v7) * v32) + v10;
+          v24[1] = (float)(*(float *)&v30 * v7) + v11;
+          v36 = v30;
+          *(float *)&v36 = *(float *)&v30 + v26;
+          v35 = v36;
+          v37 = (float)(*(float *)&v34 * -0.67549032) - (float)(v32 * v28);
+          v38 = v34;
+          *(float *)&v38 = (float)(*(float *)&v34 * -0.73736888) - (float)(v32 * -0.67549032);
+          v39 = v38;
+          *(float *)&v38 = fsqrt(1.0 - (float)(*(float *)&v35 * *(float *)&v35));
+          v24[2] = (float)((float)(*(float *)&v38 * v7) * *(float *)&v39) + v9;
+          v24[3] = (float)((float)(*(float *)&v38 * v7) * v37) + v10;
+          v24[4] = (float)(*(float *)&v35 * v7) + v11;
+          v41 = v35;
+          *(float *)&v41 = *(float *)&v35 + 0.055555556;
+          v40 = v41;
+          v42 = (float)(*(float *)&v39 * -0.67549032) - (float)(v37 * 0.73736888);
+          v43 = v39;
+          *(float *)&v43 = (float)(*(float *)&v39 * -0.73736888) - (float)(v37 * -0.67549032);
+          v44 = v43;
+          *(float *)&v43 = fsqrt(1.0 - (float)(*(float *)&v40 * *(float *)&v40));
+          v24[5] = (float)((float)(*(float *)&v43 * v7) * *(float *)&v44) + v9;
+          v24[6] = (float)((float)(*(float *)&v43 * v7) * v42) + v10;
+          v24[7] = (float)(*(float *)&v40 * v7) + v11;
+          v46 = v40;
+          *(float *)&v46 = *(float *)&v40 + 0.055555556;
+          v45 = v46;
+          v47 = (float)(*(float *)&v44 * -0.67549032) - (float)(v42 * 0.73736888);
+          v48 = v44;
+          *(float *)&v48 = (float)(*(float *)&v44 * -0.73736888) - (float)(v42 * -0.67549032);
+          v49 = v48;
+          *(float *)&v48 = fsqrt(1.0 - (float)(*(float *)&v45 * *(float *)&v45));
+          v24[8] = (float)((float)(*(float *)&v48 * v7) * *(float *)&v49) + v9;
+          v24[9] = (float)((float)(*(float *)&v48 * v7) * v47) + v10;
+          v24[10] = (float)(*(float *)&v45 * v7) + v11;
+          v51 = v45;
+          *(float *)&v51 = *(float *)&v45 + 0.055555556;
+          v50 = v51;
+          v52 = (float)(*(float *)&v49 * -0.67549032) - (float)(v47 * 0.73736888);
+          v53 = v49;
+          *(float *)&v53 = (float)(*(float *)&v49 * -0.73736888) - (float)(v47 * -0.67549032);
+          v54 = v53;
+          *(float *)&v53 = fsqrt(1.0 - (float)(*(float *)&v50 * *(float *)&v50));
+          v24[11] = (float)((float)(*(float *)&v53 * v7) * *(float *)&v54) + v9;
+          v24[12] = (float)((float)(*(float *)&v53 * v7) * v52) + v10;
+          v24[13] = (float)(*(float *)&v50 * v7) + v11;
+          v56 = v50;
+          *(float *)&v56 = *(float *)&v50 + 0.055555556;
+          v55 = v56;
+          v57 = (float)(*(float *)&v54 * -0.67549032) - (float)(v52 * 0.73736888);
+          v58 = v54;
+          *(float *)&v58 = (float)(*(float *)&v54 * -0.73736888) - (float)(v52 * -0.67549032);
+          v59 = v58;
+          *(float *)&v58 = fsqrt(1.0 - (float)(*(float *)&v55 * *(float *)&v55));
+          v24[14] = (float)(*(float *)&v59 * (float)(*(float *)&v58 * v7)) + v9;
+          v24[15] = (float)(v57 * (float)(*(float *)&v58 * v7)) + v10;
+          v24[16] = (float)(*(float *)&v55 * v7) + v11;
+          v61 = v55;
+          *(float *)&v61 = *(float *)&v55 + 0.055555556;
+          v60 = v61;
+          v62 = (float)(*(float *)&v59 * -0.67549032) - (float)(v57 * 0.73736888);
+          v63 = v59;
+          *(float *)&v63 = (float)(*(float *)&v59 * -0.73736888) - (float)(v57 * -0.67549032);
+          v64 = v63;
+          *(float *)&v63 = fsqrt(1.0 - (float)(*(float *)&v60 * *(float *)&v60));
+          v24[17] = (float)(*(float *)&v64 * (float)(*(float *)&v63 * v7)) + v9;
+          v24[18] = (float)(v62 * (float)(*(float *)&v63 * v7)) + v10;
+          v24[19] = (float)(*(float *)&v60 * v7) + v11;
+          v66 = v60;
+          *(float *)&v66 = *(float *)&v60 + 0.055555556;
+          v65 = v66;
+          v67 = (float)(*(float *)&v64 * -0.67549032) - (float)(v62 * 0.73736888);
+          v68 = v64;
+          *(float *)&v68 = *(float *)&v64 * -0.73736888;
+          v27 = FLOAT_N0_67549032;
+          *(float *)&v68 = *(float *)&v68 - (float)(v62 * -0.67549032);
+          v69 = v68;
+          *(float *)&v68 = fsqrt(1.0 - (float)(*(float *)&v65 * *(float *)&v65)) * v7;
+          v24[20] = (float)(*(float *)&v69 * *(float *)&v68) + v9;
+          v24[21] = (float)(v67 * *(float *)&v68) + v10;
+          v24[22] = (float)(*(float *)&v65 * v7) + v11;
+          v70 = v65;
+          *(float *)&v70 = *(float *)&v65 + 0.055555556;
+          v21 = v70;
+          v22 = (float)(*(float *)&v69 * -0.67549032) - (float)(v67 * 0.73736888);
+          v71 = v69;
+          *(float *)&v71 = (float)(*(float *)&v69 * -0.73736888) - (float)(v67 * -0.67549032);
+          v23 = v71;
+          v24 += 27;
+          --v25;
+          v26 = FLOAT_0_055555556;
+          v28 = FLOAT_0_73736888;
         }
-        while ( v58 );
+        while ( v25 );
         s_offsetHemisphereReady = 1;
-        __asm
-        {
-          vxorps  xmm12, xmm12, xmm12
-          vmovss  xmm14, [rsp+410h+c]
-        }
+        value = c[0];
       }
-      _R13 = s_offsetHemisphere;
+      v12 = s_offsetHemisphere;
     }
     *(_QWORD *)s = 0i64;
 LABEL_40:
-    if ( _R12 == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
+    if ( LocalClientGlobals == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
       __debugbreak();
-    refdefViewOrg_aab = _R12->refdef.view.refdefViewOrg_aab;
-    if ( _R12 == (cg_t *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
+    refdefViewOrg_aab = LocalClientGlobals->refdef.view.refdefViewOrg_aab;
+    if ( LocalClientGlobals == (cg_t *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
       __debugbreak();
-    LODWORD(s[2]) = LODWORD(_R12->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_R12 + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)_R12 + 26936)) + 2));
-    LODWORD(s[3]) = LODWORD(_R12->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_R12 + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)_R12 + 26940)) + 2));
-    LODWORD(s[4]) = ((refdefViewOrg_aab ^ ((_DWORD)_R12 + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)_R12 + 26944)) + 2)) ^ LODWORD(_R12->refdef.view.org.org.v[2]);
-    _RSI = &_R12->refdef.view.axis;
+    LODWORD(s[2]) = LODWORD(LocalClientGlobals->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) + 2));
+    LODWORD(s[3]) = LODWORD(LocalClientGlobals->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) + 2));
+    LODWORD(s[4]) = ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) + 2)) ^ LODWORD(LocalClientGlobals->refdef.view.org.org.v[2]);
+    p_axis = &LocalClientGlobals->refdef.view.axis;
+    v74 = LocalClientGlobals->refdef.view.axis.m[0].v[1];
+    v75 = LODWORD(LocalClientGlobals->refdef.view.axis.m[0].v[0]);
+    v76 = v75;
+    *(float *)&v76 = fsqrt((float)(*(float *)&v75 * *(float *)&v75) + (float)(v74 * v74));
+    _XMM2 = v76;
     __asm
     {
-      vmovss  xmm4, dword ptr [rsi+4]
-      vmovss  xmm3, dword ptr [rsi]
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vmovss  xmm15, cs:__real@80000000
       vcmpless xmm0, xmm2, xmm15
       vblendvps xmm1, xmm2, xmm13, xmm0
-      vdivss  xmm0, xmm13, xmm1
-      vmulss  xmm10, xmm0, xmm3
-      vmulss  xmm11, xmm0, xmm4
-      vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-      vxorps  xmm7, xmm11, xmm9
     }
-    v234 = DVARINT_cg_playerLightSampleNormal;
+    v80 = (float)(1.0 / *(float *)&_XMM1) * *(float *)&v75;
+    v81 = (float)(1.0 / *(float *)&_XMM1) * v74;
+    LODWORD(v82) = LODWORD(v81) ^ _xmm;
+    v83 = DVARINT_cg_playerLightSampleNormal;
     if ( !DVARINT_cg_playerLightSampleNormal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_playerLightSampleNormal") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v234);
-    v235 = v234->current.integer;
-    v236 = 0i64;
-    p_center = &center;
-    v238 = (char *)_R13 - (char *)&center;
-    v305 = (char *)_R13 - (char *)&center;
-    _RDI = 0i64;
-    v304 = 18i64;
+    Dvar_CheckFrontendServerThread(v83);
+    v84 = v83->current.integer;
+    v85 = 0i64;
+    v86 = center;
+    v87 = (char *)v12 - (char *)center;
+    v110 = (char *)v12 - (char *)center;
+    v88 = 0i64;
+    v109 = 18i64;
     while ( 1 )
     {
-      if ( v236 < 0 || v236 >= v39 )
+      if ( v85 < 0 || v85 >= v15 )
       {
-        _R15 = &_R13[_RDI / 0xC];
-        if ( &_R13[_RDI / 0xC] == &out && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+        v = v12[v88 / 0xC].v;
+        if ( &v12[v88 / 0xC] == &out && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
           __debugbreak();
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rdi+r13+4]
-          vmovss  xmm5, dword ptr [r15]
-          vmovss  xmm6, dword ptr [rdi+r13+8]
-          vmulss  xmm1, xmm4, xmm7
-          vmulss  xmm0, xmm5, xmm10
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm12, xmm6
-          vaddss  xmm8, xmm2, xmm1
-          vmovss  dword ptr [rsp+410h+out], xmm8
-          vmulss  xmm3, xmm4, xmm10
-          vmulss  xmm0, xmm11, xmm5
-          vaddss  xmm2, xmm3, xmm0
-          vmulss  xmm1, xmm12, xmm6
-          vaddss  xmm7, xmm2, xmm1
-          vmovss  dword ptr [rsp+410h+out+4], xmm7
-          vmulss  xmm3, xmm4, xmm12
-          vmulss  xmm0, xmm12, xmm5
-          vaddss  xmm2, xmm3, xmm0
-          vmulss  xmm1, xmm13, xmm6
-          vaddss  xmm4, xmm2, xmm1
-          vmovss  dword ptr [rbp+310h+out+8], xmm4
-        }
+        v93 = LODWORD(v12[v88 / 0xC].v[1]);
+        v94 = *v;
+        v95 = v12[v88 / 0xC].v[2];
+        v91 = (float)((float)(*(float *)&v93 * v82) + (float)(*v * v80)) + (float)(0.0 * v95);
+        out.v[0] = v91;
+        v96 = v93;
+        *(float *)&v96 = (float)((float)(*(float *)&v93 * v80) + (float)(v81 * v94)) + (float)(0.0 * v95);
+        v90 = v96;
+        out.v[1] = *(float *)&v96;
+        v89 = (float)((float)(*(float *)&v93 * 0.0) + (float)(0.0 * v94)) + (float)(1.0 * v95);
+        out.v[2] = v89;
       }
       else
       {
-        MatrixTransformVector((vec3_t *)((char *)p_center + v238), _RSI, &out);
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rbp+310h+out+8]
-          vmovss  xmm7, dword ptr [rsp+410h+out+4]
-          vmovss  xmm8, dword ptr [rsp+410h+out]
-        }
+        MatrixTransformVector((const vec3_t *)((char *)v86 + v87), p_axis, &out);
+        v89 = out.v[2];
+        v90 = LODWORD(out.v[1]);
+        v91 = out.v[0];
       }
-      __asm
-      {
-        vaddss  xmm0, xmm8, [rsp+410h+var_3C0]
-        vmovss  dword ptr [rbp+rdi+310h+center], xmm0
-        vaddss  xmm1, xmm7, [rsp+410h+var_3BC]
-        vmovss  dword ptr [rbp+rdi+310h+center+4], xmm1
-        vaddss  xmm0, xmm4, dword ptr [rsp+410h+var_3B8]
-        vmovss  dword ptr [rbp+rdi+310h+center+8], xmm0
-      }
-      switch ( v235 )
+      center[v88 / 0xC].v[0] = v91 + s[2];
+      center[v88 / 0xC].v[1] = *(float *)&v90 + s[3];
+      center[v88 / 0xC].v[2] = v89 + s[4];
+      switch ( v84 )
       {
         case 0:
-          *(__int64 *)((char *)v345 + _RDI) = 0i64;
-          *(_DWORD *)((char *)&v345[1] + _RDI) = 0;
+          *(__int64 *)((char *)v150 + v88) = 0i64;
+          *(_DWORD *)((char *)&v150[1] + v88) = 0;
           goto LABEL_68;
         case 1:
-          *(__int64 *)((char *)v345 + _RDI) = 0i64;
-          *(_DWORD *)((char *)&v345[1] + _RDI) = 1065353216;
+          *(__int64 *)((char *)v150 + v88) = 0i64;
+          *(_DWORD *)((char *)&v150[1] + v88) = 1065353216;
           goto LABEL_68;
         case 2:
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rsi]
-            vmovsd  [rbp+rdi+310h+var_290], xmm0
-          }
-          *(float *)((char *)&v345[1] + _RDI) = _RSI->m[0].v[2];
+          *(__int64 *)((char *)v150 + v88) = *(__int64 *)p_axis->m[0].v;
+          *(float *)((char *)&v150[1] + v88) = p_axis->m[0].v[2];
           goto LABEL_68;
         case 3:
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi]
-            vxorps  xmm1, xmm0, xmm9
-            vmovss  dword ptr [rbp+rdi+310h+var_290], xmm1
-            vmovss  xmm0, dword ptr [rsi+4]
-            vxorps  xmm1, xmm0, xmm9
-            vmovss  dword ptr [rbp+rdi+310h+var_290+4], xmm1
-            vmovss  xmm2, dword ptr [rsi+8]
-            vxorps  xmm0, xmm2, xmm9
-          }
+          *(float *)((char *)v150 + v88) = COERCE_FLOAT(LODWORD(p_axis->m[0].v[0]) ^ _xmm);
+          *(float *)((char *)v150 + v88 + 4) = COERCE_FLOAT(LODWORD(p_axis->m[0].v[1]) ^ _xmm);
+          LODWORD(v97) = LODWORD(p_axis->m[0].v[2]) ^ _xmm;
           break;
         case 4:
+          v98 = v90;
+          *(float *)&v98 = fsqrt((float)((float)(*(float *)&v90 * *(float *)&v90) + (float)(v91 * v91)) + (float)(v89 * v89));
+          _XMM3 = v98;
           __asm
           {
-            vmulss  xmm1, xmm7, xmm7
-            vmulss  xmm0, xmm8, xmm8
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm4, xmm4
-            vaddss  xmm2, xmm2, xmm1
-            vsqrtss xmm3, xmm2, xmm2
             vcmpless xmm0, xmm3, xmm15
             vblendvps xmm1, xmm3, xmm13, xmm0
-            vdivss  xmm2, xmm13, xmm1
-            vmulss  xmm0, xmm2, xmm8
-            vmovss  dword ptr [rbp+rdi+310h+var_290], xmm0
-            vmulss  xmm1, xmm2, xmm7
-            vmovss  dword ptr [rbp+rdi+310h+var_290+4], xmm1
-            vmulss  xmm0, xmm2, xmm4
           }
+          *(float *)((char *)v150 + v88) = (float)(1.0 / *(float *)&_XMM1) * v91;
+          *(float *)((char *)v150 + v88 + 4) = (float)(1.0 / *(float *)&_XMM1) * *(float *)&v90;
+          v97 = (float)(1.0 / *(float *)&_XMM1) * v89;
           break;
         default:
           goto LABEL_68;
       }
-      __asm { vmovss  [rbp+rdi+310h+var_288], xmm0 }
+      *(float *)((char *)&v150[1] + v88) = v97;
 LABEL_68:
-      v280 = DCONST_DVARBOOL_cg_drawPlayerLightSample;
+      v102 = DCONST_DVARBOOL_cg_drawPlayerLightSample;
       if ( !DCONST_DVARBOOL_cg_drawPlayerLightSample && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawPlayerLightSample") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v280);
-      if ( v280->current.enabled )
+      Dvar_CheckFrontendServerThread(v102);
+      if ( v102->current.enabled )
       {
-        __asm { vmovaps xmm1, xmm14; radius }
-        CG_DebugSphere(p_center, *(float *)&_XMM1, &colorYellow, 1, 1);
-        if ( v235 )
+        CG_DebugSphere(v86, value, &colorYellow, 1, 1);
+        if ( v84 )
         {
-          __asm
-          {
-            vmulss  xmm0, xmm14, dword ptr [rbp+rdi+310h+var_290]
-            vmulss  xmm1, xmm14, dword ptr [rbp+rdi+310h+var_290+4]
-            vmulss  xmm2, xmm14, [rbp+rdi+310h+var_288]
-            vaddss  xmm0, xmm0, dword ptr [rbp+rdi+310h+center]
-            vmovss  dword ptr [rbp+310h+end], xmm0
-            vaddss  xmm1, xmm1, dword ptr [rbp+rdi+310h+center+4]
-            vmovss  dword ptr [rbp+310h+end+4], xmm1
-            vaddss  xmm0, xmm2, dword ptr [rbp+rdi+310h+center+8]
-            vmovss  dword ptr [rbp+310h+end+8], xmm0
-          }
-          CG_DebugLine(p_center, &end, &colorRed, 1, 1);
+          v103 = value * *(float *)((char *)v150 + v88 + 4);
+          v104 = value * *(float *)((char *)&v150[1] + v88);
+          end.v[0] = (float)(value * *(float *)((char *)v150 + v88)) + center[v88 / 0xC].v[0];
+          end.v[1] = v103 + center[v88 / 0xC].v[1];
+          end.v[2] = v104 + center[v88 / 0xC].v[2];
+          CG_DebugLine(v86, &end, &colorRed, 1, 1);
         }
       }
-      ++p_center;
-      ++v236;
-      _RDI += 12i64;
-      v30 = v304-- == 1;
-      __asm { vxorps  xmm7, xmm11, xmm9 }
-      v39 = *(_QWORD *)s;
-      v238 = v305;
-      if ( v30 )
+      ++v86;
+      ++v85;
+      v88 += 12i64;
+      v105 = v109-- == 1;
+      LODWORD(v82) = LODWORD(v81) ^ _xmm;
+      v15 = *(_QWORD *)s;
+      v87 = v110;
+      if ( v105 )
       {
-        v289 = (const vec3_t *)v345;
-        if ( !v235 )
-          v289 = NULL;
-        __asm { vmovaps xmm3, xmm14; pointSize }
-        R_AllocLightSensors(0, &center, 0x12u, *(float *)&_XMM3, v289);
+        v106 = (const vec3_t *)v150;
+        if ( !v84 )
+          v106 = NULL;
+        R_AllocLightSensors(0, center, 0x12u, value, v106);
         memset(&s[2], 0, 0xCui64);
-        break;
+        return;
       }
     }
-  }
-  _R11 = &v347;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -705,17 +586,10 @@ CG_LightSampler_Compare
 */
 __int64 CG_LightSampler_Compare(const void *a, const void *b)
 {
-  char v2; 
-  char v3; 
   __int64 result; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vcomiss xmm0, dword ptr [rdx]
-  }
   result = 1i64;
-  if ( v2 | v3 )
+  if ( *(float *)a <= *(float *)b )
     return 0xFFFFFFFFi64;
   return result;
 }
@@ -738,45 +612,50 @@ CG_LightSampler_ProcessResults
 void CG_LightSampler_ProcessResults(LocalClientNum_t clientNum)
 {
   cg_t *LocalClientGlobals; 
-  const dvar_t *v9; 
-  unsigned int v10; 
-  bool v12; 
-  bool v13; 
-  signed int v20; 
-  __int64 v22; 
+  const dvar_t *v3; 
+  unsigned int v4; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  signed int v11; 
+  __int128 v12; 
+  __int64 v13; 
+  __int128 v14; 
+  __int128 v15; 
+  float v16; 
   unsigned int sampleCount; 
-  __int64 v29; 
-  bool v31; 
+  __int64 v18; 
+  __int128 v19; 
+  signed int v20; 
+  __int64 i; 
+  __int128 v22; 
   unsigned int IndexByName; 
   const OmnvarDef *Def; 
   const OmnvarData *Data; 
-  unsigned int v38; 
-  const OmnvarDef *v39; 
-  const OmnvarData *v40; 
-  const dvar_t *v49; 
-  const char *v57; 
-  const char *v69; 
+  double Float; 
+  float v27; 
+  unsigned int v28; 
+  const OmnvarDef *v29; 
+  const OmnvarData *v30; 
+  double v31; 
+  float v32; 
+  double v33; 
+  const dvar_t *v34; 
+  const char *v35; 
+  const char *v36; 
   GfxLightSensorResult lightSensorOut; 
-  __int64 v79; 
-  int v80; 
-  __int128 Base[16]; 
+  __int64 v38; 
+  float v39[2]; 
+  float Base[64]; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(clientNum);
   if ( R_LightSensor_Query(&lightSensorOut) )
   {
-    v9 = DVARINT_cg_playerLightSampleFilter;
-    __asm
-    {
-      vmovaps [rsp+12A0h+var_30], xmm6
-      vmovaps [rsp+12A0h+var_40], xmm7
-      vmovaps [rsp+12A0h+var_50], xmm9
-      vmovaps [rsp+12A0h+var_60], xmm10
-      vmovaps [rsp+12A0h+var_70], xmm11
-    }
+    v3 = DVARINT_cg_playerLightSampleFilter;
     if ( !DVARINT_cg_playerLightSampleFilter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_playerLightSampleFilter") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v9);
-    if ( v9->current.integer )
+    Dvar_CheckFrontendServerThread(v3);
+    if ( v3->current.integer )
     {
       if ( lightSensorOut.entity[0].sampleCount > 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_light_sampler.cpp", 117, ASSERT_TYPE_ASSERT, "(64 >= pMapping->sampleCount)", (const char *)&queryFormat, "LIGHT_SENSOR_MAX_ENTITY_SAMPLES >= pMapping->sampleCount") )
         __debugbreak();
@@ -785,196 +664,121 @@ void CG_LightSampler_ProcessResults(LocalClientNum_t clientNum)
       qsort(Base, sampleCount, 4ui64, (_CoreCrtNonSecureSearchSortCompareFunction)CG_LightSampler_Compare);
       if ( lightSensorOut.entity[0].sampleCount < 0xC && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_light_sampler.cpp", 124, ASSERT_TYPE_ASSERT, "(pMapping->sampleCount >= 12)", (const char *)&queryFormat, "pMapping->sampleCount >= 12") )
         __debugbreak();
-      v29 = lightSensorOut.entity[0].sampleCount - 3;
-      __asm
+      v18 = lightSensorOut.entity[0].sampleCount - 3;
+      v19 = 0i64;
+      v20 = lightSensorOut.entity[0].sampleCount - 6;
+      if ( v18 > 3 )
       {
-        vxorps  xmm7, xmm7, xmm7
-        vxorps  xmm6, xmm6, xmm6
-      }
-      v31 = (unsigned __int64)v29 <= 3;
-      if ( v29 > 3 )
-      {
-        for ( _RBX = 3i64; _RBX < v29; v31 = _RBX <= (unsigned __int64)v29 )
+        for ( i = 3i64; i < v18; ++i )
         {
-          __asm { vcomiss xmm7, dword ptr [rbp+rbx*4+11A0h+Base] }
-          if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_light_sampler.cpp", 134, ASSERT_TYPE_ASSERT, "(sampleLuminance[i] >= 0.0f)", (const char *)&queryFormat, "sampleLuminance[i] >= 0.0f") )
+          if ( Base[i] < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_light_sampler.cpp", 134, ASSERT_TYPE_ASSERT, "(sampleLuminance[i] >= 0.0f)", (const char *)&queryFormat, "sampleLuminance[i] >= 0.0f") )
             __debugbreak();
-          __asm { vaddss  xmm6, xmm6, dword ptr [rbp+rbx*4+11A0h+Base] }
-          ++_RBX;
+          v22 = v19;
+          *(float *)&v22 = *(float *)&v19 + Base[i];
+          v19 = v22;
         }
       }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, esi
-        vdivss  xmm6, xmm6, xmm0
-      }
+      v16 = *(float *)&v19 / (float)v20;
     }
     else
     {
-      v10 = 0;
-      v79 = 0i64;
-      v80 = 0;
-      __asm { vxorps  xmm7, xmm7, xmm7 }
-      v12 = 0;
-      v13 = lightSensorOut.entity[0].sampleCount == 0;
+      v4 = 0;
+      v38 = 0i64;
+      v39[0] = 0.0;
       if ( lightSensorOut.entity[0].sampleCount )
       {
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rbp+11A0h+var_190+8]
-          vmovss  xmm2, dword ptr [rbp+11A0h+var_190+4]
-          vmovss  xmm4, dword ptr [rbp+11A0h+var_190]
-        }
+        _XMM3 = LODWORD(v39[0]);
+        v6 = HIDWORD(v38);
+        v7 = (unsigned int)v38;
         do
         {
-          _RAX = lightSensorOut.entity[0].firstSample + v10;
-          __asm
+          v8 = LODWORD(lightSensorOut.sampleLuminance[lightSensorOut.entity[0].firstSample + v4]);
+          if ( *(float *)&v8 >= 0.0 )
           {
-            vmovss  xmm1, [rbp+rax*4+11A0h+lightSensorOut.sampleLuminance]
-            vcomiss xmm1, xmm7
-          }
-          if ( !v12 )
-          {
-            __asm { vcomiss xmm1, xmm4 }
-            if ( v13 )
+            if ( *(float *)&v8 <= *(float *)&v7 )
             {
-              __asm
+              if ( *(float *)&v8 <= *(float *)&v6 )
               {
-                vcomiss xmm1, xmm2
-                vcmpltss xmm0, xmm3, xmm1
-                vblendvps xmm0, xmm3, xmm1, xmm0
-                vmovaps xmm3, xmm0
-                vmovss  dword ptr [rbp+11A0h+var_190+8], xmm0
+                __asm
+                {
+                  vcmpltss xmm0, xmm3, xmm1
+                  vblendvps xmm0, xmm3, xmm1, xmm0
+                }
+                _XMM3 = _XMM0;
+                v39[0] = *(float *)&_XMM0;
+              }
+              else
+              {
+                v39[0] = *(float *)&v6;
+                _XMM3 = v6;
+                v6 = v8;
+                *((float *)&v38 + 1) = *(float *)&v8;
               }
             }
             else
             {
-              __asm
-              {
-                vmovss  dword ptr [rbp+11A0h+var_190+8], xmm2
-                vmovaps xmm3, xmm2
-                vmovaps xmm2, xmm4
-                vmovss  dword ptr [rbp+11A0h+var_190+4], xmm4
-                vmovaps xmm4, xmm1
-              }
+              v39[0] = *(float *)&v6;
+              _XMM3 = v6;
+              v6 = v7;
+              *((float *)&v38 + 1) = *(float *)&v7;
+              v7 = v8;
             }
           }
-          v12 = ++v10 < lightSensorOut.entity[0].sampleCount;
-          v13 = v10 <= lightSensorOut.entity[0].sampleCount;
+          ++v4;
         }
-        while ( v10 < lightSensorOut.entity[0].sampleCount );
-        __asm { vmovss  dword ptr [rbp+11A0h+var_190], xmm4 }
+        while ( v4 < lightSensorOut.entity[0].sampleCount );
+        *(float *)&v38 = *(float *)&v7;
       }
-      v20 = 3;
-      __asm { vmovaps xmm1, xmm7 }
+      v11 = 3;
+      v12 = 0i64;
       if ( (int)lightSensorOut.entity[0].sampleCount < 3 )
-        v20 = lightSensorOut.entity[0].sampleCount;
-      v22 = 0i64;
-      if ( v20 > 0i64 )
+        v11 = lightSensorOut.entity[0].sampleCount;
+      v13 = 0i64;
+      if ( v11 > 0i64 )
       {
-        if ( v20 >= 4i64 )
+        if ( v11 >= 4i64 )
         {
           do
           {
-            __asm
-            {
-              vaddss  xmm0, xmm1, dword ptr [rbp+rcx*4+11A0h+var_190]
-              vaddss  xmm1, xmm0, dword ptr [rbp+rcx*4+11A0h+var_190+4]
-              vaddss  xmm2, xmm1, dword ptr [rbp+rcx*4+11A0h+var_190+8]
-              vaddss  xmm1, xmm2, dword ptr [rbp+rcx*4+11A0h+var_190+0Ch]
-            }
-            v22 += 4i64;
+            v14 = v12;
+            *(float *)&v14 = (float)((float)((float)(*(float *)&v12 + v39[v13 - 2]) + v39[v13 - 1]) + v39[v13]) + v39[v13 + 1];
+            v12 = v14;
+            v13 += 4i64;
           }
-          while ( v22 < v20 - 3i64 );
+          while ( v13 < v11 - 3i64 );
         }
-        for ( ; v22 < v20; ++v22 )
-          __asm { vaddss  xmm1, xmm1, dword ptr [rbp+rcx*4+11A0h+var_190] }
+        for ( ; v13 < v11; ++v13 )
+        {
+          v15 = v12;
+          *(float *)&v15 = *(float *)&v12 + v39[v13 - 2];
+          v12 = v15;
+        }
       }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ebx
-        vdivss  xmm6, xmm1, xmm0
-      }
+      v16 = *(float *)&v12 / (float)v11;
     }
     IndexByName = BG_Omnvar_GetIndexByName("ai_fulllight");
     Def = BG_Omnvar_GetDef(IndexByName);
     Data = CG_Omnvar_GetData(clientNum, IndexByName);
-    *(double *)&_XMM0 = Omnvar_GetFloat(Def, Data);
-    __asm { vmovaps xmm10, xmm0 }
-    v38 = BG_Omnvar_GetIndexByName("ai_nolight");
-    v39 = BG_Omnvar_GetDef(v38);
-    v40 = CG_Omnvar_GetData(clientNum, v38);
-    *(double *)&_XMM0 = Omnvar_GetFloat(v39, v40);
-    __asm
-    {
-      vsubss  xmm2, xmm10, xmm0
-      vsubss  xmm3, xmm6, xmm0
-      vmovaps xmm9, xmm0
-      vdivss  xmm0, xmm3, xmm2; val
-      vmovss  xmm2, cs:__real@3f800000; max
-      vmovaps xmm1, xmm7; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@40e00000
-      vcvttss2si eax, xmm1
-    }
-    LocalClientGlobals->lightSample.value = _EAX;
+    Float = Omnvar_GetFloat(Def, Data);
+    v27 = *(float *)&Float;
+    v28 = BG_Omnvar_GetIndexByName("ai_nolight");
+    v29 = BG_Omnvar_GetDef(v28);
+    v30 = CG_Omnvar_GetData(clientNum, v28);
+    v31 = Omnvar_GetFloat(v29, v30);
+    v32 = *(float *)&v31;
+    v33 = I_fclamp((float)(v16 - *(float *)&v31) / (float)(v27 - *(float *)&v31), 0.0, 1.0);
+    LocalClientGlobals->lightSample.value = (int)(float)(*(float *)&v33 * 7.0);
     LocalClientGlobals->lightSample.bValid = 1;
-    v49 = DCONST_DVARBOOL_cg_drawPlayerLightSample;
-    __asm { vmovaps xmm11, xmm0 }
+    v34 = DCONST_DVARBOOL_cg_drawPlayerLightSample;
     if ( !DCONST_DVARBOOL_cg_drawPlayerLightSample && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawPlayerLightSample") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v49);
-    if ( v49->current.enabled )
+    Dvar_CheckFrontendServerThread(v34);
+    if ( v34->current.enabled )
     {
-      __asm
-      {
-        vmovss  xmm7, cs:__real@447a0000
-        vmulss  xmm0, xmm6, xmm7
-        vcvtss2sd xmm2, xmm0, xmm0
-        vcvtss2sd xmm1, xmm6, xmm6
-        vmovq   r8, xmm2
-        vmovq   rdx, xmm1
-      }
-      v57 = j_va("light %.3f knits, %.3f nits", _RDX, _R8);
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3f800000; scale
-        vmovss  xmm1, cs:__real@437a0000; y
-        vmovss  xmm0, cs:__real@42c80000; x
-      }
-      CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, v57, 0, 1);
-      __asm
-      {
-        vmulss  xmm1, xmm9, xmm7
-        vcvtss2sd xmm2, xmm1, xmm1
-        vmulss  xmm0, xmm10, xmm7
-        vcvtss2sd xmm1, xmm11, xmm11
-        vcvtss2sd xmm3, xmm0, xmm0
-        vmovq   rdx, xmm1
-        vmovq   r9, xmm3
-        vmovq   r8, xmm2
-      }
-      v69 = j_va("light nml = %.3f, no light = %.3f nits, full light = %.3f nits", _RDX, _R8, _R9);
-      __asm
-      {
-        vmovss  xmm3, cs:__real@3f800000; scale
-        vmovss  xmm1, cs:__real@43870000; y
-        vmovss  xmm0, cs:__real@42c80000; x
-      }
-      CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, v69, 0, 1);
-    }
-    __asm
-    {
-      vmovaps xmm10, [rsp+12A0h+var_60]
-      vmovaps xmm9, [rsp+12A0h+var_50]
-      vmovaps xmm7, [rsp+12A0h+var_40]
-      vmovaps xmm6, [rsp+12A0h+var_30]
-      vmovaps xmm11, [rsp+12A0h+var_70]
+      v35 = j_va("light %.3f knits, %.3f nits", v16, (float)(v16 * 1000.0));
+      CL_AddDebugString2D(100.0, 250.0, &colorYellow, 1.0, v35, 0, 1);
+      v36 = j_va("light nml = %.3f, no light = %.3f nits, full light = %.3f nits", *(float *)&v33, (float)(v32 * 1000.0), (float)(v27 * 1000.0));
+      CL_AddDebugString2D(100.0, 270.0, &colorYellow, 1.0, v36, 0, 1);
     }
   }
   else

@@ -71,26 +71,18 @@ Float4UnpackFloat16_2
 */
 void Float4UnpackFloat16_2(const unsigned int packed, vec2_t *result)
 {
-  unsigned int v6; 
-  unsigned int v7; 
+  float v2; 
+  float v3; 
 
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  v2 = 0.0;
   if ( (_WORD)packed )
-  {
-    v6 = ((packed & 0x8000) << 16) | (((((packed & 0x3FFF) << 14) - (~((unsigned __int16)packed << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-    __asm { vmovss  xmm1, [rsp+arg_0] }
-  }
+    LODWORD(v3) = ((packed & 0x8000) << 16) | (((((packed & 0x3FFF) << 14) - (~((unsigned __int16)packed << 14) & 0x10000000)) ^ 0x80000001) >> 1);
   else
-  {
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-  }
-  __asm { vmovss  dword ptr [rdx], xmm1 }
+    v3 = 0.0;
+  result->v[0] = v3;
   if ( HIWORD(packed) )
-  {
-    v7 = ((HIWORD(packed) & 0xFFFF8000) << 16) | (((((HIWORD(packed) & 0x3FFF) << 14) - (~(HIWORD(packed) << 14) & 0x10000000)) ^ 0x80000001) >> 1);
-    __asm { vmovss  xmm0, [rsp+arg_0] }
-  }
-  __asm { vmovss  dword ptr [rdx+4], xmm0 }
+    LODWORD(v2) = ((HIWORD(packed) & 0xFFFF8000) << 16) | (((((HIWORD(packed) & 0x3FFF) << 14) - (~(HIWORD(packed) << 14) & 0x10000000)) ^ 0x80000001) >> 1);
+  result->v[1] = v2;
 }
 
 /*
@@ -100,89 +92,58 @@ Float4PackNormPackedNrmTanBin
 */
 __m128 Float4PackNormPackedNrmTanBin(float4 *result, const float4 *a2, const float4 *a3, const float4 *a4)
 {
-  __int64 v14; 
-  char v58; 
-  void *retaddr; 
+  __m128 v4; 
+  __m128 v5; 
+  __m128 v6; 
+  __int64 v8; 
+  __m128 v9; 
+  __m128 v10; 
 
-  _RAX = &retaddr;
-  v14 = tls_index;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovups xmm11, xmm2
-    vmovups xmm6, xmm1
-    vmovups xmm7, xmm0
-  }
-  if ( __TSS0__1__Float4PackNormPackedNrmTanBin__YQ_AUfloat4__U2_00_Z_4HA > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v14) + 1772i64) )
+  v8 = tls_index;
+  v9 = v6;
+  if ( __TSS0__1__Float4PackNormPackedNrmTanBin__YQ_AUfloat4__U2_00_Z_4HA > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&__TSS0__1__Float4PackNormPackedNrmTanBin__YQ_AUfloat4__U2_00_Z_4HA);
     if ( __TSS0__1__Float4PackNormPackedNrmTanBin__YQ_AUfloat4__U2_00_Z_4HA == -1 )
     {
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@43ffc00043ffc00043ffc00043ffc000
-        vmovups xmmword ptr cs:?cvScale@?1??Float4PackNormPackedNrmTanBin@@YQ?AUfloat4@@U2@00@Z@4U2@B.v, xmm0; float4 const `Float4PackNormPackedNrmTanBin(float4,float4,float4)'::`2'::cvScale
-      }
+      `Float4PackNormPackedNrmTanBin'::`2'::cvScale.v = (__m128)_xmm;
       j__Init_thread_footer(&__TSS0__1__Float4PackNormPackedNrmTanBin__YQ_AUfloat4__U2_00_Z_4HA);
     }
   }
-  if ( __TSS1__1__Float4PackNormPackedNrmTanBin__YQ_AUfloat4__U2_00_Z_4HA > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v14) + 1772i64) )
+  if ( __TSS1__1__Float4PackNormPackedNrmTanBin__YQ_AUfloat4__U2_00_Z_4HA > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v8) + 1772i64) )
   {
     j__Init_thread_header(&__TSS1__1__Float4PackNormPackedNrmTanBin__YQ_AUfloat4__U2_00_Z_4HA);
     if ( __TSS1__1__Float4PackNormPackedNrmTanBin__YQ_AUfloat4__U2_00_Z_4HA == -1 )
     {
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-        vmovups xmmword ptr cs:?cvPosOne@?1??Float4PackNormPackedNrmTanBin@@YQ?AUfloat4@@U2@00@Z@4U2@B.v, xmm0; float4 const `Float4PackNormPackedNrmTanBin(float4,float4,float4)'::`2'::cvPosOne
-      }
+      `Float4PackNormPackedNrmTanBin'::`2'::cvPosOne.v = (__m128)_xmm;
       j__Init_thread_footer(&__TSS1__1__Float4PackNormPackedNrmTanBin__YQ_AUfloat4__U2_00_Z_4HA);
     }
   }
+  v10 = _mm_shuffle_ps(v4, v5, 68);
+  _XMM0 = _mm128_mul_ps(_mm128_add_ps(_mm_shuffle_ps(_mm_shuffle_ps(v4, v5, 238), v6, 168), `Float4PackNormPackedNrmTanBin'::`2'::cvPosOne.v), `Float4PackNormPackedNrmTanBin'::`2'::cvScale.v);
   __asm
   {
-    vmovdqu xmm10, xmmword ptr cs:?ci1023@?1??Float4PackNormPackedNrmTanBin@@YQ?AUfloat4@@U2@00@Z@4QBIB; uint const near * const `Float4PackNormPackedNrmTanBin(float4,float4,float4)'::`2'::ci1023
-    vshufps xmm8, xmm7, xmm6, 44h ; 'D'
-    vshufps xmm0, xmm7, xmm6, 0EEh ; 'î'
-    vmovups xmm7, xmmword ptr cs:?cvPosOne@?1??Float4PackNormPackedNrmTanBin@@YQ?AUfloat4@@U2@00@Z@4U2@B.v; float4 const `Float4PackNormPackedNrmTanBin(float4,float4,float4)'::`2'::cvPosOne
-    vmovups xmm6, xmmword ptr cs:?cvScale@?1??Float4PackNormPackedNrmTanBin@@YQ?AUfloat4@@U2@00@Z@4U2@B.v; float4 const `Float4PackNormPackedNrmTanBin(float4,float4,float4)'::`2'::cvScale
-    vshufps xmm1, xmm0, xmm11, 0A8h ; '¨'
-    vaddps  xmm2, xmm1, xmm7
-    vmulps  xmm0, xmm2, xmm6
     vcvttps2dq xmm1, xmm0
-  }
-  _R11 = &v58;
-  __asm
-  {
     vpxor   xmm9, xmm9, xmm9
     vpmaxsd xmm2, xmm1, xmm9
     vpminsd xmm3, xmm2, xmm10
-    vshufps xmm1, xmm8, xmm11, 9Dh
-    vaddps  xmm2, xmm1, xmm7
     vpslld  xmm0, xmm3, 14h
     vpor    xmm5, xmm0, xmmword ptr cs:?g_packOr1010102@@3Ufloat4@@B.v; float4 const g_packOr1010102
-    vmulps  xmm0, xmm2, xmm6
+  }
+  _XMM0 = _mm128_mul_ps(_mm128_add_ps(_mm_shuffle_ps(v10, v9, 157), `Float4PackNormPackedNrmTanBin'::`2'::cvPosOne.v), `Float4PackNormPackedNrmTanBin'::`2'::cvScale.v);
+  __asm
+  {
     vcvttps2dq xmm3, xmm0
     vpmaxsd xmm1, xmm3, xmm9
     vpminsd xmm2, xmm1, xmm10
-    vshufps xmm0, xmm8, xmm11, 88h ; 'ˆ'
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vaddps  xmm1, xmm0, xmm7
-    vmovaps xmm7, [rsp+88h+var_28]
     vpslld  xmm4, xmm2, 0Ah
-    vmulps  xmm2, xmm1, xmm6
-    vmovaps xmm6, [rsp+88h+var_18]
+  }
+  _XMM2 = _mm128_mul_ps(_mm128_add_ps(_mm_shuffle_ps(v10, v9, 136), `Float4PackNormPackedNrmTanBin'::`2'::cvPosOne.v), `Float4PackNormPackedNrmTanBin'::`2'::cvScale.v);
+  __asm
+  {
     vcvttps2dq xmm3, xmm2
     vpmaxsd xmm0, xmm3, xmm9
-    vmovaps xmm9, xmmword ptr [r11-40h]
     vpminsd xmm1, xmm0, xmm10
-    vmovaps xmm10, xmmword ptr [r11-50h]
     vpor    xmm2, xmm4, xmm1
     vpor    xmm0, xmm5, xmm2
   }
@@ -196,58 +157,59 @@ Float4x4LoadMat43
 */
 void Float4x4LoadMat43(const tmat43_t<vec3_t> *base, vector4 *result)
 {
-  __int128 v25; 
-  __int128 v26; 
-  __int128 v27; 
-  __int128 v28; 
+  __int128 v3; 
+  __m128 v7; 
+  __m128 v11; 
+  __m128 v15; 
+  __int128 v18; 
+  __m128 v; 
+  __m128 v20; 
+  __m128 v21; 
 
-  __asm { vmovss  xmm0, dword ptr [rcx] }
-  HIDWORD(v25) = 0;
+  HIDWORD(v18) = 0;
+  v3 = v18;
+  *(float *)&v3 = base->m[0].v[0];
+  _XMM3 = v3;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rcx+4], 10h
     vinsertps xmm3, xmm3, dword ptr [rcx+8], 20h ; ' '
-    vmovups xmmword ptr [rdx], xmm3
-    vmovss  xmm0, dword ptr [rcx+0Ch]
-    vmovups xmmword ptr [rsp], xmm3
   }
-  HIDWORD(v26) = 0;
+  result->x = (float4)_XMM3.v;
+  v = _XMM3.v;
+  v.m128_i32[3] = 0;
+  v7 = v;
+  v7.m128_f32[0] = base->m[1].v[0];
+  _XMM3 = v7;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rcx+10h], 10h
     vinsertps xmm3, xmm3, dword ptr [rcx+14h], 20h ; ' '
-    vmovups xmmword ptr [rdx+10h], xmm3
-    vmovss  xmm0, dword ptr [rcx+18h]
-    vmovups xmmword ptr [rsp], xmm3
   }
-  HIDWORD(v27) = 0;
+  result->y = (float4)_XMM3.v;
+  v20 = _XMM3.v;
+  v20.m128_i32[3] = 0;
+  v11 = v20;
+  v11.m128_f32[0] = base->m[2].v[0];
+  _XMM3 = v11;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rcx+1Ch], 10h
     vinsertps xmm3, xmm3, dword ptr [rcx+20h], 20h ; ' '
-    vmovups xmmword ptr [rdx+20h], xmm3
-    vmovss  xmm0, dword ptr [rcx+24h]
-    vmovups xmmword ptr [rsp], xmm3
   }
-  HIDWORD(v28) = 0;
+  result->z = (float4)_XMM3.v;
+  v21 = _XMM3.v;
+  v21.m128_i32[3] = 0;
+  v15 = v21;
+  v15.m128_f32[0] = base->m[3].v[0];
+  _XMM3 = v15;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rcx+28h], 10h
     vinsertps xmm3, xmm3, dword ptr [rcx+2Ch], 20h ; ' '
-    vmovups xmmword ptr [rdx+30h], xmm3
-    vxorps  xmm0, xmm3, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vandps  xmm1, xmm0, xmmword ptr cs:?g_keepW@@3Ufloat4@@B.v; float4 const g_keepW
-    vxorps  xmm2, xmm1, xmm3
-    vmovups xmmword ptr [rdx+30h], xmm2
   }
+  result->w = (float4)_XMM3.v;
+  result->w = (float4)((*(_OWORD *)&_XMM3.v ^ *(_OWORD *)&g_one.v) & *(_OWORD *)&g_keepW.v ^ *(_OWORD *)&_XMM3.v);
 }
 
 /*
@@ -258,49 +220,27 @@ Float4EvalCubicBezierSpline
 
 void __fastcall Float4EvalCubicBezierSpline(double t, float4 *result, float4 *a3, float4 *a4, float4 *a5, float4 *a6)
 {
-  __asm { vmovss  xmm5, cs:__real@3f800000 }
-  _RAX = a6;
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps [rsp+68h+var_48], xmm9
-    vsubss  xmm8, xmm5, xmm0
-    vmovaps [rsp+68h+var_58], xmm10
-    vmovaps xmm10, xmm0
-    vmulss  xmm5, xmm0, xmm0
-    vmovaps [rsp+68h+var_68], xmm11
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovups xmm11, xmm1
-    vmovups xmm9, xmm2
-    vshufps xmm8, xmm8, xmm8, 0
-    vmulps  xmm7, xmm8, xmm8
-    vmulss  xmm1, xmm5, xmm10
-    vshufps xmm1, xmm1, xmm1, 0
-    vmovaps xmm0, xmm5
-    vshufps xmm0, xmm0, xmm0, 0
-    vmulps  xmm2, xmm0, xmm8
-    vmulps  xmm0, xmm3, cs:__xmm@40400000404000004040000040400000
-    vmulps  xmm3, xmm2, xmm0
-    vmulps  xmm0, xmm1, xmm4
-    vaddps  xmm4, xmm3, xmm0
-    vmulps  xmm0, xmm9, cs:__xmm@40400000404000004040000040400000
-    vmovaps xmm9, [rsp+68h+var_48]
-    vmovaps xmm2, xmm10
-    vmovaps xmm10, [rsp+68h+var_58]
-    vshufps xmm2, xmm2, xmm2, 0
-    vmulps  xmm1, xmm2, xmm7
-    vmulps  xmm1, xmm1, xmm0
-    vmulps  xmm2, xmm7, xmm8
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-    vmulps  xmm0, xmm2, xmm11
-    vmovaps xmm11, [rsp+68h+var_68]
-    vaddps  xmm3, xmm4, xmm1
-    vaddps  xmm1, xmm3, xmm0
-    vmovups xmmword ptr [rax], xmm1
-  }
+  __m128 v6; 
+  __m128 v7; 
+  __m128 v8; 
+  __m128 v9; 
+  __m128 v10; 
+  __m128 v11; 
+  __m128 v12; 
+  __m128 v13; 
+  __m128 v14; 
+  __m128 v15; 
+
+  v11 = (__m128)LODWORD(FLOAT_1_0);
+  v11.m128_f32[0] = 1.0 - *(float *)&t;
+  v10 = v11;
+  v13 = *(__m128 *)&t;
+  v13.m128_f32[0] = *(float *)&t * *(float *)&t;
+  v12 = v13;
+  v14 = _mm_shuffle_ps(v10, v10, 0);
+  v15 = _mm128_mul_ps(v14, v14);
+  v13.m128_f32[0] = (float)(*(float *)&t * *(float *)&t) * *(float *)&t;
+  a6->v = _mm128_add_ps(_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(_mm_shuffle_ps(v12, v12, 0), v14), _mm128_mul_ps(v8, (__m128)_xmm)), _mm128_mul_ps(_mm_shuffle_ps(v13, v13, 0), v9)), _mm128_mul_ps(_mm128_mul_ps(_mm_shuffle_ps(*(__m128 *)&t, *(__m128 *)&t, 0), v15), _mm128_mul_ps(v7, (__m128)_xmm))), _mm128_mul_ps(_mm128_mul_ps(v15, v14), v6));
 }
 
 /*
@@ -308,99 +248,69 @@ void __fastcall Float4EvalCubicBezierSpline(double t, float4 *result, float4 *a3
 Float4PackSelfVisX
 ==============
 */
-void Float4PackSelfVisX(const float4 *result, const float4 *a2, float4 *_R8)
+void Float4PackSelfVisX(const float4 *result, const float4 *a2, float4 *a3)
 {
-  void *retaddr; 
+  __m128 v3; 
+  __m128 v5; 
+  __m128 v6; 
+  __int128 v15; 
+  __int128 v17; 
 
-  _RAX = &retaddr;
+  _XMM11 = g_one.v;
+  v5 = _mm_shuffle_ps(v3, v3, 85);
+  v6 = _mm_shuffle_ps(v3, v3, 0);
+  _XMM2 = _mm_shuffle_ps(v3, v3, 170);
+  __asm { vcmpleps xmm10, xmm2, xmm12 }
+  _XMM2 = _mm128_add_ps(_mm128_add_ps((__m128)(*(_OWORD *)&v5 & *(_OWORD *)&g_maskOffSignBit.v), (__m128)(*(_OWORD *)&_XMM2 & *(_OWORD *)&g_maskOffSignBit.v)), (__m128)(*(_OWORD *)&v6 & *(_OWORD *)&g_maskOffSignBit.v));
+  __asm { vrcpps  xmm0, xmm2 }
+  _XMM7 = _mm128_mul_ps(v6, _XMM0);
+  _XMM9 = _mm128_mul_ps(v5, _XMM0);
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+98h+var_88], xmm13
-    vmovups xmm11, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmovups xmm8, xmmword ptr cs:?g_maskOffSignBit@@3Ufloat4@@B.v; float4 const g_maskOffSignBit
-    vshufps xmm4, xmm0, xmm0, 55h ; 'U'
-    vshufps xmm3, xmm0, xmm0, 0
-    vshufps xmm2, xmm0, xmm0, 0AAh ; 'ª'
-    vmovups xmm13, xmm1
-    vandps  xmm0, xmm2, xmm8
-    vxorps  xmm12, xmm12, xmm12
-    vcmpleps xmm10, xmm2, xmm12
-    vandps  xmm1, xmm4, xmm8
-    vaddps  xmm2, xmm1, xmm0
-    vandps  xmm1, xmm3, xmm8
-    vaddps  xmm2, xmm2, xmm1
-    vrcpps  xmm0, xmm2
-    vmulps  xmm7, xmm3, xmm0
-    vmulps  xmm9, xmm4, xmm0
     vcmpltps xmm6, xmm7, xmm12
     vcmpltps xmm0, xmm9, xmm12
-    vandps  xmm1, xmm0, xmmword ptr cs:?g_negativeOneXYZW@@3Ufloat4@@B.v; float4 const g_negativeOneXYZW
-    vandnps xmm0, xmm0, xmm11
-    vorps   xmm3, xmm1, xmm0
-    vandps  xmm1, xmm8, xmm7
-    vsubps  xmm2, xmm11, xmm1
-    vandps  xmm1, xmm6, xmmword ptr cs:?g_negativeOneXYZW@@3Ufloat4@@B.v; float4 const g_negativeOneXYZW
-    vmulps  xmm0, xmm3, xmm2
-    vandps  xmm5, xmm0, xmm10
+  }
+  v15 = _XMM0 & *(_OWORD *)&g_negativeOneXYZW.v;
+  __asm { vandnps xmm0, xmm0, xmm11 }
+  v17 = *(_OWORD *)&_mm128_mul_ps((__m128)(v15 | _XMM0), _mm128_sub_ps(g_one.v, (__m128)(*(_OWORD *)&g_maskOffSignBit.v & *(_OWORD *)&_XMM7))) & _XMM10;
+  __asm
+  {
     vandnps xmm0, xmm6, xmm11
-    vorps   xmm3, xmm1, xmm0
-    vandps  xmm1, xmm9, xmm8
-    vsubps  xmm2, xmm11, xmm1
-    vmulps  xmm0, xmm3, xmm2
-    vandps  xmm3, xmm0, xmm10
     vandnps xmm1, xmm10, xmm7
-    vmovups xmm7, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-    vorps   xmm2, xmm3, xmm1
-    vmulps  xmm0, xmm2, xmm7
-    vaddps  xmm3, xmm0, xmm7
-    vandnps xmm1, xmm10, xmm9
-    vorps   xmm0, xmm1, xmm5
-    vmulps  xmm2, xmm0, xmm7
-    vaddps  xmm4, xmm2, xmm7
+  }
+  _XMM3 = _mm128_add_ps(_mm128_mul_ps((__m128)(*(_OWORD *)&_mm128_mul_ps((__m128)(_XMM6 & *(_OWORD *)&g_negativeOneXYZW.v | _XMM0), _mm128_sub_ps(g_one.v, (__m128)(*(_OWORD *)&_XMM9 & *(_OWORD *)&g_maskOffSignBit.v))) & _XMM10 | _XMM1), g_oneHalf.v), g_oneHalf.v);
+  __asm { vandnps xmm1, xmm10, xmm9 }
+  _XMM4 = _mm128_add_ps(_mm128_mul_ps((__m128)(_XMM1 | v17), g_oneHalf.v), g_oneHalf.v);
+  __asm
+  {
     vcmpltps xmm0, xmm3, xmm12
     vandnps xmm6, xmm0, xmm3
     vcmpltps xmm0, xmm4, xmm12
     vandnps xmm3, xmm0, xmm4
     vcmpltps xmm2, xmm11, xmm3
     vandnps xmm1, xmm2, xmm3
-    vandps  xmm0, xmm2, xmm11
-    vorps   xmm2, xmm1, xmm0
-    vmulps  xmm1, xmm2, xmmword ptr cs:?g_selfVisDirScale@@3Ufloat4@@B.v; float4 const g_selfVisDirScale
-    vaddps  xmm0, xmm1, xmm7
+  }
+  _XMM0 = _mm128_add_ps(_mm128_mul_ps((__m128)(_XMM1 | _XMM2 & *(_OWORD *)&g_one.v), g_selfVisDirScale.v), g_oneHalf.v);
+  __asm
+  {
     vcvtps2dq xmm2, xmm0
     vpslld  xmm4, xmm2, 9
     vcmpltps xmm5, xmm11, xmm6
     vandnps xmm0, xmm5, xmm6
-    vandps  xmm1, xmm5, xmm11
-    vorps   xmm1, xmm1, xmm0
-    vmulps  xmm2, xmm1, xmmword ptr cs:?g_selfVisDirScale@@3Ufloat4@@B.v; float4 const g_selfVisDirScale
-    vaddps  xmm3, xmm2, xmm7
-    vcvtps2dq xmm0, xmm3
-    vpor    xmm1, xmm4, xmm0
-    vmovups xmm0, xmmword ptr [r8]
-    vpor    xmm2, xmm1, xmm13
-    vblendps xmm1, xmm0, xmm2, 1
-    vmovups xmmword ptr [r8], xmm1
   }
-  _R11 = &retaddr;
+  _XMM3 = _mm128_add_ps(_mm128_mul_ps((__m128)(_XMM5 & *(_OWORD *)&g_one.v | _XMM0), g_selfVisDirScale.v), g_oneHalf.v);
   __asm
   {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, [rsp+98h+var_88]
+    vcvtps2dq xmm0, xmm3
+    vpor    xmm1, xmm4, xmm0
   }
+  _XMM0 = a3->v;
+  __asm
+  {
+    vpor    xmm2, xmm1, xmm13
+    vblendps xmm1, xmm0, xmm2, 1
+  }
+  *a3 = (float4)_XMM1.v;
 }
 
 /*
@@ -408,49 +318,47 @@ void Float4PackSelfVisX(const float4 *result, const float4 *a2, float4 *_R8)
 Float4x4LoadMat33Unaligned
 ==============
 */
-
-void __fastcall Float4x4LoadMat33Unaligned(const tmat33_t<vec3_t> *base, vector4 *result, double _XMM2_8)
+void Float4x4LoadMat33Unaligned(const tmat33_t<vec3_t> *base, vector4 *result)
 {
-  __int128 v22; 
-  __int128 v23; 
-  __int128 v24; 
+  __int128 v3; 
+  __m128 v7; 
+  __m128 v11; 
+  __int128 v14; 
+  __m128 v; 
+  __m128 v16; 
 
-  __asm { vmovss  xmm0, dword ptr [rcx] }
-  HIDWORD(v22) = 0;
+  HIDWORD(v14) = 0;
+  v3 = v14;
+  *(float *)&v3 = base->m[0].v[0];
+  _XMM3 = v3;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rcx+4], 10h
     vinsertps xmm3, xmm3, dword ptr [rcx+8], 20h ; ' '
-    vmovups xmmword ptr [rdx], xmm3
-    vmovss  xmm0, dword ptr [rcx+0Ch]
-    vmovups xmmword ptr [rsp], xmm3
   }
-  HIDWORD(v23) = 0;
+  result->x = (float4)_XMM3.v;
+  v = _XMM3.v;
+  v.m128_i32[3] = 0;
+  v7 = v;
+  v7.m128_f32[0] = base->m[1].v[0];
+  _XMM3 = v7;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rcx+10h], 10h
     vinsertps xmm3, xmm3, dword ptr [rcx+14h], 20h ; ' '
-    vmovups xmmword ptr [rdx+10h], xmm3
-    vmovss  xmm0, dword ptr [rcx+18h]
-    vmovups xmmword ptr [rsp], xmm3
-    vxorps  xmm2, xmm2, xmm2
   }
-  HIDWORD(v24) = 0;
+  result->y = (float4)_XMM3.v;
+  v16 = _XMM3.v;
+  v16.m128_i32[3] = 0;
+  v11 = v16;
+  v11.m128_f32[0] = base->m[2].v[0];
+  _XMM3 = v11;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rcx+1Ch], 10h
     vinsertps xmm3, xmm3, dword ptr [rcx+20h], 20h ; ' '
-    vmovups xmmword ptr [rdx+20h], xmm3
-    vxorps  xmm0, xmm2, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vandps  xmm1, xmm0, xmmword ptr cs:?g_keepW@@3Ufloat4@@B.v; float4 const g_keepW
-    vxorps  xmm3, xmm1, xmm2
-    vmovups xmmword ptr [rdx+30h], xmm3
   }
+  result->z = (float4)_XMM3.v;
+  result->w = (float4)(*(_OWORD *)&g_one.v & *(_OWORD *)&g_keepW.v);
 }
 

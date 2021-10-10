@@ -94,104 +94,95 @@ XAnimProcNode_Calc
 */
 void XAnimProcNode_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, const DObj *obj, const XAnimInfo *animInfo, float weightScale, bool bNormQuat, XAnimCalcBuffer *destBuffer)
 {
-  unsigned int v9; 
-  _BYTE *v13; 
-  unsigned int v15; 
-  const DObj *v22; 
-  DObjProceduralBones *v23; 
-  DObjProceduralBones *v25; 
-  bool v27; 
-  bool v28; 
+  unsigned int v7; 
+  _BYTE *v11; 
+  unsigned int v12; 
+  const DObj *v18; 
+  DObjProceduralBones *v19; 
+  DObjProceduralBones *v20; 
+  bool v21; 
+  bool v22; 
   bool Bool_Internal_DebugName; 
   bool hasPostPhysicsConstraints; 
-  bool v31; 
+  bool v25; 
   XAnimProcNodeCalcParams params; 
   bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > otherBitSet; 
 
-  v9 = 0;
+  v7 = 0;
   _R15 = animCalcInfo;
-  v13 = NULL;
+  v11 = NULL;
   if ( nodeData )
   {
-    v13 = nodeData;
+    v11 = nodeData;
     *(_BYTE *)nodeData = 1;
   }
   if ( obj->proceduralBonesHandle.m_value && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_xanim_enableProceduralBones, "xanim_enableProceduralBones") )
   {
-    __asm { vmovss  xmm0, [rsp+0E8h+weightScale] }
-    v15 = 0;
-    __asm { vmovaps [rsp+0E8h+var_48], xmm6 }
+    v12 = 0;
     params.obj = obj;
     _RSI = 0i64;
     params.animInfo = animInfo;
-    __asm { vmovaps [rsp+0E8h+var_58], xmm7 }
     params.animCalcInfo = _R15;
     params.bNormQuat = bNormQuat;
     params.destBuffer = destBuffer;
-    __asm { vmovss  [rsp+0E8h+params.weightScale], xmm0 }
+    params.weightScale = weightScale;
     do
     {
-      __asm
-      {
-        vlddqu  xmm6, xmmword ptr [rsi+r15+0BEA0h]
-        vmovdqu xmmword ptr [rsp+rsi+0E8h+otherBitSet.baseclass_0.array], xmm6
-      }
-      _RSI += 16i64;
-      ++v15;
+      __asm { vlddqu  xmm6, xmmword ptr [rsi+r15+0BEA0h] }
+      *(_OWORD *)&otherBitSet.array[_RSI] = _XMM6;
+      _RSI += 4i64;
+      ++v12;
     }
-    while ( v15 < 2 );
+    while ( v12 < 2 );
     _RBX = &otherBitSet;
-    __asm { vmovdqu xmm7, cs:__xmm@ffffffffffffffffffffffffffffffff }
     do
     {
       __asm
       {
         vlddqu  xmm0, xmmword ptr [rbx]
         vpxor   xmm6, xmm0, xmm7
-        vmovdqu xmmword ptr [rbx], xmm6
       }
+      *(_OWORD *)_RBX->array = _XMM6;
       _RBX = (bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)((char *)_RBX + 16);
-      ++v9;
+      ++v7;
     }
-    while ( v9 < 2 );
-    v22 = params.obj;
-    v23 = DObjLockProceduralBones(params.obj);
-    __asm { vmovaps xmm7, [rsp+0E8h+var_58] }
-    v25 = v23;
-    __asm { vmovaps xmm6, [rsp+0E8h+var_48] }
-    if ( v23 )
+    while ( v7 < 2 );
+    v18 = params.obj;
+    v19 = DObjLockProceduralBones(params.obj);
+    v20 = v19;
+    if ( v19 )
     {
-      v27 = v23->numPhysicsBones && bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::testAnyBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v23->dynamicBonePartBits, &otherBitSet);
-      v28 = v25->numConstraints && bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::testAnyBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v25->proceduralBonePartBits, &otherBitSet);
-      if ( v27 || v28 )
+      v21 = v19->numPhysicsBones && bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::testAnyBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v19->dynamicBonePartBits, &otherBitSet);
+      v22 = v20->numConstraints && bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::testAnyBits<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&v20->proceduralBonePartBits, &otherBitSet);
+      if ( v21 || v22 )
       {
         Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_xanim_enableConstraints, "xanim_enableConstraints");
-        hasPostPhysicsConstraints = v25->hasPostPhysicsConstraints;
-        v31 = Bool_Internal_DebugName;
-        if ( v28 && Bool_Internal_DebugName )
+        hasPostPhysicsConstraints = v20->hasPostPhysicsConstraints;
+        v25 = Bool_Internal_DebugName;
+        if ( v22 && Bool_Internal_DebugName )
         {
           Sys_ProfBeginNamedEvent(0xFFFFFFFF, "XAnimEvaluateProceduralBones");
           if ( hasPostPhysicsConstraints )
-            XAnimProceduralBones_EvaluateConstraints_1_0_(params.obj, v25, &params, (const DObjPartBits *)&otherBitSet);
+            XAnimProceduralBones_EvaluateConstraints_1_0_(params.obj, v20, &params, (const DObjPartBits *)&otherBitSet);
           else
-            XAnimProceduralBones_EvaluateConstraints_0_0_(params.obj, v25, &params, (const DObjPartBits *)&otherBitSet);
+            XAnimProceduralBones_EvaluateConstraints_0_0_(params.obj, v20, &params, (const DObjPartBits *)&otherBitSet);
           Sys_ProfEndNamedEvent();
         }
-        if ( v27 && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_xanim_physicsEnable, "xanim_physicsEnable") )
-          XAnimBonePhysicsUpdate(v25, &params);
-        if ( v28 && hasPostPhysicsConstraints && v31 )
+        if ( v21 && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_xanim_physicsEnable, "xanim_physicsEnable") )
+          XAnimBonePhysicsUpdate(v20, &params);
+        if ( v22 && hasPostPhysicsConstraints && v25 )
         {
           Sys_ProfBeginNamedEvent(0xFFFFFFFF, "XAnimEvaluateProceduralBonesPostPhysics");
-          XAnimProceduralBones_EvaluateConstraints_1_1_(v22, v25, &params, (const DObjPartBits *)&otherBitSet);
+          XAnimProceduralBones_EvaluateConstraints_1_1_(v18, v20, &params, (const DObjPartBits *)&otherBitSet);
           Sys_ProfEndNamedEvent();
         }
       }
     }
-    DObjUnlockProceduralBones(v22);
+    DObjUnlockProceduralBones(v18);
   }
-  else if ( v13 )
+  else if ( v11 )
   {
-    *v13 = 0;
+    *v11 = 0;
   }
 }
 
@@ -259,75 +250,48 @@ CalculateShortestRotationAboutAxis
 */
 void CalculateShortestRotationAboutAxis(const float4 *fromVector, const float4 *toVector, const float4 *axis, float4 *outQuat)
 {
-  char v58; 
-  void *retaddr; 
+  __m128 v; 
+  __m128 v26; 
+  __m128 v27; 
+  __m128 v28; 
 
-  _RAX = &retaddr;
+  _XMM6 = g_one.v;
+  _XMM1 = _mm128_mul_ps(toVector->v, fromVector->v);
+  v = g_oneHalf.v;
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovdqa xmm6, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vmovups xmm1, xmmword ptr [rdx]
-    vmulps  xmm1, xmm1, xmmword ptr [rcx]
-    vmovdqa xmm9, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
     vinsertps xmm2, xmm1, xmm1, 8
     vhaddps xmm0, xmm2, xmm2
-    vxorps  xmm7, xmm7, xmm7
-    vsubps  xmm8, xmm7, xmm6
+  }
+  _XMM7 = 0i64;
+  _mm128_sub_ps((__m128)0i64, g_one.v);
+  __asm
+  {
     vhaddps xmm10, xmm0, xmm0
     vcmpltps xmm0, xmm6, xmm8
     vmovmskps eax, xmm0
   }
-  _RBP = outQuat;
-  _RSI = axis;
-  _RBX = toVector;
-  _RDI = fromVector;
-  if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 2854, ASSERT_TYPE_SANITY, "( Float4AllLe( vmin, vmax ) )", (const char *)&queryFormat, "Float4AllLe( vmin, vmax )") )
+  if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector4_sse.h", 2854, ASSERT_TYPE_SANITY, "( Float4AllLe( vmin, vmax ) )", (const char *)&queryFormat, "Float4AllLe( vmin, vmax )") )
     __debugbreak();
   __asm
   {
-    vmovups xmm4, xmmword ptr [rbx]
-    vmovups xmm2, xmmword ptr [rdi]
-    vshufps xmm1, xmm2, xmm2, 0C9h ; 'É'
-    vshufps xmm2, xmm2, xmm2, 0D2h ; 'Ò'
     vmaxps  xmm0, xmm10, xmm8
     vminps  xmm5, xmm0, xmm6
-    vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm4, xmm3, xmm0
-    vmulps  xmm1, xmm4, xmmword ptr [rsi]
+  }
+  _XMM1 = _mm128_mul_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(fromVector->v, fromVector->v, 201), _mm_shuffle_ps(toVector->v, toVector->v, 210)), _mm128_mul_ps(_mm_shuffle_ps(fromVector->v, fromVector->v, 210), _mm_shuffle_ps(toVector->v, toVector->v, 201))), axis->v);
+  __asm
+  {
     vinsertps xmm2, xmm1, xmm1, 8
     vhaddps xmm0, xmm2, xmm2
     vhaddps xmm1, xmm0, xmm0
     vcmpleps xmm0, xmm7, xmm1
-    vmovups xmm1, xmmword ptr [rsi]
-    vsubps  xmm2, xmm7, xmm1
-    vblendvps xmm3, xmm2, xmm1, xmm0
-    vmulps  xmm2, xmm5, xmm9
-    vaddps  xmm1, xmm2, xmm9
-    vsubps  xmm0, xmm9, xmm2
-    vsqrtps xmm0, xmm0
-    vmulps  xmm2, xmm3, xmm0
-    vsqrtps xmm0, xmm1
-    vshufps xmm1, xmm2, xmm0, 0FAh ; 'ú'
-    vshufps xmm2, xmm2, xmm1, 84h ; '„'
-    vmovups xmmword ptr [rbp+0], xmm2
   }
-  _R11 = &v58;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, [rsp+98h+var_28]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  _XMM2 = _mm128_sub_ps((__m128)0i64, axis->v);
+  __asm { vblendvps xmm3, xmm2, xmm1, xmm0 }
+  v26 = _mm128_mul_ps(_XMM5, v);
+  v27 = _mm128_add_ps(v26, v);
+  v28 = _mm128_mul_ps(_XMM3, _mm_sqrt_ps(_mm128_sub_ps(v, v26)));
+  outQuat->v = _mm_shuffle_ps(v28, _mm_shuffle_ps(v28, _mm_sqrt_ps(v27), 250), 132);
 }
 
 /*
@@ -337,146 +301,137 @@ XAnimEvaluateAimConstraint
 */
 void XAnimEvaluateAimConstraint(const XAnimAimConstraint *constraint, const unsigned __int16 *sourceBoneIndices, XAnimProcNodeCalcParams *params, const DObjPartBits *partBits, const XAnimConstraintTargetBone *const targetBoneInfo)
 {
+  float v8; 
   int boneIndex; 
   XAnimCalcBuffer *destBuffer; 
   const DObj *obj; 
   XAnimCalcAnimInfo *animCalcInfo; 
+  __m128 v; 
+  __m128 v15; 
+  __m128 v18; 
+  __m128 v19; 
+  __m128 v20; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v23; 
+  __m128 v24; 
+  __m128 v28; 
+  __m128 v30; 
+  __m128 v34; 
+  __m128 v37; 
+  __m128 v38; 
+  __m128 v39; 
+  __m128 v40; 
   XAnimUpVectorType upVectorType; 
-  __int32 v84; 
+  __m128 v42; 
+  __m128 v43; 
+  __m128 v44; 
+  __m128 v46; 
+  __int32 v50; 
+  __m128 v51; 
+  __m128 v52; 
+  __m128 v53; 
+  __m128 v54; 
+  __m128 v55; 
+  __m128 v56; 
+  __m128 v61; 
+  __m128 v68; 
+  __m128 v69; 
+  __m128 v74; 
+  __m128 v78; 
   float4 outModelTranslation_8; 
-  float4 v158; 
-  float4 v159; 
-  float4 v160; 
-  float4 v161; 
+  float4 v82; 
+  float4 v83; 
+  float4 v84; 
+  float4 v85; 
   float4 outModelQuat; 
   float4 outModelTranslation; 
-  float4 v164; 
-  char v165; 
-  void *retaddr; 
+  float4 v88; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-  }
-  _RSI = constraint;
   XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, *sourceBoneIndices, &outModelQuat, &outModelTranslation);
-  __asm { vmovss  xmm0, dword ptr [rsi] }
+  v8 = constraint->aimTargetLocalOffset.v[0];
   boneIndex = targetBoneInfo->boneIndex;
   destBuffer = params->destBuffer;
   obj = params->obj;
   animCalcInfo = params->animCalcInfo;
-  v158.v.m128_i32[3] = 0;
+  v82.v.m128_i32[3] = 0;
+  v = v82.v;
+  v.m128_f32[0] = v8;
+  _XMM8 = v;
+  v15 = outModelQuat.v;
   __asm
   {
-    vmovups xmm8, [rsp+140h+var_108+8]
-    vmovss  xmm8, xmm8, xmm0
-    vmovups xmm0, xmmword ptr [rbp+40h+var_C0.v]
     vinsertps xmm8, xmm8, dword ptr [rsi+4], 10h
     vinsertps xmm8, xmm8, dword ptr [rsi+8], 20h ; ' '
-    vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-    vshufps xmm7, xmm0, xmm0, 0D2h ; 'Ò'
-    vshufps xmm5, xmm0, xmm0, 0FFh
-    vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm7
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm4
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vaddps  xmm5, xmm0, xmm8
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm3, xmm1, xmm6
-    vmulps  xmm2, xmm0, xmm7
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm4, xmm1, xmm5
-    vaddps  xmm6, xmm4, xmmword ptr [rbp+40h+var_B0.v]
-    vmovups [rsp+140h+var_108+8], xmm8
   }
-  XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, boneIndex, &v164, &v161);
+  v18 = _mm_shuffle_ps(v15, v15, 201);
+  v19 = _mm_shuffle_ps(v15, v15, 210);
+  v20 = _mm_shuffle_ps(v15, v15, 255);
+  v21 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 210), v18), _mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 201), v19));
+  v22 = _mm128_add_ps(v21, v21);
+  v23 = _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v22, v22, 210), v18), _mm128_mul_ps(_mm_shuffle_ps(v22, v22, 201), v19)), _mm128_add_ps(_mm128_mul_ps(v20, v22), _XMM8)), outModelTranslation.v);
+  v82.v = _XMM8;
+  XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, boneIndex, &v88, &v85);
+  v24 = _mm128_sub_ps(v23, v85.v);
+  _XMM0 = _mm128_mul_ps(v24, v24);
   __asm
   {
-    vsubps  xmm2, xmm6, xmmword ptr [rsp+140h+var_D8+8]
-    vmulps  xmm0, xmm2, xmm2
     vhaddps xmm1, xmm0, xmm0
     vhaddps xmm0, xmm1, xmm1
-    vsqrtps xmm1, xmm0
-    vmovss  xmm0, dword ptr [rsi+0Ch]
   }
-  v158.v.m128_i32[3] = 0;
+  v28 = _mm_sqrt_ps(_XMM0);
+  _XMM0.m128_i32[0] = LODWORD(constraint->localAimVector.v[0]);
+  v82.v.m128_i32[3] = 0;
+  v30 = v82.v;
+  v30.m128_f32[0] = _XMM0.m128_f32[0];
+  _XMM3 = v30;
   __asm
   {
-    vmovups xmm3, [rsp+140h+var_108+8]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rsi+10h], 10h
     vinsertps xmm3, xmm3, dword ptr [rsi+14h], 20h ; ' '
-    vmovss  xmm0, dword ptr [rsi+18h]
-    vmovups [rsp+140h+var_108+8], xmm3
   }
-  v158.v.m128_i32[3] = 0;
+  _XMM0.m128_i32[0] = LODWORD(constraint->localUpVector.v[0]);
+  v82.v = _XMM3;
+  v82.v.m128_i32[3] = 0;
+  v34 = v82.v;
+  v34.m128_f32[0] = _XMM0.m128_f32[0];
+  _XMM8 = v34;
   __asm
   {
-    vmovups xmm8, [rsp+140h+var_108+8]
-    vmovss  xmm8, xmm8, xmm0
     vinsertps xmm8, xmm8, dword ptr [rsi+1Ch], 10h
     vinsertps xmm8, xmm8, dword ptr [rsi+20h], 20h ; ' '
-    vdivps  xmm10, xmm2, xmm1
-    vmovups [rsp+140h+var_108+8], xmm8
-    vmovdqa [rsp+140h+var_108+8], xmm10
-    vmovdqa xmmword ptr [rsp+140h+outModelTranslation+8], xmm3
   }
-  XAnimBonePhysics_CalculateShortestRotationQuaternion(&outModelTranslation_8, &v158, &v159);
+  v37 = _mm128_div_ps(v24, v28);
+  v82.v = v37;
+  outModelTranslation_8.v = _XMM3;
+  XAnimBonePhysics_CalculateShortestRotationQuaternion(&outModelTranslation_8, &v82, &v83);
+  v38 = v83.v;
+  v39 = _mm_shuffle_ps(v38, v38, 210);
+  v40 = _mm_shuffle_ps(v38, v38, 201);
+  upVectorType = constraint->upVectorType;
+  v82.v.m128_i32[3] = 0;
+  v42 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 210), v40), _mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 201), v39));
+  v43 = _mm128_add_ps(v42, v42);
+  v44 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v38, v38, 255), v43), _XMM8);
+  v46 = v82.v;
+  v46.m128_f32[0] = constraint->upVector.v[0];
+  _XMM8 = v46;
   __asm
   {
-    vmovups xmm9, xmmword ptr [rsp+140h+var_F8.v+8]
-    vshufps xmm5, xmm9, xmm9, 0FFh
-    vshufps xmm7, xmm9, xmm9, 0D2h ; 'Ò'
-    vshufps xmm6, xmm9, xmm9, 0C9h ; 'É'
-    vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-  }
-  upVectorType = _RSI->upVectorType;
-  v158.v.m128_i32[3] = 0;
-  __asm
-  {
-    vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-    vmulps  xmm3, xmm0, xmm6
-    vmulps  xmm2, xmm1, xmm7
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm8
-    vmovups xmm8, [rsp+140h+var_108+8]
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm7
-    vmovss  xmm0, dword ptr [rsi+30h]
-    vmovss  xmm8, xmm8, xmm0
     vinsertps xmm8, xmm8, dword ptr [rsi+34h], 10h
     vinsertps xmm8, xmm8, dword ptr [rsi+38h], 20h ; ' '
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vmovups [rsp+140h+var_108+8], xmm8
-    vaddps  xmm11, xmm1, xmm5
   }
+  v82.v = _XMM8;
+  _XMM11 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v43, v43, 210), v40), _mm128_mul_ps(_mm_shuffle_ps(v43, v43, 201), v39)), v44);
   if ( upVectorType )
   {
-    v84 = upVectorType - 1;
-    if ( v84 )
+    v50 = upVectorType - 1;
+    if ( v50 )
     {
-      if ( v84 == 1 )
+      if ( v50 == 1 )
       {
-        XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, sourceBoneIndices[1], &v160, &v159);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsp+140h+var_F8.v+8]
-          vsubps  xmm8, xmm0, xmmword ptr [rsp+140h+var_D8+8]
-        }
+        XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, sourceBoneIndices[1], &v84, &v83);
+        _XMM8 = _mm128_sub_ps(v83.v, v85.v);
       }
       else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 428, ASSERT_TYPE_SANITY, (const char *)&queryFormat.fmt + 3, "bad up vector type") )
       {
@@ -485,104 +440,67 @@ void XAnimEvaluateAimConstraint(const XAnimAimConstraint *constraint, const unsi
     }
     else
     {
-      XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, sourceBoneIndices[1], &v159, &v160);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+140h+var_F8.v+8]
-        vshufps xmm7, xmm0, xmm0, 0D2h ; 'Ò'
-        vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-        vshufps xmm5, xmm0, xmm0, 0FFh
-        vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-        vmulps  xmm3, xmm0, xmm6
-        vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-        vmulps  xmm2, xmm1, xmm7
-        vsubps  xmm0, xmm3, xmm2
-        vaddps  xmm4, xmm0, xmm0
-        vmulps  xmm0, xmm5, xmm4
-        vaddps  xmm5, xmm0, xmm8
-        vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-        vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-        vmulps  xmm2, xmm0, xmm7
-        vmulps  xmm3, xmm1, xmm6
-        vsubps  xmm1, xmm3, xmm2
-        vaddps  xmm8, xmm1, xmm5
-      }
+      XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, sourceBoneIndices[1], &v83, &v84);
+      v51 = v83.v;
+      v52 = _mm_shuffle_ps(v51, v51, 210);
+      v53 = _mm_shuffle_ps(v51, v51, 201);
+      v54 = _mm_shuffle_ps(v51, v51, 255);
+      v55 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 210), v53), _mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 201), v52));
+      v56 = _mm128_add_ps(v55, v55);
+      _XMM8 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v56, v56, 210), v53), _mm128_mul_ps(_mm_shuffle_ps(v56, v56, 201), v52)), _mm128_add_ps(_mm128_mul_ps(v54, v56), _XMM8));
     }
   }
+  _XMM0 = _mm128_mul_ps(v37, _XMM8);
   __asm
   {
-    vmulps  xmm0, xmm10, xmm8
     vinsertps xmm1, xmm0, xmm0, 8
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vmulps  xmm1, xmm0, xmm10
-    vsubps  xmm6, xmm8, xmm1
-    vmulps  xmm0, xmm6, xmm6
-    vhaddps xmm1, xmm0, xmm0
-    vhaddps xmm5, xmm1, xmm1
-    vmovups xmm1, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vrsqrtps xmm4, xmm5
-    vmulps  xmm0, xmm4, xmm4
-    vmulps  xmm2, xmm0, xmm5
-    vmulps  xmm0, xmm4, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-    vsubps  xmm3, xmm1, xmm2
-    vmulps  xmm2, xmm3, xmm0
-    vaddps  xmm1, xmm2, xmm4
-    vxorps  xmm0, xmm0, xmm0
-    vmulps  xmm1, xmm6, xmm1
-    vcmpneqps xmm0, xmm5, xmm0
-    vblendvps xmm2, xmm11, xmm1, xmm0
-    vmovdqa xmmword ptr [rsp+140h+outModelTranslation+8], xmm2
-    vmovdqa xmmword ptr [rsp+140h+var_F8.v+8], xmm10
-    vmovdqa [rsp+140h+var_108+8], xmm11
   }
-  CalculateShortestRotationAboutAxis(&v158, &outModelTranslation_8, &v159, &v160);
+  v61 = _mm128_sub_ps(_XMM8, _mm128_mul_ps(_XMM0, v37));
+  _XMM0 = _mm128_mul_ps(v61, v61);
   __asm
   {
-    vmovups xmm4, xmmword ptr [rsp+140h+var_E8.v+8]
-    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-    vshufps xmm2, xmm4, xmm4, 0D2h ; 'Ò'
-    vshufps xmm6, xmm4, xmm4, 0FFh
-    vshufps xmm0, xmm9, xmm9, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm5, xmm3, xmm0
-    vmulps  xmm1, xmm4, xmm9
+    vhaddps xmm1, xmm0, xmm0
+    vhaddps xmm5, xmm1, xmm1
+    vrsqrtps xmm4, xmm5
+  }
+  _mm128_mul_ps(v61, _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(g_one.v, _mm128_mul_ps(_mm128_mul_ps(_XMM4, _XMM4), _XMM5)), _mm128_mul_ps(_XMM4, g_oneHalf.v)), _XMM4));
+  __asm
+  {
+    vcmpneqps xmm0, xmm5, xmm0
+    vblendvps xmm2, xmm11, xmm1, xmm0
+  }
+  outModelTranslation_8.v = _XMM2;
+  v83.v = v37;
+  v82.v = _XMM11;
+  CalculateShortestRotationAboutAxis(&v82, &outModelTranslation_8, &v83, &v84);
+  v68 = v84.v;
+  v69 = _mm_shuffle_ps(v68, v68, 255);
+  _XMM1 = _mm128_mul_ps(v84.v, v38);
+  __asm
+  {
     vinsertps xmm0, xmm1, xmm1, 8
     vhaddps xmm2, xmm0, xmm0
     vhaddps xmm3, xmm2, xmm2
-    vshufps xmm7, xmm9, xmm9, 0FFh
-    vmulps  xmm4, xmm4, xmm7
-    vmulps  xmm0, xmm7, xmm6
-    vsubps  xmm2, xmm0, xmm3
-    vmulps  xmm1, xmm9, xmm6
-    vaddps  xmm1, xmm4, xmm1
-    vaddps  xmm0, xmm5, xmm1
-    vblendps xmm4, xmm2, xmm0, 7
-    vmovss  xmm0, dword ptr [rsi+24h]
   }
-  v158.v.m128_i32[3] = 0;
+  v74 = _mm_shuffle_ps(v38, v38, 255);
+  _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v74, v69), _XMM3);
+  _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v68, v68, 201), _mm_shuffle_ps(v38, v38, 210)), _mm128_mul_ps(_mm_shuffle_ps(v68, v68, 210), _mm_shuffle_ps(v38, v38, 201))), _mm128_add_ps(_mm128_mul_ps(v84.v, v74), _mm128_mul_ps(v38, v69)));
+  __asm { vblendps xmm4, xmm2, xmm0, 7 }
+  *(float *)&_XMM0 = constraint->axisMask.v[0];
+  v82.v.m128_i32[3] = 0;
+  v78 = v82.v;
+  v78.m128_f32[0] = *(float *)&_XMM0;
+  _XMM3 = v78;
   __asm
   {
-    vmovups xmm3, [rsp+140h+var_108+8]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rsi+28h], 10h
     vinsertps xmm3, xmm3, dword ptr [rsi+2Ch], 20h ; ' '
-    vmovdqa xmmword ptr [rsp+140h+var_F8.v+8], xmm3
-    vmovdqa xmmword ptr [rsp+140h+var_E8.v+8], xmm4
   }
-  XAnimSetModelBoneRotationWithAxisMask(params, targetBoneInfo, &v159, &v160);
-  _R11 = &v165;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  v83.v = _XMM3;
+  v84.v = _XMM4;
+  XAnimSetModelBoneRotationWithAxisMask(params, targetBoneInfo, &v83, &v84);
 }
 
 /*
@@ -592,88 +510,57 @@ XAnimEvaluateDistanceDrivenRotationOffsetConstraint
 */
 void XAnimEvaluateDistanceDrivenRotationOffsetConstraint(const XAnimDistanceDrivenOffsetConstraint *constraint, const unsigned __int16 *sourceBoneIndices, XAnimProcNodeCalcParams *params, const DObjPartBits *partBits, const XAnimConstraintTargetBone *targetBoneInfo)
 {
+  __m128 v; 
+  __m128 v13; 
+  __m128 v17; 
+  __m128 v18; 
+  __m128 v22; 
   const float4 *fmt; 
   float4 *outModelTranslation; 
-  float v59; 
   float4 outFractionalDistance; 
   float4 outModelQuat; 
-  float4 v62; 
-  char v63; 
-  void *retaddr; 
+  float4 v30; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  _RBX = params;
-  _RBP = constraint;
   if ( !constraint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 604, ASSERT_TYPE_ASSERT, "(constraint != 0)", (const char *)&queryFormat, "constraint != NULL") )
     __debugbreak();
   if ( !sourceBoneIndices && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 605, ASSERT_TYPE_ASSERT, "(sourceBoneIndices != 0)", (const char *)&queryFormat, "sourceBoneIndices != NULL") )
     __debugbreak();
-  if ( !_RBX->obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 606, ASSERT_TYPE_ASSERT, "(params->obj != 0)", (const char *)&queryFormat, "params->obj != NULL") )
+  if ( !params->obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 606, ASSERT_TYPE_ASSERT, "(params->obj != 0)", (const char *)&queryFormat, "params->obj != NULL") )
     __debugbreak();
   if ( !partBits && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 607, ASSERT_TYPE_ASSERT, "(partBits != 0)", (const char *)&queryFormat, "partBits != NULL") )
     __debugbreak();
   if ( !targetBoneInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 608, ASSERT_TYPE_ASSERT, "(targetBoneInfo != 0)", (const char *)&queryFormat, "targetBoneInfo != NULL") )
     __debugbreak();
-  XAnimEvaluateFractionalDistance(_RBP, sourceBoneIndices, _RBX, &outFractionalDistance);
-  XAnimGetLocalBoneTransform(_RBX->animCalcInfo, _RBX->obj, _RBX->destBuffer, targetBoneInfo->boneIndex, &outModelQuat, &v62);
+  XAnimEvaluateFractionalDistance(constraint, sourceBoneIndices, params, &outFractionalDistance);
+  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, targetBoneInfo->boneIndex, &outModelQuat, &v30);
+  _XMM0 = _mm128_mul_ps((__m128)constraint->minLocalOffset, (__m128)constraint->maxLocalOffset);
   __asm
   {
-    vmovups xmm3, xmmword ptr [rbp+0]
-    vmulps  xmm0, xmm3, xmmword ptr [rbp+10h]
     vhaddps xmm1, xmm0, xmm0
     vhaddps xmm0, xmm1, xmm1
-    vandps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-    vorps   xmm4, xmm2, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovups xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vsubps  xmm1, xmm0, xmmword ptr [rsp+0D8h+outFractionalDistance.v]
-    vmulps  xmm0, xmm4, xmmword ptr [rsp+0D8h+outFractionalDistance.v]
-    vmulps  xmm0, xmm0, xmmword ptr [rbp+10h]
-    vmovups xmm4, xmmword ptr [rsp+0D8h+outModelQuat.v]
-    vmulps  xmm3, xmm1, xmm3
-    vaddps  xmm2, xmm0, xmm3
-    vmulps  xmm1, xmm2, xmm2
-    vhaddps xmm0, xmm1, xmm1
-    vhaddps xmm0, xmm0, xmm0
-    vsqrtps xmm1, xmm0
-    vdivps  xmm7, xmm2, xmm1
-    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-    vshufps xmm2, xmm4, xmm4, 0D2h ; 'Ò'
-    vshufps xmm6, xmm4, xmm4, 0FFh
-    vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm5, xmm3, xmm0
-    vmulps  xmm1, xmm4, xmm7
-    vinsertps xmm0, xmm1, xmm1, 8
-    vhaddps xmm2, xmm0, xmm0
-    vshufps xmm8, xmm7, xmm7, 0FFh
-    vmulps  xmm0, xmm8, xmm6
-    vmulps  xmm4, xmm4, xmm8
-    vmulps  xmm1, xmm6, xmm7
-    vaddps  xmm1, xmm4, xmm1
-    vhaddps xmm3, xmm2, xmm2
-    vsubps  xmm2, xmm0, xmm3
-    vaddps  xmm0, xmm5, xmm1
-    vmovss  xmm1, dword ptr [rbx+18h]
-    vmovss  [rsp+0D8h+var_A8], xmm1
-    vmovups xmm1, xmmword ptr [rsp+0D8h+var_78.v]
-    vblendps xmm0, xmm2, xmm0, 7
   }
-  XAnimSetLocalBoneTransform(_RBX->animCalcInfo, _RBX->obj, _RBX->destBuffer, targetBoneInfo->boneIndex, fmt, outModelTranslation, v59);
-  _R11 = &v63;
+  v = outModelQuat.v;
+  v13 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps((__m128)(_XMM0 & *(_OWORD *)&g_negativeZero.v | _xmm), outFractionalDistance.v), (__m128)constraint->maxLocalOffset), _mm128_mul_ps(_mm128_sub_ps(g_one.v, outFractionalDistance.v), (__m128)constraint->minLocalOffset));
+  _XMM1 = _mm128_mul_ps(v13, v13);
   __asm
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
+    vhaddps xmm0, xmm1, xmm1
+    vhaddps xmm0, xmm0, xmm0
   }
+  v17 = _mm128_div_ps(v13, _mm_sqrt_ps(_XMM0));
+  v18 = _mm_shuffle_ps(v, v, 255);
+  _XMM1 = _mm128_mul_ps(outModelQuat.v, v17);
+  __asm
+  {
+    vinsertps xmm0, xmm1, xmm1, 8
+    vhaddps xmm2, xmm0, xmm0
+  }
+  v22 = _mm_shuffle_ps(v17, v17, 255);
+  __asm { vhaddps xmm3, xmm2, xmm2 }
+  _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v22, v18), _XMM3);
+  _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 201), _mm_shuffle_ps(v17, v17, 210)), _mm128_mul_ps(_mm_shuffle_ps(v, v, 210), _mm_shuffle_ps(v17, v17, 201))), _mm128_add_ps(_mm128_mul_ps(outModelQuat.v, v22), _mm128_mul_ps(v18, v17)));
+  __asm { vblendps xmm0, xmm2, xmm0, 7 }
+  XAnimSetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, targetBoneInfo->boneIndex, fmt, outModelTranslation, params->weightScale);
 }
 
 /*
@@ -683,25 +570,24 @@ XAnimEvaluateDistanceDrivenTranslationOffsetConstraint
 */
 void XAnimEvaluateDistanceDrivenTranslationOffsetConstraint(const XAnimDistanceDrivenOffsetConstraint *constraint, const unsigned __int16 *sourceBoneIndices, XAnimProcNodeCalcParams *params, const DObjPartBits *partBits, const XAnimConstraintTargetBone *targetBoneInfo)
 {
+  float v9; 
+  __m128 v; 
+  float v12; 
   unsigned __int16 parentBoneIndex; 
+  __m128 v17; 
+  __m128 v20; 
+  __m128 v23; 
+  __m128 v24; 
+  __m128 v25; 
+  __m128 v26; 
+  __m128 v27; 
   float4 outFractionalDistance_8; 
-  float4 v55; 
-  float4 v56; 
-  float4 v57; 
+  float4 v29; 
+  float4 v30; 
+  float4 v31; 
   float4 outModelTranslation; 
   float4 outModelQuat; 
-  char v60; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
-  _RDI = constraint;
   if ( !constraint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 553, ASSERT_TYPE_ASSERT, "(constraint != 0)", (const char *)&queryFormat, "constraint != NULL") )
     __debugbreak();
   if ( !sourceBoneIndices && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 554, ASSERT_TYPE_ASSERT, "(sourceBoneIndices != 0)", (const char *)&queryFormat, "sourceBoneIndices != NULL") )
@@ -712,80 +598,52 @@ void XAnimEvaluateDistanceDrivenTranslationOffsetConstraint(const XAnimDistanceD
     __debugbreak();
   if ( !targetBoneInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 557, ASSERT_TYPE_ASSERT, "(targetBoneInfo != 0)", (const char *)&queryFormat, "targetBoneInfo != NULL") )
     __debugbreak();
-  __asm { vxorps  xmm8, xmm8, xmm8 }
-  XAnimEvaluateFractionalDistance(_RDI, sourceBoneIndices, params, &outFractionalDistance_8);
+  XAnimEvaluateFractionalDistance(constraint, sourceBoneIndices, params, &outFractionalDistance_8);
   XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, targetBoneInfo->boneIndex, &outModelQuat, &outModelTranslation);
-  __asm { vmovss  xmm0, dword ptr [rdi] }
-  v55.v.m128_i32[3] = 0;
+  v9 = constraint->minLocalOffset.v[0];
+  v29.v.m128_i32[3] = 0;
+  v = v29.v;
+  v.m128_f32[0] = v9;
+  _XMM4 = v;
+  v12 = constraint->maxLocalOffset.v[0];
   __asm
   {
-    vmovups xmm4, [rsp+110h+var_D8+8]
-    vmovss  xmm4, xmm4, xmm0
-    vmovss  xmm0, dword ptr [rdi+10h]
     vinsertps xmm4, xmm4, dword ptr [rdi+4], 10h
     vinsertps xmm4, xmm4, dword ptr [rdi+8], 20h ; ' '
-    vmovups [rsp+110h+var_D8+8], xmm4
   }
-  v55.v.m128_i32[3] = 0;
-  __asm { vmovups xmm3, [rsp+110h+var_D8+8] }
+  v29.v = _XMM4;
+  v29.v.m128_i32[3] = 0;
   parentBoneIndex = targetBoneInfo->parentBoneIndex;
+  v17 = v29.v;
+  v17.m128_f32[0] = v12;
+  _XMM3 = v17;
   __asm
   {
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rdi+14h], 10h
     vinsertps xmm3, xmm3, dword ptr [rdi+18h], 20h ; ' '
-    vsubps  xmm0, xmm3, xmm4
-    vmulps  xmm1, xmm0, xmmword ptr [rsp+110h+outFractionalDistance.v+8]
-    vaddps  xmm9, xmm1, xmm4
-    vmovups [rsp+110h+var_D8+8], xmm3
   }
+  v20 = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM3, _XMM4), outFractionalDistance_8.v), _XMM4);
+  v29.v = _XMM3;
   if ( parentBoneIndex == 255 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-      vblendps xmm0, xmm0, xmm8, 7
-      vmovups xmmword ptr [rbp+4Fh+var_C0.v], xmm0
-    }
+    _XMM0 = g_one.v;
+    __asm { vblendps xmm0, xmm0, xmm8, 7 }
+    v30.v = _XMM0;
   }
   else
   {
-    XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, parentBoneIndex, &v56, &v57);
-    __asm { vmovups xmm0, xmmword ptr [rbp+4Fh+var_C0.v] }
+    XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, parentBoneIndex, &v30, &v31);
+    _XMM0 = v30.v;
   }
-  __asm
-  {
-    vshufps xmm7, xmm0, xmm0, 0D2h ; 'Ò'
-    vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-    vshufps xmm5, xmm0, xmm0, 0FFh
-    vshufps xmm0, xmm9, xmm9, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm7
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm9
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm2, xmm0, xmm7
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm3, xmm1, xmm5
-    vaddps  xmm0, xmm3, xmmword ptr [rbp+4Fh+outModelTranslation.v]
-    vmovups xmmword ptr [rsp+110h+outFractionalDistance.v+8], xmm0
-    vmovdqa [rsp+110h+var_D8+8], xmm8
-    vmovdqa xmmword ptr [rbp+4Fh+var_B0.v], xmm8
-  }
-  XAnimSetModelBoneTranslationWithAxisMaskAndOffset(params, targetBoneInfo, &v57, &v55, &outFractionalDistance_8);
-  _R11 = &v60;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  v23 = _mm_shuffle_ps(_XMM0, _XMM0, 210);
+  v24 = _mm_shuffle_ps(_XMM0, _XMM0, 201);
+  v25 = _mm_shuffle_ps(_XMM0, _XMM0, 255);
+  v26 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v20, v20, 210), v24), _mm128_mul_ps(_mm_shuffle_ps(v20, v20, 201), v23));
+  v27 = _mm128_add_ps(v26, v26);
+  outFractionalDistance_8.v = _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v27, v27, 210), v24), _mm128_mul_ps(_mm_shuffle_ps(v27, v27, 201), v23)), _mm128_add_ps(_mm128_mul_ps(v25, v27), v20)), outModelTranslation.v);
+  v29.v = 0i64;
+  v31.v = 0i64;
+  XAnimSetModelBoneTranslationWithAxisMaskAndOffset(params, targetBoneInfo, &v31, &v29, &outFractionalDistance_8);
 }
 
 /*
@@ -795,25 +653,30 @@ XAnimEvaluateFractionalDistance
 */
 void XAnimEvaluateFractionalDistance(const XAnimDistanceDrivenOffsetConstraint *constraint, const unsigned __int16 *sourceBoneIndices, XAnimProcNodeCalcParams *params, float4 *outFractionalDistance)
 {
-  __int128 v89; 
-  __int128 v90; 
+  __int128 v9; 
+  __m128 v13; 
+  __m128 v; 
+  __m128 v17; 
+  __m128 v18; 
+  __m128 v19; 
+  __m128 v20; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v23; 
+  __m128 v24; 
+  __m128 v25; 
+  __m128 v26; 
+  __m128 v27; 
+  __m128 v29; 
+  __m128 v31; 
+  __m128 v42; 
+  __int128 v43; 
+  __m128 v44; 
   float4 outModelQuat; 
   float4 outModelTranslation; 
-  float4 v93; 
-  float4 v94; 
-  char v95; 
-  void *retaddr; 
+  float4 v47; 
+  float4 v48; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-  }
-  _RDI = outFractionalDistance;
   _RBX = constraint;
   if ( !constraint && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 501, ASSERT_TYPE_ASSERT, "(constraint != 0)", (const char *)&queryFormat, "constraint != NULL") )
     __debugbreak();
@@ -821,81 +684,56 @@ void XAnimEvaluateFractionalDistance(const XAnimDistanceDrivenOffsetConstraint *
     __debugbreak();
   if ( !params->obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 503, ASSERT_TYPE_ASSERT, "(params->obj != 0)", (const char *)&queryFormat, "params->obj != NULL") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 504, ASSERT_TYPE_ASSERT, "(outFractionalDistance != 0)", (const char *)&queryFormat, "outFractionalDistance != NULL") )
+  if ( !outFractionalDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 504, ASSERT_TYPE_ASSERT, "(outFractionalDistance != 0)", (const char *)&queryFormat, "outFractionalDistance != NULL") )
     __debugbreak();
-  __asm { vmovss  xmm0, dword ptr [rbx+20h] }
-  HIDWORD(v89) = 0;
+  HIDWORD(v43) = 0;
+  v9 = v43;
+  *(float *)&v9 = _RBX->sourceBoneOffsets[0].v[0];
+  _XMM8 = v9;
   __asm
   {
-    vmovups xmm8, xmmword ptr [rsp+30h]
-    vmovss  xmm8, xmm8, xmm0
     vinsertps xmm8, xmm8, dword ptr [rbx+24h], 10h
     vinsertps xmm8, xmm8, dword ptr [rbx+28h], 20h ; ' '
-    vmovss  xmm0, dword ptr [rbx+2Ch]
-    vmovups xmmword ptr [rsp+30h], xmm8
   }
-  HIDWORD(v90) = 0;
+  v44 = _XMM8;
+  v44.m128_i32[3] = 0;
+  v13 = v44;
+  v13.m128_f32[0] = _RBX->sourceBoneOffsets[1].v[0];
+  _XMM9 = v13;
   __asm
   {
-    vmovups xmm9, xmmword ptr [rsp+30h]
-    vmovss  xmm9, xmm9, xmm0
     vinsertps xmm9, xmm9, dword ptr [rbx+30h], 10h
     vinsertps xmm9, xmm9, dword ptr [rbx+34h], 20h ; ' '
-    vxorps  xmm10, xmm10, xmm10
   }
   XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, *sourceBoneIndices, &outModelQuat, &outModelTranslation);
-  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, sourceBoneIndices[1], &v93, &v94);
+  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, sourceBoneIndices[1], &v47, &v48);
+  v = outModelQuat.v;
+  v17 = _mm_shuffle_ps(v, v, 210);
+  v18 = _mm_shuffle_ps(v, v, 201);
+  v19 = _mm_shuffle_ps(v, v, 255);
+  v20 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 210), v18), _mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 201), v17));
+  v21 = _mm128_add_ps(v20, v20);
+  v22 = v47.v;
+  v23 = _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v21, v21, 210), v18), _mm128_mul_ps(_mm_shuffle_ps(v21, v21, 201), v17)), _mm128_add_ps(_mm128_mul_ps(v19, v21), _XMM8)), outModelTranslation.v);
+  v24 = _mm_shuffle_ps(v22, v22, 210);
+  v25 = _mm_shuffle_ps(v22, v22, 201);
+  v26 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 210), v25), _mm128_mul_ps(_mm_shuffle_ps(_XMM9, _XMM9, 201), v24));
+  v27 = _mm128_add_ps(v26, v26);
+  __asm { vbroadcastss xmm3, dword ptr [rbx+3Ch] }
+  v29 = _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v27, v27, 210), v25), _mm128_mul_ps(_mm_shuffle_ps(v27, v27, 201), v24)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v22, v22, 255), v27), _XMM9)), v48.v);
+  __asm { vbroadcastss xmm4, dword ptr [rbx+38h] }
+  v31 = _mm128_sub_ps(v23, v29);
+  _XMM0 = _mm128_mul_ps(v31, v31);
   __asm
   {
-    vmovups xmm0, xmmword ptr [rsp+108h+outModelQuat.v]
-    vshufps xmm7, xmm0, xmm0, 0D2h ; 'Ò'
-    vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-    vshufps xmm5, xmm0, xmm0, 0FFh
-    vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm7
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm8
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm7
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm4, xmm1, xmm5
-    vmovups xmm1, xmmword ptr [rsp+108h+var_A8.v]
-    vaddps  xmm8, xmm4, xmmword ptr [rsp+108h+var_B8.v]
-    vshufps xmm7, xmm1, xmm1, 0D2h ; 'Ò'
-    vshufps xmm5, xmm1, xmm1, 0FFh
-    vshufps xmm6, xmm1, xmm1, 0C9h ; 'É'
-    vshufps xmm1, xmm9, xmm9, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm7
-    vshufps xmm0, xmm9, xmm9, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm9
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm7
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vbroadcastss xmm3, dword ptr [rbx+3Ch]
-    vaddps  xmm4, xmm1, xmm5
-    vaddps  xmm1, xmm4, xmmword ptr [rsp+108h+var_98.v]
-    vbroadcastss xmm4, dword ptr [rbx+38h]
-    vsubps  xmm2, xmm8, xmm1
-    vmulps  xmm0, xmm2, xmm2
     vinsertps xmm1, xmm0, xmm0, 8
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vsqrtps xmm1, xmm0
-    vmulps  xmm2, xmm1, xmm4
-    vaddps  xmm7, xmm2, xmm3
-    vmovdqa xmm6, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
+  }
+  _XMM7 = _mm128_add_ps(_mm128_mul_ps(_mm_sqrt_ps(_XMM0), _XMM4), _XMM3);
+  _XMM6 = g_one.v;
+  __asm
+  {
     vcmpltps xmm0, xmm6, xmm10
     vmovmskps eax, xmm0
   }
@@ -908,26 +746,10 @@ void XAnimEvaluateFractionalDistance(const XAnimDistanceDrivenOffsetConstraint *
   }
   if ( _RBX->curveType == XANIM_CURVE_TYPE_SMOOTHSTEP )
   {
-    __asm
-    {
-      vmovups xmm1, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-      vsubps  xmm0, xmm1, xmm3
-      vaddps  xmm0, xmm0, xmm0
-      vaddps  xmm1, xmm0, xmm1
-      vmulps  xmm2, xmm3, xmm3
-      vmulps  xmm3, xmm1, xmm2
-    }
+    v42 = _mm128_sub_ps(g_one.v, _XMM3.v);
+    _XMM3.v = _mm128_mul_ps(_mm128_add_ps(_mm128_add_ps(v42, v42), g_one.v), _mm128_mul_ps(_XMM3.v, _XMM3.v));
   }
-  __asm { vmovups xmmword ptr [rdi], xmm3 }
-  _R11 = &v95;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  *outFractionalDistance = (float4)_XMM3.v;
 }
 
 /*
@@ -937,138 +759,106 @@ XAnimEvaluatePositionConstraint
 */
 void XAnimEvaluatePositionConstraint(const XAnimPositionConstraint *constraint, const unsigned __int16 *sourceBoneIndices, XAnimProcNodeCalcParams *params, const DObjPartBits *partBits, const XAnimConstraintTargetBone *targetBoneInfo)
 {
-  int v14; 
+  float v5; 
+  int v6; 
   XAnimCalcBuffer *destBuffer; 
   const DObj *obj; 
+  __m128 v; 
+  float v14; 
+  __m128 v18; 
+  float v19; 
+  __m128 v23; 
+  float v26; 
+  __m128 v28; 
   XAnimCalcAnimInfo *animCalcInfo; 
+  __m128 v32; 
+  __m128 v33; 
+  __m128 v34; 
+  __m128 v35; 
+  __m128 v36; 
+  __m128 v37; 
+  __m128 v38; 
+  __m128 v39; 
+  __m128 v40; 
+  __m128 v41; 
+  __m128 v42; 
+  __m128 v43; 
   float4 outModelTranslation_8; 
-  float4 v90; 
-  float4 v91; 
+  float4 v46; 
+  float4 v47; 
   float4 outModelQuat; 
   float4 outModelTranslation; 
-  float4 v94; 
-  float4 v95; 
-  __int64 v96; 
-  char v97; 
-  void *retaddr; 
+  float4 v50; 
+  float4 v51; 
 
-  _RAX = &retaddr;
-  _RBP = &v96;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovss  xmm0, dword ptr [rcx+28h]
-  }
-  v14 = *sourceBoneIndices;
+  v5 = constraint->sourceBoneOffsets[0].v[0];
+  v6 = *sourceBoneIndices;
   destBuffer = params->destBuffer;
   outModelQuat.v.m128_i32[3] = 0;
   _RDI = constraint;
-  __asm { vmovups xmm8, xmmword ptr [rsp+130h+var_D8.v+8] }
   obj = params->obj;
+  v = outModelQuat.v;
+  v.m128_f32[0] = v5;
+  _XMM8 = v;
+  v14 = constraint->sourceBoneOffsets[1].v[0];
   __asm
   {
-    vmovss  xmm8, xmm8, xmm0
-    vmovss  xmm0, dword ptr [rcx+34h]
     vinsertps xmm8, xmm8, dword ptr [rcx+2Ch], 10h
     vinsertps xmm8, xmm8, dword ptr [rcx+30h], 20h ; ' '
-    vmovups xmmword ptr [rsp+130h+var_D8.v+8], xmm8
   }
+  outModelQuat.v = _XMM8;
   outModelQuat.v.m128_i32[3] = 0;
+  v18 = outModelQuat.v;
+  v18.m128_f32[0] = v14;
+  _XMM10 = v18;
+  v19 = constraint->offset.v[0];
   __asm
   {
-    vmovups xmm10, xmmword ptr [rsp+130h+var_D8.v+8]
-    vmovss  xmm10, xmm10, xmm0
-    vmovss  xmm0, dword ptr [rcx+1Ch]
     vinsertps xmm10, xmm10, dword ptr [rcx+38h], 10h
     vinsertps xmm10, xmm10, dword ptr [rcx+3Ch], 20h ; ' '
-    vmovups xmmword ptr [rsp+130h+var_D8.v+8], xmm10
   }
+  outModelQuat.v = _XMM10;
   outModelQuat.v.m128_i32[3] = 0;
+  v23 = outModelQuat.v;
+  v23.m128_f32[0] = v19;
+  _XMM11 = v23;
   __asm
   {
-    vmovups xmm11, xmmword ptr [rsp+130h+var_D8.v+8]
-    vmovss  xmm11, xmm11, xmm0
     vinsertps xmm11, xmm11, dword ptr [rcx+20h], 10h
     vinsertps xmm11, xmm11, dword ptr [rcx+24h], 20h ; ' '
-    vmovss  xmm0, dword ptr [rcx+40h]
-    vmovups xmmword ptr [rsp+130h+var_D8.v+8], xmm11
   }
+  v26 = constraint->axisMask.v[0];
+  outModelQuat.v = _XMM11;
   outModelQuat.v.m128_i32[3] = 0;
+  v28 = outModelQuat.v;
+  v28.m128_f32[0] = v26;
+  _XMM9 = v28;
   __asm
   {
-    vmovups xmm9, xmmword ptr [rsp+130h+var_D8.v+8]
-    vmovss  xmm9, xmm9, xmm0
     vinsertps xmm9, xmm9, dword ptr [rcx+44h], 10h
     vinsertps xmm9, xmm9, dword ptr [rcx+48h], 20h ; ' '
   }
   animCalcInfo = params->animCalcInfo;
-  __asm { vmovups xmmword ptr [rsp+130h+var_D8.v+8], xmm9 }
-  XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, v14, &outModelQuat, &outModelTranslation);
-  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, sourceBoneIndices[1], &v94, &v95);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+130h+var_D8.v+8]
-    vshufps xmm7, xmm0, xmm0, 0D2h ; 'Ò'
-    vshufps xmm6, xmm0, xmm0, 0C9h ; 'É'
-    vshufps xmm5, xmm0, xmm0, 0FFh
-    vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm7
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm8
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vmulps  xmm2, xmm0, xmm7
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vsubps  xmm1, xmm3, xmm2
-    vaddps  xmm4, xmm1, xmm5
-    vmovups xmm1, xmmword ptr [rbp+30h+var_B0.v]
-    vaddps  xmm8, xmm4, xmmword ptr [rsp+130h+var_C8+8]
-    vshufps xmm5, xmm1, xmm1, 0FFh
-    vshufps xmm7, xmm1, xmm1, 0D2h ; 'Ò'
-    vshufps xmm6, xmm1, xmm1, 0C9h ; 'É'
-    vshufps xmm0, xmm10, xmm10, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm0, xmm6
-    vshufps xmm1, xmm10, xmm10, 0C9h ; 'É'
-    vmulps  xmm2, xmm1, xmm7
-    vsubps  xmm0, xmm3, xmm2
-    vaddps  xmm4, xmm0, xmm0
-    vmulps  xmm0, xmm5, xmm4
-    vaddps  xmm5, xmm0, xmm10
-    vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-    vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm6
-    vmulps  xmm2, xmm0, xmm7
-    vsubps  xmm1, xmm3, xmm2
-    vbroadcastss xmm2, dword ptr [rdi]
-    vaddps  xmm4, xmm1, xmm5
-    vaddps  xmm1, xmm4, xmmword ptr [rbp+30h+var_A0.v]
-    vsubps  xmm3, xmm1, xmm8
-    vmulps  xmm0, xmm3, xmm2
-    vaddps  xmm1, xmm0, xmm8
-    vmovups xmmword ptr [rsp+130h+outModelTranslation+8], xmm1
-    vmovdqa [rsp+130h+var_F8+8], xmm11
-    vmovdqa [rsp+130h+var_E8+8], xmm9
-  }
-  XAnimSetModelBoneTranslationWithAxisMaskAndOffset(params, targetBoneInfo, &v91, &v90, &outModelTranslation_8);
-  _R11 = &v97;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  outModelQuat.v = _XMM9;
+  XAnimGetLocalBoneTransform(animCalcInfo, obj, destBuffer, v6, &outModelQuat, &outModelTranslation);
+  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, sourceBoneIndices[1], &v50, &v51);
+  v32 = outModelQuat.v;
+  v33 = _mm_shuffle_ps(v32, v32, 210);
+  v34 = _mm_shuffle_ps(v32, v32, 201);
+  v35 = _mm_shuffle_ps(v32, v32, 255);
+  v36 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 210), v34), _mm128_mul_ps(_mm_shuffle_ps(_XMM8, _XMM8, 201), v33));
+  v37 = _mm128_add_ps(v36, v36);
+  v38 = v50.v;
+  v39 = _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v37, v37, 210), v34), _mm128_mul_ps(_mm_shuffle_ps(v37, v37, 201), v33)), _mm128_add_ps(_mm128_mul_ps(v35, v37), _XMM8)), outModelTranslation.v);
+  v40 = _mm_shuffle_ps(v38, v38, 210);
+  v41 = _mm_shuffle_ps(v38, v38, 201);
+  v42 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM10, _XMM10, 210), v41), _mm128_mul_ps(_mm_shuffle_ps(_XMM10, _XMM10, 201), v40));
+  v43 = _mm128_add_ps(v42, v42);
+  __asm { vbroadcastss xmm2, dword ptr [rdi] }
+  outModelTranslation_8.v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v43, v43, 210), v41), _mm128_mul_ps(_mm_shuffle_ps(v43, v43, 201), v40)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v38, v38, 255), v43), _XMM10)), v51.v), v39), _XMM2), v39);
+  v46.v = _XMM11;
+  v47.v = _XMM9;
+  XAnimSetModelBoneTranslationWithAxisMaskAndOffset(params, targetBoneInfo, &v47, &v46, &outModelTranslation_8);
 }
 
 /*
@@ -1128,87 +918,64 @@ XAnimEvaluateRotationConstraint
 */
 void XAnimEvaluateRotationConstraint(const XAnimRotationConstraint *constraint, const unsigned __int16 *sourceBoneIndices, XAnimProcNodeCalcParams *params, const DObjPartBits *partBits, const XAnimConstraintTargetBone *const targetBoneInfo)
 {
-  float4 v61; 
-  float4 v62; 
-  float4 v63; 
+  vec4_t rotationOffsetQuat; 
+  const XAnimRotationConstraint *v9; 
+  __m128 v13; 
+  __m128 v17; 
+  __m128 v18; 
+  __m128 v23; 
+  __m128 v; 
+  float4 v30; 
+  float4 v31; 
+  float4 v32; 
   float4 outModelQuat; 
   float4 outModelTranslation; 
-  float4 v66; 
-  char v67; 
-  void *retaddr; 
+  float4 v35; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vbroadcastss xmm6, dword ptr [rcx+1Ch]
-    vmovups xmm8, xmmword ptr [rcx]
-  }
-  _RDI = constraint;
+  __asm { vbroadcastss xmm6, dword ptr [rcx+1Ch] }
+  rotationOffsetQuat = constraint->rotationOffsetQuat;
+  v9 = constraint;
   XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, *sourceBoneIndices, &outModelQuat, &outModelTranslation);
-  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, sourceBoneIndices[1], &v63, &v66);
+  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, sourceBoneIndices[1], &v32, &v35);
+  _XMM0 = _mm128_mul_ps(v32.v, outModelQuat.v);
   __asm
   {
-    vmovups xmm5, xmmword ptr [rsp+0E8h+var_98.v]
-    vmulps  xmm0, xmm5, xmmword ptr [rsp+0E8h+var_88.v]
     vhaddps xmm1, xmm0, xmm0
     vhaddps xmm0, xmm1, xmm1
-    vandps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-    vorps   xmm3, xmm2, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovups xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vsubps  xmm1, xmm0, xmm6
-    vmulps  xmm2, xmm1, xmmword ptr [rsp+0E8h+var_88.v]
-    vmulps  xmm0, xmm6, xmm3
-    vmulps  xmm0, xmm0, xmm5
-    vaddps  xmm3, xmm0, xmm2
-    vmulps  xmm1, xmm3, xmm3
+  }
+  v13 = _mm128_add_ps(_mm128_mul_ps(_mm128_mul_ps(_XMM6, (__m128)(_XMM0 & *(_OWORD *)&g_negativeZero.v | _xmm)), v32.v), _mm128_mul_ps(_mm128_sub_ps(g_one.v, _XMM6), outModelQuat.v));
+  _XMM1 = _mm128_mul_ps(v13, v13);
+  __asm
+  {
     vhaddps xmm0, xmm1, xmm1
     vhaddps xmm0, xmm0, xmm0
-    vsqrtps xmm1, xmm0
-    vdivps  xmm4, xmm3, xmm1
-    vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-    vshufps xmm2, xmm4, xmm4, 0D2h ; 'Ò'
-    vshufps xmm6, xmm4, xmm4, 0FFh
-    vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-    vmulps  xmm3, xmm1, xmm0
-    vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-    vmulps  xmm0, xmm2, xmm1
-    vsubps  xmm5, xmm3, xmm0
-    vmulps  xmm1, xmm8, xmm4
+  }
+  v17 = _mm128_div_ps(v13, _mm_sqrt_ps(_XMM0));
+  v18 = _mm_shuffle_ps(v17, v17, 255);
+  _XMM1 = _mm128_mul_ps((__m128)rotationOffsetQuat, v17);
+  __asm
+  {
     vinsertps xmm0, xmm1, xmm1, 8
     vhaddps xmm2, xmm0, xmm0
     vhaddps xmm3, xmm2, xmm2
-    vshufps xmm7, xmm8, xmm8, 0FFh
-    vmulps  xmm4, xmm7, xmm4
-    vmulps  xmm0, xmm7, xmm6
-    vsubps  xmm2, xmm0, xmm3
-    vmulps  xmm1, xmm8, xmm6
-    vaddps  xmm1, xmm4, xmm1
-    vaddps  xmm0, xmm5, xmm1
-    vblendps xmm4, xmm2, xmm0, 7
-    vmovss  xmm0, dword ptr [rdi+10h]
   }
-  v62.v.m128_i32[3] = 0;
+  v23 = _mm_shuffle_ps((__m128)rotationOffsetQuat, (__m128)rotationOffsetQuat, 255);
+  _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v23, v18), _XMM3);
+  _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v17, v17, 201), _mm_shuffle_ps((__m128)rotationOffsetQuat, (__m128)rotationOffsetQuat, 210)), _mm128_mul_ps(_mm_shuffle_ps(v17, v17, 210), _mm_shuffle_ps((__m128)rotationOffsetQuat, (__m128)rotationOffsetQuat, 201))), _mm128_add_ps(_mm128_mul_ps(v23, v17), _mm128_mul_ps((__m128)rotationOffsetQuat, v18)));
+  __asm { vblendps xmm4, xmm2, xmm0, 7 }
+  *(float *)&_XMM0 = v9->axisMask.v[0];
+  v31.v.m128_i32[3] = 0;
+  v = v31.v;
+  v.m128_f32[0] = *(float *)&_XMM0;
+  _XMM3 = v;
   __asm
   {
-    vmovups xmm3, [rsp+0E8h+var_A8]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rdi+14h], 10h
     vinsertps xmm3, xmm3, dword ptr [rdi+18h], 20h ; ' '
-    vmovups [rsp+0E8h+var_A8], xmm3
-    vmovdqa [rsp+0E8h+var_A8], xmm4
-    vmovdqa [rsp+0E8h+var_B8], xmm3
   }
-  XAnimSetModelBoneRotationWithAxisMask(params, targetBoneInfo, &v61, &v62);
-  _R11 = &v67;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  v31.v = _XMM4;
+  v30.v = _XMM3;
+  XAnimSetModelBoneRotationWithAxisMask(params, targetBoneInfo, &v30, &v31);
 }
 
 /*
@@ -1440,147 +1207,108 @@ XAnimSetModelBoneRotationWithAxisMask
 void XAnimSetModelBoneRotationWithAxisMask(XAnimProcNodeCalcParams *params, const XAnimProceduralBone *targetBoneInfo, const float4 *axisMask, const float4 *modelQuat)
 {
   unsigned __int16 parentBoneIndex; 
+  __m128 v; 
+  __m128 v12; 
+  __m128 v13; 
+  __m128 v14; 
+  __m128 v15; 
+  __m128 v16; 
+  __m128 v18; 
+  __m128 v19; 
+  __m128 v24; 
+  __m128 v26; 
+  __m128 v42; 
+  __m128 v43; 
   float4 *outModelQuat; 
   float4 *outModelTranslation; 
-  float v107; 
-  float4 v108; 
-  float4 v109; 
-  float4 v110; 
-  float4 v111; 
+  float4 v52; 
+  float4 v53; 
+  float4 v54; 
+  float4 v55; 
 
-  __asm { vmovaps [rsp+148h+var_B8], xmm15 }
-  _RBP = modelQuat;
-  _RBX = params;
-  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, targetBoneInfo->boneIndex, &v109, &v110);
+  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, targetBoneInfo->boneIndex, &v53, &v54);
+  _XMM15 = 0i64;
   __asm
   {
-    vmovups xmm2, xmmword ptr [rbp+0]
-    vxorps  xmm15, xmm15, xmm15
     vcmpltps xmm0, xmm15, xmmword ptr [rsi]
     vmovmskps eax, xmm0
   }
   if ( (_EAX & 0xF) != 0 )
   {
     parentBoneIndex = targetBoneInfo->parentBoneIndex;
-    __asm
-    {
-      vmovaps [rsp+148h+var_28], xmm6
-      vmovaps [rsp+148h+var_38], xmm7
-      vmovaps [rsp+148h+var_48], xmm8
-      vmovaps [rsp+148h+var_58], xmm9
-      vmovaps [rsp+148h+var_68], xmm10
-      vmovaps [rsp+148h+var_78], xmm11
-      vmovaps [rsp+148h+var_88], xmm12
-      vmovaps [rsp+148h+var_98], xmm13
-      vmovaps [rsp+148h+var_A8], xmm14
-      vmovdqa xmm14, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-    }
     if ( parentBoneIndex == 255 )
     {
-      __asm { vmovdqa xmm13, xmm14 }
+      v = g_unit.v;
     }
     else
     {
-      if ( parentBoneIndex >= _RBX->obj->numBones )
+      if ( parentBoneIndex >= params->obj->numBones )
       {
         LODWORD(outModelTranslation) = parentBoneIndex;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 135, ASSERT_TYPE_ASSERT, "(unsigned)( targetBoneInfo->parentBoneIndex ) < (unsigned)( params->obj->numBones )", "targetBoneInfo->parentBoneIndex doesn't index params->obj->numBones\n\t%i not in [0, %i)", outModelTranslation, _RBX->obj->numBones) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\proceduralbones\\proceduralbones_calc.cpp", 135, ASSERT_TYPE_ASSERT, "(unsigned)( targetBoneInfo->parentBoneIndex ) < (unsigned)( params->obj->numBones )", "targetBoneInfo->parentBoneIndex doesn't index params->obj->numBones\n\t%i not in [0, %i)", outModelTranslation, params->obj->numBones) )
           __debugbreak();
       }
-      XAnimGetLocalBoneTransform(_RBX->animCalcInfo, _RBX->obj, _RBX->destBuffer, targetBoneInfo->parentBoneIndex, &v108, &v111);
-      __asm { vmovups xmm13, xmmword ptr [rsp+148h+var_108.v] }
+      XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, targetBoneInfo->parentBoneIndex, &v52, &v55);
+      v = v52.v;
     }
+    v12 = _mm128_mul_ps(v, (__m128)_xmm);
+    v13 = v53.v;
+    v14 = _mm_shuffle_ps(v13, v13, 255);
+    v15 = _mm_shuffle_ps(v12, v12, 255);
+    v16 = _mm_shuffle_ps(v12, v12, 201);
+    _XMM0 = _mm128_mul_ps(v53.v, v12);
+    v18 = _mm_shuffle_ps(v12, v12, 210);
+    v19 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v13, v13, 210), v16), _mm128_mul_ps(_mm_shuffle_ps(v13, v13, 201), v18));
     __asm
     {
-      vmulps  xmm12, xmm13, cs:__xmm@3f800000bf800000bf800000bf800000
-      vmovups xmm6, xmmword ptr [rsp+148h+var_F8.v]
-      vshufps xmm7, xmm6, xmm6, 0FFh
-      vshufps xmm11, xmm12, xmm12, 0FFh
-      vmulps  xmm4, xmm12, xmm7
-      vshufps xmm0, xmm6, xmm6, 0D2h ; 'Ò'
-      vshufps xmm1, xmm6, xmm6, 0C9h ; 'É'
-      vshufps xmm8, xmm12, xmm12, 0C9h ; 'É'
-      vmulps  xmm3, xmm0, xmm8
-      vmulps  xmm0, xmm6, xmm12
-      vshufps xmm9, xmm12, xmm12, 0D2h ; 'Ò'
-      vmulps  xmm2, xmm1, xmm9
-      vsubps  xmm5, xmm3, xmm2
       vinsertps xmm1, xmm0, xmm0, 8
       vhaddps xmm2, xmm1, xmm1
       vhaddps xmm3, xmm2, xmm2
-      vmulps  xmm0, xmm7, xmm11
-      vsubps  xmm2, xmm0, xmm3
-      vmulps  xmm1, xmm6, xmm11
-      vmovups xmm6, xmmword ptr [rbp+0]
-      vaddps  xmm1, xmm4, xmm1
-      vaddps  xmm0, xmm5, xmm1
-      vblendps xmm10, xmm2, xmm0, 7
-      vshufps xmm7, xmm6, xmm6, 0FFh
-      vmulps  xmm4, xmm12, xmm7
-      vshufps xmm0, xmm6, xmm6, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm0, xmm8
-      vmulps  xmm0, xmm12, xmm6
-      vmovaps xmm12, [rsp+148h+var_88]
-      vshufps xmm1, xmm6, xmm6, 0C9h ; 'É'
-      vmulps  xmm2, xmm1, xmm9
-      vmovaps xmm9, [rsp+148h+var_58]
+    }
+    _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v14, v15), _XMM3);
+    v24 = modelQuat->v;
+    _mm128_add_ps(v19, _mm128_add_ps(_mm128_mul_ps(v12, v14), _mm128_mul_ps(v53.v, v15)));
+    __asm { vblendps xmm10, xmm2, xmm0, 7 }
+    v26 = _mm_shuffle_ps(v24, v24, 255);
+    _XMM0 = _mm128_mul_ps(v12, modelQuat->v);
+    __asm
+    {
       vinsertps xmm1, xmm0, xmm0, 8
-      vsubps  xmm5, xmm3, xmm2
       vhaddps xmm2, xmm1, xmm1
       vhaddps xmm3, xmm2, xmm2
-      vmulps  xmm0, xmm7, xmm11
-      vsubps  xmm2, xmm0, xmm3
-      vmulps  xmm1, xmm11, xmm6
-      vmovaps xmm11, [rsp+148h+var_78]
-      vaddps  xmm1, xmm4, xmm1
-      vaddps  xmm0, xmm5, xmm1
+    }
+    _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v26, v15), _XMM3);
+    _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v24, v24, 210), v16), _mm128_mul_ps(_mm_shuffle_ps(v24, v24, 201), v18)), _mm128_add_ps(_mm128_mul_ps(v12, v26), _mm128_mul_ps(v15, modelQuat->v)));
+    __asm
+    {
       vblendps xmm3, xmm2, xmm0, 7
       vcmpltps xmm0, xmm15, xmmword ptr [rsi]
       vblendvps xmm2, xmm3, xmm10, xmm0
-      vmovaps xmm10, [rsp+148h+var_68]
-      vmulps  xmm1, xmm2, xmm2
+    }
+    _XMM1 = _mm128_mul_ps(_XMM2, _XMM2);
+    __asm
+    {
       vhaddps xmm0, xmm1, xmm1
       vhaddps xmm0, xmm0, xmm0
-      vsqrtps xmm1, xmm0
-      vcmpeqps xmm0, xmm1, xmm15
-      vdivps  xmm1, xmm2, xmm1
-      vblendvps xmm7, xmm1, xmm14, xmm0
-      vmovaps xmm14, [rsp+148h+var_A8]
-      vshufps xmm8, xmm7, xmm7, 0FFh
-      vshufps xmm6, xmm13, xmm13, 0FFh
-      vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-      vshufps xmm1, xmm13, xmm13, 0C9h ; 'É'
-      vmulps  xmm3, xmm1, xmm0
-      vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-      vshufps xmm2, xmm13, xmm13, 0D2h ; 'Ò'
-      vmulps  xmm0, xmm2, xmm1
-      vmulps  xmm1, xmm13, xmm7
-      vsubps  xmm5, xmm3, xmm0
+    }
+    _XMM1 = _mm_sqrt_ps(_XMM0);
+    __asm { vcmpeqps xmm0, xmm1, xmm15 }
+    _XMM1 = _mm128_div_ps(_XMM2, _XMM1);
+    __asm { vblendvps xmm7, xmm1, xmm14, xmm0 }
+    v42 = _mm_shuffle_ps(_XMM7, _XMM7, 255);
+    v43 = _mm_shuffle_ps(v, v, 255);
+    _XMM1 = _mm128_mul_ps(v, _XMM7);
+    __asm
+    {
       vinsertps xmm0, xmm1, xmm1, 8
       vhaddps xmm2, xmm0, xmm0
-      vmulps  xmm0, xmm8, xmm6
-      vmulps  xmm4, xmm13, xmm8
-      vmovaps xmm13, [rsp+148h+var_98]
-      vmovaps xmm8, [rsp+148h+var_48]
-      vmulps  xmm1, xmm7, xmm6
-      vmovaps xmm7, [rsp+148h+var_38]
-      vmovaps xmm6, [rsp+148h+var_28]
       vhaddps xmm3, xmm2, xmm2
-      vsubps  xmm2, xmm0, xmm3
-      vaddps  xmm1, xmm4, xmm1
-      vaddps  xmm0, xmm5, xmm1
-      vblendps xmm2, xmm2, xmm0, 7
     }
+    _XMM2 = _mm128_sub_ps(_mm128_mul_ps(v42, v43), _XMM3);
+    _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 201), _mm_shuffle_ps(_XMM7, _XMM7, 210)), _mm128_mul_ps(_mm_shuffle_ps(v, v, 210), _mm_shuffle_ps(_XMM7, _XMM7, 201))), _mm128_add_ps(_mm128_mul_ps(v, v42), _mm128_mul_ps(_XMM7, v43)));
+    __asm { vblendps xmm2, xmm2, xmm0, 7 }
   }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+18h]
-    vmovss  [rsp+148h+var_118], xmm1
-    vmovups xmm1, xmmword ptr [rsp+148h+var_E8.v]
-    vmovups xmm0, xmm2
-  }
-  XAnimSetLocalBoneTransform(_RBX->animCalcInfo, _RBX->obj, _RBX->destBuffer, targetBoneInfo->boneIndex, outModelQuat, outModelTranslation, v107);
-  __asm { vmovaps xmm15, [rsp+148h+var_B8] }
+  XAnimSetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, targetBoneInfo->boneIndex, outModelQuat, outModelTranslation, params->weightScale);
 }
 
 /*
@@ -1591,24 +1319,34 @@ XAnimSetModelBoneTranslationWithAxisMaskAndOffset
 void XAnimSetModelBoneTranslationWithAxisMaskAndOffset(XAnimProcNodeCalcParams *params, const XAnimProceduralBone *targetBoneInfo, const float4 *axisMask, const float4 *localOffset, const float4 *modelTrans)
 {
   unsigned __int16 parentBoneIndex; 
+  __m128 v14; 
+  __m128 v; 
+  __m128 v16; 
+  __m128 v17; 
+  __m128 v18; 
+  __m128 v19; 
+  __m128 v20; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v23; 
+  __m128 v24; 
+  __m128 v25; 
+  __m128 v29; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v32; 
   float4 *outModelQuat; 
   float4 *outModelTranslation; 
-  float v93; 
-  float4 v94; 
-  float4 v95; 
-  float4 v96; 
-  float4 v97; 
-  char v105; 
+  float4 v35; 
+  float4 v36; 
+  float4 v37; 
+  float4 v38; 
 
-  __asm { vmovaps [rsp+118h+var_68], xmm10 }
-  _R14 = modelTrans;
-  _RBX = params;
-  __asm { vxorps  xmm10, xmm10, xmm10 }
-  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, targetBoneInfo->boneIndex, &v97, &v96);
+  _XMM10 = 0i64;
+  XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, targetBoneInfo->boneIndex, &v38, &v37);
   __asm
   {
     vcmpltps xmm0, xmm10, xmmword ptr [rbp+0]
-    vmovups xmm1, xmmword ptr [r14]
     vmovmskps eax, xmm0
   }
   if ( (_EAX & 0xF) != 0 )
@@ -1622,107 +1360,37 @@ void XAnimSetModelBoneTranslationWithAxisMaskAndOffset(XAnimProcNodeCalcParams *
   {
 LABEL_3:
     parentBoneIndex = targetBoneInfo->parentBoneIndex;
-    __asm
-    {
-      vmovaps [rsp+118h+var_28], xmm6
-      vmovaps [rsp+118h+var_38], xmm7
-      vmovaps [rsp+118h+var_48], xmm8
-      vmovaps [rsp+118h+var_58], xmm9
-      vmovaps [rsp+118h+var_78], xmm11
-      vmovaps [rsp+118h+var_88], xmm12
-    }
     if ( parentBoneIndex == 255 )
     {
-      __asm
-      {
-        vmovdqa xmm11, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-        vxorps  xmm12, xmm12, xmm12
-      }
+      v = g_unit.v;
+      v14 = 0i64;
     }
     else
     {
-      XAnimGetLocalBoneTransform(_RBX->animCalcInfo, _RBX->obj, _RBX->destBuffer, parentBoneIndex, &v95, &v94);
-      __asm
-      {
-        vmovups xmm12, xmmword ptr [rsp+118h+var_D8.v]
-        vmovups xmm11, xmmword ptr [rsp+118h+var_C8.v]
-      }
+      XAnimGetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, parentBoneIndex, &v36, &v35);
+      v14 = v35.v;
+      v = v36.v;
     }
-    __asm
-    {
-      vmulps  xmm1, xmm11, cs:__xmm@3f800000bf800000bf800000bf800000
-      vmovups xmm0, xmmword ptr [rsp+118h+var_B8.v]
-      vsubps  xmm5, xmm0, xmm12
-      vshufps xmm9, xmm1, xmm1, 0D2h ; 'Ò'
-      vshufps xmm7, xmm1, xmm1, 0C9h ; 'É'
-      vshufps xmm8, xmm1, xmm1, 0FFh
-      vshufps xmm0, xmm5, xmm5, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm0, xmm7
-      vshufps xmm1, xmm5, xmm5, 0C9h ; 'É'
-      vmulps  xmm2, xmm1, xmm9
-      vsubps  xmm0, xmm3, xmm2
-      vaddps  xmm4, xmm0, xmm0
-      vmulps  xmm0, xmm8, xmm4
-      vaddps  xmm5, xmm0, xmm5
-      vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-      vmulps  xmm2, xmm0, xmm9
-      vmovups xmm0, xmmword ptr [r14]
-      vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm1, xmm7
-      vsubps  xmm1, xmm3, xmm2
-      vaddps  xmm6, xmm1, xmm5
-      vsubps  xmm5, xmm0, xmm12
-      vshufps xmm0, xmm5, xmm5, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm0, xmm7
-      vshufps xmm1, xmm5, xmm5, 0C9h ; 'É'
-      vmulps  xmm2, xmm1, xmm9
-      vsubps  xmm0, xmm3, xmm2
-      vaddps  xmm4, xmm0, xmm0
-      vmulps  xmm0, xmm8, xmm4
-      vaddps  xmm5, xmm0, xmm5
-      vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-      vmulps  xmm2, xmm0, xmm9
-      vcmpltps xmm0, xmm10, xmmword ptr [rbp+0]
-      vmovaps xmm9, [rsp+118h+var_58]
-      vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm1, xmm7
-      vsubps  xmm1, xmm3, xmm2
-      vaddps  xmm4, xmm1, xmm5
-      vaddps  xmm1, xmm4, xmmword ptr [rsi]
-      vblendvps xmm7, xmm1, xmm6, xmm0
-      vshufps xmm8, xmm11, xmm11, 0D2h ; 'Ò'
-      vshufps xmm6, xmm11, xmm11, 0C9h ; 'É'
-      vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm0, xmm6
-      vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-      vmulps  xmm2, xmm1, xmm8
-      vsubps  xmm0, xmm3, xmm2
-      vaddps  xmm4, xmm0, xmm0
-      vshufps xmm5, xmm11, xmm11, 0FFh
-      vmovaps xmm11, [rsp+118h+var_78]
-      vmulps  xmm0, xmm5, xmm4
-      vaddps  xmm5, xmm0, xmm7
-      vmovaps xmm7, [rsp+118h+var_38]
-      vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm1, xmm6
-      vmovaps xmm6, [rsp+118h+var_28]
-      vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-      vmulps  xmm2, xmm0, xmm8
-      vmovaps xmm8, [rsp+118h+var_48]
-      vsubps  xmm1, xmm3, xmm2
-      vaddps  xmm3, xmm1, xmm5
-      vaddps  xmm1, xmm12, xmm3
-      vmovaps xmm12, [rsp+118h+var_88]
-    }
+    v16 = _mm128_mul_ps(v, (__m128)_xmm);
+    v17 = _mm128_sub_ps(v37.v, v14);
+    v18 = _mm_shuffle_ps(v16, v16, 210);
+    v19 = _mm_shuffle_ps(v16, v16, 201);
+    v20 = _mm_shuffle_ps(v16, v16, 255);
+    v21 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v17, v17, 210), v19), _mm128_mul_ps(_mm_shuffle_ps(v17, v17, 201), v18));
+    v22 = _mm128_add_ps(v21, v21);
+    _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v22, v22, 210), v19), _mm128_mul_ps(_mm_shuffle_ps(v22, v22, 201), v18)), _mm128_add_ps(_mm128_mul_ps(v20, v22), v17));
+    v23 = _mm128_sub_ps(modelTrans->v, v14);
+    v24 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v23, v23, 210), v19), _mm128_mul_ps(_mm_shuffle_ps(v23, v23, 201), v18));
+    v25 = _mm128_add_ps(v24, v24);
+    __asm { vcmpltps xmm0, xmm10, xmmword ptr [rbp+0] }
+    _XMM1 = _mm128_add_ps(_mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v25, v25, 210), v19), _mm128_mul_ps(_mm_shuffle_ps(v25, v25, 201), v18)), _mm128_add_ps(_mm128_mul_ps(v20, v25), v23)), localOffset->v);
+    __asm { vblendvps xmm7, xmm1, xmm6, xmm0 }
+    v29 = _mm_shuffle_ps(v, v, 210);
+    v30 = _mm_shuffle_ps(v, v, 201);
+    v31 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM7, _XMM7, 210), v30), _mm128_mul_ps(_mm_shuffle_ps(_XMM7, _XMM7, 201), v29));
+    v32 = _mm128_add_ps(v31, v31);
+    _mm128_add_ps(v14, _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v32, v32, 210), v30), _mm128_mul_ps(_mm_shuffle_ps(v32, v32, 201), v29)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 255), v32), _XMM7)));
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+18h]
-    vmovss  [rsp+118h+var_E8], xmm0
-    vmovups xmm0, xmmword ptr [rsp+118h+var_A8.v]
-  }
-  XAnimSetLocalBoneTransform(_RBX->animCalcInfo, _RBX->obj, _RBX->destBuffer, targetBoneInfo->boneIndex, outModelQuat, outModelTranslation, v93);
-  _R11 = &v105;
-  __asm { vmovaps xmm10, xmmword ptr [r11-50h] }
+  XAnimSetLocalBoneTransform(params->animCalcInfo, params->obj, params->destBuffer, targetBoneInfo->boneIndex, outModelQuat, outModelTranslation, params->weightScale);
 }
 

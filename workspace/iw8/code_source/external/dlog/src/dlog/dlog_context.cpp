@@ -667,13 +667,12 @@ bool DLog_BeginEvent(DLogContext *context, const char *name)
   __int64 position; 
   unsigned __int8 v18; 
   __int64 v19; 
-  unsigned __int64 v21; 
+  double v21; 
   __int64 v22; 
-  const DLogEvent *v25; 
-  __int64 v26; 
+  const DLogEvent *v23; 
+  __int64 v24; 
   void (__fastcall *autoFill)(DLogContext *, const DLogEvent *); 
-  const DLogEvent *v28; 
-  unsigned __int64 v29; 
+  const DLogEvent *v26; 
 
   result = DLog_IsActive();
   if ( !result )
@@ -755,38 +754,35 @@ LABEL_8:
     ;
   if ( !DLog_Write(context, name, v19 + 1) )
     return 0;
-  v21 = DLog_EpochTime();
+  v21 = COERCE_DOUBLE(DLog_EpochTime());
   v22 = context->position;
-  v29 = v21;
   if ( context->bufferSize - (int)v22 < 8 )
   {
 LABEL_33:
     DLog_ErrorOutOfMemory(context);
     return 0;
   }
-  __asm { vmovsd  xmm0, [rsp+48h+arg_10] }
-  _RAX = &context->buffer[v22];
-  __asm { vmovsd  qword ptr [rax], xmm0 }
+  *(double *)&context->buffer[v22] = v21;
   context->position += 8;
   DLog_strcpy(context->eventName, 0x40ui64, name);
-  v25 = context->event;
-  if ( v25 && v25->rowCount > 0 )
+  v23 = context->event;
+  if ( v23 && v23->rowCount > 0 )
   {
-    v26 = 0i64;
+    v24 = 0i64;
     do
     {
-      autoFill = v25->rows[v26].autoFill;
-      v28 = v25;
+      autoFill = v23->rows[v24].autoFill;
+      v26 = v23;
       if ( autoFill )
       {
         ((void (__fastcall *)(DLogContext *))autoFill)(context);
-        v28 = context->event;
+        v26 = context->event;
       }
       ++v6;
-      ++v26;
-      v25 = v28;
+      ++v24;
+      v23 = v26;
     }
-    while ( v6 < v28->rowCount );
+    while ( v6 < v26->rowCount );
   }
   return 1;
 }
@@ -1239,14 +1235,11 @@ char DLog_FinalizeContext(DLogContext *context)
 DLog_Float32
 ==============
 */
-
-bool __fastcall DLog_Float32(DLogContext *context, const char *name, double value)
+bool DLog_Float32(DLogContext *context, const char *name, float value)
 {
   __int64 position; 
   bool result; 
-  int v6; 
 
-  __asm { vmovss  [rsp+arg_10], xmm2 }
   if ( context->error || !DLog_WriteColumn(context, name, DLOG_TYPE_FLOAT32) )
     return 0;
   position = context->position;
@@ -1255,7 +1248,7 @@ bool __fastcall DLog_Float32(DLogContext *context, const char *name, double valu
     DLog_ErrorOutOfMemory(context);
     return 0;
   }
-  *(_DWORD *)&context->buffer[position] = v6;
+  *(float *)&context->buffer[position] = value;
   result = 1;
   context->position += 4;
   return result;
@@ -1276,12 +1269,10 @@ bool DLog_Float32Array(DLogContext *context, const char *name, const float *valu
 DLog_Float64
 ==============
 */
-
-char __fastcall DLog_Float64(DLogContext *context, const char *name, double value)
+char DLog_Float64(DLogContext *context, const char *name, long double value)
 {
   __int64 position; 
 
-  __asm { vmovsd  [rsp+arg_10], xmm2 }
   if ( context->error || !DLog_WriteColumn(context, name, DLOG_TYPE_FLOAT64) )
     return 0;
   position = context->position;
@@ -1290,9 +1281,7 @@ char __fastcall DLog_Float64(DLogContext *context, const char *name, double valu
     DLog_ErrorOutOfMemory(context);
     return 0;
   }
-  __asm { vmovsd  xmm0, [rsp+28h+arg_10] }
-  _RAX = &context->buffer[position];
-  __asm { vmovsd  qword ptr [rax], xmm0 }
+  *(long double *)&context->buffer[position] = value;
   context->position += 8;
   return 1;
 }
@@ -1318,92 +1307,65 @@ bool __fastcall DLog_Float(DLogContext *context, const char *name, double value)
   const DLogColumn *Column; 
   bool result; 
   DLogType type; 
-  char v12; 
-  const char *v15; 
-  const char *v16; 
+  const char *v11; 
+  const char *v12; 
   __int64 position; 
-  __int64 v21; 
-  int v27; 
+  __int64 v15; 
 
-  __asm
-  {
-    vmovsd  [rsp+arg_10], xmm2
-    vmovaps [rsp+48h+var_28], xmm6
-    vmovaps xmm6, xmm2
-  }
+  _XMM6 = *(_OWORD *)&value;
   if ( context->error )
-    goto LABEL_4;
+    return 0;
   Column = DLog_FindColumn(context, name);
   if ( !Column )
   {
     DLog_ErrorNotAMember(context, name);
-LABEL_4:
-    result = 0;
-    __asm { vmovaps xmm6, [rsp+48h+var_28] }
-    return result;
+    return 0;
   }
   type = Column->type;
   if ( DLog_IsDLogTypeInt(type) )
   {
-    __asm { vmovaps xmm0, xmm6; X }
-    *(double *)&_XMM0 = rint(*(double *)&_XMM0);
-    __asm { vucomisd xmm0, xmm6 }
-    if ( v12 )
+    *((double *)&_XMM0 + 1) = *(&value + 1);
+    *(double *)&_XMM0 = rint(value);
+    if ( *(double *)&_XMM0 == value )
     {
-      __asm
-      {
-        vcvttsd2si r8, xmm0; value
-        vmovaps xmm6, [rsp+48h+var_28]
-      }
+      __asm { vcvttsd2si r8, xmm0; value }
       return DLog_Int(context, name, _R8);
     }
   }
   if ( (unsigned __int8)(type - 5) > 1u )
   {
-    v15 = DLog_TypeToString(DLOG_TYPE_FLOAT64);
-    v16 = DLog_TypeToString(type);
-    DLog_ErrorTypeMismatch(context, name, v16, v15);
-    result = 0;
-    __asm { vmovaps xmm6, [rsp+48h+var_28] }
-    return result;
+    v11 = DLog_TypeToString(DLOG_TYPE_FLOAT64);
+    v12 = DLog_TypeToString(type);
+    DLog_ErrorTypeMismatch(context, name, v12, v11);
+    return 0;
   }
   if ( !DLog_WriteColumn(context, name, type) )
-    goto LABEL_4;
+    return 0;
   if ( type == DLOG_TYPE_FLOAT32 )
   {
     position = context->position;
-    __asm
-    {
-      vcvtsd2ss xmm0, xmm6, xmm6
-      vmovss  [rsp+48h+arg_0], xmm0
-    }
+    __asm { vcvtsd2ss xmm0, xmm6, xmm6 }
     if ( context->bufferSize - (int)position >= 4 )
     {
-      *(_DWORD *)&context->buffer[position] = v27;
+      *(_DWORD *)&context->buffer[position] = _XMM0;
       result = 1;
       context->position += 4;
-      __asm { vmovaps xmm6, [rsp+48h+var_28] }
       return result;
     }
     goto LABEL_16;
   }
   if ( type == DLOG_TYPE_FLOAT64 )
   {
-    v21 = context->position;
-    if ( context->bufferSize - (int)v21 < 8 )
+    v15 = context->position;
+    if ( context->bufferSize - (int)v15 < 8 )
     {
 LABEL_16:
       DLog_ErrorOutOfMemory(context);
-      result = 0;
-      __asm { vmovaps xmm6, [rsp+48h+var_28] }
-      return result;
+      return 0;
     }
-    __asm { vmovsd  xmm0, [rsp+48h+arg_10] }
-    _RAX = &context->buffer[v21];
-    __asm { vmovsd  qword ptr [rax], xmm0 }
+    *(double *)&context->buffer[v15] = value;
     context->position += 8;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_28] }
   return 1;
 }
 
@@ -1907,9 +1869,7 @@ DLog_Int64
 char DLog_Int64(DLogContext *context, const char *name, __int64 value)
 {
   __int64 position; 
-  __int64 v8; 
 
-  v8 = value;
   if ( context->error || !DLog_WriteColumn(context, name, DLOG_TYPE_INT64) )
     return 0;
   position = context->position;
@@ -1918,9 +1878,7 @@ char DLog_Int64(DLogContext *context, const char *name, __int64 value)
     DLog_ErrorOutOfMemory(context);
     return 0;
   }
-  __asm { vmovsd  xmm0, [rsp+28h+arg_10] }
-  _RAX = &context->buffer[position];
-  __asm { vmovsd  qword ptr [rax], xmm0 }
+  *(double *)&context->buffer[position] = *(double *)&value;
   context->position += 8;
   return 1;
 }
@@ -1985,8 +1943,8 @@ bool DLog_Int(DLogContext *context, const char *name, __int64 value)
   __int64 v12; 
   __int64 position; 
   __int64 v14; 
-  __int64 v17; 
-  __int64 v18; 
+  __int64 v15; 
+  double v16; 
 
   if ( context->error )
     return 0;
@@ -2042,13 +2000,11 @@ LABEL_29:
       return 0;
     case DLOG_TYPE_INT64:
       v14 = context->position;
-      v18 = value;
+      v16 = *(double *)&value;
       if ( context->bufferSize - (int)v14 < 8 )
         goto LABEL_29;
 LABEL_24:
-      __asm { vmovsd  xmm0, [rsp+28h+arg_0] }
-      _RAX = &context->buffer[v14];
-      __asm { vmovsd  qword ptr [rax], xmm0 }
+      *(double *)&context->buffer[v14] = v16;
       context->position += 8;
       return 1;
     case DLOG_TYPE_UINT8:
@@ -2080,15 +2036,15 @@ LABEL_14:
       goto LABEL_29;
     case DLOG_TYPE_UINT64:
       v14 = context->position;
-      v18 = value;
+      v16 = *(double *)&value;
       if ( context->bufferSize - (int)v14 < 8 )
         goto LABEL_29;
       goto LABEL_24;
     case DLOG_TYPE_BOOL:
-      v17 = context->position;
-      if ( context->bufferSize - (int)v17 < 1 )
+      v15 = context->position;
+      if ( context->bufferSize - (int)v15 < 1 )
         goto LABEL_29;
-      context->buffer[v17] = value != 0;
+      context->buffer[v15] = value != 0;
       ++context->position;
       break;
   }
@@ -2343,9 +2299,7 @@ DLog_UInt64
 char DLog_UInt64(DLogContext *context, const char *name, unsigned __int64 value)
 {
   __int64 position; 
-  unsigned __int64 v8; 
 
-  v8 = value;
   if ( context->error || !DLog_WriteColumn(context, name, DLOG_TYPE_UINT64) )
     return 0;
   position = context->position;
@@ -2354,9 +2308,7 @@ char DLog_UInt64(DLogContext *context, const char *name, unsigned __int64 value)
     DLog_ErrorOutOfMemory(context);
     return 0;
   }
-  __asm { vmovsd  xmm0, [rsp+28h+arg_10] }
-  _RAX = &context->buffer[position];
-  __asm { vmovsd  qword ptr [rax], xmm0 }
+  *(double *)&context->buffer[position] = *(double *)&value;
   context->position += 8;
   return 1;
 }

@@ -257,19 +257,21 @@ DObj *CgStaticSP::CreateDObj(CgStaticSP *this, DObjModel *dobjModels, unsigned _
   DObj *v10; 
   centity_t *Entity; 
   LocalClientNum_t m_localClientNum; 
+  CgEntitySystem *EntitySystem; 
+  unsigned int v14; 
+  unsigned int v15; 
   unsigned int v16; 
-  unsigned int v17; 
+  unsigned int *v17; 
   unsigned int v18; 
-  unsigned int *v21; 
-  unsigned int v22; 
-  unsigned int v23; 
-  unsigned int v24; 
-  __int64 v29; 
+  unsigned int v19; 
+  unsigned int v20; 
+  __int64 v21; 
+  __int64 v23; 
   __int64 entnum; 
-  int v31[2]; 
-  int v32; 
-  int v33; 
-  int v34; 
+  int v25[2]; 
+  float v26; 
+  float v27; 
+  float v28; 
 
   v10 = Com_ClientDObjCreate(dobjModels, numModels, tree, handle, this->m_localClientNum, requiresIKPreCache, handle);
   Entity = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, handle);
@@ -277,71 +279,46 @@ DObj *CgStaticSP::CreateDObj(CgStaticSP *this, DObjModel *dobjModels, unsigned _
     CG_Entity_CreatePhysics(this->m_localClientNum, handle, 1);
   if ( CG_Entity_ShouldCreateClothOnInit((const LocalClientNum_t)this->m_localClientNum, Entity->nextState.number) )
     CG_Entity_CreateCloth((const LocalClientNum_t)this->m_localClientNum, Entity->nextState.number);
-  __asm { vmovss  xmm0, cs:__real@48000000 }
   m_localClientNum = this->m_localClientNum;
-  __asm
-  {
-    vmovss  [rsp+0A8h+var_60], xmm0
-    vmovss  [rsp+0A8h+var_5C], xmm0
-    vmovss  [rsp+0A8h+var_58], xmm0
-  }
-  _RBX = CgEntitySystem::GetEntitySystem(m_localClientNum);
+  v26 = FLOAT_131072_0;
+  v27 = FLOAT_131072_0;
+  v28 = FLOAT_131072_0;
+  EntitySystem = CgEntitySystem::GetEntitySystem(m_localClientNum);
   if ( (unsigned int)otherClientNum >= 0x800 )
   {
     LODWORD(entnum) = 2048;
-    LODWORD(v29) = otherClientNum;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 461, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v29, entnum) )
+    LODWORD(v23) = otherClientNum;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 461, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v23, entnum) )
       __debugbreak();
   }
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
     __debugbreak();
-  __asm { vmovss  xmm0, [rsp+0A8h+var_60] }
   if ( otherClientNum > (int)ComCharacterLimits::ms_gameData.m_clientCount )
   {
-    _RCX = 3i64 * otherClientNum + 389124;
-    __asm
-    {
-      vmovss  dword ptr [rbx+rcx*4], xmm0
-      vmovss  xmm1, [rsp+0A8h+var_5C]
-      vmovss  dword ptr [rbx+rcx*4+4], xmm1
-      vmovss  xmm0, [rsp+0A8h+var_58]
-      vmovss  dword ptr [rbx+rcx*4+8], xmm0
-    }
+    v21 = 3i64 * otherClientNum + 389124;
+    *((float *)&EntitySystem->__vftable + v21) = v26;
+    *((float *)&EntitySystem->__vftable + v21 + 1) = v27;
+    *((float *)&EntitySystem->m_localClientNum + v21) = v28;
   }
   else
   {
-    v16 = s_entity_aab_X;
-    v17 = s_entity_aab_Z;
-    __asm { vmovss  [rsp+0A8h+var_68], xmm0 }
-    v18 = s_entity_aab_Y;
-    if ( (v31[0] & 0x7F800000) == 2139095040 )
-      goto LABEL_22;
-    __asm
+    v14 = s_entity_aab_X;
+    v15 = s_entity_aab_Z;
+    *(float *)v25 = v26;
+    v16 = s_entity_aab_Y;
+    if ( (LODWORD(v26) & 0x7F800000) == 2139095040 || (*(float *)v25 = v27, (LODWORD(v27) & 0x7F800000) == 2139095040) || (*(float *)v25 = v28, (LODWORD(v28) & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm0, [rsp+0A8h+var_5C]
-      vmovss  [rsp+0A8h+var_68], xmm0
-    }
-    if ( (v31[0] & 0x7F800000) == 2139095040 )
-      goto LABEL_22;
-    __asm
-    {
-      vmovss  xmm0, [rsp+0A8h+var_58]
-      vmovss  [rsp+0A8h+var_68], xmm0
-    }
-    if ( (v31[0] & 0x7F800000) == 2139095040 )
-    {
-LABEL_22:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 398, ASSERT_TYPE_SANITY, "( !IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( from )[0] ) && !IS_NAN( ( from )[1] ) && !IS_NAN( ( from )[2] )") )
         __debugbreak();
     }
-    v21 = (unsigned int *)&_RBX->m_entityOrigin[otherClientNum];
-    v22 = v32 ^ (unsigned int)v21 ^ ~v16;
-    v23 = v34 ^ (unsigned int)v21;
-    v24 = v18 ^ v22 ^ v33 ^ (unsigned int)v21;
-    *v21 = v22;
-    v21[1] = v24;
-    v21[2] = v17 ^ v24 ^ v23;
-    memset(v31, 0, sizeof(v31));
+    v17 = (unsigned int *)&EntitySystem->m_entityOrigin[otherClientNum];
+    v18 = LODWORD(v26) ^ (unsigned int)v17 ^ ~v14;
+    v19 = LODWORD(v28) ^ (unsigned int)v17;
+    v20 = v16 ^ v18 ^ LODWORD(v27) ^ (unsigned int)v17;
+    *v17 = v18;
+    v17[1] = v20;
+    v17[2] = v15 ^ v20 ^ v19;
+    memset(v25, 0, sizeof(v25));
   }
   DObjSetCamoMaterialOverride(v10, dobjModels, numModels);
   return v10;

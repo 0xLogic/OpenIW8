@@ -677,64 +677,60 @@ NetRelay::GetRetailDebug
 */
 void NetRelay::GetRetailDebug(NetRelay *this, char *destString, const int maxLength)
 {
-  unsigned __int64 v5; 
-  int v7; 
+  unsigned __int64 v4; 
+  int v6; 
   bdSocketRouter *SocketRouter; 
+  double v8; 
   char *m_datacenter; 
-  __int64 v12; 
+  __int64 v10; 
   bdCommonAddr *m_ptr; 
   bdAddr *RelayAddr; 
   unsigned __int64 RelayID; 
-  const char *v16; 
-  int v17; 
-  int v18; 
+  const char *v14; 
+  int v15; 
+  int v16; 
   char dest[8]; 
+  __int64 v18; 
+  __int64 v19; 
   __int64 v20; 
   __int64 v21; 
   __int64 v22; 
   __int64 v23; 
   __int64 v24; 
-  __int64 v25; 
-  __int64 v26; 
   char str[24]; 
 
-  v5 = maxLength;
+  v4 = maxLength;
   if ( !net_relay_enabled->current.enabled || this->m_config->relayDisabled )
   {
     I_strcat_truncate(destString, maxLength, "UDP Relay Disabled\n");
   }
   else if ( NET_IsLocalAddressResolved() )
   {
-    v7 = (this->m_authTokenExpiry - Sys_Milliseconds() / 1000) / 60;
+    v6 = (this->m_authTokenExpiry - Sys_Milliseconds() / 1000) / 60;
     SocketRouter = dwGetSocketRouter();
-    *(double *)&_XMM0 = ((double (__fastcall *)(bdSocketRouter *))SocketRouter->getRelayPing)(SocketRouter);
+    v8 = ((double (__fastcall *)(bdSocketRouter *))SocketRouter->getRelayPing)(SocketRouter);
     m_datacenter = this->m_datacenter;
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@447a0000
-      vcvttss2si r14d, xmm1
-    }
     *(_QWORD *)dest = 0i64;
-    v12 = -1i64;
+    v10 = -1i64;
+    v18 = 0i64;
+    v19 = 0i64;
     v20 = 0i64;
     v21 = 0i64;
     v22 = 0i64;
     v23 = 0i64;
     v24 = 0i64;
-    v25 = 0i64;
-    v26 = 0i64;
     do
-      ++v12;
-    while ( m_datacenter[v12] );
-    bdBase64::decode(m_datacenter, v12, dest, 0x40u);
+      ++v10;
+    while ( m_datacenter[v10] );
+    bdBase64::decode(m_datacenter, v10, dest, 0x40u);
     m_ptr = NET_GetLocalCommonAddr()->m_ptr;
     RelayAddr = (bdAddr *)bdRelayJoinData::getRelayAddr(&m_ptr->m_joinData);
     bdAddr::toString(RelayAddr, str, 0x16ui64);
     RelayID = bdRelayJoinData::getRelayID(&m_ptr->m_joinData);
-    v18 = _ER14;
-    v17 = v7;
-    v16 = j_va("\nUDP Relay: %s, id: %zu, %s, %imin, %ims", str, RelayID, dest, v17, v18);
-    I_strcat_truncate(destString, v5, v16);
+    v16 = (int)(float)(*(float *)&v8 * 1000.0);
+    v15 = v6;
+    v14 = j_va("\nUDP Relay: %s, id: %zu, %s, %imin, %ims", str, RelayID, dest, v15, v16);
+    I_strcat_truncate(destString, v4, v14);
   }
 }
 

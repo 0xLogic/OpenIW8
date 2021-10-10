@@ -937,11 +937,8 @@ void Online_Telemetry_SetMissionEndData(const int controllerIndex, const char *m
   outLocalClientNum = LOCAL_CLIENT_INVALID;
   if ( telemetry_active->current.integer && telemetry_levelEnd->current.enabled && !Live_IsOfflineTool() && Live_IsUserSignedInToDemonware(controllerIndex) && CL_Mgr_IsControllerActive(controllerIndex) && CL_Mgr_IsControllerMappedToClient(controllerIndex, &outLocalClientNum) && CL_IsLocalClientActive(outLocalClientNum) )
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu xmmword ptr [rsp+1228h+state.member], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    *(_OWORD *)&state.member = _XMM0;
     state.isValid = 0;
     state.offset = 0;
     state.arrayIndex = -1;

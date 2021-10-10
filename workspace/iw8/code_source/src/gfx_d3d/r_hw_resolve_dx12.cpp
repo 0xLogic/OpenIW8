@@ -165,27 +165,21 @@ R_HW_DecompressDepthSurface
 void R_HW_DecompressDepthSurface(GfxCmdBufContext *context, R_RT_DepthHandle *depthRt, bool flushCaches)
 {
   const R_RT_Surface *Surface; 
+  R_RT_DepthHandle v7; 
+  GfxCmdBufContext v8; 
   GfxViewport v9; 
   GfxCmdBufContext v10; 
-  R_RT_DepthHandle v11; 
+  __m256i v11; 
 
-  _RDI = context;
   *(_QWORD *)&v9.x = 0i64;
-  _RBX = depthRt;
   v9.width = R_RT_Handle::GetSurface(depthRt)->m_image.m_base.width;
-  Surface = R_RT_Handle::GetSurface(_RBX);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups xmm1, xmmword ptr [rdi]
-  }
+  Surface = R_RT_Handle::GetSurface(depthRt);
+  v7 = *depthRt;
+  v8 = *context;
   v9.height = Surface->m_image.m_base.height;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+68h+var_28.baseclass_0.m_surfaceID], ymm0
-    vmovups [rsp+68h+var_38], xmm1
-  }
-  R_HW_DecompressDepthSurface(&v10, &v11, &v9, flushCaches);
+  v11 = (__m256i)v7;
+  v10 = v8;
+  R_HW_DecompressDepthSurface(&v10, (R_RT_DepthHandle *)&v11, &v9, flushCaches);
 }
 
 /*
@@ -235,34 +229,34 @@ R_HW_Resolve
 */
 void R_HW_Resolve(GfxCmdBufContext *context, const GfxImage *image)
 {
+  GfxCmdBufState *state; 
   const GfxDevice *device; 
   GfxTextureId textureId; 
   const GfxTexture *Resident; 
   const R_RT_Surface *Surface; 
-  const GfxTexture *v9; 
-  R_RT_Handle v10; 
+  const GfxTexture *v8; 
+  R_RT_Handle v9; 
 
-  _RBX = context->state;
-  device = _RBX->device;
+  state = context->state;
+  device = state->device;
   if ( !R_IsLockedIfGfxImmediateContext(device) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 29, ASSERT_TYPE_ASSERT, "(R_IsLockedIfGfxImmediateContext( device ))", (const char *)&queryFormat, "R_IsLockedIfGfxImmediateContext( device )") )
     __debugbreak();
-  if ( _RBX->rtGroup.m_colorRtCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
+  if ( state->rtGroup.m_colorRtCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rbx+0A30h] }
   textureId = image->textureId;
-  __asm { vmovups ymmword ptr [rsp+58h+var_28.m_surfaceID], ymm0 }
+  v9 = (R_RT_Handle)state->rtGroup.m_colorRts[0];
   Resident = R_Texture_GetResident(textureId);
-  Surface = R_RT_Handle::GetSurface(&v10);
-  v9 = R_Texture_GetResident(Surface->m_image.m_base.textureId);
-  if ( Resident != v9 )
+  Surface = R_RT_Handle::GetSurface(&v9);
+  v8 = R_Texture_GetResident(Surface->m_image.m_base.textureId);
+  if ( Resident != v8 )
   {
-    R_HW_AddResourceTransition(_RBX, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_HW_AddResourceTransition(_RBX, v9, 0xFFFFFFFF, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(_RBX);
-    ((void (__fastcall *)(const GfxDevice *, ID3D12Resource *, ID3D12Resource *, _QWORD))device->m_pFunction[28].QueryInterface)(device, Resident->basemap, v9->basemap, 0i64);
-    R_HW_AddResourceTransition(_RBX, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_HW_AddResourceTransition(_RBX, v9, 0xFFFFFFFF, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(_RBX);
+    R_HW_AddResourceTransition(state, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_HW_AddResourceTransition(state, v8, 0xFFFFFFFF, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(state);
+    ((void (__fastcall *)(const GfxDevice *, ID3D12Resource *, ID3D12Resource *, _QWORD))device->m_pFunction[28].QueryInterface)(device, Resident->basemap, v8->basemap, 0i64);
+    R_HW_AddResourceTransition(state, Resident, 0xFFFFFFFF, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_HW_AddResourceTransition(state, v8, 0xFFFFFFFF, D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(state);
   }
 }
 
@@ -273,40 +267,27 @@ R_HW_ResolveDepth
 */
 void R_HW_ResolveDepth(GfxCmdBufContext *context)
 {
-  GfxCmdBufState *state; 
-  R_RT_Handle v9; 
-  R_RT_DepthHandle v10; 
+  GfxViewport *p_viewport; 
+  R_RT_Handle v5; 
+  R_RT_Handle m_depthRt; 
 
-  _RAX = context->state;
-  _RBX = context;
-  __asm
+  m_depthRt = (R_RT_Handle)context->state->rtGroup.m_depthRt;
+  v5 = m_depthRt;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax+0AB0h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+78h+var_28.baseclass_0.m_surfaceID], ymm0
-    vmovups ymmword ptr [rsp+78h+var_48.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v9);
+    R_RT_Handle::GetSurface(&v5);
   }
   else
   {
     __asm { vpextrd rax, xmm0, 2 }
-    if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v9.m_surfaceID, *(_QWORD *)&v9.m_tracking.m_allocCounter, v9.m_tracking.m_name, v9.m_tracking.m_location) )
+    if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter", *(_QWORD *)&v5.m_surfaceID, *(_QWORD *)&v5.m_tracking.m_allocCounter, v5.m_tracking.m_name, v5.m_tracking.m_location, *(_QWORD *)&m_depthRt.m_surfaceID, *(_QWORD *)&m_depthRt.m_tracking.m_allocCounter, m_depthRt.m_tracking.m_name, m_depthRt.m_tracking.m_location) )
       __debugbreak();
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_hw_resolve_dx12.cpp", 216, ASSERT_TYPE_ASSERT, "(depthRT.IsValid())", (const char *)&queryFormat, "depthRT.IsValid()") )
       __debugbreak();
   }
-  __asm { vmovups ymm0, ymmword ptr [rsp+78h+var_28.baseclass_0.m_surfaceID] }
-  state = _RBX->state;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+78h+var_28.baseclass_0.m_surfaceID], ymm0
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [rsp+78h+var_48.m_surfaceID], xmm0
-  }
-  R_HW_DecompressDepthSurface((GfxCmdBufContext *)&v9, &v10, &state->viewport, 0);
+  p_viewport = &context->state->viewport;
+  *(GfxCmdBufContext *)&v5.m_surfaceID = *context;
+  R_HW_DecompressDepthSurface((GfxCmdBufContext *)&v5, (R_RT_DepthHandle *)&m_depthRt, p_viewport, 0);
 }
 
 /*
@@ -318,24 +299,18 @@ void R_HW_ResolveDepthToState(GfxCmdBufContext *context, D3D12_RESOURCE_STATES f
 {
   GfxCmdBufState *state; 
   const R_RT_Surface *Surface; 
-  CmdBufState *v13; 
+  GfxCmdBufState *v8; 
   unsigned int m_subresourceToTransition; 
-  GfxCmdBufContext v15; 
-  R_RT_Handle v16; 
-  R_RT_DepthHandle v18; 
+  GfxCmdBufContext v10; 
+  R_RT_Handle v11; 
+  R_RT_Handle m_depthRt; 
+  __m256i v13; 
 
-  _RAX = context->state;
-  _RBX = context;
-  __asm
+  m_depthRt = (R_RT_Handle)context->state->rtGroup.m_depthRt;
+  v11 = m_depthRt;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax+0AB0h]
-    vmovd   eax, xmm0
-    vmovups [rsp+0A8h+var_48], ymm0
-    vmovups ymmword ptr [rsp+0A8h+var_68.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v16);
+    R_RT_Handle::GetSurface(&v11);
   }
   else
   {
@@ -347,23 +322,17 @@ void R_HW_ResolveDepthToState(GfxCmdBufContext *context, D3D12_RESOURCE_STATES f
   }
   if ( (finalState & 0x400000) == 0 )
   {
-    __asm { vmovups ymm0, [rsp+0A8h+var_48] }
-    state = _RBX->state;
-    __asm
-    {
-      vmovups ymmword ptr [rsp+0A8h+var_28.baseclass_0.m_surfaceID], ymm0
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rsp+0A8h+var_78], xmm0
-    }
-    R_HW_DecompressDepthSurface(&v15, &v18, &state->viewport, 0);
+    state = context->state;
+    v13 = (__m256i)m_depthRt;
+    v10 = *context;
+    R_HW_DecompressDepthSurface(&v10, (R_RT_DepthHandle *)&v13, &state->viewport, 0);
   }
-  Surface = R_RT_Handle::GetSurface(&v16);
-  __asm { vmovups ymm0, [rsp+0A8h+var_48] }
-  v13 = _RBX->state;
+  Surface = R_RT_Handle::GetSurface(&v11);
+  v8 = context->state;
   m_subresourceToTransition = Surface->m_subresourceToTransition;
-  __asm { vmovups ymmword ptr [rsp+0A8h+var_28.baseclass_0.m_surfaceID], ymm0 }
-  R_HW_AddResourceTransition(v13, &v18, m_subresourceToTransition, D3D12_RESOURCE_STATE_DEPTH_WRITE, (D3D12_RESOURCE_STATES)(finalState | 0xC00000), D3D12_RESOURCE_BARRIER_FLAG_NONE);
-  R_FlushResourceTransitions(v13);
+  v13 = (__m256i)m_depthRt;
+  R_HW_AddResourceTransition(v8, (R_RT_Handle *)&v13, m_subresourceToTransition, D3D12_RESOURCE_STATE_DEPTH_WRITE, (D3D12_RESOURCE_STATES)(finalState | 0xC00000), D3D12_RESOURCE_BARRIER_FLAG_NONE);
+  R_FlushResourceTransitions(v8);
 }
 
 /*
@@ -371,77 +340,66 @@ void R_HW_ResolveDepthToState(GfxCmdBufContext *context, D3D12_RESOURCE_STATES f
 R_HW_ResolveSection
 ==============
 */
-
-void __fastcall R_HW_ResolveSection(GfxCmdBufContext *context, const GfxImage *image, double s0, float t0)
+void R_HW_ResolveSection(GfxCmdBufContext *context, const GfxImage *image, float s0, float t0, float ds, float dt)
 {
+  GfxCmdBufState *state; 
+  float width; 
+  unsigned int v10; 
+  float height; 
+  unsigned int v12; 
   const GfxDevice *device; 
   __int64 *Resident; 
   const R_RT_Surface *Surface; 
-  __int64 *v24; 
-  __int64 v25; 
-  __int64 v26; 
-  __int64 v27; 
-  int v28; 
-  int v29; 
-  __int64 v30; 
-  int v31; 
-  int v32; 
-  R_RT_Handle v33; 
-  int v34[6]; 
-  int v35[14]; 
-  int v36[14]; 
+  __int64 *v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
+  int v20; 
+  int v21; 
+  __int64 v22; 
+  int v23; 
+  int v24; 
+  R_RT_Handle v25; 
+  int v26[6]; 
+  int v27[14]; 
+  int v28[14]; 
 
-  _RBX = context->state;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmulss  xmm0, xmm1, xmm2
-    vcvttss2si r14, xmm0
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, eax
-    vmulss  xmm0, xmm2, xmm3
-    vcvttss2si r15, xmm0
-    vmulss  xmm0, xmm1, [rsp+198h+arg_20]
-    vcvttss2si rax, xmm0
-    vmulss  xmm0, xmm2, [rsp+198h+arg_28]
-  }
-  v34[0] = _R14;
-  v34[3] = _R14 + _RAX;
-  __asm { vcvttss2si rax, xmm0 }
-  v34[1] = _R15;
-  v34[4] = _R15 + _RAX;
-  v34[2] = 0;
-  v34[5] = 1;
-  device = _RBX->device;
+  state = context->state;
+  width = (float)image->width;
+  v10 = (int)(float)(width * s0);
+  height = (float)image->height;
+  v12 = (int)(float)(height * t0);
+  v26[0] = v10;
+  v26[3] = v10 + (int)(float)(width * ds);
+  v26[1] = v12;
+  v26[4] = v12 + (int)(float)(height * dt);
+  v26[2] = 0;
+  v26[5] = 1;
+  device = state->device;
   if ( !R_IsLockedIfGfxImmediateContext(device) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 29, ASSERT_TYPE_ASSERT, "(R_IsLockedIfGfxImmediateContext( device ))", (const char *)&queryFormat, "R_IsLockedIfGfxImmediateContext( device )") )
     __debugbreak();
-  if ( _RBX->rtGroup.m_colorRtCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
+  if ( state->rtGroup.m_colorRtCount != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+0A30h]
-    vmovups ymmword ptr [rsp+198h+var_F8.m_surfaceID], ymm0
-  }
-  R_ProfBeginNamedEvent(_RBX, "Saved Scene Section Resolve");
+  v25 = (R_RT_Handle)state->rtGroup.m_colorRts[0];
+  R_ProfBeginNamedEvent(state, "Saved Scene Section Resolve");
   Resident = (__int64 *)R_Texture_GetResident(image->textureId);
-  Surface = R_RT_Handle::GetSurface(&v33);
-  v24 = (__int64 *)R_Texture_GetResident(Surface->m_image.m_base.textureId);
-  v25 = *Resident;
-  v26 = *v24;
-  (*(void (__fastcall **)(__int64, int *))(*(_QWORD *)v25 + 80i64))(v25, v35);
-  if ( v35[0] == 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_hw_resolve_dx12.cpp", 151, ASSERT_TYPE_ASSERT, "(dstDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER)", (const char *)&queryFormat, "dstDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER") )
+  Surface = R_RT_Handle::GetSurface(&v25);
+  v16 = (__int64 *)R_Texture_GetResident(Surface->m_image.m_base.textureId);
+  v17 = *Resident;
+  v18 = *v16;
+  (*(void (__fastcall **)(__int64, int *))(*(_QWORD *)v17 + 80i64))(v17, v27);
+  if ( v27[0] == 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_hw_resolve_dx12.cpp", 151, ASSERT_TYPE_ASSERT, "(dstDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER)", (const char *)&queryFormat, "dstDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER") )
     __debugbreak();
-  (*(void (__fastcall **)(__int64, int *))(*(_QWORD *)v26 + 80i64))(v26, v36);
-  if ( v36[0] == 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_hw_resolve_dx12.cpp", 154, ASSERT_TYPE_ASSERT, "(srcDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER)", (const char *)&queryFormat, "srcDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER") )
+  (*(void (__fastcall **)(__int64, int *))(*(_QWORD *)v18 + 80i64))(v18, v28);
+  if ( v28[0] == 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_hw_resolve_dx12.cpp", 154, ASSERT_TYPE_ASSERT, "(srcDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER)", (const char *)&queryFormat, "srcDesc.Dimension != D3D12_RESOURCE_DIMENSION_BUFFER") )
     __debugbreak();
-  v27 = v26;
-  v28 = 0;
-  v29 = 0;
-  v30 = v25;
-  v31 = 0;
-  v32 = 0;
-  ((void (__fastcall *)(const GfxDevice *, __int64 *, _QWORD, _QWORD, _DWORD, __int64 *, int *, _DWORD))device->m_pFunction[27].Release)(device, &v30, (unsigned int)_R14, (unsigned int)_R15, 0, &v27, v34, 0);
+  v19 = v18;
+  v20 = 0;
+  v21 = 0;
+  v22 = v17;
+  v23 = 0;
+  v24 = 0;
+  ((void (__fastcall *)(const GfxDevice *, __int64 *, _QWORD, _QWORD, _DWORD, __int64 *, int *, _DWORD))device->m_pFunction[27].Release)(device, &v22, v10, v12, 0, &v19, v26, 0);
   R_ProfEndNamedEvent(context->state);
 }
 
@@ -452,38 +410,32 @@ R_HW_ResummarizeDepth
 */
 void R_HW_ResummarizeDepth(GfxCmdBufContext *context)
 {
+  GfxCmdBufContext v4; 
   GfxCmdBufState *state; 
   R_RT_FlagsInternal m_rtFlagsInternal; 
   const R_RT_Surface *Surface; 
   const GfxTexture *Resident; 
   int x; 
   int y; 
-  __int64 v14; 
-  R_RT_Handle v15; 
-  __int128 v16; 
+  GfxDevice *device; 
+  R_RT_Handle m_depthRt; 
+  GfxCmdBufContext v13; 
   ID3D12Resource *basemap; 
-  int v18; 
+  int v15; 
   unsigned int m_subresourceToTransition; 
-  R_RT_Handle v20; 
-  int v21; 
-  int v22; 
+  R_RT_Handle v17; 
+  int v18; 
+  int v19; 
+  int v20; 
+  unsigned int v21; 
+  unsigned int v22; 
   int v23; 
-  unsigned int v24; 
-  unsigned int v25; 
-  int v26; 
 
-  _RAX = context->state;
-  _RDI = context;
-  __asm
+  m_depthRt = (R_RT_Handle)context->state->rtGroup.m_depthRt;
+  v17 = m_depthRt;
+  if ( (_WORD)_XMM0 )
   {
-    vmovups ymm0, ymmword ptr [rax+0AB0h]
-    vmovd   eax, xmm0
-    vmovups ymmword ptr [rsp+0E8h+var_A8.m_surfaceID], ymm0
-    vmovups ymmword ptr [rsp+0E8h+var_48.m_surfaceID], ymm0
-  }
-  if ( (_WORD)_RAX )
-  {
-    R_RT_Handle::GetSurface(&v20);
+    R_RT_Handle::GetSurface(&v17);
   }
   else
   {
@@ -493,18 +445,13 @@ void R_HW_ResummarizeDepth(GfxCmdBufContext *context)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_hw_resolve_dx12.cpp", 207, ASSERT_TYPE_ASSERT, "(depthRT.IsValid())", (const char *)&queryFormat, "depthRT.IsValid()") )
       __debugbreak();
   }
-  __asm
+  v4 = *context;
+  state = context->state;
+  v13 = v4;
+  if ( (R_RT_Handle::GetSurface(&m_depthRt)->m_rtFlags & 0x100) == 0 )
   {
-    vmovups ymm0, ymmword ptr [rsp+0E8h+var_A8.m_surfaceID]
-    vmovups ymmword ptr [rsp+0E8h+var_A8.m_surfaceID], ymm0
-    vmovups xmm0, xmmword ptr [rdi]
-  }
-  state = _RDI->state;
-  __asm { vmovups [rsp+0E8h+var_88], xmm0 }
-  if ( (R_RT_Handle::GetSurface(&v15)->m_rtFlags & 0x100) == 0 )
-  {
-    m_rtFlagsInternal = R_RT_Handle::GetSurface(&v15)->m_rtFlagsInternal;
-    Surface = R_RT_Handle::GetSurface(&v15);
+    m_rtFlagsInternal = R_RT_Handle::GetSurface(&m_depthRt)->m_rtFlagsInternal;
+    Surface = R_RT_Handle::GetSurface(&m_depthRt);
     if ( (m_rtFlagsInternal & 8) != 0 )
     {
       Resident = (const GfxTexture *)&Surface->1080;
@@ -516,21 +463,21 @@ void R_HW_ResummarizeDepth(GfxCmdBufContext *context)
         __debugbreak();
     }
     basemap = Resident->basemap;
-    v18 = 0;
-    if ( R_RT_Handle::GetSurface(&v15)->m_subresourceToTransition == -1 )
+    v15 = 0;
+    if ( R_RT_Handle::GetSurface(&m_depthRt)->m_subresourceToTransition == -1 )
       m_subresourceToTransition = 0;
     else
-      m_subresourceToTransition = R_RT_Handle::GetSurface(&v15)->m_subresourceToTransition;
+      m_subresourceToTransition = R_RT_Handle::GetSurface(&m_depthRt)->m_subresourceToTransition;
     x = state->viewport.x;
     y = state->viewport.y;
-    v24 = x + state->viewport.width;
-    v25 = y + state->viewport.height;
-    v14 = *(_QWORD *)(*((_QWORD *)&v16 + 1) + 1360i64);
-    v21 = x;
-    v22 = y;
-    v23 = 0;
-    v26 = 1;
-    (*(void (__fastcall **)(__int64, ID3D12Resource **))(*(_QWORD *)v14 + 664i64))(v14, &basemap);
+    v21 = x + state->viewport.width;
+    v22 = y + state->viewport.height;
+    device = v13.state->device;
+    v18 = x;
+    v19 = y;
+    v20 = 0;
+    v23 = 1;
+    ((void (__fastcall *)(GfxDevice *, ID3D12Resource **))device->m_pFunction[27].Release)(device, &basemap);
   }
 }
 
@@ -587,26 +534,20 @@ R_HW_ResummarizeDepth
 void R_HW_ResummarizeDepth(GfxCmdBufContext *context, R_RT_DepthHandle *depthRt, bool flushCaches)
 {
   const R_RT_Surface *Surface; 
+  R_RT_DepthHandle v7; 
+  GfxCmdBufContext v8; 
   GfxViewport v9; 
   GfxCmdBufContext v10; 
-  R_RT_DepthHandle v11; 
+  __m256i v11; 
 
-  _RDI = context;
   *(_QWORD *)&v9.x = 0i64;
-  _RBX = depthRt;
   v9.width = R_RT_Handle::GetSurface(depthRt)->m_image.m_base.width;
-  Surface = R_RT_Handle::GetSurface(_RBX);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups xmm1, xmmword ptr [rdi]
-  }
+  Surface = R_RT_Handle::GetSurface(depthRt);
+  v7 = *depthRt;
+  v8 = *context;
   v9.height = Surface->m_image.m_base.height;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+68h+var_28.baseclass_0.m_surfaceID], ymm0
-    vmovups [rsp+68h+var_38], xmm1
-  }
-  R_HW_ResummarizeDepth(&v10, &v11, &v9, flushCaches);
+  v11 = (__m256i)v7;
+  v10 = v8;
+  R_HW_ResummarizeDepth(&v10, (R_RT_DepthHandle *)&v11, &v9, flushCaches);
 }
 

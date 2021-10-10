@@ -174,50 +174,37 @@ BG_Camera_AdjustEyePosForRemoteTurretVehicle
 void BG_Camera_AdjustEyePosForRemoteTurretVehicle(const VehicleDef *vehDef, const vec3_t *vehEntAngles, int vehEntNum, const vec3_t *eyePos, const playerState_s *ps, vec3_t *outPos, vec3_t *inOutForward)
 {
   VehicleType type; 
-  float v15; 
-  float fmt; 
+  double v12; 
+  float v13; 
+  float v14; 
   BGTurretVehicleCamInfo camInfo; 
   tmat33_t<vec3_t> outAxis; 
   vec3_t outFocusPos; 
 
-  _RDI = eyePos;
-  _R14 = inOutForward;
-  _R15 = vehEntAngles;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_camera.cpp", 561, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  *outPos = *_RDI;
+  *outPos = *eyePos;
   type = vehDef->type;
   if ( type == VEH_TREADED && vehDef->vehiclePhysicsDef.physics_gameProfile < VEH_GAMEPROFILE_JEEP || type == VEH_CAR && vehDef->vehiclePhysicsDef.physics_animProfile == VEH_ANIMPROFILE_VINDIA )
   {
-    __asm { vmovsd  xmm0, qword ptr [rdi] }
-    camInfo.eyePos.v[2] = _RDI->v[2];
-    __asm { vmovsd  qword ptr [rsp+108h+camInfo.eyePos], xmm0 }
+    v12 = *(double *)eyePos->v;
+    camInfo.eyePos.v[2] = eyePos->v[2];
+    *(double *)camInfo.eyePos.v = v12;
     BG_AxisFromForward(inOutForward, &identityMatrix33.m[2], &camInfo.eyeView);
-    __asm { vmovsd  xmm0, qword ptr [r15] }
-    v15 = _R15->v[2];
-    __asm
-    {
-      vmovsd  qword ptr [rsp+108h+camInfo.vehEntAngles], xmm0
-      vxorps  xmm0, xmm0, xmm0
-    }
+    v13 = vehEntAngles->v[2];
+    *(_QWORD *)camInfo.vehEntAngles.v = *(_QWORD *)vehEntAngles->v;
     camInfo.inKillcam = 0;
     camInfo.ps = ps;
     camInfo.traceMask = 2705;
-    __asm { vmovss  dword ptr [rsp+108h+fmt], xmm0 }
     camInfo.vehDef = vehDef;
-    camInfo.vehEntAngles.v[2] = v15;
+    camInfo.vehEntAngles.v[2] = v13;
     camInfo.vehEntNum = vehEntNum;
     camInfo.worldId = PHYSICS_WORLD_ID_FIRST;
-    BG_Camera_VehicleTurret(&camInfo, outPos, &outAxis, &outFocusPos, fmt);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+108h+outAxis]
-      vmovss  xmm1, dword ptr [rsp+108h+outAxis+4]
-      vmovss  dword ptr [r14], xmm0
-      vmovss  xmm0, dword ptr [rsp+108h+outAxis+8]
-      vmovss  dword ptr [r14+8], xmm0
-      vmovss  dword ptr [r14+4], xmm1
-    }
+    BG_Camera_VehicleTurret(&camInfo, outPos, &outAxis, &outFocusPos, 0.0);
+    v14 = outAxis.m[0].v[1];
+    inOutForward->v[0] = outAxis.m[0].v[0];
+    inOutForward->v[2] = outAxis.m[0].v[2];
+    inOutForward->v[1] = v14;
   }
 }
 
@@ -228,43 +215,23 @@ BG_Camera_AxisFromEyeFocus
 */
 void BG_Camera_AxisFromEyeFocus(const vec3_t *eyePos, const vec3_t *focusPoint, const vec3_t *vehUp, tmat33_t<vec3_t> *outAxis)
 {
+  float v4; 
+  float v5; 
   vec3_t v0; 
   float v1[4]; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm1, xmm0, dword ptr [rcx]
-    vmovss  xmm2, dword ptr [rdx+4]
-    vsubss  xmm0, xmm2, dword ptr [rcx+4]
-    vmovss  [rsp+58h+v0], xmm1
-    vmovss  xmm1, dword ptr [rdx+8]
-    vsubss  xmm2, xmm1, dword ptr [rcx+8]
-    vmovss  [rsp+58h+var_34], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+58h+var_30], xmm2
-    vmovss  xmm2, cs:__real@3a83126f; epsilon
-  }
-  _RBX = outAxis;
-  __asm
-  {
-    vmovss  [rsp+58h+v1], xmm0
-    vmovss  [rsp+58h+var_24], xmm0
-    vmovss  [rsp+58h+var_20], xmm0
-  }
-  if ( VecNCompareCustomEpsilon(v0.v, v1, *(float *)&_XMM2, 3) )
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B; tmat33_t<vec3_t> const identityMatrix33
-      vmovups ymmword ptr [rbx], ymm0
-    }
-    _RBX->m[2].v[2] = identityMatrix33.m[2].v[2];
-  }
+  v4 = focusPoint->v[1] - eyePos->v[1];
+  v0.v[0] = focusPoint->v[0] - eyePos->v[0];
+  v5 = focusPoint->v[2] - eyePos->v[2];
+  v0.v[1] = v4;
+  v0.v[2] = v5;
+  v1[0] = 0.0;
+  v1[1] = 0.0;
+  v1[2] = 0.0;
+  if ( VecNCompareCustomEpsilon(v0.v, v1, 0.001, 3) )
+    *outAxis = identityMatrix33;
   else
-  {
-    BG_AxisFromForward(&v0, vehUp, _RBX);
-  }
+    BG_AxisFromForward(&v0, vehUp, outAxis);
 }
 
 /*
@@ -548,54 +515,50 @@ BG_Camera_VehicleCameraRayCast
 */
 _BOOL8 BG_Camera_VehicleCameraRayCast(Physics_WorldId worldId, const int *ignoreEntities, int ignoreEntCount, int contentsMask, const vec3_t *start, const vec3_t *end, float *outRawFrac)
 {
-  int *v10; 
+  int *v9; 
   int i; 
   HavokPhysics_CollisionQueryResult *ClosestResult; 
+  double RaycastHitFraction; 
   bool HasHit; 
-  hkMemoryAllocator *v17; 
-  hkMemoryAllocator *v18; 
+  hkMemoryAllocator *v15; 
+  hkMemoryAllocator *v16; 
   Physics_RaycastExtendedData extendedData; 
-  HavokPhysics_IgnoreBodies v21; 
+  HavokPhysics_IgnoreBodies v19; 
 
-  v10 = (int *)ignoreEntities;
+  v9 = (int *)ignoreEntities;
   if ( (!ignoreEntities || ignoreEntCount <= 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_camera.cpp", 421, ASSERT_TYPE_ASSERT, "( ignoreEntities && ignoreEntCount > 0 )", "BG_Camera_CustomCameraRayCast(): This function is designed to work with ignore entities") )
     __debugbreak();
-  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v21, ignoreEntCount, 0);
-  for ( i = 0; i < ignoreEntCount; ++v10 )
-    HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v21, i++, *v10, 1, 1, 1, 0, 1);
+  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v19, ignoreEntCount, 0);
+  for ( i = 0; i < ignoreEntCount; ++v9 )
+    HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v19, i++, *v9, 1, 1, 1, 0, 1);
   extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+0C8h+extendedData.collisionBuffer], xmm0
-  }
+  extendedData.collisionBuffer = 0.0;
   extendedData.phaseSelection = All;
   extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
   *(_WORD *)&extendedData.collectInsideHits = 256;
   extendedData.contents = contentsMask;
-  extendedData.ignoreBodies = &v21;
+  extendedData.ignoreBodies = &v19;
   ClosestResult = PhysicsQuery_GetClosestResult(worldId);
   if ( !ClosestResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_camera.cpp", 435, ASSERT_TYPE_ASSERT, "(castResult)", (const char *)&queryFormat, "castResult") )
     __debugbreak();
   HavokPhysics_CollisionQueryResult::Reset(ClosestResult, 1);
   Physics_Raycast(worldId, start, end, &extendedData, ClosestResult);
   if ( HavokPhysics_CollisionQueryResult::HasHit(ClosestResult) )
-    *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(ClosestResult, 0);
+    RaycastHitFraction = HavokPhysics_CollisionQueryResult::GetRaycastHitFraction(ClosestResult, 0);
   else
-    __asm { vmovss  xmm0, cs:__real@3f800000 }
-  _RAX = outRawFrac;
-  __asm { vmovss  dword ptr [rax], xmm0 }
+    *(float *)&RaycastHitFraction = FLOAT_1_0;
+  *outRawFrac = *(float *)&RaycastHitFraction;
   HasHit = HavokPhysics_CollisionQueryResult::HasHit(ClosestResult);
-  v17 = hkMemHeapAllocator();
-  v21.m_ignoreBodies.m_size = 0;
-  if ( v21.m_ignoreBodies.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v17, v21.m_ignoreBodies.m_data, 4, v21.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-  v21.m_ignoreBodies.m_data = NULL;
-  v21.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-  v18 = hkMemHeapAllocator();
-  v21.m_ignoreEntities.m_size = 0;
-  if ( v21.m_ignoreEntities.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v18, v21.m_ignoreEntities.m_data, 8, v21.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+  v15 = hkMemHeapAllocator();
+  v19.m_ignoreBodies.m_size = 0;
+  if ( v19.m_ignoreBodies.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v15, v19.m_ignoreBodies.m_data, 4, v19.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+  v19.m_ignoreBodies.m_data = NULL;
+  v19.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+  v16 = hkMemHeapAllocator();
+  v19.m_ignoreEntities.m_size = 0;
+  if ( v19.m_ignoreEntities.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v16, v19.m_ignoreEntities.m_data, 8, v19.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
   return HasHit;
 }
 
@@ -606,94 +569,84 @@ BG_Camera_VehicleCameraShapeCast
 */
 _BOOL8 BG_Camera_VehicleCameraShapeCast(Physics_WorldId worldId, const int *ignoreEntities, int ignoreEntCount, int contentsMask, const vec3_t *start, const vec3_t *end, float *outRawFrac)
 {
+  int v10; 
   int v11; 
-  int v12; 
-  __int64 v13; 
+  __int64 v12; 
   __int64 i; 
   HavokPhysics_CollisionQueryResult *ClosestResult; 
   bool HasHit; 
-  int v21; 
+  int v18; 
+  double ShapecastHitFraction; 
   int ShapecastHitRef; 
   Physics_RefSystem RefSystem; 
   __int16 RefEntityType; 
-  const entityType_s *v26; 
+  const entityType_s *v23; 
   unsigned int ShapecastHitBodyId; 
-  Physics_RefSystem v28; 
+  Physics_RefSystem v25; 
   int EntityNum; 
-  hkMemoryAllocator *v30; 
-  hkMemoryAllocator *v31; 
-  HavokPhysics_IgnoreBodies v33; 
+  hkMemoryAllocator *v27; 
+  hkMemoryAllocator *v28; 
+  HavokPhysics_IgnoreBodies v30; 
   Physics_ShapecastExtendedData extendedData; 
-  __int64 v35; 
+  __int64 v32; 
 
-  v35 = -2i64;
+  v32 = -2i64;
+  v10 = 0;
+  if ( ignoreEntities )
+    v10 = ignoreEntCount;
+  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v30, v10, 0);
   v11 = 0;
   if ( ignoreEntities )
-    v11 = ignoreEntCount;
-  HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v33, v11, 0);
-  v12 = 0;
-  if ( ignoreEntities )
   {
-    v13 = v11;
-    for ( i = 0i64; i < v13; ++i )
-      HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v33, v12++, ignoreEntities[i], 1, 1, 1, 0, 1);
+    v12 = v10;
+    for ( i = 0i64; i < v12; ++i )
+      HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v30, v11++, ignoreEntities[i], 1, 1, 1, 0, 1);
   }
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  [rsp+0E8h+extendedData.startTolerance], xmm1
-    vmovss  xmm0, cs:__real@3c83126f
-    vmovss  [rsp+0E8h+extendedData.accuracy], xmm0
-  }
+  extendedData.startTolerance = 0.0;
+  _XMM0 = LODWORD(FLOAT_0_016000001);
+  extendedData.accuracy = FLOAT_0_016000001;
   extendedData.simplifyStart = 0;
-  __asm
-  {
-    vmovss  [rsp+0E8h+extendedData.collisionBuffer], xmm1
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+0E8h+extendedData.nonBrushShape], xmm0
-  }
+  extendedData.collisionBuffer = 0.0;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&extendedData.nonBrushShape = _XMM0;
   extendedData.phaseSelection = All;
   extendedData.permitOutwardTrace = 0;
   extendedData.contents = contentsMask;
-  extendedData.ignoreBodies = &v33;
+  extendedData.ignoreBodies = &v30;
   if ( !s_sphereShapeCam )
-  {
-    __asm { vmovss  xmm1, cs:__real@41a00000; radius }
-    s_sphereShapeCam = Physics_CreateShapeSphere(&vec3_origin, *(float *)&_XMM1, s_sphereShapeBuffer, 432);
-  }
+    s_sphereShapeCam = Physics_CreateShapeSphere(&vec3_origin, 20.0, s_sphereShapeBuffer, 432);
   ClosestResult = PhysicsQuery_GetClosestResult(worldId);
   if ( ClosestResult )
   {
-    v21 = 4;
-    _R15 = outRawFrac;
+    v18 = 4;
     while ( 1 )
     {
       HavokPhysics_CollisionQueryResult::Reset(ClosestResult, 1);
       Physics_Shapecast(worldId, s_sphereShapeCam, start, end, &quat_identity, &extendedData, ClosestResult, NULL);
       if ( !HavokPhysics_CollisionQueryResult::HasHit(ClosestResult) )
         break;
-      *(double *)&_XMM0 = HavokPhysics_CollisionQueryResult::GetShapecastHitFraction(ClosestResult, 0);
-      __asm { vmovss  dword ptr [r15], xmm0 }
+      ShapecastHitFraction = HavokPhysics_CollisionQueryResult::GetShapecastHitFraction(ClosestResult, 0);
+      *outRawFrac = *(float *)&ShapecastHitFraction;
       ShapecastHitRef = HavokPhysics_CollisionQueryResult::GetShapecastHitRef(ClosestResult, 0);
       RefSystem = Physics_GetRefSystem(ShapecastHitRef);
       RefEntityType = Physics_GetRefEntityType(worldId, RefSystem, ShapecastHitRef);
-      v26 = IGNORE_ETYPES;
-      while ( *v26 != RefEntityType )
+      v23 = IGNORE_ETYPES;
+      while ( *v23 != RefEntityType )
       {
-        if ( (__int64)++v26 >= (__int64)&unk_143CA0430 )
+        if ( (__int64)++v23 >= (__int64)&unk_143CA0430 )
         {
           ShapecastHitBodyId = HavokPhysics_CollisionQueryResult::GetShapecastHitBodyId(ClosestResult, 0);
           if ( ShapecastHitBodyId == 0xFFFFFF )
             goto LABEL_24;
-          v28 = Physics_GetRefSystem(ShapecastHitRef);
-          if ( Physics_GetRefEntityType(worldId, v28, ShapecastHitRef) != 6 || !Physics_IsRigidBodyKeyframed(worldId, ShapecastHitBodyId) )
+          v25 = Physics_GetRefSystem(ShapecastHitRef);
+          if ( Physics_GetRefEntityType(worldId, v25, ShapecastHitRef) != 6 || !Physics_IsRigidBodyKeyframed(worldId, ShapecastHitBodyId) )
             goto LABEL_24;
           break;
         }
       }
       EntityNum = Physics_GetEntityNum(ShapecastHitRef);
-      HavokPhysics_IgnoreBodies::AddIgnoreEntity(&v33, EntityNum, 1, 1, 1, 0, 1);
-      if ( --v21 <= 0 )
+      HavokPhysics_IgnoreBodies::AddIgnoreEntity(&v30, EntityNum, 1, 1, 1, 0, 1);
+      if ( --v18 <= 0 )
         goto LABEL_24;
     }
     *outRawFrac = 1.0;
@@ -707,16 +660,16 @@ LABEL_24:
     *outRawFrac = 1.0;
     HasHit = 0;
   }
-  v30 = hkMemHeapAllocator();
-  v33.m_ignoreBodies.m_size = 0;
-  if ( v33.m_ignoreBodies.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v30, v33.m_ignoreBodies.m_data, 4, v33.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-  v33.m_ignoreBodies.m_data = NULL;
-  v33.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-  v31 = hkMemHeapAllocator();
-  v33.m_ignoreEntities.m_size = 0;
-  if ( v33.m_ignoreEntities.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v31, v33.m_ignoreEntities.m_data, 8, v33.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+  v27 = hkMemHeapAllocator();
+  v30.m_ignoreBodies.m_size = 0;
+  if ( v30.m_ignoreBodies.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v27, v30.m_ignoreBodies.m_data, 4, v30.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+  v30.m_ignoreBodies.m_data = NULL;
+  v30.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+  v28 = hkMemHeapAllocator();
+  v30.m_ignoreEntities.m_size = 0;
+  if ( v30.m_ignoreEntities.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v28, v30.m_ignoreEntities.m_data, 8, v30.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
   return HasHit;
 }
 
@@ -727,8 +680,7 @@ BG_Camera_VehicleCameraShapeRadius
 */
 float BG_Camera_VehicleCameraShapeRadius()
 {
-  __asm { vmovss  xmm0, cs:__real@41a00000 }
-  return *(float *)&_XMM0;
+  return FLOAT_20_0;
 }
 
 /*
@@ -738,347 +690,233 @@ BG_Camera_VehicleTurret
 */
 void BG_Camera_VehicleTurret(const BGTurretVehicleCamInfo *camInfo, vec3_t *outEyePos, tmat33_t<vec3_t> *outAxis, vec3_t *outFocusPos)
 {
-  vec3_t *end; 
+  float pitchContrib; 
+  float v11; 
   int vehEntNum; 
+  float v13; 
   int traceMask; 
   Physics_WorldId worldId; 
-  const dvar_t *v62; 
-  char v75; 
-  char v173; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int128 v24; 
+  float v25; 
+  const dvar_t *v26; 
+  float v30; 
+  __int128 v31; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  __int128 v39; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float radiusHeight; 
+  float radiusBack; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  __int128 v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float rollContrib; 
+  float v67; 
   float outRawFrac; 
   int ignoreEntities; 
-  BGTurretVehicleCamConfig v183; 
+  BGTurretVehicleCamConfig v70; 
   vec3_t angles; 
   vec3_t vec; 
   vec3_t outFocusPoint; 
   vec3_t forward; 
   vec3_t start; 
-  vec3_t v189; 
+  vec3_t v76; 
   tmat33_t<vec3_t> axis; 
   tmat33_t<vec3_t> out; 
 
-  end = outEyePos;
-  _RBX = camInfo;
-  _RSI = outFocusPos;
   AnglesToAxis(&camInfo->vehEntAngles, &axis);
-  if ( BGTurretVehicleCamConfig::Init(&v183, _RBX) )
+  if ( BGTurretVehicleCamConfig::Init(&v70, camInfo) )
   {
-    __asm
+    pitchContrib = v70.pitchContrib;
+    if ( v70.pitchContrib <= 0.001 )
     {
-      vmovaps [rsp+1A0h+var_40], xmm6
-      vmovss  xmm6, [rsp+1A0h+var_158.pitchContrib]
-      vcomiss xmm6, cs:__real@3a83126f
-      vmovaps [rsp+1A0h+var_50], xmm7
-      vmovaps [rsp+1A0h+var_60], xmm9
-      vmovaps [rsp+1A0h+var_70], xmm11
-    }
-    AxisToAngles(&_RBX->eyeView, &angles);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+1Ch]
-      vmulss  xmm5, xmm0, cs:__real@3b360b61
-      vaddss  xmm2, xmm5, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vroundss xmm4, xmm0, xmm2, 1
-      vsubss  xmm1, xmm5, xmm4
-      vmulss  xmm0, xmm1, cs:__real@43b40000
-      vmulss  xmm3, xmm0, xmm6
-      vaddss  xmm1, xmm3, dword ptr [rsp+1A0h+angles]
-      vmovss  dword ptr [rsp+1A0h+angles], xmm1
-    }
-    AngleVectors(&angles, &forward, NULL, NULL);
-    BG_EyeOffsetForRemoteTurretVehicle(_RBX, end, &outFocusPoint);
-    __asm
-    {
-      vmovss  xmm4, cs:__real@41a00000
-      vmovss  xmm0, dword ptr [rbx+28h]
-    }
-    vehEntNum = _RBX->vehEntNum;
-    __asm
-    {
-      vmulss  xmm3, xmm4, dword ptr [rbx+38h]
-      vmulss  xmm1, xmm4, dword ptr [rbx+34h]
-      vmovss  xmm9, cs:__real@3f800000
-    }
-    traceMask = _RBX->traceMask;
-    worldId = _RBX->worldId;
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm1
-      vmovss  xmm0, dword ptr [rbx+2Ch]
-      vmovss  dword ptr [rbp+0A0h+var_F0], xmm1
-      vsubss  xmm1, xmm0, xmm3
-      vmulss  xmm3, xmm4, dword ptr [rbx+3Ch]
-      vmovss  xmm0, dword ptr [rbx+30h]
-    }
-    ignoreEntities = vehEntNum;
-    __asm
-    {
-      vmovss  dword ptr [rbp+0A0h+var_F0+4], xmm1
-      vsubss  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rbp+0A0h+var_F0+8], xmm1
-      vmovss  [rsp+1A0h+var_160], xmm9
-    }
-    BG_Camera_VehicleCameraShapeCast(worldId, &ignoreEntities, 1, traceMask, &start, end, &outRawFrac);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm1, xmm0, dword ptr [rbx+28h]
-      vmovss  xmm5, [rsp+1A0h+var_160]
-      vmulss  xmm1, xmm1, xmm5
-      vaddss  xmm0, xmm1, dword ptr [rbx+28h]
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm0, dword ptr [rdi+4]
-      vsubss  xmm1, xmm0, dword ptr [rbx+2Ch]
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmulss  xmm2, xmm1, xmm5
-      vaddss  xmm3, xmm2, dword ptr [rbx+2Ch]
-      vmovss  dword ptr [rdi+4], xmm3
-      vsubss  xmm1, xmm0, dword ptr [rbx+30h]
-      vmulss  xmm2, xmm1, xmm5
-      vaddss  xmm3, xmm2, dword ptr [rbx+30h]
-      vmovss  dword ptr [rdi+8], xmm3
-    }
-    AxisTranspose(&axis, &out);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vsubss  xmm4, xmm0, dword ptr [rbx+28h]
-      vmovss  xmm1, dword ptr [rdi+4]
-      vsubss  xmm5, xmm1, dword ptr [rbx+2Ch]
-      vmovss  xmm0, dword ptr [rdi+8]
-      vsubss  xmm6, xmm0, dword ptr [rbx+30h]
-      vmovss  xmm11, cs:__real@80000000
-    }
-    v62 = DCONST_DVARBOOL_bg_vehTurretElevLocal;
-    __asm
-    {
-      vmulss  xmm0, xmm6, xmm6
-      vmulss  xmm2, xmm5, xmm5
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm7, xmm2, xmm2
-      vcmpless xmm0, xmm7, xmm11
-      vblendvps xmm0, xmm7, xmm9, xmm0
-      vdivss  xmm2, xmm9, xmm0
-      vmulss  xmm0, xmm4, xmm2
-      vmovss  dword ptr [rbp+0A0h+vec], xmm0
-      vmulss  xmm0, xmm6, xmm2
-      vmulss  xmm1, xmm5, xmm2
-      vmovss  dword ptr [rbp+0A0h+vec+8], xmm0
-      vmovss  dword ptr [rbp+0A0h+vec+4], xmm1
-    }
-    if ( !DCONST_DVARBOOL_bg_vehTurretElevLocal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehTurretElevLocal") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v62);
-    v75 = 0;
-    if ( v62->current.enabled )
-    {
-      AxisTransformVec3(&out, &vec, &angles);
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsp+1A0h+angles+8]
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm6, xmm0
-      }
-      if ( v75 )
-        __asm { vmulss  xmm6, xmm6, [rsp+1A0h+var_158.elevationFactor] }
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsp+1A0h+angles]
-        vmovss  xmm5, dword ptr [rsp+1A0h+angles+4]
-        vmulss  xmm0, xmm5, xmm5
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
-        vcmpless xmm0, xmm3, xmm11
-        vblendvps xmm0, xmm3, xmm9, xmm0
-        vdivss  xmm2, xmm9, xmm0
-        vmulss  xmm0, xmm4, xmm2
-        vmovss  dword ptr [rsp+1A0h+angles], xmm0
-        vmulss  xmm0, xmm6, xmm2
-        vmulss  xmm1, xmm5, xmm2
-        vmovss  dword ptr [rsp+1A0h+angles+8], xmm0
-        vmovss  dword ptr [rsp+1A0h+angles+4], xmm1
-      }
-      AxisTransformVec3(&axis, &angles, &vec);
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rbp+0A0h+vec+8]
-        vmovss  xmm2, dword ptr [rbp+0A0h+vec+4]
-        vmovss  xmm0, dword ptr [rbp+0A0h+vec]
-      }
+      v11 = camInfo->eyeView.m[0].v[2];
+      *(_QWORD *)forward.v = *(_QWORD *)camInfo->eyeView.m[0].v;
+      forward.v[2] = v11;
     }
     else
     {
+      AxisToAngles(&camInfo->eyeView, &angles);
+      _XMM0 = 0i64;
+      __asm { vroundss xmm4, xmm0, xmm2, 1 }
+      angles.v[0] = (float)((float)((float)((float)(camInfo->vehEntAngles.v[0] * 0.0027777778) - *(float *)&_XMM4) * 360.0) * pitchContrib) + angles.v[0];
+      AngleVectors(&angles, &forward, NULL, NULL);
+    }
+    BG_EyeOffsetForRemoteTurretVehicle(camInfo, outEyePos, &outFocusPoint);
+    vehEntNum = camInfo->vehEntNum;
+    v13 = 20.0 * camInfo->eyeView.m[0].v[1];
+    traceMask = camInfo->traceMask;
+    worldId = camInfo->worldId;
+    v16 = camInfo->eyePos.v[1];
+    start.v[0] = camInfo->eyePos.v[0] - (float)(20.0 * camInfo->eyeView.m[0].v[0]);
+    v17 = v16 - v13;
+    v18 = 20.0 * camInfo->eyeView.m[0].v[2];
+    v19 = camInfo->eyePos.v[2];
+    ignoreEntities = vehEntNum;
+    start.v[1] = v17;
+    start.v[2] = v19 - v18;
+    outRawFrac = FLOAT_1_0;
+    BG_Camera_VehicleCameraShapeCast(worldId, &ignoreEntities, 1, traceMask, &start, outEyePos, &outRawFrac);
+    v20 = outRawFrac;
+    outEyePos->v[0] = (float)((float)(outEyePos->v[0] - camInfo->eyePos.v[0]) * outRawFrac) + camInfo->eyePos.v[0];
+    v21 = outEyePos->v[2];
+    outEyePos->v[1] = (float)((float)(outEyePos->v[1] - camInfo->eyePos.v[1]) * v20) + camInfo->eyePos.v[1];
+    outEyePos->v[2] = (float)((float)(v21 - camInfo->eyePos.v[2]) * v20) + camInfo->eyePos.v[2];
+    AxisTranspose(&axis, &out);
+    v22 = outEyePos->v[0] - camInfo->eyePos.v[0];
+    v24 = LODWORD(outEyePos->v[1]);
+    v23 = outEyePos->v[1] - camInfo->eyePos.v[1];
+    v25 = outEyePos->v[2] - camInfo->eyePos.v[2];
+    v26 = DCONST_DVARBOOL_bg_vehTurretElevLocal;
+    *(float *)&v24 = fsqrt((float)((float)(v23 * v23) + (float)(v22 * v22)) + (float)(v25 * v25));
+    _XMM7 = v24;
+    __asm
+    {
+      vcmpless xmm0, xmm7, xmm11
+      vblendvps xmm0, xmm7, xmm9, xmm0
+    }
+    vec.v[0] = v22 * (float)(1.0 / *(float *)&_XMM0);
+    vec.v[2] = v25 * (float)(1.0 / *(float *)&_XMM0);
+    vec.v[1] = v23 * (float)(1.0 / *(float *)&_XMM0);
+    if ( !DCONST_DVARBOOL_bg_vehTurretElevLocal && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehTurretElevLocal") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v26);
+    if ( v26->current.enabled )
+    {
+      AxisTransformVec3(&out, &vec, &angles);
+      v30 = angles.v[2];
+      if ( angles.v[2] < 0.0 )
+        v30 = angles.v[2] * v70.elevationFactor;
+      v31 = LODWORD(angles.v[0]);
+      *(float *)&v31 = fsqrt((float)((float)(*(float *)&v31 * *(float *)&v31) + (float)(angles.v[1] * angles.v[1])) + (float)(v30 * v30));
+      _XMM3 = v31;
       __asm
       {
-        vmovss  xmm6, dword ptr [rbp+0A0h+vec+8]
-        vxorps  xmm0, xmm0, xmm0
-        vcomiss xmm6, xmm0
-        vmovss  xmm4, dword ptr [rbp+0A0h+vec]
-        vmovss  xmm5, dword ptr [rbp+0A0h+vec+4]
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, xmm11
         vblendvps xmm0, xmm3, xmm9, xmm0
-        vdivss  xmm1, xmm9, xmm0
-        vmulss  xmm0, xmm4, xmm1
-        vmulss  xmm4, xmm6, xmm1
-        vmulss  xmm2, xmm5, xmm1
       }
+      angles.v[0] = angles.v[0] * (float)(1.0 / *(float *)&_XMM0);
+      angles.v[2] = v30 * (float)(1.0 / *(float *)&_XMM0);
+      angles.v[1] = angles.v[1] * (float)(1.0 / *(float *)&_XMM0);
+      AxisTransformVec3(&axis, &angles, &vec);
+      v35 = vec.v[2];
+      v36 = vec.v[1];
+      v37 = vec.v[0];
     }
-    __asm
+    else
     {
-      vmulss  xmm0, xmm0, xmm7
-      vaddss  xmm3, xmm0, dword ptr [rbx+28h]
-      vmovss  dword ptr [rdi], xmm3
-      vmulss  xmm1, xmm2, xmm7
-      vaddss  xmm2, xmm1, dword ptr [rbx+2Ch]
-      vmovss  dword ptr [rdi+4], xmm2
-      vmulss  xmm0, xmm4, xmm7
-      vaddss  xmm1, xmm0, dword ptr [rbx+30h]
-      vmovss  dword ptr [rdi+8], xmm1
-      vsubss  xmm2, xmm2, dword ptr [rbx+2Ch]
-      vmovss  xmm4, dword ptr [rbx+28h]
-      vsubss  xmm0, xmm3, xmm4
-      vsubss  xmm3, xmm1, dword ptr [rbx+30h]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmovss  xmm0, [rsp+1A0h+var_158.radiusClose]
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm0, xmm0
-      vcomiss xmm3, xmm2
-    }
-    if ( v75 )
-    {
+      v38 = vec.v[2];
+      if ( vec.v[2] < 0.0 )
+        v38 = vec.v[2] * v70.elevationFactor;
+      v39 = LODWORD(vec.v[1]);
+      *(float *)&v39 = fsqrt((float)((float)(*(float *)&v39 * *(float *)&v39) + (float)(vec.v[0] * vec.v[0])) + (float)(v38 * v38));
+      _XMM3 = v39;
       __asm
       {
-        vmovss  xmm1, [rsp+1A0h+var_158.radiusHeight]
-        vmulss  xmm0, xmm1, dword ptr [rbx+4Ch]
-        vmovss  xmm3, [rsp+1A0h+var_158.radiusBack]
-        vaddss  xmm2, xmm0, xmm4
-        vmovss  dword ptr [rdi], xmm2
-        vmulss  xmm0, xmm1, dword ptr [rbx+50h]
-        vaddss  xmm4, xmm0, dword ptr [rbx+2Ch]
-        vmovss  dword ptr [rdi+4], xmm4
-        vmulss  xmm0, xmm1, dword ptr [rbx+54h]
-        vaddss  xmm5, xmm0, dword ptr [rbx+30h]
-        vmulss  xmm0, xmm3, dword ptr [rbp+0A0h+forward]
-        vaddss  xmm2, xmm0, xmm2
-        vmulss  xmm0, xmm3, dword ptr [rbp+0A0h+forward+4]
-        vmovss  dword ptr [rdi], xmm2
-        vaddss  xmm2, xmm0, xmm4
-        vmulss  xmm0, xmm3, dword ptr [rbp+0A0h+forward+8]
-        vmovss  dword ptr [rdi+4], xmm2
-        vaddss  xmm2, xmm0, xmm5
-        vmovss  dword ptr [rdi+8], xmm2
+        vcmpless xmm0, xmm3, xmm11
+        vblendvps xmm0, xmm3, xmm9, xmm0
       }
+      v43 = 1.0 / *(float *)&_XMM0;
+      v37 = vec.v[0] * (float)(1.0 / *(float *)&_XMM0);
+      v35 = v38 * v43;
+      v36 = vec.v[1] * v43;
     }
-    BG_Camera_VehicleCameraRayCast(_RBX->worldId, &ignoreEntities, 1, 2705, end, &outFocusPoint, &outRawFrac);
+    v44 = (float)(v37 * *(float *)&_XMM7) + camInfo->eyePos.v[0];
+    outEyePos->v[0] = v44;
+    v45 = (float)(v36 * *(float *)&_XMM7) + camInfo->eyePos.v[1];
+    outEyePos->v[1] = v45;
+    v46 = (float)(v35 * *(float *)&_XMM7) + camInfo->eyePos.v[2];
+    outEyePos->v[2] = v46;
+    v47 = camInfo->eyePos.v[0];
+    if ( (float)((float)((float)((float)(v44 - v47) * (float)(v44 - v47)) + (float)((float)(v45 - camInfo->eyePos.v[1]) * (float)(v45 - camInfo->eyePos.v[1]))) + (float)((float)(v46 - camInfo->eyePos.v[2]) * (float)(v46 - camInfo->eyePos.v[2]))) < (float)(v70.radiusClose * v70.radiusClose) )
+    {
+      radiusHeight = v70.radiusHeight;
+      radiusBack = v70.radiusBack;
+      v50 = (float)(v70.radiusHeight * camInfo->eyeView.m[2].v[0]) + v47;
+      outEyePos->v[0] = v50;
+      v51 = (float)(radiusHeight * camInfo->eyeView.m[2].v[1]) + camInfo->eyePos.v[1];
+      outEyePos->v[1] = v51;
+      v52 = (float)(radiusHeight * camInfo->eyeView.m[2].v[2]) + camInfo->eyePos.v[2];
+      v53 = radiusBack * forward.v[1];
+      outEyePos->v[0] = (float)(radiusBack * forward.v[0]) + v50;
+      v54 = radiusBack * forward.v[2];
+      outEyePos->v[1] = v53 + v51;
+      outEyePos->v[2] = v54 + v52;
+    }
+    BG_Camera_VehicleCameraRayCast(camInfo->worldId, &ignoreEntities, 1, 2705, outEyePos, &outFocusPoint, &outRawFrac);
+    v55 = outEyePos->v[1];
+    v56 = outEyePos->v[2];
+    v57 = (float)((float)(outFocusPoint.v[0] - outEyePos->v[0]) * outRawFrac) + outEyePos->v[0];
+    v58 = LODWORD(outFocusPoint.v[1]);
+    *(float *)&v58 = (float)(outFocusPoint.v[1] - v55) * outRawFrac;
+    v59 = (float)((float)(outFocusPoint.v[2] - v56) * outRawFrac) + v56;
+    v60 = v59 - v56;
+    outFocusPoint.v[1] = *(float *)&v58 + v55;
+    v61 = (float)(*(float *)&v58 + v55) - v55;
+    outFocusPoint.v[0] = v57;
+    v62 = v57 - outEyePos->v[0];
+    outFocusPoint.v[2] = v59;
+    *(float *)&v58 = fsqrt((float)((float)((float)(outFocusPoint.v[1] - v55) * (float)(outFocusPoint.v[1] - v55)) + (float)(v62 * v62)) + (float)(v60 * v60));
+    _XMM3 = v58;
     __asm
     {
-      vmovss  xmm3, [rsp+1A0h+var_160]
-      vmovss  xmm0, dword ptr [rbp+0A0h+outFocusPoint]
-      vsubss  xmm1, xmm0, dword ptr [rdi]
-      vmovss  xmm6, dword ptr [rdi+4]
-      vmovss  xmm0, dword ptr [rbp+0A0h+outFocusPoint+4]
-      vmovss  xmm4, dword ptr [rdi+8]
-      vmulss  xmm1, xmm1, xmm3
-      vaddss  xmm7, xmm1, dword ptr [rdi]
-      vsubss  xmm1, xmm0, xmm6
-      vmovss  xmm0, dword ptr [rbp+0A0h+outFocusPoint+8]
-      vmulss  xmm2, xmm1, xmm3
-      vsubss  xmm1, xmm0, xmm4
-      vaddss  xmm5, xmm2, xmm6
-      vmulss  xmm2, xmm1, xmm3
-      vaddss  xmm3, xmm2, xmm4
-      vsubss  xmm4, xmm3, xmm4
-      vmovss  dword ptr [rbp+0A0h+outFocusPoint+4], xmm5
-      vsubss  xmm5, xmm5, xmm6
-      vmulss  xmm1, xmm5, xmm5
-      vmovss  dword ptr [rbp+0A0h+outFocusPoint], xmm7
-      vsubss  xmm7, xmm7, dword ptr [rdi]
-      vmulss  xmm0, xmm7, xmm7
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm2, xmm1
-      vmovss  dword ptr [rbp+0A0h+outFocusPoint+8], xmm3
-      vsqrtss xmm3, xmm2, xmm2
       vcmpless xmm0, xmm3, xmm11
       vblendvps xmm0, xmm3, xmm9, xmm0
-      vdivss  xmm2, xmm9, xmm0
-      vmulss  xmm0, xmm2, xmm7
-      vmovss  dword ptr [rbp+0A0h+var_E0], xmm0
-      vmulss  xmm0, xmm2, xmm4
-      vmulss  xmm1, xmm2, xmm5
-      vmovss  dword ptr [rbp+0A0h+var_E0+8], xmm0
-      vmovss  dword ptr [rbp+0A0h+var_E0+4], xmm1
     }
-    BG_AxisFromForward(&v189, &identityMatrix33.m[2], outAxis);
-    __asm
-    {
-      vmovss  xmm6, [rsp+1A0h+var_158.rollContrib]
-      vcomiss xmm6, cs:__real@3a83126f
-      vmovaps xmm11, [rsp+1A0h+var_70]
-      vmovaps xmm9, [rsp+1A0h+var_60]
-      vmovaps xmm7, [rsp+1A0h+var_50]
-    }
-    if ( !(v75 | v173) )
+    v76.v[0] = (float)(1.0 / *(float *)&_XMM0) * v62;
+    v76.v[2] = (float)(1.0 / *(float *)&_XMM0) * v60;
+    v76.v[1] = (float)(1.0 / *(float *)&_XMM0) * v61;
+    BG_AxisFromForward(&v76, &identityMatrix33.m[2], outAxis);
+    rollContrib = v70.rollContrib;
+    if ( v70.rollContrib > 0.001 )
     {
       AxisToAngles(outAxis, &angles);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+24h]
-        vsubss  xmm1, xmm0, dword ptr [rsp+1A0h+angles+8]
-        vmulss  xmm2, xmm1, xmm6
-        vmovss  dword ptr [rsp+1A0h+angles+8], xmm2
-      }
+      angles.v[2] = (float)(camInfo->vehEntAngles.v[2] - angles.v[2]) * rollContrib;
       AnglesToAxis(&angles, outAxis);
     }
-    __asm { vmovaps xmm6, [rsp+1A0h+var_40] }
-    if ( _RSI )
+    if ( outFocusPos )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0A0h+outFocusPoint]
-        vmovss  xmm1, dword ptr [rbp+0A0h+outFocusPoint+4]
-        vmovss  dword ptr [rsi], xmm0
-        vmovss  xmm0, dword ptr [rbp+0A0h+outFocusPoint+8]
-        vmovss  dword ptr [rsi+8], xmm0
-        vmovss  dword ptr [rsi+4], xmm1
-      }
+      v67 = outFocusPoint.v[1];
+      outFocusPos->v[0] = outFocusPoint.v[0];
+      outFocusPos->v[2] = outFocusPoint.v[2];
+      outFocusPos->v[1] = v67;
     }
   }
   else
   {
-    end->v[0] = _RBX->eyePos.v[0];
-    end->v[1] = _RBX->eyePos.v[1];
-    end->v[2] = _RBX->eyePos.v[2];
-    MatrixCopy33(&_RBX->eyeView, outAxis);
-    if ( _RSI )
+    outEyePos->v[0] = camInfo->eyePos.v[0];
+    outEyePos->v[1] = camInfo->eyePos.v[1];
+    outEyePos->v[2] = camInfo->eyePos.v[2];
+    MatrixCopy33(&camInfo->eyeView, outAxis);
+    if ( outFocusPos )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vaddss  xmm1, xmm0, dword ptr [rbx+34h]
-        vmovss  dword ptr [rsi], xmm1
-        vmovss  xmm2, dword ptr [rbx+2Ch]
-        vaddss  xmm0, xmm2, dword ptr [rbx+38h]
-        vmovss  dword ptr [rsi+4], xmm0
-        vmovss  xmm1, dword ptr [rbx+30h]
-        vaddss  xmm2, xmm1, dword ptr [rbx+3Ch]
-        vmovss  dword ptr [rsi+8], xmm2
-      }
+      outFocusPos->v[0] = camInfo->eyePos.v[0] + camInfo->eyeView.m[0].v[0];
+      outFocusPos->v[1] = camInfo->eyePos.v[1] + camInfo->eyeView.m[0].v[1];
+      outFocusPos->v[2] = camInfo->eyePos.v[2] + camInfo->eyeView.m[0].v[2];
     }
   }
 }
@@ -1090,87 +928,59 @@ BG_EyeOffsetForRemoteTurretVehicle
 */
 void BG_EyeOffsetForRemoteTurretVehicle(const BGTurretVehicleCamInfo *camInfo, vec3_t *outEyePos, vec3_t *outFocusPoint)
 {
-  BGTurretVehicleCamConfig v46; 
+  float traceLen; 
+  float back; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float height; 
+  float v14; 
+  float v15; 
+  float horizOffset; 
+  float v17; 
+  BGTurretVehicleCamConfig v18; 
 
-  _RSI = outFocusPoint;
-  _RDI = outEyePos;
-  _RBX = camInfo;
   if ( !camInfo->vehDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_camera.cpp", 266, ASSERT_TYPE_ASSERT, "(camInfo.vehDef)", (const char *)&queryFormat, "camInfo.vehDef") )
     __debugbreak();
-  if ( !_RBX->vehDef->vehiclePhysicsDef.physicsEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_camera.cpp", 267, ASSERT_TYPE_ASSERT, "(camInfo.vehDef->vehiclePhysicsDef.physicsEnabled)", (const char *)&queryFormat, "camInfo.vehDef->vehiclePhysicsDef.physicsEnabled") )
+  if ( !camInfo->vehDef->vehiclePhysicsDef.physicsEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_camera.cpp", 267, ASSERT_TYPE_ASSERT, "(camInfo.vehDef->vehiclePhysicsDef.physicsEnabled)", (const char *)&queryFormat, "camInfo.vehDef->vehiclePhysicsDef.physicsEnabled") )
     __debugbreak();
-  if ( BGTurretVehicleCamConfig::Init(&v46, _RBX) )
+  if ( BGTurretVehicleCamConfig::Init(&v18, camInfo) )
   {
-    __asm
-    {
-      vmovss  xmm2, [rsp+78h+var_48.traceLen]
-      vmulss  xmm0, xmm2, dword ptr [rbx+34h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+28h]
-      vmovss  xmm3, [rsp+78h+var_48.back]
-      vmovss  dword ptr [rsi], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+38h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+2Ch]
-      vmovss  dword ptr [rsi+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+3Ch]
-      vaddss  xmm1, xmm0, dword ptr [rbx+30h]
-      vmovss  dword ptr [rsi+8], xmm1
-      vmulss  xmm1, xmm3, dword ptr [rbx+34h]
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmovss  xmm4, dword ptr [rbx+3Ch]
-      vmovss  xmm2, dword ptr [rbx+38h]
-      vsubss  xmm5, xmm0, xmm1
-      vmovss  dword ptr [rdi], xmm5
-      vmovss  xmm0, dword ptr [rbx+2Ch]
-      vmulss  xmm2, xmm3, xmm2
-      vsubss  xmm2, xmm0, xmm2
-      vmovss  dword ptr [rdi+4], xmm2
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vmulss  xmm1, xmm3, xmm4
-      vsubss  xmm3, xmm0, xmm1
-      vmovss  xmm1, [rsp+78h+var_48.height]
-      vmovss  dword ptr [rdi+8], xmm3
-      vmulss  xmm0, xmm1, dword ptr [rbx+4Ch]
-      vaddss  xmm4, xmm0, xmm5
-      vmovss  dword ptr [rdi], xmm4
-      vmulss  xmm0, xmm1, dword ptr [rbx+50h]
-      vaddss  xmm5, xmm0, xmm2
-      vmovss  xmm2, [rsp+78h+var_48.horizOffset]
-      vmovss  dword ptr [rdi+4], xmm5
-      vmulss  xmm0, xmm1, dword ptr [rbx+54h]
-      vaddss  xmm3, xmm0, xmm3
-      vmovss  dword ptr [rdi+8], xmm3
-      vmulss  xmm0, xmm2, dword ptr [rbx+40h]
-      vaddss  xmm1, xmm0, xmm4
-      vmovss  dword ptr [rdi], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+44h]
-      vaddss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rdi+4], xmm1
-      vmulss  xmm0, xmm2, dword ptr [rbx+48h]
-      vaddss  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rdi+8], xmm1
-    }
+    traceLen = v18.traceLen;
+    back = v18.back;
+    outFocusPoint->v[0] = (float)(v18.traceLen * camInfo->eyeView.m[0].v[0]) + camInfo->eyePos.v[0];
+    outFocusPoint->v[1] = (float)(traceLen * camInfo->eyeView.m[0].v[1]) + camInfo->eyePos.v[1];
+    outFocusPoint->v[2] = (float)(traceLen * camInfo->eyeView.m[0].v[2]) + camInfo->eyePos.v[2];
+    v8 = camInfo->eyeView.m[0].v[2];
+    v9 = camInfo->eyeView.m[0].v[1];
+    v10 = camInfo->eyePos.v[0] - (float)(back * camInfo->eyeView.m[0].v[0]);
+    outEyePos->v[0] = v10;
+    v11 = camInfo->eyePos.v[1] - (float)(back * v9);
+    outEyePos->v[1] = v11;
+    v12 = camInfo->eyePos.v[2] - (float)(back * v8);
+    height = v18.height;
+    outEyePos->v[2] = v12;
+    v14 = (float)(height * camInfo->eyeView.m[2].v[0]) + v10;
+    outEyePos->v[0] = v14;
+    v15 = (float)(height * camInfo->eyeView.m[2].v[1]) + v11;
+    horizOffset = v18.horizOffset;
+    outEyePos->v[1] = v15;
+    v17 = (float)(height * camInfo->eyeView.m[2].v[2]) + v12;
+    outEyePos->v[2] = v17;
+    outEyePos->v[0] = (float)(horizOffset * camInfo->eyeView.m[1].v[0]) + v14;
+    outEyePos->v[1] = (float)(horizOffset * camInfo->eyeView.m[1].v[1]) + v15;
+    outEyePos->v[2] = (float)(horizOffset * camInfo->eyeView.m[1].v[2]) + v17;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+34h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+28h]
-      vmovss  dword ptr [rsi], xmm1
-      vmovss  xmm2, dword ptr [rbx+2Ch]
-      vaddss  xmm0, xmm2, dword ptr [rbx+38h]
-      vmovss  dword ptr [rsi+4], xmm0
-      vmovss  xmm1, dword ptr [rbx+30h]
-      vaddss  xmm2, xmm1, dword ptr [rbx+3Ch]
-      vmovss  dword ptr [rsi+8], xmm2
-    }
-    _RDI->v[0] = _RBX->eyePos.v[0];
-    _RDI->v[1] = _RBX->eyePos.v[1];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vmovss  dword ptr [rdi+8], xmm0
-    }
+    outFocusPoint->v[0] = camInfo->eyeView.m[0].v[0] + camInfo->eyePos.v[0];
+    outFocusPoint->v[1] = camInfo->eyePos.v[1] + camInfo->eyeView.m[0].v[1];
+    outFocusPoint->v[2] = camInfo->eyePos.v[2] + camInfo->eyeView.m[0].v[2];
+    outEyePos->v[0] = camInfo->eyePos.v[0];
+    outEyePos->v[1] = camInfo->eyePos.v[1];
+    outEyePos->v[2] = camInfo->eyePos.v[2];
   }
 }
 
@@ -1183,19 +993,22 @@ char BGTurretVehicleCamConfig::Init(BGTurretVehicleCamConfig *this, const BGTurr
 {
   const VehicleDef *vehDef; 
   VehicleType type; 
+  const dvar_t *v6; 
   const dvar_t *v7; 
   const dvar_t *v8; 
-  const dvar_t *v9; 
+  float value; 
+  const dvar_t *v10; 
+  const dvar_t *v11; 
   const dvar_t *v12; 
   const dvar_t *v13; 
   const dvar_t *v14; 
   const dvar_t *v15; 
   const dvar_t *v16; 
-  const dvar_t *v17; 
-  const char *v18; 
+  const char *v17; 
+  const dvar_t *v18; 
   const dvar_t *v19; 
   const dvar_t *v20; 
-  const dvar_t *v21; 
+  double v21; 
   const dvar_t *v22; 
   const dvar_t *v23; 
   const dvar_t *v24; 
@@ -1204,13 +1017,13 @@ char BGTurretVehicleCamConfig::Init(BGTurretVehicleCamConfig *this, const BGTurr
   const dvar_t *v27; 
   const dvar_t *v28; 
   const dvar_t *v29; 
-  const dvar_t *v30; 
+  double Float_Internal_DebugName; 
   const dvar_t *v31; 
   const dvar_t *v32; 
   const dvar_t *v33; 
   const dvar_t *v34; 
+  const dvar_t *v35; 
 
-  _RBX = this;
   if ( !camInfo->vehDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_camera.cpp", 204, ASSERT_TYPE_ASSERT, "(camInfo.vehDef)", (const char *)&queryFormat, "camInfo.vehDef") )
     __debugbreak();
   vehDef = camInfo->vehDef;
@@ -1219,69 +1032,69 @@ char BGTurretVehicleCamConfig::Init(BGTurretVehicleCamConfig *this, const BGTurr
   {
     if ( vehDef->vehiclePhysicsDef.physics_animProfile == VEH_ANIMPROFILE_VINDIA )
     {
-      v7 = DCONST_DVARFLT_bg_vindiaCamTraceLen;
+      v6 = DCONST_DVARFLT_bg_vindiaCamTraceLen;
       if ( !DCONST_DVARFLT_bg_vindiaCamTraceLen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vindiaCamTraceLen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v7);
-      LODWORD(_RBX->traceLen) = v7->current.integer;
-      v8 = DCONST_DVARFLT_bg_vindiaCamHeight;
+      Dvar_CheckFrontendServerThread(v6);
+      LODWORD(this->traceLen) = v6->current.integer;
+      v7 = DCONST_DVARFLT_bg_vindiaCamHeight;
       if ( !DCONST_DVARFLT_bg_vindiaCamHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vindiaCamHeight") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v8);
-      LODWORD(_RBX->height) = v8->current.integer;
-      v9 = DCONST_DVARFLT_bg_vindiaCamRange;
+      Dvar_CheckFrontendServerThread(v7);
+      LODWORD(this->height) = v7->current.integer;
+      v8 = DCONST_DVARFLT_bg_vindiaCamRange;
       if ( !DCONST_DVARFLT_bg_vindiaCamRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vindiaCamRange") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v9);
-      LODWORD(_RBX->back) = v9->current.integer;
+      Dvar_CheckFrontendServerThread(v8);
+      LODWORD(this->back) = v8->current.integer;
       if ( camInfo->inKillcam )
       {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
+        value = 0.0;
       }
       else
       {
-        _RBP = DCONST_DVARFLT_bg_vindiaCamHorizOffset;
+        v10 = DCONST_DVARFLT_bg_vindiaCamHorizOffset;
         if ( !DCONST_DVARFLT_bg_vindiaCamHorizOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vindiaCamHorizOffset") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBP);
-        __asm { vmovss  xmm0, dword ptr [rbp+28h] }
+        Dvar_CheckFrontendServerThread(v10);
+        value = v10->current.value;
       }
-      __asm { vmovss  dword ptr [rbx+0Ch], xmm0 }
-      v12 = DCONST_DVARFLT_bg_vindiaCamPitchContrib;
+      this->horizOffset = value;
+      v11 = DCONST_DVARFLT_bg_vindiaCamPitchContrib;
       if ( !DCONST_DVARFLT_bg_vindiaCamPitchContrib && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vindiaCamPitchContrib") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v12);
-      LODWORD(_RBX->pitchContrib) = v12->current.integer;
-      v13 = DCONST_DVARFLT_bg_vindiaCamRollContrib;
+      Dvar_CheckFrontendServerThread(v11);
+      LODWORD(this->pitchContrib) = v11->current.integer;
+      v12 = DCONST_DVARFLT_bg_vindiaCamRollContrib;
       if ( !DCONST_DVARFLT_bg_vindiaCamRollContrib && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vindiaCamRollContrib") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v13);
-      LODWORD(_RBX->rollContrib) = v13->current.integer;
-      v14 = DCONST_DVARFLT_bg_vehCamVindiaElevFactor;
+      Dvar_CheckFrontendServerThread(v12);
+      LODWORD(this->rollContrib) = v12->current.integer;
+      v13 = DCONST_DVARFLT_bg_vehCamVindiaElevFactor;
       if ( !DCONST_DVARFLT_bg_vehCamVindiaElevFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehCamVindiaElevFactor") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v14);
-      LODWORD(_RBX->elevationFactor) = v14->current.integer;
-      v15 = DCONST_DVARFLT_bg_vindiaCamRadiusClose;
+      Dvar_CheckFrontendServerThread(v13);
+      LODWORD(this->elevationFactor) = v13->current.integer;
+      v14 = DCONST_DVARFLT_bg_vindiaCamRadiusClose;
       if ( !DCONST_DVARFLT_bg_vindiaCamRadiusClose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vindiaCamRadiusClose") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v15);
-      LODWORD(_RBX->radiusClose) = v15->current.integer;
-      v16 = DCONST_DVARFLT_bg_vindiaCamRadiusBack;
+      Dvar_CheckFrontendServerThread(v14);
+      LODWORD(this->radiusClose) = v14->current.integer;
+      v15 = DCONST_DVARFLT_bg_vindiaCamRadiusBack;
       if ( !DCONST_DVARFLT_bg_vindiaCamRadiusBack && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vindiaCamRadiusBack") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v16);
-      LODWORD(_RBX->radiusBack) = v16->current.integer;
-      v17 = DCONST_DVARFLT_bg_vindiaCamRadiusUp;
+      Dvar_CheckFrontendServerThread(v15);
+      LODWORD(this->radiusBack) = v15->current.integer;
+      v16 = DCONST_DVARFLT_bg_vindiaCamRadiusUp;
       if ( DCONST_DVARFLT_bg_vindiaCamRadiusUp )
         goto LABEL_101;
-      v18 = "bg_vindiaCamRadiusUp";
+      v17 = "bg_vindiaCamRadiusUp";
 LABEL_99:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v18) )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v17) )
         __debugbreak();
 LABEL_101:
-      Dvar_CheckFrontendServerThread(v17);
-      LODWORD(_RBX->radiusHeight) = v17->current.integer;
+      Dvar_CheckFrontendServerThread(v16);
+      LODWORD(this->radiusHeight) = v16->current.integer;
       return 1;
     }
   }
@@ -1293,104 +1106,104 @@ LABEL_101:
       if ( !DCONST_DVARFLT_bg_bradleyCamTraceLen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bradleyCamTraceLen") )
         __debugbreak();
       Dvar_CheckFrontendServerThread(v27);
-      LODWORD(_RBX->traceLen) = v27->current.integer;
+      LODWORD(this->traceLen) = v27->current.integer;
       v28 = DCONST_DVARFLT_bg_bradleyCamHeight;
       if ( !DCONST_DVARFLT_bg_bradleyCamHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bradleyCamHeight") )
         __debugbreak();
       Dvar_CheckFrontendServerThread(v28);
-      LODWORD(_RBX->height) = v28->current.integer;
+      LODWORD(this->height) = v28->current.integer;
       v29 = DCONST_DVARFLT_bg_bradleyCamRange;
       if ( !DCONST_DVARFLT_bg_bradleyCamRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bradleyCamRange") )
         __debugbreak();
       Dvar_CheckFrontendServerThread(v29);
-      LODWORD(_RBX->back) = v29->current.integer;
+      LODWORD(this->back) = v29->current.integer;
       if ( camInfo->inKillcam )
-        __asm { vxorps  xmm0, xmm0, xmm0 }
+        LODWORD(Float_Internal_DebugName) = 0;
       else
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_bradleyCamHorizOffset, "bg_bradleyCamHorizOffset");
-      __asm { vmovss  dword ptr [rbx+0Ch], xmm0 }
-      v30 = DCONST_DVARFLT_bg_bradleyCamPitchContrib;
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_bradleyCamHorizOffset, "bg_bradleyCamHorizOffset");
+      this->horizOffset = *(float *)&Float_Internal_DebugName;
+      v31 = DCONST_DVARFLT_bg_bradleyCamPitchContrib;
       if ( !DCONST_DVARFLT_bg_bradleyCamPitchContrib && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bradleyCamPitchContrib") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v30);
-      LODWORD(_RBX->pitchContrib) = v30->current.integer;
-      v31 = DCONST_DVARFLT_bg_bradleyCamRollContrib;
+      Dvar_CheckFrontendServerThread(v31);
+      LODWORD(this->pitchContrib) = v31->current.integer;
+      v32 = DCONST_DVARFLT_bg_bradleyCamRollContrib;
       if ( !DCONST_DVARFLT_bg_bradleyCamRollContrib && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bradleyCamRollContrib") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v31);
-      LODWORD(_RBX->rollContrib) = v31->current.integer;
-      v32 = DCONST_DVARFLT_bg_vehCamBradleyElevFactor;
+      Dvar_CheckFrontendServerThread(v32);
+      LODWORD(this->rollContrib) = v32->current.integer;
+      v33 = DCONST_DVARFLT_bg_vehCamBradleyElevFactor;
       if ( !DCONST_DVARFLT_bg_vehCamBradleyElevFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehCamBradleyElevFactor") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v32);
-      LODWORD(_RBX->elevationFactor) = v32->current.integer;
-      v33 = DCONST_DVARFLT_bg_bradleyCamRadiusClose;
+      Dvar_CheckFrontendServerThread(v33);
+      LODWORD(this->elevationFactor) = v33->current.integer;
+      v34 = DCONST_DVARFLT_bg_bradleyCamRadiusClose;
       if ( !DCONST_DVARFLT_bg_bradleyCamRadiusClose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bradleyCamRadiusClose") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v33);
-      LODWORD(_RBX->radiusClose) = v33->current.integer;
-      v34 = DCONST_DVARFLT_bg_bradleyCamRadiusBack;
+      Dvar_CheckFrontendServerThread(v34);
+      LODWORD(this->radiusClose) = v34->current.integer;
+      v35 = DCONST_DVARFLT_bg_bradleyCamRadiusBack;
       if ( !DCONST_DVARFLT_bg_bradleyCamRadiusBack && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bradleyCamRadiusBack") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v34);
-      LODWORD(_RBX->radiusBack) = v34->current.integer;
-      v17 = DCONST_DVARFLT_bg_bradleyCamRadiusUp;
+      Dvar_CheckFrontendServerThread(v35);
+      LODWORD(this->radiusBack) = v35->current.integer;
+      v16 = DCONST_DVARFLT_bg_bradleyCamRadiusUp;
       if ( DCONST_DVARFLT_bg_bradleyCamRadiusUp )
         goto LABEL_101;
-      v18 = "bg_bradleyCamRadiusUp";
+      v17 = "bg_bradleyCamRadiusUp";
       goto LABEL_99;
     }
     if ( vehDef->vehiclePhysicsDef.physics_gameProfile == VEH_GAMEPROFILE_WHEELSON )
     {
-      v19 = DCONST_DVARFLT_bg_wheelsonCamTraceLen;
+      v18 = DCONST_DVARFLT_bg_wheelsonCamTraceLen;
       if ( !DCONST_DVARFLT_bg_wheelsonCamTraceLen && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_wheelsonCamTraceLen") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v19);
-      LODWORD(_RBX->traceLen) = v19->current.integer;
-      v20 = DCONST_DVARFLT_bg_wheelsonCamHeight;
+      Dvar_CheckFrontendServerThread(v18);
+      LODWORD(this->traceLen) = v18->current.integer;
+      v19 = DCONST_DVARFLT_bg_wheelsonCamHeight;
       if ( !DCONST_DVARFLT_bg_wheelsonCamHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_wheelsonCamHeight") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v20);
-      LODWORD(_RBX->height) = v20->current.integer;
-      v21 = DCONST_DVARFLT_bg_wheelsonCamRange;
+      Dvar_CheckFrontendServerThread(v19);
+      LODWORD(this->height) = v19->current.integer;
+      v20 = DCONST_DVARFLT_bg_wheelsonCamRange;
       if ( !DCONST_DVARFLT_bg_wheelsonCamRange && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_wheelsonCamRange") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v21);
-      LODWORD(_RBX->back) = v21->current.integer;
+      Dvar_CheckFrontendServerThread(v20);
+      LODWORD(this->back) = v20->current.integer;
       if ( camInfo->inKillcam )
-        __asm { vxorps  xmm0, xmm0, xmm0 }
+        LODWORD(v21) = 0;
       else
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_wheelsonCamHorizOffset, "bg_wheelsonCamHorizOffset");
-      __asm { vmovss  dword ptr [rbx+0Ch], xmm0 }
+        v21 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_wheelsonCamHorizOffset, "bg_wheelsonCamHorizOffset");
+      this->horizOffset = *(float *)&v21;
       v22 = DCONST_DVARFLT_bg_wheelsonCamPitchContrib;
       if ( !DCONST_DVARFLT_bg_wheelsonCamPitchContrib && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_wheelsonCamPitchContrib") )
         __debugbreak();
       Dvar_CheckFrontendServerThread(v22);
-      LODWORD(_RBX->pitchContrib) = v22->current.integer;
+      LODWORD(this->pitchContrib) = v22->current.integer;
       v23 = DCONST_DVARFLT_bg_wheelsonCamRollContrib;
       if ( !DCONST_DVARFLT_bg_wheelsonCamRollContrib && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_wheelsonCamRollContrib") )
         __debugbreak();
       Dvar_CheckFrontendServerThread(v23);
-      LODWORD(_RBX->rollContrib) = v23->current.integer;
+      LODWORD(this->rollContrib) = v23->current.integer;
       v24 = DCONST_DVARFLT_bg_vehCamWheelsonElevFactor;
       if ( !DCONST_DVARFLT_bg_vehCamWheelsonElevFactor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehCamWheelsonElevFactor") )
         __debugbreak();
       Dvar_CheckFrontendServerThread(v24);
-      LODWORD(_RBX->elevationFactor) = v24->current.integer;
+      LODWORD(this->elevationFactor) = v24->current.integer;
       v25 = DCONST_DVARFLT_bg_wheelsonCamRadiusClose;
       if ( !DCONST_DVARFLT_bg_wheelsonCamRadiusClose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_wheelsonCamRadiusClose") )
         __debugbreak();
       Dvar_CheckFrontendServerThread(v25);
-      LODWORD(_RBX->radiusClose) = v25->current.integer;
+      LODWORD(this->radiusClose) = v25->current.integer;
       v26 = DCONST_DVARFLT_bg_wheelsonCamRadiusBack;
       if ( !DCONST_DVARFLT_bg_wheelsonCamRadiusBack && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_wheelsonCamRadiusBack") )
         __debugbreak();
       Dvar_CheckFrontendServerThread(v26);
-      LODWORD(_RBX->radiusBack) = v26->current.integer;
-      v17 = DCONST_DVARFLT_bg_wheelsonCamRadiusUp;
+      LODWORD(this->radiusBack) = v26->current.integer;
+      v16 = DCONST_DVARFLT_bg_wheelsonCamRadiusUp;
       if ( DCONST_DVARFLT_bg_wheelsonCamRadiusUp )
         goto LABEL_101;
-      v18 = "bg_wheelsonCamRadiusUp";
+      v17 = "bg_wheelsonCamRadiusUp";
       goto LABEL_99;
     }
   }

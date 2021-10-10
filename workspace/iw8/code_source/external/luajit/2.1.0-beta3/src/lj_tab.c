@@ -482,25 +482,20 @@ lj_tab_getinth
 */
 const TValue *lj_tab_getinth(GCtab *t, int key)
 {
-  int v5; 
-  __int64 v8; 
+  int v4; 
+  unsigned __int64 v5; 
 
-  __asm
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, edx }
+  v4 = __ROL4__(2 * DWORD1(_XMM0), 14);
+  v5 = t->node.ptr64 + 24i64 * (t->hmask & (((((unsigned int)_XMM0 ^ (2 * DWORD1(_XMM0))) - v4) ^ __ROL4__(v4, 5)) - __ROL4__((_XMM0 ^ (2 * DWORD1(_XMM0))) - v4, 13)));
+  while ( (unsigned int)(*(__int64 *)(v5 + 8) >> 47) >= 0xFFFFFFF2 || *(double *)&_XMM0 != *(double *)(v5 + 8) )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, edx
-    vmovsd  [rsp+arg_0], xmm0
+    v5 = *(_QWORD *)(v5 + 16);
+    if ( !v5 )
+      return 0i64;
   }
-  v5 = __ROL4__(2 * HIDWORD(v8), 14);
-  _RDX = t->node.ptr64 + 24i64 * (t->hmask & (((((unsigned int)v8 ^ (2 * HIDWORD(v8))) - v5) ^ __ROL4__(v5, 5)) - __ROL4__((v8 ^ (2 * HIDWORD(v8))) - v5, 13)));
-  do
-  {
-    if ( (unsigned int)(*(__int64 *)(_RDX + 8) >> 47) < 0xFFFFFFF2 )
-      __asm { vucomisd xmm0, qword ptr [rdx+8] }
-    _RDX = *(_QWORD *)(_RDX + 16);
-  }
-  while ( _RDX );
-  return 0i64;
+  return (const TValue *)v5;
 }
 
 /*
@@ -531,59 +526,62 @@ lj_tab_get
 Node *lj_tab_get(lua_State *L, GCtab *t, const TValue *key)
 {
   signed __int64 u64; 
-  __int64 v8; 
-  unsigned __int64 v9; 
+  __int64 v7; 
+  unsigned __int64 v8; 
+  Node *result; 
   Node *ptr64; 
 
-  _RDI = key;
   u64 = key->u64;
   if ( (unsigned int)(u64 >> 47) == -5 )
   {
-    v8 = u64 & 0x7FFFFFFFFFFFi64;
-    v9 = t->node.ptr64 + 24i64 * (t->hmask & *(_DWORD *)(v8 + 12));
-    while ( (unsigned int)(*(__int64 *)(v9 + 8) >> 47) != -5 || (*(_QWORD *)(v9 + 8) & 0x7FFFFFFFFFFFi64) != v8 )
+    v7 = u64 & 0x7FFFFFFFFFFFi64;
+    v8 = t->node.ptr64 + 24i64 * (t->hmask & *(_DWORD *)(v7 + 12));
+    while ( (unsigned int)(*(__int64 *)(v8 + 8) >> 47) != -5 || (*(_QWORD *)(v8 + 8) & 0x7FFFFFFFFFFFi64) != v7 )
     {
-      v9 = *(_QWORD *)(v9 + 16);
-      if ( !v9 )
+      v8 = *(_QWORD *)(v8 + 16);
+      if ( !v8 )
         goto LABEL_6;
     }
-    return (Node *)v9;
+    return (Node *)v8;
+  }
+  if ( (unsigned int)(u64 >> 47) >= 0xFFFFFFF2 )
+  {
+    if ( u64 == -1 )
+    {
+LABEL_6:
+      if ( *(_QWORD *)(L->glref.ptr64 + 248) != -1i64 )
+      {
+        if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_tab.c", 454, "((&(((global_State *)(void *)(L->glref).ptr64))->nilnode.val)->it64 == -1)") )
+          __debugbreak();
+      }
+      return (Node *)(L->glref.ptr64 + 248);
+    }
   }
   else
   {
-    if ( (unsigned int)(u64 >> 47) >= 0xFFFFFFF2 )
+    _XMM1 = key->u64;
+    __asm { vcvttsd2si edx, xmm1; key }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, edx }
+    if ( *(double *)&_XMM1 == *(double *)&_XMM0 )
     {
-      if ( u64 == -1 )
-      {
-LABEL_6:
-        if ( *(_QWORD *)(L->glref.ptr64 + 248) != -1i64 )
-        {
-          if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_tab.c", 454, "((&(((global_State *)(void *)(L->glref).ptr64))->nilnode.val)->it64 == -1)") )
-            __debugbreak();
-        }
-        return (Node *)(L->glref.ptr64 + 248);
-      }
+      if ( _EDX >= t->asize )
+        result = (Node *)j_lj_tab_getinth(t, _EDX);
+      else
+        result = (Node *)(t->array.ptr64 + 8i64 * _EDX);
+      if ( result )
+        return result;
+      goto LABEL_6;
     }
-    else
-    {
-      __asm
-      {
-        vmovsd  xmm1, qword ptr [rdi]
-        vcvttsd2si edx, xmm1; key
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, edx
-        vucomisd xmm1, xmm0
-      }
-    }
-    ptr64 = hashkey(t, _RDI);
-    while ( !j_lj_obj_equal(&ptr64->key, _RDI) )
-    {
-      ptr64 = (Node *)ptr64->next.ptr64;
-      if ( !ptr64 )
-        goto LABEL_6;
-    }
-    return ptr64;
   }
+  ptr64 = hashkey(t, key);
+  while ( !j_lj_obj_equal(&ptr64->key, key) )
+  {
+    ptr64 = (Node *)ptr64->next.ptr64;
+    if ( !ptr64 )
+      goto LABEL_6;
+  }
+  return ptr64;
 }
 
 /*
@@ -688,25 +686,22 @@ lj_tab_setinth
 */
 TValue *lj_tab_setinth(lua_State *L, GCtab *t, int key)
 {
-  int v7; 
+  int v6; 
+  unsigned __int64 v7; 
   TValue keya; 
 
-  __asm
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, r8d }
+  keya.u64 = *(unsigned __int64 *)&_XMM0;
+  v6 = __ROL4__(2 * DWORD1(_XMM0), 14);
+  v7 = t->node.ptr64 + 24i64 * (t->hmask & (((((unsigned int)_XMM0 ^ (2 * DWORD1(_XMM0))) - v6) ^ __ROL4__(v6, 5)) - __ROL4__((_XMM0 ^ (2 * DWORD1(_XMM0))) - v6, 13)));
+  while ( (unsigned int)(*(__int64 *)(v7 + 8) >> 47) >= 0xFFFFFFF2 || *(double *)&_XMM0 != *(double *)(v7 + 8) )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, r8d
-    vmovsd  qword ptr [rsp+28h+key], xmm0
+    v7 = *(_QWORD *)(v7 + 16);
+    if ( !v7 )
+      return j_lj_tab_newkey(L, t, &keya);
   }
-  v7 = __ROL4__(2 * keya.it, 14);
-  _RDX = t->node.ptr64 + 24i64 * (t->hmask & ((((keya.i ^ (2 * keya.it)) - v7) ^ __ROL4__(v7, 5)) - __ROL4__((keya.i ^ (2 * keya.it)) - v7, 13)));
-  do
-  {
-    if ( (unsigned int)(*(__int64 *)(_RDX + 8) >> 47) < 0xFFFFFFF2 )
-      __asm { vucomisd xmm0, qword ptr [rdx+8] }
-    _RDX = *(_QWORD *)(_RDX + 16);
-  }
-  while ( _RDX );
-  return j_lj_tab_newkey(L, t, &keya);
+  return (TValue *)v7;
 }
 
 /*
@@ -752,29 +747,27 @@ lj_tab_set
 */
 Node *lj_tab_set(lua_State *L, GCtab *t, const TValue *key)
 {
-  const TValue *v4; 
   unsigned __int64 u64; 
+  __int64 v7; 
   __int64 v8; 
-  __int64 v9; 
-  unsigned __int64 v10; 
+  unsigned __int64 v9; 
   Node *ptr64; 
   TValue keya; 
 
   t->nomm = 0;
-  v4 = key;
   u64 = key->u64;
-  v8 = key->it64 >> 47;
-  if ( (_DWORD)v8 == -5 )
+  v7 = key->it64 >> 47;
+  if ( (_DWORD)v7 == -5 )
   {
-    v9 = u64 & 0x7FFFFFFFFFFFi64;
-    v10 = t->node.ptr64 + 24i64 * (t->hmask & *(_DWORD *)(v9 + 12));
-    while ( (unsigned int)(*(__int64 *)(v10 + 8) >> 47) != -5 || (*(_QWORD *)(v10 + 8) & 0x7FFFFFFFFFFFi64) != v9 )
+    v8 = u64 & 0x7FFFFFFFFFFFi64;
+    v9 = t->node.ptr64 + 24i64 * (t->hmask & *(_DWORD *)(v8 + 12));
+    while ( (unsigned int)(*(__int64 *)(v9 + 8) >> 47) != -5 || (*(_QWORD *)(v9 + 8) & 0x7FFFFFFFFFFFi64) != v8 )
     {
-      v10 = *(_QWORD *)(v10 + 16);
-      if ( !v10 )
+      v9 = *(_QWORD *)(v9 + 16);
+      if ( !v9 )
       {
-        keya.u64 = v9 | 0xFFFD800000000000ui64;
-        if ( ~(unsigned int)((__int64)(v9 | 0xFFFD800000000000ui64) >> 47) != *(unsigned __int8 *)((v9 & 0x7FFFFFFFFFFFi64) + 9) || (*(_BYTE *)((v9 & 0x7FFFFFFFFFFFi64) + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
+        keya.u64 = v8 | 0xFFFD800000000000ui64;
+        if ( ~(unsigned int)((__int64)(v8 | 0xFFFD800000000000ui64) >> 47) != *(unsigned __int8 *)((v8 & 0x7FFFFFFFFFFFi64) + 9) || (*(_BYTE *)((v8 & 0x7FFFFFFFFFFFi64) + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
         {
           if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 878, "!((((uint32_t)((o)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1))) || ((~((uint32_t)((o)->it64 >> 47)) == ((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->gch.gct) && !((((GCobj *)((((o)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1))))->gch.marked & ((((global_State *)(void *)(L->glref).ptr64))->gc.currentwhite ^ (0x01 | 0x02)) & (0x01 | 0x02)))") )
             __debugbreak();
@@ -782,32 +775,35 @@ Node *lj_tab_set(lua_State *L, GCtab *t, const TValue *key)
         return (Node *)j_lj_tab_newkey(L, t, &keya);
       }
     }
-    return (Node *)v10;
+    return (Node *)v9;
   }
   else
   {
-    if ( (unsigned int)v8 >= 0xFFFFFFF2 )
+    if ( (unsigned int)v7 >= 0xFFFFFFF2 )
     {
       if ( u64 == -1i64 )
         j_lj_err_msg(L, LJ_ERR_NILIDX);
     }
     else
     {
-      __asm
+      _XMM1 = key->u64;
+      __asm { vcvttsd2si r8d, xmm1; key }
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, r8d }
+      if ( *(double *)&_XMM1 == *(double *)&_XMM0 )
       {
-        vmovsd  xmm1, qword ptr [r8]
-        vcvttsd2si r8d, xmm1; key
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, r8d
-        vucomisd xmm1, xmm0
+        if ( _ER8 >= t->asize )
+          return (Node *)j_lj_tab_setinth(L, t, _ER8);
+        else
+          return (Node *)(t->array.ptr64 + 8i64 * _ER8);
       }
     }
-    ptr64 = hashkey(t, v4);
-    while ( !j_lj_obj_equal(&ptr64->key, v4) )
+    ptr64 = hashkey(t, key);
+    while ( !j_lj_obj_equal(&ptr64->key, key) )
     {
       ptr64 = (Node *)ptr64->next.ptr64;
       if ( !ptr64 )
-        return (Node *)j_lj_tab_newkey(L, t, v4);
+        return (Node *)j_lj_tab_newkey(L, t, key);
     }
     return ptr64;
   }
@@ -828,31 +824,23 @@ __int64 lj_tab_next(lua_State *L, GCtab *t, TValue *key)
   __int64 v15; 
   unsigned __int64 v16; 
   __int64 v17; 
-  __int64 v21; 
+  TValue v21; 
   __int64 v22; 
-  __int64 v23; 
+  signed __int64 v23; 
   __int64 v24; 
   __int64 v25; 
   __int64 v26; 
 
-  _RDI = key;
   u64 = key->u64;
   if ( (unsigned int)(u64 >> 47) >= 0xFFFFFFF2 )
     goto LABEL_4;
-  __asm
-  {
-    vmovsd  xmm1, qword ptr [rdi]
-    vcvttsd2si edx, xmm1
-  }
+  _XMM1 = key->u64;
+  __asm { vcvttsd2si edx, xmm1 }
   if ( _EDX >= t->asize )
     goto LABEL_4;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, edx
-    vucomisd xmm1, xmm0
-  }
-  if ( _EDX != t->asize )
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, edx }
+  if ( *(double *)&_XMM1 != *(double *)&_XMM0 )
   {
 LABEL_4:
     if ( u64 == -1 )
@@ -861,10 +849,10 @@ LABEL_4:
     }
     else
     {
-      ptr64 = hashkey(t, _RDI);
+      ptr64 = hashkey(t, key);
       do
       {
-        if ( j_lj_obj_equal(&ptr64->key, _RDI) )
+        if ( j_lj_obj_equal(&ptr64->key, key) )
         {
           _EDX = t->asize + ((int)ptr64 - LODWORD(t->node.ptr64)) / 24;
           goto LABEL_12;
@@ -872,9 +860,9 @@ LABEL_4:
         ptr64 = (Node *)ptr64->next.ptr64;
       }
       while ( ptr64 );
-      if ( _RDI->it != -98305 )
+      if ( key->it != -98305 )
         j_lj_err_msg(L, LJ_ERR_NEXTIDX);
-      _EDX = _RDI->i - 1;
+      _EDX = key->i - 1;
     }
   }
 LABEL_12:
@@ -888,16 +876,13 @@ LABEL_12:
       if ( (unsigned int)v13 >= asize )
         goto LABEL_15;
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, edx
-      vmovsd  qword ptr [rdi], xmm0
-    }
-    v21 = *(_QWORD *)(t->array.ptr64 + 8 * v13);
-    _RDI[1].u64 = v21;
-    v22 = v21 >> 47;
-    if ( (unsigned int)(v21 >> 47) + 4 <= 0xFFFFFFF6 )
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, edx }
+    key->u64 = *(unsigned __int64 *)&_XMM0;
+    v21.u64 = *(unsigned __int64 *)(t->array.ptr64 + 8 * v13);
+    key[1].u64 = v21.u64;
+    v22 = v21.it64 >> 47;
+    if ( (unsigned int)(v21.it64 >> 47) + 4 <= 0xFFFFFFF6 )
       return 1i64;
     goto LABEL_28;
   }
@@ -917,7 +902,7 @@ LABEL_15:
       return 0i64;
   }
   v23 = *(_QWORD *)(v16 + 24 * v15 + 8);
-  _RDI->u64 = v23;
+  key->u64 = v23;
   v24 = v23 >> 47;
   if ( (unsigned int)(v23 >> 47) + 4 > 0xFFFFFFF6 )
   {
@@ -928,13 +913,13 @@ LABEL_15:
         __debugbreak();
     }
   }
-  v21 = *(_QWORD *)(v16 + 8 * v17);
-  _RDI[1].u64 = v21;
-  v22 = v21 >> 47;
-  if ( (unsigned int)(v21 >> 47) + 4 > 0xFFFFFFF6 )
+  v21.u64 = *(unsigned __int64 *)(v16 + 8 * v17);
+  key[1].u64 = v21.u64;
+  v22 = v21.it64 >> 47;
+  if ( (unsigned int)(v21.it64 >> 47) + 4 > 0xFFFFFFF6 )
   {
 LABEL_28:
-    v26 = v21 & 0x7FFFFFFFFFFFi64;
+    v26 = v21.u64 & 0x7FFFFFFFFFFFi64;
     if ( ~(_DWORD)v22 != *(unsigned __int8 *)(v26 + 9) || (*(_BYTE *)(v26 + 8) & (unsigned __int8)~*(_BYTE *)(L->glref.ptr64 + 64) & 3) != 0 )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_obj.h", 925, "!((((uint32_t)((o1)->it64 >> 47)) - ((~4u)+1)) > ((~13u) - ((~4u)+1))) || ((~((uint32_t)((o1)->it64 >> 47)) == ((GCobj *)((((o1)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1)))->gch.gct) && !((((GCobj *)((((o1)->gcr).gcptr64) & (((uint64_t)1 << 47) - 1))))->gch.marked & ((((global_State *)(void *)(L->glref).ptr64))->gc.currentwhite ^ (0x01 | 0x02)) & (0x01 | 0x02)))") )
@@ -1095,163 +1080,186 @@ rehashtab
 void rehashtab(lua_State *L, GCtab *t, const TValue *ek)
 {
   unsigned int asize; 
-  int *v5; 
-  __int64 v7; 
-  int v10; 
-  unsigned int v11; 
-  int *v12; 
-  __int64 v13; 
-  unsigned int v14; 
-  int i; 
+  int *v4; 
+  __int64 i; 
+  int v9; 
+  unsigned int v10; 
+  int *v11; 
+  __int64 v12; 
+  unsigned int v13; 
+  int j; 
+  int v15; 
   int v16; 
   int v17; 
+  __int64 *v18; 
   __int64 v19; 
   unsigned int v20; 
-  int v24; 
-  int v25; 
-  int v30; 
-  int v31; 
-  unsigned int v32; 
-  unsigned int v33; 
-  __int64 v34; 
+  __int64 v25; 
+  int v26; 
+  int v27; 
+  int v28; 
+  __int64 v33; 
+  int v34; 
   int v35; 
   int v36; 
-  int v37; 
+  unsigned int v37; 
   unsigned int v38; 
-  int v39[28]; 
+  __int64 v39; 
+  int v40; 
+  int v41; 
+  int v42; 
+  unsigned int v43; 
+  int v44[28]; 
 
   asize = t->asize;
-  v5 = v39;
-  v7 = 28i64;
-  _R14 = ek;
-  while ( v7 )
-  {
-    *v5++ = 0;
-    --v7;
-  }
+  v4 = v44;
+  for ( i = 28i64; i; --i )
+    *v4++ = 0;
   if ( asize )
   {
-    v11 = 0;
-    v12 = v39;
-    v13 = 0i64;
     v10 = 0;
+    v11 = v44;
+    v12 = 0i64;
+    v9 = 0;
     do
     {
-      v14 = 2 << v11;
-      if ( 2 << v11 >= asize )
+      v13 = 2 << v10;
+      if ( 2 << v10 >= asize )
       {
-        v14 = asize - 1;
-        if ( (unsigned int)v13 > asize - 1 )
+        v13 = asize - 1;
+        if ( (unsigned int)v12 > asize - 1 )
           break;
       }
-      for ( i = 0; (unsigned int)v13 <= v14; i = v16 )
+      for ( j = 0; (unsigned int)v12 <= v13; j = v15 )
       {
-        v16 = i + 1;
-        if ( *(_QWORD *)(t->array.ptr64 + 8 * v13) == -1i64 )
-          v16 = i;
-        v13 = (unsigned int)(v13 + 1);
+        v15 = j + 1;
+        if ( *(_QWORD *)(t->array.ptr64 + 8 * v12) == -1i64 )
+          v15 = j;
+        v12 = (unsigned int)(v12 + 1);
       }
-      *v12 += i;
-      v10 += i;
-      ++v12;
+      *v11 += j;
+      v9 += j;
       ++v11;
+      ++v10;
     }
-    while ( v11 < 0x1C );
+    while ( v10 < 0x1C );
   }
   else
   {
-    v10 = 0;
+    v9 = 0;
   }
+  v16 = 0;
   v17 = 0;
-  _RDX = (__int64 *)(t->node.ptr64 + 8);
+  v18 = (__int64 *)(t->node.ptr64 + 8);
   v19 = t->hmask + 1;
   v20 = 1;
   do
   {
-    if ( *(_RDX - 1) != -1 )
+    if ( *(v18 - 1) != -1 )
     {
-      if ( (unsigned int)(*_RDX >> 47) < 0xFFFFFFF2 )
+      if ( (unsigned int)(*v18 >> 47) >= 0xFFFFFFF2 )
+        goto LABEL_22;
+      _XMM1 = (unsigned __int64)*v18;
+      __asm { vcvttsd2si eax, xmm1 }
+      if ( (unsigned int)_EAX >= 0x8000001 )
+        goto LABEL_22;
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, eax }
+      if ( *(double *)&_XMM1 == *(double *)&_XMM0 )
       {
-        __asm
+        if ( _EAX <= 2 )
         {
-          vmovsd  xmm1, qword ptr [rdx]
-          vcvttsd2si eax, xmm1
+          v26 = 1;
+          ++v44[0];
         }
-        if ( _EAX < 0x8000001 )
+        else
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2sd xmm0, xmm0, eax
-            vucomisd xmm1, xmm0
-          }
+          _BitScanReverse((unsigned int *)&v25, _EAX - 1);
+          v26 = 1;
+          ++v44[v25];
         }
       }
+      else
+      {
+LABEL_22:
+        v26 = 0;
+      }
+      v16 += v26;
       ++v17;
     }
-    _RDX += 3;
+    v18 += 3;
     --v19;
   }
   while ( v19 );
-  v24 = v10;
-  v25 = v17 + v10 + 1;
-  if ( (unsigned int)(_R14->it64 >> 47) < 0xFFFFFFF2 )
+  v27 = v16 + v9;
+  v28 = v17 + v9 + 1;
+  if ( (unsigned int)(ek->it64 >> 47) >= 0xFFFFFFF2 )
+    goto LABEL_31;
+  _XMM1 = ek->u64;
+  __asm { vcvttsd2si eax, xmm1 }
+  if ( (unsigned int)_EAX >= 0x8000001 )
+    goto LABEL_31;
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, eax }
+  if ( *(double *)&_XMM1 == *(double *)&_XMM0 )
   {
-    __asm
+    if ( _EAX <= 2 )
     {
-      vmovsd  xmm1, qword ptr [r14]
-      vcvttsd2si eax, xmm1
+      v34 = 1;
+      ++v44[0];
     }
-    if ( _EAX < 0x8000001 )
+    else
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, eax
-        vucomisd xmm1, xmm0
-      }
+      _BitScanReverse((unsigned int *)&v33, _EAX - 1);
+      v34 = 1;
+      ++v44[v33];
     }
   }
-  v30 = v10;
-  v31 = 0;
-  v32 = 2 * v10;
-  v33 = 0;
-  v34 = 0i64;
-  v35 = 0;
-  if ( (unsigned int)(2 * v24) > 1 )
+  else
+  {
+LABEL_31:
+    v34 = 0;
+  }
+  v35 = v34 + v27;
+  v36 = 0;
+  v37 = 2 * (v34 + v27);
+  v38 = 0;
+  v39 = 0i64;
+  v40 = 0;
+  if ( v37 > 1 )
   {
     do
     {
-      if ( v35 == v30 )
+      if ( v40 == v35 )
         break;
-      v36 = v39[v34];
-      if ( v36 )
+      v41 = v44[v39];
+      if ( v41 )
       {
-        v35 += v36;
-        if ( 2 * v35 > (unsigned int)(1 << v34) )
+        v40 += v41;
+        if ( 2 * v40 > (unsigned int)(1 << v39) )
         {
-          v31 = v35;
-          v33 = (2 << v34) + 1;
+          v36 = v40;
+          v38 = (2 << v39) + 1;
         }
       }
-      v34 = (unsigned int)(v34 + 1);
+      v39 = (unsigned int)(v39 + 1);
     }
-    while ( v32 > 1 << v34 );
+    while ( v37 > 1 << v39 );
   }
-  v37 = v25 - v31;
-  if ( v37 )
+  v42 = v28 - v36;
+  if ( v42 )
   {
-    if ( v37 != 1 )
+    if ( v42 != 1 )
     {
-      _BitScanReverse(&v38, v37 - 1);
-      v20 = v38 + 1;
+      _BitScanReverse(&v43, v42 - 1);
+      v20 = v43 + 1;
     }
   }
   else
   {
     v20 = 0;
   }
-  j_lj_tab_resize(L, t, v33, v20);
+  j_lj_tab_resize(L, t, v38, v20);
 }
 
 /*
@@ -1262,110 +1270,98 @@ unbound_search
 __int64 unbound_search(GCtab *t, unsigned int j)
 {
   unsigned int asize; 
+  unsigned int v3; 
   unsigned int v4; 
-  unsigned int v5; 
+  double *v5; 
   int v8; 
   int i; 
-  int v12; 
-  __int64 v14; 
-  int v17; 
-  __int64 v18; 
-  __int64 v19; 
-  __int64 v20; 
+  double *v10; 
+  int v13; 
+  __int64 v15; 
+  double *v16; 
+  int v19; 
 
   asize = t->asize;
-  v4 = j + 1;
-  v5 = j;
+  v3 = j + 1;
+  v4 = j;
   while ( 1 )
   {
-    if ( v4 >= asize )
+    if ( v3 >= asize )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, r8d
-        vmovsd  [rsp+arg_0], xmm0
-      }
-      v8 = __ROL4__(2 * HIDWORD(v18), 14);
-      _RDX = (_QWORD *)(t->node.ptr64 + 24i64 * (t->hmask & (((((unsigned int)v18 ^ (2 * HIDWORD(v18))) - v8) ^ __ROL4__(v8, 5)) - __ROL4__((v18 ^ (2 * HIDWORD(v18))) - v8, 13))));
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, r8d }
+      v8 = __ROL4__(2 * DWORD1(_XMM0), 14);
+      v5 = (double *)(t->node.ptr64 + 24i64 * (t->hmask & (((((unsigned int)_XMM0 ^ (2 * DWORD1(_XMM0))) - v8) ^ __ROL4__(v8, 5)) - __ROL4__((_XMM0 ^ (2 * DWORD1(_XMM0))) - v8, 13))));
       do
       {
-        if ( (unsigned int)((__int64)_RDX[1] >> 47) < 0xFFFFFFF2 )
-          __asm { vucomisd xmm0, qword ptr [rdx+8] }
-        _RDX = (_QWORD *)_RDX[2];
+        if ( (unsigned int)(*((__int64 *)v5 + 1) >> 47) < 0xFFFFFFF2 && *(double *)&_XMM0 == v5[1] )
+          break;
+        v5 = (double *)*((_QWORD *)v5 + 2);
       }
-      while ( _RDX );
+      while ( v5 );
     }
     else
     {
-      _RDX = (_QWORD *)(t->array.ptr64 + 8i64 * (int)v4);
+      v5 = (double *)(t->array.ptr64 + 8i64 * (int)v3);
     }
-    if ( !_RDX || *_RDX == -1i64 )
+    if ( !v5 || *(_QWORD *)v5 == -1i64 )
       break;
-    v5 = v4;
-    v4 *= 2;
-    if ( v4 > 0x7FFFFFFD )
+    v4 = v3;
+    v3 *= 2;
+    if ( v3 > 0x7FFFFFFD )
     {
       for ( i = 1; ; ++i )
       {
         if ( i >= asize )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2sd xmm0, xmm0, r8d
-            vmovsd  [rsp+arg_0], xmm0
-          }
-          v12 = __ROL4__(2 * HIDWORD(v19), 14);
-          _RDX = (_QWORD *)(t->node.ptr64 + 24i64 * (t->hmask & (((((unsigned int)v19 ^ (2 * HIDWORD(v19))) - v12) ^ __ROL4__(v12, 5)) - __ROL4__((v19 ^ (2 * HIDWORD(v19))) - v12, 13))));
+          _XMM0 = 0i64;
+          __asm { vcvtsi2sd xmm0, xmm0, r8d }
+          v13 = __ROL4__(2 * DWORD1(_XMM0), 14);
+          v10 = (double *)(t->node.ptr64 + 24i64 * (t->hmask & (((((unsigned int)_XMM0 ^ (2 * DWORD1(_XMM0))) - v13) ^ __ROL4__(v13, 5)) - __ROL4__((_XMM0 ^ (2 * DWORD1(_XMM0))) - v13, 13))));
           do
           {
-            if ( (unsigned int)((__int64)_RDX[1] >> 47) < 0xFFFFFFF2 )
-              __asm { vucomisd xmm0, qword ptr [rdx+8] }
-            _RDX = (_QWORD *)_RDX[2];
+            if ( (unsigned int)(*((__int64 *)v10 + 1) >> 47) < 0xFFFFFFF2 && *(double *)&_XMM0 == v10[1] )
+              break;
+            v10 = (double *)*((_QWORD *)v10 + 2);
           }
-          while ( _RDX );
+          while ( v10 );
         }
         else
         {
-          _RDX = (_QWORD *)(t->array.ptr64 + 8i64 * i);
+          v10 = (double *)(t->array.ptr64 + 8i64 * i);
         }
-        if ( !_RDX || *_RDX == -1i64 )
+        if ( !v10 || *(_QWORD *)v10 == -1i64 )
           break;
       }
       return (unsigned int)(i - 1);
     }
   }
-  while ( v4 - v5 > 1 )
+  while ( v3 - v4 > 1 )
   {
-    v14 = (v5 + v4) >> 1;
-    if ( (unsigned int)v14 >= asize )
+    v15 = (v4 + v3) >> 1;
+    if ( (unsigned int)v15 >= asize )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, r9d
-        vmovsd  [rsp+arg_0], xmm0
-      }
-      v17 = __ROL4__(2 * HIDWORD(v20), 14);
-      _RDX = (_QWORD *)(t->node.ptr64 + 24i64 * (t->hmask & (((((unsigned int)v20 ^ (2 * HIDWORD(v20))) - v17) ^ __ROL4__(v17, 5)) - __ROL4__((v20 ^ (2 * HIDWORD(v20))) - v17, 13))));
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, r9d }
+      v19 = __ROL4__(2 * DWORD1(_XMM0), 14);
+      v16 = (double *)(t->node.ptr64 + 24i64 * (t->hmask & (((((unsigned int)_XMM0 ^ (2 * DWORD1(_XMM0))) - v19) ^ __ROL4__(v19, 5)) - __ROL4__((_XMM0 ^ (2 * DWORD1(_XMM0))) - v19, 13))));
       do
       {
-        if ( (unsigned int)((__int64)_RDX[1] >> 47) < 0xFFFFFFF2 )
-          __asm { vucomisd xmm0, qword ptr [rdx+8] }
-        _RDX = (_QWORD *)_RDX[2];
+        if ( (unsigned int)(*((__int64 *)v16 + 1) >> 47) < 0xFFFFFFF2 && *(double *)&_XMM0 == v16[1] )
+          break;
+        v16 = (double *)*((_QWORD *)v16 + 2);
       }
-      while ( _RDX );
+      while ( v16 );
     }
     else
     {
-      _RDX = (_QWORD *)(t->array.ptr64 + 8 * v14);
+      v16 = (double *)(t->array.ptr64 + 8 * v15);
     }
-    if ( !_RDX || *_RDX == -1i64 )
-      v4 = (v5 + v4) >> 1;
+    if ( !v16 || *(_QWORD *)v16 == -1i64 )
+      v3 = (v4 + v3) >> 1;
     else
-      v5 = (v5 + v4) >> 1;
+      v4 = (v4 + v3) >> 1;
   }
-  return v5;
+  return v4;
 }
 

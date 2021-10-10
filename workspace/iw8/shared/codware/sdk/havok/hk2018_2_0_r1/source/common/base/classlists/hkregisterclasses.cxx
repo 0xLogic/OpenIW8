@@ -9,6 +9,7 @@ __int64 __fastcall registerReflectedClasses(double _XMM0_8)
   __int64 *v1; 
   int v3; 
   __int64 v5[550]; 
+  __int128 v6; 
 
   hkProductFeatures::Common::RegisterReflectedClasses::s_optionalComponent.m_isUsed.m_bool = 1;
   v5[1] = 0i64;
@@ -564,7 +565,7 @@ __int64 __fastcall registerReflectedClasses(double _XMM0_8)
   v5[545] = 0i64;
   v5[547] = 0i64;
   v5[549] = 0i64;
-  __asm { vmovdqu [rbp+1050h+var_20], xmm0 }
+  v6 = _XMM0;
   while ( !*v1 || *(_QWORD *)(*v1 + 8) )
   {
     ++v3;

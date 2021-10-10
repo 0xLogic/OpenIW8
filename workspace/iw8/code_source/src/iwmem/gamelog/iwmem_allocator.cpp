@@ -400,28 +400,23 @@ IWMemAllocator::Create
 void IWMemAllocator::Create(IWMemAllocator *this, const char *name, IWMemAllocatorType type, unsigned __int64 address, unsigned __int64 size)
 {
   unsigned __int64 m_matPixId; 
-  unsigned __int64 v11; 
-  __int128 v12; 
+  unsigned __int64 v10; 
+  IWMemBlock v11; 
 
-  _RSI = this;
   memset_0(this, 0, sizeof(IWMemAllocator));
-  _RSI->m_type = type;
-  *(_QWORD *)&v12 = address;
-  *((_QWORD *)&v12 + 1) = size;
+  this->m_type = type;
+  v11.m_address = address;
+  v11.m_size = size;
   if ( !size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 84, ASSERT_TYPE_ASSERT, "(GetSize() > 0)", (const char *)&queryFormat, "GetSize() > 0") )
     __debugbreak();
   if ( address >= size + address && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, [rsp+58h+var_28]
-    vmovups xmmword ptr [rsi+40h], xmm0
-  }
-  Core_strcpy(_RSI->m_name, 0x40ui64, name);
-  IWMemAllocatorTable::Init(&_RSI->m_table);
-  if ( _RSI->m_type == NormalSpace )
-    _RSI->m_maxUsedSize = -1i64;
-  if ( IWMem_UsingMATorPIX() && _RSI->m_type == 4 )
+  this->m_ownedRange = v11;
+  Core_strcpy(this->m_name, 0x40ui64, name);
+  IWMemAllocatorTable::Init(&this->m_table);
+  if ( this->m_type == NormalSpace )
+    this->m_maxUsedSize = -1i64;
+  if ( IWMem_UsingMATorPIX() && this->m_type == 4 )
   {
     m_matPixId = 0i64;
     while ( 1 )
@@ -433,20 +428,20 @@ void IWMemAllocator::Create(IWMemAllocator *this, const char *name, IWMemAllocat
       m_matPixId = (unsigned int)(m_matPixId + 1);
       if ( (unsigned int)m_matPixId >= 0x80 )
       {
-        m_matPixId = _RSI->m_matPixId;
+        m_matPixId = this->m_matPixId;
         goto LABEL_19;
       }
     }
-    _RSI->m_matPixId = m_matPixId;
+    this->m_matPixId = m_matPixId;
 LABEL_19:
     if ( m_matPixId >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\bitset\\bitset.h", 238, ASSERT_TYPE_ASSERT, "( pos < num_bits )", (const char *)&queryFormat, "pos < num_bits") )
       __debugbreak();
     if ( ((0x8000000000000000ui64 >> (m_matPixId & 0x3F)) & s_iwMemAllocatorGlob.pixIDs.m_data[m_matPixId >> 6]) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_allocator.cpp", 755, ASSERT_TYPE_ASSERT, "(!s_iwMemAllocatorGlob.pixIDs.test( m_matPixId ))", (const char *)&queryFormat, "!s_iwMemAllocatorGlob.pixIDs.test( m_matPixId )") )
       __debugbreak();
-    v11 = _RSI->m_matPixId;
-    if ( v11 >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\bitset\\bitset.h", 181, ASSERT_TYPE_ASSERT, "( pos < num_bits )", (const char *)&queryFormat, "pos < num_bits") )
+    v10 = this->m_matPixId;
+    if ( v10 >= 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\bitset\\bitset.h", 181, ASSERT_TYPE_ASSERT, "( pos < num_bits )", (const char *)&queryFormat, "pos < num_bits") )
       __debugbreak();
-    s_iwMemAllocatorGlob.pixIDs.m_data[v11 >> 6] |= 0x8000000000000000ui64 >> (v11 & 0x3F);
+    s_iwMemAllocatorGlob.pixIDs.m_data[v10 >> 6] |= 0x8000000000000000ui64 >> (v10 & 0x3F);
   }
 }
 
@@ -510,13 +505,12 @@ unsigned __int64 IWMemAllocator::GetCommitFreeSize(IWMemAllocator *this)
   unsigned __int64 m_simpleUsed; 
   IWMemAllocatorType m_type; 
 
-  _RDI = this;
   if ( this->m_type <= 4u )
     return 0i64;
   m_parentIndex = this->m_parentIndex;
   if ( !m_parentIndex || !IWMem_AllocatorManager_GetAllocatorByIndex(m_parentIndex) )
     return 0i64;
-  v3 = _RDI->m_parentIndex;
+  v3 = this->m_parentIndex;
   v4 = 0i64;
   if ( v3 )
     AllocatorByIndex = IWMem_AllocatorManager_GetAllocatorByIndex(v3);
@@ -524,7 +518,7 @@ unsigned __int64 IWMemAllocator::GetCommitFreeSize(IWMemAllocator *this)
     AllocatorByIndex = NULL;
   if ( AllocatorByIndex->m_type == 4 )
   {
-    v6 = _RDI->m_parentIndex;
+    v6 = this->m_parentIndex;
     if ( v6 )
       v7 = IWMem_AllocatorManager_GetAllocatorByIndex(v6);
     else
@@ -533,30 +527,27 @@ unsigned __int64 IWMemAllocator::GetCommitFreeSize(IWMemAllocator *this)
       m_simpleUsed = v7->m_simpleUsed;
     else
       m_simpleUsed = 0i64;
-    if ( _RDI->m_type > (unsigned int)NormalSpace )
-      v4 = _RDI->m_simpleUsed;
+    if ( this->m_type > (unsigned int)NormalSpace )
+      v4 = this->m_simpleUsed;
     if ( m_simpleUsed > v4 )
       return m_simpleUsed - v4;
     return 0i64;
   }
-  m_type = _RDI->m_type;
+  m_type = this->m_type;
   switch ( m_type )
   {
     case All:
       return v4;
     case NormalSpace:
-      return _RDI->m_simpleUsed;
+      return this->m_simpleUsed;
     case PhaseSpace:
       return v4;
   }
-  if ( (unsigned int)(m_type - 1) <= 1 || (_RDI->m_flags & 4) != 0 )
+  if ( (unsigned int)(m_type - 1) <= 1 || (this->m_flags & 4) != 0 )
     return 0i64;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+40h]
-    vpextrq rbx, xmm0, 1
-  }
-  return _RBX - _RDI->m_simpleUsed;
+  _XMM0 = this->m_ownedRange;
+  __asm { vpextrq rbx, xmm0, 1 }
+  return _RBX - this->m_simpleUsed;
 }
 
 /*
@@ -646,11 +637,8 @@ unsigned __int64 IWMemAllocator::GetFreeSize(IWMemAllocator *this)
   }
   if ( (unsigned int)(m_type - 1) <= 1 || (this->m_flags & 4) != 0 )
     return 0i64;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx+40h]
-    vpextrq rax, xmm0, 1
-  }
+  _XMM0 = this->m_ownedRange;
+  __asm { vpextrq rax, xmm0, 1 }
   return _RAX - this->m_simpleUsed;
 }
 
@@ -692,11 +680,8 @@ unsigned __int64 IWMemAllocator::GetMinFreeSize(IWMemAllocator *this)
         }
         else
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rcx+40h]
-            vpextrq rax, xmm0, 1
-          }
+          _XMM0 = this->m_ownedRange;
+          __asm { vpextrq rax, xmm0, 1 }
         }
       }
       else
@@ -718,43 +703,36 @@ IWMemAllocator::GetOwnedRangeReport
 */
 IWMemBlock *IWMemAllocator::GetOwnedRangeReport(IWMemAllocator *this, IWMemBlock *result)
 {
-  IWMemBlock *v3; 
   IWMemAllocatorFlag m_flags; 
   IWMemAllocatorType m_type; 
   unsigned __int64 m_address; 
 
-  _RDI = this;
-  v3 = result;
   m_flags = this->m_flags;
   if ( (m_flags & 4) != 0 )
   {
     if ( (m_flags & 2) == 0 && ((m_flags & 0x10) == 0 || IWMem_UseMaxTracking()) )
     {
-      m_type = _RDI->m_type;
-      if ( m_type != (Count|0x4) && m_type != NormalSpace && _RDI->m_table.m_allocs.m_count )
+      m_type = this->m_type;
+      if ( m_type != (Count|0x4) && m_type != NormalSpace && this->m_table.m_allocs.m_count )
       {
-        IWMemAllocatorTable::GetUsedRange(&_RDI->m_table, v3);
-        return v3;
+        IWMemAllocatorTable::GetUsedRange(&this->m_table, result);
+        return result;
       }
     }
-    m_address = _RDI->m_ownedRange.m_address;
-    v3->m_address = m_address;
-    v3->m_size = 1i64;
+    m_address = this->m_ownedRange.m_address;
+    result->m_address = m_address;
+    result->m_size = 1i64;
     if ( m_address >= m_address + 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\iwmem\\gamelog\\iwmem_block.h", 85, ASSERT_TYPE_ASSERT, "(GetAddress() < GetExclusiveEndAddress())", (const char *)&queryFormat, "GetAddress() < GetExclusiveEndAddress()") )
     {
       __debugbreak();
-      return v3;
+      return result;
     }
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi+40h]
-      vmovups xmmword ptr [rdx], xmm0
-    }
+    *result = this->m_ownedRange;
   }
-  return v3;
+  return result;
 }
 
 /*
@@ -788,11 +766,8 @@ unsigned __int64 IWMemAllocator::GetTotalSize(IWMemAllocator *this)
     return 0i64;
   if ( (unsigned int)(m_type - 1) <= 1 || (this->m_flags & 4) != 0 )
     return this->m_simpleUsed;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx+40h]
-    vpextrq rax, xmm0, 1
-  }
+  _XMM0 = this->m_ownedRange;
+  __asm { vpextrq rax, xmm0, 1 }
   return result;
 }
 

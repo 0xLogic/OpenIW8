@@ -238,53 +238,44 @@ void PhysicsForceAction::operator delete(void *p, unsigned __int64 nbytes)
 PhysicsForceAction_AddForce
 ==============
 */
-
-void __fastcall PhysicsForceAction_AddForce(const Physics_WorldId worldId, const unsigned int bodyId, const vec3_t *force, double maxSpeed)
+void PhysicsForceAction_AddForce(const Physics_WorldId worldId, const unsigned int bodyId, const vec3_t *force, const float maxSpeed)
 {
+  __int64 v4; 
   __int64 v5; 
-  bool *v10; 
+  vec3_t *v7; 
+  float *v8; 
+  bool *v9; 
+  __int64 v10; 
   __int64 v11; 
 
-  v5 = worldId;
-  __asm { vmovaps [rsp+88h+var_38], xmm6 }
-  _RSI = bodyId & 0xFFFFFF;
-  __asm { vmovaps xmm6, xmm3 }
-  if ( (unsigned int)_RSI >= s_physicsForceActionBodyCounts[worldId] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 301, ASSERT_TYPE_ASSERT, "(unsigned)( bodyIdx ) < (unsigned)( s_physicsForceActionBodyCounts[worldId] )", "bodyIdx doesn't index s_physicsForceActionBodyCounts[worldId]\n\t%i not in [0, %i)", bodyId & 0xFFFFFF, s_physicsForceActionBodyCounts[worldId]) )
+  v4 = worldId;
+  v5 = bodyId & 0xFFFFFF;
+  if ( (unsigned int)v5 >= s_physicsForceActionBodyCounts[worldId] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 301, ASSERT_TYPE_ASSERT, "(unsigned)( bodyIdx ) < (unsigned)( s_physicsForceActionBodyCounts[worldId] )", "bodyIdx doesn't index s_physicsForceActionBodyCounts[worldId]\n\t%i not in [0, %i)", bodyId & 0xFFFFFF, s_physicsForceActionBodyCounts[worldId]) )
     __debugbreak();
-  _RBX = s_physicsForceActionBodyForces[v5];
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 304, ASSERT_TYPE_ASSERT, "( forces ) != ( nullptr )", "%s != %s\n\t%p, %p", "forces", "nullptr", NULL, NULL) )
+  v7 = s_physicsForceActionBodyForces[v4];
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 304, ASSERT_TYPE_ASSERT, "( forces ) != ( nullptr )", "%s != %s\n\t%p, %p", "forces", "nullptr", NULL, NULL) )
     __debugbreak();
-  _R14 = s_physicsForceActionBodyMaxSpeeds[v5];
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 307, ASSERT_TYPE_ASSERT, "( maxSpeeds ) != ( nullptr )", "%s != %s\n\t%p, %p", "maxSpeeds", "nullptr", NULL, NULL) )
+  v8 = s_physicsForceActionBodyMaxSpeeds[v4];
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 307, ASSERT_TYPE_ASSERT, "( maxSpeeds ) != ( nullptr )", "%s != %s\n\t%p, %p", "maxSpeeds", "nullptr", NULL, NULL) )
     __debugbreak();
-  v10 = s_physicsForceActionBodyEntryValids[v5];
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 310, ASSERT_TYPE_ASSERT, "( entryValids ) != ( nullptr )", "%s != %s\n\t%p, %p", "entryValids", "nullptr", NULL, NULL) )
+  v9 = s_physicsForceActionBodyEntryValids[v4];
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 310, ASSERT_TYPE_ASSERT, "( entryValids ) != ( nullptr )", "%s != %s\n\t%p, %p", "entryValids", "nullptr", NULL, NULL) )
     __debugbreak();
-  if ( !v10[_RSI] )
+  if ( !v9[v5] )
   {
-    v11 = _RSI;
-    *(_QWORD *)_RBX[v11].v = 0i64;
-    _RBX[v11].v[2] = 0.0;
-    _R14[_RSI] = 3.4028235e38;
-    v10[_RSI] = 1;
+    v10 = v5;
+    *(_QWORD *)v7[v10].v = 0i64;
+    v7[v10].v[2] = 0.0;
+    v8[v5] = 3.4028235e38;
+    v9[v5] = 1;
   }
-  _RAX = 3 * _RSI;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+rax*4]
-    vaddss  xmm1, xmm0, dword ptr [rbp+0]
-    vmovss  dword ptr [rbx+rax*4], xmm1
-    vmovss  xmm2, dword ptr [rbx+rax*4+4]
-    vaddss  xmm0, xmm2, dword ptr [rbp+4]
-    vmovss  dword ptr [rbx+rax*4+4], xmm0
-    vmovss  xmm1, dword ptr [rbx+rax*4+8]
-    vaddss  xmm2, xmm1, dword ptr [rbp+8]
-    vmovss  dword ptr [rbx+rax*4+8], xmm2
-    vmovss  xmm0, dword ptr [r14+rsi*4]
-    vminss  xmm1, xmm0, xmm6
-    vmovaps xmm6, [rsp+88h+var_38]
-    vmovss  dword ptr [r14+rsi*4], xmm1
-  }
+  v11 = v5;
+  v7[v11].v[0] = v7[v5].v[0] + force->v[0];
+  v7[v11].v[1] = v7[v5].v[1] + force->v[1];
+  v7[v11].v[2] = v7[v5].v[2] + force->v[2];
+  _XMM0 = LODWORD(v8[v5]);
+  __asm { vminss  xmm1, xmm0, xmm6 }
+  v8[v5] = *(float *)&_XMM1;
 }
 
 /*
@@ -686,163 +677,122 @@ PhysicsForceAction::applyAction
 
 __int64 __fastcall PhysicsForceAction::applyAction(PhysicsForceAction *this, hknpWorld *world, double deltaTime)
 {
-  unsigned int v10; 
-  bool *v11; 
-  __int64 m_worldId; 
+  __int128 v3; 
+  __int64 v5; 
+  unsigned int v7; 
+  bool *v8; 
+  vec3_t *v9; 
   __int64 m_serialAndIndex; 
-  hknpWorldWriter_vtbl *v20; 
-  bool v31; 
-  bool v32; 
-  Physics_WorldId v34; 
-  unsigned int v35; 
-  hknpWorld *v37; 
-  __int64 v38; 
-  Physics_WorldId v40; 
-  unsigned int v41; 
-  hknpWorld *v61; 
-  __int64 result; 
-  __int64 v65; 
-  __int128 v66; 
-  __int128 v67; 
+  hknpWorldWriter_vtbl *v11; 
+  __int128 v13; 
+  float *v17; 
+  __int128 v18; 
+  Physics_WorldId m_worldId; 
+  unsigned int v20; 
+  __int128 v21; 
+  hknpWorld *v22; 
+  __int64 v23; 
+  __int64 v24; 
+  Physics_WorldId v25; 
+  unsigned int v26; 
+  hknpWorld *v34; 
+  __int64 v36; 
+  __m128 v37; 
+  __int128 v38[3]; 
 
-  __asm { vmovaps [rsp+0E8h+var_58], xmm7 }
-  _RBX = this->m_bodyId.m_serialAndIndex & 0xFFFFFF;
-  __asm { vmovaps xmm7, xmm2 }
-  v10 = s_physicsForceActionBodyCounts[this->m_worldId];
-  if ( (unsigned int)_RBX > v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 98, ASSERT_TYPE_ASSERT, "( bodyIdx ) <= ( s_physicsForceActionBodyCounts[m_worldId] )", "bodyIdx not in [0, s_physicsForceActionBodyCounts[m_worldId]]\n\t%u not in [0, %u]", _RBX, v10) )
+  v5 = this->m_bodyId.m_serialAndIndex & 0xFFFFFF;
+  v7 = s_physicsForceActionBodyCounts[this->m_worldId];
+  if ( (unsigned int)v5 > v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 98, ASSERT_TYPE_ASSERT, "( bodyIdx ) <= ( s_physicsForceActionBodyCounts[m_worldId] )", "bodyIdx not in [0, s_physicsForceActionBodyCounts[m_worldId]]\n\t%u not in [0, %u]", v5, v7) )
     __debugbreak();
-  v11 = s_physicsForceActionBodyEntryValids[this->m_worldId];
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 101, ASSERT_TYPE_ASSERT, "( entryValids ) != ( nullptr )", "%s != %s\n\t%p, %p", "entryValids", "nullptr", NULL, NULL) )
+  v8 = s_physicsForceActionBodyEntryValids[this->m_worldId];
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 101, ASSERT_TYPE_ASSERT, "( entryValids ) != ( nullptr )", "%s != %s\n\t%p, %p", "entryValids", "nullptr", NULL, NULL) )
     __debugbreak();
-  if ( v11[_RBX] )
+  if ( !v8[v5] )
+    return 0i64;
+  v9 = s_physicsForceActionBodyForces[this->m_worldId];
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 106, ASSERT_TYPE_ASSERT, "( forces ) != ( nullptr )", "%s != %s\n\t%p, %p", "forces", "nullptr", NULL, NULL) )
+    __debugbreak();
+  m_serialAndIndex = this->m_bodyId.m_serialAndIndex;
+  v11 = world->hknpWorldWriter::__vftable;
+  v13 = LODWORD(v9[v5].v[0]);
+  *(float *)&v13 = v9[v5].v[0] * 0.03125;
+  _XMM5 = v13;
+  __asm
+  {
+    vinsertps xmm5, xmm5, xmm2, 10h
+    vinsertps xmm5, xmm5, xmm3, 20h ; ' '
+    vinsertps xmm5, xmm5, xmm0, 30h ; '0'
+  }
+  v37 = _mm128_mul_ps(_mm_shuffle_ps(*(__m128 *)&deltaTime, *(__m128 *)&deltaTime, 0), _XMM5);
+  ((void (__fastcall *)(hknpWorldWriter *, __int64, __m128 *, _QWORD))v11->applyBodyLinearImpulse)(&world->hknpWorldWriter, m_serialAndIndex, &v37, 0i64);
+  v17 = s_physicsForceActionBodyMaxSpeeds[this->m_worldId];
+  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 121, ASSERT_TYPE_ASSERT, "( maxSpeeds ) != ( nullptr )", "%s != %s\n\t%p, %p", "maxSpeeds", "nullptr", NULL, NULL) )
+    __debugbreak();
+  v18 = LODWORD(v17[v5]);
+  if ( *(float *)&v18 != 3.4028235e38 )
   {
     m_worldId = this->m_worldId;
-    __asm { vmovaps [rsp+0E8h+var_48], xmm6 }
-    _RDI = s_physicsForceActionBodyForces[m_worldId];
-    if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 106, ASSERT_TYPE_ASSERT, "( forces ) != ( nullptr )", "%s != %s\n\t%p, %p", "forces", "nullptr", NULL, NULL) )
-      __debugbreak();
-    __asm { vmovss  xmm6, cs:__real@3d000000 }
-    m_serialAndIndex = this->m_bodyId.m_serialAndIndex;
-    _RAX = 3 * _RBX;
-    __asm
+    v20 = this->m_bodyId.m_serialAndIndex;
+    v38[2] = v3;
+    v21 = v18;
+    *(float *)&v21 = *(float *)&v18 * 0.03125;
+    if ( (unsigned int)m_worldId > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
     {
-      vmovss  xmm0, dword ptr [rdi+rax*4]
-      vmulss  xmm2, xmm6, dword ptr [rdi+rax*4+4]
-      vmulss  xmm3, xmm6, dword ptr [rdi+rax*4+8]
-    }
-    v20 = world->hknpWorldWriter::__vftable;
-    __asm
-    {
-      vmulss  xmm5, xmm0, xmm6
-      vinsertps xmm5, xmm5, xmm2, 10h
-      vxorps  xmm0, xmm0, xmm0
-      vinsertps xmm5, xmm5, xmm3, 20h ; ' '
-      vinsertps xmm5, xmm5, xmm0, 30h ; '0'
-      vmovaps xmm4, xmm7
-      vshufps xmm4, xmm4, xmm4, 0
-      vmulps  xmm0, xmm4, xmm5
-      vmovups [rsp+0E8h+var_98], xmm5
-      vmovups [rsp+0E8h+var_98], xmm0
-    }
-    ((void (__fastcall *)(hknpWorldWriter *, __int64, __int128 *, _QWORD))v20->applyBodyLinearImpulse)(&world->hknpWorldWriter, m_serialAndIndex, &v66, 0i64);
-    _RDI = s_physicsForceActionBodyMaxSpeeds[this->m_worldId];
-    v31 = _RDI == NULL;
-    if ( !_RDI )
-    {
-      v32 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsforceaction.cpp", 121, ASSERT_TYPE_ASSERT, "( maxSpeeds ) != ( nullptr )", "%s != %s\n\t%p, %p", "maxSpeeds", "nullptr", NULL, NULL);
-      v31 = !v32;
-      if ( v32 )
+      LODWORD(v36) = m_worldId;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 403, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Rigid Body LinVel with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v36) )
         __debugbreak();
     }
+    if ( (v20 & 0xFFFFFF) == 0xFFFFFF )
+    {
+      LODWORD(v36) = m_worldId;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 404, ASSERT_TYPE_ASSERT, "(bodyId.isValid())", "%s\n\tHavok Physics: Trying to Get Rigid Body LinVel with invalid body id for world %i", "bodyId.isValid()", v36) )
+        __debugbreak();
+    }
+    v22 = HavokPhysics_GetConstWorld(m_worldId)->world;
+    if ( !v22 )
+    {
+      LODWORD(v36) = m_worldId;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 408, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics IsRigidBodyKeyframed %i: world is NULL", "world", v36) )
+        __debugbreak();
+    }
+    v23 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))v22->getBody)(&v22->hknpWorldReader, v20);
+    v24 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))v22->getMotion)(&v22->hknpWorldReader, *(unsigned int *)(v23 + 64));
+    v25 = this->m_worldId;
+    v26 = this->m_bodyId.m_serialAndIndex;
+    _XMM7 = *(__m128 *)(v24 + 64);
     __asm
     {
-      vmovss  xmm0, dword ptr [rdi+rbx*4]
-      vucomiss xmm0, cs:__real@7f7fffff
+      vdpps   xmm6, xmm7, xmm7, 7Fh
+      vcmpleps xmm5, xmm6, xmm0
+      vrsqrtps xmm4, xmm6
     }
-    if ( !v31 )
+    _mm128_mul_ps(_mm128_mul_ps(_mm128_sub_ps(*(__m128 *)hkMath::hkSse_floatThree, _mm128_mul_ps(_mm128_mul_ps(_XMM6, _XMM4), _XMM4)), _mm128_mul_ps(_XMM4, *(__m128 *)hkMath::hkSse_floatHalf)), _XMM6);
+    __asm { vandnps xmm4, xmm5, xmm0 }
+    *(float *)&v21 = *(float *)&v21 / *(float *)&_XMM4;
+    _XMM1 = v21;
+    __asm { vminss  xmm0, xmm1, cs:__real@3f800000 }
+    v38[0] = (__int128)_mm128_mul_ps(_mm_shuffle_ps(_XMM0, _XMM0, 0), _XMM7);
+    if ( (unsigned int)v25 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
     {
-      v34 = this->m_worldId;
-      v35 = this->m_bodyId.m_serialAndIndex;
-      __asm
-      {
-        vmovaps [rsp+0E8h+var_68], xmm8
-        vmulss  xmm8, xmm0, xmm6
-      }
-      if ( (unsigned int)v34 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
-      {
-        LODWORD(v65) = v34;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 403, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Rigid Body LinVel with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v65) )
-          __debugbreak();
-      }
-      if ( (v35 & 0xFFFFFF) == 0xFFFFFF )
-      {
-        LODWORD(v65) = v34;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 404, ASSERT_TYPE_ASSERT, "(bodyId.isValid())", "%s\n\tHavok Physics: Trying to Get Rigid Body LinVel with invalid body id for world %i", "bodyId.isValid()", v65) )
-          __debugbreak();
-      }
-      v37 = HavokPhysics_GetConstWorld(v34)->world;
-      if ( !v37 )
-      {
-        LODWORD(v65) = v34;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 408, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics IsRigidBodyKeyframed %i: world is NULL", "world", v65) )
-          __debugbreak();
-      }
-      v38 = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))v37->getBody)(&v37->hknpWorldReader, v35);
-      _RAX = ((__int64 (__fastcall *)(hknpWorldReader *, _QWORD))v37->getMotion)(&v37->hknpWorldReader, *(unsigned int *)(v38 + 64));
-      v40 = this->m_worldId;
-      v41 = this->m_bodyId.m_serialAndIndex;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vmovups xmm7, xmmword ptr [rax+40h]
-        vdpps   xmm6, xmm7, xmm7, 7Fh
-        vcmpleps xmm5, xmm6, xmm0
-        vmovups xmm0, cs:?hkSse_floatThree@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatThree
-        vrsqrtps xmm4, xmm6
-        vmulps  xmm1, xmm6, xmm4
-        vmulps  xmm2, xmm1, xmm4
-        vmulps  xmm1, xmm4, cs:?hkSse_floatHalf@hkMath@@3QBIB; uint const near * const hkMath::hkSse_floatHalf
-        vsubps  xmm3, xmm0, xmm2
-        vmulps  xmm2, xmm3, xmm1
-        vmulps  xmm0, xmm2, xmm6
-        vandnps xmm4, xmm5, xmm0
-        vdivss  xmm1, xmm8, xmm4
-        vmovaps xmm8, [rsp+0E8h+var_68]
-        vminss  xmm0, xmm1, cs:__real@3f800000
-        vshufps xmm0, xmm0, xmm0, 0
-        vmulps  xmm0, xmm0, xmm7
-        vmovups [rsp+0E8h+var_88], xmm6
-        vmovups [rsp+0E8h+var_88], xmm0
-      }
-      if ( (unsigned int)v40 > PHYSICS_WORLD_ID_CLIENT1_DETAIL )
-      {
-        LODWORD(v65) = v40;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 455, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Set Rigid Body LinVel with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v65) )
-          __debugbreak();
-      }
-      if ( (v41 & 0xFFFFFF) == 0xFFFFFF )
-      {
-        LODWORD(v65) = v40;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 456, ASSERT_TYPE_ASSERT, "(bodyId.isValid())", "%s\n\tHavok Physics: Trying to Set Rigid Body LinVel with invalid body id for world %i", "bodyId.isValid()", v65) )
-          __debugbreak();
-      }
-      v61 = HavokPhysics_GetMutableWorld(v40)->world;
-      if ( !v61 )
-      {
-        LODWORD(v65) = v40;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 460, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics SetRigidBodyLinVel %i: world is NULL", "world", v65) )
-          __debugbreak();
-      }
-      ((void (__fastcall *)(hknpWorldWriter *, _QWORD, __int128 *, _QWORD))v61->setBodyLinearVelocity)(&v61->hknpWorldWriter, v41, &v67, 0i64);
+      LODWORD(v36) = v25;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 455, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Set Rigid Body LinVel with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v36) )
+        __debugbreak();
     }
-    __asm { vmovaps xmm6, [rsp+0E8h+var_48] }
-    result = 0i64;
+    if ( (v26 & 0xFFFFFF) == 0xFFFFFF )
+    {
+      LODWORD(v36) = v25;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 456, ASSERT_TYPE_ASSERT, "(bodyId.isValid())", "%s\n\tHavok Physics: Trying to Set Rigid Body LinVel with invalid body id for world %i", "bodyId.isValid()", v36) )
+        __debugbreak();
+    }
+    v34 = HavokPhysics_GetMutableWorld(v25)->world;
+    if ( !v34 )
+    {
+      LODWORD(v36) = v25;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 460, ASSERT_TYPE_ASSERT, "(world)", "%s\n\tHavokPhysics SetRigidBodyLinVel %i: world is NULL", "world", v36) )
+        __debugbreak();
+    }
+    ((void (__fastcall *)(hknpWorldWriter *, _QWORD, __int128 *, _QWORD))v34->setBodyLinearVelocity)(&v34->hknpWorldWriter, v26, v38, 0i64);
   }
-  else
-  {
-    result = 0i64;
-  }
-  __asm { vmovaps xmm7, [rsp+0E8h+var_58] }
-  return result;
+  return 0i64;
 }
 

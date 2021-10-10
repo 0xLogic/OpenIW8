@@ -481,23 +481,15 @@ void ViewMotionSpring::ViewMotionSpring(ViewMotionSpring *this)
   *(_QWORD *)&this->motionIndex = 31i64;
   *(_QWORD *)&this->motionIndexBlendDuration = 0i64;
   this->isLockingSpring = 0;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymmword ptr [rcx+80h], ymm0
-    vmovups xmm0, xmmword ptr cs:?g_1000@@3Ufloat4@@B.v; float4 const g_1000
-    vmovups xmmword ptr [rcx+0A0h], xmm0
-    vmovups xmm1, xmmword ptr cs:?g_0100@@3Ufloat4@@B.v; float4 const g_0100
-    vmovups xmmword ptr [rcx+0B0h], xmm1
-    vmovups xmm0, xmmword ptr cs:?g_0010@@3Ufloat4@@B.v; float4 const g_0010
-    vmovups xmmword ptr [rcx+0C0h], xmm0
-    vmovups xmm1, xmmword ptr cs:?g_0001@@3Ufloat4@@B.v; float4 const g_0001
-    vmovups xmmword ptr [rcx+0D0h], xmm1
-  }
+  *(__m256i *)this->massPos.v.m128_f32 = (__m256i)0i64;
+  *(__m256i *)this->anchorPos.v.m128_f32 = (__m256i)0i64;
+  *(__m256i *)this->prevPsOrigin.v.m128_f32 = (__m256i)0i64;
+  *(__m256i *)this->velocityScale.v.m128_f32 = (__m256i)0i64;
+  *(__m256i *)this->dampingConstant.v.m128_f32 = (__m256i)0i64;
+  this->offsetAngles.x = (float4)g_1000.v;
+  this->offsetAngles.y = (float4)g_0100.v;
+  this->offsetAngles.z = (float4)g_0010.v;
+  this->offsetAngles.w = (float4)g_0001.v;
   this->isInitialized = 0;
 }
 
@@ -508,44 +500,20 @@ CG_ViewMotion_AssertFloat3Normalized
 */
 void CG_ViewMotion_AssertFloat3Normalized(const float4 *vec)
 {
-  __int64 v13; 
-  double v14; 
-  double v15; 
+  float v5; 
 
+  _XMM1 = _mm128_mul_ps(vec->v, vec->v);
   __asm
   {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovups xmm0, xmmword ptr [rcx]
-    vmulps  xmm1, xmm0, xmm0
     vinsertps xmm2, xmm1, xmm1, 8
     vhaddps xmm0, xmm2, xmm2
     vhaddps xmm0, xmm0, xmm0
-    vsqrtps xmm6, xmm0
-    vcomiss xmm6, cs:__real@3f7fbe77
   }
-  if ( (unsigned __int64)&v13 == _security_cookie )
-  {
-    __asm
-    {
-      vmovsd  xmm1, cs:__real@3feff7cee0000000
-      vcvtss2sd xmm0, xmm6, xmm6
-      vmovsd  [rsp+78h+var_38], xmm0
-      vmovsd  [rsp+78h+var_40], xmm1
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 1472, ASSERT_TYPE_ASSERT, "( (1.0f - 0.001f) ) < ( Float4ExtractX( len ) )", "%s < %s\n\t%g, %g", "(1.0f - EQUAL_EPSILON)", "Float4ExtractX( len )", v14, v15) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm6, cs:__real@3f8020c5
-    vmovsd  xmm0, cs:__real@3ff00418a0000000
-    vmovsd  [rsp+78h+var_38], xmm0
-    vcvtss2sd xmm1, xmm6, xmm6
-    vmovsd  [rsp+78h+var_40], xmm1
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 1473, ASSERT_TYPE_ASSERT, "( Float4ExtractX( len ) ) < ( (1.0f + 0.001f) )", "%s < %s\n\t%g, %g", "Float4ExtractX( len )", "(1.0f + EQUAL_EPSILON)", v14, v15) )
+  v5 = _mm_sqrt_ps(_XMM0).m128_f32[0];
+  if ( v5 <= 0.99900001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 1472, ASSERT_TYPE_ASSERT, "( (1.0f - 0.001f) ) < ( Float4ExtractX( len ) )", "%s < %s\n\t%g, %g", "(1.0f - EQUAL_EPSILON)", "Float4ExtractX( len )", DOUBLE_0_9990000128746033, v5) )
     __debugbreak();
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
+  if ( v5 >= 1.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 1473, ASSERT_TYPE_ASSERT, "( Float4ExtractX( len ) ) < ( (1.0f + 0.001f) )", "%s < %s\n\t%g, %g", "Float4ExtractX( len )", "(1.0f + EQUAL_EPSILON)", v5, DOUBLE_1_001000046730042) )
+    __debugbreak();
 }
 
 /*
@@ -555,56 +523,38 @@ CG_ViewMotion_CheckSpringTeleport
 */
 void CG_ViewMotion_CheckSpringTeleport(const cg_t *const cgameGlob, const float4 *curPsOrigin, ViewMotionSpring *spring)
 {
-  char v7; 
+  char v5; 
+  __m128 v6; 
 
-  _RSI = curPsOrigin;
-  _RDI = spring;
-  v7 = cgameGlob->playerTeleported || !spring->isInitialized;
+  v5 = cgameGlob->playerTeleported || !spring->isInitialized;
   if ( !BG_IsInAir(&cgameGlob->predictedPlayerState, 0) )
   {
+    v6 = _mm128_sub_ps(curPsOrigin->v, spring->prevPsOrigin.v);
+    _XMM2 = _mm128_mul_ps(v6, v6);
     __asm
     {
-      vmovups xmm0, xmmword ptr [rsi]
-      vsubps  xmm1, xmm0, xmmword ptr [rdi+40h]
-      vmulps  xmm2, xmm1, xmm1
       vhaddps xmm0, xmm2, xmm2
       vhaddps xmm1, xmm0, xmm0
-      vcomiss xmm1, cs:teleportThresholdDistSq
     }
-    v7 |= 1u;
+    v5 |= *(float *)&_XMM1 >= teleportThresholdDistSq;
   }
-  if ( v7 )
+  if ( v5 )
   {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vmovups ymmword ptr [rdi], ymm1
-      vmovups ymmword ptr [rdi+20h], ymm1
-    }
-    _RDI->unlockTime = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovdqu xmmword ptr [rdi+40h], xmm0
-      vmovups ymmword ptr [rdi+50h], ymm1
-      vmovups ymmword ptr [rdi+70h], ymm1
-      vmovups xmmword ptr [rdi+90h], xmm1
-    }
-    _RDI->isLockingSpring = 0;
-    *(_QWORD *)&_RDI->motionIndex = 31i64;
-    _RDI->motionIndexBlendDuration = 0;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?g_1000@@3Ufloat4@@B.v; float4 const g_1000
-      vmovups xmmword ptr [rdi+0A0h], xmm0
-      vmovups xmm1, xmmword ptr cs:?g_0100@@3Ufloat4@@B.v; float4 const g_0100
-      vmovups xmmword ptr [rdi+0B0h], xmm1
-      vmovups xmm0, xmmword ptr cs:?g_0010@@3Ufloat4@@B.v; float4 const g_0010
-      vmovups xmmword ptr [rdi+0C0h], xmm0
-      vmovups xmm1, xmmword ptr cs:?g_0001@@3Ufloat4@@B.v; float4 const g_0001
-      vmovups xmmword ptr [rdi+0D0h], xmm1
-    }
-    _RDI->isInitialized = 1;
+    *(__m256i *)spring->massPos.v.m128_f32 = (__m256i)0i64;
+    *(__m256i *)spring->anchorPos.v.m128_f32 = (__m256i)0i64;
+    spring->unlockTime = 0;
+    spring->prevPsOrigin = (float4)curPsOrigin->v;
+    *(__m256i *)spring->velocitySmoothingSec.v.m128_f32 = (__m256i)0i64;
+    *(__m256i *)spring->springConstant.v.m128_f32 = (__m256i)0i64;
+    spring->maxOffset = 0i64;
+    spring->isLockingSpring = 0;
+    *(_QWORD *)&spring->motionIndex = 31i64;
+    spring->motionIndexBlendDuration = 0;
+    spring->offsetAngles.x = (float4)g_1000.v;
+    spring->offsetAngles.y = (float4)g_0100.v;
+    spring->offsetAngles.z = (float4)g_0010.v;
+    spring->offsetAngles.w = (float4)g_0001.v;
+    spring->isInitialized = 1;
   }
 }
 
@@ -624,37 +574,18 @@ void CG_ViewMotion_ClearCinematicMotionAssets(void)
 CG_ViewMotion_DebugDrawGraph
 ==============
 */
-
-void __fastcall CG_ViewMotion_DebugDrawGraph(const ScreenPlacement *const scrPlace, double drawX, double drawY, const RumbleGraph *const nonLinearGraph, const vec4_t *colorGraph, float normValueX_0, const vec4_t *color0, float normValueX_1, const vec4_t *color1)
+void CG_ViewMotion_DebugDrawGraph(const ScreenPlacement *const scrPlace, float drawX, float drawY, const RumbleGraph *const nonLinearGraph, const vec4_t *colorGraph, float normValueX_0, const vec4_t *color0, float normValueX_1, const vec4_t *color1)
 {
-  char v37; 
-  char v38; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  float color; 
-  float colora; 
-  float colorb; 
-  float max; 
-  float maxa; 
-  float maxb; 
+  __int64 i; 
+  float v12; 
+  double ValueFromFraction; 
+  float v14; 
+  float v15; 
+  double v16; 
+  double v17; 
   __int64 numDataEntries; 
   float data[32]; 
-  char v68; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-    vmovaps xmmword ptr [rax-88h], xmm9
-    vmovaps xmmword ptr [rax-98h], xmm10
-    vmovaps xmm8, xmm2
-    vmovaps xmm9, xmm1
-  }
   if ( !nonLinearGraph && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 707, ASSERT_TYPE_ASSERT, "( nonLinearGraph ) != ( nullptr )", "%s != %s\n\t%p, %p", "nonLinearGraph", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( !nonLinearGraph->knotCount )
@@ -663,104 +594,25 @@ void __fastcall CG_ViewMotion_DebugDrawGraph(const ScreenPlacement *const scrPla
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 708, ASSERT_TYPE_ASSERT, "( 0 ) < ( nonLinearGraph->knotCount )", "%s < %s\n\t%i, %i", "0", "nonLinearGraph->knotCount", 0i64, numDataEntries) )
       __debugbreak();
   }
-  __asm
+  for ( i = 0i64; (unsigned __int64)i < 0x20; ++i )
   {
-    vmovss  xmm6, cs:__real@5f800000
-    vmovss  xmm7, cs:__real@3d042108
+    v12 = (float)i;
+    ValueFromFraction = GraphGetValueFromFraction(nonLinearGraph->knotCount, nonLinearGraph->knots, v12 * 0.032258064);
+    data[i] = *(float *)&ValueFromFraction;
   }
-  for ( _RBX = 0i64; _RBX < 0x20; ++_RBX )
+  v14 = drawY + 240.0;
+  v15 = drawX + 320.0;
+  CG_DebugGraphs_DrawAxes(scrPlace, (float)(drawX + 320.0) + graphAdjustX_1, (float)(drawY + 240.0) + graphAdjustY_1, VMMOTION_DEBUG_GRAPH_WIDTH, VMMOTION_DEBUG_GRAPH_HEIGHT, &colorWhite);
+  CG_DebugGraphs_DrawGraphData(scrPlace, (float)(drawX + 320.0) + graphAdjustX_1, (float)(drawY + 240.0) + graphAdjustY_1, VMMOTION_DEBUG_GRAPH_WIDTH, VMMOTION_DEBUG_GRAPH_HEIGHT, 0.0, 1.0, data, 0x20u, 0, colorGraph);
+  if ( normValueX_0 >= 0.0 && normValueX_0 <= 1.0 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rbx
-      vmulss  xmm2, xmm0, xmm7; fraction
-    }
-    *(double *)&_XMM0 = GraphGetValueFromFraction(nonLinearGraph->knotCount, nonLinearGraph->knots, *(const float *)&_XMM2);
-    __asm { vmovss  [rsp+rbx*4+188h+var_128], xmm0 }
+    v16 = GraphGetValueFromFraction(nonLinearGraph->knotCount, nonLinearGraph->knots, normValueX_0);
+    CG_DebugGraphs_DrawGraphDatapoint(scrPlace, v15 + graphAdjustX_1, v14 + graphAdjustY_1, VMMOTION_DEBUG_GRAPH_WIDTH, VMMOTION_DEBUG_GRAPH_HEIGHT, normValueX_0, *(float *)&v16, color0);
   }
-  __asm
+  if ( normValueX_1 >= 0.0 && normValueX_1 <= 1.0 )
   {
-    vmovss  xmm0, cs:VMMOTION_DEBUG_GRAPH_HEIGHT
-    vaddss  xmm8, xmm8, cs:__real@43700000
-    vaddss  xmm9, xmm9, cs:__real@43a00000
-    vaddss  xmm2, xmm8, cs:graphAdjustY_1; y
-    vaddss  xmm1, xmm9, cs:graphAdjustX_1; x
-    vmovss  xmm3, cs:VMMOTION_DEBUG_GRAPH_WIDTH; width
-    vmovss  dword ptr [rsp+188h+fmt], xmm0
-  }
-  CG_DebugGraphs_DrawAxes(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, &colorWhite);
-  __asm
-  {
-    vmovss  xmm0, cs:VMMOTION_DEBUG_GRAPH_HEIGHT
-    vmovss  xmm7, cs:__real@3f800000
-    vaddss  xmm2, xmm8, cs:graphAdjustY_1; y
-    vaddss  xmm1, xmm9, cs:graphAdjustX_1; x
-    vmovss  xmm3, cs:VMMOTION_DEBUG_GRAPH_WIDTH; width
-    vmovss  [rsp+188h+max], xmm7
-    vxorps  xmm10, xmm10, xmm10
-    vmovss  dword ptr [rsp+188h+color], xmm10
-    vmovss  dword ptr [rsp+188h+fmt], xmm0
-  }
-  CG_DebugGraphs_DrawGraphData(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta, color, max, data, 0x20u, 0, colorGraph);
-  __asm
-  {
-    vmovss  xmm6, [rsp+188h+normValueX_0]
-    vcomiss xmm6, xmm10
-  }
-  if ( !v37 )
-  {
-    __asm { vcomiss xmm6, xmm7 }
-    if ( v37 | v38 )
-    {
-      __asm { vmovaps xmm2, xmm6; fraction }
-      *(double *)&_XMM0 = GraphGetValueFromFraction(nonLinearGraph->knotCount, nonLinearGraph->knots, *(const float *)&_XMM2);
-      __asm
-      {
-        vaddss  xmm2, xmm8, cs:graphAdjustY_1; y
-        vaddss  xmm1, xmm9, cs:graphAdjustX_1; x
-        vmovss  xmm3, cs:VMMOTION_DEBUG_GRAPH_WIDTH; width
-        vmovss  [rsp+188h+max], xmm0
-        vmovss  xmm0, cs:VMMOTION_DEBUG_GRAPH_HEIGHT
-        vmovss  dword ptr [rsp+188h+color], xmm6
-        vmovss  dword ptr [rsp+188h+fmt], xmm0
-      }
-      CG_DebugGraphs_DrawGraphDatapoint(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb, colora, maxa, color0);
-    }
-  }
-  __asm
-  {
-    vmovss  xmm6, [rsp+188h+normValueX_1]
-    vcomiss xmm6, xmm10
-  }
-  if ( !v37 )
-  {
-    __asm { vcomiss xmm6, xmm7 }
-    if ( v37 | v38 )
-    {
-      __asm { vmovaps xmm2, xmm6; fraction }
-      *(double *)&_XMM0 = GraphGetValueFromFraction(nonLinearGraph->knotCount, nonLinearGraph->knots, *(const float *)&_XMM2);
-      __asm
-      {
-        vaddss  xmm2, xmm8, cs:graphAdjustY_1; y
-        vaddss  xmm1, xmm9, cs:graphAdjustX_1; x
-        vmovss  xmm3, cs:VMMOTION_DEBUG_GRAPH_WIDTH; width
-        vmovss  [rsp+188h+max], xmm0
-        vmovss  xmm0, cs:VMMOTION_DEBUG_GRAPH_HEIGHT
-        vmovss  dword ptr [rsp+188h+color], xmm6
-        vmovss  dword ptr [rsp+188h+fmt], xmm0
-      }
-      CG_DebugGraphs_DrawGraphDatapoint(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtc, colorb, maxb, color1);
-    }
-  }
-  _R11 = &v68;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
+    v17 = GraphGetValueFromFraction(nonLinearGraph->knotCount, nonLinearGraph->knots, normValueX_1);
+    CG_DebugGraphs_DrawGraphDatapoint(scrPlace, v15 + graphAdjustX_1, v14 + graphAdjustY_1, VMMOTION_DEBUG_GRAPH_WIDTH, VMMOTION_DEBUG_GRAPH_HEIGHT, normValueX_1, *(float *)&v17, color1);
   }
 }
 
@@ -827,75 +679,54 @@ CG_ViewMotion_GetSpringOffset
 
 void __fastcall CG_ViewMotion_GetSpringOffset(const playerState_s *ps, double adsFraction, const ViewMotionSpring *spring, const vec3_t *viewAngles, vec3_t *outLocalOffset, vec3_t *outWorldOffset)
 {
-  const float4 *v13; 
-  float4 *v14; 
-  const float4 *v31; 
-  vector3 *v32; 
-  __int128 v46; 
+  const float4 *v10; 
+  float4 *v11; 
+  __m128 v12; 
+  __m128 v13; 
+  __m128 v14; 
+  __m128 v; 
+  __int128 v18; 
+  __m128 v21; 
+  const float4 *v22; 
+  vector3 *v23; 
+  __int128 v25; 
 
-  __asm { vmovaps [rsp+78h+var_28], xmm6 }
   _RBX = outLocalOffset;
-  _RBP = viewAngles;
   _RDI = outWorldOffset;
-  _RSI = spring;
-  __asm { vmovaps xmm6, xmm1 }
-  if ( CG_ViewMotion_Enabled(ps) && _RSI->isInitialized )
+  if ( CG_ViewMotion_Enabled(ps) && spring->isInitialized )
   {
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rsi+20h]
-      vmovups xmm0, xmmword ptr [rsi]
-      vsubps  xmm3, xmm0, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vmovaps xmm1, xmm6
-      vsubps  xmm2, xmm0, xmm3
-      vshufps xmm1, xmm1, xmm1, 0
-      vmulps  xmm0, xmm2, xmm1
-      vaddps  xmm6, xmm0, xmm3
-    }
+    v12 = _mm128_sub_ps(spring->massPos.v, spring->anchorPos.v);
+    v13 = _mm128_sub_ps((__m128)0i64, v12);
+    v14 = _mm_shuffle_ps(*(__m128 *)&adsFraction, *(__m128 *)&adsFraction, 0);
+    _XMM6 = _mm128_add_ps(_mm128_mul_ps(v13, v14), v12);
     if ( outLocalOffset )
     {
+      outLocalOffset->v[0] = _XMM6.m128_f32[0];
       __asm
       {
-        vmovss  dword ptr [rbx], xmm6
         vextractps dword ptr [rbx+4], xmm6, 1
         vextractps dword ptr [rbx+8], xmm6, 2
       }
     }
     if ( outWorldOffset )
     {
+      v = g_0001.v;
+      HIDWORD(v25) = 0;
+      v18 = v25;
+      *(float *)&v18 = viewAngles->v[0];
+      _XMM3 = v18;
       __asm
       {
-        vmovss  xmm0, dword ptr [rbp+0]
-        vmovaps [rsp+78h+var_38], xmm7
-        vmovdqa xmm7, xmmword ptr cs:?g_0001@@3Ufloat4@@B.v; float4 const g_0001
-      }
-      HIDWORD(v46) = 0;
-      __asm
-      {
-        vmovups xmm3, xmmword ptr [rsp+20h]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [rbp+4], 10h
         vinsertps xmm3, xmm3, dword ptr [rbp+8], 20h ; ' '
-        vmulps  xmm0, xmm3, xmmword ptr cs:?g_degreeToRadian@@3Ufloat4@@B.v; float4 const g_degreeToRadian
       }
-      Float4RadianToQuat(v14, v13);
-      Float4UnitQuatToAxis(v32, v31);
+      v21 = _mm128_mul_ps(_XMM3, g_degreeToRadian.v);
+      Float4RadianToQuat(v11, v10);
+      Float4UnitQuatToAxis(v23, v22);
+      _XMM3 = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM6, _XMM6, 255), v), _mm128_mul_ps(v14, _mm_shuffle_ps(_XMM6, _XMM6, 85))), _mm128_add_ps(_mm128_mul_ps(v13, _mm_shuffle_ps(_XMM6, _XMM6, 170)), _mm128_mul_ps(v21, _mm_shuffle_ps(_XMM6, _XMM6, 0))));
+      outWorldOffset->v[0] = _XMM3.m128_f32[0];
       __asm
       {
-        vshufps xmm3, xmm6, xmm6, 0
-        vmulps  xmm3, xmm0, xmm3
-        vshufps xmm4, xmm6, xmm6, 55h ; 'U'
-        vshufps xmm5, xmm6, xmm6, 0AAh ; 'ª'
-        vmulps  xmm0, xmm2, xmm5
-        vmulps  xmm4, xmm1, xmm4
-        vaddps  xmm2, xmm0, xmm3
-        vshufps xmm6, xmm6, xmm6, 0FFh
-        vmulps  xmm1, xmm6, xmm7
-        vmovaps xmm7, [rsp+78h+var_38]
-        vaddps  xmm0, xmm1, xmm4
-        vaddps  xmm3, xmm0, xmm2
-        vmovss  dword ptr [rdi], xmm3
         vextractps dword ptr [rdi+4], xmm3, 1
         vextractps dword ptr [rdi+8], xmm3, 2
       }
@@ -914,7 +745,6 @@ void __fastcall CG_ViewMotion_GetSpringOffset(const playerState_s *ps, double ad
       outWorldOffset->v[2] = 0.0;
     }
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
 }
 
 /*
@@ -958,201 +788,144 @@ CG_ViewMotion_IntegrateSpring
 */
 void CG_ViewMotion_IntegrateSpring(int serverTime, const float4 *frametime4, const float4 *anchorVelocityLocal, ViewMotionSpring *springData)
 {
-  ViewMotionSpring *inOutMassPos; 
-  const float4 *v13; 
-  bool v30; 
-  bool v31; 
-  int v34; 
-  int v59; 
+  __int128 v4; 
+  __m128 v; 
+  double v6; 
+  __m128 v11; 
+  __m128 v12; 
+  bool v20; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v27; 
+  float4 *p_anchorPos; 
+  float4 *p_massVelocity; 
+  __m128 v37; 
+  int v39; 
+  __int128 v40; 
+  float v44; 
+  __m128 v45; 
+  __m128 v46; 
+  __m128 v47; 
   float4 anchorVelocity; 
   float4 mass; 
-  char v97; 
-  void *retaddr; 
+  __int128 v56; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovups xmm9, xmmword ptr [rdx]
-    vcvtss2sd xmm0, xmm9, xmm9
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  inOutMassPos = springData;
-  _RDI = anchorVelocityLocal;
-  v13 = frametime4;
+  v = frametime4->v;
+  v6 = COERCE_FLOAT(*frametime4);
+  if ( v6 < 0.000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 83, ASSERT_TYPE_ASSERT, "( 1.0E-6 ) <= ( frametime )", "%s <= %s\n\t%g, %g", "ZERO_EPSILON", "frametime", DOUBLE_9_999999974752427eN7, v6) )
+    __debugbreak();
   if ( !springData->isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 84, ASSERT_TYPE_ASSERT, "(springData.isInitialized)", (const char *)&queryFormat, "springData.isInitialized") )
     __debugbreak();
+  v11 = (__m128)LODWORD(FLOAT_1_0);
+  v12 = (__m128)LODWORD(FLOAT_1_0);
+  v12.m128_f32[0] = 1.0 / v.m128_f32[0];
+  _XMM4 = _mm128_mul_ps(_mm_shuffle_ps(v12, v12, 0), springData->velocitySmoothingSec.v);
+  __asm { vrcpps  xmm3, xmm4 }
+  _XMM3 = _mm128_add_ps(_mm128_mul_ps(_XMM3, anchorVelocityLocal->v), _mm128_sub_ps(springData->anchorVelocitySmooth.v, _mm128_mul_ps(_XMM3, springData->anchorVelocitySmooth.v)));
   __asm
   {
-    vmovups xmm1, xmmword ptr [rbx+30h]
-    vmovss  xmm8, cs:__real@3f800000
-    vdivss  xmm0, xmm8, xmm9
-    vshufps xmm0, xmm0, xmm0, 0
-    vmulps  xmm4, xmm0, xmmword ptr [rbx+50h]
-    vrcpps  xmm3, xmm4
-    vmulps  xmm0, xmm3, xmm1
-    vsubps  xmm2, xmm1, xmm0
-    vmulps  xmm0, xmm3, xmmword ptr [rdi]
-    vmovups xmm1, xmmword ptr [rdi]
-    vaddps  xmm3, xmm0, xmm2
     vcmpleps xmm0, xmm4, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
     vblendvps xmm2, xmm3, xmm1, xmm0
     vcmpneqps xmm0, xmm2, xmm2
     vmovmskps eax, xmm0
-    vmovups xmmword ptr [rbx+30h], xmm2
   }
+  springData->anchorVelocitySmooth = (float4)_XMM2.v;
   if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 90, ASSERT_TYPE_SANITY, "( !Float4IsNaN( springData.anchorVelocitySmooth ) )", (const char *)&queryFormat, "!Float4IsNaN( springData.anchorVelocitySmooth )") )
     __debugbreak();
-  v30 = 0;
-  v31 = !inOutMassPos->isLockingSpring;
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rbx+60h]
-    vmulps  xmm7, xmm1, xmmword ptr [rbx+30h]
-    vmovups xmmword ptr [rsp+0E8h+var_98.v], xmm7
-  }
-  if ( !v31 )
-  {
-    v34 = unlockDurationMs + unlockDurationBlendOutMs + inOutMassPos->unlockTime;
-    v30 = v34 < (unsigned int)serverTime;
-    if ( v34 <= serverTime )
-      goto LABEL_9;
-  }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vsubps  xmm1, xmm0, xmmword ptr [rbx+20h]
-    vmovss  xmm3, cs:springRestingThreshold
-    vmulps  xmm2, xmm1, xmm1
-    vinsertps xmm0, xmm2, xmm2, 8
-    vhaddps xmm1, xmm0, xmm0
-    vhaddps xmm2, xmm1, xmm1
-    vcomiss xmm2, xmm3
-  }
-  if ( !v30 )
+  v20 = !springData->isLockingSpring;
+  v21 = _mm128_mul_ps(springData->velocityScale.v, springData->anchorVelocitySmooth.v);
+  anchorVelocity.v = v21;
+  if ( !v20 && unlockDurationMs + unlockDurationBlendOutMs + springData->unlockTime <= serverTime )
     goto LABEL_12;
+  v22 = _mm128_sub_ps(springData->massPos.v, springData->anchorPos.v);
+  _XMM2 = _mm128_mul_ps(v22, v22);
   __asm
   {
-    vmovups xmm0, xmmword ptr [rbx+10h]
-    vsubps  xmm1, xmm0, xmm7
-    vmulps  xmm2, xmm1, xmm1
     vinsertps xmm0, xmm2, xmm2, 8
     vhaddps xmm1, xmm0, xmm0
     vhaddps xmm2, xmm1, xmm1
-    vcomiss xmm2, xmm3
   }
-  if ( v30 )
+  if ( *(float *)&_XMM2 >= springRestingThreshold )
+    goto LABEL_15;
+  v27 = _mm128_sub_ps(springData->massVelocity.v, v21);
+  _XMM2 = _mm128_mul_ps(v27, v27);
+  __asm
   {
-LABEL_9:
+    vinsertps xmm0, xmm2, xmm2, 8
+    vhaddps xmm1, xmm0, xmm0
+    vhaddps xmm2, xmm1, xmm1
+  }
+  if ( *(float *)&_XMM2 >= springRestingThreshold )
+  {
+LABEL_15:
+    p_anchorPos = &springData->anchorPos;
+    _XMM2.v = _mm128_add_ps(_mm128_mul_ps(v21, frametime4->v), springData->anchorPos.v);
     __asm
     {
-      vxorps  xmm0, xmm0, xmm0
-      vmovups xmmword ptr [rbx], xmm0
-      vmovups xmmword ptr [rbx+20h], xmm0
-      vmovups xmmword ptr [rbx+10h], xmm7
-    }
-  }
-  else
-  {
-LABEL_12:
-    __asm { vmulps  xmm0, xmm7, xmmword ptr [r14] }
-    _RDI = &inOutMassPos->anchorPos;
-    __asm
-    {
-      vaddps  xmm2, xmm0, xmmword ptr [rdi]
       vcmpneqps xmm0, xmm2, xmm2
       vmovmskps eax, xmm0
-      vmovaps [rsp+0E8h+var_38], xmm6
-      vmovups xmmword ptr [rdi], xmm2
     }
+    v56 = v4;
+    springData->anchorPos = (float4)_XMM2.v;
     if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 127, ASSERT_TYPE_SANITY, "( !Float4IsNaN( springData.anchorPos ) )", (const char *)&queryFormat, "!Float4IsNaN( springData.anchorPos )") )
       __debugbreak();
-    __asm { vmovups xmm6, cs:__xmm@3f8000003f8000003f8000003f800000 }
-    _RBP = &inOutMassPos->massVelocity;
-    __asm { vmovups xmmword ptr [rsp+0E8h+mass.v], xmm6 }
-    Float4IntegrateDampedSpring(v13, &mass, &inOutMassPos->springConstant, &inOutMassPos->dampingConstant, &inOutMassPos->anchorPos, &anchorVelocity, &inOutMassPos->massPos, &inOutMassPos->massVelocity);
+    p_massVelocity = &springData->massVelocity;
+    mass.v = (__m128)_xmm;
+    Float4IntegrateDampedSpring(frametime4, &mass, &springData->springConstant, &springData->dampingConstant, &springData->anchorPos, &anchorVelocity, &springData->massPos, &springData->massVelocity);
+    v37 = _mm128_sub_ps(springData->massPos.v, p_anchorPos->v);
+    _XMM1.v = (__m128)springData->massPos;
+    v39 = springData->unlockTime + unlockDurationMs;
+    v20 = !springData->isLockingSpring;
+    v40 = *(_OWORD *)&v37 & *(_OWORD *)&g_negativeZero.v | _xmm;
+    _mm128_mul_ps((__m128)v40, v37);
+    _mm128_add_ps(_mm128_mul_ps((__m128)v40, springData->maxOffset.v), p_anchorPos->v);
+    _XMM0.v = (__m128)springData->maxOffset;
     __asm
     {
-      vmovups xmm0, xmmword ptr [rbx]
-      vsubps  xmm2, xmm0, xmmword ptr [rdi]
-      vandps  xmm0, xmm2, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vmovups xmm1, xmmword ptr [rbx]
-    }
-    v59 = inOutMassPos->unlockTime + unlockDurationMs;
-    v31 = !inOutMassPos->isLockingSpring;
-    __asm
-    {
-      vorps   xmm3, xmm0, xmm6
-      vmulps  xmm0, xmm3, xmmword ptr [rbx+90h]
-      vmovaps xmm6, [rsp+0E8h+var_38]
-      vmulps  xmm4, xmm3, xmm2
-      vaddps  xmm2, xmm0, xmmword ptr [rdi]
-      vmovups xmm0, xmmword ptr [rbx+90h]
       vcmpleps xmm0, xmm0, xmm4
       vblendvps xmm1, xmm1, xmm2, xmm0
-      vmovups xmmword ptr [rbx], xmm1
     }
-    if ( !v31 && v59 < serverTime )
+    springData->massPos = (float4)_XMM1.v;
+    if ( !v20 && v39 < serverTime )
     {
-      __asm
+      v44 = (float)(v39 + unlockDurationBlendOutMs - serverTime) * 0.001;
+      if ( v44 > 0.000001 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm2, xmm0, cs:__real@3a83126f
-        vcvtss2sd xmm1, xmm2, xmm2
-        vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
+        v45.m128_u64[1] = v.m128_u64[1];
+        *(double *)v45.m128_u64 = I_fclamp(v.m128_f32[0] / v44, 0.0, 1.0);
+        v11 = v45;
       }
-      if ( !__CFADD__(v59, unlockDurationBlendOutMs - serverTime) && v59 + unlockDurationBlendOutMs - serverTime != 0 )
-      {
-        __asm
-        {
-          vdivss  xmm0, xmm9, xmm2; val
-          vmovaps xmm2, xmm8; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovaps xmm8, xmm0 }
-      }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vsubps  xmm0, xmm0, xmmword ptr [rbx]
-        vmovaps xmm4, xmm8
-        vshufps xmm4, xmm4, xmm4, 0
-        vmulps  xmm1, xmm0, xmm4
-        vaddps  xmm2, xmm1, xmmword ptr [rbx]
-        vsubps  xmm0, xmm7, xmmword ptr [rbp+0]
-        vmulps  xmm1, xmm0, xmm4
-        vmovups xmmword ptr [rbx], xmm2
-        vaddps  xmm2, xmm1, xmmword ptr [rbp+0]
-        vmovups xmmword ptr [rbp+0], xmm2
-      }
+      v46 = _mm_shuffle_ps(v11, v11, 0);
+      v47 = _mm128_mul_ps(_mm128_sub_ps(v21, p_massVelocity->v), v46);
+      springData->massPos.v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(p_anchorPos->v, springData->massPos.v), v46), springData->massPos.v);
+      p_massVelocity->v = _mm128_add_ps(v47, p_massVelocity->v);
     }
+    _XMM0.v = (__m128)springData->massPos;
     __asm
     {
-      vmovups xmm0, xmmword ptr [rbx]
       vcmpneqps xmm0, xmm0, xmm0
       vmovmskps eax, xmm0
     }
     if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 161, ASSERT_TYPE_SANITY, "( !Float4IsNaN( springData.massPos ) )", (const char *)&queryFormat, "!Float4IsNaN( springData.massPos )") )
       __debugbreak();
+    _XMM0 = p_massVelocity->v;
     __asm
     {
-      vmovups xmm0, xmmword ptr [rbp+0]
       vcmpneqps xmm0, xmm0, xmm0
       vmovmskps eax, xmm0
     }
-    if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 162, ASSERT_TYPE_SANITY, "( !Float4IsNaN( springData.massVelocity ) )", (const char *)&queryFormat, "!Float4IsNaN( springData.massVelocity )") )
-      __debugbreak();
+    if ( _EAX )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 162, ASSERT_TYPE_SANITY, "( !Float4IsNaN( springData.massVelocity ) )", (const char *)&queryFormat, "!Float4IsNaN( springData.massVelocity )") )
+        __debugbreak();
+    }
   }
-  _R11 = &v97;
-  __asm
+  else
   {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
+LABEL_12:
+    springData->massPos = 0i64;
+    springData->anchorPos = 0i64;
+    springData->massVelocity.v = v21;
   }
 }
 
@@ -1184,32 +957,25 @@ CG_ViewMotion_LocalOffsetToLocalAngles
 */
 void CG_ViewMotion_LocalOffsetToLocalAngles(const playerState_s *ps, const ViewMotionSpring *spring, const vec3_t *localOffset, vec3_t *outLocalAngles)
 {
-  __int128 v22; 
+  __int128 v8; 
+  __int128 v12; 
 
   _RBX = outLocalAngles;
-  _RSI = localOffset;
   if ( CG_ViewMotion_Enabled(ps) )
   {
-    __asm { vmovss  xmm0, dword ptr [rsi] }
-    HIDWORD(v22) = 0;
+    HIDWORD(v12) = 0;
+    v8 = v12;
+    *(float *)&v8 = localOffset->v[0];
+    _XMM5 = v8;
     __asm
     {
-      vmovups xmm5, xmmword ptr [rsp+20h]
-      vmovss  xmm5, xmm5, xmm0
       vinsertps xmm5, xmm5, dword ptr [rsi+4], 10h
       vinsertps xmm5, xmm5, dword ptr [rsi+8], 20h ; ' '
-      vshufps xmm1, xmm5, xmm5, 0
-      vmulps  xmm2, xmm1, xmmword ptr [rdi+0A0h]
-      vshufps xmm3, xmm5, xmm5, 55h ; 'U'
-      vmulps  xmm1, xmm3, xmmword ptr [rdi+0B0h]
-      vshufps xmm4, xmm5, xmm5, 0AAh ; 'ª'
-      vmulps  xmm0, xmm4, xmmword ptr [rdi+0C0h]
-      vaddps  xmm2, xmm0, xmm2
-      vshufps xmm5, xmm5, xmm5, 0FFh
-      vmulps  xmm0, xmm5, xmmword ptr [rdi+0D0h]
-      vaddps  xmm1, xmm0, xmm1
-      vaddps  xmm3, xmm1, xmm2
-      vmovss  dword ptr [rbx], xmm3
+    }
+    _XMM3 = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM5, _XMM5, 255), spring->offsetAngles.w.v), _mm128_mul_ps(_mm_shuffle_ps(_XMM5, _XMM5, 85), spring->offsetAngles.y.v)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM5, _XMM5, 170), spring->offsetAngles.z.v), _mm128_mul_ps(_mm_shuffle_ps(_XMM5, _XMM5, 0), spring->offsetAngles.x.v)));
+    _RBX->v[0] = _XMM3.m128_f32[0];
+    __asm
+    {
       vextractps dword ptr [rbx+4], xmm3, 1
       vextractps dword ptr [rbx+8], xmm3, 2
     }
@@ -1249,452 +1015,294 @@ void CG_ViewMotion_MyChanges(void)
 CG_ViewMotion_SmoothBlend
 ==============
 */
-
-void __fastcall CG_ViewMotion_SmoothBlend(double lerp, double frametime, const float4 *up, double speed, vector4 *prevAxis, vector4 *goalAxis, vector4 *outCurAxis)
+void CG_ViewMotion_SmoothBlend(float lerp, float frametime, const float4 *up, float speed, vector4 *prevAxis, vector4 *goalAxis, vector4 *outCurAxis)
 {
-  char v36; 
-  int v45; 
-  unsigned int v46; 
-  __int64 v47; 
-  __int64 v71; 
-  char v106; 
-  const float4 *v118; 
-  const float4 *v211; 
-  __int64 v277; 
-  float4 v278; 
-  float4 v279[3]; 
-  char v284; 
-  void *retaddr; 
+  __m256i v12; 
+  float v17; 
+  int v18; 
+  __m128 v19; 
+  __m128 v20; 
+  int v21; 
+  unsigned int v22; 
+  __int64 v23; 
+  __m128 v24; 
+  __int64 v25; 
+  __m128 v26; 
+  double v27; 
+  float v28; 
+  float v29; 
+  const dvar_t *v30; 
+  __int128 unsignedInt; 
+  __m128 v33; 
+  float v38; 
+  __m128 v39; 
+  __m128 v40; 
+  __m128 v42; 
+  const float4 *v43; 
+  __m128 v46; 
+  __m128 v47; 
+  __m128 v48; 
+  __m128 v49; 
+  __m128 v50; 
+  __m128 v59; 
+  __m128 v64; 
+  __m128 v69; 
+  float4 v74; 
+  __int128 v79; 
+  float4 *p_z; 
+  __m128 v81; 
+  __int128 v90; 
+  float4 v92; 
+  const float4 *v95; 
+  __m128 v98; 
+  __m128 v99; 
+  __m128 v100; 
+  __m128 v101; 
+  __m128 v102; 
+  __m128 v107; 
+  float4 v112; 
+  __m128 v113; 
+  __m256i v118; 
+  float4 v119; 
+  float4 v120; 
 
-  _RAX = &retaddr;
-  __asm
+  _XMM9 = 0i64;
+  if ( frametime > 0.0 )
   {
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps [rsp+108h+var_98], xmm15
-  }
-  _R14 = prevAxis;
-  _R12 = up;
-  _RSI = goalAxis;
-  _RDI = outCurAxis;
-  __asm
-  {
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm1, xmm9
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm1
-    vmovaps xmm15, xmm0
-  }
-  if ( (unsigned __int64)&v277 != _security_cookie )
-  {
-    __asm
-    {
-      vmovaps [rsp+108h+var_28], xmm6
-      vmovaps [rsp+108h+var_68], xmm10
-      vmovaps [rsp+108h+var_78], xmm11
-      vmovaps [rsp+108h+var_88], xmm12
-    }
     CG_ViewMotion_AssertFloat3Normalized(&prevAxis->x);
     CG_ViewMotion_AssertFloat3Normalized(&prevAxis->y);
     CG_ViewMotion_AssertFloat3Normalized(&prevAxis->z);
     CG_ViewMotion_AssertFloat3Normalized(&goalAxis->x);
     CG_ViewMotion_AssertFloat3Normalized(&goalAxis->y);
     CG_ViewMotion_AssertFloat3Normalized(&goalAxis->z);
+    _XMM1 = _mm128_mul_ps(goalAxis->x.v, prevAxis->x.v);
     __asm
     {
-      vmovups xmm1, xmmword ptr [rsi]
-      vmulps  xmm1, xmm1, xmmword ptr [r14]
-      vmovss  xmm12, cs:__real@3f800000
       vinsertps xmm2, xmm1, xmm1, 8
-      vmovss  xmm1, cs:__real@bf800000; min
       vhaddps xmm0, xmm2, xmm2
       vhaddps xmm0, xmm0, xmm0; val
-      vmovaps xmm2, xmm12; max
     }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vsubss  xmm1, xmm12, xmm1
-      vcomiss xmm1, cs:dotEpsilon
-    }
-    if ( v36 )
+    *(double *)_XMM0.m128_u64 = I_fclamp(_XMM0.m128_f32[0], -1.0, 1.0);
+    if ( (float)(1.0 - COERCE_FLOAT(_XMM0.m128_i32[0] & _xmm)) < dotEpsilon )
       goto LABEL_22;
-    *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-    __asm
+    _XMM0.m128_f32[0] = acosf_0(_XMM0.m128_f32[0]);
+    v17 = microStepSecInit;
+    v18 = (int)(float)(frametime / microStepSecInit);
+    v19 = _XMM0;
+    v20 = _XMM0;
+    if ( microStepMax < v18 )
     {
-      vmovss  xmm6, cs:microStepSecInit
-      vdivss  xmm1, xmm8, xmm6
-      vcvttss2si ebx, xmm1
-      vmovaps xmm11, xmm0
-      vmovaps xmm3, xmm0
+      v17 = frametime / (float)microStepMax;
+      v18 = microStepMax;
     }
-    if ( microStepMax < _EBX )
+    v21 = 0;
+    if ( v18 >= 8 )
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vdivss  xmm6, xmm8, xmm1
-      }
-      _EBX = microStepMax;
-    }
-    v45 = 0;
-    if ( _EBX >= 8 )
-    {
-      v46 = ((unsigned int)(_EBX - 8) >> 3) + 1;
-      v47 = v46;
-      v45 = 8 * v46;
+      v22 = ((unsigned int)(v18 - 8) >> 3) + 1;
+      v23 = v22;
+      v21 = 8 * v22;
       do
       {
-        __asm
-        {
-          vmulss  xmm0, xmm3, xmm7
-          vmulss  xmm1, xmm0, xmm6
-          vsubss  xmm3, xmm3, xmm1
-          vmulss  xmm2, xmm3, xmm7
-          vmulss  xmm0, xmm2, xmm6
-          vsubss  xmm4, xmm3, xmm0
-          vmulss  xmm1, xmm4, xmm7
-          vmulss  xmm2, xmm1, xmm6
-          vsubss  xmm3, xmm4, xmm2
-          vmulss  xmm0, xmm3, xmm7
-          vmulss  xmm1, xmm0, xmm6
-          vsubss  xmm4, xmm3, xmm1
-          vmulss  xmm2, xmm4, xmm7
-          vmulss  xmm0, xmm2, xmm6
-          vsubss  xmm3, xmm4, xmm0
-          vmulss  xmm1, xmm3, xmm7
-          vmulss  xmm2, xmm1, xmm6
-          vsubss  xmm4, xmm3, xmm2
-          vmulss  xmm0, xmm4, xmm7
-          vmulss  xmm1, xmm0, xmm6
-          vsubss  xmm3, xmm4, xmm1
-          vmulss  xmm2, xmm3, xmm7
-          vmulss  xmm0, xmm2, xmm6
-          vsubss  xmm3, xmm3, xmm0
-        }
-        --v47;
+        v24 = v20;
+        v24.m128_f32[0] = (float)(v20.m128_f32[0] - (float)((float)(v20.m128_f32[0] * speed) * v17)) - (float)((float)((float)(v20.m128_f32[0] - (float)((float)(v20.m128_f32[0] * speed) * v17)) * speed) * v17);
+        v24.m128_f32[0] = (float)(v24.m128_f32[0] - (float)((float)(v24.m128_f32[0] * speed) * v17)) - (float)((float)((float)(v24.m128_f32[0] - (float)((float)(v24.m128_f32[0] * speed) * v17)) * speed) * v17);
+        v24.m128_f32[0] = (float)(v24.m128_f32[0] - (float)((float)(v24.m128_f32[0] * speed) * v17)) - (float)((float)((float)(v24.m128_f32[0] - (float)((float)(v24.m128_f32[0] * speed) * v17)) * speed) * v17);
+        v24.m128_f32[0] = (float)(v24.m128_f32[0] - (float)((float)(v24.m128_f32[0] * speed) * v17)) - (float)((float)((float)(v24.m128_f32[0] - (float)((float)(v24.m128_f32[0] * speed) * v17)) * speed) * v17);
+        v20 = v24;
+        --v23;
       }
-      while ( v47 );
+      while ( v23 );
     }
-    if ( v45 < _EBX )
+    if ( v21 < v18 )
     {
-      v71 = (unsigned int)(_EBX - v45);
+      v25 = (unsigned int)(v18 - v21);
       do
       {
-        __asm
-        {
-          vmulss  xmm1, xmm3, xmm7
-          vmulss  xmm2, xmm1, xmm6
-          vsubss  xmm3, xmm3, xmm2
-        }
-        --v71;
+        v26 = v20;
+        v26.m128_f32[0] = v20.m128_f32[0] - (float)((float)(v20.m128_f32[0] * speed) * v17);
+        v20 = v26;
+        --v25;
       }
-      while ( v71 );
+      while ( v25 );
     }
-    __asm
-    {
-      vmovaps xmm2, xmm11; max
-      vmovaps xmm1, xmm9; min
-      vmovaps xmm0, xmm3; val
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, ebx
-      vmulss  xmm2, xmm1, xmm6
-      vmovaps xmm10, xmm0
-      vsubss  xmm0, xmm8, xmm2
-      vcomiss xmm0, xmm9
-    }
-    if ( !v36 )
-    {
-      __asm
-      {
-        vmulss  xmm1, xmm10, xmm7
-        vmulss  xmm2, xmm1, xmm0
-        vsubss  xmm0, xmm10, xmm2; val
-        vmovaps xmm2, xmm11; max
-        vmovaps xmm1, xmm9; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm10, xmm0 }
-    }
-    _RBX = DCONST_DVARFLT_smoothClampAngle;
+    v27 = I_fclamp(v20.m128_f32[0], 0.0, _XMM0.m128_f32[0]);
+    v28 = *(float *)&v27;
+    v29 = frametime - (float)((float)v18 * v17);
+    if ( v29 >= 0.0 )
+      I_fclamp(v28 - (float)((float)(v28 * speed) * v29), 0.0, v19.m128_f32[0]);
+    v30 = DCONST_DVARFLT_smoothClampAngle;
     if ( !DCONST_DVARFLT_smoothClampAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "smoothClampAngle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
+    Dvar_CheckFrontendServerThread(v30);
+    unsignedInt = v30->current.unsignedInt;
+    *(float *)&unsignedInt = v30->current.value * 0.017453292;
+    _XMM7 = unsignedInt;
+    v33 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(prevAxis->x.v, prevAxis->x.v, 201), _mm_shuffle_ps(goalAxis->x.v, goalAxis->x.v, 210)), _mm128_mul_ps(_mm_shuffle_ps(prevAxis->x.v, prevAxis->x.v, 210), _mm_shuffle_ps(goalAxis->x.v, goalAxis->x.v, 201)));
+    _XMM1 = _mm128_mul_ps(v33, v33);
     __asm
     {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmulss  xmm7, xmm0, cs:__real@3c8efa35
-      vmovups xmm4, xmmword ptr [rsi]
-      vmovups xmm2, xmmword ptr [r14]
-      vshufps xmm1, xmm2, xmm2, 0C9h ; 'É'
-      vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-      vmulps  xmm3, xmm1, xmm0
-      vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-      vshufps xmm2, xmm2, xmm2, 0D2h ; 'Ò'
-      vmulps  xmm0, xmm2, xmm1
-      vsubps  xmm5, xmm3, xmm0
-      vmulps  xmm1, xmm5, xmm5
       vinsertps xmm0, xmm1, xmm1, 8
       vhaddps xmm2, xmm0, xmm0
       vhaddps xmm0, xmm2, xmm2
-      vsqrtps xmm3, xmm0
-      vcvtss2sd xmm1, xmm3, xmm3
-      vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
     }
-    if ( v36 | v106 )
+    v38 = _mm_sqrt_ps(_XMM0).m128_f32[0];
+    if ( v38 <= 0.000001 )
     {
 LABEL_22:
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsi]
-        vmovups ymm1, ymmword ptr [rsi+20h]
-        vmovups ymmword ptr [rdi], ymm0
-        vmovups ymmword ptr [rdi+20h], ymm1
-      }
+      v118 = *(__m256i *)goalAxis->z.v.m128_f32;
+      *(__m256i *)outCurAxis->x.v.m128_f32 = *(__m256i *)goalAxis->x.v.m128_f32;
+      *(__m256i *)outCurAxis->z.v.m128_f32 = v118;
     }
     else
     {
+      v39 = (__m128)LODWORD(FLOAT_1_0);
+      v39.m128_f32[0] = 1.0 / v38;
+      v40 = _mm128_mul_ps(_mm_shuffle_ps(v39, v39, 0), v33);
+      v119.v = v40;
+      CG_ViewMotion_AssertFloat3Normalized(&v119);
+      __asm { vminss  xmm0, xmm7, xmm10 }
+      v42 = v19;
+      v42.m128_f32[0] = (float)((float)(v19.m128_f32[0] - *(float *)&_XMM0) * lerp) + (float)((float)(1.0 - lerp) * v19.m128_f32[0]);
+      _mm128_mul_ps(_mm_shuffle_ps(v42, v42, 0), g_oneHalf.v);
+      Float4SinCos(v43, &v119, &v120);
+      _XMM1 = _mm128_mul_ps(v40, v119.v);
+      __asm { vblendps xmm2, xmm1, [rsp+108h+var_B8], arg_0 }
+      v46 = _mm_shuffle_ps(_XMM2, _XMM2, 201);
+      v47 = _mm_shuffle_ps(_XMM2, _XMM2, 210);
+      v48 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(prevAxis->x.v, prevAxis->x.v, 210), v46), _mm128_mul_ps(_mm_shuffle_ps(prevAxis->x.v, prevAxis->x.v, 201), v47));
+      v49 = _mm128_add_ps(v48, v48);
+      v50 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v49, v49, 210), v46), _mm128_mul_ps(_mm_shuffle_ps(v49, v49, 201), v47)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM2, _XMM2, 255), v49), prevAxis->x.v));
+      _XMM0 = _mm128_mul_ps(v50, v50);
       __asm
       {
-        vdivss  xmm0, xmm12, xmm3
-        vshufps xmm0, xmm0, xmm0, 0
-        vmulps  xmm6, xmm0, xmm5
-        vmovups xmmword ptr [rsp+108h+var_C8.v], xmm6
-      }
-      CG_ViewMotion_AssertFloat3Normalized(&v278);
-      __asm
-      {
-        vminss  xmm0, xmm7, xmm10
-        vsubss  xmm1, xmm11, xmm0
-        vmulss  xmm2, xmm1, xmm15
-        vsubss  xmm0, xmm12, xmm15
-        vmulss  xmm1, xmm0, xmm11
-        vaddss  xmm2, xmm2, xmm1
-        vshufps xmm2, xmm2, xmm2, 0
-        vmulps  xmm0, xmm2, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-      }
-      Float4SinCos(v118, &v278, v279);
-      __asm
-      {
-        vmulps  xmm1, xmm6, xmmword ptr [rsp+108h+var_C8.v]
-        vblendps xmm2, xmm1, [rsp+108h+var_B8], arg_0
-        vmovups xmm7, xmmword ptr [r14]
-        vshufps xmm6, xmm2, xmm2, 0C9h ; 'É'
-        vshufps xmm5, xmm2, xmm2, 0FFh
-        vshufps xmm8, xmm2, xmm2, 0D2h ; 'Ò'
-        vshufps xmm0, xmm7, xmm7, 0D2h ; 'Ò'
-        vmulps  xmm3, xmm0, xmm6
-        vshufps xmm1, xmm7, xmm7, 0C9h ; 'É'
-        vmulps  xmm2, xmm1, xmm8
-        vsubps  xmm0, xmm3, xmm2
-        vaddps  xmm4, xmm0, xmm0
-        vmulps  xmm0, xmm5, xmm4
-        vaddps  xmm5, xmm0, xmm7
-        vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-        vmulps  xmm2, xmm0, xmm8
-        vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-        vmulps  xmm3, xmm1, xmm6
-        vsubps  xmm1, xmm3, xmm2
-        vaddps  xmm4, xmm1, xmm5
-        vmulps  xmm0, xmm4, xmm4
         vinsertps xmm1, xmm0, xmm0, 8
         vhaddps xmm2, xmm1, xmm1
         vhaddps xmm0, xmm2, xmm2
-        vsqrtps xmm1, xmm0
-        vdivps  xmm2, xmm4, xmm1
-        vmovups xmmword ptr [rdi], xmm2
       }
+      outCurAxis->x.v = _mm128_div_ps(v50, _mm_sqrt_ps(_XMM0));
       CG_ViewMotion_AssertFloat3Normalized(&outCurAxis->x);
       CG_ViewMotion_AssertFloat3Normalized(&outCurAxis->x);
+      _XMM1 = _mm128_mul_ps(up->v, goalAxis->x.v);
       __asm
       {
-        vmovups xmm3, xmmword ptr [r12]
-        vmovups xmm1, xmmword ptr [r12]
-        vmulps  xmm1, xmm1, xmmword ptr [rsi]
         vinsertps xmm2, xmm1, xmm1, 8
         vhaddps xmm0, xmm2, xmm2
         vhaddps xmm0, xmm0, xmm0
-        vxorps  xmm5, xmm5, xmm5
-        vsubps  xmm1, xmm5, xmm0
-        vmulps  xmm2, xmm1, xmmword ptr [rsi]
-        vaddps  xmm4, xmm2, xmm3
-        vmulps  xmm0, xmm4, xmm4
+      }
+      v59 = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps((__m128)0i64, _XMM0), goalAxis->x.v), up->v);
+      _XMM0 = _mm128_mul_ps(v59, v59);
+      __asm
+      {
         vinsertps xmm1, xmm0, xmm0, 8
         vhaddps xmm2, xmm1, xmm1
         vhaddps xmm0, xmm2, xmm2
-        vsqrtps xmm1, xmm0
-        vdivps  xmm6, xmm4, xmm1
-        vmulps  xmm1, xmm3, xmmword ptr [rdi]
+      }
+      v64 = _mm128_div_ps(v59, _mm_sqrt_ps(_XMM0));
+      _XMM1 = _mm128_mul_ps(up->v, outCurAxis->x.v);
+      __asm
+      {
         vinsertps xmm2, xmm1, xmm1, 8
         vhaddps xmm0, xmm2, xmm2
         vhaddps xmm0, xmm0, xmm0
-        vsubps  xmm1, xmm5, xmm0
-        vmulps  xmm2, xmm1, xmmword ptr [rdi]
-        vaddps  xmm4, xmm2, xmm3
-        vmulps  xmm0, xmm4, xmm4
+      }
+      v69 = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps((__m128)0i64, _XMM0), outCurAxis->x.v), up->v);
+      _XMM0 = _mm128_mul_ps(v69, v69);
+      __asm
+      {
         vinsertps xmm1, xmm0, xmm0, 8
         vhaddps xmm2, xmm1, xmm1
         vhaddps xmm0, xmm2, xmm2
-        vsqrtps xmm2, xmm0
-        vdivps  xmm8, xmm4, xmm2
-        vmulps  xmm2, xmm6, xmmword ptr [rsi+20h]
+      }
+      v74.v = _mm128_div_ps(v69, _mm_sqrt_ps(_XMM0));
+      _XMM2 = _mm128_mul_ps(v64, goalAxis->z.v);
+      __asm
+      {
         vinsertps xmm3, xmm2, xmm2, 8
         vhaddps xmm0, xmm3, xmm3
         vhaddps xmm0, xmm0, xmm0; val
-        vmovss  xmm1, cs:__real@bf800000; min
-        vmovaps xmm2, xmm12; max
       }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
+      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, -1.0, 1.0);
+      v79 = _XMM0;
+      if ( (float)(1.0 - dotEpsilon) > COERCE_FLOAT(_XMM0 & _xmm) )
       {
-        vsubss  xmm2, xmm12, cs:dotEpsilon
-        vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm2, xmm1
-        vmovaps xmm5, xmm0
-      }
-      if ( v36 | v106 )
-      {
-        _RSI = &outCurAxis->z;
-        __asm { vmovups xmmword ptr [rsi], xmm8 }
-      }
-      else
-      {
+        v81 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(goalAxis->z.v, goalAxis->z.v, 201), _mm_shuffle_ps(v64, v64, 210)), _mm128_mul_ps(_mm_shuffle_ps(goalAxis->z.v, goalAxis->z.v, 210), _mm_shuffle_ps(v64, v64, 201)));
+        _XMM1 = _mm128_mul_ps(v81, v81);
         __asm
         {
-          vmovups xmm2, xmmword ptr [rsi+20h]
-          vshufps xmm1, xmm2, xmm2, 0C9h ; 'É'
-          vshufps xmm2, xmm2, xmm2, 0D2h ; 'Ò'
-          vshufps xmm0, xmm6, xmm6, 0D2h ; 'Ò'
-          vmulps  xmm3, xmm1, xmm0
-          vshufps xmm1, xmm6, xmm6, 0C9h ; 'É'
-          vmulps  xmm0, xmm2, xmm1
-          vsubps  xmm4, xmm3, xmm0
-          vmulps  xmm1, xmm4, xmm4
           vinsertps xmm0, xmm1, xmm1, 8
           vhaddps xmm2, xmm0, xmm0
           vhaddps xmm0, xmm2, xmm2
-          vsqrtps xmm1, xmm0
-          vdivps  xmm3, xmm4, xmm1
-          vmulps  xmm1, xmm3, xmmword ptr [rsi]
+        }
+        _XMM1 = _mm128_mul_ps(_mm128_div_ps(v81, _mm_sqrt_ps(_XMM0)), goalAxis->x.v);
+        __asm
+        {
           vinsertps xmm2, xmm1, xmm1, 8
           vhaddps xmm0, xmm2, xmm2
           vhaddps xmm6, xmm0, xmm0
-          vmovaps xmm0, xmm5; X
         }
-        *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
+        v90 = v79;
+        *(float *)&v90 = acosf_0(*(float *)&v79);
+        _XMM2 = v90 ^ _xmm;
+        v92.v = (__m128)outCurAxis->x;
         __asm
         {
-          vxorps  xmm2, xmm0, cs:__xmm@80000000800000008000000080000000
-          vmovups xmm7, xmmword ptr [rdi]
           vcmpless xmm1, xmm9, xmm6
           vblendvps xmm0, xmm2, xmm0, xmm1
-          vxorps  xmm2, xmm0, cs:__xmm@80000000800000008000000080000000
-          vshufps xmm2, xmm2, xmm2, 0
-          vmulps  xmm0, xmm2, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
         }
-        Float4SinCos(v211, v279, &v278);
+        _mm128_mul_ps(_mm_shuffle_ps((__m128)(_XMM0 ^ _xmm), (__m128)(_XMM0 ^ _xmm), 0), g_oneHalf.v);
+        Float4SinCos(v95, &v120, &v119);
+        _XMM1 = _mm128_mul_ps(v92.v, v120.v);
+        __asm { vblendps xmm2, xmm1, xmmword ptr [rsp+108h+var_C8.v], arg_0 }
+        v98 = _mm_shuffle_ps(_XMM2, _XMM2, 201);
+        v99 = _mm_shuffle_ps(_XMM2, _XMM2, 210);
+        v100 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v74.v, v74.v, 210), v98), _mm128_mul_ps(_mm_shuffle_ps(v74.v, v74.v, 201), v99));
+        v101 = _mm128_add_ps(v100, v100);
+        v102 = _mm128_add_ps(_mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(v101, v101, 210), v98), _mm128_mul_ps(_mm_shuffle_ps(v101, v101, 201), v99)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM2, _XMM2, 255), v101), v74.v));
+        _XMM0 = _mm128_mul_ps(v102, v102);
         __asm
         {
-          vmulps  xmm1, xmm7, [rsp+108h+var_B8]
-          vblendps xmm2, xmm1, xmmword ptr [rsp+108h+var_C8.v], arg_0
-          vshufps xmm6, xmm2, xmm2, 0C9h ; 'É'
-          vshufps xmm5, xmm2, xmm2, 0FFh
-          vshufps xmm7, xmm2, xmm2, 0D2h ; 'Ò'
-          vshufps xmm0, xmm8, xmm8, 0D2h ; 'Ò'
-          vmulps  xmm3, xmm0, xmm6
-          vshufps xmm1, xmm8, xmm8, 0C9h ; 'É'
-          vmulps  xmm2, xmm1, xmm7
-          vsubps  xmm0, xmm3, xmm2
-          vaddps  xmm4, xmm0, xmm0
-          vmulps  xmm0, xmm5, xmm4
-          vaddps  xmm5, xmm0, xmm8
-          vshufps xmm0, xmm4, xmm4, 0C9h ; 'É'
-          vmulps  xmm2, xmm0, xmm7
-          vshufps xmm1, xmm4, xmm4, 0D2h ; 'Ò'
-          vmulps  xmm3, xmm1, xmm6
-          vsubps  xmm1, xmm3, xmm2
-          vaddps  xmm4, xmm1, xmm5
-          vmulps  xmm0, xmm4, xmm4
           vinsertps xmm1, xmm0, xmm0, 8
           vhaddps xmm2, xmm1, xmm1
           vhaddps xmm0, xmm2, xmm2
-          vsqrtps xmm1, xmm0
-          vdivps  xmm2, xmm4, xmm1
         }
-        _RSI = &outCurAxis->z;
-        __asm { vmovups xmmword ptr [rsi], xmm2 }
+        p_z = &outCurAxis->z;
+        outCurAxis->z.v = _mm128_div_ps(v102, _mm_sqrt_ps(_XMM0));
       }
-      CG_ViewMotion_AssertFloat3Normalized(_RSI);
+      else
+      {
+        p_z = &outCurAxis->z;
+        outCurAxis->z = (float4)v74.v;
+      }
+      CG_ViewMotion_AssertFloat3Normalized(p_z);
+      v107 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(p_z->v, p_z->v, 201), _mm_shuffle_ps(outCurAxis->x.v, outCurAxis->x.v, 210)), _mm128_mul_ps(_mm_shuffle_ps(p_z->v, p_z->v, 210), _mm_shuffle_ps(outCurAxis->x.v, outCurAxis->x.v, 201)));
+      _XMM0 = _mm128_mul_ps(v107, v107);
       __asm
       {
-        vmovups xmm4, xmmword ptr [rdi]
-        vmovups xmm2, xmmword ptr [rsi]
-        vshufps xmm1, xmm2, xmm2, 0C9h ; 'É'
-        vshufps xmm2, xmm2, xmm2, 0D2h ; 'Ò'
-        vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-        vmulps  xmm3, xmm1, xmm0
-        vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-        vmulps  xmm0, xmm2, xmm1
-        vsubps  xmm5, xmm3, xmm0
-        vmulps  xmm0, xmm5, xmm5
         vinsertps xmm1, xmm0, xmm0, 8
         vhaddps xmm2, xmm1, xmm1
         vhaddps xmm0, xmm2, xmm2
-        vmovups xmm2, xmmword ptr [rdi]
-        vsqrtps xmm1, xmm0
-        vdivps  xmm4, xmm5, xmm1
-        vshufps xmm1, xmm2, xmm2, 0C9h ; 'É'
-        vshufps xmm2, xmm2, xmm2, 0D2h ; 'Ò'
-        vshufps xmm0, xmm4, xmm4, 0D2h ; 'Ò'
-        vmulps  xmm3, xmm1, xmm0
-        vshufps xmm1, xmm4, xmm4, 0C9h ; 'É'
-        vmulps  xmm0, xmm2, xmm1
-        vsubps  xmm5, xmm3, xmm0
-        vmulps  xmm0, xmm5, xmm5
-        vinsertps xmm1, xmm0, xmm0, 8
-        vhaddps xmm2, xmm1, xmm1
-        vhaddps xmm0, xmm2, xmm2
-        vsqrtps xmm1, xmm0
-        vdivps  xmm2, xmm5, xmm1
-        vmovups xmmword ptr [rsi], xmm2
-        vmovups xmmword ptr [rdi+10h], xmm4
       }
+      v112.v = _mm128_div_ps(v107, _mm_sqrt_ps(_XMM0));
+      v113 = _mm128_sub_ps(_mm128_mul_ps(_mm_shuffle_ps(outCurAxis->x.v, outCurAxis->x.v, 201), _mm_shuffle_ps(v112.v, v112.v, 210)), _mm128_mul_ps(_mm_shuffle_ps(outCurAxis->x.v, outCurAxis->x.v, 210), _mm_shuffle_ps(v112.v, v112.v, 201)));
+      _XMM0 = _mm128_mul_ps(v113, v113);
+      __asm
+      {
+        vinsertps xmm1, xmm0, xmm0, 8
+        vhaddps xmm2, xmm1, xmm1
+        vhaddps xmm0, xmm2, xmm2
+      }
+      p_z->v = _mm128_div_ps(v113, _mm_sqrt_ps(_XMM0));
+      outCurAxis->y = (float4)v112.v;
       CG_ViewMotion_AssertFloat3Normalized(&outCurAxis->x);
       CG_ViewMotion_AssertFloat3Normalized(&outCurAxis->y);
-      CG_ViewMotion_AssertFloat3Normalized(_RSI);
-    }
-    __asm
-    {
-      vmovaps xmm11, [rsp+108h+var_78]
-      vmovaps xmm10, [rsp+108h+var_68]
-      vmovaps xmm6, [rsp+108h+var_28]
-      vmovaps xmm12, [rsp+108h+var_88]
+      CG_ViewMotion_AssertFloat3Normalized(p_z);
     }
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovups ymm1, ymmword ptr [r14+20h]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups ymmword ptr [rdi+20h], ymm1
-    }
-  }
-  _R11 = &v284;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm15, xmmword ptr [r11-80h]
+    v12 = *(__m256i *)prevAxis->z.v.m128_f32;
+    *(__m256i *)outCurAxis->x.v.m128_f32 = *(__m256i *)prevAxis->x.v.m128_f32;
+    *(__m256i *)outCurAxis->z.v.m128_f32 = v12;
   }
 }
 
@@ -1704,211 +1312,155 @@ CG_ViewMotion_Update
 ==============
 */
 
-void __fastcall CG_ViewMotion_Update(const LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+void __fastcall CG_ViewMotion_Update(const LocalClientNum_t localClientNum, __int64 a2, double a3)
 {
-  const float4 *v18; 
-  float4 *v19; 
-  const float4 *v42; 
-  vector3 *v43; 
-  char v72; 
-  char v73; 
+  cg_t *LocalClientGlobals; 
+  float v4; 
+  __m128 v; 
+  const float4 *v9; 
+  float4 *v10; 
+  __m128 v11; 
+  __m128 v12; 
+  __m128 v13; 
+  __m128 v15; 
+  __m128 v16; 
+  __m128 v18; 
+  float v20; 
+  __m128 v21; 
+  __m128 v22; 
+  __m128 v24; 
+  __m128 v27; 
+  const float4 *v28; 
+  vector3 *v29; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v32; 
+  __m128 v33; 
   float4 frametime4; 
   float4 curPsOrigin; 
 
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 339, ASSERT_TYPE_ASSERT, "( cgameGlob ) != ( nullptr )", "%s != %s\n\t%p, %p", "cgameGlob", "nullptr", NULL, NULL) )
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 339, ASSERT_TYPE_ASSERT, "( cgameGlob ) != ( nullptr )", "%s != %s\n\t%p, %p", "cgameGlob", "nullptr", NULL, NULL) )
     __debugbreak();
-  if ( CG_ViewMotion_Enabled(&_RBX->predictedPlayerState) )
+  if ( CG_ViewMotion_Enabled(&LocalClientGlobals->predictedPlayerState) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+38h]
-      vmovaps [rsp+110h+var_90], xmm12
-    }
+    v4 = LocalClientGlobals->predictedPlayerState.origin.v[0];
     curPsOrigin.v.m128_i32[3] = 0;
+    v = curPsOrigin.v;
+    v.m128_f32[0] = v4;
+    _XMM12 = v;
     __asm
     {
-      vmovups xmm12, xmmword ptr [rbp-59h]
-      vmovss  xmm12, xmm12, xmm0
       vinsertps xmm12, xmm12, dword ptr [rbx+3Ch], 10h
       vinsertps xmm12, xmm12, dword ptr [rbx+40h], 20h ; ' '
-      vmovups xmmword ptr [rbp-59h], xmm12
-      vmovups xmmword ptr [rbp-59h], xmm12
     }
-    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RBX->predictedPlayerState.otherFlags, ACTIVE, 0x1Fu) || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RBX->predictedPlayerState.otherFlags, ACTIVE, 0x20u) || _RBX->predictedPlayerState.pm_type == 5 && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RBX->predictedPlayerState.otherFlags, GameModeFlagValues::ms_mpValue, 0x21u) )
+    curPsOrigin.v = _XMM12;
+    if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, ACTIVE, 0x1Fu) || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, ACTIVE, 0x20u) || LocalClientGlobals->predictedPlayerState.pm_type == 5 && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, GameModeFlagValues::ms_mpValue, 0x21u) )
     {
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2
-        vmovups ymmword ptr [rbx+6790h], ymm2
-        vmovups ymmword ptr [rbx+6770h], ymm2
-        vmovups xmmword ptr [rbx+6760h], xmm12
-      }
-      *(_QWORD *)&_RBX->viewSpring.motionIndexBlendDuration = 0i64;
-      __asm
-      {
-        vmovups ymmword ptr [rbx+6740h], ymm2
-        vmovups ymmword ptr [rbx+6720h], ymm2
-        vmovups xmmword ptr [rbx+67B0h], xmm2
-      }
-      _RBX->viewSpring.isLockingSpring = 0;
-      *(_QWORD *)&_RBX->viewSpring.motionIndex = 31i64;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?g_1000@@3Ufloat4@@B.v; float4 const g_1000
-        vmovups xmmword ptr [rbx+67C0h], xmm0
-        vmovups xmm1, xmmword ptr cs:?g_0100@@3Ufloat4@@B.v; float4 const g_0100
-        vmovups xmmword ptr [rbx+67D0h], xmm1
-        vmovups xmm0, xmmword ptr cs:?g_0010@@3Ufloat4@@B.v; float4 const g_0010
-        vmovups xmmword ptr [rbx+67E0h], xmm0
-        vmovups xmm1, xmmword ptr cs:?g_0001@@3Ufloat4@@B.v; float4 const g_0001
-        vmovups xmmword ptr [rbx+67F0h], xmm1
-      }
-      _RBX->viewSpring.isInitialized = 1;
-      __asm
-      {
-        vmovups ymmword ptr [rbx+6820h], ymm2
-        vmovups ymmword ptr [rbx+6840h], ymm2
-      }
-      *(_QWORD *)&_RBX->viewmodelSpring.motionIndexBlendDuration = 0i64;
-      __asm
-      {
-        vmovups xmmword ptr [rbx+6860h], xmm12
-        vmovups ymmword ptr [rbx+6870h], ymm2
-        vmovups ymmword ptr [rbx+6890h], ymm2
-        vmovups xmmword ptr [rbx+68B0h], xmm2
-      }
-      _RBX->viewmodelSpring.isLockingSpring = 0;
-      *(_QWORD *)&_RBX->viewmodelSpring.motionIndex = 31i64;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?g_1000@@3Ufloat4@@B.v; float4 const g_1000
-        vmovups xmmword ptr [rbx+68C0h], xmm0
-        vmovups xmm1, xmmword ptr cs:?g_0100@@3Ufloat4@@B.v; float4 const g_0100
-        vmovups xmmword ptr [rbx+68D0h], xmm1
-        vmovups xmm0, xmmword ptr cs:?g_0010@@3Ufloat4@@B.v; float4 const g_0010
-        vmovups xmmword ptr [rbx+68E0h], xmm0
-        vmovups xmm1, xmmword ptr cs:?g_0001@@3Ufloat4@@B.v; float4 const g_0001
-        vmovups xmmword ptr [rbx+68F0h], xmm1
-      }
-      _RBX->viewmodelSpring.isInitialized = 1;
+      *(__m256i *)LocalClientGlobals->viewSpring.springConstant.v.m128_f32 = (__m256i)0i64;
+      *(__m256i *)LocalClientGlobals->viewSpring.velocitySmoothingSec.v.m128_f32 = (__m256i)0i64;
+      LocalClientGlobals->viewSpring.prevPsOrigin.v = _XMM12;
+      *(_QWORD *)&LocalClientGlobals->viewSpring.motionIndexBlendDuration = 0i64;
+      *(__m256i *)LocalClientGlobals->viewSpring.anchorPos.v.m128_f32 = (__m256i)0i64;
+      *(__m256i *)LocalClientGlobals->viewSpring.massPos.v.m128_f32 = (__m256i)0i64;
+      LocalClientGlobals->viewSpring.maxOffset = 0i64;
+      LocalClientGlobals->viewSpring.isLockingSpring = 0;
+      *(_QWORD *)&LocalClientGlobals->viewSpring.motionIndex = 31i64;
+      LocalClientGlobals->viewSpring.offsetAngles.x = (float4)g_1000.v;
+      LocalClientGlobals->viewSpring.offsetAngles.y = (float4)g_0100.v;
+      LocalClientGlobals->viewSpring.offsetAngles.z = (float4)g_0010.v;
+      LocalClientGlobals->viewSpring.offsetAngles.w = (float4)g_0001.v;
+      LocalClientGlobals->viewSpring.isInitialized = 1;
+      *(__m256i *)LocalClientGlobals->viewmodelSpring.massPos.v.m128_f32 = (__m256i)0i64;
+      *(__m256i *)LocalClientGlobals->viewmodelSpring.anchorPos.v.m128_f32 = (__m256i)0i64;
+      *(_QWORD *)&LocalClientGlobals->viewmodelSpring.motionIndexBlendDuration = 0i64;
+      LocalClientGlobals->viewmodelSpring.prevPsOrigin.v = _XMM12;
+      *(__m256i *)LocalClientGlobals->viewmodelSpring.velocitySmoothingSec.v.m128_f32 = (__m256i)0i64;
+      *(__m256i *)LocalClientGlobals->viewmodelSpring.springConstant.v.m128_f32 = (__m256i)0i64;
+      LocalClientGlobals->viewmodelSpring.maxOffset = 0i64;
+      LocalClientGlobals->viewmodelSpring.isLockingSpring = 0;
+      *(_QWORD *)&LocalClientGlobals->viewmodelSpring.motionIndex = 31i64;
+      LocalClientGlobals->viewmodelSpring.offsetAngles.x = (float4)g_1000.v;
+      LocalClientGlobals->viewmodelSpring.offsetAngles.y = (float4)g_0100.v;
+      LocalClientGlobals->viewmodelSpring.offsetAngles.z = (float4)g_0010.v;
+      LocalClientGlobals->viewmodelSpring.offsetAngles.w = (float4)g_0001.v;
+      LocalClientGlobals->viewmodelSpring.isInitialized = 1;
     }
     else
     {
-      __asm
-      {
-        vmovaps [rsp+110h+var_30], xmm6
-        vmovaps [rsp+110h+var_40], xmm7
-        vmovaps [rsp+110h+var_50], xmm8
-        vmovaps [rsp+110h+var_60], xmm9
-        vmovaps [rsp+110h+var_70], xmm10
-        vmovaps [rsp+110h+var_80], xmm11
-      }
-      CG_ViewMotion_CheckSpringTeleport(_RBX, &curPsOrigin, &_RBX->viewSpring);
-      CG_ViewMotion_CheckSpringTeleport(_RBX, &curPsOrigin, &_RBX->viewmodelSpring);
-      CG_ViewMotion_UpdateSpringControls(_RBX, 1, &_RBX->viewSpring);
-      CG_ViewMotion_UpdateSpringControls(_RBX, 0, &_RBX->viewmodelSpring);
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 168, ASSERT_TYPE_ASSERT, "( cgameGlob ) != ( nullptr )", "%s != %s\n\t%p, %p", "cgameGlob", "nullptr", NULL, NULL) )
+      CG_ViewMotion_CheckSpringTeleport(LocalClientGlobals, &curPsOrigin, &LocalClientGlobals->viewSpring);
+      CG_ViewMotion_CheckSpringTeleport(LocalClientGlobals, &curPsOrigin, &LocalClientGlobals->viewmodelSpring);
+      CG_ViewMotion_UpdateSpringControls(LocalClientGlobals, 1, &LocalClientGlobals->viewSpring);
+      CG_ViewMotion_UpdateSpringControls(LocalClientGlobals, 0, &LocalClientGlobals->viewmodelSpring);
+      if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 168, ASSERT_TYPE_ASSERT, "( cgameGlob ) != ( nullptr )", "%s != %s\n\t%p, %p", "cgameGlob", "nullptr", NULL, NULL) )
         __debugbreak();
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      if ( BG_IsPlayerLinked(&_RBX->predictedPlayerState) )
+      if ( BG_IsPlayerLinked(&LocalClientGlobals->predictedPlayerState) )
       {
-        __asm
+        v11 = 0i64;
+        v11.m128_f32[0] = (float)LocalClientGlobals->frametime * 0.001;
+        v12 = v11;
+        *(double *)v11.m128_u64 = v11.m128_f32[0];
+        v13 = v11;
+        if ( *(double *)v11.m128_u64 > 0.000001 )
         {
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbx+65E4h]
-          vmulss  xmm3, xmm0, cs:__real@3a83126f
-          vcvtss2sd xmm1, xmm3, xmm3
-          vcomisd xmm1, cs:__real@3eb0c6f7a0b5ed8d
-          vmovss  xmm0, cs:__real@3f800000
-          vsubps  xmm2, xmm12, xmmword ptr [rbx+6760h]
-          vdivss  xmm1, xmm0, xmm3
-          vshufps xmm1, xmm1, xmm1, 0
-          vmulps  xmm10, xmm2, xmm1
+          *(__m128 *)&a3 = _mm128_sub_ps(_XMM12, LocalClientGlobals->viewSpring.prevPsOrigin.v);
+          v15 = (__m128)LODWORD(FLOAT_1_0);
+          v15.m128_f32[0] = 1.0 / v12.m128_f32[0];
+          v13 = _mm_shuffle_ps(v15, v15, 0);
+          _XMM10 = _mm128_mul_ps(*(__m128 *)&a3, v13);
+        }
+        else
+        {
+          _XMM10 = 0i64;
         }
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx+44h]
-          vcvtsi2ss xmm0, xmm0, cs:?cls@@3UClStatic@@A.frametime; ClStatic cls
-          vmulss  xmm3, xmm0, cs:__real@3a83126f
-        }
+        v13 = (__m128)LODWORD(LocalClientGlobals->predictedPlayerState.velocity.v[0]);
+        v16 = 0i64;
+        v16.m128_f32[0] = (float)cls.frametime * 0.001;
+        v12 = v16;
         curPsOrigin.v.m128_i32[3] = 0;
+        v18 = curPsOrigin.v;
+        v18.m128_f32[0] = v13.m128_f32[0];
+        _XMM10 = v18;
         __asm
         {
-          vmovups xmm10, xmmword ptr [rbp+57h+curPsOrigin.v]
-          vmovss  xmm10, xmm10, xmm1
           vinsertps xmm10, xmm10, dword ptr [rbx+48h], 10h
           vinsertps xmm10, xmm10, dword ptr [rbx+4Ch], 20h ; ' '
-          vmovups xmmword ptr [rbp+57h+curPsOrigin.v], xmm10
         }
+        curPsOrigin.v = _XMM10;
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+1E0h]
-        vmovups xmm6, xmmword ptr cs:?g_0001@@3Ufloat4@@B.v; float4 const g_0001
-        vmovaps xmm11, xmm3
-      }
+      v20 = LocalClientGlobals->predictedPlayerState.viewangles.v[0];
+      v21 = g_0001.v;
+      v22 = v12;
       curPsOrigin.v.m128_i32[3] = 0;
+      v24 = curPsOrigin.v;
+      v24.m128_f32[0] = v20;
+      _XMM3 = v24;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rbp+57h+curPsOrigin.v]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [rbx+1E4h], 10h
         vinsertps xmm3, xmm3, dword ptr [rbx+1E8h], 20h ; ' '
-        vmulps  xmm0, xmm3, xmmword ptr cs:?g_degreeToRadian@@3Ufloat4@@B.v; float4 const g_degreeToRadian
-        vshufps xmm11, xmm11, xmm11, 0
-        vmovups xmmword ptr [rbp+57h+frametime4.v], xmm11
-        vmovups xmmword ptr [rbp+57h+curPsOrigin.v], xmm3
       }
-      Float4RadianToQuat(v19, v18);
-      Float4UnitQuatToAxis(v43, v42);
-      __asm
+      v27 = _mm128_mul_ps(_XMM3, g_degreeToRadian.v);
+      frametime4.v = _mm_shuffle_ps(v22, v22, 0);
+      curPsOrigin.v = _XMM3;
+      Float4RadianToQuat(v10, v9);
+      Float4UnitQuatToAxis(v29, v28);
+      v30 = _mm_shuffle_ps(v27, v13, 68);
+      v31 = _mm_shuffle_ps(v27, v13, 238);
+      v32 = _mm_shuffle_ps(*(__m128 *)&a3, v21, 68);
+      v33 = _mm_shuffle_ps(*(__m128 *)&a3, v21, 238);
+      curPsOrigin.v = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM10, _XMM10, 255), _mm_shuffle_ps(v31, v33, 221)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM10, _XMM10, 85), _mm_shuffle_ps(v30, v32, 221)), g_negativeZero.v)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM10, _XMM10, 170), _mm_shuffle_ps(v31, v33, 136)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM10, _XMM10, 0), _mm_shuffle_ps(v30, v32, 136)), g_negativeZero.v)));
+      if ( frametime4.v.m128_f32[0] > 0.000001 )
       {
-        vshufps xmm4, xmm0, xmm1, 44h ; 'D'
-        vshufps xmm1, xmm0, xmm1, 0EEh ; 'î'
-        vshufps xmm3, xmm2, xmm6, 44h ; 'D'
-        vshufps xmm0, xmm2, xmm6, 0EEh ; 'î'
-        vshufps xmm6, xmm1, xmm0, 0DDh ; 'Ý'
-        vshufps xmm2, xmm4, xmm3, 88h ; 'ˆ'
-        vshufps xmm7, xmm10, xmm10, 0
-        vshufps xmm8, xmm10, xmm10, 55h ; 'U'
-        vshufps xmm9, xmm10, xmm10, 0AAh ; 'ª'
-        vshufps xmm5, xmm4, xmm3, 0DDh ; 'Ý'
-        vshufps xmm4, xmm1, xmm0, 88h ; 'ˆ'
-        vmulps  xmm0, xmm7, xmm2
-        vaddps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-        vmovaps xmm7, [rsp+110h+var_40]
-        vmulps  xmm0, xmm8, xmm5
-        vaddps  xmm3, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-        vmovaps xmm8, [rsp+110h+var_50]
-        vmulps  xmm1, xmm9, xmm4
-        vmovaps xmm9, [rsp+110h+var_60]
-        vshufps xmm10, xmm10, xmm10, 0FFh
-        vmulps  xmm0, xmm10, xmm6
-        vmovaps xmm10, [rsp+110h+var_70]
-        vmovaps xmm6, [rsp+110h+var_30]
-        vaddps  xmm2, xmm1, xmm2
-        vaddps  xmm1, xmm0, xmm3
-        vcvtss2sd xmm0, xmm11, xmm11
-        vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-        vmovaps xmm11, [rsp+110h+var_80]
-        vaddps  xmm2, xmm1, xmm2
-        vmovups xmmword ptr [rbp+57h+curPsOrigin.v], xmm2
+        CG_ViewMotion_IntegrateSpring(LocalClientGlobals->time, &frametime4, &curPsOrigin, &LocalClientGlobals->viewSpring);
+        CG_ViewMotion_IntegrateSpring(LocalClientGlobals->time, &frametime4, &curPsOrigin, &LocalClientGlobals->viewmodelSpring);
       }
-      if ( !(v72 | v73) )
-      {
-        CG_ViewMotion_IntegrateSpring(_RBX->time, &frametime4, &curPsOrigin, &_RBX->viewSpring);
-        CG_ViewMotion_IntegrateSpring(_RBX->time, &frametime4, &curPsOrigin, &_RBX->viewmodelSpring);
-      }
-      __asm
-      {
-        vmovups xmmword ptr [rbx+6760h], xmm12
-        vmovups xmmword ptr [rbx+6860h], xmm12
-      }
+      LocalClientGlobals->viewSpring.prevPsOrigin.v = _XMM12;
+      LocalClientGlobals->viewmodelSpring.prevPsOrigin.v = _XMM12;
     }
-    __asm { vmovaps xmm12, [rsp+110h+var_90] }
   }
 }
 
@@ -1922,87 +1474,94 @@ void CG_ViewMotion_UpdateSpringControls(const cg_t *const cgameGlob, bool isCame
   int integer; 
   __int64 localClientNum; 
   CinematicMotionDef *CinematicMotionDef; 
-  __int64 v19; 
-  const CinematicMotionDef *v20; 
+  CinematicMotionDef *v8; 
+  __int64 v9; 
+  const CinematicMotionDef *v10; 
   unsigned int cinematicMotionOverride; 
   unsigned int motionIndex; 
-  const dvar_t *v23; 
-  bool v28; 
-  int v83; 
+  const dvar_t *v13; 
+  bool v17; 
+  __int128 v24; 
+  __m128 v27; 
+  __m128 v30; 
+  __m128 v33; 
+  __m128 v36; 
+  __int128 v39; 
+  __m128 v42; 
+  __m128 v45; 
+  __m128 v48; 
+  __m128 v51; 
+  __m128 v54; 
+  __m128 v57; 
+  __m128 v60; 
+  int v62; 
   int time; 
-  __int64 v134; 
-  __int64 v135; 
-  __int128 v139; 
-  __int128 v140; 
-  __int128 v141; 
-  __int128 v142; 
-  __int128 v143; 
-  __int128 v144; 
-  __int128 v145; 
-  __int128 v146; 
-  __int128 v147; 
-  __int128 v148; 
-  __int128 v149; 
-  __int128 v150; 
-  char v151; 
-  void *retaddr; 
+  int v64; 
+  __m128 v65; 
+  __m128 v66; 
+  __m128 v67; 
+  float4 v68; 
+  __m128 v69; 
+  __int64 v70; 
+  __int64 v71; 
+  __m256i v73; 
+  __m256i v74; 
+  __int128 v75; 
+  __m128 v; 
+  __m128 v77; 
+  __m128 v78; 
+  __m128 v79; 
+  __m128 v80; 
+  __m128 v81; 
+  __m128 v82; 
+  __m128 v83; 
+  __m128 v84; 
+  __m128 v85; 
+  __m128 v86; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-  }
   integer = 0;
-  _RSI = spring;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 227, ASSERT_TYPE_ASSERT, "( cgameGlob ) != ( nullptr )", "%s != %s\n\t%p, %p", "cgameGlob", "nullptr", NULL, NULL) )
     __debugbreak();
   localClientNum = cgameGlob->localClientNum;
   if ( !CgWeaponMap::ms_instance[localClientNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
   CinematicMotionDef = (CinematicMotionDef *)BG_Suit_GetCinematicMotionDef(&cgameGlob->predictedPlayerState, CgWeaponMap::ms_instance[localClientNum]);
-  _RDI = CinematicMotionDef;
+  v8 = CinematicMotionDef;
   if ( CinematicMotionDef )
   {
-    v19 = 0i64;
-    while ( s_cgCinematicMotionDefs[v19] != CinematicMotionDef )
+    v9 = 0i64;
+    while ( s_cgCinematicMotionDefs[v9] != CinematicMotionDef )
     {
-      if ( (unsigned __int64)++v19 >= 0x20 )
+      if ( (unsigned __int64)++v9 >= 0x20 )
         goto LABEL_11;
     }
   }
   else
   {
 LABEL_11:
-    LODWORD(v19) = 31;
+    LODWORD(v9) = 31;
   }
-  v20 = CG_Skydive_GetCinematicMotionDef((const LocalClientNum_t)cgameGlob->localClientNum, &cgameGlob->predictedPlayerState);
-  if ( v20 )
+  v10 = CG_Skydive_GetCinematicMotionDef((const LocalClientNum_t)cgameGlob->localClientNum, &cgameGlob->predictedPlayerState);
+  if ( v10 )
   {
-    if ( _RDI )
+    if ( v8 )
     {
-      v19 = 0i64;
-      while ( s_cgCinematicMotionDefs[v19] != _RDI )
+      v9 = 0i64;
+      while ( s_cgCinematicMotionDefs[v9] != v8 )
       {
-        if ( (unsigned __int64)++v19 >= 0x20 )
+        if ( (unsigned __int64)++v9 >= 0x20 )
         {
-          LODWORD(v19) = 31;
-          _RDI = (CinematicMotionDef *)v20;
+          LODWORD(v9) = 31;
+          v8 = (CinematicMotionDef *)v10;
           goto LABEL_25;
         }
       }
-      _RDI = (CinematicMotionDef *)v20;
+      v8 = (CinematicMotionDef *)v10;
     }
     else
     {
-      LODWORD(v19) = 31;
-      _RDI = (CinematicMotionDef *)v20;
+      LODWORD(v9) = 31;
+      v8 = (CinematicMotionDef *)v10;
     }
   }
   else
@@ -2010,288 +1569,227 @@ LABEL_11:
     cinematicMotionOverride = cgameGlob->predictedPlayerState.cinematicMotionOverride;
     if ( cinematicMotionOverride != 31 )
     {
-      v19 = cinematicMotionOverride;
+      v9 = cinematicMotionOverride;
       if ( cinematicMotionOverride >= 0x20 )
       {
-        LODWORD(v135) = 32;
-        LODWORD(v134) = cgameGlob->predictedPlayerState.cinematicMotionOverride;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 244, ASSERT_TYPE_ASSERT, "(unsigned)( motionIndex ) < (unsigned)( ( sizeof( *array_counter( s_cgCinematicMotionDefs ) ) + 0 ) )", "motionIndex doesn't index ARRAY_COUNT( s_cgCinematicMotionDefs )\n\t%i not in [0, %i)", v134, v135) )
+        LODWORD(v71) = 32;
+        LODWORD(v70) = cgameGlob->predictedPlayerState.cinematicMotionOverride;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 244, ASSERT_TYPE_ASSERT, "(unsigned)( motionIndex ) < (unsigned)( ( sizeof( *array_counter( s_cgCinematicMotionDefs ) ) + 0 ) )", "motionIndex doesn't index ARRAY_COUNT( s_cgCinematicMotionDefs )\n\t%i not in [0, %i)", v70, v71) )
           __debugbreak();
       }
-      _RDI = s_cgCinematicMotionDefs[v19];
+      v8 = s_cgCinematicMotionDefs[v9];
     }
   }
 LABEL_25:
-  if ( (_DWORD)v19 != 31 && !s_cgCinematicMotionDefsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 251, ASSERT_TYPE_ASSERT, "(s_cgCinematicMotionDefsInitialized)", "%s\n\tAttempting to locate a Cinematic Motion asset def by index, but NetConstStrings have not yet been processed for this asset.", "s_cgCinematicMotionDefsInitialized") )
+  if ( (_DWORD)v9 != 31 && !s_cgCinematicMotionDefsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 251, ASSERT_TYPE_ASSERT, "(s_cgCinematicMotionDefsInitialized)", "%s\n\tAttempting to locate a Cinematic Motion asset def by index, but NetConstStrings have not yet been processed for this asset.", "s_cgCinematicMotionDefsInitialized") )
     __debugbreak();
-  motionIndex = _RSI->motionIndex;
-  if ( (_DWORD)v19 != motionIndex )
+  motionIndex = spring->motionIndex;
+  if ( (_DWORD)v9 != motionIndex )
   {
-    _RSI->motionIndex = v19;
-    _RSI->motionIndexBlendTime = cgameGlob->time;
+    spring->motionIndex = v9;
+    spring->motionIndexBlendTime = cgameGlob->time;
     if ( motionIndex != 31 )
     {
-      v23 = DCONST_DVARMPINT_cg_viewmotion_spring_blendDurationMs;
+      v13 = DCONST_DVARMPINT_cg_viewmotion_spring_blendDurationMs;
       if ( !DCONST_DVARMPINT_cg_viewmotion_spring_blendDurationMs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_viewmotion_spring_blendDurationMs") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v23);
-      integer = v23->current.integer;
+      Dvar_CheckFrontendServerThread(v13);
+      integer = v13->current.integer;
     }
-    _RSI->motionIndexBlendDuration = integer;
+    spring->motionIndexBlendDuration = integer;
   }
-  __asm
+  _XMM11 = g_1000.v;
+  _XMM12 = g_0100.v;
+  _XMM13 = g_0010.v;
+  v17 = 0;
+  _XMM6.v = 0i64;
+  _XMM7.v = 0i64;
+  _XMM8.v = 0i64;
+  _XMM9.v = 0i64;
+  _XMM10.v = 0i64;
+  *(float4 *)v73.m256i_i8 = (float4)g_1000.v;
+  *(float4 *)&v73.m256i_u64[2] = (float4)g_0100.v;
+  *(float4 *)v74.m256i_i8 = (float4)g_0010.v;
+  *(float4 *)&v74.m256i_u64[2] = (float4)g_0001.v;
+  if ( v8 )
   {
-    vmovdqa xmm11, xmmword ptr cs:?g_1000@@3Ufloat4@@B.v; float4 const g_1000
-    vmovdqa xmm12, xmmword ptr cs:?g_0100@@3Ufloat4@@B.v; float4 const g_0100
-    vmovdqa xmm13, xmmword ptr cs:?g_0010@@3Ufloat4@@B.v; float4 const g_0010
-    vmovups xmm0, xmmword ptr cs:?g_0001@@3Ufloat4@@B.v; float4 const g_0001
-  }
-  v28 = 0;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm8, xmm8, xmm8
-    vxorps  xmm9, xmm9, xmm9
-    vxorps  xmm10, xmm10, xmm10
-    vmovups xmmword ptr [rsp+168h+var_108], xmm11
-    vmovups xmmword ptr [rsp+168h+var_108+10h], xmm12
-    vmovups xmmword ptr [rsp+168h+var_E8], xmm13
-    vmovdqa xmmword ptr [rsp+168h+var_E8+10h], xmm0
-  }
-  if ( _RDI )
-  {
-    HIDWORD(v139) = 0;
-    __asm { vmovups xmm6, xmmword ptr [rsp+0A0h] }
+    HIDWORD(v75) = 0;
     if ( isCameraSpring )
     {
+      v24 = v75;
+      *(float *)&v24 = v8->camera_spring_velocitySmoothingSec.v[0];
+      _XMM6 = v24;
       __asm
       {
-        vmovss  xmm0, dword ptr [rdi+8]
-        vmovss  xmm6, xmm6, xmm0
-        vmovss  xmm0, dword ptr [rdi+14h]
         vinsertps xmm6, xmm6, dword ptr [rdi+0Ch], 10h
         vinsertps xmm6, xmm6, dword ptr [rdi+10h], 20h ; ' '
-        vmovups xmmword ptr [rsp+0A0h], xmm6
       }
-      HIDWORD(v140) = 0;
+      v = _XMM6.v;
+      v.m128_i32[3] = 0;
+      v27 = v;
+      v27.m128_f32[0] = v8->camera_spring_velocityScale.v[0];
+      _XMM7 = v27;
       __asm
       {
-        vmovups xmm7, xmmword ptr [rsp+0A0h]
-        vmovss  xmm7, xmm7, xmm0
-        vmovss  xmm0, dword ptr [rdi+20h]
         vinsertps xmm7, xmm7, dword ptr [rdi+18h], 10h
         vinsertps xmm7, xmm7, dword ptr [rdi+1Ch], 20h ; ' '
-        vmovups xmmword ptr [rsp+0A0h], xmm7
       }
-      HIDWORD(v141) = 0;
+      v77 = _XMM7.v;
+      v77.m128_i32[3] = 0;
+      v30 = v77;
+      v30.m128_f32[0] = v8->camera_spring_springConstant.v[0];
+      _XMM8 = v30;
       __asm
       {
-        vmovups xmm8, xmmword ptr [rsp+0A0h]
-        vmovss  xmm8, xmm8, xmm0
-        vmovss  xmm0, dword ptr [rdi+2Ch]
         vinsertps xmm8, xmm8, dword ptr [rdi+24h], 10h
         vinsertps xmm8, xmm8, dword ptr [rdi+28h], 20h ; ' '
-        vmovups xmmword ptr [rsp+0A0h], xmm8
       }
-      HIDWORD(v142) = 0;
+      v78 = _XMM8.v;
+      v78.m128_i32[3] = 0;
+      v33 = v78;
+      v33.m128_f32[0] = v8->camera_spring_damperConstant.v[0];
+      _XMM9 = v33;
       __asm
       {
-        vmovups xmm9, xmmword ptr [rsp+0A0h]
-        vmovss  xmm9, xmm9, xmm0
         vinsertps xmm9, xmm9, dword ptr [rdi+30h], 10h
         vinsertps xmm9, xmm9, dword ptr [rdi+34h], 20h ; ' '
-        vmovss  xmm0, dword ptr [rdi+38h]
-        vmovups xmmword ptr [rsp+0A0h], xmm9
       }
-      HIDWORD(v143) = 0;
+      v79 = _XMM9.v;
+      v79.m128_i32[3] = 0;
+      v36 = v79;
+      v36.m128_f32[0] = v8->camera_spring_maxOffset.v[0];
+      _XMM10 = v36;
       __asm
       {
-        vmovups xmm10, xmmword ptr [rsp+0A0h]
-        vmovss  xmm10, xmm10, xmm0
         vinsertps xmm10, xmm10, dword ptr [rdi+3Ch], 10h
         vinsertps xmm10, xmm10, dword ptr [rdi+40h], 20h ; ' '
       }
-      v28 = !BG_IsPlayerLinked(&cgameGlob->predictedPlayerState);
+      v17 = !BG_IsPlayerLinked(&cgameGlob->predictedPlayerState);
     }
     else
     {
+      v39 = v75;
+      *(float *)&v39 = v8->viewmodel_spring_velocitySmoothingSec.v[0];
+      _XMM6 = v39;
       __asm
       {
-        vmovss  xmm0, dword ptr [rdi+44h]
-        vmovss  xmm6, xmm6, xmm0
-        vmovss  xmm0, dword ptr [rdi+50h]
         vinsertps xmm6, xmm6, dword ptr [rdi+48h], 10h
         vinsertps xmm6, xmm6, dword ptr [rdi+4Ch], 20h ; ' '
-        vmovups xmmword ptr [rsp+0A0h], xmm6
       }
-      HIDWORD(v144) = 0;
-      v28 = 0;
+      v80 = _XMM6.v;
+      v80.m128_i32[3] = 0;
+      v17 = 0;
+      v42 = v80;
+      v42.m128_f32[0] = v8->viewmodel_spring_velocityScale.v[0];
+      _XMM7 = v42;
       __asm
       {
-        vmovups xmm7, xmmword ptr [rsp+0A0h]
-        vmovss  xmm7, xmm7, xmm0
-        vmovss  xmm0, dword ptr [rdi+5Ch]
         vinsertps xmm7, xmm7, dword ptr [rdi+54h], 10h
         vinsertps xmm7, xmm7, dword ptr [rdi+58h], 20h ; ' '
-        vmovups xmmword ptr [rsp+0A0h], xmm7
       }
-      HIDWORD(v145) = 0;
+      v81 = _XMM7.v;
+      v81.m128_i32[3] = 0;
+      v45 = v81;
+      v45.m128_f32[0] = v8->viewmodel_spring_springConstant.v[0];
+      _XMM8 = v45;
       __asm
       {
-        vmovups xmm8, xmmword ptr [rsp+0A0h]
-        vmovss  xmm8, xmm8, xmm0
-        vmovss  xmm0, dword ptr [rdi+68h]
         vinsertps xmm8, xmm8, dword ptr [rdi+60h], 10h
         vinsertps xmm8, xmm8, dword ptr [rdi+64h], 20h ; ' '
-        vmovups xmmword ptr [rsp+0A0h], xmm8
       }
-      HIDWORD(v146) = 0;
+      v82 = _XMM8.v;
+      v82.m128_i32[3] = 0;
+      v48 = v82;
+      v48.m128_f32[0] = v8->viewmodel_spring_damperConstant.v[0];
+      _XMM9 = v48;
       __asm
       {
-        vmovups xmm9, xmmword ptr [rsp+0A0h]
-        vmovss  xmm9, xmm9, xmm0
-        vmovss  xmm0, dword ptr [rdi+74h]
         vinsertps xmm9, xmm9, dword ptr [rdi+6Ch], 10h
         vinsertps xmm9, xmm9, dword ptr [rdi+70h], 20h ; ' '
-        vmovups xmmword ptr [rsp+0A0h], xmm9
       }
-      HIDWORD(v147) = 0;
+      v83 = _XMM9.v;
+      v83.m128_i32[3] = 0;
+      v51 = v83;
+      v51.m128_f32[0] = v8->viewmodel_spring_maxOffset.v[0];
+      _XMM10 = v51;
       __asm
       {
-        vmovups xmm10, xmmword ptr [rsp+0A0h]
-        vmovss  xmm10, xmm10, xmm0
-        vmovss  xmm0, dword ptr [rdi+80h]
         vinsertps xmm10, xmm10, dword ptr [rdi+78h], 10h
         vinsertps xmm10, xmm10, dword ptr [rdi+7Ch], 20h ; ' '
-        vmovups xmmword ptr [rsp+0A0h], xmm10
       }
-      HIDWORD(v148) = 0;
+      v84 = _XMM10.v;
+      v84.m128_i32[3] = 0;
+      v54 = v84;
+      v54.m128_f32[0] = v8->viewmodel_spring_offsetToAnglesX.v[0];
+      _XMM11 = v54;
       __asm
       {
-        vmovups xmm11, xmmword ptr [rsp+0A0h]
-        vmovss  xmm11, xmm11, xmm0
-        vmovss  xmm0, dword ptr [rdi+8Ch]
         vinsertps xmm11, xmm11, dword ptr [rdi+84h], 10h
         vinsertps xmm11, xmm11, dword ptr [rdi+88h], 20h ; ' '
-        vmovups xmmword ptr [rsp+0A0h], xmm11
       }
-      HIDWORD(v149) = 0;
+      v85 = _XMM11;
+      v85.m128_i32[3] = 0;
+      v57 = v85;
+      v57.m128_f32[0] = v8->viewmodel_spring_offsetToAnglesY.v[0];
+      _XMM12 = v57;
       __asm
       {
-        vmovups xmm12, xmmword ptr [rsp+0A0h]
-        vmovss  xmm12, xmm12, xmm0
         vinsertps xmm12, xmm12, dword ptr [rdi+90h], 10h
         vinsertps xmm12, xmm12, dword ptr [rdi+94h], 20h ; ' '
-        vmovss  xmm0, dword ptr [rdi+98h]
-        vmovups xmmword ptr [rsp+0A0h], xmm12
       }
-      HIDWORD(v150) = 0;
+      v86 = _XMM12;
+      v86.m128_i32[3] = 0;
+      v60 = v86;
+      v60.m128_f32[0] = v8->viewmodel_spring_offsetToAnglesZ.v[0];
+      _XMM13 = v60;
       __asm
       {
-        vmovups xmm13, xmmword ptr [rsp+0A0h]
-        vmovss  xmm13, xmm13, xmm0
         vinsertps xmm13, xmm13, dword ptr [rdi+9Ch], 10h
         vinsertps xmm13, xmm13, dword ptr [rdi+0A0h], 20h ; ' '
-        vmovups xmmword ptr [rsp+168h+var_E8], xmm13
-        vmovups xmmword ptr [rsp+168h+var_108], xmm11
-        vmovups xmmword ptr [rsp+168h+var_108+10h], xmm12
       }
+      *(__m128 *)v74.m256i_i8 = _XMM13;
+      *(__m128 *)v73.m256i_i8 = _XMM11;
+      *(__m128 *)&v73.m256i_u64[2] = _XMM12;
     }
   }
-  v83 = _RSI->motionIndexBlendTime + _RSI->motionIndexBlendDuration;
+  v62 = spring->motionIndexBlendTime + spring->motionIndexBlendDuration;
   time = cgameGlob->time;
-  if ( time >= v83 )
+  if ( time >= v62 )
   {
-    __asm
-    {
-      vmovups ymm0, [rsp+168h+var_108]
-      vmovups ymm1, [rsp+168h+var_E8]
-      vmovups ymmword ptr [rsi+0A0h], ymm0
-      vmovups ymmword ptr [rsi+0C0h], ymm1
-      vmovups xmmword ptr [rsi+50h], xmm6
-      vmovups xmmword ptr [rsi+60h], xmm7
-      vmovups xmmword ptr [rsi+70h], xmm8
-      vmovups xmmword ptr [rsi+80h], xmm9
-      vmovups xmmword ptr [rsi+90h], xmm10
-    }
+    *(__m256i *)spring->offsetAngles.x.v.m128_f32 = v73;
+    *(__m256i *)spring->offsetAngles.z.v.m128_f32 = v74;
+    spring->velocitySmoothingSec = (float4)_XMM6.v;
+    spring->velocityScale = (float4)_XMM7.v;
+    spring->springConstant = (float4)_XMM8.v;
+    spring->dampingConstant = (float4)_XMM9.v;
+    spring->maxOffset = (float4)_XMM10.v;
   }
   else
   {
-    if ( v83 - time > 0 )
+    v64 = v62 - time;
+    if ( v64 > 0 )
     {
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; max
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, dword ptr [r14+65E4h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vdivss  xmm0, xmm1, xmm0; val
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+      v65.m128_u64[1] = 0i64;
+      *(double *)v65.m128_u64 = I_fclamp((float)cgameGlob->frametime / (float)v64, 0.0, 1.0);
     }
     else
     {
-      __asm { vmovss  xmm0, cs:__real@3f800000 }
+      v65 = (__m128)LODWORD(FLOAT_1_0);
     }
-    __asm
-    {
-      vmovaps xmm3, xmm0
-      vsubps  xmm0, xmm6, xmmword ptr [rsi+50h]
-      vshufps xmm3, xmm3, xmm3, 0
-      vmulps  xmm1, xmm0, xmm3
-      vaddps  xmm2, xmm1, xmmword ptr [rsi+50h]
-      vsubps  xmm0, xmm7, xmmword ptr [rsi+60h]
-      vmovups xmmword ptr [rsi+50h], xmm2
-      vmulps  xmm1, xmm0, xmm3
-      vaddps  xmm2, xmm1, xmmword ptr [rsi+60h]
-      vsubps  xmm0, xmm8, xmmword ptr [rsi+70h]
-      vmovups xmmword ptr [rsi+60h], xmm2
-      vmulps  xmm1, xmm0, xmm3
-      vaddps  xmm2, xmm1, xmmword ptr [rsi+70h]
-      vmovups xmmword ptr [rsi+70h], xmm2
-      vmovups xmm2, xmmword ptr [rsi+80h]
-      vsubps  xmm0, xmm9, xmm2
-      vmulps  xmm1, xmm0, xmm3
-      vaddps  xmm2, xmm1, xmm2
-      vmovups xmmword ptr [rsi+80h], xmm2
-      vmovups xmm2, xmmword ptr [rsi+90h]
-      vsubps  xmm0, xmm10, xmm2
-      vmulps  xmm1, xmm0, xmm3
-      vaddps  xmm2, xmm1, xmm2
-      vmovups xmmword ptr [rsi+90h], xmm2
-      vmovups xmm2, xmmword ptr [rsi+0A0h]
-      vsubps  xmm0, xmm11, xmm2
-      vmulps  xmm1, xmm0, xmm3
-      vaddps  xmm2, xmm1, xmm2
-      vmovups xmmword ptr [rsi+0A0h], xmm2
-      vmovups xmm2, xmmword ptr [rsi+0B0h]
-      vsubps  xmm0, xmm12, xmm2
-      vmulps  xmm1, xmm0, xmm3
-      vaddps  xmm2, xmm1, xmm2
-      vmovups xmmword ptr [rsi+0B0h], xmm2
-      vmovups xmm2, xmmword ptr [rsi+0C0h]
-      vsubps  xmm0, xmm13, xmm2
-      vmulps  xmm1, xmm0, xmm3
-      vaddps  xmm2, xmm1, xmm2
-      vmovups xmmword ptr [rsi+0C0h], xmm2
-    }
+    v66 = _mm_shuffle_ps(v65, v65, 0);
+    v67 = _mm128_sub_ps(_XMM7.v, spring->velocityScale.v);
+    spring->velocitySmoothingSec.v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM6.v, spring->velocitySmoothingSec.v), v66), spring->velocitySmoothingSec.v);
+    v68.v = _mm128_add_ps(_mm128_mul_ps(v67, v66), spring->velocityScale.v);
+    v69 = _mm128_sub_ps(_XMM8.v, spring->springConstant.v);
+    spring->velocityScale = (float4)v68.v;
+    spring->springConstant.v = _mm128_add_ps(_mm128_mul_ps(v69, v66), spring->springConstant.v);
+    spring->dampingConstant.v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM9.v, spring->dampingConstant.v), v66), spring->dampingConstant.v);
+    spring->maxOffset.v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM10.v, spring->maxOffset.v), v66), spring->maxOffset.v);
+    spring->offsetAngles.x.v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM11, spring->offsetAngles.x.v), v66), spring->offsetAngles.x.v);
+    spring->offsetAngles.y.v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM12, spring->offsetAngles.y.v), v66), spring->offsetAngles.y.v);
+    spring->offsetAngles.z.v = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(_XMM13, spring->offsetAngles.z.v), v66), spring->offsetAngles.z.v);
   }
-  _RSI->isLockingSpring = v28;
-  _R11 = &v151;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+  spring->isLockingSpring = v17;
 }
 
 /*
@@ -2370,104 +1868,46 @@ AdvancedSwayDeadzone::DebugDraw
 void AdvancedSwayDeadzone::DebugDraw(AdvancedSwayDeadzone *this, const LocalClientNum_t localClientNum, const vec4_t *color)
 {
   cg_t *LocalClientGlobals; 
-  const dvar_t *v9; 
+  const dvar_t *v5; 
+  float v6; 
+  float v7; 
   vec3_t outOrg; 
-  __int64 v55; 
+  __int64 v13; 
   vec3_t forward; 
   vec3_t center; 
-  vec3_t v58; 
-  char v59; 
-  void *retaddr; 
+  vec3_t v16; 
 
-  _RAX = &retaddr;
-  v55 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-  }
-  _RBX = this;
+  v13 = -2i64;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v9 = DCONST_DVARBOOL_advancedSwayDebug;
+  v5 = DCONST_DVARBOOL_advancedSwayDebug;
   if ( !DCONST_DVARBOOL_advancedSwayDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "advancedSwayDebug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( v9->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
   {
     RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-    AngleVectors(&_RBX->m_prevViewAngles, &forward, NULL, NULL);
-    __asm
-    {
-      vmovss  xmm3, cs:debugDrawDist
-      vmulss  xmm1, xmm3, dword ptr [rbp+57h+forward]
-      vaddss  xmm1, xmm1, dword ptr [rbp+57h+outOrg]
-      vmovss  dword ptr [rbp+57h+center], xmm1
-      vmulss  xmm2, xmm3, dword ptr [rbp+57h+forward+4]
-      vaddss  xmm1, xmm2, dword ptr [rbp+57h+outOrg+4]
-      vmovss  dword ptr [rbp+57h+center+4], xmm1
-      vmulss  xmm2, xmm3, dword ptr [rbp+57h+forward+8]
-      vaddss  xmm1, xmm2, dword ptr [rbp+57h+outOrg+8]
-      vmovss  dword ptr [rbp+57h+center+8], xmm1
-      vmovss  xmm9, cs:__real@3f000000
-      vmulss  xmm1, xmm9, cs:radius_2; radius
-    }
-    CG_DebugSphere(&center, *(float *)&_XMM1, &colorWhite, 0, 0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+0Ch]
-      vaddss  xmm2, xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rbx+10h]
-      vaddss  xmm4, xmm1, dword ptr [rbx+4]
-      vmovss  xmm0, dword ptr [rbx+14h]
-      vaddss  xmm8, xmm0, dword ptr [rbx+8]
-      vmulss  xmm3, xmm2, cs:__real@3b360b61
-      vaddss  xmm1, xmm3, xmm9
-      vxorps  xmm6, xmm6, xmm6
-      vroundss xmm0, xmm6, xmm1, 1
-      vsubss  xmm0, xmm3, xmm0
-      vmovss  xmm5, cs:__real@43b40000
-      vmulss  xmm0, xmm0, xmm5
-      vmovss  dword ptr [rbp+57h+center], xmm0
-      vmulss  xmm4, xmm4, cs:__real@3b360b61
-      vaddss  xmm1, xmm4, xmm9
-      vroundss xmm3, xmm6, xmm1, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rbp+57h+center+4], xmm1
-      vmulss  xmm4, xmm8, cs:__real@3b360b61
-      vaddss  xmm2, xmm4, xmm9
-      vroundss xmm3, xmm6, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rbp+57h+center+8], xmm1
-    }
+    AngleVectors(&this->m_prevViewAngles, &forward, NULL, NULL);
+    center.v[0] = (float)(debugDrawDist * forward.v[0]) + outOrg.v[0];
+    center.v[1] = (float)(debugDrawDist * forward.v[1]) + outOrg.v[1];
+    center.v[2] = (float)(debugDrawDist * forward.v[2]) + outOrg.v[2];
+    CG_DebugSphere(&center, 0.5 * radius_2, &colorWhite, 0, 0);
+    v6 = this->m_prevViewAnglesOffset.v[1] + this->m_prevViewAngles.v[1];
+    v7 = this->m_prevViewAnglesOffset.v[2] + this->m_prevViewAngles.v[2];
+    _XMM6 = 0i64;
+    __asm { vroundss xmm0, xmm6, xmm1, 1 }
+    center.v[0] = (float)((float)((float)(this->m_prevViewAnglesOffset.v[0] + this->m_prevViewAngles.v[0]) * 0.0027777778) - *(float *)&_XMM0) * 360.0;
+    __asm { vroundss xmm3, xmm6, xmm1, 1 }
+    center.v[1] = (float)((float)(v6 * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+    __asm { vroundss xmm3, xmm6, xmm2, 1 }
+    center.v[2] = (float)((float)(v7 * 0.0027777778) - *(float *)&_XMM3) * 360.0;
     AngleVectors(&center, &forward, NULL, NULL);
-    __asm
-    {
-      vmovss  xmm3, cs:debugDrawDist
-      vmulss  xmm1, xmm3, dword ptr [rbp+57h+forward]
-      vaddss  xmm2, xmm1, dword ptr [rbp+57h+outOrg]
-      vmovss  dword ptr [rbp+57h+var_58], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rbp+57h+forward+4]
-      vaddss  xmm2, xmm1, dword ptr [rbp+57h+outOrg+4]
-      vmovss  dword ptr [rbp+57h+var_58+4], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rbp+57h+forward+8]
-      vaddss  xmm2, xmm1, dword ptr [rbp+57h+outOrg+8]
-      vmovss  dword ptr [rbp+57h+var_58+8], xmm2
-      vmovss  xmm1, cs:radius_2; radius
-    }
-    CG_DebugSphere(&v58, *(float *)&_XMM1, &colorRed, 0, 0);
-    DebugDrawRange(&outOrg, &_RBX->m_prevViewAngles, &_RBX->m_deadzoneGoal, &colorOrange);
-    DebugDrawRange(&outOrg, &_RBX->m_prevViewAngles, &_RBX->m_deadzone, &colorRed);
+    v16.v[0] = (float)(debugDrawDist * forward.v[0]) + outOrg.v[0];
+    v16.v[1] = (float)(debugDrawDist * forward.v[1]) + outOrg.v[1];
+    v16.v[2] = (float)(debugDrawDist * forward.v[2]) + outOrg.v[2];
+    CG_DebugSphere(&v16, radius_2, &colorRed, 0, 0);
+    DebugDrawRange(&outOrg, &this->m_prevViewAngles, &this->m_deadzoneGoal, &colorOrange);
+    DebugDrawRange(&outOrg, &this->m_prevViewAngles, &this->m_deadzone, &colorRed);
     memset(&outOrg, 0, sizeof(outOrg));
-  }
-  _R11 = &v59;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
   }
 }
 
@@ -2478,373 +1918,177 @@ AdvancedSwayState::DebugDraw
 */
 void AdvancedSwayState::DebugDraw(AdvancedSwayState *this, const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v15; 
+  const dvar_t *v4; 
   cg_t *LocalClientGlobals; 
-  const dvar_t *v102; 
-  const dvar_t *v118; 
-  const dvar_t *v152; 
+  __m128 v6; 
+  float v7; 
+  float v10; 
+  float v12; 
+  float v14; 
+  float v15; 
+  float v16; 
+  __m128 v17; 
+  float v19; 
+  float v21; 
+  float v23; 
+  __m128 v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  const dvar_t *v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  const dvar_t *v36; 
+  __m128 v37; 
+  const dvar_t *v41; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
   vec3_t forward; 
   vec3_t center; 
-  vec3_t v208; 
+  vec3_t v51; 
   vec3_t angles; 
   vec3_t outOrg; 
-  vec3_t v211; 
-  vec3_t v212; 
-  char v213; 
-  void *retaddr; 
+  vec3_t v54; 
+  vec3_t v55; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  _RDI = this;
-  v15 = DCONST_DVARBOOL_advancedSwayDebug;
+  v4 = DCONST_DVARBOOL_advancedSwayDebug;
   if ( !DCONST_DVARBOOL_advancedSwayDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "advancedSwayDebug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( v15->current.enabled )
+  Dvar_CheckFrontendServerThread(v4);
+  if ( v4->current.enabled )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-    __asm { vmovsd  xmm1, qword ptr [rdi+5Ch] }
-    outOrg.v[2] = _RDI->m_torsoGoal.m_prevViewAnglesOffset.v[2];
-    __asm
+    v6 = (__m128)*(unsigned __int64 *)this->m_torsoGoal.m_prevViewAnglesOffset.v;
+    outOrg.v[2] = this->m_torsoGoal.m_prevViewAnglesOffset.v[2];
+    v7 = v6.m128_f32[0] + this->m_prevViewmodelAnglesSmoothed.v[0];
+    *(double *)outOrg.v = *(double *)v6.m128_u64;
+    _XMM12 = 0i64;
+    __asm { vroundss xmm0, xmm12, xmm2, 1 }
+    v10 = (float)((float)(v7 * 0.0027777778) - *(float *)&_XMM0) * 360.0;
+    __asm { vroundss xmm3, xmm12, xmm2, 1 }
+    v12 = (float)((float)((float)(_mm_shuffle_ps(v6, v6, 85).m128_f32[0] + this->m_prevViewmodelAnglesSmoothed.v[1]) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+    v48 = v12;
+    __asm { vroundss xmm3, xmm12, xmm1, 1 }
+    outOrg.v[2] = (float)((float)((float)(outOrg.v[2] + this->m_prevViewmodelAnglesSmoothed.v[2]) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+    if ( this->m_isInitialized )
     {
-      vaddss  xmm2, xmm1, dword ptr [rdi+0FCh]
-      vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-      vmovsd  qword ptr [rbp+90h+outOrg], xmm1
-      vaddss  xmm4, xmm0, dword ptr [rdi+100h]
-      vmovss  xmm0, dword ptr [rbp+90h+outOrg+8]
-      vaddss  xmm5, xmm0, dword ptr [rdi+104h]
-      vmovss  xmm13, cs:__real@3b360b61
-      vmulss  xmm3, xmm2, xmm13
-      vmovss  xmm11, cs:__real@3f000000
-      vaddss  xmm1, xmm3, xmm11
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm2, xmm0, xmm1
-      vxorps  xmm12, xmm12, xmm12
-      vroundss xmm0, xmm12, xmm2, 1
-      vsubss  xmm0, xmm3, xmm0
-      vmovss  xmm14, cs:__real@43b40000
-      vmulss  xmm15, xmm0, xmm14
-      vmulss  xmm4, xmm4, xmm13
-      vaddss  xmm1, xmm4, xmm11
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm2, xmm0, xmm1
-      vroundss xmm3, xmm12, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm10, xmm0, xmm14
-      vmovss  [rsp+190h+var_144], xmm10
-      vmulss  xmm5, xmm5, xmm13
-      vaddss  xmm1, xmm5, xmm11
-      vroundss xmm3, xmm12, xmm1, 1
-      vsubss  xmm0, xmm5, xmm3
-      vmulss  xmm1, xmm0, xmm14
-      vmovss  dword ptr [rbp+90h+outOrg+8], xmm1
-    }
-    if ( _RDI->m_isInitialized )
-    {
-      __asm { vmovsd  xmm5, qword ptr [rdi+84h] }
-      v208.v[2] = _RDI->m_torsoSprings.m_prevSpringOffset.v[2];
-      __asm
-      {
-        vmulss  xmm4, xmm5, xmm13
-        vaddss  xmm1, xmm4, xmm11
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm2, xmm0, xmm1
-        vroundss xmm3, xmm12, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm10, xmm0, xmm14
-        vshufps xmm1, xmm5, xmm5, 55h ; 'U'
-        vmovsd  qword ptr [rsp+190h+var_118], xmm5
-        vmulss  xmm4, xmm1, xmm13
-        vaddss  xmm2, xmm4, xmm11
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm1, xmm0, xmm2
-        vroundss xmm3, xmm12, xmm1, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm9, xmm0, xmm14
-        vmovaps xmm2, xmm11
-        vxorps  xmm1, xmm1, xmm1; min
-        vroundss xmm3, xmm12, xmm2, 1
-        vmulss  xmm8, xmm3, cs:__real@c3b40000
-        vmovsd  xmm0, qword ptr [rdi+0C8h]
-      }
-      v208.v[2] = _RDI->m_gunSprings.m_prevSpringOffset.v[2];
-      __asm
-      {
-        vshufps xmm7, xmm0, xmm0, 55h ; 'U'
-        vmovsd  qword ptr [rsp+190h+var_118], xmm0
-        vmulss  xmm6, xmm7, dword ptr [rdi+11Ch]
-        vmovss  xmm2, cs:__real@3f800000; max
-        vsubss  xmm0, xmm2, dword ptr [rdi+108h]; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm2, xmm10, xmm0
-        vmulss  xmm3, xmm9, xmm0
-        vmulss  xmm4, xmm8, xmm0
-        vmulss  xmm1, xmm0, dword ptr [rsp+190h+var_118]
-        vmovss  [rsp+190h+var_150], xmm1
-        vmulss  xmm1, xmm7, xmm0
-        vmovss  [rsp+190h+var_14C], xmm1
-        vmulss  xmm0, xmm6, xmm0
-        vmovss  [rsp+190h+var_148], xmm0
-        vmovsd  xmm0, qword ptr [rdi+110h]
-        vmovsd  qword ptr [rsp+190h+forward], xmm0
-      }
-      forward.v[2] = _RDI->m_pivotPoint.v[2];
-      __asm { vmovss  xmm10, [rsp+190h+var_144] }
+      v17 = (__m128)*(unsigned __int64 *)this->m_torsoSprings.m_prevSpringOffset.v;
+      v51.v[2] = this->m_torsoSprings.m_prevSpringOffset.v[2];
+      __asm { vroundss xmm3, xmm12, xmm2, 1 }
+      v19 = (float)((float)(v17.m128_f32[0] * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+      *(double *)v51.v = *(double *)v17.m128_u64;
+      __asm { vroundss xmm3, xmm12, xmm1, 1 }
+      v21 = (float)((float)(_mm_shuffle_ps(v17, v17, 85).m128_f32[0] * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+      __asm { vroundss xmm3, xmm12, xmm2, 1 }
+      v23 = *(float *)&_XMM3 * -360.0;
+      v24 = (__m128)*(unsigned __int64 *)this->m_gunSprings.m_prevSpringOffset.v;
+      v51.v[2] = this->m_gunSprings.m_prevSpringOffset.v[2];
+      v25 = _mm_shuffle_ps(v24, v24, 85).m128_f32[0];
+      *(double *)v51.v = *(double *)v24.m128_u64;
+      v26 = v25 * this->m_yawToRollScale;
+      *(double *)v24.m128_u64 = I_fclamp(1.0 - this->m_prevAdsFraction, 0.0, 1.0);
+      v14 = v19 * v24.m128_f32[0];
+      v15 = v21 * v24.m128_f32[0];
+      v16 = v23 * v24.m128_f32[0];
+      v45 = v24.m128_f32[0] * v51.v[0];
+      v46 = v25 * v24.m128_f32[0];
+      v47 = v26 * v24.m128_f32[0];
+      forward = this->m_pivotPoint;
+      v12 = v48;
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2
-        vxorps  xmm3, xmm3, xmm3
-        vxorps  xmm4, xmm4, xmm4
-        vxorps  xmm8, xmm8, xmm8
-        vmovss  [rsp+190h+var_150], xmm8
-        vxorps  xmm7, xmm7, xmm7
-        vmovss  [rsp+190h+var_14C], xmm7
-        vmovss  [rsp+190h+var_148], xmm7
-        vmovss  dword ptr [rsp+190h+forward], xmm2
-        vmovss  dword ptr [rsp+190h+forward+4], xmm2
-        vmovss  dword ptr [rsp+190h+forward+8], xmm2
-      }
+      v14 = 0.0;
+      v15 = 0.0;
+      v16 = 0.0;
+      v45 = 0.0;
+      v46 = 0.0;
+      v47 = 0.0;
+      forward.v[0] = 0.0;
+      forward.v[1] = 0.0;
+      forward.v[2] = 0.0;
     }
-    __asm
-    {
-      vaddss  xmm0, xmm2, dword ptr [rdi+0F0h]
-      vaddss  xmm5, xmm3, dword ptr [rdi+0F4h]
-      vaddss  xmm6, xmm4, dword ptr [rdi+0F8h]
-      vmulss  xmm4, xmm0, xmm13
-      vaddss  xmm1, xmm4, xmm11
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm2, xmm0, xmm1
-      vroundss xmm3, xmm12, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm14
-      vmovss  dword ptr [rbp+90h+angles], xmm1
-      vmulss  xmm4, xmm5, xmm13
-      vaddss  xmm2, xmm4, xmm11
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm1, xmm0, xmm2
-      vroundss xmm3, xmm12, xmm1, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm14
-      vmovss  dword ptr [rbp+90h+angles+4], xmm1
-      vmulss  xmm4, xmm6, xmm13
-      vaddss  xmm2, xmm4, xmm11
-      vroundss xmm3, xmm12, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm14
-      vmovss  dword ptr [rbp+90h+angles+8], xmm1
-    }
-    AdvancedSwayDeadzone::DebugDraw(&_RDI->m_torsoGoal, localClientNum, &colorRed);
+    v27 = v15 + this->m_prevViewmodelAngles.v[1];
+    v28 = v16 + this->m_prevViewmodelAngles.v[2];
+    __asm { vroundss xmm3, xmm12, xmm2, 1 }
+    angles.v[0] = (float)((float)((float)(v14 + this->m_prevViewmodelAngles.v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+    __asm { vroundss xmm3, xmm12, xmm1, 1 }
+    angles.v[1] = (float)((float)(v27 * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+    __asm { vroundss xmm3, xmm12, xmm2, 1 }
+    angles.v[2] = (float)((float)(v28 * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+    AdvancedSwayDeadzone::DebugDraw(&this->m_torsoGoal, localClientNum, &colorRed);
     RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-    v102 = DCONST_DVARBOOL_advancedSwayGunTorsoSpringDamperEnabled;
+    v32 = DCONST_DVARBOOL_advancedSwayGunTorsoSpringDamperEnabled;
     if ( !DCONST_DVARBOOL_advancedSwayGunTorsoSpringDamperEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "advancedSwayGunTorsoSpringDamperEnabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v102);
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rbp+90h+outOrg+8]
-      vmovss  xmm8, dword ptr [rbp+90h+outOrg+4]
-      vmovss  xmm9, dword ptr [rbp+90h+outOrg]
-    }
-    if ( v102->current.enabled )
+    Dvar_CheckFrontendServerThread(v32);
+    v33 = outOrg.v[2];
+    v34 = outOrg.v[1];
+    v35 = outOrg.v[0];
+    if ( v32->current.enabled )
     {
       AngleVectors(&angles, &forward, NULL, NULL);
-      __asm
-      {
-        vmovss  xmm3, cs:debugDrawDist_0
-        vmulss  xmm1, xmm3, dword ptr [rsp+190h+forward]
-        vaddss  xmm2, xmm1, xmm9
-        vmovss  dword ptr [rsp+190h+center], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rsp+190h+forward+4]
-        vaddss  xmm2, xmm1, xmm8
-        vmovss  dword ptr [rsp+190h+center+4], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rsp+190h+forward+8]
-        vaddss  xmm2, xmm1, xmm7
-        vmovss  dword ptr [rsp+190h+center+8], xmm2
-        vmovss  xmm1, cs:radius_3; radius
-      }
-      CG_DebugSphere(&center, *(float *)&_XMM1, &colorOrange, 0, 0);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbp+90h+angles]
-        vmovsd  qword ptr [rsp+190h+forward], xmm0
-      }
-      *(_QWORD *)&forward.y = __PAIR64__(LODWORD(angles.v[2]), HIDWORD(_RT0));
-      __asm { vmovss  dword ptr [rsp+190h+forward], xmm15 }
+      center.v[0] = (float)(debugDrawDist_0 * forward.v[0]) + v35;
+      center.v[1] = (float)(debugDrawDist_0 * forward.v[1]) + v34;
+      center.v[2] = (float)(debugDrawDist_0 * forward.v[2]) + v33;
+      CG_DebugSphere(&center, radius_3, &colorOrange, 0, 0);
+      forward = angles;
+      forward.v[0] = v10;
       DebugDrawDisplacementLine(LocalClientGlobals, &forward, &LocalClientGlobals->refdef.view.axis.m[2], &colorOrange);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbp+90h+angles]
-        vmovsd  qword ptr [rsp+190h+forward], xmm0
-      }
-      LODWORD(forward.v[0]) = _RT0;
-      forward.v[2] = angles.v[2];
-      __asm { vmovss  dword ptr [rsp+190h+forward+4], xmm10 }
+      forward = angles;
+      forward.v[1] = v12;
       DebugDrawDisplacementLine(LocalClientGlobals, &forward, &LocalClientGlobals->refdef.view.axis.m[1], &colorOrange);
     }
-    v118 = DCONST_DVARBOOL_advancedSwayGunDirEnabled;
+    v36 = DCONST_DVARBOOL_advancedSwayGunDirEnabled;
     if ( !DCONST_DVARBOOL_advancedSwayGunDirEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "advancedSwayGunDirEnabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v118);
-    if ( v118->current.enabled )
+    Dvar_CheckFrontendServerThread(v36);
+    if ( v36->current.enabled )
     {
-      __asm { vmovsd  xmm1, qword ptr [rdi+0B8h] }
-      v208.v[2] = _RDI->m_gunGoal.m_gunAnglesOffset.v[2];
-      __asm
-      {
-        vaddss  xmm2, xmm1, dword ptr [rbp+90h+angles]
-        vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-        vmovsd  qword ptr [rsp+190h+var_118], xmm1
-        vaddss  xmm5, xmm0, dword ptr [rbp+90h+angles+4]
-        vmovss  xmm0, dword ptr [rbp+90h+var_118+8]
-        vaddss  xmm6, xmm0, dword ptr [rbp+90h+angles+8]
-        vmulss  xmm4, xmm2, xmm13
-        vaddss  xmm1, xmm4, xmm11
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm2, xmm0, xmm1
-        vroundss xmm3, xmm12, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, xmm14
-        vmovss  dword ptr [rsp+190h+forward], xmm1
-        vmulss  xmm4, xmm5, xmm13
-        vaddss  xmm2, xmm4, xmm11
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm1, xmm0, xmm2
-        vroundss xmm3, xmm12, xmm1, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, xmm14
-        vmovss  dword ptr [rsp+190h+forward+4], xmm1
-        vmulss  xmm4, xmm6, xmm13
-        vaddss  xmm2, xmm4, xmm11
-        vroundss xmm3, xmm12, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, xmm14
-        vmovss  dword ptr [rsp+190h+forward+8], xmm1
-      }
+      v37 = (__m128)*(unsigned __int64 *)this->m_gunGoal.m_gunAnglesOffset.v;
+      v51.v[2] = this->m_gunGoal.m_gunAnglesOffset.v[2];
+      *(double *)v51.v = *(double *)v37.m128_u64;
+      __asm { vroundss xmm3, xmm12, xmm2, 1 }
+      forward.v[0] = (float)((float)((float)(v37.m128_f32[0] + angles.v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+      __asm { vroundss xmm3, xmm12, xmm1, 1 }
+      forward.v[1] = (float)((float)((float)(_mm_shuffle_ps(v37, v37, 85).m128_f32[0] + angles.v[1]) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+      __asm { vroundss xmm3, xmm12, xmm2, 1 }
+      forward.v[2] = (float)((float)((float)(v51.v[2] + angles.v[2]) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
       AngleVectors(&forward, &center, NULL, NULL);
-      __asm
-      {
-        vmovss  xmm3, cs:debugDrawDist_0
-        vmulss  xmm1, xmm3, dword ptr [rsp+190h+center]
-        vaddss  xmm2, xmm1, xmm9
-        vmovss  dword ptr [rbp+90h+var_E8], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rsp+190h+center+4]
-        vaddss  xmm2, xmm1, xmm8
-        vmovss  dword ptr [rbp+90h+var_E8+4], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rsp+190h+center+8]
-        vaddss  xmm2, xmm1, xmm7
-        vmovss  dword ptr [rbp+90h+var_E8+8], xmm2
-        vmovss  xmm1, cs:radius_3; radius
-      }
-      CG_DebugSphere(&v211, *(float *)&_XMM1, &colorBlue, 0, 0);
-      v152 = DCONST_DVARBOOL_advancedSwayGunDirSpringDamperEnabled;
+      v54.v[0] = (float)(debugDrawDist_0 * center.v[0]) + v35;
+      v54.v[1] = (float)(debugDrawDist_0 * center.v[1]) + v34;
+      v54.v[2] = (float)(debugDrawDist_0 * center.v[2]) + v33;
+      CG_DebugSphere(&v54, radius_3, &colorBlue, 0, 0);
+      v41 = DCONST_DVARBOOL_advancedSwayGunDirSpringDamperEnabled;
       if ( !DCONST_DVARBOOL_advancedSwayGunDirSpringDamperEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "advancedSwayGunDirSpringDamperEnabled") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v152);
-      if ( v152->current.enabled )
+      Dvar_CheckFrontendServerThread(v41);
+      if ( v41->current.enabled )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+90h+angles]
-          vaddss  xmm2, xmm0, [rsp+190h+var_150]
-          vmovss  xmm1, dword ptr [rbp+90h+angles+4]
-          vaddss  xmm5, xmm1, [rsp+190h+var_14C]
-          vmovss  xmm0, dword ptr [rbp+90h+angles+8]
-          vaddss  xmm6, xmm0, [rsp+190h+var_148]
-          vmulss  xmm4, xmm2, xmm13
-          vaddss  xmm1, xmm4, xmm11
-          vroundss xmm3, xmm12, xmm1, 1
-          vsubss  xmm0, xmm4, xmm3
-          vmulss  xmm1, xmm0, xmm14
-          vmovss  dword ptr [rsp+190h+center], xmm1
-          vmulss  xmm4, xmm5, xmm13
-          vaddss  xmm2, xmm4, xmm11
-          vroundss xmm3, xmm12, xmm2, 1
-          vsubss  xmm0, xmm4, xmm3
-          vmulss  xmm1, xmm0, xmm14
-          vmovss  dword ptr [rsp+190h+center+4], xmm1
-          vmulss  xmm4, xmm6, xmm13
-          vaddss  xmm2, xmm4, xmm11
-          vroundss xmm3, xmm12, xmm2, 1
-          vsubss  xmm0, xmm4, xmm3
-          vmulss  xmm1, xmm0, xmm14
-          vmovss  dword ptr [rsp+190h+center+8], xmm1
-        }
-        AngleVectors(&center, &v211, NULL, NULL);
-        __asm
-        {
-          vmovss  xmm3, cs:debugDrawDist_0
-          vmulss  xmm1, xmm3, dword ptr [rbp+90h+var_E8]
-          vaddss  xmm2, xmm1, xmm9
-          vmovss  dword ptr [rbp+90h+var_D8], xmm2
-          vmulss  xmm1, xmm3, dword ptr [rbp+90h+var_E8+4]
-          vaddss  xmm2, xmm1, xmm8
-          vmovss  dword ptr [rbp+90h+var_D8+4], xmm2
-          vmulss  xmm1, xmm3, dword ptr [rbp+90h+var_E8+8]
-          vaddss  xmm2, xmm1, xmm7
-          vmovss  dword ptr [rbp+90h+var_D8+8], xmm2
-          vmovss  xmm1, cs:radius_3; radius
-        }
-        CG_DebugSphere(&v212, *(float *)&_XMM1, &colorCyan, 0, 0);
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rsp+190h+center]
-          vmovsd  qword ptr [rsp+190h+var_118], xmm0
-        }
-        *(_QWORD *)&v208.y = __PAIR64__(LODWORD(center.v[2]), HIDWORD(_RT0));
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+190h+forward]
-          vmovss  dword ptr [rsp+190h+var_118], xmm0
-        }
-        DebugDrawDisplacementLine(LocalClientGlobals, &v208, &LocalClientGlobals->refdef.view.axis.m[2], &colorCyan);
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rsp+190h+center]
-          vmovsd  qword ptr [rsp+190h+var_118], xmm0
-        }
-        LODWORD(v208.v[0]) = _RT0;
-        v208.v[2] = center.v[2];
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+190h+forward+4]
-          vmovss  dword ptr [rsp+190h+var_118+4], xmm0
-        }
-        DebugDrawDisplacementLine(LocalClientGlobals, &v208, &LocalClientGlobals->refdef.view.axis.m[1], &colorCyan);
+        __asm { vroundss xmm3, xmm12, xmm1, 1 }
+        center.v[0] = (float)((float)((float)(angles.v[0] + v45) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+        __asm { vroundss xmm3, xmm12, xmm2, 1 }
+        center.v[1] = (float)((float)((float)(angles.v[1] + v46) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+        __asm { vroundss xmm3, xmm12, xmm2, 1 }
+        center.v[2] = (float)((float)((float)(angles.v[2] + v47) * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+        AngleVectors(&center, &v54, NULL, NULL);
+        v55.v[0] = (float)(debugDrawDist_0 * v54.v[0]) + v35;
+        v55.v[1] = (float)(debugDrawDist_0 * v54.v[1]) + v34;
+        v55.v[2] = (float)(debugDrawDist_0 * v54.v[2]) + v33;
+        CG_DebugSphere(&v55, radius_3, &colorCyan, 0, 0);
+        v51 = center;
+        v51.v[0] = forward.v[0];
+        DebugDrawDisplacementLine(LocalClientGlobals, &v51, &LocalClientGlobals->refdef.view.axis.m[2], &colorCyan);
+        v51 = center;
+        v51.v[1] = forward.v[1];
+        DebugDrawDisplacementLine(LocalClientGlobals, &v51, &LocalClientGlobals->refdef.view.axis.m[1], &colorCyan);
       }
     }
     memset(&outOrg, 0, sizeof(outOrg));
-  }
-  _R11 = &v213;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -2855,81 +2099,40 @@ DebugDrawDisplacementLine
 */
 void DebugDrawDisplacementLine(const cg_t *const cgameGlob, const vec3_t *angles, const vec3_t *drawAxis, const vec4_t *color)
 {
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
   vec3_t outOrg; 
-  __int64 v42; 
+  __int64 v13; 
   vec3_t forward; 
   vec3_t start; 
   vec3_t end; 
-  char v46; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v42 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
+  v13 = -2i64;
   if ( dword_1512F37D0 > *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 1772i64) )
   {
     j__Init_thread_header(&dword_1512F37D0);
     if ( dword_1512F37D0 == -1 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:drawHalfAngleDeg
-        vmulss  xmm1, xmm0, cs:__real@3c8efa35
-        vmovss  cs:drawHalfAngle, xmm1
-      }
+      drawHalfAngle = drawHalfAngleDeg * 0.017453292;
       j__Init_thread_footer(&dword_1512F37D0);
     }
   }
-  __asm { vmovss  xmm0, cs:drawHalfAngle; X }
-  *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
-  __asm { vmulss  xmm9, xmm0, cs:drawDist_0 }
+  v8 = tanf_0(drawHalfAngle) * drawDist_0;
   AngleVectors(angles, &forward, NULL, NULL);
   RefdefView_GetOrg(&cgameGlob->refdef.view, &outOrg);
-  __asm
-  {
-    vmovss  xmm2, cs:drawDist_0
-    vmulss  xmm0, xmm2, dword ptr [rsp+0D8h+forward]
-    vaddss  xmm6, xmm0, dword ptr [rsp+0D8h+outOrg]
-    vmulss  xmm1, xmm2, dword ptr [rsp+0D8h+forward+4]
-    vaddss  xmm7, xmm1, dword ptr [rsp+0D8h+outOrg+4]
-    vmulss  xmm0, xmm2, dword ptr [rsp+0D8h+forward+8]
-    vaddss  xmm8, xmm0, dword ptr [rsp+0D8h+outOrg+8]
-    vmulss  xmm1, xmm9, dword ptr [rdi]
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rsp+0D8h+start], xmm0
-    vmulss  xmm1, xmm9, dword ptr [rdi+4]
-    vaddss  xmm0, xmm1, xmm7
-    vmovss  dword ptr [rsp+0D8h+start+4], xmm0
-    vmulss  xmm1, xmm9, dword ptr [rdi+8]
-    vaddss  xmm0, xmm1, xmm8
-    vmovss  dword ptr [rsp+0D8h+start+8], xmm0
-    vxorps  xmm3, xmm9, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm1, xmm3, dword ptr [rdi]
-    vaddss  xmm0, xmm1, xmm6
-    vmovss  dword ptr [rsp+0D8h+end], xmm0
-    vmulss  xmm2, xmm3, dword ptr [rdi+4]
-    vaddss  xmm1, xmm2, xmm7
-    vmovss  dword ptr [rsp+0D8h+end+4], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rdi+8]
-    vaddss  xmm2, xmm0, xmm8
-    vmovss  dword ptr [rsp+0D8h+end+8], xmm2
-  }
+  v9 = (float)(drawDist_0 * forward.v[0]) + outOrg.v[0];
+  v10 = (float)(drawDist_0 * forward.v[1]) + outOrg.v[1];
+  v11 = (float)(drawDist_0 * forward.v[2]) + outOrg.v[2];
+  start.v[0] = (float)(v8 * drawAxis->v[0]) + v9;
+  start.v[1] = (float)(v8 * drawAxis->v[1]) + v10;
+  start.v[2] = (float)(v8 * drawAxis->v[2]) + v11;
+  end.v[0] = (float)(COERCE_FLOAT(LODWORD(v8) ^ _xmm) * drawAxis->v[0]) + v9;
+  end.v[1] = (float)(COERCE_FLOAT(LODWORD(v8) ^ _xmm) * drawAxis->v[1]) + v10;
+  end.v[2] = (float)(COERCE_FLOAT(LODWORD(v8) ^ _xmm) * drawAxis->v[2]) + v11;
   CG_DebugLine(&start, &end, color, 0, 0);
   memset(&outOrg, 0, sizeof(outOrg));
-  _R11 = &v46;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
 }
 
 /*
@@ -2939,118 +2142,52 @@ DebugDrawRange
 */
 void DebugDrawRange(const vec3_t *viewOrigin, const vec3_t *viewAngles, const vec2_t *angleRange, const vec4_t *color)
 {
-  char *v23; 
-  unsigned int v24; 
+  float v8; 
+  float v9; 
+  float *v10; 
+  unsigned int v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  __int64 v17; 
+  float v18; 
+  float v19; 
+  float v20; 
   vec3_t end; 
   vec3_t start; 
   tmat33_t<vec3_t> axis; 
-  __m256i v76; 
-  char v77; 
-  void *retaddr; 
+  __m256i v24; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-    vmovaps xmmword ptr [rax-0A8h], xmm14
-    vmovaps xmmword ptr [rax-0B8h], xmm15
-    vmovss  xmm7, cs:__real@3c8efa35
-    vmulss  xmm0, xmm7, dword ptr [r8]; X
-  }
-  *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm15, xmm0, cs:drawDist
-    vmulss  xmm0, xmm7, dword ptr [rbx+4]; X
-  }
-  *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmulss  xmm6, xmm0, cs:drawDist
-    vmovups ymm1, cs:__ymm@3f800000bf800000bf800000bf800000bf8000003f8000003f8000003f800000
-    vmovss  [rsp+168h+var_138], xmm6
-    vmovups [rsp+168h+var_E8], ymm1
-  }
+  v8 = tanf_0(0.017453292 * angleRange->v[0]) * drawDist;
+  v9 = tanf_0(0.017453292 * angleRange->v[1]) * drawDist;
+  v20 = v9;
+  v24 = _ymm;
   AnglesToAxis(viewAngles, &axis);
-  v23 = &v76.m256i_i8[4];
-  v24 = 0;
+  v10 = (float *)&v24.m256i_i32[1];
+  v11 = 0;
   do
   {
-    __asm
-    {
-      vmovss  xmm3, cs:drawDist
-      vmulss  xmm1, xmm3, dword ptr [rsp+168h+axis]
-      vaddss  xmm12, xmm1, dword ptr [rsi]
-      vmulss  xmm0, xmm3, dword ptr [rsp+168h+axis+4]
-      vaddss  xmm13, xmm0, dword ptr [rsi+4]
-      vmulss  xmm2, xmm3, dword ptr [rsp+168h+axis+8]
-      vaddss  xmm14, xmm2, dword ptr [rsi+8]
-      vmulss  xmm3, xmm6, dword ptr [rbx-4]
-      vmulss  xmm0, xmm3, dword ptr [rsp+168h+axis+0Ch]
-      vmulss  xmm4, xmm15, dword ptr [rbx]
-      vmulss  xmm1, xmm4, dword ptr [rsp+168h+axis+18h]
-      vaddss  xmm2, xmm0, xmm12
-      vaddss  xmm0, xmm2, xmm1
-      vmulss  xmm1, xmm3, dword ptr [rsp+168h+axis+10h]
-      vmovss  dword ptr [rsp+168h+start], xmm0
-      vmulss  xmm0, xmm4, dword ptr [rsp+168h+axis+1Ch]
-      vaddss  xmm2, xmm1, xmm13
-      vaddss  xmm1, xmm2, xmm0
-      vmulss  xmm0, xmm3, dword ptr [rsp+168h+axis+14h]
-      vaddss  xmm2, xmm0, xmm14
-      vmovss  dword ptr [rsp+168h+start+4], xmm1
-      vmulss  xmm1, xmm4, dword ptr [rsp+168h+axis+20h]
-      vaddss  xmm0, xmm2, xmm1
-      vmovss  dword ptr [rsp+168h+start+8], xmm0
-      vmovss  xmm0, [rsp+168h+var_138]
-    }
-    ++v24;
-    __asm
-    {
-      vmulss  xmm4, xmm0, dword ptr [rsp+rax*8+168h+var_E8]
-      vmulss  xmm5, xmm15, dword ptr [rsp+rax*8+168h+var_E8+4]
-      vmulss  xmm0, xmm4, dword ptr [rsp+168h+axis+0Ch]
-      vmulss  xmm1, xmm5, dword ptr [rsp+168h+axis+18h]
-      vaddss  xmm2, xmm0, xmm12
-      vmulss  xmm0, xmm4, dword ptr [rsp+168h+axis+10h]
-      vaddss  xmm2, xmm2, xmm1
-      vmulss  xmm1, xmm5, dword ptr [rsp+168h+axis+1Ch]
-      vaddss  xmm3, xmm0, xmm13
-      vmulss  xmm0, xmm4, dword ptr [rsp+168h+axis+14h]
-      vmovss  dword ptr [rsp+168h+end], xmm2
-      vaddss  xmm2, xmm3, xmm1
-      vmulss  xmm1, xmm5, dword ptr [rsp+168h+axis+20h]
-      vaddss  xmm3, xmm0, xmm14
-      vmovss  dword ptr [rsp+168h+end+4], xmm2
-      vaddss  xmm2, xmm3, xmm1
-      vmovss  dword ptr [rsp+168h+end+8], xmm2
-    }
+    v12 = (float)(drawDist * axis.m[0].v[0]) + viewOrigin->v[0];
+    v13 = (float)(drawDist * axis.m[0].v[1]) + viewOrigin->v[1];
+    v14 = (float)(drawDist * axis.m[0].v[2]) + viewOrigin->v[2];
+    v15 = v9 * *(v10 - 1);
+    v16 = v8 * *v10;
+    start.v[0] = (float)((float)(v15 * axis.m[1].v[0]) + v12) + (float)(v16 * axis.m[2].v[0]);
+    start.v[1] = (float)((float)(v15 * axis.m[1].v[1]) + v13) + (float)(v16 * axis.m[2].v[1]);
+    start.v[2] = (float)((float)(v15 * axis.m[1].v[2]) + v14) + (float)(v16 * axis.m[2].v[2]);
+    v17 = ++v11 & 3;
+    v18 = v20 * *(float *)&v24.m256i_i32[2 * v17];
+    v19 = v8 * *(float *)&v24.m256i_i32[2 * v17 + 1];
+    end.v[0] = (float)((float)(v18 * axis.m[1].v[0]) + v12) + (float)(v19 * axis.m[2].v[0]);
+    end.v[1] = (float)((float)(v18 * axis.m[1].v[1]) + v13) + (float)(v19 * axis.m[2].v[1]);
+    end.v[2] = (float)((float)(v18 * axis.m[1].v[2]) + v14) + (float)(v19 * axis.m[2].v[2]);
     CG_DebugLine(&start, &end, color, 0, 0);
-    v23 += 8;
-    __asm { vmovss  xmm6, [rsp+168h+var_138] }
+    v10 += 2;
+    v9 = v20;
   }
-  while ( v24 < 4 );
-  _R11 = &v77;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  while ( v11 < 4 );
 }
 
 /*
@@ -3063,132 +2200,46 @@ void AdvancedSwayDeadzone::DebugDrawText(AdvancedSwayDeadzone *this, const Local
   bool m_isAlternate; 
   cg_t *LocalClientGlobals; 
   CgWeaponMap *Instance; 
-  cg_t *v10; 
-  const dvar_t *v11; 
+  cg_t *v9; 
+  const dvar_t *v10; 
   const ScreenPlacement *ActivePlacement; 
-  const ScreenPlacement *v14; 
   GfxFont *FontHandle; 
   RumbleGraph *torsoGoalViewSpeedToMaxDeadzone_graph; 
-  float outSwaySettings; 
-  SwaySettings *outSwaySettingsa; 
-  float outSwaySettingsb; 
-  float y; 
-  float ya; 
-  double yb; 
-  float yc; 
-  double horzAlign; 
-  int vertAlign; 
-  double vertAligna; 
-  float color1; 
-  vec4_t *color1a; 
-  float color1b; 
-  SwaySettings v67; 
+  double v14; 
+  float v15; 
+  double v16; 
+  SwaySettings outSwaySettings; 
   char dest[6144]; 
 
-  _R14 = debugDraw;
-  _RBP = this;
   if ( this->m_isInitialized )
   {
     m_isAlternate = debugDraw->m_isAlternate;
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     Instance = CgWeaponMap::GetInstance(localClientNum);
-    BG_GetSwaySettings(Instance, &LocalClientGlobals->predictedPlayerState, &_R14->m_weapon, m_isAlternate, &v67);
-    v10 = CG_GetLocalClientGlobals(localClientNum);
-    if ( !BG_ProceduralGunMotionDisabled(&v10->predictedPlayerState) )
+    BG_GetSwaySettings(Instance, &LocalClientGlobals->predictedPlayerState, &debugDraw->m_weapon, m_isAlternate, &outSwaySettings);
+    v9 = CG_GetLocalClientGlobals(localClientNum);
+    if ( !BG_ProceduralGunMotionDisabled(&v9->predictedPlayerState) )
     {
-      v11 = DCONST_DVARBOOL_advancedSwayEnabled;
+      v10 = DCONST_DVARBOOL_advancedSwayEnabled;
       if ( !DCONST_DVARBOOL_advancedSwayEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "advancedSwayEnabled") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v11);
-      if ( v11->current.enabled && v67.adv.enabled )
+      Dvar_CheckFrontendServerThread(v10);
+      if ( v10->current.enabled && outSwaySettings.adv.enabled )
       {
-        __asm { vmovaps [rsp+19A8h+var_38], xmm8 }
         memset_0(dest, 0, sizeof(dest));
-        ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)_R14->m_localClientNum);
-        __asm { vmovss  xmm2, cs:VMMOTION_DEBUG_FONT_SCALE; scale }
-        v14 = ActivePlacement;
-        FontHandle = UI_GetFontHandle(ActivePlacement, VMMOTION_DEBUG_FONT_TYPE, *(float *)&_XMM2);
+        ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)debugDraw->m_localClientNum);
+        FontHandle = UI_GetFontHandle(ActivePlacement, VMMOTION_DEBUG_FONT_TYPE, VMMOTION_DEBUG_FONT_SCALE);
         Com_sprintf(dest, 0x1800ui64, "^7=== TORSO DEADZONE ===\n");
-        __asm
-        {
-          vmovss  xmm0, cs:VMMOTION_DEBUG_FONT_SCALE
-          vmovss  xmm1, dword ptr [r14+4]
-          vmovss  dword ptr [rsp+19A8h+color1], xmm0
-          vmovss  xmm0, dword ptr [r14+8]
-          vmovss  [rsp+19A8h+y], xmm0
-          vmovss  dword ptr [rsp+19A8h+outSwaySettings], xmm1
-        }
-        UI_DrawText(v14, dest, 6144, FontHandle, outSwaySettings, y, 2, 2, color1, &colorWhite, 3);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+8]
-          vaddss  xmm1, xmm0, cs:__real@41400000
-          vmovss  xmm2, cs:__real@3f800000; max
-        }
-        torsoGoalViewSpeedToMaxDeadzone_graph = v67.adv.torsoGoalViewSpeedToMaxDeadzone_graph;
-        __asm
-        {
-          vmovss  dword ptr [r14+8], xmm1
-          vmovss  xmm0, dword ptr [rbp+18h]
-          vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vdivss  xmm0, xmm0, dword ptr [rsp+19A8h+var_1948.adv.torsoGoalViewSpeedToMaxDeadzone_viewspeed]; val
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rbp+1Ch]
-          vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vmovss  xmm2, cs:__real@3f800000; max
-          vmovaps xmm8, xmm0
-          vdivss  xmm0, xmm3, dword ptr [rsp+19A8h+var_1948.adv.torsoGoalViewSpeedToMaxDeadzone_viewspeed+4]; val
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [r14+8]; drawY
-          vmovss  xmm1, dword ptr [r14+4]; drawX
-          vmovss  [rsp+19A8h+vertAlign], xmm0
-          vmovss  [rsp+19A8h+y], xmm8
-        }
-        CG_ViewMotion_DebugDrawGraph(v14, *(float *)&_XMM1, *(float *)&_XMM2, torsoGoalViewSpeedToMaxDeadzone_graph, &colorRed, ya, &colorGreen, *(float *)&vertAlign, &colorPurple);
-        __asm
-        {
-          vmovss  xmm0, cs:textOffsetX_0
-          vaddss  xmm1, xmm0, dword ptr [r14+4]
-          vmovss  dword ptr [r14+4], xmm1
-          vmovss  xmm2, dword ptr [rbp+24h]
-          vmovss  xmm0, dword ptr [rbp+20h]
-          vmovss  xmm1, dword ptr [rbp+30h]
-          vmovss  xmm4, dword ptr [rbp+2Ch]
-          vmovss  xmm5, dword ptr [rbp+1Ch]
-          vmovss  xmm3, dword ptr [rbp+18h]
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+19A8h+color1], xmm2
-          vmovsd  qword ptr [rsp+19A8h+vertAlign], xmm0
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcvtss2sd xmm4, xmm4, xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovsd  qword ptr [rsp+19A8h+horzAlign], xmm1
-          vmovsd  qword ptr [rsp+19A8h+y], xmm4
-          vmovq   r9, xmm3
-          vmovsd  [rsp+19A8h+outSwaySettings], xmm5
-        }
-        Com_sprintf(dest, 0x1800ui64, "^7IN View Speed: (^2%.0f^7, ^6%.0f^7)\n^7OUT Deadzone Goal: (^2%.1f^7, ^6%.1f^7)\n^7Deadzone Current: (^2%.1f^7, ^6%.1f^7)\n", *(double *)&_XMM3, *(double *)&outSwaySettingsa, yb, horzAlign, vertAligna, *(double *)&color1a);
-        __asm
-        {
-          vmovss  xmm0, cs:VMMOTION_DEBUG_FONT_SCALE
-          vmovss  xmm1, dword ptr [r14+4]
-          vmovss  dword ptr [rsp+19A8h+color1], xmm0
-          vmovss  xmm0, dword ptr [r14+8]
-          vmovss  [rsp+19A8h+y], xmm0
-          vmovss  dword ptr [rsp+19A8h+outSwaySettings], xmm1
-        }
-        UI_DrawText(v14, dest, 6144, FontHandle, outSwaySettingsb, yc, 2, 2, color1b, &colorWhite, 3);
-        __asm { vmovaps xmm8, [rsp+19A8h+var_38] }
+        UI_DrawText(ActivePlacement, dest, 6144, FontHandle, debugDraw->m_drawX, debugDraw->m_drawY, 2, 2, VMMOTION_DEBUG_FONT_SCALE, &colorWhite, 3);
+        torsoGoalViewSpeedToMaxDeadzone_graph = outSwaySettings.adv.torsoGoalViewSpeedToMaxDeadzone_graph;
+        debugDraw->m_drawY = debugDraw->m_drawY + 12.0;
+        v14 = I_fclamp(COERCE_FLOAT(LODWORD(this->m_viewVelocityScaled.v[0]) & _xmm) / outSwaySettings.adv.torsoGoalViewSpeedToMaxDeadzone_viewspeed.v[0], 0.0, 1.0);
+        v15 = *(float *)&v14;
+        v16 = I_fclamp(COERCE_FLOAT(LODWORD(this->m_viewVelocityScaled.v[1]) & _xmm) / outSwaySettings.adv.torsoGoalViewSpeedToMaxDeadzone_viewspeed.v[1], 0.0, 1.0);
+        CG_ViewMotion_DebugDrawGraph(ActivePlacement, debugDraw->m_drawX, debugDraw->m_drawY, torsoGoalViewSpeedToMaxDeadzone_graph, &colorRed, v15, &colorGreen, *(float *)&v16, &colorPurple);
+        debugDraw->m_drawX = textOffsetX_0 + debugDraw->m_drawX;
+        Com_sprintf(dest, 0x1800ui64, "^7IN View Speed: (^2%.0f^7, ^6%.0f^7)\n^7OUT Deadzone Goal: (^2%.1f^7, ^6%.1f^7)\n^7Deadzone Current: (^2%.1f^7, ^6%.1f^7)\n", this->m_viewVelocityScaled.v[0], this->m_viewVelocityScaled.v[1], this->m_deadzoneGoal.v[0], this->m_deadzoneGoal.v[1], this->m_deadzone.v[0], this->m_deadzone.v[1]);
+        UI_DrawText(ActivePlacement, dest, 6144, FontHandle, debugDraw->m_drawX, debugDraw->m_drawY, 2, 2, VMMOTION_DEBUG_FONT_SCALE, &colorWhite, 3);
       }
     }
   }
@@ -3199,143 +2250,56 @@ void AdvancedSwayDeadzone::DebugDrawText(AdvancedSwayDeadzone *this, const Local
 AdvancedSwayGunDir::DebugDrawText
 ==============
 */
-
-void __fastcall AdvancedSwayGunDir::DebugDrawText(AdvancedSwayGunDir *this, const LocalClientNum_t localClientNum, double yawToRollScale, DebugDrawState *debugDraw)
+void AdvancedSwayGunDir::DebugDrawText(AdvancedSwayGunDir *this, const LocalClientNum_t localClientNum, float yawToRollScale, DebugDrawState *debugDraw)
 {
   signed __int64 v4; 
-  void *v7; 
+  void *v5; 
   bool m_isAlternate; 
   cg_t *LocalClientGlobals; 
   CgWeaponMap *Instance; 
-  cg_t *v15; 
-  const dvar_t *v16; 
+  cg_t *v12; 
+  const dvar_t *v13; 
   const ScreenPlacement *ActivePlacement; 
-  const ScreenPlacement *v19; 
   GfxFont *FontHandle; 
   RumbleGraph *gunGoalViewSpeedToOffset_graph; 
-  float outSwaySettings; 
-  SwaySettings *outSwaySettingsa; 
-  float outSwaySettingsb; 
-  float y; 
-  float ya; 
-  double yb; 
-  float yc; 
-  double horzAlign; 
-  int vertAlign; 
-  double vertAligna; 
-  float color1; 
-  float color1a; 
-  SwaySettings v70; 
+  float v17; 
+  double v18; 
+  SwaySettings outSwaySettings; 
   char dest[6144]; 
 
-  v7 = alloca(v4);
-  __asm { vmovaps [rsp+19C8h+var_58], xmm9 }
-  _R14 = debugDraw;
-  __asm { vmovaps xmm9, xmm2 }
-  _RBP = this;
+  v5 = alloca(v4);
   if ( this->m_isInitialized )
   {
     m_isAlternate = debugDraw->m_isAlternate;
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     Instance = CgWeaponMap::GetInstance(localClientNum);
-    BG_GetSwaySettings(Instance, &LocalClientGlobals->predictedPlayerState, &_R14->m_weapon, m_isAlternate, &v70);
-    v15 = CG_GetLocalClientGlobals(localClientNum);
-    if ( !BG_ProceduralGunMotionDisabled(&v15->predictedPlayerState) )
+    BG_GetSwaySettings(Instance, &LocalClientGlobals->predictedPlayerState, &debugDraw->m_weapon, m_isAlternate, &outSwaySettings);
+    v12 = CG_GetLocalClientGlobals(localClientNum);
+    if ( !BG_ProceduralGunMotionDisabled(&v12->predictedPlayerState) )
     {
-      v16 = DCONST_DVARBOOL_advancedSwayEnabled;
+      v13 = DCONST_DVARBOOL_advancedSwayEnabled;
       if ( !DCONST_DVARBOOL_advancedSwayEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "advancedSwayEnabled") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v16);
-      if ( v16->current.enabled && v70.adv.enabled )
+      Dvar_CheckFrontendServerThread(v13);
+      if ( v13->current.enabled && outSwaySettings.adv.enabled )
       {
-        __asm { vmovaps [rsp+19C8h+var_48], xmm8 }
         memset_0(dest, 0, sizeof(dest));
-        ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)_R14->m_localClientNum);
-        __asm { vmovss  xmm2, cs:VMMOTION_DEBUG_FONT_SCALE; scale }
-        v19 = ActivePlacement;
-        FontHandle = UI_GetFontHandle(ActivePlacement, VMMOTION_DEBUG_FONT_TYPE, *(float *)&_XMM2);
+        ActivePlacement = ScrPlace_GetActivePlacement((const LocalClientNum_t)debugDraw->m_localClientNum);
+        FontHandle = UI_GetFontHandle(ActivePlacement, VMMOTION_DEBUG_FONT_TYPE, VMMOTION_DEBUG_FONT_SCALE);
         Com_sprintf(dest, 0x1800ui64, "^7=== GUN OFFSET ANGLES ===\n");
-        __asm
-        {
-          vmovss  xmm0, cs:VMMOTION_DEBUG_FONT_SCALE
-          vmovss  xmm1, dword ptr [r14+4]
-          vmovss  dword ptr [rsp+19C8h+color1], xmm0
-          vmovss  xmm0, dword ptr [r14+8]
-          vmovss  [rsp+19C8h+y], xmm0
-          vmovss  dword ptr [rsp+19C8h+outSwaySettings], xmm1
-        }
-        UI_DrawText(v19, dest, 6144, FontHandle, outSwaySettings, y, 2, 2, color1, &colorWhite, 3);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r14+8]
-          vaddss  xmm1, xmm0, cs:__real@41400000
-          vmovss  xmm2, cs:__real@3f800000; max
-        }
-        gunGoalViewSpeedToOffset_graph = v70.adv.gunGoalViewSpeedToOffset_graph;
-        __asm
-        {
-          vmovss  dword ptr [r14+8], xmm1
-          vmovss  xmm0, dword ptr [rbp+0]
-          vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vdivss  xmm0, xmm0, dword ptr [rsp+19C8h+var_1968.adv.gunGoalViewSpeedToOffset_viewspeed]; val
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rbp+4]
-          vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vmovss  xmm2, cs:__real@3f800000; max
-          vmovaps xmm8, xmm0
-          vdivss  xmm0, xmm3, dword ptr [rsp+19C8h+var_1968.adv.gunGoalViewSpeedToOffset_viewspeed+4]; val
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [r14+8]; drawY
-          vmovss  xmm1, dword ptr [r14+4]; drawX
-          vmovss  [rsp+19C8h+vertAlign], xmm0
-          vmovss  [rsp+19C8h+y], xmm8
-        }
-        CG_ViewMotion_DebugDrawGraph(v19, *(float *)&_XMM1, *(float *)&_XMM2, gunGoalViewSpeedToOffset_graph, &colorBlue, ya, &colorGreen, *(float *)&vertAlign, &colorPurple);
-        __asm
-        {
-          vmovss  xmm0, cs:textOffsetX_1
-          vaddss  xmm1, xmm0, dword ptr [r14+4]
-          vmovss  dword ptr [r14+4], xmm1
-          vmovss  xmm2, dword ptr [rbp+10h]
-          vmovss  xmm5, dword ptr [rbp+0Ch]
-          vmovss  xmm3, dword ptr [rbp+0]
-          vmulss  xmm0, xmm2, xmm9
-          vcvtss2sd xmm1, xmm0, xmm0
-          vmovss  xmm0, dword ptr [rbp+4]
-          vmovsd  qword ptr [rsp+19C8h+vertAlign], xmm1
-          vcvtss2sd xmm4, xmm2, xmm2
-          vmovsd  qword ptr [rsp+19C8h+horzAlign], xmm4
-          vcvtss2sd xmm5, xmm5, xmm5
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  qword ptr [rsp+19C8h+y], xmm5
-          vmovsd  [rsp+19C8h+outSwaySettings], xmm0
-          vcvtss2sd xmm3, xmm3, xmm3
-          vmovq   r9, xmm3
-        }
-        Com_sprintf(dest, 0x1800ui64, "^7IN View Speed: (^2%.0f^7, ^6%.0f^7)\n^7OUT Offset: (^2%.1f^7, ^6%.1f^7, ^5%.1f)\n", *(double *)&_XMM3, *(double *)&outSwaySettingsa, yb, horzAlign, vertAligna);
-        __asm
-        {
-          vmovss  xmm0, cs:VMMOTION_DEBUG_FONT_SCALE
-          vmovss  xmm1, dword ptr [r14+4]
-          vmovss  dword ptr [rsp+19C8h+color1], xmm0
-          vmovss  xmm0, dword ptr [r14+8]
-          vmovss  [rsp+19C8h+y], xmm0
-          vmovss  dword ptr [rsp+19C8h+outSwaySettings], xmm1
-        }
-        UI_DrawText(v19, dest, 6144, FontHandle, outSwaySettingsb, yc, 2, 2, color1a, &colorWhite, 3);
-        __asm { vmovaps xmm8, [rsp+19C8h+var_48] }
+        UI_DrawText(ActivePlacement, dest, 6144, FontHandle, debugDraw->m_drawX, debugDraw->m_drawY, 2, 2, VMMOTION_DEBUG_FONT_SCALE, &colorWhite, 3);
+        gunGoalViewSpeedToOffset_graph = outSwaySettings.adv.gunGoalViewSpeedToOffset_graph;
+        debugDraw->m_drawY = debugDraw->m_drawY + 12.0;
+        v17 = COERCE_FLOAT(LODWORD(this->m_smoothedWorldVelocity.v[0]) & _xmm) / outSwaySettings.adv.gunGoalViewSpeedToOffset_viewspeed.v[0];
+        I_fclamp(v17, 0.0, 1.0);
+        v18 = I_fclamp(COERCE_FLOAT(LODWORD(this->m_smoothedWorldVelocity.v[1]) & _xmm) / outSwaySettings.adv.gunGoalViewSpeedToOffset_viewspeed.v[1], 0.0, 1.0);
+        CG_ViewMotion_DebugDrawGraph(ActivePlacement, debugDraw->m_drawX, debugDraw->m_drawY, gunGoalViewSpeedToOffset_graph, &colorBlue, v17, &colorGreen, *(float *)&v18, &colorPurple);
+        debugDraw->m_drawX = textOffsetX_1 + debugDraw->m_drawX;
+        Com_sprintf(dest, 0x1800ui64, "^7IN View Speed: (^2%.0f^7, ^6%.0f^7)\n^7OUT Offset: (^2%.1f^7, ^6%.1f^7, ^5%.1f)\n", this->m_smoothedWorldVelocity.v[0], this->m_smoothedWorldVelocity.v[1], this->m_gunAnglesOffset.v[0], this->m_gunAnglesOffset.v[1], (float)(this->m_gunAnglesOffset.v[1] * yawToRollScale));
+        UI_DrawText(ActivePlacement, dest, 6144, FontHandle, debugDraw->m_drawX, debugDraw->m_drawY, 2, 2, VMMOTION_DEBUG_FONT_SCALE, &colorWhite, 3);
       }
     }
   }
-  __asm { vmovaps xmm9, [rsp+19C8h+var_58] }
 }
 
 /*
@@ -3345,148 +2309,74 @@ AdvancedSwayState::DebugDrawText
 */
 void AdvancedSwayState::DebugDrawText(AdvancedSwayState *this, const LocalClientNum_t localClientNum)
 {
-  const dvar_t *rbx1; 
+  const dvar_t *v2; 
   const ScreenPlacement *ActivePlacement; 
-  const ScreenPlacement *v8; 
   GfxFont *FontHandle; 
-  int v12; 
-  GfxFont *v13; 
+  int v7; 
+  GfxFont *v8; 
   bool m_isAlternate; 
+  double v10; 
+  __int128 v11; 
   cg_t *LocalClientGlobals; 
   CgWeaponMap *Instance; 
-  cg_t *v20; 
-  const dvar_t *v21; 
-  char *fmt; 
-  float fmta; 
-  float fmtb; 
-  double y; 
-  float ya; 
-  float yb; 
-  double horzAlign; 
-  double vertAlign; 
-  double v57; 
-  float v58; 
-  float v59; 
-  vec4_t *color; 
+  cg_t *v14; 
+  const dvar_t *v15; 
+  float m_drawY; 
+  float m_yawToRollScale; 
   vec3_t v3; 
   DebugDrawState debugDraw; 
   SwaySettings outSwaySettings; 
   char dest[2048]; 
 
-  rbx1 = DCONST_DVARBOOL_advancedSwayDebug;
-  _R14 = this;
+  v2 = DCONST_DVARBOOL_advancedSwayDebug;
   if ( !DCONST_DVARBOOL_advancedSwayDebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "advancedSwayDebug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(rbx1);
-  if ( rbx1->current.enabled && _R14->m_isInitialized )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled && this->m_isInitialized )
   {
     ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-    __asm { vmovss  xmm2, cs:VMMOTION_DEBUG_FONT_SCALE; scale }
-    v8 = ActivePlacement;
-    FontHandle = UI_GetFontHandle(ActivePlacement, VMMOTION_DEBUG_FONT_TYPE, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm0, cs:initialDrawX_0
-      vmovss  xmm1, cs:initialDrawY_0
-    }
-    v12 = *(_DWORD *)&_R14->m_weapon.weaponCamo;
-    v13 = FontHandle;
-    m_isAlternate = _R14->m_isAlternate;
-    __asm
-    {
-      vmovss  [rsp+0A10h+debugDraw.m_drawX], xmm0
-      vmovups ymm0, ymmword ptr [r14+13Ch]
-      vmovups ymmword ptr [rsp+0A10h+debugDraw.m_weapon.weaponIdx], ymm0
-      vmovsd  xmm0, qword ptr [r14+16Ch]
-      vmovss  [rsp+0A10h+debugDraw.m_drawY], xmm1
-      vmovups xmm1, xmmword ptr [r14+15Ch]
-    }
-    *(_DWORD *)&debugDraw.m_weapon.weaponCamo = v12;
-    __asm { vmovsd  qword ptr [rbp+910h+debugDraw.m_weapon.attachmentVariationIndices+15h], xmm0 }
+    FontHandle = UI_GetFontHandle(ActivePlacement, VMMOTION_DEBUG_FONT_TYPE, VMMOTION_DEBUG_FONT_SCALE);
+    v7 = *(_DWORD *)&this->m_weapon.weaponCamo;
+    v8 = FontHandle;
+    m_isAlternate = this->m_isAlternate;
+    debugDraw.m_drawX = initialDrawX_0;
+    *(__m256i *)&debugDraw.m_weapon.weaponIdx = *(__m256i *)&this->m_weapon.weaponIdx;
+    v10 = *(double *)&this->m_weapon.attachmentVariationIndices[21];
+    debugDraw.m_drawY = initialDrawY_0;
+    v11 = *(_OWORD *)&this->m_weapon.attachmentVariationIndices[5];
+    *(_DWORD *)&debugDraw.m_weapon.weaponCamo = v7;
+    *(double *)&debugDraw.m_weapon.attachmentVariationIndices[21] = v10;
     debugDraw.m_localClientNum = localClientNum;
-    __asm { vmovups xmmword ptr [rbp+910h+debugDraw.m_weapon.attachmentVariationIndices+5], xmm1 }
+    *(_OWORD *)&debugDraw.m_weapon.attachmentVariationIndices[5] = v11;
     debugDraw.m_isAlternate = m_isAlternate;
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     Instance = CgWeaponMap::GetInstance(localClientNum);
-    BG_GetSwaySettings(Instance, &LocalClientGlobals->predictedPlayerState, &_R14->m_weapon, m_isAlternate, &outSwaySettings);
-    v20 = CG_GetLocalClientGlobals(localClientNum);
-    if ( BG_ProceduralGunMotionDisabled(&v20->predictedPlayerState) )
+    BG_GetSwaySettings(Instance, &LocalClientGlobals->predictedPlayerState, &this->m_weapon, m_isAlternate, &outSwaySettings);
+    v14 = CG_GetLocalClientGlobals(localClientNum);
+    if ( BG_ProceduralGunMotionDisabled(&v14->predictedPlayerState) )
       goto LABEL_13;
-    v21 = DCONST_DVARBOOL_advancedSwayEnabled;
+    v15 = DCONST_DVARBOOL_advancedSwayEnabled;
     if ( !DCONST_DVARBOOL_advancedSwayEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "advancedSwayEnabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
-    if ( v21->current.enabled && outSwaySettings.adv.enabled )
+    Dvar_CheckFrontendServerThread(v15);
+    if ( v15->current.enabled && outSwaySettings.adv.enabled )
     {
-      __asm { vmovaps [rsp+0A10h+var_40], xmm6 }
-      AnglesSubtract(&_R14->m_prevViewmodelAnglesSmoothed, &_R14->m_prevViewmodelAngles, &v3);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+10Ch]
-        vmovss  xmm1, dword ptr [r14+138h]
-        vmovss  xmm2, dword ptr [rsp+0A10h+v3+4]
-        vmovss  xmm4, dword ptr [rsp+0A10h+v3]
-        vmovss  xmm5, dword ptr [r14+12Ch]
-        vmovss  xmm3, dword ptr [r14+134h]
-        vmovss  xmm6, dword ptr [r14+128h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0A10h+color], xmm0
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+0A10h+var_9D0], xmm1
-        vcvtss2sd xmm2, xmm2, xmm2
-        vmovsd  qword ptr [rsp+0A10h+vertAlign], xmm2
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  qword ptr [rsp+0A10h+horzAlign], xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  qword ptr [rsp+0A10h+y], xmm5
-        vcvtss2sd xmm6, xmm6, xmm6
-        vmovq   r9, xmm3
-        vmovsd  [rsp+0A10h+fmt], xmm6
-      }
-      Com_sprintf(dest, 0x800ui64, "^7=== ADVANCED SWAY ===\n^7Delta Time: ^5%.4f^7\n^7View Velocity: (^2%.1f^7, ^6%.1f^7)\n^7Smoothing Offset: (^2%.1f^7, ^6%.1f^7)\n^7Fire Fraction: ^5%.2f {%.2f}\n", *(double *)&_XMM3, *(double *)&fmt, y, horzAlign, vertAlign, v57, *(double *)&color);
-      __asm
-      {
-        vmovss  xmm0, cs:VMMOTION_DEBUG_FONT_SCALE
-        vmovss  xmm1, [rsp+0A10h+debugDraw.m_drawX]
-        vmovss  dword ptr [rsp+0A10h+var_9D0], xmm0
-        vmovss  xmm0, [rsp+0A10h+debugDraw.m_drawY]
-        vmovss  [rsp+0A10h+y], xmm0
-        vmovss  dword ptr [rsp+0A10h+fmt], xmm1
-      }
-      UI_DrawText(v8, dest, 2048, v13, fmta, ya, 2, 2, v58, &colorWhite, 3);
-      __asm
-      {
-        vmovss  xmm0, [rsp+0A10h+debugDraw.m_drawY]
-        vaddss  xmm6, xmm0, cs:offsetY_1
-        vmovss  [rsp+0A10h+debugDraw.m_drawY], xmm6
-      }
-      AdvancedSwayDeadzone::DebugDrawText(&_R14->m_torsoGoal, localClientNum, &debugDraw);
-      __asm
-      {
-        vmovss  xmm0, [rsp+0A10h+debugDraw.m_drawX]
-        vaddss  xmm1, xmm0, cs:graphOffsetX
-        vmovss  xmm2, dword ptr [r14+11Ch]; yawToRollScale
-        vmovss  [rsp+0A10h+debugDraw.m_drawX], xmm1
-        vmovss  [rsp+0A10h+debugDraw.m_drawY], xmm6
-      }
-      AdvancedSwayGunDir::DebugDrawText(&_R14->m_gunGoal, localClientNum, *(float *)&_XMM2, &debugDraw);
-      __asm { vmovaps xmm6, [rsp+0A10h+var_40] }
+      AnglesSubtract(&this->m_prevViewmodelAnglesSmoothed, &this->m_prevViewmodelAngles, &v3);
+      Com_sprintf(dest, 0x800ui64, "^7=== ADVANCED SWAY ===\n^7Delta Time: ^5%.4f^7\n^7View Velocity: (^2%.1f^7, ^6%.1f^7)\n^7Smoothing Offset: (^2%.1f^7, ^6%.1f^7)\n^7Fire Fraction: ^5%.2f {%.2f}\n", this->m_frametimeSec, this->m_angularVelocity.v[0], this->m_angularVelocity.v[1], v3.v[0], v3.v[1], this->m_prevGoalFireFraction, this->m_prevFireFraction);
+      UI_DrawText(ActivePlacement, dest, 2048, v8, debugDraw.m_drawX, debugDraw.m_drawY, 2, 2, VMMOTION_DEBUG_FONT_SCALE, &colorWhite, 3);
+      debugDraw.m_drawY = debugDraw.m_drawY + offsetY_1;
+      m_drawY = debugDraw.m_drawY;
+      AdvancedSwayDeadzone::DebugDrawText(&this->m_torsoGoal, localClientNum, &debugDraw);
+      m_yawToRollScale = this->m_yawToRollScale;
+      debugDraw.m_drawX = debugDraw.m_drawX + graphOffsetX;
+      debugDraw.m_drawY = m_drawY;
+      AdvancedSwayGunDir::DebugDrawText(&this->m_gunGoal, localClientNum, m_yawToRollScale, &debugDraw);
     }
     else
     {
 LABEL_13:
       Com_sprintf(dest, 0x800ui64, "^7=== ADVANCED SWAY ===\n^7DISABLED\n");
-      __asm
-      {
-        vmovss  xmm0, cs:VMMOTION_DEBUG_FONT_SCALE
-        vmovss  xmm1, [rsp+0A10h+debugDraw.m_drawX]
-        vmovss  dword ptr [rsp+0A10h+var_9D0], xmm0
-        vmovss  xmm0, [rsp+0A10h+debugDraw.m_drawY]
-        vmovss  [rsp+0A10h+y], xmm0
-        vmovss  dword ptr [rsp+0A10h+fmt], xmm1
-      }
-      UI_DrawText(v8, dest, 2048, v13, fmtb, yb, 2, 2, v59, &colorWhite, 3);
+      UI_DrawText(ActivePlacement, dest, 2048, v8, debugDraw.m_drawX, debugDraw.m_drawY, 2, 2, VMMOTION_DEBUG_FONT_SCALE, &colorWhite, 3);
     }
   }
 }
@@ -3498,72 +2388,35 @@ AdvancedSwayState::GetAngleOffsets
 */
 void AdvancedSwayState::GetAngleOffsets(AdvancedSwayState *this, vec3_t *outTorsoAngleOffsets, vec3_t *outGunAngleOffsets, vec3_t *outGunPivotOffset)
 {
-  _RSI = outGunPivotOffset;
-  _RDI = outGunAngleOffsets;
-  _RBX = outTorsoAngleOffsets;
-  _RBP = this;
+  float v8; 
+  double v13; 
+  float v14; 
+
   if ( this->m_isInitialized )
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rcx+84h]
-      vmovss  xmm4, cs:__real@3b360b61
-      vmovsd  qword ptr [rdx], xmm0
-    }
-    outTorsoAngleOffsets->v[2] = this->m_torsoSprings.m_prevSpringOffset.v[2];
-    __asm
-    {
-      vmulss  xmm3, xmm4, dword ptr [rdx]
-      vmulss  xmm4, xmm4, dword ptr [rdx+4]
-      vaddss  xmm1, xmm3, cs:__real@3f000000
-      vmovaps [rsp+38h+var_18], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vroundss xmm2, xmm7, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm0, cs:__real@43b40000
-      vaddss  xmm2, xmm4, cs:__real@3f000000
-      vmovss  dword ptr [rdx], xmm0
-      vroundss xmm3, xmm7, xmm2, 1
-      vmovss  xmm2, cs:__real@3f000000
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, cs:__real@43b40000
-      vmovss  dword ptr [rdx+4], xmm1
-      vroundss xmm3, xmm7, xmm2, 1
-      vmulss  xmm0, xmm3, cs:__real@c3b40000
-      vmovss  xmm2, cs:__real@3f800000; max
-      vmovss  dword ptr [rdx+8], xmm0
-      vmovsd  xmm0, qword ptr [rcx+0C8h]
-      vmovsd  qword ptr [r8], xmm0
-    }
-    outGunAngleOffsets->v[2] = this->m_gunSprings.m_prevSpringOffset.v[2];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rcx+11Ch]
-      vmulss  xmm1, xmm0, dword ptr [r8+4]
-      vmovss  dword ptr [r8+8], xmm1
-      vsubss  xmm0, xmm2, dword ptr [rcx+108h]; val
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmulss  xmm1, xmm0, dword ptr [rbx]
-      vmulss  xmm2, xmm0, dword ptr [rbx+4]
-      vmovaps xmm7, [rsp+38h+var_18]
-      vmovss  dword ptr [rbx], xmm1
-      vmulss  xmm1, xmm0, dword ptr [rbx+8]
-      vmovss  dword ptr [rbx+8], xmm1
-      vmovss  dword ptr [rbx+4], xmm2
-      vmulss  xmm2, xmm0, dword ptr [rdi]
-      vmulss  xmm1, xmm0, dword ptr [rdi+4]
-      vmulss  xmm0, xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rdi+8], xmm0
-      vmovss  dword ptr [rdi], xmm2
-      vmovss  dword ptr [rdi+4], xmm1
-      vmovsd  xmm0, qword ptr [rbp+110h]
-      vmovsd  qword ptr [rsi], xmm0
-    }
-    _RSI->v[2] = _RBP->m_pivotPoint.v[2];
+    *outTorsoAngleOffsets = this->m_torsoSprings.m_prevSpringOffset;
+    v8 = 0.0027777778 * outTorsoAngleOffsets->v[1];
+    _XMM7 = 0i64;
+    __asm { vroundss xmm2, xmm7, xmm1, 1 }
+    outTorsoAngleOffsets->v[0] = (float)((float)(0.0027777778 * outTorsoAngleOffsets->v[0]) - *(float *)&_XMM2) * 360.0;
+    __asm { vroundss xmm3, xmm7, xmm2, 1 }
+    outTorsoAngleOffsets->v[1] = (float)(v8 - *(float *)&_XMM3) * 360.0;
+    __asm { vroundss xmm3, xmm7, xmm2, 1 }
+    outTorsoAngleOffsets->v[2] = *(float *)&_XMM3 * -360.0;
+    *outGunAngleOffsets = this->m_gunSprings.m_prevSpringOffset;
+    outGunAngleOffsets->v[2] = this->m_yawToRollScale * outGunAngleOffsets->v[1];
+    v13 = I_fclamp(1.0 - this->m_prevAdsFraction, 0.0, 1.0);
+    *(float *)&_XMM2 = *(float *)&v13 * outTorsoAngleOffsets->v[1];
+    outTorsoAngleOffsets->v[0] = *(float *)&v13 * outTorsoAngleOffsets->v[0];
+    outTorsoAngleOffsets->v[2] = *(float *)&v13 * outTorsoAngleOffsets->v[2];
+    outTorsoAngleOffsets->v[1] = *(float *)&_XMM2;
+    *(float *)&_XMM2 = *(float *)&v13 * outGunAngleOffsets->v[0];
+    v14 = *(float *)&v13 * outGunAngleOffsets->v[1];
+    outGunAngleOffsets->v[2] = *(float *)&v13 * outGunAngleOffsets->v[2];
+    outGunAngleOffsets->v[0] = *(float *)&_XMM2;
+    outGunAngleOffsets->v[1] = v14;
+    *(double *)outGunPivotOffset->v = *(double *)this->m_pivotPoint.v;
+    outGunPivotOffset->v[2] = this->m_pivotPoint.v[2];
   }
   else
   {
@@ -3583,12 +2436,7 @@ AdvancedSwayDeadzone::GetAnglesOffset
 */
 void AdvancedSwayDeadzone::GetAnglesOffset(AdvancedSwayDeadzone *this, vec3_t *outGoalAnglesOffset)
 {
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx+0Ch]
-    vmovsd  qword ptr [rdx], xmm0
-  }
-  outGoalAnglesOffset->v[2] = this->m_prevViewAnglesOffset.v[2];
+  *outGoalAnglesOffset = this->m_prevViewAnglesOffset;
 }
 
 /*
@@ -3598,12 +2446,7 @@ AdvancedSwayGunDir::GetAnglesOffset
 */
 void AdvancedSwayGunDir::GetAnglesOffset(AdvancedSwayGunDir *this, vec3_t *outAnglesOffset)
 {
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx+0Ch]
-    vmovsd  qword ptr [rdx], xmm0
-  }
-  outAnglesOffset->v[2] = this->m_gunAnglesOffset.v[2];
+  *outAnglesOffset = this->m_gunAnglesOffset;
 }
 
 /*
@@ -3613,12 +2456,7 @@ AdvancedSwaySprings::GetAnglesOffset
 */
 void AdvancedSwaySprings::GetAnglesOffset(AdvancedSwaySprings *this, vec3_t *outAnglesOffset)
 {
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vmovsd  qword ptr [rdx], xmm0
-  }
-  outAnglesOffset->v[2] = this->m_prevSpringOffset.v[2];
+  *outAnglesOffset = this->m_prevSpringOffset;
 }
 
 /*
@@ -3628,12 +2466,7 @@ AdvancedSwaySprings::GetAnglesVelocity
 */
 void AdvancedSwaySprings::GetAnglesVelocity(AdvancedSwaySprings *this, vec3_t *outAnglesVelocity)
 {
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx+0Ch]
-    vmovsd  qword ptr [rdx], xmm0
-  }
-  outAnglesVelocity->v[2] = this->m_prevSpringVelocity.v[2];
+  *outAnglesVelocity = this->m_prevSpringVelocity;
 }
 
 /*
@@ -3643,27 +2476,16 @@ AdvancedSwayState::GetBlendspaceParams
 */
 void AdvancedSwayState::GetBlendspaceParams(AdvancedSwayState *this, vec2_t *outBsParams)
 {
-  vec2_t v13; 
+  double v2; 
+  double v4; 
+  double v5; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovss  xmm2, cs:__real@3f800000; max
-    vsubss  xmm0, xmm2, dword ptr [rcx+108h]; val
-    vmovsd  xmm6, qword ptr [rcx+84h]
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovsd  [rsp+58h+var_38], xmm6
-    vmulss  xmm1, xmm6, xmm0
-    vmulss  xmm0, xmm0, dword ptr [rsp+58h+var_38+4]
-    vmovss  dword ptr [rsp+58h+var_38+4], xmm0
-    vmovss  dword ptr [rsp+58h+var_38], xmm1
-  }
-  *outBsParams = v13;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  v2 = *(double *)this->m_torsoSprings.m_prevSpringOffset.v;
+  v4 = I_fclamp(1.0 - this->m_prevAdsFraction, 0.0, 1.0);
+  v5 = v2;
+  *((float *)&v5 + 1) = *(float *)&v4 * *((float *)&v5 + 1);
+  *(float *)&v5 = *(float *)&v2 * *(float *)&v4;
+  *(double *)outBsParams = v5;
 }
 
 /*
@@ -3713,35 +2535,20 @@ ViewMotionSpring::Reset
 */
 void ViewMotionSpring::Reset(ViewMotionSpring *this, const float4 *playerOrigin)
 {
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vmovups ymmword ptr [rcx], ymm1
-    vmovups ymmword ptr [rcx+20h], ymm1
-  }
+  *(__m256i *)this->massPos.v.m128_f32 = (__m256i)0i64;
+  *(__m256i *)this->anchorPos.v.m128_f32 = (__m256i)0i64;
   this->unlockTime = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovdqu xmmword ptr [rcx+40h], xmm0
-    vmovups ymmword ptr [rcx+50h], ymm1
-    vmovups ymmword ptr [rcx+70h], ymm1
-    vmovups xmmword ptr [rcx+90h], xmm1
-  }
+  this->prevPsOrigin = (float4)playerOrigin->v;
+  *(__m256i *)this->velocitySmoothingSec.v.m128_f32 = (__m256i)0i64;
+  *(__m256i *)this->springConstant.v.m128_f32 = (__m256i)0i64;
+  this->maxOffset = 0i64;
   this->isLockingSpring = 0;
   *(_QWORD *)&this->motionIndex = 31i64;
   this->motionIndexBlendDuration = 0;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_1000@@3Ufloat4@@B.v; float4 const g_1000
-    vmovups xmmword ptr [rcx+0A0h], xmm0
-    vmovups xmm1, xmmword ptr cs:?g_0100@@3Ufloat4@@B.v; float4 const g_0100
-    vmovups xmmword ptr [rcx+0B0h], xmm1
-    vmovups xmm0, xmmword ptr cs:?g_0010@@3Ufloat4@@B.v; float4 const g_0010
-    vmovups xmmword ptr [rcx+0C0h], xmm0
-    vmovups xmm1, xmmword ptr cs:?g_0001@@3Ufloat4@@B.v; float4 const g_0001
-    vmovups xmmword ptr [rcx+0D0h], xmm1
-  }
+  this->offsetAngles.x = (float4)g_1000.v;
+  this->offsetAngles.y = (float4)g_0100.v;
+  this->offsetAngles.z = (float4)g_0010.v;
+  this->offsetAngles.w = (float4)g_0001.v;
   this->isInitialized = 1;
 }
 
@@ -3750,424 +2557,284 @@ void ViewMotionSpring::Reset(ViewMotionSpring *this, const float4 *playerOrigin)
 AdvancedSwayDeadzone::Update
 ==============
 */
-
-void __fastcall AdvancedSwayDeadzone::Update(AdvancedSwayDeadzone *this, const AdvancedHipSwaySettings *const swayDef, const vec3_t *viewAngles, double frametimeSecScaled, const vec3_t *viewAngleVelocityScaled, float adsFraction, float fireFraction)
+void AdvancedSwayDeadzone::Update(AdvancedSwayDeadzone *this, const AdvancedHipSwaySettings *const swayDef, const vec3_t *viewAngles, float frametimeSecScaled, const vec3_t *viewAngleVelocityScaled, float adsFraction, float fireFraction)
 {
-  bool v17; 
-  const vec3_t *v18; 
-  AdvancedSwayDeadzone *v22; 
-  unsigned int v79; 
-  bool v85; 
-  bool v86; 
-  unsigned int v105; 
-  unsigned int v106; 
-  bool v108; 
-  __int64 v138; 
-  __int64 v139; 
-  double v140; 
-  double v141; 
-  double v142; 
-  double v143; 
-  AdvancedSwayDeadzone *v144; 
-  const vec3_t *v145; 
-  __int128 v146; 
-  vec2_t v147; 
+  __int128 v8; 
+  __int128 v9; 
+  __m128 v16; 
+  __m128 v17; 
+  __int128 v20; 
+  __int128 v25; 
+  vec2_t *p_torsoGoalViewSpeedToMaxDeadzone_viewspeed; 
+  unsigned int v37; 
+  signed __int64 v38; 
+  bool v39; 
+  float v40; 
+  float v41; 
+  double ValueFromFraction; 
+  float v43; 
+  float v44; 
+  vec2_t *p_m_deadzone; 
+  unsigned int v46; 
+  signed __int64 v47; 
+  unsigned int v48; 
+  signed __int64 v49; 
+  bool v50; 
+  float v51; 
+  float v52; 
+  double v53; 
+  float v54; 
+  vec3_t *p_m_prevViewAnglesOffset; 
+  __int64 v61; 
+  __int64 v62; 
+  unsigned __int64 v65; 
+  vec2_t v66; 
   vec3_t v3; 
+  __int128 v68; 
+  __int128 v69; 
+  __int128 v70; 
 
-  __asm { vmovaps [rsp+168h+var_A8], xmm11 }
-  v17 = !this->m_isInitialized;
-  v18 = viewAngles;
-  _RBX = viewAngleVelocityScaled;
-  __asm { vmovaps xmm11, xmm3 }
-  v145 = viewAngles;
-  v22 = this;
-  v144 = this;
   if ( this->m_isInitialized )
   {
+    v70 = _XMM10;
+    _XMM9 = 0i64;
+    v69 = v8;
+    v68 = v9;
+    __asm { vxorpd  xmm10, xmm10, xmm10 }
+    if ( frametimeSecScaled <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 605, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( frametimeSecScaled )", "%s < %s\n\t%g, %g", "0.0f", "frametimeSecScaled", *(double *)&_XMM10, frametimeSecScaled) )
+      __debugbreak();
+    v16 = 0i64;
+    v16.m128_f32[0] = (float)((float)swayDef->torsoGoalViewSmoothDurationMs * 0.001) / frametimeSecScaled;
+    v17 = v16;
+    _R13 = &this->m_viewVelocityScaled;
+    v20 = v65;
+    *(float *)&v20 = viewAngleVelocityScaled->v[0];
+    _XMM2 = v20;
+    __asm { vinsertps xmm2, xmm2, dword ptr [rbx+4], 10h }
+    _XMM0 = g_negativeZero.v;
+    __asm { vandnps xmm4, xmm0, xmm2 }
+    v25 = (unsigned __int64)_XMM2;
+    *(float *)&v25 = this->m_viewVelocityScaled.v[0];
+    _XMM2 = v25;
+    __asm { vinsertps xmm2, xmm2, dword ptr [r13+4], 10h }
+    _XMM5 = _mm_shuffle_ps(v17, v17, 0);
     __asm
     {
-      vmovaps [rsp+168h+var_58], xmm6
-      vmovaps [rsp+168h+var_68], xmm7
-      vmovaps [rsp+168h+var_78], xmm8
-      vmovaps [rsp+168h+var_88], xmm9
-      vmovaps [rsp+168h+var_98], xmm10
-      vmovaps [rsp+168h+var_B8], xmm12
-      vxorps  xmm9, xmm9, xmm9
-      vcomiss xmm11, xmm9
-      vmovaps [rsp+168h+var_C8], xmm13
-      vmovaps [rsp+168h+var_D8], xmm14
-      vxorpd  xmm10, xmm10, xmm10
-    }
-    if ( v17 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm11, xmm11
-        vmovsd  [rsp+168h+var_128], xmm0
-        vmovsd  [rsp+168h+var_130], xmm10
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 605, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( frametimeSecScaled )", "%s < %s\n\t%g, %g", "0.0f", "frametimeSecScaled", v140, v142) )
-        __debugbreak();
-    }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [r12+8]
-      vmulss  xmm1, xmm0, cs:__real@3a83126f
-      vmovss  xmm0, dword ptr [rbx]
-      vdivss  xmm5, xmm1, xmm11
-    }
-    _R13 = &v22->m_viewVelocityScaled;
-    *((_QWORD *)&v146 + 1) = 0i64;
-    __asm
-    {
-      vmovups xmm2, xmmword ptr [rsp+60h]
-      vmovss  xmm2, xmm2, xmm0
-      vinsertps xmm2, xmm2, dword ptr [rbx+4], 10h
-      vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vandnps xmm4, xmm0, xmm2
-      vmovss  xmm0, dword ptr [r13+0]
-      vmovups xmmword ptr [rsp+60h], xmm2
-    }
-    *(_QWORD *)&v146 = _RT0;
-    __asm
-    {
-      vmovups xmm2, xmmword ptr [rsp+60h]
-      vmovss  xmm2, xmm2, xmm0
-      vinsertps xmm2, xmm2, dword ptr [r13+4], 10h
-      vshufps xmm5, xmm5, xmm5, 0
       vrcpps  xmm1, xmm5
-      vmulps  xmm0, xmm1, xmm2
-      vmulps  xmm1, xmm4, xmm1
-      vmovups xmmword ptr [rsp+60h], xmm2
-      vsubps  xmm2, xmm2, xmm0
       vcmpleps xmm0, xmm5, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-      vaddps  xmm3, xmm1, xmm2
-      vblendvps xmm1, xmm3, xmm4, xmm0
-      vmovss  dword ptr [r13+0], xmm1
-      vextractps dword ptr [r13+4], xmm1, 1
     }
-    AnglesSubtract(v18, &v22->m_prevViewAngles, &v3);
-    __asm
-    {
-      vmovss  xmm7, cs:__real@3b360b61
-      vmovss  xmm6, cs:__real@3f000000
-      vmovss  xmm5, cs:__real@43b40000
-      vmovss  xmm13, [rsp+168h+fireFraction]
-      vmovss  xmm12, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    }
-    _RBP = &v22->m_prevViewAnglesOffset;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vsubss  xmm3, xmm0, dword ptr [rsp+168h+v3]
-      vmovss  dword ptr [rbp+0], xmm3
-      vmovss  xmm1, dword ptr [rbp+4]
-      vsubss  xmm0, xmm1, dword ptr [rsp+168h+v3+4]
-      vmovss  dword ptr [rbp+4], xmm0
-      vmovss  xmm2, dword ptr [rbp+8]
-      vsubss  xmm1, xmm2, dword ptr [rsp+168h+v3+8]
-      vmovss  dword ptr [rbp+8], xmm1
-      vmulss  xmm3, xmm3, xmm7
-      vaddss  xmm1, xmm3, xmm6
-      vxorps  xmm8, xmm8, xmm8
-      vroundss xmm2, xmm8, xmm1, 1
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm0, xmm0, xmm5
-      vmovss  dword ptr [rbp+0], xmm0
-      vmulss  xmm4, xmm7, dword ptr [r15+10h]
-      vaddss  xmm2, xmm4, xmm6
-      vroundss xmm3, xmm8, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rbp+4], xmm1
-      vmulss  xmm3, xmm7, dword ptr [r15+14h]
-      vaddss  xmm1, xmm3, xmm6
-      vroundss xmm2, xmm8, xmm1, 1
-      vmovss  xmm8, cs:__real@3f800000
-    }
-    _RSI = &swayDef->torsoGoalViewSpeedToMaxDeadzone_viewspeed;
-    *(_QWORD *)&v146 = &v22->m_prevViewAnglesOffset;
-    v79 = 0;
-    __asm
-    {
-      vsubss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm0, xmm5
-    }
-    _R13 = (char *)&v22->m_viewVelocityScaled - (char *)&swayDef->torsoGoalViewSpeedToMaxDeadzone_viewspeed;
-    _R14 = (char *)&v147 - (char *)&swayDef->torsoGoalViewSpeedToMaxDeadzone_viewspeed;
-    __asm
-    {
-      vmovss  dword ptr [rbp+8], xmm1
-      vsubss  xmm14, xmm8, xmm13
-    }
-    v85 = 1;
+    _XMM3 = _mm128_add_ps(_mm128_mul_ps(_XMM4, _XMM1), _mm128_sub_ps(_XMM2, _mm128_mul_ps(_XMM1, _XMM2)));
+    __asm { vblendvps xmm1, xmm3, xmm4, xmm0 }
+    this->m_viewVelocityScaled.v[0] = *(float *)&_XMM1;
+    __asm { vextractps dword ptr [r13+4], xmm1, 1 }
+    AnglesSubtract(viewAngles, &this->m_prevViewAngles, &v3);
+    _XMM3.m128_f32[0] = this->m_prevViewAnglesOffset.v[0] - v3.v[0];
+    this->m_prevViewAnglesOffset.v[0] = _XMM3.m128_f32[0];
+    this->m_prevViewAnglesOffset.v[1] = this->m_prevViewAnglesOffset.v[1] - v3.v[1];
+    this->m_prevViewAnglesOffset.v[2] = this->m_prevViewAnglesOffset.v[2] - v3.v[2];
+    _XMM8 = 0i64;
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    this->m_prevViewAnglesOffset.v[0] = (float)((float)(_XMM3.m128_f32[0] * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+    __asm { vroundss xmm3, xmm8, xmm2, 1 }
+    this->m_prevViewAnglesOffset.v[1] = (float)((float)(0.0027777778 * this->m_prevViewAnglesOffset.v[1]) - *(float *)&_XMM3) * 360.0;
+    __asm { vroundss xmm2, xmm8, xmm1, 1 }
+    p_torsoGoalViewSpeedToMaxDeadzone_viewspeed = &swayDef->torsoGoalViewSpeedToMaxDeadzone_viewspeed;
+    v37 = 0;
+    v38 = (char *)&v66 - (char *)&swayDef->torsoGoalViewSpeedToMaxDeadzone_viewspeed;
+    this->m_prevViewAnglesOffset.v[2] = (float)((float)(0.0027777778 * this->m_prevViewAnglesOffset.v[2]) - *(float *)&_XMM2) * 360.0;
+    v39 = 1;
     do
     {
-      if ( !v85 )
+      if ( !v39 )
       {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v79;
-        v86 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139);
-        v85 = 0;
-        if ( v86 )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v37;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm { vcomiss xmm9, dword ptr [rsi] }
-      if ( !v85 )
+      if ( p_torsoGoalViewSpeedToMaxDeadzone_viewspeed->v[0] <= 0.0 )
       {
-        if ( v79 >= 2 )
+        if ( v37 >= 2 )
         {
-          LODWORD(v139) = 2;
-          LODWORD(v138) = v79;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+          LODWORD(v62) = 2;
+          LODWORD(v61) = v37;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
             __debugbreak();
         }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+168h+var_128], xmm0
-          vmovsd  [rsp+168h+var_130], xmm10
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 626, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( swayDef->torsoGoalViewSpeedToMaxDeadzone_viewspeed[axis] )", "%s < %s\n\t%g, %g", "0.0f", "swayDef->torsoGoalViewSpeedToMaxDeadzone_viewspeed[axis]", v141, v143) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 626, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( swayDef->torsoGoalViewSpeedToMaxDeadzone_viewspeed[axis] )", "%s < %s\n\t%g, %g", "0.0f", "swayDef->torsoGoalViewSpeedToMaxDeadzone_viewspeed[axis]", *(double *)&_XMM10, p_torsoGoalViewSpeedToMaxDeadzone_viewspeed->v[0]) )
           __debugbreak();
       }
-      if ( v79 >= 2 )
+      if ( v37 >= 2 )
       {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v79;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v37;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm
+      LODWORD(v40) = *(_DWORD *)((_BYTE *)p_torsoGoalViewSpeedToMaxDeadzone_viewspeed->v + (char *)&this->m_viewVelocityScaled - (char *)&swayDef->torsoGoalViewSpeedToMaxDeadzone_viewspeed) & _xmm;
+      if ( v37 >= 2 )
       {
-        vmovss  xmm6, dword ptr [rsi+r13]
-        vandps  xmm6, xmm6, xmm12
-      }
-      if ( v79 >= 2 )
-      {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v79;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v37;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm
+      v41 = v40 / p_torsoGoalViewSpeedToMaxDeadzone_viewspeed->v[0];
+      I_fclamp(v41, 0.0, 1.0);
+      ValueFromFraction = GraphGetValueFromFraction(swayDef->torsoGoalViewSpeedToMaxDeadzone_graph->knotCount, swayDef->torsoGoalViewSpeedToMaxDeadzone_graph->knots, v41);
+      if ( v37 >= 2 )
       {
-        vdivss  xmm0, xmm6, dword ptr [rsi]; val
-        vmovaps xmm2, xmm8; max
-        vmovaps xmm1, xmm9; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm2, xmm0; fraction }
-      *(double *)&_XMM0 = GraphGetValueFromFraction(swayDef->torsoGoalViewSpeedToMaxDeadzone_graph->knotCount, swayDef->torsoGoalViewSpeedToMaxDeadzone_graph->knots, *(const float *)&_XMM2);
-      __asm { vmovaps xmm6, xmm0 }
-      if ( v79 >= 2 )
-      {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v79;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v37;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm { vmulss  xmm6, xmm6, dword ptr [rsi+8] }
-      if ( v79 >= 2 )
+      v43 = *(float *)&ValueFromFraction * p_torsoGoalViewSpeedToMaxDeadzone_viewspeed[1].v[0];
+      if ( v37 >= 2 )
       {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v79;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v37;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm
+      v44 = (float)(fireFraction * swayDef->fireTorsoDeadzoneScale) + (float)(1.0 - fireFraction);
+      *(float *)((char *)p_torsoGoalViewSpeedToMaxDeadzone_viewspeed->v + v38) = v43;
+      if ( v37 >= 2 )
       {
-        vmulss  xmm0, xmm13, dword ptr [r12+0A0h]
-        vaddss  xmm7, xmm0, xmm14
-        vmovss  dword ptr [r14+rsi], xmm6
-      }
-      if ( v79 >= 2 )
-      {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v79;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v37;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm
-      {
-        vmulss  xmm0, xmm6, xmm7
-        vmovss  dword ptr [r14+rsi], xmm0
-      }
-      _RSI = (vec2_t *)((char *)_RSI + 4);
-      v85 = ++v79 < 2;
+      *(float *)((char *)p_torsoGoalViewSpeedToMaxDeadzone_viewspeed->v + v38) = v43 * v44;
+      p_torsoGoalViewSpeedToMaxDeadzone_viewspeed = (vec2_t *)((char *)p_torsoGoalViewSpeedToMaxDeadzone_viewspeed + 4);
+      v39 = ++v37 < 2;
     }
-    while ( (int)v79 < 2 );
-    __asm
-    {
-      vsubss  xmm8, xmm8, [rsp+168h+adsFraction]
-      vmovaps xmm14, [rsp+168h+var_D8]
-      vmovaps xmm13, [rsp+168h+var_C8]
-      vmovaps xmm10, [rsp+168h+var_98]
-    }
-    _RSI = &v144->m_deadzone;
-    v105 = 0;
-    v106 = 0;
-    _R12 = (char *)&swayDef->torsoGoalDeadzoneAdjustSpeed - (char *)&v147;
-    v108 = 1;
+    while ( (int)v37 < 2 );
+    p_m_deadzone = &this->m_deadzone;
+    v46 = 0;
+    v47 = (char *)&v66 - (char *)&this->m_deadzone;
+    v48 = 0;
+    v49 = (char *)&swayDef->torsoGoalDeadzoneAdjustSpeed - (char *)&v66;
+    v50 = 1;
     do
     {
-      if ( !v108 )
+      if ( !v50 )
       {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v106;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v48;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      _R14 = (char *)_RSI + (char *)&v147 - (char *)&v144->m_deadzone;
-      __asm { vmovss  xmm7, dword ptr [r14+r12] }
-      if ( v106 >= 2 )
+      v51 = *(float *)((char *)p_m_deadzone->v + v47 + v49);
+      if ( v48 >= 2 )
       {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v106;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v48;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm { vmovss  xmm6, dword ptr [rsi] }
-      if ( v106 >= 2 )
+      v52 = p_m_deadzone->v[0];
+      if ( v48 >= 2 )
       {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v106;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v48;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm
+      v53 = LinearTrack(*(float *)((char *)p_m_deadzone->v + v47), v52, v51, frametimeSecScaled);
+      if ( v48 >= 2 )
       {
-        vmovss  xmm0, dword ptr [r14]; tgt
-        vmovaps xmm3, xmm11; deltaTime
-        vmovaps xmm2, xmm7; rate
-        vmovaps xmm1, xmm6; cur
-      }
-      *(double *)&_XMM0 = LinearTrack(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-      __asm { vmovaps xmm6, xmm0 }
-      if ( v106 >= 2 )
-      {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v106;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v48;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [rsi], xmm6 }
-      if ( v106 >= 2 )
+      p_m_deadzone->v[0] = *(float *)&v53;
+      if ( v48 >= 2 )
       {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v106;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v48;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm { vmulss  xmm6, xmm8, dword ptr [rsi] }
-      if ( v106 >= 2 )
+      v54 = (float)(1.0 - adsFraction) * p_m_deadzone->v[0];
+      if ( v48 >= 2 )
       {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v106;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v48;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [rsi], xmm6 }
-      _RSI = (vec2_t *)((char *)_RSI + 4);
-      v108 = ++v106 < 2;
+      p_m_deadzone->v[0] = v54;
+      p_m_deadzone = (vec2_t *)((char *)p_m_deadzone + 4);
+      v50 = ++v48 < 2;
     }
-    while ( (int)v106 < 2 );
-    __asm { vmovss  xmm8, dword ptr cs:__xmm@80000000800000008000000080000000 }
-    _RBP = v146;
+    while ( (int)v48 < 2 );
+    p_m_prevViewAnglesOffset = &this->m_prevViewAnglesOffset;
     do
     {
-      if ( v105 >= 3 )
+      if ( v46 >= 3 )
       {
-        LODWORD(v139) = 3;
-        LODWORD(v138) = v105;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 3;
+        LODWORD(v61) = v46;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm { vmovss  xmm7, dword ptr [rbp+0] }
-      if ( v105 >= 2 )
+      if ( v46 >= 2 )
       {
-        LODWORD(v139) = 2;
-        LODWORD(v138) = v105;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 2;
+        LODWORD(v61) = v46;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 21, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
-      __asm { vmovss  xmm6, dword ptr [rbp+14h] }
-      if ( v105 >= 3 )
+      if ( v46 >= 3 )
       {
-        LODWORD(v139) = 3;
-        LODWORD(v138) = v105;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
+        LODWORD(v62) = 3;
+        LODWORD(v61) = v46;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
           __debugbreak();
       }
+      _XMM0 = LODWORD(p_m_prevViewAnglesOffset->v[0]) & (unsigned __int128)(unsigned int)_xmm;
+      __asm { vminss  xmm6, xmm0, xmm6 }
+      if ( v46 >= 3 )
+      {
+        LODWORD(v62) = 3;
+        LODWORD(v61) = v46;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
+          __debugbreak();
+      }
+      p_m_prevViewAnglesOffset->v[0] = *(float *)&_XMM6;
+      if ( v46 >= 3 )
+      {
+        LODWORD(v62) = 3;
+        LODWORD(v61) = v46;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v61, v62) )
+          __debugbreak();
+      }
+      _XMM1 = LODWORD(p_m_prevViewAnglesOffset->v[0]) ^ (unsigned __int128)(unsigned int)_xmm;
       __asm
       {
-        vmovss  xmm0, dword ptr [rbp+0]
-        vandps  xmm0, xmm0, xmm12
-        vminss  xmm6, xmm0, xmm6
-      }
-      if ( v105 >= 3 )
-      {
-        LODWORD(v139) = 3;
-        LODWORD(v138) = v105;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
-          __debugbreak();
-      }
-      __asm { vmovss  dword ptr [rbp+0], xmm6 }
-      if ( v105 >= 3 )
-      {
-        LODWORD(v139) = 3;
-        LODWORD(v138) = v105;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v138, v139) )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+0]
-        vxorps  xmm1, xmm2, xmm8
         vcmpless xmm0, xmm9, xmm7
         vblendvps xmm0, xmm1, xmm2, xmm0
-        vmovss  dword ptr [rbp+0], xmm0
       }
-      _RBP += 4i64;
-      ++v105;
+      p_m_prevViewAnglesOffset->v[0] = *(float *)&_XMM0;
+      p_m_prevViewAnglesOffset = (vec3_t *)((char *)p_m_prevViewAnglesOffset + 4);
+      ++v46;
     }
-    while ( (int)v105 < 2 );
-    _RAX = v145;
-    _R15 = v144;
-    __asm
-    {
-      vmovaps xmm12, [rsp+168h+var_B8]
-      vmovaps xmm9, [rsp+168h+var_88]
-      vmovsd  xmm0, qword ptr [rax]
-      vmovaps xmm8, [rsp+168h+var_78]
-      vmovaps xmm7, [rsp+168h+var_68]
-      vmovaps xmm6, [rsp+168h+var_58]
-      vmovsd  qword ptr [r15], xmm0
-    }
-    v144->m_prevViewAngles.v[2] = v145->v[2];
-    v144->m_deadzoneGoal = v147;
+    while ( (int)v46 < 2 );
+    *(double *)this->m_prevViewAngles.v = *(double *)viewAngles->v;
+    this->m_prevViewAngles.v[2] = viewAngles->v[2];
+    this->m_deadzoneGoal = v66;
   }
   else
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [r8]
-      vmovsd  qword ptr [rcx], xmm0
-    }
-    this->m_prevViewAngles.v[2] = viewAngles->v[2];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmovsd  qword ptr [rcx+0Ch], xmm0
-    }
-    this->m_prevViewAnglesOffset.v[2] = vec3_origin.v[2];
+    this->m_prevViewAngles = *viewAngles;
+    this->m_prevViewAnglesOffset = vec3_origin;
     this->m_viewVelocityScaled = 0i64;
     this->m_deadzone = 0i64;
     this->m_isInitialized = 1;
   }
-  __asm { vmovaps xmm11, [rsp+168h+var_A8] }
 }
 
 /*
@@ -4177,288 +2844,167 @@ AdvancedSwayGunDir::Update
 */
 void AdvancedSwayGunDir::Update(AdvancedSwayGunDir *this, const AdvancedHipSwaySettings *const swayDef, const vec3_t *offsetAngles, const vec3_t *offsetVelocity, float frametimeSecScaled, const vec3_t *angleVelocityWorldScaled, float fireFraction)
 {
-  const dvar_t *v23; 
-  unsigned int v51; 
-  bool v55; 
-  bool v56; 
-  __int64 v97; 
-  __int64 v98; 
-  double v99; 
-  double v100; 
-  double v101; 
-  double v102; 
-  double v103; 
-  double v104; 
-  AdvancedSwayGunDir *v105; 
-  __int128 v107; 
-  __int128 v108; 
+  const dvar_t *v12; 
+  __m128 v13; 
+  __m128 v14; 
+  __int128 v16; 
+  vec2_t *p_gunGoalViewSpeedToOffset_viewspeed; 
+  __m128 v23; 
+  unsigned int v29; 
+  float v30; 
+  float v31; 
+  double ValueFromFraction; 
+  float v33; 
+  float v37; 
+  float v38; 
+  float v39; 
+  __int64 v40; 
+  __int64 v41; 
+  __int128 v44; 
+  __m128 v45; 
 
-  _R15 = swayDef;
-  _RDI = angleVelocityWorldScaled;
   _RSI = this;
-  v105 = this;
   if ( this->m_isInitialized )
   {
-    __asm
-    {
-      vmovaps [rsp+128h+var_48], xmm6
-      vmovss  xmm6, [rsp+128h+frametimeSecScaled]
-      vmovaps [rsp+128h+var_58], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vcomiss xmm6, xmm7
-      vmovaps [rsp+128h+var_78], xmm9
-      vxorpd  xmm9, xmm9, xmm9
-    }
-    if ( !this->m_isInitialized )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+128h+var_E8], xmm0
-        vmovsd  [rsp+128h+var_F0], xmm9
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 925, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( frametimeSecScaled )", "%s < %s\n\t%g, %g", "0.0f", "frametimeSecScaled", v99, v102) )
-        __debugbreak();
-    }
-    v23 = DCONST_DVARBOOL_advancedSwayGunDirEnabled;
+    _XMM7 = 0i64;
+    __asm { vxorpd  xmm9, xmm9, xmm9 }
+    if ( frametimeSecScaled <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 925, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( frametimeSecScaled )", "%s < %s\n\t%g, %g", "0.0f", "frametimeSecScaled", *(double *)&_XMM9, frametimeSecScaled) )
+      __debugbreak();
+    v12 = DCONST_DVARBOOL_advancedSwayGunDirEnabled;
     if ( !DCONST_DVARBOOL_advancedSwayGunDirEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "advancedSwayGunDirEnabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v23);
-    if ( v23->current.enabled )
+    Dvar_CheckFrontendServerThread(v12);
+    if ( v12->current.enabled )
     {
+      if ( frametimeSecScaled <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 934, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( frametimeSecScaled )", "%s < %s\n\t%g, %g", "0.0f", "frametimeSecScaled", *(double *)&_XMM9, frametimeSecScaled) )
+        __debugbreak();
+      v13 = 0i64;
+      v13.m128_f32[0] = (float)((float)swayDef->gunGoalViewSmoothDurationMs * 0.001) / frametimeSecScaled;
+      v14 = v13;
+      HIDWORD(v44) = 0;
+      v16 = v44;
+      *(float *)&v16 = angleVelocityWorldScaled->v[0];
+      _XMM4 = v16;
       __asm
       {
-        vcomiss xmm6, xmm7
-        vmovaps [rsp+128h+var_68], xmm8
-        vmovaps [rsp+128h+var_88], xmm10
-        vmovaps [rsp+128h+var_98], xmm11
-        vmovaps [rsp+128h+var_A8], xmm12
-      }
-      if ( !v23->current.enabled )
-      {
-        __asm
-        {
-          vcvtss2sd xmm0, xmm6, xmm6
-          vmovsd  [rsp+128h+var_E8], xmm0
-          vmovsd  [rsp+128h+var_F0], xmm9
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 934, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( frametimeSecScaled )", "%s < %s\n\t%g, %g", "0.0f", "frametimeSecScaled", v100, v103) )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm12, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm11, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovss  xmm10, cs:__real@3f800000
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [r15+48h]
-        vmulss  xmm1, xmm0, cs:__real@3a83126f
-        vmovss  xmm0, dword ptr [rdi]
-        vdivss  xmm5, xmm1, xmm6
-      }
-      HIDWORD(v107) = 0;
-      __asm
-      {
-        vmovups xmm4, xmmword ptr [rsp+60h]
-        vmovss  xmm4, xmm4, xmm0
-        vmovss  xmm0, dword ptr [rsi]
         vinsertps xmm4, xmm4, dword ptr [rdi+4], 10h
         vinsertps xmm4, xmm4, dword ptr [rdi+8], 20h ; ' '
-        vmovups xmmword ptr [rsp+60h], xmm4
-        vshufps xmm5, xmm5, xmm5, 0
-        vrcpps  xmm1, xmm5
       }
-      _RDI = &_R15->gunGoalViewSpeedToOffset_viewspeed;
-      HIDWORD(v108) = 0;
+      v45 = _XMM4;
+      _XMM5 = _mm_shuffle_ps(v14, v14, 0);
+      __asm { vrcpps  xmm1, xmm5 }
+      p_gunGoalViewSpeedToOffset_viewspeed = &swayDef->gunGoalViewSpeedToOffset_viewspeed;
+      v45.m128_i32[3] = 0;
+      v23 = v45;
+      v23.m128_f32[0] = _RSI->m_smoothedWorldVelocity.v[0];
+      _XMM3 = v23;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rsp+60h]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [rsi+4], 10h
         vinsertps xmm3, xmm3, dword ptr [rsi+8], 20h ; ' '
-        vmulps  xmm0, xmm1, xmm3
-        vsubps  xmm2, xmm3, xmm0
         vcmpleps xmm0, xmm5, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-        vmulps  xmm1, xmm4, xmm1
-        vaddps  xmm3, xmm1, xmm2
-        vblendvps xmm1, xmm3, xmm4, xmm0
-        vmovss  dword ptr [rsi], xmm1
       }
-      v51 = 0;
-      _RBP = (char *)_RSI - (char *)&_R15->gunGoalViewSpeedToOffset_viewspeed;
+      _XMM3 = _mm128_add_ps(_mm128_mul_ps(_XMM4, _XMM1), _mm128_sub_ps(_XMM3, _mm128_mul_ps(_XMM1, _XMM3)));
+      __asm { vblendvps xmm1, xmm3, xmm4, xmm0 }
+      _RSI->m_smoothedWorldVelocity.v[0] = *(float *)&_XMM1;
+      v29 = 0;
       __asm
       {
         vextractps dword ptr [rsi+4], xmm1, 1
         vextractps dword ptr [rsi+8], xmm1, 2
       }
-      _R12 = (char *)&_RSI->m_gunAnglesOffset - (char *)&_R15->gunGoalViewSpeedToOffset_viewspeed;
       do
       {
-        if ( v51 >= 3 )
+        if ( v29 >= 3 )
         {
-          LODWORD(v98) = 3;
-          LODWORD(v97) = v51;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v97, v98) )
+          LODWORD(v41) = 3;
+          LODWORD(v40) = v29;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v40, v41) )
             __debugbreak();
         }
-        __asm { vmovss  xmm8, dword ptr [rdi+rbp] }
-        v55 = v51 < 2;
-        if ( v51 >= 2 )
+        if ( v29 >= 2 )
         {
-          LODWORD(v98) = 2;
-          LODWORD(v97) = v51;
-          v56 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v97, v98);
-          v55 = 0;
-          if ( v56 )
+          LODWORD(v41) = 2;
+          LODWORD(v40) = v29;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v40, v41) )
             __debugbreak();
         }
-        __asm { vcomiss xmm7, dword ptr [rdi] }
-        if ( !v55 )
+        if ( p_gunGoalViewSpeedToOffset_viewspeed->v[0] <= 0.0 )
         {
-          if ( v51 >= 2 )
+          if ( v29 >= 2 )
           {
-            LODWORD(v98) = 2;
-            LODWORD(v97) = v51;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v97, v98) )
+            LODWORD(v41) = 2;
+            LODWORD(v40) = v29;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v40, v41) )
               __debugbreak();
           }
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi]
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovsd  [rsp+128h+var_E8], xmm0
-            vmovsd  [rsp+128h+var_F0], xmm9
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 946, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( swayDef->gunGoalViewSpeedToOffset_viewspeed[axis] )", "%s < %s\n\t%g, %g", "0.0f", "swayDef->gunGoalViewSpeedToOffset_viewspeed[axis]", v101, v104) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 946, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( swayDef->gunGoalViewSpeedToOffset_viewspeed[axis] )", "%s < %s\n\t%g, %g", "0.0f", "swayDef->gunGoalViewSpeedToOffset_viewspeed[axis]", *(double *)&_XMM9, p_gunGoalViewSpeedToOffset_viewspeed->v[0]) )
             __debugbreak();
         }
-        if ( v51 >= 3 )
+        if ( v29 >= 3 )
         {
-          LODWORD(v98) = 3;
-          LODWORD(v97) = v51;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v97, v98) )
+          LODWORD(v41) = 3;
+          LODWORD(v40) = v29;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v40, v41) )
             __debugbreak();
         }
+        LODWORD(v30) = *(_DWORD *)((_BYTE *)p_gunGoalViewSpeedToOffset_viewspeed->v + (char *)_RSI - (char *)&swayDef->gunGoalViewSpeedToOffset_viewspeed) & _xmm;
+        if ( v29 >= 2 )
+        {
+          LODWORD(v41) = 2;
+          LODWORD(v40) = v29;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v40, v41) )
+            __debugbreak();
+        }
+        v31 = v30 / p_gunGoalViewSpeedToOffset_viewspeed->v[0];
+        I_fclamp(v31, 0.0, 1.0);
+        ValueFromFraction = GraphGetValueFromFraction(swayDef->gunGoalViewSpeedToOffset_graph->knotCount, swayDef->gunGoalViewSpeedToOffset_graph->knots, v31);
+        v33 = *(float *)&ValueFromFraction;
+        if ( v29 >= 2 )
+        {
+          LODWORD(v41) = 2;
+          LODWORD(v40) = v29;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v40, v41) )
+            __debugbreak();
+        }
+        _XMM1 = LODWORD(p_gunGoalViewSpeedToOffset_viewspeed[1].v[0]) ^ (unsigned __int128)(unsigned int)_xmm;
         __asm
         {
-          vmovss  xmm6, dword ptr [rdi+rbp]
-          vandps  xmm6, xmm6, xmm11
-        }
-        if ( v51 >= 2 )
-        {
-          LODWORD(v98) = 2;
-          LODWORD(v97) = v51;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v97, v98) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vdivss  xmm0, xmm6, dword ptr [rdi]; val
-          vmovaps xmm2, xmm10; max
-          vmovaps xmm1, xmm7; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovaps xmm2, xmm0; fraction }
-        *(double *)&_XMM0 = GraphGetValueFromFraction(_R15->gunGoalViewSpeedToOffset_graph->knotCount, _R15->gunGoalViewSpeedToOffset_graph->knots, *(const float *)&_XMM2);
-        __asm { vmovaps xmm6, xmm0 }
-        if ( v51 >= 2 )
-        {
-          LODWORD(v98) = 2;
-          LODWORD(v97) = v51;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 16, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v97, v98) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rdi+8]
-          vxorps  xmm1, xmm2, xmm12
           vcmpless xmm0, xmm7, xmm8
           vblendvps xmm0, xmm1, xmm2, xmm0
-          vmulss  xmm6, xmm0, xmm6
         }
-        if ( v51 >= 3 )
+        if ( v29 >= 3 )
         {
-          LODWORD(v98) = 3;
-          LODWORD(v97) = v51;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v97, v98) )
+          LODWORD(v41) = 3;
+          LODWORD(v40) = v29;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v40, v41) )
             __debugbreak();
         }
-        __asm { vmovss  dword ptr [r12+rdi], xmm6 }
-        _RDI = (vec2_t *)((char *)_RDI + 4);
-        ++v51;
+        *(float *)((char *)p_gunGoalViewSpeedToOffset_viewspeed->v + (char *)&_RSI->m_gunAnglesOffset - (char *)&swayDef->gunGoalViewSpeedToOffset_viewspeed) = *(float *)&_XMM0 * v33;
+        p_gunGoalViewSpeedToOffset_viewspeed = (vec2_t *)((char *)p_gunGoalViewSpeedToOffset_viewspeed + 4);
+        ++v29;
       }
-      while ( (int)v51 < 2 );
-      _RSI = v105;
-      __asm
+      while ( (int)v29 < 2 );
+      this->m_gunAnglesOffset.v[2] = 0.0;
+      if ( fireFraction > 0.0 )
       {
-        vmovss  xmm8, [rsp+128h+fireFraction]
-        vcomiss xmm8, xmm7
-        vmovaps xmm12, [rsp+128h+var_A8]
-        vmovaps xmm11, [rsp+128h+var_98]
-      }
-      _R13 = offsetAngles;
-      v105->m_gunAnglesOffset.v[2] = 0.0;
-      if ( v51 > 2 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15+0A4h]
-          vmovss  xmm5, dword ptr [r13+4]
-          vmovss  xmm6, dword ptr [r13+8]
-          vsubss  xmm7, xmm0, xmm10
-          vmulss  xmm0, xmm7, dword ptr [r13+0]
-          vsubss  xmm1, xmm0, dword ptr [rsi+0Ch]
-          vmulss  xmm2, xmm1, xmm8
-          vaddss  xmm3, xmm2, dword ptr [rsi+0Ch]
-          vmovss  dword ptr [rsi+0Ch], xmm3
-          vmulss  xmm0, xmm7, xmm5
-          vsubss  xmm1, xmm0, dword ptr [rsi+10h]
-          vmulss  xmm2, xmm1, xmm8
-          vaddss  xmm3, xmm2, dword ptr [rsi+10h]
-          vmovss  dword ptr [rsi+10h], xmm3
-          vmulss  xmm0, xmm7, xmm6
-          vsubss  xmm1, xmm0, dword ptr [rsi+14h]
-          vmulss  xmm2, xmm1, xmm8
-          vaddss  xmm3, xmm2, dword ptr [rsi+14h]
-          vmovss  dword ptr [rsi+14h], xmm3
-        }
-      }
-      __asm
-      {
-        vmovaps xmm8, [rsp+128h+var_68]
-        vmovaps xmm10, [rsp+128h+var_88]
+        v37 = offsetAngles->v[1];
+        v38 = offsetAngles->v[2];
+        v39 = swayDef->fireTorsoToGunDirScale - 1.0;
+        this->m_gunAnglesOffset.v[0] = (float)((float)((float)(v39 * offsetAngles->v[0]) - this->m_gunAnglesOffset.v[0]) * fireFraction) + this->m_gunAnglesOffset.v[0];
+        this->m_gunAnglesOffset.v[1] = (float)((float)((float)(v39 * v37) - this->m_gunAnglesOffset.v[1]) * fireFraction) + this->m_gunAnglesOffset.v[1];
+        this->m_gunAnglesOffset.v[2] = (float)((float)((float)(v39 * v38) - this->m_gunAnglesOffset.v[2]) * fireFraction) + this->m_gunAnglesOffset.v[2];
       }
     }
     else
     {
-      __asm
-      {
-        vmovsd  xmm0, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-        vmovsd  qword ptr [rsi+0Ch], xmm0
-      }
-      _RSI->m_gunAnglesOffset.v[2] = vec3_origin.v[2];
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+128h+var_58]
-      vmovaps xmm6, [rsp+128h+var_48]
-      vmovaps xmm9, [rsp+128h+var_78]
+      _RSI->m_gunAnglesOffset = vec3_origin;
     }
   }
   else
   {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmovsd  qword ptr [rcx], xmm0
-    }
-    this->m_smoothedWorldVelocity.v[2] = vec3_origin.v[2];
-    __asm
-    {
-      vmovsd  xmm0, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmovsd  qword ptr [rcx+0Ch], xmm0
-    }
-    this->m_gunAnglesOffset.v[2] = vec3_origin.v[2];
+    this->m_smoothedWorldVelocity = vec3_origin;
+    this->m_gunAnglesOffset = vec3_origin;
     this->m_isInitialized = 1;
   }
 }
@@ -4470,161 +3016,124 @@ AdvancedSwaySprings::Update
 */
 void AdvancedSwaySprings::Update(AdvancedSwaySprings *this, const bool enabled, const vec2_t *massConst, const vec2_t *springConst, const vec2_t *damperConst, const vec3_t *goalAnglesOffset, float frametimeSecScaled)
 {
-  bool v21; 
-  char v28; 
-  double v107; 
-  double v108; 
-  double v109; 
-  double v110; 
-  __int128 v111; 
-  __int128 v112; 
-  __int128 v113; 
-  __int128 v114; 
-  __int128 v115; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v13; 
+  bool v16; 
+  float v21; 
+  __int128 v23; 
+  __int128 v26; 
+  __m128 v29; 
+  __m128 v33; 
+  __m128 v37; 
+  __m128 v41; 
+  __m128 v47; 
+  __m128 v52; 
+  __m128 v53; 
+  unsigned __int64 v60; 
+  __m128 v61; 
+  __m128 v62; 
+  __m128 v63; 
+  __m128 v64; 
   vec3_t v3; 
+  __int128 v66; 
+  __int128 v67; 
+  __int128 v68; 
+  __int128 v69; 
+  __int128 v70; 
+  __int128 v71; 
+  __int128 v72; 
 
-  _R12 = damperConst;
-  _R15 = springConst;
-  _RDI = goalAnglesOffset;
   _RBX = this;
   if ( enabled )
   {
-    v21 = !this->m_isInitialized;
-    __asm
+    v16 = !this->m_isInitialized;
+    v72 = _XMM8;
+    v71 = v8;
+    v70 = v9;
+    v69 = v10;
+    v68 = v11;
+    v67 = v12;
+    v66 = v13;
+    if ( v16 )
     {
-      vmovaps [rsp+150h+var_40], xmm6
-      vmovaps [rsp+150h+var_50], xmm7
-      vmovaps [rsp+150h+var_60], xmm8
-      vmovaps [rsp+150h+var_70], xmm9
-      vmovaps [rsp+150h+var_80], xmm10
-      vmovaps [rsp+150h+var_90], xmm11
-      vmovaps [rsp+150h+var_A0], xmm12
-      vmovaps [rsp+150h+var_B0], xmm13
-      vmovaps [rsp+150h+var_C0], xmm14
-      vmovaps [rsp+150h+var_D0], xmm15
-    }
-    if ( v21 )
-    {
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rdi]
-        vmovsd  qword ptr [rcx], xmm0
-      }
-      this->m_prevSpringOffset.v[2] = goalAnglesOffset->v[2];
-      v21 = 1;
+      this->m_prevSpringOffset = *goalAnglesOffset;
       *(_QWORD *)this->m_prevSpringVelocity.v = 0i64;
       this->m_prevSpringVelocity.v[2] = 0.0;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rdi]
-        vmovsd  qword ptr [rcx+18h], xmm0
-      }
-      this->m_prevSpringGoalAnglesOffset.v[2] = goalAnglesOffset->v[2];
+      this->m_prevSpringGoalAnglesOffset = *goalAnglesOffset;
       this->m_isInitialized = 1;
     }
-    __asm
-    {
-      vmovss  xmm6, [rbp+50h+frametimeSecScaled]
-      vxorps  xmm7, xmm7, xmm7
-      vcomiss xmm6, xmm7
-      vxorpd  xmm8, xmm8, xmm8
-    }
-    if ( v21 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+150h+var_110], xmm0
-        vmovsd  [rsp+150h+var_118], xmm8
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 862, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( frametimeSecScaled )", "%s < %s\n\t%g, %g", "0.0f", "frametimeSecScaled", v107, v109) )
-        __debugbreak();
-    }
+    __asm { vxorpd  xmm8, xmm8, xmm8 }
+    if ( frametimeSecScaled <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 862, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( frametimeSecScaled )", "%s < %s\n\t%g, %g", "0.0f", "frametimeSecScaled", *(double *)&_XMM8, frametimeSecScaled) )
+      __debugbreak();
     AnglesSubtract(goalAnglesOffset, &_RBX->m_prevSpringGoalAnglesOffset, &v3);
-    __asm { vcomiss xmm6, xmm7 }
-    if ( v28 | v21 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vmovsd  [rsp+150h+var_110], xmm0
-        vmovsd  [rsp+150h+var_118], xmm8
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 867, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( frametimeSecScaled )", "%s < %s\n\t%g, %g", "0.0f", "frametimeSecScaled", v108, v110) )
-        __debugbreak();
-    }
+    if ( frametimeSecScaled <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 867, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( frametimeSecScaled )", "%s < %s\n\t%g, %g", "0.0f", "frametimeSecScaled", *(double *)&_XMM8, frametimeSecScaled) )
+      __debugbreak();
+    _XMM11 = _xmm;
     __asm
     {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovups xmm11, cs:__xmm@3f8000003f8000000000000000000000
       vinsertps xmm11, xmm11, dword ptr [r14], 0
       vinsertps xmm11, xmm11, dword ptr [r14+4], 10h
-      vdivss  xmm2, xmm0, xmm6
-      vmovss  xmm0, dword ptr [r15]
-      vmulss  xmm3, xmm2, dword ptr [rsp+150h+v3]
-      vmulss  xmm4, xmm2, dword ptr [rsp+150h+v3+4]
-      vmulss  xmm15, xmm2, dword ptr [rsp+150h+v3+8]
     }
-    *((_QWORD *)&v111 + 1) = 0i64;
+    v21 = (float)(1.0 / frametimeSecScaled) * v3.v[2];
+    v23 = v60;
+    *(float *)&v23 = springConst->v[0];
+    _XMM7 = v23;
+    __asm { vinsertps xmm7, xmm7, dword ptr [r15+4], 10h }
+    v26 = _XMM7.m128_u64[0];
+    *(float *)&v26 = damperConst->v[0];
+    _XMM10 = v26;
+    __asm { vinsertps xmm10, xmm10, dword ptr [r12+4], 10h }
+    v61 = _XMM10;
+    v61.m128_i32[3] = 0;
+    v29 = v61;
+    v29.m128_f32[0] = goalAnglesOffset->v[0];
+    _XMM12 = v29;
     __asm
     {
-      vmovups xmm7, xmmword ptr [rsp+50h]
-      vmovss  xmm7, xmm7, xmm0
-      vmovss  xmm0, dword ptr [r12]
-      vinsertps xmm7, xmm7, dword ptr [r15+4], 10h
-      vmovups xmmword ptr [rsp+50h], xmm7
-    }
-    *(_QWORD *)&v111 = _RT0;
-    __asm
-    {
-      vmovups xmm10, xmmword ptr [rsp+50h]
-      vmovss  xmm10, xmm10, xmm0
-      vmovss  xmm0, dword ptr [rdi]
-      vinsertps xmm10, xmm10, dword ptr [r12+4], 10h
-      vmovups xmmword ptr [rsp+50h], xmm10
-    }
-    HIDWORD(v112) = 0;
-    __asm
-    {
-      vmovups xmm12, xmmword ptr [rsp+50h]
-      vmovss  xmm12, xmm12, xmm0
-      vmovss  xmm0, dword ptr [rbx]
       vinsertps xmm12, xmm12, dword ptr [rdi+4], 10h
       vinsertps xmm12, xmm12, dword ptr [rdi+8], 20h ; ' '
-      vmovups xmmword ptr [rsp+50h], xmm12
     }
-    HIDWORD(v113) = 0;
+    v62 = _XMM12;
+    v62.m128_i32[3] = 0;
+    v33 = v62;
+    v33.m128_f32[0] = (float)(1.0 / frametimeSecScaled) * v3.v[0];
+    _XMM13 = v33;
     __asm
     {
-      vmovups xmm13, xmmword ptr [rsp+50h]
-      vmovss  xmm13, xmm13, xmm3
-      vmovaps xmm8, xmm6
       vinsertps xmm13, xmm13, xmm4, 10h
       vinsertps xmm13, xmm13, xmm15, 20h ; ' '
-      vmovups xmmword ptr [rsp+50h], xmm13
     }
-    HIDWORD(v114) = 0;
+    v63 = _XMM13;
+    v63.m128_i32[3] = 0;
+    v37 = v63;
+    v37.m128_f32[0] = _RBX->m_prevSpringOffset.v[0];
+    _XMM9 = v37;
     __asm
     {
-      vmovups xmm9, xmmword ptr [rsp+50h]
-      vmovss  xmm9, xmm9, xmm0
-      vmovss  xmm0, dword ptr [rbx+0Ch]
       vinsertps xmm9, xmm9, dword ptr [rbx+4], 10h
       vinsertps xmm9, xmm9, dword ptr [rbx+8], 20h ; ' '
-      vmovups xmmword ptr [rsp+50h], xmm9
     }
-    HIDWORD(v115) = 0;
+    v64 = _XMM9;
+    v64.m128_i32[3] = 0;
+    v41 = v64;
+    v41.m128_f32[0] = _RBX->m_prevSpringVelocity.v[0];
+    _XMM14 = v41;
     __asm
     {
-      vmovups xmm14, xmmword ptr [rsp+50h]
-      vmovss  xmm14, xmm14, xmm0
       vinsertps xmm14, xmm14, dword ptr [rbx+10h], 10h
       vinsertps xmm14, xmm14, dword ptr [rbx+14h], 20h ; ' '
-      vxorps  xmm6, xmm6, xmm6
+    }
+    _XMM6 = 0i64;
+    __asm
+    {
       vcmpltps xmm0, xmm6, xmm11
       vmovmskps eax, xmm0
-      vshufps xmm8, xmm8, xmm8, 0
     }
+    v47 = _mm_shuffle_ps((__m128)LODWORD(frametimeSecScaled), (__m128)LODWORD(frametimeSecScaled), 0);
     if ( (_EAX & 0xF) != 15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vector4.h", 440, ASSERT_TYPE_ASSERT, "(!Float4AnyLe( mass, Float4Zero() ))", (const char *)&queryFormat, "!Float4AnyLe( mass, g_zero )") )
       __debugbreak();
     __asm
@@ -4641,39 +3150,19 @@ void AdvancedSwaySprings::Update(AdvancedSwaySprings *this, const bool enabled, 
     }
     if ( (_EAX & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vector4.h", 442, ASSERT_TYPE_ASSERT, "(!Float4AnyLt( damperConstant, Float4Zero() ))", (const char *)&queryFormat, "!Float4AnyLt( damperConstant, g_zero )") )
       __debugbreak();
+    v52 = _mm128_div_ps(_XMM7, _XMM11);
+    v53 = _mm128_div_ps(_XMM10, _XMM11);
+    _XMM7 = _mm128_div_ps(_mm128_add_ps(_mm128_mul_ps(_XMM13, _mm128_mul_ps(v47, v53)), _mm128_sub_ps(_XMM14, _mm128_mul_ps(_mm128_sub_ps(_XMM9, _XMM12), _mm128_mul_ps(v47, v52)))), _mm128_add_ps(_mm128_mul_ps(v47, v53), _mm128_add_ps(_mm128_mul_ps(v52, _mm128_mul_ps(v47, v47)), g_one.v)));
     __asm
     {
-      vdivps  xmm6, xmm7, xmm11
-      vdivps  xmm7, xmm10, xmm11
-      vmovaps xmm11, [rsp+150h+var_90]
-      vmovaps xmm10, [rsp+150h+var_80]
-      vmulps  xmm0, xmm8, xmm7
-      vmulps  xmm3, xmm13, xmm0
-      vmovaps xmm13, [rsp+150h+var_B0]
-      vsubps  xmm2, xmm9, xmm12
-      vmovaps xmm12, [rsp+150h+var_A0]
-      vmulps  xmm1, xmm8, xmm6
-      vmulps  xmm0, xmm2, xmm1
-      vsubps  xmm2, xmm14, xmm0
-      vmovaps xmm14, [rsp+150h+var_C0]
-      vmulps  xmm1, xmm8, xmm7
-      vaddps  xmm4, xmm3, xmm2
-      vmulps  xmm5, xmm8, xmm8
-      vmulps  xmm0, xmm6, xmm5
-      vaddps  xmm2, xmm0, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-      vaddps  xmm0, xmm1, xmm2
-      vdivps  xmm7, xmm4, xmm0
       vcmpneqps xmm1, xmm7, xmm7
       vmovmskps eax, xmm1
     }
     if ( _EAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vector4.h", 475, ASSERT_TYPE_SANITY, "( !Float4IsNaN( inOutMassVelocity ) )", (const char *)&queryFormat, "!Float4IsNaN( inOutMassVelocity )") )
       __debugbreak();
+    _XMM6 = _mm128_add_ps(_mm128_mul_ps(v47, _XMM7), _XMM9);
     __asm
     {
-      vmulps  xmm0, xmm8, xmm7
-      vmovaps xmm8, [rsp+150h+var_60]
-      vaddps  xmm6, xmm0, xmm9
-      vmovaps xmm9, [rsp+150h+var_70]
       vcmpneqps xmm1, xmm6, xmm6
       vmovmskps eax, xmm1
     }
@@ -4682,26 +3171,21 @@ void AdvancedSwaySprings::Update(AdvancedSwaySprings *this, const bool enabled, 
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_vector4.h", 477, ASSERT_TYPE_SANITY, "( !Float4IsNaN( inOutMassPos ) )", (const char *)&queryFormat, "!Float4IsNaN( inOutMassPos )") )
         __debugbreak();
     }
+    _RBX->m_prevSpringOffset.v[0] = _XMM6.m128_f32[0];
     __asm
     {
-      vmovss  dword ptr [rbx], xmm6
       vextractps dword ptr [rbx+4], xmm6, 1
       vextractps dword ptr [rbx+8], xmm6, 2
-      vmovaps xmm6, [rsp+150h+var_40]
-      vmovss  dword ptr [rbx+0Ch], xmm7
-      vextractps dword ptr [rbx+10h], xmm7, 1
-      vextractps dword ptr [rbx+14h], xmm7, 2
-      vmovsd  xmm0, qword ptr [rdi]
-      vmovaps xmm7, [rsp+150h+var_50]
-      vmovsd  qword ptr [rbx+18h], xmm0
     }
-    _RBX->m_prevSpringGoalAnglesOffset.v[2] = goalAnglesOffset->v[2];
-    _RBX->m_prevSpringOffset.v[2] = goalAnglesOffset->v[2];
+    _RBX->m_prevSpringVelocity.v[0] = _XMM7.m128_f32[0];
     __asm
     {
-      vmovss  dword ptr [rbx+14h], xmm15
-      vmovaps xmm15, [rsp+150h+var_D0]
+      vextractps dword ptr [rbx+10h], xmm7, 1
+      vextractps dword ptr [rbx+14h], xmm7, 2
     }
+    _RBX->m_prevSpringGoalAnglesOffset = *goalAnglesOffset;
+    _RBX->m_prevSpringOffset.v[2] = goalAnglesOffset->v[2];
+    _RBX->m_prevSpringVelocity.v[2] = v21;
   }
   else
   {
@@ -4716,77 +3200,248 @@ AdvancedSwayState::Update
 */
 void AdvancedSwayState::Update(AdvancedSwayState *this, const cg_t *const cgameGlob, const vec3_t *viewmodelAngles)
 {
+  __int128 xmm10_0; 
   __int64 localClientNum; 
   playerState_s *p_predictedPlayerState; 
-  const dvar_t *v15; 
-  char v23; 
-  void *retaddr; 
+  CgWeaponMap *v9; 
+  float correctedWeaponPosFrac; 
+  double OffhandAdsFrac; 
+  float frametimeInputSec; 
+  const dvar_t *v14; 
+  int m_prevInputTime; 
+  int commandTimeInterpolated; 
+  const Weapon *ViewmodelWeapon; 
+  bool v18; 
+  int v19; 
+  float v20; 
+  int v21; 
+  int WeaponHandForViewWeapon; 
+  int *p_weaponFireTime; 
+  __int64 v24; 
+  int v25; 
+  int v26; 
+  float m_prevFireFraction; 
+  int fireFinishBlendDurationMs; 
+  __int128 v32; 
+  __int128 v34; 
+  __int128 v35; 
+  float v36; 
+  float v37; 
+  __int128 v38; 
+  float v39; 
+  LocalClientNum_t v40; 
+  bool v41; 
+  __int128 v44; 
+  float v45; 
+  double v47; 
+  float v48; 
+  float v49; 
+  double v50; 
+  bool Bool_Internal_DebugName; 
+  float v52; 
+  float v53; 
+  bool v54; 
+  float fireFraction; 
+  char v56; 
+  vec3_t offsetVelocity; 
+  vec3_t goalAnglesOffset; 
+  vec3_t v1; 
+  vec3_t v3; 
+  vec3_t viewAngleVelocityScaled; 
+  vec3_t v62; 
+  vec3_t offsetAngles; 
+  vec3_t v64; 
+  SwaySettings outSwaySettings; 
+  __int128 v66; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-98h], xmm12
-  }
   localClientNum = cgameGlob->localClientNum;
   p_predictedPlayerState = &cgameGlob->predictedPlayerState;
-  _R14 = cgameGlob;
-  _RDI = this;
   if ( !CgWeaponMap::ms_instance[localClientNum] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  __asm { vmovss  xmm12, dword ptr [r14+7C64Ch] }
-  if ( BG_IsUsingOffhandGestureWeaponADSSupport(CgWeaponMap::ms_instance[localClientNum], p_predictedPlayerState) )
+  v9 = CgWeaponMap::ms_instance[localClientNum];
+  correctedWeaponPosFrac = cgameGlob->weaponPosFracAnimData.correctedWeaponPosFrac;
+  if ( BG_IsUsingOffhandGestureWeaponADSSupport(v9, p_predictedPlayerState) )
   {
-    *(double *)&_XMM0 = BG_GetOffhandAdsFrac(p_predictedPlayerState);
-    __asm { vmovaps xmm12, xmm0 }
+    OffhandAdsFrac = BG_GetOffhandAdsFrac(p_predictedPlayerState);
+    correctedWeaponPosFrac = *(float *)&OffhandAdsFrac;
   }
-  __asm { vmovss  dword ptr [rdi+108h], xmm12 }
+  this->m_prevAdsFraction = correctedWeaponPosFrac;
   if ( !p_predictedPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2275, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  __asm
+  _XMM8 = 0i64;
+  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->otherFlags, GameModeFlagValues::ms_mpValue, 0x21u) && !CG_View_IsKillCamView((const LocalClientNum_t)cgameGlob->localClientNum) )
   {
-    vmovaps [rsp+280h+var_58+8], xmm7
-    vxorps  xmm8, xmm8, xmm8
-  }
-  if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->otherFlags, GameModeFlagValues::ms_mpValue, 0x21u) && !CG_View_IsKillCamView((const LocalClientNum_t)_R14->localClientNum) )
-  {
-    __asm { vmovss  xmm7, dword ptr [r14+65E8h] }
-LABEL_20:
-    __asm { vcomiss xmm7, xmm8 }
-    *(_QWORD *)_RDI->m_angularVelocity.v = 0i64;
-    _RDI->m_angularVelocity.v[2] = 0.0;
-    __asm { vmovss  dword ptr [rdi+134h], xmm7 }
-    goto LABEL_21;
-  }
-  v15 = DCONST_DVARBOOL_advancedSwayEnabledSpectate;
-  if ( !DCONST_DVARBOOL_advancedSwayEnabledSpectate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "advancedSwayEnabledSpectate") )
-    __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( v15->current.enabled )
-  {
-    if ( _RDI->m_prevInputTime <= 0 )
-    {
-      __asm { vxorps  xmm7, xmm7, xmm7 }
-    }
-    else
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm7, xmm0, cs:__real@3a83126f
-      }
-    }
-    _RDI->m_prevInputTime = p_predictedPlayerState->commandTimeInterpolated;
+    frametimeInputSec = cgameGlob->frametimeInputSec;
+    v56 = 0;
     goto LABEL_20;
   }
-LABEL_21:
-  __asm { vmovaps xmm7, [rsp+280h+var_58+8] }
-  _R11 = &v23;
-  __asm
+  v14 = DCONST_DVARBOOL_advancedSwayEnabledSpectate;
+  v56 = 1;
+  if ( !DCONST_DVARBOOL_advancedSwayEnabledSpectate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "advancedSwayEnabledSpectate") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v14);
+  if ( v14->current.enabled )
   {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
+    m_prevInputTime = this->m_prevInputTime;
+    commandTimeInterpolated = p_predictedPlayerState->commandTimeInterpolated;
+    if ( m_prevInputTime <= 0 )
+      frametimeInputSec = 0.0;
+    else
+      frametimeInputSec = (float)(commandTimeInterpolated - m_prevInputTime) * 0.001;
+    this->m_prevInputTime = commandTimeInterpolated;
+LABEL_20:
+    *(_QWORD *)this->m_angularVelocity.v = 0i64;
+    this->m_angularVelocity.v[2] = 0.0;
+    this->m_frametimeSec = frametimeInputSec;
+    if ( frametimeInputSec > 0.0 )
+    {
+      if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->otherFlags, ACTIVE, 0x1Fu) || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->otherFlags, ACTIVE, 0x20u) || p_predictedPlayerState->pm_type == 5 && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->otherFlags, GameModeFlagValues::ms_mpValue, 0x21u) || ((ViewmodelWeapon = BG_GetViewmodelWeapon(v9, p_predictedPlayerState), GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 0x22u)) || !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 0x11u) && !GameModeFlagContainer<enum PWeaponFlagsCommon,enum PWeaponFlagsSP,enum PWeaponFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->weapCommon.weapFlags, ACTIVE, 0x1Bu) ? (v18 = 0) : (v18 = 1), (BG_GetSwaySettings(v9, p_predictedPlayerState, ViewmodelWeapon, v18, &outSwaySettings), BG_ProceduralGunMotionDisabled(p_predictedPlayerState)) || !Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_advancedSwayEnabled, "advancedSwayEnabled") || !outSwaySettings.adv.enabled) )
+      {
+        this->m_isInitialized = 0;
+      }
+      else
+      {
+        *(__m256i *)&this->m_weapon.weaponIdx = *(__m256i *)&ViewmodelWeapon->weaponIdx;
+        *(_OWORD *)&this->m_weapon.attachmentVariationIndices[5] = *(_OWORD *)&ViewmodelWeapon->attachmentVariationIndices[5];
+        *(double *)&this->m_weapon.attachmentVariationIndices[21] = *(double *)&ViewmodelWeapon->attachmentVariationIndices[21];
+        v19 = *(_DWORD *)&ViewmodelWeapon->weaponCamo;
+        this->m_isAlternate = v18;
+        *(_DWORD *)&this->m_weapon.weaponCamo = v19;
+        if ( this->m_isInitialized )
+        {
+          v20 = outSwaySettings.adv.gunPivotPoint.v[2];
+          *(double *)this->m_pivotPoint.v = *(double *)outSwaySettings.adv.gunPivotPoint.v;
+          v21 = 0;
+          this->m_yawToRollScale = outSwaySettings.adv.gunYawToRollScale;
+          v66 = xmm10_0;
+          this->m_pivotPoint.v[2] = v20;
+          WeaponHandForViewWeapon = BG_PlayerLastWeaponHandForViewWeapon(v9, p_predictedPlayerState);
+          if ( WeaponHandForViewWeapon >= 0 )
+          {
+            p_weaponFireTime = &p_predictedPlayerState->weapState[0].weaponFireTime;
+            v24 = WeaponHandForViewWeapon + 1i64;
+            do
+            {
+              v25 = v21;
+              v21 = *p_weaponFireTime;
+              p_weaponFireTime += 20;
+              if ( v25 >= v21 )
+                v21 = v25;
+              --v24;
+            }
+            while ( v24 );
+          }
+          v26 = 0;
+          m_prevFireFraction = this->m_prevFireFraction;
+          if ( p_predictedPlayerState->serverTime - v21 > 0 )
+            v26 = p_predictedPlayerState->serverTime - v21;
+          _XMM0 = (unsigned int)(outSwaySettings.adv.fireDurationMs - v26);
+          fireFinishBlendDurationMs = outSwaySettings.adv.fireFinishBlendDurationMs;
+          __asm
+          {
+            vpcmpgtd xmm2, xmm0, xmm1
+            vblendvps xmm9, xmm8, xmm6, xmm2
+          }
+          if ( *(float *)&_XMM9 > m_prevFireFraction )
+            fireFinishBlendDurationMs = outSwaySettings.adv.fireStartBlendDurationMs;
+          v32 = 0i64;
+          *(float *)&v32 = (float)fireFinishBlendDurationMs * 0.001;
+          _XMM1 = v32;
+          v35 = LODWORD(FLOAT_1_0);
+          *(float *)&v35 = 1.0 / frametimeInputSec;
+          v34 = v35;
+          v36 = *(float *)&_XMM1 * (float)(1.0 / frametimeInputSec);
+          if ( v36 > 1.0 )
+          {
+            v38 = LODWORD(FLOAT_1_0);
+            *(float *)&v38 = (float)(1.0 / v36) * *(float *)&_XMM9;
+            _XMM1 = v38;
+            v37 = (float)(m_prevFireFraction - (float)((float)(1.0 / v36) * m_prevFireFraction)) + *(float *)&v38;
+          }
+          else
+          {
+            v37 = *(float *)&_XMM9;
+          }
+          this->m_prevFireFraction = v37;
+          v39 = viewmodelAngles->v[2];
+          v40 = cgameGlob->localClientNum;
+          *(_QWORD *)v1.v = *(_QWORD *)viewmodelAngles->v;
+          v1.v[2] = v39;
+          v41 = !CL_Input_IsGamepadEnabled(v40);
+          if ( !Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_advancedSwayViewmodelSmoothingEnabled, "advancedSwayViewmodelSmoothingEnabled") || v56 || Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_cl_inputVelocityLogging, "cl_inputVelocityLogging") || v41 && !Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_advancedSwayViewmodelSmoothingEnabled_mouse, "advancedSwayViewmodelSmoothingEnabled_mouse") )
+            this->m_smoothing.m_initialized = 0;
+          else
+            AngularSmoothing::Update(&this->m_smoothing, cgameGlob, 0.0, frametimeInputSec, (float)((float)(1.0 - this->m_prevFireFraction) * outSwaySettings.adv.torsoGoalSmoothSpeed) + (float)(this->m_prevFireFraction * outSwaySettings.adv.fireTorsoGoalSmoothSpeed), &v1);
+          AnglesSubtract(&v1, &this->m_prevViewmodelAnglesSmoothed, &v3);
+          if ( frametimeInputSec <= 0.0 )
+          {
+            __asm { vxorpd  xmm1, xmm1, xmm1 }
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 1173, ASSERT_TYPE_ASSERT, "( 0.0f ) < ( frametimeSec )", "%s < %s\n\t%g, %g", "0.0f", "frametimeSec", *(double *)&_XMM1, frametimeInputSec) )
+              __debugbreak();
+          }
+          v44 = v34;
+          *(float *)&v44 = *(float *)&v34 * v3.v[0];
+          _XMM3 = v44;
+          v45 = *(float *)&v34 * v3.v[1];
+          *(float *)&v44 = *(float *)&v34 * v3.v[2];
+          __asm { vunpcklps xmm0, xmm3, xmm8 }
+          *(double *)this->m_angularVelocity.v = *(double *)&_XMM0;
+          viewAngleVelocityScaled.v[2] = *(float *)&v44;
+          LODWORD(this->m_angularVelocity.v[2]) = v44;
+          *(double *)viewAngleVelocityScaled.v = *(double *)&_XMM0;
+          if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_cl_inputVelocityLogging, "cl_inputVelocityLogging") )
+          {
+            Com_Printf(0, "VM time:    %.4f\n", frametimeInputSec);
+            v47 = AngleNormalize360(viewmodelAngles->v[1] - p_predictedPlayerState->delta_angles.v[1]);
+            Com_Printf(0, "VM yaw:     %.4f\n", *(float *)&v47);
+            Com_Printf(0, "VM yawDelt: %.4f\n", COERCE_FLOAT(LODWORD(v3.v[1]) & _xmm));
+            Com_Printf(0, "VM yawRate: %.4f\n", COERCE_FLOAT(LODWORD(v45) & _xmm));
+          }
+          *(double *)this->m_prevViewmodelAngles.v = *(double *)viewmodelAngles->v;
+          v48 = viewmodelAngles->v[2];
+          *(double *)this->m_prevViewmodelAnglesSmoothed.v = *(double *)v1.v;
+          v49 = this->m_prevFireFraction;
+          this->m_prevViewmodelAngles.v[2] = v48;
+          this->m_prevViewmodelAnglesSmoothed.v[2] = v1.v[2];
+          AdvancedSwayDeadzone::Update(&this->m_torsoGoal, &outSwaySettings.adv, &v1, frametimeInputSec, &viewAngleVelocityScaled, correctedWeaponPosFrac, v49);
+          v50 = *(double *)this->m_torsoGoal.m_prevViewAnglesOffset.v;
+          goalAnglesOffset.v[2] = this->m_torsoGoal.m_prevViewAnglesOffset.v[2];
+          *(double *)goalAnglesOffset.v = v50;
+          AnglesSubtract(&this->m_prevViewmodelAnglesSmoothed, &this->m_prevViewmodelAngles, &v62);
+          goalAnglesOffset.v[0] = goalAnglesOffset.v[0] + v62.v[0];
+          goalAnglesOffset.v[2] = goalAnglesOffset.v[2] + v62.v[2];
+          goalAnglesOffset.v[1] = goalAnglesOffset.v[1] + v62.v[1];
+          Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_advancedSwayGunTorsoSpringDamperEnabled, "advancedSwayGunTorsoSpringDamperEnabled");
+          AdvancedSwaySprings::Update(&this->m_torsoSprings, Bool_Internal_DebugName, &outSwaySettings.adv.torsoMass, &outSwaySettings.adv.torsoSpring, &outSwaySettings.adv.torsoDamper, &goalAnglesOffset, frametimeInputSec);
+          v52 = this->m_torsoSprings.m_prevSpringOffset.v[2];
+          *(_QWORD *)offsetAngles.v = *(_QWORD *)this->m_torsoSprings.m_prevSpringOffset.v;
+          fireFraction = this->m_prevFireFraction;
+          offsetAngles.v[2] = v52;
+          AdvancedSwayGunDir::Update(&this->m_gunGoal, &outSwaySettings.adv, &offsetAngles, &offsetVelocity, frametimeInputSec, &viewAngleVelocityScaled, fireFraction);
+          v53 = this->m_gunGoal.m_gunAnglesOffset.v[2];
+          *(_QWORD *)v64.v = *(_QWORD *)this->m_gunGoal.m_gunAnglesOffset.v;
+          v64.v[2] = v53;
+          v54 = Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_advancedSwayGunDirSpringDamperEnabled, "advancedSwayGunDirSpringDamperEnabled");
+          AdvancedSwaySprings::Update(&this->m_gunSprings, v54, &outSwaySettings.adv.gunMass, &outSwaySettings.adv.gunSpring, &outSwaySettings.adv.gunDamper, &v64, frametimeInputSec);
+          this->m_prevGoalFireFraction = *(float *)&_XMM9;
+        }
+        else
+        {
+          this->m_smoothing.m_initialized = 0;
+          this->m_torsoGoal.m_isInitialized = 0;
+          this->m_torsoSprings.m_isInitialized = 0;
+          this->m_gunGoal.m_isInitialized = 0;
+          this->m_gunSprings.m_isInitialized = 0;
+          *(double *)this->m_prevViewmodelAnglesSmoothed.v = *(double *)viewmodelAngles->v;
+          this->m_prevViewmodelAnglesSmoothed.v[2] = viewmodelAngles->v[2];
+          this->m_prevFireFraction = 0.0;
+          this->m_pivotPoint = vec3_origin;
+          *(_QWORD *)&this->m_yawToRollScale = 0i64;
+          this->m_prevGoalFireFraction = 0.0;
+          this->m_isInitialized = 1;
+        }
+      }
+    }
   }
 }
 
@@ -4796,154 +3451,132 @@ AngularSmoothing::Update
 ==============
 */
 
-void __fastcall AngularSmoothing::Update(AngularSmoothing *this, const cg_t *const cgameGlob, double adsFrac, double frametime, const float speed, vec3_t *inOutAngles)
+void __fastcall AngularSmoothing::Update(AngularSmoothing *this, const cg_t *const cgameGlob, double adsFrac, const float frametime, const float speed, vec3_t *inOutAngles)
 {
-  bool v34; 
-  LocalClientNum_t localClientNum; 
+  __int128 v9; 
+  __m128 v; 
+  __m128 v15; 
+  __m128 v19; 
+  __m256i v24; 
   CgHandler *Handler; 
-  vector4 v61; 
-  vector4 v62; 
-  vector4 v63; 
-  float4 v64; 
+  __m128 v27; 
+  __int128 v31; 
+  __m256i v32; 
+  __m256i v34; 
+  __m256i v36; 
+  vector4 v38; 
+  vector4 v39; 
+  vector4 v40; 
+  float4 v41; 
   vec3_t outUp; 
   tmat33_t<vec3_t> axis; 
-  tmat33_t<vec3_t> v67; 
-  WorldUpReferenceFrame v68; 
-  void *retaddr; 
+  tmat33_t<vec3_t> v44; 
+  WorldUpReferenceFrame v45; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
-  _RBX = this;
-  __asm
-  {
-    vmovaps xmm9, xmm3
-    vmovaps xmm6, xmm2
-  }
+  v9 = *(_OWORD *)&adsFrac;
   AnglesToAxis(inOutAngles, &axis);
-  __asm { vmovss  xmm0, dword ptr [rsp+1F8h+axis] }
-  v64.v.m128_i32[3] = 0;
+  v41.v.m128_i32[3] = 0;
+  v = v41.v;
+  v.m128_f32[0] = axis.m[0].v[0];
+  _XMM3 = v;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+100h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rsp+1F8h+axis+4], 10h
     vinsertps xmm3, xmm3, dword ptr [rsp+1F8h+axis+8], 20h
-    vmovss  xmm0, dword ptr [rsp+1F8h+axis+0Ch]
-    vmovups xmmword ptr [rsp+100h], xmm3
-    vmovups xmmword ptr [rsp+1F8h+var_1B8], xmm3
   }
-  v64.v.m128_i32[3] = 0;
+  v41.v = _XMM3;
+  v38.x.v = _XMM3;
+  v41.v.m128_i32[3] = 0;
+  v15 = v41.v;
+  v15.m128_f32[0] = axis.m[1].v[0];
+  _XMM3 = v15;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+100h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rsp+1F8h+axis+10h], 10h
     vinsertps xmm3, xmm3, dword ptr [rsp+1F8h+axis+14h], 20h
-    vmovss  xmm0, dword ptr [rsp+1F8h+axis+18h]
-    vmovups xmmword ptr [rsp+100h], xmm3
-    vmovups xmmword ptr [rsp+1F8h+var_1B8+10h], xmm3
   }
-  v64.v.m128_i32[3] = 0;
+  v41.v = _XMM3;
+  v38.y.v = _XMM3;
+  v41.v.m128_i32[3] = 0;
+  v19 = v41.v;
+  v19.m128_f32[0] = axis.m[2].v[0];
+  _XMM3 = v19;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+100h]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rsp+1F8h+axis+1Ch], 10h
     vinsertps xmm3, xmm3, dword ptr [rsp+1F8h+axis+20h], 20h
-    vxorps  xmm2, xmm2, xmm2
-    vxorps  xmm0, xmm2, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-    vandps  xmm1, xmm0, xmmword ptr cs:?g_keepW@@3Ufloat4@@B.v; float4 const g_keepW
-    vxorps  xmm2, xmm1, xmm2
-    vmovups xmmword ptr [rsp+1F8h+var_198+10h], xmm2
-    vmovups xmmword ptr [rsp+100h], xmm3
-    vmovups xmmword ptr [rsp+1F8h+var_198], xmm3
   }
-  v34 = !_RBX->m_initialized;
-  if ( _RBX->m_initialized )
+  _XMM1 = *(_OWORD *)&g_one.v & *(_OWORD *)&g_keepW.v;
+  _XMM2 = *(_OWORD *)&g_one.v & *(_OWORD *)&g_keepW.v;
+  v38.w = (float4)(*(_OWORD *)&g_one.v & *(_OWORD *)&g_keepW.v);
+  v41.v = _XMM3;
+  v38.z.v = _XMM3;
+  if ( this->m_initialized )
   {
-    __asm
+    if ( frametime > 0.0 )
     {
-      vmovaps [rsp+1F8h+var_38], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vcomiss xmm9, xmm7
-    }
-    if ( !v34 )
-    {
-      localClientNum = cgameGlob->localClientNum;
-      __asm { vmovaps [rsp+1F8h+var_48], xmm8 }
-      Handler = CgHandler::getHandler(localClientNum);
-      WorldUpReferenceFrame::WorldUpReferenceFrame(&v68, &cgameGlob->predictedPlayerState, Handler);
-      WorldUpReferenceFrame::GetUpVector(&v68, &outUp);
+      Handler = CgHandler::getHandler(cgameGlob->localClientNum);
+      WorldUpReferenceFrame::WorldUpReferenceFrame(&v45, &cgameGlob->predictedPlayerState, Handler);
+      WorldUpReferenceFrame::GetUpVector(&v45, &outUp);
+      v41.v.m128_i32[3] = 0;
+      v27 = v41.v;
+      v27.m128_f32[0] = outUp.v[0];
+      _XMM3 = v27;
       __asm
       {
-        vmovss  xmm0, dword ptr [rsp+1F8h+outUp]
-        vmovss  xmm8, cs:__real@3f800000
-        vcomiss xmm6, xmm7
-      }
-      v64.v.m128_i32[3] = 0;
-      __asm
-      {
-        vmovups xmm3, xmmword ptr [rsp+100h]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [rsp+1F8h+outUp+4], 10h
         vinsertps xmm3, xmm3, dword ptr [rsp+1F8h+outUp+8], 20h
-        vmovups xmmword ptr [rsp+100h], xmm3
-        vmovups xmmword ptr [rsp+100h], xmm3
-        vcomiss xmm6, xmm8
-        vmovups ymm0, [rsp+1F8h+var_1B8]
-        vmovups ymm1, [rsp+1F8h+var_198]
-        vmovups ymm2, ymmword ptr [rbx+20h]
-        vmovss  xmm3, [rsp+1F8h+speed]
-        vmovups [rsp+1F8h+var_178], ymm0
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups [rsp+1F8h+var_158], ymm1
-        vmovups [rsp+1F8h+var_1B8], ymm0
-        vsubss  xmm0, xmm8, xmm6
-        vmovaps xmm1, xmm9
-        vmovups [rsp+1F8h+var_198], ymm2
       }
-      CG_ViewMotion_SmoothBlend(*(double *)&_XMM0, *(double *)&_XMM1, &v64, *(double *)&_XMM3, &v61, &v62, &v63);
+      v41.v = _XMM3;
+      if ( *(float *)&v9 < 0.0 || *(float *)&v9 > 1.0 )
+      {
+        __asm { vxorpd  xmm1, xmm1, xmm1 }
+        *((_QWORD *)&v31 + 1) = *((_QWORD *)&v9 + 1);
+        *(double *)&v31 = *(float *)&v9;
+        _XMM2 = v31;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_view_motion.cpp", 1674, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( adsFrac ) && ( adsFrac ) <= ( 1.0f )", "adsFrac not in [0.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&v9, *(double *)&_XMM1, DOUBLE_1_0) )
+          __debugbreak();
+      }
+      v32 = *(__m256i *)this->m_prevAxis4.z.v.m128_f32;
+      _XMM3 = LODWORD(speed);
+      *(__m256i *)v39.x.v.m128_f32 = *(__m256i *)v38.x.v.m128_f32;
+      v34 = *(__m256i *)this->m_prevAxis4.x.v.m128_f32;
+      *(__m256i *)v39.z.v.m128_f32 = *(__m256i *)v38.z.v.m128_f32;
+      *(__m256i *)v38.x.v.m128_f32 = v34;
+      *(__m256i *)v38.z.v.m128_f32 = v32;
+      CG_ViewMotion_SmoothBlend(1.0 - *(float *)&v9, frametime, &v41, speed, &v38, &v39, &v40);
+      _YMM2 = *(__m256i *)v40.x.v.m128_f32;
+      v36 = *(__m256i *)v40.z.v.m128_f32;
+      *(__m256i *)this->m_prevAxis4.x.v.m128_f32 = *(__m256i *)v40.x.v.m128_f32;
+      v44.m[0].v[0] = *(float *)&_XMM2;
       __asm
       {
-        vmovups ymm2, [rsp+1F8h+var_138]
-        vmovups ymm3, [rsp+1F8h+var_118]
-        vmovups ymmword ptr [rbx], ymm2
-        vmovss  dword ptr [rsp+1F8h+var_B0], xmm2
         vextractps dword ptr [rsp+1F8h+var_B0+4], xmm2, 1
         vextractps dword ptr [rsp+1F8h+var_B0+8], xmm2, 2
         vextractf128 xmm2, ymm2, 1
-        vmovss  dword ptr [rsp+1F8h+var_B0+0Ch], xmm2
+      }
+      v44.m[1].v[0] = *(float *)&_XMM2;
+      __asm
+      {
         vextractps dword ptr [rsp+1F8h+var_B0+10h], xmm2, 1
         vextractps dword ptr [rsp+1F8h+var_B0+14h], xmm2, 2
-        vmovss  dword ptr [rsp+1F8h+var_B0+18h], xmm3
+      }
+      v44.m[2].v[0] = speed;
+      __asm
+      {
         vextractps dword ptr [rsp+1F8h+var_B0+1Ch], xmm3, 1
         vextractps dword ptr [rsp+1F8h+var_B0+20h], xmm3, 2
-        vmovups ymmword ptr [rbx+20h], ymm3
       }
-      AxisToAngles(&v67, inOutAngles);
-      __asm { vmovaps xmm8, [rsp+1F8h+var_48] }
+      *(__m256i *)this->m_prevAxis4.z.v.m128_f32 = v36;
+      AxisToAngles(&v44, inOutAngles);
     }
-    __asm { vmovaps xmm7, [rsp+1F8h+var_38] }
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, [rsp+1F8h+var_1B8]
-      vmovups ymm1, [rsp+1F8h+var_198]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymmword ptr [rbx+20h], ymm1
-    }
-    _RBX->m_initialized = 1;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+1F8h+var_28]
-    vmovaps xmm9, [rsp+1F8h+var_58]
+    v24 = *(__m256i *)v38.z.v.m128_f32;
+    *(__m256i *)this->m_prevAxis4.x.v.m128_f32 = *(__m256i *)v38.x.v.m128_f32;
+    *(__m256i *)this->m_prevAxis4.z.v.m128_f32 = v24;
+    this->m_initialized = 1;
   }
 }
 

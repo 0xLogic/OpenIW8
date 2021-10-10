@@ -838,15 +838,13 @@ bdContentStreamingBase::checkProgress
 */
 void bdContentStreamingBase::checkProgress(bdContentStreamingBase *this, unsigned int *bytesTransfered, float *dataRate)
 {
-  unsigned int v7; 
+  unsigned int v6; 
 
-  _RSI = dataRate;
-  v7 = this->m_http->getTransferProgress(this->m_http);
-  *bytesTransfered = v7;
+  v6 = this->m_http->getTransferProgress(this->m_http);
+  *bytesTransfered = v6;
   if ( this->m_isMultiPart )
-    *bytesTransfered = this->m_interceptor->m_totalFileSize + v7;
-  *(double *)&_XMM0 = ((double (__fastcall *)(bdCSHTTPWrapper *))this->m_http->getTransferSpeed)(this->m_http);
-  __asm { vmovss  dword ptr [rsi], xmm0 }
+    *bytesTransfered = this->m_interceptor->m_totalFileSize + v6;
+  *dataRate = this->m_http->getTransferSpeed(this->m_http);
 }
 
 /*
@@ -901,85 +899,80 @@ bdContentStreamingBase::exitHTTP
 */
 void bdContentStreamingBase::exitHTTP(bdContentStreamingBase *this)
 {
+  __int128 v1; 
   unsigned int m_operation; 
   bdCSHTTPWrapper *m_http; 
-  unsigned int v8; 
+  double v5; 
+  unsigned int v6; 
   int m_urlIndex; 
-  __int16 v11; 
-  const bdReference<bdRemoteTask> *v12; 
+  __int16 v8; 
+  const bdReference<bdRemoteTask> *v9; 
   bdRemoteTask *m_ptr; 
-  bdContentStreamingBase::bdStatus v14; 
-  const bdReference<bdRemoteTask> *v15; 
+  bdContentStreamingBase::bdStatus v11; 
+  const bdReference<bdRemoteTask> *v12; 
   __int16 partIndex; 
   __int16 m_partOffset; 
-  int v18; 
+  int v15; 
   int m_numUrls; 
-  unsigned int v20; 
-  int v23; 
-  bdContentStreamingBase::bdStatus v24; 
-  unsigned int v25; 
+  unsigned int v17; 
+  double v18; 
+  int v19; 
+  bdContentStreamingBase::bdStatus v20; 
+  unsigned int v21; 
   unsigned int m_startByte; 
   unsigned int m_endByte; 
-  int v28; 
-  __int16 v29; 
+  int v24; 
+  __int16 v25; 
   bdLiveStreamingFileMetaData *m_downloadMetaDataMultiPart; 
-  __int16 v31; 
-  __int16 v32; 
+  __int16 v27; 
+  __int16 v28; 
   __int16 m_numParts; 
-  bdContentStreamingBase_vtbl *v34; 
-  const bdReference<bdRemoteTask> *v35; 
+  bdContentStreamingBase_vtbl *v30; 
+  const bdReference<bdRemoteTask> *v31; 
+  __int64 v32; 
+  __int64 v33; 
+  __int64 v34; 
+  __int64 v35; 
   __int64 v36; 
   __int64 v37; 
-  __int64 v38; 
-  __int64 v39; 
-  double v40; 
-  __int64 v41; 
-  __int64 v42; 
-  double v43; 
-  unsigned __int64 v44; 
-  char *v45; 
-  unsigned int v47; 
+  unsigned __int64 v38; 
+  char *v39; 
+  __int128 v40; 
+  unsigned int v41; 
   bdReference<bdRemoteTask> result; 
-  bdReference<bdRemoteTask> v49; 
-  bdRemoteTask *v50; 
+  bdReference<bdRemoteTask> v43; 
+  bdRemoteTask *v44; 
 
-  v47 = 0;
-  bdContentStreamingBase::_extractFileInfo(this, &v45, &v44, &v47);
+  v41 = 0;
+  bdContentStreamingBase::_extractFileInfo(this, &v39, &v38, &v41);
   m_operation = this->m_operation;
   this->m_retries = 0;
   if ( m_operation == 101 )
   {
     m_http = this->m_http;
-    __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-    *(double *)&_XMM0 = ((double (__fastcall *)(bdCSHTTPWrapper *))m_http->getTransferSpeed)(m_http);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3a800000
-      vcvtss2sd xmm6, xmm1, xmm1
-    }
-    v8 = this->m_http->getTransferProgress(this->m_http);
-    this->m_uploadedSize += v8;
-    __asm { vmovsd  [rsp+0A8h+var_58], xmm6 }
-    bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x2CAu, "Uploaded %d (total %d) for file \"%s\" @ %.2f KB/sec", v8, this->m_uploadedSize, this->m_fileMetaData.m_fileName, v43);
-    __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
+    v40 = v1;
+    v5 = ((double (__fastcall *)(bdCSHTTPWrapper *))m_http->getTransferSpeed)(m_http);
+    v6 = this->m_http->getTransferProgress(this->m_http);
+    this->m_uploadedSize += v6;
+    bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x2CAu, "Uploaded %d (total %d) for file \"%s\" @ %.2f KB/sec", v6, this->m_uploadedSize, this->m_fileMetaData.m_fileName, (float)(*(float *)&v5 * 0.0009765625));
     if ( !this->m_isMultiPart )
     {
       m_urlIndex = this->m_urlIndex;
       if ( m_urlIndex + 1 < this->m_numUrls )
       {
-        LODWORD(v39) = this->m_numUrls;
-        v11 = m_urlIndex + 1;
-        this->m_urlIndex = v11;
-        LODWORD(v36) = v11 + 1;
-        bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x2D2u, "Uploading (attempt %d of %d)", v36, v39);
+        LODWORD(v35) = this->m_numUrls;
+        v8 = m_urlIndex + 1;
+        this->m_urlIndex = v8;
+        LODWORD(v32) = v8 + 1;
+        bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x2D2u, "Uploading (attempt %d of %d)", v32, v35);
 LABEL_23:
         this->initHTTP(this);
         return;
       }
-      LODWORD(v36) = m_urlIndex + 1;
-      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x2D7u, "Completed upload of %d files", v36);
-      v12 = bdContentStreamingBase::_postUpload(this, &result);
-      bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, v12);
+      LODWORD(v32) = m_urlIndex + 1;
+      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x2D7u, "Completed upload of %d files", v32);
+      v9 = bdContentStreamingBase::_postUpload(this, &result);
+      bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, v9);
       if ( !result.m_ptr || _InterlockedExchangeAdd((volatile signed __int32 *)&result.m_ptr->m_refCount, 0xFFFFFFFF) != 1 )
         goto LABEL_10;
       m_ptr = result.m_ptr;
@@ -987,19 +980,19 @@ LABEL_23:
     }
     if ( this->m_multiPartComplete )
     {
-      LODWORD(v36) = this->m_streamData.partIndex + 1;
-      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x2E0u, "Completed upload of %d parts", v36);
-      v15 = bdContentStreamingBase::_postUpload(this, &v49);
-      bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, v15);
-      if ( !v49.m_ptr || _InterlockedExchangeAdd((volatile signed __int32 *)&v49.m_ptr->m_refCount, 0xFFFFFFFF) != 1 )
+      LODWORD(v32) = this->m_streamData.partIndex + 1;
+      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x2E0u, "Completed upload of %d parts", v32);
+      v12 = bdContentStreamingBase::_postUpload(this, &v43);
+      bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, v12);
+      if ( !v43.m_ptr || _InterlockedExchangeAdd((volatile signed __int32 *)&v43.m_ptr->m_refCount, 0xFFFFFFFF) != 1 )
       {
 LABEL_10:
-        v14 = AUTHENTICATING;
+        v11 = AUTHENTICATING;
         if ( !this->m_remoteTask.m_ptr )
-          v14 = CROSSPLAY_LOG_IN;
+          v11 = CROSSPLAY_LOG_IN;
         goto LABEL_52;
       }
-      m_ptr = v49.m_ptr;
+      m_ptr = v43.m_ptr;
 LABEL_8:
       if ( m_ptr )
         ((void (__fastcall *)(bdRemoteTask *, __int64))m_ptr->~bdReferencable)(m_ptr, 1i64);
@@ -1009,15 +1002,15 @@ LABEL_8:
     partIndex = this->m_streamData.partIndex;
     ++this->m_urlIndex;
     m_partOffset = partIndex + 1;
-    v18 = this->m_urlIndex;
+    v15 = this->m_urlIndex;
     m_numUrls = this->m_numUrls;
     this->m_streamData.partIndex = m_partOffset;
-    if ( v18 < m_numUrls )
+    if ( v15 < m_numUrls )
     {
-      LODWORD(v42) = m_numUrls;
-      LODWORD(v39) = v18 + 1;
-      LODWORD(v36) = m_partOffset;
-      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x2EDu, "Uploading part %d.ts (%d of %d)", v36, v39, v42);
+      LODWORD(v37) = m_numUrls;
+      LODWORD(v35) = v15 + 1;
+      LODWORD(v32) = m_partOffset;
+      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x2EDu, "Uploading part %d.ts (%d of %d)", v32, v35, v37);
       this->initHTTP(this);
       return;
     }
@@ -1030,17 +1023,17 @@ LABEL_42:
     if ( m_operation == 104 )
     {
       ++this->m_urlIndex;
-      v34 = this->__vftable;
+      v30 = this->__vftable;
       if ( this->m_urlIndex < this->m_numUrls )
       {
-        v34->initHTTP(this);
+        v30->initHTTP(this);
         return;
       }
-      v35 = v34->_postCopy(this, (bdReference<bdRemoteTask> *)&v50);
-      bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, v35);
-      if ( !v50 || _InterlockedExchangeAdd((volatile signed __int32 *)&v50->m_refCount, 0xFFFFFFFF) != 1 )
+      v31 = v30->_postCopy(this, (bdReference<bdRemoteTask> *)&v44);
+      bdReference<bdRemoteTask>::operator=(&this->m_remoteTask, v31);
+      if ( !v44 || _InterlockedExchangeAdd((volatile signed __int32 *)&v44->m_refCount, 0xFFFFFFFF) != 1 )
         goto LABEL_10;
-      m_ptr = v50;
+      m_ptr = v44;
       goto LABEL_8;
     }
     if ( m_operation != 103 )
@@ -1048,88 +1041,82 @@ LABEL_42:
     if ( ++this->m_urlIndex < this->m_numUrls )
       goto LABEL_23;
 LABEL_51:
-    v14 = AUTHENTICATED;
+    v11 = AUTHENTICATED;
 LABEL_52:
-    bdContentStreamingBase::setState(this, v14, BD_NO_ERROR);
+    bdContentStreamingBase::setState(this, v11, BD_NO_ERROR);
     return;
   }
-  v20 = this->m_http->getTransferProgress(this->m_http) >> 10;
-  *(double *)&_XMM0 = ((double (__fastcall *)(bdCSHTTPWrapper *))this->m_http->getTransferSpeed)(this->m_http);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@3a800000
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovsd  [rsp+0A8h+var_68], xmm2
-  }
-  bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x2FAu, "Transferred: %d KB @ %0.2f KB/sec", v20, v40);
+  v17 = this->m_http->getTransferProgress(this->m_http) >> 10;
+  v18 = ((double (__fastcall *)(bdCSHTTPWrapper *))this->m_http->getTransferSpeed)(this->m_http);
+  bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x2FAu, "Transferred: %d KB @ %0.2f KB/sec", v17, (float)(*(float *)&v18 * 0.0009765625));
   if ( !this->m_isMultiPart )
   {
-    v23 = ++this->m_urlIndex;
-    if ( v23 < this->m_numUrls )
+    v19 = ++this->m_urlIndex;
+    if ( v19 < this->m_numUrls )
     {
-      LODWORD(v41) = this->m_numUrls;
-      LODWORD(v37) = this->m_urlIndex;
-      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x304u, "Downloading (file %d of %d)", v37, v41);
+      LODWORD(v36) = this->m_numUrls;
+      LODWORD(v33) = this->m_urlIndex;
+      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x304u, "Downloading (file %d of %d)", v33, v36);
       goto LABEL_23;
     }
-    LODWORD(v37) = v23 + 1;
-    bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x30Au, "Completed download of %d files", v37);
-    v24 = AUTHENTICATED;
-    v25 = this->m_http->getTransferProgress(this->m_http);
-    if ( v25 == v47 )
+    LODWORD(v33) = v19 + 1;
+    bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x30Au, "Completed download of %d files", v33);
+    v20 = AUTHENTICATED;
+    v21 = this->m_http->getTransferProgress(this->m_http);
+    if ( v21 == v41 )
       goto LABEL_33;
     m_startByte = this->m_startByte;
     if ( m_startByte || this->m_endByte )
     {
       m_endByte = this->m_endByte;
-      if ( m_endByte >= v47 )
+      if ( m_endByte >= v41 )
       {
-        m_endByte = v47 - 1;
-        this->m_endByte = v47 - 1;
+        m_endByte = v41 - 1;
+        this->m_endByte = v41 - 1;
       }
-      v28 = m_endByte - m_startByte + 1;
-      if ( this->m_http->getTransferProgress(this->m_http) == v28 )
+      v24 = m_endByte - m_startByte + 1;
+      if ( this->m_http->getTransferProgress(this->m_http) == v24 )
         goto LABEL_33;
-      LODWORD(v41) = v28;
-      LODWORD(v38) = this->m_http->getTransferProgress(this->m_http);
-      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x321u, "HTTP GET failed, received %d of %d bytes", v38, v41);
+      LODWORD(v36) = v24;
+      LODWORD(v34) = this->m_http->getTransferProgress(this->m_http);
+      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x321u, "HTTP GET failed, received %d of %d bytes", v34, v36);
     }
     else
     {
-      LODWORD(v41) = v47;
-      LODWORD(v38) = this->m_http->getTransferProgress(this->m_http);
-      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x313u, "HTTP GET failed, received %d of %d bytes", v38, v41);
+      LODWORD(v36) = v41;
+      LODWORD(v34) = this->m_http->getTransferProgress(this->m_http);
+      bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x313u, "HTTP GET failed, received %d of %d bytes", v34, v36);
     }
-    v24 = CROSSPLAY_LOG_IN;
+    v20 = CROSSPLAY_LOG_IN;
 LABEL_33:
-    bdContentStreamingBase::setState(this, v24, BD_NO_ERROR);
+    bdContentStreamingBase::setState(this, v20, BD_NO_ERROR);
     return;
   }
   bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x32Du, "incrementing url index");
-  v29 = this->m_streamData.partIndex;
+  v25 = this->m_streamData.partIndex;
   m_downloadMetaDataMultiPart = this->m_downloadMetaDataMultiPart;
-  v31 = this->m_urlIndex + 1;
-  this->m_urlIndex = v31;
-  v32 = v29 + 1;
-  this->m_streamData.partIndex = v29 + 1;
+  v27 = this->m_urlIndex + 1;
+  this->m_urlIndex = v27;
+  v28 = v25 + 1;
+  this->m_streamData.partIndex = v25 + 1;
   m_numParts = m_downloadMetaDataMultiPart->m_numParts;
-  if ( m_numParts != -1 && v32 == m_numParts )
+  if ( m_numParts != -1 && v28 == m_numParts )
   {
-    LODWORD(v41) = v31;
-    this->m_streamData.partIndex = v29;
-    LODWORD(v37) = (__int16)(v29 - this->m_streamData.partIndexPage0);
-    bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x336u, "Completed download of %d parts total (%d in this page)", v37, v41);
+    LODWORD(v36) = v27;
+    this->m_streamData.partIndex = v25;
+    LODWORD(v33) = (__int16)(v25 - this->m_streamData.partIndexPage0);
+    bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x336u, "Completed download of %d parts total (%d in this page)", v33, v36);
     this->m_overallTask.m_ptr->m_numResults = 1;
     goto LABEL_51;
   }
-  if ( v31 >= this->m_numUrls )
+  if ( v27 >= this->m_numUrls )
   {
     m_partOffset = m_downloadMetaDataMultiPart->m_partOffset;
     goto LABEL_42;
   }
-  LODWORD(v41) = v31 + 1;
-  LODWORD(v37) = v32;
-  bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x343u, "Downloading part %d.ts (%d of %d)", v37, v41, this->m_numUrls);
+  LODWORD(v36) = v27 + 1;
+  LODWORD(v33) = v28;
+  bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::exitHTTP", 0x343u, "Downloading part %d.ts (%d of %d)", v33, v36, this->m_numUrls);
   if ( !this->m_throttleData.throttling )
     goto LABEL_23;
   bdContentStreamingBase::initThrottled(this);
@@ -1734,18 +1721,18 @@ bdContentStreamingBase::initThrottled
 void bdContentStreamingBase::initThrottled(bdContentStreamingBase *this)
 {
   bdCSHTTPWrapper *m_http; 
-  int v4; 
+  int v3; 
   StreamData *p_m_streamData; 
+  double v5; 
   int m_partDuration; 
-  __int16 v8; 
+  __int16 v7; 
+  double ElapsedTimeInSeconds; 
   bdRemoteTask *m_ptr; 
   bdContentStreamingBase::bdStatus m_state; 
-  int v12; 
+  int v11; 
   int partIndex; 
-  double v14; 
-  double v15; 
-  int v16; 
-  int v17; 
+  int v13; 
+  int v14; 
 
   if ( !this->m_throttleData.throttling )
   {
@@ -1754,35 +1741,25 @@ void bdContentStreamingBase::initThrottled(bdContentStreamingBase *this)
     bdStopwatch::start(&this->m_throttleData.timeSinceThrottleInit);
     m_http = this->m_http;
     this->m_throttleData.throttlingInitIndex = this->m_streamData.partIndex;
-    v4 = m_http->getLastHTTPError(m_http);
+    v3 = m_http->getLastHTTPError(m_http);
     p_m_streamData = &this->m_streamData;
-    if ( v4 < 500 )
+    if ( v3 < 500 )
     {
       m_partDuration = this->m_partDuration;
-      v8 = this->m_streamData.partIndex - this->m_streamData.partIndexPage0;
+      v7 = this->m_streamData.partIndex - this->m_streamData.partIndexPage0;
       this->m_throttleType = BD_WAITING_FOR_FILE_PART;
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&p_m_streamData->timeSinceStreamInit);
-      v17 = m_partDuration;
-      v16 = v8;
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+68h+var_28], xmm1
-      }
+      ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&p_m_streamData->timeSinceStreamInit);
+      v14 = m_partDuration;
+      v13 = v7;
       partIndex = this->m_streamData.partIndex;
-      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::initThrottled", 0x404u, "Throttling Stream at part %d.ts at time %f (%d parts of duration %u each).", partIndex, v15, v16, v17);
+      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::initThrottled", 0x404u, "Throttling Stream at part %d.ts at time %f (%d parts of duration %u each).", partIndex, *(float *)&ElapsedTimeInSeconds, v13, v14);
     }
     else
     {
       this->m_throttleType = BD_RETRY_CONNECTION;
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&p_m_streamData->timeSinceStreamInit);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+68h+var_28], xmm1
-      }
-      v12 = this->m_streamData.partIndex;
-      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::initThrottled", 0x3FAu, "Throttling Stream before re-attempting download of part %d.ts at time %f.", v12, v14);
+      v5 = bdStopwatch::getElapsedTimeInSeconds(&p_m_streamData->timeSinceStreamInit);
+      v11 = this->m_streamData.partIndex;
+      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::initThrottled", 0x3FAu, "Throttling Stream before re-attempting download of part %d.ts at time %f.", v11, *(float *)&v5);
     }
   }
   m_ptr = this->m_overallTask.m_ptr;
@@ -1946,19 +1923,20 @@ bdContentStreamingBase::pump
 void bdContentStreamingBase::pump(bdContentStreamingBase *this)
 {
   bdRemoteTask *m_ptr; 
-  bool v5; 
-  bdRemoteTask *v6; 
-  bdCSHTTPWrapper::bdStatus v7; 
-  bdTask::bdStatus v8; 
-  int v9; 
-  char v13; 
+  bool v3; 
+  bdRemoteTask *v4; 
+  bdCSHTTPWrapper::bdStatus v5; 
+  bdTask::bdStatus v6; 
+  int v7; 
+  float v8; 
+  double ElapsedTimeInSeconds; 
   bdStopwatch *p_timeSinceThrottleInit; 
   int m_partDuration; 
-  bdRemoteTask *v18; 
+  double v12; 
+  double v13; 
+  bdRemoteTask *v14; 
   bdContentStreamingBase::bdStatus m_state; 
-  bdContentStreamingBase_vtbl *v20; 
-  double v21; 
-  double v22; 
+  bdContentStreamingBase_vtbl *v16; 
 
   if ( this->m_operation )
   {
@@ -1967,9 +1945,9 @@ void bdContentStreamingBase::pump(bdContentStreamingBase *this)
     {
       if ( m_ptr->getStatus(m_ptr) == BD_CANCELLED )
       {
-        v5 = this->m_overallTask.m_ptr == NULL;
+        v3 = this->m_overallTask.m_ptr == NULL;
         this->m_aborted = 1;
-        if ( !v5 )
+        if ( !v3 )
         {
           if ( this->m_state == FIRST_PARTY_AUTHED && !this->m_http->abortInProgress(this->m_http) )
           {
@@ -1977,9 +1955,9 @@ void bdContentStreamingBase::pump(bdContentStreamingBase *this)
             this->m_http->abortOperation(this->m_http);
           }
           bdRemoteTask::cancelTask(this->m_overallTask.m_ptr);
-          v6 = this->m_remoteTask.m_ptr;
-          if ( v6 )
-            bdRemoteTask::cancelTask(v6);
+          v4 = this->m_remoteTask.m_ptr;
+          if ( v4 )
+            bdRemoteTask::cancelTask(v4);
         }
         this->m_state = CROSSPLAY_LOG_IN;
         this->m_operation = 0;
@@ -1995,92 +1973,68 @@ void bdContentStreamingBase::pump(bdContentStreamingBase *this)
   {
     if ( this->m_state == LOGIN_DELAY )
     {
-      __asm { vmovaps [rsp+78h+var_18], xmm6 }
-      v9 = (__int16)(this->m_streamData.partIndex - this->m_throttleData.throttlingInitIndex);
+      v7 = (__int16)(this->m_streamData.partIndex - this->m_throttleData.throttlingInitIndex);
       if ( this->m_throttleType == BD_RETRY_CONNECTION )
-      {
-        __asm { vmovss  xmm6, cs:__real@40000000 }
-      }
+        v8 = FLOAT_2_0;
       else
-      {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, ecx
-        }
-      }
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_throttleData.timeSinceThrottleInit);
-      __asm
-      {
-        vcomiss xmm0, xmm6
-        vmovaps xmm6, [rsp+78h+var_18]
-      }
-      if ( !(v13 | v5) )
+        v8 = (float)((v7 + 1) * this->m_partDuration);
+      ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_throttleData.timeSinceThrottleInit);
+      if ( *(float *)&ElapsedTimeInSeconds > v8 )
       {
         p_timeSinceThrottleInit = &this->m_throttleData.timeSinceThrottleInit;
         if ( this->m_throttleType == BD_RETRY_CONNECTION )
         {
-          *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(p_timeSinceThrottleInit);
-          __asm
-          {
-            vcvtss2sd xmm1, xmm0, xmm0
-            vmovsd  [rsp+78h+var_38], xmm1
-          }
-          bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::pumpThrottled", 0x43Cu, "Re-attempting to download %d.ts at throttle time %f.", this->m_streamData.partIndex, v22);
+          v13 = bdStopwatch::getElapsedTimeInSeconds(p_timeSinceThrottleInit);
+          bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::pumpThrottled", 0x43Cu, "Re-attempting to download %d.ts at throttle time %f.", this->m_streamData.partIndex, *(float *)&v13);
         }
         else
         {
           m_partDuration = this->m_partDuration;
-          *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(p_timeSinceThrottleInit);
-          __asm
-          {
-            vcvtss2sd xmm1, xmm0, xmm0
-            vmovsd  [rsp+78h+var_38], xmm1
-          }
-          bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::pumpThrottled", 0x435u, "Resuming Stream at part %d.ts at throttle time %f (%d throttled parts of duration %u each).", this->m_streamData.partIndex, v21, v9, m_partDuration);
+          v12 = bdStopwatch::getElapsedTimeInSeconds(p_timeSinceThrottleInit);
+          bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::pumpThrottled", 0x435u, "Resuming Stream at part %d.ts at throttle time %f (%d throttled parts of duration %u each).", this->m_streamData.partIndex, *(float *)&v12, v7, m_partDuration);
         }
-        v18 = this->m_overallTask.m_ptr;
-        if ( v18->m_errorCode == BD_NO_ERROR )
+        v14 = this->m_overallTask.m_ptr;
+        if ( v14->m_errorCode == BD_NO_ERROR )
         {
           m_state = this->m_state;
           if ( m_state == FETCHING_FIRST_PARTY_TOKEN || m_state == AUTHENTICATING )
-            v18->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
+            v14->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
         }
         bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::setState", 0x49Fu, "state %s -> %s", bdContentStreamingBase::s_statusStrings[this->m_state], bdContentStreamingBase::s_statusStrings[2]);
-        v20 = this->__vftable;
+        v16 = this->__vftable;
         this->m_state = FIRST_PARTY_AUTHED;
-        v20->initHTTP(this);
+        v16->initHTTP(this);
       }
       goto LABEL_41;
     }
     if ( this->m_state == AUTHENTICATING )
     {
-      v8 = this->m_remoteTask.m_ptr->getStatus(this->m_remoteTask.m_ptr);
-      if ( v8 != BD_PENDING )
-        bdContentStreamingBase::setState(this, (bdContentStreamingBase::bdStatus)((v8 != BD_DONE) + 5), BD_NO_ERROR);
+      v6 = this->m_remoteTask.m_ptr->getStatus(this->m_remoteTask.m_ptr);
+      if ( v6 != BD_PENDING )
+        bdContentStreamingBase::setState(this, (bdContentStreamingBase::bdStatus)((v6 != BD_DONE) + 5), BD_NO_ERROR);
       goto LABEL_41;
     }
     if ( this->m_state != RESUME_FLOW )
       goto LABEL_41;
   }
-  v7 = this->m_http->getStatus(this->m_http);
-  if ( v7 == BD_TIMED_OUT && this->m_http->abortInProgress(this->m_http) )
-    v7 = BD_MAX_STATUS;
+  v5 = this->m_http->getStatus(this->m_http);
+  if ( v5 == BD_TIMED_OUT && this->m_http->abortInProgress(this->m_http) )
+    v5 = BD_MAX_STATUS;
   if ( this->m_state == RESUME_FLOW )
   {
-    if ( v7 == BD_TIMED_OUT )
+    if ( v5 == BD_TIMED_OUT )
     {
       bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::setState", 0x49Fu, "state %s -> %s", bdContentStreamingBase::s_statusStrings[7], bdContentStreamingBase::s_statusStrings[8]);
       this->m_state = CREATING_UNO_ANONYMOUS_ACCOUNT;
       goto LABEL_41;
     }
   }
-  else if ( v7 == BD_TIMED_OUT )
+  else if ( v5 == BD_TIMED_OUT )
   {
     bdContentStreamingBase::exitHTTP(this);
     goto LABEL_41;
   }
-  if ( (unsigned int)(v7 - 6) <= 2 )
+  if ( (unsigned int)(v5 - 6) <= 2 )
     bdContentStreamingBase::exitHTTPFailed(this);
 LABEL_41:
   if ( (unsigned int)(this->m_state - 5) <= 1 )
@@ -2203,68 +2157,44 @@ bdContentStreamingBase::pumpThrottled
 */
 void bdContentStreamingBase::pumpThrottled(bdContentStreamingBase *this)
 {
-  int v4; 
-  char v8; 
-  char v9; 
+  int v2; 
+  float v3; 
+  double ElapsedTimeInSeconds; 
   bdStopwatch *p_timeSinceThrottleInit; 
   int m_partDuration; 
+  double v7; 
+  double v8; 
   bdRemoteTask *m_ptr; 
   bdContentStreamingBase::bdStatus m_state; 
-  bdContentStreamingBase_vtbl *v16; 
-  int v17; 
+  bdContentStreamingBase_vtbl *v11; 
+  int v12; 
   int partIndex; 
-  double v19; 
-  double v20; 
-  int v21; 
-  int v22; 
+  int v14; 
+  int v15; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  v4 = (__int16)(this->m_streamData.partIndex - this->m_throttleData.throttlingInitIndex);
+  v2 = (__int16)(this->m_streamData.partIndex - this->m_throttleData.throttlingInitIndex);
   if ( this->m_throttleType == BD_RETRY_CONNECTION )
-  {
-    __asm { vmovss  xmm6, cs:__real@40000000 }
-  }
+    v3 = FLOAT_2_0;
   else
-  {
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vcvtsi2ss xmm6, xmm6, edx
-    }
-  }
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_throttleData.timeSinceThrottleInit);
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
-  }
-  if ( !(v8 | v9) )
+    v3 = (float)((v2 + 1) * this->m_partDuration);
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_throttleData.timeSinceThrottleInit);
+  if ( *(float *)&ElapsedTimeInSeconds > v3 )
   {
     p_timeSinceThrottleInit = &this->m_throttleData.timeSinceThrottleInit;
     if ( this->m_throttleType == BD_RETRY_CONNECTION )
     {
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(p_timeSinceThrottleInit);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+78h+var_38], xmm1
-      }
+      v8 = bdStopwatch::getElapsedTimeInSeconds(p_timeSinceThrottleInit);
       partIndex = this->m_streamData.partIndex;
-      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::pumpThrottled", 0x43Cu, "Re-attempting to download %d.ts at throttle time %f.", partIndex, v20);
+      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::pumpThrottled", 0x43Cu, "Re-attempting to download %d.ts at throttle time %f.", partIndex, *(float *)&v8);
     }
     else
     {
       m_partDuration = this->m_partDuration;
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(p_timeSinceThrottleInit);
-      v22 = m_partDuration;
-      v21 = v4;
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+78h+var_38], xmm1
-      }
-      v17 = this->m_streamData.partIndex;
-      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::pumpThrottled", 0x435u, "Resuming Stream at part %d.ts at throttle time %f (%d throttled parts of duration %u each).", v17, v19, v21, v22);
+      v7 = bdStopwatch::getElapsedTimeInSeconds(p_timeSinceThrottleInit);
+      v15 = m_partDuration;
+      v14 = v2;
+      v12 = this->m_streamData.partIndex;
+      bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::pumpThrottled", 0x435u, "Resuming Stream at part %d.ts at throttle time %f (%d throttled parts of duration %u each).", v12, *(float *)&v7, v14, v15);
     }
     m_ptr = this->m_overallTask.m_ptr;
     if ( m_ptr->m_errorCode == BD_NO_ERROR )
@@ -2274,9 +2204,9 @@ void bdContentStreamingBase::pumpThrottled(bdContentStreamingBase *this)
         m_ptr->m_errorCode = this->m_remoteTask.m_ptr->m_errorCode;
     }
     bdLogMessage(BD_LOG_INFO, "info/", "lobby/contentStreamingBase", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdcontentstreaming\\bdcontentstreamingbase.cpp", "bdContentStreamingBase::setState", 0x49Fu, "state %s -> %s", bdContentStreamingBase::s_statusStrings[this->m_state], bdContentStreamingBase::s_statusStrings[2]);
-    v16 = this->__vftable;
+    v11 = this->__vftable;
     this->m_state = FIRST_PARTY_AUTHED;
-    v16->initHTTP(this);
+    v11->initHTTP(this);
   }
 }
 

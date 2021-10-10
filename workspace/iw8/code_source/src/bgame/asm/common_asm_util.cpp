@@ -296,87 +296,44 @@ void Common_Asm::Utils::DebugRender_EntDetails(const ASM_Instance *pInst, const 
 {
   BOOL fromServer; 
   const ASM_State *State; 
-  const char *v19; 
-  int v24; 
+  const char *v9; 
+  __int128 v10; 
+  int v11; 
   const ASM ***m_Subtrees; 
-  const ASM **v27; 
-  const ASM_State *v28; 
-  const char *v29; 
+  const ASM **v13; 
+  const ASM_State *v14; 
+  const char *v15; 
+  __int128 v16; 
   char dest[1024]; 
-  char v42; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-88h], xmm9
-  }
   fromServer = bFromServer;
   Com_sprintf(dest, 0x400ui64, "Ent: %d", (unsigned int)pInst->m_EntNum);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm7, cs:__real@42c80000
-    vmovss  xmm1, cs:__real@43480000; y
-    vmovaps xmm3, xmm9; scale
-    vmovaps xmm0, xmm7; x
-  }
-  CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest, fromServer, duration);
+  CL_AddDebugString2D(100.0, 200.0, &colorYellow, 1.0, dest, fromServer, duration);
   State = Common_Asm::Utils::GetState(pInst->m_pASM, pInst->m_CurState);
-  v19 = SL_ConvertToString(State->m_Name);
-  Com_sprintf(dest, 0x400ui64, "%s | %s", pInst->m_pASM->m_szName, v19);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43540000; y
-    vmovaps xmm3, xmm9; scale
-    vmovaps xmm0, xmm7; x
-  }
-  CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest, fromServer, duration);
-  __asm { vmovss  xmm6, cs:__real@43600000 }
-  v24 = 0;
+  v9 = SL_ConvertToString(State->m_Name);
+  Com_sprintf(dest, 0x400ui64, "%s | %s", pInst->m_pASM->m_szName, v9);
+  CL_AddDebugString2D(100.0, 212.0, &colorYellow, 1.0, dest, fromServer, duration);
+  v10 = LODWORD(FLOAT_224_0);
+  v11 = 0;
   if ( pInst->m_NumSubtrees > 0 )
   {
     m_Subtrees = (const ASM ***)pInst->m_Subtrees;
-    __asm
-    {
-      vmovaps [rsp+4D8h+var_78], xmm8
-      vmovss  xmm8, cs:__real@41400000
-    }
     do
     {
-      v27 = *m_Subtrees;
-      v28 = Common_Asm::Utils::GetState(**m_Subtrees, *((_DWORD *)*m_Subtrees + 4));
-      v29 = SL_ConvertToString(v28->m_Name);
-      Com_sprintf(dest, 0x400ui64, " %s | %s", (*v27)->m_szName, v29);
-      __asm
-      {
-        vmovaps xmm3, xmm9; scale
-        vmovaps xmm1, xmm6; y
-        vmovaps xmm0, xmm7; x
-      }
-      CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest, fromServer, duration);
-      ++v24;
+      v13 = *m_Subtrees;
+      v14 = Common_Asm::Utils::GetState(**m_Subtrees, *((_DWORD *)*m_Subtrees + 4));
+      v15 = SL_ConvertToString(v14->m_Name);
+      Com_sprintf(dest, 0x400ui64, " %s | %s", (*v13)->m_szName, v15);
+      CL_AddDebugString2D(100.0, *(float *)&v10, &colorYellow, 1.0, dest, fromServer, duration);
+      ++v11;
       ++m_Subtrees;
-      __asm { vaddss  xmm6, xmm6, xmm8 }
+      v16 = v10;
+      *(float *)&v16 = *(float *)&v10 + 12.0;
+      v10 = v16;
     }
-    while ( v24 < pInst->m_NumSubtrees );
-    __asm { vmovaps xmm8, [rsp+4D8h+var_78] }
+    while ( v11 < pInst->m_NumSubtrees );
   }
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43c80000; topLeftY
-    vmovaps xmm2, xmm7; topLeftX
-  }
-  Common_Asm::Utils::DebugRender_Events(pInst, pEphemeralEventTable, *(float *)&_XMM2, *(float *)&_XMM3, fromServer, duration);
-  _R11 = &v42;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-28h]
-    vmovaps xmm7, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-58h]
-  }
+  Common_Asm::Utils::DebugRender_Events(pInst, pEphemeralEventTable, 100.0, 400.0, fromServer, duration);
 }
 
 /*
@@ -385,180 +342,136 @@ Common_Asm::Utils::DebugRender_Events
 ==============
 */
 
-void __fastcall Common_Asm::Utils::DebugRender_Events(const ASM_Instance *pInst, const ASM_EphemeralEvent *pEphemeralEventTable, double topLeftX, double topLeftY, bool bFromServer, int duration)
+void __fastcall Common_Asm::Utils::DebugRender_Events(const ASM_Instance *pInst, const ASM_EphemeralEvent *pEphemeralEventTable, float topLeftX, double topLeftY, bool bFromServer, int duration)
 {
-  const ASM_EphemeralEvent *v11; 
+  const ASM_EphemeralEvent *v6; 
+  __int128 v8; 
+  __int128 v9; 
   int *p_m_Time; 
-  __int64 v22; 
-  scr_string_t v23; 
-  int v24; 
-  const char *v25; 
-  int v29; 
+  __int64 v11; 
+  scr_string_t v12; 
+  int v13; 
+  const char *v14; 
+  __int128 v15; 
+  int v16; 
   ASM_Instance **m_Subtrees; 
-  const char ***v31; 
-  unsigned int *v35; 
-  __int64 v36; 
-  scr_string_t v37; 
-  int v38; 
-  const char *v39; 
+  const char ***v18; 
+  unsigned int *v19; 
+  __int64 v20; 
+  __int128 v21; 
+  scr_string_t v22; 
+  int v23; 
+  const char *v24; 
+  __int128 v25; 
+  __int128 v26; 
+  __int128 v27; 
   int *p_m_ParamID; 
-  __int64 v49; 
-  scr_string_t v50; 
-  int v51; 
-  const char *v52; 
-  const char *v53; 
+  __int64 v29; 
+  scr_string_t v30; 
+  int v31; 
+  const char *v32; 
+  const char *v33; 
+  __int128 v34; 
   __int64 fromServer; 
   __int64 fromServera; 
-  __int64 v64; 
+  __int64 v37; 
   char dest[256]; 
-  char v67; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm6
-    vmovaps xmmword ptr [r11-68h], xmm7
-    vmovaps xmmword ptr [r11-78h], xmm8
-    vmovaps xmmword ptr [r11-88h], xmm9
-  }
-  v11 = pEphemeralEventTable;
-  __asm
-  {
-    vmovaps xmm6, xmm3
-    vmovaps xmm8, xmm2
-  }
+  v6 = pEphemeralEventTable;
   Com_sprintf(dest, 0x100ui64, "Events: %s", pInst->m_pASM->m_szName);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovaps xmm3, xmm9; scale
-    vmovaps xmm1, xmm6; y
-    vmovaps xmm0, xmm8; x
-  }
-  CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest, bFromServer, duration);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@41500000
-    vaddss  xmm6, xmm6, xmm7
-  }
+  CL_AddDebugString2D(topLeftX, *(float *)&topLeftY, &colorYellow, 1.0, dest, bFromServer, duration);
+  v9 = *(_OWORD *)&topLeftY;
+  *(float *)&v9 = *(float *)&topLeftY + 13.0;
+  v8 = v9;
   p_m_Time = &pInst->m_EventTable[0].m_Time;
-  v22 = 8i64;
+  v11 = 8i64;
   do
   {
-    v23 = *(p_m_Time - 2);
-    if ( v23 )
+    v12 = *(p_m_Time - 2);
+    if ( v12 )
     {
-      v24 = *(p_m_Time - 1);
-      v25 = SL_ConvertToString(v23);
-      LODWORD(fromServer) = v24;
-      Com_sprintf(dest, 0x100ui64, "%d  %s  %d", (unsigned int)*p_m_Time, v25, fromServer);
-      __asm
-      {
-        vmovaps xmm3, xmm9; scale
-        vmovaps xmm1, xmm6; y
-        vmovaps xmm0, xmm8; x
-      }
-      CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest, bFromServer, duration);
-      __asm { vaddss  xmm6, xmm6, xmm7 }
+      v13 = *(p_m_Time - 1);
+      v14 = SL_ConvertToString(v12);
+      LODWORD(fromServer) = v13;
+      Com_sprintf(dest, 0x100ui64, "%d  %s  %d", (unsigned int)*p_m_Time, v14, fromServer);
+      CL_AddDebugString2D(topLeftX, *(float *)&v8, &colorYellow, 1.0, dest, bFromServer, duration);
+      v15 = v8;
+      *(float *)&v15 = *(float *)&v8 + 13.0;
+      v8 = v15;
     }
     p_m_Time += 3;
-    --v22;
+    --v11;
   }
-  while ( v22 );
-  v29 = 0;
+  while ( v11 );
+  v16 = 0;
   if ( pInst->m_NumSubtrees > 0 )
   {
     m_Subtrees = pInst->m_Subtrees;
     do
     {
-      v31 = (const char ***)*m_Subtrees;
+      v18 = (const char ***)*m_Subtrees;
       if ( (*m_Subtrees)->m_EventTable[0].m_Name )
       {
-        Com_sprintf(dest, 0x100ui64, " Events: %s", **v31);
-        __asm
-        {
-          vmovaps xmm3, xmm9; scale
-          vmovaps xmm1, xmm6; y
-          vmovaps xmm0, xmm8; x
-        }
-        CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest, bFromServer, duration);
-        v35 = (unsigned int *)(v31 + 10);
-        v36 = 8i64;
-        __asm { vaddss  xmm6, xmm6, xmm7 }
+        Com_sprintf(dest, 0x100ui64, " Events: %s", **v18);
+        CL_AddDebugString2D(topLeftX, *(float *)&v8, &colorYellow, 1.0, dest, bFromServer, duration);
+        v19 = (unsigned int *)(v18 + 10);
+        v20 = 8i64;
+        v21 = v8;
+        *(float *)&v21 = *(float *)&v8 + 13.0;
+        v8 = v21;
         do
         {
-          v37 = *(v35 - 2);
-          if ( v37 )
+          v22 = *(v19 - 2);
+          if ( v22 )
           {
-            v38 = *(v35 - 1);
-            v39 = SL_ConvertToString(v37);
-            LODWORD(fromServera) = v38;
-            Com_sprintf(dest, 0x100ui64, " %d  %s  %d", *v35, v39, fromServera);
-            __asm
-            {
-              vmovaps xmm3, xmm9; scale
-              vmovaps xmm1, xmm6; y
-              vmovaps xmm0, xmm8; x
-            }
-            CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest, bFromServer, duration);
-            __asm { vaddss  xmm6, xmm6, xmm7 }
+            v23 = *(v19 - 1);
+            v24 = SL_ConvertToString(v22);
+            LODWORD(fromServera) = v23;
+            Com_sprintf(dest, 0x100ui64, " %d  %s  %d", *v19, v24, fromServera);
+            CL_AddDebugString2D(topLeftX, *(float *)&v8, &colorYellow, 1.0, dest, bFromServer, duration);
+            v25 = v8;
+            *(float *)&v25 = *(float *)&v8 + 13.0;
+            v8 = v25;
           }
-          v35 += 3;
-          --v36;
+          v19 += 3;
+          --v20;
         }
-        while ( v36 );
+        while ( v20 );
       }
-      ++v29;
+      ++v16;
       ++m_Subtrees;
     }
-    while ( v29 < pInst->m_NumSubtrees );
-    v11 = pEphemeralEventTable;
+    while ( v16 < pInst->m_NumSubtrees );
+    v6 = pEphemeralEventTable;
   }
-  __asm { vaddss  xmm6, xmm6, xmm7 }
-  if ( v11 )
+  v26 = v8;
+  *(float *)&v26 = *(float *)&v8 + 13.0;
+  if ( v6 )
   {
-    __asm
-    {
-      vmovaps xmm3, xmm9; scale
-      vmovaps xmm1, xmm6; y
-      vmovaps xmm0, xmm8; x
-    }
-    CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, "Ephemeral Events:", bFromServer, duration);
-    __asm { vaddss  xmm6, xmm6, xmm7 }
-    p_m_ParamID = &v11->m_ParamID;
-    v49 = 6i64;
+    CL_AddDebugString2D(topLeftX, *(float *)&v26, &colorYellow, 1.0, "Ephemeral Events:", bFromServer, duration);
+    *(float *)&v26 = *(float *)&v26 + 13.0;
+    v27 = v26;
+    p_m_ParamID = &v6->m_ParamID;
+    v29 = 6i64;
     do
     {
-      v50 = *(p_m_ParamID - 1);
-      if ( v50 )
+      v30 = *(p_m_ParamID - 1);
+      if ( v30 )
       {
-        v51 = *p_m_ParamID;
-        v52 = SL_ConvertToString(v50);
-        v53 = SL_ConvertToString((scr_string_t)*(p_m_ParamID - 2));
-        LODWORD(v64) = v51;
-        Com_sprintf(dest, 0x100ui64, "%d  %s %s  %d", (unsigned int)p_m_ParamID[1], v53, v52, v64);
-        __asm
-        {
-          vmovaps xmm3, xmm9; scale
-          vmovaps xmm1, xmm6; y
-          vmovaps xmm0, xmm8; x
-        }
-        CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &colorYellow, *(float *)&_XMM3, dest, bFromServer, duration);
-        __asm { vaddss  xmm6, xmm6, xmm7 }
+        v31 = *p_m_ParamID;
+        v32 = SL_ConvertToString(v30);
+        v33 = SL_ConvertToString((scr_string_t)*(p_m_ParamID - 2));
+        LODWORD(v37) = v31;
+        Com_sprintf(dest, 0x100ui64, "%d  %s %s  %d", (unsigned int)p_m_ParamID[1], v33, v32, v37);
+        CL_AddDebugString2D(topLeftX, *(float *)&v27, &colorYellow, 1.0, dest, bFromServer, duration);
+        v34 = v27;
+        *(float *)&v34 = *(float *)&v27 + 13.0;
+        v27 = v34;
       }
       p_m_ParamID += 4;
-      --v49;
+      --v29;
     }
-    while ( v49 );
-  }
-  _R11 = &v67;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-28h]
-    vmovaps xmm7, xmmword ptr [r11-38h]
-    vmovaps xmm8, xmmword ptr [r11-48h]
-    vmovaps xmm9, xmmword ptr [r11-58h]
+    while ( v29 );
   }
 }
 
@@ -570,195 +483,135 @@ Common_Asm::Utils::DebugRender_States3D
 void Common_Asm::Utils::DebugRender_States3D(const ASM_Instance *pInst, bool bShouldDrawHistory, vec3_t *drawPos, bool bFromServer, int duration)
 {
   const ASM *m_pASM; 
-  const vec4_t *v11; 
+  const vec4_t *v6; 
   int m_CurState; 
   int fromServer; 
   const ASM_State *State; 
-  const char *v17; 
-  int v22; 
+  const char *v12; 
+  int v13; 
   const ASM ***m_Subtrees; 
-  const ASM **v25; 
-  const ASM_State *v26; 
-  const char *v27; 
+  const ASM **v15; 
+  const ASM_State *v16; 
+  const char *v17; 
   ASM_History *HistoryObject; 
-  ASM_History *v32; 
+  ASM_History *v19; 
   unsigned int Index; 
-  unsigned int v34; 
-  unsigned __int64 v35; 
-  __int64 v36; 
-  unsigned int *v37; 
-  int v38; 
+  unsigned int v21; 
+  unsigned __int64 v22; 
+  __int64 v23; 
+  unsigned int *v24; 
+  int v25; 
+  __int128 *v26; 
   vec4_t *p_color; 
-  const ASM_State *v42; 
-  const char *v43; 
-  __int64 v49; 
-  const ASM_State *v50; 
-  const char *v51; 
-  unsigned int v61; 
+  const ASM_State *v28; 
+  const char *v29; 
+  vec4_t *v30; 
+  __int64 v31; 
+  const ASM_State *v32; 
+  const char *v33; 
+  unsigned int v35; 
   ASM *pASM; 
-  ASM_History *v63; 
+  ASM_History *v37; 
   vec4_t result; 
-  vec4_t v65; 
-  vec4_t v66; 
-  __int128 v67; 
+  vec4_t v39; 
+  vec4_t v40; 
+  __int128 v41; 
   vec4_t color; 
-  vec4_t v69; 
+  vec4_t v43; 
   char dest[1024]; 
-  char v71; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovss  xmm0, dword ptr [r8+8]
-  }
   m_pASM = pInst->m_pASM;
-  __asm { vaddss  xmm1, xmm0, cs:__real@42a00000 }
-  v11 = &colorRed;
+  v6 = &colorRed;
   m_CurState = pInst->m_CurState;
   fromServer = bFromServer;
   pASM = (ASM *)pInst->m_pASM;
-  __asm { vmovss  dword ptr [r8+8], xmm1 }
-  _RDI = drawPos;
+  drawPos->v[2] = drawPos->v[2] + 80.0;
   if ( bFromServer )
-    v11 = &colorOrange;
+    v6 = &colorOrange;
   State = Common_Asm::Utils::GetState(m_pASM, m_CurState);
-  v17 = SL_ConvertToString(State->m_Name);
-  Com_sprintf(dest, 0x400ui64, "%d %s | %s", (unsigned int)pInst->m_EntNum, m_pASM->m_szName, v17);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f000000
-    vmovaps xmm2, xmm6; scale
-  }
-  CL_AddDebugString(_RDI, v11, *(float *)&_XMM2, dest, fromServer, duration);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  xmm7, cs:__real@41000000
-  }
-  v22 = 0;
-  __asm
-  {
-    vsubss  xmm0, xmm0, xmm7
-    vmovss  dword ptr [rdi+8], xmm0
-  }
+  v12 = SL_ConvertToString(State->m_Name);
+  Com_sprintf(dest, 0x400ui64, "%d %s | %s", (unsigned int)pInst->m_EntNum, m_pASM->m_szName, v12);
+  CL_AddDebugString(drawPos, v6, 0.5, dest, fromServer, duration);
+  v13 = 0;
+  drawPos->v[2] = drawPos->v[2] - 8.0;
   if ( pInst->m_NumSubtrees > 0 )
   {
     m_Subtrees = (const ASM ***)pInst->m_Subtrees;
     do
     {
-      v25 = *m_Subtrees;
-      v26 = Common_Asm::Utils::GetState(**m_Subtrees, *((_DWORD *)*m_Subtrees + 4));
-      v27 = SL_ConvertToString(v26->m_Name);
-      Com_sprintf(dest, 0x400ui64, " %s | %s", (*v25)->m_szName, v27);
-      __asm { vmovaps xmm2, xmm6; scale }
-      CL_AddDebugString(_RDI, v11, *(float *)&_XMM2, dest, fromServer, duration);
-      __asm { vmovss  xmm0, dword ptr [rdi+8] }
-      ++v22;
+      v15 = *m_Subtrees;
+      v16 = Common_Asm::Utils::GetState(**m_Subtrees, *((_DWORD *)*m_Subtrees + 4));
+      v17 = SL_ConvertToString(v16->m_Name);
+      Com_sprintf(dest, 0x400ui64, " %s | %s", (*v15)->m_szName, v17);
+      CL_AddDebugString(drawPos, v6, 0.5, dest, fromServer, duration);
+      ++v13;
       ++m_Subtrees;
-      __asm
-      {
-        vsubss  xmm1, xmm0, xmm7
-        vmovss  dword ptr [rdi+8], xmm1
-      }
+      drawPos->v[2] = drawPos->v[2] - 8.0;
     }
-    while ( v22 < pInst->m_NumSubtrees );
+    while ( v13 < pInst->m_NumSubtrees );
     m_pASM = pASM;
   }
   if ( bShouldDrawHistory )
   {
     HistoryObject = ASM_GetHistoryObject(pInst->m_EntNum);
-    v63 = HistoryObject;
-    v32 = HistoryObject;
+    v37 = HistoryObject;
+    v19 = HistoryObject;
     if ( HistoryObject )
     {
       Index = ASM_History::BeginIndex(HistoryObject);
-      v34 = 0;
-      v61 = ASM_History::Size(v32);
-      if ( v61 )
+      v21 = 0;
+      v35 = ASM_History::Size(v19);
+      if ( v35 )
       {
         do
         {
-          v35 = (unsigned __int64)Index << 6;
-          v36 = *(unsigned int *)((char *)&v32->m_events[0].m_time + v35);
-          v37 = (unsigned int *)((char *)v32->m_events + v35);
-          if ( (int)v36 < 0 )
+          v22 = (unsigned __int64)Index << 6;
+          v23 = *(unsigned int *)((char *)&v19->m_events[0].m_time + v22);
+          v24 = (unsigned int *)((char *)v19->m_events + v22);
+          if ( (int)v23 < 0 )
             break;
-          v38 = *(int *)((char *)&v32->m_events[0].m_fromState + v35);
-          if ( v38 >= 0 )
+          v25 = *(int *)((char *)&v19->m_events[0].m_fromState + v22);
+          if ( v25 >= 0 )
           {
-            v42 = Common_Asm::Utils::GetState(m_pASM, v38);
-            v43 = SL_ConvertToString(v42->m_Name);
-            Com_sprintf(dest, 0x400ui64, "t:%d %s", *v37, v43);
-            _RAX = ASM_History::GetColor(&v65, Index);
+            v28 = Common_Asm::Utils::GetState(m_pASM, v25);
+            v29 = SL_ConvertToString(v28->m_Name);
+            Com_sprintf(dest, 0x400ui64, "t:%d %s", *v24, v29);
+            v30 = ASM_History::GetColor(&v39, Index);
             p_color = &color;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [rsp+518h+color], xmm0
-            }
+            color = *v30;
           }
           else
           {
-            Com_sprintf(dest, 0x400ui64, "t:%d start", v36);
-            _RAX = ASM_History::GetColor(&result, Index);
-            p_color = (vec4_t *)&v67;
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups [rsp+518h+var_4A0], xmm0
-            }
+            Com_sprintf(dest, 0x400ui64, "t:%d start", v23);
+            v26 = (__int128 *)ASM_History::GetColor(&result, Index);
+            p_color = (vec4_t *)&v41;
+            v41 = *v26;
           }
-          __asm { vmovaps xmm2, xmm6; scale }
-          CL_AddDebugString(_RDI, p_color, *(float *)&_XMM2, dest, fromServer, duration);
-          __asm
+          CL_AddDebugString(drawPos, p_color, 0.5, dest, fromServer, duration);
+          drawPos->v[2] = drawPos->v[2] - 8.0;
+          if ( v24[2] )
           {
-            vmovss  xmm0, dword ptr [rdi+8]
-            vsubss  xmm1, xmm0, xmm7
-            vmovss  dword ptr [rdi+8], xmm1
-          }
-          if ( v37[2] )
-          {
-            v49 = 0i64;
+            v31 = 0i64;
             do
             {
-              v50 = Common_Asm::Utils::GetState(pASM, **(_DWORD **)&v37[2 * v49 + 4]);
-              v51 = SL_ConvertToString(v50->m_Name);
-              Com_sprintf(dest, 0x400ui64, "|_> %s", v51);
-              _RAX = ASM_History::GetColor(&v66, Index);
-              __asm
-              {
-                vmovaps xmm2, xmm6; scale
-                vmovups xmm0, xmmword ptr [rax]
-                vmovups xmmword ptr [rsp+518h+var_480], xmm0
-              }
-              CL_AddDebugString(_RDI, &v69, *(float *)&_XMM2, dest, fromServer, duration);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rdi+8]
-                vsubss  xmm1, xmm0, xmm7
-              }
-              v49 = (unsigned int)(v49 + 1);
-              __asm { vmovss  dword ptr [rdi+8], xmm1 }
+              v32 = Common_Asm::Utils::GetState(pASM, **(_DWORD **)&v24[2 * v31 + 4]);
+              v33 = SL_ConvertToString(v32->m_Name);
+              Com_sprintf(dest, 0x400ui64, "|_> %s", v33);
+              v43 = *ASM_History::GetColor(&v40, Index);
+              CL_AddDebugString(drawPos, &v43, 0.5, dest, fromServer, duration);
+              v31 = (unsigned int)(v31 + 1);
+              drawPos->v[2] = drawPos->v[2] - 8.0;
             }
-            while ( (unsigned int)v49 < v37[2] );
-            v32 = v63;
+            while ( (unsigned int)v31 < v24[2] );
+            v19 = v37;
           }
           m_pASM = pASM;
-          ++v34;
-          Index = ASM_History::NextIndex(v32, Index);
+          ++v21;
+          Index = ASM_History::NextIndex(v19, Index);
         }
-        while ( v34 < v61 );
+        while ( v21 < v35 );
       }
     }
-  }
-  _R11 = &v71;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 

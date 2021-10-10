@@ -529,77 +529,62 @@ void CG_WeaponStreamingMP_CacheWeaponIcons(const LocalClientNum_t localClientNum
 CG_WeaponStreamingMP_CollectViewWeaponsForClientModels
 ==============
 */
-bool CG_WeaponStreamingMP_CollectViewWeaponsForClientModels(const LocalClientNum_t localClientNum, const AssetStreamingRequestFlags flags, CgStreamRequestList<Weapon> *outViewWeaponRequestList)
+char CG_WeaponStreamingMP_CollectViewWeaponsForClientModels(const LocalClientNum_t localClientNum, const AssetStreamingRequestFlags flags, CgStreamRequestList<Weapon> *outViewWeaponRequestList)
 {
-  const dvar_t *v7; 
-  bool result; 
-  unsigned int v10; 
-  bool v11; 
+  const dvar_t *v6; 
+  CgWeaponStreamingClientModelCache *ClientModelCache; 
+  unsigned int v9; 
   const Weapon *Weapon; 
-  unsigned int v15; 
-  AssetStreamingPriority v16; 
-  bool v17; 
+  unsigned int v11; 
+  AssetStreamingPriority v12; 
+  char v13; 
   unsigned int iteratorPrevIndex; 
   unsigned int clientModelCount; 
-  CgWeaponStreamingMpWeaponSortFunctor v22; 
+  CgWeaponStreamingMpWeaponSortFunctor v16; 
 
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
-  v7 = DVARBOOL_cg_weaponStreaming_enableWorldClientModels;
+  v6 = DVARBOOL_cg_weaponStreaming_enableWorldClientModels;
   if ( !DVARBOOL_cg_weaponStreaming_enableWorldClientModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_weaponStreaming_enableWorldClientModels") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.enabled )
+  Dvar_CheckFrontendServerThread(v6);
+  if ( !v6->current.enabled )
+    return 1;
+  Sys_ProfBeginNamedEvent(0xFF808080, "CG_WeaponStreamingMP_CollectViewWeaponsForClientModels");
+  ClientModelCache = CG_WeaponStreamingMP_GetClientModelCache(localClientNum);
+  if ( ClientModelCache->iteratorPrevIndex > ClientModelCache->clientModelCount )
   {
-    Sys_ProfBeginNamedEvent(0xFF808080, "CG_WeaponStreamingMP_CollectViewWeaponsForClientModels");
-    _RDI = CG_WeaponStreamingMP_GetClientModelCache(localClientNum);
-    if ( _RDI->iteratorPrevIndex > _RDI->clientModelCount )
+    clientModelCount = ClientModelCache->clientModelCount;
+    iteratorPrevIndex = ClientModelCache->iteratorPrevIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 589, ASSERT_TYPE_ASSERT, "( clientModelCache.iteratorPrevIndex ) <= ( clientModelCache.clientModelCount )", "%s <= %s\n\t%i, %i", "clientModelCache.iteratorPrevIndex", "clientModelCache.clientModelCount", iteratorPrevIndex, clientModelCount) )
+      __debugbreak();
+  }
+  v9 = ClientModelCache->iteratorPrevIndex;
+  if ( v9 < ClientModelCache->clientModelCount )
+  {
+    while ( ClientModelCache->clientModels[v9].distanceSq <= 40000.0 )
     {
-      clientModelCount = _RDI->clientModelCount;
-      iteratorPrevIndex = _RDI->iteratorPrevIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 589, ASSERT_TYPE_ASSERT, "( clientModelCache.iteratorPrevIndex ) <= ( clientModelCache.clientModelCount )", "%s <= %s\n\t%i, %i", "clientModelCache.iteratorPrevIndex", "clientModelCache.clientModelCount", iteratorPrevIndex, clientModelCount) )
+      Weapon = CG_ClientModel_GetWeapon(localClientNum, ClientModelCache->clientModels[v9].clientModelIndex);
+      if ( !Weapon->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 601, ASSERT_TYPE_ASSERT, "(!BG_IsNullWeapon( weapon ))", (const char *)&queryFormat, "!BG_IsNullWeapon( weapon )") )
         __debugbreak();
-    }
-    v10 = _RDI->iteratorPrevIndex;
-    v11 = v10 < _RDI->clientModelCount;
-    if ( v10 < _RDI->clientModelCount )
-    {
-      __asm { vmovss  xmm6, cs:__real@471c4000 }
-      do
+      if ( BG_WeaponHasStreamedModels(Weapon) )
       {
-        _RAX = v10;
-        __asm { vcomiss xmm6, dword ptr [rdi+rax*8+4] }
-        if ( v11 )
-          break;
-        Weapon = CG_ClientModel_GetWeapon(localClientNum, _RDI->clientModels[v10].clientModelIndex);
-        if ( !Weapon->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 601, ASSERT_TYPE_ASSERT, "(!BG_IsNullWeapon( weapon ))", (const char *)&queryFormat, "!BG_IsNullWeapon( weapon )") )
-          __debugbreak();
-        if ( BG_WeaponHasStreamedModels(Weapon) )
+        v11 = s_cgWeaponStreaming.sourceOrderCounter[1]++;
+        v12.raw = Com_Streaming_GetPriority(ASSET_STREAMING_REQUEST_PICKUP, v11, flags).raw;
+        if ( !CG_StreamingMP_RequestList_AddRequest_Weapon_CgWeaponStreamingMpWeaponSortFunctor_(outViewWeaponRequestList, Weapon, v12, &v16) )
         {
-          v15 = s_cgWeaponStreaming.sourceOrderCounter[1]++;
-          v16.raw = Com_Streaming_GetPriority(ASSET_STREAMING_REQUEST_PICKUP, v15, flags).raw;
-          if ( !CG_StreamingMP_RequestList_AddRequest_Weapon_CgWeaponStreamingMpWeaponSortFunctor_(outViewWeaponRequestList, Weapon, v16, &v22) )
-          {
-            _RDI->iteratorPrevIndex = v10;
-            v17 = 0;
-            goto LABEL_19;
-          }
+          ClientModelCache->iteratorPrevIndex = v9;
+          v13 = 0;
+          goto LABEL_18;
         }
-        v11 = ++v10 < _RDI->clientModelCount;
       }
-      while ( v10 < _RDI->clientModelCount );
+      if ( ++v9 >= ClientModelCache->clientModelCount )
+        break;
     }
-    _RDI->iteratorPrevIndex = v10;
-    v17 = 1;
-LABEL_19:
-    Sys_ProfEndNamedEvent();
-    result = v17;
   }
-  else
-  {
-    result = 1;
-  }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
-  return result;
+  ClientModelCache->iteratorPrevIndex = v9;
+  v13 = 1;
+LABEL_18:
+  Sys_ProfEndNamedEvent();
+  return v13;
 }
 
 /*
@@ -773,134 +758,92 @@ LABEL_51:
 CG_WeaponStreamingMP_CollectWorldWeaponsForClientModels
 ==============
 */
-bool CG_WeaponStreamingMP_CollectWorldWeaponsForClientModels(const LocalClientNum_t localClientNum, const CgDistanceCacheMpRing ring, const AssetStreamingRequestFlags inFlags, CgStreamRequestList<Weapon> *outWorldWeaponRequestList)
+char CG_WeaponStreamingMP_CollectWorldWeaponsForClientModels(const LocalClientNum_t localClientNum, const CgDistanceCacheMpRing ring, const AssetStreamingRequestFlags inFlags, CgStreamRequestList<Weapon> *outWorldWeaponRequestList)
 {
-  const dvar_t *v14; 
-  bool result; 
+  const dvar_t *v8; 
+  double RingRadiusSq; 
+  CgWeaponStreamingClientModelCache *ClientModelCache; 
   unsigned int i; 
-  char v25; 
-  bool v26; 
-  bool v29; 
-  int v30; 
-  __int32 v31; 
+  float distanceSq; 
+  const dvar_t *v14; 
+  float v15; 
+  const dvar_t *v16; 
+  float v17; 
+  int v18; 
+  __int32 v19; 
   const Weapon *Weapon; 
-  unsigned int v33; 
-  AssetStreamingPriority v34; 
-  bool v35; 
+  unsigned int v21; 
+  AssetStreamingPriority v22; 
+  char v23; 
   unsigned int iteratorPrevIndex; 
   unsigned int clientModelCount; 
-  CgWeaponStreamingMpWeaponSortFunctor v43; 
-  __int64 v44; 
-  char v45; 
-  void *retaddr; 
+  CgWeaponStreamingMpWeaponSortFunctor v26; 
+  __int64 v27; 
 
-  _RAX = &retaddr;
-  v44 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
-  v14 = DVARBOOL_cg_weaponStreaming_enableWorldClientModels;
+  v27 = -2i64;
+  v8 = DVARBOOL_cg_weaponStreaming_enableWorldClientModels;
   if ( !DVARBOOL_cg_weaponStreaming_enableWorldClientModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_weaponStreaming_enableWorldClientModels") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( v14->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.enabled )
+    return 1;
+  Sys_ProfBeginNamedEvent(0xFF808080, "CG_WeaponStreamingMP_CollectWorldWeaponsForClientModels");
+  RingRadiusSq = CG_DistanceCacheMP_GetRingRadiusSq(ring);
+  ClientModelCache = CG_WeaponStreamingMP_GetClientModelCache(localClientNum);
+  if ( ClientModelCache->iteratorPrevIndex > ClientModelCache->clientModelCount )
   {
-    Sys_ProfBeginNamedEvent(0xFF808080, "CG_WeaponStreamingMP_CollectWorldWeaponsForClientModels");
-    *(double *)&_XMM0 = CG_DistanceCacheMP_GetRingRadiusSq(ring);
-    __asm { vmovaps xmm9, xmm0 }
-    _R14 = CG_WeaponStreamingMP_GetClientModelCache(localClientNum);
-    if ( _R14->iteratorPrevIndex > _R14->clientModelCount )
+    clientModelCount = ClientModelCache->clientModelCount;
+    iteratorPrevIndex = ClientModelCache->iteratorPrevIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 631, ASSERT_TYPE_ASSERT, "( clientModelCache.iteratorPrevIndex ) <= ( clientModelCache.clientModelCount )", "%s <= %s\n\t%i, %i", "clientModelCache.iteratorPrevIndex", "clientModelCache.clientModelCount", iteratorPrevIndex, clientModelCount) )
+      __debugbreak();
+  }
+  for ( i = ClientModelCache->iteratorPrevIndex; i < ClientModelCache->clientModelCount; ++i )
+  {
+    distanceSq = ClientModelCache->clientModels[i].distanceSq;
+    if ( distanceSq > *(float *)&RingRadiusSq )
+      break;
+    v14 = DCONST_DVARFLT_cg_streamingMaxDistanceForNearWorldModelPrioritization;
+    if ( !DCONST_DVARFLT_cg_streamingMaxDistanceForNearWorldModelPrioritization && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_streamingMaxDistanceForNearWorldModelPrioritization") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v14);
+    v15 = v14->current.value * v14->current.value;
+    v16 = DCONST_DVARFLT_cg_streamingMinDistanceForFarWorldModelPrioritization;
+    if ( !DCONST_DVARFLT_cg_streamingMinDistanceForFarWorldModelPrioritization && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_streamingMinDistanceForFarWorldModelPrioritization") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v16);
+    v17 = v16->current.value * v16->current.value;
+    if ( v17 <= v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_streaming_mp_inline.h", 327, ASSERT_TYPE_ASSERT, "(streamingMinDistanceSqForFarWorldModelPrioritization > streamingMaxDistanceSqForNearWorldModelPrioritization)", (const char *)&queryFormat, "streamingMinDistanceSqForFarWorldModelPrioritization > streamingMaxDistanceSqForNearWorldModelPrioritization") )
+      __debugbreak();
+    if ( distanceSq > v15 )
     {
-      clientModelCount = _R14->clientModelCount;
-      iteratorPrevIndex = _R14->iteratorPrevIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 631, ASSERT_TYPE_ASSERT, "( clientModelCache.iteratorPrevIndex ) <= ( clientModelCache.clientModelCount )", "%s <= %s\n\t%i, %i", "clientModelCache.iteratorPrevIndex", "clientModelCache.clientModelCount", iteratorPrevIndex, clientModelCount) )
-        __debugbreak();
+      v18 = 0;
+      if ( distanceSq >= v17 )
+        v18 = 16;
     }
-    for ( i = _R14->iteratorPrevIndex; i < _R14->clientModelCount; ++i )
+    else
     {
-      _RSI = i;
-      __asm
+      v18 = 8;
+    }
+    v19 = inFlags | v18;
+    Weapon = CG_ClientModel_GetWeapon(localClientNum, ClientModelCache->clientModels[i].clientModelIndex);
+    if ( !Weapon->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 649, ASSERT_TYPE_ASSERT, "(!BG_IsNullWeapon( weapon ))", (const char *)&queryFormat, "!BG_IsNullWeapon( weapon )") )
+      __debugbreak();
+    if ( BG_WeaponHasStreamedModels(Weapon) )
+    {
+      v21 = s_cgWeaponStreaming.sourceOrderCounter[4]++;
+      v22.raw = Com_Streaming_GetPriority(ASSET_STREAMING_REQUEST_EQUIPPED_WORLD, v21, (const AssetStreamingRequestFlags)v19).raw;
+      if ( !CG_StreamingMP_RequestList_AddRequest_Weapon_CgWeaponStreamingMpWeaponSortFunctor_(outWorldWeaponRequestList, Weapon, v22, &v26) )
       {
-        vmovss  xmm8, dword ptr [r14+rsi*8+4]
-        vcomiss xmm8, xmm9
-      }
-      if ( i > _R14->clientModelCount )
-        break;
-      _RBX = DCONST_DVARFLT_cg_streamingMaxDistanceForNearWorldModelPrioritization;
-      if ( !DCONST_DVARFLT_cg_streamingMaxDistanceForNearWorldModelPrioritization && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_streamingMaxDistanceForNearWorldModelPrioritization") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmulss  xmm7, xmm0, xmm0
-      }
-      _RBX = DCONST_DVARFLT_cg_streamingMinDistanceForFarWorldModelPrioritization;
-      if ( !DCONST_DVARFLT_cg_streamingMinDistanceForFarWorldModelPrioritization && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_streamingMinDistanceForFarWorldModelPrioritization") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vmulss  xmm6, xmm0, xmm0
-        vcomiss xmm6, xmm7
-      }
-      if ( v25 | v26 )
-      {
-        v29 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_streaming_mp_inline.h", 327, ASSERT_TYPE_ASSERT, "(streamingMinDistanceSqForFarWorldModelPrioritization > streamingMaxDistanceSqForNearWorldModelPrioritization)", (const char *)&queryFormat, "streamingMinDistanceSqForFarWorldModelPrioritization > streamingMaxDistanceSqForNearWorldModelPrioritization");
-        v25 = 0;
-        v26 = !v29;
-        if ( v29 )
-          __debugbreak();
-      }
-      __asm { vcomiss xmm8, xmm7 }
-      if ( v25 | v26 )
-      {
-        v30 = 8;
-      }
-      else
-      {
-        __asm { vcomiss xmm8, xmm6 }
-        v30 = 16;
-      }
-      v31 = inFlags | v30;
-      Weapon = CG_ClientModel_GetWeapon(localClientNum, _R14->clientModels[i].clientModelIndex);
-      if ( !Weapon->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 649, ASSERT_TYPE_ASSERT, "(!BG_IsNullWeapon( weapon ))", (const char *)&queryFormat, "!BG_IsNullWeapon( weapon )") )
-        __debugbreak();
-      if ( BG_WeaponHasStreamedModels(Weapon) )
-      {
-        v33 = s_cgWeaponStreaming.sourceOrderCounter[4]++;
-        v34.raw = Com_Streaming_GetPriority(ASSET_STREAMING_REQUEST_EQUIPPED_WORLD, v33, (const AssetStreamingRequestFlags)v31).raw;
-        if ( !CG_StreamingMP_RequestList_AddRequest_Weapon_CgWeaponStreamingMpWeaponSortFunctor_(outWorldWeaponRequestList, Weapon, v34, &v43) )
-        {
-          v35 = 0;
-          goto LABEL_32;
-        }
+        v23 = 0;
+        goto LABEL_33;
       }
     }
-    v35 = 1;
-LABEL_32:
-    _R14->iteratorPrevIndex = i;
-    Sys_ProfEndNamedEvent();
-    result = v35;
   }
-  else
-  {
-    result = 1;
-  }
-  _R11 = &v45;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return result;
+  v23 = 1;
+LABEL_33:
+  ClientModelCache->iteratorPrevIndex = i;
+  Sys_ProfEndNamedEvent();
+  return v23;
 }
 
 /*
@@ -908,92 +851,80 @@ LABEL_32:
 CG_WeaponStreamingMP_CollectWorldWeaponsForScriptableLoot
 ==============
 */
-bool CG_WeaponStreamingMP_CollectWorldWeaponsForScriptableLoot(const LocalClientNum_t localClientNum, const CgDistanceCacheMpRing ring, const AssetStreamingRequestFlags inFlags, CgStreamRequestList<Weapon> *outWorldWeaponRequestList)
+char CG_WeaponStreamingMP_CollectWorldWeaponsForScriptableLoot(const LocalClientNum_t localClientNum, const CgDistanceCacheMpRing ring, const AssetStreamingRequestFlags inFlags, CgStreamRequestList<Weapon> *outWorldWeaponRequestList)
 {
-  __int64 v9; 
-  const dvar_t *v10; 
-  bool result; 
-  int v13; 
+  __int64 v7; 
+  const dvar_t *v8; 
+  double RingRadiusSq; 
+  float v11; 
+  int v12; 
+  CgWeaponStreamingScriptableLootCache *ScriptableLootCache; 
   const BG_SpawnGroup_Loot_Table *LootTable; 
-  const BG_SpawnGroup_Loot_Table *v16; 
+  const BG_SpawnGroup_Loot_Table *v15; 
   const CgWeaponMap *Instance; 
-  unsigned int iteratorPrevIndex; 
-  bool i; 
+  unsigned int i; 
+  float distanceSq; 
   int RequestFlagsForDistanceSq; 
-  bool v23; 
+  char v20; 
   char *fmt; 
   CgStreamRequestList<Weapon> *outWorldWeaponRequestLista; 
-  __int64 v27; 
+  __int64 v23; 
 
-  __asm { vmovaps [rsp+98h+var_38], xmm6 }
-  v9 = localClientNum;
-  v10 = DVARBOOL_cg_weaponStreaming_enableWorldScriptableLoot;
+  v7 = localClientNum;
+  v8 = DVARBOOL_cg_weaponStreaming_enableWorldScriptableLoot;
   if ( !DVARBOOL_cg_weaponStreaming_enableWorldScriptableLoot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_weaponStreaming_enableWorldScriptableLoot") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.enabled )
+    return 1;
+  Sys_ProfBeginNamedEvent(0xFF808080, "CG_WeaponStreamingMP_CollectWorldWeaponsForScriptableLoot");
+  RingRadiusSq = CG_DistanceCacheMP_GetRingRadiusSq(ring);
+  v11 = *(float *)&RingRadiusSq;
+  if ( (unsigned int)v7 >= 2 )
   {
-    Sys_ProfBeginNamedEvent(0xFF808080, "CG_WeaponStreamingMP_CollectWorldWeaponsForScriptableLoot");
-    *(double *)&_XMM0 = CG_DistanceCacheMP_GetRingRadiusSq(ring);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( (unsigned int)v9 >= 2 )
+    LODWORD(v23) = 2;
+    LODWORD(outWorldWeaponRequestLista) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 205, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgWeaponStreaming.clientData ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgWeaponStreaming.clientData )\n\t%i not in [0, %i)", outWorldWeaponRequestLista, v23) )
+      __debugbreak();
+  }
+  if ( s_cgWeaponStreaming.sourceOrderCounter[1990 * v7 - 1994] != s_cgWeaponStreaming.sourceOrderCounter[1990 * v7 - 1993] )
+  {
+    v12 = Sys_Milliseconds();
+    if ( v12 - dword_148C65034 > 2000 )
     {
-      LODWORD(v27) = 2;
-      LODWORD(outWorldWeaponRequestLista) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 205, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgWeaponStreaming.clientData ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgWeaponStreaming.clientData )\n\t%i not in [0, %i)", outWorldWeaponRequestLista, v27) )
-        __debugbreak();
+      LODWORD(fmt) = 600;
+      Com_PrintWarning(14, "WARNING: Client %u requests %u loot weapons. This exceeds CgWeaponStreamingScriptableLootCache's max capacity MAX_SCRIPTABLE_LOOT_CHESTS (%u)\n", (unsigned int)v7, s_cgWeaponStreaming.sourceOrderCounter[1990 * v7 - 1993], fmt);
+      dword_148C65034 = v12;
     }
-    if ( s_cgWeaponStreaming.sourceOrderCounter[1990 * v9 - 1994] != s_cgWeaponStreaming.sourceOrderCounter[1990 * v9 - 1993] )
+  }
+  ScriptableLootCache = CG_WeaponStreamingMP_GetScriptableLootCache((const LocalClientNum_t)v7);
+  LootTable = ScriptableCl_GetLootTable((const LocalClientNum_t)v7);
+  v15 = LootTable;
+  if ( LootTable && LootTable->weaponMapCopied )
+  {
+    Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)v7);
+    if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 741, ASSERT_TYPE_ASSERT, "( ( weaponMap != nullptr ) )", "( weaponMap ) = %p", NULL) )
+      __debugbreak();
+    if ( ScriptableLootCache->iteratorPrevIndex > ScriptableLootCache->chestCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 743, ASSERT_TYPE_ASSERT, "( scriptableLootCache.iteratorPrevIndex ) <= ( scriptableLootCache.chestCount )", "%s <= %s\n\t%i, %i", "scriptableLootCache.iteratorPrevIndex", "scriptableLootCache.chestCount", ScriptableLootCache->iteratorPrevIndex, ScriptableLootCache->chestCount) )
+      __debugbreak();
+    for ( i = ScriptableLootCache->iteratorPrevIndex; i < ScriptableLootCache->chestCount; ++i )
     {
-      v13 = Sys_Milliseconds();
-      if ( v13 - dword_148C65034 > 2000 )
+      distanceSq = ScriptableLootCache->chestInfo[i].distanceSq;
+      if ( distanceSq > v11 )
+        break;
+      RequestFlagsForDistanceSq = CG_StreamingMP_GetRequestFlagsForDistanceSq(distanceSq);
+      if ( !CG_WeaponStreamingMP_CollectWorldWeaponsForScriptableLootChest((const LocalClientNum_t)v7, Instance, v15, (const AssetStreamingRequestFlags)(inFlags | RequestFlagsForDistanceSq), ScriptableLootCache->chestInfo[i].scriptableInstanceIndex, outWorldWeaponRequestList) )
       {
-        LODWORD(fmt) = 600;
-        Com_PrintWarning(14, "WARNING: Client %u requests %u loot weapons. This exceeds CgWeaponStreamingScriptableLootCache's max capacity MAX_SCRIPTABLE_LOOT_CHESTS (%u)\n", (unsigned int)v9, s_cgWeaponStreaming.sourceOrderCounter[1990 * v9 - 1993], fmt);
-        dword_148C65034 = v13;
+        v20 = 0;
+        goto LABEL_26;
       }
     }
-    _RDI = CG_WeaponStreamingMP_GetScriptableLootCache((const LocalClientNum_t)v9);
-    LootTable = ScriptableCl_GetLootTable((const LocalClientNum_t)v9);
-    v16 = LootTable;
-    if ( LootTable && LootTable->weaponMapCopied )
-    {
-      Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)v9);
-      if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 741, ASSERT_TYPE_ASSERT, "( ( weaponMap != nullptr ) )", "( weaponMap ) = %p", NULL) )
-        __debugbreak();
-      if ( _RDI->iteratorPrevIndex > _RDI->chestCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 743, ASSERT_TYPE_ASSERT, "( scriptableLootCache.iteratorPrevIndex ) <= ( scriptableLootCache.chestCount )", "%s <= %s\n\t%i, %i", "scriptableLootCache.iteratorPrevIndex", "scriptableLootCache.chestCount", _RDI->iteratorPrevIndex, _RDI->chestCount) )
-        __debugbreak();
-      iteratorPrevIndex = _RDI->iteratorPrevIndex;
-      for ( i = iteratorPrevIndex <= _RDI->chestCount; iteratorPrevIndex < _RDI->chestCount; i = ++iteratorPrevIndex <= _RDI->chestCount )
-      {
-        _RSI = iteratorPrevIndex;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+rsi*8+4]; distanceSq
-          vcomiss xmm0, xmm6
-        }
-        if ( !i )
-          break;
-        RequestFlagsForDistanceSq = CG_StreamingMP_GetRequestFlagsForDistanceSq(*(double *)&_XMM0);
-        if ( !CG_WeaponStreamingMP_CollectWorldWeaponsForScriptableLootChest((const LocalClientNum_t)v9, Instance, v16, (const AssetStreamingRequestFlags)(inFlags | RequestFlagsForDistanceSq), _RDI->chestInfo[iteratorPrevIndex].scriptableInstanceIndex, outWorldWeaponRequestList) )
-        {
-          v23 = 0;
-          goto LABEL_26;
-        }
-      }
-      _RDI->iteratorPrevIndex = iteratorPrevIndex;
-    }
-    v23 = 1;
+    ScriptableLootCache->iteratorPrevIndex = i;
+  }
+  v20 = 1;
 LABEL_26:
-    Sys_ProfEndNamedEvent();
-    result = v23;
-  }
-  else
-  {
-    result = 1;
-  }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
-  return result;
+  Sys_ProfEndNamedEvent();
+  return v20;
 }
 
 /*
@@ -1157,116 +1088,88 @@ CG_WeaponStreamingMP_ComputeClientModelCache
 */
 void CG_WeaponStreamingMP_ComputeClientModelCache(const LocalClientNum_t localClientNum)
 {
-  const dvar_t *v6; 
+  const dvar_t *v2; 
   CgGlobalsMP *LocalClientGlobals; 
+  CgWeaponStreamingClientModelCache *ClientModelCache; 
+  float v5; 
+  float v6; 
+  float v7; 
   unsigned int bits; 
-  __int64 v13; 
-  unsigned int v14; 
+  __int64 v9; 
+  unsigned int v10; 
   unsigned int index; 
-  __int64 v29; 
-  __int64 v30; 
-  CgWeaponStreamingMpClientModelSortFunctor v31; 
+  __int64 clientModelCount; 
+  __int64 v13; 
+  __int64 v14; 
+  CgWeaponStreamingMpClientModelSortFunctor v15; 
   BitArrayIterator outIter; 
   vec3_t outOrg; 
-  __int64 v34; 
+  __int64 v18; 
   vec3_t outOrigin; 
-  char v36; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v34 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  v6 = DVARBOOL_cg_weaponStreaming_enableWorldClientModels;
+  v18 = -2i64;
+  v2 = DVARBOOL_cg_weaponStreaming_enableWorldClientModels;
   if ( !DVARBOOL_cg_weaponStreaming_enableWorldClientModels && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_weaponStreaming_enableWorldClientModels") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
   {
     Sys_ProfBeginNamedEvent(0xFF808080, "CG_WeaponStreamingMP_ComputeClientModelCache");
     LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
     if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 383, ASSERT_TYPE_ASSERT, "( ( cgameGlob != nullptr ) )", "( cgameGlob ) = %p", NULL) )
       __debugbreak();
     RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-    _RSI = CG_WeaponStreamingMP_GetClientModelCache(localClientNum);
-    *(_QWORD *)&_RSI->clientModelCount = 0i64;
+    ClientModelCache = CG_WeaponStreamingMP_GetClientModelCache(localClientNum);
+    *(_QWORD *)&ClientModelCache->clientModelCount = 0i64;
     CG_ClientModel_GetStreamingWeaponIterator(localClientNum, &outIter);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbp+57h+outOrg+8]
-      vmovss  xmm7, dword ptr [rbp+57h+outOrg+4]
-      vmovss  xmm8, dword ptr [rbp+57h+outOrg]
-    }
+    v5 = outOrg.v[2];
+    v6 = outOrg.v[1];
+    v7 = outOrg.v[0];
     while ( 1 )
     {
       bits = outIter.bits;
-      LODWORD(v13) = outIter.wordIndex;
+      LODWORD(v9) = outIter.wordIndex;
       if ( !outIter.bits )
         break;
 LABEL_12:
-      v14 = __lzcnt(bits);
-      outIter.index = v14 + 32 * v13;
-      if ( v14 >= 0x20 )
+      v10 = __lzcnt(bits);
+      outIter.index = v10 + 32 * v9;
+      if ( v10 >= 0x20 )
       {
-        LODWORD(v30) = 32;
-        LODWORD(v29) = v14;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v29, v30) )
+        LODWORD(v14) = 32;
+        LODWORD(v13) = v10;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_bitops.h", 104, ASSERT_TYPE_ASSERT, "(unsigned)( count ) < (unsigned)( 32 )", "count doesn't index 32\n\t%i not in [0, %i)", v13, v14) )
           __debugbreak();
         bits = outIter.bits;
       }
-      if ( (bits & (0x80000000 >> v14)) == 0 )
+      if ( (bits & (0x80000000 >> v10)) == 0 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarrayiterator.h", 76, ASSERT_TYPE_ASSERT, "(iter->bits & bit)", (const char *)&queryFormat, "iter->bits & bit") )
           __debugbreak();
         bits = outIter.bits;
       }
-      outIter.bits = ~(0x80000000 >> v14) & bits;
+      outIter.bits = ~(0x80000000 >> v10) & bits;
       index = outIter.index;
       CG_ClientModel_GetOrigin(localClientNum, outIter.index, &outOrigin, (scr_string_t)0);
-      __asm
-      {
-        vsubss  xmm2, xmm8, dword ptr [rbp+57h+outOrigin]
-        vsubss  xmm0, xmm7, dword ptr [rbp+57h+outOrigin+4]
-        vsubss  xmm3, xmm6, dword ptr [rbp+57h+outOrigin+8]
-      }
-      _RAX = _RSI->clientModelCount;
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm0, xmm2, xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rsi+rax*8+4], xmm2
-      }
-      _RSI->clientModels[_RAX].clientModelIndex = index;
-      ++_RSI->clientModelCount;
+      clientModelCount = ClientModelCache->clientModelCount;
+      ClientModelCache->clientModels[clientModelCount].distanceSq = (float)((float)((float)(v6 - outOrigin.v[1]) * (float)(v6 - outOrigin.v[1])) + (float)((float)(v7 - outOrigin.v[0]) * (float)(v7 - outOrigin.v[0]))) + (float)((float)(v5 - outOrigin.v[2]) * (float)(v5 - outOrigin.v[2]));
+      ClientModelCache->clientModels[clientModelCount].clientModelIndex = index;
+      ++ClientModelCache->clientModelCount;
     }
     while ( 1 )
     {
-      v13 = (unsigned int)(v13 + 1);
-      outIter.wordIndex = v13;
-      if ( (unsigned int)v13 >= outIter.wordCount )
+      v9 = (unsigned int)(v9 + 1);
+      outIter.wordIndex = v9;
+      if ( (unsigned int)v9 >= outIter.wordCount )
         break;
-      bits = outIter.bitArray[v13];
+      bits = outIter.bitArray[v9];
       outIter.bits = bits;
       if ( bits )
         goto LABEL_12;
     }
-    std::_Sort_unchecked<CgWeaponStreamingClientModelInfo *,CgWeaponStreamingMpClientModelSortFunctor>(_RSI->clientModels, &_RSI->clientModels[_RSI->clientModelCount], _RSI->clientModelCount, v31);
+    std::_Sort_unchecked<CgWeaponStreamingClientModelInfo *,CgWeaponStreamingMpClientModelSortFunctor>(ClientModelCache->clientModels, &ClientModelCache->clientModels[ClientModelCache->clientModelCount], ClientModelCache->clientModelCount, v15);
     memset(&outOrg, 0, sizeof(outOrg));
     Sys_ProfEndNamedEvent();
-  }
-  _R11 = &v36;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -1277,154 +1180,109 @@ CG_WeaponStreamingMP_ComputeScriptableLootCache
 */
 void CG_WeaponStreamingMP_ComputeScriptableLootCache(const LocalClientNum_t localClientNum)
 {
-  __int64 v8; 
-  const dvar_t *v10; 
+  __int64 v1; 
+  unsigned int *v2; 
+  const dvar_t *v3; 
   const BG_SpawnGroup_Loot_Table *LootTable; 
   CgGlobalsMP *LocalClientGlobals; 
   unsigned int Count; 
-  unsigned int v14; 
-  unsigned int v19; 
+  unsigned int v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  unsigned int v11; 
+  const dvar_t *v12; 
+  float v13; 
   ScriptableInstanceContextSecure *InstanceCommonContext; 
-  char v32; 
-  char v33; 
-  const dvar_t *v36; 
-  ScriptableInstanceContextSecure *v37; 
-  const char *v42; 
-  CgWeaponStreamingMpScriptableLootSortFunctor v51; 
+  float v15; 
+  __int64 v16; 
+  __int64 v17; 
+  const dvar_t *v18; 
+  ScriptableInstanceContextSecure *v19; 
+  const char *v20; 
+  CgWeaponStreamingMpScriptableLootSortFunctor v21; 
   unsigned int outFirstUsablePartIndex; 
-  __int64 v53; 
+  __int64 v23; 
   vec3_t outOrg; 
   vec3_t outOrigin; 
-  char v56; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v53 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-  }
-  v8 = localClientNum;
+  v23 = -2i64;
+  v1 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 205, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ( sizeof( *array_counter( s_cgWeaponStreaming.clientData ) ) + 0 ) )", "localClientNum doesn't index ARRAY_COUNT( s_cgWeaponStreaming.clientData )\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  _RBX = &s_cgWeaponStreaming.sourceOrderCounter[1990 * v8 - 3194];
+  v2 = &s_cgWeaponStreaming.sourceOrderCounter[1990 * v1 - 3194];
   Sys_ProfBeginNamedEvent(0xFF808080, "CG_WeaponStreamingMP_ComputeScriptableLootCache");
-  *((_QWORD *)_RBX + 600) = 0i64;
-  _RBX[1202] = 0;
-  v10 = DVARBOOL_cg_weaponStreaming_enableWorldScriptableLoot;
+  *((_QWORD *)v2 + 600) = 0i64;
+  v2[1202] = 0;
+  v3 = DVARBOOL_cg_weaponStreaming_enableWorldScriptableLoot;
   if ( !DVARBOOL_cg_weaponStreaming_enableWorldScriptableLoot && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_weaponStreaming_enableWorldScriptableLoot") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.enabled )
   {
-    LootTable = ScriptableCl_GetLootTable((const LocalClientNum_t)v8);
+    LootTable = ScriptableCl_GetLootTable((const LocalClientNum_t)v1);
     if ( LootTable )
     {
       if ( LootTable->weaponMapCopied )
       {
-        LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v8);
+        LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals((const LocalClientNum_t)v1);
         if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 481, ASSERT_TYPE_ASSERT, "( ( cgameGlob != nullptr ) )", "( cgameGlob ) = %p", NULL) )
           __debugbreak();
         RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-        Count = ScriptableCl_Spatial_ActiveList_GetCount((const LocalClientNum_t)v8);
-        v14 = 0;
+        Count = ScriptableCl_Spatial_ActiveList_GetCount((const LocalClientNum_t)v1);
+        v7 = 0;
         if ( Count )
         {
-          __asm
-          {
-            vmovss  xmm8, dword ptr [rsp+108h+outOrg+8]
-            vmovss  xmm9, dword ptr [rsp+108h+outOrg+4]
-            vmovss  xmm10, dword ptr [rsp+108h+outOrg]
-            vmovss  xmm11, cs:__real@3f000000
-          }
+          v8 = outOrg.v[2];
+          v9 = outOrg.v[1];
+          v10 = outOrg.v[0];
           do
           {
-            v19 = ScriptableCl_Spatial_ActiveList_GetAtIndex((const LocalClientNum_t)v8, v14);
+            v11 = ScriptableCl_Spatial_ActiveList_GetAtIndex((const LocalClientNum_t)v1, v7);
             outFirstUsablePartIndex = 0;
-            if ( ScriptableCl_IsLootCache((const LocalClientNum_t)v8, v19) )
+            if ( ScriptableCl_IsLootCache((const LocalClientNum_t)v1, v11) )
             {
-              _RBP = DVARFLT_cg_weaponStreaming_scriptableLootRadius;
+              v12 = DVARFLT_cg_weaponStreaming_scriptableLootRadius;
               if ( !DVARFLT_cg_weaponStreaming_scriptableLootRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_weaponStreaming_scriptableLootRadius") )
                 __debugbreak();
-              Dvar_CheckFrontendServerThread(_RBP);
-              __asm
+              Dvar_CheckFrontendServerThread(v12);
+              v13 = v12->current.value * v12->current.value;
+              InstanceCommonContext = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v1, v11);
+              ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, v11, &outOrg);
+              v15 = (float)((float)((float)(v9 - outOrg.v[1]) * (float)(v9 - outOrg.v[1])) + (float)((float)(v10 - outOrg.v[0]) * (float)(v10 - outOrg.v[0]))) + (float)((float)(v8 - outOrg.v[2]) * (float)(v8 - outOrg.v[2]));
+              if ( v15 <= v13 && ScriptableCl_IsScriptableUsable((const LocalClientNum_t)v1, v11, &outFirstUsablePartIndex) )
               {
-                vmovss  xmm0, dword ptr [rbp+28h]
-                vmulss  xmm6, xmm0, xmm0
-              }
-              InstanceCommonContext = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v8, v19);
-              ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, v19, &outOrg);
-              __asm
-              {
-                vsubss  xmm2, xmm10, dword ptr [rsp+108h+outOrg]
-                vsubss  xmm0, xmm9, dword ptr [rsp+108h+outOrg+4]
-                vsubss  xmm3, xmm8, dword ptr [rsp+108h+outOrg+8]
-                vmulss  xmm1, xmm0, xmm0
-                vmulss  xmm0, xmm2, xmm2
-                vaddss  xmm2, xmm1, xmm0
-                vmulss  xmm1, xmm3, xmm3
-                vaddss  xmm7, xmm2, xmm1
-                vcomiss xmm7, xmm6
-              }
-              if ( v32 | v33 )
-              {
-                if ( ScriptableCl_IsScriptableUsable((const LocalClientNum_t)v8, v19, &outFirstUsablePartIndex) )
+                ++v2[1201];
+                v16 = v2[1200];
+                if ( (unsigned int)v16 < 0x258 )
                 {
-                  ++_RBX[1201];
-                  _RAX = _RBX[1200];
-                  if ( (unsigned int)_RAX < 0x258 )
+                  v17 = (unsigned int)v16;
+                  *(float *)&v2[2 * v16 + 1] = v15;
+                  v2[2 * v16] = v11;
+                  ++v2[1200];
+                  v18 = DCONST_DVARINT_cg_drawWeaponStreaming;
+                  if ( !DCONST_DVARINT_cg_drawWeaponStreaming && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawWeaponStreaming") )
+                    __debugbreak();
+                  Dvar_CheckFrontendServerThread(v18);
+                  if ( v18->current.integer == 1 )
                   {
-                    _RBP = (unsigned int)_RAX;
-                    __asm { vmovss  dword ptr [rbx+rax*8+4], xmm7 }
-                    _RBX[2 * _RAX] = v19;
-                    ++_RBX[1200];
-                    v36 = DCONST_DVARINT_cg_drawWeaponStreaming;
-                    if ( !DCONST_DVARINT_cg_drawWeaponStreaming && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawWeaponStreaming") )
-                      __debugbreak();
-                    Dvar_CheckFrontendServerThread(v36);
-                    if ( v36->current.integer == 1 )
-                    {
-                      v37 = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v8, _RBX[2 * _RBP]);
-                      ScriptableInstanceContextSecure::GetOrigin(v37, _RBX[2 * _RBP], &outOrigin);
-                      __asm
-                      {
-                        vmovss  xmm0, dword ptr [rbx+rbp*8+4]
-                        vsqrtss xmm0, xmm0, xmm0
-                        vcvtss2sd xmm2, xmm0, xmm0
-                        vmovq   r8, xmm2
-                      }
-                      v42 = j_va("%u: %f", _RBX[2 * _RBP], _R8);
-                      __asm { vmovaps xmm2, xmm11; scale }
-                      CL_AddDebugString(&outOrigin, &colorWhite, *(float *)&_XMM2, v42, 0, 1);
-                    }
+                    v19 = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)v1, v2[2 * v17]);
+                    ScriptableInstanceContextSecure::GetOrigin(v19, v2[2 * v17], &outOrigin);
+                    v20 = j_va("%u: %f", v2[2 * v17], fsqrt(*(float *)&v2[2 * v17 + 1]));
+                    CL_AddDebugString(&outOrigin, &colorWhite, 0.5, v20, 0, 1);
                   }
                 }
               }
             }
-            ++v14;
+            ++v7;
           }
-          while ( v14 < Count );
+          while ( v7 < Count );
         }
-        std::_Sort_unchecked<CgWeaponStreamingScriptableLootChestInfo *,CgWeaponStreamingMpScriptableLootSortFunctor>((CgWeaponStreamingScriptableLootChestInfo *)&s_cgWeaponStreaming.sourceOrderCounter[1990 * v8 - 3194], (CgWeaponStreamingScriptableLootChestInfo *)&_RBX[2 * _RBX[1200]], _RBX[1200], v51);
+        std::_Sort_unchecked<CgWeaponStreamingScriptableLootChestInfo *,CgWeaponStreamingMpScriptableLootSortFunctor>((CgWeaponStreamingScriptableLootChestInfo *)&s_cgWeaponStreaming.sourceOrderCounter[1990 * v1 - 3194], (CgWeaponStreamingScriptableLootChestInfo *)&v2[2 * v2[1200]], v2[1200], v21);
       }
     }
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v56;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
 }
 
 /*
@@ -1439,7 +1297,7 @@ void CG_WeaponStreamingMP_DebugDrawDistanceCacheEntry(const LocalClientNum_t loc
   centity_t *Entity; 
   const char *v6; 
   __int64 duration; 
-  __int64 v9; 
+  __int64 v8; 
   vec3_t outOrigin; 
 
   v2 = entNum;
@@ -1447,9 +1305,9 @@ void CG_WeaponStreamingMP_DebugDrawDistanceCacheEntry(const LocalClientNum_t loc
     __debugbreak();
   if ( (unsigned int)v2 >= 0x800 )
   {
-    LODWORD(v9) = 2048;
+    LODWORD(v8) = 2048;
     LODWORD(duration) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 266, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", duration, v9) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 266, ASSERT_TYPE_ASSERT, "(unsigned)( entNum ) < (unsigned)( ( 2048 ) )", "entNum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", duration, v8) )
       __debugbreak();
   }
   v4 = DCONST_DVARINT_cg_drawWeaponStreaming;
@@ -1463,8 +1321,7 @@ void CG_WeaponStreamingMP_DebugDrawDistanceCacheEntry(const LocalClientNum_t loc
       __debugbreak();
     CG_GetPoseOrigin(&Entity->pose, &outOrigin);
     v6 = j_va("%i: %i", s_sortOrderCounter_0, (unsigned int)v2);
-    __asm { vmovss  xmm2, cs:__real@3f000000; scale }
-    CL_AddDebugString(&outOrigin, &colorWhite, *(float *)&_XMM2, v6, 0, 1);
+    CL_AddDebugString(&outOrigin, &colorWhite, 0.5, v6, 0, 1);
   }
   s_sortOrderLookupTable_0[v2] = ++s_sortOrderCounter_0;
 }
@@ -1477,41 +1334,38 @@ CG_WeaponStreamingMP_DebugGetHudOutlineInfo
 GfxSceneHudOutlineInfo *CG_WeaponStreamingMP_DebugGetHudOutlineInfo(GfxSceneHudOutlineInfo *result, unsigned int entnum)
 {
   __int64 v2; 
-  bool v5; 
+  bool v4; 
   unsigned int HudOutlineColor; 
-  __int64 v10; 
-  __int64 v11; 
+  const dvar_t *v6; 
+  __int64 v8; 
+  __int64 v9; 
 
   v2 = entnum;
-  _RBX = result;
   if ( entnum >= 0x800 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 1476, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( 2048 ) )", "entnum doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", entnum, 2048) )
       __debugbreak();
-    LODWORD(v11) = 2048;
-    LODWORD(v10) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 1477, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( sizeof( *array_counter( s_sortOrderLookupTable ) ) + 0 ) )", "entnum doesn't index ARRAY_COUNT( s_sortOrderLookupTable )\n\t%i not in [0, %i)", v10, v11) )
+    LODWORD(v9) = 2048;
+    LODWORD(v8) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 1477, ASSERT_TYPE_ASSERT, "(unsigned)( entnum ) < (unsigned)( ( sizeof( *array_counter( s_sortOrderLookupTable ) ) + 0 ) )", "entnum doesn't index ARRAY_COUNT( s_sortOrderLookupTable )\n\t%i not in [0, %i)", v8, v9) )
       __debugbreak();
   }
-  __asm { vmovups ymm0, ymmword ptr cs:NULL_HUDOUTLINE_INFO_0.color }
-  v5 = s_sortOrderLookupTable_0[v2] == 0;
-  __asm { vmovups ymmword ptr [rbx], ymm0 }
-  _RBX->characterEVOffset = NULL_HUDOUTLINE_INFO_0.characterEVOffset;
-  if ( !v5 )
+  v4 = s_sortOrderLookupTable_0[v2] == 0;
+  *result = NULL_HUDOUTLINE_INFO_0;
+  if ( !v4 )
   {
     HudOutlineColor = CG_Utils_GetHudOutlineColor(4u);
-    _RDI = DVARFLT_r_hudOutlineWidth;
-    _RBX->color = HudOutlineColor;
-    *(_WORD *)&_RBX->drawOccludedPixels = 257;
-    if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineWidth") )
+    v6 = DVARFLT_r_hudOutlineWidth;
+    result->color = HudOutlineColor;
+    *(_WORD *)&result->drawOccludedPixels = 257;
+    if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_hudOutlineWidth") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vcvttss2si eax, dword ptr [rdi+28h] }
-    _RBX->lineWidth = _EAX;
-    _RBX->renderMode = 0;
-    _RBX->fill = 1;
+    Dvar_CheckFrontendServerThread(v6);
+    result->lineWidth = (int)v6->current.value;
+    result->renderMode = 0;
+    result->fill = 1;
   }
-  return _RBX;
+  return result;
 }
 
 /*
@@ -1936,129 +1790,61 @@ CG_WeaponStreamingMP_StreamWeaponIcons
 */
 void CG_WeaponStreamingMP_StreamWeaponIcons(const LocalClientNum_t localClientNum)
 {
-  const char *v5; 
-  bool v8; 
-  bool v9; 
-  bool v10; 
-  bool v14; 
-  char v20; 
-  char v21; 
-  int v26; 
-  double v27; 
-  double v28; 
-  double v29; 
-  int v32; 
+  const dvar_t *v2; 
+  const char *v3; 
+  __int128 v5; 
+  float v9; 
+  int v10; 
+  bool v11; 
+  bool v12; 
+  int v14; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-  }
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
   {
-    v26 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 1344, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v26) )
+    v14 = 2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_weapon_streaming_mp.cpp", 1344, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v14) )
       __debugbreak();
   }
   if ( cls.maxClients <= 0x14u )
   {
-    _RBX = DCONST_DVARFLT_cg_imageHintDistanceWeaponAttachmentIcons;
+    v2 = DCONST_DVARFLT_cg_imageHintDistanceWeaponAttachmentIcons;
     if ( DCONST_DVARFLT_cg_imageHintDistanceWeaponAttachmentIcons )
       goto LABEL_11;
-    v5 = "cg_imageHintDistanceWeaponAttachmentIcons";
+    v3 = "cg_imageHintDistanceWeaponAttachmentIcons";
   }
   else
   {
-    _RBX = DCONST_DVARFLT_cg_imageHintDistanceWeaponAttachmentIconsLow;
+    v2 = DCONST_DVARFLT_cg_imageHintDistanceWeaponAttachmentIconsLow;
     if ( DCONST_DVARFLT_cg_imageHintDistanceWeaponAttachmentIconsLow )
       goto LABEL_11;
-    v5 = "cg_imageHintDistanceWeaponAttachmentIconsLow";
+    v3 = "cg_imageHintDistanceWeaponAttachmentIconsLow";
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v5) )
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", v3) )
     __debugbreak();
 LABEL_11:
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v2);
+  _XMM0 = v2->current.unsignedInt;
+  v5 = _XMM0;
+  *(float *)&v5 = *(float *)&_XMM0 * *(float *)&_XMM0;
+  if ( (COERCE_UNSIGNED_INT(*(float *)&_XMM0 * *(float *)&_XMM0) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_mini_distance.h", 51, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )") )
+    __debugbreak();
+  if ( *(float *)&v5 < 0.0 )
   {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm6, xmm0, xmm0
-    vmovss  [rsp+78h+arg_0], xmm6
-  }
-  v8 = (v32 & 0x7F800000u) < 0x7F800000;
-  v9 = (v32 & 0x7F800000u) <= 0x7F800000;
-  if ( (v32 & 0x7F800000) == 2139095040 )
-  {
-    v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_mini_distance.h", 51, ASSERT_TYPE_SANITY, "( !IS_NAN( distance ) )", (const char *)&queryFormat, "!IS_NAN( distance )");
-    v8 = 0;
-    v9 = !v10;
-    if ( v10 )
+    __asm { vxorpd  xmm0, xmm0, xmm0 }
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_mini_distance.h", 52, ASSERT_TYPE_ASSERT, "( distance ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "distance", "0.f", *(float *)&v5, *(double *)&_XMM0) )
       __debugbreak();
   }
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-  }
-  if ( v8 )
-  {
-    __asm
-    {
-      vxorpd  xmm0, xmm0, xmm0
-      vmovsd  [rsp+78h+var_38], xmm0
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovsd  [rsp+78h+var_40], xmm1
-    }
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_mini_distance.h", 52, ASSERT_TYPE_ASSERT, "( distance ) >= ( 0.f )", "%s >= %s\n\t%g, %g", "distance", "0.f", v27, v29);
-    v8 = 0;
-    v9 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@3ecccccd
-    vminss  xmm1, xmm0, cs:__real@3f800000
-    vmovss  xmm3, cs:__real@437f0000
-    vmulss  xmm2, xmm1, xmm3
-    vcomiss xmm2, xmm7
-    vcvttss2si ebx, xmm2
-  }
-  if ( v8 )
-    goto LABEL_20;
-  __asm { vcomiss xmm2, cs:__real@4b800000 }
-  if ( !v9 )
-  {
-LABEL_20:
-    v20 = 0;
-    v9 = 1;
-  }
-  else
-  {
-    v20 = 1;
-  }
-  __asm
-  {
-    vcomiss xmm2, xmm7
-    vcomiss xmm2, xmm3
-  }
-  v21 = v9;
-  if ( !v20 || !v21 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm2, xmm2
-      vmovsd  [rsp+78h+var_40], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "unsigned char __cdecl float_to_integral_cast<unsigned char,float>(float)", (unsigned __int8)_EBX, v28) )
-      __debugbreak();
-  }
-  CL_Streaming_Images_HintImagesInCache(localClientNum, CL_STREAMING_IMAGE_USER_VIEW_WEAPON_UI_ICONS, (const StreamMiniDistance)_EBX);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  CL_Streaming_Images_HintImagesInCache(localClientNum, CL_STREAMING_IMAGE_USER_WORLD_WEAPON_UI_ICONS, (const StreamMiniDistance)_EBX);
+  *(float *)&v5 = *(float *)&v5 * 0.40000001;
+  _XMM0 = v5;
+  __asm { vminss  xmm1, xmm0, cs:__real@3f800000 }
+  v9 = *(float *)&_XMM1 * 255.0;
+  v10 = (int)(float)(*(float *)&_XMM1 * 255.0);
+  v11 = (float)(*(float *)&_XMM1 * 255.0) >= 0.0 && v9 <= 16777216.0;
+  v12 = v9 >= 0.0 && v9 <= 255.0;
+  if ( (!v11 || !v12) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 437, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (IntegralType) 0x%jx == (FloatType) %f", "unsigned char __cdecl float_to_integral_cast<unsigned char,float>(float)", (unsigned __int8)v10, (float)(*(float *)&_XMM1 * 255.0)) )
+    __debugbreak();
+  CL_Streaming_Images_HintImagesInCache(localClientNum, CL_STREAMING_IMAGE_USER_VIEW_WEAPON_UI_ICONS, (const StreamMiniDistance)v10);
+  CL_Streaming_Images_HintImagesInCache(localClientNum, CL_STREAMING_IMAGE_USER_WORLD_WEAPON_UI_ICONS, (const StreamMiniDistance)v10);
 }
 
 /*

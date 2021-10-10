@@ -216,6 +216,9 @@ FX_PlayBoltedOffsetEffectWithMarkEntity
 */
 ParticleSystemHandle FX_PlayBoltedOffsetEffectWithMarkEntity(LocalClientNum_t localClientNum, const FXRegisteredDef *def, int msecBegin, int dobjHandle, int boneIndex, const vec3_t *worldOrigin, const tmat33_t<vec3_t> *worldAxis, unsigned __int16 spawnFlags, unsigned int markEntnum, bool markGivenModelsOnly, unsigned __int8 markBoneIndex, const Material *markMaterialOverride)
 {
+  float v17; 
+  float v18; 
+  float v19; 
   FxSystem *System; 
   __int64 fxEntNum; 
   int fxEntNuma; 
@@ -226,8 +229,6 @@ ParticleSystemHandle FX_PlayBoltedOffsetEffectWithMarkEntity(LocalClientNum_t lo
   orientation_t out; 
   orientation_t boltOffset; 
 
-  _R14 = worldOrigin;
-  _RSI = worldAxis;
   if ( !FX_GetBoneOrientation(localClientNum, dobjHandle, boneIndex, &orient) )
     return 0;
   if ( (unsigned int)dobjHandle >= 0xFFF )
@@ -244,19 +245,14 @@ ParticleSystemHandle FX_PlayBoltedOffsetEffectWithMarkEntity(LocalClientNum_t lo
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_spawn_api.cpp", 112, ASSERT_TYPE_ASSERT, "(unsigned)( boneIndex ) < (unsigned)( ((1 << 16) - 1) )", "boneIndex doesn't index FX_BONE_INDEX_NONE\n\t%i not in [0, %i)", fxEntNum, timeValue) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r14+4]
-    vmovss  xmm0, dword ptr [r14]
-    vmovss  dword ptr [rsp+1D8h+orFirst.origin+4], xmm1
-    vmovups ymm1, ymmword ptr [rsi]
-    vmovups ymmword ptr [rsp+1D8h+orFirst.axis], ymm1
-    vmovss  xmm1, dword ptr [rsi+20h]
-    vmovss  dword ptr [rsp+1D8h+orFirst.origin], xmm0
-    vmovss  xmm0, dword ptr [r14+8]
-    vmovss  dword ptr [rsp+1D8h+orFirst.axis+20h], xmm1
-    vmovss  dword ptr [rsp+1D8h+orFirst.origin+8], xmm0
-  }
+  v17 = worldOrigin->v[0];
+  orFirst.origin.v[1] = worldOrigin->v[1];
+  *(__m256i *)orFirst.axis.m[0].v = *(__m256i *)worldAxis->m[0].v;
+  v18 = worldAxis->m[2].v[2];
+  orFirst.origin.v[0] = v17;
+  v19 = worldOrigin->v[2];
+  orFirst.axis.m[2].v[2] = v18;
+  orFirst.origin.v[2] = v19;
   OrientationInvert(&orient, &out);
   OrientationConcatenate(&orFirst, &out, &boltOffset);
   System = FX_GetSystem(localClientNum);
@@ -272,6 +268,11 @@ ParticleSystemHandle FX_PlayBoltedOffsetToDynEntEffectWithMarkEntity(LocalClient
 {
   const char *pVFXName; 
   const char *Name; 
+  float v12; 
+  __m256i v13; 
+  float v14; 
+  float v15; 
+  float v16; 
   const Material *markMaterialOverride; 
   unsigned __int8 markBoneIndex; 
   FxSystem *System; 
@@ -283,8 +284,6 @@ ParticleSystemHandle FX_PlayBoltedOffsetToDynEntEffectWithMarkEntity(LocalClient
   orientation_t out; 
   orientation_t boltOffset; 
 
-  _RBX = worldOrigin;
-  _R13 = worldAxis;
   pVFXName = FXRegisteredDef::GetName((FXRegisteredDef *)def);
   if ( !Particle_GetDynEntTransform(localClientNum, dynEntId, partIndex, &outOrigin, &quat, pVFXName) )
   {
@@ -296,29 +295,20 @@ ParticleSystemHandle FX_PlayBoltedOffsetToDynEntEffectWithMarkEntity(LocalClient
       __debugbreak();
   }
   QuatToAxis(&quat, &axis);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbp+0E0h+outOrigin+4]
-    vmovss  xmm0, dword ptr [rbp+0E0h+outOrigin]
-    vmovss  dword ptr [rbp+0E0h+orient.origin+4], xmm1
-    vmovups ymm1, ymmword ptr [rbp+0E0h+axis]
-    vmovups ymmword ptr [rbp+0E0h+orient.axis], ymm1
-    vmovss  xmm1, dword ptr [rbp+0E0h+axis+20h]
-    vmovss  dword ptr [rbp+0E0h+orient.axis+20h], xmm1
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rbp+0E0h+orient.origin], xmm0
-    vmovss  xmm0, dword ptr [rbp+0E0h+outOrigin+8]
-    vmovss  dword ptr [rbp+0E0h+orFirst.origin+4], xmm1
-    vmovups ymm1, ymmword ptr [r13+0]
-    vmovss  dword ptr [rbp+0E0h+orient.origin+8], xmm0
-    vmovss  xmm0, dword ptr [rbx]
-    vmovups ymmword ptr [rbp+0E0h+orFirst.axis], ymm1
-    vmovss  xmm1, dword ptr [r13+20h]
-    vmovss  dword ptr [rbp+0E0h+orFirst.origin], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rbp+0E0h+orFirst.axis+20h], xmm1
-    vmovss  dword ptr [rbp+0E0h+orFirst.origin+8], xmm0
-  }
+  orient.origin.v[1] = outOrigin.v[1];
+  orient.axis = axis;
+  v12 = worldOrigin->v[1];
+  orient.origin.v[0] = outOrigin.v[0];
+  orFirst.origin.v[1] = v12;
+  v13 = *(__m256i *)worldAxis->m[0].v;
+  orient.origin.v[2] = outOrigin.v[2];
+  v14 = worldOrigin->v[0];
+  *(__m256i *)orFirst.axis.m[0].v = v13;
+  v15 = worldAxis->m[2].v[2];
+  orFirst.origin.v[0] = v14;
+  v16 = worldOrigin->v[2];
+  orFirst.axis.m[2].v[2] = v15;
+  orFirst.origin.v[2] = v16;
   OrientationInvert(&orient, &out);
   OrientationConcatenate(&orFirst, &out, &boltOffset);
   markMaterialOverride = MARK_MATERIAL_OVERRIDE_NONE_7;
@@ -373,7 +363,7 @@ ParticleSystemHandle FX_PlayBoltedToPredictedEnt(const LocalClientNum_t localCli
 {
   CgPredictedEntitySystem *System; 
   const Material *markMaterialOverride; 
-  FxSystem *v15; 
+  FxSystem *v12; 
   bool outBoneVisible; 
   vec3_t outPos; 
   vec4_t out; 
@@ -384,21 +374,16 @@ ParticleSystemHandle FX_PlayBoltedToPredictedEnt(const LocalClientNum_t localCli
   System = CgPredictedEntitySystem::GetSystem(localClientNum);
   if ( !System && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleutil.h", 494, ASSERT_TYPE_ASSERT, "(predictedEntitySystem)", (const char *)&queryFormat, "predictedEntitySystem") )
     __debugbreak();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+178h+outPos], xmm0
-    vmovss  dword ptr [rsp+178h+outPos+4], xmm0
-    vmovss  dword ptr [rsp+178h+outPos+8], xmm0
-    vmovups xmm0, xmmword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-    vmovups xmmword ptr [rsp+178h+out], xmm0
-  }
+  outPos.v[0] = 0.0;
+  outPos.v[1] = 0.0;
+  outPos.v[2] = 0.0;
+  out = quat_identity;
   if ( CgPredictedEntitySystem::IsPredictedEntityInUse(System, predictedEntIdx - 2501) && CgPredictedEntitySystem::GetBoneTransform(System, predictedEntIdx - 2501, boneIndex, &outPos, &outAxis, &outBoneVisible) )
     AxisToQuat(&outAxis, &out);
   QuatToAxis(&out, &axis);
   markMaterialOverride = MARK_MATERIAL_OVERRIDE_NONE_7;
-  v15 = FX_GetSystem(localClientNum);
-  return FX_InitSpawnCmd(v15, 0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, -1, -1, 1, def, msecBegin, &outPos, &axis, predictedEntIdx, boneIndex, &orIdentity, 0xFFFFFFFF, 0x7FFu, 0, 0, 0, 0xFEu, spawnFlags | 4, markMaterialOverride);
+  v12 = FX_GetSystem(localClientNum);
+  return FX_InitSpawnCmd(v12, 0, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, -1, -1, 1, def, msecBegin, &outPos, &axis, predictedEntIdx, boneIndex, &orIdentity, 0xFFFFFFFF, 0x7FFu, 0, 0, 0, 0xFEu, spawnFlags | 4, markMaterialOverride);
 }
 
 /*

@@ -168,35 +168,19 @@ DB_GetMyChangesIconDirective
 */
 const char *DB_GetMyChangesIconDirective(const MyChangesAction action, vec4_t *color)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:MYCHANGES_FAIL_COLOR
-    vmovups xmmword ptr [rdx], xmm0
-  }
+  *color = MYCHANGES_FAIL_COLOR;
   if ( action )
   {
     switch ( action )
     {
       case ASSET_MYCHANGES_RELOAD:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:MYCHANGES_WARN_COLOR
-          vmovups xmmword ptr [rdx], xmm0
-        }
+        *color = MYCHANGES_WARN_COLOR;
         return "[{ui_mychanges_reload}]";
       case ASSET_MYCHANGES_RESTART:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:MYCHANGES_WARN_COLOR
-          vmovups xmmword ptr [rdx], xmm0
-        }
+        *color = MYCHANGES_WARN_COLOR;
         return "[{ui_mychanges_restart}]";
       case ASSET_MYCHANGES_UNKNOWN:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:MYCHANGES_WARN_COLOR
-          vmovups xmmword ptr [rdx], xmm0
-        }
+        *color = MYCHANGES_WARN_COLOR;
         return "[{ui_mychanges_warn}]";
       default:
         return (char *)&queryFormat.fmt + 3;
@@ -204,11 +188,7 @@ const char *DB_GetMyChangesIconDirective(const MyChangesAction action, vec4_t *c
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:MYCHANGES_SUCCESS_COLOR
-      vmovups xmmword ptr [rdx], xmm0
-    }
+    *color = MYCHANGES_SUCCESS_COLOR;
     return "[{ui_mychanges_ok}]";
   }
 }

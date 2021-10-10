@@ -204,22 +204,23 @@ GfxShaderTextureRWView *R_RT_GetDepthRWView(GfxShaderTextureRWView *result, R_RT
 {
   R_RT_Flags m_rtFlags; 
   const R_RT_Surface *Surface; 
+  const R_RT_Surface *v6; 
   const char *v7; 
   int v8; 
   const char *v9; 
-  GfxShaderTextureRWView *v12; 
+  double v10; 
+  GfxShaderTextureRWView *v11; 
 
-  _RSI = result;
   m_rtFlags = R_RT_Handle::GetSurface(depthRt)->m_rtFlags;
   Surface = R_RT_Handle::GetSurface(depthRt);
-  _RBX = Surface;
+  v6 = Surface;
   if ( (m_rtFlags & 0x4000) != 0 )
   {
     if ( (Surface->m_rtFlagsInternal & 0x2010) != 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 474, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Depth | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Depth)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Depth | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Depth") )
       __debugbreak();
-    if ( (_RBX->m_rtFlags & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 475, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlags & R_RT_Flag_MS_4xSwizzle ) == R_RT_Flag_MS_4xSwizzle)", (const char *)&queryFormat, "( surface->m_rtFlags & R_RT_Flag_MS_4xSwizzle ) == R_RT_Flag_MS_4xSwizzle") )
+    if ( (v6->m_rtFlags & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 475, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlags & R_RT_Flag_MS_4xSwizzle ) == R_RT_Flag_MS_4xSwizzle)", (const char *)&queryFormat, "( surface->m_rtFlags & R_RT_Flag_MS_4xSwizzle ) == R_RT_Flag_MS_4xSwizzle") )
       __debugbreak();
-    if ( (_RBX->m_depth.m_floatRWView.rwView & 0xFFFFFFFB) == 0 )
+    if ( (v6->m_depth.m_floatRWView.rwView & 0xFFFFFFFB) == 0 )
     {
       v7 = "!surface->m_depth.m_float4RWView.IsNull()";
       v8 = 477;
@@ -231,9 +232,9 @@ GfxShaderTextureRWView *R_RT_GetDepthRWView(GfxShaderTextureRWView *result, R_RT
   {
     if ( (Surface->m_rtFlagsInternal & 0x2010) != 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 464, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Depth | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Depth)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Depth | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Depth") )
       __debugbreak();
-    if ( (_RBX->m_rtFlags & 0x4000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 465, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlags & R_RT_Flag_MS_4xSwizzle ) == 0)", (const char *)&queryFormat, "( surface->m_rtFlags & R_RT_Flag_MS_4xSwizzle ) == 0") )
+    if ( (v6->m_rtFlags & 0x4000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 465, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlags & R_RT_Flag_MS_4xSwizzle ) == 0)", (const char *)&queryFormat, "( surface->m_rtFlags & R_RT_Flag_MS_4xSwizzle ) == 0") )
       __debugbreak();
-    if ( (_RBX->m_depth.m_floatRWView.rwView & 0xFFFFFFFB) == 0 )
+    if ( (v6->m_depth.m_floatRWView.rwView & 0xFFFFFFFB) == 0 )
     {
       v7 = "!surface->m_depth.m_floatRWView.IsNull()";
       v8 = 467;
@@ -243,18 +244,11 @@ LABEL_18:
         __debugbreak();
     }
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+8C8h]
-    vmovsd  xmm1, qword ptr [rbx+8D8h]
-  }
-  v12 = _RSI;
-  __asm
-  {
-    vmovups xmmword ptr [rsi], xmm0
-    vmovsd  qword ptr [rsi+10h], xmm1
-  }
-  return v12;
+  v10 = *((double *)&v6->m_array + 148);
+  v11 = result;
+  *(_OWORD *)&result->rwResource = *((_OWORD *)&v6->m_array + 73);
+  *(double *)&result->rwView = v10;
+  return v11;
 }
 
 /*
@@ -264,14 +258,8 @@ R_RT_GetDepthView
 */
 GfxShaderTextureView *R_RT_GetDepthView(GfxShaderTextureView *result, R_RT_DepthHandle *depthRt)
 {
-  _RBX = result;
-  _RAX = R_RT_DepthHandle::XB3_GetDepthFloatView(depthRt);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rbx], xmm0
-  }
-  return _RBX;
+  *result = *R_RT_DepthHandle::XB3_GetDepthFloatView(depthRt);
+  return result;
 }
 
 /*
@@ -315,28 +303,22 @@ R_RT_GetHtileRWView
 */
 GfxShaderBufferRWView *R_RT_GetHtileRWView(GfxShaderBufferRWView *result, R_RT_DepthHandle *depthRt)
 {
+  const R_RT_Surface *Surface; 
   unsigned int rwView; 
-  GfxShaderBufferRWView *v7; 
+  double v5; 
+  GfxShaderBufferRWView *v6; 
 
-  _RDI = result;
-  _RBX = R_RT_Handle::GetSurface(depthRt);
-  if ( (_RBX->m_rtFlagsInternal & 0x2010) != 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 522, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Depth | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Depth)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Depth | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Depth") )
+  Surface = R_RT_Handle::GetSurface(depthRt);
+  if ( (Surface->m_rtFlagsInternal & 0x2010) != 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 522, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Depth | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Depth)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Depth | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Depth") )
     __debugbreak();
-  rwView = _RBX->m_depth.m_htileBuffer.rwView.rwView;
+  rwView = Surface->m_depth.m_htileBuffer.rwView.rwView;
   if ( (rwView == 3 || !rwView) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 524, ASSERT_TYPE_ASSERT, "(!surface->m_depth.m_htileBuffer.rwView.IsNull())", (const char *)&queryFormat, "!surface->m_depth.m_htileBuffer.rwView.IsNull()") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx+858h]
-    vmovsd  xmm1, qword ptr [rbx+868h]
-  }
-  v7 = _RDI;
-  __asm
-  {
-    vmovups xmmword ptr [rdi], xmm0
-    vmovsd  qword ptr [rdi+10h], xmm1
-  }
-  return v7;
+  v5 = *((double *)&Surface->m_array + 134);
+  v6 = result;
+  *(_OWORD *)&result->rwResource = *((_OWORD *)&Surface->m_array + 66);
+  *(double *)&result->rwView = v5;
+  return v6;
 }
 
 /*
@@ -346,18 +328,17 @@ R_RT_GetHtileView
 */
 GfxShaderBufferView *R_RT_GetHtileView(GfxShaderBufferView *result, R_RT_DepthHandle *depthRt)
 {
-  GfxShaderBufferView *v5; 
+  GfxShaderBufferView *Surface; 
+  GfxShaderBufferView *v4; 
 
-  _RDI = result;
-  _RBX = R_RT_Handle::GetSurface(depthRt);
-  if ( (_RBX->m_rtFlagsInternal & 0x2010) != 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 513, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Depth | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Depth)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Depth | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Depth") )
+  Surface = (GfxShaderBufferView *)R_RT_Handle::GetSurface(depthRt);
+  if ( (Surface->view & 0x2010) != 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 513, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Depth | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Depth)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Depth | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Depth") )
     __debugbreak();
-  if ( _RBX->m_depth.m_htileBuffer.view.view <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 515, ASSERT_TYPE_ASSERT, "(!surface->m_depth.m_htileBuffer.view.IsNull())", (const char *)&queryFormat, "!surface->m_depth.m_htileBuffer.view.IsNull()") )
+  if ( Surface[132].view <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 515, ASSERT_TYPE_ASSERT, "(!surface->m_depth.m_htileBuffer.view.IsNull())", (const char *)&queryFormat, "!surface->m_depth.m_htileBuffer.view.IsNull()") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rbx+840h] }
-  v5 = _RDI;
-  __asm { vmovups xmmword ptr [rdi], xmm0 }
-  return v5;
+  v4 = result;
+  *result = Surface[132];
+  return v4;
 }
 
 /*

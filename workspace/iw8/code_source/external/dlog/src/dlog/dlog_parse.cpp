@@ -726,138 +726,139 @@ DLogSchema *DLog_Parse(char *text)
   const Json *v20; 
   Json *v21; 
   Json *v22; 
-  Json *v25; 
+  Json *v23; 
+  Json *v24; 
+  int v25; 
   Json *v26; 
-  int v27; 
+  __int64 v27; 
   Json *v28; 
-  __int64 v29; 
-  Json *v32; 
-  Json *v33; 
-  const char *v34; 
-  const char *v35; 
+  Json *v29; 
+  const char *v30; 
+  const char *v31; 
+  __int64 v32; 
+  unsigned __int64 v33; 
+  void *v34; 
+  DLogEnum *v35; 
   __int64 v36; 
-  unsigned __int64 v37; 
-  void *v38; 
-  DLogEnum *v39; 
-  __int64 v40; 
   DLogHashTable *p_values; 
-  Json *v42; 
+  Json *v38; 
+  int v39; 
+  DLogHash *v40; 
+  Json *v41; 
+  const char *v42; 
   int v43; 
-  DLogHash *v44; 
+  const char *v44; 
   Json *v45; 
-  const char *v48; 
-  int v49; 
-  const char *v50; 
-  Json *v51; 
-  unsigned __int64 v52; 
-  unsigned __int64 v53; 
-  size_t v54; 
-  DLogChannel *v55; 
-  const Json *v56; 
+  unsigned __int64 v46; 
+  unsigned __int64 v47; 
+  size_t v48; 
+  DLogChannel *v49; 
+  const Json *v50; 
   __int64 channelCount; 
   DLogChannel *channels; 
-  DLogChannel *v60; 
-  const Json *v61; 
-  Json *v62; 
-  unsigned __int64 v63; 
-  const Json *v64; 
-  DLogRow *v67; 
-  const Json *v68; 
+  DLogChannel *v53; 
+  const Json *v54; 
+  Json *v55; 
+  unsigned __int64 v56; 
+  const Json *v57; 
+  DLogRow *v58; 
+  const Json *v59; 
   int rowCount; 
-  DLogHash *v70; 
-  int v71; 
-  __int64 v72; 
-  DLogRow *v73; 
+  DLogHash *v61; 
+  int v62; 
+  __int64 v63; 
+  DLogRow *v64; 
   __int64 columnCount; 
-  DLogHash *v75; 
-  int v76; 
-  __int64 v77; 
-  Json *v78; 
-  const char *v79; 
+  DLogHash *v66; 
+  int v67; 
+  __int64 v68; 
+  Json *v69; 
+  const char *v70; 
   const char *m_key; 
-  DLogEvent *v81; 
-  const Json *v82; 
+  DLogEvent *v72; 
+  const Json *v73; 
   __int64 eventCount; 
-  DLogEvent *v85; 
-  int v87; 
-  __int64 v88; 
+  Json v75; 
+  DLogEvent *v76; 
+  int v77; 
+  __int64 v78; 
   DLogRow *rows; 
-  int v90; 
-  __int64 v91; 
-  DLogColumn *v92; 
+  int v80; 
+  __int64 v81; 
+  DLogColumn *v82; 
   int i; 
   int j; 
   int channelRefCount; 
   char requireSchema; 
-  __int64 v97; 
+  __int64 v87; 
   DLogChannelRef *channelRefs; 
   const DLogChannel *channel; 
-  const Json *v100; 
-  bool v101; 
-  const char *v102; 
-  char *v103; 
-  int v104; 
-  __int64 *v105; 
-  __int64 v106; 
-  __int64 v107; 
-  __int64 v108; 
-  __int64 v109; 
-  __int64 v110; 
-  __int64 v111; 
-  __int64 v112; 
-  Json *v113; 
-  const char **v114; 
-  Json *v115; 
-  Json *v116; 
-  const char *v117; 
-  unsigned __int64 v118; 
-  Json *v119; 
-  unsigned __int64 v123; 
+  const Json *v90; 
+  bool v91; 
+  const char *v92; 
+  char *v93; 
+  int v94; 
+  __int64 *v95; 
+  __int64 v96; 
+  __int64 v97; 
+  __int64 v98; 
+  __int64 v99; 
+  __int64 v100; 
+  __int64 v101; 
+  __int64 v102; 
+  Json *v103; 
+  const char **v104; 
+  Json *v105; 
+  Json *v106; 
+  const char *v107; 
+  unsigned __int64 v108; 
+  Json *v109; 
+  unsigned __int64 v110; 
   Json rhs; 
-  Json v125; 
+  Json v112; 
   Json result; 
+  Json v114; 
+  int v115; 
+  Json v116; 
+  Json v117; 
+  const char **v118; 
+  Json v119; 
+  Json v120; 
+  Json v121; 
+  char *value; 
+  Json v123; 
+  Json v124; 
+  Json v125; 
+  Json v126; 
   Json v127; 
-  int v128; 
+  DLogEvent v128; 
   Json v129; 
   Json v130; 
-  const char **v131; 
+  Json v131; 
   Json v132; 
   Json v133; 
-  Json v134; 
-  char *value; 
-  Json v136; 
-  Json v137; 
-  Json v138; 
-  Json v139; 
-  Json v140; 
-  DLogEvent v141; 
-  Json v142; 
-  Json v143; 
-  Json v144; 
-  Json v145; 
-  Json v146; 
   char error[256]; 
 
-  Json::Json(&v127);
-  if ( Json::Parse(&v127, text, error, 256) )
+  Json::Json(&v114);
+  if ( Json::Parse(&v114, text, error, 256) )
   {
-    v131 = (const char **)DLog_Alloc(0x58ui64);
-    v3 = (DLogSchema *)v131;
-    memset_0(v131, 0, 0x58ui64);
-    v4 = (Json *)Json::operator[](&v127, &result, "project");
+    v118 = (const char **)DLog_Alloc(0x58ui64);
+    v3 = (DLogSchema *)v118;
+    memset_0(v118, 0, 0x58ui64);
+    v4 = (Json *)Json::operator[](&v114, &result, "project");
     v5 = Json::ToString(v4, (const char *)&queryFormat.fmt + 3);
     v3->project = DLog_AllocString(v5);
-    v6 = (Json *)Json::operator[](&v127, &result, "vars");
+    v6 = (Json *)Json::operator[](&v114, &result, "vars");
     v7 = Json::Size(v6);
     v3->vars = (DLogVar *)DLog_Alloc(16 * v7);
-    v8 = (Json *)Json::operator[](&v127, &result, "vars");
-    Json::begin(v8, &v125);
-    v9 = Json::end(&v129);
-    if ( Json::operator!=(&v125, v9) )
+    v8 = (Json *)Json::operator[](&v114, &result, "vars");
+    Json::begin(v8, &v112);
+    v9 = Json::end(&v116);
+    if ( Json::operator!=(&v112, v9) )
     {
       do
       {
-        v10 = Json::Name(&v125);
+        v10 = Json::Name(&v112);
         v11 = v10;
         v12 = -1i64;
         do
@@ -868,7 +869,7 @@ DLogSchema *DLog_Parse(char *text)
         memset_0(v14, 0, v13);
         DLog_strcpy((char *)v14, v13, v11);
         v3->vars[v3->varCount].name = (const char *)v14;
-        v15 = Json::ToString(&v125, (const char *)&queryFormat.fmt + 3);
+        v15 = Json::ToString(&v112, (const char *)&queryFormat.fmt + 3);
         v16 = v15;
         v17 = -1i64;
         do
@@ -879,417 +880,380 @@ DLogSchema *DLog_Parse(char *text)
         memset_0(v19, 0, v18);
         DLog_strcpy((char *)v19, v18, v16);
         v3->vars[v3->varCount++].value = (const char *)v19;
-        Json::operator++(&v125, &result);
-        v20 = Json::end(&v129);
+        Json::operator++(&v112, &result);
+        v20 = Json::end(&v116);
       }
-      while ( Json::operator!=(&v125, v20) );
+      while ( Json::operator!=(&v112, v20) );
     }
-    v21 = (Json *)Json::operator[](&v127, &result, "guid_seed");
+    v21 = (Json *)Json::operator[](&v114, &result, "guid_seed");
     if ( Json::GetString(v21, (const char **)&value) )
-      v3->guidSeed = strtoull(value, (char **)&v125, 16);
-    Json::operator[](&v127, &v140, "types");
+      v3->guidSeed = strtoull(value, (char **)&v112, 16);
+    Json::operator[](&v114, &v127, "types");
     s_enumCount = 0;
-    v22 = (Json *)Json::operator[](&v127, &result, "types");
-    Json::ToObject(v22, &v129);
-    Json::begin(&v129, &v125);
+    v22 = (Json *)Json::operator[](&v114, &result, "types");
+    Json::ToObject(v22, &v116);
+    Json::begin(&v116, &v112);
     Json::end(&rhs);
-    while ( Json::operator!=(&v125, &rhs) )
+    while ( Json::operator!=(&v112, &rhs) )
     {
-      _RAX = Json::operator*(&v125);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rbp+220h+var_258.m_key], xmm0
-      }
-      v25 = (Json *)Json::operator[](&v134, &result, "values");
-      v26 = Json::ToObject(v25, &v130);
-      if ( !Json::IsUndefined(v26) )
+      v121 = *Json::operator*(&v112);
+      v23 = (Json *)Json::operator[](&v121, &result, "values");
+      v24 = Json::ToObject(v23, &v117);
+      if ( !Json::IsUndefined(v24) )
         ++s_enumCount;
-      Json::operator++(&v125, &v139);
+      Json::operator++(&v112, &v126);
     }
     s_enums = (DLogEnum *)DLog_Alloc(24i64 * s_enumCount);
     memset_0(s_enums, 0, 24i64 * s_enumCount);
-    v27 = 0;
-    v28 = (Json *)Json::operator[](&v127, &result, "types");
-    Json::ToObject(v28, &v130);
-    Json::begin(&v130, &rhs);
-    Json::end(&v129);
-    if ( Json::operator!=(&rhs, &v129) )
+    v25 = 0;
+    v26 = (Json *)Json::operator[](&v114, &result, "types");
+    Json::ToObject(v26, &v117);
+    Json::begin(&v117, &rhs);
+    Json::end(&v116);
+    if ( Json::operator!=(&rhs, &v116) )
     {
-      v29 = 0i64;
+      v27 = 0i64;
       do
       {
-        _RAX = Json::operator*(&rhs);
-        __asm
+        v112 = *Json::operator*(&rhs);
+        v28 = (Json *)Json::operator[](&v112, &v133, "values");
+        v29 = Json::ToObject(v28, &v129);
+        if ( !Json::IsUndefined(v29) )
         {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rsp+320h+var_2E0.m_key], xmm0
-        }
-        v32 = (Json *)Json::operator[](&v125, &v146, "values");
-        v33 = Json::ToObject(v32, &v142);
-        if ( !Json::IsUndefined(v33) )
-        {
-          DLog_Assert(v27 < s_enumCount, "enumIndex < s_enumCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_Parse", 1065);
-          if ( v27 < s_enumCount )
+          DLog_Assert(v25 < s_enumCount, "enumIndex < s_enumCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_Parse", 1065);
+          if ( v25 < s_enumCount )
           {
-            v34 = Json::Name(&v125);
-            v35 = v34;
-            v36 = -1i64;
+            v30 = Json::Name(&v112);
+            v31 = v30;
+            v32 = -1i64;
             do
-              ++v36;
-            while ( v34[v36] );
-            v37 = v36 + 1;
-            v38 = DLog_Alloc(v37);
-            memset_0(v38, 0, v37);
-            DLog_strcpy((char *)v38, v37, v35);
-            v39 = s_enums;
-            v40 = v27++;
-            s_enums[v29++].name = (const char *)v38;
-            p_values = &v39[v40].values;
-            v42 = (Json *)Json::operator[](&v125, &v143, "values");
-            v43 = Json::Size(v42);
-            v44 = (DLogHash *)DLog_Alloc(8i64 * v43);
-            memset_0(v44, 0, 8i64 * v43);
-            DLog_HashTableCreate(p_values, v44, v43);
-            v45 = (Json *)Json::operator[](&v125, &v144, "values");
-            Json::ToObject(v45, &result);
-            Json::begin(&result, &v133);
-            Json::end(&v134);
-            while ( Json::operator!=(&v133, &v134) )
+              ++v32;
+            while ( v30[v32] );
+            v33 = v32 + 1;
+            v34 = DLog_Alloc(v33);
+            memset_0(v34, 0, v33);
+            DLog_strcpy((char *)v34, v33, v31);
+            v35 = s_enums;
+            v36 = v25++;
+            s_enums[v27++].name = (const char *)v34;
+            p_values = &v35[v36].values;
+            v38 = (Json *)Json::operator[](&v112, &v130, "values");
+            v39 = Json::Size(v38);
+            v40 = (DLogHash *)DLog_Alloc(8i64 * v39);
+            memset_0(v40, 0, 8i64 * v39);
+            DLog_HashTableCreate(p_values, v40, v39);
+            v41 = (Json *)Json::operator[](&v112, &v131, "values");
+            Json::ToObject(v41, &result);
+            Json::begin(&result, &v120);
+            Json::end(&v121);
+            while ( Json::operator!=(&v120, &v121) )
             {
-              _RAX = Json::operator*(&v133);
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rax]
-                vmovups xmmword ptr [rbp+220h+var_210.m_key], xmm0
-              }
-              v48 = Json::Name(&v139);
-              v49 = atoi(v48);
-              v50 = Json::ToString(&v139, (const char *)&queryFormat.fmt + 3);
-              DLog_HashTableAdd(p_values, v50, v49);
-              Json::operator++(&v133, &v145);
+              v126 = *Json::operator*(&v120);
+              v42 = Json::Name(&v126);
+              v43 = atoi(v42);
+              v44 = Json::ToString(&v126, (const char *)&queryFormat.fmt + 3);
+              DLog_HashTableAdd(p_values, v44, v43);
+              Json::operator++(&v120, &v132);
             }
             DLog_HashTableSort(p_values);
           }
         }
-        Json::operator++(&rhs, &v132);
+        Json::operator++(&rhs, &v119);
       }
-      while ( Json::operator!=(&rhs, &v129) );
+      while ( Json::operator!=(&rhs, &v116) );
     }
-    Json::Json(&v136);
-    v51 = (Json *)Json::operator[](&v127, &v132, "channels");
-    if ( !Json::GetObject(v51, &v136) )
+    Json::Json(&v123);
+    v45 = (Json *)Json::operator[](&v114, &v119, "channels");
+    if ( !Json::GetObject(v45, &v123) )
       DLog_PrintError("Schema required field 'channels' not found\n");
-    v52 = Json::Size(&v136);
-    v53 = v52;
-    if ( v52 )
+    v46 = Json::Size(&v123);
+    v47 = v46;
+    if ( v46 )
     {
-      v54 = 72 * v52;
-      v55 = (DLogChannel *)DLog_Alloc(72 * v52);
-      v3->channels = v55;
-      memset_0(v55, 0, v54);
-      Json::begin(&v136, &rhs);
-      v56 = Json::end(&v130);
-      if ( Json::operator!=(&rhs, v56) )
+      v48 = 72 * v46;
+      v49 = (DLogChannel *)DLog_Alloc(72 * v46);
+      v3->channels = v49;
+      memset_0(v49, 0, v48);
+      Json::begin(&v123, &rhs);
+      v50 = Json::end(&v117);
+      if ( Json::operator!=(&rhs, v50) )
       {
         do
         {
-          DLog_Assert(v3->channelCount < v53, "schemaRoot->channelCount < jsonChannelCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_Parse", 1102);
+          DLog_Assert(v3->channelCount < v47, "schemaRoot->channelCount < jsonChannelCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_Parse", 1102);
           channelCount = v3->channelCount;
           channels = v3->channels;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsp+320h+rhs.m_key]
-            vmovdqa xmmword ptr [rsp+320h+result.m_key], xmm0
-          }
-          v60 = &channels[channelCount];
+          result = rhs;
+          v53 = &channels[channelCount];
           v3->channelCount = channelCount + 1;
-          if ( !DLog_ParseChannel(&result, v60) )
+          if ( !DLog_ParseChannel(&result, v53) )
           {
-            DLog_Free((void *)v60->name);
-            DLog_Free(v60->serializers);
-            DLog_Free(v60->postSerializers);
-            v60->name = NULL;
-            v60->serializers = NULL;
-            *(_QWORD *)&v60->serializerCount = 0i64;
-            v60->postSerializers = NULL;
-            *(_QWORD *)&v60->postSerializerCount = 0i64;
-            v60->endpoint = NULL;
-            *(_QWORD *)&v60->bufferSize = 0i64;
-            *(_QWORD *)&v60->bufferFlushSize = 0i64;
-            *(_QWORD *)&v60->platforms = 0i64;
+            DLog_Free((void *)v53->name);
+            DLog_Free(v53->serializers);
+            DLog_Free(v53->postSerializers);
+            v53->name = NULL;
+            v53->serializers = NULL;
+            *(_QWORD *)&v53->serializerCount = 0i64;
+            v53->postSerializers = NULL;
+            *(_QWORD *)&v53->postSerializerCount = 0i64;
+            v53->endpoint = NULL;
+            *(_QWORD *)&v53->bufferSize = 0i64;
+            *(_QWORD *)&v53->bufferFlushSize = 0i64;
+            *(_QWORD *)&v53->platforms = 0i64;
             --v3->channelCount;
           }
-          Json::operator++(&rhs, &v132);
-          v61 = Json::end(&v130);
+          Json::operator++(&rhs, &v119);
+          v54 = Json::end(&v117);
         }
-        while ( Json::operator!=(&rhs, v61) );
+        while ( Json::operator!=(&rhs, v54) );
       }
     }
-    Json::Json(&v137);
-    v62 = (Json *)Json::operator[](&v127, &v132, "rows");
-    if ( !Json::GetObject(v62, &v137) )
+    Json::Json(&v124);
+    v55 = (Json *)Json::operator[](&v114, &v119, "rows");
+    if ( !Json::GetObject(v55, &v124) )
       DLog_PrintError("Schema required field 'rows' not found\n");
-    v63 = Json::Size(&v137);
-    memset_0(&v141, 0, sizeof(v141));
-    if ( v63 )
+    v56 = Json::Size(&v124);
+    memset_0(&v128, 0, sizeof(v128));
+    if ( v56 )
     {
-      v141.rows = (DLogRow *)DLog_Alloc(88 * v63);
-      memset_0(v141.rows, 0, 88 * v63);
-      Json::begin(&v137, &rhs);
-      v64 = Json::end(&v129);
-      if ( Json::operator!=(&rhs, v64) )
+      v128.rows = (DLogRow *)DLog_Alloc(88 * v56);
+      memset_0(v128.rows, 0, 88 * v56);
+      Json::begin(&v124, &rhs);
+      v57 = Json::end(&v116);
+      if ( Json::operator!=(&rhs, v57) )
       {
         do
         {
-          DLog_Assert(v141.rowCount < v63, "dlogRows.rowCount < jsonRowCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_Parse", 1131);
-          __asm
+          DLog_Assert(v128.rowCount < v56, "dlogRows.rowCount < jsonRowCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_Parse", 1131);
+          v58 = &v128.rows[v128.rowCount++];
+          result = v127;
+          v117 = rhs;
+          if ( !DLog_ParseRow(&v117, &result, v58) )
           {
-            vmovups xmm0, xmmword ptr [rbp+220h+var_200.m_key]
-            vmovups xmm1, xmmword ptr [rsp+320h+rhs.m_key]
+            DLog_Free(v58);
+            --v128.rowCount;
           }
-          v67 = &v141.rows[v141.rowCount++];
-          __asm
-          {
-            vmovdqa xmmword ptr [rsp+320h+result.m_key], xmm0
-            vmovdqa xmmword ptr [rbp+220h+var_290.m_key], xmm1
-          }
-          if ( !DLog_ParseRow(&v130, &result, v67) )
-          {
-            DLog_Free(v67);
-            --v141.rowCount;
-          }
-          Json::operator++(&rhs, &v132);
-          v68 = Json::end(&v129);
+          Json::operator++(&rhs, &v119);
+          v59 = Json::end(&v116);
         }
-        while ( Json::operator!=(&rhs, v68) );
+        while ( Json::operator!=(&rhs, v59) );
       }
     }
-    rowCount = v141.rowCount;
-    v70 = NULL;
-    if ( v141.rowCount > 0 )
+    rowCount = v128.rowCount;
+    v61 = NULL;
+    if ( v128.rowCount > 0 )
     {
-      v70 = (DLogHash *)DLog_Alloc(8i64 * v141.rowCount);
-      rowCount = v141.rowCount;
+      v61 = (DLogHash *)DLog_Alloc(8i64 * v128.rowCount);
+      rowCount = v128.rowCount;
     }
-    DLog_HashTableCreate(&v141.rowHashTable, v70, rowCount);
-    v71 = 0;
-    if ( v141.rowCount > 0 )
+    DLog_HashTableCreate(&v128.rowHashTable, v61, rowCount);
+    v62 = 0;
+    if ( v128.rowCount > 0 )
     {
-      v72 = 0i64;
+      v63 = 0i64;
       do
       {
-        v73 = &v141.rows[v72];
-        DLog_HashTableAdd(&v141.rowHashTable, v141.rows[v72].type, v71);
-        columnCount = v73->columnCount;
-        v75 = NULL;
+        v64 = &v128.rows[v63];
+        DLog_HashTableAdd(&v128.rowHashTable, v128.rows[v63].type, v62);
+        columnCount = v64->columnCount;
+        v66 = NULL;
         if ( (int)columnCount > 0 )
         {
-          v75 = (DLogHash *)DLog_Alloc(8 * columnCount);
-          LODWORD(columnCount) = v73->columnCount;
+          v66 = (DLogHash *)DLog_Alloc(8 * columnCount);
+          LODWORD(columnCount) = v64->columnCount;
         }
-        DLog_HashTableCreate(&v73->columnHashTable, v75, columnCount);
-        v76 = 0;
-        if ( v73->columnCount > 0 )
+        DLog_HashTableCreate(&v64->columnHashTable, v66, columnCount);
+        v67 = 0;
+        if ( v64->columnCount > 0 )
         {
-          v77 = 0i64;
+          v68 = 0i64;
           do
-            DLog_HashTableAdd(&v73->columnHashTable, v73->columns[v77++].name, v76++);
-          while ( v76 < v73->columnCount );
+            DLog_HashTableAdd(&v64->columnHashTable, v64->columns[v68++].name, v67++);
+          while ( v67 < v64->columnCount );
         }
-        DLog_HashTableSort(&v73->columnHashTable);
-        ++v71;
-        ++v72;
+        DLog_HashTableSort(&v64->columnHashTable);
+        ++v62;
+        ++v63;
       }
-      while ( v71 < v141.rowCount );
+      while ( v62 < v128.rowCount );
     }
-    DLog_HashTableSort(&v141.rowHashTable);
-    Json::Json(&v138);
-    v78 = (Json *)Json::operator[](&v127, &v132, "events");
-    if ( !Json::GetObject(v78, &v138) )
+    DLog_HashTableSort(&v128.rowHashTable);
+    Json::Json(&v125);
+    v69 = (Json *)Json::operator[](&v114, &v119, "events");
+    if ( !Json::GetObject(v69, &v125) )
       DLog_PrintError("Schema required field 'events' not found\n");
-    v79 = (const char *)Json::Size(&v138);
-    v125.m_key = v79;
-    m_key = v79;
-    if ( v79 )
+    v70 = (const char *)Json::Size(&v125);
+    v112.m_key = v70;
+    m_key = v70;
+    if ( v70 )
     {
-      v81 = (DLogEvent *)DLog_Alloc(112i64 * (_QWORD)v79);
-      v3->events = v81;
-      memset_0(v81, 0, 112i64 * (_QWORD)m_key);
-      Json::begin(&v138, &rhs);
-      v82 = Json::end(&v129);
-      if ( Json::operator!=(&rhs, v82) )
+      v72 = (DLogEvent *)DLog_Alloc(112i64 * (_QWORD)v70);
+      v3->events = v72;
+      memset_0(v72, 0, 112i64 * (_QWORD)m_key);
+      Json::begin(&v125, &rhs);
+      v73 = Json::end(&v116);
+      if ( Json::operator!=(&rhs, v73) )
       {
         do
         {
           DLog_Assert(v3->eventCount < (unsigned __int64)m_key, "schemaRoot->eventCount < jsonEventCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_Parse", 1159);
           eventCount = v3->eventCount;
-          __asm { vmovups xmm1, xmmword ptr [rsp+320h+rhs.m_key] }
-          v85 = &v3->events[eventCount];
+          v75 = rhs;
+          v76 = &v3->events[eventCount];
           v3->eventCount = eventCount + 1;
-          __asm
+          result = v127;
+          v117 = v75;
+          if ( DLog_ParseEvent(&v117, v3, &v128, &result, v76) )
           {
-            vmovups xmm0, xmmword ptr [rbp+220h+var_200.m_key]
-            vmovdqa xmmword ptr [rsp+320h+result.m_key], xmm0
-            vmovdqa xmmword ptr [rbp+220h+var_290.m_key], xmm1
-          }
-          if ( DLog_ParseEvent(&v130, v3, &v141, &result, v85) )
-          {
-            channelRefCount = v85->channelRefCount;
+            channelRefCount = v76->channelRefCount;
             if ( channelRefCount > 0 )
             {
-              requireSchema = v85->requireSchema;
-              v97 = (unsigned int)channelRefCount;
-              channelRefs = v85->channelRefs;
+              requireSchema = v76->requireSchema;
+              v87 = (unsigned int)channelRefCount;
+              channelRefs = v76->channelRefs;
               do
               {
                 channel = channelRefs->channel;
                 ++channelRefs;
                 requireSchema |= channel->requireSchema;
-                v85->requireSchema = requireSchema;
-                --v97;
+                v76->requireSchema = requireSchema;
+                --v87;
               }
-              while ( v97 );
+              while ( v87 );
             }
           }
           else
           {
-            DLog_Free((void *)v85->name);
-            v87 = 0;
-            if ( v85->rowCount > 0 )
+            DLog_Free((void *)v76->name);
+            v77 = 0;
+            if ( v76->rowCount > 0 )
             {
-              v88 = 0i64;
+              v78 = 0i64;
               do
               {
-                rows = v85->rows;
-                DLog_Free((void *)rows[v88].name);
-                DLog_Free((void *)rows[v88].type);
-                v90 = 0;
-                if ( rows[v88].columnCount > 0 )
+                rows = v76->rows;
+                DLog_Free((void *)rows[v78].name);
+                DLog_Free((void *)rows[v78].type);
+                v80 = 0;
+                if ( rows[v78].columnCount > 0 )
                 {
-                  v91 = 0i64;
+                  v81 = 0i64;
                   do
                   {
-                    v92 = &rows[v88].columns[v91];
-                    DLog_Free((void *)v92->name);
-                    ++v90;
-                    v92->name = NULL;
-                    ++v91;
-                    *(_QWORD *)&v92->type = 0i64;
-                    *(_QWORD *)&v92->arrayCount = 0i64;
-                    v92->enumRef = NULL;
+                    v82 = &rows[v78].columns[v81];
+                    DLog_Free((void *)v82->name);
+                    ++v80;
+                    v82->name = NULL;
+                    ++v81;
+                    *(_QWORD *)&v82->type = 0i64;
+                    *(_QWORD *)&v82->arrayCount = 0i64;
+                    v82->enumRef = NULL;
                   }
-                  while ( v90 < rows[v88].columnCount );
+                  while ( v80 < rows[v78].columnCount );
                 }
-                DLog_Free(rows[v88].columns);
-                ++v87;
-                rows[v88].name = NULL;
-                rows[v88].type = NULL;
-                rows[v88].columns = NULL;
-                *(_QWORD *)&rows[v88].columnCount = 0i64;
-                rows[v88].columnHashTable.list = NULL;
-                *(_QWORD *)&rows[v88].columnHashTable.count = 0i64;
-                rows[v88++].autoFill = NULL;
+                DLog_Free(rows[v78].columns);
+                ++v77;
+                rows[v78].name = NULL;
+                rows[v78].type = NULL;
+                rows[v78].columns = NULL;
+                *(_QWORD *)&rows[v78].columnCount = 0i64;
+                rows[v78].columnHashTable.list = NULL;
+                *(_QWORD *)&rows[v78].columnHashTable.count = 0i64;
+                rows[v78++].autoFill = NULL;
               }
-              while ( v87 < v85->rowCount );
-              m_key = v125.m_key;
+              while ( v77 < v76->rowCount );
+              m_key = v112.m_key;
             }
-            for ( i = 0; i < v85->columnCount; ++i )
-              DLog_Free(&v85->columns[i]);
-            for ( j = 0; j < v85->channelRefCount; ++j )
-              DLog_Free(&v85->channelRefs[j]);
-            DLog_Free(v85->rows);
-            DLog_Free(v85->columns);
-            DLog_Free(v85->channelRefs);
-            memset_0(v85, 0, sizeof(DLogEvent));
-            v3 = (DLogSchema *)v131;
-            --*((_DWORD *)v131 + 16);
+            for ( i = 0; i < v76->columnCount; ++i )
+              DLog_Free(&v76->columns[i]);
+            for ( j = 0; j < v76->channelRefCount; ++j )
+              DLog_Free(&v76->channelRefs[j]);
+            DLog_Free(v76->rows);
+            DLog_Free(v76->columns);
+            DLog_Free(v76->channelRefs);
+            memset_0(v76, 0, sizeof(DLogEvent));
+            v3 = (DLogSchema *)v118;
+            --*((_DWORD *)v118 + 16);
           }
-          Json::operator++(&rhs, &v132);
-          v100 = Json::end(&v129);
+          Json::operator++(&rhs, &v119);
+          v90 = Json::end(&v116);
         }
-        while ( Json::operator!=(&rhs, v100) );
+        while ( Json::operator!=(&rhs, v90) );
       }
     }
     DLog_FinalizeSchema(v3);
-    DLog_Free(v141.rows);
-    v101 = v3->eventCount <= 0;
-    v128 = 0;
-    if ( !v101 )
+    DLog_Free(v128.rows);
+    v91 = v3->eventCount <= 0;
+    v115 = 0;
+    if ( !v91 )
     {
-      v102 = NULL;
-      v125.m_key = NULL;
+      v92 = NULL;
+      v112.m_key = NULL;
       do
       {
-        v103 = (char *)&v102[(unsigned __int64)v3->events];
-        v104 = 0;
-        v131 = (const char **)v103;
-        if ( *((int *)v103 + 20) > 0 )
+        v93 = (char *)&v92[(unsigned __int64)v3->events];
+        v94 = 0;
+        v118 = (const char **)v93;
+        if ( *((int *)v93 + 20) > 0 )
         {
-          v105 = (__int64 *)*((_QWORD *)v103 + 9);
+          v95 = (__int64 *)*((_QWORD *)v93 + 9);
           while ( 1 )
           {
-            v106 = *v105;
-            v107 = 0i64;
-            if ( *(int *)(*v105 + 16) > 0 )
+            v96 = *v95;
+            v97 = 0i64;
+            if ( *(int *)(*v95 + 16) > 0 )
               break;
 LABEL_78:
-            v110 = 0i64;
-            if ( *(int *)(v106 + 32) > 0 )
+            v100 = 0i64;
+            if ( *(int *)(v96 + 32) > 0 )
             {
-              v111 = *(_QWORD *)(v106 + 24);
-              v112 = *(int *)(v106 + 32);
-              while ( strcmp_0(*(const char **)(*(_QWORD *)v111 + 8i64), "protobuf") )
+              v101 = *(_QWORD *)(v96 + 24);
+              v102 = *(int *)(v96 + 32);
+              while ( strcmp_0(*(const char **)(*(_QWORD *)v101 + 8i64), "protobuf") )
               {
-                ++v110;
-                v111 += 8i64;
-                if ( v110 >= v112 )
+                ++v100;
+                v101 += 8i64;
+                if ( v100 >= v102 )
                   goto LABEL_82;
               }
               goto LABEL_84;
             }
 LABEL_82:
-            ++v104;
-            v105 += 3;
-            if ( v104 >= *((_DWORD *)v131 + 20) )
+            ++v94;
+            v95 += 3;
+            if ( v94 >= *((_DWORD *)v118 + 20) )
               goto LABEL_86;
           }
-          v108 = *(_QWORD *)(v106 + 8);
-          v109 = *(int *)(*v105 + 16);
-          while ( strcmp_0(*(const char **)(*(_QWORD *)v108 + 8i64), "protobuf") )
+          v98 = *(_QWORD *)(v96 + 8);
+          v99 = *(int *)(*v95 + 16);
+          while ( strcmp_0(*(const char **)(*(_QWORD *)v98 + 8i64), "protobuf") )
           {
-            ++v107;
-            v108 += 8i64;
-            if ( v107 >= v109 )
+            ++v97;
+            v98 += 8i64;
+            if ( v97 >= v99 )
               goto LABEL_78;
           }
 LABEL_84:
-          v113 = (Json *)Json::operator[](&v127, &v132, "events");
-          v114 = v131;
-          v115 = (Json *)Json::operator[](v113, &v145, *v131);
-          v116 = (Json *)Json::operator[](v115, &v144, "guid");
-          v117 = Json::ToString(v116, (const char *)&queryFormat.fmt + 3);
-          v118 = strtoull(v117, NULL, 16);
-          v119 = (Json *)Json::operator[](&v127, &v143, "events");
-          _RAX = Json::operator[](v119, &v142, *v114);
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rsp+320h+var_2C0.m_key]
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rsp+320h+result.m_key], xmm0
-            vmovdqa xmmword ptr [rbp+220h+var_290.m_key], xmm1
-          }
-          v123 = DLog_CalculateProtoGuid(&v130, &result, 0i64);
-          v114[13] = (const char *)v123;
-          if ( v123 != v118 )
-            DLog_PrintWarning("Event %s calculated guid %016zx != generated guid %016zx!  Guid calculation logic may have changed, please run game/bin/dlog_generate.bat to regenerate DLog schema!\n", *v114, v123, v118);
+          v103 = (Json *)Json::operator[](&v114, &v119, "events");
+          v104 = v118;
+          v105 = (Json *)Json::operator[](v103, &v132, *v118);
+          v106 = (Json *)Json::operator[](v105, &v131, "guid");
+          v107 = Json::ToString(v106, (const char *)&queryFormat.fmt + 3);
+          v108 = strtoull(v107, NULL, 16);
+          v109 = (Json *)Json::operator[](&v114, &v130, "events");
+          result = *Json::operator[](v109, &v129, *v104);
+          v117 = v114;
+          v110 = DLog_CalculateProtoGuid(&v117, &result, 0i64);
+          v104[13] = (const char *)v110;
+          if ( v110 != v108 )
+            DLog_PrintWarning("Event %s calculated guid %016zx != generated guid %016zx!  Guid calculation logic may have changed, please run game/bin/dlog_generate.bat to regenerate DLog schema!\n", *v104, v110, v108);
         }
 LABEL_86:
-        v102 = v125.m_key + 112;
-        ++v128;
-        v125.m_key += 112;
+        v92 = v112.m_key + 112;
+        ++v115;
+        v112.m_key += 112;
       }
-      while ( v128 < v3->eventCount );
+      while ( v115 < v3->eventCount );
     }
     return v3;
   }
@@ -1829,177 +1793,176 @@ DLog_ParseEvent
 */
 char DLog_ParseEvent(Json *jsonEvent, const DLogSchema *schemaRoot, const DLogEvent *dlogRows, Json *jsonTypes, DLogEvent *event)
 {
-  const DLogSchema *m_key; 
-  Json *v7; 
-  const char *v10; 
-  Json *v11; 
-  int v12; 
+  const DLogSchema *v5; 
+  Json *v6; 
+  Json *m_key; 
+  const char *v9; 
+  Json *v10; 
+  int v11; 
+  unsigned __int64 v12; 
   unsigned __int64 v13; 
-  unsigned __int64 v14; 
-  DLogRow *v15; 
-  const Json *v16; 
+  DLogRow *v14; 
+  const Json *v15; 
   __int64 rowCount; 
+  DLogRow *v17; 
+  Json *v18; 
   Json *v19; 
   Json *v20; 
-  Json *v21; 
-  int v22; 
-  __int64 v23; 
+  int v21; 
+  __int64 v22; 
   DLogRow *rows; 
   const char **p_type; 
-  const char *v26; 
+  const char *v25; 
+  int v26; 
   int v27; 
-  int v28; 
-  const Json *v29; 
-  Json *v30; 
+  const Json *v28; 
+  Json *v29; 
+  unsigned __int64 v30; 
   unsigned __int64 v31; 
   unsigned __int64 v32; 
-  unsigned __int64 v33; 
-  DLogColumn *v34; 
-  const Json *v35; 
-  DLogColumn *v38; 
-  const Json *v39; 
+  DLogColumn *v33; 
+  const Json *v34; 
+  Json v35; 
+  Json v36; 
+  DLogColumn *v37; 
+  const Json *v38; 
   DLogSampleGroup *p_sampleGroup; 
+  Json *v40; 
   Json *v41; 
   Json *v42; 
-  Json *v43; 
-  __int64 v48; 
-  unsigned __int64 v49; 
-  void *v50; 
-  const char *v51; 
-  Json *v52; 
-  Json *v54; 
-  Json *v55; 
-  unsigned __int64 v59; 
-  unsigned __int64 v60; 
-  size_t v61; 
-  DLogChannelRef *v62; 
-  const Json *v63; 
+  DLogRow *v43; 
+  __int64 v44; 
+  unsigned __int64 v45; 
+  void *v46; 
+  const char *v47; 
+  Json *v48; 
+  Json *v50; 
+  Json *v51; 
+  unsigned __int64 v54; 
+  unsigned __int64 v55; 
+  size_t v56; 
+  DLogChannelRef *v57; 
+  const Json *v58; 
   __int64 channelRefCount; 
   DLogChannelRef *channelRefs; 
-  DLogChannelRef *v67; 
-  const char *v68; 
-  const Json *v69; 
-  Json v70; 
-  int v71[2]; 
-  Json *v72; 
-  Json v73; 
+  DLogChannelRef *v61; 
+  const char *v62; 
+  const Json *v63; 
+  Json v64; 
+  int v65[2]; 
+  Json *v66; 
+  Json v67; 
   Json result; 
+  Json v69; 
+  Json v70; 
+  Json v71; 
+  Json value; 
+  Json v73; 
+  Json v74; 
   Json v75; 
   Json v76; 
   Json v77; 
-  Json value; 
-  Json v79; 
-  Json v80; 
-  Json v81; 
-  Json v82; 
-  Json v83; 
   char src[128]; 
-  char v85[128]; 
+  char v79[128]; 
 
-  _RDI = event;
-  m_key = schemaRoot;
-  v7 = jsonEvent;
-  v76.m_key = (const char *)schemaRoot;
-  _R14 = jsonTypes;
-  v72 = jsonEvent;
-  v73.m_key = (const char *)jsonTypes;
+  v5 = schemaRoot;
+  v6 = jsonEvent;
+  v70.m_key = (const char *)schemaRoot;
+  m_key = jsonTypes;
+  v66 = jsonEvent;
+  v67.m_key = (const char *)jsonTypes;
   memset_0(event, 0, sizeof(DLogEvent));
-  v10 = Json::Name(v7);
-  event->name = DLog_AllocString(v10);
+  v9 = Json::Name(v6);
+  event->name = DLog_AllocString(v9);
   Json::Json(&value);
-  v11 = (Json *)Json::operator[](v7, &v75, "rows");
-  v12 = 0;
-  if ( Json::GetArray(v11, &value) )
+  v10 = (Json *)Json::operator[](v6, &v69, "rows");
+  v11 = 0;
+  if ( Json::GetArray(v10, &value) )
   {
-    v13 = Json::Size(&value);
-    v14 = v13;
-    if ( v13 )
+    v12 = Json::Size(&value);
+    v13 = v12;
+    if ( v12 )
     {
-      v15 = (DLogRow *)DLog_Alloc(56 * v13);
-      event->rows = v15;
-      memset_0(v15, 0, 56 * v14);
-      Json::begin(&value, &v70);
-      v16 = Json::end(&v75);
-      if ( Json::operator!=(&v70, v16) )
+      v14 = (DLogRow *)DLog_Alloc(56 * v12);
+      event->rows = v14;
+      memset_0(v14, 0, 56 * v13);
+      Json::begin(&value, &v64);
+      v15 = Json::end(&v69);
+      if ( Json::operator!=(&v64, v15) )
       {
         while ( 1 )
         {
-          DLog_Assert(event->rowCount < v14, "event->rowCount < jsonEventRowCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_ParseEvent", 851);
+          DLog_Assert(event->rowCount < v13, "event->rowCount < jsonEventRowCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_ParseEvent", 851);
           rowCount = event->rowCount;
-          _R14 = &event->rows[rowCount];
+          v17 = &event->rows[rowCount];
           event->rowCount = rowCount + 1;
-          _R14->name = NULL;
-          _R14->type = NULL;
-          _R14->columns = NULL;
-          *(_QWORD *)&_R14->columnCount = 0i64;
-          _R14->columnHashTable.list = NULL;
-          *(_QWORD *)&_R14->columnHashTable.count = 0i64;
-          _R14->autoFill = NULL;
-          v19 = (Json *)Json::operator[](&v70, &v81, (const char *)&stru_143C9A1A4);
-          if ( Json::GetString(v19, src, 0x80ui64) )
+          v17->name = NULL;
+          v17->type = NULL;
+          v17->columns = NULL;
+          *(_QWORD *)&v17->columnCount = 0i64;
+          v17->columnHashTable.list = NULL;
+          *(_QWORD *)&v17->columnHashTable.count = 0i64;
+          v17->autoFill = NULL;
+          v18 = (Json *)Json::operator[](&v64, &v75, (const char *)&stru_143C9A1A4);
+          if ( Json::GetString(v18, src, 0x80ui64) )
           {
-            v20 = (Json *)Json::operator[](&v70, &v82, "type");
-            if ( Json::GetString(v20, v85, 0x80ui64) )
+            v19 = (Json *)Json::operator[](&v64, &v76, "type");
+            if ( Json::GetString(v19, v79, 0x80ui64) )
             {
-              v71[0] = 0;
-              v21 = (Json *)Json::operator[](&v70, &v83, "count");
-              Json::GetInt32(v21, v71);
-              v22 = 0;
-              v23 = 0i64;
+              v65[0] = 0;
+              v20 = (Json *)Json::operator[](&v64, &v77, "count");
+              Json::GetInt32(v20, v65);
+              v21 = 0;
+              v22 = 0i64;
               if ( dlogRows->rowCount > 0 )
               {
                 rows = dlogRows->rows;
                 p_type = &rows->type;
                 while ( 1 )
                 {
-                  v26 = *p_type;
+                  v25 = *p_type;
                   do
                   {
-                    v27 = (unsigned __int8)v26[v85 - *p_type];
-                    v28 = *(unsigned __int8 *)v26 - v27;
-                    if ( v28 )
+                    v26 = (unsigned __int8)v25[v79 - *p_type];
+                    v27 = *(unsigned __int8 *)v25 - v26;
+                    if ( v27 )
                       break;
-                    ++v26;
+                    ++v25;
                   }
-                  while ( v27 );
-                  if ( !v28 )
+                  while ( v26 );
+                  if ( !v27 )
                     break;
+                  ++v21;
                   ++v22;
-                  ++v23;
                   p_type += 7;
-                  if ( v23 >= dlogRows->rowCount )
+                  if ( v22 >= dlogRows->rowCount )
                     goto LABEL_15;
                 }
-                if ( &rows[v22] )
+                v43 = &rows[v21];
+                if ( v43 )
                 {
-                  __asm
-                  {
-                    vmovups ymm0, ymmword ptr [rcx]
-                    vmovups ymmword ptr [r14], ymm0
-                    vmovups xmm1, xmmword ptr [rcx+20h]
-                    vmovups xmmword ptr [r14+20h], xmm1
-                    vmovsd  xmm0, qword ptr [rcx+30h]
-                    vmovsd  qword ptr [r14+30h], xmm0
-                  }
-                  v48 = -1i64;
-                  _R14->arrayCount = v71[0];
+                  *(__m256i *)&v17->name = *(__m256i *)&v43->name;
+                  v17->columnHashTable = v43->columnHashTable;
+                  v17->autoFill = v43->autoFill;
+                  v44 = -1i64;
+                  v17->arrayCount = v65[0];
                   do
-                    ++v48;
-                  while ( src[v48] );
-                  v49 = v48 + 1;
-                  v50 = DLog_Alloc(v49);
-                  memset_0(v50, 0, v49);
-                  DLog_strcpy((char *)v50, v49, src);
-                  _R14->name = (const char *)v50;
+                    ++v44;
+                  while ( src[v44] );
+                  v45 = v44 + 1;
+                  v46 = DLog_Alloc(v45);
+                  memset_0(v46, 0, v45);
+                  DLog_strcpy((char *)v46, v45, src);
+                  v17->name = (const char *)v46;
                   goto LABEL_17;
                 }
               }
 LABEL_15:
-              DLog_PrintError("Event '%s' rowRef '%s' not found '%s'\n", event->name, _R14->name, v85);
+              DLog_PrintError("Event '%s' rowRef '%s' not found '%s'\n", event->name, v17->name, v79);
             }
             else
             {
-              DLog_PrintError("Event '%s' rowRef '%s' required field 'type' not found\n", event->name, _R14->name);
+              DLog_PrintError("Event '%s' rowRef '%s' required field 'type' not found\n", event->name, v17->name);
             }
           }
           else
@@ -2008,113 +1971,103 @@ LABEL_15:
           }
           --event->rowCount;
 LABEL_17:
-          Json::operator++(&v70, &result);
-          v29 = Json::end(&v75);
-          if ( !Json::operator!=(&v70, v29) )
+          Json::operator++(&v64, &result);
+          v28 = Json::end(&v69);
+          if ( !Json::operator!=(&v64, v28) )
           {
-            _R14 = (void *)v73.m_key;
-            v7 = v72;
+            m_key = (Json *)v67.m_key;
+            v6 = v66;
             break;
           }
         }
       }
     }
-    m_key = (const DLogSchema *)v76.m_key;
+    v5 = (const DLogSchema *)v70.m_key;
   }
-  Json::Json(&v79);
-  v30 = (Json *)Json::operator[](v7, &result, "columns");
-  if ( Json::GetArray(v30, &v79) )
+  Json::Json(&v73);
+  v29 = (Json *)Json::operator[](v6, &result, "columns");
+  if ( Json::GetArray(v29, &v73) )
   {
-    v31 = Json::Size(&v79);
-    v32 = v31;
-    if ( v31 )
+    v30 = Json::Size(&v73);
+    v31 = v30;
+    if ( v30 )
     {
-      v33 = 32 * (v31 + 1);
-      v34 = (DLogColumn *)DLog_Alloc(v33);
-      event->columns = v34;
-      memset_0(v34, 0, v33);
-      Json::begin(&v79, &v70);
-      v35 = Json::end(&v76);
-      if ( Json::operator!=(&v70, v35) )
+      v32 = 32 * (v30 + 1);
+      v33 = (DLogColumn *)DLog_Alloc(v32);
+      event->columns = v33;
+      memset_0(v33, 0, v32);
+      Json::begin(&v73, &v64);
+      v34 = Json::end(&v70);
+      if ( Json::operator!=(&v64, v34) )
       {
         do
         {
-          DLog_Assert(event->columnCount < v32, "event->columnCount < jsonEventColumnCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_ParseEvent", 910);
-          __asm
+          DLog_Assert(event->columnCount < v31, "event->columnCount < jsonEventColumnCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_ParseEvent", 910);
+          v35 = *m_key;
+          v36 = v64;
+          v37 = &event->columns[event->columnCount++];
+          v69 = v35;
+          v67 = v36;
+          if ( !DLog_ParseColumn(&v67, &v69, v37) )
           {
-            vmovups xmm0, xmmword ptr [r14]
-            vmovups xmm1, xmmword ptr [rsp+240h+var_218.m_value]
-          }
-          v38 = &event->columns[event->columnCount++];
-          __asm
-          {
-            vmovups xmmword ptr [rsp+240h+var_1D0.m_key], xmm0
-            vmovdqa xmmword ptr [rsp+240h+var_1F8.m_value], xmm1
-          }
-          if ( !DLog_ParseColumn(&v73, &v75, v38) )
-          {
-            DLog_PrintError("Event '%s' column '%s' failed to parse\n", event->name, v38->name);
-            DLog_Free((void *)v38->name);
-            v38->name = NULL;
-            *(_QWORD *)&v38->type = 0i64;
-            *(_QWORD *)&v38->arrayCount = 0i64;
-            v38->enumRef = NULL;
+            DLog_PrintError("Event '%s' column '%s' failed to parse\n", event->name, v37->name);
+            DLog_Free((void *)v37->name);
+            v37->name = NULL;
+            *(_QWORD *)&v37->type = 0i64;
+            *(_QWORD *)&v37->arrayCount = 0i64;
+            v37->enumRef = NULL;
             --event->columnCount;
           }
-          Json::operator++(&v70, &result);
-          v39 = Json::end(&v76);
+          Json::operator++(&v64, &result);
+          v38 = Json::end(&v70);
         }
-        while ( Json::operator!=(&v70, v39) );
+        while ( Json::operator!=(&v64, v38) );
       }
     }
   }
   p_sampleGroup = &event->sampleGroup;
   event->sampleGroup.rate = 1.0;
   event->sampleGroup.type = DLOG_SAMPLE_TYPE_NONE;
-  Json::Json(&v77);
-  v41 = v72;
-  v42 = (Json *)Json::operator[](v72, &result, "group");
-  if ( Json::GetObject(v42, &v77) )
+  Json::Json(&v71);
+  v40 = v66;
+  v41 = (Json *)Json::operator[](v66, &result, "group");
+  if ( Json::GetObject(v41, &v71) )
   {
-    v43 = (Json *)Json::operator[](&v77, &result, "type");
-    if ( Json::GetString(v43, (const char **)&v72) )
+    v42 = (Json *)Json::operator[](&v71, &result, "type");
+    if ( Json::GetString(v42, (const char **)&v66) )
     {
-      v51 = (const char *)v72;
-      DLog_Assert(v72 != NULL, (const char *)&stru_143C9A1A4, "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_SampleTypeFromString", 380);
+      v47 = (const char *)v66;
+      DLog_Assert(v66 != NULL, (const char *)&stru_143C9A1A4, "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_SampleTypeFromString", 380);
       DLog_Assert(p_sampleGroup != NULL, "sampleType", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_SampleTypeFromString", 381);
-      if ( !v51 || event == (DLogEvent *)-88i64 )
+      if ( !v47 || event == (DLogEvent *)-88i64 )
       {
 LABEL_37:
-        DLog_PrintError("Event '%s' field 'group' field 'type' value '%s' is invalid\n", event->name, (const char *)v72);
+        DLog_PrintError("Event '%s' field 'group' field 'type' value '%s' is invalid\n", event->name, (const char *)v66);
       }
       else
       {
-        while ( strcmp(v51, off_148741120[v12]) )
+        while ( strcmp(v47, off_148741120[v11]) )
         {
-          if ( (unsigned int)++v12 >= 5 )
+          if ( (unsigned int)++v11 >= 5 )
             goto LABEL_37;
         }
-        p_sampleGroup->type = v12;
-        if ( (_BYTE)v12 == 4 )
+        p_sampleGroup->type = v11;
+        if ( (_BYTE)v11 == 4 )
         {
-          v54 = (Json *)Json::operator[](&v77, &result, (const char *)&stru_143C9A1A4);
-          if ( Json::GetString(v54, &v73.m_key) )
-            event->sampleGroup.name = DLog_AllocString(v73.m_key);
+          v50 = (Json *)Json::operator[](&v71, &result, (const char *)&stru_143C9A1A4);
+          if ( Json::GetString(v50, &v67.m_key) )
+            event->sampleGroup.name = DLog_AllocString(v67.m_key);
           else
             DLog_PrintError("Event '%s' field 'group' required field 'name' not found\n", event->name);
         }
         else
         {
-          v55 = (Json *)Json::operator[](&v77, &result, "rate");
-          if ( Json::GetFloat64(v55, (long double *)&v73) )
+          v51 = (Json *)Json::operator[](&v71, &result, "rate");
+          if ( Json::GetFloat64(v51, (long double *)&v67) )
           {
-            __asm
-            {
-              vmovsd  xmm0, [rsp+240h+var_1F8.m_value]
-              vmulsd  xmm1, xmm0, cs:__real@3f847ae147ae147b
-              vcvtsd2ss xmm2, xmm1, xmm1
-              vmovss  dword ptr [rdi+5Ch], xmm2
-            }
+            _XMM1 = COERCE_UNSIGNED_INT64(*(double *)&v67.m_key * 0.01);
+            __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+            event->sampleGroup.rate = *(float *)&_XMM2;
           }
           else
           {
@@ -2128,48 +2081,44 @@ LABEL_37:
       DLog_PrintError("Event '%s' field 'group' required field 'type' not found\n", event->name);
     }
   }
-  Json::Json(&v80);
-  v52 = (Json *)Json::operator[](v41, &result, "channels");
-  if ( Json::GetObject(v52, &v80) )
+  Json::Json(&v74);
+  v48 = (Json *)Json::operator[](v40, &result, "channels");
+  if ( Json::GetObject(v48, &v74) )
   {
-    v59 = Json::Size(&v80);
-    v60 = v59;
-    if ( v59 )
+    v54 = Json::Size(&v74);
+    v55 = v54;
+    if ( v54 )
     {
-      v61 = 24 * v59;
-      v62 = (DLogChannelRef *)DLog_Alloc(24 * v59);
-      event->channelRefs = v62;
-      memset_0(v62, 0, v61);
-      Json::begin(&v80, &v70);
-      v63 = Json::end(&v73);
-      if ( Json::operator!=(&v70, v63) )
+      v56 = 24 * v54;
+      v57 = (DLogChannelRef *)DLog_Alloc(24 * v54);
+      event->channelRefs = v57;
+      memset_0(v57, 0, v56);
+      Json::begin(&v74, &v64);
+      v58 = Json::end(&v67);
+      if ( Json::operator!=(&v64, v58) )
       {
         do
         {
-          DLog_Assert(event->channelRefCount < v60, "event->channelRefCount < jsonEventChannelCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_ParseEvent", 987);
+          DLog_Assert(event->channelRefCount < v55, "event->channelRefCount < jsonEventChannelCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_ParseEvent", 987);
           channelRefCount = event->channelRefCount;
           channelRefs = event->channelRefs;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsp+240h+var_218.m_value]
-            vmovdqa xmmword ptr [rsp+240h+var_1D0.m_key], xmm0
-          }
-          v67 = &channelRefs[channelRefCount];
+          v69 = v64;
+          v61 = &channelRefs[channelRefCount];
           event->channelRefCount = channelRefCount + 1;
-          if ( !DLog_ParseChannelRef(&v75, m_key, v67) )
+          if ( !DLog_ParseChannelRef(&v69, v5, v61) )
           {
-            v68 = Json::Name(&v70);
-            DLog_PrintError("Event '%s' channelRef '%s' failed to parse\n", event->name, v68);
-            DLog_Free((void *)v67->categoryName);
-            v67->channel = NULL;
-            v67->categoryName = NULL;
-            *(_QWORD *)v67->sample = 0i64;
+            v62 = Json::Name(&v64);
+            DLog_PrintError("Event '%s' channelRef '%s' failed to parse\n", event->name, v62);
+            DLog_Free((void *)v61->categoryName);
+            v61->channel = NULL;
+            v61->categoryName = NULL;
+            *(_QWORD *)v61->sample = 0i64;
             --event->channelRefCount;
           }
-          Json::operator++(&v70, &result);
-          v69 = Json::end(&v73);
+          Json::operator++(&v64, &result);
+          v63 = Json::end(&v67);
         }
-        while ( Json::operator!=(&v70, v69) );
+        while ( Json::operator!=(&v64, v63) );
       }
     }
     return 1;
@@ -2196,6 +2145,8 @@ char DLog_ParseRow(Json *jsonRow, Json *jsonTypes, DLogRow *row)
   unsigned __int64 v11; 
   DLogColumn *v12; 
   const Json *v13; 
+  Json v14; 
+  Json v15; 
   DLogColumn *v16; 
   const char *name; 
   const char *v18; 
@@ -2208,7 +2159,6 @@ char DLog_ParseRow(Json *jsonRow, Json *jsonTypes, DLogRow *row)
   Json v26; 
 
   row->name = NULL;
-  _R15 = jsonTypes;
   row->type = NULL;
   row->columns = NULL;
   *(_QWORD *)&row->columnCount = 0i64;
@@ -2239,17 +2189,11 @@ char DLog_ParseRow(Json *jsonRow, Json *jsonTypes, DLogRow *row)
   do
   {
     DLog_Assert(row->columnCount < v10, "row->columnCount < jsonRowColumnCount", "c:\\workspace\\iw8\\code_source\\external\\dlog\\src\\dlog\\dlog_parse.cpp", "DLog_ParseRow", 758);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r15]
-      vmovups xmm1, xmmword ptr [rsp+0A8h+var_78.m_key]
-    }
+    v14 = *jsonTypes;
+    v15 = v21;
     v16 = &row->columns[row->columnCount++];
-    __asm
-    {
-      vmovups [rsp+0A8h+var_58], xmm0
-      vmovdqa [rsp+0A8h+var_48], xmm1
-    }
+    v23 = v14;
+    v24 = v15;
     if ( !DLog_ParseColumn(&v24, &v23, v16) )
     {
       name = v16->name;

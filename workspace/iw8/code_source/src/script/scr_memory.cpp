@@ -544,33 +544,28 @@ Scr_Mem_TempShutdown
 */
 void Scr_Mem_TempShutdown(scrContext_t *scrContext)
 {
-  scrContext_t *v2; 
+  scrContext_t *v1; 
   __int64 m_tempAllocHighWatermark; 
+  float v3; 
+  float v4; 
 
-  v2 = scrContext;
+  v1 = scrContext;
   LOBYTE(scrContext) = 1;
   Mem_Ownership_CheckNone((MemOwnershipType)scrContext);
-  if ( !v2->m_varPub.tempMemHunkUser && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_memory.cpp", 42, ASSERT_TYPE_ASSERT, "(scrContext.m_varPub.tempMemHunkUser != nullptr)", (const char *)&queryFormat, "scrContext.m_varPub.tempMemHunkUser != nullptr") )
+  if ( !v1->m_varPub.tempMemHunkUser && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\script\\scr_memory.cpp", 42, ASSERT_TYPE_ASSERT, "(scrContext.m_varPub.tempMemHunkUser != nullptr)", (const char *)&queryFormat, "scrContext.m_varPub.tempMemHunkUser != nullptr") )
     __debugbreak();
-  Mem_HunkUser_Destroy(v2->m_varPub.tempMemHunkUser);
-  m_tempAllocHighWatermark = v2->m_tempAllocHighWatermark;
-  v2->m_varPub.tempMemHunkUser = NULL;
+  Mem_HunkUser_Destroy(v1->m_varPub.tempMemHunkUser);
+  m_tempAllocHighWatermark = v1->m_tempAllocHighWatermark;
+  v1->m_varPub.tempMemHunkUser = NULL;
   if ( m_tempAllocHighWatermark )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-    }
+    v3 = (float)m_tempAllocHighWatermark;
     if ( m_tempAllocHighWatermark < 0 )
-      __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-    __asm
     {
-      vmulss  xmm0, xmm0, cs:__real@35800000
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovq   r8, xmm2
+      v4 = (float)m_tempAllocHighWatermark;
+      v3 = v4 + 1.8446744e19;
     }
-    Com_Printf(15, "Scr_ShutdownProgramHunkUser: Temp Alloc High watermark: %.2f mb (%zu%%)\n", *(double *)&_XMM2, (unsigned __int64)(100 * m_tempAllocHighWatermark) >> 24);
+    Com_Printf(15, "Scr_ShutdownProgramHunkUser: Temp Alloc High watermark: %.2f mb (%zu%%)\n", (float)(v3 * 0.00000095367432), (unsigned __int64)(100 * m_tempAllocHighWatermark) >> 24);
   }
 }
 

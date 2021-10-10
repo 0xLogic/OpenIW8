@@ -626,119 +626,145 @@ void XB3MemAlloc_VerifyReserveHysteresis(void)
 XB3SystemMemoryStatus_Show_f
 ==============
 */
-
-void __fastcall XB3SystemMemoryStatus_Show_f(double _XMM0_8, double _XMM1_8)
+void XB3SystemMemoryStatus_Show_f()
 {
-  unsigned int v26; 
-  XB3XMemHeapInfo *v27; 
+  __int128 v0; 
+  __int128 v1; 
+  float ullAvailVirtual; 
+  float v3; 
+  double v4; 
+  float ullTotalVirtual; 
+  float v6; 
+  float v7; 
+  float ullAvailPhys; 
+  float v9; 
+  double v10; 
+  float v11; 
+  float ullTotalPhys; 
+  float v13; 
+  unsigned int v14; 
+  XB3XMemHeapInfo *v15; 
+  __int64 AllocationHysteresis; 
+  float v17; 
+  float v18; 
+  double v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  double v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  double v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  double v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  double v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  double v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  double v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  double v56; 
+  float v57; 
+  float v58; 
+  float v59; 
   ntl::nxheap_region *mp_parent_region; 
-  ntl::nxheap *v107; 
+  ntl::nxheap *v61; 
   ntl::nxheap_region *p_mp_top_ptr; 
-  ntl::nxheap *v109; 
-  _BYTE *mp_start_ptr; 
-  _BYTE *mp_top_ptr; 
-  ntl::nxheap *v114; 
-  ntl::nxheap_region *v117; 
-  _BYTE *v118; 
-  ntl::nxheap *v119; 
+  ntl::nxheap *v63; 
+  char *mp_start_ptr; 
+  char *mp_top_ptr; 
+  char *v66; 
+  float v67; 
+  float v68; 
+  ntl::nxheap *v69; 
+  double v70; 
+  ntl::nxheap_region *v71; 
+  _BYTE *v72; 
+  ntl::nxheap *v73; 
   _BYTE *mp_end_ptr; 
-  char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  char *fmtc; 
-  char *fmtd; 
-  __int64 v137; 
-  double v138; 
-  double v139; 
-  double v140; 
-  double v141; 
-  double v142; 
-  __int64 v143; 
-  double v144; 
-  __int64 v145; 
-  double v146; 
-  __int64 v147; 
-  double v148; 
-  double v149; 
-  int v150; 
-  int v151; 
-  int v152; 
-  __int64 v153; 
-  __int64 v154; 
-  int v155; 
-  int v156; 
-  int v157; 
-  __int64 v158; 
-  __int64 v159; 
-  __int64 v160; 
-  __int64 v161; 
-  __int64 v162; 
-  __int64 v163; 
-  __int64 v164; 
+  unsigned __int64 v75; 
+  float v76; 
+  float v77; 
+  __int64 v78; 
+  __int64 v79; 
+  __int64 v80; 
+  __int64 v81; 
+  unsigned int v82; 
+  unsigned int v83; 
+  unsigned int v84; 
+  unsigned int v85; 
+  int v86; 
+  int v87; 
+  __int64 v88; 
+  __int64 v89; 
+  int v90; 
+  int v91; 
+  int v92; 
+  __int64 v93; 
+  __int64 v94; 
+  __int64 v95; 
+  __int64 v96; 
+  __int64 v97; 
+  __int64 v98; 
+  __int64 v99; 
   _MEMORYSTATUSEX Buffer; 
-  char v169; 
-  void *retaddr; 
+  __int128 v101; 
+  __int128 v102; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
   Buffer.dwLength = 64;
   Com_Printf(16, "Global Memory Status:\n");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@5f800000
-    vmovss  xmm7, cs:__real@35800000
-  }
   if ( GlobalMemoryStatusEx(&Buffer) )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-    }
+    ullAvailVirtual = (float)(__int64)Buffer.ullAvailVirtual;
     if ( (Buffer.ullAvailVirtual & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, xmm6 }
-    __asm
     {
-      vmovss  xmm2, cs:__real@30800000
-      vmulss  xmm0, xmm0, xmm2
-      vxorps  xmm1, xmm1, xmm1
-      vcvtss2sd xmm5, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, rax
+      v3 = (float)(__int64)Buffer.ullAvailVirtual;
+      ullAvailVirtual = v3 + 1.8446744e19;
     }
+    v4 = (float)(ullAvailVirtual * 9.3132257e-10);
+    ullTotalVirtual = (float)(__int64)Buffer.ullTotalVirtual;
     if ( (Buffer.ullTotalVirtual & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm1, xmm1, xmm6 }
-    __asm
     {
-      vmulss  xmm0, xmm1, xmm2
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtss2sd xmm4, xmm0, xmm0
+      v6 = (float)(__int64)Buffer.ullTotalVirtual;
+      ullTotalVirtual = v6 + 1.8446744e19;
     }
+    v7 = ullTotalVirtual * 9.3132257e-10;
+    ullAvailPhys = (float)(__int64)Buffer.ullAvailPhys;
+    v10 = v7;
     if ( (Buffer.ullAvailPhys & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm1, xmm1, xmm6 }
-    __asm
     {
-      vmulss  xmm0, xmm1, xmm7
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtss2sd xmm2, xmm0, xmm0
+      v9 = (float)(__int64)Buffer.ullAvailPhys;
+      ullAvailPhys = v9 + 1.8446744e19;
     }
+    v11 = ullAvailPhys * 0.00000095367432;
+    ullTotalPhys = (float)(__int64)Buffer.ullTotalPhys;
     if ( (Buffer.ullTotalPhys & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm1, xmm1, xmm6 }
-    __asm
     {
-      vmovsd  [rsp+190h+var_160], xmm5
-      vmulss  xmm0, xmm1, xmm7
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovsd  [rsp+190h+var_168], xmm4
-      vmovq   r9, xmm3
-      vmovsd  [rsp+190h+fmt], xmm2
+      v13 = (float)(__int64)Buffer.ullTotalPhys;
+      ullTotalPhys = v13 + 1.8446744e19;
     }
-    Com_Printf(16, "\tMemory in use:         %ld%%\n\tTotal physical (MB):  %10.4f\n\tFree physical (MB):   %10.4f\n\tTotal virtual (GB):   %10.4f\n\tFree virtual (GB):    %10.4f\n", Buffer.dwMemoryLoad, *(double *)&_XMM3, *(double *)&fmt, v138, v144);
+    Com_Printf(16, "\tMemory in use:         %ld%%\n\tTotal physical (MB):  %10.4f\n\tFree physical (MB):   %10.4f\n\tTotal virtual (GB):   %10.4f\n\tFree virtual (GB):    %10.4f\n", Buffer.dwMemoryLoad, (float)(ullTotalPhys * 0.00000095367432), v11, v10, v4);
   }
   else
   {
@@ -746,218 +772,135 @@ void __fastcall XB3SystemMemoryStatus_Show_f(double _XMM0_8, double _XMM1_8)
   }
   Com_Printf(16, "\n");
   Com_Printf(16, "XMem Heap Status:\n");
-  v26 = 0;
-  v152 = 32;
-  v27 = s_xb3XMemHeapInfos;
-  __asm { vmovaps [rsp+190h+var_40], xmm8 }
+  v14 = 0;
+  v87 = 32;
+  v15 = s_xb3XMemHeapInfos;
   do
   {
-    if ( v26 >= 0xC )
+    if ( v14 >= 0xC )
     {
-      LODWORD(v143) = 12;
-      LODWORD(v137) = v26;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_xmemalloc.cpp", 864, ASSERT_TYPE_ASSERT, "(unsigned)( heapIdx ) < (unsigned)( ( sizeof( *array_counter( s_xb3XMemHeapInfos ) ) + 0 ) )", "heapIdx doesn't index ARRAY_COUNT( s_xb3XMemHeapInfos )\n\t%i not in [0, %i)", v137, v143) )
+      LODWORD(v79) = 12;
+      LODWORD(v78) = v14;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_xmemalloc.cpp", 864, ASSERT_TYPE_ASSERT, "(unsigned)( heapIdx ) < (unsigned)( ( sizeof( *array_counter( s_xb3XMemHeapInfos ) ) + 0 ) )", "heapIdx doesn't index ARRAY_COUNT( s_xb3XMemHeapInfos )\n\t%i not in [0, %i)", v78, v79) )
         __debugbreak();
     }
-    if ( (unsigned int)XMemGetAllocationStatistics(v27->gfxMemType, (unsigned int)v27->isLargeHeap, &v152) )
+    if ( (unsigned int)XMemGetAllocationStatistics(v15->gfxMemType, (unsigned int)v15->isLargeHeap, &v87) )
     {
-      __asm
+      AllocationHysteresis = XMemGetAllocationHysteresis(v15->gfxMemType, (unsigned int)v15->isLargeHeap);
+      v17 = (float)AllocationHysteresis;
+      if ( AllocationHysteresis < 0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
+        v18 = (float)AllocationHysteresis;
+        v17 = v18 + 1.8446744e19;
       }
-      if ( XMemGetAllocationHysteresis(v27->gfxMemType, (unsigned int)v27->isLargeHeap) < 0 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
+      v19 = (float)(v17 * 0.00000095367432);
+      if ( v14 >= 0xC )
       {
-        vmulss  xmm0, xmm0, xmm7
-        vcvtss2sd xmm8, xmm0, xmm0
-      }
-      if ( v26 >= 0xC )
-      {
-        LODWORD(v143) = 12;
-        LODWORD(v137) = v26;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_xmemalloc.cpp", 856, ASSERT_TYPE_ASSERT, "(unsigned)( heapIdx ) < (unsigned)( ( sizeof( *array_counter( s_xb3XMemHeapInfos ) ) + 0 ) )", "heapIdx doesn't index ARRAY_COUNT( s_xb3XMemHeapInfos )\n\t%i not in [0, %i)", v137, v143) )
+        LODWORD(v79) = 12;
+        LODWORD(v78) = v14;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xb3\\xb3_xmemalloc.cpp", 856, ASSERT_TYPE_ASSERT, "(unsigned)( heapIdx ) < (unsigned)( ( sizeof( *array_counter( s_xb3XMemHeapInfos ) ) + 0 ) )", "heapIdx doesn't index ARRAY_COUNT( s_xb3XMemHeapInfos )\n\t%i not in [0, %i)", v78, v79) )
           __debugbreak();
       }
-      __asm
+      v20 = (float)v89;
+      if ( v89 < 0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
+        v21 = (float)v89;
+        v20 = v21 + 1.8446744e19;
       }
-      if ( v154 < 0 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
+      v22 = (float)v88;
+      if ( v88 < 0 )
       {
-        vmulss  xmm0, xmm0, xmm7
-        vxorps  xmm1, xmm1, xmm1
-        vcvtss2sd xmm2, xmm0, xmm0
-        vcvtsi2ss xmm1, xmm1, rax
+        v23 = (float)v88;
+        v22 = v23 + 1.8446744e19;
       }
-      if ( v153 < 0 )
-        __asm { vaddss  xmm1, xmm1, xmm6 }
-      LODWORD(v147) = v156;
-      LODWORD(v143) = v155;
-      __asm
-      {
-        vmulss  xmm0, xmm1, xmm7
-        vcvtss2sd xmm3, xmm0, xmm0
-        vmovsd  [rsp+190h+var_168], xmm8
-        vmovq   r9, xmm3
-        vmovsd  [rsp+190h+fmt], xmm2
-      }
-      Com_Printf(16, "\tXMem Type: %s\n\t\tMax Size (MB):   %10.4f\n\t\tMin Used (MB):   %10.4f\n\t\tHysteresis (MB): %10.4f\n\t\tAlloc Count:     %ld\n\t\tFreeCount:\t      %ld\n", v27->heapName, *(double *)&_XMM3, *(double *)&fmta, v139, v143, v147);
+      LODWORD(v81) = v91;
+      LODWORD(v79) = v90;
+      Com_Printf(16, "\tXMem Type: %s\n\t\tMax Size (MB):   %10.4f\n\t\tMin Used (MB):   %10.4f\n\t\tHysteresis (MB): %10.4f\n\t\tAlloc Count:     %ld\n\t\tFreeCount:\t      %ld\n", v15->heapName, (float)(v22 * 0.00000095367432), (float)(v20 * 0.00000095367432), v19, v79, v81);
     }
-    ++v26;
-    ++v27;
+    ++v14;
+    ++v15;
   }
-  while ( (__int64)v27 < (__int64)&unk_1486CD020 );
+  while ( (__int64)v15 < (__int64)&unk_1486CD020 );
   Com_Printf(16, "\n");
   Com_Printf(16, "Apu Memory Status:\n");
-  _XMM0_8 = ApuHeapGetState_0(&v150, 1i64);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vcvtss2sd xmm5, xmm1, xmm1
-    vmulss  xmm1, xmm0, xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vcvtss2sd xmm4, xmm1, xmm1
-    vmulss  xmm1, xmm0, xmm7
-    vcvtss2sd xmm3, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  LODWORD(v143) = v151;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm7
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovsd  [rsp+190h+var_168], xmm5
-    vmovq   r8, xmm2
-    vmovq   r9, xmm3
-    vmovsd  [rsp+190h+fmt], xmm4
-  }
-  Com_Printf(16, "\tAPU Cached\n\t\tAlloc Size (MB): %10.4f\n\t\tFree Size (MB):  %10.4f\n\t\tLost Size (MB):  %10.4f\n\t\tMax Block Size (MB): %10.4f\n\t\tAlloc Count:     %ld\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmtb, v140, v143);
-  *(double *)&_XMM0 = ApuHeapGetState_0(&v150, 2i64);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vcvtss2sd xmm5, xmm1, xmm1
-    vmulss  xmm1, xmm0, xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vcvtss2sd xmm4, xmm1, xmm1
-    vmulss  xmm1, xmm0, xmm7
-    vcvtss2sd xmm3, xmm1, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  LODWORD(v145) = v151;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm7
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovsd  [rsp+190h+var_168], xmm5
-    vmovq   r8, xmm2
-    vmovq   r9, xmm3
-    vmovsd  [rsp+190h+fmt], xmm4
-  }
-  Com_Printf(16, "\tAPU Non-Cached\n\t\tAlloc Size (MB): %10.4f\n\t\tFree Size (MB):  %10.4f\n\t\tLost Size (MB):  %10.4f\n\t\tMax Block Size (MB): %10.4f\n\t\tAlloc Count:     %ld\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmtc, v141, v145);
+  ApuHeapGetState_0(&v82, 1i64);
+  v24 = (float)v85;
+  v25 = (float)v84;
+  v26 = (float)(v24 * 0.00000095367432);
+  v27 = v25 * 0.00000095367432;
+  v28 = (float)v82;
+  v29 = (float)v83;
+  LODWORD(v79) = v86;
+  Com_Printf(16, "\tAPU Cached\n\t\tAlloc Size (MB): %10.4f\n\t\tFree Size (MB):  %10.4f\n\t\tLost Size (MB):  %10.4f\n\t\tMax Block Size (MB): %10.4f\n\t\tAlloc Count:     %ld\n", (float)(v29 * 0.00000095367432), (float)(v28 * 0.00000095367432), v27, v26, v79);
+  ApuHeapGetState_0(&v82, 2i64);
+  v30 = (float)v85;
+  v31 = (float)v84;
+  v32 = (float)(v30 * 0.00000095367432);
+  v33 = v31 * 0.00000095367432;
+  v34 = (float)v82;
+  v35 = (float)v83;
+  LODWORD(v80) = v86;
+  Com_Printf(16, "\tAPU Non-Cached\n\t\tAlloc Size (MB): %10.4f\n\t\tFree Size (MB):  %10.4f\n\t\tLost Size (MB):  %10.4f\n\t\tMax Block Size (MB): %10.4f\n\t\tAlloc Count:     %ld\n", (float)(v35 * 0.00000095367432), (float)(v34 * 0.00000095367432), v33, v32, v80);
   Com_Printf(16, "\n");
-  v157 = 80;
+  v92 = 80;
   Com_Printf(16, "Title Memory Status:\n");
-  if ( (unsigned int)TitleMemoryStatus(&v157) )
+  if ( (unsigned int)TitleMemoryStatus(&v92) )
   {
-    __asm
+    v102 = v0;
+    v101 = v1;
+    v36 = (float)v99;
+    if ( v99 < 0 )
     {
-      vmovaps [rsp+190h+var_50], xmm9
-      vmovaps [rsp+190h+var_60], xmm10
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
+      v37 = (float)v99;
+      v36 = v37 + 1.8446744e19;
     }
-    if ( v164 < 0 )
-      __asm { vaddss  xmm0, xmm0, xmm6 }
-    __asm
+    v38 = (float)(v36 * 0.00000095367432);
+    v39 = (float)v98;
+    if ( v98 < 0 )
     {
-      vmulss  xmm0, xmm0, xmm7
-      vxorps  xmm1, xmm1, xmm1
-      vcvtss2sd xmm10, xmm0, xmm0
-      vcvtsi2ss xmm1, xmm1, rax
+      v40 = (float)v98;
+      v39 = v40 + 1.8446744e19;
     }
-    if ( v163 < 0 )
-      __asm { vaddss  xmm1, xmm1, xmm6 }
-    __asm
+    v41 = v39 * 0.00000095367432;
+    v42 = (float)v97;
+    v44 = v41;
+    if ( v97 < 0 )
     {
-      vmulss  xmm0, xmm1, xmm7
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtss2sd xmm9, xmm0, xmm0
+      v43 = (float)v97;
+      v42 = v43 + 1.8446744e19;
     }
-    if ( v162 < 0 )
-      __asm { vaddss  xmm1, xmm1, xmm6 }
-    __asm
+    v45 = v42 * 0.00000095367432;
+    v46 = (float)v96;
+    v48 = v45;
+    if ( v96 < 0 )
     {
-      vmulss  xmm0, xmm1, xmm7
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtss2sd xmm8, xmm0, xmm0
+      v47 = (float)v96;
+      v46 = v47 + 1.8446744e19;
     }
-    if ( v161 < 0 )
-      __asm { vaddss  xmm1, xmm1, xmm6 }
-    __asm
+    v49 = v46 * 0.00000095367432;
+    v50 = (float)v95;
+    v52 = v49;
+    if ( v95 < 0 )
     {
-      vmulss  xmm0, xmm1, xmm7
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtss2sd xmm5, xmm0, xmm0
+      v51 = (float)v95;
+      v50 = v51 + 1.8446744e19;
     }
-    if ( v160 < 0 )
-      __asm { vaddss  xmm1, xmm1, xmm6 }
-    __asm
+    v53 = v50 * 0.00000095367432;
+    v54 = (float)v94;
+    v56 = v53;
+    if ( v94 < 0 )
     {
-      vmulss  xmm0, xmm1, xmm7
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtss2sd xmm4, xmm0, xmm0
+      v55 = (float)v94;
+      v54 = v55 + 1.8446744e19;
     }
-    if ( v159 < 0 )
-      __asm { vaddss  xmm1, xmm1, xmm6 }
-    __asm
+    v57 = v54 * 0.00000095367432;
+    v58 = (float)v93;
+    if ( v93 < 0 )
     {
-      vmulss  xmm0, xmm1, xmm7
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vcvtss2sd xmm3, xmm0, xmm0
+      v59 = (float)v93;
+      v58 = v59 + 1.8446744e19;
     }
-    if ( v158 < 0 )
-      __asm { vaddss  xmm1, xmm1, xmm6 }
-    __asm
-    {
-      vmovsd  [rsp+190h+var_150], xmm10
-      vmovsd  [rsp+190h+var_158], xmm9
-      vmulss  xmm0, xmm1, xmm7
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovsd  [rsp+190h+var_160], xmm8
-      vmovsd  [rsp+190h+var_168], xmm5
-      vmovq   r8, xmm2
-      vmovq   r9, xmm3
-      vmovsd  [rsp+190h+fmt], xmm4
-    }
-    Com_Printf(16, "\tTotal Memory (MB):    %10.4f\n\tAvailable (MB):       %10.4f\n\tLegacy Used (MB):     %10.4f\n\tLegacy Peak (MB):     %10.4f\n\tLegacy Avail (MB):    %10.4f\n\tTitle Used (MB):      %10.4f\n\tTitle Avail (MB):     %10.4f\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmtd, v142, v146, v148, v149);
-    __asm
-    {
-      vmovaps xmm10, [rsp+190h+var_60]
-      vmovaps xmm9, [rsp+190h+var_50]
-    }
+    Com_Printf(16, "\tTotal Memory (MB):    %10.4f\n\tAvailable (MB):       %10.4f\n\tLegacy Used (MB):     %10.4f\n\tLegacy Peak (MB):     %10.4f\n\tLegacy Avail (MB):    %10.4f\n\tTitle Used (MB):      %10.4f\n\tTitle Avail (MB):     %10.4f\n", (float)(v58 * 0.00000095367432), v57, v56, v52, v48, v44, v38);
   }
   else
   {
@@ -968,75 +911,56 @@ void __fastcall XB3SystemMemoryStatus_Show_f(double _XMM0_8, double _XMM1_8)
   if ( s_auxContext )
   {
     mp_parent_region = s_auxMemHeap.m_heap.mp_parent_region;
-    v107 = s_auxMemHeap.m_heap.mp_parent_region->mp_heap[0];
-    if ( v107 )
-      p_mp_top_ptr = (ntl::nxheap_region *)&v107->mp_top_ptr;
+    v61 = s_auxMemHeap.m_heap.mp_parent_region->mp_heap[0];
+    if ( v61 )
+      p_mp_top_ptr = (ntl::nxheap_region *)&v61->mp_top_ptr;
     else
       p_mp_top_ptr = s_auxMemHeap.m_heap.mp_parent_region;
-    v109 = s_auxMemHeap.m_heap.mp_parent_region->mp_heap[1];
-    mp_start_ptr = p_mp_top_ptr->mp_start_ptr;
-    if ( v109 )
-      mp_top_ptr = v109->mp_top_ptr;
+    v63 = s_auxMemHeap.m_heap.mp_parent_region->mp_heap[1];
+    mp_start_ptr = (char *)p_mp_top_ptr->mp_start_ptr;
+    if ( v63 )
+      mp_top_ptr = (char *)v63->mp_top_ptr;
     else
-      mp_top_ptr = s_auxMemHeap.m_heap.mp_parent_region->mp_end_ptr;
+      mp_top_ptr = (char *)s_auxMemHeap.m_heap.mp_parent_region->mp_end_ptr;
     if ( mp_top_ptr < mp_start_ptr )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\nxheap\\nxheap.inl", 57, ASSERT_TYPE_ASSERT, "( top >= bot )", (const char *)&queryFormat, "top >= bot") )
         __debugbreak();
       mp_parent_region = s_auxMemHeap.m_heap.mp_parent_region;
     }
-    __asm
+    v66 = (char *)(mp_top_ptr - mp_start_ptr);
+    v67 = (float)(__int64)&v66[s_auxMemHeap.m_heap.m_free_fragment_mem];
+    if ( (__int64)&v66[s_auxMemHeap.m_heap.m_free_fragment_mem] < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdi
+      v68 = (float)(__int64)&v66[s_auxMemHeap.m_heap.m_free_fragment_mem];
+      v67 = v68 + 1.8446744e19;
     }
-    if ( (signed __int64)(s_auxMemHeap.m_heap.m_free_fragment_mem + mp_top_ptr - mp_start_ptr) < 0 )
-      __asm { vaddss  xmm0, xmm0, xmm6 }
-    v114 = mp_parent_region->mp_heap[0];
-    __asm
-    {
-      vmulss  xmm0, xmm0, xmm7
-      vcvtss2sd xmm8, xmm0, xmm0
-    }
-    if ( v114 )
-      v117 = (ntl::nxheap_region *)&v114->mp_top_ptr;
+    v69 = mp_parent_region->mp_heap[0];
+    v70 = (float)(v67 * 0.00000095367432);
+    if ( v69 )
+      v71 = (ntl::nxheap_region *)&v69->mp_top_ptr;
     else
-      v117 = mp_parent_region;
-    v118 = v117->mp_start_ptr;
-    v119 = mp_parent_region->mp_heap[1];
-    if ( v119 )
-      mp_end_ptr = v119->mp_top_ptr;
+      v71 = mp_parent_region;
+    v72 = v71->mp_start_ptr;
+    v73 = mp_parent_region->mp_heap[1];
+    if ( v73 )
+      mp_end_ptr = v73->mp_top_ptr;
     else
       mp_end_ptr = mp_parent_region->mp_end_ptr;
-    if ( mp_end_ptr < v118 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\nxheap\\nxheap.inl", 57, ASSERT_TYPE_ASSERT, "( top >= bot )", (const char *)&queryFormat, "top >= bot") )
+    if ( mp_end_ptr < v72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\nxheap\\nxheap.inl", 57, ASSERT_TYPE_ASSERT, "( top >= bot )", (const char *)&queryFormat, "top >= bot") )
       __debugbreak();
-    __asm
+    v75 = s_auxMemHeap.m_heap.m_free_fragment_mem + mp_end_ptr - v72;
+    v76 = (float)(__int64)(s_auxMemHeap.m_heap.m_used_mem + v75);
+    if ( (__int64)(s_auxMemHeap.m_heap.m_used_mem + v75) < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rbx
+      v77 = (float)(__int64)(s_auxMemHeap.m_heap.m_used_mem + v75);
+      v76 = v77 + 1.8446744e19;
     }
-    if ( (signed __int64)(s_auxMemHeap.m_heap.m_used_mem + s_auxMemHeap.m_heap.m_free_fragment_mem + mp_end_ptr - v118) < 0 )
-      __asm { vaddss  xmm0, xmm0, xmm6 }
-    __asm
-    {
-      vmulss  xmm0, xmm0, xmm7
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovaps xmm3, xmm8
-      vmovq   r8, xmm2
-      vmovq   r9, xmm3
-    }
-    Com_Printf(16, "\tTotal Memory (MB):    %10.4f\n\tAvailable (MB):       %10.4f\n", *(double *)&_XMM2, *(double *)&_XMM3);
+    Com_Printf(16, "\tTotal Memory (MB):    %10.4f\n\tAvailable (MB):       %10.4f\n", (float)(v76 * 0.00000095367432), v70);
   }
   else
   {
     Com_Printf(16, "\tNOT ALLOCATED\n");
-  }
-  __asm { vmovaps xmm8, [rsp+190h+var_40] }
-  _R11 = &v169;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -1466,18 +1390,16 @@ XB3XMem_AuxInit
 
 void __fastcall XB3XMem_AuxInit(double _XMM0_8)
 {
-  __int128 v1; 
-  unsigned __int64 v4; 
-  const char *v6; 
-  void *v7; 
-  __int128 v8; 
-  unsigned __int64 v11; 
-  __int128 v13; 
-  __int128 v14; 
-  __int128 v15; 
-  __int128 v16; 
-  __int128 v17; 
-  __int128 v18; 
+  ntl::solitary_buffer_allocator v1; 
+  unsigned __int64 v3; 
+  const char *v4; 
+  void *v5; 
+  ntl::solitary_buffer_allocator v6; 
+  unsigned __int64 v8; 
+  ntl::solitary_buffer_allocator v9; 
+  ntl::internal::buffer_memory_block<char> v10; 
+  ntl::solitary_buffer_allocator v11; 
+  ntl::internal::buffer_memory_block<char> v12; 
   unsigned __int64 size; 
   void *ptr; 
 
@@ -1492,16 +1414,12 @@ void __fastcall XB3XMem_AuxInit(double _XMM0_8)
     if ( s_auxContext && size == 0x10000000 )
     {
       memset_0(ptr, 153, 0x10000000ui64);
-      *(_QWORD *)&v1 = ptr;
-      *((_QWORD *)&v1 + 1) = size;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu [rbp+var_10], xmm0
-      }
-      if ( !ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", v13) )
+      v1.m_data.m_buffer = (char *)ptr;
+      v1.m_data.m_size = size;
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      if ( !ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", _XMM0) )
         __debugbreak();
-      v14 = v1;
+      v9 = v1;
       ntl::nxheap::shutdown(&s_auxMemHeap.m_heap);
       ntl::nxheap_region::shutdown(&s_auxMemHeap.m_region);
       if ( s_auxMemHeap.m_data.m_buffer )
@@ -1511,9 +1429,8 @@ void __fastcall XB3XMem_AuxInit(double _XMM0_8)
         s_auxMemHeap.m_data.m_buffer = NULL;
         s_auxMemHeap.m_data.m_size = 0i64;
       }
-      __asm { vmovups xmm0, [rbp+var_10] }
-      v4 = size;
-      __asm { vmovups xmmword ptr cs:s_auxMemHeap.m_allocator.m_data.m_buffer, xmm0 }
+      v3 = size;
+      s_auxMemHeap.m_allocator = v9;
       ntl::nxheap::shutdown(&s_auxMemHeap.m_heap);
       ntl::nxheap_region::shutdown(&s_auxMemHeap.m_region);
       if ( s_auxMemHeap.m_data.m_buffer )
@@ -1523,41 +1440,33 @@ void __fastcall XB3XMem_AuxInit(double _XMM0_8)
         s_auxMemHeap.m_data.m_buffer = NULL;
         s_auxMemHeap.m_data.m_size = 0i64;
       }
-      if ( v4 > s_auxMemHeap.m_allocator.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
+      if ( v3 > s_auxMemHeap.m_allocator.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
         __debugbreak();
-      *(_QWORD *)&v15 = s_auxMemHeap.m_allocator.m_data.m_buffer;
-      *((_QWORD *)&v15 + 1) = v4;
-      __asm
-      {
-        vmovups xmm0, [rbp+var_10]
-        vmovups xmmword ptr cs:s_auxMemHeap.baseclass_0.m_data.m_buffer, xmm0
-      }
+      v10.m_buffer = s_auxMemHeap.m_allocator.m_data.m_buffer;
+      v10.m_size = v3;
+      s_auxMemHeap.m_data = v10;
       if ( s_auxMemHeap.m_region.mp_start_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 206, ASSERT_TYPE_ASSERT, "( !m_region.is_inited() )", (const char *)&queryFormat, "!m_region.is_inited()") )
         __debugbreak();
       ntl::nxheap_region::init(&s_auxMemHeap.m_region, s_auxMemHeap.m_data.m_buffer, s_auxMemHeap.m_data.m_size);
       if ( s_auxMemHeap.m_heap.mp_parent_region && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 209, ASSERT_TYPE_ASSERT, "( !heap().is_inited() )", (const char *)&queryFormat, "!heap().is_inited()") )
         __debugbreak();
       ntl::nxheap::init(&s_auxMemHeap.m_heap, &s_auxMemHeap.m_region, DIR_BOTTOM_UP);
-      v6 = "Allocated 256MB auxiliary physical memory\n";
+      v4 = "Allocated 256MB auxiliary physical memory\n";
     }
     else if ( Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO )
     {
       s_auxContext = (void *)0xDEADBEEFDEADBEEFi64;
-      v7 = VirtualAlloc(NULL, 0x10000000ui64, 0x60001000u, 4u);
+      v5 = VirtualAlloc(NULL, 0x10000000ui64, 0x60001000u, 4u);
       size = 0x10000000i64;
-      ptr = v7;
+      ptr = v5;
       s_auxContextEmulation = 1;
-      memset_0(v7, 153, 0x10000000ui64);
-      *(_QWORD *)&v8 = ptr;
-      *((_QWORD *)&v8 + 1) = size;
-      __asm
-      {
-        vpxor   xmm0, xmm0, xmm0
-        vmovdqu [rbp+var_10], xmm0
-      }
-      if ( !ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", v16) )
+      memset_0(v5, 153, 0x10000000ui64);
+      v6.m_data.m_buffer = (char *)ptr;
+      v6.m_data.m_size = size;
+      __asm { vpxor   xmm0, xmm0, xmm0 }
+      if ( !ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start", _XMM0) )
         __debugbreak();
-      v17 = v8;
+      v11 = v6;
       ntl::nxheap::shutdown(&s_auxMemHeap.m_heap);
       ntl::nxheap_region::shutdown(&s_auxMemHeap.m_region);
       if ( s_auxMemHeap.m_data.m_buffer )
@@ -1567,9 +1476,8 @@ void __fastcall XB3XMem_AuxInit(double _XMM0_8)
         s_auxMemHeap.m_data.m_buffer = NULL;
         s_auxMemHeap.m_data.m_size = 0i64;
       }
-      __asm { vmovups xmm0, [rbp+var_10] }
-      v11 = size;
-      __asm { vmovups xmmword ptr cs:s_auxMemHeap.m_allocator.m_data.m_buffer, xmm0 }
+      v8 = size;
+      s_auxMemHeap.m_allocator = v11;
       ntl::nxheap::shutdown(&s_auxMemHeap.m_heap);
       ntl::nxheap_region::shutdown(&s_auxMemHeap.m_region);
       if ( s_auxMemHeap.m_data.m_buffer )
@@ -1579,15 +1487,11 @@ void __fastcall XB3XMem_AuxInit(double _XMM0_8)
         s_auxMemHeap.m_data.m_buffer = NULL;
         s_auxMemHeap.m_data.m_size = 0i64;
       }
-      if ( v11 > s_auxMemHeap.m_allocator.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
+      if ( v8 > s_auxMemHeap.m_allocator.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
         __debugbreak();
-      *(_QWORD *)&v18 = s_auxMemHeap.m_allocator.m_data.m_buffer;
-      *((_QWORD *)&v18 + 1) = v11;
-      __asm
-      {
-        vmovups xmm0, [rbp+var_10]
-        vmovups xmmword ptr cs:s_auxMemHeap.baseclass_0.m_data.m_buffer, xmm0
-      }
+      v12.m_buffer = s_auxMemHeap.m_allocator.m_data.m_buffer;
+      v12.m_size = v8;
+      s_auxMemHeap.m_data = v12;
       if ( s_auxMemHeap.m_region.mp_start_ptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\heap_allocator.h", 206, ASSERT_TYPE_ASSERT, "( !m_region.is_inited() )", (const char *)&queryFormat, "!m_region.is_inited()") )
         __debugbreak();
       ntl::nxheap_region::init(&s_auxMemHeap.m_region, s_auxMemHeap.m_data.m_buffer, s_auxMemHeap.m_data.m_size);
@@ -1595,15 +1499,15 @@ void __fastcall XB3XMem_AuxInit(double _XMM0_8)
         __debugbreak();
       ntl::nxheap::init(&s_auxMemHeap.m_heap, &s_auxMemHeap.m_region, DIR_BOTTOM_UP);
       OutputDebugStringA("Allocated 256MB auxiliary physical memory from the OS!\n");
-      v6 = "WARNING: Failed to allocate auxiliary memory on base XB3 hardware!  Please make sure this is configured in the appxmanifest and that you have re-registered the game since the last appxmanifest update.";
+      v4 = "WARNING: Failed to allocate auxiliary memory on base XB3 hardware!  Please make sure this is configured in the appxmanifest and that you have re-registered the game since the last appxmanifest update.";
     }
     else
     {
       if ( Sys_GetXB3ConsoleType() != XB3_CONSOLE_SCORPIO )
         goto LABEL_61;
-      v6 = "No auxiliary memory allocated on Scorpio hardware\n";
+      v4 = "No auxiliary memory allocated on Scorpio hardware\n";
     }
-    OutputDebugStringA(v6);
+    OutputDebugStringA(v4);
 LABEL_61:
     if ( s_auxContext )
     {
@@ -1713,35 +1617,39 @@ bool XB3XMem_IsInAuxMem(const void *ptr)
 XB3XMem_PrintAuxMemoryStatus
 ==============
 */
-
-void __fastcall XB3XMem_PrintAuxMemoryStatus(double _XMM0_8)
+void XB3XMem_PrintAuxMemoryStatus(void)
 {
   ntl::nxheap_region *mp_parent_region; 
-  ntl::nxheap *v3; 
+  ntl::nxheap *v1; 
   ntl::nxheap_region *p_mp_top_ptr; 
-  ntl::nxheap *v5; 
+  ntl::nxheap *v3; 
   void *mp_start_ptr; 
   void *mp_top_ptr; 
-  ntl::nxheap *v10; 
-  ntl::nxheap_region *v13; 
-  ntl::nxheap *v14; 
-  void *v15; 
+  float v6; 
+  float v7; 
+  ntl::nxheap *v8; 
+  double v9; 
+  ntl::nxheap_region *v10; 
+  ntl::nxheap *v11; 
+  void *v12; 
   void *mp_end_ptr; 
+  unsigned __int64 v14; 
+  float v15; 
+  float v16; 
 
   Com_Printf(16, "Auxiliary Memory Status:\n");
   if ( s_auxContext )
   {
     mp_parent_region = s_auxMemHeap.m_heap.mp_parent_region;
-    v3 = s_auxMemHeap.m_heap.mp_parent_region->mp_heap[0];
-    __asm { vmovaps [rsp+48h+var_18], xmm8 }
-    if ( v3 )
-      p_mp_top_ptr = (ntl::nxheap_region *)&v3->mp_top_ptr;
+    v1 = s_auxMemHeap.m_heap.mp_parent_region->mp_heap[0];
+    if ( v1 )
+      p_mp_top_ptr = (ntl::nxheap_region *)&v1->mp_top_ptr;
     else
       p_mp_top_ptr = s_auxMemHeap.m_heap.mp_parent_region;
-    v5 = s_auxMemHeap.m_heap.mp_parent_region->mp_heap[1];
+    v3 = s_auxMemHeap.m_heap.mp_parent_region->mp_heap[1];
     mp_start_ptr = p_mp_top_ptr->mp_start_ptr;
-    if ( v5 )
-      mp_top_ptr = v5->mp_top_ptr;
+    if ( v3 )
+      mp_top_ptr = v3->mp_top_ptr;
     else
       mp_top_ptr = s_auxMemHeap.m_heap.mp_parent_region->mp_end_ptr;
     if ( mp_top_ptr < mp_start_ptr )
@@ -1750,48 +1658,34 @@ void __fastcall XB3XMem_PrintAuxMemoryStatus(double _XMM0_8)
         __debugbreak();
       mp_parent_region = s_auxMemHeap.m_heap.mp_parent_region;
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-    }
+    v6 = (float)(__int64)((__int64)mp_top_ptr + s_auxMemHeap.m_heap.m_free_fragment_mem - (_QWORD)mp_start_ptr);
     if ( (__int64)((__int64)mp_top_ptr + s_auxMemHeap.m_heap.m_free_fragment_mem - (_QWORD)mp_start_ptr) < 0 )
-      __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-    v10 = mp_parent_region->mp_heap[0];
-    __asm
     {
-      vmulss  xmm0, xmm0, cs:__real@35800000
-      vcvtss2sd xmm8, xmm0, xmm0
+      v7 = (float)(__int64)((__int64)mp_top_ptr + s_auxMemHeap.m_heap.m_free_fragment_mem - (_QWORD)mp_start_ptr);
+      v6 = v7 + 1.8446744e19;
     }
-    if ( v10 )
-      v13 = (ntl::nxheap_region *)&v10->mp_top_ptr;
+    v8 = mp_parent_region->mp_heap[0];
+    v9 = (float)(v6 * 0.00000095367432);
+    if ( v8 )
+      v10 = (ntl::nxheap_region *)&v8->mp_top_ptr;
     else
-      v13 = mp_parent_region;
-    v14 = mp_parent_region->mp_heap[1];
-    v15 = v13->mp_start_ptr;
-    if ( v14 )
-      mp_end_ptr = v14->mp_top_ptr;
+      v10 = mp_parent_region;
+    v11 = mp_parent_region->mp_heap[1];
+    v12 = v10->mp_start_ptr;
+    if ( v11 )
+      mp_end_ptr = v11->mp_top_ptr;
     else
       mp_end_ptr = mp_parent_region->mp_end_ptr;
-    if ( mp_end_ptr < v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\nxheap\\nxheap.inl", 57, ASSERT_TYPE_ASSERT, "( top >= bot )", (const char *)&queryFormat, "top >= bot") )
+    if ( mp_end_ptr < v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\nxheap\\nxheap.inl", 57, ASSERT_TYPE_ASSERT, "( top >= bot )", (const char *)&queryFormat, "top >= bot") )
       __debugbreak();
-    __asm
+    v14 = s_auxMemHeap.m_heap.m_used_mem + s_auxMemHeap.m_heap.m_free_fragment_mem - (_QWORD)v12;
+    v15 = (float)(__int64)((__int64)mp_end_ptr + v14);
+    if ( (__int64)((__int64)mp_end_ptr + v14) < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
+      v16 = (float)(__int64)((__int64)mp_end_ptr + v14);
+      v15 = v16 + 1.8446744e19;
     }
-    if ( (__int64)((__int64)mp_end_ptr + s_auxMemHeap.m_heap.m_used_mem + s_auxMemHeap.m_heap.m_free_fragment_mem - (_QWORD)v15) < 0 )
-      __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@35800000
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovaps xmm3, xmm8
-      vmovq   r8, xmm2
-      vmovq   r9, xmm3
-      vmovaps xmm8, [rsp+48h+var_18]
-    }
-    Com_Printf(16, "\tTotal Memory (MB):    %10.4f\n\tAvailable (MB):       %10.4f\n", *(double *)&_XMM2, *(double *)&_XMM3);
+    Com_Printf(16, "\tTotal Memory (MB):    %10.4f\n\tAvailable (MB):       %10.4f\n", (float)(v15 * 0.00000095367432), v9);
   }
   else
   {

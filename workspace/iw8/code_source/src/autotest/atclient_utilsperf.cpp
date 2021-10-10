@@ -253,19 +253,19 @@ ATClient_PerfGetStats
 */
 char ATClient_PerfGetStats(const LocalClientNum_t localClientNum, ATClientPerfStats *stats)
 {
+  double Quality_Image; 
   StreamFrontendMemoryStats outStats; 
 
-  _RBX = stats;
   if ( !stats && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\autotest\\atclient_utilsperf.cpp", 59, ASSERT_TYPE_ASSERT, "(stats)", (const char *)&queryFormat, "stats") )
     __debugbreak();
-  _RBX->renderFramerate = 0.0;
+  stats->renderFramerate = 0.0;
   Stream_GetMemoryStats(&outStats);
-  _RBX->streamImageMemoryWanted = outStats.wantedImageMemory;
-  _RBX->streamImageMemorySurplus = outStats.surplusImageMemory;
-  *(double *)&_XMM0 = Stream_LoadQuality_Image();
-  __asm { vmovss  dword ptr [rbx+18h], xmm0 }
-  Stream_Debug_GetStreamKeyCountersFromDB(4, _RBX->memory, _RBX->counts);
-  _RBX->canStreamMore = Stream_CanStreamMore();
+  stats->streamImageMemoryWanted = outStats.wantedImageMemory;
+  stats->streamImageMemorySurplus = outStats.surplusImageMemory;
+  Quality_Image = Stream_LoadQuality_Image();
+  stats->streamImageStreamingQuality = *(float *)&Quality_Image;
+  Stream_Debug_GetStreamKeyCountersFromDB(4, stats->memory, stats->counts);
+  stats->canStreamMore = Stream_CanStreamMore();
   return 1;
 }
 

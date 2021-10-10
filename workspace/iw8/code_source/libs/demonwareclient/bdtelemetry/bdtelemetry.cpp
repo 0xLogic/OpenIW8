@@ -278,14 +278,10 @@ void bdTelemetry::record(void)
 bdTelemetry::recordSampled
 ==============
 */
-
-void __fastcall bdTelemetry::recordSampled(double sampleRate)
+void bdTelemetry::recordSampled(float sampleRate)
 {
   if ( bdTelemetry::m_sink )
-  {
-    __asm { vmovaps xmm1, xmm0 }
     ((void (__fastcall *)(bdTelemetrySink *))bdTelemetry::m_sink->recordSampled)(bdTelemetry::m_sink);
-  }
 }
 
 /*

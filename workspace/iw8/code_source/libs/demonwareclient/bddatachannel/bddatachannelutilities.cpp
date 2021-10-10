@@ -241,17 +241,12 @@ _BOOL8 bdDataChannelUtilities::convertDDLGuidToHexDecBytes(char *guidInBytes, un
   _BOOL8 result; 
   char buf[16]; 
 
-  _RDI = guidInBytes;
   bdHandleAssert(ddlGuid != 0, "ddlGuid != 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bddatachannel\\bddatachannelutilities.cpp", "bdDataChannelUtilities::convertDDLGuidToHexDecBytes", 0x72u, "Cannot convert a DDL with GUID = 0.");
   v6 = bdSnprintf(buf, 0x11ui64, "%016llx", ddlGuid) == 16;
   result = v6;
   if ( v6 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+68h+buf]
-      vmovups xmmword ptr [rdi], xmm0
-    }
+    *(_OWORD *)guidInBytes = *(_OWORD *)buf;
     *outputGuidSize = 16;
   }
   return result;
@@ -299,11 +294,7 @@ bdUUIDGenerator::generateV1
 void bdUUIDGenerator::generateV1(bdUUIDGenerator *this, unsigned __int8 *uuid, const unsigned __int64 userID)
 {
   ++this->m_monotonic;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx+18h]
-    vmovsd  qword ptr [rdx], xmm0
-  }
+  *(double *)uuid = *(double *)&this->m_monotonic;
   *((_WORD *)uuid + 4) = userID;
   *(_DWORD *)(uuid + 10) = this->m_generatorID;
   *((_WORD *)uuid + 7) = WORD2(this->m_generatorID);

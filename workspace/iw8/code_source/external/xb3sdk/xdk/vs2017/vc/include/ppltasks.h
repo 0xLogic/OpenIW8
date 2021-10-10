@@ -589,11 +589,8 @@ void Concurrency::task<void>::_CreateImpl(Concurrency::task<void> *this, Concurr
   std::_Ref_count_base *v7; 
   Concurrency::scheduler_ptr v8; 
 
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rsp+48h+var_20], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v8._M_sharedScheduler = _XMM0;
   Rep = _Scheduler->_M_sharedScheduler._Rep;
   if ( Rep )
   {
@@ -629,7 +626,7 @@ Concurrency::details::_ThenImplOptions *Concurrency::details::_ThenImplOptions::
   Concurrency::scheduler_interface **v13; 
   char v14; 
   std::_Ref_count_base *v15; 
-  Concurrency::scheduler_interface *v16; 
+  std::_Ref_count_base *v16; 
   __int64 v17; 
   volatile signed __int32 *v18; 
   void **Myfirst; 
@@ -643,61 +640,60 @@ Concurrency::details::_ThenImplOptions *Concurrency::details::_ThenImplOptions::
   void *v28; 
   unsigned __int64 v29; 
   Concurrency::details::_TaskCreationCallstack *v30; 
-  void **v34; 
-  unsigned __int64 v35; 
-  unsigned __int64 v36; 
-  void **v37; 
-  int v39; 
-  Concurrency::details::_CancellationTokenState *v40; 
-  Concurrency::details::_CancellationTokenState *v41; 
-  __int128 v42; 
+  void **v32; 
+  unsigned __int64 v33; 
+  unsigned __int64 v34; 
+  void **v35; 
+  int v37; 
+  Concurrency::details::_CancellationTokenState *v38; 
+  Concurrency::details::_CancellationTokenState *v39; 
+  Concurrency::scheduler_ptr v40; 
+  __int128 v41; 
+  void **v42; 
   Concurrency::scheduler_interface *v43; 
-  __int128 v44; 
-  void **v45; 
+  std::_Ref_count_base *v44; 
+  Concurrency::scheduler_interface *v45; 
   Concurrency::scheduler_interface *v46; 
-  std::_Ref_count_base *v47; 
-  Concurrency::scheduler_interface *v48; 
-  Concurrency::scheduler_interface *v49; 
-  volatile signed __int32 *v50; 
+  volatile signed __int32 *v47; 
   Concurrency::scheduler_interface *M_scheduler; 
-  int v52; 
+  int v49; 
   Concurrency::details::_TaskCreationCallstack __that; 
-  Concurrency::scheduler_ptr v54; 
+  Concurrency::scheduler_ptr v51; 
   bool M_hasPresetCreationCallstack; 
-  Concurrency::details::_TaskCreationCallstack v56; 
-  Concurrency::details::_ContextCallback v57; 
+  Concurrency::details::_TaskCreationCallstack v53; 
+  Concurrency::details::_ContextCallback v54; 
   bool M_RunInline; 
-  __int64 v59; 
+  __int64 v56; 
   void *ptr[2]; 
-  __int64 v61; 
-  __int64 v62; 
-  void **v63; 
-  Concurrency::details::_TaskCreationCallstack v64; 
+  __int64 v58; 
+  __int64 v59; 
+  void **v60; 
+  Concurrency::details::_TaskCreationCallstack v61; 
   void **__formal; 
-  const Concurrency::task_continuation_context *v67; 
+  const Concurrency::task_continuation_context *v64; 
 
-  v67 = _ContinuationContext;
-  v62 = -2i64;
+  v64 = _ContinuationContext;
+  v59 = -2i64;
   v7 = result;
   v8 = NULL;
   v9 = 0;
-  v52 = 0;
+  v49 = 0;
   if ( _Task_Options->_M_HasCancellationToken )
   {
     M_Impl = _Task_Options->_M_CancellationToken._M_Impl;
     if ( M_Impl )
       _InterlockedIncrement(&M_Impl->_M_refCount);
-    v40 = M_Impl;
+    v38 = M_Impl;
     v9 = 1;
     v11 = (__int64)M_Impl;
     if ( !M_Impl )
       v11 = 2i64;
-    v41 = (Concurrency::details::_CancellationTokenState *)v11;
+    v39 = (Concurrency::details::_CancellationTokenState *)v11;
   }
   else
   {
-    v41 = NULL;
-    M_Impl = v40;
+    v39 = NULL;
+    M_Impl = v38;
   }
   if ( (v9 & 1) != 0 )
   {
@@ -705,7 +701,7 @@ Concurrency::details::_ThenImplOptions *Concurrency::details::_ThenImplOptions::
     if ( M_Impl )
     {
       if ( _InterlockedExchangeAdd(&M_Impl->_M_refCount, 0xFFFFFFFF) == 1 )
-        v40->_Destroy(v40);
+        v38->_Destroy(v38);
     }
   }
   if ( _Task_Options->_M_HasScheduler )
@@ -716,12 +712,12 @@ Concurrency::details::_ThenImplOptions *Concurrency::details::_ThenImplOptions::
       _InterlockedIncrement((volatile signed __int32 *)&Rep->_Uses);
       Rep = _Task_Options->_M_Scheduler._M_sharedScheduler._Rep;
     }
-    v49 = _Task_Options->_M_Scheduler._M_sharedScheduler._Ptr;
-    v50 = (volatile signed __int32 *)Rep;
+    v46 = _Task_Options->_M_Scheduler._M_sharedScheduler._Ptr;
+    v47 = (volatile signed __int32 *)Rep;
     M_scheduler = _Task_Options->_M_Scheduler._M_scheduler;
-    v13 = &v49;
+    v13 = &v46;
     v14 = v9 | 2;
-    v15 = v47;
+    v15 = v44;
   }
   else
   {
@@ -731,21 +727,21 @@ Concurrency::details::_ThenImplOptions *Concurrency::details::_ThenImplOptions::
       _InterlockedIncrement((volatile signed __int32 *)&v15->_Uses);
       v15 = impl_scheduler->_M_sharedScheduler._Rep;
     }
-    v46 = impl_scheduler->_M_sharedScheduler._Ptr;
-    v47 = v15;
-    v48 = impl_scheduler->_M_scheduler;
-    v13 = &v46;
+    v43 = impl_scheduler->_M_sharedScheduler._Ptr;
+    v44 = v15;
+    v45 = impl_scheduler->_M_scheduler;
+    v13 = &v43;
     v14 = v9 | 4;
   }
-  v16 = v13[1];
+  v16 = (std::_Ref_count_base *)v13[1];
   if ( v16 )
   {
-    _InterlockedIncrement((volatile signed __int32 *)&v16[1]);
-    v15 = v47;
+    _InterlockedIncrement((volatile signed __int32 *)&v16->_Uses);
+    v15 = v44;
   }
-  *(_QWORD *)&v42 = *v13;
-  *((_QWORD *)&v42 + 1) = v16;
-  v43 = v13[2];
+  v40._M_sharedScheduler._Ptr = *v13;
+  v40._M_sharedScheduler._Rep = v16;
+  v40._M_scheduler = v13[2];
   if ( (v14 & 4) != 0 )
   {
     v14 &= ~4u;
@@ -753,69 +749,69 @@ Concurrency::details::_ThenImplOptions *Concurrency::details::_ThenImplOptions::
     {
       if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v15->_Uses, 0xFFFFFFFF) == 1 )
       {
-        v17 = (__int64)v47;
-        v47->_Destroy(v47);
+        v17 = (__int64)v44;
+        v44->_Destroy(v44);
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)(v17 + 12), 0xFFFFFFFF) == 1 )
-          v47->_Delete_this(v47);
+          v44->_Delete_this(v44);
       }
     }
   }
   if ( (v14 & 2) != 0 )
   {
     v14 &= ~2u;
-    if ( v50 )
+    if ( v47 )
     {
-      if ( _InterlockedExchangeAdd(v50 + 2, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd(v47 + 2, 0xFFFFFFFF) == 1 )
       {
-        v18 = v50;
-        (**(void (__fastcall ***)(volatile signed __int32 *))v50)(v50);
+        v18 = v47;
+        (**(void (__fastcall ***)(volatile signed __int32 *))v47)(v47);
         if ( _InterlockedExchangeAdd(v18 + 3, 0xFFFFFFFF) == 1 )
-          (*(void (__fastcall **)(volatile signed __int32 *))(*(_QWORD *)v50 + 8i64))(v50);
+          (*(void (__fastcall **)(volatile signed __int32 *))(*(_QWORD *)v47 + 8i64))(v47);
       }
     }
   }
-  Concurrency::details::_ContextCallback::_Assign(&v57, _Task_Options->_M_ContinuationContext._M_context._M_pContextCallback);
+  Concurrency::details::_ContextCallback::_Assign(&v54, _Task_Options->_M_ContinuationContext._M_context._M_pContextCallback);
   M_RunInline = _Task_Options->_M_ContinuationContext._M_RunInline;
-  v39 = -M_RunInline;
-  Concurrency::details::_ContextCallback::_Reset(&v57);
+  v37 = -M_RunInline;
+  Concurrency::details::_ContextCallback::_Reset(&v54);
   M_hasPresetCreationCallstack = _Task_Options->_M_InternalTaskOptions._M_hasPresetCreationCallstack;
-  Concurrency::details::_TaskCreationCallstack::_TaskCreationCallstack(&v56, &_Task_Options->_M_InternalTaskOptions._M_presetCreationCallstack);
-  Myfirst = v56._M_frames._Mypair._Myval2._Myfirst;
+  Concurrency::details::_TaskCreationCallstack::_TaskCreationCallstack(&v53, &_Task_Options->_M_InternalTaskOptions._M_presetCreationCallstack);
+  Myfirst = v53._M_frames._Mypair._Myval2._Myfirst;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   if ( M_hasPresetCreationCallstack )
   {
-    M_SingleFrame = v56._M_SingleFrame;
-    v22 = (char *)v56._M_frames._Mypair._Myval2._Mylast - (char *)v56._M_frames._Mypair._Myval2._Myfirst;
-    v23 = v56._M_frames._Mypair._Myval2._Mylast - v56._M_frames._Mypair._Myval2._Myfirst;
-    __asm { vmovdqu xmmword ptr [rsp+1C0h+var_160+8], xmm0 }
-    v45 = NULL;
+    M_SingleFrame = v53._M_SingleFrame;
+    v22 = (char *)v53._M_frames._Mypair._Myval2._Mylast - (char *)v53._M_frames._Mypair._Myval2._Myfirst;
+    v23 = v53._M_frames._Mypair._Myval2._Mylast - v53._M_frames._Mypair._Myval2._Myfirst;
+    v41 = _XMM0;
+    v42 = NULL;
     if ( v23 )
     {
       if ( v23 > 0x1FFFFFFFFFFFFFFFi64 )
         std::vector<void *>::_Xlength();
-      v8 = std::allocator<void *>::allocate((std::allocator<void *> *)&v44, v56._M_frames._Mypair._Myval2._Mylast - v56._M_frames._Mypair._Myval2._Myfirst);
-      *(_QWORD *)&v44 = v8;
-      v45 = &v8[v23];
-      std::_Ptr_copy_cat<void *,void *>(&__formal, &v63);
+      v8 = std::allocator<void *>::allocate((std::allocator<void *> *)&v41, v53._M_frames._Mypair._Myval2._Mylast - v53._M_frames._Mypair._Myval2._Myfirst);
+      *(_QWORD *)&v41 = v8;
+      v42 = &v8[v23];
+      std::_Ptr_copy_cat<void *,void *>(&__formal, &v60);
       memmove_0(v8, Myfirst, v22);
-      *((_QWORD *)&v44 + 1) = (char *)v8 + v22;
+      *((_QWORD *)&v41 + 1) = (char *)v8 + v22;
       v24 = v14 | 0x48;
-      v25 = (void **)&v44;
+      v25 = (void **)&v41;
       v7 = result;
     }
     else
     {
-      v8 = (void **)v44;
+      v8 = (void **)v41;
       v24 = v14 | 0x48;
-      v25 = (void **)&v44;
+      v25 = (void **)&v41;
       v7 = result;
     }
   }
   else
   {
-    __asm { vmovdqu xmmword ptr [rbp+0C0h+ptr], xmm0 }
-    v61 = 0i64;
-    v59 = 0i64;
+    *(_OWORD *)ptr = _XMM0;
+    v58 = 0i64;
+    v56 = 0i64;
     M_SingleFrame = NULL;
     v24 = v14 | 0x50;
     v25 = ptr;
@@ -833,7 +829,7 @@ Concurrency::details::_ThenImplOptions *Concurrency::details::_ThenImplOptions::
     v26 = ptr[0];
     if ( ptr[0] )
     {
-      v27 = 8 * ((signed __int64)(v61 - (unsigned __int64)ptr[0]) >> 3);
+      v27 = 8 * ((signed __int64)(v58 - (unsigned __int64)ptr[0]) >> 3);
       if ( v27 >= 0x1000 )
       {
         v27 += 39i64;
@@ -846,72 +842,63 @@ Concurrency::details::_ThenImplOptions *Concurrency::details::_ThenImplOptions::
   }
   if ( (v24 & 8) != 0 )
   {
-    v28 = (void *)v44;
-    if ( (_QWORD)v44 )
+    v28 = (void *)v41;
+    if ( (_QWORD)v41 )
     {
-      v29 = 8 * ((__int64)((__int64)v45 - v44) >> 3);
+      v29 = 8 * ((__int64)((__int64)v42 - v41) >> 3);
       if ( v29 >= 0x1000 )
       {
         v29 += 39i64;
-        v28 = *(void **)(v44 - 8);
-        if ( (unsigned __int64)(v44 - (_QWORD)v28 - 8) > 0x1F )
+        v28 = *(void **)(v41 - 8);
+        if ( (unsigned __int64)(v41 - (_QWORD)v28 - 8) > 0x1F )
           _invalid_parameter_noinfo_noreturn();
       }
       operator delete(v28, v29);
     }
   }
-  Concurrency::details::_TaskCreationCallstack::_TaskCreationCallstack(&v64, &__that);
-  __asm
+  Concurrency::details::_TaskCreationCallstack::_TaskCreationCallstack(&v61, &__that);
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v51._M_sharedScheduler = _XMM0;
+  if ( v40._M_sharedScheduler._Rep )
   {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu [rbp+0C0h+var_E0], xmm0
+    _InterlockedIncrement((volatile signed __int32 *)&v40._M_sharedScheduler._Rep->_Uses);
+    Myfirst = v53._M_frames._Mypair._Myval2._Myfirst;
   }
-  if ( *((_QWORD *)&v42 + 1) )
-  {
-    _InterlockedIncrement((volatile signed __int32 *)(*((_QWORD *)&v42 + 1) + 8i64));
-    Myfirst = v56._M_frames._Mypair._Myval2._Myfirst;
-  }
-  __asm
-  {
-    vmovups xmm0, [rsp+1C0h+var_180+8]
-    vmovups [rbp+0C0h+var_E0], xmm0
-    vmovsd  xmm1, [rsp+1C0h+var_168]
-    vmovsd  [rbp+0C0h+var_D0], xmm1
-  }
-  Concurrency::details::_ThenImplOptions::_ThenImplOptions(v7, v41, v67, &v54, v30, (Concurrency::details::_TaskInliningMode)v39);
-  v34 = __that._M_frames._Mypair._Myval2._Myfirst;
+  v51 = v40;
+  Concurrency::details::_ThenImplOptions::_ThenImplOptions(v7, v39, v64, &v51, v30, (Concurrency::details::_TaskInliningMode)v37);
+  v32 = __that._M_frames._Mypair._Myval2._Myfirst;
   if ( __that._M_frames._Mypair._Myval2._Myfirst )
   {
-    v35 = 8 * (__that._M_frames._Mypair._Myval2._Myend - __that._M_frames._Mypair._Myval2._Myfirst);
-    if ( v35 >= 0x1000 )
+    v33 = 8 * (__that._M_frames._Mypair._Myval2._Myend - __that._M_frames._Mypair._Myval2._Myfirst);
+    if ( v33 >= 0x1000 )
     {
-      v35 += 39i64;
-      v34 = (void **)*((_QWORD *)__that._M_frames._Mypair._Myval2._Myfirst - 1);
-      if ( (unsigned __int64)((char *)__that._M_frames._Mypair._Myval2._Myfirst - (char *)v34 - 8) > 0x1F )
+      v33 += 39i64;
+      v32 = (void **)*((_QWORD *)__that._M_frames._Mypair._Myval2._Myfirst - 1);
+      if ( (unsigned __int64)((char *)__that._M_frames._Mypair._Myval2._Myfirst - (char *)v32 - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(v34, v35);
+    operator delete(v32, v33);
   }
   if ( Myfirst )
   {
-    v36 = 8 * (v56._M_frames._Mypair._Myval2._Myend - Myfirst);
-    v37 = Myfirst;
-    if ( v36 >= 0x1000 )
+    v34 = 8 * (v53._M_frames._Mypair._Myval2._Myend - Myfirst);
+    v35 = Myfirst;
+    if ( v34 >= 0x1000 )
     {
-      v36 += 39i64;
+      v34 += 39i64;
       Myfirst = (void **)*(Myfirst - 1);
-      if ( (unsigned __int64)((char *)v37 - (char *)Myfirst - 8) > 0x1F )
+      if ( (unsigned __int64)((char *)v35 - (char *)Myfirst - 8) > 0x1F )
         _invalid_parameter_noinfo_noreturn();
     }
-    operator delete(Myfirst, v36);
+    operator delete(Myfirst, v34);
   }
-  if ( *((_QWORD *)&v42 + 1) )
+  if ( v40._M_sharedScheduler._Rep )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)(*((_QWORD *)&v42 + 1) + 8i64), 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v40._M_sharedScheduler._Rep->_Uses, 0xFFFFFFFF) == 1 )
     {
-      (***((void (__fastcall ****)(_QWORD))&v42 + 1))(*((_QWORD *)&v42 + 1));
-      if ( _InterlockedExchangeAdd((volatile signed __int32 *)(*((_QWORD *)&v42 + 1) + 12i64), 0xFFFFFFFF) == 1 )
-        (*(void (__fastcall **)(_QWORD))(**((_QWORD **)&v42 + 1) + 8i64))(*((_QWORD *)&v42 + 1));
+      v40._M_sharedScheduler._Rep->_Destroy(v40._M_sharedScheduler._Rep);
+      if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v40._M_sharedScheduler._Rep->_Weaks, 0xFFFFFFFF) == 1 )
+        v40._M_sharedScheduler._Rep->_Delete_this(v40._M_sharedScheduler._Rep);
     }
   }
   return v7;

@@ -5,146 +5,34 @@ LUIElement_FrontendCameraMover_SetLimits
 */
 __int64 LUIElement_FrontendCameraMover_SetLimits(lua_State *const luaVM)
 {
-  LUIElement *v7; 
-  unsigned int v17; 
+  LUIElement *v2; 
+  double v3; 
+  float v4; 
+  double v5; 
+  float v6; 
+  double v7; 
+  float v8; 
+  double v9; 
+  LUIFrontendCameraMoverData *ModelData; 
+  unsigned int v11; 
 
   if ( j_lua_gettop(luaVM) != 5 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) || !j_lua_isnumber(luaVM, 4) || !j_lua_isnumber(luaVM, 5) )
     j_luaL_error(luaVM, "USAGE: element:SetLimits( <leftLimit>, <rightLimit>, <upLimit>, <downLimit> )");
   if ( j_lua_gettop(luaVM) == 5 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) && j_lua_isnumber(luaVM, 4) && j_lua_isnumber(luaVM, 5) )
   {
-    __asm
-    {
-      vmovaps [rsp+68h+var_18], xmm6
-      vmovaps [rsp+68h+var_28], xmm7
-      vmovaps [rsp+68h+var_38], xmm8
-      vmovaps [rsp+68h+var_48], xmm9
-    }
-    v7 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm9, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 4);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 5);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_FrontendCameraMover_GetModelData(v7, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+4], xmm9
-      vmovaps xmm9, [rsp+68h+var_48]
-      vmovss  dword ptr [rax+8], xmm8
-      vmovaps xmm8, [rsp+68h+var_38]
-      vmovss  dword ptr [rax+0Ch], xmm7
-      vmovaps xmm7, [rsp+68h+var_28]
-      vmovss  dword ptr [rax+10h], xmm6
-      vmovaps xmm6, [rsp+68h+var_18]
-    }
-  }
-  if ( j_lua_gettop(luaVM) < 0 )
-  {
-    v17 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v17);
-  }
-  return 0i64;
-}
-
-/*
-==============
-LUIElement_FrontendCameraMover_SetSwayValues
-==============
-*/
-__int64 LUIElement_FrontendCameraMover_SetSwayValues(lua_State *const luaVM)
-{
-  LUIElement *v6; 
-  unsigned int v20; 
-
-  if ( j_lua_gettop(luaVM) != 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) || !j_lua_isnumber(luaVM, 4) )
-    j_luaL_error(luaVM, "USAGE: element:SetSwayValues( <timeScaledown>, <amplitudeX>, <amplitudeY> )");
-  if ( j_lua_gettop(luaVM) == 4 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) && j_lua_isnumber(luaVM, 4) )
-  {
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vmovaps [rsp+58h+var_28], xmm7
-      vmovaps [rsp+58h+var_38], xmm8
-    }
-    v6 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@459c4000; max
-      vmovss  xmm1, cs:__real@3f800000; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42c80000; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 4);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@42c80000; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_FrontendCameraMover_GetModelData(v6, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+1Ch], xmm8
-      vmovaps xmm8, [rsp+58h+var_38]
-      vmovss  dword ptr [rax+20h], xmm7
-      vmovaps xmm7, [rsp+58h+var_28]
-      vmovss  dword ptr [rax+24h], xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-  }
-  if ( j_lua_gettop(luaVM) < 0 )
-  {
-    v20 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v20);
-  }
-  return 0i64;
-}
-
-/*
-==============
-LUIElement_FrontendCameraMover_SetScreenOrigin
-==============
-*/
-__int64 LUIElement_FrontendCameraMover_SetScreenOrigin(lua_State *const luaVM)
-{
-  LUIElement *v5; 
-  unsigned int v11; 
-
-  if ( j_lua_gettop(luaVM) != 3 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) )
-    j_luaL_error(luaVM, "USAGE: element:SetScreenOrigin( <x>, <y> )");
-  if ( j_lua_gettop(luaVM) == 3 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) )
-  {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovaps [rsp+48h+var_28], xmm7
-    }
-    v5 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_FrontendCameraMover_GetModelData(v5, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+38h], xmm7
-      vmovaps xmm7, [rsp+48h+var_28]
-      vmovss  dword ptr [rax+3Ch], xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    v4 = *(float *)&v3;
+    v5 = lui_tonumber32(luaVM, 3);
+    v6 = *(float *)&v5;
+    v7 = lui_tonumber32(luaVM, 4);
+    v8 = *(float *)&v7;
+    v9 = lui_tonumber32(luaVM, 5);
+    ModelData = LUIElement_FrontendCameraMover_GetModelData(v2, luaVM);
+    ModelData->leftLimit = v4;
+    ModelData->rightLimit = v6;
+    ModelData->upLimit = v8;
+    ModelData->downLimit = *(float *)&v9;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
@@ -156,33 +44,106 @@ __int64 LUIElement_FrontendCameraMover_SetScreenOrigin(lua_State *const luaVM)
 
 /*
 ==============
+LUIElement_FrontendCameraMover_SetSwayValues
+==============
+*/
+__int64 LUIElement_FrontendCameraMover_SetSwayValues(lua_State *const luaVM)
+{
+  LUIElement *v2; 
+  double v3; 
+  double v4; 
+  float v5; 
+  double v6; 
+  double v7; 
+  float v8; 
+  double v9; 
+  double v10; 
+  LUIFrontendCameraMoverData *ModelData; 
+  unsigned int v12; 
+
+  if ( j_lua_gettop(luaVM) != 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) || !j_lua_isnumber(luaVM, 4) )
+    j_luaL_error(luaVM, "USAGE: element:SetSwayValues( <timeScaledown>, <amplitudeX>, <amplitudeY> )");
+  if ( j_lua_gettop(luaVM) == 4 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) && j_lua_isnumber(luaVM, 4) )
+  {
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    v4 = I_fclamp(*(float *)&v3, 1.0, 5000.0);
+    v5 = *(float *)&v4;
+    v6 = lui_tonumber32(luaVM, 3);
+    v7 = I_fclamp(*(float *)&v6, 0.0, 100.0);
+    v8 = *(float *)&v7;
+    v9 = lui_tonumber32(luaVM, 4);
+    v10 = I_fclamp(*(float *)&v9, 0.0, 100.0);
+    ModelData = LUIElement_FrontendCameraMover_GetModelData(v2, luaVM);
+    ModelData->timeScaledown = v5;
+    ModelData->amplitudeX = v8;
+    ModelData->amplitudeY = *(float *)&v10;
+  }
+  if ( j_lua_gettop(luaVM) < 0 )
+  {
+    v12 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v12);
+  }
+  return 0i64;
+}
+
+/*
+==============
+LUIElement_FrontendCameraMover_SetScreenOrigin
+==============
+*/
+__int64 LUIElement_FrontendCameraMover_SetScreenOrigin(lua_State *const luaVM)
+{
+  LUIElement *v2; 
+  double v3; 
+  float v4; 
+  double v5; 
+  LUIFrontendCameraMoverData *ModelData; 
+  unsigned int v7; 
+
+  if ( j_lua_gettop(luaVM) != 3 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) )
+    j_luaL_error(luaVM, "USAGE: element:SetScreenOrigin( <x>, <y> )");
+  if ( j_lua_gettop(luaVM) == 3 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) )
+  {
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    v4 = *(float *)&v3;
+    v5 = lui_tonumber32(luaVM, 3);
+    ModelData = LUIElement_FrontendCameraMover_GetModelData(v2, luaVM);
+    ModelData->camScreenOrigin.v[0] = v4;
+    ModelData->camScreenOrigin.v[1] = *(float *)&v5;
+  }
+  if ( j_lua_gettop(luaVM) < 0 )
+  {
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v7);
+  }
+  return 0i64;
+}
+
+/*
+==============
 LUIElement_FrontendCameraMover_SetVelocity
 ==============
 */
 __int64 LUIElement_FrontendCameraMover_SetVelocity(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  unsigned int v8; 
+  LUIElement *v2; 
+  double v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetVelocity( <value> )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    v4 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_FrontendCameraMover_GetModelData(v4, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+54h], xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    LUIElement_FrontendCameraMover_GetModelData(v2, luaVM)->velocity = *(float *)&v3;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v8 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v8);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v4);
   }
   return 0i64;
 }
@@ -194,28 +155,22 @@ LUIElement_FrontendCameraMover_SetZoomSpeed
 */
 __int64 LUIElement_FrontendCameraMover_SetZoomSpeed(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  unsigned int v8; 
+  LUIElement *v2; 
+  double v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetZoomSpeed( <value> )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    v4 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_FrontendCameraMover_GetModelData(v4, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+2Ch], xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    LUIElement_FrontendCameraMover_GetModelData(v2, luaVM)->zoomSpeed = *(float *)&v3;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v8 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v8);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v4);
   }
   return 0i64;
 }
@@ -227,28 +182,22 @@ LUIElement_FrontendCameraMover_SetMinZoom
 */
 __int64 LUIElement_FrontendCameraMover_SetMinZoom(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  unsigned int v8; 
+  LUIElement *v2; 
+  double v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetMinZoom( <value> )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    v4 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_FrontendCameraMover_GetModelData(v4, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+58h], xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    LUIElement_FrontendCameraMover_GetModelData(v2, luaVM)->zoomMin = *(float *)&v3;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v8 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v8);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v4);
   }
   return 0i64;
 }
@@ -260,28 +209,22 @@ LUIElement_FrontendCameraMover_SetMaxZoom
 */
 __int64 LUIElement_FrontendCameraMover_SetMaxZoom(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  unsigned int v8; 
+  LUIElement *v2; 
+  double v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetMaxZoom( <value> )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    v4 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_FrontendCameraMover_GetModelData(v4, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+5Ch], xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    LUIElement_FrontendCameraMover_GetModelData(v2, luaVM)->zoomMax = *(float *)&v3;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v8 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v8);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v4);
   }
   return 0i64;
 }
@@ -293,28 +236,22 @@ LUIElement_FrontendCameraMover_SetRotationRadius
 */
 __int64 LUIElement_FrontendCameraMover_SetRotationRadius(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  unsigned int v8; 
+  LUIElement *v2; 
+  double v3; 
+  unsigned int v4; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetRoationRadius( <radius> )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    v4 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_FrontendCameraMover_GetModelData(v4, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+28h], xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    LUIElement_FrontendCameraMover_GetModelData(v2, luaVM)->rotationRadius = *(float *)&v3;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v8 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v8);
+    v4 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v4);
   }
   return 0i64;
 }
@@ -392,33 +329,24 @@ LUIElement_FrontendCameraMover_SetZoomWheel
 */
 __int64 LUIElement_FrontendCameraMover_SetZoomWheel(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  unsigned int v13; 
+  LUIElement *v2; 
+  double v3; 
+  LUIFrontendCameraMoverData *ModelData; 
+  unsigned int v5; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetZoomWheel( <value> )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
-    v4 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_FrontendCameraMover_GetModelData(v4, luaVM);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+5Ch]
-      vsubss  xmm3, xmm1, dword ptr [rax+58h]
-      vmovss  xmm2, dword ptr [rax+2Ch]
-      vdivss  xmm3, xmm2, xmm3
-      vmulss  xmm0, xmm3, xmm6
-      vmovaps xmm6, [rsp+38h+var_18]
-      vmovss  dword ptr [rax+64h], xmm0
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    ModelData = LUIElement_FrontendCameraMover_GetModelData(v2, luaVM);
+    ModelData->incrementZoomWheel = (float)(ModelData->zoomSpeed / (float)(ModelData->zoomMax - ModelData->zoomMin)) * *(float *)&v3;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v13 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v13);
+    v5 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v5);
   }
   return 0i64;
 }
@@ -460,36 +388,29 @@ LUIElement_FrontendCameraMover_SetPanMouse
 */
 __int64 LUIElement_FrontendCameraMover_SetPanMouse(lua_State *const luaVM)
 {
-  LUIElement *v5; 
-  unsigned int v11; 
+  LUIElement *v2; 
+  double v3; 
+  float v4; 
+  double v5; 
+  LUIFrontendCameraMoverData *ModelData; 
+  unsigned int v7; 
 
   if ( j_lua_gettop(luaVM) != 3 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) )
     j_luaL_error(luaVM, "USAGE: element:SetPanMouse( <value>, <value> )");
   if ( j_lua_gettop(luaVM) == 3 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) )
   {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovaps [rsp+48h+var_28], xmm7
-    }
-    v5 = LUI_ToElement(luaVM, 1);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = LUIElement_FrontendCameraMover_GetModelData(v5, luaVM);
-    __asm
-    {
-      vmovss  dword ptr [rax+48h], xmm7
-      vmovaps xmm7, [rsp+48h+var_28]
-      vmovss  dword ptr [rax+4Ch], xmm6
-      vmovaps xmm6, [rsp+48h+var_18]
-    }
+    v2 = LUI_ToElement(luaVM, 1);
+    v3 = lui_tonumber32(luaVM, 2);
+    v4 = *(float *)&v3;
+    v5 = lui_tonumber32(luaVM, 3);
+    ModelData = LUIElement_FrontendCameraMover_GetModelData(v2, luaVM);
+    ModelData->mousePanOffset.v[0] = v4;
+    ModelData->mousePanOffset.v[1] = *(float *)&v5;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v11 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v11);
+    v7 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v7);
   }
   return 0i64;
 }
@@ -501,39 +422,32 @@ LUIElement_FrontendCameraMover_SetRotation
 */
 __int64 LUIElement_FrontendCameraMover_SetRotation(lua_State *const luaVM)
 {
-  unsigned int v13; 
+  double v2; 
+  float v3; 
+  double v4; 
+  float v5; 
+  double v6; 
+  cg_t *LocalClientGlobals; 
+  unsigned int v8; 
 
   if ( j_lua_gettop(luaVM) != 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) || !j_lua_isnumber(luaVM, 4) )
     j_luaL_error(luaVM, "USAGE: element:SetRotation( <x>, <y>, <z> )");
   if ( j_lua_gettop(luaVM) == 4 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) && j_lua_isnumber(luaVM, 4) && cg_t::ms_allocatedCount > 0 && Com_FrontEndScene_IsActive() )
   {
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vmovaps [rsp+58h+var_28], xmm7
-      vmovaps [rsp+58h+var_38], xmm8
-    }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 3);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 4);
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-    __asm
-    {
-      vmovss  dword ptr [rax+17FE0h], xmm8
-      vmovaps xmm8, [rsp+58h+var_38]
-      vmovss  dword ptr [rax+17FE4h], xmm7
-      vmovaps xmm7, [rsp+58h+var_28]
-      vmovss  dword ptr [rax+17FE8h], xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
+    v2 = lui_tonumber32(luaVM, 2);
+    v3 = *(float *)&v2;
+    v4 = lui_tonumber32(luaVM, 3);
+    v5 = *(float *)&v4;
+    v6 = lui_tonumber32(luaVM, 4);
+    LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
+    LocalClientGlobals->targetCameraAngleOffset.v[0] = v3;
+    LocalClientGlobals->targetCameraAngleOffset.v[1] = v5;
+    LocalClientGlobals->targetCameraAngleOffset.v[2] = *(float *)&v6;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v13 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v13);
+    v8 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v8);
   }
   return 0i64;
 }
@@ -559,195 +473,129 @@ LUIElement_FrontendCameraMover_InputUpdate
 */
 void LUIElement_FrontendCameraMover_InputUpdate(const LocalClientNum_t localClientNum, vec2_t *gamepadOffset, const int *deltaTime, LUIElement *element)
 {
-  __int64 v12; 
+  __int64 v6; 
+  float *customElementData; 
   LocalClientNum_t ClientFromController; 
   UIInputType lastInputType; 
-  GamepadPhysicalAxis v16; 
-  bool v44; 
+  double v10; 
+  GamepadPhysicalAxis v11; 
+  double v12; 
+  float *v13; 
+  double v14; 
+  float v15; 
+  double v16; 
+  __int128 v18; 
+  float v19; 
+  int v20; 
+  double v24; 
+  float v25; 
   cg_t *LocalClientGlobals; 
-  unsigned int v48; 
-  __int64 v62; 
-  void *retaddr; 
+  float v27; 
+  float v28; 
+  float v29; 
+  double v30; 
+  __int64 v31; 
 
-  _RAX = &retaddr;
-  v44 = element->customElementData == NULL;
-  _RDI = gamepadOffset;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm7 }
-  v12 = localClientNum;
-  if ( v44 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
+  v6 = localClientNum;
+  if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  _RBX = (const int *)element->customElementData;
-  ClientFromController = CL_Mgr_GetClientFromController(*_RBX);
-  if ( (unsigned int)v12 >= 2 )
+  customElementData = (float *)element->customElementData;
+  ClientFromController = CL_Mgr_GetClientFromController(*(_DWORD *)customElementData);
+  if ( (unsigned int)v6 >= 2 )
   {
-    LODWORD(v62) = v12;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v62, 2) )
+    LODWORD(v31) = v6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v31, 2) )
       __debugbreak();
   }
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  lastInputType = clientUIActives[v12].lastInputType;
-  if ( lastInputType == GAMEPAD )
+  lastInputType = clientUIActives[v6].lastInputType;
+  if ( lastInputType )
   {
-    if ( !*((_BYTE *)_RBX + 54) )
+    if ( (unsigned int)(lastInputType - 1) > 1 )
     {
-      if ( *((_BYTE *)_RBX + 50) )
-      {
-        *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_LSTICK_X);
-        v16 = GPAD_PHYSAXIS_LSTICK_Y;
-      }
+      *gamepadOffset = 0i64;
+      if ( *((_BYTE *)customElementData + 51) )
+        v25 = customElementData[22];
       else
-      {
-        *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_RSTICK_X);
-        v16 = GPAD_PHYSAXIS_RSTICK_Y;
-      }
-      __asm { vmovss  dword ptr [rdi], xmm0 }
-      *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(ClientFromController, v16);
-      __asm { vmovss  dword ptr [rdi+4], xmm0 }
+        v25 = 0.0;
+      v13 = customElementData + 24;
+      goto LABEL_19;
     }
-    _RSI = (char *)(_RBX + 24);
-    if ( *((_BYTE *)_RBX + 51) )
+    v27 = customElementData[18];
+    if ( v27 == 0.0 && customElementData[19] == 0.0 )
     {
-      __asm { vmovaps [rsp+0A8h+var_58], xmm8 }
-      *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_LTRIGGER);
-      __asm { vmulss  xmm6, xmm0, cs:__real@bf800000 }
-      *(double *)&_XMM0 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_RTRIGGER);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+5Ch]
-        vsubss  xmm3, xmm1, dword ptr [rbx+58h]
-        vmovss  xmm2, dword ptr [rsi]
-      }
-      _EAX = *((unsigned __int8 *)_RBX + 52);
-      _ECX = 0;
-      __asm
-      {
-        vmovss  xmm8, cs:__real@3f800000
-        vdivss  xmm7, xmm2, xmm3
-        vaddss  xmm5, xmm0, xmm6
-        vmovaps xmm4, xmm0
-        vmovd   xmm2, ecx
-        vmovd   xmm1, eax
-        vpcmpeqd xmm3, xmm1, xmm2
-        vblendvps xmm0, xmm7, xmm5, xmm3
-        vmovss  [rsp+0A8h+var_68], xmm0
-        vmovss  xmm0, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vandps  xmm6, xmm6, xmm0
-        vucomiss xmm6, xmm8
-      }
-      *((_DWORD *)_RBX + 26) = 0;
-      __asm
-      {
-        vsubss  xmm0, xmm5, xmm7
-        vmovss  dword ptr [rbx+68h], xmm0
-        vmovss  xmm0, [rsp+0A8h+var_68]; val
-        vmovaps xmm2, xmm8; max
-        vxorps  xmm1, xmm1, xmm1; min
-        vxorps  xmm7, xmm7, xmm7
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm1, xmm8, xmm0
-        vmulss  xmm2, xmm1, dword ptr [rbx+58h]
-        vmulss  xmm0, xmm0, dword ptr [rbx+5Ch]
-        vmovaps xmm8, [rsp+0A8h+var_58]
-        vaddss  xmm1, xmm2, xmm0
-      }
-      goto LABEL_17;
-    }
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-LABEL_16:
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-    goto LABEL_17;
-  }
-  v48 = lastInputType - 1;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  if ( v48 <= 1 )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+48h]
-      vucomiss xmm0, xmm7
-    }
-    if ( v48 == 1 )
-    {
-      __asm { vucomiss xmm7, dword ptr [rbx+4Ch] }
-      _RDI->v[0] = 0.0;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+44h]
-        vmulss  xmm1, xmm0, cs:__real@3f400000
-      }
+      gamepadOffset->v[0] = 0.0;
+      v28 = customElementData[17] * 0.75;
     }
     else
     {
-      __asm
-      {
-        vmovss  dword ptr [rdi], xmm0
-        vmovss  xmm1, dword ptr [rbx+4Ch]
-      }
+      gamepadOffset->v[0] = v27;
+      v28 = customElementData[19];
     }
-    __asm { vmovss  dword ptr [rdi+4], xmm1 }
-    _RSI = (char *)(_RBX + 24);
-    *((_QWORD *)_RBX + 9) = 0i64;
-    if ( *((_BYTE *)_RBX + 51) )
+    gamepadOffset->v[1] = v28;
+    v13 = customElementData + 24;
+    *((_QWORD *)customElementData + 9) = 0i64;
+    if ( *((_BYTE *)customElementData + 51) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+5Ch]
-        vsubss  xmm2, xmm0, dword ptr [rbx+58h]
-        vmovss  xmm1, dword ptr [rsi]
-        vmovss  xmm6, cs:__real@3f800000
-        vdivss  xmm2, xmm1, xmm2
-        vaddss  xmm0, xmm2, dword ptr [rbx+64h]; val
-        vmovaps xmm2, xmm6; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *((_DWORD *)_RBX + 25) = 0;
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm1, xmm6, xmm0
-        vmulss  xmm2, xmm1, dword ptr [rbx+58h]
-        vmulss  xmm0, xmm0, dword ptr [rbx+5Ch]
-        vaddss  xmm1, xmm2, xmm0
-      }
-      goto LABEL_17;
+      v29 = (float)(*v13 / (float)(customElementData[23] - customElementData[22])) + customElementData[25];
+      customElementData[25] = 0.0;
+      v30 = I_fclamp(v29, 0.0, 1.0);
+      v25 = (float)((float)(1.0 - *(float *)&v30) * customElementData[22]) + (float)(*(float *)&v30 * customElementData[23]);
+      goto LABEL_19;
     }
-    goto LABEL_16;
-  }
-  *_RDI = 0i64;
-  if ( *((_BYTE *)_RBX + 51) )
-    __asm { vmovss  xmm1, dword ptr [rbx+58h] }
-  else
-    __asm { vxorps  xmm1, xmm1, xmm1 }
-  _RSI = (char *)(_RBX + 24);
-LABEL_17:
-  __asm { vmovss  dword ptr [rsi], xmm1 }
-  *((_DWORD *)_RBX + 16) = LODWORD(_RDI->v[0]);
-  *((_DWORD *)_RBX + 17) = LODWORD(_RDI->v[1]);
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v12);
-  __asm
-  {
-    vucomiss xmm7, dword ptr [rdi]
-    vmovaps xmm6, [rsp+0A8h+var_38]
-  }
-  if ( !v44 )
+LABEL_18:
+    v25 = 0.0;
     goto LABEL_19;
-  __asm { vucomiss xmm7, dword ptr [rdi+4] }
-  if ( !v44 )
-  {
-LABEL_19:
-    *((_DWORD *)_RBX + 27) = LODWORD(LocalClientGlobals->currentCameraOffset.v[0]);
-    *((_DWORD *)_RBX + 29) = LODWORD(LocalClientGlobals->currentCameraOffset.v[2]);
   }
+  if ( !*((_BYTE *)customElementData + 54) )
+  {
+    if ( *((_BYTE *)customElementData + 50) )
+    {
+      v10 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_LSTICK_X);
+      v11 = GPAD_PHYSAXIS_LSTICK_Y;
+    }
+    else
+    {
+      v10 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_RSTICK_X);
+      v11 = GPAD_PHYSAXIS_RSTICK_Y;
+    }
+    gamepadOffset->v[0] = *(float *)&v10;
+    v12 = CL_GamepadPhysicalAxisValue(ClientFromController, v11);
+    gamepadOffset->v[1] = *(float *)&v12;
+  }
+  v13 = customElementData + 24;
+  if ( !*((_BYTE *)customElementData + 51) )
+    goto LABEL_18;
+  v14 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_LTRIGGER);
+  v15 = *(float *)&v14 * -1.0;
+  v16 = CL_GamepadPhysicalAxisValue(ClientFromController, GPAD_PHYSAXIS_RTRIGGER);
+  v18 = *(unsigned int *)v13;
+  *(float *)&v18 = *v13 / (float)(customElementData[23] - customElementData[22]);
+  _XMM7 = v18;
+  v19 = *(float *)&v16 + v15;
+  v20 = LODWORD(v16);
+  _XMM1 = *((unsigned __int8 *)customElementData + 52);
   __asm
   {
-    vucomiss xmm7, dword ptr [rbx+68h]
-    vmovaps xmm7, [rsp+0A8h+var_48]
+    vpcmpeqd xmm3, xmm1, xmm2
+    vblendvps xmm0, xmm7, xmm5, xmm3
   }
-  if ( !v44 )
-    *((_DWORD *)_RBX + 28) = LODWORD(LocalClientGlobals->currentCameraOffset.v[1]);
+  customElementData[26] = 0.0;
+  if ( COERCE_FLOAT(LODWORD(v15) & _xmm) == 1.0 || COERCE_FLOAT(v20 & _xmm) == 1.0 )
+    customElementData[26] = v19 - *(float *)&v18;
+  v24 = I_fclamp(*(float *)&_XMM0, 0.0, 1.0);
+  v25 = (float)((float)(1.0 - *(float *)&v24) * customElementData[22]) + (float)(*(float *)&v24 * customElementData[23]);
+LABEL_19:
+  *v13 = v25;
+  customElementData[16] = gamepadOffset->v[0];
+  customElementData[17] = gamepadOffset->v[1];
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v6);
+  if ( gamepadOffset->v[0] != 0.0 || gamepadOffset->v[1] != 0.0 )
+  {
+    customElementData[27] = LocalClientGlobals->currentCameraOffset.v[0];
+    customElementData[29] = LocalClientGlobals->currentCameraOffset.v[2];
+  }
+  if ( customElementData[26] != 0.0 )
+    customElementData[28] = LocalClientGlobals->currentCameraOffset.v[1];
 }
 
 /*
@@ -757,244 +605,117 @@ LUIElement_FrontendCameraMover_Layout
 */
 void LUIElement_FrontendCameraMover_Layout(const LocalClientNum_t localClientNum, LUIElement *element, float unitScale, int deltaTime, lua_State *luaVM)
 {
+  cg_t *LocalClientGlobals; 
   LUIFrontendCameraMoverData *ModelData; 
-  __int64 v16; 
-  __int64 v17; 
-  __int64 v18; 
-  __int64 v19; 
-  bool v22; 
-  int v39; 
-  int v43; 
+  __int64 v10; 
+  __int64 v11; 
+  __int64 v12; 
+  __int64 v13; 
+  bool v14; 
+  LUIFrontendCameraMoverData *v15; 
+  float v16; 
+  float v17; 
+  double v18; 
+  __m128 v21; 
+  float v24; 
+  float zoomOffset; 
+  float v26; 
+  float v27; 
+  float v28; 
   clientUIActive_t *LocalClientUIGlobals; 
-  const dvar_t *v64; 
+  const dvar_t *v30; 
+  float v31; 
+  double v32; 
+  float v33; 
+  double v34; 
   int deltaTimea; 
   vec2_t gamepadOffset; 
-  int v106; 
+  float v37; 
 
   LUIElement_DefaultLayout(localClientNum, element, unitScale, deltaTime, luaVM);
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
   if ( localClientNum < cg_t::ms_allocatedCount && Com_FrontEndScene_IsActive() && LUI_CoD_IsInputLocked(localClientNum) )
   {
-    __asm
-    {
-      vmovaps [rsp+108h+var_48], xmm6
-      vmovaps [rsp+108h+var_58], xmm7
-    }
-    _RSI = CG_GetLocalClientGlobals(localClientNum);
-    if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_frontendcameramover.cpp", 245, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+    if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_frontendcameramover.cpp", 245, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
     ModelData = LUIElement_FrontendCameraMover_GetModelData(element, luaVM);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3f000000
-      vmovss  xmm7, cs:__real@3f800000
-      vmovss  dword ptr [rsp+108h+gamepadOffset], xmm6
-    }
-    v22 = !ModelData->disableInput;
-    _RBX = ModelData;
-    __asm
-    {
-      vmovss  dword ptr [rsp+108h+gamepadOffset+4], xmm6
-      vmovaps xmm3, xmm6
-      vmovaps xmm4, xmm6
-    }
-    if ( v22 )
+    gamepadOffset.v[0] = FLOAT_0_5;
+    v14 = !ModelData->disableInput;
+    v15 = ModelData;
+    gamepadOffset.v[1] = FLOAT_0_5;
+    v16 = FLOAT_0_5;
+    v17 = FLOAT_0_5;
+    if ( v14 )
     {
       LUIElement_FrontendCameraMover_InputUpdate(localClientNum, &gamepadOffset, &deltaTimea, element);
-      if ( _RBX->snapToCenter )
+      if ( v15->snapToCenter )
       {
-        __asm
-        {
-          vaddss  xmm1, xmm7, dword ptr [rsp+108h+gamepadOffset]
-          vaddss  xmm0, xmm7, dword ptr [rsp+108h+gamepadOffset+4]
-          vmulss  xmm3, xmm1, xmm6
-          vmulss  xmm4, xmm0, xmm6
-        }
+        v16 = (float)(gamepadOffset.v[0] + 1.0) * 0.5;
+        v17 = (float)(gamepadOffset.v[1] + 1.0) * 0.5;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rsp+108h+gamepadOffset+4]
-          vmovss  xmm3, dword ptr [rsp+108h+gamepadOffset]
-        }
+        v17 = gamepadOffset.v[1];
+        v16 = gamepadOffset.v[0];
       }
     }
-    if ( _RBX->enableRotation )
+    if ( v15->enableRotation )
     {
-      __asm
-      {
-        vmulss  xmm1, xmm3, dword ptr [rbx+18h]
-        vsubss  xmm0, xmm7, xmm3
-        vmulss  xmm2, xmm0, dword ptr [rbx+14h]
-        vaddss  xmm6, xmm2, xmm1
-        vmulss  xmm0, xmm6, cs:__real@3c8efa35
-      }
-      *(double *)&_XMM0 = j___libm_sse2_sincosf_(v17, v16, v18, v19);
-      __asm
-      {
-        vmulss  xmm2, xmm0, dword ptr [rbx+28h]
-        vshufps xmm1, xmm0, xmm0, 1
-        vmulss  xmm0, xmm2, xmm0
-        vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vxorps  xmm4, xmm4, xmm4
-        vmovss  [rsp+108h+var_B8], xmm4
-      }
-      v39 = v106;
-      __asm
-      {
-        vmulss  xmm3, xmm1, xmm2
-        vunpcklps xmm0, xmm3, xmm0
-        vmovsd  qword ptr [rsi+17FC8h], xmm0
-        vunpcklps xmm0, xmm4, xmm6
-        vmovss  [rsp+108h+var_B8], xmm4
-      }
-      LODWORD(_RSI->targetCameraOffset.v[2]) = v39;
-      v43 = v106;
-      __asm { vmovsd  qword ptr [rsi+17FE0h], xmm0 }
-      LODWORD(_RSI->targetCameraAngleOffset.v[2]) = v43;
+      v18 = j___libm_sse2_sincosf_(v11, v10, v12, v13);
+      _XMM4 = 0i64;
+      v21 = _mm_shuffle_ps((__m128)*(unsigned __int64 *)&v18, (__m128)*(unsigned __int64 *)&v18, 1);
+      v21.m128_f32[0] = v21.m128_f32[0] * (float)(*(float *)&v18 * v15->rotationRadius);
+      _XMM3 = v21;
+      __asm { vunpcklps xmm0, xmm3, xmm0 }
+      *(double *)LocalClientGlobals->targetCameraOffset.v = *(double *)&_XMM0;
+      __asm { vunpcklps xmm0, xmm4, xmm6 }
+      v37 = 0.0;
+      LocalClientGlobals->targetCameraOffset.v[2] = 0.0;
+      v24 = v37;
+      *(double *)LocalClientGlobals->targetCameraAngleOffset.v = *(double *)&_XMM0;
+      LocalClientGlobals->targetCameraAngleOffset.v[2] = v24;
     }
     else
     {
-      v22 = !_RBX->disableInput;
-      __asm
+      if ( v15->disableInput && v15->enableZoom )
+        v15->zoomOffset = (float)(v15->zoomMax + v15->zoomMin) * 0.5;
+      zoomOffset = v15->zoomOffset;
+      if ( v15->snapToCenter )
       {
-        vmovaps [rsp+108h+var_68], xmm8
-        vmovaps [rsp+108h+var_78], xmm9
-        vmovaps [rsp+108h+var_88], xmm10
-        vmovaps [rsp+108h+var_98], xmm11
-        vmovaps [rsp+108h+var_A8], xmm12
-      }
-      if ( !v22 && _RBX->enableZoom )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+5Ch]
-          vaddss  xmm1, xmm0, dword ptr [rbx+58h]
-          vmulss  xmm2, xmm1, xmm6
-          vmovss  dword ptr [rbx+60h], xmm2
-        }
-      }
-      __asm { vmovss  xmm9, dword ptr [rbx+60h] }
-      if ( _RBX->snapToCenter )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm3, dword ptr [rbx+8]
-          vsubss  xmm0, xmm7, xmm3
-          vmulss  xmm2, xmm0, dword ptr [rbx+4]
-          vaddss  xmm0, xmm2, xmm1
-          vaddss  xmm6, xmm0, dword ptr [rbx+38h]
-          vmulss  xmm0, xmm4, dword ptr [rbx+10h]
-          vsubss  xmm1, xmm7, xmm4
-          vmulss  xmm2, xmm1, dword ptr [rbx+0Ch]
-          vaddss  xmm1, xmm2, xmm0
-          vaddss  xmm7, xmm1, dword ptr [rbx+3Ch]
-        }
+        v26 = (float)((float)((float)(1.0 - v16) * v15->leftLimit) + (float)(v16 * v15->rightLimit)) + v15->camScreenOrigin.v[0];
+        v27 = (float)((float)((float)(1.0 - v17) * v15->upLimit) + (float)(v17 * v15->downLimit)) + v15->camScreenOrigin.v[1];
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm8, xmm8, xmm8
-          vcvtsi2ss xmm8, xmm8, r15d
-          vmulss  xmm1, xmm8, dword ptr [rbx+54h]
-          vmulss  xmm0, xmm1, dword ptr [rbx+40h]
-          vmulss  xmm1, xmm1, dword ptr [rbx+44h]
-          vaddss  xmm7, xmm1, dword ptr [rbx+74h]
-          vaddss  xmm6, xmm0, dword ptr [rbx+6Ch]
-        }
+        v28 = (float)deltaTime * v15->velocity;
+        v27 = (float)(v28 * v15->prevGamepadOffset.v[1]) + v15->prevPosition.v[2];
+        v26 = (float)(v28 * v15->prevGamepadOffset.v[0]) + v15->prevPosition.v[0];
         LocalClientUIGlobals = CL_GetLocalClientUIGlobals(localClientNum);
-        if ( _RBX->enableHoldZoom && LocalClientUIGlobals->lastInputType == GAMEPAD )
-        {
-          __asm
-          {
-            vmulss  xmm0, xmm8, dword ptr [rbx+2Ch]
-            vmulss  xmm1, xmm0, dword ptr [rbx+68h]
-            vaddss  xmm9, xmm1, dword ptr [rbx+70h]
-          }
-        }
+        if ( v15->enableHoldZoom && LocalClientUIGlobals->lastInputType == GAMEPAD )
+          zoomOffset = (float)((float)((float)deltaTime * v15->zoomSpeed) * v15->deltaZoomLevel) + v15->prevPosition.v[1];
       }
-      if ( _RBX->enableSway )
+      if ( v15->enableSway )
         goto LABEL_29;
-      v64 = DCONST_DVARBOOL_lui_camera_mover_force_sway;
+      v30 = DCONST_DVARBOOL_lui_camera_mover_force_sway;
       if ( !DCONST_DVARBOOL_lui_camera_mover_force_sway && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lui_camera_mover_force_sway") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v64);
-      if ( v64->current.enabled )
+      Dvar_CheckFrontendServerThread(v30);
+      if ( v30->current.enabled )
       {
 LABEL_29:
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rsi+65ECh]
-          vdivss  xmm0, xmm0, dword ptr [rbx+1Ch]; X
-        }
-        *(float *)&_XMM0 = sinf_0(*(float *)&_XMM0);
-        __asm
-        {
-          vmulss  xmm1, xmm0, dword ptr [rbx+20h]
-          vmulss  xmm2, xmm0, dword ptr [rbx+24h]
-          vaddss  xmm6, xmm6, xmm1
-          vaddss  xmm7, xmm7, xmm2
-        }
+        v31 = sinf_0((float)LocalClientGlobals->time / v15->timeScaledown);
+        v26 = v26 + (float)(v31 * v15->amplitudeX);
+        v27 = v27 + (float)(v31 * v15->amplitudeY);
       }
-      __asm
-      {
-        vxorps  xmm0, xmm6, cs:__xmm@80000000800000008000000080000000; val
-        vmovss  xmm2, dword ptr [rbx+8]; max
-        vmovss  xmm1, dword ptr [rbx+4]; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+10h]; max
-        vmovss  xmm1, dword ptr [rbx+0Ch]; min
-        vmovaps xmm12, xmm0
-        vmovaps xmm0, xmm7; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+5Ch]; max
-        vmovss  xmm1, dword ptr [rbx+58h]; min
-        vmovaps xmm11, xmm0
-        vmovaps xmm0, xmm9; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm2, xmm11, dword ptr [rsi+695Ch]
-        vmulss  xmm1, xmm12, dword ptr [rsi+6950h]
-        vmovaps xmm9, [rsp+108h+var_78]
-        vmovaps xmm8, [rsp+108h+var_68]
-        vaddss  xmm3, xmm2, xmm1
-        vmovaps xmm10, xmm0
-        vmulss  xmm0, xmm0, dword ptr [rsi+6944h]
-        vaddss  xmm1, xmm3, xmm0
-        vmovss  dword ptr [rsi+17FC8h], xmm1
-        vmulss  xmm2, xmm11, dword ptr [rsi+6960h]
-        vmulss  xmm0, xmm12, dword ptr [rsi+6954h]
-        vmulss  xmm1, xmm10, dword ptr [rsi+6948h]
-        vaddss  xmm3, xmm2, xmm0
-        vaddss  xmm2, xmm3, xmm1
-        vmovss  dword ptr [rsi+17FCCh], xmm2
-        vmulss  xmm4, xmm12, dword ptr [rsi+6958h]
-        vmulss  xmm0, xmm11, dword ptr [rsi+6964h]
-        vmulss  xmm1, xmm10, dword ptr [rsi+694Ch]
-        vmovaps xmm12, [rsp+108h+var_A8]
-        vmovaps xmm11, [rsp+108h+var_98]
-        vmovaps xmm10, [rsp+108h+var_88]
-        vaddss  xmm2, xmm4, xmm0
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rsi+17FD0h], xmm2
-      }
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+108h+var_48]
-      vmovaps xmm7, [rsp+108h+var_58]
+      v32 = I_fclamp(COERCE_FLOAT(LODWORD(v26) ^ _xmm), v15->leftLimit, v15->rightLimit);
+      v33 = *(float *)&v32;
+      I_fclamp(v27, v15->upLimit, v15->downLimit);
+      v34 = I_fclamp(zoomOffset, v15->zoomMin, v15->zoomMax);
+      LocalClientGlobals->targetCameraOffset.v[0] = (float)((float)(v27 * LocalClientGlobals->refdef.view.axis.m[2].v[0]) + (float)(v33 * LocalClientGlobals->refdef.view.axis.m[1].v[0])) + (float)(*(float *)&v34 * LocalClientGlobals->refdef.view.axis.m[0].v[0]);
+      LocalClientGlobals->targetCameraOffset.v[1] = (float)((float)(v27 * LocalClientGlobals->refdef.view.axis.m[2].v[1]) + (float)(v33 * LocalClientGlobals->refdef.view.axis.m[1].v[1])) + (float)(*(float *)&v34 * LocalClientGlobals->refdef.view.axis.m[0].v[1]);
+      LocalClientGlobals->targetCameraOffset.v[2] = (float)((float)(v33 * LocalClientGlobals->refdef.view.axis.m[1].v[2]) + (float)(v27 * LocalClientGlobals->refdef.view.axis.m[2].v[2])) + (float)(*(float *)&v34 * LocalClientGlobals->refdef.view.axis.m[0].v[2]);
     }
   }
 }

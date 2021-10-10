@@ -995,14 +995,19 @@ PartyHost_HandleHeartbeatAck
 */
 void PartyHost_HandleHeartbeatAck(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
+  __int128 v5; 
   int addrHandleIndex; 
   int FirstMemberAtAddr; 
   unsigned int v10; 
+  __int128 v11; 
   const char *v12; 
   int Long; 
   int v14; 
+  __int128 v15; 
+  __int128 v16; 
   const char *v17; 
   int v18; 
+  __int128 v19; 
   const char *v20; 
   const char *v21; 
   __int64 v22; 
@@ -1012,12 +1017,11 @@ void PartyHost_HandleHeartbeatAck(PartyData *party, const PartyActiveClient *mai
   netadr_t outEventInfo; 
   unsigned __int8 data[32]; 
 
-  __asm { vmovups xmm0, xmmword ptr [r8] }
+  v5 = *(_OWORD *)&from->type;
   addrHandleIndex = from->addrHandleIndex;
-  _RDI = from;
   if ( party->inParty && party->areWeHost )
   {
-    __asm { vmovups xmmword ptr [rbp+57h+outEventInfo.eventType], xmm0 }
+    *(_OWORD *)&outEventInfo.type = *(_OWORD *)&from->type;
     outEventInfo.addrHandleIndex = addrHandleIndex;
     FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, &outEventInfo);
     v10 = FirstMemberAtAddr;
@@ -1038,14 +1042,14 @@ void PartyHost_HandleHeartbeatAck(PartyData *party, const PartyActiveClient *mai
       {
         if ( Party_IsMemberIndexAway(party, v10) )
         {
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
+          v15 = *(_OWORD *)&from->type;
           outEventInfo.addrHandleIndex = addrHandleIndex;
-          __asm { vmovups xmmword ptr [rbp+57h+outEventInfo.eventType], xmm0 }
+          *(_OWORD *)&outEventInfo.type = v15;
           PartyHost_ReviveLostPartyMember(party, v10, &outEventInfo);
         }
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
+        v16 = *(_OWORD *)&from->type;
         outEventInfo.addrHandleIndex = addrHandleIndex;
-        __asm { vmovups xmmword ptr [rbp+57h+outEventInfo.eventType], xmm0 }
+        *(_OWORD *)&outEventInfo.type = v16;
         PartyHost_ReceivedPartystateAck(party, v10, &outEventInfo, v14, 1);
         if ( !Party_IsGameLobby(party) && !Party_IsRunning(party) && !Live_IsInSystemlinkLobby() )
         {
@@ -1061,9 +1065,9 @@ void PartyHost_HandleHeartbeatAck(PartyData *party, const PartyActiveClient *mai
           PartyProfile_AddBandwidthData(buf.cursize, (PartyProfile_Event *)&outEventInfo);
           v18 = Sys_Milliseconds();
           PartyProfile_RecordOutgoingEvent((const PartyProfile_Event *)&outEventInfo, v18, &party->profileState);
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
+          v19 = *(_OWORD *)&from->type;
           v24.addrHandleIndex = addrHandleIndex;
-          __asm { vmovups [rbp+57h+var_D0], xmm0 }
+          *(_OWORD *)&v24.type = v19;
           v20 = NET_AdrToString(&v24);
           Com_Printf(25, "[%s] PartyHost - HandleHeartbeatAck - Sending 'notPresent' reply to private party client %i (%s) since our private party is not active.\n", party->partyName, v10, v20);
           PartyHost_SendMessageToClient(party, v10, &buf);
@@ -1076,9 +1080,9 @@ void PartyHost_HandleHeartbeatAck(PartyData *party, const PartyActiveClient *mai
     }
     else
     {
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
+      v11 = *(_OWORD *)&from->type;
       outEventInfo.addrHandleIndex = addrHandleIndex;
-      __asm { vmovups xmmword ptr [rbp+57h+outEventInfo.eventType], xmm0 }
+      *(_OWORD *)&outEventInfo.type = v11;
       v12 = NET_AdrToString(&outEventInfo);
       Com_Printf(25, "[%s] Received party heartbeat ack but we dont know which client it's from (%s)\n", party->partyName, v12);
     }
@@ -1086,7 +1090,7 @@ void PartyHost_HandleHeartbeatAck(PartyData *party, const PartyActiveClient *mai
   else
   {
     v24.addrHandleIndex = from->addrHandleIndex;
-    __asm { vmovups [rbp+57h+var_D0], xmm0 }
+    *(_OWORD *)&v24.type = v5;
     v21 = NET_AdrToString(&v24);
     Com_Printf(25, "[%s] Received party heartbeat ack from %s but we are not the party host\n", party->partyName, v21);
   }
@@ -1099,36 +1103,34 @@ PartyHost_HandleClientPresence
 */
 void PartyHost_HandleClientPresence(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
-  int v8; 
-  const char *v9; 
-  int v11; 
-  const char *v12; 
+  int v7; 
+  const char *v8; 
+  int v9; 
+  const char *v10; 
   int Int_Internal_DebugName; 
-  int v15; 
-  const char *v16; 
+  int v12; 
+  const char *v13; 
   int addrHandleIndex; 
   int FirstMemberAtAddr; 
-  unsigned int v20; 
-  int v22; 
-  const char *v23; 
-  int v25; 
+  unsigned int v16; 
+  int v17; 
+  const char *v18; 
+  int v19; 
+  const char *v20; 
+  int v21; 
+  const char *v22; 
+  bool v23; 
+  int v24; 
+  const char *v25; 
   const char *v26; 
-  int v28; 
-  const char *v29; 
-  bool IsMemberPresent; 
-  bool v32; 
-  int v33; 
-  const char *v34; 
-  const char *v35; 
-  int v37; 
-  const char *v38; 
-  int v40; 
-  const char *v41; 
-  unsigned int v42; 
-  unsigned int v43; 
-  netadr_t v44; 
+  int v27; 
+  const char *v28; 
+  int v29; 
+  const char *v30; 
+  unsigned int v31; 
+  unsigned int v32; 
+  netadr_t v33; 
 
-  _RDI = from;
   if ( party->inParty && party->areWeHost )
   {
     if ( Party_IsPrivateParty(party) )
@@ -1140,114 +1142,103 @@ void PartyHost_HandleClientPresence(PartyData *party, const PartyActiveClient *m
         {
           if ( Int_Internal_DebugName != 1 || Lobby_IsInRunningLobby() )
           {
-            __asm { vmovups xmm0, xmmword ptr [rdi] }
-            addrHandleIndex = _RDI->addrHandleIndex;
-            __asm { vmovups [rbp+var_20], xmm0 }
-            v44.addrHandleIndex = addrHandleIndex;
-            FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, &v44);
-            v20 = FirstMemberAtAddr;
+            addrHandleIndex = from->addrHandleIndex;
+            *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+            v33.addrHandleIndex = addrHandleIndex;
+            FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, &v33);
+            v16 = FirstMemberAtAddr;
             if ( FirstMemberAtAddr >= 0 )
             {
               if ( Party_IsHost(party, FirstMemberAtAddr) )
               {
-                __asm { vmovups xmm0, xmmword ptr [rdi] }
-                v25 = _RDI->addrHandleIndex;
-                __asm { vmovups [rbp+var_20], xmm0 }
-                v44.addrHandleIndex = v25;
-                v26 = NET_AdrToString(&v44);
-                v42 = v20;
-                Com_Printf(25, "[%s] Received party client presence from %s which is us (the host client %i)\n", party->partyName, v26, v42);
+                v19 = from->addrHandleIndex;
+                *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+                v33.addrHandleIndex = v19;
+                v20 = NET_AdrToString(&v33);
+                v31 = v16;
+                Com_Printf(25, "[%s] Received party client presence from %s which is us (the host client %i)\n", party->partyName, v20, v31);
               }
-              else if ( Party_IsMemberLocalPlayer(party, v20) )
+              else if ( Party_IsMemberLocalPlayer(party, v16) )
               {
-                __asm { vmovups xmm0, xmmword ptr [rdi] }
-                v28 = _RDI->addrHandleIndex;
-                __asm { vmovups [rbp+var_20], xmm0 }
-                v44.addrHandleIndex = v28;
-                v29 = NET_AdrToString(&v44);
-                v43 = v20;
-                Com_Printf(25, "[%s] Received party client presence from %s which is a local client (%i).\n", party->partyName, v29, v43);
+                v21 = from->addrHandleIndex;
+                *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+                v33.addrHandleIndex = v21;
+                v22 = NET_AdrToString(&v33);
+                v32 = v16;
+                Com_Printf(25, "[%s] Received party client presence from %s which is a local client (%i).\n", party->partyName, v22, v32);
               }
               else
               {
-                IsMemberPresent = Party_IsMemberPresent(party, v20);
-                __asm { vmovups xmm0, xmmword ptr [rdi] }
-                v32 = !IsMemberPresent;
-                v33 = _RDI->addrHandleIndex;
-                __asm { vmovups [rbp+var_20], xmm0 }
-                v44.addrHandleIndex = v33;
-                if ( v32 )
+                v23 = !Party_IsMemberPresent(party, v16);
+                v24 = from->addrHandleIndex;
+                *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+                v33.addrHandleIndex = v24;
+                if ( v23 )
                 {
-                  v35 = NET_AdrToString(&v44);
-                  Com_Printf(25, "[%s] Received party client presence from client %i (%s), backing out\n", party->partyName, v20, v35);
+                  v26 = NET_AdrToString(&v33);
+                  Com_Printf(25, "[%s] Received party client presence from client %i (%s), backing out\n", party->partyName, v16, v26);
                   Com_SetErrorMessage("MPUI/PARTY_MEMBER_LOST_BACKOUT");
                   Party_Backout(mainActiveClient);
                 }
                 else
                 {
-                  v34 = NET_AdrToString(&v44);
-                  Com_Printf(25, "[%s] Received party client presence from client %i (%s) which is already present. Ignoring.\n", party->partyName, v20, v34);
+                  v25 = NET_AdrToString(&v33);
+                  Com_Printf(25, "[%s] Received party client presence from client %i (%s) which is already present. Ignoring.\n", party->partyName, v16, v25);
                 }
               }
             }
             else
             {
-              __asm { vmovups xmm0, xmmword ptr [rdi] }
-              v22 = _RDI->addrHandleIndex;
-              __asm { vmovups [rbp+var_20], xmm0 }
-              v44.addrHandleIndex = v22;
-              v23 = NET_AdrToString(&v44);
-              Com_Printf(25, "[%s] Received party client presence from %s which is an unknown client\n", party->partyName, v23);
+              v17 = from->addrHandleIndex;
+              *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+              v33.addrHandleIndex = v17;
+              v18 = NET_AdrToString(&v33);
+              Com_Printf(25, "[%s] Received party client presence from %s which is an unknown client\n", party->partyName, v18);
             }
           }
           else
           {
-            __asm { vmovups xmm0, xmmword ptr [rdi] }
-            v15 = _RDI->addrHandleIndex;
-            __asm { vmovups [rbp+var_20], xmm0 }
-            v44.addrHandleIndex = v15;
-            v16 = NET_AdrToString(&v44);
-            Com_Printf(25, "[%s] Received party client presence from %s but the lobby we're in is not running (we are in-game).\n", party->partyName, v16);
+            v12 = from->addrHandleIndex;
+            *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+            v33.addrHandleIndex = v12;
+            v13 = NET_AdrToString(&v33);
+            Com_Printf(25, "[%s] Received party client presence from %s but the lobby we're in is not running (we are in-game).\n", party->partyName, v13);
           }
         }
         else
         {
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
-          v37 = _RDI->addrHandleIndex;
-          __asm { vmovups [rbp+var_20], xmm0 }
-          v44.addrHandleIndex = v37;
-          v38 = NET_AdrToString(&v44);
-          Com_Printf(25, "[%s] Received party client presence from %s but the functionality is disabled.\n", party->partyName, v38);
+          v27 = from->addrHandleIndex;
+          *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+          v33.addrHandleIndex = v27;
+          v28 = NET_AdrToString(&v33);
+          Com_Printf(25, "[%s] Received party client presence from %s but the functionality is disabled.\n", party->partyName, v28);
         }
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v11 = _RDI->addrHandleIndex;
-        __asm { vmovups [rbp+var_20], xmm0 }
-        v44.addrHandleIndex = v11;
-        v12 = NET_AdrToString(&v44);
-        Com_Printf(25, "[%s] Received party client presence from %s but we're not in a lobby\n", party->partyName, v12);
+        v9 = from->addrHandleIndex;
+        *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+        v33.addrHandleIndex = v9;
+        v10 = NET_AdrToString(&v33);
+        Com_Printf(25, "[%s] Received party client presence from %s but we're not in a lobby\n", party->partyName, v10);
       }
     }
     else
     {
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
-      v8 = _RDI->addrHandleIndex;
-      __asm { vmovups [rbp+var_20], xmm0 }
-      v44.addrHandleIndex = v8;
-      v9 = NET_AdrToString(&v44);
-      Com_Printf(25, "[%s] Received party client presence from %s but it's from the wrong party\n", party->partyName, v9);
+      v7 = from->addrHandleIndex;
+      *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+      v33.addrHandleIndex = v7;
+      v8 = NET_AdrToString(&v33);
+      Com_Printf(25, "[%s] Received party client presence from %s but it's from the wrong party\n", party->partyName, v8);
     }
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [r8] }
-    v40 = from->addrHandleIndex;
-    __asm { vmovups [rbp+var_20], xmm0 }
-    v44.addrHandleIndex = v40;
-    v41 = NET_AdrToString(&v44);
-    Com_Printf(25, "[%s] Received party client presence from %s but we are not the party host\n", party->partyName, v41);
+    v29 = from->addrHandleIndex;
+    *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+    v33.addrHandleIndex = v29;
+    v30 = NET_AdrToString(&v33);
+    Com_Printf(25, "[%s] Received party client presence from %s but we are not the party host\n", party->partyName, v30);
   }
 }
 
@@ -1260,35 +1251,35 @@ void PartyHost_HandleClientPartyStateAck(PartyData *party, const PartyActiveClie
 {
   int addrHandleIndex; 
   int FirstMemberAtAddr; 
-  unsigned int v10; 
-  int v12; 
-  const char *v13; 
-  unsigned __int8 v15; 
+  unsigned int v9; 
+  int v10; 
+  const char *v11; 
+  char *v12; 
+  unsigned __int8 v13; 
   int Long; 
+  int v15; 
+  __int128 v16; 
   int v17; 
-  int v23; 
-  const char *v24; 
-  int v25; 
-  netadr_t v26; 
+  const char *v18; 
+  int v19; 
+  netadr_t v20; 
   __m256i buffer; 
 
-  _RDI = from;
   if ( party->inParty && party->areWeHost )
   {
-    __asm { vmovups xmm0, xmmword ptr [r8] }
     addrHandleIndex = from->addrHandleIndex;
-    __asm { vmovups [rsp+0A8h+var_78], xmm0 }
-    v26.addrHandleIndex = addrHandleIndex;
-    FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, &v26);
-    v10 = FirstMemberAtAddr;
+    *(_OWORD *)&v20.type = *(_OWORD *)&from->type;
+    v20.addrHandleIndex = addrHandleIndex;
+    FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, &v20);
+    v9 = FirstMemberAtAddr;
     if ( FirstMemberAtAddr >= 0 )
     {
-      _RBP = (char *)party + 504 * FirstMemberAtAddr;
-      v15 = _RBP[2602];
-      if ( v15 >= 4u )
+      v12 = (char *)party + 504 * FirstMemberAtAddr;
+      v13 = v12[2602];
+      if ( v13 >= 4u )
       {
         Long = MSG_ReadLong(msg);
-        v17 = Long;
+        v15 = Long;
         if ( Long >= 0 )
         {
           MSG_ReadData(msg, 32, &buffer, 32);
@@ -1298,22 +1289,16 @@ void PartyHost_HandleClientPartyStateAck(PartyData *party, const PartyActiveClie
           }
           else
           {
-            if ( v17 == party->specificData.hostData.partyStateChangeTime )
+            if ( v15 == party->specificData.hostData.partyStateChangeTime )
             {
-              __asm
-              {
-                vmovups ymm0, [rsp+0A8h+buffer]
-                vmovups ymmword ptr [rbp+9BCh], ymm0
-                vmovups ymm1, [rsp+0A8h+buffer]
-                vmovups ymmword ptr [rbp+9DCh], ymm1
-                vmovups ymm0, [rsp+0A8h+buffer]
-                vmovups ymmword ptr [rbp+9FCh], ymm0
-              }
+              *(__m256i *)(v12 + 2492) = buffer;
+              *(__m256i *)(v12 + 2524) = buffer;
+              *(__m256i *)(v12 + 2556) = buffer;
             }
-            __asm { vmovups xmm0, xmmword ptr [rdi] }
-            v26.addrHandleIndex = _RDI->addrHandleIndex;
-            __asm { vmovups [rsp+0A8h+var_78], xmm0 }
-            PartyHost_ReceivedPartystateAck(party, v10, &v26, v17, 0);
+            v16 = *(_OWORD *)&from->type;
+            v20.addrHandleIndex = from->addrHandleIndex;
+            *(_OWORD *)&v20.type = v16;
+            PartyHost_ReceivedPartystateAck(party, v9, &v20, v15, 0);
           }
         }
         else
@@ -1323,28 +1308,26 @@ void PartyHost_HandleClientPartyStateAck(PartyData *party, const PartyActiveClie
       }
       else
       {
-        v25 = v15;
-        Com_Printf(25, "[%s] PartyHost - HandleClientPartyStateAck - party state ack from non present/joined client: %i, status is %i\n", party->partyName, v10, v25);
+        v19 = v13;
+        Com_Printf(25, "[%s] PartyHost - HandleClientPartyStateAck - party state ack from non present/joined client: %i, status is %i\n", party->partyName, v9, v19);
       }
     }
     else
     {
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
-      v12 = _RDI->addrHandleIndex;
-      __asm { vmovups [rsp+0A8h+var_78], xmm0 }
-      v26.addrHandleIndex = v12;
-      v13 = NET_AdrToString(&v26);
-      Com_Printf(25, "[%s] PartyHost - HandleClientPartyStateAck - Unknown client %s\n", party->partyName, v13);
+      v10 = from->addrHandleIndex;
+      *(_OWORD *)&v20.type = *(_OWORD *)&from->type;
+      v20.addrHandleIndex = v10;
+      v11 = NET_AdrToString(&v20);
+      Com_Printf(25, "[%s] PartyHost - HandleClientPartyStateAck - Unknown client %s\n", party->partyName, v11);
     }
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [r8] }
-    v23 = from->addrHandleIndex;
-    __asm { vmovups [rsp+0A8h+var_78], xmm0 }
-    v26.addrHandleIndex = v23;
-    v24 = NET_AdrToString(&v26);
-    Com_Printf(25, "[%s] PartyHost - HandleClientPartyStateAck - Not a party host %s\n", party->partyName, v24);
+    v17 = from->addrHandleIndex;
+    *(_OWORD *)&v20.type = *(_OWORD *)&from->type;
+    v20.addrHandleIndex = v17;
+    v18 = NET_AdrToString(&v20);
+    Com_Printf(25, "[%s] PartyHost - HandleClientPartyStateAck - Not a party host %s\n", party->partyName, v18);
   }
 }
 
@@ -1360,228 +1343,224 @@ void PartyAtomicHost_HandleJoinRequest(PartyData *party, const PartyActiveClient
   int v9; 
   int v10; 
   int v11; 
+  __int128 v12; 
   const char *v13; 
   const char *v14; 
   int addrHandleIndex; 
-  const dvar_t *v17; 
-  XUID *v18; 
-  int v20; 
-  const XUID *v22; 
-  PartyJoinResponse v23; 
+  const dvar_t *v16; 
+  XUID *v17; 
+  int v18; 
+  const XUID *v19; 
+  PartyJoinResponse v20; 
   netadr_t *p_xuid; 
-  XUID *v25; 
-  int v27; 
-  XUID *v29; 
+  XUID *v22; 
+  int v23; 
+  XUID *v24; 
   unsigned int ProtocolVersion; 
-  XUID *v32; 
+  XUID *v26; 
   int StartingControllerIndex; 
   const char *MapName; 
   int MapIndex; 
   unsigned int MapSource; 
   unsigned __int64 m_id; 
-  char *v39; 
-  OnlineTelemetryCommunicationEventType v40; 
-  XUID *v41; 
+  char *v32; 
+  OnlineTelemetryCommunicationEventType v33; 
+  XUID *v34; 
   int Int_Internal_DebugName; 
-  int v43; 
+  int v36; 
   unsigned int ExplicitMapPacksUsedByPlaylist; 
-  XUID *v45; 
+  XUID *v38; 
+  const char *v39; 
+  int v40; 
+  unsigned int v41; 
+  unsigned int v42; 
+  int v43; 
+  XUID *v44; 
+  const char *v45; 
+  int v46; 
   const char *v47; 
   int v48; 
-  unsigned int v49; 
-  unsigned int v50; 
+  const char *v49; 
+  int v50; 
   int v51; 
-  XUID *v52; 
-  const char *v54; 
+  const char *v52; 
+  int v53; 
+  __int64 v54; 
+  const char *v55; 
   int v56; 
+  unsigned int v57; 
   const char *v58; 
-  int v60; 
-  const char *v62; 
-  int v64; 
-  int v66; 
-  const char *v67; 
-  int v69; 
-  __int64 v71; 
-  const char *v72; 
-  int v74; 
-  unsigned int v76; 
-  const char *v77; 
-  int v79; 
-  const char *v81; 
-  int v83; 
-  unsigned int v85; 
+  int v59; 
+  const char *v60; 
+  int v61; 
+  unsigned int v62; 
   int NumGameSlots; 
   int Playlist; 
   unsigned int PlaylistCategory; 
-  int v89; 
-  const char *v90; 
-  int v92; 
-  const char *v94; 
-  int v96; 
-  int v98; 
-  msg_t *v99; 
-  int v100; 
-  int v101; 
-  __int64 v102; 
+  int v66; 
+  const char *v67; 
+  int v68; 
+  const char *v69; 
+  int v70; 
+  int v71; 
+  msg_t *v72; 
+  int v73; 
+  int v74; 
+  __int64 v75; 
   unsigned int VersionNumber; 
-  unsigned int v104; 
+  unsigned int v77; 
+  unsigned int v78; 
+  unsigned int v79; 
+  const char *v80; 
+  int v81; 
+  int MinPartySize; 
+  int v83; 
+  const char *v84; 
+  int v85; 
+  int MaxPartySize; 
+  int v87; 
+  const char *v88; 
+  int v89; 
+  unsigned int v90; 
+  const char *v91; 
+  int v92; 
+  unsigned __int64 CurrentLobbyId; 
+  __int64 v94; 
+  unsigned __int64 v95; 
+  const char *v96; 
+  const char *v97; 
+  int v98; 
+  const char *v99; 
+  int v100; 
+  const char *v101; 
+  int v102; 
+  const char *v103; 
+  int v104; 
   unsigned int v105; 
   unsigned int v106; 
-  const char *v107; 
-  int v109; 
-  int MinPartySize; 
-  int v112; 
-  const char *v113; 
-  int v115; 
-  int MaxPartySize; 
-  int v118; 
-  const char *v119; 
-  int v121; 
-  unsigned int v123; 
-  const char *v124; 
-  int v126; 
-  unsigned __int64 CurrentLobbyId; 
-  __int64 v129; 
-  unsigned __int64 v130; 
-  const char *v131; 
-  const char *v134; 
-  int v136; 
-  const char *v138; 
-  int v140; 
-  const char *v142; 
-  int v144; 
-  const char *v146; 
-  int v148; 
-  unsigned int v150; 
-  unsigned int v151; 
-  unsigned int v152; 
+  unsigned int v107; 
   unsigned __int8 *p_status; 
   int MemberByXUID_AllowNotPresent; 
-  __int64 v155; 
-  const char *v156; 
+  __int64 v110; 
+  const char *v111; 
   const char *MemberStatus; 
   unsigned __int8 status; 
-  const char *v159; 
-  const char *v160; 
-  int v161; 
-  const char *v162; 
-  const char *v163; 
+  const char *v114; 
+  const char *v115; 
+  int v116; 
+  const char *v117; 
+  const char *v118; 
+  __int128 v119; 
   int FirstMemberAtAddr; 
-  __int64 v166; 
-  const char *v167; 
-  const char *v168; 
-  unsigned __int8 v169; 
-  const char *v170; 
-  const char *v171; 
-  PartyJoinResponse v173; 
-  int v175; 
-  msg_t *v177; 
+  __int64 v121; 
+  const char *v122; 
+  const char *v123; 
+  unsigned __int8 v124; 
+  const char *v125; 
+  const char *v126; 
+  __int128 v127; 
+  PartyJoinResponse v128; 
+  int v129; 
+  msg_t *v130; 
   int Bit; 
-  PartyJoinType v179; 
-  const char *v180; 
-  int v182; 
+  PartyJoinType v132; 
+  const char *v133; 
+  int v134; 
   __int64 Bits; 
-  unsigned __int8 v185; 
-  const char *v186; 
-  int v188; 
+  unsigned __int8 v136; 
+  const char *v137; 
+  int v138; 
   const char *String_Internal_DebugName; 
-  const char *v191; 
-  const char *v192; 
-  bool v195; 
-  const char *v196; 
-  int v198; 
-  bool v200; 
-  const char *v201; 
-  int v203; 
-  bool v205; 
-  const char *v206; 
-  int v208; 
-  unsigned int v210; 
+  const char *v140; 
+  const char *v141; 
+  bool v142; 
+  const char *v143; 
+  int v144; 
+  bool v145; 
+  const char *v146; 
+  int v147; 
+  bool v148; 
+  const char *v149; 
+  int v150; 
+  unsigned int v151; 
   const PartyData *PartyData; 
-  int v212; 
+  int v153; 
   int BotsReservedSlotsAllies; 
-  int v214; 
-  const char *v215; 
-  int v217; 
-  int v219; 
-  int v220; 
-  const char *v222; 
-  const char *v223; 
-  int v225; 
+  int v155; 
+  const char *v156; 
+  int v157; 
+  int v158; 
+  int v159; 
+  __int128 v160; 
+  const char *v161; 
+  const char *v162; 
+  int v163; 
   char *fmt; 
-  __int64 v228; 
-  __int64 v229; 
-  __int64 v230; 
+  __int64 v165; 
+  __int64 v166; 
+  __int64 v167; 
   XUID result; 
   netadr_t xuid; 
-  __int128 v233; 
-  int v234; 
-  unsigned int v235; 
+  __int128 v170; 
+  int v171; 
+  unsigned int v172; 
   msg_t *msga[2]; 
-  int v237; 
+  int v174; 
   int Byte; 
-  int v239; 
-  unsigned int v240; 
-  int v241; 
+  int v176; 
+  unsigned int v177; 
+  int v178; 
   team_t teamId[2]; 
   PartyJoinChallenge challenge; 
   unsigned __int8 buffer[208]; 
   char dest[256]; 
 
-  *(_QWORD *)&v233 = mainActiveClient;
+  *(_QWORD *)&v170 = mainActiveClient;
   msga[0] = msg;
-  _R15 = from;
   PlaylistIdForNum = Playlist_GetPlaylistIdForNum(selectedPlaylist);
   Long = MSG_ReadLong(msg);
   v9 = MSG_ReadLong(msg);
   XUID::FromMsg(&result, msg);
   Byte = MSG_ReadByte(msg);
   v10 = Byte;
-  v240 = MSG_ReadLong(msg);
-  v241 = MSG_ReadLong(msg);
-  v235 = MSG_ReadByte(msg);
+  v177 = MSG_ReadLong(msg);
+  v178 = MSG_ReadLong(msg);
+  v172 = MSG_ReadByte(msg);
   v11 = MSG_ReadByte(msg);
-  __asm { vmovups xmm0, xmmword ptr [r15] }
-  xuid.addrHandleIndex = _R15->addrHandleIndex;
-  v239 = v11;
-  __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
+  v12 = *(_OWORD *)&from->type;
+  xuid.addrHandleIndex = from->addrHandleIndex;
+  v176 = v11;
+  *(_OWORD *)&xuid.type = v12;
   v13 = NET_AdrToString(&xuid);
   v14 = XUID::ToDevString(&result);
-  Com_Printf(131097, "[%s] %s - Received 'pa_joinrequest' from player %s at %s: protocol %d, join-type %d, join-count %d, playlist-version %d, playlist-num %d\n", party->partyName, "PartyAtomicHost_HandleJoinRequest", v14, v13, Long, v10, v235, v240, v241);
-  __asm { vmovups xmm0, xmmword ptr [r15] }
-  addrHandleIndex = _R15->addrHandleIndex;
-  __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
+  Com_Printf(131097, "[%s] %s - Received 'pa_joinrequest' from player %s at %s: protocol %d, join-type %d, join-count %d, playlist-version %d, playlist-num %d\n", party->partyName, "PartyAtomicHost_HandleJoinRequest", v14, v13, Long, v10, v172, v177, v178);
+  addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
   xuid.addrHandleIndex = addrHandleIndex;
   if ( NET_IsLocalAddress(&xuid) )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. Sent join request to ourself.\n", party->partyName);
     return;
   }
-  v17 = DVARBOOL_party_rejectLobbyJoinRequests;
+  v16 = DVARBOOL_party_rejectLobbyJoinRequests;
   if ( !DVARBOOL_party_rejectLobbyJoinRequests && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_rejectLobbyJoinRequests") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v17);
-  if ( !v17->current.enabled || !Party_IsGameLobby(party) )
+  Dvar_CheckFrontendServerThread(v16);
+  if ( !v16->current.enabled || !Party_IsGameLobby(party) )
   {
     if ( !party->inParty )
     {
       Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. We're not in a party.\n", party->partyName);
 LABEL_11:
-      v25 = XUID::NullXUID((XUID *)&xuid);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v27 = _R15->addrHandleIndex;
-      __asm { vmovups xmmword ptr [rbp+220h+msg], xmm0 }
-      *(XUID *)&v233 = (XUID)v25->m_id;
-      OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v233);
-      v23 = JOINRESPONSE_ERROR_HOST_NOT_HOSTING;
+      v22 = XUID::NullXUID((XUID *)&xuid);
+      v23 = from->addrHandleIndex;
+      *(_OWORD *)msga = *(_OWORD *)&from->type;
+      *(XUID *)&v170 = (XUID)v22->m_id;
+      OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v170);
+      v20 = JOINRESPONSE_ERROR_HOST_NOT_HOSTING;
 LABEL_12:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+220h+msg]
-        vmovups xmmword ptr [rbp+220h+msg], xmm0
-      }
-      v237 = v27;
-      v22 = (const XUID *)&v233;
+      v174 = v23;
+      v19 = (const XUID *)&v170;
       p_xuid = (netadr_t *)msga;
       goto LABEL_190;
     }
@@ -1594,13 +1573,12 @@ LABEL_12:
     {
       Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. Our party is migrating hosts\n", party->partyName);
 LABEL_17:
-      v29 = XUID::NullXUID((XUID *)&xuid);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v27 = _R15->addrHandleIndex;
-      __asm { vmovups xmmword ptr [rbp+220h+msg], xmm0 }
-      *(XUID *)&v233 = (XUID)v29->m_id;
-      OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v233);
-      v23 = JOINRESPONSE_ERROR_GAME_MIGRATING;
+      v24 = XUID::NullXUID((XUID *)&xuid);
+      v23 = from->addrHandleIndex;
+      *(_OWORD *)msga = *(_OWORD *)&from->type;
+      *(XUID *)&v170 = (XUID)v24->m_id;
+      OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v170);
+      v20 = JOINRESPONSE_ERROR_GAME_MIGRATING;
       goto LABEL_12;
     }
     if ( SV_IsMigrating() )
@@ -1613,13 +1591,12 @@ LABEL_17:
       ProtocolVersion = GetProtocolVersion();
       LODWORD(fmt) = Long;
       Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. Incompatible party net code (we are %i, they have %i), rejecting player\n", party->partyName, ProtocolVersion, fmt);
-      v32 = XUID::NullXUID((XUID *)&xuid);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v27 = _R15->addrHandleIndex;
-      __asm { vmovups xmmword ptr [rbp+220h+msg], xmm0 }
-      *(XUID *)&v233 = (XUID)v32->m_id;
-      OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v233);
-      v23 = JOINRESPONSE_ERROR_BAD_REQUEST_VERSION;
+      v26 = XUID::NullXUID((XUID *)&xuid);
+      v23 = from->addrHandleIndex;
+      *(_OWORD *)msga = *(_OWORD *)&from->type;
+      *(XUID *)&v170 = (XUID)v26->m_id;
+      OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v170);
+      v20 = JOINRESPONSE_ERROR_BAD_REQUEST_VERSION;
       goto LABEL_12;
     }
     if ( (unsigned int)(v10 - 1) <= 1 && Online_Telemetry_IsOnlineCommunicationTelemetryEnabled() )
@@ -1640,17 +1617,17 @@ LABEL_17:
           Com_sprintf(dest, 0x100ui64, "PP");
         }
         m_id = result.m_id;
-        v39 = dest;
-        v40 = INVITE_JOIN_PARTY_HANDLE_JOIN_REQUEST_RECEIVED;
+        v32 = dest;
+        v33 = INVITE_JOIN_PARTY_HANDLE_JOIN_REQUEST_RECEIVED;
       }
       else
       {
-        v41 = XUID::NullXUID((XUID *)&xuid);
-        v39 = NULL;
-        m_id = v41->m_id;
-        v40 = INVITE_JOIN_PARTY_HANDLE_JOIN_REQUEST_RECEIVED_INVALID_XUID;
+        v34 = XUID::NullXUID((XUID *)&xuid);
+        v32 = NULL;
+        m_id = v34->m_id;
+        v33 = INVITE_JOIN_PARTY_HANDLE_JOIN_REQUEST_RECEIVED_INVALID_XUID;
       }
-      Online_Telemetry_SendCommunicationEvent(StartingControllerIndex, (XUID)m_id, v40, v39);
+      Online_Telemetry_SendCommunicationEvent(StartingControllerIndex, (XUID)m_id, v33, v32);
     }
     if ( Party_IsGameLobby(party) )
     {
@@ -1658,24 +1635,23 @@ LABEL_17:
       {
         if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_online_should_check_if_users_have_mappack_in_private_match, "online_should_check_if_users_have_mappack_in_private_match") )
         {
-          v47 = Party_GetMapName();
-          v48 = Live_GetMapIndex(v47);
-          v49 = Live_GetMapSource(v48);
-          v50 = v49;
-          if ( (v49 & v9) == 0 )
+          v39 = Party_GetMapName();
+          v40 = Live_GetMapIndex(v39);
+          v41 = Live_GetMapSource(v40);
+          v42 = v41;
+          if ( (v41 & v9) == 0 )
           {
-            v51 = 53;
+            v43 = 53;
             LODWORD(fmt) = v9;
-            Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. Player lacks explicit content. Required: %x, Client has: %x \n", party->partyName, v49, fmt);
-            if ( v50 == 64 )
-              v51 = 54;
-            v52 = XUID::NullXUID((XUID *)&xuid);
-            __asm { vmovups xmm0, xmmword ptr [r15] }
-            v27 = _R15->addrHandleIndex;
-            __asm { vmovups xmmword ptr [rbp+220h+msg], xmm0 }
-            *(XUID *)&v233 = (XUID)v52->m_id;
-            OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v233);
-            v23 = v51;
+            Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. Player lacks explicit content. Required: %x, Client has: %x \n", party->partyName, v41, fmt);
+            if ( v42 == 64 )
+              v43 = 54;
+            v44 = XUID::NullXUID((XUID *)&xuid);
+            v23 = from->addrHandleIndex;
+            *(_OWORD *)msga = *(_OWORD *)&from->type;
+            *(XUID *)&v170 = (XUID)v44->m_id;
+            OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v170);
+            v20 = v43;
             goto LABEL_12;
           }
         }
@@ -1683,19 +1659,18 @@ LABEL_17:
       else
       {
         Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_playlist, "playlist");
-        v43 = Playlist_GetPlaylistIdForNum(Int_Internal_DebugName);
-        ExplicitMapPacksUsedByPlaylist = Playlist_GetExplicitMapPacksUsedByPlaylist(v43);
+        v36 = Playlist_GetPlaylistIdForNum(Int_Internal_DebugName);
+        ExplicitMapPacksUsedByPlaylist = Playlist_GetExplicitMapPacksUsedByPlaylist(v36);
         if ( (~v9 & ExplicitMapPacksUsedByPlaylist) != 0 )
         {
           LODWORD(fmt) = v9;
           Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. Player lacks explicit content. Required: %x, Client has: %x \n", party->partyName, ExplicitMapPacksUsedByPlaylist, fmt);
-          v45 = XUID::NullXUID((XUID *)&xuid);
-          __asm { vmovups xmm0, xmmword ptr [r15] }
-          v27 = _R15->addrHandleIndex;
-          __asm { vmovups xmmword ptr [rbp+220h+msg], xmm0 }
-          *(XUID *)&v233 = (XUID)v45->m_id;
-          OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v233);
-          v23 = JOINRESPONSE_ERROR_MISSING_CONTENT;
+          v38 = XUID::NullXUID((XUID *)&xuid);
+          v23 = from->addrHandleIndex;
+          *(_OWORD *)msga = *(_OWORD *)&from->type;
+          *(XUID *)&v170 = (XUID)v38->m_id;
+          OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v170);
+          v20 = JOINRESPONSE_ERROR_MISSING_CONTENT;
           goto LABEL_12;
         }
       }
@@ -1706,41 +1681,29 @@ LABEL_17:
       {
         if ( OnlineTournament_ShouldSessionBeClosed() )
         {
-          v54 = XUID::ToDevString(&result);
-          Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because we are searching for a tournament and presence joins are disabled.\n", party->partyName, v54);
-          __asm { vmovups xmm0, xmmword ptr [r15] }
-          v56 = _R15->addrHandleIndex;
-          __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-          *(XUID *)&v233 = result;
+          v45 = XUID::ToDevString(&result);
+          Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because we are searching for a tournament and presence joins are disabled.\n", party->partyName, v45);
+          v46 = from->addrHandleIndex;
+          *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+          *(XUID *)&v170 = result;
           OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-            vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-          }
-          xuid.addrHandleIndex = v56;
-          v22 = (const XUID *)&v233;
-          v23 = JOINRESPONSE_ERROR_TOURNAMENT_PRESENCE_JOIN_NOT_ALLOWED_WHILE_SEARCHING;
+          xuid.addrHandleIndex = v46;
+          v19 = (const XUID *)&v170;
+          v20 = JOINRESPONSE_ERROR_TOURNAMENT_PRESENCE_JOIN_NOT_ALLOWED_WHILE_SEARCHING;
           p_xuid = &xuid;
           goto LABEL_190;
         }
         if ( !OnlineTournament_CheckIfXuidInOurTournamentTeamIfHasBracket(result) )
         {
-          v58 = XUID::ToDevString(&result);
-          Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because we are in a tournament and the joiner is not in our team.\n", party->partyName, v58);
-          __asm { vmovups xmm0, xmmword ptr [r15] }
-          v60 = _R15->addrHandleIndex;
-          __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-          *(XUID *)&v233 = result;
+          v47 = XUID::ToDevString(&result);
+          Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because we are in a tournament and the joiner is not in our team.\n", party->partyName, v47);
+          v48 = from->addrHandleIndex;
+          *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+          *(XUID *)&v170 = result;
           OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-            vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-          }
-          xuid.addrHandleIndex = v60;
-          v22 = (const XUID *)&v233;
-          v23 = JOINRESPONSE_ERROR_TOURNAMENT_PRESENCE_JOIN_NOT_ALLOWED_NOT_IN_TEAM;
+          xuid.addrHandleIndex = v48;
+          v19 = (const XUID *)&v170;
+          v20 = JOINRESPONSE_ERROR_TOURNAMENT_PRESENCE_JOIN_NOT_ALLOWED_NOT_IN_TEAM;
           p_xuid = &xuid;
           goto LABEL_190;
         }
@@ -1748,106 +1711,76 @@ LABEL_17:
     }
     else if ( Party_IsGameLobby(party) && OnlineMatchmakerOmniscient::GetTournamentID(&OnlineMatchmakerOmniscient::ms_instance) && !OnlineMatchmakerOmniscient::GetTeamFor(&OnlineMatchmakerOmniscient::ms_instance, result, teamId) )
     {
-      v62 = XUID::ToDevString(&result);
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) not a member of this tournament.\n", party->partyName, v62);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v64 = _R15->addrHandleIndex;
-      __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-      *(XUID *)&v233 = result;
+      v49 = XUID::ToDevString(&result);
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) not a member of this tournament.\n", party->partyName, v49);
+      v50 = from->addrHandleIndex;
+      *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+      *(XUID *)&v170 = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-        vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-      }
-      xuid.addrHandleIndex = v64;
-      v22 = (const XUID *)&v233;
-      v23 = JOINRESPONSE_ERROR_TOURNAMENT_INVALID_USER;
+      xuid.addrHandleIndex = v50;
+      v19 = (const XUID *)&v170;
+      v20 = JOINRESPONSE_ERROR_TOURNAMENT_INVALID_USER;
       p_xuid = &xuid;
       goto LABEL_190;
     }
     if ( v10 == 4 || v10 >= 7 )
     {
-      v223 = XUID::ToDevString(&result);
+      v162 = XUID::ToDevString(&result);
       LODWORD(fmt) = v10;
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Bad join type %i\n", party->partyName, v223, fmt);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v225 = _R15->addrHandleIndex;
-      __asm { vmovups [rbp+220h+var_290], xmm0 }
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Bad join type %i\n", party->partyName, v162, fmt);
+      v163 = from->addrHandleIndex;
+      v170 = *(_OWORD *)&from->type;
       *(XUID *)&xuid.type = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, [rbp+220h+var_290]
-        vmovups [rbp+220h+var_290], xmm0
-      }
-      v234 = v225;
-      v22 = (const XUID *)&xuid;
-      v23 = JOINRESPONSE_ERROR_BAD_REQUEST_TYPE;
-      p_xuid = (netadr_t *)&v233;
+      v171 = v163;
+      v19 = (const XUID *)&xuid;
+      v20 = JOINRESPONSE_ERROR_BAD_REQUEST_TYPE;
+      p_xuid = (netadr_t *)&v170;
       goto LABEL_190;
     }
-    v66 = v239;
-    if ( v239 < 1 )
+    v51 = v176;
+    if ( v176 < 1 )
     {
-      v67 = XUID::ToDevString(&result);
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Invalid number of subparties - < 1 subparties joining\n", party->partyName, v67);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v69 = _R15->addrHandleIndex;
-      __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-      *(XUID *)&v233 = result;
+      v52 = XUID::ToDevString(&result);
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Invalid number of subparties - < 1 subparties joining\n", party->partyName, v52);
+      v53 = from->addrHandleIndex;
+      *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+      *(XUID *)&v170 = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-        vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-      }
-      xuid.addrHandleIndex = v69;
-      v22 = (const XUID *)&v233;
-      v23 = JOINRESPONSE_ERROR_BAD_REQUEST_SUBPARTYCOUNT;
+      xuid.addrHandleIndex = v53;
+      v19 = (const XUID *)&v170;
+      v20 = JOINRESPONSE_ERROR_BAD_REQUEST_SUBPARTYCOUNT;
       p_xuid = &xuid;
       goto LABEL_190;
     }
-    v71 = v239;
-    *(_QWORD *)teamId = v239;
-    if ( (unsigned __int64)v239 > 0xC8 )
+    v54 = v176;
+    *(_QWORD *)teamId = v176;
+    if ( (unsigned __int64)v176 > 0xC8 )
     {
-      v72 = XUID::ToDevString(&result);
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Invalid network message\n", party->partyName, v72);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v74 = _R15->addrHandleIndex;
-      __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-      *(XUID *)&v233 = result;
+      v55 = XUID::ToDevString(&result);
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Invalid network message\n", party->partyName, v55);
+      v56 = from->addrHandleIndex;
+      *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+      *(XUID *)&v170 = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-        vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-      }
-      xuid.addrHandleIndex = v74;
-      v22 = (const XUID *)&v233;
-      v23 = JOINRESPONSE_ERROR_BAD_REQUEST_SUBPARTYLIST;
+      xuid.addrHandleIndex = v56;
+      v19 = (const XUID *)&v170;
+      v20 = JOINRESPONSE_ERROR_BAD_REQUEST_SUBPARTYLIST;
       p_xuid = &xuid;
       goto LABEL_190;
     }
-    v76 = v235;
-    if ( (int)v235 <= 0 )
+    v57 = v172;
+    if ( (int)v172 <= 0 )
     {
-      v77 = XUID::ToDevString(&result);
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) They gave us an invalid number of players\n", party->partyName, v77);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v79 = _R15->addrHandleIndex;
-      __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-      *(XUID *)&v233 = result;
+      v58 = XUID::ToDevString(&result);
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) They gave us an invalid number of players\n", party->partyName, v58);
+      v59 = from->addrHandleIndex;
+      *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+      *(XUID *)&v170 = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-        vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-      }
-      xuid.addrHandleIndex = v79;
-      v22 = (const XUID *)&v233;
-      v23 = JOINRESPONSE_ERROR_BAD_REQUEST_MEMBERCOUNT;
+      xuid.addrHandleIndex = v59;
+      v19 = (const XUID *)&v170;
+      v20 = JOINRESPONSE_ERROR_BAD_REQUEST_MEMBERCOUNT;
       p_xuid = &xuid;
       goto LABEL_190;
     }
@@ -1857,27 +1790,21 @@ LABEL_17:
       {
         if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_online_matchmaking_allow_joins_before_lobby, "online_matchmaking_allow_joins_before_lobby") )
         {
-          v81 = XUID::ToDevString(&result);
-          Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) We are matchmaking and have not been assigned a lobby yet.\n", party->partyName, v81);
-          __asm { vmovups xmm0, xmmword ptr [r15] }
-          v83 = _R15->addrHandleIndex;
-          __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-          *(XUID *)&v233 = result;
+          v60 = XUID::ToDevString(&result);
+          Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) We are matchmaking and have not been assigned a lobby yet.\n", party->partyName, v60);
+          v61 = from->addrHandleIndex;
+          *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+          *(XUID *)&v170 = result;
           OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-            vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-          }
-          xuid.addrHandleIndex = v83;
-          v22 = (const XUID *)&v233;
-          v23 = JOINRESPONSE_ERROR_BAD_REQUEST_HOST_MATCHMAKING_NOT_YET_IN_LOBBY;
+          xuid.addrHandleIndex = v61;
+          v19 = (const XUID *)&v170;
+          v20 = JOINRESPONSE_ERROR_BAD_REQUEST_HOST_MATCHMAKING_NOT_YET_IN_LOBBY;
           p_xuid = &xuid;
           goto LABEL_190;
         }
         if ( Party_FindMemberByXUID(&g_partyData, result) == -1 )
         {
-          v85 = Party_CountAllMembersEvenIfInactive(&g_partyData);
+          v62 = Party_CountAllMembersEvenIfInactive(&g_partyData);
           if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch, "xblive_privatematch") )
           {
             NumGameSlots = Party_GetNumGameSlots(&g_partyData);
@@ -1887,210 +1814,168 @@ LABEL_17:
             Playlist = OnlineMatchmakerOmniscient::GetPlaylist(&OnlineMatchmakerOmniscient::ms_instance);
             PlaylistCategory = OnlineMatchmakerOmniscient::GetPlaylistCategory(&OnlineMatchmakerOmniscient::ms_instance);
             NumGameSlots = Playlist_GetMinimumMaxPartySizeForCategory(Playlist, PlaylistCategory);
-            v71 = *(_QWORD *)teamId;
+            v54 = *(_QWORD *)teamId;
           }
-          v89 = NumGameSlots;
-          if ( (int)(v85 + v235) > NumGameSlots )
+          v66 = NumGameSlots;
+          if ( (int)(v62 + v172) > NumGameSlots )
           {
-            v90 = XUID::ToDevString(&result);
-            LODWORD(v229) = v89;
-            LODWORD(v228) = v235;
-            LODWORD(fmt) = v85;
-            Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) We are matchmaking, have not been assigned a lobby yet, and not enough room in private party: current (%i) joining (%i) max for playlist(s) (%i) .\n", party->partyName, v90, fmt, v228, v229);
-            __asm { vmovups xmm0, xmmword ptr [r15] }
-            v92 = _R15->addrHandleIndex;
-            __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-            *(XUID *)&v233 = result;
+            v67 = XUID::ToDevString(&result);
+            LODWORD(v166) = v66;
+            LODWORD(v165) = v172;
+            LODWORD(fmt) = v62;
+            Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) We are matchmaking, have not been assigned a lobby yet, and not enough room in private party: current (%i) joining (%i) max for playlist(s) (%i) .\n", party->partyName, v67, fmt, v165, v166);
+            v68 = from->addrHandleIndex;
+            *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+            *(XUID *)&v170 = result;
             OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-              vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-            }
-            xuid.addrHandleIndex = v92;
-            v22 = (const XUID *)&v233;
-            v23 = JOINRESPONSE_ERROR_MAXPARTY_EXCEEDED;
+            xuid.addrHandleIndex = v68;
+            v19 = (const XUID *)&v170;
+            v20 = JOINRESPONSE_ERROR_MAXPARTY_EXCEEDED;
             p_xuid = &xuid;
             goto LABEL_190;
           }
-          v76 = v235;
-          v66 = v239;
+          v57 = v172;
+          v51 = v176;
         }
       }
       if ( !OnlineMatchmakerOmniscient::IsPlayerAllowedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result) )
       {
-        v94 = XUID::ToDevString(&result);
-        Com_PrintError(131097, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) We are matchmaking and the XUID has not been whitelisted by Demonware.\n", party->partyName, v94);
-        __asm { vmovups xmm0, xmmword ptr [r15] }
-        v96 = _R15->addrHandleIndex;
-        __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-        *(XUID *)&v233 = result;
+        v69 = XUID::ToDevString(&result);
+        Com_PrintError(131097, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) We are matchmaking and the XUID has not been whitelisted by Demonware.\n", party->partyName, v69);
+        v70 = from->addrHandleIndex;
+        *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+        *(XUID *)&v170 = result;
         OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-          vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-        }
-        xuid.addrHandleIndex = v96;
-        v22 = (const XUID *)&v233;
-        v23 = JOINRESPONSE_ERROR_BAD_REQUEST_NOT_APPROVED_BY_MATCHMAKER;
+        xuid.addrHandleIndex = v70;
+        v19 = (const XUID *)&v170;
+        v20 = JOINRESPONSE_ERROR_BAD_REQUEST_NOT_APPROVED_BY_MATCHMAKER;
         p_xuid = &xuid;
         goto LABEL_190;
       }
     }
-    v98 = v66;
-    v99 = msga[0];
-    MSG_ReadData(msga[0], v98, buffer, 200);
-    if ( v99->overflowed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7831, ASSERT_TYPE_ASSERT, "(!MSG_IsOverflowed( msg ))", (const char *)&queryFormat, "!MSG_IsOverflowed( msg )") )
+    v71 = v51;
+    v72 = msga[0];
+    MSG_ReadData(msga[0], v71, buffer, 200);
+    if ( v72->overflowed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7831, ASSERT_TYPE_ASSERT, "(!MSG_IsOverflowed( msg ))", (const char *)&queryFormat, "!MSG_IsOverflowed( msg )") )
       __debugbreak();
-    *(_QWORD *)&xuid.type = MSG_ReadInt64(v99);
+    *(_QWORD *)&xuid.type = MSG_ReadInt64(v72);
     if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch, "xblive_privatematch") && !Live_IsInSystemlinkLobby() )
     {
-      v100 = 0;
-      v101 = 0;
-      if ( v71 > 0 )
+      v73 = 0;
+      v74 = 0;
+      if ( v54 > 0 )
       {
-        v102 = 0i64;
+        v75 = 0i64;
         while ( 1 )
         {
-          v100 += buffer[v102];
-          if ( Party_IsGameLobby(party) && buffer[v102] < Playlist_GetMinPartySize(PlaylistIdForNum) )
+          v73 += buffer[v75];
+          if ( Party_IsGameLobby(party) && buffer[v75] < Playlist_GetMinPartySize(PlaylistIdForNum) )
           {
             MinPartySize = Playlist_GetMinPartySize(PlaylistIdForNum);
-            v112 = buffer[v101];
-            v113 = XUID::ToDevString(&result);
-            LODWORD(v230) = v239;
-            LODWORD(v229) = MinPartySize;
-            LODWORD(v228) = v112;
-            LODWORD(fmt) = v101;
-            Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Not enough members in sub party [%i](%i) - < Playlist_GetMinPartySize (%i), subpartyCount %i\n", party->partyName, v113, fmt, v228, v229, v230);
-            __asm { vmovups xmm0, xmmword ptr [r15] }
-            v115 = _R15->addrHandleIndex;
-            __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-            *(XUID *)&v233 = result;
+            v83 = buffer[v74];
+            v84 = XUID::ToDevString(&result);
+            LODWORD(v167) = v176;
+            LODWORD(v166) = MinPartySize;
+            LODWORD(v165) = v83;
+            LODWORD(fmt) = v74;
+            Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Not enough members in sub party [%i](%i) - < Playlist_GetMinPartySize (%i), subpartyCount %i\n", party->partyName, v84, fmt, v165, v166, v167);
+            v85 = from->addrHandleIndex;
+            *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+            *(XUID *)&v170 = result;
             OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-              vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-            }
-            xuid.addrHandleIndex = v115;
-            v22 = (const XUID *)&v233;
-            v23 = JOINRESPONSE_ERROR_BAD_REQUEST_SUBPARTYSIZE;
+            xuid.addrHandleIndex = v85;
+            v19 = (const XUID *)&v170;
+            v20 = JOINRESPONSE_ERROR_BAD_REQUEST_SUBPARTYSIZE;
             p_xuid = &xuid;
             goto LABEL_190;
           }
-          if ( Party_IsGameLobby(party) && Playlist_GetMaxPartySize(PlaylistIdForNum) > 0 && buffer[v102] > Playlist_GetMaxPartySize(PlaylistIdForNum) )
+          if ( Party_IsGameLobby(party) && Playlist_GetMaxPartySize(PlaylistIdForNum) > 0 && buffer[v75] > Playlist_GetMaxPartySize(PlaylistIdForNum) )
             break;
-          ++v101;
-          if ( ++v102 >= *(__int64 *)teamId )
+          ++v74;
+          if ( ++v75 >= *(__int64 *)teamId )
             goto LABEL_87;
         }
         MaxPartySize = Playlist_GetMaxPartySize(PlaylistIdForNum);
-        v118 = buffer[v101];
-        v119 = XUID::ToDevString(&result);
-        LODWORD(v230) = v239;
-        LODWORD(v229) = MaxPartySize;
-        LODWORD(v228) = v118;
-        LODWORD(fmt) = v101;
-        Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Would exceed max party size for this playlist.  Number of players in subparty [%i](%i), max party size (%i), subpartyCount %i\n", party->partyName, v119, fmt, v228, v229, v230);
-        __asm { vmovups xmm0, xmmword ptr [r15] }
-        v121 = _R15->addrHandleIndex;
-        __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-        *(XUID *)&v233 = result;
+        v87 = buffer[v74];
+        v88 = XUID::ToDevString(&result);
+        LODWORD(v167) = v176;
+        LODWORD(v166) = MaxPartySize;
+        LODWORD(v165) = v87;
+        LODWORD(fmt) = v74;
+        Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Would exceed max party size for this playlist.  Number of players in subparty [%i](%i), max party size (%i), subpartyCount %i\n", party->partyName, v88, fmt, v165, v166, v167);
+        v89 = from->addrHandleIndex;
+        *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+        *(XUID *)&v170 = result;
         OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-          vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-        }
-        xuid.addrHandleIndex = v121;
-        v22 = (const XUID *)&v233;
-        v23 = JOINRESPONSE_ERROR_MAXPARTY_EXCEEDED;
+        xuid.addrHandleIndex = v89;
+        v19 = (const XUID *)&v170;
+        v20 = JOINRESPONSE_ERROR_MAXPARTY_EXCEEDED;
         p_xuid = &xuid;
         goto LABEL_190;
       }
 LABEL_87:
-      v76 = v235;
-      if ( v100 != v235 )
+      v57 = v172;
+      if ( v73 != v172 )
       {
-        LODWORD(v230) = v100;
-        LODWORD(v229) = v235;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7884, ASSERT_TYPE_ASSERT, "(subpartyPlayerCount == numPlayersJoining)", "%s\n\t%i players joining, but subparties had %i players in it\n", "subpartyPlayerCount == numPlayersJoining", v229, v230) )
+        LODWORD(v167) = v73;
+        LODWORD(v166) = v172;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7884, ASSERT_TYPE_ASSERT, "(subpartyPlayerCount == numPlayersJoining)", "%s\n\t%i players joining, but subparties had %i players in it\n", "subpartyPlayerCount == numPlayersJoining", v166, v167) )
           __debugbreak();
       }
       VersionNumber = Playlist_GetVersionNumber();
-      v104 = Playlist_GetVersionNumber();
-      v105 = v240;
-      v106 = v104;
-      if ( v240 < VersionNumber )
+      v77 = Playlist_GetVersionNumber();
+      v78 = v177;
+      v79 = v77;
+      if ( v177 < VersionNumber )
       {
-        v107 = XUID::ToDevString(&result);
-        LODWORD(v228) = v105;
-        LODWORD(fmt) = v106;
-        Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Incompatible playlist version (too old). Expected (%i), Received (%i)\n", party->partyName, v107, fmt, v228);
-        __asm { vmovups xmm0, xmmword ptr [r15] }
-        v109 = _R15->addrHandleIndex;
-        __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-        *(XUID *)&v233 = result;
+        v80 = XUID::ToDevString(&result);
+        LODWORD(v165) = v78;
+        LODWORD(fmt) = v79;
+        Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Incompatible playlist version (too old). Expected (%i), Received (%i)\n", party->partyName, v80, fmt, v165);
+        v81 = from->addrHandleIndex;
+        *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+        *(XUID *)&v170 = result;
         OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-          vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-        }
-        xuid.addrHandleIndex = v109;
-        v22 = (const XUID *)&v233;
-        v23 = JOINRESPONSE_ERROR_BAD_REQUEST_PLAYLIST_OLD;
+        xuid.addrHandleIndex = v81;
+        v19 = (const XUID *)&v170;
+        v20 = JOINRESPONSE_ERROR_BAD_REQUEST_PLAYLIST_OLD;
         p_xuid = &xuid;
         goto LABEL_190;
       }
-      if ( v240 > v104 )
+      if ( v177 > v77 )
       {
-        v123 = Playlist_GetVersionNumber();
-        v124 = XUID::ToDevString(&result);
-        LODWORD(v228) = v105;
-        LODWORD(fmt) = v123;
-        Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Incompatible playlist version (too new). Expected (%i), Received (%i)\n", party->partyName, v124, fmt, v228);
-        __asm { vmovups xmm0, xmmword ptr [r15] }
-        v126 = _R15->addrHandleIndex;
-        __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-        *(XUID *)&v233 = result;
+        v90 = Playlist_GetVersionNumber();
+        v91 = XUID::ToDevString(&result);
+        LODWORD(v165) = v78;
+        LODWORD(fmt) = v90;
+        Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Incompatible playlist version (too new). Expected (%i), Received (%i)\n", party->partyName, v91, fmt, v165);
+        v92 = from->addrHandleIndex;
+        *(_OWORD *)&xuid.type = *(_OWORD *)&from->type;
+        *(XUID *)&v170 = result;
         OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsp+320h+xuid.m_id]
-          vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0
-        }
-        xuid.addrHandleIndex = v126;
-        v22 = (const XUID *)&v233;
-        v23 = JOINRESPONSE_ERROR_BAD_REQUEST_PLAYLIST_NEW;
+        xuid.addrHandleIndex = v92;
+        v19 = (const XUID *)&v170;
+        v20 = JOINRESPONSE_ERROR_BAD_REQUEST_PLAYLIST_NEW;
         p_xuid = &xuid;
         goto LABEL_190;
       }
       CurrentLobbyId = OnlineMatchmakerOmniscient::GetCurrentLobbyId(&OnlineMatchmakerOmniscient::ms_instance);
       if ( CurrentLobbyId )
       {
-        v129 = *(_QWORD *)&xuid.type;
+        v94 = *(_QWORD *)&xuid.type;
         if ( *(_QWORD *)&xuid.type != CurrentLobbyId )
         {
-          v130 = OnlineMatchmakerOmniscient::GetCurrentLobbyId(&OnlineMatchmakerOmniscient::ms_instance);
-          v131 = XUID::ToDevString(&result);
-          Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Incorrect lobby id. Expected (%zu), Received (%zu)\n", party->partyName, v131, v130, v129);
-          __asm { vmovups xmm0, xmmword ptr [r15] }
-          LODWORD(v130) = _R15->addrHandleIndex;
-          __asm { vmovups [rbp+220h+var_290], xmm0 }
+          v95 = OnlineMatchmakerOmniscient::GetCurrentLobbyId(&OnlineMatchmakerOmniscient::ms_instance);
+          v96 = XUID::ToDevString(&result);
+          Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Incorrect lobby id. Expected (%zu), Received (%zu)\n", party->partyName, v96, v95, v94);
+          LODWORD(v95) = from->addrHandleIndex;
+          v170 = *(_OWORD *)&from->type;
           *(XUID *)&xuid.type = result;
           OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-          __asm
-          {
-            vmovups xmm0, [rbp+220h+var_290]
-            vmovups [rbp+220h+var_290], xmm0
-          }
-          v234 = v130;
-          v22 = (const XUID *)&xuid;
-          v23 = JOINRESPONSE_ERROR_BAD_REQUEST_LOBBYID_INCORRECT;
-          p_xuid = (netadr_t *)&v233;
+          v171 = v95;
+          v19 = (const XUID *)&xuid;
+          v20 = JOINRESPONSE_ERROR_BAD_REQUEST_LOBBYID_INCORRECT;
+          p_xuid = (netadr_t *)&v170;
           goto LABEL_190;
         }
       }
@@ -2098,146 +1983,122 @@ LABEL_87:
     }
     if ( LUI_IsMenuOpenAndVisible(LOCAL_CLIENT_0, "CODTvMenu") )
     {
-      v134 = XUID::ToDevString(&result);
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) They are trying to join while we are watching CODTv\n", party->partyName, v134);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v136 = _R15->addrHandleIndex;
-      __asm { vmovups [rbp+220h+var_290], xmm0 }
+      v97 = XUID::ToDevString(&result);
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) They are trying to join while we are watching CODTv\n", party->partyName, v97);
+      v98 = from->addrHandleIndex;
+      v170 = *(_OWORD *)&from->type;
       *(XUID *)&xuid.type = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, [rbp+220h+var_290]
-        vmovups [rbp+220h+var_290], xmm0
-      }
-      v234 = v136;
-      v22 = (const XUID *)&xuid;
-      v23 = JOINRESPONSE_ERROR_HOST_NOT_READY;
-      p_xuid = (netadr_t *)&v233;
+      v171 = v98;
+      v19 = (const XUID *)&xuid;
+      v20 = JOINRESPONSE_ERROR_HOST_NOT_READY;
+      p_xuid = (netadr_t *)&v170;
       goto LABEL_190;
     }
     if ( Party_IsGameLobby(party) && v10 == 5 && Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch, "xblive_privatematch") && !Party_PrivateMatchmakingAllowed(party) )
     {
-      v138 = XUID::ToDevString(&result);
-      LODWORD(fmt) = v241;
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) They are trying to join an old search result for playlistNum %i but we're in privatematch\n", party->partyName, v138, fmt);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v140 = _R15->addrHandleIndex;
-      __asm { vmovups [rbp+220h+var_290], xmm0 }
+      v99 = XUID::ToDevString(&result);
+      LODWORD(fmt) = v178;
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) They are trying to join an old search result for playlistNum %i but we're in privatematch\n", party->partyName, v99, fmt);
+      v100 = from->addrHandleIndex;
+      v170 = *(_OWORD *)&from->type;
       *(XUID *)&xuid.type = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, [rbp+220h+var_290]
-        vmovups [rbp+220h+var_290], xmm0
-      }
-      v234 = v140;
-      v22 = (const XUID *)&xuid;
-      v23 = JOINRESPONSE_ERROR_GAME_PRIVATE;
-      p_xuid = (netadr_t *)&v233;
+      v171 = v100;
+      v19 = (const XUID *)&xuid;
+      v20 = JOINRESPONSE_ERROR_GAME_PRIVATE;
+      p_xuid = (netadr_t *)&v170;
       goto LABEL_190;
     }
     if ( Party_ShouldCurrentSessionBeClosed(party) && (unsigned int)(v10 - 1) <= 1 )
     {
-      v142 = XUID::ToDevString(&result);
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because our current session is closed.\n", party->partyName, v142);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v144 = _R15->addrHandleIndex;
-      __asm { vmovups [rbp+220h+var_290], xmm0 }
+      v101 = XUID::ToDevString(&result);
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because our current session is closed.\n", party->partyName, v101);
+      v102 = from->addrHandleIndex;
+      v170 = *(_OWORD *)&from->type;
       *(XUID *)&xuid.type = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, [rbp+220h+var_290]
-        vmovups [rbp+220h+var_290], xmm0
-      }
-      v234 = v144;
-      v22 = (const XUID *)&xuid;
-      v23 = JOINRESPONSE_ERROR_BAD_REQUEST_CLOSED;
-      p_xuid = (netadr_t *)&v233;
+      v171 = v102;
+      v19 = (const XUID *)&xuid;
+      v20 = JOINRESPONSE_ERROR_BAD_REQUEST_CLOSED;
+      p_xuid = (netadr_t *)&v170;
       goto LABEL_190;
     }
     if ( Party_IsPrivateParty(party) && v10 == 1 && Party_IsInviteOnly(party) )
     {
-      v146 = XUID::ToDevString(&result);
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Joining on presence on private party is not allowed.\n", party->partyName, v146);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v148 = _R15->addrHandleIndex;
-      __asm { vmovups [rbp+220h+var_290], xmm0 }
+      v103 = XUID::ToDevString(&result);
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Joining on presence on private party is not allowed.\n", party->partyName, v103);
+      v104 = from->addrHandleIndex;
+      v170 = *(_OWORD *)&from->type;
       *(XUID *)&xuid.type = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, [rbp+220h+var_290]
-        vmovups [rbp+220h+var_290], xmm0
-      }
-      v234 = v148;
-      v22 = (const XUID *)&xuid;
-      v23 = JOINRESPONSE_ERROR_BAD_REQUEST_PRIVATE;
-      p_xuid = (netadr_t *)&v233;
+      v171 = v104;
+      v19 = (const XUID *)&xuid;
+      v20 = JOINRESPONSE_ERROR_BAD_REQUEST_PRIVATE;
+      p_xuid = (netadr_t *)&v170;
       goto LABEL_190;
     }
     *(XUID *)&xuid.type = result;
-    v150 = Party_GetNumGameSlots(party);
-    v151 = v150;
-    if ( v150 > 0xC8 )
+    v105 = Party_GetNumGameSlots(party);
+    v106 = v105;
+    if ( v105 > 0xC8 )
     {
-      LODWORD(v228) = v150;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7358, ASSERT_TYPE_ASSERT, "( ( totalSlots <= 200 ) )", "( totalSlots ) = %i", v228) )
+      LODWORD(v165) = v105;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7358, ASSERT_TYPE_ASSERT, "( ( totalSlots <= 200 ) )", "( totalSlots ) = %i", v165) )
         __debugbreak();
     }
-    v152 = 0;
-    if ( v151 )
+    v107 = 0;
+    if ( v106 )
     {
       p_status = &party->partyMembers[0].status;
-      while ( *p_status != 2 || !XUID::operator==(&party->partyMembers[v152].challengeRequestXuid, (const XUID *)&xuid) )
+      while ( *p_status != 2 || !XUID::operator==(&party->partyMembers[v107].challengeRequestXuid, (const XUID *)&xuid) )
       {
-        ++v152;
+        ++v107;
         p_status += 504;
-        if ( v152 >= v151 )
+        if ( v107 >= v106 )
         {
-          v76 = v235;
+          v57 = v172;
           goto LABEL_123;
         }
       }
-      challenge = *(PartyJoinChallenge *)party->partyMembers[v152].challenge;
-      v160 = XUID::ToDevString(&result);
-      Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Received duplicate request for %i players. XUID ( %s ) Resending accept message\n", party->partyName, v235, v160);
-      v161 = Sys_Milliseconds();
-      PartyAtomicHost_RefreshAnonymousTimeout(party, &challenge, v161);
+      challenge = *(PartyJoinChallenge *)party->partyMembers[v107].challenge;
+      v115 = XUID::ToDevString(&result);
+      Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Received duplicate request for %i players. XUID ( %s ) Resending accept message\n", party->partyName, v172, v115);
+      v116 = Sys_Milliseconds();
+      PartyAtomicHost_RefreshAnonymousTimeout(party, &challenge, v116);
       goto LABEL_134;
     }
 LABEL_123:
     MemberByXUID_AllowNotPresent = Party_FindMemberByXUID_AllowNotPresent(party, result);
-    v155 = MemberByXUID_AllowNotPresent;
+    v110 = MemberByXUID_AllowNotPresent;
     if ( MemberByXUID_AllowNotPresent >= 0 )
     {
       if ( (unsigned int)MemberByXUID_AllowNotPresent >= 0xC8 )
       {
-        LODWORD(v229) = 200;
-        LODWORD(v228) = MemberByXUID_AllowNotPresent;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7990, ASSERT_TYPE_ASSERT, "(unsigned)( oldMemberIndex ) < (unsigned)( 200 )", "oldMemberIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v228, v229) )
+        LODWORD(v166) = 200;
+        LODWORD(v165) = MemberByXUID_AllowNotPresent;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7990, ASSERT_TYPE_ASSERT, "(unsigned)( oldMemberIndex ) < (unsigned)( 200 )", "oldMemberIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v165, v166) )
           __debugbreak();
       }
-      v156 = XUID::ToDevString(&result);
-      MemberStatus = Party_GetMemberStatus(party, v155);
-      Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Player in slot %i (status %s) requested to join a second time. XUID ( %s ) \n", party->partyName, (unsigned int)v155, MemberStatus, v156);
-      status = party->partyMembers[v155].status;
+      v111 = XUID::ToDevString(&result);
+      MemberStatus = Party_GetMemberStatus(party, v110);
+      Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Player in slot %i (status %s) requested to join a second time. XUID ( %s ) \n", party->partyName, (unsigned int)v110, MemberStatus, v111);
+      status = party->partyMembers[v110].status;
       if ( status == 1 )
       {
 LABEL_138:
-        v163 = XUID::ToDevString(&result);
-        Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Removing and letting it go through. XUID ( %s )\n", party->partyName, v163);
-        PartyHost_RemovePlayer(party, v155, 0, "rejoin", NET_CLOSE_SOFT);
+        v118 = XUID::ToDevString(&result);
+        Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Removing and letting it go through. XUID ( %s )\n", party->partyName, v118);
+        PartyHost_RemovePlayer(party, v110, 0, "rejoin", NET_CLOSE_SOFT);
         goto LABEL_139;
       }
       if ( status > 2u )
       {
         if ( status <= 4u )
         {
-          v162 = XUID::ToDevString(&result);
-          Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Clearing them and having them rejoin. XUID ( %s )\n", party->partyName, v162);
-          party->partyMembers[v155].lastPacketTime = Sys_Milliseconds();
+          v117 = XUID::ToDevString(&result);
+          Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Clearing them and having them rejoin. XUID ( %s )\n", party->partyName, v117);
+          party->partyMembers[v110].lastPacketTime = Sys_Milliseconds();
           PartyAtomicHost_BuildRandomChallenge(&challenge);
           goto LABEL_134;
         }
@@ -2245,289 +2106,235 @@ LABEL_138:
         {
           if ( Com_IsGameLocalServerRunning() )
           {
-            CL_Live_RequestClientDrop(v155, SV_LIVE_DROP_INACTIVE, "rejoin");
-            v159 = XUID::ToDevString(&result);
-            Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Silently rejecting incoming party member. XUID ( %s ) They will be dropped from our game if inactive.\n", party->partyName, v159);
+            CL_Live_RequestClientDrop(v110, SV_LIVE_DROP_INACTIVE, "rejoin");
+            v114 = XUID::ToDevString(&result);
+            Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Silently rejecting incoming party member. XUID ( %s ) They will be dropped from our game if inactive.\n", party->partyName, v114);
             return;
           }
           goto LABEL_138;
         }
       }
-      LODWORD(v228) = status;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8026, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected party status %i", v228) )
+      LODWORD(v165) = status;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8026, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected party status %i", v165) )
         __debugbreak();
     }
 LABEL_139:
-    __asm { vmovups xmm0, xmmword ptr [r15] }
-    xuid.addrHandleIndex = _R15->addrHandleIndex;
-    __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
+    v119 = *(_OWORD *)&from->type;
+    xuid.addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&xuid.type = v119;
     FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, &xuid);
-    v166 = FirstMemberAtAddr;
+    v121 = FirstMemberAtAddr;
     if ( FirstMemberAtAddr >= 0 )
     {
-      v167 = XUID::ToDevString(&result);
-      v168 = Party_GetMemberStatus(party, v166);
-      Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Player in slot %i (status %s) requested to join with a different XUID ( %s ) through the same address.\n", party->partyName, (unsigned int)v166, v168, v167);
-      if ( (unsigned int)v166 >= 0xC8 )
+      v122 = XUID::ToDevString(&result);
+      v123 = Party_GetMemberStatus(party, v121);
+      Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Player in slot %i (status %s) requested to join with a different XUID ( %s ) through the same address.\n", party->partyName, (unsigned int)v121, v123, v122);
+      if ( (unsigned int)v121 >= 0xC8 )
       {
-        LODWORD(v229) = 200;
-        LODWORD(v228) = v166;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8039, ASSERT_TYPE_ASSERT, "(unsigned)( oldMemberIndex ) < (unsigned)( 200 )", "oldMemberIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v228, v229) )
+        LODWORD(v166) = 200;
+        LODWORD(v165) = v121;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8039, ASSERT_TYPE_ASSERT, "(unsigned)( oldMemberIndex ) < (unsigned)( 200 )", "oldMemberIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v165, v166) )
           __debugbreak();
       }
-      v169 = party->partyMembers[v166].status;
-      if ( ((v169 - 1) & 0xFD) != 0 )
+      v124 = party->partyMembers[v121].status;
+      if ( ((v124 - 1) & 0xFD) != 0 )
       {
-        if ( (unsigned __int8)(v169 - 4) > 1u )
+        if ( (unsigned __int8)(v124 - 4) > 1u )
         {
-          LODWORD(v228) = v169;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8061, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected party status %i", v228) )
+          LODWORD(v165) = v124;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8061, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected party status %i", v165) )
             __debugbreak();
           goto LABEL_150;
         }
         if ( Com_IsGameLocalServerRunning() )
         {
-          CL_Live_RequestClientDrop(v166, SV_LIVE_DROP_INACTIVE, "rejoin");
-          v170 = XUID::ToDevString(&result);
-          Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Silently rejecting incoming party member. XUID ( %s ) They will be dropped from our game if inactive\n", party->partyName, v170);
+          CL_Live_RequestClientDrop(v121, SV_LIVE_DROP_INACTIVE, "rejoin");
+          v125 = XUID::ToDevString(&result);
+          Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Silently rejecting incoming party member. XUID ( %s ) They will be dropped from our game if inactive\n", party->partyName, v125);
           return;
         }
       }
-      v171 = XUID::ToDevString(&result);
-      Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Dropping existing player. XUID ( %s ) \n", party->partyName, v171);
-      PartyHost_RemovePlayer(party, v166, 0, "rejoin", NET_CLOSE_SOFT);
+      v126 = XUID::ToDevString(&result);
+      Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Dropping existing player. XUID ( %s ) \n", party->partyName, v126);
+      PartyHost_RemovePlayer(party, v121, 0, "rejoin", NET_CLOSE_SOFT);
     }
 LABEL_150:
     if ( PartyAtomic_IsJoiningActive(&g_partyJoinInfo) )
     {
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      xuid.addrHandleIndex = _R15->addrHandleIndex;
-      __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-      v173 = PartyAtomicHost_HandleJoinRequest_ShouldLetThemConnect(party, *(const LocalClientNum_t *)v233, &xuid, v76, &g_partyJoinInfo);
-      if ( v173 != JOINRESPONSE_SUCCESS )
+      v127 = *(_OWORD *)&from->type;
+      xuid.addrHandleIndex = from->addrHandleIndex;
+      *(_OWORD *)&xuid.type = v127;
+      v128 = PartyAtomicHost_HandleJoinRequest_ShouldLetThemConnect(party, *(const LocalClientNum_t *)v170, &xuid, v57, &g_partyJoinInfo);
+      if ( v128 != JOINRESPONSE_SUCCESS )
       {
-        __asm { vmovups xmm0, xmmword ptr [r15] }
-        v175 = _R15->addrHandleIndex;
-        __asm { vmovups [rbp+220h+var_290], xmm0 }
+        v129 = from->addrHandleIndex;
+        v170 = *(_OWORD *)&from->type;
         *(XUID *)&xuid.type = result;
         OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-        __asm
-        {
-          vmovups xmm0, [rbp+220h+var_290]
-          vmovups [rbp+220h+var_290], xmm0
-        }
-        v234 = v175;
-        v22 = (const XUID *)&xuid;
-        v23 = v173;
-        p_xuid = (netadr_t *)&v233;
+        v171 = v129;
+        v19 = (const XUID *)&xuid;
+        v20 = v128;
+        p_xuid = (netadr_t *)&v170;
         goto LABEL_190;
       }
     }
-    v177 = msga[0];
+    v130 = msga[0];
     Bit = MSG_ReadBit(msga[0]);
-    v179 = Byte;
+    v132 = Byte;
     if ( !Bit && party->iscrossplayParty && (unsigned int)(Byte - 1) <= 1 )
     {
-      v180 = XUID::ToDevString(&result);
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because our current session is closed.\n", party->partyName, v180);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v182 = _R15->addrHandleIndex;
-      __asm { vmovups [rbp+220h+var_290], xmm0 }
+      v133 = XUID::ToDevString(&result);
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because our current session is closed.\n", party->partyName, v133);
+      v134 = from->addrHandleIndex;
+      v170 = *(_OWORD *)&from->type;
       *(XUID *)&xuid.type = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, [rbp+220h+var_290]
-        vmovups [rbp+220h+var_290], xmm0
-      }
-      v234 = v182;
-      v22 = (const XUID *)&xuid;
-      v23 = JOINRESPONSE_ERROR_CROSSPLAY_PERMISSION_MISMATCH;
-      p_xuid = (netadr_t *)&v233;
+      v171 = v134;
+      v19 = (const XUID *)&xuid;
+      v20 = JOINRESPONSE_ERROR_CROSSPLAY_PERMISSION_MISMATCH;
+      p_xuid = (netadr_t *)&v170;
       goto LABEL_190;
     }
-    Bits = MSG_ReadBits(v177, 3u);
-    v185 = Bits;
+    Bits = MSG_ReadBits(v130, 3u);
+    v136 = Bits;
     if ( (unsigned __int64)(Bits + 128) > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum ClientPlatform __cdecl truncate_cast_impl<enum ClientPlatform,__int64>(__int64)", "signed", (char)Bits, "signed", Bits) )
       __debugbreak();
-    if ( (unsigned int)(v179 - 1) <= 1 && (unsigned __int8)GetClientPlatform() != v185 && !Live_DoAllActiveControllersHaveCrossplayPermissions() )
+    if ( (unsigned int)(v132 - 1) <= 1 && (unsigned __int8)GetClientPlatform() != v136 && !Live_DoAllActiveControllersHaveCrossplayPermissions() )
     {
-      v186 = XUID::ToDevString(&result);
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because we dont have crossplay permissions and the joiner is from another platform.\n", party->partyName, v186);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v188 = _R15->addrHandleIndex;
-      __asm { vmovups [rbp+220h+var_290], xmm0 }
+      v137 = XUID::ToDevString(&result);
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because we dont have crossplay permissions and the joiner is from another platform.\n", party->partyName, v137);
+      v138 = from->addrHandleIndex;
+      v170 = *(_OWORD *)&from->type;
       *(XUID *)&xuid.type = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, [rbp+220h+var_290]
-        vmovups [rbp+220h+var_290], xmm0
-      }
-      v234 = v188;
-      v22 = (const XUID *)&xuid;
-      v23 = JOINRESPONSE_ERROR_HOST_CANNOT_CROSSPLAY;
-      p_xuid = (netadr_t *)&v233;
+      v171 = v138;
+      v19 = (const XUID *)&xuid;
+      v20 = JOINRESPONSE_ERROR_HOST_CANNOT_CROSSPLAY;
+      p_xuid = (netadr_t *)&v170;
       goto LABEL_190;
     }
-    if ( (unsigned int)(v179 - 1) <= 1 && Dvar_GetBool_Internal_DebugName(DVARBOOL_online_should_check_platforms_can_play_gametype_for_party_join, "online_should_check_platforms_can_play_gametype_for_party_join") && Party_IsGameLobby(party) )
+    if ( (unsigned int)(v132 - 1) <= 1 && Dvar_GetBool_Internal_DebugName(DVARBOOL_online_should_check_platforms_can_play_gametype_for_party_join, "online_should_check_platforms_can_play_gametype_for_party_join") && Party_IsGameLobby(party) )
     {
       String_Internal_DebugName = Dvar_GetString_Internal_DebugName(DVARSTR_ui_gametype, "ui_gametype");
-      if ( !Live_CanGameTypeBePlayedOnPlatform(String_Internal_DebugName, (ClientPlatform)v185) )
+      if ( !Live_CanGameTypeBePlayedOnPlatform(String_Internal_DebugName, (ClientPlatform)v136) )
       {
-        v191 = Dvar_GetString_Internal_DebugName(DVARSTR_ui_gametype, "ui_gametype");
-        v192 = XUID::ToDevString(&result);
-        LODWORD(v228) = (char)v185;
-        Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because the game type we are playing now %s is not accessible to the joiner's platform %d.\n", party->partyName, v192, v191, v228);
-        __asm { vmovups xmm0, xmmword ptr [r15] }
-        LODWORD(v191) = _R15->addrHandleIndex;
-        __asm { vmovups [rbp+220h+var_290], xmm0 }
+        v140 = Dvar_GetString_Internal_DebugName(DVARSTR_ui_gametype, "ui_gametype");
+        v141 = XUID::ToDevString(&result);
+        LODWORD(v165) = (char)v136;
+        Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because the game type we are playing now %s is not accessible to the joiner's platform %d.\n", party->partyName, v141, v140, v165);
+        LODWORD(v140) = from->addrHandleIndex;
+        v170 = *(_OWORD *)&from->type;
         *(XUID *)&xuid.type = result;
         OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-        __asm
-        {
-          vmovups xmm0, [rbp+220h+var_290]
-          vmovups [rbp+220h+var_290], xmm0
-        }
-        v234 = (int)v191;
-        v22 = (const XUID *)&xuid;
-        v23 = JOINRESPONSE_ERROR_ACCESS_DENIED_FOR_GAME_TYPE;
-        p_xuid = (netadr_t *)&v233;
+        v171 = (int)v140;
+        v19 = (const XUID *)&xuid;
+        v20 = JOINRESPONSE_ERROR_ACCESS_DENIED_FOR_GAME_TYPE;
+        p_xuid = (netadr_t *)&v170;
         goto LABEL_190;
       }
     }
-    v195 = MSG_ReadBit(v177) != 0;
-    if ( (unsigned int)(v179 - 1) <= 1 && v195 && !Live_CanCurrentGamemodeSupportSplitscreen() )
+    v142 = MSG_ReadBit(v130) != 0;
+    if ( (unsigned int)(v132 - 1) <= 1 && v142 && !Live_CanCurrentGamemodeSupportSplitscreen() )
     {
-      v196 = XUID::ToDevString(&result);
-      LODWORD(fmt) = v235;
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because there are splitscreen members in the incoming party and our current gamemode doesnt support splitscreen, num players joining %d\n", party->partyName, v196, fmt);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v198 = _R15->addrHandleIndex;
-      __asm { vmovups [rbp+220h+var_290], xmm0 }
+      v143 = XUID::ToDevString(&result);
+      LODWORD(fmt) = v172;
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) because there are splitscreen members in the incoming party and our current gamemode doesnt support splitscreen, num players joining %d\n", party->partyName, v143, fmt);
+      v144 = from->addrHandleIndex;
+      v170 = *(_OWORD *)&from->type;
       *(XUID *)&xuid.type = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, [rbp+220h+var_290]
-        vmovups [rbp+220h+var_290], xmm0
-      }
-      v234 = v198;
-      v22 = (const XUID *)&xuid;
-      v23 = JOINRESPONSE_ERROR_BAD_REQUEST_SPLITSCREEN_NOT_SUPPORTED_IN_CURRENT_GAMEMODE;
-      p_xuid = (netadr_t *)&v233;
+      v171 = v144;
+      v19 = (const XUID *)&xuid;
+      v20 = JOINRESPONSE_ERROR_BAD_REQUEST_SPLITSCREEN_NOT_SUPPORTED_IN_CURRENT_GAMEMODE;
+      p_xuid = (netadr_t *)&v170;
       goto LABEL_190;
     }
-    v200 = MSG_ReadBit(v177) != 0;
-    if ( (unsigned int)(v179 - 1) <= 1 && !v200 && PartyHost_PartyRestrictsF2PUsers(party) )
+    v145 = MSG_ReadBit(v130) != 0;
+    if ( (unsigned int)(v132 - 1) <= 1 && !v145 && PartyHost_PartyRestrictsF2PUsers(party) )
     {
-      v201 = XUID::ToString(&result);
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting F2P user (%s) because party F2P users are prohibited\n", party->partyName, v201);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v203 = _R15->addrHandleIndex;
-      __asm { vmovups [rbp+220h+var_290], xmm0 }
+      v146 = XUID::ToString(&result);
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting F2P user (%s) because party F2P users are prohibited\n", party->partyName, v146);
+      v147 = from->addrHandleIndex;
+      v170 = *(_OWORD *)&from->type;
       *(XUID *)&xuid.type = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, [rbp+220h+var_290]
-        vmovups [rbp+220h+var_290], xmm0
-      }
-      v234 = v203;
-      v22 = (const XUID *)&xuid;
-      v23 = JOINRESPONSE_ERROR_F2P_USERS_NOT_PERMITTED;
-      p_xuid = (netadr_t *)&v233;
+      v171 = v147;
+      v19 = (const XUID *)&xuid;
+      v20 = JOINRESPONSE_ERROR_F2P_USERS_NOT_PERMITTED;
+      p_xuid = (netadr_t *)&v170;
       goto LABEL_190;
     }
-    v205 = MSG_ReadBit(v177) != 0;
-    if ( (unsigned int)(v179 - 1) <= 1 && !v205 && PartyHost_PartyRequiresOnlineSubscriptionForPlatform(party, (ClientPlatform)v185) )
+    v148 = MSG_ReadBit(v130) != 0;
+    if ( (unsigned int)(v132 - 1) <= 1 && !v148 && PartyHost_PartyRequiresOnlineSubscriptionForPlatform(party, (ClientPlatform)v136) )
     {
-      v206 = XUID::ToString(&result);
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting subscriptionless user (%s) because subscriptionless users are prohibited\n", party->partyName, v206);
-      __asm { vmovups xmm0, xmmword ptr [r15] }
-      v208 = _R15->addrHandleIndex;
-      __asm { vmovups [rbp+220h+var_290], xmm0 }
+      v149 = XUID::ToString(&result);
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting subscriptionless user (%s) because subscriptionless users are prohibited\n", party->partyName, v149);
+      v150 = from->addrHandleIndex;
+      v170 = *(_OWORD *)&from->type;
       *(XUID *)&xuid.type = result;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-      __asm
-      {
-        vmovups xmm0, [rbp+220h+var_290]
-        vmovups [rbp+220h+var_290], xmm0
-      }
-      v234 = v208;
-      v22 = (const XUID *)&xuid;
-      v23 = JOINRESPONSE_ERROR_SUBSCRIPTIONLESS_USERS_NOT_PERMITTED;
-      p_xuid = (netadr_t *)&v233;
+      v171 = v150;
+      v19 = (const XUID *)&xuid;
+      v20 = JOINRESPONSE_ERROR_SUBSCRIPTIONLESS_USERS_NOT_PERMITTED;
+      p_xuid = (netadr_t *)&v170;
       goto LABEL_190;
     }
     if ( Party_IsServerRunning(party) )
     {
-      v210 = Party_GetNumGameSlots(party);
+      v151 = Party_GetNumGameSlots(party);
       PartyData = Lobby_GetPartyData();
-      v212 = Party_CountMembersEvenIfInactive(PartyData, PARTY_MEMBER_TYPE_PLAYER_ONLY);
+      v153 = Party_CountMembersEvenIfInactive(PartyData, PARTY_MEMBER_TYPE_PLAYER_ONLY);
       if ( BG_Bots_IsBotMatchMakingAllowedForPlaylist() )
       {
         BotsReservedSlotsAllies = BG_Bots_GetBotsReservedSlotsAllies();
-        v214 = BG_Bots_GetBotsReservedSlotsAxis() + BotsReservedSlotsAllies;
+        v155 = BG_Bots_GetBotsReservedSlotsAxis() + BotsReservedSlotsAllies;
       }
       else
       {
-        v214 = 0;
+        v155 = 0;
       }
-      if ( v214 + v212 >= v210 )
+      if ( v155 + v153 >= v151 )
       {
-        v215 = XUID::ToDevString(&result);
-        Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) We're running a server, but the match is ranked or full.\n", party->partyName, v215);
-        __asm { vmovups xmm0, xmmword ptr [r15] }
-        v217 = _R15->addrHandleIndex;
-        __asm { vmovups [rbp+220h+var_290], xmm0 }
+        v156 = XUID::ToDevString(&result);
+        Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) We're running a server, but the match is ranked or full.\n", party->partyName, v156);
+        v157 = from->addrHandleIndex;
+        v170 = *(_OWORD *)&from->type;
         *(XUID *)&xuid.type = result;
         OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, result);
-        __asm
-        {
-          vmovups xmm0, [rbp+220h+var_290]
-          vmovups [rbp+220h+var_290], xmm0
-        }
-        v234 = v217;
-        v22 = (const XUID *)&xuid;
-        v23 = JOINRESPONSE_ERROR_GAME_FULL;
-        p_xuid = (netadr_t *)&v233;
+        v171 = v157;
+        v19 = (const XUID *)&xuid;
+        v20 = JOINRESPONSE_ERROR_GAME_FULL;
+        p_xuid = (netadr_t *)&v170;
         goto LABEL_190;
       }
     }
-    v219 = v235;
-    v220 = v239;
-    LODWORD(fmt) = v239;
-    Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Request for %i players in %i subparties to join the %s\n", party->partyName, v235, fmt, party->partyName);
-    __asm { vmovups xmm0, xmmword ptr [r15] }
-    xuid.addrHandleIndex = _R15->addrHandleIndex;
-    __asm { vmovups xmmword ptr [rsp+320h+xuid.m_id], xmm0 }
-    if ( !PartyAtomicHost_AddJoinRequest(party, *(_DWORD *)(v233 + 4), &xuid, result, v219, v179, v220, buffer, &challenge) )
+    v158 = v172;
+    v159 = v176;
+    LODWORD(fmt) = v176;
+    Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Request for %i players in %i subparties to join the %s\n", party->partyName, v172, fmt, party->partyName);
+    v160 = *(_OWORD *)&from->type;
+    xuid.addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&xuid.type = v160;
+    if ( !PartyAtomicHost_AddJoinRequest(party, *(_DWORD *)(v170 + 4), &xuid, result, v158, v132, v159, buffer, &challenge) )
       return;
-    v222 = XUID::ToDevString(&result);
-    Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Accepting incoming party member. XUID ( %s ) Sending 'pa_accept'.\n", party->partyName, v222);
+    v161 = XUID::ToDevString(&result);
+    Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Accepting incoming party member. XUID ( %s ) Sending 'pa_accept'.\n", party->partyName, v161);
 LABEL_134:
-    PartyAtomicHost_SendAcceptMessage(party, _R15, &challenge, result);
+    PartyAtomicHost_SendAcceptMessage(party, from, &challenge, result);
     return;
   }
   Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. We aren't accepting lobby connections.\n", party->partyName);
-  v18 = XUID::NullXUID((XUID *)&xuid);
-  __asm { vmovups xmm0, xmmword ptr [r15] }
-  v20 = _R15->addrHandleIndex;
-  __asm { vmovups xmmword ptr [rbp+220h+msg], xmm0 }
-  *(XUID *)&v233 = (XUID)v18->m_id;
-  OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v233);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+220h+msg]
-    vmovups xmmword ptr [rbp+220h+msg], xmm0
-  }
-  v237 = v20;
-  v22 = (const XUID *)&v233;
-  v23 = JOINRESPONSE_ERROR_DEBUG_DISABLED;
+  v17 = XUID::NullXUID((XUID *)&xuid);
+  v18 = from->addrHandleIndex;
+  *(_OWORD *)msga = *(_OWORD *)&from->type;
+  *(XUID *)&v170 = (XUID)v17->m_id;
+  OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v170);
+  v174 = v18;
+  v19 = (const XUID *)&v170;
+  v20 = JOINRESPONSE_ERROR_DEBUG_DISABLED;
   p_xuid = (netadr_t *)msga;
 LABEL_190:
-  PartyAtomicHost_SendJoinFailedResponseWithPayload(party, p_xuid, v23, v22, NULL, 0);
+  PartyAtomicHost_SendJoinFailedResponseWithPayload(party, p_xuid, v20, v19, NULL, 0);
 }
 
 /*
@@ -2537,55 +2344,55 @@ PartyAtomicHost_HandleMemberJoin
 */
 void PartyAtomicHost_HandleMemberJoin(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
-  const dvar_t *v9; 
-  XUID v10; 
+  const dvar_t *v8; 
+  XUID v9; 
   int addrHandleIndex; 
-  PartyJoinResponse v13; 
+  PartyJoinResponse v11; 
+  XUID v12; 
+  XUID v13; 
   XUID v14; 
-  XUID v16; 
-  XUID v18; 
   __int64 Bits; 
   unsigned int Byte; 
   unsigned int Short; 
-  const char *v23; 
+  const char *v18; 
   Online_BlockList *Instance; 
   int SplitscreenClientNumAtSameAddress; 
-  int v29; 
-  const char *v30; 
-  const XUID *v32; 
-  XUID *v33; 
-  const char *v34; 
-  const char *v35; 
-  const char *v37; 
+  int v21; 
+  const char *v22; 
+  const XUID *v23; 
+  XUID *v24; 
+  const char *v25; 
+  const char *v26; 
+  const char *v27; 
   int NumGameSlots; 
-  const char *v39; 
-  const char *v41; 
-  const char *v42; 
+  const char *v29; 
+  const char *v30; 
+  const char *v31; 
   unsigned __int8 ActiveGameMode; 
   bool ShouldJoinerGoToBRBlade; 
   __int64 MemberByXUID_AllowNotPresent; 
   unsigned __int8 *p_status; 
-  unsigned __int8 v47; 
+  unsigned __int8 v36; 
   const char *MemberName; 
   int FirstMemberAtAddr; 
-  __int64 v51; 
+  __int64 v39; 
   const char *MemberStatus; 
   unsigned __int8 status; 
-  unsigned int v58; 
-  unsigned int v59; 
-  unsigned int v60; 
-  unsigned __int8 *v61; 
+  unsigned int v42; 
+  unsigned int v43; 
+  unsigned int v44; 
+  unsigned __int8 *v45; 
   const char *String_Internal_DebugName; 
-  const char *v64; 
-  const char *v65; 
-  unsigned int v67; 
-  unsigned int v68; 
-  unsigned int v69; 
-  unsigned __int8 *v70; 
-  __int64 v71; 
-  unsigned __int8 v73; 
-  unsigned __int8 v74; 
-  const char *v77; 
+  const char *v47; 
+  const char *v48; 
+  unsigned int v49; 
+  unsigned int v50; 
+  unsigned int v51; 
+  unsigned __int8 *v52; 
+  __int64 v53; 
+  unsigned __int8 v54; 
+  unsigned __int8 v55; 
+  const char *v56; 
   char *fmt; 
   __int64 natType; 
   __int64 natTypea; 
@@ -2593,81 +2400,62 @@ void PartyAtomicHost_HandleMemberJoin(PartyData *party, const PartyActiveClient 
   ClientAuthoritativeMemberInfo *memberInfoa; 
   __int64 joinType; 
   __int64 joinTypea; 
-  __int64 v87; 
-  netadr_t v88; 
-  XUID v89; 
+  __int64 v64; 
+  netadr_t v65; 
+  XUID v66; 
   XUID xuid; 
-  unsigned int v91; 
+  unsigned int v68; 
   XUID result; 
   int isGuestAccount; 
-  XUID v94; 
+  XUID v71; 
   msg_t buf; 
-  __int64 v96; 
+  __int64 v73; 
   PartyJoinChallenge challenge; 
   bdSecurityID buffer; 
   ClientAuthoritativeMemberInfo privatePartyId; 
-  char v100[768]; 
-  unsigned int v101; 
+  char v77[768]; 
+  unsigned int v78; 
   unsigned __int8 data[64]; 
 
-  v96 = -2i64;
-  _RSI = from;
-  v89.m_id = (unsigned __int64)mainActiveClient;
+  v73 = -2i64;
+  v66.m_id = (unsigned __int64)mainActiveClient;
   XUID::XUID(&xuid);
   bdSecurityID::bdSecurityID(&buffer);
   bdSecurityID::bdSecurityID(&privatePartyId.privatePartyId);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+550h+var_500], xmm0
-  }
-  v88.addrHandleIndex = _RSI->addrHandleIndex;
-  if ( NET_IsLocalAddress(&v88) )
+  v65 = *from;
+  if ( NET_IsLocalAddress(&v65) )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. Sent memberJoin to ourself.\n", party->partyName);
     goto LABEL_143;
   }
-  v9 = DVARBOOL_party_rejectLobbyMemberJoin;
+  v8 = DVARBOOL_party_rejectLobbyMemberJoin;
   if ( !DVARBOOL_party_rejectLobbyMemberJoin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_rejectLobbyMemberJoin") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  if ( v9->current.enabled && Party_IsGameLobby(party) )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( v8->current.enabled && Party_IsGameLobby(party) )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming party member. Disabled by party_rejectLobbyMemberJoin.\n", party->partyName);
-    v10.m_id = XUID::NullXUID(&result)->m_id;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    addrHandleIndex = _RSI->addrHandleIndex;
-    v89.m_id = v10.m_id;
-    OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v10);
-    v13 = JOINRESPONSE_ERROR_DEBUG_DISABLED;
+    v9.m_id = XUID::NullXUID(&result)->m_id;
+    *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v66.m_id = v9.m_id;
+    OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v9);
+    v11 = JOINRESPONSE_ERROR_DEBUG_DISABLED;
 LABEL_142:
-    __asm
-    {
-      vmovups xmm0, [rsp+550h+var_500]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    v88.addrHandleIndex = addrHandleIndex;
-    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v88, v13, &v89, NULL, 0);
+    v65.addrHandleIndex = addrHandleIndex;
+    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v65, v11, &v66, NULL, 0);
     goto LABEL_143;
   }
   if ( !party->inParty )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming party member. Received memberJoin but we are not in a party.\n", party->partyName);
 LABEL_11:
-    v14.m_id = XUID::NullXUID(&result)->m_id;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    addrHandleIndex = _RSI->addrHandleIndex;
-    v89.m_id = v14.m_id;
-    OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v14);
-    v13 = JOINRESPONSE_ERROR_HOST_NOT_HOSTING;
+    v12.m_id = XUID::NullXUID(&result)->m_id;
+    *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v66.m_id = v12.m_id;
+    OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v12);
+    v11 = JOINRESPONSE_ERROR_HOST_NOT_HOSTING;
     goto LABEL_142;
   }
   if ( !party->areWeHost )
@@ -2678,31 +2466,23 @@ LABEL_11:
   if ( !Party_IsServerRunning(party) && !Party_IsRunning(party) )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming party member. Got stray memberJoin message.\n", party->partyName);
-    v16.m_id = XUID::NullXUID(&result)->m_id;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    addrHandleIndex = _RSI->addrHandleIndex;
-    v89.m_id = v16.m_id;
-    OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v16);
-    v13 = JOINRESPONSE_ERROR_HOST_NOT_HOSTING_PARTY;
+    v13.m_id = XUID::NullXUID(&result)->m_id;
+    *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v66.m_id = v13.m_id;
+    OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v13);
+    v11 = JOINRESPONSE_ERROR_HOST_NOT_HOSTING_PARTY;
     goto LABEL_142;
   }
   if ( SV_IsMigrating() )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming party member. Our game is migrating hosts\n", party->partyName);
-    v18.m_id = XUID::NullXUID(&result)->m_id;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    addrHandleIndex = _RSI->addrHandleIndex;
-    v89.m_id = v18.m_id;
-    OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v18);
-    v13 = JOINRESPONSE_ERROR_GAME_MIGRATING;
+    v14.m_id = XUID::NullXUID(&result)->m_id;
+    *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v66.m_id = v14.m_id;
+    OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v14);
+    v11 = JOINRESPONSE_ERROR_GAME_MIGRATING;
     goto LABEL_142;
   }
   if ( !msg && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8249, ASSERT_TYPE_ASSERT, "(msg)", (const char *)&queryFormat, "msg") )
@@ -2717,46 +2497,37 @@ LABEL_11:
   if ( Live_IsInSystemlinkLobby() )
     LODWORD(Bits) = 1;
   Byte = MSG_ReadByte(msg);
-  v91 = Byte;
+  v68 = Byte;
   memset_0(&privatePartyId, 0, sizeof(privatePartyId));
   Party_ReadMemberInfo(msg, &privatePartyId, xuid);
   PlayercardCache_MarkPartyDirty(mainActiveClient->localControllerIndex, 3);
   Short = MSG_ReadShort(msg);
-  v101 = Short;
+  v78 = Short;
   if ( Short > 0x300 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8377, ASSERT_TYPE_ASSERT, "(authTicket.ticketSize <= 768)", (const char *)&queryFormat, "authTicket.ticketSize <= P2P_AUTH_TICKET_SIZE_MAX") )
       __debugbreak();
-    Short = v101;
+    Short = v78;
   }
   if ( Short )
-    MSG_ReadData(msg, Short, v100, 768);
+    MSG_ReadData(msg, Short, v77, 768);
   if ( msg->overflowed || msg->readcount != msg->cursize + msg->splitSize )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    v88.addrHandleIndex = _RSI->addrHandleIndex;
-    v77 = NET_AdrToString(&v88);
-    Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming party member - invalid packet (%s)\n", party->partyName, v77);
+    v65 = *from;
+    v56 = NET_AdrToString(&v65);
+    Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming party member - invalid packet (%s)\n", party->partyName, v56);
     goto LABEL_141;
   }
   if ( XUID::IsNull(&xuid) )
   {
-    v23 = XUID::ToDevString(&xuid);
-    Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming party member - invalid xuid %s\n", party->partyName, v23);
+    v18 = XUID::ToDevString(&xuid);
+    Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming party member - invalid xuid %s\n", party->partyName, v18);
 LABEL_141:
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    addrHandleIndex = _RSI->addrHandleIndex;
-    v89.m_id = xuid.m_id;
+    *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v66.m_id = xuid.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, xuid);
-    v13 = JOINRESPONSE_ERROR_BAD_REQUEST_PACKET;
+    v11 = JOINRESPONSE_ERROR_BAD_REQUEST_PACKET;
     goto LABEL_142;
   }
   if ( (unsigned int)(Bits - 1) > 2 )
@@ -2767,116 +2538,85 @@ LABEL_141:
   if ( Byte - 1 > 5 )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. Bad join type %i\n", party->partyName, Byte);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    addrHandleIndex = _RSI->addrHandleIndex;
-    v89.m_id = xuid.m_id;
+    *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v66.m_id = xuid.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, xuid);
-    v13 = JOINRESPONSE_ERROR_BAD_REQUEST_TYPE;
+    v11 = JOINRESPONSE_ERROR_BAD_REQUEST_TYPE;
     goto LABEL_142;
   }
   Instance = Online_BlockList::GetInstance();
   if ( Online_BlockList::IsBlocked(Instance, mainActiveClient->localControllerIndex, xuid) )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. On hosts blocklist\n", party->partyName);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    addrHandleIndex = _RSI->addrHandleIndex;
-    v89.m_id = xuid.m_id;
+    *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v66.m_id = xuid.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, xuid);
-    v13 = JOINRESPONSE_ERROR_USER_IN_HOSTS_BLOCKLIST;
+    v11 = JOINRESPONSE_ERROR_USER_IN_HOSTS_BLOCKLIST;
     goto LABEL_142;
   }
   if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_party_check_mm_on_member_join, "party_check_mm_on_member_join") && OnlineMatchmakerOmniscient::IsMatchmaking(&OnlineMatchmakerOmniscient::ms_instance) )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    v88.addrHandleIndex = _RSI->addrHandleIndex;
-    if ( Net_IsSplitscreenAdr(&v88) )
+    v65 = *from;
+    if ( Net_IsSplitscreenAdr(&v65) )
     {
       if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_party_check_mm_on_splitscreen_member_join, "party_check_mm_on_splitscreen_member_join") )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups [rsp+550h+var_500], xmm0
-        }
-        v88.addrHandleIndex = _RSI->addrHandleIndex;
-        SplitscreenClientNumAtSameAddress = Party_GetSplitscreenClientNumAtSameAddress(party, &v88);
-        v29 = SplitscreenClientNumAtSameAddress;
+        v65 = *from;
+        SplitscreenClientNumAtSameAddress = Party_GetSplitscreenClientNumAtSameAddress(party, &v65);
+        v21 = SplitscreenClientNumAtSameAddress;
         if ( SplitscreenClientNumAtSameAddress == -1 )
         {
-          v30 = XUID::ToDevString(&xuid);
-          Com_PrintError(131097, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming splitscreen party member. XUID ( %s ) We are matchmaking and the primary player was not found in the party.\n", party->partyName, v30);
+          v22 = XUID::ToDevString(&xuid);
+          Com_PrintError(131097, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming splitscreen party member. XUID ( %s ) We are matchmaking and the primary player was not found in the party.\n", party->partyName, v22);
 LABEL_47:
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups [rsp+550h+var_500], xmm0
-          }
-          addrHandleIndex = _RSI->addrHandleIndex;
-          v89.m_id = xuid.m_id;
+          *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+          addrHandleIndex = from->addrHandleIndex;
+          v66.m_id = xuid.m_id;
           OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, xuid);
-          v13 = JOINRESPONSE_ERROR_BAD_REQUEST_NOT_APPROVED_BY_MATCHMAKER;
+          v11 = JOINRESPONSE_ERROR_BAD_REQUEST_NOT_APPROVED_BY_MATCHMAKER;
           goto LABEL_142;
         }
-        v32 = Party_GetXuid(&result, party, SplitscreenClientNumAtSameAddress);
-        if ( !OnlineMatchmakerOmniscient::IsSplitscreenPlayerAllowedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v32->m_id) )
+        v23 = Party_GetXuid(&result, party, SplitscreenClientNumAtSameAddress);
+        if ( !OnlineMatchmakerOmniscient::IsSplitscreenPlayerAllowedToJoin(&OnlineMatchmakerOmniscient::ms_instance, (const XUID)v23->m_id) )
         {
-          v33 = Party_GetXuid(&v89, party, v29);
-          v34 = XUID::ToDevString(v33);
-          v35 = XUID::ToDevString(&xuid);
-          Com_PrintError(131097, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming splitscreen party member. XUID ( %s ) We are matchmaking and the primary player ( %s ) has not requested a slot during matchmaking.\n", party->partyName, v35, v34);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups [rsp+550h+var_500], xmm0
-          }
-          addrHandleIndex = _RSI->addrHandleIndex;
-          v89.m_id = xuid.m_id;
+          v24 = Party_GetXuid(&v66, party, v21);
+          v25 = XUID::ToDevString(v24);
+          v26 = XUID::ToDevString(&xuid);
+          Com_PrintError(131097, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming splitscreen party member. XUID ( %s ) We are matchmaking and the primary player ( %s ) has not requested a slot during matchmaking.\n", party->partyName, v26, v25);
+          *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+          addrHandleIndex = from->addrHandleIndex;
+          v66.m_id = xuid.m_id;
           OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, xuid);
-          v13 = JOINRESPONSE_ERROR_BAD_REQUEST_NOT_APPROVED_BY_MATCHMAKER;
+          v11 = JOINRESPONSE_ERROR_BAD_REQUEST_NOT_APPROVED_BY_MATCHMAKER;
           goto LABEL_142;
         }
       }
     }
     else if ( !OnlineMatchmakerOmniscient::IsPlayerAllowedToJoin(&OnlineMatchmakerOmniscient::ms_instance, xuid) )
     {
-      v37 = XUID::ToDevString(&xuid);
-      Com_PrintError(131097, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming party member. XUID ( %s ) We are matchmaking and the XUID has not been whitelisted by Demonware.\n", party->partyName, v37);
+      v27 = XUID::ToDevString(&xuid);
+      Com_PrintError(131097, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming party member. XUID ( %s ) We are matchmaking and the XUID has not been whitelisted by Demonware.\n", party->partyName, v27);
       goto LABEL_47;
     }
   }
   NumGameSlots = Party_GetNumGameSlots(party);
   LODWORD(result.m_id) = NumGameSlots;
-  v39 = XUID::ToDevString(&xuid);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+550h+var_500], xmm0
-  }
-  v88.addrHandleIndex = _RSI->addrHandleIndex;
-  v41 = NET_AdrToString(&v88);
-  Com_Printf(25, "[%s] PartyJoin - HandleMemberJoin - Received 'pa_memberjoin' from '%s' (%s)\n", party->partyName, v41, v39);
+  v29 = XUID::ToDevString(&xuid);
+  v65 = *from;
+  v30 = NET_AdrToString(&v65);
+  Com_Printf(25, "[%s] PartyJoin - HandleMemberJoin - Received 'pa_memberjoin' from '%s' (%s)\n", party->partyName, v30, v29);
   MSG_Init(&buf, data, 64);
-  v42 = j_va("%i%s", (unsigned int)party->partyId, "pa_joined");
-  MSG_WriteString(&buf, v42);
+  v31 = j_va("%i%s", (unsigned int)party->partyId, "pa_joined");
+  MSG_WriteString(&buf, v31);
   ActiveGameMode = Com_GameMode_GetActiveGameMode();
   MSG_WriteByte(&buf, ActiveGameMode);
   ShouldJoinerGoToBRBlade = PartyHost_ShouldJoinerGoToBRBlade(party);
   MSG_WriteBool(&buf, !ShouldJoinerGoToBRBlade);
   MSG_WriteBool(&buf, party->party_systemActive == 0);
-  XUID::NullXUID(&v94);
-  XUID::Serialize(&v94, &buf);
+  XUID::NullXUID(&v71);
+  XUID::Serialize(&v71, &buf);
   if ( buf.overflowed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8484, ASSERT_TYPE_ASSERT, "(!MSG_IsOverflowed( &replyMsg ))", (const char *)&queryFormat, "!MSG_IsOverflowed( &replyMsg )") )
     __debugbreak();
   MemberByXUID_AllowNotPresent = Party_FindMemberByXUID_AllowNotPresent(party, xuid);
@@ -2890,43 +2630,33 @@ LABEL_47:
         __debugbreak();
     }
     p_status = &party->partyMembers[MemberByXUID_AllowNotPresent].status;
-    v47 = *p_status;
+    v36 = *p_status;
     if ( *p_status == 1 )
     {
 LABEL_76:
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups [rsp+550h+var_500], xmm0
-      }
-      v88.addrHandleIndex = _RSI->addrHandleIndex;
-      PartyHost_ReviveLostPartyMember(party, MemberByXUID_AllowNotPresent, &v88);
+      v65 = *from;
+      PartyHost_ReviveLostPartyMember(party, MemberByXUID_AllowNotPresent, &v65);
 LABEL_77:
       if ( NumGameSlots <= Party_CountMembersEvenIfInactive(party, PARTY_MEMBER_TYPE_PLAYER_ONLY) )
       {
-        LODWORD(v87) = Party_CountMembersEvenIfInactive(party, PARTY_MEMBER_TYPE_PLAYER_ONLY);
+        LODWORD(v64) = Party_CountMembersEvenIfInactive(party, PARTY_MEMBER_TYPE_PLAYER_ONLY);
         LODWORD(joinType) = NumGameSlots;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8509, ASSERT_TYPE_ASSERT, "( totalSlots ) > ( Party_CountMembersEvenIfInactive( party, PARTY_MEMBER_TYPE_PLAYER_ONLY ) )", "%s > %s\n\t%i, %i", "totalSlots", "Party_CountMembersEvenIfInactive( party, PARTY_MEMBER_TYPE_PLAYER_ONLY )", joinType, v87) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8509, ASSERT_TYPE_ASSERT, "( totalSlots ) > ( Party_CountMembersEvenIfInactive( party, PARTY_MEMBER_TYPE_PLAYER_ONLY ) )", "%s > %s\n\t%i, %i", "totalSlots", "Party_CountMembersEvenIfInactive( party, PARTY_MEMBER_TYPE_PLAYER_ONLY )", joinType, v64) )
           __debugbreak();
       }
       LODWORD(fmt) = *p_status;
       Com_Printf(25, "[%s] PartyJoin - HandleMemberJoin - Received duplicate memberJoin message from joined client %i (current status %i). Telling them to commit.\n", party->partyName, (unsigned int)MemberByXUID_AllowNotPresent, fmt);
       PartyHost_MarkPacketReceivedForJoiningPlayer(party, xuid, &challenge, &privatePartyId.privatePartyId);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups [rsp+550h+var_500], xmm0
-      }
-      v88.addrHandleIndex = _RSI->addrHandleIndex;
-      PartyHost_ReceivedUpdatedMemberInfo(party, *(_DWORD *)(v89.m_id + 4), MemberByXUID_AllowNotPresent, &v88, &privatePartyId);
-      RMsg_AddMessage(_RSI, &buf, NS_MAXCLIENTS);
+      v65 = *from;
+      PartyHost_ReceivedUpdatedMemberInfo(party, *(_DWORD *)(v66.m_id + 4), MemberByXUID_AllowNotPresent, &v65, &privatePartyId);
+      RMsg_AddMessage(from, &buf, NS_MAXCLIENTS);
       goto LABEL_143;
     }
-    if ( v47 > 2u )
+    if ( v36 > 2u )
     {
-      if ( v47 <= 4u )
+      if ( v36 <= 4u )
         goto LABEL_77;
-      if ( v47 == 5 )
+      if ( v36 == 5 )
       {
         if ( Com_IsGameLocalServerRunning() )
         {
@@ -2938,31 +2668,26 @@ LABEL_77:
         goto LABEL_76;
       }
     }
-    LODWORD(natType) = v47;
+    LODWORD(natType) = v36;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8517, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected party status %i", natType) )
       __debugbreak();
-    Byte = v91;
+    Byte = v68;
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovups [rsp+550h+var_500], xmm0
-  }
-  v88.addrHandleIndex = _RSI->addrHandleIndex;
-  FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, &v88);
-  v51 = FirstMemberAtAddr;
+  v65 = *from;
+  FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, &v65);
+  v39 = FirstMemberAtAddr;
   if ( FirstMemberAtAddr >= 0 )
   {
     MemberStatus = Party_GetMemberStatus(party, FirstMemberAtAddr);
-    Com_Printf(25, "[%s] PartyJoin - HandleMemberJoin - Player in slot %i (status %s) requested to join with a different XUID through the same address.\n", party->partyName, (unsigned int)v51, MemberStatus);
-    if ( (unsigned int)v51 >= 0xC8 )
+    Com_Printf(25, "[%s] PartyJoin - HandleMemberJoin - Player in slot %i (status %s) requested to join with a different XUID through the same address.\n", party->partyName, (unsigned int)v39, MemberStatus);
+    if ( (unsigned int)v39 >= 0xC8 )
     {
       LODWORD(memberInfo) = 200;
-      LODWORD(natType) = v51;
+      LODWORD(natType) = v39;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8530, ASSERT_TYPE_ASSERT, "(unsigned)( oldMemberIndex ) < (unsigned)( 200 )", "oldMemberIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", natType, memberInfo) )
         __debugbreak();
     }
-    status = party->partyMembers[v51].status;
+    status = party->partyMembers[v39].status;
     if ( ((status - 1) & 0xFD) != 0 )
     {
       if ( (unsigned __int8)(status - 4) > 1u )
@@ -2974,42 +2699,34 @@ LABEL_77:
       }
       if ( Com_IsGameLocalServerRunning() )
       {
-        CL_Live_RequestClientDrop(v51, SV_LIVE_DROP_INACTIVE, "rejoin");
+        CL_Live_RequestClientDrop(v39, SV_LIVE_DROP_INACTIVE, "rejoin");
         Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Silently rejecting incoming party member. They will be dropped from our game if inactive\n", party->partyName);
         goto LABEL_143;
       }
     }
     Com_Printf(25, "[%s] PartyJoin - HandleMemberJoin - Dropping existing player.\n", party->partyName);
-    PartyHost_RemovePlayer(party, v51, 0, "rejoin", NET_CLOSE_SOFT);
+    PartyHost_RemovePlayer(party, v39, 0, "rejoin", NET_CLOSE_SOFT);
   }
 LABEL_84:
   if ( NumGameSlots <= Party_CountMembersEvenIfInactive(party, PARTY_MEMBER_TYPE_PLAYER_ONLY) )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Not enough slots for another player - telling the client that the connection failed\n", party->partyName);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    addrHandleIndex = _RSI->addrHandleIndex;
-    v89.m_id = xuid.m_id;
+    *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v66.m_id = xuid.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, xuid);
-    v13 = JOINRESPONSE_ERROR_GAME_FULL;
+    v11 = JOINRESPONSE_ERROR_GAME_FULL;
     goto LABEL_142;
   }
   if ( !PartyHost_CountOpenSlots(party) )
   {
     LODWORD(fmt) = Byte;
     Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Not enough slots for another public player. Telling the client that the connection failed. There were %i total slots. joinType was %i.\n", party->partyName, (unsigned int)NumGameSlots, fmt);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    addrHandleIndex = _RSI->addrHandleIndex;
-    v89.m_id = xuid.m_id;
+    *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v66.m_id = xuid.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, xuid);
-    v13 = JOINRESPONSE_ERROR_GAME_FULL_NO_PUBLIC_SLOTS;
+    v11 = JOINRESPONSE_ERROR_GAME_FULL_NO_PUBLIC_SLOTS;
     goto LABEL_142;
   }
   if ( Party_UsingPartyBasedTeams(party) )
@@ -3018,36 +2735,32 @@ LABEL_84:
       __debugbreak();
     if ( party->subpartyCount > 1 )
     {
-      v58 = Party_GetNumGameSlots(party);
-      v59 = v58;
-      if ( v58 > 0xC8 )
+      v42 = Party_GetNumGameSlots(party);
+      v43 = v42;
+      if ( v42 > 0xC8 )
       {
-        LODWORD(natType) = v58;
+        LODWORD(natType) = v42;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 2034, ASSERT_TYPE_ASSERT, "( ( totalSlots <= 200 ) )", "( totalSlots ) = %i", natType) )
           __debugbreak();
       }
-      v60 = 0;
-      if ( !v59 )
+      v44 = 0;
+      if ( !v43 )
       {
 LABEL_101:
         Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Using party based teams - there are already %i subparties.\n", party->partyName, party->subpartyCount);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rsi]
-          vmovups [rsp+550h+var_500], xmm0
-        }
-        addrHandleIndex = _RSI->addrHandleIndex;
-        v89.m_id = xuid.m_id;
+        *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+        addrHandleIndex = from->addrHandleIndex;
+        v66.m_id = xuid.m_id;
         OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, xuid);
-        v13 = JOINRESPONSE_ERROR_GAME_FULL_PARTY_TEAM_COUNT;
+        v11 = JOINRESPONSE_ERROR_GAME_FULL_PARTY_TEAM_COUNT;
         goto LABEL_142;
       }
-      v61 = &party->partyMembers[0].status;
-      while ( (*v61 & 0xFD) == 0 || *(_QWORD *)&party->partyMembers[v60].info.privatePartyId != *(_QWORD *)&privatePartyId.privatePartyId )
+      v45 = &party->partyMembers[0].status;
+      while ( (*v45 & 0xFD) == 0 || *(_QWORD *)&party->partyMembers[v44].info.privatePartyId != *(_QWORD *)&privatePartyId.privatePartyId )
       {
-        ++v60;
-        v61 += 504;
-        if ( v60 >= v59 )
+        ++v44;
+        v45 += 504;
+        if ( v44 >= v43 )
           goto LABEL_101;
       }
     }
@@ -3057,101 +2770,93 @@ LABEL_101:
     String_Internal_DebugName = Dvar_GetString_Internal_DebugName(DVARSTR_ui_gametype, "ui_gametype");
     if ( !Live_CanGameTypeBePlayedOnPlatform(String_Internal_DebugName, (ClientPlatform)(unsigned __int8)privatePartyId.platform[0]) )
     {
-      v64 = Dvar_GetString_Internal_DebugName(DVARSTR_ui_gametype, "ui_gametype");
-      v65 = XUID::ToDevString(&xuid);
+      v47 = Dvar_GetString_Internal_DebugName(DVARSTR_ui_gametype, "ui_gametype");
+      v48 = XUID::ToDevString(&xuid);
       LODWORD(natType) = (char)privatePartyId.platform[0];
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming party member. XUID ( %s ) because the game type we are playing now %s is not accessible to the joiner's platform %d.\n", party->partyName, v65, v64, natType);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups [rsp+550h+var_500], xmm0
-      }
-      addrHandleIndex = _RSI->addrHandleIndex;
-      v89.m_id = xuid.m_id;
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting incoming party member. XUID ( %s ) because the game type we are playing now %s is not accessible to the joiner's platform %d.\n", party->partyName, v48, v47, natType);
+      *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+      addrHandleIndex = from->addrHandleIndex;
+      v66.m_id = xuid.m_id;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, xuid);
-      v13 = JOINRESPONSE_ERROR_ACCESS_DENIED_FOR_GAME_TYPE;
+      v11 = JOINRESPONSE_ERROR_ACCESS_DENIED_FOR_GAME_TYPE;
       goto LABEL_142;
     }
   }
-  v67 = Party_GetNumGameSlots(party);
-  v68 = v67;
-  if ( v67 > 0xC8 )
+  v49 = Party_GetNumGameSlots(party);
+  v50 = v49;
+  if ( v49 > 0xC8 )
   {
-    LODWORD(natType) = v67;
+    LODWORD(natType) = v49;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8225, ASSERT_TYPE_ASSERT, "( ( totalSlots <= 200 ) )", "( totalSlots ) = %i", natType) )
       __debugbreak();
   }
-  v69 = 0;
-  if ( !v68 )
+  v51 = 0;
+  if ( !v50 )
   {
 LABEL_116:
     Com_PrintError(25, "[%s] PartyJoin - HandleMemberJoin - Invalid challenge %s\n", party->partyName, challenge.str);
     Com_PrintError(25, "[%s] PartyJoin - HandleMemberJoin - Could not find slot for challenge provided\n", party->partyName);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsi]
-      vmovups [rsp+550h+var_500], xmm0
-    }
-    addrHandleIndex = _RSI->addrHandleIndex;
-    v89.m_id = xuid.m_id;
+    *(_OWORD *)&v65.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v66.m_id = xuid.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, xuid);
-    v13 = JOINRESPONSE_ERROR_GAME_BAD_CHALLENGE;
+    v11 = JOINRESPONSE_ERROR_GAME_BAD_CHALLENGE;
     goto LABEL_142;
   }
-  v70 = &party->partyMembers[0].status;
+  v52 = &party->partyMembers[0].status;
   while ( 1 )
   {
-    if ( *v70 == 2 )
+    if ( *v52 == 2 )
     {
-      v71 = v69;
-      if ( *(_DWORD *)party->partyMembers[v71].challenge == *(_DWORD *)challenge.str && party->partyMembers[v71].challenge[4] == challenge.str[4] )
+      v53 = v51;
+      if ( *(_DWORD *)party->partyMembers[v53].challenge == *(_DWORD *)challenge.str && party->partyMembers[v53].challenge[4] == challenge.str[4] )
         break;
     }
-    ++v69;
-    v70 += 504;
-    if ( v69 >= v68 )
+    ++v51;
+    v52 += 504;
+    if ( v51 >= v50 )
       goto LABEL_116;
   }
-  Com_Printf(25, "[%s] PartyJoin - HandleMemberJoin - Claiming memberIndex %i for challenge %s\n", party->partyName, v69, challenge.str);
-  v73 = party->partyMembers[v69].status;
-  if ( v73 != 2 )
+  Com_Printf(25, "[%s] PartyJoin - HandleMemberJoin - Claiming memberIndex %i for challenge %s\n", party->partyName, v51, challenge.str);
+  v54 = party->partyMembers[v51].status;
+  if ( v54 != 2 )
   {
-    LODWORD(v87) = 2;
-    LODWORD(joinType) = v73;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8602, ASSERT_TYPE_ASSERT, "( party->partyMembers[newMemberIndex].status ) == ( PARTYSTATUS_ANONYMOUS )", "%s == %s\n\t%i, %i", "party->partyMembers[newMemberIndex].status", "PARTYSTATUS_ANONYMOUS", joinType, v87) )
+    LODWORD(v64) = 2;
+    LODWORD(joinType) = v54;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8602, ASSERT_TYPE_ASSERT, "( party->partyMembers[newMemberIndex].status ) == ( PARTYSTATUS_ANONYMOUS )", "%s == %s\n\t%i, %i", "party->partyMembers[newMemberIndex].status", "PARTYSTATUS_ANONYMOUS", joinType, v64) )
       __debugbreak();
   }
-  PartyHost_AddPlayerAtSlot_Internal(party, *(_DWORD *)(v89.m_id + 4), v69, &xuid, isGuestAccount, Bits, &privatePartyId, v91);
-  if ( Party_IsMemberRegistered(party, v69) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8604, ASSERT_TYPE_ASSERT, "(!Party_IsMemberRegistered( party, newMemberIndex ))", (const char *)&queryFormat, "!Party_IsMemberRegistered( party, newMemberIndex )") )
+  PartyHost_AddPlayerAtSlot_Internal(party, *(_DWORD *)(v66.m_id + 4), v51, &xuid, isGuestAccount, Bits, &privatePartyId, v68);
+  if ( Party_IsMemberRegistered(party, v51) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8604, ASSERT_TYPE_ASSERT, "(!Party_IsMemberRegistered( party, newMemberIndex ))", (const char *)&queryFormat, "!Party_IsMemberRegistered( party, newMemberIndex )") )
     __debugbreak();
-  if ( PartyHost_AcceptConnection(party, v69, _RSI) )
+  if ( PartyHost_AcceptConnection(party, v51, from) )
   {
-    if ( v69 != Party_FindMemberByXUID_AllowNotPresent(party, xuid) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8613, ASSERT_TYPE_ASSERT, "(newMemberIndex == static_cast<uint>( Party_FindMemberByXUID_AllowNotPresent( party, xuid ) ))", "%s\n\tFailed to add member in the returned slot", "newMemberIndex == static_cast<uint>( Party_FindMemberByXUID_AllowNotPresent( party, xuid ) )") )
+    if ( v51 != Party_FindMemberByXUID_AllowNotPresent(party, xuid) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8613, ASSERT_TYPE_ASSERT, "(newMemberIndex == static_cast<uint>( Party_FindMemberByXUID_AllowNotPresent( party, xuid ) ))", "%s\n\tFailed to add member in the returned slot", "newMemberIndex == static_cast<uint>( Party_FindMemberByXUID_AllowNotPresent( party, xuid ) )") )
       __debugbreak();
-    if ( v69 >= LODWORD(result.m_id) )
+    if ( v51 >= LODWORD(result.m_id) )
     {
       LODWORD(memberInfoa) = result.m_id;
-      LODWORD(natTypea) = v69;
+      LODWORD(natTypea) = v51;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8614, ASSERT_TYPE_ASSERT, "(unsigned)( newMemberIndex ) < (unsigned)( totalSlots )", "newMemberIndex doesn't index totalSlots\n\t%i not in [0, %i)", natTypea, memberInfoa) )
         __debugbreak();
     }
-    v74 = party->partyMembers[v69].status;
-    if ( v74 != 3 )
+    v55 = party->partyMembers[v51].status;
+    if ( v55 != 3 )
     {
-      LODWORD(v87) = 3;
-      LODWORD(joinTypea) = v74;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8615, ASSERT_TYPE_ASSERT, "( party->partyMembers[newMemberIndex].status ) == ( PARTYSTATUS_JOINED )", "%s == %s\n\t%i, %i", "party->partyMembers[newMemberIndex].status", "PARTYSTATUS_JOINED", joinTypea, v87) )
+      LODWORD(v64) = 3;
+      LODWORD(joinTypea) = v55;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8615, ASSERT_TYPE_ASSERT, "( party->partyMembers[newMemberIndex].status ) == ( PARTYSTATUS_JOINED )", "%s == %s\n\t%i, %i", "party->partyMembers[newMemberIndex].status", "PARTYSTATUS_JOINED", joinTypea, v64) )
         __debugbreak();
     }
-    if ( *(_QWORD *)&privatePartyId.privatePartyId != *(_QWORD *)&party->partyMembers[v69].info.privatePartyId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8616, ASSERT_TYPE_ASSERT, "(I_memcmp( &memberInfo.privatePartyId.ab, &party->partyMembers[newMemberIndex].info.privatePartyId.ab, sizeof( XNKID ) ) == 0)", (const char *)&queryFormat, "I_memcmp( &memberInfo.privatePartyId.ab, &party->partyMembers[newMemberIndex].info.privatePartyId.ab, sizeof( XNKID ) ) == 0") )
+    if ( *(_QWORD *)&privatePartyId.privatePartyId != *(_QWORD *)&party->partyMembers[v51].info.privatePartyId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8616, ASSERT_TYPE_ASSERT, "(I_memcmp( &memberInfo.privatePartyId.ab, &party->partyMembers[newMemberIndex].info.privatePartyId.ab, sizeof( XNKID ) ) == 0)", (const char *)&queryFormat, "I_memcmp( &memberInfo.privatePartyId.ab, &party->partyMembers[newMemberIndex].info.privatePartyId.ab, sizeof( XNKID ) ) == 0") )
       __debugbreak();
     PartyHost_MarkPacketReceivedForJoiningPlayer(party, xuid, &challenge, &privatePartyId.privatePartyId);
-    RMsg_AddMessage(_RSI, &buf, NS_MAXCLIENTS);
-    PartyChat_ClearMemberPartyChataData(party, v69);
+    RMsg_AddMessage(from, &buf, NS_MAXCLIENTS);
+    PartyChat_ClearMemberPartyChataData(party, v51);
   }
   else
   {
-    PartyHost_HandleFailedAccept(party, v69, &xuid, _RSI);
+    PartyHost_HandleFailedAccept(party, v51, &xuid, from);
   }
 LABEL_143:
   bdSecurityID::~bdSecurityID(&privatePartyId.privatePartyId);
@@ -3165,50 +2870,44 @@ PartyAtomicHost_HandleMemberCommit
 */
 void PartyAtomicHost_HandleMemberCommit(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
-  XUID v9; 
+  XUID v8; 
   int addrHandleIndex; 
-  PartyJoinResponse v12; 
-  bool v14; 
+  PartyJoinResponse v10; 
+  bool v11; 
   __int64 MemberByXUID_AllowNotPresent; 
-  bdSecurityID v16; 
-  const char *v17; 
-  const char *v19; 
-  PartyMember *v21; 
-  XUID v22; 
-  int v24; 
+  bdSecurityID v13; 
+  const char *v14; 
+  const char *v15; 
+  PartyMember *v16; 
+  XUID v17; 
+  int v18; 
   bdSecurityID *SecurityId; 
   unsigned __int8 status; 
-  const char *v28; 
+  const char *v21; 
+  int v22; 
+  const char *v23; 
+  const char *v24; 
+  int v25; 
+  unsigned __int8 v26; 
+  bool v27; 
+  int v28; 
+  bdSecurityID *v29; 
   int v30; 
-  const char *v33; 
-  const char *v35; 
-  int v37; 
-  unsigned __int8 v39; 
-  bool v41; 
-  int v43; 
-  bdSecurityID *v45; 
-  int v47; 
-  __int64 v48; 
-  __int64 v49; 
-  netadr_t v50; 
-  XUID v51; 
+  __int64 v31; 
+  __int64 v32; 
+  netadr_t v33; 
+  XUID v34; 
   XUID player; 
-  bool v53; 
+  bool v36; 
   XUID result; 
-  __int64 v55; 
+  __int64 v38; 
   bdSecurityID buffer; 
 
-  v55 = -2i64;
-  _R14 = from;
+  v38 = -2i64;
   XUID::XUID(&player);
   bdSecurityID::bdSecurityID(&buffer);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups [rbp+57h+var_A0], xmm0
-  }
-  v50.addrHandleIndex = _R14->addrHandleIndex;
-  if ( NET_IsLocalAddress(&v50) )
+  v33 = *from;
+  if ( NET_IsLocalAddress(&v33) )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Stray commit message. Sent join request to ourself.\n", party->partyName);
     goto LABEL_76;
@@ -3217,21 +2916,15 @@ void PartyAtomicHost_HandleMemberCommit(PartyData *party, const PartyActiveClien
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberCommit - Stray commit message. We are not in a party.\n", party->partyName);
 LABEL_7:
-    v9.m_id = XUID::NullXUID(&result)->m_id;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    addrHandleIndex = _R14->addrHandleIndex;
-    v51.m_id = v9.m_id;
-    OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v9);
-    v12 = JOINRESPONSE_ERROR_HOST_NOT_HOSTING;
+    v8.m_id = XUID::NullXUID(&result)->m_id;
+    *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v34.m_id = v8.m_id;
+    OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v8);
+    v10 = JOINRESPONSE_ERROR_HOST_NOT_HOSTING;
 LABEL_8:
-    __asm { vmovups xmm0, [rbp+57h+var_A0] }
-    v50.addrHandleIndex = addrHandleIndex;
-    __asm { vmovups [rbp+57h+var_A0], xmm0 }
-    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v50, v12, &v51, NULL, 0);
+    v33.addrHandleIndex = addrHandleIndex;
+    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v33, v10, &v34, NULL, 0);
     goto LABEL_76;
   }
   if ( !party->areWeHost )
@@ -3241,235 +2934,174 @@ LABEL_8:
   }
   XUID::Deserialize(&player, msg);
   MSG_ReadData(msg, 8, &buffer, 8);
-  v14 = MSG_ReadBit(msg) != 0;
-  v53 = MSG_ReadBit(msg) != 0;
+  v11 = MSG_ReadBit(msg) != 0;
+  v36 = MSG_ReadBit(msg) != 0;
   MemberByXUID_AllowNotPresent = Party_FindMemberByXUID_AllowNotPresent(party, player);
-  v16 = buffer;
-  v17 = XUID::ToDevString(&player);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups [rbp+57h+var_A0], xmm0
-  }
-  v50.addrHandleIndex = _R14->addrHandleIndex;
-  v19 = NET_AdrToString(&v50);
-  Com_Printf(131097, "[%s] PartyJoin - HandleMemberCommit - Received 'pa_membercommit' from '%s' (%i %s)(party id %zx)\n", party->partyName, v19, MemberByXUID_AllowNotPresent, v17, *(_QWORD *)&v16);
+  v13 = buffer;
+  v14 = XUID::ToDevString(&player);
+  v33 = *from;
+  v15 = NET_AdrToString(&v33);
+  Com_Printf(131097, "[%s] PartyJoin - HandleMemberCommit - Received 'pa_membercommit' from '%s' (%i %s)(party id %zx)\n", party->partyName, v15, MemberByXUID_AllowNotPresent, v14, *(_QWORD *)&v13);
   if ( (int)MemberByXUID_AllowNotPresent < 0 )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Stray commit message. Invalid member slot %i.\n", party->partyName, (unsigned int)MemberByXUID_AllowNotPresent);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    addrHandleIndex = _R14->addrHandleIndex;
-    v51.m_id = player.m_id;
+    *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v34.m_id = player.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, player);
-    v12 = JOINRESPONSE_ERROR_BAD_COMMIT_XUID;
+    v10 = JOINRESPONSE_ERROR_BAD_COMMIT_XUID;
     goto LABEL_8;
   }
-  v21 = &party->partyMembers[MemberByXUID_AllowNotPresent];
+  v16 = &party->partyMembers[MemberByXUID_AllowNotPresent];
   if ( !Party_IsServerRunning(party) && !Party_IsRunning(party) && party->partyMembers[MemberByXUID_AllowNotPresent].joinType != 6 )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Stray commit message. Party or server is not running.\n", party->partyName);
-    v22.m_id = XUID::NullXUID(&result)->m_id;
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    v24 = _R14->addrHandleIndex;
-    v51.m_id = v22.m_id;
-    OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v22);
-    __asm
-    {
-      vmovups xmm0, [rbp+57h+var_A0]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    v50.addrHandleIndex = v24;
-    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v50, JOINRESPONSE_ERROR_HOST_NOT_HOSTING_PARTY, &v51, NULL, 0);
+    v17.m_id = XUID::NullXUID(&result)->m_id;
+    *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+    v18 = from->addrHandleIndex;
+    v34.m_id = v17.m_id;
+    OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v17);
+    v33.addrHandleIndex = v18;
+    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v33, JOINRESPONSE_ERROR_HOST_NOT_HOSTING_PARTY, &v34, NULL, 0);
     goto LABEL_76;
   }
-  if ( *(_QWORD *)&v21->info.privatePartyId != buffer )
+  if ( *(_QWORD *)&v16->info.privatePartyId != buffer )
   {
     if ( !Party_IsPrivateParty(party) || (SecurityId = XSESSION_INFO::GetSecurityId(&party->session->dyn.sessionInfo), !bdSecurityID::operator==(SecurityId, &party->partyMembers[MemberByXUID_AllowNotPresent].info.privatePartyId)) )
     {
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Stray commit message. Unknown member party id, expecting %zx\n", party->partyName, *(_QWORD *)&v21->info.privatePartyId);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [r14]
-        vmovups [rbp+57h+var_A0], xmm0
-      }
-      addrHandleIndex = _R14->addrHandleIndex;
-      v51.m_id = player.m_id;
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Stray commit message. Unknown member party id, expecting %zx\n", party->partyName, *(_QWORD *)&v16->info.privatePartyId);
+      *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+      addrHandleIndex = from->addrHandleIndex;
+      v34.m_id = player.m_id;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, player);
-      v12 = JOINRESPONSE_ERROR_BAD_COMMIT_PARTYID;
+      v10 = JOINRESPONSE_ERROR_BAD_COMMIT_PARTYID;
       goto LABEL_8;
     }
     status = party->partyMembers[MemberByXUID_AllowNotPresent].status;
     if ( status <= 3u )
     {
-      LODWORD(v48) = status;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8713, ASSERT_TYPE_ASSERT, "( ( partyMember->status > PARTYSTATUS_JOINED ) )", "( partyMember->status ) = %i", v48) )
+      LODWORD(v31) = status;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8713, ASSERT_TYPE_ASSERT, "( ( partyMember->status > PARTYSTATUS_JOINED ) )", "( partyMember->status ) = %i", v31) )
         __debugbreak();
     }
   }
-  if ( Party_IsMatchmakingLobby(party) && Dvar_GetBool_Internal_DebugName(DVARBOOL_online_party_validate_service_level_with_matchmaker, "online_party_validate_service_level_with_matchmaker") && OnlineMatchmakerOmniscient::IsPaidUser(&OnlineMatchmakerOmniscient::ms_instance, player) != v14 )
+  if ( Party_IsMatchmakingLobby(party) && Dvar_GetBool_Internal_DebugName(DVARBOOL_online_party_validate_service_level_with_matchmaker, "online_party_validate_service_level_with_matchmaker") && OnlineMatchmakerOmniscient::IsPaidUser(&OnlineMatchmakerOmniscient::ms_instance, player) != v11 )
   {
-    v28 = "freemium";
-    if ( v14 )
-      v28 = "paid";
-    Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - mismatch self reported as %s user but matchmaker disagrees\n", party->partyName, v28);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    v30 = _R14->addrHandleIndex;
-    v51.m_id = player.m_id;
+    v21 = "freemium";
+    if ( v11 )
+      v21 = "paid";
+    Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - mismatch self reported as %s user but matchmaker disagrees\n", party->partyName, v21);
+    *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+    v22 = from->addrHandleIndex;
+    v34.m_id = player.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, player);
-    __asm
-    {
-      vmovups xmm0, [rbp+57h+var_A0]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    v50.addrHandleIndex = v30;
-    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v50, JOINRESPONSE_ERROR_F2P_USERS_NOT_PERMITTED, &v51, NULL, 0);
+    v33.addrHandleIndex = v22;
+    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v33, JOINRESPONSE_ERROR_F2P_USERS_NOT_PERMITTED, &v34, NULL, 0);
     goto LABEL_76;
   }
-  if ( !v14 && PartyHost_PartyRestrictsF2PUsers(party) )
+  if ( !v11 && PartyHost_PartyRestrictsF2PUsers(party) )
   {
-    v33 = XUID::ToString(&player);
-    Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting F2P user (%s) because party F2P users are prohibited\n", party->partyName, v33);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    addrHandleIndex = _R14->addrHandleIndex;
-    v51.m_id = player.m_id;
+    v23 = XUID::ToString(&player);
+    Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting F2P user (%s) because party F2P users are prohibited\n", party->partyName, v23);
+    *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v34.m_id = player.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, player);
-    v12 = JOINRESPONSE_ERROR_F2P_USERS_NOT_PERMITTED;
+    v10 = JOINRESPONSE_ERROR_F2P_USERS_NOT_PERMITTED;
     goto LABEL_8;
   }
-  if ( !v53 && PartyHost_PartyRequiresOnlineSubscriptionForPlatform(party, (ClientPlatform)(unsigned __int8)party->partyMembers[MemberByXUID_AllowNotPresent].info.platform[0]) )
+  if ( !v36 && PartyHost_PartyRequiresOnlineSubscriptionForPlatform(party, (ClientPlatform)(unsigned __int8)party->partyMembers[MemberByXUID_AllowNotPresent].info.platform[0]) )
   {
-    v35 = XUID::ToString(&player);
-    Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting subscriptionless user (%s) because party subscriptionless users are prohibited\n", party->partyName, v35);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    v37 = _R14->addrHandleIndex;
-    v51.m_id = player.m_id;
+    v24 = XUID::ToString(&player);
+    Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Rejecting subscriptionless user (%s) because party subscriptionless users are prohibited\n", party->partyName, v24);
+    *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+    v25 = from->addrHandleIndex;
+    v34.m_id = player.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, player);
-    __asm
-    {
-      vmovups xmm0, [rbp+57h+var_A0]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    v50.addrHandleIndex = v37;
-    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v50, JOINRESPONSE_ERROR_SUBSCRIPTIONLESS_USERS_NOT_PERMITTED, &v51, NULL, 0);
+    v33.addrHandleIndex = v25;
+    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v33, JOINRESPONSE_ERROR_SUBSCRIPTIONLESS_USERS_NOT_PERMITTED, &v34, NULL, 0);
     goto LABEL_76;
   }
-  v39 = party->partyMembers[MemberByXUID_AllowNotPresent].status;
-  if ( (v39 & 0xFD) == 0 )
+  v26 = party->partyMembers[MemberByXUID_AllowNotPresent].status;
+  if ( (v26 & 0xFD) == 0 )
   {
-    Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Stray commit message. Invalid member status %i.\n", party->partyName, v39);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    addrHandleIndex = _R14->addrHandleIndex;
-    v51.m_id = player.m_id;
+    Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Stray commit message. Invalid member status %i.\n", party->partyName, v26);
+    *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v34.m_id = player.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, player);
-    v12 = JOINRESPONSE_ERROR_BAD_COMMIT_STATUS;
+    v10 = JOINRESPONSE_ERROR_BAD_COMMIT_STATUS;
     goto LABEL_8;
   }
-  if ( v39 != 1 )
+  if ( v26 != 1 )
   {
-    if ( v39 != 3 )
+    if ( v26 != 3 )
     {
-      if ( v39 == 4 )
+      if ( v26 == 4 )
       {
-        if ( !Party_IsPrivateParty(party) && *(_QWORD *)&v21->info.privatePartyId != buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8796, ASSERT_TYPE_ASSERT, "(Party_IsPrivateParty( party ) || I_memcmp( &partyMember->info.privatePartyId, &privatePartyId, sizeof( privatePartyId ) ) == 0)", (const char *)&queryFormat, "Party_IsPrivateParty( party ) || I_memcmp( &partyMember->info.privatePartyId, &privatePartyId, sizeof( privatePartyId ) ) == 0") )
+        if ( !Party_IsPrivateParty(party) && *(_QWORD *)&v16->info.privatePartyId != buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8796, ASSERT_TYPE_ASSERT, "(Party_IsPrivateParty( party ) || I_memcmp( &partyMember->info.privatePartyId, &privatePartyId, sizeof( privatePartyId ) ) == 0)", (const char *)&queryFormat, "Party_IsPrivateParty( party ) || I_memcmp( &partyMember->info.privatePartyId, &privatePartyId, sizeof( privatePartyId ) ) == 0") )
           __debugbreak();
         PartyHost_UpdatePlayerStatus(party, mainActiveClient->localControllerIndex, MemberByXUID_AllowNotPresent, 4);
         goto LABEL_66;
       }
-      if ( v39 < 5u )
+      if ( v26 < 5u )
       {
-        LODWORD(v48) = v39;
-        v41 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8802, ASSERT_TYPE_ASSERT, "( ( partyMember->status >= PARTYSTATUS_PRESENT ) )", "( partyMember->status ) = %i", v48);
+        LODWORD(v31) = v26;
+        v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8802, ASSERT_TYPE_ASSERT, "( ( partyMember->status >= PARTYSTATUS_PRESENT ) )", "( partyMember->status ) = %i", v31);
         goto LABEL_64;
       }
       goto LABEL_66;
     }
-    if ( PartyHost_CommitPlayer(party, mainActiveClient->localControllerIndex, MemberByXUID_AllowNotPresent, _R14) )
+    if ( PartyHost_CommitPlayer(party, mainActiveClient->localControllerIndex, MemberByXUID_AllowNotPresent, from) )
     {
       if ( Party_IsGameLobby(party) && buffer != g_noPrivatePartyId )
       {
-        if ( *(_QWORD *)&v21->info.privatePartyId != buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8790, ASSERT_TYPE_ASSERT, "(I_memcmp( &partyMember->info.privatePartyId, &privatePartyId, sizeof( privatePartyId ) ) == 0)", (const char *)&queryFormat, "I_memcmp( &partyMember->info.privatePartyId, &privatePartyId, sizeof( privatePartyId ) ) == 0") )
+        if ( *(_QWORD *)&v16->info.privatePartyId != buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8790, ASSERT_TYPE_ASSERT, "(I_memcmp( &partyMember->info.privatePartyId, &privatePartyId, sizeof( privatePartyId ) ) == 0)", (const char *)&queryFormat, "I_memcmp( &partyMember->info.privatePartyId, &privatePartyId, sizeof( privatePartyId ) ) == 0") )
           __debugbreak();
         PartyAtomicHost_CommitPrivatePartyMembers(party, mainActiveClient->localControllerIndex, &buffer);
       }
       goto LABEL_66;
     }
 LABEL_47:
-    PartyHost_HandleFailedAccept(party, MemberByXUID_AllowNotPresent, &player, _R14);
+    PartyHost_HandleFailedAccept(party, MemberByXUID_AllowNotPresent, &player, from);
     goto LABEL_76;
   }
   if ( Party_IsPrivateParty(party) )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Stray commit message. Cannot commit to a private party under ZOMBIE status (%i).\n", party->partyName, party->partyMembers[MemberByXUID_AllowNotPresent].status);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    v43 = _R14->addrHandleIndex;
-    v51.m_id = player.m_id;
+    *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+    v28 = from->addrHandleIndex;
+    v34.m_id = player.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, player);
-    __asm
-    {
-      vmovups xmm0, [rbp+57h+var_A0]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    v50.addrHandleIndex = v43;
-    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v50, JOINRESPONSE_ERROR_BAD_COMMIT_ZOMBIE_PRIVATE_PARTY, &v51, NULL, 0);
+    v33.addrHandleIndex = v28;
+    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v33, JOINRESPONSE_ERROR_BAD_COMMIT_ZOMBIE_PRIVATE_PARTY, &v34, NULL, 0);
     goto LABEL_76;
   }
-  v45 = XSESSION_INFO::GetSecurityId(&g_partyData.session->dyn.sessionInfo);
-  if ( bdSecurityID::operator!=(v45, &party->partyMembers[MemberByXUID_AllowNotPresent].info.privatePartyId) )
+  v29 = XSESSION_INFO::GetSecurityId(&g_partyData.session->dyn.sessionInfo);
+  if ( bdSecurityID::operator!=(v29, &party->partyMembers[MemberByXUID_AllowNotPresent].info.privatePartyId) )
   {
     Com_PrintWarning(25, "[%s] PartyJoin - HandleMemberJoin - Stray commit message. Invalid party id to be able to commit with ZOMBIE status (%i).\n", party->partyName, party->partyMembers[MemberByXUID_AllowNotPresent].status);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+57h+var_A0], xmm0
-    }
-    addrHandleIndex = _R14->addrHandleIndex;
-    v51.m_id = player.m_id;
+    *(_OWORD *)&v33.type = *(_OWORD *)&from->type;
+    addrHandleIndex = from->addrHandleIndex;
+    v34.m_id = player.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, player);
-    v12 = JOINRESPONSE_ERROR_BAD_COMMIT_ZOMBIE_PRIVATE_PARTY;
+    v10 = JOINRESPONSE_ERROR_BAD_COMMIT_ZOMBIE_PRIVATE_PARTY;
     goto LABEL_8;
   }
   if ( (unsigned int)Party_FindMemberByXUID(&g_partyData, player) >= 0xC8 )
   {
-    LODWORD(v49) = 200;
-    LODWORD(v48) = Party_FindMemberByXUID(&g_partyData, player);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8769, ASSERT_TYPE_ASSERT, "(unsigned)( Party_FindMemberByXUID( &g_partyData, memberXuid ) ) < (unsigned)( 200 )", "Party_FindMemberByXUID( &g_partyData, memberXuid ) doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v48, v49) )
+    LODWORD(v32) = 200;
+    LODWORD(v31) = Party_FindMemberByXUID(&g_partyData, player);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8769, ASSERT_TYPE_ASSERT, "(unsigned)( Party_FindMemberByXUID( &g_partyData, memberXuid ) ) < (unsigned)( 200 )", "Party_FindMemberByXUID( &g_partyData, memberXuid ) doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v31, v32) )
       __debugbreak();
   }
-  if ( !PartyHost_CommitPlayer(party, mainActiveClient->localControllerIndex, MemberByXUID_AllowNotPresent, _R14) )
+  if ( !PartyHost_CommitPlayer(party, mainActiveClient->localControllerIndex, MemberByXUID_AllowNotPresent, from) )
     goto LABEL_47;
   if ( !Party_IsMemberUIVisible(party, MemberByXUID_AllowNotPresent) )
   {
-    v41 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8777, ASSERT_TYPE_ASSERT, "(Party_IsMemberUIVisible( party, memberSlot ))", "%s\n\tMaking sure zombie users don't disappear from the UI", "Party_IsMemberUIVisible( party, memberSlot )");
+    v27 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8777, ASSERT_TYPE_ASSERT, "(Party_IsMemberUIVisible( party, memberSlot ))", "%s\n\tMaking sure zombie users don't disappear from the UI", "Party_IsMemberUIVisible( party, memberSlot )");
 LABEL_64:
-    if ( v41 )
+    if ( v27 )
       __debugbreak();
   }
 LABEL_66:
@@ -3480,10 +3112,10 @@ LABEL_66:
     __debugbreak();
   if ( Live_XUIDIsLocalPlayer(party->partyMembers[MemberByXUID_AllowNotPresent].playerUID) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8810, ASSERT_TYPE_ASSERT, "(!Live_XUIDIsLocalPlayer( partyMember->playerUID ))", (const char *)&queryFormat, "!Live_XUIDIsLocalPlayer( partyMember->playerUID )") )
     __debugbreak();
-  v47 = Sys_Milliseconds();
+  v30 = Sys_Milliseconds();
   ++s_partyStateLoggingData.players_joined;
   s_partyStateLoggingData.cause = 1;
-  PartyHost_SendPartyStateToPlayer(party, MemberByXUID_AllowNotPresent, v47);
+  PartyHost_SendPartyStateToPlayer(party, MemberByXUID_AllowNotPresent, v30);
 LABEL_76:
   bdSecurityID::~bdSecurityID(&buffer);
 }
@@ -3607,67 +3239,63 @@ void PartyHost_HandleMatchmakingInfo(PartyData *party, const PartyActiveClient *
 {
   bool v7; 
   int addrHandleIndex; 
+  const char *v9; 
   const char *v10; 
-  const char *v11; 
+  int v11; 
+  const char *v12; 
   int v13; 
   const char *v14; 
-  int v16; 
-  const char *v17; 
-  const char *v18; 
-  netadr_t v19; 
+  const char *v15; 
+  netadr_t v16; 
   XUID player; 
-  PartyMatchmakingInfo v21; 
+  PartyMatchmakingInfo v18; 
 
-  _RBX = from;
   XUID::XUID(&player);
   v7 = party->inParty == 0;
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  addrHandleIndex = _RBX->addrHandleIndex;
-  __asm { vmovups [rsp+88h+var_58], xmm0 }
-  v19.addrHandleIndex = addrHandleIndex;
+  addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v16.type = *(_OWORD *)&from->type;
+  v16.addrHandleIndex = addrHandleIndex;
   if ( v7 )
   {
-    v10 = NET_AdrToString(&v19);
-    Com_Printf(25, "[%s] %s -  Received msg from %s but we are not in a party\n", party->partyName, "PartyHost_HandleMatchmakingInfo", v10);
+    v9 = NET_AdrToString(&v16);
+    Com_Printf(25, "[%s] %s -  Received msg from %s but we are not in a party\n", party->partyName, "PartyHost_HandleMatchmakingInfo", v9);
   }
   else if ( party->areWeHost )
   {
-    if ( Party_FindFirstMemberAtAddr(party, &v19) >= 0 )
+    if ( Party_FindFirstMemberAtAddr(party, &v16) >= 0 )
     {
       XUID::Deserialize(&player, msg);
       if ( Party_FindMemberByXUID_AllowNotPresent(party, player) >= 0 )
       {
-        PartyMatchmakingInfo::Deserialize(&v21, msg);
+        PartyMatchmakingInfo::Deserialize(&v18, msg);
         if ( msg->overflowed )
           Com_Printf(25, "[%s] %s - Received invalid/truncated pmminfo packet\n", party->partyName, "PartyHost_HandleMatchmakingInfo");
         else
-          OnlineMatchmakerOmniscient::SetMatchmakingTokenForUID(&OnlineMatchmakerOmniscient::ms_instance, player, v21.matchmakingToken, v21.isPrimaryAccount);
+          OnlineMatchmakerOmniscient::SetMatchmakingTokenForUID(&OnlineMatchmakerOmniscient::ms_instance, player, v18.matchmakingToken, v18.isPrimaryAccount);
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [rbx] }
-        v16 = _RBX->addrHandleIndex;
-        __asm { vmovups [rsp+88h+var_58], xmm0 }
-        v19.addrHandleIndex = v16;
-        v17 = NET_AdrToString(&v19);
-        v18 = XUID::ToDevString(&player);
-        Com_Printf(25, "[%s] %s - Received from unknown client %s (%s)\n", party->partyName, "PartyHost_HandleMatchmakingInfo", v18, v17);
+        v13 = from->addrHandleIndex;
+        *(_OWORD *)&v16.type = *(_OWORD *)&from->type;
+        v16.addrHandleIndex = v13;
+        v14 = NET_AdrToString(&v16);
+        v15 = XUID::ToDevString(&player);
+        Com_Printf(25, "[%s] %s - Received from unknown client %s (%s)\n", party->partyName, "PartyHost_HandleMatchmakingInfo", v15, v14);
       }
     }
     else
     {
-      __asm { vmovups xmm0, xmmword ptr [rbx] }
-      v13 = _RBX->addrHandleIndex;
-      __asm { vmovups [rsp+88h+var_58], xmm0 }
-      v19.addrHandleIndex = v13;
-      v14 = NET_AdrToString(&v19);
-      Com_Printf(25, "[%s] %s - Received but we dont know which client it's from (%s)\n", party->partyName, "PartyHost_HandleMatchmakingInfo", v14);
+      v11 = from->addrHandleIndex;
+      *(_OWORD *)&v16.type = *(_OWORD *)&from->type;
+      v16.addrHandleIndex = v11;
+      v12 = NET_AdrToString(&v16);
+      Com_Printf(25, "[%s] %s - Received but we dont know which client it's from (%s)\n", party->partyName, "PartyHost_HandleMatchmakingInfo", v12);
     }
   }
   else
   {
-    v11 = NET_AdrToString(&v19);
-    Com_Printf(25, "[%s] %s - Received msg from %s but we are not the party host\n", party->partyName, "PartyHost_HandleMatchmakingInfo", v11);
+    v10 = NET_AdrToString(&v16);
+    Com_Printf(25, "[%s] %s - Received msg from %s but we are not the party host\n", party->partyName, "PartyHost_HandleMatchmakingInfo", v10);
   }
 }
 
@@ -3679,54 +3307,52 @@ PartyHost_HandleClientInfoMsg
 void PartyHost_HandleClientInfoMsg(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
   int addrHandleIndex; 
+  const char *v9; 
   const char *v10; 
   const char *v11; 
-  const char *v13; 
   int Long; 
-  int v15; 
+  int v13; 
   signed int MemberByXUID_AllowNotPresent; 
-  unsigned int v17; 
-  const char *v19; 
-  const char *v20; 
-  const char *v22; 
+  unsigned int v15; 
+  const char *v16; 
+  const char *v17; 
+  const char *v18; 
   int Bit; 
-  bool v24; 
-  netadr_t v27; 
+  bool v20; 
+  netadr_t v21; 
   XUID player; 
-  __int64 v29; 
-  ClientAuthoritativeMemberInfo v30; 
+  __int64 v23; 
+  ClientAuthoritativeMemberInfo v24; 
 
-  v29 = -2i64;
-  _RBX = from;
+  v23 = -2i64;
   XUID::XUID(&player);
-  bdSecurityID::bdSecurityID(&v30.privatePartyId);
-  __asm { vmovups xmm0, xmmword ptr [rbx] }
-  addrHandleIndex = _RBX->addrHandleIndex;
-  __asm { vmovups [rsp+170h+var_140], xmm0 }
-  v27.addrHandleIndex = addrHandleIndex;
+  bdSecurityID::bdSecurityID(&v24.privatePartyId);
+  addrHandleIndex = from->addrHandleIndex;
+  *(_OWORD *)&v21.type = *(_OWORD *)&from->type;
+  v21.addrHandleIndex = addrHandleIndex;
   if ( party->inParty )
   {
     if ( party->areWeHost )
     {
-      if ( Party_FindFirstMemberAtAddr(party, &v27) >= 0 )
+      if ( Party_FindFirstMemberAtAddr(party, &v21) >= 0 )
       {
         XUID::Deserialize(&player, msg);
         Long = MSG_ReadLong(msg);
-        v15 = Long;
+        v13 = Long;
         if ( Long >= 0 )
         {
           MemberByXUID_AllowNotPresent = Party_FindMemberByXUID_AllowNotPresent(party, player);
-          v17 = MemberByXUID_AllowNotPresent;
+          v15 = MemberByXUID_AllowNotPresent;
           if ( MemberByXUID_AllowNotPresent >= 0 )
           {
             if ( Party_IsMemberIndexDataAvailable(party, MemberByXUID_AllowNotPresent) )
             {
               Bit = MSG_ReadBit(msg);
-              v24 = Bit != 0;
+              v20 = Bit != 0;
               if ( Bit )
               {
-                memset_0(&v30, 0, sizeof(v30));
-                Party_ReadMemberInfo(msg, &v30, player);
+                memset_0(&v24, 0, sizeof(v24));
+                Party_ReadMemberInfo(msg, &v24, player);
               }
               if ( msg->overflowed )
               {
@@ -3734,48 +3360,28 @@ void PartyHost_HandleClientInfoMsg(PartyData *party, const PartyActiveClient *ma
               }
               else
               {
-                if ( v24 )
+                if ( v20 )
                 {
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr [rbx]
-                    vmovups [rsp+170h+var_140], xmm0
-                  }
-                  v27.addrHandleIndex = _RBX->addrHandleIndex;
-                  PartyHost_ReceivedUpdatedMemberInfo(party, mainActiveClient->localControllerIndex, v17, &v27, &v30);
+                  v21 = *from;
+                  PartyHost_ReceivedUpdatedMemberInfo(party, mainActiveClient->localControllerIndex, v15, &v21, &v24);
                 }
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [rbx]
-                  vmovups [rsp+170h+var_140], xmm0
-                }
-                v27.addrHandleIndex = _RBX->addrHandleIndex;
-                PartyHost_ReceivedPartystateAck(party, v17, &v27, v15, 1);
+                v21 = *from;
+                PartyHost_ReceivedPartystateAck(party, v15, &v21, v13, 1);
               }
             }
             else
             {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rbx]
-                vmovups [rsp+170h+var_140], xmm0
-              }
-              v27.addrHandleIndex = _RBX->addrHandleIndex;
-              v22 = NET_AdrToString(&v27);
-              Com_Printf(25, "[%s] PartyHost - HandleClientInfo - Received clientInfo from client %i who isn't available yet (%s).\n", party->partyName, v17, v22);
+              v21 = *from;
+              v18 = NET_AdrToString(&v21);
+              Com_Printf(25, "[%s] PartyHost - HandleClientInfo - Received clientInfo from client %i who isn't available yet (%s).\n", party->partyName, v15, v18);
             }
           }
           else
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rbx]
-              vmovups [rsp+170h+var_140], xmm0
-            }
-            v27.addrHandleIndex = _RBX->addrHandleIndex;
-            v19 = NET_AdrToString(&v27);
-            v20 = XUID::ToDevString(&player);
-            Com_Printf(25, "[%s] PartyHost - HandleClientInfo - Received clientInfo from unknown client %s (%s)\n", party->partyName, v20, v19);
+            v21 = *from;
+            v16 = NET_AdrToString(&v21);
+            v17 = XUID::ToDevString(&player);
+            Com_Printf(25, "[%s] PartyHost - HandleClientInfo - Received clientInfo from unknown client %s (%s)\n", party->partyName, v17, v16);
           }
         }
         else
@@ -3785,28 +3391,23 @@ void PartyHost_HandleClientInfoMsg(PartyData *party, const PartyActiveClient *ma
       }
       else
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbx]
-          vmovups [rsp+170h+var_140], xmm0
-        }
-        v27.addrHandleIndex = _RBX->addrHandleIndex;
-        v13 = NET_AdrToString(&v27);
-        Com_Printf(25, "[%s] Received clientInfo but we dont know which client it's from (%s)\n", party->partyName, v13);
+        v21 = *from;
+        v11 = NET_AdrToString(&v21);
+        Com_Printf(25, "[%s] Received clientInfo but we dont know which client it's from (%s)\n", party->partyName, v11);
       }
     }
     else
     {
-      v11 = NET_AdrToString(&v27);
-      Com_Printf(25, "[%s] Received clientInfo msg from %s but we are not the party host\n", party->partyName, v11);
+      v10 = NET_AdrToString(&v21);
+      Com_Printf(25, "[%s] Received clientInfo msg from %s but we are not the party host\n", party->partyName, v10);
     }
   }
   else
   {
-    v10 = NET_AdrToString(&v27);
-    Com_Printf(25, "[%s] Received clientInfo msg from %s but we are not in a party\n", party->partyName, v10);
+    v9 = NET_AdrToString(&v21);
+    Com_Printf(25, "[%s] Received clientInfo msg from %s but we are not in a party\n", party->partyName, v9);
   }
-  bdSecurityID::~bdSecurityID(&v30.privatePartyId);
+  bdSecurityID::~bdSecurityID(&v24.privatePartyId);
 }
 
 /*
@@ -3818,99 +3419,95 @@ void PartyHost_HandleIHearMsg(PartyData *party, const PartyActiveClient *mainAct
 {
   bool v4; 
   int addrHandleIndex; 
+  const char *v8; 
   const char *v9; 
-  const char *v10; 
   int FirstMemberAtAddr; 
-  unsigned int v12; 
+  unsigned int v11; 
+  int v12; 
+  const char *v13; 
   int v14; 
   const char *v15; 
-  int v17; 
-  const char *v18; 
-  int v19; 
+  int v16; 
   int ConnectivityBitsForHost; 
-  int v21; 
+  int v18; 
   char *fmt; 
-  __int64 v23; 
-  __int64 v24; 
-  int v25; 
-  netadr_t v26; 
+  __int64 v20; 
+  __int64 v21; 
+  int v22; 
+  netadr_t v23; 
 
   v4 = party->inParty == 0;
-  _RSI = from;
-  __asm { vmovups xmm0, xmmword ptr [r8] }
   addrHandleIndex = from->addrHandleIndex;
-  __asm { vmovups [rsp+78h+var_38], xmm0 }
-  v26.addrHandleIndex = addrHandleIndex;
+  *(_OWORD *)&v23.type = *(_OWORD *)&from->type;
+  v23.addrHandleIndex = addrHandleIndex;
   if ( v4 )
   {
-    v9 = NET_AdrToString(&v26);
-    Com_Printf(25, "[%s] Received ihear msg from %s but we are not in a party\n", party->partyName, v9);
+    v8 = NET_AdrToString(&v23);
+    Com_Printf(25, "[%s] Received ihear msg from %s but we are not in a party\n", party->partyName, v8);
   }
   else if ( party->areWeHost )
   {
-    FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, &v26);
-    v12 = FirstMemberAtAddr;
+    FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, &v23);
+    v11 = FirstMemberAtAddr;
     if ( FirstMemberAtAddr >= 0 )
     {
       if ( !Party_IsMemberRegistered(party, FirstMemberAtAddr) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 9062, ASSERT_TYPE_ASSERT, "(Party_IsMemberRegistered( party, partyClientNum ))", (const char *)&queryFormat, "Party_IsMemberRegistered( party, partyClientNum )") )
         __debugbreak();
-      if ( Party_MemberHasLoopbackAddr(party, v12) )
+      if ( Party_MemberHasLoopbackAddr(party, v11) )
       {
-        __asm { vmovups xmm0, xmmword ptr [rsi] }
-        v17 = _RSI->addrHandleIndex;
-        __asm { vmovups [rsp+78h+var_38], xmm0 }
-        v26.addrHandleIndex = v17;
-        v18 = NET_AdrToString(&v26);
-        LODWORD(fmt) = v12;
-        Com_PrintWarning(25, "[%s] Received ihear msg from %s party client %i. Ignoring local clients.\n", party->partyName, v18, fmt);
+        v14 = from->addrHandleIndex;
+        *(_OWORD *)&v23.type = *(_OWORD *)&from->type;
+        v23.addrHandleIndex = v14;
+        v15 = NET_AdrToString(&v23);
+        LODWORD(fmt) = v11;
+        Com_PrintWarning(25, "[%s] Received ihear msg from %s party client %i. Ignoring local clients.\n", party->partyName, v15, fmt);
       }
       else
       {
-        v19 = Cmd_ArgInt(1);
+        v16 = Cmd_ArgInt(1);
         ConnectivityBitsForHost = PeerMesh_GetConnectivityBitsForHost(party);
-        if ( (v19 & ConnectivityBitsForHost) != ConnectivityBitsForHost )
-          Com_PrintWarning(25, "[%s] PartyHost - IHear - Client %i sent us connectivity bits without the proper host bits\n", party->partyName, v12);
-        v21 = v19 | ConnectivityBitsForHost;
-        if ( v12 >= 0xC8 )
+        if ( (v16 & ConnectivityBitsForHost) != ConnectivityBitsForHost )
+          Com_PrintWarning(25, "[%s] PartyHost - IHear - Client %i sent us connectivity bits without the proper host bits\n", party->partyName, v11);
+        v18 = v16 | ConnectivityBitsForHost;
+        if ( v11 >= 0xC8 )
         {
-          v25 = 200;
-          LODWORD(v23) = v12;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 2695, ASSERT_TYPE_ASSERT, "(unsigned)( memberIndex ) < (unsigned)( 200 )", "memberIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v23, v25) )
+          v22 = 200;
+          LODWORD(v20) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 2695, ASSERT_TYPE_ASSERT, "(unsigned)( memberIndex ) < (unsigned)( 200 )", "memberIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v20, v22) )
             __debugbreak();
         }
-        if ( !Party_IsMemberRegistered(party, v12) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 2696, ASSERT_TYPE_ASSERT, "(Party_IsMemberRegistered( party, memberIndex ))", (const char *)&queryFormat, "Party_IsMemberRegistered( party, memberIndex )") )
+        if ( !Party_IsMemberRegistered(party, v11) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 2696, ASSERT_TYPE_ASSERT, "(Party_IsMemberRegistered( party, memberIndex ))", (const char *)&queryFormat, "Party_IsMemberRegistered( party, memberIndex )") )
           __debugbreak();
-        if ( !PeerMesh_IsHostConnectivitySet(party, v21) )
+        if ( !PeerMesh_IsHostConnectivitySet(party, v18) )
         {
-          LODWORD(v23) = v19 | ConnectivityBitsForHost;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 2697, ASSERT_TYPE_ASSERT, "( ( PeerMesh_IsHostConnectivitySet( party, connectivityBits ) ) )", "( connectivityBits ) = %i", v23) )
+          LODWORD(v20) = v16 | ConnectivityBitsForHost;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 2697, ASSERT_TYPE_ASSERT, "( ( PeerMesh_IsHostConnectivitySet( party, connectivityBits ) ) )", "( connectivityBits ) = %i", v20) )
             __debugbreak();
         }
-        if ( PeerMesh_SetClientConnectivity(party, v12, v21) )
-          PartyHost_MemberInfoChanged(party, v12, 1);
+        if ( PeerMesh_SetClientConnectivity(party, v11, v18) )
+          PartyHost_MemberInfoChanged(party, v11, 1);
         if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_voice_debug, "voice_debug") )
         {
-          LODWORD(v24) = ConnectivityBitsForHost;
-          LODWORD(v23) = v19;
-          LODWORD(fmt) = v19 | ConnectivityBitsForHost;
-          Com_Printf(25, "[%s] PartyHost - IHear - Client %i has connectivity %i. Sent %i, host is %i.\n", party->partyName, v12, fmt, v23, v24);
+          LODWORD(v21) = ConnectivityBitsForHost;
+          LODWORD(v20) = v16;
+          LODWORD(fmt) = v16 | ConnectivityBitsForHost;
+          Com_Printf(25, "[%s] PartyHost - IHear - Client %i has connectivity %i. Sent %i, host is %i.\n", party->partyName, v11, fmt, v20, v21);
         }
       }
     }
     else
     {
-      __asm { vmovups xmm0, xmmword ptr [rsi] }
-      v14 = _RSI->addrHandleIndex;
-      __asm { vmovups [rsp+78h+var_38], xmm0 }
-      v26.addrHandleIndex = v14;
-      v15 = NET_AdrToString(&v26);
-      Com_Printf(25, "[%s] Received ihear msg from %s from unknown party client\n", party->partyName, v15);
+      v12 = from->addrHandleIndex;
+      *(_OWORD *)&v23.type = *(_OWORD *)&from->type;
+      v23.addrHandleIndex = v12;
+      v13 = NET_AdrToString(&v23);
+      Com_Printf(25, "[%s] Received ihear msg from %s from unknown party client\n", party->partyName, v13);
     }
   }
   else
   {
-    v10 = NET_AdrToString(&v26);
-    Com_Printf(25, "[%s] Received ihear msg from %s but we are not the party host\n", party->partyName, v10);
+    v9 = NET_AdrToString(&v23);
+    Com_Printf(25, "[%s] Received ihear msg from %s but we are not the party host\n", party->partyName, v9);
   }
 }
 
@@ -3921,43 +3518,43 @@ PartyHost_HandleCantHearMsg
 */
 void PartyHost_HandleCantHearMsg(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
-  int v7; 
-  const char *v8; 
+  int v6; 
+  const char *v7; 
   int addrHandleIndex; 
-  const char *v11; 
-  unsigned int v12; 
-  int v13; 
+  const char *v9; 
+  unsigned int v10; 
+  int v11; 
+  __int128 v12; 
   int FirstMemberAtAddr; 
   NetConnection *MemberConnection; 
-  const char *v17; 
-  netadr_t v18[2]; 
+  const char *v15; 
+  netadr_t v16[2]; 
 
-  _RSI = from;
   if ( party->inParty )
   {
     if ( party->areWeHost )
     {
-      v12 = Cmd_ArgInt(1);
-      v13 = v12;
-      if ( v12 > 0xC7 )
+      v10 = Cmd_ArgInt(1);
+      v11 = v10;
+      if ( v10 > 0xC7 )
       {
-        Com_PrintError(15, "[%s] Invalid canthear message - remote client was %i", party->partyName, v12);
+        Com_PrintError(15, "[%s] Invalid canthear message - remote client was %i", party->partyName, v10);
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [rsi] }
-        v18[0].addrHandleIndex = _RSI->addrHandleIndex;
-        __asm { vmovups [rsp+48h+var_28], xmm0 }
-        FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, v18);
+        v12 = *(_OWORD *)&from->type;
+        v16[0].addrHandleIndex = from->addrHandleIndex;
+        *(_OWORD *)&v16[0].type = v12;
+        FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, v16);
         if ( FirstMemberAtAddr >= 0 )
         {
-          if ( Party_IsMemberRegistered(party, v13) )
+          if ( Party_IsMemberRegistered(party, v11) )
           {
-            MemberConnection = (NetConnection *)Party_GetMemberConnection(party, v13);
+            MemberConnection = (NetConnection *)Party_GetMemberConnection(party, v11);
             if ( !NetConnection::IsLocal(MemberConnection) )
             {
-              v17 = j_va("%ivoicefail %i", (unsigned int)party->partyId, (unsigned int)FirstMemberAtAddr);
-              NetConnection::SendReliable(MemberConnection, v17);
+              v15 = j_va("%ivoicefail %i", (unsigned int)party->partyId, (unsigned int)FirstMemberAtAddr);
+              NetConnection::SendReliable(MemberConnection, v15);
             }
           }
         }
@@ -3969,22 +3566,20 @@ void PartyHost_HandleCantHearMsg(PartyData *party, const PartyActiveClient *main
     }
     else
     {
-      __asm { vmovups xmm0, xmmword ptr [r8] }
       addrHandleIndex = from->addrHandleIndex;
-      __asm { vmovups [rsp+48h+var_28], xmm0 }
-      v18[0].addrHandleIndex = addrHandleIndex;
-      v11 = NET_AdrToString(v18);
-      Com_Printf(25, "[%s] Received canthear msg from %s but we are not the party host\n", party->partyName, v11);
+      *(_OWORD *)&v16[0].type = *(_OWORD *)&from->type;
+      v16[0].addrHandleIndex = addrHandleIndex;
+      v9 = NET_AdrToString(v16);
+      Com_Printf(25, "[%s] Received canthear msg from %s but we are not the party host\n", party->partyName, v9);
     }
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [r8] }
-    v7 = from->addrHandleIndex;
-    __asm { vmovups [rsp+48h+var_28], xmm0 }
-    v18[0].addrHandleIndex = v7;
-    v8 = NET_AdrToString(v18);
-    Com_Printf(25, "[%s] Received canthear msg from %s but we are not in a party\n", party->partyName, v8);
+    v6 = from->addrHandleIndex;
+    *(_OWORD *)&v16[0].type = *(_OWORD *)&from->type;
+    v16[0].addrHandleIndex = v6;
+    v7 = NET_AdrToString(v16);
+    Com_Printf(25, "[%s] Received canthear msg from %s but we are not in a party\n", party->partyName, v7);
   }
 }
 
@@ -3995,20 +3590,19 @@ PartyAtomicHost_HandleClientDisconnect
 */
 void PartyAtomicHost_HandleClientDisconnect(PartyData *party, const PartyActiveClient *mainActiveClient, netadr_t *from, msg_t *msg)
 {
+  const char *v8; 
   const char *v9; 
+  const char *v10; 
   const char *v11; 
-  const char *v12; 
-  const char *v14; 
   bdSecurityID *SecurityId; 
   unsigned __int8 Byte; 
   PartyJoinResponse joinResponse; 
   XUID player; 
-  netadr_t v19; 
-  __int64 v20; 
+  netadr_t v16; 
+  __int64 v17; 
   bdSecurityID buffer; 
 
-  v20 = -2i64;
-  _RBP = from;
+  v17 = -2i64;
   XUID::XUID(&player);
   bdSecurityID::bdSecurityID(&buffer);
   if ( party->inParty )
@@ -4023,15 +3617,10 @@ void PartyAtomicHost_HandleClientDisconnect(PartyData *party, const PartyActiveC
       }
       else if ( Live_XUIDIsLocalPlayer(player) )
       {
-        v12 = XUID::ToDevString(&player);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rbp+0]
-          vmovups [rsp+0A8h+var_68], xmm0
-        }
-        v19.addrHandleIndex = _RBP->addrHandleIndex;
-        v14 = NET_AdrToString(&v19);
-        Com_PrintWarning(25, "[%s] PartyJoin: Stray 'pa_dis' message from %s - They supplied a local XUID (%s)\n", party->partyName, v14, v12);
+        v10 = XUID::ToDevString(&player);
+        v16 = *from;
+        v11 = NET_AdrToString(&v16);
+        Com_PrintWarning(25, "[%s] PartyJoin: Stray 'pa_dis' message from %s - They supplied a local XUID (%s)\n", party->partyName, v11, v10);
       }
       else
       {
@@ -4050,26 +3639,16 @@ void PartyAtomicHost_HandleClientDisconnect(PartyData *party, const PartyActiveC
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+0]
-        vmovups [rsp+0A8h+var_68], xmm0
-      }
-      v19.addrHandleIndex = _RBP->addrHandleIndex;
-      v11 = NET_AdrToString(&v19);
-      Com_PrintWarning(25, "[%s] PartyJoin: Stray 'pa_dis' message from %s - Not the host\n", party->partyName, v11);
+      v16 = *from;
+      v9 = NET_AdrToString(&v16);
+      Com_PrintWarning(25, "[%s] PartyJoin: Stray 'pa_dis' message from %s - Not the host\n", party->partyName, v9);
     }
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovups [rsp+0A8h+var_68], xmm0
-    }
-    v19.addrHandleIndex = _RBP->addrHandleIndex;
-    v9 = NET_AdrToString(&v19);
-    Com_PrintWarning(25, "[%s] PartyJoin: Stray 'pa_dis' message from %s - Not in a party\n", party->partyName, v9);
+    v16 = *from;
+    v8 = NET_AdrToString(&v16);
+    Com_PrintWarning(25, "[%s] PartyJoin: Stray 'pa_dis' message from %s - Not in a party\n", party->partyName, v8);
   }
   bdSecurityID::~bdSecurityID(&buffer);
 }
@@ -4125,79 +3704,74 @@ void PartyHost_HandleUpdateXnaddrAck(PartyData *party, const PartyActiveClient *
 {
   bool v4; 
   int addrHandleIndex; 
+  const char *v8; 
   const char *v9; 
-  const char *v10; 
   int FirstMemberAtAddr; 
-  unsigned int v12; 
+  unsigned int v11; 
+  int v12; 
+  const char *v13; 
   int v14; 
   const char *v15; 
-  int v17; 
-  const char *v18; 
-  int v20; 
-  const char *v21; 
-  unsigned int v22; 
-  unsigned int v23; 
-  netadr_t v24[2]; 
+  int v16; 
+  const char *v17; 
+  unsigned int v18; 
+  unsigned int v19; 
+  netadr_t v20[2]; 
 
   v4 = party->inParty == 0;
-  _RDI = from;
-  __asm { vmovups xmm0, xmmword ptr [r8] }
   addrHandleIndex = from->addrHandleIndex;
-  __asm { vmovups [rsp+58h+var_28], xmm0 }
-  v24[0].addrHandleIndex = addrHandleIndex;
+  *(_OWORD *)&v20[0].type = *(_OWORD *)&from->type;
+  v20[0].addrHandleIndex = addrHandleIndex;
   if ( v4 )
   {
-    v9 = NET_AdrToString(v24);
-    Com_PrintWarning(25, "[%s] PartyHost - UpdateXnaddr - Received stray 'pa_updatexnaddrack' message from (%s), not in party.\n", party->partyName, v9);
+    v8 = NET_AdrToString(v20);
+    Com_PrintWarning(25, "[%s] PartyHost - UpdateXnaddr - Received stray 'pa_updatexnaddrack' message from (%s), not in party.\n", party->partyName, v8);
   }
   else if ( party->areWeHost )
   {
-    FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, v24);
-    v12 = FirstMemberAtAddr;
+    FirstMemberAtAddr = Party_FindFirstMemberAtAddr(party, v20);
+    v11 = FirstMemberAtAddr;
     if ( FirstMemberAtAddr >= 0 )
     {
       if ( (unsigned int)FirstMemberAtAddr < 0x20 )
       {
         if ( Party_IsMemberRegistered(party, FirstMemberAtAddr) )
         {
-          bitarray_base<bitarray<32>>::resetBit((bitarray_base<bitarray<32> > *)&party->specificData.clientData + 36, v12);
+          bitarray_base<bitarray<32>>::resetBit((bitarray_base<bitarray<32> > *)&party->specificData.clientData + 36, v11);
         }
         else
         {
-          __asm { vmovups xmm0, xmmword ptr [rdi] }
-          v20 = _RDI->addrHandleIndex;
-          __asm { vmovups [rsp+58h+var_28], xmm0 }
-          v24[0].addrHandleIndex = v20;
-          v21 = NET_AdrToString(v24);
-          v23 = v12;
-          Com_PrintWarning(25, "[%s] PartyHost - UpdateXnaddr - Received 'pa_updatexnaddrack' message from (%s) but member (%d) is not registered\n", party->partyName, v21, v23);
+          v16 = from->addrHandleIndex;
+          *(_OWORD *)&v20[0].type = *(_OWORD *)&from->type;
+          v20[0].addrHandleIndex = v16;
+          v17 = NET_AdrToString(v20);
+          v19 = v11;
+          Com_PrintWarning(25, "[%s] PartyHost - UpdateXnaddr - Received 'pa_updatexnaddrack' message from (%s) but member (%d) is not registered\n", party->partyName, v17, v19);
         }
       }
       else
       {
-        __asm { vmovups xmm0, xmmword ptr [rdi] }
-        v17 = _RDI->addrHandleIndex;
-        __asm { vmovups [rsp+58h+var_28], xmm0 }
-        v24[0].addrHandleIndex = v17;
-        v18 = NET_AdrToString(v24);
-        v22 = v12;
-        Com_PrintWarning(25, "[%s] PartyHost - UpdateXnaddr - Received 'pa_updatexnaddrack' message from (%s) but member indexes (%d) beyond pending xnaddr updates bit array\n", party->partyName, v18, v22);
+        v14 = from->addrHandleIndex;
+        *(_OWORD *)&v20[0].type = *(_OWORD *)&from->type;
+        v20[0].addrHandleIndex = v14;
+        v15 = NET_AdrToString(v20);
+        v18 = v11;
+        Com_PrintWarning(25, "[%s] PartyHost - UpdateXnaddr - Received 'pa_updatexnaddrack' message from (%s) but member indexes (%d) beyond pending xnaddr updates bit array\n", party->partyName, v15, v18);
       }
     }
     else
     {
-      __asm { vmovups xmm0, xmmword ptr [rdi] }
-      v14 = _RDI->addrHandleIndex;
-      __asm { vmovups [rsp+58h+var_28], xmm0 }
-      v24[0].addrHandleIndex = v14;
-      v15 = NET_AdrToString(v24);
-      Com_PrintWarning(25, "[%s] PartyHost - UpdateXnaddr - Received 'pa_updatexnaddrack' message from (%s) but we dont know which client it is\n", party->partyName, v15);
+      v12 = from->addrHandleIndex;
+      *(_OWORD *)&v20[0].type = *(_OWORD *)&from->type;
+      v20[0].addrHandleIndex = v12;
+      v13 = NET_AdrToString(v20);
+      Com_PrintWarning(25, "[%s] PartyHost - UpdateXnaddr - Received 'pa_updatexnaddrack' message from (%s) but we dont know which client it is\n", party->partyName, v13);
     }
   }
   else
   {
-    v10 = NET_AdrToString(v24);
-    Com_PrintWarning(25, "[%s] PartyHost - UpdateXnaddr - Received stray 'pa_updatexnaddrack' message from (%s), we are not the host\n", party->partyName, v10);
+    v9 = NET_AdrToString(v20);
+    Com_PrintWarning(25, "[%s] PartyHost - UpdateXnaddr - Received stray 'pa_updatexnaddrack' message from (%s), we are not the host\n", party->partyName, v9);
   }
 }
 
@@ -4271,10 +3845,12 @@ PartyAtomicHost_AddJoinRequest
 __int64 PartyAtomicHost_AddJoinRequest(PartyData *party, const int localControllerIndex, netadr_t *from, XUID requestXuid, const int numPlayersJoining, const PartyJoinType joinType, const int numSubPartiesJoining, const unsigned __int8 *subPartyMemberCountList, PartyJoinChallenge *outChallenge)
 {
   const unsigned __int8 *v9; 
+  netadr_t *v10; 
   PartyJoinChallenge *v11; 
   unsigned int v13; 
   int BotsReservedSlotsAllies; 
   const char *v15; 
+  __int128 v16; 
   int v18; 
   int v19; 
   unsigned int v20; 
@@ -4284,10 +3860,13 @@ __int64 PartyAtomicHost_AddJoinRequest(PartyData *party, const int localControll
   int Int_Internal_DebugName; 
   int PlaylistIdForNum; 
   signed int MaxHumanPlayers; 
+  __int128 v27; 
   int v28; 
   const char *v29; 
+  __int128 v30; 
   unsigned int v31; 
   const char *v32; 
+  __int128 v33; 
   int v34; 
   int v35; 
   __int64 v36; 
@@ -4313,38 +3892,42 @@ __int64 PartyAtomicHost_AddJoinRequest(PartyData *party, const int localControll
   int v56; 
   const dvar_t *v57; 
   const char *v58; 
-  int v61; 
+  int addrHandleIndex; 
+  int v60; 
   int MaxFreeSlots; 
-  const char *v63; 
-  const char *v66; 
-  PartyJoinChallenge *v69; 
-  const char *v70; 
-  const char *v71; 
-  int v72; 
-  int v73; 
-  PartyJoinResponse v74; 
+  const char *v62; 
+  int v63; 
+  const char *v64; 
+  int v65; 
+  PartyJoinChallenge *v66; 
+  const char *v67; 
+  const char *v68; 
+  int v69; 
+  int v70; 
+  PartyJoinResponse v71; 
+  __int128 v72; 
   char *fmt; 
+  __int64 v74; 
+  __int64 v75; 
+  __int64 v76; 
   __int64 v77; 
-  __int64 v78; 
-  __int64 v79; 
-  __int64 v80; 
   PartyJoinChallenge *challenge; 
   int maxTeamSize; 
-  netadr_t v83; 
+  netadr_t v80; 
   unsigned int subpartyCount; 
   int totalSkill; 
-  netadr_t *v86; 
-  const unsigned __int8 *v87; 
+  netadr_t *v83; 
+  const unsigned __int8 *v84; 
   SubpartyInfo subparties[200]; 
   XUID uid; 
 
   uid.m_id = requestXuid.m_id;
   v9 = subPartyMemberCountList;
-  _R13 = from;
+  v10 = from;
   v11 = outChallenge;
-  v87 = subPartyMemberCountList;
+  v84 = subPartyMemberCountList;
   challenge = outChallenge;
-  v86 = from;
+  v83 = from;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7210, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7211, ASSERT_TYPE_ASSERT, "(outChallenge)", (const char *)&queryFormat, "outChallenge") )
@@ -4358,8 +3941,8 @@ __int64 PartyAtomicHost_AddJoinRequest(PartyData *party, const int localControll
     v13 += BotsReservedSlotsAllies + BG_Bots_GetBotsReservedSlotsAxis();
     if ( v13 >= 0xC9 )
     {
-      LODWORD(v77) = v13;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7220, ASSERT_TYPE_ASSERT, "(unsigned)( memberCount ) < (unsigned)( 200+1 )", "memberCount doesn't index MAX_PARTY_MEMBERS+1\n\t%i not in [0, %i)", v77, 201) )
+      LODWORD(v74) = v13;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7220, ASSERT_TYPE_ASSERT, "(unsigned)( memberCount ) < (unsigned)( 200+1 )", "memberCount doesn't index MAX_PARTY_MEMBERS+1\n\t%i not in [0, %i)", v74, 201) )
         __debugbreak();
     }
   }
@@ -4369,10 +3952,10 @@ __int64 PartyAtomicHost_AddJoinRequest(PartyData *party, const int localControll
     Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) The game is currently paused!\n", party->partyName, v15);
     challenge = (PartyJoinChallenge *)uid.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, uid);
-    __asm { vmovups xmm0, xmmword ptr [r13+0] }
-    v83.addrHandleIndex = _R13->addrHandleIndex;
-    __asm { vmovups [rsp+31AA0h+var_31A40], xmm0 }
-    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v83, JOINRESPONSE_ERROR_GAME_PAUSED, (const XUID *)&challenge, NULL, 0);
+    v16 = *(_OWORD *)&v10->type;
+    v80.addrHandleIndex = v10->addrHandleIndex;
+    *(_OWORD *)&v80.type = v16;
+    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v80, JOINRESPONSE_ERROR_GAME_PAUSED, (const XUID *)&challenge, NULL, 0);
     return 0i64;
   }
   v18 = numPlayersJoining;
@@ -4384,15 +3967,15 @@ __int64 PartyAtomicHost_AddJoinRequest(PartyData *party, const int localControll
     v21 = XUID::ToDevString(&uid);
     v22 = "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) We don't have %i free slots for them all (we only have %i left)\n";
 LABEL_27:
-    LODWORD(v77) = v20;
+    LODWORD(v74) = v20;
     LODWORD(fmt) = v18;
-    Com_PrintWarning(25, v22, party->partyName, v21, fmt, v77);
+    Com_PrintWarning(25, v22, party->partyName, v21, fmt, v74);
     challenge = (PartyJoinChallenge *)uid.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, uid);
-    __asm { vmovups xmm0, xmmword ptr [r13+0] }
-    v83.addrHandleIndex = _R13->addrHandleIndex;
-    __asm { vmovups [rsp+31AA0h+var_31A40], xmm0 }
-    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v83, JOINRESPONSE_ERROR_GAME_FULL_PARTY_COUNT, (const XUID *)&challenge, NULL, 0);
+    v27 = *(_OWORD *)&v10->type;
+    v80.addrHandleIndex = v10->addrHandleIndex;
+    *(_OWORD *)&v80.type = v27;
+    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v80, JOINRESPONSE_ERROR_GAME_FULL_PARTY_COUNT, (const XUID *)&challenge, NULL, 0);
     return 0i64;
   }
   if ( Party_IsGameLobby(party) )
@@ -4422,15 +4005,15 @@ LABEL_27:
   {
     v28 = PartyHost_CountOpenSlots(party);
     v29 = XUID::ToDevString(&uid);
-    LODWORD(v77) = v18;
+    LODWORD(v74) = v18;
     LODWORD(fmt) = v28;
-    Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) The party has not enough open slots (%i for %i players)\n", party->partyName, v29, fmt, v77);
+    Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) The party has not enough open slots (%i for %i players)\n", party->partyName, v29, fmt, v74);
     challenge = (PartyJoinChallenge *)uid.m_id;
     OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, uid);
-    __asm { vmovups xmm0, xmmword ptr [r13+0] }
-    v83.addrHandleIndex = _R13->addrHandleIndex;
-    __asm { vmovups [rsp+31AA0h+var_31A40], xmm0 }
-    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v83, JOINRESPONSE_ERROR_GAME_FULL_NO_PUBLIC_SLOTS, (const XUID *)&challenge, NULL, 0);
+    v30 = *(_OWORD *)&v10->type;
+    v80.addrHandleIndex = v10->addrHandleIndex;
+    *(_OWORD *)&v80.type = v30;
+    PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v80, JOINRESPONSE_ERROR_GAME_FULL_NO_PUBLIC_SLOTS, (const XUID *)&challenge, NULL, 0);
     return 0i64;
   }
   if ( Party_UsingPartyBasedTeams(party) )
@@ -4444,10 +4027,10 @@ LABEL_27:
       Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Already %i sub parties >= 2\n", party->partyName, v32, fmt);
       challenge = (PartyJoinChallenge *)uid.m_id;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, uid);
-      __asm { vmovups xmm0, xmmword ptr [r13+0] }
-      v83.addrHandleIndex = _R13->addrHandleIndex;
-      __asm { vmovups [rsp+31AA0h+var_31A40], xmm0 }
-      PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v83, JOINRESPONSE_ERROR_GAME_FULL_PARTY_TEAM_COUNT, (const XUID *)&challenge, NULL, 0);
+      v33 = *(_OWORD *)&v10->type;
+      v80.addrHandleIndex = v10->addrHandleIndex;
+      *(_OWORD *)&v80.type = v33;
+      PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v80, JOINRESPONSE_ERROR_GAME_FULL_PARTY_TEAM_COUNT, (const XUID *)&challenge, NULL, 0);
       return 0i64;
     }
   }
@@ -4463,7 +4046,7 @@ LABEL_27:
     totalSkill = v13;
     if ( numSubPartiesJoining >= 2i64 )
     {
-      v40 = v87;
+      v40 = v84;
       v41 = numSubPartiesJoining - 1i64;
       do
       {
@@ -4484,7 +4067,7 @@ LABEL_27:
     }
     if ( v39 < v36 )
     {
-      v46 = v87[v39];
+      v46 = v84[v39];
       v47 = v38++;
       v13 += v46;
       subparties[v47].count = v46;
@@ -4492,8 +4075,8 @@ LABEL_27:
     v48 = v34 + v35 + v13;
     if ( v48 != maxTeamSize )
     {
-      LODWORD(v78) = v37;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7279, ASSERT_TYPE_ASSERT, "(memberCount == oldMemberCount + numPlayersJoining)", "%s\n\toldPlayers was %i, %i players joining, but subparties had %i players in it\n", "memberCount == oldMemberCount + numPlayersJoining", v78, v18, v48 - v37) )
+      LODWORD(v75) = v37;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7279, ASSERT_TYPE_ASSERT, "(memberCount == oldMemberCount + numPlayersJoining)", "%s\n\toldPlayers was %i, %i players joining, but subparties had %i players in it\n", "memberCount == oldMemberCount + numPlayersJoining", v75, v18, v48 - v37) )
         __debugbreak();
     }
     NumGameSlots = Party_GetNumGameSlots(party);
@@ -4514,14 +4097,14 @@ LABEL_27:
     }
     if ( v38 - 1 > 0xC7 )
     {
-      LODWORD(v77) = v38;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7290, ASSERT_TYPE_SANITY, "( ( subpartyCount > 0 && subpartyCount <= 200 ) )", "( subpartyCount ) = %i", v77) )
+      LODWORD(v74) = v38;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7290, ASSERT_TYPE_SANITY, "( ( subpartyCount > 0 && subpartyCount <= 200 ) )", "( subpartyCount ) = %i", v74) )
         __debugbreak();
     }
     if ( v48 != NumGameSlots )
     {
-      LODWORD(v77) = v48;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7291, ASSERT_TYPE_ASSERT, "( ( memberCount == totalSlots ) )", "( memberCount ) = %i", v77) )
+      LODWORD(v74) = v48;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7291, ASSERT_TYPE_ASSERT, "( ( memberCount == totalSlots ) )", "( memberCount ) = %i", v74) )
         __debugbreak();
     }
     v52 = DVARINT_party_maxplayers;
@@ -4554,17 +4137,15 @@ LABEL_27:
     if ( v57->current.enabled && !TeamBalance_CanPartitionIntoTeams(subparties, v38, 0, v56, maxTeamSize) )
     {
       v58 = XUID::ToDevString(&uid);
-      LODWORD(v77) = numSubPartiesJoining;
+      LODWORD(v74) = numSubPartiesJoining;
       LODWORD(fmt) = v18;
-      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Unable to make balanced teams if %i players in %i subparties join.\n", party->partyName, v58, fmt, v77);
+      Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) Unable to make balanced teams if %i players in %i subparties join.\n", party->partyName, v58, fmt, v74);
       challenge = (PartyJoinChallenge *)uid.m_id;
       OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, uid);
-      _RAX = v86;
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      LODWORD(_RAX) = v86->addrHandleIndex;
-      __asm { vmovups [rsp+31AA0h+var_31A40], xmm0 }
-      v83.addrHandleIndex = (int)_RAX;
-      PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v83, JOINRESPONSE_ERROR_GAME_FULL_PARTY_TEAM_BALANCE, (const XUID *)&challenge, NULL, 0);
+      addrHandleIndex = v83->addrHandleIndex;
+      *(_OWORD *)&v80.type = *(_OWORD *)&v83->type;
+      v80.addrHandleIndex = addrHandleIndex;
+      PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v80, JOINRESPONSE_ERROR_GAME_FULL_PARTY_TEAM_BALANCE, (const XUID *)&challenge, NULL, 0);
       return 0i64;
     }
     PartyDebug_PrintTeams(subparties, v38);
@@ -4574,77 +4155,73 @@ LABEL_27:
       {
         if ( v18 > PartyHost_GetMaxFreeSlots(party, totalSkill, v56) )
         {
-          v61 = Party_GetNumGameSlots(party);
+          v60 = Party_GetNumGameSlots(party);
           MaxFreeSlots = PartyHost_GetMaxFreeSlots(party, v48, v56);
-          v63 = XUID::ToDevString(&uid);
-          LODWORD(v78) = v61;
-          LODWORD(v77) = MaxFreeSlots;
+          v62 = XUID::ToDevString(&uid);
+          LODWORD(v75) = v60;
+          LODWORD(v74) = MaxFreeSlots;
           LODWORD(fmt) = v18;
-          Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) We don't have %i free slots on one team (we only have %i left out of %i)\n", party->partyName, v63, fmt, v77, v78);
+          Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming party member. XUID ( %s ) We don't have %i free slots on one team (we only have %i left out of %i)\n", party->partyName, v62, fmt, v74, v75);
           challenge = (PartyJoinChallenge *)uid.m_id;
           OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, uid);
-          _RAX = v86;
-          __asm { vmovups xmm0, xmmword ptr [rax] }
-          LODWORD(_RAX) = v86->addrHandleIndex;
-          __asm { vmovups [rsp+31AA0h+var_31A40], xmm0 }
-          v83.addrHandleIndex = (int)_RAX;
-          PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v83, JOINRESPONSE_ERROR_GAME_FULL_PARTY_TEAM_FREESLOTS, (const XUID *)&challenge, NULL, 0);
+          v63 = v83->addrHandleIndex;
+          *(_OWORD *)&v80.type = *(_OWORD *)&v83->type;
+          v80.addrHandleIndex = v63;
+          PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v80, JOINRESPONSE_ERROR_GAME_FULL_PARTY_TEAM_FREESLOTS, (const XUID *)&challenge, NULL, 0);
           return 0i64;
         }
       }
       else if ( numSubPartiesJoining > 1 && numSubPartiesJoining != v18 )
       {
-        v66 = XUID::ToDevString(&uid);
-        Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming lobby. XUID ( %s ) Wait until round ends\n", party->partyName, v66);
+        v64 = XUID::ToDevString(&uid);
+        Com_PrintWarning(25, "[%s] PartyJoin - HandleJoinRequest - Rejecting incoming lobby. XUID ( %s ) Wait until round ends\n", party->partyName, v64);
         challenge = (PartyJoinChallenge *)uid.m_id;
         OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, uid);
-        _RAX = v86;
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        LODWORD(_RAX) = v86->addrHandleIndex;
-        __asm { vmovups [rsp+31AA0h+var_31A40], xmm0 }
-        v83.addrHandleIndex = (int)_RAX;
-        PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v83, JOINRESPONSE_ERROR_GAME_FULL_PARTY_TEAM_ROUNDSTARTED, (const XUID *)&challenge, NULL, 0);
+        v65 = v83->addrHandleIndex;
+        *(_OWORD *)&v80.type = *(_OWORD *)&v83->type;
+        v80.addrHandleIndex = v65;
+        PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v80, JOINRESPONSE_ERROR_GAME_FULL_PARTY_TEAM_ROUNDSTARTED, (const XUID *)&challenge, NULL, 0);
         return 0i64;
       }
     }
-    _R13 = v86;
+    v10 = v83;
   }
-  v69 = challenge;
+  v66 = challenge;
   PartyAtomicHost_BuildRandomChallenge(challenge);
-  v70 = "party";
+  v67 = "party";
   if ( Party_IsGameLobby(party) )
-    v70 = "lobby";
-  v71 = XUID::ToDevString(&uid);
-  LODWORD(v77) = numSubPartiesJoining;
+    v67 = "lobby";
+  v68 = XUID::ToDevString(&uid);
+  LODWORD(v74) = numSubPartiesJoining;
   LODWORD(fmt) = v18;
-  Com_Printf(15, "[%s] PartyJoin - HandleJoinRequest - XUID ( %s ) Adding %i players in %i subparties to the %s with challenge of '%s'\n", party->partyName, v71, fmt, v77, v70, challenge->str);
-  v72 = 0;
+  Com_Printf(15, "[%s] PartyJoin - HandleJoinRequest - XUID ( %s ) Adding %i players in %i subparties to the %s with challenge of '%s'\n", party->partyName, v68, fmt, v74, v67, challenge->str);
+  v69 = 0;
   if ( v18 <= 0 )
     return 1i64;
   while ( 1 )
   {
-    v73 = PartyAtomicHost_AddAnonymousMember(party, uid, v69, NULL);
-    v74 = v73;
-    if ( v73 < 1 )
+    v70 = PartyAtomicHost_AddAnonymousMember(party, uid, v66, NULL);
+    v71 = v70;
+    if ( v70 < 1 )
     {
-      LODWORD(v80) = 1;
-      LODWORD(v79) = v73;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7337, ASSERT_TYPE_ASSERT, "( joinResponse ) >= ( JOINRESPONSE_SUCCESS )", "%s >= %s\n\t%i, %i", "joinResponse", "JOINRESPONSE_SUCCESS", v79, v80) )
+      LODWORD(v77) = 1;
+      LODWORD(v76) = v70;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7337, ASSERT_TYPE_ASSERT, "( joinResponse ) >= ( JOINRESPONSE_SUCCESS )", "%s >= %s\n\t%i, %i", "joinResponse", "JOINRESPONSE_SUCCESS", v76, v77) )
         __debugbreak();
     }
-    if ( v74 != JOINRESPONSE_SUCCESS )
+    if ( v71 != JOINRESPONSE_SUCCESS )
       break;
-    v69 = challenge;
-    if ( ++v72 >= v18 )
+    v66 = challenge;
+    if ( ++v69 >= v18 )
       return 1i64;
   }
   PartyAtomicHost_RemoveAnonymousMembersWithChallengeXuid(party, uid);
   challenge = (PartyJoinChallenge *)uid.m_id;
   OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, uid);
-  __asm { vmovups xmm0, xmmword ptr [r13+0] }
-  v83.addrHandleIndex = _R13->addrHandleIndex;
-  __asm { vmovups [rsp+31AA0h+var_31A40], xmm0 }
-  PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v83, v74, (const XUID *)&challenge, NULL, 0);
+  v72 = *(_OWORD *)&v10->type;
+  v80.addrHandleIndex = v10->addrHandleIndex;
+  *(_OWORD *)&v80.type = v72;
+  PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v80, v71, (const XUID *)&challenge, NULL, 0);
   return 0i64;
 }
 
@@ -4818,44 +4395,42 @@ PartyAtomicHost_HandleJoinRequest_ShouldLetThemConnect
 __int64 PartyAtomicHost_HandleJoinRequest_ShouldLetThemConnect(PartyData *party, const LocalClientNum_t localClientNum, netadr_t *from, const unsigned int numPlayersJoining, PartyJoinInfo *partyJoinInfo)
 {
   int addrHandleIndex; 
-  const char *v12; 
+  const char *v11; 
   bdSecurityID *SecurityId; 
-  bdSecurityID *v14; 
-  int v15; 
+  bdSecurityID *v13; 
+  int v14; 
   const char *partyName; 
-  PartyDisconnectReason v17; 
-  netadr_t v18; 
+  PartyDisconnectReason v16; 
+  netadr_t v17; 
 
-  _RBX = from;
   if ( !partyJoinInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7407, ASSERT_TYPE_ASSERT, "(partyJoinInfo)", (const char *)&queryFormat, "partyJoinInfo") )
     __debugbreak();
   if ( !PartyAtomic_IsJoiningActive(partyJoinInfo) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7408, ASSERT_TYPE_ASSERT, "(PartyAtomic_IsJoiningActive( partyJoinInfo ))", (const char *)&queryFormat, "PartyAtomic_IsJoiningActive( partyJoinInfo )") )
     __debugbreak();
   if ( partyJoinInfo->joinType != PJT_MATCHMAKING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7409, ASSERT_TYPE_ASSERT, "(partyJoinInfo->joinType == PJT_MATCHMAKING)", (const char *)&queryFormat, "partyJoinInfo->joinType == PJT_MATCHMAKING") )
     __debugbreak();
-  if ( PartyAtomic_PacketIsFromPotentialHost(partyJoinInfo, localClientNum, (const PartyType)party->partyId, _RBX) )
+  if ( PartyAtomic_PacketIsFromPotentialHost(partyJoinInfo, localClientNum, (const PartyType)party->partyId, from) )
   {
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    addrHandleIndex = _RBX->addrHandleIndex;
-    __asm { vmovups [rsp+78h+var_48], xmm0 }
-    v18.addrHandleIndex = addrHandleIndex;
-    v12 = NET_AdrToString(&v18);
-    Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Crazy timing!  We're trying to connect to %s and they're trying to connect to us, too.\n", party->partyName, v12);
+    addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v17.type = *(_OWORD *)&from->type;
+    v17.addrHandleIndex = addrHandleIndex;
+    v11 = NET_AdrToString(&v17);
+    Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - Crazy timing!  We're trying to connect to %s and they're trying to connect to us, too.\n", party->partyName, v11);
     if ( PartyAtomic_GetJoinState(partyJoinInfo) < PARTYJOIN_JOIN )
     {
       if ( Party_CountMembersEvenIfInactive(party, PARTY_MEMBER_TYPE_PLAYER_ONLY) <= numPlayersJoining )
       {
         SecurityId = XSESSION_INFO::GetSecurityId(&partyJoinInfo->session->dyn.sessionInfo);
-        v14 = XSESSION_INFO::GetSecurityId(&party->session->dyn.sessionInfo);
-        v15 = memcmp_0(SecurityId, v14, 8ui64);
-        if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7441, ASSERT_TYPE_ASSERT, "(sessionCompare != 0)", (const char *)&queryFormat, "sessionCompare != 0") )
+        v13 = XSESSION_INFO::GetSecurityId(&party->session->dyn.sessionInfo);
+        v14 = memcmp_0(SecurityId, v13, 8ui64);
+        if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7441, ASSERT_TYPE_ASSERT, "(sessionCompare != 0)", (const char *)&queryFormat, "sessionCompare != 0") )
           __debugbreak();
         partyName = party->partyName;
-        if ( v15 <= 0 )
+        if ( v14 <= 0 )
         {
           Com_Printf(25, "[%s] PartyJoin - HandleJoinRequest - We'll pretend we're not trying to connect to them and accept them to our party, and hope to break the stalemate\n", partyName);
-          LOBYTE(v17) = 26;
-          PartyAtomic_AbortJoinAttempt(partyJoinInfo, v17);
+          LOBYTE(v16) = 26;
+          PartyAtomic_AbortJoinAttempt(partyJoinInfo, v16);
           return 1i64;
         }
         else
@@ -4982,35 +4557,29 @@ PartyAtomicHost_SendAcceptMessage
 void PartyAtomicHost_SendAcceptMessage(PartyData *party, netadr_t *addr, PartyJoinChallenge *challenge, const XUID xuid)
 {
   unsigned __int8 *m_ptr; 
-  const char *v10; 
-  netadr_t v11; 
-  __int64 v12; 
+  const char *v9; 
+  netadr_t v10; 
+  __int64 v11; 
   Mem_LargeLocal data; 
   msg_t buf; 
 
-  v12 = -2i64;
-  _RDI = addr;
+  v11 = -2i64;
   Mem_LargeLocal::Mem_LargeLocal(&data, 0x9AAui64, "min_msg_buf msgBuf");
   m_ptr = (unsigned __int8 *)data.m_ptr;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7463, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7464, ASSERT_TYPE_ASSERT, "(addr)", (const char *)&queryFormat, "addr") )
+  if ( !addr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7464, ASSERT_TYPE_ASSERT, "(addr)", (const char *)&queryFormat, "addr") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi]
-    vmovups [rsp+0C8h+var_98], xmm0
-  }
-  v11.addrHandleIndex = _RDI->addrHandleIndex;
-  if ( NET_IsLocalAddress(&v11) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7465, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( *addr ))", (const char *)&queryFormat, "!NET_IsLocalAddress( *addr )") )
+  v10 = *addr;
+  if ( NET_IsLocalAddress(&v10) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7465, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( *addr ))", (const char *)&queryFormat, "!NET_IsLocalAddress( *addr )") )
     __debugbreak();
   if ( !challenge && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7466, ASSERT_TYPE_ASSERT, "(challenge)", (const char *)&queryFormat, "challenge") )
     __debugbreak();
   MSG_Init(&buf, m_ptr, 2474);
-  v10 = j_va("%ipa_accept", (unsigned int)party->partyId);
-  MSG_WriteString(&buf, v10);
+  v9 = j_va("%ipa_accept", (unsigned int)party->partyId);
+  MSG_WriteString(&buf, v9);
   MSG_WriteData(&buf, challenge, 6);
-  RMsg_AddMessage(_RDI, &buf, NS_MAXCLIENTS);
+  RMsg_AddMessage(addr, &buf, NS_MAXCLIENTS);
   if ( OnlineMatchmakerOmniscient::IsMatchmaking(&OnlineMatchmakerOmniscient::ms_instance) )
     OnlineMatchmakerOmniscient::SetPartyPotentiallyJoining(&OnlineMatchmakerOmniscient::ms_instance, xuid);
   Mem_LargeLocal::~Mem_LargeLocal(&data);
@@ -5024,47 +4593,41 @@ PartyAtomicHost_SendJoinFailedResponseWithPayload
 void PartyAtomicHost_SendJoinFailedResponseWithPayload(PartyData *party, netadr_t *addr, PartyJoinResponse response, const XUID *clientXuid, const unsigned __int8 *payload, const unsigned int payloadSize)
 {
   unsigned __int8 *m_ptr; 
+  const char *v11; 
   const char *v12; 
-  const char *v14; 
-  const char *v15; 
-  __int64 v16; 
+  const char *v13; 
+  __int64 v14; 
+  __int64 v15; 
+  netadr_t v16; 
   __int64 v17; 
-  netadr_t v18; 
-  __int64 v19; 
-  Mem_LargeLocal v20; 
+  Mem_LargeLocal v18; 
   msg_t buf; 
 
-  v19 = -2i64;
-  _RBP = addr;
-  Mem_LargeLocal::Mem_LargeLocal(&v20, 0x9AAui64, "min_msg_buf msgBuf");
-  m_ptr = (unsigned __int8 *)v20.m_ptr;
+  v17 = -2i64;
+  Mem_LargeLocal::Mem_LargeLocal(&v18, 0x9AAui64, "min_msg_buf msgBuf");
+  m_ptr = (unsigned __int8 *)v18.m_ptr;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7133, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( (unsigned int)response >= JOINRESPONSE_COUNT )
   {
-    LODWORD(v16) = response;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7134, ASSERT_TYPE_ASSERT, "(unsigned)( response ) < (unsigned)( JOINRESPONSE_COUNT )", "response doesn't index JOINRESPONSE_COUNT\n\t%i not in [0, %i)", v16, 79) )
+    LODWORD(v14) = response;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7134, ASSERT_TYPE_ASSERT, "(unsigned)( response ) < (unsigned)( JOINRESPONSE_COUNT )", "response doesn't index JOINRESPONSE_COUNT\n\t%i not in [0, %i)", v14, 79) )
       __debugbreak();
   }
   if ( payloadSize > 0xFF )
   {
-    LODWORD(v17) = 255;
-    LODWORD(v16) = payloadSize;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7135, ASSERT_TYPE_ASSERT, "( payloadSize ) <= ( 255 )", "payloadSize not in [0, MAX_JOINRESPONSE_PAYLOAD_SIZE]\n\t%u not in [0, %u]", v16, v17) )
+    LODWORD(v15) = 255;
+    LODWORD(v14) = payloadSize;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7135, ASSERT_TYPE_ASSERT, "( payloadSize ) <= ( 255 )", "payloadSize not in [0, MAX_JOINRESPONSE_PAYLOAD_SIZE]\n\t%u not in [0, %u]", v14, v15) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+0]
-    vmovups [rsp+108h+var_C8], xmm0
-  }
-  v18.addrHandleIndex = _RBP->addrHandleIndex;
-  if ( NET_IsLocalAddress(&v18) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7137, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( addr ))", (const char *)&queryFormat, "!NET_IsLocalAddress( addr )") )
+  v16 = *addr;
+  if ( NET_IsLocalAddress(&v16) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 7137, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( addr ))", (const char *)&queryFormat, "!NET_IsLocalAddress( addr )") )
     __debugbreak();
   Party_DumpInfo(party, "PartyAtomicHost_SendJoinFailedResponseWithPayload");
   MSG_Init(&buf, m_ptr, 2474);
-  v12 = j_va("%ipa_joinfailed", (unsigned int)party->partyId);
-  MSG_WriteString(&buf, v12);
+  v11 = j_va("%ipa_joinfailed", (unsigned int)party->partyId);
+  MSG_WriteString(&buf, v11);
   MSG_WriteLong(&buf, response);
   MSG_WriteByte(&buf, payloadSize);
   if ( payloadSize )
@@ -5073,19 +4636,14 @@ void PartyAtomicHost_SendJoinFailedResponseWithPayload(PartyData *party, netadr_
       __debugbreak();
     MSG_WriteData(&buf, payload, payloadSize);
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+0]
-    vmovups [rsp+108h+var_C8], xmm0
-  }
-  v18.addrHandleIndex = _RBP->addrHandleIndex;
-  v14 = NET_AdrToString(&v18);
-  v15 = XUID::ToDevString((XUID *)clientXuid);
-  LODWORD(v17) = payloadSize;
-  LODWORD(v16) = response;
-  Com_Printf(131097, "[%s] PartyJoin - SendJoinFailedResponse - sending 'pa_joinfailed' to client %s at %s with response %i (%i byte payload)\n", party->partyName, v15, v14, v16, v17);
-  RMsg_AddMessage(_RBP, &buf, NS_MAXCLIENTS);
-  Mem_LargeLocal::~Mem_LargeLocal(&v20);
+  v16 = *addr;
+  v12 = NET_AdrToString(&v16);
+  v13 = XUID::ToDevString((XUID *)clientXuid);
+  LODWORD(v15) = payloadSize;
+  LODWORD(v14) = response;
+  Com_Printf(131097, "[%s] PartyJoin - SendJoinFailedResponse - sending 'pa_joinfailed' to client %s at %s with response %i (%i byte payload)\n", party->partyName, v13, v12, v14, v15);
+  RMsg_AddMessage(addr, &buf, NS_MAXCLIENTS);
+  Mem_LargeLocal::~Mem_LargeLocal(&v18);
 }
 
 /*
@@ -5130,40 +4688,41 @@ PartyDebug_UpdateTeam
 */
 void PartyDebug_UpdateTeam(SubpartyInfo *subparties, int subpartyCount)
 {
-  int v9; 
-  __int64 v64; 
+  __int64 v6; 
+  int v7; 
+  int v8; 
+  int *p_team; 
+  __int64 v58; 
   int *p_skill; 
-  bool v66; 
-  int v67; 
-  unsigned int v68; 
+  bool v60; 
+  int v61; 
+  unsigned int v62; 
 
-  _R9 = 0i64;
-  _EAX = 0;
-  v9 = 0;
+  v6 = 0i64;
+  v7 = 0;
+  v8 = 0;
   if ( subpartyCount > 0 && (unsigned int)subpartyCount >= 8 )
   {
     __asm
     {
-      vmovaps [rsp+78h+var_18], xmm6
-      vmovaps [rsp+78h+var_28], xmm7
-      vmovaps [rsp+78h+var_38], xmm8
-      vmovaps [rsp+78h+var_48], xmm9
       vpxor   xmm5, xmm5, xmm5
       vpxor   xmm6, xmm6, xmm6
       vpxor   xmm7, xmm7, xmm7
-      vmovdqu xmm9, cs:__xmm@00000001000000010000000100000001
     }
-    _RAX = &subparties[2].team;
+    p_team = &subparties[2].team;
     __asm { vpxor   xmm8, xmm8, xmm8 }
     do
     {
+      _XMM0 = (unsigned int)*(p_team - 508);
       __asm
       {
-        vmovd   xmm0, dword ptr [rax-7F0h]
         vpinsrd xmm0, xmm0, dword ptr [rax-3F8h], 1
         vpinsrd xmm0, xmm0, dword ptr [rax], 2
         vpinsrd xmm0, xmm0, dword ptr [rax+3F8h], 3
-        vmovd   xmm3, dword ptr [rax-7F4h]
+      }
+      _XMM3 = (unsigned int)*(p_team - 509);
+      __asm
+      {
         vpinsrd xmm3, xmm3, dword ptr [rax-3FCh], 1
         vpinsrd xmm3, xmm3, dword ptr [rax-4], 2
         vpinsrd xmm3, xmm3, dword ptr [rax+3F4h], 3
@@ -5171,14 +4730,20 @@ void PartyDebug_UpdateTeam(SubpartyInfo *subparties, int subpartyCount)
         vpaddd  xmm0, xmm3, xmm5
         vpand   xmm2, xmm0, xmm4
         vpaddd  xmm0, xmm3, xmm8
-        vmovd   xmm3, dword ptr [rax+7ECh]
+      }
+      _XMM3 = (unsigned int)p_team[507];
+      __asm
+      {
         vpinsrd xmm3, xmm3, dword ptr [rax+0BE4h], 1
         vpinsrd xmm3, xmm3, dword ptr [rax+0FDCh], 2
         vpinsrd xmm3, xmm3, dword ptr [rax+13D4h], 3
         vpandn  xmm1, xmm4, xmm5
         vpor    xmm5, xmm2, xmm1
         vpandn  xmm2, xmm4, xmm0
-        vmovd   xmm0, dword ptr [rax+7F0h]
+      }
+      _XMM0 = (unsigned int)p_team[508];
+      __asm
+      {
         vpinsrd xmm0, xmm0, dword ptr [rax+0BE8h], 1
         vpinsrd xmm0, xmm0, dword ptr [rax+0FE0h], 2
         vpinsrd xmm0, xmm0, dword ptr [rax+13D8h], 3
@@ -5191,9 +4756,9 @@ void PartyDebug_UpdateTeam(SubpartyInfo *subparties, int subpartyCount)
         vpaddd  xmm0, xmm3, xmm7
         vpor    xmm6, xmm2, xmm1
       }
-      v9 += 8;
-      _RAX += 2032;
-      _R9 += 8i64;
+      v8 += 8;
+      p_team += 2032;
+      v6 += 8i64;
       __asm
       {
         vpandn  xmm2, xmm4, xmm0
@@ -5201,47 +4766,46 @@ void PartyDebug_UpdateTeam(SubpartyInfo *subparties, int subpartyCount)
         vpor    xmm7, xmm2, xmm1
       }
     }
-    while ( _R9 < (int)(subpartyCount - (subpartyCount & 0x80000007)) );
+    while ( v6 < (int)(subpartyCount - (subpartyCount & 0x80000007)) );
     __asm
     {
-      vmovaps xmm9, [rsp+78h+var_48]
       vpaddd  xmm1, xmm7, xmm8
-      vmovaps xmm8, [rsp+78h+var_38]
-      vmovaps xmm7, [rsp+78h+var_28]
       vpsrldq xmm0, xmm1, 8
       vpaddd  xmm2, xmm1, xmm0
       vpaddd  xmm1, xmm6, xmm5
-      vmovaps xmm6, [rsp+78h+var_18]
       vpsrldq xmm0, xmm2, 4
       vpaddd  xmm0, xmm2, xmm0
-      vmovd   eax, xmm0
+    }
+    v7 = _XMM0;
+    __asm
+    {
       vpsrldq xmm0, xmm1, 8
       vpaddd  xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpaddd  xmm0, xmm2, xmm0
-      vmovd   r9d, xmm0
     }
+    LODWORD(v6) = _XMM0;
   }
-  if ( v9 < (__int64)subpartyCount )
+  if ( v8 < (__int64)subpartyCount )
   {
-    v64 = subpartyCount - (__int64)v9;
-    p_skill = &subparties[v9].skill;
+    v58 = subpartyCount - (__int64)v8;
+    p_skill = &subparties[v8].skill;
     do
     {
-      v66 = p_skill[1] == 1;
-      v67 = *p_skill;
+      v60 = p_skill[1] == 1;
+      v61 = *p_skill;
       p_skill += 254;
-      if ( !v66 )
-        _EAX += v67;
-      v68 = _R9 + v67;
-      if ( !v66 )
-        v68 = _R9;
-      _R9 = v68;
-      --v64;
+      if ( !v60 )
+        v7 += v61;
+      v62 = v6 + v61;
+      if ( !v60 )
+        v62 = v6;
+      v6 = v62;
+      --v58;
     }
-    while ( v64 );
+    while ( v58 );
   }
-  Com_sprintf_truncate(party_drawTeamDebug, 0x40ui64, "(%i:%i)", _R9, _EAX);
+  Com_sprintf_truncate(party_drawTeamDebug, 0x40ui64, "(%i:%i)", v6, v7);
 }
 
 /*
@@ -5488,6 +5052,8 @@ __int64 PartyHost_AddPartyMemberToLobby(const int localControllerIndex, const XU
   __int64 v3; 
   NetConnection *MemberConnection; 
   PartyData *PartyData; 
+  netadr_t *Netadr; 
+  __int128 v9; 
   int v11; 
   int v12; 
   int v13; 
@@ -5523,11 +5089,11 @@ __int64 PartyHost_AddPartyMemberToLobby(const int localControllerIndex, const XU
     PartyData = Lobby_GetPartyData();
     if ( NetConnection::IsLocal(MemberConnection) )
     {
-      _RAX = NetConnection::GetNetadr(MemberConnection, &result);
-      __asm { vmovups xmm0, xmmword ptr [rax] }
-      LODWORD(_RAX) = _RAX->addrHandleIndex;
-      __asm { vmovups [rsp+318h+var_2B8], xmm0 }
-      v24.addrHandleIndex = (int)_RAX;
+      Netadr = NetConnection::GetNetadr(MemberConnection, &result);
+      v9 = *(_OWORD *)&Netadr->type;
+      LODWORD(Netadr) = Netadr->addrHandleIndex;
+      *(_OWORD *)&v24.type = v9;
+      v24.addrHandleIndex = (int)Netadr;
       if ( !Party_FindFirstMemberAtAddr(PartyData, &v24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 6247, ASSERT_TYPE_ASSERT, "(Party_FindFirstMemberAtAddr( lobby, partyConnection.GetNetadr() ))", "%s\n\tDid not add local players properly to the lobby", "Party_FindFirstMemberAtAddr( lobby, partyConnection.GetNetadr() )") )
       {
         __debugbreak();
@@ -5675,17 +5241,19 @@ void PartyHost_AddPlayerAtSlot_Internal(PartyData *party, const int localControl
 {
   __int64 v8; 
   int v11; 
-  const char *v13; 
-  unsigned __int8 v15; 
+  const char *v12; 
+  const ClientAuthoritativeMemberInfo *v13; 
+  unsigned __int8 v14; 
   unsigned __int8 status; 
-  unsigned __int64 v28; 
-  unsigned __int64 v29; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned __int64,int> > *v30; 
+  unsigned __int64 v16; 
+  unsigned __int64 v17; 
+  ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned __int64,int> > *v18; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
   ntl::internal::pool_allocator_freelist<24> *p_m_freelist; 
-  int v34; 
-  __int64 v35; 
-  __int64 v36; 
-  __int128 v37; 
+  int v21; 
+  __int64 v22; 
+  __int64 v23; 
+  __int128 v24; 
   int outMemberIndex; 
 
   v8 = slot;
@@ -5702,16 +5270,15 @@ void PartyHost_AddPlayerAtSlot_Internal(PartyData *party, const int localControl
   v11 = natType;
   if ( (unsigned int)(natType - 1) > 2 )
   {
-    LODWORD(v35) = natType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 1359, ASSERT_TYPE_ASSERT, "( ( (natType > XONLINE_NAT_UNKNOWN) && (natType <= XONLINE_NAT_STRICT) ) )", "( natType ) = %i", v35) )
+    LODWORD(v22) = natType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 1359, ASSERT_TYPE_ASSERT, "( ( (natType > XONLINE_NAT_UNKNOWN) && (natType <= XONLINE_NAT_STRICT) ) )", "( natType ) = %i", v22) )
       __debugbreak();
   }
-  _R15 = &party->partyMembers[v8];
-  v13 = XUID::ToDevString((XUID *)xuid);
-  _RBX = memberInfo;
-  v15 = joinType;
-  LODWORD(v35) = v8;
-  Com_Printf(25, "[%s] Adding player %s (%s) at slot %i with joinType %i\n", party->partyName, memberInfo->gamertag, v13, v35, joinType);
+  v12 = XUID::ToDevString((XUID *)xuid);
+  v13 = memberInfo;
+  v14 = joinType;
+  LODWORD(v22) = v8;
+  Com_Printf(25, "[%s] Adding player %s (%s) at slot %i with joinType %i\n", party->partyName, memberInfo->gamertag, v12, v22, joinType);
   status = party->partyMembers[v8].status;
   if ( status > 2u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 1365, ASSERT_TYPE_ASSERT, "( partyMember->status ) <= ( PARTYSTATUS_ANONYMOUS )", "%s <= %s\n\t%i, %i", "partyMember->status", "PARTYSTATUS_ANONYMOUS", status, 2) )
     __debugbreak();
@@ -5719,8 +5286,8 @@ void PartyHost_AddPlayerAtSlot_Internal(PartyData *party, const int localControl
     Party_ClearMember(party, v8, NET_CLOSE_SOFT);
   if ( party->partyMembers[v8].lastPartyGoTime )
   {
-    LODWORD(v36) = party->partyMembers[v8].lastPartyGoTime;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 1371, ASSERT_TYPE_ASSERT, "( ( partyMember->lastPartyGoTime == 0 ) )", "( partyMember->lastPartyGoTime ) = %i", v36) )
+    LODWORD(v23) = party->partyMembers[v8].lastPartyGoTime;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 1371, ASSERT_TYPE_ASSERT, "( ( partyMember->lastPartyGoTime == 0 ) )", "( partyMember->lastPartyGoTime ) = %i", v23) )
       __debugbreak();
   }
   if ( Party_FindMemberByXUID_Internal(party, (const XUID)xuid->m_id, &outMemberIndex) && outMemberIndex != (_DWORD)v8 )
@@ -5728,49 +5295,35 @@ void PartyHost_AddPlayerAtSlot_Internal(PartyData *party, const int localControl
     Com_Printf(25, "[%s] Clearing out old slot %i that they used to be in\n", party->partyName, (unsigned int)outMemberIndex);
     Party_ClearMember(party, v8, NET_CLOSE_SOFT);
   }
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbx]
-    vmovups xmmword ptr [r15], xmm0
-    vmovups xmm1, xmmword ptr [rbx+10h]
-    vmovups xmmword ptr [r15+10h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+20h]
-    vmovups xmmword ptr [r15+20h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+30h]
-    vmovups xmmword ptr [r15+30h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+40h]
-    vmovups xmmword ptr [r15+40h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+50h]
-    vmovups xmmword ptr [r15+50h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+60h]
-    vmovups xmmword ptr [r15+60h], xmm0
-    vmovups xmm0, xmmword ptr [rbx+70h]
-    vmovups xmmword ptr [r15+70h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+80h]
-    vmovups xmmword ptr [r15+80h], xmm1
-    vmovups xmm0, xmmword ptr [rbx+90h]
-    vmovups xmmword ptr [r15+90h], xmm0
-    vmovups xmm1, xmmword ptr [rbx+0A0h]
-    vmovups xmmword ptr [r15+0A0h], xmm1
-  }
-  *(_QWORD *)&party->partyMembers[v8].info.deathsHistory[3] = *(_QWORD *)&_RBX->deathsHistory[3];
+  *(_OWORD *)party->partyMembers[v8].info.privatePartyId.ab = *(_OWORD *)v13->privatePartyId.ab;
+  *(_OWORD *)&party->partyMembers[v8].info.zombie_consumable1 = *(_OWORD *)&v13->zombie_consumable1;
+  *(_OWORD *)&party->partyMembers[v8].info.alien_readyUpFlag = *(_OWORD *)&v13->alien_readyUpFlag;
+  *(_OWORD *)&party->partyMembers[v8].info.clientDesiredTeamSelection = *(_OWORD *)&v13->clientDesiredTeamSelection;
+  *(_OWORD *)&party->partyMembers[v8].info.gamertag[12] = *(_OWORD *)&v13->gamertag[12];
+  *(_OWORD *)&party->partyMembers[v8].info.gamertag[28] = *(_OWORD *)&v13->gamertag[28];
+  *(_OWORD *)&party->partyMembers[v8].info.clanAbbrev[4] = *(_OWORD *)&v13->clanAbbrev[4];
+  *(_OWORD *)&party->partyMembers[v8].info.wins = *(_OWORD *)&v13->wins;
+  *(_OWORD *)&party->partyMembers[v8].info.winLossRatio = *(_OWORD *)&v13->winLossRatio;
+  *(_OWORD *)&party->partyMembers[v8].info.mlgFollower = *(_OWORD *)&v13->mlgFollower;
+  *(_OWORD *)&party->partyMembers[v8].info.platformId = *(_OWORD *)&v13->platformId;
+  *(_QWORD *)&party->partyMembers[v8].info.deathsHistory[3] = *(_QWORD *)&v13->deathsHistory[3];
   XUID::operator=(&party->partyMembers[v8].playerUID, xuid);
   if ( !XUID::IsValid(&party->partyMembers[v8].playerUID) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 1382, ASSERT_TYPE_ASSERT, "(partyMember->playerUID.IsValid())", (const char *)&queryFormat, "partyMember->playerUID.IsValid()") )
     __debugbreak();
   if ( Party_FindMemberByXUID_Internal(party, (const XUID)xuid->m_id, &outMemberIndex) && outMemberIndex != (_DWORD)v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 1383, ASSERT_TYPE_ASSERT, "(!Party_FindMemberByXUID_Internal( party, *xuid, &foundMember ) || (foundMember == slot))", (const char *)&queryFormat, "!Party_FindMemberByXUID_Internal( party, *xuid, &foundMember ) || (foundMember == slot)") )
     __debugbreak();
-  v28 = XUID::ToUint64((XUID *)xuid);
-  v29 = ((unsigned int)v28 ^ HIDWORD(v28)) % 0x185;
-  if ( v29 >= 0x185 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
+  v16 = XUID::ToUint64((XUID *)xuid);
+  v17 = ((unsigned int)v16 ^ HIDWORD(v16)) % 0x185;
+  if ( v17 >= 0x185 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
     __debugbreak();
-  v30 = &party->memberMap.m_buckets.m_data[v29];
-  _RBX = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v30->m_listHead.m_sentinel.mp_next;
-  if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned __int64,int> > *)v30->m_listHead.m_sentinel.mp_next == v30 )
+  v18 = &party->memberMap.m_buckets.m_data[v17];
+  mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v18->m_listHead.m_sentinel.mp_next;
+  if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<unsigned __int64,int> > *)v18->m_listHead.m_sentinel.mp_next == v18 )
   {
 LABEL_47:
-    *(_QWORD *)&v37 = v28;
-    DWORD2(v37) = 0;
-    if ( _RBX == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v30 )
+    *(_QWORD *)&v24 = v16;
+    DWORD2(v24) = 0;
+    if ( mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v18 )
     {
 LABEL_53:
       p_m_freelist = &party->memberMap.m_freelist;
@@ -5783,55 +5336,54 @@ LABEL_53:
       }
       if ( (ntl::internal::pool_allocator_freelist<24> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x18ui64, 0xCAui64) )
         __debugbreak();
-      _RBX = p_m_freelist->m_head.mp_next;
-      __asm { vmovups xmm0, [rsp+98h+var_48] }
+      mp_next = p_m_freelist->m_head.mp_next;
       p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-      v15 = joinType;
-      _RBX->mp_next = NULL;
-      __asm { vmovups xmmword ptr [rbx+8], xmm0 }
-      _RBX->mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v30->m_listHead.m_sentinel.mp_next;
-      v30->m_listHead.m_sentinel.mp_next = (ntl::internal::slist_node_base *)_RBX;
+      v14 = joinType;
+      mp_next->mp_next = NULL;
+      *(_OWORD *)&mp_next[1].mp_next = v24;
+      mp_next->mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v18->m_listHead.m_sentinel.mp_next;
+      v18->m_listHead.m_sentinel.mp_next = (ntl::internal::slist_node_base *)mp_next;
     }
     else
     {
       while ( 1 )
       {
-        if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        if ( _RBX[1].mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v28 )
+        if ( mp_next[1].mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v16 )
           break;
-        _RBX = _RBX->mp_next;
-        if ( _RBX == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v30 )
+        mp_next = mp_next->mp_next;
+        if ( mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v18 )
           goto LABEL_53;
       }
-      _RBX = NULL;
+      mp_next = NULL;
     }
     ++party->memberMap.m_currentNumItems;
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table.h", 331, ASSERT_TYPE_ASSERT, "( p_node )", (const char *)&queryFormat, "p_node") )
+    if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\hash_table\\hash_table.h", 331, ASSERT_TYPE_ASSERT, "( p_node )", (const char *)&queryFormat, "p_node") )
       __debugbreak();
   }
   else
   {
     while ( 1 )
     {
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      if ( _RBX[1].mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v28 )
+      if ( mp_next[1].mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v16 )
         break;
-      _RBX = _RBX->mp_next;
-      if ( _RBX == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v30 )
+      mp_next = mp_next->mp_next;
+      if ( mp_next == (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v18 )
       {
-        _RBX = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v30->m_listHead.m_sentinel.mp_next;
+        mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v18->m_listHead.m_sentinel.mp_next;
         goto LABEL_47;
       }
     }
   }
-  v34 = isGuestAccount;
-  LODWORD(_RBX[2].mp_next) = v8;
-  party->partyMembers[v8].isGuestAccount = v34;
+  v21 = isGuestAccount;
+  LODWORD(mp_next[2].mp_next) = v8;
+  party->partyMembers[v8].isGuestAccount = v21;
   party->partyMembers[v8].natType = v11;
   party->partyMembers[v8].lastPacketTime = Sys_Milliseconds();
-  party->partyMembers[v8].joinType = v15;
+  party->partyMembers[v8].joinType = v14;
   if ( Party_IsPrivateParty(party) && (unsigned __int8)(party->partyMembers[v8].joinType - 1) <= 1u )
     party->partyMembers[v8].isUserInviteJoining = 1;
   PartyHost_UpdatePlayerStatus(party, localControllerIndex, v8, 3);
@@ -6940,35 +6492,34 @@ _BOOL8 PartyHost_CommitPlayer(PartyData *party, const int localControllerIndex, 
   const char *String; 
   const char *MatchmakingStringForClientPlatform; 
   int addrHandleIndex; 
+  int v15; 
   int v16; 
-  int v18; 
-  const char *v19; 
+  const char *v17; 
   char *fmt; 
-  __int64 v22; 
-  netadr_t v23; 
+  __int64 v20; 
+  netadr_t v21; 
   XNADDR xnaddr; 
   char dest[32]; 
 
   v4 = memberIndex;
-  _R14 = memberAddr;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 1474, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( (unsigned int)v4 >= 0xC8 )
   {
-    LODWORD(v22) = v4;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 1475, ASSERT_TYPE_ASSERT, "(unsigned)( memberIndex ) < (unsigned)( 200 )", "memberIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v22, 200) )
+    LODWORD(v20) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 1475, ASSERT_TYPE_ASSERT, "(unsigned)( memberIndex ) < (unsigned)( 200 )", "memberIndex doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v20, 200) )
       __debugbreak();
   }
   status = party->partyMembers[v4].status;
   if ( status > 4u && status != 6 )
   {
-    LODWORD(v22) = status;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 1478, ASSERT_TYPE_ASSERT, "( ( member->status <= PARTYSTATUS_COMMITTED || member->status == PARTYSTATUS_TESTCLIENT ) )", "( member->status ) = %i", v22) )
+    LODWORD(v20) = status;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 1478, ASSERT_TYPE_ASSERT, "( ( member->status <= PARTYSTATUS_COMMITTED || member->status == PARTYSTATUS_TESTCLIENT ) )", "( member->status ) = %i", v20) )
       __debugbreak();
   }
   if ( Party_IsPrivateParty(party) )
     party->partyMembers[v4].info.privatePartyId = *XSESSION_INFO::GetSecurityId(&party->session->dyn.sessionInfo);
-  v9 = PartyHost_AcceptConnection(party, v4, _R14);
+  v9 = PartyHost_AcceptConnection(party, v4, memberAddr);
   if ( v9 )
   {
     v10 = XUID::ToDevString(&party->partyMembers[v4].playerUID);
@@ -6978,25 +6529,23 @@ _BOOL8 PartyHost_CommitPlayer(PartyData *party, const int localControllerIndex, 
     MatchmakingStringForClientPlatform = Com_GetMatchmakingStringForClientPlatform((const ClientPlatform)(unsigned __int8)party->partyMembers[v4].info.platform[0]);
     LODWORD(fmt) = v4;
     Com_Printf(131097, "[%s] Committing player %s (idx %i, xuid %s, platform %s) at %s when %s\n", party->partyName, party->partyMembers[v4].info.gamertag, fmt, dest, MatchmakingStringForClientPlatform, String, v11);
-    __asm { vmovups xmm0, xmmword ptr [r14] }
-    addrHandleIndex = _R14->addrHandleIndex;
-    __asm { vmovups [rsp+148h+var_F8], xmm0 }
-    v16 = 4;
-    v23.addrHandleIndex = addrHandleIndex;
-    if ( NET_IsLocalAddress(&v23) )
-      v16 = NET_IsBotAddr(_R14) + 5;
-    PartyHost_UpdatePlayerStatus(party, localControllerIndex, v4, v16);
+    addrHandleIndex = memberAddr->addrHandleIndex;
+    *(_OWORD *)&v21.type = *(_OWORD *)&memberAddr->type;
+    v15 = 4;
+    v21.addrHandleIndex = addrHandleIndex;
+    if ( NET_IsLocalAddress(&v21) )
+      v15 = NET_IsBotAddr(memberAddr) + 5;
+    PartyHost_UpdatePlayerStatus(party, localControllerIndex, v4, v15);
     Party_GetClientXNAddr(party, v4, &xnaddr);
     Party_RegisterPlayer(party, localControllerIndex, v4, &xnaddr);
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [r14] }
-    v18 = _R14->addrHandleIndex;
-    __asm { vmovups [rsp+148h+var_F8], xmm0 }
-    v23.addrHandleIndex = v18;
-    v19 = NET_AdrToString(&v23);
-    Com_PrintError(131097, "[%s] Failed to accept client connection %s\n", party->partyName, v19);
+    v16 = memberAddr->addrHandleIndex;
+    *(_OWORD *)&v21.type = *(_OWORD *)&memberAddr->type;
+    v21.addrHandleIndex = v16;
+    v17 = NET_AdrToString(&v21);
+    Com_PrintError(131097, "[%s] Failed to accept client connection %s\n", party->partyName, v17);
   }
   return v9;
 }
@@ -7570,17 +7119,18 @@ void PartyHost_Frame(PartyData *party, const PartyActiveClient *mainActiveClient
   signed int MemberByXUID; 
   unsigned __int64 PlatformUserId; 
   int v28; 
+  PartyMember *v29; 
   PartyType partyId; 
-  int v50; 
-  const dvar_t *v51; 
-  const dvar_t *v52; 
-  bool v53; 
-  __int64 v54; 
+  int v31; 
+  const dvar_t *v32; 
+  const dvar_t *v33; 
+  bool v34; 
+  __int64 v35; 
   XUID result; 
-  __int64 v56; 
+  __int64 v37; 
   ClientAuthoritativeMemberInfo Buf2; 
 
-  v56 = -2i64;
+  v37 = -2i64;
   m_id = mainActiveClient;
   result.m_id = (unsigned __int64)mainActiveClient;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 9509, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
@@ -7681,8 +7231,8 @@ void PartyHost_Frame(PartyData *party, const PartyActiveClient *mainActiveClient
         v23 = "no";
         if ( IsValid )
           v23 = "yes";
-        LODWORD(v54) = v18;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 9438, ASSERT_TYPE_ASSERT, "(Party_FindMemberByXUID( party, party->partyMembers[clientNum].playerUID ) == clientNum)", "%s\n\tsession is %s, sessionIsValid %s, xuid %s, clientNum %i", "Party_FindMemberByXUID( party, party->partyMembers[clientNum].playerUID ) == clientNum", party->partyName, v23, v21, v54) )
+        LODWORD(v35) = v18;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 9438, ASSERT_TYPE_ASSERT, "(Party_FindMemberByXUID( party, party->partyMembers[clientNum].playerUID ) == clientNum)", "%s\n\tsession is %s, sessionIsValid %s, xuid %s, clientNum %i", "Party_FindMemberByXUID( party, party->partyMembers[clientNum].playerUID ) == clientNum", party->partyName, v23, v21, v35) )
           __debugbreak();
       }
       ++v18;
@@ -7719,53 +7269,22 @@ void PartyHost_Frame(PartyData *party, const PartyActiveClient *mainActiveClient
         {
           if ( Party_IsMemberIndexDataAvailable(party, MemberByXUID) )
           {
-            _RDI = &party->partyMembers[v28];
-            _RCX = &Buf2;
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rdi]
-              vmovups ymmword ptr [rcx], ymm0
-              vmovups ymm0, ymmword ptr [rdi+20h]
-              vmovups ymmword ptr [rcx+20h], ymm0
-              vmovups ymm0, ymmword ptr [rdi+40h]
-              vmovups ymmword ptr [rcx+40h], ymm0
-              vmovups ymm0, ymmword ptr [rdi+60h]
-              vmovups ymmword ptr [rcx+60h], ymm0
-              vmovups ymm0, ymmword ptr [rdi+80h]
-              vmovups ymmword ptr [rcx+80h], ymm0
-              vmovups xmm0, xmmword ptr [rdi+0A0h]
-              vmovups xmmword ptr [rcx+0A0h], xmm0
-            }
-            *(_QWORD *)&Buf2.deathsHistory[3] = *(_QWORD *)&party->partyMembers[v28].info.deathsHistory[3];
+            v29 = &party->partyMembers[v28];
+            Buf2 = v29->info;
             Party_FillInOurMemberInfo(party, v6, &Buf2);
-            if ( memcmp_0(_RDI, &Buf2, 0xB8ui64) )
+            if ( memcmp_0(v29, &Buf2, 0xB8ui64) )
             {
-              _RAX = &Buf2;
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rax]
-                vmovups xmmword ptr [rdi], xmm0
-                vmovups xmm1, xmmword ptr [rax+10h]
-                vmovups xmmword ptr [rdi+10h], xmm1
-                vmovups xmm0, xmmword ptr [rax+20h]
-                vmovups xmmword ptr [rdi+20h], xmm0
-                vmovups xmm1, xmmword ptr [rax+30h]
-                vmovups xmmword ptr [rdi+30h], xmm1
-                vmovups xmm0, xmmword ptr [rax+40h]
-                vmovups xmmword ptr [rdi+40h], xmm0
-                vmovups xmm1, xmmword ptr [rax+50h]
-                vmovups xmmword ptr [rdi+50h], xmm1
-                vmovups xmm0, xmmword ptr [rax+60h]
-                vmovups xmmword ptr [rdi+60h], xmm0
-                vmovups xmm1, xmmword ptr [rax+70h]
-                vmovups xmmword ptr [rdi+70h], xmm1
-                vmovups xmm0, xmmword ptr [rax+80h]
-                vmovups xmmword ptr [rdi+80h], xmm0
-                vmovups xmm1, xmmword ptr [rax+90h]
-                vmovups xmmword ptr [rdi+90h], xmm1
-                vmovups xmm0, xmmword ptr [rax+0A0h]
-                vmovups xmmword ptr [rdi+0A0h], xmm0
-              }
+              *(_OWORD *)v29->info.privatePartyId.ab = *(_OWORD *)Buf2.privatePartyId.ab;
+              *(_OWORD *)&party->partyMembers[v28].info.zombie_consumable1 = *(_OWORD *)&Buf2.zombie_consumable1;
+              *(_OWORD *)&party->partyMembers[v28].info.alien_readyUpFlag = *(_OWORD *)&Buf2.alien_readyUpFlag;
+              *(_OWORD *)&party->partyMembers[v28].info.clientDesiredTeamSelection = *(_OWORD *)&Buf2.clientDesiredTeamSelection;
+              *(_OWORD *)&party->partyMembers[v28].info.gamertag[12] = *(_OWORD *)&Buf2.gamertag[12];
+              *(_OWORD *)&party->partyMembers[v28].info.gamertag[28] = *(_OWORD *)&Buf2.gamertag[28];
+              *(_OWORD *)&party->partyMembers[v28].info.clanAbbrev[4] = *(_OWORD *)&Buf2.clanAbbrev[4];
+              *(_OWORD *)&party->partyMembers[v28].info.wins = *(_OWORD *)&Buf2.wins;
+              *(_OWORD *)&party->partyMembers[v28].info.winLossRatio = *(_OWORD *)&Buf2.winLossRatio;
+              *(_OWORD *)&party->partyMembers[v28].info.mlgFollower = *(_OWORD *)&Buf2.mlgFollower;
+              *(_OWORD *)&party->partyMembers[v28].info.platformId = *(_OWORD *)&Buf2.platformId;
               *(_QWORD *)&party->partyMembers[v28].info.deathsHistory[3] = *(_QWORD *)&Buf2.deathsHistory[3];
               PartyHost_MemberInfoChanged(party, v28, 2);
             }
@@ -7793,8 +7312,8 @@ void PartyHost_Frame(PartyData *party, const PartyActiveClient *mainActiveClient
       goto LABEL_119;
     if ( party->mapPackFlags != Live_CurrentLocalMapPackFlags() )
     {
-      v50 = Live_CurrentLocalMapPackFlags();
-      Party_SetMapPackFlags(party, v50);
+      v31 = Live_CurrentLocalMapPackFlags();
+      Party_SetMapPackFlags(party, v31);
       Com_Printf(15, "[%s] Gamestate changing due to the mappack flags changing\n", party->partyName);
       PartyHost_GamestateChanged(party);
     }
@@ -7805,17 +7324,17 @@ LABEL_117:
       goto LABEL_119;
     goto LABEL_118;
   }
-  v51 = DVARBOOL_xblive_privatematch;
+  v32 = DVARBOOL_xblive_privatematch;
   if ( !DVARBOOL_xblive_privatematch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xblive_privatematch") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v51);
-  if ( v51->current.enabled )
+  Dvar_CheckFrontendServerThread(v32);
+  if ( v32->current.enabled )
   {
-    v52 = DVARBOOL_xblive_privatematch;
+    v33 = DVARBOOL_xblive_privatematch;
     if ( !DVARBOOL_xblive_privatematch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xblive_privatematch") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v52);
-    if ( !v52->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 9668, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DVARBOOL_xblive_privatematch, \"xblive_privatematch\" ))", (const char *)&queryFormat, "Dvar_GetBool( xblive_privatematch )") )
+    Dvar_CheckFrontendServerThread(v33);
+    if ( !v33->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 9668, ASSERT_TYPE_ASSERT, "(Dvar_GetBool_Internal_DebugName( DVARBOOL_xblive_privatematch, \"xblive_privatematch\" ))", (const char *)&queryFormat, "Dvar_GetBool( xblive_privatematch )") )
       __debugbreak();
     PartyHost_UpdatePrivateMatchMapRotation(party, m_id);
     goto LABEL_117;
@@ -7844,10 +7363,10 @@ LABEL_118:
   PartyHost_UpdateMatchStart(party, m_id);
 LABEL_119:
   PartyClientTaskService::Frame(&party->clientTaskService, party);
-  v53 = PartyHost_PartyRestrictsF2PUsers(party);
-  if ( party->restrictsF2PUsers != v53 )
+  v34 = PartyHost_PartyRestrictsF2PUsers(party);
+  if ( party->restrictsF2PUsers != v34 )
   {
-    party->restrictsF2PUsers = v53;
+    party->restrictsF2PUsers = v34;
     PartyHost_GamestateChanged(party);
   }
 }
@@ -8251,19 +7770,18 @@ PartyHost_HandleFailedAccept
 */
 void PartyHost_HandleFailedAccept(PartyData *party, const int memberIndex, const XUID *xuid, const netadr_t *from)
 {
+  __int128 v4; 
   int addrHandleIndex; 
-  netadr_t v9; 
-  XUID v10; 
+  netadr_t v8; 
+  XUID v9; 
 
-  __asm { vmovups xmm0, xmmword ptr [r9] }
+  v4 = *(_OWORD *)&from->type;
   addrHandleIndex = from->addrHandleIndex;
-  v10.m_id = xuid->m_id;
-  __asm { vmovups [rsp+58h+var_28], xmm0 }
-  OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v10);
-  __asm { vmovups xmm0, [rsp+58h+var_28] }
-  v9.addrHandleIndex = addrHandleIndex;
-  __asm { vmovups [rsp+58h+var_28], xmm0 }
-  PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v9, JOINRESPONSE_ERROR_ACCEPT_FAILED, &v10, NULL, 0);
+  v9.m_id = xuid->m_id;
+  *(_OWORD *)&v8.type = v4;
+  OnlineMatchmakerOmniscient::RemoteFailedToJoin(&OnlineMatchmakerOmniscient::ms_instance, v9);
+  v8.addrHandleIndex = addrHandleIndex;
+  PartyAtomicHost_SendJoinFailedResponseWithPayload(party, &v8, JOINRESPONSE_ERROR_ACCEPT_FAILED, &v9, NULL, 0);
   RMsg_SendMessages();
   PartyHost_RemovePlayer(party, memberIndex, 0, "acceptFailed", NET_CLOSE_HARD);
 }
@@ -8474,6 +7992,7 @@ __int64 PartyHost_HandlePacket(PartyData *party, const char *c, const PartyActiv
   __int64 v13; 
   int v14; 
   const dvar_t *v15; 
+  __int128 v16; 
   PartyActiveClient MainActiveClient; 
   __int128 v18; 
   int addrHandleIndex; 
@@ -8481,7 +8000,6 @@ __int64 PartyHost_HandlePacket(PartyData *party, const char *c, const PartyActiv
 
   string = messageHandlers_0[0].string;
   v6 = 0;
-  _R15 = from;
   if ( !*messageHandlers_0[0].string )
     return 0i64;
   v11 = 0i64;
@@ -8507,9 +8025,9 @@ __int64 PartyHost_HandlePacket(PartyData *party, const char *c, const PartyActiv
     Com_Printf(25, "[%s] oob: %s\n", party->partyName, c);
   if ( !messageHandlers_0[v13].func && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 9394, ASSERT_TYPE_ASSERT, "(messageHandlers[handler].func)", (const char *)&queryFormat, "messageHandlers[handler].func") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [r15] }
-  addrHandleIndex = _R15->addrHandleIndex;
-  __asm { vmovups [rsp+0D8h+var_88], xmm0 }
+  v16 = *(_OWORD *)&from->type;
+  addrHandleIndex = from->addrHandleIndex;
+  v18 = v16;
   ((void (__fastcall *)(PartyData *, PartyActiveClient *, __int128 *, msg_t *))messageHandlers_0[v13].func)(party, &MainActiveClient, &v18, msg);
   return 1i64;
 }
@@ -8887,42 +8405,41 @@ void PartyHost_LANInfoRequestPacket(const LocalClientNum_t localClientNum, const
   const dvar_t *v6; 
   const char *v7; 
   int v8; 
-  unsigned int ProtocolVersion; 
-  bool v11; 
+  bool v9; 
   int addrHandleIndex; 
-  const char *v13; 
-  const char *v14; 
-  unsigned int v15; 
-  unsigned int v16; 
+  const char *v11; 
+  const char *v12; 
+  unsigned int v13; 
+  unsigned int v14; 
+  const char *v15; 
+  unsigned int ProtocolVersion; 
   const char *v17; 
   unsigned int v18; 
   const char *v19; 
-  unsigned int v20; 
-  const char *v21; 
   int ControllerFromClient; 
   const char *UsernameForLocalClient; 
   const char *MapName; 
   const char *Gametype; 
-  const char *v26; 
+  const char *v24; 
   unsigned int Int_Internal_DebugName; 
-  const char *v28; 
+  const char *v26; 
   unsigned int *Address; 
-  bdSockAddr *v30; 
-  bdSockAddr *v31; 
-  const bdSockAddr *v32; 
+  bdSockAddr *v28; 
+  bdSockAddr *v29; 
+  const bdSockAddr *v30; 
   SessionData *session; 
-  __int64 v34; 
+  __int64 v32; 
   const bdSecurityKey *SecurityKey; 
-  const char *v36; 
+  const char *v34; 
   unsigned __int8 ClientPlatform; 
-  const char *v38; 
+  const char *v36; 
   unsigned int IsRunning; 
-  const char *v40; 
-  int v41; 
+  const char *v38; 
+  int v39; 
   bool IsCrossPlayEnabled; 
-  const char *v43; 
-  netadr_t v44; 
-  bdSockAddr v45; 
+  const char *v41; 
+  netadr_t v42; 
+  bdSockAddr v43; 
   bdSockAddr result; 
   char value[24]; 
   char str[56]; 
@@ -8932,7 +8449,6 @@ void PartyHost_LANInfoRequestPacket(const LocalClientNum_t localClientNum, const
   char data[1024]; 
 
   from->type = NA_RAW;
-  _RSI = from;
   if ( Live_IsInSystemlinkLobby() && Party_AreWeServer(&g_partyData) )
   {
     v6 = DVARBOOL_systemlink_host;
@@ -8944,27 +8460,25 @@ void PartyHost_LANInfoRequestPacket(const LocalClientNum_t localClientNum, const
       MSG_ReadString(msg, string, 0x400u);
       v7 = Info_ValueForKey(string, "protocol");
       v8 = atoi(v7);
-      ProtocolVersion = GetProtocolVersion();
-      __asm { vmovups xmm0, xmmword ptr [rsi] }
-      v11 = v8 == ProtocolVersion;
-      addrHandleIndex = _RSI->addrHandleIndex;
-      __asm { vmovups [rsp+0E60h+var_E20], xmm0 }
-      v44.addrHandleIndex = addrHandleIndex;
-      if ( v11 )
+      v9 = v8 == GetProtocolVersion();
+      addrHandleIndex = from->addrHandleIndex;
+      *(_OWORD *)&v42.type = *(_OWORD *)&from->type;
+      v42.addrHandleIndex = addrHandleIndex;
+      if ( v9 )
       {
-        v14 = NET_AdrToString(&v44);
-        Com_Printf(25, "Received LAN Info Request from %s - %s\n", v14, string);
-        v15 = Party_CountAllMembersEvenIfInactive(&g_partyData);
+        v12 = NET_AdrToString(&v42);
+        Com_Printf(25, "Received LAN Info Request from %s - %s\n", v12, string);
+        v13 = Party_CountAllMembersEvenIfInactive(&g_partyData);
         s[0] = 0;
-        v16 = v15;
-        v17 = Cmd_Argv(1);
-        Info_SetValueForKey(s, "challenge", v17);
-        v18 = GetProtocolVersion();
+        v14 = v13;
+        v15 = Cmd_Argv(1);
+        Info_SetValueForKey(s, "challenge", v15);
+        ProtocolVersion = GetProtocolVersion();
+        v17 = j_va("%i", ProtocolVersion);
+        Info_SetValueForKey(s, "protocol", v17);
+        v18 = BG_NetDataChecksum();
         v19 = j_va("%i", v18);
-        Info_SetValueForKey(s, "protocol", v19);
-        v20 = BG_NetDataChecksum();
-        v21 = j_va("%i", v20);
-        Info_SetValueForKey(s, "checksum", v21);
+        Info_SetValueForKey(s, "checksum", v19);
         ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
         UsernameForLocalClient = CL_GetUsernameForLocalClient(ControllerFromClient);
         Info_SetValueForKey(s, "hostname", UsernameForLocalClient);
@@ -8972,63 +8486,63 @@ void PartyHost_LANInfoRequestPacket(const LocalClientNum_t localClientNum, const
         Info_SetValueForKey(s, "mapname", MapName);
         Gametype = Party_GetGametype();
         Info_SetValueForKey(s, "gametype", Gametype);
-        if ( v16 )
+        if ( v14 )
         {
-          v26 = j_va("%i", v16);
-          Info_SetValueForKey(s, "clients", v26);
+          v24 = j_va("%i", v14);
+          Info_SetValueForKey(s, "clients", v24);
         }
         if ( Dvar_GetInt_Internal_DebugName(DVARINT_party_maxplayers, "party_maxplayers") > 0 )
         {
           Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_party_maxplayers, "party_maxplayers");
-          v28 = j_va("%i", Int_Internal_DebugName);
-          Info_SetValueForKey(s, "maxclients", v28);
+          v26 = j_va("%i", Int_Internal_DebugName);
+          Info_SetValueForKey(s, "maxclients", v26);
         }
         if ( g_partyData.inParty && XSESSION_INFO::IsValidSessionId(&g_partyData.session->dyn.sessionInfo) )
         {
           Address = (unsigned int *)XSESSION_INFO::GetAddress(&g_partyData.session->dyn.sessionInfo);
-          bdSockAddr::bdSockAddr(&v45, *Address);
-          v31 = v30;
-          v32 = bdSockAddr::Loopback(&result, 2u, 0);
-          if ( bdSockAddr::compare(v31, v32, 0) )
+          bdSockAddr::bdSockAddr(&v43, *Address);
+          v29 = v28;
+          v30 = bdSockAddr::Loopback(&result, 2u, 0);
+          if ( bdSockAddr::compare(v29, v30, 0) )
           {
             Com_PrintWarning(25, "%s - Cannot advertise game to LAN broadcast request because local machine has NOT obtained a valid IP address!\n 127.0.0.1 is NOT a joinable address!\nCheck network configuration to verify there is a DHCP server available or set machine to use a state IP!\n", "PartyHost_LANInfoRequestPacket");
           }
           else
           {
             session = g_partyData.session;
-            v34 = (__int64)*XSESSION_INFO::GetSecurityId(&g_partyData.session->dyn.sessionInfo);
+            v32 = (__int64)*XSESSION_INFO::GetSecurityId(&g_partyData.session->dyn.sessionInfo);
             SecurityKey = XSESSION_INFO::GetSecurityKey(&session->dyn.sessionInfo);
             Int128ToString(SecurityKey->ab, str);
-            Int64ToString(v34, value);
+            Int64ToString(v32, value);
             memset_0(dest, 0, 0x71ui64);
             bdBase64::encode((const char *)Address, 0x54u, dest, 0x71u);
             Info_SetValueForKey(s, "seckey", str);
             Info_SetValueForKey(s, "secid", value);
             Info_SetValueForKey(s, "hostaddr", dest);
-            v36 = j_va("%i", 0i64);
-            Info_SetValueForKey(s, "dedicated", v36);
+            v34 = j_va("%i", 0i64);
+            Info_SetValueForKey(s, "dedicated", v34);
             ClientPlatform = GetClientPlatform();
-            v38 = j_va("%i", ClientPlatform);
-            Info_SetValueForKey(s, "platform", v38);
+            v36 = j_va("%i", ClientPlatform);
+            Info_SetValueForKey(s, "platform", v36);
             IsRunning = Party_IsRunning(&g_partyData);
-            v40 = j_va("%i", IsRunning);
-            Info_SetValueForKey(s, "isLobby", v40);
-            v41 = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
-            IsCrossPlayEnabled = Live_IsCrossPlayEnabled(v41);
-            v43 = "0";
+            v38 = j_va("%i", IsRunning);
+            Info_SetValueForKey(s, "isLobby", v38);
+            v39 = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
+            IsCrossPlayEnabled = Live_IsCrossPlayEnabled(v39);
+            v41 = "0";
             if ( IsCrossPlayEnabled )
-              v43 = "1";
-            Info_SetValueForKey(s, "crossplay", v43);
+              v41 = "1";
+            Info_SetValueForKey(s, "crossplay", v41);
             Core_strcpy(data, 0x400ui64, "inforesponse\n");
             I_strcat(data, 0x400ui64, s);
-            NET_OutOfBandPrint(NS_MAXCLIENTS, _RSI, data);
+            NET_OutOfBandPrint(NS_MAXCLIENTS, from, data);
           }
         }
       }
       else
       {
-        v13 = NET_AdrToString(&v44);
-        Com_Printf(25, "Received LAN Info Request from %s - %s but protocol does not match, will not respond (could be different build configs)\n", v13, string);
+        v11 = NET_AdrToString(&v42);
+        Com_Printf(25, "Received LAN Info Request from %s - %s but protocol does not match, will not respond (could be different build configs)\n", v11, string);
       }
     }
   }
@@ -10008,6 +9522,7 @@ void PartyHost_ReceivedPartystateAck(PartyData *party, const unsigned int partyC
   const dvar_t *v16; 
   int partyStateChangeTime; 
   int v18; 
+  __int128 v19; 
   const dvar_t *v20; 
   const char *Gametype; 
   const char *MapName; 
@@ -10017,7 +9532,6 @@ void PartyHost_ReceivedPartystateAck(PartyData *party, const unsigned int partyC
   XUID result; 
 
   v5 = partyClientNum;
-  _R13 = from;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 6988, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( (unsigned int)v5 >= 0xC8 )
@@ -10054,9 +9568,9 @@ void PartyHost_ReceivedPartystateAck(PartyData *party, const unsigned int partyC
     v18 = piggybackedPartystateAck;
     if ( ackTime == partyStateChangeTime || !piggybackedPartystateAck )
     {
-      __asm { vmovups xmm0, xmmword ptr [r13+0] }
-      v25.addrHandleIndex = _R13->addrHandleIndex;
-      __asm { vmovups [rsp+88h+var_48], xmm0 }
+      v19 = *(_OWORD *)&from->type;
+      v25.addrHandleIndex = from->addrHandleIndex;
+      *(_OWORD *)&v25.type = v19;
       PartyHost_CommittedMemberPresent(party, v5, &v25);
     }
     *((_DWORD *)v9 + 619) = ackTime;
@@ -10100,52 +9614,25 @@ PartyHost_ReceivedUpdatedMemberInfo
 void PartyHost_ReceivedUpdatedMemberInfo(PartyData *party, const int localControllerIndex, const unsigned int partyClientNum, const netadr_t *from, ClientAuthoritativeMemberInfo *newMemberInfo)
 {
   __int64 v5; 
-  netadr_t v23; 
+  __int128 v9; 
+  netadr_t v10; 
 
   v5 = partyClientNum;
-  _RDI = from;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8189, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
-  _RBX = newMemberInfo;
   if ( !newMemberInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 8190, ASSERT_TYPE_ASSERT, "(newMemberInfo)", (const char *)&queryFormat, "newMemberInfo") )
     __debugbreak();
   if ( Party_IsMemberIndexAway(party, v5) )
   {
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    v23.addrHandleIndex = _RDI->addrHandleIndex;
-    __asm { vmovups [rsp+68h+var_38], xmm0 }
-    PartyHost_ReviveLostPartyMember(party, v5, &v23);
+    v9 = *(_OWORD *)&from->type;
+    v10.addrHandleIndex = from->addrHandleIndex;
+    *(_OWORD *)&v10.type = v9;
+    PartyHost_ReviveLostPartyMember(party, v5, &v10);
   }
-  _RDI = &party->partyMembers[v5];
   party->partyMembers[v5].lastPacketTime = Sys_Milliseconds();
-  if ( memcmp_0(newMemberInfo, _RDI, 0xB8ui64) )
+  if ( memcmp_0(newMemberInfo, &party->partyMembers[v5], 0xB8ui64) )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups xmmword ptr [rdi], xmm0
-      vmovups xmm1, xmmword ptr [rbx+10h]
-      vmovups xmmword ptr [rdi+10h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+20h]
-      vmovups xmmword ptr [rdi+20h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+30h]
-      vmovups xmmword ptr [rdi+30h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+40h]
-      vmovups xmmword ptr [rdi+40h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+50h]
-      vmovups xmmword ptr [rdi+50h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+60h]
-      vmovups xmmword ptr [rdi+60h], xmm0
-      vmovups xmm0, xmmword ptr [rbx+70h]
-      vmovups xmmword ptr [rdi+70h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+80h]
-      vmovups xmmword ptr [rdi+80h], xmm1
-      vmovups xmm0, xmmword ptr [rbx+90h]
-      vmovups xmmword ptr [rdi+90h], xmm0
-      vmovups xmm1, xmmword ptr [rbx+0A0h]
-      vmovups xmmword ptr [rdi+0A0h], xmm1
-    }
-    *(_QWORD *)&party->partyMembers[v5].info.deathsHistory[3] = *(_QWORD *)&newMemberInfo->deathsHistory[3];
+    party->partyMembers[v5].info = *newMemberInfo;
     Party_CheckUpdatedPartyMemberPartyId(party, localControllerIndex, v5);
     PartyHost_MemberInfoChanged(party, v5, 2);
     PlayercardCache_MarkPartyDirty(localControllerIndex, 1);
@@ -10721,37 +10208,32 @@ PartyHost_ReviveLostPartyMember
 void PartyHost_ReviveLostPartyMember(PartyData *party, const unsigned int memberIndex, const netadr_t *from)
 {
   __int64 v4; 
-  __int64 v6; 
+  __int64 v5; 
   int status; 
   const char *MemberName; 
   bool IsPrivateParty; 
-  const char *v10; 
+  const char *v9; 
   int StartingControllerIndex; 
-  __int64 v12; 
+  __int64 v11; 
   char addr[24]; 
 
   v4 = memberIndex;
-  *(_DWORD *)&addr[16] = from->addrHandleIndex;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r8]
-    vmovups xmmword ptr [rsp+78h+addr], xmm0
-  }
+  *(netadr_t *)addr = *from;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 6712, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party", *(_QWORD *)addr, *(_QWORD *)&addr[8], *(_QWORD *)&addr[16]) )
     __debugbreak();
-  v6 = v4;
+  v5 = v4;
   status = party->partyMembers[v4].status;
   MemberName = Party_GetMemberName(party, v4);
   IsPrivateParty = Party_IsPrivateParty(party);
-  LODWORD(v12) = status;
-  v10 = "Lobby";
+  LODWORD(v11) = status;
+  v9 = "Lobby";
   if ( IsPrivateParty )
-    v10 = "Party";
-  Com_Printf(25, "[%s] PartyHost - %s member %s came back from state %i\n", party->partyName, v10, MemberName, v12);
+    v9 = "Party";
+  Com_Printf(25, "[%s] PartyHost - %s member %s came back from state %i\n", party->partyName, v9, MemberName, v11);
   StartingControllerIndex = Party_GetStartingControllerIndex(party);
   PartyHost_UpdatePlayerStatus(party, StartingControllerIndex, v4, 4);
-  NetConnection::operator=(&party->partyMembers[v6].connection, (const netadr_t *)addr);
-  if ( !NetConnection::IsOpened(&party->partyMembers[v6].connection) )
+  NetConnection::operator=(&party->partyMembers[v5].connection, (const netadr_t *)addr);
+  if ( !NetConnection::IsOpened(&party->partyMembers[v5].connection) )
     PartyHost_RemovePlayer(party, v4, 0, "reviveFailed", NET_CLOSE_DTLS);
 }
 
@@ -10762,47 +10244,28 @@ PartyHost_RollDiceForSurveyAndStoreResultInParty
 */
 void PartyHost_RollDiceForSurveyAndStoreResultInParty(PartyData *party)
 {
-  const dvar_t *v4; 
-  char v8; 
-  char v9; 
-  int v10; 
+  const dvar_t *v2; 
+  const dvar_t *v3; 
+  float value; 
 
   if ( !Party_IsGameLobby(party) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5534, ASSERT_TYPE_ASSERT, "(Party_IsGameLobby( party ))", (const char *)&queryFormat, "Party_IsGameLobby( party )") )
     __debugbreak();
   if ( !party->areWeHost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5535, ASSERT_TYPE_ASSERT, "(party->areWeHost)", (const char *)&queryFormat, "party->areWeHost") )
     __debugbreak();
-  v4 = DVARBOOL_post_game_survey_forced;
+  v2 = DVARBOOL_post_game_survey_forced;
   if ( !DVARBOOL_post_game_survey_forced && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "post_game_survey_forced") )
     __debugbreak();
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.enabled )
+  Dvar_CheckFrontendServerThread(v2);
+  if ( v2->current.enabled )
     goto LABEL_16;
-  _RBX = DVARFLT_post_game_survey_chance_percentage;
+  v3 = DVARFLT_post_game_survey_chance_percentage;
   if ( !DVARFLT_post_game_survey_chance_percentage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "post_game_survey_chance_percentage") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+28h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( !(v8 | v9) )
-  {
-    v10 = rand();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r8d
-      vmulss  xmm1, xmm0, cs:__real@3c23d70a
-      vcomiss xmm1, xmm6
-    }
-    if ( v10 < (unsigned int)(10000 * (v10 / 10000)) )
+  Dvar_CheckFrontendServerThread(v3);
+  value = v3->current.value;
+  if ( value > 0.0 && (float)((float)(rand() % 10000) * 0.0099999998) < value )
 LABEL_16:
-      party->chosenToShowSurvey = 1;
-  }
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+    party->chosenToShowSurvey = 1;
 }
 
 /*
@@ -11101,116 +10564,112 @@ PartyHost_SendPartyStateToPlayer
 */
 __int64 PartyHost_SendPartyStateToPlayer(PartyData *party, int clientNum, const int now)
 {
-  __int64 v7; 
+  __int64 v4; 
   unsigned __int8 *m_ptr; 
-  __int64 v10; 
-  unsigned int v11; 
-  unsigned int v12; 
+  __int64 v7; 
+  unsigned int v8; 
+  unsigned int v9; 
   int partitionCount; 
-  GameStateInfo *v14; 
+  GameStateInfo *v11; 
   MatchRules *matchRules; 
   const MatchRulesSnapshotDelta *MatchRulesSnapshotDelta; 
   int cursize; 
+  int v15; 
+  int v16; 
+  int v17; 
   int v18; 
-  int v19; 
-  int v20; 
+  __int64 v19; 
+  const MatchRulesSnapshotDelta *v20; 
   int v21; 
-  __int64 v22; 
-  const MatchRulesSnapshotDelta *v23; 
-  int v24; 
-  const dvar_t *v25; 
+  const dvar_t *v22; 
   const char *MemberName; 
-  unsigned __int8 *v27; 
-  int v28; 
-  const dvar_t *v29; 
-  unsigned int v34; 
-  unsigned __int8 v35; 
+  unsigned __int8 *v24; 
+  int v25; 
+  const dvar_t *v26; 
+  double v27; 
+  unsigned int v28; 
+  unsigned __int8 v29; 
   int cause; 
-  int v37; 
-  __int64 result; 
+  int v31; 
   char *fmt; 
   char *fmta; 
   char *fmtb; 
   char *fmtc; 
-  __int64 v44; 
-  __int64 v45; 
-  __int64 v46; 
-  __int64 v47; 
-  __int64 v48; 
-  __int64 v49; 
-  __int64 v50; 
-  double v51; 
-  bool v52; 
-  int v53; 
-  int v54; 
-  int v55; 
+  __int64 v37; 
+  __int64 v38; 
+  __int64 v39; 
+  __int64 v40; 
+  __int64 v41; 
+  __int64 v42; 
+  __int64 v43; 
+  bool v44; 
+  int v45; 
+  int v46; 
+  int v47; 
   msg_t buf; 
   PartyStateWriteRecord record; 
-  __int64 v58; 
+  __int64 v50; 
   unsigned __int8 *data; 
   msg_t compressedMsg; 
-  __int64 v61; 
-  Mem_LargeLocal v62; 
-  Mem_LargeLocal v63; 
+  __int64 v53; 
+  Mem_LargeLocal v54; 
+  Mem_LargeLocal v55; 
   PartyProfile_Event outEventInfo; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v61 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v7 = clientNum;
-  Mem_LargeLocal::Mem_LargeLocal(&v63, 0x243D8ui64, "msg_buf_t compressedMsgBuf");
-  data = (unsigned __int8 *)v63.m_ptr;
-  Mem_LargeLocal::Mem_LargeLocal(&v62, 0x243D8ui64, "msg_buf_t partyMsgBuf");
-  m_ptr = (unsigned __int8 *)v62.m_ptr;
+  v53 = -2i64;
+  v4 = clientNum;
+  Mem_LargeLocal::Mem_LargeLocal(&v55, 0x243D8ui64, "msg_buf_t compressedMsgBuf");
+  data = (unsigned __int8 *)v55.m_ptr;
+  Mem_LargeLocal::Mem_LargeLocal(&v54, 0x243D8ui64, "msg_buf_t partyMsgBuf");
+  m_ptr = (unsigned __int8 *)v54.m_ptr;
   if ( !party && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5149, ASSERT_TYPE_ASSERT, "(party)", (const char *)&queryFormat, "party") )
     __debugbreak();
   if ( !party->inParty && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5150, ASSERT_TYPE_ASSERT, "(party->inParty)", (const char *)&queryFormat, "party->inParty") )
     __debugbreak();
   if ( !party->areWeHost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5151, ASSERT_TYPE_ASSERT, "(party->areWeHost)", (const char *)&queryFormat, "party->areWeHost") )
     __debugbreak();
-  if ( (unsigned int)v7 >= 0xC8 )
+  if ( (unsigned int)v4 >= 0xC8 )
   {
-    LODWORD(v44) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5153, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( 200 )", "clientNum doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v44, 200) )
+    LODWORD(v37) = v4;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5153, ASSERT_TYPE_ASSERT, "(unsigned)( clientNum ) < (unsigned)( 200 )", "clientNum doesn't index MAX_PARTY_MEMBERS\n\t%i not in [0, %i)", v37, 200) )
       __debugbreak();
   }
-  v10 = 504 * v7;
-  v58 = 504 * v7;
-  if ( now - party->partyMembers[v7].lastPartyStateTime >= 500 )
+  v7 = 504 * v4;
+  v50 = 504 * v4;
+  if ( now - party->partyMembers[v4].lastPartyStateTime >= 500 )
   {
-    *(int *)((char *)&party->partyMembers[0].lastPartyStateTime + v10) = now;
-    if ( *(&party->partyMembers[0].status + v10) < 4u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5184, ASSERT_TYPE_ASSERT, "(partyMember->status >= PARTYSTATUS_COMMITTED)", (const char *)&queryFormat, "partyMember->status >= PARTYSTATUS_COMMITTED") )
+    *(int *)((char *)&party->partyMembers[0].lastPartyStateTime + v7) = now;
+    if ( *(&party->partyMembers[0].status + v7) < 4u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5184, ASSERT_TYPE_ASSERT, "(partyMember->status >= PARTYSTATUS_COMMITTED)", (const char *)&queryFormat, "partyMember->status >= PARTYSTATUS_COMMITTED") )
       __debugbreak();
     MSG_Init(&buf, m_ptr, 148440);
     if ( buf.cursize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5194, ASSERT_TYPE_ASSERT, "(msg.cursize == 0)", (const char *)&queryFormat, "msg.cursize == 0") )
       __debugbreak();
     if ( buf.bit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5195, ASSERT_TYPE_ASSERT, "(msg.bit == 0)", (const char *)&queryFormat, "msg.bit == 0") )
       __debugbreak();
-    v12 = 0;
+    v9 = 0;
     *(_QWORD *)&record.matchRulesDeltaFromSnapTime = 0i64;
     record.matchRulesDeltaFromSnapChecksum = 0;
-    v11 = 1;
+    v8 = 1;
     record.totalPackets = 1;
     record.totalMembers = Party_CountAllMembersEvenIfInactive(party);
     record.matchRulesPacketsStart = 0;
     partitionCount = 0;
     if ( Party_IsPrivateMatchLobby(party) || Live_IsInSystemlinkLobby() )
     {
-      v14 = GameStateInfo_Get();
-      if ( v14->usingRecipe )
+      v11 = GameStateInfo_Get();
+      if ( v11->usingRecipe )
       {
         if ( !party->specificData.hostData.matchRulesChangeTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5016, ASSERT_TYPE_ASSERT, "(!gInfo->usingRecipe || party->specificData.hostData.matchRulesChangeTime != 0)", "%s\n\t[PartyHost_BuildPartyStateWriteRecord] Failed to build record, matchRulesChangeTime was 0.", "!gInfo->usingRecipe || party->specificData.hostData.matchRulesChangeTime != 0") )
           __debugbreak();
-        if ( v14->usingRecipe )
+        if ( v11->usingRecipe )
         {
-          matchRules = v14->matchRules;
+          matchRules = v11->matchRules;
           record.matchRulesDeltaFromSnapChecksum = matchRules->checksum;
-          if ( *(int *)((char *)&party->partyMembers[0].lastMatchRulesAck + v10) != party->specificData.hostData.matchRulesChangeTime )
+          if ( *(int *)((char *)&party->partyMembers[0].lastMatchRulesAck + v7) != party->specificData.hostData.matchRulesChangeTime )
           {
             if ( !matchRules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5023, ASSERT_TYPE_ASSERT, "(gInfo->matchRules)", (const char *)&queryFormat, "gInfo->matchRules") )
               __debugbreak();
-            MatchRulesSnapshotDelta = PartyHost_GetMatchRulesSnapshotDelta(party, v7);
+            MatchRulesSnapshotDelta = PartyHost_GetMatchRulesSnapshotDelta(party, v4);
             partitionCount = MatchRulesSnapshotDelta->partitionCount;
             if ( !(_WORD)partitionCount )
               partitionCount = 0;
@@ -11223,135 +10682,125 @@ __int64 PartyHost_SendPartyStateToPlayer(PartyData *party, int clientNum, const 
     }
     record.totalMatchRulesPackets = partitionCount;
     cursize = buf.cursize;
-    PartyHost_WritePartyStateFullHeader(party, v7, &buf, &record);
-    v55 = truncate_cast<short,int>(buf.cursize - cursize);
-    v18 = buf.cursize;
-    PartyHost_WritePartyStateMembers(party, v7, &buf, 0, &record);
+    PartyHost_WritePartyStateFullHeader(party, v4, &buf, &record);
+    v47 = truncate_cast<short,int>(buf.cursize - cursize);
+    v15 = buf.cursize;
+    PartyHost_WritePartyStateMembers(party, v4, &buf, 0, &record);
     BG_GameStateInfo_WriteBotData(&buf);
-    v53 = truncate_cast<short,int>(buf.cursize - v18);
-    v19 = buf.cursize;
-    v20 = buf.cursize;
-    v54 = buf.cursize;
-    v21 = 0;
+    v45 = truncate_cast<short,int>(buf.cursize - v15);
+    v16 = buf.cursize;
+    v17 = buf.cursize;
+    v46 = buf.cursize;
+    v18 = 0;
     if ( partitionCount )
     {
-      v22 = 0i64;
+      v19 = 0i64;
       do
       {
-        if ( v21 >= 0 )
+        if ( v18 >= 0 )
         {
-          v23 = PartyHost_GetMatchRulesSnapshotDelta(party, v7);
-          MSG_WriteData(&buf, v23->partition[v22].data, v23->partition[v22].len);
+          v20 = PartyHost_GetMatchRulesSnapshotDelta(party, v4);
+          MSG_WriteData(&buf, v20->partition[v19].data, v20->partition[v19].len);
         }
-        ++v21;
-        ++v22;
+        ++v18;
+        ++v19;
       }
-      while ( v21 < partitionCount );
-      v19 = buf.cursize;
-      v11 = 1;
-      v10 = v58;
-      v20 = v54;
+      while ( v18 < partitionCount );
+      v16 = buf.cursize;
+      v8 = 1;
+      v7 = v50;
+      v17 = v46;
     }
     if ( buf.overflowed )
     {
-      LODWORD(v44) = v19;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5231, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Party state overflow for message size %d", v44) )
+      LODWORD(v37) = v16;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5231, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Party state overflow for message size %d", v37) )
         __debugbreak();
-      LODWORD(v45) = buf.cursize;
-      LODWORD(fmta) = v7;
-      Com_PrintError(131097, "[%s] Party state overflow for client %s (%d) - message size %d\n", party->partyName, &party->partyMembers[0].info.gamertag[v10], fmta, v45);
-      v11 = 0;
+      LODWORD(v38) = buf.cursize;
+      LODWORD(fmta) = v4;
+      Com_PrintError(131097, "[%s] Party state overflow for client %s (%d) - message size %d\n", party->partyName, &party->partyMembers[0].info.gamertag[v7], fmta, v38);
+      v8 = 0;
     }
     else
     {
-      v24 = truncate_cast<short,int>(v19 - v20);
-      v25 = DVARBOOL_party_debug;
+      v21 = truncate_cast<short,int>(v16 - v17);
+      v22 = DVARBOOL_party_debug;
       if ( !DVARBOOL_party_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v25);
-      if ( v25->current.enabled )
+      Dvar_CheckFrontendServerThread(v22);
+      if ( v22->current.enabled )
       {
-        MemberName = Party_GetMemberName(party, v7);
+        MemberName = Party_GetMemberName(party, v4);
         LODWORD(fmt) = buf.cursize;
         Com_Printf(25, "[%s] PartyHost - Sending Single Buffer Partystate to %s: msg.cursize = %d\n", party->partyName, MemberName, fmt);
       }
-      v27 = data;
+      v24 = data;
       MSG_Init(&compressedMsg, data, 148440);
-      v28 = Party_CompressMessage(party, 1, &buf, &compressedMsg);
-      v52 = v28 != 0;
-      if ( !v28 )
+      v25 = Party_CompressMessage(party, 1, &buf, &compressedMsg);
+      v44 = v25 != 0;
+      if ( !v25 )
       {
-        LODWORD(v44) = buf.cursize;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5252, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Failed to compress message of size %d", v44) )
+        LODWORD(v37) = buf.cursize;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5252, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Failed to compress message of size %d", v37) )
           __debugbreak();
-        LODWORD(v46) = buf.cursize;
-        LODWORD(fmtb) = v7;
-        Com_PrintError(131097, "[%s] Failed to compress party state for client %s (%d) - message size %d\n", party->partyName, &party->partyMembers[0].info.gamertag[v10], fmtb, v46);
-        memset_0(v27, 0, 0x243D8ui64);
-        MSG_Init(&compressedMsg, v27, 148440);
+        LODWORD(v39) = buf.cursize;
+        LODWORD(fmtb) = v4;
+        Com_PrintError(131097, "[%s] Failed to compress party state for client %s (%d) - message size %d\n", party->partyName, &party->partyMembers[0].info.gamertag[v7], fmtb, v39);
+        memset_0(v24, 0, 0x243D8ui64);
+        MSG_Init(&compressedMsg, v24, 148440);
         Party_CompressMessage(party, 0, &buf, &compressedMsg);
       }
       if ( compressedMsg.overflowed )
       {
-        LODWORD(v44) = compressedMsg.cursize;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5265, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Compressed party state overflow for message size %d", v44) )
+        LODWORD(v37) = compressedMsg.cursize;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5265, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Compressed party state overflow for message size %d", v37) )
           __debugbreak();
-        LODWORD(v47) = compressedMsg.cursize;
-        LODWORD(fmtc) = v7;
-        Com_PrintError(131097, "[%s] Compressed party state overflow for client %s (%d) - message size %d\n", party->partyName, &party->partyMembers[0].info.gamertag[v10], fmtc, v47);
-        v11 = 0;
+        LODWORD(v40) = compressedMsg.cursize;
+        LODWORD(fmtc) = v4;
+        Com_PrintError(131097, "[%s] Compressed party state overflow for client %s (%d) - message size %d\n", party->partyName, &party->partyMembers[0].info.gamertag[v7], fmtc, v40);
+        v8 = 0;
       }
       else
       {
-        PartyHost_SendSinglePartyStateMessageToClient(party, v7, &compressedMsg);
-        s_partyStateLoggingData.total_header += v55;
-        s_partyStateLoggingData.total_party_state += v53;
-        s_partyStateLoggingData.total_match_rules += v24;
-        v29 = DVARBOOL_party_debug;
+        PartyHost_SendSinglePartyStateMessageToClient(party, v4, &compressedMsg);
+        s_partyStateLoggingData.total_header += v47;
+        s_partyStateLoggingData.total_party_state += v45;
+        s_partyStateLoggingData.total_match_rules += v21;
+        v26 = DVARBOOL_party_debug;
         if ( !DVARBOOL_party_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "party_debug") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v29);
-        if ( v29->current.enabled )
+        Dvar_CheckFrontendServerThread(v26);
+        if ( v26->current.enabled )
         {
-          Sys_Milliseconds();
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-            vmulss  xmm1, xmm0, cs:__real@3a83126f
-            vcvtss2sd xmm6, xmm1, xmm1
-          }
-          v34 = Party_CountAllMembersEvenIfInactive(party);
-          v35 = v34;
-          if ( v34 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v34, "unsigned", v34) )
+          v27 = (float)((float)Sys_Milliseconds() * 0.001);
+          v28 = Party_CountAllMembersEvenIfInactive(party);
+          v29 = v28;
+          if ( v28 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v28, "unsigned", v28) )
             __debugbreak();
           cause = s_partyStateLoggingData.cause;
-          LOBYTE(v12) = Party_IsRunning(party) == 0;
-          __asm { vmovsd  [rsp+190h+var_148], xmm6 }
-          LODWORD(v50) = v24;
-          LODWORD(v49) = v53;
-          LODWORD(v48) = v55;
-          LODWORD(v44) = v35;
+          LOBYTE(v9) = Party_IsRunning(party) == 0;
+          LODWORD(v43) = v21;
+          LODWORD(v42) = v45;
+          LODWORD(v41) = v47;
+          LODWORD(v37) = v29;
           LODWORD(fmt) = cause;
-          Com_Printf(25, "[%s] party state update: in_game %d, cause %d, party_size %d, party_header_size %d, party_state_size %d, match_rules_size %d, time %0.3f", party->partyName, v12, fmt, v44, v48, v49, v50, v51);
+          Com_Printf(25, "[%s] party state update: in_game %d, cause %d, party_size %d, party_header_size %d, party_state_size %d, match_rules_size %d, time %0.3f", party->partyName, v9, fmt, v37, v41, v42, v43, v27);
         }
         PartyProfile_StartEvent(STATE_UPDATE, &outEventInfo);
         PartyProfile_AddBandwidthData(compressedMsg.cursize, &outEventInfo);
-        PartyProfile_AddCompressionData(buf.cursize, 1, v52, &outEventInfo);
-        v37 = Sys_Milliseconds();
-        PartyProfile_RecordOutgoingEvent(&outEventInfo, v37, &party->profileState);
+        PartyProfile_AddCompressionData(buf.cursize, 1, v44, &outEventInfo);
+        v31 = Sys_Milliseconds();
+        PartyProfile_RecordOutgoingEvent(&outEventInfo, v31, &party->profileState);
       }
     }
   }
   else
   {
-    v11 = 1;
+    v8 = 1;
   }
-  Mem_LargeLocal::~Mem_LargeLocal(&v62);
-  Mem_LargeLocal::~Mem_LargeLocal(&v63);
-  result = v11;
-  __asm { vmovaps xmm6, [rsp+190h+var_40] }
-  return result;
+  Mem_LargeLocal::~Mem_LargeLocal(&v54);
+  Mem_LargeLocal::~Mem_LargeLocal(&v55);
+  return v8;
 }
 
 /*
@@ -12030,154 +11479,152 @@ PartyHost_StartParty
 */
 void PartyHost_StartParty(PartyData *party, const LocalClientNum_t localClientNum, int localControllerIndex, int flags, int numSlots, const PartyHostType hostType, const unsigned __int64 lobbyId, const XSESSION_INFO *sessionInfo)
 {
+  int v8; 
+  int v9; 
   int v10; 
-  int v11; 
   int v12; 
-  int v14; 
   int PlaylistIdForNum; 
   const PartyData *PartyData; 
-  __int64 v17; 
-  unsigned int v18; 
+  __int64 v15; 
+  unsigned int v16; 
   PartyMember *partyMembers; 
   const char *MemberStatus; 
   const char *MemberName; 
-  const dvar_t *v22; 
-  int v23; 
+  const dvar_t *v20; 
+  int v21; 
   bool IsPrivateParty; 
-  bool v25; 
-  const dvar_t *v26; 
+  bool v23; 
+  const dvar_t *v24; 
   unsigned __int8 ActiveGameMode; 
   unsigned __int64 TournamentID; 
   unsigned __int16 CurrentTournamentRound; 
   const char *MapNameForRound; 
   const char *Gametype; 
-  int v32; 
+  int v30; 
   int CurrentPlayerCount; 
   int Int_Internal_DebugName; 
-  int v35; 
+  int v33; 
   int MaxHumanPlayers; 
-  int v37; 
-  MatchRulesSnapshot *v38; 
-  __int64 v39; 
+  int v35; 
+  MatchRulesSnapshot *v36; 
+  __int64 v37; 
   __int64 i; 
-  GameStateInfo *v41; 
-  unsigned int v42; 
+  GameStateInfo *v39; 
+  unsigned int v40; 
   VoteType *p_vote; 
-  int v45; 
-  const dvar_t *v46; 
+  int v42; 
+  const dvar_t *v43; 
+  const dvar_t *v44; 
+  const dvar_t *v45; 
+  float value; 
   const dvar_t *v47; 
-  char v51; 
-  char v52; 
-  int v53; 
-  const dvar_t *v58; 
   PartyType partyId; 
   PartyPrivacySetting PrivacySetting; 
   int StartingControllerIndex; 
   PartyPrivacySetting PrivatePartySetting; 
   char SquadAutofill; 
-  int v64; 
+  int v53; 
   char PartySquadAutofillEnabled; 
-  int v66; 
+  int v55; 
   bool IsCrossPlayEnabled; 
-  __int64 v68; 
-  __int64 v69; 
-  __int64 v70; 
-  __int64 v71; 
+  __int64 v57; 
+  __int64 v58; 
+  __int64 v59; 
+  __int64 v60; 
 
-  v10 = flags;
-  v11 = localControllerIndex;
-  v12 = localClientNum;
-  _RDI = party;
+  v8 = flags;
+  v9 = localControllerIndex;
+  v10 = localClientNum;
   if ( localClientNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5753, ASSERT_TYPE_ASSERT, "( ( localClientNum == LOCAL_CLIENT_0 ) )", "( localClientNum ) = %i", localClientNum) )
     __debugbreak();
-  v14 = 0;
+  v12 = 0;
   PlaylistIdForNum = 0;
-  if ( Party_IsRunning(_RDI) || !Party_IsGameLobby(_RDI) && (PartyAtomic_IsJoiningOnPresence(&g_partyJoinInfo) || (PartyData = Lobby_GetPartyData(), Party_IsRunning(PartyData))) )
+  if ( Party_IsRunning(party) || !Party_IsGameLobby(party) && (PartyAtomic_IsJoiningOnPresence(&g_partyJoinInfo) || (PartyData = Lobby_GetPartyData(), Party_IsRunning(PartyData))) )
   {
-    if ( !Party_AreWeHost(_RDI) || !Party_IsRunning(_RDI) )
+    if ( !Party_AreWeHost(party) || !Party_IsRunning(party) )
     {
-      Com_Printf(25, "[%s] PartyHost_StartParty called\n", _RDI->partyName);
-      PartyHost_CheckSigninState(_RDI, v11, v10);
-      Party_StopParty(_RDI);
-      v17 = 200i64;
-      if ( Party_IsGameLobby(_RDI) )
+      Com_Printf(25, "[%s] PartyHost_StartParty called\n", party->partyName);
+      PartyHost_CheckSigninState(party, v9, v8);
+      Party_StopParty(party);
+      v15 = 200i64;
+      if ( Party_IsGameLobby(party) )
       {
         if ( g_partyData.inParty )
         {
-          v18 = 0;
+          v16 = 0;
           partyMembers = g_partyData.partyMembers;
           do
           {
             if ( Party_IsMemberDataAvailable(partyMembers) && !Party_IsMemberPresent(partyMembers) )
             {
-              ++v18;
-              MemberStatus = Party_GetMemberStatus(&g_partyData, v14);
-              MemberName = Party_GetMemberName(&g_partyData, v14);
-              Com_PrintWarning(25, "[%s] %i: %s is not present. Status is %s\n", g_partyData.partyName, v18, MemberName, MemberStatus);
+              ++v16;
+              MemberStatus = Party_GetMemberStatus(&g_partyData, v12);
+              MemberName = Party_GetMemberName(&g_partyData, v12);
+              Com_PrintWarning(25, "[%s] %i: %s is not present. Status is %s\n", g_partyData.partyName, v16, MemberName, MemberStatus);
             }
-            ++v14;
+            ++v12;
             ++partyMembers;
           }
-          while ( v14 < 200 );
-          v12 = localClientNum;
-          if ( v18 )
-            Com_PrintWarning(25, "[%s] %i members are not present, may leave people behind\n", g_partyData.partyName, v18);
-          v10 = flags;
-          v11 = localControllerIndex;
+          while ( v12 < 200 );
+          v10 = localClientNum;
+          if ( v16 )
+            Com_PrintWarning(25, "[%s] %i members are not present, may leave people behind\n", g_partyData.partyName, v16);
+          v8 = flags;
+          v9 = localControllerIndex;
         }
         Party_Sleep(&g_partyData);
       }
-      if ( Party_IsGameLobby(_RDI) )
+      if ( Party_IsGameLobby(party) )
       {
-        v22 = DVARINT_playlist;
+        v20 = DVARINT_playlist;
         if ( !DVARINT_playlist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playlist") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v22);
-        PlaylistIdForNum = Playlist_GetPlaylistIdForNum(v22->current.integer);
-        v23 = Live_CurrentDesiredLobbyMapPackFlags(PlaylistIdForNum);
+        Dvar_CheckFrontendServerThread(v20);
+        PlaylistIdForNum = Playlist_GetPlaylistIdForNum(v20->current.integer);
+        v21 = Live_CurrentDesiredLobbyMapPackFlags(PlaylistIdForNum);
       }
       else
       {
-        if ( !Party_IsPrivateParty(_RDI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5799, ASSERT_TYPE_ASSERT, "(Party_IsPrivateParty( party ))", (const char *)&queryFormat, "Party_IsPrivateParty( party )") )
+        if ( !Party_IsPrivateParty(party) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5799, ASSERT_TYPE_ASSERT, "(Party_IsPrivateParty( party ))", (const char *)&queryFormat, "Party_IsPrivateParty( party )") )
           __debugbreak();
-        v23 = Live_CurrentLocalMapPackFlags();
+        v21 = Live_CurrentLocalMapPackFlags();
       }
-      Party_SetMapPackFlags(_RDI, v23);
-      Party_InitMapSelectionEntries(_RDI);
-      Party_SetUsesMLGRules(_RDI, 0);
-      Party_SetCodcastingEnabled(_RDI, 0);
-      Party_SetTeamAssignmentEnabled(_RDI, 0);
-      Party_SetDraftLoadoutTimer(_RDI, 75);
-      Party_SetDraftWeaponTimer(_RDI, 30);
-      Party_SetDraftRigTimer(_RDI, 30);
-      Party_SetAliensDifficulty(_RDI, 0);
-      IsPrivateParty = Party_IsPrivateParty(_RDI);
-      v25 = g_partyChatQuitting;
+      Party_SetMapPackFlags(party, v21);
+      Party_InitMapSelectionEntries(party);
+      Party_SetUsesMLGRules(party, 0);
+      Party_SetCodcastingEnabled(party, 0);
+      Party_SetTeamAssignmentEnabled(party, 0);
+      Party_SetDraftLoadoutTimer(party, 75);
+      Party_SetDraftWeaponTimer(party, 30);
+      Party_SetDraftRigTimer(party, 30);
+      Party_SetAliensDifficulty(party, 0);
+      IsPrivateParty = Party_IsPrivateParty(party);
+      v23 = g_partyChatQuitting;
       if ( IsPrivateParty )
-        v25 = 0;
-      g_partyChatQuitting = v25;
-      GamerProfile_UpdateSystemVarsFromProfile(v11);
-      if ( PartyHost_UseArchivedGameStateInfo(_RDI) )
+        v23 = 0;
+      g_partyChatQuitting = v23;
+      GamerProfile_UpdateSystemVarsFromProfile(v9);
+      if ( PartyHost_UseArchivedGameStateInfo(party) )
       {
         BG_GameStateInfo_RestoreArchivedState();
       }
-      else if ( Party_IsGameLobby(_RDI) )
+      else if ( Party_IsGameLobby(party) )
       {
         BG_GameStateInfo_ClearActiveState();
       }
-      if ( Party_IsGameLobby(_RDI) )
+      if ( Party_IsGameLobby(party) )
       {
-        v26 = DVARBOOL_xblive_privatematch;
+        v24 = DVARBOOL_xblive_privatematch;
         if ( !DVARBOOL_xblive_privatematch && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "xblive_privatematch") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v26);
-        if ( !v26->current.enabled )
+        Dvar_CheckFrontendServerThread(v24);
+        if ( !v24->current.enabled )
         {
           ActiveGameMode = Com_GameMode_GetActiveGameMode();
-          Com_ExecLobbyDefaultConfigs((LocalClientNum_t)v12, v11, (GameModeType)ActiveGameMode);
+          Com_ExecLobbyDefaultConfigs((LocalClientNum_t)v10, v9, (GameModeType)ActiveGameMode);
           Playlist_ResetWeights(PlaylistIdForNum);
           if ( !GameBattles_IsGameBattleActive() && !GameBattles_IsInGameBattleGameMode() )
-            Party_ChooseNextPlaylist(v11);
+            Party_ChooseNextPlaylist(v9);
           TournamentID = OnlineMatchmakerOmniscient::GetTournamentID(&OnlineMatchmakerOmniscient::ms_instance);
           CurrentTournamentRound = OnlineMatchmakerOmniscient::GetCurrentTournamentRound(&OnlineMatchmakerOmniscient::ms_instance);
           if ( TournamentID )
@@ -12190,246 +11637,222 @@ void PartyHost_StartParty(PartyData *party, const LocalClientNum_t localClientNu
             }
           }
           if ( GameBattles_IsGameBattleActive() && Dvar_GetBool_Internal_DebugName(DVARBOOL_gamebattles_mapname_override_client_fix_enabled, "gamebattles_mapname_override_client_fix_enabled") )
-            GameBattles_LoadGameRules(v12);
+            GameBattles_LoadGameRules(v10);
         }
       }
       Gametype = Party_GetGametype();
       Dvar_SetString_Internal(DVARSTR_ui_gametype, Gametype);
-      Party_ClearMembers(_RDI);
-      Party_ClearActiveClientData(&_RDI->splitscreenData);
-      _RDI->m_lobbyId = lobbyId;
+      Party_ClearMembers(party);
+      Party_ClearActiveClientData(&party->splitscreenData);
+      party->m_lobbyId = lobbyId;
       if ( hostType == PARTY_HOST_DEDI )
       {
-        v32 = -2;
+        v30 = -2;
       }
       else if ( Live_IsInGameBattlesGame() )
       {
-        CurrentPlayerCount = GameBattles_GetCurrentPlayerCount(v11);
-        v32 = I_irand(0, CurrentPlayerCount);
+        CurrentPlayerCount = GameBattles_GetCurrentPlayerCount(v9);
+        v30 = I_irand(0, CurrentPlayerCount);
       }
-      else if ( !Party_IsGameLobby(_RDI) || Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch, "xblive_privatematch") )
+      else if ( !Party_IsGameLobby(party) || Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch, "xblive_privatematch") )
       {
-        v32 = 0;
+        v30 = 0;
       }
       else
       {
         Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_playlist, "playlist");
-        v35 = Playlist_GetPlaylistIdForNum(Int_Internal_DebugName);
-        MaxHumanPlayers = Playlist_GetMaxHumanPlayers(v35);
+        v33 = Playlist_GetPlaylistIdForNum(Int_Internal_DebugName);
+        MaxHumanPlayers = Playlist_GetMaxHumanPlayers(v33);
         if ( !MaxHumanPlayers )
-          MaxHumanPlayers = Playlist_GetMaxLobbySize(v35);
-        v32 = I_irand(0, MaxHumanPlayers);
+          MaxHumanPlayers = Playlist_GetMaxLobbySize(v33);
+        v30 = I_irand(0, MaxHumanPlayers);
       }
-      _RDI->currentHost.hostNum = v32;
-      if ( _RDI == &g_partyData )
+      party->currentHost.hostNum = v30;
+      if ( party == &g_partyData )
       {
-        v37 = Live_CurrentLocalMapPackFlags();
-        Party_SetMapPackFlags(_RDI, v37);
+        v35 = Live_CurrentLocalMapPackFlags();
+        Party_SetMapPackFlags(party, v35);
       }
-      _RDI->areWeHost = 1;
-      _RDI->inParty = 1;
-      *(_QWORD *)&_RDI->hostPresenceIndex = 0i64;
-      _RDI->gameStartRequested = 0;
-      _RDI->m_gameStartSkipCountdown = 0;
-      *(_QWORD *)&_RDI->backingOut = 0i64;
-      *(_QWORD *)&_RDI->gameStartTime = 0i64;
-      _RDI->stopAfterRound = 0;
-      *(_QWORD *)_RDI->backedOutMemberBits.array = 0i64;
-      *(_QWORD *)&_RDI->backedOutMemberBits.array[2] = 0i64;
-      *(_QWORD *)&_RDI->backedOutMemberBits.array[4] = 0i64;
-      *(_QWORD *)&_RDI->backedOutMemberBits.array[6] = 0i64;
-      _RDI->voting.voteEndTime = 0;
-      Party_ClearDesiredTeamSelection(_RDI);
-      Party_ClearLocalMLGSpectator(_RDI);
-      RotatingClientNums::Reset(&_RDI->specificData.hostData.m_partyStateClientNums);
-      *(_QWORD *)&_RDI->specificData.hostData.partyStateChangeTime = 0i64;
-      *(_QWORD *)_RDI->specificData.clientData.m_matchmakingTokenSent = 0i64;
-      *((_QWORD *)&_RDI->specificData.clientData + 2) = 0i64;
-      *((_QWORD *)&_RDI->specificData.clientData + 3) = 0i64;
-      *((_QWORD *)&_RDI->specificData.clientData + 4) = 0i64;
-      if ( Party_IsGameLobby(_RDI) || Live_IsInSystemlinkLobby() )
+      party->areWeHost = 1;
+      party->inParty = 1;
+      *(_QWORD *)&party->hostPresenceIndex = 0i64;
+      party->gameStartRequested = 0;
+      party->m_gameStartSkipCountdown = 0;
+      *(_QWORD *)&party->backingOut = 0i64;
+      *(_QWORD *)&party->gameStartTime = 0i64;
+      party->stopAfterRound = 0;
+      *(_QWORD *)party->backedOutMemberBits.array = 0i64;
+      *(_QWORD *)&party->backedOutMemberBits.array[2] = 0i64;
+      *(_QWORD *)&party->backedOutMemberBits.array[4] = 0i64;
+      *(_QWORD *)&party->backedOutMemberBits.array[6] = 0i64;
+      party->voting.voteEndTime = 0;
+      Party_ClearDesiredTeamSelection(party);
+      Party_ClearLocalMLGSpectator(party);
+      RotatingClientNums::Reset(&party->specificData.hostData.m_partyStateClientNums);
+      *(_QWORD *)&party->specificData.hostData.partyStateChangeTime = 0i64;
+      *(_QWORD *)party->specificData.clientData.m_matchmakingTokenSent = 0i64;
+      *((_QWORD *)&party->specificData.clientData + 2) = 0i64;
+      *((_QWORD *)&party->specificData.clientData + 3) = 0i64;
+      *((_QWORD *)&party->specificData.clientData + 4) = 0i64;
+      if ( Party_IsGameLobby(party) || Live_IsInSystemlinkLobby() )
       {
-        v38 = g_matchRulesSnapshots;
+        v36 = g_matchRulesSnapshots;
         if ( g_matchRulesSnapshots && g_matchRulesSnapshotsDelta )
         {
-          v39 = 0i64;
+          v37 = 0i64;
           while ( 1 )
           {
-            v38[v39++].snapTime = 0;
-            if ( v39 >= 200 )
+            v36[v37++].snapTime = 0;
+            if ( v37 >= 200 )
               break;
-            v38 = g_matchRulesSnapshots;
+            v36 = g_matchRulesSnapshots;
           }
           for ( i = 0i64; i < 200; ++i )
             g_matchRulesSnapshotsDelta[i].toSnapTime = 0;
         }
-        v41 = GameStateInfo_Get();
-        if ( v41->usingRecipe )
-          MatchRulesChanged(v41->matchRules);
+        v39 = GameStateInfo_Get();
+        if ( v39->usingRecipe )
+          MatchRulesChanged(v39->matchRules);
       }
       Dvar_SetBool_Internal(DVARBOOL_party_am_I_host, 1);
       Dvar_SetBool_Internal(DVARBOOL_party_editingsettings, 0);
       *(_QWORD *)&s_partyStateLoggingData.total_header = 0i64;
       s_partyStateLoggingData.total_match_rules = 0;
-      v42 = Party_CountAllMembersEvenIfInactive(_RDI);
-      s_partyStateLoggingData.players_joined = truncate_cast<unsigned short,unsigned int>(v42);
-      if ( Party_IsGameLobby(_RDI) && g_partyData.inParty )
+      v40 = Party_CountAllMembersEvenIfInactive(party);
+      s_partyStateLoggingData.players_joined = truncate_cast<unsigned short,unsigned int>(v40);
+      if ( Party_IsGameLobby(party) && g_partyData.inParty )
       {
-        Com_Printf(25, "[%s] PartyHost_StartHost - Copying splitscreenData from private party for game lobby\n", _RDI->partyName);
-        if ( v11 != g_partyData.splitscreenData.mainClient.localControllerIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5933, ASSERT_TYPE_ASSERT, "( localControllerIndex ) == ( g_partyData.splitscreenData.mainClient.localControllerIndex )", "%s == %s\n\t%i, %i", "localControllerIndex", "g_partyData.splitscreenData.mainClient.localControllerIndex", v11, g_partyData.splitscreenData.mainClient.localControllerIndex) )
+        Com_Printf(25, "[%s] PartyHost_StartHost - Copying splitscreenData from private party for game lobby\n", party->partyName);
+        if ( v9 != g_partyData.splitscreenData.mainClient.localControllerIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5933, ASSERT_TYPE_ASSERT, "( localControllerIndex ) == ( g_partyData.splitscreenData.mainClient.localControllerIndex )", "%s == %s\n\t%i, %i", "localControllerIndex", "g_partyData.splitscreenData.mainClient.localControllerIndex", v9, g_partyData.splitscreenData.mainClient.localControllerIndex) )
           __debugbreak();
-        if ( v12 != g_partyData.splitscreenData.mainClient.localClientNum )
+        if ( v10 != g_partyData.splitscreenData.mainClient.localClientNum )
         {
-          LODWORD(v71) = g_partyData.splitscreenData.mainClient.localClientNum;
-          LODWORD(v70) = v12;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5934, ASSERT_TYPE_ASSERT, "( localClientNum ) == ( g_partyData.splitscreenData.mainClient.localClientNum )", "%s == %s\n\t%i, %i", "localClientNum", "g_partyData.splitscreenData.mainClient.localClientNum", v70, v71) )
+          LODWORD(v60) = g_partyData.splitscreenData.mainClient.localClientNum;
+          LODWORD(v59) = v10;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5934, ASSERT_TYPE_ASSERT, "( localClientNum ) == ( g_partyData.splitscreenData.mainClient.localClientNum )", "%s == %s\n\t%i, %i", "localClientNum", "g_partyData.splitscreenData.mainClient.localClientNum", v59, v60) )
             __debugbreak();
         }
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?g_partyData@@3UPartyData@@A.splitscreenData.mainClient.localClientNum; PartyData g_partyData
-          vmovups xmmword ptr [rdi+4CC38h], xmm0
-          vmovsd  xmm1, qword ptr cs:?g_partyData@@3UPartyData@@A.splitscreenData.otherClientActive; PartyData g_partyData
-          vmovsd  qword ptr [rdi+4CC48h], xmm1
-        }
+        party->splitscreenData = g_partyData.splitscreenData;
       }
       else
       {
-        Party_SetupSplitscreenData(&_RDI->splitscreenData, v11, (const LocalClientNum_t)v12);
+        Party_SetupSplitscreenData(&party->splitscreenData, v9, (const LocalClientNum_t)v10);
       }
-      Voice_ClearRemoteTalkers(_RDI);
-      Party_SetNumGameSlots(_RDI, numSlots);
-      Party_SetGameFlags(_RDI, v10);
-      XSESSION_INFO::operator=(&_RDI->session->dyn.sessionInfo, sessionInfo);
-      p_vote = &_RDI->partyMembers[0].info.vote;
+      Voice_ClearRemoteTalkers(party);
+      Party_SetNumGameSlots(party, numSlots);
+      Party_SetGameFlags(party, v8);
+      XSESSION_INFO::operator=(&party->session->dyn.sessionInfo, sessionInfo);
+      p_vote = &party->partyMembers[0].info.vote;
       do
       {
         *p_vote = PARTY_VOTE_NO_VOTE;
         p_vote += 126;
-        --v17;
+        --v15;
       }
-      while ( v17 );
-      _RDI->voting.votePassed = 1;
-      v45 = Sys_Milliseconds();
-      _RDI->lobbyFlags &= 0xFFFFFF9F;
-      _RDI->lobbyFlags |= 4u;
-      _RDI->voting.voteEndTime = v45;
-      if ( (unsigned int)v12 >= 2 )
+      while ( v15 );
+      party->voting.votePassed = 1;
+      v42 = Sys_Milliseconds();
+      party->lobbyFlags &= 0xFFFFFF9F;
+      party->lobbyFlags |= 4u;
+      party->voting.voteEndTime = v42;
+      if ( (unsigned int)v10 >= 2 )
       {
-        LODWORD(v69) = 2;
-        LODWORD(v68) = v12;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v68, v69) )
+        LODWORD(v58) = 2;
+        LODWORD(v57) = v10;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v57, v58) )
           __debugbreak();
       }
-      clientUIActives[v12].invited = 1;
-      Party_SetUIPlayerCount(_RDI);
+      clientUIActives[v10].invited = 1;
+      Party_SetUIPlayerCount(party);
       Dvar_SetString_Internal(DVARSTR_party_hostname, (const char *)&queryFormat.fmt + 3);
-      _RDI->lastMemberInfoTime = 0;
-      _RDI->gamebattleMatchId = 0;
-      Party_ClearPrivateMatchId(_RDI);
-      *(_WORD *)&_RDI->privateDSReady = 0;
+      party->lastMemberInfoTime = 0;
+      party->gamebattleMatchId = 0;
+      Party_ClearPrivateMatchId(party);
+      *(_WORD *)&party->privateDSReady = 0;
       BG_GameStateInfo_DisableGameLaunchWithBots();
-      _RDI->chosenToShowSurvey = 0;
-      if ( Party_IsGameLobby(_RDI) && _RDI->areWeHost )
+      party->chosenToShowSurvey = 0;
+      if ( Party_IsGameLobby(party) && party->areWeHost )
       {
-        v46 = DVARBOOL_onlinegame;
+        v43 = DVARBOOL_onlinegame;
         if ( !DVARBOOL_onlinegame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "onlinegame") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v46);
-        if ( v46->current.enabled && !Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch, "xblive_privatematch") && !Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch_solo, "xblive_privatematch_solo") )
+        Dvar_CheckFrontendServerThread(v43);
+        if ( v43->current.enabled && !Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch, "xblive_privatematch") && !Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch_solo, "xblive_privatematch_solo") )
         {
-          if ( !Party_IsGameLobby(_RDI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5534, ASSERT_TYPE_ASSERT, "(Party_IsGameLobby( party ))", (const char *)&queryFormat, "Party_IsGameLobby( party )") )
+          if ( !Party_IsGameLobby(party) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5534, ASSERT_TYPE_ASSERT, "(Party_IsGameLobby( party ))", (const char *)&queryFormat, "Party_IsGameLobby( party )") )
             __debugbreak();
-          if ( !_RDI->areWeHost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5535, ASSERT_TYPE_ASSERT, "(party->areWeHost)", (const char *)&queryFormat, "party->areWeHost") )
+          if ( !party->areWeHost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\partyhost.cpp", 5535, ASSERT_TYPE_ASSERT, "(party->areWeHost)", (const char *)&queryFormat, "party->areWeHost") )
             __debugbreak();
-          v47 = DVARBOOL_post_game_survey_forced;
+          v44 = DVARBOOL_post_game_survey_forced;
           if ( !DVARBOOL_post_game_survey_forced && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "post_game_survey_forced") )
             __debugbreak();
-          __asm { vmovaps [rsp+98h+var_48], xmm6 }
-          Dvar_CheckFrontendServerThread(v47);
-          if ( v47->current.enabled )
+          Dvar_CheckFrontendServerThread(v44);
+          if ( v44->current.enabled )
             goto LABEL_112;
-          _RBX = DVARFLT_post_game_survey_chance_percentage;
+          v45 = DVARFLT_post_game_survey_chance_percentage;
           if ( !DVARFLT_post_game_survey_chance_percentage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "post_game_survey_chance_percentage") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RBX);
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rbx+28h]
-            vxorps  xmm0, xmm0, xmm0
-            vcomiss xmm6, xmm0
-          }
-          if ( !(v51 | v52) )
-          {
-            v53 = rand();
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, r8d
-              vmulss  xmm1, xmm0, cs:__real@3c23d70a
-              vcomiss xmm1, xmm6
-            }
-            if ( v53 < (unsigned int)(10000 * (v53 / 10000)) )
+          Dvar_CheckFrontendServerThread(v45);
+          value = v45->current.value;
+          if ( value > 0.0 && (float)((float)(rand() % 10000) * 0.0099999998) < value )
 LABEL_112:
-              _RDI->chosenToShowSurvey = 1;
-          }
-          __asm { vmovaps xmm6, [rsp+98h+var_48] }
+            party->chosenToShowSurvey = 1;
         }
       }
-      if ( Party_IsGameLobby(_RDI) && g_partyData.inParty )
-        _RDI->uiRoot = g_partyData.uiRoot;
+      if ( Party_IsGameLobby(party) && g_partyData.inParty )
+        party->uiRoot = g_partyData.uiRoot;
       LUI_DataBindingLobby_UpdateLobby();
-      PartyClientTaskService::Start(&_RDI->clientTaskService, _RDI);
+      PartyClientTaskService::Start(&party->clientTaskService, party);
       NET_ResetTelemetry();
       if ( NET_IsStarted() )
-        PartyHost_StartPartyComplete(_RDI, v11);
-      v58 = DVARBOOL_onlinegame;
+        PartyHost_StartPartyComplete(party, v9);
+      v47 = DVARBOOL_onlinegame;
       if ( !DVARBOOL_onlinegame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "onlinegame") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v58);
-      if ( v58->current.enabled && ((partyId = _RDI->partyId, partyId == PRIVATE_PARTY_ID) || partyId == GAME_LOBBY_ID && Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch, "xblive_privatematch")) )
+      Dvar_CheckFrontendServerThread(v47);
+      if ( v47->current.enabled && ((partyId = party->partyId, partyId == PRIVATE_PARTY_ID) || partyId == GAME_LOBBY_ID && Dvar_GetBool_Internal_DebugName(DVARBOOL_xblive_privatematch, "xblive_privatematch")) )
       {
-        PrivacySetting = Party_GetPrivacySetting(_RDI);
-        StartingControllerIndex = Party_GetStartingControllerIndex(_RDI);
+        PrivacySetting = Party_GetPrivacySetting(party);
+        StartingControllerIndex = Party_GetStartingControllerIndex(party);
         PrivatePartySetting = Online_PlayerData_GetPrivatePartySetting(StartingControllerIndex);
         if ( PrivacySetting != PrivatePartySetting )
         {
-          Party_SetPrivacySetting(_RDI, PrivatePartySetting);
-          PartyHost_GamestateChanged(_RDI);
+          Party_SetPrivacySetting(party, PrivatePartySetting);
+          PartyHost_GamestateChanged(party);
         }
       }
       else
       {
-        Party_SetPrivacySetting(_RDI, PUBLIC);
+        Party_SetPrivacySetting(party, PUBLIC);
       }
-      if ( _RDI->partyId == PRIVATE_PARTY_ID )
+      if ( party->partyId == PRIVATE_PARTY_ID )
       {
         SquadAutofill = Party_GetSquadAutofill();
-        v64 = Party_GetStartingControllerIndex(&g_partyData);
-        PartySquadAutofillEnabled = Online_PlayerData_GetPartySquadAutofillEnabled(v64);
+        v53 = Party_GetStartingControllerIndex(&g_partyData);
+        PartySquadAutofillEnabled = Online_PlayerData_GetPartySquadAutofillEnabled(v53);
         if ( SquadAutofill != PartySquadAutofillEnabled )
         {
           Party_SetSquadAutofill(PartySquadAutofillEnabled);
           PartyHost_GamestateChanged(&g_partyData);
         }
       }
-      if ( Party_AreWeHost(_RDI) )
+      if ( Party_AreWeHost(party) )
       {
-        v66 = Party_GetStartingControllerIndex(_RDI);
-        IsCrossPlayEnabled = Live_IsCrossPlayEnabled(v66);
-        if ( Party_GetCrossplayEnabled(_RDI) != IsCrossPlayEnabled )
+        v55 = Party_GetStartingControllerIndex(party);
+        IsCrossPlayEnabled = Live_IsCrossPlayEnabled(v55);
+        if ( Party_GetCrossplayEnabled(party) != IsCrossPlayEnabled )
         {
-          Party_SetCrossplayEnabled(_RDI, IsCrossPlayEnabled);
-          PartyHost_GamestateChanged(_RDI);
+          Party_SetCrossplayEnabled(party, IsCrossPlayEnabled);
+          PartyHost_GamestateChanged(party);
         }
       }
-      ++_RDI->partyVersionNumber;
-      _RDI->partyModifyTime = Sys_Milliseconds();
-      _RDI->iscrossplayParty = 0;
-      _RDI->restrictsF2PUsers = PartyHost_PartyRestrictsF2PUsers(_RDI);
-      Party_SetInviteJoinsDisabledForNoJIP(_RDI, 0);
-      _RDI->lobbyFlags &= 0xFFFFF3FF;
-      Party_DumpInfo(_RDI, "Start party");
+      ++party->partyVersionNumber;
+      party->partyModifyTime = Sys_Milliseconds();
+      party->iscrossplayParty = 0;
+      party->restrictsF2PUsers = PartyHost_PartyRestrictsF2PUsers(party);
+      Party_SetInviteJoinsDisabledForNoJIP(party, 0);
+      party->lobbyFlags &= 0xFFFFF3FF;
+      Party_DumpInfo(party, "Start party");
     }
   }
 }
@@ -14750,11 +14173,8 @@ void __fastcall Party_TestTeamCreation_f(double _XMM0_8)
   XUID::XUID(&party.profileState.startingXuid);
   XUID::XUID(&party.ps4PlatformHostXUID);
   XUID::XUID(&party.xb3PlatformHostXUID);
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+5D370h+party.mpsdSessionData.multiplayerSession], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&party.mpsdSessionData.multiplayerSession = _XMM0;
   p_partyChatData = &party.partyChatData;
   v5 = 203i64;
   do

@@ -28,89 +28,91 @@ ATClient_StateMachineInGameQuitEnter
 void ATClient_StateMachineInGameQuitEnter(const LocalClientNum_t localClientNum)
 {
   AutomatedInput_Record records; 
-  int v6; 
+  float v2; 
+  float v3; 
+  int v4; 
+  __int64 v5; 
+  __int64 v6; 
   __int64 v7; 
   __int64 v8; 
   __int64 v9; 
-  __int64 v10; 
-  __int64 v11; 
-  int v14; 
+  float v10; 
+  float v11; 
+  int v12; 
+  __int64 v13; 
+  __int64 v14; 
   __int64 v15; 
   __int64 v16; 
   __int64 v17; 
-  __int64 v18; 
-  __int64 v19; 
-  int v22; 
+  float v18; 
+  float v19; 
+  int v20; 
+  __int64 v21; 
+  __int64 v22; 
   __int64 v23; 
   __int64 v24; 
   __int64 v25; 
-  __int64 v26; 
-  __int64 v27; 
-  int v30; 
+  float v26; 
+  float v27; 
+  int v28; 
+  __int64 v29; 
+  __int64 v30; 
   __int64 v31; 
   __int64 v32; 
   __int64 v33; 
-  __int64 v34; 
-  __int64 v35; 
-  int v38; 
+  float v34; 
+  float v35; 
+  int v36; 
+  __int64 v37; 
+  __int64 v38; 
   __int64 v39; 
   __int64 v40; 
   __int64 v41; 
-  __int64 v42; 
-  __int64 v43; 
 
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000
-    vmovss  xmm0, cs:__real@3dcccccd
-  }
   records.keys.keyBits.array[0] = 0x20000;
   memset(&records.keys.keyBits.array[1], 0, 40);
+  v5 = 0i64;
+  v6 = 0i64;
   v7 = 0i64;
+  v13 = 0i64;
+  v14 = 0i64;
+  v15 = 0i64;
+  v21 = 0i64;
+  v22 = 0i64;
+  v23 = 0i64;
+  v29 = 0i64;
+  v30 = 0i64;
+  v31 = 0i64;
+  v37 = 0i64;
+  v38 = 0i64;
+  v39 = 0i64;
+  records.deferTimeSeconds = FLOAT_0_5;
+  records.holdTimeSeconds = FLOAT_0_1;
+  v2 = FLOAT_0_5;
+  v3 = FLOAT_0_1;
+  v10 = FLOAT_0_5;
+  v11 = FLOAT_0_1;
+  v18 = FLOAT_0_5;
+  v19 = FLOAT_0_1;
+  v26 = FLOAT_0_5;
+  v27 = FLOAT_0_1;
+  v34 = FLOAT_0_5;
+  v35 = FLOAT_0_1;
+  v4 = 1024;
   v8 = 0i64;
   v9 = 0i64;
-  v15 = 0i64;
+  v12 = 1024;
   v16 = 0i64;
   v17 = 0i64;
-  v23 = 0i64;
+  v20 = 0x40000000;
   v24 = 0i64;
   v25 = 0i64;
-  v31 = 0i64;
+  v28 = 2048;
   v32 = 0i64;
   v33 = 0i64;
-  v39 = 0i64;
+  v36 = 0x40000000;
   v40 = 0i64;
   v41 = 0i64;
-  __asm
-  {
-    vmovss  [rsp+170h+records.deferTimeSeconds], xmm1
-    vmovss  [rsp+170h+records.holdTimeSeconds], xmm0
-    vmovss  [rsp+170h+var_11C], xmm1
-    vmovss  [rsp+170h+var_118], xmm0
-    vmovss  [rbp+70h+var_E8], xmm1
-    vmovss  [rbp+70h+var_E4], xmm0
-    vmovss  [rbp+70h+var_B4], xmm1
-    vmovss  [rbp+70h+var_B0], xmm0
-    vmovss  [rbp+70h+var_80], xmm1
-    vmovss  [rbp+70h+var_7C], xmm0
-    vmovss  [rbp+70h+var_4C], xmm1
-    vmovss  [rbp+70h+var_48], xmm0
-  }
-  v6 = 1024;
-  v10 = 0i64;
-  v11 = 0i64;
-  v14 = 1024;
-  v18 = 0i64;
-  v19 = 0i64;
-  v22 = 0x40000000;
-  v26 = 0i64;
-  v27 = 0i64;
-  v30 = 2048;
-  v34 = 0i64;
-  v35 = 0i64;
-  v38 = 0x40000000;
-  v42 = 0i64;
-  v43 = 0i64;
   CL_Input_AddAutomatedSequence(localClientNum, &records, 6);
 }
 

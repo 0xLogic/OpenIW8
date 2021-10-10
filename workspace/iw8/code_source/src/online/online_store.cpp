@@ -397,40 +397,40 @@ LUI_CoD_LuaCall_GetRecommendations
 */
 __int64 LUI_CoD_LuaCall_GetRecommendations(lua_State *const luaVM)
 {
-  unsigned int v3; 
-  const char *v5; 
-  __int64 v6; 
-  unsigned int v7; 
+  unsigned int v2; 
+  double v3; 
+  const char *v4; 
+  __int64 v5; 
+  unsigned int v6; 
 
-  v3 = 1;
+  v2 = 1;
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: Store.GetRecommendations( <controllerIndex> )");
   if ( j_lua_gettop(luaVM) == 1 && j_lua_isnumber(luaVM, 1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-    __asm { vcvttss2si eax, xmm0 }
-    v5 = Online_Store::s_instance.m_recommendationStrings[_EAX];
-    if ( !v5 )
+    v3 = lui_tonumber32(luaVM, 1);
+    v4 = Online_Store::s_instance.m_recommendationStrings[*(float *)&v3];
+    if ( !v4 )
       goto LABEL_10;
-    v6 = -1i64;
+    v5 = -1i64;
     do
-      ++v6;
-    while ( v5[v6] );
-    if ( !(_DWORD)v6 )
+      ++v5;
+    while ( v4[v5] );
+    if ( !(_DWORD)v5 )
 LABEL_10:
-      v5 = (char *)&queryFormat.fmt + 3;
-    j_lua_pushstring(luaVM, v5);
+      v4 = (char *)&queryFormat.fmt + 3;
+    j_lua_pushstring(luaVM, v4);
   }
   else
   {
-    v3 = 0;
+    v2 = 0;
   }
-  if ( (int)v3 > j_lua_gettop(luaVM) )
+  if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v7 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v3, v7);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v6);
   }
-  return v3;
+  return v2;
 }
 
 /*
@@ -440,57 +440,54 @@ LUI_CoD_LuaCall_GetRecommendationsAvailabilityTimes
 */
 __int64 LUI_CoD_LuaCall_GetRecommendationsAvailabilityTimes(lua_State *const luaVM)
 {
-  unsigned int v3; 
-  __int64 v5; 
-  unsigned int v7; 
-  unsigned int v8; 
-  __int64 v9; 
+  unsigned int v2; 
+  double v3; 
+  __int64 v4; 
+  unsigned int v5; 
+  unsigned int v6; 
+  __int64 v7; 
   unsigned int sale_end; 
-  unsigned int v13; 
+  unsigned int v9; 
   char key[16]; 
   __int64 value; 
 
-  v3 = 1;
+  v2 = 1;
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isnumber(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: Store.GetRecommendationsAvailabilityTimes( <controllerIndex> )");
   if ( j_lua_gettop(luaVM) == 1 && j_lua_isnumber(luaVM, 1) )
   {
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 1);
-    __asm { vcvttss2si ebx, xmm0 }
+    v3 = lui_tonumber32(luaVM, 1);
     j_lua_createtable(luaVM, 0, 0);
-    v5 = _EBX;
-    _R15 = &Online_Store::s_instance;
-    v7 = 0;
-    v8 = Online_Store::s_instance.m_product_lifespan_counts[v5];
-    if ( v8 )
+    v4 = (int)*(float *)&v3;
+    v5 = 0;
+    v6 = Online_Store::s_instance.m_product_lifespan_counts[v4];
+    if ( v6 )
     {
-      v9 = v5;
+      v7 = v4;
       do
       {
-        _RCX = 5 * (v9 * 10 + (int)v7);
-        __asm { vmovups xmm0, xmmword ptr [r15+rcx*4+2EF14h] }
-        sale_end = Online_Store::s_instance.m_product_lifespans[v9][v7].sale_end;
-        __asm { vmovups xmmword ptr [rsp+58h+key], xmm0 }
+        sale_end = Online_Store::s_instance.m_product_lifespans[v7][v5].sale_end;
+        *(_OWORD *)key = *(_OWORD *)Online_Store::s_instance.m_product_lifespans[v7][v5].m_productID;
         LODWORD(value) = sale_end;
         LUI_BeginTable(key, luaVM);
         LUI_SetTableInt("saleStart", *(unsigned int *)&key[12], luaVM);
         LUI_SetTableInt("saleEnd", (unsigned int)value, luaVM);
         LUI_EndTable(LUI_luaVM);
-        ++v7;
+        ++v5;
       }
-      while ( v7 < v8 );
+      while ( v5 < v6 );
     }
   }
   else
   {
-    v3 = 0;
+    v2 = 0;
   }
-  if ( (int)v3 > j_lua_gettop(luaVM) )
+  if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v13 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v3, v13);
+    v9 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v9);
   }
-  return v3;
+  return v2;
 }
 
 /*
@@ -523,8 +520,7 @@ bool Online_Store::Init(Online_Store *this)
   bool result; 
 
   FenceManager_RegisterForFenceDependenciesUpdatesForAllControllers(FENCE_STORE, (void (__fastcall *)(int, bool))Online_Store::FenceDependeciesUpdated);
-  __asm { vmovss  xmm3, cs:__real@40000000; factor }
-  Online_Backoff::Init(&this->m_storeConfigBackoff, 1000, 10, *(float *)&_XMM3, 1, 0);
+  Online_Backoff::Init(&this->m_storeConfigBackoff, 1000, 10, 2.0, 1, 0);
   this->m_canGetStoreController = -1;
   Online_Store::ResetStoreConfig(this);
   memset_0(this->m_recommendationStrings, 0, 0x8Cui64);
@@ -587,13 +583,11 @@ void Online_Store::OnSignedOut(Online_Store *this, const int controllerIndex, Ge
   {
     Online_Store::ResetStoreConfig(this);
     memset_0(this->m_recommendationStrings, 0, 0x8Cui64);
-    __asm { vmovss  xmm3, cs:__real@40000000; factor }
     this->m_fetchAttemptCount = 0;
     *(_WORD *)&this->m_canGetRecommendations = 0;
     this->m_hasRecommendations = 0;
-    Online_Backoff::Init(&this->m_storeConfigBackoff, 1000, 10, *(float *)&_XMM3, 1, 0);
-    __asm { vmovss  xmm3, cs:__real@40000000; factor }
-    Online_Backoff::Init(&this->m_recommendationsBackoff, 1000, 10, *(float *)&_XMM3, 1, 0);
+    Online_Backoff::Init(&this->m_storeConfigBackoff, 1000, 10, 2.0, 1, 0);
+    Online_Backoff::Init(&this->m_recommendationsBackoff, 1000, 10, 2.0, 1, 0);
   }
 }
 
@@ -606,13 +600,11 @@ void Online_Store::OnDisconnect(Online_Store *this, ONLINE_DISCONNECT reason)
 {
   Online_Store::ResetStoreConfig(this);
   memset_0(this->m_recommendationStrings, 0, 0x8Cui64);
-  __asm { vmovss  xmm3, cs:__real@40000000; factor }
   this->m_fetchAttemptCount = 0;
   *(_WORD *)&this->m_canGetRecommendations = 0;
   this->m_hasRecommendations = 0;
-  Online_Backoff::Init(&this->m_storeConfigBackoff, 1000, 10, *(float *)&_XMM3, 1, 0);
-  __asm { vmovss  xmm3, cs:__real@40000000; factor }
-  Online_Backoff::Init(&this->m_recommendationsBackoff, 1000, 10, *(float *)&_XMM3, 1, 0);
+  Online_Backoff::Init(&this->m_storeConfigBackoff, 1000, 10, 2.0, 1, 0);
+  Online_Backoff::Init(&this->m_recommendationsBackoff, 1000, 10, 2.0, 1, 0);
 }
 
 /*
@@ -634,12 +626,7 @@ Online_Store::OutputCurrentState
 void Online_Store::OutputCurrentState(Online_Store *this, const int controllerIndex)
 {
   Com_Printf(25, "Online_Store DUMP START controllerIndex %d\n", (unsigned int)controllerIndex);
-  __asm
-  {
-    vmovsd  xmm3, cs:__real@4067a34000000000
-    vmovq   r9, xmm3
-  }
-  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, *(double *)&_XMM3);
+  Com_Printf(25, "%s is %.2fkb in size.\n", this->m_name, DOUBLE_189_1015625);
   Com_Printf(25, "Online_Store DUMP END\n");
 }
 
@@ -762,18 +749,21 @@ void Online_Store::AttemptFetchStoreRecommendations(Online_Store *this)
   unsigned __int64 v6; 
   size_t v7; 
   __int64 v8; 
+  __int64 v9; 
   unsigned int m_capacity; 
   unsigned int v11; 
   __int64 v12; 
+  bdCommsLocationCount *m_data; 
   __int64 m_size; 
+  __int64 v15; 
   DWServicesAccess *Instance; 
   DWMarketingComms *MarketingComms; 
   Online_Store *CommMessages; 
   bdReference<bdRemoteTask> *p_m_remoteDemonwareTask; 
-  Online_Store_vtbl *v22; 
-  TaskManager *v23; 
+  Online_Store_vtbl *v20; 
+  TaskManager *v21; 
   TaskCreateResult pTaskCreateResult; 
-  bdCommsLocationCount v25; 
+  bdCommsLocationCount v23; 
   bdReference<bdRemoteTask> result; 
 
   m_recommendationController = this->m_recommendationController;
@@ -810,8 +800,8 @@ void Online_Store::AttemptFetchStoreRecommendations(Online_Store *this)
         memcpy_0(&this->m_recommendationsRequest.__vftable + 2, "iw8", v7);
         *((_BYTE *)&this->m_recommendationsRequest.__vftable + v7 + 16) = 0;
       }
-      bdCommsLocationCount::bdCommsLocationCount(&v25);
-      _R12 = v8;
+      bdCommsLocationCount::bdCommsLocationCount(&v23);
+      v9 = v8;
       m_capacity = this->m_recommendationsRequest.m_locationCounts.m_capacity;
       if ( this->m_recommendationsRequest.m_locationCounts.m_size == m_capacity )
       {
@@ -819,33 +809,28 @@ void Online_Store::AttemptFetchStoreRecommendations(Online_Store *this)
         if ( !m_capacity )
           v11 = 1;
         v12 = m_capacity + v11;
-        _RSI = NULL;
+        m_data = NULL;
         if ( (_DWORD)v12 )
         {
-          _RSI = (bdCommsLocationCount *)bdMemory::allocate(40 * v12);
+          m_data = (bdCommsLocationCount *)bdMemory::allocate(40 * v12);
           m_size = this->m_recommendationsRequest.m_locationCounts.m_size;
           if ( (_DWORD)m_size )
-            memcpy_0(_RSI, this->m_recommendationsRequest.m_locationCounts.m_data, 40 * m_size);
+            memcpy_0(m_data, this->m_recommendationsRequest.m_locationCounts.m_data, 40 * m_size);
         }
         bdMemory::deallocate(this->m_recommendationsRequest.m_locationCounts.m_data);
-        this->m_recommendationsRequest.m_locationCounts.m_data = _RSI;
+        this->m_recommendationsRequest.m_locationCounts.m_data = m_data;
         this->m_recommendationsRequest.m_locationCounts.m_capacity = v12;
       }
       else
       {
-        _RSI = this->m_recommendationsRequest.m_locationCounts.m_data;
+        m_data = this->m_recommendationsRequest.m_locationCounts.m_data;
       }
-      _RCX = 5i64 * this->m_recommendationsRequest.m_locationCounts.m_size;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [r12]
-        vmovups ymmword ptr [rsi+rcx*8], ymm0
-        vmovsd  xmm1, qword ptr [r12+20h]
-        vmovsd  qword ptr [rsi+rcx*8+20h], xmm1
-      }
+      v15 = this->m_recommendationsRequest.m_locationCounts.m_size;
+      m_data[v15].bdStructBufferSerializable = *(bdStructBufferSerializable *)v9;
+      *(double *)m_data[v15].gap20 = *(double *)(v9 + 32);
       ++this->m_recommendationsRequest.m_locationCounts.m_size;
-      bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v25.__vftable + 2));
-      bdReferencable::~bdReferencable((bdReferencable *)(&v25.__vftable + 3));
+      bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&v23.__vftable + 2));
+      bdReferencable::~bdReferencable((bdReferencable *)(&v23.__vftable + 3));
       *((_DWORD *)&bdFastArray<bdCommsLocationCount>::operator[](&this->m_recommendationsRequest.m_locationCounts, 0)->__vftable + 4) = 14;
       *((_DWORD *)&bdFastArray<bdCommsLocationCount>::operator[](&this->m_recommendationsRequest.m_locationCounts, 0)->__vftable + 5) = 1;
       Instance = DWServicesAccess::GetInstance();
@@ -856,10 +841,10 @@ void Online_Store::AttemptFetchStoreRecommendations(Online_Store *this)
       {
         if ( p_m_remoteDemonwareTask->m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&p_m_remoteDemonwareTask->m_ptr->m_refCount, 0xFFFFFFFF) == 1 && p_m_remoteDemonwareTask->m_ptr )
           ((void (__fastcall *)(bdRemoteTask *, __int64))p_m_remoteDemonwareTask->m_ptr->~bdReferencable)(p_m_remoteDemonwareTask->m_ptr, 1i64);
-        v22 = CommMessages->__vftable;
+        v20 = CommMessages->__vftable;
         p_m_remoteDemonwareTask->m_ptr = (bdRemoteTask *)CommMessages->__vftable;
-        if ( v22 )
-          _InterlockedExchangeAdd((volatile signed __int32 *)&v22->OnUnregistered, 1u);
+        if ( v20 )
+          _InterlockedExchangeAdd((volatile signed __int32 *)&v20->OnUnregistered, 1u);
       }
       if ( result.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&result.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && result.m_ptr )
         ((void (__fastcall *)(bdRemoteTask *, __int64))result.m_ptr->~bdReferencable)(result.m_ptr, 1i64);
@@ -869,8 +854,8 @@ void Online_Store::AttemptFetchStoreRecommendations(Online_Store *this)
         pTaskCreateResult.m_task = NULL;
         this->m_recommendationRequestTask.m_controllerIndex = m_recommendationController;
         this->m_recommendationRequestTask.m_onCompletionCallback = OnFetchRecommendationsComplete;
-        v23 = TaskManager::GetInstance();
-        if ( TaskManager::CreateTask(v23, &this->m_recommendationRequestTask, &pTaskCreateResult) )
+        v21 = TaskManager::GetInstance();
+        if ( TaskManager::CreateTask(v21, &this->m_recommendationRequestTask, &pTaskCreateResult) )
         {
           Com_Printf(25, "AttemptFetchStoreRecommendations( controller: %d ) - CreateTask created task id %d!\n", m_recommendationController, pTaskCreateResult.m_localTaskId);
           this->m_gettingRecommendations = 1;
@@ -1612,161 +1597,142 @@ void Online_Store::ParseRecommendations(Online_Store *this, const int controller
 {
   __int64 v4; 
   unsigned int v6; 
+  __int64 v7; 
+  _OWORD *v8; 
+  char *v9; 
+  __int64 v10; 
   __int64 v11; 
-  __int64 v22; 
   unsigned int m_count; 
-  __int64 v24; 
-  __int64 v25; 
-  __int64 v26; 
-  __int64 v27; 
-  bdJSONDeserializer v28; 
-  bdJSONDeserializer v29; 
+  __int64 v13; 
+  __int64 v14; 
+  __int64 v15; 
+  __int64 v16; 
+  bdJSONDeserializer v17; 
+  bdJSONDeserializer v18; 
   bdJSONDeserializer value; 
-  __int64 v31; 
-  void **v32; 
-  int *v33; 
-  bdStructBufferSerializable v34[128]; 
-  int v35; 
+  __int64 v20; 
+  void **v21; 
+  int *v22; 
+  bdStructBufferSerializable v23[128]; 
+  int v24; 
   char buffer[2048]; 
-  int v37; 
-  char v38; 
-  int v39; 
-  char v42; 
-  int v43; 
-  __int64 v44; 
-  int v45; 
-  bdReferencable v46; 
+  int v26; 
+  char v27; 
+  int v28; 
+  __m256i v29; 
+  __m256i v30; 
+  char v31; 
+  int v32; 
+  __int64 v33; 
+  int v34; 
+  bdReferencable v35; 
 
-  v31 = -2i64;
+  v20 = -2i64;
   v4 = controllerIndex;
   v6 = 0;
   if ( *((_DWORD *)&this->m_recommendationsResponse.__vftable + 7) )
   {
-    bdJSONDeserializer::bdJSONDeserializer(&v29);
+    bdJSONDeserializer::bdJSONDeserializer(&v18);
     bdHandleAssert(*((_DWORD *)&this->m_recommendationsResponse.__vftable + 7) != 0, "rangeCheck(i)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdfastarray.inl", "bdFastArray<class bdCommsMessage>::operator []", 0x50u, "bdFastArray<T>::operator[], rangecheck failed", 0);
-    _RDI = *((_QWORD *)&this->m_recommendationsResponse.__vftable + 2);
-    v33 = (int *)&bdCommsMessage::`vbtable';
-    bdReferencable::bdReferencable(&v46, (const bdReferencable *)(*(int *)(*(_QWORD *)(_RDI + 8) + 4i64) + _RDI + 8));
-    bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)&v32, (const bdStructBufferSerializable *)_RDI);
-    v32 = &bdCommsMessage::`vftable'{for `bdStructBufferSerializable'};
-    *(int **)((char *)&v33 + v33[1]) = (int *)&bdCommsMessage::`vftable'{for `bdReferencable'};
-    v34[0].__vftable = *(bdStructBufferSerializable_vtbl **)(_RDI + 16);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi+18h]
-      vmovups xmmword ptr [rbp+1C80h+var_1CE0+18h], xmm0
-    }
-    *((_DWORD *)&v34[0].__vftable + 6) = *(_DWORD *)(_RDI + 40);
-    memcpy_0((char *)&v34[0].__vftable + 28, (const void *)(_RDI + 44), 0x1000ui64);
-    v35 = *(_DWORD *)(_RDI + 4140);
-    memcpy_0(buffer, (const void *)(_RDI + 4144), sizeof(buffer));
-    v37 = *(_DWORD *)(_RDI + 6192);
-    _RCX = _RDI + 6196;
-    _RAX = &v38;
-    v11 = 8i64;
+    v7 = *((_QWORD *)&this->m_recommendationsResponse.__vftable + 2);
+    v22 = (int *)&bdCommsMessage::`vbtable';
+    bdReferencable::bdReferencable(&v35, (const bdReferencable *)(*(int *)(*(_QWORD *)(v7 + 8) + 4i64) + v7 + 8));
+    bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)&v21, (const bdStructBufferSerializable *)v7);
+    v21 = &bdCommsMessage::`vftable'{for `bdStructBufferSerializable'};
+    *(int **)((char *)&v22 + v22[1]) = (int *)&bdCommsMessage::`vftable'{for `bdReferencable'};
+    v23[0] = *(bdStructBufferSerializable *)(v7 + 16);
+    *((_DWORD *)&v23[0].__vftable + 6) = *(_DWORD *)(v7 + 40);
+    memcpy_0((char *)&v23[0].__vftable + 28, (const void *)(v7 + 44), 0x1000ui64);
+    v24 = *(_DWORD *)(v7 + 4140);
+    memcpy_0(buffer, (const void *)(v7 + 4144), sizeof(buffer));
+    v26 = *(_DWORD *)(v7 + 6192);
+    v8 = (_OWORD *)(v7 + 6196);
+    v9 = &v27;
+    v10 = 8i64;
     do
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rcx]
-        vmovups xmmword ptr [rax], xmm0
-        vmovups xmm1, xmmword ptr [rcx+10h]
-        vmovups xmmword ptr [rax+10h], xmm1
-        vmovups xmm0, xmmword ptr [rcx+20h]
-        vmovups xmmword ptr [rax+20h], xmm0
-        vmovups xmm1, xmmword ptr [rcx+30h]
-        vmovups xmmword ptr [rax+30h], xmm1
-        vmovups xmm0, xmmword ptr [rcx+40h]
-        vmovups xmmword ptr [rax+40h], xmm0
-        vmovups xmm1, xmmword ptr [rcx+50h]
-        vmovups xmmword ptr [rax+50h], xmm1
-        vmovups xmm0, xmmword ptr [rcx+60h]
-        vmovups xmmword ptr [rax+60h], xmm0
-      }
-      _RAX += 128;
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rcx+70h]
-        vmovups xmmword ptr [rax-10h], xmm1
-      }
-      _RCX += 128i64;
-      --v11;
+      *(_OWORD *)v9 = *v8;
+      *((_OWORD *)v9 + 1) = v8[1];
+      *((_OWORD *)v9 + 2) = v8[2];
+      *((_OWORD *)v9 + 3) = v8[3];
+      *((_OWORD *)v9 + 4) = v8[4];
+      *((_OWORD *)v9 + 5) = v8[5];
+      *((_OWORD *)v9 + 6) = v8[6];
+      v9 += 128;
+      *((_OWORD *)v9 - 1) = v8[7];
+      v8 += 8;
+      --v10;
     }
-    while ( v11 );
-    v39 = *(_DWORD *)(_RDI + 7220);
-    __asm
+    while ( v10 );
+    v28 = *(_DWORD *)(v7 + 7220);
+    v29 = *(__m256i *)(v7 + 7224);
+    v30 = *(__m256i *)(v7 + 7256);
+    v31 = *(_BYTE *)(v7 + 7288);
+    v32 = *(_DWORD *)(v7 + 7292);
+    v33 = *(_QWORD *)(v7 + 7296);
+    v34 = *(_DWORD *)(v7 + 7304);
+    bdJSONDeserializer::parse(&v18, buffer);
+    if ( bdJSONDeserializer::hasKey(&v18, "productList") )
     {
-      vmovups ymm0, ymmword ptr [rdi+1C38h]
-      vmovups [rbp+1C80h+var_A8], ymm0
-      vmovups ymm1, ymmword ptr [rdi+1C58h]
-      vmovups [rbp+1C80h+var_88], ymm1
-    }
-    v42 = *(_BYTE *)(_RDI + 7288);
-    v43 = *(_DWORD *)(_RDI + 7292);
-    v44 = *(_QWORD *)(_RDI + 7296);
-    v45 = *(_DWORD *)(_RDI + 7304);
-    bdJSONDeserializer::parse(&v29, buffer);
-    if ( bdJSONDeserializer::hasKey(&v29, "productList") )
-    {
-      v22 = v4;
-      bdJSONDeserializer::getString(&v29, "productList", this->m_recommendationStrings[v4], 0x46u);
+      v11 = v4;
+      bdJSONDeserializer::getString(&v18, "productList", this->m_recommendationStrings[v4], 0x46u);
     }
     else
     {
       Com_PrintError(25, "Just For You Recommendations Message Error - metadata did not include a productList\n");
-      v22 = v4;
+      v11 = v4;
     }
-    if ( bdJSONDeserializer::hasKey(&v29, "lifespans") )
+    if ( bdJSONDeserializer::hasKey(&v18, "lifespans") )
     {
       bdJSONDeserializer::bdJSONDeserializer(&value);
-      bdJSONDeserializer::bdJSONDeserializer(&v28);
-      bdJSONDeserializer::getArray(&v29, "lifespans", &value);
+      bdJSONDeserializer::bdJSONDeserializer(&v17);
+      bdJSONDeserializer::getArray(&v18, "lifespans", &value);
       m_count = value.m_count;
-      this->m_product_lifespan_counts[v22] = value.m_count;
+      this->m_product_lifespan_counts[v11] = value.m_count;
       if ( m_count )
       {
-        v24 = 0i64;
+        v13 = 0i64;
         do
         {
-          if ( bdJSONDeserializer::getElementByIndex(&value, v6, &v28) )
+          if ( bdJSONDeserializer::getElementByIndex(&value, v6, &v17) )
           {
-            if ( bdJSONDeserializer::hasKey(&v28, "productID") )
+            if ( bdJSONDeserializer::hasKey(&v17, "productID") )
             {
-              v25 = v22;
-              v26 = v6;
-              bdJSONDeserializer::getString(&v28, "productID", this->m_product_lifespans[v22][v6].m_productID, 0xAu);
+              v14 = v11;
+              v15 = v6;
+              bdJSONDeserializer::getString(&v17, "productID", this->m_product_lifespans[v11][v6].m_productID, 0xAu);
             }
             else
             {
               Com_PrintError(25, "Just For You Recommendations Message Error - No Product ID in Lifespan\n");
-              v25 = v22;
-              v26 = v6;
+              v14 = v11;
+              v15 = v6;
             }
-            v27 = v25 * 10 + v26;
-            if ( bdJSONDeserializer::hasKey(&v28, "saleStart") )
-              bdJSONDeserializer::getUInt32(&v28, "saleStart", &this->m_product_lifespans[0][v27].sale_start);
+            v16 = v14 * 10 + v15;
+            if ( bdJSONDeserializer::hasKey(&v17, "saleStart") )
+              bdJSONDeserializer::getUInt32(&v17, "saleStart", &this->m_product_lifespans[0][v16].sale_start);
             else
-              this->m_product_lifespans[v25][v24].sale_start = 1574454803;
-            if ( bdJSONDeserializer::hasKey(&v28, "saleEnd") )
-              bdJSONDeserializer::getUInt32(&v28, "saleEnd", &this->m_product_lifespans[0][v27].sale_end);
+              this->m_product_lifespans[v14][v13].sale_start = 1574454803;
+            if ( bdJSONDeserializer::hasKey(&v17, "saleEnd") )
+              bdJSONDeserializer::getUInt32(&v17, "saleEnd", &this->m_product_lifespans[0][v16].sale_end);
             else
-              this->m_product_lifespans[v25][v24].sale_end = 1924992000;
+              this->m_product_lifespans[v14][v13].sale_end = 1924992000;
           }
           ++v6;
-          ++v24;
+          ++v13;
         }
         while ( v6 < m_count );
       }
-      bdJSONDeserializer::~bdJSONDeserializer(&v28);
+      bdJSONDeserializer::~bdJSONDeserializer(&v17);
       bdJSONDeserializer::~bdJSONDeserializer(&value);
     }
     else
     {
       Com_PrintError(25, "Just For You Recommendations Message Error - metadata did not include a productList\n");
     }
-    bdStructBufferSerializable::~bdStructBufferSerializable(v34);
-    bdReferencable::~bdReferencable(&v46);
-    bdJSONDeserializer::~bdJSONDeserializer(&v29);
+    bdStructBufferSerializable::~bdStructBufferSerializable(v23);
+    bdReferencable::~bdReferencable(&v35);
+    bdJSONDeserializer::~bdJSONDeserializer(&v18);
   }
   else
   {

@@ -599,17 +599,8 @@ GfxTexture::GfxTexture
 */
 void GfxTexture::GfxTexture(GfxTexture *this, GfxTexture *other)
 {
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups xmm1, xmmword ptr [rdx+20h]
-    vmovups xmmword ptr [rcx+20h], xmm1
-    vmovups ymm0, ymmword ptr cs:s_textureGlob.nullTexture.___u0
-    vmovups ymmword ptr [rdx], ymm0
-    vmovups xmm1, xmmword ptr cs:s_textureGlob.nullTexture.shaderRWView.baseclass_0.rwCounterResource
-    vmovups xmmword ptr [rdx+20h], xmm1
-  }
+  *this = *other;
+  *other = s_textureGlob.nullTexture;
 }
 
 /*
@@ -624,17 +615,8 @@ GfxTexture *GfxTexture::operator=(GfxTexture *this, GfxTexture *other)
   result = this;
   if ( other != this )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdx]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups xmm1, xmmword ptr [rdx+20h]
-      vmovups xmmword ptr [rcx+20h], xmm1
-      vmovups ymm0, ymmword ptr cs:s_textureGlob.nullTexture.___u0
-      vmovups ymmword ptr [rdx], ymm0
-      vmovups xmm1, xmmword ptr cs:s_textureGlob.nullTexture.shaderRWView.baseclass_0.rwCounterResource
-      vmovups xmmword ptr [rdx+20h], xmm1
-    }
+    *this = *other;
+    *other = s_textureGlob.nullTexture;
   }
   return result;
 }
@@ -801,52 +783,41 @@ RB_Texture_AssignStreamedInternal
 */
 void RB_Texture_AssignStreamedInternal(const GfxBackEndData *data, GfxTextureId id, const GfxTexture *newTexture)
 {
+  GfxTexture *v6; 
   unsigned int BackEndDataIndex; 
   GfxTexturePoolEntry *v8; 
-  __int64 v11; 
-  bool v12; 
+  __int64 v9; 
+  bool v10; 
 
-  _R14 = newTexture;
   if ( !data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1728, ASSERT_TYPE_ASSERT, "(data)", (const char *)&queryFormat, "data") )
     __debugbreak();
   if ( id >= NULLID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1730, ASSERT_TYPE_ASSERT, "(R_Texture_IsStreamedId( id ))", (const char *)&queryFormat, "R_Texture_IsStreamedId( id )") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1731, ASSERT_TYPE_ASSERT, "(newTexture)", (const char *)&queryFormat, "newTexture") )
+  if ( !newTexture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1731, ASSERT_TYPE_ASSERT, "(newTexture)", (const char *)&queryFormat, "newTexture") )
     __debugbreak();
-  _RDI = R_Texture_GetFromIdMutable(data, id);
+  v6 = R_Texture_GetFromIdMutable(data, id);
   BackEndDataIndex = R_GetBackEndDataIndex(data);
   v8 = &s_textureGlob.pool.entries[id & 0x3FFFFFFF];
-  if ( !memcmp_0(&v8->streamed.fallbackTexture, _RDI, 0x30ui64) )
+  if ( !memcmp_0(&v8->streamed.fallbackTexture, v6, 0x30ui64) )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:s_textureGlob.nullTexture.___u0
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups xmm1, xmmword ptr cs:s_textureGlob.nullTexture.shaderRWView.baseclass_0.rwCounterResource
-      vmovups xmmword ptr [rdi+20h], xmm1
-    }
+    *v6 = s_textureGlob.nullTexture;
   }
   else
   {
-    v11 = 0i64;
-    v12 = 1;
-    while ( (_DWORD)v11 == BackEndDataIndex || memcmp_0(_RDI, &v8->resident.texture + v11, 0x30ui64) )
+    v9 = 0i64;
+    v10 = 1;
+    while ( (_DWORD)v9 == BackEndDataIndex || memcmp_0(v6, &v8->resident.texture + v9, 0x30ui64) )
     {
-      v11 = (unsigned int)(v11 + 1);
-      if ( (unsigned int)v11 >= 2 )
+      v9 = (unsigned int)(v9 + 1);
+      if ( (unsigned int)v9 >= 2 )
         goto LABEL_18;
     }
-    v12 = 0;
+    v10 = 0;
 LABEL_18:
-    R_Texture_DestroyInternal(_RDI, 1, 0, v12);
+    R_Texture_DestroyInternal(v6, 1, 0, v10);
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups xmm1, xmmword ptr [r14+20h]
-    vmovups xmmword ptr [rdi+20h], xmm1
-  }
+  *(__m256i *)&v6->basemap = *(__m256i *)&newTexture->basemap;
+  *(_OWORD *)&v6->shaderRWView.rwCounterResource = *(_OWORD *)&newTexture->shaderRWView.rwCounterResource;
 }
 
 /*
@@ -964,15 +935,15 @@ void RB_Texture_FixupStreamedPixelsPtr(const GfxBackEndData *data, const GfxImag
   bool enabled; 
   unsigned __int64 v15; 
   int levelCount; 
-  bool v19; 
-  unsigned __int64 v21; 
+  bool v18; 
+  unsigned __int64 v19; 
+  __int64 v20; 
+  int v21; 
   __int64 v22; 
-  int v23; 
-  __int64 v24; 
-  __int64 v25; 
+  __int64 v23; 
   int integer; 
-  __m256i v28; 
-  __m256i v29; 
+  __m256i v26; 
+  __m256i v27; 
   GfxTexture_CreateParams textureParams; 
   GfxTexture texture; 
 
@@ -1030,78 +1001,73 @@ LABEL_127:
   {
     levelCount = image->levelCount;
     __asm { vpxor   xmm0, xmm0, xmm0 }
-    v29.m256i_i64[0] = 0i64;
-    __asm { vmovdqu xmmword ptr [rbp+60h+var_E8+8], xmm0 }
-    v28.m256i_i32[0] = image->width;
-    v28.m256i_i32[1] = image->height;
-    v28.m256i_i32[2] = image->depth;
-    v28.m256i_i32[3] = image->numElements;
-    v29.m256i_i32[6] = -1;
-    __asm { vmovups ymm1, ymmword ptr [rsp+160h+var_E8] }
-    v19 = Image_CountMipmaps(v28.m256i_u32[0], v28.m256i_u32[1], v28.m256i_u32[2]) == levelCount;
+    v27.m256i_i64[0] = 0i64;
+    *(_OWORD *)&v27.m256i_u64[1] = _XMM0;
+    v26.m256i_i32[0] = image->width;
+    v26.m256i_i32[1] = image->height;
+    v26.m256i_i32[2] = image->depth;
+    v26.m256i_i32[3] = image->numElements;
+    v27.m256i_i32[6] = -1;
+    v18 = Image_CountMipmaps(v26.m256i_u32[0], v26.m256i_u32[1], v26.m256i_u32[2]) == levelCount;
     textureParams.pixels = v8;
-    v28.m256i_i32[5] = image->flags;
-    if ( v19 )
+    v26.m256i_i32[5] = image->flags;
+    if ( v18 )
       levelCount = 0;
-    v28.m256i_i32[6] = image->format;
+    v26.m256i_i32[6] = image->format;
     textureParams.name = image->name;
-    v28.m256i_i32[4] = levelCount;
-    __asm { vmovups ymm0, [rsp+160h+var_108] }
+    v26.m256i_i32[4] = levelCount;
     memset(&texture, 0, sizeof(texture));
-    __asm
-    {
-      vmovups ymmword ptr [rbp+60h+textureParams.params.width], ymm0
-      vmovups ymmword ptr [rbp+60h+textureParams.params.customAllocFunc], ymm1
-    }
+    *(__m256i *)&textureParams.params.width = v26;
+    *(__m256i *)&textureParams.params.customAllocFunc = v27;
     Image_CreatePlacementTexture_XB3(&textureParams, &texture, mostDetailedMip);
-    v21 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (texture.shaderView.view + g_descriptorPools.shaderViewPool.handle.startSlot);
-    v22 = (LOBYTE(g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr) + LOBYTE(g_descriptorPools.shaderViewPool.handle.parent->descriptorSize) * (LOBYTE(texture.shaderView.view) + LOBYTE(g_descriptorPools.shaderViewPool.handle.startSlot))) & 7;
+    v19 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (texture.shaderView.view + g_descriptorPools.shaderViewPool.handle.startSlot);
+    v20 = (LOBYTE(g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr) + LOBYTE(g_descriptorPools.shaderViewPool.handle.parent->descriptorSize) * (LOBYTE(texture.shaderView.view) + LOBYTE(g_descriptorPools.shaderViewPool.handle.startSlot))) & 7;
     if ( ((LOBYTE(g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr) + LOBYTE(g_descriptorPools.shaderViewPool.handle.parent->descriptorSize) * (LOBYTE(texture.shaderView.view) + LOBYTE(g_descriptorPools.shaderViewPool.handle.startSlot))) & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1863, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
       __debugbreak();
-    if ( *(_DWORD *)v21 != v13 )
+    if ( *(_DWORD *)v19 != v13 )
     {
-      LODWORD(v25) = (unsigned __int64)v8 >> 8;
-      LODWORD(v24) = *(_DWORD *)v21;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1864, ASSERT_TYPE_ASSERT, "( ( reinterpret_cast<const uint32_t*>( viewHandle.ptr )[0] ) ) == ( truncate_cast<uint32_t>( pixelsAddr ) )", "%s == %s\n\t%u, %u", "( reinterpret_cast<const uint32_t*>( viewHandle.ptr )[0] )", "truncate_cast<uint32_t>( pixelsAddr )", v24, v25) )
+      LODWORD(v23) = (unsigned __int64)v8 >> 8;
+      LODWORD(v22) = *(_DWORD *)v19;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1864, ASSERT_TYPE_ASSERT, "( ( reinterpret_cast<const uint32_t*>( viewHandle.ptr )[0] ) ) == ( truncate_cast<uint32_t>( pixelsAddr ) )", "%s == %s\n\t%u, %u", "( reinterpret_cast<const uint32_t*>( viewHandle.ptr )[0] )", "truncate_cast<uint32_t>( pixelsAddr )", v22, v23) )
         __debugbreak();
     }
-    if ( v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 793, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
+    if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 793, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
       __debugbreak();
-    if ( ((*(_DWORD *)(v21 + 4) >> 8) & 0xFFF) != mostDetailedMip << 8 )
+    if ( ((*(_DWORD *)(v19 + 4) >> 8) & 0xFFF) != mostDetailedMip << 8 )
     {
-      if ( v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 793, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
+      if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 793, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
         __debugbreak();
-      LODWORD(v25) = mostDetailedMip << 8;
-      LODWORD(v24) = (*(_DWORD *)(v21 + 4) >> 8) & 0xFFF;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1865, ASSERT_TYPE_ASSERT, "( XB3_GetTextureMinLODClamp( viewHandle ) ) == ( ( mostDetailedMip << 8 ) )", "%s == %s\n\t%u, %u", "XB3_GetTextureMinLODClamp( viewHandle )", "( mostDetailedMip << 8 )", v24, v25) )
+      LODWORD(v23) = mostDetailedMip << 8;
+      LODWORD(v22) = (*(_DWORD *)(v19 + 4) >> 8) & 0xFFF;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1865, ASSERT_TYPE_ASSERT, "( XB3_GetTextureMinLODClamp( viewHandle ) ) == ( ( mostDetailedMip << 8 ) )", "%s == %s\n\t%u, %u", "XB3_GetTextureMinLODClamp( viewHandle )", "( mostDetailedMip << 8 )", v22, v23) )
         __debugbreak();
     }
-    if ( v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 809, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
+    if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 809, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
       __debugbreak();
-    if ( (unsigned __int8)HIBYTE(*(_WORD *)(v21 + 12)) >> 4 != mostDetailedMip )
+    if ( (unsigned __int8)HIBYTE(*(_WORD *)(v19 + 12)) >> 4 != mostDetailedMip )
     {
-      if ( v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 809, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
+      if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 809, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
         __debugbreak();
-      LODWORD(v25) = mostDetailedMip;
-      LODWORD(v24) = (unsigned __int8)HIBYTE(*(_WORD *)(v21 + 12)) >> 4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1866, ASSERT_TYPE_ASSERT, "( XB3_GetTextureMostDetailedMip( viewHandle ) ) == ( mostDetailedMip )", "%s == %s\n\t%u, %u", "XB3_GetTextureMostDetailedMip( viewHandle )", "mostDetailedMip", v24, v25) )
+      LODWORD(v23) = mostDetailedMip;
+      LODWORD(v22) = (unsigned __int8)HIBYTE(*(_WORD *)(v19 + 12)) >> 4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1866, ASSERT_TYPE_ASSERT, "( XB3_GetTextureMostDetailedMip( viewHandle ) ) == ( mostDetailedMip )", "%s == %s\n\t%u, %u", "XB3_GetTextureMostDetailedMip( viewHandle )", "mostDetailedMip", v22, v23) )
         __debugbreak();
     }
-    if ( v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 801, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
+    if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 801, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
       __debugbreak();
-    v23 = image->levelCount;
-    if ( (*(_WORD *)(v21 + 14) & 0xF) + 1 != v23 )
+    v21 = image->levelCount;
+    if ( (*(_WORD *)(v19 + 14) & 0xF) + 1 != v21 )
     {
-      if ( v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 801, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
+      if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 801, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
         __debugbreak();
-      LODWORD(v25) = v23;
-      LODWORD(v24) = (*(_WORD *)(v21 + 14) & 0xF) + 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1867, ASSERT_TYPE_ASSERT, "( XB3_GetTextureLeastDetailedMip( viewHandle ) + 1 ) == ( image->levelCount )", "%s == %s\n\t%u, %u", "XB3_GetTextureLeastDetailedMip( viewHandle ) + 1", "image->levelCount", v24, v25) )
+      LODWORD(v23) = v21;
+      LODWORD(v22) = (*(_WORD *)(v19 + 14) & 0xF) + 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1867, ASSERT_TYPE_ASSERT, "( XB3_GetTextureLeastDetailedMip( viewHandle ) + 1 ) == ( image->levelCount )", "%s == %s\n\t%u, %u", "XB3_GetTextureLeastDetailedMip( viewHandle ) + 1", "image->levelCount", v22, v23) )
         __debugbreak();
     }
-    if ( v22 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 817, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
+    if ( v20 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 817, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
       __debugbreak();
-    *(_DWORD *)(v21 + 4) &= 0xFFF000FF;
+    *(_DWORD *)(v19 + 4) &= 0xFFF000FF;
     if ( integer == 10 )
       R_Texture_UpdateForDebugShaderStreaming(&texture, mostDetailedMip, image->streamedPartCount - 1);
     textureId = image->textureId;
@@ -1133,8 +1099,8 @@ LABEL_127:
       __debugbreak();
     if ( (*(_DWORD *)(v15 + 4) & 0xFFF00) != 0 )
     {
-      LODWORD(v24) = XB3_GetTextureMinLODClamp((D3D12_CPU_DESCRIPTOR_HANDLE)v15);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1895, ASSERT_TYPE_ASSERT, "( XB3_GetTextureMinLODClamp( viewHandle ) ) == ( 0 )", "%s == %s\n\t%u, %u", "XB3_GetTextureMinLODClamp( viewHandle )", "0", v24, 0i64) )
+      LODWORD(v22) = XB3_GetTextureMinLODClamp((D3D12_CPU_DESCRIPTOR_HANDLE)v15);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1895, ASSERT_TYPE_ASSERT, "( XB3_GetTextureMinLODClamp( viewHandle ) ) == ( 0 )", "%s == %s\n\t%u, %u", "XB3_GetTextureMinLODClamp( viewHandle )", "0", v22, 0i64) )
         __debugbreak();
     }
   }
@@ -1244,18 +1210,11 @@ R_Texture_AssignDefault
 */
 void R_Texture_AssignDefault(GfxTexture *texture)
 {
-  _RBX = texture;
   if ( !s_textureGlob.isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1588, ASSERT_TYPE_ASSERT, "(s_textureGlob.isInitialized)", (const char *)&queryFormat, "s_textureGlob.isInitialized") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1589, ASSERT_TYPE_ASSERT, "(texture)", (const char *)&queryFormat, "texture") )
+  if ( !texture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1589, ASSERT_TYPE_ASSERT, "(texture)", (const char *)&queryFormat, "texture") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:s_textureGlob.default2DTexture.___u0
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmm1, xmmword ptr cs:s_textureGlob.default2DTexture.shaderRWView.baseclass_0.rwCounterResource
-    vmovups xmmword ptr [rbx+20h], xmm1
-  }
+  *texture = s_textureGlob.default2DTexture;
 }
 
 /*
@@ -1265,18 +1224,11 @@ R_Texture_AssignNull
 */
 void R_Texture_AssignNull(GfxTexture *texture)
 {
-  _RBX = texture;
   if ( !s_textureGlob.isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1580, ASSERT_TYPE_ASSERT, "(s_textureGlob.isInitialized)", (const char *)&queryFormat, "s_textureGlob.isInitialized") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1581, ASSERT_TYPE_ASSERT, "(texture)", (const char *)&queryFormat, "texture") )
+  if ( !texture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1581, ASSERT_TYPE_ASSERT, "(texture)", (const char *)&queryFormat, "texture") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:s_textureGlob.nullTexture.___u0
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmm1, xmmword ptr cs:s_textureGlob.nullTexture.shaderRWView.baseclass_0.rwCounterResource
-    vmovups xmmword ptr [rbx+20h], xmm1
-  }
+  *texture = s_textureGlob.nullTexture;
 }
 
 /*
@@ -1287,6 +1239,7 @@ R_Texture_Copy
 void R_Texture_Copy(GfxTextureId fromId, GfxTextureId *toId)
 {
   GfxTextureId v4; 
+  __int64 v5; 
   __int64 v6; 
   __int64 v7; 
 
@@ -1295,33 +1248,26 @@ void R_Texture_Copy(GfxTextureId fromId, GfxTextureId *toId)
   if ( fromId < NULLID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1162, ASSERT_TYPE_ASSERT, "(R_Texture_IsResidentId( fromId ))", (const char *)&queryFormat, "R_Texture_IsResidentId( fromId )") )
     __debugbreak();
   v4 = *toId;
-  _R14 = s_textureGlob.pool.entries;
-  v6 = fromId & 0x3FFFFFFF;
+  v5 = fromId & 0x3FFFFFFF;
   if ( *toId )
   {
-    v7 = v4 & 0x3FFFFFFF;
+    v6 = v4 & 0x3FFFFFFF;
     if ( v4 < NULLID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1183, ASSERT_TYPE_ASSERT, "(R_Texture_IsResidentId( toId ))", (const char *)&queryFormat, "R_Texture_IsResidentId( toId )") )
       __debugbreak();
     if ( (*toId & 0x40000000) != 0 )
     {
-      R_Texture_DestroyInternal(&s_textureGlob.pool.entries[v7].resident.texture, 0, 0, 1);
-      *toId = v7;
+      R_Texture_DestroyInternal(&s_textureGlob.pool.entries[v6].resident.texture, 0, 0, 1);
+      *toId = v6;
     }
   }
   else
   {
-    LODWORD(v7) = GfxTexturePool<89088>::GetFreeIndex(&s_textureGlob.pool, 1);
-    *toId = v7;
+    LODWORD(v6) = GfxTexturePool<89088>::GetFreeIndex(&s_textureGlob.pool, 1);
+    *toId = v6;
   }
-  _RDX = 18 * v6;
-  __asm { vmovups ymm0, ymmword ptr [r14+rdx*8] }
-  _RCX = 18i64 * (unsigned int)v7;
-  __asm
-  {
-    vmovups ymmword ptr [r14+rcx*8], ymm0
-    vmovups xmm1, xmmword ptr [r14+rdx*8+20h]
-    vmovups xmmword ptr [r14+rcx*8+20h], xmm1
-  }
+  v7 = (unsigned int)v6;
+  *(__m256i *)&s_textureGlob.pool.entries[v7].resident.texture.basemap = *(__m256i *)&s_textureGlob.pool.entries[v5].resident.texture.basemap;
+  *(_OWORD *)&s_textureGlob.pool.entries[v7].streamed.texture[0].shaderRWView.rwCounterResource = *(_OWORD *)&s_textureGlob.pool.entries[v5].streamed.texture[0].shaderRWView.rwCounterResource;
 }
 
 /*
@@ -1381,14 +1327,14 @@ void R_Texture_CreateDefault2D(GfxTexture *texture)
   int v40; 
   int v41; 
   int v42; 
-  void *v46; 
-  __m256i v47; 
-  __m256i v48; 
+  void *v44; 
+  __m256i v45; 
+  __m256i v46; 
   GfxTexture_CreateParams params; 
   Image_SetupData data; 
   char Src[4]; 
-  char v52; 
-  char v53; 
+  char v50; 
+  char v51; 
 
   v2 = DCONST_DVARBOOL_r_streamerUseGrayDefaultColor;
   if ( !DCONST_DVARBOOL_r_streamerUseGrayDefaultColor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_streamerUseGrayDefaultColor") )
@@ -1396,7 +1342,7 @@ void R_Texture_CreateDefault2D(GfxTexture *texture)
   Dvar_CheckFrontendServerThread(v2);
   if ( v2->current.enabled )
   {
-    v4 = &v53;
+    v4 = &v51;
     v5 = 64i64;
     do
     {
@@ -1472,7 +1418,7 @@ void R_Texture_CreateDefault2D(GfxTexture *texture)
   else
   {
     v6 = 0;
-    v7 = &v52;
+    v7 = &v50;
     do
     {
       v8 = 2;
@@ -1617,29 +1563,21 @@ void R_Texture_CreateDefault2D(GfxTexture *texture)
     }
     while ( v6 < 64 );
   }
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+340E8h+var_34088+8], xmm0
-  }
-  v47.m256i_i32[2] = 1;
-  *(__int64 *)((char *)&v47.m256i_i64[1] + 4) = 1i64;
-  v48.m256i_i64[0] = 0i64;
-  v48.m256i_i32[6] = -1;
-  __asm { vmovups ymm1, [rsp+340E8h+var_34088] }
-  v47.m256i_i64[0] = 0x4000000040i64;
-  v47.m256i_i32[5] = 1027;
-  v47.m256i_i32[6] = 6;
-  __asm
-  {
-    vmovups ymm0, [rsp+340E8h+var_340A8]
-    vmovups ymmword ptr [rsp+340E8h+params.params.width], ymm0
-    vmovups ymmword ptr [rsp+340E8h+params.params.customAllocFunc], ymm1
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v46.m256i_u64[1] = _XMM0;
+  v45.m256i_i32[2] = 1;
+  *(__int64 *)((char *)&v45.m256i_i64[1] + 4) = 1i64;
+  v46.m256i_i64[0] = 0i64;
+  v46.m256i_i32[6] = -1;
+  v45.m256i_i64[0] = 0x4000000040i64;
+  v45.m256i_i32[5] = 1027;
+  v45.m256i_i32[6] = 6;
+  *(__m256i *)&params.params.width = v45;
+  *(__m256i *)&params.params.customAllocFunc = v46;
   params.name = "$default_2d_texture";
-  v46 = PMem_Alloc(0x4000ui64, 0x100ui64, MEM_POOL_GPU_PRIVATE, PMEM_STACK_GAME, "$default_2d_texture");
-  memcpy_0(v46, Src, 0x4000ui64);
-  params.pixels = (const unsigned __int8 *)v46;
+  v44 = PMem_Alloc(0x4000ui64, 0x100ui64, MEM_POOL_GPU_PRIVATE, PMEM_STACK_GAME, "$default_2d_texture");
+  memcpy_0(v44, Src, 0x4000ui64);
+  params.pixels = (const unsigned __int8 *)v44;
   R_Texture_CreateInternal_0(&params, &data, texture);
 }
 
@@ -1655,15 +1593,7 @@ unsigned int R_Texture_CreateDefault()
   if ( !s_textureGlob.isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 774, ASSERT_TYPE_ASSERT, "(s_textureGlob.isInitialized)", (const char *)&queryFormat, "s_textureGlob.isInitialized") )
     __debugbreak();
   result = GfxTexturePool<89088>::GetFreeIndex(&s_textureGlob.pool, 1);
-  __asm { vmovups ymm0, ymmword ptr cs:s_textureGlob.default2DTexture.___u0 }
-  _RDX = 18i64 * result;
-  _RCX = s_textureGlob.pool.entries;
-  __asm
-  {
-    vmovups ymmword ptr [rcx+rdx*8], ymm0
-    vmovups xmm1, xmmword ptr cs:s_textureGlob.default2DTexture.shaderRWView.baseclass_0.rwCounterResource
-    vmovups xmmword ptr [rcx+rdx*8+20h], xmm1
-  }
+  s_textureGlob.pool.entries[result].resident.texture = s_textureGlob.default2DTexture;
   return result;
 }
 
@@ -1677,8 +1607,8 @@ void R_Texture_CreateFallback(GfxImage *image, GfxTexture *fallbackTexture)
   int levelCount; 
   unsigned int v7; 
   GfxImageFallback *fallback; 
-  __m256i v13; 
-  __m256i v14; 
+  __m256i v11; 
+  __m256i v12; 
   GfxTexture_CreateParams params; 
 
   if ( !image && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 918, ASSERT_TYPE_ASSERT, "(image)", (const char *)&queryFormat, "image") )
@@ -1695,34 +1625,26 @@ void R_Texture_CreateFallback(GfxImage *image, GfxTexture *fallbackTexture)
     __debugbreak();
   levelCount = image->levelCount;
   __asm { vpxor   xmm0, xmm0, xmm0 }
-  v14.m256i_i64[0] = 0i64;
-  __asm { vmovdqu xmmword ptr [rsp+0C8h+var_78+8], xmm0 }
-  v13.m256i_i32[0] = image->width;
-  v13.m256i_i32[1] = image->height;
-  v13.m256i_i32[2] = image->depth;
-  v13.m256i_i32[3] = image->numElements;
-  v14.m256i_i32[6] = -1;
-  v7 = Image_CountMipmaps(v13.m256i_u32[0], v13.m256i_u32[1], v13.m256i_u32[2]);
+  v12.m256i_i64[0] = 0i64;
+  *(_OWORD *)&v12.m256i_u64[1] = _XMM0;
+  v11.m256i_i32[0] = image->width;
+  v11.m256i_i32[1] = image->height;
+  v11.m256i_i32[2] = image->depth;
+  v11.m256i_i32[3] = image->numElements;
+  v12.m256i_i32[6] = -1;
+  v7 = Image_CountMipmaps(v11.m256i_u32[0], v11.m256i_u32[1], v11.m256i_u32[2]);
   fallback = image->fallback;
-  __asm { vmovups ymm0, [rsp+0C8h+var_78] }
-  v13.m256i_i32[5] = image->flags;
+  v11.m256i_i32[5] = image->flags;
   if ( v7 == levelCount )
     levelCount = 0;
-  v13.m256i_i32[6] = image->format;
-  __asm { vmovups ymmword ptr [rsp+0C8h+params.params.customAllocFunc], ymm0 }
-  v13.m256i_i32[4] = levelCount;
-  __asm
-  {
-    vmovups ymm1, [rsp+0C8h+var_98]
-    vmovups ymmword ptr [rsp+0C8h+params.params.width], ymm1
-  }
+  v11.m256i_i32[6] = image->format;
+  *(__m256i *)&params.params.customAllocFunc = v12;
+  v11.m256i_i32[4] = levelCount;
+  _YMM1 = v11;
+  *(__m256i *)&params.params.width = v11;
   params.params.maxLevelCount = 1;
-  __asm
-  {
-    vextractf128 xmm1, ymm1, 1
-    vmovq   rax, xmm1
-  }
-  params.params.flags = HIDWORD(_RAX) & 0xFFFFFFBD | 2;
+  __asm { vextractf128 xmm1, ymm1, 1 }
+  params.params.flags = DWORD1(_XMM1) & 0xFFFFFFBD | 2;
   params.params.width = fallback->width;
   params.params.height = fallback->height;
   params.name = image->name;
@@ -1744,21 +1666,15 @@ __int64 R_Texture_CreateInternal(const GfxTexture_CreateParams *params, const Im
 
   v4 = (params->params.flags & 0x40) == 0;
   FreeIndex = GfxTexturePool<89088>::GetFreeIndex(&s_textureGlob.pool, v4);
-  _RSI = &s_textureGlob.pool.entries[FreeIndex];
-  R_Texture_CreateInternal_0(params, data, &_RSI->resident.texture);
+  R_Texture_CreateInternal_0(params, data, &s_textureGlob.pool.entries[FreeIndex].resident.texture);
   if ( v4 )
   {
     return FreeIndex | 0x40000000;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rsi]
-      vmovups ymmword ptr [rsi+30h], ymm0
-      vmovups xmm1, xmmword ptr [rsi+20h]
-      vmovups xmmword ptr [rsi+50h], xmm1
-    }
+    *(__m256i *)&s_textureGlob.pool.entries[FreeIndex].streamed.texture[1].basemap = *(__m256i *)&s_textureGlob.pool.entries[FreeIndex].resident.texture.basemap;
+    *(_OWORD *)&s_textureGlob.pool.entries[FreeIndex].streamed.texture[1].shaderRWView.rwCounterResource = *(_OWORD *)&s_textureGlob.pool.entries[FreeIndex].streamed.texture[0].shaderRWView.rwCounterResource;
     return FreeIndex | 0xC0000000;
   }
 }
@@ -1771,21 +1687,15 @@ R_Texture_CreateNullRT
 int R_Texture_CreateNullRT()
 {
   unsigned int FreeIndex; 
+  __int64 v1; 
   int result; 
 
   if ( !s_textureGlob.isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 759, ASSERT_TYPE_ASSERT, "(s_textureGlob.isInitialized)", (const char *)&queryFormat, "s_textureGlob.isInitialized") )
     __debugbreak();
   FreeIndex = GfxTexturePool<89088>::GetFreeIndex(&s_textureGlob.pool, 1);
-  __asm { vmovups ymm0, ymmword ptr cs:s_textureGlob.nullTexture.___u0 }
-  _RDX = 18i64 * FreeIndex;
-  _RCX = s_textureGlob.pool.entries;
+  v1 = FreeIndex;
   result = FreeIndex | 0x40000000;
-  __asm
-  {
-    vmovups ymmword ptr [rcx+rdx*8], ymm0
-    vmovups xmm1, xmmword ptr cs:s_textureGlob.nullTexture.shaderRWView.baseclass_0.rwCounterResource
-    vmovups xmmword ptr [rcx+rdx*8+20h], xmm1
-  }
+  s_textureGlob.pool.entries[v1].resident.texture = s_textureGlob.nullTexture;
   return result;
 }
 
@@ -1799,11 +1709,11 @@ void R_Texture_CreateResident(GfxImage *image)
   unsigned __int64 data; 
   GfxTextureId v4; 
   int levelCount; 
-  bool v13; 
+  bool v7; 
   unsigned int FreeIndex; 
-  int v16; 
-  __m256i v19; 
-  __m256i v20; 
+  int v9; 
+  __m256i v10; 
+  __m256i v11; 
   GfxTexture_CreateParams params; 
 
   if ( !s_textureGlob.isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 997, ASSERT_TYPE_ASSERT, "(s_textureGlob.isInitialized)", (const char *)&queryFormat, "s_textureGlob.isInitialized") )
@@ -1819,49 +1729,38 @@ void R_Texture_CreateResident(GfxImage *image)
   {
     levelCount = image->levelCount;
     __asm { vpxor   xmm0, xmm0, xmm0 }
-    v20.m256i_i64[0] = 0i64;
-    __asm { vmovdqu xmmword ptr [rsp+0C8h+var_78+8], xmm0 }
-    v20.m256i_i32[6] = -1;
-    v19.m256i_i32[0] = image->width;
-    v19.m256i_i32[1] = image->height;
-    v19.m256i_i32[2] = image->depth;
-    v19.m256i_i32[3] = image->numElements;
-    __asm { vmovups ymm1, [rsp+0C8h+var_78] }
+    v11.m256i_i64[0] = 0i64;
+    *(_OWORD *)&v11.m256i_u64[1] = _XMM0;
+    v11.m256i_i32[6] = -1;
+    v10.m256i_i32[0] = image->width;
+    v10.m256i_i32[1] = image->height;
+    v10.m256i_i32[2] = image->depth;
+    v10.m256i_i32[3] = image->numElements;
     params.pixels = image->pixels.residentData;
-    if ( Image_CountMipmaps(v19.m256i_u32[0], v19.m256i_u32[1], v19.m256i_u32[2]) == levelCount )
+    if ( Image_CountMipmaps(v10.m256i_u32[0], v10.m256i_u32[1], v10.m256i_u32[2]) == levelCount )
       levelCount = 0;
-    v19.m256i_i32[5] = image->flags;
-    v19.m256i_i32[6] = image->format;
-    v19.m256i_i32[4] = levelCount;
+    v10.m256i_i32[5] = image->flags;
+    v10.m256i_i32[6] = image->format;
+    v10.m256i_i32[4] = levelCount;
     params.name = image->name;
-    __asm
-    {
-      vmovups ymm0, [rsp+0C8h+var_98]
-      vmovups ymmword ptr [rsp+0C8h+params.params.width], ymm0
-      vmovups ymmword ptr [rsp+0C8h+params.params.customAllocFunc], ymm1
-    }
+    *(__m256i *)&params.params.width = v10;
+    *(__m256i *)&params.params.customAllocFunc = v11;
     if ( (_BYTE)data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 745, ASSERT_TYPE_ASSERT, "(IsAligned( params.pixels, R_IMAGE_ALIGNMENT ))", (const char *)&queryFormat, "IsAligned( params.pixels, R_IMAGE_ALIGNMENT )") )
       __debugbreak();
-    v13 = (params.params.flags & 0x40) == 0;
-    FreeIndex = GfxTexturePool<89088>::GetFreeIndex(&s_textureGlob.pool, v13);
-    _RSI = &s_textureGlob.pool.entries[FreeIndex];
-    R_Texture_CreateInternal_0(&params, NULL, &_RSI->resident.texture);
-    if ( v13 )
+    v7 = (params.params.flags & 0x40) == 0;
+    FreeIndex = GfxTexturePool<89088>::GetFreeIndex(&s_textureGlob.pool, v7);
+    R_Texture_CreateInternal_0(&params, NULL, &s_textureGlob.pool.entries[FreeIndex].resident.texture);
+    if ( v7 )
     {
-      v16 = 0x40000000;
+      v9 = 0x40000000;
     }
     else
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rsi]
-        vmovups ymmword ptr [rsi+30h], ymm0
-        vmovups xmm1, xmmword ptr [rsi+20h]
-        vmovups xmmword ptr [rsi+50h], xmm1
-      }
-      v16 = -1073741824;
+      *(__m256i *)&s_textureGlob.pool.entries[FreeIndex].streamed.texture[1].basemap = *(__m256i *)&s_textureGlob.pool.entries[FreeIndex].resident.texture.basemap;
+      *(_OWORD *)&s_textureGlob.pool.entries[FreeIndex].streamed.texture[1].shaderRWView.rwCounterResource = *(_OWORD *)&s_textureGlob.pool.entries[FreeIndex].streamed.texture[0].shaderRWView.rwCounterResource;
+      v9 = -1073741824;
     }
-    image->textureId = v16 | FreeIndex;
+    image->textureId = v9 | FreeIndex;
   }
   else
   {
@@ -1870,15 +1769,7 @@ void R_Texture_CreateResident(GfxImage *image)
     if ( !s_textureGlob.isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 774, ASSERT_TYPE_ASSERT, "(s_textureGlob.isInitialized)", (const char *)&queryFormat, "s_textureGlob.isInitialized") )
       __debugbreak();
     v4 = GfxTexturePool<89088>::GetFreeIndex(&s_textureGlob.pool, 1);
-    __asm { vmovups ymm0, ymmword ptr cs:s_textureGlob.default2DTexture.___u0 }
-    _RDX = 18i64 * (unsigned int)v4;
-    _RCX = s_textureGlob.pool.entries;
-    __asm
-    {
-      vmovups ymmword ptr [rcx+rdx*8], ymm0
-      vmovups xmm1, xmmword ptr cs:s_textureGlob.default2DTexture.shaderRWView.baseclass_0.rwCounterResource
-      vmovups xmmword ptr [rcx+rdx*8+20h], xmm1
-    }
+    s_textureGlob.pool.entries[v4].resident.texture = s_textureGlob.default2DTexture;
     image->textureId = v4;
   }
 }
@@ -1891,7 +1782,9 @@ R_Texture_CreateStreamedDefault
 void R_Texture_CreateStreamedDefault(GfxImage *image)
 {
   __int64 FreeIndex; 
-  __int64 v8; 
+  GfxTexturePoolEntry *v3; 
+  GfxTexture *p_default2DTexture; 
+  __int64 v5; 
 
   if ( !s_textureGlob.isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 950, ASSERT_TYPE_ASSERT, "(s_textureGlob.isInitialized)", (const char *)&queryFormat, "s_textureGlob.isInitialized") )
     __debugbreak();
@@ -1904,39 +1797,23 @@ void R_Texture_CreateStreamedDefault(GfxImage *image)
   if ( image->pixels.streamedDataHandle.data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 954, ASSERT_TYPE_ASSERT, "(image->pixels.streamedDataHandle.data == 0)", (const char *)&queryFormat, "image->pixels.streamedDataHandle.data == 0") )
     __debugbreak();
   FreeIndex = GfxTexturePool<89088>::GetFreeIndex(&s_textureGlob.pool, 0);
-  _RBX = &s_textureGlob.pool.entries[FreeIndex];
-  _RBP = &_RBX->streamed.fallbackTexture;
+  v3 = &s_textureGlob.pool.entries[FreeIndex];
   if ( image->fallback )
-  {
-    R_Texture_CreateFallback(image, &_RBX->streamed.fallbackTexture);
-  }
+    R_Texture_CreateFallback(image, &v3->streamed.fallbackTexture);
   else
-  {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:s_textureGlob.default2DTexture.___u0
-      vmovups ymmword ptr [rbp+0], ymm0
-      vmovups xmm1, xmmword ptr cs:s_textureGlob.default2DTexture.shaderRWView.baseclass_0.rwCounterResource
-      vmovups xmmword ptr [rbp+20h], xmm1
-    }
-  }
-  _RAX = &s_textureGlob.default2DTexture;
-  v8 = 2i64;
+    v3->streamed.fallbackTexture = s_textureGlob.default2DTexture;
+  p_default2DTexture = &s_textureGlob.default2DTexture;
+  v5 = 2i64;
   if ( s_textureGlob.useImageFallback )
-    _RAX = &_RBX->streamed.fallbackTexture;
+    p_default2DTexture = &v3->streamed.fallbackTexture;
   do
   {
-    _RBX = (GfxTexturePoolEntry *)((char *)_RBX + 48);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbx-30h], ymm0
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rbx-10h], xmm1
-    }
-    --v8;
+    v3 = (GfxTexturePoolEntry *)((char *)v3 + 48);
+    *(__m256i *)&v3[-1].streamed.fallbackTexture.basemap = *(__m256i *)&p_default2DTexture->basemap;
+    *(_OWORD *)&v3[-1].streamed.fallbackTexture.shaderRWView.rwCounterResource = *(_OWORD *)&p_default2DTexture->shaderRWView.rwCounterResource;
+    --v5;
   }
-  while ( v8 );
+  while ( v5 );
   image->textureId = FreeIndex | 0xC0000000;
 }
 
@@ -1990,6 +1867,7 @@ void R_Texture_DestroyEntryInternal(GfxTextureId id)
   unsigned int v6; 
   GfxTexturePoolEntry *v7; 
   __int64 v8; 
+  GfxTexture *p_texture; 
   unsigned int v10; 
 
   if ( id == NULLID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1085, ASSERT_TYPE_ASSERT, "(id != GfxTextureId::NULLID)", (const char *)&queryFormat, "id != GfxTextureId::NULLID") )
@@ -2005,7 +1883,7 @@ void R_Texture_DestroyEntryInternal(GfxTextureId id)
     v6 = 2;
     v7 = &s_textureGlob.pool.entries[v2];
     v8 = 2i64;
-    _RDI = &v7->resident.texture;
+    p_texture = &v7->resident.texture;
     p_fallbackTexture = (GfxTexturePoolEntry *)&v7->streamed.fallbackTexture;
     do
     {
@@ -2013,24 +1891,18 @@ void R_Texture_DestroyEntryInternal(GfxTextureId id)
       if ( v6 - 1 >= v6 )
       {
 LABEL_17:
-        R_Texture_DestroyInternal(_RDI, 1, 0, 1);
+        R_Texture_DestroyInternal(p_texture, 1, 0, 1);
       }
       else
       {
-        while ( memcmp_0(_RDI, &v7->resident.texture + (v10 & 1), 0x30ui64) && memcmp_0(_RDI, &v7->streamed.fallbackTexture, 0x30ui64) )
+        while ( memcmp_0(p_texture, &v7->resident.texture + (v10 & 1), 0x30ui64) && memcmp_0(p_texture, &v7->streamed.fallbackTexture, 0x30ui64) )
         {
           if ( ++v10 >= v6 )
             goto LABEL_17;
         }
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:s_textureGlob.nullTexture.___u0
-          vmovups ymmword ptr [rdi], ymm0
-          vmovups xmm1, xmmword ptr cs:s_textureGlob.nullTexture.shaderRWView.baseclass_0.rwCounterResource
-          vmovups xmmword ptr [rdi+20h], xmm1
-        }
+        *p_texture = s_textureGlob.nullTexture;
       }
-      ++_RDI;
+      ++p_texture;
       ++v6;
       --v8;
     }
@@ -2057,44 +1929,37 @@ void R_Texture_DestroyInternal(GfxTexture *texture, bool isStreamed, bool isAlia
   ID3D12Resource *basemap; 
   unsigned int v9; 
 
-  _RBX = texture;
   if ( !s_textureGlob.isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1027, ASSERT_TYPE_ASSERT, "(s_textureGlob.isInitialized)", (const char *)&queryFormat, "s_textureGlob.isInitialized") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1028, ASSERT_TYPE_ASSERT, "(texture)", (const char *)&queryFormat, "texture") )
+  if ( !texture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1028, ASSERT_TYPE_ASSERT, "(texture)", (const char *)&queryFormat, "texture") )
     __debugbreak();
   if ( !isStreamed )
     goto LABEL_16;
   if ( !s_textureGlob.isInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1604, ASSERT_TYPE_ASSERT, "(s_textureGlob.isInitialized)", (const char *)&queryFormat, "s_textureGlob.isInitialized") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1605, ASSERT_TYPE_ASSERT, "(texture)", (const char *)&queryFormat, "texture") )
+  if ( !texture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1605, ASSERT_TYPE_ASSERT, "(texture)", (const char *)&queryFormat, "texture") )
     __debugbreak();
-  if ( !memcmp_0(_RBX, &s_textureGlob.default2DTexture, 0x30ui64) )
+  if ( !memcmp_0(texture, &s_textureGlob.default2DTexture, 0x30ui64) )
     v7 = 1;
   else
 LABEL_16:
     v7 = 0;
   if ( isOwner && !v7 )
   {
-    if ( (_RBX->shaderView.view & 0xFFFFFFFD) != 0 )
-      R_ReleaseShaderTextureView(&_RBX->shaderView);
-    if ( (_RBX->shaderRWView.rwView & 0xFFFFFFFB) != 0 )
-      R_ReleaseShaderTextureRWView(&_RBX->shaderRWView);
-    basemap = _RBX->basemap;
-    if ( _RBX->basemap )
+    if ( (texture->shaderView.view & 0xFFFFFFFD) != 0 )
+      R_ReleaseShaderTextureView(&texture->shaderView);
+    if ( (texture->shaderRWView.rwView & 0xFFFFFFFB) != 0 )
+      R_ReleaseShaderTextureRWView(&texture->shaderRWView);
+    basemap = texture->basemap;
+    if ( texture->basemap )
     {
-      _RBX->basemap = NULL;
+      texture->basemap = NULL;
       v9 = basemap->m_pFunction->Release(basemap);
       if ( !R_IsAnalysisToolPresent() && !R_IsIncompatibleOverlayPresent() && v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_types_d3d.h", 1569, ASSERT_TYPE_ASSERT, "(!useCount)", "%s\n\t%s (%i) %s->Release() failed: %i leak(s)!", "!useCount", "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1071, "texture->basemap", v9) )
         __debugbreak();
     }
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:s_textureGlob.nullTexture.___u0
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups xmm1, xmmword ptr cs:s_textureGlob.nullTexture.shaderRWView.baseclass_0.rwCounterResource
-    vmovups xmmword ptr [rbx+20h], xmm1
-  }
+  *texture = s_textureGlob.nullTexture;
 }
 
 /*
@@ -2141,12 +2006,12 @@ R_Texture_GetDims
 */
 void R_Texture_GetDims(const GfxTexture *texture, unsigned int *outWidth, unsigned int *outHeight, unsigned int *outLevelCount, unsigned int *outElementCount)
 {
-  unsigned __int64 v10; 
-  unsigned int v11; 
-  int v12; 
-  unsigned int v13; 
-  __m256i val; 
-  __m256i v15; 
+  unsigned __int64 v9; 
+  unsigned int v10; 
+  int v11; 
+  unsigned int v12; 
+  __int128 val_16; 
+  __m256i v14; 
 
   if ( !texture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1522, ASSERT_TYPE_ASSERT, "(texture)", (const char *)&queryFormat, "texture") )
     __debugbreak();
@@ -2158,30 +2023,26 @@ void R_Texture_GetDims(const GfxTexture *texture, unsigned int *outWidth, unsign
     __debugbreak();
   if ( !outElementCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1526, ASSERT_TYPE_ASSERT, "(outElementCount)", (const char *)&queryFormat, "outElementCount") )
     __debugbreak();
-  ((void (__fastcall *)(ID3D12Resource *, __m256i *))texture->basemap->m_pFunction[3].AddRef)(texture->basemap, &v15);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+108h+var_80]
-    vmovups ymmword ptr [rsp+108h+val], ymm0
-  }
+  ((void (__fastcall *)(ID3D12Resource *, __m256i *))texture->basemap->m_pFunction[3].AddRef)(texture->basemap, &v14);
+  val_16 = *(_OWORD *)&v14.m256i_u64[2];
   if ( (texture->shaderRWView.rwView & 0xFFFFFFFB) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1541, ASSERT_TYPE_ASSERT, "(texture->shaderRWView.IsNull())", (const char *)&queryFormat, "texture->shaderRWView.IsNull()") )
     __debugbreak();
-  v10 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (g_descriptorPools.shaderViewPool.handle.startSlot + texture->shaderView.view);
-  if ( (v10 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 809, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
+  v9 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (g_descriptorPools.shaderViewPool.handle.startSlot + texture->shaderView.view);
+  if ( (v9 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 809, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
     __debugbreak();
-  v11 = (unsigned __int8)HIBYTE(*(_WORD *)(v10 + 12)) >> 4;
-  if ( val.m256i_u16[15] < v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1545, ASSERT_TYPE_ASSERT, "( desc.MipLevels ) >= ( mostDetailedMip )", "%s >= %s\n\t%u, %u", "desc.MipLevels", "mostDetailedMip", val.m256i_u16[15], v11) )
+  v10 = (unsigned __int8)HIBYTE(*(_WORD *)(v9 + 12)) >> 4;
+  if ( HIWORD(val_16) < v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1545, ASSERT_TYPE_ASSERT, "( desc.MipLevels ) >= ( mostDetailedMip )", "%s >= %s\n\t%u, %u", "desc.MipLevels", "mostDetailedMip", HIWORD(val_16), v10) )
     __debugbreak();
-  v12 = truncate_cast<unsigned int,unsigned __int64>(val.m256i_u64[2]) >> v11;
-  if ( v12 < 1 )
+  v11 = truncate_cast<unsigned int,unsigned __int64>(val_16) >> v10;
+  if ( v11 < 1 )
+    v11 = 1;
+  *outWidth = v11;
+  v12 = DWORD2(val_16) >> v10;
+  if ( (int)(DWORD2(val_16) >> v10) < 1 )
     v12 = 1;
-  *outWidth = v12;
-  v13 = (unsigned int)val.m256i_i32[6] >> v11;
-  if ( (int)((unsigned int)val.m256i_i32[6] >> v11) < 1 )
-    v13 = 1;
-  *outHeight = v13;
-  *outLevelCount = val.m256i_u16[15] - v11;
-  *outElementCount = val.m256i_u16[14];
+  *outHeight = v12;
+  *outLevelCount = HIWORD(val_16) - v10;
+  *outElementCount = WORD6(val_16);
 }
 
 /*
@@ -2281,28 +2142,24 @@ R_Texture_GetLevelCount
 */
 __int64 R_Texture_GetLevelCount(const GfxTexture *texture)
 {
-  unsigned __int64 v3; 
-  unsigned int v4; 
+  unsigned __int64 v2; 
+  unsigned int v3; 
+  unsigned __int16 v5; 
   __m256i v6; 
-  __m256i v7; 
 
   if ( !texture && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1496, ASSERT_TYPE_ASSERT, "(texture)", (const char *)&queryFormat, "texture") )
     __debugbreak();
-  ((void (__fastcall *)(ID3D12Resource *, __m256i *))texture->basemap->m_pFunction[3].AddRef)(texture->basemap, &v7);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsp+0D8h+var_50]
-    vmovups ymmword ptr [rsp+0D8h+var_88], ymm0
-  }
+  ((void (__fastcall *)(ID3D12Resource *, __m256i *))texture->basemap->m_pFunction[3].AddRef)(texture->basemap, &v6);
+  v5 = v6.m256i_u16[15];
   if ( (texture->shaderRWView.rwView & 0xFFFFFFFB) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1505, ASSERT_TYPE_ASSERT, "(texture->shaderRWView.IsNull())", (const char *)&queryFormat, "texture->shaderRWView.IsNull()") )
     __debugbreak();
-  v3 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (g_descriptorPools.shaderViewPool.handle.startSlot + texture->shaderView.view);
-  if ( (v3 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 809, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
+  v2 = g_descriptorPools.shaderViewPool.handle.parent->heapStartCPUHandle.ptr + g_descriptorPools.shaderViewPool.handle.parent->descriptorSize * (g_descriptorPools.shaderViewPool.handle.startSlot + texture->shaderView.view);
+  if ( (v2 & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 809, ASSERT_TYPE_ASSERT, "(IsAligned( viewHandle.ptr, sizeof( uint64_t ) ))", (const char *)&queryFormat, "IsAligned( viewHandle.ptr, sizeof( uint64_t ) )") )
     __debugbreak();
-  v4 = (unsigned __int8)HIBYTE(*(_WORD *)(v3 + 12)) >> 4;
-  if ( v6.m256i_u16[15] < v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1509, ASSERT_TYPE_ASSERT, "( desc.MipLevels ) >= ( mostDetailedMip )", "%s >= %s\n\t%u, %u", "desc.MipLevels", "mostDetailedMip", v6.m256i_u16[15], v4) )
+  v3 = (unsigned __int8)HIBYTE(*(_WORD *)(v2 + 12)) >> 4;
+  if ( v5 < v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1509, ASSERT_TYPE_ASSERT, "( desc.MipLevels ) >= ( mostDetailedMip )", "%s >= %s\n\t%u, %u", "desc.MipLevels", "mostDetailedMip", v5, v3) )
     __debugbreak();
-  return v6.m256i_u16[15] - v4;
+  return v5 - v3;
 }
 
 /*
@@ -2504,17 +2361,8 @@ void R_Texture_Init(void)
   *(_QWORD *)&s_textureGlob.nullTexture.shaderRWView.rwView = 0i64;
   R_AssignNullShaderTextureView(&s_textureGlob.nullTexture.shaderView);
   R_AssignNullShaderTextureRWView(&s_textureGlob.nullTexture.shaderRWView);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:s_textureGlob.nullTexture.___u0
-    vmovups xmm1, xmmword ptr cs:s_textureGlob.nullTexture.shaderRWView.baseclass_0.rwCounterResource
-  }
   s_textureGlob.isInitialized = 1;
-  __asm
-  {
-    vmovups ymmword ptr cs:s_textureGlob.pool.entries, ymm0
-    vmovups xmmword ptr cs:s_textureGlob.pool.entries+20h, xmm1
-  }
+  s_textureGlob.pool.entries[0].resident.texture = s_textureGlob.nullTexture;
   R_Texture_CreateDefault2D(&s_textureGlob.default2DTexture);
 }
 
@@ -2645,78 +2493,73 @@ R_Texture_Move
 */
 void R_Texture_Move(GfxTextureId *fromId, GfxTextureId *toId)
 {
-  GfxTextureId v6; 
-  GfxTextureId v7; 
-  char v8; 
-  char v9; 
-  __int64 v10; 
-  __int64 v11; 
-  void *retaddr; 
-  FastCriticalSectionScopeWrite v27; 
+  GfxTextureId v4; 
+  GfxTextureId v5; 
+  char v6; 
+  char v7; 
+  __int64 v8; 
+  __int64 v9; 
+  GfxTexturePoolEntry *v10; 
+  GfxTexturePoolEntry *v11; 
+  __m256i v12; 
+  __m256i v13; 
+  __m256i v14; 
+  __m256i v15; 
+  __int128 v16; 
+  FastCriticalSectionScopeWrite v17; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   if ( !R_Texture_IsValidTextureId(*fromId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1204, ASSERT_TYPE_ASSERT, "(R_Texture_IsValidTextureId( fromId ))", (const char *)&queryFormat, "R_Texture_IsValidTextureId( fromId )") )
     __debugbreak();
   if ( !R_Texture_IsValidTextureId(*toId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1205, ASSERT_TYPE_ASSERT, "(R_Texture_IsValidTextureId( toId ))", (const char *)&queryFormat, "R_Texture_IsValidTextureId( toId )") )
     __debugbreak();
-  v6 = *fromId;
-  v7 = *toId;
+  v4 = *fromId;
+  v5 = *toId;
   if ( *fromId != *toId )
   {
-    v8 = v6 >= NULLID;
-    v9 = v7 >= NULLID;
-    v10 = v6 & 0x3FFFFFFF;
-    v11 = v7 & 0x3FFFFFFF;
-    R_Texture_DestroyEntryInternal(v7);
-    _RDX = &s_textureGlob.pool.entries[v11];
-    _RCX = &s_textureGlob.pool.entries[v10];
-    __asm
+    v6 = v4 >= NULLID;
+    v7 = v5 >= NULLID;
+    v8 = v4 & 0x3FFFFFFF;
+    v9 = v5 & 0x3FFFFFFF;
+    R_Texture_DestroyEntryInternal(v5);
+    v10 = &s_textureGlob.pool.entries[v9];
+    v11 = &s_textureGlob.pool.entries[v8];
+    v12 = *(__m256i *)&v11->resident.texture.basemap;
+    v13 = *(__m256i *)&v11->streamed.texture[0].shaderRWView.rwCounterResource;
+    v14 = *(__m256i *)&v11->streamed.texture[1].shaderView.view;
+    v15 = *(__m256i *)&v11->streamed.fallbackTexture.basemap;
+    v16 = *(_OWORD *)&v11->streamed.fallbackTexture.shaderRWView.rwCounterResource;
+    *(__m256i *)&v11->resident.texture.basemap = *(__m256i *)&v10->resident.texture.basemap;
+    *(__m256i *)&v11->streamed.texture[0].shaderRWView.rwCounterResource = *(__m256i *)&v10->streamed.texture[0].shaderRWView.rwCounterResource;
+    *(__m256i *)&v11->streamed.texture[1].shaderView.view = *(__m256i *)&v10->streamed.texture[1].shaderView.view;
+    *(__m256i *)&v11->streamed.fallbackTexture.basemap = *(__m256i *)&v10->streamed.fallbackTexture.basemap;
+    *(_OWORD *)&v11->streamed.fallbackTexture.shaderRWView.rwCounterResource = *(_OWORD *)&v10->streamed.fallbackTexture.shaderRWView.rwCounterResource;
+    *(__m256i *)&v10->resident.texture.basemap = v12;
+    *(__m256i *)&v10->streamed.texture[0].shaderRWView.rwCounterResource = v13;
+    *(__m256i *)&v10->streamed.texture[1].shaderView.view = v14;
+    *(__m256i *)&v10->streamed.fallbackTexture.basemap = v15;
+    *(_OWORD *)&v10->streamed.fallbackTexture.shaderRWView.rwCounterResource = v16;
+    if ( v6 != v7 )
     {
-      vmovups ymm2, ymmword ptr [rcx]
-      vmovups ymm3, ymmword ptr [rcx+20h]
-      vmovups ymm4, ymmword ptr [rcx+40h]
-      vmovups ymm5, ymmword ptr [rcx+60h]
-      vmovups xmm6, xmmword ptr [rcx+80h]
-      vmovups ymm0, ymmword ptr [rdx]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm1, ymmword ptr [rdx+20h]
-      vmovups ymmword ptr [rcx+20h], ymm1
-      vmovups ymm0, ymmword ptr [rdx+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm1, ymmword ptr [rdx+60h]
-      vmovups ymmword ptr [rcx+60h], ymm1
-      vmovups xmm0, xmmword ptr [rdx+80h]
-      vmovups xmmword ptr [rcx+80h], xmm0
-      vmovups ymmword ptr [rdx], ymm2
-      vmovups ymmword ptr [rdx+20h], ymm3
-      vmovups ymmword ptr [rdx+40h], ymm4
-      vmovups ymmword ptr [rdx+60h], ymm5
-      vmovups xmmword ptr [rdx+80h], xmm6
-    }
-    if ( v8 != v9 )
-    {
-      v27.cs = (FastCriticalSection *)&s_textureGlob;
+      v17.cs = (FastCriticalSection *)&s_textureGlob;
       Sys_LockWrite(&s_textureGlob.pool.lock);
-      if ( v8 )
+      if ( v6 )
       {
-        if ( (unsigned int)v11 >= 0x15C00 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v11, 89088) )
+        if ( (unsigned int)v9 >= 0x15C00 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v9, 89088) )
           __debugbreak();
-        s_textureGlob.pool.streamedList.array[(unsigned __int64)(unsigned int)v11 >> 5] &= ~(0x80000000 >> (v11 & 0x1F));
+        s_textureGlob.pool.streamedList.array[(unsigned __int64)(unsigned int)v9 >> 5] &= ~(0x80000000 >> (v9 & 0x1F));
       }
       else
       {
-        if ( (unsigned int)v11 >= 0x15C00 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v11, 89088) )
+        if ( (unsigned int)v9 >= 0x15C00 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v9, 89088) )
           __debugbreak();
-        s_textureGlob.pool.streamedList.array[(unsigned __int64)(unsigned int)v11 >> 5] |= 0x80000000 >> (v11 & 0x1F);
+        s_textureGlob.pool.streamedList.array[(unsigned __int64)(unsigned int)v9 >> 5] |= 0x80000000 >> (v9 & 0x1F);
       }
-      FastCriticalSectionScopeWrite::~FastCriticalSectionScopeWrite(&v27);
+      FastCriticalSectionScopeWrite::~FastCriticalSectionScopeWrite(&v17);
     }
-    *toId = v11 | *fromId & 0xC0000000;
+    *toId = v9 | *fromId & 0xC0000000;
     *fromId = NULLID;
-    GfxTexturePool<89088>::ReturnFreeIndex(&s_textureGlob.pool, v10, v8);
+    GfxTexturePool<89088>::ReturnFreeIndex(&s_textureGlob.pool, v8, v6);
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
 }
 
 /*
@@ -2727,6 +2570,7 @@ R_Texture_ResetFallback
 void R_Texture_ResetFallback(GfxImage *image, GfxImageFallback *fallback)
 {
   GfxTextureId textureId; 
+  GfxTexturePoolEntry *v5; 
   int v6; 
   bool v7; 
   bool v8; 
@@ -2748,12 +2592,12 @@ void R_Texture_ResetFallback(GfxImage *image, GfxImageFallback *fallback)
     __debugbreak();
   if ( (textureId & 0x40000000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1292, ASSERT_TYPE_ASSERT, "(R_Texture_IsOwnerId( id ))", (const char *)&queryFormat, "R_Texture_IsOwnerId( id )") )
     __debugbreak();
-  _RDI = &s_textureGlob.pool.entries[textureId & 0x3FFFFFFF];
+  v5 = &s_textureGlob.pool.entries[textureId & 0x3FFFFFFF];
   if ( image->fallback )
   {
-    v6 = memcmp_0(&s_textureGlob.pool.entries[textureId & 0x3FFFFFFF], &_RDI->streamed.fallbackTexture, 0x30ui64);
-    v7 = memcmp_0(&_RDI->streamed.texture[1], &_RDI->streamed.fallbackTexture, 0x30ui64) == 0;
-    R_Texture_DestroyInternal(&_RDI->streamed.fallbackTexture, 1, 0, 1);
+    v6 = memcmp_0(&s_textureGlob.pool.entries[textureId & 0x3FFFFFFF], &v5->streamed.fallbackTexture, 0x30ui64);
+    v7 = memcmp_0(&v5->streamed.texture[1], &v5->streamed.fallbackTexture, 0x30ui64) == 0;
+    R_Texture_DestroyInternal(&v5->streamed.fallbackTexture, 1, 0, 1);
     v8 = v6 == 0;
     v9 = v7;
     v10 = v8;
@@ -2765,27 +2609,17 @@ void R_Texture_ResetFallback(GfxImage *image, GfxImageFallback *fallback)
     v9 = 0;
   }
   image->fallback = fallback;
-  R_Texture_CreateFallback(image, &_RDI->streamed.fallbackTexture);
+  R_Texture_CreateFallback(image, &v5->streamed.fallbackTexture);
   if ( v10 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+60h]
-      vmovups ymmword ptr [rdi], ymm0
-      vmovups xmm1, xmmword ptr [rdi+80h]
-      vmovups xmmword ptr [rdi+20h], xmm1
-    }
+    *(__m256i *)&v5->resident.texture.basemap = *(__m256i *)&v5->streamed.fallbackTexture.basemap;
+    *(_OWORD *)&v5->streamed.texture[0].shaderRWView.rwCounterResource = *(_OWORD *)&v5->streamed.fallbackTexture.shaderRWView.rwCounterResource;
     v7 = v9;
   }
   if ( v7 )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi+60h]
-      vmovups ymmword ptr [rdi+30h], ymm0
-      vmovups xmm1, xmmword ptr [rdi+80h]
-      vmovups xmmword ptr [rdi+50h], xmm1
-    }
+    *(__m256i *)&v5->streamed.texture[1].basemap = *(__m256i *)&v5->streamed.fallbackTexture.basemap;
+    *(_OWORD *)&v5->streamed.texture[1].shaderRWView.rwCounterResource = *(_OWORD *)&v5->streamed.fallbackTexture.shaderRWView.rwCounterResource;
   }
 }
 
@@ -2819,72 +2653,67 @@ R_Texture_Swap
 */
 void R_Texture_Swap(GfxTextureId *fromId, GfxTextureId *toId)
 {
-  char v6; 
-  char v7; 
-  unsigned __int64 v8; 
-  unsigned __int64 v9; 
-  unsigned __int32 v22; 
-  __int64 v24; 
-  __int64 v25; 
-  void *retaddr; 
-  FastCriticalSectionScopeWrite v28; 
+  char v4; 
+  char v5; 
+  unsigned __int64 v6; 
+  unsigned __int64 v7; 
+  GfxTexturePoolEntry *v8; 
+  GfxTexturePoolEntry *v9; 
+  __m256i v10; 
+  __m256i v11; 
+  __m256i v12; 
+  __m256i v13; 
+  __int128 v14; 
+  unsigned __int32 v15; 
+  __int64 v16; 
+  __int64 v17; 
+  FastCriticalSectionScopeWrite v18; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
   if ( !R_Texture_IsValidTextureId(*fromId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1249, ASSERT_TYPE_ASSERT, "(R_Texture_IsValidTextureId( fromId ))", (const char *)&queryFormat, "R_Texture_IsValidTextureId( fromId )") )
     __debugbreak();
   if ( !R_Texture_IsValidTextureId(*toId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1250, ASSERT_TYPE_ASSERT, "(R_Texture_IsValidTextureId( toId ))", (const char *)&queryFormat, "R_Texture_IsValidTextureId( toId )") )
     __debugbreak();
-  v6 = *(int *)fromId >= 0;
-  v7 = *(int *)toId >= 0;
-  v8 = *fromId & 0x3FFFFFFF;
-  v9 = *toId & 0x3FFFFFFF;
-  _RCX = &s_textureGlob.pool.entries[v9];
-  _RAX = &s_textureGlob.pool.entries[v8];
-  __asm
+  v4 = *(int *)fromId >= 0;
+  v5 = *(int *)toId >= 0;
+  v6 = *fromId & 0x3FFFFFFF;
+  v7 = *toId & 0x3FFFFFFF;
+  v8 = &s_textureGlob.pool.entries[v7];
+  v9 = &s_textureGlob.pool.entries[v6];
+  v10 = *(__m256i *)&v9->resident.texture.basemap;
+  v11 = *(__m256i *)&v9->streamed.texture[0].shaderRWView.rwCounterResource;
+  v12 = *(__m256i *)&v9->streamed.texture[1].shaderView.view;
+  v13 = *(__m256i *)&v9->streamed.fallbackTexture.basemap;
+  v14 = *(_OWORD *)&v9->streamed.fallbackTexture.shaderRWView.rwCounterResource;
+  *(__m256i *)&v9->resident.texture.basemap = *(__m256i *)&v8->resident.texture.basemap;
+  *(__m256i *)&v9->streamed.texture[0].shaderRWView.rwCounterResource = *(__m256i *)&v8->streamed.texture[0].shaderRWView.rwCounterResource;
+  *(__m256i *)&v9->streamed.texture[1].shaderView.view = *(__m256i *)&v8->streamed.texture[1].shaderView.view;
+  *(__m256i *)&v9->streamed.fallbackTexture.basemap = *(__m256i *)&v8->streamed.fallbackTexture.basemap;
+  *(_OWORD *)&v9->streamed.fallbackTexture.shaderRWView.rwCounterResource = *(_OWORD *)&v8->streamed.fallbackTexture.shaderRWView.rwCounterResource;
+  *(__m256i *)&v8->resident.texture.basemap = v10;
+  *(__m256i *)&v8->streamed.texture[0].shaderRWView.rwCounterResource = v11;
+  *(__m256i *)&v8->streamed.texture[1].shaderView.view = v12;
+  *(__m256i *)&v8->streamed.fallbackTexture.basemap = v13;
+  *(_OWORD *)&v8->streamed.fallbackTexture.shaderRWView.rwCounterResource = v14;
+  if ( v4 != v5 )
   {
-    vmovups ymm2, ymmword ptr [rax]
-    vmovups ymm3, ymmword ptr [rax+20h]
-    vmovups ymm4, ymmword ptr [rax+40h]
-    vmovups ymm5, ymmword ptr [rax+60h]
-    vmovups xmm6, xmmword ptr [rax+80h]
-    vmovups ymm0, ymmword ptr [rcx]
-    vmovups ymmword ptr [rax], ymm0
-    vmovups ymm1, ymmword ptr [rcx+20h]
-    vmovups ymmword ptr [rax+20h], ymm1
-    vmovups ymm0, ymmword ptr [rcx+40h]
-    vmovups ymmword ptr [rax+40h], ymm0
-    vmovups ymm1, ymmword ptr [rcx+60h]
-    vmovups ymmword ptr [rax+60h], ymm1
-    vmovups xmm0, xmmword ptr [rcx+80h]
-    vmovups xmmword ptr [rax+80h], xmm0
-    vmovups ymmword ptr [rcx], ymm2
-    vmovups ymmword ptr [rcx+20h], ymm3
-    vmovups ymmword ptr [rcx+40h], ymm4
-    vmovups ymmword ptr [rcx+60h], ymm5
-    vmovups xmmword ptr [rcx+80h], xmm6
-  }
-  if ( v6 != v7 )
-  {
-    v28.cs = (FastCriticalSection *)&s_textureGlob;
+    v18.cs = (FastCriticalSection *)&s_textureGlob;
     Sys_LockWrite(&s_textureGlob.pool.lock);
-    if ( (unsigned int)v8 >= 0x15C00 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 296, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v8, 89088) )
+    if ( (unsigned int)v6 >= 0x15C00 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 296, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v6, 89088) )
       __debugbreak();
-    s_textureGlob.pool.streamedList.array[v8 >> 5] ^= 0x80000000 >> (v8 & 0x1F);
-    if ( (unsigned int)v9 >= 0x15C00 )
+    s_textureGlob.pool.streamedList.array[v6 >> 5] ^= 0x80000000 >> (v6 & 0x1F);
+    if ( (unsigned int)v7 >= 0x15C00 )
     {
-      LODWORD(v25) = 89088;
-      LODWORD(v24) = v9;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 296, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v24, v25) )
+      LODWORD(v17) = 89088;
+      LODWORD(v16) = v7;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 296, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v16, v17) )
         __debugbreak();
     }
-    s_textureGlob.pool.streamedList.array[v9 >> 5] ^= 0x80000000 >> (v9 & 0x1F);
-    FastCriticalSectionScopeWrite::~FastCriticalSectionScopeWrite(&v28);
+    s_textureGlob.pool.streamedList.array[v7 >> 5] ^= 0x80000000 >> (v7 & 0x1F);
+    FastCriticalSectionScopeWrite::~FastCriticalSectionScopeWrite(&v18);
   }
-  v22 = *fromId & 0xC0000000;
-  *fromId = v8 | *toId & 0xC0000000;
-  *toId = v9 | v22;
-  __asm { vmovaps xmm6, [rsp+98h+var_38] }
+  v15 = *fromId & 0xC0000000;
+  *fromId = v6 | *toId & 0xC0000000;
+  *toId = v7 | v15;
 }
 
 /*
@@ -2947,8 +2776,10 @@ void R_Texture_UpdateStreamedFallbacks(bool useImageFallback)
   unsigned __int64 v3; 
   GfxTexture *p_fallbackTexture; 
   GfxTexture *p_default2DTexture; 
+  GfxTexture *v6; 
+  GfxTexture *v7; 
   __int64 v8; 
-  FastCriticalSectionScopeWrite v11; 
+  FastCriticalSectionScopeWrite v9; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_texture.cpp", 1615, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
     __debugbreak();
@@ -2958,7 +2789,7 @@ void R_Texture_UpdateStreamedFallbacks(bool useImageFallback)
   {
     R_SyncRenderThread();
     Stream_PushSyncDisable();
-    v11.cs = (FastCriticalSection *)&s_textureGlob;
+    v9.cs = (FastCriticalSection *)&s_textureGlob;
     Sys_LockWrite(&s_textureGlob.pool.lock);
     v2 = 0;
     v3 = 0i64;
@@ -2970,28 +2801,23 @@ void R_Texture_UpdateStreamedFallbacks(bool useImageFallback)
         if ( useImageFallback )
         {
           p_default2DTexture = &s_textureGlob.default2DTexture;
-          _RSI = p_fallbackTexture;
+          v6 = p_fallbackTexture;
         }
         else
         {
           p_default2DTexture = p_fallbackTexture;
-          _RSI = &s_textureGlob.default2DTexture;
+          v6 = &s_textureGlob.default2DTexture;
         }
-        _RBX = p_fallbackTexture - 2;
+        v7 = p_fallbackTexture - 2;
         v8 = 2i64;
         do
         {
-          if ( !memcmp_0(_RBX, p_default2DTexture, 0x30ui64) )
+          if ( !memcmp_0(v7, p_default2DTexture, 0x30ui64) )
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rsi]
-              vmovups ymmword ptr [rbx], ymm0
-              vmovups xmm1, xmmword ptr [rsi+20h]
-              vmovups xmmword ptr [rbx+20h], xmm1
-            }
+            *(__m256i *)&v7->basemap = *(__m256i *)&v6->basemap;
+            *(_OWORD *)&v7->shaderRWView.rwCounterResource = *(_OWORD *)&v6->shaderRWView.rwCounterResource;
           }
-          ++_RBX;
+          ++v7;
           --v8;
         }
         while ( v8 );
@@ -3001,7 +2827,7 @@ void R_Texture_UpdateStreamedFallbacks(bool useImageFallback)
       p_fallbackTexture += 3;
     }
     while ( v2 < 0x15C00 );
-    FastCriticalSectionScopeWrite::~FastCriticalSectionScopeWrite(&v11);
+    FastCriticalSectionScopeWrite::~FastCriticalSectionScopeWrite(&v9);
     s_textureGlob.useImageFallback = useImageFallback;
     Stream_PopSyncDisable();
   }

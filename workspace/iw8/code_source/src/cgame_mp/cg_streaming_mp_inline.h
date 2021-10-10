@@ -147,63 +147,33 @@ void CG_StreamingMP_RequestList_Validate<Weapon>(const CgStreamRequestList<Weapo
 CG_StreamingMP_GetRequestFlagsForDistanceSq
 ==============
 */
-
-__int64 __fastcall CG_StreamingMP_GetRequestFlagsForDistanceSq(double distanceSq)
+__int64 CG_StreamingMP_GetRequestFlagsForDistanceSq(const float distanceSq)
 {
-  char v9; 
-  bool v10; 
-  bool v13; 
+  const dvar_t *v1; 
+  float value; 
+  const dvar_t *v4; 
+  float v5; 
+  float v6; 
   __int64 result; 
-  char v22; 
 
-  _RBX = DCONST_DVARFLT_cg_streamingMaxDistanceForNearWorldModelPrioritization;
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps xmm7, xmm0
-  }
+  v1 = DCONST_DVARFLT_cg_streamingMaxDistanceForNearWorldModelPrioritization;
   if ( !DCONST_DVARFLT_cg_streamingMaxDistanceForNearWorldModelPrioritization && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_streamingMaxDistanceForNearWorldModelPrioritization") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  _RBX = DCONST_DVARFLT_cg_streamingMinDistanceForFarWorldModelPrioritization;
-  __asm { vmulss  xmm8, xmm0, xmm0 }
+  Dvar_CheckFrontendServerThread(v1);
+  value = v1->current.value;
+  v4 = DCONST_DVARFLT_cg_streamingMinDistanceForFarWorldModelPrioritization;
+  v5 = value * value;
   if ( !DCONST_DVARFLT_cg_streamingMinDistanceForFarWorldModelPrioritization && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_streamingMinDistanceForFarWorldModelPrioritization") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm6, xmm0, xmm0
-    vcomiss xmm6, xmm8
-  }
-  if ( v9 | v10 )
-  {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_streaming_mp_inline.h", 327, ASSERT_TYPE_ASSERT, "(streamingMinDistanceSqForFarWorldModelPrioritization > streamingMaxDistanceSqForNearWorldModelPrioritization)", (const char *)&queryFormat, "streamingMinDistanceSqForFarWorldModelPrioritization > streamingMaxDistanceSqForNearWorldModelPrioritization");
-    v9 = 0;
-    v10 = !v13;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( v9 | v10 )
-  {
-    result = 8i64;
-  }
-  else
-  {
-    __asm { vcomiss xmm7, xmm6 }
-    result = 16i64;
-  }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  _R11 = &v22;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
+  Dvar_CheckFrontendServerThread(v4);
+  v6 = v4->current.value * v4->current.value;
+  if ( v6 <= v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_streaming_mp_inline.h", 327, ASSERT_TYPE_ASSERT, "(streamingMinDistanceSqForFarWorldModelPrioritization > streamingMaxDistanceSqForNearWorldModelPrioritization)", (const char *)&queryFormat, "streamingMinDistanceSqForFarWorldModelPrioritization > streamingMaxDistanceSqForNearWorldModelPrioritization") )
+    __debugbreak();
+  if ( distanceSq <= v5 )
+    return 8i64;
+  result = 0i64;
+  if ( distanceSq >= v6 )
+    return 16i64;
   return result;
 }
 

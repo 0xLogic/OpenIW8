@@ -574,10 +574,9 @@ void CgVehicleSystem::PhysicsAfterWorldStep(CgVehicleSystem *this, Physics_World
   CgEntitySystem *v9; 
   const centity_t *v10; 
   bool v11; 
-  __int64 v14; 
-  __int64 v15; 
+  __int64 v12; 
+  __int64 v13; 
 
-  _R13 = this;
   v3 = worldId;
   m_vehiclePhysicsObjects = (BgVehiclePhysics *)this->m_vehiclePhysicsManager.m_vehiclePhysicsObjects;
   v5 = 0;
@@ -589,50 +588,46 @@ void CgVehicleSystem::PhysicsAfterWorldStep(CgVehicleSystem *this, Physics_World
       if ( m_vehiclePhysicsObjects->m_worldId != v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 400, ASSERT_TYPE_ASSERT, "(vehObj->GetWorldId() == worldId)", (const char *)&queryFormat, "vehObj->GetWorldId() == worldId") )
         __debugbreak();
       m_entityNumber = m_vehiclePhysicsObjects->m_entityNumber;
-      m_localClientNum = _R13->m_localClientNum;
+      m_localClientNum = this->m_localClientNum;
       if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
       {
-        LODWORD(v15) = _R13->m_localClientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v15) )
+        LODWORD(v13) = this->m_localClientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v13) )
           __debugbreak();
       }
       if ( (unsigned int)m_localClientNum >= CgEntitySystem::ms_allocatedCount )
       {
-        LODWORD(v15) = CgEntitySystem::ms_allocatedCount;
-        LODWORD(v14) = m_localClientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v14, v15) )
+        LODWORD(v13) = CgEntitySystem::ms_allocatedCount;
+        LODWORD(v12) = m_localClientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v12, v13) )
           __debugbreak();
       }
       if ( !CgEntitySystem::ms_entitySystemArray[m_localClientNum] )
       {
-        LODWORD(v15) = m_localClientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v15) )
+        LODWORD(v13) = m_localClientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v13) )
           __debugbreak();
       }
       v9 = CgEntitySystem::ms_entitySystemArray[m_localClientNum];
       if ( (unsigned int)m_entityNumber >= 0x800 )
       {
-        LODWORD(v15) = 2048;
-        LODWORD(v14) = m_entityNumber;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v14, v15) )
+        LODWORD(v13) = 2048;
+        LODWORD(v12) = m_entityNumber;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v12, v13) )
           __debugbreak();
       }
       v10 = &v9->m_entities[m_entityNumber];
-      if ( CgVehicleSystem::GetClientSafeConst(_R13, v10) )
+      if ( CgVehicleSystem::GetClientSafeConst(this, v10) )
       {
         if ( m_vehiclePhysicsObjects->m_playerControlled )
         {
           v11 = !m_vehiclePhysicsObjects->m_clientGeoLoaded && BgVehiclePhysics::GetNoClientGeoMode(m_vehiclePhysicsObjects) == NOCLIENTGEO_SWITCH_TO_SERVER_AUTH;
           if ( BgVehiclePhysics::IsDynamic(m_vehiclePhysicsObjects) && m_vehiclePhysicsObjects->m_netcodeType == VEH_NETCODE_CLIENT_PRED_SB && !v11 )
-          {
-            __asm { vmovss  xmm2, dword ptr [r13+119510h]; dt }
-            BgVehiclePhysics::ClientWarpDetection(m_vehiclePhysicsObjects, &LocalClientGlobals->predictedPlayerState, *(float *)&_XMM2);
-          }
+            BgVehiclePhysics::ClientWarpDetection(m_vehiclePhysicsObjects, &LocalClientGlobals->predictedPlayerState, this->m_lastPhysicsStepTime);
           BgVehiclePhysics::QueryValuesFromPhysics(m_vehiclePhysicsObjects, &LocalClientGlobals->predictedPlayerState);
         }
-        __asm { vmovss  xmm1, dword ptr [r13+119510h] }
         ((void (__fastcall *)(BgVehiclePhysics *))m_vehiclePhysicsObjects->AfterPhysicsWorldStep)(m_vehiclePhysicsObjects);
-        CgVehicleSystem::PhysicsTouchAuthoritativeScriptables(_R13, v10, m_vehiclePhysicsObjects);
+        CgVehicleSystem::PhysicsTouchAuthoritativeScriptables(this, v10, m_vehiclePhysicsObjects);
       }
       else
       {
@@ -893,26 +888,21 @@ CgVehicleSystem::PhysicsDetectClientGeoLoaded
 */
 _BOOL8 CgVehicleSystem::PhysicsDetectClientGeoLoaded(CgVehicleSystem *this, BgVehiclePhysics *vehObj)
 {
-  BgVehiclePhysics *v4; 
-  bool v5; 
-  const dvar_t *v6; 
+  bool v4; 
+  const dvar_t *v5; 
 
-  __asm
+  if ( vehObj->m_clientGeoTimeToCheck > 0.0 )
+    return vehObj->m_clientGeoLoaded;
+  v4 = BgVehiclePhysics::CheckForWorldCollision(vehObj);
+  if ( !v4 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rdx+2A8h]
-  }
-  v4 = vehObj;
-  v5 = BgVehiclePhysics::CheckForWorldCollision(vehObj);
-  if ( !v5 )
-  {
-    v6 = DCONST_DVARFLT_bg_vehNetNoClientGeoCooldown;
+    v5 = DCONST_DVARFLT_bg_vehNetNoClientGeoCooldown;
     if ( !DCONST_DVARFLT_bg_vehNetNoClientGeoCooldown && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehNetNoClientGeoCooldown") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v6);
-    LODWORD(v4->m_clientGeoTimeToCheck) = v6->current.integer;
+    Dvar_CheckFrontendServerThread(v5);
+    LODWORD(vehObj->m_clientGeoTimeToCheck) = v5->current.integer;
   }
-  return v5;
+  return v4;
 }
 
 /*
@@ -937,29 +927,17 @@ void CgVehicleSystem::PhysicsDoScriptableDamage(CgVehicleSystem *this, unsigned 
       InstanceCommonContext = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)this->m_localClientNum, scriptableIndex);
       ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, &damageEvent.end);
       damageEvent.context = ScriptableCl_LocalClientToContext((const LocalClientNum_t)this->m_localClientNum);
-      __asm
-      {
-        vmovdqu xmm0, cs:__xmm@000000000001869f0000000c00000000
-        vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-      }
       damageEvent.callbacks = ScriptableCl_GetCallbackTable();
-      damageEvent.modelIndex = 0;
-      __asm
-      {
-        vmovdqu xmmword ptr [rsp+0F8h+damageEvent.partName], xmm0
-        vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-        vmovups ymmword ptr [rsp+0F8h+damageEvent.weapon.weaponIdx], ymm0
-        vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-      }
+      memset(&damageEvent.modelIndex, 0, 52);
+      *(_OWORD *)&damageEvent.partName = _xmm;
       damageEvent.inflictorEntState = &Entity->nextState;
       damageEvent.attackerEntState = &Entity->nextState;
       damageEvent.isAlternate = 0;
-      __asm { vmovsd  qword ptr [rsp+0F8h+damageEvent.weapon.attachmentVariationIndices+15h], xmm0 }
+      *(double *)&damageEvent.weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
       damageEvent.scriptableIndex = scriptableIndex;
       damageEvent.inflictorEntNum = vehEntNum;
       damageEvent.inflictorScriptableIndex = 500000;
       damageEvent.attackerEntNum = vehEntNum;
-      __asm { vmovups xmmword ptr [rsp+0F8h+damageEvent.weapon.attachmentVariationIndices+5], xmm1 }
       *(_DWORD *)&damageEvent.weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
       ScriptableBg_ProcessDamageEvent(&damageEvent);
     }
@@ -973,20 +951,20 @@ CgVehicleSystem::PhysicsDrawDebugVehicle
 */
 void CgVehicleSystem::PhysicsDrawDebugVehicle(CgVehicleSystem *this, const BgVehiclePhysics *vehObj)
 {
+  centity_t *Entity; 
   vec3_t outOrigin; 
-  __int64 v7; 
+  __int64 v6; 
   Bounds out_bounds; 
 
-  v7 = -2i64;
+  v6 = -2i64;
   if ( !vehObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 989, ASSERT_TYPE_ASSERT, "(vehObj)", (const char *)&queryFormat, "vehObj") )
     __debugbreak();
   if ( drawBBox )
   {
-    _RDI = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, vehObj->m_entityNumber);
-    CG_GetPoseOrigin(&_RDI->pose, &outOrigin);
-    CgVehicleSystem::GetDObjFirstModelBounds(this, _RDI, &out_bounds);
-    __asm { vmovss  xmm2, dword ptr [rdi+4Ch]; yaw }
-    CG_DebugBox(&outOrigin, &out_bounds, *(float *)&_XMM2, &colorOrange, 0, 0);
+    Entity = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, vehObj->m_entityNumber);
+    CG_GetPoseOrigin(&Entity->pose, &outOrigin);
+    CgVehicleSystem::GetDObjFirstModelBounds(this, Entity, &out_bounds);
+    CG_DebugBox(&outOrigin, &out_bounds, Entity->pose.angles.v[1], &colorOrange, 0, 0);
     memset(&outOrigin, 0, sizeof(outOrigin));
   }
 }
@@ -1139,54 +1117,37 @@ CgVehicleCollisionSystem *CgVehicleSystem::PhysicsGetCollisionSystem(CgVehicleSy
 CgVehicleSystem::PhysicsGetDelayToStartDriving
 ==============
 */
-
-double __fastcall CgVehicleSystem::PhysicsGetDelayToStartDriving(CgVehicleSystem *this, const BgVehiclePhysics *vehObj, int driverEntNum, double defaultTime)
+double CgVehicleSystem::PhysicsGetDelayToStartDriving(CgVehicleSystem *this, const BgVehiclePhysics *vehObj, int driverEntNum, double defaultTime)
 {
-  __int64 v5; 
+  __int64 v4; 
   cg_t *LocalClientGlobals; 
   const characterInfo_t *CharacterInfo; 
-  int v13; 
+  int v8; 
   unsigned int timeModified; 
 
-  v5 = driverEntNum;
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
+  v4 = driverEntNum;
   if ( driverEntNum == 2047 )
-    goto LABEL_12;
+    return defaultTime;
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
   if ( LocalClientGlobals->IsMP(LocalClientGlobals) )
   {
-    if ( (unsigned int)v5 >= LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified )
+    if ( (unsigned int)v4 >= LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified )
     {
       timeModified = LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified;
-      v13 = v5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v13, timeModified) )
+      v8 = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 19, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v8, timeModified) )
         __debugbreak();
     }
-    CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[62] + 14792 * v5);
+    CharacterInfo = (const characterInfo_t *)(*(_QWORD *)&LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[62] + 14792 * v4);
   }
   else
   {
-    CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)LocalClientGlobals, v5);
+    CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)LocalClientGlobals, v4);
   }
   if ( CharacterInfo && CharacterInfo->infoValid && CharacterInfo->vehicleAnimation.prevSeat )
-  {
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_vehDelayFromPassenger, "bg_vehDelayFromPassenger");
-  }
+    return Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_vehDelayFromPassenger, "bg_vehDelayFromPassenger");
   else
-  {
-LABEL_12:
-    __asm
-    {
-      vmovaps xmm0, xmm6
-      vmovaps xmm6, [rsp+58h+var_18]
-    }
-  }
-  return *(double *)&_XMM0;
+    return defaultTime;
 }
 
 /*
@@ -1197,31 +1158,29 @@ CgVehicleSystem::PhysicsGetFovDelta
 float CgVehicleSystem::PhysicsGetFovDelta(CgVehicleSystem *this, const playerState_s *ps)
 {
   const BgVehiclePhysics *VehicleObjectFromPs; 
-  const BgVehiclePhysics *v5; 
-  const dvar_t *v6; 
+  const BgVehiclePhysics *v4; 
+  const dvar_t *v5; 
   ClientCameraData *Data; 
+  float result; 
 
   VehicleObjectFromPs = CgVehicleSystem::PhysicsGetVehicleObjectFromPs(this, ps);
-  v5 = VehicleObjectFromPs;
+  v4 = VehicleObjectFromPs;
   if ( !VehicleObjectFromPs || !VehicleObjectFromPs->SupportsFeature((BgVehiclePhysics *)VehicleObjectFromPs, VPFEAT_CAMERA_FOV_CHANGE) )
-    goto LABEL_12;
-  v6 = DVARBOOL_bg_vehEnableInverseView;
+    return 0.0;
+  v5 = DVARBOOL_bg_vehEnableInverseView;
   if ( !DVARBOOL_bg_vehEnableInverseView && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehEnableInverseView") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( !v6->current.enabled || (Data = CG_Camera_GetData(this->m_localClientNum, CAMERA_CAR), !Data->initialized) || !Data->orbitCamData.inverseView )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
   {
-    if ( CG_Camera_AllowFovDelta(this->m_localClientNum) )
-    {
-      v5->GetCameraFovDelta((BgVehiclePhysics *)v5);
-      return *(float *)&_XMM0;
-    }
-LABEL_12:
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    return *(float *)&_XMM0;
+    Data = CG_Camera_GetData(this->m_localClientNum, CAMERA_CAR);
+    if ( Data->initialized && Data->orbitCamData.inverseView )
+      return FLOAT_10_0;
   }
-  __asm { vmovss  xmm0, cs:__real@41200000 }
-  return *(float *)&_XMM0;
+  if ( !CG_Camera_AllowFovDelta(this->m_localClientNum) )
+    return 0.0;
+  v4->GetCameraFovDelta((BgVehiclePhysics *)v4);
+  return result;
 }
 
 /*
@@ -1477,29 +1436,28 @@ void CgVehicleSystem::PhysicsGetVehicleOriginAtPlayerStateTime(CgVehicleSystem *
   const ClActiveClient *v10; 
   int v11; 
   int v12; 
+  __int64 v13; 
+  char *v14; 
   __int64 v15; 
   char *fmt; 
-  __int64 v26; 
-  char v27; 
-  int v28; 
-  int v32; 
+  __int64 v17; 
+  char v18; 
+  int v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  int v23; 
 
-  v26 = -2i64;
-  _RBP = outOrg;
-  _R15 = ps;
+  v17 = -2i64;
   Client = ClActiveClient::GetClient((const LocalClientNum_t)this->m_localClientNum);
   CmdNumber = ClActiveClient_GetCmdNumber(Client);
-  commandTime = _R15->commandTime;
+  commandTime = ps->commandTime;
   v9 = CmdNumber - 127;
   if ( CmdNumber - 127 > CmdNumber )
   {
 LABEL_14:
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [r15+12Ch]
-      vmovsd  qword ptr [rbp+0], xmm0
-    }
-    _RBP->v[2] = _R15->vehicleState.origin.v[2];
+    *(double *)outOrg->v = *(double *)ps->vehicleState.origin.v;
+    outOrg->v[2] = ps->vehicleState.origin.v[2];
     return;
   }
   while ( 1 )
@@ -1507,7 +1465,7 @@ LABEL_14:
     v10 = ClActiveClient::GetClient((const LocalClientNum_t)this->m_localClientNum);
     v11 = ClActiveClient_GetCmdNumber(v10);
     v12 = v11;
-    v32 = v11;
+    v23 = v11;
     if ( v9 > v11 )
     {
       LODWORD(fmt) = v11;
@@ -1515,52 +1473,35 @@ LABEL_14:
     }
     if ( v9 > v12 - 128 && v9 > 0 )
       break;
-    memset(&v32, 0, sizeof(v32));
+    memset(&v23, 0, sizeof(v23));
 LABEL_13:
     if ( ++v9 > CmdNumber )
       goto LABEL_14;
   }
-  _RBX = &v10->cmds[v9 & 0x7F];
-  memset(&v32, 0, sizeof(v32));
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd", v26) )
+  v13 = (__int64)&v10->cmds[v9 & 0x7F];
+  memset(&v23, 0, sizeof(v23));
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd", v17) )
     __debugbreak();
-  _RCX = &v27;
+  v14 = &v18;
   v15 = 2i64;
   do
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rbx+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups xmm0, xmmword ptr [rbx+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rbx+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RBX = (usercmd_s *)((char *)_RBX + 128);
+    *(__m256i *)v14 = *(__m256i *)v13;
+    *((__m256i *)v14 + 1) = *(__m256i *)(v13 + 32);
+    *((__m256i *)v14 + 2) = *(__m256i *)(v13 + 64);
+    *((_OWORD *)v14 + 6) = *(_OWORD *)(v13 + 96);
+    v14 += 128;
+    *((_OWORD *)v14 - 1) = *(_OWORD *)(v13 + 112);
+    v13 += 128i64;
     --v15;
   }
   while ( v15 );
-  *(_QWORD *)_RCX = _RBX->buttons;
-  if ( v28 != commandTime )
+  *(_QWORD *)v14 = *(_QWORD *)v13;
+  if ( v19 != commandTime )
     goto LABEL_13;
-  __asm
-  {
-    vmovss  xmm0, [rsp+178h+var_78]
-    vmovss  dword ptr [rbp+0], xmm0
-    vmovss  xmm1, [rsp+178h+var_74]
-    vmovss  dword ptr [rbp+4], xmm1
-    vmovss  xmm0, [rsp+178h+var_70]
-    vmovss  dword ptr [rbp+8], xmm0
-  }
+  outOrg->v[0] = v20;
+  outOrg->v[1] = v21;
+  outOrg->v[2] = v22;
 }
 
 /*
@@ -1759,293 +1700,236 @@ void CgVehicleSystem::PhysicsLoad(CgVehicleSystem *this, SaveGame *save)
 CgVehicleSystem::PhysicsOnWorldAction
 ==============
 */
-
-void __fastcall CgVehicleSystem::PhysicsOnWorldAction(CgVehicleSystem *this, Physics_WorldId worldId, double deltaTime)
+void CgVehicleSystem::PhysicsOnWorldAction(CgVehicleSystem *this, Physics_WorldId worldId, float deltaTime)
 {
-  Physics_WorldId v11; 
-  const dvar_t *v14; 
-  unsigned int v15; 
-  char *v16; 
+  Physics_WorldId v3; 
+  CgVehicleSystem *v4; 
+  const dvar_t *v5; 
+  unsigned int v6; 
+  char *v7; 
   BgVehiclePhysicsObjectBuffer *m_vehiclePhysicsObjects; 
   const playerState_s *p_predictedPlayerState; 
   const ClActiveClient *Client; 
   int CmdNumber; 
-  unsigned int v21; 
-  __int64 v25; 
+  unsigned int v12; 
+  unsigned __int8 *v13; 
+  __int64 v14; 
   __int64 m_localClientNum; 
-  CgEntitySystem *v27; 
-  bool v29; 
-  bool v30; 
-  char v32; 
-  char v33; 
-  unsigned __int8 v34; 
-  int v36; 
-  bool v38; 
-  BgVehiclePhysics *v41; 
+  CgEntitySystem *v16; 
+  const centity_t *v17; 
+  bool v18; 
+  bool v19; 
+  float value; 
+  unsigned __int8 v21; 
+  const dvar_t *v22; 
+  int v23; 
+  bool v24; 
+  float v25; 
+  BgVehiclePhysics *v26; 
+  double v27; 
   unsigned __int8 playerIndex; 
-  bool v44; 
-  const playerState_s *v45; 
+  bool v29; 
+  const playerState_s *v30; 
   usercmd_s *p_ucmd; 
-  const dvar_t *v48; 
-  unsigned int v49; 
-  char *v50; 
-  BgVehiclePhysicsObjectBuffer *v51; 
+  const dvar_t *v32; 
+  unsigned int v33; 
+  char *v34; 
+  BgVehiclePhysicsObjectBuffer *v35; 
   const snapshot_t *nextSnap; 
-  __int64 v62; 
-  char *fmt; 
-  __int64 v64; 
-  __int64 v65; 
-  Physics_WorldId v66; 
-  CgVehicleSystem *v67; 
-  playerState_s *v68; 
+  int serverTime; 
+  __int64 v38; 
+  __int64 v39; 
   cg_t *LocalClientGlobals; 
-  __int64 v70; 
   usercmd_s ucmd; 
-  char v72[1032]; 
-  char v73; 
-  void *retaddr; 
+  char v44[1032]; 
 
-  _RAX = &retaddr;
-  v70 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmm7, xmm2
-  }
-  v11 = worldId;
-  v66 = worldId;
-  _R13 = this;
-  v67 = this;
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3a83126f
-    vcomiss xmm2, xmm8
-  }
-  if ( (unsigned __int64)&v62 == _security_cookie )
-    goto LABEL_88;
+  v3 = worldId;
+  v4 = this;
+  if ( deltaTime <= 0.001 )
+    return;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "CgVehicleSystem::PhysicsOnWorldAction");
-  v14 = DCONST_DVARBOOL_bg_vehDebugVptr;
+  v5 = DCONST_DVARBOOL_bg_vehDebugVptr;
   if ( !DCONST_DVARBOOL_bg_vehDebugVptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehDebugVptr") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v14);
-  if ( v14->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.enabled )
   {
-    v15 = 0;
-    v16 = v72;
-    m_vehiclePhysicsObjects = _R13->m_vehiclePhysicsManager.m_vehiclePhysicsObjects;
+    v6 = 0;
+    v7 = v44;
+    m_vehiclePhysicsObjects = v4->m_vehiclePhysicsManager.m_vehiclePhysicsObjects;
     do
     {
-      *(_QWORD *)v16 = *(_QWORD *)m_vehiclePhysicsObjects->buffer;
-      ++v15;
+      *(_QWORD *)v7 = *(_QWORD *)m_vehiclePhysicsObjects->buffer;
+      ++v6;
       ++m_vehiclePhysicsObjects;
-      v16 += 8;
+      v7 += 8;
     }
-    while ( v15 < 0x80 );
-    v11 = v66;
+    while ( v6 < 0x80 );
+    v3 = worldId;
   }
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)_R13->m_localClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v4->m_localClientNum);
   p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
-  v68 = &LocalClientGlobals->predictedPlayerState;
-  Client = ClActiveClient::GetClient((const LocalClientNum_t)_R13->m_localClientNum);
+  Client = ClActiveClient::GetClient((const LocalClientNum_t)v4->m_localClientNum);
   CmdNumber = ClActiveClient_GetCmdNumber(Client);
-  CL_GetUserCmd(_R13->m_localClientNum, CmdNumber, &ucmd);
-  v21 = 0;
-  _RBP = &_R13->m_vehiclePhysicsManager.m_vehiclePhysicsObjects[0].buffer[612];
-  __asm
-  {
-    vxorps  xmm10, xmm10, xmm10
-    vmovss  xmm9, cs:__real@41200000
-  }
+  CL_GetUserCmd(v4->m_localClientNum, CmdNumber, &ucmd);
+  v12 = 0;
+  v13 = &v4->m_vehiclePhysicsManager.m_vehiclePhysicsObjects[0].buffer[612];
   do
   {
-    if ( !*((_DWORD *)_RBP - 151) )
+    if ( !*((_DWORD *)v13 - 151) )
       goto LABEL_84;
-    if ( !BgVehiclePhysics::IsPhysicsBodyIdValid((BgVehiclePhysics *)(_RBP - 612)) )
+    if ( !BgVehiclePhysics::IsPhysicsBodyIdValid((BgVehiclePhysics *)(v13 - 612)) )
     {
       Com_PrintWarning(20, "CgVehicleSystem::PhysicsOnWorldAction(). Rigid body not valid for the vehicle. Simulation skipped this frame\n");
       goto LABEL_84;
     }
-    if ( *((_DWORD *)_RBP - 145) != v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 301, ASSERT_TYPE_ASSERT, "( vehObj->GetWorldId() == worldId )", "Vehicle object world and physics world mismatch") )
+    if ( *((_DWORD *)v13 - 145) != v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 301, ASSERT_TYPE_ASSERT, "( vehObj->GetWorldId() == worldId )", "Vehicle object world and physics world mismatch") )
       __debugbreak();
-    if ( *_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 302, ASSERT_TYPE_ASSERT, "( !vehObj->IsPmoveObject() )", "Vehicle object should not be in pmove") )
+    if ( *v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 302, ASSERT_TYPE_ASSERT, "( !vehObj->IsPmoveObject() )", "Vehicle object should not be in pmove") )
       __debugbreak();
-    v25 = *((int *)_RBP - 141);
-    m_localClientNum = _R13->m_localClientNum;
+    v14 = *((int *)v13 - 141);
+    m_localClientNum = v4->m_localClientNum;
     if ( !(_BYTE)CgEntitySystem::ms_allocatedType )
     {
-      LODWORD(v65) = _R13->m_localClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v65) )
+      LODWORD(v39) = v4->m_localClientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 288, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the entity system for localClientNum %d but the entity system type is not known\n", "ms_allocatedType != GameModeType::NONE", v39) )
         __debugbreak();
     }
     if ( (unsigned int)m_localClientNum >= CgEntitySystem::ms_allocatedCount )
     {
-      LODWORD(v65) = CgEntitySystem::ms_allocatedCount;
-      LODWORD(v64) = m_localClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v64, v65) )
+      LODWORD(v39) = CgEntitySystem::ms_allocatedCount;
+      LODWORD(v38) = m_localClientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 289, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v38, v39) )
         __debugbreak();
     }
     if ( !CgEntitySystem::ms_entitySystemArray[m_localClientNum] )
     {
-      LODWORD(v65) = m_localClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v65) )
+      LODWORD(v39) = m_localClientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 290, ASSERT_TYPE_ASSERT, "(ms_entitySystemArray[localClientNum])", "%s\n\tTrying to access unallocated entity system for localClientNum %d\n", "ms_entitySystemArray[localClientNum]", v39) )
         __debugbreak();
     }
-    v27 = CgEntitySystem::ms_entitySystemArray[m_localClientNum];
-    if ( (unsigned int)v25 >= 0x800 )
+    v16 = CgEntitySystem::ms_entitySystemArray[m_localClientNum];
+    if ( (unsigned int)v14 >= 0x800 )
     {
-      LODWORD(v65) = 2048;
-      LODWORD(v64) = v25;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v64, v65) )
+      LODWORD(v39) = 2048;
+      LODWORD(v38) = v14;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_entity.h", 518, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( (( 2048 ) + 0) )", "entityIndex doesn't index MAX_LOCAL_CENTITIES\n\t%i not in [0, %i)", v38, v39) )
         __debugbreak();
     }
-    _RSI = &v27->m_entities[v25];
-    if ( !CgVehicleSystem::GetClientSafeConst(_R13, _RSI) )
+    v17 = &v16->m_entities[v14];
+    if ( !CgVehicleSystem::GetClientSafeConst(v4, v17) )
     {
       Com_PrintWarning(20, "CgVehicleSystem::PhysicsOnWorldAction(). VehicleClient not found, it could be destroyed during the world step. Simulation skipped this frame\n");
       goto LABEL_84;
     }
-    v29 = p_predictedPlayerState->vehicleState.entity == _RSI->nextState.number && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->otherFlags, GameModeFlagValues::ms_mpValue, 0x21u);
-    v30 = _RSI->nextState.staticState.vehiclePlayer.playerIndex && (*((_DWORD *)_RBP - 147) == 1 || v29);
-    BgVehiclePhysics::SetPlayerControlled((BgVehiclePhysics *)(_RBP - 612), v30);
-    __asm
+    v18 = p_predictedPlayerState->vehicleState.entity == v17->nextState.number && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&p_predictedPlayerState->otherFlags, GameModeFlagValues::ms_mpValue, 0x21u);
+    v19 = v17->nextState.staticState.vehiclePlayer.playerIndex && (*((_DWORD *)v13 - 147) == 1 || v18);
+    BgVehiclePhysics::SetPlayerControlled((BgVehiclePhysics *)(v13 - 612), v19);
+    value = *((float *)v13 + 17);
+    if ( value <= 0.0 )
     {
-      vmovss  xmm0, dword ptr [rbp+44h]
-      vcomiss xmm0, xmm10
-    }
-    if ( v32 | v33 )
-    {
-      v34 = BgVehiclePhysics::CheckForWorldCollision((BgVehiclePhysics *)(_RBP - 612));
-      if ( v34 )
+      v21 = BgVehiclePhysics::CheckForWorldCollision((BgVehiclePhysics *)(v13 - 612));
+      if ( v21 )
       {
-        __asm { vmovss  xmm0, dword ptr [rbp+44h] }
+        value = *((float *)v13 + 17);
       }
       else
       {
-        _RBX = DCONST_DVARFLT_bg_vehNetNoClientGeoCooldown;
+        v22 = DCONST_DVARFLT_bg_vehNetNoClientGeoCooldown;
         if ( !DCONST_DVARFLT_bg_vehNetNoClientGeoCooldown && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehNetNoClientGeoCooldown") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+        Dvar_CheckFrontendServerThread(v22);
+        value = v22->current.value;
       }
     }
     else
     {
-      v34 = _RBP[64];
+      v21 = v13[64];
     }
-    _RBP[64] = v34;
-    __asm
+    v13[64] = v21;
+    *((float *)v13 + 17) = value - deltaTime;
+    if ( !*(v13 - 536) || (v23 = *((_DWORD *)v13 - 147), (v23 & 0xFFFFFFFC) != 0) || v23 == 2 )
     {
-      vsubss  xmm0, xmm0, xmm7
-      vmovss  dword ptr [rbp+44h], xmm0
-    }
-    if ( !*(_RBP - 536) || (v36 = *((_DWORD *)_RBP - 147), (v36 & 0xFFFFFFFC) != 0) || v36 == 2 )
-    {
-      if ( v34 && (!Physics_IsPredictiveWorld(*((Physics_WorldId *)_RBP - 145)) || *(_RBP - 536)) )
-        v38 = 0;
+      if ( v21 && (!Physics_IsPredictiveWorld(*((Physics_WorldId *)v13 - 145)) || *(v13 - 536)) )
+        v24 = 0;
       else
 LABEL_59:
-        v38 = 1;
-      BgVehiclePhysics::SetKeyframed((BgVehiclePhysics *)(_RBP - 612), v38);
+        v24 = 1;
+      BgVehiclePhysics::SetKeyframed((BgVehiclePhysics *)(v13 - 612), v24);
       goto LABEL_61;
     }
-    if ( !v34 )
+    if ( !v21 )
       goto LABEL_59;
-    __asm { vmovaps xmm1, xmm9; minTimeDynamic }
-    BgVehiclePhysics::SetDynamic((BgVehiclePhysics *)(_RBP - 612), *(float *)&_XMM1);
+    BgVehiclePhysics::SetDynamic((BgVehiclePhysics *)(v13 - 612), 10.0);
 LABEL_61:
-    if ( BgVehiclePhysics::IsDynamic((BgVehiclePhysics *)(_RBP - 612)) )
+    if ( BgVehiclePhysics::IsDynamic((BgVehiclePhysics *)(v13 - 612)) )
     {
-      __asm { vmovss  xmm6, dword ptr [rsi+1F8h] }
-      fmt = NULL;
-      __asm { vmovaps xmm3, xmm7; deltaTime }
-      v41 = (BgVehiclePhysics *)(_RBP - 612);
-      if ( *(_RBP - 536) )
+      v25 = v17->nextState.lerp.u.actor.impactVector.v[1];
+      v26 = (BgVehiclePhysics *)(v13 - 612);
+      if ( *(v13 - 536) )
       {
-        BgVehiclePhysics::Simulate(v41, &ucmd, p_predictedPlayerState, *(float *)&_XMM3, (const BgVehiclePhysics *)fmt);
-        *(double *)&_XMM0 = (*(double (__fastcall **)(unsigned __int8 *))(*(_QWORD *)(_RBP - 612) + 88i64))(_RBP - 612);
-        __asm
-        {
-          vmovaps xmm6, xmm0
-          vmovss  dword ptr [rsi+1F8h], xmm0
-        }
+        BgVehiclePhysics::Simulate(v26, &ucmd, p_predictedPlayerState, deltaTime, NULL);
+        v27 = (*(double (__fastcall **)(unsigned __int8 *))(*(_QWORD *)(v13 - 612) + 88i64))(v13 - 612);
+        v17->nextState.lerp.u.actor.impactVector.v[1] = *(float *)&v27;
       }
       else
       {
-        BgVehiclePhysics::Simulate(v41, NULL, NULL, *(float *)&_XMM3, (const BgVehiclePhysics *)fmt);
-        __asm { vmovss  dword ptr [rsi+1F8h], xmm6 }
+        BgVehiclePhysics::Simulate(v26, NULL, NULL, deltaTime, NULL);
+        v17->nextState.lerp.u.actor.impactVector.v[1] = v25;
       }
     }
     else
     {
-      playerIndex = _RSI->nextState.staticState.vehiclePlayer.playerIndex;
-      v44 = playerIndex && playerIndex - 1 == p_predictedPlayerState->clientNum;
-      v45 = NULL;
-      if ( v44 )
-        v45 = p_predictedPlayerState;
+      playerIndex = v17->nextState.staticState.vehiclePlayer.playerIndex;
+      v29 = playerIndex && playerIndex - 1 == p_predictedPlayerState->clientNum;
+      v30 = NULL;
+      if ( v29 )
+        v30 = p_predictedPlayerState;
       p_ucmd = &ucmd;
-      if ( !v44 )
+      if ( !v29 )
         p_ucmd = NULL;
-      __asm { vmovaps xmm3, xmm7; deltaTime }
-      BgVehiclePhysics::SimulateClientKeyframe((BgVehiclePhysics *)(_RBP - 612), p_ucmd, v45, *(float *)&_XMM3);
+      BgVehiclePhysics::SimulateClientKeyframe((BgVehiclePhysics *)(v13 - 612), p_ucmd, v30, deltaTime);
     }
-    v48 = DCONST_DVARBOOL_bg_vehDebugVptr;
+    v32 = DCONST_DVARBOOL_bg_vehDebugVptr;
     if ( !DCONST_DVARBOOL_bg_vehDebugVptr && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_vehDebugVptr") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v48);
-    if ( v48->current.enabled )
+    Dvar_CheckFrontendServerThread(v32);
+    if ( v32->current.enabled )
     {
-      v49 = 0;
-      v50 = v72;
-      v51 = _R13->m_vehiclePhysicsManager.m_vehiclePhysicsObjects;
+      v33 = 0;
+      v34 = v44;
+      v35 = v4->m_vehiclePhysicsManager.m_vehiclePhysicsObjects;
       do
       {
-        if ( *(_QWORD *)v50 != *(_QWORD *)v51->buffer )
+        if ( *(_QWORD *)v34 != *(_QWORD *)v35->buffer )
         {
-          LODWORD(v65) = v21;
-          LODWORD(v64) = v49;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 371, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Virtual table pointer for vehicle index %d was overriden by vehicle index %d", v64, v65) )
+          LODWORD(v39) = v12;
+          LODWORD(v38) = v33;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 371, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Virtual table pointer for vehicle index %d was overriden by vehicle index %d", v38, v39) )
             __debugbreak();
         }
-        ++v49;
-        ++v51;
-        v50 += 8;
+        ++v33;
+        ++v35;
+        v34 += 8;
       }
-      while ( v49 < 0x80 );
-      _R13 = v67;
-      p_predictedPlayerState = v68;
+      while ( v33 < 0x80 );
+      v4 = this;
+      p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
     }
 LABEL_84:
-    ++v21;
-    _RBP += 3360;
-    v11 = v66;
+    ++v12;
+    v13 += 3360;
+    v3 = worldId;
   }
-  while ( v21 < 0x80 );
-  __asm { vmovss  dword ptr [r13+119510h], xmm7 }
+  while ( v12 < 0x80 );
+  v4->m_lastPhysicsStepTime = deltaTime;
   nextSnap = LocalClientGlobals->nextSnap;
   if ( nextSnap )
-    nextSnap->GetPlayerState((snapshot_t *)nextSnap, (const LocalClientNum_t)_R13->m_localClientNum);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm8
-    vmovss  dword ptr [r13+12E10h], xmm1
-  }
+    serverTime = nextSnap->GetPlayerState(nextSnap, (const LocalClientNum_t)v4->m_localClientNum)->serverTime;
+  else
+    serverTime = LocalClientGlobals->time;
+  v4->m_vehiclePhysicsManager.m_lagTime = (float)(LocalClientGlobals->time - serverTime) * 0.001;
   Sys_ProfEndNamedEvent();
-LABEL_88:
-  _R11 = &v73;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
 }
 
 /*
@@ -2089,32 +1973,17 @@ void CgVehicleSystem::PhysicsProcessDeferredEvents(CgVehicleSystem *this)
           InstanceCommonContext = ScriptableCl_GetInstanceCommonContext((const LocalClientNum_t)this->m_localClientNum, scriptableIndex);
           ScriptableInstanceContextSecure::GetOrigin(InstanceCommonContext, scriptableIndex, &damageEvent.end);
           damageEvent.context = ScriptableCl_LocalClientToContext((const LocalClientNum_t)this->m_localClientNum);
-          __asm
-          {
-            vmovdqu xmm0, cs:__xmm@000000000001869f0000000c00000000
-            vmovups ymm1, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-          }
           damageEvent.callbacks = ScriptableCl_GetCallbackTable();
           damageEvent.scriptableIndex = scriptableIndex;
-          __asm
-          {
-            vmovdqu xmmword ptr [rsp+118h+damageEvent.partName], xmm0
-            vmovups xmm0, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-            vmovups ymmword ptr [rsp+118h+damageEvent.weapon.weaponIdx], ymm1
-            vmovsd  xmm1, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-          }
+          *(_OWORD *)&damageEvent.partName = _xmm;
           damageEvent.inflictorEntState = &Entity->nextState;
           damageEvent.attackerEntState = &Entity->nextState;
-          __asm
-          {
-            vmovups xmmword ptr [rsp+118h+damageEvent.weapon.attachmentVariationIndices+5], xmm0
-            vmovsd  qword ptr [rsp+118h+damageEvent.weapon.attachmentVariationIndices+15h], xmm1
-          }
+          *(double *)&damageEvent.weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
           *(_DWORD *)&damageEvent.weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
           damageEvent.inflictorEntNum = vehEntNum;
           damageEvent.inflictorScriptableIndex = 500000;
           damageEvent.attackerEntNum = vehEntNum;
-          damageEvent.modelIndex = 0;
+          memset(&damageEvent.modelIndex, 0, 52);
           damageEvent.isAlternate = 0;
           ScriptableBg_ProcessDamageEvent(&damageEvent);
         }
@@ -2135,102 +2004,62 @@ CgVehicleSystem::PhysicsRadialMotionBlur
 char CgVehicleSystem::PhysicsRadialMotionBlur(CgVehicleSystem *this, const playerState_s *ps)
 {
   const BgVehiclePhysics *VehicleObjectFromPs; 
-  BgVehiclePhysics *v6; 
+  BgVehiclePhysics *v4; 
   unsigned int m_vehicleAnimProfile; 
-  int v8; 
-  const dvar_t *v22; 
-  const dvar_t *v26; 
-  bool v29; 
-  bool v30; 
-  char v32; 
+  int v6; 
+  float v8; 
+  __int128 v11; 
+  const dvar_t *v12; 
+  float v14; 
+  float v15; 
+  const dvar_t *v16; 
+  float v17; 
+  cg_t *LocalClientGlobals; 
+  bool v19; 
   vec3_t outVelLs; 
 
   VehicleObjectFromPs = CgVehicleSystem::PhysicsGetVehicleObjectFromPs(this, ps);
-  v6 = (BgVehiclePhysics *)VehicleObjectFromPs;
+  v4 = (BgVehiclePhysics *)VehicleObjectFromPs;
   if ( !VehicleObjectFromPs )
     return 0;
   if ( !VehicleObjectFromPs->SupportsFeature((BgVehiclePhysics *)VehicleObjectFromPs, VPFEAT_CAMERA_RADIAL_BLUR) )
     return 0;
-  m_vehicleAnimProfile = v6->m_vehicleAnimProfile;
+  m_vehicleAnimProfile = v4->m_vehicleAnimProfile;
   if ( m_vehicleAnimProfile <= 0x13 )
   {
-    v8 = 720916;
-    if ( _bittest(&v8, m_vehicleAnimProfile) )
+    v6 = 720916;
+    if ( _bittest(&v6, m_vehicleAnimProfile) )
       return 0;
   }
-  __asm
-  {
-    vmovaps [rsp+98h+var_28], xmm6
-    vmovaps [rsp+98h+var_38], xmm7
-  }
-  BgVehiclePhysics::ComputeVelocityLocalSpace(v6, &v6->m_linearVelocityWs, &outVelLs);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+98h+outVelLs]
-    vmovss  xmm1, dword ptr [rsp+98h+outVelLs+4]
-    vmulss  xmm3, xmm0, xmm0
-    vmulss  xmm2, xmm1, xmm1
-    vaddss  xmm6, xmm3, xmm2
-  }
-  *(double *)&_XMM0 = BgVehiclePhysics::GetTopSpeedForward(v6);
-  __asm
-  {
-    vmaxss  xmm1, xmm0, cs:__real@41200000
-    vmovss  xmm2, cs:__real@3f800000; max
-    vdivss  xmm0, xmm2, xmm1
-    vsqrtss xmm3, xmm6, xmm6
-    vmulss  xmm0, xmm3, xmm0; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vxorps  xmm6, xmm6, xmm6
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vsubss  xmm1, xmm0, cs:__real@3f000000 }
-  v22 = DCONST_DVARMODEFLT_cg_thirdPersonCarBlurStrength;
-  __asm
-  {
-    vmaxss  xmm1, xmm1, xmm6
-    vmulss  xmm6, xmm1, cs:__real@40000000
-  }
+  BgVehiclePhysics::ComputeVelocityLocalSpace(v4, &v4->m_linearVelocityWs, &outVelLs);
+  _XMM0 = LODWORD(outVelLs.v[0]);
+  v8 = (float)(*(float *)&_XMM0 * *(float *)&_XMM0) + (float)(outVelLs.v[1] * outVelLs.v[1]);
+  *(double *)&_XMM0 = BgVehiclePhysics::GetTopSpeedForward(v4);
+  __asm { vmaxss  xmm1, xmm0, cs:__real@41200000 }
+  *((_QWORD *)&_XMM0 + 1) = 0i64;
+  *(double *)&_XMM0 = I_fclamp(fsqrt(v8) * (float)(1.0 / *(float *)&_XMM1), 0.0, 1.0);
+  v11 = _XMM0;
+  *(float *)&v11 = *(float *)&_XMM0 - 0.5;
+  _XMM1 = v11;
+  v12 = DCONST_DVARMODEFLT_cg_thirdPersonCarBlurStrength;
+  __asm { vmaxss  xmm1, xmm1, xmm6 }
+  v14 = *(float *)&_XMM1 * 2.0;
   if ( !DCONST_DVARMODEFLT_cg_thirdPersonCarBlurStrength && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_thirdPersonCarBlurStrength") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v22);
-  __asm { vmulss  xmm7, xmm6, dword ptr [rbx+28h] }
-  v26 = DCONST_DVARMODEFLT_cg_thirdPersonCarBlurRadius;
+  Dvar_CheckFrontendServerThread(v12);
+  v15 = v14 * v12->current.value;
+  v16 = DCONST_DVARMODEFLT_cg_thirdPersonCarBlurRadius;
   if ( !DCONST_DVARMODEFLT_cg_thirdPersonCarBlurRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_thirdPersonCarBlurRadius") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v26);
-  __asm { vmulss  xmm6, xmm6, dword ptr [rbx+28h] }
-  _RBX = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-  v29 = _RBX == NULL;
-  if ( !_RBX )
-  {
-    v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 838, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob");
-    v29 = !v30;
-    if ( v30 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3a83126f
-    vcomiss xmm6, xmm0
-  }
-  if ( v29 )
-  {
-    v32 = 0;
-  }
-  else
-  {
-    __asm { vcomiss xmm7, xmm0 }
-    v32 = 1;
-  }
-  __asm
-  {
-    vmovss  dword ptr [rbx+1784Ch], xmm6
-    vmovaps xmm6, [rsp+98h+var_28]
-    vmovss  dword ptr [rbx+17850h], xmm7
-    vmovaps xmm7, [rsp+98h+var_38]
-  }
-  _RBX->refdef.radialMotionBlur.enabled = v32;
+  Dvar_CheckFrontendServerThread(v16);
+  v17 = v14 * v16->current.value;
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 838, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+    __debugbreak();
+  v19 = v17 > 0.001 && v15 > 0.001;
+  LocalClientGlobals->refdef.radialMotionBlur.radius = v17;
+  LocalClientGlobals->refdef.radialMotionBlur.strength = v15;
+  LocalClientGlobals->refdef.radialMotionBlur.enabled = v19;
   return 1;
 }
 
@@ -2256,36 +2085,42 @@ CgVehicleSystem::PhysicsTouchAuthoritativeScriptables
 */
 void CgVehicleSystem::PhysicsTouchAuthoritativeScriptables(CgVehicleSystem *this, const centity_t *vehEnt, const BgVehiclePhysics *vehObj)
 {
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
   entityState_t *p_nextState; 
   LocalClientNum_t m_localClientNum; 
   int number; 
   int v11; 
   unsigned int Instance; 
   unsigned int v13; 
-  __int64 v14; 
+  const VehicleDef *v14; 
+  __int128 v15; 
+  float v18; 
+  float v19; 
   unsigned int PhysicsBodyId; 
-  unsigned int v42; 
-  HavokPhysics_BroadphaseCollisionQueryResult *v43; 
+  unsigned int v21; 
+  HavokPhysics_BroadphaseCollisionQueryResult *v22; 
   unsigned int HitBodyId; 
   int Ref; 
-  __int32 v46; 
-  unsigned int v47; 
-  __int64 v48; 
-  __int64 v49; 
-  unsigned int v50; 
+  __int32 v25; 
+  unsigned int v26; 
+  __int64 v27; 
+  __int64 v28; 
+  unsigned int v29; 
   DynEntityList *DynEntityList; 
-  __int64 v52; 
+  __int64 v31; 
   unsigned int runtimeInstanceCount; 
   unsigned int PhysInstanceId; 
-  unsigned int v55; 
+  unsigned int v34; 
   vec3_t *angVel; 
   vec3_t *newOrigin; 
   DynEntityBasis basisOut[4]; 
   unsigned int RigidBodyID; 
   unsigned int dynEntIdOut; 
   unsigned int NumHits; 
-  entityState_t *v62; 
-  const VehicleDef *v63; 
+  entityState_t *v41; 
+  const VehicleDef *v42; 
   HavokPhysics_BroadphaseCollisionQueryResult *BroadphaseCollisionResult; 
   Physics_AABBBroadphaseQueryExtendedData extendedData; 
   vec3_t aabbMax; 
@@ -2293,12 +2128,14 @@ void CgVehicleSystem::PhysicsTouchAuthoritativeScriptables(CgVehicleSystem *this
   vec3_t position; 
   vec4_t orientation; 
   vec4_t out; 
+  __int128 v50; 
+  __int128 v51; 
+  __int128 v52; 
 
   p_nextState = &vehEnt->nextState;
   m_localClientNum = this->m_localClientNum;
-  _R12 = this;
   number = vehEnt->nextState.number;
-  v62 = p_nextState;
+  v41 = p_nextState;
   v11 = 3 * m_localClientNum + 3;
   Instance = CG_PhysicsObject_GetInstance((Physics_WorldId)v11, number, m_localClientNum);
   if ( Instance != -1 )
@@ -2307,66 +2144,32 @@ void CgVehicleSystem::PhysicsTouchAuthoritativeScriptables(CgVehicleSystem *this
     v13 = RigidBodyID;
     if ( (RigidBodyID & 0xFFFFFF) != 0xFFFFFF )
     {
-      v63 = _R12->GetVehicleDef(_R12, p_nextState);
-      v14 = (__int64)v63;
+      v42 = this->GetVehicleDef(this, p_nextState);
+      v14 = v42;
       Physics_GetRigidBodyAABB((Physics_WorldId)v11, RigidBodyID, &aabbMin, &aabbMax);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+50h+aabbMin+8]
-        vsubss  xmm1, xmm0, cs:maxDownExtension
-        vmovss  xmm2, dword ptr [rbp+50h+aabbMax+8]
-        vaddss  xmm0, xmm2, cs:maxUpExtension
-        vmovss  dword ptr [rbp+50h+aabbMax+8], xmm0
-        vmovsd  xmm0, qword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-        vmovss  dword ptr [rbp+50h+aabbMin+8], xmm1
-        vmovups xmm1, xmmword ptr cs:?vec4_origin@@3Tvec4_t@@B; vec4_t const vec4_origin
-        vmovsd  qword ptr [rbp+50h+position], xmm0
-        vmovups xmmword ptr [rbp+50h+orientation], xmm1
-      }
-      position.v[2] = vec3_origin.v[2];
-      if ( v63->accurateShapeOverlap )
+      aabbMax.v[2] = aabbMax.v[2] + maxUpExtension;
+      v15 = *(unsigned __int64 *)vec3_origin.v;
+      aabbMin.v[2] = aabbMin.v[2] - maxDownExtension;
+      position = vec3_origin;
+      orientation = vec4_origin;
+      if ( v42->accurateShapeOverlap )
       {
         if ( BgVehiclePhysics::IsDynamic((BgVehiclePhysics *)vehObj) )
         {
-          __asm
-          {
-            vmovaps [rsp+150h+var_40], xmm6
-            vmovaps [rsp+150h+var_50], xmm7
-            vmovaps [rsp+150h+var_60], xmm8
-          }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_vehScrLookAheadTimeClient, "bg_vehScrLookAheadTimeClient");
-          __asm
-          {
-            vmovss  xmm6, dword ptr [r12+119510h]
-            vmovaps xmm7, xmm0
-          }
+          v52 = v3;
+          v51 = v4;
+          v50 = v5;
+          *(double *)&v15 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_vehScrLookAheadTimeClient, "bg_vehScrLookAheadTimeClient");
+          _XMM7 = v15;
           AxisToQuat((const tmat33_t<vec3_t> *)&vehObj->m_transform, &out);
           __asm { vmaxss  xmm1, xmm7, xmm6; deltaTime }
           BgVehiclePhysics::IntegrateVelocities((BgVehiclePhysics *)vehObj, *(float *)&_XMM1, &vehObj->m_transform.m[3], &out, &vehObj->m_linearVelocityWs, &vehObj->m_angularVelocityWs, &position, &orientation);
-          __asm
-          {
-            vmovss  xmm8, dword ptr [rbp+50h+aabbMax]
-            vaddss  xmm0, xmm8, dword ptr [rbp+50h+aabbMin]
-            vmulss  xmm1, xmm0, cs:__real@3f000000
-            vmovss  xmm7, dword ptr [rbp+50h+aabbMax+4]
-            vmovss  xmm0, dword ptr [rbp+50h+position]
-            vmovaps xmm6, [rsp+150h+var_40]
-            vsubss  xmm5, xmm0, xmm1
-            vaddss  xmm0, xmm7, dword ptr [rbp+50h+aabbMin+4]
-            vmulss  xmm2, xmm0, cs:__real@3f000000
-            vmovss  xmm1, dword ptr [rbp+50h+position+4]
-            vaddss  xmm0, xmm5, dword ptr [rbp+50h+aabbMin]
-            vsubss  xmm4, xmm1, xmm2
-            vaddss  xmm1, xmm4, dword ptr [rbp+50h+aabbMin+4]
-            vmovss  dword ptr [rbp+50h+aabbMin+4], xmm1
-            vaddss  xmm1, xmm4, xmm7
-            vmovaps xmm7, [rsp+150h+var_50]
-            vmovss  dword ptr [rbp+50h+aabbMin], xmm0
-            vaddss  xmm0, xmm5, xmm8
-            vmovaps xmm8, [rsp+150h+var_60]
-            vmovss  dword ptr [rbp+50h+aabbMax+4], xmm1
-            vmovss  dword ptr [rbp+50h+aabbMax], xmm0
-          }
+          v18 = position.v[0] - (float)((float)(aabbMax.v[0] + aabbMin.v[0]) * 0.5);
+          v19 = (float)(aabbMax.v[1] + aabbMin.v[1]) * 0.5;
+          aabbMin.v[1] = (float)(position.v[1] - v19) + aabbMin.v[1];
+          aabbMin.v[0] = v18 + aabbMin.v[0];
+          aabbMax.v[1] = (float)(position.v[1] - v19) + aabbMax.v[1];
+          aabbMax.v[0] = v18 + aabbMax.v[0];
         }
         else if ( BgVehiclePhysics::IsPhysicsBodyIdValid((BgVehiclePhysics *)vehObj) )
         {
@@ -2374,37 +2177,37 @@ void CgVehicleSystem::PhysicsTouchAuthoritativeScriptables(CgVehicleSystem *this
           Physics_GetRigidBodyTransform((const Physics_WorldId)vehObj->m_worldId, PhysicsBodyId, &position, &orientation);
         }
       }
-      v42 = 0;
+      v21 = 0;
       extendedData.contents = 8321;
       extendedData.phaseSelection = All;
       extendedData.ignoreBodies = NULL;
       BroadphaseCollisionResult = PhysicsVehicle_GetBroadphaseCollisionResult((Physics_WorldId)v11);
-      v43 = BroadphaseCollisionResult;
+      v22 = BroadphaseCollisionResult;
       if ( !BroadphaseCollisionResult && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 498, ASSERT_TYPE_ASSERT, "(results)", (const char *)&queryFormat, "results") )
         __debugbreak();
       HavokPhysics_BroadphaseCollisionQueryResult::Reset(BroadphaseCollisionResult);
-      _R12->m_scriptableDamageInfo.m_cursor = 0;
-      Physics_AABBBroadphaseQuery((Physics_WorldId)v11, &aabbMin, &aabbMax, &extendedData, v43);
-      NumHits = HavokPhysics_BroadphaseCollisionQueryResult::GetNumHits(v43);
+      this->m_scriptableDamageInfo.m_cursor = 0;
+      Physics_AABBBroadphaseQuery((Physics_WorldId)v11, &aabbMin, &aabbMax, &extendedData, v22);
+      NumHits = HavokPhysics_BroadphaseCollisionQueryResult::GetNumHits(v22);
       if ( NumHits )
       {
         do
         {
-          HitBodyId = HavokPhysics_BroadphaseCollisionQueryResult::GetHitBodyId(v43, v42);
+          HitBodyId = HavokPhysics_BroadphaseCollisionQueryResult::GetHitBodyId(v22, v21);
           Ref = Physics_GetRef((Physics_WorldId)v11, HitBodyId);
-          v46 = Physics_GetRefSystem(Ref) - 1;
-          if ( v46 )
+          v25 = Physics_GetRefSystem(Ref) - 1;
+          if ( v25 )
           {
-            if ( v46 != 7 )
+            if ( v25 != 7 )
               goto LABEL_42;
-            v47 = Ref & 0x3FFFFF;
+            v26 = Ref & 0x3FFFFF;
           }
           else
           {
-            DynEnt_GetBasisAndDynEntId(Ref, (const LocalClientNum_t)_R12->m_localClientNum, basisOut, &dynEntIdOut);
-            SLOBYTE(v48) = basisOut[0];
-            v49 = dynEntIdOut & 0x7FFFF;
-            v50 = dynEntIdOut >> 19;
+            DynEnt_GetBasisAndDynEntId(Ref, (const LocalClientNum_t)this->m_localClientNum, basisOut, &dynEntIdOut);
+            SLOBYTE(v27) = basisOut[0];
+            v28 = dynEntIdOut & 0x7FFFF;
+            v29 = dynEntIdOut >> 19;
             if ( basisOut[0] >= DYNENT_BASIS_COUNT )
             {
               LODWORD(newOrigin) = 2;
@@ -2412,54 +2215,54 @@ void CgVehicleSystem::PhysicsTouchAuthoritativeScriptables(CgVehicleSystem *this
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.h", 236, ASSERT_TYPE_ASSERT, "(unsigned)( basis ) < (unsigned)( DYNENT_BASIS_COUNT )", "basis doesn't index DYNENT_BASIS_COUNT\n\t%i not in [0, %i)", angVel, newOrigin) )
                 __debugbreak();
             }
-            DynEntityList = DynEnt_GetDynEntityList((DynEntityListId)v50);
+            DynEntityList = DynEnt_GetDynEntityList((DynEntityListId)v29);
             if ( !DynEntityList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.h", 238, ASSERT_TYPE_ASSERT, "(dynEntList)", (const char *)&queryFormat, "dynEntList") )
               __debugbreak();
-            v48 = (unsigned __int8)v48;
-            if ( (unsigned int)v49 >= DynEntityList->dynEntCount[(unsigned __int8)v48] )
+            v27 = (unsigned __int8)v27;
+            if ( (unsigned int)v28 >= DynEntityList->dynEntCount[(unsigned __int8)v27] )
             {
-              LODWORD(newOrigin) = DynEntityList->dynEntCount[(unsigned __int8)v48];
-              LODWORD(angVel) = v49;
+              LODWORD(newOrigin) = DynEntityList->dynEntCount[(unsigned __int8)v27];
+              LODWORD(angVel) = v28;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity.h", 239, ASSERT_TYPE_ASSERT, "(unsigned)( localId ) < (unsigned)( dynEntList->dynEntCount[basis] )", "localId doesn't index dynEntList->dynEntCount[basis]\n\t%i not in [0, %i)", angVel, newOrigin) )
                 __debugbreak();
             }
-            v52 = (__int64)&DynEntityList->dynEntDefList[v48][v49];
-            if ( !v52 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 532, ASSERT_TYPE_ASSERT, "(dynEntDef)", (const char *)&queryFormat, "dynEntDef") )
+            v31 = (__int64)&DynEntityList->dynEntDefList[v27][v28];
+            if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 532, ASSERT_TYPE_ASSERT, "(dynEntDef)", (const char *)&queryFormat, "dynEntDef") )
               __debugbreak();
-            if ( (unsigned __int8)(*(_BYTE *)(v52 + 50) - 3) > 1u )
+            if ( (unsigned __int8)(*(_BYTE *)(v31 + 50) - 3) > 1u )
               goto LABEL_42;
             if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 113, ASSERT_TYPE_ASSERT, "( cm.mapEnts != nullptr )", (const char *)&queryFormat, "cm.mapEnts != nullptr") )
               __debugbreak();
-            if ( *(_DWORD *)(v52 + 60) >= cm.mapEnts->scriptableMapEnts.mapInstanceCount )
+            if ( *(_DWORD *)(v31 + 60) >= cm.mapEnts->scriptableMapEnts.mapInstanceCount )
               goto LABEL_42;
             ScriptableCommon_AssertCountsInitialized();
             runtimeInstanceCount = g_scriptableWorldCounts.runtimeInstanceCount;
             if ( !cm.mapEnts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\scriptable\\scriptable_common_utility.h", 106, ASSERT_TYPE_ASSERT, "( cm.mapEnts != nullptr )", (const char *)&queryFormat, "cm.mapEnts != nullptr") )
               __debugbreak();
-            v47 = runtimeInstanceCount + cm.mapEnts->scriptableMapEnts.lootInstanceCount + *(_DWORD *)(v52 + 60);
+            v26 = runtimeInstanceCount + cm.mapEnts->scriptableMapEnts.lootInstanceCount + *(_DWORD *)(v31 + 60);
             ScriptableCommon_AssertCountsInitialized();
-            if ( v47 >= g_scriptableWorldCounts.totalInstanceCount )
+            if ( v26 >= g_scriptableWorldCounts.totalInstanceCount )
               goto LABEL_42;
-            p_nextState = v62;
+            p_nextState = v41;
             v13 = RigidBodyID;
-            v14 = (__int64)v63;
+            v14 = v42;
           }
-          if ( v47 != -1 )
+          if ( v26 != -1 )
           {
-            if ( !*(_DWORD *)(v14 + 40) || (PhysInstanceId = ScriptableCl_GetPhysInstanceId((const LocalClientNum_t)_R12->m_localClientNum, v47), PhysInstanceId == -1) || (v55 = Physics_GetRigidBodyID((const Physics_WorldId)v11, PhysInstanceId, 0), PhysicsVehicle_Overlap_Shapes((Physics_WorldId)v11, v13, &position, &orientation, v55)) )
+            if ( !v14->accurateShapeOverlap || (PhysInstanceId = ScriptableCl_GetPhysInstanceId((const LocalClientNum_t)this->m_localClientNum, v26), PhysInstanceId == -1) || (v34 = Physics_GetRigidBodyID((const Physics_WorldId)v11, PhysInstanceId, 0), PhysicsVehicle_Overlap_Shapes((Physics_WorldId)v11, v13, &position, &orientation, v34)) )
             {
-              if ( !VehicleScriptableDmg::Add(&_R12->m_scriptableDamageInfo, p_nextState->number, v47) )
+              if ( !VehicleScriptableDmg::Add(&this->m_scriptableDamageInfo, p_nextState->number, v26) )
                 return;
             }
           }
 LABEL_42:
-          v43 = BroadphaseCollisionResult;
-          ++v42;
-          p_nextState = v62;
+          v22 = BroadphaseCollisionResult;
+          ++v21;
+          p_nextState = v41;
           v13 = RigidBodyID;
-          v14 = (__int64)v63;
+          v14 = v42;
         }
-        while ( v42 < NumHits );
+        while ( v21 < NumHits );
       }
     }
   }
@@ -2493,57 +2296,29 @@ void CgVehicleSystem::PhysicsUnpackLerpStateValues(CgVehicleSystem *this, int en
 CgVehicleSystem::PhysicsUpdateCharacterWobbleAnimData
 ==============
 */
-
-void __fastcall CgVehicleSystem::PhysicsUpdateCharacterWobbleAnimData(CgVehicleSystem *this, const characterInfo_t *ci, unsigned int vehicleId, double frameTime, wobbleAnim_t *outData)
+void CgVehicleSystem::PhysicsUpdateCharacterWobbleAnimData(CgVehicleSystem *this, const characterInfo_t *ci, unsigned int vehicleId, float frameTime, wobbleAnim_t *outData)
 {
-  bool IsValid; 
-  bool v12; 
-  bool v13; 
+  const BgVehiclePhysics *ObjectById; 
   VehicleWorldmodelAAnim *p_angles; 
-  float frameTimea; 
   vec3_t entOrg; 
   tmat33_t<vec3_t> axis; 
 
-  __asm
-  {
-    vmovaps [rsp+0B8h+var_38], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !ci && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 1201, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
   if ( !outData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 1202, ASSERT_TYPE_ASSERT, "(outData)", (const char *)&queryFormat, "outData") )
     __debugbreak();
-  IsValid = BGVehicles::PhysicsIsValid(vehicleId);
-  v12 = !IsValid;
-  if ( !IsValid )
+  if ( !BGVehicles::PhysicsIsValid(vehicleId) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 1203, ASSERT_TYPE_ASSERT, "(BGVehicles::PhysicsIsValid( vehicleId ))", (const char *)&queryFormat, "BGVehicles::PhysicsIsValid( vehicleId )") )
+    __debugbreak();
+  if ( frameTime > 0.0 )
   {
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle_physics.cpp", 1203, ASSERT_TYPE_ASSERT, "(BGVehicles::PhysicsIsValid( vehicleId ))", (const char *)&queryFormat, "BGVehicles::PhysicsIsValid( vehicleId )");
-    v12 = !v13;
-    if ( v13 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-  }
-  if ( !v12 )
-  {
-    _RBX = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
+    ObjectById = BgVehiclePhysicsManager::GetObjectById(&this->m_vehiclePhysicsManager, vehicleId);
     p_angles = (VehicleWorldmodelAAnim *)&CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, ci->entityNum)->pose.angles;
     if ( ci->vehicleAnimation.seat != VEHICLE_SEAT_DRIVER )
       p_angles = &ci->vehicleAnimation;
     AnglesToAxis(&p_angles->viewAngles, &axis);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbx+198h]
-      vmovsd  qword ptr [rsp+0B8h+entOrg], xmm0
-      vmovss  [rsp+0B8h+frameTime], xmm6
-    }
-    entOrg.v[2] = _RBX->m_transform.m[3].v[2];
-    BGVehicles::PhysicsUpdateCharacterWobbleAnimDataCommon(this, _RBX, &axis, &entOrg, ci, frameTimea, outData);
+    entOrg = ObjectById->m_transform.row3;
+    BGVehicles::PhysicsUpdateCharacterWobbleAnimDataCommon(this, ObjectById, &axis, &entOrg, ci, frameTime, outData);
   }
-  __asm { vmovaps xmm6, [rsp+0B8h+var_38] }
 }
 
 /*

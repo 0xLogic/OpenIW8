@@ -285,28 +285,16 @@ Vec2NormalizeFast
 */
 void Vec2NormalizeFast(vec2_t *v)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm1, dword ptr [rcx+4]
-    vmulss  xmm2, xmm0, xmm0
-    vmulss  xmm1, xmm1, xmm1
-    vmovaps [rsp+48h+var_18], xmm6
-  }
-  _RBX = v;
-  __asm
-  {
-    vaddss  xmm6, xmm2, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vmovaps xmm1, xmm6
-    vrsqrtss xmm2, xmm1, xmm6
-    vmulss  xmm0, xmm2, dword ptr [rbx]
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [rbx], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx+4], xmm1
-  }
+  __int128 v2; 
+
+  v2 = LODWORD(v->v[0]);
+  *(float *)&v2 = (float)(v->v[0] * v->v[0]) + (float)(v->v[1] * v->v[1]);
+  if ( *(float *)&v2 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
+    __debugbreak();
+  _XMM1 = v2;
+  __asm { vrsqrtss xmm2, xmm1, xmm6 }
+  v->v[0] = *(float *)&_XMM2 * v->v[0];
+  v->v[1] = *(float *)&_XMM2 * v->v[1];
 }
 
 /*
@@ -315,34 +303,15 @@ I_fclamp
 ==============
 */
 
-float __fastcall I_fclamp(double val, double min, double max)
+float __fastcall I_fclamp(double val, float min, float max)
 {
-  double v17; 
-  double v18; 
-
-  __asm
-  {
-    vcomiss xmm1, xmm2
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps xmm8, xmm0
-    vmovaps xmm6, xmm2
-    vmovaps xmm7, xmm1
-    vcvtss2sd xmm3, xmm6, xmm2
-    vmovsd  [rsp+78h+var_48], xmm3
-    vcvtss2sd xmm4, xmm7, xmm1
-    vmovsd  [rsp+78h+var_50], xmm4
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v17, v18) )
+  _XMM8 = *(_OWORD *)&val;
+  if ( min > max && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", min, max) )
     __debugbreak();
   __asm
   {
     vmaxss  xmm0, xmm8, xmm7
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
     vminss  xmm0, xmm0, xmm6
-    vmovaps xmm6, [rsp+78h+var_18]
   }
   return *(float *)&_XMM0;
 }
@@ -354,34 +323,13 @@ Vec3Cross
 */
 void Vec3Cross(const vec3_t *v0, const vec3_t *v1, vec3_t *cross)
 {
-  _RBX = cross;
-  _RDI = v1;
-  _RSI = v0;
   if ( v0 == cross && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
     __debugbreak();
-  if ( _RDI == _RBX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
+  if ( v1 == cross && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+8]
-    vmulss  xmm2, xmm1, dword ptr [rdi+4]
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmulss  xmm3, xmm0, dword ptr [rsi+4]
-    vsubss  xmm0, xmm3, xmm2
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm1, dword ptr [rsi+8]
-    vmovss  xmm0, dword ptr [rsi]
-    vmulss  xmm2, xmm0, dword ptr [rdi+8]
-    vmulss  xmm3, xmm1, dword ptr [rdi]
-    vsubss  xmm1, xmm3, xmm2
-    vmovss  dword ptr [rbx+4], xmm1
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  xmm1, dword ptr [rdi]
-    vmulss  xmm2, xmm1, dword ptr [rsi+4]
-    vmulss  xmm3, xmm0, dword ptr [rdi+4]
-    vsubss  xmm0, xmm3, xmm2
-    vmovss  dword ptr [rbx+8], xmm0
-  }
+  cross->v[0] = (float)(v1->v[2] * v0->v[1]) - (float)(v0->v[2] * v1->v[1]);
+  cross->v[1] = (float)(v0->v[2] * v1->v[0]) - (float)(v0->v[0] * v1->v[2]);
+  cross->v[2] = (float)(v0->v[0] * v1->v[1]) - (float)(v1->v[0] * v0->v[1]);
 }
 
 /*
@@ -407,28 +355,21 @@ Vec3Normalize
 */
 float Vec3Normalize(vec3_t *v)
 {
+  __int128 v1; 
+  __int128 v2; 
+
+  v1 = LODWORD(v->v[0]);
+  v2 = v1;
+  *(float *)&v2 = fsqrt((float)((float)(*(float *)&v1 * *(float *)&v1) + (float)(v->v[1] * v->v[1])) + (float)(v->v[2] * v->v[2]));
+  _XMM0 = v2;
   __asm
   {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  xmm4, dword ptr [rcx]
-    vmovss  xmm3, dword ptr [rcx+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm0, xmm0
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-    vmovss  xmm2, cs:__real@3f800000
     vcmpless xmm1, xmm0, cs:__real@80000000
     vblendvps xmm1, xmm0, xmm2, xmm1
-    vdivss  xmm3, xmm2, xmm1
-    vmulss  xmm1, xmm4, xmm3
-    vmovss  dword ptr [rcx], xmm1
-    vmulss  xmm2, xmm3, dword ptr [rcx+4]
-    vmovss  dword ptr [rcx+4], xmm2
-    vmulss  xmm1, xmm3, dword ptr [rcx+8]
-    vmovss  dword ptr [rcx+8], xmm1
   }
+  v->v[0] = *(float *)&v1 * (float)(1.0 / *(float *)&_XMM1);
+  v->v[1] = (float)(1.0 / *(float *)&_XMM1) * v->v[1];
+  v->v[2] = (float)(1.0 / *(float *)&_XMM1) * v->v[2];
   return *(float *)&_XMM0;
 }
 
@@ -437,79 +378,18 @@ float Vec3Normalize(vec3_t *v)
 I_fdistnormalized
 ==============
 */
-
-float __fastcall I_fdistnormalized(double min, double max, double dist)
+float I_fdistnormalized(float min, float max, float dist)
 {
-  bool v11; 
-  bool v12; 
-  bool v15; 
-  double v24; 
-  double v25; 
-  double v26; 
-  double v27; 
-
-  __asm
-  {
-    vcomiss xmm0, xmm1
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps xmm8, xmm1
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm0
-    vcvtss2sd xmm3, xmm8, xmm1
-    vmovsd  [rsp+78h+var_48], xmm3
-    vcvtss2sd xmm4, xmm6, xmm0
-    vmovsd  [rsp+78h+var_50], xmm4
-  }
-  v11 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 826, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v24, v26);
-  v12 = !v11;
-  if ( v11 )
+  if ( min > max && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 826, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", min, max) )
     __debugbreak();
-  __asm
-  {
-    vcomiss xmm7, xmm6
-    vcomiss xmm7, xmm8
-  }
-  if ( v11 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm8, xmm8
-      vmovsd  [rsp+78h+var_48], xmm0
-      vcvtss2sd xmm1, xmm7, xmm7
-      vmovsd  [rsp+78h+var_50], xmm1
-    }
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 828, ASSERT_TYPE_SANITY, "( dist ) <= ( max )", "dist <= max\n\t%g, %g", v25, v27);
-    v12 = !v15;
-    if ( v15 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vsubss  xmm1, xmm8, xmm6
-    vcvtss2sd xmm0, xmm1, xmm1
-    vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( v12 )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
+  if ( dist < min && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 827, ASSERT_TYPE_SANITY, "( dist ) >= ( min )", "dist >= min\n\t%g, %g", dist, min) )
+    __debugbreak();
+  if ( dist > max && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 828, ASSERT_TYPE_SANITY, "( dist ) <= ( max )", "dist <= max\n\t%g, %g", dist, max) )
+    __debugbreak();
+  if ( (float)(max - min) > 0.000001 )
+    return (float)(dist - min) / (float)(max - min);
   else
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm7, xmm6
-      vdivss  xmm0, xmm0, xmm1
-    }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
-  }
-  return *(float *)&_XMM0;
+    return 0.0;
 }
 
 /*
@@ -519,42 +399,23 @@ Vec4Normalize
 */
 float Vec4Normalize(vec4_t *v)
 {
-  char v1; 
+  float v1; 
+  float v2; 
+  float result; 
+  float v4; 
 
-  __asm
+  v1 = v->v[0];
+  v2 = v->v[3];
+  v4 = fsqrt((float)((float)((float)(v1 * v1) + (float)(v->v[1] * v->v[1])) + (float)(v->v[2] * v->v[2])) + (float)(v2 * v2));
+  result = v4;
+  if ( v4 != 0.0 )
   {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  xmm3, dword ptr [rcx+8]
-    vmovss  xmm5, dword ptr [rcx]
-    vmovss  xmm4, dword ptr [rcx+0Ch]
-    vmulss  xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm0, xmm2, xmm2
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
+    v->v[0] = v1 * (float)(1.0 / v4);
+    v->v[1] = (float)(1.0 / v4) * v->v[1];
+    v->v[2] = (float)(1.0 / v4) * v->v[2];
+    v->v[3] = (float)(1.0 / v4) * v2;
   }
-  if ( !v1 )
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f800000
-      vdivss  xmm3, xmm1, xmm0
-      vmulss  xmm2, xmm5, xmm3
-      vmovss  dword ptr [rcx], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rcx+4]
-      vmovss  dword ptr [rcx+4], xmm1
-      vmulss  xmm2, xmm3, dword ptr [rcx+8]
-      vmulss  xmm1, xmm3, xmm4
-      vmovss  dword ptr [rcx+8], xmm2
-      vmovss  dword ptr [rcx+0Ch], xmm1
-    }
-  }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -562,13 +423,9 @@ float Vec4Normalize(vec4_t *v)
 IS_NAN
 ==============
 */
-
-bool __fastcall IS_NAN(double x)
+bool IS_NAN(float x)
 {
-  int v2; 
-
-  __asm { vmovss  [rsp+arg_0], xmm0 }
-  return (v2 & 0x7F800000) == 2139095040;
+  return (LODWORD(x) & 0x7F800000) == 2139095040;
 }
 
 /*
@@ -576,18 +433,9 @@ bool __fastcall IS_NAN(double x)
 I_flerp
 ==============
 */
-
-float __fastcall I_flerp(float a, double b, float w)
+float I_flerp(float a, float b, float w)
 {
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f800000
-    vsubss  xmm4, xmm3, xmm2
-    vmulss  xmm5, xmm4, xmm0
-    vmulss  xmm0, xmm1, xmm2
-    vaddss  xmm0, xmm5, xmm0
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)(1.0 - w) * a) + (float)(b * w);
 }
 
 /*
@@ -597,18 +445,9 @@ Vec3Add
 */
 void Vec3Add(const vec3_t *a, const vec3_t *b, vec3_t *sum)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vaddss  xmm1, xmm0, dword ptr [rdx]
-    vmovss  dword ptr [r8], xmm1
-    vmovss  xmm2, dword ptr [rcx+4]
-    vaddss  xmm0, xmm2, dword ptr [rdx+4]
-    vmovss  dword ptr [r8+4], xmm0
-    vmovss  xmm1, dword ptr [rcx+8]
-    vaddss  xmm2, xmm1, dword ptr [rdx+8]
-    vmovss  dword ptr [r8+8], xmm2
-  }
+  sum->v[0] = a->v[0] + b->v[0];
+  sum->v[1] = a->v[1] + b->v[1];
+  sum->v[2] = a->v[2] + b->v[2];
 }
 
 /*
@@ -618,18 +457,7 @@ Vec3Dot
 */
 float Vec3Dot(const vec3_t *a, const vec3_t *b)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmulss  xmm3, xmm0, dword ptr [rdx+4]
-    vmovss  xmm1, dword ptr [rcx]
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmulss  xmm2, xmm1, dword ptr [rdx]
-    vmulss  xmm1, xmm0, dword ptr [rdx+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm0, xmm4, xmm1
-  }
-  return *(float *)&_XMM0;
+  return (float)((float)(a->v[1] * b->v[1]) + (float)(a->v[0] * b->v[0])) + (float)(a->v[2] * b->v[2]);
 }
 
 /*
@@ -639,19 +467,7 @@ Vec3Length
 */
 float Vec3Length(const vec3_t *v)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm2, dword ptr [rcx+4]
-    vmovss  xmm3, dword ptr [rcx+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm0, xmm2, xmm2
-  }
-  return *(float *)&_XMM0;
+  return fsqrt((float)((float)(v->v[0] * v->v[0]) + (float)(v->v[1] * v->v[1])) + (float)(v->v[2] * v->v[2]));
 }
 
 /*
@@ -661,24 +477,9 @@ Vec3Lerp
 */
 void Vec3Lerp(const vec3_t *from, const vec3_t *to, float frac, vec3_t *result)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm1, xmm0, dword ptr [rcx]
-    vmulss  xmm3, xmm1, xmm2
-    vaddss  xmm4, xmm3, dword ptr [rcx]
-    vmovss  dword ptr [r9], xmm4
-    vmovss  xmm0, dword ptr [rdx+4]
-    vsubss  xmm1, xmm0, dword ptr [rcx+4]
-    vmulss  xmm3, xmm1, xmm2
-    vaddss  xmm4, xmm3, dword ptr [rcx+4]
-    vmovss  dword ptr [r9+4], xmm4
-    vmovss  xmm0, dword ptr [rdx+8]
-    vsubss  xmm1, xmm0, dword ptr [rcx+8]
-    vmulss  xmm2, xmm1, xmm2
-    vaddss  xmm3, xmm2, dword ptr [rcx+8]
-    vmovss  dword ptr [r9+8], xmm3
-  }
+  result->v[0] = (float)((float)(to->v[0] - from->v[0]) * frac) + from->v[0];
+  result->v[1] = (float)((float)(to->v[1] - from->v[1]) * frac) + from->v[1];
+  result->v[2] = (float)((float)(to->v[2] - from->v[2]) * frac) + from->v[2];
 }
 
 /*
@@ -686,21 +487,11 @@ void Vec3Lerp(const vec3_t *from, const vec3_t *to, float frac, vec3_t *result)
 Vec3Mad
 ==============
 */
-
-void __fastcall Vec3Mad(const vec3_t *start, double scale, const vec3_t *dir, vec3_t *result)
+void Vec3Mad(const vec3_t *start, float scale, const vec3_t *dir, vec3_t *result)
 {
-  __asm
-  {
-    vmulss  xmm0, xmm1, dword ptr [r8]
-    vaddss  xmm2, xmm0, dword ptr [rcx]
-    vmovss  dword ptr [r9], xmm2
-    vmulss  xmm0, xmm1, dword ptr [r8+4]
-    vaddss  xmm2, xmm0, dword ptr [rcx+4]
-    vmovss  dword ptr [r9+4], xmm2
-    vmulss  xmm0, xmm1, dword ptr [r8+8]
-    vaddss  xmm1, xmm0, dword ptr [rcx+8]
-    vmovss  dword ptr [r9+8], xmm1
-  }
+  result->v[0] = (float)(scale * dir->v[0]) + start->v[0];
+  result->v[1] = (float)(scale * dir->v[1]) + start->v[1];
+  result->v[2] = (float)(scale * dir->v[2]) + start->v[2];
 }
 
 /*
@@ -708,18 +499,11 @@ void __fastcall Vec3Mad(const vec3_t *start, double scale, const vec3_t *dir, ve
 Vec3Scale
 ==============
 */
-
-void __fastcall Vec3Scale(const vec3_t *v, double scale, vec3_t *result)
+void Vec3Scale(const vec3_t *v, float scale, vec3_t *result)
 {
-  __asm
-  {
-    vmulss  xmm0, xmm1, dword ptr [rcx]
-    vmovss  dword ptr [r8], xmm0
-    vmulss  xmm2, xmm1, dword ptr [rcx+4]
-    vmovss  dword ptr [r8+4], xmm2
-    vmulss  xmm0, xmm1, dword ptr [rcx+8]
-    vmovss  dword ptr [r8+8], xmm0
-  }
+  result->v[0] = scale * v->v[0];
+  result->v[1] = scale * v->v[1];
+  result->v[2] = scale * v->v[2];
 }
 
 /*
@@ -729,216 +513,40 @@ Mat33IsOrthonormal
 */
 bool Mat33IsOrthonormal(const tmat33_t<vec3_t> *m)
 {
-  bool v21; 
-  bool v22; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
   bool result; 
-  char v92; 
-  void *retaddr; 
-  int v94; 
-  int v95; 
-  int v96; 
-  int v97; 
-  int v98; 
-  int v99; 
-  int v100; 
-  int v101; 
-  int v102; 
 
-  _RAX = &retaddr;
-  __asm
+  if ( ((LODWORD(m->m[0].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(m->m[0].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(m->m[0].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1593, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m[0] )[0] ) && !IS_NAN( ( m[0] )[1] ) && !IS_NAN( ( m[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m[0] )[0] ) && !IS_NAN( ( m[0] )[1] ) && !IS_NAN( ( m[0] )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(m->m[1].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(m->m[1].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(m->m[1].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1594, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m[1] )[0] ) && !IS_NAN( ( m[1] )[1] ) && !IS_NAN( ( m[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m[1] )[0] ) && !IS_NAN( ( m[1] )[1] ) && !IS_NAN( ( m[1] )[2] )") )
+    __debugbreak();
+  if ( ((LODWORD(m->m[2].v[0]) & 0x7F800000) == 2139095040 || (LODWORD(m->m[2].v[1]) & 0x7F800000) == 2139095040 || (LODWORD(m->m[2].v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1595, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m[2] )[0] ) && !IS_NAN( ( m[2] )[1] ) && !IS_NAN( ( m[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m[2] )[0] ) && !IS_NAN( ( m[2] )[1] ) && !IS_NAN( ( m[2] )[2] )") )
+    __debugbreak();
+  v2 = m->m[0].v[1];
+  v3 = m->m[0].v[0];
+  v4 = m->m[0].v[2];
+  result = 0;
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v3 * v3) + (float)(v2 * v2)) + (float)(v4 * v4)) - 1.0) & _xmm) < 0.0020000001 )
   {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovaps xmmword ptr [rax-18h], xmm6
-  }
-  _RBX = m;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovss  [rsp+0C8h+arg_0], xmm0
-  }
-  if ( (v94 & 0x7F800000) == 2139095040 )
-    goto LABEL_27;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  [rsp+0C8h+arg_0], xmm0
-  }
-  if ( (v95 & 0x7F800000) == 2139095040 )
-    goto LABEL_27;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+8]
-    vmovss  [rsp+0C8h+arg_0], xmm0
-  }
-  if ( (v96 & 0x7F800000) == 2139095040 )
-  {
-LABEL_27:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1593, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m[0] )[0] ) && !IS_NAN( ( m[0] )[1] ) && !IS_NAN( ( m[0] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m[0] )[0] ) && !IS_NAN( ( m[0] )[1] ) && !IS_NAN( ( m[0] )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rsp+0C8h+arg_0], xmm0
-  }
-  if ( (v97 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+10h]
-    vmovss  [rsp+0C8h+arg_0], xmm0
-  }
-  if ( (v98 & 0x7F800000) == 2139095040 )
-    goto LABEL_28;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+14h]
-    vmovss  [rsp+0C8h+arg_0], xmm0
-  }
-  if ( (v99 & 0x7F800000) == 2139095040 )
-  {
-LABEL_28:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1594, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m[1] )[0] ) && !IS_NAN( ( m[1] )[1] ) && !IS_NAN( ( m[1] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m[1] )[0] ) && !IS_NAN( ( m[1] )[1] ) && !IS_NAN( ( m[1] )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+18h]
-    vmovss  [rsp+0C8h+arg_0], xmm0
-  }
-  if ( (v100 & 0x7F800000) == 2139095040 )
-    goto LABEL_29;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+1Ch]
-    vmovss  [rsp+0C8h+arg_0], xmm0
-  }
-  if ( (v101 & 0x7F800000) == 2139095040 )
-    goto LABEL_29;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+20h]
-    vmovss  [rsp+0C8h+arg_0], xmm0
-  }
-  v21 = (v102 & 0x7F800000u) < 0x7F800000;
-  if ( (v102 & 0x7F800000) == 2139095040 )
-  {
-LABEL_29:
-    v22 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1595, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m[2] )[0] ) && !IS_NAN( ( m[2] )[1] ) && !IS_NAN( ( m[2] )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m[2] )[0] ) && !IS_NAN( ( m[2] )[1] ) && !IS_NAN( ( m[2] )[2] )");
-    v21 = 0;
-    if ( v22 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rbx+4]
-    vmovss  xmm6, dword ptr [rbx]
-    vmovss  xmm7, dword ptr [rbx+8]
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm4, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps [rsp+0C8h+var_48], xmm9
-    vmovaps [rsp+0C8h+var_58], xmm10
-    vmovaps [rsp+0C8h+var_68], xmm11
-    vmovaps [rsp+0C8h+var_78], xmm12
-    vmulss  xmm1, xmm6, xmm6
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmovaps [rsp+0C8h+var_88], xmm13
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vsubss  xmm0, xmm3, xmm8
-    vmovss  xmm3, cs:__real@3b03126f
-    vandps  xmm0, xmm0, xmm4
-    vcomiss xmm0, xmm3
-    vmovaps [rsp+0C8h+var_98], xmm14
-  }
-  if ( !v21 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm9, dword ptr [rbx+10h]
-    vmovss  xmm10, dword ptr [rbx+0Ch]
-    vmovss  xmm11, dword ptr [rbx+14h]
-    vmulss  xmm1, xmm10, xmm10
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm11, xmm11
-    vaddss  xmm2, xmm2, xmm1
-    vsubss  xmm0, xmm2, xmm8
-    vandps  xmm0, xmm0, xmm4
-    vcomiss xmm0, xmm3
-  }
-  if ( !v21 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm12, dword ptr [rbx+1Ch]
-    vmovss  xmm13, dword ptr [rbx+18h]
-    vmovss  xmm14, dword ptr [rbx+20h]
-    vmulss  xmm1, xmm13, xmm13
-    vmulss  xmm0, xmm12, xmm12
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm14, xmm14
-    vaddss  xmm2, xmm2, xmm1
-    vsubss  xmm0, xmm2, xmm8
-    vandps  xmm0, xmm0, xmm4
-    vcomiss xmm0, xmm3
-  }
-  if ( !v21 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3a83126f
-    vmulss  xmm1, xmm6, xmm10
-    vmulss  xmm0, xmm5, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm11
-    vaddss  xmm3, xmm2, xmm1
-    vandps  xmm3, xmm3, xmm4
-    vcomiss xmm3, xmm8
-  }
-  if ( !v21 )
-    goto LABEL_23;
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm13
-    vmulss  xmm0, xmm5, xmm12
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, xmm14
-    vaddss  xmm3, xmm2, xmm1
-    vandps  xmm3, xmm3, xmm4
-    vcomiss xmm3, xmm8
-  }
-  if ( !v21 )
-    goto LABEL_23;
-  __asm
-  {
-    vmulss  xmm1, xmm13, xmm10
-    vmulss  xmm0, xmm12, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm14, xmm11
-    vaddss  xmm3, xmm2, xmm1
-    vandps  xmm3, xmm3, xmm4
-    vcomiss xmm3, xmm8
-  }
-  if ( v21 )
-    result = 1;
-  else
-LABEL_23:
-    result = 0;
-  __asm { vmovaps xmm14, [rsp+0C8h+var_98] }
-  _R11 = &v92;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm13, [rsp+0C8h+var_88]
-    vmovaps xmm12, [rsp+0C8h+var_78]
-    vmovaps xmm11, [rsp+0C8h+var_68]
-    vmovaps xmm10, [rsp+0C8h+var_58]
-    vmovaps xmm9, [rsp+0C8h+var_48]
+    v5 = m->m[1].v[1];
+    v6 = m->m[1].v[0];
+    v7 = m->m[1].v[2];
+    if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v6 * v6) + (float)(v5 * v5)) + (float)(v7 * v7)) - 1.0) & _xmm) < 0.0020000001 )
+    {
+      v8 = m->m[2].v[1];
+      v9 = m->m[2].v[0];
+      v10 = m->m[2].v[2];
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v9 * v9) + (float)(v8 * v8)) + (float)(v10 * v10)) - 1.0) & _xmm) < 0.0020000001 && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v3 * v6) + (float)(v2 * v5)) + (float)(v4 * v7)) & _xmm) < 0.001 && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v3 * v9) + (float)(v2 * v8)) + (float)(v4 * v10)) & _xmm) < 0.001 && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v9 * v6) + (float)(v8 * v5)) + (float)(v10 * v7)) & _xmm) < 0.001 )
+        return 1;
+    }
   }
   return result;
 }
@@ -950,34 +558,22 @@ Vec3Rotate
 */
 void Vec3Rotate(const vec3_t *in, const tmat33_t<vec3_t> *matrix, vec3_t *out)
 {
-  _RBX = out;
-  _RDI = in;
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+
   if ( in == out && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1777, ASSERT_TYPE_SANITY, "( &in != &out )", (const char *)&queryFormat, "&in != &out") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rdi+4]
-    vmovss  xmm3, dword ptr [rdi]
-    vmulss  xmm1, xmm4, dword ptr [rsi+4]
-    vmulss  xmm0, xmm3, dword ptr [rsi]
-    vmovss  xmm5, dword ptr [rdi+8]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rsi+8]
-    vaddss  xmm0, xmm2, xmm1
-    vmulss  xmm1, xmm3, dword ptr [rsi+0Ch]
-    vmovss  dword ptr [rbx], xmm0
-    vmulss  xmm0, xmm4, dword ptr [rsi+10h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rsi+14h]
-    vaddss  xmm0, xmm2, xmm1
-    vmulss  xmm1, xmm3, dword ptr [rsi+18h]
-    vmovss  dword ptr [rbx+4], xmm0
-    vmulss  xmm0, xmm4, dword ptr [rsi+1Ch]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, dword ptr [rsi+20h]
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  dword ptr [rbx+8], xmm0
-  }
+  v6 = in->v[1];
+  v7 = in->v[0];
+  v8 = in->v[2];
+  v9 = in->v[0] * matrix->m[1].v[0];
+  out->v[0] = (float)((float)(v6 * matrix->m[0].v[1]) + (float)(in->v[0] * matrix->m[0].v[0])) + (float)(v8 * matrix->m[0].v[2]);
+  v10 = v7 * matrix->m[2].v[0];
+  out->v[1] = (float)(v9 + (float)(v6 * matrix->m[1].v[1])) + (float)(v8 * matrix->m[1].v[2]);
+  out->v[2] = (float)(v10 + (float)(v6 * matrix->m[2].v[1])) + (float)(v8 * matrix->m[2].v[2]);
 }
 
 /*
@@ -985,34 +581,22 @@ void Vec3Rotate(const vec3_t *in, const tmat33_t<vec3_t> *matrix, vec3_t *out)
 Vec2Rotate
 ==============
 */
-
-void __fastcall Vec2Rotate(const vec2_t *in, double radians, vec2_t *out)
+void Vec2Rotate(const vec2_t *in, float radians, vec2_t *out)
 {
+  float v5; 
+  float v6; 
+  float v7; 
   float c; 
   float s; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = out;
-  _RDI = in;
-  __asm { vmovaps xmm6, xmm1 }
   if ( in == out && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 887, ASSERT_TYPE_SANITY, "( &in != &out )", (const char *)&queryFormat, "&in != &out") )
     __debugbreak();
-  __asm { vmovaps xmm0, xmm6; radians }
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  __asm
-  {
-    vmovss  xmm5, dword ptr [rdi]
-    vmovss  xmm4, dword ptr [rdi+4]
-    vmulss  xmm1, xmm5, [rsp+48h+c]
-    vmulss  xmm0, xmm4, [rsp+48h+s]
-    vmulss  xmm2, xmm4, [rsp+48h+c]
-    vmovaps xmm6, [rsp+48h+var_18]
-    vsubss  xmm1, xmm1, xmm0
-    vmulss  xmm0, xmm5, [rsp+48h+s]
-    vmovss  dword ptr [rbx], xmm1
-    vaddss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rbx+4], xmm1
-  }
+  FastSinCos(radians, &s, &c);
+  v5 = in->v[1];
+  v6 = v5 * c;
+  v7 = in->v[0] * s;
+  out->v[0] = (float)(in->v[0] * c) - (float)(v5 * s);
+  out->v[1] = v6 + v7;
 }
 
 /*
@@ -1020,21 +604,16 @@ void __fastcall Vec2Rotate(const vec2_t *in, double radians, vec2_t *out)
 I_rsqrt
 ==============
 */
-
-float __fastcall I_rsqrt(double val, double _XMM1_8)
+float I_rsqrt(float val)
 {
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-    vmovaps xmm1, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm2, xmm0, xmm1
-    vrsqrtss xmm0, xmm2, xmm2
-  }
+  __int128 v2; 
+
+  if ( val <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
+    __debugbreak();
+  v2 = 0i64;
+  *(float *)&v2 = val;
+  _XMM2 = v2;
+  __asm { vrsqrtss xmm0, xmm2, xmm2 }
   return *(float *)&_XMM0;
 }
 
@@ -1045,33 +624,17 @@ Vec3NormalizeFast
 */
 void Vec3NormalizeFast(vec3_t *v)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm2, dword ptr [rcx+4]
-    vmovss  xmm3, dword ptr [rcx+8]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vmovaps [rsp+48h+var_18], xmm6
-  }
-  _RBX = v;
-  __asm
-  {
-    vaddss  xmm6, xmm2, xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vmovaps xmm1, xmm6
-    vrsqrtss xmm2, xmm1, xmm6
-    vmulss  xmm0, xmm2, dword ptr [rbx]
-    vmovaps xmm6, [rsp+48h+var_18]
-    vmovss  dword ptr [rbx], xmm0
-    vmulss  xmm1, xmm2, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx+4], xmm1
-    vmulss  xmm0, xmm2, dword ptr [rbx+8]
-    vmovss  dword ptr [rbx+8], xmm0
-  }
+  __int128 v2; 
+
+  v2 = LODWORD(v->v[0]);
+  *(float *)&v2 = (float)((float)(v->v[0] * v->v[0]) + (float)(v->v[1] * v->v[1])) + (float)(v->v[2] * v->v[2]);
+  if ( *(float *)&v2 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
+    __debugbreak();
+  _XMM1 = v2;
+  __asm { vrsqrtss xmm2, xmm1, xmm6 }
+  v->v[0] = *(float *)&_XMM2 * v->v[0];
+  v->v[1] = *(float *)&_XMM2 * v->v[1];
+  v->v[2] = *(float *)&_XMM2 * v->v[2];
 }
 
 /*
@@ -1095,20 +658,11 @@ __int64 I_tclamp<short>(__int16 val, __int16 min, __int16 max)
 I_fres
 ==============
 */
-
-float __fastcall I_fres(double val, double _XMM1_8)
+float I_fres(float val)
 {
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vucomiss xmm0, xmm1
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm0, xmm0, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return *(float *)&_XMM0;
+  if ( val == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 652, ASSERT_TYPE_SANITY, "( val != 0.0f )", (const char *)&queryFormat, "val != 0.0f") )
+    __debugbreak();
+  return 1.0 / val;
 }
 
 /*
@@ -1118,33 +672,12 @@ DVec3Cross
 */
 void DVec3Cross(const dvec3_t *v0, const dvec3_t *v1, dvec3_t *cross)
 {
-  _RBX = cross;
-  _RDI = v1;
-  _RSI = v0;
   if ( v0 == cross && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1677, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
     __debugbreak();
-  if ( _RDI == _RBX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1678, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
+  if ( v1 == cross && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1678, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
     __debugbreak();
-  __asm
-  {
-    vmovsd  xmm1, qword ptr [rsi+10h]
-    vmulsd  xmm2, xmm1, qword ptr [rdi+8]
-    vmovsd  xmm0, qword ptr [rdi+10h]
-    vmulsd  xmm3, xmm0, qword ptr [rsi+8]
-    vsubsd  xmm0, xmm3, xmm2
-    vmovsd  qword ptr [rbx], xmm0
-    vmovsd  xmm1, qword ptr [rsi+10h]
-    vmovsd  xmm0, qword ptr [rsi]
-    vmulsd  xmm2, xmm0, qword ptr [rdi+10h]
-    vmulsd  xmm3, xmm1, qword ptr [rdi]
-    vsubsd  xmm1, xmm3, xmm2
-    vmovsd  qword ptr [rbx+8], xmm1
-    vmovsd  xmm0, qword ptr [rsi]
-    vmovsd  xmm1, qword ptr [rdi]
-    vmulsd  xmm2, xmm1, qword ptr [rsi+8]
-    vmulsd  xmm3, xmm0, qword ptr [rdi+8]
-    vsubsd  xmm0, xmm3, xmm2
-    vmovsd  qword ptr [rbx+10h], xmm0
-  }
+  cross->x = v1->z * v0->y - v0->z * v1->y;
+  cross->y = v0->z * v1->x - v0->x * v1->z;
+  cross->z = v0->x * v1->y - v1->x * v0->y;
 }
 

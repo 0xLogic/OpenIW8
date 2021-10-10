@@ -589,40 +589,48 @@ BgVehicleComponentGoStraightTo::LoadFromMemFile
 */
 void BgVehicleComponentGoStraightTo::LoadFromMemFile(BgVehicleComponentGoStraightTo *this, MemoryFile *memFile, unsigned int savedVersion)
 {
+  double Float; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
   unsigned int p; 
 
-  _RDI = this;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+18h], xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  this->m_pauseTime = *(float *)&Float;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI->m_simCount = p;
+  this->m_simCount = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_autoRemove = p;
-  MemFile_ReadData(memFile, 0x20ui64, _RDI->m_inputMults);
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+48h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+4Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+50h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+54h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+58h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+5Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+60h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+64h], xmm0 }
+  this->m_autoRemove = p;
+  MemFile_ReadData(memFile, 0x20ui64, this->m_inputMults);
+  v6 = MemFile_ReadFloat(memFile);
+  this->m_goalPos.v[0] = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  this->m_goalPos.v[1] = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  this->m_goalPos.v[2] = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  this->m_lookAheadPos.v[0] = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  this->m_lookAheadPos.v[1] = *(float *)&v10;
+  v11 = MemFile_ReadFloat(memFile);
+  this->m_lookAheadPos.v[2] = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
+  this->m_goalPosTol = *(float *)&v12;
+  v13 = MemFile_ReadFloat(memFile);
+  this->m_goalPosTolSq = *(float *)&v13;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_notifyOnGoal = p;
+  this->m_notifyOnGoal = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_goingStraightTo = p;
+  this->m_goingStraightTo = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_endOnGoal = p;
+  this->m_endOnGoal = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_stopOnArriving = p;
+  this->m_stopOnArriving = p;
 }
 
 /*
@@ -632,61 +640,72 @@ BgVehicleComponentPathFinder::LoadFromMemFile
 */
 void BgVehicleComponentPathFinder::LoadFromMemFile(BgVehicleComponentPathFinder *this, MemoryFile *memFile, unsigned int savedVersion)
 {
+  double Float; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
   unsigned int p; 
 
-  _RDI = this;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+18h], xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  this->m_pauseTime = *(float *)&Float;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI->m_simCount = p;
+  this->m_simCount = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_autoRemove = p;
-  MemFile_ReadData(memFile, 0x20ui64, _RDI->m_inputMults);
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+48h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+4Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+50h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+54h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+58h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+5Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+60h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+64h], xmm0 }
+  this->m_autoRemove = p;
+  MemFile_ReadData(memFile, 0x20ui64, this->m_inputMults);
+  v6 = MemFile_ReadFloat(memFile);
+  this->m_goalPos.v[0] = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  this->m_goalPos.v[1] = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  this->m_goalPos.v[2] = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  this->m_lookAheadPos.v[0] = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  this->m_lookAheadPos.v[1] = *(float *)&v10;
+  v11 = MemFile_ReadFloat(memFile);
+  this->m_lookAheadPos.v[2] = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
+  this->m_goalPosTol = *(float *)&v12;
+  v13 = MemFile_ReadFloat(memFile);
+  this->m_goalPosTolSq = *(float *)&v13;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_notifyOnGoal = p;
+  this->m_notifyOnGoal = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_goingStraightTo = p;
+  this->m_goingStraightTo = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_endOnGoal = p;
+  this->m_endOnGoal = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_stopOnArriving = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+70h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+74h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+78h], xmm0 }
-  MemFile_ReadData(memFile, 0x70ui64, _RDI->m_pathNodes);
+  this->m_stopOnArriving = p;
+  v14 = MemFile_ReadFloat(memFile);
+  this->m_finalGoalPos.v[0] = *(float *)&v14;
+  v15 = MemFile_ReadFloat(memFile);
+  this->m_finalGoalPos.v[1] = *(float *)&v15;
+  v16 = MemFile_ReadFloat(memFile);
+  this->m_finalGoalPos.v[2] = *(float *)&v16;
+  MemFile_ReadData(memFile, 0x70ui64, this->m_pathNodes);
   MemFile_ReadData(memFile, 2ui64, &p);
-  _RDI->m_originalPathNumNodes = p;
+  this->m_originalPathNumNodes = p;
   MemFile_ReadData(memFile, 2ui64, &p);
-  _RDI->m_overallCurNode = p;
+  this->m_overallCurNode = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI->m_notifiedNodeBits[0] = p;
+  this->m_notifiedNodeBits[0] = p;
   MemFile_ReadData(memFile, 2ui64, &p);
-  _RDI->m_numNodes = p;
+  this->m_numNodes = p;
   MemFile_ReadData(memFile, 2ui64, &p);
-  _RDI->m_curNode = p;
+  this->m_curNode = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_layer = p;
+  this->m_layer = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_partial = p;
+  this->m_partial = p;
 }
 
 /*
@@ -696,82 +715,106 @@ BgVehicleComponentPathFollower::LoadFromMemFile
 */
 void BgVehicleComponentPathFollower::LoadFromMemFile(BgVehicleComponentPathFollower *this, MemoryFile *memFile, unsigned int savedVersion)
 {
-  bool v6; 
+  double Float; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  double v25; 
+  double v26; 
+  bool v27; 
+  double v28; 
+  double v29; 
+  double v30; 
   unsigned __int32 p; 
 
-  _RDI = this;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+18h], xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  this->m_pauseTime = *(float *)&Float;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI->m_simCount = p;
+  this->m_simCount = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_autoRemove = p;
-  MemFile_ReadData(memFile, 0xDCui64, &_RDI->m_path);
+  this->m_autoRemove = p;
+  MemFile_ReadData(memFile, 0xDCui64, &this->m_path);
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI->m_pathType = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+108h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+10Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+110h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+114h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+118h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+11Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+120h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+124h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+128h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+12Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+130h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+134h], xmm0 }
+  this->m_pathType = p;
+  v6 = MemFile_ReadFloat(memFile);
+  this->m_pathPosInterpolated.v[0] = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  this->m_pathPosInterpolated.v[1] = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  this->m_pathPosInterpolated.v[2] = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  this->m_pathAnglesInterpolated.v[0] = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  this->m_pathAnglesInterpolated.v[1] = *(float *)&v10;
+  v11 = MemFile_ReadFloat(memFile);
+  this->m_pathAnglesInterpolated.v[2] = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
+  this->m_previousLinearVelocityWs.v[0] = *(float *)&v12;
+  v13 = MemFile_ReadFloat(memFile);
+  this->m_previousLinearVelocityWs.v[1] = *(float *)&v13;
+  v14 = MemFile_ReadFloat(memFile);
+  this->m_previousLinearVelocityWs.v[2] = *(float *)&v14;
+  v15 = MemFile_ReadFloat(memFile);
+  this->m_previousLinearAccelerationWs.v[0] = *(float *)&v15;
+  v16 = MemFile_ReadFloat(memFile);
+  this->m_previousLinearAccelerationWs.v[1] = *(float *)&v16;
+  v17 = MemFile_ReadFloat(memFile);
+  this->m_previousLinearAccelerationWs.v[2] = *(float *)&v17;
   MemFile_ReadData(memFile, 2ui64, &p);
-  _RDI->m_numNodes = p;
+  this->m_numNodes = p;
   MemFile_ReadData(memFile, 2ui64, &p);
-  _RDI->m_startNode = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+13Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+140h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+144h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+148h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+14Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+150h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+154h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+158h], xmm0 }
+  this->m_startNode = p;
+  v18 = MemFile_ReadFloat(memFile);
+  this->m_yawVel = *(float *)&v18;
+  v19 = MemFile_ReadFloat(memFile);
+  this->m_destYawVel = *(float *)&v19;
+  v20 = MemFile_ReadFloat(memFile);
+  this->m_lookAheadTime = *(float *)&v20;
+  v21 = MemFile_ReadFloat(memFile);
+  this->m_yawAccel = *(float *)&v21;
+  v22 = MemFile_ReadFloat(memFile);
+  this->m_manualSpeed = *(float *)&v22;
+  v23 = MemFile_ReadFloat(memFile);
+  this->m_manualSpeedTarget = *(float *)&v23;
+  v24 = MemFile_ReadFloat(memFile);
+  this->m_manualAccel = *(float *)&v24;
+  v25 = MemFile_ReadFloat(memFile);
+  this->m_manualDecel = *(float *)&v25;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_maxSpeedReached = p;
+  this->m_maxSpeedReached = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_stopOnEnd = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  v6 = _RDI->m_pathType == PATH_CATMULLROM;
-  __asm { vmovss  dword ptr [rdi+160h], xmm0 }
-  if ( v6 )
+  this->m_stopOnEnd = p;
+  v26 = MemFile_ReadFloat(memFile);
+  v27 = this->m_pathType == PATH_CATMULLROM;
+  this->m_manualTime = *(float *)&v26;
+  if ( v27 )
   {
     MemFile_ReadData(memFile, 4ui64, &p);
-    _RDI->m_path.m_catmullRom.splineIndex = p;
+    this->m_path.m_catmullRom.splineIndex = p;
     MemFile_ReadData(memFile, 4ui64, &p);
-    _RDI->m_path.m_catmullRom.curNodeIndex = p;
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rdi+30h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rdi+34h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rdi+38h], xmm0 }
+    this->m_path.m_catmullRom.curNodeIndex = p;
+    v28 = MemFile_ReadFloat(memFile);
+    this->m_path.m_vpp.speed = *(float *)&v28;
+    v29 = MemFile_ReadFloat(memFile);
+    this->m_path.m_vpp.speedOverride = *(float *)&v29;
+    v30 = MemFile_ReadFloat(memFile);
+    this->m_path.m_vpp.lookAhead = *(float *)&v30;
   }
 }
 
@@ -782,322 +825,431 @@ BgVehiclePhysics::LoadFromMemFile
 */
 void BgVehiclePhysics::LoadFromMemFile(BgVehiclePhysics *this, MemoryFile *memFile, unsigned int savedVersion)
 {
+  double Float; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
   unsigned __int8 *playerSeats; 
-  __int64 v7; 
-  __int64 v9; 
+  __int64 v11; 
+  float *massFactors; 
+  __int64 v13; 
+  float *v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
   VehiclePhysicsComponentId *m_components; 
+  double v26; 
   BgVehiclePhysicsControls::ValuePolicy *valuePolicy; 
-  __int64 v14; 
-  unsigned int v15; 
-  unsigned int v16; 
+  float *externalValues; 
+  __int64 v29; 
+  double v30; 
+  double v31; 
+  double v32; 
+  double v33; 
+  double v34; 
+  double v35; 
+  double v36; 
+  double v37; 
+  double v38; 
+  double v39; 
+  double v40; 
+  double v41; 
+  double v42; 
+  double v43; 
+  double v44; 
+  double v45; 
+  double v46; 
+  double v47; 
+  double v48; 
+  double v49; 
+  double v50; 
+  double v51; 
+  double v52; 
+  double v53; 
+  unsigned int v54; 
+  unsigned int v55; 
+  __int64 v56; 
+  double v57; 
+  double v58; 
+  double v59; 
+  double v60; 
+  double v61; 
+  double v62; 
+  double v63; 
+  double v64; 
+  double v65; 
+  double v66; 
+  double v67; 
+  double v68; 
+  double v69; 
+  double v70; 
+  double v71; 
+  double v72; 
+  double v73; 
+  double v74; 
+  double v75; 
+  double v76; 
+  double v77; 
+  double v78; 
+  double v79; 
+  double v80; 
+  double v81; 
+  double v82; 
+  double v83; 
+  double v84; 
+  __int64 v85; 
+  double v86; 
+  double v87; 
+  double v88; 
+  double v89; 
+  double v90; 
+  double v91; 
+  double v92; 
+  double v93; 
+  double v94; 
+  double v95; 
+  double v96; 
+  double v97; 
+  double v98; 
+  double v99; 
+  double v100; 
+  double v101; 
+  double v102; 
+  double v103; 
+  double v104; 
+  double v105; 
+  double v106; 
+  double v107; 
+  double v108; 
+  double v109; 
+  double v110; 
+  double v111; 
+  double v112; 
+  double v113; 
+  double v114; 
+  double v115; 
+  double v116; 
+  double v117; 
+  double v118; 
+  double v119; 
+  double v120; 
+  double v121; 
+  double v122; 
   unsigned int p; 
-  unsigned int v20; 
-  int v21; 
+  unsigned int v124; 
+  int v125; 
 
-  v20 = savedVersion;
-  _RSI = this;
+  v124 = savedVersion;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_vehicleDefIndex = p;
+  this->m_vehicleDefIndex = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_entityNumber = p;
+  this->m_entityNumber = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_simulationFrame = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+38h], xmm0 }
+  this->m_simulationFrame = p;
+  Float = MemFile_ReadFloat(memFile);
+  this->m_minTimeDynamic = *(float *)&Float;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_driverEntNum = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+40h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+44h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+48h], xmm0 }
+  this->m_driverEntNum = p;
+  v6 = MemFile_ReadFloat(memFile);
+  this->m_driverEnterLs.v[0] = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  this->m_driverEnterLs.v[1] = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  this->m_driverEnterLs.v[2] = *(float *)&v8;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RSI->m_playerControlled = p;
+  this->m_playerControlled = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RSI->m_inputControlsEnabled = p;
+  this->m_inputControlsEnabled = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RSI->m_forcedKeyframe = p;
+  this->m_forcedKeyframe = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RSI->m_physicsInitialized = p;
+  this->m_physicsInitialized = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_collisionZone = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+88h], xmm0 }
+  this->m_collisionZone = p;
+  v9 = MemFile_ReadFloat(memFile);
+  this->m_linkedPlayers.weightFactor = *(float *)&v9;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_linkedPlayers.playerCount = p;
+  this->m_linkedPlayers.playerCount = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_linkedPlayers.frameCadence = p;
+  this->m_linkedPlayers.frameCadence = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  playerSeats = _RSI->m_linkedPlayers.playerSeats;
-  v7 = 2i64;
-  _RSI->m_linkedPlayers.enabled = p;
-  _R14 = _RSI->m_linkedPlayers.massFactors;
-  v9 = 2i64;
-  _RBX = &_RSI->m_linkedPlayers.playerPositionsWs[0].v[2];
+  playerSeats = this->m_linkedPlayers.playerSeats;
+  v11 = 2i64;
+  this->m_linkedPlayers.enabled = p;
+  massFactors = this->m_linkedPlayers.massFactors;
+  v13 = 2i64;
+  v14 = &this->m_linkedPlayers.playerPositionsWs[0].v[2];
   do
   {
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rbx-8], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rbx-4], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rbx], xmm0 }
-    MemFile_ReadData(memFile, 4ui64, &v21);
-    *((_DWORD *)_R14 - 2) = v21;
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [r14], xmm0 }
+    v15 = MemFile_ReadFloat(memFile);
+    *(v14 - 2) = *(float *)&v15;
+    v16 = MemFile_ReadFloat(memFile);
+    *(v14 - 1) = *(float *)&v16;
+    v17 = MemFile_ReadFloat(memFile);
+    *v14 = *(float *)&v17;
+    MemFile_ReadData(memFile, 4ui64, &v125);
+    *((_DWORD *)massFactors - 2) = v125;
+    v18 = MemFile_ReadFloat(memFile);
+    *massFactors = *(float *)&v18;
     MemFile_ReadData(memFile, 1ui64, &p);
-    _RBX += 3;
+    v14 += 3;
     *playerSeats++ = p;
-    ++_R14;
-    --v9;
+    ++massFactors;
+    --v13;
   }
-  while ( v9 );
+  while ( v13 );
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_deferActionMgr.actionBits[0] = p;
-  if ( v20 >= 2 )
+  this->m_deferActionMgr.actionBits[0] = p;
+  if ( v124 >= 2 )
   {
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rsi+9Ch], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rsi+0A0h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rsi+0A4h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rsi+0A8h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rsi+0ACh], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rsi+0B0h], xmm0 }
+    v19 = MemFile_ReadFloat(memFile);
+    this->m_deferActionMgr.m_deferredAngularImpWs.v[0] = *(float *)&v19;
+    v20 = MemFile_ReadFloat(memFile);
+    this->m_deferActionMgr.m_deferredAngularImpWs.v[1] = *(float *)&v20;
+    v21 = MemFile_ReadFloat(memFile);
+    this->m_deferActionMgr.m_deferredAngularImpWs.v[2] = *(float *)&v21;
+    v22 = MemFile_ReadFloat(memFile);
+    this->m_deferActionMgr.m_deferredAngularPointWs.v[0] = *(float *)&v22;
+    v23 = MemFile_ReadFloat(memFile);
+    this->m_deferActionMgr.m_deferredAngularPointWs.v[1] = *(float *)&v23;
+    v24 = MemFile_ReadFloat(memFile);
+    this->m_deferActionMgr.m_deferredAngularPointWs.v[2] = *(float *)&v24;
   }
-  m_components = _RSI->m_components;
+  m_components = this->m_components;
   do
   {
-    MemFile_ReadData(memFile, 4ui64, &v20);
-    m_components->id = v20;
+    MemFile_ReadData(memFile, 4ui64, &v124);
+    m_components->id = v124;
     ++m_components;
-    --v7;
+    --v11;
   }
-  while ( v7 );
-  MemFile_ReadData(memFile, 4ui64, &v20);
-  _RSI->m_controls.playerEnabledBits[0] = v20;
-  MemFile_ReadData(memFile, 4ui64, &v20);
-  _RSI->m_controls.externalEnabledBits[0] = v20;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+118h], xmm0 }
-  valuePolicy = _RSI->m_controls.valuePolicy;
-  _RBX = _RSI->m_controls.externalValues;
-  v14 = 8i64;
+  while ( v11 );
+  MemFile_ReadData(memFile, 4ui64, &v124);
+  this->m_controls.playerEnabledBits[0] = v124;
+  MemFile_ReadData(memFile, 4ui64, &v124);
+  this->m_controls.externalEnabledBits[0] = v124;
+  v26 = MemFile_ReadFloat(memFile);
+  this->m_controls.policyWeight = *(float *)&v26;
+  valuePolicy = this->m_controls.valuePolicy;
+  externalValues = this->m_controls.externalValues;
+  v29 = 8i64;
   do
   {
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rbx-20h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rbx], xmm0 }
-    MemFile_ReadData(memFile, 1ui64, &v20);
-    ++_RBX;
-    *valuePolicy++ = v20;
-    --v14;
+    v30 = MemFile_ReadFloat(memFile);
+    *(externalValues - 8) = *(float *)&v30;
+    v31 = MemFile_ReadFloat(memFile);
+    *externalValues = *(float *)&v31;
+    MemFile_ReadData(memFile, 1ui64, &v124);
+    ++externalValues;
+    *valuePolicy++ = v124;
+    --v29;
   }
-  while ( v14 );
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+11Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+120h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+124h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+128h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+12Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+130h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+134h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+138h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+13Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+140h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+144h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+148h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+14Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+150h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+154h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+158h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+15Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+160h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+164h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+168h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+16Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  v15 = 0;
-  v16 = 0;
-  __asm { vmovss  dword ptr [rsi+170h], xmm0 }
+  while ( v29 );
+  v32 = MemFile_ReadFloat(memFile);
+  this->m_playerViewAngles.v[0] = *(float *)&v32;
+  v33 = MemFile_ReadFloat(memFile);
+  this->m_playerViewAngles.v[1] = *(float *)&v33;
+  v34 = MemFile_ReadFloat(memFile);
+  this->m_playerViewAngles.v[2] = *(float *)&v34;
+  v35 = MemFile_ReadFloat(memFile);
+  this->m_history.m_lastPosition.v[0] = *(float *)&v35;
+  v36 = MemFile_ReadFloat(memFile);
+  this->m_history.m_lastPosition.v[1] = *(float *)&v36;
+  v37 = MemFile_ReadFloat(memFile);
+  this->m_history.m_lastPosition.v[2] = *(float *)&v37;
+  v38 = MemFile_ReadFloat(memFile);
+  this->m_history.m_lastAngles.v[0] = *(float *)&v38;
+  v39 = MemFile_ReadFloat(memFile);
+  this->m_history.m_lastAngles.v[1] = *(float *)&v39;
+  v40 = MemFile_ReadFloat(memFile);
+  this->m_history.m_lastAngles.v[2] = *(float *)&v40;
+  v41 = MemFile_ReadFloat(memFile);
+  this->m_history.m_lastLinearVel.v[0] = *(float *)&v41;
+  v42 = MemFile_ReadFloat(memFile);
+  this->m_history.m_lastLinearVel.v[1] = *(float *)&v42;
+  v43 = MemFile_ReadFloat(memFile);
+  this->m_history.m_lastLinearVel.v[2] = *(float *)&v43;
+  v44 = MemFile_ReadFloat(memFile);
+  this->m_history.m_lastAngularVel.v[0] = *(float *)&v44;
+  v45 = MemFile_ReadFloat(memFile);
+  this->m_history.m_lastAngularVel.v[1] = *(float *)&v45;
+  v46 = MemFile_ReadFloat(memFile);
+  this->m_history.m_lastAngularVel.v[2] = *(float *)&v46;
+  v47 = MemFile_ReadFloat(memFile);
+  this->m_history.m_linearAccel.v[0] = *(float *)&v47;
+  v48 = MemFile_ReadFloat(memFile);
+  this->m_history.m_linearAccel.v[1] = *(float *)&v48;
+  v49 = MemFile_ReadFloat(memFile);
+  this->m_history.m_linearAccel.v[2] = *(float *)&v49;
+  v50 = MemFile_ReadFloat(memFile);
+  this->m_history.m_angularAccel.v[0] = *(float *)&v50;
+  v51 = MemFile_ReadFloat(memFile);
+  this->m_history.m_angularAccel.v[1] = *(float *)&v51;
+  v52 = MemFile_ReadFloat(memFile);
+  this->m_history.m_angularAccel.v[2] = *(float *)&v52;
+  v53 = MemFile_ReadFloat(memFile);
+  v54 = 0;
+  v55 = 0;
+  this->m_timeToAcceptInputOnStart = *(float *)&v53;
   do
   {
-    _RBX = 3i64 * (int)v16 + 93;
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rsi+rbx*4], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rsi+rbx*4+4], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    ++v16;
-    __asm { vmovss  dword ptr [rsi+rbx*4+8], xmm0 }
+    v56 = 3i64 * (int)v55 + 93;
+    v57 = MemFile_ReadFloat(memFile);
+    *((float *)&this->__vftable + v56) = *(float *)&v57;
+    v58 = MemFile_ReadFloat(memFile);
+    *((float *)&this->__vftable + v56 + 1) = *(float *)&v58;
+    v59 = MemFile_ReadFloat(memFile);
+    ++v55;
+    *((float *)&this->m_inUse + v56) = *(float *)&v59;
   }
-  while ( v16 < 4 );
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1A4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1A8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1ACh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1B0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1B4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1B8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1BCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1C0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1C4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1C8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1CCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1D0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1D4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1D8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1DCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1E0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1E4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1E8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1ECh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1F0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1F4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1F8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+1FCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+200h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+204h], xmm0 }
+  while ( v55 < 4 );
+  v60 = MemFile_ReadFloat(memFile);
+  this->m_linearVelocityWs.v[0] = *(float *)&v60;
+  v61 = MemFile_ReadFloat(memFile);
+  this->m_linearVelocityWs.v[1] = *(float *)&v61;
+  v62 = MemFile_ReadFloat(memFile);
+  this->m_linearVelocityWs.v[2] = *(float *)&v62;
+  v63 = MemFile_ReadFloat(memFile);
+  this->m_angularVelocityWs.v[0] = *(float *)&v63;
+  v64 = MemFile_ReadFloat(memFile);
+  this->m_angularVelocityWs.v[1] = *(float *)&v64;
+  v65 = MemFile_ReadFloat(memFile);
+  this->m_angularVelocityWs.v[2] = *(float *)&v65;
+  v66 = MemFile_ReadFloat(memFile);
+  this->m_surfaceVelocity.v[0] = *(float *)&v66;
+  v67 = MemFile_ReadFloat(memFile);
+  this->m_surfaceVelocity.v[1] = *(float *)&v67;
+  v68 = MemFile_ReadFloat(memFile);
+  this->m_surfaceVelocity.v[2] = *(float *)&v68;
+  v69 = MemFile_ReadFloat(memFile);
+  this->m_massFactorOnContact.v[0] = *(float *)&v69;
+  v70 = MemFile_ReadFloat(memFile);
+  this->m_massFactorOnContact.v[1] = *(float *)&v70;
+  v71 = MemFile_ReadFloat(memFile);
+  this->m_massFactorOnContact.v[2] = *(float *)&v71;
+  v72 = MemFile_ReadFloat(memFile);
+  this->m_massFactorOnContact.v[3] = *(float *)&v72;
+  v73 = MemFile_ReadFloat(memFile);
+  this->m_manualIntegratedPos.v[0] = *(float *)&v73;
+  v74 = MemFile_ReadFloat(memFile);
+  this->m_manualIntegratedPos.v[1] = *(float *)&v74;
+  v75 = MemFile_ReadFloat(memFile);
+  this->m_manualIntegratedPos.v[2] = *(float *)&v75;
+  v76 = MemFile_ReadFloat(memFile);
+  this->m_manualIntegratedOrientation.v[0] = *(float *)&v76;
+  v77 = MemFile_ReadFloat(memFile);
+  this->m_manualIntegratedOrientation.v[1] = *(float *)&v77;
+  v78 = MemFile_ReadFloat(memFile);
+  this->m_manualIntegratedOrientation.v[2] = *(float *)&v78;
+  v79 = MemFile_ReadFloat(memFile);
+  this->m_manualIntegratedOrientation.v[3] = *(float *)&v79;
+  v80 = MemFile_ReadFloat(memFile);
+  this->m_topSpeedForward.v[0] = *(float *)&v80;
+  v81 = MemFile_ReadFloat(memFile);
+  this->m_topSpeedForward.v[1] = *(float *)&v81;
+  v82 = MemFile_ReadFloat(memFile);
+  this->m_topAngularSpeedLs.v[0] = *(float *)&v82;
+  v83 = MemFile_ReadFloat(memFile);
+  this->m_topAngularSpeedLs.v[1] = *(float *)&v83;
+  v84 = MemFile_ReadFloat(memFile);
+  this->m_topAngularSpeedLs.v[2] = *(float *)&v84;
   do
   {
-    _RBX = 3i64 * (int)v15;
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rsi+rbx*4+208h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rsi+rbx*4+20Ch], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    ++v15;
-    __asm { vmovss  dword ptr [rsi+rbx*4+210h], xmm0 }
+    v85 = (int)v54;
+    v86 = MemFile_ReadFloat(memFile);
+    this->m_invInertiaWs.m[v54].v[0] = *(float *)&v86;
+    v87 = MemFile_ReadFloat(memFile);
+    this->m_invInertiaWs.m[v54].v[1] = *(float *)&v87;
+    v88 = MemFile_ReadFloat(memFile);
+    ++v54;
+    this->m_invInertiaWs.m[v85].v[2] = *(float *)&v88;
   }
-  while ( v15 < 3 );
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+22Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+230h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+234h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+238h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+23Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+240h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+244h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+248h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+24Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+250h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+254h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+258h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+25Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+260h], xmm0 }
-  MemFile_ReadData(memFile, 1ui64, &v20);
-  _RSI->m_pmoveObject = v20;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+268h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+26Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+270h], xmm0 }
-  MemFile_ReadData(memFile, 4ui64, &v20);
-  _RSI->m_pmoveLastCmdTime = v20;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+278h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+27Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+280h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+284h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+288h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+28Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+290h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+294h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+298h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+29Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+2A0h], xmm0 }
-  MemFile_ReadData(memFile, 1ui64, &v20);
-  _RSI->m_clientGeoLoaded = v20;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+2A8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+2B0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+2ACh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+2BCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+2C0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+2C4h], xmm0 }
-  MemFile_ReadData(memFile, 1ui64, &v20);
-  _RSI->m_callbackScript = v20;
-  _RSI->m_lastColliderBodyId = 0xFFFFFF;
+  while ( v54 < 3 );
+  v89 = MemFile_ReadFloat(memFile);
+  this->m_centerOfMassWs.v[0] = *(float *)&v89;
+  v90 = MemFile_ReadFloat(memFile);
+  this->m_centerOfMassWs.v[1] = *(float *)&v90;
+  v91 = MemFile_ReadFloat(memFile);
+  this->m_centerOfMassWs.v[2] = *(float *)&v91;
+  v92 = MemFile_ReadFloat(memFile);
+  this->m_centerOfMassOffsetOriginalLs.v[0] = *(float *)&v92;
+  v93 = MemFile_ReadFloat(memFile);
+  this->m_centerOfMassOffsetOriginalLs.v[1] = *(float *)&v93;
+  v94 = MemFile_ReadFloat(memFile);
+  this->m_centerOfMassOffsetOriginalLs.v[2] = *(float *)&v94;
+  v95 = MemFile_ReadFloat(memFile);
+  this->m_centerOfMassOffsetLs.v[0] = *(float *)&v95;
+  v96 = MemFile_ReadFloat(memFile);
+  this->m_centerOfMassOffsetLs.v[1] = *(float *)&v96;
+  v97 = MemFile_ReadFloat(memFile);
+  this->m_centerOfMassOffsetLs.v[2] = *(float *)&v97;
+  v98 = MemFile_ReadFloat(memFile);
+  this->m_invInertiaLs.v[0] = *(float *)&v98;
+  v99 = MemFile_ReadFloat(memFile);
+  this->m_invInertiaLs.v[1] = *(float *)&v99;
+  v100 = MemFile_ReadFloat(memFile);
+  this->m_invInertiaLs.v[2] = *(float *)&v100;
+  v101 = MemFile_ReadFloat(memFile);
+  this->m_invInertiaLs.v[3] = *(float *)&v101;
+  v102 = MemFile_ReadFloat(memFile);
+  this->m_mass = *(float *)&v102;
+  MemFile_ReadData(memFile, 1ui64, &v124);
+  this->m_pmoveObject = v124;
+  v103 = MemFile_ReadFloat(memFile);
+  this->m_pmoveTargetPosition.v[0] = *(float *)&v103;
+  v104 = MemFile_ReadFloat(memFile);
+  this->m_pmoveTargetPosition.v[1] = *(float *)&v104;
+  v105 = MemFile_ReadFloat(memFile);
+  this->m_pmoveTargetPosition.v[2] = *(float *)&v105;
+  MemFile_ReadData(memFile, 4ui64, &v124);
+  this->m_pmoveLastCmdTime = v124;
+  v106 = MemFile_ReadFloat(memFile);
+  this->m_pmoveLastCmdPos.v[0] = *(float *)&v106;
+  v107 = MemFile_ReadFloat(memFile);
+  this->m_pmoveLastCmdPos.v[1] = *(float *)&v107;
+  v108 = MemFile_ReadFloat(memFile);
+  this->m_pmoveLastCmdPos.v[2] = *(float *)&v108;
+  v109 = MemFile_ReadFloat(memFile);
+  this->m_clientAuthOrg.v[0] = *(float *)&v109;
+  v110 = MemFile_ReadFloat(memFile);
+  this->m_clientAuthOrg.v[1] = *(float *)&v110;
+  v111 = MemFile_ReadFloat(memFile);
+  this->m_clientAuthOrg.v[2] = *(float *)&v111;
+  v112 = MemFile_ReadFloat(memFile);
+  this->m_clientAuthAngles.v[0] = *(float *)&v112;
+  v113 = MemFile_ReadFloat(memFile);
+  this->m_clientAuthAngles.v[1] = *(float *)&v113;
+  v114 = MemFile_ReadFloat(memFile);
+  this->m_clientAuthAngles.v[2] = *(float *)&v114;
+  v115 = MemFile_ReadFloat(memFile);
+  this->m_clientDistanceXYFromPsAvg = *(float *)&v115;
+  v116 = MemFile_ReadFloat(memFile);
+  this->m_clientDistanceZFromPsAvg = *(float *)&v116;
+  MemFile_ReadData(memFile, 1ui64, &v124);
+  this->m_clientGeoLoaded = v124;
+  v117 = MemFile_ReadFloat(memFile);
+  this->m_clientGeoTimeToCheck = *(float *)&v117;
+  v118 = MemFile_ReadFloat(memFile);
+  this->m_timeSinceLastCollision = *(float *)&v118;
+  v119 = MemFile_ReadFloat(memFile);
+  this->m_timeSinceLastCollisionBody = *(float *)&v119;
+  v120 = MemFile_ReadFloat(memFile);
+  this->m_lastCollisionBodyPosLs.v[0] = *(float *)&v120;
+  v121 = MemFile_ReadFloat(memFile);
+  this->m_lastCollisionBodyPosLs.v[1] = *(float *)&v121;
+  v122 = MemFile_ReadFloat(memFile);
+  this->m_lastCollisionBodyPosLs.v[2] = *(float *)&v122;
+  MemFile_ReadData(memFile, 1ui64, &v124);
+  this->m_callbackScript = v124;
+  this->m_lastColliderBodyId = 0xFFFFFF;
 }
 
 /*
@@ -1107,42 +1259,59 @@ BgVehiclePhysicsAtvQuadNew::LoadFromMemFile
 */
 void BgVehiclePhysicsAtvQuadNew::LoadFromMemFile(BgVehiclePhysicsAtvQuadNew *this, MemoryFile *memFile, unsigned int savedVersion)
 {
-  _RDI = this;
+  double Float; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+
   BgVehiclePhysicsGround::LoadFromMemFile(this, memFile, savedVersion);
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CA8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CACh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CB0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CB4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CB8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CBCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CC0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CC4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CF0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CF4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CF8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0D00h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0D04h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0D08h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0D0Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0D10h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0D14h], xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camFovDeltaMax = *(float *)&Float;
+  v6 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camPitchBase = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camPitchDynamic = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camRangeAddMax = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camReturnFactor = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camPitchAdd = *(float *)&v10;
+  v11 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camFovDelta = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camRangeAdd = *(float *)&v12;
+  v13 = MemFile_ReadFloat(memFile);
+  this->m_gravFactorAir = *(float *)&v13;
+  v14 = MemFile_ReadFloat(memFile);
+  this->m_stabilizeRoll = *(float *)&v14;
+  v15 = MemFile_ReadFloat(memFile);
+  this->m_stabilizePitch = *(float *)&v15;
+  v16 = MemFile_ReadFloat(memFile);
+  this->m_animPitch.v[0] = *(float *)&v16;
+  v17 = MemFile_ReadFloat(memFile);
+  this->m_animPitch.v[1] = *(float *)&v17;
+  v18 = MemFile_ReadFloat(memFile);
+  this->m_animPitch.v[2] = *(float *)&v18;
+  v19 = MemFile_ReadFloat(memFile);
+  this->m_animYaw.v[0] = *(float *)&v19;
+  v20 = MemFile_ReadFloat(memFile);
+  this->m_animYaw.v[1] = *(float *)&v20;
+  v21 = MemFile_ReadFloat(memFile);
+  this->m_animYaw.v[2] = *(float *)&v21;
 }
 
 /*
@@ -1152,30 +1321,41 @@ BgVehiclePhysicsCarBase::LoadFromMemFile
 */
 void BgVehiclePhysicsCarBase::LoadFromMemFile(BgVehiclePhysicsCarBase *this, MemoryFile *memFile, unsigned int savedVersion)
 {
-  _RDI = this;
+  double Float; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+
   BgVehiclePhysicsGround::LoadFromMemFile(this, memFile, savedVersion);
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CA8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CACh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CB0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CB4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CB8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CBCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CC0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CC4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CF0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CF4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CF8h], xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camFovDeltaMax = *(float *)&Float;
+  v6 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camPitchBase = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camPitchDynamic = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camRangeAddMax = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camReturnFactor = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camPitchAdd = *(float *)&v10;
+  v11 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camFovDelta = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
+  this->m_cameraConfig.m_camRangeAdd = *(float *)&v12;
+  v13 = MemFile_ReadFloat(memFile);
+  this->m_gravFactorAir = *(float *)&v13;
+  v14 = MemFile_ReadFloat(memFile);
+  this->m_stabilizeRoll = *(float *)&v14;
+  v15 = MemFile_ReadFloat(memFile);
+  this->m_stabilizePitch = *(float *)&v15;
 }
 
 /*
@@ -1185,15 +1365,15 @@ BgVehiclePhysicsComponent::LoadFromMemFile
 */
 void BgVehiclePhysicsComponent::LoadFromMemFile(BgVehiclePhysicsComponent *this, MemoryFile *memFile, unsigned int savedVersion)
 {
+  double Float; 
   unsigned int p; 
 
-  _RDI = this;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+18h], xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  this->m_pauseTime = *(float *)&Float;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI->m_simCount = p;
+  this->m_simCount = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_autoRemove = p;
+  this->m_autoRemove = p;
 }
 
 /*
@@ -1204,209 +1384,287 @@ BgVehiclePhysicsGround::LoadFromMemFile
 void BgVehiclePhysicsGround::LoadFromMemFile(BgVehiclePhysicsGround *this, MemoryFile *memFile, unsigned int savedVersion)
 {
   BgVehiclePhysicsGround::Wheel *m_wheels; 
-  __int64 v8; 
+  __int64 v7; 
+  double Float; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  double v28; 
+  double v29; 
+  double v30; 
+  double v31; 
+  double v32; 
+  double v33; 
+  double v34; 
+  double v35; 
+  double v36; 
+  double v37; 
+  double v38; 
+  double v39; 
+  double v40; 
+  double v41; 
+  double v42; 
+  double v43; 
+  double v44; 
+  double v45; 
+  double v46; 
+  double v47; 
+  double v48; 
+  double v49; 
+  double v50; 
+  double v51; 
+  double v52; 
+  double v53; 
+  double v54; 
+  double v55; 
+  double v56; 
+  double v57; 
+  double v58; 
+  double v59; 
+  double v60; 
+  double v61; 
+  double v62; 
+  double v63; 
+  double v64; 
+  double v65; 
+  double v66; 
+  double v67; 
+  double v68; 
+  double v69; 
+  double v70; 
+  double v71; 
+  double v72; 
+  double v73; 
+  double v74; 
+  double v75; 
+  double v76; 
+  double v77; 
+  double v78; 
+  double v79; 
+  double v80; 
+  double v81; 
+  double v82; 
+  double v83; 
+  double v84; 
+  double v85; 
+  double v86; 
   unsigned int p; 
 
-  _R15 = this;
   BgVehiclePhysics::LoadFromMemFile(this, memFile, savedVersion);
-  m_wheels = _R15->m_wheels;
-  v8 = 12i64;
+  m_wheels = this->m_wheels;
+  v7 = 12i64;
   do
   {
     MemFile_ReadWheel(savedVersion, memFile, m_wheels++);
-    --v8;
+    --v7;
   }
-  while ( v8 );
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+9F8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+9FCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A00h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A04h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A0Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A14h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A18h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A1Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A1Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A20h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A24h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A28h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A2Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A30h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A34h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A38h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A3Ch], xmm0 }
+  while ( v7 );
+  Float = MemFile_ReadFloat(memFile);
+  this->m_wheelCommon.m_hardPointOffCenterLs.v[0] = *(float *)&Float;
+  v9 = MemFile_ReadFloat(memFile);
+  this->m_wheelCommon.m_hardPointOffCenterLs.v[1] = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  this->m_wheelCommon.m_hardPointOffCenterLs.v[2] = *(float *)&v10;
+  v11 = MemFile_ReadFloat(memFile);
+  this->m_wheelCommon.m_suspStiffness = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
+  this->m_wheelCommon.m_suspDamping = *(float *)&v12;
+  v13 = MemFile_ReadFloat(memFile);
+  this->m_wheelCommon.m_suspNoiseAmp = *(float *)&v13;
+  v14 = MemFile_ReadFloat(memFile);
+  this->m_wheelCommon.m_radius = *(float *)&v14;
+  v15 = MemFile_ReadFloat(memFile);
+  this->m_controlEx.lastSteering = *(float *)&v15;
+  v16 = MemFile_ReadFloat(memFile);
+  this->m_controlEx.lastSteering = *(float *)&v16;
+  v17 = MemFile_ReadFloat(memFile);
+  this->m_controlEx.steeringTime = *(float *)&v17;
+  v18 = MemFile_ReadFloat(memFile);
+  this->m_controlEx.steeringTimeAdaptive = *(float *)&v18;
+  v19 = MemFile_ReadFloat(memFile);
+  this->m_controlEx.gasTime = *(float *)&v19;
+  v20 = MemFile_ReadFloat(memFile);
+  this->m_controlEx.handbrakingTime = *(float *)&v20;
+  v21 = MemFile_ReadFloat(memFile);
+  this->m_controlEx.handbrakingFullTime = *(float *)&v21;
+  v22 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_time = *(float *)&v22;
+  v23 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_rpmSpeed = *(float *)&v23;
+  v24 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_rpm = *(float *)&v24;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _R15->m_revSound.m_gear = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A44h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A48h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A4Ch], xmm0 }
-  _R15->m_axleBodyIds[0] = 0xFFFFFF;
-  _R15->m_axleBodyIds[1] = 0xFFFFFF;
-  _R15->m_axleBodyIds[2] = 0xFFFFFF;
-  _R15->m_axleBodyIds[3] = 0xFFFFFF;
-  _R15->m_axleBodyIds[4] = 0xFFFFFF;
-  _R15->m_axleBodyIds[5] = 0xFFFFFF;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A6Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A70h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A74h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A78h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A7Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A80h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A84h], xmm0 }
+  this->m_revSound.m_gear = p;
+  v25 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_throttle = *(float *)&v25;
+  v26 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_brake = *(float *)&v26;
+  v27 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_mph = *(float *)&v27;
+  this->m_axleBodyIds[0] = 0xFFFFFF;
+  this->m_axleBodyIds[1] = 0xFFFFFF;
+  this->m_axleBodyIds[2] = 0xFFFFFF;
+  this->m_axleBodyIds[3] = 0xFFFFFF;
+  this->m_axleBodyIds[4] = 0xFFFFFF;
+  this->m_axleBodyIds[5] = 0xFFFFFF;
+  v28 = MemFile_ReadFloat(memFile);
+  this->m_chassisNoise.m_scale.v[0] = *(float *)&v28;
+  v29 = MemFile_ReadFloat(memFile);
+  this->m_chassisNoise.m_scale.v[1] = *(float *)&v29;
+  v30 = MemFile_ReadFloat(memFile);
+  this->m_chassisNoise.m_scale.v[2] = *(float *)&v30;
+  v31 = MemFile_ReadFloat(memFile);
+  this->m_chassisNoise.m_speedAtMaxNoise = *(float *)&v31;
+  v32 = MemFile_ReadFloat(memFile);
+  this->m_chassisNoise.m_yawSpeedAtMaxNoise = *(float *)&v32;
+  v33 = MemFile_ReadFloat(memFile);
+  this->m_chassisNoise.m_minDisp = *(float *)&v33;
+  v34 = MemFile_ReadFloat(memFile);
+  this->m_chassisNoise.m_maxDisp = *(float *)&v34;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_chassisNoise.m_basedOnTime = p;
+  this->m_chassisNoise.m_basedOnTime = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_chassisNoise.m_reduceWhenNotControlled = p;
+  this->m_chassisNoise.m_reduceWhenNotControlled = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_chassisNoise.m_enabled = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A8Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A90h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A94h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A98h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0A9Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AA0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AA4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AA8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AACh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AB0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AB8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AB4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0ABCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AC0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AC4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AC8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0ACCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AD0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AD4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AD8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0ADCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AE0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AE4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AE8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AECh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AF0h], xmm0 }
+  this->m_chassisNoise.m_enabled = p;
+  v35 = MemFile_ReadFloat(memFile);
+  this->m_extraGravityFactor.v[0] = *(float *)&v35;
+  v36 = MemFile_ReadFloat(memFile);
+  this->m_extraGravityFactor.v[1] = *(float *)&v36;
+  v37 = MemFile_ReadFloat(memFile);
+  this->m_extraGravityFactor.v[2] = *(float *)&v37;
+  v38 = MemFile_ReadFloat(memFile);
+  this->m_friction.tread.v[0] = *(float *)&v38;
+  v39 = MemFile_ReadFloat(memFile);
+  this->m_friction.tread.v[1] = *(float *)&v39;
+  v40 = MemFile_ReadFloat(memFile);
+  this->m_friction.car.unused = *(float *)&v40;
+  v41 = MemFile_ReadFloat(memFile);
+  this->m_friction.car.amountLost = *(float *)&v41;
+  v42 = MemFile_ReadFloat(memFile);
+  this->m_friction.car.skidBaseFactor = *(float *)&v42;
+  v43 = MemFile_ReadFloat(memFile);
+  this->m_friction.car.speedToBlock = *(float *)&v43;
+  v44 = MemFile_ReadFloat(memFile);
+  this->m_friction.car.handbrakeFric = *(float *)&v44;
+  v45 = MemFile_ReadFloat(memFile);
+  this->m_friction.car.tgtFriction = *(float *)&v45;
+  v46 = MemFile_ReadFloat(memFile);
+  this->m_friction.car.timeToRecover = *(float *)&v46;
+  v47 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_force = *(float *)&v47;
+  v48 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_yawMaxAngle = *(float *)&v48;
+  v49 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_factor = *(float *)&v49;
+  v50 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_maxYawSpeed = *(float *)&v50;
+  v51 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_offsetPoint = *(float *)&v51;
+  v52 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_offsetPointUp = *(float *)&v52;
+  v53 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_returnSpeed = *(float *)&v53;
+  v54 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_changeDirSpeed = *(float *)&v54;
+  v55 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_handbrakeFactor = *(float *)&v55;
+  v56 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_steerSpeed = *(float *)&v56;
+  v57 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_steerSpeedIncrease = *(float *)&v57;
+  v58 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_yawInterpolated = *(float *)&v58;
+  v59 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_yawVisual = *(float *)&v59;
+  v60 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_yaw = *(float *)&v60;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_steering.m_ignoreTime = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0AF8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B04h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B08h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B0Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B10h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B14h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B18h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B1Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B20h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B24h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B28h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B2Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B30h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B70h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B74h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0B78h], xmm0 }
+  this->m_steering.m_ignoreTime = p;
+  v61 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_yawLast = *(float *)&v61;
+  v62 = MemFile_ReadFloat(memFile);
+  this->m_engine.m_clutchTime = *(float *)&v62;
+  v63 = MemFile_ReadFloat(memFile);
+  this->m_engine.m_minTimeInGear = *(float *)&v63;
+  v64 = MemFile_ReadFloat(memFile);
+  this->m_engine.m_accelForce = *(float *)&v64;
+  v65 = MemFile_ReadFloat(memFile);
+  this->m_engine.m_gearPeriod = *(float *)&v65;
+  v66 = MemFile_ReadFloat(memFile);
+  this->m_engine.m_offsetPoint = *(float *)&v66;
+  v67 = MemFile_ReadFloat(memFile);
+  this->m_engine.m_reductionOnHB = *(float *)&v67;
+  v68 = MemFile_ReadFloat(memFile);
+  this->m_engine.m_lastNormalSpeed = *(float *)&v68;
+  v69 = MemFile_ReadFloat(memFile);
+  this->m_engine.m_clutching = *(float *)&v69;
+  v70 = MemFile_ReadFloat(memFile);
+  this->m_rumble.m_scaleWithSpeed = *(float *)&v70;
+  v71 = MemFile_ReadFloat(memFile);
+  this->m_rumble.m_intensity = *(float *)&v71;
+  v72 = MemFile_ReadFloat(memFile);
+  this->m_rumble.m_duration = *(float *)&v72;
+  v73 = MemFile_ReadFloat(memFile);
+  this->m_rumble.m_t = *(float *)&v73;
+  v74 = MemFile_ReadFloat(memFile);
+  this->m_ragdollImpactVec.v[0] = *(float *)&v74;
+  v75 = MemFile_ReadFloat(memFile);
+  this->m_ragdollImpactVec.v[1] = *(float *)&v75;
+  v76 = MemFile_ReadFloat(memFile);
+  this->m_ragdollImpactVec.v[2] = *(float *)&v76;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _R15->m_ragdollImpactHitloc = p;
+  this->m_ragdollImpactHitloc = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _R15->m_wheelCount = p;
+  this->m_wheelCount = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _R15->m_wheelInContactCount = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0C70h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0C74h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0C78h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0C7Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0C80h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0C84h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0C88h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0C8Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0C90h], xmm0 }
+  this->m_wheelInContactCount = p;
+  v77 = MemFile_ReadFloat(memFile);
+  this->m_speedSqEMA = *(float *)&v77;
+  v78 = MemFile_ReadFloat(memFile);
+  this->m_rotSpeedSqEMA = *(float *)&v78;
+  v79 = MemFile_ReadFloat(memFile);
+  this->m_frontalSuspension = *(float *)&v79;
+  v80 = MemFile_ReadFloat(memFile);
+  this->m_avgSpinSpeed = *(float *)&v80;
+  v81 = MemFile_ReadFloat(memFile);
+  this->m_avgSkidRatio = *(float *)&v81;
+  v82 = MemFile_ReadFloat(memFile);
+  this->m_avgBlockRatio = *(float *)&v82;
+  v83 = MemFile_ReadFloat(memFile);
+  this->m_timeInAir = *(float *)&v83;
+  v84 = MemFile_ReadFloat(memFile);
+  this->m_timeInAirBeforeLanding = *(float *)&v84;
+  v85 = MemFile_ReadFloat(memFile);
+  this->m_timeToHitPlayer = *(float *)&v85;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_autoHandbrake = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+0C94h], xmm0 }
+  this->m_autoHandbrake = p;
+  v86 = MemFile_ReadFloat(memFile);
+  this->m_timeSinceLastFire = *(float *)&v86;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_axleBodiesAllowed = p;
+  this->m_axleBodiesAllowed = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_flatTire = p;
+  this->m_flatTire = p;
   if ( savedVersion >= 3 )
   {
     MemFile_ReadData(memFile, 4ui64, &p);
-    _R15->m_deferredBlowUpTireIndex = p;
+    this->m_deferredBlowUpTireIndex = p;
   }
 }
 
@@ -1417,144 +1675,186 @@ BgVehiclePhysicsRCPlane::LoadFromMemFile
 */
 void BgVehiclePhysicsRCPlane::LoadFromMemFile(BgVehiclePhysicsRCPlane *this, MemoryFile *memFile, unsigned int savedVersion)
 {
+  double Float; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  double v28; 
+  double v29; 
+  double v30; 
+  double v31; 
+  double v32; 
+  double v33; 
+  double v34; 
+  double v35; 
+  double v36; 
+  double v37; 
+  double v38; 
+  double v39; 
+  double v40; 
+  double v41; 
+  double v42; 
+  double v43; 
+  double v44; 
+  double v45; 
+  double v46; 
+  double v47; 
   unsigned int p; 
 
-  _RDI = this;
   BgVehiclePhysics::LoadFromMemFile(this, memFile, savedVersion);
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+2D8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+2DCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+2E0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+2E4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+2E8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+2ECh], xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  this->m_acceleration = *(float *)&Float;
+  v6 = MemFile_ReadFloat(memFile);
+  this->m_deceleration = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  this->m_timeAfterColl = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  this->m_minSpeed = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  this->m_topSpeed = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  this->m_topSpeedBoostReleased = *(float *)&v10;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_stabilizeRoll = p;
+  this->m_stabilizeRoll = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_stabilizePitch = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+2F4h], xmm0 }
+  this->m_stabilizePitch = p;
+  v11 = MemFile_ReadFloat(memFile);
+  this->m_pitchInversion = *(float *)&v11;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI->m_controlMode = p;
+  this->m_controlMode = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI->m_boostButton = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+300h], xmm0 }
+  this->m_boostButton = p;
+  v12 = MemFile_ReadFloat(memFile);
+  this->m_boostSpeed = *(float *)&v12;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_holdToBoost = p;
+  this->m_holdToBoost = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_hasMissileContents = p;
+  this->m_hasMissileContents = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_useChangeDirLogic = p;
+  this->m_useChangeDirLogic = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_useChangeDirLogicPitch = p;
+  this->m_useChangeDirLogicPitch = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_useRollForYawSpeed = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+30Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+310h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+314h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+318h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+31Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+320h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+324h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+328h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+32Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+330h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+334h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+338h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+33Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+340h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+344h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+348h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+34Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+350h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+354h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+358h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+360h], xmm0 }
+  this->m_useRollForYawSpeed = p;
+  v13 = MemFile_ReadFloat(memFile);
+  this->m_overshootProtection = *(float *)&v13;
+  v14 = MemFile_ReadFloat(memFile);
+  this->m_pitchTurnSpeed = *(float *)&v14;
+  v15 = MemFile_ReadFloat(memFile);
+  this->m_pitchChangeDirFactor = *(float *)&v15;
+  v16 = MemFile_ReadFloat(memFile);
+  this->m_pitchLerpSpeed = *(float *)&v16;
+  v17 = MemFile_ReadFloat(memFile);
+  this->m_pitchLerpSpeedChangeDir = *(float *)&v17;
+  v18 = MemFile_ReadFloat(memFile);
+  this->m_pitchLerpSpeedReturning = *(float *)&v18;
+  v19 = MemFile_ReadFloat(memFile);
+  this->m_pitchMaxAngle = *(float *)&v19;
+  v20 = MemFile_ReadFloat(memFile);
+  this->m_yawTurnSpeed = *(float *)&v20;
+  v21 = MemFile_ReadFloat(memFile);
+  this->m_yawChangeDirFactor = *(float *)&v21;
+  v22 = MemFile_ReadFloat(memFile);
+  this->m_yawLerpSpeed = *(float *)&v22;
+  v23 = MemFile_ReadFloat(memFile);
+  this->m_yawLerpSpeedChangeDir = *(float *)&v23;
+  v24 = MemFile_ReadFloat(memFile);
+  this->m_yawLerpSpeedReturning = *(float *)&v24;
+  v25 = MemFile_ReadFloat(memFile);
+  this->m_rollTurnSpeed = *(float *)&v25;
+  v26 = MemFile_ReadFloat(memFile);
+  this->m_rollLerpSpeedSteering = *(float *)&v26;
+  v27 = MemFile_ReadFloat(memFile);
+  this->m_rollLerpSpeedChangeDir = *(float *)&v27;
+  v28 = MemFile_ReadFloat(memFile);
+  this->m_rollLerpSpeedReturning = *(float *)&v28;
+  v29 = MemFile_ReadFloat(memFile);
+  this->m_rollMaxAngle = *(float *)&v29;
+  v30 = MemFile_ReadFloat(memFile);
+  this->m_accelGoingDown = *(float *)&v30;
+  v31 = MemFile_ReadFloat(memFile);
+  this->m_decelGoingUp = *(float *)&v31;
+  v32 = MemFile_ReadFloat(memFile);
+  this->m_traceAhead = *(float *)&v32;
+  v33 = MemFile_ReadFloat(memFile);
+  this->m_boostEvent.shakeScale = *(float *)&v33;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI->m_boostEvent.shakeDuration = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+368h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+36Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+370h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+374h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+378h], xmm0 }
+  this->m_boostEvent.shakeDuration = p;
+  v34 = MemFile_ReadFloat(memFile);
+  this->m_boostEvent.shakeRadius = *(float *)&v34;
+  v35 = MemFile_ReadFloat(memFile);
+  this->m_boostAccel = *(float *)&v35;
+  v36 = MemFile_ReadFloat(memFile);
+  this->m_boostDecel = *(float *)&v36;
+  v37 = MemFile_ReadFloat(memFile);
+  this->m_currentSpeed = *(float *)&v37;
+  v38 = MemFile_ReadFloat(memFile);
+  this->m_pitchInput = *(float *)&v38;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_pitchSteering = p;
+  this->m_pitchSteering = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_wasPitchSteering = p;
+  this->m_wasPitchSteering = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_pitchCounterSteering = p;
+  this->m_pitchCounterSteering = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_prevPlayerControlled = p;
+  this->m_prevPlayerControlled = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_wasControlled = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+384h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+388h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+38Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+390h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+394h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+398h], xmm0 }
+  this->m_wasControlled = p;
+  v39 = MemFile_ReadFloat(memFile);
+  this->m_euler.v[0] = *(float *)&v39;
+  v40 = MemFile_ReadFloat(memFile);
+  this->m_euler.v[1] = *(float *)&v40;
+  v41 = MemFile_ReadFloat(memFile);
+  this->m_euler.v[2] = *(float *)&v41;
+  v42 = MemFile_ReadFloat(memFile);
+  this->m_lerpEuler.v[0] = *(float *)&v42;
+  v43 = MemFile_ReadFloat(memFile);
+  this->m_lerpEuler.v[1] = *(float *)&v43;
+  v44 = MemFile_ReadFloat(memFile);
+  this->m_lerpEuler.v[2] = *(float *)&v44;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_lastDoBoost = p;
+  this->m_lastDoBoost = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_doBoost = p;
+  this->m_doBoost = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_boostPressed = p;
+  this->m_boostPressed = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_boostOneTimeEventDone = p;
+  this->m_boostOneTimeEventDone = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_yawSteering = p;
+  this->m_yawSteering = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_wasYawSteering = p;
+  this->m_wasYawSteering = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_yawCounterSteering = p;
+  this->m_yawCounterSteering = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_rollSteering = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3A4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3A8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3ACh], xmm0 }
+  this->m_rollSteering = p;
+  v45 = MemFile_ReadFloat(memFile);
+  this->m_eulerAngularVelocity.v[0] = *(float *)&v45;
+  v46 = MemFile_ReadFloat(memFile);
+  this->m_eulerAngularVelocity.v[1] = *(float *)&v46;
+  v47 = MemFile_ReadFloat(memFile);
+  this->m_eulerAngularVelocity.v[2] = *(float *)&v47;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RDI->m_gamepadInput = p;
+  this->m_gamepadInput = p;
 }
 
 /*
@@ -1564,10 +1864,11 @@ BgVehiclePhysicsSentryDrone::LoadFromMemFile
 */
 void BgVehiclePhysicsSentryDrone::LoadFromMemFile(BgVehiclePhysicsSentryDrone *this, MemoryFile *memFile, unsigned int savedVersion)
 {
-  _RDI = this;
+  double Float; 
+
   BgVehiclePhysicsGround::LoadFromMemFile(this, memFile, savedVersion);
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CA8h], xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  this->m_acceleration = *(float *)&Float;
 }
 
 /*
@@ -1577,14 +1878,17 @@ BgVehiclePhysicsTank::LoadFromMemFile
 */
 void BgVehiclePhysicsTank::LoadFromMemFile(BgVehiclePhysicsTank *this, MemoryFile *memFile, unsigned int savedVersion)
 {
-  _RDI = this;
+  double Float; 
+  double v6; 
+  double v7; 
+
   BgVehiclePhysicsGround::LoadFromMemFile(this, memFile, savedVersion);
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CA8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CACh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0CB0h], xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  this->m_treadTorqueRatio.v[0] = *(float *)&Float;
+  v6 = MemFile_ReadFloat(memFile);
+  this->m_treadTorqueRatio.v[1] = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  this->m_movDirection = *(float *)&v7;
 }
 
 /*
@@ -1605,74 +1909,95 @@ BgVehiclePhysicsWaterBuoyancy::LoadFromMemFile
 */
 void BgVehiclePhysicsWaterBuoyancy::LoadFromMemFile(BgVehiclePhysicsWaterBuoyancy *this, MemoryFile *memFile, unsigned int savedVersion)
 {
+  int v5; 
   int v6; 
-  int v7; 
+  float *v7; 
+  double Float; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  double v28; 
   int p; 
 
-  _RSI = this;
   BgVehiclePhysics::LoadFromMemFile(this, memFile, savedVersion);
   MemFile_ReadData(memFile, 4ui64, &p);
-  v6 = p;
-  v7 = 0;
-  _RSI->m_buoyancySphereCount = p;
-  if ( v6 > 0 )
+  v5 = p;
+  v6 = 0;
+  this->m_buoyancySphereCount = p;
+  if ( v5 > 0 )
   {
-    _RDI = &_RSI->m_buoyancySpheres[0].m_pointWs.v[2];
+    v7 = &this->m_buoyancySpheres[0].m_pointWs.v[2];
     do
     {
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi-14h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi-10h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi-0Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi-8], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi-4], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi+4], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi+8], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi+0Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rdi+10h], xmm0 }
+      Float = MemFile_ReadFloat(memFile);
+      *(v7 - 5) = *(float *)&Float;
+      v9 = MemFile_ReadFloat(memFile);
+      *(v7 - 4) = *(float *)&v9;
+      v10 = MemFile_ReadFloat(memFile);
+      *(v7 - 3) = *(float *)&v10;
+      v11 = MemFile_ReadFloat(memFile);
+      *(v7 - 2) = *(float *)&v11;
+      v12 = MemFile_ReadFloat(memFile);
+      *(v7 - 1) = *(float *)&v12;
+      v13 = MemFile_ReadFloat(memFile);
+      *v7 = *(float *)&v13;
+      v14 = MemFile_ReadFloat(memFile);
+      v7[1] = *(float *)&v14;
+      v15 = MemFile_ReadFloat(memFile);
+      v7[2] = *(float *)&v15;
+      v16 = MemFile_ReadFloat(memFile);
+      v7[3] = *(float *)&v16;
+      v17 = MemFile_ReadFloat(memFile);
+      v7[4] = *(float *)&v17;
       MemFile_ReadData(memFile, 1ui64, &p);
-      ++v7;
-      *((_BYTE *)_RDI + 20) = p;
-      _RDI += 11;
+      ++v6;
+      *((_BYTE *)v7 + 20) = p;
+      v7 += 11;
     }
-    while ( v7 < _RSI->m_buoyancySphereCount );
+    while ( v6 < this->m_buoyancySphereCount );
   }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+6FCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+700h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+704h], xmm0 }
+  v18 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_time = *(float *)&v18;
+  v19 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_rpmSpeed = *(float *)&v19;
+  v20 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_rpm = *(float *)&v20;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_revSound.m_gear = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+70Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+710h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+714h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+76Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+770h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+774h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+778h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+77Ch], xmm0 }
+  this->m_revSound.m_gear = p;
+  v21 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_throttle = *(float *)&v21;
+  v22 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_brake = *(float *)&v22;
+  v23 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_mph = *(float *)&v23;
+  v24 = MemFile_ReadFloat(memFile);
+  this->m_timeInAir = *(float *)&v24;
+  v25 = MemFile_ReadFloat(memFile);
+  this->m_waterPlane.v[0] = *(float *)&v25;
+  v26 = MemFile_ReadFloat(memFile);
+  this->m_waterPlane.v[1] = *(float *)&v26;
+  v27 = MemFile_ReadFloat(memFile);
+  this->m_waterPlane.v[2] = *(float *)&v27;
+  v28 = MemFile_ReadFloat(memFile);
+  this->m_waterPlane.v[3] = *(float *)&v28;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RSI->m_waterPlaneFound = p;
+  this->m_waterPlaneFound = p;
 }
 
 /*
@@ -1682,84 +2007,110 @@ BgVehiclePhysicsZodiac::LoadFromMemFile
 */
 void BgVehiclePhysicsZodiac::LoadFromMemFile(BgVehiclePhysicsZodiac *this, MemoryFile *memFile, unsigned int savedVersion)
 {
+  int v5; 
   int v6; 
-  int v7; 
+  float *v7; 
+  double Float; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  double v28; 
+  double v29; 
+  double v30; 
+  double v31; 
+  double v32; 
+  double v33; 
   int p; 
 
-  _RSI = this;
   BgVehiclePhysics::LoadFromMemFile(this, memFile, savedVersion);
   MemFile_ReadData(memFile, 4ui64, &p);
-  v6 = p;
-  v7 = 0;
-  _RSI->m_buoyancySphereCount = p;
-  if ( v6 > 0 )
+  v5 = p;
+  v6 = 0;
+  this->m_buoyancySphereCount = p;
+  if ( v5 > 0 )
   {
-    _RBX = &_RSI->m_buoyancySpheres[0].m_pointWs.v[2];
+    v7 = &this->m_buoyancySpheres[0].m_pointWs.v[2];
     do
     {
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbx-14h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbx-10h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbx-0Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbx-8], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbx-4], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbx], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbx+4], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbx+8], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbx+0Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [rbx+10h], xmm0 }
+      Float = MemFile_ReadFloat(memFile);
+      *(v7 - 5) = *(float *)&Float;
+      v9 = MemFile_ReadFloat(memFile);
+      *(v7 - 4) = *(float *)&v9;
+      v10 = MemFile_ReadFloat(memFile);
+      *(v7 - 3) = *(float *)&v10;
+      v11 = MemFile_ReadFloat(memFile);
+      *(v7 - 2) = *(float *)&v11;
+      v12 = MemFile_ReadFloat(memFile);
+      *(v7 - 1) = *(float *)&v12;
+      v13 = MemFile_ReadFloat(memFile);
+      *v7 = *(float *)&v13;
+      v14 = MemFile_ReadFloat(memFile);
+      v7[1] = *(float *)&v14;
+      v15 = MemFile_ReadFloat(memFile);
+      v7[2] = *(float *)&v15;
+      v16 = MemFile_ReadFloat(memFile);
+      v7[3] = *(float *)&v16;
+      v17 = MemFile_ReadFloat(memFile);
+      v7[4] = *(float *)&v17;
       MemFile_ReadData(memFile, 1ui64, &p);
-      ++v7;
-      *((_BYTE *)_RBX + 20) = p;
-      _RBX += 11;
+      ++v6;
+      *((_BYTE *)v7 + 20) = p;
+      v7 += 11;
     }
-    while ( v7 < _RSI->m_buoyancySphereCount );
+    while ( v6 < this->m_buoyancySphereCount );
   }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+6FCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+700h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+704h], xmm0 }
+  v18 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_time = *(float *)&v18;
+  v19 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_rpmSpeed = *(float *)&v19;
+  v20 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_rpm = *(float *)&v20;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_revSound.m_gear = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+70Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+710h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+714h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+76Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+770h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+774h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+778h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+77Ch], xmm0 }
+  this->m_revSound.m_gear = p;
+  v21 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_throttle = *(float *)&v21;
+  v22 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_brake = *(float *)&v22;
+  v23 = MemFile_ReadFloat(memFile);
+  this->m_revSound.m_mph = *(float *)&v23;
+  v24 = MemFile_ReadFloat(memFile);
+  this->m_timeInAir = *(float *)&v24;
+  v25 = MemFile_ReadFloat(memFile);
+  this->m_waterPlane.v[0] = *(float *)&v25;
+  v26 = MemFile_ReadFloat(memFile);
+  this->m_waterPlane.v[1] = *(float *)&v26;
+  v27 = MemFile_ReadFloat(memFile);
+  this->m_waterPlane.v[2] = *(float *)&v27;
+  v28 = MemFile_ReadFloat(memFile);
+  this->m_waterPlane.v[3] = *(float *)&v28;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RSI->m_waterPlaneFound = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+798h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+78Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+790h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+794h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+788h], xmm0 }
+  this->m_waterPlaneFound = p;
+  v29 = MemFile_ReadFloat(memFile);
+  this->m_steering.m_steerSpeed = *(float *)&v29;
+  v30 = MemFile_ReadFloat(memFile);
+  this->m_engine.m_offsetPointLs.v[0] = *(float *)&v30;
+  v31 = MemFile_ReadFloat(memFile);
+  this->m_engine.m_offsetPointLs.v[1] = *(float *)&v31;
+  v32 = MemFile_ReadFloat(memFile);
+  this->m_engine.m_offsetPointLs.v[2] = *(float *)&v32;
+  v33 = MemFile_ReadFloat(memFile);
+  this->m_engine.m_accelForce = *(float *)&v33;
 }
 
 /*
@@ -1769,89 +2120,118 @@ FlightDynamics::LoadFromMemFile
 */
 void FlightDynamics::LoadFromMemFile(FlightDynamics *this, MemoryFile *memFile, unsigned int savedVersion)
 {
-  __int64 v7; 
+  double Float; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  double v22; 
+  float *m_FBWControlInputs; 
+  __int64 v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  double v28; 
+  double v29; 
+  double v30; 
+  double v31; 
+  double v32; 
+  double v33; 
+  double v34; 
+  double v35; 
+  double v36; 
   int p; 
 
-  _RSI = this;
   BgVehiclePhysics::LoadFromMemFile(this, memFile, savedVersion);
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+2F0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+2F4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+2F8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+2FCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+300h], xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  this->m_PreviousVelocity.v[0] = *(float *)&Float;
+  v6 = MemFile_ReadFloat(memFile);
+  this->m_PreviousVelocity.v[1] = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  this->m_PreviousVelocity.v[2] = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  this->m_AverageDT = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  this->m_AccumulatedDT = *(float *)&v9;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_Status = p;
+  this->m_Status = p;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_DynamicsModel = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+3A8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+3ACh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+3B0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+3B4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+378h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+37Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+380h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+384h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+398h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+39Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+3A0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+3A4h], xmm0 }
+  this->m_DynamicsModel = p;
+  v10 = MemFile_ReadFloat(memFile);
+  this->m_RotationInertiaQuat.v[0] = *(float *)&v10;
+  v11 = MemFile_ReadFloat(memFile);
+  this->m_RotationInertiaQuat.v[1] = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
+  this->m_RotationInertiaQuat.v[2] = *(float *)&v12;
+  v13 = MemFile_ReadFloat(memFile);
+  this->m_RotationInertiaQuat.v[3] = *(float *)&v13;
+  v14 = MemFile_ReadFloat(memFile);
+  this->m_PreviousRotationQuaternion.v[0] = *(float *)&v14;
+  v15 = MemFile_ReadFloat(memFile);
+  this->m_PreviousRotationQuaternion.v[1] = *(float *)&v15;
+  v16 = MemFile_ReadFloat(memFile);
+  this->m_PreviousRotationQuaternion.v[2] = *(float *)&v16;
+  v17 = MemFile_ReadFloat(memFile);
+  this->m_PreviousRotationQuaternion.v[3] = *(float *)&v17;
+  v18 = MemFile_ReadFloat(memFile);
+  this->m_PreviousRotationVelocity.v[0] = *(float *)&v18;
+  v19 = MemFile_ReadFloat(memFile);
+  this->m_PreviousRotationVelocity.v[1] = *(float *)&v19;
+  v20 = MemFile_ReadFloat(memFile);
+  this->m_PreviousRotationVelocity.v[2] = *(float *)&v20;
+  v21 = MemFile_ReadFloat(memFile);
+  this->m_PreviousRotationVelocity.v[3] = *(float *)&v21;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RSI->m_StickMode = p;
+  this->m_StickMode = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RSI->m_EnableInputDeadZone = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+3D0h], xmm0 }
-  _RDI = _RSI->m_FBWControlInputs;
-  v7 = 14i64;
+  this->m_EnableInputDeadZone = p;
+  v22 = MemFile_ReadFloat(memFile);
+  this->m_InputStrengthModifier = *(float *)&v22;
+  m_FBWControlInputs = this->m_FBWControlInputs;
+  v24 = 14i64;
   do
   {
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rdi-70h], xmm0 }
-    *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-    __asm { vmovss  dword ptr [rdi], xmm0 }
-    ++_RDI;
-    --v7;
+    v25 = MemFile_ReadFloat(memFile);
+    *(m_FBWControlInputs - 28) = *(float *)&v25;
+    v26 = MemFile_ReadFloat(memFile);
+    *m_FBWControlInputs++ = *(float *)&v26;
+    --v24;
   }
-  while ( v7 );
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+4B4h], xmm0 }
+  while ( v24 );
+  v27 = MemFile_ReadFloat(memFile);
+  this->m_TurbineRPM = *(float *)&v27;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _RSI->m_EnableFlyByWire = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+4BCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+4C0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+4C4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+4C8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+4CCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+4D0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+4ECh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+4F0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rsi+4F4h], xmm0 }
+  this->m_EnableFlyByWire = p;
+  v28 = MemFile_ReadFloat(memFile);
+  this->m_FlyByWireInputVector.v[0] = *(float *)&v28;
+  v29 = MemFile_ReadFloat(memFile);
+  this->m_FlyByWireInputVector.v[1] = *(float *)&v29;
+  v30 = MemFile_ReadFloat(memFile);
+  this->m_FlyByWireInputVector.v[2] = *(float *)&v30;
+  v31 = MemFile_ReadFloat(memFile);
+  this->m_FlyByWireNormalizedVector.v[0] = *(float *)&v31;
+  v32 = MemFile_ReadFloat(memFile);
+  this->m_FlyByWireNormalizedVector.v[1] = *(float *)&v32;
+  v33 = MemFile_ReadFloat(memFile);
+  this->m_FlyByWireNormalizedVector.v[2] = *(float *)&v33;
+  v34 = MemFile_ReadFloat(memFile);
+  this->m_GyroRudderForwardVector.v[0] = *(float *)&v34;
+  v35 = MemFile_ReadFloat(memFile);
+  this->m_GyroRudderForwardVector.v[1] = *(float *)&v35;
+  v36 = MemFile_ReadFloat(memFile);
+  this->m_GyroRudderForwardVector.v[2] = *(float *)&v36;
 }
 
 /*
@@ -1861,252 +2241,340 @@ HelicopterDynamics::LoadFromMemFile
 */
 void HelicopterDynamics::LoadFromMemFile(HelicopterDynamics *this, MemoryFile *memFile, unsigned int savedVersion)
 {
-  int v6; 
-  int v8; 
-  int v10; 
-  float v11[3]; 
+  double Float; 
+  double v6; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  double v28; 
+  double v29; 
+  double v30; 
+  double v31; 
+  double v32; 
+  double v33; 
+  double v34; 
+  int v35; 
+  unsigned __int64 v36; 
+  double v37; 
+  double v38; 
+  double v39; 
+  double v40; 
+  double v41; 
+  double v42; 
+  double v43; 
+  double v44; 
+  double v45; 
+  double v46; 
+  double v47; 
+  double v48; 
+  double v49; 
+  double v50; 
+  double v51; 
+  double v52; 
+  double v53; 
+  double v54; 
+  double v55; 
+  double v56; 
+  double v57; 
+  double v58; 
+  double v59; 
+  double v60; 
+  double v61; 
+  double v62; 
+  double v63; 
+  double v64; 
+  double v65; 
+  double v66; 
+  double v67; 
+  double v68; 
+  double v69; 
+  double v70; 
+  double v71; 
+  double v72; 
+  double v73; 
+  double v74; 
+  double v75; 
+  double v76; 
+  double v77; 
+  double v78; 
+  double v79; 
+  double v80; 
+  double v81; 
+  double v82; 
+  int v83; 
+  float *v84; 
+  double v85; 
+  double v86; 
+  double v87; 
+  double v88; 
+  double v89; 
+  double v90; 
+  double v91; 
+  double v92; 
+  double v93; 
+  double v94; 
+  double v95; 
+  int v96; 
+  float v97[3]; 
   char p; 
-  char v13; 
+  char v99; 
 
-  _R15 = this;
   FlightDynamics::LoadFromMemFile(this, memFile, savedVersion);
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_PreviousUserControlled = p;
+  this->m_PreviousUserControlled = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_TurbineStarter = p;
+  this->m_TurbineStarter = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_TurbineAudioIgniter = p;
+  this->m_TurbineAudioIgniter = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_TurbineAudioShutdown = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8C4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8C8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8CCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8D0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8D4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8D8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8DCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8E0h], xmm0 }
+  this->m_TurbineAudioShutdown = p;
+  Float = MemFile_ReadFloat(memFile);
+  this->m_GovernorRPM = *(float *)&Float;
+  v6 = MemFile_ReadFloat(memFile);
+  this->m_TurbineTorque = *(float *)&v6;
+  v7 = MemFile_ReadFloat(memFile);
+  this->m_GyroAileronRate = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  this->m_GyroElevatorRate = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  this->m_GyroFBWEnhancerBackwardsAccumulator = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  this->m_GyroFBWEnhancerRudderAccumulator = *(float *)&v10;
+  v11 = MemFile_ReadFloat(memFile);
+  this->m_GyroFBWEnhancerAileronAccumulator = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
+  this->m_GyroFBWEnhancerAileronAccumulatorVelocity = *(float *)&v12;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_GyroGPSlocationSet = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8ECh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8F0h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8F4h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8F8h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+8FCh], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+900h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+904h], xmm0 }
+  this->m_GyroGPSlocationSet = p;
+  v13 = MemFile_ReadFloat(memFile);
+  this->m_GyroGPSlocation.v[0] = *(float *)&v13;
+  v14 = MemFile_ReadFloat(memFile);
+  this->m_GyroGPSlocation.v[1] = *(float *)&v14;
+  v15 = MemFile_ReadFloat(memFile);
+  this->m_GyroGPSlocation.v[2] = *(float *)&v15;
+  v16 = MemFile_ReadFloat(memFile);
+  this->m_GyroGPSlocation.v[3] = *(float *)&v16;
+  v17 = MemFile_ReadFloat(memFile);
+  this->m_GyroVelocityDelta.v[0] = *(float *)&v17;
+  v18 = MemFile_ReadFloat(memFile);
+  this->m_GyroVelocityDelta.v[1] = *(float *)&v18;
+  v19 = MemFile_ReadFloat(memFile);
+  this->m_GyroVelocityDelta.v[2] = *(float *)&v19;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_GyroAltitudeSet = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+90Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+910h], xmm0 }
+  this->m_GyroAltitudeSet = p;
+  v20 = MemFile_ReadFloat(memFile);
+  this->m_GyroAltiudeStrength = *(float *)&v20;
+  v21 = MemFile_ReadFloat(memFile);
+  this->m_GyroAltitude = *(float *)&v21;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_GyroRudderForwardVectorSet = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+91Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+920h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+928h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+92Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+930h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+934h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+938h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+93Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+940h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+944h], xmm0 }
+  this->m_GyroRudderForwardVectorSet = p;
+  v22 = MemFile_ReadFloat(memFile);
+  this->m_GyroRudderStrength = *(float *)&v22;
+  v23 = MemFile_ReadFloat(memFile);
+  this->m_DesiredAngularYawVelocity = *(float *)&v23;
+  v24 = MemFile_ReadFloat(memFile);
+  this->m_TailRotorAirflowLiftMultiplier = *(float *)&v24;
+  v25 = MemFile_ReadFloat(memFile);
+  this->m_CollectiveSmoothingValue = *(float *)&v25;
+  v26 = MemFile_ReadFloat(memFile);
+  this->m_GyroManualLimiterAileron = *(float *)&v26;
+  v27 = MemFile_ReadFloat(memFile);
+  this->m_GyroManualLimiterElevator = *(float *)&v27;
+  v28 = MemFile_ReadFloat(memFile);
+  this->m_MainRotorSwashplateDriverOffset = *(float *)&v28;
+  v29 = MemFile_ReadFloat(memFile);
+  this->m_EmergencyLevelForCollective = *(float *)&v29;
+  v30 = MemFile_ReadFloat(memFile);
+  this->m_LandingTimer = *(float *)&v30;
+  v31 = MemFile_ReadFloat(memFile);
+  this->m_ManualControlTimer = *(float *)&v31;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_PreviousEnableFlyByWire = p;
+  this->m_PreviousEnableFlyByWire = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_HandleFBWtoggle = p;
+  this->m_HandleFBWtoggle = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_NumberOfRotors = p;
+  this->m_NumberOfRotors = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_applyCollisionExtraImpulse = p;
+  this->m_applyCollisionExtraImpulse = p;
   MemFile_ReadData(memFile, 1ui64, &p);
-  _R15->m_applyCollisionExtraAngularImpulse = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+950h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [r15+954h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  v6 = 0;
-  __asm { vmovss  dword ptr [r15+958h], xmm0 }
-  if ( _R15->m_NumberOfRotors )
+  this->m_applyCollisionExtraAngularImpulse = p;
+  v32 = MemFile_ReadFloat(memFile);
+  this->m_collisionExtraImpulse.v[0] = *(float *)&v32;
+  v33 = MemFile_ReadFloat(memFile);
+  this->m_collisionExtraImpulse.v[1] = *(float *)&v33;
+  v34 = MemFile_ReadFloat(memFile);
+  v35 = 0;
+  this->m_collisionExtraImpulse.v[2] = *(float *)&v34;
+  if ( this->m_NumberOfRotors )
   {
     do
     {
-      if ( v6 )
+      if ( v35 )
       {
-        if ( v6 == 1 )
+        if ( v35 == 1 )
         {
-          _R14 = 444i64;
+          v36 = 444i64;
           goto LABEL_7;
         }
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_serialize.cpp", 1521, ASSERT_TYPE_ASSERT, "(false)", (const char *)&queryFormat, "false") )
           __debugbreak();
       }
-      _R14 = 328i64;
+      v36 = 328i64;
 LABEL_7:
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+4], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+8], xmm0 }
+      v37 = MemFile_ReadFloat(memFile);
+      *(float *)((char *)&this->__vftable + v36 * 4) = *(float *)&v37;
+      v38 = MemFile_ReadFloat(memFile);
+      *(float *)((char *)&this->__vftable + v36 * 4 + 4) = *(float *)&v38;
+      v39 = MemFile_ReadFloat(memFile);
+      *(int *)((char *)&this->m_inUse + v36 * 4) = SLODWORD(v39);
       MemFile_ReadData(memFile, 1ui64, &p);
-      *((_BYTE *)&_R15->m_inUse + _R14 * 4 + 4) = p;
-      MemFile_ReadData(memFile, 4ui64, &v10);
-      LODWORD((&_R15->m_vehicleSystem)[(unsigned __int64)_R14 / 2]) = v10;
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+14h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+18h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+1Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+20h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+24h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+28h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+2Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+30h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+34h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+38h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+3Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+40h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+44h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+48h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+4Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+50h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+54h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+58h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+5Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+60h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+64h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+68h], xmm0 }
-      MemFile_ReadData(memFile, 4ui64, v11);
-      _R15->m_linkedPlayers.playerPositionsWs[1].v[_R14] = v11[0];
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+70h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+74h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+78h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+7Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+80h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+84h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+88h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+8Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+90h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+94h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+98h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+9Ch], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+0A0h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+0A4h], xmm0 }
-      MemFile_ReadData(memFile, 1ui64, &v13);
-      LOBYTE(_R15->m_deferActionMgr.m_deferredAngularPointWs.v[_R14]) = v13;
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+0ACh], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+0B0h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+0B4h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+0B8h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+0BCh], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+0C0h], xmm0 }
-      *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-      __asm { vmovss  dword ptr [r14+r15+0C4h], xmm0 }
-      v8 = 0;
-      if ( SLODWORD(_R15->m_linkedPlayers.playerPositionsWs[1].v[_R14]) > 0 )
+      *((_BYTE *)&this->m_inUse + v36 * 4 + 4) = p;
+      MemFile_ReadData(memFile, 4ui64, &v96);
+      LODWORD((&this->m_vehicleSystem)[v36 / 2]) = v96;
+      v40 = MemFile_ReadFloat(memFile);
+      *((float *)&(&this->m_vehicleSystem)[v36 / 2] + 1) = *(float *)&v40;
+      v41 = MemFile_ReadFloat(memFile);
+      *(VehiclePhysicsNetcodeType *)((char *)&this->m_netcodeType + v36 * 4) = SLODWORD(v41);
+      v42 = MemFile_ReadFloat(memFile);
+      *(unsigned int *)((char *)&this->m_vehicleId + v36 * 4) = LODWORD(v42);
+      v43 = MemFile_ReadFloat(memFile);
+      *(Physics_WorldId *)((char *)&this->m_worldId + v36 * 4) = SLODWORD(v43);
+      v44 = MemFile_ReadFloat(memFile);
+      *(float *)(&this->m_vehicleType + v36 * 4) = *(float *)&v44;
+      v45 = MemFile_ReadFloat(memFile);
+      *(VehiclePhysicsAnimProfile *)((char *)&this->m_vehicleAnimProfile + v36 * 4) = SLODWORD(v45);
+      v46 = MemFile_ReadFloat(memFile);
+      *(unsigned int *)((char *)&this->m_vehicleDefIndex + v36 * 4) = LODWORD(v46);
+      v47 = MemFile_ReadFloat(memFile);
+      *(int *)((char *)&this->m_entityNumber + v36 * 4) = SLODWORD(v47);
+      v48 = MemFile_ReadFloat(memFile);
+      *(unsigned int *)((char *)&this->m_simulationFrame + v36 * 4) = LODWORD(v48);
+      v49 = MemFile_ReadFloat(memFile);
+      *(float *)((char *)&this->m_minTimeDynamic + v36 * 4) = *(float *)&v49;
+      v50 = MemFile_ReadFloat(memFile);
+      *(int *)((char *)&this->m_driverEntNum + v36 * 4) = SLODWORD(v50);
+      v51 = MemFile_ReadFloat(memFile);
+      this->m_driverEnterLs.v[v36] = *(float *)&v51;
+      v52 = MemFile_ReadFloat(memFile);
+      this->m_driverEnterLs.v[v36 + 1] = *(float *)&v52;
+      v53 = MemFile_ReadFloat(memFile);
+      this->m_driverEnterLs.v[v36 + 2] = *(float *)&v53;
+      v54 = MemFile_ReadFloat(memFile);
+      *(float *)(&this->m_playerControlled + v36 * 4) = *(float *)&v54;
+      v55 = MemFile_ReadFloat(memFile);
+      *(int *)((char *)&this->m_collisionZone + v36 * 4) = SLODWORD(v55);
+      v56 = MemFile_ReadFloat(memFile);
+      *(float *)(&this->m_holdHorn + v36 * 4) = *(float *)&v56;
+      v57 = MemFile_ReadFloat(memFile);
+      *(float *)((char *)&this->m_defName + v36 * 4) = *(float *)&v57;
+      v58 = MemFile_ReadFloat(memFile);
+      *(float *)((char *)&this->m_defName + v36 * 4 + 4) = *(float *)&v58;
+      v59 = MemFile_ReadFloat(memFile);
+      this->m_linkedPlayers.playerPositionsWs[0].v[v36] = *(float *)&v59;
+      v60 = MemFile_ReadFloat(memFile);
+      this->m_linkedPlayers.playerPositionsWs[0].v[v36 + 1] = *(float *)&v60;
+      v61 = MemFile_ReadFloat(memFile);
+      this->m_linkedPlayers.playerPositionsWs[0].v[v36 + 2] = *(float *)&v61;
+      MemFile_ReadData(memFile, 4ui64, v97);
+      this->m_linkedPlayers.playerPositionsWs[1].v[v36] = v97[0];
+      v62 = MemFile_ReadFloat(memFile);
+      this->m_linkedPlayers.playerPositionsWs[1].v[v36 + 1] = *(float *)&v62;
+      v63 = MemFile_ReadFloat(memFile);
+      this->m_linkedPlayers.playerPositionsWs[1].v[v36 + 2] = *(float *)&v63;
+      v64 = MemFile_ReadFloat(memFile);
+      this->m_linkedPlayers.playerNums[v36] = SLODWORD(v64);
+      v65 = MemFile_ReadFloat(memFile);
+      this->m_linkedPlayers.playerNums[v36 + 1] = SLODWORD(v65);
+      v66 = MemFile_ReadFloat(memFile);
+      this->m_linkedPlayers.massFactors[v36] = *(float *)&v66;
+      v67 = MemFile_ReadFloat(memFile);
+      this->m_linkedPlayers.massFactors[v36 + 1] = *(float *)&v67;
+      v68 = MemFile_ReadFloat(memFile);
+      this->m_linkedPlayers.massFactors[v36 + 2] = *(float *)&v68;
+      v69 = MemFile_ReadFloat(memFile);
+      *(unsigned int *)((char *)&this->m_linkedPlayers.playerCount + v36 * 4) = LODWORD(v69);
+      v70 = MemFile_ReadFloat(memFile);
+      *(unsigned int *)((char *)&this->m_linkedPlayers.frameCadence + v36 * 4) = LODWORD(v70);
+      v71 = MemFile_ReadFloat(memFile);
+      *(float *)&this->m_linkedPlayers.playerSeats[v36 * 4] = *(float *)&v71;
+      v72 = MemFile_ReadFloat(memFile);
+      this->m_deferActionMgr.actionBits[v36] = LODWORD(v72);
+      v73 = MemFile_ReadFloat(memFile);
+      this->m_deferActionMgr.m_deferredAngularImpWs.v[v36] = *(float *)&v73;
+      v74 = MemFile_ReadFloat(memFile);
+      this->m_deferActionMgr.m_deferredAngularImpWs.v[v36 + 1] = *(float *)&v74;
+      v75 = MemFile_ReadFloat(memFile);
+      this->m_deferActionMgr.m_deferredAngularImpWs.v[v36 + 2] = *(float *)&v75;
+      MemFile_ReadData(memFile, 1ui64, &v99);
+      LOBYTE(this->m_deferActionMgr.m_deferredAngularPointWs.v[v36]) = v99;
+      v76 = MemFile_ReadFloat(memFile);
+      this->m_deferActionMgr.m_deferredAngularPointWs.v[v36 + 1] = *(float *)&v76;
+      v77 = MemFile_ReadFloat(memFile);
+      this->m_deferActionMgr.m_deferredAngularPointWs.v[v36 + 2] = *(float *)&v77;
+      v78 = MemFile_ReadFloat(memFile);
+      this->m_components[v36].id = LODWORD(v78);
+      v79 = MemFile_ReadFloat(memFile);
+      this->m_components[v36 + 1].id = LODWORD(v79);
+      v80 = MemFile_ReadFloat(memFile);
+      *(float *)((char *)&this->m_controls.DefaultPolicyWeight + v36 * 4) = *(float *)&v80;
+      v81 = MemFile_ReadFloat(memFile);
+      *(float *)(&this->m_controls.DefaultPolicy + v36 * 4) = *(float *)&v81;
+      v82 = MemFile_ReadFloat(memFile);
+      *(float *)((char *)&this->m_controls.timeToAcceptInput + v36 * 4) = *(float *)&v82;
+      v83 = 0;
+      if ( SLODWORD(this->m_linkedPlayers.playerPositionsWs[1].v[v36]) > 0 )
       {
-        _RBX = (__int64)&_R15->m_controls.playerValues[_R14 + 5];
+        v84 = &this->m_controls.playerValues[v36 + 5];
         do
         {
-          *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-          __asm { vmovss  dword ptr [rbx-14h], xmm0 }
-          *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-          __asm { vmovss  dword ptr [rbx-10h], xmm0 }
-          *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-          __asm { vmovss  dword ptr [rbx-0Ch], xmm0 }
-          *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-          __asm { vmovss  dword ptr [rbx-8], xmm0 }
-          *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-          __asm { vmovss  dword ptr [rbx-4], xmm0 }
-          *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-          __asm { vmovss  dword ptr [rbx], xmm0 }
-          *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-          __asm { vmovss  dword ptr [rbx+4], xmm0 }
-          *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-          __asm { vmovss  dword ptr [rbx+8], xmm0 }
-          *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-          __asm { vmovss  dword ptr [rbx+0Ch], xmm0 }
-          *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-          __asm { vmovss  dword ptr [rbx+10h], xmm0 }
-          *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-          __asm { vmovss  dword ptr [rbx+14h], xmm0 }
-          ++v8;
-          _RBX += 44i64;
+          v85 = MemFile_ReadFloat(memFile);
+          *(v84 - 5) = *(float *)&v85;
+          v86 = MemFile_ReadFloat(memFile);
+          *(v84 - 4) = *(float *)&v86;
+          v87 = MemFile_ReadFloat(memFile);
+          *(v84 - 3) = *(float *)&v87;
+          v88 = MemFile_ReadFloat(memFile);
+          *(v84 - 2) = *(float *)&v88;
+          v89 = MemFile_ReadFloat(memFile);
+          *(v84 - 1) = *(float *)&v89;
+          v90 = MemFile_ReadFloat(memFile);
+          *v84 = *(float *)&v90;
+          v91 = MemFile_ReadFloat(memFile);
+          v84[1] = *(float *)&v91;
+          v92 = MemFile_ReadFloat(memFile);
+          v84[2] = *(float *)&v92;
+          v93 = MemFile_ReadFloat(memFile);
+          v84[3] = *(float *)&v93;
+          v94 = MemFile_ReadFloat(memFile);
+          v84[4] = *(float *)&v94;
+          v95 = MemFile_ReadFloat(memFile);
+          v84[5] = *(float *)&v95;
+          ++v83;
+          v84 += 11;
         }
-        while ( v8 < SLODWORD(_R15->m_linkedPlayers.playerPositionsWs[1].v[_R14]) );
+        while ( v83 < SLODWORD(this->m_linkedPlayers.playerPositionsWs[1].v[v36]) );
       }
-      ++v6;
+      ++v35;
     }
-    while ( v6 < _R15->m_NumberOfRotors );
+    while ( v35 < this->m_NumberOfRotors );
   }
 }
 
@@ -2173,87 +2641,120 @@ MemFile_ReadWheel
 */
 void MemFile_ReadWheel(unsigned int savedVersion, MemoryFile *memFile, BgVehiclePhysicsGround::Wheel *wheel)
 {
+  double Float; 
+  double v7; 
+  double v8; 
+  double v9; 
+  double v10; 
+  double v11; 
+  double v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+  double v17; 
+  double v18; 
+  double v19; 
+  double v20; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  double v25; 
+  double v26; 
+  double v27; 
+  double v28; 
+  double v29; 
+  double v30; 
+  double v31; 
+  double v32; 
+  double v33; 
+  double v34; 
+  double v35; 
+  double v36; 
+  double v37; 
+  double v38; 
+  double v39; 
   unsigned int p; 
 
-  _RDI = wheel;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+4], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+8], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+0Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+10h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+14h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+18h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+1Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+20h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+24h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+28h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+2Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+30h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+34h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+38h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+3Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+40h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+44h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+48h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+4Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+50h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+54h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+58h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+5Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+64h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+60h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+68h], xmm0 }
+  Float = MemFile_ReadFloat(memFile);
+  wheel->m_suspDirLs.v[0] = *(float *)&Float;
+  v7 = MemFile_ReadFloat(memFile);
+  wheel->m_suspDirLs.v[1] = *(float *)&v7;
+  v8 = MemFile_ReadFloat(memFile);
+  wheel->m_suspDirLs.v[2] = *(float *)&v8;
+  v9 = MemFile_ReadFloat(memFile);
+  wheel->m_hardPointWs.v[0] = *(float *)&v9;
+  v10 = MemFile_ReadFloat(memFile);
+  wheel->m_hardPointWs.v[1] = *(float *)&v10;
+  v11 = MemFile_ReadFloat(memFile);
+  wheel->m_hardPointWs.v[2] = *(float *)&v11;
+  v12 = MemFile_ReadFloat(memFile);
+  wheel->m_centerLs.v[0] = *(float *)&v12;
+  v13 = MemFile_ReadFloat(memFile);
+  wheel->m_centerLs.v[1] = *(float *)&v13;
+  v14 = MemFile_ReadFloat(memFile);
+  wheel->m_centerLs.v[2] = *(float *)&v14;
+  v15 = MemFile_ReadFloat(memFile);
+  wheel->m_contactPointWs.v[0] = *(float *)&v15;
+  v16 = MemFile_ReadFloat(memFile);
+  wheel->m_contactPointWs.v[1] = *(float *)&v16;
+  v17 = MemFile_ReadFloat(memFile);
+  wheel->m_contactPointWs.v[2] = *(float *)&v17;
+  v18 = MemFile_ReadFloat(memFile);
+  wheel->m_contactNormalWs.v[0] = *(float *)&v18;
+  v19 = MemFile_ReadFloat(memFile);
+  wheel->m_contactNormalWs.v[1] = *(float *)&v19;
+  v20 = MemFile_ReadFloat(memFile);
+  wheel->m_contactNormalWs.v[2] = *(float *)&v20;
+  v21 = MemFile_ReadFloat(memFile);
+  wheel->m_suspDirWs.v[0] = *(float *)&v21;
+  v22 = MemFile_ReadFloat(memFile);
+  wheel->m_suspDirWs.v[1] = *(float *)&v22;
+  v23 = MemFile_ReadFloat(memFile);
+  wheel->m_suspDirWs.v[2] = *(float *)&v23;
+  v24 = MemFile_ReadFloat(memFile);
+  wheel->m_linearForceWs.v[0] = *(float *)&v24;
+  v25 = MemFile_ReadFloat(memFile);
+  wheel->m_linearForceWs.v[1] = *(float *)&v25;
+  v26 = MemFile_ReadFloat(memFile);
+  wheel->m_linearForceWs.v[2] = *(float *)&v26;
+  v27 = MemFile_ReadFloat(memFile);
+  wheel->m_lateralImpulseWs.v[0] = *(float *)&v27;
+  v28 = MemFile_ReadFloat(memFile);
+  wheel->m_lateralImpulseWs.v[1] = *(float *)&v28;
+  v29 = MemFile_ReadFloat(memFile);
+  wheel->m_lateralImpulseWs.v[2] = *(float *)&v29;
+  v30 = MemFile_ReadFloat(memFile);
+  wheel->m_suspDeformRatio = *(float *)&v30;
+  v31 = MemFile_ReadFloat(memFile);
+  wheel->m_suspRawFraction = *(float *)&v31;
+  v32 = MemFile_ReadFloat(memFile);
+  wheel->m_suspForce = *(float *)&v32;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI->m_boneIndex = p;
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+70h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+74h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+78h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+7Ch], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+80h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+84h], xmm0 }
-  *(double *)&_XMM0 = MemFile_ReadFloat(memFile);
-  __asm { vmovss  dword ptr [rdi+88h], xmm0 }
+  wheel->m_boneIndex = p;
+  v33 = MemFile_ReadFloat(memFile);
+  wheel->m_torqueRatio = *(float *)&v33;
+  v34 = MemFile_ReadFloat(memFile);
+  wheel->m_steerRatio = *(float *)&v34;
+  v35 = MemFile_ReadFloat(memFile);
+  wheel->m_spinAngle = *(float *)&v35;
+  v36 = MemFile_ReadFloat(memFile);
+  wheel->m_spinSpeed = *(float *)&v36;
+  v37 = MemFile_ReadFloat(memFile);
+  wheel->m_skid = *(float *)&v37;
+  v38 = MemFile_ReadFloat(memFile);
+  wheel->m_blocked = *(float *)&v38;
+  v39 = MemFile_ReadFloat(memFile);
+  wheel->m_timeInAir = *(float *)&v39;
   MemFile_ReadData(memFile, 4ui64, &p);
-  _RDI->m_surfFlags = p;
+  wheel->m_surfFlags = p;
   if ( savedVersion >= 3 )
   {
     MemFile_ReadData(memFile, 1ui64, &p);
-    _RDI->m_state = p;
+    wheel->m_state = p;
   }
-  _RDI->m_contactBodyId = 0xFFFFFF;
+  wheel->m_contactBodyId = 0xFFFFFF;
 }
 
 /*
@@ -2265,22 +2766,19 @@ void BgVehicleComponentGoStraightTo::SaveToMemFile(BgVehicleComponentGoStraightT
 {
   bool p; 
 
-  _RBX = this;
   BgVehiclePhysicsComponent::SaveToMemFile(this, memFile);
-  MemFile_WriteData(memFile, 0x20ui64, _RBX->m_inputMults);
-  MemFile_WriteData(memFile, 0xCui64, &_RBX->m_goalPos);
-  MemFile_WriteData(memFile, 0xCui64, &_RBX->m_lookAheadPos);
-  __asm { vmovss  xmm1, dword ptr [rbx+60h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+64h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  p = _RBX->m_notifyOnGoal;
+  MemFile_WriteData(memFile, 0x20ui64, this->m_inputMults);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_goalPos);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_lookAheadPos);
+  MemFile_WriteFloat(memFile, this->m_goalPosTol);
+  MemFile_WriteFloat(memFile, this->m_goalPosTolSq);
+  p = this->m_notifyOnGoal;
   MemFile_WriteData(memFile, 1ui64, &p);
-  p = _RBX->m_goingStraightTo;
+  p = this->m_goingStraightTo;
   MemFile_WriteData(memFile, 1ui64, &p);
-  p = _RBX->m_endOnGoal;
+  p = this->m_endOnGoal;
   MemFile_WriteData(memFile, 1ui64, &p);
-  p = _RBX->m_stopOnArriving;
+  p = this->m_stopOnArriving;
   MemFile_WriteData(memFile, 1ui64, &p);
 }
 
@@ -2293,38 +2791,35 @@ void BgVehicleComponentPathFinder::SaveToMemFile(BgVehicleComponentPathFinder *t
 {
   unsigned int p; 
 
-  _RBX = this;
   BgVehiclePhysicsComponent::SaveToMemFile(this, memFile);
-  MemFile_WriteData(memFile, 0x20ui64, _RBX->m_inputMults);
-  MemFile_WriteData(memFile, 0xCui64, &_RBX->m_goalPos);
-  MemFile_WriteData(memFile, 0xCui64, &_RBX->m_lookAheadPos);
-  __asm { vmovss  xmm1, dword ptr [rbx+60h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+64h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _RBX->m_notifyOnGoal;
+  MemFile_WriteData(memFile, 0x20ui64, this->m_inputMults);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_goalPos);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_lookAheadPos);
+  MemFile_WriteFloat(memFile, this->m_goalPosTol);
+  MemFile_WriteFloat(memFile, this->m_goalPosTolSq);
+  LOBYTE(p) = this->m_notifyOnGoal;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_goingStraightTo;
+  LOBYTE(p) = this->m_goingStraightTo;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_endOnGoal;
+  LOBYTE(p) = this->m_endOnGoal;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_stopOnArriving;
+  LOBYTE(p) = this->m_stopOnArriving;
   MemFile_WriteData(memFile, 1ui64, &p);
-  MemFile_WriteData(memFile, 0xCui64, &_RBX->m_finalGoalPos);
-  MemFile_WriteData(memFile, 0x70ui64, _RBX->m_pathNodes);
-  LOWORD(p) = _RBX->m_originalPathNumNodes;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_finalGoalPos);
+  MemFile_WriteData(memFile, 0x70ui64, this->m_pathNodes);
+  LOWORD(p) = this->m_originalPathNumNodes;
   MemFile_WriteData(memFile, 2ui64, &p);
-  LOWORD(p) = _RBX->m_overallCurNode;
+  LOWORD(p) = this->m_overallCurNode;
   MemFile_WriteData(memFile, 2ui64, &p);
-  p = _RBX->m_notifiedNodeBits[0];
+  p = this->m_notifiedNodeBits[0];
   MemFile_WriteData(memFile, 4ui64, &p);
-  LOWORD(p) = _RBX->m_numNodes;
+  LOWORD(p) = this->m_numNodes;
   MemFile_WriteData(memFile, 2ui64, &p);
-  LOWORD(p) = _RBX->m_curNode;
+  LOWORD(p) = this->m_curNode;
   MemFile_WriteData(memFile, 2ui64, &p);
-  LOBYTE(p) = _RBX->m_layer;
+  LOBYTE(p) = this->m_layer;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_partial;
+  LOBYTE(p) = this->m_partial;
   MemFile_WriteData(memFile, 1ui64, &p);
 }
 
@@ -2338,59 +2833,46 @@ void BgVehicleComponentPathFollower::SaveToMemFile(BgVehicleComponentPathFollowe
   BgVehicleComponentPathFollower::PathType m_pathType; 
   unsigned __int32 p; 
 
-  _RDI = this;
   BgVehiclePhysicsComponent::SaveToMemFile(this, memFile);
-  MemFile_WriteData(memFile, 0xDCui64, &_RDI->m_path);
-  p = _RDI->m_pathType;
+  MemFile_WriteData(memFile, 0xDCui64, &this->m_path);
+  p = this->m_pathType;
   MemFile_WriteData(memFile, 4ui64, &p);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_pathPosInterpolated);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_pathAnglesInterpolated);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_previousLinearVelocityWs);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_previousLinearAccelerationWs);
-  LOWORD(p) = _RDI->m_numNodes;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_pathPosInterpolated);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_pathAnglesInterpolated);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_previousLinearVelocityWs);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_previousLinearAccelerationWs);
+  LOWORD(p) = this->m_numNodes;
   MemFile_WriteData(memFile, 2ui64, &p);
-  LOWORD(p) = _RDI->m_startNode;
+  LOWORD(p) = this->m_startNode;
   MemFile_WriteData(memFile, 2ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rdi+13Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+140h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+144h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+148h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+14Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+150h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+154h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+158h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _RDI->m_maxSpeedReached;
+  MemFile_WriteFloat(memFile, this->m_yawVel);
+  MemFile_WriteFloat(memFile, this->m_destYawVel);
+  MemFile_WriteFloat(memFile, this->m_lookAheadTime);
+  MemFile_WriteFloat(memFile, this->m_yawAccel);
+  MemFile_WriteFloat(memFile, this->m_manualSpeed);
+  MemFile_WriteFloat(memFile, this->m_manualSpeedTarget);
+  MemFile_WriteFloat(memFile, this->m_manualAccel);
+  MemFile_WriteFloat(memFile, this->m_manualDecel);
+  LOBYTE(p) = this->m_maxSpeedReached;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RDI->m_stopOnEnd;
+  LOBYTE(p) = this->m_stopOnEnd;
   MemFile_WriteData(memFile, 1ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rdi+160h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  m_pathType = _RDI->m_pathType;
+  MemFile_WriteFloat(memFile, this->m_manualTime);
+  m_pathType = this->m_pathType;
   if ( m_pathType == PATH_RADIANT )
   {
-    WriteVehiclePathNode(memFile, _RDI->m_path.m_vpp.switchNode);
-    WriteVehiclePathNode(memFile, &_RDI->m_path.m_vpp.switchNode[1]);
+    WriteVehiclePathNode(memFile, this->m_path.m_vpp.switchNode);
+    WriteVehiclePathNode(memFile, &this->m_path.m_vpp.switchNode[1]);
   }
   else if ( m_pathType == PATH_CATMULLROM )
   {
-    p = _RDI->m_path.m_catmullRom.splineIndex;
+    p = this->m_path.m_catmullRom.splineIndex;
     MemFile_WriteData(memFile, 4ui64, &p);
-    p = _RDI->m_path.m_catmullRom.curNodeIndex;
+    p = this->m_path.m_catmullRom.curNodeIndex;
     MemFile_WriteData(memFile, 4ui64, &p);
-    __asm { vmovss  xmm1, dword ptr [rdi+30h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rdi+34h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rdi+38h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
+    MemFile_WriteFloat(memFile, this->m_path.m_vpp.speed);
+    MemFile_WriteFloat(memFile, this->m_path.m_vpp.speedOverride);
+    MemFile_WriteFloat(memFile, this->m_path.m_vpp.lookAhead);
   }
 }
 
@@ -2401,170 +2883,158 @@ BgVehiclePhysics::SaveToMemFile
 */
 void BgVehiclePhysics::SaveToMemFile(BgVehiclePhysics *this, MemoryFile *memFile)
 {
-  __int64 v6; 
+  __int64 v4; 
   unsigned __int8 *playerSeats; 
-  __int64 v8; 
+  __int64 v6; 
+  float *massFactors; 
   BgVehiclePhysicsLinkedPlayers<2> *p_m_linkedPlayers; 
-  int *m_components; 
+  VehiclePhysicsComponentId *m_components; 
   BgVehiclePhysicsControls::ValuePolicy *valuePolicy; 
-  __int64 v16; 
+  float *externalValues; 
+  __int64 v12; 
   unsigned int i; 
   unsigned int p; 
 
-  _RDI = this;
   p = 0;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RDI->m_inUse;
+  p = this->m_inUse;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RDI->m_netcodeType;
+  p = this->m_netcodeType;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RDI->m_vehicleId;
+  p = this->m_vehicleId;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RDI->m_worldId;
+  p = this->m_worldId;
   MemFile_WriteData(memFile, 4ui64, &p);
-  LOBYTE(p) = _RDI->m_vehicleType;
+  LOBYTE(p) = this->m_vehicleType;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RDI->m_vehicleGameProfile;
+  LOBYTE(p) = this->m_vehicleGameProfile;
   MemFile_WriteData(memFile, 1ui64, &p);
-  p = _RDI->m_vehicleAnimProfile;
+  p = this->m_vehicleAnimProfile;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RDI->m_vehicleDefIndex;
+  p = this->m_vehicleDefIndex;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RDI->m_entityNumber;
+  p = this->m_entityNumber;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RDI->m_simulationFrame;
+  p = this->m_simulationFrame;
   MemFile_WriteData(memFile, 4ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rdi+38h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  p = _RDI->m_driverEntNum;
+  MemFile_WriteFloat(memFile, this->m_minTimeDynamic);
+  p = this->m_driverEntNum;
   MemFile_WriteData(memFile, 4ui64, &p);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_driverEnterLs);
-  LOBYTE(p) = _RDI->m_playerControlled;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_driverEnterLs);
+  LOBYTE(p) = this->m_playerControlled;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RDI->m_inputControlsEnabled;
+  LOBYTE(p) = this->m_inputControlsEnabled;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RDI->m_forcedKeyframe;
+  LOBYTE(p) = this->m_forcedKeyframe;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RDI->m_physicsInitialized;
+  LOBYTE(p) = this->m_physicsInitialized;
   MemFile_WriteData(memFile, 1ui64, &p);
-  p = _RDI->m_collisionZone;
+  p = this->m_collisionZone;
   MemFile_WriteData(memFile, 4ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rdi+88h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  p = _RDI->m_linkedPlayers.playerCount;
+  MemFile_WriteFloat(memFile, this->m_linkedPlayers.weightFactor);
+  p = this->m_linkedPlayers.playerCount;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RDI->m_linkedPlayers.frameCadence;
+  p = this->m_linkedPlayers.frameCadence;
   MemFile_WriteData(memFile, 4ui64, &p);
-  LOBYTE(p) = _RDI->m_linkedPlayers.enabled;
+  LOBYTE(p) = this->m_linkedPlayers.enabled;
   MemFile_WriteData(memFile, 1ui64, &p);
+  v4 = 2i64;
+  playerSeats = this->m_linkedPlayers.playerSeats;
   v6 = 2i64;
-  playerSeats = _RDI->m_linkedPlayers.playerSeats;
-  v8 = 2i64;
-  _RSI = _RDI->m_linkedPlayers.massFactors;
-  p_m_linkedPlayers = &_RDI->m_linkedPlayers;
+  massFactors = this->m_linkedPlayers.massFactors;
+  p_m_linkedPlayers = &this->m_linkedPlayers;
   do
   {
     MemFile_WriteData(memFile, 0xCui64, p_m_linkedPlayers);
-    p = *((_DWORD *)_RSI - 2);
+    p = *((_DWORD *)massFactors - 2);
     MemFile_WriteData(memFile, 4ui64, &p);
-    __asm { vmovss  xmm1, dword ptr [rsi]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
+    MemFile_WriteFloat(memFile, *massFactors);
     LOBYTE(p) = *playerSeats;
     MemFile_WriteData(memFile, 1ui64, &p);
     p_m_linkedPlayers = (BgVehiclePhysicsLinkedPlayers<2> *)((char *)p_m_linkedPlayers + 12);
-    ++_RSI;
+    ++massFactors;
     ++playerSeats;
-    --v8;
-  }
-  while ( v8 );
-  p = _RDI->m_deferActionMgr.actionBits[0];
-  MemFile_WriteData(memFile, 4ui64, &p);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_deferActionMgr.m_deferredAngularImpWs);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_deferActionMgr.m_deferredAngularPointWs);
-  m_components = (int *)_RDI->m_components;
-  do
-  {
-    p = *m_components;
-    MemFile_WriteData(memFile, 4ui64, &p);
-    ++m_components;
     --v6;
   }
   while ( v6 );
-  p = _RDI->m_controls.playerEnabledBits[0];
+  p = this->m_deferActionMgr.actionBits[0];
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RDI->m_controls.externalEnabledBits[0];
-  MemFile_WriteData(memFile, 4ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rdi+118h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  valuePolicy = _RDI->m_controls.valuePolicy;
-  _RSI = _RDI->m_controls.externalValues;
-  v16 = 8i64;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_deferActionMgr.m_deferredAngularImpWs);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_deferActionMgr.m_deferredAngularPointWs);
+  m_components = this->m_components;
   do
   {
-    __asm { vmovss  xmm1, dword ptr [rsi-20h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rsi]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
+    p = m_components->id;
+    MemFile_WriteData(memFile, 4ui64, &p);
+    ++m_components;
+    --v4;
+  }
+  while ( v4 );
+  p = this->m_controls.playerEnabledBits[0];
+  MemFile_WriteData(memFile, 4ui64, &p);
+  p = this->m_controls.externalEnabledBits[0];
+  MemFile_WriteData(memFile, 4ui64, &p);
+  MemFile_WriteFloat(memFile, this->m_controls.policyWeight);
+  valuePolicy = this->m_controls.valuePolicy;
+  externalValues = this->m_controls.externalValues;
+  v12 = 8i64;
+  do
+  {
+    MemFile_WriteFloat(memFile, *(externalValues - 8));
+    MemFile_WriteFloat(memFile, *externalValues);
     SLOBYTE(p) = *valuePolicy;
     MemFile_WriteData(memFile, 1ui64, &p);
-    ++_RSI;
+    ++externalValues;
     ++valuePolicy;
-    --v16;
+    --v12;
   }
-  while ( v16 );
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_playerViewAngles);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_history);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_history.m_lastAngles);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_history.m_lastLinearVel);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_history.m_lastAngularVel);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_history.m_linearAccel);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_history.m_angularAccel);
-  __asm { vmovss  xmm1, dword ptr [rdi+170h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
+  while ( v12 );
+  MemFile_WriteData(memFile, 0xCui64, &this->m_playerViewAngles);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_history);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_history.m_lastAngles);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_history.m_lastLinearVel);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_history.m_lastAngularVel);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_history.m_linearAccel);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_history.m_angularAccel);
+  MemFile_WriteFloat(memFile, this->m_timeToAcceptInputOnStart);
   for ( i = 0; i < 4; ++i )
-    MemFile_WriteData(memFile, 0xCui64, &_RDI->m_transform.m[i]);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_linearVelocityWs);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_angularVelocityWs);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_surfaceVelocity);
-  MemFile_WriteData(memFile, 0x10ui64, &_RDI->m_massFactorOnContact);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_manualIntegratedPos);
-  MemFile_WriteData(memFile, 0x10ui64, &_RDI->m_manualIntegratedOrientation);
-  MemFile_WriteData(memFile, 8ui64, &_RDI->m_topSpeedForward);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_topAngularSpeedLs);
+    MemFile_WriteData(memFile, 0xCui64, &this->m_transform.m[i]);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_linearVelocityWs);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_angularVelocityWs);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_surfaceVelocity);
+  MemFile_WriteData(memFile, 0x10ui64, &this->m_massFactorOnContact);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_manualIntegratedPos);
+  MemFile_WriteData(memFile, 0x10ui64, &this->m_manualIntegratedOrientation);
+  MemFile_WriteData(memFile, 8ui64, &this->m_topSpeedForward);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_topAngularSpeedLs);
   do
   {
-    MemFile_WriteData(memFile, 0xCui64, &_RDI->m_invInertiaWs.m[(int)v8]);
-    LODWORD(v8) = v8 + 1;
+    MemFile_WriteData(memFile, 0xCui64, &this->m_invInertiaWs.m[(int)v6]);
+    LODWORD(v6) = v6 + 1;
   }
-  while ( (unsigned int)v8 < 3 );
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_centerOfMassWs);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_centerOfMassOffsetOriginalLs);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_centerOfMassOffsetLs);
-  MemFile_WriteData(memFile, 0x10ui64, &_RDI->m_invInertiaLs);
-  __asm { vmovss  xmm1, dword ptr [rdi+260h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _RDI->m_pmoveObject;
+  while ( (unsigned int)v6 < 3 );
+  MemFile_WriteData(memFile, 0xCui64, &this->m_centerOfMassWs);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_centerOfMassOffsetOriginalLs);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_centerOfMassOffsetLs);
+  MemFile_WriteData(memFile, 0x10ui64, &this->m_invInertiaLs);
+  MemFile_WriteFloat(memFile, this->m_mass);
+  LOBYTE(p) = this->m_pmoveObject;
   MemFile_WriteData(memFile, 1ui64, &p);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_pmoveTargetPosition);
-  p = _RDI->m_pmoveLastCmdTime;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_pmoveTargetPosition);
+  p = this->m_pmoveLastCmdTime;
   MemFile_WriteData(memFile, 4ui64, &p);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_pmoveLastCmdPos);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_clientAuthOrg);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_clientAuthAngles);
-  __asm { vmovss  xmm1, dword ptr [rdi+29Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+2A0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _RDI->m_clientGeoLoaded;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_pmoveLastCmdPos);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_clientAuthOrg);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_clientAuthAngles);
+  MemFile_WriteFloat(memFile, this->m_clientDistanceXYFromPsAvg);
+  MemFile_WriteFloat(memFile, this->m_clientDistanceZFromPsAvg);
+  LOBYTE(p) = this->m_clientGeoLoaded;
   MemFile_WriteData(memFile, 1ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rdi+2A8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+2B0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rdi+2ACh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  MemFile_WriteData(memFile, 0xCui64, &_RDI->m_lastCollisionBodyPosLs);
-  LOBYTE(p) = _RDI->m_callbackScript;
+  MemFile_WriteFloat(memFile, this->m_clientGeoTimeToCheck);
+  MemFile_WriteFloat(memFile, this->m_timeSinceLastCollision);
+  MemFile_WriteFloat(memFile, this->m_timeSinceLastCollisionBody);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_lastCollisionBodyPosLs);
+  LOBYTE(p) = this->m_callbackScript;
   MemFile_WriteData(memFile, 1ui64, &p);
 }
 
@@ -2575,32 +3045,20 @@ BgVehiclePhysicsAtvQuadNew::SaveToMemFile
 */
 void BgVehiclePhysicsAtvQuadNew::SaveToMemFile(BgVehiclePhysicsAtvQuadNew *this, MemoryFile *memFile)
 {
-  _RBX = this;
   BgVehiclePhysicsGround::SaveToMemFile(this, memFile);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CA8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CACh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CB0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CB4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CB8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CBCh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CC0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CC4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CF0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CF4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CF8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  MemFile_WriteData(memFile, 0xCui64, &_RBX->m_animPitch);
-  MemFile_WriteData(memFile, 0xCui64, &_RBX->m_animYaw);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camFovDeltaMax);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camPitchBase);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camPitchDynamic);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camRangeAddMax);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camReturnFactor);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camPitchAdd);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camFovDelta);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camRangeAdd);
+  MemFile_WriteFloat(memFile, this->m_gravFactorAir);
+  MemFile_WriteFloat(memFile, this->m_stabilizeRoll);
+  MemFile_WriteFloat(memFile, this->m_stabilizePitch);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_animPitch);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_animYaw);
 }
 
 /*
@@ -2610,30 +3068,18 @@ BgVehiclePhysicsCarBase::SaveToMemFile
 */
 void BgVehiclePhysicsCarBase::SaveToMemFile(BgVehiclePhysicsCarBase *this, MemoryFile *memFile)
 {
-  _RBX = this;
   BgVehiclePhysicsGround::SaveToMemFile(this, memFile);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CA8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CACh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CB0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CB4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CB8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CBCh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CC0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CC4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CF0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CF4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CF8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camFovDeltaMax);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camPitchBase);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camPitchDynamic);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camRangeAddMax);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camReturnFactor);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camPitchAdd);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camFovDelta);
+  MemFile_WriteFloat(memFile, this->m_cameraConfig.m_camRangeAdd);
+  MemFile_WriteFloat(memFile, this->m_gravFactorAir);
+  MemFile_WriteFloat(memFile, this->m_stabilizeRoll);
+  MemFile_WriteFloat(memFile, this->m_stabilizePitch);
 }
 
 /*
@@ -2646,13 +3092,11 @@ void BgVehiclePhysicsComponent::SaveToMemFile(BgVehiclePhysicsComponent *this, M
   unsigned int p; 
 
   p = this->m_id.id;
-  _RBX = this;
   MemFile_WriteData(memFile, 4ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rbx+18h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  p = _RBX->m_simCount;
+  MemFile_WriteFloat(memFile, this->m_pauseTime);
+  p = this->m_simCount;
   MemFile_WriteData(memFile, 4ui64, &p);
-  LOBYTE(p) = _RBX->m_autoRemove;
+  LOBYTE(p) = this->m_autoRemove;
   MemFile_WriteData(memFile, 1ui64, &p);
 }
 
@@ -2663,214 +3107,137 @@ BgVehiclePhysicsGround::SaveToMemFile
 */
 void BgVehiclePhysicsGround::SaveToMemFile(BgVehiclePhysicsGround *this, MemoryFile *memFile)
 {
+  vec3_t *p_m_centerLs; 
   __int64 v5; 
   unsigned int p; 
 
-  _R14 = this;
   BgVehiclePhysics::SaveToMemFile(this, memFile);
-  _RBX = &_R14->m_wheels[0].m_centerLs;
+  p_m_centerLs = &this->m_wheels[0].m_centerLs;
   v5 = 12i64;
   do
   {
-    MemFile_WriteData(memFile, 0xCui64, &_RBX[-2]);
-    MemFile_WriteData(memFile, 0xCui64, &_RBX[-1]);
-    MemFile_WriteData(memFile, 0xCui64, _RBX);
-    MemFile_WriteData(memFile, 0xCui64, &_RBX[1]);
-    MemFile_WriteData(memFile, 0xCui64, &_RBX[2]);
-    MemFile_WriteData(memFile, 0xCui64, &_RBX[3]);
-    MemFile_WriteData(memFile, 0xCui64, &_RBX[4]);
-    MemFile_WriteData(memFile, 0xCui64, &_RBX[5]);
-    __asm { vmovss  xmm1, dword ptr [rbx+4Ch]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rbx+48h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rbx+50h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    p = LODWORD(_RBX[7].v[0]);
+    MemFile_WriteData(memFile, 0xCui64, &p_m_centerLs[-2]);
+    MemFile_WriteData(memFile, 0xCui64, &p_m_centerLs[-1]);
+    MemFile_WriteData(memFile, 0xCui64, p_m_centerLs);
+    MemFile_WriteData(memFile, 0xCui64, &p_m_centerLs[1]);
+    MemFile_WriteData(memFile, 0xCui64, &p_m_centerLs[2]);
+    MemFile_WriteData(memFile, 0xCui64, &p_m_centerLs[3]);
+    MemFile_WriteData(memFile, 0xCui64, &p_m_centerLs[4]);
+    MemFile_WriteData(memFile, 0xCui64, &p_m_centerLs[5]);
+    MemFile_WriteFloat(memFile, p_m_centerLs[6].v[1]);
+    MemFile_WriteFloat(memFile, p_m_centerLs[6].v[0]);
+    MemFile_WriteFloat(memFile, p_m_centerLs[6].v[2]);
+    p = LODWORD(p_m_centerLs[7].v[0]);
     MemFile_WriteData(memFile, 4ui64, &p);
-    __asm { vmovss  xmm1, dword ptr [rbx+58h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rbx+5Ch]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rbx+60h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rbx+64h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rbx+68h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rbx+6Ch]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rbx+70h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    p = LODWORD(_RBX[9].v[2]);
+    MemFile_WriteFloat(memFile, p_m_centerLs[7].v[1]);
+    MemFile_WriteFloat(memFile, p_m_centerLs[7].v[2]);
+    MemFile_WriteFloat(memFile, p_m_centerLs[8].v[0]);
+    MemFile_WriteFloat(memFile, p_m_centerLs[8].v[1]);
+    MemFile_WriteFloat(memFile, p_m_centerLs[8].v[2]);
+    MemFile_WriteFloat(memFile, p_m_centerLs[9].v[0]);
+    MemFile_WriteFloat(memFile, p_m_centerLs[9].v[1]);
+    p = LODWORD(p_m_centerLs[9].v[2]);
     MemFile_WriteData(memFile, 4ui64, &p);
-    LOBYTE(p) = LOBYTE(_RBX[10].y);
+    LOBYTE(p) = LOBYTE(p_m_centerLs[10].y);
     MemFile_WriteData(memFile, 1ui64, &p);
-    _RBX = (vec3_t *)((char *)_RBX + 152);
+    p_m_centerLs = (vec3_t *)((char *)p_m_centerLs + 152);
     --v5;
   }
   while ( v5 );
-  MemFile_WriteData(memFile, 0xCui64, &_R14->m_wheelCommon);
-  __asm { vmovss  xmm1, dword ptr [r14+0A04h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A0Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A14h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A18h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A1Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A1Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A20h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A24h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A28h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A2Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A30h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A34h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A38h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A3Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  p = _R14->m_revSound.m_gear;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_wheelCommon);
+  MemFile_WriteFloat(memFile, this->m_wheelCommon.m_suspStiffness);
+  MemFile_WriteFloat(memFile, this->m_wheelCommon.m_suspDamping);
+  MemFile_WriteFloat(memFile, this->m_wheelCommon.m_suspNoiseAmp);
+  MemFile_WriteFloat(memFile, this->m_wheelCommon.m_radius);
+  MemFile_WriteFloat(memFile, this->m_controlEx.lastSteering);
+  MemFile_WriteFloat(memFile, this->m_controlEx.lastSteering);
+  MemFile_WriteFloat(memFile, this->m_controlEx.steeringTime);
+  MemFile_WriteFloat(memFile, this->m_controlEx.steeringTimeAdaptive);
+  MemFile_WriteFloat(memFile, this->m_controlEx.gasTime);
+  MemFile_WriteFloat(memFile, this->m_controlEx.handbrakingTime);
+  MemFile_WriteFloat(memFile, this->m_controlEx.handbrakingFullTime);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_time);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_rpmSpeed);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_rpm);
+  p = this->m_revSound.m_gear;
   MemFile_WriteData(memFile, 4ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [r14+0A44h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A48h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A4Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  MemFile_WriteData(memFile, 0xCui64, &_R14->m_chassisNoise);
-  __asm { vmovss  xmm1, dword ptr [r14+0A78h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A7Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A80h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A84h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _R14->m_chassisNoise.m_basedOnTime;
+  MemFile_WriteFloat(memFile, this->m_revSound.m_throttle);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_brake);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_mph);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_chassisNoise);
+  MemFile_WriteFloat(memFile, this->m_chassisNoise.m_speedAtMaxNoise);
+  MemFile_WriteFloat(memFile, this->m_chassisNoise.m_yawSpeedAtMaxNoise);
+  MemFile_WriteFloat(memFile, this->m_chassisNoise.m_minDisp);
+  MemFile_WriteFloat(memFile, this->m_chassisNoise.m_maxDisp);
+  LOBYTE(p) = this->m_chassisNoise.m_basedOnTime;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _R14->m_chassisNoise.m_reduceWhenNotControlled;
+  LOBYTE(p) = this->m_chassisNoise.m_reduceWhenNotControlled;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _R14->m_chassisNoise.m_enabled;
+  LOBYTE(p) = this->m_chassisNoise.m_enabled;
   MemFile_WriteData(memFile, 1ui64, &p);
-  MemFile_WriteData(memFile, 0xCui64, &_R14->m_extraGravityFactor);
-  __asm { vmovss  xmm1, dword ptr [r14+0A98h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0A9Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AA0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AA4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AA8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AACh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AB0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AB8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AB4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0ABCh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AC0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AC4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AC8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0ACCh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AD0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AD4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AD8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0ADCh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AE0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AE4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AE8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AECh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0AF0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _R14->m_steering.m_ignoreTime;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_extraGravityFactor);
+  MemFile_WriteFloat(memFile, this->m_friction.tread.v[0]);
+  MemFile_WriteFloat(memFile, this->m_friction.tread.v[1]);
+  MemFile_WriteFloat(memFile, this->m_friction.car.unused);
+  MemFile_WriteFloat(memFile, this->m_friction.car.amountLost);
+  MemFile_WriteFloat(memFile, this->m_friction.car.skidBaseFactor);
+  MemFile_WriteFloat(memFile, this->m_friction.car.speedToBlock);
+  MemFile_WriteFloat(memFile, this->m_friction.car.handbrakeFric);
+  MemFile_WriteFloat(memFile, this->m_friction.car.tgtFriction);
+  MemFile_WriteFloat(memFile, this->m_friction.car.timeToRecover);
+  MemFile_WriteFloat(memFile, this->m_steering.m_force);
+  MemFile_WriteFloat(memFile, this->m_steering.m_yawMaxAngle);
+  MemFile_WriteFloat(memFile, this->m_steering.m_factor);
+  MemFile_WriteFloat(memFile, this->m_steering.m_maxYawSpeed);
+  MemFile_WriteFloat(memFile, this->m_steering.m_offsetPoint);
+  MemFile_WriteFloat(memFile, this->m_steering.m_offsetPointUp);
+  MemFile_WriteFloat(memFile, this->m_steering.m_returnSpeed);
+  MemFile_WriteFloat(memFile, this->m_steering.m_changeDirSpeed);
+  MemFile_WriteFloat(memFile, this->m_steering.m_handbrakeFactor);
+  MemFile_WriteFloat(memFile, this->m_steering.m_steerSpeed);
+  MemFile_WriteFloat(memFile, this->m_steering.m_steerSpeedIncrease);
+  MemFile_WriteFloat(memFile, this->m_steering.m_yawInterpolated);
+  MemFile_WriteFloat(memFile, this->m_steering.m_yawVisual);
+  MemFile_WriteFloat(memFile, this->m_steering.m_yaw);
+  LOBYTE(p) = this->m_steering.m_ignoreTime;
   MemFile_WriteData(memFile, 1ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [r14+0AF8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0B04h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0B08h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0B0Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0B10h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0B14h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0B18h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0B1Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0B20h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0B24h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0B28h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0B2Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0B30h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  MemFile_WriteData(memFile, 0xCui64, &_R14->m_ragdollImpactVec);
-  p = _R14->m_ragdollImpactHitloc;
+  MemFile_WriteFloat(memFile, this->m_steering.m_yawLast);
+  MemFile_WriteFloat(memFile, this->m_engine.m_clutchTime);
+  MemFile_WriteFloat(memFile, this->m_engine.m_minTimeInGear);
+  MemFile_WriteFloat(memFile, this->m_engine.m_accelForce);
+  MemFile_WriteFloat(memFile, this->m_engine.m_gearPeriod);
+  MemFile_WriteFloat(memFile, this->m_engine.m_offsetPoint);
+  MemFile_WriteFloat(memFile, this->m_engine.m_reductionOnHB);
+  MemFile_WriteFloat(memFile, this->m_engine.m_lastNormalSpeed);
+  MemFile_WriteFloat(memFile, this->m_engine.m_clutching);
+  MemFile_WriteFloat(memFile, this->m_rumble.m_scaleWithSpeed);
+  MemFile_WriteFloat(memFile, this->m_rumble.m_intensity);
+  MemFile_WriteFloat(memFile, this->m_rumble.m_duration);
+  MemFile_WriteFloat(memFile, this->m_rumble.m_t);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_ragdollImpactVec);
+  p = this->m_ragdollImpactHitloc;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _R14->m_wheelCount;
+  p = this->m_wheelCount;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _R14->m_wheelInContactCount;
+  p = this->m_wheelInContactCount;
   MemFile_WriteData(memFile, 4ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [r14+0C70h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0C74h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0C78h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0C7Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0C80h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0C84h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0C88h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0C8Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r14+0C90h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _R14->m_autoHandbrake;
+  MemFile_WriteFloat(memFile, this->m_speedSqEMA);
+  MemFile_WriteFloat(memFile, this->m_rotSpeedSqEMA);
+  MemFile_WriteFloat(memFile, this->m_frontalSuspension);
+  MemFile_WriteFloat(memFile, this->m_avgSpinSpeed);
+  MemFile_WriteFloat(memFile, this->m_avgSkidRatio);
+  MemFile_WriteFloat(memFile, this->m_avgBlockRatio);
+  MemFile_WriteFloat(memFile, this->m_timeInAir);
+  MemFile_WriteFloat(memFile, this->m_timeInAirBeforeLanding);
+  MemFile_WriteFloat(memFile, this->m_timeToHitPlayer);
+  LOBYTE(p) = this->m_autoHandbrake;
   MemFile_WriteData(memFile, 1ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [r14+0C94h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _R14->m_axleBodiesAllowed;
+  MemFile_WriteFloat(memFile, this->m_timeSinceLastFire);
+  LOBYTE(p) = this->m_axleBodiesAllowed;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _R14->m_flatTire;
+  LOBYTE(p) = this->m_flatTire;
   MemFile_WriteData(memFile, 1ui64, &p);
-  p = _R14->m_deferredBlowUpTireIndex;
+  p = this->m_deferredBlowUpTireIndex;
   MemFile_WriteData(memFile, 4ui64, &p);
 }
 
@@ -2883,126 +3250,91 @@ void BgVehiclePhysicsRCPlane::SaveToMemFile(BgVehiclePhysicsRCPlane *this, Memor
 {
   unsigned int p; 
 
-  _RBX = this;
   BgVehiclePhysics::SaveToMemFile(this, memFile);
-  __asm { vmovss  xmm1, dword ptr [rbx+2D8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+2DCh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+2E0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+2E4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+2E8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+2ECh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _RBX->m_stabilizeRoll;
+  MemFile_WriteFloat(memFile, this->m_acceleration);
+  MemFile_WriteFloat(memFile, this->m_deceleration);
+  MemFile_WriteFloat(memFile, this->m_timeAfterColl);
+  MemFile_WriteFloat(memFile, this->m_minSpeed);
+  MemFile_WriteFloat(memFile, this->m_topSpeed);
+  MemFile_WriteFloat(memFile, this->m_topSpeedBoostReleased);
+  LOBYTE(p) = this->m_stabilizeRoll;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_stabilizePitch;
+  LOBYTE(p) = this->m_stabilizePitch;
   MemFile_WriteData(memFile, 1ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rbx+2F4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  p = _RBX->m_controlMode;
+  MemFile_WriteFloat(memFile, this->m_pitchInversion);
+  p = this->m_controlMode;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RBX->m_boostButton;
+  p = this->m_boostButton;
   MemFile_WriteData(memFile, 4ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rbx+300h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _RBX->m_holdToBoost;
+  MemFile_WriteFloat(memFile, this->m_boostSpeed);
+  LOBYTE(p) = this->m_holdToBoost;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_hasMissileContents;
+  LOBYTE(p) = this->m_hasMissileContents;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_useChangeDirLogic;
+  LOBYTE(p) = this->m_useChangeDirLogic;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_useChangeDirLogicPitch;
+  LOBYTE(p) = this->m_useChangeDirLogicPitch;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_useRollForYawSpeed;
+  LOBYTE(p) = this->m_useRollForYawSpeed;
   MemFile_WriteData(memFile, 1ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rbx+30Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+310h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+314h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+318h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+31Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+320h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+324h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+328h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+32Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+330h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+334h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+338h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+33Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+340h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+344h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+348h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+34Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+350h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+354h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+358h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+360h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  p = _RBX->m_boostEvent.shakeDuration;
+  MemFile_WriteFloat(memFile, this->m_overshootProtection);
+  MemFile_WriteFloat(memFile, this->m_pitchTurnSpeed);
+  MemFile_WriteFloat(memFile, this->m_pitchChangeDirFactor);
+  MemFile_WriteFloat(memFile, this->m_pitchLerpSpeed);
+  MemFile_WriteFloat(memFile, this->m_pitchLerpSpeedChangeDir);
+  MemFile_WriteFloat(memFile, this->m_pitchLerpSpeedReturning);
+  MemFile_WriteFloat(memFile, this->m_pitchMaxAngle);
+  MemFile_WriteFloat(memFile, this->m_yawTurnSpeed);
+  MemFile_WriteFloat(memFile, this->m_yawChangeDirFactor);
+  MemFile_WriteFloat(memFile, this->m_yawLerpSpeed);
+  MemFile_WriteFloat(memFile, this->m_yawLerpSpeedChangeDir);
+  MemFile_WriteFloat(memFile, this->m_yawLerpSpeedReturning);
+  MemFile_WriteFloat(memFile, this->m_rollTurnSpeed);
+  MemFile_WriteFloat(memFile, this->m_rollLerpSpeedSteering);
+  MemFile_WriteFloat(memFile, this->m_rollLerpSpeedChangeDir);
+  MemFile_WriteFloat(memFile, this->m_rollLerpSpeedReturning);
+  MemFile_WriteFloat(memFile, this->m_rollMaxAngle);
+  MemFile_WriteFloat(memFile, this->m_accelGoingDown);
+  MemFile_WriteFloat(memFile, this->m_decelGoingUp);
+  MemFile_WriteFloat(memFile, this->m_traceAhead);
+  MemFile_WriteFloat(memFile, this->m_boostEvent.shakeScale);
+  p = this->m_boostEvent.shakeDuration;
   MemFile_WriteData(memFile, 4ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rbx+368h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+36Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+370h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+374h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbx+378h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _RBX->m_pitchSteering;
+  MemFile_WriteFloat(memFile, this->m_boostEvent.shakeRadius);
+  MemFile_WriteFloat(memFile, this->m_boostAccel);
+  MemFile_WriteFloat(memFile, this->m_boostDecel);
+  MemFile_WriteFloat(memFile, this->m_currentSpeed);
+  MemFile_WriteFloat(memFile, this->m_pitchInput);
+  LOBYTE(p) = this->m_pitchSteering;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_wasPitchSteering;
+  LOBYTE(p) = this->m_wasPitchSteering;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_pitchCounterSteering;
+  LOBYTE(p) = this->m_pitchCounterSteering;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_prevPlayerControlled;
+  LOBYTE(p) = this->m_prevPlayerControlled;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_wasControlled;
+  LOBYTE(p) = this->m_wasControlled;
   MemFile_WriteData(memFile, 1ui64, &p);
-  MemFile_WriteData(memFile, 0xCui64, &_RBX->m_euler);
-  MemFile_WriteData(memFile, 0xCui64, &_RBX->m_lerpEuler);
-  LOBYTE(p) = _RBX->m_lastDoBoost;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_euler);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_lerpEuler);
+  LOBYTE(p) = this->m_lastDoBoost;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_doBoost;
+  LOBYTE(p) = this->m_doBoost;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_boostPressed;
+  LOBYTE(p) = this->m_boostPressed;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_boostOneTimeEventDone;
+  LOBYTE(p) = this->m_boostOneTimeEventDone;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_yawSteering;
+  LOBYTE(p) = this->m_yawSteering;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_wasYawSteering;
+  LOBYTE(p) = this->m_wasYawSteering;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_yawCounterSteering;
+  LOBYTE(p) = this->m_yawCounterSteering;
   MemFile_WriteData(memFile, 1ui64, &p);
-  LOBYTE(p) = _RBX->m_rollSteering;
+  LOBYTE(p) = this->m_rollSteering;
   MemFile_WriteData(memFile, 1ui64, &p);
-  MemFile_WriteData(memFile, 0xCui64, &_RBX->m_eulerAngularVelocity);
-  LOBYTE(p) = _RBX->m_gamepadInput;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_eulerAngularVelocity);
+  LOBYTE(p) = this->m_gamepadInput;
   MemFile_WriteData(memFile, 1ui64, &p);
 }
 
@@ -3013,10 +3345,8 @@ BgVehiclePhysicsSentryDrone::SaveToMemFile
 */
 void BgVehiclePhysicsSentryDrone::SaveToMemFile(BgVehiclePhysicsSentryDrone *this, MemoryFile *memFile)
 {
-  _RBX = this;
   BgVehiclePhysicsGround::SaveToMemFile(this, memFile);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CA8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
+  MemFile_WriteFloat(memFile, this->m_acceleration);
 }
 
 /*
@@ -3026,11 +3356,9 @@ BgVehiclePhysicsTank::SaveToMemFile
 */
 void BgVehiclePhysicsTank::SaveToMemFile(BgVehiclePhysicsTank *this, MemoryFile *memFile)
 {
-  _RBX = this;
   BgVehiclePhysicsGround::SaveToMemFile(this, memFile);
-  MemFile_WriteData(memFile, 8ui64, &_RBX->m_treadTorqueRatio);
-  __asm { vmovss  xmm1, dword ptr [rbx+0CB0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
+  MemFile_WriteData(memFile, 8ui64, &this->m_treadTorqueRatio);
+  MemFile_WriteFloat(memFile, this->m_movDirection);
 }
 
 /*
@@ -3052,53 +3380,42 @@ BgVehiclePhysicsWaterBuoyancy::SaveToMemFile
 void BgVehiclePhysicsWaterBuoyancy::SaveToMemFile(BgVehiclePhysicsWaterBuoyancy *this, MemoryFile *memFile)
 {
   int v4; 
+  float *p_m_radius; 
   int p; 
 
-  _RSI = this;
   BgVehiclePhysics::SaveToMemFile(this, memFile);
-  p = _RSI->m_buoyancySphereCount;
+  p = this->m_buoyancySphereCount;
   MemFile_WriteData(memFile, 4ui64, &p);
   v4 = 0;
-  if ( _RSI->m_buoyancySphereCount > 0 )
+  if ( this->m_buoyancySphereCount > 0 )
   {
-    _RDI = &_RSI->m_buoyancySpheres[0].m_radius;
+    p_m_radius = &this->m_buoyancySpheres[0].m_radius;
     do
     {
-      MemFile_WriteData(memFile, 0xCui64, _RDI - 6);
-      MemFile_WriteData(memFile, 0xCui64, _RDI - 3);
-      __asm { vmovss  xmm1, dword ptr [rdi]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rdi+4]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rdi+8]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rdi+0Ch]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      LOBYTE(p) = *((_BYTE *)_RDI + 16);
+      MemFile_WriteData(memFile, 0xCui64, p_m_radius - 6);
+      MemFile_WriteData(memFile, 0xCui64, p_m_radius - 3);
+      MemFile_WriteFloat(memFile, *p_m_radius);
+      MemFile_WriteFloat(memFile, p_m_radius[1]);
+      MemFile_WriteFloat(memFile, p_m_radius[2]);
+      MemFile_WriteFloat(memFile, p_m_radius[3]);
+      LOBYTE(p) = *((_BYTE *)p_m_radius + 16);
       MemFile_WriteData(memFile, 1ui64, &p);
       ++v4;
-      _RDI += 11;
+      p_m_radius += 11;
     }
-    while ( v4 < _RSI->m_buoyancySphereCount );
+    while ( v4 < this->m_buoyancySphereCount );
   }
-  __asm { vmovss  xmm1, dword ptr [rsi+6FCh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rsi+700h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rsi+704h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  p = _RSI->m_revSound.m_gear;
+  MemFile_WriteFloat(memFile, this->m_revSound.m_time);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_rpmSpeed);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_rpm);
+  p = this->m_revSound.m_gear;
   MemFile_WriteData(memFile, 4ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rsi+70Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rsi+710h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rsi+714h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rsi+76Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  MemFile_WriteData(memFile, 0x10ui64, &_RSI->m_waterPlane);
-  LOBYTE(p) = _RSI->m_waterPlaneFound;
+  MemFile_WriteFloat(memFile, this->m_revSound.m_throttle);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_brake);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_mph);
+  MemFile_WriteFloat(memFile, this->m_timeInAir);
+  MemFile_WriteData(memFile, 0x10ui64, &this->m_waterPlane);
+  LOBYTE(p) = this->m_waterPlaneFound;
   MemFile_WriteData(memFile, 1ui64, &p);
 }
 
@@ -3110,59 +3427,46 @@ BgVehiclePhysicsZodiac::SaveToMemFile
 void BgVehiclePhysicsZodiac::SaveToMemFile(BgVehiclePhysicsZodiac *this, MemoryFile *memFile)
 {
   int v4; 
+  float *p_m_radius; 
   int p; 
 
-  _RSI = this;
   BgVehiclePhysics::SaveToMemFile(this, memFile);
-  p = _RSI->m_buoyancySphereCount;
+  p = this->m_buoyancySphereCount;
   MemFile_WriteData(memFile, 4ui64, &p);
   v4 = 0;
-  if ( _RSI->m_buoyancySphereCount > 0 )
+  if ( this->m_buoyancySphereCount > 0 )
   {
-    _RBX = &_RSI->m_buoyancySpheres[0].m_radius;
+    p_m_radius = &this->m_buoyancySpheres[0].m_radius;
     do
     {
-      MemFile_WriteData(memFile, 0xCui64, _RBX - 6);
-      MemFile_WriteData(memFile, 0xCui64, _RBX - 3);
-      __asm { vmovss  xmm1, dword ptr [rbx]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rbx+4]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rbx+8]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rbx+0Ch]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      LOBYTE(p) = *((_BYTE *)_RBX + 16);
+      MemFile_WriteData(memFile, 0xCui64, p_m_radius - 6);
+      MemFile_WriteData(memFile, 0xCui64, p_m_radius - 3);
+      MemFile_WriteFloat(memFile, *p_m_radius);
+      MemFile_WriteFloat(memFile, p_m_radius[1]);
+      MemFile_WriteFloat(memFile, p_m_radius[2]);
+      MemFile_WriteFloat(memFile, p_m_radius[3]);
+      LOBYTE(p) = *((_BYTE *)p_m_radius + 16);
       MemFile_WriteData(memFile, 1ui64, &p);
       ++v4;
-      _RBX += 11;
+      p_m_radius += 11;
     }
-    while ( v4 < _RSI->m_buoyancySphereCount );
+    while ( v4 < this->m_buoyancySphereCount );
   }
-  __asm { vmovss  xmm1, dword ptr [rsi+6FCh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rsi+700h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rsi+704h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  p = _RSI->m_revSound.m_gear;
+  MemFile_WriteFloat(memFile, this->m_revSound.m_time);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_rpmSpeed);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_rpm);
+  p = this->m_revSound.m_gear;
   MemFile_WriteData(memFile, 4ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rsi+70Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rsi+710h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rsi+714h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rsi+76Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  MemFile_WriteData(memFile, 0x10ui64, &_RSI->m_waterPlane);
-  LOBYTE(p) = _RSI->m_waterPlaneFound;
+  MemFile_WriteFloat(memFile, this->m_revSound.m_throttle);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_brake);
+  MemFile_WriteFloat(memFile, this->m_revSound.m_mph);
+  MemFile_WriteFloat(memFile, this->m_timeInAir);
+  MemFile_WriteData(memFile, 0x10ui64, &this->m_waterPlane);
+  LOBYTE(p) = this->m_waterPlaneFound;
   MemFile_WriteData(memFile, 1ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rsi+798h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rsi+788h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  MemFile_WriteData(memFile, 0xCui64, &_RSI->m_engine.m_offsetPointLs);
+  MemFile_WriteFloat(memFile, this->m_steering.m_steerSpeed);
+  MemFile_WriteFloat(memFile, this->m_engine.m_accelForce);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_engine.m_offsetPointLs);
 }
 
 /*
@@ -3172,48 +3476,41 @@ FlightDynamics::SaveToMemFile
 */
 void FlightDynamics::SaveToMemFile(FlightDynamics *this, MemoryFile *memFile)
 {
-  __int64 v8; 
+  float *m_FBWControlInputs; 
+  __int64 v5; 
   int p; 
 
-  _RBP = this;
   BgVehiclePhysics::SaveToMemFile(this, memFile);
-  MemFile_WriteData(memFile, 0xCui64, &_RBP->m_PreviousVelocity);
-  __asm { vmovss  xmm1, dword ptr [rbp+2FCh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [rbp+300h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  p = _RBP->m_Status;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_PreviousVelocity);
+  MemFile_WriteFloat(memFile, this->m_AverageDT);
+  MemFile_WriteFloat(memFile, this->m_AccumulatedDT);
+  p = this->m_Status;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _RBP->m_DynamicsModel;
+  p = this->m_DynamicsModel;
   MemFile_WriteData(memFile, 4ui64, &p);
-  MemFile_WriteData(memFile, 0x10ui64, &_RBP->m_RotationInertiaQuat);
-  MemFile_WriteData(memFile, 0x10ui64, &_RBP->m_PreviousRotationQuaternion);
-  MemFile_WriteData(memFile, 0x10ui64, &_RBP->m_PreviousRotationVelocity);
-  p = _RBP->m_StickMode;
+  MemFile_WriteData(memFile, 0x10ui64, &this->m_RotationInertiaQuat);
+  MemFile_WriteData(memFile, 0x10ui64, &this->m_PreviousRotationQuaternion);
+  MemFile_WriteData(memFile, 0x10ui64, &this->m_PreviousRotationVelocity);
+  p = this->m_StickMode;
   MemFile_WriteData(memFile, 4ui64, &p);
-  LOBYTE(p) = _RBP->m_EnableInputDeadZone;
+  LOBYTE(p) = this->m_EnableInputDeadZone;
   MemFile_WriteData(memFile, 1ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [rbp+3D0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  _RBX = _RBP->m_FBWControlInputs;
-  v8 = 14i64;
+  MemFile_WriteFloat(memFile, this->m_InputStrengthModifier);
+  m_FBWControlInputs = this->m_FBWControlInputs;
+  v5 = 14i64;
   do
   {
-    __asm { vmovss  xmm1, dword ptr [rbx-70h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rbx]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    ++_RBX;
-    --v8;
+    MemFile_WriteFloat(memFile, *(m_FBWControlInputs - 28));
+    MemFile_WriteFloat(memFile, *m_FBWControlInputs++);
+    --v5;
   }
-  while ( v8 );
-  __asm { vmovss  xmm1, dword ptr [rbp+4B4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _RBP->m_EnableFlyByWire;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 12, &_RBP->m_FlyByWireInputVector);
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 12, &_RBP->m_FlyByWireNormalizedVector);
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 12, &_RBP->m_GyroRudderForwardVector);
+  while ( v5 );
+  MemFile_WriteFloat(memFile, this->m_TurbineRPM);
+  LOBYTE(p) = this->m_EnableFlyByWire;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_FlyByWireInputVector);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_FlyByWireNormalizedVector);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_GyroRudderForwardVector);
 }
 
 /*
@@ -3223,211 +3520,165 @@ HelicopterDynamics::SaveToMemFile
 */
 void HelicopterDynamics::SaveToMemFile(HelicopterDynamics *this, MemoryFile *memFile)
 {
-  __int64 v8; 
-  int v32; 
-  __int64 v33; 
-  int v51; 
+  float *m_FBWControlInputs; 
+  __int64 v5; 
+  int v6; 
+  __int64 v7; 
+  char *v8; 
+  int v9; 
+  float *v10; 
   int p; 
 
-  _R13 = this;
   BgVehiclePhysics::SaveToMemFile(this, memFile);
-  MemFile_WriteData(memFile, 0xCui64, &_R13->m_PreviousVelocity);
-  __asm { vmovss  xmm1, dword ptr [r13+2FCh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+300h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  p = _R13->m_Status;
+  MemFile_WriteData(memFile, 0xCui64, &this->m_PreviousVelocity);
+  MemFile_WriteFloat(memFile, this->m_AverageDT);
+  MemFile_WriteFloat(memFile, this->m_AccumulatedDT);
+  p = this->m_Status;
   MemFile_WriteData(memFile, 4ui64, &p);
-  p = _R13->m_DynamicsModel;
+  p = this->m_DynamicsModel;
   MemFile_WriteData(memFile, 4ui64, &p);
-  MemFile_WriteData(memFile, 0x10ui64, &_R13->m_RotationInertiaQuat);
-  MemFile_WriteData(memFile, 0x10ui64, &_R13->m_PreviousRotationQuaternion);
-  MemFile_WriteData(memFile, 0x10ui64, &_R13->m_PreviousRotationVelocity);
-  p = _R13->m_StickMode;
+  MemFile_WriteData(memFile, 0x10ui64, &this->m_RotationInertiaQuat);
+  MemFile_WriteData(memFile, 0x10ui64, &this->m_PreviousRotationQuaternion);
+  MemFile_WriteData(memFile, 0x10ui64, &this->m_PreviousRotationVelocity);
+  p = this->m_StickMode;
   MemFile_WriteData(memFile, 4ui64, &p);
-  LOBYTE(p) = _R13->m_EnableInputDeadZone;
+  LOBYTE(p) = this->m_EnableInputDeadZone;
   MemFile_WriteData(memFile, 1ui64, &p);
-  __asm { vmovss  xmm1, dword ptr [r13+3D0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  _RDI = _R13->m_FBWControlInputs;
-  v8 = 14i64;
+  MemFile_WriteFloat(memFile, this->m_InputStrengthModifier);
+  m_FBWControlInputs = this->m_FBWControlInputs;
+  v5 = 14i64;
   do
   {
-    __asm { vmovss  xmm1, dword ptr [rdi-70h]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    __asm { vmovss  xmm1, dword ptr [rdi]; value }
-    MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-    ++_RDI;
-    --v8;
+    MemFile_WriteFloat(memFile, *(m_FBWControlInputs - 28));
+    MemFile_WriteFloat(memFile, *m_FBWControlInputs++);
+    --v5;
   }
-  while ( v8 );
-  __asm { vmovss  xmm1, dword ptr [r13+4B4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _R13->m_EnableFlyByWire;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 12, &_R13->m_FlyByWireInputVector);
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 12, &_R13->m_FlyByWireNormalizedVector);
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 12, &_R13->m_GyroRudderForwardVector);
-  LOBYTE(p) = _R13->m_PreviousUserControlled;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  LOBYTE(p) = _R13->m_TurbineStarter;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  LOBYTE(p) = _R13->m_TurbineAudioIgniter;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  LOBYTE(p) = _R13->m_TurbineAudioShutdown;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  __asm { vmovss  xmm1, dword ptr [r13+8C4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+8C8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+8CCh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+8D0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+8D4h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+8D8h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+8DCh]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+8E0h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _R13->m_GyroGPSlocationSet;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 16, &_R13->m_GyroGPSlocation);
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 12, &_R13->m_GyroVelocityDelta);
-  LOBYTE(p) = _R13->m_GyroAltitudeSet;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  __asm { vmovss  xmm1, dword ptr [r13+90Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+910h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _R13->m_GyroRudderForwardVectorSet;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  __asm { vmovss  xmm1, dword ptr [r13+91Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+920h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+928h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+92Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+930h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+934h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+938h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+93Ch]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+940h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  __asm { vmovss  xmm1, dword ptr [r13+944h]; value }
-  MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-  LOBYTE(p) = _R13->m_PreviousEnableFlyByWire;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  LOBYTE(p) = _R13->m_HandleFBWtoggle;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  LOBYTE(p) = _R13->m_NumberOfRotors;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  LOBYTE(p) = _R13->m_applyCollisionExtraImpulse;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  LOBYTE(p) = _R13->m_applyCollisionExtraAngularImpulse;
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 1, &p);
-  MemFile_WriteData(memFile, (unsigned int)(unsigned __int8)v8 + 12, &_R13->m_collisionExtraImpulse);
-  v32 = 0;
-  if ( _R13->m_NumberOfRotors )
+  while ( v5 );
+  MemFile_WriteFloat(memFile, this->m_TurbineRPM);
+  LOBYTE(p) = this->m_EnableFlyByWire;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_FlyByWireInputVector);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_FlyByWireNormalizedVector);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_GyroRudderForwardVector);
+  LOBYTE(p) = this->m_PreviousUserControlled;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  LOBYTE(p) = this->m_TurbineStarter;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  LOBYTE(p) = this->m_TurbineAudioIgniter;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  LOBYTE(p) = this->m_TurbineAudioShutdown;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  MemFile_WriteFloat(memFile, this->m_GovernorRPM);
+  MemFile_WriteFloat(memFile, this->m_TurbineTorque);
+  MemFile_WriteFloat(memFile, this->m_GyroAileronRate);
+  MemFile_WriteFloat(memFile, this->m_GyroElevatorRate);
+  MemFile_WriteFloat(memFile, this->m_GyroFBWEnhancerBackwardsAccumulator);
+  MemFile_WriteFloat(memFile, this->m_GyroFBWEnhancerRudderAccumulator);
+  MemFile_WriteFloat(memFile, this->m_GyroFBWEnhancerAileronAccumulator);
+  MemFile_WriteFloat(memFile, this->m_GyroFBWEnhancerAileronAccumulatorVelocity);
+  LOBYTE(p) = this->m_GyroGPSlocationSet;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  MemFile_WriteData(memFile, 0x10ui64, &this->m_GyroGPSlocation);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_GyroVelocityDelta);
+  LOBYTE(p) = this->m_GyroAltitudeSet;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  MemFile_WriteFloat(memFile, this->m_GyroAltiudeStrength);
+  MemFile_WriteFloat(memFile, this->m_GyroAltitude);
+  LOBYTE(p) = this->m_GyroRudderForwardVectorSet;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  MemFile_WriteFloat(memFile, this->m_GyroRudderStrength);
+  MemFile_WriteFloat(memFile, this->m_DesiredAngularYawVelocity);
+  MemFile_WriteFloat(memFile, this->m_TailRotorAirflowLiftMultiplier);
+  MemFile_WriteFloat(memFile, this->m_CollectiveSmoothingValue);
+  MemFile_WriteFloat(memFile, this->m_GyroManualLimiterAileron);
+  MemFile_WriteFloat(memFile, this->m_GyroManualLimiterElevator);
+  MemFile_WriteFloat(memFile, this->m_MainRotorSwashplateDriverOffset);
+  MemFile_WriteFloat(memFile, this->m_EmergencyLevelForCollective);
+  MemFile_WriteFloat(memFile, this->m_LandingTimer);
+  MemFile_WriteFloat(memFile, this->m_ManualControlTimer);
+  LOBYTE(p) = this->m_PreviousEnableFlyByWire;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  LOBYTE(p) = this->m_HandleFBWtoggle;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  LOBYTE(p) = this->m_NumberOfRotors;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  LOBYTE(p) = this->m_applyCollisionExtraImpulse;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  LOBYTE(p) = this->m_applyCollisionExtraAngularImpulse;
+  MemFile_WriteData(memFile, 1ui64, &p);
+  MemFile_WriteData(memFile, 0xCui64, &this->m_collisionExtraImpulse);
+  v6 = 0;
+  if ( this->m_NumberOfRotors )
   {
     do
     {
-      if ( v32 )
+      if ( v6 )
       {
-        if ( v32 == 1 )
+        if ( v6 == 1 )
         {
-          v33 = 1776i64;
+          v7 = 1776i64;
           goto LABEL_9;
         }
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics_serialize.cpp", 1388, ASSERT_TYPE_ASSERT, "(false)", (const char *)&queryFormat, "false") )
           __debugbreak();
       }
-      v33 = 1312i64;
+      v7 = 1312i64;
 LABEL_9:
-      _RSI = (char *)_R13 + v33;
-      MemFile_WriteData(memFile, 0xCui64, (char *)_R13 + v33);
-      LOBYTE(p) = _RSI[12];
+      v8 = (char *)this + v7;
+      MemFile_WriteData(memFile, 0xCui64, (char *)this + v7);
+      LOBYTE(p) = v8[12];
       MemFile_WriteData(memFile, 1ui64, &p);
-      p = *((_DWORD *)_RSI + 4);
+      p = *((_DWORD *)v8 + 4);
       MemFile_WriteData(memFile, 4ui64, &p);
-      MemFile_WriteData(memFile, 0xCui64, _RSI + 20);
-      MemFile_WriteData(memFile, 0xCui64, _RSI + 32);
-      MemFile_WriteData(memFile, 0x10ui64, _RSI + 44);
-      MemFile_WriteData(memFile, 0x10ui64, _RSI + 60);
-      __asm { vmovss  xmm1, dword ptr [rsi+4Ch]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+50h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      MemFile_WriteData(memFile, 0xCui64, _RSI + 84);
-      MemFile_WriteData(memFile, 0xCui64, _RSI + 96);
-      p = *((_DWORD *)_RSI + 27);
+      MemFile_WriteData(memFile, 0xCui64, v8 + 20);
+      MemFile_WriteData(memFile, 0xCui64, v8 + 32);
+      MemFile_WriteData(memFile, 0x10ui64, v8 + 44);
+      MemFile_WriteData(memFile, 0x10ui64, v8 + 60);
+      MemFile_WriteFloat(memFile, *((float *)v8 + 19));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 20));
+      MemFile_WriteData(memFile, 0xCui64, v8 + 84);
+      MemFile_WriteData(memFile, 0xCui64, v8 + 96);
+      p = *((_DWORD *)v8 + 27);
       MemFile_WriteData(memFile, 4ui64, &p);
-      __asm { vmovss  xmm1, dword ptr [rsi+70h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+74h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+78h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+7Ch]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+80h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+84h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+88h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+8Ch]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+90h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+94h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+98h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+9Ch]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+0A0h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      __asm { vmovss  xmm1, dword ptr [rsi+0A4h]; value }
-      MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-      LOBYTE(p) = _RSI[168];
+      MemFile_WriteFloat(memFile, *((float *)v8 + 28));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 29));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 30));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 31));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 32));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 33));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 34));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 35));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 36));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 37));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 38));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 39));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 40));
+      MemFile_WriteFloat(memFile, *((float *)v8 + 41));
+      LOBYTE(p) = v8[168];
       MemFile_WriteData(memFile, 1ui64, &p);
-      MemFile_WriteData(memFile, 0xCui64, _RSI + 172);
-      MemFile_WriteData(memFile, 0x10ui64, _RSI + 184);
-      v51 = 0;
-      if ( *((int *)_RSI + 27) > 0 )
+      MemFile_WriteData(memFile, 0xCui64, v8 + 172);
+      MemFile_WriteData(memFile, 0x10ui64, v8 + 184);
+      v9 = 0;
+      if ( *((int *)v8 + 27) > 0 )
       {
-        _RDI = _RSI + 224;
+        v10 = (float *)(v8 + 224);
         do
         {
-          MemFile_WriteData(memFile, 0xCui64, _RDI - 24);
-          MemFile_WriteData(memFile, 0xCui64, _RDI - 12);
-          __asm { vmovss  xmm1, dword ptr [rdi]; value }
-          MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-          __asm { vmovss  xmm1, dword ptr [rdi+4]; value }
-          MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-          __asm { vmovss  xmm1, dword ptr [rdi+8]; value }
-          MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-          __asm { vmovss  xmm1, dword ptr [rdi+0Ch]; value }
-          MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-          __asm { vmovss  xmm1, dword ptr [rdi+10h]; value }
-          MemFile_WriteFloat(memFile, *(float *)&_XMM1);
-          ++v51;
-          _RDI += 44;
+          MemFile_WriteData(memFile, 0xCui64, v10 - 6);
+          MemFile_WriteData(memFile, 0xCui64, v10 - 3);
+          MemFile_WriteFloat(memFile, *v10);
+          MemFile_WriteFloat(memFile, v10[1]);
+          MemFile_WriteFloat(memFile, v10[2]);
+          MemFile_WriteFloat(memFile, v10[3]);
+          MemFile_WriteFloat(memFile, v10[4]);
+          ++v9;
+          v10 += 11;
         }
-        while ( v51 < *((_DWORD *)_RSI + 27) );
+        while ( v9 < *((_DWORD *)v8 + 27) );
       }
-      ++v32;
+      ++v6;
     }
-    while ( v32 < _R13->m_NumberOfRotors );
+    while ( v6 < this->m_NumberOfRotors );
   }
 }
 
@@ -3438,27 +3689,21 @@ WriteVehiclePathNode
 */
 void WriteVehiclePathNode(MemoryFile *memFile, const VehiclePathNode *node)
 {
-  int v4; 
+  __m256i v2; 
+  int v3; 
+  double v4; 
   unsigned __int8 dest[32]; 
-  int v9; 
+  __m256i v6; 
+  double v7; 
+  int v8; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymm1, ymmword ptr [rdx+20h]
-  }
-  v4 = *(_DWORD *)&node->notifyIdx;
-  __asm
-  {
-    vmovups ymmword ptr [rsp+98h+dest], ymm0
-    vmovsd  xmm0, qword ptr [rdx+40h]
-  }
-  v9 = v4;
-  __asm
-  {
-    vmovsd  [rsp+98h+var_28], xmm0
-    vmovups [rsp+98h+var_48], ymm1
-  }
+  v2 = *(__m256i *)&node->origin.y;
+  v3 = *(_DWORD *)&node->notifyIdx;
+  *(__m256i *)dest = *(__m256i *)&node->name;
+  v4 = *(double *)&node->length;
+  v8 = v3;
+  v7 = v4;
+  v6 = v2;
   G_SaveField_WriteStruct(BG_VEHICLE_COMPONENT_PATH_FOLLOWER_SAVE_FIELDS, (const unsigned __int8 *)node, dest, 76, memFile);
 }
 

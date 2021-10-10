@@ -171,13 +171,17 @@ unsigned __int8 get_dht(jpeg_decompress_struct *cinfo)
   __int64 v20; 
   JHUFF_TBL **v21; 
   unsigned int v22; 
+  JHUFF_TBL *v23; 
   unsigned __int8 v24; 
   __int64 v25; 
+  char *v26; 
+  __int64 huffval; 
+  __int128 v28; 
   unsigned __int8 result; 
-  int v35; 
-  __int128 v36; 
-  unsigned __int8 v37; 
-  char v38[256]; 
+  int v30; 
+  __int128 v31; 
+  unsigned __int8 v32; 
+  char v33[256]; 
 
   src = cinfo->src;
   bytes_in_buffer = src->bytes_in_buffer;
@@ -218,13 +222,13 @@ LABEL_7:
     }
     v12 = (unsigned __int8)*v11;
     --v10;
-    v35 = v12;
+    v30 = v12;
     ++v11;
     cinfo->err->msg_code = 80;
     cinfo->err->msg_parm.i[0] = v12;
     cinfo->err->emit_message((jpeg_common_struct *)cinfo, 1);
     v13 = 0;
-    LOBYTE(v36) = 0;
+    LOBYTE(v31) = 0;
     for ( i = 1i64; i <= 16; ++i )
     {
       if ( !v10 )
@@ -236,31 +240,31 @@ LABEL_7:
       }
       v15 = (unsigned __int8)*v11;
       --v10;
-      *((_BYTE *)&v36 + i) = v15;
+      *((_BYTE *)&v31 + i) = v15;
       ++v11;
       v13 += v15;
     }
     err = cinfo->err;
     v17 = v9 - 17;
-    err->msg_parm.i[0] = BYTE1(v36);
-    err->msg_parm.i[1] = BYTE2(v36);
-    err->msg_parm.i[2] = BYTE3(v36);
-    err->msg_parm.i[3] = BYTE4(v36);
-    err->msg_parm.i[4] = BYTE5(v36);
-    err->msg_parm.i[5] = BYTE6(v36);
-    err->msg_parm.i[6] = BYTE7(v36);
-    err->msg_parm.i[7] = BYTE8(v36);
+    err->msg_parm.i[0] = BYTE1(v31);
+    err->msg_parm.i[1] = BYTE2(v31);
+    err->msg_parm.i[2] = BYTE3(v31);
+    err->msg_parm.i[3] = BYTE4(v31);
+    err->msg_parm.i[4] = BYTE5(v31);
+    err->msg_parm.i[5] = BYTE6(v31);
+    err->msg_parm.i[6] = BYTE7(v31);
+    err->msg_parm.i[7] = BYTE8(v31);
     cinfo->err->msg_code = 86;
     cinfo->err->emit_message((jpeg_common_struct *)cinfo, 2);
     v18 = cinfo->err;
-    v18->msg_parm.i[0] = BYTE9(v36);
-    v18->msg_parm.i[1] = BYTE10(v36);
-    v18->msg_parm.i[2] = BYTE11(v36);
-    v18->msg_parm.i[3] = BYTE12(v36);
-    v18->msg_parm.i[4] = BYTE13(v36);
-    v18->msg_parm.i[5] = BYTE14(v36);
-    v18->msg_parm.i[6] = HIBYTE(v36);
-    v18->msg_parm.i[7] = v37;
+    v18->msg_parm.i[0] = BYTE9(v31);
+    v18->msg_parm.i[1] = BYTE10(v31);
+    v18->msg_parm.i[2] = BYTE11(v31);
+    v18->msg_parm.i[3] = BYTE12(v31);
+    v18->msg_parm.i[4] = BYTE13(v31);
+    v18->msg_parm.i[5] = BYTE14(v31);
+    v18->msg_parm.i[6] = HIBYTE(v31);
+    v18->msg_parm.i[7] = v32;
     cinfo->err->msg_code = 86;
     cinfo->err->emit_message((jpeg_common_struct *)cinfo, 2);
     if ( v13 > 256 || v13 > v17 )
@@ -268,7 +272,7 @@ LABEL_7:
       cinfo->err->msg_code = 8;
       cinfo->err->error_exit((jpeg_common_struct *)cinfo);
     }
-    for ( j = 0i64; j < v13; v38[j++] = *v11++ )
+    for ( j = 0i64; j < v13; v33[j++] = *v11++ )
     {
       if ( !v10 )
       {
@@ -281,51 +285,40 @@ LABEL_7:
     }
     v9 = v17 - v13;
     v20 = 136i64;
-    if ( (v35 & 0x10) == 0 )
+    if ( (v30 & 0x10) == 0 )
       v20 = 232i64;
-    v21 = (JHUFF_TBL **)((char *)&cinfo->err + 8 * (unsigned __int8)v35 + v20);
-    v22 = v35 - 16;
-    if ( (v35 & 0x10) == 0 )
-      v22 = v35;
+    v21 = (JHUFF_TBL **)((char *)&cinfo->err + 8 * (unsigned __int8)v30 + v20);
+    v22 = v30 - 16;
+    if ( (v30 & 0x10) == 0 )
+      v22 = v30;
     if ( v22 > 3 )
     {
       cinfo->err->msg_code = 30;
       cinfo->err->msg_parm.i[0] = v22;
       cinfo->err->error_exit((jpeg_common_struct *)cinfo);
     }
-    _RAX = *v21;
+    v23 = *v21;
     if ( !*v21 )
     {
-      _RAX = j_jpeg_alloc_huff_table((jpeg_common_struct *)cinfo);
-      *v21 = _RAX;
+      v23 = j_jpeg_alloc_huff_table((jpeg_common_struct *)cinfo);
+      *v21 = v23;
     }
-    v24 = v37;
+    v24 = v32;
     v25 = 2i64;
-    __asm
-    {
-      vmovups xmm0, [rsp+178h+var_150]
-      vmovups xmmword ptr [rax], xmm0
-    }
-    _RAX->bits[16] = v24;
-    _RCX = v38;
-    _RAX = (__int64)(*v21)->huffval;
+    *(_OWORD *)v23->bits = v31;
+    v23->bits[16] = v24;
+    v26 = v33;
+    huffval = (__int64)(*v21)->huffval;
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rcx]
-        vmovups xmm1, xmmword ptr [rcx+70h]
-        vmovups ymmword ptr [rax], ymm0
-        vmovups ymm0, ymmword ptr [rcx+20h]
-        vmovups ymmword ptr [rax+20h], ymm0
-        vmovups ymm0, ymmword ptr [rcx+40h]
-        vmovups ymmword ptr [rax+40h], ymm0
-        vmovups xmm0, xmmword ptr [rcx+60h]
-        vmovups xmmword ptr [rax+60h], xmm0
-      }
-      _RAX += 128i64;
-      _RCX += 128;
-      __asm { vmovups xmmword ptr [rax-10h], xmm1 }
+      v28 = *((_OWORD *)v26 + 7);
+      *(__m256i *)huffval = *(__m256i *)v26;
+      *(__m256i *)(huffval + 32) = *((__m256i *)v26 + 1);
+      *(__m256i *)(huffval + 64) = *((__m256i *)v26 + 2);
+      *(_OWORD *)(huffval + 96) = *((_OWORD *)v26 + 6);
+      huffval += 128i64;
+      v26 += 128;
+      *(_OWORD *)(huffval - 16) = v28;
       --v25;
     }
     while ( v25 );

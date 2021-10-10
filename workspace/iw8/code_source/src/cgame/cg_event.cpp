@@ -375,11 +375,20 @@ CG_BoneHitDecode
 */
 char CG_BoneHitDecode(const LocalClientNum_t localClientNum, const centity_t *targetEnt, const BulletHitBoneInfo *hitInfo, vec3_t *outHitLocation, unsigned __int8 *outBoneIndex)
 {
-  BulletHitBoneInfo v11; 
-  int v12; 
+  BulletHitBoneInfo v9; 
+  int v10; 
+  __int64 v11; 
+  __int64 v12; 
+  unsigned int v13; 
   const DObj *ClientDObj; 
-  const DObj *v14; 
-  int WorldBoneMatrix; 
+  const DObj *v15; 
+  XBoneInfo *BoneInfoForBoneIndex; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   vec3_t in1; 
   tmat43_t<vec3_t> outTagMat; 
 
@@ -389,54 +398,36 @@ char CG_BoneHitDecode(const LocalClientNum_t localClientNum, const centity_t *ta
     __debugbreak();
   if ( !outBoneIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 844, ASSERT_TYPE_ASSERT, "(outBoneIndex)", (const char *)&queryFormat, "outBoneIndex") )
     __debugbreak();
-  v11 = *hitInfo;
-  if ( !*(_BYTE *)&v11 )
+  v9 = *hitInfo;
+  if ( !*(_BYTE *)&v9 )
     return 0;
-  v12 = *(_BYTE *)&v11 - 1;
+  v10 = *(_BYTE *)&v9 - 1;
+  v11 = *((unsigned __int8 *)&v9 + 1);
+  v12 = *((unsigned __int8 *)&v9 + 2);
+  v13 = HIBYTE(*(unsigned int *)&v9);
   ClientDObj = Com_GetClientDObj(targetEnt->nextState.number, localClientNum);
-  v14 = ClientDObj;
+  v15 = ClientDObj;
   if ( !ClientDObj )
     return 0;
-  if ( !DObjGetBoneInfoForBoneIndex(ClientDObj, v12) )
+  BoneInfoForBoneIndex = DObjGetBoneInfoForBoneIndex(ClientDObj, v10);
+  if ( !BoneInfoForBoneIndex )
   {
     Com_PrintError(1, "Could not find the bone specified by the hit event in the client dobj. This implies the client and server dobjs don't match.\n");
     return 0;
   }
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rax+10h]
-    vmovss  xmm5, cs:__real@3c008081
-    vmovss  xmm4, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r12
-    vmulss  xmm1, xmm0, xmm5
-    vsubss  xmm0, xmm1, xmm4
-    vmulss  xmm1, xmm0, dword ptr [rax+0Ch]
-    vaddss  xmm2, xmm1, dword ptr [rax]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r13
-    vmulss  xmm1, xmm0, xmm5
-    vmovaps [rsp+0D8h+var_58], xmm6
-    vmovss  xmm6, dword ptr [rax+14h]
-    vmovss  dword ptr [rsp+0D8h+in1], xmm2
-    vsubss  xmm2, xmm1, xmm4
-    vmulss  xmm3, xmm2, xmm3
-    vaddss  xmm0, xmm3, dword ptr [rax+4]
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  dword ptr [rsp+0D8h+in1+4], xmm0
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm0, xmm1, xmm5
-    vsubss  xmm2, xmm0, xmm4
-    vmulss  xmm3, xmm2, xmm6
-    vaddss  xmm1, xmm3, dword ptr [rcx+8]
-    vmovss  dword ptr [rsp+0D8h+in1+8], xmm1
-  }
-  WorldBoneMatrix = CG_DObjGetWorldBoneMatrix(&targetEnt->pose, v14, v12, (tmat33_t<vec3_t> *)&outTagMat, &outTagMat.m[3]);
-  __asm { vmovaps xmm6, [rsp+0D8h+var_58] }
-  if ( !WorldBoneMatrix )
+  v18 = BoneInfoForBoneIndex->bounds.halfSize.v[1];
+  v19 = (float)v11;
+  v20 = (float)((float)((float)(v19 * 0.0078431377) - 1.0) * BoneInfoForBoneIndex->bounds.halfSize.v[0]) + BoneInfoForBoneIndex->bounds.midPoint.v[0];
+  v21 = (float)v12;
+  v22 = BoneInfoForBoneIndex->bounds.halfSize.v[2];
+  in1.v[0] = v20;
+  in1.v[1] = (float)((float)((float)(v21 * 0.0078431377) - 1.0) * v18) + BoneInfoForBoneIndex->bounds.midPoint.v[1];
+  v23 = (float)v13;
+  in1.v[2] = (float)((float)((float)(v23 * 0.0078431377) - 1.0) * v22) + BoneInfoForBoneIndex->bounds.midPoint.v[2];
+  if ( !CG_DObjGetWorldBoneMatrix(&targetEnt->pose, v15, v10, (tmat33_t<vec3_t> *)&outTagMat, &outTagMat.m[3]) )
     return 0;
   MatrixTransformVector43(&in1, &outTagMat, outHitLocation);
-  *outBoneIndex = truncate_cast<unsigned char,int>(v12);
+  *outBoneIndex = truncate_cast<unsigned char,int>(v10);
   return 1;
 }
 
@@ -447,29 +438,41 @@ CG_Entity_AddFootstepEvent
 */
 void CG_Entity_AddFootstepEvent(LocalClientNum_t localClientNum, const bool isLeft, const centity_t *centity, FootstepVFX *footstepVFX, TraceGroundSource source, ScriptableFootstepFlag footstepFlags)
 {
+  unsigned __int64 v6; 
   unsigned int number; 
   cg_t *LocalClientGlobals; 
   CgWeaponMap *Instance; 
-  bool v13; 
+  bool v12; 
   int clientNum; 
-  const dvar_t *v15; 
+  const dvar_t *v14; 
   const characterInfo_t *CharacterInfo; 
-  FootstepStatus v18; 
+  const characterInfo_t *v16; 
+  FootstepStatus v17; 
   unsigned __int8 lastGroundSurfaceType; 
   const vec3_t *p_position; 
-  char v35; 
-  FootstepStatus v56; 
-  __int64 v58; 
-  char v59[448]; 
-  __int64 v60; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  const dvar_t *v24; 
+  double TraceOffset; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  FootstepStatus v32; 
+  __int64 v33; 
+  char v34[448]; 
+  __int64 v35; 
 
-  v60 = -2i64;
-  __asm { vmovaps [rsp+2E8h+var_58], xmm6 }
-  _RBP = (unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64;
-  *(_QWORD *)(_RBP + 440) = (unsigned __int64)&v58 ^ _security_cookie;
-  *(_QWORD *)(_RBP + 40) = footstepVFX;
-  *(_QWORD *)(_RBP + 8) = centity;
-  *(_BYTE *)_RBP = isLeft;
+  v35 = -2i64;
+  v6 = (unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64;
+  *(_QWORD *)(v6 + 440) = (unsigned __int64)&v33 ^ _security_cookie;
+  *(_QWORD *)(v6 + 40) = footstepVFX;
+  *(_QWORD *)(v6 + 8) = centity;
+  *(_BYTE *)v6 = isLeft;
   if ( (source & 2) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 5014, ASSERT_TYPE_ASSERT, "(static_cast<int>(TraceGroundSource::NO_PMOVE & source) == 0)", (const char *)&queryFormat, "static_cast<int>(TraceGroundSource::NO_PMOVE & source) == 0") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "CG_Entity_AddFootstepEvent");
@@ -479,161 +482,118 @@ void CG_Entity_AddFootstepEvent(LocalClientNum_t localClientNum, const bool isLe
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 5021, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  v13 = 1;
+  v12 = 1;
   if ( !LocalClientGlobals->renderingThirdPerson )
   {
     Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)LocalClientGlobals->localClientNum);
     if ( !BG_IsThirdPersonMode(Instance, &LocalClientGlobals->predictedPlayerState) )
-      v13 = 0;
+      v12 = 0;
   }
   clientNum = LocalClientGlobals->predictedPlayerState.clientNum;
-  *(_BYTE *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 1) = clientNum == number;
-  v15 = DCONST_DVARBOOL_snd_footstep_debug;
+  *(_BYTE *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 1) = clientNum == number;
+  v14 = DCONST_DVARBOOL_snd_footstep_debug;
   if ( !DCONST_DVARBOOL_snd_footstep_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( v15->current.enabled && (clientNum != number || !v13) )
+  Dvar_CheckFrontendServerThread(v14);
+  if ( v14->current.enabled && (clientNum != number || !v12) )
   {
-    Trajectory_GetTrBase((const trajectory_t_secure *)(*(_QWORD *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 8) + 416i64), (vec3_t *)(_RBP + 416));
-    CG_FootstepTracker_Add(localClientNum, number, LocalClientGlobals->time, (const vec3_t *)(_RBP + 416));
-    memset((void *)(_RBP + 416), 0, 0xCui64);
+    Trajectory_GetTrBase((const trajectory_t_secure *)(*(_QWORD *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 8) + 416i64), (vec3_t *)(v6 + 416));
+    CG_FootstepTracker_Add(localClientNum, number, LocalClientGlobals->time, (const vec3_t *)(v6 + 416));
+    memset((void *)(v6 + 416), 0, 0xCui64);
   }
   if ( LocalClientGlobals->HasCharacterInfo(LocalClientGlobals, number) )
   {
     CharacterInfo = CG_GetCharacterInfo(LocalClientGlobals, number);
-    _RDI = CharacterInfo;
+    v16 = CharacterInfo;
     if ( CharacterInfo && !CharacterInfo->canEmitFootsteps )
     {
-      v18 = FLOAT_POINTER;
+      v17 = FLOAT_POINTER;
 LABEL_48:
-      CG_FootstepTracker_SetStatus(localClientNum, number, LocalClientGlobals->time, v18);
+      CG_FootstepTracker_SetStatus(localClientNum, number, LocalClientGlobals->time, v17);
       goto LABEL_49;
     }
   }
   else
   {
-    _RDI = NULL;
+    v16 = NULL;
   }
-  if ( clientNum != number || !v13 )
+  if ( clientNum != number || !v12 )
   {
-    if ( !_RDI || ((source & 4) != 0) == *(_BYTE *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 1) && ((source & 4) != 0 || clientNum == number) )
+    if ( !v16 || ((source & 4) != 0) == *(_BYTE *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 1) && ((source & 4) != 0 || clientNum == number) )
     {
-      v18 = VEC3_POINTER|BYTE_VALUE;
+      v17 = VEC3_POINTER|BYTE_VALUE;
       goto LABEL_48;
     }
-    Trajectory_GetTrBase((const trajectory_t_secure *)(*(_QWORD *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 8) + 416i64), (vec3_t *)(_RBP + 8));
-    RefdefView_GetOrg(&LocalClientGlobals->refdef.view, (vec3_t *)(_RBP + 24));
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+18h]
-      vsubss  xmm3, xmm0, dword ptr [rbp+8]
-      vmovss  xmm1, dword ptr [rbp+1Ch]
-      vsubss  xmm2, xmm1, dword ptr [rbp+0Ch]
-      vmovss  xmm0, dword ptr [rbp+20h]
-      vsubss  xmm4, xmm0, dword ptr [rbp+10h]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm6, xmm3, xmm0
-    }
-    _R12 = DCONST_DVARFLT_cg_footstepCullDistance;
+    Trajectory_GetTrBase((const trajectory_t_secure *)(*(_QWORD *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 8) + 416i64), (vec3_t *)(v6 + 8));
+    RefdefView_GetOrg(&LocalClientGlobals->refdef.view, (vec3_t *)(v6 + 24));
+    v20 = *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x18) - *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 8);
+    v21 = *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x1C) - *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0xC);
+    v22 = *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x20) - *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x10);
+    v23 = (float)((float)(v21 * v21) + (float)(v20 * v20)) + (float)(v22 * v22);
+    v24 = DCONST_DVARFLT_cg_footstepCullDistance;
     if ( !DCONST_DVARFLT_cg_footstepCullDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_footstepCullDistance") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_R12);
-    __asm
+    Dvar_CheckFrontendServerThread(v24);
+    if ( (float)(v24->current.value * v24->current.value) < v23 )
     {
-      vmovss  xmm0, dword ptr [r12+28h]
-      vmulss  xmm1, xmm0, xmm0
-      vcomiss xmm1, xmm6
-    }
-    if ( v35 )
-    {
-      v56 = FLOAT_VALUE;
+      v32 = FLOAT_VALUE;
     }
     else
     {
-      *(double *)&_XMM0 = CG_TraceGroundWorkers_GetTraceOffset();
-      __asm { vmovaps xmm6, xmm0 }
+      TraceOffset = CG_TraceGroundWorkers_GetTraceOffset();
       if ( (source & 4) != 0 )
       {
-        __asm { vmovss  xmm0, dword ptr [rdi+800h]; yaw }
-        YawVectors(*(float *)&_XMM0, (vec3_t *)(_RBP + 416), (vec3_t *)(_RBP + 384));
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbp+8]
-          vmovss  dword ptr [rbp+190h], xmm2
-          vmovss  xmm4, dword ptr [rbp+0Ch]
-          vmovss  dword ptr [rbp+194h], xmm4
-          vaddss  xmm5, xmm6, dword ptr [rbp+10h]
-          vmovss  dword ptr [rbp+198h], xmm5
-          vmovss  xmm3, cs:__real@42000000
-          vmulss  xmm1, xmm3, dword ptr [rbp+1A0h]
-          vaddss  xmm2, xmm1, xmm2
-          vmovss  dword ptr [rbp+180h], xmm2
-          vmulss  xmm1, xmm3, dword ptr [rbp+1A4h]
-          vaddss  xmm2, xmm1, xmm4
-          vmovss  dword ptr [rbp+184h], xmm2
-          vmulss  xmm1, xmm3, dword ptr [rbp+1A8h]
-          vaddss  xmm2, xmm1, xmm5
-          vmovss  dword ptr [rbp+188h], xmm2
-        }
+        YawVectors(v16->legs.yawAngle, (vec3_t *)(v6 + 416), (vec3_t *)(v6 + 384));
+        v26 = *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 8);
+        *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x190) = v26;
+        v27 = *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0xC);
+        *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x194) = v27;
+        v28 = *(float *)&TraceOffset + *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x10);
+        *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x198) = v28;
+        *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x180) = (float)(32.0 * *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x1A0)) + v26;
+        *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x184) = (float)(32.0 * *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x1A4)) + v27;
+        *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x188) = (float)(32.0 * *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x1A8)) + v28;
       }
       else
       {
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rbp+8]
-          vmovss  dword ptr [rbp+190h], xmm3
-          vmovss  xmm1, dword ptr [rbp+0Ch]
-          vmovss  dword ptr [rbp+194h], xmm1
-          vmovss  xmm2, dword ptr [rbp+10h]
-          vaddss  xmm0, xmm6, xmm2
-          vmovss  dword ptr [rbp+198h], xmm0
-          vmovss  dword ptr [rbp+180h], xmm3
-          vmovss  dword ptr [rbp+184h], xmm1
-          vmulss  xmm0, xmm6, cs:__real@3f800000
-          vsubss  xmm1, xmm2, xmm0
-          vmovss  dword ptr [rbp+188h], xmm1
-        }
+        v29 = *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 8);
+        *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x190) = v29;
+        v30 = *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0xC);
+        *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x194) = v30;
+        v31 = *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x10);
+        *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x198) = *(float *)&TraceOffset + v31;
+        *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x180) = v29;
+        *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x184) = v30;
+        *(float *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x188) = v31 - (float)(*(float *)&TraceOffset * 1.0);
       }
-      *(_BYTE *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 0x100) = source;
-      *(_DWORD *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 0x104) = number;
-      *(_BYTE *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 0x108) = *(_BYTE *)_RBP;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbp+190h]
-        vmovsd  qword ptr [rbp+10Ch], xmm0
-      }
-      *(_DWORD *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 0x114) = *(_DWORD *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 0x198);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbp+180h]
-        vmovsd  qword ptr [rbp+118h], xmm0
-      }
-      *(_DWORD *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 0x120) = *(_DWORD *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 0x188);
-      *(_BYTE *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 0x109) = footstepFlags;
-      *(_QWORD *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 0x128) = *(_QWORD *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 0x28);
-      *(_DWORD *)(((unsigned __int64)v59 & 0xFFFFFFFFFFFFFF80ui64) + 0x130) = LocalClientGlobals->time;
-      if ( CG_TraceGroundWorkers_AddEvent((const CgTraceGroundWorkerEvent *)(_RBP + 128)) )
+      *(_BYTE *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x100) = source;
+      *(_DWORD *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x104) = number;
+      *(_BYTE *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x108) = *(_BYTE *)v6;
+      *(double *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x10C) = *(double *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x190);
+      *(_DWORD *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x114) = *(_DWORD *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x198);
+      *(double *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x118) = *(double *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x180);
+      *(_DWORD *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x120) = *(_DWORD *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x188);
+      *(_BYTE *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x109) = footstepFlags;
+      *(_QWORD *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x128) = *(_QWORD *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x28);
+      *(_DWORD *)(((unsigned __int64)v34 & 0xFFFFFFFFFFFFFF80ui64) + 0x130) = LocalClientGlobals->time;
+      if ( CG_TraceGroundWorkers_AddEvent((const CgTraceGroundWorkerEvent *)(v6 + 128)) )
         goto LABEL_46;
-      v56 = STRUCT_POINTER;
+      v32 = STRUCT_POINTER;
     }
-    CG_FootstepTracker_SetStatus(localClientNum, number, LocalClientGlobals->time, v56);
+    CG_FootstepTracker_SetStatus(localClientNum, number, LocalClientGlobals->time, v32);
 LABEL_46:
-    memset((void *)(_RBP + 24), 0, 0xCui64);
-    memset((void *)(_RBP + 8), 0, 0xCui64);
+    memset((void *)(v6 + 24), 0, 0xCui64);
+    memset((void *)(v6 + 8), 0, 0xCui64);
     goto LABEL_49;
   }
   lastGroundSurfaceType = LocalClientGlobals->lastGroundSurfaceType;
-  CG_Event_PlayFootstepSound(localClientNum, number, *(_BYTE *)_RBP, lastGroundSurfaceType, SCRIPTABLE_FOOTSTEP_NONE);
+  CG_Event_PlayFootstepSound(localClientNum, number, *(_BYTE *)v6, lastGroundSurfaceType, SCRIPTABLE_FOOTSTEP_NONE);
   p_position = &LocalClientGlobals->playerGround.trace.position;
   if ( !LocalClientGlobals->playerGround.groundPlane )
     p_position = NULL;
-  CG_Event_PlayFootstepFX(localClientNum, number, *(_BYTE *)_RBP, lastGroundSurfaceType, p_position, 1, 1, NULL);
+  CG_Event_PlayFootstepFX(localClientNum, number, *(_BYTE *)v6, lastGroundSurfaceType, p_position, 1, 1, NULL);
 LABEL_49:
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+2E8h+var_58] }
 }
 
 /*
@@ -737,19 +697,17 @@ void CG_Event_PlayEquipmentSound(LocalClientNum_t localClientNum, const Movement
   char clothType; 
   FootstepMoveType_t footstepMoveType; 
   int isQuietMove; 
-  EquipmentMoveType_t v13; 
+  EquipmentMoveType_t v11; 
   unsigned __int8 rattleSoundType; 
-  char v16; 
+  float priority; 
+  char v14; 
   EquipmentSoundTable *equipmentSoundTable; 
-  const WeaponDef *v18; 
+  const WeaponDef *v16; 
   WeaponSFXPackage *sfxPackage; 
-  const WeaponDef *v21; 
-  WeaponSFXPackage *v22; 
-  unsigned __int8 v23; 
-  void *retaddr; 
+  const WeaponDef *v18; 
+  WeaponSFXPackage *v19; 
+  unsigned __int8 v20; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "CG_Event_PlayEquipmentSound");
   if ( !centity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2521, ASSERT_TYPE_ASSERT, "(centity)", (const char *)&queryFormat, "centity") )
     __debugbreak();
@@ -765,63 +723,58 @@ void CG_Event_PlayEquipmentSound(LocalClientNum_t localClientNum, const Movement
     clothType = CharacterInfo->clothType;
     footstepMoveType = CharacterInfo->footstepMoveType;
     isQuietMove = CharacterInfo->infoValid && BG_HasPerk(&CharacterInfo->perks, 0x1Fu);
-    v13 = EQUIPMENT_MOVE_TYPE_INVALID;
+    v11 = EQUIPMENT_MOVE_TYPE_INVALID;
     switch ( footstepMoveType )
     {
       case FOOTSTEP_MOVE_TYPE_STATE_BEGIN:
-        v13 = EQUIPMENT_MOVE_TYPE_CREEP;
+        v11 = EQUIPMENT_MOVE_TYPE_CREEP;
         break;
       case FOOTSTEP_MOVE_TYPE_WALK:
-        v13 = EQUIPMENT_MOVE_TYPE_WALK;
+        v11 = EQUIPMENT_MOVE_TYPE_WALK;
         break;
       case FOOTSTEP_MOVE_TYPE_RUN:
       case FOOTSTEP_MOVE_TYPE_JUMP:
-        v13 = EQUIPMENT_MOVE_TYPE_RUN;
+        v11 = EQUIPMENT_MOVE_TYPE_RUN;
         break;
       case FOOTSTEP_MOVE_TYPE_SPRINT:
       case FOOTSTEP_MOVE_TYPE_SUPERSPRINT:
-        v13 = EQUIPMENT_MOVE_TYPE_SPRINT;
+        v11 = EQUIPMENT_MOVE_TYPE_SPRINT;
         break;
       case FOOTSTEP_MOVE_TYPE_PRONE:
-        v13 = EQUIPMENT_MOVE_TYPE_PRONE;
+        v11 = EQUIPMENT_MOVE_TYPE_PRONE;
         break;
       default:
         break;
     }
     rattleSoundType = 0;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
-    v16 = 0;
+    priority = 0.0;
+    v14 = 0;
     equipmentSoundTable = cgMedia.equipmentSoundTable;
-    v18 = BG_WeaponDef(&CharacterInfo->dobjHeldWeapon, 0);
-    if ( v18 )
+    v16 = BG_WeaponDef(&CharacterInfo->dobjHeldWeapon, 0);
+    if ( v16 )
     {
-      sfxPackage = v18->sfxPackage;
+      sfxPackage = v16->sfxPackage;
       if ( sfxPackage )
       {
         rattleSoundType = sfxPackage->rattleSoundType;
-        _RAX = (__int64)&equipmentSoundTable->weaponRattleTypes[rattleSoundType];
-        __asm { vmovss  xmm6, dword ptr [rax+8] }
-        v16 = 1;
+        priority = equipmentSoundTable->weaponRattleTypes[rattleSoundType].priority;
+        v14 = 1;
       }
     }
-    v21 = BG_WeaponDef(&CharacterInfo->dobjStowedWeapon, 0);
-    if ( v21 )
+    v18 = BG_WeaponDef(&CharacterInfo->dobjStowedWeapon, 0);
+    if ( v18 )
     {
-      v22 = v21->sfxPackage;
-      if ( v22 )
+      v19 = v18->sfxPackage;
+      if ( v19 )
       {
-        v23 = v22->rattleSoundType;
-        _RAX = (__int64)&equipmentSoundTable->weaponRattleTypes[v23];
-        if ( v16 )
-          __asm { vcomiss xmm6, dword ptr [rax+8] }
-        else
-          rattleSoundType = v23;
+        v20 = v19->rattleSoundType;
+        if ( !v14 || priority < equipmentSoundTable->weaponRattleTypes[v20].priority )
+          rattleSoundType = v20;
       }
     }
-    CG_EquipmentSound(localClientNum, number, 0, leadType, v13, clothType, rattleSoundType, isQuietMove);
+    CG_EquipmentSound(localClientNum, number, 0, leadType, v11, clothType, rattleSoundType, isQuietMove);
   }
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
 }
 
 /*
@@ -831,42 +784,41 @@ CG_Event_PlayFootstepFX
 */
 void CG_Event_PlayFootstepFX(LocalClientNum_t localClientNum, const int entNum, const bool isLeft, const unsigned __int8 surfaceType, const vec3_t *groundPosition, const bool isPlayerView, const bool isThirdPerson, FootstepVFX *footstepVFX)
 {
-  const dvar_t *v15; 
+  const dvar_t *v12; 
+  centity_t *Entity; 
   CgStatic *LocalClientStatics; 
   const characterInfo_t *CharacterInfo; 
   const SuitDef *SuitDef; 
   FootstepVFX *footstepvfx_creep_left; 
-  FxCombinedDef *v21; 
-  char v34; 
-  char v35; 
+  FxCombinedDef *v18; 
   cg_t *LocalClientGlobals; 
+  float v20; 
+  double Float_Internal_DebugName; 
+  float v22; 
+  cg_t *v23; 
   vec3_t outOrigin; 
   FXRegisteredDef def; 
-  __int64 v59; 
+  __int64 v26; 
   vec3_t origin; 
   vec3_t angles; 
   tmat33_t<vec3_t> axis; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v59 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  _R13 = groundPosition;
-  v15 = DCONST_DVARBOOL_cg_footstepfx;
+  v26 = -2i64;
+  v12 = DCONST_DVARBOOL_cg_footstepfx;
   if ( !DCONST_DVARBOOL_cg_footstepfx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_footstepfx") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( v15->current.enabled )
+  Dvar_CheckFrontendServerThread(v12);
+  if ( v12->current.enabled )
   {
     Sys_ProfBeginNamedEvent(0xFFFFFFFF, "CG_Event_PlayFootstepFX");
-    _R14 = CG_GetEntity(localClientNum, entNum);
-    if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2128, ASSERT_TYPE_ASSERT, "(sourceEnt)", (const char *)&queryFormat, "sourceEnt") )
+    Entity = CG_GetEntity(localClientNum, entNum);
+    if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2128, ASSERT_TYPE_ASSERT, "(sourceEnt)", (const char *)&queryFormat, "sourceEnt") )
       __debugbreak();
-    if ( (_R14->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2129, ASSERT_TYPE_ASSERT, "(CENextValid(sourceEnt))", (const char *)&queryFormat, "CENextValid(sourceEnt)") )
+    if ( (Entity->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2129, ASSERT_TYPE_ASSERT, "(CENextValid(sourceEnt))", (const char *)&queryFormat, "CENextValid(sourceEnt)") )
       __debugbreak();
     if ( footstepVFX )
     {
-      v21 = &footstepVFX->footstepVFX[surfaceType];
+      v18 = &footstepVFX->footstepVFX[surfaceType];
     }
     else
     {
@@ -878,7 +830,7 @@ void CG_Event_PlayFootstepFX(LocalClientNum_t localClientNum, const int entNum, 
       CharacterInfo = CgStatic::GetCharacterInfo(LocalClientStatics, entNum);
       if ( !CharacterInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2144, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
         __debugbreak();
-      if ( CG_IsCharacterInAir(CharacterInfo, _R14) )
+      if ( CG_IsCharacterInAir(CharacterInfo, Entity) )
         goto LABEL_59;
       if ( !CharacterInfo )
         goto LABEL_59;
@@ -929,101 +881,51 @@ void CG_Event_PlayFootstepFX(LocalClientNum_t localClientNum, const int entNum, 
       }
       if ( !footstepvfx_creep_left )
         goto LABEL_59;
-      if ( !isLeft || (v21 = &footstepvfx_creep_left->smallFootstepVFX[surfaceType], !v21->particleSystemDef) )
+      if ( !isLeft || (v18 = &footstepvfx_creep_left->smallFootstepVFX[surfaceType], !v18->particleSystemDef) )
       {
-        v21 = &footstepvfx_creep_left->footstepVFX[surfaceType];
-        if ( !v21->particleSystemDef )
+        v18 = &footstepvfx_creep_left->footstepVFX[surfaceType];
+        if ( !v18->particleSystemDef )
           goto LABEL_59;
       }
     }
-    if ( v21 && v21->particleSystemDef )
+    if ( v18 && v18->particleSystemDef )
     {
-      CG_GetPoseOrigin(&_R14->pose, &outOrigin);
-      if ( !CG_GetLocalClientGlobals(localClientNum) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2251, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+      CG_GetPoseOrigin(&Entity->pose, &outOrigin);
+      LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+      if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2251, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
         __debugbreak();
-      __asm
+      v20 = (float)((float)((float)(outOrigin.v[1] - LocalClientGlobals->refdef.viewOffset.v[1]) * (float)(outOrigin.v[1] - LocalClientGlobals->refdef.viewOffset.v[1])) + (float)((float)(outOrigin.v[0] - LocalClientGlobals->refdef.viewOffset.v[0]) * (float)(outOrigin.v[0] - LocalClientGlobals->refdef.viewOffset.v[0]))) + (float)((float)(outOrigin.v[2] - LocalClientGlobals->refdef.viewOffset.v[2]) * (float)(outOrigin.v[2] - LocalClientGlobals->refdef.viewOffset.v[2]));
+      Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_footstepfx_maxDistance, "cg_footstepfx_maxDistance");
+      if ( v20 <= (float)(*(float *)&Float_Internal_DebugName * *(float *)&Float_Internal_DebugName) )
       {
-        vmovss  xmm0, dword ptr [rsp+100h+outOrigin]
-        vsubss  xmm3, xmm0, dword ptr [rdi+699Ch]
-        vmovss  xmm1, dword ptr [rsp+100h+outOrigin+4]
-        vsubss  xmm2, xmm1, dword ptr [rdi+69A0h]
-        vmovss  xmm0, dword ptr [rsp+100h+outOrigin+8]
-        vsubss  xmm4, xmm0, dword ptr [rdi+69A4h]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm6, xmm3, xmm0
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_footstepfx_maxDistance, "cg_footstepfx_maxDistance");
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm0
-        vcomiss xmm6, xmm1
-      }
-      if ( v34 | v35 )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  dword ptr [rbp+37h+angles], xmm0
-          vmovss  dword ptr [rbp+37h+angles+8], xmm0
-          vmovss  xmm0, dword ptr [r14+4Ch]
-          vmovss  dword ptr [rbp+37h+angles+4], xmm0
-        }
+        angles.v[0] = 0.0;
+        angles.v[2] = 0.0;
+        angles.v[1] = Entity->pose.angles.v[1];
         AnglesToAxis(&angles, &axis);
         if ( isLeft )
         {
-          __asm
-          {
-            vmovss  xmm3, cs:__real@40200000
-            vmulss  xmm1, xmm3, dword ptr [rbp+37h+axis+0Ch]
-            vaddss  xmm2, xmm1, dword ptr [rsp+100h+outOrigin]
-            vmovss  dword ptr [rbp+37h+origin], xmm2
-            vmulss  xmm1, xmm3, dword ptr [rbp+37h+axis+10h]
-            vaddss  xmm2, xmm1, dword ptr [rsp+100h+outOrigin+4]
-            vmovss  dword ptr [rbp+37h+origin+4], xmm2
-            vmulss  xmm1, xmm3, dword ptr [rbp+37h+axis+14h]
-            vaddss  xmm2, xmm1, dword ptr [rsp+100h+outOrigin+8]
-          }
+          origin.v[0] = (float)(2.5 * axis.m[1].v[0]) + outOrigin.v[0];
+          origin.v[1] = (float)(2.5 * axis.m[1].v[1]) + outOrigin.v[1];
+          v22 = (float)(2.5 * axis.m[1].v[2]) + outOrigin.v[2];
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm4, cs:__real@40200000
-            vmulss  xmm2, xmm4, dword ptr [rbp+37h+axis+0Ch]
-            vmovss  xmm1, dword ptr [rsp+100h+outOrigin]
-            vsubss  xmm2, xmm1, xmm2
-            vmovss  dword ptr [rbp+37h+origin], xmm2
-            vmulss  xmm3, xmm4, dword ptr [rbp+37h+axis+10h]
-            vmovss  xmm1, dword ptr [rsp+100h+outOrigin+4]
-            vsubss  xmm2, xmm1, xmm3
-            vmovss  dword ptr [rbp+37h+origin+4], xmm2
-            vmulss  xmm3, xmm4, dword ptr [rbp+37h+axis+14h]
-            vmovss  xmm1, dword ptr [rsp+100h+outOrigin+8]
-            vsubss  xmm2, xmm1, xmm3
-          }
+          origin.v[0] = outOrigin.v[0] - (float)(2.5 * axis.m[1].v[0]);
+          origin.v[1] = outOrigin.v[1] - (float)(2.5 * axis.m[1].v[1]);
+          v22 = outOrigin.v[2] - (float)(2.5 * axis.m[1].v[2]);
         }
-        __asm { vmovss  dword ptr [rbp+37h+origin+8], xmm2 }
+        origin.v[2] = v22;
         if ( groundPosition )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r13+8]
-            vmovss  dword ptr [rbp+37h+origin+8], xmm0
-          }
-        }
-        def.m_particleSystemDef = v21->particleSystemDef;
-        LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-        FX_PlayOrientedEffect(localClientNum, &def, LocalClientGlobals->time, &origin, &axis);
+          origin.v[2] = groundPosition->v[2];
+        def.m_particleSystemDef = v18->particleSystemDef;
+        v23 = CG_GetLocalClientGlobals(localClientNum);
+        FX_PlayOrientedEffect(localClientNum, &def, v23->time, &origin, &axis);
       }
       memset(&outOrigin, 0, sizeof(outOrigin));
     }
 LABEL_59:
     Sys_ProfEndNamedEvent();
   }
-  __asm { vmovaps xmm6, xmmword ptr [rsp+100h+var_48+8] }
 }
 
 /*
@@ -1034,19 +936,17 @@ CG_Event_PlayFootstepShakeRumble
 void CG_Event_PlayFootstepShakeRumble(const LocalClientNum_t localClientNum, const centity_t *const sourceEnt, const SuitDef *const suitDef)
 {
   cg_t *LocalClientGlobals; 
-  unsigned int number; 
-  unsigned int clientNum; 
-  const RumbleInfo *footstep_rumble; 
-  float fmt; 
+  int number; 
+  int clientNum; 
+  float footstep_shakeBroadcastRadiusInches; 
+  RumbleInfo *footstep_rumble; 
   vec3_t trBase; 
 
-  __asm { vmovaps [rsp+78h+var_28], xmm6 }
-  _RBX = suitDef;
   if ( !sourceEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2297, ASSERT_TYPE_ASSERT, "(sourceEnt)", (const char *)&queryFormat, "sourceEnt", -2i64) )
     __debugbreak();
   if ( (sourceEnt->flags & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2298, ASSERT_TYPE_ASSERT, "(CENextValid( sourceEnt ))", (const char *)&queryFormat, "CENextValid( sourceEnt )") )
     __debugbreak();
-  if ( _RBX )
+  if ( suitDef )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2306, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
@@ -1055,53 +955,37 @@ void CG_Event_PlayFootstepShakeRumble(const LocalClientNum_t localClientNum, con
     clientNum = LocalClientGlobals->predictedPlayerState.clientNum;
     if ( !BG_IsInAir(&LocalClientGlobals->predictedPlayerState, 0) )
     {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbx+354h]
-        vxorps  xmm0, xmm0, xmm0
-      }
+      footstep_shakeBroadcastRadiusInches = suitDef->footstep_shakeBroadcastRadiusInches;
       if ( clientNum == number )
       {
-        __asm { vmovss  xmm6, cs:__real@7f7fffff }
+        footstep_shakeBroadcastRadiusInches = FLOAT_3_4028235e38;
       }
-      else
+      else if ( footstep_shakeBroadcastRadiusInches <= 0.0 )
       {
-        __asm { vcomiss xmm6, xmm0 }
-        if ( clientNum <= number )
-        {
 LABEL_18:
-          footstep_rumble = _RBX->footstep_rumble;
-          if ( footstep_rumble )
+        footstep_rumble = suitDef->footstep_rumble;
+        if ( footstep_rumble )
+        {
+          if ( clientNum == number )
           {
-            if ( clientNum == number )
-            {
-              CG_Rumble_PlayOnClient(localClientNum, _RBX->footstep_rumble);
-            }
-            else if ( CG_Rumble_IsBroadcastRumble(footstep_rumble) )
-            {
-              CG_Rumble_PlayOnEntity(localClientNum, _RBX->footstep_rumble, sourceEnt->nextState.number);
-            }
+            CG_Rumble_PlayOnClient(localClientNum, suitDef->footstep_rumble);
           }
-          goto LABEL_23;
+          else if ( CG_Rumble_IsBroadcastRumble(footstep_rumble) )
+          {
+            CG_Rumble_PlayOnEntity(localClientNum, suitDef->footstep_rumble, sourceEnt->nextState.number);
+          }
         }
+        return;
       }
-      __asm { vcomiss xmm0, dword ptr [rbx+35Ch] }
-      if ( clientNum < number && _RBX->footstep_shakeDurationMs > 0 )
+      if ( suitDef->footstep_shakeAmplitude > 0.0 && suitDef->footstep_shakeDurationMs > 0 )
       {
         Trajectory_GetTrBase(&sourceEnt->nextState.lerp.pos, &trBase);
-        __asm
-        {
-          vmovss  dword ptr [rsp+78h+fmt], xmm6
-          vmovss  xmm1, dword ptr [rbx+35Ch]; scale
-        }
-        CG_StartShakeCamera(localClientNum, *(float *)&_XMM1, _RBX->footstep_shakeDurationMs, &trBase, fmt);
+        CG_StartShakeCamera(localClientNum, suitDef->footstep_shakeAmplitude, suitDef->footstep_shakeDurationMs, &trBase, footstep_shakeBroadcastRadiusInches);
         memset(&trBase, 0, sizeof(trBase));
       }
       goto LABEL_18;
     }
   }
-LABEL_23:
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
 }
 
 /*
@@ -1241,18 +1125,19 @@ void CG_Event_PlayHandGrabSound(LocalClientNum_t localClientNum, const int entNu
 {
   cg_t *LocalClientGlobals; 
   CgWeaponMap *Instance; 
+  bool v9; 
   bool v10; 
-  bool v11; 
   centity_t *Entity; 
+  int viewheight_stand; 
   const characterInfo_t *CharacterInfo; 
-  const dvar_t *v17; 
-  const dvar_t *v18; 
-  FootstepStatus v19; 
+  const SuitDef *SuitDef; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  FootstepStatus v17; 
   SndAliasList *ladderGrabRightPlr; 
-  unsigned int v22; 
-  __int64 v23; 
-  int v24; 
-  int v25; 
+  double FootstepVolumeScale; 
+  unsigned int v20; 
+  __int64 v21; 
   CgSoundSystem *SoundSystem; 
   vec3_t trBase; 
 
@@ -1263,16 +1148,17 @@ void CG_Event_PlayHandGrabSound(LocalClientNum_t localClientNum, const int entNu
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2455, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  v10 = 1;
+  v9 = 1;
   if ( !LocalClientGlobals->renderingThirdPerson )
   {
     Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)LocalClientGlobals->localClientNum);
     if ( !BG_IsThirdPersonMode(Instance, &LocalClientGlobals->predictedPlayerState) )
-      v10 = 0;
+      v9 = 0;
   }
-  v11 = entNum == LocalClientGlobals->predictedPlayerState.clientNum && !v10;
+  v10 = entNum == LocalClientGlobals->predictedPlayerState.clientNum && !v9;
   Entity = CG_GetEntity(localClientNum, entNum);
   Trajectory_GetTrBase(&Entity->nextState.lerp.pos, &trBase);
+  viewheight_stand = 60;
   if ( (Entity->flags & 1) != 0 && BG_IsCharacterEntity(&Entity->nextState) )
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
@@ -1281,8 +1167,8 @@ void CG_Event_PlayHandGrabSound(LocalClientNum_t localClientNum, const int entNu
     {
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
-      LODWORD(v23) = Entity->nextState.clientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2469, ASSERT_TYPE_ASSERT, "(unsigned)( cent->nextState.clientNum ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "cent->nextState.clientNum doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v23, ComCharacterLimits::ms_gameData.m_characterCount) )
+      LODWORD(v21) = Entity->nextState.clientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2469, ASSERT_TYPE_ASSERT, "(unsigned)( cent->nextState.clientNum ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "cent->nextState.clientNum doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v21, ComCharacterLimits::ms_gameData.m_characterCount) )
         __debugbreak();
     }
     if ( LocalClientGlobals->HasCharacterInfo(LocalClientGlobals, entNum) )
@@ -1290,59 +1176,49 @@ void CG_Event_PlayHandGrabSound(LocalClientNum_t localClientNum, const int entNu
       CharacterInfo = CG_GetCharacterInfo(LocalClientGlobals, entNum);
       if ( CharacterInfo )
       {
-        if ( !BG_GetSuitDef(CharacterInfo->suitIndex) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2474, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
+        SuitDef = BG_GetSuitDef(CharacterInfo->suitIndex);
+        if ( !SuitDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2474, ASSERT_TYPE_ASSERT, "(suitDef)", (const char *)&queryFormat, "suitDef") )
           __debugbreak();
+        viewheight_stand = SuitDef->viewheight_stand;
       }
     }
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edi
-    vaddss  xmm1, xmm0, dword ptr [rsp+98h+trBase+8]
-    vmovss  dword ptr [rsp+98h+trBase+8], xmm1
-  }
-  v17 = DCONST_DVARBOOL_snd_footstep_debug;
+  trBase.v[2] = (float)viewheight_stand + trBase.v[2];
+  v15 = DCONST_DVARBOOL_snd_footstep_debug;
   if ( !DCONST_DVARBOOL_snd_footstep_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "snd_footstep_debug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v17);
-  if ( v17->current.enabled && (entNum != LocalClientGlobals->predictedPlayerState.clientNum || !v10) )
+  Dvar_CheckFrontendServerThread(v15);
+  if ( v15->current.enabled && (entNum != LocalClientGlobals->predictedPlayerState.clientNum || !v9) )
     CG_FootstepTracker_Add(localClientNum, entNum, LocalClientGlobals->time, &trBase);
-  v18 = DVARBOOL_cg_footsteps;
+  v16 = DVARBOOL_cg_footsteps;
   if ( !DVARBOOL_cg_footsteps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_footsteps") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v18);
-  if ( !v18->current.enabled )
+  Dvar_CheckFrontendServerThread(v16);
+  if ( !v16->current.enabled )
   {
-    v19 = VEC3_VALUE;
-LABEL_51:
-    CG_FootstepTracker_SetStatus_MostRecent(localClientNum, entNum, v19);
-    goto LABEL_52;
+    v17 = VEC3_VALUE;
+LABEL_52:
+    CG_FootstepTracker_SetStatus_MostRecent(localClientNum, entNum, v17);
+    goto LABEL_53;
   }
   ladderGrabRightPlr = cgMedia.ladderGrabRightPlr;
   if ( isLeft )
     ladderGrabRightPlr = cgMedia.ladderGrabLeftPlr;
-  if ( !v11 )
+  if ( !v10 )
   {
     ladderGrabRightPlr = cgMedia.ladderGrabRightNpc;
     if ( isLeft )
       ladderGrabRightPlr = cgMedia.ladderGrabLeftNpc;
   }
-  *(double *)&_XMM0 = CgSoundSystem::GetFootstepVolumeScale(SoundSystem, Entity, -1, v11);
-  __asm
+  FootstepVolumeScale = CgSoundSystem::GetFootstepVolumeScale(SoundSystem, Entity, -1, v10);
+  v20 = ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, _DWORD, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)entNum, &trBase, ladderGrabRightPlr, surfaceType, LODWORD(FootstepVolumeScale), LODWORD(FLOAT_1_0), 0);
+  if ( !v20 )
   {
-    vmovss  xmm1, cs:__real@3f800000
-    vmovss  dword ptr [rsp+98h+var_68], xmm1
-    vmovss  dword ptr [rsp+98h+var_70], xmm0
+    v17 = VEC3_POINTER|FLOAT_POINTER;
+    goto LABEL_52;
   }
-  v22 = ((__int64 (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, _DWORD, int, int, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)entNum, &trBase, ladderGrabRightPlr, surfaceType, v24, v25, 0);
-  if ( !v22 )
-  {
-    v19 = VEC3_POINTER|FLOAT_POINTER;
-    goto LABEL_51;
-  }
-  CG_FootstepTracker_BeginPlayback_MostRecent(localClientNum, entNum, v22, LocalClientGlobals->time);
-LABEL_52:
+  CG_FootstepTracker_BeginPlayback_MostRecent(localClientNum, entNum, v20, LocalClientGlobals->time);
+LABEL_53:
   memset(&trBase, 0, sizeof(trBase));
   Sys_ProfEndNamedEvent();
 }
@@ -1510,71 +1386,50 @@ CG_GenericEquipmentSound
 */
 void CG_GenericEquipmentSound(LocalClientNum_t localClientNum, int entNum, SndAliasList *aliasList, int isPlayerView, int isQuietMove)
 {
-  const dvar_t *v13; 
+  const dvar_t *v9; 
   centity_t *Entity; 
-  char v18; 
-  const char *v19; 
-  const dvar_t *v20; 
+  double FootstepVolumeScale; 
+  float v12; 
+  const char *v13; 
+  const dvar_t *v14; 
+  double Float_Internal_DebugName; 
   CgSoundSystem *SoundSystem; 
-  int fmt; 
-  int v25; 
   vec3_t trBase; 
-  __int64 v27; 
+  __int64 v18; 
 
-  v27 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovaps [rsp+0A8h+var_48], xmm7
-  }
-  v13 = DVARBOOL_cg_equipmentSounds;
+  v18 = -2i64;
+  v9 = DVARBOOL_cg_equipmentSounds;
   if ( !DVARBOOL_cg_equipmentSounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_equipmentSounds") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  if ( v13->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( v9->current.enabled )
   {
     Entity = CG_GetEntity(localClientNum, entNum);
-    *(double *)&_XMM0 = CG_GameInterface_GetFootstepVolumeScale(localClientNum, Entity, isPlayerView);
-    __asm
+    FootstepVolumeScale = CG_GameInterface_GetFootstepVolumeScale(localClientNum, Entity, isPlayerView);
+    v12 = *(float *)&FootstepVolumeScale;
+    if ( *(float *)&FootstepVolumeScale < 0.0 )
     {
-      vmovaps xmm6, xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm7, cs:__real@3f800000
-      vcomiss xmm0, xmm1
-    }
-    if ( v18 )
-    {
-      __asm { vmovaps xmm6, xmm7 }
+      v12 = FLOAT_1_0;
       if ( isQuietMove )
       {
         if ( isPlayerView )
         {
-          v19 = "perk_equipmentVolumeQuietPlayer";
-          v20 = DCONST_DVARFLT_perk_equipmentVolumeQuietPlayer;
+          v13 = "perk_equipmentVolumeQuietPlayer";
+          v14 = DCONST_DVARFLT_perk_equipmentVolumeQuietPlayer;
         }
         else
         {
-          v19 = "perk_equipmentVolumeQuietNPC";
-          v20 = DCONST_DVARFLT_perk_equipmentVolumeQuietNPC;
+          v13 = "perk_equipmentVolumeQuietNPC";
+          v14 = DCONST_DVARFLT_perk_equipmentVolumeQuietNPC;
         }
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v20, v19);
-        __asm { vmovaps xmm6, xmm0 }
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(v14, v13);
+        v12 = *(float *)&Float_Internal_DebugName;
       }
     }
     SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
     Trajectory_GetTrBase(&Entity->nextState.lerp.pos, &trBase);
-    __asm
-    {
-      vmovss  dword ptr [rsp+0A8h+var_80], xmm7
-      vmovss  dword ptr [rsp+0A8h+fmt], xmm6
-    }
-    ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, int, int, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)entNum, &trBase, aliasList, fmt, v25, 0);
+    ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, float, _DWORD, _DWORD))SoundSystem->PlaySoundAliasScaledAsync)(SoundSystem, (unsigned int)entNum, &trBase, aliasList, COERCE_FLOAT(LODWORD(v12)), LODWORD(FLOAT_1_0), 0);
     memset(&trBase, 0, sizeof(trBase));
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_38]
-    vmovaps xmm7, [rsp+0A8h+var_48]
   }
 }
 
@@ -1674,70 +1529,57 @@ void CG_GetMeleeStartEnd(LocalClientNum_t localClientNum, const entityState_t *e
 {
   cg_t *LocalClientGlobals; 
   CgStatic *LocalClientStatics; 
+  float v11; 
+  float v12; 
+  float v13; 
   int number; 
-  const cg_t *v25; 
+  const cg_t *v15; 
   const characterInfo_t *CharacterInfo; 
   int meleeChargeEnt; 
   bool HasPerk; 
   bool isSliding; 
-  bool v30; 
-  bool v37; 
+  bool v20; 
+  double MeleeRangeByWeapon; 
+  float v22; 
+  float v23; 
+  bool v24; 
   vec3_t outForward; 
   vec3_t outUp; 
   vec3_t outRight; 
 
-  _RDI = outMeleeStart;
-  _R14 = outMeleeEnd;
-  v37 = isAlternate;
+  v24 = isAlternate;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1671, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob", v37) )
+  if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1671, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob", v24) )
     __debugbreak();
   LocalClientStatics = CgStatic::GetLocalClientStatics(localClientNum);
   if ( !LocalClientStatics && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1673, ASSERT_TYPE_ASSERT, "(cgameStatic)", (const char *)&queryFormat, "cgameStatic") )
     __debugbreak();
   CG_CalcEyePoint(localClientNum, es->number, outMeleeStart);
   CG_GetViewDirection(localClientNum, es->number, &outForward, &outRight, &outUp);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000
-    vmovss  xmm1, dword ptr [rdi]
-    vmulss  xmm2, xmm3, dword ptr [rsp+0B8h+outForward]
-    vsubss  xmm2, xmm1, xmm2
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmovss  dword ptr [rdi], xmm2
-    vmulss  xmm2, xmm3, dword ptr [rsp+0B8h+outForward+4]
-    vsubss  xmm2, xmm1, xmm2
-    vmovss  xmm1, dword ptr [rdi+8]
-    vmovss  dword ptr [rdi+4], xmm2
-    vmulss  xmm2, xmm3, dword ptr [rsp+0B8h+outForward+8]
-    vsubss  xmm2, xmm1, xmm2
-    vmovss  dword ptr [rdi+8], xmm2
-  }
+  v11 = outMeleeStart->v[1];
+  outMeleeStart->v[0] = outMeleeStart->v[0] - (float)(10.0 * outForward.v[0]);
+  v12 = v11 - (float)(10.0 * outForward.v[1]);
+  v13 = outMeleeStart->v[2];
+  outMeleeStart->v[1] = v12;
+  outMeleeStart->v[2] = v13 - (float)(10.0 * outForward.v[2]);
   number = es->number;
-  v25 = CG_GetLocalClientGlobals((const LocalClientNum_t)LocalClientStatics->m_localClientNum);
-  if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+  v15 = CG_GetLocalClientGlobals((const LocalClientNum_t)LocalClientStatics->m_localClientNum);
+  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 33, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  CharacterInfo = CG_GetCharacterInfo(v25, number);
+  CharacterInfo = CG_GetCharacterInfo(v15, number);
   if ( CharacterInfo )
     meleeChargeEnt = CharacterInfo->meleeChargeEnt;
   else
     meleeChargeEnt = LocalClientGlobals->predictedPlayerState.meleeChargeEnt;
   HasPerk = BG_HasPerk(&LocalClientGlobals->predictedPlayerState.perks, 0x14u);
   isSliding = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&es->lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x1Du);
-  v30 = meleeChargeEnt >= 0 && (unsigned int)meleeChargeEnt <= 0x7FE;
-  *(double *)&_XMM0 = BG_GetMeleeRangeByWeapon(weapon, v37, v30, HasPerk, PM_EFF_STANCE_DEFAULT, isSliding);
-  __asm
-  {
-    vmulss  xmm2, xmm0, dword ptr [rsp+0B8h+outForward]
-    vaddss  xmm3, xmm2, dword ptr [rdi]
-    vmulss  xmm2, xmm0, dword ptr [rsp+0B8h+outForward+4]
-    vmulss  xmm0, xmm0, dword ptr [rsp+0B8h+outForward+8]
-    vmovss  dword ptr [r14], xmm3
-    vaddss  xmm3, xmm2, dword ptr [rdi+4]
-    vmovss  dword ptr [r14+4], xmm3
-    vaddss  xmm2, xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr [r14+8], xmm2
-  }
+  v20 = meleeChargeEnt >= 0 && (unsigned int)meleeChargeEnt <= 0x7FE;
+  MeleeRangeByWeapon = BG_GetMeleeRangeByWeapon(weapon, v24, v20, HasPerk, PM_EFF_STANCE_DEFAULT, isSliding);
+  v22 = *(float *)&MeleeRangeByWeapon * outForward.v[1];
+  v23 = *(float *)&MeleeRangeByWeapon * outForward.v[2];
+  outMeleeEnd->v[0] = (float)(*(float *)&MeleeRangeByWeapon * outForward.v[0]) + outMeleeStart->v[0];
+  outMeleeEnd->v[1] = v22 + outMeleeStart->v[1];
+  outMeleeEnd->v[2] = v23 + outMeleeStart->v[2];
 }
 
 /*
@@ -1953,97 +1795,76 @@ CG_LadderSlideSound
 */
 void CG_LadderSlideSound(LocalClientNum_t localClientNum, const int entNum, const int surfaceType, const LadderSlideAudioState state, bool isPlayerView)
 {
-  __int64 v7; 
+  __int64 v5; 
   CgSoundSystem *SoundSystem; 
   centity_t *Entity; 
-  const dvar_t *v15; 
-  const char *v16; 
-  const char *v17; 
-  int fromServer; 
-  int duration; 
+  double FootstepVolumeScale; 
+  const dvar_t *v12; 
+  const char *v13; 
+  const char *v14; 
+  float v15; 
+  vec4_t v16; 
   vec3_t trBase; 
-  __int64 v28; 
+  __int64 v18; 
   vec4_t color; 
   SndAliasList *ladderSlideStopSoundPlayer; 
   SndAliasList *ladderSlideStopSound; 
   char _Buffer[1024]; 
 
-  v28 = -2i64;
-  __asm { vmovaps [rsp+4D8h+var_48], xmm6 }
-  v7 = (unsigned __int8)state;
+  v18 = -2i64;
+  v5 = (unsigned __int8)state;
   SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
   Entity = CG_GetEntity(localClientNum, entNum);
-  *(double *)&_XMM0 = CgSoundSystem::GetFootstepVolumeScale(SoundSystem, Entity, 3, isPlayerView);
-  __asm { vmovaps xmm6, xmm0 }
+  FootstepVolumeScale = CgSoundSystem::GetFootstepVolumeScale(SoundSystem, Entity, 3, isPlayerView);
   Trajectory_GetTrBase(&Entity->nextState.lerp.pos, &trBase);
   *(_QWORD *)color.v = cgMedia.ladderSlideStartSoundPlayer;
   *(_QWORD *)&color.xyz.z = cgMedia.ladderSlideStartSound;
   ladderSlideStopSoundPlayer = cgMedia.ladderSlideStopSoundPlayer;
   ladderSlideStopSound = cgMedia.ladderSlideStopSound;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+4D8h+duration], xmm0
-    vmovss  [rsp+4D8h+fromServer], xmm6
-  }
-  ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, _QWORD, const int, int, int, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)entNum, &trBase, *(_QWORD *)&color.v[4 * v7 + 2 * !isPlayerView], surfaceType, fromServer, duration, 0);
-  v15 = DCONST_DVARBOOL_cg_drawLadderSlideAudio;
+  ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, _QWORD, const int, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)entNum, &trBase, *(_QWORD *)&color.v[4 * v5 + 2 * !isPlayerView], surfaceType, LODWORD(FootstepVolumeScale), LODWORD(FLOAT_1_0), 0);
+  v12 = DCONST_DVARBOOL_cg_drawLadderSlideAudio;
   if ( !DCONST_DVARBOOL_cg_drawLadderSlideAudio && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawLadderSlideAudio") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( v15->current.enabled )
+  Dvar_CheckFrontendServerThread(v12);
+  if ( v12->current.enabled )
   {
-    v16 = "remoteClient";
+    v13 = "remoteClient";
     if ( isPlayerView )
-      v16 = "localClient";
-    v17 = NULL;
-    __asm
+      v13 = "localClient";
+    v14 = NULL;
+    color = colorBlack;
+    v15 = 0.0;
+    if ( (_BYTE)v5 )
     {
-      vmovups xmm0, xmmword ptr cs:?colorBlack@@3Tvec4_t@@B; vec4_t const colorBlack
-      vmovups xmmword ptr [rsp+4D8h+color], xmm0
-      vxorps  xmm6, xmm6, xmm6
-    }
-    if ( (_BYTE)v7 )
-    {
-      if ( (unsigned __int8)v7 == 1 )
+      if ( (unsigned __int8)v5 == 1 )
       {
-        v17 = "SlideStop";
-        __asm
-        {
-          vmovups xmm0, xmmword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-          vmovss  xmm6, cs:__real@43af0000
-        }
+        v14 = "SlideStop";
+        v16 = colorRed;
+        v15 = FLOAT_350_0;
 LABEL_14:
-        __asm { vmovups xmmword ptr [rsp+4D8h+color], xmm0 }
+        color = v16;
         goto LABEL_15;
       }
-      if ( (unsigned __int8)v7 != 2 )
+      if ( (unsigned __int8)v5 != 2 )
       {
 LABEL_15:
-        j_sprintf(_Buffer, "%s %s audio is playing\n", v16, v17);
-        __asm
-        {
-          vmovss  xmm3, cs:__real@3fc00000; scale
-          vmovaps xmm1, xmm6; y
-          vmovss  xmm0, cs:__real@43c80000; x
-        }
-        CL_AddDebugString2D(*(float *)&_XMM0, *(float *)&_XMM1, &color, *(float *)&_XMM3, _Buffer, 0, 10);
+        j_sprintf(_Buffer, "%s %s audio is playing\n", v13, v14);
+        CL_AddDebugString2D(400.0, v15, &color, 1.5, _Buffer, 0, 10);
         goto LABEL_16;
       }
-      v17 = "Undefined";
-      __asm { vmovups xmm0, xmmword ptr cs:?colorWhite@@3Tvec4_t@@B; vec4_t const colorWhite }
+      v14 = "Undefined";
+      v16 = colorWhite;
     }
     else
     {
-      v17 = "SlideStart";
-      __asm { vmovups xmm0, xmmword ptr cs:?colorGreen@@3Tvec4_t@@B; vec4_t const colorGreen }
+      v14 = "SlideStart";
+      v16 = colorGreen;
     }
-    __asm { vmovss  xmm6, cs:__real@437a0000 }
+    v15 = FLOAT_250_0;
     goto LABEL_14;
   }
 LABEL_16:
   memset(&trBase, 0, sizeof(trBase));
-  __asm { vmovaps xmm6, [rsp+4D8h+var_48] }
 }
 
 /*
@@ -2053,54 +1874,49 @@ CG_LandingSound
 */
 void CG_LandingSound(LocalClientNum_t localClientNum, int entNum, int surfaceType, FootstepMoveType_t moveType, int isPlayerView, unsigned int clothType, int isQuietMove, int isFootstepSound)
 {
-  const dvar_t *v10; 
+  const dvar_t *v8; 
   const centity_t *Entity; 
-  char v17; 
-  const dvar_t *v18; 
-  const char *v19; 
+  double FootstepVolumeScale; 
+  const dvar_t *v15; 
+  const char *v16; 
   CgSoundSystem *SoundSystem; 
   const SndAliasList *ClothFootstepMovementSound; 
   const SndAliasList *ClothFootstepCeilingSound; 
 
-  v10 = DVARBOOL_cg_landingSounds;
+  v8 = DVARBOOL_cg_landingSounds;
   if ( !DVARBOOL_cg_landingSounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_landingSounds") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( v8->current.enabled )
   {
     Entity = CG_GetEntity(localClientNum, entNum);
-    *(double *)&_XMM0 = CG_GameInterface_GetFootstepVolumeScale(localClientNum, Entity, isPlayerView);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-    if ( v17 && isQuietMove )
+    FootstepVolumeScale = CG_GameInterface_GetFootstepVolumeScale(localClientNum, Entity, isPlayerView);
+    if ( *(float *)&FootstepVolumeScale < 0.0 && isQuietMove )
     {
       if ( isFootstepSound )
       {
         if ( isPlayerView )
         {
-          v18 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayer;
-          v19 = "perk_footstepVolumeQuietPlayer";
+          v15 = DCONST_DVARFLT_perk_footstepVolumeQuietPlayer;
+          v16 = "perk_footstepVolumeQuietPlayer";
         }
         else
         {
-          v18 = DCONST_DVARFLT_perk_footstepVolumeQuietNPC;
-          v19 = "perk_footstepVolumeQuietNPC";
+          v15 = DCONST_DVARFLT_perk_footstepVolumeQuietNPC;
+          v16 = "perk_footstepVolumeQuietNPC";
         }
       }
       else if ( isPlayerView )
       {
-        v18 = DCONST_DVARFLT_perk_fallVolumeQuietPlayer;
-        v19 = "perk_fallVolumeQuietPlayer";
+        v15 = DCONST_DVARFLT_perk_fallVolumeQuietPlayer;
+        v16 = "perk_fallVolumeQuietPlayer";
       }
       else
       {
-        v18 = DCONST_DVARFLT_perk_fallVolumeQuietNPC;
-        v19 = "perk_fallVolumeQuietNPC";
+        v15 = DCONST_DVARFLT_perk_fallVolumeQuietNPC;
+        v16 = "perk_fallVolumeQuietNPC";
       }
-      Dvar_GetFloat_Internal_DebugName(v18, v19);
+      Dvar_GetFloat_Internal_DebugName(v15, v16);
     }
     SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
     ClothFootstepMovementSound = BG_GetClothFootstepMovementSound(clothType, FOOTSTEP_ACTION_TYPE_STEP, moveType, 0, isPlayerView);
@@ -2262,76 +2078,68 @@ void CG_PlayDudImpactSoundAndEffect(const LocalClientNum_t localClientNum, bool 
 {
   CgSoundSystem *SoundSystem; 
   SndAliasList *bulletHitLargeSound; 
-  unsigned int v14; 
-  CgSoundSystem *v15; 
-  const SndAliasList *v16; 
-  unsigned int v17; 
-  FXRegisteredDef *v18; 
-  __int64 v19; 
-  FXRegisteredDef *v20; 
+  unsigned int v13; 
+  CgSoundSystem *v14; 
+  const SndAliasList *v15; 
+  unsigned int v16; 
+  FXRegisteredDef *v17; 
+  __int64 v18; 
+  FXRegisteredDef *v19; 
   cg_t *LocalClientGlobals; 
-  FxCombinedDef v22; 
-  cg_t *v23; 
-  int outFxa; 
+  FxCombinedDef v21; 
+  cg_t *v22; 
   FXRegisteredDef *outFx; 
-  int v26; 
-  __int64 v27; 
-  FXRegisteredDef v28; 
+  __int64 v24; 
+  FXRegisteredDef v25; 
   FXRegisteredDef def[8]; 
 
   SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
-  __asm { vmovss  xmm0, cs:__real@3f800000 }
   bulletHitLargeSound = cgMedia.npcImpactSounds.bulletHitLargeSound;
   if ( isPlayerView )
     bulletHitLargeSound = cgMedia.playerImpactSounds.bulletHitLargeSound;
-  v14 = 0;
-  __asm
-  {
-    vmovss  dword ptr [rsp+88h+var_58], xmm0
-    vmovss  dword ptr [rsp+88h+outFx], xmm0
-  }
-  v15 = SoundSystem;
-  ((void (__fastcall *)(CgSoundSystem *, __int64, const vec3_t *, SndAliasList *, const unsigned int, int, int, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, 2046i64, position, bulletHitLargeSound, surfType, outFxa, v26, 0);
-  v16 = BG_ProjDudSound(weapon, isAlternate);
-  if ( v16 )
-    CgSoundSystem::PlaySoundAlias(v15, 2046, position, v16);
+  v13 = 0;
+  v14 = SoundSystem;
+  ((void (__fastcall *)(CgSoundSystem *, __int64, const vec3_t *, SndAliasList *, const unsigned int, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, 2046i64, position, bulletHitLargeSound, surfType, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
+  v15 = BG_ProjDudSound(weapon, isAlternate);
+  if ( v15 )
+    CgSoundSystem::PlaySoundAlias(v14, 2046, position, v15);
   if ( cgMedia.impactFx )
   {
-    v17 = CG_Main_RegisteredImpactTypeToImpactType((RegisteredImpactType)14);
-    if ( v17 >= cgMedia.impactFx->impactTypeCount )
+    v16 = CG_Main_RegisteredImpactTypeToImpactType((RegisteredImpactType)14);
+    if ( v16 >= cgMedia.impactFx->impactTypeCount )
     {
-      LODWORD(v27) = cgMedia.impactFx->impactTypeCount;
-      LODWORD(outFx) = v17;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1475, ASSERT_TYPE_ASSERT, "(unsigned)( impactType ) < (unsigned)( cgMedia.impactFx->impactTypeCount )", "impactType doesn't index cgMedia.impactFx->impactTypeCount\n\t%i not in [0, %i)", outFx, v27) )
+      LODWORD(v24) = cgMedia.impactFx->impactTypeCount;
+      LODWORD(outFx) = v16;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1475, ASSERT_TYPE_ASSERT, "(unsigned)( impactType ) < (unsigned)( cgMedia.impactFx->impactTypeCount )", "impactType doesn't index cgMedia.impactFx->impactTypeCount\n\t%i not in [0, %i)", outFx, v24) )
         __debugbreak();
     }
-    v18 = def;
-    v19 = 2i64;
+    v17 = def;
+    v18 = 2i64;
     do
     {
-      FXRegisteredDef::FXRegisteredDef(v18++);
-      --v19;
+      FXRegisteredDef::FXRegisteredDef(v17++);
+      --v18;
     }
-    while ( v19 );
-    CG_GetImpactEffectList(v17, surfType, 0, 0, 0, def);
-    v20 = def;
+    while ( v18 );
+    CG_GetImpactEffectList(v16, surfType, 0, 0, 0, def);
+    v19 = def;
     do
     {
-      if ( v20->m_particleSystemDef )
+      if ( v19->m_particleSystemDef )
       {
         LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-        FX_PlayOrientedEffect(localClientNum, &def[v14], LocalClientGlobals->time, position, axis);
+        FX_PlayOrientedEffect(localClientNum, &def[v13], LocalClientGlobals->time, position, axis);
       }
-      ++v14;
-      ++v20;
+      ++v13;
+      ++v19;
     }
-    while ( v14 < 2 );
-    v22.particleSystemDef = BG_ProjDudEffect(weapon, isAlternate).particleSystemDef;
-    if ( v22.particleSystemDef )
+    while ( v13 < 2 );
+    v21.particleSystemDef = BG_ProjDudEffect(weapon, isAlternate).particleSystemDef;
+    if ( v21.particleSystemDef )
     {
-      v28.m_particleSystemDef = v22.particleSystemDef;
-      v23 = CG_GetLocalClientGlobals(localClientNum);
-      FX_PlayOrientedEffect(localClientNum, &v28, v23->time, position, axis);
+      v25.m_particleSystemDef = v21.particleSystemDef;
+      v22 = CG_GetLocalClientGlobals(localClientNum);
+      FX_PlayOrientedEffect(localClientNum, &v25, v22->time, position, axis);
     }
   }
 }
@@ -2343,96 +2151,93 @@ CG_PlayFxBetweenPoints
 */
 void CG_PlayFxBetweenPoints(LocalClientNum_t localClientNum, centity_t *cent, const vec3_t *pos, const vec3_t *angles, const vec3_t *end)
 {
-  __int64 v9; 
+  __int64 v7; 
   CgDynamicMedia *CgDynamicMedia; 
-  unsigned int v12; 
+  unsigned int v10; 
   const FXRegisteredDef *Fx; 
   cg_t *LocalClientGlobals; 
-  ParticleSystemHandle v15; 
-  unsigned int v17; 
-  __int64 v18; 
+  ParticleSystemHandle v13; 
+  ParticleSystem *v14; 
+  unsigned int v15; 
+  __int64 v16; 
+  float v17; 
+  __m128 v; 
+  float v22; 
+  __m128 v24; 
+  __m128 v27; 
+  __m128 v28; 
+  __m128 v29; 
+  __m128 v30; 
+  __m128 v31; 
+  __m128 v32; 
+  __m256i v33; 
+  __m256i v34; 
   float4 endPos; 
   float4 startPos; 
   tmat33_t<vec3_t> axis; 
 
-  _R12 = end;
-  _R14 = pos;
-  v9 = localClientNum;
+  v7 = localClientNum;
   CgDynamicMedia = CgDynamicMedia::GetCgDynamicMedia();
-  v12 = truncate_cast<int,unsigned int>(cent->nextState.eventParm);
-  if ( CgDynamicMedia::IsValidFx(CgDynamicMedia, v12) )
+  v10 = truncate_cast<int,unsigned int>(cent->nextState.eventParm);
+  if ( CgDynamicMedia::IsValidFx(CgDynamicMedia, v10) )
   {
-    Fx = CgDynamicMedia::GetFx(CgDynamicMedia, v12);
+    Fx = CgDynamicMedia::GetFx(CgDynamicMedia, v10);
     if ( !Fx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 925, ASSERT_TYPE_ASSERT, "(fxDef)", (const char *)&queryFormat, "fxDef") )
       __debugbreak();
     AnglesToAxis(angles, &axis);
-    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v9);
-    v15 = FX_PlayOrientedEffect((LocalClientNum_t)v9, Fx, LocalClientGlobals->time, _R14, &axis);
-    _RBX = NULL;
-    v17 = v15 & 0xFFF;
-    if ( g_particleSystemsGeneration[4096 * v9 + (v15 & 0xFFF)].__all32 != v15 )
-      v17 = 0;
-    v18 = (v9 << 12) + v17;
-    if ( g_particleSystems[0][v18] >= (ParticleSystem *)0x1000 )
-      _RBX = g_particleSystems[0][v18];
-    if ( _RBX )
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v7);
+    v13 = FX_PlayOrientedEffect((LocalClientNum_t)v7, Fx, LocalClientGlobals->time, pos, &axis);
+    v14 = NULL;
+    v15 = v13 & 0xFFF;
+    if ( g_particleSystemsGeneration[4096 * v7 + (v13 & 0xFFF)].__all32 != v13 )
+      v15 = 0;
+    v16 = (v7 << 12) + v15;
+    if ( g_particleSystems[0][v16] >= (ParticleSystem *)0x1000 )
+      v14 = g_particleSystems[0][v16];
+    if ( v14 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14]
-        vmovaps [rsp+108h+var_48], xmm6
-      }
+      v17 = pos->v[0];
       endPos.v.m128_i32[3] = 0;
+      v = endPos.v;
+      v.m128_f32[0] = v17;
+      _XMM3 = v;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rsp+108h+endPos.v]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [r14+4], 10h
         vinsertps xmm3, xmm3, dword ptr [r14+8], 20h ; ' '
-        vmovss  xmm0, dword ptr [r12]
-        vmovups xmmword ptr [rsp+108h+endPos.v], xmm3
-        vmovups xmmword ptr [rsp+108h+startPos.v], xmm3
       }
+      v22 = end->v[0];
+      endPos.v = _XMM3;
+      startPos.v = _XMM3;
       endPos.v.m128_i32[3] = 0;
+      v24 = endPos.v;
+      v24.m128_f32[0] = v22;
+      _XMM3 = v24;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rsp+108h+endPos.v]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [r12+4], 10h
         vinsertps xmm3, xmm3, dword ptr [r12+8], 20h ; ' '
-        vmovups xmmword ptr [rsp+108h+endPos.v], xmm3
-        vmovups xmmword ptr [rsp+108h+endPos.v], xmm3
       }
-      ParticleSystem::SetBeamPos(_RBX, &startPos, &endPos);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+108h+startPos.v]
-        vmovups xmmword ptr [rbx+30h], xmm0
-        vmovups xmm1, xmmword ptr [rbx+20h]
-        vmovups xmm3, xmmword ptr [rbx]
-        vshufps xmm6, xmm3, xmmword ptr [rbx+10h], 44h ; 'D'
-        vshufps xmm2, xmm3, xmmword ptr [rbx+10h], 0EEh ; 'î'
-        vshufps xmm4, xmm1, xmm0, 44h ; 'D'
-        vshufps xmm5, xmm1, xmm0, 0EEh ; 'î'
-        vshufps xmm0, xmm6, xmm4, 88h ; 'ˆ'
-        vshufps xmm1, xmm6, xmm4, 0DDh ; 'Ý'
-        vmovaps xmm6, [rsp+108h+var_48]
-        vmovups xmmword ptr [rsp+108h+var_D8+10h], xmm1
-        vmovups xmmword ptr [rsp+108h+var_D8], xmm0
-        vshufps xmm0, xmm2, xmm5, 88h ; 'ˆ'
-        vshufps xmm1, xmm2, xmm5, 0DDh ; 'Ý'
-        vmovups xmmword ptr [rsp+108h+var_B8], xmm0
-        vmovups ymm0, [rsp+108h+var_D8]
-        vmovups xmmword ptr [rsp+108h+var_B8+10h], xmm1
-        vmovups ymm1, [rsp+108h+var_B8]
-        vmovups ymmword ptr [rbx+40h], ymm0
-        vmovups ymmword ptr [rbx+60h], ymm1
-      }
+      endPos.v = _XMM3;
+      ParticleSystem::SetBeamPos(v14, &startPos, &endPos);
+      v27 = startPos.v;
+      v14->m_systemTransform.w = (float4)startPos.v;
+      v28 = v14->m_systemTransform.z.v;
+      v29 = _mm_shuffle_ps(v14->m_systemTransform.x.v, v14->m_systemTransform.y.v, 68);
+      v30 = _mm_shuffle_ps(v14->m_systemTransform.x.v, v14->m_systemTransform.y.v, 238);
+      v31 = _mm_shuffle_ps(v28, v27, 68);
+      v32 = _mm_shuffle_ps(v28, v27, 238);
+      *(__m128 *)&v33.m256i_u64[2] = _mm_shuffle_ps(v29, v31, 221);
+      *(__m128 *)v33.m256i_i8 = _mm_shuffle_ps(v29, v31, 136);
+      *(__m128 *)v34.m256i_i8 = _mm_shuffle_ps(v30, v32, 136);
+      *(__m128 *)&v34.m256i_u64[2] = _mm_shuffle_ps(v30, v32, 221);
+      *(__m256i *)v14->m_systemTransformTranspose.x.v.m128_f32 = v33;
+      *(__m256i *)v14->m_systemTransformTranspose.z.v.m128_f32 = v34;
     }
   }
   else
   {
-    Com_PrintError(21, "ERROR: PlayFxBetweenPoints called with invalid effect id %i\n", v12);
+    Com_PrintError(21, "ERROR: PlayFxBetweenPoints called with invalid effect id %i\n", v10);
   }
 }
 
@@ -2443,81 +2248,69 @@ CG_PlayGrenadeBounceSoundAndEffect
 */
 void CG_PlayGrenadeBounceSoundAndEffect(const LocalClientNum_t localClientNum, const entityState_t *es, vec3_t *position, const tmat33_t<vec3_t> *axis, const Weapon *weapon, const BounceIntensityAlias intensityIndex, const bool isAlternate, const bool isStickEvent)
 {
-  unsigned int v13; 
+  unsigned int v12; 
   const SndAliasList *WeaponSoundWithFallback; 
   CgSoundSystem *SoundSystem; 
-  __int64 *v17; 
-  __int64 v18; 
-  unsigned int v19; 
-  __int64 *v20; 
-  int v21; 
-  int v22; 
-  __int64 *v23; 
-  int outFx; 
-  int v25; 
-  bool v26; 
+  __int64 *v15; 
+  __int64 v16; 
+  unsigned int v17; 
+  __int64 *v18; 
+  int v19; 
+  int v20; 
+  __int64 *v21; 
+  bool v22; 
   __int64 offset[2]; 
-  __int64 v28; 
+  __int64 v24; 
 
-  __asm
-  {
-    vmovdqu xmm0, cs:__xmm@00000000000002a800000000000002b0
-    vmovdqu xmmword ptr [rsp+0B8h+offset], xmm0
-  }
-  v28 = 672i64;
-  v26 = isAlternate;
-  v13 = 0;
+  *(_OWORD *)offset = _xmm;
+  v24 = 672i64;
+  v22 = isAlternate;
+  v12 = 0;
   WeaponSoundWithFallback = BG_GetWeaponSoundWithFallback(weapon, isAlternate, offset[intensityIndex]);
   if ( WeaponSoundWithFallback || (WeaponSoundWithFallback = BG_GetWeaponSoundWithFallback(weapon, isAlternate, 664i64)) != NULL )
   {
     SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vmovss  [rsp+0B8h+var_88], xmm0
-      vmovss  dword ptr [rsp+0B8h+outFx], xmm0
-    }
-    ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, _DWORD, int, int, _DWORD, const bool))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)es->number, position, WeaponSoundWithFallback, es->surfType, outFx, v25, 0, isAlternate);
+    ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, const SndAliasList *, _DWORD, _DWORD, _DWORD, _DWORD, const bool))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)es->number, position, WeaponSoundWithFallback, es->surfType, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0, isAlternate);
   }
   if ( cgMedia.impactFx )
   {
-    v17 = offset;
-    v18 = 2i64;
+    v15 = offset;
+    v16 = 2i64;
     do
     {
-      FXRegisteredDef::FXRegisteredDef((FXRegisteredDef *)v17++);
-      --v18;
+      FXRegisteredDef::FXRegisteredDef((FXRegisteredDef *)v15++);
+      --v16;
     }
-    while ( v18 );
-    v19 = 0;
-    v20 = &offset[1];
+    while ( v16 );
+    v17 = 0;
+    v18 = &offset[1];
     do
     {
-      v19 += 2;
-      *(v20 - 1) = 0i64;
-      *v20 = 0i64;
-      v20 += 2;
+      v17 += 2;
+      *(v18 - 1) = 0i64;
+      *v18 = 0i64;
+      v18 += 2;
     }
-    while ( v19 < 2 );
-    if ( isStickEvent && BG_GetWeaponClass(weapon, v26) == WEAPCLASS_THROWINGKNIFE )
+    while ( v17 < 2 );
+    if ( isStickEvent && BG_GetWeaponClass(weapon, v22) == WEAPCLASS_THROWINGKNIFE )
     {
-      v21 = CG_Main_RegisteredImpactTypeToImpactType((RegisteredImpactType)8);
-      CG_GetImpactEffectList(v21, es->surfType, 0, 0, 0, (FXRegisteredDef *)offset);
+      v19 = CG_Main_RegisteredImpactTypeToImpactType((RegisteredImpactType)8);
+      CG_GetImpactEffectList(v19, es->surfType, 0, 0, 0, (FXRegisteredDef *)offset);
     }
     if ( !offset[0] )
     {
-      v22 = CG_Main_RegisteredImpactTypeToImpactType((RegisteredImpactType)9);
-      CG_GetImpactEffectList(v22, es->surfType, 0, 0, 0, (FXRegisteredDef *)offset);
+      v20 = CG_Main_RegisteredImpactTypeToImpactType((RegisteredImpactType)9);
+      CG_GetImpactEffectList(v20, es->surfType, 0, 0, 0, (FXRegisteredDef *)offset);
     }
-    v23 = offset;
+    v21 = offset;
     do
     {
-      if ( *v23 )
-        CGMovingPlatforms::PlayDynamicBoltEffect(es, localClientNum, (const FXRegisteredDef *const)&offset[v13], position, axis);
-      ++v13;
-      ++v23;
+      if ( *v21 )
+        CGMovingPlatforms::PlayDynamicBoltEffect(es, localClientNum, (const FXRegisteredDef *const)&offset[v12], position, axis);
+      ++v12;
+      ++v21;
     }
-    while ( v13 < 2 );
+    while ( v12 < 2 );
   }
 }
 
@@ -2548,11 +2341,11 @@ void CG_PlayMeleeCharacterImpactSound(const LocalClientNum_t localClientNum, con
   float outImpactHeight; 
   LocalClientNum_t localClientNuma; 
   SndAliasList *aliasList; 
-  __int64 v54; 
+  __int64 v29; 
   vec3_t v; 
   vec3_t origin; 
 
-  v54 = -2i64;
+  v29 = -2i64;
   localClientNuma = localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1551, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
@@ -2574,18 +2367,9 @@ void CG_PlayMeleeCharacterImpactSound(const LocalClientNum_t localClientNum, con
       CG_GetPoseOrigin(p_pose, &outOrigin);
       if ( clientNum == otherEntityNum )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+4Fh+outOrigin]
-          vsubss  xmm1, xmm0, dword ptr [r13+38h]
-          vmovss  dword ptr [rbp+4Fh+v], xmm1
-          vmovss  xmm2, dword ptr [rbp+4Fh+outOrigin+4]
-          vsubss  xmm0, xmm2, dword ptr [r13+3Ch]
-          vmovss  dword ptr [rbp+4Fh+v+4], xmm0
-          vmovss  xmm1, dword ptr [rbp+4Fh+outOrigin+8]
-          vsubss  xmm2, xmm1, dword ptr [r13+40h]
-          vmovss  dword ptr [rbp+4Fh+v+8], xmm2
-        }
+        v.v[0] = outOrigin.v[0] - LocalClientGlobals->predictedPlayerState.origin.v[0];
+        v.v[1] = outOrigin.v[1] - LocalClientGlobals->predictedPlayerState.origin.v[1];
+        v.v[2] = outOrigin.v[2] - LocalClientGlobals->predictedPlayerState.origin.v[2];
         Vec3NormalizeFast(&v);
         v16 = otherEntityNum;
       }
@@ -2593,51 +2377,22 @@ void CG_PlayMeleeCharacterImpactSound(const LocalClientNum_t localClientNum, con
       {
         if ( clientNum != attackerEntNum && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1604, ASSERT_TYPE_ASSERT, "(isPlayerViewAttacker)", (const char *)&queryFormat, "isPlayerViewAttacker") )
           __debugbreak();
-        _RAX = victimOrigin;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vsubss  xmm1, xmm0, dword ptr [rbp+4Fh+outOrigin]
-          vmovss  dword ptr [rbp+4Fh+v], xmm1
-          vmovss  xmm2, dword ptr [rax+4]
-          vsubss  xmm0, xmm2, dword ptr [rbp+4Fh+outOrigin+4]
-          vmovss  dword ptr [rbp+4Fh+v+4], xmm0
-          vmovss  xmm1, dword ptr [rax+8]
-          vsubss  xmm2, xmm1, dword ptr [rbp+4Fh+outOrigin+8]
-          vmovss  dword ptr [rbp+4Fh+v+8], xmm2
-        }
+        v.v[0] = victimOrigin->v[0] - outOrigin.v[0];
+        v.v[1] = victimOrigin->v[1] - outOrigin.v[1];
+        v.v[2] = victimOrigin->v[2] - outOrigin.v[2];
         Vec3NormalizeFast(&v);
         v16 = attackerEntNum;
       }
-      __asm
-      {
-        vmovss  xmm3, cs:s_meleeImpactViewOffset
-        vmulss  xmm1, xmm3, dword ptr [rbp+4Fh+v]
-        vaddss  xmm2, xmm1, dword ptr [rbp+4Fh+outOrg]
-        vmovss  dword ptr [rbp+4Fh+origin], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rbp+4Fh+v+4]
-        vaddss  xmm2, xmm1, dword ptr [rbp+4Fh+outOrg+4]
-        vmovss  dword ptr [rbp+4Fh+origin+4], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rbp+4Fh+v+8]
-        vaddss  xmm2, xmm1, dword ptr [rbp+4Fh+outOrg+8]
-        vmovss  dword ptr [rbp+4Fh+origin+8], xmm2
-      }
+      origin.v[0] = (float)(s_meleeImpactViewOffset * v.v[0]) + outOrg.v[0];
+      origin.v[1] = (float)(s_meleeImpactViewOffset * v.v[1]) + outOrg.v[1];
+      origin.v[2] = (float)(s_meleeImpactViewOffset * v.v[2]) + outOrg.v[2];
       memset(&outOrigin, 0, sizeof(outOrigin));
       memset(&outOrg, 0, sizeof(outOrg));
     }
     else
     {
-      _RAX = victimOrigin;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vmovss  dword ptr [rbp+4Fh+origin], xmm0
-        vmovss  xmm1, dword ptr [rax+4]
-        vmovss  dword ptr [rbp+4Fh+origin+4], xmm1
-        vmovss  xmm0, [rbp+4Fh+var_84]
-        vaddss  xmm2, xmm0, dword ptr [rax+8]
-        vmovss  dword ptr [rbp+4Fh+origin+8], xmm2
-      }
+      *(_QWORD *)origin.v = *(_QWORD *)victimOrigin->v;
+      origin.v[2] = outImpactHeight + victimOrigin->v[2];
     }
     SoundSystem = CgSoundSystem::GetSoundSystem(localClientNuma);
     if ( !SoundSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1621, ASSERT_TYPE_ASSERT, "(soundSystem)", (const char *)&queryFormat, "soundSystem") )
@@ -2657,19 +2412,15 @@ void CG_PlayMeleeWorldImpactSound(const LocalClientNum_t localClientNum, int sur
   int clientNum; 
   SndAliasList *MeleeWorldImpactSound; 
   CgSoundSystem *SoundSystem; 
-  int v22; 
-  int v23; 
-  int v24; 
-  int v25; 
   bool outIsAltMelee; 
   int outVariant; 
   WeaponMaterialType outMaterial; 
   MeleeAnimType outAttackerAnim; 
   vec3_t outOrg; 
-  __int64 v31; 
-  int v32[4]; 
+  __int64 v18; 
+  int v19[4]; 
 
-  v31 = -2i64;
+  v18 = -2i64;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1629, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
@@ -2684,34 +2435,15 @@ void CG_PlayMeleeWorldImpactSound(const LocalClientNum_t localClientNum, int sur
     if ( attackerEntNum == clientNum )
     {
       RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-      __asm
-      {
-        vmovss  xmm2, cs:soundOffset
-        vmulss  xmm0, xmm2, dword ptr [rbx+6944h]
-        vaddss  xmm1, xmm0, dword ptr [rsp+0C8h+outOrg]
-        vmovss  [rsp+0C8h+var_60], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rbx+6948h]
-        vaddss  xmm1, xmm0, dword ptr [rsp+0C8h+outOrg+4]
-        vmovss  [rsp+0C8h+var_5C], xmm1
-        vmulss  xmm0, xmm2, dword ptr [rbx+694Ch]
-        vaddss  xmm1, xmm0, dword ptr [rsp+0C8h+outOrg+8]
-        vmovss  [rsp+0C8h+var_58], xmm1
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  [rsp+0C8h+var_98], xmm0
-        vmovss  dword ptr [rsp+0C8h+var_A0], xmm0
-      }
-      ((void (__fastcall *)(CgSoundSystem *, _QWORD, int *, SndAliasList *, int, int, int, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)attackerEntNum, v32, MeleeWorldImpactSound, surfType, v22, v24, 0);
+      *(float *)v19 = (float)(soundOffset * LocalClientGlobals->refdef.view.axis.m[0].v[0]) + outOrg.v[0];
+      *(float *)&v19[1] = (float)(soundOffset * LocalClientGlobals->refdef.view.axis.m[0].v[1]) + outOrg.v[1];
+      *(float *)&v19[2] = (float)(soundOffset * LocalClientGlobals->refdef.view.axis.m[0].v[2]) + outOrg.v[2];
+      ((void (__fastcall *)(CgSoundSystem *, _QWORD, int *, SndAliasList *, int, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)attackerEntNum, v19, MeleeWorldImpactSound, surfType, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
       memset(&outOrg, 0, sizeof(outOrg));
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  [rsp+0C8h+var_98], xmm0
-        vmovss  dword ptr [rsp+0C8h+var_A0], xmm0
-      }
-      ((void (__fastcall *)(CgSoundSystem *, __int64, const vec3_t *, SndAliasList *, int, int, int, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, 2047i64, impactOrigin, MeleeWorldImpactSound, surfType, v23, v25, 0);
+      ((void (__fastcall *)(CgSoundSystem *, __int64, const vec3_t *, SndAliasList *, int, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, 2047i64, impactOrigin, MeleeWorldImpactSound, surfType, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
     }
   }
 }
@@ -2725,35 +2457,38 @@ void CG_PlayMountEnterExitSound(LocalClientNum_t localClientNum, const centity_t
 {
   WeaponSFXPackage *SfxPackage; 
   const char *szMountEnterExitString; 
-  const WeaponDef *v14; 
-  WeaponSFXPackage *v15; 
+  const WeaponDef *v13; 
+  WeaponSFXPackage *v14; 
   cg_t *LocalClientGlobals; 
-  char v44; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  const dvar_t *v20; 
   unsigned int number; 
   const characterInfo_t *CharacterInfo; 
   CgSoundSystem *SoundSystem; 
-  __int64 v49; 
+  __int64 v24; 
   char *outResultString; 
   vec3_t outOrg; 
   SndAliasList *aliasList[2]; 
   vec3_t outOrigin; 
-  char v54[64]; 
+  char v29[64]; 
 
   aliasList[1] = (SndAliasList *)-2i64;
-  __asm { vmovaps [rsp+128h+var_58], xmm6 }
   SfxPackage = BG_GetSfxPackage(weapon, isAlternate);
   if ( SfxPackage )
   {
     szMountEnterExitString = SfxPackage->szMountEnterExitString;
     if ( szMountEnterExitString )
       goto LABEL_8;
-    v14 = BG_WeaponDef(weapon, isAlternate);
-    if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1797, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
+    v13 = BG_WeaponDef(weapon, isAlternate);
+    if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1797, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
       __debugbreak();
-    v15 = v14->sfxPackage;
-    if ( v15 )
+    v14 = v13->sfxPackage;
+    if ( v14 )
     {
-      szMountEnterExitString = v15->szMountEnterExitString;
+      szMountEnterExitString = v14->szMountEnterExitString;
       if ( szMountEnterExitString )
       {
 LABEL_8:
@@ -2761,67 +2496,32 @@ LABEL_8:
         RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
         if ( isPlayerView )
         {
-          __asm
-          {
-            vmovss  xmm0, cs:downOffset
-            vxorps  xmm4, xmm0, cs:__xmm@80000000800000008000000080000000
-            vmovss  xmm3, cs:forwardOffset
-            vmulss  xmm0, xmm3, dword ptr [rsi+6944h]
-            vaddss  xmm2, xmm0, dword ptr [rsp+128h+outOrg]
-            vmulss  xmm1, xmm4, dword ptr [rsi+695Ch]
-            vaddss  xmm5, xmm2, xmm1
-            vmovss  dword ptr [rsp+128h+outOrigin], xmm5
-            vmulss  xmm0, xmm3, dword ptr [rsi+6948h]
-            vaddss  xmm2, xmm0, dword ptr [rsp+128h+outOrg+4]
-            vmulss  xmm1, xmm4, dword ptr [rsi+6960h]
-            vaddss  xmm6, xmm2, xmm1
-            vmovss  dword ptr [rsp+128h+outOrigin+4], xmm6
-            vmulss  xmm0, xmm3, dword ptr [rsi+694Ch]
-            vaddss  xmm2, xmm0, dword ptr [rsp+128h+outOrg+8]
-            vmulss  xmm1, xmm4, dword ptr [rsi+6964h]
-            vaddss  xmm3, xmm2, xmm1
-          }
+          v16 = (float)((float)(forwardOffset * LocalClientGlobals->refdef.view.axis.m[0].v[0]) + outOrg.v[0]) + (float)(COERCE_FLOAT(LODWORD(downOffset) ^ _xmm) * LocalClientGlobals->refdef.view.axis.m[2].v[0]);
+          outOrigin.v[0] = v16;
+          v17 = (float)((float)(forwardOffset * LocalClientGlobals->refdef.view.axis.m[0].v[1]) + outOrg.v[1]) + (float)(COERCE_FLOAT(LODWORD(downOffset) ^ _xmm) * LocalClientGlobals->refdef.view.axis.m[2].v[1]);
+          outOrigin.v[1] = v17;
+          v18 = (float)((float)(forwardOffset * LocalClientGlobals->refdef.view.axis.m[0].v[2]) + outOrg.v[2]) + (float)(COERCE_FLOAT(LODWORD(downOffset) ^ _xmm) * LocalClientGlobals->refdef.view.axis.m[2].v[2]);
         }
         else
         {
           CG_GetPoseOrigin(&cent->pose, &outOrigin);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+128h+outOrigin+8]
-            vaddss  xmm3, xmm0, cs:upOffset
-            vmovss  xmm6, dword ptr [rsp+128h+outOrigin+4]
-            vmovss  xmm5, dword ptr [rsp+128h+outOrigin]
-          }
+          v18 = outOrigin.v[2] + upOffset;
+          v17 = outOrigin.v[1];
+          v16 = outOrigin.v[0];
         }
-        __asm
-        {
-          vmovss  dword ptr [rsp+128h+outOrigin+8], xmm3
-          vsubss  xmm2, xmm5, dword ptr [rsp+128h+outOrg]
-          vsubss  xmm0, xmm6, dword ptr [rsp+128h+outOrg+4]
-          vsubss  xmm3, xmm3, dword ptr [rsp+128h+outOrg+8]
-          vmulss  xmm1, xmm0, xmm0
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm6, xmm2, xmm1
-        }
-        _RDI = DCONST_DVARFLT_cg_mountFoleyCullDistance;
+        outOrigin.v[2] = v18;
+        v19 = (float)((float)((float)(v17 - outOrg.v[1]) * (float)(v17 - outOrg.v[1])) + (float)((float)(v16 - outOrg.v[0]) * (float)(v16 - outOrg.v[0]))) + (float)((float)(v18 - outOrg.v[2]) * (float)(v18 - outOrg.v[2]));
+        v20 = DCONST_DVARFLT_cg_mountFoleyCullDistance;
         if ( !DCONST_DVARFLT_cg_mountFoleyCullDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mountFoleyCullDistance") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RDI);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+28h]
-          vmulss  xmm1, xmm0, xmm0
-          vcomiss xmm1, xmm6
-        }
-        if ( !v44 )
+        Dvar_CheckFrontendServerThread(v20);
+        if ( (float)(v20->current.value * v20->current.value) >= v19 )
         {
           if ( (unsigned int)eventParm >= 4 )
           {
             LODWORD(outResultString) = 4;
-            LODWORD(v49) = eventParm;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1841, ASSERT_TYPE_ASSERT, "(unsigned)( mountType ) < (unsigned)( COUNT_MOUNT_TYPE )", "mountType doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", v49, outResultString) )
+            LODWORD(v24) = eventParm;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1841, ASSERT_TYPE_ASSERT, "(unsigned)( mountType ) < (unsigned)( COUNT_MOUNT_TYPE )", "mountType doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", v24, outResultString) )
               __debugbreak();
           }
           if ( !eventParm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1842, ASSERT_TYPE_ASSERT, "( mountType ) != ( MOUNT_TYPE_NONE )", "%s != %s\n\t%i, %i", "mountType", "MOUNT_TYPE_NONE", 0, 0i64) )
@@ -2833,7 +2533,7 @@ LABEL_8:
             if ( CharacterInfo )
             {
               aliasList[0] = NULL;
-              BG_BuildMountEnterExitSound(cgMedia.equipmentSoundTable, event == 215, eventParm == 1, szMountEnterExitString, CharacterInfo->clothType, isPlayerView, v54, 64, aliasList);
+              BG_BuildMountEnterExitSound(cgMedia.equipmentSoundTable, event == 215, eventParm == 1, szMountEnterExitString, CharacterInfo->clothType, isPlayerView, v29, 64, aliasList);
               if ( aliasList[0] )
               {
                 SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
@@ -2848,7 +2548,6 @@ LABEL_8:
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+128h+var_58] }
 }
 
 /*
@@ -2859,63 +2558,43 @@ CG_PlayMountImpactSound
 void CG_PlayMountImpactSound(LocalClientNum_t localClientNum, const centity_t *const cent, const Weapon *weapon, bool isAlternate, const vec3_t *mountPoint, int eventParm, bool isPlayerView)
 {
   WeaponSFXPackage *SfxPackage; 
-  WeaponSFXPackage *v12; 
+  WeaponSFXPackage *v10; 
   cg_t *LocalClientGlobals; 
-  char v28; 
+  float v12; 
+  const dvar_t *v13; 
   CgSoundSystem *SoundSystem; 
   SndAliasList **outAliasList; 
-  __int64 v32; 
+  __int64 v16; 
   SndAliasList *aliasList; 
   vec3_t outOrg; 
-  __int64 v35; 
+  __int64 v19; 
   char outResultString[64]; 
 
-  v35 = -2i64;
-  __asm { vmovaps [rsp+0F8h+var_38], xmm6 }
-  _RSI = mountPoint;
+  v19 = -2i64;
   SfxPackage = BG_GetSfxPackage(weapon, isAlternate);
-  v12 = SfxPackage;
+  v10 = SfxPackage;
   if ( SfxPackage && SfxPackage->szMountImpactString )
   {
     LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
     RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &outOrg);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi]
-      vsubss  xmm3, xmm0, dword ptr [rsp+0F8h+outOrg]
-      vmovss  xmm1, dword ptr [rsi+4]
-      vsubss  xmm2, xmm1, dword ptr [rsp+0F8h+outOrg+4]
-      vmovss  xmm0, dword ptr [rsi+8]
-      vsubss  xmm4, xmm0, dword ptr [rsp+0F8h+outOrg+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm6, xmm3, xmm0
-    }
-    _RDI = DCONST_DVARFLT_cg_mountFoleyCullDistance;
+    v12 = (float)((float)((float)(mountPoint->v[1] - outOrg.v[1]) * (float)(mountPoint->v[1] - outOrg.v[1])) + (float)((float)(mountPoint->v[0] - outOrg.v[0]) * (float)(mountPoint->v[0] - outOrg.v[0]))) + (float)((float)(mountPoint->v[2] - outOrg.v[2]) * (float)(mountPoint->v[2] - outOrg.v[2]));
+    v13 = DCONST_DVARFLT_cg_mountFoleyCullDistance;
     if ( !DCONST_DVARFLT_cg_mountFoleyCullDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mountFoleyCullDistance") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmulss  xmm1, xmm0, xmm0
-      vcomiss xmm1, xmm6
-    }
-    if ( !v28 )
+    Dvar_CheckFrontendServerThread(v13);
+    if ( (float)(v13->current.value * v13->current.value) >= v12 )
     {
       if ( (unsigned int)eventParm >= 4 )
       {
-        LODWORD(v32) = 4;
+        LODWORD(v16) = 4;
         LODWORD(outAliasList) = eventParm;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1886, ASSERT_TYPE_ASSERT, "(unsigned)( mountType ) < (unsigned)( COUNT_MOUNT_TYPE )", "mountType doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", outAliasList, v32) )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1886, ASSERT_TYPE_ASSERT, "(unsigned)( mountType ) < (unsigned)( COUNT_MOUNT_TYPE )", "mountType doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", outAliasList, v16) )
           __debugbreak();
       }
       if ( !eventParm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1887, ASSERT_TYPE_ASSERT, "( mountType ) != ( MOUNT_TYPE_NONE )", "%s != %s\n\t%i, %i", "mountType", "MOUNT_TYPE_NONE", 0, 0i64) )
         __debugbreak();
       aliasList = NULL;
-      BG_BuildMountImpactSound(eventParm == 1, v12->szMountImpactString, isPlayerView, outResultString, 64, &aliasList);
+      BG_BuildMountImpactSound(eventParm == 1, v10->szMountImpactString, isPlayerView, outResultString, 64, &aliasList);
       if ( aliasList )
       {
         SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
@@ -2926,7 +2605,6 @@ void CG_PlayMountImpactSound(LocalClientNum_t localClientNum, const centity_t *c
     }
     memset(&outOrg, 0, sizeof(outOrg));
   }
-  __asm { vmovaps xmm6, [rsp+0F8h+var_38] }
 }
 
 /*
@@ -2983,14 +2661,12 @@ void CG_PlayProjectileImpactSoundAndEffect(const LocalClientNum_t localClientNum
   CgSoundSystem *SoundSystem; 
   CgSoundSystem_vtbl *v19; 
   unsigned int v20; 
-  FxCombinedDef v22; 
-  unsigned int v23; 
+  FxCombinedDef v21; 
+  unsigned int v22; 
   scr_string_t tag_fx; 
   const DObj *ClientDObj; 
-  Weapon *v26; 
-  int v27; 
-  __int64 v28; 
-  int v29; 
+  Weapon *v25; 
+  __int64 v26; 
   unsigned __int16 outBoneIndex[2]; 
   int outModelIndex; 
   SndAliasList *outSnd; 
@@ -3041,34 +2717,28 @@ void CG_PlayProjectileImpactSoundAndEffect(const LocalClientNum_t localClientNum
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  dword ptr [rsp+0C8h+var_98], xmm0
-        vmovss  dword ptr [rsp+0C8h+var_A0], xmm0
-      }
-      ((void (__fastcall *)(CgSoundSystem *, __int64, const vec3_t *, SndAliasList *, _DWORD, int, int, _DWORD))v19->PlaySurfaceSound)(SoundSystem, 2046i64, position, outSnd, es->surfType, v27, v29, 0);
+      ((void (__fastcall *)(CgSoundSystem *, __int64, const vec3_t *, SndAliasList *, _DWORD, _DWORD, _DWORD, _DWORD))v19->PlaySurfaceSound)(SoundSystem, 2046i64, position, outSnd, es->surfType, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
     }
   }
-  v22.particleSystemDef = BG_ProjBodyEffect(weapon, isAlternate).particleSystemDef;
-  if ( v22.particleSystemDef )
+  v21.particleSystemDef = BG_ProjBodyEffect(weapon, isAlternate).particleSystemDef;
+  if ( v21.particleSystemDef )
   {
-    v23 = es->number;
+    v22 = es->number;
     tag_fx = scr_const.tag_fx;
-    defHandle.m_particleSystemDef = v22.particleSystemDef;
+    defHandle.m_particleSystemDef = v21.particleSystemDef;
     outBoneIndex[0] = 254;
-    if ( v23 >= 0x9E5 )
+    if ( v22 >= 0x9E5 )
     {
-      LODWORD(v28) = 2533;
-      LODWORD(v26) = v23;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 589, ASSERT_TYPE_ASSERT, "(unsigned)( dobjHandle ) < (unsigned)( ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", "dobjHandle doesn't index CLIENT_DOBJ_HANDLE_MAX\n\t%i not in [0, %i)", v26, v28) )
+      LODWORD(v26) = 2533;
+      LODWORD(v25) = v22;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 589, ASSERT_TYPE_ASSERT, "(unsigned)( dobjHandle ) < (unsigned)( ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", "dobjHandle doesn't index CLIENT_DOBJ_HANDLE_MAX\n\t%i not in [0, %i)", v25, v26) )
         __debugbreak();
     }
-    ClientDObj = Com_GetClientDObj(v23, localClientNum);
+    ClientDObj = Com_GetClientDObj(v22, localClientNum);
     if ( ClientDObj )
     {
       if ( DObjGetBoneAndModelIndexClient(ClientDObj, tag_fx, outBoneIndex, &outModelIndex) )
-        FX_KillBoltedEffects(localClientNum, &defHandle, v23, outBoneIndex[0]);
+        FX_KillBoltedEffects(localClientNum, &defHandle, v22, outBoneIndex[0]);
     }
   }
 }
@@ -3080,119 +2750,104 @@ CG_PlayTrophyEffects
 */
 void CG_PlayTrophyEffects(LocalClientNum_t localClientNum, const vec3_t *missileOrigin, const tmat33_t<vec3_t> *explosionAxis, int tankEntIndex)
 {
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  scr_string_t v9; 
   centity_t *Entity; 
   CgVehicleSystem *VehicleSystem; 
   const VehicleClient *Client; 
   const VehicleDef *ClientDef; 
-  const VehicleDef *v16; 
+  const VehicleDef *v17; 
   cg_t *LocalClientGlobals; 
   const DObj *ClientDObj; 
   scr_string_t *trophyTags; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
   unsigned int i; 
-  scr_string_t v25; 
-  bool v26; 
-  LocalClientNum_t v50; 
+  scr_string_t v26; 
+  DObjAnimMat *LocalBoneMatrix; 
+  LocalClientNum_t v28; 
   unsigned int number; 
-  const DObj *v52; 
-  cg_t *v53; 
+  const DObj *v30; 
+  cg_t *v31; 
   __int64 spawnFlags; 
   unsigned __int16 inOutIndex[2]; 
   LocalClientNum_t localClientNuma; 
   FXRegisteredDef def; 
-  FXRegisteredDef v58; 
-  const vec3_t *v59; 
-  const VehicleDef *v60; 
+  FXRegisteredDef v36; 
+  const vec3_t *v37; 
+  const VehicleDef *v38; 
+  __int128 v39; 
+  __int128 v40; 
+  __int128 v41; 
+  __int128 v42; 
 
-  v59 = missileOrigin;
+  v37 = missileOrigin;
+  v9 = 0;
   localClientNuma = localClientNum;
-  v58.m_particleSystemDef = NULL;
+  v36.m_particleSystemDef = NULL;
   Entity = CG_GetEntity(localClientNum, tankEntIndex);
   if ( Entity )
   {
     VehicleSystem = CgVehicleSystem::GetVehicleSystem(localClientNum);
     Client = CgVehicleSystem::GetClient(VehicleSystem, Entity);
     ClientDef = CgVehicleSystem::GetClientDef(Client);
-    v16 = ClientDef;
-    v60 = ClientDef;
+    v17 = ClientDef;
+    v38 = ClientDef;
     if ( ClientDef->trophyExplodeFx.particleSystemDef )
     {
       def.m_particleSystemDef = ClientDef->trophyExplodeFx.particleSystemDef;
       LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
       FX_PlayOrientedEffect(localClientNum, &def, LocalClientGlobals->time, missileOrigin, explosionAxis);
     }
-    if ( v16->trophyFlashFx.particleSystemDef )
+    if ( v17->trophyFlashFx.particleSystemDef )
     {
       ClientDObj = Com_GetClientDObj(tankEntIndex, localClientNum);
       if ( ClientDObj )
       {
-        __asm { vmovaps [rsp+0F8h+var_58], xmm6 }
-        trophyTags = v16->trophyTags;
-        __asm
+        v42 = v4;
+        trophyTags = v17->trophyTags;
+        v21 = FLOAT_3_4028235e38;
+        v41 = v5;
+        v22 = *(float *)&localClientNuma;
+        v40 = v6;
+        v23 = *(float *)&localClientNuma;
+        v39 = v7;
+        v24 = *(float *)&localClientNuma;
+        for ( i = 0; i < 4; ++i )
         {
-          vmovss  xmm6, cs:__real@7f7fffff
-          vmovaps [rsp+0F8h+var_68], xmm7
-          vmovss  xmm7, [rsp+0F8h+localClientNum]
-          vmovaps [rsp+0F8h+var_78], xmm8
-          vmovss  xmm8, [rsp+0F8h+localClientNum]
-          vmovaps [rsp+0F8h+var_88], xmm9
-          vmovss  xmm9, [rsp+0F8h+localClientNum]
-        }
-        for ( i = 0; i < 4; v26 = i == 4 )
-        {
-          v25 = *trophyTags;
-          v26 = *trophyTags == 0;
+          v26 = *trophyTags;
           if ( !*trophyTags )
             break;
           if ( !g_activeRefDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_ents_inline.h", 117, ASSERT_TYPE_ASSERT, "(g_activeRefDef)", (const char *)&queryFormat, "g_activeRefDef") )
             __debugbreak();
           LOBYTE(inOutIndex[0]) = -2;
-          if ( DObjGetBoneIndexInternal_47(ClientDObj, v25, (unsigned __int8 *)inOutIndex, (int *)&def) )
+          if ( DObjGetBoneIndexInternal_47(ClientDObj, v26, (unsigned __int8 *)inOutIndex, (int *)&def) )
           {
-            if ( CG_DObjGetLocalBoneMatrix(&Entity->pose, ClientDObj, LOBYTE(inOutIndex[0])) )
+            LocalBoneMatrix = CG_DObjGetLocalBoneMatrix(&Entity->pose, ClientDObj, LOBYTE(inOutIndex[0]));
+            if ( LocalBoneMatrix )
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rax+10h]
-                vmovss  xmm1, dword ptr [rax+14h]
-                vaddss  xmm7, xmm0, dword ptr [rcx+7Ch]
-                vmovss  xmm0, dword ptr [rax+18h]
-                vaddss  xmm9, xmm0, dword ptr [rcx+84h]
-                vaddss  xmm8, xmm1, dword ptr [rcx+80h]
-              }
+              v22 = LocalBoneMatrix->trans.v[0] + g_activeRefDef->viewOffset.v[0];
+              v24 = LocalBoneMatrix->trans.v[2] + g_activeRefDef->viewOffset.v[2];
+              v23 = LocalBoneMatrix->trans.v[1] + g_activeRefDef->viewOffset.v[1];
             }
           }
-          _RAX = v59;
-          __asm
+          if ( (float)((float)((float)((float)(v37->v[1] - v23) * (float)(v37->v[1] - v23)) + (float)((float)(v37->v[0] - v22) * (float)(v37->v[0] - v22))) + (float)((float)(v37->v[2] - v24) * (float)(v37->v[2] - v24))) < v21 )
           {
-            vmovss  xmm0, dword ptr [rax]
-            vmovss  xmm1, dword ptr [rax+4]
-            vsubss  xmm3, xmm0, xmm7
-            vmovss  xmm0, dword ptr [rax+8]
-            vsubss  xmm2, xmm1, xmm8
-            vsubss  xmm4, xmm0, xmm9
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm5, xmm3, xmm0
-            vcomiss xmm5, xmm6
+            v9 = *trophyTags;
+            v21 = (float)((float)((float)(v37->v[1] - v23) * (float)(v37->v[1] - v23)) + (float)((float)(v37->v[0] - v22) * (float)(v37->v[0] - v22))) + (float)((float)(v37->v[2] - v24) * (float)(v37->v[2] - v24));
           }
-          ++i;
           ++trophyTags;
         }
-        __asm
+        v28 = localClientNuma;
+        if ( v21 != 3.4028235e38 )
         {
-          vucomiss xmm6, cs:__real@7f7fffff
-          vmovaps xmm6, [rsp+0F8h+var_58]
-          vmovaps xmm9, [rsp+0F8h+var_88]
-          vmovaps xmm8, [rsp+0F8h+var_78]
-          vmovaps xmm7, [rsp+0F8h+var_68]
-        }
-        v50 = localClientNuma;
-        if ( !v26 )
-        {
-          v58.m_particleSystemDef = v60->trophyFlashFx.particleSystemDef;
-          if ( !v58.m_particleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1223, ASSERT_TYPE_ASSERT, "(trophyFlashFxDef.IsValid())", (const char *)&queryFormat, "trophyFlashFxDef.IsValid()") )
+          v36.m_particleSystemDef = v38->trophyFlashFx.particleSystemDef;
+          if ( !v36.m_particleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1223, ASSERT_TYPE_ASSERT, "(trophyFlashFxDef.IsValid())", (const char *)&queryFormat, "trophyFlashFxDef.IsValid()") )
             __debugbreak();
           number = Entity->nextState.number;
           strcpy((char *)inOutIndex, "þ");
@@ -3202,13 +2857,13 @@ void CG_PlayTrophyEffects(LocalClientNum_t localClientNum, const vec3_t *missile
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 589, ASSERT_TYPE_ASSERT, "(unsigned)( dobjHandle ) < (unsigned)( ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", "dobjHandle doesn't index CLIENT_DOBJ_HANDLE_MAX\n\t%i not in [0, %i)", spawnFlags, 2533) )
               __debugbreak();
           }
-          v52 = Com_GetClientDObj(number, v50);
-          if ( v52 )
+          v30 = Com_GetClientDObj(number, v28);
+          if ( v30 )
           {
-            if ( DObjGetBoneAndModelIndexClient(v52, (scr_string_t)0, inOutIndex, (int *)&def) )
+            if ( DObjGetBoneAndModelIndexClient(v30, v9, inOutIndex, (int *)&def) )
             {
-              v53 = CG_GetLocalClientGlobals(v50);
-              FX_PlayBoltedEffect(v50, &v58, v53->time, number, inOutIndex[0], 0);
+              v31 = CG_GetLocalClientGlobals(v28);
+              FX_PlayBoltedEffect(v28, &v36, v31->time, number, inOutIndex[0], 0);
             }
           }
         }
@@ -3224,67 +2879,48 @@ CG_SND_VerifyTracerAndWhizbySpeeds
 */
 void CG_SND_VerifyTracerAndWhizbySpeeds(const bitarray<64> perks, const Weapon *r_weapon, bool isAlternate)
 {
-  const dvar_t *v6; 
+  const dvar_t *v3; 
+  double TracerSpeed; 
+  float v8; 
   const WeaponSFXPackage *SfxPackage; 
+  const SndWhizby *Whizby; 
+  const SndWhizby *v11; 
+  float bulletSpeed; 
+  TracerDef *v13; 
+  double v14; 
   TracerDef *v15; 
-  char v21; 
-  TracerDef *v22; 
-  char *fmt; 
-  char *fmta; 
-  double v29; 
-  double v30; 
 
-  v6 = DCONST_DVARBOOL_cg_snd_debugwhizby;
+  v3 = DCONST_DVARBOOL_cg_snd_debugwhizby;
   if ( !DCONST_DVARBOOL_cg_snd_debugwhizby && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_snd_debugwhizby") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.enabled )
   {
-    __asm { vmovaps [rsp+68h+var_18], xmm6 }
-    *(double *)&_XMM0 = CG_GetTracerSpeed(perks, r_weapon, isAlternate);
-    __asm { vmovaps xmm6, xmm0 }
+    TracerSpeed = CG_GetTracerSpeed(perks, r_weapon, isAlternate);
+    v8 = *(float *)&TracerSpeed;
     SfxPackage = BG_GetSfxPackage(r_weapon, isAlternate);
-    _RAX = SND_GetWhizby(SfxPackage);
-    _RDI = (const char *)_RAX;
-    if ( _RAX )
+    Whizby = SND_GetWhizby(SfxPackage);
+    v11 = Whizby;
+    if ( Whizby )
     {
-      __asm
+      bulletSpeed = Whizby->bulletSpeed;
+      if ( bulletSpeed <= v8 )
       {
-        vmovss  xmm0, dword ptr [rax+7Ch]
-        vcomiss xmm0, xmm6
-        vmovaps [rsp+68h+var_28], xmm7
+        v14 = v8;
       }
-      v15 = BG_TracerType(perks, r_weapon, isAlternate);
-      __asm
+      else
       {
-        vmovss  xmm0, dword ptr [rdi+7Ch]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm7, xmm6, xmm6
-        vmovsd  [rsp+68h+var_40], xmm7
-        vmovsd  [rsp+68h+fmt], xmm0
+        v13 = BG_TracerType(perks, r_weapon, isAlternate);
+        v14 = v8;
+        Com_PrintWarning(9, "Bullet speed for whizby %s is faster than the tracer %s %f > %f\n", v11->name, v13->name, v11->bulletSpeed, v8);
+        bulletSpeed = v11->bulletSpeed;
       }
-      Com_PrintWarning(9, "Bullet speed for whizby %s is faster than the tracer %s %f > %f\n", _RDI, v15->name, *(double *)&fmt, v29);
-      __asm
+      if ( (float)(bulletSpeed + 2000.0) < v8 )
       {
-        vmovss  xmm0, dword ptr [rdi+7Ch]
-        vaddss  xmm0, xmm0, cs:__real@44fa0000
-        vcomiss xmm0, xmm6
+        v15 = BG_TracerType(perks, r_weapon, isAlternate);
+        Com_PrintWarning(9, "Bullet speed for whizby %s is a lot slower the tracer %s %f < %f\n", v11->name, v15->name, v11->bulletSpeed, v14);
       }
-      if ( v21 )
-      {
-        v22 = BG_TracerType(perks, r_weapon, isAlternate);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+7Ch]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovsd  [rsp+68h+var_40], xmm7
-          vmovsd  [rsp+68h+fmt], xmm0
-        }
-        Com_PrintWarning(9, "Bullet speed for whizby %s is a lot slower the tracer %s %f < %f\n", _RDI, v22->name, *(double *)&fmta, v30);
-      }
-      __asm { vmovaps xmm7, [rsp+68h+var_28] }
     }
-    __asm { vmovaps xmm6, [rsp+68h+var_18] }
   }
 }
 
@@ -3297,27 +2933,15 @@ void CG_SlideSound(LocalClientNum_t localClientNum, int entNum, SndAliasList *al
 {
   CgSoundSystem *SoundSystem; 
   centity_t *Entity; 
-  int v17; 
-  int v18; 
+  double FootstepVolumeScale; 
   vec3_t trBase; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
   SoundSystem = CgSoundSystem::GetSoundSystem(localClientNum);
   Entity = CG_GetEntity(localClientNum, entNum);
-  *(double *)&_XMM0 = CgSoundSystem::GetFootstepVolumeScale(SoundSystem, Entity, 3, isPlayerView);
-  __asm { vmovaps xmm6, xmm0 }
+  FootstepVolumeScale = CgSoundSystem::GetFootstepVolumeScale(SoundSystem, Entity, 3, isPlayerView);
   Trajectory_GetTrBase(&Entity->nextState.lerp.pos, &trBase);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vmovss  [rsp+78h+var_48], xmm1
-    vmovss  [rsp+78h+var_50], xmm6
-  }
-  ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, int, int, int, _DWORD, __int64))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)entNum, &trBase, aliasList, surfaceType, v17, v18, 0, -2i64);
+  ((void (__fastcall *)(CgSoundSystem *, _QWORD, vec3_t *, SndAliasList *, int, _DWORD, _DWORD, _DWORD, __int64))SoundSystem->PlaySurfaceSound)(SoundSystem, (unsigned int)entNum, &trBase, aliasList, surfaceType, LODWORD(FootstepVolumeScale), LODWORD(FLOAT_1_0), 0, -2i64);
   memset(&trBase, 0, sizeof(trBase));
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
 }
 
 /*
@@ -3419,38 +3043,20 @@ CG_UpdateMissileEventOrientation
 */
 void CG_UpdateMissileEventOrientation(entityState_t *es, int eventParam, tmat33_t<vec3_t> *axis)
 {
-  _RBX = axis;
+  tmat33_t<vec3_t> *v5; 
+
   if ( !es && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1282, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  ByteToDir(eventParam, _RBX->m);
-  _RDI = &_RBX->m[2];
-  _RSI = (tmat33_t<vec3_t> *)&_RBX->m[1];
-  PerpendicularVector(_RBX->m, &_RBX->m[2]);
-  if ( &_RBX->row2 == &_RBX->row1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
+  ByteToDir(eventParam, axis->m);
+  v5 = (tmat33_t<vec3_t> *)&axis->m[1];
+  PerpendicularVector(axis->m, &axis->m[2]);
+  if ( &axis->row2 == &axis->row1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
     __debugbreak();
-  if ( _RBX == _RSI && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
+  if ( axis == v5 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmulss  xmm3, xmm0, dword ptr [rdi+4]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmulss  xmm2, xmm1, dword ptr [rdi+8]
-    vsubss  xmm0, xmm3, xmm2
-    vmovss  dword ptr [rsi], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmulss  xmm2, xmm0, dword ptr [rdi]
-    vmovss  xmm1, dword ptr [rdi+8]
-    vmulss  xmm3, xmm1, dword ptr [rbx]
-    vsubss  xmm1, xmm3, xmm2
-    vmovss  dword ptr [rsi+4], xmm1
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  xmm1, dword ptr [rdi+4]
-    vmulss  xmm2, xmm1, dword ptr [rbx]
-    vmulss  xmm3, xmm0, dword ptr [rdi]
-    vsubss  xmm0, xmm3, xmm2
-    vmovss  dword ptr [rsi+8], xmm0
-  }
+  v5->m[0].v[0] = (float)(axis->m[0].v[2] * axis->m[2].v[1]) - (float)(axis->m[0].v[1] * axis->m[2].v[2]);
+  axis->m[1].v[1] = (float)(axis->m[2].v[2] * axis->m[0].v[0]) - (float)(axis->m[0].v[2] * axis->m[2].v[0]);
+  axis->m[1].v[2] = (float)(axis->m[0].v[1] * axis->m[2].v[0]) - (float)(axis->m[2].v[1] * axis->m[0].v[0]);
 }
 
 /*
@@ -3473,10 +3079,12 @@ void CL_LandingRumble(const LocalClientNum_t localClientNum, const int event)
   cg_t *LocalClientGlobals; 
   playerState_s *p_predictedPlayerState; 
   const SuitDef *SuitDef; 
+  float v7; 
   const RumbleInfo *landing_rumbleLowHeight; 
-  const char *v11; 
+  const char *v9; 
+  const dvar_t *v10; 
+  double Float_Internal_DebugName; 
   const dvar_t *v12; 
-  const dvar_t *v13; 
 
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
@@ -3485,55 +3093,47 @@ void CL_LandingRumble(const LocalClientNum_t localClientNum, const int event)
   SuitDef = BG_GetSuitDef(p_predictedPlayerState->suitIndex);
   if ( SuitDef )
   {
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vxorps  xmm6, xmm6, xmm6
-    }
+    v7 = 0.0;
     switch ( event )
     {
       case 181:
       case 185:
         landing_rumbleLowHeight = SuitDef->landing_rumbleLowHeight;
-        v11 = "handheldCameraImpulseLandingModifierLow";
-        v12 = DCONST_DVARFLT_handheldCameraImpulseLandingModifierLow;
+        v9 = "handheldCameraImpulseLandingModifierLow";
+        v10 = DCONST_DVARFLT_handheldCameraImpulseLandingModifierLow;
         goto LABEL_10;
       case 182:
       case 186:
         landing_rumbleLowHeight = SuitDef->landing_rumbleMediumHeight;
-        v11 = "handheldCameraImpulseLandingModifierMedium";
-        v12 = DCONST_DVARFLT_handheldCameraImpulseLandingModifierMedium;
+        v9 = "handheldCameraImpulseLandingModifierMedium";
+        v10 = DCONST_DVARFLT_handheldCameraImpulseLandingModifierMedium;
         goto LABEL_10;
       case 183:
       case 187:
         landing_rumbleLowHeight = SuitDef->landing_rumbleHighHeight;
-        v11 = "handheldCameraImpulseLandingModifierHigh";
-        v12 = DCONST_DVARFLT_handheldCameraImpulseLandingModifierHigh;
+        v9 = "handheldCameraImpulseLandingModifierHigh";
+        v10 = DCONST_DVARFLT_handheldCameraImpulseLandingModifierHigh;
         goto LABEL_10;
       case 184:
       case 188:
         landing_rumbleLowHeight = SuitDef->landing_rumbleExtremeHeight;
-        v11 = "handheldCameraImpulseLandingModifierExtreme";
-        v12 = DCONST_DVARFLT_handheldCameraImpulseLandingModifierExtreme;
+        v9 = "handheldCameraImpulseLandingModifierExtreme";
+        v10 = DCONST_DVARFLT_handheldCameraImpulseLandingModifierExtreme;
 LABEL_10:
-        *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v12, v11);
-        __asm { vmovaps xmm6, xmm0 }
+        Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(v10, v9);
+        v7 = *(float *)&Float_Internal_DebugName;
         if ( landing_rumbleLowHeight )
           CG_Rumble_PlayOnClient(localClientNum, landing_rumbleLowHeight);
         break;
       default:
         break;
     }
-    v13 = DCONST_DVARBOOL_handheldCameraImpulseLandingEnabled;
+    v12 = DCONST_DVARBOOL_handheldCameraImpulseLandingEnabled;
     if ( !DCONST_DVARBOOL_handheldCameraImpulseLandingEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "handheldCameraImpulseLandingEnabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    if ( v13->current.enabled )
-    {
-      __asm { vmovaps xmm2, xmm6; scale }
-      CG_Shake_Impulse(localClientNum, MOVEMENT, *(float *)&_XMM2);
-    }
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
+    Dvar_CheckFrontendServerThread(v12);
+    if ( v12->current.enabled )
+      CG_Shake_Impulse(localClientNum, MOVEMENT, v7);
   }
 }
 
@@ -3574,32 +3174,35 @@ void CgEventSystem::CheckEntityEvents(CgEventSystem *this, centity_t *cent, cons
 {
   entityType_s eType; 
   cg_t *LocalClientGlobals; 
-  bool v9; 
-  EventSequence v10; 
+  bool v8; 
+  EventSequence v9; 
   EventSequence *p_previousEventSequence; 
-  int v12; 
+  int v11; 
   LocalClientNum_t m_localClientNum; 
-  bool v14; 
-  int v15; 
+  bool v13; 
+  int v14; 
   unsigned __int16 highLod; 
-  unsigned int v17; 
-  int v18; 
+  unsigned int v16; 
+  int v17; 
+  __int64 eventType; 
   const char *EntityTypeName; 
-  entityType_s v27; 
-  const char *v28; 
-  __int64 v36; 
-  __int64 v37; 
-  bool v38; 
+  __int128 v23; 
+  __int64 v25; 
+  entityType_s v26; 
+  const char *v27; 
+  __int64 v32; 
+  __int64 v33; 
+  bool v34; 
   unsigned int eventParm; 
-  const CgEventLodData *v41; 
+  const CgEventLodData *v37; 
 
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4832, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   eType = cent->nextState.eType;
   if ( eType >= ET_EVENTS )
   {
-    LODWORD(v36) = eType;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4833, ASSERT_TYPE_ASSERT, "( ( cent->nextState.eType < ET_EVENTS ) )", "( cent->nextState.eType ) = %i", v36) )
+    LODWORD(v32) = eType;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4833, ASSERT_TYPE_ASSERT, "( ( cent->nextState.eType < ET_EVENTS ) )", "( cent->nextState.eType ) = %i", v32) )
       __debugbreak();
   }
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
@@ -3607,109 +3210,100 @@ void CgEventSystem::CheckEntityEvents(CgEventSystem *this, centity_t *cent, cons
     __debugbreak();
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
     __debugbreak();
-  v9 = cent->nextState.number < (int)ComCharacterLimits::ms_gameData.m_clientCount && LocalClientGlobals->m_usingLowLodClientEntityEvents;
-  v10.combined = (int)cent->nextState.eventSequence;
+  v8 = cent->nextState.number < (int)ComCharacterLimits::ms_gameData.m_clientCount && LocalClientGlobals->m_usingLowLodClientEntityEvents;
+  v9.combined = (int)cent->nextState.eventSequence;
   p_previousEventSequence = &cent->previousEventSequence;
-  if ( cent->previousEventSequence.combined == v10.combined )
+  if ( cent->previousEventSequence.combined == v9.combined )
   {
-    p_previousEventSequence->combined = v10.combined;
+    p_previousEventSequence->combined = v9.combined;
     goto LABEL_29;
   }
-  v12 = CgEventSystem::LowLodEventsEnabledForEntity(this, cent, v9);
+  v11 = CgEventSystem::LowLodEventsEnabledForEntity(this, cent, v8);
   m_localClientNum = this->m_localClientNum;
-  if ( !v12 )
+  if ( !v11 )
   {
-    v14 = 0;
-    v38 = 0;
-    v15 = CG_Events_CalculatePreviousEventSequence_HighLodEvents(m_localClientNum, cent, 1, v9, &cent->previousEventSequence);
-    if ( v15 )
+    v13 = 0;
+    v34 = 0;
+    v14 = CG_Events_CalculatePreviousEventSequence_HighLodEvents(m_localClientNum, cent, 1, v8, &cent->previousEventSequence);
+    if ( v14 )
       goto LABEL_21;
 LABEL_29:
     if ( p_previousEventSequence->combined != cent->nextState.eventSequence.combined && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4844, ASSERT_TYPE_ASSERT, "( cent->previousEventSequence.combined ) == ( cent->nextState.eventSequence.combined )", "%s == %s\n\t%i, %i", "cent->previousEventSequence.combined", "cent->nextState.eventSequence.combined", p_previousEventSequence->combined, cent->nextState.eventSequence.combined) )
       __debugbreak();
     return;
   }
-  v18 = CG_Events_CalculatePreviousEventSequence_AnyNewLowLodEvents(m_localClientNum, cent, 1, v9);
+  v17 = CG_Events_CalculatePreviousEventSequence_AnyNewLowLodEvents(m_localClientNum, cent, 1, v8);
   p_previousEventSequence->highLod = cent->nextState.eventSequence.highLod;
-  v14 = v18 != 0;
-  v15 = 0;
-  v38 = v18 != 0;
+  v13 = v17 != 0;
+  v14 = 0;
+  v34 = v17 != 0;
   cent->previousEventSequence.lowLod = cent->previousEventSequence.lowLod;
-  if ( !v18 )
+  if ( !v17 )
     goto LABEL_29;
 LABEL_21:
   CgSimBulletFirePellet_EnableWorkers(1);
-  v41 = this->GetEntityEventLodDataIfSupported(this, cent, (unsigned int)eventFlags);
+  v37 = this->GetEntityEventLodDataIfSupported(this, cent, (unsigned int)eventFlags);
   eventParm = cent->nextState.eventParm;
-  if ( !v15 && p_previousEventSequence->highLod != cent->nextState.eventSequence.highLod && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4857, ASSERT_TYPE_ASSERT, "(performHighLodEvents || cent->previousEventSequence.highLod == cent->nextState.eventSequence.highLod)", (const char *)&queryFormat, "performHighLodEvents || cent->previousEventSequence.highLod == cent->nextState.eventSequence.highLod") )
+  if ( !v14 && p_previousEventSequence->highLod != cent->nextState.eventSequence.highLod && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4857, ASSERT_TYPE_ASSERT, "(performHighLodEvents || cent->previousEventSequence.highLod == cent->nextState.eventSequence.highLod)", (const char *)&queryFormat, "performHighLodEvents || cent->previousEventSequence.highLod == cent->nextState.eventSequence.highLod") )
     __debugbreak();
   highLod = p_previousEventSequence->highLod;
   if ( p_previousEventSequence->highLod != cent->nextState.eventSequence.highLod )
   {
     do
     {
-      if ( v9 )
-        v17 = highLod % 3u;
+      if ( v8 )
+        v16 = highLod % 3u;
       else
-        v17 = highLod & 3;
-      if ( v17 >= 4 )
+        v16 = highLod & 3;
+      if ( v16 >= 4 )
       {
-        LODWORD(v37) = 4;
-        LODWORD(v36) = v17;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4861, ASSERT_TYPE_ASSERT, "(unsigned)( eventIndex ) < (unsigned)( ( sizeof( *array_counter( cent->nextState.events ) ) + 0 ) )", "eventIndex doesn't index cent->nextState.events\n\t%i not in [0, %i)", v36, v37) )
+        LODWORD(v33) = 4;
+        LODWORD(v32) = v16;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4861, ASSERT_TYPE_ASSERT, "(unsigned)( eventIndex ) < (unsigned)( ( sizeof( *array_counter( cent->nextState.events ) ) + 0 ) )", "eventIndex doesn't index cent->nextState.events\n\t%i not in [0, %i)", v32, v33) )
           __debugbreak();
       }
-      _RDI = cent->nextState.events[v17].eventType;
-      cent->nextState.eventParm = cent->nextState.events[v17].eventParm;
-      if ( (unsigned int)(_RDI + 32797) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum entityType_s __cdecl truncate_cast_impl<enum entityType_s,int>(int)", "signed", (__int16)(_RDI + 29), "signed", (int)_RDI + 29) )
+      eventType = cent->nextState.events[v16].eventType;
+      cent->nextState.eventParm = cent->nextState.events[v16].eventParm;
+      if ( (unsigned int)(eventType + 32797) > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "enum entityType_s __cdecl truncate_cast_impl<enum entityType_s,int>(int)", "signed", (__int16)(eventType + 29), "signed", (int)eventType + 29) )
         __debugbreak();
-      EntityTypeName = BG_GetEntityTypeName((const entityType_s)(_RDI + 29));
+      EntityTypeName = BG_GetEntityTypeName((const entityType_s)(eventType + 29));
       Sys_ProfBeginNamedEvent(0xFFFFFFFF, EntityTypeName);
       __rdtsc();
-      *(double *)&_XMM0 = ((double (__fastcall *)(CgEventSystem *, centity_t *, _QWORD, _QWORD, const CgEventLodData *))this->HandleEntityEvent)(this, cent, (unsigned int)_RDI, (unsigned int)eventFlags, v41);
+      this->HandleEntityEvent(this, cent, eventType, eventFlags, v37);
       __rdtsc();
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      _RBX = 0x140000000ui64;
-      ++g_perfEventNum[_RDI];
-      __asm
-      {
-        vcvtsi2sd xmm0, xmm0, rax
-        vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vaddsd  xmm0, xmm1, rva ?g_perfEventTime@@3PANA[rbx+rdi*8]; double near * g_perfEventTime
-        vmovsd  rva ?g_perfEventTime@@3PANA[rbx+rdi*8], xmm0; double near * g_perfEventTime
-        vmaxsd  xmm0, xmm1, rva ?g_perfEventMax@@3PANA[rbx+rdi*8]; double near * g_perfEventMax
-        vmovsd  rva ?g_perfEventMax@@3PANA[rbx+rdi*8], xmm0; double near * g_perfEventMax
-      }
+      _XMM0 = 0i64;
+      ++g_perfEventNum[eventType];
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      *((_QWORD *)&v23 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v23 = *(double *)&_XMM0 * msecPerRawTimerTick;
+      _XMM1 = v23;
+      g_perfEventTime[eventType] = *(double *)&_XMM0 * msecPerRawTimerTick + g_perfEventTime[eventType];
+      __asm { vmaxsd  xmm0, xmm1, rva ?g_perfEventMax@@3PANA[rbx+rdi*8]; double near * g_perfEventMax }
+      g_perfEventMax[eventType] = *(double *)&_XMM0;
       Sys_ProfEndNamedEvent();
       ++highLod;
     }
     while ( highLod != cent->nextState.eventSequence.highLod );
-    v14 = v38;
+    v13 = v34;
     p_previousEventSequence = &cent->previousEventSequence;
   }
-  if ( v14 )
+  if ( v13 )
   {
-    _RDI = cent->nextState.events[3].eventType;
+    v25 = cent->nextState.events[3].eventType;
     cent->nextState.eventParm = cent->nextState.events[3].eventParm;
-    v27 = truncate_cast<enum entityType_s,int>(_RDI + 29);
-    v28 = BG_GetEntityTypeName(v27);
-    Sys_ProfBeginNamedEvent(0xFFFFFFFF, v28);
+    v26 = truncate_cast<enum entityType_s,int>(v25 + 29);
+    v27 = BG_GetEntityTypeName(v26);
+    Sys_ProfBeginNamedEvent(0xFFFFFFFF, v27);
     __rdtsc();
-    *(double *)&_XMM0 = ((double (__fastcall *)(CgEventSystem *, centity_t *, _QWORD, _QWORD, const CgEventLodData *))this->HandleEntityEvent)(this, cent, (unsigned int)_RDI, (unsigned int)eventFlags, v41);
+    this->HandleEntityEvent(this, cent, v25, eventFlags, v37);
     __rdtsc();
-    _RCX = 0x140000000ui64;
-    ++g_perfEventNum[_RDI];
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-      vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vaddsd  xmm0, xmm1, rva ?g_perfEventTime@@3PANA[rcx+rdi*8]; double near * g_perfEventTime
-      vmovsd  rva ?g_perfEventTime@@3PANA[rcx+rdi*8], xmm0; double near * g_perfEventTime
-      vmovsd  xmm0, rva ?g_perfEventMax@@3PANA[rcx+rdi*8]; double near * g_perfEventMax
-      vmaxsd  xmm1, xmm0, xmm1
-      vmovsd  rva ?g_perfEventMax@@3PANA[rcx+rdi*8], xmm1; double near * g_perfEventMax
-    }
+    ++g_perfEventNum[v25];
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    g_perfEventTime[v25] = *(double *)&_XMM0 * msecPerRawTimerTick + g_perfEventTime[v25];
+    _XMM0 = *(unsigned __int64 *)&g_perfEventMax[v25];
+    __asm { vmaxsd  xmm1, xmm0, xmm1 }
+    g_perfEventMax[v25] = *(double *)&_XMM1;
     Sys_ProfEndNamedEvent();
   }
   CgSimBulletFirePellet_EnableWorkers(0);
@@ -3879,268 +3473,274 @@ CgEventSystem::HandleEntityEventCommon
 */
 void CgEventSystem::HandleEntityEventCommon(CgEventSystem *this, centity_t *cent, const int clientNum, const int event, const int eventFlags, const unsigned int eventParm, const Weapon *iweapon, const bool isAlternate, const bool isPlayerView, const CgEventLodData *optionalEventLodData)
 {
-  entity_event_t v15; 
-  const dvar_t *v19; 
-  const dvar_t *v20; 
+  entity_event_t v10; 
+  entityState_t *p_nextState; 
+  const dvar_t *v14; 
+  const dvar_t *v15; 
   const char *EventTypeName; 
+  cg_t *LocalClientGlobals; 
   characterInfo_t *CharacterInfo; 
   playerState_s *p_predictedPlayerState; 
+  int v20; 
+  double Float_Internal_DebugName; 
+  float v22; 
+  FootstepMoveType_t v23; 
+  int v24; 
   int v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  int v29; 
   FootstepMoveType_t v30; 
   int v31; 
-  int v32; 
-  bool v36; 
-  int v40; 
-  FootstepMoveType_t v41; 
-  int v42; 
-  FootstepMoveType_t v43; 
-  int v45; 
-  ShakeImpulseSourceType v46; 
-  CgWeaponMap *v48; 
-  char v49; 
-  centity_t *v50; 
-  bool v51; 
+  FootstepMoveType_t v32; 
+  float v33; 
+  double v34; 
+  double v35; 
+  int v36; 
+  ShakeImpulseSourceType v37; 
+  CgWeaponMap *v38; 
+  char v39; 
+  centity_t *v40; 
+  bool isLadder; 
   const vec3_t *p_position; 
-  int v53; 
-  __int32 v54; 
-  __int32 v55; 
-  __int32 v56; 
-  EquipmentStanceType_t v57; 
+  int v43; 
+  __int32 v44; 
+  __int32 v45; 
+  __int32 v46; 
+  EquipmentStanceType_t v47; 
   const SndAliasList *StanceTransitionSound; 
-  ShakeImpulseSourceType v66; 
-  CgWeaponMap *v67; 
-  CgWeaponMap *v72; 
+  double v49; 
+  float v50; 
+  double v51; 
+  float v52; 
+  double ValueFromFraction; 
+  ShakeImpulseSourceType v54; 
+  CgWeaponMap *v55; 
+  const Weapon *CurrentWeaponForPlayer; 
+  CgWeaponMap *v57; 
   const Weapon *Weapon; 
-  int v74; 
+  int v59; 
   LocalClientNum_t m_localClientNum; 
-  CgSoundSystem *v76; 
-  __int64 v77; 
+  CgSoundSystem *v61; 
+  __int64 v62; 
   const SndAliasList *WeaponSoundWithFallback; 
-  const WeaponDef *v79; 
-  cg_t *LocalClientGlobals; 
-  int v81; 
-  LocalClientNum_t v82; 
-  CgSoundSystem *v83; 
+  const WeaponDef *v64; 
+  cg_t *v65; 
+  int v66; 
+  LocalClientNum_t v67; 
+  CgSoundSystem *v68; 
   centity_t *Entity; 
-  __int64 v85; 
+  __int64 v70; 
   const SndAliasList *WeaponSound; 
-  CgWeaponMap *v87; 
+  CgWeaponMap *v72; 
   const WeaponSFXPackage *SfxPackage; 
   SndAliasList *NoAmmoSound_Internal; 
-  const playerState_s *v90; 
-  CgWeaponSystem *v91; 
-  CgWeaponSystem *v92; 
-  OffhandSlot v93; 
-  CgWeaponMap *v94; 
-  CgWeaponMap *v99; 
-  const SndAliasList *v100; 
-  __int64 v101; 
-  bool v102; 
-  Weapon *v103; 
+  const playerState_s *v75; 
+  CgWeaponSystem *v76; 
+  CgWeaponSystem *v77; 
+  OffhandSlot v78; 
+  CgWeaponMap *v79; 
+  CgWeaponMap *v80; 
+  const SndAliasList *v81; 
+  __int64 v82; 
+  bool v83; 
+  Weapon *v84; 
   CgWeaponSystem *WeaponSystem; 
+  CgWeaponMap *v86; 
+  const Weapon *v87; 
+  centity_t *v88; 
+  unsigned int v89; 
+  const Weapon *v90; 
+  bool isDualWield; 
+  LocalClientNum_t v92; 
+  bitarray_base<bitarray<32> > *v93; 
+  bool v94; 
+  bitarray_base<bitarray<32> > v95; 
+  LocalClientNum_t v96; 
+  CgWeaponMap *v97; 
+  const Weapon *v98; 
+  int v99; 
+  MovementAnimState *v100; 
+  MovementAnimState *v101; 
+  int v102; 
+  CgWeaponMap *v103; 
+  const Weapon *v104; 
   CgWeaponMap *v105; 
   const Weapon *v106; 
-  centity_t *v107; 
-  unsigned int v108; 
-  const Weapon *v110; 
-  bool isDualWield; 
-  LocalClientNum_t v113; 
-  bitarray_base<bitarray<32> > *v114; 
-  bool v115; 
-  bitarray_base<bitarray<32> > v116; 
-  LocalClientNum_t v117; 
-  CgWeaponMap *v118; 
-  const Weapon *v119; 
-  int v120; 
-  MovementAnimState *v121; 
-  MovementAnimState *v122; 
-  int v123; 
-  CgWeaponMap *v124; 
-  const Weapon *v125; 
-  CgWeaponMap *v126; 
-  const Weapon *v127; 
-  CgWeaponMap *v128; 
-  bool v130; 
+  CgWeaponMap *v107; 
+  const Weapon *v108; 
+  bool v109; 
   WeaponHand *m_weaponHand; 
   CgPredictedEntitySystem *System; 
-  characterInfo_t *v133; 
-  CgMissile *v134; 
-  CgWeaponMap *v138; 
-  const Weapon *v139; 
-  int v140; 
+  characterInfo_t *v112; 
+  CgMissile *v113; 
+  CgWeaponMap *v114; 
+  const Weapon *v115; 
+  int v116; 
   MovementAnimState *animMoveState; 
-  MovementAnimState *v142; 
-  CgWeaponMap *v143; 
+  MovementAnimState *v118; 
+  CgWeaponMap *v119; 
   int WeaponHand; 
-  CgWeaponMap *v145; 
-  const Weapon *v146; 
-  CgWeaponSystem *v147; 
+  CgWeaponMap *v121; 
+  const Weapon *v122; 
+  CgWeaponSystem *v123; 
   int FireFxIndexForWeapon; 
-  int v149; 
+  int v125; 
   SndAliasList *slideStartSound; 
-  unsigned int v151; 
-  ShakeImpulseSourceType v155; 
-  unsigned int v157; 
-  unsigned int v158; 
+  unsigned int v127; 
+  ShakeImpulseSourceType v128; 
+  unsigned int v129; 
+  unsigned int v130; 
   SndAliasList *slideEaseOutSound; 
-  int v160; 
-  unsigned int v161; 
-  int v162; 
-  unsigned int v163; 
-  int v164; 
+  int v132; 
+  unsigned int v133; 
+  int v134; 
+  unsigned int v135; 
+  int v136; 
   unsigned int eventParm2; 
-  int v166; 
-  centity_t *v167; 
-  CgWeaponMap *v168; 
-  const Weapon *v169; 
-  int v170; 
-  unsigned __int8 v171; 
-  const SndAliasList *v172; 
-  unsigned __int8 v174; 
-  unsigned __int8 v175; 
-  bool v176; 
-  Weapon *v177; 
-  LocalClientNum_t v178; 
-  const SndAliasList *v179; 
-  CgSoundSystem *v180; 
+  int v138; 
+  centity_t *v139; 
+  CgWeaponMap *v140; 
+  const Weapon *v141; 
+  int v142; 
+  unsigned __int8 v143; 
+  const SndAliasList *v144; 
+  unsigned __int8 v145; 
+  unsigned __int8 v146; 
+  bool v147; 
+  Weapon *v148; 
+  LocalClientNum_t v149; 
+  const SndAliasList *v150; 
+  CgSoundSystem *v151; 
   void (__fastcall *PlayExplosionSoundAsync)(CgSoundSystem *, const int, const vec3_t *, const SndAliasList *, int, const unsigned int); 
-  unsigned int v182; 
-  unsigned __int8 v183; 
-  unsigned __int8 v184; 
-  bool v185; 
-  Weapon *v186; 
-  LocalClientNum_t v187; 
-  const SndAliasList *v188; 
-  CgSoundSystem *v189; 
-  void (__fastcall *v190)(CgSoundSystem *, const int, const vec3_t *, const SndAliasList *, int, const unsigned int); 
-  unsigned int v191; 
-  unsigned __int8 v192; 
-  cg_t *v193; 
-  Weapon *v194; 
-  __int64 v195; 
-  CgSoundSystem *v196; 
-  void (__fastcall *v197)(CgSoundSystem *, const int, const vec3_t *, const SndAliasList *, int, const unsigned int); 
-  unsigned int v198; 
-  unsigned int v199; 
+  unsigned int v153; 
+  unsigned __int8 v154; 
+  unsigned __int8 v155; 
+  bool v156; 
+  Weapon *v157; 
+  LocalClientNum_t v158; 
+  const SndAliasList *v159; 
+  CgSoundSystem *v160; 
+  void (__fastcall *v161)(CgSoundSystem *, const int, const vec3_t *, const SndAliasList *, int, const unsigned int); 
+  unsigned int v162; 
+  unsigned __int8 v163; 
+  cg_t *v164; 
+  Weapon *v165; 
+  __int64 v166; 
+  CgSoundSystem *v167; 
+  void (__fastcall *v168)(CgSoundSystem *, const int, const vec3_t *, const SndAliasList *, int, const unsigned int); 
+  unsigned int v169; 
+  unsigned int v170; 
   FXRegisteredDef *p_ceilingAlist; 
-  __int64 v201; 
-  Bounds *v202; 
-  int v203; 
-  cg_t *v204; 
-  unsigned __int8 v205; 
-  int v206; 
-  unsigned __int8 v207; 
-  int v208; 
-  int v209; 
-  CgSoundSystem *v210; 
-  int v211; 
-  int v212; 
-  unsigned __int8 v213; 
-  int v214; 
+  __int64 v172; 
+  Bounds *v173; 
+  int v174; 
+  cg_t *v175; 
+  unsigned __int8 v176; 
+  int v177; 
+  unsigned __int8 v178; 
+  int v179; 
+  int v180; 
+  CgSoundSystem *v181; 
+  int v182; 
+  int v183; 
+  unsigned __int8 v184; 
+  int v185; 
   unsigned int *RandSeed; 
-  const SndAliasList *v216; 
-  int v217; 
+  const SndAliasList *v187; 
+  int v188; 
+  double EquipmentVolumeScale; 
   CgWeaponMap *Instance; 
   const SndAliasList *ClothFoleyMovementSound; 
-  int v220; 
-  unsigned int v221; 
-  unsigned int v222; 
-  bool v223; 
-  int v224; 
-  unsigned int v225; 
-  unsigned int v226; 
-  unsigned int v228; 
-  unsigned int v229; 
-  int v230; 
-  bool v231; 
-  int v232; 
-  unsigned int v233; 
-  unsigned int v234; 
-  bool v236; 
-  int v237; 
-  unsigned int v238; 
+  int v192; 
+  double FootstepVolumeScale; 
+  unsigned int v194; 
+  unsigned int v195; 
+  bool v196; 
+  int v197; 
+  unsigned int v198; 
+  unsigned int v199; 
+  unsigned int v200; 
+  unsigned int v201; 
+  int v202; 
+  bool v203; 
+  int v204; 
+  unsigned int v205; 
+  unsigned int v206; 
+  bool v207; 
+  int v208; 
+  unsigned int v209; 
+  GfxBrushModel *BrushModel; 
+  float v211; 
+  float v212; 
   unsigned int number; 
   __int16 otherEntityNum; 
   unsigned int (__fastcall *PlaySoundAliasByName)(CgSoundSystem *, const int, const vec3_t *, int); 
-  unsigned int v249; 
-  unsigned __int8 v250; 
-  unsigned __int16 v251; 
-  unsigned __int8 v253; 
-  int v254; 
-  int v256; 
-  LocalClientNum_t v258; 
+  unsigned int v216; 
+  unsigned __int8 v217; 
+  unsigned __int16 v218; 
+  unsigned __int8 v219; 
+  int v220; 
+  int v221; 
+  LocalClientNum_t v222; 
   CgDynamicMedia *CgDynamicMedia; 
-  unsigned int v260; 
+  unsigned int v224; 
   const FXRegisteredDef *Fx; 
-  cg_t *v262; 
-  int v263; 
-  LocalClientNum_t v264; 
-  cg_t *v265; 
-  unsigned int v266; 
-  LocalClientNum_t v267; 
-  unsigned int v268; 
-  LocalClientNum_t v269; 
-  int v270; 
-  LocalClientNum_t v271; 
-  cg_t *v272; 
-  unsigned int v273; 
-  LocalClientNum_t v274; 
-  __int32 v276; 
-  CgWeaponMap *v283; 
+  cg_t *v226; 
+  int v227; 
+  LocalClientNum_t v228; 
+  cg_t *v229; 
+  unsigned int v230; 
+  LocalClientNum_t v231; 
+  unsigned int v232; 
+  LocalClientNum_t v233; 
+  int v234; 
+  LocalClientNum_t v235; 
+  cg_t *v236; 
+  unsigned int v237; 
+  LocalClientNum_t v238; 
+  CgWeaponMap *v239; 
   const Weapon *OffhandGestureWeapon; 
-  const SndAliasList *v285; 
-  unsigned int v286; 
-  SndAliasList *v287; 
-  int v288; 
-  int v289; 
-  int v290; 
-  LocalClientNum_t v291; 
-  const dvar_t *v292; 
-  const dvar_t *v293; 
+  const SndAliasList *v241; 
+  unsigned int v242; 
+  SndAliasList *v243; 
+  int v244; 
+  int v245; 
+  int v246; 
+  LocalClientNum_t v247; 
+  const dvar_t *v248; 
+  const dvar_t *v249; 
   SndAliasList *MantleSound; 
-  LocalClientNum_t v298; 
-  cg_t *v299; 
-  CgSoundSystem *v302; 
+  LocalClientNum_t v251; 
+  cg_t *v252; 
+  CgSoundSystem *v253; 
+  double v254; 
+  float v255; 
   int Int_Internal_DebugName; 
-  CgWeaponSystem *v306; 
-  int v307; 
-  const char *v308; 
-  const dvar_t *v309; 
-  bool v314; 
-  Weapon *v315; 
+  double v257; 
+  CgWeaponSystem *v258; 
+  int v259; 
+  const char *v260; 
+  const dvar_t *v261; 
+  double v262; 
+  bool v263; 
+  Weapon *v264; 
   const RumbleInfo *MountRumble; 
-  const char *v317; 
+  const char *v266; 
   char *fmt; 
   BOOL fmta; 
-  float fmtb; 
-  float fmtc; 
-  float fmtd; 
-  float fmte; 
-  float fmtf; 
-  float fmtg; 
-  float fmth; 
   __int64 weaponstate; 
-  weaponstate_t weaponstated; 
   weaponstate_t weaponstatea; 
   _BOOL8 weaponstateb; 
-  weaponstate_t weaponstatee; 
-  weaponstate_t weaponstatef; 
   weaponstate_t weaponstatec; 
   vec3_t *impulseVecOverride; 
-  float impulseVecOverridec; 
-  int impulseVecOverrided; 
   vec3_t *impulseVecOverridea; 
-  int impulseVecOverridee; 
-  int impulseVecOverridef; 
-  vec3_t *impulseVecOverrideb; 
   FootstepVFX *footstepVFX; 
-  int footstepVFXb; 
-  unsigned int footstepVFXa; 
-  float isLadder; 
   bool Bool_Internal_DebugName; 
-  bool v347; 
-  char v348; 
-  char v349; 
+  bool v277; 
+  char v278; 
+  char v279; 
   bool inAltWeaponMode; 
   unsigned int weaponRattleType; 
   int characterIndex; 
@@ -4149,175 +3749,157 @@ void CgEventSystem::HandleEntityEventCommon(CgEventSystem *this, centity_t *cent
   int isQuietMove; 
   centity_t *centa; 
   bool isLeft; 
-  char v358; 
+  char v288; 
   unsigned int viewDip[2]; 
   CgSoundSystem *SoundSystem; 
   vec3_t outOrigin; 
   unsigned int surfType[2]; 
   CgStatic *LocalClientStatics; 
   characterInfo_t *ci; 
-  __int64 v365; 
+  __int64 v295; 
   BgWeaponParms outWP; 
   Bounds ceilingAlist; 
   vec3_t position; 
   vec3_t suitDef; 
   tmat33_t<vec3_t> axis; 
-  tmat33_t<vec3_t> v371; 
+  tmat33_t<vec3_t> v301; 
 
-  v365 = -2i64;
-  __asm { vmovaps [rsp+250h+var_50], xmm6 }
-  v15 = event;
+  v295 = -2i64;
+  v10 = event;
   weaponRattleType = event;
   characterIndex = clientNum;
   centa = cent;
   r_weapon = (Weapon *)iweapon;
   *(_QWORD *)surfType = optionalEventLodData;
   CG_GetPoseOrigin(&cent->pose, &outOrigin);
-  _R14 = &cent->nextState;
-  v19 = DVARINT_cg_debugevents;
+  p_nextState = &cent->nextState;
+  v14 = DVARINT_cg_debugevents;
   if ( !DVARINT_cg_debugevents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_debugevents") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v19);
-  if ( v19->current.integer == 227 )
+  Dvar_CheckFrontendServerThread(v14);
+  if ( v14->current.integer == 227 )
     goto LABEL_9;
-  v20 = DVARINT_cg_debugevents;
+  v15 = DVARINT_cg_debugevents;
   if ( !DVARINT_cg_debugevents && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_debugevents") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  if ( v20->current.integer == v15 )
+  Dvar_CheckFrontendServerThread(v15);
+  if ( v15->current.integer == v10 )
   {
 LABEL_9:
     LODWORD(fmt) = eventParm;
-    Com_Printf(21, "ent:%3i  event:%3i  params:%u  ", (unsigned int)_R14->number, (unsigned int)v15, fmt);
-    EventTypeName = BG_GetEventTypeName(v15);
+    Com_Printf(21, "ent:%3i  event:%3i  params:%u  ", (unsigned int)p_nextState->number, (unsigned int)v10, fmt);
+    EventTypeName = BG_GetEventTypeName(v10);
     Com_Printf(21, "CG_EntityEvent:%s\n", EventTypeName);
   }
-  if ( CG_IsEntityHighLoD((const LocalClientNum_t)this->m_localClientNum, _R14->number) )
+  if ( CG_IsEntityHighLoD((const LocalClientNum_t)this->m_localClientNum, p_nextState->number) )
   {
-    _R13 = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+    LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
     LocalClientStatics = CgStatic::GetLocalClientStatics((const LocalClientNum_t)this->m_localClientNum);
     SoundSystem = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)this->m_localClientNum);
-    *(_QWORD *)viewDip = &_R13->predictedPlayerState;
-    if ( _R13 == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2657, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
+    *(_QWORD *)viewDip = &LocalClientGlobals->predictedPlayerState;
+    if ( LocalClientGlobals == (cg_t *)-8i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2657, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    v347 = BG_WeaponIsDualWield(r_weapon);
+    v277 = BG_WeaponIsDualWield(r_weapon);
     *(_QWORD *)ceilingAlist.midPoint.v = BG_WeaponDef(r_weapon, isAlternate);
-    clothType = BG_GetHandFromWeaponEvent(v15);
+    clothType = BG_GetHandFromWeaponEvent(v10);
     CharacterInfo = CgStatic::GetCharacterInfo(LocalClientStatics, characterIndex);
     ci = CharacterInfo;
     p_predictedPlayerState = NULL;
     if ( !CharacterInfo || !CharacterInfo->infoValid || (isQuietMove = 1, !BG_HasPerk(&CharacterInfo->perks, 0x1Fu)) )
       isQuietMove = 0;
     *(_QWORD *)suitDef.v = ci ? BG_GetSuitDef(ci->suitIndex) : 0i64;
-    if ( !CG_GameInterface_HandleEntityEventCommon((const LocalClientNum_t)this->m_localClientNum, centa, characterIndex, v15, eventParm, r_weapon, isAlternate, isPlayerView) )
+    if ( !CG_GameInterface_HandleEntityEventCommon((const LocalClientNum_t)this->m_localClientNum, centa, characterIndex, v10, eventParm, r_weapon, isAlternate, isPlayerView) )
     {
-      if ( BG_IsLandingEvent(v15) )
+      if ( BG_IsLandingEvent(v10) )
+      {
+        v20 = truncate_cast<int,unsigned int>(eventParm);
+        BG_UnpackSoftLandingEventParm(v20, viewDip, &clothType, &weaponRattleType, surfType);
+        if ( isPlayerView )
+        {
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_cameraLandDipScale, "cg_cameraLandDipScale");
+          v22 = (float)viewDip[0];
+          LocalClientGlobals->landChange = COERCE_FLOAT(COERCE_UNSIGNED_INT(v22 * *(float *)&Float_Internal_DebugName) ^ _xmm);
+          LocalClientGlobals->landTime = LocalClientGlobals->time;
+          CG_SND_PlayerBreathsSetLand(this->m_localClientNum, BREATH_LAND_LOW);
+          weaponRattleType = AdjustWeaponRattleForPlayer(this->m_localClientNum, &LocalClientGlobals->predictedPlayerState, weaponRattleType);
+          CG_ViewMotion_Impact((const LocalClientNum_t)this->m_localClientNum, LocalClientGlobals->predictedPlayerState.serverTime);
+        }
+        v23 = BG_LandingTypeFromEntityEvent(v10);
+        v24 = isQuietMove;
+        CG_LandingSound(this->m_localClientNum, p_nextState->number, surfType[0], v23, isPlayerView, clothType, isQuietMove, 1);
+        if ( isPlayerView )
+          CL_LandingRumble((const LocalClientNum_t)this->m_localClientNum, v10);
+        CG_EquipmentSound(this->m_localClientNum, p_nextState->number, isPlayerView, MOVEMENT_LEAD_TYPE_POST, EQUIPMENT_MOVE_TYPE_LAND, clothType, weaponRattleType, v24);
+        goto $LN7_301;
+      }
+      if ( BG_IsPainLandingEvent(v10) )
       {
         v25 = truncate_cast<int,unsigned int>(eventParm);
-        BG_UnpackSoftLandingEventParm(v25, viewDip, &clothType, &weaponRattleType, surfType);
+        BG_UnpackHardLandingEventParm(v25, viewDip, (int *)&r_weapon, (unsigned int *)&characterIndex, &weaponRattleType, surfType, &clothType);
+        v26 = (float)viewDip[0];
+        v27 = v26 * 0.0099999998;
         if ( isPlayerView )
         {
-          Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_cameraLandDipScale, "cg_cameraLandDipScale");
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, rax
-            vmulss  xmm0, xmm1, xmm0
-            vxorps  xmm2, xmm0, cs:__xmm@80000000800000008000000080000000
-            vmovss  dword ptr [r13+6600h], xmm2
-          }
-          _R13->landTime = _R13->time;
-          CG_SND_PlayerBreathsSetLand(this->m_localClientNum, BREATH_LAND_LOW);
-          weaponRattleType = AdjustWeaponRattleForPlayer(this->m_localClientNum, &_R13->predictedPlayerState, weaponRattleType);
-          CG_ViewMotion_Impact((const LocalClientNum_t)this->m_localClientNum, _R13->predictedPlayerState.serverTime);
-        }
-        v30 = BG_LandingTypeFromEntityEvent(v15);
-        v31 = isQuietMove;
-        CG_LandingSound(this->m_localClientNum, _R14->number, surfType[0], v30, isPlayerView, clothType, isQuietMove, 1);
-        if ( isPlayerView )
-          CL_LandingRumble((const LocalClientNum_t)this->m_localClientNum, v15);
-        CG_EquipmentSound(this->m_localClientNum, _R14->number, isPlayerView, MOVEMENT_LEAD_TYPE_POST, EQUIPMENT_MOVE_TYPE_LAND, clothType, weaponRattleType, v31);
-        goto $LN7_301;
-      }
-      if ( BG_IsPainLandingEvent(v15) )
-      {
-        v32 = truncate_cast<int,unsigned int>(eventParm);
-        BG_UnpackHardLandingEventParm(v32, viewDip, (int *)&r_weapon, (unsigned int *)&characterIndex, &weaponRattleType, surfType, &clothType);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm2, xmm0, cs:__real@3c23d70a
-        }
-        if ( isPlayerView )
-        {
-          v36 = surfType[0] == 0;
           if ( surfType[0] )
           {
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, rax
-              vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-              vmovss  dword ptr [r13+6600h], xmm1
-            }
-            _R13->landTime = _R13->time;
+            v28 = (float)surfType[0];
+            LocalClientGlobals->landChange = COERCE_FLOAT(LODWORD(v28) ^ _xmm);
+            LocalClientGlobals->landTime = LocalClientGlobals->time;
           }
-          __asm { vcomiss xmm2, cs:__real@3f000000 }
-          CG_SND_PlayerBreathsSetLand(this->m_localClientNum, (BreathSoundLandingType)(!v36 + 1));
-          weaponRattleType = AdjustWeaponRattleForPlayer(this->m_localClientNum, &_R13->predictedPlayerState, weaponRattleType);
-          CG_ViewMotion_Impact((const LocalClientNum_t)this->m_localClientNum, _R13->predictedPlayerState.serverTime);
+          CG_SND_PlayerBreathsSetLand(this->m_localClientNum, (BreathSoundLandingType)((v27 > 0.5) + 1));
+          weaponRattleType = AdjustWeaponRattleForPlayer(this->m_localClientNum, &LocalClientGlobals->predictedPlayerState, weaponRattleType);
+          CG_ViewMotion_Impact((const LocalClientNum_t)this->m_localClientNum, LocalClientGlobals->predictedPlayerState.serverTime);
         }
-        v40 = v15;
-        switch ( v15 )
+        v29 = v10;
+        switch ( v10 )
         {
           case EV_LANDING_PAIN_LOW_HEIGHT:
-            v40 = 181;
+            v29 = 181;
             break;
           case EV_LANDING_PAIN_MEDIUM_HEIGHT:
-            v40 = 182;
+            v29 = 182;
             break;
           case EV_LANDING_PAIN_HIGH_HEIGHT:
-            v40 = 183;
+            v29 = 183;
             break;
           case EV_LANDING_PAIN_EXTREME_HEIGHT:
-            v40 = 184;
+            v29 = 184;
             break;
         }
-        v41 = BG_LandingTypeFromEntityEvent(v40);
-        v42 = isQuietMove;
-        CG_LandingSound(this->m_localClientNum, _R14->number, clothType, v41, isPlayerView, characterIndex, isQuietMove, 1);
+        v30 = BG_LandingTypeFromEntityEvent(v29);
+        v31 = isQuietMove;
+        CG_LandingSound(this->m_localClientNum, p_nextState->number, clothType, v30, isPlayerView, characterIndex, isQuietMove, 1);
         if ( isPlayerView )
-          CL_LandingRumble((const LocalClientNum_t)this->m_localClientNum, v15);
+          CL_LandingRumble((const LocalClientNum_t)this->m_localClientNum, v10);
         if ( !(_DWORD)r_weapon )
         {
-          v43 = BG_LandingTypeFromEntityEvent(v15);
-          CG_LandingSound(this->m_localClientNum, _R14->number, clothType, v43, isPlayerView, characterIndex, v42, 0);
+          v32 = BG_LandingTypeFromEntityEvent(v10);
+          CG_LandingSound(this->m_localClientNum, p_nextState->number, clothType, v32, isPlayerView, characterIndex, v31, 0);
         }
-        CG_EquipmentSound(this->m_localClientNum, _R14->number, isPlayerView, MOVEMENT_LEAD_TYPE_POST, EQUIPMENT_MOVE_TYPE_LAND, characterIndex, weaponRattleType, v42);
+        CG_EquipmentSound(this->m_localClientNum, p_nextState->number, isPlayerView, MOVEMENT_LEAD_TYPE_POST, EQUIPMENT_MOVE_TYPE_LAND, characterIndex, weaponRattleType, v31);
         goto $LN7_301;
       }
-      switch ( v15 )
+      switch ( v10 )
       {
         case EV_FOLIAGE_SOUND:
-          CG_Foliage_PlayCharacterSound(_R13, centa, isPlayerView, 36);
+          CG_Foliage_PlayCharacterSound(LocalClientGlobals, centa, isPlayerView, 36);
           break;
         case EV_STOP_WEAPON_SOUND:
-          CG_StopWeaponSound((const LocalClientNum_t)this->m_localClientNum, isPlayerView, r_weapon, isAlternate, _R14->number, (weaponstate_t)eventParm);
+          CG_StopWeaponSound((const LocalClientNum_t)this->m_localClientNum, isPlayerView, r_weapon, isAlternate, p_nextState->number, (weaponstate_t)eventParm);
           break;
         case EV_SOUND_ALIAS:
           if ( !eventParm )
             break;
-          v236 = Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80);
-          v237 = 512;
-          v238 = 512;
-          if ( v236 )
-            v238 = 0x7FFF;
-          if ( eventParm >= v238 )
+          v207 = Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80);
+          v208 = 512;
+          v209 = 512;
+          if ( v207 )
+            v209 = 0x7FFF;
+          if ( eventParm >= v209 )
           {
             if ( Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80) )
-              v237 = 0x7FFF;
-            LODWORD(impulseVecOverride) = v237;
+              v208 = 0x7FFF;
+            LODWORD(impulseVecOverride) = v208;
             LODWORD(weaponstate) = eventParm;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4068, ASSERT_TYPE_ASSERT, "(unsigned)( eventParm ) < (unsigned)( Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_MULTIPLAYER ) ? ( (1 << 15) - 1 ) : 512 )", "eventParm doesn't index Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_MULTIPLAYER ) ? SND_MAX_PRECACHED_ALIASES : MAX_SOUNDALIASES\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
               __debugbreak();
@@ -4326,30 +3908,23 @@ LABEL_9:
             CG_GetPoseOrigin(&centa->pose, &suitDef);
           else
             Trajectory_GetTrBase(&centa->nextState.lerp.pos, &suitDef);
-          if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_R14->lerp.eFlags, ACTIVE, 1u) || BG_IsVehicleEntity(_R14) )
+          if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&p_nextState->lerp.eFlags, ACTIVE, 1u) || BG_IsVehicleEntity(p_nextState) )
           {
             CG_GetPoseOrigin(&centa->pose, &ceilingAlist.midPoint);
           }
           else
           {
-            _RAX = R_GetBrushModel(_R14->index.brushModel);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rax+38h]
-              vmovss  xmm1, dword ptr [rax+3Ch]
-              vmovss  xmm2, dword ptr [rax+40h]
-              vaddss  xmm0, xmm0, dword ptr [rbp+150h+suitDef]
-              vmovss  dword ptr [rbp+150h+ceilingAlist], xmm0
-              vaddss  xmm1, xmm1, dword ptr [rbp+150h+suitDef+4]
-              vmovss  dword ptr [rbp+150h+ceilingAlist+4], xmm1
-              vaddss  xmm0, xmm2, [rbp+150h+var_B8]
-              vmovss  dword ptr [rbp+150h+ceilingAlist+8], xmm0
-            }
+            BrushModel = R_GetBrushModel(p_nextState->index.brushModel);
+            v211 = BrushModel->bounds.midPoint.v[1];
+            v212 = BrushModel->bounds.midPoint.v[2];
+            ceilingAlist.midPoint.v[0] = BrushModel->bounds.midPoint.v[0] + suitDef.v[0];
+            ceilingAlist.midPoint.v[1] = v211 + suitDef.v[1];
+            ceilingAlist.midPoint.v[2] = v212 + suitDef.v[2];
           }
-          number = _R14->number;
-          if ( _R14->eType < ET_EVENTS )
+          number = p_nextState->number;
+          if ( p_nextState->eType < ET_EVENTS )
             goto LABEL_550;
-          otherEntityNum = _R14->otherEntityNum;
+          otherEntityNum = p_nextState->otherEntityNum;
           if ( otherEntityNum == 2047 )
           {
             number = 2046;
@@ -4367,8 +3942,8 @@ LABEL_550:
             }
           }
           PlaySoundAliasByName = SoundSystem->PlaySoundAliasByName;
-          v249 = truncate_cast<int,unsigned int>(eventParm);
-          PlaySoundAliasByName(SoundSystem, number, &ceilingAlist.midPoint, v249);
+          v216 = truncate_cast<int,unsigned int>(eventParm);
+          PlaySoundAliasByName(SoundSystem, number, &ceilingAlist.midPoint, v216);
           memset(&ceilingAlist, 0, 0xCui64);
           memset(&suitDef, 0, sizeof(suitDef));
           break;
@@ -4382,52 +3957,50 @@ LABEL_550:
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3926, ASSERT_TYPE_ASSERT, "(unsigned)( eventParm ) < (unsigned)( 512 )", "eventParm doesn't index MAX_SOUNDALIASES\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
                 __debugbreak();
             }
-            v211 = 2046;
-            if ( _R14->eType < ET_EVENTS )
-              v211 = _R14->number;
-            Trajectory_GetTrBase(&_R14->lerp.pos, &ceilingAlist.midPoint);
-            v212 = truncate_cast<int,unsigned int>(eventParm);
-            CgSoundSystem::PlaySoundAliasAtViewHeight(SoundSystem, v211, &ceilingAlist.midPoint, v212);
+            v182 = 2046;
+            if ( p_nextState->eType < ET_EVENTS )
+              v182 = p_nextState->number;
+            Trajectory_GetTrBase(&p_nextState->lerp.pos, &ceilingAlist.midPoint);
+            v183 = truncate_cast<int,unsigned int>(eventParm);
+            CgSoundSystem::PlaySoundAliasAtViewHeight(SoundSystem, v182, &ceilingAlist.midPoint, v183);
             memset(&ceilingAlist, 0, 0xCui64);
           }
           break;
         case EV_EQUIP_MOVE_SOUND:
           if ( eventParm )
           {
-            v213 = (eventParm >> 7) & 0xF;
+            v184 = (eventParm >> 7) & 0xF;
             if ( isPlayerView )
             {
-              v214 = AdjustWeaponRattleForPlayer(this->m_localClientNum, *(const playerState_s **)viewDip, (eventParm >> 7) & 0xF);
-              v213 = truncate_cast<unsigned char,int>(v214);
+              v185 = AdjustWeaponRattleForPlayer(this->m_localClientNum, *(const playerState_s **)viewDip, (eventParm >> 7) & 0xF);
+              v184 = truncate_cast<unsigned char,int>(v185);
             }
             RandSeed = GetRandSeed();
-            v216 = BG_ChooseEquipmentSound(eventParm & 0xF, v213, (EquipmentMoveType_t)((eventParm >> 4) & 7), isPlayerView, RandSeed);
-            v217 = 2046;
-            if ( _R14->eType < ET_EVENTS )
-              v217 = _R14->number;
-            Trajectory_GetTrBase(&_R14->lerp.pos, &ceilingAlist.midPoint);
-            *(double *)&_XMM0 = CgSoundSystem::GetEquipmentVolumeScale(SoundSystem, centa, isPlayerView);
-            __asm { vmovss  dword ptr [rsp+250h+fmt], xmm0 }
-            CgSoundSystem::PlaySoundAliasListAtViewHeight(SoundSystem, v217, &ceilingAlist.midPoint, v216, fmtb);
+            v187 = BG_ChooseEquipmentSound(eventParm & 0xF, v184, (EquipmentMoveType_t)((eventParm >> 4) & 7), isPlayerView, RandSeed);
+            v188 = 2046;
+            if ( p_nextState->eType < ET_EVENTS )
+              v188 = p_nextState->number;
+            Trajectory_GetTrBase(&p_nextState->lerp.pos, &ceilingAlist.midPoint);
+            EquipmentVolumeScale = CgSoundSystem::GetEquipmentVolumeScale(SoundSystem, centa, isPlayerView);
+            CgSoundSystem::PlaySoundAliasListAtViewHeight(SoundSystem, v188, &ceilingAlist.midPoint, v187, *(float *)&EquipmentVolumeScale);
             memset(&ceilingAlist, 0, 0xCui64);
           }
           break;
         case EV_CLOTH_MOVE_SOUND:
           if ( eventParm )
           {
-            if ( !_R13->renderingThirdPerson )
+            if ( !LocalClientGlobals->renderingThirdPerson )
             {
               Instance = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-              if ( !BG_IsThirdPersonMode(Instance, &_R13->predictedPlayerState) )
+              if ( !BG_IsThirdPersonMode(Instance, &LocalClientGlobals->predictedPlayerState) )
               {
                 ClothFoleyMovementSound = BG_GetClothFoleyMovementSound(eventParm & 0xF, (MovementLeadType_t)((eventParm >> 11) & 3), (EquipmentMoveType_t)((eventParm >> 4) & 7), isPlayerView);
-                v220 = 2046;
-                if ( _R14->eType < ET_EVENTS )
-                  v220 = _R14->number;
-                Trajectory_GetTrBase(&_R14->lerp.pos, &ceilingAlist.midPoint);
-                *(double *)&_XMM0 = CgSoundSystem::GetFootstepVolumeScale(SoundSystem, centa, (eventParm >> 4) & 7, isPlayerView);
-                __asm { vmovss  dword ptr [rsp+250h+fmt], xmm0 }
-                CgSoundSystem::PlaySoundAliasListAtViewHeight(SoundSystem, v220, &ceilingAlist.midPoint, ClothFoleyMovementSound, fmtc);
+                v192 = 2046;
+                if ( p_nextState->eType < ET_EVENTS )
+                  v192 = p_nextState->number;
+                Trajectory_GetTrBase(&p_nextState->lerp.pos, &ceilingAlist.midPoint);
+                FootstepVolumeScale = CgSoundSystem::GetFootstepVolumeScale(SoundSystem, centa, (eventParm >> 4) & 7, isPlayerView);
+                CgSoundSystem::PlaySoundAliasListAtViewHeight(SoundSystem, v192, &ceilingAlist.midPoint, ClothFoleyMovementSound, *(float *)&FootstepVolumeScale);
                 memset(&ceilingAlist, 0, 0xCui64);
               }
             }
@@ -4438,9 +4011,9 @@ LABEL_550:
           {
             if ( Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80) )
             {
-              v221 = eventParm & 0x7FFF;
-              v222 = truncate_cast<int,unsigned int>(eventParm >> 15);
-              if ( v221 >= 0x7FFF )
+              v194 = eventParm & 0x7FFF;
+              v195 = truncate_cast<int,unsigned int>(eventParm >> 15);
+              if ( v194 >= 0x7FFF )
               {
                 LODWORD(impulseVecOverride) = 0x7FFF;
                 LODWORD(weaponstate) = eventParm & 0x7FFF;
@@ -4450,41 +4023,35 @@ LABEL_550:
             }
             else
             {
-              v221 = eventParm & 0x1FF;
-              v222 = truncate_cast<int,unsigned int>(eventParm >> 9);
+              v194 = eventParm & 0x1FF;
+              v195 = truncate_cast<int,unsigned int>(eventParm >> 9);
             }
-            v223 = Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80);
-            v224 = 512;
-            v225 = 512;
-            if ( v223 )
-              v225 = 0x7FFF;
-            if ( v221 >= v225 )
+            v196 = Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80);
+            v197 = 512;
+            v198 = 512;
+            if ( v196 )
+              v198 = 0x7FFF;
+            if ( v194 >= v198 )
             {
               if ( Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80) )
-                v224 = 0x7FFF;
-              LODWORD(impulseVecOverride) = v224;
-              LODWORD(weaponstate) = v221;
+                v197 = 0x7FFF;
+              LODWORD(impulseVecOverride) = v197;
+              LODWORD(weaponstate) = v194;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4010, ASSERT_TYPE_ASSERT, "(unsigned)( soundIndex ) < (unsigned)( Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_MULTIPLAYER ) ? ( (1 << 15) - 1 ) : 512 )", "soundIndex doesn't index Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_MULTIPLAYER ) ? SND_MAX_PRECACHED_ALIASES : MAX_SOUNDALIASES\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
                 __debugbreak();
             }
-            if ( v222 >= 0x40 )
+            if ( v195 >= 0x40 )
             {
               LODWORD(impulseVecOverride) = 64;
-              LODWORD(weaponstate) = v222;
+              LODWORD(weaponstate) = v195;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4011, ASSERT_TYPE_ASSERT, "(unsigned)( surfaceType ) < (unsigned)( 64 )", "surfaceType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
                 __debugbreak();
             }
-            v226 = 2046;
-            if ( _R14->eType < ET_EVENTS )
-              v226 = _R14->number;
-            Trajectory_GetTrBase(&_R14->lerp.pos, &ceilingAlist.midPoint);
-            __asm
-            {
-              vmovss  xmm0, cs:__real@3f800000
-              vmovss  dword ptr [rsp+250h+impulseVecOverride], xmm0
-              vmovss  [rsp+250h+weaponstate], xmm0
-            }
-            ((void (__fastcall *)(CgSoundSystem *, _QWORD, Bounds *, _QWORD, unsigned int, weaponstate_t, int, _DWORD))SoundSystem->PlaySurfaceSoundByIndex)(SoundSystem, v226, &ceilingAlist, v221, v222, weaponstatef, impulseVecOverridee, 0);
+            v199 = 2046;
+            if ( p_nextState->eType < ET_EVENTS )
+              v199 = p_nextState->number;
+            Trajectory_GetTrBase(&p_nextState->lerp.pos, &ceilingAlist.midPoint);
+            ((void (__fastcall *)(CgSoundSystem *, _QWORD, Bounds *, _QWORD, unsigned int, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySurfaceSoundByIndex)(SoundSystem, v199, &ceilingAlist, v194, v195, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
             memset(&ceilingAlist, 0, 0xCui64);
           }
           break;
@@ -4493,10 +4060,10 @@ LABEL_550:
           {
             if ( Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80) )
             {
-              v228 = eventParm & 0x7FFF;
-              v229 = truncate_cast<int,unsigned int>((unsigned __int8)(eventParm >> 15));
-              v230 = truncate_cast<int,unsigned int>((unsigned __int8)(eventParm >> 23));
-              if ( v228 >= 0x7FFF )
+              v200 = eventParm & 0x7FFF;
+              v201 = truncate_cast<int,unsigned int>((unsigned __int8)(eventParm >> 15));
+              v202 = truncate_cast<int,unsigned int>((unsigned __int8)(eventParm >> 23));
+              if ( v200 >= 0x7FFF )
               {
                 LODWORD(impulseVecOverride) = 0x7FFF;
                 LODWORD(weaponstate) = eventParm & 0x7FFF;
@@ -4506,87 +4073,81 @@ LABEL_550:
             }
             else
             {
-              v228 = eventParm & 0x1FF;
-              v229 = truncate_cast<int,unsigned int>((unsigned __int8)(eventParm >> 9));
-              v230 = truncate_cast<int,unsigned int>((unsigned __int8)(eventParm >> 17));
+              v200 = eventParm & 0x1FF;
+              v201 = truncate_cast<int,unsigned int>((unsigned __int8)(eventParm >> 9));
+              v202 = truncate_cast<int,unsigned int>((unsigned __int8)(eventParm >> 17));
             }
-            if ( v229 == v230 )
-              v230 = -1;
-            v231 = Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80);
-            v232 = 512;
-            v233 = 512;
-            if ( v231 )
-              v233 = 0x7FFF;
-            if ( v228 >= v233 )
+            if ( v201 == v202 )
+              v202 = -1;
+            v203 = Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80);
+            v204 = 512;
+            v205 = 512;
+            if ( v203 )
+              v205 = 0x7FFF;
+            if ( v200 >= v205 )
             {
               if ( Com_GameMode_SupportsFeature(WEAPON_INSPECT|0x80) )
-                v232 = 0x7FFF;
-              LODWORD(impulseVecOverride) = v232;
-              LODWORD(weaponstate) = v228;
+                v204 = 0x7FFF;
+              LODWORD(impulseVecOverride) = v204;
+              LODWORD(weaponstate) = v200;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4049, ASSERT_TYPE_ASSERT, "(unsigned)( soundIndex ) < (unsigned)( Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_MULTIPLAYER ) ? ( (1 << 15) - 1 ) : 512 )", "soundIndex doesn't index Com_GameMode_SupportsFeature( Com_GameMode_Feature::SOUND_MULTIPLAYER ) ? SND_MAX_PRECACHED_ALIASES : MAX_SOUNDALIASES\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
                 __debugbreak();
             }
-            if ( v229 >= 0x100 )
+            if ( v201 >= 0x100 )
             {
               LODWORD(impulseVecOverride) = 256;
-              LODWORD(weaponstate) = v229;
+              LODWORD(weaponstate) = v201;
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4050, ASSERT_TYPE_ASSERT, "(unsigned)( contextIndex ) < (unsigned)( 256 )", "contextIndex doesn't index MAX_SOUND_CONTEXT_INDICES\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
                 __debugbreak();
             }
-            v234 = 2046;
-            if ( _R14->eType < ET_EVENTS )
-              v234 = _R14->number;
-            Trajectory_GetTrBase(&_R14->lerp.pos, &ceilingAlist.midPoint);
-            __asm
-            {
-              vmovss  xmm0, cs:__real@3f800000
-              vmovss  dword ptr [rsp+250h+footstepVFX], xmm0
-              vmovss  dword ptr [rsp+250h+impulseVecOverride], xmm0
-            }
-            ((void (__fastcall *)(CgSoundSystem *, _QWORD, Bounds *, _QWORD, unsigned int, int, int, int))SoundSystem->PlayContextSoundByIndex)(SoundSystem, v234, &ceilingAlist, v228, v229, v230, impulseVecOverridef, footstepVFXb);
+            v206 = 2046;
+            if ( p_nextState->eType < ET_EVENTS )
+              v206 = p_nextState->number;
+            Trajectory_GetTrBase(&p_nextState->lerp.pos, &ceilingAlist.midPoint);
+            ((void (__fastcall *)(CgSoundSystem *, _QWORD, Bounds *, _QWORD, unsigned int, int, _DWORD, _DWORD))SoundSystem->PlayContextSoundByIndex)(SoundSystem, v206, &ceilingAlist, v200, v201, v202, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0));
             memset(&ceilingAlist, 0, 0xCui64);
           }
           break;
         case EV_STANCE_FORCE_STAND:
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) )
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) )
           {
             ClActiveClient::GetClient((const LocalClientNum_t)this->m_localClientNum)->ignoreStanceInput = 1;
             CL_SetStance(this->m_localClientNum, CL_STANCE_STAND, eventParm);
           }
           break;
         case EV_STANCE_INVALID:
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) && isPlayerView && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R13->predictedPlayerState.pm_flags, ACTIVE, 5u) )
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) && isPlayerView && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.pm_flags, ACTIVE, 5u) )
           {
-            v67 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-            _RDI = BG_GetCurrentWeaponForPlayer(v67, &_R13->predictedPlayerState);
+            v55 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+            CurrentWeaponForPlayer = BG_GetCurrentWeaponForPlayer(v55, &LocalClientGlobals->predictedPlayerState);
             switch ( eventParm )
             {
               case 1u:
-                if ( _R13->invalidCmdHintType != INVALID_CMD_STAND_BLOCKED )
+                if ( LocalClientGlobals->invalidCmdHintType != INVALID_CMD_STAND_BLOCKED )
                 {
-                  _R13->invalidCmdHintType = INVALID_CMD_STAND_BLOCKED;
-                  _R13->invalidCmdHintTime = _R13->time;
+                  LocalClientGlobals->invalidCmdHintType = INVALID_CMD_STAND_BLOCKED;
+                  LocalClientGlobals->invalidCmdHintTime = LocalClientGlobals->time;
                 }
                 break;
               case 2u:
-                if ( _R13->invalidCmdHintType != INVALID_CMD_CROUCH_BLOCKED )
+                if ( LocalClientGlobals->invalidCmdHintType != INVALID_CMD_CROUCH_BLOCKED )
                 {
-                  _R13->invalidCmdHintType = INVALID_CMD_CROUCH_BLOCKED;
-                  _R13->invalidCmdHintTime = _R13->time;
+                  LocalClientGlobals->invalidCmdHintType = INVALID_CMD_CROUCH_BLOCKED;
+                  LocalClientGlobals->invalidCmdHintTime = LocalClientGlobals->time;
                 }
                 break;
               case 3u:
-                if ( _R13->invalidCmdHintType != INVALID_CMD_PRONE_BLOCKED )
+                if ( LocalClientGlobals->invalidCmdHintType != INVALID_CMD_PRONE_BLOCKED )
                 {
-                  _R13->invalidCmdHintType = INVALID_CMD_PRONE_BLOCKED;
-                  _R13->invalidCmdHintTime = _R13->time;
+                  LocalClientGlobals->invalidCmdHintType = INVALID_CMD_PRONE_BLOCKED;
+                  LocalClientGlobals->invalidCmdHintTime = LocalClientGlobals->time;
                 }
                 break;
               case 6u:
-                if ( _R13->invalidCmdHintType != INVALID_CMD_TURRET_BLOCKED )
+                if ( LocalClientGlobals->invalidCmdHintType != INVALID_CMD_TURRET_BLOCKED )
                 {
-                  _R13->invalidCmdHintType = INVALID_CMD_TURRET_BLOCKED;
-                  _R13->invalidCmdHintTime = _R13->time;
+                  LocalClientGlobals->invalidCmdHintType = INVALID_CMD_TURRET_BLOCKED;
+                  LocalClientGlobals->invalidCmdHintTime = LocalClientGlobals->time;
                 }
                 break;
               default:
@@ -4594,53 +4155,47 @@ LABEL_550:
                   __debugbreak();
                 break;
             }
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rdi]
-              vmovups ymmword ptr [r13+180BCh], ymm0
-              vmovups xmm1, xmmword ptr [rdi+20h]
-              vmovups xmmword ptr [r13+180DCh], xmm1
-              vmovsd  xmm0, qword ptr [rdi+30h]
-              vmovsd  qword ptr [r13+180ECh], xmm0
-            }
-            *(_DWORD *)&_R13->invalidCmdHintWeapon.weaponCamo = *(_DWORD *)&_RDI->weaponCamo;
+            *(__m256i *)&LocalClientGlobals->invalidCmdHintWeapon.weaponIdx = *(__m256i *)&CurrentWeaponForPlayer->weaponIdx;
+            *(_OWORD *)&LocalClientGlobals->invalidCmdHintWeapon.attachmentVariationIndices[5] = *(_OWORD *)&CurrentWeaponForPlayer->attachmentVariationIndices[5];
+            *(double *)&LocalClientGlobals->invalidCmdHintWeapon.attachmentVariationIndices[21] = *(double *)&CurrentWeaponForPlayer->attachmentVariationIndices[21];
+            *(_DWORD *)&LocalClientGlobals->invalidCmdHintWeapon.weaponCamo = *(_DWORD *)&CurrentWeaponForPlayer->weaponCamo;
           }
           break;
         case EV_ITEM_PICKUP:
         case EV_AMMO_PICKUP:
-          v72 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-          Weapon = BgWeaponMap::GetWeapon(v72, (BgWeaponHandle)eventParm);
-          v74 = _R14->number;
+          v57 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+          Weapon = BgWeaponMap::GetWeapon(v57, (BgWeaponHandle)eventParm);
+          v59 = p_nextState->number;
           m_localClientNum = this->m_localClientNum;
           if ( (unsigned __int16)(Weapon->weaponIdx - 1) > 0x224u )
             break;
-          v76 = CgSoundSystem::GetSoundSystem(m_localClientNum);
+          v61 = CgSoundSystem::GetSoundSystem(m_localClientNum);
           BG_WeaponDef(Weapon, 0);
-          if ( v15 == EV_ITEM_PICKUP )
+          if ( v10 == EV_ITEM_PICKUP )
           {
-            v77 = 8i64 * isPlayerView + 8;
+            v62 = 8i64 * isPlayerView + 8;
           }
           else
           {
-            if ( v15 != EV_AMMO_PICKUP )
+            if ( v10 != EV_AMMO_PICKUP )
               goto LABEL_137;
-            v77 = 8i64 * isPlayerView + 24;
+            v62 = 8i64 * isPlayerView + 24;
           }
-          WeaponSoundWithFallback = BG_GetWeaponSoundWithFallback(Weapon, isAlternate, v77);
-          CgSoundSystem::PlayEntitySoundAlias(v76, v74, WeaponSoundWithFallback);
+          WeaponSoundWithFallback = BG_GetWeaponSoundWithFallback(Weapon, isAlternate, v62);
+          CgSoundSystem::PlayEntitySoundAlias(v61, v59, WeaponSoundWithFallback);
 LABEL_137:
           if ( isPlayerView )
           {
-            v79 = BG_WeaponDef(Weapon, 0);
+            v64 = BG_WeaponDef(Weapon, 0);
             if ( !BG_IsScavengerPickup(Weapon) && BG_GetWeaponClass(Weapon, 0) != WEAPCLASS_ITEM )
             {
-              LocalClientGlobals = CG_GetLocalClientGlobals(m_localClientNum);
-              if ( v79->offhandClass )
+              v65 = CG_GetLocalClientGlobals(m_localClientNum);
+              if ( v64->offhandClass )
               {
-                if ( !LocalClientGlobals->equippedOffHand.weaponIdx )
+                if ( !v65->equippedOffHand.weaponIdx )
                   CG_SetEquippedOffHand(m_localClientNum, Weapon);
               }
-              else if ( !LocalClientGlobals->weaponSelect.weaponIdx )
+              else if ( !v65->weaponSelect.weaponIdx )
               {
                 CG_SelectWeapon(m_localClientNum, Weapon, 0);
               }
@@ -4649,41 +4204,41 @@ LABEL_137:
           break;
         case EV_NOAMMO:
         case EV_NOAMMO_LEFT:
-          v87 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-          if ( !BG_ShouldTakeWeaponWhenEmpty(v87, *(const playerState_s **)viewDip, r_weapon, isAlternate) && !*(_BYTE *)(*(_QWORD *)ceilingAlist.midPoint.v + 3962i64) && *(_QWORD *)(*(_QWORD *)ceilingAlist.midPoint.v + 520i64) )
+          v72 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+          if ( !BG_ShouldTakeWeaponWhenEmpty(v72, *(const playerState_s **)viewDip, r_weapon, isAlternate) && !*(_BYTE *)(*(_QWORD *)ceilingAlist.midPoint.v + 3962i64) && *(_QWORD *)(*(_QWORD *)ceilingAlist.midPoint.v + 520i64) )
           {
             SfxPackage = BG_GetSfxPackage(r_weapon, isAlternate);
-            NoAmmoSound_Internal = CG_GetNoAmmoSound_Internal(SfxPackage, isPlayerView, v347, (PlayerHandIndex)clothType, 0);
-            CgSoundSystem::PlayEntitySoundAlias(SoundSystem, _R14->number, NoAmmoSound_Internal);
+            NoAmmoSound_Internal = CG_GetNoAmmoSound_Internal(SfxPackage, isPlayerView, v277, (PlayerHandIndex)clothType, 0);
+            CgSoundSystem::PlayEntitySoundAlias(SoundSystem, p_nextState->number, NoAmmoSound_Internal);
           }
           if ( isPlayerView )
           {
-            v90 = *(const playerState_s **)viewDip;
+            v75 = *(const playerState_s **)viewDip;
             goto LABEL_165;
           }
           break;
         case EV_EMPTY_OFFHAND_PRIMARY:
         case EV_EMPTY_OFFHAND_SECONDARY:
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) && isPlayerView )
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) && isPlayerView )
             CG_SwitchOffHandCmd(this->m_localClientNum);
           break;
         case EV_OFFHAND_END_NOTIFY:
           CG_Weapons_ToggleEquip_OnOffhandEnd(this->m_localClientNum);
           if ( isPlayerView )
           {
-            v140 = 0;
-            animMoveState = _R13->animMoveState;
-            v142 = _R13->animMoveState;
+            v116 = 0;
+            animMoveState = LocalClientGlobals->animMoveState;
+            v118 = LocalClientGlobals->animMoveState;
             do
-              MovementAnimState::Reset(v142++, (const LocalClientNum_t)this->m_localClientNum, (const PlayerHandIndex)v140++);
-            while ( v140 < 2 );
-            v143 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-            WeaponHand = BG_PlayerLastWeaponHand(v143, &_R13->predictedPlayerState);
+              MovementAnimState::Reset(v118++, (const LocalClientNum_t)this->m_localClientNum, (const PlayerHandIndex)v116++);
+            while ( v116 < 2 );
+            v119 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+            WeaponHand = BG_PlayerLastWeaponHand(v119, &LocalClientGlobals->predictedPlayerState);
             if ( WeaponHand >= 0 )
             {
               do
               {
-                MovementAnimState::Update(animMoveState, (const LocalClientNum_t)this->m_localClientNum, (const PlayerHandIndex)p_predictedPlayerState, &_R13->predictedPlayerState);
+                MovementAnimState::Update(animMoveState, (const LocalClientNum_t)this->m_localClientNum, (const PlayerHandIndex)p_predictedPlayerState, &LocalClientGlobals->predictedPlayerState);
                 LODWORD(p_predictedPlayerState) = (_DWORD)p_predictedPlayerState + 1;
                 ++animMoveState;
               }
@@ -4693,14 +4248,14 @@ LABEL_137:
           break;
         case EV_RESET_ADS:
         case EV_RELOAD_START_NOTIFY:
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) )
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) )
           {
-            if ( v15 != EV_RELOAD_START_NOTIFY )
+            if ( v10 != EV_RELOAD_START_NOTIFY )
               goto LABEL_217;
             if ( isPlayerView )
-              p_predictedPlayerState = &_R13->predictedPlayerState;
-            v99 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-            if ( !BG_ADSReloadEnabled(v99, p_predictedPlayerState, r_weapon, isAlternate) )
+              p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
+            v80 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+            if ( !BG_ADSReloadEnabled(v80, p_predictedPlayerState, r_weapon, isAlternate) )
             {
 LABEL_217:
               if ( isPlayerView )
@@ -4725,160 +4280,154 @@ LABEL_217:
         case EV_RELOAD_FROM_EMPTY:
         case EV_RELOAD_START:
         case EV_RELOAD_END:
-          v81 = _R14->number;
-          v82 = this->m_localClientNum;
-          v83 = CgSoundSystem::GetSoundSystem(v82);
-          Entity = CG_GetEntity(v82, v81);
+          v66 = p_nextState->number;
+          v67 = this->m_localClientNum;
+          v68 = CgSoundSystem::GetSoundSystem(v67);
+          Entity = CG_GetEntity(v67, v66);
           Trajectory_GetTrBase(&Entity->nextState.lerp.pos, &ceilingAlist.midPoint);
           switch ( weaponRattleType )
           {
             case 0x17u:
-              v85 = 8i64 * isPlayerView + 384;
+              v70 = 8i64 * isPlayerView + 384;
               break;
             case 0x18u:
-              v85 = 8i64 * isPlayerView + 400;
+              v70 = 8i64 * isPlayerView + 400;
               break;
             case 0x19u:
-              v85 = 8i64 * isPlayerView + 416;
+              v70 = 8i64 * isPlayerView + 416;
               break;
             case 0x1Au:
-              v85 = 8i64 * isPlayerView + 432;
+              v70 = 8i64 * isPlayerView + 432;
               break;
             case 0x1Bu:
-              v85 = 8i64 * isPlayerView + 448;
+              v70 = 8i64 * isPlayerView + 448;
               break;
             default:
               Com_PrintWarning(16, "Unknown reload sound event.\n");
               goto LABEL_157;
           }
-          WeaponSound = BG_GetWeaponSound(r_weapon, isAlternate, v85);
-          CgSoundSystem::PlaySoundAlias(v83, v81, &ceilingAlist.midPoint, WeaponSound);
+          WeaponSound = BG_GetWeaponSound(r_weapon, isAlternate, v70);
+          CgSoundSystem::PlaySoundAlias(v68, v66, &ceilingAlist.midPoint, WeaponSound);
 LABEL_157:
           memset(&ceilingAlist, 0, 0xCui64);
           break;
         case EV_RAISE_WEAPON:
-          v101 = 8i64 * isPlayerView + 528;
-          v102 = isAlternate;
-          v103 = r_weapon;
+          v82 = 8i64 * isPlayerView + 528;
+          v83 = isAlternate;
+          v84 = r_weapon;
           goto LABEL_225;
         case EV_FIRST_RAISE_WEAPON:
           if ( isPlayerView )
           {
-            v100 = BG_GetWeaponSoundWithFallback(r_weapon, isAlternate, 552i64);
-            if ( v100 )
+            v81 = BG_GetWeaponSoundWithFallback(r_weapon, isAlternate, 552i64);
+            if ( v81 )
               goto LABEL_226;
-            v101 = 536i64;
+            v82 = 536i64;
           }
           else
           {
-            v100 = BG_GetWeaponSoundWithFallback(r_weapon, isAlternate, 544i64);
-            if ( v100 )
+            v81 = BG_GetWeaponSoundWithFallback(r_weapon, isAlternate, 544i64);
+            if ( v81 )
               goto LABEL_226;
-            v101 = 528i64;
+            v82 = 528i64;
           }
-          v102 = isAlternate;
-          v103 = r_weapon;
+          v83 = isAlternate;
+          v84 = r_weapon;
 LABEL_225:
-          v100 = BG_GetWeaponSoundWithFallback(v103, v102, v101);
+          v81 = BG_GetWeaponSoundWithFallback(v84, v83, v82);
 LABEL_226:
-          CgSoundSystem::PlayEntitySoundAlias(SoundSystem, _R14->number, v100);
+          CgSoundSystem::PlayEntitySoundAlias(SoundSystem, p_nextState->number, v81);
           break;
         case EV_PUTAWAY_WEAPON:
-          v101 = 8i64 * isPlayerView + 560;
-          v102 = isAlternate;
-          v103 = r_weapon;
+          v82 = 8i64 * isPlayerView + 560;
+          v83 = isAlternate;
+          v84 = r_weapon;
           goto LABEL_225;
         case EV_WEAPON_ALT:
-          v101 = 8i64 * isPlayerView + 512;
-          v102 = isAlternate;
-          v103 = r_weapon;
+          v82 = 8i64 * isPlayerView + 512;
+          v83 = isAlternate;
+          v84 = r_weapon;
           goto LABEL_225;
         case EV_PULLBACK_WEAPON:
           WeaponSystem = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)this->m_localClientNum);
           if ( !WeaponSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3262, ASSERT_TYPE_ASSERT, "(weaponSystem)", (const char *)&queryFormat, "weaponSystem") )
             __debugbreak();
-          CgWeaponSystem::PlayPullbackSound(WeaponSystem, _R14->number, isPlayerView, r_weapon, isAlternate);
+          CgWeaponSystem::PlayPullbackSound(WeaponSystem, p_nextState->number, isPlayerView, r_weapon, isAlternate);
           break;
         case EV_FIRE_WEAPON_END:
         case EV_FIRE_VEH_TURRET_END:
           CG_SndKillAutoSimEnt(centa, 0);
           break;
         case EV_PRE_FIRE_WEAPON:
-          v100 = BG_PreFireSound(r_weapon, isAlternate, isPlayerView);
-          if ( v100 )
+          v81 = BG_PreFireSound(r_weapon, isAlternate, isPlayerView);
+          if ( v81 )
             goto LABEL_226;
           break;
         case EV_FIRE_RICOCHET:
           *(_QWORD *)ceilingAlist.midPoint.v = CG_GetEntWeapon(this->m_localClientNum, centa);
           inAltWeaponMode = centa->nextState.inAltWeaponMode;
-          v107 = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, centa->nextState.otherEntityNum);
-          if ( !v107 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3285, ASSERT_TYPE_ASSERT, "(attackerEnt)", (const char *)&queryFormat, "attackerEnt") )
+          v88 = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, centa->nextState.otherEntityNum);
+          if ( !v88 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3285, ASSERT_TYPE_ASSERT, "(attackerEnt)", (const char *)&queryFormat, "attackerEnt") )
             __debugbreak();
-          v108 = centa->nextState.eventParm;
-          if ( v108 != 2047 )
-            p_predictedPlayerState = (playerState_s *)CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, v108);
-          _RDI = &centa->nextState.lerp.u;
+          v89 = centa->nextState.eventParm;
+          if ( v89 != 2047 )
+            p_predictedPlayerState = (playerState_s *)CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, v89);
           Trajectory_GetTrBase(&centa->nextState.lerp.pos, &suitDef);
-          v110 = *(const Weapon **)ceilingAlist.midPoint.v;
+          v90 = *(const Weapon **)ceilingAlist.midPoint.v;
           isDualWield = BG_WeaponIsDualWield(*(const Weapon **)ceilingAlist.midPoint.v);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+10h]
-            vmovss  dword ptr [rsp+250h+impulseVecOverride], xmm0
-          }
-          CG_FireWeaponRicochet(this->m_localClientNum, v107, (centity_t *)p_predictedPlayerState, &suitDef, (const vec3_t *)&centa->nextState.lerp.u, centa->nextState.lerp.u.anonymous.data[3], impulseVecOverridec, v110, inAltWeaponMode, (PlayerHandIndex)clothType, isPlayerView, isDualWield);
+          CG_FireWeaponRicochet(this->m_localClientNum, v88, (centity_t *)p_predictedPlayerState, &suitDef, (const vec3_t *)&centa->nextState.lerp.u, centa->nextState.lerp.u.anonymous.data[3], centa->nextState.lerp.u.actor.impactVector.v[1], v90, inAltWeaponMode, (PlayerHandIndex)clothType, isPlayerView, isDualWield);
           memset(&suitDef, 0, sizeof(suitDef));
           break;
         case EV_RECHAMBER_WEAPON:
-          v101 = 8i64 * isPlayerView + 368;
-          v102 = isAlternate;
-          v103 = r_weapon;
+          v82 = 8i64 * isPlayerView + 368;
+          v83 = isAlternate;
+          v84 = r_weapon;
           goto LABEL_225;
         case EV_EJECT_BRASS:
         case EV_EJECT_BRASS_LEFT:
-          v113 = this->m_localClientNum;
-          v114 = *(bitarray_base<bitarray<32> > **)surfType;
+          v92 = this->m_localClientNum;
+          v93 = *(bitarray_base<bitarray<32> > **)surfType;
           if ( *(_QWORD *)surfType && **(_BYTE **)surfType )
           {
             if ( bitarray_base<bitarray<32>>::testBit((bitarray_base<bitarray<32> > *)(*(_QWORD *)surfType + 12i64), 0) )
             {
-              v115 = 0;
+              v94 = 0;
             }
             else
             {
-              v116 = v114[1];
-              if ( *(unsigned __int8 *)&v116 >= 3u )
+              v95 = v93[1];
+              if ( *(unsigned __int8 *)&v95 >= 3u )
               {
                 LODWORD(impulseVecOverride) = 3;
-                LODWORD(weaponstate) = (unsigned __int8)v116;
+                LODWORD(weaponstate) = (unsigned __int8)v95;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 176, ASSERT_TYPE_ASSERT, "(unsigned)( lodData->fovLod ) < (unsigned)( ( sizeof( *array_counter( params.minimumDistance ) ) + 0 ) )", "lodData->fovLod doesn't index params.minimumDistance\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
                   __debugbreak();
               }
-              v115 = *(_BYTE *)v114 <= s_eventLodTypeParams[0].minimumDistance[*(_BYTE *)&v114[1]];
+              v94 = *(_BYTE *)v93 <= s_eventLodTypeParams[0].minimumDistance[*(_BYTE *)&v93[1]];
             }
           }
           else
           {
-            v115 = 1;
+            v94 = 1;
           }
-          CG_Event_Debug_AddCount(v113, CG_EVENT_LOD_TYPE_EJECT_BRASS, v115);
-          if ( v115 )
-            CG_EjectWeaponBrass(this->m_localClientNum, _R14, v15, isAlternate);
+          CG_Event_Debug_AddCount(v92, CG_EVENT_LOD_TYPE_EJECT_BRASS, v94);
+          if ( v94 )
+            CG_EjectWeaponBrass(this->m_localClientNum, p_nextState, v10, isAlternate);
           break;
         case EV_FIRE_WEAPON_LASTBURST:
         case EV_FIRE_WEAPON_LASTBURST_LEFT:
           CG_SndAutoSimEntLastBurst(centa, (const PlayerHandIndex)clothType);
           break;
         case EV_FIRE_MELEE_DAMAGE:
-          v117 = this->m_localClientNum;
-          if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1756, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+          v96 = this->m_localClientNum;
+          if ( !p_nextState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1756, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
             __debugbreak();
           if ( r_weapon->weaponIdx )
           {
-            CG_GetMeleeStartEnd(v117, _R14, r_weapon, isAlternate, &suitDef, &ceilingAlist.midPoint);
-            Physics_AddDeferredBulletForce((const Physics_WorldId)(3 * v117 + 3), &suitDef, &ceilingAlist.midPoint, _R14->number, 1, r_weapon, isAlternate, eventParm, CG_MeleeEventEffectCallback);
-            CG_Glass_MeleeEvent(v117, _R14->number);
-            ScriptableCl_MeleeEvent(v117, _R14->number, r_weapon, isAlternate);
+            CG_GetMeleeStartEnd(v96, p_nextState, r_weapon, isAlternate, &suitDef, &ceilingAlist.midPoint);
+            Physics_AddDeferredBulletForce((const Physics_WorldId)(3 * v96 + 3), &suitDef, &ceilingAlist.midPoint, p_nextState->number, 1, r_weapon, isAlternate, eventParm, CG_MeleeEventEffectCallback);
+            CG_Glass_MeleeEvent(v96, p_nextState->number);
+            ScriptableCl_MeleeEvent(v96, p_nextState->number, r_weapon, isAlternate);
           }
           break;
         case EV_FIRE_MELEE_SWIPE:
@@ -4887,142 +4436,133 @@ LABEL_226:
             CG_SND_PlayerBreathsSetMelee(this->m_localClientNum);
           break;
         case EV_PREP_OFFHAND:
-          v118 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-          *(_QWORD *)ceilingAlist.midPoint.v = v118;
+          v97 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+          *(_QWORD *)ceilingAlist.midPoint.v = v97;
           if ( !eventParm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3374, ASSERT_TYPE_ASSERT, "( BgWeaponHandle::INVALID_HANDLE ) != ( eventParm )", "%s != %s\n\t%u, %u", "BgWeaponHandle::INVALID_HANDLE", "eventParm", 0i64, 0) )
             __debugbreak();
-          v119 = BgWeaponMap::GetWeapon(v118, (BgWeaponHandle)eventParm);
-          if ( !v119->weaponIdx )
+          v98 = BgWeaponMap::GetWeapon(v97, (BgWeaponHandle)eventParm);
+          if ( !v98->weaponIdx )
           {
             LODWORD(footstepVFX) = 0;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3376, ASSERT_TYPE_ASSERT, "( weapon.weaponIdx ) != ( 0 )", "%s != %s\n\t%i, %i", "weapon.weaponIdx", "WP_NONE", footstepVFX, 0i64) )
               __debugbreak();
           }
-          CG_PrepOffHand(this->m_localClientNum, _R14, v119, isPlayerView);
+          CG_PrepOffHand(this->m_localClientNum, p_nextState, v98, isPlayerView);
           if ( isPlayerView )
           {
-            v120 = 0;
-            v121 = _R13->animMoveState;
-            v122 = _R13->animMoveState;
+            v99 = 0;
+            v100 = LocalClientGlobals->animMoveState;
+            v101 = LocalClientGlobals->animMoveState;
             do
-              MovementAnimState::Reset(v122++, (const LocalClientNum_t)this->m_localClientNum, (const PlayerHandIndex)v120++);
-            while ( v120 < 2 );
-            v123 = BG_PlayerLastWeaponHand(*(const BgWeaponMap **)ceilingAlist.midPoint.v, &_R13->predictedPlayerState);
-            if ( v123 >= 0 )
+              MovementAnimState::Reset(v101++, (const LocalClientNum_t)this->m_localClientNum, (const PlayerHandIndex)v99++);
+            while ( v99 < 2 );
+            v102 = BG_PlayerLastWeaponHand(*(const BgWeaponMap **)ceilingAlist.midPoint.v, &LocalClientGlobals->predictedPlayerState);
+            if ( v102 >= 0 )
             {
               do
               {
-                MovementAnimState::Update(v121, (const LocalClientNum_t)this->m_localClientNum, (const PlayerHandIndex)p_predictedPlayerState, &_R13->predictedPlayerState);
+                MovementAnimState::Update(v100, (const LocalClientNum_t)this->m_localClientNum, (const PlayerHandIndex)p_predictedPlayerState, &LocalClientGlobals->predictedPlayerState);
                 LODWORD(p_predictedPlayerState) = (_DWORD)p_predictedPlayerState + 1;
-                ++v121;
+                ++v100;
               }
-              while ( (int)p_predictedPlayerState <= v123 );
+              while ( (int)p_predictedPlayerState <= v102 );
             }
           }
           break;
         case EV_PUTAWAY_OFFHAND:
-          v126 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-          v127 = BgWeaponMap::GetWeapon(v126, (BgWeaponHandle)eventParm);
-          CG_PutAwayOffhand(this->m_localClientNum, _R14, v127, isPlayerView);
+          v105 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+          v106 = BgWeaponMap::GetWeapon(v105, (BgWeaponHandle)eventParm);
+          CG_PutAwayOffhand(this->m_localClientNum, p_nextState, v106, isPlayerView);
           break;
         case EV_USE_OFFHAND:
-          v128 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-          _RBX = BgWeaponMap::GetWeapon(v128, (BgWeaponHandle)eventParm);
+          v107 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+          v108 = BgWeaponMap::GetWeapon(v107, (BgWeaponHandle)eventParm);
           if ( isPlayerView )
           {
-            v130 = !_R13->inKillCam && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_R13->predictedPlayerState.otherFlags, GameModeFlagValues::ms_mpValue, 0x21u) && BgMissile::ShouldBePredicted(v128, &_R13->predictedPlayerState, _RBX, 0);
-            m_weaponHand = _R13->m_weaponHand;
-            if ( _R13 == (cg_t *)-807496i64 )
+            v109 = !LocalClientGlobals->inKillCam && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.otherFlags, GameModeFlagValues::ms_mpValue, 0x21u) && BgMissile::ShouldBePredicted(v107, &LocalClientGlobals->predictedPlayerState, v108, 0);
+            m_weaponHand = LocalClientGlobals->m_weaponHand;
+            if ( LocalClientGlobals == (cg_t *)-807496i64 )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3432, ASSERT_TYPE_ASSERT, "(weapHand)", (const char *)&queryFormat, "weapHand") )
                 __debugbreak();
               m_weaponHand = NULL;
             }
-            if ( v130 && m_weaponHand->viewModelDObj )
+            if ( v109 && m_weaponHand->viewModelDObj )
             {
               System = CgPredictedEntitySystem::GetSystem((const LocalClientNum_t)this->m_localClientNum);
               if ( !System && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3436, ASSERT_TYPE_ASSERT, "(predictedEntitySystem)", (const char *)&queryFormat, "predictedEntitySystem") )
                 __debugbreak();
               if ( CgPredictedEntitySystem::CanSpawnNewEntities(System) )
               {
-                v133 = CgStatic::GetCharacterInfo(LocalClientStatics, _R13->clientNum);
-                if ( !v133 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3441, ASSERT_TYPE_ASSERT, "(playerCI)", (const char *)&queryFormat, "playerCI") )
+                v112 = CgStatic::GetCharacterInfo(LocalClientStatics, LocalClientGlobals->clientNum);
+                if ( !v112 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3441, ASSERT_TYPE_ASSERT, "(playerCI)", (const char *)&queryFormat, "playerCI") )
                   __debugbreak();
-                if ( v133->infoValid )
+                if ( v112->infoValid )
                 {
-                  v134 = CgMissile::GetSystem((const LocalClientNum_t)this->m_localClientNum);
+                  v113 = CgMissile::GetSystem((const LocalClientNum_t)this->m_localClientNum);
                   memset_0(&outWP, 0, sizeof(outWP));
-                  __asm
-                  {
-                    vmovups ymm0, ymmword ptr [rbx]
-                    vmovups ymmword ptr [rbp+150h+outWP.weapon.weaponIdx], ymm0
-                    vmovups xmm1, xmmword ptr [rbx+20h]
-                    vmovups xmmword ptr [rbp+150h+outWP.weapon.attachmentVariationIndices+5], xmm1
-                    vmovsd  xmm0, qword ptr [rbx+30h]
-                    vmovsd  qword ptr [rbp+150h+outWP.weapon.attachmentVariationIndices+15h], xmm0
-                  }
-                  *(_DWORD *)&outWP.weapon.weaponCamo = *(_DWORD *)&_RBX->weaponCamo;
+                  outWP.weapon = *v108;
                   outWP.isAlternate = 0;
-                  outWP.weapDef = BG_WeaponDef(_RBX, 0);
+                  outWP.weapDef = BG_WeaponDef(v108, 0);
                   if ( BG_GetWeaponType(&outWP.weapon, outWP.isAlternate) == WEAPTYPE_GRENADE )
-                    CgMissile::GetMuzzleOrientation(v134, _R14->number, &outWP);
-                  BgMissile::UseOffhand(v134, _R14->number, _R13->predictedPlayerState.serverTime, &outWP);
+                    CgMissile::GetMuzzleOrientation(v113, p_nextState->number, &outWP);
+                  BgMissile::UseOffhand(v113, p_nextState->number, LocalClientGlobals->predictedPlayerState.serverTime, &outWP);
                 }
                 else
                 {
-                  Com_Printf(14, "Could not fire predicted missile because the local player character info is invalid. Possible cause is host migration. Client number: %d\n", (unsigned int)_R13->clientNum);
+                  Com_Printf(14, "Could not fire predicted missile because the local player character info is invalid. Possible cause is host migration. Client number: %d\n", (unsigned int)LocalClientGlobals->clientNum);
                 }
               }
             }
           }
-          CG_UseOffHand(this->m_localClientNum, centa, _RBX, isAlternate, isPlayerView);
+          CG_UseOffHand(this->m_localClientNum, centa, v108, isAlternate, isPlayerView);
           break;
         case EV_SWITCH_OFFHAND:
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) && isPlayerView )
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) && isPlayerView )
           {
-            v138 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-            v139 = BgWeaponMap::GetWeapon(v138, (BgWeaponHandle)eventParm);
-            CG_SetEquippedOffHand(this->m_localClientNum, v139);
+            v114 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+            v115 = BgWeaponMap::GetWeapon(v114, (BgWeaponHandle)eventParm);
+            CG_SetEquippedOffHand(this->m_localClientNum, v115);
           }
           break;
         case EV_SWITCH_AND_PREP_OFFHAND:
-          v124 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+          v103 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
           if ( !eventParm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3401, ASSERT_TYPE_ASSERT, "( BgWeaponHandle::INVALID_HANDLE ) != ( eventParm )", "%s != %s\n\t%u, %u", "BgWeaponHandle::INVALID_HANDLE", "eventParm", 0i64, 0) )
             __debugbreak();
-          v125 = BgWeaponMap::GetWeapon(v124, (BgWeaponHandle)eventParm);
-          if ( !v125->weaponIdx )
+          v104 = BgWeaponMap::GetWeapon(v103, (BgWeaponHandle)eventParm);
+          if ( !v104->weaponIdx )
           {
             LODWORD(footstepVFX) = 0;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3403, ASSERT_TYPE_ASSERT, "( weapon.weaponIdx ) != ( 0 )", "%s != %s\n\t%i, %i", "weapon.weaponIdx", "WP_NONE", footstepVFX, 0i64) )
               __debugbreak();
           }
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) && isPlayerView )
-            CG_SetEquippedOffHand(this->m_localClientNum, v125);
-          CG_PrepOffHand(this->m_localClientNum, _R14, v125, isPlayerView);
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) && isPlayerView )
+            CG_SetEquippedOffHand(this->m_localClientNum, v104);
+          CG_PrepOffHand(this->m_localClientNum, p_nextState, v104, isPlayerView);
           break;
         case EV_PULLBACK_OFFHAND_QUICK:
-          v105 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-          v106 = BgWeaponMap::GetWeapon(v105, (BgWeaponHandle)eventParm);
-          CG_QuickPullbackOffhand(this->m_localClientNum, _R14, v106, isPlayerView);
+          v86 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+          v87 = BgWeaponMap::GetWeapon(v86, (BgWeaponHandle)eventParm);
+          CG_QuickPullbackOffhand(this->m_localClientNum, p_nextState, v87, isPlayerView);
           break;
         case EV_MELEE_CHARACTER_IMPACT:
-          v164 = _R14->lerp.u.anonymous.data[0];
-          CG_MeleeBloodEvent(this->m_localClientNum, v164);
-          CG_PlayMeleeCharacterImpactSound((const LocalClientNum_t)this->m_localClientNum, _R14, v164, eventParm, &outOrigin);
+          v136 = p_nextState->lerp.u.anonymous.data[0];
+          CG_MeleeBloodEvent(this->m_localClientNum, v136);
+          CG_PlayMeleeCharacterImpactSound((const LocalClientNum_t)this->m_localClientNum, p_nextState, v136, eventParm, &outOrigin);
           break;
         case EV_MELEE_WORLD_IMPACT:
-          eventParm2 = _R14->eventParm2;
+          eventParm2 = p_nextState->eventParm2;
           if ( eventParm2 >= 0x40 )
           {
             LODWORD(impulseVecOverride) = 64;
-            LODWORD(weaponstate) = _R14->eventParm2;
+            LODWORD(weaponstate) = p_nextState->eventParm2;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3630, ASSERT_TYPE_ASSERT, "(unsigned)( surfType ) < (unsigned)( 64 )", "surfType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
               __debugbreak();
           }
-          v166 = _R14->lerp.u.anonymous.data[0];
-          v167 = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, _R14->clientNum);
-          if ( v167 && (v167->flags & 1) != 0 )
-            CG_PlayMeleeWorldImpactSound((const LocalClientNum_t)this->m_localClientNum, eventParm2, v166, &outOrigin, eventParm);
+          v138 = p_nextState->lerp.u.anonymous.data[0];
+          v139 = CG_GetEntity((const LocalClientNum_t)this->m_localClientNum, p_nextState->clientNum);
+          if ( v139 && (v139->flags & 1) != 0 )
+            CG_PlayMeleeWorldImpactSound((const LocalClientNum_t)this->m_localClientNum, eventParm2, v138, &outOrigin, eventParm);
           break;
         case EV_FIRE_VEH_TURRET:
         case EV_FIRE_TURRET:
@@ -5038,15 +4578,15 @@ LABEL_226:
             goto LABEL_245;
           if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_LADDER_CLIMB) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2396, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::TURRET_REMOTE_CONTROL ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TURRET_REMOTE_CONTROL )") )
             __debugbreak();
-          if ( *(_WORD *)(*(_QWORD *)viewDip + 158i64) != _R14->number )
+          if ( *(_WORD *)(*(_QWORD *)viewDip + 158i64) != p_nextState->number )
           {
 LABEL_245:
-            if ( !BG_IsTurretActive(*(const playerState_s **)viewDip) || *(_WORD *)(*(_QWORD *)viewDip + 636i64) != _R14->number )
+            if ( !BG_IsTurretActive(*(const playerState_s **)viewDip) || *(_WORD *)(*(_QWORD *)viewDip + 636i64) != p_nextState->number )
             {
 LABEL_246:
               LOBYTE(weaponstate) = 0;
               LOBYTE(fmta) = isPlayerView;
-              this->HandleTurretFire(this, centa, v15, eventParm, fmta, weaponstate);
+              this->HandleTurretFire(this, centa, v10, eventParm, fmta, weaponstate);
             }
           }
           break;
@@ -5065,8 +4605,8 @@ LABEL_246:
         case EV_EXPLOSIVE_SPLASH_ON_SHIELD:
           if ( isPlayerView )
           {
-            v170 = truncate_cast<int,unsigned int>(eventParm);
-            CG_ExplosiveSplashOnShieldEvent(this->m_localClientNum, v170);
+            v142 = truncate_cast<int,unsigned int>(eventParm);
+            CG_ExplosiveSplashOnShieldEvent(this->m_localClientNum, v142);
           }
           break;
         case EV_GRENADE_BOUNCE:
@@ -5076,11 +4616,11 @@ LABEL_246:
         case EV_GRENADE_ENTERS_WATER:
           centa->flags |= 0x200u;
 $LN72_9:
-          v174 = _R14->surfType;
-          if ( v174 >= 0x40u )
+          v145 = p_nextState->surfType;
+          if ( v145 >= 0x40u )
           {
             LODWORD(impulseVecOverride) = 64;
-            LODWORD(weaponstate) = v174;
+            LODWORD(weaponstate) = v145;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3770, ASSERT_TYPE_ASSERT, "(unsigned)( es->surfType ) < (unsigned)( 64 )", "es->surfType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
               __debugbreak();
           }
@@ -5091,95 +4631,87 @@ $LN72_9:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3773, ASSERT_TYPE_ASSERT, "(unsigned)( intensityIndex ) < (unsigned)( BOUNCE_INTENSITY_COUNT )", "intensityIndex doesn't index BOUNCE_INTENSITY_COUNT\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
               __debugbreak();
           }
-          CG_UpdateMissileEventOrientation(_R14, (unsigned __int8)eventParm, &axis);
-          CGMovingPlatforms::ProcessDynamicBoltPosition(_R14, this->m_localClientNum, &outOrigin, &position);
-          CG_PlayGrenadeBounceSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, _R14, &position, &axis, r_weapon, (const BounceIntensityAlias)(eventParm >> 8), isAlternate, v15 == EV_GRENADE_STICK);
+          CG_UpdateMissileEventOrientation(p_nextState, (unsigned __int8)eventParm, &axis);
+          CGMovingPlatforms::ProcessDynamicBoltPosition(p_nextState, this->m_localClientNum, &outOrigin, &position);
+          CG_PlayGrenadeBounceSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, p_nextState, &position, &axis, r_weapon, (const BounceIntensityAlias)(eventParm >> 8), isAlternate, v10 == EV_GRENADE_STICK);
           break;
         case EV_GRENADE_ROLL:
-          v171 = _R14->surfType;
-          if ( v171 >= 0x40u )
+          v143 = p_nextState->surfType;
+          if ( v143 >= 0x40u )
           {
             LODWORD(impulseVecOverride) = 64;
-            LODWORD(weaponstate) = v171;
+            LODWORD(weaponstate) = v143;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3752, ASSERT_TYPE_ASSERT, "(unsigned)( es->surfType ) < (unsigned)( 64 )", "es->surfType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
               __debugbreak();
           }
-          v172 = BG_GetWeaponSoundWithFallback(r_weapon, isAlternate, 696i64);
-          if ( v172 )
-          {
-            __asm
-            {
-              vmovss  xmm0, cs:__real@3f800000
-              vmovss  dword ptr [rsp+250h+impulseVecOverride], xmm0
-              vmovss  [rsp+250h+weaponstate], xmm0
-            }
-            ((void (__fastcall *)(CgSoundSystem *, __int64, vec3_t *, const SndAliasList *, _DWORD, weaponstate_t, int, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, 2046i64, &outOrigin, v172, _R14->surfType, weaponstated, impulseVecOverrided, 0);
-          }
+          v144 = BG_GetWeaponSoundWithFallback(r_weapon, isAlternate, 696i64);
+          if ( v144 )
+            ((void (__fastcall *)(CgSoundSystem *, __int64, vec3_t *, const SndAliasList *, _DWORD, _DWORD, _DWORD, _DWORD))SoundSystem->PlaySurfaceSound)(SoundSystem, 2046i64, &outOrigin, v144, p_nextState->surfType, LODWORD(FLOAT_1_0), LODWORD(FLOAT_1_0), 0);
           break;
         case EV_GRENADE_EXPLODE_FX:
-          v175 = _R14->surfType;
-          if ( v175 >= 0x40u )
+          v146 = p_nextState->surfType;
+          if ( v146 >= 0x40u )
           {
             LODWORD(impulseVecOverride) = 64;
-            LODWORD(weaponstate) = v175;
+            LODWORD(weaponstate) = v146;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3783, ASSERT_TYPE_ASSERT, "(unsigned)( es->surfType ) < (unsigned)( 64 )", "es->surfType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
               __debugbreak();
           }
-          CG_UpdateMissileEventOrientation(_R14, (unsigned __int8)eventParm, &axis);
-          CGMovingPlatforms::ProcessDynamicBoltPosition(_R14, this->m_localClientNum, &outOrigin, &position);
-          v176 = isAlternate;
-          v177 = r_weapon;
+          CG_UpdateMissileEventOrientation(p_nextState, (unsigned __int8)eventParm, &axis);
+          CGMovingPlatforms::ProcessDynamicBoltPosition(p_nextState, this->m_localClientNum, &outOrigin, &position);
+          v147 = isAlternate;
+          v148 = r_weapon;
           if ( CG_HandleTimeOutExplosionEvent(eventParm, (const LocalClientNum_t)this->m_localClientNum, isPlayerView, &position, &axis, r_weapon, isAlternate) )
             break;
-          CG_PlayProjectileImpactSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, _R14, &position, &axis, r_weapon, isAlternate, 1);
+          CG_PlayProjectileImpactSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, p_nextState, &position, &axis, r_weapon, isAlternate, 1);
 LABEL_405:
-          v178 = this->m_localClientNum;
-          *(FxCombinedDef *)ceilingAlist.midPoint.v = BG_ProjExplosionEffect(v177, v176);
+          v149 = this->m_localClientNum;
+          *(FxCombinedDef *)ceilingAlist.midPoint.v = BG_ProjExplosionEffect(v148, v147);
           if ( *(_QWORD *)ceilingAlist.midPoint.v )
-            CGMovingPlatforms::PlayDynamicBoltEffect(_R14, v178, (const FXRegisteredDef *const)&ceilingAlist, &position, &axis);
-          v179 = BG_ProjExplosionSound(v177, v176);
-          if ( v179 )
+            CGMovingPlatforms::PlayDynamicBoltEffect(p_nextState, v149, (const FXRegisteredDef *const)&ceilingAlist, &position, &axis);
+          v150 = BG_ProjExplosionSound(v148, v147);
+          if ( v150 )
           {
-            v180 = CgSoundSystem::GetSoundSystem(v178);
-            PlayExplosionSoundAsync = v180->PlayExplosionSoundAsync;
-            v182 = BG_ProjExplosionReflectionClass(v177, v176);
-            PlayExplosionSoundAsync(v180, 2046, &position, v179, _R14->surfType, v182);
+            v151 = CgSoundSystem::GetSoundSystem(v149);
+            PlayExplosionSoundAsync = v151->PlayExplosionSoundAsync;
+            v153 = BG_ProjExplosionReflectionClass(v148, v147);
+            PlayExplosionSoundAsync(v151, 2046, &position, v150, p_nextState->surfType, v153);
           }
           break;
         case EV_GRENADE_EXPLODE_DAMAGE:
-          v183 = _R14->surfType;
-          if ( v183 >= 0x40u )
+          v154 = p_nextState->surfType;
+          if ( v154 >= 0x40u )
           {
             LODWORD(impulseVecOverride) = 64;
-            LODWORD(weaponstate) = v183;
+            LODWORD(weaponstate) = v154;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3798, ASSERT_TYPE_ASSERT, "(unsigned)( es->surfType ) < (unsigned)( 64 )", "es->surfType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
               __debugbreak();
           }
-          CG_UpdateMissileEventOrientation(_R14, (unsigned __int8)eventParm, &axis);
-          CGMovingPlatforms::ProcessDynamicBoltPosition(_R14, this->m_localClientNum, &outOrigin, &position);
+          CG_UpdateMissileEventOrientation(p_nextState, (unsigned __int8)eventParm, &axis);
+          CGMovingPlatforms::ProcessDynamicBoltPosition(p_nextState, this->m_localClientNum, &outOrigin, &position);
           LOBYTE(weaponstate) = isAlternate;
-          this->HandleExplosionEvent(this, centa, v15, &position, r_weapon, weaponstate);
+          this->HandleExplosionEvent(this, centa, v10, &position, r_weapon, weaponstate);
           break;
         case EV_GRENADE_EXPLODE:
-          v184 = _R14->surfType;
-          if ( v184 >= 0x40u )
+          v155 = p_nextState->surfType;
+          if ( v155 >= 0x40u )
           {
             LODWORD(impulseVecOverride) = 64;
-            LODWORD(weaponstate) = v184;
+            LODWORD(weaponstate) = v155;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3809, ASSERT_TYPE_ASSERT, "(unsigned)( es->surfType ) < (unsigned)( 64 )", "es->surfType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
               __debugbreak();
           }
-          CG_UpdateMissileEventOrientation(_R14, (unsigned __int8)eventParm, &axis);
-          CGMovingPlatforms::ProcessDynamicBoltPosition(_R14, this->m_localClientNum, &outOrigin, &position);
-          v185 = isAlternate;
-          v186 = r_weapon;
+          CG_UpdateMissileEventOrientation(p_nextState, (unsigned __int8)eventParm, &axis);
+          CGMovingPlatforms::ProcessDynamicBoltPosition(p_nextState, this->m_localClientNum, &outOrigin, &position);
+          v156 = isAlternate;
+          v157 = r_weapon;
           if ( CG_HandleTimeOutExplosionEvent(eventParm, (const LocalClientNum_t)this->m_localClientNum, isPlayerView, &position, &axis, r_weapon, isAlternate) )
             goto LABEL_421;
-          CG_PlayProjectileImpactSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, _R14, &position, &axis, r_weapon, isAlternate, 1);
-          v187 = this->m_localClientNum;
+          CG_PlayProjectileImpactSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, p_nextState, &position, &axis, r_weapon, isAlternate, 1);
+          v158 = this->m_localClientNum;
           *(FxCombinedDef *)ceilingAlist.midPoint.v = BG_ProjExplosionEffect(r_weapon, isAlternate);
           if ( *(_QWORD *)ceilingAlist.midPoint.v )
-            CGMovingPlatforms::PlayDynamicBoltEffect(_R14, v187, (const FXRegisteredDef *const)&ceilingAlist, &position, &axis);
+            CGMovingPlatforms::PlayDynamicBoltEffect(p_nextState, v158, (const FXRegisteredDef *const)&ceilingAlist, &position, &axis);
           goto LABEL_419;
         case EV_GRENADE_PICKUP:
         case EV_TRAIL_DESTROY:
@@ -5189,290 +4721,252 @@ LABEL_405:
           centa->flags &= ~0x200u;
           break;
         case EV_ROCKET_EXPLODE:
-          v192 = _R14->surfType;
-          if ( v192 >= 0x40u )
+          v163 = p_nextState->surfType;
+          if ( v163 >= 0x40u )
           {
             LODWORD(impulseVecOverride) = 64;
-            LODWORD(weaponstate) = v192;
+            LODWORD(weaponstate) = v163;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3826, ASSERT_TYPE_ASSERT, "(unsigned)( es->surfType ) < (unsigned)( 64 )", "es->surfType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
               __debugbreak();
           }
-          CG_UpdateMissileEventOrientation(_R14, (unsigned __int8)eventParm, &axis);
-          CGMovingPlatforms::ProcessDynamicBoltPosition(_R14, this->m_localClientNum, &outOrigin, &position);
-          v185 = isAlternate;
-          v186 = r_weapon;
+          CG_UpdateMissileEventOrientation(p_nextState, (unsigned __int8)eventParm, &axis);
+          CGMovingPlatforms::ProcessDynamicBoltPosition(p_nextState, this->m_localClientNum, &outOrigin, &position);
+          v156 = isAlternate;
+          v157 = r_weapon;
           if ( CG_HandleTimeOutExplosionEvent(eventParm, (const LocalClientNum_t)this->m_localClientNum, isPlayerView, &position, &axis, r_weapon, isAlternate) )
             goto LABEL_421;
-          CG_PlayProjectileImpactSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, _R14, &position, &axis, r_weapon, isAlternate, 1);
-          v187 = this->m_localClientNum;
+          CG_PlayProjectileImpactSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, p_nextState, &position, &axis, r_weapon, isAlternate, 1);
+          v158 = this->m_localClientNum;
           *(FxCombinedDef *)ceilingAlist.midPoint.v = BG_ProjExplosionEffect(r_weapon, isAlternate);
           if ( *(_QWORD *)ceilingAlist.midPoint.v )
           {
-            v193 = CG_GetLocalClientGlobals(v187);
-            FX_PlayOrientedEffect(v187, (const FXRegisteredDef *)&ceilingAlist, v193->time, &position, &axis);
+            v164 = CG_GetLocalClientGlobals(v158);
+            FX_PlayOrientedEffect(v158, (const FXRegisteredDef *)&ceilingAlist, v164->time, &position, &axis);
           }
 LABEL_419:
-          v188 = BG_ProjExplosionSound(v186, v185);
-          if ( v188 )
+          v159 = BG_ProjExplosionSound(v157, v156);
+          if ( v159 )
           {
-            v189 = CgSoundSystem::GetSoundSystem(v187);
-            v190 = v189->PlayExplosionSoundAsync;
-            v191 = BG_ProjExplosionReflectionClass(v186, v185);
-            v190(v189, 2046, &position, v188, _R14->surfType, v191);
-            v15 = weaponRattleType;
+            v160 = CgSoundSystem::GetSoundSystem(v158);
+            v161 = v160->PlayExplosionSoundAsync;
+            v162 = BG_ProjExplosionReflectionClass(v157, v156);
+            v161(v160, 2046, &position, v159, p_nextState->surfType, v162);
+            v10 = weaponRattleType;
           }
 LABEL_421:
-          LOBYTE(weaponstatea) = v185;
-          this->HandleExplosionEvent(this, centa, v15, &position, v186, weaponstatea);
+          LOBYTE(weaponstatea) = v156;
+          this->HandleExplosionEvent(this, centa, v10, &position, v157, weaponstatea);
           break;
         case EV_FLASHBANG_EXPLODE:
-          CG_UpdateMissileEventOrientation(_R14, (unsigned __int8)eventParm, &axis);
-          CGMovingPlatforms::ProcessDynamicBoltPosition(_R14, this->m_localClientNum, &outOrigin, &position);
-          v176 = isAlternate;
-          v177 = r_weapon;
+          CG_UpdateMissileEventOrientation(p_nextState, (unsigned __int8)eventParm, &axis);
+          CGMovingPlatforms::ProcessDynamicBoltPosition(p_nextState, this->m_localClientNum, &outOrigin, &position);
+          v147 = isAlternate;
+          v148 = r_weapon;
           if ( !CG_HandleTimeOutExplosionEvent(eventParm, (const LocalClientNum_t)this->m_localClientNum, isPlayerView, &position, &axis, r_weapon, isAlternate) )
             goto LABEL_405;
           break;
         case EV_CUSTOM_EXPLODE:
-          CG_UpdateMissileEventOrientation(_R14, (unsigned __int8)eventParm, &axis);
-          CGMovingPlatforms::ProcessDynamicBoltPosition(_R14, this->m_localClientNum, &outOrigin, &position);
+          CG_UpdateMissileEventOrientation(p_nextState, (unsigned __int8)eventParm, &axis);
+          CGMovingPlatforms::ProcessDynamicBoltPosition(p_nextState, this->m_localClientNum, &outOrigin, &position);
           if ( CG_HandleTimeOutExplosionEvent(eventParm, (const LocalClientNum_t)this->m_localClientNum, isPlayerView, &position, &axis, r_weapon, isAlternate) )
           {
-            v194 = r_weapon;
+            v165 = r_weapon;
           }
           else
           {
-            v194 = r_weapon;
-            CG_PlayProjectileImpactSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, _R14, &position, &axis, r_weapon, isAlternate, 0);
-            v195 = this->m_localClientNum;
-            if ( !_R13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1377, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+            v165 = r_weapon;
+            CG_PlayProjectileImpactSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, p_nextState, &position, &axis, r_weapon, isAlternate, 0);
+            v166 = this->m_localClientNum;
+            if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1377, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
               __debugbreak();
             *(FxCombinedDef *)ceilingAlist.midPoint.v = BG_ProjExplosionEffect(r_weapon, isAlternate);
             if ( *(_QWORD *)ceilingAlist.midPoint.v )
-              CGMovingPlatforms::PlayDynamicBoltEffect(_R14, (LocalClientNum_t)v195, (const FXRegisteredDef *const)&ceilingAlist, &position, &axis);
+              CGMovingPlatforms::PlayDynamicBoltEffect(p_nextState, (LocalClientNum_t)v166, (const FXRegisteredDef *const)&ceilingAlist, &position, &axis);
             *(_QWORD *)suitDef.v = BG_ProjExplosionSound(r_weapon, isAlternate);
             if ( *(_QWORD *)suitDef.v )
             {
               if ( !(_BYTE)CgEventSystem::ms_allocatedType )
               {
-                LODWORD(impulseVecOverridea) = v195;
+                LODWORD(impulseVecOverridea) = v166;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.h", 224, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the event system for localClientNum %d but the event system type is not known\n", "ms_allocatedType != GameModeType::NONE", impulseVecOverridea) )
                   __debugbreak();
               }
-              if ( (unsigned int)v195 >= CgEventSystem::ms_allocatedCount )
+              if ( (unsigned int)v166 >= CgEventSystem::ms_allocatedCount )
               {
                 LODWORD(impulseVecOverridea) = CgEventSystem::ms_allocatedCount;
-                LODWORD(weaponstateb) = v195;
+                LODWORD(weaponstateb) = v166;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.h", 225, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", weaponstateb, impulseVecOverridea) )
                   __debugbreak();
               }
-              if ( !CgEventSystem::ms_eventSystemArray[v195] )
+              if ( !CgEventSystem::ms_eventSystemArray[v166] )
               {
-                LODWORD(impulseVecOverridea) = v195;
+                LODWORD(impulseVecOverridea) = v166;
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.h", 226, ASSERT_TYPE_ASSERT, "(ms_eventSystemArray[localClientNum])", "%s\n\tTrying to access unallocated event system for localClientNum %d\n", "ms_eventSystemArray[localClientNum]", impulseVecOverridea) )
                   __debugbreak();
               }
-              if ( !CgEventSystem::ms_eventSystemArray[v195]->IsTimedEventExpired(CgEventSystem::ms_eventSystemArray[v195], _R14) )
+              if ( !CgEventSystem::ms_eventSystemArray[v166]->IsTimedEventExpired(CgEventSystem::ms_eventSystemArray[v166], p_nextState) )
               {
-                v196 = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v195);
-                v197 = v196->PlayExplosionSoundAsync;
-                v198 = BG_ProjExplosionReflectionClass(r_weapon, isAlternate);
-                v197(v196, 2046, &position, *(const SndAliasList **)suitDef.v, _R14->surfType, v198);
-                LOBYTE(weaponstatee) = isAlternate;
-                this->HandleExplosionEvent(this, centa, weaponRattleType, &position, r_weapon, weaponstatee);
+                v167 = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)v166);
+                v168 = v167->PlayExplosionSoundAsync;
+                v169 = BG_ProjExplosionReflectionClass(r_weapon, isAlternate);
+                v168(v167, 2046, &position, *(const SndAliasList **)suitDef.v, p_nextState->surfType, v169);
+                LOBYTE(weaponstatec) = isAlternate;
+                this->HandleExplosionEvent(this, centa, weaponRattleType, &position, r_weapon, weaponstatec);
                 break;
               }
             }
           }
           LOBYTE(weaponstateb) = isAlternate;
-          this->HandleExplosionEvent(this, centa, v15, &position, v194, weaponstateb);
+          this->HandleExplosionEvent(this, centa, v10, &position, v165, weaponstateb);
           break;
         case EV_CHANGE_TO_DUD:
-          v199 = CG_Main_RegisteredImpactTypeToImpactType((RegisteredImpactType)14);
-          if ( v199 >= cgMedia.impactFx->impactTypeCount )
+          v170 = CG_Main_RegisteredImpactTypeToImpactType((RegisteredImpactType)14);
+          if ( v170 >= cgMedia.impactFx->impactTypeCount )
           {
             LODWORD(impulseVecOverride) = cgMedia.impactFx->impactTypeCount;
-            LODWORD(weaponstate) = v199;
+            LODWORD(weaponstate) = v170;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3872, ASSERT_TYPE_ASSERT, "(unsigned)( impactType ) < (unsigned)( cgMedia.impactFx->impactTypeCount )", "impactType doesn't index cgMedia.impactFx->impactTypeCount\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
               __debugbreak();
           }
           p_ceilingAlist = (FXRegisteredDef *)&ceilingAlist;
-          v201 = 2i64;
+          v172 = 2i64;
           do
           {
             FXRegisteredDef::FXRegisteredDef(p_ceilingAlist++);
-            --v201;
+            --v172;
           }
-          while ( v201 );
-          CG_GetImpactEffectList(v199, 0, 0, 0, 0, (FXRegisteredDef *)&ceilingAlist);
-          v202 = &ceilingAlist;
+          while ( v172 );
+          CG_GetImpactEffectList(v170, 0, 0, 0, 0, (FXRegisteredDef *)&ceilingAlist);
+          v173 = &ceilingAlist;
           do
           {
-            if ( *(_QWORD *)v202->midPoint.v )
+            if ( *(_QWORD *)v173->midPoint.v )
             {
-              v203 = truncate_cast<int,unsigned int>(eventParm);
-              CG_UpdateMissileEventOrientation(_R14, v203, &axis);
-              v204 = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-              FX_PlayOrientedEffect(this->m_localClientNum, (const FXRegisteredDef *)&ceilingAlist + (int)p_predictedPlayerState, v204->time, &outOrigin, &axis);
+              v174 = truncate_cast<int,unsigned int>(eventParm);
+              CG_UpdateMissileEventOrientation(p_nextState, v174, &axis);
+              v175 = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+              FX_PlayOrientedEffect(this->m_localClientNum, (const FXRegisteredDef *)&ceilingAlist + (int)p_predictedPlayerState, v175->time, &outOrigin, &axis);
             }
             LODWORD(p_predictedPlayerState) = (_DWORD)p_predictedPlayerState + 1;
-            v202 = (Bounds *)((char *)v202 + 8);
+            v173 = (Bounds *)((char *)v173 + 8);
           }
           while ( (unsigned int)p_predictedPlayerState < 2 );
           break;
         case EV_DUD_EXPLODE:
-          v205 = _R14->surfType;
-          if ( v205 >= 0x40u )
+          v176 = p_nextState->surfType;
+          if ( v176 >= 0x40u )
           {
             LODWORD(impulseVecOverride) = 64;
-            LODWORD(weaponstate) = v205;
+            LODWORD(weaponstate) = v176;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3891, ASSERT_TYPE_ASSERT, "(unsigned)( es->surfType ) < (unsigned)( 64 )", "es->surfType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
               __debugbreak();
           }
-          v206 = truncate_cast<int,unsigned int>(eventParm);
-          CG_UpdateMissileEventOrientation(_R14, v206, &axis);
-          CG_PlayProjectileExplosionSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, _R14, &outOrigin, &axis, r_weapon, isAlternate, 0);
-          CG_PlayDudImpactSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, isPlayerView, &outOrigin, &axis, r_weapon, isAlternate, _R14->surfType);
+          v177 = truncate_cast<int,unsigned int>(eventParm);
+          CG_UpdateMissileEventOrientation(p_nextState, v177, &axis);
+          CG_PlayProjectileExplosionSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, p_nextState, &outOrigin, &axis, r_weapon, isAlternate, 0);
+          CG_PlayDudImpactSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, isPlayerView, &outOrigin, &axis, r_weapon, isAlternate, p_nextState->surfType);
           break;
         case EV_DUD_IMPACT:
-          v207 = _R14->surfType;
-          if ( v207 >= 0x40u )
+          v178 = p_nextState->surfType;
+          if ( v178 >= 0x40u )
           {
             LODWORD(impulseVecOverride) = 64;
-            LODWORD(weaponstate) = v207;
+            LODWORD(weaponstate) = v178;
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3901, ASSERT_TYPE_ASSERT, "(unsigned)( es->surfType ) < (unsigned)( 64 )", "es->surfType doesn't index SURF_TYPECOUNT\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
               __debugbreak();
           }
-          v208 = truncate_cast<int,unsigned int>(eventParm);
-          CG_UpdateMissileEventOrientation(_R14, v208, &axis);
-          CG_PlayDudImpactSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, isPlayerView, &outOrigin, &axis, r_weapon, isAlternate, _R14->surfType);
+          v179 = truncate_cast<int,unsigned int>(eventParm);
+          CG_UpdateMissileEventOrientation(p_nextState, v179, &axis);
+          CG_PlayDudImpactSoundAndEffect((const LocalClientNum_t)this->m_localClientNum, isPlayerView, &outOrigin, &axis, r_weapon, isAlternate, p_nextState->surfType);
           break;
         case EV_TROPHY_EXPLODE:
-          v209 = truncate_cast<int,unsigned int>(eventParm);
-          CG_UpdateMissileEventOrientation(_R14, v209, &axis);
+          v180 = truncate_cast<int,unsigned int>(eventParm);
+          CG_UpdateMissileEventOrientation(p_nextState, v180, &axis);
           LOBYTE(weaponstate) = isAlternate;
-          this->HandleExplosionEvent(this, centa, v15, &outOrigin, r_weapon, weaponstate);
-          CG_PlayTrophyEffects(this->m_localClientNum, &outOrigin, &axis, _R14->otherEntityNum);
-          v210 = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)this->m_localClientNum);
-          CgSoundSystem::PlaySoundAlias(v210, 2046, &outOrigin, cgMedia.trophyExplodeSound);
+          this->HandleExplosionEvent(this, centa, v10, &outOrigin, r_weapon, weaponstate);
+          CG_PlayTrophyEffects(this->m_localClientNum, &outOrigin, &axis, p_nextState->otherEntityNum);
+          v181 = CgSoundSystem::GetSoundSystem((const LocalClientNum_t)this->m_localClientNum);
+          CgSoundSystem::PlaySoundAlias(v181, 2046, &outOrigin, cgMedia.trophyExplodeSound);
           break;
         case EV_PLAY_FX:
-          v258 = this->m_localClientNum;
+          v222 = this->m_localClientNum;
           CgDynamicMedia = CgDynamicMedia::GetCgDynamicMedia();
-          v260 = truncate_cast<int,unsigned int>(centa->nextState.eventParm);
-          if ( CgDynamicMedia::IsValidFx(CgDynamicMedia, v260) )
+          v224 = truncate_cast<int,unsigned int>(centa->nextState.eventParm);
+          if ( CgDynamicMedia::IsValidFx(CgDynamicMedia, v224) )
           {
-            Fx = CgDynamicMedia::GetFx(CgDynamicMedia, v260);
+            Fx = CgDynamicMedia::GetFx(CgDynamicMedia, v224);
             if ( !Fx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 899, ASSERT_TYPE_ASSERT, "(fxDef)", (const char *)&queryFormat, "fxDef") )
               __debugbreak();
-            AnglesToAxis(&_R14->lerp.apos.trBase, &v371);
+            AnglesToAxis(&p_nextState->lerp.apos.trBase, &v301);
             CG_GetPoseOrigin(&centa->pose, &ceilingAlist.midPoint);
-            v262 = CG_GetLocalClientGlobals(v258);
-            FX_PlayOrientedEffect(v258, Fx, v262->time, &ceilingAlist.midPoint, &v371);
+            v226 = CG_GetLocalClientGlobals(v222);
+            FX_PlayOrientedEffect(v222, Fx, v226->time, &ceilingAlist.midPoint, &v301);
             memset(&ceilingAlist, 0, 0xCui64);
           }
           else
           {
-            Com_PrintError(21, "ERROR: CG_PlayFx called with invalid effect id %i\n", v260);
+            Com_PrintError(21, "ERROR: CG_PlayFx called with invalid effect id %i\n", v224);
           }
           break;
         case EV_PLAY_FX_BETWEEN_POINT:
-          Trajectory_GetTrBase(&_R14->lerp.pos, &ceilingAlist.midPoint);
-          CG_PlayFxBetweenPoints(this->m_localClientNum, centa, &ceilingAlist.midPoint, &_R14->lerp.apos.trBase, (const vec3_t *)&_R14->lerp.u);
+          Trajectory_GetTrBase(&p_nextState->lerp.pos, &ceilingAlist.midPoint);
+          CG_PlayFxBetweenPoints(this->m_localClientNum, centa, &ceilingAlist.midPoint, &p_nextState->lerp.apos.trBase, (const vec3_t *)&p_nextState->lerp.u);
           memset(&ceilingAlist, 0, 0xCui64);
           break;
         case EV_PLAY_FX_ON_TAG:
-          v263 = _R14->number;
-          v264 = this->m_localClientNum;
-          if ( CG_GetFxInfoFromParam(v264, eventParm, (const FXRegisteredDef **)&ceilingAlist, (unsigned int *)&r_weapon, viewDip) )
+          v227 = p_nextState->number;
+          v228 = this->m_localClientNum;
+          if ( CG_GetFxInfoFromParam(v228, eventParm, (const FXRegisteredDef **)&ceilingAlist, (unsigned int *)&r_weapon, viewDip) )
           {
-            v265 = CG_GetLocalClientGlobals(v264);
-            FX_PlayBoltedEffect(v264, *(const FXRegisteredDef **)ceilingAlist.midPoint.v, v265->time, v263, (int)r_weapon, 0);
+            v229 = CG_GetLocalClientGlobals(v228);
+            FX_PlayBoltedEffect(v228, *(const FXRegisteredDef **)ceilingAlist.midPoint.v, v229->time, v227, (int)r_weapon, 0);
           }
           break;
         case EV_STOP_FX_ON_TAG:
-          v266 = _R14->number;
-          v267 = this->m_localClientNum;
-          if ( CG_GetFxInfoFromParam(v267, eventParm, (const FXRegisteredDef **)&ceilingAlist, (unsigned int *)&r_weapon, viewDip) )
-            FX_StopBoltedEffects(v267, *(const FXRegisteredDef **)ceilingAlist.midPoint.v, v266, (unsigned int)r_weapon);
+          v230 = p_nextState->number;
+          v231 = this->m_localClientNum;
+          if ( CG_GetFxInfoFromParam(v231, eventParm, (const FXRegisteredDef **)&ceilingAlist, (unsigned int *)&r_weapon, viewDip) )
+            FX_StopBoltedEffects(v231, *(const FXRegisteredDef **)ceilingAlist.midPoint.v, v230, (unsigned int)r_weapon);
           break;
         case EV_KILL_FX_ON_TAG:
-          v268 = _R14->number;
-          v269 = this->m_localClientNum;
-          if ( CG_GetFxInfoFromParam(v269, eventParm, (const FXRegisteredDef **)&ceilingAlist, (unsigned int *)&r_weapon, viewDip) )
-            FX_KillBoltedEffects(v269, *(const FXRegisteredDef **)ceilingAlist.midPoint.v, v268, (unsigned int)r_weapon);
+          v232 = p_nextState->number;
+          v233 = this->m_localClientNum;
+          if ( CG_GetFxInfoFromParam(v233, eventParm, (const FXRegisteredDef **)&ceilingAlist, (unsigned int *)&r_weapon, viewDip) )
+            FX_KillBoltedEffects(v233, *(const FXRegisteredDef **)ceilingAlist.midPoint.v, v232, (unsigned int)r_weapon);
           break;
         case EV_PLAY_FX_ON_TAG_FOR_CLIENTS:
-          v270 = _R14->number;
-          v271 = this->m_localClientNum;
-          if ( CG_GetFxInfoFromParam(v271, eventParm, (const FXRegisteredDef **)&ceilingAlist, viewDip, (unsigned int *)&r_weapon) )
+          v234 = p_nextState->number;
+          v235 = this->m_localClientNum;
+          if ( CG_GetFxInfoFromParam(v235, eventParm, (const FXRegisteredDef **)&ceilingAlist, viewDip, (unsigned int *)&r_weapon) )
           {
-            v272 = CG_GetLocalClientGlobals(v271);
-            if ( v272->predictedPlayerState.clientNum == (_DWORD)r_weapon )
-              FX_PlayBoltedEffect(v271, *(const FXRegisteredDef **)ceilingAlist.midPoint.v, v272->time, v270, viewDip[0], 0);
+            v236 = CG_GetLocalClientGlobals(v235);
+            if ( v236->predictedPlayerState.clientNum == (_DWORD)r_weapon )
+              FX_PlayBoltedEffect(v235, *(const FXRegisteredDef **)ceilingAlist.midPoint.v, v236->time, v234, viewDip[0], 0);
           }
           break;
         case EV_STOP_FX_ON_TAG_FOR_CLIENTS:
-          v273 = _R14->number;
-          v274 = this->m_localClientNum;
-          if ( CG_GetFxInfoFromParam(v274, eventParm, (const FXRegisteredDef **)&ceilingAlist, viewDip, (unsigned int *)&r_weapon) && CG_GetLocalClientGlobals(v274)->predictedPlayerState.clientNum == (_DWORD)r_weapon )
-            FX_StopBoltedEffects(v274, *(const FXRegisteredDef **)ceilingAlist.midPoint.v, v273, viewDip[0]);
+          v237 = p_nextState->number;
+          v238 = this->m_localClientNum;
+          if ( CG_GetFxInfoFromParam(v238, eventParm, (const FXRegisteredDef **)&ceilingAlist, viewDip, (unsigned int *)&r_weapon) && CG_GetLocalClientGlobals(v238)->predictedPlayerState.clientNum == (_DWORD)r_weapon )
+            FX_StopBoltedEffects(v238, *(const FXRegisteredDef **)ceilingAlist.midPoint.v, v237, viewDip[0]);
           break;
         case EV_PHYS_EXPLOSION_SPHERE:
-          __asm { vmovss  xmm1, dword ptr [r14+60h] }
-          v276 = 3 * this->m_localClientNum + 3;
-          __asm
-          {
-            vmovss  xmm0, cs:__real@3f800000
-            vmovss  dword ptr [rsp+250h+isLadder], xmm0
-          }
-          footstepVFXa = _R13->time;
-          impulseVecOverrideb = &vec3_origin;
-          __asm
-          {
-            vmovss  [rsp+250h+weaponstate], xmm1
-            vxorps  xmm3, xmm3, xmm3; innerDamage
-          }
-          goto LABEL_582;
+          Physics_ApplyRadiusForce((const Physics_WorldId)(3 * this->m_localClientNum + 3), &outOrigin, p_nextState->lerp.u.turret.gunAngles.v[1], 0.0, 0.0, p_nextState->lerp.u.turret.gunAngles.v[2], &vec3_origin, LocalClientGlobals->time, 1.0);
+          break;
         case EV_PHYS_EXPLOSION_JOLT:
-          v276 = 3 * this->m_localClientNum + 3;
-          __asm
-          {
-            vmovss  xmm0, cs:__real@3f800000
-            vmovss  dword ptr [rsp+250h+isLadder], xmm0
-          }
-          footstepVFXa = _R13->time;
-          impulseVecOverrideb = &_R14->lerp.u.event.explosionJolt.impulse;
-          __asm
-          {
-            vxorps  xmm3, xmm3, xmm3
-            vmovss  [rsp+250h+weaponstate], xmm3
-          }
-LABEL_582:
-          __asm
-          {
-            vmovss  dword ptr [rsp+250h+fmt], xmm3
-            vmovss  xmm2, dword ptr [r14+5Ch]; radius
-          }
-          Physics_ApplyRadiusForce((const Physics_WorldId)v276, &outOrigin, *(const float *)&_XMM2, *(const float *)&_XMM3, fmtd, *(const float *)&weaponstatec, impulseVecOverrideb, footstepVFXa, isLadder);
+          Physics_ApplyRadiusForce((const Physics_WorldId)(3 * this->m_localClientNum + 3), &outOrigin, p_nextState->lerp.u.turret.gunAngles.v[1], 0.0, 0.0, 0.0, &p_nextState->lerp.u.event.explosionJolt.impulse, LocalClientGlobals->time, 1.0);
           break;
         case EV_EARTHQUAKE:
-          if ( _R14->eType < ET_EVENTS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4187, ASSERT_TYPE_ASSERT, "(es->eType >= ET_EVENTS)", (const char *)&queryFormat, "es->eType >= ET_EVENTS") )
+          if ( p_nextState->eType < ET_EVENTS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4187, ASSERT_TYPE_ASSERT, "(es->eType >= ET_EVENTS)", (const char *)&queryFormat, "es->eType >= ET_EVENTS") )
             __debugbreak();
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r14+5Ch]
-            vmovss  dword ptr [rsp+250h+fmt], xmm0
-            vmovss  xmm1, dword ptr [r14+58h]; scale
-          }
-          CG_StartShakeCamera(this->m_localClientNum, *(float *)&_XMM1, _R14->lerp.u.anonymous.data[2], &outOrigin, fmte);
+          CG_StartShakeCamera(this->m_localClientNum, p_nextState->lerp.u.turret.gunAngles.v[0], p_nextState->lerp.u.anonymous.data[2], &outOrigin, p_nextState->lerp.u.turret.gunAngles.v[1]);
           break;
         case EV_DETONATE:
-          v168 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-          v169 = BgWeaponMap::GetWeapon(v168, (BgWeaponHandle)eventParm);
-          v101 = 8i64 * isPlayerView + 464;
-          v102 = isAlternate;
-          v103 = (Weapon *)v169;
+          v140 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+          v141 = BgWeaponMap::GetWeapon(v140, (BgWeaponHandle)eventParm);
+          v82 = 8i64 * isPlayerView + 464;
+          v83 = isAlternate;
+          v84 = (Weapon *)v141;
           goto LABEL_225;
         case EV_NIGHTVISION_WEAR:
           if ( isPlayerView )
@@ -5489,9 +4983,9 @@ LABEL_582:
               CgSoundSystem::PlayClientSoundAlias(SoundSystem, cgMedia.nightVisionOn);
             if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_NVG_ON_Instant_BloomEnable, "NVG_ON_Instant_BloomEnable") )
             {
-              CG_NightVisionGetBloomTimings(_R13->time, 1, 1, (int *)viewDip, (int *)&clothType, (int *)&r_weapon, (int *)surfType);
-              CG_VisionSetRegisterBlendStart(&_R13->cvsData, VISIONSET_BLENDTYPE_NVG_FADE, viewDip[0], (const int)r_weapon, 1, VISIONSETLERP_SMOOTH);
-              CG_VisionSetRegisterBlendStart(&_R13->cvsData, VISIONSET_BLENDTYPE_NVG_FADE, clothType, surfType[0], 0, VISIONSETLERP_SMOOTH);
+              CG_NightVisionGetBloomTimings(LocalClientGlobals->time, 1, 1, (int *)viewDip, (int *)&clothType, (int *)&r_weapon, (int *)surfType);
+              CG_VisionSetRegisterBlendStart(&LocalClientGlobals->cvsData, VISIONSET_BLENDTYPE_NVG_FADE, viewDip[0], (const int)r_weapon, 1, VISIONSETLERP_SMOOTH);
+              CG_VisionSetRegisterBlendStart(&LocalClientGlobals->cvsData, VISIONSET_BLENDTYPE_NVG_FADE, clothType, surfType[0], 0, VISIONSETLERP_SMOOTH);
             }
           }
           break;
@@ -5502,31 +4996,25 @@ LABEL_582:
               CgSoundSystem::PlayClientSoundAlias(SoundSystem, cgMedia.nightVisionOff);
             if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARMPBOOL_NVG_OFF_Instant_BloomEnable, "NVG_OFF_Instant_BloomEnable") )
             {
-              CG_NightVisionGetBloomTimings(_R13->time, 0, 1, &isQuietMove, (int *)&clothType, (int *)&weaponRattleType, &characterIndex);
-              CG_VisionSetRegisterBlendStart(&_R13->cvsData, VISIONSET_BLENDTYPE_NVG_FADE, isQuietMove, weaponRattleType, 1, VISIONSETLERP_SMOOTH);
-              CG_VisionSetRegisterBlendStart(&_R13->cvsData, VISIONSET_BLENDTYPE_NVG_FADE, clothType, characterIndex, 0, VISIONSETLERP_SMOOTH);
-              CG_NightVisionGetExposureAdjustTimings(_R13->time, &isQuietMove, (int *)&clothType, (int *)&weaponRattleType, &characterIndex);
-              CG_VisionSetRegisterBlendStart(&_R13->cvsData, VISIONSET_BLENDTYPE_NVG_EXPOSURE, isQuietMove, weaponRattleType, 1, VISIONSETLERP_SMOOTH);
-              CG_VisionSetRegisterBlendStart(&_R13->cvsData, VISIONSET_BLENDTYPE_NVG_EXPOSURE, clothType, characterIndex, 0, VISIONSETLERP_SMOOTH);
+              CG_NightVisionGetBloomTimings(LocalClientGlobals->time, 0, 1, &isQuietMove, (int *)&clothType, (int *)&weaponRattleType, &characterIndex);
+              CG_VisionSetRegisterBlendStart(&LocalClientGlobals->cvsData, VISIONSET_BLENDTYPE_NVG_FADE, isQuietMove, weaponRattleType, 1, VISIONSETLERP_SMOOTH);
+              CG_VisionSetRegisterBlendStart(&LocalClientGlobals->cvsData, VISIONSET_BLENDTYPE_NVG_FADE, clothType, characterIndex, 0, VISIONSETLERP_SMOOTH);
+              CG_NightVisionGetExposureAdjustTimings(LocalClientGlobals->time, &isQuietMove, (int *)&clothType, (int *)&weaponRattleType, &characterIndex);
+              CG_VisionSetRegisterBlendStart(&LocalClientGlobals->cvsData, VISIONSET_BLENDTYPE_NVG_EXPOSURE, isQuietMove, weaponRattleType, 1, VISIONSETLERP_SMOOTH);
+              CG_VisionSetRegisterBlendStart(&LocalClientGlobals->cvsData, VISIONSET_BLENDTYPE_NVG_EXPOSURE, clothType, characterIndex, 0, VISIONSETLERP_SMOOTH);
             }
           }
           break;
         case EV_MISSILE_REMOTE_BOOST:
           truncate_cast<int,unsigned int>(eventParm);
-          v298 = this->m_localClientNum;
-          v299 = CG_GetLocalClientGlobals(v298);
-          if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&v299->predictedPlayerState.otherFlags, ACTIVE, 1u) && v299->predictedPlayerState.remoteEyesEnt == _R14->number )
+          v251 = this->m_localClientNum;
+          v252 = CG_GetLocalClientGlobals(v251);
+          if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&v252->predictedPlayerState.otherFlags, ACTIVE, 1u) && v252->predictedPlayerState.remoteEyesEnt == p_nextState->number )
           {
-            RefdefView_GetOrg(&v299->refdef.view, &ceilingAlist.midPoint);
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vmovss  dword ptr [rsp+250h+fmt], xmm0
-              vmovss  xmm1, cs:__real@3e99999a; scale
-            }
-            CG_StartShakeCamera(v298, *(float *)&_XMM1, 1000, &ceilingAlist.midPoint, fmtf);
-            v302 = CgSoundSystem::GetSoundSystem(v298);
-            CgSoundSystem::PlayEntitySoundAlias(v302, _R14->number, cgMedia.trophyExplodeSound);
+            RefdefView_GetOrg(&v252->refdef.view, &ceilingAlist.midPoint);
+            CG_StartShakeCamera(v251, 0.30000001, 1000, &ceilingAlist.midPoint, 0.0);
+            v253 = CgSoundSystem::GetSoundSystem(v251);
+            CgSoundSystem::PlayEntitySoundAlias(v253, p_nextState->number, cgMedia.trophyExplodeSound);
             memset(&ceilingAlist, 0, 0xCui64);
           }
           break;
@@ -5534,106 +5022,91 @@ LABEL_582:
         case EV_DOOR_OPEN:
         case EV_DOOR_CLOSE:
         case EV_DOOR_PEEK:
-          CG_Door_HandleAudioEvent((const LocalClientNum_t)this->m_localClientNum, v15, eventParm);
+          CG_Door_HandleAudioEvent((const LocalClientNum_t)this->m_localClientNum, v10, eventParm);
           break;
         case EV_DOOR_BASH:
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_doorBashShakeRadius, "bg_doorBashShakeRadius");
-          __asm { vmovaps xmm6, xmm0 }
+          v254 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_doorBashShakeRadius, "bg_doorBashShakeRadius");
+          v255 = *(float *)&v254;
           Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_bg_doorBashShakeDuration, "bg_doorBashShakeDuration");
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_doorBashShakeScale, "bg_doorBashShakeScale");
-          __asm
-          {
-            vmovss  dword ptr [rsp+250h+fmt], xmm6
-            vmovaps xmm1, xmm0; scale
-          }
-          CG_StartShakeCamera(this->m_localClientNum, *(float *)&_XMM1, Int_Internal_DebugName, &outOrigin, fmtg);
+          v257 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_bg_doorBashShakeScale, "bg_doorBashShakeScale");
+          CG_StartShakeCamera(this->m_localClientNum, *(float *)&v257, Int_Internal_DebugName, &outOrigin, v255);
           CG_Door_HandleAudioEvent((const LocalClientNum_t)this->m_localClientNum, weaponRattleType, eventParm);
           break;
         case EV_NO_PRIMARY_GRENADE_HINT:
         case EV_NO_SPECIAL_HINT:
-          if ( v15 == EV_NO_SPECIAL_HINT )
+          if ( v10 == EV_NO_SPECIAL_HINT )
           {
-            v92 = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)this->m_localClientNum);
-            CgWeaponSystem::StopPullbackSound(v92, _R14->number);
+            v77 = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)this->m_localClientNum);
+            CgWeaponSystem::StopPullbackSound(v77, p_nextState->number);
           }
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) && isPlayerView )
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) && isPlayerView )
           {
-            v93 = OFFHAND_SLOT_NONE;
-            if ( v15 == EV_NO_PRIMARY_GRENADE_HINT )
+            v78 = OFFHAND_SLOT_NONE;
+            if ( v10 == EV_NO_PRIMARY_GRENADE_HINT )
             {
               LODWORD(p_predictedPlayerState) = 2;
               if ( eventParm )
                 LODWORD(p_predictedPlayerState) = 11;
-              v93 = OFFHAND_SLOT_PRIMARY;
+              v78 = OFFHAND_SLOT_PRIMARY;
             }
-            else if ( v15 == EV_NO_SPECIAL_HINT )
+            else if ( v10 == EV_NO_SPECIAL_HINT )
             {
               LODWORD(p_predictedPlayerState) = 10;
-              v93 = OFFHAND_SLOT_SPECIAL;
+              v78 = OFFHAND_SLOT_SPECIAL;
             }
             else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 3098, ASSERT_TYPE_ASSERT, "(0)", (const char *)&queryFormat, "0") )
             {
               __debugbreak();
             }
-            if ( _R13->invalidCmdHintType != (_DWORD)p_predictedPlayerState )
+            if ( LocalClientGlobals->invalidCmdHintType != (_DWORD)p_predictedPlayerState )
             {
-              _R13->invalidCmdHintType = (int)p_predictedPlayerState;
-              _R13->invalidCmdHintTime = _R13->time;
+              LocalClientGlobals->invalidCmdHintType = (int)p_predictedPlayerState;
+              LocalClientGlobals->invalidCmdHintTime = LocalClientGlobals->time;
             }
-            v94 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-            _RAX = BG_GetFirstEquippedOffhandBySlot(v94, &_R13->predictedPlayerState, v93);
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovups ymmword ptr [r13+180BCh], ymm0
-              vmovups xmm1, xmmword ptr [rax+20h]
-              vmovups xmmword ptr [r13+180DCh], xmm1
-              vmovsd  xmm0, qword ptr [rax+30h]
-              vmovsd  qword ptr [r13+180ECh], xmm0
-            }
-            *(_DWORD *)&_R13->invalidCmdHintWeapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+            v79 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+            LocalClientGlobals->invalidCmdHintWeapon = *BG_GetFirstEquippedOffhandBySlot(v79, &LocalClientGlobals->predictedPlayerState, v78);
           }
           break;
         case EV_PRONE_PREVENTS_OFFHAND_HINT:
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) && isPlayerView && _R13->invalidCmdHintType != INVALID_CMD_CANT_USE_IN_PRONE )
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) && isPlayerView && LocalClientGlobals->invalidCmdHintType != INVALID_CMD_CANT_USE_IN_PRONE )
           {
-            _R13->invalidCmdHintType = INVALID_CMD_CANT_USE_IN_PRONE;
-            _R13->invalidCmdHintTime = _R13->time;
+            LocalClientGlobals->invalidCmdHintType = INVALID_CMD_CANT_USE_IN_PRONE;
+            LocalClientGlobals->invalidCmdHintTime = LocalClientGlobals->time;
           }
           break;
         case EV_TARGET_TOO_CLOSE_HINT:
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) && isPlayerView && _R13->invalidCmdHintType != INVALID_CMD_TARGET_TOO_CLOSE )
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) && isPlayerView && LocalClientGlobals->invalidCmdHintType != INVALID_CMD_TARGET_TOO_CLOSE )
           {
-            _R13->invalidCmdHintType = INVALID_CMD_TARGET_TOO_CLOSE;
-            _R13->invalidCmdHintTime = _R13->time;
+            LocalClientGlobals->invalidCmdHintType = INVALID_CMD_TARGET_TOO_CLOSE;
+            LocalClientGlobals->invalidCmdHintTime = LocalClientGlobals->time;
           }
           break;
         case EV_TARGET_NOT_ENOUGH_CLEARANCE_HINT:
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) && isPlayerView && _R13->invalidCmdHintType != INVALID_CMD_NOT_ENOUGH_CLEARANCE )
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) && isPlayerView && LocalClientGlobals->invalidCmdHintType != INVALID_CMD_NOT_ENOUGH_CLEARANCE )
           {
-            _R13->invalidCmdHintType = INVALID_CMD_NOT_ENOUGH_CLEARANCE;
-            _R13->invalidCmdHintTime = _R13->time;
+            LocalClientGlobals->invalidCmdHintType = INVALID_CMD_NOT_ENOUGH_CLEARANCE;
+            LocalClientGlobals->invalidCmdHintTime = LocalClientGlobals->time;
           }
           break;
         case EV_LOCKON_REQUIRED_HINT:
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) && isPlayerView && _R13->invalidCmdHintType != INVALID_CMD_LOCKON_REQUIRED )
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) && isPlayerView && LocalClientGlobals->invalidCmdHintType != INVALID_CMD_LOCKON_REQUIRED )
           {
-            _R13->invalidCmdHintType = INVALID_CMD_LOCKON_REQUIRED;
-            _R13->invalidCmdHintTime = _R13->time;
+            LocalClientGlobals->invalidCmdHintType = INVALID_CMD_LOCKON_REQUIRED;
+            LocalClientGlobals->invalidCmdHintTime = LocalClientGlobals->time;
           }
           break;
         case EV_TURRET_BLOCKED_HINT:
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) && isPlayerView && _R13->invalidCmdHintType != INVALID_CMD_TURRET_BLOCKED )
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) && isPlayerView && LocalClientGlobals->invalidCmdHintType != INVALID_CMD_TURRET_BLOCKED )
           {
-            _R13->invalidCmdHintType = INVALID_CMD_TURRET_BLOCKED;
-            _R13->invalidCmdHintTime = _R13->time;
+            LocalClientGlobals->invalidCmdHintType = INVALID_CMD_TURRET_BLOCKED;
+            LocalClientGlobals->invalidCmdHintTime = LocalClientGlobals->time;
           }
           break;
         case EV_VEHICLE_COLLISION:
         case EV_VEHICLE_SUSPENSION_SOFT:
         case EV_VEHICLE_SUSPENSION_HARD:
         case EV_VEHICLE_HORN:
-          CG_Vehicle_EntityEvent(this->m_localClientNum, centa, v15, eventParm);
+          CG_Vehicle_EntityEvent(this->m_localClientNum, centa, v10, eventParm);
           break;
         case EV_FOOTSTEP_SUPERSPRINT:
         case EV_FOOTSTEP_SPRINT:
@@ -5642,27 +5115,27 @@ LABEL_582:
         case EV_FOOTSTEP_CREEP:
         case EV_FOOTSTEP_PRONE:
         case EV_JUMP:
-          if ( !isPlayerView || (v348 = 1, !CG_IsJogging(this->m_localClientNum)) )
-            v348 = 0;
+          if ( !isPlayerView || (v278 = 1, !CG_IsJogging(this->m_localClientNum)) )
+            v278 = 0;
           weaponRattleType = -1;
           LODWORD(r_weapon) = -1;
           Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_footsteps, "cg_footsteps");
-          v358 = 1;
-          __asm { vmovss  xmm6, cs:__real@3f800000 }
-          PM_MoveTypesFromFootstepType(v15, (FootstepMoveType_t *)&weaponRattleType, (EquipmentMoveType_t *)&r_weapon);
-          switch ( v15 )
+          v288 = 1;
+          v33 = FLOAT_1_0;
+          PM_MoveTypesFromFootstepType(v10, (FootstepMoveType_t *)&weaponRattleType, (EquipmentMoveType_t *)&r_weapon);
+          switch ( v10 )
           {
             case EV_FOOTSTEP_SUPERSPRINT:
             case EV_FOOTSTEP_SPRINT:
               Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_footstepsSprint, "cg_footstepsSprint");
-              *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_handheldCameraImpulseFootstepModifierSprint, "handheldCameraImpulseFootstepModifierSprint");
-              __asm { vmovaps xmm6, xmm0 }
+              v34 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_handheldCameraImpulseFootstepModifierSprint, "handheldCameraImpulseFootstepModifierSprint");
+              v33 = *(float *)&v34;
               break;
             case EV_FOOTSTEP_RUN:
-              if ( v348 )
+              if ( v278 )
               {
-                *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_handheldCameraImpulseFootstepModifierJog, "handheldCameraImpulseFootstepModifierJog");
-                __asm { vmovaps xmm6, xmm0 }
+                v35 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_handheldCameraImpulseFootstepModifierJog, "handheldCameraImpulseFootstepModifierJog");
+                v33 = *(float *)&v35;
               }
               break;
             case EV_FOOTSTEP_WALK:
@@ -5675,244 +5148,217 @@ LABEL_582:
               goto $LN494;
             case EV_JUMP:
 $LN494:
-              v358 = 0;
+              v288 = 0;
 $LN164_0:
-              __asm { vxorps  xmm6, xmm6, xmm6; jumptable 0000000141C96B6F case 174 }
+              v33 = 0.0;
               break;
             default:
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2835, ASSERT_TYPE_ASSERT, "(false)", "%s\n\tUnexpected movement type event encountered.", "false") )
                 __debugbreak();
               break;
           }
-          v45 = truncate_cast<int,unsigned int>(eventParm);
-          BG_UnpackFootstepEventParm(v45, surfType, &clothType, viewDip, (FootstepActionType_t *)&characterIndex, &isLeft);
+          v36 = truncate_cast<int,unsigned int>(eventParm);
+          BG_UnpackFootstepEventParm(v36, surfType, &clothType, viewDip, (FootstepActionType_t *)&characterIndex, &isLeft);
           if ( isPlayerView )
           {
-            clothType = AdjustWeaponRattleForPlayer(this->m_localClientNum, &_R13->predictedPlayerState, clothType);
+            clothType = AdjustWeaponRattleForPlayer(this->m_localClientNum, &LocalClientGlobals->predictedPlayerState, clothType);
             if ( Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_handheldCameraImpulseFootstepEnabled, "handheldCameraImpulseFootstepEnabled") )
             {
-              __asm { vmovaps xmm2, xmm6; scale }
-              LOBYTE(v46) = 4;
-              CG_Shake_Impulse((const LocalClientNum_t)this->m_localClientNum, v46, *(float *)&_XMM2);
+              LOBYTE(v37) = 4;
+              CG_Shake_Impulse((const LocalClientNum_t)this->m_localClientNum, v37, v33);
             }
           }
-          if ( !_R13->renderingThirdPerson )
+          if ( !LocalClientGlobals->renderingThirdPerson )
           {
-            v48 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-            if ( !BG_IsThirdPersonMode(v48, &_R13->predictedPlayerState) )
+            v38 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+            if ( !BG_IsThirdPersonMode(v38, &LocalClientGlobals->predictedPlayerState) )
             {
-              v349 = 0;
+              v279 = 0;
 LABEL_67:
-              v49 = 0;
+              v39 = 0;
               goto LABEL_68;
             }
           }
-          v349 = 1;
-          if ( v15 == EV_JUMP )
+          v279 = 1;
+          if ( v10 == EV_JUMP )
             goto LABEL_67;
-          v49 = 1;
+          v39 = 1;
 LABEL_68:
-          if ( Bool_Internal_DebugName && !v49 )
+          if ( Bool_Internal_DebugName && !v39 )
           {
             LocalClientStatics = (CgStatic *)BG_GetClothFootstepMovementSound(surfType[0], (FootstepActionType_t)characterIndex, (FootstepMoveType_t)weaponRattleType, isLeft, isPlayerView);
             *(_QWORD *)ceilingAlist.midPoint.v = BG_GetClothFootstepCeilingSound(surfType[0], (FootstepActionType_t)characterIndex, (FootstepMoveType_t)weaponRattleType, isLeft, isPlayerView);
             if ( LocalClientStatics )
             {
-              v50 = centa;
-              v51 = centa->nextState.eType == ET_PLAYER && ci && BG_PlayerASM_IsOnLadder(ci);
-              CgSoundSystem::PlayEntitySoundAliasFootstep(SoundSystem, v50, (const SndAliasList *)LocalClientStatics, *(const SndAliasList **)ceilingAlist.midPoint.v, viewDip[0], weaponRattleType, isPlayerView, isQuietMove, v51);
+              v40 = centa;
+              isLadder = centa->nextState.eType == ET_PLAYER && ci && BG_PlayerASM_IsOnLadder(ci);
+              CgSoundSystem::PlayEntitySoundAliasFootstep(SoundSystem, v40, (const SndAliasList *)LocalClientStatics, *(const SndAliasList **)ceilingAlist.midPoint.v, viewDip[0], weaponRattleType, isPlayerView, isQuietMove, isLadder);
             }
-            if ( isPlayerView && !v349 )
+            if ( isPlayerView && !v279 )
             {
-              p_position = &_R13->playerGround.trace.position;
-              if ( !_R13->playerGround.groundPlane )
+              p_position = &LocalClientGlobals->playerGround.trace.position;
+              if ( !LocalClientGlobals->playerGround.groundPlane )
                 p_position = NULL;
-              CG_Event_PlayFootstepFX(this->m_localClientNum, _R14->number, isLeft, viewDip[0], p_position, 1, 0, NULL);
+              CG_Event_PlayFootstepFX(this->m_localClientNum, p_nextState->number, isLeft, viewDip[0], p_position, 1, 0, NULL);
             }
           }
-          if ( v358 )
+          if ( v288 )
             CG_Event_PlayFootstepShakeRumble((const LocalClientNum_t)this->m_localClientNum, centa, *(const SuitDef *const *)suitDef.v);
-          if ( v15 == EV_JUMP && isPlayerView )
+          if ( v10 == EV_JUMP && isPlayerView )
             CG_SND_PlayerBreathsSetJump(this->m_localClientNum);
           break;
         case EV_STANCE_TO_PRONE:
         case EV_STANCE_PRONE_TO_CROUCH:
         case EV_STANCE_STAND_TO_CROUCH:
         case EV_STANCE_TO_STAND:
-          v53 = truncate_cast<int,unsigned int>(eventParm);
-          BG_UnpackStanceEventParm(v53, viewDip, &weaponRattleType, surfType);
+          v43 = truncate_cast<int,unsigned int>(eventParm);
+          BG_UnpackStanceEventParm(v43, viewDip, &weaponRattleType, surfType);
           if ( isPlayerView )
-            weaponRattleType = AdjustWeaponRattleForPlayer(this->m_localClientNum, &_R13->predictedPlayerState, weaponRattleType);
+            weaponRattleType = AdjustWeaponRattleForPlayer(this->m_localClientNum, &LocalClientGlobals->predictedPlayerState, weaponRattleType);
           if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_footsteps, "cg_footsteps") )
           {
-            v54 = v15 - 176;
-            if ( v54 )
+            v44 = v10 - 176;
+            if ( v44 )
             {
-              v55 = v54 - 1;
-              if ( v55 )
+              v45 = v44 - 1;
+              if ( v45 )
               {
-                v56 = v55 - 1;
-                if ( v56 )
+                v46 = v45 - 1;
+                if ( v46 )
                 {
-                  if ( v56 == 1 )
+                  if ( v46 == 1 )
                   {
-                    v57 = EQUIPMENT_STANCE_TO_STAND;
+                    v47 = EQUIPMENT_STANCE_TO_STAND;
                   }
                   else
                   {
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 2933, ASSERT_TYPE_ASSERT, "(false)", "%s\n\tUnexpected stance transition event encountered.", "false") )
                       __debugbreak();
-                    v57 = EQUIPMENT_STANCE_TO_STAND;
+                    v47 = EQUIPMENT_STANCE_TO_STAND;
                   }
                 }
                 else
                 {
-                  v57 = EQUIPMENT_STANCE_STAND_TO_CROUCH;
+                  v47 = EQUIPMENT_STANCE_STAND_TO_CROUCH;
                 }
               }
               else
               {
-                v57 = EQUIPMENT_STANCE_PRONE_TO_CROUCH;
+                v47 = EQUIPMENT_STANCE_PRONE_TO_CROUCH;
               }
             }
             else
             {
-              v57 = EQUIPMENT_STANCE_TO_PRONE;
+              v47 = EQUIPMENT_STANCE_TO_PRONE;
             }
-            StanceTransitionSound = BG_GetStanceTransitionSound(viewDip[0], v57, isPlayerView);
+            StanceTransitionSound = BG_GetStanceTransitionSound(viewDip[0], v47, isPlayerView);
             if ( StanceTransitionSound )
               CgSoundSystem::PlayEntitySoundAliasFootstep(SoundSystem, centa, StanceTransitionSound, NULL, surfType[0], -1, isPlayerView, isQuietMove, 0);
           }
-          CG_EquipmentSound(this->m_localClientNum, _R14->number, isPlayerView, MOVEMENT_LEAD_TYPE_POST, EQUIPMENT_MOVE_TYPE_STANCE, viewDip[0], weaponRattleType, isQuietMove);
+          CG_EquipmentSound(this->m_localClientNum, p_nextState->number, isPlayerView, MOVEMENT_LEAD_TYPE_POST, EQUIPMENT_MOVE_TYPE_STANCE, viewDip[0], weaponRattleType, isQuietMove);
           break;
         case EV_MOVEMENT_IMPACT:
-          CG_ViewMotion_Impact((const LocalClientNum_t)this->m_localClientNum, _R13->predictedPlayerState.serverTime);
+          CG_ViewMotion_Impact((const LocalClientNum_t)this->m_localClientNum, LocalClientGlobals->predictedPlayerState.serverTime);
           if ( isPlayerView && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_handheldCameraImpulseImpactEnabled, "handheldCameraImpulseImpactEnabled") )
           {
-            __asm { vmovss  xmm1, cs:__real@43960000; maxAbsValueSize }
-            *(double *)&_XMM0 = MSG_UnpackUnsignedFloat(eventParm, *(float *)&_XMM1, 8u);
-            __asm { vmovaps xmm6, xmm0 }
-            Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_handheldCameraImpulseImpactMax2DSpeed, "handheldCameraImpulseImpactMax2DSpeed");
-            __asm
-            {
-              vdivss  xmm0, xmm6, xmm0; val
-              vmovss  xmm2, cs:__real@3f800000; max
-              vxorps  xmm1, xmm1, xmm1; min
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-            __asm { vmovaps xmm2, xmm0; fraction }
-            *(double *)&_XMM0 = GraphGetValueFromFraction(4, knots_0, *(const float *)&_XMM2);
-            __asm { vmovaps xmm2, xmm0; scale }
-            LOBYTE(v66) = 3;
-            CG_Shake_Impulse((const LocalClientNum_t)this->m_localClientNum, v66, *(float *)&_XMM2);
+            v49 = MSG_UnpackUnsignedFloat(eventParm, 300.0, 8u);
+            v50 = *(float *)&v49;
+            v51 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_handheldCameraImpulseImpactMax2DSpeed, "handheldCameraImpulseImpactMax2DSpeed");
+            v52 = v50 / *(float *)&v51;
+            I_fclamp(v50 / *(float *)&v51, 0.0, 1.0);
+            ValueFromFraction = GraphGetValueFromFraction(4, knots_0, v52);
+            LOBYTE(v54) = 3;
+            CG_Shake_Impulse((const LocalClientNum_t)this->m_localClientNum, v54, *(float *)&ValueFromFraction);
           }
           break;
         case EV_MANTLE:
           BG_UnpackMantleEventParm(eventParm, viewDip, &clothType, surfType, (unsigned int *)&r_weapon, (gestureAnimType_t *)&weaponRattleType);
           if ( isPlayerView )
-            clothType = AdjustWeaponRattleForPlayer(this->m_localClientNum, &_R13->predictedPlayerState, clothType);
-          v286 = (unsigned int)r_weapon;
+            clothType = AdjustWeaponRattleForPlayer(this->m_localClientNum, &LocalClientGlobals->predictedPlayerState, clothType);
+          v242 = (unsigned int)r_weapon;
           if ( isPlayerView )
-            v286 = surfType[0];
-          if ( v286 )
+            v242 = surfType[0];
+          if ( v242 )
           {
-            v287 = (SndAliasList *)((__int64 (__fastcall *)(CgSoundSystem *))SoundSystem->GetSoundAliasListByName)(SoundSystem);
-            v288 = isPlayerView;
-            v289 = isQuietMove;
-            CG_GenericEquipmentSound(this->m_localClientNum, _R14->number, v287, isPlayerView, isQuietMove);
+            v243 = (SndAliasList *)((__int64 (__fastcall *)(CgSoundSystem *))SoundSystem->GetSoundAliasListByName)(SoundSystem);
+            v244 = isPlayerView;
+            v245 = isQuietMove;
+            CG_GenericEquipmentSound(this->m_localClientNum, p_nextState->number, v243, isPlayerView, isQuietMove);
           }
           else
           {
-            v288 = isPlayerView;
-            v289 = isQuietMove;
+            v244 = isPlayerView;
+            v245 = isQuietMove;
           }
-          CG_EquipmentSound(this->m_localClientNum, _R14->number, v288, MOVEMENT_LEAD_TYPE_POST, EQUIPMENT_MOVE_TYPE_MANTLE, viewDip[0], clothType, v289);
+          CG_EquipmentSound(this->m_localClientNum, p_nextState->number, v244, MOVEMENT_LEAD_TYPE_POST, EQUIPMENT_MOVE_TYPE_MANTLE, viewDip[0], clothType, v245);
           isQuietMove = weaponRattleType;
           characterIndex = viewDip[0];
-          v290 = _R14->number;
-          v291 = this->m_localClientNum;
-          v292 = DVARBOOL_cg_equipmentSounds;
+          v246 = p_nextState->number;
+          v247 = this->m_localClientNum;
+          v248 = DVARBOOL_cg_equipmentSounds;
           if ( !DVARBOOL_cg_equipmentSounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_equipmentSounds") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v292);
-          if ( v292->current.enabled )
+          Dvar_CheckFrontendServerThread(v248);
+          if ( v248->current.enabled )
           {
-            v293 = DCONST_DVARBOOL_cg_mantleSounds;
+            v249 = DCONST_DVARBOOL_cg_mantleSounds;
             if ( !DCONST_DVARBOOL_cg_mantleSounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_mantleSounds") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v293);
-            if ( v293->current.enabled )
+            Dvar_CheckFrontendServerThread(v249);
+            if ( v249->current.enabled )
             {
-              MantleSound = BG_GetMantleSound(characterIndex, (gestureAnimType_t)isQuietMove, v288);
+              MantleSound = BG_GetMantleSound(characterIndex, (gestureAnimType_t)isQuietMove, v244);
               if ( MantleSound )
-                CG_GenericEquipmentSound(v291, v290, MantleSound, v288, v289);
+                CG_GenericEquipmentSound(v247, v246, MantleSound, v244, v245);
             }
           }
           if ( isPlayerView )
             CG_SND_PlayerBreathsSetMantle(this->m_localClientNum);
           break;
         case EV_DEBUG_SERVER_AIMING:
-          __asm
-          {
-            vmovups xmm0, cs:__xmm@3f800000000000000000000000000000; jumptable 0000000141C96AEE case 191
-            vmovups xmmword ptr [rbp+150h+ceilingAlist], xmm0
-            vmovss  xmm1, cs:__real@3f800000
-            vmovss  [rbp+150h+var_E0], xmm1
-            vmovss  [rbp+150h+var_DC], xmm1
-            vxorps  xmm2, xmm2, xmm2; yaw
-          }
-          CG_DebugBox(&outOrigin, &ceilingAlist, *(float *)&_XMM2, &colorRed, 0, 1);
+          *(_OWORD *)ceilingAlist.midPoint.v = _xmm;
+          ceilingAlist.halfSize.v[1] = FLOAT_1_0;
+          ceilingAlist.halfSize.v[2] = FLOAT_1_0;
+          CG_DebugBox(&outOrigin, &ceilingAlist, 0.0, &colorRed, 0, 1);
           break;
         case EV_SLIDE_START:
-          if ( _R14->number >= ComCharacterLimits::GetCharacterMaxCount() || eventParm >= 0x40 )
+          if ( p_nextState->number >= ComCharacterLimits::GetCharacterMaxCount() || eventParm >= 0x40 )
           {
-            v157 = truncate_cast<int,unsigned int>(eventParm);
-            Com_PrintError(14, "EV_SLIDE_START on invalid entity %i or surfType type %i \n", (unsigned int)_R14->number, v157);
+            v129 = truncate_cast<int,unsigned int>(eventParm);
+            Com_PrintError(14, "EV_SLIDE_START on invalid entity %i or surfType type %i \n", (unsigned int)p_nextState->number, v129);
           }
           else
           {
-            _R13->slideSurfaceType[_R14->number] = truncate_cast<char,unsigned int>(eventParm);
-            v149 = truncate_cast<int,unsigned int>(eventParm);
+            LocalClientGlobals->slideSurfaceType[p_nextState->number] = truncate_cast<char,unsigned int>(eventParm);
+            v125 = truncate_cast<int,unsigned int>(eventParm);
             slideStartSound = cgMedia.slideStartSound;
             if ( isPlayerView )
               slideStartSound = cgMedia.slideStartSoundPlayer;
-            CG_SlideSound(this->m_localClientNum, _R14->number, slideStartSound, v149, isPlayerView);
-            v151 = _R13->slideSurfaceType[_R14->number];
-            __asm
-            {
-              vmovsd  xmm0, qword ptr [rbp+150h+outOrigin]
-              vmovsd  [rbp+150h+ceilingAlist], xmm0
-            }
-            ceilingAlist.midPoint.v[2] = outOrigin.v[2];
-            _RAX = ci;
-            __asm
-            {
-              vmovsd  xmm0, qword ptr [rax+9C0h]
-              vmovsd  [rbp+150h+suitDef], xmm0
-            }
-            suitDef.v[2] = ci->playerAngles.v[2];
-            CG_GameInterface_HandlePlayerSlideFX((const LocalClientNum_t)this->m_localClientNum, &suitDef, &ceilingAlist.midPoint, v151);
-            CG_Rumble_PlayOnEntityByName(this->m_localClientNum, "slide_start", _R14->number);
+            CG_SlideSound(this->m_localClientNum, p_nextState->number, slideStartSound, v125, isPlayerView);
+            v127 = LocalClientGlobals->slideSurfaceType[p_nextState->number];
+            ceilingAlist.midPoint = outOrigin;
+            suitDef = ci->playerAngles;
+            CG_GameInterface_HandlePlayerSlideFX((const LocalClientNum_t)this->m_localClientNum, &suitDef, &ceilingAlist.midPoint, v127);
+            CG_Rumble_PlayOnEntityByName(this->m_localClientNum, "slide_start", p_nextState->number);
             if ( isPlayerView && Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_handheldCameraImpulseSlideEnabled, "handheldCameraImpulseSlideEnabled") )
             {
-              __asm { vmovss  xmm2, cs:__real@3f800000; scale }
-              LOBYTE(v155) = 1;
-              CG_Shake_Impulse((const LocalClientNum_t)this->m_localClientNum, v155, *(float *)&_XMM2);
+              LOBYTE(v128) = 1;
+              CG_Shake_Impulse((const LocalClientNum_t)this->m_localClientNum, v128, 1.0);
             }
           }
           break;
         case EV_SLIDE_EASE_OUT:
-          v158 = truncate_cast<int,unsigned int>(eventParm);
+          v130 = truncate_cast<int,unsigned int>(eventParm);
           if ( eventParm >= 0x40 )
           {
-            Com_PrintError(14, "EV_SLIDE_EASE_OUT on invalid surfType type %i \n", v158);
+            Com_PrintError(14, "EV_SLIDE_EASE_OUT on invalid surfType type %i \n", v130);
           }
           else
           {
             slideEaseOutSound = cgMedia.slideEaseOutSound;
             if ( isPlayerView )
               slideEaseOutSound = cgMedia.slideEaseOutSoundPlayer;
-            CG_SlideSound(this->m_localClientNum, _R14->number, slideEaseOutSound, v158, isPlayerView);
+            CG_SlideSound(this->m_localClientNum, p_nextState->number, slideEaseOutSound, v130, isPlayerView);
           }
           break;
         case EV_LEAP_LAND:
@@ -5928,55 +5374,55 @@ LABEL_68:
           CG_MissileTrajectoryEvent(this->m_localClientNum, centa);
           break;
         case EV_VARIABLE_ZOOM_CHANGE:
-          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v15) && isPlayerView )
+          if ( CgEventSystem::CheckClientNumLocal(this, characterIndex, v10) && isPlayerView )
           {
-            if ( BG_IsUsingOffhandGestureWeaponADSActive(&_R13->predictedPlayerState) )
+            if ( BG_IsUsingOffhandGestureWeaponADSActive(&LocalClientGlobals->predictedPlayerState) )
             {
-              v283 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-              OffhandGestureWeapon = BG_GetOffhandGestureWeapon(v283, &_R13->predictedPlayerState);
-              v285 = BG_GetWeaponSoundWithFallback(OffhandGestureWeapon, 0, 616i64);
+              v239 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+              OffhandGestureWeapon = BG_GetOffhandGestureWeapon(v239, &LocalClientGlobals->predictedPlayerState);
+              v241 = BG_GetWeaponSoundWithFallback(OffhandGestureWeapon, 0, 616i64);
             }
             else
             {
-              v285 = BG_GetWeaponSoundWithFallback(r_weapon, isAlternate, 616i64);
+              v241 = BG_GetWeaponSoundWithFallback(r_weapon, isAlternate, 616i64);
             }
-            CgSoundSystem::PlaySoundAlias(SoundSystem, _R14->number, &outOrigin, v285);
+            CgSoundSystem::PlaySoundAlias(SoundSystem, p_nextState->number, &outOrigin, v241);
           }
           break;
         case EV_OFFHAND_END_EFFECTS:
-          v145 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
-          v146 = BgWeaponMap::GetWeapon(v145, (BgWeaponHandle)eventParm);
-          v147 = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)this->m_localClientNum);
-          FireFxIndexForWeapon = CgWeaponSystem::OffHandWeaponGetFireFxIndexForWeapon(v147, v146);
-          CgWeaponSystem::OffHandWeaponsStopPlayerFireFx(v147, FireFxIndexForWeapon);
+          v121 = CgWeaponMap::GetInstance((const LocalClientNum_t)this->m_localClientNum);
+          v122 = BgWeaponMap::GetWeapon(v121, (BgWeaponHandle)eventParm);
+          v123 = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)this->m_localClientNum);
+          FireFxIndexForWeapon = CgWeaponSystem::OffHandWeaponGetFireFxIndexForWeapon(v123, v122);
+          CgWeaponSystem::OffHandWeaponsStopPlayerFireFx(v123, FireFxIndexForWeapon);
           break;
         case EV_FORCE_WEAPON_CHANGE:
           if ( isPlayerView )
           {
-            v90 = *(const playerState_s **)viewDip;
+            v75 = *(const playerState_s **)viewDip;
 LABEL_165:
-            if ( !BG_PWF_UseAlternateAsOffhand(v90) )
+            if ( !BG_PWF_UseAlternateAsOffhand(v75) )
             {
-              v91 = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)this->m_localClientNum);
-              CgWeaponSystem::OutOfAmmoChange(v91, 0);
+              v76 = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)this->m_localClientNum);
+              CgWeaponSystem::OutOfAmmoChange(v76, 0);
             }
           }
           break;
         case EV_BREAK_GLASS:
-          CG_Glass_PlayerBreakEvent(this->m_localClientNum, _R14->number);
+          CG_Glass_PlayerBreakEvent(this->m_localClientNum, p_nextState->number);
 $LN458_0:
-          CG_Rumble_PlayOnEntityByName(this->m_localClientNum, "leap_end", _R14->number);
+          CG_Rumble_PlayOnEntityByName(this->m_localClientNum, "leap_end", p_nextState->number);
           break;
         case EV_WEAPON_CHARGED_WEAPON_FIRED:
           if ( isPlayerView )
           {
-            v306 = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)this->m_localClientNum);
-            CgWeaponSystem::ChargedWeaponSetChargeAmountOverride(v306, centa, WEAPON_HAND_DEFAULT, eventParm);
+            v258 = CgWeaponSystem::GetWeaponSystem((const LocalClientNum_t)this->m_localClientNum);
+            CgWeaponSystem::ChargedWeaponSetChargeAmountOverride(v258, centa, WEAPON_HAND_DEFAULT, eventParm);
           }
           break;
         case EV_MOUNT_ENTER:
         case EV_MOUNT_EXIT:
-          CG_PlayMountEnterExitSound(this->m_localClientNum, centa, r_weapon, isAlternate, v15, eventParm, isPlayerView);
+          CG_PlayMountEnterExitSound(this->m_localClientNum, centa, r_weapon, isAlternate, v10, eventParm, isPlayerView);
           break;
         case EV_MOUNT:
           if ( isPlayerView )
@@ -5988,120 +5434,100 @@ $LN458_0:
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 4539, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast<int>(mountType) ) < (unsigned)( COUNT_MOUNT_TYPE )", "static_cast<int>(mountType) doesn't index COUNT_MOUNT_TYPE\n\t%i not in [0, %i)", weaponstate, impulseVecOverride) )
                 __debugbreak();
             }
-            v307 = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_mount_enter_settle_time_ms, "mount_enter_settle_time_ms");
+            v259 = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_mount_enter_settle_time_ms, "mount_enter_settle_time_ms");
             if ( eventParm == 1 )
             {
-              v308 = "mount_effect_top_shake_amp";
-              v309 = DCONST_DVARFLT_mount_effect_top_shake_amp;
+              v260 = "mount_effect_top_shake_amp";
+              v261 = DCONST_DVARFLT_mount_effect_top_shake_amp;
             }
             else
             {
-              v308 = "mount_effect_side_shake_amp";
-              v309 = DCONST_DVARFLT_mount_effect_side_shake_amp;
+              v260 = "mount_effect_side_shake_amp";
+              v261 = DCONST_DVARFLT_mount_effect_side_shake_amp;
             }
-            *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(v309, v308);
-            __asm { vmovaps xmm6, xmm0 }
-            if ( v307 > 0 )
+            v262 = Dvar_GetFloat_Internal_DebugName(v261, v260);
+            if ( v259 > 0 && *(float *)&v262 > 0.0 )
             {
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcomiss xmm6, xmm0
-              }
-              RefdefView_GetOrg(&_R13->refdef.view, &ceilingAlist.midPoint);
-              __asm
-              {
-                vmovss  xmm0, cs:__real@42480000
-                vmovss  dword ptr [rsp+250h+fmt], xmm0
-                vmovaps xmm1, xmm6; scale
-              }
-              CG_StartShakeCamera(this->m_localClientNum, *(float *)&_XMM1, v307, &ceilingAlist.midPoint, fmth);
+              RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &ceilingAlist.midPoint);
+              CG_StartShakeCamera(this->m_localClientNum, *(float *)&v262, v259, &ceilingAlist.midPoint, 50.0);
               memset(&ceilingAlist, 0, 0xCui64);
             }
-            v314 = isAlternate;
-            v315 = r_weapon;
+            v263 = isAlternate;
+            v264 = r_weapon;
             MountRumble = BG_GetMountRumble(r_weapon, isAlternate);
             if ( MountRumble )
               CG_Rumble_PlayOnClient(this->m_localClientNum, MountRumble);
           }
           else
           {
-            v314 = isAlternate;
-            v315 = r_weapon;
+            v263 = isAlternate;
+            v264 = r_weapon;
           }
           if ( ci->mount.type )
-            CG_PlayMountImpactSound(this->m_localClientNum, centa, v315, v314, &ci->mountAnimation.pivotPoint, eventParm, isPlayerView);
+            CG_PlayMountImpactSound(this->m_localClientNum, centa, v264, v263, &ci->mountAnimation.pivotPoint, eventParm, isPlayerView);
           break;
         case EV_SOUND_ENTITY_TRIGGER_START:
-          v250 = truncate_cast<unsigned char,unsigned int>(_R14->eventParm2);
-          v251 = truncate_cast<unsigned short,unsigned int>(eventParm);
+          v217 = truncate_cast<unsigned char,unsigned int>(p_nextState->eventParm2);
+          v218 = truncate_cast<unsigned short,unsigned int>(eventParm);
           if ( (*(_DWORD *)&centa->nextState.clientLinkInfo & 0x7FF) != 0 )
             CG_GetPoseOrigin(&centa->pose, &ceilingAlist.midPoint);
           else
             Trajectory_GetTrBase(&centa->nextState.lerp.pos, &ceilingAlist.midPoint);
-          __asm
-          {
-            vmovsd  xmm0, [rbp+150h+ceilingAlist]
-            vmovsd  [rbp+150h+suitDef], xmm0
-          }
-          suitDef.v[2] = ceilingAlist.midPoint.v[2];
-          CG_SoundEntity_TriggerStart(this->m_localClientNum, v250, v251, &suitDef);
+          suitDef = ceilingAlist.midPoint;
+          CG_SoundEntity_TriggerStart(this->m_localClientNum, v217, v218, &suitDef);
           memset(&ceilingAlist, 0, 0xCui64);
           break;
         case EV_SOUND_ENTITY_TRIGGER_STOP:
-          v253 = truncate_cast<unsigned char,unsigned int>(_R14->eventParm2);
-          CG_SoundEntity_TriggerStop(this->m_localClientNum, v253);
+          v219 = truncate_cast<unsigned char,unsigned int>(p_nextState->eventParm2);
+          CG_SoundEntity_TriggerStop(this->m_localClientNum, v219);
           break;
         case EV_SOUND_ENTITY_SCALE_VOLUME:
-          v254 = truncate_cast<unsigned char,unsigned int>(_R14->eventParm2);
+          v220 = truncate_cast<unsigned char,unsigned int>(p_nextState->eventParm2);
           BG_SoundEntity_UnpackScaleVolumeEventParam(eventParm, (float *)viewDip, (int *)&r_weapon);
-          __asm { vmovss  xmm2, [rbp+150h+viewDip]; volume }
-          CG_SoundEntity_ScaleVolume(this->m_localClientNum, v254, *(float *)&_XMM2, (int)r_weapon);
+          CG_SoundEntity_ScaleVolume(this->m_localClientNum, v220, *(float *)viewDip, (int)r_weapon);
           break;
         case EV_SOUND_ENTITY_SCALE_PITCH:
-          v256 = truncate_cast<unsigned char,unsigned int>(_R14->eventParm2);
+          v221 = truncate_cast<unsigned char,unsigned int>(p_nextState->eventParm2);
           BG_SoundEntity_UnpackScalePitchEventParam(eventParm, (float *)viewDip, (int *)&r_weapon);
-          __asm { vmovss  xmm2, [rbp+150h+viewDip]; pitch }
-          CG_SoundEntity_ScalePitch(this->m_localClientNum, v256, *(float *)&_XMM2, (int)r_weapon);
+          CG_SoundEntity_ScalePitch(this->m_localClientNum, v221, *(float *)viewDip, (int)r_weapon);
           break;
         case EV_SPRAY:
           CG_SprayEvent(this->m_localClientNum, centa, eventParm);
           break;
         case EV_LADDER_START_SLIDE:
-          if ( _R14->number >= ComCharacterLimits::GetCharacterMaxCount() || eventParm >= 0x40 )
+          if ( p_nextState->number >= ComCharacterLimits::GetCharacterMaxCount() || eventParm >= 0x40 )
           {
-            v161 = truncate_cast<int,unsigned int>(eventParm);
-            Com_PrintError(14, "EV_LADDER_START_SLIDE on invalid entity %i or surfType type %i \n", (unsigned int)_R14->number, v161);
+            v133 = truncate_cast<int,unsigned int>(eventParm);
+            Com_PrintError(14, "EV_LADDER_START_SLIDE on invalid entity %i or surfType type %i \n", (unsigned int)p_nextState->number, v133);
           }
           else
           {
-            _R13->slideSurfaceType[_R14->number] = truncate_cast<char,unsigned int>(eventParm);
-            v160 = truncate_cast<int,unsigned int>(eventParm);
-            CG_LadderSlideSound(this->m_localClientNum, _R14->number, v160, ENUM_LADDERSLIDE_STATE_START, isPlayerView);
+            LocalClientGlobals->slideSurfaceType[p_nextState->number] = truncate_cast<char,unsigned int>(eventParm);
+            v132 = truncate_cast<int,unsigned int>(eventParm);
+            CG_LadderSlideSound(this->m_localClientNum, p_nextState->number, v132, ENUM_LADDERSLIDE_STATE_START, isPlayerView);
           }
           break;
         case EV_LADDER_STOP_SLIDE:
-          if ( _R14->number >= ComCharacterLimits::GetCharacterMaxCount() || eventParm >= 0x40 )
+          if ( p_nextState->number >= ComCharacterLimits::GetCharacterMaxCount() || eventParm >= 0x40 )
           {
-            v163 = truncate_cast<int,unsigned int>(eventParm);
-            Com_PrintError(14, "EV_LADDER_STOP_SLIDE on invalid surfType type %i \n", v163);
+            v135 = truncate_cast<int,unsigned int>(eventParm);
+            Com_PrintError(14, "EV_LADDER_STOP_SLIDE on invalid surfType type %i \n", v135);
           }
           else
           {
-            v162 = truncate_cast<int,unsigned int>(eventParm);
-            CG_LadderSlideSound(this->m_localClientNum, _R14->number, v162, ENUM_LADDERSLIDE_STATE_STOP, isPlayerView);
+            v134 = truncate_cast<int,unsigned int>(eventParm);
+            CG_LadderSlideSound(this->m_localClientNum, p_nextState->number, v134, ENUM_LADDERSLIDE_STATE_STOP, isPlayerView);
           }
           break;
         default:
-          v317 = BG_GetEventTypeName(v15);
-          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144294780, 780i64, v317);
+          v266 = BG_GetEventTypeName(v10);
+          Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_144294780, 780i64, v266);
           break;
       }
     }
   }
 $LN7_301:
   memset(&outOrigin, 0, sizeof(outOrigin));
-  __asm { vmovaps xmm6, [rsp+250h+var_50] }
 }
 
 /*
@@ -6111,42 +5537,19 @@ CgEventSystem::HandleExplosionEvent
 */
 void CgEventSystem::HandleExplosionEvent(CgEventSystem *this, centity_t *cent, int eventType, const vec3_t *position, const Weapon *weapon, const bool isAlternate)
 {
-  int explosionInnerDamage; 
+  __int128 v10; 
   cg_t *LocalClientGlobals; 
-  float outerDamage; 
-  float positiona; 
-  float impulseVecOverride; 
-  int explosionOuterDamage; 
   BgExplosionDamageRangeInfo outDamageRangeInfo; 
 
-  __asm { vmovaps [rsp+0B8h+var_38], xmm6 }
   BG_GetExplosionDamageRangeInfo(weapon, isAlternate, &outDamageRangeInfo);
-  BG_ExplosionForceRadius(weapon, isAlternate);
-  __asm
-  {
-    vcvttss2si r8d, [rsp+0B8h+outDamageRangeInfo.innerDamage]
-    vmovss  xmm1, [rsp+0B8h+outDamageRangeInfo.outerRadius]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vcvttss2si eax, [rsp+0B8h+outDamageRangeInfo.outerDamage]
-    vmovss  dword ptr [rsp+0B8h+impulseVecOverride], xmm1
-    vmaxss  xmm6, xmm0, xmm1
-  }
-  ScriptableCl_ExplosionDamageEvent((const LocalClientNum_t)this->m_localClientNum, cent->nextState.number, cent->nextState.number, weapon, isAlternate, position, impulseVecOverride, explosionInnerDamage, _EAX, 1);
+  v10 = 0i64;
+  *(float *)&v10 = (float)BG_ExplosionForceRadius(weapon, isAlternate);
+  _XMM0 = v10;
+  __asm { vmaxss  xmm6, xmm0, xmm1 }
+  ScriptableCl_ExplosionDamageEvent((const LocalClientNum_t)this->m_localClientNum, cent->nextState.number, cent->nextState.number, weapon, isAlternate, position, outDamageRangeInfo.outerRadius, (int)outDamageRangeInfo.innerDamage, (int)outDamageRangeInfo.outerDamage, 1);
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
   *(double *)&_XMM0 = BG_ExplosionForceScalar(weapon, isAlternate);
-  __asm
-  {
-    vmovss  xmm1, [rsp+0B8h+outDamageRangeInfo.outerDamage]
-    vmovss  xmm3, [rsp+0B8h+outDamageRangeInfo.innerDamage]; innerDamage
-    vmovss  [rsp+0B8h+explosionOuterDamage], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+0B8h+position], xmm0
-    vmovaps xmm2, xmm6; radius
-    vmovss  [rsp+0B8h+outerDamage], xmm1
-  }
-  Physics_ApplyRadiusForce((const Physics_WorldId)(3 * this->m_localClientNum + 3), position, *(const float *)&_XMM2, *(const float *)&_XMM3, outerDamage, positiona, &vec3_origin, LocalClientGlobals->time, *(float *)&explosionOuterDamage);
-  __asm { vmovaps xmm6, [rsp+0B8h+var_38] }
+  Physics_ApplyRadiusForce((const Physics_WorldId)(3 * this->m_localClientNum + 3), position, *(const float *)&_XMM6, outDamageRangeInfo.innerDamage, outDamageRangeInfo.outerDamage, 0.0, &vec3_origin, LocalClientGlobals->time, *(float *)&_XMM0);
 }
 
 /*
@@ -6217,45 +5620,40 @@ void CgEventSystem::HandleTurretFire(CgEventSystem *this, centity_t *cent, const
 {
   CgVehicleSystem *VehicleSystem; 
   const Weapon *weapon; 
-  bool v15; 
+  bool v11; 
   LocalClientNum_t m_localClientNum; 
   cg_t *LocalClientGlobals; 
   const playerState_s *p_predictedPlayerState; 
-  const dvar_t *v21; 
+  const dvar_t *v15; 
+  float value; 
+  const dvar_t *v17; 
   int integer; 
-  const dvar_t *v25; 
-  bool v26; 
-  bool v27; 
-  cg_t *v28; 
+  const dvar_t *v19; 
+  float cameraShakeRadius; 
+  const dvar_t *v21; 
+  bool v22; 
+  cg_t *v23; 
+  const WeaponDef *v24; 
   VehicleTurretFireType TurretFireType; 
-  __int32 v33; 
+  __int32 v26; 
   VehicleClient *Client; 
   PlayerHandIndex hand; 
-  const TagPair *v36; 
-  const TagPair *v37; 
-  bool v38; 
-  const TagPair *v39; 
+  const TagPair *v29; 
+  const TagPair *v30; 
+  bool v31; 
+  const TagPair *v32; 
   scr_string_t TagForFiringMuzzle; 
-  const TagPair *v41; 
-  float fmt; 
+  const TagPair *v34; 
   vec3_t outOrigin; 
-  char v47; 
-  void *retaddr; 
-  TagPair v49; 
+  TagPair v36; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-  }
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1014, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   if ( event - 89 > 2 && event != 87 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_event.cpp", 1015, ASSERT_TYPE_ASSERT, "(event == EV_FIRE_SENTRY || event == EV_FIRE_TURRET || event == EV_SV_FIRE_TURRET || event == EV_FIRE_VEH_TURRET)", (const char *)&queryFormat, "event == EV_FIRE_SENTRY || event == EV_FIRE_TURRET || event == EV_SV_FIRE_TURRET || event == EV_FIRE_VEH_TURRET") )
     __debugbreak();
   VehicleSystem = CgVehicleSystem::GetVehicleSystem((const LocalClientNum_t)this->m_localClientNum);
   weapon = CG_GetEntWeapon(this->m_localClientNum, cent);
-  v15 = isPlayerView;
+  v11 = isPlayerView;
   if ( isPlayerView )
     goto LABEL_18;
   m_localClientNum = this->m_localClientNum;
@@ -6268,55 +5666,43 @@ void CgEventSystem::HandleTurretFire(CgEventSystem *this, centity_t *cent, const
   if ( (cent->flags & 1) != 0 && BG_IsTurretActive(p_predictedPlayerState) && p_predictedPlayerState->viewlocked_entNum == cent->nextState.number )
   {
 LABEL_18:
-    _RDI = DCONST_DVARFLT_turretCameraShakeScale;
+    v15 = DCONST_DVARFLT_turretCameraShakeScale;
     if ( !DCONST_DVARFLT_turretCameraShakeScale && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "turretCameraShakeScale") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-    v21 = DCONST_DVARINT_turretCameraShakeDuration;
+    Dvar_CheckFrontendServerThread(v15);
+    value = v15->current.value;
+    v17 = DCONST_DVARINT_turretCameraShakeDuration;
     if ( !DCONST_DVARINT_turretCameraShakeDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "turretCameraShakeDuration") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
-    integer = v21->current.integer;
-    _RDI = DCONST_DVARFLT_turretCameraShakeRadius;
+    Dvar_CheckFrontendServerThread(v17);
+    integer = v17->current.integer;
+    v19 = DCONST_DVARFLT_turretCameraShakeRadius;
     if ( !DCONST_DVARFLT_turretCameraShakeRadius && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "turretCameraShakeRadius") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm7, dword ptr [rdi+28h] }
-    v25 = DCONST_DVARBOOL_turretCameraShakeOverride;
+    Dvar_CheckFrontendServerThread(v19);
+    cameraShakeRadius = v19->current.value;
+    v21 = DCONST_DVARBOOL_turretCameraShakeOverride;
     if ( !DCONST_DVARBOOL_turretCameraShakeOverride && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "turretCameraShakeOverride") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v25);
-    v26 = !v25->current.enabled;
-    if ( !v25->current.enabled )
+    Dvar_CheckFrontendServerThread(v21);
+    if ( !v21->current.enabled )
     {
-      v27 = 0;
-      v28 = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
-      if ( v28 )
-        v27 = BG_UsingAlternate(&v28->predictedPlayerState);
-      _RAX = BG_WeaponDef(weapon, v27);
-      v26 = _RAX == NULL;
-      if ( _RAX )
+      v22 = 0;
+      v23 = CG_GetLocalClientGlobals((const LocalClientNum_t)this->m_localClientNum);
+      if ( v23 )
+        v22 = BG_UsingAlternate(&v23->predictedPlayerState);
+      v24 = BG_WeaponDef(weapon, v22);
+      if ( v24 )
       {
-        __asm { vmovss  xmm6, dword ptr [rax+6D8h] }
-        integer = _RAX->cameraShakeDuration;
-        __asm { vmovss  xmm7, dword ptr [rax+6E0h] }
+        value = v24->cameraShakeScale;
+        integer = v24->cameraShakeDuration;
+        cameraShakeRadius = v24->cameraShakeRadius;
       }
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-    }
-    if ( !v26 && integer > 0 )
+    if ( value > 0.0 && integer > 0 )
     {
       CG_GetPoseOrigin(&cent->pose, &outOrigin);
-      __asm
-      {
-        vmovss  dword ptr [rsp+0C8h+fmt], xmm7
-        vmovaps xmm1, xmm6; scale
-      }
-      CG_StartShakeCamera(this->m_localClientNum, *(float *)&_XMM1, integer, &outOrigin, fmt);
+      CG_StartShakeCamera(this->m_localClientNum, value, integer, &outOrigin, cameraShakeRadius);
       memset(&outOrigin, 0, sizeof(outOrigin));
     }
   }
@@ -6332,45 +5718,38 @@ LABEL_18:
   {
     TagForFiringMuzzle = scr_const.tag_flash;
 LABEL_51:
-    TagPair::TagPair(&v49, TagForFiringMuzzle, (scr_string_t)0);
-    CG_FireWeapon(this->m_localClientNum, cent, event, -1, *v41, weapon, 0, WEAPON_HAND_DEFAULT, v15, 0, bNoTracer);
-    goto LABEL_52;
+    TagPair::TagPair(&v36, TagForFiringMuzzle, (scr_string_t)0);
+    CG_FireWeapon(this->m_localClientNum, cent, event, -1, *v34, weapon, 0, WEAPON_HAND_DEFAULT, v11, 0, bNoTracer);
+    return;
   }
-  v33 = TurretFireType - 1;
-  if ( v33 )
+  v26 = TurretFireType - 1;
+  if ( v26 )
   {
-    if ( v33 == 1 )
+    if ( v26 == 1 )
     {
       Client = CgVehicleSystem::GetClient(VehicleSystem, cent);
       hand = Client->fireBarrel;
       if ( hand )
       {
-        TagPair::TagPair(&v49, scr_const.tag_flash_2, (scr_string_t)0);
-        CG_FireWeapon(this->m_localClientNum, cent, event, -1, *v37, weapon, 0, hand, v15, 1, bNoTracer);
+        TagPair::TagPair(&v36, scr_const.tag_flash_2, (scr_string_t)0);
+        CG_FireWeapon(this->m_localClientNum, cent, event, -1, *v30, weapon, 0, hand, v11, 1, bNoTracer);
         Client->fireBarrel = 0;
       }
       else
       {
-        TagPair::TagPair(&v49, scr_const.tag_flash, (scr_string_t)0);
-        CG_FireWeapon(this->m_localClientNum, cent, event, -1, *v36, weapon, 0, WEAPON_HAND_DEFAULT, v15, 1, bNoTracer);
+        TagPair::TagPair(&v36, scr_const.tag_flash, (scr_string_t)0);
+        CG_FireWeapon(this->m_localClientNum, cent, event, -1, *v29, weapon, 0, WEAPON_HAND_DEFAULT, v11, 1, bNoTracer);
         Client->fireBarrel = 1;
       }
     }
   }
   else
   {
-    TagPair::TagPair(&v49, scr_const.tag_flash, (scr_string_t)0);
-    v38 = bNoTracer;
-    CG_FireWeapon(this->m_localClientNum, cent, event, -1, *v39, weapon, 0, WEAPON_HAND_DEFAULT, v15, 0, bNoTracer);
-    TagPair::TagPair(&v49, scr_const.tag_flash_2, (scr_string_t)0);
-    CG_FireWeapon(this->m_localClientNum, cent, event, -1, *v41, weapon, 0, WEAPON_HAND_DEFAULT, v15, 0, v38);
-  }
-LABEL_52:
-  _R11 = &v47;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
+    TagPair::TagPair(&v36, scr_const.tag_flash, (scr_string_t)0);
+    v31 = bNoTracer;
+    CG_FireWeapon(this->m_localClientNum, cent, event, -1, *v32, weapon, 0, WEAPON_HAND_DEFAULT, v11, 0, bNoTracer);
+    TagPair::TagPair(&v36, scr_const.tag_flash_2, (scr_string_t)0);
+    CG_FireWeapon(this->m_localClientNum, cent, event, -1, *v34, weapon, 0, WEAPON_HAND_DEFAULT, v11, 0, v31);
   }
 }
 

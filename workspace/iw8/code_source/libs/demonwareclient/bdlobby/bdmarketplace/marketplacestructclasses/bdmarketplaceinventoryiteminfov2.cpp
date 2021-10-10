@@ -49,10 +49,10 @@ bdMarketplaceInventoryItemInfoV2::bdMarketplaceInventoryItemInfoV2
 */
 void bdMarketplaceInventoryItemInfoV2::bdMarketplaceInventoryItemInfoV2(bdMarketplaceInventoryItemInfoV2 *this, const bdMarketplaceInventoryItemInfoV2 *other, int a3)
 {
-  __int64 v9; 
+  bdStructFixedSizeString<769> *p_m_itemName; 
+  bdStructFixedSizeString<769> *v6; 
+  __int64 v7; 
 
-  _RSI = other;
-  _RDI = this;
   if ( a3 )
   {
     *((_QWORD *)&this->__vftable + 1) = &bdMarketplaceInventoryItemInfoV2::`vbtable';
@@ -60,83 +60,56 @@ void bdMarketplaceInventoryItemInfoV2::bdMarketplaceInventoryItemInfoV2(bdMarket
     *(_DWORD *)&this->gap3BC[12] = 0;
   }
   bdStructBufferSerializable::bdStructBufferSerializable(this);
-  _RDI->__vftable = (bdMarketplaceInventoryItemInfoV2_vtbl *)&bdMarketplaceInventoryItemInfoV2::`vftable'{for `bdStructBufferSerializable'};
-  *(bdMarketplaceInventoryItemInfoV2_vtbl **)((char *)&_RDI->__vftable + *(int *)(*((_QWORD *)&_RDI->__vftable + 1) + 4i64) + 8) = (bdMarketplaceInventoryItemInfoV2_vtbl *)&bdMarketplaceInventoryItemInfoV2::`vftable'{for `bdReferencable'};
-  *((_DWORD *)&_RDI->__vftable + 4) = *((_DWORD *)&_RSI->__vftable + 4);
-  *((_DWORD *)&_RDI->__vftable + 5) = *((_DWORD *)&_RSI->__vftable + 5);
-  *((_DWORD *)&_RDI->__vftable + 6) = *((_DWORD *)&_RSI->__vftable + 6);
-  _RDI->m_dataSize = _RSI->m_dataSize;
-  _RDI->m_isRental = _RSI->m_isRental;
-  _RDI->m_expiry = _RSI->m_expiry;
-  _RDI->m_usageExpiry = _RSI->m_usageExpiry;
-  _RDI->m_lastUpdate = _RSI->m_lastUpdate;
-  _RDI->m_collisionField = _RSI->m_collisionField;
-  _RDI->m_expiryDuration = _RSI->m_expiryDuration;
-  _RDI->m_sourceType = _RSI->m_sourceType;
-  _RBX = &_RDI->m_itemName;
-  bdStructFixedSizeString<769>::bdStructFixedSizeString<769>(&_RDI->m_itemName);
-  bdStructFixedSizeString<10>::bdStructFixedSizeString<10>(&_RDI->m_itemType);
-  bdStructFixedSizeString<10>::bdStructFixedSizeString<10>(&_RDI->m_itemSubtype);
-  _RDI->m_isConsumable = _RSI->m_isConsumable;
-  _RDI->m_isExpirable = _RSI->m_isExpirable;
-  _RDI->m_maxQuantity = _RSI->m_maxQuantity;
-  _RDI->m_maxUsageTime = _RSI->m_maxUsageTime;
-  _RDI->m_platformSince = _RSI->m_platformSince;
-  _RDI->m_platformUntil = _RSI->m_platformUntil;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+1Ch]
-    vmovups ymmword ptr [rdi+1Ch], ymm0
-    vmovups ymm1, ymmword ptr [rsi+3Ch]
-    vmovups ymmword ptr [rdi+3Ch], ymm1
-  }
-  _RAX = &_RSI->m_itemName;
-  v9 = 6i64;
+  this->__vftable = (bdMarketplaceInventoryItemInfoV2_vtbl *)&bdMarketplaceInventoryItemInfoV2::`vftable'{for `bdStructBufferSerializable'};
+  *(bdMarketplaceInventoryItemInfoV2_vtbl **)((char *)&this->__vftable + *(int *)(*((_QWORD *)&this->__vftable + 1) + 4i64) + 8) = (bdMarketplaceInventoryItemInfoV2_vtbl *)&bdMarketplaceInventoryItemInfoV2::`vftable'{for `bdReferencable'};
+  *((_DWORD *)&this->__vftable + 4) = *((_DWORD *)&other->__vftable + 4);
+  *((_DWORD *)&this->__vftable + 5) = *((_DWORD *)&other->__vftable + 5);
+  *((_DWORD *)&this->__vftable + 6) = *((_DWORD *)&other->__vftable + 6);
+  this->m_dataSize = other->m_dataSize;
+  this->m_isRental = other->m_isRental;
+  this->m_expiry = other->m_expiry;
+  this->m_usageExpiry = other->m_usageExpiry;
+  this->m_lastUpdate = other->m_lastUpdate;
+  this->m_collisionField = other->m_collisionField;
+  this->m_expiryDuration = other->m_expiryDuration;
+  this->m_sourceType = other->m_sourceType;
+  p_m_itemName = &this->m_itemName;
+  bdStructFixedSizeString<769>::bdStructFixedSizeString<769>(&this->m_itemName);
+  bdStructFixedSizeString<10>::bdStructFixedSizeString<10>(&this->m_itemType);
+  bdStructFixedSizeString<10>::bdStructFixedSizeString<10>(&this->m_itemSubtype);
+  this->m_isConsumable = other->m_isConsumable;
+  this->m_isExpirable = other->m_isExpirable;
+  this->m_maxQuantity = other->m_maxQuantity;
+  this->m_maxUsageTime = other->m_maxUsageTime;
+  this->m_platformSince = other->m_platformSince;
+  this->m_platformUntil = other->m_platformUntil;
+  *(bdStructBufferSerializable *)((char *)&this->bdStructBufferSerializable + 28) = *(bdStructBufferSerializable *)((char *)&other->bdStructBufferSerializable + 28);
+  *(__m256i *)&this->m_data[28] = *(__m256i *)&other->m_data[28];
+  v6 = &other->m_itemName;
+  v7 = 6i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rbx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rbx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rbx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rbx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rbx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rbx+60h], xmm0
-    }
-    _RBX = (bdStructFixedSizeString<769> *)((char *)_RBX + 128);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rbx-10h], xmm1
-    }
-    _RAX = (bdStructFixedSizeString<769> *)((char *)_RAX + 128);
-    --v9;
+    *(_OWORD *)p_m_itemName->m_buffer = *(_OWORD *)v6->m_buffer;
+    *(_OWORD *)&p_m_itemName->m_buffer[16] = *(_OWORD *)&v6->m_buffer[16];
+    *(_OWORD *)&p_m_itemName->m_buffer[32] = *(_OWORD *)&v6->m_buffer[32];
+    *(_OWORD *)&p_m_itemName->m_buffer[48] = *(_OWORD *)&v6->m_buffer[48];
+    *(_OWORD *)&p_m_itemName->m_buffer[64] = *(_OWORD *)&v6->m_buffer[64];
+    *(_OWORD *)&p_m_itemName->m_buffer[80] = *(_OWORD *)&v6->m_buffer[80];
+    *(_OWORD *)&p_m_itemName->m_buffer[96] = *(_OWORD *)&v6->m_buffer[96];
+    p_m_itemName = (bdStructFixedSizeString<769> *)((char *)p_m_itemName + 128);
+    *(_OWORD *)&p_m_itemName[-1].m_buffer[754] = *(_OWORD *)&v6->m_buffer[112];
+    v6 = (bdStructFixedSizeString<769> *)((char *)v6 + 128);
+    --v7;
   }
-  while ( v9 );
-  *(_WORD *)_RBX->m_buffer = *(_WORD *)_RAX->m_buffer;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsi+386h]
-    vmovsd  qword ptr [rdi+386h], xmm0
-  }
-  *(_WORD *)&_RDI->m_itemType.m_buffer[8] = *(_WORD *)&_RSI->m_itemType.m_buffer[8];
-  _RDI->m_itemType.m_buffer[10] = _RSI->m_itemType.m_buffer[10];
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsi+391h]
-    vmovsd  qword ptr [rdi+391h], xmm0
-  }
-  *(_WORD *)&_RDI->m_itemSubtype.m_buffer[8] = *(_WORD *)&_RSI->m_itemSubtype.m_buffer[8];
-  _RDI->m_itemSubtype.m_buffer[10] = _RSI->m_itemSubtype.m_buffer[10];
-  bdStrlcpy(_RDI->m_platform, _RSI->m_platform, 0xBui64);
+  while ( v7 );
+  *(_WORD *)p_m_itemName->m_buffer = *(_WORD *)v6->m_buffer;
+  *(double *)this->m_itemType.m_buffer = *(double *)other->m_itemType.m_buffer;
+  *(_WORD *)&this->m_itemType.m_buffer[8] = *(_WORD *)&other->m_itemType.m_buffer[8];
+  this->m_itemType.m_buffer[10] = other->m_itemType.m_buffer[10];
+  *(double *)this->m_itemSubtype.m_buffer = *(double *)other->m_itemSubtype.m_buffer;
+  *(_WORD *)&this->m_itemSubtype.m_buffer[8] = *(_WORD *)&other->m_itemSubtype.m_buffer[8];
+  this->m_itemSubtype.m_buffer[10] = other->m_itemSubtype.m_buffer[10];
+  bdStrlcpy(this->m_platform, other->m_platform, 0xBui64);
 }
 
 /*

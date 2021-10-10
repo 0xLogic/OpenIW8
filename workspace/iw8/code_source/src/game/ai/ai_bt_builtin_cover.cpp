@@ -172,33 +172,22 @@ __int64 BT_Cover_SetStateHide(BehaviorTree *pTree, int entNum, int taskID, int p
 BT_Cover_ShouldReload
 ==============
 */
-__int64 BT_Cover_ShouldReload(BehaviorTree *pTree, int entNum, int taskID, int paramsID)
+_BOOL8 BT_Cover_ShouldReload(BehaviorTree *pTree, int entNum, int taskID, int paramsID)
 {
+  double FloatParam; 
   const gentity_s *Ent; 
   AIScriptedInterface *m_pAI; 
-  const Weapon *v11; 
-  AIWrapper v19; 
+  ai_scripted_t *AIScripted; 
+  const Weapon *v9; 
+  AIWrapper v11; 
 
-  __asm { vmovaps [rsp+88h+var_18], xmm6 }
-  *(double *)&_XMM0 = BT_Builtin_GetFloatParam(pTree, taskID, paramsID);
-  __asm { vmovaps xmm6, xmm0 }
+  FloatParam = BT_Builtin_GetFloatParam(pTree, taskID, paramsID);
   Ent = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v19, Ent);
-  m_pAI = v19.m_pAI;
-  AI_GetAIScripted(Ent);
-  v11 = m_pAI->GetEquippedWeapon(m_pAI);
-  BG_GetClipSize(NULL, v11, 0);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm6
-    vmovaps xmm6, [rsp+88h+var_18]
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, ecx
-    vcomiss xmm2, xmm1
-  }
-  return 1i64;
+  AIWrapper::AIWrapper(&v11, Ent);
+  m_pAI = v11.m_pAI;
+  AIScripted = AI_GetAIScripted(Ent);
+  v9 = m_pAI->GetEquippedWeapon(m_pAI);
+  return (float)AIScripted->weaponInfo.bulletsInClip <= (float)((float)BG_GetClipSize(NULL, v9, 0) * *(float *)&FloatParam);
 }
 
 /*
@@ -322,16 +311,15 @@ __int64 BT_Cover_AttemptShuffle(BehaviorTree *pTree, int entNum, int taskID, int
   pathnode_t *CoverNode; 
   pathnode_t *m_pShuffleNode; 
   pathnode_t *ShuffleCoverNode; 
-  char v21; 
   bool keepClaimedNodeIfValid; 
-  AIWrapper v24; 
-  vec3_t v25; 
+  AIWrapper v12; 
+  vec3_t v13; 
   vec3_t pos; 
 
   Ent = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v24, Ent);
-  m_pAI = v24.m_pAI;
-  if ( !v24.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_cover.cpp", 162, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v12, Ent);
+  m_pAI = v12.m_pAI;
+  if ( !v12.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_cover.cpp", 162, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   AIScripted = AI_GetAIScripted(Ent);
   CoverNode = AIScriptedInterface::GetCoverNode(m_pAI);
@@ -346,23 +334,8 @@ __int64 BT_Cover_AttemptShuffle(BehaviorTree *pTree, int entNum, int taskID, int
       return 0i64;
   }
   pathnode_t::GetPos(CoverNode, &pos);
-  pathnode_t::GetPos(m_pShuffleNode, &v25);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0B8h+var_38]
-    vsubss  xmm3, xmm0, dword ptr [rsp+0B8h+pos]
-    vmovss  xmm1, dword ptr [rsp+0B8h+var_38+4]
-    vsubss  xmm2, xmm1, dword ptr [rsp+0B8h+pos+4]
-    vmovss  xmm0, dword ptr [rsp+0B8h+var_38+8]
-    vsubss  xmm4, xmm0, dword ptr [rsp+0B8h+pos+8]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vcomiss xmm2, cs:__real@41800000
-  }
-  if ( v21 )
+  pathnode_t::GetPos(m_pShuffleNode, &v13);
+  if ( (float)((float)((float)((float)(v13.v[1] - pos.v[1]) * (float)(v13.v[1] - pos.v[1])) + (float)((float)(v13.v[0] - pos.v[0]) * (float)(v13.v[0] - pos.v[0]))) + (float)((float)(v13.v[2] - pos.v[2]) * (float)(v13.v[2] - pos.v[2]))) < 16.0 )
     return 0i64;
   keepClaimedNodeIfValid = AIScripted->nodeSelect.keepClaimedNodeIfValid;
   AIScripted->nodeSelect.keepClaimedNodeIfValid = 0;
@@ -385,31 +358,40 @@ __int64 BT_Cover_ConsiderDropLMG(BehaviorTree *pTree, int entNum, int taskID, in
   const gentity_s *Ent; 
   AIScriptedInterface *m_pAI; 
   ai_scripted_t *AIScripted; 
-  AIWrapper v20; 
+  gentity_s *TargetEntity; 
+  float v8; 
+  float v9; 
+  float v10; 
+  const Weapon *v11; 
+  const scrContext_t *v12; 
+  const Weapon *Weapon; 
+  AIWrapper v15; 
 
   Ent = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v20, Ent);
-  m_pAI = v20.m_pAI;
-  if ( !v20.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_cover.cpp", 210, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v15, Ent);
+  m_pAI = v15.m_pAI;
+  if ( !v15.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_cover.cpp", 210, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
   AIScripted = AI_GetAIScripted(Ent);
-  if ( AIScriptedInterface::GetCoverNode(m_pAI) && AICommonInterface::GetTargetEntity(m_pAI) )
+  if ( AIScriptedInterface::GetCoverNode(m_pAI) )
   {
-    _RDX = AIScripted->ent;
-    __asm
+    TargetEntity = AICommonInterface::GetTargetEntity(m_pAI);
+    if ( TargetEntity )
     {
-      vmovss  xmm0, dword ptr [rdx+130h]
-      vsubss  xmm3, xmm0, dword ptr [rax+130h]
-      vmovss  xmm1, dword ptr [rdx+134h]
-      vsubss  xmm2, xmm1, dword ptr [rax+134h]
-      vmovss  xmm0, dword ptr [rdx+138h]
-      vsubss  xmm4, xmm0, dword ptr [rax+138h]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:__real@4f800000
+      v8 = AIScripted->ent->r.currentOrigin.v[0] - TargetEntity->r.currentOrigin.v[0];
+      v9 = AIScripted->ent->r.currentOrigin.v[1] - TargetEntity->r.currentOrigin.v[1];
+      v10 = AIScripted->ent->r.currentOrigin.v[2] - TargetEntity->r.currentOrigin.v[2];
+      if ( (float)((float)((float)(v9 * v9) + (float)(v8 * v8)) + (float)(v10 * v10)) < 4294967300.0 )
+      {
+        v11 = m_pAI->GetEquippedWeapon(m_pAI);
+        if ( BG_GetWeaponClass(v11, 0) == WEAPCLASS_MG )
+        {
+          v12 = ScriptContext_Server();
+          Weapon = GScr_Weapon_GetWeapon(v12, (const scr_weapon_t)AIScripted->sidearmWeapon);
+          if ( !Weapon->weaponIdx )
+            AIScripted->blackboard.m_WeaponRequest = BG_GetWeaponClass(Weapon, 0);
+        }
+      }
     }
   }
   return 1i64;
@@ -424,150 +406,90 @@ __int64 BT_Cover_IsAtCover(BehaviorTree *pTree, int entNum, int taskID, int para
 {
   const gentity_s *Ent; 
   AIScriptedInterface *m_pAI; 
-  __int64 v8; 
-  const pathnode_t *v9; 
+  __int64 v7; 
+  const pathnode_t *v8; 
   unsigned __int16 type; 
-  unsigned __int16 v12; 
-  __int64 result; 
-  char v33; 
-  char v34; 
-  const char *v35; 
-  __int64 v37; 
-  bool v38; 
-  AIWrapper v58; 
+  unsigned __int16 v10; 
+  const char *v16; 
+  __int64 v17; 
+  bool v18; 
+  float *v19; 
+  float v20; 
+  float v21; 
+  AIWrapper v22; 
   vec3_t pos; 
   vec3_t vFinalGoal; 
 
   Ent = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v58, Ent);
-  m_pAI = v58.m_pAI;
-  if ( !v58.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_cover.cpp", 263, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v22, Ent);
+  m_pAI = v22.m_pAI;
+  if ( !v22.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_cover.cpp", 263, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  v8 = m_pAI->GetAI(m_pAI);
-  v9 = *(const pathnode_t **)(*(_QWORD *)(v8 + 8) + 112i64);
-  if ( v9 )
+  v7 = m_pAI->GetAI(m_pAI);
+  v8 = *(const pathnode_t **)(*(_QWORD *)(v7 + 8) + 112i64);
+  if ( !v8 || (type = v8->constant.type, ((1 << type) & 0x2000200) != 0) || type == 1 || (v10 = Path_ConvertNodeToIndex(v8), Path_IsNodeDisconnected(v10)) )
   {
-    type = v9->constant.type;
-    _EBP = 1;
-    if ( ((1 << type) & 0x2000200) == 0 && type != 1 )
-    {
-      v12 = Path_ConvertNodeToIndex(v9);
-      if ( !Path_IsNodeDisconnected(v12) )
-      {
-        if ( *(_DWORD *)(v8 + 1632) == 3 )
-        {
-          DebugLeaveCover(entNum, "no_cover combatmode");
-          return 0i64;
-        }
-        if ( AIScriptedInterface::IsDoingReacquire(m_pAI) )
-        {
-          DebugLeaveCover(entNum, "reacquired");
-          return 0i64;
-        }
-        __asm { vmovaps [rsp+0D8h+var_18], xmm6 }
-        if ( AICommonInterface::HasPath(m_pAI) )
-        {
-          _EAX = *(unsigned __int8 *)(v8 + 1835);
-          __asm
-          {
-            vmovss  xmm2, cs:__real@43100000
-            vmovd   xmm1, ebp
-            vmovd   xmm0, eax
-            vpcmpeqd xmm3, xmm0, xmm1
-            vmovss  xmm1, cs:__real@41800000
-            vblendvps xmm6, xmm1, xmm2, xmm3
-          }
-          AICommonInterface::GetPathFinalGoal(m_pAI, &vFinalGoal);
-          _RAX = *(_QWORD *)v8;
-          __asm
-          {
-            vmovss  [rsp+0D8h+var_A8], xmm6
-            vmovss  xmm0, dword ptr [rax+130h]
-            vsubss  xmm3, xmm0, dword ptr [rsp+0D8h+vFinalGoal]
-            vmovss  xmm1, dword ptr [rax+134h]
-            vmovss  xmm0, dword ptr [rax+138h]
-            vsubss  xmm2, xmm1, dword ptr [rsp+0D8h+vFinalGoal+4]
-            vsubss  xmm4, xmm0, dword ptr [rsp+0D8h+vFinalGoal+8]
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm3, xmm2, xmm1
-            vaddss  xmm5, xmm3, xmm0
-            vcomiss xmm5, xmm6
-          }
-          if ( !(v33 | v34) )
-          {
-            v35 = "Has path and greater than 4 units from goal";
-            goto LABEL_15;
-          }
-        }
-        else if ( *(_BYTE *)(v8 + 1283) || m_pAI->ShouldArriveToCoverExposedStepOut(m_pAI) )
-        {
-          __asm { vmovss  xmm6, cs:__real@45610000 }
-        }
-        else
-        {
-          v37 = *(_QWORD *)(v8 + 552);
-          if ( v37 && v37 == *(_QWORD *)(*(_QWORD *)(v8 + 8) + 112i64) )
-            __asm { vmovss  xmm6, cs:__real@44100000 }
-          else
-            __asm { vmovss  xmm6, cs:__real@43610000 }
-        }
-        pathnode_t::GetPos(*(pathnode_t **)(*(_QWORD *)(v8 + 8) + 112i64), &pos);
-        v38 = m_pAI->Is3D(m_pAI);
-        _RCX = *(_QWORD *)v8;
-        if ( v38 )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rcx+130h]
-            vsubss  xmm3, xmm0, dword ptr [rsp+0D8h+pos]
-            vmovss  xmm1, dword ptr [rcx+134h]
-            vsubss  xmm2, xmm1, dword ptr [rsp+0D8h+pos+4]
-            vmovss  xmm0, dword ptr [rcx+138h]
-            vsubss  xmm4, xmm0, dword ptr [rsp+0D8h+pos+8]
-            vmulss  xmm2, xmm2, xmm2
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm1
-          }
-        }
-        else
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+0D8h+pos+8]
-            vsubss  xmm1, xmm0, dword ptr [rcx+138h]
-            vmulss  xmm2, xmm1, xmm1
-            vcomiss xmm2, cs:__real@45c80000
-            vmovss  xmm1, dword ptr [rsp+0D8h+pos+4]
-            vsubss  xmm2, xmm1, dword ptr [rcx+134h]
-            vmovss  xmm0, dword ptr [rsp+0D8h+pos]
-            vsubss  xmm4, xmm0, dword ptr [rcx+130h]
-            vmulss  xmm3, xmm2, xmm2
-          }
-        }
-        __asm
-        {
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm5, xmm3, xmm0
-          vcomiss xmm5, xmm6
-        }
-        if ( !v38 || AIScriptedInterface::PathPending(m_pAI) )
-        {
-          result = 1i64;
-          goto LABEL_16;
-        }
-        v35 = "Greater than X units from node";
-LABEL_15:
-        DebugLeaveCover(entNum, v35);
-        result = 0i64;
-LABEL_16:
-        __asm { vmovaps xmm6, [rsp+0D8h+var_18] }
-        return result;
-      }
-    }
+    DebugLeaveCover(entNum, "No cover node or goal is not a cover node");
+    return 0i64;
   }
-  DebugLeaveCover(entNum, "No cover node or goal is not a cover node");
+  if ( *(_DWORD *)(v7 + 1632) == 3 )
+  {
+    DebugLeaveCover(entNum, "no_cover combatmode");
+    return 0i64;
+  }
+  if ( AIScriptedInterface::IsDoingReacquire(m_pAI) )
+  {
+    DebugLeaveCover(entNum, "reacquired");
+    return 0i64;
+  }
+  if ( !AICommonInterface::HasPath(m_pAI) )
+  {
+    if ( *(_BYTE *)(v7 + 1283) || m_pAI->ShouldArriveToCoverExposedStepOut(m_pAI) )
+    {
+      *(float *)&_XMM6 = FLOAT_3600_0;
+    }
+    else
+    {
+      v17 = *(_QWORD *)(v7 + 552);
+      if ( v17 && v17 == *(_QWORD *)(*(_QWORD *)(v7 + 8) + 112i64) )
+        *(float *)&_XMM6 = FLOAT_576_0;
+      else
+        *(float *)&_XMM6 = FLOAT_225_0;
+    }
+LABEL_24:
+    pathnode_t::GetPos(*(pathnode_t **)(*(_QWORD *)(v7 + 8) + 112i64), &pos);
+    v18 = m_pAI->Is3D(m_pAI);
+    v19 = *(float **)v7;
+    if ( v18 )
+    {
+      v20 = v19[78] - pos.v[2];
+      v21 = (float)((float)(v19[77] - pos.v[1]) * (float)(v19[77] - pos.v[1])) + (float)((float)(v19[76] - pos.v[0]) * (float)(v19[76] - pos.v[0]));
+    }
+    else
+    {
+      if ( (float)((float)(pos.v[2] - v19[78]) * (float)(pos.v[2] - v19[78])) > 6400.0 )
+      {
+        v16 = "Different height";
+        goto LABEL_15;
+      }
+      v20 = pos.v[0] - v19[76];
+      v21 = (float)(pos.v[1] - v19[77]) * (float)(pos.v[1] - v19[77]);
+    }
+    if ( (float)(v21 + (float)(v20 * v20)) <= *(float *)&_XMM6 || AIScriptedInterface::PathPending(m_pAI) )
+      return 1i64;
+    v16 = "Greater than X units from node";
+    goto LABEL_15;
+  }
+  _XMM0 = *(unsigned __int8 *)(v7 + 1835);
+  __asm { vpcmpeqd xmm3, xmm0, xmm1 }
+  _XMM1 = LODWORD(FLOAT_16_0);
+  __asm { vblendvps xmm6, xmm1, xmm2, xmm3 }
+  AICommonInterface::GetPathFinalGoal(m_pAI, &vFinalGoal);
+  if ( (float)((float)((float)((float)(*(float *)(*(_QWORD *)v7 + 308i64) - vFinalGoal.v[1]) * (float)(*(float *)(*(_QWORD *)v7 + 308i64) - vFinalGoal.v[1])) + (float)((float)(*(float *)(*(_QWORD *)v7 + 304i64) - vFinalGoal.v[0]) * (float)(*(float *)(*(_QWORD *)v7 + 304i64) - vFinalGoal.v[0]))) + (float)((float)(*(float *)(*(_QWORD *)v7 + 312i64) - vFinalGoal.v[2]) * (float)(*(float *)(*(_QWORD *)v7 + 312i64) - vFinalGoal.v[2]))) <= *(float *)&_XMM6 )
+    goto LABEL_24;
+  v16 = "Has path and greater than 4 units from goal";
+LABEL_15:
+  DebugLeaveCover(entNum, v16);
   return 0i64;
 }
 
@@ -712,110 +634,167 @@ char Cover_ConsiderArriveToExposed(int entNum, bool *bOutUseStepOutPos)
 {
   const gentity_s *Ent; 
   AIScriptedInterface *m_pAI; 
+  __int64 v5; 
   __int64 v6; 
-  __int64 v7; 
   char result; 
+  __int64 v8; 
+  pathnode_t *v9; 
   __int64 v10; 
-  pathnode_t *v11; 
+  double v11; 
+  float v12; 
+  double Angle; 
   unsigned int AngleIndex; 
-  AIWrapper v43; 
-  vec2_t vec; 
-  vec3_t v46; 
+  gentity_s *TargetEntity; 
+  const gentity_s *v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  const sentient_s *sentient; 
+  sentient_s *v23; 
+  const tacpoint_t *v24; 
+  const tacpoint_t *v25; 
+  unsigned __int16 type; 
+  const tacpoint_t *PointForPathnode; 
+  const tacpoint_t *v28; 
+  const tacpoint_t *v29; 
+  const tacpoint_t *PointForPathnodeVis; 
+  bool HasVis; 
+  tacpoint_t *Point; 
+  AIWrapper v33; 
+  AIWrapper v34; 
+  vec3_t vec; 
+  vec3_t v36; 
   vec3_t pos; 
 
   Ent = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v43, Ent);
-  m_pAI = v43.m_pAI;
-  if ( !v43.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_cover.cpp", 345, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+  AIWrapper::AIWrapper(&v33, Ent);
+  m_pAI = v33.m_pAI;
+  if ( !v33.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_bt_builtin_cover.cpp", 345, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
     __debugbreak();
-  v6 = m_pAI->GetAI(m_pAI);
+  v5 = m_pAI->GetAI(m_pAI);
   *bOutUseStepOutPos = 0;
-  v7 = v6;
-  if ( *(_DWORD *)(v6 + 1652) )
+  v6 = v5;
+  if ( *(_DWORD *)(v5 + 1652) )
   {
-    *bOutUseStepOutPos = *(_BYTE *)(v6 + 575);
-    result = *(_BYTE *)(v6 + 574);
+    *bOutUseStepOutPos = *(_BYTE *)(v5 + 575);
+    result = *(_BYTE *)(v5 + 574);
     if ( result )
-      *(_DWORD *)(v7 + 560) = level.time + 1000;
+      *(_DWORD *)(v6 + 560) = level.time + 1000;
+    return result;
   }
-  else if ( AICommonInterface::HasPath(m_pAI) )
+  if ( AICommonInterface::HasPath(m_pAI) )
   {
-    __asm { vmovss  xmm1, cs:__real@43e10000 }
-    if ( !(*(unsigned __int8 (__fastcall **)(_QWORD))(**(_QWORD **)(v7 + 392) + 216i64))(*(_QWORD *)(v7 + 392)) && !AIScriptedInterface::GetCoverNode(m_pAI) && !*(_QWORD *)(v7 + 544) )
+    if ( (*(unsigned __int8 (__fastcall **)(_QWORD))(**(_QWORD **)(v6 + 392) + 216i64))(*(_QWORD *)(v6 + 392)) || AIScriptedInterface::GetCoverNode(m_pAI) || *(_QWORD *)(v6 + 544) )
+      return 0;
+    v8 = *(_QWORD *)(v6 + 8);
+    v9 = *(pathnode_t **)(v8 + 112);
+    if ( v9 )
     {
-      v10 = *(_QWORD *)(v7 + 8);
-      v11 = *(pathnode_t **)(v10 + 112);
-      if ( v11 )
+      pathnode_t::GetPos(*(pathnode_t **)(v8 + 112), &pos);
+      if ( (unsigned __int16)(v9->constant.type - 10) <= 1u )
       {
-        pathnode_t::GetPos(*(pathnode_t **)(v10 + 112), &pos);
-        if ( (unsigned __int16)(v11->constant.type - 10) <= 1u )
-        {
-          __asm { vmovaps [rsp+148h+var_38], xmm6 }
-          pathnode_t::GetPos(v11, &v46);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+148h+var_68]
-            vmovss  xmm2, dword ptr [rsp+148h+var_68+4]
-            vsubss  xmm1, xmm0, dword ptr [rax+130h]
-            vmovss  dword ptr [rsp+148h+vec], xmm1
-            vsubss  xmm0, xmm2, dword ptr [rax+134h]
-            vmovss  xmm1, dword ptr [rsp+148h+var_68+8]
-            vmovss  dword ptr [rsp+148h+vec+4], xmm0
-            vsubss  xmm2, xmm1, dword ptr [rax+138h]
-            vmovss  [rsp+148h+var_70], xmm2
-          }
-          *(double *)&_XMM0 = vectoyaw(&vec);
-          __asm { vmovaps xmm6, xmm0 }
-          *(double *)&_XMM0 = pathnode_t::GetAngle(v11);
-          __asm
-          {
-            vsubss  xmm1, xmm0, xmm6
-            vmulss  xmm5, xmm1, cs:__real@3b360b61
-            vaddss  xmm2, xmm5, cs:__real@3f000000
-            vxorps  xmm0, xmm0, xmm0
-            vmovss  xmm3, xmm0, xmm2
-            vxorps  xmm1, xmm1, xmm1
-            vroundss xmm4, xmm1, xmm3, 1
-            vmovss  xmm1, cs:__real@41b40000; threshold
-            vsubss  xmm0, xmm5, xmm4
-            vmulss  xmm0, xmm0, cs:__real@43b40000; angle
-          }
-          AngleIndex = G_GetAngleIndex(*(const float *)&_XMM0, *(const float *)&_XMM1);
-          __asm { vmovaps xmm6, [rsp+148h+var_38] }
-          if ( AngleIndex <= 1 || AngleIndex - 7 <= 1 )
-            return 1;
-        }
-      }
-      else
-      {
-        AICommonInterface::GetPathFinalGoal(m_pAI, &pos);
-      }
-      if ( AICommonInterface::GetTargetEntity(m_pAI) )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+130h]
-          vmovss  xmm1, dword ptr [rax+134h]
-          vsubss  xmm3, xmm0, dword ptr [rcx+130h]
-          vsubss  xmm2, xmm1, dword ptr [rcx+134h]
-          vmovss  xmm0, dword ptr [rax+138h]
-          vsubss  xmm4, xmm0, dword ptr [rcx+138h]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, cs:__real@4893b480
-        }
+        pathnode_t::GetPos(v9, &v36);
+        v10 = *(_QWORD *)v6;
+        vec.v[0] = v36.v[0] - *(float *)(*(_QWORD *)v6 + 304i64);
+        vec.v[1] = v36.v[1] - *(float *)(v10 + 308);
+        vec.v[2] = v36.v[2] - *(float *)(v10 + 312);
+        v11 = vectoyaw((const vec2_t *)&vec);
+        v12 = *(float *)&v11;
+        Angle = pathnode_t::GetAngle(v9);
+        _XMM1 = 0i64;
+        __asm { vroundss xmm4, xmm1, xmm3, 1 }
+        AngleIndex = G_GetAngleIndex((float)((float)((float)(*(float *)&Angle - v12) * 0.0027777778) - *(float *)&_XMM4) * 360.0, 22.5);
+        if ( AngleIndex <= 1 || AngleIndex - 7 <= 1 )
+          return 1;
       }
     }
-    return 0;
+    else
+    {
+      AICommonInterface::GetPathFinalGoal(m_pAI, &pos);
+    }
+    TargetEntity = AICommonInterface::GetTargetEntity(m_pAI);
+    v18 = TargetEntity;
+    if ( !TargetEntity )
+      return 0;
+    v19 = TargetEntity->r.currentOrigin.v[0] - *(float *)(*(_QWORD *)v6 + 304i64);
+    v20 = TargetEntity->r.currentOrigin.v[1] - *(float *)(*(_QWORD *)v6 + 308i64);
+    v21 = TargetEntity->r.currentOrigin.v[2] - *(float *)(*(_QWORD *)v6 + 312i64);
+    if ( (float)((float)((float)(v20 * v20) + (float)(v19 * v19)) + (float)(v21 * v21)) >= 302500.0 || !*(_WORD *)(v6 + 1168) )
+      return 0;
+    if ( *(_DWORD *)(v6 + 560) > level.time )
+    {
+      *bOutUseStepOutPos = *(_BYTE *)(v6 + 575);
+      return *(_BYTE *)(v6 + 574);
+    }
+    *(_DWORD *)(v6 + 560) = level.time + 1000;
+    AIWrapper::AIWrapper(&v34, TargetEntity);
+    if ( v34.m_pAI )
+    {
+      AIScriptedInterface::GetApproxEyePos(v34.m_pAI, &vec, 1);
+    }
+    else
+    {
+      sentient = v18->sentient;
+      if ( sentient )
+        Sentient_GetEyePosition(sentient, &vec);
+      else
+        G_Utils_EntityCentroid(v18, &vec);
+    }
+    v23 = v18->sentient;
+    v24 = v23 ? Sentient_NearestTacPoint(v23) : TacGraph_FindClosestPoint(&vec);
+    v25 = v24;
+    if ( !v24 )
+      return 0;
+    if ( v9 )
+    {
+      type = v9->constant.type;
+      if ( type == 31 )
+        type = v9->dynamic.coverMultiType;
+      PointForPathnode = TacGraph_GetPointForPathnode(v9);
+      if ( AIScriptedInterface::Cover_IsValidAgainstEnemy(m_pAI, v9, 1) )
+      {
+        if ( type >= 2u )
+        {
+          if ( type <= 3u )
+          {
+            HasVis = TacVisGraph_HasVis(v25, PointForPathnode);
+          }
+          else
+          {
+            if ( type <= 5u || type > 7u )
+              return 0;
+            if ( (Path_AllowedStancesForNode(v9) & 1) == 0 && (v9->constant.spawnflags & 0x100000) != 0 && TacVisGraph_HasVis(v25, PointForPathnode) )
+              return 1;
+            if ( !*(_BYTE *)(v6 + 330) )
+              return 0;
+            PointForPathnodeVis = TacGraph_GetPointForPathnodeVis(v9);
+            if ( !TacVisGraph_HasVis(v25, PointForPathnodeVis) )
+              return 0;
+            HasVis = AIScriptedInterface::HasRoomToFullExposeCorner(m_pAI, v9);
+          }
+          if ( HasVis )
+          {
+            *bOutUseStepOutPos = 1;
+            return 1;
+          }
+        }
+        return 0;
+      }
+      v28 = PointForPathnode;
+      v29 = v25;
+    }
+    else
+    {
+      if ( tacpoint_ref_t::IsDefined((tacpoint_ref_t *)(v6 + 3248)) )
+        Point = tacpoint_ref_t::GetPoint((tacpoint_ref_t *)(v6 + 3248));
+      else
+        Point = (tacpoint_t *)TacGraph_FindClosestPoint(&pos);
+      v29 = Point;
+      v28 = v25;
+    }
+    return TacVisGraph_HasVis(v29, v28);
   }
-  else
-  {
-    return *(_BYTE *)(v7 + 574) && *(_DWORD *)(v7 + 560) > level.time;
-  }
-  return result;
+  return *(_BYTE *)(v6 + 574) && *(_DWORD *)(v6 + 560) > level.time;
 }
 
 /*

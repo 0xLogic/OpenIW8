@@ -175,46 +175,34 @@ void GScr_SoundEntity_ScaleSoundPitch(scrContext_t *scrContext, scr_entref_t ent
   unsigned int entnum; 
   EntityClass entclass; 
   int NumParam; 
-  int v8; 
+  int v6; 
+  double Float; 
   int Int; 
-  gentity_s *v12; 
-  int v15; 
+  gentity_s *v9; 
   vec3_t origin; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
   entnum = entref.entnum;
   entclass = entref.entclass;
   NumParam = Scr_GetNumParam(scrContext);
-  v8 = NumParam;
+  v6 = NumParam;
   if ( NumParam < 1 || NumParam > 2 )
     Scr_Error(COM_ERR_5673, scrContext, "Usage: ScaleSoundPitch( <pitch>, [blendTimeMs] )");
   if ( entclass != ENTITY_CLASS_SOUNDENTITY )
     Scr_Error(COM_ERR_5674, scrContext, "ScaleSoundPitch is only valid on a SoundEntity");
   if ( entnum >= 0x80 )
     Scr_Error(COM_ERR_5675, scrContext, "Invalid SoundEntity entnum");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vmovss  [rsp+68h+var_48], xmm0
-    vmovaps xmm6, xmm0
-  }
-  if ( (v15 & 0x7F800000) == 2139095040 )
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( (LODWORD(Float) & 0x7F800000) == 2139095040 )
     Scr_ParamError(COM_ERR_5676, scrContext, 0, "ScaleSoundPitch - pitch cannot be NAN.");
   Int = 0;
-  if ( v8 > 1 )
+  if ( v6 > 1 )
     Int = Scr_GetInt(scrContext, 1u);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+68h+origin], xmm0
-    vmovss  dword ptr [rsp+68h+origin+4], xmm0
-    vmovss  dword ptr [rsp+68h+origin+8], xmm0
-  }
-  v12 = G_Utils_SpawnEventEntity(&origin, 222);
-  __asm { vmovaps xmm0, xmm6; pitch }
-  v12->s.eventParm2 = entnum;
-  v12->s.eventParm = BG_SoundEntity_PackScalePitchEventParam(*(float *)&_XMM0, Int);
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
+  origin.v[0] = 0.0;
+  origin.v[1] = 0.0;
+  origin.v[2] = 0.0;
+  v9 = G_Utils_SpawnEventEntity(&origin, 222);
+  v9->s.eventParm2 = entnum;
+  v9->s.eventParm = BG_SoundEntity_PackScalePitchEventParam(*(float *)&Float, Int);
 }
 
 /*
@@ -227,46 +215,34 @@ void GScr_SoundEntity_ScaleSoundVolume(scrContext_t *scrContext, scr_entref_t en
   unsigned int entnum; 
   EntityClass entclass; 
   int NumParam; 
-  int v8; 
+  int v6; 
+  double Float; 
   int Int; 
-  gentity_s *v12; 
-  int v15; 
+  gentity_s *v9; 
   vec3_t origin; 
 
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
   entnum = entref.entnum;
   entclass = entref.entclass;
   NumParam = Scr_GetNumParam(scrContext);
-  v8 = NumParam;
+  v6 = NumParam;
   if ( NumParam < 1 || NumParam > 2 )
     Scr_Error(COM_ERR_5669, scrContext, "Usage: ScaleSoundVolume( <volume>, [blendTimeMs] )");
   if ( entclass != ENTITY_CLASS_SOUNDENTITY )
     Scr_Error(COM_ERR_5670, scrContext, "ScaleSoundVolume is only valid on a SoundEntity");
   if ( entnum >= 0x80 )
     Scr_Error(COM_ERR_5671, scrContext, "Invalid SoundEntity entnum");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-  __asm
-  {
-    vmovss  [rsp+68h+var_48], xmm0
-    vmovaps xmm6, xmm0
-  }
-  if ( (v15 & 0x7F800000) == 2139095040 )
+  Float = Scr_GetFloat(scrContext, 0);
+  if ( (LODWORD(Float) & 0x7F800000) == 2139095040 )
     Scr_ParamError(COM_ERR_5672, scrContext, 0, "ScaleSoundVolume - volume cannot be NAN.");
   Int = 0;
-  if ( v8 > 1 )
+  if ( v6 > 1 )
     Int = Scr_GetInt(scrContext, 1u);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+68h+origin], xmm0
-    vmovss  dword ptr [rsp+68h+origin+4], xmm0
-    vmovss  dword ptr [rsp+68h+origin+8], xmm0
-  }
-  v12 = G_Utils_SpawnEventEntity(&origin, 221);
-  __asm { vmovaps xmm0, xmm6; volume }
-  v12->s.eventParm2 = entnum;
-  v12->s.eventParm = BG_SoundEntity_PackScaleVolumeEventParam(*(float *)&_XMM0, Int);
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
+  origin.v[0] = 0.0;
+  origin.v[1] = 0.0;
+  origin.v[2] = 0.0;
+  v9 = G_Utils_SpawnEventEntity(&origin, 221);
+  v9->s.eventParm2 = entnum;
+  v9->s.eventParm = BG_SoundEntity_PackScaleVolumeEventParam(*(float *)&Float, Int);
 }
 
 /*
@@ -337,7 +313,7 @@ GScr_SoundEntity_TriggerSoundStop
 void GScr_SoundEntity_TriggerSoundStop(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v6; 
+  gentity_s *v4; 
   vec3_t origin; 
 
   entnum = entref.entnum;
@@ -345,16 +321,12 @@ void GScr_SoundEntity_TriggerSoundStop(scrContext_t *scrContext, scr_entref_t en
     Scr_Error(COM_ERR_5641, scrContext, "TriggerSoundStop is only valid on a SoundEntity");
   if ( entnum >= 0x80 )
     Scr_Error(COM_ERR_5642, scrContext, "Invalid SoundEntity entnum");
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+48h+origin], xmm0
-    vmovss  dword ptr [rsp+48h+origin+4], xmm0
-    vmovss  dword ptr [rsp+48h+origin+8], xmm0
-  }
-  v6 = G_Utils_SpawnEventEntity(&origin, 220);
-  v6->s.eventParm2 = entnum;
-  v6->s.eventParm = 0;
+  origin.v[0] = 0.0;
+  origin.v[1] = 0.0;
+  origin.v[2] = 0.0;
+  v4 = G_Utils_SpawnEventEntity(&origin, 220);
+  v4->s.eventParm2 = entnum;
+  v4->s.eventParm = 0;
 }
 
 /*

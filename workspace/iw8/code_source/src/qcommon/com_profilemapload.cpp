@@ -464,198 +464,72 @@ ProfLoad_DrawOverlay
 void ProfLoad_DrawOverlay(const ScreenPlacement *scrPlace, rectDef_s *rect)
 {
   GfxFont *FontHandle; 
-  GfxFont *v19; 
-  int v20; 
-  int v21; 
-  __int64 v22; 
-  float v60; 
-  double v61; 
-  float v62; 
-  float v63; 
-  float v64; 
-  float v65; 
-  double horzAlign; 
-  int horzAligna; 
-  int horzAlignb; 
-  int horzAlignc; 
-  int horzAlignd; 
+  GfxFont *v5; 
+  int v6; 
+  int v7; 
+  __int64 v8; 
+  float v10; 
+  double v14; 
   __int64 vertAlign; 
-  vec4_t *color; 
-  float v73; 
-  float v74; 
-  float v75; 
-  float v76; 
   char _Buffer[256]; 
   char dest[256]; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  _RDI = rect;
   if ( com_profileLoading->current.enabled )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovaps xmmword ptr [r11-68h], xmm8
-      vmovaps xmmword ptr [r11-78h], xmm9
-      vmovss  xmm9, cs:__real@3eb851ec
-      vmovaps xmm2, xmm9; scale
-    }
-    FontHandle = UI_GetFontHandle(scrPlace, 0, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+0Ch]
-      vmovss  xmm3, dword ptr [rdi+8]; width
-      vmovss  xmm2, dword ptr [rdi+4]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-      vmovss  dword ptr [rsp+2F8h+var_2D8], xmm0
-    }
-    UI_FillRect(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v60, _RDI->horzAlign, _RDI->vertAlign, &PROFLOAD_BACKGROUND_COLOR);
+    FontHandle = UI_GetFontHandle(scrPlace, 0, 0.36000001);
+    UI_FillRect(scrPlace, rect->x, rect->y, rect->w, rect->h, rect->horzAlign, rect->vertAlign, &PROFLOAD_BACKGROUND_COLOR);
     ProfLoad_CalculateSelfTicks(&mapLoadProfile.mainThread);
-    __asm
-    {
-      vmovaps xmm2, xmm9; scale
-      vmovsd  xmm6, cs:__real@43f0000000000000
-      vmovsd  xmm7, cs:__real@3f50624dd2f1a9fc
-    }
-    v19 = UI_GetFontHandle(scrPlace, 0, *(float *)&_XMM2);
-    v20 = mapLoadProfile.mainThread.profileEntryCount - 16;
+    v5 = UI_GetFontHandle(scrPlace, 0, 0.36000001);
+    v6 = mapLoadProfile.mainThread.profileEntryCount - 16;
     if ( mapLoadProfile.mainThread.profileEntryCount - 16 < 0 )
-      v20 = 0;
-    if ( v20 < mapLoadProfile.mainThread.profileEntryCount )
+      v6 = 0;
+    if ( v6 < mapLoadProfile.mainThread.profileEntryCount )
     {
-      v21 = 70;
-      v22 = v20;
+      v7 = 70;
+      v8 = v6;
       do
       {
-        __asm
-        {
-          vxorps  xmm8, xmm8, xmm8
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm8, xmm8, eax
-          vcvtsi2sd xmm0, xmm0, rax
-        }
-        if ( (__int64)(mapLoadProfile.mainThread.profileEntries[v22].ticksStart - mapLoadProfile.mainThread.ticksStart) < 0 )
-          __asm { vaddsd  xmm0, xmm0, xmm6 }
-        __asm
-        {
-          vmovsd  xmm2, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-          vmulsd  xmm0, xmm0, xmm2
-          vxorps  xmm1, xmm1, xmm1
-          vmulsd  xmm4, xmm0, xmm7
-          vcvtsi2sd xmm1, xmm1, rax
-        }
-        if ( (mapLoadProfile.mainThread.profileEntries[v22].ticksSelf & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddsd  xmm1, xmm1, xmm6 }
-        __asm
-        {
-          vmulsd  xmm0, xmm1, xmm2
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2sd xmm1, xmm1, rax
-          vmulsd  xmm3, xmm0, xmm7
-        }
-        if ( (mapLoadProfile.mainThread.profileEntries[v22].ticksTotal & 0x8000000000000000ui64) != 0i64 )
-          __asm { vaddsd  xmm1, xmm1, xmm6 }
-        __asm { vmovsd  [rsp+2F8h+color], xmm4 }
-        LODWORD(vertAlign) = mapLoadProfile.mainThread.profileEntries[v22].accessCount;
-        __asm
-        {
-          vmulsd  xmm0, xmm1, xmm2
-          vmulsd  xmm1, xmm0, xmm7
-          vmovsd  qword ptr [rsp+2F8h+horzAlign], xmm3
-          vmovsd  [rsp+2F8h+var_2D8], xmm1
-        }
-        Com_sprintf(dest, 0x100ui64, "%s - %5.3f total, %5.3f self, %i hits. Last Hit @ %5.3f", mapLoadProfile.mainThread.profileEntries[v22].label, v61, horzAlign, vertAlign, *(double *)&color);
-        __asm
-        {
-          vmovss  [rsp+2F8h+var_2B8], xmm9
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r14d
-          vmovss  [rsp+2F8h+horzAlign], xmm0
-          vmovss  dword ptr [rsp+2F8h+var_2D8], xmm8
-        }
-        UI_DrawText(scrPlace, dest, 256, v19, v62, *(float *)&horzAligna, 0, 0, v73, &PROFLOAD_TEXT_COLOR, 0);
-        v21 += 16;
-        ++v20;
-        ++v22;
+        _XMM0 = 0i64;
+        v10 = (float)(5 * mapLoadProfile.mainThread.profileEntries[v8].indent + 60);
+        __asm { vcvtsi2sd xmm0, xmm0, rax }
+        if ( (__int64)(mapLoadProfile.mainThread.profileEntries[v8].ticksStart - mapLoadProfile.mainThread.ticksStart) < 0 )
+          *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+        _XMM1 = 0i64;
+        __asm { vcvtsi2sd xmm1, xmm1, rax }
+        if ( (mapLoadProfile.mainThread.profileEntries[v8].ticksSelf & 0x8000000000000000ui64) != 0i64 )
+          *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
+        v14 = *(double *)&_XMM1 * msecPerRawTimerTick;
+        _XMM1 = 0i64;
+        __asm { vcvtsi2sd xmm1, xmm1, rax }
+        if ( (mapLoadProfile.mainThread.profileEntries[v8].ticksTotal & 0x8000000000000000ui64) != 0i64 )
+          *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
+        LODWORD(vertAlign) = mapLoadProfile.mainThread.profileEntries[v8].accessCount;
+        Com_sprintf(dest, 0x100ui64, "%s - %5.3f total, %5.3f self, %i hits. Last Hit @ %5.3f", mapLoadProfile.mainThread.profileEntries[v8].label, (double)(*(double *)&_XMM1 * msecPerRawTimerTick * 0.001), v14 * 0.001, vertAlign, (double)(*(double *)&_XMM0 * msecPerRawTimerTick * 0.001));
+        UI_DrawText(scrPlace, dest, 256, v5, v10, (float)v7, 0, 0, 0.36000001, &PROFLOAD_TEXT_COLOR, 0);
+        v7 += 16;
+        ++v6;
+        ++v8;
       }
-      while ( v20 < mapLoadProfile.mainThread.profileEntryCount );
+      while ( v6 < mapLoadProfile.mainThread.profileEntryCount );
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
     if ( (__int64)(mapLoadProfile.mainThread.ticksFinish - mapLoadProfile.mainThread.ticksStart) < 0 )
-      __asm { vaddsd  xmm0, xmm0, xmm6 }
-    __asm
-    {
-      vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vmulsd  xmm2, xmm0, xmm7
-      vmovq   r8, xmm2
-    }
-    j_sprintf(_Buffer, "Total Load Time: %5.4f", *(double *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@43c58000
-      vmovss  xmm8, cs:__real@42700000
-      vmovss  [rsp+2F8h+var_2B8], xmm9
-      vmovss  [rsp+2F8h+horzAlign], xmm0
-      vmovss  dword ptr [rsp+2F8h+var_2D8], xmm8
-    }
-    UI_DrawText(scrPlace, _Buffer, 256, FontHandle, v63, *(float *)&horzAlignb, _RDI->horzAlign, _RDI->vertAlign, v74, &PROFLOAD_TEXT_COLOR, 0);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
+      *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+    j_sprintf(_Buffer, "Total Load Time: %5.4f", (double)(*(double *)&_XMM0 * msecPerRawTimerTick * 0.001));
+    UI_DrawText(scrPlace, _Buffer, 256, FontHandle, 60.0, 395.0, rect->horzAlign, rect->vertAlign, 0.36000001, &PROFLOAD_TEXT_COLOR, 0);
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
     if ( (mapLoadProfile.mainThread.ticksProfiled & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddsd  xmm0, xmm0, xmm6 }
-    __asm
-    {
-      vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vmulsd  xmm2, xmm0, xmm7
-      vmovq   r8, xmm2
-    }
-    j_sprintf(_Buffer, "Profiled Time: %5.4f", *(double *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@43cd0000
-      vmovss  [rsp+2F8h+var_2B8], xmm9
-      vmovss  [rsp+2F8h+horzAlign], xmm0
-      vmovss  dword ptr [rsp+2F8h+var_2D8], xmm8
-    }
-    UI_DrawText(scrPlace, _Buffer, 256, FontHandle, v64, *(float *)&horzAlignc, _RDI->horzAlign, _RDI->vertAlign, v75, &PROFLOAD_TEXT_COLOR, 0);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
+      *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+    j_sprintf(_Buffer, "Profiled Time: %5.4f", (double)(*(double *)&_XMM0 * msecPerRawTimerTick * 0.001));
+    UI_DrawText(scrPlace, _Buffer, 256, FontHandle, 60.0, 410.0, rect->horzAlign, rect->vertAlign, 0.36000001, &PROFLOAD_TEXT_COLOR, 0);
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
     if ( (__int64)(mapLoadProfile.mainThread.ticksFinish - mapLoadProfile.mainThread.ticksProfiled - mapLoadProfile.mainThread.ticksStart) < 0 )
-      __asm { vaddsd  xmm0, xmm0, xmm6 }
-    __asm
-    {
-      vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vmulsd  xmm2, xmm0, xmm7
-      vmovq   r8, xmm2
-    }
-    j_sprintf(_Buffer, "Unprofiled Time: %5.4f", *(double *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@43d48000
-      vmovss  [rsp+2F8h+var_2B8], xmm9
-      vmovss  [rsp+2F8h+horzAlign], xmm0
-      vmovss  dword ptr [rsp+2F8h+var_2D8], xmm8
-    }
-    UI_DrawText(scrPlace, _Buffer, 256, FontHandle, v65, *(float *)&horzAlignd, _RDI->horzAlign, _RDI->vertAlign, v76, &PROFLOAD_TEXT_COLOR, 0);
-    __asm
-    {
-      vmovaps xmm9, [rsp+2F8h+var_78]
-      vmovaps xmm8, [rsp+2F8h+var_68]
-      vmovaps xmm7, [rsp+2F8h+var_58]
-      vmovaps xmm6, [rsp+2F8h+var_48]
-    }
+      *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+    j_sprintf(_Buffer, "Unprofiled Time: %5.4f", (double)(*(double *)&_XMM0 * msecPerRawTimerTick * 0.001));
+    UI_DrawText(scrPlace, _Buffer, 256, FontHandle, 60.0, 425.0, rect->horzAlign, rect->vertAlign, 0.36000001, &PROFLOAD_TEXT_COLOR, 0);
   }
 }
 
@@ -731,51 +605,24 @@ ProfLoad_GetEntryRowText
 */
 void ProfLoad_GetEntryRowText(const MapProfileThread *thread, const MapProfileEntry *entry, char *rowText, int sizeofRowText)
 {
-  double v23; 
-  double v24; 
+  double v8; 
   int accessCount; 
-  double v26; 
 
-  __asm
-  {
-    vmovsd  xmm1, cs:__real@43f0000000000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-    vmovaps [rsp+58h+var_18], xmm6
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (__int64)(entry->ticksStart - thread->ticksStart) < 0 )
-    __asm { vaddsd  xmm0, xmm0, xmm1 }
-  __asm
-  {
-    vmovsd  xmm3, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovsd  xmm4, cs:__real@3f50624dd2f1a9fc
-    vmulsd  xmm0, xmm0, xmm3
-    vxorps  xmm2, xmm2, xmm2
-    vmulsd  xmm6, xmm0, xmm4
-    vcvtsi2sd xmm2, xmm2, rax
-  }
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  _XMM2 = 0i64;
+  __asm { vcvtsi2sd xmm2, xmm2, rax }
   if ( (entry->ticksSelf & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm2, xmm2, xmm1 }
-  __asm
-  {
-    vmulsd  xmm0, xmm2, xmm3
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2sd xmm2, xmm2, rax
-    vmulsd  xmm5, xmm0, xmm4
-  }
+    *(double *)&_XMM2 = *(double *)&_XMM2 + 1.844674407370955e19;
+  v8 = *(double *)&_XMM2 * msecPerRawTimerTick;
+  _XMM2 = 0i64;
+  __asm { vcvtsi2sd xmm2, xmm2, rax }
   if ( (entry->ticksTotal & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm2, xmm2, xmm1 }
-  __asm { vmovsd  [rsp+58h+var_20], xmm6 }
+    *(double *)&_XMM2 = *(double *)&_XMM2 + 1.844674407370955e19;
   accessCount = entry->accessCount;
-  __asm
-  {
-    vmulsd  xmm0, xmm2, xmm3
-    vmulsd  xmm1, xmm0, xmm4
-    vmovsd  [rsp+58h+var_30], xmm5
-    vmovsd  [rsp+58h+var_38], xmm1
-  }
-  Com_sprintf(rowText, sizeofRowText, "%s - %5.3f total, %5.3f self, %i hits. Last Hit @ %5.3f", entry->label, v23, v24, accessCount, v26);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  Com_sprintf(rowText, sizeofRowText, "%s - %5.3f total, %5.3f self, %i hits. Last Hit @ %5.3f", entry->label, (double)(*(double *)&_XMM2 * msecPerRawTimerTick * 0.001), v8 * 0.001, accessCount, (double)(*(double *)&_XMM0 * msecPerRawTimerTick * 0.001));
 }
 
 /*
@@ -809,33 +656,42 @@ ProfLoad_PrintHotSpots
 void ProfLoad_PrintHotSpots(const MapProfileThread *thread)
 {
   signed __int64 v1; 
-  void *v6; 
+  __int128 v2; 
+  __int128 v4; 
+  void *v5; 
   __int64 profileEntryCount; 
   MapProfileEntry *profileEntries; 
   int *p_accessCount; 
-  __int64 v11; 
+  __int64 v10; 
   const char *label; 
-  __int64 v13; 
+  __int64 v12; 
+  int v13; 
   int v14; 
-  int v15; 
-  __int64 v16; 
+  __int64 v15; 
+  int *v16; 
+  __int64 v17; 
+  __int64 v18; 
+  int *v19; 
   __int64 v20; 
-  int *v21; 
-  __int64 v22; 
-  int v23; 
-  __int64 v25; 
-  int *v26; 
-  __int64 v38; 
+  int v21; 
+  __int64 v23; 
+  int *v24; 
+  long double v27; 
+  __int128 v28; 
+  __int64 v29; 
   MapProfileHotSpot _Last[2048]; 
+  __int128 v31; 
+  __int128 v32; 
+  __int128 v33; 
 
-  v6 = alloca(v1);
-  __asm { vmovaps [rsp+10078h+var_28], xmm7 }
+  v5 = alloca(v1);
+  v32 = _XMM7;
   profileEntryCount = thread->profileEntryCount;
   if ( profileEntryCount > 0 )
   {
     profileEntries = thread->profileEntries;
     p_accessCount = &_Last[0].accessCount;
-    v11 = thread->profileEntryCount;
+    v10 = thread->profileEntryCount;
     do
     {
       label = profileEntries->label;
@@ -844,101 +700,75 @@ void ProfLoad_PrintHotSpots(const MapProfileThread *thread)
       p_accessCount += 8;
       *(p_accessCount - 8) = profileEntries[-1].accessCount;
       *((_QWORD *)p_accessCount - 3) = profileEntries[-1].ticksSelf;
-      --v11;
+      --v10;
     }
-    while ( v11 );
+    while ( v10 );
   }
   std::_Sort_unchecked<MapProfileHotSpot *,bool (*)(MapProfileHotSpot const &,MapProfileHotSpot const &)>(_Last, &_Last[profileEntryCount], profileEntryCount, ProfLoad_CompareHotSpotNames);
-  v13 = thread->profileEntryCount;
+  v12 = thread->profileEntryCount;
+  v13 = 0;
   v14 = 0;
-  v15 = 0;
-  if ( (_DWORD)v13 )
+  if ( (_DWORD)v12 )
   {
-    v16 = 0i64;
-    _RDX = &_Last[0].accessCount;
+    v15 = 0i64;
+    v16 = &_Last[0].accessCount;
     do
     {
-      ++v15;
-      _RAX = 32 * v16++;
-      __asm
+      ++v14;
+      v17 = v15++;
+      *(MapProfileHotSpot *)(v16 - 2) = _Last[v17];
+      if ( v14 != (_DWORD)v12 )
       {
-        vmovups ymm0, ymmword ptr [rsp+rax+10078h+_Last.label]
-        vmovups ymmword ptr [rdx-8], ymm0
-      }
-      if ( v15 != (_DWORD)v13 )
-      {
-        v20 = *((_QWORD *)_RDX - 1);
-        v21 = &_Last[v16].accessCount;
+        v18 = *((_QWORD *)v16 - 1);
+        v19 = &_Last[v15].accessCount;
         do
         {
-          if ( *((_QWORD *)v21 - 1) != v20 )
+          if ( *((_QWORD *)v19 - 1) != v18 )
             break;
+          ++v14;
+          *v16 += *v19;
           ++v15;
-          *_RDX += *v21;
-          ++v16;
-          v22 = *((_QWORD *)v21 + 1);
-          v21 += 8;
-          *((_QWORD *)_RDX + 1) += v22;
+          v20 = *((_QWORD *)v19 + 1);
+          v19 += 8;
+          *((_QWORD *)v16 + 1) += v20;
         }
-        while ( v16 != v13 );
+        while ( v15 != v12 );
       }
-      ++v14;
-      _RDX += 8;
+      ++v13;
+      v16 += 8;
     }
-    while ( v16 != v13 );
+    while ( v15 != v12 );
   }
-  std::_Sort_unchecked<MapProfileHotSpot *,bool (*)(MapProfileHotSpot const &,MapProfileHotSpot const &)>(_Last, &_Last[v14], v14, ProfLoad_CompareHotSpotTicks);
+  std::_Sort_unchecked<MapProfileHotSpot *,bool (*)(MapProfileHotSpot const &,MapProfileHotSpot const &)>(_Last, &_Last[v13], v13, ProfLoad_CompareHotSpotTicks);
   Com_Printf(26, "^6\n\n---------- Load time hot spots ----------\n");
-  v23 = 16;
+  v21 = 16;
   __asm { vxorpd  xmm7, xmm7, xmm7 }
-  if ( v14 < 16 )
-    v23 = v14;
-  v25 = v23;
-  if ( v23 > 0 )
+  if ( v13 < 16 )
+    v21 = v13;
+  v23 = v21;
+  if ( v21 > 0 )
   {
-    __asm { vmovaps [rsp+10078h+var_18], xmm6 }
-    v26 = &_Last[0].accessCount;
-    __asm
-    {
-      vmovsd  xmm6, cs:__real@43f0000000000000
-      vmovaps [rsp+10078h+var_38], xmm8
-      vmovsd  xmm8, cs:__real@3f50624dd2f1a9fc
-    }
+    v33 = v2;
+    v24 = &_Last[0].accessCount;
+    v31 = v4;
     do
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-      }
-      if ( *((__int64 *)v26 + 1) < 0 )
-        __asm { vaddsd  xmm0, xmm0, xmm6 }
-      __asm
-      {
-        vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vmulsd  xmm3, xmm0, xmm8
-        vmovq   r9, xmm3
-        vaddsd  xmm7, xmm7, xmm3
-      }
-      LODWORD(v38) = *v26;
-      Com_Printf(26, "^6%s: %5.3f self, %i hits\n", *((const char **)v26 - 1), *(double *)&_XMM3, v38);
-      v26 += 8;
-      --v25;
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      if ( *((__int64 *)v24 + 1) < 0 )
+        *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+      v27 = *(double *)&_XMM0 * msecPerRawTimerTick * 0.001;
+      *((_QWORD *)&v28 + 1) = *((_QWORD *)&_XMM7 + 1);
+      *(double *)&v28 = *(double *)&_XMM7 + v27;
+      _XMM7 = v28;
+      LODWORD(v29) = *v24;
+      Com_Printf(26, "^6%s: %5.3f self, %i hits\n", *((const char **)v24 - 1), (double)v27, v29);
+      v24 += 8;
+      --v23;
     }
-    while ( v25 );
-    __asm
-    {
-      vmovaps xmm8, [rsp+10078h+var_38]
-      vmovaps xmm6, [rsp+10078h+var_18]
-    }
+    while ( v23 );
   }
-  __asm
-  {
-    vmovaps xmm2, xmm7
-    vmovq   r8, xmm2
-  }
-  Com_Printf(26, "^6\nHot spot total time: %5.3f self\n\n", *(double *)&_XMM2);
-  __asm { vmovaps xmm7, [rsp+10078h+var_28] }
+  Com_Printf(26, "^6\nHot spot total time: %5.3f self\n\n", *(double *)&_XMM7);
 }
 
 /*
@@ -948,70 +778,43 @@ ProfLoad_PrintThread
 */
 void ProfLoad_PrintThread(MapProfileThread *thread, const char *name)
 {
-  int v4; 
-  __int64 v5; 
+  int v3; 
+  __int64 v4; 
   MapProfileEntry *profileEntries; 
   char rowText[256]; 
 
   Com_Printf(26, "^6Profiling Thread: %s\n\n", name);
   ProfLoad_CalculateSelfTicks(thread);
-  v4 = 0;
+  v3 = 0;
   if ( thread->profileEntryCount > 0 )
   {
-    v5 = 0i64;
+    v4 = 0i64;
     do
     {
       profileEntries = thread->profileEntries;
-      if ( !profileEntries[v5].parent )
-        ProfLoad_PrintTreeRecurse(thread, &profileEntries[v4], rowText, 256, v4 + 1, 1);
+      if ( !profileEntries[v4].parent )
+        ProfLoad_PrintTreeRecurse(thread, &profileEntries[v3], rowText, 256, v3 + 1, 1);
+      ++v3;
       ++v4;
-      ++v5;
     }
-    while ( v4 < thread->profileEntryCount );
+    while ( v3 < thread->profileEntryCount );
   }
   ProfLoad_PrintHotSpots(thread);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (__int64)(thread->ticksFinish - thread->ticksStart) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmulsd  xmm2, xmm0, cs:__real@3f50624dd2f1a9fc
-    vmovq   r8, xmm2
-  }
-  Com_Printf(26, "^6Total Load Time: %5.4f\n", *(double *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(26, "^6Total Load Time: %5.4f\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick * 0.001));
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (thread->ticksProfiled & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmulsd  xmm2, xmm0, cs:__real@3f50624dd2f1a9fc
-    vmovq   r8, xmm2
-  }
-  Com_Printf(26, "^6Profiled Time: %5.4f\n", *(double *)&_XMM2);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(26, "^6Profiled Time: %5.4f\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick * 0.001));
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (__int64)(thread->ticksFinish - thread->ticksStart - thread->ticksProfiled) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmulsd  xmm2, xmm0, cs:__real@3f50624dd2f1a9fc
-    vmovq   r8, xmm2
-  }
-  Com_Printf(26, "^6Unprofiled Time: %5.4f\n", *(double *)&_XMM2);
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Com_Printf(26, "^6Unprofiled Time: %5.4f\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick * 0.001));
   Com_Printf(26, "^6\n\n");
 }
 

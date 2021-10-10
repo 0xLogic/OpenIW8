@@ -192,137 +192,91 @@ bdObjectStoreErrorWrappedObject::bdObjectStoreErrorWrappedObject
 */
 void bdObjectStoreErrorWrappedObject::bdObjectStoreErrorWrappedObject(bdObjectStoreErrorWrappedObject *this, const bdObjectStoreErrorWrappedObject *__that)
 {
-  __int64 v13; 
-  bdObjectStoreTag *v25; 
+  char *m_contentURL; 
+  char *v5; 
+  __int64 v6; 
+  bdObjectStoreTag *v7; 
   __int64 m_capacity; 
   unsigned int m_size; 
-  __int64 v30; 
+  __m256i *v10; 
+  char *v11; 
+  __int64 v12; 
 
-  _RBX = __that;
-  _RDI = this;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups ymm0, ymmword ptr [rdx+10h]
-    vmovups ymmword ptr [rcx+10h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+30h]
-    vmovups ymmword ptr [rcx+30h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+50h]
-    vmovups ymmword ptr [rcx+50h], ymm0
-    vmovups xmm1, xmmword ptr [rdx+70h]
-    vmovups xmmword ptr [rcx+70h], xmm1
-    vmovups ymm0, ymmword ptr [rdx+80h]
-    vmovups ymmword ptr [rcx+80h], ymm0
-  }
+  *(_OWORD *)this->m_object.m_metadata.m_context = *(_OWORD *)__that->m_object.m_metadata.m_context;
+  this->m_object.m_metadata.m_objectID = __that->m_object.m_metadata.m_objectID;
+  *(__m256i *)this->m_object.m_metadata.m_contentChecksum = *(__m256i *)__that->m_object.m_metadata.m_contentChecksum;
   this->m_object.m_metadata.m_contentChecksum[32] = __that->m_object.m_metadata.m_contentChecksum[32];
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+0A1h]
-    vmovups ymmword ptr [rcx+0A1h], ymm0
-  }
+  *(__m256i *)this->m_object.m_metadata.m_objectVersion = *(__m256i *)__that->m_object.m_metadata.m_objectVersion;
   this->m_object.m_metadata.m_objectVersion[32] = __that->m_object.m_metadata.m_objectVersion[32];
   this->m_object.m_metadata.m_expiresOn = __that->m_object.m_metadata.m_expiresOn;
   this->m_object.m_metadata.m_contentLength = __that->m_object.m_metadata.m_contentLength;
   this->m_object.m_metadata.m_acl.m_aclType = __that->m_object.m_metadata.m_acl.m_aclType;
   this->m_object.m_metadata.m_created = __that->m_object.m_metadata.m_created;
   this->m_object.m_metadata.m_modified = __that->m_object.m_metadata.m_modified;
-  _RCX = this->m_object.m_metadata.m_contentURL;
-  _RAX = __that->m_object.m_metadata.m_contentURL;
-  v13 = 8i64;
+  m_contentURL = this->m_object.m_metadata.m_contentURL;
+  v5 = __that->m_object.m_metadata.m_contentURL;
+  v6 = 8i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX += 128;
-    --v13;
+    *(_OWORD *)m_contentURL = *(_OWORD *)v5;
+    *((_OWORD *)m_contentURL + 1) = *((_OWORD *)v5 + 1);
+    *((_OWORD *)m_contentURL + 2) = *((_OWORD *)v5 + 2);
+    *((_OWORD *)m_contentURL + 3) = *((_OWORD *)v5 + 3);
+    *((_OWORD *)m_contentURL + 4) = *((_OWORD *)v5 + 4);
+    *((_OWORD *)m_contentURL + 5) = *((_OWORD *)v5 + 5);
+    *((_OWORD *)m_contentURL + 6) = *((_OWORD *)v5 + 6);
+    m_contentURL += 128;
+    *((_OWORD *)m_contentURL - 1) = *((_OWORD *)v5 + 7);
+    v5 += 128;
+    --v6;
   }
-  while ( v13 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+4F0h]
-    vmovups ymmword ptr [rdi+4F0h], ymm0
-    vmovups ymm1, ymmword ptr [rbx+510h]
-    vmovups ymmword ptr [rdi+510h], ymm1
-  }
-  _RDI->m_object.m_metadata.m_category[64] = _RBX->m_object.m_metadata.m_category[64];
-  memcpy_0(_RDI->m_object.m_metadata.m_extraData, _RBX->m_object.m_metadata.m_extraData, sizeof(_RDI->m_object.m_metadata.m_extraData));
-  _RDI->m_object.m_metadata.m_extraDataSize = _RBX->m_object.m_metadata.m_extraDataSize;
-  _RDI->m_object.m_metadata.m_summaryContentLength = _RBX->m_object.m_metadata.m_summaryContentLength;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+0D40h]
-    vmovups ymmword ptr [rdi+0D40h], ymm0
-  }
-  _RDI->m_object.m_metadata.m_summaryChecksum[32] = _RBX->m_object.m_metadata.m_summaryChecksum[32];
-  _RDI->m_object.m_metadata.m_hasSummary = _RBX->m_object.m_metadata.m_hasSummary;
-  _RDI->m_object.m_metadata.m_tags.m_capacity = _RBX->m_object.m_metadata.m_tags.m_capacity;
-  _RDI->m_object.m_metadata.m_tags.m_size = _RBX->m_object.m_metadata.m_tags.m_size;
-  v25 = NULL;
-  m_capacity = _RBX->m_object.m_metadata.m_tags.m_capacity;
+  while ( v6 );
+  *(__m256i *)this->m_object.m_metadata.m_category = *(__m256i *)__that->m_object.m_metadata.m_category;
+  *(__m256i *)&this->m_object.m_metadata.m_category[32] = *(__m256i *)&__that->m_object.m_metadata.m_category[32];
+  this->m_object.m_metadata.m_category[64] = __that->m_object.m_metadata.m_category[64];
+  memcpy_0(this->m_object.m_metadata.m_extraData, __that->m_object.m_metadata.m_extraData, sizeof(this->m_object.m_metadata.m_extraData));
+  this->m_object.m_metadata.m_extraDataSize = __that->m_object.m_metadata.m_extraDataSize;
+  this->m_object.m_metadata.m_summaryContentLength = __that->m_object.m_metadata.m_summaryContentLength;
+  *(__m256i *)this->m_object.m_metadata.m_summaryChecksum = *(__m256i *)__that->m_object.m_metadata.m_summaryChecksum;
+  this->m_object.m_metadata.m_summaryChecksum[32] = __that->m_object.m_metadata.m_summaryChecksum[32];
+  this->m_object.m_metadata.m_hasSummary = __that->m_object.m_metadata.m_hasSummary;
+  this->m_object.m_metadata.m_tags.m_capacity = __that->m_object.m_metadata.m_tags.m_capacity;
+  this->m_object.m_metadata.m_tags.m_size = __that->m_object.m_metadata.m_tags.m_size;
+  v7 = NULL;
+  m_capacity = __that->m_object.m_metadata.m_tags.m_capacity;
   if ( (_DWORD)m_capacity )
   {
-    v25 = (bdObjectStoreTag *)bdMemory::allocate(66 * m_capacity);
-    m_size = _RBX->m_object.m_metadata.m_tags.m_size;
+    v7 = (bdObjectStoreTag *)bdMemory::allocate(66 * m_capacity);
+    m_size = __that->m_object.m_metadata.m_tags.m_size;
     if ( m_size )
     {
-      _RCX = v25;
-      _R8 = (char *)_RBX->m_object.m_metadata.m_tags.m_data - (char *)v25;
-      v30 = m_size;
+      v10 = (__m256i *)v7;
+      v11 = (char *)((char *)__that->m_object.m_metadata.m_tags.m_data - (char *)v7);
+      v12 = m_size;
       do
       {
-        if ( _RCX )
+        if ( v10 )
         {
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [r8+rcx]
-            vmovups ymmword ptr [rcx], ymm0
-            vmovups ymm1, ymmword ptr [r8+rcx+20h]
-            vmovups ymmword ptr [rcx+20h], ymm1
-          }
-          *(_WORD *)&_RCX->m_value[31] = *(_WORD *)&_RCX->m_value[_R8 + 31];
+          *v10 = *(__m256i *)((char *)v10 + (_QWORD)v11);
+          v10[1] = *(__m256i *)((char *)v10 + (_QWORD)v11 + 32);
+          v10[2].m256i_i16[0] = *(__int16 *)((char *)v10[2].m256i_i16 + (_QWORD)v11);
         }
-        ++_RCX;
-        --v30;
+        v10 = (__m256i *)((char *)v10 + 66);
+        --v12;
       }
-      while ( v30 );
+      while ( v12 );
     }
   }
-  _RDI->m_object.m_metadata.m_tags.m_data = v25;
-  _RDI->m_object.m_metadata.m_numTags = _RBX->m_object.m_metadata.m_numTags;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx+0D7Ch]
-    vmovups ymmword ptr [rdi+0D7Ch], ymm0
-  }
-  _RDI->m_object.m_contentPtr = _RBX->m_object.m_contentPtr;
-  _RDI->m_object.m_contentSize = _RBX->m_object.m_contentSize;
-  _RDI->m_object.m_downloadInterceptor = _RBX->m_object.m_downloadInterceptor;
-  _RDI->m_error = _RBX->m_error;
-  _RDI->m_hasError = _RBX->m_hasError;
-  _RDI->m_modified = _RBX->m_modified;
-  _RDI->m_downloadStatus = _RBX->m_downloadStatus;
+  this->m_object.m_metadata.m_tags.m_data = v7;
+  this->m_object.m_metadata.m_numTags = __that->m_object.m_metadata.m_numTags;
+  this->m_object.m_metadata.m_statistics = __that->m_object.m_metadata.m_statistics;
+  this->m_object.m_contentPtr = __that->m_object.m_contentPtr;
+  this->m_object.m_contentSize = __that->m_object.m_contentSize;
+  this->m_object.m_downloadInterceptor = __that->m_object.m_downloadInterceptor;
+  this->m_error = __that->m_error;
+  this->m_hasError = __that->m_hasError;
+  this->m_modified = __that->m_modified;
+  this->m_downloadStatus = __that->m_downloadStatus;
 }
 
 /*
@@ -332,101 +286,58 @@ bdObjectStoreErrorWrappedObject::bdObjectStoreErrorWrappedObject
 */
 void bdObjectStoreErrorWrappedObject::bdObjectStoreErrorWrappedObject(bdObjectStoreErrorWrappedObject *this, bdObjectStoreObject *object)
 {
-  __int64 v13; 
+  char *m_contentURL; 
+  char *v5; 
+  __int64 v6; 
 
-  _RSI = object;
-  _RDI = this;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups ymm0, ymmword ptr [rdx+10h]
-    vmovups ymmword ptr [rcx+10h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+30h]
-    vmovups ymmword ptr [rcx+30h], ymm1
-    vmovups ymm0, ymmword ptr [rdx+50h]
-    vmovups ymmword ptr [rcx+50h], ymm0
-    vmovups xmm1, xmmword ptr [rdx+70h]
-    vmovups xmmword ptr [rcx+70h], xmm1
-    vmovups ymm0, ymmword ptr [rdx+80h]
-    vmovups ymmword ptr [rcx+80h], ymm0
-  }
+  *(_OWORD *)this->m_object.m_metadata.m_context = *(_OWORD *)object->m_metadata.m_context;
+  this->m_object.m_metadata.m_objectID = object->m_metadata.m_objectID;
+  *(__m256i *)this->m_object.m_metadata.m_contentChecksum = *(__m256i *)object->m_metadata.m_contentChecksum;
   this->m_object.m_metadata.m_contentChecksum[32] = object->m_metadata.m_contentChecksum[32];
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+0A1h]
-    vmovups ymmword ptr [rcx+0A1h], ymm0
-  }
+  *(__m256i *)this->m_object.m_metadata.m_objectVersion = *(__m256i *)object->m_metadata.m_objectVersion;
   this->m_object.m_metadata.m_objectVersion[32] = object->m_metadata.m_objectVersion[32];
   this->m_object.m_metadata.m_expiresOn = object->m_metadata.m_expiresOn;
   this->m_object.m_metadata.m_contentLength = object->m_metadata.m_contentLength;
   this->m_object.m_metadata.m_acl.m_aclType = object->m_metadata.m_acl.m_aclType;
   this->m_object.m_metadata.m_created = object->m_metadata.m_created;
   this->m_object.m_metadata.m_modified = object->m_metadata.m_modified;
-  _RCX = this->m_object.m_metadata.m_contentURL;
-  _RAX = object->m_metadata.m_contentURL;
-  v13 = 8i64;
+  m_contentURL = this->m_object.m_metadata.m_contentURL;
+  v5 = object->m_metadata.m_contentURL;
+  v6 = 8i64;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-    }
-    _RCX += 128;
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+70h]
-      vmovups xmmword ptr [rcx-10h], xmm1
-    }
-    _RAX += 128;
-    --v13;
+    *(_OWORD *)m_contentURL = *(_OWORD *)v5;
+    *((_OWORD *)m_contentURL + 1) = *((_OWORD *)v5 + 1);
+    *((_OWORD *)m_contentURL + 2) = *((_OWORD *)v5 + 2);
+    *((_OWORD *)m_contentURL + 3) = *((_OWORD *)v5 + 3);
+    *((_OWORD *)m_contentURL + 4) = *((_OWORD *)v5 + 4);
+    *((_OWORD *)m_contentURL + 5) = *((_OWORD *)v5 + 5);
+    *((_OWORD *)m_contentURL + 6) = *((_OWORD *)v5 + 6);
+    m_contentURL += 128;
+    *((_OWORD *)m_contentURL - 1) = *((_OWORD *)v5 + 7);
+    v5 += 128;
+    --v6;
   }
-  while ( v13 );
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+4F0h]
-    vmovups ymmword ptr [rdi+4F0h], ymm0
-    vmovups ymm1, ymmword ptr [rsi+510h]
-    vmovups ymmword ptr [rdi+510h], ymm1
-  }
-  _RDI->m_object.m_metadata.m_category[64] = _RSI->m_metadata.m_category[64];
-  memcpy_0(_RDI->m_object.m_metadata.m_extraData, _RSI->m_metadata.m_extraData, sizeof(_RDI->m_object.m_metadata.m_extraData));
-  _RDI->m_object.m_metadata.m_extraDataSize = _RSI->m_metadata.m_extraDataSize;
-  _RDI->m_object.m_metadata.m_summaryContentLength = _RSI->m_metadata.m_summaryContentLength;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+0D40h]
-    vmovups ymmword ptr [rdi+0D40h], ymm0
-  }
-  _RDI->m_object.m_metadata.m_summaryChecksum[32] = _RSI->m_metadata.m_summaryChecksum[32];
-  _RDI->m_object.m_metadata.m_hasSummary = _RSI->m_metadata.m_hasSummary;
-  _RDI->m_object.m_metadata.m_tags.m_capacity = _RSI->m_metadata.m_tags.m_capacity;
-  _RDI->m_object.m_metadata.m_tags.m_size = _RSI->m_metadata.m_tags.m_size;
-  _RDI->m_object.m_metadata.m_tags.m_data = bdArray<bdObjectStoreTag>::uninitializedCopy(&_RDI->m_object.m_metadata.m_tags, &_RSI->m_metadata.m_tags);
-  _RDI->m_object.m_metadata.m_numTags = _RSI->m_metadata.m_numTags;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+0D7Ch]
-    vmovups ymmword ptr [rdi+0D7Ch], ymm0
-  }
-  _RDI->m_object.m_contentPtr = _RSI->m_contentPtr;
-  _RDI->m_object.m_contentSize = _RSI->m_contentSize;
-  _RDI->m_object.m_downloadInterceptor = _RSI->m_downloadInterceptor;
-  _RDI->m_hasError = 0;
-  *(_QWORD *)&_RDI->m_modified = 1i64;
+  while ( v6 );
+  *(__m256i *)this->m_object.m_metadata.m_category = *(__m256i *)object->m_metadata.m_category;
+  *(__m256i *)&this->m_object.m_metadata.m_category[32] = *(__m256i *)&object->m_metadata.m_category[32];
+  this->m_object.m_metadata.m_category[64] = object->m_metadata.m_category[64];
+  memcpy_0(this->m_object.m_metadata.m_extraData, object->m_metadata.m_extraData, sizeof(this->m_object.m_metadata.m_extraData));
+  this->m_object.m_metadata.m_extraDataSize = object->m_metadata.m_extraDataSize;
+  this->m_object.m_metadata.m_summaryContentLength = object->m_metadata.m_summaryContentLength;
+  *(__m256i *)this->m_object.m_metadata.m_summaryChecksum = *(__m256i *)object->m_metadata.m_summaryChecksum;
+  this->m_object.m_metadata.m_summaryChecksum[32] = object->m_metadata.m_summaryChecksum[32];
+  this->m_object.m_metadata.m_hasSummary = object->m_metadata.m_hasSummary;
+  this->m_object.m_metadata.m_tags.m_capacity = object->m_metadata.m_tags.m_capacity;
+  this->m_object.m_metadata.m_tags.m_size = object->m_metadata.m_tags.m_size;
+  this->m_object.m_metadata.m_tags.m_data = bdArray<bdObjectStoreTag>::uninitializedCopy(&this->m_object.m_metadata.m_tags, &object->m_metadata.m_tags);
+  this->m_object.m_metadata.m_numTags = object->m_metadata.m_numTags;
+  this->m_object.m_metadata.m_statistics = object->m_metadata.m_statistics;
+  this->m_object.m_contentPtr = object->m_contentPtr;
+  this->m_object.m_contentSize = object->m_contentSize;
+  this->m_object.m_downloadInterceptor = object->m_downloadInterceptor;
+  this->m_hasError = 0;
+  *(_QWORD *)&this->m_modified = 1i64;
 }
 
 /*

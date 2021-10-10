@@ -801,19 +801,15 @@ BG_GetGravity
 */
 float BG_GetGravity()
 {
-  if ( Com_GameMode_SupportsFeature(WEAPON_SPRINT_RAISE) )
-  {
-    _RBX = DVARFLT_bg_gravity;
-    if ( !DVARFLT_bg_gravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_gravity") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  }
-  else
-  {
-    __asm { vmovss  xmm0, cs:__real@44480000 }
-  }
-  return *(float *)&_XMM0;
+  const dvar_t *v0; 
+
+  if ( !Com_GameMode_SupportsFeature(WEAPON_SPRINT_RAISE) )
+    return FLOAT_800_0;
+  v0 = DVARFLT_bg_gravity;
+  if ( !DVARFLT_bg_gravity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_gravity") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v0);
+  return v0->current.value;
 }
 
 /*
@@ -914,20 +910,14 @@ BG_UsrCmdUnpackAngle
 */
 float BG_UsrCmdUnpackAngle(const int packedAngle)
 {
-  __asm { vmovss  xmm1, cs:__real@43340000; maxAbsValueSize }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(packedAngle, *(float *)&_XMM1, 0x14u);
-  __asm
-  {
-    vmulss  xmm5, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 1
-    vsubss  xmm1, xmm5, xmm4
-    vmulss  xmm0, xmm1, cs:__real@43b40000
-  }
-  return *(float *)&_XMM0;
+  double v1; 
+  float v2; 
+
+  v1 = MSG_UnpackSignedFloat(packedAngle, 180.0, 0x14u);
+  v2 = *(float *)&v1 * 0.0027777778;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 1 }
+  return (float)(v2 - *(float *)&_XMM4) * 360.0;
 }
 
 /*
@@ -1053,28 +1043,16 @@ char BG_IsRemoteTurretActiveFlags(const GameModeFlagContainer<enum EntityStateFl
 BG_AnimTreeMP_ConvertScriptModelAnimRateFloatToInt
 ==============
 */
-
-unsigned int __fastcall BG_AnimTreeMP_ConvertScriptModelAnimRateFloatToInt(double animRateRaw, double _XMM1_8)
+__int64 BG_AnimTreeMP_ConvertScriptModelAnimRateFloatToInt(const float animRateRaw)
 {
-  unsigned int result; 
+  float v1; 
 
-  __asm
+  if ( animRateRaw < 0.0 || animRateRaw > 8.0 || (v1 = (float)(unsigned int)(int)(float)(animRateRaw * 1000.0), COERCE_FLOAT(COERCE_UNSIGNED_INT(v1 - (float)(animRateRaw * 1000.0)) & _xmm) > 0.001) )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm0
-    vcomiss xmm0, cs:__real@41000000
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 143, ASSERT_TYPE_ASSERT, "(BG_AnimTreeMP_ScriptModelAnimRateValid( animRateRaw ))", (const char *)&queryFormat, "BG_AnimTreeMP_ScriptModelAnimRateValid( animRateRaw )") )
+      __debugbreak();
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 143, ASSERT_TYPE_ASSERT, "(BG_AnimTreeMP_ScriptModelAnimRateValid( animRateRaw ))", (const char *)&queryFormat, "BG_AnimTreeMP_ScriptModelAnimRateValid( animRateRaw )") )
-    __debugbreak();
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@447a0000
-    vmovaps xmm6, [rsp+48h+var_18]
-    vcvttss2si eax, xmm0
-  }
-  return result;
+  return (unsigned int)(int)(float)(animRateRaw * 1000.0);
 }
 
 /*
@@ -1084,25 +1062,20 @@ BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat
 */
 float BG_AnimTreeMP_ConvertScriptModelAnimRateIntToFloat(const unsigned int animRateQuantized)
 {
-  __asm
+  float v1; 
+  float v2; 
+  float v3; 
+  float v4; 
+
+  v1 = (float)animRateQuantized;
+  v3 = v1 * 0.001;
+  v2 = v3;
+  if ( v3 < 0.0 || v3 > 8.0 || (v4 = (float)(unsigned int)(int)(float)(v3 * 1000.0), COERCE_FLOAT(COERCE_UNSIGNED_INT(v4 - (float)(v2 * 1000.0)) & _xmm) > 0.001) )
   {
-    vmovss  xmm3, cs:__real@3a83126f
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovaps [rsp+48h+var_18], xmm6
-    vmulss  xmm6, xmm0, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
-    vcomiss xmm6, cs:__real@41000000
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 158, ASSERT_TYPE_ASSERT, "(BG_AnimTreeMP_ScriptModelAnimRateValid( animRateRaw ))", (const char *)&queryFormat, "BG_AnimTreeMP_ScriptModelAnimRateValid( animRateRaw )") )
+      __debugbreak();
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 158, ASSERT_TYPE_ASSERT, "(BG_AnimTreeMP_ScriptModelAnimRateValid( animRateRaw ))", (const char *)&queryFormat, "BG_AnimTreeMP_ScriptModelAnimRateValid( animRateRaw )") )
-    __debugbreak();
-  __asm
-  {
-    vmovaps xmm0, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return *(float *)&_XMM0;
+  return v2;
 }
 
 /*
@@ -1393,29 +1366,23 @@ BG_NormalizeWorldUpReferenceAngles
 */
 void BG_NormalizeWorldUpReferenceAngles(playerState_s *ps, const BgHandler *handler)
 {
+  float v4; 
   vec3_t angles; 
   vec3_t newWorldAngles; 
-  WorldUpReferenceFrame v11; 
+  WorldUpReferenceFrame v7; 
 
-  _RBX = ps;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2376, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  WorldUpReferenceFrame::WorldUpReferenceFrame(&v11, _RBX, handler);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rbx+1DCh]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+88h+newWorldAngles], xmm0
-    vmovss  dword ptr [rsp+88h+newWorldAngles+4], xmm0
-    vmovss  dword ptr [rsp+88h+newWorldAngles+8], xmm0
-    vmovss  xmm0, dword ptr [rbx+1D8h]
-    vmovss  dword ptr [rsp+88h+angles], xmm0
-    vmovss  xmm0, dword ptr [rbx+1E0h]
-    vmovss  dword ptr [rsp+88h+angles+8], xmm0
-    vmovss  dword ptr [rsp+88h+angles+4], xmm1
-  }
-  WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v11, &angles);
-  WorldUpReferenceFrame::SetAnglesAndViewAngles(&v11, _RBX, handler, &newWorldAngles, &angles);
+  WorldUpReferenceFrame::WorldUpReferenceFrame(&v7, ps, handler);
+  v4 = ps->viewangles.v[1];
+  newWorldAngles.v[0] = 0.0;
+  newWorldAngles.v[1] = 0.0;
+  newWorldAngles.v[2] = 0.0;
+  angles.v[0] = ps->viewangles.v[0];
+  angles.v[2] = ps->viewangles.v[2];
+  angles.v[1] = v4;
+  WorldUpReferenceFrame::ApplyReferenceFrameToAngles(&v7, &angles);
+  WorldUpReferenceFrame::SetAnglesAndViewAngles(&v7, ps, handler, &newWorldAngles, &angles);
 }
 
 /*
@@ -1479,25 +1446,13 @@ bool BG_IsExplosionMOD(meansOfDeath_t mod)
 BG_ShellshockBlendSmooth
 ==============
 */
-
-float __fastcall BG_ShellshockBlendSmooth(double percent)
+float BG_ShellshockBlendSmooth(float percent)
 {
   float s; 
   float c; 
 
-  __asm
-  {
-    vsubss  xmm0, xmm0, cs:__real@3f000000
-    vmulss  xmm0, xmm0, cs:__real@40490fdb; radians
-  }
-  FastSinCos(*(const float *)&_XMM0, &s, &c);
-  __asm
-  {
-    vmovss  xmm0, [rsp+28h+s]
-    vaddss  xmm1, xmm0, cs:__real@3f800000
-    vmulss  xmm0, xmm1, cs:__real@3f000000
-  }
-  return *(float *)&_XMM0;
+  FastSinCos((float)(percent - 0.5) * 3.1415927, &s, &c);
+  return (float)(s + 1.0) * 0.5;
 }
 
 /*
@@ -1505,22 +1460,11 @@ float __fastcall BG_ShellshockBlendSmooth(double percent)
 BG_UsrCmdPackAngle
 ==============
 */
-
-int __fastcall BG_UsrCmdPackAngle(double angle)
+int BG_UsrCmdPackAngle(const float angle)
 {
-  __asm
-  {
-    vmulss  xmm4, xmm0, cs:__real@3b360b61
-    vaddss  xmm1, xmm4, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  xmm2, xmm0, xmm1
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm3, xmm1, xmm2, 1
-    vmovss  xmm1, cs:__real@43340000; maxAbsValueSize
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm0, xmm0, cs:__real@43b40000; value
-  }
-  return MSG_PackSignedFloat(*(float *)&_XMM0, *(float *)&_XMM1, 0x14u);
+  _XMM1 = 0i64;
+  __asm { vroundss xmm3, xmm1, xmm2, 1 }
+  return MSG_PackSignedFloat((float)((float)(angle * 0.0027777778) - *(float *)&_XMM3) * 360.0, 180.0, 0x14u);
 }
 
 /*

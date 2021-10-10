@@ -191,65 +191,47 @@ BGMovingPlatformPS::ResetMoverUpAngles
 */
 void BGMovingPlatformPS::ResetMoverUpAngles(BGMovingPlatformPS *this, playerState_s *ps, const BgHandler *handler, int traceMask)
 {
-  const BgPlayerTraceInfo *v15; 
+  float v8; 
+  float v9; 
+  float v10; 
+  const BgPlayerTraceInfo *v11; 
   EffectiveStance EffectiveStance; 
   const Bounds *bounds; 
-  Physics_WorldId v18; 
-  BgTrace v22; 
+  Physics_WorldId v14; 
+  BgTrace v15; 
   trace_t results; 
 
-  _RDI = this;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\movingplatforms\\bg_moving_platform_ps.cpp", 188, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\movingplatforms\\bg_moving_platform_ps.cpp", 189, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
     __debugbreak();
   if ( BGMovingPlatformPS::IsNewRockingMoverCollisionEnabled() )
   {
-    __asm
+    if ( (0.0 != this->m_moverUpAngles.v[0] || 0.0 != this->m_moverUpAngles.v[1] || 0.0 != this->m_moverUpAngles.v[2]) && !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xEu) )
     {
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vucomiss xmm0, dword ptr [rdi+8]
-    }
-    if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&ps->otherFlags, ACTIVE, 0xEu) )
-    {
-      __asm
-      {
-        vmovaps [rsp+138h+var_38], xmm6
-        vmovss  xmm6, dword ptr [rdi+8]
-        vmovaps [rsp+138h+var_48], xmm7
-        vmovss  xmm7, dword ptr [rdi+0Ch]
-        vmovaps [rsp+138h+var_58], xmm8
-        vmovss  xmm8, dword ptr [rdi+10h]
-      }
-      *(_QWORD *)_RDI->m_moverUpAngles.v = 0i64;
-      _RDI->m_moverUpAngles.v[2] = 0.0;
-      v15 = handler->GetPlayerTraceInfo(handler, (unsigned int)ps->clientNum);
-      BgTrace::BgTrace(&v22, v15);
+      v8 = this->m_moverUpAngles.v[0];
+      v9 = this->m_moverUpAngles.v[1];
+      v10 = this->m_moverUpAngles.v[2];
+      *(_QWORD *)this->m_moverUpAngles.v = 0i64;
+      this->m_moverUpAngles.v[2] = 0.0;
+      v11 = handler->GetPlayerTraceInfo(handler, (unsigned int)ps->clientNum);
+      BgTrace::BgTrace(&v15, v11);
       EffectiveStance = PM_GetEffectiveStance(ps);
       bounds = BG_Suit_GetBounds(ps->suitIndex, EffectiveStance);
-      v18 = handler->GetPhysicsWorldId((BgHandler *)handler);
-      BgTrace::LegacyTraceHandler(&v22, v18, &results, &ps->origin, &ps->origin, bounds, ps->clientNum, traceMask & 0xFDFFBFFF, ps);
+      v14 = handler->GetPhysicsWorldId((BgHandler *)handler);
+      BgTrace::LegacyTraceHandler(&v15, v14, &results, &ps->origin, &ps->origin, bounds, ps->clientNum, traceMask & 0xFDFFBFFF, ps);
       if ( results.allsolid || results.startsolid )
       {
-        __asm
-        {
-          vmovss  dword ptr [rdi+8], xmm6
-          vmovss  dword ptr [rdi+0Ch], xmm7
-          vmovss  dword ptr [rdi+10h], xmm8
-        }
-      }
-      __asm
-      {
-        vmovaps xmm7, [rsp+138h+var_48]
-        vmovaps xmm6, [rsp+138h+var_38]
-        vmovaps xmm8, [rsp+138h+var_58]
+        this->m_moverUpAngles.v[0] = v8;
+        this->m_moverUpAngles.v[1] = v9;
+        this->m_moverUpAngles.v[2] = v10;
       }
     }
   }
   else
   {
-    *(_QWORD *)_RDI->m_moverUpAngles.v = 0i64;
-    _RDI->m_moverUpAngles.v[2] = 0.0;
+    *(_QWORD *)this->m_moverUpAngles.v = 0i64;
+    this->m_moverUpAngles.v[2] = 0.0;
   }
 }
 
@@ -296,16 +278,15 @@ BGMovingPlatformPS::UpdateMoverUpAngles
 */
 void BGMovingPlatformPS::UpdateMoverUpAngles(BGMovingPlatformPS *this, playerState_s *ps, const BgHandler *handler, const Bounds *bounds)
 {
-  const dvar_t *v10; 
-  char v31; 
+  const dvar_t *v8; 
+  float v9; 
+  float v10; 
   vec3_t angles; 
-  vec3_t v36; 
+  vec3_t v12; 
   vec3_t up; 
   vec3_t platformAngles; 
   vec4_t outBestUpQuat; 
 
-  _RBP = bounds;
-  _RBX = this;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\movingplatforms\\bg_moving_platform_ps.cpp", 126, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\movingplatforms\\bg_moving_platform_ps.cpp", 127, ASSERT_TYPE_ASSERT, "(handler)", (const char *)&queryFormat, "handler") )
@@ -320,62 +301,23 @@ void BGMovingPlatformPS::UpdateMoverUpAngles(BGMovingPlatformPS *this, playerSta
       else
         AnglesToQuat(&platformAngles, &outBestUpQuat);
       UnitQuatToAngles(&outBestUpQuat, &angles);
-      v10 = DVARBOOL_playerCharacterCollisionMoverRockingCollision3;
+      v8 = DVARBOOL_playerCharacterCollisionMoverRockingCollision3;
       if ( !DVARBOOL_playerCharacterCollisionMoverRockingCollision3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "playerCharacterCollisionMoverRockingCollision3") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v10);
-      if ( !v10->current.enabled )
-        goto LABEL_19;
-      __asm
+      Dvar_CheckFrontendServerThread(v8);
+      if ( !v8->current.enabled || (AngleVectors(&this->m_moverUpAngles, NULL, NULL, &up), AngleVectors(&angles, NULL, NULL, &v12), v9 = bounds->halfSize.v[2] * 2.0, (float)(fsqrt((float)((float)((float)((float)(v9 * v12.v[1]) - (float)(v9 * up.v[1])) * (float)((float)(v9 * v12.v[1]) - (float)(v9 * up.v[1]))) + (float)((float)((float)(v9 * v12.v[0]) - (float)(v9 * up.v[0])) * (float)((float)(v9 * v12.v[0]) - (float)(v9 * up.v[0])))) + (float)((float)((float)(v9 * v12.v[2]) - (float)(v9 * up.v[2])) * (float)((float)(v9 * v12.v[2]) - (float)(v9 * up.v[2])))) + 0.125) < bounds->halfSize.v[0]) )
       {
-        vmovaps [rsp+0E8h+var_38], xmm6
-        vmovaps [rsp+0E8h+var_48], xmm7
-      }
-      AngleVectors(&_RBX->m_moverUpAngles, NULL, NULL, &up);
-      AngleVectors(&angles, NULL, NULL, &v36);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+14h]
-        vmulss  xmm7, xmm0, cs:__real@40000000
-        vmulss  xmm3, xmm7, dword ptr [rsp+0E8h+var_98]
-        vmulss  xmm2, xmm7, dword ptr [rsp+0E8h+up]
-        vmulss  xmm4, xmm7, dword ptr [rsp+0E8h+var_98+4]
-        vsubss  xmm6, xmm3, xmm2
-        vmulss  xmm2, xmm7, dword ptr [rsp+0E8h+up+4]
-        vmulss  xmm3, xmm7, dword ptr [rsp+0E8h+var_98+8]
-        vsubss  xmm5, xmm4, xmm2
-        vmulss  xmm2, xmm7, dword ptr [rsp+0E8h+up+8]
-        vmovaps xmm7, [rsp+0E8h+var_48]
-        vsubss  xmm4, xmm3, xmm2
-        vmulss  xmm0, xmm6, xmm6
-        vmovaps xmm6, [rsp+0E8h+var_38]
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm0, xmm2, xmm2
-        vaddss  xmm3, xmm0, cs:__real@3e000000
-        vcomiss xmm3, dword ptr [rbp+0Ch]
-      }
-      if ( v31 )
-      {
-LABEL_19:
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0E8h+angles]
-          vmovss  xmm1, dword ptr [rsp+0E8h+angles+4]
-          vmovss  dword ptr [rbx+8], xmm0
-          vmovss  xmm0, dword ptr [rsp+0E8h+angles+8]
-          vmovss  dword ptr [rbx+10h], xmm0
-          vmovss  dword ptr [rbx+0Ch], xmm1
-        }
+        v10 = angles.v[1];
+        this->m_moverUpAngles.v[0] = angles.v[0];
+        this->m_moverUpAngles.v[2] = angles.v[2];
+        this->m_moverUpAngles.v[1] = v10;
       }
     }
   }
   else
   {
-    *(_QWORD *)_RBX->m_moverUpAngles.v = 0i64;
-    _RBX->m_moverUpAngles.v[2] = 0.0;
+    *(_QWORD *)this->m_moverUpAngles.v = 0i64;
+    this->m_moverUpAngles.v[2] = 0.0;
   }
 }
 

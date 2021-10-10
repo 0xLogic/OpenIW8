@@ -199,7 +199,6 @@ void GScr_LoadScriptsForPathNode(pathnode_t *loadNode, void *data)
 {
   unsigned __int16 type; 
   scr_string_t animscript; 
-  char *fmt; 
   vec3_t pos; 
 
   if ( !*(_QWORD *)data && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_scr_load_obj_sp.cpp", 104, ASSERT_TYPE_ASSERT, "(functions)", (const char *)&queryFormat, "functions") )
@@ -213,19 +212,7 @@ void GScr_LoadScriptsForPathNode(pathnode_t *loadNode, void *data)
       if ( !animscript )
       {
         pathnode_t::GetPos(loadNode, &pos);
-        __asm
-        {
-          vmovss  xmm3, dword ptr [rsp+58h+pos+4]
-          vmovss  xmm2, dword ptr [rsp+58h+pos]
-          vmovss  xmm0, dword ptr [rsp+58h+pos+8]
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovsd  [rsp+58h+fmt], xmm0
-        }
-        Com_PrintError(1, "ERROR: Pathnode (Begin) at (%g %g %g) has no animscript specified\n", _R8, _R9, fmt);
+        Com_PrintError(1, "ERROR: Pathnode (Begin) at (%g %g %g) has no animscript specified\n", pos.v[0], pos.v[1], pos.v[2]);
         Path_SetNodeTypeError(loadNode);
       }
     }

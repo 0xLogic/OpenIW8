@@ -105,14 +105,13 @@ LABEL_32:
 CG_RumbleMP_Update
 ==============
 */
-
-void __fastcall CG_RumbleMP_Update(const LocalClientNum_t localClientNum, double _XMM1_8)
+void CG_RumbleMP_Update(const LocalClientNum_t localClientNum)
 {
   ClientRumbleGlobals *p_crData; 
   __int64 i; 
   int ControllerFromClient; 
-  const dvar_t *v10; 
-  __int64 v11; 
+  const dvar_t *v5; 
+  __int64 v6; 
   vec3_t outDebugStrPos; 
 
   p_crData = &CG_GetLocalClientGlobals(localClientNum)->crData;
@@ -125,35 +124,31 @@ void __fastcall CG_RumbleMP_Update(const LocalClientNum_t localClientNum, double
       CG_Rumble_InvalidateActiveRumble(p_crData->activeRumbles);
       p_crData = (ClientRumbleGlobals *)((char *)p_crData + 56);
     }
-    __asm { vxorps  xmm1, xmm1, xmm1; rumble }
     ControllerFromClient = CL_Mgr_GetControllerFromClient(localClientNum);
-    GPad_SetLowRumble(ControllerFromClient, *(float *)&_XMM1);
-    __asm { vxorps  xmm1, xmm1, xmm1; rumble }
-    GPad_SetHighRumble(ControllerFromClient, *(float *)&_XMM1);
-    __asm { vxorps  xmm1, xmm1, xmm1; rumble }
-    GPad_SetLeftTriggerRumble(ControllerFromClient, *(float *)&_XMM1);
-    __asm { vxorps  xmm1, xmm1, xmm1; rumble }
-    GPad_SetRightTriggerRumble(ControllerFromClient, *(float *)&_XMM1);
+    GPad_SetLowRumble(ControllerFromClient, 0.0);
+    GPad_SetHighRumble(ControllerFromClient, 0.0);
+    GPad_SetLeftTriggerRumble(ControllerFromClient, 0.0);
+    GPad_SetRightTriggerRumble(ControllerFromClient, 0.0);
   }
   else
   {
     CG_RumbleMP_RemoveInactiveRumbles(localClientNum, p_crData->activeRumbles);
     CG_Rumble_CalcActiveRumbles(localClientNum, p_crData->activeRumbles, &p_crData->receiverPos, &p_crData->receiverOrientation);
-    v10 = DVARBOOL_cg_drawrumbledebug;
+    v5 = DVARBOOL_cg_drawrumbledebug;
     if ( !DVARBOOL_cg_drawrumbledebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawrumbledebug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v10);
-    if ( v10->current.enabled )
+    Dvar_CheckFrontendServerThread(v5);
+    if ( v5->current.enabled )
     {
-      v11 = 32i64;
+      v6 = 32i64;
       do
       {
         if ( p_crData->activeRumbles[0].rumbleInfo )
           CG_Rumble_DrawActiveRumble(localClientNum, p_crData->activeRumbles, &outDebugStrPos);
         p_crData = (ClientRumbleGlobals *)((char *)p_crData + 56);
-        --v11;
+        --v6;
       }
-      while ( v11 );
+      while ( v6 );
     }
   }
 }

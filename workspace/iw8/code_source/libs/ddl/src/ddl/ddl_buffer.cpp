@@ -297,22 +297,16 @@ bool DDL::DDL_Buffer_CreateContext(void *buff, int len, const DDLDef *ddlDef, DD
   ddlContext->userData = userData;
   ddlContext->obfuscated = 0;
   ddlContext->randomInt = 0;
-  _RAX = DDL::DDL_Header_Get(&result, buff, ddlDef->minimalHeader);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+48h+result.isMinimal], ymm0
-    vextractf128 xmm0, ymm0, 1
-    vmovd   r8d, xmm0
-  }
-  if ( !(_WORD)_ER8 || !result.isMinimal && (result.magic != 29558 || result.buildId != 7 || !result.guid) )
+  result = *DDL::DDL_Header_Get(&result, buff, ddlDef->minimalHeader);
+  __asm { vextractf128 xmm0, ymm0, 1 }
+  if ( !(_WORD)_XMM0 || !result.isMinimal && (result.magic != 29558 || result.buildId != 7 || !result.guid) )
     return 0;
-  if ( (_WORD)_ER8 == ddlDef->version && (result.isMinimal || result.guid == ddlDef->guid) )
+  if ( (_WORD)_XMM0 == ddlDef->version && (result.isMinimal || result.guid == ddlDef->guid) )
   {
     ddlContext->def = ddlDef;
     return 1;
   }
-  Def = DDL_GetDef(ddlDef->name, (unsigned __int16)_ER8);
+  Def = DDL_GetDef(ddlDef->name, (unsigned __int16)_XMM0);
   ddlContext->def = Def;
   return Def && (Config = DDL_GetConfig()) != NULL && DDL::DDL_Convert(ddlContext, ddlDef, Config->m_scratchBuff, Config->m_scratchBuffSize);
 }

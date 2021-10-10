@@ -58,220 +58,82 @@ bool __fastcall DLogEvent_ClientPerfSample::WriteEvent(DLogEvent_ClientPerfSampl
 DLogEvent_ClientPerfSample::WriteEvent
 ==============
 */
-bool DLogEvent_ClientPerfSample::WriteEvent(DLogEvent_ClientPerfSample *this, DLogContext *context)
+char DLogEvent_ClientPerfSample::WriteEvent(DLogEvent_ClientPerfSample *this, DLogContext *context)
 {
   int locationId; 
   int sceneRes; 
-  bool result; 
-  bool v56; 
-  char v102; 
-  void *retaddr; 
+  float gpuMaxFrameMs; 
+  float gpuMinFrameMs; 
+  float gpuAbsdevMs; 
+  float gpuAvgMs; 
+  float gpuCurrentFrameMs; 
+  float maxFrameMs; 
+  float minFrameMs; 
+  float absdevMs; 
+  float avgMs; 
+  float currentFrameMs; 
+  bool v16; 
+  float v17; 
+  float v18; 
+  float sunshadowTotal; 
+  float spotshadowTotal; 
+  float depthhackTotal; 
+  float opaqueTotal; 
+  float transTotal; 
+  float emissiveTotal; 
+  float lightingTotal; 
+  float volumetricsTotal; 
+  float dxrTotal; 
+  float postfxTotal; 
+  float antialiasTotal; 
+  float uiTotal; 
+  float computeTotal; 
+  float v32; 
+  float v33; 
+  float v34; 
 
-  _RAX = &retaddr;
-  __asm { vmovss  xmm0, dword ptr [rcx+0A0h] }
   locationId = this->locationId;
   sceneRes = this->sceneRes;
-  __asm
-  {
-    vmovss  [rsp+118h+var_C0], xmm0
-    vmovss  xmm0, dword ptr [rcx+9Ch]
-    vmovss  [rsp+118h+var_C4], xmm0
-    vmovss  xmm0, dword ptr [rcx+98h]
-    vmovss  [rsp+118h+var_C8], xmm0
-    vmovss  xmm0, dword ptr [rcx+94h]
-    vmovss  [rsp+118h+var_CC], xmm0
-    vmovss  xmm0, dword ptr [rcx+90h]
-    vmovss  [rsp+118h+var_D0], xmm0
-    vmovss  xmm0, dword ptr [rcx+8Ch]
-    vmovss  [rsp+118h+var_D4], xmm0
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-    vmovaps [rsp+118h+var_A8], xmm14
-    vmovaps [rsp+118h+var_B8], xmm15
-    vmovss  xmm0, dword ptr [rcx+88h]
-    vmovss  xmm15, dword ptr [rcx+4Ch]
-    vmovss  xmm14, dword ptr [rcx+48h]
-    vmovss  xmm13, dword ptr [rcx+44h]
-    vmovss  xmm12, dword ptr [rcx+40h]
-    vmovss  xmm11, dword ptr [rcx+3Ch]
-    vmovss  xmm10, dword ptr [rcx+38h]
-    vmovss  xmm9, dword ptr [rcx+34h]
-    vmovss  xmm8, dword ptr [rcx+30h]
-    vmovss  xmm7, dword ptr [rcx+2Ch]
-    vmovss  xmm6, dword ptr [rcx+28h]
-    vmovss  [rsp+118h+var_D8], xmm0
-    vmovss  xmm0, dword ptr [rcx+84h]
-    vmovss  [rsp+118h+var_DC], xmm0
-    vmovss  xmm0, dword ptr [rcx+80h]
-    vmovss  [rsp+118h+var_E0], xmm0
-    vmovss  xmm0, dword ptr [rcx+7Ch]
-    vmovss  [rsp+118h+var_E4], xmm0
-    vmovss  xmm0, dword ptr [rcx+78h]
-    vmovss  [rsp+118h+var_E8], xmm0
-    vmovss  xmm0, dword ptr [rcx+74h]
-    vmovss  [rsp+118h+var_EC], xmm0
-    vmovss  xmm0, dword ptr [rcx+70h]
-    vmovss  [rsp+118h+var_F0], xmm0
-    vmovss  xmm0, dword ptr [rcx+5Ch]
-    vmovss  [rsp+118h+var_F4], xmm0
-    vmovss  xmm0, dword ptr [rcx+60h]
-    vmovss  [rsp+118h+var_F8], xmm0
-    vmovss  xmm0, dword ptr [rcx+58h]
-    vmovss  [rsp+118h+arg_18], xmm0
-    vmovss  xmm0, dword ptr [rcx+54h]
-    vmovss  [rsp+118h+arg_10], xmm0
-    vmovss  xmm0, dword ptr [rcx+50h]
-    vmovss  [rsp+118h+arg_0], xmm0
-  }
+  computeTotal = this->computeTotal;
+  uiTotal = this->uiTotal;
+  antialiasTotal = this->antialiasTotal;
+  postfxTotal = this->postfxTotal;
+  dxrTotal = this->dxrTotal;
+  volumetricsTotal = this->volumetricsTotal;
+  gpuMaxFrameMs = this->gpuMaxFrameMs;
+  gpuMinFrameMs = this->gpuMinFrameMs;
+  gpuAbsdevMs = this->gpuAbsdevMs;
+  gpuAvgMs = this->gpuAvgMs;
+  gpuCurrentFrameMs = this->gpuCurrentFrameMs;
+  maxFrameMs = this->maxFrameMs;
+  minFrameMs = this->minFrameMs;
+  absdevMs = this->absdevMs;
+  avgMs = this->avgMs;
+  currentFrameMs = this->currentFrameMs;
+  lightingTotal = this->lightingTotal;
+  emissiveTotal = this->emissiveTotal;
+  transTotal = this->transTotal;
+  opaqueTotal = this->opaqueTotal;
+  depthhackTotal = this->depthhackTotal;
+  spotshadowTotal = this->spotshadowTotal;
+  sunshadowTotal = this->sunshadowTotal;
+  v18 = this->viewangle.v[0];
+  v17 = this->viewangle.v[1];
+  v34 = this->viewposition.v[2];
+  v33 = this->viewposition.v[1];
+  v32 = this->viewposition.v[0];
   if ( DLog_IsActive() )
   {
-    v56 = DLog_BeginEvent(context, "dlog_event_client_perf_sample");
+    v16 = DLog_BeginEvent(context, "dlog_event_client_perf_sample");
     context->autoEndEvent = 1;
-    if ( v56 )
-    {
-      __asm { vmovaps xmm2, xmm6; value }
-      if ( DLog_Float32(context, "frame_ms", *(float *)&_XMM2) )
-      {
-        __asm { vmovaps xmm2, xmm7; value }
-        if ( DLog_Float32(context, "avg_ms", *(float *)&_XMM2) )
-        {
-          __asm { vmovaps xmm2, xmm8; value }
-          if ( DLog_Float32(context, "absdev_ms", *(float *)&_XMM2) )
-          {
-            __asm { vmovaps xmm2, xmm9; value }
-            if ( DLog_Float32(context, "min_frame_ms", *(float *)&_XMM2) )
-            {
-              __asm { vmovaps xmm2, xmm10; value }
-              if ( DLog_Float32(context, "max_frame_ms", *(float *)&_XMM2) )
-              {
-                __asm { vmovaps xmm2, xmm11; value }
-                if ( DLog_Float32(context, "gpu_frame_ms", *(float *)&_XMM2) )
-                {
-                  __asm { vmovaps xmm2, xmm12; value }
-                  if ( DLog_Float32(context, "gpu_avg_ms", *(float *)&_XMM2) )
-                  {
-                    __asm { vmovaps xmm2, xmm13; value }
-                    if ( DLog_Float32(context, "gpu_absdev_ms", *(float *)&_XMM2) )
-                    {
-                      __asm { vmovaps xmm2, xmm14; value }
-                      if ( DLog_Float32(context, "gpu_min_frame_ms", *(float *)&_XMM2) )
-                      {
-                        __asm { vmovaps xmm2, xmm15; value }
-                        if ( DLog_Float32(context, "gpu_max_frame_ms", *(float *)&_XMM2) )
-                        {
-                          __asm { vmovss  xmm2, [rsp+118h+arg_0]; value }
-                          if ( DLog_Float32(context, "x", *(float *)&_XMM2) )
-                          {
-                            __asm { vmovss  xmm2, [rsp+118h+arg_10]; value }
-                            if ( DLog_Float32(context, "y", *(float *)&_XMM2) )
-                            {
-                              __asm { vmovss  xmm2, [rsp+118h+arg_18]; value }
-                              if ( DLog_Float32(context, "z", *(float *)&_XMM2) )
-                              {
-                                __asm { vmovss  xmm2, [rsp+118h+var_F8]; value }
-                                if ( DLog_Float32(context, "yaw", *(float *)&_XMM2) )
-                                {
-                                  __asm { vmovss  xmm2, [rsp+118h+var_F4]; value }
-                                  if ( DLog_Float32(context, "pitch", *(float *)&_XMM2) && DLog_Int32(context, "sceneres", sceneRes) && DLog_Int32(context, "location_id", locationId) )
-                                  {
-                                    __asm { vmovss  xmm2, [rsp+118h+var_F0]; value }
-                                    if ( DLog_Float32(context, "sunshadow", *(float *)&_XMM2) )
-                                    {
-                                      __asm { vmovss  xmm2, [rsp+118h+var_EC]; value }
-                                      if ( DLog_Float32(context, "spotshadow", *(float *)&_XMM2) )
-                                      {
-                                        __asm { vmovss  xmm2, [rsp+118h+var_E8]; value }
-                                        if ( DLog_Float32(context, "depthhack", *(float *)&_XMM2) )
-                                        {
-                                          __asm { vmovss  xmm2, [rsp+118h+var_E4]; value }
-                                          if ( DLog_Float32(context, "opaque", *(float *)&_XMM2) )
-                                          {
-                                            __asm { vmovss  xmm2, [rsp+118h+var_E0]; value }
-                                            if ( DLog_Float32(context, "trans", *(float *)&_XMM2) )
-                                            {
-                                              __asm { vmovss  xmm2, [rsp+118h+var_DC]; value }
-                                              if ( DLog_Float32(context, "emissive", *(float *)&_XMM2) )
-                                              {
-                                                __asm { vmovss  xmm2, [rsp+118h+var_D8]; value }
-                                                if ( DLog_Float32(context, "lighting", *(float *)&_XMM2) )
-                                                {
-                                                  __asm { vmovss  xmm2, [rsp+118h+var_D4]; value }
-                                                  if ( DLog_Float32(context, "volumetrics", *(float *)&_XMM2) )
-                                                  {
-                                                    __asm { vmovss  xmm2, [rsp+118h+var_D0]; value }
-                                                    if ( DLog_Float32(context, "dxr", *(float *)&_XMM2) )
-                                                    {
-                                                      __asm { vmovss  xmm2, [rsp+118h+var_CC]; value }
-                                                      if ( DLog_Float32(context, "postfx", *(float *)&_XMM2) )
-                                                      {
-                                                        __asm { vmovss  xmm2, [rsp+118h+var_C8]; value }
-                                                        if ( DLog_Float32(context, "antialias", *(float *)&_XMM2) )
-                                                        {
-                                                          __asm { vmovss  xmm2, [rsp+118h+var_C4]; value }
-                                                          if ( DLog_Float32(context, "ui_total", *(float *)&_XMM2) )
-                                                          {
-                                                            __asm { vmovss  xmm2, [rsp+118h+var_C0]; value }
-                                                            if ( DLog_Float32(context, "compute", *(float *)&_XMM2) )
-                                                            {
-                                                              result = 1;
-                                                              goto LABEL_4;
-                                                            }
-                                                          }
-                                                        }
-                                                      }
-                                                    }
-                                                  }
-                                                }
-                                              }
-                                            }
-                                          }
-                                        }
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    if ( v16 && DLog_Float32(context, "frame_ms", currentFrameMs) && DLog_Float32(context, "avg_ms", avgMs) && DLog_Float32(context, "absdev_ms", absdevMs) && DLog_Float32(context, "min_frame_ms", minFrameMs) && DLog_Float32(context, "max_frame_ms", maxFrameMs) && DLog_Float32(context, "gpu_frame_ms", gpuCurrentFrameMs) && DLog_Float32(context, "gpu_avg_ms", gpuAvgMs) && DLog_Float32(context, "gpu_absdev_ms", gpuAbsdevMs) && DLog_Float32(context, "gpu_min_frame_ms", gpuMinFrameMs) && DLog_Float32(context, "gpu_max_frame_ms", gpuMaxFrameMs) && DLog_Float32(context, "x", v32) && DLog_Float32(context, "y", v33) && DLog_Float32(context, "z", v34) && DLog_Float32(context, "yaw", v17) && DLog_Float32(context, "pitch", v18) && DLog_Int32(context, "sceneres", sceneRes) && DLog_Int32(context, "location_id", locationId) && DLog_Float32(context, "sunshadow", sunshadowTotal) && DLog_Float32(context, "spotshadow", spotshadowTotal) && DLog_Float32(context, "depthhack", depthhackTotal) && DLog_Float32(context, "opaque", opaqueTotal) && DLog_Float32(context, "trans", transTotal) && DLog_Float32(context, "emissive", emissiveTotal) && DLog_Float32(context, "lighting", lightingTotal) && DLog_Float32(context, "volumetrics", volumetricsTotal) && DLog_Float32(context, "dxr", dxrTotal) && DLog_Float32(context, "postfx", postfxTotal) && DLog_Float32(context, "antialias", antialiasTotal) && DLog_Float32(context, "ui_total", uiTotal) && DLog_Float32(context, "compute", computeTotal) )
+      return 1;
   }
   else
   {
     context->error = DLOG_ERROR_NOT_ACTIVE;
   }
-  result = 0;
-LABEL_4:
-  __asm { vmovaps xmm14, [rsp+118h+var_A8] }
-  _R11 = &v102;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm15, [rsp+118h+var_B8]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -340,106 +202,105 @@ void DLogEvent_ClientPerfSample::Send(DLogEvent_ClientPerfSample *this, const bo
 DLogEvent_ClientPerfSample::Update
 ==============
 */
-
-void __fastcall DLogEvent_ClientPerfSample::Update(DLogEvent_ClientPerfSample *this, double _XMM1_8)
+void DLogEvent_ClientPerfSample::Update(DLogEvent_ClientPerfSample *this)
 {
   int ControllerFromClient; 
-  const dvar_t *v4; 
+  const dvar_t *v3; 
   int integer; 
-  int v13; 
-  cg_t *v36; 
+  float *p_gpuCurrentFrameMs; 
+  float currentFrameMs; 
+  __int64 framecountTotal; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v17; 
+  float v18; 
+  cg_t *v23; 
   RefdefView *p_view; 
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
-  const dvar_t *v40; 
-  int v41; 
-  const dvar_t *v42; 
-  int v43; 
+  const dvar_t *v27; 
+  int v28; 
+  const dvar_t *v29; 
+  int v30; 
   int *fpsMax; 
   int *fps; 
-  float v46; 
-  float v47; 
-  float v48; 
+  float v33; 
+  float v34; 
+  float v35; 
   float varianceMSec; 
   float minTimeMSec; 
   float maxTimeMSec; 
 
-  _R13 = this;
   if ( !Dlog_ShouldRecordPerformance(LOCAL_CLIENT_0) )
   {
-    _R13->needReset = 1;
+    this->needReset = 1;
     return;
   }
   ControllerFromClient = CL_Mgr_GetControllerFromClient(LOCAL_CLIENT_0);
-  if ( ControllerFromClient == DLogEvent_Base::GetControllerIndex(_R13) )
+  if ( ControllerFromClient == DLogEvent_Base::GetControllerIndex(this) )
   {
-    if ( !_R13->needReset )
+    if ( !this->needReset )
       goto LABEL_7;
   }
   else
   {
-    _R13->needReset = 1;
+    this->needReset = 1;
   }
-  DLogEvent_Base::Reset(_R13);
-  DLogEvent_Base::Init(_R13, ControllerFromClient);
-  _R13->arrivedInGameTime = Sys_Milliseconds();
+  DLogEvent_Base::Reset(this);
+  DLogEvent_Base::Init(this, ControllerFromClient);
+  this->arrivedInGameTime = Sys_Milliseconds();
 LABEL_7:
-  v4 = DVARINT_dlog_perf_min_time_in_level;
+  v3 = DVARINT_dlog_perf_min_time_in_level;
   if ( !DVARINT_dlog_perf_min_time_in_level && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dlog_perf_min_time_in_level") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  integer = v4->current.integer;
-  if ( Sys_Milliseconds() - _R13->arrivedInGameTime >= integer )
+  Dvar_CheckFrontendServerThread(v3);
+  integer = v3->current.integer;
+  if ( Sys_Milliseconds() - this->arrivedInGameTime >= integer )
   {
-    CG_Draw_GetDetailedFullFrontendFPSTime(&minTimeMSec, &maxTimeMSec, &_R13->currentFrameMs, &varianceMSec, NULL, NULL, NULL);
-    CG_Draw_GetDetailedFPSTime(&v47, &v48, &_R13->gpuCurrentFrameMs, &v46, NULL, NULL, NULL, 1);
+    CG_Draw_GetDetailedFullFrontendFPSTime(&minTimeMSec, &maxTimeMSec, &this->currentFrameMs, &varianceMSec, NULL, NULL, NULL);
+    p_gpuCurrentFrameMs = &this->gpuCurrentFrameMs;
+    CG_Draw_GetDetailedFPSTime(&v34, &v35, &this->gpuCurrentFrameMs, &v33, NULL, NULL, NULL, 1);
     if ( R_GPU_IsProfileEnabled() )
-      R_GPU_GetMainTotals(&_R13->sunshadowTotal, &_R13->spotshadowTotal, &_R13->depthhackTotal, &_R13->opaqueTotal, &_R13->transTotal, &_R13->emissiveTotal, &_R13->lightingTotal, &_R13->volumetricsTotal, &_R13->dxrTotal, &_R13->postfxTotal, &_R13->antialiasTotal, &_R13->uiTotal, &_R13->computeTotal);
-    __asm
     {
-      vmovss  xmm2, dword ptr [r13+28h]
-      vmovss  xmm0, cs:__real@41800000
-      vcomiss xmm2, xmm0
-      vmovss  xmm0, cs:__real@3f800000
-      vxorps  xmm1, xmm1, xmm1
-      vxorps  xmm4, xmm4, xmm4
-      vcvtsi2ss xmm4, xmm4, rax
+      R_GPU_GetMainTotals(&this->sunshadowTotal, &this->spotshadowTotal, &this->depthhackTotal, &this->opaqueTotal, &this->transTotal, &this->emissiveTotal, &this->lightingTotal, &this->volumetricsTotal, &this->dxrTotal, &this->postfxTotal, &this->antialiasTotal, &this->uiTotal, &this->computeTotal);
+      p_gpuCurrentFrameMs = &this->gpuCurrentFrameMs;
     }
-    v13 = _R13->framecountTotal + 1;
-    __asm
+    currentFrameMs = this->currentFrameMs;
+    if ( currentFrameMs < 16.0 )
     {
-      vcvtsi2ss xmm1, xmm1, rax
-      vdivss  xmm3, xmm0, xmm1
-      vmulss  xmm1, xmm4, dword ptr [r13+2Ch]
-      vaddss  xmm2, xmm1, xmm2
-      vmulss  xmm1, xmm4, dword ptr [r13+30h]
-      vmulss  xmm0, xmm2, xmm3
-      vmovss  dword ptr [r13+2Ch], xmm0
-      vaddss  xmm0, xmm1, [rsp+0B8h+varianceMSec]
-      vmulss  xmm2, xmm0, xmm3
-      vmovss  xmm0, [rsp+0B8h+minTimeMSec]
-      vminss  xmm1, xmm0, dword ptr [r13+34h]
-      vmovss  xmm0, dword ptr [r13+38h]
-      vmovss  dword ptr [r13+34h], xmm1
-      vmaxss  xmm1, xmm0, [rsp+0B8h+maxTimeMSec]
-      vmulss  xmm0, xmm4, dword ptr [r13+40h]
-      vmovss  dword ptr [r13+38h], xmm1
-      vaddss  xmm1, xmm0, dword ptr [rbx]
-      vmulss  xmm0, xmm4, dword ptr [r13+44h]
-      vmovss  dword ptr [r13+30h], xmm2
-      vmulss  xmm2, xmm1, xmm3
-      vaddss  xmm1, xmm0, [rsp+0B8h+var_48]
-      vmovss  xmm0, [rsp+0B8h+var_44]
-      vmovss  dword ptr [r13+40h], xmm2
-      vmulss  xmm2, xmm1, xmm3
-      vminss  xmm1, xmm0, dword ptr [r13+48h]
-      vmovss  xmm0, dword ptr [r13+4Ch]
-      vmovss  dword ptr [r13+48h], xmm1
-      vmaxss  xmm1, xmm0, [rsp+0B8h+var_40]
-      vmovss  dword ptr [r13+4Ch], xmm1
-      vmovss  dword ptr [r13+44h], xmm2
+      this->currentFrameMs = 16.0;
+      currentFrameMs = FLOAT_16_0;
     }
-    _R13->framecountTotal = v13;
+    framecountTotal = this->framecountTotal;
+    v8 = (float)framecountTotal;
+    v9 = (float)(unsigned int)(framecountTotal + 1);
+    v10 = 1.0 / v9;
+    v11 = v8 * this->absdevMs;
+    this->avgMs = (float)((float)(v8 * this->avgMs) + currentFrameMs) * v10;
+    v12 = (float)(v11 + varianceMSec) * v10;
+    _XMM0 = LODWORD(minTimeMSec);
+    __asm { vminss  xmm1, xmm0, dword ptr [r13+34h] }
+    _XMM0 = LODWORD(this->maxFrameMs);
+    this->minFrameMs = *(float *)&_XMM1;
+    __asm { vmaxss  xmm1, xmm0, [rsp+0B8h+maxTimeMSec] }
+    *(float *)&_XMM0 = v8 * this->gpuAvgMs;
+    this->maxFrameMs = *(float *)&_XMM1;
+    *(float *)&_XMM1 = *(float *)&_XMM0 + *p_gpuCurrentFrameMs;
+    v17 = v8 * this->gpuAbsdevMs;
+    this->absdevMs = v12;
+    v18 = v17 + v33;
+    _XMM0 = LODWORD(v34);
+    this->gpuAvgMs = *(float *)&_XMM1 * v10;
+    __asm { vminss  xmm1, xmm0, dword ptr [r13+48h] }
+    _XMM0 = LODWORD(this->gpuMaxFrameMs);
+    this->gpuMinFrameMs = *(float *)&_XMM1;
+    __asm { vmaxss  xmm1, xmm0, [rsp+0B8h+var_40] }
+    this->gpuMaxFrameMs = *(float *)&_XMM1;
+    this->gpuAbsdevMs = v18 * v10;
+    this->framecountTotal = framecountTotal + 1;
     if ( !cg_t::ms_allocatedCount )
     {
       LODWORD(fps) = cg_t::ms_allocatedCount;
@@ -459,7 +320,7 @@ LABEL_7:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", fps) )
         __debugbreak();
     }
-    v36 = cg_t::ms_cgArray[0];
+    v23 = cg_t::ms_cgArray[0];
     p_view = &cg_t::ms_cgArray[0]->refdef.view;
     if ( cg_t::ms_cgArray[0] == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
       __debugbreak();
@@ -467,25 +328,25 @@ LABEL_7:
     v = (_DWORD *)p_view->org.org.v;
     if ( !v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
       __debugbreak();
-    LODWORD(_R13->viewposition.v[0]) = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
-    LODWORD(_R13->viewposition.v[1]) = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
-    LODWORD(_R13->viewposition.v[2]) = v[2] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2));
-    _R13->viewangle.v[0] = v36->refdefViewAngles.v[0];
-    _R13->viewangle.v[1] = v36->refdefViewAngles.v[1];
-    *(_QWORD *)&_R13->viewangle.z = LODWORD(v36->refdefViewAngles.v[2]);
-    v40 = DVARINT_r_sceneRes;
+    LODWORD(this->viewposition.v[0]) = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
+    LODWORD(this->viewposition.v[1]) = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
+    LODWORD(this->viewposition.v[2]) = v[2] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2));
+    this->viewangle.v[0] = v23->refdefViewAngles.v[0];
+    this->viewangle.v[1] = v23->refdefViewAngles.v[1];
+    *(_QWORD *)&this->viewangle.z = LODWORD(v23->refdefViewAngles.v[2]);
+    v27 = DVARINT_r_sceneRes;
     if ( !DVARINT_r_sceneRes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_sceneRes") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v40);
-    _R13->sceneRes = v40->current.integer;
-    v41 = Sys_Milliseconds();
-    v42 = DVARINT_dlog_perf_frequency;
-    v43 = v41;
+    Dvar_CheckFrontendServerThread(v27);
+    this->sceneRes = v27->current.integer;
+    v28 = Sys_Milliseconds();
+    v29 = DVARINT_dlog_perf_frequency;
+    v30 = v28;
     if ( !DVARINT_dlog_perf_frequency && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "dlog_perf_frequency") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v42);
-    if ( v43 - _R13->lastUpdateMs > v42->current.integer )
-      DLogEvent_Base::Send(_R13, 1);
+    Dvar_CheckFrontendServerThread(v29);
+    if ( v30 - this->lastUpdateMs > v29->current.integer )
+      DLogEvent_Base::Send(this, 1);
   }
 }
 

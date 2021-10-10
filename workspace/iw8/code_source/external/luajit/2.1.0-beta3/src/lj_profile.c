@@ -130,7 +130,7 @@ LABEL_7:
   }
   __asm { vpxor   xmm0, xmm0, xmm0 }
   profile_state.g = (global_State *)L->glref.ptr64;
-  __asm { vmovdqu xmmword ptr cs:profile_state.sb.e.ptr64, xmm0 }
+  *(_OWORD *)&profile_state.sb.e.ptr64 = _XMM0;
   profile_state.interval = i;
   profile_state.cb = cb;
   profile_state.data = data;

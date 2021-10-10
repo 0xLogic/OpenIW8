@@ -385,77 +385,63 @@ void PhysicsGravityModifier_SetGravity(const Physics_WorldId worldId, const unsi
 PhysicsGravityModifier_SetGravityScalar
 ==============
 */
-
-void __fastcall PhysicsGravityModifier_SetGravityScalar(const Physics_WorldId worldId, const unsigned int motionId, double scalar)
+void PhysicsGravityModifier_SetGravityScalar(const Physics_WorldId worldId, const unsigned int motionId, const float scalar)
 {
+  __int64 v3; 
   __int64 v4; 
-  bool *v9; 
-  __int64 v23; 
-  __int64 v24; 
+  vec3_t *v5; 
+  float *v6; 
+  bool *v7; 
+  __int64 v8; 
+  __int64 v9; 
+  hkVector4f v10; 
+  __int64 v13; 
+  __int64 v14; 
 
-  v4 = worldId;
-  __asm
-  {
-    vmovaps [rsp+98h+var_48], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBP = motionId;
+  v3 = worldId;
+  v4 = motionId;
   if ( motionId >= s_physicsGravityModifierMotionCounts[worldId] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsgravitymodifier.cpp", 223, ASSERT_TYPE_ASSERT, "(unsigned)( motionId ) < (unsigned)( s_physicsGravityModifierMotionCounts[worldId] )", "motionId doesn't index s_physicsGravityModifierMotionCounts[worldId]\n\t%i not in [0, %i)", motionId, s_physicsGravityModifierMotionCounts[worldId]) )
     __debugbreak();
-  _R15 = s_physicsGravityModifierMotionGravityVectors[v4];
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsgravitymodifier.cpp", 226, ASSERT_TYPE_ASSERT, "( gravityVectors ) != ( nullptr )", "%s != %s\n\t%p, %p", "gravityVectors", "nullptr", NULL, NULL) )
+  v5 = s_physicsGravityModifierMotionGravityVectors[v3];
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsgravitymodifier.cpp", 226, ASSERT_TYPE_ASSERT, "( gravityVectors ) != ( nullptr )", "%s != %s\n\t%p, %p", "gravityVectors", "nullptr", NULL, NULL) )
     __debugbreak();
-  _RSI = s_physicsGravityModifierMotionGravityScalars[v4];
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsgravitymodifier.cpp", 229, ASSERT_TYPE_ASSERT, "( gravityScalars ) != ( nullptr )", "%s != %s\n\t%p, %p", "gravityScalars", "nullptr", NULL, NULL) )
+  v6 = s_physicsGravityModifierMotionGravityScalars[v3];
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsgravitymodifier.cpp", 229, ASSERT_TYPE_ASSERT, "( gravityScalars ) != ( nullptr )", "%s != %s\n\t%p, %p", "gravityScalars", "nullptr", NULL, NULL) )
     __debugbreak();
-  v9 = s_physicsGravityModifierMotionEntryValids[v4];
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsgravitymodifier.cpp", 232, ASSERT_TYPE_ASSERT, "( entryValids ) != ( nullptr )", "%s != %s\n\t%p, %p", "entryValids", "nullptr", NULL, NULL) )
+  v7 = s_physicsGravityModifierMotionEntryValids[v3];
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsgravitymodifier.cpp", 232, ASSERT_TYPE_ASSERT, "( entryValids ) != ( nullptr )", "%s != %s\n\t%p, %p", "entryValids", "nullptr", NULL, NULL) )
     __debugbreak();
-  _RBX = _RBP;
-  if ( v9[_RBP] )
+  v8 = v4;
+  if ( v7[v4] )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+rbp*4]
-      vminss  xmm1, xmm0, xmm6
-      vmovss  dword ptr [rsi+rbp*4], xmm1
-    }
+    _XMM0 = LODWORD(v6[v4]);
+    __asm { vminss  xmm1, xmm0, xmm6 }
+    v6[v4] = *(float *)&_XMM1;
   }
   else
   {
-    _RBP = 3 * _RBP;
+    v9 = v4;
     if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 42, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Gravity when system is not initialized", "g_physicsInitialized") )
       __debugbreak();
-    if ( (unsigned int)v4 > 7 )
+    if ( (unsigned int)v3 > 7 )
     {
-      LODWORD(v23) = v4;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 43, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Gravity with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v23) )
+      LODWORD(v13) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 43, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Gravity with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v13) )
         __debugbreak();
-      if ( (unsigned int)v4 > 7 )
+      if ( (unsigned int)v3 > 7 )
       {
-        LODWORD(v24) = v4;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 95, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Gravity with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v24) )
+        LODWORD(v14) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsimplementationinterface.inl", 95, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tHavok Physics: Trying to Get Gravity with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v14) )
           __debugbreak();
       }
     }
-    __asm { vmovss  xmm2, cs:__real@42000000 }
-    _RCX = HavokPhysics_GetConstWorld((Physics_WorldId)v4)->world;
-    __asm
-    {
-      vmovups xmm3, xmmword ptr [rcx+0AC0h]
-      vmulss  xmm0, xmm3, xmm2
-      vmovss  dword ptr [r15+rbp*4], xmm0
-      vshufps xmm1, xmm3, xmm3, 55h ; 'U'
-      vmulss  xmm0, xmm1, xmm2
-      vmovss  dword ptr [r15+rbp*4+4], xmm0
-      vshufps xmm3, xmm3, xmm3, 0AAh ; 'ª'
-      vmulss  xmm0, xmm3, xmm2
-      vmovss  dword ptr [r15+rbp*4+8], xmm0
-      vmovss  dword ptr [rsi+rbx*4], xmm6
-    }
-    v9[_RBX] = 1;
+    v10.m_quad = (__m128)HavokPhysics_GetConstWorld((Physics_WorldId)v3)->world->m_gravity;
+    v5[v9].v[0] = v10.m_quad.m128_f32[0] * 32.0;
+    v5[v9].v[1] = _mm_shuffle_ps(v10.m_quad, v10.m_quad, 85).m128_f32[0] * 32.0;
+    v5[v9].v[2] = _mm_shuffle_ps(v10.m_quad, v10.m_quad, 170).m128_f32[0] * 32.0;
+    v6[v8] = scalar;
+    v7[v8] = 1;
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_48] }
 }
 
 /*
@@ -536,10 +522,12 @@ void PhysicsGravityModifier::modifyMotionGravity(PhysicsGravityModifier *this, c
 {
   unsigned int v8; 
   bool *v9; 
+  vec3_t *v10; 
+  hkVector4f v13; 
   hknpSolverStepInfo *m_solverStepInfo; 
+  __m128 *m_solverInfo; 
 
   _RBX = motionId.m_value;
-  _RSI = gravity;
   v8 = s_physicsGravityModifierMotionCounts[this->m_worldId];
   if ( motionId.m_value > v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsgravitymodifier.cpp", 75, ASSERT_TYPE_ASSERT, "( motionIdx ) <= ( s_physicsGravityModifierMotionCounts[m_worldId] )", "motionIdx not in [0, s_physicsGravityModifierMotionCounts[m_worldId]]\n\t%u not in [0, %u]", motionId.m_value, v8) )
     __debugbreak();
@@ -548,39 +536,25 @@ void PhysicsGravityModifier::modifyMotionGravity(PhysicsGravityModifier *this, c
     __debugbreak();
   if ( v9[_RBX] )
   {
-    if ( !s_physicsGravityModifierMotionGravityVectors[this->m_worldId] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsgravitymodifier.cpp", 83, ASSERT_TYPE_ASSERT, "( gravityVectors ) != ( nullptr )", "%s != %s\n\t%p, %p", "gravityVectors", "nullptr", NULL, NULL) )
+    v10 = s_physicsGravityModifierMotionGravityVectors[this->m_worldId];
+    if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsgravitymodifier.cpp", 83, ASSERT_TYPE_ASSERT, "( gravityVectors ) != ( nullptr )", "%s != %s\n\t%p, %p", "gravityVectors", "nullptr", NULL, NULL) )
       __debugbreak();
     _RDI = s_physicsGravityModifierMotionGravityScalars[this->m_worldId];
     if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsgravitymodifier.cpp", 86, ASSERT_TYPE_ASSERT, "( gravityScalars ) != ( nullptr )", "%s != %s\n\t%p, %p", "gravityScalars", "nullptr", NULL, NULL) )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm3, cs:__real@3d000000
-      vmulss  xmm0, xmm3, dword ptr [rbp+rax*4+0]
-      vmovss  dword ptr [rsi], xmm0
-      vmulss  xmm2, xmm3, dword ptr [rbp+rax*4+4]
-      vmovss  dword ptr [rsi+4], xmm2
-      vmulss  xmm1, xmm3, dword ptr [rbp+rax*4+8]
-      vmovss  dword ptr [rsi+8], xmm1
-    }
-    _RSI->m_quad.m128_i32[3] = 0;
-    __asm
-    {
-      vbroadcastss xmm0, dword ptr [rdi+rbx*4]
-      vmulps  xmm1, xmm0, xmmword ptr [rsi]
-      vmovups xmmword ptr [rsi], xmm1
-    }
+    gravity->m_quad.m128_f32[0] = 0.03125 * v10[_RBX].v[0];
+    gravity->m_quad.m128_f32[1] = 0.03125 * v10[_RBX].v[1];
+    gravity->m_quad.m128_f32[2] = 0.03125 * v10[_RBX].v[2];
+    gravity->m_quad.m128_i32[3] = 0;
+    __asm { vbroadcastss xmm0, dword ptr [rdi+rbx*4] }
+    v13.m_quad = _mm128_mul_ps(_XMM0, gravity->m_quad);
+    *gravity = (hkVector4f)v13.m_quad;
     m_solverStepInfo = tl->m_solverStepInfo;
     if ( m_solverStepInfo )
     {
-      if ( m_solverStepInfo->m_solverInfo )
-      {
-        __asm
-        {
-          vmulps  xmm0, xmm1, xmmword ptr [rax+70h]
-          vmovups xmmword ptr [rsi], xmm0
-        }
-      }
+      m_solverInfo = (__m128 *)m_solverStepInfo->m_solverInfo;
+      if ( m_solverInfo )
+        gravity->m_quad = _mm128_mul_ps(v13.m_quad, m_solverInfo[7]);
     }
   }
 }

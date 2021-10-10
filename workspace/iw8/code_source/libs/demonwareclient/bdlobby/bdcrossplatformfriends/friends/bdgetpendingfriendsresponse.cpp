@@ -314,23 +314,25 @@ _BOOL8 bdGetPendingFriendsResponse::handleReplySuccess(bdGetPendingFriendsRespon
   unsigned __int64 v14; 
   size_t v15; 
   __int64 v16; 
+  bdStructFixedSizeString<1020> *v17; 
+  bdCrossPlatformFriend *p_Buf; 
   __int64 v19; 
-  _BYTE *v29; 
-  unsigned __int64 v30; 
+  _BYTE *v20; 
+  unsigned __int64 v21; 
   unsigned __int64 other; 
-  bdJSONDeserializer v33; 
+  bdJSONDeserializer v24; 
   bdJSONDeserializer deserializer; 
   bdJSONDeserializer value; 
-  __int64 v36; 
-  bdStructUserAccountID v37; 
-  bdStructUserDetails v38; 
+  __int64 v27; 
+  bdStructUserAccountID v28; 
+  bdStructUserDetails v29; 
   bdCrossPlatformFriend Buf; 
   char accountType[8]; 
-  __int16 v41; 
+  __int16 v32; 
   char usernameWithHash[112]; 
   char Src[1024]; 
 
-  v36 = -2i64;
+  v27 = -2i64;
   bdJSONDeserializer::bdJSONDeserializer(&deserializer);
   bdRESTResponseMessage::getBodyAsJSON((bdRESTResponseMessage *)reply, &deserializer);
   v4 = bdJSONDeserializer::getString(&deserializer, "context", this->m_context.m_buffer, 0x10u) && bdJSONDeserializer::getString(&deserializer, "page", this->m_pageToken.m_buffer, 0x400u);
@@ -341,17 +343,17 @@ _BOOL8 bdGetPendingFriendsResponse::handleReplySuccess(bdGetPendingFriendsRespon
     String = value.m_count + this->m_friends.m_size <= 0x64 && value.m_count + this->m_users.m_size <= 0x64;
     for ( i = 0; i < m_count; ++i )
     {
-      bdJSONDeserializer::bdJSONDeserializer(&v33);
+      bdJSONDeserializer::bdJSONDeserializer(&v24);
       other = 0i64;
       *(_QWORD *)accountType = 0i64;
-      v41 = 0;
+      v32 = 0;
       memset_0(usernameWithHash, 0, 0x61ui64);
       memset_0(Src, 0, 0x3FDui64);
-      if ( String && bdJSONDeserializer::getObject(&value, i, &v33) && bdJSONDeserializer::getUInt64(&v33, "userID", &other) && bdJSONDeserializer::getString(&v33, "accountType", accountType, 0xAu) && (!bdJSONDeserializer::hasKey(&v33, "username") || bdJSONDeserializer::getString(&v33, "username", usernameWithHash, 0x61u)) )
+      if ( String && bdJSONDeserializer::getObject(&value, i, &v24) && bdJSONDeserializer::getUInt64(&v24, "userID", &other) && bdJSONDeserializer::getString(&v24, "accountType", accountType, 0xAu) && (!bdJSONDeserializer::hasKey(&v24, "username") || bdJSONDeserializer::getString(&v24, "username", usernameWithHash, 0x61u)) )
       {
         String = 1;
-        if ( bdJSONDeserializer::hasKey(&v33, "message") )
-          String = bdJSONDeserializer::getString(&v33, "message", Src, 0x3FDu);
+        if ( bdJSONDeserializer::hasKey(&v24, "message") )
+          String = bdJSONDeserializer::getString(&v24, "message", Src, 0x3FDu);
       }
       else
       {
@@ -359,19 +361,19 @@ _BOOL8 bdGetPendingFriendsResponse::handleReplySuccess(bdGetPendingFriendsRespon
       }
       if ( String )
       {
-        bdStructUserAccountID::bdStructUserAccountID(&v37, &other, accountType);
-        bdStructUserDetails::bdStructUserDetails(&v38, &other, accountType);
-        bdUserDetails::setUsernameWithHash(&v38, usernameWithHash);
+        bdStructUserAccountID::bdStructUserAccountID(&v28, &other, accountType);
+        bdStructUserDetails::bdStructUserDetails(&v29, &other, accountType);
+        bdUserDetails::setUsernameWithHash(&v29, usernameWithHash);
         bdHandleAssert(this->m_users.m_size < 0x64, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdStructUserAccountID,100>::pushBack", 0x40u, "No more capacity for pushBack");
         m_size = this->m_users.m_size;
         if ( (unsigned int)m_size < 0x64 )
         {
           v9 = &this->m_users.m_elements[m_size];
           this->m_users.m_size = m_size + 1;
-          bdUserAccountID::operator=(v9, &v37);
-          bdReferencable::operator=((bdReferencable *)&v9->gap38[*(int *)(*(_QWORD *)&v9->gap38[8] + 4i64) + 8], (const bdReferencable *)&v37.gap38[*(int *)(*(_QWORD *)&v37.gap38[8] + 4i64) + 8]);
+          bdUserAccountID::operator=(v9, &v28);
+          bdReferencable::operator=((bdReferencable *)&v9->gap38[*(int *)(*(_QWORD *)&v9->gap38[8] + 4i64) + 8], (const bdReferencable *)&v28.gap38[*(int *)(*(_QWORD *)&v28.gap38[8] + 4i64) + 8]);
         }
-        bdCrossPlatformFriend::bdCrossPlatformFriend(&Buf, &v38);
+        bdCrossPlatformFriend::bdCrossPlatformFriend(&Buf, &v29);
         v11 = v10;
         bdHandleAssert(this->m_friends.m_size < 0x64, "canPushBack()", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizearray.inl", "bdStructFixedSizeArray<class bdCrossPlatformFriend,100>::pushBack", 0x40u, "No more capacity for pushBack");
         v12 = this->m_friends.m_size;
@@ -404,62 +406,44 @@ _BOOL8 bdGetPendingFriendsResponse::handleReplySuccess(bdGetPendingFriendsRespon
         v16 = this->m_messages.m_size;
         if ( (unsigned int)v16 < 0x64 )
         {
-          _RDX = &this->m_messages.m_elements[v16];
-          _RAX = &Buf;
+          v17 = &this->m_messages.m_elements[v16];
+          p_Buf = &Buf;
           v19 = 7i64;
           do
           {
-            __asm
-            {
-              vmovups ymm0, ymmword ptr [rax]
-              vmovups ymmword ptr [rdx], ymm0
-              vmovups ymm0, ymmword ptr [rax+20h]
-              vmovups ymmword ptr [rdx+20h], ymm0
-              vmovups ymm0, ymmword ptr [rax+40h]
-              vmovups ymmword ptr [rdx+40h], ymm0
-              vmovups xmm0, xmmword ptr [rax+60h]
-              vmovups xmmword ptr [rdx+60h], xmm0
-            }
-            _RDX = (bdStructFixedSizeString<1020> *)((char *)_RDX + 128);
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rax+70h]
-              vmovups xmmword ptr [rdx-10h], xmm1
-            }
-            _RAX = (bdCrossPlatformFriend *)((char *)_RAX + 128);
+            *(bdTaskResult *)v17->m_buffer = p_Buf->m_userDetails.bdTaskResult;
+            *(__m256i *)&v17->m_buffer[32] = *(__m256i *)p_Buf->m_userDetails._bytes_20;
+            *(__m256i *)&v17->m_buffer[64] = *(__m256i *)&p_Buf->m_userDetails.m_username[14];
+            *(_OWORD *)&v17->m_buffer[96] = *(_OWORD *)&p_Buf->m_userDetails.m_username[46];
+            v17 = (bdStructFixedSizeString<1020> *)((char *)v17 + 128);
+            *(_OWORD *)&v17[-1].m_buffer[1005] = *(_OWORD *)&p_Buf->m_userDetails.m_username[62];
+            p_Buf = (bdCrossPlatformFriend *)((char *)p_Buf + 128);
             --v19;
           }
           while ( v19 );
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups ymmword ptr [rdx], ymm0
-            vmovups ymm0, ymmword ptr [rax+20h]
-            vmovups ymmword ptr [rdx+20h], ymm0
-            vmovups ymm0, ymmword ptr [rax+40h]
-            vmovups ymmword ptr [rdx+40h], ymm0
-            vmovups xmm0, xmmword ptr [rax+60h]
-            vmovups xmmword ptr [rdx+60h], xmm0
-          }
-          *(_QWORD *)&_RDX->m_buffer[112] = *(_QWORD *)&_RAX->m_userDetails.m_username[62];
-          *(_DWORD *)&_RDX->m_buffer[120] = *(_DWORD *)&_RAX->m_userDetails.m_hasUsername;
-          _RDX->m_buffer[124] = _RAX->m_userDetails.gap79[3];
+          *(bdTaskResult *)v17->m_buffer = p_Buf->m_userDetails.bdTaskResult;
+          *(__m256i *)&v17->m_buffer[32] = *(__m256i *)p_Buf->m_userDetails._bytes_20;
+          *(__m256i *)&v17->m_buffer[64] = *(__m256i *)&p_Buf->m_userDetails.m_username[14];
+          *(_OWORD *)&v17->m_buffer[96] = *(_OWORD *)&p_Buf->m_userDetails.m_username[46];
+          *(_QWORD *)&v17->m_buffer[112] = *(_QWORD *)&p_Buf->m_userDetails.m_username[62];
+          *(_DWORD *)&v17->m_buffer[120] = *(_DWORD *)&p_Buf->m_userDetails.m_hasUsername;
+          v17->m_buffer[124] = p_Buf->m_userDetails.gap79[3];
           ++this->m_messages.m_size;
         }
-        v29 = memchr_0(&Buf, 0, 0x3FDui64);
-        if ( v29 )
-          v30 = v29 - (_BYTE *)&Buf;
+        v20 = memchr_0(&Buf, 0, 0x3FDui64);
+        if ( v20 )
+          v21 = v20 - (_BYTE *)&Buf;
         else
-          v30 = 1021i64;
-        bdHandleAssert(v30 < 0x3FD, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<1020>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)v38._bytes_90);
-        bdUserDetails::~bdUserDetails((bdUserDetails *)&v38.gap79[7]);
-        bdReferencable::~bdReferencable((bdReferencable *)v38._bytes_90);
-        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)v37._bytes_48);
-        bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v37.gap38);
-        bdReferencable::~bdReferencable((bdReferencable *)v37._bytes_48);
+          v21 = 1021i64;
+        bdHandleAssert(v21 < 0x3FD, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<1020>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)v29._bytes_90);
+        bdUserDetails::~bdUserDetails((bdUserDetails *)&v29.gap79[7]);
+        bdReferencable::~bdReferencable((bdReferencable *)v29._bytes_90);
+        bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)v28._bytes_48);
+        bdUserAccountID::~bdUserAccountID((bdUserAccountID *)v28.gap38);
+        bdReferencable::~bdReferencable((bdReferencable *)v28._bytes_48);
       }
-      bdJSONDeserializer::~bdJSONDeserializer(&v33);
+      bdJSONDeserializer::~bdJSONDeserializer(&v24);
     }
   }
   else

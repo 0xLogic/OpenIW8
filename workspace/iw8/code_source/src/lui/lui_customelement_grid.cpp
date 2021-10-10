@@ -947,30 +947,26 @@ __int64 LUIElement_Grid_SetRefreshChildInC(lua_State *const luaVM)
 LUIElement_Grid_SetMaxVelocity
 ==============
 */
-
-__int64 __fastcall LUIElement_Grid_SetMaxVelocity(lua_State *const luaVM, double _XMM1_8)
+__int64 LUIElement_Grid_SetMaxVelocity(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  unsigned int v8; 
+  LUIElement *v3; 
+  LUIGridData *GridData; 
+  unsigned int v6; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetMaxVelocity( maxVelocity )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    v4 = LUI_ToElement(luaVM, 1);
-    _RBX = LUIElement_Grid_GetGridData(v4, luaVM);
+    v3 = LUI_ToElement(luaVM, 1);
+    GridData = LUIElement_Grid_GetGridData(v3, luaVM);
     *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vmaxss  xmm0, xmm0, xmm1
-      vmovss  dword ptr [rbx+0Ch], xmm0
-    }
+    __asm { vmaxss  xmm0, xmm0, xmm1 }
+    GridData->maxVelocity = *(float *)&_XMM0;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v8 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v8);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v6);
   }
   return 0i64;
 }
@@ -980,30 +976,26 @@ __int64 __fastcall LUIElement_Grid_SetMaxVelocity(lua_State *const luaVM, double
 LUIElement_Grid_SetSpringCoefficient
 ==============
 */
-
-__int64 __fastcall LUIElement_Grid_SetSpringCoefficient(lua_State *const luaVM, double _XMM1_8)
+__int64 LUIElement_Grid_SetSpringCoefficient(lua_State *const luaVM)
 {
-  LUIElement *v4; 
-  unsigned int v8; 
+  LUIElement *v3; 
+  LUIGridData *GridData; 
+  unsigned int v6; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetSpringCoefficient( springCoefficient )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    v4 = LUI_ToElement(luaVM, 1);
-    _RBX = LUIElement_Grid_GetGridData(v4, luaVM);
+    v3 = LUI_ToElement(luaVM, 1);
+    GridData = LUIElement_Grid_GetGridData(v3, luaVM);
     *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vmaxss  xmm0, xmm0, xmm1
-      vmovss  dword ptr [rbx+8], xmm0
-    }
+    __asm { vmaxss  xmm0, xmm0, xmm1 }
+    GridData->springCoefficient = *(float *)&_XMM0;
   }
   if ( j_lua_gettop(luaVM) < 0 )
   {
-    v8 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v8);
+    v6 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", 0i64, v6);
   }
   return 0i64;
 }
@@ -1143,96 +1135,57 @@ LUIElement_Grid_AdjustBoundingBox
 */
 void LUIElement_Grid_AdjustBoundingBox(LUIElement *element, LUIGridData *gridData, LUIGridAxis axis, lua_State *luaVM)
 {
-  __int64 v16; 
-  void *retaddr; 
+  LUIElement *v4; 
+  float v7; 
+  LUIElement *parent; 
+  __int64 v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm10 }
-  _RBX = element;
-  *(float *)&_XMM0 = LUIElement_Grid_MeasureRequestedVisibleContent(element, gridData, axis, luaVM);
-  __asm { vmovaps xmm10, xmm0 }
-  if ( !_RBX->parent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2903, ASSERT_TYPE_ASSERT, "(element->parent)", (const char *)&queryFormat, "element->parent") )
+  v4 = element;
+  v7 = LUIElement_Grid_MeasureRequestedVisibleContent(element, gridData, axis, luaVM);
+  if ( !v4->parent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2903, ASSERT_TYPE_ASSERT, "(element->parent)", (const char *)&queryFormat, "element->parent") )
     __debugbreak();
-  _R8 = _RBX->parent;
+  parent = v4->parent;
   if ( axis )
-    _R8 = (LUIElement *)((char *)_R8 + 24);
+    parent = (LUIElement *)((char *)parent + 24);
   if ( axis )
-    _RBX = (LUIElement *)((char *)_RBX + 24);
-  v16 = 1340i64;
+    v4 = (LUIElement *)((char *)v4 + 24);
+  v9 = 1340i64;
   if ( axis )
-    v16 = 2668i64;
-  if ( *((_BYTE *)&gridData->buildChildFunction + v16) )
+    v9 = 2668i64;
+  if ( *((_BYTE *)&gridData->buildChildFunction + v9) )
   {
-    if ( *((_BYTE *)&gridData->buildChildFunction + v16) == 1 )
+    if ( *((_BYTE *)&gridData->buildChildFunction + v9) == 1 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+0Ch]
-        vaddss  xmm1, xmm0, dword ptr [rbx+8]
-        vmovss  xmm5, cs:__real@3f800000
-        vsubss  xmm0, xmm5, dword ptr [rbx+10h]
-        vmulss  xmm4, xmm10, cs:__real@3f000000
-        vmovaps [rsp+88h+var_18], xmm6
-        vmulss  xmm6, xmm1, cs:__real@3f000000
-        vmovaps [rsp+88h+var_28], xmm7
-        vmovaps [rsp+88h+var_38], xmm8
-        vmovss  xmm8, dword ptr [r8+0Ch]
-        vmulss  xmm1, xmm8, dword ptr [rbx+10h]
-        vmovaps [rsp+88h+var_48], xmm9
-        vmovss  xmm9, dword ptr [r8+8]
-        vmovaps xmm7, [rsp+88h+var_28]
-        vmulss  xmm2, xmm0, xmm9
-        vaddss  xmm2, xmm2, xmm1
-        vmulss  xmm1, xmm9, dword ptr [rbx+14h]
-        vmovaps xmm9, [rsp+88h+var_48]
-        vsubss  xmm3, xmm6, xmm4
-        vsubss  xmm0, xmm3, xmm2
-        vmovss  dword ptr [rbx], xmm0
-        vsubss  xmm0, xmm5, dword ptr [rbx+14h]
-        vmulss  xmm2, xmm0, xmm8
-        vmovaps xmm8, [rsp+88h+var_38]
-        vaddss  xmm3, xmm4, xmm6
-        vmovaps xmm6, [rsp+88h+var_18]
-        vaddss  xmm2, xmm2, xmm1
-        vsubss  xmm0, xmm3, xmm2
-        vmovss  dword ptr [rbx+4], xmm0
-        vmovaps xmm10, [rsp+88h+var_58]
-      }
-      return;
+      v11 = (float)(v4->currentAnimationState.position.x.global[1] + v4->currentAnimationState.position.x.global[0]) * 0.5;
+      v12 = parent->currentAnimationState.position.x.global[1];
+      v13 = parent->currentAnimationState.position.x.global[0];
+      v14 = v13 * v4->currentAnimationState.position.x.anchors[1];
+      v4->currentAnimationState.position.x.offsets[0] = (float)(v11 - (float)(v7 * 0.5)) - (float)((float)((float)(1.0 - v4->currentAnimationState.position.x.anchors[0]) * v13) + (float)(v12 * v4->currentAnimationState.position.x.anchors[0]));
+      v4->currentAnimationState.position.x.offsets[1] = (float)((float)(v7 * 0.5) + v11) - (float)((float)((float)(1.0 - v4->currentAnimationState.position.x.anchors[1]) * v12) + v14);
     }
-    if ( *((_BYTE *)&gridData->buildChildFunction + v16) == 2 )
+    else if ( *((_BYTE *)&gridData->buildChildFunction + v9) == 2 )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vsubss  xmm1, xmm0, dword ptr [rbx+14h]
-        vmovss  xmm2, dword ptr [rbx+4]
-        vsubss  xmm0, xmm2, xmm10
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  dword ptr [rbx+10h], xmm1
-        vmovaps xmm10, [rsp+88h+var_58]
-      }
-      return;
+      v10 = 1.0 - v4->currentAnimationState.position.x.anchors[1];
+      v4->currentAnimationState.position.x.offsets[0] = v4->currentAnimationState.position.x.offsets[1] - v7;
+      v4->currentAnimationState.position.x.anchors[0] = v10;
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2942, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
+    else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2942, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
     {
       __debugbreak();
-      __asm { vmovaps xmm10, [rsp+88h+var_58] }
-      return;
     }
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm1, xmm0, dword ptr [rbx+10h]
-      vaddss  xmm2, xmm10, dword ptr [rbx]
-      vmovss  dword ptr [rbx+14h], xmm1
-      vmovss  dword ptr [rbx+4], xmm2
-    }
+    v15 = v7 + v4->currentAnimationState.position.x.offsets[0];
+    v4->currentAnimationState.position.x.anchors[1] = 1.0 - v4->currentAnimationState.position.x.anchors[0];
+    v4->currentAnimationState.position.x.offsets[1] = v15;
   }
-  __asm { vmovaps xmm10, [rsp+88h+var_58] }
 }
 
 /*
@@ -1242,115 +1195,86 @@ LUIElement_Grid_ApplyPhysics
 */
 void LUIElement_Grid_ApplyPhysics(LUIElement *element, LUIGridData *gridData, LUIGridAxis axis, float unitScale, int deltaTime, lua_State *luaVM)
 {
-  char v42; 
-  __int64 v45; 
-  float v54; 
-  float v55; 
-  char v61; 
+  __int128 v6; 
+  __int64 v8; 
+  __int64 v10; 
+  float v14; 
+  float v15; 
+  __int64 v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  double v20; 
+  float v21; 
+  bool v22; 
+  float v23; 
+  float v24; 
+  __int64 v25; 
+  int v26; 
+  double v27; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, [rsp+0A8h+deltaTime]
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vmovaps [rsp+0A8h+var_58], xmm8
-  }
-  _R14 = 40i64;
-  __asm { vmovaps [rsp+0A8h+var_68], xmm10 }
+  v6 = 0i64;
+  *(float *)&v6 = (float)deltaTime * 0.001;
+  _XMM1 = v6;
+  v8 = 40i64;
   if ( axis )
-    _R14 = 1368i64;
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_78], xmm11
-    vminss  xmm11, xmm1, cs:__real@42480000
-  }
-  _RDI = 44i64;
-  __asm { vmovss  xmm0, dword ptr [r14+rdx] }
+    v8 = 1368i64;
+  __asm { vminss  xmm11, xmm1, cs:__real@42480000 }
+  v10 = 44i64;
   if ( axis )
-    _RDI = 1372i64;
-  _RBX = gridData;
-  __asm
-  {
-    vmovss  [rsp+0A8h+var_88], xmm0
-    vmovss  xmm3, dword ptr [rdi+rdx]; lineStart
-  }
-  *(float *)&_XMM0 = LUIElement_Grid_ConvertLineDistanceToPixels(element, gridData, axis, *(float *)&_XMM3, v54, luaVM);
-  __asm { vandps  xmm8, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-  _RSI = 56i64;
+    v10 = 1372i64;
+  v14 = LUIElement_Grid_ConvertLineDistanceToPixels(element, gridData, axis, *(float *)((char *)&gridData->buildChildFunction + v10), *(float *)((char *)&gridData->buildChildFunction + v8), luaVM);
+  LODWORD(v15) = LODWORD(v14) & _xmm;
+  v16 = 56i64;
   if ( axis )
-    _RSI = 1384i64;
-  __asm
+    v16 = 1384i64;
+  v17 = v14;
+  if ( v15 < 0.0099999998 )
   {
-    vcomiss xmm8, cs:__real@3c23d70a
-    vmovaps xmm10, xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmulss  xmm3, xmm0, xmm10
-    vsqrtss xmm0, xmm0, xmm0
-    vmulss  xmm1, xmm0, cs:__real@40000000
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovss  xmm6, dword ptr [rsi+rbx]
-    vmulss  xmm2, xmm1, xmm6
-    vsubss  xmm3, xmm3, xmm2
-    vmulss  xmm0, xmm3, xmm11
-    vaddss  xmm0, xmm0, xmm6; val
-    vmovss  dword ptr [rsi+rbx], xmm0
-    vmovss  xmm2, dword ptr [rbx+0Ch]; max
-    vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000; min
-    vmovaps [rsp+0A8h+var_48], xmm7
+    *(int *)((char *)&gridData->buildChildFunction + v10) = *(int *)((char *)&gridData->buildChildFunction + v8);
+    *(int *)((char *)&gridData->buildChildFunction + v16) = 0;
+    return;
   }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
+  v18 = *(float *)((char *)&gridData->buildChildFunction + v16);
+  v19 = (float)((float)((float)(gridData->springCoefficient * v14) - (float)((float)(fsqrt(gridData->springCoefficient) * 2.0) * v18)) * *(float *)&_XMM11) + v18;
+  *(float *)((char *)&gridData->buildChildFunction + v16) = v19;
+  v20 = I_fclamp(v19, COERCE_FLOAT(LODWORD(gridData->maxVelocity) ^ _xmm), gridData->maxVelocity);
+  *(int *)((char *)&gridData->buildChildFunction + v16) = SLODWORD(v20);
+  v21 = *(float *)&v20 * *(float *)&_XMM11;
+  v22 = (float)(*(float *)&v20 * v17) >= 0.0;
+  if ( (float)(v18 * v17) < 0.0 )
   {
-    vmulss  xmm1, xmm0, xmm10
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm1, xmm7
-    vmovss  dword ptr [rsi+rbx], xmm0
-    vmulss  xmm2, xmm0, xmm11
-    vmulss  xmm0, xmm6, xmm10
-    vmovaps xmm6, [rsp+0A8h+var_38]
-    vcomiss xmm0, xmm7
+    if ( (float)(*(float *)&v20 * v17) < 0.0 )
+      goto LABEL_14;
   }
-  if ( v42 )
+  else if ( (float)(*(float *)&v20 * v17) < 0.0 )
   {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+rbx]; linePosition
-      vmovss  [rsp+0A8h+var_88], xmm2
-    }
-    *(float *)&_XMM0 = LUIElement_Grid_ConvertPixelDistanceToLines(element, _RBX, axis, *(float *)&_XMM3, v55, luaVM);
-    v45 = 28i64;
-    if ( axis )
-      v45 = 1356i64;
-    __asm { vmovss  dword ptr [rdi+rbx], xmm0 }
-    if ( *(int *)((char *)&_RBX->buildChildFunction + v45) >= 0 )
-    {
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, ecx; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rdi+rbx], xmm0 }
-    }
+LABEL_11:
+    *(int *)((char *)&gridData->buildChildFunction + v10) = *(int *)((char *)&gridData->buildChildFunction + v8);
+    *(int *)((char *)&gridData->buildChildFunction + v16) = 0;
+    return;
+  }
+  if ( COERCE_FLOAT(LODWORD(v21) & _xmm) >= v15 )
+    goto LABEL_11;
+LABEL_14:
+  v23 = LUIElement_Grid_ConvertPixelDistanceToLines(element, gridData, axis, *(float *)((char *)&gridData->buildChildFunction + v10), v21, luaVM);
+  if ( v22 && (v24 = *(float *)((char *)&gridData->buildChildFunction + v8), (float)((float)(*(float *)((char *)&gridData->buildChildFunction + v10) - v24) * (float)(v23 - v24)) <= 0.0) )
+  {
+    *(float *)((char *)&gridData->buildChildFunction + v10) = v24;
+    *(int *)((char *)&gridData->buildChildFunction + v16) = 0;
   }
   else
   {
-    __asm
+    v25 = 28i64;
+    if ( axis )
+      v25 = 1356i64;
+    *(float *)((char *)&gridData->buildChildFunction + v10) = v23;
+    v26 = *(int *)((char *)&gridData->buildChildFunction + v25);
+    if ( v26 >= 0 )
     {
-      vandps  xmm0, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, xmm8
+      v27 = I_fclamp(v23, 0.0, (float)v26);
+      *(int *)((char *)&gridData->buildChildFunction + v10) = SLODWORD(v27);
     }
-    *(int *)((char *)&_RBX->buildChildFunction + _RDI) = *(int *)((char *)&_RBX->buildChildFunction + _R14);
-    *(int *)((char *)&_RBX->buildChildFunction + _RSI) = 0;
-  }
-  __asm { vmovaps xmm7, [rsp+0A8h+var_48] }
-  _R11 = &v61;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
   }
 }
 
@@ -1359,112 +1283,88 @@ void LUIElement_Grid_ApplyPhysics(LUIElement *element, LUIGridData *gridData, LU
 LUIElement_Grid_CalculateAlignmentOffset
 ==============
 */
-
-float __fastcall LUIElement_Grid_CalculateAlignmentOffset(LUIElement *grid, LUIGridData *gridData, LUIGridAxis axis, double gridSize, lua_State *luaVM)
+float LUIElement_Grid_CalculateAlignmentOffset(LUIElement *grid, LUIGridData *gridData, LUIGridAxis axis, float gridSize, lua_State *luaVM)
 {
-  __int64 v10; 
-  __int64 v17; 
+  __int64 v6; 
+  float result; 
+  __int64 v11; 
+  __int64 v12; 
+  float v13; 
+  float v14; 
+  __int64 v15; 
+  __int64 v16; 
   __int64 v18; 
-  __int64 v28; 
-  __int64 v43; 
+  __int64 v19; 
+  float v21; 
+  float v22; 
+  __int64 v23; 
+  __int64 v24; 
+  float v25; 
+  __int64 v26; 
+  __int64 v27; 
 
-  __asm { vmovaps [rsp+68h+var_38], xmm7 }
-  v10 = 1340i64;
+  v6 = 1340i64;
   if ( axis )
-    v10 = 2668i64;
-  _RSI = gridData;
-  __asm { vmovaps xmm7, xmm3 }
-  if ( *((_BYTE *)&gridData->buildChildFunction + v10) )
+    v6 = 2668i64;
+  if ( *((_BYTE *)&gridData->buildChildFunction + v6) )
   {
-    __asm { vmovaps [rsp+68h+var_28], xmm6 }
-    if ( *((_BYTE *)&gridData->buildChildFunction + v10) == 1 )
+    if ( *((_BYTE *)&gridData->buildChildFunction + v6) == 1 )
     {
-      __asm { vxorps  xmm1, xmm1, xmm1 }
-      _R15 = 44i64;
-      v28 = 48i64;
+      _XMM1 = 0i64;
+      v18 = 44i64;
+      v19 = 48i64;
       if ( axis )
-        _R15 = 1372i64;
+        v18 = 1372i64;
       if ( axis )
-        v28 = 1376i64;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r15+rdx]
-        vroundss xmm3, xmm1, xmm2, 1
-        vcvttss2si edi, xmm3
-      }
-      *(float *)&_XMM0 = LUIElement_Grid_CalculateChildrenSize(grid, gridData, axis, *(int *)((char *)&gridData->buildChildFunction + v28), _EDI, luaVM);
-      __asm { vmovaps xmm6, xmm0 }
-      LUIElement_Grid_CalculateChildrenSize(grid, _RSI, axis, _EDI, _EDI, luaVM);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r15+rsi]
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, edi
-        vsubss  xmm3, xmm1, xmm2
-        vmovss  xmm2, cs:__real@3f800000
-        vsubss  xmm3, xmm2, xmm3
-        vmulss  xmm4, xmm3, xmm0
-        vaddss  xmm0, xmm7, dword ptr [rax+rsi]
-        vmulss  xmm1, xmm0, cs:__real@3f000000
-        vsubss  xmm2, xmm1, xmm6
-        vaddss  xmm0, xmm4, xmm2
-      }
+        v19 = 1376i64;
+      __asm { vroundss xmm3, xmm1, xmm2, 1 }
+      v21 = LUIElement_Grid_CalculateChildrenSize(grid, gridData, axis, *(int *)((char *)&gridData->buildChildFunction + v19), (int)*(float *)&_XMM3, luaVM);
+      v22 = (float)(1.0 - (float)(*(float *)((char *)&gridData->buildChildFunction + v18) - (float)(int)*(float *)&_XMM3)) * LUIElement_Grid_CalculateChildrenSize(grid, gridData, axis, (int)*(float *)&_XMM3, (int)*(float *)&_XMM3, luaVM);
+      v23 = 20i64;
+      if ( axis )
+        v23 = 1348i64;
+      return v22 + (float)((float)((float)(gridSize + *(float *)((char *)&gridData->buildChildFunction + v23)) * 0.5) - v21);
     }
-    else if ( *((_BYTE *)&gridData->buildChildFunction + v10) == 2 )
+    else if ( *((_BYTE *)&gridData->buildChildFunction + v6) == 2 )
     {
-      v17 = 52i64;
-      v18 = 48i64;
+      v11 = 52i64;
+      v12 = 48i64;
       if ( axis )
-        v17 = 1380i64;
+        v11 = 1380i64;
       if ( axis )
-        v18 = 1376i64;
-      *(float *)&_XMM0 = LUIElement_Grid_CalculateChildrenSize(grid, gridData, axis, *(int *)((char *)&gridData->buildChildFunction + v18), *(int *)((char *)&gridData->buildChildFunction + v17), luaVM);
-      __asm { vmovaps xmm6, xmm0 }
-      LUIElement_Grid_CalculateChildrenSize(grid, _RSI, axis, *(int *)((char *)&_RSI->buildChildFunction + v17), *(int *)((char *)&_RSI->buildChildFunction + v17), luaVM);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vsubss  xmm1, xmm1, dword ptr [r15+rsi]
-        vmulss  xmm2, xmm1, xmm0
-        vsubss  xmm0, xmm7, xmm6
-        vaddss  xmm0, xmm0, dword ptr [rax+rsi]
-        vaddss  xmm0, xmm2, xmm0
-      }
+        v12 = 1376i64;
+      v13 = LUIElement_Grid_CalculateChildrenSize(grid, gridData, axis, *(int *)((char *)&gridData->buildChildFunction + v12), *(int *)((char *)&gridData->buildChildFunction + v11), luaVM);
+      v14 = LUIElement_Grid_CalculateChildrenSize(grid, gridData, axis, *(int *)((char *)&gridData->buildChildFunction + v11), *(int *)((char *)&gridData->buildChildFunction + v11), luaVM);
+      v15 = 44i64;
+      if ( axis )
+        v15 = 1372i64;
+      v16 = 20i64;
+      if ( axis )
+        v16 = 1348i64;
+      return (float)((float)((float)(*(int *)((char *)&gridData->buildChildFunction + v11) + 1) - *(float *)((char *)&gridData->buildChildFunction + v15)) * v14) + (float)((float)(gridSize - v13) + *(float *)((char *)&gridData->buildChildFunction + v16));
     }
     else
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2868, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
         __debugbreak();
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      return 0.0;
     }
-    __asm { vmovaps xmm6, [rsp+68h+var_28] }
   }
   else
   {
-    v43 = 48i64;
+    v24 = 48i64;
     if ( axis )
-      v43 = 1376i64;
-    *(float *)&_XMM0 = LUIElement_Grid_MeasureLine(grid, gridData, axis, *(int *)((char *)&gridData->buildChildFunction + v43), luaVM);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, dword ptr [r14+rsi]
-    }
-    _R15 = 44i64;
-    __asm { vaddss  xmm2, xmm0, dword ptr [rax+rsi] }
+      v24 = 1376i64;
+    v25 = LUIElement_Grid_MeasureLine(grid, gridData, axis, *(int *)((char *)&gridData->buildChildFunction + v24), luaVM);
+    v26 = 20i64;
+    v27 = 44i64;
     if ( axis )
-      _R15 = 1372i64;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+rsi]
-      vsubss  xmm1, xmm0, xmm1
-      vmulss  xmm2, xmm1, xmm2
-      vxorps  xmm0, xmm2, cs:__xmm@80000000800000008000000080000000
-    }
+      v26 = 1348i64;
+    if ( axis )
+      v27 = 1372i64;
+    LODWORD(result) = COERCE_UNSIGNED_INT((float)(*(float *)((char *)&gridData->buildChildFunction + v27) - (float)*(int *)((char *)&gridData->buildChildFunction + v24)) * (float)(v25 + *(float *)((char *)&gridData->buildChildFunction + v26))) ^ _xmm;
   }
-  __asm { vmovaps xmm7, [rsp+68h+var_38] }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -1474,43 +1374,32 @@ LUIElement_Grid_CalculateChildrenSize
 */
 float LUIElement_Grid_CalculateChildrenSize(LUIElement *grid, LUIGridData *gridData, LUIGridAxis axis, int lineStart, int lineEnd, lua_State *luaVM)
 {
-  signed int v9; 
+  int v6; 
+  __int128 v10; 
+  __int64 v11; 
+  float v12; 
+  __int128 v13; 
 
-  __asm { vmovaps [rsp+78h+var_38], xmm6 }
-  v9 = lineStart;
-  __asm { vmovaps [rsp+78h+var_48], xmm7 }
+  v6 = lineStart;
   if ( lineStart > lineEnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2825, ASSERT_TYPE_ASSERT, "(lineStart <= lineEnd)", (const char *)&queryFormat, "lineStart <= lineEnd") )
     __debugbreak();
-  __asm
+  v10 = 0i64;
+  if ( v6 > lineEnd )
+    return 0.0;
+  v11 = 20i64;
+  if ( axis )
+    v11 = 1348i64;
+  do
   {
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm6, xmm6, xmm6
+    v12 = LUIElement_Grid_MeasureLine(grid, gridData, axis, v6++, luaVM) + *(float *)((char *)&gridData->buildChildFunction + v11);
+    v13 = v10;
+    *(float *)&v13 = *(float *)&v10 + v12;
+    v10 = v13;
   }
-  if ( v9 > lineEnd )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  else
-  {
-    do
-    {
-      *(float *)&_XMM0 = LUIElement_Grid_MeasureLine(grid, gridData, axis, v9, luaVM);
-      __asm { vaddss  xmm1, xmm0, dword ptr [rdi+r14] }
-      ++v9;
-      __asm { vaddss  xmm6, xmm6, xmm1 }
-    }
-    while ( v9 <= lineEnd );
-    __asm { vcomiss xmm6, xmm7 }
-    if ( v9 < (unsigned int)lineEnd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2834, ASSERT_TYPE_ASSERT, "(outSize >= 0.f)", (const char *)&queryFormat, "outSize >= 0.f") )
-      __debugbreak();
-    __asm { vmovaps xmm0, xmm6 }
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_38]
-    vmovaps xmm7, [rsp+78h+var_48]
-  }
-  return *(float *)&_XMM0;
+  while ( v6 <= lineEnd );
+  if ( *(float *)&v13 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2834, ASSERT_TYPE_ASSERT, "(outSize >= 0.f)", (const char *)&queryFormat, "outSize >= 0.f") )
+    __debugbreak();
+  return *(float *)&v13;
 }
 
 /*
@@ -1518,105 +1407,57 @@ float LUIElement_Grid_CalculateChildrenSize(LUIElement *grid, LUIGridData *gridD
 LUIElement_Grid_ComputeAxisBoundaries
 ==============
 */
-
-void __fastcall LUIElement_Grid_ComputeAxisBoundaries(const LUIGridData *gridData, const LUIGridAxisData *axisData, double referenceLinePosition, int *outFirstElementIndex, int *outLastElementIndex)
+void LUIElement_Grid_ComputeAxisBoundaries(const LUIGridData *gridData, const LUIGridAxisData *axisData, float referenceLinePosition, int *outFirstElementIndex, int *outLastElementIndex)
 {
+  int v14; 
   int numLines; 
 
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RBX = axisData;
-  __asm { vmovaps xmm6, xmm2 }
   if ( !outFirstElementIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 393, ASSERT_TYPE_ASSERT, "(outFirstElementIndex)", (const char *)&queryFormat, "outFirstElementIndex") )
     __debugbreak();
   if ( !outLastElementIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 394, ASSERT_TYPE_ASSERT, "(outLastElementIndex)", (const char *)&queryFormat, "outLastElementIndex") )
     __debugbreak();
   if ( !gridData->numChildren && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 395, ASSERT_TYPE_ASSERT, "(gridData->numChildren != 0)", (const char *)&queryFormat, "gridData->numChildren != 0") )
     __debugbreak();
-  switch ( _RBX->alignment )
+  switch ( axisData->alignment )
   {
     case TOP:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vxorps  xmm4, xmm4, xmm4
-        vmovaps xmm1, xmm6
-        vmovss  xmm1, xmm0, xmm1
-        vroundss xmm2, xmm4, xmm1, 1
-        vcvttss2si eax, xmm2
-      }
-      *outFirstElementIndex = _EAX;
-      __asm
-      {
-        vmovd   xmm0, dword ptr [rbx+10h]
-        vcvtdq2ps xmm0, xmm0
-        vaddss  xmm1, xmm0, xmm6
-        vsubss  xmm3, xmm1, cs:__real@3f800000
-        vroundss xmm1, xmm4, xmm3, 2
-        vcvttss2si eax, xmm1
-      }
+      _XMM4 = 0i64;
+      __asm { vroundss xmm2, xmm4, xmm1, 1 }
+      *outFirstElementIndex = (int)*(float *)&_XMM2;
+      _mm_cvtepi32_ps((__m128i)(unsigned int)axisData->maxVisibleLines);
+      __asm { vroundss xmm1, xmm4, xmm3, 2 }
+      v14 = (int)*(float *)&_XMM1;
       goto LABEL_18;
     case CENTER:
-      __asm
-      {
-        vmovd   xmm0, dword ptr [rbx+10h]
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm0, xmm0, cs:__real@3f000000
-        vsubss  xmm2, xmm6, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  xmm2, xmm1, xmm2
-        vxorps  xmm4, xmm4, xmm4
-        vroundss xmm0, xmm4, xmm2, 1
-        vcvttss2si eax, xmm0
-      }
-      *outFirstElementIndex = _EAX;
-      __asm
-      {
-        vmovd   xmm0, dword ptr [rbx+10h]
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm1, xmm0, cs:__real@3f000000
-        vaddss  xmm2, xmm1, xmm6
-        vsubss  xmm3, xmm2, cs:__real@3f800000
-        vroundss xmm2, xmm4, xmm3, 2
-        vcvttss2si eax, xmm2
-      }
+      _mm_cvtepi32_ps((__m128i)(unsigned int)axisData->maxVisibleLines);
+      _XMM4 = 0i64;
+      __asm { vroundss xmm0, xmm4, xmm2, 1 }
+      *outFirstElementIndex = (int)*(float *)&_XMM0;
+      _mm_cvtepi32_ps((__m128i)(unsigned int)axisData->maxVisibleLines);
+      __asm { vroundss xmm2, xmm4, xmm3, 2 }
+      v14 = (int)*(float *)&_XMM2;
 LABEL_18:
-      *outLastElementIndex = _EAX;
+      *outLastElementIndex = v14;
       break;
     case BOTTOM:
-      __asm
-      {
-        vsubss  xmm1, xmm6, cs:__real@3f800000
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  xmm1, xmm0, xmm1
-        vxorps  xmm3, xmm3, xmm3
-        vroundss xmm2, xmm3, xmm1, 2
-        vcvttss2si eax, xmm2
-      }
-      *outLastElementIndex = _EAX;
-      __asm
-      {
-        vmovd   xmm0, dword ptr [rbx+10h]
-        vcvtdq2ps xmm0, xmm0
-        vsubss  xmm2, xmm6, xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  xmm2, xmm1, xmm2
-        vroundss xmm0, xmm3, xmm2, 1
-        vcvttss2si eax, xmm0
-      }
-      *outFirstElementIndex = _EAX;
+      _XMM3 = 0i64;
+      __asm { vroundss xmm2, xmm3, xmm1, 2 }
+      *outLastElementIndex = (int)*(float *)&_XMM2;
+      _mm_cvtepi32_ps((__m128i)(unsigned int)axisData->maxVisibleLines);
+      __asm { vroundss xmm0, xmm3, xmm2, 1 }
+      *outFirstElementIndex = (int)*(float *)&_XMM0;
       break;
     default:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 418, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
         __debugbreak();
       break;
   }
-  numLines = _RBX->numLines;
+  numLines = axisData->numLines;
   if ( numLines >= 0 )
   {
     *outFirstElementIndex = I_clamp(*outFirstElementIndex, 0, numLines - 1);
-    *outLastElementIndex = I_clamp(*outLastElementIndex, 0, _RBX->numLines - 1);
+    *outLastElementIndex = I_clamp(*outLastElementIndex, 0, axisData->numLines - 1);
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -1624,155 +1465,103 @@ LABEL_18:
 LUIElement_Grid_ComputeAxisFloatingBoundaries
 ==============
 */
-
-void __fastcall LUIElement_Grid_ComputeAxisFloatingBoundaries(LUIElement *grid, LUIGridData *gridData, LUIGridAxis axis, double referenceLinePosition, float *outFirstElementLinePosition, float *outLastElementLinePosition, lua_State *luaVM)
+void LUIElement_Grid_ComputeAxisFloatingBoundaries(LUIElement *grid, LUIGridData *gridData, LUIGridAxis axis, float referenceLinePosition, float *outFirstElementLinePosition, float *outLastElementLinePosition, lua_State *luaVM)
 {
-  __int128 *v19; 
-  __int64 v20; 
-  __int64 v21; 
-  unsigned int v22; 
-  __int64 v23; 
+  double v10; 
+  __int128 *v11; 
+  double v12; 
+  float v13; 
+  __int64 v14; 
+  __int64 v15; 
+  unsigned int v16; 
+  __int64 v17; 
+  __int64 v18; 
   unsigned int flags; 
-  __int64 v32; 
-  unsigned int v44; 
-  __int64 v45; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
-  float fmtc; 
-  __int128 v62; 
-  __int128 v64; 
-  void *retaddr; 
+  float v20; 
+  __int64 v21; 
+  __int64 v22; 
+  unsigned int v23; 
+  __int64 v24; 
+  __int64 v25; 
+  int v26; 
+  double v27; 
+  double v28; 
+  __int128 v29; 
+  double v30; 
+  __int128 v31; 
+  double v32; 
 
-  _RAX = &retaddr;
-  _R12 = outFirstElementLinePosition;
-  _RBP = grid;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmm6, xmm3
-  }
   if ( !outFirstElementLinePosition && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 914, ASSERT_TYPE_ASSERT, "(outFirstElementLinePosition)", (const char *)&queryFormat, "outFirstElementLinePosition") )
     __debugbreak();
-  _R15 = outLastElementLinePosition;
   if ( !outLastElementLinePosition && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 915, ASSERT_TYPE_ASSERT, "(outLastElementLinePosition)", (const char *)&queryFormat, "outLastElementLinePosition") )
     __debugbreak();
   if ( !gridData->numChildren && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 916, ASSERT_TYPE_ASSERT, "(gridData->numChildren != 0)", (const char *)&queryFormat, "gridData->numChildren != 0") )
     __debugbreak();
   if ( axis )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+18h]
-      vmovsd  xmm1, qword ptr [rbp+28h]
-      vmovups [rsp+0B8h+var_68], xmm0
-      vmovsd  [rsp+0B8h+var_58], xmm1
-    }
-    v19 = &v64;
+    v12 = *(double *)grid->currentAnimationState.position.y.anchors;
+    v31 = *(_OWORD *)grid->currentAnimationState.position.y.offsets;
+    v32 = v12;
+    v11 = &v31;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vmovsd  xmm1, qword ptr [rbp+10h]
-      vmovups [rsp+0B8h+var_88], xmm0
-      vmovsd  [rsp+0B8h+var_78], xmm1
-    }
-    v19 = &v62;
+    v10 = *(double *)grid->currentAnimationState.position.x.anchors;
+    v29 = *(_OWORD *)grid->currentAnimationState.position.x.offsets;
+    v30 = v10;
+    v11 = &v29;
   }
-  *(float *)&_XMM0 = LUI_Measure((LUIElementAxisPosition *)v19);
-  v20 = 1340i64;
-  v21 = 28i64;
+  v13 = LUI_Measure((LUIElementAxisPosition *)v11);
+  v14 = 1340i64;
+  v15 = 28i64;
   if ( axis )
-    v20 = 2668i64;
-  if ( *((_BYTE *)&gridData->buildChildFunction + v20) )
+    v14 = 2668i64;
+  if ( *((_BYTE *)&gridData->buildChildFunction + v14) )
   {
-    if ( *((_BYTE *)&gridData->buildChildFunction + v20) == 1 )
+    if ( *((_BYTE *)&gridData->buildChildFunction + v14) == 1 )
     {
-      __asm { vmovss  xmm3, cs:__real@3f000000 }
-      flags = _RBP->currentAnimationState.flags;
-      __asm
-      {
-        vmovaps [rsp+0B8h+var_48], xmm7
-        vmulss  xmm7, xmm0, xmm3
-      }
+      flags = grid->currentAnimationState.flags;
+      v20 = v13 * 0.5;
       if ( (flags & 2) == 0 || gridData->pendingDimensionUpdate || (flags & 1) == 0 )
-        goto LABEL_35;
-      v32 = 28i64;
+        goto LABEL_37;
+      v21 = 28i64;
       if ( axis )
-        v32 = 1356i64;
-      if ( *(int *)((char *)&gridData->buildChildFunction + v32) >= 0 )
+        v21 = 1356i64;
+      if ( *(int *)((char *)&gridData->buildChildFunction + v21) >= 0 )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm7, cs:__xmm@80000000800000008000000080000000
-          vmovaps xmm3, xmm6; linePosition
-          vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-        }
-        *(float *)&_XMM0 = LUIElement_Grid_ConvertPixelDistanceToLines(_RBP, gridData, axis, *(float *)&_XMM3, fmta, luaVM);
-        __asm
-        {
-          vmovaps xmm3, xmm6; linePosition
-          vmovss  dword ptr [r12], xmm0
-          vmovss  dword ptr [rsp+0B8h+fmt], xmm7
-        }
-        *(float *)&_XMM0 = LUIElement_Grid_ConvertPixelDistanceToLines(_RBP, gridData, axis, *(float *)&_XMM3, fmtb, luaVM);
-        __asm
-        {
-          vmovss  dword ptr [r15], xmm0
-          vmovaps xmm7, [rsp+0B8h+var_48]
-        }
+        *outFirstElementLinePosition = LUIElement_Grid_ConvertPixelDistanceToLines(grid, gridData, axis, referenceLinePosition, COERCE_FLOAT(LODWORD(v20) ^ _xmm), luaVM);
+        *outLastElementLinePosition = LUIElement_Grid_ConvertPixelDistanceToLines(grid, gridData, axis, referenceLinePosition, v20, luaVM);
       }
       else
       {
-LABEL_35:
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rax+rdi]
-          vmulss  xmm1, xmm0, xmm3
-          vsubss  xmm2, xmm6, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  dword ptr [r12], xmm2
-          vcvtsi2ss xmm0, xmm0, dword ptr [rax+rdi]
-          vmulss  xmm1, xmm0, xmm3
-          vaddss  xmm0, xmm1, xmm6
-          vmovss  dword ptr [r15], xmm0
-          vmovaps xmm7, [rsp+0B8h+var_48]
-        }
+LABEL_37:
+        v22 = 32i64;
+        if ( axis )
+          v22 = 1360i64;
+        *outFirstElementLinePosition = referenceLinePosition - (float)((float)*(int *)((char *)&gridData->buildChildFunction + v22) * 0.5);
+        *outLastElementLinePosition = (float)((float)*(int *)((char *)&gridData->buildChildFunction + v22) * 0.5) + referenceLinePosition;
       }
     }
-    else if ( *((_BYTE *)&gridData->buildChildFunction + v20) == 2 )
+    else if ( *((_BYTE *)&gridData->buildChildFunction + v14) == 2 )
     {
-      __asm { vmovss  dword ptr [r15], xmm6 }
-      v22 = _RBP->currentAnimationState.flags;
-      if ( (v22 & 2) == 0 || gridData->pendingDimensionUpdate || (v22 & 1) == 0 )
+      *outLastElementLinePosition = referenceLinePosition;
+      v16 = grid->currentAnimationState.flags;
+      if ( (v16 & 2) == 0 || gridData->pendingDimensionUpdate || (v16 & 1) == 0 )
         goto LABEL_27;
-      v23 = 28i64;
+      v17 = 28i64;
       if ( axis )
-        v23 = 1356i64;
-      if ( *(int *)((char *)&gridData->buildChildFunction + v23) >= 0 )
+        v17 = 1356i64;
+      if ( *(int *)((char *)&gridData->buildChildFunction + v17) >= 0 )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-          vmovaps xmm3, xmm6; linePosition
-          vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-        }
-        *(float *)&_XMM0 = LUIElement_Grid_ConvertPixelDistanceToLines(_RBP, gridData, axis, *(float *)&_XMM3, fmt, luaVM);
-        __asm { vmovss  dword ptr [r12], xmm0 }
+        *outFirstElementLinePosition = LUIElement_Grid_ConvertPixelDistanceToLines(grid, gridData, axis, referenceLinePosition, COERCE_FLOAT(LODWORD(v13) ^ _xmm), luaVM);
       }
       else
       {
 LABEL_27:
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rax+rdi]
-          vsubss  xmm0, xmm6, xmm0
-          vmovss  dword ptr [r12], xmm0
-        }
+        v18 = 32i64;
+        if ( axis )
+          v18 = 1360i64;
+        *outFirstElementLinePosition = referenceLinePosition - (float)*(int *)((char *)&gridData->buildChildFunction + v18);
       }
     }
     else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 965, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
@@ -1782,58 +1571,35 @@ LABEL_27:
   }
   else
   {
-    __asm { vmovss  dword ptr [r12], xmm6 }
-    v44 = _RBP->currentAnimationState.flags;
-    if ( (v44 & 2) == 0 || gridData->pendingDimensionUpdate || (v44 & 1) == 0 )
-      goto LABEL_43;
-    v45 = 28i64;
+    *outFirstElementLinePosition = referenceLinePosition;
+    v23 = grid->currentAnimationState.flags;
+    if ( (v23 & 2) == 0 || gridData->pendingDimensionUpdate || (v23 & 1) == 0 )
+      goto LABEL_47;
+    v24 = 28i64;
     if ( axis )
-      v45 = 1356i64;
-    if ( *(int *)((char *)&gridData->buildChildFunction + v45) >= 0 )
+      v24 = 1356i64;
+    if ( *(int *)((char *)&gridData->buildChildFunction + v24) >= 0 )
     {
-      __asm
-      {
-        vmovaps xmm3, xmm6; linePosition
-        vmovss  dword ptr [rsp+0B8h+fmt], xmm0
-      }
-      *(float *)&_XMM0 = LUIElement_Grid_ConvertPixelDistanceToLines(_RBP, gridData, axis, *(float *)&_XMM3, fmtc, luaVM);
-      __asm { vmovss  dword ptr [r15], xmm0 }
+      *outLastElementLinePosition = LUIElement_Grid_ConvertPixelDistanceToLines(grid, gridData, axis, referenceLinePosition, v13, luaVM);
     }
     else
     {
-LABEL_43:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rax+rdi]
-        vaddss  xmm1, xmm0, xmm6
-        vmovss  dword ptr [r15], xmm1
-      }
+LABEL_47:
+      v25 = 32i64;
+      if ( axis )
+        v25 = 1360i64;
+      *outLastElementLinePosition = (float)*(int *)((char *)&gridData->buildChildFunction + v25) + referenceLinePosition;
     }
   }
-  __asm { vmovaps xmm6, [rsp+0B8h+var_38] }
   if ( axis )
-    v21 = 1356i64;
-  if ( *(int *)((char *)&gridData->buildChildFunction + v21) >= 0 )
+    v15 = 1356i64;
+  v26 = *(int *)((char *)&gridData->buildChildFunction + v15);
+  if ( v26 >= 0 )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r12]; val
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, eax; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  dword ptr [r12], xmm0
-      vmovss  xmm0, dword ptr [r15]; val
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, dword ptr [r14+rdi]; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovss  dword ptr [r15], xmm0 }
+    v27 = I_fclamp(*outFirstElementLinePosition, 0.0, (float)v26);
+    *outFirstElementLinePosition = *(float *)&v27;
+    v28 = I_fclamp(*outLastElementLinePosition, 0.0, (float)*(int *)((char *)&gridData->buildChildFunction + v15));
+    *outLastElementLinePosition = *(float *)&v28;
   }
 }
 
@@ -1842,70 +1608,60 @@ LABEL_43:
 LUIElement_Grid_ComputeLineMaxFromMin
 ==============
 */
-
-__int64 __fastcall LUIElement_Grid_ComputeLineMaxFromMin(LUIGridAxis axis, lua_State *luaVM, double _XMM2_8)
+__int64 LUIElement_Grid_ComputeLineMaxFromMin(LUIGridAxis axis, lua_State *luaVM)
 {
-  LUIElement *v8; 
+  LUIElement *v4; 
   LUIGridData *GridData; 
-  __int64 v10; 
-  __int64 v11; 
+  double v6; 
+  __int64 v7; 
+  __int64 v8; 
+  float v9; 
+  int v10; 
+  double v11; 
   unsigned int flags; 
-  float v23; 
+  float AxisLength; 
+  float v14; 
+  __int64 v15; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:ComputeRowBottomFromTop( top ) or element:ComputeColumnRightFromLeft( left )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm { vmovaps [rsp+58h+var_28], xmm6 }
-    v8 = LUI_ToElement(luaVM, 1);
-    GridData = LUIElement_Grid_GetGridData(v8, luaVM);
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-    v10 = 28i64;
-    v11 = 28i64;
+    v4 = LUI_ToElement(luaVM, 1);
+    GridData = LUIElement_Grid_GetGridData(v4, luaVM);
+    v6 = lua_tonumber32(luaVM, 2);
+    v7 = 28i64;
+    v8 = 28i64;
     if ( axis )
-      v11 = 1356i64;
-    __asm { vmovaps xmm6, xmm0 }
-    if ( *(int *)((char *)&GridData->buildChildFunction + v11) >= 0 )
+      v8 = 1356i64;
+    v9 = *(float *)&v6;
+    v10 = *(int *)((char *)&GridData->buildChildFunction + v8);
+    if ( v10 >= 0 )
     {
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, eax; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm6, xmm0 }
+      v11 = I_fclamp(*(float *)&v6, 0.0, (float)v10);
+      v9 = *(float *)&v11;
     }
     if ( GridData->pendingDimensionUpdate )
       goto LABEL_19;
-    flags = v8->currentAnimationState.flags;
+    flags = v4->currentAnimationState.flags;
     if ( (flags & 1) == 0 )
       goto LABEL_19;
     if ( axis )
-      v10 = 1356i64;
-    if ( *(int *)((char *)&GridData->buildChildFunction + v10) >= 0 && (flags & 2) != 0 )
+      v7 = 1356i64;
+    if ( *(int *)((char *)&GridData->buildChildFunction + v7) >= 0 && (flags & 2) != 0 )
     {
-      *(float *)&_XMM0 = LUIElement_Grid_GetAxisLength(v8, axis);
-      __asm
-      {
-        vmovaps xmm3, xmm6; linePosition
-        vmovss  [rsp+58h+var_38], xmm0
-      }
-      *(float *)&_XMM0 = LUIElement_Grid_ConvertPixelDistanceToLines(v8, GridData, axis, *(float *)&_XMM3, v23, luaVM);
+      AxisLength = LUIElement_Grid_GetAxisLength(v4, axis);
+      v14 = LUIElement_Grid_ConvertPixelDistanceToLines(v4, GridData, axis, v9, AxisLength, luaVM);
     }
     else
     {
 LABEL_19:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rcx+rdi]
-        vaddss  xmm0, xmm0, xmm6
-      }
+      v15 = 32i64;
+      if ( axis )
+        v15 = 1360i64;
+      v14 = (float)*(int *)((char *)&GridData->buildChildFunction + v15) + v9;
     }
-    __asm { vcvtss2sd xmm1, xmm0, xmm0; n }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    __asm { vmovaps xmm6, [rsp+58h+var_28] }
+    j_lua_pushnumber(luaVM, v14);
     return 1i64;
   }
   else
@@ -1920,71 +1676,60 @@ LABEL_19:
 LUIElement_Grid_ComputeLineMinFromMax
 ==============
 */
-
-__int64 __fastcall LUIElement_Grid_ComputeLineMinFromMax(LUIGridAxis axis, lua_State *luaVM, double _XMM2_8)
+__int64 LUIElement_Grid_ComputeLineMinFromMax(LUIGridAxis axis, lua_State *luaVM)
 {
-  LUIElement *v8; 
+  LUIElement *v4; 
   LUIGridData *GridData; 
-  __int64 v10; 
-  __int64 v11; 
+  double v6; 
+  __int64 v7; 
+  __int64 v8; 
+  float v9; 
+  int v10; 
+  double v11; 
   unsigned int flags; 
-  float v24; 
+  float AxisLength; 
+  float v14; 
+  __int64 v15; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:ComputeRowTopFromBottom( bottom ) or element:ComputeColumnLeftFromRight( right )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    __asm { vmovaps [rsp+58h+var_28], xmm6 }
-    v8 = LUI_ToElement(luaVM, 1);
-    GridData = LUIElement_Grid_GetGridData(v8, luaVM);
-    *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-    v10 = 28i64;
-    v11 = 28i64;
+    v4 = LUI_ToElement(luaVM, 1);
+    GridData = LUIElement_Grid_GetGridData(v4, luaVM);
+    v6 = lua_tonumber32(luaVM, 2);
+    v7 = 28i64;
+    v8 = 28i64;
     if ( axis )
-      v11 = 1356i64;
-    __asm { vmovaps xmm6, xmm0 }
-    if ( *(int *)((char *)&GridData->buildChildFunction + v11) >= 0 )
+      v8 = 1356i64;
+    v9 = *(float *)&v6;
+    v10 = *(int *)((char *)&GridData->buildChildFunction + v8);
+    if ( v10 >= 0 )
     {
-      __asm
-      {
-        vxorps  xmm2, xmm2, xmm2
-        vcvtsi2ss xmm2, xmm2, eax; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm6, xmm0 }
+      v11 = I_fclamp(*(float *)&v6, 0.0, (float)v10);
+      v9 = *(float *)&v11;
     }
     if ( GridData->pendingDimensionUpdate )
       goto LABEL_19;
-    flags = v8->currentAnimationState.flags;
+    flags = v4->currentAnimationState.flags;
     if ( (flags & 1) == 0 )
       goto LABEL_19;
     if ( axis )
-      v10 = 1356i64;
-    if ( *(int *)((char *)&GridData->buildChildFunction + v10) >= 0 && (flags & 2) != 0 )
+      v7 = 1356i64;
+    if ( *(int *)((char *)&GridData->buildChildFunction + v7) >= 0 && (flags & 2) != 0 )
     {
-      *(float *)&_XMM0 = LUIElement_Grid_GetAxisLength(v8, axis);
-      __asm
-      {
-        vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmovaps xmm3, xmm6; linePosition
-        vmovss  [rsp+58h+var_38], xmm1
-      }
-      *(float *)&_XMM0 = LUIElement_Grid_ConvertPixelDistanceToLines(v8, GridData, axis, *(float *)&_XMM3, v24, luaVM);
+      AxisLength = LUIElement_Grid_GetAxisLength(v4, axis);
+      v14 = LUIElement_Grid_ConvertPixelDistanceToLines(v4, GridData, axis, v9, COERCE_FLOAT(LODWORD(AxisLength) ^ _xmm), luaVM);
     }
     else
     {
 LABEL_19:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rcx+rdi]
-        vsubss  xmm0, xmm6, xmm0
-      }
+      v15 = 32i64;
+      if ( axis )
+        v15 = 1360i64;
+      v14 = v9 - (float)*(int *)((char *)&GridData->buildChildFunction + v15);
     }
-    __asm { vcvtss2sd xmm1, xmm0, xmm0; n }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    __asm { vmovaps xmm6, [rsp+58h+var_28] }
+    j_lua_pushnumber(luaVM, v14);
     return 1i64;
   }
   else
@@ -1999,105 +1744,76 @@ LABEL_19:
 LUIElement_Grid_ComputeTransitionStep
 ==============
 */
-
-double __fastcall LUIElement_Grid_ComputeTransitionStep(LUIGridAxisData *axisData, int elementPositionOnAxis, double _XMM2_8)
+double LUIElement_Grid_ComputeTransitionStep(LUIGridAxisData *axisData, int elementPositionOnAxis)
 {
-  int alignment; 
-  bool v10; 
-  int v11; 
+  float v2; 
+  float v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float currentPosition; 
+  float v12; 
+  float v13; 
 
-  alignment = axisData->alignment;
-  __asm
+  v2 = FLOAT_1_0;
+  switch ( axisData->alignment )
   {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps xmm7, xmm6
-  }
-  if ( axisData->alignment )
-  {
-    v10 = alignment == 0;
-    v11 = alignment - 1;
-    if ( v11 )
-    {
-      if ( v11 == 1 )
+    case TOP:
+      currentPosition = axisData->currentPosition;
+      if ( (float)elementPositionOnAxis >= currentPosition )
       {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rcx+1Ch]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vcomiss xmm0, xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rcx+10h]
-          vxorps  xmm2, xmm2, xmm2
-          vsubss  xmm3, xmm1, xmm0
-          vcvtsi2ss xmm2, xmm2, edx
-          vcomiss xmm2, xmm3
-        }
-      }
-      else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2730, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
-      {
-        __debugbreak();
-      }
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rcx+1Ch]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rcx+10h]
-        vmulss  xmm3, xmm0, cs:__real@3f000000
-        vxorps  xmm1, xmm1, xmm1
-        vsubss  xmm2, xmm4, xmm3
-        vcvtsi2ss xmm1, xmm1, edx
-        vcomiss xmm1, xmm2
-      }
-      if ( v10 )
-      {
-        __asm
-        {
-          vsubss  xmm0, xmm2, xmm1
-          vsubss  xmm7, xmm6, xmm0
-        }
+        v12 = (float)axisData->maxVisibleLines + currentPosition;
+        v13 = (float)(elementPositionOnAxis + 1);
+        if ( v13 <= v12 )
+          return I_fclamp(v2, 0.0, 1.0);
+        v5 = v13 - v12;
       }
       else
       {
-        __asm
-        {
-          vaddss  xmm0, xmm3, xmm4
-          vsubss  xmm2, xmm0, xmm6
-          vcomiss xmm1, xmm2
-        }
+        v5 = currentPosition - (float)elementPositionOnAxis;
       }
-    }
+      goto LABEL_18;
+    case CENTER:
+      v7 = axisData->currentPosition;
+      v8 = (float)axisData->maxVisibleLines * 0.5;
+      v9 = (float)elementPositionOnAxis;
+      if ( v9 >= (float)(v7 - v8) )
+      {
+        v10 = (float)(v8 + v7) - 1.0;
+        if ( v9 <= v10 )
+          return I_fclamp(v2, 0.0, 1.0);
+        v5 = v9 - v10;
+      }
+      else
+      {
+        v5 = (float)(v7 - v8) - v9;
+      }
+      goto LABEL_18;
+    case BOTTOM:
+      v3 = axisData->currentPosition;
+      v4 = (float)(elementPositionOnAxis + 1);
+      if ( v4 <= v3 )
+      {
+        v6 = v3 - (float)axisData->maxVisibleLines;
+        if ( (float)elementPositionOnAxis >= v6 )
+          return I_fclamp(v2, 0.0, 1.0);
+        v5 = v6 - (float)elementPositionOnAxis;
+      }
+      else
+      {
+        v5 = v4 - v3;
+      }
+LABEL_18:
+      v2 = 1.0 - v5;
+      return I_fclamp(v2, 0.0, 1.0);
   }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rcx+1Ch]
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, edx
-      vcomiss xmm0, xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rcx+10h]
-      vxorps  xmm2, xmm2, xmm2
-      vaddss  xmm3, xmm0, xmm1
-      vcvtsi2ss xmm2, xmm2, eax
-      vcomiss xmm2, xmm3
-    }
-  }
-  __asm
-  {
-    vmovaps xmm2, xmm6; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm0, xmm7; val
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  return I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2730, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
+    __debugbreak();
+  return I_fclamp(v2, 0.0, 1.0);
 }
 
 /*
@@ -2108,153 +1824,82 @@ LUIElement_Grid_ConvertLineDistanceToPixels
 
 float __fastcall LUIElement_Grid_ConvertLineDistanceToPixels(LUIElement *grid, LUIGridData *gridData, LUIGridAxis axis, double lineStart, float lineEnd, lua_State *luaVM)
 {
-  bool v38; 
-  bool v39; 
-  bool v40; 
-  unsigned int v41; 
-  int v48; 
-  void *retaddr; 
+  __int64 v6; 
+  float v9; 
+  __int128 v14; 
+  float result; 
+  int v18; 
+  int v20; 
+  float v21; 
+  float v22; 
+  int v23; 
+  float v24; 
+  float v25; 
+  __int128 v26; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-58h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm10
-  }
-  _RSI = 16i64;
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_88], xmm11
-    vmovaps [rsp+0E8h+var_98], xmm12
-  }
+  v6 = 16i64;
   if ( axis )
-    _RSI = 1344i64;
+    v6 = 1344i64;
+  v9 = *(float *)&lineStart;
   __asm
   {
-    vmovaps [rsp+0E8h+var_A8], xmm13
-    vmovaps [rsp+0E8h+var_B8], xmm14
-  }
-  _RDI = gridData;
-  __asm
-  {
-    vmovss  xmm14, [rsp+0E8h+lineEnd]
-    vucomiss xmm3, xmm14
-    vmovaps xmm13, xmm3
     vminss  xmm12, xmm3, xmm14
     vmaxss  xmm10, xmm3, xmm14
-    vxorps  xmm11, xmm11, xmm11
-    vxorps  xmm8, xmm8, xmm8
-    vxorps  xmm0, xmm0, xmm0
   }
-  if ( axis )
+  _XMM11 = 0i64;
+  v14 = 0i64;
+  result = 0.0;
+  if ( *(float *)&lineStart != lineEnd )
   {
-    __asm
+    _XMM3 = 0i64;
+    __asm { vroundss xmm2, xmm3, xmm1, 1 }
+    v18 = (int)*(float *)&_XMM2;
+    __asm { vroundss xmm2, xmm3, xmm1, 2 }
+    if ( v18 < (int)*(float *)&_XMM2 )
     {
-      vxorps  xmm3, xmm3, xmm3
-      vmovaps xmm1, xmm12
-      vmovss  xmm1, xmm0, xmm1
-      vroundss xmm2, xmm3, xmm1, 1
-      vcvttss2si ebx, xmm2
-      vmovaps xmm1, xmm10
-      vmovss  xmm1, xmm0, xmm1
-      vroundss xmm2, xmm3, xmm1, 2
-      vcvttss2si r13d, xmm2
-      vmovaps xmmword ptr [r11-68h], xmm9
-      vmovss  xmm9, cs:__real@3f800000
-    }
-    v38 = _EBX < _ER13;
-    v39 = _EBX == _ER13;
-    v40 = _EBX <= _ER13;
-    if ( (int)_EBX < (int)_ER13 )
-    {
-      v41 = _EBX + 1;
-      __asm
-      {
-        vmovaps xmmword ptr [r11-38h], xmm6
-        vmovaps xmmword ptr [r11-48h], xmm7
-      }
+      v20 = v18 + 1;
       do
       {
-        __asm
+        v21 = (float)v18;
+        if ( (float)v18 >= *(float *)&_XMM12 )
         {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, ebx
-          vcomiss xmm1, xmm12
-        }
-        if ( v38 )
-        {
-          __asm
-          {
-            vsubss  xmm0, xmm12, xmm1
-            vsubss  xmm6, xmm9, xmm0
-          }
-        }
-        else
-        {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, ebp
-            vcomiss xmm0, xmm10
-          }
-          if ( v40 )
-            __asm { vmovaps xmm6, xmm9 }
+          if ( (float)v20 <= *(float *)&_XMM10 )
+            v22 = FLOAT_1_0;
           else
-            __asm { vsubss  xmm6, xmm10, xmm1 }
+            v22 = *(float *)&_XMM10 - v21;
         }
-        v48 = *(_DWORD *)((char *)&_RDI->maxVelocity + _RSI);
-        if ( v48 > 0 && _EBX == v48 - 1 )
-          __asm { vmovaps xmm7, xmm11 }
         else
-          __asm { vmovss  xmm7, dword ptr [rsi+rdi+4] }
-        *(float *)&_XMM0 = LUIElement_Grid_MeasureLine(grid, _RDI, axis, _EBX, luaVM);
-        __asm { vaddss  xmm1, xmm0, xmm7 }
-        ++_EBX;
-        ++v41;
-        __asm
         {
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm8, xmm8, xmm2
+          v22 = 1.0 - (float)(*(float *)&_XMM12 - v21);
         }
-        v38 = _EBX < _ER13;
-        v39 = _EBX == _ER13;
-        v40 = _EBX <= _ER13;
+        v23 = *(_DWORD *)((char *)&gridData->maxVelocity + v6);
+        if ( v23 > 0 && v18 == v23 - 1 )
+          v24 = 0.0;
+        else
+          v24 = *(float *)((char *)&gridData->refreshChildFunction + v6);
+        v25 = LUIElement_Grid_MeasureLine(grid, gridData, axis, v18++, luaVM);
+        ++v20;
+        v26 = v14;
+        *(float *)&v26 = *(float *)&v14 + (float)((float)(v25 + v24) * v22);
+        v14 = v26;
       }
-      while ( (int)_EBX < (int)_ER13 );
-      __asm
-      {
-        vmovaps xmm7, [rsp+0E8h+var_48]
-        vmovaps xmm6, [rsp+0E8h+var_38]
-      }
+      while ( v18 < (int)*(float *)&_XMM2 );
     }
-    __asm { vcomiss xmm13, xmm14 }
-    if ( !v40 )
-      __asm { vxorps  xmm8, xmm8, cs:__xmm@80000000800000008000000080000000 }
+    if ( v9 > lineEnd )
+      LODWORD(v14) = v14 ^ _xmm;
+    _XMM3 = LODWORD(FLOAT_N1_0);
     __asm
     {
-      vmovss  xmm3, cs:__real@bf800000
       vcmpless xmm0, xmm11, xmm8
       vblendvps xmm2, xmm3, xmm9, xmm0
-      vsubss  xmm0, xmm14, xmm13
       vcmpless xmm1, xmm11, xmm0
       vblendvps xmm0, xmm3, xmm9, xmm1
-      vucomiss xmm2, xmm0
-      vmovaps xmm9, [rsp+0E8h+var_68]
     }
-    if ( !v39 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 823, ASSERT_TYPE_ASSERT, "(I_fsign( pixelDistance ) == I_fsign( lineEnd - lineStart ))", (const char *)&queryFormat, "I_fsign( pixelDistance ) == I_fsign( lineEnd - lineStart )") )
+    if ( *(float *)&_XMM2 != *(float *)&_XMM0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 823, ASSERT_TYPE_ASSERT, "(I_fsign( pixelDistance ) == I_fsign( lineEnd - lineStart ))", (const char *)&queryFormat, "I_fsign( pixelDistance ) == I_fsign( lineEnd - lineStart )") )
       __debugbreak();
-    __asm { vmovaps xmm0, xmm8 }
+    return *(float *)&v14;
   }
-  __asm
-  {
-    vmovaps xmm8, [rsp+0E8h+var_58]
-    vmovaps xmm10, [rsp+0E8h+var_78]
-    vmovaps xmm11, [rsp+0E8h+var_88]
-    vmovaps xmm12, [rsp+0E8h+var_98]
-    vmovaps xmm13, [rsp+0E8h+var_A8]
-    vmovaps xmm14, [rsp+0E8h+var_B8]
-  }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -2265,207 +1910,172 @@ LUIElement_Grid_ConvertPixelDistanceToLines
 
 float __fastcall LUIElement_Grid_ConvertPixelDistanceToLines(LUIElement *grid, LUIGridData *gridData, LUIGridAxis axis, double linePosition, float pixelOffset, lua_State *luaVM)
 {
-  int v34; 
-  char v49; 
-  char v50; 
-  int v52; 
-  char v54; 
-  char v90; 
-  void *retaddr; 
+  __int64 v7; 
+  float v9; 
+  unsigned __int128 v16; 
+  float v17; 
+  float v19; 
+  __int128 v20; 
+  int v23; 
+  __int128 v28; 
+  int v31; 
+  __int128 v33; 
+  bool v34; 
+  bool v35; 
+  int v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  __int128 v42; 
+  unsigned __int128 v43; 
+  __int128 v44; 
+  float v45; 
+  __int128 v46; 
+  int v47; 
+  float v48; 
+  __int128 v49; 
+  __int64 v54; 
+  __int64 v55; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@bf800000
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm8
-  }
-  _RBP = 16i64;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-78h], xmm10
-    vmovaps xmmword ptr [r11-88h], xmm11
-  }
+  _XMM0 = LODWORD(FLOAT_N1_0);
+  v7 = 16i64;
   if ( axis )
-    _RBP = 1344i64;
+    v7 = 1344i64;
+  LODWORD(v9) = LODWORD(pixelOffset) & _xmm;
+  _XMM8 = 0i64;
   __asm
   {
-    vmovss  xmm11, [rsp+108h+pixelOffset]
-    vmovaps [rsp+108h+var_98], xmm12
-    vandps  xmm12, xmm11, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vxorps  xmm8, xmm8, xmm8
-    vcomiss xmm12, xmm8
-    vmovaps [rsp+108h+var_C8], xmm15
-  }
-  _RSI = gridData;
-  __asm
-  {
-    vmovss  xmm15, cs:__real@3f800000
     vcmpless xmm1, xmm8, xmm11
     vblendvps xmm1, xmm0, xmm15, xmm1
-    vmovss  [rsp+108h+arg_10], xmm1
-    vmovaps xmm6, xmm3
-    vxorps  xmm10, xmm10, xmm10
   }
-  if ( axis )
+  _XMM6 = *(_OWORD *)&linePosition;
+  v16 = 0i64;
+  if ( COERCE_FLOAT(LODWORD(pixelOffset) & _xmm) > 0.0 )
   {
-    __asm
+    v17 = *(float *)&_XMM1;
+    _XMM13 = 0i64;
+    while ( 1 )
     {
-      vmovaps xmmword ptr [r11-48h], xmm7
-      vmovaps xmmword ptr [r11-68h], xmm9
-      vmovaps [rsp+108h+var_A8], xmm13
-      vmovaps [rsp+108h+var_B8], xmm14
-      vmovss  xmm14, [rsp+108h+arg_10]
-      vxorps  xmm13, xmm13, xmm13
-      vxorps  xmm7, xmm7, xmm7
-      vcvtsi2ss xmm7, xmm7, dword ptr [rsi+rbp+0Ch]
-      vcomiss xmm7, xmm8
-    }
-    v34 = *(_DWORD *)((char *)&gridData->maxVelocity + _RBP);
-    __asm
-    {
-      vmaxss  xmm0, xmm6, xmm8
-      vminss  xmm9, xmm0, xmm7
-      vmovaps xmm2, xmm9
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  xmm0, xmm1, xmm2
-      vroundss xmm3, xmm13, xmm0, 1
-      vsubss  xmm2, xmm9, xmm3
-      vucomiss xmm2, xmm8
-      vaddss  xmm1, xmm9, cs:__real@3f000000
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  xmm1, xmm0, xmm1
-      vroundss xmm2, xmm13, xmm1, 1
-      vcvttss2si ebx, xmm2
-      vxorps  xmm9, xmm9, xmm9
-      vcvtsi2ss xmm9, xmm9, ebx
-    }
-    if ( v34 < 0 )
-      goto LABEL_15;
-    if ( _EBX )
-    {
-      v49 = 0;
-    }
-    else
-    {
-      __asm { vcomiss xmm11, xmm8 }
-      v49 = 1;
-    }
-    if ( _EBX != v34 )
-      goto LABEL_12;
-    __asm { vcomiss xmm11, xmm8 }
-    if ( _EBX >= (unsigned int)v34 )
-      v50 = 1;
-    else
-LABEL_12:
-      v50 = 0;
-    if ( v49 || v50 )
-    {
-      __asm { vmovaps xmm0, xmm9 }
-    }
-    else
-    {
-LABEL_15:
+      v20 = 0i64;
+      *(float *)&v20 = (float)*(int *)((char *)&gridData->maxVelocity + v7);
+      v19 = *(float *)&v20;
+      if ( *(float *)&v20 < 0.0 )
+      {
+        *(double *)&v20 = *(float *)&v20;
+        _XMM0 = v20;
+        __asm { vxorpd  xmm0, xmm0, xmm0 }
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&_XMM0, v19) )
+          __debugbreak();
+      }
+      v23 = *(_DWORD *)((char *)&gridData->maxVelocity + v7);
       __asm
       {
-        vcomiss xmm11, xmm8
-        vmovaps xmm7, xmm15
+        vmaxss  xmm0, xmm6, xmm8
+        vminss  xmm9, xmm0, xmm7
+        vroundss xmm3, xmm13, xmm0, 1
       }
-      if ( v34 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", 0, *(_DWORD *)((char *)&gridData->maxVelocity + _RBP)) )
-        __debugbreak();
-      v52 = *(_DWORD *)((char *)&_RSI->maxVelocity + _RBP);
-      if ( v34 < _EBX )
-        _EBX = v34;
-      if ( _EBX < 0 )
-        _EBX = 0;
-      if ( v52 > 0 && _EBX == v52 - 1 )
-        __asm { vmovaps xmm6, xmm8 }
+      v28 = _XMM9;
+      *(float *)&v28 = *(float *)&_XMM9 - *(float *)&_XMM3;
+      _XMM2 = v28;
+      if ( (float)(*(float *)&_XMM9 - *(float *)&_XMM3) == 0.0 )
+      {
+        __asm { vroundss xmm2, xmm13, xmm1, 1 }
+        v31 = (int)*(float *)&_XMM2;
+        v33 = 0i64;
+        *(float *)&v33 = (float)(int)*(float *)&_XMM2;
+        _XMM9 = v33;
+        if ( v23 >= 0 )
+        {
+          v34 = !v31 && pixelOffset <= 0.0;
+          v35 = v31 == v23 && pixelOffset >= 0.0;
+          if ( v34 || v35 )
+            return (float)(int)*(float *)&_XMM2;
+        }
+        *(float *)&_XMM7 = FLOAT_1_0;
+        if ( pixelOffset < 0.0 )
+          --v31;
+      }
       else
-        __asm { vmovss  xmm6, dword ptr [rsi+rbp+4] }
-      *(float *)&_XMM0 = LUIElement_Grid_MeasureLine(grid, _RSI, axis, _EBX, luaVM);
-      __asm
-      {
-        vaddss  xmm2, xmm0, xmm6
-        vmulss  xmm0, xmm2, xmm7
-        vcomiss xmm0, cs:__real@3c23d70a
-        vsubss  xmm1, xmm12, xmm10
-      }
-      if ( v54 )
       {
         __asm
         {
-          vaddss  xmm1, xmm9, cs:__real@3f000000
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  xmm1, xmm0, xmm1
-          vroundss xmm2, xmm13, xmm1, 1
-          vcvttss2si eax, xmm2
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm6, xmm6, eax
+          vcmpltss xmm0, xmm8, xmm11
+          vblendvps xmm7, xmm2, xmm1, xmm0
         }
+        v31 = (int)*(float *)&_XMM3;
       }
-      else
+      if ( v23 < 0 )
       {
-        __asm { vcomiss xmm0, xmm1 }
-        if ( v54 )
+        *(float *)&v55 = *(float *)((char *)&gridData->maxVelocity + v7);
+        LODWORD(v54) = 0;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v54, v55) )
+          __debugbreak();
+      }
+      v36 = *(_DWORD *)((char *)&gridData->maxVelocity + v7);
+      if ( v23 < v31 )
+        v31 = v23;
+      if ( v31 < 0 )
+        v31 = 0;
+      if ( v36 > 0 && v31 == v36 - 1 )
+        v37 = 0.0;
+      else
+        v37 = *(float *)((char *)&gridData->refreshChildFunction + v7);
+      v38 = LUIElement_Grid_MeasureLine(grid, gridData, axis, v31, luaVM) + v37;
+      v39 = v38 * *(float *)&_XMM7;
+      v40 = v9 - *(float *)&v16;
+      if ( (float)(v38 * *(float *)&_XMM7) >= 0.0099999998 )
+      {
+        if ( v39 >= v40 )
         {
-          __asm
-          {
-            vaddss  xmm10, xmm10, xmm0
-            vmulss  xmm0, xmm7, xmm14
-            vaddss  xmm6, xmm9, xmm0
-          }
+          v45 = (float)(v40 / v38) * v17;
+          v46 = _XMM9;
+          *(float *)&v46 = *(float *)&_XMM9 + v45;
+          _XMM6 = v46;
+          v16 = LODWORD(pixelOffset) & (unsigned __int128)_xmm;
         }
         else
         {
-          __asm
-          {
-            vdivss  xmm0, xmm1, xmm2
-            vmulss  xmm1, xmm0, xmm14
-            vaddss  xmm6, xmm9, xmm1
-            vmovaps xmm10, xmm12
-          }
+          v43 = v16;
+          *(float *)&v43 = *(float *)&v16 + v39;
+          v16 = v43;
+          v44 = _XMM9;
+          *(float *)&v44 = *(float *)&_XMM9 + (float)(*(float *)&_XMM7 * v17);
+          _XMM6 = v44;
         }
       }
-      if ( *(int *)((char *)&_RSI->maxVelocity + _RBP) >= 0 )
+      else
       {
+        __asm { vroundss xmm2, xmm13, xmm1, 1 }
+        v42 = 0i64;
+        *(float *)&v42 = (float)(int)*(float *)&_XMM2;
+        _XMM6 = v42;
+      }
+      v47 = *(_DWORD *)((char *)&gridData->maxVelocity + v7);
+      if ( v47 >= 0 )
+      {
+        v49 = 0i64;
+        *(float *)&v49 = (float)v47;
+        v48 = *(float *)&v49;
+        if ( *(float *)&v49 < 0.0 )
+        {
+          *(double *)&v49 = *(float *)&v49;
+          _XMM0 = v49;
+          __asm { vxorpd  xmm0, xmm0, xmm0 }
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&_XMM0, v48) )
+            __debugbreak();
+        }
         __asm
         {
-          vxorps  xmm7, xmm7, xmm7
-          vcvtsi2ss xmm7, xmm7, eax
-          vcomiss xmm7, xmm8
           vmaxss  xmm0, xmm6, xmm8
           vminss  xmm6, xmm0, xmm7
         }
       }
-      __asm
-      {
-        vcomiss xmm10, xmm12
-        vmovaps xmm0, xmm6
-      }
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+108h+var_48]
-      vmovaps xmm9, [rsp+108h+var_68]
-      vmovaps xmm13, [rsp+108h+var_A8]
-      vmovaps xmm14, [rsp+108h+var_B8]
+      if ( *(float *)&v16 >= v9 )
+        return *(float *)&_XMM6;
     }
   }
-  else
-  {
-    __asm { vmovaps xmm0, xmm3 }
-  }
-  __asm { vmovaps xmm15, [rsp+108h+var_C8] }
-  _R11 = &v90;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&linePosition;
 }
 
 /*
@@ -2475,44 +2085,33 @@ LUIElement_Grid_ConvertPixelToLine
 */
 __int64 LUIElement_Grid_ConvertPixelToLine(LUIGridAxis axis, lua_State *luaVM)
 {
-  LUIElement *v7; 
+  LUIElement *v5; 
   LUIGridData *GridData; 
-  __int64 v9; 
-  float v15; 
+  __int64 v7; 
+  double v8; 
+  double v9; 
 
   if ( j_lua_gettop(luaVM) != 3 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || !j_lua_isnumber(luaVM, 3) )
     j_luaL_error(luaVM, "USAGE: element:Convert[Row|Column]PixelToLine( <starting_line>, <pixelOffset> )");
   if ( j_lua_gettop(luaVM) == 3 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_isnumber(luaVM, 3) )
   {
-    v7 = LUI_ToElement(luaVM, 1);
-    GridData = LUIElement_Grid_GetGridData(v7, luaVM);
-    if ( GridData->pendingDimensionUpdate || (v7->currentAnimationState.flags & 1) == 0 )
+    v5 = LUI_ToElement(luaVM, 1);
+    GridData = LUIElement_Grid_GetGridData(v5, luaVM);
+    if ( GridData->pendingDimensionUpdate || (v5->currentAnimationState.flags & 1) == 0 )
       goto LABEL_16;
-    v9 = 28i64;
+    v7 = 28i64;
     if ( axis )
-      v9 = 1356i64;
-    if ( *(int *)((char *)&GridData->buildChildFunction + v9) < 0 )
+      v7 = 1356i64;
+    if ( *(int *)((char *)&GridData->buildChildFunction + v7) < 0 )
     {
 LABEL_16:
       __asm { vxorpd  xmm1, xmm1, xmm1; n }
     }
     else
     {
-      __asm { vmovaps [rsp+48h+var_18], xmm6 }
-      *(double *)&_XMM0 = lua_tonumber32(luaVM, 2);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = lua_tonumber32(luaVM, 3);
-      __asm
-      {
-        vmovaps xmm3, xmm6; linePosition
-        vmovss  [rsp+48h+var_28], xmm0
-      }
-      *(float *)&_XMM0 = LUIElement_Grid_ConvertPixelDistanceToLines(v7, GridData, axis, *(double *)&_XMM3, v15, luaVM);
-      __asm
-      {
-        vmovaps xmm6, [rsp+48h+var_18]
-        vcvtss2sd xmm1, xmm0, xmm0
-      }
+      v8 = lua_tonumber32(luaVM, 2);
+      v9 = lua_tonumber32(luaVM, 3);
+      *(double *)&_XMM1 = LUIElement_Grid_ConvertPixelDistanceToLines(v5, GridData, axis, v8, *(float *)&v9, luaVM);
     }
     j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
     return 1i64;
@@ -2531,29 +2130,22 @@ LUIElement_Grid_GetAxisLength
 */
 float LUIElement_Grid_GetAxisLength(LUIElement *grid, LUIGridAxis axis)
 {
+  __int128 v2; 
+  double v3; 
   LUIElementAxisPosition v5; 
 
   if ( axis )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx+18h]
-      vmovsd  xmm1, qword ptr [rcx+28h]
-    }
+    v2 = *(_OWORD *)grid->currentAnimationState.position.y.offsets;
+    v3 = *(double *)grid->currentAnimationState.position.y.anchors;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx]
-      vmovsd  xmm1, qword ptr [rcx+10h]
-    }
+    v2 = *(_OWORD *)grid->currentAnimationState.position.x.offsets;
+    v3 = *(double *)grid->currentAnimationState.position.x.anchors;
   }
-  __asm
-  {
-    vmovups [rsp+48h+var_28], xmm0
-    vmovsd  [rsp+48h+var_18], xmm1
-  }
+  *(_OWORD *)v5.offsets = v2;
+  *(double *)v5.anchors = v3;
   return LUI_Measure(&v5);
 }
 
@@ -2565,30 +2157,21 @@ LUIElement_Grid_GetBoundaries
 __int64 LUIElement_Grid_GetBoundaries(LUIGridAxis axis, lua_State *luaVM)
 {
   LUIElement *v4; 
+  LUIGridData *GridData; 
+  __int64 v6; 
   float outFirstElementLinePosition; 
   float outLastElementLinePosition; 
 
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: element:GetRowBoundaries() or element:GetColumnBoundaries()");
-  if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) && (v4 = LUI_ToElement(luaVM, 1), _RAX = LUIElement_Grid_GetGridData(v4, luaVM), _RAX->numChildren) )
+  if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) && (v4 = LUI_ToElement(luaVM, 1), GridData = LUIElement_Grid_GetGridData(v4, luaVM), GridData->numChildren) )
   {
-    _RCX = 40i64;
+    v6 = 40i64;
     if ( axis )
-      _RCX = 1368i64;
-    __asm { vmovss  xmm3, dword ptr [rcx+rax]; referenceLinePosition }
-    LUIElement_Grid_ComputeAxisFloatingBoundaries(v4, _RAX, axis, *(double *)&_XMM3, &outFirstElementLinePosition, &outLastElementLinePosition, luaVM);
-    __asm
-    {
-      vmovss  xmm1, [rsp+48h+arg_10]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-    __asm
-    {
-      vmovss  xmm1, [rsp+48h+arg_18]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+      v6 = 1368i64;
+    LUIElement_Grid_ComputeAxisFloatingBoundaries(v4, GridData, axis, *(float *)((char *)&GridData->buildChildFunction + v6), &outFirstElementLinePosition, &outLastElementLinePosition, luaVM);
+    j_lua_pushnumber(luaVM, outFirstElementLinePosition);
+    j_lua_pushnumber(luaVM, outLastElementLinePosition);
   }
   else
   {
@@ -2603,43 +2186,38 @@ __int64 LUIElement_Grid_GetBoundaries(LUIGridAxis axis, lua_State *luaVM)
 LUIElement_Grid_GetContentPixelSize
 ==============
 */
-
-__int64 __fastcall LUIElement_Grid_GetContentPixelSize(LUIGridAxis axis, lua_State *luaVM, __int64 a3, double _XMM3_8)
+__int64 LUIElement_Grid_GetContentPixelSize(LUIGridAxis axis, lua_State *luaVM)
 {
-  LUIElement *v7; 
+  LUIElement *v4; 
   LUIGridData *GridData; 
-  __int64 v9; 
-  float v15; 
+  __int64 v6; 
+  __int64 v7; 
+  float v8; 
 
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: element:GetVerticalPixelSize() or element:GetHorizontalPixelSize()");
   if ( j_lua_gettop(luaVM) != 1 )
-    goto LABEL_12;
+    goto LABEL_14;
   if ( !j_lua_isuserdata(luaVM, 1) )
-    goto LABEL_12;
-  v7 = LUI_ToElement(luaVM, 1);
-  GridData = LUIElement_Grid_GetGridData(v7, luaVM);
-  if ( GridData->pendingDimensionUpdate || (v7->currentAnimationState.flags & 1) == 0 )
-    goto LABEL_12;
-  v9 = 28i64;
+    goto LABEL_14;
+  v4 = LUI_ToElement(luaVM, 1);
+  GridData = LUIElement_Grid_GetGridData(v4, luaVM);
+  if ( GridData->pendingDimensionUpdate || (v4->currentAnimationState.flags & 1) == 0 )
+    goto LABEL_14;
+  v6 = 28i64;
+  v7 = 28i64;
   if ( axis )
-    v9 = 1356i64;
-  if ( *(int *)((char *)&GridData->buildChildFunction + v9) >= 0 )
+    v7 = 1356i64;
+  if ( *(int *)((char *)&GridData->buildChildFunction + v7) >= 0 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm3, xmm3, xmm3; lineStart
-      vcvtsi2ss xmm0, xmm0, dword ptr [rdx+rax]
-      vmovss  [rsp+38h+var_18], xmm0
-    }
-    *(float *)&_XMM0 = LUIElement_Grid_ConvertLineDistanceToPixels(v7, GridData, axis, *(double *)&_XMM3, v15, luaVM);
-    __asm { vcvtss2sd xmm1, xmm0, xmm0; n }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+    if ( axis )
+      v6 = 1356i64;
+    v8 = LUIElement_Grid_ConvertLineDistanceToPixels(v4, GridData, axis, 0.0, (float)*(int *)((char *)&GridData->buildChildFunction + v6), luaVM);
+    j_lua_pushnumber(luaVM, v8);
   }
   else
   {
-LABEL_12:
+LABEL_14:
     j_lua_pushnil(luaVM);
   }
   return 1i64;
@@ -2806,48 +2384,42 @@ LUIElement_Grid_GetLineVisibleSize
 */
 __int64 LUIElement_Grid_GetLineVisibleSize(LUIGridAxis axis, lua_State *luaVM)
 {
+  LUIElement *v5; 
   LUIGridData *GridData; 
   unsigned int flags; 
-  LUIElementAxisPosition v13; 
+  double v9; 
+  float v10; 
+  LUIElementAxisPosition v12; 
 
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: element:GetColumnVisibleSize() or element:GetRowVisibleSize()");
   if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) )
   {
-    _RDI = LUI_ToElement(luaVM, 1);
-    GridData = LUIElement_Grid_GetGridData(_RDI, luaVM);
-    flags = _RDI->currentAnimationState.flags;
+    v5 = LUI_ToElement(luaVM, 1);
+    GridData = LUIElement_Grid_GetGridData(v5, luaVM);
+    flags = v5->currentAnimationState.flags;
     if ( (flags & 1) != 0 )
     {
       if ( GridData->adjustSizeToContent || (flags & 2) == 0 )
       {
-        *(float *)&_XMM0 = LUIElement_Grid_MeasureRequestedVisibleContent(_RDI, GridData, axis, luaVM);
+        v10 = LUIElement_Grid_MeasureRequestedVisibleContent(v5, GridData, axis, luaVM);
       }
       else
       {
         if ( axis )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi+18h]
-            vmovsd  xmm1, qword ptr [rdi+28h]
-            vmovups [rsp+48h+var_28], xmm0
-            vmovsd  [rsp+48h+var_18], xmm1
-          }
+          v9 = *(double *)v5->currentAnimationState.position.y.anchors;
+          *(_OWORD *)v12.offsets = *(_OWORD *)v5->currentAnimationState.position.y.offsets;
         }
         else
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovsd  xmm1, qword ptr [rdi+10h]
-            vmovups [rsp+48h+var_28], xmm0
-            vmovsd  [rsp+48h+var_18], xmm1
-          }
+          v9 = *(double *)v5->currentAnimationState.position.x.anchors;
+          *(_OWORD *)v12.offsets = *(_OWORD *)v5->currentAnimationState.position.x.offsets;
         }
-        *(float *)&_XMM0 = LUI_Measure(&v13);
+        *(double *)v12.anchors = v9;
+        v10 = LUI_Measure(&v12);
       }
-      __asm { vcvtss2sd xmm1, xmm0, xmm0; n }
+      *(double *)&_XMM1 = v10;
     }
     else
     {
@@ -2931,100 +2503,75 @@ __int64 LUIElement_Grid_GetNumLines(LUIGridAxis axis, lua_State *luaVM)
 LUIElement_Grid_GetPixelBoundaries
 ==============
 */
-
-__int64 __fastcall LUIElement_Grid_GetPixelBoundaries(LUIGridAxis axis, lua_State *luaVM, __int64 a3, double _XMM3_8)
+__int64 LUIElement_Grid_GetPixelBoundaries(LUIGridAxis axis, lua_State *luaVM)
 {
-  __int64 v17; 
-  float fmt; 
-  LUIElementAxisPosition v24; 
+  LUIElement *v4; 
+  LUIGridData *GridData; 
+  __int64 v6; 
+  float v7; 
+  float v8; 
+  __int128 v9; 
+  double v10; 
+  float v11; 
+  __int64 v12; 
+  LUIElementAxisPosition v14; 
 
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: element:GetRowBoundaries() or element:GetColumnBoundaries()");
-  if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) || (_RDI = LUI_ToElement(luaVM, 1), _RSI = LUIElement_Grid_GetGridData(_RDI, luaVM), !_RSI->numChildren) )
+  if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) || (v4 = LUI_ToElement(luaVM, 1), GridData = LUIElement_Grid_GetGridData(v4, luaVM), !GridData->numChildren) )
   {
     j_lua_pushnil(luaVM);
     j_lua_pushnil(luaVM);
     return 2i64;
   }
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-  }
-  _RCX = 40i64;
+  v6 = 40i64;
   if ( axis )
-    _RCX = 1368i64;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; lineStart
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  xmm0, dword ptr [rcx+rsi]
-    vmovss  dword ptr [rsp+78h+fmt], xmm0
-  }
-  *(float *)&_XMM0 = LUIElement_Grid_ConvertLineDistanceToPixels(_RDI, _RSI, axis, *(double *)&_XMM3, fmt, luaVM);
-  __asm { vmovaps xmm6, xmm0 }
+    v6 = 1368i64;
+  v7 = 0.0;
+  v8 = LUIElement_Grid_ConvertLineDistanceToPixels(v4, GridData, axis, 0.0, *(float *)((char *)&GridData->buildChildFunction + v6), luaVM);
   if ( axis )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi+18h]
-      vmovsd  xmm1, qword ptr [rdi+28h]
-    }
+    v9 = *(_OWORD *)v4->currentAnimationState.position.y.offsets;
+    v10 = *(double *)v4->currentAnimationState.position.y.anchors;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi]
-      vmovsd  xmm1, qword ptr [rdi+10h]
-    }
+    v9 = *(_OWORD *)v4->currentAnimationState.position.x.offsets;
+    v10 = *(double *)v4->currentAnimationState.position.x.anchors;
   }
-  __asm
-  {
-    vmovups [rsp+78h+var_48], xmm0
-    vmovsd  [rsp+78h+var_38], xmm1
-  }
-  *(float *)&_XMM0 = LUI_Measure(&v24);
-  v17 = 1340i64;
+  *(_OWORD *)v14.offsets = v9;
+  *(double *)v14.anchors = v10;
+  v11 = LUI_Measure(&v14);
+  v12 = 1340i64;
   if ( axis )
-    v17 = 2668i64;
-  if ( *((_BYTE *)&_RSI->buildChildFunction + v17) )
+    v12 = 2668i64;
+  if ( *((_BYTE *)&GridData->buildChildFunction + v12) )
   {
-    if ( *((_BYTE *)&_RSI->buildChildFunction + v17) != 1 )
+    if ( *((_BYTE *)&GridData->buildChildFunction + v12) != 1 )
     {
-      if ( *((_BYTE *)&_RSI->buildChildFunction + v17) == 2 )
+      if ( *((_BYTE *)&GridData->buildChildFunction + v12) == 2 )
       {
-        __asm { vsubss  xmm7, xmm6, xmm0 }
+        v7 = v8 - v11;
       }
       else
       {
-        __asm { vxorps  xmm6, xmm6, xmm6 }
+        v8 = 0.0;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 1397, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
           __debugbreak();
       }
       goto LABEL_23;
     }
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@3f000000
-      vsubss  xmm7, xmm6, xmm0
-    }
+    v11 = v11 * 0.5;
+    v7 = v8 - v11;
   }
   else
   {
-    __asm { vmovaps xmm7, xmm6 }
+    v7 = v8;
   }
-  __asm { vaddss  xmm6, xmm0, xmm6 }
+  v8 = v11 + v8;
 LABEL_23:
-  __asm { vcvtss2sd xmm1, xmm7, xmm7; n }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm { vcvtss2sd xmm1, xmm6, xmm6; n }
-  j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm6, [rsp+78h+var_18]
-  }
+  j_lua_pushnumber(luaVM, v7);
+  j_lua_pushnumber(luaVM, v8);
   return 2i64;
 }
 
@@ -3036,22 +2583,19 @@ LUIElement_Grid_GetSpacing
 __int64 LUIElement_Grid_GetSpacing(LUIGridAxis axis, lua_State *luaVM)
 {
   LUIElement *v4; 
+  LUIGridData *GridData; 
+  __int64 v6; 
 
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: element:GetHorizontalSpacing() or element:GetVerticalSpacing()");
   if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) )
   {
     v4 = LUI_ToElement(luaVM, 1);
-    _RAX = LUIElement_Grid_GetGridData(v4, luaVM);
-    _RCX = 20i64;
+    GridData = LUIElement_Grid_GetGridData(v4, luaVM);
+    v6 = 20i64;
     if ( axis )
-      _RCX = 1348i64;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+rcx]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+      v6 = 1348i64;
+    j_lua_pushnumber(luaVM, *(float *)((char *)&GridData->buildChildFunction + v6));
     return 1i64;
   }
   else
@@ -3069,22 +2613,19 @@ LUIElement_Grid_GetTargetLine
 __int64 LUIElement_Grid_GetTargetLine(LUIGridAxis axis, lua_State *luaVM)
 {
   LUIElement *v4; 
+  LUIGridData *GridData; 
+  __int64 v6; 
 
   if ( j_lua_gettop(luaVM) != 1 || !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, "USAGE: element:GetTargetRow() or element:GetTargetColumn()");
   if ( j_lua_gettop(luaVM) == 1 && j_lua_isuserdata(luaVM, 1) )
   {
     v4 = LUI_ToElement(luaVM, 1);
-    _RAX = LUIElement_Grid_GetGridData(v4, luaVM);
-    _RCX = 40i64;
+    GridData = LUIElement_Grid_GetGridData(v4, luaVM);
+    v6 = 40i64;
     if ( axis )
-      _RCX = 1368i64;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rax+rcx]
-      vcvtss2sd xmm1, xmm1, xmm1; n
-    }
-    j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+      v6 = 1368i64;
+    j_lua_pushnumber(luaVM, *(float *)((char *)&GridData->buildChildFunction + v6));
     return 1i64;
   }
   else
@@ -3141,85 +2682,36 @@ void LUIElement_Grid_InvalidateChildrenContent(LUIGridData *gridData, lua_State 
 LUIElement_Grid_Layout
 ==============
 */
-
-void __fastcall LUIElement_Grid_Layout(const LocalClientNum_t localClientNum, LUIElement *element, double unitScale, int deltaTime, lua_State *luaVM)
+void LUIElement_Grid_Layout(const LocalClientNum_t localClientNum, LUIElement *element, float unitScale, int deltaTime, lua_State *luaVM)
 {
-  char v15; 
-  char v28; 
-  bool v29; 
+  LUIGridData *customElementData; 
+  bool v9; 
+  bool v10; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm6
-    vmovaps xmm6, xmm2
-  }
   if ( !element->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  _RBX = (LUIGridData *)element->customElementData;
-  if ( _RBX->yData.maxVisibleLines >= 1 && _RBX->xData.maxVisibleLines >= 1 )
+  customElementData = (LUIGridData *)element->customElementData;
+  if ( customElementData->yData.maxVisibleLines >= 1 && customElementData->xData.maxVisibleLines >= 1 )
   {
-    __asm { vmovaps xmm1, xmm6; unitScale }
-    LUIElement_UpdateLayout(element, *(float *)&_XMM1, deltaTime, luaVM);
-    if ( _RBX->numChildren )
+    LUIElement_UpdateLayout(element, unitScale, deltaTime, luaVM);
+    if ( customElementData->numChildren )
     {
-      __asm { vmovaps xmm3, xmm6; unitScale }
-      LUIElement_Grid_ApplyPhysics(element, _RBX, HORIZONTAL, *(float *)&_XMM3, deltaTime, luaVM);
-      LUIElement_Grid_ShuffleLines(_RBX, &_RBX->xData);
-      if ( !_RBX->numChildren && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2613, ASSERT_TYPE_ASSERT, "(gridData->numChildren != 0)", (const char *)&queryFormat, "gridData->numChildren != 0") )
+      LUIElement_Grid_ApplyPhysics(element, customElementData, HORIZONTAL, unitScale, deltaTime, luaVM);
+      LUIElement_Grid_ShuffleLines(customElementData, &customElementData->xData);
+      if ( !customElementData->numChildren && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2613, ASSERT_TYPE_ASSERT, "(gridData->numChildren != 0)", (const char *)&queryFormat, "gridData->numChildren != 0") )
         __debugbreak();
-      __asm { vmovaps xmm3, xmm6; unitScale }
-      LUIElement_Grid_ApplyPhysics(element, _RBX, VERTICAL, *(float *)&_XMM3, deltaTime, luaVM);
-      LUIElement_Grid_ShuffleLines(_RBX, &_RBX->yData);
+      LUIElement_Grid_ApplyPhysics(element, customElementData, VERTICAL, unitScale, deltaTime, luaVM);
+      LUIElement_Grid_ShuffleLines(customElementData, &customElementData->yData);
     }
-    __asm { vmovaps xmm2, xmm6; unitScale }
     element->layoutDeeplyCached = element->canCacheLayout;
-    LUIElement_Grid_LayoutChildren(localClientNum, element, *(float *)&_XMM2, deltaTime, _RBX, luaVM);
+    LUIElement_Grid_LayoutChildren(localClientNum, element, unitScale, deltaTime, customElementData, luaVM);
     LUI_Tween_InvalidateCache(element);
     LUI_QuadCache_Element_Invalidate(element);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vsubss  xmm1, xmm0, dword ptr [rbx+2Ch]
-      vmovss  xmm2, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm3, cs:__real@3c23d70a
-      vandps  xmm1, xmm1, xmm2
-      vcomiss xmm1, xmm3
-    }
-    if ( !v15 )
-      goto LABEL_16;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+38h]
-      vandps  xmm0, xmm0, xmm2
-      vcomiss xmm0, xmm3
-    }
-    if ( !v15 )
-      goto LABEL_16;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+558h]
-      vsubss  xmm1, xmm0, dword ptr [rbx+55Ch]
-      vandps  xmm1, xmm1, xmm2
-      vcomiss xmm1, xmm3
-    }
-    if ( !v15 )
-      goto LABEL_16;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+568h]
-      vandps  xmm0, xmm0, xmm2
-      vcomiss xmm0, xmm3
-    }
-    if ( v15 )
-      v28 = 1;
-    else
-LABEL_16:
-      v28 = 0;
-    v29 = element->canCacheLayout && v28;
-    element->layoutDeeplyCached &= v29;
-    element->layoutCached = v29;
+    v9 = COERCE_FLOAT(COERCE_UNSIGNED_INT(customElementData->xData.targetPosition - customElementData->xData.currentPosition) & _xmm) < 0.0099999998 && COERCE_FLOAT(LODWORD(customElementData->xData.velocity) & _xmm) < 0.0099999998 && COERCE_FLOAT(COERCE_UNSIGNED_INT(customElementData->yData.targetPosition - customElementData->yData.currentPosition) & _xmm) < 0.0099999998 && COERCE_FLOAT(LODWORD(customElementData->yData.velocity) & _xmm) < 0.0099999998;
+    v10 = element->canCacheLayout && v9;
+    element->layoutDeeplyCached &= v10;
+    element->layoutCached = v10;
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
 }
 
 /*
@@ -3227,340 +2719,273 @@ LABEL_16:
 LUIElement_Grid_LayoutChildren
 ==============
 */
-
-void __fastcall LUIElement_Grid_LayoutChildren(LocalClientNum_t localClientNum, LUIElement *element, double unitScale, int deltaTime, LUIGridData *gridData, lua_State *luaVM)
+void LUIElement_Grid_LayoutChildren(LocalClientNum_t localClientNum, LUIElement *element, float unitScale, int deltaTime, LUIGridData *gridData, lua_State *luaVM)
 {
+  LUIElement *v6; 
+  LUIGridData *v8; 
   ntl::internal::list_node_base *mp_next; 
-  char v17; 
-  char v18; 
+  char v11; 
+  char v12; 
   ntl::internal::list_node_base *i; 
-  char v34; 
-  char v35; 
+  float v14; 
+  float v15; 
+  ntl::internal::list_node_base *mp_prev; 
+  double v17; 
+  float v18; 
+  double v19; 
+  double v20; 
+  bool v21; 
+  bool v22; 
+  double v23; 
   bool pendingDimensionUpdate; 
   LUIGridAxis primaryAxis; 
-  __int64 v41; 
+  __int64 v26; 
   LUIGridAxis secondaryAxis; 
-  char v45; 
-  char v46; 
-  char v47; 
-  char v48; 
-  int v56; 
-  int v57; 
-  int v58; 
+  __int64 v28; 
+  char *v29; 
+  char v30; 
+  char v31; 
+  char v32; 
+  char v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  double v38; 
+  int v39; 
+  int v40; 
+  int v41; 
+  double v42; 
+  __int128 v50; 
+  __int128 v51; 
+  __int128 v52; 
   LUIElement *firstChild; 
-  char v88; 
-  char v89; 
-  ntl::internal::list_node_base *v90; 
-  int v91; 
-  LUIElementAxisPosition v92; 
-  LUIElementAxisPosition v93; 
-  void *retaddr; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v56; 
+  __int128 v57; 
+  __int128 v58; 
+  __int128 v59; 
+  char v60; 
+  char v61; 
+  ntl::internal::list_node_base *v62; 
+  int v63; 
+  LUIElementAxisPosition v64; 
+  LUIElementAxisPosition v65; 
   char gridDataa; 
 
-  _RAX = &retaddr;
-  _R13 = element;
-  _RBP = gridData;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmm10, xmm2
-  }
+  v6 = element;
+  v8 = gridData;
   LUIElement_Grid_PopulateChildren(element, gridData, luaVM);
-  LUIElement_Grid_UpdateChildrenTransitions(localClientNum, _R13, gridData, luaVM);
+  LUIElement_Grid_UpdateChildrenTransitions(localClientNum, v6, gridData, luaVM);
   mp_next = gridData->gridContent.m_listHead.m_sentinel.mp_next;
-  v17 = 0;
-  v90 = mp_next;
-  v18 = 0;
-  v88 = 0;
+  v11 = 0;
+  v62 = mp_next;
+  v12 = 0;
+  v60 = 0;
   if ( mp_next != (ntl::internal::list_node_base *)&gridData->gridContent.m_listHead )
   {
-    __asm
-    {
-      vmovss  xmm8, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm9, cs:__real@3c23d70a
-    }
     do
     {
       if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
       for ( i = mp_next[4].mp_prev; i != (ntl::internal::list_node_base *)&mp_next[3].mp_next; i = i->mp_next )
       {
-        __asm
-        {
-          vxorps  xmm6, xmm6, xmm6
-          vxorps  xmm7, xmm7, xmm7
-        }
+        v14 = 0.0;
+        v15 = 0.0;
         if ( !i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        _RSI = i[1].mp_prev;
-        if ( ((__int64)_RSI[5].mp_prev & 1) != 0 && (HIDWORD(_RSI[19].mp_next) & 0x6000) != 0 )
+        mp_prev = i[1].mp_prev;
+        if ( ((__int64)mp_prev[5].mp_prev & 1) != 0 && (HIDWORD(mp_prev[19].mp_next) & 0x6000) != 0 )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovsd  xmm1, qword ptr [rsi+10h]
-            vmovups [rsp+128h+var_C8], xmm0
-            vmovsd  [rsp+128h+var_B8], xmm1
-          }
-          *(float *)&_XMM0 = LUI_Measure(&v92);
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rsi+18h]
-            vmovsd  xmm2, qword ptr [rsi+28h]
-            vmovups [rsp+128h+var_A8], xmm1
-            vmovsd  [rsp+128h+var_98], xmm2
-            vmovaps xmm6, xmm0
-          }
-          *(float *)&_XMM0 = LUI_Measure(&v93);
-          __asm { vmovaps xmm7, xmm0 }
+          v17 = *(double *)&mp_prev[1].mp_prev;
+          *(ntl::internal::list_node_base *)v64.offsets = *mp_prev;
+          *(double *)v64.anchors = v17;
+          v18 = LUI_Measure(&v64);
+          v19 = *(double *)&mp_prev[2].mp_next;
+          *(ntl::internal::list_node_base *)v65.offsets = *(ntl::internal::list_node_base *)((char *)mp_prev + 24);
+          *(double *)v65.anchors = v19;
+          v14 = v18;
+          v15 = LUI_Measure(&v65);
         }
-        __asm { vmovaps xmm2, xmm10; unitScale }
-        LUIElement_Layout(localClientNum, (LUIElement *)_RSI, *(float *)&_XMM2, deltaTime, luaVM);
-        if ( (HIDWORD(_RSI[19].mp_next) & 0x6000) != 0 )
+        LUIElement_Layout(localClientNum, (LUIElement *)mp_prev, unitScale, deltaTime, luaVM);
+        if ( (HIDWORD(mp_prev[19].mp_next) & 0x6000) != 0 )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovsd  xmm1, qword ptr [rsi+10h]
-            vmovups [rsp+128h+var_A8], xmm0
-            vmovsd  [rsp+128h+var_98], xmm1
-          }
-          LUI_Measure(&v93);
-          __asm
-          {
-            vsubss  xmm1, xmm6, xmm0
-            vmovups xmm0, xmmword ptr [rsi+18h]
-            vandps  xmm1, xmm1, xmm8
-            vcomiss xmm1, xmm9
-            vmovsd  xmm1, qword ptr [rsi+28h]
-          }
-          v18 |= !(v34 | v35);
-          __asm
-          {
-            vmovups [rsp+128h+var_C8], xmm0
-            vmovsd  [rsp+128h+var_B8], xmm1
-          }
-          LUI_Measure(&v92);
-          __asm
-          {
-            vsubss  xmm1, xmm7, xmm0
-            vandps  xmm1, xmm1, xmm8
-            vcomiss xmm1, xmm9
-          }
-          v88 |= !(v34 | v35);
+          v20 = *(double *)&mp_prev[1].mp_prev;
+          *(ntl::internal::list_node_base *)v65.offsets = *mp_prev;
+          *(double *)v65.anchors = v20;
+          LODWORD(v20) = COERCE_UNSIGNED_INT(v14 - LUI_Measure(&v65)) & _xmm;
+          v21 = *(float *)&v20 < 0.0099999998;
+          v22 = *(float *)&v20 == 0.0099999998;
+          v23 = *(double *)&mp_prev[2].mp_next;
+          v12 |= !v21 && !v22;
+          *(ntl::internal::list_node_base *)v64.offsets = *(ntl::internal::list_node_base *)((char *)mp_prev + 24);
+          *(double *)v64.anchors = v23;
+          v60 |= COERCE_FLOAT(COERCE_UNSIGNED_INT(v15 - LUI_Measure(&v64)) & _xmm) > 0.0099999998;
         }
       }
-      mp_next = v90->mp_next;
-      v90 = mp_next;
+      mp_next = v62->mp_next;
+      v62 = mp_next;
     }
     while ( mp_next != (ntl::internal::list_node_base *)&gridData->gridContent.m_listHead );
-    _RBP = gridData;
-    _R13 = element;
-    v17 = v88;
+    v8 = gridData;
+    v6 = element;
+    v11 = v60;
   }
-  pendingDimensionUpdate = _RBP->pendingDimensionUpdate;
+  pendingDimensionUpdate = v8->pendingDimensionUpdate;
   if ( pendingDimensionUpdate )
   {
-    if ( _RBP->adjustSizeToContent && (_R13->currentAnimationState.flags & 1) != 0 )
+    if ( v8->adjustSizeToContent && (v6->currentAnimationState.flags & 1) != 0 )
     {
-      LUIElement_Grid_AdjustBoundingBox(_R13, _RBP, HORIZONTAL, luaVM);
-      LUIElement_Grid_AdjustBoundingBox(_R13, _RBP, VERTICAL, luaVM);
+      LUIElement_Grid_AdjustBoundingBox(v6, v8, HORIZONTAL, luaVM);
+      LUIElement_Grid_AdjustBoundingBox(v6, v8, VERTICAL, luaVM);
     }
-    LUIElement_CalculateGlobalRectangle(_R13, &_R13->currentAnimationState);
-    __asm { vmovaps xmm1, xmm10; unitScale }
-    LUIElement_SetDimensions(_R13, *(float *)&_XMM1);
-    _RBP->pendingDimensionUpdate = 0;
+    LUIElement_CalculateGlobalRectangle(v6, &v6->currentAnimationState);
+    LUIElement_SetDimensions(v6, unitScale);
+    v8->pendingDimensionUpdate = 0;
   }
-  primaryAxis = _RBP->primaryAxis;
-  v41 = 16i64;
-  secondaryAxis = _RBP->secondaryAxis;
-  _RSI = 16i64;
+  primaryAxis = v8->primaryAxis;
+  v26 = 16i64;
+  secondaryAxis = v8->secondaryAxis;
+  v28 = 16i64;
   if ( primaryAxis )
-    _RSI = 1344i64;
+    v28 = 1344i64;
   if ( secondaryAxis )
-    v41 = 1344i64;
-  _R14 = (char *)_RBP + v41;
+    v26 = 1344i64;
+  v29 = (char *)v8 + v26;
   if ( pendingDimensionUpdate )
-    goto LABEL_33;
-  v45 = v17;
+    goto LABEL_32;
+  v30 = v11;
   if ( primaryAxis == HORIZONTAL )
-    v45 = v18;
-  if ( v45 )
+    v30 = v12;
+  if ( v30 )
   {
-LABEL_33:
-    v46 = 1;
-    v89 = 1;
+LABEL_32:
+    v31 = 1;
+    v61 = 1;
     if ( pendingDimensionUpdate )
     {
-LABEL_38:
-      v48 = 1;
-      goto LABEL_39;
+LABEL_37:
+      v33 = 1;
+      goto LABEL_38;
     }
   }
   else
   {
-    v46 = 0;
-    v89 = 0;
+    v31 = 0;
+    v61 = 0;
   }
-  v47 = v17;
+  v32 = v11;
   if ( secondaryAxis == HORIZONTAL )
-    v47 = v18;
-  if ( v47 )
-    goto LABEL_38;
-  v48 = 0;
-LABEL_39:
-  gridDataa = v48;
-  if ( v46 )
+    v32 = v12;
+  if ( v32 )
+    goto LABEL_37;
+  v33 = 0;
+LABEL_38:
+  gridDataa = v33;
+  if ( v31 )
   {
-    if ( _RBP->ensureClampedTargetLineOnDimensionsUpdate )
+    if ( v8->ensureClampedTargetLineOnDimensionsUpdate )
     {
-      __asm
+      v34 = *(float *)((char *)&v8->xData.requestedNumLines + v28);
+      LUIElement_Grid_SetTargetPosition(v6, v8, primaryAxis, v34, 1, 0, luaVM);
+      v35 = *(float *)((char *)&v8->xData.requestedNumLines + v28);
+      if ( v34 != v35 )
       {
-        vmovss  xmm6, dword ptr [rsi+rbp+18h]
-        vmovaps xmm3, xmm6; targetPosition
-      }
-      LUIElement_Grid_SetTargetPosition(_R13, _RBP, primaryAxis, *(float *)&_XMM3, 1, 0, luaVM);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+rbp+18h]
-        vucomiss xmm6, xmm0
-      }
-      if ( !v35 )
-      {
-        __asm { vmovss  dword ptr [rsi+rbp+1Ch], xmm0 }
-        *(float *)((char *)&_RBP->xData.targetPosition + _RSI) = 0.0;
-        _R13->canCacheLayout = 0;
+        *(float *)((char *)&v8->xData.numLines + v28) = v35;
+        *(float *)((char *)&v8->xData.targetPosition + v28) = 0.0;
+        v6->canCacheLayout = 0;
       }
     }
   }
-  if ( v48 )
+  if ( v33 )
   {
-    if ( _RBP->ensureClampedTargetLineOnDimensionsUpdate )
+    if ( v8->ensureClampedTargetLineOnDimensionsUpdate )
     {
-      __asm
+      v36 = *((float *)v29 + 6);
+      LUIElement_Grid_SetTargetPosition(v6, v8, v8->secondaryAxis, v36, 1, 0, luaVM);
+      v37 = *((float *)v29 + 6);
+      if ( v36 != v37 )
       {
-        vmovss  xmm6, dword ptr [r14+18h]
-        vmovaps xmm3, xmm6; targetPosition
-      }
-      LUIElement_Grid_SetTargetPosition(_R13, _RBP, _RBP->secondaryAxis, *(float *)&_XMM3, 1, 0, luaVM);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r14+18h]
-        vucomiss xmm6, xmm0
-      }
-      if ( !v35 )
-      {
-        __asm { vmovss  dword ptr [r14+1Ch], xmm0 }
-        *((_DWORD *)_R14 + 10) = 0;
-        _R13->canCacheLayout = 0;
+        *((float *)v29 + 7) = v37;
+        *((_DWORD *)v29 + 10) = 0;
+        v6->canCacheLayout = 0;
       }
     }
   }
-  if ( _RBP->numChildren )
+  if ( v8->numChildren )
   {
+    v38 = *(double *)v6->currentAnimationState.position.x.anchors;
+    v39 = *(int *)((char *)&v8->xData.managedLines + v28);
+    v40 = *(int *)((char *)&v8->xData.maxVisibleLines + v28);
+    v41 = *((_DWORD *)v29 + 8);
+    *(_OWORD *)v65.offsets = *(_OWORD *)v6->currentAnimationState.position.x.offsets;
+    v52 = *(_OWORD *)v65.offsets;
+    *(double *)v65.anchors = v38;
+    v63 = v39;
+    *(float *)&v52 = LUI_Measure(&v65);
+    v42 = *(double *)v6->currentAnimationState.position.y.anchors;
+    *(_OWORD *)v65.offsets = *(_OWORD *)v6->currentAnimationState.position.y.offsets;
+    *(double *)v65.anchors = v42;
+    _XMM7 = v52;
+    *(float *)&v52 = LUI_Measure(&v65);
+    _XMM1 = (unsigned int)v8->primaryAxis;
+    __asm { vpcmpeqd xmm3, xmm1, xmm2 }
+    _XMM6 = v52;
+    __asm { vblendvps xmm3, xmm6, xmm7, xmm3; gridSize }
+    *(float *)&v52 = LUIElement_Grid_CalculateAlignmentOffset(v6, v8, v8->primaryAxis, *(float *)&_XMM3, luaVM);
     __asm
     {
-      vmovups xmm0, xmmword ptr [r13+0]
-      vmovsd  xmm1, qword ptr [r13+10h]
-    }
-    v56 = *(int *)((char *)&_RBP->xData.managedLines + _RSI);
-    v57 = *(int *)((char *)&_RBP->xData.maxVisibleLines + _RSI);
-    v58 = *((_DWORD *)_R14 + 8);
-    __asm
-    {
-      vmovups [rsp+128h+var_A8], xmm0
-      vmovsd  [rsp+128h+var_98], xmm1
-    }
-    v91 = v56;
-    *(float *)&_XMM0 = LUI_Measure(&v93);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [r13+18h]
-      vmovsd  xmm2, qword ptr [r13+28h]
-      vmovups [rsp+128h+var_A8], xmm1
-      vmovsd  [rsp+128h+var_98], xmm2
-      vmovaps xmm7, xmm0
-    }
-    *(float *)&_XMM0 = LUI_Measure(&v93);
-    _EBX = _RBP->primaryAxis;
-    _EAX = 0;
-    __asm
-    {
-      vmovd   xmm2, eax
-      vmovd   xmm1, ebx
-      vpcmpeqd xmm3, xmm1, xmm2
-      vmovaps xmm6, xmm0
-      vblendvps xmm3, xmm6, xmm7, xmm3; gridSize
-    }
-    *(float *)&_XMM0 = LUIElement_Grid_CalculateAlignmentOffset(_R13, _RBP, _RBP->primaryAxis, *(double *)&_XMM3, luaVM);
-    _EAX = 0;
-    __asm
-    {
-      vmovd   xmm2, eax
-      vmovd   xmm1, ebx
       vpcmpeqd xmm3, xmm1, xmm2
       vblendvps xmm3, xmm7, xmm6, xmm3; gridSize
-      vmovaps xmm9, xmm0
-      vmovaps xmm8, xmm0
     }
-    *(float *)&_XMM0 = LUIElement_Grid_CalculateAlignmentOffset(_R13, _RBP, _RBP->secondaryAxis, *(double *)&_XMM3, luaVM);
-    firstChild = _R13->firstChild;
-    __asm { vmovaps xmm6, xmm0 }
+    v50 = v52;
+    v51 = v52;
+    *(float *)&v52 = LUIElement_Grid_CalculateAlignmentOffset(v6, v8, v8->secondaryAxis, *(float *)&_XMM3, luaVM);
+    firstChild = v6->firstChild;
+    v54 = v52;
     if ( firstChild )
     {
       while ( 1 )
       {
-        __asm { vmovaps xmm3, xmm8; position }
-        LUIElement_Grid_OverrideAnimationState(_RBP->primaryAxis, firstChild, &firstChild->currentAnimationState, *(float *)&_XMM3);
-        __asm { vmovaps xmm3, xmm6; position }
-        LUIElement_Grid_OverrideAnimationState(_RBP->secondaryAxis, firstChild, &firstChild->currentAnimationState, *(float *)&_XMM3);
-        __asm { vmovaps xmm2, xmm10; unitScale }
+        LUIElement_Grid_OverrideAnimationState(v8->primaryAxis, firstChild, &firstChild->currentAnimationState, *(float *)&v51);
+        LUIElement_Grid_OverrideAnimationState(v8->secondaryAxis, firstChild, &firstChild->currentAnimationState, *(float *)&v54);
         firstChild->layoutCached = 0;
-        LUIElement_Layout(localClientNum, firstChild, *(float *)&_XMM2, 0, luaVM);
-        _R13->layoutDeeplyCached &= firstChild->layoutDeeplyCached;
-        *(float *)&_XMM0 = LUIElement_Grid_MeasureLine(_R13, _RBP, _RBP->primaryAxis, v57, luaVM);
-        __asm { vmovaps xmm7, xmm0 }
-        *(float *)&_XMM0 = LUIElement_Grid_MeasureLine(_R13, _RBP, _RBP->secondaryAxis, v58, luaVM);
+        LUIElement_Layout(localClientNum, firstChild, unitScale, 0, luaVM);
+        v6->layoutDeeplyCached &= firstChild->layoutDeeplyCached;
+        *(float *)&v52 = LUIElement_Grid_MeasureLine(v6, v8, v8->primaryAxis, v40, luaVM);
+        v55 = v52;
+        *(float *)&v52 = LUIElement_Grid_MeasureLine(v6, v8, v8->secondaryAxis, v41, luaVM);
         firstChild = firstChild->nextSibling;
         if ( !firstChild )
           break;
-        if ( v57 == v91 )
+        if ( v40 == v63 )
         {
-          __asm { vaddss  xmm0, xmm0, dword ptr [r14+4] }
-          v57 = *(int *)((char *)&_RBP->xData.maxVisibleLines + _RSI);
-          ++v58;
-          __asm
-          {
-            vaddss  xmm6, xmm6, xmm0
-            vmovaps xmm8, xmm9
-          }
+          v56 = v52;
+          *(float *)&v56 = *(float *)&v52 + *((float *)v29 + 1);
+          v52 = v56;
+          v40 = *(int *)((char *)&v8->xData.maxVisibleLines + v28);
+          ++v41;
+          v57 = v54;
+          *(float *)&v57 = *(float *)&v54 + *(float *)&v52;
+          v54 = v57;
+          v51 = v50;
         }
         else
         {
-          __asm
-          {
-            vaddss  xmm0, xmm7, dword ptr [rsi+rbp+4]
-            vaddss  xmm8, xmm8, xmm0
-          }
-          ++v57;
+          v58 = v55;
+          *(float *)&v58 = *(float *)&v55 + *(float *)((char *)&v8->refreshChildFunction + v28);
+          v52 = v58;
+          v59 = v51;
+          *(float *)&v59 = *(float *)&v51 + *(float *)&v52;
+          v51 = v59;
+          ++v40;
         }
       }
     }
-    v48 = gridDataa;
+    v33 = gridDataa;
   }
-  __asm
-  {
-    vmovaps xmm10, [rsp+128h+var_88]
-    vmovaps xmm9, [rsp+128h+var_78]
-    vmovaps xmm8, [rsp+128h+var_68]
-    vmovaps xmm7, [rsp+128h+var_58]
-    vmovaps xmm6, [rsp+128h+var_48]
-  }
-  if ( (v89 || v48) && LUI_BeginEventWithElement(localClientNum, _R13, "grid_size_updated", luaVM) )
+  if ( (v61 || v33) && LUI_BeginEventWithElement(localClientNum, v6, "grid_size_updated", luaVM) )
     LUI_EndEventWithElement(luaVM);
 }
 
@@ -3815,161 +3240,181 @@ LUIElement_Grid_MeasureLine
 */
 float LUIElement_Grid_MeasureLine(LUIElement *grid, LUIGridData *gridData, LUIGridAxis axis, int lineNumber, lua_State *luaVM)
 {
+  __int64 v5; 
   unsigned __int64 v6; 
   __int64 v7; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<int,float> > *v14; 
-  int v15; 
-  ntl::intrusive_slist<ntl::internal::hash_table_node<int,float> > *mp_next; 
-  char v17; 
-  char v19; 
-  int v20; 
+  __int64 v11; 
+  float result; 
+  int v14; 
+  __int64 v15; 
+  char *v16; 
+  char *v17; 
+  int v18; 
+  char *v19; 
+  char v20; 
+  int v21; 
   ntl::internal::list_node_base *ElementAtPosition_Internal; 
-  int v28; 
-  ntl::internal::list_node_base *v29; 
+  ntl::internal::list_node_base *v23; 
+  double v25; 
+  __int128 *v26; 
+  double v27; 
+  __int64 v28; 
+  int v29; 
+  double v30; 
+  ntl::internal::list_node_base *mp_next; 
   ntl::internal::list_node_base *mp_prev; 
-  LUIElementAxisPosition v34; 
+  __int64 v33; 
+  ntl::internal::list_node_base v34; 
+  double v35; 
+  __int128 v36; 
+  double v37; 
+  int v38; 
 
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
+  v5 = 28i64;
   v6 = (unsigned int)lineNumber;
   v7 = 28i64;
   if ( axis )
     v7 = 1356i64;
-  _RSI = gridData;
   if ( *(int *)((char *)&gridData->buildChildFunction + v7) >= 0 )
   {
     if ( lineNumber < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 711, ASSERT_TYPE_ASSERT, "(lineNumber >= 0)", (const char *)&queryFormat, "lineNumber >= 0") )
       __debugbreak();
-    if ( (int)v6 >= *(int *)((char *)&_RSI->buildChildFunction + v7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 712, ASSERT_TYPE_ASSERT, "(lineNumber < axisData->numLines)", (const char *)&queryFormat, "lineNumber < axisData->numLines") )
+    if ( (int)v6 >= *(int *)((char *)&gridData->buildChildFunction + v7) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 712, ASSERT_TYPE_ASSERT, "(lineNumber < axisData->numLines)", (const char *)&queryFormat, "lineNumber < axisData->numLines") )
       __debugbreak();
   }
-  _RAX = 60i64;
+  v11 = 60i64;
   if ( axis )
-    _RAX = 1388i64;
-  __asm
+    v11 = 1388i64;
+  LODWORD(_XMM6) = 0;
+  result = *(float *)((char *)&gridData->buildChildFunction + v11);
+  if ( result <= 0.0 )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  xmm0, dword ptr [rax+rsi]
-    vcomiss xmm0, xmm6
-  }
-  if ( axis == HORIZONTAL )
-  {
+    v14 = 0x4000;
+    v15 = 896i64;
+    if ( axis == HORIZONTAL )
+      v14 = 0x2000;
+    v38 = v14;
+    if ( axis )
+      v15 = 2224i64;
+    v16 = (char *)gridData + v15;
     if ( v6 % 0x35 >= 0x35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\array\\fixed_array.h", 87, ASSERT_TYPE_ASSERT, "( index < size() )", (const char *)&queryFormat, "index < size()") )
       __debugbreak();
-    v14 = &_RSI->xData.sizesCache.storage.m_buckets.m_data[v6 % 0x35];
-    v15 = 0;
-    mp_next = (ntl::intrusive_slist<ntl::internal::hash_table_node<int,float> > *)v14->m_listHead.m_sentinel.mp_next;
-    if ( (ntl::intrusive_slist<ntl::internal::hash_table_node<int,float> > *)v14->m_listHead.m_sentinel.mp_next == v14 )
+    v17 = &v16[8 * (v6 % 0x35)];
+    v18 = 0;
+    v19 = *(char **)v17;
+    if ( *(char **)v17 == v17 )
     {
-LABEL_22:
-      mp_next = NULL;
+LABEL_26:
+      v19 = NULL;
     }
     else
     {
       while ( 1 )
       {
-        if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\slist\\intrusive_slist.h", 78, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        if ( LODWORD(mp_next[1].m_listHead.m_sentinel.mp_next) == (_DWORD)v6 )
+        if ( *((_DWORD *)v19 + 2) == (_DWORD)v6 )
           break;
-        mp_next = (ntl::intrusive_slist<ntl::internal::hash_table_node<int,float> > *)mp_next->m_listHead.m_sentinel.mp_next;
-        if ( mp_next == v14 )
-          goto LABEL_22;
+        v19 = *(char **)v19;
+        if ( v19 == v17 )
+          goto LABEL_26;
       }
     }
-    v17 = 0;
-    if ( mp_next )
+    if ( v19 )
     {
-      _RAX = (char *)&mp_next[1].m_listHead.m_sentinel.mp_next + 4;
-      __asm { vmovss  xmm6, dword ptr [rax] }
-      goto LABEL_55;
+      LODWORD(_XMM6) = *((_DWORD *)v19 + 3);
+LABEL_68:
+      if ( *(float *)&_XMM6 < 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 780, ASSERT_TYPE_ASSERT, "(lineSize >= 1.f)", (const char *)&queryFormat, "lineSize >= 1.f") )
+        __debugbreak();
+      return *(float *)&_XMM6;
     }
-    v19 = 0;
-    if ( _RSI->buildChildFunction == -2 )
+    v20 = 0;
+    if ( gridData->buildChildFunction == -2 )
     {
-      if ( _RSI->yData.numLines <= 0 )
-      {
-LABEL_54:
-        __asm { vmovaps xmm2, xmm6; value }
-        LUICache<int,float,20,ntl::hash<int>>::store(&_RSI->xData.sizesCache, v6, *(float *)&_XMM2);
-LABEL_55:
-        __asm { vcomiss xmm6, cs:__real@3f800000 }
-        if ( v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 780, ASSERT_TYPE_ASSERT, "(lineSize >= 1.f)", (const char *)&queryFormat, "lineSize >= 1.f") )
-          __debugbreak();
-        __asm { vmovaps xmm0, xmm6 }
-        goto LABEL_59;
-      }
+      if ( axis == HORIZONTAL )
+        v5 = 1356i64;
+      if ( *(int *)((char *)&gridData->buildChildFunction + v5) <= 0 )
+        goto LABEL_65;
       do
       {
-        v20 = v15;
-        if ( _RSI->primaryAxis == HORIZONTAL )
-          v20 = v6;
-        ElementAtPosition_Internal = LUIElement_Grid_GetElementAtPosition_Internal(_RSI, v20, (int)v6 + v15 - v20);
-        _RBX = ElementAtPosition_Internal;
+        v21 = v18;
+        if ( axis == gridData->primaryAxis )
+          v21 = v6;
+        ElementAtPosition_Internal = LUIElement_Grid_GetElementAtPosition_Internal(gridData, v21, (int)v6 + v18 - v21);
+        v23 = ElementAtPosition_Internal;
         if ( ElementAtPosition_Internal )
         {
           if ( ((__int64)ElementAtPosition_Internal[5].mp_prev & 1) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 735, ASSERT_TYPE_ASSERT, "(child->currentAnimationState.flags & ( 1 << 0 ))", (const char *)&queryFormat, "child->currentAnimationState.flags & LUI_ANIMSTATE_INITIALIZED") )
             __debugbreak();
-          __asm
+          if ( axis )
           {
-            vmovups xmm0, xmmword ptr [rbx]
-            vmovsd  xmm1, qword ptr [rbx+10h]
-            vmovups [rsp+0A8h+var_78], xmm0
-            vmovsd  [rsp+0A8h+var_68], xmm1
+            _XMM0 = *(_OWORD *)&v23[1].mp_next;
+            v27 = *(double *)&v23[2].mp_next;
+            v36 = _XMM0;
+            v37 = v27;
+            v26 = &v36;
           }
-          *(float *)&_XMM0 = LUI_Measure(&v34);
+          else
+          {
+            _XMM0 = (__int128)*v23;
+            v25 = *(double *)&v23[1].mp_prev;
+            v34 = *v23;
+            v35 = v25;
+            v26 = (__int128 *)&v34;
+          }
+          *(float *)&_XMM0 = LUI_Measure((LUIElementAxisPosition *)v26);
           __asm { vmaxss  xmm6, xmm0, xmm6 }
-          v19 |= (HIDWORD(_RBX[19].mp_next) & 0x2000) != 0;
+          v20 |= (v38 & HIDWORD(v23[19].mp_next)) != 0;
         }
-        ++v15;
+        ++v18;
       }
-      while ( v15 < _RSI->yData.numLines );
+      while ( v18 < *(int *)((char *)&gridData->buildChildFunction + v5) );
     }
     else
     {
-      if ( !_RSI->xData.measureLineFunction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 746, ASSERT_TYPE_ASSERT, "(axisData->measureLineFunction)", (const char *)&queryFormat, "axisData->measureLineFunction") )
+      v28 = 1336i64;
+      if ( axis )
+        v28 = 2664i64;
+      if ( !*(int *)((char *)&gridData->buildChildFunction + v28) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 746, ASSERT_TYPE_ASSERT, "(axisData->measureLineFunction)", (const char *)&queryFormat, "axisData->measureLineFunction") )
         __debugbreak();
       if ( !LUI_ElementHasWeakTableEntry(grid, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 747, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( grid, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( grid, luaVM )") )
         __debugbreak();
       LUI_PutElementOnTopOfStack(grid, luaVM);
       j_lua_getfield(luaVM, -1, "_gridFunctionRefs");
-      j_lua_rawgeti(luaVM, -1, _RSI->xData.measureLineFunction);
+      j_lua_rawgeti(luaVM, -1, *(int *)((char *)&gridData->buildChildFunction + v28));
       j_lua_remove(luaVM, -2);
       j_lua_remove(luaVM, -2);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, r14d
-        vcvtss2sd xmm1, xmm0, xmm0; n
-      }
-      j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+      j_lua_pushnumber(luaVM, (float)(int)v6);
       LUI_PutElementOnTopOfStack(grid, luaVM);
-      v28 = LuaShared_PCall(luaVM, 2, 1);
-      if ( v28 )
+      v29 = LuaShared_PCall(luaVM, 2, 1);
+      if ( v29 )
       {
         LUI_ReportError("Error while measuring UI grid content.\n", luaVM);
-        LUI_HandleLuaError(v28);
+        LUI_HandleLuaError(v29);
       }
       if ( !j_lua_isnumber(luaVM, -1) )
         LUI_ReportError("Invalid grid element measurements.\n", luaVM);
-      *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-      __asm { vmovaps xmm6, xmm0 }
+      v30 = lui_tonumber32(luaVM, -1);
+      LODWORD(_XMM6) = LODWORD(v30);
       j_lua_settop(luaVM, -2);
-      v29 = _RSI->gridContent.m_listHead.m_sentinel.mp_next;
-      if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      mp_next = gridData->gridContent.m_listHead.m_sentinel.mp_next;
+      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      mp_prev = v29[4].mp_prev;
+      mp_prev = mp_next[4].mp_prev;
       if ( !mp_prev && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      v19 = (HIDWORD(mp_prev[1].mp_prev[19].mp_next) & 0x2000) != 0;
+      v20 = (v38 & HIDWORD(mp_prev[1].mp_prev[19].mp_next)) != 0;
     }
-    v17 = 0;
-    if ( v19 )
-      goto LABEL_55;
-    goto LABEL_54;
+    if ( v20 )
+      goto LABEL_68;
+LABEL_65:
+    v33 = 64i64;
+    if ( axis )
+      v33 = 1392i64;
+    LUICache<int,float,20,ntl::hash<int>>::store((LUICache<int,float,20,ntl::hash<int> > *)((char *)gridData + v33), v6, *(float *)&_XMM6);
+    goto LABEL_68;
   }
-LABEL_59:
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  return *(float *)&_XMM0;
+  return result;
 }
 
 /*
@@ -3979,57 +3424,40 @@ LUIElement_Grid_MeasureRequestedVisibleContent
 */
 float LUIElement_Grid_MeasureRequestedVisibleContent(LUIElement *element, LUIGridData *gridData, LUIGridAxis axis, lua_State *luaVM)
 {
-  __int64 v13; 
-  int v16; 
-  int v17; 
-  bool v19; 
+  __int64 v9; 
+  const LUIGridAxisData *v10; 
+  int v11; 
+  int v12; 
+  __int128 v13; 
+  bool i; 
+  float spacing; 
+  float v16; 
+  __int128 v17; 
   int outLastElementIndex[4]; 
   int outFirstElementIndex; 
 
-  if ( gridData->numChildren )
+  if ( !gridData->numChildren )
+    return 0.0;
+  v9 = 16i64;
+  if ( axis )
+    v9 = 1344i64;
+  v10 = (const LUIGridAxisData *)((char *)gridData + v9);
+  LUIElement_Grid_ComputeAxisBoundaries(gridData, v10, 0.0, &outFirstElementIndex, outLastElementIndex);
+  v11 = outFirstElementIndex;
+  v12 = outLastElementIndex[0];
+  v13 = 0i64;
+  for ( i = outFirstElementIndex == outLastElementIndex[0]; v11 <= v12; i = v11 == v12 )
   {
-    __asm { vmovaps [rsp+88h+var_48], xmm7 }
-    v13 = 16i64;
-    if ( axis )
-      v13 = 1344i64;
-    _RBP = (const LUIGridAxisData *)((char *)gridData + v13);
-    __asm { vxorps  xmm2, xmm2, xmm2; referenceLinePosition }
-    LUIElement_Grid_ComputeAxisBoundaries(gridData, _RBP, *(double *)&_XMM2, &outFirstElementIndex, outLastElementIndex);
-    v16 = outFirstElementIndex;
-    v17 = outLastElementIndex[0];
-    __asm { vxorps  xmm7, xmm7, xmm7 }
-    v19 = outFirstElementIndex == outLastElementIndex[0];
-    if ( outFirstElementIndex <= outLastElementIndex[0] )
-    {
-      __asm { vmovaps [rsp+88h+var_38], xmm6 }
-      do
-      {
-        if ( v19 )
-          __asm { vxorps  xmm6, xmm6, xmm6 }
-        else
-          __asm { vmovss  xmm6, dword ptr [rbp+4] }
-        *(float *)&_XMM0 = LUIElement_Grid_MeasureLine(element, gridData, axis, v16++, luaVM);
-        __asm
-        {
-          vaddss  xmm1, xmm0, xmm6
-          vaddss  xmm7, xmm7, xmm1
-        }
-        v19 = v16 == v17;
-      }
-      while ( v16 <= v17 );
-      __asm { vmovaps xmm6, [rsp+88h+var_38] }
-    }
-    __asm
-    {
-      vmovaps xmm0, xmm7
-      vmovaps xmm7, [rsp+88h+var_48]
-    }
+    if ( i )
+      spacing = 0.0;
+    else
+      spacing = v10->spacing;
+    v16 = LUIElement_Grid_MeasureLine(element, gridData, axis, v11++, luaVM);
+    v17 = v13;
+    *(float *)&v17 = *(float *)&v13 + (float)(v16 + spacing);
+    v13 = v17;
   }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&v13;
 }
 
 /*
@@ -4469,67 +3897,58 @@ void LUIElement_Grid_MoveLineFromStartToEnd(LUIGridData *gridData, LUIGridAxisDa
 LUIElement_Grid_OverrideAnimationState
 ==============
 */
-
-void __fastcall LUIElement_Grid_OverrideAnimationState(LUIGridAxis axis, LUIElement *child, LUIAnimationState *state, double position)
+void LUIElement_Grid_OverrideAnimationState(LUIGridAxis axis, LUIElement *child, LUIAnimationState *state, float position)
 {
-  LUIElementAxisPosition v15; 
+  __int128 v6; 
+  double v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  LUIElementAxisPosition v12; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = state;
-  __asm { vmovaps xmm6, xmm3 }
   if ( axis )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdx+18h]
-      vmovsd  xmm1, qword ptr [rdx+28h]
-    }
+    v6 = *(_OWORD *)child->currentAnimationState.position.y.offsets;
+    v7 = *(double *)child->currentAnimationState.position.y.anchors;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdx]
-      vmovsd  xmm1, qword ptr [rdx+10h]
-    }
+    v6 = *(_OWORD *)child->currentAnimationState.position.x.offsets;
+    v7 = *(double *)child->currentAnimationState.position.x.anchors;
   }
-  __asm
-  {
-    vmovups [rsp+58h+var_38], xmm0
-    vmovsd  [rsp+58h+var_28], xmm1
-  }
-  *(float *)&_XMM0 = LUI_Measure(&v15);
-  __asm
-  {
-    vmovaps xmm1, xmm0
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm0, xmm0, xmm6
-  }
+  *(_OWORD *)v12.offsets = v6;
+  *(double *)v12.anchors = v7;
+  v8 = LUI_Measure(&v12);
+  v9 = COERCE_FLOAT(LODWORD(v8) & _xmm) + position;
   if ( axis )
   {
-    __asm
-    {
-      vmovss  dword ptr [rbx+18h], xmm6
-      vmovss  dword ptr [rbx+1Ch], xmm0
-    }
-    _RBX->position.y.anchors[0] = 0.0;
-    _RBX->position.y.anchors[1] = 1.0;
+    state->position.y.offsets[0] = position;
+    state->position.y.offsets[1] = v9;
+    state->position.y.anchors[0] = 0.0;
+    state->position.y.anchors[1] = 1.0;
   }
   else
   {
-    __asm
-    {
-      vmovss  dword ptr [rbx], xmm6
-      vmovss  dword ptr [rbx+4], xmm0
-    }
-    _RBX->position.x.anchors[0] = 0.0;
-    _RBX->position.x.anchors[1] = 1.0;
+    state->position.x.offsets[0] = position;
+    state->position.x.offsets[1] = v9;
+    state->position.x.anchors[0] = 0.0;
+    state->position.x.anchors[1] = 1.0;
   }
-  __asm
+  if ( v8 < 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-    vmovaps xmm6, [rsp+58h+var_18]
+    if ( axis )
+    {
+      v11 = state->position.y.offsets[1];
+      state->position.y.offsets[1] = state->position.y.offsets[0];
+      state->position.y.offsets[0] = v11;
+    }
+    else
+    {
+      v10 = state->position.x.offsets[1];
+      state->position.x.offsets[1] = state->position.x.offsets[0];
+      state->position.x.offsets[0] = v10;
+    }
   }
 }
 
@@ -4601,9 +4020,9 @@ LUIElement_Grid_RefreshChildContent
 void LUIElement_Grid_RefreshChildContent(LUIElement *grid, LUIElement *child, int primaryPosition, int secondaryPosition, lua_State *luaVM)
 {
   LUIGridData *customElementData; 
-  int v11; 
-  bool v12; 
-  int v19; 
+  int v10; 
+  bool v11; 
+  int v12; 
 
   if ( !grid->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
@@ -4612,10 +4031,10 @@ void LUIElement_Grid_RefreshChildContent(LUIElement *grid, LUIElement *child, in
     __debugbreak();
   if ( LUIElement_Grid_IsPositionInDataSet_0(customElementData, primaryPosition, secondaryPosition) )
   {
-    v11 = secondaryPosition;
+    v10 = secondaryPosition;
     if ( customElementData->primaryAxis )
     {
-      v11 = primaryPosition;
+      v10 = primaryPosition;
       primaryPosition = secondaryPosition;
     }
     if ( (!LUI_ElementHasWeakTableEntry(child, luaVM) || !LUI_ElementHasWeakTableEntry(grid, luaVM)) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2364, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( child, luaVM ) && LUI_ElementHasWeakTableEntry( grid, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( child, luaVM ) && LUI_ElementHasWeakTableEntry( grid, luaVM )") )
@@ -4623,19 +4042,19 @@ void LUIElement_Grid_RefreshChildContent(LUIElement *grid, LUIElement *child, in
     LUI_PutElementOnTopOfStack(child, luaVM);
     j_lua_getfield(luaVM, -1, "_gridContentRowIndex");
     if ( j_lua_isnumber(luaVM, -1) )
-      v12 = lui_tointeger32(luaVM, -1) != v11;
+      v11 = lui_tointeger32(luaVM, -1) != v10;
     else
-      v12 = 1;
+      v11 = 1;
     j_lua_settop(luaVM, -2);
     j_lua_getfield(luaVM, -1, "_gridContentColumnIndex");
-    if ( !j_lua_isnumber(luaVM, -1) || v12 || lui_tointeger32(luaVM, -1) != primaryPosition )
-      v12 = 1;
+    if ( !j_lua_isnumber(luaVM, -1) || v11 || lui_tointeger32(luaVM, -1) != primaryPosition )
+      v11 = 1;
     j_lua_settop(luaVM, -2);
     j_lua_settop(luaVM, -2);
-    if ( v12 && customElementData->refreshChildFunction != -2 )
+    if ( v11 && customElementData->refreshChildFunction != -2 )
     {
       LUI_PutElementOnTopOfStack(child, luaVM);
-      j_lua_pushinteger(luaVM, v11);
+      j_lua_pushinteger(luaVM, v10);
       j_lua_setfield(luaVM, -2, "_gridContentRowIndex");
       j_lua_pushinteger(luaVM, primaryPosition);
       j_lua_setfield(luaVM, -2, "_gridContentColumnIndex");
@@ -4646,25 +4065,13 @@ void LUIElement_Grid_RefreshChildContent(LUIElement *grid, LUIElement *child, in
       j_lua_remove(luaVM, -2);
       j_lua_remove(luaVM, -2);
       LUI_PutElementOnTopOfStack(child, luaVM);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, edi
-        vcvtss2sd xmm1, xmm0, xmm0; n
-      }
-      j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, r15d
-        vcvtss2sd xmm1, xmm0, xmm0; n
-      }
-      j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
-      v19 = LuaShared_PCall(luaVM, 3, 0);
-      if ( v19 )
+      j_lua_pushnumber(luaVM, (float)primaryPosition);
+      j_lua_pushnumber(luaVM, (float)v10);
+      v12 = LuaShared_PCall(luaVM, 3, 0);
+      if ( v12 )
       {
         LUI_ReportError("Error while updating UI grid content.\n", luaVM);
-        LUI_HandleLuaError(v19);
+        LUI_HandleLuaError(v12);
       }
     }
   }
@@ -4799,29 +4206,32 @@ LUIElement_Grid_SetDefaultTargetPosition
 */
 void LUIElement_Grid_SetDefaultTargetPosition(LUIElement *grid, LUIGridData *gridData, LUIGridAxis axis, lua_State *luaVM)
 {
-  __int64 v7; 
+  __int64 v5; 
+  float v9; 
+  __int64 v10; 
+  __int64 v11; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  v7 = 1340i64;
+  v5 = 1340i64;
   if ( axis )
-    v7 = 2668i64;
-  if ( *((_BYTE *)&gridData->buildChildFunction + v7) )
+    v5 = 2668i64;
+  if ( *((_BYTE *)&gridData->buildChildFunction + v5) )
   {
-    if ( *((_BYTE *)&gridData->buildChildFunction + v7) == 1 )
+    if ( *((_BYTE *)&gridData->buildChildFunction + v5) == 1 )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rax+rdx]
-        vmulss  xmm6, xmm0, cs:__real@3f000000
-      }
+      v11 = 32i64;
+      if ( axis )
+        v11 = 1360i64;
+      v9 = (float)*(int *)((char *)&gridData->buildChildFunction + v11) * 0.5;
     }
     else
     {
-      __asm { vxorps  xmm6, xmm6, xmm6 }
-      if ( *((_BYTE *)&gridData->buildChildFunction + v7) == 2 )
+      v9 = 0.0;
+      if ( *((_BYTE *)&gridData->buildChildFunction + v5) == 2 )
       {
-        __asm { vcvtsi2ss xmm6, xmm6, dword ptr [rax+rdx] }
+        v10 = 32i64;
+        if ( axis )
+          v10 = 1360i64;
+        v9 = (float)*(int *)((char *)&gridData->buildChildFunction + v10);
       }
       else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 1241, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
       {
@@ -4831,11 +4241,9 @@ void LUIElement_Grid_SetDefaultTargetPosition(LUIElement *grid, LUIGridData *gri
   }
   else
   {
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    v9 = 0.0;
   }
-  __asm { vmovaps xmm3, xmm6; targetPosition }
-  LUIElement_Grid_SetTargetPosition(grid, gridData, axis, *(float *)&_XMM3, 1, 1, luaVM);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  LUIElement_Grid_SetTargetPosition(grid, gridData, axis, v9, 1, 1, luaVM);
 }
 
 /*
@@ -4843,255 +4251,236 @@ void LUIElement_Grid_SetDefaultTargetPosition(LUIElement *grid, LUIGridData *gri
 LUIElement_Grid_SetDimensions
 ==============
 */
-
-void __fastcall LUIElement_Grid_SetDimensions(LUIElement *grid, LUIGridData *gridData, lua_State *luaVM, double _XMM3_8)
+void LUIElement_Grid_SetDimensions(LUIElement *grid, LUIGridData *gridData, lua_State *luaVM)
 {
   int requestedNumChildren; 
   LUIGridAxis primaryAxis; 
   LUIGridAxis secondaryAxis; 
-  __int64 v11; 
+  __int64 v8; 
+  __int64 v9; 
+  int v10; 
+  int v11; 
   __int64 v12; 
-  int v13; 
-  int v14; 
-  __int64 v15; 
+  __int64 v13; 
+  __int64 v14; 
+  int v15; 
   __int64 v16; 
   __int64 v17; 
   int v18; 
   __int64 v19; 
   __int64 v20; 
-  int v21; 
-  __int64 v22; 
-  __int64 v23; 
+  __int64 v21; 
   __int64 v24; 
-  __int64 v33; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  int v28; 
+  __int64 v31; 
+  __int64 v32; 
+  bool v33; 
   __int64 v34; 
   __int64 v35; 
   __int64 v36; 
-  int v37; 
-  __int64 v46; 
-  __int64 v47; 
-  bool v48; 
-  __int64 v49; 
-  __int64 v50; 
-  __int64 v51; 
 
   requestedNumChildren = gridData->requestedNumChildren;
   primaryAxis = gridData->primaryAxis;
   secondaryAxis = gridData->secondaryAxis;
   if ( !requestedNumChildren )
     goto LABEL_68;
-  v11 = 24i64;
-  v12 = 24i64;
+  v8 = 24i64;
+  v9 = 24i64;
   if ( primaryAxis )
-    v12 = 1352i64;
-  v13 = *(int *)((char *)&gridData->buildChildFunction + v12);
-  if ( !v13 )
+    v9 = 1352i64;
+  v10 = *(int *)((char *)&gridData->buildChildFunction + v9);
+  if ( !v10 )
     goto LABEL_68;
   if ( secondaryAxis )
-    v11 = 1352i64;
-  v14 = *(int *)((char *)&gridData->buildChildFunction + v11);
-  if ( !v14 )
+    v8 = 1352i64;
+  v11 = *(int *)((char *)&gridData->buildChildFunction + v8);
+  if ( !v11 )
   {
 LABEL_68:
-    v15 = 28i64;
-    v46 = 28i64;
+    v12 = 28i64;
+    v31 = 28i64;
     if ( primaryAxis )
-      v46 = 1356i64;
-    v18 = 0;
-    *(int *)((char *)&gridData->buildChildFunction + v46) = 0;
-    v47 = 28i64;
+      v31 = 1356i64;
+    v15 = 0;
+    *(int *)((char *)&gridData->buildChildFunction + v31) = 0;
+    v32 = 28i64;
     if ( secondaryAxis )
-      v47 = 1356i64;
-    *(int *)((char *)&gridData->buildChildFunction + v47) = 0;
+      v32 = 1356i64;
+    *(int *)((char *)&gridData->buildChildFunction + v32) = 0;
     goto LABEL_73;
   }
   if ( requestedNumChildren < 0 )
     goto LABEL_20;
-  if ( v13 >= 0 )
+  if ( v10 >= 0 )
   {
-    if ( v14 >= 0 )
+    if ( v11 >= 0 )
     {
-      if ( requestedNumChildren <= v13 * (v14 - 1) )
+      if ( requestedNumChildren <= v10 * (v11 - 1) )
         j_luaL_error(luaVM, (const char *)&queryFormat, "gridData->requestedNumChildren > primaryAxisData->requestedNumLines * ( secondaryAxisData->requestedNumLines -1 )");
-      if ( requestedNumChildren > v14 * v13 )
+      if ( requestedNumChildren > v11 * v10 )
         j_luaL_error(luaVM, (const char *)&queryFormat, "gridData->requestedNumChildren <= primaryAxisData->requestedNumLines * ( secondaryAxisData->requestedNumLines )");
-      v15 = 28i64;
+      v12 = 28i64;
+      v13 = 28i64;
+      if ( primaryAxis )
+        v13 = 1356i64;
+      v14 = 28i64;
+      if ( secondaryAxis )
+        v14 = 1356i64;
+      *(int *)((char *)&gridData->buildChildFunction + v13) = v10;
+      *(int *)((char *)&gridData->buildChildFunction + v14) = *(int *)((char *)&gridData->buildChildFunction + v8);
+      v15 = gridData->requestedNumChildren;
+      goto LABEL_73;
+    }
+LABEL_20:
+    if ( v10 >= 0 && v11 >= 0 )
+    {
+      v12 = 28i64;
       v16 = 28i64;
       if ( primaryAxis )
         v16 = 1356i64;
       v17 = 28i64;
       if ( secondaryAxis )
         v17 = 1356i64;
-      *(int *)((char *)&gridData->buildChildFunction + v16) = v13;
-      *(int *)((char *)&gridData->buildChildFunction + v17) = *(int *)((char *)&gridData->buildChildFunction + v11);
-      v18 = gridData->requestedNumChildren;
-      goto LABEL_73;
-    }
-LABEL_20:
-    if ( v13 >= 0 && v14 >= 0 )
-    {
-      v15 = 28i64;
-      v19 = 28i64;
-      if ( primaryAxis )
-        v19 = 1356i64;
-      v20 = 28i64;
-      if ( secondaryAxis )
-        v20 = 1356i64;
-      *(int *)((char *)&gridData->buildChildFunction + v19) = v13;
-      v21 = *(int *)((char *)&gridData->buildChildFunction + v11);
-      *(int *)((char *)&gridData->buildChildFunction + v20) = v21;
-      v18 = v21 * *(int *)((char *)&gridData->buildChildFunction + v19);
+      *(int *)((char *)&gridData->buildChildFunction + v16) = v10;
+      v18 = *(int *)((char *)&gridData->buildChildFunction + v8);
+      *(int *)((char *)&gridData->buildChildFunction + v17) = v18;
+      v15 = v18 * *(int *)((char *)&gridData->buildChildFunction + v16);
       goto LABEL_73;
     }
   }
   if ( requestedNumChildren >= 0 )
   {
-    if ( v13 >= 0 )
+    if ( v10 >= 0 )
     {
-      v15 = 28i64;
-      v22 = 28i64;
-      if ( v13 < requestedNumChildren )
-        requestedNumChildren = v13;
+      v12 = 28i64;
+      v19 = 28i64;
+      if ( v10 < requestedNumChildren )
+        requestedNumChildren = v10;
       if ( primaryAxis )
-        v22 = 1356i64;
-      *(int *)((char *)&gridData->buildChildFunction + v22) = requestedNumChildren;
-      v23 = 28i64;
+        v19 = 1356i64;
+      *(int *)((char *)&gridData->buildChildFunction + v19) = requestedNumChildren;
+      v20 = 28i64;
       if ( secondaryAxis )
-        v23 = 1356i64;
+        v20 = 1356i64;
 LABEL_43:
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, dword ptr [rbx+0A74h]
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, ecx
-        vdivss  xmm2, xmm1, xmm0
-        vxorps  xmm3, xmm3, xmm3
-        vroundss xmm3, xmm3, xmm2, 2
-        vcvttss2si edx, xmm3
-      }
-      *(int *)((char *)&gridData->buildChildFunction + v23) = _EDX;
-      v18 = gridData->requestedNumChildren;
+      _XMM3 = 0i64;
+      __asm { vroundss xmm3, xmm3, xmm2, 2 }
+      *(int *)((char *)&gridData->buildChildFunction + v20) = (int)*(float *)&_XMM3;
+      v15 = gridData->requestedNumChildren;
       goto LABEL_73;
     }
-    if ( v14 >= 0 )
+    if ( v11 >= 0 )
     {
-      v15 = 28i64;
-      v24 = 28i64;
-      if ( v14 < requestedNumChildren )
-        requestedNumChildren = v14;
+      v12 = 28i64;
+      v21 = 28i64;
+      if ( v11 < requestedNumChildren )
+        requestedNumChildren = v11;
       if ( secondaryAxis )
-        v24 = 1356i64;
-      *(int *)((char *)&gridData->buildChildFunction + v24) = requestedNumChildren;
-      v23 = 28i64;
+        v21 = 1356i64;
+      *(int *)((char *)&gridData->buildChildFunction + v21) = requestedNumChildren;
+      v20 = 28i64;
       if ( primaryAxis )
-        v23 = 1356i64;
+        v20 = 1356i64;
       goto LABEL_43;
     }
   }
-  v15 = 28i64;
-  v33 = 28i64;
+  v12 = 28i64;
+  v24 = 28i64;
   if ( secondaryAxis )
-    v33 = 1356i64;
-  v34 = 28i64;
+    v24 = 1356i64;
+  v25 = 28i64;
   if ( primaryAxis )
-    v34 = 1356i64;
+    v25 = 1356i64;
   if ( requestedNumChildren < 0 )
   {
-    if ( v13 < 0 )
+    if ( v10 < 0 )
     {
-      if ( v14 < 0 )
+      if ( v11 < 0 )
       {
-        v18 = -1;
-        *(int *)((char *)&gridData->buildChildFunction + v34) = -1;
-        *(int *)((char *)&gridData->buildChildFunction + v33) = -1;
+        v15 = -1;
+        *(int *)((char *)&gridData->buildChildFunction + v25) = -1;
+        *(int *)((char *)&gridData->buildChildFunction + v24) = -1;
       }
       else
       {
-        *(int *)((char *)&gridData->buildChildFunction + v33) = v14;
-        *(int *)((char *)&gridData->buildChildFunction + v34) = -1;
-        v18 = -(*(int *)((char *)&gridData->buildChildFunction + v33) != 0);
+        *(int *)((char *)&gridData->buildChildFunction + v24) = v11;
+        *(int *)((char *)&gridData->buildChildFunction + v25) = -1;
+        v15 = -(*(int *)((char *)&gridData->buildChildFunction + v24) != 0);
       }
     }
     else
     {
-      *(int *)((char *)&gridData->buildChildFunction + v34) = v13;
-      *(int *)((char *)&gridData->buildChildFunction + v33) = -1;
-      v18 = -(*(int *)((char *)&gridData->buildChildFunction + v34) != 0);
+      *(int *)((char *)&gridData->buildChildFunction + v25) = v10;
+      *(int *)((char *)&gridData->buildChildFunction + v24) = -1;
+      v15 = -(*(int *)((char *)&gridData->buildChildFunction + v25) != 0);
     }
   }
   else
   {
-    v35 = 32i64;
-    v36 = 32i64;
+    v26 = 32i64;
+    v27 = 32i64;
     if ( primaryAxis )
-      v36 = 1360i64;
-    v37 = *(int *)((char *)&gridData->buildChildFunction + v36);
-    if ( v37 == 1 )
+      v27 = 1360i64;
+    v28 = *(int *)((char *)&gridData->buildChildFunction + v27);
+    if ( v28 == 1 )
     {
-      *(int *)((char *)&gridData->buildChildFunction + v34) = 1;
-      *(int *)((char *)&gridData->buildChildFunction + v33) = gridData->requestedNumChildren;
-      v18 = gridData->requestedNumChildren;
+      *(int *)((char *)&gridData->buildChildFunction + v25) = 1;
+      *(int *)((char *)&gridData->buildChildFunction + v24) = gridData->requestedNumChildren;
+      v15 = gridData->requestedNumChildren;
     }
     else
     {
       if ( secondaryAxis )
-        v35 = 1360i64;
-      if ( *(int *)((char *)&gridData->buildChildFunction + v35) == 1 )
+        v26 = 1360i64;
+      if ( *(int *)((char *)&gridData->buildChildFunction + v26) == 1 )
       {
-        *(int *)((char *)&gridData->buildChildFunction + v34) = requestedNumChildren;
-        *(int *)((char *)&gridData->buildChildFunction + v33) = 1;
-        v18 = gridData->requestedNumChildren;
+        *(int *)((char *)&gridData->buildChildFunction + v25) = requestedNumChildren;
+        *(int *)((char *)&gridData->buildChildFunction + v24) = 1;
+        v15 = gridData->requestedNumChildren;
       }
       else
       {
-        if ( v37 < requestedNumChildren )
-          requestedNumChildren = *(int *)((char *)&gridData->buildChildFunction + v36);
-        *(int *)((char *)&gridData->buildChildFunction + v34) = requestedNumChildren;
+        if ( v28 < requestedNumChildren )
+          requestedNumChildren = *(int *)((char *)&gridData->buildChildFunction + v27);
+        *(int *)((char *)&gridData->buildChildFunction + v25) = requestedNumChildren;
         if ( requestedNumChildren )
         {
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, dword ptr [rbx+0A74h]
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, ecx
-            vdivss  xmm2, xmm1, xmm0
-            vxorps  xmm3, xmm3, xmm3
-            vroundss xmm3, xmm3, xmm2, 2
-            vcvttss2si edx, xmm3
-          }
-          *(int *)((char *)&gridData->buildChildFunction + v33) = _EDX;
+          _XMM3 = 0i64;
+          __asm { vroundss xmm3, xmm3, xmm2, 2 }
+          *(int *)((char *)&gridData->buildChildFunction + v24) = (int)*(float *)&_XMM3;
         }
         else
         {
-          *(int *)((char *)&gridData->buildChildFunction + v33) = 0;
+          *(int *)((char *)&gridData->buildChildFunction + v24) = 0;
         }
-        v18 = gridData->requestedNumChildren;
+        v15 = gridData->requestedNumChildren;
       }
     }
   }
 LABEL_73:
-  gridData->numChildren = v18;
-  v48 = gridData->buildChildFunction == -2;
+  gridData->numChildren = v15;
+  v33 = gridData->buildChildFunction == -2;
   gridData->pendingDimensionUpdate = 1;
-  if ( v48 )
+  if ( v33 )
   {
-    v49 = 36i64;
-    v50 = 36i64;
-    v51 = 28i64;
+    v34 = 36i64;
+    v35 = 36i64;
+    v36 = 28i64;
     if ( primaryAxis )
     {
-      v50 = 1364i64;
-      v51 = 1356i64;
+      v35 = 1364i64;
+      v36 = 1356i64;
     }
-    if ( *(int *)((char *)&gridData->buildChildFunction + v51) > *(int *)((char *)&gridData->buildChildFunction + v50) )
+    if ( *(int *)((char *)&gridData->buildChildFunction + v36) > *(int *)((char *)&gridData->buildChildFunction + v35) )
       j_luaL_error(luaVM, (const char *)&queryFormat, "primaryAxisData->numLines <= primaryAxisData->managedLines");
     if ( secondaryAxis )
-      v49 = 1364i64;
+      v34 = 1364i64;
     if ( secondaryAxis )
-      v15 = 1356i64;
-    if ( *(int *)((char *)&gridData->buildChildFunction + v15) > *(int *)((char *)&gridData->buildChildFunction + v49) )
+      v12 = 1356i64;
+    if ( *(int *)((char *)&gridData->buildChildFunction + v12) > *(int *)((char *)&gridData->buildChildFunction + v34) )
       j_luaL_error(luaVM, (const char *)&queryFormat, "secondaryAxisData->numLines <= secondaryAxisData->managedLines");
   }
 }
@@ -5175,26 +4564,26 @@ __int64 LUIElement_Grid_SetMeasureLineFunction(LUIGridAxis axis, lua_State *luaV
 LUIElement_Grid_SetNumChildrenInC_impl
 ==============
 */
-__int64 LUIElement_Grid_SetNumChildrenInC_impl(lua_State *const luaVM, __int64 a2, __int64 a3, double a4)
+__int64 LUIElement_Grid_SetNumChildrenInC_impl(lua_State *const luaVM)
 {
-  LUIElement *v5; 
+  LUIElement *v2; 
   LUIGridData *GridData; 
 
   if ( (j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2)) && (j_lua_gettop(luaVM) != 3 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_type(luaVM, 3) != 1) )
     j_luaL_error(luaVM, "USAGE: element:SetNumChildrenInC( numChildren, optional:shouldRemoveExcessChildren )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) || j_lua_gettop(luaVM) == 3 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_type(luaVM, 3) == 1 )
   {
-    v5 = LUI_ToElement(luaVM, 1);
-    GridData = LUIElement_Grid_GetGridData(v5, luaVM);
+    v2 = LUI_ToElement(luaVM, 1);
+    GridData = LUIElement_Grid_GetGridData(v2, luaVM);
     if ( GridData->buildChildFunction == -2 )
       j_luaL_error(luaVM, (const char *)&queryFormat, "!LUIElement_Grid_UserSuppliesChildren( gridData )");
     GridData->requestedNumChildren = lui_tointeger32(luaVM, 2);
     if ( j_lua_toboolean(luaVM, 3) )
-      LUIElement_Grid_RemoveExcessChildren(v5, GridData, luaVM);
-    LUIElement_Grid_SetDimensions(v5, GridData, luaVM, a4);
+      LUIElement_Grid_RemoveExcessChildren(v2, GridData, luaVM);
+    LUIElement_Grid_SetDimensions(v2, GridData, luaVM);
     LUIElement_Grid_ShuffleLines(GridData, &GridData->xData);
     LUIElement_Grid_ShuffleLines(GridData, &GridData->yData);
-    LUI_LUIElement_InvalidateLayout(v5);
+    LUI_LUIElement_InvalidateLayout(v2);
   }
   return 0i64;
 }
@@ -5204,27 +4593,27 @@ __int64 LUIElement_Grid_SetNumChildrenInC_impl(lua_State *const luaVM, __int64 a
 LUIElement_Grid_SetNumColumnsInC_impl
 ==============
 */
-__int64 LUIElement_Grid_SetNumColumnsInC_impl(lua_State *const luaVM, __int64 a2, __int64 a3, double a4)
+__int64 LUIElement_Grid_SetNumColumnsInC_impl(lua_State *const luaVM)
 {
-  LUIElement *v5; 
+  LUIElement *v2; 
   LUIGridData *GridData; 
-  int v7; 
-  int v8; 
+  int v4; 
+  int v5; 
   __int64 maxVisibleLines; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) && j_lua_type(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetNumColumnsInC( numChildren )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && (j_lua_isnumber(luaVM, 2) || !j_lua_type(luaVM, 2)) )
   {
-    v5 = LUI_ToElement(luaVM, 1);
-    GridData = LUIElement_Grid_GetGridData(v5, luaVM);
+    v2 = LUI_ToElement(luaVM, 1);
+    GridData = LUIElement_Grid_GetGridData(v2, luaVM);
     if ( j_lua_type(luaVM, 2) )
     {
-      v8 = lui_tointeger32(luaVM, 2);
-      v7 = v8;
+      v5 = lui_tointeger32(luaVM, 2);
+      v4 = v5;
       if ( GridData->buildChildFunction == -2 )
       {
-        if ( v8 > GridData->xData.managedLines )
+        if ( v5 > GridData->xData.managedLines )
           j_luaL_error(luaVM, (const char *)&queryFormat, "numLines <= axisData->managedLines");
       }
       else if ( GridData->forcePrimaryAxisScrolling )
@@ -5232,21 +4621,21 @@ __int64 LUIElement_Grid_SetNumColumnsInC_impl(lua_State *const luaVM, __int64 a2
         if ( GridData->primaryAxis )
         {
           maxVisibleLines = (unsigned int)GridData->xData.maxVisibleLines;
-          if ( v8 > (int)maxVisibleLines )
-            j_luaL_error(luaVM, "Attempting to set number of columns to %d in a grid with max visible columns %d and force 1D scrolling set.", (unsigned int)v8, maxVisibleLines);
+          if ( v5 > (int)maxVisibleLines )
+            j_luaL_error(luaVM, "Attempting to set number of columns to %d in a grid with max visible columns %d and force 1D scrolling set.", (unsigned int)v5, maxVisibleLines);
         }
       }
     }
     else
     {
-      v7 = -1;
+      v4 = -1;
     }
-    GridData->xData.requestedNumLines = v7;
-    LUIElement_Grid_SetDimensions(v5, GridData, luaVM, a4);
+    GridData->xData.requestedNumLines = v4;
+    LUIElement_Grid_SetDimensions(v2, GridData, luaVM);
     LUIElement_Grid_LineUpElements(GridData, NULL, NULL, luaVM);
     LUIElement_Grid_ShuffleLines(GridData, &GridData->xData);
     LUIElement_Grid_ShuffleLines(GridData, &GridData->yData);
-    LUI_LUIElement_InvalidateLayout(v5);
+    LUI_LUIElement_InvalidateLayout(v2);
   }
   return 0i64;
 }
@@ -5256,46 +4645,46 @@ __int64 LUIElement_Grid_SetNumColumnsInC_impl(lua_State *const luaVM, __int64 a2
 LUIElement_Grid_SetNumRowsInC_impl
 ==============
 */
-__int64 LUIElement_Grid_SetNumRowsInC_impl(lua_State *const luaVM, __int64 a2, __int64 a3, double a4)
+__int64 LUIElement_Grid_SetNumRowsInC_impl(lua_State *const luaVM)
 {
-  LUIElement *v5; 
+  LUIElement *v2; 
   LUIGridData *GridData; 
-  int v7; 
-  int v8; 
+  int v4; 
+  int v5; 
   __int64 maxVisibleLines; 
 
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) && j_lua_type(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetNumRowsInC( numChildren )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isuserdata(luaVM, 1) && (j_lua_isnumber(luaVM, 2) || !j_lua_type(luaVM, 2)) )
   {
-    v5 = LUI_ToElement(luaVM, 1);
-    GridData = LUIElement_Grid_GetGridData(v5, luaVM);
+    v2 = LUI_ToElement(luaVM, 1);
+    GridData = LUIElement_Grid_GetGridData(v2, luaVM);
     if ( j_lua_type(luaVM, 2) )
     {
-      v8 = lui_tointeger32(luaVM, 2);
-      v7 = v8;
+      v5 = lui_tointeger32(luaVM, 2);
+      v4 = v5;
       if ( GridData->buildChildFunction == -2 )
       {
-        if ( v8 > GridData->yData.managedLines )
+        if ( v5 > GridData->yData.managedLines )
           j_luaL_error(luaVM, (const char *)&queryFormat, "numLines <= axisData->managedLines");
       }
       else if ( GridData->forcePrimaryAxisScrolling && GridData->primaryAxis != VERTICAL )
       {
         maxVisibleLines = (unsigned int)GridData->yData.maxVisibleLines;
-        if ( v8 > (int)maxVisibleLines )
-          j_luaL_error(luaVM, "Attempting to set number of rows to %d in a grid with max visible rows %d and force 1D scrolling set.", (unsigned int)v8, maxVisibleLines);
+        if ( v5 > (int)maxVisibleLines )
+          j_luaL_error(luaVM, "Attempting to set number of rows to %d in a grid with max visible rows %d and force 1D scrolling set.", (unsigned int)v5, maxVisibleLines);
       }
     }
     else
     {
-      v7 = -1;
+      v4 = -1;
     }
-    GridData->yData.requestedNumLines = v7;
-    LUIElement_Grid_SetDimensions(v5, GridData, luaVM, a4);
+    GridData->yData.requestedNumLines = v4;
+    LUIElement_Grid_SetDimensions(v2, GridData, luaVM);
     LUIElement_Grid_LineUpElements(GridData, NULL, NULL, luaVM);
     LUIElement_Grid_ShuffleLines(GridData, &GridData->xData);
     LUIElement_Grid_ShuffleLines(GridData, &GridData->yData);
-    LUI_LUIElement_InvalidateLayout(v5);
+    LUI_LUIElement_InvalidateLayout(v2);
   }
   return 0i64;
 }
@@ -5307,7 +4696,10 @@ LUIElement_Grid_SetSpacing
 */
 void LUIElement_Grid_SetSpacing(LUIGridAxis axis, lua_State *luaVM)
 {
-  LUIElement *v5; 
+  LUIElement *v4; 
+  char *customElementData; 
+  double v6; 
+  __int64 v7; 
 
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, "USAGE: element:SetRowSpacing( spacing ) or element:SetColumnSpacing( spacing )");
@@ -5315,16 +4707,16 @@ void LUIElement_Grid_SetSpacing(LUIGridAxis axis, lua_State *luaVM)
     j_luaL_error(luaVM, "USAGE: element:SetRowSpacing( spacing ) or element:SetColumnSpacing( spacing )");
   if ( !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: element:SetRowSpacing( spacing ) or element:SetColumnSpacing( spacing )");
-  v5 = LUI_ToElement(luaVM, 1);
-  if ( !v5->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
+  v4 = LUI_ToElement(luaVM, 1);
+  if ( !v4->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 87, ASSERT_TYPE_ASSERT, "(element->customElementData != 0)", (const char *)&queryFormat, "element->customElementData != NULL") )
     __debugbreak();
-  _RBX = v5->customElementData;
-  *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-  _RAX = 20i64;
+  customElementData = (char *)v4->customElementData;
+  v6 = lui_tonumber32(luaVM, 2);
+  v7 = 20i64;
   if ( axis )
-    _RAX = 1348i64;
-  __asm { vmovss  dword ptr [rax+rbx], xmm0 }
-  LUI_LUIElement_InvalidateLayout(v5);
+    v7 = 1348i64;
+  *(float *)&customElementData[v7] = *(float *)&v6;
+  LUI_LUIElement_InvalidateLayout(v4);
 }
 
 /*
@@ -5334,26 +4726,23 @@ LUIElement_Grid_SetTargetLine
 */
 __int64 LUIElement_Grid_SetTargetLine(LUIGridAxis axis, lua_State *luaVM)
 {
-  LUIElement *v6; 
+  LUIElement *v4; 
   LUIGridData *GridData; 
+  double v6; 
   bool clamp; 
-  int v10; 
+  int v8; 
 
   if ( j_lua_gettop(luaVM) != 4 || !j_lua_isuserdata(luaVM, 1) || !j_lua_isnumber(luaVM, 2) || j_lua_type(luaVM, 3) != 1 || j_lua_type(luaVM, 4) != 1 )
     j_luaL_error(luaVM, "USAGE: element:SetTargetRow( <row_index>, <clamp>, <snap> ) or element:SetTargetColumn( <column_index>, <clamp>, <snap> )");
   if ( j_lua_gettop(luaVM) == 4 && j_lua_isuserdata(luaVM, 1) && j_lua_isnumber(luaVM, 2) && j_lua_type(luaVM, 3) == 1 && j_lua_type(luaVM, 4) == 1 )
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
-    v6 = LUI_ToElement(luaVM, 1);
-    GridData = LUIElement_Grid_GetGridData(v6, luaVM);
-    *(double *)&_XMM0 = lui_tonumber32(luaVM, 2);
-    __asm { vmovaps xmm6, xmm0 }
+    v4 = LUI_ToElement(luaVM, 1);
+    GridData = LUIElement_Grid_GetGridData(v4, luaVM);
+    v6 = lui_tonumber32(luaVM, 2);
     clamp = j_lua_toboolean(luaVM, 3) > 0;
-    v10 = j_lua_toboolean(luaVM, 4);
-    __asm { vmovaps xmm3, xmm6; targetPosition }
-    LUIElement_Grid_SetTargetPosition(v6, GridData, axis, *(float *)&_XMM3, clamp, v10 > 0, luaVM);
-    LUI_LUIElement_InvalidateLayout(v6);
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
+    v8 = j_lua_toboolean(luaVM, 4);
+    LUIElement_Grid_SetTargetPosition(v4, GridData, axis, *(float *)&v6, clamp, v8 > 0, luaVM);
+    LUI_LUIElement_InvalidateLayout(v4);
   }
   return 0i64;
 }
@@ -5388,244 +4777,138 @@ LUIElement_Grid_SetTargetPosition
 
 void __fastcall LUIElement_Grid_SetTargetPosition(LUIElement *grid, LUIGridData *gridData, LUIGridAxis axis, double targetPosition, const bool clamp, const bool snap, lua_State *luaVM)
 {
-  __int64 v12; 
-  bool v18; 
-  bool v19; 
-  int alignment; 
-  int v24; 
-  bool v25; 
+  __int128 v7; 
+  __int128 v8; 
+  __int64 v10; 
+  LUIGridAxisData *v14; 
+  double v17; 
   unsigned int flags; 
+  __int64 v19; 
+  __int128 v20; 
+  __int128 v22; 
+  unsigned int v25; 
   __int64 v27; 
-  unsigned int v37; 
-  __int64 v39; 
-  unsigned int numLines; 
-  bool v49; 
-  float fmt; 
-  float fmta; 
-  lua_State *v62; 
-  lua_State *v63; 
-  double v64; 
-  double v65; 
-  double v66; 
-  LUIElementAxisPosition v67; 
-  void *retaddr; 
+  double v28; 
+  __int128 v30; 
+  float numLines; 
+  LUIElementAxisPosition v34; 
+  __int128 v35; 
+  __int128 v36; 
+  __int128 v37; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  v12 = 16i64;
-  _RDI = grid;
+  v10 = 16i64;
   if ( axis )
-    v12 = 1344i64;
-  _RBX = (LUIGridAxisData *)((char *)gridData + v12);
-  __asm { vmovaps xmm6, xmm3 }
-  if ( _RBX->numLines >= 0 )
+    v10 = 1344i64;
+  v14 = (LUIGridAxisData *)((char *)gridData + v10);
+  _XMM6 = *(_OWORD *)&targetPosition;
+  if ( v14->numLines >= 0 )
   {
-    v18 = 0;
-    v19 = !clamp;
-    __asm
-    {
-      vmovaps xmmword ptr [rax-28h], xmm7
-      vmovaps xmmword ptr [rax-38h], xmm8
-      vmovaps xmmword ptr [rax-48h], xmm9
-      vxorps  xmm8, xmm8, xmm8
-    }
+    v37 = v7;
+    v36 = v8;
+    v35 = _XMM9;
     if ( clamp )
     {
       if ( axis )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi+18h]
-          vmovsd  xmm1, qword ptr [rdi+28h]
-        }
+        _XMM0 = *(_OWORD *)grid->currentAnimationState.position.y.offsets;
+        v17 = *(double *)grid->currentAnimationState.position.y.anchors;
       }
       else
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi]
-          vmovsd  xmm1, qword ptr [rdi+10h]
-        }
+        _XMM0 = *(_OWORD *)grid->currentAnimationState.position.x.offsets;
+        v17 = *(double *)grid->currentAnimationState.position.x.anchors;
       }
-      __asm
+      *(_OWORD *)v34.offsets = _XMM0;
+      *(double *)v34.anchors = v17;
+      *(float *)&_XMM0 = LUI_Measure(&v34);
+      if ( v14->alignment )
       {
-        vmovups [rsp+0A8h+var_68], xmm0
-        vmovsd  [rsp+0A8h+var_58], xmm1
-      }
-      *(float *)&_XMM0 = LUI_Measure(&v67);
-      alignment = _RBX->alignment;
-      if ( _RBX->alignment )
-      {
-        v18 = alignment == 0;
-        v24 = alignment - 1;
-        v19 = v24 == 0;
-        if ( v24 )
+        if ( v14->alignment == CENTER )
         {
-          if ( v24 == 1 )
-          {
-            flags = _RDI->currentAnimationState.flags;
-            v18 = 0;
-            v19 = (flags & 2) == 0;
-            if ( (flags & 2) == 0 )
-              goto LABEL_20;
-            v18 = 0;
-            v19 = !gridData->pendingDimensionUpdate;
-            if ( gridData->pendingDimensionUpdate )
-              goto LABEL_20;
-            v18 = 0;
-            v19 = (flags & 1) == 0;
-            if ( (flags & 1) == 0 )
-              goto LABEL_20;
-            v27 = 28i64;
-            if ( axis )
-              v27 = 1356i64;
-            v18 = 0;
-            v19 = *(int *)((char *)&gridData->buildChildFunction + v27) == 0;
-            if ( *(int *)((char *)&gridData->buildChildFunction + v27) >= 0 )
-            {
-              __asm
-              {
-                vxorps  xmm3, xmm3, xmm3; linePosition
-                vmovss  dword ptr [rsp+0A8h+fmt], xmm0
-              }
-              *(float *)&_XMM0 = LUIElement_Grid_ConvertPixelDistanceToLines(_RDI, gridData, axis, *(double *)&_XMM3, fmt, luaVM);
-            }
-            else
-            {
-LABEL_20:
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, dword ptr [rbx+10h]
-              }
-            }
-            __asm
-            {
-              vmaxss  xmm1, xmm0, xmm6
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, dword ptr [rbx+0Ch]
-              vminss  xmm6, xmm1, xmm0
-            }
-          }
-          else
-          {
-            v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 1206, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment");
-            v18 = 0;
-            v19 = !v25;
-            if ( v25 )
-              __debugbreak();
-          }
-        }
-        else
-        {
+          v22 = 0i64;
+          *(float *)&v22 = (float)v14->numLines - 0.5;
+          _XMM2 = v22;
           __asm
           {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [rbx+0Ch]
-            vsubss  xmm2, xmm0, cs:__real@3f000000
             vmaxss  xmm0, xmm6, cs:__real@3f000000
             vminss  xmm6, xmm2, xmm0
           }
         }
+        else if ( v14->alignment == BOTTOM )
+        {
+          flags = grid->currentAnimationState.flags;
+          if ( (flags & 2) == 0 || gridData->pendingDimensionUpdate || (flags & 1) == 0 )
+            goto LABEL_20;
+          v19 = 28i64;
+          if ( axis )
+            v19 = 1356i64;
+          if ( *(int *)((char *)&gridData->buildChildFunction + v19) >= 0 )
+          {
+            *(float *)&_XMM0 = LUIElement_Grid_ConvertPixelDistanceToLines(grid, gridData, axis, 0.0, *(float *)&_XMM0, luaVM);
+          }
+          else
+          {
+LABEL_20:
+            v20 = 0i64;
+            *(float *)&v20 = (float)v14->maxVisibleLines;
+            _XMM0 = v20;
+          }
+          __asm
+          {
+            vmaxss  xmm1, xmm0, xmm6
+            vminss  xmm6, xmm1, xmm0
+          }
+        }
+        else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 1206, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
+        {
+          __debugbreak();
+        }
       }
       else
       {
-        v37 = _RDI->currentAnimationState.flags;
+        v25 = grid->currentAnimationState.flags;
         __asm { vmaxss  xmm6, xmm6, xmm8 }
-        if ( (v37 & 2) == 0 || gridData->pendingDimensionUpdate || (v37 & 1) == 0 )
+        if ( (v25 & 2) == 0 || gridData->pendingDimensionUpdate || (v25 & 1) == 0 )
           goto LABEL_30;
-        v39 = 28i64;
+        v27 = 28i64;
         if ( axis )
-          v39 = 1356i64;
-        if ( *(int *)((char *)&gridData->buildChildFunction + v39) >= 0 )
+          v27 = 1356i64;
+        if ( *(int *)((char *)&gridData->buildChildFunction + v27) >= 0 )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, cs:__xmm@80000000800000008000000080000000
-            vxorps  xmm3, xmm3, xmm3
-            vcvtsi2ss xmm3, xmm3, dword ptr [rbx+0Ch]; linePosition
-            vmovss  dword ptr [rsp+0A8h+fmt], xmm0
-          }
-          *(float *)&_XMM0 = LUIElement_Grid_ConvertPixelDistanceToLines(_RDI, gridData, axis, *(double *)&_XMM3, fmta, luaVM);
+          _XMM0 = _XMM0 ^ _xmm;
+          HIDWORD(v28) = 0;
+          *(float *)&v28 = (float)v14->numLines;
+          *(float *)&_XMM0 = LUIElement_Grid_ConvertPixelDistanceToLines(grid, gridData, axis, v28, *(float *)&_XMM0, luaVM);
         }
         else
         {
 LABEL_30:
-          numLines = _RBX->numLines;
-          v18 = numLines < _RBX->maxVisibleLines;
-          v19 = numLines == _RBX->maxVisibleLines;
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, eax
-          }
+          v30 = 0i64;
+          *(float *)&v30 = (float)(v14->numLines - v14->maxVisibleLines);
+          _XMM0 = v30;
         }
         __asm { vminss  xmm6, xmm0, xmm6 }
       }
     }
-    __asm
-    {
-      vxorps  xmm7, xmm7, xmm7
-      vcvtsi2ss xmm7, xmm7, dword ptr [rbx+0Ch]
-      vcomiss xmm7, xmm8
-      vxorpd  xmm9, xmm9, xmm9
-    }
-    if ( v18 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm7, xmm7
-        vmovsd  [rsp+0A8h+var_78], xmm0
-        vmovsd  [rsp+0A8h+var_80], xmm9
-      }
-      v49 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&v62, v64);
-      v18 = 0;
-      v19 = !v49;
-      if ( v49 )
-        __debugbreak();
-    }
+    numLines = (float)v14->numLines;
+    __asm { vxorpd  xmm9, xmm9, xmm9 }
+    if ( numLines < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", *(double *)&_XMM9, numLines) )
+      __debugbreak();
     __asm
     {
       vmaxss  xmm0, xmm6, xmm8
       vminss  xmm6, xmm0, xmm7
-      vmovaps xmm7, [rsp+0A8h+var_28]
-      vcomiss xmm6, xmm8
-      vmovaps xmm8, [rsp+0A8h+var_38]
     }
-    if ( v18 )
-      goto LABEL_45;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+0Ch]
-      vcomiss xmm6, xmm0
-    }
-    if ( !v18 && !v19 )
-    {
-LABEL_45:
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rbx+0Ch]
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+0A8h+var_70], xmm1
-        vcvtss2sd xmm2, xmm6, xmm6
-        vmovsd  [rsp+0A8h+var_78], xmm9
-        vmovsd  [rsp+0A8h+var_80], xmm2
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 1211, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( targetPosition ) && ( targetPosition ) <= ( axisData->numLines )", "targetPosition not in [0.f, axisData->numLines]\n\t%g not in [%g, %g]", *(double *)&v63, v65, v66) )
-        __debugbreak();
-    }
-    __asm { vmovaps xmm9, [rsp+0A8h+var_48] }
+    if ( (*(float *)&_XMM6 < 0.0 || *(float *)&_XMM6 > (float)v14->numLines) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 1211, ASSERT_TYPE_ASSERT, "( 0.f ) <= ( targetPosition ) && ( targetPosition ) <= ( axisData->numLines )", "targetPosition not in [0.f, axisData->numLines]\n\t%g not in [%g, %g]", *(float *)&_XMM6, *(double *)&_XMM9, (float)v14->numLines) )
+      __debugbreak();
   }
-  __asm { vmovss  dword ptr [rbx+18h], xmm6 }
+  v14->targetPosition = *(float *)&_XMM6;
   if ( snap )
   {
-    _RBX->velocity = 0.0;
-    __asm { vmovss  dword ptr [rbx+1Ch], xmm6 }
-    LUIElement_Grid_ShuffleLines(gridData, _RBX);
+    v14->velocity = 0.0;
+    v14->currentPosition = *(float *)&_XMM6;
+    LUIElement_Grid_ShuffleLines(gridData, v14);
   }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_18] }
 }
 
 /*
@@ -5741,48 +5024,45 @@ LUIElement_Grid_ShuffleLines
 */
 void LUIElement_Grid_ShuffleLines(LUIGridData *gridData, LUIGridAxisData *axisData)
 {
-  LUIGridAxisData *v2; 
   int firstVisibleLine; 
+  signed int v5; 
   signed int v6; 
-  signed int v7; 
-  int v8; 
+  int v7; 
   signed int i; 
   int outFirstElementIndex; 
   int outLastElementIndex; 
 
-  v2 = axisData;
   if ( gridData->numChildren )
   {
-    __asm { vmovss  xmm2, dword ptr [rdx+1Ch]; referenceLinePosition }
-    LUIElement_Grid_ComputeAxisBoundaries(gridData, axisData, *(double *)&_XMM2, &outFirstElementIndex, &outLastElementIndex);
+    LUIElement_Grid_ComputeAxisBoundaries(gridData, axisData, axisData->currentPosition, &outFirstElementIndex, &outLastElementIndex);
     if ( gridData->buildChildFunction == -2 )
     {
-      v2->firstVisibleLine = outFirstElementIndex;
-      v2->lastVisibleLine = outLastElementIndex;
+      axisData->firstVisibleLine = outFirstElementIndex;
+      axisData->lastVisibleLine = outLastElementIndex;
     }
     else
     {
-      firstVisibleLine = v2->firstVisibleLine;
+      firstVisibleLine = axisData->firstVisibleLine;
+      v5 = 0;
       v6 = 0;
-      v7 = 0;
-      v8 = outFirstElementIndex;
-      for ( i = abs32(firstVisibleLine - outFirstElementIndex); firstVisibleLine < v8; ++v7 )
+      v7 = outFirstElementIndex;
+      for ( i = abs32(firstVisibleLine - outFirstElementIndex); firstVisibleLine < v7; ++v6 )
       {
-        if ( v7 >= i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 670, ASSERT_TYPE_ASSERT, "(numIterations < maxIterations)", (const char *)&queryFormat, "numIterations < maxIterations") )
+        if ( v6 >= i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 670, ASSERT_TYPE_ASSERT, "(numIterations < maxIterations)", (const char *)&queryFormat, "numIterations < maxIterations") )
           __debugbreak();
-        LUIElement_Grid_MoveLineFromStartToEnd(gridData, v2);
-        firstVisibleLine = v2->firstVisibleLine;
+        LUIElement_Grid_MoveLineFromStartToEnd(gridData, axisData);
+        firstVisibleLine = axisData->firstVisibleLine;
       }
-      for ( ; firstVisibleLine > v8; ++v6 )
+      for ( ; firstVisibleLine > v7; ++v5 )
       {
-        if ( v6 >= i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 684, ASSERT_TYPE_ASSERT, "(numIterations < maxIterations)", (const char *)&queryFormat, "numIterations < maxIterations") )
+        if ( v5 >= i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 684, ASSERT_TYPE_ASSERT, "(numIterations < maxIterations)", (const char *)&queryFormat, "numIterations < maxIterations") )
           __debugbreak();
-        LUIElement_Grid_MoveLineFromEndToStart(gridData, v2);
-        firstVisibleLine = v2->firstVisibleLine;
+        LUIElement_Grid_MoveLineFromEndToStart(gridData, axisData);
+        firstVisibleLine = axisData->firstVisibleLine;
       }
-      if ( firstVisibleLine != v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 693, ASSERT_TYPE_ASSERT, "(axisData->firstVisibleLine == start)", (const char *)&queryFormat, "axisData->firstVisibleLine == start") )
+      if ( firstVisibleLine != v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 693, ASSERT_TYPE_ASSERT, "(axisData->firstVisibleLine == start)", (const char *)&queryFormat, "axisData->firstVisibleLine == start") )
         __debugbreak();
-      v2->lastVisibleLine = outLastElementIndex;
+      axisData->lastVisibleLine = outLastElementIndex;
     }
   }
 }
@@ -5794,123 +5074,108 @@ LUIElement_Grid_UpdateChildrenTransitions
 */
 void LUIElement_Grid_UpdateChildrenTransitions(LocalClientNum_t localClientNum, LUIElement *element, LUIGridData *gridData, lua_State *luaVM)
 {
-  double v6; 
   LUIElement *firstChild; 
-  __int64 v12; 
-  __int64 v13; 
-  LUIGridAxisData *v15; 
+  __int64 v7; 
+  __int64 v8; 
+  LUIGridAxisData *v10; 
   int firstVisibleLine; 
-  LUIGridAxisData *v18; 
-  int v19; 
-  bool v24; 
-  char v28; 
-  char v29; 
-  __int64 v32; 
-  __int64 v33; 
+  LUIGridAxisData *v13; 
+  int v14; 
+  bool v16; 
+  double v19; 
+  long double v20; 
+  __int64 v21; 
+  __int64 v22; 
+  LUIGridAxis primaryAxis; 
+  int v24; 
+  int v25; 
   int lastVisibleLine; 
-  int v42; 
-  LUIGridAxisData *v43; 
-  int v48; 
+  int v27; 
+  LUIGridAxisData *v28; 
+  int v30; 
 
   firstChild = element->firstChild;
-  v12 = 16i64;
-  v13 = 16i64;
+  v7 = 16i64;
+  v8 = 16i64;
   if ( gridData->primaryAxis )
-    v12 = 1344i64;
-  v15 = (LUIGridAxisData *)((char *)gridData + v12);
+    v7 = 1344i64;
+  v10 = (LUIGridAxisData *)((char *)gridData + v7);
   if ( gridData->secondaryAxis )
-    v13 = 1344i64;
-  firstVisibleLine = v15->firstVisibleLine;
-  v18 = (LUIGridAxisData *)((char *)gridData + v13);
-  v43 = v18;
-  v19 = v18->firstVisibleLine;
+    v8 = 1344i64;
+  firstVisibleLine = v10->firstVisibleLine;
+  v13 = (LUIGridAxisData *)((char *)gridData + v8);
+  v28 = v13;
+  v14 = v13->firstVisibleLine;
   if ( firstChild )
   {
-    __asm
-    {
-      vmovaps [rsp+0A8h+var_48], xmm6
-      vmovaps [rsp+0A8h+var_58], xmm7
-      vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+0A8h+var_68], xmm8
-      vmovss  xmm8, cs:__real@3c23d70a
-    }
     while ( 1 )
     {
-      v42 = v19;
-      v48 = firstVisibleLine;
+      v27 = v14;
+      v30 = firstVisibleLine;
       if ( !LUI_ElementHasWeakTableEntry(firstChild, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2792, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( child, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( child, luaVM )") )
         __debugbreak();
-      *(double *)&_XMM0 = LUIElement_Grid_ComputeTransitionStep(v15, firstVisibleLine, v6);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = LUIElement_Grid_ComputeTransitionStep(v18, v19, v6);
+      LUIElement_Grid_ComputeTransitionStep(v10, firstVisibleLine);
+      *(double *)&_XMM0 = LUIElement_Grid_ComputeTransitionStep(v13, v14);
       __asm { vminss  xmm6, xmm0, xmm6 }
-      v24 = 1;
+      v16 = 1;
       if ( !LUI_ElementHasWeakTableEntry(firstChild, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 2431, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( child, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( child, luaVM )") )
         __debugbreak();
       LUI_PutElementOnTopOfStack(firstChild, luaVM);
       j_lua_getfield(luaVM, -1, "_gridTransitionStep");
       if ( j_lua_isnumber(luaVM, -1) )
       {
-        __asm
+        _XMM1 = 0i64;
+        __asm { vroundss xmm1, xmm1, xmm6, 1 }
+        if ( *(float *)&_XMM6 == *(float *)&_XMM1 )
         {
-          vxorps  xmm1, xmm1, xmm1
-          vroundss xmm1, xmm1, xmm6, 1
-          vucomiss xmm6, xmm1
+          *((_QWORD *)&_XMM0 + 1) = 0i64;
+          v16 = (float)lui_tointeger32(luaVM, -1) != *(float *)&_XMM6;
         }
-        *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-        __asm
+        else
         {
-          vsubss  xmm1, xmm0, xmm6
-          vandps  xmm1, xmm1, xmm7
-          vcomiss xmm1, xmm8
+          v19 = lui_tonumber32(luaVM, -1);
+          v16 = COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v19 - *(float *)&_XMM6) & _xmm) > 0.0099999998;
         }
-        v24 = !(v28 | v29);
       }
       j_lua_settop(luaVM, -3);
-      if ( v24 )
+      if ( v16 )
       {
-        __asm { vcvtss2sd xmm6, xmm6, xmm6 }
+        v20 = *(float *)&_XMM6;
         if ( LUI_BeginEventWithElement(localClientNum, firstChild, "grid_anim", luaVM) )
         {
-          __asm { vmovaps xmm1, xmm6; value }
-          LUI_SetTableNumber((const char *)&stru_143CE7590, *(long double *)&_XMM1, luaVM);
+          LUI_SetTableNumber((const char *)&stru_143CE7590, v20, luaVM);
           LUI_EndEventWithElement(luaVM);
         }
         LUI_PutElementOnTopOfStack(firstChild, luaVM);
-        __asm { vmovaps xmm1, xmm6; n }
-        j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
+        j_lua_pushnumber(luaVM, v20);
         j_lua_setfield(luaVM, -2, "_gridTransitionStep");
         j_lua_settop(luaVM, -2);
       }
       if ( gridData->pendingNotify )
       {
-        v32 = 16i64;
+        v21 = 16i64;
         if ( gridData->primaryAxis )
-          v32 = 1344i64;
-        if ( *(int *)((char *)&gridData->buildChildFunction + v32) == firstVisibleLine )
+          v21 = 1344i64;
+        if ( *(int *)((char *)&gridData->buildChildFunction + v21) == firstVisibleLine )
         {
-          v33 = 16i64;
+          v22 = 16i64;
           if ( gridData->secondaryAxis )
-            v33 = 1344i64;
-          if ( *(int *)((char *)&gridData->buildChildFunction + v33) == v19 )
+            v22 = 1344i64;
+          if ( *(int *)((char *)&gridData->buildChildFunction + v22) == v14 )
           {
             gridData->pendingNotify = 0;
             if ( LUI_BeginEventWithElement(localClientNum, element, "position_visible", luaVM) )
             {
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, eax
-                vcvtss2sd xmm1, xmm0, xmm0; value
-              }
-              LUI_SetTableNumber("row", *(long double *)&_XMM1, luaVM);
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, eax
-                vcvtss2sd xmm1, xmm0, xmm0; value
-              }
-              LUI_SetTableNumber("column", *(long double *)&_XMM1, luaVM);
+              primaryAxis = gridData->primaryAxis;
+              v24 = v14;
+              if ( primaryAxis )
+                v24 = firstVisibleLine;
+              LUI_SetTableNumber("row", (float)v24, luaVM);
+              v25 = firstVisibleLine;
+              _XMM0 = 0i64;
+              if ( primaryAxis )
+                v25 = v14;
+              LUI_SetTableNumber("column", (float)v25, luaVM);
               LUI_SetTableElement("child", firstChild, luaVM);
               LUI_EndEventWithElement(luaVM);
             }
@@ -5920,29 +5185,23 @@ void LUIElement_Grid_UpdateChildrenTransitions(LocalClientNum_t localClientNum, 
       firstChild = firstChild->nextSibling;
       if ( !firstChild )
         break;
-      lastVisibleLine = v15->lastVisibleLine;
+      lastVisibleLine = v10->lastVisibleLine;
       if ( firstVisibleLine == lastVisibleLine )
       {
-        firstVisibleLine = v15->firstVisibleLine;
-        ++v19;
-        v18 = v43;
-        if ( v48 != lastVisibleLine )
-          v19 = v42;
+        firstVisibleLine = v10->firstVisibleLine;
+        ++v14;
+        v13 = v28;
+        if ( v30 != lastVisibleLine )
+          v14 = v27;
       }
       else
       {
-        v18 = v43;
+        v13 = v28;
         ++firstVisibleLine;
-        ++v19;
-        if ( v48 != lastVisibleLine )
-          v19 = v42;
+        ++v14;
+        if ( v30 != lastVisibleLine )
+          v14 = v27;
       }
-    }
-    __asm
-    {
-      vmovaps xmm7, [rsp+0A8h+var_58]
-      vmovaps xmm6, [rsp+0A8h+var_48]
-      vmovaps xmm8, [rsp+0A8h+var_68]
     }
   }
 }
@@ -6003,103 +5262,101 @@ __int64 LUI_LuaCall_LUIElement_SetupUIGrid(lua_State *luaVM)
 LUI_LuaCall_LUIElement_SetupUIGrid_impl
 ==============
 */
-__int64 LUI_LuaCall_LUIElement_SetupUIGrid_impl(lua_State *const luaVM, __int64 a2, __int64 a3, double a4)
+__int64 LUI_LuaCall_LUIElement_SetupUIGrid_impl(lua_State *const luaVM)
 {
-  LUIElement *v10; 
-  int buildChildFunction; 
-  int v13; 
-  int v14; 
-  bool v15; 
-  LUIGridAxis v21; 
-  LUIGridAxis primaryAxis; 
-  int v25; 
+  LUIElement *v3; 
+  int *v4; 
+  int v5; 
+  int v6; 
+  int v7; 
+  bool v8; 
+  double v9; 
+  unsigned __int8 v14; 
+  char v15; 
+  int v18; 
+  int v19; 
+  int v20; 
+  bool v21; 
+  char v22; 
+  char v23; 
+  int v24; 
+  int *v25; 
   int v26; 
   int v27; 
-  bool v28; 
-  char v29; 
-  char v30; 
-  int maxVisibleLines; 
-  int *p_managedLines; 
-  int requestedNumLines; 
-  int v34; 
-  int v35; 
-  int v36; 
-  int *v37; 
-  int v38; 
-  int v39; 
-  int v40; 
-  bool v41; 
-  __int64 v50; 
-  int *v51; 
-  __int64 v52; 
-  __int64 v53; 
-  __int64 v54; 
-  __int64 v55; 
-  __int64 v56; 
-  char *v57; 
-  __int64 v58; 
+  int v28; 
+  int v29; 
+  int *v30; 
+  int v31; 
+  int v32; 
+  int v33; 
+  bool v34; 
+  double v35; 
+  double v36; 
+  double v37; 
+  double v38; 
+  double v39; 
+  __int64 v40; 
+  int *v41; 
+  __int64 v42; 
+  __int64 v43; 
+  __int64 v44; 
+  __int64 v45; 
+  __int64 v46; 
+  char *v47; 
+  unsigned __int64 v48; 
+  __int64 v49; 
+  unsigned __int64 v50; 
+  _QWORD *v51; 
+  _DWORD *v52; 
+  bool v53; 
+  int v54; 
+  int *v55; 
+  ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > **v56; 
+  ntl::internal::list_head_base<ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > > *v57; 
+  ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > *v58; 
+  char *v59; 
+  unsigned __int64 v60; 
+  ntl::internal::list_node<LUIElement *> **p_m_freelist; 
   unsigned __int64 m_size; 
-  unsigned __int64 m_buffer; 
-  ntl::internal::pool_allocator_freelist<72> **v62; 
-  ntl::internal::pool_allocator_freelist<72> *p_m_freelist; 
-  bool v64; 
-  int v65; 
+  ntl::internal::list_node<LUIElement *> *m_buffer; 
+  ntl::internal::pool_allocator_freelist<24> *v64; 
+  ntl::internal::pool_allocator_freelist<24> *v65; 
   int *v66; 
-  ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > **v67; 
-  ntl::internal::list_head_base<ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > > *p_m_listHead; 
-  char *v70; 
-  __int64 v71; 
-  ntl::internal::list_node<LUIElement *> **v72; 
-  unsigned __int64 v74; 
-  ntl::internal::list_node<LUIElement *> *v75; 
-  ntl::internal::pool_allocator_freelist<24> *v76; 
-  ntl::internal::pool_allocator_freelist<24> *v77; 
-  int *v78; 
   int i; 
-  int v80; 
-  LUIElement *v81; 
-  ntl::internal::list_node<LUIElement *> *v82; 
-  __int64 result; 
-  __int64 v88; 
-  char *v89; 
-  int *v90; 
-  __int64 v91; 
-  __int128 v92; 
-  __int128 v93; 
-  char v94; 
-  void *retaddr; 
-  int v96; 
-  int v97; 
-  int *v98; 
+  int v68; 
+  LUIElement *v69; 
+  ntl::internal::list_node<LUIElement *> *v70; 
+  __int64 v72; 
+  char *v73; 
+  int *v74; 
+  __int64 v75; 
+  ntl::internal::buffer_memory_block<ntl::internal::list_node<LUIElement *> > v76; 
+  ntl::internal::buffer_memory_block<ntl::internal::list_node<LUIElement *> > v77; 
+  int v78; 
+  int v79; 
+  int *v80; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-  }
   if ( j_lua_gettop(luaVM) != 2 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_gettop( luaVM ) == 2");
   if ( !j_lua_isuserdata(luaVM, 1) )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, 1 )");
   if ( j_lua_type(luaVM, 2) != 5 )
     j_luaL_error(luaVM, (const char *)&queryFormat, "lua_istable( luaVM, 2 )");
-  v10 = LUI_ToElement(luaVM, 1);
-  v10->layoutFunction = (void (__fastcall *)(const LocalClientNum_t, LUIElement *, float, int, lua_State *))LUIElement_Grid_Layout;
-  LUI_LUIElement_RegisterMethods(v10, luaVM, s_gridMethods);
-  if ( !LUI_ElementHasWeakTableEntry(v10, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 48, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( element, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( element, luaVM )") )
+  v3 = LUI_ToElement(luaVM, 1);
+  v3->layoutFunction = LUIElement_Grid_Layout;
+  LUI_LUIElement_RegisterMethods(v3, luaVM, s_gridMethods);
+  if ( !LUI_ElementHasWeakTableEntry(v3, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 48, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( element, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( element, luaVM )") )
     __debugbreak();
-  LUI_PutElementOnTopOfStack(v10, luaVM);
-  _RSI = (LUIGridData *)j_lua_newuserdata(luaVM, 0xAF8ui64);
+  LUI_PutElementOnTopOfStack(v3, luaVM);
+  v4 = (int *)j_lua_newuserdata(luaVM, 0xAF8ui64);
   j_lua_setfield(luaVM, -2, "_customElementData");
   j_lua_settop(luaVM, -2);
-  if ( v10->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 54, ASSERT_TYPE_ASSERT, "(element->customElementData == 0)", (const char *)&queryFormat, "element->customElementData == NULL") )
+  if ( v3->customElementData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelements.h", 54, ASSERT_TYPE_ASSERT, "(element->customElementData == 0)", (const char *)&queryFormat, "element->customElementData == NULL") )
     __debugbreak();
-  v10->customElementData = _RSI;
-  memset_0(_RSI, 0, sizeof(LUIGridData));
-  LUICache<int,float,20,ntl::hash<int>>::LUICache<int,float,20,ntl::hash<int>>(&_RSI->xData.sizesCache);
-  LUICache<int,float,20,ntl::hash<int>>::LUICache<int,float,20,ntl::hash<int>>(&_RSI->yData.sizesCache);
+  v3->customElementData = v4;
+  memset_0(v4, 0, 0xAF8ui64);
+  LUICache<int,float,20,ntl::hash<int>>::LUICache<int,float,20,ntl::hash<int>>((LUICache<int,float,20,ntl::hash<int> > *)(v4 + 16));
+  LUICache<int,float,20,ntl::hash<int>>::LUICache<int,float,20,ntl::hash<int>>((LUICache<int,float,20,ntl::hash<int> > *)(v4 + 348));
   j_lua_pushlstring(luaVM, "_gridFunctionRefs", 0x11ui64);
   j_lua_createtable(luaVM, 0, 2);
   j_lua_settable(luaVM, 1);
@@ -6107,120 +5364,108 @@ __int64 LUI_LuaCall_LUIElement_SetupUIGrid_impl(lua_State *const luaVM, __int64 
   j_lua_getfield(luaVM, 2, "buildChild");
   if ( j_lua_type(luaVM, -1) == 6 )
   {
-    _RSI->buildChildFunction = j_luaL_ref(luaVM, -2);
+    *v4 = j_luaL_ref(luaVM, -2);
   }
   else
   {
-    _RSI->buildChildFunction = -2;
+    *v4 = -2;
     j_lua_settop(luaVM, -2);
   }
   j_lua_settop(luaVM, -2);
-  buildChildFunction = _RSI->buildChildFunction;
-  v97 = _RSI->buildChildFunction;
+  v5 = *v4;
+  v79 = *v4;
   j_lua_getfield(luaVM, 1, "_gridFunctionRefs");
   j_lua_getfield(luaVM, 2, "refreshChild");
   if ( j_lua_type(luaVM, -1) == 6 )
   {
-    _RSI->refreshChildFunction = j_luaL_ref(luaVM, -2);
+    v4[1] = j_luaL_ref(luaVM, -2);
   }
   else
   {
-    _RSI->refreshChildFunction = -2;
+    v4[1] = -2;
     j_lua_settop(luaVM, -2);
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 1, "_gridFunctionRefs");
   j_lua_getfield(luaVM, 2, "measureRow");
   if ( j_lua_type(luaVM, -1) == 6 )
-    _RSI->yData.measureLineFunction = j_luaL_ref(luaVM, -2);
+    v4[666] = j_luaL_ref(luaVM, -2);
   else
     j_lua_settop(luaVM, -2);
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 1, "_gridFunctionRefs");
   j_lua_getfield(luaVM, 2, "measureColumn");
   if ( j_lua_type(luaVM, -1) == 6 )
-    _RSI->xData.measureLineFunction = j_luaL_ref(luaVM, -2);
+    v4[334] = j_luaL_ref(luaVM, -2);
   else
     j_lua_settop(luaVM, -2);
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "maxVisibleRows");
   if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 3196, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
     __debugbreak();
-  v13 = lui_tointeger32(luaVM, -1);
-  if ( v13 < 0 )
-    v13 = 0;
-  _RSI->yData.maxVisibleLines = v13;
+  v6 = lui_tointeger32(luaVM, -1);
+  if ( v6 < 0 )
+    v6 = 0;
+  v4[340] = v6;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "maxVisibleColumns");
   if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 3201, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
     __debugbreak();
-  v14 = lui_tointeger32(luaVM, -1);
-  if ( v14 < 0 )
-    v14 = 0;
-  _RSI->xData.maxVisibleLines = v14;
+  v7 = lui_tointeger32(luaVM, -1);
+  if ( v7 < 0 )
+    v7 = 0;
+  v4[8] = v7;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "adjustSizeToContent");
   if ( j_lua_type(luaVM, -1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 3206, ASSERT_TYPE_ASSERT, "((lua_type(luaVM, (-1)) == 1))", (const char *)&queryFormat, "lua_isboolean( luaVM, -1 )") )
     __debugbreak();
-  _RSI->adjustSizeToContent = j_lua_toboolean(luaVM, -1) != 0;
+  *((_BYTE *)v4 + 2688) = j_lua_toboolean(luaVM, -1) != 0;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "forcePrimaryAxisScrolling");
-  v15 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) != 0;
-  _RSI->forcePrimaryAxisScrolling = v15;
+  v8 = j_lua_type(luaVM, -1) == 1 && j_lua_toboolean(luaVM, -1) != 0;
+  *((_BYTE *)v4 + 2691) = v8;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "spacingX");
   if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 3222, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
     __debugbreak();
   *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmaxss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rsi+14h], xmm0
-  }
+  v9 = 0.0;
+  __asm { vmaxss  xmm0, xmm0, xmm6 }
+  v4[5] = _XMM0;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "spacingY");
   if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 3227, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
     __debugbreak();
   *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-  __asm
-  {
-    vmaxss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rsi+544h], xmm0
-  }
+  __asm { vmaxss  xmm0, xmm0, xmm6 }
+  v4[337] = _XMM0;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "maxVelocity");
   if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 3232, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
     __debugbreak();
   *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-  __asm
-  {
-    vmaxss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rsi+0Ch], xmm0
-  }
+  __asm { vmaxss  xmm0, xmm0, xmm6 }
+  v4[3] = _XMM0;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "springCoefficient");
   if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 3237, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
     __debugbreak();
   *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
-  __asm
-  {
-    vmaxss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rsi+8], xmm0
-  }
+  __asm { vmaxss  xmm0, xmm0, xmm6 }
+  v4[2] = _XMM0;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "primaryAxis");
   if ( !j_lua_isnumber(luaVM, -1) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 3242, ASSERT_TYPE_ASSERT, "(lua_isnumber( luaVM, -1 ))", (const char *)&queryFormat, "lua_isnumber( luaVM, -1 )") )
     __debugbreak();
-  v21 = (unsigned __int8)lui_tointeger32(luaVM, -1);
-  _RSI->primaryAxis = v21;
-  if ( (unsigned __int8)v21 > VERTICAL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 3244, ASSERT_TYPE_ASSERT, "(gridData->primaryAxis == LUIGridAxis::HORIZONTAL || gridData->primaryAxis == LUIGridAxis::VERTICAL)", (const char *)&queryFormat, "gridData->primaryAxis == LUIGridAxis::HORIZONTAL || gridData->primaryAxis == LUIGridAxis::VERTICAL") )
+  v14 = lui_tointeger32(luaVM, -1);
+  *((_BYTE *)v4 + 2672) = v14;
+  if ( v14 > 1u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 3244, ASSERT_TYPE_ASSERT, "(gridData->primaryAxis == LUIGridAxis::HORIZONTAL || gridData->primaryAxis == LUIGridAxis::VERTICAL)", (const char *)&queryFormat, "gridData->primaryAxis == LUIGridAxis::HORIZONTAL || gridData->primaryAxis == LUIGridAxis::VERTICAL") )
     __debugbreak();
   j_lua_settop(luaVM, -2);
-  primaryAxis = _RSI->primaryAxis;
-  _RSI->secondaryAxis = primaryAxis == HORIZONTAL;
+  v15 = *((_BYTE *)v4 + 2672);
+  *((_BYTE *)v4 + 2673) = v15 == 0;
   j_lua_getfield(luaVM, 2, "columnWidth");
-  __asm { vmovss  xmm7, cs:__real@bf800000 }
+  *(float *)&_XMM7 = FLOAT_N1_0;
   if ( j_lua_isnumber(luaVM, -1) )
   {
     *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
@@ -6228,9 +5473,9 @@ __int64 LUI_LuaCall_LUIElement_SetupUIGrid_impl(lua_State *const luaVM, __int64 
   }
   else
   {
-    __asm { vmovaps xmm1, xmm7 }
+    *(float *)&_XMM1 = FLOAT_N1_0;
   }
-  __asm { vmovss  dword ptr [rsi+3Ch], xmm1 }
+  v4[15] = _XMM1;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "rowHeight");
   if ( j_lua_isnumber(luaVM, -1) )
@@ -6238,68 +5483,68 @@ __int64 LUI_LuaCall_LUIElement_SetupUIGrid_impl(lua_State *const luaVM, __int64 
     *(double *)&_XMM0 = lui_tonumber32(luaVM, -1);
     __asm { vmaxss  xmm7, xmm0, xmm6 }
   }
-  __asm { vmovss  dword ptr [rsi+56Ch], xmm7 }
+  v4[347] = _XMM7;
   j_lua_settop(luaVM, -2);
-  if ( buildChildFunction == -2 )
+  if ( v5 == -2 )
   {
-    _RSI->requestedNumChildren = 0;
+    v4[669] = 0;
   }
   else
   {
     j_lua_getfield(luaVM, 2, "numChildren");
     if ( j_lua_isnumber(luaVM, -1) )
     {
-      v25 = lui_tointeger32(luaVM, -1);
-      if ( v25 < 0 )
-        v25 = 0;
+      v18 = lui_tointeger32(luaVM, -1);
+      if ( v18 < 0 )
+        v18 = 0;
     }
     else
     {
-      v25 = -1;
+      v18 = -1;
     }
-    _RSI->requestedNumChildren = v25;
+    v4[669] = v18;
     j_lua_settop(luaVM, -2);
   }
   j_lua_getfield(luaVM, 2, "numRows");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    v26 = lui_tointeger32(luaVM, -1);
-    if ( v26 < 0 )
-      v26 = 0;
+    v19 = lui_tointeger32(luaVM, -1);
+    if ( v19 < 0 )
+      v19 = 0;
   }
   else
   {
-    v26 = -1;
+    v19 = -1;
   }
-  _RSI->yData.requestedNumLines = v26;
+  v4[338] = v19;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "numColumns");
   if ( j_lua_isnumber(luaVM, -1) )
   {
-    v27 = lui_tointeger32(luaVM, -1);
-    if ( v27 < 0 )
-      v27 = 0;
+    v20 = lui_tointeger32(luaVM, -1);
+    if ( v20 < 0 )
+      v20 = 0;
   }
   else
   {
-    v27 = -1;
+    v20 = -1;
   }
-  _RSI->xData.requestedNumLines = v27;
+  v4[6] = v20;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "ensureClampedTargetLineOnDimensionsUpdate");
-  v28 = j_lua_type(luaVM, -1) != 1 || j_lua_toboolean(luaVM, -1) != 0;
-  _RSI->ensureClampedTargetLineOnDimensionsUpdate = v28;
+  v21 = j_lua_type(luaVM, -1) != 1 || j_lua_toboolean(luaVM, -1) != 0;
+  *((_BYTE *)v4 + 2693) = v21;
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "horizontalAlignment");
-  if ( j_lua_isnumber(luaVM, -1) && (v29 = lui_tointeger32(luaVM, -1)) != 0 )
+  if ( j_lua_isnumber(luaVM, -1) && (v22 = lui_tointeger32(luaVM, -1)) != 0 )
   {
-    if ( v29 == 1 )
+    if ( v22 == 1 )
     {
-      _RSI->xData.alignment = CENTER;
+      *((_BYTE *)v4 + 1340) = 1;
     }
-    else if ( v29 == 2 )
+    else if ( v22 == 2 )
     {
-      _RSI->xData.alignment = BOTTOM;
+      *((_BYTE *)v4 + 1340) = 2;
     }
     else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 3339, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected horizontal alignment value") )
     {
@@ -6308,19 +5553,19 @@ __int64 LUI_LuaCall_LUIElement_SetupUIGrid_impl(lua_State *const luaVM, __int64 
   }
   else
   {
-    _RSI->xData.alignment = TOP;
+    *((_BYTE *)v4 + 1340) = 0;
   }
   j_lua_settop(luaVM, -2);
   j_lua_getfield(luaVM, 2, "verticalAlignment");
-  if ( j_lua_isnumber(luaVM, -1) && (v30 = lui_tointeger32(luaVM, -1)) != 0 )
+  if ( j_lua_isnumber(luaVM, -1) && (v23 = lui_tointeger32(luaVM, -1)) != 0 )
   {
-    if ( v30 == 1 )
+    if ( v23 == 1 )
     {
-      _RSI->yData.alignment = CENTER;
+      *((_BYTE *)v4 + 2668) = 1;
     }
-    else if ( v30 == 2 )
+    else if ( v23 == 2 )
     {
-      _RSI->yData.alignment = BOTTOM;
+      *((_BYTE *)v4 + 2668) = 2;
     }
     else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 3363, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected vertical alignment value") )
     {
@@ -6329,84 +5574,82 @@ __int64 LUI_LuaCall_LUIElement_SetupUIGrid_impl(lua_State *const luaVM, __int64 
   }
   else
   {
-    _RSI->yData.alignment = TOP;
+    *((_BYTE *)v4 + 2668) = 0;
   }
   j_lua_settop(luaVM, -2);
-  maxVisibleLines = _RSI->xData.maxVisibleLines;
-  p_managedLines = &_RSI->xData.managedLines;
-  if ( buildChildFunction == -2 )
+  v24 = v4[8];
+  v25 = v4 + 9;
+  if ( v5 == -2 )
   {
-    requestedNumLines = _RSI->xData.requestedNumLines;
-    if ( maxVisibleLines > requestedNumLines )
-      requestedNumLines = _RSI->xData.maxVisibleLines;
-    *p_managedLines = requestedNumLines;
+    v26 = v4[6];
+    if ( v24 > v26 )
+      v26 = v4[8];
+    *v25 = v26;
     j_lua_getfield(luaVM, 2, "maxColumns");
     if ( j_lua_isnumber(luaVM, -1) )
     {
-      v34 = *p_managedLines;
-      v35 = lui_tointeger32(luaVM, -1);
-      if ( v35 > v34 )
-        v34 = v35;
-      *p_managedLines = v34;
+      v27 = *v25;
+      v28 = lui_tointeger32(luaVM, -1);
+      if ( v28 > v27 )
+        v27 = v28;
+      *v25 = v27;
     }
     j_lua_settop(luaVM, -2);
-    v36 = _RSI->yData.requestedNumLines;
-    v37 = &_RSI->yData.managedLines;
-    if ( _RSI->yData.maxVisibleLines > v36 )
-      v36 = _RSI->yData.maxVisibleLines;
-    *v37 = v36;
+    v29 = v4[338];
+    v30 = v4 + 341;
+    if ( v4[340] > v29 )
+      v29 = v4[340];
+    *v30 = v29;
     j_lua_getfield(luaVM, 2, "maxRows");
     if ( j_lua_isnumber(luaVM, -1) )
     {
-      v38 = *v37;
-      v39 = lui_tointeger32(luaVM, -1);
-      if ( v39 > v38 )
-        v38 = v39;
-      *v37 = v38;
+      v31 = *v30;
+      v32 = lui_tointeger32(luaVM, -1);
+      if ( v32 > v31 )
+        v31 = v32;
+      *v30 = v31;
     }
     j_lua_settop(luaVM, -2);
   }
   else
   {
-    v37 = &_RSI->yData.managedLines;
-    v40 = _RSI->yData.maxVisibleLines;
-    if ( _RSI->forcePrimaryAxisScrolling )
+    v30 = v4 + 341;
+    v33 = v4[340];
+    if ( *((_BYTE *)v4 + 2691) )
     {
-      v41 = _RSI->primaryAxis == HORIZONTAL;
-      *p_managedLines = maxVisibleLines;
-      *v37 = v40;
-      if ( v41 )
+      v34 = *((_BYTE *)v4 + 2672) == 0;
+      *v25 = v24;
+      *v30 = v33;
+      if ( v34 )
       {
-        *p_managedLines = maxVisibleLines + 1;
+        *v25 = v24 + 1;
         goto LABEL_122;
       }
     }
     else
     {
-      *p_managedLines = maxVisibleLines + 1;
+      *v25 = v24 + 1;
     }
-    *v37 = v40 + 1;
+    *v30 = v33 + 1;
   }
 LABEL_122:
-  LUIElement_Grid_SetDimensions(v10, _RSI, luaVM, a4);
-  __asm { vmovss  xmm8, cs:__real@3f000000 }
-  if ( _RSI->xData.alignment )
+  LUIElement_Grid_SetDimensions(v3, (LUIGridData *)v4, luaVM);
+  if ( *((_BYTE *)v4 + 1340) )
   {
-    if ( _RSI->xData.alignment == CENTER )
+    if ( *((_BYTE *)v4 + 1340) == 1 )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rsi+20h]
-        vmulss  xmm7, xmm0, xmm8
-      }
+      HIDWORD(v37) = 0;
+      *(float *)&v37 = (float)v4[8] * 0.5;
+      v35 = v37;
     }
     else
     {
-      __asm { vxorps  xmm7, xmm7, xmm7 }
-      if ( _RSI->xData.alignment == BOTTOM )
+      v35 = 0.0;
+      if ( *((_BYTE *)v4 + 1340) == 2 )
       {
-        __asm { vcvtsi2ss xmm7, xmm7, dword ptr [rsi+20h] }
+        HIDWORD(v36) = 0;
+        *(float *)&v36 = (float)v4[8];
+        v35 = v36;
       }
       else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 1241, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
       {
@@ -6416,249 +5659,226 @@ LABEL_122:
   }
   else
   {
-    __asm { vxorps  xmm7, xmm7, xmm7 }
+    v35 = 0.0;
   }
-  __asm { vmovaps xmm3, xmm7; targetPosition }
-  LUIElement_Grid_SetTargetPosition(v10, _RSI, HORIZONTAL, *(double *)&_XMM3, 1, 1, luaVM);
-  if ( _RSI->yData.alignment )
+  LUIElement_Grid_SetTargetPosition(v3, (LUIGridData *)v4, HORIZONTAL, v35, 1, 1, luaVM);
+  if ( *((_BYTE *)v4 + 2668) )
   {
-    if ( _RSI->yData.alignment == CENTER )
+    if ( *((_BYTE *)v4 + 2668) == 1 )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, dword ptr [rsi+550h]
-        vmulss  xmm6, xmm0, xmm8
-      }
+      HIDWORD(v39) = 0;
+      *(float *)&v39 = (float)v4[340] * 0.5;
+      v9 = v39;
     }
-    else if ( _RSI->yData.alignment == BOTTOM )
+    else if ( *((_BYTE *)v4 + 2668) == 2 )
     {
-      __asm
-      {
-        vxorps  xmm6, xmm6, xmm6
-        vcvtsi2ss xmm6, xmm6, dword ptr [rsi+550h]
-      }
+      HIDWORD(v38) = 0;
+      *(float *)&v38 = (float)v4[340];
+      v9 = v38;
     }
     else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 1241, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unexpected alignment") )
     {
       __debugbreak();
     }
   }
-  __asm { vmovaps xmm3, xmm6; targetPosition }
-  LUIElement_Grid_SetTargetPosition(v10, _RSI, VERTICAL, *(double *)&_XMM3, 1, 1, luaVM);
-  v50 = 36i64;
-  if ( primaryAxis )
-    v50 = 1364i64;
-  v51 = (int *)((char *)&_RSI->buildChildFunction + v50);
-  v98 = v51;
-  v52 = *v51;
-  v91 = 24 * v52;
-  if ( primaryAxis == HORIZONTAL )
-    p_managedLines = v37;
-  v90 = p_managedLines;
-  v53 = *p_managedLines;
-  v54 = 24 * v52 * v53;
-  v55 = 72 * v53;
-  v88 = 72 * v53;
-  v56 = 24 * v52 * v53;
-  LUI_PutElementOnTopOfStack(v10, luaVM);
-  v89 = (char *)j_lua_newuserdata(luaVM, v55 + v56 + v54);
+  LUIElement_Grid_SetTargetPosition(v3, (LUIGridData *)v4, VERTICAL, v9, 1, 1, luaVM);
+  v40 = 9i64;
+  if ( v15 )
+    v40 = 341i64;
+  v41 = &v4[v40];
+  v80 = v41;
+  v42 = *v41;
+  v75 = 24 * v42;
+  if ( !v15 )
+    v25 = v30;
+  v74 = v25;
+  v43 = *v25;
+  v44 = 24 * v42 * v43;
+  v45 = 72 * v43;
+  v72 = 72 * v43;
+  v46 = 24 * v42 * v43;
+  LUI_PutElementOnTopOfStack(v3, luaVM);
+  v73 = (char *)j_lua_newuserdata(luaVM, v45 + v46 + v44);
   j_lua_setfield(luaVM, -2, "_gridContentBuffer");
   j_lua_settop(luaVM, -2);
-  _RSI->scratch.m_data.m_buffer = NULL;
-  _RSI->scratch.m_data.m_size = 0i64;
-  _RSI->scratch.m_data.m_buffer = NULL;
-  _RSI->scratch.m_data.m_size = 0i64;
-  _RSI->scratch.m_listHead.m_sentinel.mp_prev = &_RSI->scratch.m_listHead.m_sentinel;
-  _RSI->scratch.m_listHead.m_sentinel.mp_next = &_RSI->scratch.m_listHead.m_sentinel;
-  v57 = &v89[v54 + v88];
-  if ( !v57 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start") )
+  *((_QWORD *)v4 + 344) = 0i64;
+  *((_QWORD *)v4 + 345) = 0i64;
+  *((_QWORD *)v4 + 347) = 0i64;
+  *((_QWORD *)v4 + 348) = 0i64;
+  *((_QWORD *)v4 + 349) = v4 + 698;
+  *((_QWORD *)v4 + 350) = v4 + 698;
+  v47 = &v73[v44 + v72];
+  if ( !v47 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start") )
     __debugbreak();
-  _RSI->scratch.m_data.m_buffer = v57;
-  _RSI->scratch.m_data.m_size = v56;
-  ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator>::reserve(&_RSI->scratch, *v51 * *v90);
-  _RSI->gridContent.m_data.m_buffer = NULL;
-  _RSI->gridContent.m_data.m_size = 0i64;
-  _RSI->gridContent.m_data.m_buffer = NULL;
-  _RSI->gridContent.m_data.m_size = 0i64;
-  _RSI->gridContent.m_listHead.m_sentinel.mp_prev = &_RSI->gridContent.m_listHead.m_sentinel;
-  _RSI->gridContent.m_listHead.m_sentinel.mp_next = &_RSI->gridContent.m_listHead.m_sentinel;
-  if ( !v89 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start") )
+  *((_QWORD *)v4 + 347) = v47;
+  *((_QWORD *)v4 + 348) = v46;
+  ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator>::reserve((ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> *)(v4 + 688), *v41 * *v74);
+  *((_QWORD *)v4 + 337) = 0i64;
+  *((_QWORD *)v4 + 338) = 0i64;
+  *((_QWORD *)v4 + 340) = 0i64;
+  *((_QWORD *)v4 + 341) = 0i64;
+  *((_QWORD *)v4 + 342) = v4 + 684;
+  *((_QWORD *)v4 + 343) = v4 + 684;
+  if ( !v73 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start") )
     __debugbreak();
-  _RSI->gridContent.m_data.m_size = v88;
-  _RSI->gridContent.m_data.m_buffer = v89;
-  v58 = *v90;
-  if ( _RSI->gridContent.m_data.m_buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 458, ASSERT_TYPE_ASSERT, "( base_type::m_data.begin() == 0 )", (const char *)&queryFormat, "base_type::m_data.begin() == NULL") )
+  *((_QWORD *)v4 + 341) = v72;
+  *((_QWORD *)v4 + 340) = v73;
+  v48 = *v74;
+  if ( *((_QWORD *)v4 + 337) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 458, ASSERT_TYPE_ASSERT, "( base_type::m_data.begin() == 0 )", (const char *)&queryFormat, "base_type::m_data.begin() == NULL") )
     __debugbreak();
-  if ( 72 * v58 > _RSI->gridContent.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
+  if ( 72 * v48 > *((_QWORD *)v4 + 341) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
     __debugbreak();
-  *(_QWORD *)&v92 = _RSI->gridContent.m_data.m_buffer;
-  *((_QWORD *)&v92 + 1) = v58;
-  __asm
-  {
-    vmovups xmm0, [rsp+0D8h+var_78]
-    vmovups xmmword ptr [rsi+0A88h], xmm0
-  }
-  m_size = _RSI->gridContent.m_data.m_size;
-  m_buffer = (unsigned __int64)_RSI->gridContent.m_data.m_buffer;
-  if ( !m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 52, ASSERT_TYPE_ASSERT, "( num_elements > 0 )", (const char *)&queryFormat, "num_elements > 0") )
+  v76.m_buffer = (ntl::internal::list_node<LUIElement *> *)*((_QWORD *)v4 + 340);
+  v76.m_size = v48;
+  *(ntl::internal::buffer_memory_block<ntl::internal::list_node<LUIElement *> > *)(v4 + 674) = v76;
+  v49 = *((_QWORD *)v4 + 338);
+  v50 = *((_QWORD *)v4 + 337);
+  if ( !v49 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 52, ASSERT_TYPE_ASSERT, "( num_elements > 0 )", (const char *)&queryFormat, "num_elements > 0") )
     __debugbreak();
-  v62 = (ntl::internal::pool_allocator_freelist<72> **)(m_buffer + 72 * m_size);
-  p_m_freelist = &_RSI->gridContent.m_freelist;
+  v51 = (_QWORD *)(v50 + 72 * v49);
+  v52 = v4 + 678;
   do
   {
-    v62 -= 9;
-    *v62 = p_m_freelist;
-    p_m_freelist = (ntl::internal::pool_allocator_freelist<72> *)v62;
+    v51 -= 9;
+    *v51 = v52;
+    v52 = v51;
   }
-  while ( (unsigned __int64)v62 > m_buffer );
-  _RSI->gridContent.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v62;
-  if ( !v62 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+  while ( (unsigned __int64)v51 > v50 );
+  *((_QWORD *)v4 + 339) = v51;
+  if ( !v51 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
     __debugbreak();
-  v64 = _RSI->yData.maxVisibleLines <= 0;
-  _RSI->maxNumChildren = -1;
-  if ( !v64 && _RSI->xData.maxVisibleLines > 0 )
+  v53 = v4[340] <= 0;
+  v4[671] = -1;
+  if ( !v53 && v4[8] > 0 )
   {
-    v65 = 0;
-    _RSI->maxNumChildren = 0;
-    v96 = 0;
-    if ( *v90 > 0 )
+    v54 = 0;
+    v4[671] = 0;
+    v78 = 0;
+    if ( *v74 > 0 )
     {
-      v66 = v51;
-      v67 = (ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > **)&_RSI->gridContent.m_freelist;
-      p_m_listHead = &_RSI->gridContent.m_listHead;
+      v55 = v41;
+      v56 = (ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > **)(v4 + 678);
+      v57 = (ntl::internal::list_head_base<ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > > *)(v4 + 684);
       do
       {
-        if ( !*v67 )
+        if ( !*v56 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
             __debugbreak();
-          if ( !*v67 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+          if ( !*v56 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
             __debugbreak();
         }
-        if ( *v67 == (ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > *)v67 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x48ui64, _RSI->gridContent.m_data.m_size) )
+        if ( *v56 == (ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > *)v56 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x48ui64, *((_QWORD *)v4 + 338)) )
           __debugbreak();
-        _R12 = *v67;
-        *v67 = (ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > *)(*v67)->mp_prev;
-        _R12->mp_prev = NULL;
-        _R12->mp_next = NULL;
-        _R12->m_data.m_data.m_buffer = NULL;
-        _R12->m_data.m_data.m_size = 0i64;
-        _R12->m_data.m_data.m_buffer = NULL;
-        _R12->m_data.m_data.m_size = 0i64;
-        _R12->m_data.m_listHead.m_sentinel.mp_prev = &_R12->m_data.m_listHead.m_sentinel;
-        _R12->m_data.m_listHead.m_sentinel.mp_next = &_R12->m_data.m_listHead.m_sentinel;
-        ntl::internal::list_head_base<ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator>>>>::insert_before(p_m_listHead, (ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > *)p_m_listHead, _R12);
-        _R12->m_data.m_data.m_buffer = NULL;
-        _R12->m_data.m_data.m_size = 0i64;
-        _R12->m_data.m_data.m_buffer = NULL;
-        _R12->m_data.m_data.m_size = 0i64;
-        _R12->m_data.m_listHead.m_sentinel.mp_prev = &_R12->m_data.m_listHead.m_sentinel;
-        _R12->m_data.m_listHead.m_sentinel.mp_next = &_R12->m_data.m_listHead.m_sentinel;
-        v70 = &v89[v91 * v65 + v88];
-        if ( !v70 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start") )
+        v58 = *v56;
+        *v56 = (ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > *)(*v56)->mp_prev;
+        v58->mp_prev = NULL;
+        v58->mp_next = NULL;
+        v58->m_data.m_data.m_buffer = NULL;
+        v58->m_data.m_data.m_size = 0i64;
+        v58->m_data.m_data.m_buffer = NULL;
+        v58->m_data.m_data.m_size = 0i64;
+        v58->m_data.m_listHead.m_sentinel.mp_prev = &v58->m_data.m_listHead.m_sentinel;
+        v58->m_data.m_listHead.m_sentinel.mp_next = &v58->m_data.m_listHead.m_sentinel;
+        ntl::internal::list_head_base<ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator>>>>::insert_before(v57, (ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > *)v57, v58);
+        v58->m_data.m_data.m_buffer = NULL;
+        v58->m_data.m_data.m_size = 0i64;
+        v58->m_data.m_data.m_buffer = NULL;
+        v58->m_data.m_data.m_size = 0i64;
+        v58->m_data.m_listHead.m_sentinel.mp_prev = &v58->m_data.m_listHead.m_sentinel;
+        v58->m_data.m_listHead.m_sentinel.mp_next = &v58->m_data.m_listHead.m_sentinel;
+        v59 = &v73[v75 * v54 + v72];
+        if ( !v59 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 71, ASSERT_TYPE_ASSERT, "( p_buffer_start )", (const char *)&queryFormat, "p_buffer_start") )
           __debugbreak();
-        _R12->m_data.m_data.m_buffer = v70;
-        _R12->m_data.m_data.m_size = v91;
-        v71 = *v66;
-        if ( _R12->m_data.m_data.m_buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 458, ASSERT_TYPE_ASSERT, "( base_type::m_data.begin() == 0 )", (const char *)&queryFormat, "base_type::m_data.begin() == NULL") )
+        v58->m_data.m_data.m_buffer = v59;
+        v58->m_data.m_data.m_size = v75;
+        v60 = *v55;
+        if ( v58->m_data.m_data.m_buffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 458, ASSERT_TYPE_ASSERT, "( base_type::m_data.begin() == 0 )", (const char *)&queryFormat, "base_type::m_data.begin() == NULL") )
           __debugbreak();
-        if ( 24 * v71 > _R12->m_data.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
+        if ( 24 * v60 > v58->m_data.m_data.m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\buffer_allocator.h", 56, ASSERT_TYPE_ASSERT, "( size_bytes <= m_data.size_in_bytes() )", (const char *)&queryFormat, "size_bytes <= m_data.size_in_bytes()") )
           __debugbreak();
-        v72 = (ntl::internal::list_node<LUIElement *> **)&_R12->m_data.m_freelist;
-        *((_QWORD *)&v93 + 1) = v71;
-        *(_QWORD *)&v93 = _R12->m_data.m_data.m_buffer;
-        __asm
-        {
-          vmovups xmm0, [rsp+0D8h+var_78]
-          vmovups xmmword ptr [r12+10h], xmm0
-        }
-        v74 = _R12->m_data.m_data.m_size;
-        v75 = _R12->m_data.m_data.m_buffer;
-        if ( !v74 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 52, ASSERT_TYPE_ASSERT, "( num_elements > 0 )", (const char *)&queryFormat, "num_elements > 0") )
+        p_m_freelist = (ntl::internal::list_node<LUIElement *> **)&v58->m_data.m_freelist;
+        v77.m_size = v60;
+        v77.m_buffer = (ntl::internal::list_node<LUIElement *> *)v58->m_data.m_data.m_buffer;
+        v58->m_data.m_data = v77;
+        m_size = v58->m_data.m_data.m_size;
+        m_buffer = v58->m_data.m_data.m_buffer;
+        if ( !m_size && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 52, ASSERT_TYPE_ASSERT, "( num_elements > 0 )", (const char *)&queryFormat, "num_elements > 0") )
           __debugbreak();
-        v76 = &_R12->m_data.m_freelist;
-        v77 = (ntl::internal::pool_allocator_freelist<24> *)&v75[v74];
+        v64 = &v58->m_data.m_freelist;
+        v65 = (ntl::internal::pool_allocator_freelist<24> *)&m_buffer[m_size];
         do
         {
-          v77 -= 3;
-          v77->m_head.mp_next = &v76->m_head;
-          v76 = v77;
+          v65 -= 3;
+          v65->m_head.mp_next = &v64->m_head;
+          v64 = v65;
         }
-        while ( v77 > (ntl::internal::pool_allocator_freelist<24> *)v75 );
-        *v72 = (ntl::internal::list_node<LUIElement *> *)v77;
-        if ( !v77 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+        while ( v65 > (ntl::internal::pool_allocator_freelist<24> *)m_buffer );
+        *p_m_freelist = (ntl::internal::list_node<LUIElement *> *)v65;
+        if ( !v65 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
           __debugbreak();
-        if ( v97 != -2 )
+        if ( v79 != -2 )
         {
-          v78 = v98;
-          for ( i = 0; i < *v98; ++_RSI->maxNumChildren )
+          v66 = v80;
+          for ( i = 0; i < *v80; ++v4[671] )
           {
-            if ( _RSI->buildChildFunction == -2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 431, ASSERT_TYPE_ASSERT, "(!LUIElement_Grid_UserSuppliesChildren( gridData ))", (const char *)&queryFormat, "!LUIElement_Grid_UserSuppliesChildren( gridData )") )
+            if ( *v4 == -2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 431, ASSERT_TYPE_ASSERT, "(!LUIElement_Grid_UserSuppliesChildren( gridData ))", (const char *)&queryFormat, "!LUIElement_Grid_UserSuppliesChildren( gridData )") )
               __debugbreak();
-            if ( !LUI_ElementHasWeakTableEntry(v10, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 432, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( grid, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( grid, luaVM )") )
+            if ( !LUI_ElementHasWeakTableEntry(v3, luaVM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_customelement_grid.cpp", 432, ASSERT_TYPE_ASSERT, "(LUI_ElementHasWeakTableEntry( grid, luaVM ))", (const char *)&queryFormat, "LUI_ElementHasWeakTableEntry( grid, luaVM )") )
               __debugbreak();
-            LUI_PutElementOnTopOfStack(v10, luaVM);
+            LUI_PutElementOnTopOfStack(v3, luaVM);
             j_lua_getfield(luaVM, -1, "_gridFunctionRefs");
-            j_lua_rawgeti(luaVM, -1, _RSI->buildChildFunction);
+            j_lua_rawgeti(luaVM, -1, *v4);
             j_lua_remove(luaVM, -2);
             j_lua_remove(luaVM, -2);
-            v80 = LuaShared_PCall(luaVM, 0, 1);
-            if ( v80 )
+            v68 = LuaShared_PCall(luaVM, 0, 1);
+            if ( v68 )
             {
               LUI_ReportError("Error while creating UI grid content.\n", luaVM);
-              LUI_HandleLuaError(v80);
-              v81 = NULL;
+              LUI_HandleLuaError(v68);
+              v69 = NULL;
             }
             else
             {
               if ( !j_lua_isuserdata(luaVM, -1) )
                 j_luaL_error(luaVM, (const char *)&queryFormat, "lua_isuserdata( luaVM, -1 )");
-              v81 = LUI_ToElement(luaVM, -1);
+              v69 = LUI_ToElement(luaVM, -1);
               j_lua_settop(luaVM, -2);
-              v81->priority = 0;
-              v81->parent = v10;
-              LUI_LUIElement_AddStrongReference(v10, v81, luaVM);
+              v69->priority = 0;
+              v69->parent = v3;
+              LUI_LUIElement_AddStrongReference(v3, v69, luaVM);
             }
-            if ( !*v72 )
+            if ( !*p_m_freelist )
             {
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
                 __debugbreak();
-              if ( !*v72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+              if ( !*p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
                 __debugbreak();
             }
-            if ( *v72 == (ntl::internal::list_node<LUIElement *> *)v72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x18ui64, _R12->m_data.m_data.m_size) )
+            if ( *p_m_freelist == (ntl::internal::list_node<LUIElement *> *)p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x18ui64, v58->m_data.m_data.m_size) )
               __debugbreak();
-            v82 = *v72;
-            *v72 = (ntl::internal::list_node<LUIElement *> *)(*v72)->mp_prev;
-            v82->mp_prev = NULL;
-            v82->mp_next = NULL;
-            v82->m_data = v81;
-            ntl::internal::list_head_base<ntl::internal::list_node<LUIElement *>>::insert_before(&_R12->m_data.m_listHead, (ntl::internal::list_node<LUIElement *> *)&_R12->m_data.m_listHead, v82);
-            v78 = v98;
+            v70 = *p_m_freelist;
+            *p_m_freelist = (ntl::internal::list_node<LUIElement *> *)(*p_m_freelist)->mp_prev;
+            v70->mp_prev = NULL;
+            v70->mp_next = NULL;
+            v70->m_data = v69;
+            ntl::internal::list_head_base<ntl::internal::list_node<LUIElement *>>::insert_before(&v58->m_data.m_listHead, (ntl::internal::list_node<LUIElement *> *)&v58->m_data.m_listHead, v70);
+            v66 = v80;
             ++i;
           }
-          v66 = v78;
+          v55 = v66;
         }
-        v67 = (ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > **)&_RSI->gridContent.m_freelist;
-        p_m_listHead = &_RSI->gridContent.m_listHead;
-        v65 = v96 + 1;
-        v96 = v65;
+        v56 = (ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > **)(v4 + 678);
+        v57 = (ntl::internal::list_head_base<ntl::internal::list_node<ntl::list<LUIElement *,ntl::pool_allocator<ntl::internal::list_node<LUIElement *>,ntl::solitary_buffer_allocator> > > > *)(v4 + 684);
+        v54 = v78 + 1;
+        v78 = v54;
       }
-      while ( v65 < *v90 );
+      while ( v54 < *v74 );
     }
   }
-  LUIElement_Grid_ShuffleLines(_RSI, &_RSI->xData);
-  LUIElement_Grid_ShuffleLines(_RSI, &_RSI->yData);
-  LUIElement_Grid_PopulateChildren(v10, _RSI, luaVM);
-  _R11 = &v94;
-  result = 0i64;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
-  return result;
+  LUIElement_Grid_ShuffleLines((LUIGridData *)v4, (LUIGridAxisData *)(v4 + 4));
+  LUIElement_Grid_ShuffleLines((LUIGridData *)v4, (LUIGridAxisData *)(v4 + 336));
+  LUIElement_Grid_PopulateChildren(v3, (LUIGridData *)v4, luaVM);
+  return 0i64;
 }
 

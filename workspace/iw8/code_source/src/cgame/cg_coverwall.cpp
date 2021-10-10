@@ -297,17 +297,18 @@ void CG_CoverWall_ProcessEntity(const LocalClientNum_t localClientNum, centity_t
   const unsigned int *CoverGrid; 
   const unsigned int *PreviousCoverGrid; 
   int time; 
-  CG_CoverWall_t *v12; 
+  CG_CoverWall_t *v11; 
+  int v12; 
   int v13; 
   int v14; 
-  int v15; 
-  __int64 v16; 
+  __int64 v15; 
+  GfxSceneHudOutlineInfo *HudOutlineInfo; 
   unsigned int number; 
-  float v22; 
+  __m256i v18; 
   DObj *obj; 
   cg_t *cgameGlob; 
   GfxSceneHudOutlineInfo result; 
-  GfxSceneHudOutlineInfo v28; 
+  GfxSceneHudOutlineInfo v24; 
   vec3_t outLightingOrigin; 
 
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 516, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
@@ -343,48 +344,41 @@ void CG_CoverWall_ProcessEntity(const LocalClientNum_t localClientNum, centity_t
       CoverGrid = CG_CoverWall_GetCoverGrid(cent);
       PreviousCoverGrid = CG_CoverWall_GetPreviousCoverGrid(cent);
       time = CG_GetLocalClientGlobals(localClientNum)->time;
-      v12 = CG_CoverWall_GetCoverData(localClientNum, cent);
-      v12->morphedThisFrame = 0;
+      v11 = CG_CoverWall_GetCoverData(localClientNum, cent);
+      v11->morphedThisFrame = 0;
       if ( memcmp_0(CoverGrid, PreviousCoverGrid, 0x1Cui64) )
-        v12->morphedThisFrame = 1;
-      v13 = -4;
+        v11->morphedThisFrame = 1;
+      v12 = -4;
       do
       {
-        v14 = -6;
+        v13 = -6;
         do
         {
-          v15 = BG_CoverWall_GridPosToDataArrayIndex(v14, 0, v13);
-          v16 = v15;
-          if ( v15 >= 224 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 298, ASSERT_TYPE_ASSERT, "(idx < (32 * 7))", (const char *)&queryFormat, "idx < (32 * COVERWALL_GRID_ARRAY_SIZE)") )
+          v14 = BG_CoverWall_GridPosToDataArrayIndex(v13, 0, v12);
+          v15 = v14;
+          if ( v14 >= 224 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 298, ASSERT_TYPE_ASSERT, "(idx < (32 * 7))", (const char *)&queryFormat, "idx < (32 * COVERWALL_GRID_ARRAY_SIZE)") )
             __debugbreak();
-          if ( BG_CoverWall_GetGridPos(CoverGrid, v14, 0, v13) && !v12->spawnGrid[v16] )
+          if ( BG_CoverWall_GetGridPos(CoverGrid, v13, 0, v12) && !v11->spawnGrid[v15] )
           {
-            v12->spawnGrid[v16] = time;
-            v12->morphedThisFrame = 1;
+            v11->spawnGrid[v15] = time;
+            v11->morphedThisFrame = 1;
           }
-          ++v14;
+          ++v13;
         }
-        while ( v14 <= 6 );
-        ++v13;
+        while ( v13 <= 6 );
+        ++v12;
       }
-      while ( v13 <= 9 );
+      while ( v12 <= 9 );
       CG_CoverWall_SpawnCoverBlockFx(localClientNum, cent);
       CG_CoverWall_UpdatePreControllers(localClientNum, obj, cent);
       CG_Entity_CalcLightingOrigin(&cent->pose, obj, &outLightingOrigin);
-      _RAX = CG_Entity_GetHudOutlineInfo(&result, cgameGlob, cent);
+      HudOutlineInfo = CG_Entity_GetHudOutlineInfo(&result, cgameGlob, cent);
       number = cent->nextState.number;
-      __asm { vmovups ymm0, ymmword ptr [rax] }
-      v28.characterEVOffset = _RAX->characterEVOffset;
-      result.characterEVOffset = NULL_SHADER_OVERRIDE_1.atlasTime;
-      __asm
-      {
-        vmovups [rsp+128h+var_88], ymm0
-        vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_1.scrollRateX
-        vmovups ymmword ptr [rsp+128h+result.color], ymm0
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+128h+var_E8], xmm0
-      }
-      CG_Entity_AddDObjToScene(localClientNum, obj, &cent->pose, number, 0x1000u, (shaderOverride_t *)&result, &v28, &outLightingOrigin, v22, 0);
+      v18 = *(__m256i *)&HudOutlineInfo->color;
+      v24.characterEVOffset = HudOutlineInfo->characterEVOffset;
+      *(__m256i *)&v24.color = v18;
+      memset(&result, 0, sizeof(result));
+      CG_Entity_AddDObjToScene(localClientNum, obj, &cent->pose, number, 0x1000u, (shaderOverride_t *)&result, &v24, &outLightingOrigin, 0.0, 0);
     }
   }
 }
@@ -396,338 +390,268 @@ CG_CoverWall_PushNearbyRagdolls
 */
 void CG_CoverWall_PushNearbyRagdolls(const LocalClientNum_t localClientNum, centity_t *cent, bool isInitialPush)
 {
-  __int32 v15; 
+  __int32 v5; 
   hkMonitorStream *Value; 
-  hkMonitorStream *v17; 
-  const dvar_t *v22; 
-  int v35; 
+  hkMonitorStream *v7; 
+  const dvar_t *v8; 
+  float v9; 
+  const dvar_t *v10; 
+  float v11; 
+  const dvar_t *v12; 
+  float v13; 
+  const dvar_t *v14; 
+  float v15; 
+  __int64 v16; 
+  int v21; 
   unsigned int *p_physicsInstanceId; 
+  float v23; 
   Ragdoll *Ragdoll; 
-  int v40; 
-  int v41; 
+  int v25; 
+  int v26; 
   const BoneOrientation *PhysicsPoseBoneOrientations; 
   int NumRigidBodys; 
-  __int64 v44; 
-  unsigned int v45; 
-  LocalClientNum_t v47; 
-  unsigned int v48; 
+  __int64 v29; 
+  unsigned int v30; 
+  float *v31; 
+  LocalClientNum_t v32; 
+  unsigned int v33; 
   unsigned int m_serialAndIndex; 
+  float v35; 
+  float v36; 
+  __int128 v37; 
+  __int128 v38; 
+  __int128 v39; 
+  float v40; 
+  __int128 v41; 
   CgHandler *Handler; 
-  float fmt; 
-  __int64 v112; 
-  __int64 v113; 
+  __int128 v46; 
+  __int64 v50; 
+  __int64 v51; 
   float mass; 
   LocalClientNum_t _localClientNum; 
-  int v116; 
+  int v54; 
   vec3_t outOrigin; 
   hknpBodyId result; 
   cg_t *LocalClientGlobals; 
-  __int64 v120; 
-  hkMonitorStream *v121; 
-  __int64 v122; 
-  hkMonitorStream *v123; 
+  __int64 v58; 
+  hkMonitorStream *v59; 
+  __int64 v60; 
+  hkMonitorStream *v61; 
   vec3_t vec; 
   vec3_t position; 
-  WorldUpReferenceFrame v126; 
-  char v127; 
-  void *retaddr; 
+  WorldUpReferenceFrame v64; 
 
-  _RAX = &retaddr;
-  v122 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-  }
-  v15 = localClientNum;
+  v60 = -2i64;
+  v5 = localClientNum;
   _localClientNum = localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 154, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   Value = (hkMonitorStream *)TlsGetValue(hkMonitorStream__m_instance.m_slotID);
-  v17 = Value;
-  v121 = Value;
+  v7 = Value;
+  v59 = Value;
   if ( Value )
     hkMonitorStream::timerBegin(Value, "TtCG_PhysicsCoverWall_PushRagdolls");
-  v123 = v17;
+  v61 = v7;
   Sys_ProfBeginNamedEvent(0xFFE0FFFF, "CG_CoverWall_PushNearbyRagdolls");
   CG_GetPoseOrigin(&cent->pose, &outOrigin);
   CG_EntityWorkers_EnterCriticalSection_Unverified();
   if ( ragdoll_enable->current.enabled )
   {
-    _RDI = DCONST_DVARMPSPFLT_g_coverWall_ragdollImpulseMag;
+    v8 = DCONST_DVARMPSPFLT_g_coverWall_ragdollImpulseMag;
     if ( !DCONST_DVARMPSPFLT_g_coverWall_ragdollImpulseMag && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_ragdollImpulseMag") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm13, dword ptr [rdi+28h] }
-    _RDI = DCONST_DVARMPSPFLT_g_coverWall_ragdollDistCheck;
+    Dvar_CheckFrontendServerThread(v8);
+    v9 = v8->current.value;
+    v10 = DCONST_DVARMPSPFLT_g_coverWall_ragdollDistCheck;
     if ( !DCONST_DVARMPSPFLT_g_coverWall_ragdollDistCheck && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_ragdollDistCheck") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-    v22 = DCONST_DVARMPSPFLT_g_coverWall_ragdollDistCheck;
+    Dvar_CheckFrontendServerThread(v10);
+    v11 = v10->current.value;
+    v12 = DCONST_DVARMPSPFLT_g_coverWall_ragdollDistCheck;
     if ( !DCONST_DVARMPSPFLT_g_coverWall_ragdollDistCheck && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_ragdollDistCheck") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v22);
-    __asm { vmulss  xmm12, xmm6, dword ptr [rdi+28h] }
-    _RDI = DCONST_DVARMPSPFLT_g_coverWall_ragdollImpulseUpContribution;
+    Dvar_CheckFrontendServerThread(v12);
+    v13 = v11 * v12->current.value;
+    v14 = DCONST_DVARMPSPFLT_g_coverWall_ragdollImpulseUpContribution;
     if ( !DCONST_DVARMPSPFLT_g_coverWall_ragdollImpulseUpContribution && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_ragdollImpulseUpContribution") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm10, dword ptr [rdi+28h] }
-    _R12 = 0i64;
-    __asm { vmovd   xmm1, r12d }
-    _EAX = isInitialPush;
-    __asm
-    {
-      vmovd   xmm0, eax
-      vpcmpeqd xmm2, xmm0, xmm1
-      vmovss  xmm9, cs:__real@3f800000
-      vmovss  xmm0, cs:__real@40800000
-      vblendvps xmm1, xmm0, xmm9, xmm2
-      vmovss  [rsp+1B0h+mass], xmm1
-      vxorps  xmm8, xmm8, xmm8
-      vmovss  dword ptr [rbp+0B0h+vec], xmm8
-      vmovss  dword ptr [rbp+0B0h+vec+4], xmm8
-      vmovss  dword ptr [rbp+0B0h+vec+8], xmm8
-      vmovss  dword ptr [rbp+0B0h+position], xmm8
-      vmovss  dword ptr [rbp+0B0h+position+4], xmm8
-      vmovss  dword ptr [rbp+0B0h+position+8], xmm8
-    }
+    Dvar_CheckFrontendServerThread(v14);
+    v15 = v14->current.value;
+    v16 = 0i64;
+    _XMM0 = isInitialPush;
+    __asm { vpcmpeqd xmm2, xmm0, xmm1 }
+    _XMM0 = LODWORD(FLOAT_4_0);
+    __asm { vblendvps xmm1, xmm0, xmm9, xmm2 }
+    mass = *(float *)&_XMM1;
+    vec.v[0] = 0.0;
+    vec.v[1] = 0.0;
+    vec.v[2] = 0.0;
+    position.v[0] = 0.0;
+    position.v[1] = 0.0;
+    position.v[2] = 0.0;
     CG_EntityWorkers_AcquireWriteLock_Physics(NONE_UNVERIFIED);
-    v35 = 1;
-    v116 = 1;
+    v21 = 1;
+    v54 = 1;
     p_physicsInstanceId = &g_ragdollBodies[0].state.physicsInstanceId;
-    __asm
-    {
-      vmovss  xmm14, [rsp+1B0h+mass]
-      vmovss  xmm11, cs:__real@80000000
-    }
+    v23 = *(float *)&_XMM1;
     do
     {
-      if ( !v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll.inl", 64, ASSERT_TYPE_ASSERT, "(ragdollHandle != 0)", (const char *)&queryFormat, "ragdollHandle != RAGDOLL_INVALID") )
+      if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll.inl", 64, ASSERT_TYPE_ASSERT, "(ragdollHandle != 0)", (const char *)&queryFormat, "ragdollHandle != RAGDOLL_INVALID") )
         __debugbreak();
-      if ( (unsigned int)(v35 - 1) >= 0x40 )
+      if ( (unsigned int)(v21 - 1) >= 0x40 )
       {
-        LODWORD(v113) = 64;
-        LODWORD(v112) = v35 - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll.inl", 65, ASSERT_TYPE_ASSERT, "(unsigned)( ragdollHandle - 1 ) < (unsigned)( 64 )", "ragdollHandle - 1 doesn't index RAGDOLL_MAX\n\t%i not in [0, %i)", v112, v113) )
+        LODWORD(v51) = 64;
+        LODWORD(v50) = v21 - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll.inl", 65, ASSERT_TYPE_ASSERT, "(unsigned)( ragdollHandle - 1 ) < (unsigned)( 64 )", "ragdollHandle - 1 doesn't index RAGDOLL_MAX\n\t%i not in [0, %i)", v50, v51) )
           __debugbreak();
       }
-      Ragdoll = Ragdoll_GetRagdoll(v35);
+      Ragdoll = Ragdoll_GetRagdoll(v21);
       if ( !Ragdoll && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll.inl", 69, ASSERT_TYPE_ASSERT, "(ragdoll)", (const char *)&queryFormat, "ragdoll") )
         __debugbreak();
       if ( Ragdoll->allocated )
       {
-        if ( !v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll.inl", 19, ASSERT_TYPE_ASSERT, "(ragdollHandle != 0)", (const char *)&queryFormat, "ragdollHandle != RAGDOLL_INVALID") )
+        if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll.inl", 19, ASSERT_TYPE_ASSERT, "(ragdollHandle != 0)", (const char *)&queryFormat, "ragdollHandle != RAGDOLL_INVALID") )
           __debugbreak();
-        if ( (unsigned int)(v35 - 1) >= 0x40 )
+        if ( (unsigned int)(v21 - 1) >= 0x40 )
         {
-          LODWORD(v113) = 64;
-          LODWORD(v112) = v35 - 1;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll.inl", 20, ASSERT_TYPE_ASSERT, "(unsigned)( ragdollHandle - 1 ) < (unsigned)( 64 )", "ragdollHandle - 1 doesn't index RAGDOLL_MAX\n\t%i not in [0, %i)", v112, v113) )
+          LODWORD(v51) = 64;
+          LODWORD(v50) = v21 - 1;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\ragdoll\\ragdoll.inl", 20, ASSERT_TYPE_ASSERT, "(unsigned)( ragdollHandle - 1 ) < (unsigned)( 64 )", "ragdollHandle - 1 doesn't index RAGDOLL_MAX\n\t%i not in [0, %i)", v50, v51) )
             __debugbreak();
         }
         if ( p_physicsInstanceId == (unsigned int *)7344 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 193, ASSERT_TYPE_ASSERT, "(ragdoll)", (const char *)&queryFormat, "ragdoll") )
           __debugbreak();
-        v40 = *(p_physicsInstanceId - 1826);
-        if ( v40 == v15 && *p_physicsInstanceId != -1 )
+        v25 = *(p_physicsInstanceId - 1826);
+        if ( v25 == v5 && *p_physicsInstanceId != -1 )
         {
-          v41 = 3 * v40 + 3;
+          v26 = 3 * v25 + 3;
           PhysicsPoseBoneOrientations = Ragdoll_GetPhysicsPoseBoneOrientations((const Ragdoll *)(p_physicsInstanceId - 1836));
           if ( !PhysicsPoseBoneOrientations && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 211, ASSERT_TYPE_ASSERT, "(boneOrientations)", (const char *)&queryFormat, "boneOrientations") )
             __debugbreak();
-          NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v41, *p_physicsInstanceId);
-          v44 = NumRigidBodys;
+          NumRigidBodys = Physics_GetNumRigidBodys((const Physics_WorldId)v26, *p_physicsInstanceId);
+          v29 = NumRigidBodys;
           if ( NumRigidBodys > 64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 215, ASSERT_TYPE_ASSERT, "(numBodies <= 64)", (const char *)&queryFormat, "numBodies <= RAGDOLL_MAX_BONES") )
             __debugbreak();
-          if ( (_DWORD)v44 != *(p_physicsInstanceId - 1748) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 216, ASSERT_TYPE_ASSERT, "(numBodies == Ragdoll_GetNumBones( ragdoll ))", (const char *)&queryFormat, "numBodies == Ragdoll_GetNumBones( ragdoll )") )
+          if ( (_DWORD)v29 != *(p_physicsInstanceId - 1748) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 216, ASSERT_TYPE_ASSERT, "(numBodies == Ragdoll_GetNumBones( ragdoll ))", (const char *)&queryFormat, "numBodies == Ragdoll_GetNumBones( ragdoll )") )
             __debugbreak();
-          v45 = 0;
-          v120 = v44;
-          if ( (int)v44 <= 0 )
+          v30 = 0;
+          v58 = v29;
+          if ( (int)v29 <= 0 )
           {
-            v15 = _localClientNum;
+            v5 = _localClientNum;
           }
           else
           {
-            _R14 = &PhysicsPoseBoneOrientations->origin.v[2];
-            v47 = _localClientNum;
+            v31 = &PhysicsPoseBoneOrientations->origin.v[2];
+            v32 = _localClientNum;
             do
             {
-              v48 = *p_physicsInstanceId;
+              v33 = *p_physicsInstanceId;
               if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
                 __debugbreak();
-              if ( (unsigned int)v41 > 7 )
+              if ( (unsigned int)v26 > 7 )
               {
-                LODWORD(v113) = v41;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v113) )
+                LODWORD(v51) = v26;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v51) )
                   __debugbreak();
               }
-              if ( v48 == -1 )
+              if ( v33 == -1 )
               {
-                LODWORD(v113) = v41;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v113) )
+                LODWORD(v51) = v26;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v51) )
                   __debugbreak();
               }
-              if ( !g_physicsClientWorldsCreated && (unsigned int)(v41 - 2) <= 5 )
+              if ( !g_physicsClientWorldsCreated && (unsigned int)(v26 - 2) <= 5 )
               {
-                LODWORD(v113) = v41;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v113) )
+                LODWORD(v51) = v26;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v51) )
                   __debugbreak();
               }
-              if ( !g_physicsServerWorldsCreated && (unsigned int)v41 <= 1 )
+              if ( !g_physicsServerWorldsCreated && (unsigned int)v26 <= 1 )
               {
-                LODWORD(v113) = v41;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v113) )
+                LODWORD(v51) = v26;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v51) )
                   __debugbreak();
               }
-              m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v41, v48, v45)->m_serialAndIndex;
+              m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v26, v33, v30)->m_serialAndIndex;
               if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 222, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( authBodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( authBodyId )") )
                 __debugbreak();
-              if ( v45 )
+              if ( v30 )
               {
-                __asm
-                {
-                  vmovss  xmm6, dword ptr [rbp+0B0h+vec+8]
-                  vmovss  xmm5, dword ptr [rbp+0B0h+vec+4]
-                  vmovss  xmm4, dword ptr [rbp+0B0h+vec]
-                }
+                v40 = vec.v[2];
+                v38 = LODWORD(vec.v[1]);
+                v36 = vec.v[0];
               }
               else
               {
-                __asm
-                {
-                  vmovss  xmm4, dword ptr [r14-8]
-                  vmovss  xmm5, dword ptr [rsp+1B0h+outOrigin]
-                  vsubss  xmm2, xmm5, xmm4
-                  vmovss  xmm6, dword ptr [rsp+1B0h+outOrigin+4]
-                  vsubss  xmm0, xmm6, dword ptr [r14-4]
-                  vmovss  xmm7, dword ptr [rsp+1B0h+outOrigin+8]
-                  vsubss  xmm3, xmm7, dword ptr [r14]
-                  vmulss  xmm1, xmm0, xmm0
-                  vmulss  xmm0, xmm2, xmm2
-                  vaddss  xmm2, xmm1, xmm0
-                  vmulss  xmm1, xmm3, xmm3
-                  vaddss  xmm2, xmm2, xmm1
-                  vcomiss xmm2, xmm12
-                  vsubss  xmm4, xmm4, xmm5
-                  vmovss  dword ptr [rbp+0B0h+vec], xmm4
-                  vmovss  xmm0, dword ptr [r14-4]
-                  vsubss  xmm5, xmm0, xmm6
-                  vmovss  dword ptr [rbp+0B0h+vec+4], xmm5
-                  vmovss  xmm1, dword ptr [r14]
-                  vsubss  xmm6, xmm1, xmm7
-                }
+                v35 = *(v31 - 2);
+                if ( (float)((float)((float)((float)(outOrigin.v[1] - *(v31 - 1)) * (float)(outOrigin.v[1] - *(v31 - 1))) + (float)((float)(outOrigin.v[0] - v35) * (float)(outOrigin.v[0] - v35))) + (float)((float)(outOrigin.v[2] - *v31) * (float)(outOrigin.v[2] - *v31))) > v13 )
+                  break;
+                v36 = v35 - outOrigin.v[0];
+                vec.v[0] = v36;
+                v37 = *((unsigned int *)v31 - 1);
+                v39 = v37;
+                *(float *)&v39 = *(float *)&v37 - outOrigin.v[1];
+                v38 = v39;
+                vec.v[1] = *(float *)&v37 - outOrigin.v[1];
+                v40 = *v31 - outOrigin.v[2];
               }
+              v41 = v38;
+              *(float *)&v41 = fsqrt((float)((float)(*(float *)&v38 * *(float *)&v38) + (float)(v36 * v36)) + (float)(v40 * v40));
+              _XMM3 = v41;
               __asm
               {
-                vmulss  xmm1, xmm5, xmm5
-                vmulss  xmm0, xmm4, xmm4
-                vaddss  xmm2, xmm1, xmm0
-                vmulss  xmm1, xmm6, xmm6
-                vaddss  xmm2, xmm2, xmm1
-                vsqrtss xmm3, xmm2, xmm2
                 vcmpless xmm0, xmm3, xmm11
                 vblendvps xmm1, xmm3, xmm9, xmm0
-                vdivss  xmm2, xmm9, xmm1
-                vmulss  xmm0, xmm4, xmm2
-                vmovss  dword ptr [rbp+0B0h+vec], xmm0
-                vmulss  xmm1, xmm5, xmm2
-                vmovss  dword ptr [rbp+0B0h+vec+4], xmm1
-                vmulss  xmm0, xmm6, xmm2
-                vmovss  dword ptr [rbp+0B0h+vec+8], xmm0
-                vcomiss xmm10, xmm8
               }
-              if ( v45 )
+              vec.v[0] = v36 * (float)(1.0 / *(float *)&_XMM1);
+              vec.v[1] = *(float *)&v38 * (float)(1.0 / *(float *)&_XMM1);
+              vec.v[2] = v40 * (float)(1.0 / *(float *)&_XMM1);
+              if ( v15 > 0.0 )
               {
-                Handler = CgHandler::getHandler(v47);
-                WorldUpReferenceFrame::WorldUpReferenceFrame(&v126, &LocalClientGlobals->predictedPlayerState, Handler);
-                __asm { vmovaps xmm1, xmm10; height }
-                WorldUpReferenceFrame::AddUpContribution(&v126, *(float *)&_XMM1, &vec);
+                Handler = CgHandler::getHandler(v32);
+                WorldUpReferenceFrame::WorldUpReferenceFrame(&v64, &LocalClientGlobals->predictedPlayerState, Handler);
+                WorldUpReferenceFrame::AddUpContribution(&v64, v15, &vec);
+                v46 = LODWORD(vec.v[1]);
+                *(float *)&v46 = fsqrt((float)((float)(*(float *)&v46 * *(float *)&v46) + (float)(vec.v[0] * vec.v[0])) + (float)(vec.v[2] * vec.v[2]));
+                _XMM3 = v46;
                 __asm
                 {
-                  vmovss  xmm6, dword ptr [rbp+0B0h+vec+4]
-                  vmulss  xmm1, xmm6, xmm6
-                  vmovss  xmm4, dword ptr [rbp+0B0h+vec]
-                  vmulss  xmm0, xmm4, xmm4
-                  vaddss  xmm2, xmm1, xmm0
-                  vmovss  xmm5, dword ptr [rbp+0B0h+vec+8]
-                  vmulss  xmm1, xmm5, xmm5
-                  vaddss  xmm0, xmm2, xmm1
-                  vsqrtss xmm3, xmm0, xmm0
                   vcmpless xmm0, xmm3, xmm11
                   vblendvps xmm1, xmm3, xmm9, xmm0
-                  vdivss  xmm2, xmm9, xmm1
-                  vmulss  xmm0, xmm4, xmm2
-                  vmovss  dword ptr [rbp+0B0h+vec], xmm0
-                  vmulss  xmm1, xmm6, xmm2
-                  vmovss  dword ptr [rbp+0B0h+vec+4], xmm1
-                  vmulss  xmm0, xmm5, xmm2
-                  vmovss  dword ptr [rbp+0B0h+vec+8], xmm0
                 }
+                vec.v[0] = vec.v[0] * (float)(1.0 / *(float *)&_XMM1);
+                vec.v[1] = vec.v[1] * (float)(1.0 / *(float *)&_XMM1);
+                vec.v[2] = vec.v[2] * (float)(1.0 / *(float *)&_XMM1);
               }
-              __asm
-              {
-                vmovss  xmm0, dword ptr [r14-8]
-                vmovss  dword ptr [rbp+0B0h+position], xmm0
-                vmovss  xmm1, dword ptr [r14-4]
-                vmovss  dword ptr [rbp+0B0h+position+4], xmm1
-                vmovss  xmm0, dword ptr [r14]
-                vmovss  dword ptr [rbp+0B0h+position+8], xmm0
-                vmovss  [rsp+1B0h+mass], xmm8
-              }
-              Physics_GetRigidBodyMass((Physics_WorldId)v41, m_serialAndIndex, &mass);
-              __asm
-              {
-                vmulss  xmm1, xmm13, [rsp+1B0h+mass]
-                vmulss  xmm2, xmm1, xmm14
-                vmovss  dword ptr [rsp+1B0h+fmt], xmm2
-              }
-              Physics_ApplyImpulse((Physics_WorldId)v41, m_serialAndIndex, &position, &vec, fmt);
-              ++v45;
-              ++_R12;
-              _R14 += 7;
+              position = *(vec3_t *)(v31 - 2);
+              mass = 0.0;
+              Physics_GetRigidBodyMass((Physics_WorldId)v26, m_serialAndIndex, &mass);
+              Physics_ApplyImpulse((Physics_WorldId)v26, m_serialAndIndex, &position, &vec, (float)(v9 * mass) * v23);
+              ++v30;
+              ++v16;
+              v31 += 7;
             }
-            while ( _R12 < v120 );
-            v15 = v47;
+            while ( v16 < v58 );
+            v5 = v32;
           }
-          _R12 = 0i64;
-          v35 = v116;
+          v16 = 0i64;
+          v21 = v54;
         }
       }
-      v116 = ++v35;
+      v54 = ++v21;
       p_physicsInstanceId += 3529;
     }
-    while ( v35 <= 64 );
+    while ( v21 <= 64 );
     CG_EntityWorkers_ReleaseWriteLock_Physics(NONE_UNVERIFIED);
-    v17 = v121;
+    v7 = v59;
   }
   CG_EntityWorkers_LeaveCriticalSection_Unverified();
   memset(&outOrigin, 0, sizeof(outOrigin));
   Sys_ProfEndNamedEvent();
-  if ( v17 )
-    hkMonitorStream::timerEnd(v17, "Et");
-  _R11 = &v127;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
+  if ( v7 )
+    hkMonitorStream::timerEnd(v7, "Et");
 }
 
 /*
@@ -804,42 +728,37 @@ void CG_CoverWall_SpawnCoverBlockFx(const LocalClientNum_t localClientNum, centi
   FXRegisteredDef *p_fxCoverBlockMelt; 
   FXRegisteredDef *p_fxCoverBlockSpawn; 
   int time; 
-  const dvar_t *v15; 
-  int v17; 
-  int v19; 
-  __int64 v20; 
-  const dvar_t *v21; 
-  void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
-  unsigned int *v47; 
-  char v50; 
-  char v51; 
-  void (__fastcall *v52)(const vec4_t *, vec3_t *); 
+  double v8; 
+  float v9; 
+  const dvar_t *v10; 
+  double v11; 
   float sagAmount; 
-  float sagAmounta; 
+  int v13; 
+  int v14; 
+  __int64 v15; 
+  const dvar_t *v16; 
+  void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
+  __int128 v21; 
+  unsigned int *v31; 
+  const dvar_t *v32; 
+  float value; 
+  double v34; 
+  void (__fastcall *v35)(const vec4_t *, vec3_t *); 
+  __int128 v39; 
   vec3_t origin; 
-  vec3_t v79; 
-  FXRegisteredDef *v80; 
+  vec3_t v51; 
+  FXRegisteredDef *v52; 
   FXRegisteredDef *def; 
   unsigned int *grid; 
   unsigned int *CoverGrid; 
-  __int64 v84; 
+  __int64 v56; 
   vec3_t outWorldPos; 
   vec3_t outAngles; 
   vec3_t outNoise; 
   tmat33_t<vec3_t> axis; 
-  tmat33_t<vec3_t> v89; 
-  char v90; 
-  void *retaddr; 
+  tmat33_t<vec3_t> v61; 
 
-  _RAX = &retaddr;
-  v84 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
+  v56 = -2i64;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 311, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
   CoverGrid = (unsigned int *)CG_CoverWall_GetCoverGrid(cent);
@@ -860,37 +779,36 @@ void CG_CoverWall_SpawnCoverBlockFx(const LocalClientNum_t localClientNum, centi
       if ( !cgMedia.fxCoverBlockExplode.m_particleSystemDef )
         p_fxCoverBlockMelt = NULL;
     }
-    v80 = p_fxCoverBlockMelt;
+    v52 = p_fxCoverBlockMelt;
     p_fxCoverBlockSpawn = &cgMedia.fxCoverBlockSpawn;
     if ( !cgMedia.fxCoverBlockSpawn.m_particleSystemDef )
       p_fxCoverBlockSpawn = NULL;
     def = p_fxCoverBlockSpawn;
     time = CG_GetLocalClientGlobals(localClientNum)->time;
-    *(double *)&_XMM0 = BG_CoverWall_CalcSagAnimWeight(cent->nextState.time2, time);
-    __asm { vmovaps xmm8, xmm0 }
-    v15 = DCONST_DVARINT_g_coverWall_spawnDelayMS;
+    v8 = BG_CoverWall_CalcSagAnimWeight(cent->nextState.time2, time);
+    v9 = *(float *)&v8;
+    v10 = DCONST_DVARINT_g_coverWall_spawnDelayMS;
     if ( !DCONST_DVARINT_g_coverWall_spawnDelayMS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_spawnDelayMS") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v15);
-    *(double *)&_XMM0 = BG_CoverWall_CalcSagAnimWeight(cent->nextState.time2, time + v15->current.integer);
-    __asm { vmovaps xmm9, xmm0 }
-    v17 = -4;
-    __asm { vmovsd  xmm7, cs:__real@3f30000000000000 }
+    Dvar_CheckFrontendServerThread(v10);
+    v11 = BG_CoverWall_CalcSagAnimWeight(cent->nextState.time2, time + v10->current.integer);
+    sagAmount = *(float *)&v11;
+    v13 = -4;
     do
     {
-      v19 = -6;
+      v14 = -6;
       do
       {
-        v20 = BG_CoverWall_GridPosToDataArrayIndex(v19, 0, v17);
-        v21 = DCONST_DVARMPSPBOOL_g_coverWall_useSpawnFx;
+        v15 = BG_CoverWall_GridPosToDataArrayIndex(v14, 0, v13);
+        v16 = DCONST_DVARMPSPBOOL_g_coverWall_useSpawnFx;
         if ( !DCONST_DVARMPSPBOOL_g_coverWall_useSpawnFx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_useSpawnFx") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v21);
-        if ( v21->current.enabled )
+        Dvar_CheckFrontendServerThread(v16);
+        if ( v16->current.enabled )
         {
-          if ( (int)v20 >= 224 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 358, ASSERT_TYPE_ASSERT, "(idx < 32 * 7)", (const char *)&queryFormat, "idx < 32 * COVERWALL_GRID_ARRAY_SIZE") )
+          if ( (int)v15 >= 224 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 358, ASSERT_TYPE_ASSERT, "(idx < 32 * 7)", (const char *)&queryFormat, "idx < 32 * COVERWALL_GRID_ARRAY_SIZE") )
             __debugbreak();
-          if ( CoverData->spawnGrid[v20] == time )
+          if ( CoverData->spawnGrid[v15] == time )
           {
             if ( !cent->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
               __debugbreak();
@@ -898,143 +816,110 @@ void CG_CoverWall_SpawnCoverBlockFx(const LocalClientNum_t localClientNum, centi
             FunctionPointer_origin(&cent->pose.origin.origin.origin, &origin);
             if ( cent->pose.isPosePrecise )
             {
-              __asm
-              {
-                vmovd   xmm0, dword ptr [rsp+190h+origin]
-                vcvtdq2pd xmm0, xmm0
-                vmulsd  xmm1, xmm0, xmm7
-                vcvtsd2ss xmm2, xmm1, xmm1
-                vmovss  dword ptr [rsp+190h+origin], xmm2
-                vmovd   xmm0, dword ptr [rsp+190h+origin+4]
-                vcvtdq2pd xmm0, xmm0
-                vmulsd  xmm1, xmm0, xmm7
-                vcvtsd2ss xmm2, xmm1, xmm1
-                vmovss  dword ptr [rsp+190h+origin+4], xmm2
-                vmovd   xmm0, dword ptr [rsp+190h+origin+8]
-                vcvtdq2pd xmm0, xmm0
-                vmulsd  xmm1, xmm0, xmm7
-                vcvtsd2ss xmm2, xmm1, xmm1
-                vmovss  dword ptr [rsp+190h+origin+8], xmm2
-              }
+              _XMM0 = LODWORD(origin.v[0]);
+              __asm { vcvtdq2pd xmm0, xmm0 }
+              *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM0 + 1);
+              *(double *)&v21 = *(double *)&_XMM0 * 0.000244140625;
+              _XMM1 = v21;
+              __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+              origin.v[0] = *(float *)&_XMM2;
+              _XMM0 = LODWORD(origin.v[1]);
+              __asm { vcvtdq2pd xmm0, xmm0 }
+              *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM0 + 1);
+              *(double *)&v21 = *(double *)&_XMM0 * 0.000244140625;
+              _XMM1 = v21;
+              __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+              origin.v[1] = *(float *)&_XMM2;
+              _XMM0 = LODWORD(origin.v[2]);
+              __asm { vcvtdq2pd xmm0, xmm0 }
+              *((_QWORD *)&v21 + 1) = *((_QWORD *)&_XMM0 + 1);
+              *(double *)&v21 = *(double *)&_XMM0 * 0.000244140625;
+              _XMM1 = v21;
+              __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+              origin.v[2] = *(float *)&_XMM2;
             }
-            __asm { vmovss  [rsp+190h+sagAmount], xmm9 }
-            BG_CoverWall_GridPosToWorldPos(&origin, &cent->pose.angles, v19, 0, v17, sagAmount, &outWorldPos);
-            BG_CoverWall_CalcNoiseForPosition(v19, 0, v17, &outNoise);
-            __asm
-            {
-              vmovss  xmm4, dword ptr [rbp+90h+outNoise+4]
-              vmulss  xmm2, xmm4, dword ptr [rbp+90h+axis+0Ch]
-              vaddss  xmm2, xmm2, dword ptr [rbp+90h+var_100]
-              vmovss  dword ptr [rbp+90h+var_100], xmm2
-              vmulss  xmm3, xmm4, dword ptr [rbp+90h+axis+10h]
-              vaddss  xmm2, xmm3, dword ptr [rbp+90h+var_100+4]
-              vmovss  dword ptr [rbp+90h+var_100+4], xmm2
-              vmulss  xmm3, xmm4, dword ptr [rbp+90h+axis+14h]
-              vaddss  xmm2, xmm3, dword ptr [rbp+90h+var_100+8]
-              vmovss  dword ptr [rbp+90h+var_100+8], xmm2
-            }
-            BG_CoverWall_CalcAnglesForPosition(v19, 0, v17, &outAngles);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rbp+90h+outAngles]
-              vaddss  xmm1, xmm0, dword ptr [rbx+48h]
-              vmovss  dword ptr [rbp+90h+outAngles], xmm1
-              vmovss  xmm2, dword ptr [rbp+90h+outAngles+4]
-              vaddss  xmm0, xmm2, dword ptr [rbx+4Ch]
-              vmovss  dword ptr [rbp+90h+outAngles+4], xmm0
-              vmovss  xmm1, dword ptr [rbp+90h+outAngles+8]
-              vaddss  xmm2, xmm1, dword ptr [rbx+50h]
-              vmovss  dword ptr [rbp+90h+outAngles+8], xmm2
-            }
-            AnglesToAxis(&outAngles, &v89);
+            BG_CoverWall_GridPosToWorldPos(&origin, &cent->pose.angles, v14, 0, v13, sagAmount, &outWorldPos);
+            BG_CoverWall_CalcNoiseForPosition(v14, 0, v13, &outNoise);
+            outWorldPos.v[0] = (float)(outNoise.v[1] * axis.m[1].v[0]) + outWorldPos.v[0];
+            outWorldPos.v[1] = (float)(outNoise.v[1] * axis.m[1].v[1]) + outWorldPos.v[1];
+            outWorldPos.v[2] = (float)(outNoise.v[1] * axis.m[1].v[2]) + outWorldPos.v[2];
+            BG_CoverWall_CalcAnglesForPosition(v14, 0, v13, &outAngles);
+            outAngles.v[0] = outAngles.v[0] + cent->pose.angles.v[0];
+            outAngles.v[1] = outAngles.v[1] + cent->pose.angles.v[1];
+            outAngles.v[2] = outAngles.v[2] + cent->pose.angles.v[2];
+            AnglesToAxis(&outAngles, &v61);
             if ( def )
-              FX_PlayOrientedEffect(localClientNum, def, time, &outWorldPos, &v89);
+              FX_PlayOrientedEffect(localClientNum, def, time, &outWorldPos, &v61);
             memset(&origin, 0, sizeof(origin));
           }
         }
-        if ( BG_CoverWall_GetGridPos(grid, v19, 0, v17) )
+        if ( BG_CoverWall_GetGridPos(grid, v14, 0, v13) )
         {
-          v47 = CoverGrid;
-          if ( !BG_CoverWall_GetGridPos(CoverGrid, v19, 0, v17) )
+          v31 = CoverGrid;
+          if ( !BG_CoverWall_GetGridPos(CoverGrid, v14, 0, v13) )
           {
-            if ( BG_CoverWall_IsAnyNeighborSet(v47, v19, 0, v17) )
+            if ( BG_CoverWall_IsAnyNeighborSet(v31, v14, 0, v13) )
               goto LABEL_43;
-            _RDI = DVARFLT_g_coverWall_deathFxChanceToPlay;
+            v32 = DVARFLT_g_coverWall_deathFxChanceToPlay;
             if ( !DVARFLT_g_coverWall_deathFxChanceToPlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_deathFxChanceToPlay") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(_RDI);
-            __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-            *(double *)&_XMM0 = I_random();
-            __asm { vcomiss xmm0, xmm6 }
-            if ( v50 | v51 )
+            Dvar_CheckFrontendServerThread(v32);
+            value = v32->current.value;
+            v34 = I_random();
+            if ( *(float *)&v34 <= value )
             {
 LABEL_43:
-              if ( CoverData->spawnGrid[v20] != -1 )
+              if ( CoverData->spawnGrid[v15] != -1 )
               {
                 if ( !cent->pose.origin.Get_origin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 380, ASSERT_TYPE_ASSERT, "(pose->origin.Get_origin)", (const char *)&queryFormat, "pose->origin.Get_origin") )
                   __debugbreak();
-                v52 = ObfuscateGetFunctionPointer_origin(cent->pose.origin.Get_origin, &cent->pose);
-                v52(&cent->pose.origin.origin.origin, &v79);
+                v35 = ObfuscateGetFunctionPointer_origin(cent->pose.origin.Get_origin, &cent->pose);
+                v35(&cent->pose.origin.origin.origin, &v51);
                 if ( cent->pose.isPosePrecise )
                 {
-                  __asm
-                  {
-                    vmovd   xmm0, dword ptr [rsp+190h+var_138]
-                    vcvtdq2pd xmm0, xmm0
-                    vmulsd  xmm1, xmm0, xmm7
-                    vcvtsd2ss xmm2, xmm1, xmm1
-                    vmovss  dword ptr [rsp+190h+var_138], xmm2
-                    vmovd   xmm0, dword ptr [rsp+190h+var_138+4]
-                    vcvtdq2pd xmm0, xmm0
-                    vmulsd  xmm1, xmm0, xmm7
-                    vcvtsd2ss xmm2, xmm1, xmm1
-                    vmovss  dword ptr [rsp+190h+var_138+4], xmm2
-                    vmovd   xmm0, dword ptr [rsp+190h+var_138+8]
-                    vcvtdq2pd xmm0, xmm0
-                    vmulsd  xmm1, xmm0, xmm7
-                    vcvtsd2ss xmm2, xmm1, xmm1
-                    vmovss  dword ptr [rsp+190h+var_138+8], xmm2
-                  }
+                  _XMM0 = LODWORD(v51.v[0]);
+                  __asm { vcvtdq2pd xmm0, xmm0 }
+                  *((_QWORD *)&v39 + 1) = *((_QWORD *)&_XMM0 + 1);
+                  *(double *)&v39 = *(double *)&_XMM0 * 0.000244140625;
+                  _XMM1 = v39;
+                  __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+                  v51.v[0] = *(float *)&_XMM2;
+                  _XMM0 = LODWORD(v51.v[1]);
+                  __asm { vcvtdq2pd xmm0, xmm0 }
+                  *((_QWORD *)&v39 + 1) = *((_QWORD *)&_XMM0 + 1);
+                  *(double *)&v39 = *(double *)&_XMM0 * 0.000244140625;
+                  _XMM1 = v39;
+                  __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+                  v51.v[1] = *(float *)&_XMM2;
+                  _XMM0 = LODWORD(v51.v[2]);
+                  __asm { vcvtdq2pd xmm0, xmm0 }
+                  *((_QWORD *)&v39 + 1) = *((_QWORD *)&_XMM0 + 1);
+                  *(double *)&v39 = *(double *)&_XMM0 * 0.000244140625;
+                  _XMM1 = v39;
+                  __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
+                  v51.v[2] = *(float *)&_XMM2;
                 }
-                __asm { vmovss  [rsp+190h+sagAmount], xmm8 }
-                BG_CoverWall_GridPosToWorldPos(&v79, &cent->pose.angles, v19, 0, v17, sagAmounta, &outWorldPos);
-                BG_CoverWall_CalcAnglesForPosition(v19, 0, v17, &outAngles);
-                BG_CoverWall_CalcNoiseForPosition(v19, 0, v17, &outNoise);
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rbp+90h+var_100]
-                  vaddss  xmm1, xmm0, dword ptr [rbp+90h+outNoise]
-                  vmovss  dword ptr [rbp+90h+var_100], xmm1
-                  vmovss  xmm2, dword ptr [rbp+90h+var_100+4]
-                  vaddss  xmm0, xmm2, dword ptr [rbp+90h+outNoise+4]
-                  vmovss  dword ptr [rbp+90h+var_100+4], xmm0
-                  vmovss  xmm1, dword ptr [rbp+90h+var_100+8]
-                  vaddss  xmm2, xmm1, dword ptr [rbp+90h+outNoise+8]
-                  vmovss  dword ptr [rbp+90h+var_100+8], xmm2
-                }
-                AnglesToAxis(&outAngles, &v89);
-                CoverData->spawnGrid[v20] = -1;
-                if ( v80 )
-                  FX_PlayOrientedEffect(localClientNum, v80, time, &outWorldPos, &v89);
-                memset(&v79, 0, sizeof(v79));
+                BG_CoverWall_GridPosToWorldPos(&v51, &cent->pose.angles, v14, 0, v13, v9, &outWorldPos);
+                BG_CoverWall_CalcAnglesForPosition(v14, 0, v13, &outAngles);
+                BG_CoverWall_CalcNoiseForPosition(v14, 0, v13, &outNoise);
+                outWorldPos.v[0] = outWorldPos.v[0] + outNoise.v[0];
+                outWorldPos.v[1] = outWorldPos.v[1] + outNoise.v[1];
+                outWorldPos.v[2] = outWorldPos.v[2] + outNoise.v[2];
+                AnglesToAxis(&outAngles, &v61);
+                CoverData->spawnGrid[v15] = -1;
+                if ( v52 )
+                  FX_PlayOrientedEffect(localClientNum, v52, time, &outWorldPos, &v61);
+                memset(&v51, 0, sizeof(v51));
               }
             }
           }
         }
-        ++v19;
+        ++v14;
       }
-      while ( v19 <= 6 );
-      ++v17;
+      while ( v14 <= 6 );
+      ++v13;
     }
-    while ( v17 <= 9 );
-  }
-  _R11 = &v90;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
+    while ( v13 <= 9 );
   }
 }
 
@@ -1046,37 +931,39 @@ CG_CoverWall_UpdatePreControllers
 void CG_CoverWall_UpdatePreControllers(LocalClientNum_t localClientNum, DObj *obj, centity_t *cent)
 {
   CG_CoverWall_t *CoverData; 
-  unsigned int v9; 
+  unsigned int v7; 
+  DObjPartBits *p_partBits; 
   cg_t *LocalClientGlobals; 
-  const dvar_t *v12; 
+  const dvar_t *v10; 
   int time; 
   int integer; 
-  const dvar_t *v15; 
-  unsigned int v16; 
+  const dvar_t *v13; 
+  unsigned int v14; 
+  int v15; 
+  int v16; 
   int v17; 
-  int v18; 
+  __int64 v18; 
   int v19; 
-  __int64 v20; 
+  int v20; 
   int v21; 
-  int v22; 
-  int v23; 
   unsigned int *spawnGrid; 
-  unsigned int v28; 
+  double v23; 
+  unsigned int v24; 
   int time2; 
+  double v26; 
   char *fmt; 
-  __int64 v32; 
-  __int64 v33; 
-  __int64 v34; 
-  __int64 v35; 
+  __int64 v28; 
+  __int64 v29; 
+  __int64 v30; 
+  __int64 v31; 
   bool enabled; 
-  int v37; 
+  int v33; 
   unsigned int *grid; 
   DObjPartBits partBits; 
-  unsigned int v42[4]; 
-  __int64 v43; 
-  unsigned int v44; 
+  unsigned int v38[4]; 
+  double v39; 
+  unsigned int v40; 
 
-  __asm { vmovaps [rsp+108h+var_48], xmm6 }
   if ( !obj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 426, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
     __debugbreak();
   grid = (unsigned int *)CG_CoverWall_GetCoverGrid(cent);
@@ -1086,102 +973,92 @@ void CG_CoverWall_UpdatePreControllers(LocalClientNum_t localClientNum, DObj *ob
   if ( !CoverData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 432, ASSERT_TYPE_ASSERT, "(cg_coverWall)", (const char *)&queryFormat, "cg_coverWall") )
     __debugbreak();
   DObjGetHidePartBits(obj, &partBits);
-  __asm { vmovdqu xmm6, cs:__xmm@ffffffffffffffffffffffffffffffff }
-  v9 = 0;
-  _RDI = &partBits;
+  v7 = 0;
+  p_partBits = &partBits;
   do
   {
-    __asm { vmovdqu xmmword ptr [rdi], xmm6 }
-    _RDI = (DObjPartBits *)((char *)_RDI + 16);
-    ++v9;
+    *(_OWORD *)p_partBits->array = _xmm_ffffffffffffffffffffffffffffffff;
+    p_partBits = (DObjPartBits *)((char *)p_partBits + 16);
+    ++v7;
   }
-  while ( v9 < 2 );
-  memset(v42, 0, sizeof(v42));
-  v43 = 0i64;
-  v44 = 0;
+  while ( v7 < 2 );
+  memset(v38, 0, sizeof(v38));
+  v39 = 0.0;
+  v40 = 0;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v12 = DCONST_DVARINT_g_coverWall_spawnDelayMS;
+  v10 = DCONST_DVARINT_g_coverWall_spawnDelayMS;
   time = LocalClientGlobals->time;
   if ( !DCONST_DVARINT_g_coverWall_spawnDelayMS && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_spawnDelayMS") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  integer = v12->current.integer;
-  v15 = DCONST_DVARMPSPBOOL_g_coverWall_useSpawnDelay;
-  v37 = integer;
+  Dvar_CheckFrontendServerThread(v10);
+  integer = v10->current.integer;
+  v13 = DCONST_DVARMPSPBOOL_g_coverWall_useSpawnDelay;
+  v33 = integer;
   if ( !DCONST_DVARMPSPBOOL_g_coverWall_useSpawnDelay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_coverWall_useSpawnDelay") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  enabled = v15->current.enabled;
-  v16 = 1;
-  v17 = -4;
+  Dvar_CheckFrontendServerThread(v13);
+  enabled = v13->current.enabled;
+  v14 = 1;
+  v15 = -4;
   do
   {
-    v18 = -6;
+    v16 = -6;
     do
     {
-      v19 = BG_CoverWall_GridPosToDataArrayIndex(v18, 0, v17);
-      v20 = v19;
-      if ( v19 >= 224 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 454, ASSERT_TYPE_ASSERT, "(arrayIdx < (32 * 7))", (const char *)&queryFormat, "arrayIdx < (32 * COVERWALL_GRID_ARRAY_SIZE)") )
+      v17 = BG_CoverWall_GridPosToDataArrayIndex(v16, 0, v15);
+      v18 = v17;
+      if ( v17 >= 224 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 454, ASSERT_TYPE_ASSERT, "(arrayIdx < (32 * 7))", (const char *)&queryFormat, "arrayIdx < (32 * COVERWALL_GRID_ARRAY_SIZE)") )
         __debugbreak();
-      v21 = CoverData->spawnGrid[v20];
-      if ( v21 )
+      v19 = CoverData->spawnGrid[v18];
+      if ( v19 )
       {
-        if ( BG_CoverWall_GetGridPos(grid, v18, 0, v17) )
+        if ( BG_CoverWall_GetGridPos(grid, v16, 0, v15) )
         {
-          v22 = time - v21;
-          if ( time - v21 < 0 )
+          v20 = time - v19;
+          if ( time - v19 < 0 )
           {
-            LODWORD(v33) = time;
-            LODWORD(v32) = time - v21;
-            LODWORD(fmt) = v17;
-            Com_Printf(16, "Found a cover block at pos ( %d, %d, %d ) with a negative lifetime of %d, current game time is %d\n", (unsigned int)v18, 0i64, fmt, v32, v33);
-            v23 = 0;
+            LODWORD(v29) = time;
+            LODWORD(v28) = time - v19;
+            LODWORD(fmt) = v15;
+            Com_Printf(16, "Found a cover block at pos ( %d, %d, %d ) with a negative lifetime of %d, current game time is %d\n", (unsigned int)v16, 0i64, fmt, v28, v29);
+            v21 = 0;
             spawnGrid = (unsigned int *)CoverData->spawnGrid;
             do
-              Com_Printf(16, "SpawnTime at grid Location %d is %d\n", (unsigned int)v23++, *spawnGrid++);
-            while ( v23 < 224 );
-            integer = v37;
+              Com_Printf(16, "SpawnTime at grid Location %d is %d\n", (unsigned int)v21++, *spawnGrid++);
+            while ( v21 < 224 );
+            integer = v33;
           }
-          if ( v22 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 477, ASSERT_TYPE_ASSERT, "((gameTime - spawnTime) >= 0)", (const char *)&queryFormat, "(gameTime - spawnTime) >= 0") )
+          if ( v20 < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_coverwall.cpp", 477, ASSERT_TYPE_ASSERT, "((gameTime - spawnTime) >= 0)", (const char *)&queryFormat, "(gameTime - spawnTime) >= 0") )
             __debugbreak();
-          if ( !enabled || v22 >= integer )
+          if ( !enabled || v20 >= integer )
           {
-            if ( v16 >= 0x100 )
+            if ( v14 >= 0x100 )
             {
-              LODWORD(v35) = 256;
-              LODWORD(v34) = v16;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v34, v35) )
+              LODWORD(v31) = 256;
+              LODWORD(v30) = v14;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 290, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", v30, v31) )
                 __debugbreak();
             }
-            partBits.array[(unsigned __int64)v16 >> 5] &= ~(0x80000000 >> (v16 & 0x1F));
+            partBits.array[(unsigned __int64)v14 >> 5] &= ~(0x80000000 >> (v14 & 0x1F));
           }
         }
-        BG_CoverWall_SetGridPos(v42, 1, v18, 0, v17);
-        ++v16;
+        BG_CoverWall_SetGridPos(v38, 1, v16, 0, v15);
+        ++v14;
       }
-      ++v18;
+      ++v16;
     }
-    while ( v18 <= 6 );
-    ++v17;
+    while ( v16 <= 6 );
+    ++v15;
   }
-  while ( v17 <= 9 );
-  _RBX = cent;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsp+108h+var_78]
-    vmovsd  xmm1, [rsp+108h+var_68]
-  }
-  v28 = v44;
+  while ( v15 <= 9 );
+  v23 = v39;
+  v24 = v40;
   time2 = cent->nextState.time2;
-  __asm
-  {
-    vmovups xmmword ptr [rbx+0A0h], xmm0
-    vmovsd  qword ptr [rbx+0B0h], xmm1
-  }
-  cent->pose.coverWall.coverGrid[6] = v28;
-  *(double *)&_XMM0 = BG_CoverWall_CalcSagAnimWeight(time2, time);
-  __asm { vmovss  dword ptr [rbx+0BCh], xmm0 }
+  *(_OWORD *)&cent->pose.actor.pitch = *(_OWORD *)v38;
+  *((double *)&cent->pose.moverFx + 2) = v23;
+  cent->pose.coverWall.coverGrid[6] = v24;
+  v26 = BG_CoverWall_CalcSagAnimWeight(time2, time);
+  cent->pose.coverWall.sag = *(float *)&v26;
   DObjSetHidePartBits(obj, &partBits);
-  __asm { vmovaps xmm6, [rsp+108h+var_48] }
 }
 

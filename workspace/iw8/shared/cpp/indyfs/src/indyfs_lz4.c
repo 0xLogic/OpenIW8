@@ -7370,55 +7370,54 @@ indyfs_LZ4_decompress_fast
 */
 __int64 indyfs_LZ4_decompress_fast(const char *source, char *dest, int originalSize)
 {
-  char *v4; 
-  int v5; 
-  const char *v6; 
-  char *v7; 
+  char *v3; 
+  int v4; 
+  const char *v5; 
+  char *v6; 
   __int64 result; 
-  unsigned int v9; 
-  unsigned __int64 v10; 
-  __int64 v11; 
-  char *v12; 
-  signed __int64 v13; 
-  const char *v14; 
-  __int64 v15; 
-  char *v16; 
-  unsigned __int64 v17; 
-  char *v18; 
-  __int64 v19; 
+  unsigned int v8; 
+  unsigned __int64 v9; 
+  __int64 v10; 
+  char *v11; 
+  signed __int64 v12; 
+  const char *v13; 
+  __int64 v14; 
+  char *v15; 
+  unsigned __int64 v16; 
+  char *v17; 
+  __int64 v18; 
+  unsigned __int64 v19; 
   unsigned __int64 v20; 
-  unsigned __int64 v21; 
+  char *v21; 
   char *v22; 
-  char *v23; 
-  __int64 v24; 
+  __int64 v23; 
+  char *v24; 
   char *v25; 
-  char *v26; 
-  _QWORD *v27; 
-  signed __int64 v28; 
+  _QWORD *v26; 
+  signed __int64 v27; 
+  unsigned __int64 v28; 
   unsigned __int64 v29; 
-  unsigned __int64 v30; 
-  char *v31; 
-  signed __int64 v32; 
-  int v33[3]; 
-  __int64 v34; 
+  char *v30; 
+  signed __int64 v31; 
+  int v32[3]; 
+  __int64 v33; 
+  int v34; 
   int v35; 
   int v36; 
-  int v37; 
-  __m256i v38; 
+  __m256i v37; 
 
-  __asm { vmovdqu ymm0, cs:__ymm@000000030000000200000001fffffffcffffffff000000000000000000000000 }
-  v4 = &dest[originalSize];
-  v33[0] = 0;
-  v33[2] = 2;
-  v5 = (int)source;
+  v3 = &dest[originalSize];
+  v32[0] = 0;
+  v32[2] = 2;
+  v4 = (int)source;
+  v34 = 4;
+  v5 = source;
   v35 = 4;
-  v6 = source;
+  v32[1] = 1;
+  v6 = dest;
+  v33 = 1i64;
   v36 = 4;
-  v33[1] = 1;
-  v7 = dest;
-  v34 = 1i64;
-  v37 = 4;
-  __asm { vmovdqu [rsp+98h+var_58], ymm0 }
+  v37 = _ymm;
   if ( !originalSize )
   {
     result = 0xFFFFFFFFi64;
@@ -7428,120 +7427,120 @@ __int64 indyfs_LZ4_decompress_fast(const char *source, char *dest, int originalS
   }
   while ( 1 )
   {
-    v9 = *(unsigned __int8 *)v6++;
-    v10 = (unsigned __int64)v9 >> 4;
-    if ( v10 == 15 )
+    v8 = *(unsigned __int8 *)v5++;
+    v9 = (unsigned __int64)v8 >> 4;
+    if ( v9 == 15 )
     {
       do
       {
-        v11 = *(unsigned __int8 *)v6++;
-        v10 += v11;
+        v10 = *(unsigned __int8 *)v5++;
+        v9 += v10;
       }
-      while ( (_BYTE)v11 == 0xFF );
+      while ( (_BYTE)v10 == 0xFF );
     }
-    v12 = &v7[v10];
-    if ( &v7[v10] > v4 - 8 )
+    v11 = &v6[v9];
+    if ( &v6[v9] > v3 - 8 )
       break;
-    v13 = v6 - v7;
+    v12 = v5 - v6;
     do
     {
-      *(_QWORD *)v7 = *(_QWORD *)&v7[v13];
-      v7 += 8;
+      *(_QWORD *)v6 = *(_QWORD *)&v6[v12];
+      v6 += 8;
     }
-    while ( v7 < v12 );
-    v14 = &v6[v10];
-    v15 = v9 & 0xF;
-    v16 = v12;
-    v17 = *(unsigned __int16 *)v14;
-    v6 = v14 + 2;
-    v18 = &v12[-v17];
-    *(_DWORD *)v12 = v17;
-    if ( v15 == 15 )
+    while ( v6 < v11 );
+    v13 = &v5[v9];
+    v14 = v8 & 0xF;
+    v15 = v11;
+    v16 = *(unsigned __int16 *)v13;
+    v5 = v13 + 2;
+    v17 = &v11[-v16];
+    *(_DWORD *)v11 = v16;
+    if ( v14 == 15 )
     {
       do
       {
-        v19 = *(unsigned __int8 *)v6++;
-        v15 += v19;
+        v18 = *(unsigned __int8 *)v5++;
+        v14 += v18;
       }
-      while ( (_BYTE)v19 == 0xFF );
+      while ( (_BYTE)v18 == 0xFF );
     }
-    v20 = v15 + 4;
-    v21 = (unsigned __int64)&v12[v20];
-    if ( v17 >= 8 )
+    v19 = v14 + 4;
+    v20 = (unsigned __int64)&v11[v19];
+    if ( v16 >= 8 )
     {
-      v24 = *(_QWORD *)v18;
-      v23 = v18 + 8;
-      *(_QWORD *)v16 = v24;
+      v23 = *(_QWORD *)v17;
+      v22 = v17 + 8;
+      *(_QWORD *)v15 = v23;
     }
     else
     {
-      *v16 = *v18;
-      v16[1] = v18[1];
-      v16[2] = v18[2];
-      v16[3] = v18[3];
-      v22 = &v18[v33[v17]];
-      *((_DWORD *)v16 + 1) = *(_DWORD *)v22;
-      v23 = &v22[-v38.m256i_i32[v17]];
+      *v15 = *v17;
+      v15[1] = v17[1];
+      v15[2] = v17[2];
+      v15[3] = v17[3];
+      v21 = &v17[v32[v16]];
+      *((_DWORD *)v15 + 1) = *(_DWORD *)v21;
+      v22 = &v21[-v37.m256i_i32[v16]];
     }
-    v25 = v16 + 8;
-    if ( v21 <= (unsigned __int64)(v4 - 12) )
+    v24 = v15 + 8;
+    if ( v20 <= (unsigned __int64)(v3 - 12) )
     {
-      *(_QWORD *)v25 = *(_QWORD *)v23;
-      if ( v20 > 0x10 )
+      *(_QWORD *)v24 = *(_QWORD *)v22;
+      if ( v19 > 0x10 )
       {
-        v31 = v25 + 8;
-        v32 = v23 - v31;
+        v30 = v24 + 8;
+        v31 = v22 - v30;
         do
         {
-          *(_QWORD *)v31 = *(_QWORD *)&v31[v32 + 8];
-          v31 += 8;
+          *(_QWORD *)v30 = *(_QWORD *)&v30[v31 + 8];
+          v30 += 8;
         }
-        while ( (unsigned __int64)v31 < v21 );
+        while ( (unsigned __int64)v30 < v20 );
       }
       goto LABEL_29;
     }
-    v26 = v4 - 7;
-    if ( v21 > (unsigned __int64)(v4 - 5) )
-      return (unsigned int)(v5 - (_DWORD)v6 - 1);
-    if ( v25 < v26 )
+    v25 = v3 - 7;
+    if ( v20 > (unsigned __int64)(v3 - 5) )
+      return (unsigned int)(v4 - (_DWORD)v5 - 1);
+    if ( v24 < v25 )
     {
-      v27 = v25;
+      v26 = v24;
       do
       {
-        *v27 = *(_QWORD *)((char *)v27 + v23 - v25);
-        ++v27;
+        *v26 = *(_QWORD *)((char *)v26 + v22 - v24);
+        ++v26;
       }
-      while ( v27 < (_QWORD *)v26 );
-      v28 = v26 - v25;
-      v25 = v4 - 7;
-      v23 += v28;
+      while ( v26 < (_QWORD *)v25 );
+      v27 = v25 - v24;
+      v24 = v3 - 7;
+      v22 += v27;
     }
-    v29 = 0i64;
-    v30 = v21 - (_QWORD)v25;
-    if ( (unsigned __int64)v25 > v21 )
-      v30 = 0i64;
-    if ( v30 )
+    v28 = 0i64;
+    v29 = v20 - (_QWORD)v24;
+    if ( (unsigned __int64)v24 > v20 )
+      v29 = 0i64;
+    if ( v29 )
     {
       do
       {
-        ++v29;
-        *v25++ = *v23++;
+        ++v28;
+        *v24++ = *v22++;
       }
-      while ( v29 < v30 );
-      v7 = (char *)v21;
+      while ( v28 < v29 );
+      v6 = (char *)v20;
     }
     else
     {
 LABEL_29:
-      v7 = (char *)v21;
+      v6 = (char *)v20;
     }
   }
-  if ( v12 == v4 )
+  if ( v11 == v3 )
   {
-    memcpy_0(v7, v6, v10);
-    return (unsigned int)((_DWORD)v6 + v10 - v5);
+    memcpy_0(v6, v5, v9);
+    return (unsigned int)((_DWORD)v5 + v9 - v4);
   }
-  return (unsigned int)(v5 - (_DWORD)v6 - 1);
+  return (unsigned int)(v4 - (_DWORD)v5 - 1);
 }
 
 /*
@@ -7557,53 +7556,53 @@ int indyfs_LZ4_decompress_fast_continue(indyfs_LZ4_streamDecode_u *indyfs_LZ4_st
   int result; 
   char *v9; 
   unsigned __int64 v10; 
+  char *v11; 
   char *v12; 
-  char *v13; 
-  unsigned __int64 v14; 
-  const char *v15; 
-  int v16; 
-  char v17; 
-  unsigned __int64 v18; 
-  size_t v19; 
-  __int64 v20; 
-  char *v21; 
-  signed __int64 v22; 
-  const char *v23; 
-  __int64 v24; 
+  unsigned __int64 v13; 
+  const char *v14; 
+  int v15; 
+  char v16; 
+  unsigned __int64 v17; 
+  size_t v18; 
+  __int64 v19; 
+  char *v20; 
+  signed __int64 v21; 
+  const char *v22; 
+  __int64 v23; 
+  unsigned __int64 v24; 
   unsigned __int64 v25; 
-  unsigned __int64 v26; 
-  __int64 v27; 
+  __int64 v26; 
+  size_t v27; 
   size_t v28; 
   size_t v29; 
-  size_t v30; 
+  char *v30; 
   char *v31; 
-  char *v32; 
-  char v33; 
-  _DWORD *v34; 
-  char *v35; 
-  __int64 v36; 
+  char v32; 
+  _DWORD *v33; 
+  char *v34; 
+  __int64 v35; 
+  char *v36; 
   char *v37; 
-  char *v38; 
-  _QWORD *v39; 
-  signed __int64 v40; 
+  _QWORD *v38; 
+  signed __int64 v39; 
+  unsigned __int64 v40; 
   unsigned __int64 v41; 
-  unsigned __int64 v42; 
-  char *v43; 
-  signed __int64 v44; 
-  char *v45; 
-  unsigned __int64 v46; 
-  int v48; 
-  int v49[3]; 
-  __int64 v50; 
+  char *v42; 
+  signed __int64 v43; 
+  char *v44; 
+  unsigned __int64 v45; 
+  int v47; 
+  int v48[3]; 
+  __int64 v49; 
+  int v50; 
   int v51; 
   int v52; 
-  int v53; 
-  __m256i v54; 
+  __m256i v53; 
 
   dictSize = indyfs_LZ4_streamDecode->table[3];
   v5 = dest;
   v6 = originalSize;
-  v48 = (int)source;
+  v47 = (int)source;
   if ( dictSize )
   {
     v9 = (char *)indyfs_LZ4_streamDecode->table[2];
@@ -7611,216 +7610,215 @@ int indyfs_LZ4_decompress_fast_continue(indyfs_LZ4_streamDecode_u *indyfs_LZ4_st
     {
       if ( dictSize < 0xFFFF && (v10 = indyfs_LZ4_streamDecode->table[1]) != 0 )
       {
-        __asm { vmovdqu ymm0, cs:__ymm@000000030000000200000001fffffffcffffffff000000000000000000000000 }
-        v12 = &dest[-dictSize];
-        v13 = &dest[v6];
-        v49[0] = 0;
-        v14 = v10 + indyfs_LZ4_streamDecode->table[0];
-        v49[1] = 1;
-        v46 = v14;
-        v15 = source;
-        v49[2] = 2;
-        v50 = 1i64;
+        v11 = &dest[-dictSize];
+        v12 = &dest[v6];
+        v48[0] = 0;
+        v13 = v10 + indyfs_LZ4_streamDecode->table[0];
+        v48[1] = 1;
+        v45 = v13;
+        v14 = source;
+        v48[2] = 2;
+        v49 = 1i64;
+        v50 = 4;
         v51 = 4;
         v52 = 4;
-        v53 = 4;
-        __asm { vmovdqu [rsp+0D8h+var_70], ymm0 }
+        v53 = _ymm;
         if ( (_DWORD)v6 )
         {
           while ( 1 )
           {
-            v17 = *v15;
-            v18 = *(unsigned __int8 *)v15++;
-            v19 = v18 >> 4;
-            if ( v19 == 15 )
+            v16 = *v14;
+            v17 = *(unsigned __int8 *)v14++;
+            v18 = v17 >> 4;
+            if ( v18 == 15 )
             {
               do
               {
-                v20 = *(unsigned __int8 *)v15++;
-                v19 += v20;
+                v19 = *(unsigned __int8 *)v14++;
+                v18 += v19;
               }
-              while ( (_BYTE)v20 == 0xFF );
+              while ( (_BYTE)v19 == 0xFF );
             }
-            v21 = &v5[v19];
-            if ( &v5[v19] > v13 - 8 )
+            v20 = &v5[v18];
+            if ( &v5[v18] > v12 - 8 )
               break;
-            v22 = v15 - v5;
+            v21 = v14 - v5;
             do
             {
-              *(_QWORD *)v5 = *(_QWORD *)&v5[v22];
+              *(_QWORD *)v5 = *(_QWORD *)&v5[v21];
               v5 += 8;
             }
-            while ( v5 < v21 );
-            v23 = &v15[v19];
-            v24 = v17 & 0xF;
-            v25 = *(unsigned __int16 *)v23;
-            v15 = v23 + 2;
-            v26 = (unsigned __int64)&v21[-v25];
-            *(_DWORD *)v21 = v25;
-            if ( v24 == 15 )
+            while ( v5 < v20 );
+            v22 = &v14[v18];
+            v23 = v16 & 0xF;
+            v24 = *(unsigned __int16 *)v22;
+            v14 = v22 + 2;
+            v25 = (unsigned __int64)&v20[-v24];
+            *(_DWORD *)v20 = v24;
+            if ( v23 == 15 )
             {
               do
               {
-                v27 = *(unsigned __int8 *)v15++;
-                v24 += v27;
+                v26 = *(unsigned __int8 *)v14++;
+                v23 += v26;
               }
-              while ( (_BYTE)v27 == 0xFF );
+              while ( (_BYTE)v26 == 0xFF );
             }
-            v28 = v24 + 4;
-            v5 = &v21[v28];
-            if ( v26 >= (unsigned __int64)v12 )
+            v27 = v23 + 4;
+            v5 = &v20[v27];
+            if ( v25 >= (unsigned __int64)v11 )
             {
-              if ( v25 >= 8 )
+              if ( v24 >= 8 )
               {
-                v36 = *(_QWORD *)v26;
-                v35 = (char *)(v26 + 8);
-                *(_QWORD *)v21 = v36;
+                v35 = *(_QWORD *)v25;
+                v34 = (char *)(v25 + 8);
+                *(_QWORD *)v20 = v35;
               }
               else
               {
-                *v21 = *(_BYTE *)v26;
-                v21[1] = *(_BYTE *)(v26 + 1);
-                v21[2] = *(_BYTE *)(v26 + 2);
-                v21[3] = *(_BYTE *)(v26 + 3);
-                v34 = (_DWORD *)((unsigned int)v49[v25] + v26);
-                *((_DWORD *)v21 + 1) = *v34;
-                v35 = (char *)v34 - v54.m256i_i32[v25];
+                *v20 = *(_BYTE *)v25;
+                v20[1] = *(_BYTE *)(v25 + 1);
+                v20[2] = *(_BYTE *)(v25 + 2);
+                v20[3] = *(_BYTE *)(v25 + 3);
+                v33 = (_DWORD *)((unsigned int)v48[v24] + v25);
+                *((_DWORD *)v20 + 1) = *v33;
+                v34 = (char *)v33 - v53.m256i_i32[v24];
               }
-              v37 = v21 + 8;
-              if ( v5 <= v13 - 12 )
+              v36 = v20 + 8;
+              if ( v5 <= v12 - 12 )
               {
-                *(_QWORD *)v37 = *(_QWORD *)v35;
-                if ( v28 > 0x10 )
+                *(_QWORD *)v36 = *(_QWORD *)v34;
+                if ( v27 > 0x10 )
                 {
-                  v43 = v37 + 8;
-                  v44 = v35 - v43;
+                  v42 = v36 + 8;
+                  v43 = v34 - v42;
                   do
                   {
-                    *(_QWORD *)v43 = *(_QWORD *)&v43[v44 + 8];
-                    v43 += 8;
+                    *(_QWORD *)v42 = *(_QWORD *)&v42[v43 + 8];
+                    v42 += 8;
                   }
-                  while ( v43 < v5 );
+                  while ( v42 < v5 );
                 }
               }
               else
               {
-                v38 = v13 - 7;
-                if ( v5 > v13 - 5 )
+                v37 = v12 - 7;
+                if ( v5 > v12 - 5 )
                   goto LABEL_48;
-                if ( v37 < v38 )
+                if ( v36 < v37 )
                 {
-                  v39 = v37;
+                  v38 = v36;
                   do
                   {
-                    *v39 = *(_QWORD *)((char *)v39 + v35 - v37);
-                    ++v39;
+                    *v38 = *(_QWORD *)((char *)v38 + v34 - v36);
+                    ++v38;
                   }
-                  while ( v39 < (_QWORD *)v38 );
-                  v40 = v38 - v37;
-                  v37 = v13 - 7;
-                  v35 += v40;
+                  while ( v38 < (_QWORD *)v37 );
+                  v39 = v37 - v36;
+                  v36 = v12 - 7;
+                  v34 += v39;
                 }
-                v41 = 0i64;
-                v42 = v5 - v37;
-                if ( v37 > v5 )
-                  v42 = 0i64;
-                if ( v42 )
+                v40 = 0i64;
+                v41 = v5 - v36;
+                if ( v36 > v5 )
+                  v41 = 0i64;
+                if ( v41 )
                 {
                   do
                   {
-                    ++v41;
-                    *v37++ = *v35++;
+                    ++v40;
+                    *v36++ = *v34++;
                   }
-                  while ( v41 < v42 );
+                  while ( v40 < v41 );
                 }
-                v14 = v46;
+                v13 = v45;
               }
             }
             else
             {
-              if ( v5 > v13 - 5 )
+              if ( v5 > v12 - 5 )
                 goto LABEL_48;
-              v29 = (size_t)&v12[-v26];
-              if ( v28 > (unsigned __int64)&v12[-v26] )
+              v28 = (size_t)&v11[-v25];
+              if ( v27 > (unsigned __int64)&v11[-v25] )
               {
-                v30 = v28 - v29;
-                memcpy_0(v21, (const void *)(v14 - v29), v29);
-                v5 = &v21[v29];
-                v31 = &v21[v29 + v30];
-                if ( v30 <= v5 - v12 )
+                v29 = v27 - v28;
+                memcpy_0(v20, (const void *)(v13 - v28), v28);
+                v5 = &v20[v28];
+                v30 = &v20[v28 + v29];
+                if ( v29 <= v5 - v11 )
                 {
-                  memcpy_0(v5, v12, v30);
-                  v14 = v46;
-                  v5 = v31;
+                  memcpy_0(v5, v11, v29);
+                  v13 = v45;
+                  v5 = v30;
                 }
                 else
                 {
-                  v14 = v46;
-                  v32 = v12;
-                  if ( v5 > v31 )
-                    v30 = 0i64;
-                  if ( v30 )
+                  v13 = v45;
+                  v31 = v11;
+                  if ( v5 > v30 )
+                    v29 = 0i64;
+                  if ( v29 )
                   {
                     do
                     {
-                      v33 = *v32++;
-                      *v5++ = v33;
+                      v32 = *v31++;
+                      *v5++ = v32;
                     }
-                    while ( v32 - v12 < v30 );
+                    while ( v31 - v11 < v29 );
                   }
                 }
               }
               else
               {
-                memmove_0(v21, (const void *)(v14 + v26 - (_QWORD)v12), v28);
-                v14 = v46;
+                memmove_0(v20, (const void *)(v13 + v25 - (_QWORD)v11), v27);
+                v13 = v45;
               }
             }
           }
-          if ( v21 == v13 )
+          if ( v20 == v12 )
           {
-            memcpy_0(v5, v15, v19);
-            v16 = (_DWORD)v15 + v19 - v48;
+            memcpy_0(v5, v14, v18);
+            v15 = (_DWORD)v14 + v18 - v47;
             goto LABEL_49;
           }
 LABEL_48:
-          v16 = v48 - (_DWORD)v15 - 1;
+          v15 = v47 - (_DWORD)v14 - 1;
 LABEL_49:
           LODWORD(v6) = originalSize;
         }
         else
         {
-          v16 = -1;
+          v15 = -1;
           if ( !*source )
-            v16 = 1;
+            v15 = 1;
         }
       }
       else
       {
-        v16 = j_indyfs_LZ4_decompress_fast(source, dest, v6);
+        v15 = j_indyfs_LZ4_decompress_fast(source, dest, v6);
       }
-      if ( v16 > 0 )
+      if ( v15 > 0 )
       {
         indyfs_LZ4_streamDecode->table[3] += (int)v6;
         indyfs_LZ4_streamDecode->table[2] += (int)v6;
       }
-      return v16;
+      return v15;
     }
-    v45 = &v9[-dictSize];
+    v44 = &v9[-dictSize];
     indyfs_LZ4_streamDecode->table[1] = dictSize;
-    indyfs_LZ4_streamDecode->table[0] = (unsigned __int64)v45;
-    result = indyfs_LZ4_decompress_fast_extDict(source, dest, v6, v45, dictSize);
+    indyfs_LZ4_streamDecode->table[0] = (unsigned __int64)v44;
+    result = indyfs_LZ4_decompress_fast_extDict(source, dest, v6, v44, dictSize);
   }
   else
   {
     result = j_indyfs_LZ4_decompress_fast(source, dest, originalSize);
   }
-  v16 = result;
+  v15 = result;
   if ( result <= 0 )
     return result;
   indyfs_LZ4_streamDecode->table[3] = v6;
   indyfs_LZ4_streamDecode->table[2] = (unsigned __int64)&v5[v6];
-  return v16;
+  return v15;
 }
 
 /*
@@ -7831,220 +7829,219 @@ indyfs_LZ4_decompress_fast_extDict
 __int64 indyfs_LZ4_decompress_fast_extDict(const char *source, char *dest, int originalSize, const void *dictStart, unsigned __int64 dictSize)
 {
   char *v5; 
-  int v7; 
-  char *v8; 
-  const char *v9; 
-  char *v11; 
+  int v6; 
+  char *v7; 
+  const char *v8; 
+  char *v10; 
   __int64 result; 
-  char v13; 
-  unsigned __int64 v14; 
-  size_t v15; 
-  __int64 v16; 
-  char *v17; 
-  signed __int64 v18; 
-  const char *v19; 
-  __int64 v20; 
+  char v12; 
+  unsigned __int64 v13; 
+  size_t v14; 
+  __int64 v15; 
+  char *v16; 
+  signed __int64 v17; 
+  const char *v18; 
+  __int64 v19; 
+  unsigned __int64 v20; 
   unsigned __int64 v21; 
-  unsigned __int64 v22; 
-  __int64 v23; 
-  size_t v24; 
-  char *v25; 
-  size_t v26; 
+  __int64 v22; 
+  size_t v23; 
+  char *v24; 
+  size_t v25; 
+  char *v26; 
   char *v27; 
-  char *v28; 
-  char v29; 
-  _DWORD *v30; 
-  char *v31; 
-  __int64 v32; 
+  char v28; 
+  _DWORD *v29; 
+  char *v30; 
+  __int64 v31; 
+  char *v32; 
   char *v33; 
-  char *v34; 
-  _QWORD *v35; 
-  signed __int64 v36; 
+  _QWORD *v34; 
+  signed __int64 v35; 
+  unsigned __int64 v36; 
   unsigned __int64 v37; 
-  unsigned __int64 v38; 
-  char *v39; 
-  signed __int64 v40; 
-  char *v41; 
-  int v42[3]; 
-  __int64 v43; 
+  char *v38; 
+  signed __int64 v39; 
+  char *v40; 
+  int v41[3]; 
+  __int64 v42; 
+  int v43; 
   int v44; 
   int v45; 
-  int v46; 
-  __m256i v47; 
+  __m256i v46; 
 
   v5 = (char *)dictStart + dictSize;
-  __asm { vmovdqu ymm0, cs:__ymm@000000030000000200000001fffffffcffffffff000000000000000000000000 }
-  v7 = (int)source;
-  v8 = &dest[originalSize];
-  v41 = v5;
-  v42[0] = 0;
-  v9 = source;
-  v42[2] = 2;
-  v42[1] = 1;
-  v43 = 1i64;
-  v11 = dest;
+  v6 = (int)source;
+  v7 = &dest[originalSize];
+  v40 = v5;
+  v41[0] = 0;
+  v8 = source;
+  v41[2] = 2;
+  v41[1] = 1;
+  v42 = 1i64;
+  v10 = dest;
+  v43 = 4;
   v44 = 4;
   v45 = 4;
-  v46 = 4;
-  __asm { vmovdqu [rsp+0B8h+var_70], ymm0 }
+  v46 = _ymm;
   if ( originalSize )
   {
     while ( 1 )
     {
-      v13 = *v9;
-      v14 = *(unsigned __int8 *)v9++;
-      v15 = v14 >> 4;
-      if ( v15 == 15 )
+      v12 = *v8;
+      v13 = *(unsigned __int8 *)v8++;
+      v14 = v13 >> 4;
+      if ( v14 == 15 )
       {
         do
         {
-          v16 = *(unsigned __int8 *)v9++;
-          v15 += v16;
+          v15 = *(unsigned __int8 *)v8++;
+          v14 += v15;
         }
-        while ( (_BYTE)v16 == 0xFF );
+        while ( (_BYTE)v15 == 0xFF );
       }
-      v17 = &v11[v15];
-      if ( &v11[v15] > v8 - 8 )
+      v16 = &v10[v14];
+      if ( &v10[v14] > v7 - 8 )
         break;
-      v18 = v9 - v11;
+      v17 = v8 - v10;
       do
       {
-        *(_QWORD *)v11 = *(_QWORD *)&v11[v18];
-        v11 += 8;
+        *(_QWORD *)v10 = *(_QWORD *)&v10[v17];
+        v10 += 8;
       }
-      while ( v11 < v17 );
-      v19 = &v9[v15];
-      v20 = v13 & 0xF;
-      v21 = *(unsigned __int16 *)v19;
-      v9 = v19 + 2;
-      v22 = (unsigned __int64)&v17[-v21];
-      *(_DWORD *)v17 = v21;
-      if ( v20 == 15 )
+      while ( v10 < v16 );
+      v18 = &v8[v14];
+      v19 = v12 & 0xF;
+      v20 = *(unsigned __int16 *)v18;
+      v8 = v18 + 2;
+      v21 = (unsigned __int64)&v16[-v20];
+      *(_DWORD *)v16 = v20;
+      if ( v19 == 15 )
       {
         do
         {
-          v23 = *(unsigned __int8 *)v9++;
-          v20 += v23;
+          v22 = *(unsigned __int8 *)v8++;
+          v19 += v22;
         }
-        while ( (_BYTE)v23 == 0xFF );
+        while ( (_BYTE)v22 == 0xFF );
       }
-      v24 = v20 + 4;
-      v11 = &v17[v24];
-      if ( v22 >= (unsigned __int64)dest )
+      v23 = v19 + 4;
+      v10 = &v16[v23];
+      if ( v21 >= (unsigned __int64)dest )
       {
-        if ( v21 >= 8 )
+        if ( v20 >= 8 )
         {
-          v32 = *(_QWORD *)v22;
-          v31 = (char *)(v22 + 8);
-          *(_QWORD *)v17 = v32;
+          v31 = *(_QWORD *)v21;
+          v30 = (char *)(v21 + 8);
+          *(_QWORD *)v16 = v31;
         }
         else
         {
-          *v17 = *(_BYTE *)v22;
-          v17[1] = *(_BYTE *)(v22 + 1);
-          v17[2] = *(_BYTE *)(v22 + 2);
-          v17[3] = *(_BYTE *)(v22 + 3);
-          v30 = (_DWORD *)((unsigned int)v42[v21] + v22);
-          *((_DWORD *)v17 + 1) = *v30;
-          v31 = (char *)v30 - v47.m256i_i32[v21];
+          *v16 = *(_BYTE *)v21;
+          v16[1] = *(_BYTE *)(v21 + 1);
+          v16[2] = *(_BYTE *)(v21 + 2);
+          v16[3] = *(_BYTE *)(v21 + 3);
+          v29 = (_DWORD *)((unsigned int)v41[v20] + v21);
+          *((_DWORD *)v16 + 1) = *v29;
+          v30 = (char *)v29 - v46.m256i_i32[v20];
         }
-        v33 = v17 + 8;
-        if ( v11 <= v8 - 12 )
+        v32 = v16 + 8;
+        if ( v10 <= v7 - 12 )
         {
-          *(_QWORD *)v33 = *(_QWORD *)v31;
-          if ( v24 > 0x10 )
+          *(_QWORD *)v32 = *(_QWORD *)v30;
+          if ( v23 > 0x10 )
           {
-            v39 = v33 + 8;
-            v40 = v31 - v39;
+            v38 = v32 + 8;
+            v39 = v30 - v38;
             do
             {
-              *(_QWORD *)v39 = *(_QWORD *)&v39[v40 + 8];
-              v39 += 8;
+              *(_QWORD *)v38 = *(_QWORD *)&v38[v39 + 8];
+              v38 += 8;
             }
-            while ( v39 < v11 );
+            while ( v38 < v10 );
           }
         }
         else
         {
-          v34 = v8 - 7;
-          if ( v11 > v8 - 5 )
-            return (unsigned int)(v7 - (_DWORD)v9 - 1);
-          if ( v33 < v34 )
+          v33 = v7 - 7;
+          if ( v10 > v7 - 5 )
+            return (unsigned int)(v6 - (_DWORD)v8 - 1);
+          if ( v32 < v33 )
           {
-            v35 = v33;
+            v34 = v32;
             do
             {
-              *v35 = *(_QWORD *)((char *)v35 + v31 - v33);
-              ++v35;
+              *v34 = *(_QWORD *)((char *)v34 + v30 - v32);
+              ++v34;
             }
-            while ( v35 < (_QWORD *)v34 );
-            v5 = v41;
-            v36 = v34 - v33;
-            v33 = v8 - 7;
-            v31 += v36;
+            while ( v34 < (_QWORD *)v33 );
+            v5 = v40;
+            v35 = v33 - v32;
+            v32 = v7 - 7;
+            v30 += v35;
           }
-          v37 = 0i64;
-          v38 = v11 - v33;
-          if ( v33 > v11 )
-            v38 = 0i64;
-          if ( v38 )
+          v36 = 0i64;
+          v37 = v10 - v32;
+          if ( v32 > v10 )
+            v37 = 0i64;
+          if ( v37 )
           {
             do
             {
-              ++v37;
-              *v33++ = *v31++;
+              ++v36;
+              *v32++ = *v30++;
             }
-            while ( v37 < v38 );
+            while ( v36 < v37 );
           }
         }
       }
       else
       {
-        if ( v11 > v8 - 5 )
-          return (unsigned int)(v7 - (_DWORD)v9 - 1);
-        v25 = &dest[-v22];
-        if ( v24 > (unsigned __int64)&dest[-v22] )
+        if ( v10 > v7 - 5 )
+          return (unsigned int)(v6 - (_DWORD)v8 - 1);
+        v24 = &dest[-v21];
+        if ( v23 > (unsigned __int64)&dest[-v21] )
         {
-          v26 = v24 - (_QWORD)v25;
-          memcpy_0(v17, (const void *)(v5 - v25), (size_t)&dest[-v22]);
-          v11 = &v17[(_QWORD)v25];
-          v27 = &v17[(_QWORD)v25 + v26];
-          if ( v26 <= v11 - dest )
+          v25 = v23 - (_QWORD)v24;
+          memcpy_0(v16, (const void *)(v5 - v24), (size_t)&dest[-v21]);
+          v10 = &v16[(_QWORD)v24];
+          v26 = &v16[(_QWORD)v24 + v25];
+          if ( v25 <= v10 - dest )
           {
-            memcpy_0(v11, dest, v26);
-            v5 = v41;
-            v11 = v27;
+            memcpy_0(v10, dest, v25);
+            v5 = v40;
+            v10 = v26;
           }
           else
           {
-            v5 = v41;
-            v28 = dest;
-            if ( v11 > v27 )
-              v26 = 0i64;
-            if ( v26 )
+            v5 = v40;
+            v27 = dest;
+            if ( v10 > v26 )
+              v25 = 0i64;
+            if ( v25 )
             {
               do
               {
-                v29 = *v28++;
-                *v11++ = v29;
+                v28 = *v27++;
+                *v10++ = v28;
               }
-              while ( v28 - dest < v26 );
+              while ( v27 - dest < v25 );
             }
           }
         }
         else
         {
-          memmove_0(v17, &v5[v22 - (_QWORD)dest], v24);
-          v5 = v41;
+          memmove_0(v16, &v5[v21 - (_QWORD)dest], v23);
+          v5 = v40;
         }
       }
     }
-    if ( v17 == v8 )
+    if ( v16 == v7 )
     {
-      memcpy_0(v11, v9, v15);
-      return (unsigned int)((_DWORD)v9 + v15 - v7);
+      memcpy_0(v10, v8, v14);
+      return (unsigned int)((_DWORD)v8 + v14 - v6);
     }
-    return (unsigned int)(v7 - (_DWORD)v9 - 1);
+    return (unsigned int)(v6 - (_DWORD)v8 - 1);
   }
   else
   {
@@ -8086,9 +8083,551 @@ indyfs_LZ4_decompress_safe
 */
 __int64 indyfs_LZ4_decompress_safe(const char *source, char *dest, int compressedSize, int maxDecompressedSize)
 {
-  const char *v6; 
-  char *v7; 
-  int v8; 
+  const char *v5; 
+  char *v6; 
+  int v7; 
+  const char *v8; 
+  char *v9; 
+  unsigned int v11; 
+  int v12; 
+  char v13; 
+  bool v14; 
+  unsigned __int64 v15; 
+  unsigned __int64 v16; 
+  unsigned __int64 v17; 
+  char *v18; 
+  __int64 v19; 
+  char *v20; 
+  const char *v21; 
+  signed __int64 v22; 
+  const char *v23; 
+  char *v24; 
+  unsigned __int64 v25; 
+  char *v26; 
+  __int64 v27; 
+  unsigned __int8 v28; 
+  unsigned __int64 v29; 
+  unsigned __int64 v30; 
+  char *v31; 
+  char *v32; 
+  __int64 v33; 
+  char *v34; 
+  char *v35; 
+  _QWORD *v36; 
+  signed __int64 v37; 
+  char v38; 
+  char *v39; 
+  __int64 v40; 
+  int v41[3]; 
+  __int64 v42; 
+  int v43; 
+  int v44; 
+  int v45; 
+  __m256i v46; 
+
+  v5 = &source[compressedSize];
+  v6 = &dest[maxDecompressedSize];
+  v41[0] = 0;
+  v41[1] = 1;
+  v7 = (int)source;
+  v41[2] = 2;
+  v8 = source;
+  v42 = 1i64;
+  v9 = dest;
+  v43 = 4;
+  v44 = 4;
+  v45 = 4;
+  v46 = _ymm;
+  if ( !maxDecompressedSize )
+  {
+    if ( compressedSize == 1 && !*source )
+      return 0i64;
+    return 0xFFFFFFFFi64;
+  }
+  if ( !compressedSize )
+    return 0xFFFFFFFFi64;
+  while ( 1 )
+  {
+    while ( 1 )
+    {
+      v11 = *(unsigned __int8 *)v8++;
+      v12 = v11 & 0xF;
+      v13 = v11;
+      v14 = 0;
+      if ( v12 != 15 )
+        v14 = v8 + 16 < v5 && v9 + 32 <= v6;
+      v15 = (unsigned __int64)v11 >> 4;
+      if ( !v14 || v11 >= 0xF0 )
+        break;
+      v16 = *(unsigned __int16 *)&v8[v15];
+      v17 = (unsigned __int64)&v9[v15 - v16];
+      if ( v17 < (unsigned __int64)dest || v16 < 8 )
+        break;
+      *(_OWORD *)v9 = *(_OWORD *)v8;
+      v18 = &v9[v15];
+      v8 += v15 + 2;
+      *(_QWORD *)v18 = *(_QWORD *)v17;
+      *((_QWORD *)v18 + 1) = *(_QWORD *)(v17 + 8);
+      *((_WORD *)v18 + 8) = *(_WORD *)(v17 + 16);
+      v9 = &v18[v12 + 4];
+    }
+    if ( v15 == 15 )
+    {
+      if ( v8 >= v5 - 15 )
+        break;
+      do
+      {
+        v19 = *(unsigned __int8 *)v8;
+        v15 += v19;
+        ++v8;
+      }
+      while ( v8 < v5 - 15 && (_BYTE)v19 == 0xFF );
+      if ( &v9[v15] < v9 || &v8[v15] < v8 )
+        break;
+    }
+    v20 = &v9[v15];
+    if ( &v9[v15] > v6 - 12 || (v21 = &v8[v15], &v8[v15] > v5 - 8) )
+    {
+      if ( &v8[v15] == v5 && v20 <= v6 )
+      {
+        memcpy_0(v9, v8, v15);
+        return (unsigned int)((_DWORD)v9 + v15 - (_DWORD)dest);
+      }
+      return (unsigned int)(v7 - (_DWORD)v8 - 1);
+    }
+    v22 = v8 - v9;
+    do
+    {
+      *(_QWORD *)v9 = *(_QWORD *)&v9[v22];
+      v9 += 8;
+    }
+    while ( v9 < v20 );
+    v23 = v21;
+    v24 = v20;
+    v25 = *(unsigned __int16 *)v23;
+    v8 = v23 + 2;
+    v26 = &v20[-v25];
+    if ( &v20[-v25] < dest )
+      return (unsigned int)(v7 - (_DWORD)v8 - 1);
+    v27 = v13 & 0xF;
+    *(_DWORD *)v20 = v25;
+    if ( v27 == 15 )
+    {
+      while ( 1 )
+      {
+        v28 = *v8++;
+        if ( v8 > v5 - 5 )
+          return (unsigned int)(v7 - (_DWORD)v8 - 1);
+        v27 += v28;
+        if ( v28 != 0xFF )
+        {
+          if ( &v20[v27] < v20 )
+            return (unsigned int)(v7 - (_DWORD)v8 - 1);
+          break;
+        }
+      }
+    }
+    v29 = v27 + 4;
+    v30 = (unsigned __int64)&v20[v29];
+    if ( v25 >= 8 )
+    {
+      v33 = *(_QWORD *)v26;
+      v32 = v26 + 8;
+      *(_QWORD *)v24 = v33;
+    }
+    else
+    {
+      *v24 = *v26;
+      v24[1] = v26[1];
+      v24[2] = v26[2];
+      v24[3] = v26[3];
+      v31 = &v26[v41[v25]];
+      *((_DWORD *)v24 + 1) = *(_DWORD *)v31;
+      v32 = &v31[-v46.m256i_i32[v25]];
+    }
+    v34 = v24 + 8;
+    if ( v30 <= (unsigned __int64)(v6 - 12) )
+    {
+      *(_QWORD *)v34 = *(_QWORD *)v32;
+      if ( v29 > 0x10 )
+      {
+        v39 = v34 + 8;
+        v40 = v32 - v39;
+        do
+        {
+          *(_QWORD *)v39 = *(_QWORD *)&v39[v40 + 8];
+          v39 += 8;
+        }
+        while ( (unsigned __int64)v39 < v30 );
+      }
+      goto LABEL_41;
+    }
+    v35 = v6 - 7;
+    if ( v30 > (unsigned __int64)(v6 - 5) )
+      return (unsigned int)(v7 - (_DWORD)v8 - 1);
+    if ( v34 < v35 )
+    {
+      v36 = v34;
+      do
+      {
+        *v36 = *(_QWORD *)((char *)v36 + v32 - v34);
+        ++v36;
+      }
+      while ( v36 < (_QWORD *)v35 );
+      v37 = v35 - v34;
+      v34 = v6 - 7;
+      v32 += v37;
+    }
+    if ( (unsigned __int64)v34 >= v30 )
+    {
+LABEL_41:
+      v9 = (char *)v30;
+    }
+    else
+    {
+      do
+      {
+        v38 = *v32++;
+        *v34++ = v38;
+      }
+      while ( (unsigned __int64)v34 < v30 );
+      v9 = (char *)v30;
+    }
+  }
+  return (unsigned int)(v7 - (_DWORD)v8 - 1);
+}
+
+/*
+==============
+indyfs_LZ4_decompress_safe_continue
+==============
+*/
+__int64 indyfs_LZ4_decompress_safe_continue(indyfs_LZ4_streamDecode_u *indyfs_LZ4_streamDecode, const char *source, char *dest, int compressedSize, int maxOutputSize)
+{
+  unsigned __int64 prefixSize; 
+  int v9; 
+  char *v10; 
+  int v11; 
+  unsigned __int64 v12; 
+  char *v13; 
+  const char *v14; 
+  char *v15; 
+  const char *v16; 
+  char *v17; 
+  unsigned __int64 v18; 
+  unsigned int v19; 
+  int v20; 
+  char v21; 
+  int v22; 
+  BOOL v23; 
+  unsigned __int64 v24; 
+  unsigned __int64 v25; 
+  char *v26; 
+  char *v27; 
+  __int64 v28; 
+  char *v29; 
+  const char *v30; 
+  signed __int64 v31; 
+  unsigned __int64 v32; 
+  unsigned __int64 v33; 
+  __int64 v34; 
+  unsigned __int8 v35; 
+  size_t v36; 
+  char *v37; 
+  size_t v38; 
+  char *v39; 
+  signed __int64 v40; 
+  _DWORD *v41; 
+  char *v42; 
+  __int64 v43; 
+  char *v44; 
+  char *v45; 
+  _QWORD *v46; 
+  signed __int64 v47; 
+  char v48; 
+  char *v49; 
+  signed __int64 v50; 
+  char *v51; 
+  const char *v53; 
+  char *v54; 
+  unsigned __int64 v55; 
+  unsigned __int64 v56; 
+  int v57; 
+  int v58; 
+  int v59[3]; 
+  __int64 v60; 
+  int v61; 
+  int v62; 
+  int v63; 
+  __m256i v64; 
+
+  prefixSize = indyfs_LZ4_streamDecode->table[3];
+  v57 = (int)dest;
+  v58 = (int)source;
+  if ( !prefixSize )
+  {
+    v9 = j_indyfs_LZ4_decompress_safe(source, dest, compressedSize, maxOutputSize);
+    goto LABEL_69;
+  }
+  v10 = (char *)indyfs_LZ4_streamDecode->table[2];
+  if ( v10 != dest )
+  {
+    v51 = &v10[-prefixSize];
+    indyfs_LZ4_streamDecode->table[0] = (unsigned __int64)v51;
+    indyfs_LZ4_streamDecode->table[1] = prefixSize;
+    v9 = j_indyfs_LZ4_decompress_safe_forceExtDict(source, dest, compressedSize, maxOutputSize, v51, prefixSize);
+LABEL_69:
+    v11 = v9;
+    if ( v9 > 0 )
+    {
+      indyfs_LZ4_streamDecode->table[3] = v9;
+      indyfs_LZ4_streamDecode->table[2] = (unsigned __int64)&dest[v9];
+    }
+    return (unsigned int)v11;
+  }
+  if ( prefixSize >= 0xFFFF )
+  {
+    v11 = j_indyfs_LZ4_decompress_safe_withPrefix64k(source, dest, compressedSize, maxOutputSize);
+    goto LABEL_66;
+  }
+  v12 = indyfs_LZ4_streamDecode->table[1];
+  v56 = v12;
+  if ( !v12 )
+  {
+    v11 = indyfs_LZ4_decompress_safe_withSmallPrefix(source, dest, compressedSize, maxOutputSize, prefixSize);
+    goto LABEL_66;
+  }
+  v11 = 0;
+  v13 = dest;
+  v14 = source;
+  v15 = &dest[maxOutputSize];
+  v16 = &source[compressedSize];
+  v53 = v16;
+  v17 = &dest[-prefixSize];
+  v54 = v15;
+  v18 = v12 + indyfs_LZ4_streamDecode->table[0];
+  v59[0] = 0;
+  v55 = v18;
+  v59[1] = 1;
+  v59[2] = 2;
+  v60 = 1i64;
+  v61 = 4;
+  v62 = 4;
+  v63 = 4;
+  v64 = _ymm;
+  if ( !maxOutputSize )
+  {
+    if ( compressedSize != 1 || *source )
+      v11 = -1;
+    goto LABEL_66;
+  }
+  if ( compressedSize )
+  {
+    while ( 1 )
+    {
+      while ( 1 )
+      {
+        while ( 1 )
+        {
+          v19 = *(unsigned __int8 *)v14++;
+          v20 = v19 & 0xF;
+          v21 = v19;
+          v22 = 0;
+          v23 = 0;
+          if ( v20 != 15 )
+            v23 = v14 + 16 < v16 && v13 + 32 <= v15;
+          LOBYTE(v22) = v19 < 0xF0;
+          v24 = (unsigned __int64)v19 >> 4;
+          if ( (v23 & v22) == 0 )
+            break;
+          v25 = *(unsigned __int16 *)&v14[v24];
+          v26 = &v13[v24 - v25];
+          if ( v26 < v17 || v25 < 8 )
+            break;
+          *(_OWORD *)v13 = *(_OWORD *)v14;
+          v27 = &v13[v24];
+          v14 += v24 + 2;
+          *(_QWORD *)v27 = *(_QWORD *)v26;
+          *((_QWORD *)v27 + 1) = *((_QWORD *)v26 + 1);
+          *((_WORD *)v27 + 8) = *((_WORD *)v26 + 8);
+          v13 = &v27[v20 + 4];
+        }
+        if ( v24 == 15 )
+        {
+          if ( v14 >= v16 - 15 )
+            goto LABEL_65;
+          do
+          {
+            v28 = *(unsigned __int8 *)v14;
+            v24 += v28;
+            ++v14;
+          }
+          while ( v14 < v16 - 15 && (_BYTE)v28 == 0xFF );
+          if ( &v13[v24] < v13 || &v14[v24] < v14 )
+          {
+LABEL_65:
+            v11 = v58 - (_DWORD)v14 - 1;
+            goto LABEL_66;
+          }
+        }
+        v29 = &v13[v24];
+        if ( &v13[v24] > v15 - 12 || (v30 = &v14[v24], &v14[v24] > v53 - 8) )
+        {
+          if ( &v14[v24] == v53 && v29 <= v15 )
+          {
+            memcpy_0(v13, v14, v24);
+            v11 = (_DWORD)v13 + v24 - v57;
+            goto LABEL_66;
+          }
+          goto LABEL_65;
+        }
+        v31 = v14 - v13;
+        do
+        {
+          *(_QWORD *)v13 = *(_QWORD *)&v13[v31];
+          v13 += 8;
+        }
+        while ( v13 < v29 );
+        v32 = *(unsigned __int16 *)v30;
+        v14 = v30 + 2;
+        v33 = (unsigned __int64)&v29[-v32];
+        if ( v56 < 0x10000 && v33 + v56 < (unsigned __int64)v17 )
+          goto LABEL_65;
+        v34 = v21 & 0xF;
+        *(_DWORD *)v29 = v32;
+        if ( v34 == 15 )
+        {
+          while ( 1 )
+          {
+            v35 = *v14++;
+            if ( v14 > v53 - 5 )
+              goto LABEL_65;
+            v34 += v35;
+            if ( v35 != 0xFF )
+            {
+              if ( &v29[v34] < v29 )
+                goto LABEL_65;
+              break;
+            }
+          }
+        }
+        v36 = v34 + 4;
+        v13 = &v29[v36];
+        if ( v33 < (unsigned __int64)v17 )
+          break;
+        if ( v32 >= 8 )
+        {
+          v43 = *(_QWORD *)v33;
+          v42 = (char *)(v33 + 8);
+          *(_QWORD *)v29 = v43;
+        }
+        else
+        {
+          *v29 = *(_BYTE *)v33;
+          v29[1] = *(_BYTE *)(v33 + 1);
+          v29[2] = *(_BYTE *)(v33 + 2);
+          v29[3] = *(_BYTE *)(v33 + 3);
+          v41 = (_DWORD *)((unsigned int)v59[v32] + v33);
+          *((_DWORD *)v29 + 1) = *v41;
+          v42 = (char *)v41 - v64.m256i_i32[v32];
+        }
+        v44 = v29 + 8;
+        if ( v13 <= v15 - 12 )
+        {
+          *(_QWORD *)v44 = *(_QWORD *)v42;
+          if ( v36 > 0x10 )
+          {
+            v49 = v44 + 8;
+            v50 = v42 - v49;
+            do
+            {
+              *(_QWORD *)v49 = *(_QWORD *)&v49[v50 + 8];
+              v49 += 8;
+            }
+            while ( v49 < v13 );
+          }
+        }
+        else
+        {
+          v45 = v15 - 7;
+          if ( v13 > v15 - 5 )
+            goto LABEL_65;
+          if ( v44 < v45 )
+          {
+            v46 = v44;
+            do
+            {
+              *v46 = *(_QWORD *)((char *)v46 + v42 - v44);
+              ++v46;
+            }
+            while ( v46 < (_QWORD *)v45 );
+            v47 = v45 - v44;
+            v44 = v15 - 7;
+            v42 += v47;
+          }
+          for ( ; v44 < v13; ++v44 )
+          {
+            v48 = *v42++;
+            *v44 = v48;
+          }
+        }
+LABEL_15:
+        v16 = v53;
+      }
+      if ( v13 > v15 - 5 )
+        goto LABEL_65;
+      v37 = &v17[-v33];
+      if ( v36 <= (unsigned __int64)&v17[-v33] )
+        break;
+      v38 = v36 - (_QWORD)v37;
+      memcpy_0(v29, (const void *)(v55 - (_QWORD)v37), (size_t)&v17[-v33]);
+      v13 = &v29[(_QWORD)v37];
+      if ( v38 <= &v29[(_QWORD)v37] - v17 )
+      {
+        memcpy_0(&v29[(_QWORD)v37], v17, v38);
+        v13 += v38;
+        goto LABEL_14;
+      }
+      v15 = v54;
+      v39 = &v13[v38];
+      v16 = v53;
+      if ( v13 < &v13[v38] )
+      {
+        v40 = v17 - v13;
+        do
+        {
+          *v13 = v13[v40];
+          ++v13;
+        }
+        while ( v13 < v39 );
+      }
+    }
+    memmove_0(v29, (const void *)(v55 + v33 - (_QWORD)v17), v36);
+LABEL_14:
+    v15 = v54;
+    goto LABEL_15;
+  }
+  v11 = -1;
+LABEL_66:
+  if ( v11 > 0 )
+  {
+    indyfs_LZ4_streamDecode->table[3] += v11;
+    indyfs_LZ4_streamDecode->table[2] += v11;
+  }
+  return (unsigned int)v11;
+}
+
+/*
+==============
+indyfs_LZ4_decompress_safe_forceExtDict
+==============
+*/
+__int64 indyfs_LZ4_decompress_safe_forceExtDict(const char *source, char *dest, int compressedSize, int maxOutputSize, const void *dictStart, unsigned __int64 dictSize)
+{
+  const char *v7; 
+  unsigned __int64 v8; 
+  const char *v9; 
+  char *v10; 
   unsigned int v12; 
   int v13; 
   char v14; 
@@ -8096,6 +8635,727 @@ __int64 indyfs_LZ4_decompress_safe(const char *source, char *dest, int compresse
   unsigned __int64 v16; 
   unsigned __int64 v17; 
   unsigned __int64 v18; 
+  unsigned __int64 v19; 
+  __int64 v20; 
+  char *v21; 
+  const char *v22; 
+  const char *v23; 
+  unsigned __int64 v24; 
+  unsigned __int64 v25; 
+  __int64 v26; 
+  unsigned __int8 v27; 
+  size_t v28; 
+  char *v29; 
+  size_t v30; 
+  unsigned __int64 v31; 
+  char *v32; 
+  _DWORD *v33; 
+  char *v34; 
+  __int64 v35; 
+  char *v36; 
+  char *v37; 
+  _QWORD *v38; 
+  signed __int64 v39; 
+  char v40; 
+  char *v41; 
+  signed __int64 v42; 
+  char *v43; 
+  int v44; 
+  int v45[3]; 
+  __int64 v46; 
+  int v47; 
+  int v48; 
+  int v49; 
+  __m256i v50; 
+
+  v7 = source;
+  v8 = (unsigned __int64)dest;
+  v9 = &source[compressedSize];
+  v10 = &dest[maxOutputSize];
+  v44 = (int)source;
+  v43 = (char *)dictStart + dictSize;
+  v45[0] = 0;
+  v45[1] = 1;
+  v45[2] = 2;
+  v46 = 1i64;
+  v47 = 4;
+  v48 = 4;
+  v49 = 4;
+  v50 = _ymm;
+  if ( !maxOutputSize )
+  {
+    if ( compressedSize == 1 && !*source )
+      return 0i64;
+    return 0xFFFFFFFFi64;
+  }
+  if ( !compressedSize )
+    return 0xFFFFFFFFi64;
+  while ( 1 )
+  {
+    while ( 1 )
+    {
+      v12 = *(unsigned __int8 *)v7++;
+      v13 = v12 & 0xF;
+      v14 = v12;
+      v15 = 0;
+      if ( v13 != 15 )
+        v15 = v7 + 16 < v9 && v8 + 32 <= (unsigned __int64)v10;
+      v16 = (unsigned __int64)v12 >> 4;
+      if ( !v15 || v12 >= 0xF0 )
+        break;
+      v17 = *(unsigned __int16 *)&v7[v16];
+      v18 = v8 + v16 - v17;
+      if ( v18 < (unsigned __int64)dest || v17 < 8 )
+        break;
+      *(_OWORD *)v8 = *(_OWORD *)v7;
+      v19 = v16 + v8;
+      v7 += v16 + 2;
+      *(_QWORD *)v19 = *(_QWORD *)v18;
+      *(_QWORD *)(v19 + 8) = *(_QWORD *)(v18 + 8);
+      *(_WORD *)(v19 + 16) = *(_WORD *)(v18 + 16);
+      v8 = (unsigned int)(v13 + 4) + v19;
+    }
+    if ( v16 == 15 )
+    {
+      if ( v7 >= v9 - 15 )
+        break;
+      do
+      {
+        v20 = *(unsigned __int8 *)v7;
+        v16 += v20;
+        ++v7;
+      }
+      while ( v7 < v9 - 15 && (_BYTE)v20 == 0xFF );
+      if ( v16 + v8 < v8 || &v7[v16] < v7 )
+        break;
+    }
+    v21 = (char *)(v16 + v8);
+    if ( v16 + v8 > (unsigned __int64)(v10 - 12) || (v22 = &v7[v16], &v7[v16] > v9 - 8) )
+    {
+      if ( &v7[v16] == v9 && v21 <= v10 )
+      {
+        memcpy_0((void *)v8, v7, v16);
+        return (unsigned int)(v8 + v16 - (_DWORD)dest);
+      }
+      return (unsigned int)(v44 - (_DWORD)v7 - 1);
+    }
+    v23 = &v7[-v8];
+    do
+    {
+      *(_QWORD *)v8 = *(_QWORD *)&v23[v8];
+      v8 += 8i64;
+    }
+    while ( v8 < (unsigned __int64)v21 );
+    v24 = *(unsigned __int16 *)v22;
+    v7 = v22 + 2;
+    v25 = (unsigned __int64)&v21[-v24];
+    if ( dictSize < 0x10000 && v25 + dictSize < (unsigned __int64)dest )
+      return (unsigned int)(v44 - (_DWORD)v7 - 1);
+    v26 = v14 & 0xF;
+    *(_DWORD *)v21 = v24;
+    if ( v26 == 15 )
+    {
+      while ( 1 )
+      {
+        v27 = *v7++;
+        if ( v7 > v9 - 5 )
+          return (unsigned int)(v44 - (_DWORD)v7 - 1);
+        v26 += v27;
+        if ( v27 != 0xFF )
+        {
+          if ( &v21[v26] < v21 )
+            return (unsigned int)(v44 - (_DWORD)v7 - 1);
+          break;
+        }
+      }
+    }
+    v28 = v26 + 4;
+    v8 = (unsigned __int64)&v21[v28];
+    if ( v25 >= (unsigned __int64)dest )
+    {
+      if ( v24 >= 8 )
+      {
+        v35 = *(_QWORD *)v25;
+        v34 = (char *)(v25 + 8);
+        *(_QWORD *)v21 = v35;
+      }
+      else
+      {
+        *v21 = *(_BYTE *)v25;
+        v21[1] = *(_BYTE *)(v25 + 1);
+        v21[2] = *(_BYTE *)(v25 + 2);
+        v21[3] = *(_BYTE *)(v25 + 3);
+        v33 = (_DWORD *)((unsigned int)v45[v24] + v25);
+        *((_DWORD *)v21 + 1) = *v33;
+        v34 = (char *)v33 - v50.m256i_i32[v24];
+      }
+      v36 = v21 + 8;
+      if ( v8 <= (unsigned __int64)(v10 - 12) )
+      {
+        *(_QWORD *)v36 = *(_QWORD *)v34;
+        if ( v28 > 0x10 )
+        {
+          v41 = v36 + 8;
+          v42 = v34 - v41;
+          do
+          {
+            *(_QWORD *)v41 = *(_QWORD *)&v41[v42 + 8];
+            v41 += 8;
+          }
+          while ( (unsigned __int64)v41 < v8 );
+        }
+      }
+      else
+      {
+        v37 = v10 - 7;
+        if ( v8 > (unsigned __int64)(v10 - 5) )
+          return (unsigned int)(v44 - (_DWORD)v7 - 1);
+        if ( v36 < v37 )
+        {
+          v38 = v36;
+          do
+          {
+            *v38 = *(_QWORD *)((char *)v38 + v34 - v36);
+            ++v38;
+          }
+          while ( v38 < (_QWORD *)v37 );
+          v39 = v37 - v36;
+          v36 = v10 - 7;
+          v34 += v39;
+        }
+        for ( ; (unsigned __int64)v36 < v8; ++v36 )
+        {
+          v40 = *v34++;
+          *v36 = v40;
+        }
+      }
+    }
+    else
+    {
+      if ( v8 > (unsigned __int64)(v10 - 5) )
+        return (unsigned int)(v44 - (_DWORD)v7 - 1);
+      v29 = &dest[-v25];
+      if ( v28 > (unsigned __int64)&dest[-v25] )
+      {
+        v30 = v28 - (_QWORD)v29;
+        memcpy_0(v21, (const void *)(v43 - v29), (size_t)&dest[-v25]);
+        v8 = (unsigned __int64)&v21[(_QWORD)v29];
+        if ( v30 <= &v21[(_QWORD)v29] - dest )
+        {
+          memcpy_0(&v21[(_QWORD)v29], dest, v30);
+          v8 += v30;
+        }
+        else
+        {
+          v31 = v30 + v8;
+          if ( v8 < v30 + v8 )
+          {
+            v32 = &dest[-v8];
+            do
+            {
+              *(_BYTE *)v8 = v32[v8];
+              ++v8;
+            }
+            while ( v8 < v31 );
+          }
+        }
+      }
+      else
+      {
+        memmove_0(v21, &v43[v25 - (_QWORD)dest], v28);
+      }
+    }
+  }
+  return (unsigned int)(v44 - (_DWORD)v7 - 1);
+}
+
+/*
+==============
+indyfs_LZ4_decompress_safe_partial
+==============
+*/
+__int64 indyfs_LZ4_decompress_safe_partial(const char *source, char *dest, int compressedSize, int targetOutputSize, int maxDecompressedSize)
+{
+  int v6; 
+  const char *v7; 
+  const char *v8; 
+  char *v9; 
+  char *v10; 
+  char *v11; 
+  unsigned int v13; 
+  int v14; 
+  char v15; 
+  bool v16; 
+  unsigned __int64 v17; 
+  unsigned __int64 v18; 
+  unsigned __int64 v19; 
+  char *v20; 
+  __int64 v21; 
+  char *v22; 
+  const char *v23; 
+  signed __int64 v24; 
+  const char *v25; 
+  char *v26; 
+  unsigned __int64 v27; 
+  char *v28; 
+  __int64 v29; 
+  unsigned __int8 v30; 
+  unsigned __int64 v31; 
+  unsigned __int64 v32; 
+  char *v33; 
+  char *v34; 
+  __int64 v35; 
+  char *v36; 
+  char *v37; 
+  _QWORD *v38; 
+  signed __int64 v39; 
+  char v40; 
+  char *v41; 
+  __int64 v42; 
+  char *v43; 
+  int v44[3]; 
+  __int64 v45; 
+  int v46; 
+  int v47; 
+  int v48; 
+  __m256i v49; 
+
+  v6 = (int)source;
+  v7 = &source[compressedSize];
+  v44[0] = 0;
+  v8 = source;
+  v44[1] = 1;
+  v9 = &dest[maxDecompressedSize];
+  v44[2] = 2;
+  v45 = 1i64;
+  v46 = 4;
+  v10 = v9 - 12;
+  v47 = 4;
+  if ( &dest[targetOutputSize] <= v9 - 12 )
+    v10 = &dest[targetOutputSize];
+  v48 = 4;
+  v43 = v10;
+  v11 = dest;
+  v49 = _ymm;
+  if ( !maxDecompressedSize )
+  {
+    if ( compressedSize == 1 && !*source )
+      return 0i64;
+    return 0xFFFFFFFFi64;
+  }
+  if ( !compressedSize )
+    return 0xFFFFFFFFi64;
+  while ( 1 )
+  {
+    while ( 1 )
+    {
+      v13 = *(unsigned __int8 *)v8++;
+      v14 = v13 & 0xF;
+      v15 = v13;
+      v16 = 0;
+      if ( v14 != 15 )
+        v16 = v8 + 16 < v7 && v11 + 32 <= v9;
+      v17 = (unsigned __int64)v13 >> 4;
+      if ( !v16 || v13 >= 0xF0 )
+        break;
+      v18 = *(unsigned __int16 *)&v8[v17];
+      v10 = v43;
+      v19 = (unsigned __int64)&v11[v17 - v18];
+      if ( v19 < (unsigned __int64)dest || v18 < 8 )
+        break;
+      *(_OWORD *)v11 = *(_OWORD *)v8;
+      v20 = &v11[v17];
+      v8 += v17 + 2;
+      *(_QWORD *)v20 = *(_QWORD *)v19;
+      *((_QWORD *)v20 + 1) = *(_QWORD *)(v19 + 8);
+      *((_WORD *)v20 + 8) = *(_WORD *)(v19 + 16);
+      v11 = &v20[v14 + 4];
+    }
+    if ( v17 == 15 )
+    {
+      if ( v8 >= v7 - 15 )
+        break;
+      do
+      {
+        v21 = *(unsigned __int8 *)v8;
+        v17 += v21;
+        ++v8;
+      }
+      while ( v8 < v7 - 15 && (_BYTE)v21 == 0xFF );
+      if ( &v11[v17] < v11 || &v8[v17] < v8 )
+        break;
+    }
+    v22 = &v11[v17];
+    if ( &v11[v17] > v10 || (v23 = &v8[v17], &v8[v17] > v7 - 8) )
+    {
+      if ( v22 <= v9 && &v8[v17] <= v7 )
+      {
+        memcpy_0(v11, v8, v17);
+        return (unsigned int)((_DWORD)v11 + v17 - (_DWORD)dest);
+      }
+      return (unsigned int)(v6 - (_DWORD)v8 - 1);
+    }
+    v24 = v8 - v11;
+    do
+    {
+      *(_QWORD *)v11 = *(_QWORD *)&v11[v24];
+      v11 += 8;
+    }
+    while ( v11 < v22 );
+    v25 = v23;
+    v26 = v22;
+    v27 = *(unsigned __int16 *)v25;
+    v8 = v25 + 2;
+    v28 = &v22[-v27];
+    if ( &v22[-v27] < dest )
+      return (unsigned int)(v6 - (_DWORD)v8 - 1);
+    v29 = v15 & 0xF;
+    *(_DWORD *)v22 = v27;
+    if ( v29 == 15 )
+    {
+      while ( 1 )
+      {
+        v30 = *v8++;
+        if ( v8 > v7 - 5 )
+          return (unsigned int)(v6 - (_DWORD)v8 - 1);
+        v29 += v30;
+        if ( v30 != 0xFF )
+        {
+          if ( &v22[v29] < v22 )
+            return (unsigned int)(v6 - (_DWORD)v8 - 1);
+          break;
+        }
+      }
+    }
+    v31 = v29 + 4;
+    v32 = (unsigned __int64)&v22[v31];
+    if ( v27 >= 8 )
+    {
+      v35 = *(_QWORD *)v28;
+      v34 = v28 + 8;
+      *(_QWORD *)v26 = v35;
+    }
+    else
+    {
+      *v26 = *v28;
+      v26[1] = v28[1];
+      v26[2] = v28[2];
+      v26[3] = v28[3];
+      v33 = &v28[v44[v27]];
+      *((_DWORD *)v26 + 1) = *(_DWORD *)v33;
+      v34 = &v33[-v49.m256i_i32[v27]];
+    }
+    v36 = v26 + 8;
+    if ( v32 <= (unsigned __int64)(v9 - 12) )
+    {
+      *(_QWORD *)v36 = *(_QWORD *)v34;
+      if ( v31 > 0x10 )
+      {
+        v41 = v36 + 8;
+        v42 = v34 - v41;
+        do
+        {
+          *(_QWORD *)v41 = *(_QWORD *)&v41[v42 + 8];
+          v41 += 8;
+        }
+        while ( (unsigned __int64)v41 < v32 );
+      }
+      goto LABEL_43;
+    }
+    v37 = v9 - 7;
+    if ( v32 > (unsigned __int64)(v9 - 5) )
+      return (unsigned int)(v6 - (_DWORD)v8 - 1);
+    if ( v36 < v37 )
+    {
+      v38 = v36;
+      do
+      {
+        *v38 = *(_QWORD *)((char *)v38 + v34 - v36);
+        ++v38;
+      }
+      while ( v38 < (_QWORD *)v37 );
+      v39 = v37 - v36;
+      v36 = v9 - 7;
+      v34 += v39;
+    }
+    if ( (unsigned __int64)v36 >= v32 )
+    {
+LABEL_43:
+      v11 = (char *)v32;
+    }
+    else
+    {
+      do
+      {
+        v40 = *v34++;
+        *v36++ = v40;
+      }
+      while ( (unsigned __int64)v36 < v32 );
+      v11 = (char *)v32;
+    }
+  }
+  return (unsigned int)(v6 - (_DWORD)v8 - 1);
+}
+
+/*
+==============
+indyfs_LZ4_decompress_safe_usingDict
+==============
+*/
+int indyfs_LZ4_decompress_safe_usingDict(const char *source, char *dest, int compressedSize, int maxOutputSize, const char *dictStart, int dictSize)
+{
+  if ( !dictSize )
+    return j_indyfs_LZ4_decompress_safe(source, dest, compressedSize, maxOutputSize);
+  if ( &dictStart[dictSize] != dest )
+    return j_indyfs_LZ4_decompress_safe_forceExtDict(source, dest, compressedSize, maxOutputSize, dictStart, dictSize);
+  if ( dictSize < 0xFFFF )
+    return indyfs_LZ4_decompress_safe_withSmallPrefix(source, dest, compressedSize, maxOutputSize, dictSize);
+  return j_indyfs_LZ4_decompress_safe_withPrefix64k(source, dest, compressedSize, maxOutputSize);
+}
+
+/*
+==============
+indyfs_LZ4_decompress_safe_withPrefix64k
+==============
+*/
+__int64 indyfs_LZ4_decompress_safe_withPrefix64k(const char *source, char *dest, int compressedSize, int maxOutputSize)
+{
+  char *v5; 
+  const char *v6; 
+  char *v7; 
+  int v8; 
+  const char *v9; 
+  char *v10; 
+  unsigned int v12; 
+  int v13; 
+  char v14; 
+  bool v15; 
+  unsigned __int64 v16; 
+  unsigned __int64 v17; 
+  char *v18; 
+  char *v19; 
+  __int64 v20; 
+  char *v21; 
+  const char *v22; 
+  signed __int64 v23; 
+  const char *v24; 
+  char *v25; 
+  unsigned __int64 v26; 
+  char *v27; 
+  __int64 v28; 
+  unsigned __int8 v29; 
+  unsigned __int64 v30; 
+  unsigned __int64 v31; 
+  char *v32; 
+  char *v33; 
+  __int64 v34; 
+  char *v35; 
+  char *v36; 
+  _QWORD *v37; 
+  signed __int64 v38; 
+  char v39; 
+  char *v40; 
+  __int64 v41; 
+  int v42[3]; 
+  __int64 v43; 
+  int v44; 
+  int v45; 
+  int v46; 
+  __m256i v47; 
+
+  v5 = dest - 0x10000;
+  v6 = &source[compressedSize];
+  v42[0] = 0;
+  v7 = &dest[maxOutputSize];
+  v42[1] = 1;
+  v42[2] = 2;
+  v8 = (int)source;
+  v43 = 1i64;
+  v9 = source;
+  v44 = 4;
+  v10 = dest;
+  v45 = 4;
+  v46 = 4;
+  v47 = _ymm;
+  if ( !maxOutputSize )
+  {
+    if ( compressedSize == 1 && !*source )
+      return 0i64;
+    return 0xFFFFFFFFi64;
+  }
+  if ( !compressedSize )
+    return 0xFFFFFFFFi64;
+  while ( 1 )
+  {
+    while ( 1 )
+    {
+      v12 = *(unsigned __int8 *)v9++;
+      v13 = v12 & 0xF;
+      v14 = v12;
+      v15 = 0;
+      if ( v13 != 15 )
+        v15 = v9 + 16 < v6 && v10 + 32 <= v7;
+      v16 = (unsigned __int64)v12 >> 4;
+      if ( !v15 || v12 >= 0xF0 )
+        break;
+      v17 = *(unsigned __int16 *)&v9[v16];
+      v18 = &v10[v16 - v17];
+      if ( v18 < v5 || v17 < 8 )
+        break;
+      *(_OWORD *)v10 = *(_OWORD *)v9;
+      v19 = &v10[v16];
+      v9 += v16 + 2;
+      *(_QWORD *)v19 = *(_QWORD *)v18;
+      *((_QWORD *)v19 + 1) = *((_QWORD *)v18 + 1);
+      *((_WORD *)v19 + 8) = *((_WORD *)v18 + 8);
+      v10 = &v19[v13 + 4];
+    }
+    if ( v16 == 15 )
+    {
+      if ( v9 >= v6 - 15 )
+        break;
+      do
+      {
+        v20 = *(unsigned __int8 *)v9;
+        v16 += v20;
+        ++v9;
+      }
+      while ( v9 < v6 - 15 && (_BYTE)v20 == 0xFF );
+      if ( &v10[v16] < v10 || &v9[v16] < v9 )
+        break;
+    }
+    v21 = &v10[v16];
+    if ( &v10[v16] > v7 - 12 || (v22 = &v9[v16], &v9[v16] > v6 - 8) )
+    {
+      if ( &v9[v16] == v6 && v21 <= v7 )
+      {
+        memcpy_0(v10, v9, v16);
+        return (unsigned int)((_DWORD)v10 + v16 - (_DWORD)dest);
+      }
+      return (unsigned int)(v8 - (_DWORD)v9 - 1);
+    }
+    v23 = v9 - v10;
+    do
+    {
+      *(_QWORD *)v10 = *(_QWORD *)&v10[v23];
+      v10 += 8;
+    }
+    while ( v10 < v21 );
+    v24 = v22;
+    v25 = v21;
+    v26 = *(unsigned __int16 *)v24;
+    v9 = v24 + 2;
+    v27 = &v21[-v26];
+    if ( &v21[-v26] < v5 )
+      return (unsigned int)(v8 - (_DWORD)v9 - 1);
+    v28 = v14 & 0xF;
+    *(_DWORD *)v21 = v26;
+    if ( v28 == 15 )
+    {
+      while ( 1 )
+      {
+        v29 = *v9++;
+        if ( v9 > v6 - 5 )
+          return (unsigned int)(v8 - (_DWORD)v9 - 1);
+        v28 += v29;
+        if ( v29 != 0xFF )
+        {
+          if ( &v21[v28] < v21 )
+            return (unsigned int)(v8 - (_DWORD)v9 - 1);
+          break;
+        }
+      }
+    }
+    v30 = v28 + 4;
+    v31 = (unsigned __int64)&v21[v30];
+    if ( v26 >= 8 )
+    {
+      v34 = *(_QWORD *)v27;
+      v33 = v27 + 8;
+      *(_QWORD *)v25 = v34;
+    }
+    else
+    {
+      *v25 = *v27;
+      v25[1] = v27[1];
+      v25[2] = v27[2];
+      v25[3] = v27[3];
+      v32 = &v27[v42[v26]];
+      *((_DWORD *)v25 + 1) = *(_DWORD *)v32;
+      v33 = &v32[-v47.m256i_i32[v26]];
+    }
+    v35 = v25 + 8;
+    if ( v31 <= (unsigned __int64)(v7 - 12) )
+    {
+      *(_QWORD *)v35 = *(_QWORD *)v33;
+      if ( v30 > 0x10 )
+      {
+        v40 = v35 + 8;
+        v41 = v33 - v40;
+        do
+        {
+          *(_QWORD *)v40 = *(_QWORD *)&v40[v41 + 8];
+          v40 += 8;
+        }
+        while ( (unsigned __int64)v40 < v31 );
+      }
+      goto LABEL_41;
+    }
+    v36 = v7 - 7;
+    if ( v31 > (unsigned __int64)(v7 - 5) )
+      return (unsigned int)(v8 - (_DWORD)v9 - 1);
+    if ( v35 < v36 )
+    {
+      v37 = v35;
+      do
+      {
+        *v37 = *(_QWORD *)((char *)v37 + v33 - v35);
+        ++v37;
+      }
+      while ( v37 < (_QWORD *)v36 );
+      v38 = v36 - v35;
+      v35 = v7 - 7;
+      v33 += v38;
+    }
+    if ( (unsigned __int64)v35 >= v31 )
+    {
+LABEL_41:
+      v10 = (char *)v31;
+    }
+    else
+    {
+      do
+      {
+        v39 = *v33++;
+        *v35++ = v39;
+      }
+      while ( (unsigned __int64)v35 < v31 );
+      v10 = (char *)v31;
+    }
+  }
+  return (unsigned int)(v8 - (_DWORD)v9 - 1);
+}
+
+/*
+==============
+indyfs_LZ4_decompress_safe_withSmallPrefix
+==============
+*/
+__int64 indyfs_LZ4_decompress_safe_withSmallPrefix(const char *source, char *dest, int compressedSize, int maxOutputSize, unsigned __int64 prefixSize)
+{
+  char *v6; 
+  const char *v7; 
+  char *v8; 
+  int v9; 
+  const char *v10; 
+  char *v11; 
+  unsigned int v13; 
+  int v14; 
+  char v15; 
+  bool v16; 
+  unsigned __int64 v17; 
+  unsigned __int64 v18; 
+  char *v19; 
   char *v20; 
   __int64 v21; 
   char *v22; 
@@ -8126,21 +9386,21 @@ __int64 indyfs_LZ4_decompress_safe(const char *source, char *dest, int compresse
   int v47; 
   __m256i v48; 
 
-  __asm { vmovdqu ymm0, cs:__ymm@000000030000000200000001fffffffcffffffff000000000000000000000000 }
-  v6 = &source[compressedSize];
-  v7 = &dest[maxDecompressedSize];
+  v6 = &dest[-prefixSize];
+  v7 = &source[compressedSize];
   v43[0] = 0;
+  v8 = &dest[maxOutputSize];
   v43[1] = 1;
-  v8 = (int)source;
   v43[2] = 2;
-  _RDX = source;
+  v9 = (int)source;
   v44 = 1i64;
-  _RBX = dest;
+  v10 = source;
   v45 = 4;
+  v11 = dest;
   v46 = 4;
   v47 = 4;
-  __asm { vmovdqu [rsp+0A8h+var_68], ymm0 }
-  if ( !maxDecompressedSize )
+  v48 = _ymm;
+  if ( !maxOutputSize )
   {
     if ( compressedSize == 1 && !*source )
       return 0i64;
@@ -8152,83 +9412,79 @@ __int64 indyfs_LZ4_decompress_safe(const char *source, char *dest, int compresse
   {
     while ( 1 )
     {
-      v12 = *(unsigned __int8 *)_RDX++;
-      v13 = v12 & 0xF;
-      v14 = v12;
-      v15 = 0;
-      if ( v13 != 15 )
-        v15 = _RDX + 16 < v6 && _RBX + 32 <= v7;
-      v16 = (unsigned __int64)v12 >> 4;
-      if ( !v15 || v12 >= 0xF0 )
+      v13 = *(unsigned __int8 *)v10++;
+      v14 = v13 & 0xF;
+      v15 = v13;
+      v16 = 0;
+      if ( v14 != 15 )
+        v16 = v10 + 16 < v7 && v11 + 32 <= v8;
+      v17 = (unsigned __int64)v13 >> 4;
+      if ( !v16 || v13 >= 0xF0 )
         break;
-      v17 = *(unsigned __int16 *)&_RDX[v16];
-      v18 = (unsigned __int64)&_RBX[v16 - v17];
-      if ( v18 < (unsigned __int64)dest || v17 < 8 )
+      v18 = *(unsigned __int16 *)&v10[v17];
+      v19 = &v11[v17 - v18];
+      if ( v19 < v6 || v18 < 8 )
         break;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx]
-        vmovups xmmword ptr [rbx], xmm0
-      }
-      v20 = &_RBX[v16];
-      _RDX += v16 + 2;
-      *(_QWORD *)v20 = *(_QWORD *)v18;
-      *((_QWORD *)v20 + 1) = *(_QWORD *)(v18 + 8);
-      *((_WORD *)v20 + 8) = *(_WORD *)(v18 + 16);
-      _RBX = &v20[v13 + 4];
+      *(_OWORD *)v11 = *(_OWORD *)v10;
+      v20 = &v11[v17];
+      v10 += v17 + 2;
+      *(_QWORD *)v20 = *(_QWORD *)v19;
+      *((_QWORD *)v20 + 1) = *((_QWORD *)v19 + 1);
+      *((_WORD *)v20 + 8) = *((_WORD *)v19 + 8);
+      v11 = &v20[v14 + 4];
     }
-    if ( v16 == 15 )
+    if ( v17 == 15 )
     {
-      if ( _RDX >= v6 - 15 )
+      if ( v10 >= v7 - 15 )
         break;
       do
       {
-        v21 = *(unsigned __int8 *)_RDX;
-        v16 += v21;
-        ++_RDX;
+        v21 = *(unsigned __int8 *)v10;
+        v17 += v21;
+        ++v10;
       }
-      while ( _RDX < v6 - 15 && (_BYTE)v21 == 0xFF );
-      if ( &_RBX[v16] < _RBX || &_RDX[v16] < _RDX )
+      while ( v10 < v7 - 15 && (_BYTE)v21 == 0xFF );
+      if ( &v11[v17] < v11 || &v10[v17] < v10 )
         break;
     }
-    v22 = &_RBX[v16];
-    if ( &_RBX[v16] > v7 - 12 || (v23 = &_RDX[v16], &_RDX[v16] > v6 - 8) )
+    v22 = &v11[v17];
+    if ( &v11[v17] > v8 - 12 || (v23 = &v10[v17], &v10[v17] > v7 - 8) )
     {
-      if ( &_RDX[v16] == v6 && v22 <= v7 )
+      if ( &v10[v17] == v7 && v22 <= v8 )
       {
-        memcpy_0(_RBX, _RDX, v16);
-        return (unsigned int)((_DWORD)_RBX + v16 - (_DWORD)dest);
+        memcpy_0(v11, v10, v17);
+        return (unsigned int)((_DWORD)v11 + v17 - (_DWORD)dest);
       }
-      return (unsigned int)(v8 - (_DWORD)_RDX - 1);
+      return (unsigned int)(v9 - (_DWORD)v10 - 1);
     }
-    v24 = _RDX - _RBX;
+    v24 = v10 - v11;
     do
     {
-      *(_QWORD *)_RBX = *(_QWORD *)&_RBX[v24];
-      _RBX += 8;
+      *(_QWORD *)v11 = *(_QWORD *)&v11[v24];
+      v11 += 8;
     }
-    while ( _RBX < v22 );
+    while ( v11 < v22 );
     v25 = v23;
     v26 = v22;
     v27 = *(unsigned __int16 *)v25;
-    _RDX = v25 + 2;
+    v10 = v25 + 2;
     v28 = &v22[-v27];
-    if ( &v22[-v27] < dest )
-      return (unsigned int)(v8 - (_DWORD)_RDX - 1);
-    v29 = v14 & 0xF;
+    if ( &v22[-v27] < v6 )
+      return (unsigned int)(v9 - (_DWORD)v10 - 1);
+    v29 = v15 & 0xF;
     *(_DWORD *)v22 = v27;
     if ( v29 == 15 )
     {
       while ( 1 )
       {
-        v30 = *_RDX++;
-        if ( _RDX > v6 - 5 )
-          return (unsigned int)(v8 - (_DWORD)_RDX - 1);
+        v30 = *v10++;
+        if ( v10 > v7 - 5 )
+          return (unsigned int)(v9 - (_DWORD)v10 - 1);
         v29 += v30;
         if ( v30 != 0xFF )
         {
           if ( &v22[v29] < v22 )
-            return (unsigned int)(v8 - (_DWORD)_RDX - 1);
+            return (unsigned int)(v9 - (_DWORD)v10 - 1);
           break;
         }
       }
@@ -8252,7 +9508,7 @@ __int64 indyfs_LZ4_decompress_safe(const char *source, char *dest, int compresse
       v34 = &v33[-v48.m256i_i32[v27]];
     }
     v36 = v26 + 8;
-    if ( v32 <= (unsigned __int64)(v7 - 12) )
+    if ( v32 <= (unsigned __int64)(v8 - 12) )
     {
       *(_QWORD *)v36 = *(_QWORD *)v34;
       if ( v31 > 0x10 )
@@ -8268,9 +9524,9 @@ __int64 indyfs_LZ4_decompress_safe(const char *source, char *dest, int compresse
       }
       goto LABEL_41;
     }
-    v37 = v7 - 7;
-    if ( v32 > (unsigned __int64)(v7 - 5) )
-      return (unsigned int)(v8 - (_DWORD)_RDX - 1);
+    v37 = v8 - 7;
+    if ( v32 > (unsigned __int64)(v8 - 5) )
+      return (unsigned int)(v9 - (_DWORD)v10 - 1);
     if ( v36 < v37 )
     {
       v38 = v36;
@@ -8281,13 +9537,13 @@ __int64 indyfs_LZ4_decompress_safe(const char *source, char *dest, int compresse
       }
       while ( v38 < (_QWORD *)v37 );
       v39 = v37 - v36;
-      v36 = v7 - 7;
+      v36 = v8 - 7;
       v34 += v39;
     }
     if ( (unsigned __int64)v36 >= v32 )
     {
 LABEL_41:
-      _RBX = (char *)v32;
+      v11 = (char *)v32;
     }
     else
     {
@@ -8297,1287 +9553,10 @@ LABEL_41:
         *v36++ = v40;
       }
       while ( (unsigned __int64)v36 < v32 );
-      _RBX = (char *)v32;
+      v11 = (char *)v32;
     }
   }
-  return (unsigned int)(v8 - (_DWORD)_RDX - 1);
-}
-
-/*
-==============
-indyfs_LZ4_decompress_safe_continue
-==============
-*/
-__int64 indyfs_LZ4_decompress_safe_continue(indyfs_LZ4_streamDecode_u *indyfs_LZ4_streamDecode, const char *source, char *dest, int compressedSize, int maxOutputSize)
-{
-  unsigned __int64 prefixSize; 
-  int v9; 
-  char *v10; 
-  int v11; 
-  unsigned __int64 v12; 
-  char *v16; 
-  const char *v17; 
-  char *v18; 
-  unsigned __int64 v19; 
-  unsigned int v20; 
-  int v21; 
-  char v22; 
-  int v23; 
-  BOOL v24; 
-  unsigned __int64 v25; 
-  unsigned __int64 v26; 
-  char *v27; 
-  char *v29; 
-  __int64 v30; 
-  char *v31; 
-  const char *v32; 
-  signed __int64 v33; 
-  unsigned __int64 v34; 
-  unsigned __int64 v35; 
-  __int64 v36; 
-  unsigned __int8 v37; 
-  size_t v38; 
-  char *v39; 
-  size_t v40; 
-  char *v41; 
-  signed __int64 v42; 
-  _DWORD *v43; 
-  char *v44; 
-  __int64 v45; 
-  char *v46; 
-  char *v47; 
-  _QWORD *v48; 
-  signed __int64 v49; 
-  char v50; 
-  char *v51; 
-  signed __int64 v52; 
-  char *v53; 
-  const char *v55; 
-  char *v56; 
-  unsigned __int64 v57; 
-  unsigned __int64 v58; 
-  int v59; 
-  int v60; 
-  int v61[3]; 
-  __int64 v62; 
-  int v63; 
-  int v64; 
-  int v65; 
-  __m256i v66; 
-
-  prefixSize = indyfs_LZ4_streamDecode->table[3];
-  v59 = (int)dest;
-  v60 = (int)source;
-  if ( !prefixSize )
-  {
-    v9 = j_indyfs_LZ4_decompress_safe(source, dest, compressedSize, maxOutputSize);
-    goto LABEL_69;
-  }
-  v10 = (char *)indyfs_LZ4_streamDecode->table[2];
-  if ( v10 != dest )
-  {
-    v53 = &v10[-prefixSize];
-    indyfs_LZ4_streamDecode->table[0] = (unsigned __int64)v53;
-    indyfs_LZ4_streamDecode->table[1] = prefixSize;
-    v9 = j_indyfs_LZ4_decompress_safe_forceExtDict(source, dest, compressedSize, maxOutputSize, v53, prefixSize);
-LABEL_69:
-    v11 = v9;
-    if ( v9 > 0 )
-    {
-      indyfs_LZ4_streamDecode->table[3] = v9;
-      indyfs_LZ4_streamDecode->table[2] = (unsigned __int64)&dest[v9];
-    }
-    return (unsigned int)v11;
-  }
-  if ( prefixSize >= 0xFFFF )
-  {
-    v11 = j_indyfs_LZ4_decompress_safe_withPrefix64k(source, dest, compressedSize, maxOutputSize);
-    goto LABEL_66;
-  }
-  v12 = indyfs_LZ4_streamDecode->table[1];
-  v58 = v12;
-  if ( !v12 )
-  {
-    v11 = indyfs_LZ4_decompress_safe_withSmallPrefix(source, dest, compressedSize, maxOutputSize, prefixSize);
-    goto LABEL_66;
-  }
-  v11 = 0;
-  __asm { vmovdqu ymm0, cs:__ymm@000000030000000200000001fffffffcffffffff000000000000000000000000 }
-  _RBX = dest;
-  _RSI = source;
-  v16 = &dest[maxOutputSize];
-  v17 = &source[compressedSize];
-  v55 = v17;
-  v18 = &dest[-prefixSize];
-  v56 = v16;
-  v19 = v12 + indyfs_LZ4_streamDecode->table[0];
-  v61[0] = 0;
-  v57 = v19;
-  v61[1] = 1;
-  v61[2] = 2;
-  v62 = 1i64;
-  v63 = 4;
-  v64 = 4;
-  v65 = 4;
-  __asm { vmovdqu [rsp+0F8h+var_78], ymm0 }
-  if ( !maxOutputSize )
-  {
-    if ( compressedSize != 1 || *source )
-      v11 = -1;
-    goto LABEL_66;
-  }
-  if ( compressedSize )
-  {
-    while ( 1 )
-    {
-      while ( 1 )
-      {
-        while ( 1 )
-        {
-          v20 = *(unsigned __int8 *)_RSI++;
-          v21 = v20 & 0xF;
-          v22 = v20;
-          v23 = 0;
-          v24 = 0;
-          if ( v21 != 15 )
-            v24 = _RSI + 16 < v17 && _RBX + 32 <= v16;
-          LOBYTE(v23) = v20 < 0xF0;
-          v25 = (unsigned __int64)v20 >> 4;
-          if ( (v24 & v23) == 0 )
-            break;
-          v26 = *(unsigned __int16 *)&_RSI[v25];
-          v27 = &_RBX[v25 - v26];
-          if ( v27 < v18 || v26 < 8 )
-            break;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rsi]
-            vmovups xmmword ptr [rbx], xmm0
-          }
-          v29 = &_RBX[v25];
-          _RSI += v25 + 2;
-          *(_QWORD *)v29 = *(_QWORD *)v27;
-          *((_QWORD *)v29 + 1) = *((_QWORD *)v27 + 1);
-          *((_WORD *)v29 + 8) = *((_WORD *)v27 + 8);
-          _RBX = &v29[v21 + 4];
-        }
-        if ( v25 == 15 )
-        {
-          if ( _RSI >= v17 - 15 )
-            goto LABEL_65;
-          do
-          {
-            v30 = *(unsigned __int8 *)_RSI;
-            v25 += v30;
-            ++_RSI;
-          }
-          while ( _RSI < v17 - 15 && (_BYTE)v30 == 0xFF );
-          if ( &_RBX[v25] < _RBX || &_RSI[v25] < _RSI )
-          {
-LABEL_65:
-            v11 = v60 - (_DWORD)_RSI - 1;
-            goto LABEL_66;
-          }
-        }
-        v31 = &_RBX[v25];
-        if ( &_RBX[v25] > v16 - 12 || (v32 = &_RSI[v25], &_RSI[v25] > v55 - 8) )
-        {
-          if ( &_RSI[v25] == v55 && v31 <= v16 )
-          {
-            memcpy_0(_RBX, _RSI, v25);
-            v11 = (_DWORD)_RBX + v25 - v59;
-            goto LABEL_66;
-          }
-          goto LABEL_65;
-        }
-        v33 = _RSI - _RBX;
-        do
-        {
-          *(_QWORD *)_RBX = *(_QWORD *)&_RBX[v33];
-          _RBX += 8;
-        }
-        while ( _RBX < v31 );
-        v34 = *(unsigned __int16 *)v32;
-        _RSI = v32 + 2;
-        v35 = (unsigned __int64)&v31[-v34];
-        if ( v58 < 0x10000 && v35 + v58 < (unsigned __int64)v18 )
-          goto LABEL_65;
-        v36 = v22 & 0xF;
-        *(_DWORD *)v31 = v34;
-        if ( v36 == 15 )
-        {
-          while ( 1 )
-          {
-            v37 = *_RSI++;
-            if ( _RSI > v55 - 5 )
-              goto LABEL_65;
-            v36 += v37;
-            if ( v37 != 0xFF )
-            {
-              if ( &v31[v36] < v31 )
-                goto LABEL_65;
-              break;
-            }
-          }
-        }
-        v38 = v36 + 4;
-        _RBX = &v31[v38];
-        if ( v35 < (unsigned __int64)v18 )
-          break;
-        if ( v34 >= 8 )
-        {
-          v45 = *(_QWORD *)v35;
-          v44 = (char *)(v35 + 8);
-          *(_QWORD *)v31 = v45;
-        }
-        else
-        {
-          *v31 = *(_BYTE *)v35;
-          v31[1] = *(_BYTE *)(v35 + 1);
-          v31[2] = *(_BYTE *)(v35 + 2);
-          v31[3] = *(_BYTE *)(v35 + 3);
-          v43 = (_DWORD *)((unsigned int)v61[v34] + v35);
-          *((_DWORD *)v31 + 1) = *v43;
-          v44 = (char *)v43 - v66.m256i_i32[v34];
-        }
-        v46 = v31 + 8;
-        if ( _RBX <= v16 - 12 )
-        {
-          *(_QWORD *)v46 = *(_QWORD *)v44;
-          if ( v38 > 0x10 )
-          {
-            v51 = v46 + 8;
-            v52 = v44 - v51;
-            do
-            {
-              *(_QWORD *)v51 = *(_QWORD *)&v51[v52 + 8];
-              v51 += 8;
-            }
-            while ( v51 < _RBX );
-          }
-        }
-        else
-        {
-          v47 = v16 - 7;
-          if ( _RBX > v16 - 5 )
-            goto LABEL_65;
-          if ( v46 < v47 )
-          {
-            v48 = v46;
-            do
-            {
-              *v48 = *(_QWORD *)((char *)v48 + v44 - v46);
-              ++v48;
-            }
-            while ( v48 < (_QWORD *)v47 );
-            v49 = v47 - v46;
-            v46 = v16 - 7;
-            v44 += v49;
-          }
-          for ( ; v46 < _RBX; ++v46 )
-          {
-            v50 = *v44++;
-            *v46 = v50;
-          }
-        }
-LABEL_15:
-        v17 = v55;
-      }
-      if ( _RBX > v16 - 5 )
-        goto LABEL_65;
-      v39 = &v18[-v35];
-      if ( v38 <= (unsigned __int64)&v18[-v35] )
-        break;
-      v40 = v38 - (_QWORD)v39;
-      memcpy_0(v31, (const void *)(v57 - (_QWORD)v39), (size_t)&v18[-v35]);
-      _RBX = &v31[(_QWORD)v39];
-      if ( v40 <= &v31[(_QWORD)v39] - v18 )
-      {
-        memcpy_0(&v31[(_QWORD)v39], v18, v40);
-        _RBX += v40;
-        goto LABEL_14;
-      }
-      v16 = v56;
-      v41 = &_RBX[v40];
-      v17 = v55;
-      if ( _RBX < &_RBX[v40] )
-      {
-        v42 = v18 - _RBX;
-        do
-        {
-          *_RBX = _RBX[v42];
-          ++_RBX;
-        }
-        while ( _RBX < v41 );
-      }
-    }
-    memmove_0(v31, (const void *)(v57 + v35 - (_QWORD)v18), v38);
-LABEL_14:
-    v16 = v56;
-    goto LABEL_15;
-  }
-  v11 = -1;
-LABEL_66:
-  if ( v11 > 0 )
-  {
-    indyfs_LZ4_streamDecode->table[3] += v11;
-    indyfs_LZ4_streamDecode->table[2] += v11;
-  }
-  return (unsigned int)v11;
-}
-
-/*
-==============
-indyfs_LZ4_decompress_safe_forceExtDict
-==============
-*/
-__int64 indyfs_LZ4_decompress_safe_forceExtDict(const char *source, char *dest, int compressedSize, int maxOutputSize, const void *dictStart, unsigned __int64 dictSize)
-{
-  const char *v10; 
-  char *v11; 
-  unsigned int v13; 
-  int v14; 
-  char v15; 
-  bool v16; 
-  unsigned __int64 v17; 
-  unsigned __int64 v18; 
-  unsigned __int64 v19; 
-  unsigned __int64 v21; 
-  __int64 v22; 
-  char *v23; 
-  const char *v24; 
-  const char *v25; 
-  unsigned __int64 v26; 
-  unsigned __int64 v27; 
-  __int64 v28; 
-  unsigned __int8 v29; 
-  size_t v30; 
-  char *v31; 
-  size_t v32; 
-  unsigned __int64 v33; 
-  char *v34; 
-  _DWORD *v35; 
-  char *v36; 
-  __int64 v37; 
-  char *v38; 
-  char *v39; 
-  _QWORD *v40; 
-  signed __int64 v41; 
-  char v42; 
-  char *v43; 
-  signed __int64 v44; 
-  char *v45; 
-  int v46; 
-  int v47[3]; 
-  __int64 v48; 
-  int v49; 
-  int v50; 
-  int v51; 
-  __m256i v52; 
-
-  _RSI = source;
-  __asm { vmovdqu ymm0, cs:__ymm@000000030000000200000001fffffffcffffffff000000000000000000000000 }
-  _RBX = (unsigned __int64)dest;
-  v10 = &source[compressedSize];
-  v11 = &dest[maxOutputSize];
-  v46 = (int)source;
-  v45 = (char *)dictStart + dictSize;
-  v47[0] = 0;
-  v47[1] = 1;
-  v47[2] = 2;
-  v48 = 1i64;
-  v49 = 4;
-  v50 = 4;
-  v51 = 4;
-  __asm { vmovdqu [rsp+0B8h+var_68], ymm0 }
-  if ( !maxOutputSize )
-  {
-    if ( compressedSize == 1 && !*source )
-      return 0i64;
-    return 0xFFFFFFFFi64;
-  }
-  if ( !compressedSize )
-    return 0xFFFFFFFFi64;
-  while ( 1 )
-  {
-    while ( 1 )
-    {
-      v13 = *(unsigned __int8 *)_RSI++;
-      v14 = v13 & 0xF;
-      v15 = v13;
-      v16 = 0;
-      if ( v14 != 15 )
-        v16 = _RSI + 16 < v10 && _RBX + 32 <= (unsigned __int64)v11;
-      v17 = (unsigned __int64)v13 >> 4;
-      if ( !v16 || v13 >= 0xF0 )
-        break;
-      v18 = *(unsigned __int16 *)&_RSI[v17];
-      v19 = _RBX + v17 - v18;
-      if ( v19 < (unsigned __int64)dest || v18 < 8 )
-        break;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsi]
-        vmovups xmmword ptr [rbx], xmm0
-      }
-      v21 = v17 + _RBX;
-      _RSI += v17 + 2;
-      *(_QWORD *)v21 = *(_QWORD *)v19;
-      *(_QWORD *)(v21 + 8) = *(_QWORD *)(v19 + 8);
-      *(_WORD *)(v21 + 16) = *(_WORD *)(v19 + 16);
-      _RBX = (unsigned int)(v14 + 4) + v21;
-    }
-    if ( v17 == 15 )
-    {
-      if ( _RSI >= v10 - 15 )
-        break;
-      do
-      {
-        v22 = *(unsigned __int8 *)_RSI;
-        v17 += v22;
-        ++_RSI;
-      }
-      while ( _RSI < v10 - 15 && (_BYTE)v22 == 0xFF );
-      if ( v17 + _RBX < _RBX || &_RSI[v17] < _RSI )
-        break;
-    }
-    v23 = (char *)(v17 + _RBX);
-    if ( v17 + _RBX > (unsigned __int64)(v11 - 12) || (v24 = &_RSI[v17], &_RSI[v17] > v10 - 8) )
-    {
-      if ( &_RSI[v17] == v10 && v23 <= v11 )
-      {
-        memcpy_0((void *)_RBX, _RSI, v17);
-        return (unsigned int)(_RBX + v17 - (_DWORD)dest);
-      }
-      return (unsigned int)(v46 - (_DWORD)_RSI - 1);
-    }
-    v25 = &_RSI[-_RBX];
-    do
-    {
-      *(_QWORD *)_RBX = *(_QWORD *)&v25[_RBX];
-      _RBX += 8i64;
-    }
-    while ( _RBX < (unsigned __int64)v23 );
-    v26 = *(unsigned __int16 *)v24;
-    _RSI = v24 + 2;
-    v27 = (unsigned __int64)&v23[-v26];
-    if ( dictSize < 0x10000 && v27 + dictSize < (unsigned __int64)dest )
-      return (unsigned int)(v46 - (_DWORD)_RSI - 1);
-    v28 = v15 & 0xF;
-    *(_DWORD *)v23 = v26;
-    if ( v28 == 15 )
-    {
-      while ( 1 )
-      {
-        v29 = *_RSI++;
-        if ( _RSI > v10 - 5 )
-          return (unsigned int)(v46 - (_DWORD)_RSI - 1);
-        v28 += v29;
-        if ( v29 != 0xFF )
-        {
-          if ( &v23[v28] < v23 )
-            return (unsigned int)(v46 - (_DWORD)_RSI - 1);
-          break;
-        }
-      }
-    }
-    v30 = v28 + 4;
-    _RBX = (unsigned __int64)&v23[v30];
-    if ( v27 >= (unsigned __int64)dest )
-    {
-      if ( v26 >= 8 )
-      {
-        v37 = *(_QWORD *)v27;
-        v36 = (char *)(v27 + 8);
-        *(_QWORD *)v23 = v37;
-      }
-      else
-      {
-        *v23 = *(_BYTE *)v27;
-        v23[1] = *(_BYTE *)(v27 + 1);
-        v23[2] = *(_BYTE *)(v27 + 2);
-        v23[3] = *(_BYTE *)(v27 + 3);
-        v35 = (_DWORD *)((unsigned int)v47[v26] + v27);
-        *((_DWORD *)v23 + 1) = *v35;
-        v36 = (char *)v35 - v52.m256i_i32[v26];
-      }
-      v38 = v23 + 8;
-      if ( _RBX <= (unsigned __int64)(v11 - 12) )
-      {
-        *(_QWORD *)v38 = *(_QWORD *)v36;
-        if ( v30 > 0x10 )
-        {
-          v43 = v38 + 8;
-          v44 = v36 - v43;
-          do
-          {
-            *(_QWORD *)v43 = *(_QWORD *)&v43[v44 + 8];
-            v43 += 8;
-          }
-          while ( (unsigned __int64)v43 < _RBX );
-        }
-      }
-      else
-      {
-        v39 = v11 - 7;
-        if ( _RBX > (unsigned __int64)(v11 - 5) )
-          return (unsigned int)(v46 - (_DWORD)_RSI - 1);
-        if ( v38 < v39 )
-        {
-          v40 = v38;
-          do
-          {
-            *v40 = *(_QWORD *)((char *)v40 + v36 - v38);
-            ++v40;
-          }
-          while ( v40 < (_QWORD *)v39 );
-          v41 = v39 - v38;
-          v38 = v11 - 7;
-          v36 += v41;
-        }
-        for ( ; (unsigned __int64)v38 < _RBX; ++v38 )
-        {
-          v42 = *v36++;
-          *v38 = v42;
-        }
-      }
-    }
-    else
-    {
-      if ( _RBX > (unsigned __int64)(v11 - 5) )
-        return (unsigned int)(v46 - (_DWORD)_RSI - 1);
-      v31 = &dest[-v27];
-      if ( v30 > (unsigned __int64)&dest[-v27] )
-      {
-        v32 = v30 - (_QWORD)v31;
-        memcpy_0(v23, (const void *)(v45 - v31), (size_t)&dest[-v27]);
-        _RBX = (unsigned __int64)&v23[(_QWORD)v31];
-        if ( v32 <= &v23[(_QWORD)v31] - dest )
-        {
-          memcpy_0(&v23[(_QWORD)v31], dest, v32);
-          _RBX += v32;
-        }
-        else
-        {
-          v33 = v32 + _RBX;
-          if ( _RBX < v32 + _RBX )
-          {
-            v34 = &dest[-_RBX];
-            do
-            {
-              *(_BYTE *)_RBX = v34[_RBX];
-              ++_RBX;
-            }
-            while ( _RBX < v33 );
-          }
-        }
-      }
-      else
-      {
-        memmove_0(v23, &v45[v27 - (_QWORD)dest], v30);
-      }
-    }
-  }
-  return (unsigned int)(v46 - (_DWORD)_RSI - 1);
-}
-
-/*
-==============
-indyfs_LZ4_decompress_safe_partial
-==============
-*/
-__int64 indyfs_LZ4_decompress_safe_partial(const char *source, char *dest, int compressedSize, int targetOutputSize, int maxDecompressedSize)
-{
-  int v7; 
-  const char *v8; 
-  char *v10; 
-  char *v11; 
-  unsigned int v14; 
-  int v15; 
-  char v16; 
-  bool v17; 
-  unsigned __int64 v18; 
-  unsigned __int64 v19; 
-  unsigned __int64 v20; 
-  char *v22; 
-  __int64 v23; 
-  char *v24; 
-  const char *v25; 
-  signed __int64 v26; 
-  const char *v27; 
-  char *v28; 
-  unsigned __int64 v29; 
-  char *v30; 
-  __int64 v31; 
-  unsigned __int8 v32; 
-  unsigned __int64 v33; 
-  unsigned __int64 v34; 
-  char *v35; 
-  char *v36; 
-  __int64 v37; 
-  char *v38; 
-  char *v39; 
-  _QWORD *v40; 
-  signed __int64 v41; 
-  char v42; 
-  char *v43; 
-  __int64 v44; 
-  char *v45; 
-  int v46[3]; 
-  __int64 v47; 
-  int v48; 
-  int v49; 
-  int v50; 
-  __m256i v51; 
-
-  __asm { vmovdqu ymm0, cs:__ymm@000000030000000200000001fffffffcffffffff000000000000000000000000 }
-  v7 = (int)source;
-  v8 = &source[compressedSize];
-  v46[0] = 0;
-  _RDX = source;
-  v46[1] = 1;
-  v10 = &dest[maxDecompressedSize];
-  v46[2] = 2;
-  v47 = 1i64;
-  v48 = 4;
-  v11 = v10 - 12;
-  v49 = 4;
-  if ( &dest[targetOutputSize] <= v10 - 12 )
-    v11 = &dest[targetOutputSize];
-  v50 = 4;
-  v45 = v11;
-  _RBX = dest;
-  __asm { vmovdqu [rsp+0A8h+var_60], ymm0 }
-  if ( !maxDecompressedSize )
-  {
-    if ( compressedSize == 1 && !*source )
-      return 0i64;
-    return 0xFFFFFFFFi64;
-  }
-  if ( !compressedSize )
-    return 0xFFFFFFFFi64;
-  while ( 1 )
-  {
-    while ( 1 )
-    {
-      v14 = *(unsigned __int8 *)_RDX++;
-      v15 = v14 & 0xF;
-      v16 = v14;
-      v17 = 0;
-      if ( v15 != 15 )
-        v17 = _RDX + 16 < v8 && _RBX + 32 <= v10;
-      v18 = (unsigned __int64)v14 >> 4;
-      if ( !v17 || v14 >= 0xF0 )
-        break;
-      v19 = *(unsigned __int16 *)&_RDX[v18];
-      v11 = v45;
-      v20 = (unsigned __int64)&_RBX[v18 - v19];
-      if ( v20 < (unsigned __int64)dest || v19 < 8 )
-        break;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx]
-        vmovups xmmword ptr [rbx], xmm0
-      }
-      v22 = &_RBX[v18];
-      _RDX += v18 + 2;
-      *(_QWORD *)v22 = *(_QWORD *)v20;
-      *((_QWORD *)v22 + 1) = *(_QWORD *)(v20 + 8);
-      *((_WORD *)v22 + 8) = *(_WORD *)(v20 + 16);
-      _RBX = &v22[v15 + 4];
-    }
-    if ( v18 == 15 )
-    {
-      if ( _RDX >= v8 - 15 )
-        break;
-      do
-      {
-        v23 = *(unsigned __int8 *)_RDX;
-        v18 += v23;
-        ++_RDX;
-      }
-      while ( _RDX < v8 - 15 && (_BYTE)v23 == 0xFF );
-      if ( &_RBX[v18] < _RBX || &_RDX[v18] < _RDX )
-        break;
-    }
-    v24 = &_RBX[v18];
-    if ( &_RBX[v18] > v11 || (v25 = &_RDX[v18], &_RDX[v18] > v8 - 8) )
-    {
-      if ( v24 <= v10 && &_RDX[v18] <= v8 )
-      {
-        memcpy_0(_RBX, _RDX, v18);
-        return (unsigned int)((_DWORD)_RBX + v18 - (_DWORD)dest);
-      }
-      return (unsigned int)(v7 - (_DWORD)_RDX - 1);
-    }
-    v26 = _RDX - _RBX;
-    do
-    {
-      *(_QWORD *)_RBX = *(_QWORD *)&_RBX[v26];
-      _RBX += 8;
-    }
-    while ( _RBX < v24 );
-    v27 = v25;
-    v28 = v24;
-    v29 = *(unsigned __int16 *)v27;
-    _RDX = v27 + 2;
-    v30 = &v24[-v29];
-    if ( &v24[-v29] < dest )
-      return (unsigned int)(v7 - (_DWORD)_RDX - 1);
-    v31 = v16 & 0xF;
-    *(_DWORD *)v24 = v29;
-    if ( v31 == 15 )
-    {
-      while ( 1 )
-      {
-        v32 = *_RDX++;
-        if ( _RDX > v8 - 5 )
-          return (unsigned int)(v7 - (_DWORD)_RDX - 1);
-        v31 += v32;
-        if ( v32 != 0xFF )
-        {
-          if ( &v24[v31] < v24 )
-            return (unsigned int)(v7 - (_DWORD)_RDX - 1);
-          break;
-        }
-      }
-    }
-    v33 = v31 + 4;
-    v34 = (unsigned __int64)&v24[v33];
-    if ( v29 >= 8 )
-    {
-      v37 = *(_QWORD *)v30;
-      v36 = v30 + 8;
-      *(_QWORD *)v28 = v37;
-    }
-    else
-    {
-      *v28 = *v30;
-      v28[1] = v30[1];
-      v28[2] = v30[2];
-      v28[3] = v30[3];
-      v35 = &v30[v46[v29]];
-      *((_DWORD *)v28 + 1) = *(_DWORD *)v35;
-      v36 = &v35[-v51.m256i_i32[v29]];
-    }
-    v38 = v28 + 8;
-    if ( v34 <= (unsigned __int64)(v10 - 12) )
-    {
-      *(_QWORD *)v38 = *(_QWORD *)v36;
-      if ( v33 > 0x10 )
-      {
-        v43 = v38 + 8;
-        v44 = v36 - v43;
-        do
-        {
-          *(_QWORD *)v43 = *(_QWORD *)&v43[v44 + 8];
-          v43 += 8;
-        }
-        while ( (unsigned __int64)v43 < v34 );
-      }
-      goto LABEL_43;
-    }
-    v39 = v10 - 7;
-    if ( v34 > (unsigned __int64)(v10 - 5) )
-      return (unsigned int)(v7 - (_DWORD)_RDX - 1);
-    if ( v38 < v39 )
-    {
-      v40 = v38;
-      do
-      {
-        *v40 = *(_QWORD *)((char *)v40 + v36 - v38);
-        ++v40;
-      }
-      while ( v40 < (_QWORD *)v39 );
-      v41 = v39 - v38;
-      v38 = v10 - 7;
-      v36 += v41;
-    }
-    if ( (unsigned __int64)v38 >= v34 )
-    {
-LABEL_43:
-      _RBX = (char *)v34;
-    }
-    else
-    {
-      do
-      {
-        v42 = *v36++;
-        *v38++ = v42;
-      }
-      while ( (unsigned __int64)v38 < v34 );
-      _RBX = (char *)v34;
-    }
-  }
-  return (unsigned int)(v7 - (_DWORD)_RDX - 1);
-}
-
-/*
-==============
-indyfs_LZ4_decompress_safe_usingDict
-==============
-*/
-int indyfs_LZ4_decompress_safe_usingDict(const char *source, char *dest, int compressedSize, int maxOutputSize, const char *dictStart, int dictSize)
-{
-  if ( !dictSize )
-    return j_indyfs_LZ4_decompress_safe(source, dest, compressedSize, maxOutputSize);
-  if ( &dictStart[dictSize] != dest )
-    return j_indyfs_LZ4_decompress_safe_forceExtDict(source, dest, compressedSize, maxOutputSize, dictStart, dictSize);
-  if ( dictSize < 0xFFFF )
-    return indyfs_LZ4_decompress_safe_withSmallPrefix(source, dest, compressedSize, maxOutputSize, dictSize);
-  return j_indyfs_LZ4_decompress_safe_withPrefix64k(source, dest, compressedSize, maxOutputSize);
-}
-
-/*
-==============
-indyfs_LZ4_decompress_safe_withPrefix64k
-==============
-*/
-__int64 indyfs_LZ4_decompress_safe_withPrefix64k(const char *source, char *dest, int compressedSize, int maxOutputSize)
-{
-  char *v6; 
-  const char *v7; 
-  char *v8; 
-  int v9; 
-  unsigned int v13; 
-  int v14; 
-  char v15; 
-  bool v16; 
-  unsigned __int64 v17; 
-  unsigned __int64 v18; 
-  char *v19; 
-  char *v21; 
-  __int64 v22; 
-  char *v23; 
-  const char *v24; 
-  signed __int64 v25; 
-  const char *v26; 
-  char *v27; 
-  unsigned __int64 v28; 
-  char *v29; 
-  __int64 v30; 
-  unsigned __int8 v31; 
-  unsigned __int64 v32; 
-  unsigned __int64 v33; 
-  char *v34; 
-  char *v35; 
-  __int64 v36; 
-  char *v37; 
-  char *v38; 
-  _QWORD *v39; 
-  signed __int64 v40; 
-  char v41; 
-  char *v42; 
-  __int64 v43; 
-  int v44[3]; 
-  __int64 v45; 
-  int v46; 
-  int v47; 
-  int v48; 
-  __m256i v49; 
-
-  __asm { vmovdqu ymm0, cs:__ymm@000000030000000200000001fffffffcffffffff000000000000000000000000 }
-  v6 = dest - 0x10000;
-  v7 = &source[compressedSize];
-  v44[0] = 0;
-  v8 = &dest[maxOutputSize];
-  v44[1] = 1;
-  v44[2] = 2;
-  v9 = (int)source;
-  v45 = 1i64;
-  _RDX = source;
-  v46 = 4;
-  _RBX = dest;
-  v47 = 4;
-  v48 = 4;
-  __asm { vmovdqu [rsp+0A8h+var_68], ymm0 }
-  if ( !maxOutputSize )
-  {
-    if ( compressedSize == 1 && !*source )
-      return 0i64;
-    return 0xFFFFFFFFi64;
-  }
-  if ( !compressedSize )
-    return 0xFFFFFFFFi64;
-  while ( 1 )
-  {
-    while ( 1 )
-    {
-      v13 = *(unsigned __int8 *)_RDX++;
-      v14 = v13 & 0xF;
-      v15 = v13;
-      v16 = 0;
-      if ( v14 != 15 )
-        v16 = _RDX + 16 < v7 && _RBX + 32 <= v8;
-      v17 = (unsigned __int64)v13 >> 4;
-      if ( !v16 || v13 >= 0xF0 )
-        break;
-      v18 = *(unsigned __int16 *)&_RDX[v17];
-      v19 = &_RBX[v17 - v18];
-      if ( v19 < v6 || v18 < 8 )
-        break;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx]
-        vmovups xmmword ptr [rbx], xmm0
-      }
-      v21 = &_RBX[v17];
-      _RDX += v17 + 2;
-      *(_QWORD *)v21 = *(_QWORD *)v19;
-      *((_QWORD *)v21 + 1) = *((_QWORD *)v19 + 1);
-      *((_WORD *)v21 + 8) = *((_WORD *)v19 + 8);
-      _RBX = &v21[v14 + 4];
-    }
-    if ( v17 == 15 )
-    {
-      if ( _RDX >= v7 - 15 )
-        break;
-      do
-      {
-        v22 = *(unsigned __int8 *)_RDX;
-        v17 += v22;
-        ++_RDX;
-      }
-      while ( _RDX < v7 - 15 && (_BYTE)v22 == 0xFF );
-      if ( &_RBX[v17] < _RBX || &_RDX[v17] < _RDX )
-        break;
-    }
-    v23 = &_RBX[v17];
-    if ( &_RBX[v17] > v8 - 12 || (v24 = &_RDX[v17], &_RDX[v17] > v7 - 8) )
-    {
-      if ( &_RDX[v17] == v7 && v23 <= v8 )
-      {
-        memcpy_0(_RBX, _RDX, v17);
-        return (unsigned int)((_DWORD)_RBX + v17 - (_DWORD)dest);
-      }
-      return (unsigned int)(v9 - (_DWORD)_RDX - 1);
-    }
-    v25 = _RDX - _RBX;
-    do
-    {
-      *(_QWORD *)_RBX = *(_QWORD *)&_RBX[v25];
-      _RBX += 8;
-    }
-    while ( _RBX < v23 );
-    v26 = v24;
-    v27 = v23;
-    v28 = *(unsigned __int16 *)v26;
-    _RDX = v26 + 2;
-    v29 = &v23[-v28];
-    if ( &v23[-v28] < v6 )
-      return (unsigned int)(v9 - (_DWORD)_RDX - 1);
-    v30 = v15 & 0xF;
-    *(_DWORD *)v23 = v28;
-    if ( v30 == 15 )
-    {
-      while ( 1 )
-      {
-        v31 = *_RDX++;
-        if ( _RDX > v7 - 5 )
-          return (unsigned int)(v9 - (_DWORD)_RDX - 1);
-        v30 += v31;
-        if ( v31 != 0xFF )
-        {
-          if ( &v23[v30] < v23 )
-            return (unsigned int)(v9 - (_DWORD)_RDX - 1);
-          break;
-        }
-      }
-    }
-    v32 = v30 + 4;
-    v33 = (unsigned __int64)&v23[v32];
-    if ( v28 >= 8 )
-    {
-      v36 = *(_QWORD *)v29;
-      v35 = v29 + 8;
-      *(_QWORD *)v27 = v36;
-    }
-    else
-    {
-      *v27 = *v29;
-      v27[1] = v29[1];
-      v27[2] = v29[2];
-      v27[3] = v29[3];
-      v34 = &v29[v44[v28]];
-      *((_DWORD *)v27 + 1) = *(_DWORD *)v34;
-      v35 = &v34[-v49.m256i_i32[v28]];
-    }
-    v37 = v27 + 8;
-    if ( v33 <= (unsigned __int64)(v8 - 12) )
-    {
-      *(_QWORD *)v37 = *(_QWORD *)v35;
-      if ( v32 > 0x10 )
-      {
-        v42 = v37 + 8;
-        v43 = v35 - v42;
-        do
-        {
-          *(_QWORD *)v42 = *(_QWORD *)&v42[v43 + 8];
-          v42 += 8;
-        }
-        while ( (unsigned __int64)v42 < v33 );
-      }
-      goto LABEL_41;
-    }
-    v38 = v8 - 7;
-    if ( v33 > (unsigned __int64)(v8 - 5) )
-      return (unsigned int)(v9 - (_DWORD)_RDX - 1);
-    if ( v37 < v38 )
-    {
-      v39 = v37;
-      do
-      {
-        *v39 = *(_QWORD *)((char *)v39 + v35 - v37);
-        ++v39;
-      }
-      while ( v39 < (_QWORD *)v38 );
-      v40 = v38 - v37;
-      v37 = v8 - 7;
-      v35 += v40;
-    }
-    if ( (unsigned __int64)v37 >= v33 )
-    {
-LABEL_41:
-      _RBX = (char *)v33;
-    }
-    else
-    {
-      do
-      {
-        v41 = *v35++;
-        *v37++ = v41;
-      }
-      while ( (unsigned __int64)v37 < v33 );
-      _RBX = (char *)v33;
-    }
-  }
-  return (unsigned int)(v9 - (_DWORD)_RDX - 1);
-}
-
-/*
-==============
-indyfs_LZ4_decompress_safe_withSmallPrefix
-==============
-*/
-__int64 indyfs_LZ4_decompress_safe_withSmallPrefix(const char *source, char *dest, int compressedSize, int maxOutputSize, unsigned __int64 prefixSize)
-{
-  char *v7; 
-  const char *v8; 
-  char *v9; 
-  int v10; 
-  unsigned int v14; 
-  int v15; 
-  char v16; 
-  bool v17; 
-  unsigned __int64 v18; 
-  unsigned __int64 v19; 
-  char *v20; 
-  char *v22; 
-  __int64 v23; 
-  char *v24; 
-  const char *v25; 
-  signed __int64 v26; 
-  const char *v27; 
-  char *v28; 
-  unsigned __int64 v29; 
-  char *v30; 
-  __int64 v31; 
-  unsigned __int8 v32; 
-  unsigned __int64 v33; 
-  unsigned __int64 v34; 
-  char *v35; 
-  char *v36; 
-  __int64 v37; 
-  char *v38; 
-  char *v39; 
-  _QWORD *v40; 
-  signed __int64 v41; 
-  char v42; 
-  char *v43; 
-  __int64 v44; 
-  int v45[3]; 
-  __int64 v46; 
-  int v47; 
-  int v48; 
-  int v49; 
-  __m256i v50; 
-
-  __asm { vmovdqu ymm0, cs:__ymm@000000030000000200000001fffffffcffffffff000000000000000000000000 }
-  v7 = &dest[-prefixSize];
-  v8 = &source[compressedSize];
-  v45[0] = 0;
-  v9 = &dest[maxOutputSize];
-  v45[1] = 1;
-  v45[2] = 2;
-  v10 = (int)source;
-  v46 = 1i64;
-  _RDX = source;
-  v47 = 4;
-  _RBX = dest;
-  v48 = 4;
-  v49 = 4;
-  __asm { vmovdqu [rsp+0A8h+var_68], ymm0 }
-  if ( !maxOutputSize )
-  {
-    if ( compressedSize == 1 && !*source )
-      return 0i64;
-    return 0xFFFFFFFFi64;
-  }
-  if ( !compressedSize )
-    return 0xFFFFFFFFi64;
-  while ( 1 )
-  {
-    while ( 1 )
-    {
-      v14 = *(unsigned __int8 *)_RDX++;
-      v15 = v14 & 0xF;
-      v16 = v14;
-      v17 = 0;
-      if ( v15 != 15 )
-        v17 = _RDX + 16 < v8 && _RBX + 32 <= v9;
-      v18 = (unsigned __int64)v14 >> 4;
-      if ( !v17 || v14 >= 0xF0 )
-        break;
-      v19 = *(unsigned __int16 *)&_RDX[v18];
-      v20 = &_RBX[v18 - v19];
-      if ( v20 < v7 || v19 < 8 )
-        break;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdx]
-        vmovups xmmword ptr [rbx], xmm0
-      }
-      v22 = &_RBX[v18];
-      _RDX += v18 + 2;
-      *(_QWORD *)v22 = *(_QWORD *)v20;
-      *((_QWORD *)v22 + 1) = *((_QWORD *)v20 + 1);
-      *((_WORD *)v22 + 8) = *((_WORD *)v20 + 8);
-      _RBX = &v22[v15 + 4];
-    }
-    if ( v18 == 15 )
-    {
-      if ( _RDX >= v8 - 15 )
-        break;
-      do
-      {
-        v23 = *(unsigned __int8 *)_RDX;
-        v18 += v23;
-        ++_RDX;
-      }
-      while ( _RDX < v8 - 15 && (_BYTE)v23 == 0xFF );
-      if ( &_RBX[v18] < _RBX || &_RDX[v18] < _RDX )
-        break;
-    }
-    v24 = &_RBX[v18];
-    if ( &_RBX[v18] > v9 - 12 || (v25 = &_RDX[v18], &_RDX[v18] > v8 - 8) )
-    {
-      if ( &_RDX[v18] == v8 && v24 <= v9 )
-      {
-        memcpy_0(_RBX, _RDX, v18);
-        return (unsigned int)((_DWORD)_RBX + v18 - (_DWORD)dest);
-      }
-      return (unsigned int)(v10 - (_DWORD)_RDX - 1);
-    }
-    v26 = _RDX - _RBX;
-    do
-    {
-      *(_QWORD *)_RBX = *(_QWORD *)&_RBX[v26];
-      _RBX += 8;
-    }
-    while ( _RBX < v24 );
-    v27 = v25;
-    v28 = v24;
-    v29 = *(unsigned __int16 *)v27;
-    _RDX = v27 + 2;
-    v30 = &v24[-v29];
-    if ( &v24[-v29] < v7 )
-      return (unsigned int)(v10 - (_DWORD)_RDX - 1);
-    v31 = v16 & 0xF;
-    *(_DWORD *)v24 = v29;
-    if ( v31 == 15 )
-    {
-      while ( 1 )
-      {
-        v32 = *_RDX++;
-        if ( _RDX > v8 - 5 )
-          return (unsigned int)(v10 - (_DWORD)_RDX - 1);
-        v31 += v32;
-        if ( v32 != 0xFF )
-        {
-          if ( &v24[v31] < v24 )
-            return (unsigned int)(v10 - (_DWORD)_RDX - 1);
-          break;
-        }
-      }
-    }
-    v33 = v31 + 4;
-    v34 = (unsigned __int64)&v24[v33];
-    if ( v29 >= 8 )
-    {
-      v37 = *(_QWORD *)v30;
-      v36 = v30 + 8;
-      *(_QWORD *)v28 = v37;
-    }
-    else
-    {
-      *v28 = *v30;
-      v28[1] = v30[1];
-      v28[2] = v30[2];
-      v28[3] = v30[3];
-      v35 = &v30[v45[v29]];
-      *((_DWORD *)v28 + 1) = *(_DWORD *)v35;
-      v36 = &v35[-v50.m256i_i32[v29]];
-    }
-    v38 = v28 + 8;
-    if ( v34 <= (unsigned __int64)(v9 - 12) )
-    {
-      *(_QWORD *)v38 = *(_QWORD *)v36;
-      if ( v33 > 0x10 )
-      {
-        v43 = v38 + 8;
-        v44 = v36 - v43;
-        do
-        {
-          *(_QWORD *)v43 = *(_QWORD *)&v43[v44 + 8];
-          v43 += 8;
-        }
-        while ( (unsigned __int64)v43 < v34 );
-      }
-      goto LABEL_41;
-    }
-    v39 = v9 - 7;
-    if ( v34 > (unsigned __int64)(v9 - 5) )
-      return (unsigned int)(v10 - (_DWORD)_RDX - 1);
-    if ( v38 < v39 )
-    {
-      v40 = v38;
-      do
-      {
-        *v40 = *(_QWORD *)((char *)v40 + v36 - v38);
-        ++v40;
-      }
-      while ( v40 < (_QWORD *)v39 );
-      v41 = v39 - v38;
-      v38 = v9 - 7;
-      v36 += v41;
-    }
-    if ( (unsigned __int64)v38 >= v34 )
-    {
-LABEL_41:
-      _RBX = (char *)v34;
-    }
-    else
-    {
-      do
-      {
-        v42 = *v36++;
-        *v38++ = v42;
-      }
-      while ( (unsigned __int64)v38 < v34 );
-      _RBX = (char *)v34;
-    }
-  }
-  return (unsigned int)(v10 - (_DWORD)_RDX - 1);
+  return (unsigned int)(v9 - (_DWORD)v10 - 1);
 }
 
 /*

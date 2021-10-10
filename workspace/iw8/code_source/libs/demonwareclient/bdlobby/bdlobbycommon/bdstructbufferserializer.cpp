@@ -352,31 +352,9 @@ bool bdStructBufferSerializer::writeByte8(bdStructBufferSerializer *this, const 
 bdStructBufferSerializer::writeFloat32
 ==============
 */
-
-bool __fastcall bdStructBufferSerializer::writeFloat32(bdStructBufferSerializer *this, const unsigned int tag, double value)
+bool bdStructBufferSerializer::writeFloat32(bdStructBufferSerializer *this, const unsigned int tag, float value)
 {
-  bool result; 
-
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  if ( !bdProtobufHelper::encodeTag(&this->m_stream, tag, WIRETYPE_32BIT) )
-    goto LABEL_4;
-  __asm { vmovaps xmm1, xmm6; value }
-  if ( bdProtobufHelper::encode32bits(&this->m_stream, *(float *)&_XMM1) )
-  {
-    result = 1;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  }
-  else
-  {
-LABEL_4:
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    return 0;
-  }
-  return result;
+  return bdProtobufHelper::encodeTag(&this->m_stream, tag, WIRETYPE_32BIT) && bdProtobufHelper::encode32bits(&this->m_stream, value);
 }
 
 /*
@@ -384,31 +362,9 @@ LABEL_4:
 bdStructBufferSerializer::writeFloat64
 ==============
 */
-
-bool __fastcall bdStructBufferSerializer::writeFloat64(bdStructBufferSerializer *this, const unsigned int tag, double value)
+bool bdStructBufferSerializer::writeFloat64(bdStructBufferSerializer *this, const unsigned int tag, long double value)
 {
-  bool result; 
-
-  __asm
-  {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  if ( !bdProtobufHelper::encodeTag(&this->m_stream, tag, WIRETYPE_64BIT) )
-    goto LABEL_4;
-  __asm { vmovaps xmm1, xmm6; value }
-  if ( bdProtobufHelper::encode64bits(&this->m_stream, *(long double *)&_XMM1) )
-  {
-    result = 1;
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-  }
-  else
-  {
-LABEL_4:
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    return 0;
-  }
-  return result;
+  return bdProtobufHelper::encodeTag(&this->m_stream, tag, WIRETYPE_64BIT) && bdProtobufHelper::encode64bits(&this->m_stream, value);
 }
 
 /*

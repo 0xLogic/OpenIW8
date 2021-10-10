@@ -60,33 +60,7 @@ SpartialPartition_Tree_Test::BoxEntirelyBehindPlane
 */
 bool SpartialPartition_Tree_Test::BoxEntirelyBehindPlane(const Bounds *bounds, const vec4_t *plane)
 {
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdx]
-    vmovss  xmm5, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm4, dword ptr [rdx+4]
-    vandps  xmm0, xmm1, xmm5
-    vmulss  xmm2, xmm0, dword ptr [rcx+0Ch]
-    vmulss  xmm0, xmm1, dword ptr [rcx]
-    vaddss  xmm1, xmm0, dword ptr [rdx+0Ch]
-    vmulss  xmm0, xmm4, dword ptr [rcx+4]
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm1, xmm3, xmm0
-    vmovaps [rsp+18h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rdx+8]
-    vandps  xmm4, xmm4, xmm5
-    vmulss  xmm0, xmm4, dword ptr [rcx+10h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, dword ptr [rcx+8]
-    vandps  xmm6, xmm6, xmm5
-    vmulss  xmm0, xmm6, dword ptr [rcx+14h]
-    vmovaps xmm6, [rsp+18h+var_18]
-    vaddss  xmm3, xmm2, xmm1
-    vaddss  xmm2, xmm3, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm2, xmm1
-  }
-  return 0;
+  return (float)((float)((float)((float)((float)((float)(COERCE_FLOAT(LODWORD(plane->v[0]) & _xmm) * bounds->halfSize.v[0]) + (float)((float)(plane->v[0] * bounds->midPoint.v[0]) + plane->v[3])) + (float)(plane->v[1] * bounds->midPoint.v[1])) + (float)(COERCE_FLOAT(LODWORD(plane->v[1]) & _xmm) * bounds->halfSize.v[1])) + (float)(plane->v[2] * bounds->midPoint.v[2])) + (float)(COERCE_FLOAT(LODWORD(plane->v[2]) & _xmm) * bounds->halfSize.v[2])) <= 0.0;
 }
 
 /*
@@ -94,116 +68,46 @@ bool SpartialPartition_Tree_Test::BoxEntirelyBehindPlane(const Bounds *bounds, c
 SpartialPartition_Tree_Test::FrustumAABBIntersection
 ==============
 */
-bool SpartialPartition_Tree_Test::FrustumAABBIntersection(const vec4_t *frustumPlanes, unsigned int numFrustumPlanes, const vec3_t *boxMin, const vec3_t *boxMax)
+char SpartialPartition_Tree_Test::FrustumAABBIntersection(const vec4_t *frustumPlanes, unsigned int numFrustumPlanes, const vec3_t *boxMin, const vec3_t *boxMax)
 {
-  unsigned int v20; 
-  bool v33; 
-  bool result; 
-  float v71; 
-  void *retaddr; 
+  float v5; 
+  int v6; 
+  float v7; 
+  float v8; 
+  __int128 v10; 
+  __int128 v12; 
+  __int128 v14; 
+  vec3_t *i; 
+  float v20; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0B8h+var_88], xmm13
-    vmovaps [rsp+0B8h+var_98], xmm14
-    vmovsd  xmm1, qword ptr [r8]
-    vmovss  xmm4, cs:__real@3f000000
-    vmovsd  xmm6, qword ptr [r9]
-    vaddss  xmm0, xmm6, xmm1
-    vmulss  xmm12, xmm0, xmm4
-  }
-  v20 = 0;
-  v71 = boxMax->v[2];
-  __asm
-  {
-    vmovss  xmm3, [rsp+0B8h+var_A4]
-    vmovsd  [rsp+0B8h+var_B8], xmm1
-    vmovsd  [rsp+0B8h+var_AC], xmm6
-    vmovss  xmm5, dword ptr [rsp+0B8h+var_AC+4]
-    vaddss  xmm0, xmm5, dword ptr [rsp+0B8h+var_B8+4]
-    vmulss  xmm13, xmm0, xmm4
-    vaddss  xmm0, xmm3, [rsp+0B8h+var_B0]
-    vmulss  xmm14, xmm0, xmm4
-    vsubss  xmm0, xmm14, [rsp+0B8h+var_B0]
-    vsubss  xmm7, xmm12, xmm1
-    vsubss  xmm1, xmm13, dword ptr [rsp+0B8h+var_B8+4]
-    vsubss  xmm2, xmm5, xmm13
-    vsubss  xmm5, xmm3, xmm14
-    vsubss  xmm4, xmm6, xmm12
-  }
-  v33 = numFrustumPlanes == 0;
+  v5 = (float)(COERCE_FLOAT(*(_QWORD *)boxMax->v) + COERCE_FLOAT(*(_QWORD *)boxMin->v)) * 0.5;
+  v6 = 0;
+  v20 = boxMax->v[2];
+  v7 = (float)(COERCE_FLOAT(HIDWORD(*(_QWORD *)boxMax->v)) + COERCE_FLOAT(HIDWORD(*(_QWORD *)boxMin->v))) * 0.5;
+  v8 = (float)(v20 + boxMin->v[2]) * 0.5;
+  v10 = (unsigned int)HIDWORD(*(_QWORD *)boxMax->v);
+  *(float *)&v10 = COERCE_FLOAT(HIDWORD(*(_QWORD *)boxMax->v)) - v7;
+  _XMM2 = v10;
+  v12 = LODWORD(v20);
+  *(float *)&v12 = v20 - v8;
+  _XMM5 = v12;
+  v14 = *(unsigned __int64 *)boxMax->v;
+  *(float *)&v14 = COERCE_FLOAT(*(_QWORD *)boxMax->v) - v5;
+  _XMM4 = v14;
   if ( (int)numFrustumPlanes <= 0 )
-  {
-LABEL_5:
-    result = 1;
-  }
-  else
-  {
-    __asm
-    {
-      vmaxss  xmm8, xmm4, xmm7
-      vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmaxss  xmm9, xmm2, xmm1
-      vmaxss  xmm10, xmm5, xmm0
-    }
-    _RAX = &frustumPlanes->xyz + 1;
-    __asm { vxorps  xmm11, xmm11, xmm11 }
-    while ( 1 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rax-0Ch]
-        vmovss  xmm5, dword ptr [rax-8]
-        vmovss  xmm6, dword ptr [rax-4]
-        vandps  xmm0, xmm1, xmm7
-        vmulss  xmm2, xmm0, xmm8
-        vmulss  xmm0, xmm12, xmm1
-        vaddss  xmm1, xmm0, dword ptr [rax]
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm2, xmm13, xmm5
-        vmulss  xmm1, xmm14, xmm6
-        vaddss  xmm4, xmm3, xmm2
-        vandps  xmm5, xmm5, xmm7
-        vmulss  xmm0, xmm5, xmm9
-        vaddss  xmm2, xmm4, xmm0
-        vandps  xmm6, xmm6, xmm7
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm6, xmm10
-        vaddss  xmm1, xmm3, xmm0
-        vcomiss xmm1, xmm11
-      }
-      if ( v33 )
-        break;
-      ++v20;
-      _RAX = (vec3_t *)((char *)_RAX + 16);
-      v33 = v20 <= numFrustumPlanes;
-      if ( (int)v20 >= (int)numFrustumPlanes )
-        goto LABEL_5;
-    }
-    result = 0;
-  }
-  _R11 = &retaddr;
+    return 1;
   __asm
   {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, [rsp+0B8h+var_88]
-    vmovaps xmm14, [rsp+0B8h+var_98]
+    vmaxss  xmm8, xmm4, xmm7
+    vmaxss  xmm9, xmm2, xmm1
+    vmaxss  xmm10, xmm5, xmm0
   }
-  return result;
+  for ( i = &frustumPlanes->xyz + 1; (float)((float)((float)((float)((float)((float)(COERCE_FLOAT(LODWORD(i[-1].v[0]) & _xmm) * *(float *)&_XMM8) + (float)((float)(v5 * i[-1].v[0]) + i->v[0])) + (float)(v7 * i[-1].v[1])) + (float)(COERCE_FLOAT(LODWORD(i[-1].v[1]) & _xmm) * *(float *)&_XMM9)) + (float)(v8 * i[-1].v[2])) + (float)(COERCE_FLOAT(LODWORD(i[-1].v[2]) & _xmm) * *(float *)&_XMM10)) > 0.0; i = (vec3_t *)((char *)i + 16) )
+  {
+    if ( ++v6 >= (int)numFrustumPlanes )
+      return 1;
+  }
+  return 0;
 }
 
 /*
@@ -211,98 +115,32 @@ LABEL_5:
 SpartialPartition_Tree_Test::FrustumCullBox
 ==============
 */
-bool SpartialPartition_Tree_Test::FrustumCullBox(const Bounds *bounds, const vec4_t *planes, int planeCount)
+char SpartialPartition_Tree_Test::FrustumCullBox(const Bounds *bounds, const vec4_t *planes, int planeCount)
 {
-  int v13; 
-  bool v14; 
-  bool result; 
-  void *retaddr; 
+  int v3; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  vec3_t *i; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-  }
-  v13 = 0;
-  __asm
-  {
-    vmovaps [rsp+98h+var_88], xmm13
-    vmovaps [rsp+98h+var_98], xmm14
-  }
-  v14 = planeCount == 0;
+  v3 = 0;
   if ( planeCount <= 0 )
+    return 0;
+  v4 = bounds->halfSize.v[0];
+  v5 = bounds->midPoint.v[0];
+  v6 = bounds->midPoint.v[1];
+  v7 = bounds->halfSize.v[1];
+  v8 = bounds->midPoint.v[2];
+  v9 = bounds->halfSize.v[2];
+  for ( i = &planes->xyz + 1; (float)((float)((float)((float)((float)((float)(COERCE_FLOAT(LODWORD(i[-1].v[0]) & _xmm) * v4) + (float)((float)(v5 * i[-1].v[0]) + i->v[0])) + (float)(v6 * i[-1].v[1])) + (float)(COERCE_FLOAT(LODWORD(i[-1].v[1]) & _xmm) * v7)) + (float)(v8 * i[-1].v[2])) + (float)(COERCE_FLOAT(LODWORD(i[-1].v[2]) & _xmm) * v9)) > 0.0; i = (vec3_t *)((char *)i + 16) )
   {
-LABEL_5:
-    result = 0;
+    if ( ++v3 >= planeCount )
+      return 0;
   }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm8, dword ptr [rcx+0Ch]
-      vmovss  xmm9, dword ptr [rcx]
-      vmovss  xmm10, dword ptr [rcx+4]
-      vmovss  xmm11, dword ptr [rcx+10h]
-      vmovss  xmm12, dword ptr [rcx+8]
-      vmovss  xmm13, dword ptr [rcx+14h]
-      vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    }
-    _RCX = &planes->xyz + 1;
-    __asm { vxorps  xmm14, xmm14, xmm14 }
-    while ( 1 )
-    {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rcx-0Ch]
-        vmovss  xmm5, dword ptr [rcx-8]
-        vmovss  xmm6, dword ptr [rcx-4]
-        vandps  xmm0, xmm1, xmm7
-        vmulss  xmm2, xmm0, xmm8
-        vmulss  xmm0, xmm9, xmm1
-        vaddss  xmm1, xmm0, dword ptr [rcx]
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm2, xmm10, xmm5
-        vmulss  xmm1, xmm12, xmm6
-        vaddss  xmm4, xmm3, xmm2
-        vandps  xmm5, xmm5, xmm7
-        vmulss  xmm0, xmm5, xmm11
-        vaddss  xmm2, xmm4, xmm0
-        vandps  xmm6, xmm6, xmm7
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm6, xmm13
-        vaddss  xmm1, xmm3, xmm0
-        vcomiss xmm1, xmm14
-      }
-      if ( v14 )
-        break;
-      ++v13;
-      _RCX = (vec3_t *)((char *)_RCX + 16);
-      v14 = v13 <= (unsigned int)planeCount;
-      if ( v13 >= planeCount )
-        goto LABEL_5;
-    }
-    result = 1;
-  }
-  __asm { vmovaps xmm7, [rsp+98h+var_28] }
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, [rsp+98h+var_88]
-    vmovaps xmm14, [rsp+98h+var_98]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -321,13 +159,17 @@ SpartialPartition_Tree_Test::Tree_Buffer *SpartialPartition_Tree_Test::MakeTree(
   unsigned __int8 *v10; 
   unsigned __int64 v11; 
   unsigned __int64 v12; 
+  unsigned __int8 *v13; 
   unsigned int i; 
   unsigned int v15; 
+  const ExtentBounds *v16; 
   unsigned int v17; 
-  unsigned __int8 *v22; 
-  __int64 v24; 
-  __int64 v25; 
-  unsigned int v28; 
+  float v18; 
+  __int64 v19; 
+  unsigned __int8 *v20; 
+  __int64 v22; 
+  __int64 v23; 
+  unsigned int v26; 
 
   v3 = numBounds;
   v4 = bounds;
@@ -341,7 +183,7 @@ SpartialPartition_Tree_Test::Tree_Buffer *SpartialPartition_Tree_Test::MakeTree(
   buffer->data[24] = 2 * v3;
   v8 = truncate_cast<unsigned int,unsigned __int64>(4 * v3 + 28);
   v9 = truncate_cast<unsigned int,unsigned __int64>(v8 + 4i64 * (unsigned int)(6 * v3));
-  v28 = v9;
+  v26 = v9;
   if ( (_DWORD)v3 )
   {
     v10 = &buffer->data[28];
@@ -356,13 +198,13 @@ SpartialPartition_Tree_Test::Tree_Buffer *SpartialPartition_Tree_Test::MakeTree(
     }
     while ( v7 );
   }
-  _R13 = &buffer->data[v8];
+  v13 = &buffer->data[v8];
   for ( i = 0; i < 6; ++i )
   {
     v15 = 0;
     if ( (_DWORD)v3 )
     {
-      _RDI = v4;
+      v16 = v4;
       v17 = i % 3;
       do
       {
@@ -370,30 +212,28 @@ SpartialPartition_Tree_Test::Tree_Buffer *SpartialPartition_Tree_Test::MakeTree(
         {
           if ( v17 >= 3 )
           {
-            LODWORD(v25) = 3;
-            LODWORD(v24) = i % 3;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v25) )
+            LODWORD(v23) = 3;
+            LODWORD(v22) = i % 3;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v22, v23) )
               __debugbreak();
           }
-          _RAX = (int)v17;
-          __asm { vmovss  xmm0, dword ptr [rdi+rax*4+0Ch] }
+          v18 = v16->maxs.v[v17];
         }
         else
         {
           if ( v17 >= 3 )
           {
-            LODWORD(v25) = 3;
-            LODWORD(v24) = i % 3;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v25) )
+            LODWORD(v23) = 3;
+            LODWORD(v22) = i % 3;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v22, v23) )
               __debugbreak();
           }
-          _RAX = (int)v17;
-          __asm { vmovss  xmm0, dword ptr [rdi+rax*4] }
+          v18 = v16->mins.v[v17];
         }
-        _RAX = (_DWORD)v3 * i + v15;
-        ++_RDI;
+        v19 = (_DWORD)v3 * i + v15;
+        ++v16;
         ++v15;
-        __asm { vmovss  dword ptr [r13+rax*4+0], xmm0 }
+        *(float *)&v13[4 * v19] = v18;
       }
       while ( v15 < (unsigned int)v3 );
       v4 = bounds;
@@ -402,12 +242,12 @@ SpartialPartition_Tree_Test::Tree_Buffer *SpartialPartition_Tree_Test::MakeTree(
   }
   if ( !(_DWORD)v3 )
     return buffer;
-  v22 = &buffer->data[v28];
+  v20 = &buffer->data[v26];
   do
   {
-    *v22 = 3;
-    *((_DWORD *)v22 + 1) = v6;
-    v22 += 8;
+    *v20 = 3;
+    *((_DWORD *)v20 + 1) = v6;
+    v20 += 8;
     ++v6;
   }
   while ( v6 < (unsigned int)v3 );
@@ -421,169 +261,110 @@ SpartialPartition_Tree_Test::RayAABBIntersect
 */
 float SpartialPartition_Tree_Test::RayAABBIntersect(const vec3_t *rayStart, const vec3_t *rayDir, const vec3_t *boxMin, const vec3_t *boxMax)
 {
-  unsigned int v37; 
-  bool v43; 
-  bool v46; 
-  bool v47; 
-  bool v48; 
-  __int64 v75; 
-  __int64 v76; 
-  char v80; 
-  void *retaddr; 
+  float v4; 
+  float v5; 
+  float v6; 
+  int v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  unsigned int v13; 
+  __int64 v15; 
+  bool v17; 
+  float v18; 
+  __int128 v19; 
+  float v20; 
+  __int128 v21; 
+  bool v26; 
+  __int64 v30; 
+  __int64 v31; 
+  int v32[4]; 
+  int v33[4]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps [rsp+108h+var_98], xmm14
-    vmovss  xmm7, cs:__real@3f000000
-    vmovss  xmm8, dword ptr [r9+8]
-    vmovss  xmm3, dword ptr [r9]
-    vsubss  xmm0, xmm3, dword ptr [r8]
-    vmovss  xmm5, dword ptr [r9+4]
-    vsubss  xmm1, xmm5, dword ptr [r8+4]
-    vmovss  xmm10, cs:__real@7f7fffff
-    vmovss  xmm11, cs:__real@ff7fffff
-    vmovss  xmm13, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm9, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm12, cs:__real@38d1b717
-    vmovss  xmm14, cs:__real@3f800000
-    vmulss  xmm2, xmm1, xmm7
-    vmulss  xmm0, xmm0, xmm7
-    vmovss  [rsp+108h+var_C8], xmm0
-    vsubss  xmm0, xmm8, dword ptr [r8+8]
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm0, xmm3, dword ptr [r8]
-    vmovss  [rsp+108h+var_C0], xmm1
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm0, xmm5, dword ptr [r8+4]
-    vmovss  [rsp+108h+var_C4], xmm2
-    vsubss  xmm2, xmm1, dword ptr [rcx]
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm0, xmm8, dword ptr [r8+8]
-    vmovss  [rsp+108h+var_B8], xmm2
-    vsubss  xmm2, xmm1, dword ptr [rcx+4]
-  }
-  v37 = 0;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm7
-    vmovss  [rsp+108h+var_B4], xmm2
-    vsubss  xmm2, xmm1, dword ptr [rcx+8]
-    vmovss  [rsp+108h+var_B0], xmm2
-  }
-  _RSI = rayDir;
-  _RDI = 0i64;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
-  v43 = 1;
+  v4 = boxMax->v[2];
+  v5 = boxMax->v[0];
+  v6 = boxMax->v[1];
+  _XMM10 = LODWORD(FLOAT_3_4028235e38);
+  *(float *)&v8 = (float)(v6 - boxMin->v[1]) * 0.5;
+  *(float *)v32 = (float)(boxMax->v[0] - boxMin->v[0]) * 0.5;
+  v9 = v5 + boxMin->v[0];
+  *(float *)&v32[2] = (float)(v4 - boxMin->v[2]) * 0.5;
+  v10 = v9 * 0.5;
+  v11 = v6 + boxMin->v[1];
+  v32[1] = v8;
+  v12 = v4 + boxMin->v[2];
+  *(float *)v33 = v10 - rayStart->v[0];
+  v13 = 0;
+  *(float *)&v33[1] = (float)(v11 * 0.5) - rayStart->v[1];
+  *(float *)&v33[2] = (float)(v12 * 0.5) - rayStart->v[2];
+  v15 = 0i64;
+  _XMM8 = 0i64;
+  v17 = 1;
   while ( 1 )
   {
-    if ( !v43 )
+    if ( !v17 )
     {
-      LODWORD(v76) = 3;
-      LODWORD(v75) = v37;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v75, v76) )
+      LODWORD(v31) = 3;
+      LODWORD(v30) = v13;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v30, v31) )
         __debugbreak();
     }
-    __asm { vmovss  xmm7, [rsp+rdi+108h+var_C8] }
-    if ( v37 >= 3 )
+    v18 = *(float *)&v32[v15];
+    if ( v13 >= 3 )
     {
-      LODWORD(v76) = 3;
-      LODWORD(v75) = v37;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v75, v76) )
+      LODWORD(v31) = 3;
+      LODWORD(v30) = v13;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v30, v31) )
         __debugbreak();
     }
-    __asm { vmovss  xmm6, [rsp+rdi+108h+var_B8] }
-    v46 = v37 < 3;
-    v47 = v37 <= 3;
-    if ( v37 >= 3 )
+    v19 = (unsigned int)v33[v15];
+    if ( v13 >= 3 )
     {
-      LODWORD(v76) = 3;
-      LODWORD(v75) = v37;
-      v48 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v75, v76);
-      v46 = 0;
-      v47 = !v48;
-      if ( v48 )
+      LODWORD(v31) = 3;
+      LODWORD(v30) = v13;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 48, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v30, v31) )
         __debugbreak();
     }
-    __asm
+    v20 = rayDir->v[v15];
+    if ( COERCE_FLOAT(LODWORD(v20) & _xmm) <= 0.000099999997 )
     {
-      vmovss  xmm1, dword ptr [rdi+rsi]
-      vandps  xmm0, xmm1, xmm9
-      vcomiss xmm0, xmm12
-    }
-    if ( v47 )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm6, xmm13
-        vsubss  xmm1, xmm0, xmm7
-        vcomiss xmm1, xmm8
-      }
-      if ( !v47 )
+      if ( (float)(COERCE_FLOAT(v19 ^ _xmm) - v18) > 0.0 )
         break;
-      __asm
-      {
-        vsubss  xmm0, xmm7, xmm6
-        vcomiss xmm0, xmm8
-      }
+      v26 = (float)(v18 - *(float *)&v19) < 0.0;
     }
     else
     {
+      v21 = v19;
+      *(float *)&v21 = (float)(*(float *)&v19 - v18) * (float)(1.0 / v20);
+      _XMM3 = v21;
       __asm
       {
-        vdivss  xmm2, xmm14, xmm1
-        vsubss  xmm1, xmm6, xmm7
-        vaddss  xmm0, xmm6, xmm7
-        vmulss  xmm3, xmm1, xmm2
-        vmulss  xmm4, xmm0, xmm2
         vminss  xmm0, xmm3, xmm4
         vmaxss  xmm1, xmm3, xmm4
         vmaxss  xmm11, xmm0, xmm11
         vminss  xmm10, xmm1, xmm10
-        vcomiss xmm11, xmm10
       }
-      if ( !v47 )
+      if ( *(float *)&_XMM11 > *(float *)&_XMM10 )
         break;
-      __asm { vcomiss xmm10, xmm8 }
+      v26 = *(float *)&_XMM10 < 0.0;
     }
-    if ( v46 )
+    if ( v26 )
       break;
-    ++v37;
-    _RDI += 4i64;
-    v43 = v37 < 3;
-    if ( (int)v37 >= 3 )
+    ++v13;
+    ++v15;
+    v17 = v13 < 3;
+    if ( (int)v13 >= 3 )
     {
       __asm
       {
         vcmpltss xmm0, xmm8, xmm11
         vblendvps xmm0, xmm10, xmm11, xmm0
       }
-      goto LABEL_20;
+      return *(float *)&_XMM0;
     }
   }
-  __asm { vmovss  xmm0, cs:__real@bf800000 }
-LABEL_20:
-  _R11 = &v80;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+108h+var_98]
-  }
+  *(float *)&_XMM0 = FLOAT_N1_0;
   return *(float *)&_XMM0;
 }
 
@@ -595,934 +376,685 @@ SpartialPartition_Tree_Test::RunTest_Big
 signed __int64 SpartialPartition_Tree_Test::RunTest_Big()
 {
   signed __int64 result; 
-  void *v11; 
-  unsigned int v21; 
-  unsigned int v22; 
-  __int64 v26; 
-  unsigned int v27; 
-  unsigned int i; 
-  int v48; 
-  unsigned int v86; 
-  unsigned int v190; 
-  unsigned int v215; 
-  __int64 v254; 
-  unsigned int v287; 
-  unsigned int v288; 
-  unsigned int v289; 
-  unsigned int v290; 
-  unsigned int v291; 
-  unsigned int v297; 
-  bool v299; 
-  bool v300; 
-  bool v301; 
-  char v302; 
-  const vec3_t *v304; 
-  bool v307; 
-  char v308; 
-  int v326; 
-  int v327; 
-  unsigned int v328; 
-  bool v329; 
-  char v354; 
-  char v355; 
-  __int64 v356; 
-  __int64 v357; 
-  __int64 v358; 
-  __int64 v359; 
-  __int64 v360; 
-  SpatialPartition_Tree *v361; 
-  unsigned int v366; 
-  __int64 v378; 
-  char v379[26928]; 
-  char v390; 
+  void *v1; 
+  unsigned __int64 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  unsigned int v9; 
+  unsigned int v10; 
+  unsigned __int64 v11; 
+  __int64 v12; 
+  signed int i; 
+  unsigned int v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  __int64 v19; 
+  signed int j; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  unsigned int v26; 
+  float *v27; 
+  __int128 v31; 
+  __int128 v32; 
+  float v33; 
+  __int128 v34; 
+  float v35; 
+  bool v37; 
+  __int128 v40; 
+  unsigned int v41; 
+  __int128 v42; 
+  __int128 v43; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  float v58; 
+  float v59; 
+  float v60; 
+  float v61; 
+  float v62; 
+  float v63; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  float v71; 
+  __int64 v72; 
+  float v73; 
+  float v74; 
+  __int64 v75; 
+  float v76; 
+  float v77; 
+  unsigned int v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  float v82; 
+  float v83; 
+  float v84; 
+  float v85; 
+  float v86; 
+  float v87; 
+  float v88; 
+  unsigned int v89; 
+  __m128 v90; 
+  __int64 v92; 
+  __m128 v94; 
+  __int64 v96; 
+  unsigned int v97; 
+  __m128 v99; 
+  __int64 v101; 
+  __m128 v103; 
+  __int64 v105; 
+  __m128 v107; 
+  __int64 v109; 
+  __m128 v111; 
+  __int64 v113; 
+  __m128 v115; 
+  __int64 v117; 
+  __int64 v119; 
+  __m128 v120; 
+  __int64 v122; 
+  __int128 v131; 
+  __int128 v132; 
+  __int128 v133; 
+  __int128 v134; 
+  __int128 v135; 
+  __int128 v136; 
+  __int128 v137; 
+  __int128 v138; 
+  __int128 v140; 
+  __int128 v143; 
+  __int128 v146; 
+  unsigned int v147; 
+  unsigned int v148; 
+  unsigned int v149; 
+  unsigned int v150; 
+  unsigned int v151; 
+  float v153; 
+  unsigned int v154; 
+  float v155; 
+  char v156; 
+  float *v157; 
+  const vec3_t *v158; 
+  bool v159; 
+  float v160; 
+  int v170; 
+  double v171; 
+  int v172; 
+  signed int v173; 
+  float *v174; 
+  char v175; 
+  bool v176; 
+  char v177; 
+  __int64 v178; 
+  __int64 v179; 
+  __int64 v180; 
+  __int64 v181; 
+  __int64 v182; 
+  SpatialPartition_Tree *v183; 
+  unsigned int v184; 
+  __int64 v185; 
+  char v186[26928]; 
 
-  v11 = alloca(result);
-  __asm
-  {
-    vmovaps [rsp+6A58h+var_38], xmm6
-    vmovaps [rsp+6A58h+var_48], xmm7
-    vmovaps [rsp+6A58h+var_58], xmm8
-    vmovaps [rsp+6A58h+var_68], xmm9
-    vmovaps [rsp+6A58h+var_78], xmm10
-    vmovaps [rsp+6A58h+var_88], xmm11
-    vmovaps [rsp+6A58h+var_98], xmm12
-    vmovaps [rsp+6A58h+var_A8], xmm13
-    vmovaps [rsp+6A58h+var_B8], xmm14
-    vmovaps [rsp+6A58h+var_C8], xmm15
-  }
-  _RBP = (unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(_RBP + 26912) = (unsigned __int64)&v378 ^ _security_cookie;
-  __asm
-  {
-    vmovss  xmm13, cs:__real@3f800000
-    vmovss  xmm0, cs:__real@80000000
-    vmovss  xmm14, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm12, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm8, cs:__real@2f800000
-    vmovss  xmm7, cs:__real@447a0000
-    vmovss  xmm9, cs:__real@3dcccccd
-    vmovss  xmm15, cs:__real@34000000
-  }
+  v1 = alloca(result);
+  v2 = (unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(v2 + 26912) = (unsigned __int64)&v185 ^ _security_cookie;
+  v3 = LODWORD(FLOAT_1_0);
+  v4 = (unsigned int)_xmm;
+  v5 = FLOAT_2_3283064eN10;
+  v6 = FLOAT_1000_0;
+  v7 = FLOAT_0_1;
+  v8 = FLOAT_1_1920929eN7;
   LODWORD(result) = 0;
-  __asm
-  {
-    vmovss  dword ptr [rbp+20h], xmm13
-    vmovss  dword ptr [rbp+24h], xmm0
-  }
-  *(_DWORD *)(_RBP + 48) = 0;
+  *(const float *)(v2 + 32) = FLOAT_1_0;
+  *(const float *)(v2 + 36) = FLOAT_N0_0;
+  *(_DWORD *)(v2 + 48) = 0;
   do
   {
-    v21 = 233191843 - 597723754 * result;
-    v22 = v21 % 7 + 1;
-    *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C) = v22;
-    if ( v21 % 7 != -1 )
+    v9 = 233191843 - 597723754 * result;
+    v10 = v9 % 7 + 1;
+    *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C) = v10;
+    if ( v9 % 7 != -1 )
     {
-      __asm
-      {
-        vmovss  xmm15, cs:__real@447a0000
-        vmovss  xmm12, cs:__real@3c23d70a
-      }
-      _RSI = _RBP + 26732;
-      v26 = v22;
+      v11 = v2 + 26732;
+      v12 = v10;
       do
       {
-        v27 = 0;
-        do
+        for ( i = 0; (unsigned int)i < 3; ++i )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vmulss  xmm1, xmm0, xmm8
-            vmulss  xmm2, xmm1, xmm15
-            vsubss  xmm0, xmm13, xmm1
-            vmulss  xmm1, xmm0, xmm15
-            vxorps  xmm0, xmm0, xmm0
-            vsubss  xmm6, xmm2, xmm1
-          }
-          v21 = 1103515245 * (1103515245 * v21 + 12345) + 12345;
-          __asm
-          {
-            vcvtsi2ss xmm0, xmm0, rax
-            vmulss  xmm3, xmm0, xmm8
-            vsubss  xmm1, xmm13, xmm3
-            vmulss  xmm2, xmm1, xmm12
-            vmulss  xmm0, xmm3, xmm15
-            vaddss  xmm7, xmm2, xmm0
-          }
-          _RDI = (int)v27;
-          __asm
-          {
-            vsubss  xmm0, xmm6, xmm7
-            vmovss  dword ptr [rsi+rdi*4-0Ch], xmm0
-          }
-          ++v27;
-          __asm
-          {
-            vaddss  xmm0, xmm7, xmm6
-            vmovss  dword ptr [rsi+rdi*4], xmm0
-          }
+          v14 = 1103515245 * v9 + 12345;
+          v15 = (float)v14;
+          v16 = (float)((float)(v15 * v5) * 1000.0) - (float)((float)(*(float *)&v3 - (float)(v15 * v5)) * 1000.0);
+          v9 = 1103515245 * v14 + 12345;
+          v17 = (float)v9;
+          v18 = (float)((float)(*(float *)&v3 - (float)(v17 * v5)) * 0.0099999998) + (float)((float)(v17 * v5) * 1000.0);
+          v19 = i;
+          *(float *)(v11 + 4i64 * i - 12) = v16 - v18;
+          *(float *)(v11 + 4 * v19) = v18 + v16;
         }
-        while ( v27 < 3 );
-        _RSI += 24i64;
-        --v26;
+        v11 += 24i64;
+        --v12;
       }
-      while ( v26 );
-      __asm
-      {
-        vmovss  xmm15, cs:__real@34000000
-        vmovss  xmm7, cs:__real@447a0000
-        vmovss  xmm12, dword ptr cs:__xmm@80000000800000008000000080000000
-      }
+      while ( v12 );
+      v8 = FLOAT_1_1920929eN7;
+      v6 = FLOAT_1000_0;
+      v4 = (unsigned int)_xmm;
     }
-    *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38) = SpartialPartition_Tree_Test::MakeTree((SpartialPartition_Tree_Test::Tree_Buffer *)(_RBP + 18112), (const ExtentBounds *)(_RBP + 26720), v22);
-    *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2C) = 0;
+    *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38) = SpartialPartition_Tree_Test::MakeTree((SpartialPartition_Tree_Test::Tree_Buffer *)(v2 + 18112), (const ExtentBounds *)(v2 + 26720), v10);
+    *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2C) = 0;
     do
     {
-      for ( i = 0; i < 3; ++i )
+      for ( j = 0; (unsigned int)j < 3; ++j )
       {
         while ( 1 )
         {
-          __asm { vxorps  xmm0, xmm0, xmm0 }
-          v48 = 1103515245 * v21 + 12345;
-          __asm
+          v21 = (float)(1103515245 * v9 + 12345);
+          v22 = (float)((float)(v21 * v5) * v6) - (float)((float)(*(float *)&v3 - (float)(v21 * v5)) * v6);
+          v9 = 1103515245 * (1103515245 * v9 + 12345) + 12345;
+          v23 = (float)v9;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4i64 * j + 0xC0) = v22;
+          if ( (float)(v23 * v5) >= v7 )
           {
-            vcvtsi2ss xmm0, xmm0, rax
-            vmulss  xmm1, xmm0, xmm8
-            vmulss  xmm2, xmm1, xmm7
-            vsubss  xmm0, xmm13, xmm1
-            vmulss  xmm1, xmm0, xmm7
-            vsubss  xmm6, xmm2, xmm1
-            vxorps  xmm0, xmm0, xmm0
-          }
-          _RSI = (int)i;
-          v21 = 1103515245 * v48 + 12345;
-          __asm
-          {
-            vcvtsi2ss xmm0, xmm0, rax
-            vmulss  xmm1, xmm0, xmm8
-            vcomiss xmm1, xmm9
-            vmovss  dword ptr [rbp+rsi*4+0C0h], xmm6
-          }
-          if ( (unsigned int)(1103515245 * v48) < 0xFFFFCFC7 )
-          {
-            __asm { vxorps  xmm0, xmm0, xmm0 }
-            v21 = 1103515245 * v21 + 12345;
-            __asm
-            {
-              vcvtsi2ss xmm0, xmm0, rax
-              vmulss  xmm1, xmm0, xmm8
-              vmulss  xmm2, xmm1, xmm7
-              vsubss  xmm0, xmm13, xmm1
-              vmulss  xmm1, xmm0, xmm7
-              vsubss  xmm6, xmm2, xmm1
-            }
+            v9 = 1103515245 * v9 + 12345;
+            v25 = (float)v9;
+            v24 = (float)((float)(v25 * v5) * v6) - (float)((float)(*(float *)&v3 - (float)(v25 * v5)) * v6);
           }
           else
           {
-            __asm { vmovss  xmm6, dword ptr [rbp+rsi*4+0C0h] }
+            v24 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4i64 * j + 0xC0);
           }
-          __asm { vmovss  dword ptr [rbp+rsi*4+100h], xmm6 }
-          if ( !v22 )
+          v26 = 0;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4i64 * j + 0x100) = v24;
+          if ( !v10 )
             break;
-          _RDI = _RBP + 4i64 * (int)i + 26732;
-          __asm
+          v27 = (float *)(v2 + 4i64 * j + 26732);
+          while ( COERCE_FLOAT(COERCE_UNSIGNED_INT(*(v27 - 3) - *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4i64 * j + 0xC0)) & _xmm) > v8 && COERCE_FLOAT(COERCE_UNSIGNED_INT(*(v27 - 3) - *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4i64 * j + 0x100)) & _xmm) > v8 && COERCE_FLOAT(COERCE_UNSIGNED_INT(*v27 - *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4i64 * j + 0xC0)) & _xmm) > v8 && COERCE_FLOAT(COERCE_UNSIGNED_INT(*v27 - *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4i64 * j + 0x100)) & _xmm) > v8 )
           {
-            vmovss  xmm0, dword ptr [rdi-0Ch]
-            vsubss  xmm1, xmm0, dword ptr [rbp+rsi*4+0C0h]
-            vandps  xmm1, xmm1, xmm14
-            vcomiss xmm1, xmm15
+            ++v26;
+            v27 += 6;
+            if ( v26 >= v10 )
+              goto LABEL_20;
           }
         }
+LABEL_20:
+        ;
       }
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbp+100h]
-        vmovss  xmm6, dword ptr [rbp+0C0h]
-        vmovss  xmm8, dword ptr [rbp+104h]
-        vmovss  xmm9, dword ptr [rbp+0C4h]
-        vmovss  xmm10, dword ptr [rbp+108h]
-        vmovss  xmm11, dword ptr [rbp+0C8h]
-        vsubss  xmm7, xmm3, xmm6
-        vsubss  xmm4, xmm8, xmm9
-        vmulss  xmm1, xmm4, xmm4
-        vsubss  xmm5, xmm10, xmm11
-        vmulss  xmm0, xmm7, xmm7
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm1, xmm2, xmm2
-        vcomiss xmm1, cs:__real@3c23d70a
-        vmovss  dword ptr [rbp+0D0h], xmm7
-      }
-      *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v21;
-      *(_BYTE *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 2) = i > 3;
-      __asm
-      {
-        vmovss  dword ptr [rbp+0D4h], xmm4
-        vmovss  dword ptr [rbp+0D8h], xmm5
-      }
-      if ( i > 3 )
+      _XMM6 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC0);
+      _XMM9 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC4);
+      _XMM11 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC8);
+      v32 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100);
+      *(float *)&v32 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) - *(float *)&_XMM6;
+      v31 = v32;
+      v34 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x104);
+      v33 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x104) - *(float *)&_XMM9;
+      v35 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) - *(float *)&_XMM11;
+      *(float *)&v34 = fsqrt((float)((float)(v33 * v33) + (float)(*(float *)&v31 * *(float *)&v31)) + (float)(v35 * v35));
+      _XMM1 = v34;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xD0) = *(float *)&v31;
+      v37 = *(float *)&v34 > 0.0099999998;
+      *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v9;
+      *(_BYTE *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 2) = *(float *)&v34 > 0.0099999998;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xD4) = v33;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xD8) = v35;
+      if ( *(float *)&v34 > 0.0099999998 )
       {
         __asm
         {
           vcmpless xmm0, xmm1, dword ptr [rbp+24h]
           vblendvps xmm0, xmm1, xmm13, xmm0
-          vdivss  xmm1, xmm13, xmm0
-          vmulss  xmm7, xmm1, xmm7
-          vmulss  xmm4, xmm1, xmm4
-          vmulss  xmm5, xmm1, xmm5
-          vmovss  dword ptr [rbp+0D0h], xmm7
-          vmovss  dword ptr [rbp+0D4h], xmm4
-          vmovss  dword ptr [rbp+0D8h], xmm5
         }
+        v40 = v3;
+        *(float *)&v40 = (float)(*(float *)&v3 / *(float *)&_XMM0) * *(float *)&v31;
+        v31 = v40;
+        v33 = (float)(*(float *)&v3 / *(float *)&_XMM0) * v33;
+        v35 = (float)(*(float *)&v3 / *(float *)&_XMM0) * v35;
+        *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xD0) = *(float *)&v40;
+        *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xD4) = v33;
+        *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xD8) = v35;
       }
-      v86 = 0;
-      if ( i > 3 )
+      v41 = 0;
+      if ( v37 )
       {
-        __asm
+        v42 = v31 ^ v4;
+        v43 = v42;
+        *(float *)&v43 = fsqrt((float)(*(float *)&v42 * *(float *)&v42) + (float)(v33 * v33));
+        _XMM2 = v43;
+        if ( *(float *)&v43 > 0.0099999998 )
         {
-          vxorps  xmm12, xmm7, xmm12
-          vmulss  xmm1, xmm12, xmm12
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm2, xmm1, xmm1
-          vcomiss xmm2, cs:__real@3c23d70a
-          vcmpless xmm0, xmm2, dword ptr [rbp+24h]
-          vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-          vblendvps xmm0, xmm2, xmm13, xmm0
-          vdivss  xmm1, xmm13, xmm0
-          vmulss  xmm2, xmm1, xmm4
-          vmulss  xmm3, xmm1, xmm12
-          vmulss  xmm1, xmm2, xmm4
-          vmulss  xmm0, xmm2, xmm5
-          vmulss  xmm6, xmm3, xmm5
-          vxorps  xmm5, xmm0, xmm9
-          vmulss  xmm0, xmm3, xmm7
-          vsubss  xmm4, xmm1, xmm0
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm5, xmm5
-          vmulss  xmm2, xmm6, xmm6
-          vaddss  xmm3, xmm2, xmm0
-          vmovss  dword ptr [rbp+118h], xmm4
-          vaddss  xmm2, xmm3, xmm1
-          vsqrtss xmm0, xmm2, xmm2
-          vsubss  xmm4, xmm0, xmm13
-          vandps  xmm4, xmm4, xmm14
-          vcomiss xmm4, cs:__real@3c23d70a
-          vmovss  dword ptr [rbp+110h], xmm6
-          vmovss  dword ptr [rbp+114h], xmm5
-        }
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree_test.cpp", 496, ASSERT_TYPE_ASSERT, "(fabsf( Vec3Length( localUp ) - 1.0f ) < 0.01f)", (const char *)&queryFormat, "fabsf( Vec3Length( localUp ) - 1.0f ) < 0.01f") )
-          __debugbreak();
-        __asm
-        {
-          vmovss  xmm8, cs:__real@2f800000
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm3, xmm0, xmm8
-          vmulss  xmm0, xmm3, cs:__real@3f860a92
-          vsubss  xmm1, xmm13, xmm3
-          vmulss  xmm2, xmm1, cs:__real@3c8efa35
-          vaddss  xmm6, xmm2, xmm0
-          vmovaps xmm3, xmm6; degrees
-        }
-        RotatePointAroundVector((vec3_t *)(_RBP + 448), (const vec3_t *)(_RBP + 272), (const vec3_t *)(_RBP + 208), *(float *)&_XMM3);
-        __asm { vxorps  xmm3, xmm6, xmm9; degrees }
-        RotatePointAroundVector((vec3_t *)(_RBP + 432), (const vec3_t *)(_RBP + 272), (const vec3_t *)(_RBP + 208), *(float *)&_XMM3);
-        __asm
-        {
-          vmovss  xmm5, dword ptr [rbp+20h]
-          vmovss  xmm13, dword ptr [rbp+114h]
-          vmovss  xmm12, dword ptr [rbp+118h]
-          vmovss  xmm11, dword ptr [rbp+110h]
-          vmulss  xmm1, xmm13, dword ptr [rbp+1C8h]
-          vmulss  xmm0, xmm12, dword ptr [rbp+1C4h]
-          vmulss  xmm2, xmm12, dword ptr [rbp+1C0h]
-          vmulss  xmm3, xmm11, dword ptr [rbp+1B8h]
-          vsubss  xmm1, xmm1, xmm0
-          vmulss  xmm0, xmm11, dword ptr [rbp+1C8h]
-          vmovss  dword ptr [rbp+1A0h], xmm1
-          vsubss  xmm1, xmm2, xmm0
-          vmulss  xmm2, xmm11, dword ptr [rbp+1C4h]
-          vmulss  xmm0, xmm13, dword ptr [rbp+1C0h]
-          vmovss  dword ptr [rbp+1A4h], xmm1
-          vsubss  xmm1, xmm2, xmm0
-          vmulss  xmm2, xmm12, dword ptr [rbp+1B4h]
-          vmulss  xmm0, xmm13, dword ptr [rbp+1B8h]
-          vmovss  dword ptr [rbp+1A8h], xmm1
-          vsubss  xmm1, xmm2, xmm0
-          vmulss  xmm0, xmm12, dword ptr [rbp+1B0h]
-          vmulss  xmm2, xmm13, dword ptr [rbp+1B0h]
-          vmovss  dword ptr [rbp+180h], xmm1
-          vsubss  xmm1, xmm3, xmm0
-          vmulss  xmm0, xmm11, dword ptr [rbp+1B4h]
-          vmovss  dword ptr [rbp+184h], xmm1
-          vsubss  xmm1, xmm2, xmm0
-          vxorps  xmm0, xmm0, xmm0
-          vmovss  dword ptr [rbp+188h], xmm1
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm2, xmm0, xmm8
-          vmulss  xmm0, xmm2, cs:__real@437a0000
-          vsubss  xmm1, xmm5, xmm2
-          vaddss  xmm7, xmm1, xmm0
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm2, xmm0, xmm8
-          vsubss  xmm1, xmm5, xmm2
-          vaddss  xmm0, xmm7, xmm5
-          vmulss  xmm3, xmm1, xmm0
-          vaddss  xmm1, xmm7, cs:__real@447a0000
-          vmulss  xmm2, xmm1, xmm2
-          vxorps  xmm0, xmm0, xmm0
-          vaddss  xmm6, xmm3, xmm2
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm2, xmm0, xmm8
-          vmulss  xmm0, xmm2, cs:__real@447a0000
-          vsubss  xmm1, xmm5, xmm2
-          vmovss  xmm5, dword ptr [rbp+0D0h]
-          vmulss  xmm2, xmm7, xmm5
-          vaddss  xmm10, xmm1, xmm0
-          vmovss  xmm9, dword ptr [rbp+0C0h]
-          vmovss  xmm8, dword ptr [rbp+0C4h]
-          vmovss  xmm3, dword ptr [rbp+0D8h]
-          vmovss  xmm4, dword ptr [rbp+0D4h]
-          vaddss  xmm0, xmm2, xmm9
-          vmovss  dword ptr [rbp+170h], xmm0
-          vmulss  xmm1, xmm4, xmm7
-          vaddss  xmm0, xmm1, xmm8
-          vmovss  dword ptr [rbp+174h], xmm0
-          vmulss  xmm1, xmm3, xmm7
-          vmovss  xmm7, dword ptr [rbp+0C8h]
-          vaddss  xmm0, xmm1, xmm7
-          vmovss  dword ptr [rbp+178h], xmm0
-          vmulss  xmm1, xmm6, xmm5
-          vaddss  xmm2, xmm1, xmm9
-          vmovss  dword ptr [rbp+190h], xmm2
-          vmulss  xmm2, xmm3, xmm6
-          vmulss  xmm0, xmm4, xmm6
-          vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-          vaddss  xmm1, xmm0, xmm8
-          vaddss  xmm0, xmm2, xmm7
-          vmovss  dword ptr [rbp+198h], xmm0
-          vmovss  dword ptr [rbp+194h], xmm1
-          vxorps  xmm1, xmm5, xmm6
-          vmovss  dword ptr [rbp+160h], xmm1
-          vxorps  xmm1, xmm3, xmm6
-          vmovss  dword ptr [rbp+168h], xmm1
-          vxorps  xmm3, xmm10, xmm6
-          vxorps  xmm0, xmm4, xmm6
-          vmovss  dword ptr [rbp+164h], xmm0
-          vmulss  xmm0, xmm11, xmm10
-          vaddss  xmm2, xmm0, xmm9
-        }
-        v190 = 1103515245 * (1103515245 * (1103515245 * (1103515245 * (1103515245 * v21 + 12345) + 12345) + 12345) + 12345) + 12345;
-        __asm
-        {
-          vmovss  dword ptr [rbp+1E0h], xmm2
-          vmulss  xmm1, xmm13, xmm10
-          vaddss  xmm0, xmm1, xmm8
-          vmovss  dword ptr [rbp+1E4h], xmm0
-          vmulss  xmm2, xmm12, xmm10
-          vaddss  xmm1, xmm2, xmm7
-          vmovss  dword ptr [rbp+1E8h], xmm1
-          vmulss  xmm0, xmm3, xmm11
-          vaddss  xmm1, xmm0, xmm9
-          vmulss  xmm2, xmm3, xmm13
-          vaddss  xmm0, xmm2, xmm8
-          vmovss  dword ptr [rbp+154h], xmm0
-          vmovss  dword ptr [rbp+150h], xmm1
-          vxorps  xmm0, xmm11, xmm6
-          vmulss  xmm1, xmm3, xmm12
-          vaddss  xmm2, xmm1, xmm7
-          vmovss  dword ptr [rbp+1D0h], xmm0
-          vxorps  xmm0, xmm12, xmm6
-          vxorps  xmm1, xmm13, xmm6
-          vmovss  dword ptr [rbp+1D8h], xmm0
-          vmovss  dword ptr [rbp+158h], xmm2
-          vmovss  dword ptr [rbp+1D4h], xmm1
-        }
-        if ( v190 % 5 )
-        {
-          do
+          __asm
           {
-            _RAX = PlaneFromPoint((vec4_t *)(_RBP + 144), (const vec3_t *)(_RBP + 192), (const vec3_t *)(_RBP + 208));
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [rbp+0E0h], xmm0
-              vmovups xmm1, xmmword ptr [rbp+0E0h]
-            }
-            _RAX = v86++;
-            _RAX *= 2i64;
-            __asm
-            {
-              vshufps xmm0, xmm0, xmm0, 0FFh
-              vxorps  xmm0, xmm0, xmm6
-              vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-              vmovups xmmword ptr [rbp+0E0h], xmm1
-              vmovups xmmword ptr [rbp+rax*8+6760h], xmm1
-            }
+            vcmpless xmm0, xmm2, dword ptr [rbp+24h]
+            vblendvps xmm0, xmm2, xmm13, xmm0
           }
-          while ( v86 < v190 % 5 );
-        }
-        _RAX = PlaneFromPoint((vec4_t *)(_RBP + 128), (const vec3_t *)(_RBP + 192), (const vec3_t *)(_RBP + 416));
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rbp+0E0h], xmm0
-          vmovups xmm1, xmmword ptr [rbp+0E0h]
-        }
-        _RAX = v86;
-        v215 = v86 + 1;
-        __asm { vshufps xmm0, xmm0, xmm0, 0FFh }
-        _RAX *= 2i64;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm6
-          vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-          vmovups xmmword ptr [rbp+0E0h], xmm1
-          vmovups xmmword ptr [rbp+rax*8+6760h], xmm1
-        }
-        _RAX = PlaneFromPoint((vec4_t *)(_RBP + 64), (const vec3_t *)(_RBP + 192), (const vec3_t *)(_RBP + 384));
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rbp+0E0h], xmm0
-          vmovups xmm1, xmmword ptr [rbp+0E0h]
-        }
-        _RAX = v215++;
-        __asm { vshufps xmm0, xmm0, xmm0, 0FFh }
-        _RAX *= 2i64;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm6
-          vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-          vmovups xmmword ptr [rbp+0E0h], xmm1
-          vmovups xmmword ptr [rbp+rax*8+6760h], xmm1
-        }
-        _RAX = PlaneFromPoint((vec4_t *)(_RBP + 112), (const vec3_t *)(_RBP + 368), (const vec3_t *)(_RBP + 208));
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rbp+0E0h], xmm0
-          vmovups xmm1, xmmword ptr [rbp+0E0h]
-        }
-        _RAX = v215++;
-        __asm { vshufps xmm0, xmm0, xmm0, 0FFh }
-        _RAX *= 2i64;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm6
-          vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-          vmovups xmmword ptr [rbp+0E0h], xmm1
-          vmovups xmmword ptr [rbp+rax*8+6760h], xmm1
-        }
-        _RAX = PlaneFromPoint((vec4_t *)(_RBP + 96), (const vec3_t *)(_RBP + 400), (const vec3_t *)(_RBP + 352));
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rbp+0E0h], xmm0
-          vmovups xmm1, xmmword ptr [rbp+0E0h]
-        }
-        _RAX = v215++;
-        __asm { vshufps xmm0, xmm0, xmm0, 0FFh }
-        _RAX *= 2i64;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm6
-          vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-          vmovups xmmword ptr [rbp+0E0h], xmm1
-          vmovups xmmword ptr [rbp+rax*8+6760h], xmm1
-        }
-        _RAX = PlaneFromPoint((vec4_t *)(_RBP + 80), (const vec3_t *)(_RBP + 480), (const vec3_t *)(_RBP + 464));
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rbp+0E0h], xmm0
-          vmovups xmm1, xmmword ptr [rbp+0E0h]
-        }
-        _RAX = v215++;
-        __asm { vshufps xmm0, xmm0, xmm0, 0FFh }
-        _RAX *= 2i64;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm6
-          vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-          vmovups xmmword ptr [rbp+0E0h], xmm1
-          vmovups xmmword ptr [rbp+rax*8+6760h], xmm1
-        }
-        _RAX = PlaneFromPoint((vec4_t *)(_RBP + 160), (const vec3_t *)(_RBP + 336), (const vec3_t *)(_RBP + 272));
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovups xmmword ptr [rbp+0E0h], xmm0
-          vmovups xmm1, xmmword ptr [rbp+0E0h]
-        }
-        _RAX = v215;
-        v86 = v215 + 1;
-        _RAX *= 2i64;
-        __asm
-        {
-          vshufps xmm0, xmm0, xmm0, 0FFh
-          vxorps  xmm0, xmm0, xmm6
-          vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-          vmovups xmmword ptr [rbp+rax*8+6760h], xmm1
-        }
-        v21 = 1103515245 * v190 + 12345;
-        *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v21;
-        __asm { vmovups xmmword ptr [rbp+0E0h], xmm1 }
-        if ( v21 % 5 )
-        {
-          v254 = v21 % 5;
-          do
+          v47 = (float)(*(float *)&v3 / *(float *)&_XMM0) * v33;
+          v48 = (float)(*(float *)&v3 / *(float *)&_XMM0) * *(float *)&v42;
+          v49 = v48 * v35;
+          LODWORD(v50) = COERCE_UNSIGNED_INT(v47 * v35) ^ _xmm;
+          v51 = (float)(v47 * v33) - (float)(v48 * *(float *)&v31);
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = v51;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = v49;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x114) = v50;
+          if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(fsqrt((float)((float)(v49 * v49) + (float)(v50 * v50)) + (float)(v51 * v51)) - *(float *)&v3) & _xmm) >= 0.0099999998 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree_test.cpp", 496, ASSERT_TYPE_ASSERT, "(fabsf( Vec3Length( localUp ) - 1.0f ) < 0.01f)", (const char *)&queryFormat, "fabsf( Vec3Length( localUp ) - 1.0f ) < 0.01f") )
+            __debugbreak();
+          v52 = (float)(1103515245 * v9 + 12345);
+          v53 = (float)((float)(*(float *)&v3 - (float)(v52 * 2.3283064e-10)) * 0.017453292) + (float)((float)(v52 * 2.3283064e-10) * 1.0471976);
+          RotatePointAroundVector((vec3_t *)(v2 + 448), (const vec3_t *)(v2 + 272), (const vec3_t *)(v2 + 208), v53);
+          RotatePointAroundVector((vec3_t *)(v2 + 432), (const vec3_t *)(v2 + 272), (const vec3_t *)(v2 + 208), COERCE_FLOAT(LODWORD(v53) ^ _xmm));
+          v54 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
+          v55 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x114);
+          v56 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118);
+          v57 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110);
+          v58 = v56 * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0);
+          v59 = v57 * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1B8);
+          v60 = v57 * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8);
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1A0) = (float)(v55 * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C8)) - (float)(v56 * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C4));
+          v61 = v58 - v60;
+          v62 = v57 * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C4);
+          v63 = v55 * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C0);
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1A4) = v61;
+          v64 = v62 - v63;
+          v65 = v56 * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1B4);
+          v66 = v55 * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1B8);
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1A8) = v64;
+          v67 = v65 - v66;
+          v68 = v56 * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1B0);
+          v69 = v55 * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1B0);
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x180) = v67;
+          v70 = v59 - v68;
+          v71 = v57 * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1B4);
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x184) = v70;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x188) = v69 - v71;
+          v72 = 1103515245 * (1103515245 * v9 + 12345) + 12345;
+          v73 = (float)v72;
+          v74 = (float)(v54 - (float)(v73 * 2.3283064e-10)) + (float)((float)(v73 * 2.3283064e-10) * 250.0);
+          v75 = (unsigned int)(1103515245 * v72 + 12345);
+          v76 = (float)v75;
+          v77 = (float)((float)(v54 - (float)(v76 * 2.3283064e-10)) * (float)(v74 + v54)) + (float)((float)(v74 + 1000.0) * (float)(v76 * 2.3283064e-10));
+          v78 = 1103515245 * v75 + 12345;
+          v79 = (float)v78;
+          v80 = v54 - (float)(v79 * 2.3283064e-10);
+          v81 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xD0);
+          v82 = v80 + (float)((float)(v79 * 2.3283064e-10) * 1000.0);
+          v83 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC0);
+          v84 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC4);
+          v85 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xD8);
+          v86 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xD4);
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x170) = (float)(v74 * v81) + v83;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x174) = (float)(v86 * v74) + v84;
+          v87 = v85 * v74;
+          v88 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC8);
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x178) = v87 + v88;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x190) = (float)(v77 * v81) + v83;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x198) = (float)(v85 * v77) + v88;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x194) = (float)(v86 * v77) + v84;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x160) = COERCE_FLOAT(LODWORD(v81) ^ _xmm);
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x168) = COERCE_FLOAT(LODWORD(v85) ^ _xmm);
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x164) = COERCE_FLOAT(LODWORD(v86) ^ _xmm);
+          v89 = 1103515245 * v78 + 12345;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1E0) = (float)(v57 * v82) + v83;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1E4) = (float)(v55 * v82) + v84;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1E8) = (float)(v56 * v82) + v88;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x154) = (float)(COERCE_FLOAT(LODWORD(v82) ^ _xmm) * v55) + v84;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x150) = (float)(COERCE_FLOAT(LODWORD(v82) ^ _xmm) * v57) + v83;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D0) = COERCE_FLOAT(LODWORD(v57) ^ _xmm);
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D8) = COERCE_FLOAT(LODWORD(v56) ^ _xmm);
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x158) = (float)(COERCE_FLOAT(LODWORD(v82) ^ _xmm) * v56) + v88;
+          *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1D4) = COERCE_FLOAT(LODWORD(v55) ^ _xmm);
+          if ( v89 % 5 )
           {
-            _RAX = PlaneFromPoint((vec4_t *)(_RBP + 176), (const vec3_t *)(_RBP + 192), (const vec3_t *)(_RBP + 208));
-            __asm
+            do
             {
-              vmovups xmm0, xmmword ptr [rax]
-              vmovups xmmword ptr [rbp+0E0h], xmm0
-              vmovups xmm1, xmmword ptr [rbp+0E0h]
+              v90 = *(__m128 *)PlaneFromPoint((vec4_t *)(v2 + 144), (const vec3_t *)(v2 + 192), (const vec3_t *)(v2 + 208));
+              *(__m128 *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = v90;
+              _XMM1 = *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0);
+              v92 = v41++;
+              _mm_shuffle_ps(v90, v90, 255);
+              __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+              *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = _XMM1;
+              *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 16 * v92 + 0x6760) = _XMM1;
             }
-            _RAX = v86++;
-            _RAX *= 2i64;
-            __asm
-            {
-              vshufps xmm0, xmm0, xmm0, 0FFh
-              vxorps  xmm0, xmm0, xmm6
-              vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-              vmovups xmmword ptr [rbp+0E0h], xmm1
-              vmovups xmmword ptr [rbp+rax*8+6760h], xmm1
-            }
-            --v254;
+            while ( v41 < v89 % 5 );
           }
-          while ( v254 );
-        }
-        if ( v86 > 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree_test.cpp", 538, ASSERT_TYPE_ASSERT, "(numFrustumPlanes <= ( sizeof( *array_counter( frustumPlanes ) ) + 0 ))", (const char *)&queryFormat, "numFrustumPlanes <= ARRAY_COUNT( frustumPlanes )") )
-          __debugbreak();
-        __asm
-        {
-          vmovss  xmm11, dword ptr [rbp+0C8h]
-          vmovss  xmm9, dword ptr [rbp+0C4h]
-          vmovss  xmm6, dword ptr [rbp+0C0h]
-          vmovss  xmm10, dword ptr [rbp+108h]
-          vmovss  xmm8, dword ptr [rbp+104h]
-          vmovss  xmm3, dword ptr [rbp+100h]
+          v94 = *(__m128 *)PlaneFromPoint((vec4_t *)(v2 + 128), (const vec3_t *)(v2 + 192), (const vec3_t *)(v2 + 416));
+          *(__m128 *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = v94;
+          _XMM1 = *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0);
+          v96 = v41;
+          v97 = v41 + 1;
+          _mm_shuffle_ps(v94, v94, 255);
+          __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+          *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = _XMM1;
+          *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 16 * v96 + 0x6760) = _XMM1;
+          v99 = *(__m128 *)PlaneFromPoint((vec4_t *)(v2 + 64), (const vec3_t *)(v2 + 192), (const vec3_t *)(v2 + 384));
+          *(__m128 *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = v99;
+          _XMM1 = *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0);
+          v101 = v97++;
+          _mm_shuffle_ps(v99, v99, 255);
+          __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+          *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = _XMM1;
+          *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 16 * v101 + 0x6760) = _XMM1;
+          v103 = *(__m128 *)PlaneFromPoint((vec4_t *)(v2 + 112), (const vec3_t *)(v2 + 368), (const vec3_t *)(v2 + 208));
+          *(__m128 *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = v103;
+          _XMM1 = *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0);
+          v105 = v97++;
+          _mm_shuffle_ps(v103, v103, 255);
+          __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+          *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = _XMM1;
+          *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 16 * v105 + 0x6760) = _XMM1;
+          v107 = *(__m128 *)PlaneFromPoint((vec4_t *)(v2 + 96), (const vec3_t *)(v2 + 400), (const vec3_t *)(v2 + 352));
+          *(__m128 *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = v107;
+          _XMM1 = *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0);
+          v109 = v97++;
+          _mm_shuffle_ps(v107, v107, 255);
+          __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+          *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = _XMM1;
+          *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 16 * v109 + 0x6760) = _XMM1;
+          v111 = *(__m128 *)PlaneFromPoint((vec4_t *)(v2 + 80), (const vec3_t *)(v2 + 480), (const vec3_t *)(v2 + 464));
+          *(__m128 *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = v111;
+          _XMM1 = *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0);
+          v113 = v97++;
+          _mm_shuffle_ps(v111, v111, 255);
+          __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+          *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = _XMM1;
+          *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 16 * v113 + 0x6760) = _XMM1;
+          v115 = *(__m128 *)PlaneFromPoint((vec4_t *)(v2 + 160), (const vec3_t *)(v2 + 336), (const vec3_t *)(v2 + 272));
+          *(__m128 *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = v115;
+          _XMM1 = *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0);
+          v117 = v97;
+          v41 = v97 + 1;
+          _mm_shuffle_ps(v115, v115, 255);
+          __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+          *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 16 * v117 + 0x6760) = _XMM1;
+          v9 = 1103515245 * v89 + 12345;
+          *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = v9;
+          *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = _XMM1;
+          if ( v9 % 5 )
+          {
+            v119 = v9 % 5;
+            do
+            {
+              v120 = *(__m128 *)PlaneFromPoint((vec4_t *)(v2 + 176), (const vec3_t *)(v2 + 192), (const vec3_t *)(v2 + 208));
+              *(__m128 *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = v120;
+              _XMM1 = *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0);
+              v122 = v41++;
+              _mm_shuffle_ps(v120, v120, 255);
+              __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+              *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = _XMM1;
+              *(_OWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 16 * v122 + 0x6760) = _XMM1;
+              --v119;
+            }
+            while ( v119 );
+          }
+          if ( v41 > 0x10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree_test.cpp", 538, ASSERT_TYPE_ASSERT, "(numFrustumPlanes <= ( sizeof( *array_counter( frustumPlanes ) ) + 0 ))", (const char *)&queryFormat, "numFrustumPlanes <= ARRAY_COUNT( frustumPlanes )") )
+            __debugbreak();
+          _XMM11 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC8);
+          _XMM9 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC4);
+          _XMM6 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC0);
         }
       }
       __asm
       {
-        vmovss  xmm4, cs:__real@3f000000
         vminss  xmm13, xmm6, xmm3
         vmaxss  xmm12, xmm6, xmm3
         vminss  xmm7, xmm9, xmm8
         vmaxss  xmm6, xmm11, xmm10
         vmaxss  xmm9, xmm9, xmm8
         vminss  xmm0, xmm11, xmm10
-        vmovss  dword ptr [rbp+128h], xmm0
-        vminss  xmm8, xmm11, xmm10
-        vaddss  xmm0, xmm13, xmm12
-        vmulss  xmm2, xmm0, xmm4
-        vaddss  xmm0, xmm8, xmm6
-        vaddss  xmm1, xmm9, xmm7
-        vmulss  xmm3, xmm1, xmm4
-        vmulss  xmm4, xmm0, xmm4
-        vsubss  xmm0, xmm12, xmm2
-        vsubss  xmm1, xmm2, xmm13
-        vmaxss  xmm5, xmm1, xmm0
-        vsubss  xmm1, xmm3, xmm7
-        vsubss  xmm0, xmm9, xmm3
-        vmovss  dword ptr [rbp+138h], xmm2
-        vmaxss  xmm2, xmm1, xmm0
-        vsubss  xmm0, xmm6, xmm4
-        vsubss  xmm1, xmm4, xmm8
       }
-      v287 = 0;
-      v288 = 0;
-      v289 = 0;
-      *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = 0;
-      v290 = 0;
-      *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x14) = 0;
-      v291 = 0;
-      *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 0;
-      __asm
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128) = *(float *)&_XMM0;
+      __asm { vminss  xmm8, xmm11, xmm10 }
+      v131 = _XMM13;
+      *(float *)&v131 = (float)(*(float *)&_XMM13 + *(float *)&_XMM12) * 0.5;
+      v132 = v131;
+      v134 = _XMM8;
+      *(float *)&v134 = *(float *)&_XMM8 + *(float *)&_XMM6;
+      v133 = v134;
+      v135 = _XMM9;
+      *(float *)&v135 = (float)(*(float *)&_XMM9 + *(float *)&_XMM7) * 0.5;
+      v136 = v135;
+      v138 = v133;
+      *(float *)&v138 = *(float *)&v133 * 0.5;
+      v137 = v138;
+      v140 = v132;
+      *(float *)&v140 = *(float *)&v132 - *(float *)&_XMM13;
+      _XMM1 = v140;
+      __asm { vmaxss  xmm5, xmm1, xmm0 }
+      v143 = v136;
+      *(float *)&v143 = *(float *)&v136 - *(float *)&_XMM7;
+      _XMM1 = v143;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138) = *(float *)&v132;
+      __asm { vmaxss  xmm2, xmm1, xmm0 }
+      v146 = v137;
+      *(float *)&v146 = *(float *)&v137 - *(float *)&_XMM8;
+      _XMM1 = v146;
+      v147 = 0;
+      v148 = 0;
+      v149 = 0;
+      *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = 0;
+      v150 = 0;
+      *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x14) = 0;
+      v151 = 0;
+      *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 0;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x13C) = *(float *)&v136;
+      __asm { vmaxss  xmm3, xmm1, xmm0 }
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x148) = *(float *)&_XMM2;
+      v153 = (float)((float)(*(float *)&_XMM5 * *(float *)&_XMM5) + (float)(*(float *)&_XMM2 * *(float *)&_XMM2)) + (float)(*(float *)&_XMM3 * *(float *)&_XMM3);
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x134) = *(float *)&_XMM6;
+      v154 = 0;
+      *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = 0;
+      v155 = fsqrt(v153);
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x34) = v155;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x120) = *(float *)&_XMM13;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x124) = *(float *)&_XMM7;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x12C) = *(float *)&_XMM12;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130) = *(float *)&_XMM9;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x140) = *(float *)&v137;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x144) = *(float *)&_XMM5;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x14C) = *(float *)&_XMM3;
+      *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28) = v153;
+      *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = 0;
+      if ( *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C) )
       {
-        vmovss  dword ptr [rbp+13Ch], xmm3
-        vmaxss  xmm3, xmm1, xmm0
-        vmulss  xmm1, xmm5, xmm5
-        vmulss  xmm0, xmm2, xmm2
-        vmovss  dword ptr [rbp+148h], xmm2
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm10, xmm2, xmm1
-        vmovss  dword ptr [rbp+134h], xmm6
-      }
-      v297 = 0;
-      *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = 0;
-      __asm
-      {
-        vsqrtss xmm6, xmm10, xmm10
-        vmovss  dword ptr [rbp+34h], xmm6
-        vmovss  dword ptr [rbp+120h], xmm13
-        vmovss  dword ptr [rbp+124h], xmm7
-        vmovss  dword ptr [rbp+12Ch], xmm12
-        vmovss  dword ptr [rbp+130h], xmm9
-        vmovss  dword ptr [rbp+140h], xmm4
-        vmovss  dword ptr [rbp+144h], xmm5
-        vmovss  dword ptr [rbp+14Ch], xmm3
-        vmovss  dword ptr [rbp+28h], xmm10
-      }
-      *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = 0;
-      v299 = 0;
-      v300 = *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C) == 0;
-      v301 = v300;
-      if ( *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C) )
-      {
-        v302 = *(_BYTE *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 2);
-        _RBX = _RBP + 26736;
-        v304 = (const vec3_t *)(_RBP + 26720);
-        __asm { vmovaps xmm15, xmm7 }
+        v156 = *(_BYTE *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 2);
+        v157 = (float *)(v2 + 26736);
+        v158 = (const vec3_t *)(v2 + 26720);
         while ( 1 )
         {
-          __asm
+          if ( *(v157 - 4) <= *(float *)&_XMM12 )
           {
-            vmovss  xmm6, dword ptr [rbx-10h]
-            vcomiss xmm6, xmm12
-          }
-          if ( v301 )
-          {
-            __asm { vcomiss xmm9, dword ptr [rbx-0Ch] }
-            if ( v299 )
+            if ( *(float *)&_XMM9 >= *(v157 - 3) )
             {
-              v307 = 0;
+              if ( *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x134) >= *(v157 - 2) )
+                v159 = *(float *)&_XMM13 <= *(v157 - 1) && *(float *)&_XMM7 <= *v157 && *(float *)&_XMM8 <= v157[1];
+              else
+                v159 = 0;
             }
             else
             {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rbp+134h]
-                vcomiss xmm0, dword ptr [rbx-8]
-              }
-              if ( v299 )
-              {
-                v307 = 0;
-              }
-              else
-              {
-                __asm
-                {
-                  vcomiss xmm13, dword ptr [rbx-4]
-                  vcomiss xmm15, dword ptr [rbx]
-                  vcomiss xmm8, dword ptr [rbx+4]
-                }
-                v307 = v299 || v300;
-              }
+              v159 = 0;
             }
           }
           else
           {
-            v307 = 0;
+            v159 = 0;
           }
-          *(_BYTE *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 3) = SpartialPartition_Tree_Test::SegmentAABBIntersection((const vec3_t *)(_RBP + 192), (const vec3_t *)(_RBP + 256), v304, v304 + 1);
-          v308 = 0;
-          if ( !v302 )
-            goto LABEL_41;
-          *(float *)&_XMM0 = SpartialPartition_Tree_Test::RayAABBIntersect((const vec3_t *)(_RBP + 192), (const vec3_t *)(_RBP + 208), v304, v304 + 1);
-          __asm { vcomiss xmm0, cs:__real@00000000 }
-          *(_BYTE *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 1) = 1;
-          if ( v308 )
-LABEL_41:
-            *(_BYTE *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 1) = 0;
+          *(_BYTE *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 3) = SpartialPartition_Tree_Test::SegmentAABBIntersection((const vec3_t *)(v2 + 192), (const vec3_t *)(v2 + 256), v158, v158 + 1);
+          if ( !v156 || (v160 = SpartialPartition_Tree_Test::RayAABBIntersect((const vec3_t *)(v2 + 192), (const vec3_t *)(v2 + 208), v158, v158 + 1), *(_BYTE *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 1) = 1, v160 < 0.0) )
+            *(_BYTE *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 1) = 0;
+          _XMM0 = *((unsigned int *)v157 - 1);
           __asm
           {
-            vmovss  xmm0, dword ptr [rbx-4]
             vminss  xmm0, xmm0, dword ptr [rbp+138h]
             vmaxss  xmm3, xmm0, xmm6
-            vmovss  xmm6, dword ptr [rbp+13Ch]
-            vmovss  xmm0, dword ptr [rbx+4]
+          }
+          _XMM6 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x13C);
+          _XMM0 = *((unsigned int *)v157 + 1);
+          __asm
+          {
             vminss  xmm1, xmm6, dword ptr [rbx]
             vminss  xmm0, xmm0, dword ptr [rbp+140h]
             vmaxss  xmm2, xmm0, dword ptr [rbx-8]
-            vsubss  xmm4, xmm2, dword ptr [rbp+140h]
             vmaxss  xmm5, xmm1, dword ptr [rbx-0Ch]
-            vsubss  xmm3, xmm3, dword ptr [rbp+138h]
-            vsubss  xmm1, xmm5, xmm6
-            vmulss  xmm2, xmm1, xmm1
-            vmulss  xmm0, xmm3, xmm3
-            vaddss  xmm3, xmm2, xmm0
-            vmulss  xmm1, xmm4, xmm4
-            vaddss  xmm2, xmm3, xmm1
-            vcomiss xmm10, xmm2
           }
-          *(_BYTE *)_RBP = !v308;
-          if ( !v86 )
-            goto LABEL_50;
-          __asm { vmovsd  xmm0, qword ptr [rbx-10h] }
-          v326 = *(_DWORD *)(_RBX - 8);
-          __asm
-          {
-            vmovsd  qword ptr [rbp+1F0h], xmm0
-            vmovsd  xmm0, qword ptr [rbx-4]
-          }
-          *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1F8) = v326;
-          v327 = *(_DWORD *)(_RBX + 4);
-          __asm { vmovsd  qword ptr [rbp+1FCh], xmm0 }
-          *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x204) = v327;
-          Bounds_FromExtentBounds((Bounds *)(_RBP + 224), (const ExtentBounds *)(_RBP + 496));
-          v328 = 0;
-          v329 = v86 == 0;
-          if ( (int)v86 > 0 )
+          *(_BYTE *)v2 = v153 >= (float)((float)((float)((float)(*(float *)&_XMM5 - *(float *)&_XMM6) * (float)(*(float *)&_XMM5 - *(float *)&_XMM6)) + (float)((float)(*(float *)&_XMM3 - *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138)) * (float)(*(float *)&_XMM3 - *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x138)))) + (float)((float)(*(float *)&_XMM2 - *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x140)) * (float)(*(float *)&_XMM2 - *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x140))));
+          if ( !v41 )
+            goto LABEL_61;
+          v170 = *((_DWORD *)v157 - 2);
+          *(double *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1F0) = *((double *)v157 - 2);
+          v171 = *(double *)(v157 - 1);
+          *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1F8) = v170;
+          v172 = *((_DWORD *)v157 + 1);
+          *(double *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1FC) = v171;
+          *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x204) = v172;
+          Bounds_FromExtentBounds((Bounds *)(v2 + 224), (const ExtentBounds *)(v2 + 496));
+          v173 = 0;
+          if ( (int)v41 > 0 )
             break;
-LABEL_48:
-          v354 = 1;
-LABEL_51:
-          v300 = !v307;
-          v355 = *(_BYTE *)_RBP;
-          if ( !v300 )
+LABEL_59:
+          v175 = 1;
+LABEL_62:
+          v176 = !v159;
+          v177 = *(_BYTE *)v2;
+          if ( !v176 )
           {
-            if ( !v355 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree_test.cpp", 571, ASSERT_TYPE_ASSERT, "(intersectSphere)", (const char *)&queryFormat, "intersectSphere") )
+            if ( !v177 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_tree_test.cpp", 571, ASSERT_TYPE_ASSERT, "(intersectSphere)", (const char *)&queryFormat, "intersectSphere") )
               __debugbreak();
-            v356 = *(unsigned int *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
-            *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 4 * v356 + 0x66C0) = v297;
-            *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = v356 + 1;
+            v178 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+            *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4 * v178 + 0x66C0) = v154;
+            *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = v178 + 1;
           }
-          if ( *(_BYTE *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 3) )
+          if ( *(_BYTE *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 3) )
           {
-            v357 = *(unsigned int *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x14);
-            *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 4 * v357 + 0x66E0) = v297;
-            *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x14) = v357 + 1;
+            v179 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x14);
+            *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4 * v179 + 0x66E0) = v154;
+            *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x14) = v179 + 1;
           }
-          if ( *(_BYTE *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 1) )
+          if ( *(_BYTE *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 1) )
           {
-            v358 = *(unsigned int *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
-            *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 4 * v358 + 0x6700) = v297;
-            *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = v358 + 1;
+            v180 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+            *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4 * v180 + 0x6700) = v154;
+            *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = v180 + 1;
           }
-          if ( v355 )
+          if ( v177 )
           {
-            v359 = *(unsigned int *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
-            *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 4 * v359 + 0x6720) = v297;
-            *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = v359 + 1;
+            v181 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
+            *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4 * v181 + 0x6720) = v154;
+            *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = v181 + 1;
           }
-          if ( v354 )
+          if ( v175 )
           {
-            v360 = *(unsigned int *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
-            *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 4 * v360 + 0x6740) = v297;
-            v291 = v360 + 1;
-            *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = v291;
+            v182 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
+            *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4 * v182 + 0x6740) = v154;
+            v151 = v182 + 1;
+            *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = v151;
           }
           else
           {
-            v291 = *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
+            v151 = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 4);
           }
-          ++v297;
-          v304 += 2;
-          _RBX += 24i64;
-          v299 = v297 < *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C);
-          v300 = v297 == *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C);
-          v301 = v297 <= *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C);
-          if ( v297 >= *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C) )
+          ++v154;
+          v158 += 2;
+          v157 += 6;
+          if ( v154 >= *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C) )
           {
-            __asm
-            {
-              vmovss  xmm15, cs:__real@34000000
-              vmovss  xmm6, dword ptr [rbp+34h]
-            }
-            v21 = *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
-            v290 = *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
-            v289 = *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
-            v288 = *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x14);
-            v287 = *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
-            goto LABEL_67;
+            v8 = FLOAT_1_1920929eN7;
+            v155 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x34);
+            v9 = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 8);
+            v150 = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC);
+            v149 = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10);
+            v148 = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x14);
+            v147 = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+            goto LABEL_78;
           }
         }
-        __asm
+        v174 = (float *)(v2 + 26476);
+        while ( (float)((float)((float)((float)((float)((float)(COERCE_FLOAT(*(_DWORD *)(v174 - 3) & _xmm) * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xEC)) + (float)((float)(*(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) * *(v174 - 3)) + *v174)) + (float)(*(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE4) * *(v174 - 2))) + (float)(COERCE_FLOAT(*(_DWORD *)(v174 - 2) & _xmm) * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0))) + (float)(*(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE8) * *(v174 - 1))) + (float)(COERCE_FLOAT(*(_DWORD *)(v174 - 1) & _xmm) * *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF4))) > 0.0 )
         {
-          vmovss  xmm7, dword ptr [rbp+0F4h]
-          vmovss  xmm8, dword ptr [rbp+0F0h]
-          vmovss  xmm9, dword ptr [rbp+0ECh]
-          vmovss  xmm10, dword ptr [rbp+0E8h]
-          vmovss  xmm11, dword ptr [rbp+0E4h]
-          vmovss  xmm12, dword ptr [rbp+0E0h]
-        }
-        _RAX = _RBP + 26476;
-        while ( 1 )
-        {
-          __asm
+          ++v173;
+          v174 += 4;
+          if ( v173 >= (int)v41 )
           {
-            vmovss  xmm1, dword ptr [rax-0Ch]
-            vmovss  xmm5, dword ptr [rax-8]
-            vmovss  xmm6, dword ptr [rax-4]
-            vandps  xmm0, xmm1, xmm14
-            vmulss  xmm2, xmm0, xmm9
-            vmulss  xmm0, xmm12, xmm1
-            vaddss  xmm1, xmm0, dword ptr [rax]
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm2, xmm11, xmm5
-            vmulss  xmm1, xmm10, xmm6
-            vaddss  xmm4, xmm3, xmm2
-            vandps  xmm5, xmm5, xmm14
-            vmulss  xmm0, xmm5, xmm8
-            vaddss  xmm2, xmm4, xmm0
-            vandps  xmm6, xmm6, xmm14
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm7
-            vaddss  xmm1, xmm3, xmm0
-            vcomiss xmm1, cs:__real@00000000
-          }
-          if ( v329 )
-            break;
-          ++v328;
-          _RAX += 16i64;
-          v329 = v328 <= v86;
-          if ( (int)v328 >= (int)v86 )
-          {
-            __asm
-            {
-              vmovss  xmm12, dword ptr [rbp+12Ch]
-              vmovss  xmm8, dword ptr [rbp+128h]
-              vmovss  xmm9, dword ptr [rbp+130h]
-              vmovss  xmm10, dword ptr [rbp+28h]
-            }
-            goto LABEL_48;
+            LODWORD(_XMM12) = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x12C);
+            LODWORD(_XMM8) = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128);
+            LODWORD(_XMM9) = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130);
+            v153 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28);
+            goto LABEL_59;
           }
         }
-        __asm
-        {
-          vmovss  xmm12, dword ptr [rbp+12Ch]
-          vmovss  xmm8, dword ptr [rbp+128h]
-          vmovss  xmm9, dword ptr [rbp+130h]
-          vmovss  xmm10, dword ptr [rbp+28h]
-        }
-LABEL_50:
-        v354 = 0;
-        goto LABEL_51;
+        LODWORD(_XMM12) = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x12C);
+        LODWORD(_XMM8) = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x128);
+        LODWORD(_XMM9) = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x130);
+        v153 = *(float *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28);
+LABEL_61:
+        v175 = 0;
+        goto LABEL_62;
       }
-LABEL_67:
-      v361 = *(SpatialPartition_Tree **)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38);
-      SpartialPartition_Tree_Test::TestBox(v361, (const ExtentBounds *)(_RBP + 288), v287, (const unsigned int *)(_RBP + 26304));
-      *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2E0) = 0i64;
-      *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2E8) = 0;
-      *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2F0) = 0i64;
-      *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2F8) = 0i64;
-      SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(_RBP + 544), v361, (const vec3_t *)(_RBP + 192), (const vec3_t *)(_RBP + 256));
-      SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SegmentIterator_((SpatialPartition_Tree_SegmentIterator *)(_RBP + 544), v288, (const unsigned int *)(_RBP + 26336));
-      if ( *(_BYTE *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 2) )
+LABEL_78:
+      v183 = *(SpatialPartition_Tree **)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x38);
+      SpartialPartition_Tree_Test::TestBox(v183, (const ExtentBounds *)(v2 + 288), v147, (const unsigned int *)(v2 + 26304));
+      *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2E0) = 0i64;
+      *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2E8) = 0;
+      *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2F0) = 0i64;
+      *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2F8) = 0i64;
+      SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(v2 + 544), v183, (const vec3_t *)(v2 + 192), (const vec3_t *)(v2 + 256));
+      SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SegmentIterator_((SpatialPartition_Tree_SegmentIterator *)(v2 + 544), v148, (const unsigned int *)(v2 + 26336));
+      if ( *(_BYTE *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 2) )
       {
-        *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x13C0) = 0i64;
-        *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x13C8) = 0;
-        *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x13D0) = 0i64;
-        *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x13D8) = 0i64;
-        SpatialPartition_Tree_RayIterator::Init((SpatialPartition_Tree_RayIterator *)(_RBP + 4864), v361, (const vec3_t *)(_RBP + 192), (const vec3_t *)(_RBP + 208));
-        SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_RayIterator_((SpatialPartition_Tree_RayIterator *)(_RBP + 4864), v289, (const unsigned int *)(_RBP + 26368));
+        *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x13C0) = 0i64;
+        *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x13C8) = 0;
+        *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x13D0) = 0i64;
+        *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x13D8) = 0i64;
+        SpatialPartition_Tree_RayIterator::Init((SpatialPartition_Tree_RayIterator *)(v2 + 4864), v183, (const vec3_t *)(v2 + 192), (const vec3_t *)(v2 + 208));
+        SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_RayIterator_((SpatialPartition_Tree_RayIterator *)(v2 + 4864), v149, (const unsigned int *)(v2 + 26368));
       }
-      __asm { vmovaps xmm3, xmm6; radius }
-      *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x24A0) = 0i64;
-      *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x24A8) = 0;
-      *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x24B0) = 0i64;
-      *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x24B8) = 0i64;
-      SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(_RBP + 9184), v361, (const vec3_t *)(_RBP + 312), *(float *)&_XMM3);
-      SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(_RBP + 9184), v290, (const unsigned int *)(_RBP + 26400));
-      if ( v86 )
+      *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x24A0) = 0i64;
+      *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x24A8) = 0;
+      *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x24B0) = 0i64;
+      *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x24B8) = 0i64;
+      SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(v2 + 9184), v183, (const vec3_t *)(v2 + 312), v155);
+      SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(v2 + 9184), v150, (const unsigned int *)(v2 + 26400));
+      if ( v41 )
       {
-        *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3580) = 0i64;
-        *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3588) = 0;
-        *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3590) = 0i64;
-        *(_QWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3598) = 0i64;
-        SpatialPartition_Tree_FrustumIterator::Init((SpatialPartition_Tree_FrustumIterator *)(_RBP + 13504), v361, (const vec4_t *)(_RBP + 26464), v86);
-        SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_FrustumIterator_((SpatialPartition_Tree_FrustumIterator *)(_RBP + 13504), v291, (const unsigned int *)(_RBP + 26432));
+        *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3580) = 0i64;
+        *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3588) = 0;
+        *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3590) = 0i64;
+        *(_QWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3598) = 0i64;
+        SpatialPartition_Tree_FrustumIterator::Init((SpatialPartition_Tree_FrustumIterator *)(v2 + 13504), v183, (const vec4_t *)(v2 + 26464), v41);
+        SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_FrustumIterator_((SpatialPartition_Tree_FrustumIterator *)(v2 + 13504), v151, (const unsigned int *)(v2 + 26432));
       }
-      __asm
-      {
-        vmovss  xmm7, cs:__real@447a0000
-        vmovss  xmm13, dword ptr [rbp+20h]
-        vmovss  xmm8, cs:__real@2f800000
-        vmovss  xmm12, dword ptr cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm9, cs:__real@3dcccccd
-      }
-      v22 = *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C);
-      v366 = *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2C) + 1;
-      *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2C) = v366;
+      v6 = FLOAT_1000_0;
+      v3 = *(unsigned int *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x20);
+      v5 = FLOAT_2_3283064eN10;
+      v4 = (unsigned int)_xmm;
+      v7 = FLOAT_0_1;
+      v10 = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x1C);
+      v184 = *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2C) + 1;
+      *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x2C) = v184;
     }
-    while ( v366 < 0x64 );
-    result = (unsigned int)(*(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30) + 1);
-    *(_DWORD *)(((unsigned __int64)v379 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30) = result;
+    while ( v184 < 0x64 );
+    result = (unsigned int)(*(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30) + 1);
+    *(_DWORD *)(((unsigned __int64)v186 & 0xFFFFFFFFFFFFFFE0ui64) + 0x30) = result;
   }
   while ( (unsigned int)result < 0x64 );
-  _R11 = &v390;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
   return result;
 }
 
@@ -1534,125 +1066,78 @@ SpartialPartition_Tree_Test::RunTest_Moving
 void SpartialPartition_Tree_Test::RunTest_Moving()
 {
   signed __int64 v0; 
-  void *v3; 
+  void *v1; 
+  unsigned __int64 v2; 
   SpatialPartition_Tree *Tree; 
-  __int64 v21; 
-  char v22[12928]; 
-  char v25; 
+  __int64 v4; 
+  char v5[12928]; 
 
-  v3 = alloca(v0);
-  __asm
-  {
-    vmovaps [rsp+32E8h+var_18], xmm6
-    vmovaps [rsp+32E8h+var_28], xmm7
-  }
-  _RBP = (unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(_RBP + 12912) = (unsigned __int64)&v21 ^ _security_cookie;
-  __asm
-  {
-    vmovups ymm0, cs:__ymm@434800004489800043a50000435c000042dc0000439600004348000042c80000
-    vmovups xmm1, cs:__xmm@43a50000435c0000448ac00043960000
-    vmovups ymmword ptr [rbp+3230h], ymm0
-    vmovups xmmword ptr [rbp+3250h], xmm1
-    vmovups xmm0, cs:__xmm@42d2000043910000433e000042b40000
-    vmovss  xmm6, cs:__real@434d0000
-  }
-  Tree = (SpatialPartition_Tree *)SpartialPartition_Tree_Test::MakeTree((SpartialPartition_Tree_Test::Tree_Buffer *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 4640), (const ExtentBounds *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 12848), 2u);
-  *(_DWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3260) = 50;
-  *(_DWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3264) = 60;
-  *(_DWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3268) = 70;
+  v1 = alloca(v0);
+  v2 = (unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(v2 + 12912) = (unsigned __int64)&v4 ^ _security_cookie;
+  *(__m256i *)(v2 + 12848) = _ymm;
+  *(_OWORD *)(v2 + 12880) = _xmm;
+  Tree = (SpatialPartition_Tree *)SpartialPartition_Tree_Test::MakeTree((SpartialPartition_Tree_Test::Tree_Buffer *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 4640), (const ExtentBounds *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 12848), 2u);
+  *(_DWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3260) = 50;
+  *(_DWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3264) = 60;
+  *(_DWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3268) = 70;
   Tree->alwaysListLength = 3;
-  __asm
-  {
-    vmovups xmmword ptr [rbp+3230h], xmm0
-    vmovss  xmm0, cs:__real@43988000
-  }
-  *(_DWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3220) = 50;
-  Tree->alwaysList = (unsigned int *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 12896);
-  *(_DWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3224) = 60;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3240h], xmm6
-    vmovss  dword ptr [rbp+3244h], xmm0
-  }
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3228) = 70i64;
-  SpartialPartition_Tree_Test::TestBox(Tree, (const ExtentBounds *)(_RBP + 12848), 4u, (const unsigned int *)(_RBP + 12832));
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@42d2000043910000433e000042b40000
-    vmovss  xmm1, cs:__real@43918000
-    vmovss  dword ptr [rbp+3244h], xmm1
-    vmovups xmmword ptr [rbp+3230h], xmm0
-    vmovss  dword ptr [rbp+3240h], xmm6
-  }
-  SpartialPartition_Tree_Test::TestBox(Tree, (const ExtentBounds *)(_RBP + 12848), 3u, (const unsigned int *)(_RBP + 12832));
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-    vmovss  xmm7, cs:__real@3f800000
-    vmovups xmmword ptr [rbp+3230h], xmm0
-    vmovss  dword ptr [rbp+3240h], xmm7
-    vmovss  dword ptr [rbp+3244h], xmm7
-  }
-  SpartialPartition_Tree_Test::TestBox(Tree, (const ExtentBounds *)(_RBP + 12848), 3u, (const unsigned int *)(_RBP + 12832));
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE8) = 0;
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+4], xmm6
-    vmovss  dword ptr [rbp+8], xmm6
-    vmovss  dword ptr [rbp+3230h], xmm6
-    vmovss  dword ptr [rbp+3234h], xmm6
-    vmovss  dword ptr [rbp+3238h], xmm6
-    vmovss  dword ptr [rbp+0], xmm7
-  }
-  SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(_RBP + 32), Tree, (const vec3_t *)(_RBP + 12848), (const vec3_t *)((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64));
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SegmentIterator_((SpatialPartition_Tree_SegmentIterator *)(_RBP + 32), 3u, (const unsigned int *)(_RBP + 12832));
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3230h], xmm7
-    vmovss  dword ptr [rbp+3234h], xmm6
-    vmovss  dword ptr [rbp+3238h], xmm6
-    vmovss  dword ptr [rbp+0], xmm6
-    vmovss  dword ptr [rbp+4], xmm6
-    vmovss  dword ptr [rbp+8], xmm6
-  }
-  *(_DWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE8) = 0;
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) = 0i64;
-  SpatialPartition_Tree_RayIterator::Init((SpatialPartition_Tree_RayIterator *)(_RBP + 32), Tree, (const vec3_t *)((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64), (const vec3_t *)(_RBP + 12848));
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_RayIterator_((SpatialPartition_Tree_RayIterator *)(_RBP + 32), 3u, (const unsigned int *)(_RBP + 12832));
-  __asm { vmovaps xmm3, xmm7; radius }
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE8) = 0;
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3230h], xmm6
-    vmovss  dword ptr [rbp+3234h], xmm6
-    vmovss  dword ptr [rbp+3238h], xmm6
-  }
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) = 0i64;
-  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(_RBP + 32), Tree, (const vec3_t *)(_RBP + 12848), *(float *)&_XMM3);
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(_RBP + 32), 3u, (const unsigned int *)(_RBP + 12832));
-  __asm { vmovups xmm0, cs:__xmm@c3fa00003f8000000000000000000000 }
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE8) = 0;
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v22 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) = 0i64;
-  __asm { vmovups xmmword ptr [rbp+10h], xmm0 }
-  SpatialPartition_Tree_FrustumIterator::Init((SpatialPartition_Tree_FrustumIterator *)(_RBP + 32), Tree, (const vec4_t *)(_RBP + 16), 1u);
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_FrustumIterator_((SpatialPartition_Tree_FrustumIterator *)(_RBP + 32), 3u, (const unsigned int *)(_RBP + 12832));
-  _R11 = &v25;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  *(_OWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3230) = _xmm;
+  *(_DWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3220) = 50;
+  Tree->alwaysList = (unsigned int *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 12896);
+  *(_DWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3224) = 60;
+  *(const float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_205_0;
+  *(const float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = FLOAT_305_0;
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3228) = 70i64;
+  SpartialPartition_Tree_Test::TestBox(Tree, (const ExtentBounds *)(v2 + 12848), 4u, (const unsigned int *)(v2 + 12832));
+  *(const float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = FLOAT_291_0;
+  *(_OWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3230) = _xmm;
+  *(const float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_205_0;
+  SpartialPartition_Tree_Test::TestBox(Tree, (const ExtentBounds *)(v2 + 12848), 3u, (const unsigned int *)(v2 + 12832));
+  *(_OWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3230) = _xmm;
+  *(const float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_1_0;
+  *(const float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = FLOAT_1_0;
+  SpartialPartition_Tree_Test::TestBox(Tree, (const ExtentBounds *)(v2 + 12848), 3u, (const unsigned int *)(v2 + 12832));
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE8) = 0;
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) = 0i64;
+  *(float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = 0;
+  *(float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = 0;
+  *(float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3230) = 0;
+  *(float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3234) = 0;
+  *(float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3238) = 0;
+  *(const float *)v2 = FLOAT_1_0;
+  SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(v2 + 32), Tree, (const vec3_t *)(v2 + 12848), (const vec3_t *)((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64));
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SegmentIterator_((SpatialPartition_Tree_SegmentIterator *)(v2 + 32), 3u, (const unsigned int *)(v2 + 12832));
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = 0i64;
+  *(const float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3230) = FLOAT_1_0;
+  *(float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3234) = 0;
+  *(float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3238) = 0;
+  *(float *)v2 = 0;
+  *(float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = 0;
+  *(float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = 0;
+  *(_DWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE8) = 0;
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) = 0i64;
+  SpatialPartition_Tree_RayIterator::Init((SpatialPartition_Tree_RayIterator *)(v2 + 32), Tree, (const vec3_t *)((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64), (const vec3_t *)(v2 + 12848));
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_RayIterator_((SpatialPartition_Tree_RayIterator *)(v2 + 32), 3u, (const unsigned int *)(v2 + 12832));
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE8) = 0;
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0) = 0i64;
+  *(float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3230) = 0;
+  *(float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3234) = 0;
+  *(float *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3238) = 0;
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) = 0i64;
+  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(v2 + 32), Tree, (const vec3_t *)(v2 + 12848), 1.0);
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(v2 + 32), 3u, (const unsigned int *)(v2 + 12832));
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE0) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xE8) = 0;
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF0) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0xF8) = 0i64;
+  *(_OWORD *)(((unsigned __int64)v5 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = _xmm_c3fa00003f8000000000000000000000;
+  SpatialPartition_Tree_FrustumIterator::Init((SpatialPartition_Tree_FrustumIterator *)(v2 + 32), Tree, (const vec4_t *)(v2 + 16), 1u);
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_FrustumIterator_((SpatialPartition_Tree_FrustumIterator *)(v2 + 32), 3u, (const unsigned int *)(v2 + 12832));
 }
 
 /*
@@ -1663,333 +1148,196 @@ SpartialPartition_Tree_Test::RunTest_Simple
 void SpartialPartition_Tree_Test::RunTest_Simple()
 {
   signed __int64 v0; 
-  void *v11; 
+  void *v1; 
+  unsigned __int64 v2; 
   SpatialPartition_Tree *Tree; 
-  SpatialPartition_Tree *v19; 
-  __int64 v60; 
-  char v61[13008]; 
-  char v72; 
+  SpatialPartition_Tree *v4; 
+  __int128 v5; 
+  __int64 v6; 
+  char v7[13008]; 
 
-  v11 = alloca(v0);
-  __asm
-  {
-    vmovaps [rsp+33B8h+var_18], xmm6
-    vmovaps [rsp+33B8h+var_28], xmm7
-    vmovaps [rsp+33B8h+var_38], xmm8
-    vmovaps [rsp+33B8h+var_48], xmm9
-    vmovaps [rsp+33B8h+var_58], xmm10
-    vmovaps [rsp+33B8h+var_68], xmm11
-    vmovaps [rsp+33B8h+var_78], xmm12
-    vmovaps [rsp+33B8h+var_88], xmm13
-    vmovaps [rsp+33B8h+var_98], xmm14
-    vmovaps [rsp+33B8h+var_A8], xmm15
-  }
-  _RBP = (unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(_RBP + 12992) = (unsigned __int64)&v60 ^ _security_cookie;
-  __asm
-  {
-    vmovups ymm0, cs:__ymm@434800004489800043a50000435c000042dc0000439600004348000042c80000
-    vmovups xmm1, cs:__xmm@43a50000435c0000448ac00043960000
-    vmovups ymmword ptr [rbp+3240h], ymm0
-    vmovups xmmword ptr [rbp+3260h], xmm1
-  }
-  Tree = (SpatialPartition_Tree *)SpartialPartition_Tree_Test::MakeTree((SpartialPartition_Tree_Test::Tree_Buffer *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 4672), (const ExtentBounds *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 12864), 2u);
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@42d2000043910000433e000042b40000
-    vmovss  xmm15, cs:__real@434d0000
-    vmovss  xmm14, cs:__real@43988000
-  }
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = 1;
-  *(_DWORD *)_RBP = 0;
-  __asm { vmovss  dword ptr [rbp+3250h], xmm15 }
-  v19 = Tree;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3254h], xmm14
-    vmovups xmmword ptr [rbp+3240h], xmm0
-  }
-  SpartialPartition_Tree_Test::TestBox(Tree, (const ExtentBounds *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 12864), 1u, (const unsigned int *)((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64));
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@42d2000043910000433e000042b40000
-    vmovss  xmm1, cs:__real@43918000
-    vmovss  dword ptr [rbp+3254h], xmm1
-    vmovups xmmword ptr [rbp+3240h], xmm0
-    vmovss  dword ptr [rbp+3250h], xmm15
-  }
-  SpartialPartition_Tree_Test::TestBox(v19, (const ExtentBounds *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 12864), 0, NULL);
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@448a200043910000433e000044898000
-    vmovups xmmword ptr [rbp+3240h], xmm0
-    vmovss  dword ptr [rbp+3250h], xmm15
-    vmovss  dword ptr [rbp+3254h], xmm14
-  }
-  SpartialPartition_Tree_Test::TestBox(v19, (const ExtentBounds *)(_RBP + 12864), 1u, (const unsigned int *)(_RBP + 4));
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@448a200043910000433e000042b40000
-    vmovups xmmword ptr [rbp+3240h], xmm0
-    vmovss  dword ptr [rbp+3250h], xmm15
-    vmovss  dword ptr [rbp+3254h], xmm14
-  }
-  SpartialPartition_Tree_Test::TestBox(v19, (const ExtentBounds *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 12864), 2u, (const unsigned int *)((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64));
-  __asm
-  {
-    vmovss  xmm11, cs:__real@43520000
-    vmovss  xmm12, cs:__real@439d8000
-    vmovss  xmm10, cs:__real@42d20000
-    vmovss  xmm9, cs:__real@42b40000
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+8], xmm10
-    vmovss  dword ptr [rbp+0Ch], xmm11
-    vmovss  dword ptr [rbp+10h], xmm12
-    vmovss  dword ptr [rbp+3240h], xmm9
-    vmovss  dword ptr [rbp+3244h], xmm11
-    vmovss  dword ptr [rbp+3248h], xmm12
-  }
-  SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(_RBP + 64), v19, (const vec3_t *)(_RBP + 12864), (const vec3_t *)(_RBP + 8));
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SegmentIterator_((SpatialPartition_Tree_SegmentIterator *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 1u, (const unsigned int *)((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64));
-  __asm
-  {
-    vmovss  xmm13, cs:__real@448a2000
-    vmovss  dword ptr [rbp+3240h], xmm13
-    vmovss  dword ptr [rbp+3244h], xmm11
-    vmovss  dword ptr [rbp+3248h], xmm12
-    vmovss  dword ptr [rbp+8], xmm10
-    vmovss  dword ptr [rbp+0Ch], xmm11
-    vmovss  dword ptr [rbp+10h], xmm12
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(_RBP + 64), v19, (const vec3_t *)(_RBP + 8), (const vec3_t *)(_RBP + 12864));
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SegmentIterator_((SpatialPartition_Tree_SegmentIterator *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 2u, (const unsigned int *)((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64));
-  __asm { vmovss  xmm8, cs:__real@43fa0000 }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+8], xmm8
-    vmovss  dword ptr [rbp+3240h], xmm13
-    vmovss  dword ptr [rbp+3244h], xmm11
-    vmovss  dword ptr [rbp+3248h], xmm12
-    vmovss  dword ptr [rbp+0Ch], xmm11
-    vmovss  dword ptr [rbp+10h], xmm12
-  }
-  SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(_RBP + 64), v19, (const vec3_t *)(_RBP + 8), (const vec3_t *)(_RBP + 12864));
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SegmentIterator_((SpatialPartition_Tree_SegmentIterator *)(_RBP + 64), 1u, (const unsigned int *)(_RBP + 4));
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vxorps  xmm7, xmm7, xmm7
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3240h], xmm6
-    vmovss  dword ptr [rbp+3244h], xmm7
-    vmovss  dword ptr [rbp+3248h], xmm7
-    vmovss  dword ptr [rbp+8], xmm9
-    vmovss  dword ptr [rbp+0Ch], xmm11
-    vmovss  dword ptr [rbp+10h], xmm12
-  }
-  SpatialPartition_Tree_RayIterator::Init((SpatialPartition_Tree_RayIterator *)(_RBP + 64), v19, (const vec3_t *)(_RBP + 8), (const vec3_t *)(_RBP + 12864));
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_RayIterator_((SpatialPartition_Tree_RayIterator *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 2u, (const unsigned int *)((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64));
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3240h], xmm6
-    vmovss  dword ptr [rbp+3244h], xmm7
-    vmovss  dword ptr [rbp+3248h], xmm7
-    vmovss  dword ptr [rbp+8], xmm10
-    vmovss  dword ptr [rbp+0Ch], xmm11
-    vmovss  dword ptr [rbp+10h], xmm12
-  }
-  SpatialPartition_Tree_RayIterator::Init((SpatialPartition_Tree_RayIterator *)(_RBP + 64), v19, (const vec3_t *)(_RBP + 8), (const vec3_t *)(_RBP + 12864));
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_RayIterator_((SpatialPartition_Tree_RayIterator *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 2u, (const unsigned int *)((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64));
-  __asm
-  {
-    vmovss  dword ptr [rbp+3240h], xmm6
-    vmovss  dword ptr [rbp+3244h], xmm7
-    vmovss  dword ptr [rbp+3248h], xmm7
-    vmovss  dword ptr [rbp+8], xmm8
-    vmovss  dword ptr [rbp+0Ch], xmm11
-    vmovss  dword ptr [rbp+10h], xmm12
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  SpatialPartition_Tree_RayIterator::Init((SpatialPartition_Tree_RayIterator *)(_RBP + 64), v19, (const vec3_t *)(_RBP + 8), (const vec3_t *)(_RBP + 12864));
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_RayIterator_((SpatialPartition_Tree_RayIterator *)(_RBP + 64), 1u, (const unsigned int *)(_RBP + 4));
-  __asm
-  {
-    vmovss  xmm7, cs:__real@42be0000
-    vmovss  xmm6, cs:__real@435a0000
-    vmovss  xmm3, cs:__real@40a33333; radius
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3240h], xmm7
-    vmovss  dword ptr [rbp+3244h], xmm6
-    vmovss  dword ptr [rbp+3248h], xmm12
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(_RBP + 64), v19, (const vec3_t *)(_RBP + 12864), *(float *)&_XMM3);
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 1u, (const unsigned int *)((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64));
-  __asm { vmovss  xmm3, cs:__real@409ccccd; radius }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3240h], xmm7
-    vmovss  dword ptr [rbp+3244h], xmm6
-    vmovss  dword ptr [rbp+3248h], xmm12
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(_RBP + 64), v19, (const vec3_t *)(_RBP + 12864), *(float *)&_XMM3);
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 0, NULL);
-  __asm { vmovss  xmm3, cs:__real@448a2333; radius }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3240h], xmm7
-    vmovss  dword ptr [rbp+3244h], xmm6
-    vmovss  dword ptr [rbp+3248h], xmm12
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(_RBP + 64), v19, (const vec3_t *)(_RBP + 12864), *(float *)&_XMM3);
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 2u, (const unsigned int *)((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64));
-  __asm
-  {
-    vmovss  xmm8, cs:__real@42de0000
-    vmovss  xmm7, cs:__real@435d0000
-    vmovss  xmm6, cs:__real@43a58000
-    vmovss  xmm3, cs:__real@3fea80a4; radius
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3240h], xmm8
-    vmovss  dword ptr [rbp+3244h], xmm7
-    vmovss  dword ptr [rbp+3248h], xmm6
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(_RBP + 64), v19, (const vec3_t *)(_RBP + 12864), *(float *)&_XMM3);
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 1u, (const unsigned int *)((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64));
-  __asm
-  {
-    vmovss  dword ptr [rbp+3240h], xmm8
-    vmovss  xmm3, cs:__real@3fd0e70a; radius
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3244h], xmm7
-    vmovss  dword ptr [rbp+3248h], xmm6
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(_RBP + 64), v19, (const vec3_t *)(_RBP + 12864), *(float *)&_XMM3);
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 0, NULL);
-  __asm { vmovss  xmm3, cs:__real@34000000; radius }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+3240h], xmm13
-    vmovss  dword ptr [rbp+3244h], xmm15
-    vmovss  dword ptr [rbp+3248h], xmm14
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(_RBP + 64), v19, (const vec3_t *)(_RBP + 12864), *(float *)&_XMM3);
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(_RBP + 64), 1u, (const unsigned int *)(_RBP + 4));
-  __asm { vmovups xmm0, cs:__xmm@c3fa000000000000000000003f800000 }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  __asm { vmovups xmmword ptr [rbp+28h], xmm0 }
-  SpatialPartition_Tree_FrustumIterator::Init((SpatialPartition_Tree_FrustumIterator *)(_RBP + 64), v19, (const vec4_t *)(_RBP + 40), 1u);
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_FrustumIterator_((SpatialPartition_Tree_FrustumIterator *)(_RBP + 64), 1u, (const unsigned int *)(_RBP + 4));
-  __asm { vmovups xmm0, cs:__xmm@0000000000000000000000003f800000 }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  __asm { vmovups xmmword ptr [rbp+18h], xmm0 }
-  SpatialPartition_Tree_FrustumIterator::Init((SpatialPartition_Tree_FrustumIterator *)(_RBP + 64), v19, (const vec4_t *)(_RBP + 24), 1u);
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_FrustumIterator_((SpatialPartition_Tree_FrustumIterator *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 2u, (const unsigned int *)((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64));
-  __asm
-  {
-    vmovups xmm1, cs:__xmm@43fa00000000000000000000bf800000
-    vmovups xmm0, xmmword ptr [rbp+18h]
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  __asm
-  {
-    vmovups xmmword ptr [rbp+3270h], xmm0
-    vmovups xmmword ptr [rbp+3280h], xmm1
-  }
-  SpatialPartition_Tree_FrustumIterator::Init((SpatialPartition_Tree_FrustumIterator *)(_RBP + 64), v19, (const vec4_t *)(_RBP + 12912), 2u);
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_FrustumIterator_((SpatialPartition_Tree_FrustumIterator *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 1u, (const unsigned int *)((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64));
-  __asm
-  {
-    vmovups ymm0, cs:__ymm@4357000000000000bf80000000000000c34d0000000000003f80000000000000
-    vmovups xmm1, cs:__xmm@43160000000000003f34fdf43f34fdf4
-    vmovups ymmword ptr [rbp+3290h], ymm0
-  }
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  __asm { vmovups xmmword ptr [rbp+32B0h], xmm1 }
-  SpatialPartition_Tree_FrustumIterator::Init((SpatialPartition_Tree_FrustumIterator *)(_RBP + 64), v19, (const vec4_t *)(_RBP + 12944), 3u);
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_FrustumIterator_((SpatialPartition_Tree_FrustumIterator *)(((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 2u, (const unsigned int *)((unsigned __int64)v61 & 0xFFFFFFFFFFFFFFE0ui64));
-  _R11 = &v72;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  v1 = alloca(v0);
+  v2 = (unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(v2 + 12992) = (unsigned __int64)&v6 ^ _security_cookie;
+  *(__m256i *)(v2 + 12864) = _ymm;
+  *(_OWORD *)(v2 + 12896) = _xmm;
+  Tree = (SpatialPartition_Tree *)SpartialPartition_Tree_Test::MakeTree((SpartialPartition_Tree_Test::Tree_Buffer *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 4672), (const ExtentBounds *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 12864), 2u);
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = 1;
+  *(_DWORD *)v2 = 0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3250) = FLOAT_205_0;
+  v4 = Tree;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3254) = FLOAT_305_0;
+  *(_OWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = _xmm;
+  SpartialPartition_Tree_Test::TestBox(Tree, (const ExtentBounds *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 12864), 1u, (const unsigned int *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3254) = FLOAT_291_0;
+  *(_OWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = _xmm;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3250) = FLOAT_205_0;
+  SpartialPartition_Tree_Test::TestBox(v4, (const ExtentBounds *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 12864), 0, NULL);
+  *(_OWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = _xmm;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3250) = FLOAT_205_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3254) = FLOAT_305_0;
+  SpartialPartition_Tree_Test::TestBox(v4, (const ExtentBounds *)(v2 + 12864), 1u, (const unsigned int *)(v2 + 4));
+  *(_OWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = _xmm;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3250) = FLOAT_205_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3254) = FLOAT_305_0;
+  SpartialPartition_Tree_Test::TestBox(v4, (const ExtentBounds *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 12864), 2u, (const unsigned int *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = FLOAT_105_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = FLOAT_210_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = FLOAT_315_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_90_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = FLOAT_210_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3248) = FLOAT_315_0;
+  SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(v2 + 64), v4, (const vec3_t *)(v2 + 12864), (const vec3_t *)(v2 + 8));
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SegmentIterator_((SpatialPartition_Tree_SegmentIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 1u, (const unsigned int *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_1105_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = FLOAT_210_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3248) = FLOAT_315_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = FLOAT_105_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = FLOAT_210_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = FLOAT_315_0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(v2 + 64), v4, (const vec3_t *)(v2 + 8), (const vec3_t *)(v2 + 12864));
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SegmentIterator_((SpatialPartition_Tree_SegmentIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 2u, (const unsigned int *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = FLOAT_500_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_1105_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = FLOAT_210_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3248) = FLOAT_315_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = FLOAT_210_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = FLOAT_315_0;
+  SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(v2 + 64), v4, (const vec3_t *)(v2 + 8), (const vec3_t *)(v2 + 12864));
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SegmentIterator_((SpatialPartition_Tree_SegmentIterator *)(v2 + 64), 1u, (const unsigned int *)(v2 + 4));
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_1_0;
+  *(float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = 0;
+  *(float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3248) = 0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = FLOAT_90_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = FLOAT_210_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = FLOAT_315_0;
+  SpatialPartition_Tree_RayIterator::Init((SpatialPartition_Tree_RayIterator *)(v2 + 64), v4, (const vec3_t *)(v2 + 8), (const vec3_t *)(v2 + 12864));
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_RayIterator_((SpatialPartition_Tree_RayIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 2u, (const unsigned int *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_1_0;
+  *(float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = 0;
+  *(float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3248) = 0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = FLOAT_105_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = FLOAT_210_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = FLOAT_315_0;
+  SpatialPartition_Tree_RayIterator::Init((SpatialPartition_Tree_RayIterator *)(v2 + 64), v4, (const vec3_t *)(v2 + 8), (const vec3_t *)(v2 + 12864));
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_RayIterator_((SpatialPartition_Tree_RayIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 2u, (const unsigned int *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_1_0;
+  *(float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = 0;
+  *(float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3248) = 0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = FLOAT_500_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0xC) = FLOAT_210_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = FLOAT_315_0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  SpatialPartition_Tree_RayIterator::Init((SpatialPartition_Tree_RayIterator *)(v2 + 64), v4, (const vec3_t *)(v2 + 8), (const vec3_t *)(v2 + 12864));
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_RayIterator_((SpatialPartition_Tree_RayIterator *)(v2 + 64), 1u, (const unsigned int *)(v2 + 4));
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_95_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = FLOAT_218_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3248) = FLOAT_315_0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(v2 + 64), v4, (const vec3_t *)(v2 + 12864), 5.0999999);
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 1u, (const unsigned int *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_95_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = FLOAT_218_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3248) = FLOAT_315_0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(v2 + 64), v4, (const vec3_t *)(v2 + 12864), 4.9000001);
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 0, NULL);
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_95_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = FLOAT_218_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3248) = FLOAT_315_0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(v2 + 64), v4, (const vec3_t *)(v2 + 12864), 1105.1);
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 2u, (const unsigned int *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_111_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = FLOAT_221_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3248) = FLOAT_331_0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(v2 + 64), v4, (const vec3_t *)(v2 + 12864), 1.8320508);
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 1u, (const unsigned int *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_111_0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = FLOAT_221_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3248) = FLOAT_331_0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(v2 + 64), v4, (const vec3_t *)(v2 + 12864), 1.6320508);
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 0, NULL);
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3240) = FLOAT_1105_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3244) = FLOAT_205_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3248) = FLOAT_305_0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  SpatialPartition_Tree_SphereIterator::Init((SpatialPartition_Tree_SphereIterator *)(v2 + 64), v4, (const vec3_t *)(v2 + 12864), 0.00000011920929);
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SphereIterator_((SpatialPartition_Tree_SphereIterator *)(v2 + 64), 1u, (const unsigned int *)(v2 + 4));
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  *(_OWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x28) = _xmm_c3fa000000000000000000003f800000;
+  SpatialPartition_Tree_FrustumIterator::Init((SpatialPartition_Tree_FrustumIterator *)(v2 + 64), v4, (const vec4_t *)(v2 + 40), 1u);
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_FrustumIterator_((SpatialPartition_Tree_FrustumIterator *)(v2 + 64), 1u, (const unsigned int *)(v2 + 4));
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  *(_OWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = _xmm;
+  SpatialPartition_Tree_FrustumIterator::Init((SpatialPartition_Tree_FrustumIterator *)(v2 + 64), v4, (const vec4_t *)(v2 + 24), 1u);
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_FrustumIterator_((SpatialPartition_Tree_FrustumIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 2u, (const unsigned int *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
+  v5 = *(_OWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18);
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  *(_OWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3270) = v5;
+  *(_OWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3280) = _xmm;
+  SpatialPartition_Tree_FrustumIterator::Init((SpatialPartition_Tree_FrustumIterator *)(v2 + 64), v4, (const vec4_t *)(v2 + 12912), 2u);
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_FrustumIterator_((SpatialPartition_Tree_FrustumIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 1u, (const unsigned int *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
+  *(__m256i *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x3290) = _ymm;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  *(_OWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x32B0) = _xmm;
+  SpatialPartition_Tree_FrustumIterator::Init((SpatialPartition_Tree_FrustumIterator *)(v2 + 64), v4, (const vec4_t *)(v2 + 12944), 3u);
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_FrustumIterator_((SpatialPartition_Tree_FrustumIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 2u, (const unsigned int *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
 }
 
 /*
@@ -1999,174 +1347,117 @@ SpartialPartition_Tree_Test::SegmentAABBIntersection
 */
 bool SpartialPartition_Tree_Test::SegmentAABBIntersection(const vec3_t *p0, const vec3_t *p1, const vec3_t *boxMin, const vec3_t *boxMax)
 {
-  unsigned int v43; 
-  bool v47; 
-  bool v51; 
-  bool v52; 
-  bool v53; 
-  bool result; 
-  __int64 v78; 
-  __int64 v79; 
-  char v83; 
-  void *retaddr; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  int v10; 
+  float v11; 
+  int v12; 
+  float v13; 
+  int v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  unsigned int v19; 
+  __int64 v20; 
+  bool v21; 
+  float v22; 
+  __int128 v23; 
+  float v24; 
+  __int128 v25; 
+  bool v29; 
+  __int64 v31; 
+  __int64 v32; 
+  int v33[4]; 
+  int v34[4]; 
+  int v35[4]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps xmmword ptr [rax-98h], xmm14
-    vmovss  xmm7, cs:__real@3f000000
-    vmovss  xmm8, dword ptr [r9+8]
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm1, xmm0, dword ptr [rcx]
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  xmm3, dword ptr [r9]
-    vmovss  xmm5, dword ptr [r9+4]
-    vmovss  xmm13, cs:__real@7f7fffff
-    vmovss  xmm14, cs:__real@ff7fffff
-    vmovss  xmm12, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm10, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm11, cs:__real@38d1b717
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  [rsp+118h+var_B8], xmm1
-    vsubss  xmm1, xmm0, dword ptr [rcx+4]
-    vmovss  xmm0, dword ptr [rdx+8]
-    vmovss  [rsp+118h+var_B4], xmm1
-    vsubss  xmm1, xmm0, dword ptr [rcx+8]
-    vsubss  xmm0, xmm3, dword ptr [r8]
-    vmulss  xmm0, xmm0, xmm7
-    vmovss  [rsp+118h+var_B0], xmm1
-    vsubss  xmm1, xmm5, dword ptr [r8+4]
-    vmulss  xmm2, xmm1, xmm7
-    vmovss  [rsp+118h+var_D8], xmm0
-    vsubss  xmm0, xmm8, dword ptr [r8+8]
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm0, xmm3, dword ptr [r8]
-    vmovss  [rsp+118h+var_D0], xmm1
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm0, xmm5, dword ptr [r8+4]
-    vmovss  [rsp+118h+var_D4], xmm2
-    vsubss  xmm2, xmm1, dword ptr [rcx]
-    vmulss  xmm1, xmm0, xmm7
-    vaddss  xmm0, xmm8, dword ptr [r8+8]
-    vmovss  [rsp+118h+var_C8], xmm2
-    vsubss  xmm2, xmm1, dword ptr [rcx+4]
-  }
-  v43 = 0;
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm7
-    vmovss  [rsp+118h+var_C4], xmm2
-    vsubss  xmm2, xmm1, dword ptr [rcx+8]
-    vmovss  [rsp+118h+var_C0], xmm2
-  }
-  _RDI = 0i64;
-  v47 = 1;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
+  v4 = boxMax->v[2];
+  v5 = p1->v[1];
+  v6 = boxMax->v[0];
+  v7 = boxMax->v[1];
+  *(float *)&_XMM13 = FLOAT_3_4028235e38;
+  *(float *)&_XMM14 = FLOAT_N3_4028235e38;
+  *(float *)v35 = p1->v[0] - p0->v[0];
+  *(float *)&v10 = v5 - p0->v[1];
+  v11 = p1->v[2];
+  v35[1] = v10;
+  *(float *)&v12 = v11 - p0->v[2];
+  v13 = (float)(v6 - boxMin->v[0]) * 0.5;
+  v35[2] = v12;
+  *(float *)&v14 = (float)(v7 - boxMin->v[1]) * 0.5;
+  *(float *)v33 = v13;
+  v15 = v6 + boxMin->v[0];
+  *(float *)&v33[2] = (float)(v4 - boxMin->v[2]) * 0.5;
+  v16 = v15 * 0.5;
+  v17 = v7 + boxMin->v[1];
+  v33[1] = v14;
+  v18 = v4 + boxMin->v[2];
+  *(float *)v34 = v16 - p0->v[0];
+  v19 = 0;
+  *(float *)&v34[1] = (float)(v17 * 0.5) - p0->v[1];
+  *(float *)&v34[2] = (float)(v18 * 0.5) - p0->v[2];
+  v20 = 0i64;
+  v21 = 1;
   while ( 1 )
   {
-    if ( !v47 )
+    if ( !v21 )
     {
-      LODWORD(v79) = 3;
-      LODWORD(v78) = v43;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v78, v79) )
+      LODWORD(v32) = 3;
+      LODWORD(v31) = v19;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v31, v32) )
         __debugbreak();
     }
-    __asm { vmovss  xmm7, [rsp+rdi+118h+var_D8] }
-    if ( v43 >= 3 )
+    v22 = *(float *)&v33[v20];
+    if ( v19 >= 3 )
     {
-      LODWORD(v79) = 3;
-      LODWORD(v78) = v43;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v78, v79) )
+      LODWORD(v32) = 3;
+      LODWORD(v31) = v19;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v31, v32) )
         __debugbreak();
     }
-    __asm { vmovss  xmm6, [rsp+rdi+118h+var_C8] }
-    v51 = v43 < 3;
-    v52 = v43 <= 3;
-    if ( v43 >= 3 )
+    v23 = (unsigned int)v34[v20];
+    if ( v19 >= 3 )
     {
-      LODWORD(v79) = 3;
-      LODWORD(v78) = v43;
-      v53 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v78, v79);
-      v51 = 0;
-      v52 = !v53;
-      if ( v53 )
+      LODWORD(v32) = 3;
+      LODWORD(v31) = v19;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v31, v32) )
         __debugbreak();
     }
-    __asm
+    v24 = *(float *)&v35[v20];
+    if ( COERCE_FLOAT(LODWORD(v24) & _xmm) <= 0.000099999997 )
     {
-      vmovss  xmm1, [rsp+rdi+118h+var_B8]
-      vandps  xmm0, xmm1, xmm10
-      vcomiss xmm0, xmm11
-    }
-    if ( v52 )
-    {
-      __asm
-      {
-        vxorps  xmm0, xmm6, xmm12
-        vsubss  xmm1, xmm0, xmm7
-        vcomiss xmm1, xmm8
-      }
-      if ( !v52 )
-        break;
-      __asm
-      {
-        vsubss  xmm0, xmm7, xmm6
-        vcomiss xmm0, xmm8
-      }
+      if ( (float)(COERCE_FLOAT(v23 ^ _xmm) - v22) > 0.0 )
+        return 0;
+      v29 = (float)(v22 - *(float *)&v23) < 0.0;
     }
     else
     {
+      v25 = v23;
+      *(float *)&v25 = (float)(*(float *)&v23 - v22) * (float)(1.0 / v24);
+      _XMM3 = v25;
       __asm
       {
-        vdivss  xmm2, xmm9, xmm1
-        vsubss  xmm1, xmm6, xmm7
-        vaddss  xmm0, xmm6, xmm7
-        vmulss  xmm3, xmm1, xmm2
-        vmulss  xmm4, xmm0, xmm2
         vminss  xmm0, xmm3, xmm4
         vmaxss  xmm1, xmm3, xmm4
         vmaxss  xmm14, xmm0, xmm14
         vminss  xmm13, xmm1, xmm13
-        vcomiss xmm14, xmm13
       }
-      if ( !v52 )
-        break;
-      __asm { vcomiss xmm13, xmm8 }
+      if ( *(float *)&_XMM14 > *(float *)&_XMM13 )
+        return 0;
+      v29 = *(float *)&_XMM13 < 0.0;
     }
-    if ( v51 )
+    if ( v29 )
       break;
-    ++v43;
-    _RDI += 4i64;
-    v47 = v43 < 3;
-    if ( (int)v43 >= 3 )
-    {
-      __asm { vcomiss xmm14, xmm9 }
-      break;
-    }
+    ++v19;
+    ++v20;
+    v21 = v19 < 3;
+    if ( (int)v19 >= 3 )
+      return *(float *)&_XMM14 < 1.0 && *(float *)&_XMM13 > 0.0;
   }
-  result = 0;
-  _R11 = &v83;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
-  return result;
+  return 0;
 }
 
 /*
@@ -2177,89 +1468,52 @@ SpatialPartition_Tree_Test
 void SpatialPartition_Tree_Test()
 {
   signed __int64 v0; 
-  void *v3; 
-  unsigned __int64 v7; 
-  __int64 v16; 
-  char v17[4400]; 
-  char v20; 
+  void *v1; 
+  unsigned __int64 v2; 
+  unsigned __int64 v3; 
+  __int64 v6; 
+  char v7[4400]; 
 
-  v3 = alloca(v0);
-  __asm
-  {
-    vmovaps [rsp+1198h+var_18], xmm6
-    vmovaps [rsp+1198h+var_28], xmm7
-  }
-  _RBP = (unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(_RBP + 4384) = (unsigned __int64)&v16 ^ _security_cookie;
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-    vmovss  xmm7, cs:__real@3f800000
-  }
-  v7 = __rdtsc();
-  __asm
-  {
-    vmovss  dword ptr [rbp+20h], xmm7
-    vmovss  dword ptr [rbp+24h], xmm7
-    vmovups xmmword ptr [rbp+10h], xmm0
-  }
-  SpartialPartition_Tree_Test::TestBox(NULL, (const ExtentBounds *)(((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64) + 16), 0, NULL);
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  *(_QWORD *)(((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+10h], xmm6
-    vmovss  dword ptr [rbp+14h], xmm6
-    vmovss  dword ptr [rbp+18h], xmm6
-  }
-  *(_QWORD *)(((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+0], xmm7
-    vmovss  dword ptr [rbp+4], xmm7
-    vmovss  dword ptr [rbp+8], xmm7
-  }
-  SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(_RBP + 64), NULL, (const vec3_t *)(_RBP + 16), (const vec3_t *)((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64));
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SegmentIterator_((SpatialPartition_Tree_SegmentIterator *)(((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 0, NULL);
-  *(_QWORD *)(((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
-  *(_DWORD *)(((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
-  *(_QWORD *)(((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
-  *(_QWORD *)(((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+10h], xmm7
-    vmovss  dword ptr [rbp+14h], xmm7
-    vmovss  dword ptr [rbp+18h], xmm7
-    vmovss  dword ptr [rbp+0], xmm6
-    vmovss  dword ptr [rbp+4], xmm6
-    vmovss  dword ptr [rbp+8], xmm6
-  }
-  SpatialPartition_Tree_RayIterator::Init((SpatialPartition_Tree_RayIterator *)(_RBP + 64), NULL, (const vec3_t *)((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64), (const vec3_t *)(_RBP + 16));
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_RayIterator_((SpatialPartition_Tree_RayIterator *)(((unsigned __int64)v17 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 0, NULL);
+  v1 = alloca(v0);
+  v2 = (unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(v2 + 4384) = (unsigned __int64)&v6 ^ _security_cookie;
+  v3 = __rdtsc();
+  *(const float *)(v2 + 32) = FLOAT_1_0;
+  *(const float *)(v2 + 36) = FLOAT_1_0;
+  *(_OWORD *)(v2 + 16) = _xmm;
+  SpartialPartition_Tree_Test::TestBox(NULL, (const ExtentBounds *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 16), 0, NULL);
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = 0;
+  *(float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x14) = 0;
+  *(float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  *(const float *)v2 = FLOAT_1_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = FLOAT_1_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = FLOAT_1_0;
+  SpatialPartition_Tree_SegmentIterator::Init((SpatialPartition_Tree_SegmentIterator *)(v2 + 64), NULL, (const vec3_t *)(v2 + 16), (const vec3_t *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64));
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_SegmentIterator_((SpatialPartition_Tree_SegmentIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 0, NULL);
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x100) = 0i64;
+  *(_DWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x108) = 0;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x110) = 0i64;
+  *(_QWORD *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x118) = 0i64;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x10) = FLOAT_1_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x14) = FLOAT_1_0;
+  *(const float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 0x18) = FLOAT_1_0;
+  *(float *)v2 = 0;
+  *(float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 4) = 0;
+  *(float *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 8) = 0;
+  SpatialPartition_Tree_RayIterator::Init((SpatialPartition_Tree_RayIterator *)(v2 + 64), NULL, (const vec3_t *)((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64), (const vec3_t *)(v2 + 16));
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_RayIterator_((SpatialPartition_Tree_RayIterator *)(((unsigned __int64)v7 & 0xFFFFFFFFFFFFFFE0ui64) + 64), 0, NULL);
   SpartialPartition_Tree_Test::RunTest_Simple();
   SpartialPartition_Tree_Test::RunTest_Moving();
   SpartialPartition_Tree_Test::RunTest_Big();
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
-  if ( (__int64)(__rdtsc() - v7) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovq   rdx, xmm1
-  }
-  Sys_Printf("SpatialPartition Tree tests ran in %.3f ms.\n", *(double *)&_XMM1);
-  _R11 = &v20;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
+  if ( (__int64)(__rdtsc() - v3) < 0 )
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Sys_Printf("SpatialPartition Tree tests ran in %.3f ms.\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
 }
 
 /*
@@ -2267,37 +1521,30 @@ void SpatialPartition_Tree_Test()
 SpartialPartition_Tree_Test::SphereAABBIntersection
 ==============
 */
-
-char __fastcall SpartialPartition_Tree_Test::SphereAABBIntersection(const vec3_t *spherePos, double sphereRadius, const vec3_t *boxMin, const vec3_t *boxMax)
+bool SpartialPartition_Tree_Test::SphereAABBIntersection(const vec3_t *spherePos, float sphereRadius, const vec3_t *boxMin, const vec3_t *boxMax)
 {
+  float v7; 
+
+  _XMM3 = LODWORD(spherePos->v[0]);
   __asm
   {
-    vmovss  xmm3, dword ptr [rcx]
     vminss  xmm0, xmm3, dword ptr [r9]
     vmaxss  xmm2, xmm0, dword ptr [r8]
-    vmovaps [rsp+28h+var_18], xmm6
-    vsubss  xmm6, xmm2, xmm3
-    vmovss  xmm3, dword ptr [r9+4]
+  }
+  v7 = *(float *)&_XMM2 - *(float *)&_XMM3;
+  _XMM3 = LODWORD(boxMax->v[1]);
+  __asm
+  {
     vminss  xmm0, xmm3, dword ptr [rcx+4]
     vmaxss  xmm2, xmm0, dword ptr [r8+4]
-    vmovss  xmm3, dword ptr [r9+8]
-    vminss  xmm0, xmm3, dword ptr [rcx+8]
-    vsubss  xmm5, xmm2, dword ptr [rcx+4]
-    vmovaps [rsp+28h+var_28], xmm8
-    vmovaps xmm8, xmm1
-    vmaxss  xmm1, xmm0, dword ptr [r8+8]
-    vsubss  xmm4, xmm1, dword ptr [rcx+8]
-    vmulss  xmm0, xmm6, xmm6
-    vmovaps xmm6, [rsp+28h+var_18]
-    vmulss  xmm2, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm0, xmm8, xmm8
-    vmovaps xmm8, [rsp+28h+var_28]
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm4, xmm3, xmm1
-    vcomiss xmm0, xmm4
   }
-  return 1;
+  _XMM3 = LODWORD(boxMax->v[2]);
+  __asm
+  {
+    vminss  xmm0, xmm3, dword ptr [rcx+8]
+    vmaxss  xmm1, xmm0, dword ptr [r8+8]
+  }
+  return (float)(sphereRadius * sphereRadius) >= (float)((float)((float)((float)(*(float *)&_XMM2 - spherePos->v[1]) * (float)(*(float *)&_XMM2 - spherePos->v[1])) + (float)(v7 * v7)) + (float)((float)(*(float *)&_XMM1 - spherePos->v[2]) * (float)(*(float *)&_XMM1 - spherePos->v[2])));
 }
 
 /*
@@ -2308,59 +1555,53 @@ SpartialPartition_Tree_Test::TestBox
 void SpartialPartition_Tree_Test::TestBox(SpatialPartition_Tree *tree, const ExtentBounds *box, unsigned int expectedHitCount, const unsigned int *expectedHits)
 {
   signed __int64 v4; 
-  void *v7; 
-  __int64 v32; 
-  char v33[4368]; 
+  void *v5; 
+  unsigned __int64 v6; 
+  float v7; 
+  __int128 v8; 
+  float v9; 
+  float v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v15; 
+  __int128 v18; 
+  __int128 v21; 
+  __int64 v24; 
+  char v25[4368]; 
 
-  v7 = alloca(v4);
-  __asm
-  {
-    vmovaps [rsp+1188h+var_28], xmm7
-    vmovaps [rsp+1188h+var_38], xmm8
-  }
-  _RBP = (unsigned __int64)v33 & 0xFFFFFFFFFFFFFFE0ui64;
-  *(_QWORD *)(_RBP + 4352) = (unsigned __int64)&v32 ^ _security_cookie;
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f000000
-    vmovss  xmm8, dword ptr [rdx+0Ch]
-    vaddss  xmm0, xmm8, dword ptr [rdx]
-    vmovss  xmm5, dword ptr [rdx+10h]
-    vmovss  xmm7, dword ptr [rdx+14h]
-    vmulss  xmm2, xmm0, xmm1
-    vaddss  xmm0, xmm5, dword ptr [rdx+4]
-    vmulss  xmm3, xmm0, xmm1
-    vaddss  xmm0, xmm7, dword ptr [rdx+8]
-    vmulss  xmm4, xmm0, xmm1
-    vsubss  xmm0, xmm2, dword ptr [rdx]
-    vsubss  xmm1, xmm8, xmm2
-    vmaxss  xmm1, xmm1, xmm0
-    vsubss  xmm0, xmm3, dword ptr [rdx+4]
-    vmovss  dword ptr [rbp+0Ch], xmm1
-    vmovss  dword ptr [rbp+0], xmm2
-    vsubss  xmm2, xmm5, xmm3
-    vmaxss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rbp+4], xmm3
-    vsubss  xmm3, xmm4, dword ptr [rdx+8]
-    vsubss  xmm0, xmm7, xmm4
-    vmovss  dword ptr [rbp+10h], xmm1
-    vmaxss  xmm1, xmm3, xmm0
-  }
-  *(_QWORD *)(_RBP + 224) = 0i64;
-  *(_DWORD *)(_RBP + 232) = 0;
-  *(_QWORD *)(_RBP + 240) = 0i64;
-  __asm
-  {
-    vmovss  dword ptr [rbp+14h], xmm1
-    vmovss  dword ptr [rbp+8], xmm4
-  }
-  *(_QWORD *)(_RBP + 248) = 0i64;
-  SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(((unsigned __int64)v33 & 0xFFFFFFFFFFFFFFE0ui64) + 32), tree, (const Bounds *)((unsigned __int64)v33 & 0xFFFFFFFFFFFFFFE0ui64));
-  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_AABBIterator_((SpatialPartition_Tree_AABBIterator *)(((unsigned __int64)v33 & 0xFFFFFFFFFFFFFFE0ui64) + 32), expectedHitCount, expectedHits);
-  __asm
-  {
-    vmovaps xmm7, [rsp+1188h+var_28]
-    vmovaps xmm8, [rsp+1188h+var_38]
-  }
+  v5 = alloca(v4);
+  v6 = (unsigned __int64)v25 & 0xFFFFFFFFFFFFFFE0ui64;
+  *(_QWORD *)(v6 + 4352) = (unsigned __int64)&v24 ^ _security_cookie;
+  v7 = box->maxs.v[0];
+  v8 = LODWORD(box->maxs.v[1]);
+  v9 = (float)(v7 + box->mins.v[0]) * 0.5;
+  v10 = (float)(*(float *)&v8 + box->mins.v[1]) * 0.5;
+  v11 = LODWORD(box->maxs.v[2]);
+  *(float *)&v11 = (float)(*(float *)&v11 + box->mins.v[2]) * 0.5;
+  v12 = v11;
+  v15 = LODWORD(v7);
+  *(float *)&v15 = v7 - v9;
+  _XMM1 = v15;
+  __asm { vmaxss  xmm1, xmm1, xmm0 }
+  *(float *)(v6 + 12) = *(float *)&_XMM1;
+  *(float *)v6 = v9;
+  v18 = v8;
+  *(float *)&v18 = *(float *)&v8 - v10;
+  _XMM2 = v18;
+  __asm { vmaxss  xmm1, xmm2, xmm0 }
+  *(float *)(v6 + 4) = v10;
+  v21 = v12;
+  *(float *)&v21 = *(float *)&v12 - box->mins.v[2];
+  _XMM3 = v21;
+  *(float *)(v6 + 16) = *(float *)&_XMM1;
+  __asm { vmaxss  xmm1, xmm3, xmm0 }
+  *(_QWORD *)(v6 + 224) = 0i64;
+  *(_DWORD *)(v6 + 232) = 0;
+  *(_QWORD *)(v6 + 240) = 0i64;
+  *(float *)(v6 + 20) = *(float *)&_XMM1;
+  *(float *)(v6 + 8) = *(float *)&v12;
+  *(_QWORD *)(v6 + 248) = 0i64;
+  SpatialPartition_Tree_AABBIterator::Init((SpatialPartition_Tree_AABBIterator *)(((unsigned __int64)v25 & 0xFFFFFFFFFFFFFFE0ui64) + 32), tree, (const Bounds *)((unsigned __int64)v25 & 0xFFFFFFFFFFFFFFE0ui64));
+  SpartialPartition_Tree_Test::TestIterator_SpatialPartition_Tree_AABBIterator_((SpatialPartition_Tree_AABBIterator *)(((unsigned __int64)v25 & 0xFFFFFFFFFFFFFFE0ui64) + 32), expectedHitCount, expectedHits);
 }
 

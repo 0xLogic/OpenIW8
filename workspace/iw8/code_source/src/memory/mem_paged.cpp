@@ -1962,140 +1962,114 @@ StreamerMemLoan *Mem_Paged_DecommitSubPageMemoryInternal(StreamerMemLoan *result
 Mem_Paged_Dump
 ==============
 */
-
-void __fastcall Mem_Paged_Dump(double _XMM0_8)
+void Mem_Paged_Dump(void)
 {
   unsigned __int64 PageTableWaste; 
-  unsigned __int64 v4; 
+  unsigned __int64 v1; 
+  __int64 v2; 
+  unsigned __int64 v3; 
+  const unsigned __int64 *v4; 
   __int64 v5; 
-  unsigned __int64 v6; 
-  const unsigned __int64 *v7; 
-  __int64 v8; 
-  int v11; 
-  bool v12; 
-  unsigned __int64 v13; 
-  __int64 v14; 
-  __int64 v15; 
+  int v6; 
+  bool v7; 
+  unsigned __int64 v8; 
+  __int64 v9; 
+  __int64 v10; 
+  __int64 v11; 
+  float v12; 
+  float v13; 
+  double v14; 
+  float v15; 
+  float v16; 
   unsigned __int64 *p_size; 
-  __int64 v25; 
-  char *fmt; 
-  char *fmta; 
-  __int64 v33; 
-  __int64 v34; 
+  __int64 v18; 
+  float v19; 
+  float v20; 
+  __int64 v21; 
+  __int64 v22; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps [rsp+78h+var_38], xmm7
-  }
   Mem_Paged_AcquireLock();
   Com_MemDumpStatsLine("Mem_Paged total", (unsigned __int64)s_memPaged.totalPhysicalPageCount << 16);
   Com_MemDumpStatsLine("Mem_Paged free", (unsigned __int64)s_memPaged.pageTree[0].m_freePages << 16);
   Com_MemDumpStatsLine("Mem_Paged page table size", 16i64 * s_memPaged.pageTableSize + 33304);
   PageTableWaste = Mem_Paged_GetPageTableWaste();
   Com_MemDumpStatsLine("Mem_Paged page table waste", PageTableWaste);
-  v4 = 0i64;
-  v5 = 3i64;
-  v6 = 0i64;
-  v7 = s_poolReserveSizes;
-  v8 = 0i64;
+  v1 = 0i64;
+  v2 = 3i64;
+  v3 = 0i64;
+  v4 = s_poolReserveSizes;
+  v5 = 0i64;
   if ( s_poolReserveSizes > (const unsigned __int64 *)s_poolNames )
-    v5 = 0i64;
+    v2 = 0i64;
   if ( s_poolReserveSizes <= (const unsigned __int64 *)s_poolNames )
   {
     do
     {
-      v6 += *v7++;
-      ++v8;
+      v3 += *v4++;
+      ++v5;
     }
-    while ( v8 != v5 );
+    while ( v5 != v2 );
   }
-  Com_MemDumpStatsLine("Mem_Paged virtual reserve", v6);
+  Com_MemDumpStatsLine("Mem_Paged virtual reserve", v3);
   Com_MemDumpPrintf("Mem_Paged reserved virtual address ranges per memory pool:\n");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@5f800000
-    vmovss  xmm7, cs:__real@35800000
-  }
-  v11 = 0;
-  v12 = 1;
-  v13 = 0i64;
+  v6 = 0;
+  v7 = 1;
+  v8 = 0i64;
   do
   {
-    if ( !v12 )
+    if ( !v7 )
     {
-      LODWORD(v34) = 3;
-      LODWORD(v33) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1480, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( MEM_POOL_COUNT )", "pool doesn't index MEM_POOL_COUNT\n\t%i not in [0, %i)", v33, v34) )
+      LODWORD(v22) = 3;
+      LODWORD(v21) = v6;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1480, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( MEM_POOL_COUNT )", "pool doesn't index MEM_POOL_COUNT\n\t%i not in [0, %i)", v21, v22) )
         __debugbreak();
     }
-    v14 = *(_QWORD *)&s_memPaged.isThreadCommitting[v13 / 4 - 248];
-    v15 = *(_QWORD *)&s_memPaged.isThreadCommitting[v13 / 4 - 254];
-    __asm
+    v9 = s_poolReserveSizes[v8 / 8];
+    v10 = *(_QWORD *)&s_memPaged.isThreadCommitting[v8 / 4 - 248];
+    v11 = *(_QWORD *)&s_memPaged.isThreadCommitting[v8 / 4 - 254];
+    v12 = (float)v9;
+    if ( v9 < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
+      v13 = (float)v9;
+      v12 = v13 + 1.8446744e19;
     }
-    if ( (s_poolReserveSizes[v13 / 8] & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, xmm6 }
-    __asm
+    v14 = (float)(v12 * 0.00000095367432);
+    v15 = (float)(v10 - v11);
+    if ( v10 - v11 < 0 )
     {
-      vmulss  xmm0, xmm0, xmm7
-      vcvtss2sd xmm1, xmm0, xmm0
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
+      v16 = (float)(v10 - v11);
+      v15 = v16 + 1.8446744e19;
     }
-    if ( v14 - v15 < 0 )
-      __asm { vaddss  xmm0, xmm0, xmm6 }
-    __asm
-    {
-      vmulss  xmm0, xmm0, xmm7
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovsd  [rsp+78h+fmt], xmm1
-    }
-    Com_MemDumpPrintf("      %016zx - %016zx (size: %8.1f MBs, max possible size: %8.1f MBs)  %s\n", s_memPaged.virtualMem.base + v15, v14 + s_memPaged.virtualMem.base, *(double *)&_XMM3, *(double *)&fmt, s_poolNames[v13 / 8]);
-    ++v11;
-    v13 += 8i64;
-    v12 = (unsigned int)v11 < 3;
+    Com_MemDumpPrintf("      %016zx - %016zx (size: %8.1f MBs, max possible size: %8.1f MBs)  %s\n", s_memPaged.virtualMem.base + v11, v10 + s_memPaged.virtualMem.base, (float)(v15 * 0.00000095367432), v14, s_poolNames[v8 / 8]);
+    ++v6;
+    v8 += 8i64;
+    v7 = (unsigned int)v6 < 3;
   }
-  while ( v11 < 3 );
+  while ( v6 < 3 );
   Com_MemDumpPrintf("Mem_Paged reserved virtual address ranges:\n");
   if ( s_memPaged.virtualMem.reservationCount )
   {
     p_size = &s_memPaged.virtualMem.reservations[0].size;
     do
     {
-      v25 = *((int *)p_size + 2);
-      if ( (unsigned int)v25 >= 3 )
+      v18 = *((int *)p_size + 2);
+      if ( (unsigned int)v18 >= 3 )
       {
-        LODWORD(v34) = 3;
-        LODWORD(v33) = *((_DWORD *)p_size + 2);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1480, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( MEM_POOL_COUNT )", "pool doesn't index MEM_POOL_COUNT\n\t%i not in [0, %i)", v33, v34) )
+        LODWORD(v22) = 3;
+        LODWORD(v21) = *((_DWORD *)p_size + 2);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1480, ASSERT_TYPE_ASSERT, "(unsigned)( pool ) < (unsigned)( MEM_POOL_COUNT )", "pool doesn't index MEM_POOL_COUNT\n\t%i not in [0, %i)", v21, v22) )
           __debugbreak();
       }
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-      }
+      v19 = (float)(__int64)*p_size;
       if ( (*p_size & 0x8000000000000000ui64) != 0i64 )
-        __asm { vaddss  xmm0, xmm0, xmm6 }
-      __asm
       {
-        vmulss  xmm0, xmm0, xmm7
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+78h+fmt], xmm1
+        v20 = (float)(__int64)*p_size;
+        v19 = v20 + 1.8446744e19;
       }
-      Com_MemDumpPrintf("  %2zu: %016zx - %016zx (size: %8.1f MBs)  %s, pool: %s\n", v4++, *(p_size - 1), *(p_size - 1) + *p_size, *(double *)&fmta, (const char *)*(p_size - 2), s_poolNames[v25]);
+      Com_MemDumpPrintf("  %2zu: %016zx - %016zx (size: %8.1f MBs)  %s, pool: %s\n", v1++, *(p_size - 1), *(p_size - 1) + *p_size, (float)(v19 * 0.00000095367432), (const char *)*(p_size - 2), s_poolNames[v18]);
       p_size += 4;
     }
-    while ( v4 < s_memPaged.virtualMem.reservationCount );
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_28]
-    vmovaps xmm7, [rsp+78h+var_38]
+    while ( v1 < s_memPaged.virtualMem.reservationCount );
   }
   Mem_Paged_ReleaseLock();
 }
@@ -2583,63 +2557,63 @@ unsigned __int64 Mem_Paged_GetVirtualReserveSize()
 Mem_Paged_GrabPhysicalPages_XB3
 ==============
 */
-
-void __fastcall Mem_Paged_GrabPhysicalPages_XB3(unsigned int reserveMemorySize, double _XMM1_8)
+void Mem_Paged_GrabPhysicalPages_XB3(unsigned int reserveMemorySize)
 {
+  unsigned int v1; 
+  unsigned __int64 v2; 
   unsigned int v3; 
-  unsigned __int64 v4; 
-  unsigned int v5; 
+  unsigned int v4; 
+  __int64 v5; 
   unsigned int v6; 
-  __int64 v7; 
-  unsigned int v8; 
-  unsigned __int64 v9; 
+  unsigned __int64 v7; 
   XB3ConsoleType XB3ConsoleType; 
-  __int64 v11; 
-  unsigned __int64 v12; 
+  __int64 v9; 
+  unsigned __int64 v10; 
+  unsigned int v11; 
+  unsigned int v12; 
   unsigned int v13; 
   unsigned int v14; 
-  unsigned int v15; 
-  unsigned int v16; 
-  XB3ConsoleType v17; 
-  int v18; 
-  unsigned int v19; 
+  XB3ConsoleType v15; 
+  int v16; 
+  unsigned int v17; 
   unsigned int totalPhysicalPageCount; 
-  bool v21; 
+  bool v19; 
+  unsigned __int64 v20; 
+  unsigned __int64 v21; 
   unsigned __int64 v22; 
   unsigned __int64 v23; 
-  unsigned __int64 v24; 
+  unsigned int v24; 
   unsigned __int64 v25; 
-  unsigned int v26; 
-  unsigned __int64 v27; 
-  int v28; 
-  unsigned int v29; 
+  int v26; 
+  unsigned int v27; 
   Mem_PageTree<262144> *pageTree; 
-  int v31; 
-  unsigned int v32; 
-  unsigned __int64 v33; 
-  unsigned __int64 v34; 
+  int v29; 
+  unsigned int v30; 
+  unsigned __int64 v31; 
+  unsigned __int64 v32; 
+  __int64 v33; 
+  unsigned __int128 v34; 
   __int64 v35; 
-  unsigned __int128 v36; 
-  __int64 v37; 
-  __int64 v46; 
-  double v47; 
+  float v36; 
+  float v37; 
+  float v38; 
+  __int64 v39; 
+  __int64 v40; 
+  __int64 v41; 
+  __int64 v42; 
+  unsigned int v43; 
+  unsigned __int64 v45; 
+  int v46; 
+  unsigned int v47; 
   __int64 v48; 
-  double v49; 
-  __int64 v50; 
-  __int64 v51; 
-  unsigned int v52; 
-  unsigned __int64 v54; 
-  int v55; 
-  unsigned int v56; 
-  __int64 v57; 
   HANDLE CurrentProcess; 
   _SYSTEM_INFO SystemInfo; 
-  int v60; 
-  unsigned __int64 v61; 
-  unsigned __int64 v62; 
-  __int64 v63[8192]; 
+  int v51; 
+  unsigned __int64 v52; 
+  unsigned __int64 v53; 
+  __int64 v54[8192]; 
 
-  v3 = reserveMemorySize;
+  v1 = reserveMemorySize;
   if ( !reserveMemorySize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 986, ASSERT_TYPE_ASSERT, "(reserveMemorySize)", (const char *)&queryFormat, "reserveMemorySize") )
     __debugbreak();
   s_memPaged.totalPhysicalPageCount = 0;
@@ -2652,26 +2626,26 @@ void __fastcall Mem_Paged_GrabPhysicalPages_XB3(unsigned int reserveMemorySize, 
     __debugbreak();
   Com_Printf(16, "Configured %dGB of GPU VA space\n", (s_gpuVAConfig.MaximumValidGraphicsAddress - s_gpuVAConfig.MinimumValidGraphicsAddress) >> 30);
   XB3XMemAlloc_SetDefaultHooks();
-  v60 = 80;
-  if ( !(unsigned int)TitleMemoryStatus(&v60) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1008, ASSERT_TYPE_ASSERT, "(TitleMemoryStatus( &titleMemStatus ))", (const char *)&queryFormat, "TitleMemoryStatus( &titleMemStatus )") )
+  v51 = 80;
+  if ( !(unsigned int)TitleMemoryStatus(&v51) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1008, ASSERT_TYPE_ASSERT, "(TitleMemoryStatus( &titleMemStatus ))", (const char *)&queryFormat, "TitleMemoryStatus( &titleMemStatus )") )
     __debugbreak();
-  v4 = 0x1F4000000i64;
+  v2 = 0x1F4000000i64;
   if ( Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO )
-    v4 = 0x134000000i64;
-  if ( v61 < v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1011, ASSERT_TYPE_ASSERT, "( titleMemStatus.ullTotalMem ) >= ( retailSize )", "%s >= %s\n\t%llu, %llu", "titleMemStatus.ullTotalMem", "retailSize", v61, v4) )
+    v2 = 0x134000000i64;
+  if ( v52 < v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1011, ASSERT_TYPE_ASSERT, "( titleMemStatus.ullTotalMem ) >= ( retailSize )", "%s >= %s\n\t%llu, %llu", "titleMemStatus.ullTotalMem", "retailSize", v52, v2) )
     __debugbreak();
-  v5 = 0;
-  v6 = -1;
+  v3 = 0;
+  v4 = -1;
   CurrentProcess = GetCurrentProcess();
-  v52 = 0;
-  v7 = truncate_cast<unsigned int,unsigned __int64>(v62 >> 16);
-  v8 = truncate_cast<unsigned int,unsigned __int64>((v61 - v4) >> 16);
+  v43 = 0;
+  v5 = truncate_cast<unsigned int,unsigned __int64>(v53 >> 16);
+  v6 = truncate_cast<unsigned int,unsigned __int64>((v52 - v2) >> 16);
   if ( Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO )
   {
-    v9 = (unsigned __int64)v8 << 16;
-    if ( v9 < 0xC0000000 )
+    v7 = (unsigned __int64)v6 << 16;
+    if ( v7 < 0xC0000000 )
     {
-      if ( !XB3XMem_HasAuxMem() && v9 < 0x10000000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1049, ASSERT_TYPE_ASSERT, "( XB3XMem_HasAuxMem() || ( debugPageCount * MEM_PHYSICAL_PAGE_SIZE >= DURANGO_EXPECTED_AUX_MEM_SIZE ) )", "Failed to allocate auxiliary memory on base XB3 hardware!  Please make sure this is configured in the appxmanifest and that you have re-registered the game since the last appxmanifest update OR you are running on XB1-X HW with Durango emulation with \"Profiling Mode\" enabled.") )
+      if ( !XB3XMem_HasAuxMem() && v7 < 0x10000000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1049, ASSERT_TYPE_ASSERT, "( XB3XMem_HasAuxMem() || ( debugPageCount * MEM_PHYSICAL_PAGE_SIZE >= DURANGO_EXPECTED_AUX_MEM_SIZE ) )", "Failed to allocate auxiliary memory on base XB3 hardware!  Please make sure this is configured in the appxmanifest and that you have re-registered the game since the last appxmanifest update OR you are running on XB1-X HW with Durango emulation with \"Profiling Mode\" enabled.") )
         __debugbreak();
     }
     else
@@ -2679,189 +2653,178 @@ void __fastcall Mem_Paged_GrabPhysicalPages_XB3(unsigned int reserveMemorySize, 
       Com_Printf(16, "Detected excessive debug memory.  Assuming Scorpio HW emulating Durango and reducing memory grab accordingly.");
       if ( !XB3XMem_HasAuxMem() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1032, ASSERT_TYPE_ASSERT, "(XB3XMem_HasAuxMem())", (const char *)&queryFormat, "XB3XMem_HasAuxMem()") )
         __debugbreak();
-      v8 -= 49152;
-      if ( !v8 )
+      v6 -= 49152;
+      if ( !v6 )
       {
-        if ( (unsigned int)v7 < 0xAFD7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1038, ASSERT_TYPE_ASSERT, "( availPageCount ) >= ( DURANGO_EMULATION_RETAIL_PAGES_ADJUST )", "%s >= %s\n\t%llu, %llu", "availPageCount", "DURANGO_EMULATION_RETAIL_PAGES_ADJUST", v7, 45015i64) )
+        if ( (unsigned int)v5 < 0xAFD7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1038, ASSERT_TYPE_ASSERT, "( availPageCount ) >= ( DURANGO_EMULATION_RETAIL_PAGES_ADJUST )", "%s >= %s\n\t%llu, %llu", "availPageCount", "DURANGO_EMULATION_RETAIL_PAGES_ADJUST", v5, 45015i64) )
           __debugbreak();
-        LODWORD(v7) = v7 - 45014;
+        LODWORD(v5) = v5 - 45014;
       }
     }
   }
   XB3ConsoleType = Sys_GetXB3ConsoleType();
-  v11 = 0x300000000i64;
-  v12 = 0x300000000i64;
+  v9 = 0x300000000i64;
+  v10 = 0x300000000i64;
   if ( XB3ConsoleType == XB3_CONSOLE_DURANGO )
-    v12 = 0x40000000i64;
-  if ( (unsigned __int64)v8 << 16 > v12 )
+    v10 = 0x40000000i64;
+  if ( (unsigned __int64)v6 << 16 > v10 )
   {
     if ( Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO )
-      v11 = 0x40000000i64;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1054, ASSERT_TYPE_ASSERT, "( debugPageCount * MEM_PHYSICAL_PAGE_SIZE ) <= ( Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO ? MAX_DEBUG_MEM_DURANGO : MAX_DEBUG_MEM_SCORPIO )", "%s <= %s\n\t%llu, %llu", "debugPageCount * MEM_PHYSICAL_PAGE_SIZE", "Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO ? MAX_DEBUG_MEM_DURANGO : MAX_DEBUG_MEM_SCORPIO", (unsigned __int64)v8 << 16, v11) )
+      v9 = 0x40000000i64;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1054, ASSERT_TYPE_ASSERT, "( debugPageCount * MEM_PHYSICAL_PAGE_SIZE ) <= ( Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO ? MAX_DEBUG_MEM_DURANGO : MAX_DEBUG_MEM_SCORPIO )", "%s <= %s\n\t%llu, %llu", "debugPageCount * MEM_PHYSICAL_PAGE_SIZE", "Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO ? MAX_DEBUG_MEM_DURANGO : MAX_DEBUG_MEM_SCORPIO", (unsigned __int64)v6 << 16, v9) )
       __debugbreak();
   }
-  s_memPaged.debugMemorySize = (unsigned __int64)v8 << 16;
-  v13 = v8 + truncate_cast<unsigned int,unsigned __int64>(v4 >> 16);
-  if ( v13 < (unsigned int)v7 )
-    LODWORD(v7) = v13;
-  v14 = truncate_cast<unsigned int,unsigned __int64>((unsigned __int64)(v3 + 0xFFFF) >> 16);
-  v15 = v14;
-  if ( v14 >= (unsigned int)v7 )
+  s_memPaged.debugMemorySize = (unsigned __int64)v6 << 16;
+  v11 = v6 + truncate_cast<unsigned int,unsigned __int64>(v2 >> 16);
+  if ( v11 < (unsigned int)v5 )
+    LODWORD(v5) = v11;
+  v12 = truncate_cast<unsigned int,unsigned __int64>((unsigned __int64)(v1 + 0xFFFF) >> 16);
+  v13 = v12;
+  if ( v12 >= (unsigned int)v5 )
   {
-    LODWORD(v51) = v7;
-    LODWORD(v50) = v14;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1065, ASSERT_TYPE_ASSERT, "( reservePageCount ) < ( possiblePageCount )", "%s < %s\n\t%u, %u", "reservePageCount", "possiblePageCount", v50, v51) )
+    LODWORD(v42) = v5;
+    LODWORD(v41) = v12;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1065, ASSERT_TYPE_ASSERT, "( reservePageCount ) < ( possiblePageCount )", "%s < %s\n\t%u, %u", "reservePageCount", "possiblePageCount", v41, v42) )
       __debugbreak();
   }
-  v16 = v7 - v15;
-  v56 = v16;
-  v17 = Sys_GetXB3ConsoleType();
-  v18 = 0x40000;
-  v19 = 0x40000;
-  if ( v17 == XB3_CONSOLE_DURANGO )
-    v19 = 163840;
-  if ( v13 > v19 )
+  v14 = v5 - v13;
+  v47 = v14;
+  v15 = Sys_GetXB3ConsoleType();
+  v16 = 0x40000;
+  v17 = 0x40000;
+  if ( v15 == XB3_CONSOLE_DURANGO )
+    v17 = 163840;
+  if ( v11 > v17 )
   {
     if ( Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO )
-      v18 = 163840;
-    LODWORD(v51) = v18;
-    LODWORD(v50) = v13;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1067, ASSERT_TYPE_ASSERT, "( desiredPageCount ) <= ( Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO ? PAGE_TABLE_SIZE_DURANGO : PAGE_TABLE_SIZE_SCORPIO )", "%s <= %s\n\t%u, %u", "desiredPageCount", "Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO ? PAGE_TABLE_SIZE_DURANGO : PAGE_TABLE_SIZE_SCORPIO", v50, v51) )
+      v16 = 163840;
+    LODWORD(v42) = v16;
+    LODWORD(v41) = v11;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1067, ASSERT_TYPE_ASSERT, "( desiredPageCount ) <= ( Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO ? PAGE_TABLE_SIZE_DURANGO : PAGE_TABLE_SIZE_SCORPIO )", "%s <= %s\n\t%u, %u", "desiredPageCount", "Sys_GetXB3ConsoleType() == XB3_CONSOLE_DURANGO ? PAGE_TABLE_SIZE_DURANGO : PAGE_TABLE_SIZE_SCORPIO", v41, v42) )
       __debugbreak();
   }
   totalPhysicalPageCount = s_memPaged.totalPhysicalPageCount;
   s_memPaged.pageTree[0].m_rangeMin = 0;
   s_memPaged.pageTree[0].m_rangeMax = 0x3FFFF;
-  v21 = s_memPaged.totalPhysicalPageCount == v16;
-  if ( s_memPaged.totalPhysicalPageCount < v16 )
+  v19 = s_memPaged.totalPhysicalPageCount == v14;
+  if ( s_memPaged.totalPhysicalPageCount < v14 )
   {
     while ( 1 )
     {
-      v22 = v16 - totalPhysicalPageCount;
-      v23 = 0x2000i64;
-      if ( v22 < 0x2000 )
-        v23 = (unsigned int)v22;
-      v54 = v23;
-      if ( !(unsigned int)AllocateTitlePhysicalPages(CurrentProcess, 0x20000000i64, &v54, v63) )
+      v20 = v14 - totalPhysicalPageCount;
+      v21 = 0x2000i64;
+      if ( v20 < 0x2000 )
+        v21 = (unsigned int)v20;
+      v45 = v21;
+      if ( !(unsigned int)AllocateTitlePhysicalPages(CurrentProcess, 0x20000000i64, &v45, v54) )
         break;
-      v24 = v54;
-      if ( v54 != v23 )
+      v22 = v45;
+      if ( v45 != v21 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1081, ASSERT_TYPE_ASSERT, "(pageCount == batchCount)", (const char *)&queryFormat, "pageCount == batchCount") )
           __debugbreak();
-        v24 = v54;
+        v22 = v45;
       }
-      v25 = 0i64;
-      v57 = 0i64;
-      if ( v24 )
+      v23 = 0i64;
+      v48 = 0i64;
+      if ( v22 )
       {
-        v26 = v52;
+        v24 = v43;
         do
         {
-          v27 = v63[v25];
-          if ( v27 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v27, "unsigned", v63[v25]) )
+          v25 = v54[v23];
+          if ( v25 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v25, "unsigned", v54[v23]) )
             __debugbreak();
-          v28 = v27;
-          v29 = v27;
-          if ( (unsigned int)v27 > v6 )
-            v28 = v6;
+          v26 = v25;
+          v27 = v25;
+          if ( (unsigned int)v25 > v4 )
+            v26 = v4;
           pageTree = s_memPaged.pageTree;
-          v55 = v28;
-          v31 = 3;
-          if ( v26 > (unsigned int)v27 )
-            v29 = v26;
-          v32 = 4096;
-          v52 = v29;
+          v46 = v26;
+          v29 = 3;
+          if ( v24 > (unsigned int)v25 )
+            v27 = v24;
+          v30 = 4096;
+          v43 = v27;
           do
           {
-            --v31;
-            v33 = (unsigned int)v27 / v32;
-            LODWORD(v27) = (unsigned int)v27 % v32;
+            --v29;
+            v31 = (unsigned int)v25 / v30;
+            LODWORD(v25) = (unsigned int)v25 % v30;
             if ( (unsigned int)(((char *)pageTree - (char *)s_memPaged.pageTree) >> 3) >= 0x1041 )
             {
-              LODWORD(v48) = 4161;
-              LODWORD(v46) = ((char *)pageTree - (char *)s_memPaged.pageTree) >> 3;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pagetree.h", 128, ASSERT_TYPE_ASSERT, "(unsigned)( entry - m_freePageTree ) < (unsigned)( PAGE_TREE_SIZE )", "entry - m_freePageTree doesn't index PAGE_TREE_SIZE\n\t%i not in [0, %i)", v46, v48) )
+              LODWORD(v40) = 4161;
+              LODWORD(v39) = ((char *)pageTree - (char *)s_memPaged.pageTree) >> 3;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pagetree.h", 128, ASSERT_TYPE_ASSERT, "(unsigned)( entry - m_freePageTree ) < (unsigned)( PAGE_TREE_SIZE )", "entry - m_freePageTree doesn't index PAGE_TREE_SIZE\n\t%i not in [0, %i)", v39, v40) )
                 __debugbreak();
             }
-            if ( !v31 )
+            if ( !v29 )
             {
-              v34 = pageTree->m_freePageTree[0];
-              if ( _bittest64((const __int64 *)&v34, v33) )
+              v32 = pageTree->m_freePageTree[0];
+              if ( _bittest64((const __int64 *)&v32, v31) )
               {
                 if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pagetree.h", 129, ASSERT_TYPE_ASSERT, "(level > 0 || ( *entry & Mem_PageTreeNode( 1U ) << index ) == 0)", (const char *)&queryFormat, "level > 0 || ( *entry & Mem_PageTreeNode( 1U ) << index ) == 0") )
                   __debugbreak();
               }
             }
-            pageTree->m_freePageTree[0] |= 1i64 << v33;
-            v35 = v32 - 1;
-            v36 = (v32 - 1) * (unsigned __int128)0x410410410410411ui64;
-            v32 >>= 6;
-            pageTree = (Mem_PageTree<262144> *)((char *)pageTree + 8 * (unsigned int)v33 * (unsigned int)((*((_QWORD *)&v36 + 1) + ((unsigned __int64)(v35 - *((_QWORD *)&v36 + 1)) >> 1)) >> 5) + 8);
+            pageTree->m_freePageTree[0] |= 1i64 << v31;
+            v33 = v30 - 1;
+            v34 = (v30 - 1) * (unsigned __int128)0x410410410410411ui64;
+            v30 >>= 6;
+            pageTree = (Mem_PageTree<262144> *)((char *)pageTree + 8 * (unsigned int)v31 * (unsigned int)((*((_QWORD *)&v34 + 1) + ((unsigned __int64)(v33 - *((_QWORD *)&v34 + 1)) >> 1)) >> 5) + 8);
           }
-          while ( v31 );
-          v26 = v52;
-          v37 = v57;
-          v6 = v55;
+          while ( v29 );
+          v24 = v43;
+          v35 = v48;
+          v4 = v46;
           if ( s_memPaged.pageTree[0].m_freePages == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_pagetree.h", 136, ASSERT_TYPE_ASSERT, "(m_freePages != 0xffffffffui32)", (const char *)&queryFormat, "m_freePages != UINT32_MAX") )
             __debugbreak();
           ++s_memPaged.pageTree[0].m_freePages;
-          v24 = v54;
-          v25 = v37 + 1;
-          v57 = v25;
+          v22 = v45;
+          v23 = v35 + 1;
+          v48 = v23;
         }
-        while ( v25 < v54 );
-        v16 = v56;
+        while ( v23 < v45 );
+        v14 = v47;
       }
-      if ( v24 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v24, "unsigned", v24) )
+      if ( v22 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v22, "unsigned", v22) )
         __debugbreak();
-      totalPhysicalPageCount = v24 + s_memPaged.totalPhysicalPageCount;
+      totalPhysicalPageCount = v22 + s_memPaged.totalPhysicalPageCount;
       s_memPaged.totalPhysicalPageCount = totalPhysicalPageCount;
-      if ( totalPhysicalPageCount >= v16 )
+      if ( totalPhysicalPageCount >= v14 )
         goto LABEL_93;
     }
-    LODWORD(v46) = GetLastError();
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1077, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "AllocateTitlePhysicalPages failed with error: %x\n", v46) )
+    LODWORD(v39) = GetLastError();
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1077, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "AllocateTitlePhysicalPages failed with error: %x\n", v39) )
       __debugbreak();
     totalPhysicalPageCount = s_memPaged.totalPhysicalPageCount;
 LABEL_93:
-    v3 = reserveMemorySize;
-    v5 = v52;
-    v21 = totalPhysicalPageCount == v16;
+    v1 = reserveMemorySize;
+    v3 = v43;
+    v19 = totalPhysicalPageCount == v14;
   }
-  if ( !v21 )
+  if ( !v19 )
   {
-    LODWORD(v51) = v16;
-    LODWORD(v50) = totalPhysicalPageCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1094, ASSERT_TYPE_ASSERT, "( s_memPaged.totalPhysicalPageCount ) == ( actualPageCount )", "%s == %s\n\t%u, %u", "s_memPaged.totalPhysicalPageCount", "actualPageCount", v50, v51) )
+    LODWORD(v42) = v14;
+    LODWORD(v41) = totalPhysicalPageCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1094, ASSERT_TYPE_ASSERT, "( s_memPaged.totalPhysicalPageCount ) == ( actualPageCount )", "%s == %s\n\t%u, %u", "s_memPaged.totalPhysicalPageCount", "actualPageCount", v41, v42) )
       __debugbreak();
   }
-  if ( !(unsigned int)TitleMemoryStatus(&v60) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1096, ASSERT_TYPE_ASSERT, "(TitleMemoryStatus( &titleMemStatus ))", (const char *)&queryFormat, "TitleMemoryStatus( &titleMemStatus )") )
+  if ( !(unsigned int)TitleMemoryStatus(&v51) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1096, ASSERT_TYPE_ASSERT, "(TitleMemoryStatus( &titleMemStatus ))", (const char *)&queryFormat, "TitleMemoryStatus( &titleMemStatus )") )
     __debugbreak();
-  if ( v62 < v3 )
+  if ( v53 < v1 )
   {
-    __asm
+    v36 = (float)(__int64)v53;
+    if ( (v53 & 0x8000000000000000ui64) != 0i64 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rcx
+      v37 = (float)(__int64)v53;
+      v36 = v37 + 1.8446744e19;
     }
-    if ( (v62 & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddss  xmm0, xmm0, cs:__real@5f800000 }
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@35800000
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovsd  [rsp+10138h+var_10108], xmm3
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vmulss  xmm0, xmm1, cs:__real@35800000
-      vcvtss2sd xmm2, xmm0, xmm0
-      vmovsd  [rsp+10138h+var_10110], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1099, ASSERT_TYPE_ASSERT, "( titleMemStatus.ullAvailMem >= reserveMemorySize )", "After grabbing physical pages expected the OS to still have %.1f MBs physical memory left, but it only has %.1f MBs!", v47, v49) )
+    v38 = (float)v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1099, ASSERT_TYPE_ASSERT, "( titleMemStatus.ullAvailMem >= reserveMemorySize )", "After grabbing physical pages expected the OS to still have %.1f MBs physical memory left, but it only has %.1f MBs!", (float)(v38 * 0.00000095367432), (float)(v36 * 0.00000095367432)) )
       __debugbreak();
   }
-  Mem_PageTree<262144>::SetRange(s_memPaged.pageTree, v6, v5 + 1);
+  Mem_PageTree<262144>::SetRange(s_memPaged.pageTree, v4, v3 + 1);
 }
 
 /*
@@ -2869,63 +2832,53 @@ LABEL_93:
 Mem_Paged_GrabVirtualMemory
 ==============
 */
-
-void __fastcall Mem_Paged_GrabVirtualMemory(__int64 a1, double _XMM1_8)
+void Mem_Paged_GrabVirtualMemory()
 {
-  __int64 v2; 
-  unsigned __int64 v3; 
-  signed __int64 v4; 
-  const void *v5; 
-  char *fmt; 
+  __int64 v0; 
+  unsigned __int64 v1; 
+  signed __int64 v2; 
+  const void *v3; 
+  float v4; 
+  float v5; 
   DWORD LastError; 
 
-  v2 = 0i64;
+  v0 = 0i64;
   s_memPaged.virtualMem.end[0] = 0i64;
   s_memPaged.virtualMem.begin[0] = 0i64;
   do
   {
-    if ( LOWORD(s_poolReserveSizes[(unsigned __int64)v2 / 2]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1209, ASSERT_TYPE_ASSERT, "(IsAligned( s_poolReserveSizes[poolIndex - 1], MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( s_poolReserveSizes[poolIndex - 1], MEM_PHYSICAL_PAGE_SIZE )") )
+    if ( LOWORD(s_poolReserveSizes[(unsigned __int64)v0 / 2]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1209, ASSERT_TYPE_ASSERT, "(IsAligned( s_poolReserveSizes[poolIndex - 1], MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( s_poolReserveSizes[poolIndex - 1], MEM_PHYSICAL_PAGE_SIZE )") )
       __debugbreak();
-    v3 = s_poolReserveSizes[(unsigned __int64)v2 / 2] + *(_QWORD *)&s_memPaged.isThreadCommitting[v2 - 254];
-    *(_QWORD *)&s_memPaged.isThreadCommitting[v2 - 246] = v3;
-    *(_QWORD *)&s_memPaged.isThreadCommitting[v2 - 252] = v3;
-    v2 += 2i64;
+    v1 = s_poolReserveSizes[(unsigned __int64)v0 / 2] + *(_QWORD *)&s_memPaged.isThreadCommitting[v0 - 254];
+    *(_QWORD *)&s_memPaged.isThreadCommitting[v0 - 246] = v1;
+    *(_QWORD *)&s_memPaged.isThreadCommitting[v0 - 252] = v1;
+    v0 += 2i64;
   }
-  while ( v2 < 4 );
-  v4 = s_memPaged.virtualMem.begin[2] + 0x200000000i64;
-  if ( v4 != Mem_Paged_GetVirtualReserveSize() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1215, ASSERT_TYPE_ASSERT, "(virtualMemorySize == Mem_Paged_GetVirtualReserveSize())", (const char *)&queryFormat, "virtualMemorySize == Mem_Paged_GetVirtualReserveSize()") )
+  while ( v0 < 4 );
+  v2 = s_memPaged.virtualMem.begin[2] + 0x200000000i64;
+  if ( v2 != Mem_Paged_GetVirtualReserveSize() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1215, ASSERT_TYPE_ASSERT, "(virtualMemorySize == Mem_Paged_GetVirtualReserveSize())", (const char *)&queryFormat, "virtualMemorySize == Mem_Paged_GetVirtualReserveSize()") )
     __debugbreak();
-  if ( (_WORD)v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1216, ASSERT_TYPE_ASSERT, "(IsAligned( virtualMemorySize, MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( virtualMemorySize, MEM_PHYSICAL_PAGE_SIZE )") )
+  if ( (_WORD)v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1216, ASSERT_TYPE_ASSERT, "(IsAligned( virtualMemorySize, MEM_PHYSICAL_PAGE_SIZE ))", (const char *)&queryFormat, "IsAligned( virtualMemorySize, MEM_PHYSICAL_PAGE_SIZE )") )
     __debugbreak();
-  v5 = VirtualAlloc(NULL, v4, 0x70002000u, 4u);
-  if ( !v5 )
+  v3 = VirtualAlloc(NULL, v2, 0x70002000u, 4u);
+  if ( !v3 )
   {
     LastError = GetLastError();
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 487, ASSERT_TYPE_ASSERT, "( result )", "Failed to reserve %zu bytes, alloc type=%u, protection flags=%u, GetLastError=%d", v4, 1879048192, 4, LastError) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 487, ASSERT_TYPE_ASSERT, "( result )", "Failed to reserve %zu bytes, alloc type=%u, protection flags=%u, GetLastError=%d", v2, 1879048192, 4, LastError) )
       __debugbreak();
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1230, ASSERT_TYPE_ASSERT, "(virtualMemoryAddr)", (const char *)&queryFormat, "virtualMemoryAddr") )
       __debugbreak();
   }
-  IWMem_Allocator_CreateFixed(&s_memPaged.iwMemReserved, "Reserved Mem_Paged", Count, v5, v4);
-  s_memPaged.virtualMem.base = (unsigned __int64)v5;
-  s_memPaged.virtualMem.size = v4;
-  __asm
+  IWMem_Allocator_CreateFixed(&s_memPaged.iwMemReserved, "Reserved Mem_Paged", Count, v3, v2);
+  s_memPaged.virtualMem.base = (unsigned __int64)v3;
+  s_memPaged.virtualMem.size = v2;
+  v4 = (float)v2;
+  if ( v2 < 0 )
   {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rbx
+    v5 = (float)v2;
+    v4 = v5 + 1.8446744e19;
   }
-  if ( v4 < 0 )
-    __asm { vaddss  xmm1, xmm1, cs:__real@5f800000 }
-  __asm
-  {
-    vmulss  xmm0, xmm1, cs:__real@30800000
-    vmulss  xmm1, xmm1, cs:__real@35800000
-    vcvtss2sd xmm3, xmm1, xmm1
-    vcvtss2sd xmm2, xmm0, xmm0
-    vmovq   r9, xmm3
-    vmovsd  [rsp+58h+fmt], xmm2
-  }
-  Com_Printf(16, "Mem_Paged reserved a virtual address space of %zu bytes, %.1f MBs, %.1f GBs\n", v4, *(double *)&_XMM3, *(double *)&fmt);
+  Com_Printf(16, "Mem_Paged reserved a virtual address space of %zu bytes, %.1f MBs, %.1f GBs\n", v2, (float)(v4 * 0.00000095367432), (float)(v4 * 9.3132257e-10));
 }
 
 /*
@@ -2933,20 +2886,18 @@ void __fastcall Mem_Paged_GrabVirtualMemory(__int64 a1, double _XMM1_8)
 Mem_Paged_Init
 ==============
 */
-
-void __fastcall Mem_Paged_Init(__int64 a1, double _XMM1_8)
+void Mem_Paged_Init(void)
 {
   XB3ConsoleType XB3ConsoleType; 
-  unsigned int v3; 
+  unsigned int v1; 
   __int64 PageTableWaste; 
-  __int64 v11; 
+  signed __int64 v3; 
+  float v4; 
   int Heap_0; 
-  char *fmt; 
-  double v14; 
-  __int64 v15; 
-  __int64 v16; 
-  __int64 v17; 
-  __int64 v18; 
+  __int64 v6; 
+  __int64 v7; 
+  __int64 v8; 
+  __int64 v9; 
   StreamerMemPageCounts pageCounts; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1358, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
@@ -2957,30 +2908,18 @@ void __fastcall Mem_Paged_Init(__int64 a1, double _XMM1_8)
     __debugbreak();
   Mem_Paged_InitPageTable();
   XB3ConsoleType = Sys_GetXB3ConsoleType();
-  v3 = 708837376;
+  v1 = 708837376;
   if ( XB3ConsoleType == XB3_CONSOLE_DURANGO )
-    v3 = 562036736;
-  Mem_Paged_GrabPhysicalPages_XB3(v3, _XMM1_8);
+    v1 = 562036736;
+  Mem_Paged_GrabPhysicalPages_XB3(v1);
   if ( s_memPaged.totalPhysicalPageCount > s_memPaged.pageTableSize && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1174, ASSERT_TYPE_ASSERT, "( s_memPaged.totalPhysicalPageCount ) <= ( s_memPaged.pageTableSize )", "%s <= %s\n\t%u, %u", "s_memPaged.totalPhysicalPageCount", "s_memPaged.pageTableSize", s_memPaged.totalPhysicalPageCount, s_memPaged.pageTableSize) )
     __debugbreak();
   PageTableWaste = Mem_Paged_GetPageTableWaste();
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, r9
-    vmulss  xmm0, xmm1, cs:__real@30800000
-    vmulss  xmm1, xmm1, cs:__real@35800000
-  }
-  LODWORD(v16) = s_memPaged.pageTableSize;
-  __asm
-  {
-    vcvtss2sd xmm3, xmm0, xmm0
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovsd  [rsp+68h+var_40], xmm3
-    vmovsd  [rsp+68h+fmt], xmm2
-  }
-  Com_Printf(16, "Mem_Paged allocated %u physical pages (%zu bytes, %.1f MBs, %.1f GBs) with a page table for %u pages (page table size: %zu bytes, unused overhead: %zu bytes)\n", s_memPaged.totalPhysicalPageCount, (unsigned __int64)s_memPaged.totalPhysicalPageCount << 16, *(double *)&fmt, v14, v16, 16i64 * s_memPaged.pageTableSize + 33304, PageTableWaste);
-  Mem_Paged_GrabVirtualMemory(v11, *(double *)&_XMM1);
+  v3 = (unsigned __int64)s_memPaged.totalPhysicalPageCount << 16;
+  v4 = (float)v3;
+  LODWORD(v7) = s_memPaged.pageTableSize;
+  Com_Printf(16, "Mem_Paged allocated %u physical pages (%zu bytes, %.1f MBs, %.1f GBs) with a page table for %u pages (page table size: %zu bytes, unused overhead: %zu bytes)\n", s_memPaged.totalPhysicalPageCount, v3, (float)(v4 * 0.00000095367432), (float)(v4 * 9.3132257e-10), v7, 16i64 * s_memPaged.pageTableSize + 33304, PageTableWaste);
+  Mem_Paged_GrabVirtualMemory();
   pageCounts.pages[0] = 0;
   Mem_Paged_AcquireLock();
   pageCounts.pages[1] = s_memPaged.pageTree[0].m_freePages;
@@ -2991,10 +2930,10 @@ void __fastcall Mem_Paged_Init(__int64 a1, double _XMM1_8)
   Heap_0 = ApuCreateHeap_0(12582912i64, 0x100000i64);
   if ( Heap_0 )
   {
-    LODWORD(v18) = Heap_0;
-    LODWORD(v17) = 0x100000;
-    LODWORD(v15) = 12582912;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1338, ASSERT_TYPE_ASSERT, "( hr == ((HRESULT)0L) )", "ApuCreateHeap(%d, %d) failed with hr=0x%x", v15, v17, v18) )
+    LODWORD(v9) = Heap_0;
+    LODWORD(v8) = 0x100000;
+    LODWORD(v6) = 12582912;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 1338, ASSERT_TYPE_ASSERT, "( hr == ((HRESULT)0L) )", "ApuCreateHeap(%d, %d) failed with hr=0x%x", v6, v8, v9) )
       __debugbreak();
   }
   IWMem_Allocator_CreateFixed(&s_memPaged.iwMemFree, "Free Mem_Paged", NormalSpace, NULL, 0xFFFFFFFFFFFFFFFFui64);
@@ -4316,16 +4255,17 @@ Mem_Paged_UnmapESRAM
 void Mem_Paged_UnmapESRAM(unsigned __int8 *start, unsigned __int8 *end, const Mem_MapRange *mapRanges, unsigned int mapRangeCount)
 {
   int v6; 
+  unsigned int v10; 
   unsigned int v11; 
   int v12; 
-  int v32; 
-  unsigned int v33; 
+  __int64 v15; 
+  int v31; 
+  unsigned int v32; 
   unsigned int *p_pageCount; 
-  __int64 v35; 
+  __int64 v34; 
 
   v6 = 0;
-  _RDI = mapRanges;
-  _EBX = 0;
+  v10 = 0;
   v11 = 0;
   if ( mapRangeCount >= 8 )
   {
@@ -4337,20 +4277,19 @@ void Mem_Paged_UnmapESRAM(unsigned __int8 *start, unsigned __int8 *end, const Me
     }
     do
     {
-      _RDX = v11;
+      v15 = v11;
       v11 += 8;
+      _XMM0 = mapRanges[v15].pageCount;
       __asm
       {
-        vmovd   xmm0, dword ptr [rdi+rdx*8+4]
         vpinsrd xmm0, xmm0, dword ptr [rdi+rax*8+4], 1
         vpinsrd xmm0, xmm0, dword ptr [rdi+r8*8+4], 2
         vpinsrd xmm0, xmm0, dword ptr [rdi+r9*8+4], 3
         vpaddd  xmm1, xmm0, xmm1
       }
-      _RAX = (unsigned int)(v12 + 2);
+      _XMM0 = mapRanges[v12 + 2].pageCount;
       __asm
       {
-        vmovd   xmm0, dword ptr [rdi+rax*8+4]
         vpinsrd xmm0, xmm0, dword ptr [rdi+rdx*8+4], 1
         vpinsrd xmm0, xmm0, dword ptr [rdi+r8*8+4], 2
       }
@@ -4369,34 +4308,34 @@ void Mem_Paged_UnmapESRAM(unsigned __int8 *start, unsigned __int8 *end, const Me
       vpaddd  xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpaddd  xmm0, xmm2, xmm0
-      vmovd   ebx, xmm0
     }
+    v10 = _XMM0;
   }
-  v32 = 0;
+  v31 = 0;
   if ( v11 < mapRangeCount )
   {
     if ( mapRangeCount - v11 >= 2 )
     {
-      v33 = ((mapRangeCount - v11 - 2) >> 1) + 1;
+      v32 = ((mapRangeCount - v11 - 2) >> 1) + 1;
       p_pageCount = &mapRanges[v11 + 1].pageCount;
-      v35 = v33;
-      v11 += 2 * v33;
+      v34 = v32;
+      v11 += 2 * v32;
       do
       {
         v6 += *(p_pageCount - 2);
-        v32 += *p_pageCount;
+        v31 += *p_pageCount;
         p_pageCount += 4;
-        --v35;
+        --v34;
       }
-      while ( v35 );
+      while ( v34 );
     }
     if ( v11 < mapRangeCount )
-      _EBX += _RDI[v11].pageCount;
-    _EBX += v32 + v6;
+      v10 += mapRanges[v11].pageCount;
+    v10 += v31 + v6;
   }
-  if ( _EBX != (unsigned __int64)(end - start) >> 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 3070, ASSERT_TYPE_ASSERT, "(esramPageCount == ( end - start ) / MEM_PHYSICAL_PAGE_SIZE)", (const char *)&queryFormat, "esramPageCount == ( end - start ) / MEM_PHYSICAL_PAGE_SIZE") )
+  if ( v10 != (unsigned __int64)(end - start) >> 16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 3070, ASSERT_TYPE_ASSERT, "(esramPageCount == ( end - start ) / MEM_PHYSICAL_PAGE_SIZE)", (const char *)&queryFormat, "esramPageCount == ( end - start ) / MEM_PHYSICAL_PAGE_SIZE") )
     __debugbreak();
-  if ( (unsigned int)D3DMapEsramMemory_0(1i64, start, _EBX, 0i64) )
+  if ( (unsigned int)D3DMapEsramMemory_0(1i64, start, v10, 0i64) )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\memory\\mem_paged.cpp", 3073, ASSERT_TYPE_ASSERT, "(hr == ((HRESULT)0L))", (const char *)&queryFormat, "hr == S_OK") )
       __debugbreak();

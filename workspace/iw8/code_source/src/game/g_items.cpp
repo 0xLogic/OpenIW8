@@ -281,95 +281,81 @@ G_Items_AddAmmo
 __int64 G_Items_AddAmmo(playerState_s *ps, const Weapon *weapon, bool isAlternate, int count, int fillClip)
 {
   __int64 v9; 
-  unsigned int v13; 
+  unsigned int v10; 
   ClipAmmo *ammoInClip; 
-  __int64 v15; 
-  __int64 v17; 
-  int v20; 
+  __int64 v12; 
+  __int64 v13; 
+  int v14; 
   int MaxPickupableAmmo; 
+  int v16; 
+  int v17; 
+  __int64 v18; 
+  __int64 v19; 
+  unsigned int v20; 
+  ClipAmmo *v21; 
   int v22; 
-  int v26; 
-  __int64 v27; 
-  __int64 v29; 
-  unsigned int v32; 
-  ClipAmmo *v33; 
-  int v34; 
-  int v35; 
-  bool v36; 
+  int v23; 
+  bool v24; 
   int IsClipOnly; 
   int AmmoNotInClip; 
   int ammoCount; 
-  __int64 v40; 
-  __int64 v41; 
-  __int64 v42; 
-  const WeaponDef *v43; 
+  __int64 v28; 
+  __int64 v29; 
+  __int64 v30; 
+  const WeaponDef *v31; 
   BgWeaponMap *weaponMap; 
-  AmmoStore v45; 
+  AmmoStore v33; 
   AmmoStore result; 
   AmmoStore r_ammoType; 
 
-  v36 = isAlternate;
+  v24 = isAlternate;
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 95, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps", isAlternate) )
     __debugbreak();
   weaponMap = GWeaponMap::GetInstance();
   if ( !BG_PlayerHasWeapon(weaponMap, ps, weapon) && !BG_PlayerHasCompatibleWeapon(weaponMap, ps, weapon, isAlternate) )
     return 0i64;
   IsClipOnly = BG_WeaponIsClipOnly(weapon, isAlternate);
-  v43 = BG_WeaponDef(weapon, isAlternate);
-  _RAX = BG_AmmoStoreForWeapon(&result, weapon, isAlternate);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rbp+80h+r_ammoType.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rbp+80h+r_ammoType.weapon.attachmentVariationIndices+5], ymm1
-  }
+  v31 = BG_WeaponDef(weapon, isAlternate);
+  r_ammoType = *BG_AmmoStoreForWeapon(&result, weapon, isAlternate);
   ammoCount = BG_GetAmmoPlayerMax(weaponMap, ps, weapon, isAlternate, &NULL_WEAPON);
   AmmoNotInClip = BG_GetAmmoNotInClip(ps, weapon, isAlternate);
   BG_AddGlobalAmmoForAmmoType(ps, &r_ammoType, count);
-  v13 = 0;
+  v10 = 0;
   ammoInClip = ps->weapCommon.ammoInClip;
-  v41 = 0i64;
-  v15 = 0i64;
-  v42 = 2i64;
-  v40 = 2i64;
+  v29 = 0i64;
+  v12 = 0i64;
+  v30 = 2i64;
+  v28 = 2i64;
   do
   {
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1248, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    _RAX = BG_AmmoStoreForWeapon(&v45, weapon, isAlternate);
-    v17 = v15;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+80h+result.weapon.weaponIdx], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rbp+80h+result.weapon.attachmentVariationIndices+5], ymm1
-    }
+    v13 = v12;
+    result = *BG_AmmoStoreForWeapon(&v33, weapon, isAlternate);
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1229, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( BG_HasLadderHand(ps) && v15 == 1 )
-      v17 = 0i64;
+    if ( BG_HasLadderHand(ps) && v12 == 1 )
+      v13 = 0i64;
     while ( !BG_IsClipCompatible(&ammoInClip->clipIndex, &result) )
     {
-      ++v13;
+      ++v10;
       ++ammoInClip;
-      if ( v13 >= 0xF )
+      if ( v10 >= 0xF )
       {
-        v13 = 0;
-        v20 = 0;
+        v10 = 0;
+        v14 = 0;
         goto LABEL_21;
       }
     }
-    v20 = ammoInClip->ammoCount[v17];
-    v13 = 0;
+    v14 = ammoInClip->ammoCount[v13];
+    v10 = 0;
 LABEL_21:
-    *((_DWORD *)&v41 + v15) = v20;
+    *((_DWORD *)&v29 + v12) = v14;
     ammoInClip = ps->weapCommon.ammoInClip;
-    ++v15;
-    --v40;
+    ++v12;
+    --v28;
   }
-  while ( v40 );
+  while ( v28 );
   if ( (fillClip || IsClipOnly) && (G_Items_FillClip(ps, weapon, isAlternate), IsClipOnly) )
   {
     BG_SetGlobalAmmo(ps, weapon, isAlternate, 0);
@@ -382,23 +368,16 @@ LABEL_21:
       return 0i64;
     return v9;
   }
-  if ( v43->iSharedAmmoCapIndex >= 0 )
+  if ( v31->iSharedAmmoCapIndex >= 0 )
   {
     MaxPickupableAmmo = BG_GetMaxPickupableAmmo(weaponMap, ps, weapon, isAlternate);
-    v22 = MaxPickupableAmmo;
+    v16 = MaxPickupableAmmo;
     if ( MaxPickupableAmmo < 0 )
     {
       if ( IsClipOnly )
       {
-        _RAX = BG_AmmoStoreForWeapon(&v45, weapon, isAlternate);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rbp+80h+result.weapon.weaponIdx], ymm0
-          vmovups ymm1, ymmword ptr [rax+20h]
-          vmovups ymmword ptr [rbp+80h+result.weapon.attachmentVariationIndices+5], ymm1
-        }
-        BG_AddClipAmmo(ps, &result, WEAPON_HAND_DEFAULT, v22);
+        result = *BG_AmmoStoreForWeapon(&v33, weapon, isAlternate);
+        BG_AddClipAmmo(ps, &result, WEAPON_HAND_DEFAULT, v16);
         if ( BG_GetAmmoInClip(ps, weapon, isAlternate, WEAPON_HAND_DEFAULT) <= 0 )
         {
           G_Weapon_TakePlayerWeapon(ps, weapon);
@@ -413,47 +392,40 @@ LABEL_21:
       }
     }
   }
-  v26 = BG_GetAmmoNotInClip(ps, weapon, isAlternate) - AmmoNotInClip;
-  v27 = 0i64;
-  if ( v26 < 0 )
-    v26 = 0;
+  v17 = BG_GetAmmoNotInClip(ps, weapon, isAlternate) - AmmoNotInClip;
+  v18 = 0i64;
+  if ( v17 < 0 )
+    v17 = 0;
   do
   {
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1248, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    _RAX = BG_AmmoStoreForWeapon(&v45, weapon, v36);
-    v29 = v27;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+80h+result.weapon.weaponIdx], ymm0
-      vmovups ymm1, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rbp+80h+result.weapon.attachmentVariationIndices+5], ymm1
-    }
+    v19 = v18;
+    result = *BG_AmmoStoreForWeapon(&v33, weapon, v24);
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1229, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( BG_HasLadderHand(ps) && v27 == 1 )
-      v29 = 0i64;
-    v32 = 0;
-    v33 = ps->weapCommon.ammoInClip;
-    while ( !BG_IsClipCompatible(&v33->clipIndex, &result) )
+    if ( BG_HasLadderHand(ps) && v18 == 1 )
+      v19 = 0i64;
+    v20 = 0;
+    v21 = ps->weapCommon.ammoInClip;
+    while ( !BG_IsClipCompatible(&v21->clipIndex, &result) )
     {
-      ++v32;
-      ++v33;
-      if ( v32 >= 0xF )
+      ++v20;
+      ++v21;
+      if ( v20 >= 0xF )
       {
-        v34 = 0;
+        v22 = 0;
         goto LABEL_53;
       }
     }
-    v34 = v33->ammoCount[v29];
+    v22 = v21->ammoCount[v19];
 LABEL_53:
-    v35 = v34 - *((_DWORD *)&v41 + v27++);
-    v26 += v35;
-    --v42;
+    v23 = v22 - *((_DWORD *)&v29 + v18++);
+    v17 += v23;
+    --v30;
   }
-  while ( v42 );
-  return (unsigned int)v26;
+  while ( v30 );
+  return (unsigned int)v17;
 }
 
 /*
@@ -463,25 +435,20 @@ G_Items_CheckPenetration
 */
 char G_Items_CheckPenetration(const Weapon *r_weapon, const tmat43_t<vec3_t> *penetrationTestMatrix)
 {
-  XModel *v6; 
-  XModel *v7; 
+  XModel *v4; 
+  XModel *v5; 
   const PhysicsAsset *physicsAsset; 
-  char v10; 
-  char v11; 
-  char *fmt; 
-  __int64 ignoreSystems; 
-  __int64 v23; 
+  double InstantiatiationPenetrationDepthForAsset; 
   Physics_InstantiateShapeOverride shapeOverride; 
   vec4_t out; 
 
-  _RSI = penetrationTestMatrix;
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
-  v6 = GUtils::ms_gUtils->GetWeaponWorldModels(GUtils::ms_gUtils, r_weapon);
-  v7 = v6;
-  if ( !v6 )
+  v4 = GUtils::ms_gUtils->GetWeaponWorldModels(GUtils::ms_gUtils, r_weapon);
+  v5 = v4;
+  if ( !v4 )
     return 0;
-  physicsAsset = v6->physicsAsset;
+  physicsAsset = v4->physicsAsset;
   if ( !physicsAsset )
     return 0;
   shapeOverride.shapeOverride = -1;
@@ -491,30 +458,11 @@ char G_Items_CheckPenetration(const Weapon *r_weapon, const tmat43_t<vec3_t> *pe
   *(_WORD *)&shapeOverride.overrideMass = 0;
   shapeOverride.overrideTensor = 0;
   shapeOverride.shapeAddendum = -1;
-  Axis43ToQuat(_RSI, &out);
-  *(double *)&_XMM0 = Physics_GetInstantiatiationPenetrationDepthForAsset(PHYSICS_WORLD_ID_FIRST, physicsAsset, &_RSI->m[3], &out, &shapeOverride, 512);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcomiss xmm0, xmm1
-  }
-  if ( v10 | v11 )
+  Axis43ToQuat(penetrationTestMatrix, &out);
+  InstantiatiationPenetrationDepthForAsset = Physics_GetInstantiatiationPenetrationDepthForAsset(PHYSICS_WORLD_ID_FIRST, physicsAsset, &penetrationTestMatrix->m[3], &out, &shapeOverride, 512);
+  if ( *(float *)&InstantiatiationPenetrationDepthForAsset <= 0.0 )
     return 0;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+2Ch]
-    vmovss  xmm3, dword ptr [rsi+24h]
-    vmovss  xmm2, dword ptr [rsi+28h]
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+0A8h+var_78], xmm0
-    vcvtss2sd xmm1, xmm1, xmm1
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-    vmovsd  qword ptr [rsp+0A8h+ignoreSystems], xmm1
-    vmovq   r9, xmm3
-    vmovsd  [rsp+0A8h+fmt], xmm2
-  }
-  Com_PrintWarning(15, "Weapon %s dropped at (%.2f,%.2f,%.2f) would be penetrating collision by %.2f units - drop failed\n", v7->name, _R9, fmt, ignoreSystems, v23);
+  Com_PrintWarning(15, "Weapon %s dropped at (%.2f,%.2f,%.2f) would be penetrating collision by %.2f units - drop failed\n", v5->name, penetrationTestMatrix->m[3].v[0], penetrationTestMatrix->m[3].v[1], penetrationTestMatrix->m[3].v[2], *(float *)&InstantiatiationPenetrationDepthForAsset);
   return 1;
 }
 
@@ -707,182 +655,136 @@ G_Items_EnablePhysicsDelayed
 */
 void G_Items_EnablePhysicsDelayed(gentity_s *weapEnt, gentity_s *dropper, int dropTime, const tmat43_t<vec3_t> *prevMatrix, scr_string_t tagName)
 {
-  char v38; 
-  char v39; 
-  G_PhysicsObject *v84; 
-  G_PhysicsObject *v86; 
-  unsigned int v90; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  gentity_s *v14; 
+  float v16; 
+  float v17; 
+  float v18; 
+  const dvar_t *v19; 
+  float value; 
+  const dvar_t *v21; 
+  float v22; 
+  __int128 v23; 
+  __int128 v24; 
+  __int128 v25; 
+  __int128 v30; 
+  G_PhysicsObject *v33; 
+  unsigned int v34; 
   int NumRigidBodys; 
-  signed int v92; 
+  signed int v36; 
   hknpBodyId *RigidBodyID; 
-  __int64 v100; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  __int64 v43; 
   float outRadians[2]; 
-  gentity_s *v102; 
+  gentity_s *v45; 
   vec3_t outAxis; 
   vec3_t linearVelocity; 
   tmat43_t<vec3_t> matrix; 
   tmat33_t<vec3_t> out; 
-  tmat33_t<vec3_t> v107; 
-  void *retaddr; 
+  tmat33_t<vec3_t> v50; 
+  __int128 v51; 
+  __int128 v52; 
+  __int128 v53; 
+  __int128 v54; 
+  __int128 v55; 
+  __int128 v56; 
+  __int128 v57; 
+  __int128 v58; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovaps xmmword ptr [r11-68h], xmm8
-  }
-  _RDI = weapEnt;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-    vmovaps xmmword ptr [r11-98h], xmm11
-  }
-  v102 = weapEnt;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-0A8h], xmm12
-    vmovaps xmmword ptr [r11-0B8h], xmm13
-  }
+  v58 = v5;
+  v57 = v6;
+  v56 = v7;
+  v14 = weapEnt;
+  v55 = v8;
+  v54 = v9;
+  v53 = v10;
+  v45 = weapEnt;
+  v52 = v11;
+  v51 = v12;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_Items_EnablePhysicsDelayed");
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2304, ASSERT_TYPE_ASSERT, "( weapEnt )", (const char *)&queryFormat, "weapEnt") )
+  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2304, ASSERT_TYPE_ASSERT, "( weapEnt )", (const char *)&queryFormat, "weapEnt") )
     __debugbreak();
-  if ( _RDI->s.eType != ET_ITEM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2305, ASSERT_TYPE_ASSERT, "( weapEnt->s.eType == ET_ITEM )", (const char *)&queryFormat, "weapEnt->s.eType == ET_ITEM") )
+  if ( v14->s.eType != ET_ITEM && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2305, ASSERT_TYPE_ASSERT, "( weapEnt->s.eType == ET_ITEM )", (const char *)&queryFormat, "weapEnt->s.eType == ET_ITEM") )
     __debugbreak();
-  G_Items_GetStateFromTag(dropper, tagName, _RDI, &matrix, 0);
+  G_Items_GetStateFromTag(dropper, tagName, v14, &matrix, 0);
   if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vdivss  xmm6, xmm0, xmm1
-    vmovss  xmm1, dword ptr [rbp+0B0h+matrix+24h]
-    vsubss  xmm0, xmm1, dword ptr [rsi+24h]
-    vmovss  xmm1, dword ptr [rbp+0B0h+matrix+28h]
-    vmulss  xmm2, xmm0, xmm6
-    vsubss  xmm0, xmm1, dword ptr [rsi+28h]
-    vmovss  xmm1, dword ptr [rbp+0B0h+matrix+2Ch]
-    vmovss  dword ptr [rsp+1B0h+linearVelocity], xmm2
-    vmulss  xmm2, xmm0, xmm6
-    vsubss  xmm0, xmm1, dword ptr [rsi+2Ch]
-    vmovss  dword ptr [rsp+1B0h+linearVelocity+4], xmm2
-    vmulss  xmm2, xmm0, xmm6
-    vmovss  dword ptr [rsp+1B0h+linearVelocity+8], xmm2
-  }
+  v16 = 1000.0 / (float)level.frameDuration;
+  v17 = matrix.m[3].v[1] - prevMatrix->m[3].v[1];
+  linearVelocity.v[0] = (float)(matrix.m[3].v[0] - prevMatrix->m[3].v[0]) * v16;
+  v18 = matrix.m[3].v[2] - prevMatrix->m[3].v[2];
+  linearVelocity.v[1] = v17 * v16;
+  linearVelocity.v[2] = v18 * v16;
   MatrixTranspose((const tmat33_t<vec3_t> *)prevMatrix, &out);
-  MatrixMultiply(&out, (const tmat33_t<vec3_t> *)&matrix, &v107);
-  MatrixToAngleRadAxis(&v107, &outAxis, outRadians);
-  __asm { vmulss  xmm3, xmm6, [rsp+1B0h+outRadians] }
-  _RBX = DVARFLT_actorDropItemMaxVelocity;
-  __asm
-  {
-    vmulss  xmm2, xmm3, dword ptr [rsp+1B0h+outAxis]
-    vmulss  xmm1, xmm3, dword ptr [rsp+1B0h+outAxis+4]
-    vmulss  xmm0, xmm3, dword ptr [rsp+1B0h+outAxis+8]
-    vmovss  dword ptr [rsp+1B0h+outAxis], xmm2
-    vmovss  dword ptr [rsp+1B0h+outAxis+4], xmm1
-    vmovss  dword ptr [rsp+1B0h+outAxis+8], xmm0
-  }
+  MatrixMultiply(&out, (const tmat33_t<vec3_t> *)&matrix, &v50);
+  MatrixToAngleRadAxis(&v50, &outAxis, outRadians);
+  v19 = DVARFLT_actorDropItemMaxVelocity;
+  outAxis.v[0] = (float)(v16 * outRadians[0]) * outAxis.v[0];
+  outAxis.v[1] = (float)(v16 * outRadians[0]) * outAxis.v[1];
+  outAxis.v[2] = (float)(v16 * outRadians[0]) * outAxis.v[2];
   if ( !DVARFLT_actorDropItemMaxVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "actorDropItemMaxVelocity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  _RBX = DVARFLT_actorDropItemMaxAngularVelocity;
+  Dvar_CheckFrontendServerThread(v19);
+  value = v19->current.value;
+  v21 = DVARFLT_actorDropItemMaxAngularVelocity;
   if ( !DVARFLT_actorDropItemMaxAngularVelocity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "actorDropItemMaxAngularVelocity") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
+  Dvar_CheckFrontendServerThread(v21);
+  v22 = v21->current.value;
+  v23 = LODWORD(outAxis.v[1]);
+  *(float *)&v23 = (float)((float)(*(float *)&v23 * *(float *)&v23) + (float)(outAxis.v[0] * outAxis.v[0])) + (float)(outAxis.v[2] * outAxis.v[2]);
+  v24 = v23;
+  v25 = LODWORD(linearVelocity.v[1]);
+  *(float *)&v25 = (float)((float)(*(float *)&v25 * *(float *)&v25) + (float)(linearVelocity.v[0] * linearVelocity.v[0])) + (float)(linearVelocity.v[2] * linearVelocity.v[2]);
+  if ( *(float *)&v25 > (float)(value * value) )
   {
-    vmovss  xmm8, dword ptr [rsp+1B0h+outAxis+4]
-    vmovss  xmm9, dword ptr [rsp+1B0h+outAxis]
-    vmovss  xmm10, dword ptr [rsp+1B0h+outAxis+8]
-    vmovss  xmm11, dword ptr [rsp+1B0h+linearVelocity+4]
-    vmovss  xmm12, dword ptr [rsp+1B0h+linearVelocity]
-    vmovss  xmm13, dword ptr [rsp+1B0h+linearVelocity+8]
-    vmovss  xmm4, dword ptr [rbx+28h]
-    vmovss  xmm5, cs:__real@3f800000
-    vmulss  xmm1, xmm8, xmm8
-    vmulss  xmm0, xmm9, xmm9
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm10, xmm10
-    vaddss  xmm7, xmm2, xmm1
-    vmulss  xmm1, xmm11, xmm11
-    vmulss  xmm0, xmm12, xmm12
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm13, xmm13
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm6, xmm6
-    vcomiss xmm3, xmm0
-  }
-  if ( !(v38 | v39) )
-  {
+    *(float *)&v25 = fsqrt(*(float *)&v25);
+    _XMM1 = v25;
     __asm
     {
-      vsqrtss xmm1, xmm3, xmm3
       vcmpless xmm0, xmm1, cs:__real@80000000
       vblendvps xmm0, xmm1, xmm5, xmm0
-      vdivss  xmm3, xmm5, xmm0
-      vmulss  xmm0, xmm12, xmm3
-      vmulss  xmm1, xmm0, xmm6
-      vmulss  xmm2, xmm11, xmm3
-      vmulss  xmm0, xmm2, xmm6
-      vmovss  dword ptr [rsp+1B0h+linearVelocity], xmm1
-      vmulss  xmm1, xmm13, xmm3
-      vmulss  xmm2, xmm1, xmm6
-      vmovss  dword ptr [rsp+1B0h+linearVelocity+8], xmm2
-      vmovss  dword ptr [rsp+1B0h+linearVelocity+4], xmm0
     }
+    linearVelocity.v[0] = (float)(linearVelocity.v[0] * (float)(1.0 / *(float *)&_XMM0)) * value;
+    linearVelocity.v[2] = (float)(linearVelocity.v[2] * (float)(1.0 / *(float *)&_XMM0)) * value;
+    linearVelocity.v[1] = (float)(linearVelocity.v[1] * (float)(1.0 / *(float *)&_XMM0)) * value;
   }
-  __asm
+  if ( *(float *)&v24 > (float)(v22 * v22) )
   {
-    vmovaps xmm13, [rsp+1B0h+var_B8+8]
-    vmovaps xmm12, [rsp+1B0h+var_A8+8]
-    vmovaps xmm11, [rsp+1B0h+var_98+8]
-    vmovaps xmm6, [rsp+1B0h+var_48+8]
-    vmulss  xmm0, xmm4, xmm4
-    vcomiss xmm7, xmm0
-  }
-  if ( !(v38 | v39) )
-  {
+    v30 = v24;
+    *(float *)&v30 = fsqrt(*(float *)&v24);
+    _XMM1 = v30;
     __asm
     {
-      vsqrtss xmm1, xmm7, xmm7
       vcmpless xmm0, xmm1, cs:__real@80000000
       vblendvps xmm0, xmm1, xmm5, xmm0
-      vdivss  xmm3, xmm5, xmm0
-      vmulss  xmm0, xmm9, xmm3
-      vmulss  xmm1, xmm0, xmm4
-      vmulss  xmm2, xmm8, xmm3
-      vmulss  xmm0, xmm2, xmm4
-      vmovss  dword ptr [rsp+1B0h+outAxis], xmm1
-      vmulss  xmm1, xmm10, xmm3
-      vmulss  xmm2, xmm1, xmm4
-      vmovss  dword ptr [rsp+1B0h+outAxis+8], xmm2
-      vmovss  dword ptr [rsp+1B0h+outAxis+4], xmm0
     }
+    outAxis.v[0] = (float)(outAxis.v[0] * (float)(1.0 / *(float *)&_XMM0)) * v22;
+    outAxis.v[2] = (float)(outAxis.v[2] * (float)(1.0 / *(float *)&_XMM0)) * v22;
+    outAxis.v[1] = (float)(outAxis.v[1] * (float)(1.0 / *(float *)&_XMM0)) * v22;
   }
-  AxisToAngles((const tmat33_t<vec3_t> *)&matrix, &_RDI->r.currentAngles);
-  G_SetOriginAndAngle(_RDI, &matrix.m[3], &_RDI->r.currentAngles, 1, 1);
-  G_Items_EnablePhysics(_RDI);
-  v84 = G_PhysicsObject_Get(_RDI);
-  __asm { vmovaps xmm10, [rsp+1B0h+var_88+8] }
-  v86 = v84;
-  __asm
-  {
-    vmovaps xmm9, [rsp+1B0h+var_78+8]
-    vmovaps xmm8, [rsp+1B0h+var_68+8]
-    vmovaps xmm7, [rsp+1B0h+var_58+8]
-  }
-  if ( !v84 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2348, ASSERT_TYPE_ASSERT, "( physObject )", (const char *)&queryFormat, "physObject") )
+  AxisToAngles((const tmat33_t<vec3_t> *)&matrix, &v14->r.currentAngles);
+  G_SetOriginAndAngle(v14, &matrix.m[3], &v14->r.currentAngles, 1, 1);
+  G_Items_EnablePhysics(v14);
+  v33 = G_PhysicsObject_Get(v14);
+  if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2348, ASSERT_TYPE_ASSERT, "( physObject )", (const char *)&queryFormat, "physObject") )
     __debugbreak();
-  v90 = v86->physicsInstances[0];
-  if ( v90 != -1 )
+  v34 = v33->physicsInstances[0];
+  if ( v34 != -1 )
   {
-    NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, v90);
-    v92 = 0;
+    NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, v34);
+    v36 = 0;
     if ( NumRigidBodys > 0 )
     {
       do
@@ -891,37 +793,30 @@ void G_Items_EnablePhysicsDelayed(gentity_s *weapEnt, gentity_s *dropper, int dr
           __debugbreak();
         if ( !g_physicsServerWorldsCreated )
         {
-          LODWORD(v100) = 0;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v100) )
+          LODWORD(v43) = 0;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v43) )
             __debugbreak();
         }
-        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&outRadians[1], PHYSICS_WORLD_ID_FIRST, v90, v92);
+        RigidBodyID = HavokPhysics_GetRigidBodyID((hknpBodyId *)&outRadians[1], PHYSICS_WORLD_ID_FIRST, v34, v36);
         Physics_SetRigidBodyVelocity(PHYSICS_WORLD_ID_FIRST, RigidBodyID->m_serialAndIndex, &linearVelocity, &outAxis);
-        ++v92;
+        ++v36;
       }
-      while ( v92 < NumRigidBodys );
-      _RDI = v102;
+      while ( v36 < NumRigidBodys );
+      v14 = v45;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+1B0h+linearVelocity]
-      vmovss  xmm1, dword ptr [rsp+1B0h+linearVelocity+4]
-    }
-    _RDI->s.lerp.pos.trTime = level.time;
-    _RDI->s.lerp.apos.trTime = level.time;
-    __asm
-    {
-      vmovss  dword ptr [rdi+28h], xmm0
-      vmovss  xmm0, dword ptr [rsp+1B0h+linearVelocity+8]
-      vmovss  dword ptr [rdi+2Ch], xmm1
-      vmovss  xmm1, dword ptr [rsp+1B0h+outAxis]
-      vmovss  dword ptr [rdi+30h], xmm0
-      vmovss  xmm0, dword ptr [rsp+1B0h+outAxis+4]
-      vmovss  dword ptr [rdi+4Ch], xmm1
-      vmovss  xmm1, dword ptr [rsp+1B0h+outAxis+8]
-      vmovss  dword ptr [rdi+54h], xmm1
-      vmovss  dword ptr [rdi+50h], xmm0
-    }
+    v38 = linearVelocity.v[0];
+    v39 = linearVelocity.v[1];
+    v14->s.lerp.pos.trTime = level.time;
+    v14->s.lerp.apos.trTime = level.time;
+    v14->s.lerp.pos.trDelta.v[0] = v38;
+    v40 = linearVelocity.v[2];
+    v14->s.lerp.pos.trDelta.v[1] = v39;
+    v41 = outAxis.v[0];
+    v14->s.lerp.pos.trDelta.v[2] = v40;
+    v42 = outAxis.v[1];
+    v14->s.lerp.apos.trDelta.v[0] = v41;
+    v14->s.lerp.apos.trDelta.v[2] = outAxis.v[2];
+    v14->s.lerp.apos.trDelta.v[1] = v42;
   }
   Sys_ProfEndNamedEvent();
 }
@@ -933,119 +828,93 @@ G_Items_FillClip
 */
 void G_Items_FillClip(playerState_s *ps, const Weapon *weapon, bool isAlternate)
 {
+  AmmoStore *v6; 
   bool v7; 
-  unsigned int v10; 
-  PlayerHandIndex v11; 
+  unsigned int v8; 
+  PlayerHandIndex v9; 
   GWeaponMap *Instance; 
   ClipAmmo *ammoInClip; 
-  __int64 v14; 
-  __int64 v16; 
+  __int64 v12; 
+  __int64 v13; 
   int IsClipCompatible; 
-  int v20; 
-  int v24; 
+  int v15; 
+  int v16; 
   int ammoCount; 
   int ClipSize; 
-  __int64 v30; 
-  AmmoStore v31; 
+  __int64 v19; 
+  AmmoStore v20; 
   AmmoStore result; 
   AmmoStore r_ammoType; 
 
-  _RAX = BG_AmmoStoreForWeapon(&result, weapon, isAlternate);
+  v6 = BG_AmmoStoreForWeapon(&result, weapon, isAlternate);
   v7 = weapon->weaponIdx == 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+148h+r_ammoType.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+148h+r_ammoType.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_ammoType = *v6;
   if ( !v7 && weapon->weaponIdx < BG_GetNumWeapons() )
   {
-    v10 = 0;
+    v8 = 0;
     ClipSize = BG_GetClipSize(ps, weapon, isAlternate);
-    v11 = WEAPON_HAND_DEFAULT;
+    v9 = WEAPON_HAND_DEFAULT;
     Instance = GWeaponMap::GetInstance();
     ammoInClip = ps->weapCommon.ammoInClip;
-    v14 = 0i64;
-    v30 = BG_PlayerDualWieldingWeapon(Instance, ps, weapon) != 0;
+    v12 = 0i64;
+    v19 = BG_PlayerDualWieldingWeapon(Instance, ps, weapon) != 0;
     do
     {
       if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1248, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      _RAX = BG_AmmoStoreForWeapon(&v31, weapon, isAlternate);
-      v16 = v14;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+148h+result.weapon.weaponIdx], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+148h+result.weapon.attachmentVariationIndices+5], ymm1
-      }
+      v13 = v12;
+      result = *BG_AmmoStoreForWeapon(&v20, weapon, isAlternate);
       if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1229, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      if ( BG_HasLadderHand(ps) && v14 == 1 )
-        v16 = 0i64;
+      if ( BG_HasLadderHand(ps) && v12 == 1 )
+        v13 = 0i64;
       while ( 1 )
       {
         IsClipCompatible = BG_IsClipCompatible(&ammoInClip->clipIndex, &result);
         if ( IsClipCompatible )
           break;
-        ++v10;
+        ++v8;
         ++ammoInClip;
-        if ( v10 >= 0xF )
+        if ( v8 >= 0xF )
           goto LABEL_17;
       }
-      IsClipCompatible = ammoInClip->ammoCount[v16];
+      IsClipCompatible = ammoInClip->ammoCount[v13];
 LABEL_17:
-      v20 = ClipSize - IsClipCompatible;
+      v15 = ClipSize - IsClipCompatible;
       if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1322, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      _RAX = BG_AmmoStoreForWeapon(&v31, weapon, isAlternate);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+148h+result.weapon.weaponIdx], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+148h+result.weapon.attachmentVariationIndices+5], ymm1
-      }
+      result = *BG_AmmoStoreForWeapon(&v20, weapon, isAlternate);
       if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1304, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
         __debugbreak();
-      v24 = 0;
-      while ( !BG_IsAmmoCompatible(&ps->weapCommon.ammoNotInClip[v24].ammoType, &result) )
+      v16 = 0;
+      while ( !BG_IsAmmoCompatible(&ps->weapCommon.ammoNotInClip[v16].ammoType, &result) )
       {
-        if ( (unsigned int)++v24 >= 0xF )
+        if ( (unsigned int)++v16 >= 0xF )
           goto LABEL_26;
       }
-      if ( (playerState_s *)((char *)ps + 68 * v24) == (playerState_s *)-1912i64 )
+      if ( (playerState_s *)((char *)ps + 68 * v16) == (playerState_s *)-1912i64 )
       {
 LABEL_26:
-        v10 = 0;
+        v8 = 0;
         ammoCount = 0;
         goto LABEL_27;
       }
-      ammoCount = ps->weapCommon.ammoNotInClip[v24].ammoCount;
-      v10 = 0;
+      ammoCount = ps->weapCommon.ammoNotInClip[v16].ammoCount;
+      v8 = 0;
 LABEL_27:
-      if ( v20 <= ammoCount )
-        ammoCount = v20;
+      if ( v15 <= ammoCount )
+        ammoCount = v15;
       if ( ammoCount > 0 )
       {
-        _RAX = BG_AmmoStoreForWeapon(&v31, weapon, isAlternate);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups ymmword ptr [rsp+148h+result.weapon.weaponIdx], ymm0
-          vmovups ymm1, ymmword ptr [rax+20h]
-          vmovups ymmword ptr [rsp+148h+result.weapon.attachmentVariationIndices+5], ymm1
-        }
+        result = *BG_AmmoStoreForWeapon(&v20, weapon, isAlternate);
         BG_AddGlobalAmmoForAmmoType(ps, &r_ammoType, -ammoCount);
-        BG_AddClipAmmo(ps, &result, v11, ammoCount);
+        BG_AddClipAmmo(ps, &result, v9, ammoCount);
       }
-      ++v11;
+      ++v9;
       ammoInClip = ps->weapCommon.ammoInClip;
-      ++v14;
+      ++v12;
     }
-    while ( v14 <= v30 );
+    while ( v12 <= v19 );
   }
 }
 
@@ -1056,119 +925,96 @@ G_Items_FinishSpawningCallback
 */
 void G_Items_FinishSpawningCallback(gentity_s *ent)
 {
-  bool v3; 
-  gentity_s *v4; 
-  vec3_t *p_origin; 
-  int v8; 
+  bool v2; 
+  gentity_s *v3; 
+  vec3_t *p_currentOrigin; 
+  int v5; 
+  float v6; 
+  float v7; 
   int contentmask; 
   int passEntityNum; 
+  float v10; 
+  float v11; 
+  float v12; 
   int number; 
-  const char *v21; 
-  const char *v22; 
-  signed __int16 EntityHitId; 
+  const char *v14; 
+  const char *v15; 
+  __int16 EntityHitId; 
   vec3_t start; 
   vec3_t end; 
   vec3_t origin; 
+  vec3_t angles; 
+  tmat33_t<vec3_t> forward; 
   Bounds bounds; 
   trace_t results; 
 
-  _RDI = ent;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_Items_FinishSpawningCallback");
-  v3 = (_RDI->spawnflags & 1) == 0;
-  v4 = _RDI;
-  _RDI->handler = 22;
-  if ( v3 )
+  v2 = (ent->spawnflags & 1) == 0;
+  v3 = ent;
+  ent->handler = 22;
+  if ( !v2 )
   {
-    __asm
-    {
-      vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-      vmovaps [rsp+130h+var_10], xmm7
-      vmovss  xmm7, cs:__real@3f800000
-      vmovss  dword ptr [rbp+30h+bounds.halfSize+4], xmm7
-      vmovss  dword ptr [rbp+30h+bounds.halfSize+8], xmm7
-      vmovups xmmword ptr [rbp+30h+bounds.midPoint], xmm0
-    }
-    v8 = G_Items_ClipMask(_RDI);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+134h]
-      vmovss  xmm1, dword ptr [rdi+138h]
-      vmovss  xmm2, dword ptr [rdi+130h]
-    }
-    contentmask = v8;
-    passEntityNum = _RDI->s.number;
-    __asm
-    {
-      vmovss  dword ptr [rsp+130h+start+4], xmm0
-      vmovss  dword ptr [rsp+130h+end+4], xmm0
-      vsubss  xmm0, xmm1, cs:__real@45800000
-      vmovss  dword ptr [rsp+130h+end+8], xmm0
-      vmovss  dword ptr [rsp+130h+start], xmm2
-      vmovss  dword ptr [rsp+130h+start+8], xmm1
-      vmovss  dword ptr [rsp+130h+end], xmm2
-    }
-    G_Main_TraceCapsule(&results, &start, &end, &bounds, passEntityNum, contentmask);
+    p_currentOrigin = &ent->r.currentOrigin;
+LABEL_9:
+    G_SetOrigin(v3, p_currentOrigin, 1, 1);
+    goto LABEL_10;
+  }
+  bounds.halfSize.v[1] = FLOAT_1_0;
+  bounds.halfSize.v[2] = FLOAT_1_0;
+  *(_OWORD *)bounds.midPoint.v = _xmm;
+  v5 = G_Items_ClipMask(ent);
+  v6 = ent->r.currentOrigin.v[2];
+  v7 = ent->r.currentOrigin.v[0];
+  contentmask = v5;
+  passEntityNum = ent->s.number;
+  start.v[1] = ent->r.currentOrigin.v[1];
+  end.v[1] = start.v[1];
+  end.v[2] = v6 - 4096.0;
+  start.v[0] = v7;
+  start.v[2] = v6;
+  end.v[0] = v7;
+  G_Main_TraceCapsule(&results, &start, &end, &bounds, passEntityNum, contentmask);
+  if ( results.startsolid )
+  {
+    v10 = ent->r.currentOrigin.v[2];
+    v11 = ent->r.currentOrigin.v[0];
+    v12 = ent->r.currentOrigin.v[1];
+    number = ent->s.number;
+    start.v[2] = v10 - 15.0;
+    end.v[2] = v10 - 4096.0;
+    start.v[0] = v11;
+    start.v[1] = v12;
+    end.v[0] = v11;
+    end.v[1] = v12;
+    G_Main_TraceCapsule(&results, &start, &end, &bounds, number, contentmask);
     if ( results.startsolid )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rdi+138h]
-        vsubss  xmm2, xmm1, cs:__real@41700000
-        vmovss  xmm3, dword ptr [rdi+130h]
-        vmovss  xmm0, dword ptr [rdi+134h]
-      }
-      number = _RDI->s.number;
-      __asm
-      {
-        vmovss  dword ptr [rsp+130h+start+8], xmm2
-        vsubss  xmm2, xmm1, cs:__real@45800000
-        vmovss  dword ptr [rsp+130h+end+8], xmm2
-        vmovss  dword ptr [rsp+130h+start], xmm3
-        vmovss  dword ptr [rsp+130h+start+4], xmm0
-        vmovss  dword ptr [rsp+130h+end], xmm3
-        vmovss  dword ptr [rsp+130h+end+4], xmm0
-      }
-      G_Main_TraceCapsule(&results, &start, &end, &bounds, number, contentmask);
-      if ( results.startsolid )
-      {
-        v21 = vtos(&_RDI->r.currentOrigin);
-        v22 = SL_ConvertToString(_RDI->classname);
-        Com_Printf(1, "ERROR: FinishSpawningItem - %s startsolid at %s\n", v22, v21);
-      }
+      v14 = vtos(&ent->r.currentOrigin);
+      v15 = SL_ConvertToString(ent->classname);
+      Com_Printf(1, "ERROR: FinishSpawningItem - %s startsolid at %s\n", v15, v14);
     }
-    EntityHitId = Trace_GetEntityHitId(&results);
-    _RDI->s.groundEntityNum = EntityHitId;
-    g_entities[EntityHitId].flags.m_flags[0] |= 0x200000u;
-    __asm
-    {
-      vmovss  xmm5, [rbp+30h+results.fraction]
-      vmovss  xmm0, dword ptr [rsp+130h+end]
-      vsubss  xmm1, xmm0, dword ptr [rsp+130h+start]
-      vmulss  xmm1, xmm1, xmm5
-      vaddss  xmm0, xmm1, dword ptr [rsp+130h+start]
-      vmovss  xmm1, dword ptr [rsp+130h+end+4]
-      vmovss  dword ptr [rsp+130h+origin], xmm0
-      vsubss  xmm0, xmm1, dword ptr [rsp+130h+start+4]
-      vmulss  xmm2, xmm0, xmm5
-      vaddss  xmm3, xmm2, dword ptr [rsp+130h+start+4]
-      vmovss  xmm0, dword ptr [rsp+130h+end+8]
-      vsubss  xmm1, xmm0, dword ptr [rsp+130h+start+8]
-      vmulss  xmm2, xmm1, xmm5
-      vmovss  dword ptr [rsp+130h+origin+4], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rsp+130h+start+8]
-      vcomiss xmm5, xmm7
-      vmovaps xmm7, [rsp+130h+var_10]
-      vmovss  dword ptr [rsp+130h+origin+8], xmm3
-    }
-    p_origin = &origin;
-    v4 = _RDI;
   }
-  else
+  EntityHitId = Trace_GetEntityHitId(&results);
+  ent->s.groundEntityNum = EntityHitId;
+  g_entities[EntityHitId].flags.m_flags[0] |= 0x200000u;
+  origin.v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+  origin.v[1] = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+  origin.v[2] = (float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2];
+  if ( results.fraction >= 1.0 )
   {
-    p_origin = &_RDI->r.currentOrigin;
+    p_currentOrigin = &origin;
+    v3 = ent;
+    goto LABEL_9;
   }
-  G_SetOrigin(v4, p_origin, 1, 1);
-  SV_LinkEntity(_RDI);
+  forward.m[2] = results.normal;
+  AngleVectors(&ent->r.currentAngles, forward.m, NULL, NULL);
+  Vec3Cross(&forward.m[2], forward.m, &forward.m[1]);
+  Vec3Cross(&forward.m[1], &forward.m[2], forward.m);
+  AxisToAngles(&forward, &angles);
+  angles.v[2] = angles.v[2] + 90.0;
+  G_SetOriginAndAngle(ent, &origin, &angles, 1, 1);
+LABEL_10:
+  SV_LinkEntity(ent);
   Sys_ProfEndNamedEvent();
 }
 
@@ -1196,201 +1042,173 @@ G_Items_GetFreeDropCueIdx
 */
 __int64 G_Items_GetFreeDropCueIdx(EntHandle *items, const unsigned int maxDroppedItems)
 {
+  unsigned int v2; 
+  EntHandle *v3; 
+  float v4; 
+  unsigned int v5; 
   unsigned int v6; 
   EntHandle *v7; 
-  unsigned int v9; 
-  unsigned int v10; 
-  EntHandle *v12; 
   unsigned __int16 number; 
+  __int64 v10; 
+  unsigned int v11; 
+  __int64 v12; 
+  unsigned __int16 v13; 
+  __int64 v14; 
   __int64 v15; 
-  unsigned int v16; 
-  __int64 v17; 
-  unsigned __int16 v18; 
-  __int64 v19; 
+  gentity_s *v16; 
+  unsigned __int64 v17; 
+  __int64 v18; 
+  int v19; 
   __int64 v20; 
-  __int64 v23; 
-  int v24; 
-  __int64 v26; 
-  __int64 v27; 
-  gentity_s *v45; 
-  __int64 result; 
-  __int64 v51; 
-  __int64 v52; 
+  __int64 v21; 
+  float v22; 
+  __int128 v23; 
+  float v24; 
+  gentity_s *v30; 
+  __int64 v32; 
+  __int64 v33; 
 
-  __asm { vmovaps [rsp+0D8h+var_58], xmm7 }
-  v6 = maxDroppedItems;
-  v7 = items;
+  v2 = maxDroppedItems;
+  v3 = items;
   if ( !items )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1136, ASSERT_TYPE_ASSERT, "( items )", (const char *)&queryFormat, "items") )
       __debugbreak();
-    v7 = NULL;
+    v3 = NULL;
   }
-  __asm { vmovss  xmm7, cs:__real@bf800000 }
-  v9 = 0;
-  v10 = -1;
-  __asm
+  v4 = FLOAT_N1_0;
+  v5 = 0;
+  v6 = -1;
+  if ( v2 )
   {
-    vmovaps [rsp+0D8h+var_48], xmm6
-    vmovaps [rsp+0D8h+var_68], xmm8
-    vmovaps [rsp+0D8h+var_78], xmm9
-  }
-  if ( v6 )
-  {
-    __asm { vmovss  xmm8, cs:__real@7f7fffff }
-    v12 = v7;
-    __asm { vxorps  xmm9, xmm9, xmm9 }
+    v7 = v3;
+    _XMM9 = 0i64;
     do
     {
-      number = v12->number;
-      if ( !v12->number )
-        goto LABEL_65;
-      v15 = number;
-      v16 = number - 1;
-      if ( v16 >= 0x800 )
+      number = v7->number;
+      if ( !v7->number )
+        return v5;
+      v10 = number;
+      v11 = number - 1;
+      if ( v11 >= 0x800 )
       {
-        LODWORD(v52) = 2048;
-        LODWORD(v51) = v16;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v51, v52) )
+        LODWORD(v33) = 2048;
+        LODWORD(v32) = v11;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v32, v33) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      v17 = v15 - 1;
-      if ( g_entities[v17].r.isInUse != g_entityIsInUse[v17] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      v12 = v10 - 1;
+      if ( g_entities[v12].r.isInUse != g_entityIsInUse[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( !g_entityIsInUse[v17] )
+      if ( !g_entityIsInUse[v12] )
       {
-        LODWORD(v52) = v12->number - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v52) )
+        LODWORD(v33) = v7->number - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 216, ASSERT_TYPE_ASSERT, "( ( !number || G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( !number || G_IsEntityInUse( number - 1 ) )", v33) )
           __debugbreak();
       }
-      v18 = v12->number;
-      if ( !v12->number )
+      v13 = v7->number;
+      if ( !v7->number )
+        return v5;
+      if ( (unsigned int)v13 - 1 >= 0x7FF )
       {
-LABEL_65:
-        result = v9;
-        goto LABEL_64;
-      }
-      if ( (unsigned int)v18 - 1 >= 0x7FF )
-      {
-        LODWORD(v52) = 2047;
-        LODWORD(v51) = v18 - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v51, v52) )
+        LODWORD(v33) = 2047;
+        LODWORD(v32) = v13 - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v32, v33) )
           __debugbreak();
       }
-      v19 = v12->number;
-      if ( (unsigned int)(v19 - 1) >= 0x800 )
+      v14 = v7->number;
+      if ( (unsigned int)(v14 - 1) >= 0x800 )
       {
-        LODWORD(v52) = 2048;
-        LODWORD(v51) = v19 - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v51, v52) )
+        LODWORD(v33) = 2048;
+        LODWORD(v32) = v14 - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v32, v33) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      v20 = v19 - 1;
-      if ( g_entities[v20].r.isInUse != g_entityIsInUse[v20] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      v15 = v14 - 1;
+      if ( g_entities[v15].r.isInUse != g_entityIsInUse[v15] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( !g_entityIsInUse[v20] )
+      if ( !g_entityIsInUse[v15] )
       {
-        LODWORD(v52) = v12->number - 1;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v52) )
+        LODWORD(v33) = v7->number - 1;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v33) )
           __debugbreak();
       }
-      _R14 = g_entities;
-      _RBP = v12->number;
-      if ( !GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::TestFlagInternal(&g_entities[_RBP - 1].flags, ACTIVE, 0x10u) )
+      v16 = g_entities;
+      v17 = v7->number;
+      if ( !GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::TestFlagInternal(&g_entities[v17 - 1].flags, ACTIVE, 0x10u) )
       {
-        LODWORD(v23) = _R14[_RBP - 1].c.item[0].weapon.weaponIdx;
-        if ( (unsigned int)v23 > bg_lastParsedWeaponIndex )
+        LODWORD(v18) = v16[v17 - 1].c.item[0].weapon.weaponIdx;
+        if ( (unsigned int)v18 > bg_lastParsedWeaponIndex )
         {
-          LODWORD(v52) = bg_lastParsedWeaponIndex;
-          LODWORD(v51) = _R14[_RBP - 1].c.item[0].weapon.weaponIdx;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v51, v52) )
+          LODWORD(v33) = bg_lastParsedWeaponIndex;
+          LODWORD(v32) = v16[v17 - 1].c.item[0].weapon.weaponIdx;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v32, v33) )
             __debugbreak();
         }
-        v23 = (unsigned __int16)v23;
-        if ( !bg_weaponDefs[(unsigned __int16)v23] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+        v18 = (unsigned __int16)v18;
+        if ( !bg_weaponDefs[(unsigned __int16)v18] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
           __debugbreak();
-        if ( !bg_weaponDefs[v23]->avoidDropCleanup )
+        if ( !bg_weaponDefs[v18]->avoidDropCleanup )
         {
-          v24 = 0;
-          __asm { vmovaps xmm6, xmm8 }
+          v19 = 0;
           if ( level.maxclients > 0 )
           {
-            v26 = 0i64;
-            v27 = 0i64;
+            v20 = 0i64;
+            v21 = 0i64;
             do
             {
-              if ( level.clients[v27].sess.connected == CON_CONNECTED && level.clients[v27].sess.sessionState == SESS_STATE_PLAYING && G_IsEntityInUse(v24) )
+              if ( level.clients[v21].sess.connected == CON_CONNECTED && level.clients[v21].sess.sessionState == SESS_STATE_PLAYING && G_IsEntityInUse(v19) )
               {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [r14+rbp-480h]
-                  vmovss  xmm1, dword ptr [r14+rbp-47Ch]
-                  vsubss  xmm3, xmm0, dword ptr [rsi+rax+130h]
-                  vsubss  xmm2, xmm1, dword ptr [rsi+rax+134h]
-                  vmovss  xmm0, dword ptr [r14+rbp-478h]
-                  vsubss  xmm4, xmm0, dword ptr [rsi+rax+138h]
-                  vmulss  xmm2, xmm2, xmm2
-                  vmulss  xmm1, xmm3, xmm3
-                  vmulss  xmm0, xmm4, xmm4
-                  vaddss  xmm3, xmm2, xmm1
-                  vaddss  xmm2, xmm3, xmm0
-                  vminss  xmm6, xmm2, xmm6
-                }
+                v22 = v16[v17 - 1].r.currentOrigin.v[0] - g_entities[v20].r.currentOrigin.v[0];
+                v23 = LODWORD(v16[v17 - 1].r.currentOrigin.v[1]);
+                *(float *)&v23 = v16[v17 - 1].r.currentOrigin.v[1] - g_entities[v20].r.currentOrigin.v[1];
+                v24 = v16[v17 - 1].r.currentOrigin.v[2] - g_entities[v20].r.currentOrigin.v[2];
+                *(float *)&v23 = (float)((float)(*(float *)&v23 * *(float *)&v23) + (float)(v22 * v22)) + (float)(v24 * v24);
+                _XMM2 = v23;
+                __asm { vminss  xmm6, xmm2, xmm6 }
               }
-              ++v24;
-              ++v27;
-              v26 += 1456i64;
+              ++v19;
+              ++v21;
+              ++v20;
             }
-            while ( v24 < level.maxclients );
-            v6 = maxDroppedItems;
+            while ( v19 < level.maxclients );
+            v2 = maxDroppedItems;
           }
           if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
             __debugbreak();
-          _EAX = level.time - level.frameDuration;
+          _XMM0 = (unsigned int)(level.time - level.frameDuration);
           __asm
           {
-            vmovd   xmm1, dword ptr [r14+rbp-194h]
-            vmovd   xmm0, eax
             vpcmpgtd xmm2, xmm0, xmm1
             vblendvps xmm0, xmm9, xmm6, xmm2
-            vcomiss xmm0, xmm7
           }
-          if ( level.time > (unsigned int)level.frameDuration )
+          if ( *(float *)&_XMM0 > v4 )
           {
-            __asm { vmovaps xmm7, xmm0 }
-            v10 = v9;
+            v4 = *(float *)&_XMM0;
+            v6 = v5;
           }
         }
       }
-      ++v9;
-      ++v12;
+      ++v5;
+      ++v7;
     }
-    while ( v9 < v6 );
-    if ( v10 != -1 )
+    while ( v5 < v2 );
+    if ( v6 != -1 )
       goto LABEL_60;
   }
-  Com_PrintWarning(16, "Could not find a suitable weapon entity to free out of %i possible.  Using index zero.\n", v6);
-  v10 = 0;
+  Com_PrintWarning(16, "Could not find a suitable weapon entity to free out of %i possible.  Using index zero.\n", v2);
+  v6 = 0;
 LABEL_60:
-  v45 = EntHandle::ent(&items[v10]);
-  if ( !v45 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1187, ASSERT_TYPE_ASSERT, "( freeItemEnt )", (const char *)&queryFormat, "freeItemEnt") )
+  v30 = EntHandle::ent(&items[v6]);
+  if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1187, ASSERT_TYPE_ASSERT, "( freeItemEnt )", (const char *)&queryFormat, "freeItemEnt") )
     __debugbreak();
-  G_FreeEntity(v45);
-  EntHandle::setEnt(&items[v10], NULL);
-  result = v10;
-LABEL_64:
-  __asm
-  {
-    vmovaps xmm9, [rsp+0D8h+var_78]
-    vmovaps xmm8, [rsp+0D8h+var_68]
-    vmovaps xmm6, [rsp+0D8h+var_48]
-    vmovaps xmm7, [rsp+0D8h+var_58]
-  }
-  return result;
+  G_FreeEntity(v30);
+  EntHandle::setEnt(&items[v6], NULL);
+  return v6;
 }
 
 /*
@@ -1400,21 +1218,22 @@ G_Items_GetNeededStartAmmo
 */
 __int64 G_Items_GetNeededStartAmmo(playerState_s *ps, const Weapon *weapon, bool isAlternate)
 {
+  __int16 v3; 
   int AmmoNotInClip; 
   bool v9; 
   GWeaponMap *Instance; 
-  int v14; 
+  int v11; 
   BgWeaponHandle *weaponsEquipped; 
   int started; 
-  int v24; 
+  int v14; 
   int AmmoInClip; 
-  int v26; 
-  int v27; 
-  __int64 v28; 
-  __int64 v29; 
+  int v16; 
+  int v17; 
+  __int64 v18; 
+  __int64 v19; 
   bool HasPerk; 
   BgWeaponMap *weaponMap; 
-  AmmoStore v32; 
+  AmmoStore v22; 
   Weapon Buf1; 
   AmmoStore result; 
   AmmoStore r_ammo2; 
@@ -1426,17 +1245,10 @@ __int64 G_Items_GetNeededStartAmmo(playerState_s *ps, const Weapon *weapon, bool
   AmmoNotInClip = BG_GetAmmoNotInClip(ps, weapon, isAlternate);
   HasPerk = BG_HasPerk(&ps->perks, 7u);
   v9 = HasPerk;
-  _RAX = BG_AmmoStoreForWeapon(&result, weapon, isAlternate);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+198h+r_ammo2.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+198h+r_ammo2.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_ammo2 = *BG_AmmoStoreForWeapon(&result, weapon, isAlternate);
   Instance = GWeaponMap::GetInstance();
   weaponMap = Instance;
-  v14 = 0;
+  v11 = 0;
   weaponsEquipped = ps->weaponsEquipped;
   do
   {
@@ -1444,58 +1256,40 @@ __int64 G_Items_GetNeededStartAmmo(playerState_s *ps, const Weapon *weapon, bool
       __debugbreak();
     if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 840, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
       __debugbreak();
-    if ( (unsigned int)v14 >= 0xF )
+    if ( (unsigned int)v11 >= 0xF )
     {
-      LODWORD(v29) = 15;
-      LODWORD(v28) = v14;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v28, v29) )
+      LODWORD(v19) = 15;
+      LODWORD(v18) = v11;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 841, ASSERT_TYPE_ASSERT, "(unsigned)( equippedIndex ) < (unsigned)( 15 )", "equippedIndex doesn't index MAX_EQUIPPED_WEAPONS\n\t%i not in [0, %i)", v18, v19) )
         __debugbreak();
     }
-    _RAX = BgWeaponMap::GetWeapon(Instance, (BgWeaponHandle)weaponsEquipped->m_mapEntryId);
-    __asm
+    Buf1 = *BgWeaponMap::GetWeapon(Instance, (BgWeaponHandle)weaponsEquipped->m_mapEntryId);
+    if ( v3 && memcmp_0(&Buf1, weapon, 0x3Cui64) && (!isAlternate || BG_HasUnderbarrelAmmo(&Buf1)) )
     {
-      vmovups ymm2, ymmword ptr [rax]
-      vmovups [rsp+198h+Buf1], ymm2
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups [rsp+198h+var_E8], xmm0
-      vmovsd  xmm1, qword ptr [rax+30h]
-      vmovsd  [rsp+198h+var_D8], xmm1
-    }
-    *(_DWORD *)&Buf1.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-    __asm { vmovd   eax, xmm2 }
-    if ( (_WORD)_RAX && memcmp_0(&Buf1, weapon, 0x3Cui64) && (!isAlternate || BG_HasUnderbarrelAmmo(&Buf1)) )
-    {
-      _RAX = BG_AmmoStoreForWeapon(&v32, &Buf1, isAlternate);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+198h+result.weapon.weaponIdx], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+198h+result.weapon.attachmentVariationIndices+5], ymm1
-      }
+      result = *BG_AmmoStoreForWeapon(&v22, &Buf1, isAlternate);
       if ( BG_IsAmmoCompatible(&result, &r_ammo2) )
       {
         started = BG_StartAmmo(&Buf1, isAlternate, v9);
-        v24 = started - BG_GetAmmoInClip(ps, &Buf1, isAlternate, WEAPON_HAND_DEFAULT);
+        v14 = started - BG_GetAmmoInClip(ps, &Buf1, isAlternate, WEAPON_HAND_DEFAULT);
         if ( BG_PlayerDualWieldingWeapon(weaponMap, ps, &Buf1) )
-          v24 += started - BG_GetAmmoInClip(ps, &Buf1, isAlternate, WEAPON_HAND_LEFT);
+          v14 += started - BG_GetAmmoInClip(ps, &Buf1, isAlternate, WEAPON_HAND_LEFT);
         Instance = (GWeaponMap *)weaponMap;
-        AmmoNotInClip -= v24;
+        AmmoNotInClip -= v14;
         v9 = HasPerk;
       }
     }
-    ++v14;
+    ++v11;
     ++weaponsEquipped;
   }
-  while ( v14 < 15 );
+  while ( v11 < 15 );
   AmmoInClip = BG_GetAmmoInClip(ps, weapon, isAlternate, WEAPON_HAND_DEFAULT);
-  v26 = 0;
+  v16 = 0;
   if ( AmmoNotInClip >= 0 )
-    v26 = AmmoNotInClip;
-  v27 = v26 + AmmoInClip;
+    v16 = AmmoNotInClip;
+  v17 = v16 + AmmoInClip;
   if ( BG_PlayerDualWieldingWeapon(Instance, ps, weapon) )
-    v27 += BG_GetAmmoInClip(ps, weapon, isAlternate, WEAPON_HAND_LEFT);
-  return (unsigned int)(BG_StartAmmo(weapon, isAlternate, HasPerk) - v27);
+    v17 += BG_GetAmmoInClip(ps, weapon, isAlternate, WEAPON_HAND_LEFT);
+  return (unsigned int)(BG_StartAmmo(weapon, isAlternate, HasPerk) - v17);
 }
 
 /*
@@ -1633,20 +1427,23 @@ G_Items_GetStateFromTag
 void G_Items_GetStateFromTag(const gentity_s *droppingEnt, scr_string_t tag, const gentity_s *droppedEnt, tmat43_t<vec3_t> *matrix, const bool canSkipTraceToTag)
 {
   const dvar_t *v9; 
-  int v16; 
+  float v10; 
+  float v11; 
+  int v12; 
   Bounds *p_box; 
+  vec3_t *v14; 
+  float fraction; 
+  float v16; 
   int fmt; 
   int contentmask; 
   vec3_t start; 
   Bounds bounds; 
   trace_t results; 
 
-  _RDI = matrix;
-  _RBX = droppingEnt;
   if ( !droppingEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1512, ASSERT_TYPE_ASSERT, "( droppingEnt )", (const char *)&queryFormat, "droppingEnt") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808080, "G_Items_GetStateFromTag");
-  if ( tag && G_Utils_DObjGetWorldTagMatrix(_RBX, tag, _RDI) )
+  if ( tag && G_Utils_DObjGetWorldTagMatrix(droppingEnt, tag, matrix) )
   {
     if ( !canSkipTraceToTag )
       goto LABEL_11;
@@ -1657,75 +1454,43 @@ void G_Items_GetStateFromTag(const gentity_s *droppingEnt, scr_string_t tag, con
     if ( v9->current.enabled )
     {
 LABEL_11:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+100h]
-        vmovss  xmm1, dword ptr [rbx+104h]
-        vmovss  xmm2, dword ptr [rbx+108h]
-        vaddss  xmm0, xmm0, dword ptr [rbx+130h]
-        vmovss  dword ptr [rsp+108h+start], xmm0
-        vaddss  xmm1, xmm1, dword ptr [rbx+134h]
-        vmovss  dword ptr [rsp+108h+start+4], xmm1
-        vaddss  xmm0, xmm2, dword ptr [rbx+138h]
-        vmovss  dword ptr [rsp+108h+start+8], xmm0
-      }
+      v10 = droppingEnt->r.box.midPoint.v[1];
+      v11 = droppingEnt->r.box.midPoint.v[2];
+      start.v[0] = droppingEnt->r.box.midPoint.v[0] + droppingEnt->r.currentOrigin.v[0];
+      start.v[1] = v10 + droppingEnt->r.currentOrigin.v[1];
+      start.v[2] = v11 + droppingEnt->r.currentOrigin.v[2];
       if ( droppedEnt )
       {
-        v16 = G_Items_ClipMask(droppedEnt);
+        v12 = G_Items_ClipMask(droppedEnt);
         p_box = &droppedEnt->r.box;
-        contentmask = v16;
-        fmt = _RBX->s.number;
+        contentmask = v12;
+        fmt = droppingEnt->s.number;
       }
       else
       {
-        __asm
-        {
-          vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-          vmovups xmmword ptr [rsp+108h+bounds.midPoint], xmm0
-          vmovss  xmm1, cs:__real@3f800000
-          vmovss  dword ptr [rsp+108h+bounds.halfSize+4], xmm1
-          vmovss  dword ptr [rsp+108h+bounds.halfSize+8], xmm1
-        }
+        *(_OWORD *)bounds.midPoint.v = _xmm;
+        bounds.halfSize.v[1] = FLOAT_1_0;
+        bounds.halfSize.v[2] = FLOAT_1_0;
         contentmask = 1169;
-        fmt = _RBX->s.number;
+        fmt = droppingEnt->s.number;
         p_box = &bounds;
       }
-      _RDI = &_RDI->m[3];
-      G_Main_TraceCapsule(&results, &start, _RDI, p_box, fmt, contentmask);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]
-        vsubss  xmm1, xmm0, dword ptr [rsp+108h+start]
-        vmovss  xmm3, [rsp+108h+results.fraction]
-        vmulss  xmm0, xmm1, xmm3
-        vaddss  xmm1, xmm0, dword ptr [rsp+108h+start]
-        vmovss  dword ptr [rdi], xmm1
-        vmovss  xmm0, dword ptr [rdi+4]
-        vsubss  xmm0, xmm0, dword ptr [rsp+108h+start+4]
-        vmulss  xmm1, xmm0, xmm3
-        vaddss  xmm2, xmm1, dword ptr [rsp+108h+start+4]
-        vmovss  dword ptr [rdi+4], xmm2
-        vmovss  xmm0, dword ptr [rdi+8]
-        vsubss  xmm0, xmm0, dword ptr [rsp+108h+start+8]
-        vmulss  xmm1, xmm0, xmm3
-        vaddss  xmm2, xmm1, dword ptr [rsp+108h+start+8]
-        vmovss  dword ptr [rdi+8], xmm2
-      }
+      v14 = &matrix->m[3];
+      G_Main_TraceCapsule(&results, &start, v14, p_box, fmt, contentmask);
+      fraction = results.fraction;
+      v14->v[0] = (float)((float)(v14->v[0] - start.v[0]) * results.fraction) + start.v[0];
+      v14->v[1] = (float)((float)(v14->v[1] - start.v[1]) * fraction) + start.v[1];
+      v14->v[2] = (float)((float)(v14->v[2] - start.v[2]) * fraction) + start.v[2];
     }
   }
   else
   {
-    _RDI->m[3].v[0] = _RBX->r.currentOrigin.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+134h]
-      vmovss  dword ptr [rdi+28h], xmm0
-      vmovss  xmm1, dword ptr [rbx+138h]
-      vmovss  dword ptr [rdi+2Ch], xmm1
-      vaddss  xmm0, xmm1, dword ptr [rbx+114h]
-      vmovss  dword ptr [rdi+2Ch], xmm0
-    }
-    AnglesToAxis(&_RBX->r.currentAngles, (tmat33_t<vec3_t> *)_RDI);
+    matrix->m[3].v[0] = droppingEnt->r.currentOrigin.v[0];
+    matrix->m[3].v[1] = droppingEnt->r.currentOrigin.v[1];
+    v16 = droppingEnt->r.currentOrigin.v[2];
+    matrix->m[3].v[2] = v16;
+    matrix->m[3].v[2] = v16 + droppingEnt->r.box.halfSize.v[2];
+    AnglesToAxis(&droppingEnt->r.currentAngles, (tmat33_t<vec3_t> *)matrix);
   }
   Sys_ProfEndNamedEvent();
 }
@@ -1738,23 +1503,27 @@ G_Items_GetTunnelTraceOffset
 void G_Items_GetTunnelTraceOffset(const gentity_s *ent, const vec3_t *angles, const WeaponDef *weapDef, vec3_t *outRotatedOffset, vec3_t *outRotatedHalfSize)
 {
   const DObj *ServerDObjForEnt; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
   tmat33_t<vec3_t> axis; 
   Bounds bounds; 
-  char v67; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-  }
-  _RSI = outRotatedHalfSize;
-  _R14 = (Bounds *)outRotatedOffset;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 266, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
   if ( !weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 267, ASSERT_TYPE_ASSERT, "( weapDef )", (const char *)&queryFormat, "weapDef") )
@@ -1763,89 +1532,45 @@ void G_Items_GetTunnelTraceOffset(const gentity_s *ent, const vec3_t *angles, co
   if ( ServerDObjForEnt )
   {
     DObjGetVisibleBounds(ServerDObjForEnt, &bounds);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbp+4Fh+bounds.midPoint]
-      vmovss  xmm10, dword ptr [rbp+4Fh+bounds.midPoint+4]
-      vmovss  xmm11, dword ptr [rbp+4Fh+bounds.midPoint+8]
-      vmovss  xmm7, dword ptr [rbp+4Fh+bounds.halfSize]
-      vmovss  xmm8, dword ptr [rbp+4Fh+bounds.halfSize+4]
-      vmovss  xmm9, dword ptr [rbp+4Fh+bounds.halfSize+8]
-    }
+    v10 = bounds.midPoint.v[0];
+    v11 = bounds.midPoint.v[1];
+    v12 = bounds.midPoint.v[2];
+    v13 = bounds.halfSize.v[0];
+    v14 = bounds.halfSize.v[1];
+    v15 = bounds.halfSize.v[2];
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm6, xmm6, xmm6
-      vxorps  xmm10, xmm10, xmm10
-      vxorps  xmm11, xmm11, xmm11
-      vxorps  xmm7, xmm7, xmm7
-      vxorps  xmm8, xmm8, xmm8
-      vxorps  xmm9, xmm9, xmm9
-    }
+    v10 = 0.0;
+    v11 = 0.0;
+    v12 = 0.0;
+    v13 = 0.0;
+    v14 = 0.0;
+    v15 = 0.0;
   }
   AnglesToAxis(angles, &axis);
-  if ( &bounds == _R14 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
+  if ( &bounds == (Bounds *)outRotatedOffset && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmulss  xmm3, xmm10, dword ptr [rsp+110h+axis+0Ch]
-    vmulss  xmm2, xmm6, dword ptr [rsp+110h+axis]
-    vmulss  xmm1, xmm11, dword ptr [rbp+4Fh+axis+18h]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm10, dword ptr [rsp+110h+axis+10h]
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm1, xmm11, dword ptr [rbp+4Fh+axis+1Ch]
-    vmovss  dword ptr [r14], xmm2
-    vmulss  xmm2, xmm6, dword ptr [rsp+110h+axis+4]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm10, dword ptr [rbp+4Fh+axis+14h]
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm1, xmm11, dword ptr [rbp+4Fh+axis+20h]
-    vmovss  dword ptr [r14+4], xmm2
-    vmulss  xmm2, xmm6, dword ptr [rsp+110h+axis+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vmovss  dword ptr [r14+8], xmm2
-  }
+  v16 = v11 * axis.m[1].v[1];
+  v17 = v12 * axis.m[2].v[1];
+  outRotatedOffset->v[0] = (float)((float)(v11 * axis.m[1].v[0]) + (float)(v10 * axis.m[0].v[0])) + (float)(v12 * axis.m[2].v[0]);
+  v18 = v16 + (float)(v10 * axis.m[0].v[1]);
+  v19 = v11 * axis.m[1].v[2];
+  v20 = v18 + v17;
+  v21 = v12 * axis.m[2].v[2];
+  outRotatedOffset->v[1] = v20;
+  outRotatedOffset->v[2] = (float)(v19 + (float)(v10 * axis.m[0].v[2])) + v21;
   if ( &bounds == (Bounds *)outRotatedHalfSize && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 470, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm5, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm3, xmm8, dword ptr [rsp+110h+axis+0Ch]
-    vmulss  xmm2, xmm7, dword ptr [rsp+110h+axis]
-    vmulss  xmm1, xmm9, dword ptr [rbp+4Fh+axis+18h]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm8, dword ptr [rsp+110h+axis+10h]
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm1, xmm9, dword ptr [rbp+4Fh+axis+1Ch]
-    vandps  xmm2, xmm2, xmm5
-    vmovss  dword ptr [rsi], xmm2
-    vmulss  xmm2, xmm7, dword ptr [rsp+110h+axis+4]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm8, dword ptr [rbp+4Fh+axis+14h]
-    vaddss  xmm2, xmm4, xmm1
-    vmulss  xmm1, xmm9, dword ptr [rbp+4Fh+axis+20h]
-    vandps  xmm2, xmm2, xmm5
-    vmovss  dword ptr [rsi+4], xmm2
-    vmulss  xmm2, xmm7, dword ptr [rsp+110h+axis+8]
-    vaddss  xmm4, xmm3, xmm2
-    vaddss  xmm2, xmm4, xmm1
-    vandps  xmm2, xmm2, xmm5
-    vmovss  dword ptr [rsi+8], xmm2
-  }
-  _R11 = &v67;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  v22 = v14 * axis.m[1].v[1];
+  v23 = v15 * axis.m[2].v[1];
+  outRotatedHalfSize->v[0] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)(v14 * axis.m[1].v[0]) + (float)(v13 * axis.m[0].v[0])) + (float)(v15 * axis.m[2].v[0])) & _xmm);
+  v24 = v22 + (float)(v13 * axis.m[0].v[1]);
+  v25 = v14 * axis.m[1].v[2];
+  v26 = v24 + v23;
+  v27 = v15 * axis.m[2].v[2];
+  outRotatedHalfSize->v[1] = COERCE_FLOAT(LODWORD(v26) & _xmm);
+  outRotatedHalfSize->v[2] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(v25 + (float)(v13 * axis.m[0].v[2])) + v27) & _xmm);
 }
 
 /*
@@ -1926,6 +1651,7 @@ G_Items_Launch
 */
 gentity_s *G_Items_Launch(gentity_s *ownerEnt, const Weapon *item, const bool isEquipment, bool doPhysicsOnInit)
 {
+  gentity_s *v7; 
   const dvar_t *v8; 
   unsigned int unsignedInt; 
   EntHandle *v10; 
@@ -1933,22 +1659,21 @@ gentity_s *G_Items_Launch(gentity_s *ownerEnt, const Weapon *item, const bool is
   unsigned int v12; 
   GWeaponMap *Instance; 
   const char *WeaponName; 
-  const WeaponDef *v18; 
-  char *v19; 
-  GItems *v20; 
-  const dvar_t *v21; 
+  const WeaponDef *v15; 
+  char *v16; 
+  GItems *v17; 
+  const dvar_t *v18; 
   DObj *ServerDObjForEnt; 
-  DObj *v23; 
-  __int64 v25; 
-  __int64 v26; 
-  __int64 v27; 
+  DObj *v20; 
+  __int64 v22; 
+  __int64 v23; 
+  __int64 v24; 
   char dest[512]; 
   char output[512]; 
-  char v31[1032]; 
+  char v28[1032]; 
 
-  _RSI = item;
   Sys_ProfBeginNamedEvent(0xFF808080, "G_Items_Launch");
-  _RDI = G_Utils_SpawnEntity();
+  v7 = G_Utils_SpawnEntity();
   if ( isEquipment )
   {
     v8 = DCONST_DVARINT_g_maxDroppedEquipment;
@@ -1958,9 +1683,9 @@ gentity_s *G_Items_Launch(gentity_s *ownerEnt, const Weapon *item, const bool is
     unsignedInt = v8->current.unsignedInt;
     if ( unsignedInt - 1 > 7 )
     {
-      LODWORD(v26) = 1;
-      LODWORD(v25) = unsignedInt;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1329, ASSERT_TYPE_ASSERT, "( 1 ) <= ( maxDroppedEquipment ) && ( maxDroppedEquipment ) <= ( 8 )", "maxDroppedEquipment not in [1, MAX_DROPPED_EQUIPMENT]\n\t%i not in [%i, %i]", v25, v26, 8) )
+      LODWORD(v23) = 1;
+      LODWORD(v22) = unsignedInt;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1329, ASSERT_TYPE_ASSERT, "( 1 ) <= ( maxDroppedEquipment ) && ( maxDroppedEquipment ) <= ( 8 )", "maxDroppedEquipment not in [1, MAX_DROPPED_EQUIPMENT]\n\t%i not in [%i, %i]", v22, v23, 8) )
         __debugbreak();
     }
     v10 = &level.droppedEquipmentCue[(int)G_Items_GetFreeDropCueIdx(level.droppedEquipmentCue, unsignedInt)];
@@ -1974,85 +1699,79 @@ gentity_s *G_Items_Launch(gentity_s *ownerEnt, const Weapon *item, const bool is
     v12 = v11->current.unsignedInt;
     if ( v12 - 1 > 0x1F )
     {
-      LODWORD(v26) = 1;
-      LODWORD(v25) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1338, ASSERT_TYPE_ASSERT, "( 1 ) <= ( maxDroppedWeapon ) && ( maxDroppedWeapon ) <= ( ((32 >= 16) ? 32 : 16) )", "maxDroppedWeapon not in [1, MAX_DROPPED_WEAPONS]\n\t%i not in [%i, %i]", v25, v26, 32) )
+      LODWORD(v23) = 1;
+      LODWORD(v22) = v12;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1338, ASSERT_TYPE_ASSERT, "( 1 ) <= ( maxDroppedWeapon ) && ( maxDroppedWeapon ) <= ( ((32 >= 16) ? 32 : 16) )", "maxDroppedWeapon not in [1, MAX_DROPPED_WEAPONS]\n\t%i not in [%i, %i]", v22, v23, 32) )
         __debugbreak();
     }
     v10 = &level.droppedWeaponCue[(int)G_Items_GetFreeDropCueIdx(level.droppedWeaponCue, v12)];
   }
-  EntHandle::setEnt(v10, _RDI);
-  _RDI->s.eType = ET_ITEM;
+  EntHandle::setEnt(v10, v7);
+  v7->s.eType = ET_ITEM;
   Instance = GWeaponMap::GetInstance();
-  BG_SetWeaponForEntity(Instance, &_RDI->s, _RSI);
-  _RDI->s.inAltWeaponMode = 0;
-  WeaponName = BG_GetWeaponName(_RSI, output, 0x200u);
+  BG_SetWeaponForEntity(Instance, &v7->s, item);
+  v7->s.inAltWeaponMode = 0;
+  WeaponName = BG_GetWeaponName(item, output, 0x200u);
   Com_sprintf(dest, 0x200ui64, "weapon_%s", WeaponName);
-  G_Utils_SetConstString(&_RDI->script_classname, dest);
-  G_Utils_SetConstString(&_RDI->classname, dest);
-  __asm
+  G_Utils_SetConstString(&v7->script_classname, dest);
+  G_Utils_SetConstString(&v7->classname, dest);
+  *(__m256i *)(&v7->c.beam + 3) = *(__m256i *)&item->weaponIdx;
+  *(_OWORD *)(&v7->c.beam + 11) = *(_OWORD *)&item->attachmentVariationIndices[5];
+  *(double *)(&v7->c.beam + 15) = *(double *)&item->attachmentVariationIndices[21];
+  v7->c.mover.angle.pos1.v[2] = *(float *)&item->weaponCamo;
+  *(_QWORD *)v7->r.box.midPoint.v = 0i64;
+  v7->r.box.midPoint.v[2] = 0.0;
+  v7->r.box.halfSize.v[0] = 1.0;
+  v7->r.box.halfSize.v[1] = 1.0;
+  v7->r.box.halfSize.v[2] = 1.0;
+  G_PlayerUse_SetEntityUsable(v7, 1);
+  if ( (unsigned __int16)(item->weaponIdx - 1) > 0x224u )
   {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rdi+1CCh], ymm0
-    vmovups xmm1, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rdi+1ECh], xmm1
-    vmovsd  xmm0, qword ptr [rsi+30h]
-    vmovsd  qword ptr [rdi+1FCh], xmm0
-  }
-  _RDI->c.mover.angle.pos1.v[2] = *(float *)&_RSI->weaponCamo;
-  *(_QWORD *)_RDI->r.box.midPoint.v = 0i64;
-  _RDI->r.box.midPoint.v[2] = 0.0;
-  _RDI->r.box.halfSize.v[0] = 1.0;
-  _RDI->r.box.halfSize.v[1] = 1.0;
-  _RDI->r.box.halfSize.v[2] = 1.0;
-  G_PlayerUse_SetEntityUsable(_RDI, 1);
-  if ( (unsigned __int16)(_RSI->weaponIdx - 1) > 0x224u )
-  {
-    LODWORD(v27) = 549;
-    LODWORD(v26) = 1;
-    LODWORD(v25) = _RSI->weaponIdx;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1357, ASSERT_TYPE_ASSERT, "( 1 ) <= ( item.weaponIdx ) && ( item.weaponIdx ) <= ( (550 - 1) )", "item.weaponIdx not in [1, (MAX_WEAPONS - 1)]\n\t%i not in [%i, %i]", v25, v26, v27) )
+    LODWORD(v24) = 549;
+    LODWORD(v23) = 1;
+    LODWORD(v22) = item->weaponIdx;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1357, ASSERT_TYPE_ASSERT, "( 1 ) <= ( item.weaponIdx ) && ( item.weaponIdx ) <= ( (550 - 1) )", "item.weaponIdx not in [1, (MAX_WEAPONS - 1)]\n\t%i not in [%i, %i]", v22, v23, v24) )
       __debugbreak();
   }
-  v18 = BG_WeaponDef(_RSI, 0);
-  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1359, ASSERT_TYPE_ASSERT, "( weapDef )", (const char *)&queryFormat, "weapDef") )
+  v15 = BG_WeaponDef(item, 0);
+  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1359, ASSERT_TYPE_ASSERT, "( weapDef )", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
-  if ( isEquipment && BG_WeaponHasStreamedModelsErrorCheck(_RSI) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1361, ASSERT_TYPE_ASSERT, "(!isEquipment || !BG_WeaponHasStreamedModelsErrorCheck( item ))", "%s\n\tTransient equipment weapon models are not supported. They are not accounted for in the streaming limits.", "!isEquipment || !BG_WeaponHasStreamedModelsErrorCheck( item )") )
+  if ( isEquipment && BG_WeaponHasStreamedModelsErrorCheck(item) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1361, ASSERT_TYPE_ASSERT, "(!isEquipment || !BG_WeaponHasStreamedModelsErrorCheck( item ))", "%s\n\tTransient equipment weapon models are not supported. They are not accounted for in the streaming limits.", "!isEquipment || !BG_WeaponHasStreamedModelsErrorCheck( item )") )
     __debugbreak();
-  if ( !v18->worldModel )
+  if ( !v15->worldModel )
   {
-    v19 = BG_GetWeaponName(_RSI, v31, 0x400u);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FBC200, 1128i64, (unsigned int)_RDI->s.number, v19);
+    v16 = BG_GetWeaponName(item, v28, 0x400u);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FBC200, 1128i64, (unsigned int)v7->s.number, v16);
   }
-  _RDI->handler = 20;
+  v7->handler = 20;
   if ( !GItems::ms_gItemsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.h", 76, ASSERT_TYPE_ASSERT, "( ms_gItemsSystem )", (const char *)&queryFormat, "ms_gItemsSystem") )
     __debugbreak();
-  v20 = GItems::ms_gItemsSystem;
-  GItems::ms_gItemsSystem->SetEntModel(GItems::ms_gItemsSystem, _RDI, v18->worldModel);
-  v20->SaveRiotShieldHealthFromOwner(v20, ownerEnt, _RDI, _RSI);
-  v20->RestrictPickupForOwner(v20, ownerEnt, _RDI);
-  _RDI->flags = 0i64;
-  _RDI->flags.m_flags[0] |= 0x200u;
+  v17 = GItems::ms_gItemsSystem;
+  GItems::ms_gItemsSystem->SetEntModel(GItems::ms_gItemsSystem, v7, v15->worldModel);
+  v17->SaveRiotShieldHealthFromOwner(v17, ownerEnt, v7, item);
+  v17->RestrictPickupForOwner(v17, ownerEnt, v7);
+  v7->flags = 0i64;
+  v7->flags.m_flags[0] |= 0x200u;
   if ( !doPhysicsOnInit )
   {
-    v21 = DCONST_DVARBOOL_g_dropWeaponLaunchCanDisablePhysicsOnInit;
+    v18 = DCONST_DVARBOOL_g_dropWeaponLaunchCanDisablePhysicsOnInit;
     if ( !DCONST_DVARBOOL_g_dropWeaponLaunchCanDisablePhysicsOnInit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dropWeaponLaunchCanDisablePhysicsOnInit") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
-    if ( v21->current.enabled )
-      _RDI->flags.m_flags[1] |= 1u;
+    Dvar_CheckFrontendServerThread(v18);
+    if ( v18->current.enabled )
+      v7->flags.m_flags[1] |= 1u;
   }
-  G_DObjUpdate(_RDI, 1);
-  GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::ClearFlagInternal(&_RDI->flags, ACTIVE, 0x20u);
-  ServerDObjForEnt = Com_GetServerDObjForEnt(_RDI);
-  v23 = ServerDObjForEnt;
+  G_DObjUpdate(v7, 1);
+  GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::ClearFlagInternal(&v7->flags, ACTIVE, 0x20u);
+  ServerDObjForEnt = Com_GetServerDObjForEnt(v7);
+  v20 = ServerDObjForEnt;
   if ( ServerDObjForEnt )
   {
-    BG_UpdateWeaponHidePartBitsForDObj(ServerDObjForEnt, _RSI, 0, 0);
-    BG_UpdatedWeaponBones(_RSI, v23, 0);
+    BG_UpdateWeaponHidePartBitsForDObj(ServerDObjForEnt, item, 0, 0);
+    BG_UpdatedWeaponBones(item, v20, 0);
   }
   Sys_ProfEndNamedEvent();
-  return _RDI;
+  return v7;
 }
 
 /*
@@ -2062,354 +1781,273 @@ G_Items_RunItem
 */
 void G_Items_RunItem(gentity_s *ent)
 {
-  G_PhysicsObject *v8; 
+  __int128 v1; 
+  __int128 v2; 
+  __int128 v3; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  G_PhysicsObject *v9; 
   __int16 groundEntityNum; 
   trType_t trType; 
+  trajectory_t_secure *p_pos; 
+  float v13; 
   int FrameDuration; 
-  int v28; 
   int contentmask; 
   __int16 number; 
-  bool IsEntForceFall; 
-  char v45; 
-  const dvar_t *v74; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  int v25; 
+  const dvar_t *v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  GMovingPlatformEntityTracking *p_movingPlatformTrack; 
+  float v31; 
+  float v32; 
   __int16 EntityIndex; 
-  int IsEntityInUse; 
-  GTrajectory v97; 
+  GItems *ItemSystem; 
+  GWeaponMap *Instance; 
+  const Weapon *WeaponForEntity; 
+  __int16 EntityHitId; 
+  GTrajectory v38; 
   trace_t results; 
   vec3_t angles; 
   vec3_t outPos; 
-  unsigned int v102; 
-  unsigned int v103; 
-  unsigned int v104; 
+  vec3_t start; 
+  float v43; 
+  float v44; 
+  float v45; 
+  tmat33_t<vec3_t> forward; 
+  __int128 v47; 
+  __int128 v48; 
+  __int128 v49; 
+  __int128 v50; 
+  __int128 v51; 
+  __int128 v52; 
+  __int128 v53; 
 
-  __asm { vmovaps [rsp+1D0h+var_60], xmm9 }
-  _RBX = ent;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_Items_RunItem");
-  if ( GMovingPlatformEntityTracking::UpdatePlatformTracking(&_RBX->movingPlatformTrack, _RBX) )
+  if ( GMovingPlatformEntityTracking::UpdatePlatformTracking(&ent->movingPlatformTrack, ent) )
     goto LABEL_8;
-  v8 = G_PhysicsObject_Get(_RBX);
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2420, ASSERT_TYPE_ASSERT, "( physicsObj )", (const char *)&queryFormat, "physicsObj") )
+  v9 = G_PhysicsObject_Get(ent);
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2420, ASSERT_TYPE_ASSERT, "( physicsObj )", (const char *)&queryFormat, "physicsObj") )
     __debugbreak();
-  if ( v8->physicsInstances[0] == -1 || _RBX->s.lerp.pos.trType != TR_PHYSICS_SERVER_AUTH )
+  if ( v9->physicsInstances[0] == -1 || ent->s.lerp.pos.trType != TR_PHYSICS_SERVER_AUTH )
   {
 LABEL_8:
-    groundEntityNum = _RBX->s.groundEntityNum;
-    if ( groundEntityNum == 2047 || level.gentities[groundEntityNum].s.lerp.pos.trType || G_Items_IsEntForceFall(_RBX) )
+    groundEntityNum = ent->s.groundEntityNum;
+    if ( groundEntityNum == 2047 || level.gentities[groundEntityNum].s.lerp.pos.trType || G_Items_IsEntForceFall(ent) )
     {
-      trType = _RBX->s.lerp.pos.trType;
-      if ( trType != TR_GRAVITY && (unsigned int)(trType - 24) > 1 && (BG_IsCorpseEntity(&_RBX->s) || (_RBX->spawnflags & 1) == 0) )
+      trType = ent->s.lerp.pos.trType;
+      if ( trType != TR_GRAVITY && (unsigned int)(trType - 24) > 1 && (BG_IsCorpseEntity(&ent->s) || (ent->spawnflags & 1) == 0) )
       {
-        _RBX->s.lerp.pos.trType = TR_GRAVITY;
-        _RBX->s.lerp.pos.trTime = level.time;
-        Trajectory_SetTrBase(&_RBX->s.lerp.pos, &_RBX->r.currentOrigin);
-        *(_QWORD *)_RBX->s.lerp.pos.trDelta.v = 0i64;
-        _RBX->s.lerp.pos.trDelta.v[2] = 0.0;
+        ent->s.lerp.pos.trType = TR_GRAVITY;
+        ent->s.lerp.pos.trTime = level.time;
+        Trajectory_SetTrBase(&ent->s.lerp.pos, &ent->r.currentOrigin);
+        *(_QWORD *)ent->s.lerp.pos.trDelta.v = 0i64;
+        ent->s.lerp.pos.trDelta.v[2] = 0.0;
       }
     }
-    _RSI = &_RBX->s.lerp.pos;
-    if ( _RBX == (gentity_s *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+    p_pos = &ent->s.lerp.pos;
+    if ( ent == (gentity_s *)-16i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 107, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
       __debugbreak();
-    if ( _RSI->trType == TR_LINEAR_STOP_SECURE )
+    if ( p_pos->trType == TR_LINEAR_STOP_SECURE )
     {
-      *(_QWORD *)angles.v = &v102;
-      v104 = LODWORD(_RBX->s.lerp.pos.trBase.v[1]) ^ s_trbase_aab_Z ^ LODWORD(_RBX->s.lerp.pos.trBase.v[2]);
-      v103 = LODWORD(_RBX->s.lerp.pos.trBase.v[0]) ^ LODWORD(_RBX->s.lerp.pos.trBase.v[1]) ^ s_trbase_aab_Y;
-      v102 = LODWORD(_RBX->s.lerp.pos.trBase.v[0]) ^ ~s_trbase_aab_X;
-      __asm { vmovss  xmm0, [rbp+0D0h+var_E0] }
+      *(_QWORD *)angles.v = &v43;
+      LODWORD(v45) = LODWORD(ent->s.lerp.pos.trBase.v[1]) ^ s_trbase_aab_Z ^ LODWORD(ent->s.lerp.pos.trBase.v[2]);
+      LODWORD(v44) = LODWORD(ent->s.lerp.pos.trBase.v[0]) ^ LODWORD(ent->s.lerp.pos.trBase.v[1]) ^ s_trbase_aab_Y;
+      LODWORD(v43) = LODWORD(ent->s.lerp.pos.trBase.v[0]) ^ ~s_trbase_aab_X;
       memset(&angles, 0, 8ui64);
-      __asm { vmovss  dword ptr [rbp+0D0h+angles], xmm0 }
-      if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 )
-        goto LABEL_66;
-      __asm
+      angles.v[0] = v43;
+      if ( (LODWORD(v43) & 0x7F800000) == 2139095040 || (angles.v[0] = v44, (LODWORD(v44) & 0x7F800000) == 2139095040) || (angles.v[0] = v45, (LODWORD(v45) & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, [rbp+0D0h+var_DC]
-        vmovss  dword ptr [rbp+0D0h+angles], xmm0
-      }
-      if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 )
-        goto LABEL_66;
-      __asm
-      {
-        vmovss  xmm0, [rbp+0D0h+var_D8]
-        vmovss  dword ptr [rbp+0D0h+angles], xmm0
-      }
-      if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 )
-      {
-LABEL_66:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
           __debugbreak();
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+0Ch]
-        vmovss  xmm1, dword ptr [rsi+10h]
-        vmovss  [rbp+0D0h+var_E0], xmm0
-        vmovss  xmm0, dword ptr [rsi+14h]
-        vmovss  [rbp+0D0h+var_D8], xmm0
-        vmovss  [rbp+0D0h+var_DC], xmm1
-      }
+      v13 = ent->s.lerp.pos.trBase.v[1];
+      v43 = ent->s.lerp.pos.trBase.v[0];
+      v45 = ent->s.lerp.pos.trBase.v[2];
+      v44 = v13;
     }
-    __asm
+    angles.v[0] = v43;
+    if ( (LODWORD(v43) & 0x7F800000) == 2139095040 || (angles.v[0] = v44, (LODWORD(v44) & 0x7F800000) == 2139095040) || (angles.v[0] = v45, (LODWORD(v45) & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm0, [rbp+0D0h+var_E0]
-      vmovss  dword ptr [rbp+0D0h+angles], xmm0
-    }
-    if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 )
-      goto LABEL_67;
-    __asm
-    {
-      vmovss  xmm0, [rbp+0D0h+var_DC]
-      vmovss  dword ptr [rbp+0D0h+angles], xmm0
-    }
-    if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 )
-      goto LABEL_67;
-    __asm
-    {
-      vmovss  xmm0, [rbp+0D0h+var_D8]
-      vmovss  dword ptr [rbp+0D0h+angles], xmm0
-    }
-    if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 )
-    {
-LABEL_67:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2454, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tmpTrBase )[0] ) && !IS_NAN( ( tmpTrBase )[1] ) && !IS_NAN( ( tmpTrBase )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tmpTrBase )[0] ) && !IS_NAN( ( tmpTrBase )[1] ) && !IS_NAN( ( tmpTrBase )[2] )") )
         __debugbreak();
     }
-    __asm
+    angles.v[0] = ent->s.lerp.pos.trDelta.v[0];
+    if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 || (angles.v[0] = ent->s.lerp.pos.trDelta.v[1], (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040) || (angles.v[0] = ent->s.lerp.pos.trDelta.v[2], (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmovss  dword ptr [rbp+0D0h+angles], xmm0
-    }
-    if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 )
-      goto LABEL_68;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+2Ch]
-      vmovss  dword ptr [rbp+0D0h+angles], xmm0
-    }
-    if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 )
-      goto LABEL_68;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+30h]
-      vmovss  dword ptr [rbp+0D0h+angles], xmm0
-    }
-    if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 )
-    {
-LABEL_68:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2457, ASSERT_TYPE_SANITY, "( !IS_NAN( ( ent->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( ent->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( ent->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( ent->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( ent->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( ent->s.lerp.pos.trDelta )[2] )") )
         __debugbreak();
     }
-    if ( _RSI->trType == TR_STATIONARY || _RBX->tagInfo )
+    if ( p_pos->trType == TR_STATIONARY || ent->tagInfo )
     {
-      G_Main_RunThink(_RBX);
+      G_Main_RunThink(ent);
     }
     else
     {
-      __asm { vmovaps [rsp+1D0h+var_40], xmm7 }
-      GTrajectory::GTrajectory(&v97, _RBX);
+      v52 = v2;
+      GTrajectory::GTrajectory(&v38, ent);
       FrameDuration = G_Level_GetFrameDuration();
-      BgTrajectory::EvaluatePosTrajectory(&v97, level.time + FrameDuration, &outPos);
-      __asm
+      BgTrajectory::EvaluatePosTrajectory(&v38, level.time + FrameDuration, &outPos);
+      angles.v[0] = outPos.v[0];
+      if ( (LODWORD(outPos.v[0]) & 0x7F800000) == 2139095040 || (angles.v[0] = outPos.v[1], (LODWORD(outPos.v[1]) & 0x7F800000) == 2139095040) || (angles.v[0] = outPos.v[2], (LODWORD(outPos.v[2]) & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rbp+0D0h+outPos]
-        vmovss  dword ptr [rbp+0D0h+angles], xmm0
-      }
-      if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 )
-        goto LABEL_69;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0D0h+outPos+4]
-        vmovss  dword ptr [rbp+0D0h+angles], xmm0
-      }
-      if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 )
-        goto LABEL_69;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0D0h+outPos+8]
-        vmovss  dword ptr [rbp+0D0h+angles], xmm0
-      }
-      if ( (LODWORD(angles.v[0]) & 0x7F800000) == 2139095040 )
-      {
-LABEL_69:
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2471, ASSERT_TYPE_SANITY, "( !IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( origin )[0] ) && !IS_NAN( ( origin )[1] ) && !IS_NAN( ( origin )[2] )") )
           __debugbreak();
       }
-      v28 = G_Items_ClipMask(_RBX);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0D0h+outPos]
-        vmovss  xmm1, dword ptr [rbp+0D0h+outPos+4]
-        vsubss  xmm2, xmm1, dword ptr [rbx+134h]
-        vsubss  xmm4, xmm0, dword ptr [rbx+130h]
-        vmovss  xmm5, dword ptr [rbp+0D0h+outPos+8]
-        vsubss  xmm3, xmm5, dword ptr [rbx+138h]
-        vmulss  xmm1, xmm2, xmm2
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vcomiss xmm2, cs:__real@3dcccccd
-      }
-      contentmask = v28;
-      if ( v45 )
-      {
-        __asm
-        {
-          vaddss  xmm0, xmm5, cs:__real@bf800000
-          vmovss  dword ptr [rbp+0D0h+outPos+8], xmm0
-        }
-      }
-      if ( EntHandle::isDefined(&_RBX->r.ownerNum) )
-        number = EntHandle::entnum(&_RBX->r.ownerNum);
+      contentmask = G_Items_ClipMask(ent);
+      if ( (float)((float)((float)((float)(outPos.v[1] - ent->r.currentOrigin.v[1]) * (float)(outPos.v[1] - ent->r.currentOrigin.v[1])) + (float)((float)(outPos.v[0] - ent->r.currentOrigin.v[0]) * (float)(outPos.v[0] - ent->r.currentOrigin.v[0]))) + (float)((float)(outPos.v[2] - ent->r.currentOrigin.v[2]) * (float)(outPos.v[2] - ent->r.currentOrigin.v[2]))) < 0.1 )
+        outPos.v[2] = outPos.v[2] + -1.0;
+      if ( EntHandle::isDefined(&ent->r.ownerNum) )
+        number = EntHandle::entnum(&ent->r.ownerNum);
       else
-        number = _RBX->s.number;
-      G_Main_TraceCapsule(&results, &_RBX->r.currentOrigin, &outPos, &_RBX->r.box, number, contentmask);
-      IsEntForceFall = G_Items_IsEntForceFall(_RBX);
-      __asm { vmovss  xmm7, cs:__real@3f800000 }
-      v45 = 0;
-      if ( IsEntForceFall )
+        number = ent->s.number;
+      G_Main_TraceCapsule(&results, &ent->r.currentOrigin, &outPos, &ent->r.box, number, contentmask);
+      _XMM7 = LODWORD(FLOAT_1_0);
+      if ( G_Items_IsEntForceFall(ent) )
       {
-        LOWORD(_EAX) = Trace_GetEntityHitId(&results);
-        __asm { vmovss  xmm2, [rsp+1D0h+results.fraction] }
-        _EAX = (unsigned __int16)_EAX;
-        _ECX = 2046;
+        _XMM0 = Trace_GetEntityHitId(&results);
         __asm
         {
-          vmovd   xmm0, eax
-          vmovd   xmm1, ecx
           vpcmpeqd xmm3, xmm0, xmm1
           vblendvps xmm0, xmm7, xmm2, xmm3
-          vmovss  [rsp+1D0h+results.fraction], xmm0
         }
+        results.fraction = *(float *)&_XMM0;
       }
-      __asm
+      if ( results.fraction >= 1.0 )
       {
-        vmovss  xmm3, [rsp+1D0h+results.fraction]
-        vcomiss xmm3, xmm7
-        vmovss  xmm9, cs:__real@3c23d70a
-      }
-      if ( v45 )
-      {
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rbx+130h]
-          vmovss  xmm5, dword ptr [rbx+134h]
-          vmovaps [rsp+1D0h+var_70], xmm10
-          vmovss  xmm10, dword ptr [rbx+138h]
-          vmovaps [rsp+1D0h+var_80], xmm11
-          vmovss  xmm11, dword ptr [rbp+0D0h+outPos]
-          vsubss  xmm0, xmm11, xmm4
-          vmulss  xmm1, xmm0, xmm3
-          vaddss  xmm2, xmm1, xmm4
-          vmovaps [rsp+1D0h+var_90], xmm12
-          vmovss  xmm12, dword ptr [rbp+0D0h+outPos+4]
-          vsubss  xmm0, xmm12, xmm5
-          vmulss  xmm1, xmm0, xmm3
-          vmovss  dword ptr [rbp+0D0h+start], xmm2
-          vaddss  xmm2, xmm1, xmm5
-          vmovaps [rsp+1D0h+var_A0], xmm13
-          vmovss  xmm13, dword ptr [rbp+0D0h+outPos+8]
-          vsubss  xmm0, xmm13, xmm10
-          vmulss  xmm1, xmm0, xmm3
-          vmovss  dword ptr [rbp+0D0h+start+4], xmm2
-          vaddss  xmm2, xmm1, xmm10
-          vmovss  dword ptr [rbp+0D0h+start+8], xmm2
-        }
-        if ( !results.startsolid )
-          __asm { vcomiss xmm3, xmm9 }
-        __asm
-        {
-          vmovaps xmm13, [rsp+1D0h+var_A0]
-          vmovaps xmm12, [rsp+1D0h+var_90]
-          vmovaps xmm11, [rsp+1D0h+var_80]
-          vmovaps xmm10, [rsp+1D0h+var_70]
-        }
-        _RSI->trType = TR_LINEAR_STOP;
-        _RBX->s.lerp.pos.trTime = level.time;
-        v74 = DCONST_DVARINT_g_itemMaxExtrapolationTime;
-        if ( !DCONST_DVARINT_g_itemMaxExtrapolationTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_itemMaxExtrapolationTime") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v74);
-        _RBX->s.lerp.pos.trDuration = v74->current.integer;
-        Trajectory_SetTrBase(&_RBX->s.lerp.pos, &_RBX->r.currentOrigin);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0D0h+start]
-          vsubss  xmm1, xmm0, dword ptr [rbx+130h]
-          vmovss  xmm2, dword ptr [rbp+0D0h+start+4]
-          vmovss  dword ptr [rbx+28h], xmm1
-          vsubss  xmm0, xmm2, dword ptr [rbx+134h]
-          vmovss  xmm1, dword ptr [rbp+0D0h+start+8]
-          vmovss  dword ptr [rbx+2Ch], xmm0
-          vsubss  xmm2, xmm1, dword ptr [rbx+138h]
-          vmovss  dword ptr [rbx+30h], xmm2
-        }
-        G_Level_GetFrameDuration();
-        __asm
-        {
-          vmovss  xmm0, cs:__real@447a0000
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vdivss  xmm2, xmm0, xmm1
-          vmulss  xmm1, xmm2, dword ptr [rbx+28h]
-          vmovss  dword ptr [rbx+28h], xmm1
-          vmulss  xmm0, xmm2, dword ptr [rbx+2Ch]
-          vmovss  dword ptr [rbx+2Ch], xmm0
-          vmulss  xmm1, xmm2, dword ptr [rbx+30h]
-          vmovss  dword ptr [rbx+30h], xmm1
-        }
-        if ( G_Items_IsEntForceFall(_RBX) )
-        {
-          GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::ClearFlagInternal(&_RBX->flags, GameModeFlagValues::ms_spValue, 0x23u);
-          EntHandle::setEnt(&_RBX->movingPlatformTrack.m_trackEnt, NULL);
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+0D0h+start]
-          vmovss  xmm1, dword ptr [rbp+0D0h+start+4]
-          vmovss  dword ptr [rbx+130h], xmm0
-          vmovss  xmm0, dword ptr [rbp+0D0h+start+8]
-        }
+        v31 = outPos.v[1];
+        ent->r.currentOrigin.v[0] = outPos.v[0];
+        v32 = outPos.v[2];
+        p_movingPlatformTrack = &ent->movingPlatformTrack;
       }
       else
       {
-        __asm
+        v21 = ent->r.currentOrigin.v[0];
+        v22 = ent->r.currentOrigin.v[1];
+        v50 = v4;
+        v23 = ent->r.currentOrigin.v[2];
+        v49 = v5;
+        v48 = v6;
+        start.v[0] = (float)((float)(outPos.v[0] - v21) * results.fraction) + v21;
+        v47 = v7;
+        start.v[1] = (float)((float)(outPos.v[1] - v22) * results.fraction) + v22;
+        start.v[2] = (float)((float)(outPos.v[2] - v23) * results.fraction) + v23;
+        if ( !results.startsolid && results.fraction < 0.0099999998 )
         {
-          vmovss  xmm0, dword ptr [rbp+0D0h+outPos]
-          vmovss  xmm1, dword ptr [rbp+0D0h+outPos+4]
-          vmovss  dword ptr [rbx+130h], xmm0
-          vmovss  xmm0, dword ptr [rbp+0D0h+outPos+8]
+          v51 = v3;
+          if ( results.normal.v[2] < 0.5 )
+          {
+            v24 = 1.0 - (float)((float)((float)((float)(outPos.v[1] - v22) * results.normal.v[1]) + (float)((float)(outPos.v[0] - v21) * results.normal.v[0])) + (float)((float)(outPos.v[2] - v23) * results.normal.v[2]));
+            outPos.v[0] = outPos.v[0] + (float)(v24 * results.normal.v[0]);
+            v53 = v1;
+            outPos.v[2] = outPos.v[2] + (float)(results.normal.v[2] * v24);
+            outPos.v[1] = outPos.v[1] + (float)(v24 * results.normal.v[1]);
+            if ( EntHandle::isDefined(&ent->r.ownerNum) )
+              v25 = EntHandle::entnum(&ent->r.ownerNum);
+            else
+              v25 = 2047;
+            G_Main_TraceCapsule(&results, &start, &outPos, &ent->r.box, v25, contentmask);
+            start.v[0] = (float)((float)(outPos.v[0] - start.v[0]) * results.fraction) + start.v[0];
+            start.v[1] = (float)((float)(outPos.v[1] - start.v[1]) * results.fraction) + start.v[1];
+            start.v[2] = (float)((float)(outPos.v[2] - start.v[2]) * results.fraction) + start.v[2];
+          }
         }
-      }
-      __asm
-      {
-        vmovss  dword ptr [rbx+138h], xmm0
-        vmovss  dword ptr [rbx+134h], xmm1
-      }
-      SV_LinkEntity(_RBX);
-      G_Main_RunThink(_RBX);
-      EntityIndex = G_GetEntityIndex(_RBX);
-      IsEntityInUse = G_IsEntityInUse(EntityIndex);
-      __asm { vmovaps xmm7, [rsp+1D0h+var_40] }
-      if ( IsEntityInUse )
-      {
-        __asm
+        p_pos->trType = TR_LINEAR_STOP;
+        ent->s.lerp.pos.trTime = level.time;
+        v26 = DCONST_DVARINT_g_itemMaxExtrapolationTime;
+        if ( !DCONST_DVARINT_g_itemMaxExtrapolationTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_itemMaxExtrapolationTime") )
+          __debugbreak();
+        Dvar_CheckFrontendServerThread(v26);
+        ent->s.lerp.pos.trDuration = v26->current.integer;
+        Trajectory_SetTrBase(&ent->s.lerp.pos, &ent->r.currentOrigin);
+        v27 = start.v[1];
+        ent->s.lerp.pos.trDelta.v[0] = start.v[0] - ent->r.currentOrigin.v[0];
+        v28 = start.v[2];
+        ent->s.lerp.pos.trDelta.v[1] = v27 - ent->r.currentOrigin.v[1];
+        ent->s.lerp.pos.trDelta.v[2] = v28 - ent->r.currentOrigin.v[2];
+        v29 = 1000.0 / (float)G_Level_GetFrameDuration();
+        ent->s.lerp.pos.trDelta.v[0] = v29 * ent->s.lerp.pos.trDelta.v[0];
+        ent->s.lerp.pos.trDelta.v[1] = v29 * ent->s.lerp.pos.trDelta.v[1];
+        ent->s.lerp.pos.trDelta.v[2] = v29 * ent->s.lerp.pos.trDelta.v[2];
+        if ( G_Items_IsEntForceFall(ent) )
         {
-          vmovss  xmm0, [rsp+1D0h+results.fraction]
-          vcomiss xmm0, xmm9
+          GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::ClearFlagInternal(&ent->flags, GameModeFlagValues::ms_spValue, 0x23u);
+          p_movingPlatformTrack = &ent->movingPlatformTrack;
+          EntHandle::setEnt(&ent->movingPlatformTrack.m_trackEnt, NULL);
+        }
+        else
+        {
+          p_movingPlatformTrack = &ent->movingPlatformTrack;
+        }
+        v31 = start.v[1];
+        ent->r.currentOrigin.v[0] = start.v[0];
+        v32 = start.v[2];
+      }
+      ent->r.currentOrigin.v[2] = v32;
+      ent->r.currentOrigin.v[1] = v31;
+      SV_LinkEntity(ent);
+      G_Main_RunThink(ent);
+      EntityIndex = G_GetEntityIndex(ent);
+      if ( G_IsEntityInUse(EntityIndex) && results.fraction < 0.0099999998 )
+      {
+        if ( results.normal.v[2] > 0.0 )
+        {
+          ItemSystem = GItems::GetItemSystem();
+          if ( !ItemSystem->UpdateSpecialGroundOrientation(ItemSystem, ent) )
+          {
+            Sys_ProfBeginNamedEvent(0xFFFF0000, "G_Items_OrientItemToGround");
+            forward.m[2] = results.normal;
+            AngleVectors(&ent->r.currentAngles, forward.m, NULL, NULL);
+            Vec3Cross(&forward.m[2], forward.m, &forward.m[1]);
+            Vec3Cross(&forward.m[1], &forward.m[2], forward.m);
+            AxisToAngles(&forward, &angles);
+            Instance = GWeaponMap::GetInstance();
+            WeaponForEntity = BG_GetWeaponForEntity(Instance, &ent->s);
+            if ( WeaponForEntity->weaponIdx )
+            {
+              if ( BG_IsRiotShield(WeaponForEntity, 0) )
+                angles.v[0] = angles.v[0] + -90.0;
+              else
+                angles.v[2] = angles.v[2] + 90.0;
+            }
+            G_SetAngle(ent, &angles, 1, 1);
+            Sys_ProfEndNamedEvent();
+          }
+          G_SetOrigin(ent, &start, 1, 1);
+          if ( GMovingPlatforms::TraceHitMovingPlatform(&results) && !BG_IsCorpseEntity(&ent->s) )
+          {
+            EntHandle::setEnt(&p_movingPlatformTrack->m_trackEnt, NULL);
+            G_EntLinkTo(ent, &g_entities[results.hitId], (scr_string_t)0, 0, NULL);
+          }
+          ent->s.lerp.pos.trDuration = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_g_itemMaxExtrapolationTime, "g_itemMaxExtrapolationTime");
+          EntityHitId = Trace_GetEntityHitId(&results);
+          ent->s.groundEntityNum = EntityHitId;
+          g_entities[EntityHitId].flags.m_flags[0] |= 0x200000u;
+          SV_LinkEntity(ent);
+        }
+        else
+        {
+          G_FreeEntity(ent);
         }
       }
     }
   }
   else
   {
-    SV_LinkEntity(_RBX);
-    G_Main_RunThink(_RBX);
+    SV_LinkEntity(ent);
+    G_Main_RunThink(ent);
   }
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm9, [rsp+1D0h+var_60] }
 }
 
 /*
@@ -2419,71 +2057,51 @@ G_Items_SetDefaultState
 */
 void G_Items_SetDefaultState(const gentity_s *droppingEnt, gentity_s *droppedEnt)
 {
-  int v16; 
-  int v17; 
-  int v18; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  int v9; 
+  float v10; 
   vec3_t forward; 
   vec3_t angle; 
   vec3_t origin; 
   vec3_t angles; 
 
-  __asm { vmovaps [rsp+98h+var_18], xmm6 }
-  _RDI = droppedEnt;
-  _RBX = droppingEnt;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_Items_SetDefaultState");
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+130h]
-    vmovss  xmm1, dword ptr [rbx+134h]
-    vmovss  dword ptr [rsp+98h+origin], xmm0
-    vmovss  xmm0, dword ptr [rbx+114h]
-    vaddss  xmm2, xmm0, dword ptr [rbx+138h]
-    vmovss  xmm0, dword ptr [rbx+140h]
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  dword ptr [rsp+98h+angle+4], xmm0
-    vmovss  dword ptr [rsp+98h+origin+4], xmm1
-    vmovss  dword ptr [rsp+98h+origin+8], xmm2
-    vmovss  dword ptr [rsp+98h+angle], xmm6
-    vmovss  dword ptr [rsp+98h+angle+8], xmm6
-  }
-  G_SetOriginAndAngle(_RDI, &origin, &angle, 1, 1);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+140h]
-    vmovss  dword ptr [rsp+98h+angles+4], xmm0
-    vmovss  dword ptr [rsp+98h+angles], xmm6
-    vmovss  dword ptr [rsp+98h+angles+8], xmm6
-  }
+  v4 = droppingEnt->r.currentOrigin.v[1];
+  origin.v[0] = droppingEnt->r.currentOrigin.v[0];
+  v5 = droppingEnt->r.box.halfSize.v[2] + droppingEnt->r.currentOrigin.v[2];
+  angle.v[1] = droppingEnt->r.currentAngles.v[1];
+  origin.v[1] = v4;
+  origin.v[2] = v5;
+  angle.v[0] = 0.0;
+  angle.v[2] = 0.0;
+  G_SetOriginAndAngle(droppedEnt, &origin, &angle, 1, 1);
+  angles.v[1] = droppingEnt->r.currentAngles.v[1];
+  angles.v[0] = 0.0;
+  angles.v[2] = 0.0;
   AngleVectors(&angles, &forward, NULL, NULL);
   if ( !GItems::ms_gItemsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.h", 76, ASSERT_TYPE_ASSERT, "( ms_gItemsSystem )", (const char *)&queryFormat, "ms_gItemsSystem") )
     __debugbreak();
   GItems::ms_gItemsSystem->UpdateDefaultVelocity(GItems::ms_gItemsSystem, &forward);
-  __asm
+  v6 = forward.v[0];
+  v7 = forward.v[1];
+  v8 = forward.v[2];
+  v10 = forward.v[0];
+  v9 = LODWORD(forward.v[0]) & 0x7F800000;
+  droppedEnt->s.lerp.pos.trDelta.v[1] = forward.v[1];
+  droppedEnt->s.lerp.pos.trDelta.v[2] = v8;
+  droppedEnt->s.lerp.pos.trDelta.v[0] = v6;
+  if ( v9 == 2139095040 || (v10 = v7, (LODWORD(v7) & 0x7F800000) == 2139095040) || (v10 = v8, (LODWORD(v8) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm2, dword ptr [rsp+98h+forward]
-    vmovss  xmm0, dword ptr [rsp+98h+forward+4]
-    vmovss  xmm1, dword ptr [rsp+98h+forward+8]
-    vmovss  [rsp+98h+var_68], xmm2
-    vmovss  dword ptr [rdi+2Ch], xmm0
-    vmovss  dword ptr [rdi+30h], xmm1
-    vmovss  dword ptr [rdi+28h], xmm2
-  }
-  if ( (v16 & 0x7F800000) == 2139095040 )
-    goto LABEL_12;
-  __asm { vmovss  [rsp+98h+var_68], xmm0 }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_12;
-  __asm { vmovss  [rsp+98h+var_68], xmm1 }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-  {
-LABEL_12:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1448, ASSERT_TYPE_SANITY, "( !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1448, ASSERT_TYPE_SANITY, "( !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[2] )", v10) )
       __debugbreak();
   }
-  _RDI->s.lerp.pos.trType = TR_GRAVITY;
-  _RDI->s.lerp.pos.trTime = level.time;
+  droppedEnt->s.lerp.pos.trType = TR_GRAVITY;
+  droppedEnt->s.lerp.pos.trTime = level.time;
   Sys_ProfEndNamedEvent();
-  __asm { vmovaps xmm6, [rsp+98h+var_18] }
 }
 
 /*
@@ -2493,52 +2111,36 @@ G_Items_SetDefaultVelocity
 */
 void G_Items_SetDefaultVelocity(const gentity_s *droppingEnt, gentity_s *droppedEnt)
 {
-  int v9; 
-  int v10; 
-  int v11; 
+  float v3; 
+  float v4; 
+  float v5; 
+  int v6; 
+  float v7; 
   vec3_t forward; 
   vec3_t angles; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+140h]
-    vxorps  xmm1, xmm1, xmm1
-  }
-  _RBX = droppedEnt;
-  __asm
-  {
-    vmovss  dword ptr [rsp+68h+angles+4], xmm0
-    vmovss  dword ptr [rsp+68h+angles], xmm1
-    vmovss  dword ptr [rsp+68h+angles+8], xmm1
-  }
+  angles.v[1] = droppingEnt->r.currentAngles.v[1];
+  angles.v[0] = 0.0;
+  angles.v[2] = 0.0;
   AngleVectors(&angles, &forward, NULL, NULL);
   if ( !GItems::ms_gItemsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.h", 76, ASSERT_TYPE_ASSERT, "( ms_gItemsSystem )", (const char *)&queryFormat, "ms_gItemsSystem") )
     __debugbreak();
   GItems::ms_gItemsSystem->UpdateDefaultVelocity(GItems::ms_gItemsSystem, &forward);
-  __asm
+  v3 = forward.v[0];
+  v4 = forward.v[1];
+  v5 = forward.v[2];
+  v7 = forward.v[0];
+  v6 = LODWORD(forward.v[0]) & 0x7F800000;
+  droppedEnt->s.lerp.pos.trDelta.v[1] = forward.v[1];
+  droppedEnt->s.lerp.pos.trDelta.v[2] = v5;
+  droppedEnt->s.lerp.pos.trDelta.v[0] = v3;
+  if ( v6 == 2139095040 || (v7 = v4, (LODWORD(v4) & 0x7F800000) == 2139095040) || (v7 = v5, (LODWORD(v5) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm2, dword ptr [rsp+68h+forward]
-    vmovss  xmm0, dword ptr [rsp+68h+forward+4]
-    vmovss  xmm1, dword ptr [rsp+68h+forward+8]
-    vmovss  [rsp+68h+var_38], xmm2
-    vmovss  dword ptr [rbx+2Ch], xmm0
-    vmovss  dword ptr [rbx+30h], xmm1
-    vmovss  dword ptr [rbx+28h], xmm2
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 )
-    goto LABEL_12;
-  __asm { vmovss  [rsp+68h+var_38], xmm0 }
-  if ( (v10 & 0x7F800000) == 2139095040 )
-    goto LABEL_12;
-  __asm { vmovss  [rsp+68h+var_38], xmm1 }
-  if ( (v11 & 0x7F800000) == 2139095040 )
-  {
-LABEL_12:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1448, ASSERT_TYPE_SANITY, "( !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1448, ASSERT_TYPE_SANITY, "( !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[0] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[1] ) && !IS_NAN( ( droppedEnt->s.lerp.pos.trDelta )[2] )", v7) )
       __debugbreak();
   }
-  _RBX->s.lerp.pos.trType = TR_GRAVITY;
-  _RBX->s.lerp.pos.trTime = level.time;
+  droppedEnt->s.lerp.pos.trType = TR_GRAVITY;
+  droppedEnt->s.lerp.pos.trTime = level.time;
 }
 
 /*
@@ -2548,76 +2150,60 @@ G_Items_SetItemPhysics
 */
 void G_Items_SetItemPhysics(const gentity_s *owner, gentity_s *itemEnt)
 {
+  gentity_s *v2; 
   const playerState_s *EntityPlayerStateConst; 
-  G_PhysicsObject *v16; 
-  unsigned int v17; 
+  double v5; 
+  double v6; 
+  float v7; 
+  double v8; 
+  float v9; 
+  double v10; 
+  G_PhysicsObject *v11; 
+  unsigned int v12; 
   int NumRigidBodys; 
-  signed int v19; 
+  signed int v14; 
   hknpBodyId *RigidBodyID; 
-  __int64 v30; 
+  __int64 v16; 
   hknpBodyId result; 
-  gentity_s *v32; 
-  __int64 v33; 
+  gentity_s *v18; 
+  __int64 v19; 
   vec3_t linearVelocity; 
   vec3_t angularVelocity; 
-  char v36; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v33 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
-  _RBX = itemEnt;
-  v32 = itemEnt;
+  v19 = -2i64;
+  v2 = itemEnt;
+  v18 = itemEnt;
   if ( !owner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1566, ASSERT_TYPE_ASSERT, "( owner )", (const char *)&queryFormat, "owner") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1567, ASSERT_TYPE_ASSERT, "( itemEnt )", (const char *)&queryFormat, "itemEnt") )
+  if ( !v2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1567, ASSERT_TYPE_ASSERT, "( itemEnt )", (const char *)&queryFormat, "itemEnt") )
     __debugbreak();
   Sys_ProfBeginNamedEvent(0xFF808080, "G_Items_SetItemPhysics");
   EntityPlayerStateConst = G_GetEntityPlayerStateConst(owner);
   if ( !EntityPlayerStateConst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1572, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  if ( !GMovingPlatformEntityTracking::DropItem(&_RBX->movingPlatformTrack, EntityPlayerStateConst) )
+  if ( !GMovingPlatformEntityTracking::DropItem(&v2->movingPlatformTrack, EntityPlayerStateConst) )
   {
-    G_Items_EnablePhysics(_RBX);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3f8ccccd; max
-      vmovss  xmm0, cs:__real@3f4ccccd; min
-    }
-    *(double *)&_XMM0 = G_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, dword ptr [rdi+3Ch]
-      vmovss  dword ptr [rsp+0E8h+linearVelocity], xmm1
-      vmulss  xmm2, xmm0, dword ptr [rdi+40h]
-      vmovss  dword ptr [rsp+0E8h+linearVelocity+4], xmm2
-      vmulss  xmm0, xmm0, dword ptr [rdi+44h]
-      vmovss  dword ptr [rsp+0E8h+linearVelocity+8], xmm0
-    }
-    *(double *)&_XMM0 = G_crandom();
-    __asm { vmulss  xmm8, xmm0, cs:__real@41200000 }
-    *(double *)&_XMM0 = G_crandom();
-    __asm { vmulss  xmm6, xmm0, cs:__real@41200000 }
-    *(double *)&_XMM0 = G_crandom();
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@41200000
-      vmovss  dword ptr [rsp+0E8h+angularVelocity], xmm1
-      vmovss  dword ptr [rsp+0E8h+angularVelocity+4], xmm6
-      vmovss  dword ptr [rsp+0E8h+angularVelocity+8], xmm8
-    }
-    v16 = G_PhysicsObject_Get(_RBX);
-    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1480, ASSERT_TYPE_ASSERT, "( physObject )", (const char *)&queryFormat, "physObject") )
+    G_Items_EnablePhysics(v2);
+    v5 = G_flrand(0.80000001, 1.1);
+    linearVelocity.v[0] = *(float *)&v5 * EntityPlayerStateConst->velocity.v[0];
+    linearVelocity.v[1] = *(float *)&v5 * EntityPlayerStateConst->velocity.v[1];
+    linearVelocity.v[2] = *(float *)&v5 * EntityPlayerStateConst->velocity.v[2];
+    v6 = G_crandom();
+    v7 = *(float *)&v6 * 10.0;
+    v8 = G_crandom();
+    v9 = *(float *)&v8 * 10.0;
+    v10 = G_crandom();
+    angularVelocity.v[0] = *(float *)&v10 * 10.0;
+    angularVelocity.v[1] = v9;
+    angularVelocity.v[2] = v7;
+    v11 = G_PhysicsObject_Get(v2);
+    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1480, ASSERT_TYPE_ASSERT, "( physObject )", (const char *)&queryFormat, "physObject") )
       __debugbreak();
-    v17 = v16->physicsInstances[0];
-    if ( v17 != -1 )
+    v12 = v11->physicsInstances[0];
+    if ( v12 != -1 )
     {
-      NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, v17);
-      v19 = 0;
+      NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, v12);
+      v14 = 0;
       if ( NumRigidBodys > 0 )
       {
         do
@@ -2626,43 +2212,24 @@ void G_Items_SetItemPhysics(const gentity_s *owner, gentity_s *itemEnt)
             __debugbreak();
           if ( !g_physicsServerWorldsCreated )
           {
-            LODWORD(v30) = 0;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v30) )
+            LODWORD(v16) = 0;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v16) )
               __debugbreak();
           }
-          RigidBodyID = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_FIRST, v17, v19);
+          RigidBodyID = HavokPhysics_GetRigidBodyID(&result, PHYSICS_WORLD_ID_FIRST, v12, v14);
           Physics_SetRigidBodyVelocity(PHYSICS_WORLD_ID_FIRST, RigidBodyID->m_serialAndIndex, &linearVelocity, &angularVelocity);
-          ++v19;
+          ++v14;
         }
-        while ( v19 < NumRigidBodys );
-        _RBX = v32;
+        while ( v14 < NumRigidBodys );
+        v2 = v18;
       }
-      _RBX->s.lerp.pos.trTime = level.time;
-      _RBX->s.lerp.apos.trTime = level.time;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0E8h+linearVelocity]
-        vmovss  dword ptr [rbx+28h], xmm0
-        vmovss  xmm1, dword ptr [rsp+0E8h+linearVelocity+4]
-        vmovss  dword ptr [rbx+2Ch], xmm1
-        vmovss  xmm0, dword ptr [rsp+0E8h+linearVelocity+8]
-        vmovss  dword ptr [rbx+30h], xmm0
-        vmovss  xmm1, dword ptr [rsp+0E8h+angularVelocity]
-        vmovss  dword ptr [rbx+4Ch], xmm1
-        vmovss  xmm0, dword ptr [rsp+0E8h+angularVelocity+4]
-        vmovss  dword ptr [rbx+50h], xmm0
-        vmovss  xmm1, dword ptr [rsp+0E8h+angularVelocity+8]
-        vmovss  dword ptr [rbx+54h], xmm1
-      }
+      v2->s.lerp.pos.trTime = level.time;
+      v2->s.lerp.apos.trTime = level.time;
+      v2->s.lerp.pos.trDelta = linearVelocity;
+      v2->s.lerp.apos.trDelta = angularVelocity;
     }
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v36;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-  }
 }
 
 /*
@@ -2748,38 +2315,31 @@ void G_Items_SetupWeapon(unsigned int weapIndex)
 {
   ComGameModeApplication *ActiveApplication; 
   unsigned __int16 weaponIdx; 
-  bool v6; 
-  WeaponDef **v7; 
-  WeaponDef *v8; 
-  unsigned int v9; 
-  __int64 v10; 
-  unsigned int v11; 
-  __int64 v12; 
+  bool v3; 
+  WeaponDef **v4; 
+  WeaponDef *v5; 
+  unsigned int v6; 
+  __int64 v7; 
+  unsigned int v8; 
+  __int64 v9; 
   const XModel *worldModel; 
   const char *Name; 
   const XModel *projectileModel; 
-  const char *v16; 
+  const char *v13; 
   const XModel *worldClipModel; 
-  const char *v18; 
-  unsigned __int16 v19; 
-  WeaponDef *v20; 
-  XModel *v21; 
+  const char *v15; 
+  unsigned __int16 v16; 
+  WeaponDef *v17; 
+  XModel *v18; 
   const XModel *defaultWorldModel; 
   const char *szInternalName; 
-  const char *v24; 
-  __int64 v25; 
-  __int64 v26; 
+  const char *v21; 
+  __int64 v22; 
+  __int64 v23; 
   Weapon r_weapon; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rsp+0B8h+r_weapon.weaponIdx], ymm0
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rsp+0B8h+r_weapon.attachmentVariationIndices+15h], xmm0
-    vmovups xmmword ptr [rsp+0B8h+r_weapon.attachmentVariationIndices+5], xmm1
-  }
+  memset(&r_weapon, 0, 48);
+  *(double *)&r_weapon.attachmentVariationIndices[21] = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&NULL_WEAPON.weaponCamo;
   r_weapon.weaponIdx = truncate_cast<unsigned short,unsigned int>(weapIndex);
   ActiveApplication = ComGameModeApplication::GetActiveApplication();
@@ -2787,96 +2347,96 @@ void G_Items_SetupWeapon(unsigned int weapIndex)
   weaponIdx = r_weapon.weaponIdx;
   if ( r_weapon.weaponIdx > bg_lastParsedWeaponIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", r_weapon.weaponIdx, bg_lastParsedWeaponIndex) )
     __debugbreak();
-  v6 = bg_weaponDefs[weaponIdx] == NULL;
-  v7 = &bg_weaponDefs[weaponIdx];
-  if ( v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+  v3 = bg_weaponDefs[weaponIdx] == NULL;
+  v4 = &bg_weaponDefs[weaponIdx];
+  if ( v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
     __debugbreak();
-  v8 = *v7;
-  if ( *v8->szUseHintString )
+  v5 = *v4;
+  if ( *v5->szUseHintString )
   {
     if ( !GConfigStrings::ms_gConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_configstrings.h", 71, ASSERT_TYPE_ASSERT, "( ms_gConfigStrings )", (const char *)&queryFormat, "ms_gConfigStrings") )
       __debugbreak();
-    v9 = GConfigStrings::ms_gConfigStrings->GetHintStringIndex(GConfigStrings::ms_gConfigStrings, v8->szUseHintString);
-    if ( !v9 )
+    v6 = GConfigStrings::ms_gConfigStrings->GetHintStringIndex(GConfigStrings::ms_gConfigStrings, v5->szUseHintString);
+    if ( !v6 )
     {
-      v10 = r_weapon.weaponIdx;
+      v7 = r_weapon.weaponIdx;
       if ( r_weapon.weaponIdx > bg_lastParsedWeaponIndex )
       {
-        LODWORD(v26) = bg_lastParsedWeaponIndex;
-        LODWORD(v25) = r_weapon.weaponIdx;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v25, v26) )
+        LODWORD(v23) = bg_lastParsedWeaponIndex;
+        LODWORD(v22) = r_weapon.weaponIdx;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v22, v23) )
           __debugbreak();
       }
-      if ( !bg_weaponCompleteDefs[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
+      if ( !bg_weaponCompleteDefs[v7] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
         __debugbreak();
-      Com_PrintError(15, "Could not find or allocate hint string ID for weapon '%s'. See console log for details.\n", bg_weaponCompleteDefs[v10]->szInternalName);
+      Com_PrintError(15, "Could not find or allocate hint string ID for weapon '%s'. See console log for details.\n", bg_weaponCompleteDefs[v7]->szInternalName);
     }
-    v8->iUseHintStringIndex = v9;
+    v5->iUseHintStringIndex = v6;
   }
-  if ( *v8->dropHintString )
+  if ( *v5->dropHintString )
   {
     if ( !GConfigStrings::ms_gConfigStrings && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_configstrings.h", 71, ASSERT_TYPE_ASSERT, "( ms_gConfigStrings )", (const char *)&queryFormat, "ms_gConfigStrings") )
       __debugbreak();
-    v11 = GConfigStrings::ms_gConfigStrings->GetHintStringIndex(GConfigStrings::ms_gConfigStrings, v8->dropHintString);
-    if ( !v11 )
+    v8 = GConfigStrings::ms_gConfigStrings->GetHintStringIndex(GConfigStrings::ms_gConfigStrings, v5->dropHintString);
+    if ( !v8 )
     {
-      v12 = r_weapon.weaponIdx;
+      v9 = r_weapon.weaponIdx;
       if ( r_weapon.weaponIdx > bg_lastParsedWeaponIndex )
       {
-        LODWORD(v26) = bg_lastParsedWeaponIndex;
-        LODWORD(v25) = r_weapon.weaponIdx;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v25, v26) )
+        LODWORD(v23) = bg_lastParsedWeaponIndex;
+        LODWORD(v22) = r_weapon.weaponIdx;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v22, v23) )
           __debugbreak();
       }
-      if ( !bg_weaponCompleteDefs[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
+      if ( !bg_weaponCompleteDefs[v9] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
         __debugbreak();
-      Com_PrintError(15, "Could not find or allocate hint string ID for weapon '%s'. See console log for details.\n", bg_weaponCompleteDefs[v12]->szInternalName);
+      Com_PrintError(15, "Could not find or allocate hint string ID for weapon '%s'. See console log for details.\n", bg_weaponCompleteDefs[v9]->szInternalName);
     }
-    v8->dropHintStringIndex = v11;
+    v5->dropHintStringIndex = v8;
   }
   if ( !Com_GameMode_SupportsFeature(WEAPON_SPRINT_COMBAT_IN) )
   {
-    worldModel = v8->worldModel;
+    worldModel = v5->worldModel;
     if ( worldModel )
     {
       Name = XModelGetName(worldModel);
       G_CString_GetModelIndex(Name);
     }
-    projectileModel = v8->projectileModel;
+    projectileModel = v5->projectileModel;
     if ( projectileModel )
     {
-      v16 = XModelGetName(projectileModel);
-      G_CString_GetModelIndex(v16);
+      v13 = XModelGetName(projectileModel);
+      G_CString_GetModelIndex(v13);
     }
-    worldClipModel = v8->worldClipModel;
+    worldClipModel = v5->worldClipModel;
     if ( worldClipModel )
     {
-      v18 = XModelGetName(worldClipModel);
-      G_CString_GetModelIndex(v18);
+      v15 = XModelGetName(worldClipModel);
+      G_CString_GetModelIndex(v15);
     }
   }
-  v19 = r_weapon.weaponIdx;
+  v16 = r_weapon.weaponIdx;
   if ( r_weapon.weaponIdx > bg_lastParsedWeaponIndex )
   {
-    LODWORD(v26) = bg_lastParsedWeaponIndex;
-    LODWORD(v25) = r_weapon.weaponIdx;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v25, v26) )
+    LODWORD(v23) = bg_lastParsedWeaponIndex;
+    LODWORD(v22) = r_weapon.weaponIdx;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v22, v23) )
       __debugbreak();
   }
-  if ( !bg_weaponDefs[v19] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+  if ( !bg_weaponDefs[v16] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
     __debugbreak();
-  v20 = bg_weaponDefs[v19];
-  v21 = v20->worldModel;
-  if ( v21 )
+  v17 = bg_weaponDefs[v16];
+  v18 = v17->worldModel;
+  if ( v18 )
   {
-    if ( (v21->flags & 0x8000) != 0 )
+    if ( (v18->flags & 0x8000) != 0 )
     {
-      defaultWorldModel = v20->defaultWorldModel;
-      if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_LADDER_AIM|0x80) || !CL_TransientsMP_IsTransientAsset(v21->name, ASSET_TYPE_XMODEL) || !defaultWorldModel || XModelIsDefaultAsset(defaultWorldModel) )
+      defaultWorldModel = v17->defaultWorldModel;
+      if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_LADDER_AIM|0x80) || !CL_TransientsMP_IsTransientAsset(v18->name, ASSET_TYPE_XMODEL) || !defaultWorldModel || XModelIsDefaultAsset(defaultWorldModel) )
       {
         szInternalName = BG_WeaponCompleteDef(&r_weapon, 0)->szInternalName;
-        v24 = XModelGetName(v20->worldModel);
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FBC6C0, 1129i64, v24, szInternalName);
+        v21 = XModelGetName(v17->worldModel);
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FBC6C0, 1129i64, v21, szInternalName);
       }
     }
   }
@@ -2909,96 +2469,80 @@ G_Items_Spawn
 */
 void G_Items_Spawn(gentity_s *ent, const Weapon *item)
 {
-  const WeaponDef *v7; 
+  const WeaponDef *v4; 
   char *WeaponName; 
-  GItems *v9; 
+  GItems *v6; 
   GWeaponMap *Instance; 
   int frameDuration; 
   int time; 
-  bool v13; 
+  bool v10; 
   DObj *ServerDObjForEnt; 
-  DObj *v17; 
+  DObj *v12; 
   char output[1024]; 
 
-  _RDI = item;
-  _RBX = ent;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_Items_Spawn");
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbx+1CCh], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rbx+1ECh], xmm1
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rbx+1FCh], xmm0
-  }
-  _RBX->c.mover.angle.pos1.v[2] = *(float *)&_RDI->weaponCamo;
-  if ( (unsigned __int16)(_RDI->weaponIdx - 1) > 0x224u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2162, ASSERT_TYPE_ASSERT, "( 1 ) <= ( item.weaponIdx ) && ( item.weaponIdx ) <= ( (550 - 1) )", "item.weaponIdx not in [1, (MAX_WEAPONS - 1)]\n\t%i not in [%i, %i]", _RDI->weaponIdx, 1, 549) )
+  ent->c.item[0].weapon = *item;
+  if ( (unsigned __int16)(item->weaponIdx - 1) > 0x224u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2162, ASSERT_TYPE_ASSERT, "( 1 ) <= ( item.weaponIdx ) && ( item.weaponIdx ) <= ( (550 - 1) )", "item.weaponIdx not in [1, (MAX_WEAPONS - 1)]\n\t%i not in [%i, %i]", item->weaponIdx, 1, 549) )
     __debugbreak();
-  v7 = BG_WeaponDef(_RDI, 0);
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2164, ASSERT_TYPE_ASSERT, "( weapDef )", (const char *)&queryFormat, "weapDef") )
+  v4 = BG_WeaponDef(item, 0);
+  if ( !v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 2164, ASSERT_TYPE_ASSERT, "( weapDef )", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
-  if ( !v7->worldModel )
+  if ( !v4->worldModel )
   {
-    WeaponName = BG_GetWeaponName(_RDI, output, 0x400u);
-    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FBC200, 1130i64, (unsigned int)_RBX->s.number, WeaponName);
+    WeaponName = BG_GetWeaponName(item, output, 0x400u);
+    Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FBC200, 1130i64, (unsigned int)ent->s.number, WeaponName);
   }
   if ( !GItems::ms_gItemsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.h", 76, ASSERT_TYPE_ASSERT, "( ms_gItemsSystem )", (const char *)&queryFormat, "ms_gItemsSystem") )
     __debugbreak();
-  v9 = GItems::ms_gItemsSystem;
-  GItems::ms_gItemsSystem->SetEntModel(GItems::ms_gItemsSystem, _RBX, v7->worldModel);
-  *(_QWORD *)_RBX->r.box.midPoint.v = 0i64;
-  _RBX->r.box.midPoint.v[2] = 0.0;
-  _RBX->r.box.halfSize.v[0] = 1.0;
-  _RBX->r.box.halfSize.v[1] = 1.0;
-  _RBX->r.box.halfSize.v[2] = 1.0;
-  G_PlayerUse_SetEntityUsable(_RBX, 1);
-  _RBX->s.eType = ET_ITEM;
+  v6 = GItems::ms_gItemsSystem;
+  GItems::ms_gItemsSystem->SetEntModel(GItems::ms_gItemsSystem, ent, v4->worldModel);
+  *(_QWORD *)ent->r.box.midPoint.v = 0i64;
+  ent->r.box.midPoint.v[2] = 0.0;
+  ent->r.box.halfSize.v[0] = 1.0;
+  ent->r.box.halfSize.v[1] = 1.0;
+  ent->r.box.halfSize.v[2] = 1.0;
+  G_PlayerUse_SetEntityUsable(ent, 1);
+  ent->s.eType = ET_ITEM;
   Instance = GWeaponMap::GetInstance();
-  BG_SetWeaponForEntity(Instance, &_RBX->s, &_RBX->c.item[0].weapon);
-  _RBX->s.inAltWeaponMode = 0;
-  G_Items_TransferRandomAmmoToWeaponEntityState(NULL, _RBX, _RDI, 0);
-  if ( G_Items_ShouldDropUnderbarrelAmmo(_RDI) )
-    G_Items_TransferRandomAmmoToWeaponEntityState(NULL, _RBX, _RDI, 1);
+  BG_SetWeaponForEntity(Instance, &ent->s, &ent->c.item[0].weapon);
+  ent->s.inAltWeaponMode = 0;
+  G_Items_TransferRandomAmmoToWeaponEntityState(NULL, ent, item, 0);
+  if ( G_Items_ShouldDropUnderbarrelAmmo(item) )
+    G_Items_TransferRandomAmmoToWeaponEntityState(NULL, ent, item, 1);
   if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
     __debugbreak();
-  _RBX->s.clientNum = ComCharacterLimits::ms_gameData.m_characterCount;
-  _RBX->flags.m_flags[0] |= 0x200u;
+  ent->s.clientNum = ComCharacterLimits::ms_gameData.m_characterCount;
+  ent->flags.m_flags[0] |= 0x200u;
   if ( level.spawnVar.spawnVarsValid )
   {
-    G_SetAngle(_RBX, &_RBX->r.currentAngles, 1, 1);
+    G_SetAngle(ent, &ent->r.currentAngles, 1, 1);
     if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
       __debugbreak();
     frameDuration = level.frameDuration;
     time = level.time;
-    _RBX->handler = 21;
-    _RBX->nextthink = time + 2 * frameDuration;
+    ent->handler = 21;
+    ent->nextthink = time + 2 * frameDuration;
   }
   else
   {
-    v13 = (_RBX->spawnflags & 1) == 0;
-    _RBX->handler = 22;
-    if ( v13 )
+    v10 = (ent->spawnflags & 1) == 0;
+    ent->handler = 22;
+    if ( v10 )
     {
-      _RBX->s.groundEntityNum = 2047;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+144h]
-        vaddss  xmm1, xmm0, cs:__real@42b40000
-        vmovss  dword ptr [rbx+144h], xmm1
-      }
+      ent->s.groundEntityNum = 2047;
+      ent->r.currentAngles.v[2] = ent->r.currentAngles.v[2] + 90.0;
     }
-    G_SetOriginAndAngle(_RBX, &_RBX->r.currentOrigin, &_RBX->r.currentAngles, 1, 1);
+    G_SetOriginAndAngle(ent, &ent->r.currentOrigin, &ent->r.currentAngles, 1, 1);
   }
-  G_DObjUpdate(_RBX, 1);
-  if ( v9->m_shouldUpdateDObjOnSpawn )
+  G_DObjUpdate(ent, 1);
+  if ( v6->m_shouldUpdateDObjOnSpawn )
   {
-    ServerDObjForEnt = Com_GetServerDObjForEnt(_RBX);
-    v17 = ServerDObjForEnt;
+    ServerDObjForEnt = Com_GetServerDObjForEnt(ent);
+    v12 = ServerDObjForEnt;
     if ( ServerDObjForEnt )
     {
-      BG_UpdateWeaponHidePartBitsForDObj(ServerDObjForEnt, _RDI, 0, 0);
-      BG_UpdatedWeaponBones(_RDI, v17, 0);
+      BG_UpdateWeaponHidePartBitsForDObj(ServerDObjForEnt, item, 0, 0);
+      BG_UpdatedWeaponBones(item, v12, 0);
     }
   }
   Sys_ProfEndNamedEvent();
@@ -3186,69 +2730,46 @@ void G_Items_TransferPlayerAmmoToWeaponEntity(gentity_s *player, gentity_s *weap
   int NonClipAmmoToTransferToWeaponEntity; 
   GWeaponMap *Instance; 
   int AmmoInClip; 
-  int v16; 
+  int v10; 
 
-  _RDI = weapon;
-  _RBX = weaponEnt;
   if ( !player && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1657, ASSERT_TYPE_ASSERT, "( player )", (const char *)&queryFormat, rowName) )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1658, ASSERT_TYPE_ASSERT, "( weaponEnt )", (const char *)&queryFormat, "weaponEnt") )
+  if ( !weaponEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1658, ASSERT_TYPE_ASSERT, "( weaponEnt )", (const char *)&queryFormat, "weaponEnt") )
     __debugbreak();
-  if ( !_RDI->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1659, ASSERT_TYPE_ASSERT, "( weapon.weaponIdx != 0 )", (const char *)&queryFormat, "weapon.weaponIdx != WP_NONE") )
+  if ( !weapon->weaponIdx && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1659, ASSERT_TYPE_ASSERT, "( weapon.weaponIdx != 0 )", (const char *)&queryFormat, "weapon.weaponIdx != WP_NONE") )
     __debugbreak();
   EntityPlayerState = G_GetEntityPlayerState(player);
   if ( !EntityPlayerState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1662, ASSERT_TYPE_ASSERT, "( ps )", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  NonClipAmmoToTransferToWeaponEntity = G_Items_GetNonClipAmmoToTransferToWeaponEntity(player, _RDI, 0);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbx+1CCh], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rbx+1ECh], xmm1
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rbx+1FCh], xmm0
-  }
-  _RBX->c.mover.angle.pos1.v[2] = *(float *)&_RDI->weaponCamo;
-  _RBX->c.item[0].ammoCount = NonClipAmmoToTransferToWeaponEntity;
+  NonClipAmmoToTransferToWeaponEntity = G_Items_GetNonClipAmmoToTransferToWeaponEntity(player, weapon, 0);
+  *(__m256i *)(&weaponEnt->c.beam + 3) = *(__m256i *)&weapon->weaponIdx;
+  *(_OWORD *)(&weaponEnt->c.beam + 11) = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+  *(double *)(&weaponEnt->c.beam + 15) = *(double *)&weapon->attachmentVariationIndices[21];
+  weaponEnt->c.mover.angle.pos1.v[2] = *(float *)&weapon->weaponCamo;
+  weaponEnt->c.item[0].ammoCount = NonClipAmmoToTransferToWeaponEntity;
   Instance = GWeaponMap::GetInstance();
-  _RBX->c.item[0].dualWieldItem = BG_PlayerDualWieldingWeapon(Instance, EntityPlayerState, _RDI) != 0;
-  _RBX->c.item[0].clipAmmoCount[0] = BG_GetAmmoInClip(EntityPlayerState, _RDI, 0, WEAPON_HAND_DEFAULT);
-  if ( _RBX->c.item[0].dualWieldItem )
-    AmmoInClip = BG_GetAmmoInClip(EntityPlayerState, _RDI, 0, WEAPON_HAND_LEFT);
+  weaponEnt->c.item[0].dualWieldItem = BG_PlayerDualWieldingWeapon(Instance, EntityPlayerState, weapon) != 0;
+  weaponEnt->c.item[0].clipAmmoCount[0] = BG_GetAmmoInClip(EntityPlayerState, weapon, 0, WEAPON_HAND_DEFAULT);
+  if ( weaponEnt->c.item[0].dualWieldItem )
+    AmmoInClip = BG_GetAmmoInClip(EntityPlayerState, weapon, 0, WEAPON_HAND_LEFT);
   else
     AmmoInClip = 0;
-  _RBX->c.item[0].clipAmmoCount[1] = AmmoInClip;
+  weaponEnt->c.item[0].clipAmmoCount[1] = AmmoInClip;
   if ( !GItems::ms_gItemsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.h", 76, ASSERT_TYPE_ASSERT, "( ms_gItemsSystem )", (const char *)&queryFormat, "ms_gItemsSystem") )
     __debugbreak();
-  GItems::ms_gItemsSystem->SaveRiotShieldHealthFromOwner(GItems::ms_gItemsSystem, player, _RBX, _RDI);
-  __asm
+  GItems::ms_gItemsSystem->SaveRiotShieldHealthFromOwner(GItems::ms_gItemsSystem, player, weaponEnt, weapon);
+  weaponEnt->c.item[1].weapon = NULL_WEAPON;
+  if ( G_Items_ShouldDropUnderbarrelAmmo(weapon) )
   {
-    vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-    vmovups ymmword ptr [rbx+21Ch], ymm0
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [rbx+23Ch], xmm1
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [rbx+24Ch], xmm0
-  }
-  *((_DWORD *)&_RBX->c.beam + 37) = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-  if ( G_Items_ShouldDropUnderbarrelAmmo(_RDI) )
-  {
-    v16 = G_Items_GetNonClipAmmoToTransferToWeaponEntity(player, _RDI, 1);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rbx+21Ch], ymm0
-      vmovups xmm1, xmmword ptr [rdi+20h]
-      vmovups xmmword ptr [rbx+23Ch], xmm1
-      vmovsd  xmm0, qword ptr [rdi+30h]
-      vmovsd  qword ptr [rbx+24Ch], xmm0
-    }
-    *((_DWORD *)&_RBX->c.beam + 37) = *(_DWORD *)&_RDI->weaponCamo;
-    _RBX->c.item[1].ammoCount = v16;
-    _RBX->c.item[1].dualWieldItem = 0;
-    _RBX->c.item[1].clipAmmoCount[0] = BG_GetAmmoInClip(EntityPlayerState, _RDI, 1, WEAPON_HAND_DEFAULT);
-    _RBX->c.item[1].clipAmmoCount[1] = 0;
+    v10 = G_Items_GetNonClipAmmoToTransferToWeaponEntity(player, weapon, 1);
+    *(__m256i *)(&weaponEnt->c.beam + 23) = *(__m256i *)&weapon->weaponIdx;
+    *(_OWORD *)(&weaponEnt->c.beam + 31) = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+    *(double *)(&weaponEnt->c.beam + 35) = *(double *)&weapon->attachmentVariationIndices[21];
+    *((_DWORD *)&weaponEnt->c.beam + 37) = *(_DWORD *)&weapon->weaponCamo;
+    weaponEnt->c.item[1].ammoCount = v10;
+    weaponEnt->c.item[1].dualWieldItem = 0;
+    weaponEnt->c.item[1].clipAmmoCount[0] = BG_GetAmmoInClip(EntityPlayerState, weapon, 1, WEAPON_HAND_DEFAULT);
+    weaponEnt->c.item[1].clipAmmoCount[1] = 0;
   }
 }
 
@@ -3275,151 +2796,117 @@ G_Items_TransferRandomAmmoToWeaponEntityState
 */
 __int64 G_Items_TransferRandomAmmoToWeaponEntityState(gentity_s *entity, gentity_s *weaponEnt, const Weapon *weapon, bool isAlternate)
 {
-  int v7; 
-  const WeaponDef *v15; 
-  const WeaponCompleteDef *v16; 
+  int v4; 
+  const Weapon *v6; 
+  gentity_s *v7; 
+  __int64 v9; 
+  const WeaponDef *v10; 
+  const WeaponCompleteDef *v11; 
   int ammoDropStockMax; 
-  int v18; 
+  int v13; 
   int ammoDropStockMin; 
-  int v20; 
-  int v21; 
-  bool v22; 
-  __int64 v25; 
+  int v15; 
+  int v16; 
+  __int64 v17; 
   __int64 i; 
   int ClipSize; 
-  const WeaponDef *v28; 
+  const WeaponDef *v20; 
+  int v21; 
+  int ammoDropClipPercentMax; 
+  float v23; 
   BOOL fmt; 
-  __int64 v42; 
-  _BOOL8 v43; 
-  __int64 v44; 
-  gentity_s *v47; 
+  __int64 v26; 
+  _BOOL8 v27; 
+  __int64 v28; 
+  int ammoDropClipPercentMin; 
 
-  v47 = weaponEnt;
-  __asm { vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON }
-  v7 = 0;
-  _RBP = weapon;
-  _R14 = weaponEnt;
-  _R15 = 80i64 * isAlternate;
-  v44 = _R15;
-  __asm
-  {
-    vmovups ymmword ptr [r15+rdx+1CCh], ymm0
-    vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    vmovups xmmword ptr [r15+rdx+1ECh], xmm1
-    vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    vmovsd  qword ptr [r15+rdx+1FCh], xmm0
-  }
-  *(float *)((char *)&weaponEnt->c.mover.angle.pos1.v[2] + _R15) = *(float *)&NULL_WEAPON.weaponCamo;
-  *(_QWORD *)((char *)&weaponEnt->c.item[0].ammoCount + _R15) = 0i64;
-  *(int *)((char *)&weaponEnt->c.item[0].clipAmmoCount[1] + _R15) = 0;
+  v4 = 0;
+  v6 = weapon;
+  v7 = weaponEnt;
+  v9 = 80i64 * isAlternate;
+  v28 = v9;
+  *(Weapon *)((char *)&weaponEnt->c.item[0].weapon + v9) = NULL_WEAPON;
+  *(_QWORD *)((char *)&weaponEnt->c.item[0].ammoCount + v9) = 0i64;
+  *(int *)((char *)&weaponEnt->c.item[0].clipAmmoCount[1] + v9) = 0;
   if ( !weapon->weaponIdx )
     return 0i64;
-  v15 = BG_WeaponDef(weapon, isAlternate);
-  v16 = BG_WeaponCompleteDef(_RBP, isAlternate);
+  v10 = BG_WeaponDef(weapon, isAlternate);
+  v11 = BG_WeaponCompleteDef(v6, isAlternate);
   if ( !GItems::ms_gItemsSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.h", 76, ASSERT_TYPE_ASSERT, "( ms_gItemsSystem )", (const char *)&queryFormat, "ms_gItemsSystem") )
     __debugbreak();
   LOBYTE(fmt) = isAlternate;
-  GItems::ms_gItemsSystem->SetRiotShieldHealthOnTransfer(GItems::ms_gItemsSystem, entity, _R14, _RBP, fmt);
-  if ( isAlternate && (!G_Items_ShouldDropUnderbarrelAmmo(_RBP) || v15->iSharedAmmoCapIndex >= 0) )
+  GItems::ms_gItemsSystem->SetRiotShieldHealthOnTransfer(GItems::ms_gItemsSystem, entity, v7, v6, fmt);
+  if ( isAlternate && (!G_Items_ShouldDropUnderbarrelAmmo(v6) || v10->iSharedAmmoCapIndex >= 0) )
     return 0i64;
-  if ( v15->dualWieldType == DUAL_WIELD_TYPE_DEFAULT && BG_OneHandedViewModelAnimsValid(v15) && (_R14->spawnflags & 4) != 0 )
-    *(&_R14->c.item[0].dualWieldItem + _R15) = 1;
-  ammoDropStockMax = v16->ammoDropStockMax;
-  v18 = ammoDropStockMax;
-  ammoDropStockMin = v15->ammoDropStockMin;
+  if ( v10->dualWieldType == DUAL_WIELD_TYPE_DEFAULT && BG_OneHandedViewModelAnimsValid(v10) && (v7->spawnflags & 4) != 0 )
+    *(&v7->c.item[0].dualWieldItem + v9) = 1;
+  ammoDropStockMax = v11->ammoDropStockMax;
+  v13 = ammoDropStockMax;
+  ammoDropStockMin = v10->ammoDropStockMin;
   if ( ammoDropStockMax >= ammoDropStockMin )
-    v18 = ammoDropStockMin;
+    v13 = ammoDropStockMin;
   if ( ammoDropStockMax >= ammoDropStockMin )
-    ammoDropStockMin = v16->ammoDropStockMax;
+    ammoDropStockMin = v11->ammoDropStockMax;
   if ( ammoDropStockMin < 0 )
     goto LABEL_21;
-  if ( ammoDropStockMin < v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1796, ASSERT_TYPE_ASSERT, "( max >= min )", (const char *)&queryFormat, "max >= min") )
+  if ( ammoDropStockMin < v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1796, ASSERT_TYPE_ASSERT, "( max >= min )", (const char *)&queryFormat, "max >= min") )
     __debugbreak();
-  v20 = v18 + G_rand() % (ammoDropStockMin - v18 + 1);
-  if ( v20 > 0 )
+  v15 = v13 + G_rand() % (ammoDropStockMin - v13 + 1);
+  if ( v15 > 0 )
   {
-    v22 = !*(&_R14->c.item[0].dualWieldItem + _R15);
-    __asm
+    v27 = *(&v7->c.item[0].dualWieldItem + v9);
+    v17 = v27;
+    v26 = 0i64;
+    for ( i = 0i64; i <= v17; ++i )
     {
-      vmovaps [rsp+0A8h+var_48], xmm6
-      vmovss  xmm6, cs:__real@3c23d70a
-      vmovaps [rsp+0A8h+var_58], xmm7
-      vmovss  xmm7, cs:__real@3f000000
-    }
-    v43 = !v22;
-    v25 = v43;
-    v42 = 0i64;
-    for ( i = 0i64; i <= v25; ++i )
-    {
-      ClipSize = BG_GetClipSize(NULL, _RBP, 0);
+      ClipSize = BG_GetClipSize(NULL, v6, 0);
       if ( ClipSize < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 1707, ASSERT_TYPE_ASSERT, "( clipsize >= 0 )", (const char *)&queryFormat, "clipsize >= 0") )
         __debugbreak();
-      v28 = BG_WeaponDef(_RBP, 0);
+      v20 = BG_WeaponDef(v6, 0);
       if ( ClipSize == 1 )
       {
-        _EAX = 1;
+        v21 = 1;
       }
       else
       {
-        if ( v28->ammoDropClipPercentMax > v28->ammoDropClipPercentMin )
-          G_rand();
-        __asm
-        {
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, ebp
-        }
-        _RBP = weapon;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, r12d
-          vmulss  xmm1, xmm1, xmm0
-          vmulss  xmm2, xmm1, xmm6
-          vaddss  xmm3, xmm2, xmm7
-          vcvttss2si eax, xmm3
-        }
+        ammoDropClipPercentMax = v20->ammoDropClipPercentMax;
+        ammoDropClipPercentMin = v20->ammoDropClipPercentMin;
+        if ( ammoDropClipPercentMax > ammoDropClipPercentMin )
+          ammoDropClipPercentMax = G_rand() % (ammoDropClipPercentMax - ammoDropClipPercentMin + 1) + v20->ammoDropClipPercentMin;
+        v23 = (float)ammoDropClipPercentMax;
+        v6 = weapon;
+        v21 = (int)(float)((float)((float)(v23 * (float)ClipSize) * 0.0099999998) + 0.5);
       }
-      *((_DWORD *)&v42 + i) = _EAX;
-      if ( _EAX < v20 )
+      *((_DWORD *)&v26 + i) = v21;
+      if ( v21 < v15 )
       {
-        v20 -= _EAX;
+        v15 -= v21;
       }
       else
       {
-        *((_DWORD *)&v42 + i) = v20;
-        v20 = 0;
+        *((_DWORD *)&v26 + i) = v15;
+        v15 = 0;
       }
     }
-    v7 = HIDWORD(v42);
-    v21 = v42;
-    _R14 = v47;
-    _R15 = v44;
-    __asm
-    {
-      vmovaps xmm7, [rsp+0A8h+var_58]
-      vmovaps xmm6, [rsp+0A8h+var_48]
-    }
+    v4 = HIDWORD(v26);
+    v16 = v26;
+    v7 = weaponEnt;
+    v9 = v28;
   }
   else
   {
 LABEL_21:
-    v20 = 0;
-    v21 = 0;
+    v15 = 0;
+    v16 = 0;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0]
-    vmovups ymmword ptr [r15+r14+1CCh], ymm0
-    vmovups xmm1, xmmword ptr [rbp+20h]
-    vmovups xmmword ptr [r15+r14+1ECh], xmm1
-    vmovsd  xmm0, qword ptr [rbp+30h]
-    vmovsd  qword ptr [r15+r14+1FCh], xmm0
-  }
-  *(float *)((char *)&_R14->c.mover.angle.pos1.v[2] + _R15) = *(float *)&_RBP->weaponCamo;
-  *(int *)((char *)&_R14->c.item[0].ammoCount + _R15) = v20;
-  *(int *)((char *)_R14->c.item[0].clipAmmoCount + _R15) = v21;
-  *(int *)((char *)&_R14->c.item[0].clipAmmoCount[1] + _R15) = v7;
-  return (unsigned int)(*(int *)((char *)&_R14->c.item[0].ammoCount + _R15) + v7 + v21);
+  *(__m256i *)((char *)&v7->c.beam + v9 + 12) = *(__m256i *)&v6->weaponIdx;
+  *(_OWORD *)((char *)&v7->c.beam + v9 + 44) = *(_OWORD *)&v6->attachmentVariationIndices[5];
+  *(double *)((char *)&v7->c.beam + v9 + 60) = *(double *)&v6->attachmentVariationIndices[21];
+  *(float *)((char *)&v7->c.mover.angle.pos1.v[2] + v9) = *(float *)&v6->weaponCamo;
+  *(int *)((char *)&v7->c.item[0].ammoCount + v9) = v15;
+  *(int *)((char *)v7->c.item[0].clipAmmoCount + v9) = v16;
+  *(int *)((char *)&v7->c.item[0].clipAmmoCount[1] + v9) = v4;
+  return (unsigned int)(*(int *)((char *)&v7->c.item[0].ammoCount + v9) + v4 + v16);
 }
 
 /*
@@ -3494,45 +2981,40 @@ G_Items_WeaponPickup_AddAmmoForNewWeapon
 ==============
 */
 
-void __fastcall G_Items_WeaponPickup_AddAmmoForNewWeapon(gentity_s *weaponEnt, gentity_s *player, double _XMM2_8)
+void __fastcall G_Items_WeaponPickup_AddAmmoForNewWeapon(gentity_s *weaponEnt, gentity_s *player, double a3)
 {
+  __m256i v5; 
+  __int128 v6; 
+  double v7; 
   gclient_s *client; 
   GWeaponMap *Instance; 
   int EquippedWeaponIndex; 
-  int *clipAmmoCount; 
-  int v13; 
+  float *p_speed; 
+  int v12; 
   int i; 
-  int v15; 
+  int v14; 
   int amount; 
-  int v20; 
+  int v16; 
   int ClipSize; 
   AmmoStore result; 
   Weapon r_weapon; 
   AmmoStore r_clipIndex; 
 
-  _RSI = weaponEnt;
   if ( !weaponEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 701, ASSERT_TYPE_ASSERT, "( weaponEnt )", (const char *)&queryFormat, "weaponEnt") )
     __debugbreak();
   if ( !player && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 702, ASSERT_TYPE_ASSERT, "( player )", (const char *)&queryFormat, rowName) )
     __debugbreak();
   if ( !player->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 703, ASSERT_TYPE_ASSERT, "( player->client )", (const char *)&queryFormat, "player->client") )
     __debugbreak();
-  __asm
-  {
-    vmovups ymm2, ymmword ptr [rsi+1CCh]
-    vmovups xmm0, xmmword ptr [rsi+1ECh]
-    vmovsd  xmm1, qword ptr [rsi+1FCh]
-  }
+  v5 = *(__m256i *)(&weaponEnt->c.beam + 3);
+  v6 = *(_OWORD *)(&weaponEnt->c.beam + 11);
+  v7 = *(double *)(&weaponEnt->c.beam + 15);
   client = player->client;
-  *(float *)&r_weapon.weaponCamo = _RSI->c.mover.angle.pos1.v[2];
-  __asm
-  {
-    vmovd   eax, xmm2
-    vmovups ymmword ptr [rsp+130h+r_weapon.weaponIdx], ymm2
-    vmovups xmmword ptr [rbp+30h+r_weapon.attachmentVariationIndices+5], xmm0
-    vmovsd  qword ptr [rbp+30h+r_weapon.attachmentVariationIndices+15h], xmm1
-  }
-  if ( (_WORD)_EAX )
+  *(float *)&r_weapon.weaponCamo = weaponEnt->c.mover.angle.pos1.v[2];
+  *(__m256i *)&r_weapon.weaponIdx = v5;
+  *(_OWORD *)&r_weapon.attachmentVariationIndices[5] = v6;
+  *(double *)&r_weapon.attachmentVariationIndices[21] = v7;
+  if ( LOWORD(a3) )
   {
     Instance = GWeaponMap::GetInstance();
     if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 1063, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
@@ -3542,52 +3024,38 @@ void __fastcall G_Items_WeaponPickup_AddAmmoForNewWeapon(gentity_s *weaponEnt, g
     EquippedWeaponIndex = BG_GetEquippedWeaponIndex(Instance, &client->ps, &r_weapon);
     if ( EquippedWeaponIndex >= 0 && (gclient_s *)((char *)client + 16 * EquippedWeaponIndex) != (gclient_s *)-1540i64 )
     {
-      clipAmmoCount = _RSI->c.item[0].clipAmmoCount;
-      v13 = 0;
+      p_speed = &weaponEnt->c.mover.pos.speed;
+      v12 = 0;
       for ( i = 0; i < 2; ++i )
       {
-        v15 = *clipAmmoCount;
-        if ( *clipAmmoCount >= 0 )
+        v14 = *(_DWORD *)p_speed;
+        if ( *(int *)p_speed >= 0 )
         {
-          _RAX = BG_AmmoStoreForWeapon(&result, &r_weapon, 0);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups ymmword ptr [rbp+30h+r_clipIndex.weapon.weaponIdx], ymm0
-            vmovups ymm1, ymmword ptr [rax+20h]
-            vmovups ymmword ptr [rbp+30h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm1
-          }
+          r_clipIndex = *BG_AmmoStoreForWeapon(&result, &r_weapon, 0);
           amount = BG_GetClipSize(&client->ps, &r_weapon, 0);
-          if ( v15 < amount )
-            amount = v15;
+          if ( v14 < amount )
+            amount = v14;
           BG_SetClipAmmo(&client->ps, &r_clipIndex, &r_weapon, 0, (PlayerHandIndex)i, amount);
         }
-        if ( !_RSI->c.item[0].dualWieldItem )
+        if ( !weaponEnt->c.item[0].dualWieldItem )
           break;
-        ++clipAmmoCount;
+        ++p_speed;
       }
-      G_Items_AddAmmo(&player->client->ps, &r_weapon, 0, _RSI->c.item[0].ammoCount, _RSI->c.item[0].clipAmmoCount[0] == -1);
+      G_Items_AddAmmo(&player->client->ps, &r_weapon, 0, weaponEnt->c.item[0].ammoCount, weaponEnt->c.item[0].clipAmmoCount[0] == -1);
       if ( BG_HasUnderbarrelAmmo(&r_weapon) && !BG_AltSharesAmmo(&r_weapon) )
       {
-        v20 = _RSI->c.item[1].clipAmmoCount[0];
-        if ( v20 >= 0 )
+        v16 = weaponEnt->c.item[1].clipAmmoCount[0];
+        if ( v16 >= 0 )
         {
-          _RAX = BG_AmmoStoreForWeapon(&result, &r_weapon, 1);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rax]
-            vmovups ymmword ptr [rbp+30h+r_clipIndex.weapon.weaponIdx], ymm0
-            vmovups ymm1, ymmword ptr [rax+20h]
-            vmovups ymmword ptr [rbp+30h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm1
-          }
+          r_clipIndex = *BG_AmmoStoreForWeapon(&result, &r_weapon, 1);
           ClipSize = BG_GetClipSize(&client->ps, &r_weapon, 1);
-          if ( v20 < ClipSize )
-            ClipSize = v20;
+          if ( v16 < ClipSize )
+            ClipSize = v16;
           BG_SetClipAmmo(&client->ps, &r_clipIndex, &r_weapon, 1, WEAPON_HAND_DEFAULT, ClipSize);
-          v20 = _RSI->c.item[1].clipAmmoCount[0];
+          v16 = weaponEnt->c.item[1].clipAmmoCount[0];
         }
-        LOBYTE(v13) = v20 == -1;
-        G_Items_AddAmmo(&player->client->ps, &r_weapon, 1, _RSI->c.item[1].ammoCount, v13);
+        LOBYTE(v12) = v16 == -1;
+        G_Items_AddAmmo(&player->client->ps, &r_weapon, 1, weaponEnt->c.item[1].ammoCount, v12);
       }
     }
   }
@@ -3600,19 +3068,21 @@ G_Items_WeaponPickup_AddWeapon
 */
 int G_Items_WeaponPickup_AddWeapon(gentity_s *weaponEnt, gentity_s *playerEnt, const Weapon *weapon, gentity_s **pDroppedWeapon)
 {
+  __int16 v4; 
   int dualWieldItem; 
   gclient_s *client; 
   gentity_s *v10; 
   GWeaponMap *Instance; 
   const Weapon *CurrentWeaponForPlayer; 
   WeaponSlot Slot; 
-  bool v19; 
-  gentity_s *v20; 
+  bool v15; 
+  gentity_s *v16; 
   int spawnflags; 
   EntityTagInfo *tagInfo; 
-  const WeaponDef *v23; 
-  const WeaponDef *v27; 
-  char v29; 
+  const WeaponDef *v19; 
+  float v20; 
+  const WeaponDef *v21; 
+  float v22; 
   int dualWield; 
   WeaponDef *pickupWeapDef; 
   vec3_t angles; 
@@ -3620,13 +3090,12 @@ int G_Items_WeaponPickup_AddWeapon(gentity_s *weaponEnt, gentity_s *playerEnt, c
   tmat33_t<vec3_t> axis; 
   tmat43_t<vec3_t> penetrationTestMatrix; 
 
-  _RDI = weaponEnt;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_Items_WeaponPickup_AddWeapon");
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 445, ASSERT_TYPE_ASSERT, "( weaponEnt )", (const char *)&queryFormat, "weaponEnt") )
+  if ( !weaponEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 445, ASSERT_TYPE_ASSERT, "( weaponEnt )", (const char *)&queryFormat, "weaponEnt") )
     __debugbreak();
   if ( !playerEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 446, ASSERT_TYPE_ASSERT, "( playerEnt )", (const char *)&queryFormat, "playerEnt") )
     __debugbreak();
-  dualWieldItem = _RDI->c.item[0].dualWieldItem;
+  dualWieldItem = weaponEnt->c.item[0].dualWieldItem;
   client = playerEnt->client;
   dualWield = dualWieldItem;
   v10 = NULL;
@@ -3643,26 +3112,15 @@ int G_Items_WeaponPickup_AddWeapon(gentity_s *weaponEnt, gentity_s *playerEnt, c
   Slot = BG_PlayerWeaponGetSlot(weapon);
   if ( BG_PlayerWeaponIsSlotFull(Instance, &client->ps, Slot) )
   {
-    _RAX = G_Items_GetPrimaryWeaponToDrop(&client->ps, weapon);
-    __asm
-    {
-      vmovups ymm2, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+140h+r_weapon.weaponIdx], ymm2
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+140h+r_weapon.attachmentVariationIndices+5], xmm0
-      vmovsd  xmm1, qword ptr [rax+30h]
-      vmovsd  qword ptr [rbp+40h+r_weapon.attachmentVariationIndices+15h], xmm1
-    }
-    *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-    __asm { vmovd   eax, xmm2 }
-    if ( !(_WORD)_RAX )
+    r_weapon = *G_Items_GetPrimaryWeaponToDrop(&client->ps, weapon);
+    if ( !v4 )
     {
 LABEL_14:
       Sys_ProfEndNamedEvent();
       return 0;
     }
-    v19 = BG_UsingAlternate(&client->ps);
-    if ( BG_IsFauxFists(&client->ps, &r_weapon, v19) )
+    v15 = BG_UsingAlternate(&client->ps);
+    if ( BG_IsFauxFists(&client->ps, &r_weapon, v15) )
     {
       if ( BG_GetEquippedWeaponCount(Instance, &client->ps, WEAPINVENTORY_PRIMARY, Slot) > 1 )
         G_Weapon_TakePlayerWeapon(&client->ps, &r_weapon);
@@ -3670,24 +3128,24 @@ LABEL_14:
     }
     if ( !BG_PlayerHasWeapon(Instance, &client->ps, &r_weapon) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 506, ASSERT_TYPE_ASSERT, "( BG_PlayerHasWeapon( weaponMap, ps, playerWeap ) )", (const char *)&queryFormat, "BG_PlayerHasWeapon( weaponMap, ps, playerWeap )") )
       __debugbreak();
-    v20 = G_Items_DropWeapon(playerEnt, &r_weapon, 0, 0, &penetrationTestMatrix);
-    v10 = v20;
-    if ( !v20 )
+    v16 = G_Items_DropWeapon(playerEnt, &r_weapon, 0, 0, &penetrationTestMatrix);
+    v10 = v16;
+    if ( !v16 )
       goto LABEL_42;
-    spawnflags = _RDI->spawnflags;
+    spawnflags = weaponEnt->spawnflags;
     if ( (spawnflags & 0x10) == 0 )
       spawnflags &= ~1u;
-    v20->spawnflags = spawnflags;
-    v20->s.groundEntityNum = _RDI->s.groundEntityNum;
-    if ( GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::TestFlagInternal(&v20->flags, ACTIVE, 9u) )
+    v16->spawnflags = spawnflags;
+    v16->s.groundEntityNum = weaponEnt->s.groundEntityNum;
+    if ( GameModeFlagContainer<enum BgEntityFlagsCommon,enum BgEntityFlagsSP,enum BgEntityFlagsMP,64>::TestFlagInternal(&v16->flags, ACTIVE, 9u) )
     {
-      tagInfo = _RDI->tagInfo;
+      tagInfo = weaponEnt->tagInfo;
       if ( tagInfo )
       {
         if ( tagInfo->parent )
         {
-          G_SetOriginAndAngle(v10, &_RDI->r.currentOrigin, &_RDI->r.currentAngles, 1, 1);
-          G_EntLinkTo(v10, _RDI->tagInfo->parent, _RDI->tagInfo->name, 0, NULL);
+          G_SetOriginAndAngle(v10, &weaponEnt->r.currentOrigin, &weaponEnt->r.currentAngles, 1, 1);
+          G_EntLinkTo(v10, weaponEnt->tagInfo->parent, weaponEnt->tagInfo->name, 0, NULL);
 LABEL_41:
           SV_LinkEntity(v10);
 LABEL_42:
@@ -3697,56 +3155,38 @@ LABEL_42:
         }
       }
     }
-    v23 = BG_WeaponDef(&r_weapon, 0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+13Ch]
-      vmovss  xmm1, dword ptr [rdi+140h]
-      vmovss  dword ptr [rsp+140h+angles], xmm0
-      vmovss  xmm0, dword ptr [rdi+144h]
-      vmovss  dword ptr [rsp+140h+angles+8], xmm0
-      vmovss  dword ptr [rsp+140h+angles+4], xmm1
-    }
-    v27 = v23;
+    v19 = BG_WeaponDef(&r_weapon, 0);
+    v20 = weaponEnt->r.currentAngles.v[1];
+    angles.v[0] = weaponEnt->r.currentAngles.v[0];
+    angles.v[2] = weaponEnt->r.currentAngles.v[2];
+    angles.v[1] = v20;
+    v21 = v19;
     if ( BG_IsRiotShield(weapon, 0) )
     {
       AnglesToAxis(&angles, &axis);
-      __asm
+      if ( axis.m[1].v[2] < 0.70700002 )
       {
-        vmovss  xmm0, dword ptr [rbp+40h+axis+14h]
-        vcomiss xmm0, cs:__real@3f34fdf4
-      }
-      if ( v29 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+140h+angles]
-          vaddss  xmm1, xmm0, cs:__real@42b40000
-        }
+        v22 = angles.v[0] + 90.0;
 LABEL_33:
-        __asm { vmovss  dword ptr [rsp+140h+angles], xmm1 }
+        angles.v[0] = v22;
       }
     }
     else if ( BG_IsRiotShield(&r_weapon, 0) )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+140h+angles]
-        vaddss  xmm1, xmm0, cs:__real@c2b40000
-      }
+      v22 = angles.v[0] + -90.0;
       goto LABEL_33;
     }
     if ( (v10->spawnflags & 1) != 0 )
     {
-      G_SetOriginAndAngle(v10, &_RDI->r.currentOrigin, &angles, 1, 1);
+      G_SetOriginAndAngle(v10, &weaponEnt->r.currentOrigin, &angles, 1, 1);
     }
     else if ( BG_IsRiotShield(&r_weapon, 0) )
     {
-      G_Items_WeaponPickup_TraceGround(_RDI, pickupWeapDef, &angles, v10, v27);
+      G_Items_WeaponPickup_TraceGround(weaponEnt, pickupWeapDef, &angles, v10, v21);
     }
     else
     {
-      G_Items_WeaponPickup_TraceGround_Legacy(_RDI, pickupWeapDef, &angles, v10, v27);
+      G_Items_WeaponPickup_TraceGround_Legacy(weaponEnt, pickupWeapDef, &angles, v10, v21);
     }
     if ( (v10->spawnflags & 1) == 0 )
       G_Items_EnablePhysics(v10);
@@ -3892,31 +3332,35 @@ G_Items_WeaponPickup_LeechFromWeaponEnt
 */
 bool G_Items_WeaponPickup_LeechFromWeaponEnt(gentity_s *weaponEnt, gentity_s *player, int haveExactWeapon, entity_event_t *pickupEvent, bool suppressNotifies)
 {
+  unsigned __int16 v5; 
   char v9; 
   __int64 v10; 
+  float *p_midTime; 
   scrContext_t *v12; 
+  __m256i v13; 
+  __int128 v14; 
+  double v15; 
+  WeaponDef *v16; 
   bool v17; 
-  WeaponDef **v18; 
-  WeaponDef *v19; 
-  bool v20; 
-  int v21; 
-  int v22; 
+  int v18; 
+  int v19; 
   GHandler *Handler; 
-  const dvar_t *v24; 
+  const dvar_t *v21; 
   __int64 weaponIdx; 
-  WeaponCompleteDef **v26; 
-  WeaponCompleteDef *v27; 
+  bool v23; 
+  WeaponCompleteDef **v24; 
+  WeaponCompleteDef *v25; 
   int IsClipOnly; 
-  const char *v29; 
-  const char *v30; 
+  const char *v27; 
+  const char *v28; 
   unsigned int EntityIndex; 
   SvClient *CommonClient; 
-  int v33; 
+  int v31; 
+  int v32; 
+  bool v33; 
   int v34; 
-  bool v35; 
-  int v36; 
-  __int64 v38; 
-  __int64 v39; 
+  __int64 v36; 
+  __int64 v37; 
   Weapon r_weapon; 
   char outAmmoName[1024]; 
 
@@ -3926,114 +3370,105 @@ bool G_Items_WeaponPickup_LeechFromWeaponEnt(gentity_s *weaponEnt, gentity_s *pl
     __debugbreak();
   v9 = 0;
   v10 = 0i64;
-  _RDI = &weaponEnt->c.mover.pos.midTime;
+  p_midTime = &weaponEnt->c.mover.pos.midTime;
   v12 = ScriptContext_Server();
   do
   {
-    __asm
+    v13 = *(__m256i *)(p_midTime + 1);
+    v14 = *(_OWORD *)(p_midTime + 9);
+    v15 = *(double *)(p_midTime + 13);
+    *(float *)&r_weapon.weaponCamo = p_midTime[15];
+    *(__m256i *)&r_weapon.weaponIdx = v13;
+    *(_OWORD *)&r_weapon.attachmentVariationIndices[5] = v14;
+    *(double *)&r_weapon.attachmentVariationIndices[21] = v15;
+    if ( v5 )
     {
-      vmovups ymm2, ymmword ptr [rdi+4]
-      vmovups xmm0, xmmword ptr [rdi+24h]
-      vmovsd  xmm1, qword ptr [rdi+34h]
-      vmovd   ebx, xmm2
-    }
-    *(float *)&r_weapon.weaponCamo = _RDI[15];
-    __asm
-    {
-      vmovups ymmword ptr [rsp+4D8h+r_weapon.weaponIdx], ymm2
-      vmovups xmmword ptr [rsp+4D8h+r_weapon.attachmentVariationIndices+5], xmm0
-      vmovsd  qword ptr [rsp+4D8h+r_weapon.attachmentVariationIndices+15h], xmm1
-    }
-    if ( (_WORD)_EBX )
-    {
-      if ( (unsigned __int16)_EBX > bg_lastParsedWeaponIndex )
+      if ( v5 > bg_lastParsedWeaponIndex )
       {
-        LODWORD(v39) = bg_lastParsedWeaponIndex;
-        LODWORD(v38) = (unsigned __int16)_EBX;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v38, v39) )
+        LODWORD(v37) = bg_lastParsedWeaponIndex;
+        LODWORD(v36) = v5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v36, v37) )
           __debugbreak();
       }
-      v17 = bg_weaponDefs[(unsigned __int16)_EBX] == NULL;
-      v18 = &bg_weaponDefs[(unsigned __int16)_EBX];
-      if ( v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
+      if ( !bg_weaponDefs[v5] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
         __debugbreak();
-      v19 = *v18;
-      if ( !v19->bClipOnly || BG_GetWeaponType(&r_weapon, 0) == WEAPTYPE_GRENADE )
+      v16 = bg_weaponDefs[v5];
+      if ( !v16->bClipOnly || BG_GetWeaponType(&r_weapon, 0) == WEAPTYPE_GRENADE )
       {
-        v20 = v10 && (BG_HasUnderbarrelAmmo(&r_weapon) || v19->inventoryType == WEAPINVENTORY_ALTMODE);
-        v21 = *((_DWORD *)_RDI - 2);
+        v17 = v10 && (BG_HasUnderbarrelAmmo(&r_weapon) || v16->inventoryType == WEAPINVENTORY_ALTMODE);
+        v18 = *((_DWORD *)p_midTime - 2);
         if ( haveExactWeapon )
-          v21 += *(_DWORD *)_RDI + *((_DWORD *)_RDI - 1);
-        v22 = G_Items_AddAmmo(&player->client->ps, &r_weapon, v20, v21, 0);
-        if ( v22 )
+          v18 += *(_DWORD *)p_midTime + *((_DWORD *)p_midTime - 1);
+        v19 = G_Items_AddAmmo(&player->client->ps, &r_weapon, v17, v18, 0);
+        if ( v19 )
         {
           Handler = GHandler::getHandler();
-          BG_GetWeaponAmmoPoolName(&r_weapon, v20, Handler, outAmmoName, 0x400ui64);
+          BG_GetWeaponAmmoPoolName(&r_weapon, v17, Handler, outAmmoName, 0x400ui64);
           Scr_AddString(v12, outAmmoName);
-          Scr_AddInt(v12, v22);
+          Scr_AddInt(v12, v19);
           GScr_Notify(player, scr_const.ammo_pickup, 2u);
           v9 = 1;
           if ( !suppressNotifies )
           {
-            v24 = DVARBOOL_pickupPrints;
+            v21 = DVARBOOL_pickupPrints;
             if ( !DVARBOOL_pickupPrints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "pickupPrints") )
               __debugbreak();
-            Dvar_CheckFrontendServerThread(v24);
-            if ( v24->current.enabled )
+            Dvar_CheckFrontendServerThread(v21);
+            if ( v21->current.enabled )
             {
               weaponIdx = r_weapon.weaponIdx;
               if ( r_weapon.weaponIdx > bg_lastParsedWeaponIndex )
               {
-                LODWORD(v39) = bg_lastParsedWeaponIndex;
-                LODWORD(v38) = r_weapon.weaponIdx;
-                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v38, v39) )
+                LODWORD(v37) = bg_lastParsedWeaponIndex;
+                LODWORD(v36) = r_weapon.weaponIdx;
+                if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1218, ASSERT_TYPE_ASSERT, "( weaponIndex ) <= ( bg_lastParsedWeaponIndex )", "weaponIndex not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v36, v37) )
                   __debugbreak();
               }
-              v17 = bg_weaponCompleteDefs[weaponIdx] == NULL;
-              v26 = &bg_weaponCompleteDefs[weaponIdx];
-              if ( v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
+              v23 = bg_weaponCompleteDefs[weaponIdx] == NULL;
+              v24 = &bg_weaponCompleteDefs[weaponIdx];
+              if ( v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1219, ASSERT_TYPE_ASSERT, "(bg_weaponCompleteDefs[weaponIndex])", (const char *)&queryFormat, "bg_weaponCompleteDefs[weaponIndex]") )
                 __debugbreak();
-              v27 = *v26;
+              v25 = *v24;
               IsClipOnly = BG_WeaponIsClipOnly(&r_weapon, 0);
-              v29 = aCGamePickupCli;
+              v27 = aCGamePickupCli;
               if ( !IsClipOnly )
-                v29 = aCGamePickupAmm;
-              v30 = j_va(v29, 102i64, v27->szDisplayName);
+                v27 = aCGamePickupAmm;
+              v28 = j_va(v27, 102i64, v25->szDisplayName);
               EntityIndex = G_GetEntityIndex(player);
               if ( EntityIndex == -1 )
               {
-                SV_Game_BroadcastServerCommand(SV_CMD_CAN_IGNORE, v30);
+                SV_Game_BroadcastServerCommand(SV_CMD_CAN_IGNORE, v28);
               }
               else
               {
                 CommonClient = SvClient::GetCommonClient(EntityIndex);
-                CommonClient->SendServerCommand(CommonClient, SV_CMD_CAN_IGNORE, v30);
+                CommonClient->SendServerCommand(CommonClient, SV_CMD_CAN_IGNORE, v28);
               }
             }
           }
-          v33 = *((_DWORD *)_RDI - 2) - v22;
-          *((_DWORD *)_RDI - 2) = v33;
-          if ( v33 < 0 )
+          v31 = *((_DWORD *)p_midTime - 2) - v19;
+          *((_DWORD *)p_midTime - 2) = v31;
+          if ( v31 < 0 )
           {
-            *(_RDI - 2) = 0.0;
-            v34 = *((_DWORD *)_RDI - 1) + v33;
-            *((_DWORD *)_RDI - 1) = v34;
-            if ( v34 < 0 )
+            *(p_midTime - 2) = 0.0;
+            v32 = *((_DWORD *)p_midTime - 1) + v31;
+            *((_DWORD *)p_midTime - 1) = v32;
+            if ( v32 < 0 )
             {
-              v35 = v34 + *(_DWORD *)_RDI < 0;
-              *(_DWORD *)_RDI += v34;
-              v36 = *(_DWORD *)_RDI;
-              if ( v35 )
-                v36 = 0;
-              *(_RDI - 1) = 0.0;
-              *(_DWORD *)_RDI = v36;
+              v33 = v32 + *(_DWORD *)p_midTime < 0;
+              *(_DWORD *)p_midTime += v32;
+              v34 = *(_DWORD *)p_midTime;
+              if ( v33 )
+                v34 = 0;
+              *(p_midTime - 1) = 0.0;
+              *(_DWORD *)p_midTime = v34;
             }
           }
         }
       }
     }
     ++v10;
-    _RDI += 20;
+    p_midTime += 20;
   }
   while ( v10 < 2 );
   if ( !suppressNotifies && v9 )
@@ -4122,21 +3557,25 @@ G_Items_WeaponPickup_TraceGround
 void G_Items_WeaponPickup_TraceGround(const gentity_s *const pickupEnt, const WeaponDef *const pickupWeapDef, const vec3_t *pickupAngles, gentity_s *const dropEnt, const WeaponDef *const dropWeapDef)
 {
   const DObj *ServerDObjForEnt; 
-  const DObj *v14; 
-  char v24; 
-  char v29; 
+  const DObj *v10; 
+  const dvar_t *v11; 
+  vec3_t *p_currentOrigin; 
+  float v13; 
+  float value; 
+  float v21; 
+  float v22; 
+  __int128 v24; 
   int contentmask; 
-  int v48; 
+  int v27; 
   vec3_t end; 
   vec3_t start; 
-  Bounds v69; 
+  Bounds v30; 
   Bounds rotatedBounds; 
   Bounds bounds; 
   Bounds baseBounds; 
   tmat33_t<vec3_t> axis; 
   trace_t results; 
 
-  __asm { vmovaps [rsp+1D0h+var_40], xmm6 }
   if ( !pickupEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 353, ASSERT_TYPE_ASSERT, "(pickupEnt)", (const char *)&queryFormat, "pickupEnt") )
     __debugbreak();
   if ( !pickupWeapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 354, ASSERT_TYPE_ASSERT, "(pickupWeapDef)", (const char *)&queryFormat, "pickupWeapDef") )
@@ -4146,135 +3585,78 @@ void G_Items_WeaponPickup_TraceGround(const gentity_s *const pickupEnt, const We
   if ( !dropWeapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 356, ASSERT_TYPE_ASSERT, "(dropWeapDef)", (const char *)&queryFormat, "dropWeapDef") )
     __debugbreak();
   ServerDObjForEnt = Com_GetServerDObjForEnt(pickupEnt);
-  v14 = Com_GetServerDObjForEnt(dropEnt);
-  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 360, ASSERT_TYPE_ASSERT, "(dropDObj)", (const char *)&queryFormat, "dropDObj") )
+  v10 = Com_GetServerDObjForEnt(dropEnt);
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 360, ASSERT_TYPE_ASSERT, "(dropDObj)", (const char *)&queryFormat, "dropDObj") )
     __debugbreak();
   if ( !ServerDObjForEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 361, ASSERT_TYPE_ASSERT, "(pickupDObj)", (const char *)&queryFormat, "pickupDObj") )
     __debugbreak();
-  _RDI = DVARFLT_g_dropWeaponHeight;
-  _RBX = &pickupEnt->r.currentOrigin;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rsp+1D0h+end], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+1D0h+end+8], xmm0
-    vmovss  dword ptr [rsp+1D0h+end+4], xmm1
-  }
+  v11 = DVARFLT_g_dropWeaponHeight;
+  p_currentOrigin = &pickupEnt->r.currentOrigin;
+  v13 = pickupEnt->r.currentOrigin.v[1];
+  end.v[0] = pickupEnt->r.currentOrigin.v[0];
+  end.v[2] = pickupEnt->r.currentOrigin.v[2];
+  end.v[1] = v13;
   if ( !DVARFLT_g_dropWeaponHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dropWeaponHeight") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+1D0h+var_50], xmm7
-    vmovaps [rsp+1D0h+var_60], xmm8
-    vmovaps [rsp+1D0h+var_70], xmm9
-  }
-  Dvar_CheckFrontendServerThread(_RDI);
-  __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-  if ( !ServerDObjForEnt || !v14 )
+  Dvar_CheckFrontendServerThread(v11);
+  value = v11->current.value;
+  if ( !ServerDObjForEnt )
+    goto LABEL_32;
+  if ( !v10 )
     goto LABEL_32;
   AnglesToAxis(pickupAngles, &axis);
   DObjPhysicsGetBounds(ServerDObjForEnt, &bounds);
   Bounds_Transform(&bounds, &vec3_origin, &axis, &rotatedBounds);
   Bounds_RaiseToWidth(&rotatedBounds);
+  _XMM0 = LODWORD(rotatedBounds.halfSize.v[0]);
   __asm
   {
-    vmovss  xmm0, dword ptr [rbp+0D0h+rotatedBounds.halfSize]
     vmaxss  xmm1, xmm0, dword ptr [rbp+0D0h+rotatedBounds.halfSize+4]
     vmaxss  xmm9, xmm1, dword ptr [rbp+0D0h+rotatedBounds.halfSize+8]
   }
-  DObjPhysicsGetBounds(v14, &baseBounds);
-  Bounds_Transform(&baseBounds, &vec3_origin, &axis, &v69);
-  Bounds_RaiseToWidth(&v69);
+  DObjPhysicsGetBounds(v10, &baseBounds);
+  Bounds_Transform(&baseBounds, &vec3_origin, &axis, &v30);
+  Bounds_RaiseToWidth(&v30);
+  _XMM0 = LODWORD(v30.halfSize.v[0]);
   __asm
   {
-    vmovss  xmm0, dword ptr [rsp+1D0h+var_170.halfSize]
     vmaxss  xmm1, xmm0, dword ptr [rsp+1D0h+var_170.halfSize+4]
     vmaxss  xmm8, xmm1, dword ptr [rsp+1D0h+var_170.halfSize+8]
-    vxorps  xmm7, xmm7, xmm7
-    vcomiss xmm6, xmm7
-    vmovss  dword ptr [rsp+1D0h+var_170.halfSize+8], xmm8
   }
-  if ( v29 | v24 )
-    goto LABEL_27;
-  __asm { vucomiss xmm8, xmm7 }
-  if ( v24 )
+  v30.halfSize.v[2] = *(float *)&_XMM8;
+  if ( value > 0.0 && (*(float *)&_XMM8 == 0.0 || *(float *)&_XMM9 == 0.0) )
   {
 LABEL_32:
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rsp+1D0h+end+8]
-      vmovss  dword ptr [rsp+1D0h+end+8], xmm1
-    }
+    end.v[2] = value + end.v[2];
     goto LABEL_33;
   }
-  __asm { vucomiss xmm9, xmm7 }
-LABEL_27:
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+1D0h+var_170.midPoint]
-    vsubss  xmm2, xmm0, dword ptr [rsp+1D0h+rotatedBounds.midPoint]
-    vmovss  xmm1, dword ptr [rbx]
-    vmovss  xmm0, dword ptr [rsp+1D0h+var_170.midPoint+4]
-    vsubss  xmm5, xmm1, xmm2
-    vsubss  xmm2, xmm0, dword ptr [rsp+1D0h+rotatedBounds.midPoint+4]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  xmm0, dword ptr [rsp+1D0h+var_170.midPoint+8]
-    vsubss  xmm3, xmm1, xmm2
-    vsubss  xmm2, xmm0, dword ptr [rbp+0D0h+rotatedBounds.midPoint+8]
-    vmovss  xmm1, dword ptr [rbx+8]
-    vsubss  xmm4, xmm1, xmm2
-    vsubss  xmm0, xmm8, xmm9
-    vmaxss  xmm0, xmm0, xmm7
-    vaddss  xmm1, xmm0, xmm8
-    vaddss  xmm2, xmm1, cs:__real@3f800000
-    vmovss  dword ptr [rsp+1D0h+end+4], xmm3
-    vmovss  dword ptr [rsp+1D0h+start+4], xmm3
-    vaddss  xmm3, xmm2, xmm4
-    vmovss  dword ptr [rsp+1D0h+start+8], xmm3
-    vmovss  dword ptr [rsp+1D0h+end], xmm5
-    vmovss  dword ptr [rsp+1D0h+end+8], xmm4
-    vmovss  dword ptr [rsp+1D0h+start], xmm5
-  }
+  v21 = p_currentOrigin->v[0] - (float)(v30.midPoint.v[0] - rotatedBounds.midPoint.v[0]);
+  v22 = pickupEnt->r.currentOrigin.v[2] - (float)(v30.midPoint.v[2] - rotatedBounds.midPoint.v[2]);
+  v24 = _XMM8;
+  *(float *)&v24 = *(float *)&_XMM8 - *(float *)&_XMM9;
+  _XMM0 = v24;
+  __asm { vmaxss  xmm0, xmm0, xmm7 }
+  end.v[1] = pickupEnt->r.currentOrigin.v[1] - (float)(v30.midPoint.v[1] - rotatedBounds.midPoint.v[1]);
+  start.v[1] = end.v[1];
+  start.v[2] = (float)((float)(*(float *)&_XMM0 + *(float *)&_XMM8) + 1.0) + v22;
+  end.v[0] = v21;
+  end.v[2] = v22;
+  start.v[0] = v21;
   contentmask = G_Items_ClipMask(pickupEnt);
   if ( EntHandle::isDefined(&dropEnt->r.ownerNum) )
-    v48 = EntHandle::entnum(&dropEnt->r.ownerNum);
+    v27 = EntHandle::entnum(&dropEnt->r.ownerNum);
   else
-    v48 = 2047;
-  G_Main_TraceCapsule(&results, &start, &end, &v69, v48, contentmask);
+    v27 = 2047;
+  G_Main_TraceCapsule(&results, &start, &end, &v30, v27, contentmask);
   if ( !results.startsolid )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+1D0h+end]
-      vsubss  xmm1, xmm0, dword ptr [rsp+1D0h+start]
-      vmovss  xmm5, [rbp+0D0h+results.fraction]
-      vmulss  xmm1, xmm1, xmm5
-      vaddss  xmm0, xmm1, dword ptr [rsp+1D0h+start]
-      vmovss  xmm1, dword ptr [rsp+1D0h+end+4]
-      vmovss  dword ptr [rsp+1D0h+end], xmm0
-      vsubss  xmm0, xmm1, dword ptr [rsp+1D0h+start+4]
-      vmulss  xmm2, xmm0, xmm5
-      vaddss  xmm3, xmm2, dword ptr [rsp+1D0h+start+4]
-      vmovss  xmm0, dword ptr [rsp+1D0h+end+8]
-      vsubss  xmm1, xmm0, dword ptr [rsp+1D0h+start+8]
-      vmulss  xmm2, xmm1, xmm5
-      vmovss  dword ptr [rsp+1D0h+end+4], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rsp+1D0h+start+8]
-      vmovss  dword ptr [rsp+1D0h+end+8], xmm3
-    }
+    end.v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+    end.v[1] = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+    end.v[2] = (float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2];
 LABEL_33:
-    _RBX = &end;
+    p_currentOrigin = &end;
   }
-  G_SetOriginAndAngle(dropEnt, _RBX, pickupAngles, 1, 1);
-  __asm
-  {
-    vmovaps xmm9, [rsp+1D0h+var_70]
-    vmovaps xmm8, [rsp+1D0h+var_60]
-    vmovaps xmm7, [rsp+1D0h+var_50]
-    vmovaps xmm6, [rsp+1D0h+var_40]
-  }
+  G_SetOriginAndAngle(dropEnt, p_currentOrigin, pickupAngles, 1, 1);
 }
 
 /*
@@ -4284,34 +3666,26 @@ G_Items_WeaponPickup_TraceGround_Legacy
 */
 void G_Items_WeaponPickup_TraceGround_Legacy(const gentity_s *const pickupEnt, const WeaponDef *const pickupWeapDef, const vec3_t *pickupAngles, gentity_s *const dropEnt, const WeaponDef *const dropWeapDef)
 {
-  char v32; 
-  char v33; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  const dvar_t *v13; 
+  float value; 
+  float v15; 
+  float v17; 
   vec3_t *p_outRotatedOffset; 
-  bool v42; 
   int contentmask; 
-  int v49; 
-  int v50; 
+  int v21; 
+  int v22; 
   vec3_t start; 
   vec3_t end; 
   vec3_t outRotatedOffset; 
   Bounds bounds; 
   vec3_t outRotatedHalfSize; 
-  vec3_t v91; 
+  vec3_t v28; 
   trace_t results; 
-  char v93; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-  }
-  _RBX = pickupEnt;
   if ( !pickupEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 295, ASSERT_TYPE_ASSERT, "(pickupEnt)", (const char *)&queryFormat, "pickupEnt") )
     __debugbreak();
   if ( !pickupWeapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 296, ASSERT_TYPE_ASSERT, "(pickupWeapDef)", (const char *)&queryFormat, "pickupWeapDef") )
@@ -4320,168 +3694,71 @@ void G_Items_WeaponPickup_TraceGround_Legacy(const gentity_s *const pickupEnt, c
     __debugbreak();
   if ( !dropWeapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 298, ASSERT_TYPE_ASSERT, "(dropWeapDef)", (const char *)&queryFormat, "dropWeapDef") )
     __debugbreak();
-  G_Items_GetTunnelTraceOffset(_RBX, pickupAngles, pickupWeapDef, &outRotatedOffset, &outRotatedHalfSize);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+1B0h+outRotatedOffset]
-    vaddss  xmm1, xmm0, dword ptr [rbx+130h]
-    vmovss  xmm2, dword ptr [rsp+1B0h+outRotatedOffset+4]
-    vaddss  xmm0, xmm2, dword ptr [rbx+134h]
-    vmovss  dword ptr [rsp+1B0h+start], xmm1
-    vmovss  xmm1, dword ptr [rsp+1B0h+outRotatedOffset+8]
-    vaddss  xmm2, xmm1, dword ptr [rbx+138h]
-    vmovss  dword ptr [rsp+1B0h+start+8], xmm2
-    vmovss  dword ptr [rsp+1B0h+start+4], xmm0
-  }
-  G_Items_GetTunnelTraceOffset(dropEnt, pickupAngles, dropWeapDef, &outRotatedOffset, &v91);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+1B0h+start]
-    vmovss  xmm9, dword ptr [rsp+1B0h+outRotatedOffset]
-    vmovss  xmm10, dword ptr [rsp+1B0h+outRotatedOffset+4]
-    vmovss  xmm11, dword ptr [rsp+1B0h+outRotatedOffset+8]
-  }
-  _RSI = DVARFLT_g_dropWeaponHeight;
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm9
-    vmovss  xmm0, dword ptr [rsp+1B0h+start+4]
-    vmovss  dword ptr [rsp+1B0h+start], xmm1
-    vsubss  xmm1, xmm0, xmm10
-    vmovss  xmm0, dword ptr [rsp+1B0h+start+8]
-    vmovss  dword ptr [rsp+1B0h+start+4], xmm1
-    vsubss  xmm1, xmm0, xmm11
-    vmovss  dword ptr [rsp+1B0h+start+8], xmm1
-  }
+  G_Items_GetTunnelTraceOffset(pickupEnt, pickupAngles, pickupWeapDef, &outRotatedOffset, &outRotatedHalfSize);
+  v9 = outRotatedOffset.v[1] + pickupEnt->r.currentOrigin.v[1];
+  start.v[0] = outRotatedOffset.v[0] + pickupEnt->r.currentOrigin.v[0];
+  start.v[2] = outRotatedOffset.v[2] + pickupEnt->r.currentOrigin.v[2];
+  G_Items_GetTunnelTraceOffset(dropEnt, pickupAngles, dropWeapDef, &outRotatedOffset, &v28);
+  v10 = outRotatedOffset.v[0];
+  v11 = outRotatedOffset.v[1];
+  v12 = outRotatedOffset.v[2];
+  v13 = DVARFLT_g_dropWeaponHeight;
+  start.v[0] = start.v[0] - outRotatedOffset.v[0];
+  start.v[1] = v9 - outRotatedOffset.v[1];
+  start.v[2] = start.v[2] - outRotatedOffset.v[2];
   if ( !DVARFLT_g_dropWeaponHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "g_dropWeaponHeight") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RSI);
-  __asm
+  Dvar_CheckFrontendServerThread(v13);
+  value = v13->current.value;
+  v15 = outRotatedHalfSize.v[2];
+  _XMM7 = LODWORD(v28.v[2]);
+  if ( value > 0.0 && (v28.v[2] == 0.0 || outRotatedHalfSize.v[2] == 0.0) )
   {
-    vmovss  xmm2, dword ptr [rsi+28h]
-    vmovss  xmm8, dword ptr [rbp+0B0h+outRotatedHalfSize+8]
-    vmovss  xmm7, dword ptr [rbp+0B0h+var_118+8]
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm2, xmm6
-  }
-  if ( v32 | v33 )
-    goto LABEL_20;
-  __asm { vucomiss xmm7, xmm6 }
-  if ( v33 )
-    goto LABEL_19;
-  __asm { vucomiss xmm8, xmm6 }
-  if ( v33 )
-  {
-LABEL_19:
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+130h]
-      vmovss  xmm1, dword ptr [rbx+134h]
-      vmovss  dword ptr [rsp+1B0h+outRotatedOffset], xmm0
-      vaddss  xmm0, xmm2, dword ptr [rbx+138h]
-      vmovss  dword ptr [rsp+1B0h+outRotatedOffset+8], xmm0
-      vmovss  dword ptr [rsp+1B0h+outRotatedOffset+4], xmm1
-    }
+    v17 = pickupEnt->r.currentOrigin.v[1];
+    outRotatedOffset.v[0] = pickupEnt->r.currentOrigin.v[0];
+    outRotatedOffset.v[2] = value + pickupEnt->r.currentOrigin.v[2];
+    outRotatedOffset.v[1] = v17;
     p_outRotatedOffset = &outRotatedOffset;
   }
   else
   {
-LABEL_20:
-    __asm { vcomiss xmm7, xmm6 }
-    if ( v32 )
-    {
-      v42 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 328, ASSERT_TYPE_SANITY, "( droppedHalfSize[2] >= 0.f )", (const char *)&queryFormat, "droppedHalfSize[2] >= 0.f");
-      v32 = 0;
-      if ( v42 )
-        __debugbreak();
-    }
-    __asm { vcomiss xmm8, xmm6 }
-    if ( v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 329, ASSERT_TYPE_SANITY, "( pickedupHalfSize[2] >= 0.f )", (const char *)&queryFormat, "pickedupHalfSize[2] >= 0.f") )
+    if ( v28.v[2] < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 328, ASSERT_TYPE_SANITY, "( droppedHalfSize[2] >= 0.f )", (const char *)&queryFormat, "droppedHalfSize[2] >= 0.f") )
       __debugbreak();
-    __asm
-    {
-      vmaxss  xmm2, xmm7, cs:__real@3f800000
-      vmovss  xmm0, dword ptr [rsp+1B0h+start]
-      vmovss  xmm1, dword ptr [rsp+1B0h+start+4]
-      vmovss  dword ptr [rsp+1B0h+end], xmm0
-      vaddss  xmm0, xmm2, cs:__real@3f800000
-      vmovss  dword ptr [rbp+0B0h+bounds.halfSize+8], xmm2
-      vmovss  dword ptr [rbp+0B0h+bounds.halfSize+4], xmm2
-      vmovss  dword ptr [rsp+1B0h+bounds.halfSize], xmm2
-      vaddss  xmm2, xmm0, dword ptr [rsp+1B0h+start+8]
-      vmovss  dword ptr [rsp+1B0h+end+8], xmm2
-      vmovss  dword ptr [rsp+1B0h+bounds.midPoint], xmm9
-      vmovss  dword ptr [rsp+1B0h+bounds.midPoint+4], xmm10
-      vmovss  dword ptr [rsp+1B0h+bounds.midPoint+8], xmm11
-      vmovss  dword ptr [rsp+1B0h+end+4], xmm1
-    }
-    contentmask = G_Items_ClipMask(_RBX);
-    v49 = 2047;
+    if ( v15 < 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_items.cpp", 329, ASSERT_TYPE_SANITY, "( pickedupHalfSize[2] >= 0.f )", (const char *)&queryFormat, "pickedupHalfSize[2] >= 0.f") )
+      __debugbreak();
+    __asm { vmaxss  xmm2, xmm7, cs:__real@3f800000 }
+    end.v[0] = start.v[0];
+    bounds.halfSize.v[2] = *(float *)&_XMM2;
+    bounds.halfSize.v[1] = *(float *)&_XMM2;
+    bounds.halfSize.v[0] = *(float *)&_XMM2;
+    end.v[2] = (float)(*(float *)&_XMM2 + 1.0) + start.v[2];
+    bounds.midPoint.v[0] = v10;
+    bounds.midPoint.v[1] = v11;
+    bounds.midPoint.v[2] = v12;
+    end.v[1] = start.v[1];
+    contentmask = G_Items_ClipMask(pickupEnt);
+    v21 = 2047;
     if ( EntHandle::isDefined(&dropEnt->r.ownerNum) )
-      v50 = EntHandle::entnum(&dropEnt->r.ownerNum);
+      v22 = EntHandle::entnum(&dropEnt->r.ownerNum);
     else
-      v50 = 2047;
-    G_Main_TraceCapsule(&results, &start, &end, &bounds, v50, contentmask);
+      v22 = 2047;
+    G_Main_TraceCapsule(&results, &start, &end, &bounds, v22, contentmask);
     if ( !results.allsolid )
     {
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsp+1B0h+start+8]
-        vmovss  xmm0, dword ptr [rsp+1B0h+end]
-        vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+start]
-        vmovss  xmm5, [rbp+0B0h+results.fraction]
-        vmulss  xmm1, xmm1, xmm5
-        vaddss  xmm0, xmm1, dword ptr [rsp+1B0h+start]
-        vmovss  xmm1, dword ptr [rsp+1B0h+end+4]
-        vmovss  dword ptr [rsp+1B0h+end], xmm0
-        vsubss  xmm0, xmm1, dword ptr [rsp+1B0h+start+4]
-        vmulss  xmm2, xmm0, xmm5
-        vmovss  xmm0, dword ptr [rsp+1B0h+end+8]
-        vaddss  xmm3, xmm2, dword ptr [rsp+1B0h+start+4]
-        vsubss  xmm1, xmm0, xmm4
-        vmulss  xmm2, xmm1, xmm5
-        vmovss  dword ptr [rsp+1B0h+end+4], xmm3
-        vaddss  xmm3, xmm2, xmm4
-        vsubss  xmm0, xmm4, xmm8
-        vmovss  dword ptr [rsp+1B0h+end+8], xmm3
-        vmovss  dword ptr [rsp+1B0h+start+8], xmm0
-      }
+      end.v[0] = (float)((float)(end.v[0] - start.v[0]) * results.fraction) + start.v[0];
+      end.v[1] = (float)((float)(end.v[1] - start.v[1]) * results.fraction) + start.v[1];
+      end.v[2] = (float)((float)(end.v[2] - start.v[2]) * results.fraction) + start.v[2];
+      start.v[2] = start.v[2] - v15;
       if ( EntHandle::isDefined(&dropEnt->r.ownerNum) )
-        v49 = EntHandle::entnum(&dropEnt->r.ownerNum);
-      G_Main_TraceCapsule(&results, &end, &start, &bounds, v49, contentmask);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+1B0h+start]
-        vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+end]
-        vmovss  xmm5, [rbp+0B0h+results.fraction]
-        vmulss  xmm1, xmm1, xmm5
-        vaddss  xmm0, xmm1, dword ptr [rsp+1B0h+end]
-        vmovss  xmm1, dword ptr [rsp+1B0h+start+4]
-        vmovss  dword ptr [rsp+1B0h+start], xmm0
-        vsubss  xmm0, xmm1, dword ptr [rsp+1B0h+end+4]
-        vmulss  xmm2, xmm0, xmm5
-        vaddss  xmm3, xmm2, dword ptr [rsp+1B0h+end+4]
-        vmovss  xmm0, dword ptr [rsp+1B0h+start+8]
-        vsubss  xmm1, xmm0, dword ptr [rsp+1B0h+end+8]
-        vmulss  xmm2, xmm1, xmm5
-        vmovss  dword ptr [rsp+1B0h+start+4], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rsp+1B0h+end+8]
-        vmovss  dword ptr [rsp+1B0h+start+8], xmm3
-      }
+        v21 = EntHandle::entnum(&dropEnt->r.ownerNum);
+      G_Main_TraceCapsule(&results, &end, &start, &bounds, v21, contentmask);
+      start.v[0] = (float)((float)(start.v[0] - end.v[0]) * results.fraction) + end.v[0];
+      start.v[1] = (float)((float)(start.v[1] - end.v[1]) * results.fraction) + end.v[1];
+      start.v[2] = (float)((float)(start.v[2] - end.v[2]) * results.fraction) + end.v[2];
     }
     p_outRotatedOffset = &start;
   }
   G_SetOriginAndAngle(dropEnt, p_outRotatedOffset, pickupAngles, 1, 1);
-  _R11 = &v93;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
 }
 
 /*

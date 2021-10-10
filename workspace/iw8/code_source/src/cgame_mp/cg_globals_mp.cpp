@@ -539,34 +539,34 @@ CgGlobalsMP::GetShaderOverrideData
 shaderOverride_t *CgGlobalsMP::GetShaderOverrideData(CgGlobalsMP *this, shaderOverride_t *result, const int characterIndex, const Weapon *r_weapon)
 {
   const characterInfo_t *CharacterInfo; 
+  const characterInfo_t *v9; 
   int weaponCamo; 
+  __m256i v11; 
   float atlasTime; 
+  int v14; 
   int v15; 
-  int v16; 
 
-  _RBX = result;
-  if ( r_weapon->weaponCamo && this->HasCharacterInfo(this, characterIndex) && (this->IsMP(this) ? (CharacterInfo = CgGlobalsMP::GetCharacterInfo(this, characterIndex)) : (CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)this, characterIndex)), (_RDI = CharacterInfo) != NULL) )
+  if ( r_weapon->weaponCamo && this->HasCharacterInfo(this, characterIndex) && (this->IsMP(this) ? (CharacterInfo = CgGlobalsMP::GetCharacterInfo(this, characterIndex)) : (CharacterInfo = CgGlobalsSP::GetCharacterInfo((CgGlobalsSP *)this, characterIndex)), (v9 = CharacterInfo) != NULL) )
   {
     weaponCamo = r_weapon->weaponCamo;
     if ( (unsigned int)(weaponCamo - 1) >= 0xFF )
     {
-      v16 = 255;
-      v15 = weaponCamo - 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp.cpp", 276, ASSERT_TYPE_ASSERT, "(unsigned)( r_weapon.weaponCamo - 1 ) < (unsigned)( ( sizeof( *array_counter( ci->shaderOverride ) ) + 0 ) )", "r_weapon.weaponCamo - 1 doesn't index ARRAY_COUNT( ci->shaderOverride )\n\t%i not in [0, %i)", v15, v16) )
+      v15 = 255;
+      v14 = weaponCamo - 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp.cpp", 276, ASSERT_TYPE_ASSERT, "(unsigned)( r_weapon.weaponCamo - 1 ) < (unsigned)( ( sizeof( *array_counter( ci->shaderOverride ) ) + 0 ) )", "r_weapon.weaponCamo - 1 doesn't index ARRAY_COUNT( ci->shaderOverride )\n\t%i not in [0, %i)", v14, v15) )
         __debugbreak();
     }
-    _RCX = 9i64 * r_weapon->weaponCamo;
-    __asm { vmovups ymm0, ymmword ptr [rdi+rcx*4+14A0h] }
-    atlasTime = *((float *)&_RDI->refreshWorldmodelMaterialOverride + 9 * r_weapon->weaponCamo);
+    v11 = *(__m256i *)(&v9->weaponAnims.altOverrideADSOnly + 36 * r_weapon->weaponCamo);
+    atlasTime = *((float *)&v9->refreshWorldmodelMaterialOverride + 9 * r_weapon->weaponCamo);
   }
   else
   {
-    __asm { vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_8.scrollRateX }
+    v11 = *(__m256i *)&NULL_SHADER_OVERRIDE_8.scrollRateX;
     atlasTime = NULL_SHADER_OVERRIDE_8.atlasTime;
   }
-  __asm { vmovups ymmword ptr [rbx], ymm0 }
-  _RBX->atlasTime = atlasTime;
-  return _RBX;
+  *(__m256i *)&result->scrollRateX = v11;
+  result->atlasTime = atlasTime;
+  return result;
 }
 
 /*
@@ -590,9 +590,9 @@ void CgGlobalsMP::GetTeamColors(CgGlobalsMP *this, vec4_t *outMyTeamColor, vec4_
   CgStatic *LocalClientStatics; 
   const characterInfo_t *CharacterInfo; 
   __int64 v9; 
-  int v11; 
+  int v10; 
   int team[8]; 
-  int v13; 
+  int v12; 
 
   v3 = DVARBOOL_useRelativeTeamColors;
   if ( !DVARBOOL_useRelativeTeamColors && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "useRelativeTeamColors") )
@@ -615,17 +615,16 @@ void CgGlobalsMP::GetTeamColors(CgGlobalsMP *this, vec4_t *outMyTeamColor, vec4_
     v9 = CharacterInfo->team;
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 186, ASSERT_TYPE_ASSERT, "(!Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ))", (const char *)&queryFormat, "!Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER )") )
       __debugbreak();
-    __asm { vmovdqu ymm0, cs:__ymm@0000000000000001000000010000000100000001000000010000000200000000 }
-    v11 = 0;
-    v13 = 0;
-    __asm { vmovdqu ymmword ptr [rsp+88h+team], ymm0 }
+    v10 = 0;
+    v12 = 0;
+    *(__m256i *)team = _ymm;
     if ( (unsigned int)v9 < 9 )
     {
       if ( (unsigned int)v9 > 0xCA && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 205, ASSERT_TYPE_ASSERT, "(eTeam >= 0 && eTeam < TEAM_MP_NUM_TEAMS)", (const char *)&queryFormat, "eTeam >= 0 && eTeam < TEAM_MP_NUM_TEAMS") )
         __debugbreak();
-      v11 = team[v9];
+      v10 = team[v9];
     }
-    CG_DrawToolsMP_TeamColor(v11, outEnemyTeamColor);
+    CG_DrawToolsMP_TeamColor(v10, outEnemyTeamColor);
   }
 }
 

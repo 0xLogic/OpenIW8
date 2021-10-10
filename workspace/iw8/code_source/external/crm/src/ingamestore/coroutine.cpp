@@ -309,16 +309,19 @@ Co_Init
 */
 void Co_Init(void)
 {
+  unsigned int v0; 
   unsigned int *p_generation; 
   unsigned int v2; 
   unsigned int v3; 
+  int *v4; 
+  unsigned int v14; 
 
   co_shutdown = 0;
   if ( !co_main.fiber )
     co_main.fiber = ConvertThreadToFiber(NULL);
   co_self = -1i64;
   memset_0(co_coroutines, 0, sizeof(co_coroutines));
-  _EBX = 0;
+  v0 = 0;
   co_awaitCount = 0;
   memset_0(co_awaits, 0, sizeof(co_awaits));
   co_scheduledCount = 0;
@@ -364,42 +367,42 @@ void Co_Init(void)
     p_generation += 256;
   }
   while ( v3 < 0x20 );
-  __asm { vmovdqu xmm2, cs:__xmm@00000003000000020000000100000000 }
-  _RCX = &co_free[4];
+  v4 = &co_free[4];
   do
   {
-    _EAX = _EBX + 4;
+    _XMM0 = v0;
     __asm
     {
-      vmovd   xmm0, ebx
       vpshufd xmm0, xmm0, 0
       vpaddd  xmm1, xmm0, xmm2
-      vmovdqu xmmword ptr [rcx-10h], xmm1
-      vmovd   xmm0, eax
-      vpshufd xmm0, xmm0, 0
-      vpaddd  xmm1, xmm0, xmm2
-      vmovdqu xmmword ptr [rcx], xmm1
     }
-    _EAX = _EBX + 8;
+    *((_OWORD *)v4 - 1) = _XMM1;
+    _XMM0 = v0 + 4;
     __asm
     {
-      vmovd   xmm0, eax
       vpshufd xmm0, xmm0, 0
       vpaddd  xmm1, xmm0, xmm2
-      vmovdqu xmmword ptr [rcx+10h], xmm1
     }
-    _EAX = _EBX + 12;
-    _EBX += 16;
-    _RCX += 16;
+    *(_OWORD *)v4 = _XMM1;
+    _XMM0 = v0 + 8;
     __asm
     {
-      vmovd   xmm0, eax
       vpshufd xmm0, xmm0, 0
       vpaddd  xmm1, xmm0, xmm2
-      vmovdqu xmmword ptr [rcx-20h], xmm1
     }
+    *((_OWORD *)v4 + 1) = _XMM1;
+    v14 = v0 + 12;
+    v0 += 16;
+    v4 += 16;
+    _XMM0 = v14;
+    __asm
+    {
+      vpshufd xmm0, xmm0, 0
+      vpaddd  xmm1, xmm0, xmm2
+    }
+    *((_OWORD *)v4 - 2) = _XMM1;
   }
-  while ( _EBX < 0x20 );
+  while ( v0 < 0x20 );
   co_freeCount = 32;
 }
 

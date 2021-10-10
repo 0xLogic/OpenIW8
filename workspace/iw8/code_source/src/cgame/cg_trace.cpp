@@ -138,19 +138,10 @@ CG_MoverSortCompare
 */
 __int64 CG_MoverSortCompare(const void *f1, const void *f2)
 {
-  char v2; 
   __int64 result; 
 
-  _R8 = *(int *)f1;
   result = 1i64;
-  _RCX = g_cgAntilagSortDistanceBuffer;
-  _R9 = *(int *)f2;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+r8*4]
-    vcomiss xmm0, dword ptr [rcx+r9*4]
-  }
-  if ( v2 )
+  if ( g_cgAntilagSortDistanceBuffer[*(int *)f1] < g_cgAntilagSortDistanceBuffer[*(int *)f2] )
     return 0xFFFFFFFFi64;
   return result;
 }

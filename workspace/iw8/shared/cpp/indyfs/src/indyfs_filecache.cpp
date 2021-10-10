@@ -571,17 +571,28 @@ read_chunk_data
 */
 __int64 read_chunk_data(IndyFsFileCache *fileCache, IndyFsFileHandle *handle, IndyFsChunk *chunk, void *dest, unsigned __int64 offset, unsigned __int64 size)
 {
-  _RTL_CRITICAL_SECTION *p_lock; 
-  unsigned __int64 v15; 
-  unsigned int v16; 
+  IndyFsChunk *v7; 
+  IndyFsMutex *p_lock; 
+  unsigned __int64 v11; 
+  unsigned int v12; 
   HANDLE FileA; 
   DWORD LastError; 
-  unsigned __int64 v20; 
-  DWORD v21; 
-  __int64 result; 
+  double v15; 
+  long double v16; 
+  unsigned __int64 v17; 
+  DWORD v18; 
+  long double v19; 
   __int64 dwCreationDisposition; 
   __int64 dwFlagsAndAttributes; 
   HANDLE hTemplateFile; 
+  __int64 v24; 
+  int v25; 
+  __int64 v26; 
+  int v27; 
+  __int64 v28; 
+  int v29; 
+  __int64 v30; 
+  int v31; 
   __int64 v32; 
   int v33; 
   __int64 v34; 
@@ -606,183 +617,147 @@ __int64 read_chunk_data(IndyFsFileCache *fileCache, IndyFsFileHandle *handle, In
   int v53; 
   __int64 v54; 
   int v55; 
-  __int64 v56; 
-  int v57; 
-  __int64 v58; 
-  int v59; 
-  __int64 v60; 
-  int v61; 
-  __int64 v62; 
-  int v63; 
-  DWORD v64; 
+  DWORD v56; 
   unsigned int NumberOfBytesRead; 
-  IndyFsChunk *v66; 
-  __int64 v67; 
-  IndyFsMutex *v68; 
+  IndyFsChunk *v58; 
+  __int64 v59; 
+  IndyFsMutex *v60; 
   _OVERLAPPED Overlapped; 
-  __int64 v70; 
-  IndyFsScopedDuration v71; 
-  IndyFsScopedEvent v72; 
+  __int64 v62; 
+  IndyFsScopedDuration v63; 
+  IndyFsScopedEvent v64; 
   char out_path[272]; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v70 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
-  _R13 = chunk;
-  v66 = chunk;
-  _RSI = handle;
+  v62 = -2i64;
+  v7 = chunk;
+  v58 = chunk;
   indyfs_statistics_internal_add_count("HandleCache", "TotalReads", 1ui64);
-  p_lock = (_RTL_CRITICAL_SECTION *)&_RSI->lock;
-  v68 = &_RSI->lock;
-  indyfs_mutex_lock((LPCRITICAL_SECTION)&_RSI->lock);
-  v15 = 0i64;
-  if ( *(_OWORD *)_R13->sha1 != *(_OWORD *)_RSI->chunkSha1 || *(_DWORD *)&_R13->sha1[16] != *(_DWORD *)&_RSI->chunkSha1[16] || _RSI->fd == (void *)-1i64 )
+  p_lock = &handle->lock;
+  v60 = &handle->lock;
+  indyfs_mutex_lock((LPCRITICAL_SECTION)&handle->lock);
+  v11 = 0i64;
+  if ( *(_OWORD *)v7->sha1 != *(_OWORD *)handle->chunkSha1 || *(_DWORD *)&v7->sha1[16] != *(_DWORD *)&handle->chunkSha1[16] || handle->fd == (void *)-1i64 )
   {
     indyfs_statistics_internal_add_count("HandleCache", "Miss", 1ui64);
-    if ( _RSI->fd != (void *)-1i64 )
+    if ( handle->fd != (void *)-1i64 )
     {
-      IndyFsScopedDuration::IndyFsScopedDuration(&v71, "FileCache", "FileClose");
-      IndyFsScopedEvent::IndyFsScopedEvent(&v72, "FileCache", "FileClose");
-      CloseHandle(_RSI->fd);
-      IndyFsScopedEvent::~IndyFsScopedEvent(&v72);
-      IndyFsScopedDuration::~IndyFsScopedDuration(&v71);
+      IndyFsScopedDuration::IndyFsScopedDuration(&v63, "FileCache", "FileClose");
+      IndyFsScopedEvent::IndyFsScopedEvent(&v64, "FileCache", "FileClose");
+      CloseHandle(handle->fd);
+      IndyFsScopedEvent::~IndyFsScopedEvent(&v64);
+      IndyFsScopedDuration::~IndyFsScopedDuration(&v63);
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [r13+0]
-      vmovups xmmword ptr [rsi+8], xmm0
-    }
-    *(_DWORD *)&_RSI->chunkSha1[16] = *(_DWORD *)&_R13->sha1[16];
-    if ( indyfs_filecache_resolve_path(fileCache, _R13->sha1, out_path) )
+    *(_OWORD *)handle->chunkSha1 = *(_OWORD *)v7->sha1;
+    *(_DWORD *)&handle->chunkSha1[16] = *(_DWORD *)&v7->sha1[16];
+    if ( indyfs_filecache_resolve_path(fileCache, v7->sha1, out_path) )
     {
       indyfs_log_message(Error, "Failed to open \"%s\"", out_path);
-      v16 = -1;
+      v12 = -1;
       goto LABEL_22;
     }
-    IndyFsScopedDuration::IndyFsScopedDuration((IndyFsScopedDuration *)&v72, "FileCache", "FileOpen");
-    IndyFsScopedEvent::IndyFsScopedEvent((IndyFsScopedEvent *)&v71, "FileCache", "FileOpen");
+    IndyFsScopedDuration::IndyFsScopedDuration((IndyFsScopedDuration *)&v64, "FileCache", "FileOpen");
+    IndyFsScopedEvent::IndyFsScopedEvent((IndyFsScopedEvent *)&v63, "FileCache", "FileOpen");
     FileA = CreateFileA(out_path, 0x80000000, 7u, NULL, 3u, 0x10000080u, NULL);
-    _RSI->fd = FileA;
+    handle->fd = FileA;
     if ( FileA == (HANDLE)-1i64 )
     {
       LastError = GetLastError();
       indyfs_log_message(Error, "Failed to open \"%s\" - Error: %d", out_path, LastError);
-      IndyFsScopedEvent::~IndyFsScopedEvent((IndyFsScopedEvent *)&v71);
-      IndyFsScopedDuration::~IndyFsScopedDuration((IndyFsScopedDuration *)&v72);
-      v16 = -1;
+      IndyFsScopedEvent::~IndyFsScopedEvent((IndyFsScopedEvent *)&v63);
+      IndyFsScopedDuration::~IndyFsScopedDuration((IndyFsScopedDuration *)&v64);
+      v12 = -1;
       goto LABEL_22;
     }
-    IndyFsScopedEvent::~IndyFsScopedEvent((IndyFsScopedEvent *)&v71);
-    IndyFsScopedDuration::~IndyFsScopedDuration((IndyFsScopedDuration *)&v72);
+    IndyFsScopedEvent::~IndyFsScopedEvent((IndyFsScopedEvent *)&v63);
+    IndyFsScopedDuration::~IndyFsScopedDuration((IndyFsScopedDuration *)&v64);
   }
   Overlapped.Internal = 0i64;
   Overlapped.InternalHigh = 0i64;
   Overlapped.hEvent = NULL;
   Overlapped.Pointer = (void *)offset;
-  *(double *)&_XMM0 = indyfs_time_now_us();
-  __asm { vmovaps xmm7, xmm0 }
-  v67 = 0i64;
-  v20 = size;
+  v15 = indyfs_time_now_us();
+  v16 = v15;
+  v59 = 0i64;
+  v17 = size;
   if ( size )
   {
     while ( 1 )
     {
-      v21 = 0x7FFFFFFF;
-      if ( size - v15 < 0x7FFFFFFF )
-        v21 = size - v15;
-      if ( !ReadFile(_RSI->fd, (char *)dest + v15, v21, &NumberOfBytesRead, &Overlapped) )
+      v18 = 0x7FFFFFFF;
+      if ( size - v11 < 0x7FFFFFFF )
+        v18 = size - v11;
+      if ( !ReadFile(handle->fd, (char *)dest + v11, v18, &NumberOfBytesRead, &Overlapped) )
         break;
       if ( NumberOfBytesRead )
       {
-        v15 += NumberOfBytesRead;
-        v67 = v15;
-        if ( v15 < size )
+        v11 += NumberOfBytesRead;
+        v59 = v11;
+        if ( v11 < size )
           continue;
       }
       goto LABEL_19;
     }
-    v64 = GetLastError();
-    v63 = _R13->sha1[19];
-    v61 = _R13->sha1[18];
-    v59 = _R13->sha1[17];
-    v57 = _R13->sha1[16];
-    v55 = _R13->sha1[15];
-    v53 = _R13->sha1[14];
-    v51 = _R13->sha1[13];
-    v49 = _R13->sha1[12];
-    v47 = _R13->sha1[11];
-    v45 = _R13->sha1[10];
-    v43 = _R13->sha1[9];
-    v41 = _R13->sha1[8];
-    v39 = _R13->sha1[7];
-    _R13 = v66;
-    v37 = v66->sha1[6];
-    v35 = v66->sha1[5];
-    v33 = v66->sha1[4];
-    LODWORD(hTemplateFile) = v66->sha1[3];
-    LODWORD(dwFlagsAndAttributes) = v66->sha1[2];
-    LODWORD(dwCreationDisposition) = v66->sha1[1];
-    v15 = v67;
-    indyfs_log_message(Error, "Tried to read %llu bytes from chunk [%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x] but got an error: %d.", v67, v66->sha1[0], dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile, v33, v35, v37, v39, v41, v43, v45, v47, v49, v51, v53, v55, v57, v59, v61, v63, v64);
-    v20 = size;
-    p_lock = (_RTL_CRITICAL_SECTION *)v68;
+    v56 = GetLastError();
+    v55 = v7->sha1[19];
+    v53 = v7->sha1[18];
+    v51 = v7->sha1[17];
+    v49 = v7->sha1[16];
+    v47 = v7->sha1[15];
+    v45 = v7->sha1[14];
+    v43 = v7->sha1[13];
+    v41 = v7->sha1[12];
+    v39 = v7->sha1[11];
+    v37 = v7->sha1[10];
+    v35 = v7->sha1[9];
+    v33 = v7->sha1[8];
+    v31 = v7->sha1[7];
+    v7 = v58;
+    v29 = v58->sha1[6];
+    v27 = v58->sha1[5];
+    v25 = v58->sha1[4];
+    LODWORD(hTemplateFile) = v58->sha1[3];
+    LODWORD(dwFlagsAndAttributes) = v58->sha1[2];
+    LODWORD(dwCreationDisposition) = v58->sha1[1];
+    v11 = v59;
+    indyfs_log_message(Error, "Tried to read %llu bytes from chunk [%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x] but got an error: %d.", v59, v58->sha1[0], dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile, v25, v27, v29, v31, v33, v35, v37, v39, v41, v43, v45, v47, v49, v51, v53, v55, v56);
+    v17 = size;
+    p_lock = v60;
   }
 LABEL_19:
-  if ( v15 == v20 )
+  if ( v11 == v17 )
   {
-    *(double *)&_XMM0 = indyfs_time_now_us();
-    __asm
-    {
-      vsubsd  xmm6, xmm0, xmm7
-      vmovaps xmm2, xmm6; duration
-    }
-    indyfs_statistics_internal_add_chunk_read(_R13->sha1, v20, *(long double *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm3, xmm6; duration
-      vmovaps xmm2, xmm7; start
-    }
-    indyfs_profiler_internal_duration_event("FileCache", "FileRead", *(long double *)&_XMM2, *(long double *)&_XMM3);
-    v16 = 0;
+    v19 = indyfs_time_now_us() - v15;
+    indyfs_statistics_internal_add_chunk_read(v7->sha1, v17, v19);
+    indyfs_profiler_internal_duration_event("FileCache", "FileRead", v16, v19);
+    v12 = 0;
   }
   else
   {
-    LODWORD(v62) = _R13->sha1[19];
-    LODWORD(v60) = _R13->sha1[18];
-    LODWORD(v58) = _R13->sha1[17];
-    LODWORD(v56) = _R13->sha1[16];
-    LODWORD(v54) = _R13->sha1[15];
-    LODWORD(v52) = _R13->sha1[14];
-    LODWORD(v50) = _R13->sha1[13];
-    LODWORD(v48) = _R13->sha1[12];
-    LODWORD(v46) = _R13->sha1[11];
-    LODWORD(v44) = _R13->sha1[10];
-    LODWORD(v42) = _R13->sha1[9];
-    LODWORD(v40) = _R13->sha1[8];
-    LODWORD(v38) = _R13->sha1[7];
-    LODWORD(v36) = v66->sha1[6];
-    LODWORD(v34) = v66->sha1[5];
-    LODWORD(v32) = v66->sha1[4];
-    LODWORD(hTemplateFile) = v66->sha1[3];
-    LODWORD(dwFlagsAndAttributes) = v66->sha1[2];
-    LODWORD(dwCreationDisposition) = v66->sha1[1];
-    indyfs_log_message(Error, "Tried to read %llu bytes from chunk [%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x] but requested %zu.", v67, v66->sha1[0], dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile, v32, v34, v36, v38, v40, v42, v44, v46, v48, v50, v52, v54, v56, v58, v60, v62, size);
-    p_lock = (_RTL_CRITICAL_SECTION *)v68;
-    v16 = -1;
+    LODWORD(v54) = v7->sha1[19];
+    LODWORD(v52) = v7->sha1[18];
+    LODWORD(v50) = v7->sha1[17];
+    LODWORD(v48) = v7->sha1[16];
+    LODWORD(v46) = v7->sha1[15];
+    LODWORD(v44) = v7->sha1[14];
+    LODWORD(v42) = v7->sha1[13];
+    LODWORD(v40) = v7->sha1[12];
+    LODWORD(v38) = v7->sha1[11];
+    LODWORD(v36) = v7->sha1[10];
+    LODWORD(v34) = v7->sha1[9];
+    LODWORD(v32) = v7->sha1[8];
+    LODWORD(v30) = v7->sha1[7];
+    LODWORD(v28) = v58->sha1[6];
+    LODWORD(v26) = v58->sha1[5];
+    LODWORD(v24) = v58->sha1[4];
+    LODWORD(hTemplateFile) = v58->sha1[3];
+    LODWORD(dwFlagsAndAttributes) = v58->sha1[2];
+    LODWORD(dwCreationDisposition) = v58->sha1[1];
+    indyfs_log_message(Error, "Tried to read %llu bytes from chunk [%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x] but requested %zu.", v59, v58->sha1[0], dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile, v24, v26, v28, v30, v32, v34, v36, v38, v40, v42, v44, v46, v48, v50, v52, v54, size);
+    p_lock = v60;
+    v12 = -1;
   }
 LABEL_22:
-  indyfs_mutex_unlock(p_lock);
-  result = v16;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [rsp+6B0h+var_58+8]
-    vmovaps xmm7, [rsp+6B0h+var_68+8]
-  }
-  return result;
+  indyfs_mutex_unlock((LPCRITICAL_SECTION)p_lock);
+  return v12;
 }
 

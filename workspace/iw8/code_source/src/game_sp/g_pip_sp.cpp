@@ -126,28 +126,20 @@ PIP_SetX
 */
 void PIP_SetX(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v5; 
-  const char *v7; 
-  const char *v8; 
+  const char *v4; 
+  const char *v5; 
   SvClient *CommonClient; 
 
-  __asm
+  v4 = j_va("%s %f", "set_pip_x", pipElem->x);
+  v5 = v4;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovss  xmm2, dword ptr [rdx+4]
-    vcvtss2sd xmm2, xmm2, xmm2
-  }
-  v5 = pipElem;
-  __asm { vmovq   r8, xmm2 }
-  v7 = j_va("%s %f", "set_pip_x", _R8);
-  v8 = v7;
-  if ( v5->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v7);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v4);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v5->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v5);
   }
 }
 
@@ -158,28 +150,20 @@ PIP_SetY
 */
 void PIP_SetY(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v5; 
-  const char *v7; 
-  const char *v8; 
+  const char *v4; 
+  const char *v5; 
   SvClient *CommonClient; 
 
-  __asm
+  v4 = j_va("%s %f", "set_pip_y", pipElem->y);
+  v5 = v4;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovss  xmm2, dword ptr [rdx+8]
-    vcvtss2sd xmm2, xmm2, xmm2
-  }
-  v5 = pipElem;
-  __asm { vmovq   r8, xmm2 }
-  v7 = j_va("%s %f", "set_pip_y", _R8);
-  v8 = v7;
-  if ( v5->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v7);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v4);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v5->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v5);
   }
 }
 
@@ -190,28 +174,20 @@ PIP_SetWidth
 */
 void PIP_SetWidth(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v5; 
-  const char *v7; 
-  const char *v8; 
+  const char *v4; 
+  const char *v5; 
   SvClient *CommonClient; 
 
-  __asm
+  v4 = j_va("%s %f", "set_pip_width", pipElem->width);
+  v5 = v4;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovss  xmm2, dword ptr [rdx+0Ch]
-    vcvtss2sd xmm2, xmm2, xmm2
-  }
-  v5 = pipElem;
-  __asm { vmovq   r8, xmm2 }
-  v7 = j_va("%s %f", "set_pip_width", _R8);
-  v8 = v7;
-  if ( v5->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v7);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v4);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v5->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v5);
   }
 }
 
@@ -222,28 +198,20 @@ PIP_SetHeight
 */
 void PIP_SetHeight(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v5; 
-  const char *v7; 
-  const char *v8; 
+  const char *v4; 
+  const char *v5; 
   SvClient *CommonClient; 
 
-  __asm
+  v4 = j_va("%s %f", "set_pip_height", pipElem->height);
+  v5 = v4;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovss  xmm2, dword ptr [rdx+10h]
-    vcvtss2sd xmm2, xmm2, xmm2
-  }
-  v5 = pipElem;
-  __asm { vmovq   r8, xmm2 }
-  v7 = j_va("%s %f", "set_pip_height", _R8);
-  v8 = v7;
-  if ( v5->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v7);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v4);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v5->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v5);
   }
 }
 
@@ -326,38 +294,20 @@ PIP_SetOrigin
 */
 void PIP_SetOrigin(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v8; 
-  const char *v12; 
-  const char *v13; 
+  const char *v4; 
+  const char *v5; 
   SvClient *CommonClient; 
-  __int64 v15; 
 
-  __asm
+  v4 = j_va("%s %f %f %f", "set_pip_origin", pipElem->origin.v[0], pipElem->origin.v[1], pipElem->origin.v[2]);
+  v5 = v4;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovss  xmm3, dword ptr [rdx+24h]
-    vmovss  xmm2, dword ptr [rdx+20h]
-    vmovss  xmm0, dword ptr [rdx+28h]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-  }
-  v8 = pipElem;
-  __asm
-  {
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+38h+var_18], xmm0
-  }
-  v12 = j_va("%s %f %f %f", "set_pip_origin", _R8, _R9, v15);
-  v13 = v12;
-  if ( v8->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v4);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v8->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v5);
   }
 }
 
@@ -368,38 +318,20 @@ PIP_SetOriginOffset
 */
 void PIP_SetOriginOffset(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v8; 
-  const char *v12; 
-  const char *v13; 
+  const char *v4; 
+  const char *v5; 
   SvClient *CommonClient; 
-  __int64 v15; 
 
-  __asm
+  v4 = j_va("%s %f %f %f", "set_pip_origin_offset", pipElem->originOffset.v[0], pipElem->originOffset.v[1], pipElem->originOffset.v[2]);
+  v5 = v4;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovss  xmm3, dword ptr [rdx+30h]
-    vmovss  xmm2, dword ptr [rdx+2Ch]
-    vmovss  xmm0, dword ptr [rdx+34h]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-  }
-  v8 = pipElem;
-  __asm
-  {
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+38h+var_18], xmm0
-  }
-  v12 = j_va("%s %f %f %f", "set_pip_origin_offset", _R8, _R9, v15);
-  v13 = v12;
-  if ( v8->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v4);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v8->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v5);
   }
 }
 
@@ -410,38 +342,20 @@ PIP_SetAnglesOffset
 */
 void PIP_SetAnglesOffset(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v8; 
-  const char *v12; 
-  const char *v13; 
+  const char *v4; 
+  const char *v5; 
   SvClient *CommonClient; 
-  __int64 v15; 
 
-  __asm
+  v4 = j_va("%s %f %f %f", "set_pip_angles_offset", pipElem->anglesOffset.v[0], pipElem->anglesOffset.v[1], pipElem->anglesOffset.v[2]);
+  v5 = v4;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovss  xmm3, dword ptr [rdx+3Ch]
-    vmovss  xmm2, dword ptr [rdx+38h]
-    vmovss  xmm0, dword ptr [rdx+40h]
-    vcvtss2sd xmm3, xmm3, xmm3
-    vcvtss2sd xmm2, xmm2, xmm2
-  }
-  v8 = pipElem;
-  __asm
-  {
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+38h+var_18], xmm0
-  }
-  v12 = j_va("%s %f %f %f", "set_pip_angles_offset", _R8, _R9, v15);
-  v13 = v12;
-  if ( v8->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v4);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v8->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v5);
   }
 }
 
@@ -452,34 +366,27 @@ PIP_SetFov
 */
 void PIP_SetFov(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  const char *v8; 
-  const char *v9; 
+  float fov; 
+  const char *v5; 
+  const char *v6; 
   SvClient *CommonClient; 
 
-  __asm
+  fov = pipElem->fov;
+  if ( fov < 1.0 || fov > 179.0 )
   {
-    vmovss  xmm0, dword ptr [rdx+44h]
-    vcomiss xmm0, cs:__real@3f800000
+    Scr_Error(COM_ERR_2953, scrContext, "1 >= pip fov <= 179");
+    fov = pipElem->fov;
   }
-  _RBX = pipElem;
-  __asm { vcomiss xmm0, cs:__real@43330000 }
-  Scr_Error(COM_ERR_2953, scrContext, "1 >= pip fov <= 179");
-  __asm
+  v5 = j_va("%s %f", "set_pip_fov", fov);
+  v6 = v5;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovss  xmm0, dword ptr [rbx+44h]
-    vcvtss2sd xmm2, xmm0, xmm0
-    vmovq   r8, xmm2
-  }
-  v8 = j_va("%s %f", "set_pip_fov", _R8);
-  v9 = v8;
-  if ( _RBX->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v8);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v5);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(_RBX->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v9);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v6);
   }
 }
 
@@ -510,64 +417,31 @@ PIP_SetLook
 */
 void PIP_SetLook(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  const char *v12; 
-  const char *v13; 
+  float v3; 
+  float v5; 
+  float v6; 
+  const char *v7; 
+  const char *v8; 
   SvClient *CommonClient; 
-  __int64 v15; 
-  int v16; 
-  int v17; 
-  int v18; 
 
-  __asm
+  v3 = pipElem->look.v[0];
+  if ( (LODWORD(v3) & 0x7F800000) == 2139095040 || (v5 = pipElem->look.v[1], (LODWORD(v5) & 0x7F800000) == 2139095040) || (v6 = pipElem->look.v[2], (LODWORD(v6) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm2, dword ptr [rdx+60h]
-    vmovss  [rsp+38h+arg_8], xmm2
-  }
-  _RBX = pipElem;
-  if ( (v16 & 0x7F800000) == 2139095040 )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdx+64h]
-    vmovss  [rsp+38h+arg_8], xmm1
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+68h]
-    vmovss  [rsp+38h+arg_8], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-  {
-LABEL_4:
     Scr_Error(COM_ERR_2960, scrContext, "PIP look direction being set to NANs.");
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+68h]
-      vmovss  xmm1, dword ptr [rbx+64h]
-      vmovss  xmm2, dword ptr [rbx+60h]
-    }
+    v6 = pipElem->look.v[2];
+    v5 = pipElem->look.v[1];
+    v3 = pipElem->look.v[0];
   }
-  __asm
+  v7 = j_va("%s %f %f %f", "set_pip_look", v3, v5, v6);
+  v8 = v7;
+  if ( pipElem->clientNum == -1 )
   {
-    vcvtss2sd xmm3, xmm1, xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+38h+var_18], xmm0
-  }
-  v12 = j_va("%s %f %f %f", "set_pip_look", _R8, _R9, v15);
-  v13 = v12;
-  if ( _RBX->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v7);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(_RBX->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
   }
 }
 
@@ -578,64 +452,31 @@ PIP_SetUp
 */
 void PIP_SetUp(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  const char *v12; 
-  const char *v13; 
+  float v3; 
+  float v5; 
+  float v6; 
+  const char *v7; 
+  const char *v8; 
   SvClient *CommonClient; 
-  __int64 v15; 
-  int v16; 
-  int v17; 
-  int v18; 
 
-  __asm
+  v3 = pipElem->up.v[0];
+  if ( (LODWORD(v3) & 0x7F800000) == 2139095040 || (v5 = pipElem->up.v[1], (LODWORD(v5) & 0x7F800000) == 2139095040) || (v6 = pipElem->up.v[2], (LODWORD(v6) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm2, dword ptr [rdx+6Ch]
-    vmovss  [rsp+38h+arg_8], xmm2
-  }
-  _RBX = pipElem;
-  if ( (v16 & 0x7F800000) == 2139095040 )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdx+70h]
-    vmovss  [rsp+38h+arg_8], xmm1
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+74h]
-    vmovss  [rsp+38h+arg_8], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-  {
-LABEL_4:
     Scr_Error(COM_ERR_2961, scrContext, "PIP up direction being set to NANs.");
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+74h]
-      vmovss  xmm1, dword ptr [rbx+70h]
-      vmovss  xmm2, dword ptr [rbx+6Ch]
-    }
+    v6 = pipElem->up.v[2];
+    v5 = pipElem->up.v[1];
+    v3 = pipElem->up.v[0];
   }
-  __asm
+  v7 = j_va("%s %f %f %f", "set_pip_up", v3, v5, v6);
+  v8 = v7;
+  if ( pipElem->clientNum == -1 )
   {
-    vcvtss2sd xmm3, xmm1, xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+38h+var_18], xmm0
-  }
-  v12 = j_va("%s %f %f %f", "set_pip_up", _R8, _R9, v15);
-  v13 = v12;
-  if ( _RBX->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v7);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(_RBX->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
   }
 }
 
@@ -646,64 +487,31 @@ PIP_SetRight
 */
 void PIP_SetRight(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  const char *v12; 
-  const char *v13; 
+  float v3; 
+  float v5; 
+  float v6; 
+  const char *v7; 
+  const char *v8; 
   SvClient *CommonClient; 
-  __int64 v15; 
-  int v16; 
-  int v17; 
-  int v18; 
 
-  __asm
+  v3 = pipElem->right.v[0];
+  if ( (LODWORD(v3) & 0x7F800000) == 2139095040 || (v5 = pipElem->right.v[1], (LODWORD(v5) & 0x7F800000) == 2139095040) || (v6 = pipElem->right.v[2], (LODWORD(v6) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm2, dword ptr [rdx+78h]
-    vmovss  [rsp+38h+arg_8], xmm2
-  }
-  _RBX = pipElem;
-  if ( (v16 & 0x7F800000) == 2139095040 )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdx+7Ch]
-    vmovss  [rsp+38h+arg_8], xmm1
-  }
-  if ( (v17 & 0x7F800000) == 2139095040 )
-    goto LABEL_4;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+80h]
-    vmovss  [rsp+38h+arg_8], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-  {
-LABEL_4:
     Scr_Error(COM_ERR_2962, scrContext, "PIP right direction being set to NANs.");
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+80h]
-      vmovss  xmm1, dword ptr [rbx+7Ch]
-      vmovss  xmm2, dword ptr [rbx+78h]
-    }
+    v6 = pipElem->right.v[2];
+    v5 = pipElem->right.v[1];
+    v3 = pipElem->right.v[0];
   }
-  __asm
+  v7 = j_va("%s %f %f %f", "set_pip_right", v3, v5, v6);
+  v8 = v7;
+  if ( pipElem->clientNum == -1 )
   {
-    vcvtss2sd xmm3, xmm1, xmm1
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovq   r9, xmm3
-    vmovq   r8, xmm2
-    vmovsd  [rsp+38h+var_18], xmm0
-  }
-  v12 = j_va("%s %f %f %f", "set_pip_right", _R8, _R9, v15);
-  v13 = v12;
-  if ( _RBX->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v7);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(_RBX->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
   }
 }
 
@@ -816,33 +624,27 @@ PIP_SetNearZ
 */
 void PIP_SetNearZ(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v6; 
-  const char *v9; 
-  const char *v10; 
+  float nearZ; 
+  const char *v5; 
+  const char *v6; 
   SvClient *CommonClient; 
 
-  __asm
+  nearZ = pipElem->nearZ;
+  if ( nearZ < 0.0 )
   {
-    vmovss  xmm1, dword ptr [rdx+84h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
+    Scr_Error(COM_ERR_2963, scrContext, "pip near z must be >= 0");
+    nearZ = pipElem->nearZ;
   }
-  v6 = pipElem;
-  __asm
+  v5 = j_va("%s %f", "set_pip_nearz", nearZ);
+  v6 = v5;
+  if ( pipElem->clientNum == -1 )
   {
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  v9 = j_va("%s %f", "set_pip_nearz", _R8);
-  v10 = v9;
-  if ( v6->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v9);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v5);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v6->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v10);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v6);
   }
 }
 
@@ -853,33 +655,27 @@ PIP_SetBlurRadius
 */
 void PIP_SetBlurRadius(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v6; 
-  const char *v9; 
-  const char *v10; 
+  float blurRadius; 
+  const char *v5; 
+  const char *v6; 
   SvClient *CommonClient; 
 
-  __asm
+  blurRadius = pipElem->blurRadius;
+  if ( blurRadius < 0.0 )
   {
-    vmovss  xmm1, dword ptr [rdx+88h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
+    Scr_Error(COM_ERR_2964, scrContext, "pip blur radius must be >= 0");
+    blurRadius = pipElem->blurRadius;
   }
-  v6 = pipElem;
-  __asm
+  v5 = j_va("%s %f", "set_pip_blur", blurRadius);
+  v6 = v5;
+  if ( pipElem->clientNum == -1 )
   {
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  v9 = j_va("%s %f", "set_pip_blur", _R8);
-  v10 = v9;
-  if ( v6->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v9);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v5);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v6->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v10);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v6);
   }
 }
 
@@ -890,41 +686,36 @@ PIP_SetLOD
 */
 void PIP_SetLOD(scrContext_t *scrContext, PipElement *pipElem, __int64 offset)
 {
+  float lod; 
+  const char *v6; 
+  const char *v7; 
   const char *v8; 
-  const char *v12; 
-  const char *v13; 
+  const char *v9; 
   SvClient *CommonClient; 
 
-  __asm
+  lod = pipElem->lod;
+  if ( lod < 1.0 )
   {
-    vmovss  xmm0, dword ptr [rdx+8Ch]
-    vcomiss xmm0, cs:__real@3f800000
+    v6 = j_va("LOD over-ride must be >= %f", DOUBLE_1_0, offset);
+    Scr_Error(COM_ERR_2965, scrContext, v6);
+    lod = pipElem->lod;
   }
-  _RBX = pipElem;
-  __asm
+  if ( lod > 2048.0 )
   {
-    vcomiss xmm0, cs:__real@45000000
-    vmovsd  xmm1, cs:__real@40a0000000000000
-    vmovq   rdx, xmm1
+    v7 = j_va("LOD over-ride must be <= %f", DOUBLE_2048_0, offset);
+    Scr_Error(COM_ERR_2966, scrContext, v7);
+    lod = pipElem->lod;
   }
-  v8 = j_va("LOD over-ride must be <= %f", _RDX, offset);
-  Scr_Error(COM_ERR_2966, scrContext, v8);
-  __asm
+  v8 = j_va("%s %f", "set_pip_lod", lod);
+  v9 = v8;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovss  xmm0, dword ptr [rbx+8Ch]
-    vcvtss2sd xmm2, xmm0, xmm0
-    vmovq   r8, xmm2
-  }
-  v12 = j_va("%s %f", "set_pip_lod", _R8);
-  v13 = v12;
-  if ( _RBX->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v8);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(_RBX->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v9);
   }
 }
 
@@ -935,41 +726,36 @@ PIP_SetAspectRatio
 */
 void PIP_SetAspectRatio(scrContext_t *scrContext, PipElement *pipElem, __int64 offset)
 {
+  float aspectRatio; 
+  const char *v6; 
+  const char *v7; 
   const char *v8; 
-  const char *v12; 
-  const char *v13; 
+  const char *v9; 
   SvClient *CommonClient; 
 
-  __asm
+  aspectRatio = pipElem->aspectRatio;
+  if ( aspectRatio < 0.1 )
   {
-    vmovss  xmm0, dword ptr [rdx+90h]
-    vcomiss xmm0, cs:__real@3dcccccd
+    v6 = j_va("PIP aspect ratio must be >= %f", DOUBLE_0_1000000014901161, offset);
+    Scr_Error(COM_ERR_2967, scrContext, v6);
+    aspectRatio = pipElem->aspectRatio;
   }
-  _RBX = pipElem;
-  __asm
+  if ( aspectRatio > 20.0 )
   {
-    vcomiss xmm0, cs:__real@41a00000
-    vmovsd  xmm1, cs:__real@4034000000000000
-    vmovq   rdx, xmm1
+    v7 = j_va("PIP aspect ratio must be <= %f", DOUBLE_20_0, offset);
+    Scr_Error(COM_ERR_2968, scrContext, v7);
+    aspectRatio = pipElem->aspectRatio;
   }
-  v8 = j_va("PIP aspect ratio must be <= %f", _RDX, offset);
-  Scr_Error(COM_ERR_2968, scrContext, v8);
-  __asm
+  v8 = j_va("%s %f", "set_pip_aspect", aspectRatio);
+  v9 = v8;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovss  xmm0, dword ptr [rbx+90h]
-    vcvtss2sd xmm2, xmm0, xmm0
-    vmovq   r8, xmm2
-  }
-  v12 = j_va("%s %f", "set_pip_aspect", _R8);
-  v13 = v12;
-  if ( _RBX->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v8);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(_RBX->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v9);
   }
 }
 
@@ -980,33 +766,27 @@ PIP_SetCullDist
 */
 void PIP_SetCullDist(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v6; 
-  const char *v9; 
-  const char *v10; 
+  float cullDistance; 
+  const char *v5; 
+  const char *v6; 
   SvClient *CommonClient; 
 
-  __asm
+  cullDistance = pipElem->cullDistance;
+  if ( cullDistance < 0.0 )
   {
-    vmovss  xmm1, dword ptr [rdx+94h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
+    Scr_Error(COM_ERR_2969, scrContext, "pip cull distance must be >= 0");
+    cullDistance = pipElem->cullDistance;
   }
-  v6 = pipElem;
-  __asm
+  v5 = j_va("%s %f", "set_pip_cull_dist", cullDistance);
+  v6 = v5;
+  if ( pipElem->clientNum == -1 )
   {
-    vcvtss2sd xmm2, xmm1, xmm1
-    vmovq   r8, xmm2
-  }
-  v9 = j_va("%s %f", "set_pip_cull_dist", _R8);
-  v10 = v9;
-  if ( v6->clientNum == -1 )
-  {
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v9);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v5);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v6->clientNum);
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v10);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v6);
   }
 }
 
@@ -1041,39 +821,24 @@ PIP_SetVisionSetNaked
 */
 void PIP_SetVisionSetNaked(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v4; 
-  const char *v6; 
-  const char *v12; 
-  const char *v13; 
+  const char *v4; 
+  const char *v7; 
+  const char *v8; 
   SvClient *CommonClient; 
 
-  v4 = pipElem;
-  __asm
+  v4 = SL_ConvertToString(pipElem->visionSetNaked);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  v7 = j_va("%s %s %i", "pip_visionset_naked", v4, (unsigned int)(int)*(float *)&_XMM4);
+  v8 = v7;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rdx+9Ch]
-  }
-  v6 = SL_ConvertToString(pipElem->visionSetNaked);
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@447a0000
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vcvttss2si r9d, xmm4
-  }
-  v12 = j_va("%s %s %i", "pip_visionset_naked", v6, _R9);
-  v13 = v12;
-  if ( v4->clientNum == -1 )
-  {
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v7);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v4->clientNum);
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
   }
 }
 
@@ -1084,39 +849,24 @@ PIP_SetVisionSetNight
 */
 void PIP_SetVisionSetNight(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v4; 
-  const char *v6; 
-  const char *v12; 
-  const char *v13; 
+  const char *v4; 
+  const char *v7; 
+  const char *v8; 
   SvClient *CommonClient; 
 
-  v4 = pipElem;
-  __asm
+  v4 = SL_ConvertToString(pipElem->visionSetNight);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  v7 = j_va("%s %s %i", "pip_visionset_night", v4, (unsigned int)(int)*(float *)&_XMM4);
+  v8 = v7;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rdx+0A0h]
-  }
-  v6 = SL_ConvertToString(pipElem->visionSetNight);
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@447a0000
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vcvttss2si r9d, xmm4
-  }
-  v12 = j_va("%s %s %i", "pip_visionset_night", v6, _R9);
-  v13 = v12;
-  if ( v4->clientNum == -1 )
-  {
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v7);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v4->clientNum);
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
   }
 }
 
@@ -1127,39 +877,24 @@ PIP_SetVisionSetMissileCam
 */
 void PIP_SetVisionSetMissileCam(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v4; 
-  const char *v6; 
-  const char *v12; 
-  const char *v13; 
+  const char *v4; 
+  const char *v7; 
+  const char *v8; 
   SvClient *CommonClient; 
 
-  v4 = pipElem;
-  __asm
+  v4 = SL_ConvertToString(pipElem->visionSetMissileCam);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  v7 = j_va("%s %s %i", "pip_visionset_missilecam", v4, (unsigned int)(int)*(float *)&_XMM4);
+  v8 = v7;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rdx+0A4h]
-  }
-  v6 = SL_ConvertToString(pipElem->visionSetMissileCam);
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@447a0000
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vcvttss2si r9d, xmm4
-  }
-  v12 = j_va("%s %s %i", "pip_visionset_missilecam", v6, _R9);
-  v13 = v12;
-  if ( v4->clientNum == -1 )
-  {
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v7);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v4->clientNum);
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
   }
 }
 
@@ -1170,39 +905,24 @@ PIP_SetVisionSetThermal
 */
 void PIP_SetVisionSetThermal(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v4; 
-  const char *v6; 
-  const char *v12; 
-  const char *v13; 
+  const char *v4; 
+  const char *v7; 
+  const char *v8; 
   SvClient *CommonClient; 
 
-  v4 = pipElem;
-  __asm
+  v4 = SL_ConvertToString(pipElem->visionSetThermal);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  v7 = j_va("%s %s %i", "pip_visionset_thermal", v4, (unsigned int)(int)*(float *)&_XMM4);
+  v8 = v7;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rdx+0A8h]
-  }
-  v6 = SL_ConvertToString(pipElem->visionSetThermal);
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@447a0000
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vcvttss2si r9d, xmm4
-  }
-  v12 = j_va("%s %s %i", "pip_visionset_thermal", v6, _R9);
-  v13 = v12;
-  if ( v4->clientNum == -1 )
-  {
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v7);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v4->clientNum);
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
   }
 }
 
@@ -1213,39 +933,24 @@ PIP_SetVisionSetPain
 */
 void PIP_SetVisionSetPain(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v4; 
-  const char *v6; 
-  const char *v12; 
-  const char *v13; 
+  const char *v4; 
+  const char *v7; 
+  const char *v8; 
   SvClient *CommonClient; 
 
-  v4 = pipElem;
-  __asm
+  v4 = SL_ConvertToString(pipElem->visionSetPain);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  v7 = j_va("%s %s %i", "pip_visionset_pain", v4, (unsigned int)(int)*(float *)&_XMM4);
+  v8 = v7;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rdx+0ACh]
-  }
-  v6 = SL_ConvertToString(pipElem->visionSetPain);
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@447a0000
-    vaddss  xmm2, xmm0, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vcvttss2si r9d, xmm4
-  }
-  v12 = j_va("%s %s %i", "pip_visionset_pain", v6, _R9);
-  v13 = v12;
-  if ( v4->clientNum == -1 )
-  {
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v12);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v7);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v4->clientNum);
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v13);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v8);
   }
 }
 
@@ -1256,37 +961,24 @@ PIP_SetActiveVisionSet
 */
 void PIP_SetActiveVisionSet(scrContext_t *scrContext, PipElement *pipElem, int offset)
 {
-  PipElement *v4; 
+  double activeVisionSetDuration; 
+  const char *v5; 
+  const char *v6; 
   const char *v7; 
-  const char *v10; 
-  const char *v11; 
   SvClient *CommonClient; 
 
-  v4 = pipElem;
-  __asm
+  activeVisionSetDuration = pipElem->activeVisionSetDuration;
+  v5 = SL_ConvertToString(pipElem->activeVisionSet);
+  v6 = j_va("pip_enable_visionset_%s %f", v5, activeVisionSetDuration);
+  v7 = v6;
+  if ( pipElem->clientNum == -1 )
   {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, dword ptr [rdx+0B0h]
-    vcvtss2sd xmm6, xmm6, xmm6
-  }
-  v7 = SL_ConvertToString(pipElem->activeVisionSet);
-  __asm
-  {
-    vmovaps xmm2, xmm6
-    vmovq   r8, xmm2
-  }
-  v10 = j_va("pip_enable_visionset_%s %f", v7, _R8);
-  v11 = v10;
-  if ( v4->clientNum == -1 )
-  {
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v10);
+    SV_Game_BroadcastServerCommand(SV_CMD_RELIABLE, v6);
   }
   else
   {
-    CommonClient = SvClient::GetCommonClient(v4->clientNum);
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
-    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v11);
+    CommonClient = SvClient::GetCommonClient(pipElem->clientNum);
+    CommonClient->SendServerCommand(CommonClient, SV_CMD_RELIABLE, v7);
   }
 }
 
@@ -1398,32 +1090,19 @@ G_PIP_Write
 */
 void G_PIP_Write(MemoryFile *memFile)
 {
-  unsigned __int8 dest[224]; 
+  __m256i v2; 
+  _BYTE dest[224]; 
 
   if ( !memFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_pip_sp.cpp", 998, ASSERT_TYPE_ASSERT, "(memFile)", (const char *)&queryFormat, "memFile") )
     __debugbreak();
-  _RAX = g_pipParams;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+80h]
-  }
-  _RCX = dest;
-  __asm
-  {
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymmword ptr [rcx+80h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-    vmovups ymmword ptr [rcx+0A0h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0C0h]
-    vmovups ymmword ptr [rcx+0C0h], ymm1
-  }
+  v2 = *(__m256i *)&g_pipParams[0].right.z;
+  *(__m256i *)dest = *(__m256i *)&g_pipParams[0].clientNum;
+  *(__m256i *)&dest[32] = *(__m256i *)g_pipParams[0].origin.v;
+  *(__m256i *)&dest[64] = *(__m256i *)&g_pipParams[0].anglesOffset.z;
+  *(__m256i *)&dest[96] = *(__m256i *)g_pipParams[0].look.v;
+  *(__m256i *)&dest[128] = v2;
+  *(__m256i *)&dest[160] = *(__m256i *)&g_pipParams[0].visionSetNightDuration;
+  *(__m256i *)&dest[192] = *(__m256i *)&g_pipParams[0].thermalBodyMaterialName;
   G_SaveFieldSP_WriteStruct(saveFields, (const unsigned __int8 *)g_pipParams, dest, 224, memFile);
 }
 
@@ -1460,71 +1139,40 @@ void PIP_DestroyAll(void)
 PIP_InitAll
 ==============
 */
-
-void __fastcall PIP_InitAll(__int64 a1, __int64 a2, __int64 a3, double _XMM3_8)
+void PIP_InitAll(void)
 {
-  __asm
-  {
-    vmovss  xmm2, dword ptr cs:?orIdentity@@3Uorientation_t@@B.origin; orientation_t const orIdentity
-    vmovss  xmm1, cs:__real@42480000
-    vmovss  xmm0, cs:__real@42c80000
-    vxorps  xmm3, xmm3, xmm3
-    vmovss  cs:g_pipParams.width, xmm0
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.origin+8; orientation_t const orIdentity
-    vmovss  cs:g_pipParams.height, xmm1
-    vmovss  xmm1, dword ptr cs:?orIdentity@@3Uorientation_t@@B.origin+4; orientation_t const orIdentity
-    vmovss  dword ptr cs:g_pipParams.origin+4, xmm1
-    vmovss  dword ptr cs:g_pipParams.origin+8, xmm0
-    vmovss  dword ptr cs:g_pipParams.originOffset+4, xmm1
-    vmovss  dword ptr cs:g_pipParams.originOffset+8, xmm0
-    vmovss  dword ptr cs:g_pipParams.anglesOffset+4, xmm1
-    vmovss  xmm1, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+4; orientation_t const orIdentity
-    vmovss  dword ptr cs:g_pipParams.anglesOffset+8, xmm0
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis; orientation_t const orIdentity
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  dword ptr cs:g_pipParams.right, xmm0
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+8; orientation_t const orIdentity
-    vmovss  dword ptr cs:g_pipParams.right+4, xmm1
-    vmovups xmm1, xmmword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+0Ch; orientation_t const orIdentity
-    vmovss  dword ptr cs:g_pipParams.right+8, xmm0
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+20h; orientation_t const orIdentity
-    vmovaps xmmword ptr cs:g_pipParams.look, xmm1
-    vmovss  xmm1, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+1Ch; orientation_t const orIdentity
-    vmovss  dword ptr cs:g_pipParams.up+4, xmm1
-    vmovss  xmm1, cs:__real@42820000
-    vmovss  dword ptr cs:g_pipParams.up+8, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  cs:g_pipParams.fov, xmm1
-    vmovups xmmword ptr cs:g_pipParams.dofNear+8, xmm0
-    vmovss  cs:g_pipParams.x, xmm3
-    vmovss  cs:g_pipParams.y, xmm3
-    vmovss  dword ptr cs:g_pipParams.origin, xmm2
-    vmovss  dword ptr cs:g_pipParams.originOffset, xmm2
-    vmovss  dword ptr cs:g_pipParams.anglesOffset, xmm2
-    vmovss  dword ptr cs:g_pipParams.dofNear, xmm3
-    vmovss  dword ptr cs:g_pipParams.dofNear+4, xmm3
-    vmovss  cs:g_pipParams.nearZ, xmm3
-    vmovss  cs:g_pipParams.blurRadius, xmm3
-    vmovss  cs:g_pipParams.lod, xmm6
-    vmovss  cs:g_pipParams.aspectRatio, xmm6
-  }
+  double FarPlaneDist; 
+
+  g_pipParams[0].width = FLOAT_100_0;
+  g_pipParams[0].height = FLOAT_50_0;
+  g_pipParams[0].origin = orIdentity.origin;
+  g_pipParams[0].originOffset = orIdentity.origin;
+  g_pipParams[0].anglesOffset = orIdentity.origin;
+  g_pipParams[0].right = orIdentity.axis.m[0];
+  *(_OWORD *)g_pipParams[0].look.v = *(_OWORD *)orIdentity.axis.row1.v;
+  g_pipParams[0].up.v[1] = orIdentity.axis.m[2].v[1];
+  g_pipParams[0].up.v[2] = orIdentity.axis.m[2].v[2];
+  g_pipParams[0].fov = FLOAT_65_0;
+  *(_OWORD *)&g_pipParams[0].dofNear.z = 0i64;
+  g_pipParams[0].x = 0.0;
+  g_pipParams[0].y = 0.0;
+  g_pipParams[0].dofNear.v[0] = 0.0;
+  g_pipParams[0].dofNear.v[1] = 0.0;
+  g_pipParams[0].nearZ = 0.0;
+  g_pipParams[0].blurRadius = 0.0;
+  g_pipParams[0].lod = FLOAT_1_0;
+  g_pipParams[0].aspectRatio = FLOAT_1_0;
   *(_QWORD *)&g_pipParams[0].pipEnabled = 0i64;
   g_pipParams[0].pipRenderToTexture = 0;
   *(_QWORD *)&g_pipParams[0].thermalBodyMaterialName = 0i64;
   g_pipParams[0].attachedEntity = NULL;
-  *(double *)&_XMM0 = R_GetFarPlaneDist();
-  __asm
-  {
-    vmovss  cs:g_pipParams.cullDistance, xmm0
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovups xmmword ptr cs:g_pipParams.visionSetNightDuration, xmm0
-    vpxor   xmm0, xmm0, xmm0
-    vmovss  cs:g_pipParams.visionSetNakedDuration, xmm6
-    vmovss  cs:g_pipParams.activeVisionSetDuration, xmm6
-    vmovaps xmm6, [rsp+38h+var_18]
-    vmovdqu xmmword ptr cs:g_pipParams.visionSetMissileCam, xmm0
-  }
+  FarPlaneDist = R_GetFarPlaneDist();
+  g_pipParams[0].cullDistance = *(float *)&FarPlaneDist;
+  *(_OWORD *)&g_pipParams[0].visionSetNightDuration = _xmm;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  g_pipParams[0].visionSetNakedDuration = FLOAT_1_0;
+  g_pipParams[0].activeVisionSetDuration = FLOAT_1_0;
+  *(_OWORD *)&g_pipParams[0].visionSetMissileCam = _XMM0;
   g_pipParams[0].shadowMapsEnabled = 1;
   *(_QWORD *)&g_pipParams[0].visionSetNaked = 0i64;
   g_pipParams[0].clientNum = -1;
@@ -1537,52 +1185,19 @@ PIP_SetDefaults
 */
 void PIP_SetDefaults(PipElement *pip)
 {
+  double FarPlaneDist; 
+
   pip->width = 100.0;
   *(_QWORD *)&pip->thermalBodyMaterialName = 0i64;
-  _RBX = pip;
   pip->attachedEntity = NULL;
   *(_QWORD *)&pip->x = 0i64;
   *(_QWORD *)&pip->pipFreeCamera = 0i64;
   *(_QWORD *)&pip->height = 1112014848i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.origin; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+20h], xmm0
-    vmovss  xmm1, dword ptr cs:?orIdentity@@3Uorientation_t@@B.origin+4; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+24h], xmm1
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.origin+8; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+28h], xmm0
-    vmovss  xmm1, dword ptr cs:?orIdentity@@3Uorientation_t@@B.origin; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+2Ch], xmm1
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.origin+4; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+30h], xmm0
-    vmovss  xmm1, dword ptr cs:?orIdentity@@3Uorientation_t@@B.origin+8; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+34h], xmm1
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.origin; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+38h], xmm0
-    vmovss  xmm1, dword ptr cs:?orIdentity@@3Uorientation_t@@B.origin+4; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+3Ch], xmm1
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.origin+8; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+40h], xmm0
-    vmovss  xmm1, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+78h], xmm1
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+4; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+7Ch], xmm0
-    vmovss  xmm1, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+8; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+80h], xmm1
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+0Ch; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+60h], xmm0
-    vmovss  xmm1, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+10h; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+64h], xmm1
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+14h; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+68h], xmm0
-    vmovss  xmm1, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+18h; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+6Ch], xmm1
-    vmovss  xmm0, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+1Ch; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+70h], xmm0
-    vmovss  xmm1, dword ptr cs:?orIdentity@@3Uorientation_t@@B.axis+20h; orientation_t const orIdentity
-    vmovss  dword ptr [rcx+74h], xmm1
-  }
+  pip->origin = orIdentity.origin;
+  pip->originOffset = orIdentity.origin;
+  pip->anglesOffset = orIdentity.origin;
+  pip->right = orIdentity.axis.m[0];
+  *(_BYTE (*)[24])pip->look.v = *(_BYTE (*)[24])orIdentity.axis.row1.v;
   *(_OWORD *)&pip->fov = 0x42820000ui64;
   *(_QWORD *)pip->dofFar.v = 0i64;
   pip->dofFar.v[2] = 0.0;
@@ -1591,18 +1206,18 @@ void PIP_SetDefaults(PipElement *pip)
   *(_QWORD *)&pip->nearZ = 0i64;
   pip->lod = 1.0;
   pip->aspectRatio = 1.0;
-  *(double *)&_XMM0 = R_GetFarPlaneDist();
-  __asm { vmovss  dword ptr [rbx+94h], xmm0 }
-  _RBX->shadowMapsEnabled = 1;
-  _RBX->visionSetNakedDuration = 1.0;
-  _RBX->visionSetNightDuration = 1.0;
-  _RBX->visionSetMissileCamDuration = 1.0;
-  _RBX->visionSetThermalDuration = 1.0;
-  _RBX->visionSetPainDuration = 1.0;
-  *(_QWORD *)&_RBX->visionSetNaked = 0i64;
-  *(_QWORD *)&_RBX->visionSetMissileCam = 0i64;
-  *(_QWORD *)&_RBX->visionSetPain = 0i64;
-  _RBX->activeVisionSetDuration = 1.0;
+  FarPlaneDist = R_GetFarPlaneDist();
+  pip->cullDistance = *(float *)&FarPlaneDist;
+  pip->shadowMapsEnabled = 1;
+  pip->visionSetNakedDuration = 1.0;
+  pip->visionSetNightDuration = 1.0;
+  pip->visionSetMissileCamDuration = 1.0;
+  pip->visionSetThermalDuration = 1.0;
+  pip->visionSetPainDuration = 1.0;
+  *(_QWORD *)&pip->visionSetNaked = 0i64;
+  *(_QWORD *)&pip->visionSetMissileCam = 0i64;
+  *(_QWORD *)&pip->visionSetPain = 0i64;
+  pip->activeVisionSetDuration = 1.0;
 }
 
 /*

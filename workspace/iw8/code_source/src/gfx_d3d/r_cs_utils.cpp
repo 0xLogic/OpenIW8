@@ -230,31 +230,19 @@ R_CopyCompressedDepthRect
 */
 void R_CopyCompressedDepthRect(ComputeCmdBufState *state, R_RT_DepthHandle *srcDepthRt, R_RT_Handle *dstRt, unsigned int srcX, unsigned int srcY, unsigned int dstX, unsigned int dstY, unsigned int rectWidth, unsigned int rectHeight, float bias, float scale, bool decompress)
 {
-  float v17; 
-  float v18; 
-  base_vec4_t<unsigned int> v19; 
-  R_RT_Handle v20; 
-  R_RT_DepthHandle v21; 
-  void *retaddr; 
+  R_RT_Handle v12; 
+  R_RT_DepthHandle v13; 
+  base_vec4_t<unsigned int> v14; 
+  R_RT_Handle v15; 
+  __m256i v16; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r8]
-    vmovups ymm1, ymmword ptr [rdx]
-  }
-  *(_QWORD *)v19.v = __PAIR64__(srcY, srcX);
-  *((_QWORD *)&v19.xyz.xy + 1) = __PAIR64__(dstY, dstX);
-  __asm
-  {
-    vmovups [rsp+0A8h+var_48], ymm0
-    vmovss  xmm0, [rsp+0A8h+arg_50]
-    vmovss  [rsp+0A8h+var_68], xmm0
-    vmovups ymmword ptr [r11-28h], ymm1
-    vmovss  xmm1, [rsp+0A8h+arg_48]
-    vmovss  [rsp+0A8h+var_70], xmm1
-  }
-  R_CopyCompressedDepthRectList(state, &v21, &v20, &v19, 1u, rectWidth, rectHeight, v17, v18, decompress);
+  v12 = *dstRt;
+  v13 = *srcDepthRt;
+  *(_QWORD *)v14.v = __PAIR64__(srcY, srcX);
+  *((_QWORD *)&v14.xyz.xy + 1) = __PAIR64__(dstY, dstX);
+  v15 = v12;
+  v16 = (__m256i)v13;
+  R_CopyCompressedDepthRectList(state, (R_RT_DepthHandle *)&v16, &v15, &v14, 1u, rectWidth, rectHeight, bias, scale, decompress);
 }
 
 /*
@@ -272,62 +260,67 @@ void R_CopyCompressedDepthRectList(ComputeCmdBufState *state, R_RT_DepthHandle *
   int v18; 
   unsigned int v19; 
   __int64 v20; 
-  bool v28; 
+  float *bufferData; 
+  R_RT_Handle v23; 
+  bool v25; 
   const R_RT_Surface *Surface; 
-  const R_RT_Surface *v30; 
-  unsigned int v32; 
-  bool v35; 
-  bool v39; 
-  unsigned int v42; 
-  void *v43; 
-  __int64 v44; 
+  const R_RT_Surface *v27; 
+  R_RT_Handle v28; 
+  bool v30; 
+  const R_RT_Surface *v31; 
+  float m_clearDepth; 
+  bool v34; 
+  const R_RT_Surface *v35; 
+  unsigned int v36; 
+  void *v37; 
+  __int64 v38; 
   GfxShaderBufferRWView *p_result; 
   GfxShaderBufferRWView *DepthView; 
   R_RT_Handle *HtileRWView; 
-  bool v56; 
-  bool v60; 
-  const R_RT_Surface *v61; 
+  R_RT_Handle v43; 
+  bool v45; 
+  R_RT_Handle v46; 
+  bool v48; 
+  const R_RT_Surface *v49; 
   void *Src; 
   unsigned int zCount; 
-  R_RT_Handle v64; 
-  R_RT_Handle v65; 
+  R_RT_Handle v52; 
+  R_RT_Handle v53; 
   GfxConstantBufferDesc cbDesc; 
-  R_RT_Handle v67; 
+  R_RT_Handle v55; 
   GfxShaderBufferRWView result; 
 
-  _R14 = dstRt;
   zCount = rectCount;
-  _R15 = srcDepthRt;
   Src = rectOffsets;
   if ( (rectWidth & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 1388, ASSERT_TYPE_ASSERT, "( !(rectWidth % 8) )", "compressed depth copy rects must be multiples of 8x8 tiles") )
     __debugbreak();
   if ( (rectHeight & 7) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 1389, ASSERT_TYPE_ASSERT, "( !(rectHeight % 8) )", "compressed depth copy rects must be multiples of 8x8 tiles") )
     __debugbreak();
-  if ( (R_RT_Handle::GetSurface(_R15)->m_rtFlags & 0x4000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 1390, ASSERT_TYPE_ASSERT, "( !srcDepthRt.IsMultisampled() )", "todo: copy compressed msaa depth") )
+  if ( (R_RT_Handle::GetSurface(srcDepthRt)->m_rtFlags & 0x4000) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 1390, ASSERT_TYPE_ASSERT, "( !srcDepthRt.IsMultisampled() )", "todo: copy compressed msaa depth") )
     __debugbreak();
-  if ( (R_RT_Handle::GetSurface(_R15)->m_rtFlags & 0x100) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 1391, ASSERT_TYPE_ASSERT, "( !(srcDepthRt.GetFlags() & R_RT_Flag_HtileDisabled) )", "todo: fall back to standard texture copy") )
+  if ( (R_RT_Handle::GetSurface(srcDepthRt)->m_rtFlags & 0x100) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 1391, ASSERT_TYPE_ASSERT, "( !(srcDepthRt.GetFlags() & R_RT_Flag_HtileDisabled) )", "todo: fall back to standard texture copy") )
     __debugbreak();
-  if ( (R_RT_Handle::GetSurface(_R15)->m_rtFlags & 0x80) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 1392, ASSERT_TYPE_ASSERT, "( !(srcDepthRt.HasStencil()) )", "todo: add support for stencil") )
+  if ( (R_RT_Handle::GetSurface(srcDepthRt)->m_rtFlags & 0x80) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 1392, ASSERT_TYPE_ASSERT, "( !(srcDepthRt.HasStencil()) )", "todo: add support for stencil") )
     __debugbreak();
   v13 = Sys_GetXB3ConsoleType() == XB3_CONSOLE_SCORPIO;
   v14 = v13 | 2;
-  if ( R_RT_Handle::GetSurface(_R15)->m_image.m_base.format != GFX_PF_D16 )
+  if ( R_RT_Handle::GetSurface(srcDepthRt)->m_image.m_base.format != GFX_PF_D16 )
     v14 = v13;
   v15 = v14 | 4;
-  m_rtFlagsInternal = R_RT_Handle::GetSurface(_R14)->m_rtFlagsInternal;
-  format = R_RT_Handle::GetSurface(_R14)->m_image.m_base.format;
+  m_rtFlagsInternal = R_RT_Handle::GetSurface(dstRt)->m_rtFlagsInternal;
+  format = R_RT_Handle::GetSurface(dstRt)->m_image.m_base.format;
   if ( (m_rtFlagsInternal & 0x10) != 0 )
   {
     if ( format != GFX_PF_D16 )
       v15 = v14;
     v18 = v15 | 8;
-    if ( (((unsigned __int16)*(_DWORD *)&_R14->m_surfaceID ^ (unsigned __int16)*(_DWORD *)&_R15->m_surfaceID) & 0xFFFF7FFF) != 0 )
+    if ( (((unsigned __int16)*(_DWORD *)&dstRt->m_surfaceID ^ (unsigned __int16)*(_DWORD *)&srcDepthRt->m_surfaceID) & 0xFFFF7FFF) != 0 )
       v18 = v15;
     v19 = v18 | 0x10;
     if ( !decompress )
       v19 = v18;
     v20 = v19 | 0x30;
-    if ( (R_RT_Handle::GetSurface(_R14)->m_rtFlags & 0x100) == 0 )
+    if ( (R_RT_Handle::GetSurface(dstRt)->m_rtFlags & 0x100) == 0 )
       v20 = v19;
   }
   else
@@ -343,35 +336,26 @@ void R_CopyCompressedDepthRectList(ComputeCmdBufState *state, R_RT_DepthHandle *
   R_SetComputeShader(state, rgp.copyDepthTexComputeShader[v20]);
   if ( zCount > 0x40 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 1440, ASSERT_TYPE_ASSERT, "( rectCount <= 64 )", "increase CD_MAX_RECTS and rebuild code_post_gfx") )
     __debugbreak();
-  _RAX = R_BeginComputeConstants((GfxConstantBufferDesc *)&result, state, 0, 16 * (zCount + 2));
-  __asm
+  _XMM0 = *R_BeginComputeConstants((GfxConstantBufferDesc *)&result, state, 0, 16 * (zCount + 2));
+  cbDesc = _XMM0;
+  bufferData = (float *)_XMM0.bufferData;
+  v52 = srcDepthRt->R_RT_Handle;
+  R_RT_GetHtileInfo((R_RT_DepthHandle *)&v52, (unsigned int *)cbDesc.bufferData, (unsigned int *)cbDesc.bufferData + 1);
+  if ( (R_RT_Handle::GetSurface(dstRt)->m_rtFlagsInternal & 0x10) != 0 )
   {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovq   rbx, xmm0
-    vmovups xmmword ptr [rbp+3Fh+cbDesc.bufferData], xmm0
-    vmovups ymm0, ymmword ptr [r15]
-    vmovups ymmword ptr [rsp+110h+var_D0.m_surfaceID], ymm0
-  }
-  R_RT_GetHtileInfo((R_RT_DepthHandle *)&v64, _RBX, _RBX + 1);
-  if ( (R_RT_Handle::GetSurface(_R14)->m_rtFlagsInternal & 0x10) != 0 )
-  {
-    __asm
+    v23 = *dstRt;
+    v53 = v23;
+    v55 = v23;
+    if ( LOWORD(_XMM0.bufferData) )
     {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+3Fh+var_B0.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+3Fh+var_80.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v67);
-      if ( (R_RT_Handle::GetSurface(&v67)->m_rtFlagsInternal & 0x10) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
+      R_RT_Handle::GetSurface(&v55);
+      if ( (R_RT_Handle::GetSurface(&v55)->m_rtFlagsInternal & 0x10) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_80.m_surfaceID] }
+        v23 = v55;
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_80.m_surfaceID] }
+        v23 = v55;
         __debugbreak();
       }
     }
@@ -380,40 +364,35 @@ void R_CopyCompressedDepthRectList(ComputeCmdBufState *state, R_RT_DepthHandle *
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v28 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_B0.m_surfaceID] }
-        if ( v28 )
+        v25 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v23 = v53;
+        if ( v25 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rsp+110h+var_D0.m_surfaceID], ymm0 }
-    R_RT_GetHtileInfo((R_RT_DepthHandle *)&v64, _RBX + 2, _RBX + 3);
+    v52 = v23;
+    R_RT_GetHtileInfo((R_RT_DepthHandle *)&v52, (unsigned int *)_XMM0.bufferData + 2, (unsigned int *)_XMM0.bufferData + 3);
   }
-  Surface = R_RT_Handle::GetSurface(_R15);
+  Surface = R_RT_Handle::GetSurface(srcDepthRt);
   if ( (Surface->m_rtFlagsInternal & 0x10) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 400, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth") )
     __debugbreak();
-  _RBX[4] = LODWORD(Surface->m_depth.m_clearDepth);
-  v30 = R_RT_Handle::GetSurface(_R14);
-  __asm
+  *((_DWORD *)_XMM0.bufferData + 4) = LODWORD(Surface->m_depth.m_clearDepth);
+  v27 = R_RT_Handle::GetSurface(dstRt);
+  v28 = *dstRt;
+  v53 = v28;
+  v55 = v28;
+  if ( (v27->m_rtFlagsInternal & 0x10) != 0 )
   {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups ymmword ptr [rbp+3Fh+var_B0.m_surfaceID], ymm0
-    vmovups ymmword ptr [rbp+3Fh+var_80.m_surfaceID], ymm0
-  }
-  v32 = (unsigned int)v30->m_rtFlagsInternal >> 4;
-  __asm { vmovd   eax, xmm0 }
-  if ( (v32 & 1) != 0 )
-  {
-    if ( (_WORD)_EAX )
+    if ( LOWORD(_XMM0.bufferData) )
     {
-      R_RT_Handle::GetSurface(&v67);
-      if ( (R_RT_Handle::GetSurface(&v67)->m_rtFlagsInternal & 0x10) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
+      R_RT_Handle::GetSurface(&v55);
+      if ( (R_RT_Handle::GetSurface(&v55)->m_rtFlagsInternal & 0x10) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_80.m_surfaceID] }
+        v28 = v55;
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_80.m_surfaceID] }
+        v28 = v55;
         __debugbreak();
       }
     }
@@ -422,31 +401,31 @@ void R_CopyCompressedDepthRectList(ComputeCmdBufState *state, R_RT_DepthHandle *
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v35 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_B0.m_surfaceID] }
-        if ( v35 )
+        v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v28 = v53;
+        if ( v30 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rsp+110h+var_D0.m_surfaceID], ymm0 }
-    _RSI = R_RT_Handle::GetSurface(&v64);
-    if ( (_RSI->m_rtFlagsInternal & 0x10) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 400, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth") )
+    v52 = v28;
+    v31 = R_RT_Handle::GetSurface(&v52);
+    if ( (v31->m_rtFlagsInternal & 0x10) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 400, ASSERT_TYPE_ASSERT, "(surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth)", (const char *)&queryFormat, "surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth") )
       __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rsi+8E0h] }
+    m_clearDepth = v31->m_depth.m_clearDepth;
   }
   else
   {
-    if ( (_WORD)_EAX )
+    if ( LOWORD(_XMM0.bufferData) )
     {
-      R_RT_Handle::GetSurface(&v67);
-      if ( (R_RT_Handle::GetSurface(&v67)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v55);
+      if ( (R_RT_Handle::GetSurface(&v55)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_80.m_surfaceID] }
+        v28 = v55;
         __debugbreak();
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_80.m_surfaceID] }
+        v28 = v55;
       }
     }
     else
@@ -454,102 +433,75 @@ void R_CopyCompressedDepthRectList(ComputeCmdBufState *state, R_RT_DepthHandle *
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v39 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_B0.m_surfaceID] }
-        if ( v39 )
+        v34 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v28 = v53;
+        if ( v34 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rsp+110h+var_D0.m_surfaceID], ymm0 }
-    _RSI = R_RT_Handle::GetSurface(&v64);
-    if ( (_RSI->m_rtFlagsInternal & 0x10) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 324, ASSERT_TYPE_ASSERT, "(!( surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth ))", (const char *)&queryFormat, "!( surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth )") )
+    v52 = v28;
+    v35 = R_RT_Handle::GetSurface(&v52);
+    if ( (v35->m_rtFlagsInternal & 0x10) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 324, ASSERT_TYPE_ASSERT, "(!( surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth ))", (const char *)&queryFormat, "!( surface->m_rtFlagsInternal & R_RT_FlagInternal_Depth )") )
       __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rsi+830h] }
+    m_clearDepth = v35->m_color.m_clearColor.v[0];
   }
-  __asm { vmovss  xmm1, [rbp+3Fh+arg_40] }
-  v42 = zCount;
-  v43 = Src;
-  v44 = zCount;
-  __asm
-  {
-    vmovss  dword ptr [rbx+14h], xmm0
-    vmovss  xmm0, [rbp+3Fh+arg_38]
-    vmovss  dword ptr [rbx+18h], xmm0
-    vmovss  dword ptr [rbx+1Ch], xmm1
-  }
-  memcpy_0(_RBX + 8, v43, 16 * v44);
+  v36 = zCount;
+  v37 = Src;
+  v38 = zCount;
+  bufferData[5] = m_clearDepth;
+  _XMM0 = LODWORD(bias);
+  bufferData[6] = bias;
+  bufferData[7] = scale;
+  memcpy_0(bufferData + 8, v37, 16 * v38);
   R_EndComputeConstants(state, &cbDesc);
   if ( (v20 & 8) != 0 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?gfxBuf@@3UGfxBuffers@@A.dummyBuffer.baseclass_0.view.baseclass_0.resource; GfxBuffers gfxBuf
-      vmovups xmmword ptr [rbp+3Fh+result], xmm0
-    }
+    _XMM0 = (__int128)gfxBuf.dummyBuffer.view;
+    *(GfxShaderBufferView *)&result.rwResource = gfxBuf.dummyBuffer.view;
     p_result = &result;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r15]
-      vmovups ymmword ptr [rsp+110h+var_D0.m_surfaceID], ymm0
-    }
-    p_result = (GfxShaderBufferRWView *)R_RT_GetHtileView((GfxShaderBufferView *)&v67, (R_RT_DepthHandle *)&v64);
+    v52 = srcDepthRt->R_RT_Handle;
+    p_result = (GfxShaderBufferRWView *)R_RT_GetHtileView((GfxShaderBufferView *)&v55, (R_RT_DepthHandle *)&v52);
   }
   Src = p_result;
   R_SetComputeViews(state, 0, 1, (const GfxShaderBufferView *const *)&Src);
   if ( (v20 & 8) != 0 )
   {
-    _RAX = R_Texture_GetResident(rgp.blackImage->textureId);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax+8]
-      vmovups xmmword ptr [rbp+3Fh+result], xmm0
-    }
+    _XMM0 = (__int128)R_Texture_GetResident(rgp.blackImage->textureId)->shaderView;
+    *(_OWORD *)&result.rwResource = _XMM0;
     DepthView = &result;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [r15]
-      vmovups ymmword ptr [rsp+110h+var_D0.m_surfaceID], ymm0
-    }
-    DepthView = (GfxShaderBufferRWView *)R_RT_GetDepthView((GfxShaderTextureView *)&v67, (R_RT_DepthHandle *)&v64);
+    v52 = srcDepthRt->R_RT_Handle;
+    DepthView = (GfxShaderBufferRWView *)R_RT_GetDepthView((GfxShaderTextureView *)&v55, (R_RT_DepthHandle *)&v52);
   }
   Src = DepthView;
   R_SetComputeTextureViews(state, 1, 1, (const GfxShaderTextureView *const *)&Src);
   if ( (v20 & 0x20) != 0 )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?gfxBuf@@3UGfxBuffers@@A.dummyRWBuffer.rwView.baseclass_0.rwResource; GfxBuffers gfxBuf
-      vmovsd  xmm1, qword ptr cs:?gfxBuf@@3UGfxBuffers@@A.dummyRWBuffer.rwView.baseclass_0.rwView; GfxBuffers gfxBuf
-      vmovups xmmword ptr [rbp+3Fh+var_80.m_surfaceID], xmm0
-      vmovsd  [rbp+3Fh+var_80.m_tracking.m_name], xmm1
-    }
-    HtileRWView = &v67;
+    _XMM0 = *(_OWORD *)&gfxBuf.dummyRWBuffer.rwView.rwResource;
+    *(_OWORD *)&v55.m_surfaceID = *(_OWORD *)&gfxBuf.dummyRWBuffer.rwView.rwResource;
+    v55.m_tracking.m_name = *(const char **)&gfxBuf.dummyRWBuffer.rwView.rwView;
+    HtileRWView = &v55;
   }
   else
   {
-    __asm
+    v43 = *dstRt;
+    v52 = v43;
+    v53 = v43;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+110h+var_D0.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+3Fh+var_B0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v65);
-      if ( (R_RT_Handle::GetSurface(&v65)->m_rtFlagsInternal & 0x10) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
+      R_RT_Handle::GetSurface(&v53);
+      if ( (R_RT_Handle::GetSurface(&v53)->m_rtFlagsInternal & 0x10) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_B0.m_surfaceID] }
+        v43 = v53;
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_B0.m_surfaceID] }
+        v43 = v53;
         __debugbreak();
       }
     }
@@ -558,36 +510,32 @@ void R_CopyCompressedDepthRectList(ComputeCmdBufState *state, R_RT_DepthHandle *
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v56 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rsp+110h+var_D0.m_surfaceID] }
-        if ( v56 )
+        v45 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v43 = v52;
+        if ( v45 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rsp+110h+var_D0.m_surfaceID], ymm0 }
-    HtileRWView = (R_RT_Handle *)R_RT_GetHtileRWView(&result, (R_RT_DepthHandle *)&v64);
+    v52 = v43;
+    HtileRWView = (R_RT_Handle *)R_RT_GetHtileRWView(&result, (R_RT_DepthHandle *)&v52);
   }
   Src = HtileRWView;
   R_SetComputeRWViewsWithCounters(state, 0, 1, (const GfxShaderBufferRWView *const *)&Src, NULL);
-  if ( (R_RT_Handle::GetSurface(_R14)->m_rtFlagsInternal & 0x10) != 0 )
+  if ( (R_RT_Handle::GetSurface(dstRt)->m_rtFlagsInternal & 0x10) != 0 )
   {
-    __asm
+    v46 = *dstRt;
+    v52 = v46;
+    v53 = v46;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [r14]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rsp+110h+var_D0.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+3Fh+var_B0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_EAX )
-    {
-      R_RT_Handle::GetSurface(&v65);
-      if ( (R_RT_Handle::GetSurface(&v65)->m_rtFlagsInternal & 0x10) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
+      R_RT_Handle::GetSurface(&v53);
+      if ( (R_RT_Handle::GetSurface(&v53)->m_rtFlagsInternal & 0x10) != 0 || !CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 277, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsDepth())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsDepth()") )
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_B0.m_surfaceID] }
+        v46 = v53;
       }
       else
       {
-        __asm { vmovups ymm0, ymmword ptr [rbp+3Fh+var_B0.m_surfaceID] }
+        v46 = v53;
         __debugbreak();
       }
     }
@@ -596,23 +544,23 @@ void R_CopyCompressedDepthRectList(ComputeCmdBufState *state, R_RT_DepthHandle *
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v60 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, ymmword ptr [rsp+110h+var_D0.m_surfaceID] }
-        if ( v60 )
+        v48 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v46 = v52;
+        if ( v48 )
           __debugbreak();
       }
     }
-    __asm { vmovups ymmword ptr [rsp+110h+var_D0.m_surfaceID], ymm0 }
-    Src = R_RT_GetDepthRWView((GfxShaderTextureRWView *)&v67, (R_RT_DepthHandle *)&v64);
+    v52 = v46;
+    Src = R_RT_GetDepthRWView((GfxShaderTextureRWView *)&v55, (R_RT_DepthHandle *)&v52);
     R_SetComputeTextureRWViews(state, 1, 1, (const GfxShaderTextureRWView *const *)&Src);
   }
   else
   {
-    v61 = R_RT_Handle::GetSurface(_R14);
-    Src = (void *)R_Texture_GetResident(v61->m_image.m_base.textureId);
+    v49 = R_RT_Handle::GetSurface(dstRt);
+    Src = (void *)R_Texture_GetResident(v49->m_image.m_base.textureId);
     R_SetComputeRWTextures(state, 1, 1, (const GfxTexture *const *)&Src);
   }
-  R_Dispatch(state, rectWidth >> 3, rectHeight >> 3, v42);
+  R_Dispatch(state, rectWidth >> 3, rectHeight >> 3, v36);
 }
 
 /*
@@ -789,20 +737,10 @@ R_CopyTextureRect
 */
 void R_CopyTextureRect(ComputeCmdBufState *state, const GfxTexture *textureDst, const GfxTexture *textureSrc, unsigned int dstX, unsigned int dstY, unsigned int srcX, unsigned int srcY, unsigned int width, unsigned int height, float scale, float bias)
 {
-  float v15; 
-  float v16; 
   vec4_t color; 
 
-  __asm
-  {
-    vmovss  xmm1, [rsp+88h+bias]
-    vmovss  [rsp+88h+var_30], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vmovups xmmword ptr [rsp+88h+var_28], xmm0
-    vmovss  xmm0, [rsp+88h+scale]
-    vmovss  [rsp+88h+var_38], xmm0
-  }
-  R_MemTextureRect(state, textureDst, textureSrc, dstX, dstY, srcX, srcY, width, height, &color, v15, v16);
+  color = 0i64;
+  R_MemTextureRect(state, textureDst, textureSrc, dstX, dstY, srcX, srcY, width, height, &color, scale, bias);
 }
 
 /*
@@ -815,173 +753,168 @@ void R_CopyTextureRect(ComputeCmdBufState *state, R_RT_Handle *dstRt, R_RT_Handl
   R_RT_Handle *ViewInternal; 
   const R_RT_Surface *Surface; 
   const GfxTexture *Resident; 
-  const R_RT_Surface *v21; 
-  const GfxTexture *v22; 
+  const R_RT_Surface *v20; 
+  const GfxTexture *v21; 
   const R_RT_Surface *BaseSurface; 
   const unsigned __int8 *ResidentPixels; 
-  const unsigned __int8 *v25; 
-  const R_RT_Surface *v26; 
-  const unsigned __int8 *v27; 
-  const R_RT_Surface *v28; 
+  const unsigned __int8 *v24; 
+  const R_RT_Surface *v25; 
+  const unsigned __int8 *v26; 
+  const R_RT_Surface *v27; 
   unsigned __int16 m_surfaceID; 
-  const unsigned __int8 *v30; 
-  unsigned __int16 v31; 
-  unsigned __int16 *v32; 
-  int v33; 
+  const unsigned __int8 *v29; 
+  unsigned __int16 v30; 
+  unsigned __int16 *v31; 
+  int v32; 
+  unsigned __int16 v33; 
   unsigned __int16 v34; 
-  unsigned __int16 v35; 
-  unsigned __int16 *v36; 
-  int v37; 
+  unsigned __int16 *v35; 
+  int v36; 
+  unsigned __int16 v37; 
   unsigned __int16 v38; 
-  unsigned __int16 v39; 
-  unsigned __int16 *v40; 
+  unsigned __int16 *v39; 
+  int v40; 
   int v41; 
-  int v42; 
+  unsigned __int16 v42; 
   unsigned __int16 v43; 
-  unsigned __int16 v44; 
-  unsigned __int16 *v45; 
-  int v46; 
+  unsigned __int16 *v44; 
+  int v45; 
   __int64 m_htileSize; 
   __int64 dstSlicea; 
   __int64 srcXa; 
   __int64 srcYa; 
-  R_RT_Handle v51; 
+  R_RT_Handle v50; 
   ID3D12Resource *m_floatTexture; 
-  int v53; 
+  int v52; 
   unsigned int m_subresourceToTransition; 
-  R_RT_Handle v55; 
+  R_RT_Handle v54; 
 
-  _RDI = dstRt;
   if ( (R_RT_Handle::GetSurface(dstRt)->m_rtFlagsInternal & 0x10) != 0 )
   {
-    *(_DWORD *)&v55.m_surfaceID = srcX;
-    *(&v55.m_tracking.m_allocCounter + 1) = width + srcX;
-    *((_DWORD *)&v55.m_surfaceID + 1) = srcY;
-    LODWORD(v55.m_tracking.m_name) = height + srcY;
-    v55.m_tracking.m_allocCounter = 0;
-    HIDWORD(v55.m_tracking.m_name) = 1;
-    *(_QWORD *)&v51.m_surfaceID = R_RT_Handle::GetSurface(srcRt)->m_depth.m_floatTexture;
-    v51.m_tracking.m_allocCounter = 0;
+    *(_DWORD *)&v54.m_surfaceID = srcX;
+    *(&v54.m_tracking.m_allocCounter + 1) = width + srcX;
+    *((_DWORD *)&v54.m_surfaceID + 1) = srcY;
+    LODWORD(v54.m_tracking.m_name) = height + srcY;
+    v54.m_tracking.m_allocCounter = 0;
+    HIDWORD(v54.m_tracking.m_name) = 1;
+    *(_QWORD *)&v50.m_surfaceID = R_RT_Handle::GetSurface(srcRt)->m_depth.m_floatTexture;
+    v50.m_tracking.m_allocCounter = 0;
     if ( R_RT_Handle::GetSurface(srcRt)->m_subresourceToTransition == -1 )
-      LODWORD(v51.m_tracking.m_name) = 0;
+      LODWORD(v50.m_tracking.m_name) = 0;
     else
-      LODWORD(v51.m_tracking.m_name) = R_RT_Handle::GetSurface(srcRt)->m_subresourceToTransition;
-    m_floatTexture = R_RT_Handle::GetSurface(_RDI)->m_depth.m_floatTexture;
-    v53 = 0;
-    if ( R_RT_Handle::GetSurface(_RDI)->m_subresourceToTransition == -1 )
+      LODWORD(v50.m_tracking.m_name) = R_RT_Handle::GetSurface(srcRt)->m_subresourceToTransition;
+    m_floatTexture = R_RT_Handle::GetSurface(dstRt)->m_depth.m_floatTexture;
+    v52 = 0;
+    if ( R_RT_Handle::GetSurface(dstRt)->m_subresourceToTransition == -1 )
       m_subresourceToTransition = 0;
     else
-      m_subresourceToTransition = R_RT_Handle::GetSurface(_RDI)->m_subresourceToTransition;
-    ((void (__fastcall *)(GfxDevice *, ID3D12Resource **, _QWORD, _QWORD, _DWORD, R_RT_Handle *, R_RT_Handle *, _DWORD))state->device->m_pFunction[27].Release)(state->device, &m_floatTexture, dstX, dstY, 0, &v51, &v55, 0);
+      m_subresourceToTransition = R_RT_Handle::GetSurface(dstRt)->m_subresourceToTransition;
+    ((void (__fastcall *)(GfxDevice *, ID3D12Resource **, _QWORD, _QWORD, _DWORD, R_RT_Handle *, R_RT_Handle *, _DWORD))state->device->m_pFunction[27].Release)(state->device, &m_floatTexture, dstX, dstY, 0, &v50, &v54, 0);
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups [rsp+148h+var_78], ymm0
-    }
-    ViewInternal = R_RT_GetViewInternal(&v51, &v55, 0, 0);
+    v54 = *dstRt;
+    ViewInternal = R_RT_GetViewInternal(&v50, &v54, 0, 0);
     Surface = R_RT_Handle::GetSurface(ViewInternal);
     Resident = R_Texture_GetResident(Surface->m_image.m_base.textureId);
-    v21 = R_RT_Handle::GetSurface(srcRt);
-    v22 = R_Texture_GetResident(v21->m_image.m_base.textureId);
-    R_CopyTextureRect(state, Resident, v22, dstX, dstY, dstMip, dstSlice, srcX, srcY, srcMip, srcSlice, width, height);
+    v20 = R_RT_Handle::GetSurface(srcRt);
+    v21 = R_Texture_GetResident(v20->m_image.m_base.textureId);
+    R_CopyTextureRect(state, Resident, v21, dstX, dstY, dstMip, dstSlice, srcX, srcY, srcMip, srcSlice, width, height);
   }
-  if ( (R_RT_Handle::GetSurface(_RDI)->m_rtFlagsInternal & 0x10) != 0 && (R_RT_Handle::GetSurface(_RDI)->m_rtFlags & 0x100) == 0 )
+  if ( (R_RT_Handle::GetSurface(dstRt)->m_rtFlagsInternal & 0x10) != 0 && (R_RT_Handle::GetSurface(dstRt)->m_rtFlags & 0x100) == 0 )
   {
-    BaseSurface = R_RT_Handle::GetBaseSurface(_RDI);
+    BaseSurface = R_RT_Handle::GetBaseSurface(dstRt);
     ResidentPixels = R_Image_GetResidentPixels(&BaseSurface->m_image.m_base);
-    v25 = &ResidentPixels[R_RT_Handle::GetSurface(_RDI)->m_htileOffset];
-    v26 = R_RT_Handle::GetBaseSurface(srcRt);
-    v27 = R_Image_GetResidentPixels(&v26->m_image.m_base);
-    v28 = R_RT_Handle::GetSurface(srcRt);
+    v24 = &ResidentPixels[R_RT_Handle::GetSurface(dstRt)->m_htileOffset];
+    v25 = R_RT_Handle::GetBaseSurface(srcRt);
+    v26 = R_Image_GetResidentPixels(&v25->m_image.m_base);
+    v27 = R_RT_Handle::GetSurface(srcRt);
     m_surfaceID = srcRt->m_surfaceID;
-    v30 = &v27[v28->m_htileOffset];
+    v29 = &v26[v27->m_htileOffset];
     if ( !srcRt->m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_common.h", 151, ASSERT_TYPE_ASSERT, "(surfaceID)", (const char *)&queryFormat, "surfaceID") )
       __debugbreak();
-    v31 = (m_surfaceID & 0x7FFF) - 1;
-    if ( v31 >= 0x1000u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 239, ASSERT_TYPE_ASSERT, "(surfaceIndex < g_R_RT_surfaceMax)", (const char *)&queryFormat, "surfaceIndex < g_R_RT_surfaceMax") )
+    v30 = (m_surfaceID & 0x7FFF) - 1;
+    if ( v30 >= 0x1000u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 239, ASSERT_TYPE_ASSERT, "(surfaceIndex < g_R_RT_surfaceMax)", (const char *)&queryFormat, "surfaceIndex < g_R_RT_surfaceMax") )
       __debugbreak();
-    v32 = &g_R_RT_ManagerSurfaceAllocator->headFreeBlockIndex + 1184 * v31;
-    if ( *((_DWORD *)v32 + 572) != srcRt->m_tracking.m_allocCounter )
+    v31 = &g_R_RT_ManagerSurfaceAllocator->headFreeBlockIndex + 1184 * v30;
+    if ( *((_DWORD *)v31 + 572) != srcRt->m_tracking.m_allocCounter )
     {
       LODWORD(srcXa) = srcRt->m_tracking.m_allocCounter;
-      LODWORD(dstSlicea) = *((_DWORD *)v32 + 572);
+      LODWORD(dstSlicea) = *((_DWORD *)v31 + 572);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 241, ASSERT_TYPE_ASSERT, "(surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter)", "%s\n\tStale handle access: surface->m_allocCounter=%u, allocCounter=%u, name=%s, location=%s", "surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter", dstSlicea, srcXa, srcRt->m_tracking.m_name, srcRt->m_tracking.m_location) )
         __debugbreak();
     }
-    v33 = *((_DWORD *)v32 + 4);
-    if ( (v33 & 0x3000) != 4096 && (v33 & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 242, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement") )
+    v32 = *((_DWORD *)v31 + 4);
+    if ( (v32 & 0x3000) != 4096 && (v32 & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 242, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement") )
       __debugbreak();
-    v34 = _RDI->m_surfaceID;
-    if ( !_RDI->m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_common.h", 151, ASSERT_TYPE_ASSERT, "(surfaceID)", (const char *)&queryFormat, "surfaceID") )
+    v33 = dstRt->m_surfaceID;
+    if ( !dstRt->m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_common.h", 151, ASSERT_TYPE_ASSERT, "(surfaceID)", (const char *)&queryFormat, "surfaceID") )
       __debugbreak();
-    v35 = (v34 & 0x7FFF) - 1;
-    if ( v35 >= 0x1000u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 239, ASSERT_TYPE_ASSERT, "(surfaceIndex < g_R_RT_surfaceMax)", (const char *)&queryFormat, "surfaceIndex < g_R_RT_surfaceMax") )
+    v34 = (v33 & 0x7FFF) - 1;
+    if ( v34 >= 0x1000u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 239, ASSERT_TYPE_ASSERT, "(surfaceIndex < g_R_RT_surfaceMax)", (const char *)&queryFormat, "surfaceIndex < g_R_RT_surfaceMax") )
       __debugbreak();
-    v36 = &g_R_RT_ManagerSurfaceAllocator->headFreeBlockIndex + 1184 * v35;
-    if ( *((_DWORD *)v36 + 572) != _RDI->m_tracking.m_allocCounter )
+    v35 = &g_R_RT_ManagerSurfaceAllocator->headFreeBlockIndex + 1184 * v34;
+    if ( *((_DWORD *)v35 + 572) != dstRt->m_tracking.m_allocCounter )
     {
-      LODWORD(srcXa) = _RDI->m_tracking.m_allocCounter;
-      LODWORD(dstSlicea) = *((_DWORD *)v36 + 572);
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 241, ASSERT_TYPE_ASSERT, "(surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter)", "%s\n\tStale handle access: surface->m_allocCounter=%u, allocCounter=%u, name=%s, location=%s", "surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter", dstSlicea, srcXa, _RDI->m_tracking.m_name, _RDI->m_tracking.m_location) )
+      LODWORD(srcXa) = dstRt->m_tracking.m_allocCounter;
+      LODWORD(dstSlicea) = *((_DWORD *)v35 + 572);
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 241, ASSERT_TYPE_ASSERT, "(surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter)", "%s\n\tStale handle access: surface->m_allocCounter=%u, allocCounter=%u, name=%s, location=%s", "surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter", dstSlicea, srcXa, dstRt->m_tracking.m_name, dstRt->m_tracking.m_location) )
         __debugbreak();
     }
-    v37 = *((_DWORD *)v36 + 4);
-    if ( (v37 & 0x3000) != 4096 && (v37 & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 242, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement") )
+    v36 = *((_DWORD *)v35 + 4);
+    if ( (v36 & 0x3000) != 4096 && (v36 & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 242, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement") )
       __debugbreak();
-    if ( *((_DWORD *)v32 + 264) != *((_DWORD *)v36 + 264) )
+    if ( *((_DWORD *)v31 + 264) != *((_DWORD *)v35 + 264) )
     {
-      v38 = _RDI->m_surfaceID;
-      if ( !_RDI->m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_common.h", 151, ASSERT_TYPE_ASSERT, "(surfaceID)", (const char *)&queryFormat, "surfaceID") )
+      v37 = dstRt->m_surfaceID;
+      if ( !dstRt->m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_common.h", 151, ASSERT_TYPE_ASSERT, "(surfaceID)", (const char *)&queryFormat, "surfaceID") )
         __debugbreak();
-      v39 = (v38 & 0x7FFF) - 1;
-      if ( v39 >= 0x1000u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 239, ASSERT_TYPE_ASSERT, "(surfaceIndex < g_R_RT_surfaceMax)", (const char *)&queryFormat, "surfaceIndex < g_R_RT_surfaceMax") )
+      v38 = (v37 & 0x7FFF) - 1;
+      if ( v38 >= 0x1000u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 239, ASSERT_TYPE_ASSERT, "(surfaceIndex < g_R_RT_surfaceMax)", (const char *)&queryFormat, "surfaceIndex < g_R_RT_surfaceMax") )
         __debugbreak();
-      v40 = &g_R_RT_ManagerSurfaceAllocator->headFreeBlockIndex + 1184 * v39;
-      if ( *((_DWORD *)v40 + 572) != _RDI->m_tracking.m_allocCounter )
+      v39 = &g_R_RT_ManagerSurfaceAllocator->headFreeBlockIndex + 1184 * v38;
+      if ( *((_DWORD *)v39 + 572) != dstRt->m_tracking.m_allocCounter )
       {
-        LODWORD(srcXa) = _RDI->m_tracking.m_allocCounter;
-        LODWORD(dstSlicea) = *((_DWORD *)v40 + 572);
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 241, ASSERT_TYPE_ASSERT, "(surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter)", "%s\n\tStale handle access: surface->m_allocCounter=%u, allocCounter=%u, name=%s, location=%s", "surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter", dstSlicea, srcXa, _RDI->m_tracking.m_name, _RDI->m_tracking.m_location) )
+        LODWORD(srcXa) = dstRt->m_tracking.m_allocCounter;
+        LODWORD(dstSlicea) = *((_DWORD *)v39 + 572);
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 241, ASSERT_TYPE_ASSERT, "(surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter)", "%s\n\tStale handle access: surface->m_allocCounter=%u, allocCounter=%u, name=%s, location=%s", "surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter", dstSlicea, srcXa, dstRt->m_tracking.m_name, dstRt->m_tracking.m_location) )
           __debugbreak();
       }
-      v41 = *((_DWORD *)v40 + 4);
-      if ( (v41 & 0x3000) != 4096 && (v41 & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 242, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement") )
+      v40 = *((_DWORD *)v39 + 4);
+      if ( (v40 & 0x3000) != 4096 && (v40 & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 242, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement") )
         __debugbreak();
-      v42 = *((_DWORD *)v40 + 264);
-      v43 = srcRt->m_surfaceID;
+      v41 = *((_DWORD *)v39 + 264);
+      v42 = srcRt->m_surfaceID;
       if ( !srcRt->m_surfaceID && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_common.h", 151, ASSERT_TYPE_ASSERT, "(surfaceID)", (const char *)&queryFormat, "surfaceID") )
         __debugbreak();
-      v44 = (v43 & 0x7FFF) - 1;
-      if ( v44 >= 0x1000u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 239, ASSERT_TYPE_ASSERT, "(surfaceIndex < g_R_RT_surfaceMax)", (const char *)&queryFormat, "surfaceIndex < g_R_RT_surfaceMax") )
+      v43 = (v42 & 0x7FFF) - 1;
+      if ( v43 >= 0x1000u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 239, ASSERT_TYPE_ASSERT, "(surfaceIndex < g_R_RT_surfaceMax)", (const char *)&queryFormat, "surfaceIndex < g_R_RT_surfaceMax") )
         __debugbreak();
-      v45 = &g_R_RT_ManagerSurfaceAllocator->headFreeBlockIndex + 1184 * v44;
-      if ( *((_DWORD *)v45 + 572) != srcRt->m_tracking.m_allocCounter )
+      v44 = &g_R_RT_ManagerSurfaceAllocator->headFreeBlockIndex + 1184 * v43;
+      if ( *((_DWORD *)v44 + 572) != srcRt->m_tracking.m_allocCounter )
       {
         LODWORD(srcXa) = srcRt->m_tracking.m_allocCounter;
-        LODWORD(dstSlicea) = *((_DWORD *)v45 + 572);
+        LODWORD(dstSlicea) = *((_DWORD *)v44 + 572);
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 241, ASSERT_TYPE_ASSERT, "(surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter)", "%s\n\tStale handle access: surface->m_allocCounter=%u, allocCounter=%u, name=%s, location=%s", "surface->m_tracking.m_allocCounter == this->m_tracking.m_allocCounter", dstSlicea, srcXa, srcRt->m_tracking.m_name, srcRt->m_tracking.m_location) )
           __debugbreak();
       }
-      v46 = *((_DWORD *)v45 + 4);
-      if ( (v46 & 0x3000) != 4096 && (v46 & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 242, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement") )
+      v45 = *((_DWORD *)v44 + 4);
+      if ( (v45 & 0x3000) != 4096 && (v45 & 0x4000) == 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 242, ASSERT_TYPE_ASSERT, "(( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement)", (const char *)&queryFormat, "( surface->m_rtFlagsInternal & ( R_RT_FlagInternal_Allocated | R_RT_FlagInternal_Abandoned ) ) == R_RT_FlagInternal_Allocated || surface->m_rtFlagsInternal & R_RT_FlagInternal_Placement") )
         __debugbreak();
-      LODWORD(srcYa) = v42;
-      LODWORD(srcXa) = *((_DWORD *)v45 + 264);
+      LODWORD(srcYa) = v41;
+      LODWORD(srcXa) = *((_DWORD *)v44 + 264);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 996, ASSERT_TYPE_ASSERT, "( srcRt.GetSurface()->m_htileSize ) == ( dstRt.GetSurface()->m_htileSize )", "%s == %s\n\t%i, %i", "srcRt.GetSurface()->m_htileSize", "dstRt.GetSurface()->m_htileSize", srcXa, srcYa) )
         __debugbreak();
     }
     m_htileSize = R_RT_Handle::GetSurface(srcRt)->m_htileSize;
-    if ( (((unsigned __int8)v25 | (unsigned __int8)v30) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 519, ASSERT_TYPE_ASSERT, "(((reinterpret_cast<uint64_t>(dst) & 3) == 0) && ((reinterpret_cast<uint64_t>(src) & 3) == 0))", (const char *)&queryFormat, "((reinterpret_cast<uint64_t>(dst) & 3) == 0) && ((reinterpret_cast<uint64_t>(src) & 3) == 0)") )
+    if ( (((unsigned __int8)v24 | (unsigned __int8)v29) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 519, ASSERT_TYPE_ASSERT, "(((reinterpret_cast<uint64_t>(dst) & 3) == 0) && ((reinterpret_cast<uint64_t>(src) & 3) == 0))", (const char *)&queryFormat, "((reinterpret_cast<uint64_t>(dst) & 3) == 0) && ((reinterpret_cast<uint64_t>(src) & 3) == 0)") )
       __debugbreak();
-    if ( Mem_Paged_IsInPoolVARange(MEM_POOL_GPU_CPU_READ_ONLY, v25) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 522, ASSERT_TYPE_ASSERT, "(!Mem_Paged_IsGpuCachedMemory( dst ))", (const char *)&queryFormat, "!Mem_Paged_IsGpuCachedMemory( dst )") )
+    if ( Mem_Paged_IsInPoolVARange(MEM_POOL_GPU_CPU_READ_ONLY, v24) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 522, ASSERT_TYPE_ASSERT, "(!Mem_Paged_IsGpuCachedMemory( dst ))", (const char *)&queryFormat, "!Mem_Paged_IsGpuCachedMemory( dst )") )
       __debugbreak();
     if ( !R_IsLockedIfGfxImmediateContext(state->device) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 29, ASSERT_TYPE_ASSERT, "(R_IsLockedIfGfxImmediateContext( device ))", (const char *)&queryFormat, "R_IsLockedIfGfxImmediateContext( device )") )
       __debugbreak();
-    ((void (__fastcall *)(GfxDevice *, const unsigned __int8 *, const unsigned __int8 *, __int64, _DWORD))state->device->m_pFunction[20].QueryInterface)(state->device, v25, v30, m_htileSize, 0);
-    R_RT_Handle::ClearAuxDirty(_RDI);
+    ((void (__fastcall *)(GfxDevice *, const unsigned __int8 *, const unsigned __int8 *, __int64, _DWORD))state->device->m_pFunction[20].QueryInterface)(state->device, v24, v29, m_htileSize, 0);
+    R_RT_Handle::ClearAuxDirty(dstRt);
   }
 }
 
@@ -1114,7 +1047,9 @@ R_MemTextureRect
 */
 void R_MemTextureRect(ComputeCmdBufState *state, const GfxTexture *textureDst, const GfxTexture *textureSrc, unsigned int dstX, unsigned int dstY, unsigned int srcX, unsigned int srcY, unsigned int width, unsigned int height, const vec4_t *color, float scale, float bias)
 {
-  unsigned int v14; 
+  unsigned int v12; 
+  unsigned int v16; 
+  unsigned int v17; 
   unsigned int v18; 
   unsigned int v19; 
   unsigned int v20; 
@@ -1122,117 +1057,98 @@ void R_MemTextureRect(ComputeCmdBufState *state, const GfxTexture *textureDst, c
   unsigned int v22; 
   unsigned int v23; 
   unsigned int v24; 
-  unsigned int v25; 
-  unsigned int v26; 
+  ComputeShader **setRect2DComputeShader; 
   ComputeShader **copyRect2DComputeShader; 
-  ComputeShader **v30; 
-  unsigned int v35; 
-  unsigned int v37; 
-  GfxTexture *v38; 
+  unsigned int v27; 
+  unsigned int v29; 
+  GfxTexture *v30; 
   GfxTexture *textures; 
   int data[8]; 
-  char v42[16]; 
+  vec4_t v33; 
+  char v34[16]; 
   unsigned __int64 val; 
-  unsigned int v44; 
-  char v45[16]; 
-  unsigned __int64 v46; 
-  unsigned int v47; 
+  unsigned int v36; 
+  char v37[16]; 
+  unsigned __int64 v38; 
+  unsigned int v39; 
 
-  v14 = 0x4000;
+  v12 = 0x4000;
   if ( (width > 0x4000 || height > 0x4000) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 360, ASSERT_TYPE_ASSERT, "(width <= 16384 && height <= 16384)", (const char *)&queryFormat, "width <= R_MAX_TEXTURE_SIZE && height <= R_MAX_TEXTURE_SIZE") )
     __debugbreak();
   if ( !R_IsLockedIfGfxImmediateContext(state->device) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_immediate_context_lock.h", 29, ASSERT_TYPE_ASSERT, "(R_IsLockedIfGfxImmediateContext( device ))", (const char *)&queryFormat, "R_IsLockedIfGfxImmediateContext( device )") )
     __debugbreak();
-  v18 = 0x4000;
+  v16 = 0x4000;
   if ( !textureDst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 378, ASSERT_TYPE_ASSERT, "(textureDst != 0)", (const char *)&queryFormat, "textureDst != 0") )
     __debugbreak();
-  ((void (__fastcall *)(ID3D12Resource *, char *))textureDst->basemap->m_pFunction[3].AddRef)(textureDst->basemap, v42);
-  v37 = truncate_cast<unsigned int,unsigned __int64>(val);
-  v19 = v37;
-  v35 = v44;
+  ((void (__fastcall *)(ID3D12Resource *, char *))textureDst->basemap->m_pFunction[3].AddRef)(textureDst->basemap, v34);
+  v29 = truncate_cast<unsigned int,unsigned __int64>(val);
+  v17 = v29;
+  v27 = v36;
   if ( textureSrc )
   {
-    ((void (__fastcall *)(ID3D12Resource *, char *))textureSrc->basemap->m_pFunction[3].AddRef)(textureSrc->basemap, v45);
-    v20 = truncate_cast<unsigned int,unsigned __int64>(v46);
-    v19 = v37;
-    v14 = v20;
-    v18 = v47;
+    ((void (__fastcall *)(ID3D12Resource *, char *))textureSrc->basemap->m_pFunction[3].AddRef)(textureSrc->basemap, v37);
+    v18 = truncate_cast<unsigned int,unsigned __int64>(v38);
+    v17 = v29;
+    v12 = v18;
+    v16 = v39;
   }
-  v21 = v19;
-  if ( v14 > srcX + width )
-    v14 = srcX + width;
-  if ( v18 > srcY + height )
-    v18 = srcY + height;
-  if ( v19 > dstX + width )
-    v21 = dstX + width;
-  v22 = v35;
-  if ( v35 > dstY + height )
-    v22 = dstY + height;
-  if ( srcX < v14 && srcY < v18 && dstX < v21 && dstY < v22 )
+  v19 = v17;
+  if ( v12 > srcX + width )
+    v12 = srcX + width;
+  if ( v16 > srcY + height )
+    v16 = srcY + height;
+  if ( v17 > dstX + width )
+    v19 = dstX + width;
+  v20 = v27;
+  if ( v27 > dstY + height )
+    v20 = dstY + height;
+  if ( srcX < v12 && srcY < v16 && dstX < v19 && dstY < v20 )
   {
-    v23 = v21 - dstX;
-    __asm { vmovaps [rsp+160h+var_50], xmm6 }
-    v24 = v14 - srcX;
-    __asm { vmovaps [rsp+160h+var_60], xmm7 }
+    v21 = v19 - dstX;
+    v22 = v12 - srcX;
+    if ( v21 > v22 )
+      v21 = v22;
+    v23 = v20 - dstY;
+    v24 = v16 - srcY;
     if ( v23 > v24 )
       v23 = v24;
-    v25 = v22 - dstY;
-    v26 = v18 - srcY;
-    if ( v25 > v26 )
-      v25 = v26;
     if ( textureSrc )
     {
-      if ( v19 < v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 436, ASSERT_TYPE_ASSERT, "(!isCopy || ( dstWidth >= width ))", (const char *)&queryFormat, "!isCopy || ( dstWidth >= width )") )
+      if ( v17 < v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 436, ASSERT_TYPE_ASSERT, "(!isCopy || ( dstWidth >= width ))", (const char *)&queryFormat, "!isCopy || ( dstWidth >= width )") )
         __debugbreak();
-      if ( v35 < v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 437, ASSERT_TYPE_ASSERT, "(!isCopy || ( dstHeight >= height ))", (const char *)&queryFormat, "!isCopy || ( dstHeight >= height )") )
+      if ( v27 < v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_cs_utils.cpp", 437, ASSERT_TYPE_ASSERT, "(!isCopy || ( dstHeight >= height ))", (const char *)&queryFormat, "!isCopy || ( dstHeight >= height )") )
         __debugbreak();
     }
-    v38 = (GfxTexture *)textureSrc;
+    v30 = (GfxTexture *)textureSrc;
     textures = (GfxTexture *)textureDst;
-    __asm
+    if ( !textureSrc || scale == 1.0 && bias == 0.0 )
     {
-      vmovss  xmm7, [rbp+60h+bias]
-      vmovss  xmm6, [rbp+60h+scale]
-    }
-    if ( textureSrc )
-    {
-      __asm { vucomiss xmm6, cs:__real@3f800000 }
+      setRect2DComputeShader = rgp.setRect2DComputeShader;
       copyRect2DComputeShader = rgp.copyRect2DComputeShader;
-      v30 = &rgp.copyRect2DComputeShader[2];
     }
     else
     {
-      copyRect2DComputeShader = rgp.setRect2DComputeShader;
-      v30 = rgp.copyRect2DComputeShader;
+      setRect2DComputeShader = rgp.copyRect2DComputeShader;
+      copyRect2DComputeShader = &rgp.copyRect2DComputeShader[2];
     }
     R_SetComputeRWTextures(state, 0, 1, (const GfxTexture *const *)&textures);
     if ( textureSrc )
-      R_SetComputeTextures(state, 0, 1, (const GfxTexture *const *)&v38);
+      R_SetComputeTextures(state, 0, 1, (const GfxTexture *const *)&v30);
     else
-      v30 = copyRect2DComputeShader;
-    R_SetComputeShader(state, *v30);
+      copyRect2DComputeShader = setRect2DComputeShader;
+    R_SetComputeShader(state, *copyRect2DComputeShader);
     data[3] = dstY;
     data[4] = srcX;
     data[5] = srcY;
-    _RAX = color;
     data[2] = dstX;
-    __asm
-    {
-      vmovss  [rsp+160h+var_F8], xmm6
-      vmovss  [rsp+160h+var_F4], xmm7
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rsp+160h+var_F0], xmm0
-    }
-    data[0] = v23;
-    data[1] = v25;
+    *(float *)&data[6] = scale;
+    *(float *)&data[7] = bias;
+    v33 = *color;
+    data[0] = v21;
+    data[1] = v23;
     R_UploadAndSetComputeConstants(state, 0, data, 0x30u, NULL);
-    R_Dispatch(state, (v23 + 7) >> 3, (v25 + 7) >> 3, 1u);
+    R_Dispatch(state, (v21 + 7) >> 3, (v23 + 7) >> 3, 1u);
     R_ComputeWaitForCompute(state, PIPE_FLUSH_PARTIAL);
-    __asm
-    {
-      vmovaps xmm7, [rsp+160h+var_60]
-      vmovaps xmm6, [rsp+160h+var_50]
-    }
   }
 }
 
@@ -1243,16 +1159,6 @@ R_SetTextureRect
 */
 void R_SetTextureRect(ComputeCmdBufState *state, const GfxTexture *textureDst, const vec4_t *color, unsigned int dstX, unsigned int dstY, unsigned int width, unsigned int height)
 {
-  float v10; 
-  float v11; 
-
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+68h+var_10], xmm0
-    vmovss  [rsp+68h+var_18], xmm1
-  }
-  R_MemTextureRect(state, textureDst, NULL, dstX, dstY, 0, 0, width, height, color, v10, v11);
+  R_MemTextureRect(state, textureDst, NULL, dstX, dstY, 0, 0, width, height, color, 1.0, 0.0);
 }
 

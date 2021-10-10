@@ -511,35 +511,29 @@ FX_AddDecalVolumeMark
 */
 void FX_AddDecalVolumeMark(const FxMarksSystem *marksSystem, const FxMark *mark, unsigned int markFlags)
 {
-  const FxMark *v10; 
+  float v3; 
+  float v4; 
+  __int128 v5; 
+  float v6; 
   int atlasIndex; 
   unsigned __int16 uid; 
   unsigned __int8 outColor[8]; 
   tmat33_t<vec3_t> axis; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdx+68h]
-    vmovss  xmm1, dword ptr [rdx+6Ch]
-    vmovss  dword ptr [rsp+98h+axis], xmm0
-    vmovss  xmm0, dword ptr [rdx+70h]
-    vmovss  dword ptr [rsp+98h+axis+4], xmm1
-    vmovups xmm1, xmmword ptr [rdx+20h]
-    vmovss  dword ptr [rsp+98h+axis+8], xmm0
-    vmovss  xmm0, dword ptr [rdx+34h]
-    vmovups xmmword ptr [rsp+98h+axis+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rdx+30h]
-  }
-  v10 = mark;
-  __asm
-  {
-    vmovss  dword ptr [rsp+98h+axis+1Ch], xmm1
-    vmovss  dword ptr [rsp+98h+axis+20h], xmm0
-  }
+  v3 = mark->texCoordAxisZ.v[1];
+  axis.m[0].v[0] = mark->texCoordAxisZ.v[0];
+  v4 = mark->texCoordAxisZ.v[2];
+  axis.m[0].v[1] = v3;
+  v5 = *(_OWORD *)mark->texCoordAxisX.v;
+  axis.m[0].v[2] = v4;
+  v6 = mark->texCoordAxisY.v[2];
+  *(_OWORD *)axis.row1.v = v5;
+  axis.m[2].v[1] = mark->texCoordAxisY.v[1];
+  axis.m[2].v[2] = v6;
   FX_ExpandMarkVerts_GetColor(marksSystem, mark, outColor);
-  atlasIndex = FX_CalculateMarkAtlasFrame(marksSystem, v10);
-  uid = FX_MarkToHandle(marksSystem, v10);
-  R_AddMarkDecalVolume(&v10->origin, &v10->halfSize, &axis, outColor, v10->material, atlasIndex, markFlags, uid);
+  atlasIndex = FX_CalculateMarkAtlasFrame(marksSystem, mark);
+  uid = FX_MarkToHandle(marksSystem, mark);
+  R_AddMarkDecalVolume(&mark->origin, &mark->halfSize, &axis, outColor, mark->material, atlasIndex, markFlags, uid);
 }
 
 /*
@@ -571,135 +565,115 @@ FX_AllocAndConstructMark
 */
 __int64 FX_AllocAndConstructMark(LocalClientNum_t localClientNum, const GfxMarkContext *context, Material *material, unsigned __int16 fadeInfo, unsigned __int16 waitInfo, unsigned __int16 lerpInfo, unsigned __int16 fadeOutInfo, unsigned __int16 stoppableFadeOutInfo, const vec3_t *origin, const vec4_t *markSize, const vec3_t *texCoordAxisX, const vec3_t *texCoordAxisY, const vec3_t *texCoordAxisZ, const unsigned __int8 *nativeColor, const unsigned __int8 *nativeColorLerp, int viewmodelClientIndex, const FX_ImpactMark_AtlasInfo *atlasInfo, bool transparentSurface, bool decalSpray, bool bypassStackingLimiter, bool affectsGameplay, bool killOnKillcamTransition, bool hasSkinnedSurface, const char *vfxName)
 {
-  __int64 v28; 
-  volatile signed __int32 *v31; 
+  __int64 v25; 
+  volatile signed __int32 *v26; 
   FxMarksSystem *MarksSystem; 
-  unsigned __int64 v34; 
-  FxMark *v35; 
+  float v28; 
+  unsigned __int64 v29; 
+  FxMark *v30; 
   int modelType; 
-  bool v37; 
-  bool IsViewmodel; 
-  unsigned __int8 v39; 
-  int v43; 
+  unsigned __int8 v32; 
+  int v33; 
   unsigned int MarkContext_DynEntModel; 
   unsigned __int16 DynEntModelListHead; 
   unsigned __int16 firstGlassMarkHandle; 
   unsigned __int16 MarkContext_ModelIndex; 
-  FxMarksSystem *v50; 
-  const vec3_t *v51; 
+  float v38; 
+  FxMarksSystem *v39; 
+  const vec3_t *v40; 
   unsigned __int16 firstFreeMarkHandle; 
-  unsigned int v53; 
+  unsigned int v42; 
+  FxMark *v43; 
   const GfxMarkContext *p_context; 
-  __int64 v70; 
-  unsigned int v71; 
+  __int64 v45; 
+  unsigned int v46; 
   DynEntityClient *Client; 
-  unsigned __int16 v73; 
+  unsigned __int16 v48; 
   unsigned __int16 *p_firstGlassMarkHandle; 
-  unsigned __int64 v75; 
-  unsigned int v89; 
-  char v100; 
-  bool v101; 
-  const char *v106; 
-  __int64 result; 
+  unsigned __int64 v50; 
+  unsigned int v51; 
+  const FX_ImpactMark_AtlasInfo *v52; 
+  float fps1; 
+  const vec4_t *v54; 
+  float v55; 
+  float value; 
+  const char *v57; 
+  float v58; 
   const vec3_t *fmt; 
-  char *fmta; 
-  __int64 v117; 
-  bool v118; 
+  __int64 v61; 
+  bool v62; 
   bool bypassStackLimiter; 
-  char v120; 
-  unsigned __int8 v121; 
-  unsigned __int16 v122; 
+  char v64; 
+  unsigned __int8 v65; 
+  unsigned __int16 v66; 
   unsigned __int16 head; 
-  unsigned __int16 v125; 
-  int v126; 
-  const char *v127; 
-  __int64 v128; 
-  Material *v129; 
-  const FX_ImpactMark_AtlasInfo *v130; 
-  const vec4_t *v131; 
-  __int64 v132; 
+  unsigned __int16 v69; 
+  int v70; 
+  const char *v71; 
+  __int64 v72; 
+  Material *v73; 
+  const FX_ImpactMark_AtlasInfo *v74; 
+  const vec4_t *v75; 
+  __int64 v76; 
   vec3_t halfSize; 
   tmat33_t<vec3_t> axis; 
-  char v135; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v132 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  v129 = material;
-  v28 = localClientNum;
-  _RBP = markSize;
-  v131 = markSize;
-  _R13 = texCoordAxisZ;
-  v126 = viewmodelClientIndex;
-  v130 = atlasInfo;
-  v127 = vfxName;
+  v76 = -2i64;
+  v73 = material;
+  v25 = localClientNum;
+  v75 = markSize;
+  v70 = viewmodelClientIndex;
+  v74 = atlasInfo;
+  v71 = vfxName;
   if ( !material->decalVolumeMaterial )
     R_WarnOncePerFrame(R_WARN_UNSUPPORTED_DECAL_VOLUME_MATERIAL, material->name);
   Sys_ProfBeginNamedEvent(0xFF808080, "FX_AllocAndConstructMark");
   Sys_EnterCriticalSection(CRITSECT_ALLOC_MARK);
-  v31 = &g_markThread[v28];
-  v128 = (unsigned __int8)v31 & 3;
-  if ( ((unsigned __int8)v31 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&g_markThread[v28]) )
+  v26 = &g_markThread[v25];
+  v72 = (unsigned __int8)v26 & 3;
+  if ( ((unsigned __int8)v26 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&g_markThread[v25]) )
     __debugbreak();
-  if ( _InterlockedIncrement(v31) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 764, ASSERT_TYPE_ASSERT, "(Sys_InterlockedIncrement( &g_markThread[localClientNum] ) == 1)", (const char *)&queryFormat, "Sys_InterlockedIncrement( &g_markThread[localClientNum] ) == 1") )
+  if ( _InterlockedIncrement(v26) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 764, ASSERT_TYPE_ASSERT, "(Sys_InterlockedIncrement( &g_markThread[localClientNum] ) == 1)", (const char *)&queryFormat, "Sys_InterlockedIncrement( &g_markThread[localClientNum] ) == 1") )
     __debugbreak();
-  MarksSystem = FX_GetMarksSystem((LocalClientNum_t)v28);
-  __asm { vmovss  xmm6, dword ptr [rbp+0Ch] }
-  v34 = 0i64;
-  v35 = NULL;
-  if ( !lerpInfo || (v120 = 1, nativeColorLerp[3]) )
-    v120 = 0;
+  MarksSystem = FX_GetMarksSystem((LocalClientNum_t)v25);
+  v28 = markSize->v[3];
+  v29 = 0i64;
+  v30 = NULL;
+  if ( !lerpInfo || (v64 = 1, nativeColorLerp[3]) )
+    v64 = 0;
   if ( !context && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1996, ASSERT_TYPE_ASSERT, "(context)", (const char *)&queryFormat, "context") )
     __debugbreak();
   modelType = context->modelType;
-  v37 = modelType == 4;
-  if ( modelType == 4 )
+  if ( modelType == 4 && FX_GetMarkContext_DObjIsViewmodel(context) )
   {
-    IsViewmodel = FX_GetMarkContext_DObjIsViewmodel(context);
-    v37 = !IsViewmodel;
-    if ( IsViewmodel )
+    v32 = MarksSystem->viewmodelMarksCount[v70];
+    v65 = v32;
+    if ( fx_marks_limit_stacking_distance->current.value != 0.0 )
     {
-      v39 = MarksSystem->viewmodelMarksCount[v126];
-      v121 = v39;
-      __asm { vxorps  xmm7, xmm7, xmm7 }
-      _RAX = fx_marks_limit_stacking_distance;
-      __asm { vucomiss xmm7, dword ptr [rax+28h] }
-      if ( !v37 )
-      {
-        if ( v39 >= 0x10u )
-          goto LABEL_21;
-        __asm { vmovaps xmm3, xmm6; radius }
-        v35 = FX_MarkCheckNearby(MarksSystem, MarksSystem->firstViewmodelMarkHandle[v126], origin, *(float *)&_XMM3, texCoordAxisZ, decalSpray, bypassStackingLimiter);
-        v39 = v121;
-      }
-      if ( v39 >= 0x10u )
-      {
-LABEL_21:
-        if ( v128 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)v31) )
-          __debugbreak();
-        if ( _InterlockedExchangeAdd(v31, 0xFFFFFFFF) == 1 )
-          goto LABEL_52;
-        v43 = 822;
-LABEL_50:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", v43, ASSERT_TYPE_ASSERT, "(Sys_InterlockedDecrement( &g_markThread[localClientNum] ) == 0)", (const char *)&queryFormat, "Sys_InterlockedDecrement( &g_markThread[localClientNum] ) == 0") )
-          __debugbreak();
-LABEL_52:
-        Sys_LeaveCriticalSection(CRITSECT_ALLOC_MARK);
-        v53 = -1;
-        goto LABEL_118;
-      }
-      goto LABEL_40;
+      if ( v32 >= 0x10u )
+        goto LABEL_21;
+      v30 = FX_MarkCheckNearby(MarksSystem, MarksSystem->firstViewmodelMarkHandle[v70], origin, v28, texCoordAxisZ, decalSpray, bypassStackingLimiter);
+      v32 = v65;
     }
+    if ( v32 >= 0x10u )
+    {
+LABEL_21:
+      if ( v72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)v26) )
+        __debugbreak();
+      if ( _InterlockedExchangeAdd(v26, 0xFFFFFFFF) == 1 )
+        goto LABEL_52;
+      v33 = 822;
+LABEL_50:
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", v33, ASSERT_TYPE_ASSERT, "(Sys_InterlockedDecrement( &g_markThread[localClientNum] ) == 0)", (const char *)&queryFormat, "Sys_InterlockedDecrement( &g_markThread[localClientNum] ) == 0") )
+        __debugbreak();
+LABEL_52:
+      Sys_LeaveCriticalSection(CRITSECT_ALLOC_MARK);
+      v42 = -1;
+      goto LABEL_118;
+    }
+    goto LABEL_40;
   }
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  _RAX = fx_marks_limit_stacking_distance;
-  __asm { vucomiss xmm7, dword ptr [rax+28h] }
-  if ( v37 || v120 )
+  if ( fx_marks_limit_stacking_distance->current.value == 0.0 || v64 )
     goto LABEL_43;
   if ( (unsigned __int8)(modelType - 3) <= 1u )
   {
@@ -718,11 +692,11 @@ LABEL_52:
     if ( (_BYTE)modelType != 2 )
     {
       bypassStackLimiter = bypassStackingLimiter;
-      __asm { vmovaps xmm3, xmm6 }
-      v50 = MarksSystem;
-      v118 = decalSpray;
+      v38 = v28;
+      v39 = MarksSystem;
+      v62 = decalSpray;
       fmt = texCoordAxisZ;
-      v51 = origin;
+      v40 = origin;
       if ( (_BYTE)modelType == 6 )
         firstGlassMarkHandle = MarksSystem->firstGlassMarkHandle;
       else
@@ -733,124 +707,97 @@ LABEL_52:
     firstGlassMarkHandle = FX_FindModelHead(MarksSystem, MarkContext_ModelIndex, modelType);
   }
   bypassStackLimiter = bypassStackingLimiter;
-  v118 = decalSpray;
+  v62 = decalSpray;
   fmt = texCoordAxisZ;
-  __asm { vmovaps xmm3, xmm6; radius }
-  v51 = origin;
-  v50 = MarksSystem;
+  v38 = v28;
+  v40 = origin;
+  v39 = MarksSystem;
 LABEL_39:
-  v35 = FX_MarkCheckNearby(v50, firstGlassMarkHandle, v51, *(float *)&_XMM3, fmt, v118, bypassStackLimiter);
+  v30 = FX_MarkCheckNearby(v39, firstGlassMarkHandle, v40, v38, fmt, v62, bypassStackLimiter);
 LABEL_40:
-  if ( v35 )
+  if ( v30 )
   {
     if ( !fx_marks_limit_stacking_freeold->current.enabled )
       goto LABEL_21;
-    FX_FreeMark(MarksSystem, v35, -5);
+    FX_FreeMark(MarksSystem, v30, -5);
   }
 LABEL_43:
   firstFreeMarkHandle = MarksSystem->firstFreeMarkHandle;
-  v122 = firstFreeMarkHandle;
+  v66 = firstFreeMarkHandle;
   if ( firstFreeMarkHandle == 0xFFFF )
   {
     FX_FreeLruMark(MarksSystem);
     firstFreeMarkHandle = MarksSystem->firstFreeMarkHandle;
-    v122 = firstFreeMarkHandle;
+    v66 = firstFreeMarkHandle;
     if ( firstFreeMarkHandle == 0xFFFF )
     {
-      if ( v128 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)v31) )
+      if ( v72 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)v26) )
         __debugbreak();
-      if ( _InterlockedExchangeAdd(v31, 0xFFFFFFFF) == 1 )
+      if ( _InterlockedExchangeAdd(v26, 0xFFFFFFFF) == 1 )
         goto LABEL_52;
-      v43 = 843;
+      v33 = 843;
       goto LABEL_50;
     }
   }
-  _RDI = FX_MarkFromHandle(MarksSystem, firstFreeMarkHandle);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 854, ASSERT_TYPE_ASSERT, "(newMark)", (const char *)&queryFormat, "newMark") )
+  v43 = FX_MarkFromHandle(MarksSystem, firstFreeMarkHandle);
+  if ( !v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 854, ASSERT_TYPE_ASSERT, "(newMark)", (const char *)&queryFormat, "newMark") )
     __debugbreak();
-  MarksSystem->firstFreeMarkHandle = _RDI->nextMark;
-  v125 = ++_RDI->markGeneration;
+  MarksSystem->firstFreeMarkHandle = v43->nextMark;
+  v69 = ++v43->markGeneration;
   if ( MarksSystem->time <= 0 )
   {
-    LODWORD(v117) = MarksSystem->time;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 858, ASSERT_TYPE_ASSERT, "( ( marksSystem->time > 0 ) )", "( marksSystem->time ) = %i", v117) )
+    LODWORD(v61) = MarksSystem->time;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 858, ASSERT_TYPE_ASSERT, "( ( marksSystem->time > 0 ) )", "( marksSystem->time ) = %i", v61) )
       __debugbreak();
   }
-  p_context = &_RDI->context;
-  _RDI->context = *context;
-  _RDI->material = v129;
-  _RDI->fadeInfo = fadeInfo;
-  _RDI->waitInfo = waitInfo;
-  _RDI->lerpInfo = lerpInfo;
-  _RDI->fadeOutInfo = fadeOutInfo;
-  _RDI->stoppableFadeOutInfo = stoppableFadeOutInfo;
-  __asm { vmovss  dword ptr [rdi+1Ch], xmm6 }
-  _RCX = origin;
-  _RDI->origin.v[0] = origin->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  dword ptr [rdi+14h], xmm0
-    vmovss  xmm1, dword ptr [rcx+8]
-    vmovss  dword ptr [rdi+18h], xmm1
-  }
-  _RCX = texCoordAxisX;
-  _RDI->texCoordAxisX.v[0] = texCoordAxisX->v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+4]
-    vmovss  dword ptr [rdi+24h], xmm0
-    vmovss  xmm1, dword ptr [rcx+8]
-    vmovss  dword ptr [rdi+28h], xmm1
-  }
-  _RAX = texCoordAxisY;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  xmm3, dword ptr cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm0, xmm0, xmm3
-    vmovss  dword ptr [rdi+2Ch], xmm0
-    vmovss  xmm1, dword ptr [rax+4]
-    vxorps  xmm2, xmm1, xmm3
-    vmovss  dword ptr [rdi+30h], xmm2
-    vmovss  xmm0, dword ptr [rax+8]
-    vxorps  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rdi+34h], xmm1
-  }
-  *(_DWORD *)_RDI->nativeColor = *(_DWORD *)nativeColor;
-  *(_DWORD *)_RDI->nativeColorLerp = *(_DWORD *)nativeColorLerp;
-  *((_BYTE *)_RDI + 103) &= 0xF0u;
-  *((_BYTE *)_RDI + 103) = (affectsGameplay | *((_BYTE *)_RDI + 103)) & 0xCF | (4 * (transparentSurface & 0xF1 | (2 * (decalSpray & 0xF9 | (2 * ((2 * killOnKillcamTransition) | hasSkinnedSurface & 0xFD))))));
+  p_context = &v43->context;
+  v43->context = *context;
+  v43->material = v73;
+  v43->fadeInfo = fadeInfo;
+  v43->waitInfo = waitInfo;
+  v43->lerpInfo = lerpInfo;
+  v43->fadeOutInfo = fadeOutInfo;
+  v43->stoppableFadeOutInfo = stoppableFadeOutInfo;
+  v43->radius = v28;
+  v43->origin = *origin;
+  v43->texCoordAxisX = *texCoordAxisX;
+  v43->texCoordAxisY.v[0] = COERCE_FLOAT(LODWORD(texCoordAxisY->v[0]) ^ _xmm);
+  v43->texCoordAxisY.v[1] = COERCE_FLOAT(LODWORD(texCoordAxisY->v[1]) ^ _xmm);
+  v43->texCoordAxisY.v[2] = COERCE_FLOAT(LODWORD(texCoordAxisY->v[2]) ^ _xmm);
+  *(_DWORD *)v43->nativeColor = *(_DWORD *)nativeColor;
+  *(_DWORD *)v43->nativeColorLerp = *(_DWORD *)nativeColorLerp;
+  *((_BYTE *)v43 + 103) &= 0xF0u;
+  *((_BYTE *)v43 + 103) = (affectsGameplay | *((_BYTE *)v43 + 103)) & 0xCF | (4 * (transparentSurface & 0xF1 | (2 * (decalSpray & 0xF9 | (2 * ((2 * killOnKillcamTransition) | hasSkinnedSurface & 0xFD))))));
   if ( (_BYTE)modelType == 4 )
   {
-    if ( FX_GetMarkContext_DObjIsViewmodel(&_RDI->context) )
+    if ( FX_GetMarkContext_DObjIsViewmodel(&v43->context) )
     {
-      v70 = v126;
-      FX_LinkMarkIntoList(MarksSystem, &MarksSystem->firstViewmodelMarkHandle[v126], _RDI);
-      ++MarksSystem->viewmodelMarksCount[v126];
-      if ( MarksSystem->viewmodelMarksCount[v70] > 0x10u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 887, ASSERT_TYPE_ASSERT, "(marksSystem->viewmodelMarksCount[viewmodelClientIndex] <= 16)", (const char *)&queryFormat, "marksSystem->viewmodelMarksCount[viewmodelClientIndex] <= FX_MAX_VIEWMODEL_MARKS") )
+      v45 = v70;
+      FX_LinkMarkIntoList(MarksSystem, &MarksSystem->firstViewmodelMarkHandle[v70], v43);
+      ++MarksSystem->viewmodelMarksCount[v70];
+      if ( MarksSystem->viewmodelMarksCount[v45] > 0x10u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 887, ASSERT_TYPE_ASSERT, "(marksSystem->viewmodelMarksCount[viewmodelClientIndex] <= 16)", (const char *)&queryFormat, "marksSystem->viewmodelMarksCount[viewmodelClientIndex] <= FX_MAX_VIEWMODEL_MARKS") )
         __debugbreak();
       goto LABEL_84;
     }
-    p_context = &_RDI->context;
+    p_context = &v43->context;
   }
   else if ( (_BYTE)modelType != 3 )
   {
     switch ( (_BYTE)modelType )
     {
       case 5:
-        v71 = FX_GetMarkContext_DynEntModel(context);
-        Client = DynEnt_GetClient(MarksSystem->localClientNum, v71, DYNENT_BASIS_MODEL);
+        v46 = FX_GetMarkContext_DynEntModel(context);
+        Client = DynEnt_GetClient(MarksSystem->localClientNum, v46, DYNENT_BASIS_MODEL);
         if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 901, ASSERT_TYPE_ASSERT, "(dynEntityClient)", (const char *)&queryFormat, "dynEntityClient") )
           __debugbreak();
-        FX_LinkMarkIntoList(MarksSystem, &Client->fxMarkListHead, _RDI);
+        FX_LinkMarkIntoList(MarksSystem, &Client->fxMarkListHead, v43);
         goto LABEL_84;
       case 2:
-        v73 = FX_GetMarkContext_ModelIndex(&_RDI->context);
-        head = FX_FindModelHead(MarksSystem, v73, modelType);
+        v48 = FX_GetMarkContext_ModelIndex(&v43->context);
+        head = FX_FindModelHead(MarksSystem, v48, modelType);
         if ( head == firstFreeMarkHandle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 916, ASSERT_TYPE_ASSERT, "(staticModelMarkHead != newMarkHandle)", (const char *)&queryFormat, "staticModelMarkHead != newMarkHandle") )
           __debugbreak();
-        FX_LinkMarkIntoList(MarksSystem, &head, _RDI);
+        FX_LinkMarkIntoList(MarksSystem, &head, v43);
         goto LABEL_84;
       case 6:
         p_firstGlassMarkHandle = &MarksSystem->firstGlassMarkHandle;
@@ -858,8 +805,8 @@ LABEL_43:
       default:
         if ( (unsigned __int8)modelType >= 2u )
         {
-          LODWORD(v117) = modelType;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 935, ASSERT_TYPE_ASSERT, "( ( modelType == MARK_MODEL_TYPE_WORLD_BRUSH || modelType == MARK_MODEL_TYPE_WORLD_BRUSH_DISPLACED ) )", "( modelType ) = %i", v117) )
+          LODWORD(v61) = modelType;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 935, ASSERT_TYPE_ASSERT, "( ( modelType == MARK_MODEL_TYPE_WORLD_BRUSH || modelType == MARK_MODEL_TYPE_WORLD_BRUSH_DISPLACED ) )", "( modelType ) = %i", v61) )
             __debugbreak();
         }
         p_firstGlassMarkHandle = &MarksSystem->firstActiveWorldMarkHandle;
@@ -869,165 +816,89 @@ LABEL_43:
   }
   p_firstGlassMarkHandle = &MarksSystem->entFirstMarkHandles[FX_GetMarkContext_EntNum(p_context)];
 LABEL_83:
-  FX_LinkMarkIntoList(MarksSystem, p_firstGlassMarkHandle, _RDI);
+  FX_LinkMarkIntoList(MarksSystem, p_firstGlassMarkHandle, v43);
 LABEL_84:
-  if ( _RDI->timeDrawn != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 942, ASSERT_TYPE_ASSERT, "(newMark->timeDrawn == FX_MARK_FREE)", (const char *)&queryFormat, "newMark->timeDrawn == FX_MARK_FREE") )
+  if ( v43->timeDrawn != -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 942, ASSERT_TYPE_ASSERT, "(newMark->timeDrawn == FX_MARK_FREE)", (const char *)&queryFormat, "newMark->timeDrawn == FX_MARK_FREE") )
     __debugbreak();
-  _RDI->timeDrawn = MarksSystem->time - 1;
-  _RDI->timeAlloced = MarksSystem->time;
-  v75 = -1i64;
-  _RDI->timeStopped = -1;
-  if ( ((unsigned __int8)v31 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)v31) )
+  v43->timeDrawn = MarksSystem->time - 1;
+  v43->timeAlloced = MarksSystem->time;
+  v50 = -1i64;
+  v43->timeStopped = -1;
+  if ( ((unsigned __int8)v26 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)v26) )
     __debugbreak();
-  if ( _InterlockedExchangeAdd(v31, 0xFFFFFFFF) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 948, ASSERT_TYPE_ASSERT, "(Sys_InterlockedDecrement( &g_markThread[localClientNum] ) == 0)", (const char *)&queryFormat, "Sys_InterlockedDecrement( &g_markThread[localClientNum] ) == 0") )
+  if ( _InterlockedExchangeAdd(v26, 0xFFFFFFFF) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 948, ASSERT_TYPE_ASSERT, "(Sys_InterlockedDecrement( &g_markThread[localClientNum] ) == 0)", (const char *)&queryFormat, "Sys_InterlockedDecrement( &g_markThread[localClientNum] ) == 0") )
     __debugbreak();
   ++MarksSystem->allocedMarkCount;
   Sys_LeaveCriticalSection(CRITSECT_ALLOC_MARK);
   if ( R_DecalVolumesMarks_DebugEnabled() )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+68h]
-      vmovss  dword ptr [rsp+148h+axis], xmm0
-      vmovss  xmm1, dword ptr [rdi+6Ch]
-      vmovss  dword ptr [rsp+148h+axis+4], xmm1
-      vmovss  xmm0, dword ptr [rdi+70h]
-      vmovss  dword ptr [rsp+148h+axis+8], xmm0
-      vmovups xmm1, xmmword ptr [rdi+20h]
-      vmovups xmmword ptr [rsp+148h+axis+0Ch], xmm1
-      vmovss  xmm1, dword ptr [rdi+30h]
-      vmovss  dword ptr [rsp+148h+axis+1Ch], xmm1
-      vmovss  xmm0, dword ptr [rdi+34h]
-      vmovss  dword ptr [rsp+148h+axis+20h], xmm0
-      vmulss  xmm0, xmm6, dword ptr [rdi+74h]
-      vmulss  xmm0, xmm0, cs:__real@3f000000
-      vmovss  dword ptr [rsp+148h+halfSize], xmm0
-      vmulss  xmm1, xmm6, dword ptr [rdi+78h]
-      vmovss  dword ptr [rsp+148h+halfSize+4], xmm1
-      vmulss  xmm0, xmm6, dword ptr [rdi+7Ch]
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vmovss  dword ptr [rsp+148h+halfSize+8], xmm1
-    }
+    *(_QWORD *)axis.m[0].v = *(_QWORD *)v43->texCoordAxisZ.v;
+    axis.m[0].v[2] = v43->texCoordAxisZ.v[2];
+    *(_OWORD *)axis.row1.v = *(_OWORD *)v43->texCoordAxisX.v;
+    *(_QWORD *)&axis.row2.y = *(_QWORD *)&v43->texCoordAxisY.y;
+    halfSize.v[0] = (float)(v28 * v43->halfSize.v[0]) * 0.5;
+    halfSize.v[1] = v28 * v43->halfSize.v[1];
+    halfSize.v[2] = (float)(v28 * v43->halfSize.v[2]) * 0.5;
     R_DecalVolumesMarks_DebugAdd(origin, &halfSize, &axis, &colorRed);
-    Com_Printf(21, "D+ FX_AllocAndConstructMark: material: %s, time=%d \n", _RDI->material->name, (unsigned int)_RDI->timeAlloced);
+    Com_Printf(21, "D+ FX_AllocAndConstructMark: material: %s, time=%d \n", v43->material->name, (unsigned int)v43->timeAlloced);
   }
-  _RDI->texCoordAxisZ.v[0] = texCoordAxisZ->v[0];
-  __asm
+  v43->texCoordAxisZ = *texCoordAxisZ;
+  v51 = v43->material->textureAtlasRowCount * v43->material->textureAtlasColumnCount;
+  if ( v51 <= 1 )
   {
-    vmovss  xmm0, dword ptr [r13+4]
-    vmovss  dword ptr [rdi+6Ch], xmm0
-    vmovss  xmm1, dword ptr [r13+8]
-    vmovss  dword ptr [rdi+70h], xmm1
-  }
-  v89 = _RDI->material->textureAtlasRowCount * _RDI->material->textureAtlasColumnCount;
-  if ( v89 <= 1 )
-  {
-    *(_DWORD *)&_RDI->atlasLoopCount = -65536;
-    _RDI->atlasFrameDurationMS = 0;
-    _RDI->atlasNumEntries = 0;
+    *(_DWORD *)&v43->atlasLoopCount = -65536;
+    v43->atlasFrameDurationMS = 0;
+    v43->atlasNumEntries = 0;
   }
   else
   {
-    _R14 = v130;
-    _RDI->atlasStartFrame = truncate_cast<short,int>(v130->startFrame);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [r14+8]
-      vandps  xmm0, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@34000000
-    }
-    if ( v101 || v37 )
-    {
-      _RDI->atlasFrameDurationMS = 0;
-    }
+    v52 = v74;
+    v43->atlasStartFrame = truncate_cast<short,int>(v74->startFrame);
+    fps1 = v52->fps1;
+    if ( COERCE_FLOAT(LODWORD(fps1) & _xmm) <= 0.00000011920929 )
+      v43->atlasFrameDurationMS = 0;
     else
-    {
-      __asm
-      {
-        vmovss  xmm0, cs:__real@447a0000
-        vdivss  xmm1, xmm0, xmm1
-        vcvttss2si ecx, xmm1; val
-      }
-      _RDI->atlasFrameDurationMS = truncate_cast<short,int>(_ECX);
-    }
-    _RDI->atlasLoopCount = truncate_cast<short,int>(_R14->loopCount);
-    if ( v89 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v89, "unsigned", v89) )
+      v43->atlasFrameDurationMS = truncate_cast<short,int>((int)(float)(1000.0 / fps1));
+    v43->atlasLoopCount = truncate_cast<short,int>(v52->loopCount);
+    if ( v51 > 0xFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,unsigned int>(unsigned int)", "unsigned", (unsigned __int8)v51, "unsigned", v51) )
       __debugbreak();
-    _RDI->atlasNumEntries = v89;
+    v43->atlasNumEntries = v51;
   }
-  _RAX = v131;
-  __asm
+  v54 = v75;
+  v43->halfSize.v[0] = v75->v[0];
+  v43->halfSize.v[1] = v54->v[1];
+  v43->halfSize.v[2] = v54->v[2];
+  if ( (unsigned __int8)(modelType - 4) <= 1u )
   {
-    vmovss  xmm0, dword ptr [rax]
-    vmovss  dword ptr [rdi+74h], xmm0
-    vmovss  xmm0, dword ptr [rax+4]
-    vmovss  dword ptr [rdi+78h], xmm0
-    vmovss  xmm1, dword ptr [rax+8]
-    vmovss  dword ptr [rdi+7Ch], xmm1
+    v55 = v43->halfSize.v[0];
+    if ( v55 < 3.0 )
+      v43->halfSize.v[0] = v55 * 2.0;
   }
-  v101 = (_BYTE)modelType == 4;
-  v100 = modelType - 4;
-  if ( v101 || v100 == 1 )
+  value = fx_mark_max_thickness->current.value;
+  v57 = v71;
+  if ( value > 0.0 )
   {
-    __asm
+    v58 = v43->halfSize.v[0];
+    if ( v58 > value )
     {
-      vmovss  xmm0, dword ptr [rdi+74h]
-      vcomiss xmm0, cs:__real@40400000
-    }
-    if ( v101 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@40000000
-        vmovss  dword ptr [rdi+74h], xmm0
-      }
-    }
-  }
-  _RAX = fx_mark_max_thickness;
-  __asm { vmovss  xmm6, dword ptr [rax+28h] }
-  v106 = v127;
-  __asm { vcomiss xmm6, xmm7 }
-  if ( !v101 && v100 != 1 )
-  {
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+74h]
-      vcomiss xmm1, xmm6
-    }
-    if ( !v101 && v100 != 1 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vcvtss2sd xmm3, xmm1, xmm1
-        vmovsd  [rsp+148h+fmt], xmm0
-        vmovq   r9, xmm3
-      }
-      Com_PrintWarning(21, "FxMark '%s' thickness '%3.3f' is larger than allowed '%3.3f' and will be clamped\n", v127, _R9, fmta);
-      __asm { vmovss  dword ptr [rdi+74h], xmm6 }
+      Com_PrintWarning(21, "FxMark '%s' thickness '%3.3f' is larger than allowed '%3.3f' and will be clamped\n", v71, v58, value);
+      v43->halfSize.v[0] = value;
     }
   }
   if ( R_DecalVolumesMarks_DebugEnabled() )
-    Com_Printf(8, "Mark with material '%s' added\n", _RDI->material->name);
+    Com_Printf(8, "Mark with material '%s' added\n", v43->material->name);
   do
-    ++v75;
-  while ( v106[v75] );
-  if ( v75 > 0x1F )
-    v34 = v75 - 31;
-  memcpy_0(_RDI->vfxName, &v106[v34], v75 - v34 + 1);
-  if ( v34 )
-    *(_WORD *)_RDI->vfxName = 11822;
-  v53 = v122 | (v125 << 16);
+    ++v50;
+  while ( v57[v50] );
+  if ( v50 > 0x1F )
+    v29 = v50 - 31;
+  memcpy_0(v43->vfxName, &v57[v29], v50 - v29 + 1);
+  if ( v29 )
+    *(_WORD *)v43->vfxName = 11822;
+  v42 = v66 | (v69 << 16);
 LABEL_118:
   Sys_ProfEndNamedEvent();
-  result = v53;
-  _R11 = &v135;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  return v42;
 }
 
 /*
@@ -1045,13 +916,12 @@ void FX_BeginDobjMarkIterator(FxDobjMarkIterator *markIterator, LocalClientNum_t
   __int64 v13; 
   const dvar_t *v14; 
   const DObj *obj; 
-  __int16 v16; 
+  unsigned __int16 v16; 
   unsigned __int16 v17; 
   int SkelTimeStamp; 
-  __int64 v21; 
+  __int64 v19; 
 
   v7 = dobjIndex;
-  _RBX = markIterator;
   v9 = &g_markThread[clientIndex];
   if ( ((unsigned __int8)v9 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&g_markThread[clientIndex]) )
     __debugbreak();
@@ -1060,17 +930,17 @@ void FX_BeginDobjMarkIterator(FxDobjMarkIterator *markIterator, LocalClientNum_t
   MarksSystem = FX_GetMarksSystem(clientIndex);
   if ( (unsigned int)v7 >= 0x200 )
   {
-    LODWORD(v21) = v7;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2984, ASSERT_TYPE_ASSERT, "(unsigned)( dobjIndex ) < (unsigned)( 512 )", "dobjIndex doesn't index MAX_SCENE_DOBJ\n\t%i not in [0, %i)", v21, 512) )
+    LODWORD(v19) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2984, ASSERT_TYPE_ASSERT, "(unsigned)( dobjIndex ) < (unsigned)( 512 )", "dobjIndex doesn't index MAX_SCENE_DOBJ\n\t%i not in [0, %i)", v19, 512) )
       __debugbreak();
   }
   v11 = v7;
   v12 = *((_DWORD *)&scene.sceneDObj[v7] + 346) >> 10;
-  _RBX->clientIndex = clientIndex;
+  markIterator->clientIndex = clientIndex;
   v13 = v12 & 0xFFF;
-  _RBX->dobjIndex = v7;
-  _RBX->modelIndex = modelIndex;
-  _RBX->unlockDobj = 0;
+  markIterator->dobjIndex = v7;
+  markIterator->modelIndex = modelIndex;
+  markIterator->unlockDobj = 0;
   v14 = DVARBOOL_cg_riotshield_decalfix_enable;
   if ( !DVARBOOL_cg_riotshield_decalfix_enable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_riotshield_decalfix_enable") )
     __debugbreak();
@@ -1083,17 +953,17 @@ void FX_BeginDobjMarkIterator(FxDobjMarkIterator *markIterator, LocalClientNum_t
     if ( (_DWORD)v13 == 2048 )
     {
       v16 = MarksSystem->firstViewmodelMarkHandle[0];
-      _RBX->markHandle = v16;
+      markIterator->markHandle = v16;
     }
     else if ( (unsigned int)v13 < 0x801 )
     {
       v16 = MarksSystem->entFirstMarkHandles[v13];
-      _RBX->markHandle = v16;
+      markIterator->markHandle = v16;
     }
     else
     {
       v16 = -1;
-      _RBX->markHandle = -1;
+      markIterator->markHandle = -1;
     }
   }
   else
@@ -1101,29 +971,23 @@ void FX_BeginDobjMarkIterator(FxDobjMarkIterator *markIterator, LocalClientNum_t
     if ( !obj || (unsigned int)v13 >= gfxCfg.entnumOrdinaryEnd )
       goto LABEL_26;
     v17 = MarksSystem->entFirstMarkHandles[v13];
-    _RBX->markHandle = v17;
+    markIterator->markHandle = v17;
     v16 = v17;
   }
-  if ( v16 == -1 )
+  if ( v16 == 0xFFFF )
     return;
   DObjLock(scene.sceneDObj[v11].obj);
-  _RBX->unlockDobj = 1;
+  markIterator->unlockDobj = 1;
   SkelTimeStamp = CL_Pose_GetSkelTimeStamp();
   if ( DObjSkelExists(scene.sceneDObj[v11].obj, SkelTimeStamp) )
   {
-    _RAX = viewOffset;
-    _RBX->entnum = v13;
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rax]
-      vmovsd  qword ptr [rbx+34h], xmm0
-    }
-    _RBX->viewOffset.v[2] = viewOffset->v[2];
-    DObjGetHidePartBits(scene.sceneDObj[v11].obj, &_RBX->hidePartBits);
+    markIterator->entnum = v13;
+    markIterator->viewOffset = *viewOffset;
+    DObjGetHidePartBits(scene.sceneDObj[v11].obj, &markIterator->hidePartBits);
     return;
   }
 LABEL_26:
-  _RBX->markHandle = -1;
+  markIterator->markHandle = -1;
 }
 
 /*
@@ -1136,24 +1000,17 @@ void FX_BeginDynEntModelMarkIterator(FxDynEntModelMarkIterator *markIterator, Lo
   volatile signed __int32 *v9; 
   FxMarksSystem *MarksSystem; 
 
-  _RDI = markIterator;
   v9 = &g_markThread[clientIndex];
   if ( ((unsigned __int8)v9 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&g_markThread[clientIndex]) )
     __debugbreak();
   if ( _InterlockedIncrement(v9) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3229, ASSERT_TYPE_ASSERT, "(Sys_InterlockedIncrement( &g_markThread[clientIndex] ) == 1)", (const char *)&queryFormat, "Sys_InterlockedIncrement( &g_markThread[clientIndex] ) == 1") )
     __debugbreak();
   MarksSystem = FX_GetMarksSystem(clientIndex);
-  _RCX = viewOffset;
-  _RDI->clientIndex = clientIndex;
-  _RDI->dynEntityId = dynEntityId;
-  _RDI->dynEntClientId = dynEntClientId;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vmovsd  qword ptr [rdi+0Ch], xmm0
-  }
-  _RDI->viewOffset.v[2] = viewOffset->v[2];
-  _RDI->markHandle = FX_GetDynEntModelListHead(MarksSystem, dynEntityId);
+  markIterator->clientIndex = clientIndex;
+  markIterator->dynEntityId = dynEntityId;
+  markIterator->dynEntClientId = dynEntClientId;
+  markIterator->viewOffset = *viewOffset;
+  markIterator->markHandle = FX_GetDynEntModelListHead(MarksSystem, dynEntityId);
 }
 
 /*
@@ -1461,30 +1318,22 @@ FX_DeriveMarkSize
 */
 vec4_t *FX_DeriveMarkSize(vec4_t *result, const vec4_t *markSizeOrig)
 {
-  char v2; 
-
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdx+8]
-    vmovss  xmm1, dword ptr [rdx+4]
-    vmovss  xmm2, dword ptr [rdx]
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm3, xmm0
-  }
-  if ( v2 )
+  *(float *)&_XMM3 = markSizeOrig->v[2];
+  _XMM1 = LODWORD(markSizeOrig->v[1]);
+  _XMM2 = LODWORD(markSizeOrig->v[0]);
+  if ( *(float *)&_XMM3 == 0.0 )
     __asm { vmaxss  xmm3, xmm2, xmm1 }
   __asm
   {
     vcmpeqss xmm0, xmm1, xmm0
     vblendvps xmm1, xmm1, xmm2, xmm0
     vmaxss  xmm0, xmm1, xmm2
-    vmovss  dword ptr [rcx+8], xmm1
-    vmovss  [rsp+arg_0], xmm1
-    vmaxss  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rcx+0Ch], xmm1
-    vmovss  dword ptr [rcx], xmm3
-    vmovss  dword ptr [rcx+4], xmm2
   }
+  result->v[2] = *(float *)&_XMM1;
+  __asm { vmaxss  xmm1, xmm0, xmm3 }
+  result->v[3] = *(float *)&_XMM1;
+  result->v[0] = *(float *)&_XMM3;
+  result->v[1] = *(float *)&_XMM2;
   return result;
 }
 
@@ -1748,11 +1597,13 @@ void FX_FindSpotForMark(unsigned __int16 *outSpotMarkPrev, unsigned __int16 **ou
   unsigned __int16 *p_nextMark; 
   unsigned __int16 nextMark; 
   unsigned __int16 v10; 
-  Material *material; 
-  bool v13; 
-  GfxMarkContext context; 
-  __int64 v29; 
-  __int64 v30; 
+  FxMark *v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  __int64 v16; 
+  __int64 v17; 
 
   p_nextMark = head;
   *outSpotMarkPrev = -1;
@@ -1765,50 +1616,22 @@ void FX_FindSpotForMark(unsigned __int16 *outSpotMarkPrev, unsigned __int16 **ou
     {
       if ( nextMark >= 0x200u )
       {
-        LODWORD(v30) = 512;
-        LODWORD(v29) = nextMark;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", v29, v30) )
+        LODWORD(v17) = 512;
+        LODWORD(v16) = nextMark;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", v16, v17) )
           __debugbreak();
       }
       if ( !marksSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 183, ASSERT_TYPE_ASSERT, "(marksSystem)", (const char *)&queryFormat, "marksSystem") )
         __debugbreak();
-      material = mark->material;
-      _RCX = &marksSystem->marks[nextMark];
-      v13 = _RCX->material < material;
-      if ( _RCX->material == material )
+      v11 = &marksSystem->marks[nextMark];
+      if ( v11->material == mark->material && *(_QWORD *)&v11->context == *(_QWORD *)&mark->context || (v12 = v11->origin.v[0] - mark->origin.v[0], v13 = v11->origin.v[1] - mark->origin.v[1], v14 = v11->origin.v[2] - mark->origin.v[2], v15 = v11->radius + mark->radius, (float)((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v14 * v14)) < (float)(v15 * v15)) )
       {
-        context = _RCX->context;
-        v13 = *(unsigned __int64 *)&context < *(_QWORD *)&mark->context;
-        if ( context == *(_QWORD *)&mark->context )
-          goto LABEL_11;
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+10h]
-        vsubss  xmm3, xmm0, dword ptr [rsi+10h]
-        vmovss  xmm1, dword ptr [rcx+14h]
-        vsubss  xmm2, xmm1, dword ptr [rsi+14h]
-        vmovss  xmm0, dword ptr [rcx+18h]
-        vsubss  xmm4, xmm0, dword ptr [rsi+18h]
-        vmovss  xmm1, dword ptr [rcx+1Ch]
-        vaddss  xmm5, xmm1, dword ptr [rsi+1Ch]
-        vmulss  xmm0, xmm3, xmm3
-        vmulss  xmm2, xmm2, xmm2
-        vaddss  xmm3, xmm2, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm4, xmm3, xmm1
-        vmulss  xmm0, xmm5, xmm5
-        vcomiss xmm4, xmm0
-      }
-      if ( v13 )
-      {
-LABEL_11:
         *outSpotMarkPrev = v10;
         *outSpotHandlePrev = p_nextMark;
       }
       v10 = *p_nextMark;
-      nextMark = _RCX->nextMark;
-      p_nextMark = &_RCX->nextMark;
+      nextMark = v11->nextMark;
+      p_nextMark = &v11->nextMark;
     }
     while ( nextMark != 0xFFFF );
     nextMark = **outSpotHandlePrev;
@@ -2382,124 +2205,111 @@ FX_GenerateMarkVertsForList_EntBrush
 */
 char FX_GenerateMarkVertsForList_EntBrush(FxMarksSystem *marksSystem, const FxCamera *camera, unsigned __int16 head, unsigned int *indexCount, const GfxPlacement *placement)
 {
-  const FxCamera *v7; 
+  const FxCamera *v6; 
+  FxMark *v8; 
   unsigned int frustumPlaneCount; 
-  int v18; 
+  float radius; 
+  __m128 v12; 
+  int v15; 
   unsigned __int16 uid; 
-  int v35; 
-  unsigned __int16 v36; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  int v23; 
+  unsigned __int16 v24; 
   __int64 atlasIndex; 
   __int64 markFlags; 
   unsigned __int8 outColor[4]; 
   unsigned __int8 color[4]; 
-  const FxCamera *v43; 
+  const FxCamera *v30; 
   float4 posWorld; 
   vec3_t out; 
   tmat33_t<vec3_t> in1; 
-  __int128 v47; 
+  __m128 v34; 
   tmat43_t<vec3_t> outTransform; 
-  tmat33_t<vec3_t> v49; 
+  tmat33_t<vec3_t> v36; 
 
-  v43 = camera;
-  v7 = camera;
+  v30 = camera;
+  v6 = camera;
   FX_GenerateMarkVertsForMark_MatrixFromPlacement(placement, &vec3_origin, &outTransform);
-  if ( head != 0xFFFF )
+  while ( head != 0xFFFF )
   {
-    __asm
+    if ( head >= 0x200u )
     {
-      vmovaps [rsp+150h+var_40], xmm6
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
+      LODWORD(markFlags) = 512;
+      LODWORD(atlasIndex) = head;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", atlasIndex, markFlags) )
+        __debugbreak();
     }
-    do
+    if ( !marksSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 183, ASSERT_TYPE_ASSERT, "(marksSystem)", (const char *)&queryFormat, "marksSystem") )
+      __debugbreak();
+    v8 = &marksSystem->marks[head];
+    head = v8->nextMark;
+    if ( v8 == (FxMark *)-76i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1996, ASSERT_TYPE_ASSERT, "(context)", (const char *)&queryFormat, "context") )
+      __debugbreak();
+    if ( v8->context.modelType == 3 )
     {
-      if ( head >= 0x200u )
+      if ( (*((_BYTE *)v8 + 103) & 2) != 0 )
       {
-        LODWORD(markFlags) = 512;
-        LODWORD(atlasIndex) = head;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", atlasIndex, markFlags) )
-          __debugbreak();
+        FX_FreeMark(marksSystem, v8, -14);
       }
-      if ( !marksSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 183, ASSERT_TYPE_ASSERT, "(marksSystem)", (const char *)&queryFormat, "marksSystem") )
-        __debugbreak();
-      _RDI = &marksSystem->marks[head];
-      head = _RDI->nextMark;
-      if ( _RDI == (FxMark *)-76i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1996, ASSERT_TYPE_ASSERT, "(context)", (const char *)&queryFormat, "context") )
-        __debugbreak();
-      if ( _RDI->context.modelType == 3 )
+      else
       {
-        if ( (*((_BYTE *)_RDI + 103) & 2) != 0 )
+        MatrixTransformVector43(&v8->origin, &outTransform, &out);
+        frustumPlaneCount = v6->frustumPlaneCount;
+        radius = v8->radius;
+        v34.m128_i32[3] = 0;
+        v12 = v34;
+        v12.m128_f32[0] = out.v[0];
+        _XMM4 = v12;
+        __asm
         {
-          FX_FreeMark(marksSystem, _RDI, -14);
+          vinsertps xmm4, xmm4, dword ptr [rsp+150h+out+4], 50h+var_40
+          vinsertps xmm4, xmm4, dword ptr [rsp+150h+out+8], 50h+var_30
         }
-        else
+        v34 = _XMM4;
+        posWorld.v = _XMM4;
+        if ( !FX_CullSphere(v6, frustumPlaneCount, &posWorld, radius, 0) )
         {
-          MatrixTransformVector43(&_RDI->origin, &outTransform, &out);
-          __asm { vmovss  xmm0, dword ptr [rsp+150h+out] }
-          frustumPlaneCount = v7->frustumPlaneCount;
-          __asm { vmovss  xmm3, dword ptr [rdi+1Ch]; radius }
-          HIDWORD(v47) = 0;
-          __asm
+          MatrixTransformVector(&v8->texCoordAxisZ, (const tmat33_t<vec3_t> *)&outTransform, in1.m);
+          MatrixTransformVector(&v8->texCoordAxisX, (const tmat33_t<vec3_t> *)&outTransform, &in1.m[1]);
+          MatrixTransformVector(&v8->texCoordAxisY, (const tmat33_t<vec3_t> *)&outTransform, &in1.m[2]);
+          FX_ExpandMarkVerts_GetColor(marksSystem, v8, outColor);
+          v15 = FX_CalculateMarkAtlasFrame(marksSystem, v8);
+          uid = FX_MarkToHandle(marksSystem, v8);
+          R_AddMarkDecalVolume(&out, &v8->halfSize, &in1, outColor, v8->material, v15, 2u, uid);
+          if ( (*((_BYTE *)v8 + 103) & 4) != 0 )
           {
-            vmovups xmm4, xmmword ptr [rbp-60h]
-            vmovss  xmm4, xmm4, xmm0
-            vinsertps xmm4, xmm4, dword ptr [rsp+150h+out+4], 50h+var_40
-            vinsertps xmm4, xmm4, dword ptr [rsp+150h+out+8], 50h+var_30
-            vmovups xmmword ptr [rbp-60h], xmm4
-            vmovups xmmword ptr [rsp+150h+posWorld.v], xmm4
+            LODWORD(v17) = LODWORD(v8->texCoordAxisZ.v[1]) ^ _xmm;
+            LODWORD(in1.m[0].v[0]) = LODWORD(v8->texCoordAxisZ.v[0]) ^ _xmm;
+            LODWORD(v18) = LODWORD(v8->texCoordAxisZ.v[2]) ^ _xmm;
+            in1.m[0].v[1] = v17;
+            LODWORD(v19) = LODWORD(v8->texCoordAxisX.v[0]) ^ _xmm;
+            in1.m[0].v[2] = v18;
+            LODWORD(in1.m[1].v[1]) = LODWORD(v8->texCoordAxisX.v[1]) ^ _xmm;
+            v20 = v8->texCoordAxisY.v[0];
+            in1.m[1].v[0] = v19;
+            LODWORD(v21) = LODWORD(v8->texCoordAxisX.v[2]) ^ _xmm;
+            v22 = v8->texCoordAxisY.v[1];
+            in1.m[2].v[0] = v20;
+            in1.m[2].v[2] = v8->texCoordAxisY.v[2];
+            in1.m[1].v[2] = v21;
+            in1.m[2].v[1] = v22;
+            MatrixTransformVector(in1.m, (const tmat33_t<vec3_t> *)&outTransform, v36.m);
+            MatrixTransformVector(&in1.m[1], (const tmat33_t<vec3_t> *)&outTransform, &v36.m[1]);
+            MatrixTransformVector(&in1.m[2], (const tmat33_t<vec3_t> *)&outTransform, &v36.m[2]);
+            FX_ExpandMarkVerts_GetColor(marksSystem, v8, color);
+            v23 = FX_CalculateMarkAtlasFrame(marksSystem, v8);
+            v24 = FX_MarkToHandle(marksSystem, v8);
+            R_AddMarkDecalVolume(&out, &v8->halfSize, &v36, color, v8->material, v23, 2u, v24);
           }
-          if ( !FX_CullSphere(v7, frustumPlaneCount, &posWorld, *(float *)&_XMM3, 0) )
-          {
-            MatrixTransformVector(&_RDI->texCoordAxisZ, (const tmat33_t<vec3_t> *)&outTransform, in1.m);
-            MatrixTransformVector(&_RDI->texCoordAxisX, (const tmat33_t<vec3_t> *)&outTransform, &in1.m[1]);
-            MatrixTransformVector(&_RDI->texCoordAxisY, (const tmat33_t<vec3_t> *)&outTransform, &in1.m[2]);
-            FX_ExpandMarkVerts_GetColor(marksSystem, _RDI, outColor);
-            v18 = FX_CalculateMarkAtlasFrame(marksSystem, _RDI);
-            uid = FX_MarkToHandle(marksSystem, _RDI);
-            R_AddMarkDecalVolume(&out, &_RDI->halfSize, &in1, outColor, _RDI->material, v18, 2u, uid);
-            if ( (*((_BYTE *)_RDI + 103) & 4) != 0 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rdi+68h]
-                vmovss  xmm2, dword ptr [rdi+6Ch]
-                vxorps  xmm1, xmm0, xmm6
-                vxorps  xmm0, xmm2, xmm6
-                vmovss  dword ptr [rsp+150h+in1], xmm1
-                vmovss  xmm1, dword ptr [rdi+70h]
-                vxorps  xmm2, xmm1, xmm6
-                vmovss  dword ptr [rsp+150h+in1+4], xmm0
-                vmovss  xmm0, dword ptr [rdi+20h]
-                vxorps  xmm1, xmm0, xmm6
-                vmovss  dword ptr [rsp+150h+in1+8], xmm2
-                vmovss  xmm2, dword ptr [rdi+24h]
-                vxorps  xmm0, xmm2, xmm6
-                vmovss  dword ptr [rbp+50h+var_D4+4], xmm0
-                vmovss  xmm0, dword ptr [rdi+2Ch]
-                vmovss  dword ptr [rsp+150h+var_D4], xmm1
-                vmovss  xmm1, dword ptr [rdi+28h]
-                vxorps  xmm2, xmm1, xmm6
-                vmovss  xmm1, dword ptr [rdi+30h]
-                vmovss  dword ptr [rbp+50h+var_C8], xmm0
-                vmovss  xmm0, dword ptr [rdi+34h]
-                vmovss  dword ptr [rbp+50h+var_C8+8], xmm0
-                vmovss  dword ptr [rbp+50h+var_D4+8], xmm2
-                vmovss  dword ptr [rbp+50h+var_C8+4], xmm1
-              }
-              MatrixTransformVector(in1.m, (const tmat33_t<vec3_t> *)&outTransform, v49.m);
-              MatrixTransformVector(&in1.m[1], (const tmat33_t<vec3_t> *)&outTransform, &v49.m[1]);
-              MatrixTransformVector(&in1.m[2], (const tmat33_t<vec3_t> *)&outTransform, &v49.m[2]);
-              FX_ExpandMarkVerts_GetColor(marksSystem, _RDI, color);
-              v35 = FX_CalculateMarkAtlasFrame(marksSystem, _RDI);
-              v36 = FX_MarkToHandle(marksSystem, _RDI);
-              R_AddMarkDecalVolume(&out, &_RDI->halfSize, &v49, color, _RDI->material, v35, 2u, v36);
-            }
-            v7 = v43;
-          }
+          v6 = v30;
         }
       }
     }
-    while ( head != 0xFFFF );
-    __asm { vmovaps xmm6, [rsp+150h+var_40] }
   }
   return 1;
 }
@@ -2514,18 +2324,21 @@ void FX_GenerateMarkVertsForList_EntDObj(FxMarksSystem *marksSystem, unsigned __
   int v7; 
   unsigned __int16 nextMark; 
   int DobjModelGlobalBoneBase; 
+  FxMark *v11; 
   GfxMarkContext *p_context; 
   unsigned int v13; 
   const char *v14; 
   unsigned int v15; 
+  float radius; 
   unsigned int frustumPlaneCount; 
+  __m128 v19; 
   const char *Name; 
   unsigned int NumModels; 
+  __int64 v24; 
   __int64 v25; 
-  __int64 v26; 
   float4 posWorld; 
   vec3_t out; 
-  __int128 v30; 
+  __m128 v29; 
   tmat43_t<vec3_t> outTransform; 
 
   v7 = -1;
@@ -2535,21 +2348,21 @@ void FX_GenerateMarkVertsForList_EntDObj(FxMarksSystem *marksSystem, unsigned __
   {
     if ( nextMark >= 0x200u )
     {
-      LODWORD(v26) = 512;
-      LODWORD(v25) = nextMark;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", v25, v26) )
+      LODWORD(v25) = 512;
+      LODWORD(v24) = nextMark;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", v24, v25) )
         __debugbreak();
     }
     if ( !marksSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 183, ASSERT_TYPE_ASSERT, "(marksSystem)", (const char *)&queryFormat, "marksSystem") )
       __debugbreak();
-    _RBX = &marksSystem->marks[nextMark];
-    nextMark = _RBX->nextMark;
-    p_context = &_RBX->context;
-    if ( _RBX == (FxMark *)-76i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1996, ASSERT_TYPE_ASSERT, "(context)", (const char *)&queryFormat, "context") )
+    v11 = &marksSystem->marks[nextMark];
+    nextMark = v11->nextMark;
+    p_context = &v11->context;
+    if ( v11 == (FxMark *)-76i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1996, ASSERT_TYPE_ASSERT, "(context)", (const char *)&queryFormat, "context") )
       __debugbreak();
     if ( p_context->modelType == 4 )
     {
-      if ( _RBX == (FxMark *)-76i64 )
+      if ( v11 == (FxMark *)-76i64 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2003, ASSERT_TYPE_ASSERT, "(context)", (const char *)&queryFormat, "context") )
           __debugbreak();
@@ -2558,7 +2371,7 @@ void FX_GenerateMarkVertsForList_EntDObj(FxMarksSystem *marksSystem, unsigned __
       }
       if ( p_context->modelType != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2004, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_ENT_MODEL)", (const char *)&queryFormat, "FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_ENT_MODEL") )
         __debugbreak();
-      v13 = _RBX->context.surfIndex & 0x1F;
+      v13 = v11->context.surfIndex & 0x1F;
       if ( (int)v13 >= DObjGetNumModels(dobj) )
       {
         Name = DObjGetName(dobj);
@@ -2574,37 +2387,34 @@ void FX_GenerateMarkVertsForList_EntDObj(FxMarksSystem *marksSystem, unsigned __
         }
         if ( DobjModelGlobalBoneBase < 0 )
         {
-          LODWORD(v25) = DobjModelGlobalBoneBase;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2273, ASSERT_TYPE_ASSERT, "( ( markModelGlobalBoneBase >= 0 ) )", "( markModelGlobalBoneBase ) = %i", v25) )
+          LODWORD(v24) = DobjModelGlobalBoneBase;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2273, ASSERT_TYPE_ASSERT, "( ( markModelGlobalBoneBase >= 0 ) )", "( markModelGlobalBoneBase ) = %i", v24) )
             __debugbreak();
         }
-        v15 = DobjModelGlobalBoneBase + _RBX->context.lmapIndex;
-        if ( (*((_BYTE *)_RBX + 103) & 2) != 0 )
+        v15 = DobjModelGlobalBoneBase + v11->context.lmapIndex;
+        if ( (*((_BYTE *)v11 + 103) & 2) != 0 )
         {
-          FX_FreeMark(marksSystem, _RBX, -12);
+          FX_FreeMark(marksSystem, v11, -12);
         }
         else if ( !bitarray_base<bitarray<256>>::testBit(hidePartBits, v15) && DObjSkelIsBoneUpToDate(dobj, v15) )
         {
-          FX_GenerateMarkVertsForMark_MatrixFromAnim(_RBX, dobj, &boneMtxList[v15], &camera->viewOffset, &outTransform);
-          MatrixTransformVector43(&_RBX->origin, &outTransform, &out);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+0F8h+out]
-            vmovss  xmm3, dword ptr [rbx+1Ch]; radius
-          }
-          HIDWORD(v30) = 0;
-          __asm { vmovups xmm4, xmmword ptr [rsp+70h] }
+          FX_GenerateMarkVertsForMark_MatrixFromAnim(v11, dobj, &boneMtxList[v15], &camera->viewOffset, &outTransform);
+          MatrixTransformVector43(&v11->origin, &outTransform, &out);
+          radius = v11->radius;
+          v29.m128_i32[3] = 0;
           frustumPlaneCount = camera->frustumPlaneCount;
+          v19 = v29;
+          v19.m128_f32[0] = out.v[0];
+          _XMM4 = v19;
           __asm
           {
-            vmovss  xmm4, xmm4, xmm0
             vinsertps xmm4, xmm4, dword ptr [rsp+0F8h+out+4], 10h
             vinsertps xmm4, xmm4, dword ptr [rsp+0F8h+out+8], arg_18
-            vmovups xmmword ptr [rsp+70h], xmm4
-            vmovups xmmword ptr [rsp+0F8h+posWorld.v], xmm4
           }
-          if ( !FX_CullSphere(camera, frustumPlaneCount, &posWorld, *(float *)&_XMM3, 0) )
-            FX_AddDecalVolumeMarkAnimated(marksSystem, _RBX, &out, &outTransform, 0);
+          v29 = _XMM4;
+          posWorld.v = _XMM4;
+          if ( !FX_CullSphere(camera, frustumPlaneCount, &posWorld, radius, 0) )
+            FX_AddDecalVolumeMarkAnimated(marksSystem, v11, &out, &outTransform, 0);
         }
       }
       else
@@ -2623,35 +2433,24 @@ FX_GenerateMarkVertsForList_EntXModel
 */
 char FX_GenerateMarkVertsForList_EntXModel(FxMarksSystem *marksSystem, unsigned __int16 head, const FxCamera *camera, unsigned int *indexCount, const DObj *dobj, const GfxScaledPlacement *placement)
 {
-  char v6; 
+  float scale; 
+  FxMark *v10; 
   GfxMarkContext *p_context; 
   unsigned __int64 lmapIndex; 
   unsigned int frustumPlaneCount; 
-  __int64 v24; 
-  double v25; 
-  __int64 v26; 
+  float radius; 
+  __m128 v16; 
+  __int64 v20; 
+  __int64 v21; 
   float4 posWorld; 
   vec3_t out; 
-  __int128 v29; 
+  __m128 v24; 
   DObjPartBits partBits; 
   tmat43_t<vec3_t> outTransform; 
 
-  _RDI = placement;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+1Ch]
-    vucomiss xmm0, cs:__real@3f800000
-  }
-  if ( !v6 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+108h+var_E0], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2079, ASSERT_TYPE_ASSERT, "( ( placement->scale == 1.0f ) )", "( placement->scale ) = %g", v25) )
-      __debugbreak();
-  }
+  scale = placement->scale;
+  if ( scale != 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2079, ASSERT_TYPE_ASSERT, "( ( placement->scale == 1.0f ) )", "( placement->scale ) = %g", scale) )
+    __debugbreak();
   FX_GenerateMarkVertsForMark_MatrixFromPlacement(&placement->base, &vec3_origin, &outTransform);
   if ( !dobj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2314, ASSERT_TYPE_ASSERT, "(dobj)", (const char *)&queryFormat, "dobj") )
     __debugbreak();
@@ -2660,21 +2459,21 @@ char FX_GenerateMarkVertsForList_EntXModel(FxMarksSystem *marksSystem, unsigned 
   {
     if ( head >= 0x200u )
     {
-      LODWORD(v26) = 512;
-      LODWORD(v24) = head;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", v24, v26) )
+      LODWORD(v21) = 512;
+      LODWORD(v20) = head;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", v20, v21) )
         __debugbreak();
     }
     if ( !marksSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 183, ASSERT_TYPE_ASSERT, "(marksSystem)", (const char *)&queryFormat, "marksSystem") )
       __debugbreak();
-    _RBX = &marksSystem->marks[head];
-    head = _RBX->nextMark;
-    p_context = &_RBX->context;
-    if ( _RBX == (FxMark *)-76i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1996, ASSERT_TYPE_ASSERT, "(context)", (const char *)&queryFormat, "context") )
+    v10 = &marksSystem->marks[head];
+    head = v10->nextMark;
+    p_context = &v10->context;
+    if ( v10 == (FxMark *)-76i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1996, ASSERT_TYPE_ASSERT, "(context)", (const char *)&queryFormat, "context") )
       __debugbreak();
     if ( p_context->modelType == 4 )
     {
-      if ( _RBX == (FxMark *)-76i64 )
+      if ( v10 == (FxMark *)-76i64 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2003, ASSERT_TYPE_ASSERT, "(context)", (const char *)&queryFormat, "context") )
           __debugbreak();
@@ -2683,40 +2482,40 @@ char FX_GenerateMarkVertsForList_EntXModel(FxMarksSystem *marksSystem, unsigned 
       }
       if ( p_context->modelType != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2004, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_ENT_MODEL)", (const char *)&queryFormat, "FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_ENT_MODEL") )
         __debugbreak();
-      if ( (_RBX->context.surfIndex & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2326, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_DObjModelIndex( &mark->context ) == 0)", (const char *)&queryFormat, "FX_GetMarkContext_DObjModelIndex( &mark->context ) == 0") )
+      if ( (v10->context.surfIndex & 0x1F) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2326, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_DObjModelIndex( &mark->context ) == 0)", (const char *)&queryFormat, "FX_GetMarkContext_DObjModelIndex( &mark->context ) == 0") )
         __debugbreak();
-      lmapIndex = _RBX->context.lmapIndex;
-      if ( (*((_BYTE *)_RBX + 103) & 2) != 0 )
+      lmapIndex = v10->context.lmapIndex;
+      if ( (*((_BYTE *)v10 + 103) & 2) != 0 )
       {
-        FX_FreeMark(marksSystem, _RBX, -13);
+        FX_FreeMark(marksSystem, v10, -13);
       }
       else
       {
         if ( (unsigned int)lmapIndex >= 0x100 )
         {
-          LODWORD(v26) = 256;
-          LODWORD(v24) = _RBX->context.lmapIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v24, v26) )
+          LODWORD(v21) = 256;
+          LODWORD(v20) = v10->context.lmapIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v20, v21) )
             __debugbreak();
         }
         if ( ((0x80000000 >> (lmapIndex & 0x1F)) & partBits.array[lmapIndex >> 5]) == 0 )
         {
-          MatrixTransformVector43(&_RBX->origin, &outTransform, &out);
-          __asm { vmovss  xmm0, dword ptr [rsp+108h+out] }
+          MatrixTransformVector43(&v10->origin, &outTransform, &out);
           frustumPlaneCount = camera->frustumPlaneCount;
-          __asm { vmovss  xmm3, dword ptr [rbx+1Ch]; radius }
-          HIDWORD(v29) = 0;
+          radius = v10->radius;
+          v24.m128_i32[3] = 0;
+          v16 = v24;
+          v16.m128_f32[0] = out.v[0];
+          _XMM4 = v16;
           __asm
           {
-            vmovups xmm4, xmmword ptr [rsp+60h]
-            vmovss  xmm4, xmm4, xmm0
             vinsertps xmm4, xmm4, dword ptr [rsp+108h+out+4], 10h
             vinsertps xmm4, xmm4, dword ptr [rsp+108h+out+8], arg_18
-            vmovups xmmword ptr [rsp+60h], xmm4
-            vmovups xmmword ptr [rsp+108h+posWorld.v], xmm4
           }
-          if ( !FX_CullSphere(camera, frustumPlaneCount, &posWorld, *(float *)&_XMM3, 0) )
-            FX_AddDecalVolumeMarkAnimated(marksSystem, _RBX, &out, &outTransform, 0);
+          v24 = _XMM4;
+          posWorld.v = _XMM4;
+          if ( !FX_CullSphere(camera, frustumPlaneCount, &posWorld, radius, 0) )
+            FX_AddDecalVolumeMarkAnimated(marksSystem, v10, &out, &outTransform, 0);
         }
       }
     }
@@ -2733,51 +2532,58 @@ char FX_GenerateMarkVertsForList_Glass(FxMarksSystem *marksSystem, unsigned __in
 {
   unsigned __int16 nextMark; 
   bool enabled; 
+  float v8; 
+  FxMark *v9; 
   __int64 dynEntId_low; 
-  __int64 v27; 
-  bool v28; 
-  bool v50; 
-  int v98; 
-  unsigned __int16 v99; 
-  unsigned __int8 *v100; 
+  __int64 v11; 
+  FxGlassPiecePlace *v12; 
+  __int128 v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v29; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  int v37; 
+  int v38; 
+  int v39; 
+  unsigned __int16 uid; 
+  unsigned __int8 *v41; 
   vec3_t *p_origin; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
   __int64 atlasIndex; 
-  double atlasIndexa; 
   __int64 markFlags; 
-  double markFlagsa; 
-  double uid; 
-  double v134; 
-  double v135; 
   unsigned __int8 outColor[4]; 
   unsigned __int8 color[4]; 
+  int v55; 
   tmat33_t<vec3_t> axis; 
-  int v140[4]; 
+  int v57[4]; 
   vec3_t origin; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  _R12 = camera;
   nextMark = head;
   enabled = fx_marks->current.enabled;
   if ( head != 0xFFFF )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-68h], xmm8
-      vmovss  xmm8, cs:__real@40000000
-      vmovaps xmmword ptr [r11-0B8h], xmm13
-      vmovss  xmm13, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovaps xmmword ptr [r11-0C8h], xmm14
-      vmovss  xmm14, cs:__real@3f800000
-      vmovaps xmmword ptr [r11-0D8h], xmm15
-      vmovss  xmm15, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovaps xmmword ptr [r11-78h], xmm9
-      vmovaps xmmword ptr [r11-88h], xmm10
-      vmovaps xmmword ptr [r11-98h], xmm11
-      vmovaps xmmword ptr [r11-0A8h], xmm12
-    }
+    v8 = FLOAT_2_0;
     do
     {
       if ( nextMark >= 0x200u )
@@ -2789,209 +2595,118 @@ char FX_GenerateMarkVertsForList_Glass(FxMarksSystem *marksSystem, unsigned __in
       }
       if ( !marksSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 183, ASSERT_TYPE_ASSERT, "(marksSystem)", (const char *)&queryFormat, "marksSystem") )
         __debugbreak();
-      _RDI = &marksSystem->marks[nextMark];
-      nextMark = _RDI->nextMark;
-      if ( (*((_BYTE *)_RDI + 103) & 1) != 0 || enabled )
+      v9 = &marksSystem->marks[nextMark];
+      nextMark = v9->nextMark;
+      if ( (*((_BYTE *)v9 + 103) & 1) != 0 || enabled )
       {
-        if ( _RDI == (FxMark *)-76i64 )
+        if ( v9 == (FxMark *)-76i64 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2157, ASSERT_TYPE_ASSERT, "(context)", (const char *)&queryFormat, "context") )
             __debugbreak();
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1996, ASSERT_TYPE_ASSERT, "(context)", (const char *)&queryFormat, "context") )
             __debugbreak();
         }
-        if ( _RDI->context.modelType != 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2158, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_GLASS)", (const char *)&queryFormat, "FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_GLASS") )
+        if ( v9->context.modelType != 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 2158, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_GLASS)", (const char *)&queryFormat, "FX_GetMarkContext_ModelType( context ) == MARK_MODEL_TYPE_GLASS") )
           __debugbreak();
-        dynEntId_low = LOWORD(_RDI->context.typeSpecificIndex.dynEntId);
+        dynEntId_low = LOWORD(v9->context.typeSpecificIndex.dynEntId);
         if ( (unsigned int)dynEntId_low >= 0xFFF0 )
         {
           LODWORD(markFlags) = 65520;
-          LODWORD(atlasIndex) = LOWORD(_RDI->context.typeSpecificIndex.dynEntId);
+          LODWORD(atlasIndex) = LOWORD(v9->context.typeSpecificIndex.dynEntId);
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2456, ASSERT_TYPE_ASSERT, "(unsigned)( pieceIndex ) < (unsigned)( 65008 + 512 )", "pieceIndex doesn't index MAX_MAP_GLASS_PIECES + MAX_GLASS_BROKEN_PIECES\n\t%i not in [0, %i)", atlasIndex, markFlags) )
             __debugbreak();
         }
         if ( R_GetSceneGlass(dynEntId_low)->rendered )
         {
-          if ( (*((_BYTE *)_RDI + 103) & 2) != 0 )
+          if ( (*((_BYTE *)v9 + 103) & 2) != 0 )
           {
-            FX_FreeMark(marksSystem, _RDI, -16);
+            FX_FreeMark(marksSystem, v9, -16);
           }
           else
           {
-            _RAX = fxWorld.glassSys.halfThickness;
-            _RCX = dynEntId_low;
-            v27 = dynEntId_low;
-            v28 = __CFADD__(fxWorld.glassSys.piecePlaces, v27 * 32);
-            _RBX = &fxWorld.glassSys.piecePlaces[v27];
-            __asm
+            v11 = dynEntId_low;
+            v12 = &fxWorld.glassSys.piecePlaces[dynEntId_low];
+            v13 = LODWORD(fxWorld.glassSys.halfThickness[v11]);
+            v14 = v12->frame.quat.v[1];
+            v15 = v12->frame.quat.v[0];
+            v16 = v12->frame.quat.v[2];
+            v17 = v12->frame.quat.v[3];
+            v18 = (float)((float)((float)(v15 * v15) + (float)(v14 * v14)) + (float)(v16 * v16)) + (float)(v17 * v17);
+            if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v18 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_quat_inline.h", 38, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", v15, v14, v16, v17, fsqrt(v18)) )
+              __debugbreak();
+            v19 = v12->frame.quat.v[1];
+            v20 = (float)((float)(v12->frame.quat.v[0] * v12->frame.quat.v[2]) + (float)(v19 * v12->frame.quat.v[3])) * v8;
+            v21 = (float)((float)(v19 * v12->frame.quat.v[2]) - (float)(v12->frame.quat.v[0] * v12->frame.quat.v[3])) * v8;
+            v22 = camera->origin.v[0] - v12->frame.origin.v[0];
+            v23 = (float)((float)(v12->frame.quat.v[0] * v12->frame.quat.v[0]) + (float)(v19 * v19)) * v8;
+            v24 = camera->origin.v[2] - v12->frame.origin.v[2];
+            v25 = 1.0 - v23;
+            _XMM1 = v13 ^ (unsigned int)_xmm;
+            _XMM0 = 0i64;
+            __asm { vcmpless xmm0, xmm0, xmm4 }
+            v29 = v9->texCoordAxisZ.v[1];
+            __asm { vblendvps xmm2, xmm1, xmm11, xmm0 }
+            v31 = v25 * *(float *)&_XMM2;
+            v32 = v9->texCoordAxisZ.v[0];
+            v33 = v21 * *(float *)&_XMM2;
+            v34 = v9->texCoordAxisZ.v[2];
+            *(float *)&_XMM1 = (float)(camera->origin.v[1] - v12->frame.origin.v[1]) * v29;
+            v55 = _XMM2;
+            v35 = v20 * *(float *)&_XMM2;
+            if ( (float)((float)(*(float *)&_XMM1 + (float)(v22 * v32)) + (float)(v34 * v24)) < 0.0 )
             {
-              vmovss  xmm11, dword ptr [rax+rcx*4]
-              vmovss  xmm4, dword ptr [rbx+4]
-              vmovss  xmm5, dword ptr [rbx]
-              vmovss  xmm6, dword ptr [rbx+8]
-              vmovss  xmm7, dword ptr [rbx+0Ch]
-              vmulss  xmm1, xmm5, xmm5
-              vmulss  xmm0, xmm4, xmm4
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm6, xmm6
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm0, xmm7, xmm7
-              vaddss  xmm2, xmm3, xmm0
-              vsubss  xmm1, xmm2, xmm14
-              vandps  xmm1, xmm1, xmm15
-              vcomiss xmm1, cs:__real@3b03126f
-            }
-            if ( !v28 )
-            {
-              __asm
-              {
-                vsqrtss xmm0, xmm2, xmm2
-                vcvtss2sd xmm1, xmm0, xmm0
-                vmovsd  [rsp+180h+var_138], xmm1
-                vcvtss2sd xmm0, xmm4, xmm4
-                vcvtss2sd xmm2, xmm7, xmm7
-                vmovsd  [rsp+180h+var_140], xmm2
-                vcvtss2sd xmm3, xmm6, xmm6
-                vmovsd  qword ptr [rsp+180h+uid], xmm3
-                vmovsd  qword ptr [rsp+180h+markFlags], xmm0
-                vcvtss2sd xmm4, xmm5, xmm5
-                vmovsd  qword ptr [rsp+180h+atlasIndex], xmm4
-              }
-              v50 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\com_quat_inline.h", 38, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", atlasIndexa, markFlagsa, uid, v134, v135);
-              v28 = 0;
-              if ( v50 )
-                __debugbreak();
-            }
-            __asm
-            {
-              vmovss  xmm5, dword ptr [rbx+4]
-              vmovss  xmm4, dword ptr [rbx]
-              vmulss  xmm1, xmm4, dword ptr [rbx+8]
-              vmulss  xmm0, xmm5, dword ptr [rbx+0Ch]
-              vmulss  xmm2, xmm5, dword ptr [rbx+8]
-              vaddss  xmm1, xmm1, xmm0
-              vmulss  xmm0, xmm4, dword ptr [rbx+0Ch]
-              vmulss  xmm10, xmm1, xmm8
-              vsubss  xmm1, xmm2, xmm0
-              vmulss  xmm7, xmm1, xmm8
-              vmulss  xmm0, xmm5, xmm5
-              vmulss  xmm3, xmm4, xmm4
-              vaddss  xmm1, xmm3, xmm0
-              vmovss  xmm0, dword ptr [r12]
-              vsubss  xmm9, xmm0, dword ptr [rbx+10h]
-              vmovss  xmm0, dword ptr [r12+8]
-              vmulss  xmm2, xmm1, xmm8
-              vsubss  xmm8, xmm0, dword ptr [rbx+18h]
-              vmovss  xmm1, dword ptr [r12+4]
-              vsubss  xmm6, xmm1, dword ptr [rbx+14h]
-              vsubss  xmm5, xmm14, xmm2
-              vmulss  xmm2, xmm6, xmm7
-              vmulss  xmm1, xmm9, xmm10
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm0, xmm5, xmm8
-              vaddss  xmm4, xmm3, xmm0
-              vxorps  xmm1, xmm11, xmm13
-              vxorps  xmm0, xmm0, xmm0
-              vcmpless xmm0, xmm0, xmm4
-              vmovss  xmm4, dword ptr [rdi+6Ch]
-              vblendvps xmm2, xmm1, xmm11, xmm0
-              vmulss  xmm12, xmm5, xmm2
-              vmovss  xmm5, dword ptr [rdi+68h]
-              vmulss  xmm11, xmm7, xmm2
-              vmovss  xmm7, dword ptr [rdi+70h]
-              vmulss  xmm1, xmm6, xmm4
-              vmulss  xmm0, xmm9, xmm5
-              vmovss  [rsp+180h+var_128], xmm2
-              vmulss  xmm10, xmm10, xmm2
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm7, xmm8
-              vaddss  xmm3, xmm2, xmm1
-              vcomiss xmm3, cs:__real@00000000
-            }
-            if ( v28 )
-            {
-              __asm
-              {
-                vmovss  xmm2, dword ptr [rdi+24h]
-                vxorps  xmm0, xmm5, xmm13
-                vmovss  dword ptr [rsp+180h+axis], xmm0
-                vxorps  xmm0, xmm7, xmm13
-                vmovss  dword ptr [rsp+180h+axis+8], xmm0
-                vxorps  xmm1, xmm4, xmm13
-                vmovss  dword ptr [rsp+180h+axis+4], xmm1
-                vmovss  xmm1, dword ptr [rdi+20h]
-                vxorps  xmm0, xmm1, xmm13
-                vmovss  dword ptr [rsp+180h+axis+0Ch], xmm0
-                vmovss  xmm0, dword ptr [rdi+28h]
-                vxorps  xmm1, xmm2, xmm13
-                vxorps  xmm2, xmm0, xmm13
-                vmovss  xmm0, dword ptr [rdi+2Ch]
-                vmovss  dword ptr [rsp+180h+axis+18h], xmm0
-                vmovss  xmm0, dword ptr [rdi+34h]
-                vmovss  dword ptr [rbp+80h+axis+20h], xmm0
-                vaddss  xmm0, xmm10, dword ptr [rdi+10h]
-                vmovss  dword ptr [rsp+180h+axis+10h], xmm1
-                vmovss  xmm1, dword ptr [rdi+30h]
-                vmovss  dword ptr [rbp+80h+origin], xmm0
-                vaddss  xmm0, xmm12, dword ptr [rdi+18h]
-                vmovss  dword ptr [rsp+180h+axis+1Ch], xmm1
-                vaddss  xmm1, xmm11, dword ptr [rdi+14h]
-                vmovss  dword ptr [rbp+80h+origin+8], xmm0
-                vmovss  dword ptr [rsp+180h+axis+14h], xmm2
-                vmovss  dword ptr [rbp+80h+origin+4], xmm1
-              }
-              FX_ExpandMarkVerts_GetColor(marksSystem, _RDI, color);
-              v98 = FX_CalculateMarkAtlasFrame(marksSystem, _RDI);
-              v99 = FX_MarkToHandle(marksSystem, _RDI);
-              v100 = color;
+              v43 = v9->texCoordAxisX.v[1];
+              LODWORD(axis.m[0].v[0]) = LODWORD(v32) ^ _xmm;
+              LODWORD(axis.m[0].v[2]) = LODWORD(v34) ^ _xmm;
+              LODWORD(axis.m[0].v[1]) = LODWORD(v29) ^ _xmm;
+              LODWORD(axis.m[1].v[0]) = LODWORD(v9->texCoordAxisX.v[0]) ^ _xmm;
+              LODWORD(v44) = LODWORD(v43) ^ _xmm;
+              LODWORD(v45) = LODWORD(v9->texCoordAxisX.v[2]) ^ _xmm;
+              axis.m[2].v[0] = v9->texCoordAxisY.v[0];
+              axis.m[2].v[2] = v9->texCoordAxisY.v[2];
+              v46 = v35 + v9->origin.v[0];
+              axis.m[1].v[1] = v44;
+              v47 = v9->texCoordAxisY.v[1];
+              origin.v[0] = v46;
+              v48 = v31 + v9->origin.v[2];
+              axis.m[2].v[1] = v47;
+              v49 = v33 + v9->origin.v[1];
+              origin.v[2] = v48;
+              axis.m[1].v[2] = v45;
+              origin.v[1] = v49;
+              FX_ExpandMarkVerts_GetColor(marksSystem, v9, color);
+              v39 = FX_CalculateMarkAtlasFrame(marksSystem, v9);
+              uid = FX_MarkToHandle(marksSystem, v9);
+              v41 = color;
               p_origin = &origin;
             }
             else
             {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rdi+20h]
-                vmovss  xmm1, dword ptr [rdi+34h]
-                vmovups xmmword ptr [rsp+180h+axis+0Ch], xmm0
-                vmovss  xmm0, dword ptr [rdi+30h]
-                vmovss  dword ptr [rsp+180h+axis+1Ch], xmm0
-                vaddss  xmm0, xmm10, dword ptr [rdi+10h]
-                vmovss  [rbp+80h+var_F8], xmm0
-                vaddss  xmm0, xmm12, dword ptr [rdi+18h]
-                vmovss  dword ptr [rbp+80h+axis+20h], xmm1
-                vaddss  xmm1, xmm11, dword ptr [rdi+14h]
-                vmovss  [rbp+80h+var_F0], xmm0
-                vmovss  dword ptr [rsp+180h+axis], xmm5
-                vmovss  dword ptr [rsp+180h+axis+4], xmm4
-                vmovss  dword ptr [rsp+180h+axis+8], xmm7
-                vmovss  [rbp+80h+var_F4], xmm1
-              }
-              FX_ExpandMarkVerts_GetColor(marksSystem, _RDI, outColor);
-              v98 = FX_CalculateMarkAtlasFrame(marksSystem, _RDI);
-              v99 = FX_MarkToHandle(marksSystem, _RDI);
-              v100 = outColor;
-              p_origin = (vec3_t *)v140;
+              v36 = v9->texCoordAxisY.v[2];
+              *(_OWORD *)axis.row1.v = *(_OWORD *)v9->texCoordAxisX.v;
+              axis.m[2].v[1] = v9->texCoordAxisY.v[1];
+              *(float *)v57 = v35 + v9->origin.v[0];
+              *(float *)&v37 = v31 + v9->origin.v[2];
+              axis.m[2].v[2] = v36;
+              *(float *)&v38 = v33 + v9->origin.v[1];
+              v57[2] = v37;
+              axis.m[0].v[0] = v32;
+              axis.m[0].v[1] = v29;
+              axis.m[0].v[2] = v34;
+              v57[1] = v38;
+              FX_ExpandMarkVerts_GetColor(marksSystem, v9, outColor);
+              v39 = FX_CalculateMarkAtlasFrame(marksSystem, v9);
+              uid = FX_MarkToHandle(marksSystem, v9);
+              v41 = outColor;
+              p_origin = (vec3_t *)v57;
             }
-            R_AddMarkDecalVolume(p_origin, &_RDI->halfSize, &axis, v100, _RDI->material, v98, 0, v99);
-            __asm { vmovss  xmm8, cs:__real@40000000 }
+            R_AddMarkDecalVolume(p_origin, &v9->halfSize, &axis, v41, v9->material, v39, 0, uid);
+            v8 = FLOAT_2_0;
           }
         }
       }
     }
     while ( nextMark != 0xFFFF );
-    __asm
-    {
-      vmovaps xmm15, [rsp+180h+var_D0]
-      vmovaps xmm14, [rsp+180h+var_C0]
-      vmovaps xmm13, [rsp+180h+var_B0]
-      vmovaps xmm12, [rsp+180h+var_A0]
-      vmovaps xmm11, [rsp+180h+var_90]
-      vmovaps xmm10, [rsp+180h+var_80]
-      vmovaps xmm9, [rsp+180h+var_70]
-      vmovaps xmm8, [rsp+180h+var_60]
-      vmovaps xmm7, [rsp+180h+var_50]
-      vmovaps xmm6, [rsp+180h+var_40]
-    }
   }
   return 1;
 }
@@ -3005,106 +2720,93 @@ char FX_GenerateMarkVertsForList_WorldBrush(FxMarksSystem *marksSystem, unsigned
 {
   unsigned __int16 nextMark; 
   bool enabled; 
+  FxMark *v8; 
+  float v9; 
   unsigned int frustumPlaneCount; 
-  char v19; 
-  int v35; 
+  float radius; 
+  __m128 v13; 
+  char v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  int v23; 
   unsigned __int16 uid; 
   __int64 atlasIndex; 
   __int64 markFlags; 
   unsigned __int8 outColor[16]; 
   float4 posWorld; 
-  __int128 v43; 
+  __m128 v30; 
   tmat33_t<vec3_t> axis; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
   nextMark = head;
   enabled = fx_marks->current.enabled;
-  if ( head != 0xFFFF )
+  while ( nextMark != 0xFFFF )
   {
-    __asm
+    if ( nextMark >= 0x200u )
     {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-    }
-    do
-    {
-      if ( nextMark >= 0x200u )
-      {
-        LODWORD(markFlags) = 512;
-        LODWORD(atlasIndex) = nextMark;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", atlasIndex, markFlags) )
-          __debugbreak();
-      }
-      if ( !marksSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 183, ASSERT_TYPE_ASSERT, "(marksSystem)", (const char *)&queryFormat, "marksSystem") )
+      LODWORD(markFlags) = 512;
+      LODWORD(atlasIndex) = nextMark;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", atlasIndex, markFlags) )
         __debugbreak();
-      _RDI = &marksSystem->marks[nextMark];
-      nextMark = _RDI->nextMark;
-      if ( (*((_BYTE *)_RDI + 103) & 1) != 0 || enabled )
+    }
+    if ( !marksSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 183, ASSERT_TYPE_ASSERT, "(marksSystem)", (const char *)&queryFormat, "marksSystem") )
+      __debugbreak();
+    v8 = &marksSystem->marks[nextMark];
+    nextMark = v8->nextMark;
+    if ( (*((_BYTE *)v8 + 103) & 1) != 0 || enabled )
+    {
+      v9 = v8->origin.v[0];
+      frustumPlaneCount = camera->frustumPlaneCount;
+      radius = v8->radius;
+      v30.m128_i32[3] = 0;
+      v13 = v30;
+      v13.m128_f32[0] = v9;
+      _XMM4 = v13;
+      __asm
       {
-        __asm { vmovss  xmm0, dword ptr [rdi+10h] }
-        frustumPlaneCount = camera->frustumPlaneCount;
-        __asm { vmovss  xmm3, dword ptr [rdi+1Ch]; radius }
-        HIDWORD(v43) = 0;
-        __asm
+        vinsertps xmm4, xmm4, dword ptr [rdi+14h], 10h
+        vinsertps xmm4, xmm4, dword ptr [rdi+18h], 20h ; ' '
+      }
+      v30 = _XMM4;
+      posWorld.v = _XMM4;
+      if ( !FX_CullSphere(camera, frustumPlaneCount, &posWorld, radius, 0) )
+      {
+        v16 = *((_BYTE *)v8 + 103);
+        if ( (v16 & 2) != 0 )
         {
-          vmovups xmm4, xmmword ptr [rsp+60h]
-          vmovss  xmm4, xmm4, xmm0
-          vinsertps xmm4, xmm4, dword ptr [rdi+14h], 10h
-          vinsertps xmm4, xmm4, dword ptr [rdi+18h], 20h ; ' '
-          vmovups xmmword ptr [rsp+60h], xmm4
-          vmovups xmmword ptr [rsp+0E8h+posWorld.v], xmm4
+          FX_FreeMark(marksSystem, v8, -17);
         }
-        if ( !FX_CullSphere(camera, frustumPlaneCount, &posWorld, *(float *)&_XMM3, 0) )
+        else
         {
-          v19 = *((_BYTE *)_RDI + 103);
-          if ( (v19 & 2) != 0 )
+          FX_AddDecalVolumeMark(marksSystem, v8, 0);
+          if ( (v16 & 4) != 0 )
           {
-            FX_FreeMark(marksSystem, _RDI, -17);
-          }
-          else
-          {
-            FX_AddDecalVolumeMark(marksSystem, _RDI, 0);
-            if ( (v19 & 4) != 0 )
-            {
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rdi+68h]
-                vmovss  xmm2, dword ptr [rdi+6Ch]
-                vxorps  xmm1, xmm0, xmm6
-                vxorps  xmm0, xmm2, xmm6
-                vmovss  dword ptr [rsp+0E8h+axis], xmm1
-                vmovss  xmm1, dword ptr [rdi+70h]
-                vxorps  xmm2, xmm1, xmm6
-                vmovss  dword ptr [rsp+0E8h+axis+4], xmm0
-                vmovss  xmm0, dword ptr [rdi+20h]
-                vxorps  xmm1, xmm0, xmm6
-                vmovss  dword ptr [rsp+0E8h+axis+8], xmm2
-                vmovss  xmm2, dword ptr [rdi+24h]
-                vxorps  xmm0, xmm2, xmm6
-                vmovss  dword ptr [rsp+0E8h+axis+10h], xmm0
-                vmovss  xmm0, dword ptr [rdi+2Ch]
-                vmovss  dword ptr [rsp+0E8h+axis+0Ch], xmm1
-                vmovss  xmm1, dword ptr [rdi+28h]
-                vxorps  xmm2, xmm1, xmm6
-                vmovss  xmm1, dword ptr [rdi+30h]
-                vmovss  dword ptr [rsp+0E8h+axis+18h], xmm0
-                vmovss  xmm0, dword ptr [rdi+34h]
-                vmovss  dword ptr [rsp+0E8h+axis+20h], xmm0
-                vmovss  dword ptr [rsp+0E8h+axis+14h], xmm2
-                vmovss  dword ptr [rsp+0E8h+axis+1Ch], xmm1
-              }
-              FX_ExpandMarkVerts_GetColor(marksSystem, _RDI, outColor);
-              v35 = FX_CalculateMarkAtlasFrame(marksSystem, _RDI);
-              uid = FX_MarkToHandle(marksSystem, _RDI);
-              R_AddMarkDecalVolume(&_RDI->origin, &_RDI->halfSize, &axis, outColor, _RDI->material, v35, 0, uid);
-            }
+            LODWORD(v17) = LODWORD(v8->texCoordAxisZ.v[1]) ^ _xmm;
+            LODWORD(axis.m[0].v[0]) = LODWORD(v8->texCoordAxisZ.v[0]) ^ _xmm;
+            LODWORD(v18) = LODWORD(v8->texCoordAxisZ.v[2]) ^ _xmm;
+            axis.m[0].v[1] = v17;
+            LODWORD(v19) = LODWORD(v8->texCoordAxisX.v[0]) ^ _xmm;
+            axis.m[0].v[2] = v18;
+            LODWORD(axis.m[1].v[1]) = LODWORD(v8->texCoordAxisX.v[1]) ^ _xmm;
+            v20 = v8->texCoordAxisY.v[0];
+            axis.m[1].v[0] = v19;
+            LODWORD(v21) = LODWORD(v8->texCoordAxisX.v[2]) ^ _xmm;
+            v22 = v8->texCoordAxisY.v[1];
+            axis.m[2].v[0] = v20;
+            axis.m[2].v[2] = v8->texCoordAxisY.v[2];
+            axis.m[1].v[2] = v21;
+            axis.m[2].v[1] = v22;
+            FX_ExpandMarkVerts_GetColor(marksSystem, v8, outColor);
+            v23 = FX_CalculateMarkAtlasFrame(marksSystem, v8);
+            uid = FX_MarkToHandle(marksSystem, v8);
+            R_AddMarkDecalVolume(&v8->origin, &v8->halfSize, &axis, outColor, v8->material, v23, 0, uid);
           }
         }
       }
     }
-    while ( nextMark != 0xFFFF );
-    __asm { vmovaps xmm6, [rsp+0E8h+var_48] }
   }
   return 1;
 }
@@ -3118,6 +2820,8 @@ void FX_GenerateMarkVertsForMark_MatrixFromAnim(FxMark *mark, const DObj *dobj, 
 {
   unsigned __int16 lmapIndex; 
   int MarkContext_DObjModelIndex; 
+  float v11; 
+  float v12; 
   const XModel *Model; 
   DObjSkelMat skelMat; 
   tmat43_t<vec3_t> in2; 
@@ -3130,67 +2834,28 @@ void FX_GenerateMarkVertsForMark_MatrixFromAnim(FxMark *mark, const DObj *dobj, 
   lmapIndex = mark->context.lmapIndex;
   MarkContext_DObjModelIndex = FX_GetMarkContext_DObjModelIndex(&mark->context);
   LocalConvertQuatToSkelMat(boneMtx, &skelMat);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsp+110h+skelMat.axis+4]
-    vmovss  xmm0, dword ptr [rsp+110h+skelMat.axis]
-    vmovss  dword ptr [rbp+4Fh+in2], xmm0
-    vmovss  xmm0, dword ptr [rsp+110h+skelMat.axis+8]
-    vmovss  dword ptr [rbp+4Fh+in2+4], xmm1
-    vmovss  xmm1, dword ptr [rsp+110h+skelMat.axis+10h]
-    vmovss  dword ptr [rbp+4Fh+in2+8], xmm0
-    vmovss  xmm0, dword ptr [rbp+4Fh+skelMat.axis+14h]
-    vmovss  dword ptr [rbp+4Fh+in2+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+4Fh+skelMat.axis+18h]
-    vmovss  dword ptr [rbp+4Fh+in2+10h], xmm0
-    vmovss  xmm0, dword ptr [rbp+4Fh+skelMat.axis+20h]
-    vmovss  dword ptr [rbp+4Fh+in2+14h], xmm1
-    vmovss  xmm1, dword ptr [rbp+4Fh+skelMat.axis+24h]
-    vmovss  dword ptr [rbp+4Fh+in2+18h], xmm0
-    vmovss  xmm0, dword ptr [rbp+4Fh+skelMat.axis+28h]
-    vmovss  dword ptr [rbp+4Fh+in2+1Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+4Fh+skelMat.origin]
-    vaddss  xmm2, xmm1, dword ptr [r14]
-    vmovss  dword ptr [rbp+4Fh+in2+20h], xmm0
-    vmovss  xmm0, dword ptr [rbp+4Fh+skelMat.origin+4]
-    vaddss  xmm1, xmm0, dword ptr [r14+4]
-    vmovss  dword ptr [rbp+4Fh+in2+24h], xmm2
-    vmovss  xmm2, dword ptr [rbp+4Fh+skelMat.origin+8]
-    vaddss  xmm0, xmm2, dword ptr [r14+8]
-    vmovss  dword ptr [rbp+4Fh+in2+2Ch], xmm0
-    vmovss  dword ptr [rbp+4Fh+in2+28h], xmm1
-  }
+  in2.m[0].v[0] = skelMat.axis.m[0].v[0];
+  in2.m[0].v[1] = skelMat.axis.m[0].v[1];
+  in2.m[0].v[2] = skelMat.axis.m[0].v[2];
+  in2.m[1] = skelMat.axis.m[1].xyz;
+  in2.m[2].v[0] = skelMat.axis.m[2].v[0];
+  in2.m[2].v[1] = skelMat.axis.m[2].v[1];
+  v11 = skelMat.origin.v[0] + viewOffset->v[0];
+  in2.m[2].v[2] = skelMat.axis.m[2].v[2];
+  v12 = skelMat.origin.v[1] + viewOffset->v[1];
+  in2.m[3].v[0] = v11;
+  in2.m[3].v[2] = skelMat.origin.v[2] + viewOffset->v[2];
+  in2.m[3].v[1] = v12;
   Model = DObjGetModel(dobj, MarkContext_DObjModelIndex);
   if ( !Model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.h", 158, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
     __debugbreak();
   LocalConvertQuatToInverseSkelMat(&Model->baseMat[lmapIndex], &skelMat);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+110h+skelMat.axis]
-    vmovss  xmm1, dword ptr [rsp+110h+skelMat.axis+4]
-    vmovss  dword ptr [rbp+4Fh+in1], xmm0
-    vmovss  xmm0, dword ptr [rsp+110h+skelMat.axis+8]
-    vmovss  dword ptr [rbp+4Fh+in1+4], xmm1
-    vmovss  xmm1, dword ptr [rsp+110h+skelMat.axis+10h]
-    vmovss  dword ptr [rbp+4Fh+in1+8], xmm0
-    vmovss  xmm0, dword ptr [rbp+4Fh+skelMat.axis+14h]
-    vmovss  dword ptr [rbp+4Fh+in1+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+4Fh+skelMat.axis+18h]
-    vmovss  dword ptr [rbp+4Fh+in1+10h], xmm0
-    vmovss  xmm0, dword ptr [rbp+4Fh+skelMat.axis+20h]
-    vmovss  dword ptr [rbp+4Fh+in1+14h], xmm1
-    vmovss  xmm1, dword ptr [rbp+4Fh+skelMat.axis+24h]
-    vmovss  dword ptr [rbp+4Fh+in1+18h], xmm0
-    vmovss  xmm0, dword ptr [rbp+4Fh+skelMat.axis+28h]
-    vmovss  dword ptr [rbp+4Fh+in1+1Ch], xmm1
-    vmovss  xmm1, dword ptr [rbp+4Fh+skelMat.origin]
-    vmovss  dword ptr [rbp+4Fh+in1+20h], xmm0
-    vmovss  xmm0, dword ptr [rbp+4Fh+skelMat.origin+4]
-    vmovss  dword ptr [rbp+4Fh+in1+24h], xmm1
-    vmovss  xmm1, dword ptr [rbp+4Fh+skelMat.origin+8]
-    vmovss  dword ptr [rbp+4Fh+in1+28h], xmm0
-    vmovss  dword ptr [rbp+4Fh+in1+2Ch], xmm1
-  }
+  in1.m[0].v[0] = skelMat.axis.m[0].v[0];
+  in1.m[0].v[1] = skelMat.axis.m[0].v[1];
+  in1.m[0].v[2] = skelMat.axis.m[0].v[2];
+  in1.m[1] = skelMat.axis.m[1].xyz;
+  in1.m[2] = skelMat.axis.m[2].xyz;
+  in1.m[3] = skelMat.origin.xyz;
   MatrixMultiply43(&in1, &in2, outTransform);
 }
 
@@ -3201,63 +2866,56 @@ FX_GenerateMarkVertsForMark_MatrixFromPlacement
 */
 void FX_GenerateMarkVertsForMark_MatrixFromPlacement(const GfxPlacement *placement, const vec3_t *viewOffset, tmat43_t<vec3_t> *outTransform)
 {
+  float v3; 
+  float v4; 
+  float v5; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
   DObjAnimMat mat; 
   DObjSkelMat skelMat; 
 
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovss  xmm1, dword ptr [rcx+10h]
-    vmovaps xmmword ptr [rsp+98h+mat.quat], xmm0
-    vmovss  xmm0, cs:__real@40000000
-    vmovss  [rsp+98h+mat.transWeight], xmm0
-    vmovss  xmm0, dword ptr [rcx+14h]
-    vmovss  dword ptr [rsp+98h+mat.trans], xmm1
-    vmovss  xmm1, dword ptr [rcx+18h]
-  }
-  _RBX = viewOffset;
-  _RDI = outTransform;
-  __asm
-  {
-    vmovss  dword ptr [rsp+98h+mat.trans+4], xmm0
-    vmovss  dword ptr [rsp+98h+mat.trans+8], xmm1
-  }
+  v3 = placement->origin.v[0];
+  mat.quat = placement->quat;
+  mat.transWeight = FLOAT_2_0;
+  v4 = placement->origin.v[1];
+  mat.trans.v[0] = v3;
+  v5 = placement->origin.v[2];
+  mat.trans.v[1] = v4;
+  mat.trans.v[2] = v5;
   LocalConvertQuatToSkelMat(&mat, &skelMat);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsp+98h+skelMat.origin]
-    vmovss  xmm0, dword ptr [rsp+98h+skelMat.axis]
-    vmovss  xmm1, dword ptr [rsp+98h+skelMat.axis+4]
-    vmovss  dword ptr [rdi], xmm0
-    vmovss  xmm0, dword ptr [rsp+98h+skelMat.axis+8]
-    vmovss  dword ptr [rdi+4], xmm1
-    vmovss  xmm1, dword ptr [rsp+98h+skelMat.axis+10h]
-    vmovss  dword ptr [rdi+8], xmm0
-    vmovss  xmm0, dword ptr [rsp+98h+skelMat.axis+14h]
-    vmovss  dword ptr [rdi+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rsp+98h+skelMat.axis+18h]
-    vmovss  dword ptr [rdi+10h], xmm0
-    vmovss  xmm0, dword ptr [rsp+98h+skelMat.axis+20h]
-    vmovss  dword ptr [rdi+14h], xmm1
-    vmovss  xmm1, dword ptr [rsp+98h+skelMat.axis+24h]
-    vmovss  dword ptr [rdi+18h], xmm0
-    vmovss  xmm0, dword ptr [rsp+98h+skelMat.axis+28h]
-    vmovss  dword ptr [rdi+20h], xmm0
-    vmovss  xmm0, dword ptr [rsp+98h+skelMat.origin+4]
-    vmovss  dword ptr [rdi+1Ch], xmm1
-    vmovss  xmm1, dword ptr [rsp+98h+skelMat.origin+8]
-    vmovss  dword ptr [rdi+24h], xmm2
-    vmovss  dword ptr [rdi+28h], xmm0
-    vmovss  dword ptr [rdi+2Ch], xmm1
-    vaddss  xmm0, xmm2, dword ptr [rbx]
-    vmovss  dword ptr [rdi+24h], xmm0
-    vmovss  xmm1, dword ptr [rbx+4]
-    vaddss  xmm2, xmm1, dword ptr [rdi+28h]
-    vmovss  dword ptr [rdi+28h], xmm2
-    vmovss  xmm0, dword ptr [rbx+8]
-    vaddss  xmm1, xmm0, dword ptr [rdi+2Ch]
-    vmovss  dword ptr [rdi+2Ch], xmm1
-  }
+  v8 = skelMat.origin.v[0];
+  v9 = skelMat.axis.m[0].v[1];
+  outTransform->m[0].v[0] = skelMat.axis.m[0].v[0];
+  v10 = skelMat.axis.m[0].v[2];
+  outTransform->m[0].v[1] = v9;
+  v11 = skelMat.axis.m[1].v[0];
+  outTransform->m[0].v[2] = v10;
+  v12 = skelMat.axis.m[1].v[1];
+  outTransform->m[1].v[0] = v11;
+  v13 = skelMat.axis.m[1].v[2];
+  outTransform->m[1].v[1] = v12;
+  v14 = skelMat.axis.m[2].v[0];
+  outTransform->m[1].v[2] = v13;
+  v15 = skelMat.axis.m[2].v[1];
+  outTransform->m[2].v[0] = v14;
+  outTransform->m[2].v[2] = skelMat.axis.m[2].v[2];
+  v16 = skelMat.origin.v[1];
+  outTransform->m[2].v[1] = v15;
+  v17 = skelMat.origin.v[2];
+  outTransform->m[3].v[0] = v8;
+  outTransform->m[3].v[1] = v16;
+  outTransform->m[3].v[2] = v17;
+  outTransform->m[3].v[0] = v8 + viewOffset->v[0];
+  outTransform->m[3].v[1] = viewOffset->v[1] + outTransform->m[3].v[1];
+  outTransform->m[3].v[2] = viewOffset->v[2] + outTransform->m[3].v[2];
 }
 
 /*
@@ -3267,23 +2925,12 @@ FX_GenerateMarkVertsForMark_MatrixFromScaledPlacement
 */
 void FX_GenerateMarkVertsForMark_MatrixFromScaledPlacement(const GfxScaledPlacement *placement, const vec3_t *viewOffset, tmat43_t<vec3_t> *outTransform)
 {
-  const GfxScaledPlacement *v6; 
-  double v8; 
+  float scale; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+1Ch]
-    vucomiss xmm0, cs:__real@3f800000
-  }
-  v6 = placement;
-  __asm
-  {
-    vcvtss2sd xmm0, xmm0, xmm0
-    vmovsd  [rsp+38h+var_10], xmm0
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2079, ASSERT_TYPE_ASSERT, "( ( placement->scale == 1.0f ) )", "( placement->scale ) = %g", v8) )
+  scale = placement->scale;
+  if ( scale != 1.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2079, ASSERT_TYPE_ASSERT, "( ( placement->scale == 1.0f ) )", "( placement->scale ) = %g", scale) )
     __debugbreak();
-  FX_GenerateMarkVertsForMark_MatrixFromPlacement(&v6->base, viewOffset, outTransform);
+  FX_GenerateMarkVertsForMark_MatrixFromPlacement(&placement->base, viewOffset, outTransform);
 }
 
 /*
@@ -3301,13 +2948,17 @@ void FX_GenerateMarkVertsForStaticModels(FxMarksSystem *marksSystem, const FxCam
   unsigned __int64 v11; 
   FxMark *i; 
   unsigned __int16 nextMark; 
+  FxMark *v14; 
+  float v15; 
   unsigned int frustumPlaneCount; 
+  float radius; 
+  __m128 v19; 
   __int64 v22; 
   __int64 v23; 
   bool v24; 
   FxMark *v25; 
   float4 posWorld; 
-  __int128 v27; 
+  __m128 v27; 
 
   if ( !fx_marks_smodels->current.enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2644, ASSERT_TYPE_ASSERT, "(fx_marks_smodels->current.enabled)", (const char *)&queryFormat, "fx_marks_smodels->current.enabled") )
     __debugbreak();
@@ -3350,29 +3001,30 @@ void FX_GenerateMarkVertsForStaticModels(FxMarksSystem *marksSystem, const FxCam
               if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", v22, v23) )
                 __debugbreak();
             }
-            _RBX = &marksSystem->marks[nextMark];
-            nextMark = _RBX->nextMark;
-            if ( (*((_BYTE *)_RBX + 103) & 2) != 0 )
+            v14 = &marksSystem->marks[nextMark];
+            nextMark = v14->nextMark;
+            if ( (*((_BYTE *)v14 + 103) & 2) != 0 )
             {
-              FX_FreeMark(marksSystem, _RBX, -15);
+              FX_FreeMark(marksSystem, v14, -15);
             }
             else
             {
-              __asm { vmovss  xmm0, dword ptr [rbx+10h] }
+              v15 = v14->origin.v[0];
               frustumPlaneCount = camera->frustumPlaneCount;
-              __asm { vmovss  xmm3, dword ptr [rbx+1Ch]; radius }
-              HIDWORD(v27) = 0;
+              radius = v14->radius;
+              v27.m128_i32[3] = 0;
+              v19 = v27;
+              v19.m128_f32[0] = v15;
+              _XMM4 = v19;
               __asm
               {
-                vmovups xmm4, xmmword ptr [rsp+60h]
-                vmovss  xmm4, xmm4, xmm0
                 vinsertps xmm4, xmm4, dword ptr [rbx+14h], 10h
                 vinsertps xmm4, xmm4, dword ptr [rbx+18h], 20h ; ' '
-                vmovups xmmword ptr [rsp+60h], xmm4
-                vmovups xmmword ptr [rsp+0B8h+posWorld.v], xmm4
               }
-              if ( !FX_CullSphere(camera, frustumPlaneCount, &posWorld, *(float *)&_XMM3, 0) )
-                FX_AddDecalVolumeMark(marksSystem, _RBX, 0);
+              v27 = _XMM4;
+              posWorld.v = _XMM4;
+              if ( !FX_CullSphere(camera, frustumPlaneCount, &posWorld, radius, 0) )
+                FX_AddDecalVolumeMark(marksSystem, v14, 0);
             }
           }
           while ( nextMark != 0xFFFF );
@@ -3403,124 +3055,106 @@ FX_GetDobjMarkFromIterator
 */
 char FX_GetDobjMarkFromIterator(FxDobjMarkIterator *markIterator, FxMarkResult *markResult)
 {
-  FxMarksSystem *v9; 
+  __int128 v2; 
+  __int128 v3; 
+  FxMarksSystem *v6; 
   unsigned __int16 markHandle; 
   int DobjModelGlobalBoneBase; 
   const DObj *obj; 
+  FxMark *v10; 
   int MarkContext_DObjModelIndex; 
-  unsigned int v15; 
+  unsigned int v12; 
   const XModel *Model; 
-  const XModel *v17; 
-  const char *v18; 
-  int v19; 
-  const char *v20; 
-  signed int v21; 
-  const DObjAnimMat *v22; 
-  char v23; 
-  bool v47; 
-  float v72; 
-  float v74; 
-  float v76; 
-  char v77; 
-  bool v99; 
-  int v123; 
+  const XModel *v14; 
+  const char *v15; 
+  int v16; 
+  const char *v17; 
+  signed int v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
   const char *Name; 
   unsigned int NumModels; 
   char *fmt; 
-  __int64 v132; 
-  double v133; 
-  double v134; 
-  double v135; 
-  double v136; 
-  double v137; 
-  double v138; 
-  double v139; 
-  double v140; 
-  double v141; 
-  double v142; 
-  double v143; 
-  double v144; 
-  double v145; 
-  double v146; 
-  double v147; 
-  double v148; 
-  double v149; 
-  double v150; 
-  double v151; 
-  double v152; 
-  double v153; 
-  double v154; 
-  double v155; 
-  double v156; 
-  double v157; 
-  double v158; 
-  double v159; 
-  double v160; 
-  int v161; 
+  __int64 v38; 
+  int v39; 
   FxMarksSystem *marksSystem; 
   tmat43_t<vec3_t> outTransform; 
+  __int128 v42; 
+  __int128 v43; 
 
-  _R15 = markResult;
-  v9 = FX_GetMarksSystem(markIterator->clientIndex);
+  v6 = FX_GetMarksSystem(markIterator->clientIndex);
   markHandle = markIterator->markHandle;
-  marksSystem = v9;
-  v161 = -1;
+  marksSystem = v6;
+  v39 = -1;
   DobjModelGlobalBoneBase = -1;
   obj = scene.sceneDObj[markIterator->dobjIndex].obj;
   if ( markHandle == 0xFFFF )
     return 0;
   while ( 1 )
   {
-    _RDI = FX_MarkFromHandle(v9, markHandle);
-    _R15->markHandle = markIterator->markHandle;
-    markIterator->markHandle = _RDI->nextMark;
-    if ( FX_GetMarkContext_ModelType(&_RDI->context) == 4 )
+    v10 = FX_MarkFromHandle(v6, markHandle);
+    markResult->markHandle = markIterator->markHandle;
+    markIterator->markHandle = v10->nextMark;
+    if ( FX_GetMarkContext_ModelType(&v10->context) == 4 )
     {
-      MarkContext_DObjModelIndex = FX_GetMarkContext_DObjModelIndex(&_RDI->context);
-      v15 = MarkContext_DObjModelIndex;
+      MarkContext_DObjModelIndex = FX_GetMarkContext_DObjModelIndex(&v10->context);
+      v12 = MarkContext_DObjModelIndex;
       if ( MarkContext_DObjModelIndex == markIterator->modelIndex )
       {
         if ( MarkContext_DObjModelIndex < 0 || MarkContext_DObjModelIndex >= DObjGetNumModels(obj) )
         {
           Name = DObjGetName(obj);
           NumModels = DObjGetNumModels(obj);
-          Com_PrintError(21, "FX MARKS: Invalid model index %d for number of models %d for dobj %s. Please report the situation that caused this.\n", v15, NumModels, Name);
+          Com_PrintError(21, "FX MARKS: Invalid model index %d for number of models %d for dobj %s. Please report the situation that caused this.\n", v12, NumModels, Name);
           goto LABEL_33;
         }
-        Model = DObjGetModel(obj, v15);
-        v17 = Model;
+        Model = DObjGetModel(obj, v12);
+        v14 = Model;
         if ( !Model )
         {
-          v18 = DObjGetName(obj);
-          Com_PrintError(21, "FX MARKS: Invalid model with mark index %d for dobj %s. Please report the situation that caused this.\n", v15, v18);
+          v15 = DObjGetName(obj);
+          Com_PrintError(21, "FX MARKS: Invalid model with mark index %d for dobj %s. Please report the situation that caused this.\n", v12, v15);
           goto LABEL_33;
         }
-        v19 = XModelNumBones(Model);
-        if ( _RDI->context.lmapIndex >= v19 )
+        v16 = XModelNumBones(Model);
+        if ( v10->context.lmapIndex >= v16 )
         {
-          v20 = XModelGetName(v17);
-          LODWORD(fmt) = v19;
-          Com_PrintError(21, "FX MARKS: Mark bone index %d is larger than model '%s' bone count %d. Please report the situation that caused this.\n", _RDI->context.lmapIndex, v20, fmt);
+          v17 = XModelGetName(v14);
+          LODWORD(fmt) = v16;
+          Com_PrintError(21, "FX MARKS: Mark bone index %d is larger than model '%s' bone count %d. Please report the situation that caused this.\n", v10->context.lmapIndex, v17, fmt);
           goto LABEL_33;
         }
-        if ( v15 != v161 )
+        if ( v12 != v39 )
         {
-          v161 = v15;
-          DobjModelGlobalBoneBase = FX_GetDobjModelGlobalBoneBase(obj, v15);
+          v39 = v12;
+          DobjModelGlobalBoneBase = FX_GetDobjModelGlobalBoneBase(obj, v12);
         }
         if ( DobjModelGlobalBoneBase < 0 )
         {
-          LODWORD(v132) = DobjModelGlobalBoneBase;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3135, ASSERT_TYPE_ASSERT, "( ( markModelGlobalBoneBase >= 0 ) )", "( markModelGlobalBoneBase ) = %i", v132) )
+          LODWORD(v38) = DobjModelGlobalBoneBase;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3135, ASSERT_TYPE_ASSERT, "( ( markModelGlobalBoneBase >= 0 ) )", "( markModelGlobalBoneBase ) = %i", v38) )
             __debugbreak();
         }
-        v21 = DobjModelGlobalBoneBase + _RDI->context.lmapIndex;
-        if ( (*((_BYTE *)_RDI + 103) & 2) != 0 )
+        v18 = DobjModelGlobalBoneBase + v10->context.lmapIndex;
+        if ( (*((_BYTE *)v10 + 103) & 2) != 0 )
         {
-          FX_FreeMark(marksSystem, _RDI, -11);
+          FX_FreeMark(marksSystem, v10, -11);
           goto LABEL_33;
         }
-        if ( !bitarray_base<bitarray<256>>::testBit(&markIterator->hidePartBits, v21) && DObjSkelIsBoneUpToDate(obj, v21) )
+        if ( !bitarray_base<bitarray<256>>::testBit(&markIterator->hidePartBits, v18) && DObjSkelIsBoneUpToDate(obj, v18) )
           break;
       }
     }
@@ -3528,229 +3162,52 @@ LABEL_33:
     markHandle = markIterator->markHandle;
     if ( markHandle == 0xFFFF )
       return 0;
-    v9 = marksSystem;
+    v6 = marksSystem;
   }
-  __asm
-  {
-    vmovaps [rsp+138h+var_48], xmm6
-    vmovaps [rsp+138h+var_58], xmm7
-    vmovaps [rsp+138h+var_68], xmm8
-  }
-  v22 = &obj->skel.mat[v21];
-  __asm
-  {
-    vmovaps [rsp+138h+var_78], xmm9
-    vmovaps [rsp+138h+var_88], xmm10
-  }
-  FX_GenerateMarkVertsForMark_MatrixFromAnim(_RDI, obj, v22, &markIterator->viewOffset, &outTransform);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+6Ch]
-    vmulss  xmm2, xmm0, dword ptr [rdi+24h]
-    vmovss  xmm0, dword ptr [rdi+70h]
-    vmovss  xmm9, dword ptr [rdi+68h]
-    vmovss  xmm10, dword ptr [rdi+20h]
-    vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm8, cs:__real@3a83126f
-    vmulss  xmm1, xmm10, xmm9
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm2, xmm0, dword ptr [rdi+28h]
-    vaddss  xmm0, xmm3, xmm2
-    vandps  xmm1, xmm0, xmm7
-    vcomiss xmm1, xmm8
-  }
-  if ( !v23 )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+28h]
-      vmovss  xmm4, dword ptr [rdi+24h]
-      vmovss  xmm5, dword ptr [rdi+70h]
-      vmovss  xmm6, dword ptr [rdi+6Ch]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+138h+var_E0], xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovsd  [rsp+138h+var_E8], xmm3
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovsd  [rsp+138h+var_F0], xmm4
-      vcvtss2sd xmm1, xmm10, xmm10
-      vmovsd  [rsp+138h+var_F8], xmm1
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovsd  [rsp+138h+var_100], xmm5
-      vcvtss2sd xmm2, xmm9, xmm9
-      vcvtss2sd xmm6, xmm6, xmm6
-      vmovsd  [rsp+138h+var_108], xmm6
-      vmovsd  [rsp+138h+var_110], xmm2
-    }
-    v47 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3153, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( mark->texCoordAxisZ, mark->texCoordAxisX ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v133, v137, v141, v145, v149, v153, v157);
-    v23 = 0;
-    if ( v47 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+6Ch]
-    vmulss  xmm2, xmm0, dword ptr [rdi+30h]
-    vmovss  xmm0, dword ptr [rdi+70h]
-    vmovss  xmm9, dword ptr [rdi+68h]
-    vmovss  xmm10, dword ptr [rdi+2Ch]
-    vmulss  xmm1, xmm10, xmm9
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm2, xmm0, dword ptr [rdi+34h]
-    vaddss  xmm0, xmm3, xmm2
-    vandps  xmm1, xmm0, xmm7
-    vcomiss xmm1, xmm8
-  }
-  if ( !v23 )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+34h]
-      vmovss  xmm4, dword ptr [rdi+30h]
-      vmovss  xmm5, dword ptr [rdi+70h]
-      vmovss  xmm6, dword ptr [rdi+6Ch]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+138h+var_E0], xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovsd  [rsp+138h+var_E8], xmm3
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovsd  [rsp+138h+var_F0], xmm4
-      vcvtss2sd xmm1, xmm10, xmm10
-      vmovsd  [rsp+138h+var_F8], xmm1
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovsd  [rsp+138h+var_100], xmm5
-      vcvtss2sd xmm2, xmm9, xmm9
-      vcvtss2sd xmm6, xmm6, xmm6
-      vmovsd  [rsp+138h+var_108], xmm6
-      vmovsd  [rsp+138h+var_110], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3154, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( mark->texCoordAxisZ, mark->texCoordAxisY ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v134, v138, v142, v146, v150, v154, v158) )
-      __debugbreak();
-  }
-  _RCX = &_RDI->origin;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rcx]
-    vmovsd  qword ptr [r15], xmm0
-  }
-  _R15->center.v[2] = _RDI->origin.v[2];
-  __asm { vmovsd  xmm0, qword ptr [rdi+68h] }
-  v72 = _RDI->texCoordAxisZ.v[2];
-  __asm { vmovsd  qword ptr [r15+0Ch], xmm0 }
-  _R15->axis.m[0].v[2] = v72;
-  __asm { vmovsd  xmm0, qword ptr [rdi+20h] }
-  v74 = _RDI->texCoordAxisX.v[2];
-  __asm { vmovsd  qword ptr [r15+18h], xmm0 }
-  _R15->axis.m[1].v[2] = v74;
-  __asm { vmovsd  xmm0, qword ptr [rdi+2Ch] }
-  v76 = _RDI->texCoordAxisY.v[2];
-  __asm { vmovsd  qword ptr [r15+24h], xmm0 }
-  _R15->axis.m[2].v[2] = v76;
-  MatrixTransformVector43(&_RDI->origin, &outTransform, &_R15->worldCenter);
-  MatrixTransformVector(&_RDI->texCoordAxisZ, (const tmat33_t<vec3_t> *)&outTransform, _R15->worldAxis.m);
-  MatrixTransformVector(&_RDI->texCoordAxisX, (const tmat33_t<vec3_t> *)&outTransform, &_R15->worldAxis.m[1]);
-  MatrixTransformVector(&_RDI->texCoordAxisY, (const tmat33_t<vec3_t> *)&outTransform, &_R15->worldAxis.m[2]);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+4Ch]
-    vmulss  xmm2, xmm0, dword ptr [r15+40h]
-    vmovss  xmm0, dword ptr [r15+50h]
-    vmovss  xmm9, dword ptr [r15+48h]
-    vmovss  xmm10, dword ptr [r15+3Ch]
-    vmulss  xmm1, xmm10, xmm9
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm2, xmm0, dword ptr [r15+44h]
-    vaddss  xmm0, xmm3, xmm2
-    vandps  xmm1, xmm0, xmm7
-    vcomiss xmm1, xmm8
-  }
-  if ( !v77 )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [r15+50h]
-      vmovss  xmm4, dword ptr [r15+4Ch]
-      vmovss  xmm5, dword ptr [r15+44h]
-      vmovss  xmm6, dword ptr [r15+40h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+138h+var_E0], xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovsd  [rsp+138h+var_E8], xmm3
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovsd  [rsp+138h+var_F0], xmm4
-      vcvtss2sd xmm1, xmm9, xmm9
-      vmovsd  [rsp+138h+var_F8], xmm1
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovsd  [rsp+138h+var_100], xmm5
-      vcvtss2sd xmm2, xmm10, xmm10
-      vcvtss2sd xmm6, xmm6, xmm6
-      vmovsd  [rsp+138h+var_108], xmm6
-      vmovsd  [rsp+138h+var_110], xmm2
-    }
-    v99 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3167, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( markResult.worldAxis[0], markResult.worldAxis[1] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v135, v139, v143, v147, v151, v155, v159);
-    v77 = 0;
-    if ( v99 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+58h]
-    vmulss  xmm2, xmm0, dword ptr [r15+40h]
-    vmovss  xmm0, dword ptr [r15+5Ch]
-    vmovss  xmm9, dword ptr [r15+54h]
-    vmovss  xmm10, dword ptr [r15+3Ch]
-    vmulss  xmm1, xmm9, xmm10
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm2, xmm0, dword ptr [r15+44h]
-    vaddss  xmm0, xmm3, xmm2
-    vandps  xmm1, xmm0, xmm7
-    vmovaps xmm7, [rsp+138h+var_58]
-    vcomiss xmm1, xmm8
-    vmovaps xmm8, [rsp+138h+var_68]
-  }
-  if ( !v77 )
-  {
-    __asm
-    {
-      vmovss  xmm3, dword ptr [r15+5Ch]
-      vmovss  xmm4, dword ptr [r15+58h]
-      vmovss  xmm5, dword ptr [r15+44h]
-      vmovss  xmm6, dword ptr [r15+40h]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+138h+var_E0], xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovsd  [rsp+138h+var_E8], xmm3
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovsd  [rsp+138h+var_F0], xmm4
-      vcvtss2sd xmm1, xmm9, xmm9
-      vmovsd  [rsp+138h+var_F8], xmm1
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovsd  [rsp+138h+var_100], xmm5
-      vcvtss2sd xmm2, xmm10, xmm10
-      vcvtss2sd xmm6, xmm6, xmm6
-      vmovsd  [rsp+138h+var_108], xmm6
-      vmovsd  [rsp+138h+var_110], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3168, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( markResult.worldAxis[0], markResult.worldAxis[2] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v136, v140, v144, v148, v152, v156, v160) )
-      __debugbreak();
-  }
-  FX_ExpandMarkVerts_GetColor(marksSystem, _RDI, _R15->color);
-  v123 = FX_CalculateMarkAtlasFrame(marksSystem, _RDI);
-  __asm
-  {
-    vmovaps xmm10, [rsp+138h+var_88]
-    vmovaps xmm9, [rsp+138h+var_78]
-    vmovaps xmm6, [rsp+138h+var_48]
-  }
-  _R15->atlasIndex = v123;
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rdi+74h]
-    vmovsd  qword ptr [r15+60h], xmm0
-  }
-  _R15->halfSize.v[2] = _RDI->halfSize.v[2];
-  _R15->material = _RDI->material;
-  _R15->skinned = (*((_BYTE *)_RDI + 103) & 0x10) != 0;
+  v43 = v2;
+  v42 = v3;
+  FX_GenerateMarkVertsForMark_MatrixFromAnim(v10, obj, &obj->skel.mat[v18], &markIterator->viewOffset, &outTransform);
+  v19 = v10->texCoordAxisZ.v[0];
+  v20 = v10->texCoordAxisX.v[0];
+  v21 = (float)((float)(v10->texCoordAxisZ.v[1] * v10->texCoordAxisX.v[1]) + (float)(v20 * v19)) + (float)(v10->texCoordAxisZ.v[2] * v10->texCoordAxisX.v[2]);
+  if ( COERCE_FLOAT(LODWORD(v21) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3153, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( mark->texCoordAxisZ, mark->texCoordAxisX ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v19, v10->texCoordAxisZ.v[1], v10->texCoordAxisZ.v[2], v20, v10->texCoordAxisX.v[1], v10->texCoordAxisX.v[2], v21) )
+    __debugbreak();
+  v22 = v10->texCoordAxisZ.v[0];
+  v23 = v10->texCoordAxisY.v[0];
+  v24 = (float)((float)(v10->texCoordAxisZ.v[1] * v10->texCoordAxisY.v[1]) + (float)(v23 * v22)) + (float)(v10->texCoordAxisZ.v[2] * v10->texCoordAxisY.v[2]);
+  if ( COERCE_FLOAT(LODWORD(v24) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3154, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( mark->texCoordAxisZ, mark->texCoordAxisY ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v22, v10->texCoordAxisZ.v[1], v10->texCoordAxisZ.v[2], v23, v10->texCoordAxisY.v[1], v10->texCoordAxisY.v[2], v24) )
+    __debugbreak();
+  *(double *)markResult->center.v = *(double *)v10->origin.v;
+  markResult->center.v[2] = v10->origin.v[2];
+  v25 = v10->texCoordAxisZ.v[2];
+  *(double *)markResult->axis.m[0].v = *(double *)v10->texCoordAxisZ.v;
+  markResult->axis.m[0].v[2] = v25;
+  v26 = v10->texCoordAxisX.v[2];
+  *(double *)markResult->axis.row1.v = *(double *)v10->texCoordAxisX.v;
+  markResult->axis.m[1].v[2] = v26;
+  v27 = v10->texCoordAxisY.v[2];
+  *(double *)markResult->axis.row2.v = *(double *)v10->texCoordAxisY.v;
+  markResult->axis.m[2].v[2] = v27;
+  MatrixTransformVector43(&v10->origin, &outTransform, &markResult->worldCenter);
+  MatrixTransformVector(&v10->texCoordAxisZ, (const tmat33_t<vec3_t> *)&outTransform, markResult->worldAxis.m);
+  MatrixTransformVector(&v10->texCoordAxisX, (const tmat33_t<vec3_t> *)&outTransform, &markResult->worldAxis.m[1]);
+  MatrixTransformVector(&v10->texCoordAxisY, (const tmat33_t<vec3_t> *)&outTransform, &markResult->worldAxis.m[2]);
+  v28 = markResult->worldAxis.m[1].v[0];
+  v29 = markResult->worldAxis.m[0].v[0];
+  v30 = (float)((float)(markResult->worldAxis.m[1].v[1] * markResult->worldAxis.m[0].v[1]) + (float)(v29 * v28)) + (float)(markResult->worldAxis.m[1].v[2] * markResult->worldAxis.m[0].v[2]);
+  if ( COERCE_FLOAT(LODWORD(v30) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3167, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( markResult.worldAxis[0], markResult.worldAxis[1] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v29, markResult->worldAxis.m[0].v[1], markResult->worldAxis.m[0].v[2], v28, markResult->worldAxis.m[1].v[1], markResult->worldAxis.m[1].v[2], v30) )
+    __debugbreak();
+  v31 = markResult->worldAxis.m[2].v[0];
+  v32 = markResult->worldAxis.m[0].v[0];
+  v33 = (float)((float)(markResult->worldAxis.m[2].v[1] * markResult->worldAxis.m[0].v[1]) + (float)(v31 * v32)) + (float)(markResult->worldAxis.m[2].v[2] * markResult->worldAxis.m[0].v[2]);
+  if ( COERCE_FLOAT(LODWORD(v33) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3168, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( markResult.worldAxis[0], markResult.worldAxis[2] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v32, markResult->worldAxis.m[0].v[1], markResult->worldAxis.m[0].v[2], v31, markResult->worldAxis.m[2].v[1], markResult->worldAxis.m[2].v[2], v33) )
+    __debugbreak();
+  FX_ExpandMarkVerts_GetColor(marksSystem, v10, markResult->color);
+  markResult->atlasIndex = FX_CalculateMarkAtlasFrame(marksSystem, v10);
+  *(double *)markResult->halfSize.v = *(double *)v10->halfSize.v;
+  markResult->halfSize.v[2] = v10->halfSize.v[2];
+  markResult->material = v10->material;
+  markResult->skinned = (*((_BYTE *)v10 + 103) & 0x10) != 0;
   return 1;
 }
 
@@ -3830,47 +3287,29 @@ char FX_GetDynEntModelMarkFromIterator(FxDynEntModelMarkIterator *markIterator, 
 {
   FxMarksSystem *MarksSystem; 
   unsigned __int16 markHandle; 
-  FxMarksSystem *v11; 
-  float v60; 
-  float v62; 
-  float v64; 
+  FxMarksSystem *v6; 
+  FxMark *v7; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
   DynEntityPose *PoseFromClientId; 
   const vec4_t *p_quat; 
-  char v67; 
-  bool v89; 
-  double v117; 
-  double v118; 
-  double v119; 
-  double v120; 
-  double v121; 
-  double v122; 
-  double v123; 
-  double v124; 
-  double v125; 
-  double v126; 
-  double v127; 
-  double v128; 
-  double v129; 
-  double v130; 
-  double v131; 
-  double v132; 
-  double v133; 
-  double v134; 
-  double v135; 
-  double v136; 
-  double v137; 
-  double v138; 
-  double v139; 
-  double v140; 
-  double v141; 
-  double v142; 
-  double v143; 
-  double v144; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
 
-  _RBP = markResult;
   MarksSystem = FX_GetMarksSystem(markIterator->clientIndex);
   markHandle = markIterator->markHandle;
-  v11 = MarksSystem;
+  v6 = MarksSystem;
   if ( markHandle == 0xFFFF )
   {
 LABEL_7:
@@ -3885,217 +3324,61 @@ LABEL_7:
   {
     while ( 1 )
     {
-      _RSI = FX_MarkFromHandle(v11, markHandle);
-      _RBP->markHandle = markIterator->markHandle;
-      markIterator->markHandle = _RSI->nextMark;
-      if ( FX_GetMarkContext_ModelType(&_RSI->context) != 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3251, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_ModelType( &mark->context ) == MARK_MODEL_TYPE_DYN_ENT_MODEL)", (const char *)&queryFormat, "FX_GetMarkContext_ModelType( &mark->context ) == MARK_MODEL_TYPE_DYN_ENT_MODEL") )
+      v7 = FX_MarkFromHandle(v6, markHandle);
+      markResult->markHandle = markIterator->markHandle;
+      markIterator->markHandle = v7->nextMark;
+      if ( FX_GetMarkContext_ModelType(&v7->context) != 5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3251, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_ModelType( &mark->context ) == MARK_MODEL_TYPE_DYN_ENT_MODEL)", (const char *)&queryFormat, "FX_GetMarkContext_ModelType( &mark->context ) == MARK_MODEL_TYPE_DYN_ENT_MODEL") )
         __debugbreak();
-      if ( (*((_BYTE *)_RSI + 103) & 2) == 0 )
+      if ( (*((_BYTE *)v7 + 103) & 2) == 0 )
         break;
-      FX_FreeMark(v11, _RSI, -9);
+      FX_FreeMark(v6, v7, -9);
       markHandle = markIterator->markHandle;
       if ( markHandle == 0xFFFF )
         goto LABEL_7;
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+6Ch]
-      vmulss  xmm2, xmm0, dword ptr [rsi+24h]
-      vmovss  xmm0, dword ptr [rsi+70h]
-      vmovaps [rsp+0D8h+var_38], xmm6
-      vmovaps [rsp+0D8h+var_48], xmm7
-      vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovaps [rsp+0D8h+var_58], xmm8
-      vmovss  xmm8, cs:__real@3a83126f
-      vmovaps [rsp+0D8h+var_68], xmm9
-      vmovss  xmm9, dword ptr [rsi+68h]
-      vmovaps [rsp+0D8h+var_78], xmm10
-      vmovss  xmm10, dword ptr [rsi+20h]
-      vmulss  xmm1, xmm10, xmm9
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm0, dword ptr [rsi+28h]
-      vaddss  xmm0, xmm3, xmm2
-      vandps  xmm1, xmm0, xmm7
-      vcomiss xmm1, xmm8
-      vmovss  xmm3, dword ptr [rsi+28h]
-      vmovss  xmm4, dword ptr [rsi+24h]
-      vmovss  xmm5, dword ptr [rsi+70h]
-      vmovss  xmm6, dword ptr [rsi+6Ch]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+0D8h+var_80], xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovsd  [rsp+0D8h+var_88], xmm3
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovsd  [rsp+0D8h+var_90], xmm4
-      vcvtss2sd xmm1, xmm10, xmm10
-      vmovsd  [rsp+0D8h+var_98], xmm1
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovsd  [rsp+0D8h+var_A0], xmm5
-      vcvtss2sd xmm2, xmm9, xmm9
-      vcvtss2sd xmm6, xmm6, xmm6
-      vmovsd  [rsp+0D8h+var_A8], xmm6
-      vmovsd  [rsp+0D8h+var_B0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3259, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( mark->texCoordAxisZ, mark->texCoordAxisX ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v117, v121, v125, v129, v133, v137, v141) )
+    v9 = v7->texCoordAxisZ.v[0];
+    v10 = v7->texCoordAxisX.v[0];
+    v11 = (float)((float)(v7->texCoordAxisZ.v[1] * v7->texCoordAxisX.v[1]) + (float)(v10 * v9)) + (float)(v7->texCoordAxisZ.v[2] * v7->texCoordAxisX.v[2]);
+    if ( COERCE_FLOAT(LODWORD(v11) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3259, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( mark->texCoordAxisZ, mark->texCoordAxisX ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v9, v7->texCoordAxisZ.v[1], v7->texCoordAxisZ.v[2], v10, v7->texCoordAxisX.v[1], v7->texCoordAxisX.v[2], v11) )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+6Ch]
-      vmulss  xmm2, xmm0, dword ptr [rsi+30h]
-      vmovss  xmm0, dword ptr [rsi+70h]
-      vmovss  xmm9, dword ptr [rsi+68h]
-      vmovss  xmm10, dword ptr [rsi+2Ch]
-      vmulss  xmm1, xmm10, xmm9
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm0, dword ptr [rsi+34h]
-      vaddss  xmm0, xmm3, xmm2
-      vandps  xmm1, xmm0, xmm7
-      vcomiss xmm1, xmm8
-      vmovss  xmm3, dword ptr [rsi+34h]
-      vmovss  xmm4, dword ptr [rsi+30h]
-      vmovss  xmm5, dword ptr [rsi+70h]
-      vmovss  xmm6, dword ptr [rsi+6Ch]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+0D8h+var_80], xmm0
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovsd  [rsp+0D8h+var_88], xmm3
-      vcvtss2sd xmm4, xmm4, xmm4
-      vmovsd  [rsp+0D8h+var_90], xmm4
-      vcvtss2sd xmm1, xmm10, xmm10
-      vmovsd  [rsp+0D8h+var_98], xmm1
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovsd  [rsp+0D8h+var_A0], xmm5
-      vcvtss2sd xmm2, xmm9, xmm9
-      vcvtss2sd xmm6, xmm6, xmm6
-      vmovsd  [rsp+0D8h+var_A8], xmm6
-      vmovsd  [rsp+0D8h+var_B0], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3260, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( mark->texCoordAxisZ, mark->texCoordAxisY ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v118, v122, v126, v130, v134, v138, v142) )
+    v12 = v7->texCoordAxisZ.v[0];
+    v13 = v7->texCoordAxisY.v[0];
+    v14 = (float)((float)(v7->texCoordAxisZ.v[1] * v7->texCoordAxisY.v[1]) + (float)(v13 * v12)) + (float)(v7->texCoordAxisZ.v[2] * v7->texCoordAxisY.v[2]);
+    if ( COERCE_FLOAT(LODWORD(v14) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3260, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( mark->texCoordAxisZ, mark->texCoordAxisY ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v12, v7->texCoordAxisZ.v[1], v7->texCoordAxisZ.v[2], v13, v7->texCoordAxisY.v[1], v7->texCoordAxisY.v[2], v14) )
       __debugbreak();
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsi+10h]
-      vmovsd  qword ptr [rbp+0], xmm0
-    }
-    _RBP->center.v[2] = _RSI->origin.v[2];
-    __asm { vmovsd  xmm0, qword ptr [rsi+68h] }
-    v60 = _RSI->texCoordAxisZ.v[2];
-    __asm { vmovsd  qword ptr [rbp+0Ch], xmm0 }
-    _RBP->axis.m[0].v[2] = v60;
-    __asm { vmovsd  xmm0, qword ptr [rsi+20h] }
-    v62 = _RSI->texCoordAxisX.v[2];
-    __asm { vmovsd  qword ptr [rbp+18h], xmm0 }
-    _RBP->axis.m[1].v[2] = v62;
-    __asm { vmovsd  xmm0, qword ptr [rsi+2Ch] }
-    v64 = _RSI->texCoordAxisY.v[2];
-    __asm { vmovsd  qword ptr [rbp+24h], xmm0 }
-    _RBP->axis.m[2].v[2] = v64;
+    *(double *)markResult->center.v = *(double *)v7->origin.v;
+    markResult->center.v[2] = v7->origin.v[2];
+    v15 = v7->texCoordAxisZ.v[2];
+    *(double *)markResult->axis.m[0].v = *(double *)v7->texCoordAxisZ.v;
+    markResult->axis.m[0].v[2] = v15;
+    v16 = v7->texCoordAxisX.v[2];
+    *(double *)markResult->axis.row1.v = *(double *)v7->texCoordAxisX.v;
+    markResult->axis.m[1].v[2] = v16;
+    v17 = v7->texCoordAxisY.v[2];
+    *(double *)markResult->axis.row2.v = *(double *)v7->texCoordAxisY.v;
+    markResult->axis.m[2].v[2] = v17;
     PoseFromClientId = DynEnt_GetPoseFromClientId(markIterator->clientIndex, markIterator->dynEntClientId, DYNENT_BASIS_MODEL);
     p_quat = &PoseFromClientId->pose.quat;
-    QuatTrans_TransformPoint(&PoseFromClientId->pose.quat, &PoseFromClientId->pose.origin, &_RSI->origin, &_RBP->worldCenter);
-    QuatTransform(p_quat, &_RSI->texCoordAxisZ, _RBP->worldAxis.m);
-    QuatTransform(p_quat, &_RSI->texCoordAxisX, &_RBP->worldAxis.m[1]);
-    QuatTransform(p_quat, &_RSI->texCoordAxisY, &_RBP->worldAxis.m[2]);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+4Ch]
-      vmulss  xmm2, xmm0, dword ptr [rbp+40h]
-      vmovss  xmm0, dword ptr [rbp+50h]
-      vmovss  xmm9, dword ptr [rbp+48h]
-      vmovss  xmm10, dword ptr [rbp+3Ch]
-      vmulss  xmm1, xmm10, xmm9
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm0, dword ptr [rbp+44h]
-      vaddss  xmm0, xmm3, xmm2
-      vandps  xmm1, xmm0, xmm7
-      vcomiss xmm1, xmm8
-    }
-    if ( !v67 )
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbp+50h]
-        vmovss  xmm4, dword ptr [rbp+4Ch]
-        vmovss  xmm5, dword ptr [rbp+44h]
-        vmovss  xmm6, dword ptr [rbp+40h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0D8h+var_80], xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  [rsp+0D8h+var_88], xmm3
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+0D8h+var_90], xmm4
-        vcvtss2sd xmm1, xmm9, xmm9
-        vmovsd  [rsp+0D8h+var_98], xmm1
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+0D8h+var_A0], xmm5
-        vcvtss2sd xmm2, xmm10, xmm10
-        vcvtss2sd xmm6, xmm6, xmm6
-        vmovsd  [rsp+0D8h+var_A8], xmm6
-        vmovsd  [rsp+0D8h+var_B0], xmm2
-      }
-      v89 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3273, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( markResult.worldAxis[0], markResult.worldAxis[1] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v119, v123, v127, v131, v135, v139, v143);
-      v67 = 0;
-      if ( v89 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+58h]
-      vmulss  xmm2, xmm0, dword ptr [rbp+40h]
-      vmovss  xmm0, dword ptr [rbp+5Ch]
-      vmovss  xmm9, dword ptr [rbp+3Ch]
-      vmovss  xmm10, dword ptr [rbp+54h]
-      vmulss  xmm1, xmm10, xmm9
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm2, xmm0, dword ptr [rbp+44h]
-      vaddss  xmm0, xmm3, xmm2
-      vandps  xmm1, xmm0, xmm7
-      vmovaps xmm7, [rsp+0D8h+var_48]
-      vcomiss xmm1, xmm8
-      vmovaps xmm8, [rsp+0D8h+var_58]
-    }
-    if ( !v67 )
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbp+5Ch]
-        vmovss  xmm4, dword ptr [rbp+58h]
-        vmovss  xmm5, dword ptr [rbp+44h]
-        vmovss  xmm6, dword ptr [rbp+40h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+0D8h+var_80], xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  [rsp+0D8h+var_88], xmm3
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  [rsp+0D8h+var_90], xmm4
-        vcvtss2sd xmm1, xmm10, xmm10
-        vmovsd  [rsp+0D8h+var_98], xmm1
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  [rsp+0D8h+var_A0], xmm5
-        vcvtss2sd xmm2, xmm9, xmm9
-        vcvtss2sd xmm6, xmm6, xmm6
-        vmovsd  [rsp+0D8h+var_A8], xmm6
-        vmovsd  [rsp+0D8h+var_B0], xmm2
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3274, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( markResult.worldAxis[0], markResult.worldAxis[2] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v120, v124, v128, v132, v136, v140, v144) )
-        __debugbreak();
-    }
-    FX_ExpandMarkVerts_GetColor(v11, _RSI, _RBP->color);
-    __asm
-    {
-      vmovaps xmm10, [rsp+0D8h+var_78]
-      vmovaps xmm9, [rsp+0D8h+var_68]
-      vmovaps xmm6, [rsp+0D8h+var_38]
-    }
-    _RBP->atlasIndex = FX_CalculateMarkAtlasFrame(v11, _RSI);
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsi+74h]
-      vmovsd  qword ptr [rbp+60h], xmm0
-    }
-    _RBP->halfSize.v[2] = _RSI->halfSize.v[2];
-    _RBP->material = _RSI->material;
-    _RBP->skinned = (*((_BYTE *)_RSI + 103) & 0x10) != 0;
+    QuatTrans_TransformPoint(&PoseFromClientId->pose.quat, &PoseFromClientId->pose.origin, &v7->origin, &markResult->worldCenter);
+    QuatTransform(p_quat, &v7->texCoordAxisZ, markResult->worldAxis.m);
+    QuatTransform(p_quat, &v7->texCoordAxisX, &markResult->worldAxis.m[1]);
+    QuatTransform(p_quat, &v7->texCoordAxisY, &markResult->worldAxis.m[2]);
+    v20 = markResult->worldAxis.m[1].v[0];
+    v21 = markResult->worldAxis.m[0].v[0];
+    v22 = (float)((float)(markResult->worldAxis.m[1].v[1] * markResult->worldAxis.m[0].v[1]) + (float)(v21 * v20)) + (float)(markResult->worldAxis.m[1].v[2] * markResult->worldAxis.m[0].v[2]);
+    if ( COERCE_FLOAT(LODWORD(v22) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3273, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( markResult.worldAxis[0], markResult.worldAxis[1] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v21, markResult->worldAxis.m[0].v[1], markResult->worldAxis.m[0].v[2], v20, markResult->worldAxis.m[1].v[1], markResult->worldAxis.m[1].v[2], v22) )
+      __debugbreak();
+    v23 = markResult->worldAxis.m[0].v[0];
+    v24 = markResult->worldAxis.m[2].v[0];
+    v25 = (float)((float)(markResult->worldAxis.m[2].v[1] * markResult->worldAxis.m[0].v[1]) + (float)(v24 * v23)) + (float)(markResult->worldAxis.m[2].v[2] * markResult->worldAxis.m[0].v[2]);
+    if ( COERCE_FLOAT(LODWORD(v25) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 3274, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( markResult.worldAxis[0], markResult.worldAxis[2] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v23, markResult->worldAxis.m[0].v[1], markResult->worldAxis.m[0].v[2], v24, markResult->worldAxis.m[2].v[1], markResult->worldAxis.m[2].v[2], v25) )
+      __debugbreak();
+    FX_ExpandMarkVerts_GetColor(v6, v7, markResult->color);
+    markResult->atlasIndex = FX_CalculateMarkAtlasFrame(v6, v7);
+    *(double *)markResult->halfSize.v = *(double *)v7->halfSize.v;
+    markResult->halfSize.v[2] = v7->halfSize.v[2];
+    markResult->material = v7->material;
+    markResult->skinned = (*((_BYTE *)v7 + 103) & 0x10) != 0;
     return 1;
   }
 }
@@ -4152,68 +3435,56 @@ char FX_GetModelMarkFromIterator(FxModelMarkIterator *markIterator, FxMarkResult
 {
   FxMarksSystem *MarksSystem; 
   unsigned __int16 markHandle; 
+  FxMark *v6; 
   tmat43_t<vec3_t> *p_transformMatrix; 
-  float v11; 
-  float v13; 
-  float v15; 
+  float v8; 
+  float v9; 
+  float v10; 
 
-  _R13 = markResult;
   MarksSystem = FX_GetMarksSystem(markIterator->clientIndex);
   while ( 1 )
   {
     markHandle = markIterator->markHandle;
     if ( markHandle == 0xFFFF )
       break;
-    _RBX = FX_MarkFromHandle(MarksSystem, markHandle);
-    _R13->markHandle = markIterator->markHandle;
-    markIterator->markHandle = _RBX->nextMark;
-    if ( FX_GetMarkContext_ModelType(&_RBX->context) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2935, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_ModelType( &mark->context ) == MARK_MODEL_TYPE_ENT_MODEL)", (const char *)&queryFormat, "FX_GetMarkContext_ModelType( &mark->context ) == MARK_MODEL_TYPE_ENT_MODEL") )
+    v6 = FX_MarkFromHandle(MarksSystem, markHandle);
+    markResult->markHandle = markIterator->markHandle;
+    markIterator->markHandle = v6->nextMark;
+    if ( FX_GetMarkContext_ModelType(&v6->context) != 4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2935, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_ModelType( &mark->context ) == MARK_MODEL_TYPE_ENT_MODEL)", (const char *)&queryFormat, "FX_GetMarkContext_ModelType( &mark->context ) == MARK_MODEL_TYPE_ENT_MODEL") )
       __debugbreak();
-    if ( FX_GetMarkContext_DObjModelIndex(&_RBX->context) )
+    if ( FX_GetMarkContext_DObjModelIndex(&v6->context) )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 2936, ASSERT_TYPE_ASSERT, "(FX_GetMarkContext_DObjModelIndex( &mark->context ) == 0)", (const char *)&queryFormat, "FX_GetMarkContext_DObjModelIndex( &mark->context ) == 0") )
         __debugbreak();
     }
-    if ( (*((_BYTE *)_RBX + 103) & 2) != 0 )
+    if ( (*((_BYTE *)v6 + 103) & 2) != 0 )
     {
-      FX_FreeMark(MarksSystem, _RBX, -10);
+      FX_FreeMark(MarksSystem, v6, -10);
     }
-    else if ( !bitarray_base<bitarray<256>>::testBit(&markIterator->hidePartBits, _RBX->context.lmapIndex) )
+    else if ( !bitarray_base<bitarray<256>>::testBit(&markIterator->hidePartBits, v6->context.lmapIndex) )
     {
-      _RCX = &_RBX->origin;
       p_transformMatrix = &markIterator->transformMatrix;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rcx]
-        vmovsd  qword ptr [r13+0], xmm0
-      }
-      _R13->center.v[2] = _RBX->origin.v[2];
-      __asm { vmovsd  xmm0, qword ptr [rbx+68h] }
-      v11 = _RBX->texCoordAxisZ.v[2];
-      __asm { vmovsd  qword ptr [r13+0Ch], xmm0 }
-      _R13->axis.m[0].v[2] = v11;
-      __asm { vmovsd  xmm0, qword ptr [rbx+20h] }
-      v13 = _RBX->texCoordAxisX.v[2];
-      __asm { vmovsd  qword ptr [r13+18h], xmm0 }
-      _R13->axis.m[1].v[2] = v13;
-      __asm { vmovsd  xmm0, qword ptr [rbx+2Ch] }
-      v15 = _RBX->texCoordAxisY.v[2];
-      __asm { vmovsd  qword ptr [r13+24h], xmm0 }
-      _R13->axis.m[2].v[2] = v15;
-      MatrixTransformVector43(&_RBX->origin, p_transformMatrix, &_R13->worldCenter);
-      MatrixTransformVector(&_RBX->texCoordAxisZ, (const tmat33_t<vec3_t> *)p_transformMatrix, _R13->worldAxis.m);
-      MatrixTransformVector(&_RBX->texCoordAxisX, (const tmat33_t<vec3_t> *)p_transformMatrix, &_R13->worldAxis.m[1]);
-      MatrixTransformVector(&_RBX->texCoordAxisY, (const tmat33_t<vec3_t> *)p_transformMatrix, &_R13->worldAxis.m[2]);
-      FX_ExpandMarkVerts_GetColor(MarksSystem, _RBX, _R13->color);
-      _R13->atlasIndex = FX_CalculateMarkAtlasFrame(MarksSystem, _RBX);
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbx+74h]
-        vmovsd  qword ptr [r13+60h], xmm0
-      }
-      _R13->halfSize.v[2] = _RBX->halfSize.v[2];
-      _R13->material = _RBX->material;
-      _R13->skinned = (*((_BYTE *)_RBX + 103) & 0x10) != 0;
+      *(double *)markResult->center.v = *(double *)v6->origin.v;
+      markResult->center.v[2] = v6->origin.v[2];
+      v8 = v6->texCoordAxisZ.v[2];
+      *(double *)markResult->axis.m[0].v = *(double *)v6->texCoordAxisZ.v;
+      markResult->axis.m[0].v[2] = v8;
+      v9 = v6->texCoordAxisX.v[2];
+      *(double *)markResult->axis.row1.v = *(double *)v6->texCoordAxisX.v;
+      markResult->axis.m[1].v[2] = v9;
+      v10 = v6->texCoordAxisY.v[2];
+      *(double *)markResult->axis.row2.v = *(double *)v6->texCoordAxisY.v;
+      markResult->axis.m[2].v[2] = v10;
+      MatrixTransformVector43(&v6->origin, p_transformMatrix, &markResult->worldCenter);
+      MatrixTransformVector(&v6->texCoordAxisZ, (const tmat33_t<vec3_t> *)p_transformMatrix, markResult->worldAxis.m);
+      MatrixTransformVector(&v6->texCoordAxisX, (const tmat33_t<vec3_t> *)p_transformMatrix, &markResult->worldAxis.m[1]);
+      MatrixTransformVector(&v6->texCoordAxisY, (const tmat33_t<vec3_t> *)p_transformMatrix, &markResult->worldAxis.m[2]);
+      FX_ExpandMarkVerts_GetColor(MarksSystem, v6, markResult->color);
+      markResult->atlasIndex = FX_CalculateMarkAtlasFrame(MarksSystem, v6);
+      *(double *)markResult->halfSize.v = *(double *)v6->halfSize.v;
+      markResult->halfSize.v[2] = v6->halfSize.v[2];
+      markResult->material = v6->material;
+      markResult->skinned = (*((_BYTE *)v6 + 103) & 0x10) != 0;
       return 1;
     }
   }
@@ -4230,305 +3501,138 @@ FX_ImpactMark
 __int64 FX_ImpactMark(LocalClientNum_t localClientNum, Material *material, unsigned __int16 fadeInfo, unsigned __int16 waitInfo, unsigned __int16 lerpInfo, unsigned __int16 fadeOutInfo, unsigned __int16 stoppableFadeOutInfo, const vec3_t *origin, const vec4_t *quat, float orientation, const unsigned __int8 *nativeColor, const unsigned __int8 *nativeColorLerp, const vec4_t *markSizeOrig, unsigned int markEntnum, bool markGivenModelsOnly, bool markViewmodel, int viewmodelClientIndex, unsigned __int8 markBoneIndex, FxMarkProjectionAxis projectionAxis, const FX_ImpactMark_AtlasInfo *atlasInfo, const float4 *boltOffsetPos, const float4 *boltOffsetQuat, bool decalSpray, bool bypassStackingLimiter, bool markDynEnt, bool affectsGameplay, bool killOnKillcamTransition, const char *vfxName)
 {
   signed __int64 v28; 
-  void *v38; 
-  bool v44; 
+  void *v29; 
+  vec4_t v; 
   const vec4_t *p_boltOffsetQuat; 
-  char v63; 
-  bool v85; 
-  bool v102; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
   FxMarkSystemWorldCellCache *MarkWorldCellCache; 
-  unsigned int v120; 
-  unsigned __int8 v121; 
-  __int64 v122; 
-  double fadeInfoa; 
-  double fadeInfob; 
-  double fadeInfoc; 
-  double waitInfoa; 
-  double waitInfob; 
-  double lerpInfoa; 
-  double lerpInfob; 
-  double fadeOutInfoa; 
-  double fadeOutInfob; 
-  double stoppableFadeOutInfoa; 
-  double stoppableFadeOutInfob; 
-  vec3_t *v140; 
-  vec3_t *v141; 
-  tmat33_t<vec3_t> *v142; 
-  tmat33_t<vec3_t> *v143; 
-  float v144; 
-  float v145; 
+  unsigned int v49; 
+  unsigned __int8 v50; 
   MarkInfo markInfo; 
   tmat33_t<vec3_t> axis; 
   vec4_t markSize; 
   vec3_t halfSize; 
   tmat33_t<vec3_t> result; 
   R_CollInfo collInfo; 
-  char v165; 
 
-  v38 = alloca(v28);
-  __asm
-  {
-    vmovaps [rsp+4A58h+var_48], xmm7
-    vmovaps [rsp+4A58h+var_58], xmm8
-    vmovaps [rsp+4A58h+var_68], xmm9
-    vmovaps [rsp+4A58h+var_98], xmm14
-    vmovaps [rsp+4A58h+var_A8], xmm15
-  }
-  _R15 = origin;
-  _RBX = markSizeOrig;
-  __asm { vmovss  xmm15, [rsp+4A58h+arg_48] }
-  _RDI = boltOffsetQuat;
+  v29 = alloca(v28);
   collInfo.nodeCount = 0;
   collInfo.planeCount = 0;
   FX_GetMarksSystem(localClientNum);
-  if ( (affectsGameplay || fx_marks->current.enabled) && (v44 = !fx_marks_all->current.enabled, fx_marks_all->current.enabled) )
+  if ( !affectsGameplay && !fx_marks->current.enabled || !fx_marks_all->current.enabled )
+    return 0xFFFFFFFFi64;
+  *(float *)&_XMM9 = markSizeOrig->v[2];
+  _XMM1 = LODWORD(markSizeOrig->v[1]);
+  _XMM7 = LODWORD(markSizeOrig->v[0]);
+  if ( *(float *)&_XMM9 == 0.0 )
+    __asm { vmaxss  xmm9, xmm7, xmm1 }
+  __asm
   {
+    vcmpeqss xmm0, xmm1, xmm2
+    vblendvps xmm14, xmm1, xmm7, xmm0
+    vmaxss  xmm0, xmm14, xmm7
+    vmaxss  xmm8, xmm0, xmm9
+  }
+  markSize.v[3] = *(float *)&_XMM8;
+  markSize.v[0] = *(float *)&_XMM9;
+  markSize.v[1] = *(float *)&_XMM7;
+  markSize.v[2] = *(float *)&_XMM14;
+  if ( *(float *)&_XMM8 < 0.1 )
+    return 0xFFFFFFFFi64;
+  if ( *(float *)&_XMM8 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1429, ASSERT_TYPE_ASSERT, "( ( radius > 0 ) )", "( radius ) = %g", *(float *)&_XMM8) )
+    __debugbreak();
+  if ( boltOffsetPos )
+  {
+    if ( !boltOffsetQuat && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1433, ASSERT_TYPE_SANITY, "( boltOffsetQuat != nullptr )", (const char *)&queryFormat, "boltOffsetQuat != nullptr") )
+      __debugbreak();
+    _XMM1 = boltOffsetPos->v;
+    v = (vec4_t)boltOffsetQuat->v;
+    LODWORD(markInfo.boltOffsetPos.v[0]) = *(const float4 *)boltOffsetPos->v.m128_f32;
     __asm
     {
-      vmovss  xmm9, dword ptr [rbx+8]
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmovss  xmm7, dword ptr [rbx]
-      vxorps  xmm2, xmm2, xmm2
-      vucomiss xmm9, xmm2
+      vextractps dword ptr [rsp+4A58h+markInfo.boltOffsetPos+4], xmm1, 1
+      vextractps dword ptr [rsp+4A58h+markInfo.boltOffsetPos+8], xmm1, 2
     }
-    if ( !fx_marks_all->current.enabled )
-      __asm { vmaxss  xmm9, xmm7, xmm1 }
-    __asm
-    {
-      vcmpeqss xmm0, xmm1, xmm2
-      vblendvps xmm14, xmm1, xmm7, xmm0
-      vmaxss  xmm0, xmm14, xmm7
-      vmaxss  xmm8, xmm0, xmm9
-      vcomiss xmm8, cs:__real@3dcccccd
-      vmovss  dword ptr [rsp+4A58h+var_4180+0Ch], xmm8
-      vmovss  dword ptr [rsp+4A58h+var_4180], xmm9
-      vmovss  dword ptr [rsp+4A58h+var_4180+4], xmm7
-      vmovss  dword ptr [rsp+4A58h+var_4180+8], xmm14
-      vmovss  dword ptr [rsp+4A58h+var_4180+0Ch], xmm8
-      vmovss  dword ptr [rsp+4A58h+var_4180], xmm9
-      vmovss  dword ptr [rsp+4A58h+var_4180+4], xmm7
-      vmovss  dword ptr [rsp+4A58h+var_4180+8], xmm14
-      vmovss  [rsp+4A58h+var_4978], xmm14
-      vcomiss xmm8, xmm2
-      vmovaps [rsp+4A58h+var_38], xmm6
-      vmovaps [rsp+4A58h+var_78], xmm10
-      vmovaps [rsp+4A58h+var_88], xmm11
-    }
-    if ( v44 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm8, xmm8
-        vmovsd  qword ptr [rsp+4A58h+fadeInfo], xmm0
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1429, ASSERT_TYPE_ASSERT, "( ( radius > 0 ) )", "( radius ) = %g", fadeInfoa) )
-        __debugbreak();
-    }
-    _RBX = boltOffsetPos;
-    if ( boltOffsetPos )
-    {
-      if ( !boltOffsetQuat && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1433, ASSERT_TYPE_SANITY, "( boltOffsetQuat != nullptr )", (const char *)&queryFormat, "boltOffsetQuat != nullptr") )
-        __debugbreak();
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx]
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovss  dword ptr [rsp+4A58h+markInfo.boltOffsetPos], xmm1
-        vextractps dword ptr [rsp+4A58h+markInfo.boltOffsetPos+4], xmm1, 1
-        vextractps dword ptr [rsp+4A58h+markInfo.boltOffsetPos+8], xmm1, 2
-        vmovaps xmmword ptr [rsp+4A58h+markInfo.boltOffsetQuat], xmm0
-      }
-      markInfo.boltOffsetValid = 1;
-      p_boltOffsetQuat = &markInfo.boltOffsetQuat;
-    }
-    else
-    {
-      markInfo.boltOffsetValid = 0;
-      p_boltOffsetQuat = quat;
-    }
-    UnitQuatToAxis(p_boltOffsetQuat, &axis);
-    __asm { vmovaps xmm3, xmm15; rotationAngle }
-    _RAX = FX_OrientDecalProjectionAxis(&result, &axis, projectionAxis, *(float *)&_XMM3);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+4A58h+axis], ymm0
-      vmovss  xmm6, dword ptr [rsp+4A58h+axis]
-      vmovss  xmm3, dword ptr [rsp+4A58h+axis+0Ch]
-      vmovss  xmm5, dword ptr [rsp+4A58h+axis+4]
-      vmovss  xmm10, dword ptr [rsp+4A58h+axis+10h]
-      vmovss  xmm4, dword ptr [rsp+4A58h+axis+8]
-      vmovss  xmm11, dword ptr [rsp+4A58h+axis+14h]
-      vmulss  xmm1, xmm6, xmm3
-      vmulss  xmm0, xmm5, xmm10
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm4, xmm11
-      vaddss  xmm0, xmm2, xmm0
-      vandps  xmm1, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm1, cs:__real@3a83126f
-    }
-    axis.m[2].v[2] = _RAX->m[2].v[2];
-    if ( !v63 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+4A58h+var_4A00], xmm0
-        vcvtss2sd xmm1, xmm11, xmm11
-        vmovsd  [rsp+4A58h+var_4A08], xmm1
-        vcvtss2sd xmm2, xmm10, xmm10
-        vmovsd  qword ptr [rsp+4A58h+stoppableFadeOutInfo], xmm2
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  qword ptr [rsp+4A58h+fadeOutInfo], xmm3
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  qword ptr [rsp+4A58h+lerpInfo], xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  qword ptr [rsp+4A58h+waitInfo], xmm5
-        vcvtss2sd xmm6, xmm6, xmm6
-        vmovsd  qword ptr [rsp+4A58h+fadeInfo], xmm6
-      }
-      v85 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1448, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( axis[0], axis[1] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", fadeInfob, waitInfoa, lerpInfoa, fadeOutInfoa, stoppableFadeOutInfoa, *(double *)&v140, *(double *)&v142);
-      v63 = 0;
-      if ( v85 )
-        __debugbreak();
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsp+4A58h+axis]
-        vmovss  xmm5, dword ptr [rsp+4A58h+axis+4]
-        vmovss  xmm4, dword ptr [rsp+4A58h+axis+8]
-      }
-    }
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsp+4A58h+axis+18h]
-      vmovss  xmm10, dword ptr [rsp+4A58h+axis+1Ch]
-      vmovss  xmm11, dword ptr [rsp+4A58h+axis+20h]
-      vmulss  xmm1, xmm3, xmm6
-      vmulss  xmm0, xmm10, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm11, xmm4
-      vaddss  xmm1, xmm2, xmm1
-      vandps  xmm0, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm0, cs:__real@3a83126f
-    }
-    if ( !v63 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm1, xmm1
-        vmovsd  [rsp+4A58h+var_4A00], xmm0
-        vcvtss2sd xmm1, xmm11, xmm11
-        vmovsd  [rsp+4A58h+var_4A08], xmm1
-        vcvtss2sd xmm2, xmm10, xmm10
-        vmovsd  qword ptr [rsp+4A58h+stoppableFadeOutInfo], xmm2
-        vcvtss2sd xmm3, xmm3, xmm3
-        vmovsd  qword ptr [rsp+4A58h+fadeOutInfo], xmm3
-        vcvtss2sd xmm4, xmm4, xmm4
-        vmovsd  qword ptr [rsp+4A58h+lerpInfo], xmm4
-        vcvtss2sd xmm5, xmm5, xmm5
-        vmovsd  qword ptr [rsp+4A58h+waitInfo], xmm5
-        vcvtss2sd xmm6, xmm6, xmm6
-        vmovsd  qword ptr [rsp+4A58h+fadeInfo], xmm6
-      }
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1449, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( axis[0], axis[2] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", fadeInfoc, waitInfob, lerpInfob, fadeOutInfob, stoppableFadeOutInfob, *(double *)&v141, *(double *)&v143) )
-        __debugbreak();
-    }
-    v102 = R_DecalVolumesMarks_DebugEnabled();
-    __asm
-    {
-      vmovaps xmm11, [rsp+4A58h+var_88]
-      vmovaps xmm10, [rsp+4A58h+var_78]
-      vmovaps xmm6, [rsp+4A58h+var_38]
-    }
-    if ( v102 )
-    {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+4A58h+axis+0Ch]
-        vmovss  xmm1, dword ptr [rsp+4A58h+axis+20h]
-        vmovups xmmword ptr [rsp+4A58h+result], xmm0
-        vmovss  xmm0, dword ptr [rsp+4A58h+axis+1Ch]
-        vmovss  dword ptr [rsp+4A58h+result+10h], xmm0
-        vmovss  xmm0, dword ptr [rsp+4A58h+axis]
-        vmovss  dword ptr [rsp+4A58h+result+14h], xmm1
-        vmovss  xmm1, dword ptr [rsp+4A58h+axis+4]
-        vmovss  dword ptr [rsp+4A58h+result+18h], xmm0
-        vmovss  xmm0, dword ptr [rsp+4A58h+axis+8]
-        vmovss  dword ptr [rsp+4A58h+result+1Ch], xmm1
-        vmovss  xmm1, cs:__real@3ecccccd
-        vmovss  dword ptr [rsp+4A58h+result+20h], xmm0
-        vmovss  xmm0, cs:__real@40e00000
-        vmovss  dword ptr [rsp+4A58h+halfSize], xmm1
-        vmovss  xmm1, cs:__real@3fa00000
-        vmovss  dword ptr [rsp+4A58h+halfSize+4], xmm0
-        vmovss  dword ptr [rsp+4A58h+halfSize+8], xmm1
-      }
-      R_DecalVolumesMarks_DebugAdd(origin, &halfSize, &result, &colorYellow);
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15]
-      vmovss  xmm1, dword ptr [r15+4]
-      vmovss  dword ptr [rsp+4A58h+collInfo.sphere.origin], xmm0
-      vmovss  xmm0, dword ptr [r15+8]
-      vmovss  dword ptr [rsp+4A58h+collInfo.sphere.origin+4], xmm1
-      vmulss  xmm1, xmm8, xmm8
-      vmovss  dword ptr [rsp+4A58h+collInfo.sphere.origin+8], xmm0
-      vmovss  [rsp+4A58h+collInfo.sphere.radiusSq], xmm1
-      vmovss  [rsp+4A58h+collInfo.sphere.radius], xmm8
-    }
-    MarkWorldCellCache = FX_GetMarkWorldCellCache();
-    R_SetupSphereStaticGeo(&collInfo, &MarkWorldCellCache->transientDrawContext);
-    markInfo.localClientNum = localClientNum;
-    markInfo.collInfo = &collInfo;
-    v120 = -1;
-    v121 = markBoneIndex;
-    markInfo.affectsGameplay = affectsGameplay;
-    markInfo.staticModelOrWorldBrushAdded = 0;
-    if ( markBoneIndex == 0xFE )
-      v121 = 0;
-    markInfo.bypassStackingLimiter = bypassStackingLimiter;
-    markInfo.decalSpray = decalSpray;
-    markInfo.killOnKillcamTransition = killOnKillcamTransition;
-    markInfo.markBoneIndex = v121;
-    markInfo.vfxName = vfxName;
-    __asm
-    {
-      vmovss  dword ptr [rsp+4A58h+markInfo.markSize], xmm9
-      vmovss  dword ptr [rsp+4A58h+markInfo.markSize+4], xmm7
-      vmovss  dword ptr [rsp+4A58h+markInfo.markSize+8], xmm14
-      vmovss  dword ptr [rsp+4A58h+markInfo.markSize+0Ch], xmm8
-    }
-    Profile_Begin(222);
-    if ( !markGivenModelsOnly )
-    {
-      __asm { vmovss  [rsp+4A58h+var_49F8], xmm15 }
-      v120 = FX_ImpactMark_Generate(&markInfo, localClientNum, MARK_FRAGMENTS_AGAINST_BRUSHES, material, material, fadeInfo, waitInfo, lerpInfo, fadeOutInfo, stoppableFadeOutInfo, origin, &axis, v144, nativeColor, nativeColorLerp, &markSize, markEntnum, 0, markViewmodel, viewmodelClientIndex, markDynEnt, atlasInfo);
-    }
-    Profile_EndInternal(NULL);
-    if ( fx_marks_smodels->current.enabled || fx_marks_ents->current.enabled || fx_marks_dynents->current.enabled )
-    {
-      Profile_Begin(223);
-      __asm { vmovss  [rsp+4A58h+var_49F8], xmm15 }
-      v120 = FX_ImpactMark_Generate(&markInfo, localClientNum, MARK_FRAGMENTS_AGAINST_MODELS, material, NULL, fadeInfo, waitInfo, lerpInfo, fadeOutInfo, stoppableFadeOutInfo, origin, &axis, v145, nativeColor, nativeColorLerp, &markSize, markEntnum, markGivenModelsOnly, markViewmodel, viewmodelClientIndex, markDynEnt, atlasInfo);
-      Profile_EndInternal(NULL);
-    }
-    v122 = v120;
+    markInfo.boltOffsetQuat = v;
+    markInfo.boltOffsetValid = 1;
+    p_boltOffsetQuat = &markInfo.boltOffsetQuat;
   }
   else
   {
-    v122 = 0xFFFFFFFFi64;
+    markInfo.boltOffsetValid = 0;
+    p_boltOffsetQuat = quat;
   }
-  _R11 = &v165;
-  __asm
+  UnitQuatToAxis(p_boltOffsetQuat, &axis);
+  axis = *FX_OrientDecalProjectionAxis(&result, &axis, projectionAxis, orientation);
+  v41 = axis.m[0].v[0];
+  v42 = axis.m[0].v[1];
+  v43 = axis.m[0].v[2];
+  v44 = (float)((float)(axis.m[0].v[0] * axis.m[1].v[0]) + (float)(axis.m[0].v[1] * axis.m[1].v[1])) + (float)(axis.m[0].v[2] * axis.m[1].v[2]);
+  if ( COERCE_FLOAT(LODWORD(v44) & _xmm) >= 0.001 )
   {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm14, xmmword ptr [r11-70h]
-    vmovaps xmm15, xmmword ptr [r11-80h]
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1448, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( axis[0], axis[1] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", axis.m[0].v[0], axis.m[0].v[1], axis.m[0].v[2], axis.m[1].v[0], axis.m[1].v[1], axis.m[1].v[2], v44) )
+      __debugbreak();
+    v41 = axis.m[0].v[0];
+    v42 = axis.m[0].v[1];
+    v43 = axis.m[0].v[2];
   }
-  return v122;
+  v45 = (float)((float)(axis.m[2].v[0] * v41) + (float)(axis.m[2].v[1] * v42)) + (float)(axis.m[2].v[2] * v43);
+  if ( COERCE_FLOAT(LODWORD(v45) & _xmm) >= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1449, ASSERT_TYPE_ASSERT, "( Vec3IsOrthogonal( axis[0], axis[2] ) )", "v0:%g %g %g, v1:%g %g %g, dot product: %g", v41, v42, v43, axis.m[2].v[0], axis.m[2].v[1], axis.m[2].v[2], v45) )
+    __debugbreak();
+  if ( R_DecalVolumesMarks_DebugEnabled() )
+  {
+    *(_OWORD *)result.m[0].v = *(_OWORD *)axis.row1.v;
+    result.m[1].v[1] = axis.m[2].v[1];
+    result.m[1].v[2] = axis.m[2].v[2];
+    result.m[2] = axis.m[0];
+    halfSize.v[0] = FLOAT_0_40000001;
+    halfSize.v[1] = FLOAT_7_0;
+    halfSize.v[2] = FLOAT_1_25;
+    R_DecalVolumesMarks_DebugAdd(origin, &halfSize, &result, &colorYellow);
+  }
+  v46 = origin->v[1];
+  collInfo.sphere.origin.v[0] = origin->v[0];
+  v47 = origin->v[2];
+  collInfo.sphere.origin.v[1] = v46;
+  collInfo.sphere.origin.v[2] = v47;
+  collInfo.sphere.radiusSq = *(float *)&_XMM8 * *(float *)&_XMM8;
+  collInfo.sphere.radius = *(float *)&_XMM8;
+  MarkWorldCellCache = FX_GetMarkWorldCellCache();
+  R_SetupSphereStaticGeo(&collInfo, &MarkWorldCellCache->transientDrawContext);
+  markInfo.localClientNum = localClientNum;
+  markInfo.collInfo = &collInfo;
+  v49 = -1;
+  v50 = markBoneIndex;
+  markInfo.affectsGameplay = affectsGameplay;
+  markInfo.staticModelOrWorldBrushAdded = 0;
+  if ( markBoneIndex == 0xFE )
+    v50 = 0;
+  markInfo.bypassStackingLimiter = bypassStackingLimiter;
+  markInfo.decalSpray = decalSpray;
+  markInfo.killOnKillcamTransition = killOnKillcamTransition;
+  markInfo.markBoneIndex = v50;
+  markInfo.vfxName = vfxName;
+  markInfo.markSize.v[0] = *(float *)&_XMM9;
+  markInfo.markSize.v[1] = *(float *)&_XMM7;
+  markInfo.markSize.v[2] = *(float *)&_XMM14;
+  markInfo.markSize.v[3] = *(float *)&_XMM8;
+  Profile_Begin(222);
+  if ( !markGivenModelsOnly )
+    v49 = FX_ImpactMark_Generate(&markInfo, localClientNum, MARK_FRAGMENTS_AGAINST_BRUSHES, material, material, fadeInfo, waitInfo, lerpInfo, fadeOutInfo, stoppableFadeOutInfo, origin, &axis, orientation, nativeColor, nativeColorLerp, &markSize, markEntnum, 0, markViewmodel, viewmodelClientIndex, markDynEnt, atlasInfo);
+  Profile_EndInternal(NULL);
+  if ( fx_marks_smodels->current.enabled || fx_marks_ents->current.enabled || fx_marks_dynents->current.enabled )
+  {
+    Profile_Begin(223);
+    v49 = FX_ImpactMark_Generate(&markInfo, localClientNum, MARK_FRAGMENTS_AGAINST_MODELS, material, NULL, fadeInfo, waitInfo, lerpInfo, fadeOutInfo, stoppableFadeOutInfo, origin, &axis, orientation, nativeColor, nativeColorLerp, &markSize, markEntnum, markGivenModelsOnly, markViewmodel, viewmodelClientIndex, markDynEnt, atlasInfo);
+    Profile_EndInternal(NULL);
+  }
+  return v49;
 }
 
 /*
@@ -4539,90 +3643,82 @@ FX_ImpactMark_Generate
 __int64 FX_ImpactMark_Generate(MarkInfo *markInfo, LocalClientNum_t localClientNum, MarkFragmentsAgainstEnum markAgainst, Material *material, Material *displacementMaterial, unsigned __int16 fadeInfo, unsigned __int16 waitInfo, unsigned __int16 lerpInfo, unsigned __int16 fadeOutInfo, unsigned __int16 stoppableFadeOutInfo, const vec3_t *origin, const tmat33_t<vec3_t> *axis, float orientation, const unsigned __int8 *nativeColor, const unsigned __int8 *nativeColorLerp, const vec4_t *markSize, unsigned int markEntnum, bool markGivenModelsOnly, bool markViewmodel, int viewmodelClientIndex, bool markDynEnt, const FX_ImpactMark_AtlasInfo *atlasInfo)
 {
   FxSystem *System; 
-  FxSystem *v27; 
+  vec4_t v26; 
+  bool decalSpray; 
+  bool bypassStackingLimiter; 
+  bool killOnKillcamTransition; 
+  bool affectsGameplay; 
   const char *vfxName; 
-  float materiala; 
-  float materialb; 
-  Material *v36; 
+  Material *v33; 
   LocalClientNum_t callbackContext; 
-  Material *v39; 
-  Material *v40; 
-  const unsigned __int8 *v42; 
-  const unsigned __int8 *v43; 
+  Material *v36; 
+  Material *v37; 
+  vec4_t v38; 
+  const unsigned __int8 *v39; 
+  const unsigned __int8 *v40; 
+  unsigned __int16 v41; 
+  unsigned __int16 v42; 
+  unsigned __int16 v43; 
   unsigned __int16 v44; 
   unsigned __int16 v45; 
-  unsigned __int16 v46; 
-  unsigned __int16 v47; 
-  unsigned __int16 v48; 
-  int v49; 
-  const FX_ImpactMark_AtlasInfo *v50; 
-  unsigned int v51; 
-  char v52; 
-  char v53; 
-  char v54; 
-  char v55; 
-  const char *v56; 
+  int v46; 
+  const FX_ImpactMark_AtlasInfo *v47; 
+  unsigned int v48; 
+  bool v49; 
+  bool v50; 
+  bool v51; 
+  bool v52; 
+  const char *v53; 
 
   System = FX_GetSystem(localClientNum);
-  _RCX = markSize;
-  v27 = System;
-  __asm { vmovups xmm0, xmmword ptr [rcx] }
-  v47 = fadeOutInfo;
-  v48 = stoppableFadeOutInfo;
-  LOBYTE(System) = markInfo->decalSpray;
-  v44 = fadeInfo;
-  v52 = (char)System;
-  LOBYTE(System) = markInfo->bypassStackingLimiter;
-  v45 = waitInfo;
-  v53 = (char)System;
-  LOBYTE(System) = markInfo->killOnKillcamTransition;
-  v46 = lerpInfo;
-  LOBYTE(_RCX) = markInfo->affectsGameplay;
-  v55 = (char)System;
+  v26 = *markSize;
+  v44 = fadeOutInfo;
+  v45 = stoppableFadeOutInfo;
+  decalSpray = markInfo->decalSpray;
+  v41 = fadeInfo;
+  v49 = decalSpray;
+  bypassStackingLimiter = markInfo->bypassStackingLimiter;
+  v42 = waitInfo;
+  v50 = bypassStackingLimiter;
+  killOnKillcamTransition = markInfo->killOnKillcamTransition;
+  v43 = lerpInfo;
+  affectsGameplay = markInfo->affectsGameplay;
+  v52 = killOnKillcamTransition;
   vfxName = markInfo->vfxName;
-  v43 = nativeColorLerp;
-  v56 = vfxName;
+  v40 = nativeColorLerp;
+  v53 = vfxName;
   callbackContext = localClientNum;
-  v39 = material;
-  v40 = displacementMaterial;
-  v42 = nativeColor;
-  v49 = viewmodelClientIndex;
-  v50 = atlasInfo;
-  v51 = -1;
-  v54 = (char)_RCX;
-  __asm { vmovups [rbp+3Fh+var_98], xmm0 }
-  if ( ((_BYTE)_RCX || fx_marks->current.enabled) && fx_marks_all->current.enabled && (markAgainst != MARK_FRAGMENTS_AGAINST_MODELS || fx_marks_ents->current.enabled || fx_marks_smodels->current.enabled) )
+  v36 = material;
+  v37 = displacementMaterial;
+  v39 = nativeColor;
+  v46 = viewmodelClientIndex;
+  v47 = atlasInfo;
+  v48 = -1;
+  v51 = affectsGameplay;
+  v38 = v26;
+  if ( (affectsGameplay || fx_marks->current.enabled) && fx_marks_all->current.enabled && (markAgainst != MARK_FRAGMENTS_AGAINST_MODELS || fx_marks_ents->current.enabled || fx_marks_smodels->current.enabled) )
   {
-    R_MarkFragments_Begin(markInfo, markAgainst, axis, &v27->camera.viewOffset, material, displacementMaterial, markGivenModelsOnly, markDynEnt, viewmodelClientIndex);
+    R_MarkFragments_Begin(markInfo, markAgainst, axis, &System->camera.viewOffset, material, displacementMaterial, markGivenModelsOnly, markDynEnt, viewmodelClientIndex);
     if ( !markDynEnt )
     {
       if ( fx_marks_ents->current.enabled )
       {
         if ( (unsigned int)markAgainst > MARK_FRAGMENTS_AGAINST_MODELS )
         {
-          LODWORD(v36) = markAgainst;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1309, ASSERT_TYPE_ASSERT, "( ( markAgainst == MARK_FRAGMENTS_AGAINST_MODELS || markAgainst == MARK_FRAGMENTS_AGAINST_BRUSHES ) )", "( markAgainst ) = %i", v36) )
+          LODWORD(v33) = markAgainst;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1309, ASSERT_TYPE_ASSERT, "( ( markAgainst == MARK_FRAGMENTS_AGAINST_MODELS || markAgainst == MARK_FRAGMENTS_AGAINST_BRUSHES ) )", "( markAgainst ) = %i", v33) )
             __debugbreak();
         }
-        _RAX = markSize;
-        __asm { vmovss  xmm0, dword ptr [rax+0Ch] }
         if ( markAgainst == MARK_FRAGMENTS_AGAINST_MODELS )
         {
           if ( markViewmodel )
-          {
-            __asm { vmovaps xmm3, xmm0; radius }
-            FX_ImpactMark_Generate_AddViewmodel(localClientNum, markInfo, origin, *(float *)&_XMM3, viewmodelClientIndex);
-          }
+            FX_ImpactMark_Generate_AddViewmodel(localClientNum, markInfo, origin, markSize->v[3], viewmodelClientIndex);
           else
-          {
-            __asm { vmovss  dword ptr [rsp+120h+material], xmm0 }
-            FX_ImpactMark_Generate_AddEntityModel(localClientNum, markInfo, markEntnum, origin, materiala);
-          }
+            FX_ImpactMark_Generate_AddEntityModel(localClientNum, markInfo, markEntnum, origin, markSize->v[3]);
         }
         else
         {
-          __asm { vmovss  dword ptr [rsp+120h+material], xmm0 }
-          FX_ImpactMark_Generate_AddEntityBrush(localClientNum, markInfo, markEntnum, origin, materialb);
+          FX_ImpactMark_Generate_AddEntityBrush(localClientNum, markInfo, markEntnum, origin, markSize->v[3]);
         }
       }
       goto LABEL_20;
@@ -4632,7 +3728,7 @@ __int64 FX_ImpactMark_Generate(MarkInfo *markInfo, LocalClientNum_t localClientN
       R_MarkFragments_AddDynEnt(markInfo, markEntnum);
 LABEL_20:
       R_MarkFragments_Go(markInfo, FX_ImpactMark_Generate_Callback, &callbackContext);
-      return v51;
+      return v48;
     }
   }
   return 0xFFFFFFFFi64;
@@ -4646,81 +3742,100 @@ FX_ImpactMark_Generate_AddEntityBrush
 void FX_ImpactMark_Generate_AddEntityBrush(LocalClientNum_t localClientNum, MarkInfo *markInfo, unsigned int entityIndex, const vec3_t *origin, float radius)
 {
   centity_t *Entity; 
-  centity_t *v9; 
+  centity_t *v10; 
+  GfxBrushModel *BrushModel; 
+  float v12; 
+  __m128 v14; 
+  float v17; 
+  __m128 v19; 
+  float v22; 
+  __m128 v24; 
+  __int64 v35; 
   vec3_t outOrigin; 
-  __int64 v39; 
+  __int64 v37; 
   Float4Bounds baseBounds; 
   Float4Bounds rotatedBounds; 
-  __int128 v42; 
+  __m128 v; 
   tmat33_t<vec3_t> axis; 
 
   if ( entityIndex != 2047 )
   {
-    v39 = -2i64;
-    _R15 = origin;
+    v37 = -2i64;
     Profile_Begin(224);
     Entity = CG_GetEntity(localClientNum, entityIndex);
-    v9 = Entity;
+    v10 = Entity;
     if ( (Entity->flags & 1) == 0 || !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&Entity->nextState.lerp.eFlags, ACTIVE, 1u) )
-      goto LABEL_9;
-    if ( v9 == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1914, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+      goto LABEL_14;
+    if ( v10 == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1914, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
       __debugbreak();
-    if ( ((v9->nextState.eType - 12) & 0xFFFD) != 0 )
+    if ( ((v10->nextState.eType - 12) & 0xFFFD) != 0 )
     {
-      _RSI = R_GetBrushModel(v9->nextState.index.brushModel);
-      AnglesToAxis(&v9->pose.angles, &axis);
-      __asm { vmovss  xmm0, dword ptr [rsi+38h] }
-      HIDWORD(v42) = 0;
+      BrushModel = R_GetBrushModel(v10->nextState.index.brushModel);
+      AnglesToAxis(&v10->pose.angles, &axis);
+      v12 = BrushModel->bounds.midPoint.v[0];
+      v.m128_i32[3] = 0;
+      v14 = v;
+      v14.m128_f32[0] = v12;
+      _XMM3 = v14;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rbp-21h]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [rsi+3Ch], 10h
         vinsertps xmm3, xmm3, dword ptr [rsi+40h], 20h ; ' '
-        vmovups xmmword ptr [rbp-21h], xmm3
-        vmovups xmmword ptr [rbp+4Fh+baseBounds.midPoint.v], xmm3
-        vmovss  xmm0, dword ptr [rsi+44h]
       }
-      HIDWORD(v42) = 0;
+      v = _XMM3.v;
+      baseBounds.midPoint = (float4)_XMM3.v;
+      v17 = BrushModel->bounds.halfSize.v[0];
+      v.m128_i32[3] = 0;
+      v19 = v;
+      v19.m128_f32[0] = v17;
+      _XMM3 = v19;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rbp-21h]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [rsi+48h], 10h
         vinsertps xmm3, xmm3, dword ptr [rsi+4Ch], 20h ; ' '
-        vmovups xmmword ptr [rbp-21h], xmm3
-        vmovups xmmword ptr [rbp+4Fh+baseBounds.halfSize.v], xmm3
       }
-      CG_GetPoseOrigin(&v9->pose, &outOrigin);
+      v = _XMM3.v;
+      baseBounds.halfSize = (float4)_XMM3.v;
+      CG_GetPoseOrigin(&v10->pose, &outOrigin);
       Float4Bounds_Transform(&baseBounds, &outOrigin, &axis, &rotatedBounds);
-      __asm { vmovss  xmm0, dword ptr [r15] }
-      HIDWORD(v42) = 0;
+      v22 = origin->v[0];
+      v.m128_i32[3] = 0;
+      v24 = v;
+      v24.m128_f32[0] = v22;
+      _XMM3 = v24;
       __asm
       {
-        vmovups xmm3, xmmword ptr [rbp-21h]
-        vmovss  xmm3, xmm3, xmm0
         vinsertps xmm3, xmm3, dword ptr [r15+4], 10h
         vinsertps xmm3, xmm3, dword ptr [r15+8], 20h ; ' '
-        vsubps  xmm1, xmm3, xmmword ptr [rbp+4Fh+rotatedBounds.midPoint.v]
-        vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-        vandnps xmm1, xmm0, xmm1
-        vsubps  xmm2, xmm1, xmmword ptr [rbp+4Fh+rotatedBounds.halfSize.v]
-        vxorps  xmm0, xmm0, xmm0
-        vmaxps  xmm1, xmm2, xmm0
-        vmulps  xmm2, xmm1, xmm1
+      }
+      _mm128_sub_ps(_XMM3, rotatedBounds.midPoint.v);
+      _XMM0 = g_negativeZero.v;
+      __asm { vandnps xmm1, xmm0, xmm1 }
+      _XMM2 = _mm128_sub_ps(_XMM1, rotatedBounds.halfSize.v);
+      __asm { vmaxps  xmm1, xmm2, xmm0 }
+      _XMM2 = _mm128_mul_ps(_XMM1, _XMM1);
+      __asm
+      {
         vinsertps xmm0, xmm2, xmm2, 8
         vhaddps xmm1, xmm0, xmm0
         vhaddps xmm2, xmm1, xmm1
-        vmovss  xmm0, [rbp+4Fh+radius]
-        vmulss  xmm1, xmm0, xmm0
-        vcomiss xmm2, xmm1
+      }
+      if ( *(float *)&_XMM2 < (float)(radius * radius) )
+      {
+        if ( (unsigned __int16)entityIndex != entityIndex )
+        {
+          LODWORD(v35) = entityIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1096, ASSERT_TYPE_ASSERT, "( ( entityIndexAsUnsignedShort == entityIndex ) )", "( entityIndex ) = %i", v35) )
+            __debugbreak();
+        }
+        R_MarkFragments_AddBModel(markInfo, BrushModel, &v10->pose, entityIndex);
       }
       Profile_EndInternal(NULL);
       memset(&outOrigin, 0, sizeof(outOrigin));
     }
     else
     {
-LABEL_9:
+LABEL_14:
       Profile_EndInternal(NULL);
     }
   }
@@ -4731,7 +3846,7 @@ LABEL_9:
 FX_ImpactMark_Generate_AddEntityModel
 ==============
 */
-void FX_ImpactMark_Generate_AddEntityModel(LocalClientNum_t localClientNum, MarkInfo *markInfo, unsigned int entityIndex, const vec3_t *origin)
+void FX_ImpactMark_Generate_AddEntityModel(LocalClientNum_t localClientNum, MarkInfo *markInfo, unsigned int entityIndex, const vec3_t *origin, float radius)
 {
   centity_t *Entity; 
   cpose_t *p_pose; 
@@ -4739,18 +3854,16 @@ void FX_ImpactMark_Generate_AddEntityModel(LocalClientNum_t localClientNum, Mark
   unsigned int v12; 
   unsigned int v13; 
   DObj *v14; 
-  char v28; 
-  char v29; 
-  __int64 v31; 
-  __int64 v32; 
-  int v33; 
+  double v15; 
+  __int64 v16; 
+  __int64 v17; 
+  int v18; 
   vec3_t outOrigin; 
-  __int64 v35; 
+  __int64 v20; 
 
   if ( entityIndex != 2047 )
   {
-    v35 = -2i64;
-    __asm { vmovaps [rsp+0A8h+var_48], xmm6 }
+    v20 = -2i64;
     Profile_Begin(224);
     Entity = CG_GetEntity(localClientNum, entityIndex);
     p_pose = &Entity->pose;
@@ -4759,22 +3872,22 @@ void FX_ImpactMark_Generate_AddEntityModel(LocalClientNum_t localClientNum, Mark
     number = Entity->nextState.number;
     if ( number > 0x9E4 )
     {
-      v33 = Entity->nextState.number;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v33) )
+      v18 = Entity->nextState.number;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 55, ASSERT_TYPE_ASSERT, "( ( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) ) )", "%s\n\t( handle ) = %i", "( handle >= 0 && handle < ((((((((((((( 2048 ) + 0)) + NUM_WEAPON_HANDS) + 64 - 1) + 1) + 1) + 1) + 1) + CLIENT_MODEL_MAX_COUNT - 1) + 1) + ( 32 ) - 1) + 1) )", v18) )
         __debugbreak();
     }
     if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
     {
-      LODWORD(v32) = 2;
-      LODWORD(v31) = localClientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v31, v32) )
+      LODWORD(v17) = 2;
+      LODWORD(v16) = localClientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 58, ASSERT_TYPE_ASSERT, "(unsigned)( localClientIndex ) < (unsigned)( (2) )", "localClientIndex doesn't index MAX_DOBJ_CLIENTS\n\t%i not in [0, %i)", v16, v17) )
         __debugbreak();
     }
     v12 = 2533 * localClientNum + number;
     if ( v12 >= 0x13CA )
     {
-      LODWORD(v32) = v12;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v32) )
+      LODWORD(v17) = v12;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 62, ASSERT_TYPE_ASSERT, "( ( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) ) )", "%s\n\t( handle ) = %i", "( (unsigned)handle < ( sizeof( *array_counter( clientObjMap ) ) + 0 ) )", v17) )
         __debugbreak();
     }
     v13 = clientObjMap[v12];
@@ -4782,41 +3895,21 @@ void FX_ImpactMark_Generate_AddEntityModel(LocalClientNum_t localClientNum, Mark
       goto LABEL_23;
     if ( v13 >= (unsigned int)s_objCount )
     {
-      LODWORD(v32) = v13;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v32) )
+      LODWORD(v17) = v13;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\dobj_management.h", 64, ASSERT_TYPE_ASSERT, "( ( !objIndex || ( (unsigned)objIndex < s_objCount ) ) )", "%s\n\t( objIndex ) = %i", "( !objIndex || ( (unsigned)objIndex < s_objCount ) )", v17) )
         __debugbreak();
     }
     v14 = (DObj *)s_objBuf[v13];
     if ( v14 )
     {
-      *(double *)&_XMM0 = DObjGetRadius(v14);
-      __asm
-      {
-        vaddss  xmm1, xmm0, [rsp+0A8h+arg_20]
-        vmulss  xmm6, xmm1, xmm1
-      }
+      v15 = DObjGetRadius(v14);
       CG_GetPoseOrigin(p_pose, &outOrigin);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0A8h+outOrigin]
-        vsubss  xmm3, xmm0, dword ptr [r14]
-        vmovss  xmm1, dword ptr [rsp+0A8h+outOrigin+4]
-        vsubss  xmm2, xmm1, dword ptr [r14+4]
-        vmovss  xmm0, dword ptr [rsp+0A8h+outOrigin+8]
-        vsubss  xmm4, xmm0, dword ptr [r14+8]
-        vmulss  xmm2, xmm2, xmm2
-        vmulss  xmm1, xmm3, xmm3
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm2, xmm3, xmm0
-        vcomiss xmm2, xmm6
-      }
-      if ( v28 | v29 )
+      if ( (float)((float)((float)((float)(outOrigin.v[1] - origin->v[1]) * (float)(outOrigin.v[1] - origin->v[1])) + (float)((float)(outOrigin.v[0] - origin->v[0]) * (float)(outOrigin.v[0] - origin->v[0]))) + (float)((float)(outOrigin.v[2] - origin->v[2]) * (float)(outOrigin.v[2] - origin->v[2]))) <= (float)((float)(*(float *)&v15 + radius) * (float)(*(float *)&v15 + radius)) )
       {
         if ( (unsigned __int16)entityIndex != entityIndex )
         {
-          LODWORD(v31) = entityIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1149, ASSERT_TYPE_ASSERT, "( ( entityIndexAsUnsignedShort == entityIndex ) )", "( entityIndex ) = %i", v31) )
+          LODWORD(v16) = entityIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1149, ASSERT_TYPE_ASSERT, "( ( entityIndexAsUnsignedShort == entityIndex ) )", "( entityIndex ) = %i", v16) )
             __debugbreak();
         }
         R_MarkFragments_AddDObj(markInfo, v14, p_pose, entityIndex);
@@ -4829,7 +3922,6 @@ void FX_ImpactMark_Generate_AddEntityModel(LocalClientNum_t localClientNum, Mark
 LABEL_23:
       Profile_EndInternal(NULL);
     }
-    __asm { vmovaps xmm6, [rsp+0A8h+var_48] }
   }
 }
 
@@ -4838,78 +3930,49 @@ LABEL_23:
 FX_ImpactMark_Generate_AddViewmodel
 ==============
 */
-
-void __fastcall FX_ImpactMark_Generate_AddViewmodel(LocalClientNum_t localClientNum, MarkInfo *markInfo, const vec3_t *origin, double radius, int viewmodelClientIndex)
+void FX_ImpactMark_Generate_AddViewmodel(LocalClientNum_t localClientNum, MarkInfo *markInfo, const vec3_t *origin, float radius, int viewmodelClientIndex)
 {
-  __int64 v10; 
-  cg_t *v11; 
+  __int64 v7; 
+  cg_t *v8; 
   DObj *viewModelDObj; 
   cpose_t *p_viewModelPose; 
-  char v27; 
-  char v28; 
-  __int64 v30; 
-  __int64 v31; 
+  double v11; 
+  __int64 v12; 
+  __int64 v13; 
   vec3_t outOrigin; 
-  __int64 v33; 
-  void *retaddr; 
+  __int64 v15; 
 
-  _RAX = &retaddr;
-  v33 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmm6, xmm3
-  }
-  v10 = localClientNum;
+  v15 = -2i64;
+  v7 = localClientNum;
   Profile_Begin(224);
   if ( viewmodelClientIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1176, ASSERT_TYPE_ASSERT, "(viewmodelClientIndex == 0)", (const char *)&queryFormat, "viewmodelClientIndex == 0") )
     __debugbreak();
-  if ( (unsigned int)v10 >= cg_t::ms_allocatedCount )
+  if ( (unsigned int)v7 >= cg_t::ms_allocatedCount )
   {
-    LODWORD(v30) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v30, cg_t::ms_allocatedCount) )
+    LODWORD(v12) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1166, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cg_t::ms_allocatedCount )", "localClientNum doesn't index cg_t::ms_allocatedCount\n\t%i not in [0, %i)", v12, cg_t::ms_allocatedCount) )
       __debugbreak();
   }
-  if ( !cg_t::ms_cgArray[v10] )
+  if ( !cg_t::ms_cgArray[v7] )
   {
-    LODWORD(v31) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v31) )
+    LODWORD(v13) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1167, ASSERT_TYPE_ASSERT, "(cg_t::ms_cgArray[localClientNum])", "%s\n\tTrying to access unallocated client globals for localClientNum %d\n", "cg_t::ms_cgArray[localClientNum]", v13) )
       __debugbreak();
   }
   if ( cg_t::ms_allocatedType == GLOB_TYPE_UNKNOWN )
   {
-    LODWORD(v31) = v10;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v31) )
+    LODWORD(v13) = v7;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1168, ASSERT_TYPE_ASSERT, "(cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client globals for localClientNum %d but the client global type is not known\n", "cg_t::ms_allocatedType != CgGlobalsType::GLOB_TYPE_UNKNOWN", v13) )
       __debugbreak();
   }
-  v11 = cg_t::ms_cgArray[v10];
-  viewModelDObj = v11->m_weaponHand[0].viewModelDObj;
-  p_viewModelPose = &v11->viewModelPose;
+  v8 = cg_t::ms_cgArray[v7];
+  viewModelDObj = v8->m_weaponHand[0].viewModelDObj;
+  p_viewModelPose = &v8->viewModelPose;
   if ( viewModelDObj )
   {
-    *(double *)&_XMM0 = DObjGetRadius(v11->m_weaponHand[0].viewModelDObj);
-    __asm
-    {
-      vaddss  xmm1, xmm0, xmm6
-      vmulss  xmm6, xmm1, xmm1
-    }
+    v11 = DObjGetRadius(v8->m_weaponHand[0].viewModelDObj);
     CG_GetPoseOrigin(p_viewModelPose, &outOrigin);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+88h+outOrigin]
-      vsubss  xmm3, xmm0, dword ptr [rbp+0]
-      vmovss  xmm1, dword ptr [rsp+88h+outOrigin+4]
-      vsubss  xmm2, xmm1, dword ptr [rbp+4]
-      vmovss  xmm0, dword ptr [rsp+88h+outOrigin+8]
-      vsubss  xmm4, xmm0, dword ptr [rbp+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, xmm6
-    }
-    if ( v27 | v28 )
+    if ( (float)((float)((float)((float)(outOrigin.v[1] - origin->v[1]) * (float)(outOrigin.v[1] - origin->v[1])) + (float)((float)(outOrigin.v[0] - origin->v[0]) * (float)(outOrigin.v[0] - origin->v[0]))) + (float)((float)(outOrigin.v[2] - origin->v[2]) * (float)(outOrigin.v[2] - origin->v[2]))) <= (float)((float)(*(float *)&v11 + radius) * (float)(*(float *)&v11 + radius)) )
       R_MarkFragments_AddViewModelDObj(markInfo, viewModelDObj, p_viewModelPose);
     Profile_EndInternal(NULL);
     memset(&outOrigin, 0, sizeof(outOrigin));
@@ -4918,7 +3981,6 @@ void __fastcall FX_ImpactMark_Generate_AddViewmodel(LocalClientNum_t localClient
   {
     Profile_EndInternal(NULL);
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
 }
 
 /*
@@ -5107,150 +4169,134 @@ FX_MarkCheckNearby
 ==============
 */
 
-FxMark *__fastcall FX_MarkCheckNearby(FxMarksSystem *marksSystem, const unsigned __int16 firstActiveMarkHandle, const vec3_t *origin, double radius, const vec3_t *dir)
+FxMark *__fastcall FX_MarkCheckNearby(FxMarksSystem *marksSystem, const unsigned __int16 firstActiveMarkHandle, const vec3_t *origin, double radius, const vec3_t *dir, bool decalSpray, bool bypassStackLimiter)
 {
+  __int64 v7; 
+  unsigned int v9; 
   unsigned __int16 nextMark; 
-  FxMark *result; 
-  __int64 v71; 
-  __int64 v72; 
-  __int128 v73; 
-  __int128 v74; 
-  __int128 v75; 
-  __int128 v76; 
-  char v77; 
-  void *retaddr; 
+  __int128 v14; 
+  __m128 v18; 
+  float v21; 
+  __m128 v22; 
+  FxMark *v23; 
+  __m128 radius_low; 
+  __m128 v26; 
+  __m128 v29; 
+  __m128 v30; 
+  __m128 v35; 
+  __int64 v47; 
+  __int64 v48; 
+  __int128 v49; 
+  __m128 v50; 
+  __m128 v51; 
+  __m128 v52; 
+  __int64 v53[4]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-  }
-  _R9 = dir;
+  v7 = 0i64;
   _RAX = fx_marks_limit_stacking_distance;
-  __asm { vmovss  xmm0, dword ptr [r8] }
+  v9 = 1;
   nextMark = firstActiveMarkHandle;
+  __asm { vbroadcastss xmm11, dword ptr [rax+28h] }
+  HIDWORD(v49) = 0;
+  v14 = v49;
+  *(float *)&v14 = origin->v[0];
+  _XMM7 = v14;
   __asm
   {
-    vmovaps xmm12, xmm3
-    vbroadcastss xmm11, dword ptr [rax+28h]
-  }
-  HIDWORD(v73) = 0;
-  __asm
-  {
-    vmovups xmm7, xmmword ptr [rsp+40h]
-    vmovss  xmm7, xmm7, xmm0
     vinsertps xmm7, xmm7, dword ptr [r8+4], 10h
     vinsertps xmm7, xmm7, dword ptr [r8+8], 20h ; ' '
-    vmovss  xmm0, dword ptr [r9]
-    vmovups xmmword ptr [rsp+40h], xmm7
   }
-  HIDWORD(v74) = 0;
+  v50 = _XMM7;
+  v50.m128_i32[3] = 0;
+  v18 = v50;
+  v18.m128_f32[0] = dir->v[0];
+  _XMM8 = v18;
   __asm
   {
-    vmovups xmm8, xmmword ptr [rsp+40h]
-    vmovss  xmm8, xmm8, xmm0
     vinsertps xmm8, xmm8, dword ptr [r9+4], 10h
     vinsertps xmm8, xmm8, dword ptr [r9+8], 20h ; ' '
-    vmovups xmmword ptr [rsp+40h], xmm8
-    vmovaps xmm9, xmm3
-    vshufps xmm12, xmm12, xmm12, 0
   }
-  if ( firstActiveMarkHandle != 0xFFFF )
+  if ( bypassStackLimiter )
+    v9 = 4;
+  v51 = _XMM8;
+  v21 = *(float *)&radius;
+  v22 = _mm_shuffle_ps(*(__m128 *)&radius, *(__m128 *)&radius, 0);
+  if ( firstActiveMarkHandle == 0xFFFF )
+    return 0i64;
+  while ( 1 )
   {
-    __asm { vmovss  xmm10, cs:__real@40800000 }
-    do
+    if ( nextMark >= 0x200u )
     {
-      if ( nextMark >= 0x200u )
-      {
-        LODWORD(v72) = 512;
-        LODWORD(v71) = nextMark;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", v71, v72) )
-          __debugbreak();
-      }
-      if ( !marksSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 183, ASSERT_TYPE_ASSERT, "(marksSystem)", (const char *)&queryFormat, "marksSystem") )
+      LODWORD(v48) = 512;
+      LODWORD(v47) = nextMark;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 182, ASSERT_TYPE_ASSERT, "(unsigned)( handle ) < (unsigned)( 512 )", "handle doesn't index FX_MARKS_LIMIT\n\t%i not in [0, %i)", v47, v48) )
         __debugbreak();
-      _RCX = &marksSystem->marks[nextMark];
-      nextMark = _RCX->nextMark;
-      if ( !_RCX->lerpInfo || _RCX->nativeColorLerp[3] )
+    }
+    if ( !marksSystem && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.h", 183, ASSERT_TYPE_ASSERT, "(marksSystem)", (const char *)&queryFormat, "marksSystem") )
+      __debugbreak();
+    v23 = &marksSystem->marks[nextMark];
+    nextMark = v23->nextMark;
+    if ( !v23->lerpInfo || v23->nativeColorLerp[3] )
+    {
+      radius_low = (__m128)LODWORD(v23->radius);
+      v51.m128_i32[3] = 0;
+      v26 = v51;
+      v26.m128_f32[0] = v23->origin.v[0];
+      _XMM3 = v26;
+      __asm
       {
+        vinsertps xmm3, xmm3, dword ptr [rcx+14h], 10h
+        vinsertps xmm3, xmm3, dword ptr [rcx+18h], 20h ; ' '
+      }
+      v52.m128_i32[3] = 0;
+      v29 = _mm128_mul_ps(_XMM11, _mm128_add_ps(v22, _mm_shuffle_ps(radius_low, radius_low, 0)));
+      _mm128_mul_ps(v29, v29);
+      v30 = _mm128_sub_ps(_XMM7, _XMM3);
+      _XMM1 = _mm128_mul_ps(v30, v30);
+      __asm
+      {
+        vhaddps xmm2, xmm1, xmm1
+        vhaddps xmm4, xmm2, xmm2
+      }
+      v35 = v52;
+      v35.m128_f32[0] = v23->texCoordAxisZ.v[0];
+      _XMM2 = v35;
+      __asm
+      {
+        vinsertps xmm2, xmm2, dword ptr [rcx+6Ch], 10h
+        vinsertps xmm2, xmm2, dword ptr [rcx+70h], 20h ; ' '
+      }
+      _XMM0 = _mm128_mul_ps(_XMM8, _XMM2);
+      __asm
+      {
+        vhaddps xmm1, xmm0, xmm0
+        vcmpltps xmm0, xmm4, xmm5
+        vmovmskps eax, xmm0
+      }
+      v51 = _XMM3;
+      v52 = _XMM2;
+      if ( (_EAX & 0xF) == 15 )
+      {
+        _XMM0 = s_markCheckAngleThreshold.v;
         __asm
         {
-          vmovss  xmm0, dword ptr [rcx+10h]
-          vmovss  xmm6, dword ptr [rcx+1Ch]
+          vhaddps xmm1, xmm1, xmm1
+          vcmpltps xmm1, xmm0, xmm1
+          vmovmskps eax, xmm1
         }
-        HIDWORD(v75) = 0;
-        __asm
+        if ( (_EAX & 0xF) == 15 && v21 < (float)(radius_low.m128_f32[0] * 4.0) && ((*((_BYTE *)v23 + 103) & 8) != 0) == decalSpray )
         {
-          vmovups xmm3, xmmword ptr [rsp+40h]
-          vmovss  xmm3, xmm3, xmm0
-          vinsertps xmm3, xmm3, dword ptr [rcx+14h], 10h
-          vinsertps xmm3, xmm3, dword ptr [rcx+18h], 20h ; ' '
-        }
-        HIDWORD(v76) = 0;
-        __asm
-        {
-          vmovaps xmm0, xmm6
-          vshufps xmm0, xmm0, xmm0, 0
-          vaddps  xmm0, xmm12, xmm0
-          vmulps  xmm1, xmm11, xmm0
-          vmulps  xmm5, xmm1, xmm1
-          vsubps  xmm0, xmm7, xmm3
-          vmulps  xmm1, xmm0, xmm0
-          vmovss  xmm0, dword ptr [rcx+68h]
-          vhaddps xmm2, xmm1, xmm1
-          vhaddps xmm4, xmm2, xmm2
-          vmovups xmm2, xmmword ptr [rsp+50h]
-          vmovss  xmm2, xmm2, xmm0
-          vinsertps xmm2, xmm2, dword ptr [rcx+6Ch], 10h
-          vinsertps xmm2, xmm2, dword ptr [rcx+70h], 20h ; ' '
-          vmulps  xmm0, xmm8, xmm2
-          vhaddps xmm1, xmm0, xmm0
-          vcmpltps xmm0, xmm4, xmm5
-          vmovmskps eax, xmm0
-          vmovups xmmword ptr [rsp+40h], xmm3
-          vmovups xmmword ptr [rsp+50h], xmm2
-        }
-        if ( (_EAX & 0xF) == 15 )
-        {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr cs:s_markCheckAngleThreshold.v
-            vhaddps xmm1, xmm1, xmm1
-            vcmpltps xmm1, xmm0, xmm1
-            vmovmskps eax, xmm1
-          }
-          if ( (_EAX & 0xF) == 15 )
-          {
-            __asm
-            {
-              vmulss  xmm0, xmm6, xmm10
-              vcomiss xmm9, xmm0
-            }
-          }
+          v53[v7] = (__int64)v23;
+          v7 = (unsigned int)(v7 + 1);
+          if ( (unsigned int)v7 >= v9 )
+            break;
         }
       }
     }
-    while ( nextMark != 0xFFFF );
+    if ( nextMark == 0xFFFF )
+      return 0i64;
   }
-  result = NULL;
-  _R11 = &v77;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
-  return result;
+  return (FxMark *)v53[0];
 }
 
 /*
@@ -5519,93 +4565,65 @@ void FX_MarksCacheWorldCells(GfxWorldDraw *worldDraw)
 FX_OrientDecalProjectionAxis
 ==============
 */
-
-tmat33_t<vec3_t> *__fastcall FX_OrientDecalProjectionAxis(tmat33_t<vec3_t> *result, const tmat33_t<vec3_t> *originalAxis, FxMarkProjectionAxis projectionAxis, double rotationAngle)
+tmat33_t<vec3_t> *FX_OrientDecalProjectionAxis(tmat33_t<vec3_t> *result, const tmat33_t<vec3_t> *originalAxis, FxMarkProjectionAxis projectionAxis, float rotationAngle)
 {
-  vec3_t *v25; 
-  const vec3_t *v26; 
-  tmat33_t<vec3_t> *v35; 
+  float v6; 
+  tmat33_t<vec3_t> *v7; 
+  vec3_t *v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  vec3_t *v12; 
+  tmat33_t<vec3_t> *v13; 
+  float v14; 
+  float v15; 
+  float v16; 
 
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx]
-    vmovups ymmword ptr [rcx], ymm0
-  }
-  _RBX = result;
-  result->m[2].v[2] = originalAxis->m[2].v[2];
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
+  *result = *originalAxis;
   switch ( projectionAxis )
   {
     case FX_MARK_PROJECTION_AXIS_POS_X:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]; jumptable 000000014200FE9D case 0
-        vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-        vxorps  xmm0, xmm0, xmm2
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm1, dword ptr [rbx+4]
-        vxorps  xmm0, xmm1, xmm2
-        vmovss  dword ptr [rbx+4], xmm0
-        vmovss  xmm1, dword ptr [rbx+8]
-        vxorps  xmm0, xmm1, xmm2
-        vmovss  dword ptr [rbx+8], xmm0
-      }
+      result->m[0].v[0] = COERCE_FLOAT(LODWORD(result->m[0].v[0]) ^ _xmm);
+      result->m[0].v[1] = COERCE_FLOAT(LODWORD(result->m[0].v[1]) ^ _xmm);
+      result->m[0].v[2] = COERCE_FLOAT(LODWORD(result->m[0].v[2]) ^ _xmm);
       goto LABEL_3;
     case FX_MARK_PROJECTION_AXIS_NEG_X:
 LABEL_3:
-      __asm { vmulss  xmm3, xmm6, cs:__real@42652ee0; jumptable 000000014200FE9D case 1 }
-      _RDI = &result->m[2];
+      v6 = rotationAngle * 57.295776;
+      v7 = (tmat33_t<vec3_t> *)&result->m[2];
       goto LABEL_12;
     case FX_MARK_PROJECTION_AXIS_POS_Y:
-      __asm { vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000; jumptable 000000014200FE9D case 2 }
-      _RCX = &result->m[1];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx]
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm1, dword ptr [rcx+4]
-        vmovss  dword ptr [rbx+4], xmm1
-        vmovss  xmm3, dword ptr [rcx+8]
-        vxorps  xmm0, xmm0, xmm2
-        vmovss  dword ptr [rbx], xmm0
-        vxorps  xmm0, xmm3, xmm2
-        vxorps  xmm1, xmm1, xmm2
-        vmovss  dword ptr [rbx+8], xmm0
-        vmovss  dword ptr [rbx+4], xmm1
-      }
+      v8 = &result->m[1];
+      v9 = result->m[1].v[0];
+      result->m[0].v[0] = v9;
+      v10 = result->m[1].v[1];
+      result->m[0].v[1] = v10;
+      v11 = result->m[1].v[2];
+      result->m[0].v[0] = COERCE_FLOAT(LODWORD(v9) ^ _xmm);
+      result->m[0].v[2] = COERCE_FLOAT(LODWORD(v11) ^ _xmm);
+      result->m[0].v[1] = COERCE_FLOAT(LODWORD(v10) ^ _xmm);
       goto LABEL_5;
     case FX_MARK_PROJECTION_AXIS_NEG_Y:
-      _RCX = &result->m[1];
-      _RBX->m[0].v[0] = _RBX->m[1].v[0];
-      _RBX->m[0].v[1] = _RBX->m[1].v[1];
-      _RBX->m[0].v[2] = _RBX->m[1].v[2];
+      v8 = &result->m[1];
+      result->m[0].v[0] = result->m[1].v[0];
+      result->m[0].v[1] = result->m[1].v[1];
+      result->m[0].v[2] = result->m[1].v[2];
 LABEL_5:
-      __asm { vmulss  xmm3, xmm6, cs:__real@42652ee0 }
-      v25 = &_RBX->m[2];
-      v26 = _RCX;
-      _RDI = (vec3_t *)_RBX;
+      v6 = rotationAngle * 57.295776;
+      v12 = &result->m[2];
+      v13 = (tmat33_t<vec3_t> *)v8;
+      v7 = result;
       goto LABEL_13;
     case FX_MARK_PROJECTION_AXIS_POS_Z:
-      __asm { vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000; jumptable 000000014200FE9D case 4 }
-      _RDI = &result->m[2];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi]
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm1, dword ptr [rdi+4]
-        vmovss  dword ptr [rbx+4], xmm1
-        vmovss  xmm3, dword ptr [rdi+8]
-        vxorps  xmm0, xmm0, xmm2
-        vmovss  dword ptr [rbx], xmm0
-        vxorps  xmm0, xmm3, xmm2
-        vxorps  xmm1, xmm1, xmm2
-        vmovss  dword ptr [rbx+8], xmm0
-        vmovss  dword ptr [rbx+4], xmm1
-      }
+      v7 = (tmat33_t<vec3_t> *)&result->m[2];
+      v14 = result->m[2].v[0];
+      result->m[0].v[0] = v14;
+      v15 = result->m[2].v[1];
+      result->m[0].v[1] = v15;
+      v16 = result->m[2].v[2];
+      result->m[0].v[0] = COERCE_FLOAT(LODWORD(v14) ^ _xmm);
+      result->m[0].v[2] = COERCE_FLOAT(LODWORD(v16) ^ _xmm);
+      result->m[0].v[1] = COERCE_FLOAT(LODWORD(v15) ^ _xmm);
       goto LABEL_11;
     case FX_MARK_PROJECTION_AXIS_NEG_Z:
       goto $LN4_118;
@@ -5613,26 +4631,20 @@ LABEL_5:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_marks.cpp", 1373, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported projection axis in FX_OrientDecalProjectionAxis().") )
         __debugbreak();
 $LN4_118:
-      _RDI = &_RBX->m[2];
-      _RBX->m[0].v[0] = _RBX->m[2].v[0];
-      _RBX->m[0].v[1] = _RBX->m[2].v[1];
-      _RBX->m[0].v[2] = _RBX->m[2].v[2];
+      v7 = (tmat33_t<vec3_t> *)&result->m[2];
+      result->m[0].v[0] = result->m[2].v[0];
+      result->m[0].v[1] = result->m[2].v[1];
+      result->m[0].v[2] = result->m[2].v[2];
 LABEL_11:
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:__real@42652ee0
-        vsubss  xmm3, xmm0, cs:__real@42b40000; degrees
-      }
+      v6 = (float)(rotationAngle * 57.295776) - 90.0;
 LABEL_12:
-      v25 = &_RBX->m[1];
-      _RCX = _RDI;
-      v26 = (const vec3_t *)_RBX;
+      v12 = &result->m[1];
+      v8 = (vec3_t *)v7;
+      v13 = result;
 LABEL_13:
-      RotatePointAroundVector(_RCX, _RBX->m, v25, *(float *)&_XMM3);
-      Vec3Cross(v26, _RDI, v25);
-      v35 = _RBX;
-      __asm { vmovaps xmm6, [rsp+48h+var_18] }
-      return v35;
+      RotatePointAroundVector(v8, result->m, v12, v6);
+      Vec3Cross(v13->m, v7->m, v12);
+      return result;
   }
 }
 

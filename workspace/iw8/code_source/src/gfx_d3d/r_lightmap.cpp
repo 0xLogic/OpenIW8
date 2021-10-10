@@ -115,8 +115,8 @@ R_Create2DStagingImage
 void R_Create2DStagingImage(unsigned int width, unsigned int height, GfxPixelFormat format, const char *buffer, GfxImage *image)
 {
   int v10; 
-  __m256i v14; 
-  __m256i v15; 
+  __m256i v12; 
+  __m256i v13; 
   Image_SetupParams params; 
   Image_SetupData data; 
 
@@ -133,25 +133,20 @@ void R_Create2DStagingImage(unsigned int width, unsigned int height, GfxPixelFor
     PMem_EndAlloc("R_AllocateLiveUpdateBuffer", PMEM_STACK_GAME);
   }
   Image_AllocInPlace(image, "$lightmap2dstaging", IMG_CATEGORY_LIGHTMAP, TS_FUNCTION);
-  v15.m256i_i64[0] = 0i64;
-  v15.m256i_i32[6] = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+300D8h+var_30088+8], xmm0
-    vmovups ymm1, [rsp+300D8h+var_30088]
-  }
-  v14.m256i_i32[2] = 1;
+  v13.m256i_i64[0] = 0i64;
+  v13.m256i_i32[6] = -1;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&v13.m256i_u64[1] = _XMM0;
+  v12.m256i_i32[2] = 1;
   if ( (unsigned int)(format - 33) > 0xC )
     v10 = 1024;
-  *(__int64 *)((char *)&v14.m256i_i64[1] + 4) = 1i64;
-  v14.m256i_i64[0] = __PAIR64__(height, width);
-  v14.m256i_i32[5] = v10 + 536870915;
-  __asm { vmovups ymmword ptr [rsp+300D8h+params.customAllocFunc], ymm1 }
-  v14.m256i_i32[6] = format;
-  __asm { vmovups ymm0, [rsp+300D8h+var_300A8] }
+  *(__int64 *)((char *)&v12.m256i_i64[1] + 4) = 1i64;
+  v12.m256i_i64[0] = __PAIR64__(height, width);
+  v12.m256i_i32[5] = v10 + 536870915;
+  *(__m256i *)&params.customAllocFunc = v13;
+  v12.m256i_i32[6] = format;
   params.customAllocFunc = lambda_cc5243ee1bcbb3b97546a825643a93af_::_lambda_invoker_cdecl_;
-  __asm { vmovups ymmword ptr [rsp+300D8h+params.width], ymm0 }
+  *(__m256i *)&params.width = v12;
   data.data[0][0] = (const unsigned __int8 *)buffer;
   Image_SetupWithData(image, &params, &data);
 }

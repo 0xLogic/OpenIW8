@@ -563,45 +563,40 @@ void Sys_BroadcastPrimaryThreadWaitTypeEnd(WaitBroadcastState *state)
   volatile __int32 *v5; 
   WorkerCmdType prevCurrentThreadWaitType; 
   __int64 v7; 
-  __int64 v9; 
-  __int128 v10; 
+  __int64 v8; 
+  WaitBroadcastState v9; 
 
-  _RBX = state;
   if ( !state && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\sys_workercmds.cpp", 822, ASSERT_TYPE_ASSERT, "(state)", (const char *)&queryFormat, "state") )
     __debugbreak();
-  if ( _RBX->hasBegun )
+  if ( state->hasBegun )
   {
     v2 = tls_index;
-    if ( _RBX->prevCurrentThreadWaitType == *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 988i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\sys_workercmds.cpp", 826, ASSERT_TYPE_ASSERT, "(state->prevCurrentThreadWaitType != s_currentThreadWaitType)", (const char *)&queryFormat, "state->prevCurrentThreadWaitType != s_currentThreadWaitType") )
+    if ( state->prevCurrentThreadWaitType == *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + tls_index) + 988i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\sys_workercmds.cpp", 826, ASSERT_TYPE_ASSERT, "(state->prevCurrentThreadWaitType != s_currentThreadWaitType)", (const char *)&queryFormat, "state->prevCurrentThreadWaitType != s_currentThreadWaitType") )
       __debugbreak();
     if ( *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v2) + 988i64) == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\sys_workercmds.cpp", 827, ASSERT_TYPE_ASSERT, "(s_currentThreadWaitType != WRKCMD_UNSET)", (const char *)&queryFormat, "s_currentThreadWaitType != WRKCMD_UNSET") )
       __debugbreak();
-    if ( _RBX->broadcastWaitType )
+    if ( state->broadcastWaitType )
     {
-      if ( _RBX->waitThreadIdx >= 3u )
+      if ( state->waitThreadIdx >= 3u )
       {
-        LODWORD(v9) = _RBX->waitThreadIdx;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\sys_workercmds.cpp", 831, ASSERT_TYPE_ASSERT, "(unsigned)( state->waitThreadIdx ) < (unsigned)( ( sizeof( *array_counter( s_workerCmdWaitType ) ) + 0 ) )", "state->waitThreadIdx doesn't index ARRAY_COUNT( s_workerCmdWaitType )\n\t%i not in [0, %i)", v9, 3) )
+        LODWORD(v8) = state->waitThreadIdx;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\sys_workercmds.cpp", 831, ASSERT_TYPE_ASSERT, "(unsigned)( state->waitThreadIdx ) < (unsigned)( ( sizeof( *array_counter( s_workerCmdWaitType ) ) + 0 ) )", "state->waitThreadIdx doesn't index ARRAY_COUNT( s_workerCmdWaitType )\n\t%i not in [0, %i)", v8, 3) )
           __debugbreak();
       }
-      waitThreadIdx = _RBX->waitThreadIdx;
-      prevBroadcastType = _RBX->prevBroadcastType;
+      waitThreadIdx = state->waitThreadIdx;
+      prevBroadcastType = state->prevBroadcastType;
       v5 = &s_workerCmdWaitType[waitThreadIdx];
       if ( ((unsigned __int8)v5 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 93, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", (const void *)&s_workerCmdWaitType[waitThreadIdx]) )
         __debugbreak();
       if ( _InterlockedExchange(v5, prevBroadcastType) != *(_DWORD *)(*((_QWORD *)NtCurrentTeb()->Reserved1[11] + v2) + 988i64) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\sys_workercmds.cpp", 833, ASSERT_TYPE_ASSERT, "((Sys_InterlockedExchange( &s_workerCmdWaitType[state->waitThreadIdx], state->prevBroadcastType )) == (s_currentThreadWaitType))", (const char *)&queryFormat, "Sys_InterlockedExchange( &s_workerCmdWaitType[state->waitThreadIdx], state->prevBroadcastType ) == s_currentThreadWaitType") )
         __debugbreak();
     }
-    prevCurrentThreadWaitType = _RBX->prevCurrentThreadWaitType;
-    *(_QWORD *)&v10 = -1i64;
-    DWORD2(v10) = -1;
-    WORD6(v10) = 0;
+    prevCurrentThreadWaitType = state->prevCurrentThreadWaitType;
+    *(_QWORD *)&v9.prevCurrentThreadWaitType = -1i64;
+    v9.waitThreadIdx = -1;
+    *(_WORD *)&v9.broadcastWaitType = 0;
     v7 = *((_QWORD *)NtCurrentTeb()->Reserved1[11] + v2);
-    __asm
-    {
-      vmovups xmm0, [rsp+68h+var_28]
-      vmovups xmmword ptr [rbx], xmm0
-    }
+    *state = v9;
     *(_DWORD *)(v7 + 988) = prevCurrentThreadWaitType;
   }
 }

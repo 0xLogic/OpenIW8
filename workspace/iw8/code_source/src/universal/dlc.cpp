@@ -3655,78 +3655,70 @@ Content_TrimFileNameForHash
 */
 void Content_TrimFileNameForHash(const char *const originalName, char *sanitizedBuffer, const unsigned int sanitizedBufferLen)
 {
-  unsigned __int64 v4; 
-  unsigned __int64 v7; 
-  char v8; 
-  char *v9; 
-  const char *v10; 
-  char v11; 
+  unsigned __int64 v3; 
+  unsigned __int64 v6; 
+  char v7; 
+  char *v8; 
+  const char *v9; 
+  char v10; 
   const char *i; 
-  char *v13; 
+  char *v12; 
   char *nameEnd; 
   char *name; 
 
-  v4 = sanitizedBufferLen;
+  v3 = sanitizedBufferLen;
   if ( !originalName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dlc.cpp", 699, ASSERT_TYPE_ASSERT, "(originalName)", (const char *)&queryFormat, "originalName") )
     __debugbreak();
   if ( !sanitizedBuffer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dlc.cpp", 700, ASSERT_TYPE_ASSERT, "(sanitizedBuffer)", (const char *)&queryFormat, "sanitizedBuffer") )
     __debugbreak();
-  if ( !(_DWORD)v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dlc.cpp", 701, ASSERT_TYPE_ASSERT, "(sanitizedBufferLen)", (const char *)&queryFormat, "sanitizedBufferLen") )
+  if ( !(_DWORD)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dlc.cpp", 701, ASSERT_TYPE_ASSERT, "(sanitizedBufferLen)", (const char *)&queryFormat, "sanitizedBufferLen") )
     __debugbreak();
   name = (char *)originalName;
-  v7 = __rdtsc();
+  v6 = __rdtsc();
   if ( !originalName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dlc.cpp", 660, ASSERT_TYPE_ASSERT, "(nameStart)", (const char *)&queryFormat, "nameStart") )
     __debugbreak();
-  v8 = *originalName;
-  v9 = (char *)originalName;
+  v7 = *originalName;
+  v8 = (char *)originalName;
   nameEnd = (char *)originalName;
-  v10 = originalName;
-  if ( v8 )
+  v9 = originalName;
+  if ( v7 )
   {
-    while ( v8 != 46 )
+    while ( v7 != 46 )
     {
-      v8 = *++v9;
-      nameEnd = v9;
-      v10 = v9;
-      if ( !v8 )
+      v7 = *++v8;
+      nameEnd = v8;
+      v9 = v8;
+      if ( !v7 )
         goto LABEL_25;
     }
   }
-  if ( *v9 )
+  if ( *v8 )
   {
-    v11 = v10[1];
-    for ( i = v10 + 1; v11; ++i )
+    v10 = v9[1];
+    for ( i = v9 + 1; v10; ++i )
     {
-      if ( v11 == 92 || (unsigned __int8)(v11 - 46) <= 1u )
+      if ( v10 == 92 || (unsigned __int8)(v10 - 46) <= 1u )
       {
         if ( content_assert_hash_truncate->current.enabled )
           Sys_Error((const ObfuscateErrorText)&stru_14416FF00, originalName);
         else
           Com_PrintError(10, "Content_FindNameEndStripExt: '%s' has multiple extension characters '.' or an extension character in the folder name, which is not supported\n", originalName);
       }
-      v11 = i[1];
+      v10 = i[1];
     }
   }
 LABEL_25:
   Content_SkipFastFilePrefixes((const char **)&name);
-  v13 = name;
+  v12 = name;
   Content_StripWorldTransientFastfile(name, (const char **)&nameEnd);
-  Core_strncpy(sanitizedBuffer, v4, v13, nameEnd - v13);
+  Core_strncpy(sanitizedBuffer, v3, v12, nameEnd - v12);
   if ( content_debug_hashtable->current.enabled )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-    }
-    if ( (__int64)(__rdtsc() - v7) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm
-    {
-      vmulsd  xmm2, xmm0, cs:?usecPerRawTimerTick@@3NA; double usecPerRawTimerTick
-      vmovq   r8, xmm2
-    }
-    Com_Printf(16, "Content_TrimFileNameForHash %.2f usec ( '%s' -> '%s' )\n", *(double *)&_XMM2, originalName, sanitizedBuffer);
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    if ( (__int64)(__rdtsc() - v6) < 0 )
+      *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+    Com_Printf(16, "Content_TrimFileNameForHash %.2f usec ( '%s' -> '%s' )\n", (double)(*(double *)&_XMM0 * usecPerRawTimerTick), originalName, sanitizedBuffer);
   }
 }
 

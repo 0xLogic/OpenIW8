@@ -956,6 +956,7 @@ ParticleModuleAttractor::Parse
 char *ParticleModuleAttractor::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
   char *v7; 
+  ParticleModule *v11; 
   bool v12; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
   const char *v14; 
@@ -986,26 +987,26 @@ char *ParticleModuleAttractor::Parse(ParticleSystemDef *pParticleSystemDef, Part
     __debugbreak();
   if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5584, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
-  _R14 = pBaseModule;
+  v11 = pBaseModule;
   if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5584, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
   v12 = isLoadingFile;
   if ( isLoadingFile )
   {
-    *_R14 = 0i64;
-    _R14[1] = 0i64;
-    _R14[2] = 0i64;
-    _R14[3] = 0i64;
-    _R14[4] = 0i64;
-    _R14[5] = 0i64;
+    *v11 = 0i64;
+    v11[1] = 0i64;
+    v11[2] = 0i64;
+    v11[3] = 0i64;
+    v11[4] = 0i64;
+    v11[5] = 0i64;
     initMembersFunc = ParticleModule::GetUpdateData()[33].initMembersFunc;
     if ( initMembersFunc )
-      initMembersFunc(_R14);
+      initMembersFunc(v11);
   }
-  _R14->m_type = PARTICLE_MODULE_UPDATE_BEGIN;
+  v11->m_type = PARTICLE_MODULE_UPDATE_BEGIN;
   if ( v12 )
   {
-    v7 = (char *)ParseModuleID(v7, pParticleSystemDef, _R14);
+    v7 = (char *)ParseModuleID(v7, pParticleSystemDef, v11);
     pDataa = v7;
   }
   if ( !v7 )
@@ -1070,18 +1071,13 @@ char *ParticleModuleAttractor::Parse(ParticleSystemDef *pParticleSystemDef, Part
         if ( !v25 )
           return v7;
       }
-      if ( !ParseMemberFlag((const char **)&pDataa, "disable", &_R14->m_flags, 1u) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "forceMag", (float *)&_R14[3]) )
+      if ( !ParseMemberFlag((const char **)&pDataa, "disable", &v11->m_flags, 1u) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "forceMag", (float *)&v11[3]) )
       {
-        if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "nearDistance", (float *)&_R14[3].m_flags) )
+        if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "nearDistance", (float *)&v11[3].m_flags) )
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r14+1Ch]
-            vmulss  xmm1, xmm0, xmm0
-            vmovss  dword ptr [r14+1Ch], xmm1
-          }
+          *(float *)&v11[3].m_flags = *(float *)&v11[3].m_flags * *(float *)&v11[3].m_flags;
         }
-        else if ( !ParseMember_float4__ParseVector3_((const char **)&pDataa, "attractPoint", (float4 *)&_R14[4]) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "killWhenNear", (bool *)&_R14[2].m_flags) )
+        else if ( !ParseMember_float4__ParseVector3_((const char **)&pDataa, "attractPoint", (float4 *)&v11[4]) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "killWhenNear", (bool *)&v11[2].m_flags) )
         {
           v7 = ++pDataa;
 LABEL_54:
@@ -1119,9 +1115,8 @@ const char *ParticleModuleColorGraph::Parse(ParticleSystemDef *pParticleSystemDe
   unsigned int v22; 
   int v23; 
   __int64 v24; 
-  ParticleModule v25; 
-  __int64 v26; 
-  bool v28; 
+  float *v25; 
+  float *v26; 
   unsigned __int64 flags; 
   const char *result; 
   char *pDataa; 
@@ -1217,30 +1212,18 @@ LABEL_24:
     v24 = 0i64;
     if ( v23 > 0 )
     {
-      v25 = v7[2 * v22 + 2];
-      v26 = *(int *)&v7[2 * v22 + 3].m_type;
-      _RCX = v25;
-      _R9 = *(_QWORD *)&v7[2 * v22 + 4] - *(_QWORD *)&v25;
-      v28 = *(_QWORD *)&v7[2 * v22 + 4] == v25;
-      do
+      v25 = (float *)v7[2 * v22 + 2];
+      v26 = v25;
+      while ( *v26 == *(float *)((char *)v26 + *(_QWORD *)&v7[2 * v22 + 4] - (_QWORD)v25) && *v26 == *(float *)((char *)v26 + *(_QWORD *)&v7[2 * v22 + 6] - (_QWORD)v25) )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx]
-          vucomiss xmm0, dword ptr [r9+rcx]
-        }
-        if ( !v28 )
-          goto LABEL_61;
-        _RAX = *(_QWORD *)&v7[2 * v22 + 6] - *(_QWORD *)&v25;
-        __asm { vucomiss xmm0, dword ptr [rax+rcx] }
-        if ( _RAX )
-          goto LABEL_61;
         ++v24;
-        *(_QWORD *)&_RCX += 16i64;
-        v28 = v24 == v26;
+        v26 += 4;
+        if ( v24 >= *(int *)&v7[2 * v22 + 3].m_type )
+          goto LABEL_56;
       }
-      while ( v24 < v26 );
+      break;
     }
+LABEL_56:
     v22 += 4;
     if ( v22 >= 8 )
     {
@@ -1261,7 +1244,6 @@ LABEL_24:
       return result;
     }
   }
-LABEL_61:
   if ( g_vfxWarn )
     Com_PrintWarning(21, "WARNING: Disabling ColorGraph because it does not have RGB values with the same number of control points in the same place for: %s | %s\n", pParticleSystemDef->name, (const char *)&queryFormat.fmt + 3);
   v7->m_flags |= 1u;
@@ -1517,115 +1499,108 @@ ParticleModuleEmissiveGraph::Parse
 */
 const char *ParticleModuleEmissiveGraph::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  char *v8; 
-  bool v13; 
+  char *v7; 
+  ParticleModule *v11; 
+  bool v12; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v15; 
-  __int64 v16; 
-  signed __int64 v17; 
-  int v18; 
-  __int64 v19; 
+  const char *v14; 
+  __int64 v15; 
+  signed __int64 v16; 
+  int v17; 
+  __int64 v18; 
+  int v19; 
   int v20; 
   int v21; 
-  int v22; 
-  unsigned __int64 v23; 
-  bool v24; 
-  __int64 v25; 
+  unsigned __int64 v22; 
+  __int64 v23; 
   const char *result; 
   char *pDataa; 
 
   pDataa = (char *)pData;
-  v8 = (char *)pData;
+  v7 = (char *)pData;
   if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5744, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
     __debugbreak();
   if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5744, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
   if ( !pParticleStateDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5744, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
     __debugbreak();
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5744, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5744, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
-  _R14 = pBaseModule;
+  v11 = pBaseModule;
   if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5744, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
-  v13 = isLoadingFile;
+  v12 = isLoadingFile;
   if ( isLoadingFile )
   {
-    memset_0(_R14, 0, 0xB0ui64);
+    memset_0(v11, 0, 0xB0ui64);
     initMembersFunc = ParticleModule::GetUpdateData()[37].initMembersFunc;
     if ( initMembersFunc )
-      initMembersFunc(_R14);
+      initMembersFunc(v11);
   }
-  _R14->m_type = PARTICLE_MODULE_EMISSIVE_GRAPH;
-  if ( v13 )
+  v11->m_type = PARTICLE_MODULE_EMISSIVE_GRAPH;
+  if ( v12 )
   {
-    v8 = (char *)ParseModuleID(v8, pParticleSystemDef, _R14);
-    pDataa = v8;
+    v7 = (char *)ParseModuleID(v7, pParticleSystemDef, v11);
+    pDataa = v7;
   }
-  if ( v8 )
+  if ( v7 )
   {
 LABEL_22:
-    if ( *v8 )
+    if ( *v7 )
     {
-      v15 = s_typeGroupHeaderEnd;
-      v16 = s_typeGroupHeaderEndLength;
+      v14 = s_typeGroupHeaderEnd;
+      v15 = s_typeGroupHeaderEndLength;
       if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v17 = v8 - v15;
+      v16 = v7 - v14;
       do
       {
-        v18 = (unsigned __int8)v15[v17];
-        v19 = v16;
-        v20 = *(unsigned __int8 *)v15++;
-        --v16;
-        if ( !v19 )
+        v17 = (unsigned __int8)v14[v16];
+        v18 = v15;
+        v19 = *(unsigned __int8 *)v14++;
+        --v15;
+        if ( !v18 )
           break;
-        if ( v18 != v20 )
+        if ( v17 != v19 )
         {
-          v21 = v18 + 32;
-          if ( (unsigned int)(v18 - 65) > 0x19 )
-            v21 = v18;
-          v18 = v21;
-          v22 = v20 + 32;
-          if ( (unsigned int)(v20 - 65) > 0x19 )
-            v22 = v20;
-          if ( v18 != v22 )
+          v20 = v17 + 32;
+          if ( (unsigned int)(v17 - 65) > 0x19 )
+            v20 = v17;
+          v17 = v20;
+          v21 = v19 + 32;
+          if ( (unsigned int)(v19 - 65) > 0x19 )
+            v21 = v19;
+          if ( v17 != v21 )
           {
-            if ( ParseMemberFlag((const char **)&pDataa, "disable", &_R14->m_flags, 1u) || ParseMember_float__ParseFloat_((const char **)&pDataa, "scale1", (float *)&_R14[9].m_flags) || ParseMember_float__ParseFloat_((const char **)&pDataa, "scale2", (float *)&_R14[19].m_flags) || ParseMember_float__ParseFloat_((const char **)&pDataa, "lightingFrac1", (float *)&_R14[11].m_flags) || ParseMember_float__ParseFloat_((const char **)&pDataa, "lightingFrac2", (float *)&_R14[21].m_flags) || ParseMemberFlag((const char **)&pDataa, "useEmitterLife", &_R14->m_flags, 4u) || ParseMemberFlag((const char **)&pDataa, "randomizeBetweenCurves", &_R14->m_flags, 0x10u) )
-              v8 = pDataa;
+            if ( ParseMemberFlag((const char **)&pDataa, "disable", &v11->m_flags, 1u) || ParseMember_float__ParseFloat_((const char **)&pDataa, "scale1", (float *)&v11[9].m_flags) || ParseMember_float__ParseFloat_((const char **)&pDataa, "scale2", (float *)&v11[19].m_flags) || ParseMember_float__ParseFloat_((const char **)&pDataa, "lightingFrac1", (float *)&v11[11].m_flags) || ParseMember_float__ParseFloat_((const char **)&pDataa, "lightingFrac2", (float *)&v11[21].m_flags) || ParseMemberFlag((const char **)&pDataa, "useEmitterLife", &v11->m_flags, 4u) || ParseMemberFlag((const char **)&pDataa, "randomizeBetweenCurves", &v11->m_flags, 0x10u) )
+              v7 = pDataa;
             else
-              v8 = ++pDataa;
-            if ( v8 )
+              v7 = ++pDataa;
+            if ( v7 )
               goto LABEL_22;
             break;
           }
         }
       }
-      while ( v18 );
+      while ( v17 );
     }
-    v13 = isLoadingFile;
+    v12 = isLoadingFile;
   }
-  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&_R14[2], 0xAu, pMemPool, v13, _R14->m_type, pParticleSystemDef->version);
-  v23 = pParticleStateDef->flags & 0xFFFFFBFFFFFFFFFFui64;
-  pParticleStateDef->flags = v23;
-  if ( (_R14->m_flags & 1) != 0 )
+  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&v11[2], 0xAu, pMemPool, v12, v11->m_type, pParticleSystemDef->version);
+  v22 = pParticleStateDef->flags & 0xFFFFFBFFFFFFFFFFui64;
+  pParticleStateDef->flags = v22;
+  if ( (v11->m_flags & 1) != 0 )
   {
-    pParticleStateDef->flags = v23 & 0xFFFFFFFFFFBFFFFFui64;
+    pParticleStateDef->flags = v22 & 0xFFFFFFFFFFBFFFFFui64;
   }
   else
   {
-    v24 = (v23 & 0x400000) != 0;
-    v25 = v23 | 0x400000;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    pParticleStateDef->flags = v25;
-    __asm { vcomiss xmm0, dword ptr [r14+5Ch] }
-    if ( v24 )
-      goto LABEL_50;
-    __asm { vcomiss xmm0, dword ptr [r14+0ACh] }
-    if ( v24 )
+    v23 = v22 | 0x400000;
+    pParticleStateDef->flags = v23;
+    if ( *(float *)&v11[11].m_flags > 0.0 || *(float *)&v11[21].m_flags > 0.0 )
     {
-LABEL_50:
       result = pDataa;
-      pParticleStateDef->flags = v25 | 0x40000000000i64;
+      pParticleStateDef->flags = v23 | 0x40000000000i64;
       return result;
     }
   }
@@ -1639,44 +1614,39 @@ ParticleModuleForce::Parse
 */
 char *ParticleModuleForce::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  char *v9; 
+  char *v7; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v15; 
+  const char *v12; 
+  __int64 v13; 
+  signed __int64 v14; 
+  int v15; 
   __int64 v16; 
-  signed __int64 v17; 
+  int v17; 
   int v18; 
-  __int64 v19; 
-  int v20; 
-  int v21; 
-  int v22; 
-  __int64 v23; 
-  const char *v24; 
-  signed __int64 v25; 
+  int v19; 
+  __int64 v20; 
+  const char *v21; 
+  signed __int64 v22; 
+  int v23; 
+  __int64 v24; 
+  int v25; 
   int v26; 
-  __int64 v27; 
-  int v28; 
-  int v29; 
-  int v30; 
-  unsigned int v35; 
+  int v27; 
+  unsigned int v30; 
   char *result; 
   char *pDataa[2]; 
   float4 valueOut; 
 
-  _R14 = pBaseModule;
-  v9 = (char *)pData;
+  v7 = (char *)pData;
   pDataa[0] = (char *)pData;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovups xmmword ptr [rsp+88h+valueOut.v], xmm0
-  }
+  valueOut.v = 0i64;
   if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5815, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
     __debugbreak();
   if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5815, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
   if ( !pParticleStateDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5815, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
     __debugbreak();
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5815, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5815, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
   if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5815, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
@@ -1695,89 +1665,85 @@ char *ParticleModuleForce::Parse(ParticleSystemDef *pParticleSystemDef, Particle
   pBaseModule->m_type = PARTICLE_MODULE_FORCE;
   if ( isLoadingFile )
   {
-    v9 = (char *)ParseModuleID(v9, pParticleSystemDef, pBaseModule);
-    pDataa[0] = v9;
+    v7 = (char *)ParseModuleID(v7, pParticleSystemDef, pBaseModule);
+    pDataa[0] = v7;
   }
-  if ( v9 )
+  if ( v7 )
   {
 LABEL_22:
-    if ( *v9 )
+    if ( *v7 )
     {
-      v15 = s_typeBasicEnd;
-      v16 = s_typeBasicEndLength;
+      v12 = s_typeBasicEnd;
+      v13 = s_typeBasicEndLength;
       if ( !s_typeBasicEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeBasicEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v17 = v9 - v15;
+      v14 = v7 - v12;
       do
       {
-        v18 = (unsigned __int8)v15[v17];
-        v19 = v16;
-        v20 = *(unsigned __int8 *)v15++;
-        --v16;
-        if ( !v19 )
+        v15 = (unsigned __int8)v12[v14];
+        v16 = v13;
+        v17 = *(unsigned __int8 *)v12++;
+        --v13;
+        if ( !v16 )
           break;
-        if ( v18 != v20 )
+        if ( v15 != v17 )
         {
-          v21 = v18 + 32;
-          if ( (unsigned int)(v18 - 65) > 0x19 )
-            v21 = v18;
-          v18 = v21;
-          v22 = v20 + 32;
-          if ( (unsigned int)(v20 - 65) > 0x19 )
-            v22 = v20;
-          if ( v18 != v22 )
+          v18 = v15 + 32;
+          if ( (unsigned int)(v15 - 65) > 0x19 )
+            v18 = v15;
+          v15 = v18;
+          v19 = v17 + 32;
+          if ( (unsigned int)(v17 - 65) > 0x19 )
+            v19 = v17;
+          if ( v15 != v19 )
           {
-            v23 = s_typeGroupEndLength;
-            v24 = s_typeGroupEnd;
+            v20 = s_typeGroupEndLength;
+            v21 = s_typeGroupEnd;
             if ( !s_typeGroupEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
               __debugbreak();
-            v25 = v9 - v24;
+            v22 = v7 - v21;
             while ( 1 )
             {
-              v26 = (unsigned __int8)v24[v25];
-              v27 = v23;
-              v28 = *(unsigned __int8 *)v24++;
-              --v23;
-              if ( !v27 )
+              v23 = (unsigned __int8)v21[v22];
+              v24 = v20;
+              v25 = *(unsigned __int8 *)v21++;
+              --v20;
+              if ( !v24 )
                 goto LABEL_58;
-              if ( v26 != v28 )
+              if ( v23 != v25 )
               {
-                v29 = v26 + 32;
-                if ( (unsigned int)(v26 - 65) > 0x19 )
-                  v29 = v26;
-                v26 = v29;
-                v30 = v28 + 32;
-                if ( (unsigned int)(v28 - 65) > 0x19 )
-                  v30 = v28;
-                if ( v26 != v30 )
+                v26 = v23 + 32;
+                if ( (unsigned int)(v23 - 65) > 0x19 )
+                  v26 = v23;
+                v23 = v26;
+                v27 = v25 + 32;
+                if ( (unsigned int)(v25 - 65) > 0x19 )
+                  v27 = v25;
+                if ( v23 != v27 )
                 {
                   if ( ParseMemberFlag((const char **)pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMember_float4__ParseVector3_((const char **)pDataa, "force", &valueOut) || ParseMemberFlag((const char **)pDataa, "useNonUniformInterpolation", &pBaseModule->m_flags, 0x20u) || ParseMemberFlag((const char **)pDataa, "useWorldSpace", &pBaseModule->m_flags, 0x80u) || ParseMember_float4__ParseVector3_((const char **)pDataa, "forceMin", (float4 *)&pBaseModule[2]) || ParseMember_float4__ParseVector3_((const char **)pDataa, "forceMax", (float4 *)&pBaseModule[4]) )
-                    v9 = pDataa[0];
+                    v7 = pDataa[0];
                   else
-                    v9 = ++pDataa[0];
-                  if ( v9 )
+                    v7 = ++pDataa[0];
+                  if ( v7 )
                     goto LABEL_22;
                   goto LABEL_58;
                 }
               }
-              if ( !v26 )
+              if ( !v23 )
                 goto LABEL_58;
             }
           }
         }
       }
-      while ( v18 );
+      while ( v15 );
     }
   }
 LABEL_58:
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14+20h]
-    vsubps  xmm1, xmm0, xmmword ptr [r14+10h]
-    vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-    vmovups xmm2, xmmword ptr cs:?g_equalsEpsilon@@3Ufloat4@@B.v; float4 const g_equalsEpsilon
-  }
-  v35 = pBaseModule->m_flags | 0x40;
+  _mm128_sub_ps(*(__m128 *)&pBaseModule[4].m_type, *(__m128 *)&pBaseModule[2].m_type);
+  _XMM0 = g_negativeZero.v;
+  _XMM2 = g_equalsEpsilon.v;
+  v30 = pBaseModule->m_flags | 0x40;
   __asm
   {
     vandnps xmm3, xmm0, xmm1
@@ -1785,9 +1751,9 @@ LABEL_58:
     vmovmskps ecx, xmm0
   }
   if ( (_ECX & 0xF) != 0 )
-    v35 = pBaseModule->m_flags & 0xFFFFFFBF;
-  result = v9;
-  pBaseModule->m_flags = v35;
+    v30 = pBaseModule->m_flags & 0xFFFFFFBF;
+  result = v7;
+  pBaseModule->m_flags = v30;
   return result;
 }
 
@@ -2026,263 +1992,255 @@ ParticleModuleInitAtlas::Parse
 */
 char *ParticleModuleInitAtlas::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  char *v9; 
-  ParticleSystemDef *v11; 
-  bool v14; 
-  void (__fastcall *v15)(ParticleModule *); 
-  const char *v16; 
-  __int64 v17; 
-  signed __int64 v18; 
+  char *v7; 
+  ParticleSystemDef *v9; 
+  float v10; 
+  ParticleModule *v11; 
+  bool v12; 
+  void (__fastcall *v13)(ParticleModule *); 
+  const char *v14; 
+  __int64 v15; 
+  signed __int64 v16; 
+  int v17; 
+  __int64 v18; 
   int v19; 
-  __int64 v20; 
+  int v20; 
   int v21; 
-  int v22; 
-  int v23; 
-  __int64 v24; 
-  const char *v25; 
-  signed __int64 v26; 
+  __int64 v22; 
+  const char *v23; 
+  signed __int64 v24; 
+  int v25; 
+  __int64 v26; 
   int v27; 
-  __int64 v28; 
+  int v28; 
   int v29; 
-  int v30; 
-  int v31; 
-  ParticleModule *v32; 
-  bool v34; 
+  ParticleModule *v30; 
+  bool v31; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v36; 
+  const char *v33; 
+  __int64 v34; 
+  signed __int64 v35; 
+  int v36; 
   __int64 v37; 
-  signed __int64 v38; 
+  int v38; 
   int v39; 
-  __int64 v40; 
+  int v40; 
   int v41; 
-  int v42; 
-  int v43; 
-  int v44; 
   int m_flags; 
-  ParticleModule v46; 
+  ParticleModule v43; 
   float valueOut; 
-  void *retaddr; 
   char *pDataa; 
 
-  _RAX = &retaddr;
   pDataa = (char *)pData;
-  v9 = (char *)pData;
-  v11 = pParticleSystemDef;
+  v7 = (char *)pData;
+  v9 = pParticleSystemDef;
   if ( pParticleSystemDef->version >= 16 )
   {
     if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3645, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
       __debugbreak();
     if ( !pParticleStateDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3645, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
       __debugbreak();
-    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3645, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+    if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3645, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
       __debugbreak();
-    _RDI = pBaseModule;
+    v11 = pBaseModule;
     if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3645, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
       __debugbreak();
-    v34 = isLoadingFile;
+    v31 = isLoadingFile;
     if ( isLoadingFile )
     {
-      *_RDI = 0i64;
-      _RDI[1] = 0i64;
-      _RDI[2] = 0i64;
-      _RDI[3] = 0i64;
-      _RDI[4] = 0i64;
-      _RDI[5] = 0i64;
-      _RDI[6] = 0i64;
-      _RDI[7] = 0i64;
+      *v11 = 0i64;
+      v11[1] = 0i64;
+      v11[2] = 0i64;
+      v11[3] = 0i64;
+      v11[4] = 0i64;
+      v11[5] = 0i64;
+      v11[6] = 0i64;
+      v11[7] = 0i64;
       initMembersFunc = ParticleModule::GetUpdateData()->initMembersFunc;
       if ( initMembersFunc )
-        initMembersFunc(_RDI);
+        initMembersFunc(v11);
     }
-    _RDI->m_type = PARTICLE_MODULE_INIT_BEGIN;
-    if ( v34 )
+    v11->m_type = PARTICLE_MODULE_INIT_BEGIN;
+    if ( v31 )
     {
-      v9 = (char *)ParseModuleID(v9, v11, _RDI);
-      pDataa = v9;
+      v7 = (char *)ParseModuleID(v7, v9, v11);
+      pDataa = v7;
     }
-    if ( v9 )
+    if ( v7 )
     {
 LABEL_76:
-      if ( *v9 )
+      if ( *v7 )
       {
-        v36 = s_typeGroupHeaderEnd;
-        v37 = s_typeGroupHeaderEndLength;
+        v33 = s_typeGroupHeaderEnd;
+        v34 = s_typeGroupHeaderEndLength;
         if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
           __debugbreak();
-        v38 = v9 - v36;
+        v35 = v7 - v33;
         do
         {
-          v39 = (unsigned __int8)v36[v38];
-          v40 = v37;
-          v41 = *(unsigned __int8 *)v36++;
-          --v37;
-          if ( !v40 )
+          v36 = (unsigned __int8)v33[v35];
+          v37 = v34;
+          v38 = *(unsigned __int8 *)v33++;
+          --v34;
+          if ( !v37 )
             break;
-          if ( v39 != v41 )
+          if ( v36 != v38 )
           {
-            v42 = v39 + 32;
-            if ( (unsigned int)(v39 - 65) > 0x19 )
-              v42 = v39;
-            v39 = v42;
-            v43 = v41 + 32;
-            if ( (unsigned int)(v41 - 65) > 0x19 )
-              v43 = v41;
-            if ( v39 != v43 )
+            v39 = v36 + 32;
+            if ( (unsigned int)(v36 - 65) > 0x19 )
+              v39 = v36;
+            v36 = v39;
+            v40 = v38 + 32;
+            if ( (unsigned int)(v38 - 65) > 0x19 )
+              v40 = v38;
+            if ( v36 != v40 )
             {
-              if ( ParseMemberFlag((const char **)&pDataa, "disable", &_RDI->m_flags, 1u) || ParseMember_bool__ParseBool_((const char **)&pDataa, "randomIndex", (bool *)&_RDI[2]) || ParseMember_int__ParseInt_((const char **)&pDataa, "startFrame", (int *)&_RDI[1]) || ParseMember_bool__ParseBool_((const char **)&pDataa, "playOverLife", (bool *)&_RDI[2] + 1) || ParseMember_int__ParseInt_((const char **)&pDataa, "loopCount", (int *)&_RDI[1].m_flags) || ParseMember_float__ParseFloat_((const char **)&pDataa, "scale1", (float *)&_RDI[5].m_flags) || ParseMember_float__ParseFloat_((const char **)&pDataa, "scale2", (float *)&_RDI[7].m_flags) || ParseMemberFlag((const char **)&pDataa, "useEmitterLife", &_RDI->m_flags, 4u) || ParseMemberFlag((const char **)&pDataa, "randomizeBetweenCurves", &_RDI->m_flags, 0x10u) )
-                v9 = pDataa;
+              if ( ParseMemberFlag((const char **)&pDataa, "disable", &v11->m_flags, 1u) || ParseMember_bool__ParseBool_((const char **)&pDataa, "randomIndex", (bool *)&v11[2]) || ParseMember_int__ParseInt_((const char **)&pDataa, "startFrame", (int *)&v11[1]) || ParseMember_bool__ParseBool_((const char **)&pDataa, "playOverLife", (bool *)&v11[2] + 1) || ParseMember_int__ParseInt_((const char **)&pDataa, "loopCount", (int *)&v11[1].m_flags) || ParseMember_float__ParseFloat_((const char **)&pDataa, "scale1", (float *)&v11[5].m_flags) || ParseMember_float__ParseFloat_((const char **)&pDataa, "scale2", (float *)&v11[7].m_flags) || ParseMemberFlag((const char **)&pDataa, "useEmitterLife", &v11->m_flags, 4u) || ParseMemberFlag((const char **)&pDataa, "randomizeBetweenCurves", &v11->m_flags, 0x10u) )
+                v7 = pDataa;
               else
-                v9 = ++pDataa;
-              if ( v9 )
+                v7 = ++pDataa;
+              if ( v7 )
                 goto LABEL_76;
               break;
             }
           }
         }
-        while ( v39 );
+        while ( v36 );
       }
-      v34 = isLoadingFile;
+      v31 = isLoadingFile;
     }
-    v32 = _RDI + 4;
-    ParseMemberCurveList((const char **)&pDataa, v11, "curveList", (ParticleCurveDef *)&_RDI[4], 2u, pMemPool, v34, _RDI->m_type, v11->version);
+    v30 = v11 + 4;
+    ParseMemberCurveList((const char **)&pDataa, v9, "curveList", (ParticleCurveDef *)&v11[4], 2u, pMemPool, v31, v11->m_type, v9->version);
   }
   else
   {
-    __asm
-    {
-      vmovaps xmmword ptr [rax-48h], xmm6
-      vxorps  xmm6, xmm6, xmm6
-      vmovss  [rbp+3Fh+valueOut], xmm6
-    }
+    v10 = 0.0;
+    valueOut = 0.0;
     if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3623, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
       __debugbreak();
     if ( !pParticleStateDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3623, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
       __debugbreak();
-    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3623, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+    if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3623, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
       __debugbreak();
-    _RDI = pBaseModule;
+    v11 = pBaseModule;
     if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3623, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
       __debugbreak();
-    v14 = isLoadingFile;
+    v12 = isLoadingFile;
     if ( isLoadingFile )
     {
-      *_RDI = 0i64;
-      _RDI[1] = 0i64;
-      _RDI[2] = 0i64;
-      _RDI[3] = 0i64;
-      _RDI[4] = 0i64;
-      _RDI[5] = 0i64;
-      _RDI[6] = 0i64;
-      _RDI[7] = 0i64;
-      v15 = ParticleModule::GetUpdateData()->initMembersFunc;
-      if ( v15 )
-        v15(_RDI);
+      *v11 = 0i64;
+      v11[1] = 0i64;
+      v11[2] = 0i64;
+      v11[3] = 0i64;
+      v11[4] = 0i64;
+      v11[5] = 0i64;
+      v11[6] = 0i64;
+      v11[7] = 0i64;
+      v13 = ParticleModule::GetUpdateData()->initMembersFunc;
+      if ( v13 )
+        v13(v11);
     }
-    _RDI->m_type = PARTICLE_MODULE_INIT_BEGIN;
-    if ( v14 )
+    v11->m_type = PARTICLE_MODULE_INIT_BEGIN;
+    if ( v12 )
     {
-      v9 = (char *)ParseModuleID(v9, v11, _RDI);
-      pDataa = v9;
+      v7 = (char *)ParseModuleID(v7, v9, v11);
+      pDataa = v7;
     }
-    if ( v9 )
+    if ( v7 )
     {
 LABEL_20:
-      if ( *v9 )
+      if ( *v7 )
       {
-        v16 = s_typeBasicEnd;
-        v17 = s_typeBasicEndLength;
+        v14 = s_typeBasicEnd;
+        v15 = s_typeBasicEndLength;
         if ( !s_typeBasicEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeBasicEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
           __debugbreak();
-        v18 = v9 - v16;
+        v16 = v7 - v14;
         do
         {
-          v19 = (unsigned __int8)v16[v18];
-          v20 = v17;
-          v21 = *(unsigned __int8 *)v16++;
-          --v17;
-          if ( !v20 )
+          v17 = (unsigned __int8)v14[v16];
+          v18 = v15;
+          v19 = *(unsigned __int8 *)v14++;
+          --v15;
+          if ( !v18 )
             break;
-          if ( v19 != v21 )
+          if ( v17 != v19 )
           {
-            v22 = v19 + 32;
+            v20 = v17 + 32;
+            if ( (unsigned int)(v17 - 65) > 0x19 )
+              v20 = v17;
+            v17 = v20;
+            v21 = v19 + 32;
             if ( (unsigned int)(v19 - 65) > 0x19 )
-              v22 = v19;
-            v19 = v22;
-            v23 = v21 + 32;
-            if ( (unsigned int)(v21 - 65) > 0x19 )
-              v23 = v21;
-            if ( v19 != v23 )
+              v21 = v19;
+            if ( v17 != v21 )
             {
-              v24 = s_typeGroupEndLength;
-              v25 = s_typeGroupEnd;
+              v22 = s_typeGroupEndLength;
+              v23 = s_typeGroupEnd;
               if ( !s_typeGroupEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
                 __debugbreak();
-              v26 = v9 - v25;
+              v24 = v7 - v23;
               while ( 1 )
               {
-                v27 = (unsigned __int8)v25[v26];
-                v28 = v24;
-                v29 = *(unsigned __int8 *)v25++;
-                --v24;
-                if ( !v28 )
+                v25 = (unsigned __int8)v23[v24];
+                v26 = v22;
+                v27 = *(unsigned __int8 *)v23++;
+                --v22;
+                if ( !v26 )
                   goto LABEL_56;
-                if ( v27 != v29 )
+                if ( v25 != v27 )
                 {
-                  v30 = v27 + 32;
+                  v28 = v25 + 32;
+                  if ( (unsigned int)(v25 - 65) > 0x19 )
+                    v28 = v25;
+                  v25 = v28;
+                  v29 = v27 + 32;
                   if ( (unsigned int)(v27 - 65) > 0x19 )
-                    v30 = v27;
-                  v27 = v30;
-                  v31 = v29 + 32;
-                  if ( (unsigned int)(v29 - 65) > 0x19 )
-                    v31 = v29;
-                  if ( v27 != v31 )
+                    v29 = v27;
+                  if ( v25 != v29 )
                   {
-                    if ( ParseMemberFlag((const char **)&pDataa, "disable", &_RDI->m_flags, 1u) || ParseMember_float__ParseFloat_((const char **)&pDataa, "playbackFPS", &valueOut) || ParseMember_bool__ParseBool_((const char **)&pDataa, "randomIndex", (bool *)&_RDI[2]) || ParseMember_int__ParseInt_((const char **)&pDataa, "startFrame", (int *)&_RDI[1]) || ParseMember_bool__ParseBool_((const char **)&pDataa, "playOverLife", (bool *)&_RDI[2] + 1) || ParseMember_int__ParseInt_((const char **)&pDataa, "loopCount", (int *)&_RDI[1].m_flags) )
-                      v9 = pDataa;
+                    if ( ParseMemberFlag((const char **)&pDataa, "disable", &v11->m_flags, 1u) || ParseMember_float__ParseFloat_((const char **)&pDataa, "playbackFPS", &valueOut) || ParseMember_bool__ParseBool_((const char **)&pDataa, "randomIndex", (bool *)&v11[2]) || ParseMember_int__ParseInt_((const char **)&pDataa, "startFrame", (int *)&v11[1]) || ParseMember_bool__ParseBool_((const char **)&pDataa, "playOverLife", (bool *)&v11[2] + 1) || ParseMember_int__ParseInt_((const char **)&pDataa, "loopCount", (int *)&v11[1].m_flags) )
+                      v7 = pDataa;
                     else
-                      v9 = ++pDataa;
-                    if ( v9 )
+                      v7 = ++pDataa;
+                    if ( v7 )
                       goto LABEL_20;
                     goto LABEL_56;
                   }
                 }
-                if ( !v27 )
+                if ( !v25 )
                   goto LABEL_56;
               }
             }
           }
         }
-        while ( v19 );
+        while ( v17 );
       }
 LABEL_56:
-      __asm { vmovss  xmm6, [rbp+3Fh+valueOut] }
-      v14 = isLoadingFile;
-      v11 = pParticleSystemDef;
+      v10 = valueOut;
+      v12 = isLoadingFile;
+      v9 = pParticleSystemDef;
     }
-    v32 = _RDI + 4;
-    ParseMemberCurveList((const char **)&pDataa, v11, "curveList", (ParticleCurveDef *)&_RDI[4], 2u, pMemPool, v14, _RDI->m_type, v11->version);
-    __asm
-    {
-      vmovss  dword ptr [rdi+2Ch], xmm6
-      vmovss  dword ptr [rdi+3Ch], xmm6
-      vmovaps xmm6, [rsp+0A0h+var_48+8]
-    }
+    v30 = v11 + 4;
+    ParseMemberCurveList((const char **)&pDataa, v9, "curveList", (ParticleCurveDef *)&v11[4], 2u, pMemPool, v12, v11->m_type, v9->version);
+    *(float *)&v11[5].m_flags = v10;
+    *(float *)&v11[7].m_flags = v10;
   }
-  v44 = Particle_VerifyValueInt(*(_DWORD *)&_RDI[1].m_type, 0, 255, "startFrame", v11->name, (const char *)&queryFormat.fmt + 3);
-  m_flags = _RDI[1].m_flags;
-  *(_DWORD *)&_RDI[1].m_type = v44;
+  v41 = Particle_VerifyValueInt(*(_DWORD *)&v11[1].m_type, 0, 255, "startFrame", v9->name, (const char *)&queryFormat.fmt + 3);
+  m_flags = v11[1].m_flags;
+  *(_DWORD *)&v11[1].m_type = v41;
   if ( m_flags != -1 )
-    _RDI[1].m_flags = (unsigned __int8)Particle_VerifyValueInt(m_flags, 0, 255, "loopCount", v11->name, (const char *)&queryFormat.fmt + 3);
-  if ( HIBYTE(_RDI[2].m_type) )
+    v11[1].m_flags = (unsigned __int8)Particle_VerifyValueInt(m_flags, 0, 255, "loopCount", v9->name, (const char *)&queryFormat.fmt + 3);
+  if ( HIBYTE(v11[2].m_type) )
   {
-    _RDI[1].m_flags = 1;
-    _RDI[5].m_flags = 1065353216;
-    _RDI[7].m_flags = 1065353216;
-    if ( v11->version < 17 )
+    v11[1].m_flags = 1;
+    v11[5].m_flags = 1065353216;
+    v11[7].m_flags = 1065353216;
+    if ( v9->version < 17 )
     {
-      v46 = _RDI[6];
-      *(_DWORD *)(*(_QWORD *)v32 + 4i64) = 0;
-      *(_DWORD *)(*(_QWORD *)&v46 + 4i64) = 0;
+      v43 = v11[6];
+      *(_DWORD *)(*(_QWORD *)v30 + 4i64) = 0;
+      *(_DWORD *)(*(_QWORD *)&v43 + 4i64) = 0;
     }
   }
   return pDataa;
@@ -2295,40 +2253,39 @@ ParticleModuleInitAttributes::Parse
 */
 char *ParticleModuleInitAttributes::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  char *v8; 
-  ParticleStateDef *v9; 
+  char *v7; 
+  ParticleStateDef *v8; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v13; 
-  __int64 v14; 
-  signed __int64 v15; 
-  int v16; 
-  __int64 v17; 
+  const char *v12; 
+  __int64 v13; 
+  signed __int64 v14; 
+  int v15; 
+  __int64 v16; 
+  int v17; 
   int v18; 
   int v19; 
-  int v20; 
-  __int64 v21; 
-  const char *v22; 
-  signed __int64 v23; 
-  int v24; 
-  __int64 v25; 
+  __int64 v20; 
+  const char *v21; 
+  signed __int64 v22; 
+  int v23; 
+  __int64 v24; 
+  int v25; 
   int v26; 
   int v27; 
-  int v28; 
   char *pDataa; 
-  ParticleStateDef *v40; 
+  ParticleStateDef *v30; 
 
-  _RSI = pBaseModule;
-  v8 = (char *)pData;
-  v9 = pParticleStateDef;
+  v7 = (char *)pData;
+  v8 = pParticleStateDef;
   pDataa = (char *)pData;
-  v40 = pParticleStateDef;
+  v30 = pParticleStateDef;
   if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3698, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
     __debugbreak();
   if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3698, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3698, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3698, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
     __debugbreak();
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3698, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3698, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
   if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3698, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
@@ -2342,150 +2299,91 @@ char *ParticleModuleInitAttributes::Parse(ParticleSystemDef *pParticleSystemDef,
   pBaseModule->m_type = PARTICLE_MODULE_INIT_ATTRIBUTES;
   if ( isLoadingFile )
   {
-    v8 = (char *)ParseModuleID(v8, pParticleSystemDef, pBaseModule);
-    pDataa = v8;
+    v7 = (char *)ParseModuleID(v7, pParticleSystemDef, pBaseModule);
+    pDataa = v7;
   }
-  if ( v8 )
+  if ( v7 )
   {
 LABEL_22:
-    if ( *v8 )
+    if ( *v7 )
     {
-      v13 = s_typeBasicEnd;
-      v14 = s_typeBasicEndLength;
+      v12 = s_typeBasicEnd;
+      v13 = s_typeBasicEndLength;
       if ( !s_typeBasicEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v15 = v8 - v13;
+      v14 = v7 - v12;
       do
       {
-        v16 = (unsigned __int8)v13[v15];
-        v17 = v14;
-        v18 = *(unsigned __int8 *)v13++;
-        --v14;
-        if ( !v17 )
+        v15 = (unsigned __int8)v12[v14];
+        v16 = v13;
+        v17 = *(unsigned __int8 *)v12++;
+        --v13;
+        if ( !v16 )
           break;
-        if ( v16 != v18 )
+        if ( v15 != v17 )
         {
-          v19 = v16 + 32;
-          if ( (unsigned int)(v16 - 65) > 0x19 )
-            v19 = v16;
-          v16 = v19;
-          v20 = v18 + 32;
-          if ( (unsigned int)(v18 - 65) > 0x19 )
-            v20 = v18;
-          if ( v16 != v20 )
+          v18 = v15 + 32;
+          if ( (unsigned int)(v15 - 65) > 0x19 )
+            v18 = v15;
+          v15 = v18;
+          v19 = v17 + 32;
+          if ( (unsigned int)(v17 - 65) > 0x19 )
+            v19 = v17;
+          if ( v15 != v19 )
           {
-            v21 = s_typeGroupEndLength;
-            v22 = s_typeGroupEnd;
+            v20 = s_typeGroupEndLength;
+            v21 = s_typeGroupEnd;
             if ( !s_typeGroupEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
               __debugbreak();
-            v23 = v8 - v22;
+            v22 = v7 - v21;
             while ( 1 )
             {
-              v24 = (unsigned __int8)v22[v23];
-              v25 = v21;
-              v26 = *(unsigned __int8 *)v22++;
-              --v21;
-              if ( !v25 )
+              v23 = (unsigned __int8)v21[v22];
+              v24 = v20;
+              v25 = *(unsigned __int8 *)v21++;
+              --v20;
+              if ( !v24 )
                 goto LABEL_61;
-              if ( v24 != v26 )
+              if ( v23 != v25 )
               {
-                v27 = v24 + 32;
-                if ( (unsigned int)(v24 - 65) > 0x19 )
-                  v27 = v24;
-                v24 = v27;
-                v28 = v26 + 32;
-                if ( (unsigned int)(v26 - 65) > 0x19 )
-                  v28 = v26;
-                if ( v24 != v28 )
+                v26 = v23 + 32;
+                if ( (unsigned int)(v23 - 65) > 0x19 )
+                  v26 = v23;
+                v23 = v26;
+                v27 = v25 + 32;
+                if ( (unsigned int)(v25 - 65) > 0x19 )
+                  v27 = v25;
+                if ( v23 != v27 )
                 {
                   if ( ParseMemberFlag((const char **)&pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMember_bool__ParseBool_((const char **)&pDataa, "useNonUniformInterpolationForSize", (bool *)&pBaseModule[1] + 1) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "sizeMin", (float4 *)&pBaseModule[2]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "sizeMax", (float4 *)&pBaseModule[4]) || ParseMember_bool__ParseBool_((const char **)&pDataa, "useNonUniformInterpolationForColor", (bool *)&pBaseModule[1]) || ParseMember_float4__ParseVector4_((const char **)&pDataa, "colorMin", (float4 *)&pBaseModule[6]) || ParseMember_float4__ParseVector4_((const char **)&pDataa, "colorMax", (float4 *)&pBaseModule[8]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "velocityMin", (float4 *)&pBaseModule[10]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "velocityMax", (float4 *)&pBaseModule[12]) )
-                    v8 = pDataa;
+                    v7 = pDataa;
                   else
-                    v8 = ++pDataa;
-                  if ( v8 )
+                    v7 = ++pDataa;
+                  if ( v7 )
                     goto LABEL_22;
                   goto LABEL_61;
                 }
               }
-              if ( !v24 )
+              if ( !v23 )
                 goto LABEL_61;
             }
           }
         }
       }
-      while ( v16 );
+      while ( v15 );
     }
 LABEL_61:
-    v9 = v40;
+    v8 = v30;
   }
-  if ( (pBaseModule->m_flags & 1) != 0 )
-    goto LABEL_72;
-  __asm
+  if ( (pBaseModule->m_flags & 1) != 0 || COERCE_FLOAT(*(_OWORD *)&pBaseModule[6].m_type) == 1.0 && *(float *)&pBaseModule[6].m_flags == 1.0 && *(float *)&pBaseModule[7].m_type == 1.0 && *(float *)&pBaseModule[7].m_flags == 1.0 && COERCE_FLOAT(*(_OWORD *)&pBaseModule[8].m_type) == 1.0 && *(float *)&pBaseModule[8].m_flags == 1.0 && *(float *)&pBaseModule[9].m_type == 1.0 && *(float *)&pBaseModule[9].m_flags == 1.0 )
   {
-    vmovups xmm0, xmmword ptr [rsi+30h]
-    vmovss  xmm2, cs:__real@3f800000
-    vucomiss xmm0, xmm2
-  }
-  if ( (pBaseModule->m_flags & 1) == 0 )
-    goto LABEL_71;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+34h]
-    vucomiss xmm1, xmm2
-  }
-  if ( (pBaseModule->m_flags & 1) == 0 )
-    goto LABEL_71;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+38h]
-    vucomiss xmm1, xmm2
-  }
-  if ( (pBaseModule->m_flags & 1) == 0 )
-    goto LABEL_71;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+3Ch]
-    vucomiss xmm1, xmm2
-  }
-  if ( (pBaseModule->m_flags & 1) == 0 )
-    goto LABEL_71;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+40h]
-    vucomiss xmm0, xmm2
-  }
-  if ( (pBaseModule->m_flags & 1) == 0 )
-    goto LABEL_71;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+44h]
-    vucomiss xmm1, xmm2
-  }
-  if ( (pBaseModule->m_flags & 1) == 0 )
-    goto LABEL_71;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+48h]
-    vucomiss xmm1, xmm2
-  }
-  if ( (pBaseModule->m_flags & 1) == 0 )
-    goto LABEL_71;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rsi+4Ch]
-    vucomiss xmm1, xmm2
-  }
-  if ( (pBaseModule->m_flags & 1) != 0 )
-  {
-LABEL_72:
-    v9->flags &= ~0x100000ui64;
-    return v8;
+    v8->flags &= ~0x100000ui64;
+    return v7;
   }
   else
   {
-LABEL_71:
-    v9->flags |= 0x100000ui64;
-    return v8;
+    v8->flags |= 0x100000ui64;
+    return v7;
   }
 }
 
@@ -2925,6 +2823,8 @@ ParticleModuleInitDecal::Parse
 */
 char *ParticleModuleInitDecal::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
+  __int128 v7; 
+  __int128 v8; 
   char *v9; 
   bool v10; 
   ParticleEmitterDef *v11; 
@@ -2932,45 +2832,46 @@ char *ParticleModuleInitDecal::Parse(ParticleSystemDef *pParticleSystemDef, Part
   ParticleModule *v14; 
   bool v15; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v18; 
-  __int64 v19; 
-  signed __int64 v20; 
-  int v21; 
-  __int64 v22; 
+  const char *v17; 
+  __int64 v18; 
+  signed __int64 v19; 
+  int v20; 
+  __int64 v21; 
+  int v22; 
   int v23; 
   int v24; 
-  int v25; 
-  __int64 v26; 
-  const char *v27; 
-  signed __int64 v28; 
-  int v29; 
-  __int64 v30; 
+  __int64 v25; 
+  const char *v26; 
+  signed __int64 v27; 
+  int v28; 
+  __int64 v29; 
+  int v30; 
   int v31; 
   int v32; 
-  int v33; 
-  ParticleModule *v35; 
-  char *fmt; 
-  char *fmta; 
-  char *fmtb; 
-  char *fmtc; 
-  char *fmtd; 
+  float v33; 
+  ParticleModule *v34; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
   float valueOut; 
-  float v64; 
-  float v65; 
-  float v66; 
-  bool v69; 
-  ParticleEmitterDef *v70; 
-  ParticleStateDef *v71; 
+  float v41; 
+  float v42; 
+  float v43; 
+  _OWORD v44[2]; 
+  bool v45; 
+  ParticleEmitterDef *v46; 
+  ParticleStateDef *v47; 
   char *pDataa; 
 
   pDataa = (char *)pData;
-  v71 = pParticleStateDef;
-  v70 = pParticleEmitterDef;
+  v47 = pParticleStateDef;
+  v46 = pParticleEmitterDef;
   v9 = (char *)pData;
   v10 = 0;
   v11 = pParticleEmitterDef;
   v12 = pParticleStateDef;
-  v69 = 0;
+  v45 = 0;
   if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3829, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
     __debugbreak();
   if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3829, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
@@ -3005,164 +2906,122 @@ char *ParticleModuleInitDecal::Parse(ParticleSystemDef *pParticleSystemDef, Part
   }
   if ( v9 )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [rsp+0A0h+var_68+8], xmm7
-      vmovsd  xmm7, cs:__real@40bfffe040000000
-      vmovaps xmmword ptr [rsp+0A0h+var_58+8], xmm6
-    }
+    v44[0] = v8;
+    v44[1] = v7;
     while ( 2 )
     {
       if ( *v9 )
       {
-        v18 = s_typeBasicEnd;
-        v19 = s_typeBasicEndLength;
+        v17 = s_typeBasicEnd;
+        v18 = s_typeBasicEndLength;
         if ( !s_typeBasicEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeBasicEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
           __debugbreak();
-        v20 = v9 - v18;
+        v19 = v9 - v17;
         while ( 1 )
         {
-          v21 = (unsigned __int8)v18[v20];
-          v22 = v19;
-          v23 = *(unsigned __int8 *)v18;
-          --v19;
-          ++v18;
-          if ( !v22 )
-            goto LABEL_59;
-          if ( v21 != v23 )
-          {
-            v24 = v21 + 32;
-            if ( (unsigned int)(v21 - 65) > 0x19 )
-              v24 = v21;
-            v21 = v24;
-            v25 = v23 + 32;
-            if ( (unsigned int)(v23 - 65) > 0x19 )
-              v25 = v23;
-            if ( v21 != v25 )
-              break;
-          }
+          v20 = (unsigned __int8)v17[v19];
+          v21 = v18;
+          v22 = *(unsigned __int8 *)v17;
+          --v18;
+          ++v17;
           if ( !v21 )
             goto LABEL_59;
-        }
-        v26 = s_typeGroupEndLength;
-        v27 = s_typeGroupEnd;
-        if ( !s_typeGroupEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
-          __debugbreak();
-        v28 = v9 - v27;
-        while ( 1 )
-        {
-          v29 = (unsigned __int8)v27[v28];
-          v30 = v26;
-          v31 = *(unsigned __int8 *)v27;
-          --v26;
-          ++v27;
-          if ( !v30 )
-            goto LABEL_59;
-          if ( v29 != v31 )
+          if ( v20 != v22 )
           {
-            v32 = v29 + 32;
-            if ( (unsigned int)(v29 - 65) > 0x19 )
-              v32 = v29;
-            v29 = v32;
-            v33 = v31 + 32;
-            if ( (unsigned int)(v31 - 65) > 0x19 )
-              v33 = v31;
-            if ( v29 != v33 )
+            v23 = v20 + 32;
+            if ( (unsigned int)(v20 - 65) > 0x19 )
+              v23 = v20;
+            v20 = v23;
+            v24 = v22 + 32;
+            if ( (unsigned int)(v22 - 65) > 0x19 )
+              v24 = v22;
+            if ( v20 != v24 )
               break;
           }
+          if ( !v20 )
+            goto LABEL_59;
+        }
+        v25 = s_typeGroupEndLength;
+        v26 = s_typeGroupEnd;
+        if ( !s_typeGroupEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+          __debugbreak();
+        v27 = v9 - v26;
+        while ( 1 )
+        {
+          v28 = (unsigned __int8)v26[v27];
+          v29 = v25;
+          v30 = *(unsigned __int8 *)v26;
+          --v25;
+          ++v26;
           if ( !v29 )
+            goto LABEL_59;
+          if ( v28 != v30 )
+          {
+            v31 = v28 + 32;
+            if ( (unsigned int)(v28 - 65) > 0x19 )
+              v31 = v28;
+            v28 = v31;
+            v32 = v30 + 32;
+            if ( (unsigned int)(v30 - 65) > 0x19 )
+              v32 = v30;
+            if ( v28 != v32 )
+              break;
+          }
+          if ( !v28 )
             goto LABEL_59;
         }
         if ( ParseMemberFlag((const char **)&pDataa, "disable", &v14->m_flags, 1u) || ParseMember_bool__ParseBool_((const char **)&pDataa, "dynamicDecal", (bool *)&v14[6] + 2) || ParseMember_bool__ParseBool_((const char **)&pDataa, "bypassStackingLimiter", (bool *)&v14[6].m_flags) )
           goto LABEL_57;
         if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "fadeInTime", (float *)&pBaseModule) )
         {
-          __asm { vmovss  xmm6, dword ptr [rbp+3Fh+pBaseModule] }
-          v35 = v14 + 1;
-          __asm { vmovaps xmm0, xmm6; editorDecalTime }
-          if ( !FX_ConvertDecalTime(*(float *)&_XMM0, (unsigned __int16 *)&v14[1]) )
+          v33 = *(float *)&pBaseModule;
+          v34 = v14 + 1;
+          if ( !FX_ConvertDecalTime(*(float *)&pBaseModule, (unsigned __int16 *)&v14[1]) )
           {
-            __asm
-            {
-              vcvtss2sd xmm3, xmm6, xmm6
-              vmovq   r9, xmm3
-              vmovsd  [rsp+0A0h+fmt], xmm7
-            }
-            Com_PrintWarning(21, "WARNING: %s - Fade-in decals time of %g is invalid (must be between 0 and %g, exclusive.)\n", pParticleSystemDef->name, _R9, fmt);
+            Com_PrintWarning(21, "WARNING: %s - Fade-in decals time of %g is invalid (must be between 0 and %g, exclusive.)\n", pParticleSystemDef->name, v33, DOUBLE_8191_8759765625);
 LABEL_56:
-            v35->m_type = PARTICLE_MODULE_INIT_BEGIN;
+            v34->m_type = PARTICLE_MODULE_INIT_BEGIN;
           }
         }
         else
         {
           if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "lerpWaitTime", &valueOut) )
           {
-            __asm { vmovss  xmm6, [rbp+3Fh+valueOut] }
-            v35 = (ParticleModule *)((char *)v14 + 14);
-            __asm { vmovaps xmm0, xmm6; editorDecalTime }
-            if ( FX_ConvertDecalTime(*(float *)&_XMM0, (unsigned __int16 *)&v14[1].m_flags + 1) )
+            v36 = valueOut;
+            v34 = (ParticleModule *)((char *)v14 + 14);
+            if ( FX_ConvertDecalTime(valueOut, (unsigned __int16 *)&v14[1].m_flags + 1) )
               goto LABEL_57;
-            __asm
-            {
-              vcvtss2sd xmm3, xmm6, xmm6
-              vmovq   r9, xmm3
-              vmovsd  [rsp+0A0h+fmt], xmm7
-            }
-            Com_PrintWarning(21, "WARNING: %s - decals wait time of %g is invalid (must be between 0 and %g, exclusive.)\n", pParticleSystemDef->name, _R9, fmta);
+            Com_PrintWarning(21, "WARNING: %s - decals wait time of %g is invalid (must be between 0 and %g, exclusive.)\n", pParticleSystemDef->name, v36, DOUBLE_8191_8759765625);
             goto LABEL_56;
           }
-          if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "lerpTime", &v64) )
+          if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "lerpTime", &v41) )
           {
-            __asm { vmovss  xmm6, [rbp+3Fh+var_6C] }
-            v35 = v14 + 6;
-            __asm { vmovaps xmm0, xmm6; editorDecalTime }
-            if ( FX_ConvertDecalTime(*(float *)&_XMM0, (unsigned __int16 *)&v14[6]) )
+            v37 = v41;
+            v34 = v14 + 6;
+            if ( FX_ConvertDecalTime(v41, (unsigned __int16 *)&v14[6]) )
               goto LABEL_57;
-            __asm
-            {
-              vcvtss2sd xmm3, xmm6, xmm6
-              vmovq   r9, xmm3
-              vmovsd  [rsp+0A0h+fmt], xmm7
-            }
-            Com_PrintWarning(21, "WARNING: %s - decals lerp time of %g is invalid (must be between 0 and %g, exclusive.)\n", pParticleSystemDef->name, _R9, fmtb);
+            Com_PrintWarning(21, "WARNING: %s - decals lerp time of %g is invalid (must be between 0 and %g, exclusive.)\n", pParticleSystemDef->name, v37, DOUBLE_8191_8759765625);
             goto LABEL_56;
           }
           if ( ParseMember_float4__ParseVector4_((const char **)&pDataa, "lerpColor", (float4 *)&v14[4]) )
             goto LABEL_57;
-          if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "fadeOutTime", &v65) )
+          if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "fadeOutTime", &v42) )
           {
-            __asm { vmovss  xmm6, [rbp+3Fh+var_68] }
-            v35 = (ParticleModule *)((char *)v14 + 10);
-            __asm { vmovaps xmm0, xmm6; editorDecalTime }
-            if ( FX_ConvertDecalTime(*(float *)&_XMM0, (unsigned __int16 *)&v14[1] + 1) )
+            v38 = v42;
+            v34 = (ParticleModule *)((char *)v14 + 10);
+            if ( FX_ConvertDecalTime(v42, (unsigned __int16 *)&v14[1] + 1) )
               goto LABEL_57;
-            __asm
-            {
-              vcvtss2sd xmm3, xmm6, xmm6
-              vmovq   r9, xmm3
-              vmovsd  [rsp+0A0h+fmt], xmm7
-            }
-            Com_PrintWarning(21, "WARNING: %s - Fade-out decals time of %g is invalid (must be between 0 and %g, exclusive.)\n", pParticleSystemDef->name, _R9, fmtc);
+            Com_PrintWarning(21, "WARNING: %s - Fade-out decals time of %g is invalid (must be between 0 and %g, exclusive.)\n", pParticleSystemDef->name, v38, DOUBLE_8191_8759765625);
             goto LABEL_56;
           }
-          if ( !ParseMember_bool__ParseBool_((const char **)&pDataa, "stoppable", &v69) )
+          if ( !ParseMember_bool__ParseBool_((const char **)&pDataa, "stoppable", &v45) )
           {
-            if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "stoppableFadeOutTime", &v66) )
+            if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "stoppableFadeOutTime", &v43) )
             {
-              __asm
+              v39 = v43;
+              if ( !FX_ConvertDecalTime(v43, (unsigned __int16 *)&v14[1].m_flags) )
               {
-                vmovss  xmm6, [rbp+3Fh+var_68+4]
-                vmovaps xmm0, xmm6; editorDecalTime
-              }
-              if ( !FX_ConvertDecalTime(*(float *)&_XMM0, (unsigned __int16 *)&v14[1].m_flags) )
-              {
-                __asm
-                {
-                  vcvtss2sd xmm3, xmm6, xmm6
-                  vmovq   r9, xmm3
-                  vmovsd  [rsp+0A0h+fmt], xmm7
-                }
-                Com_PrintWarning(21, "WARNING: %s - Stoppable-Fade-out decals time of %g is invalid (must be between 0 and %g, exclusive.)\n", pParticleSystemDef->name, _R9, fmtd);
+                Com_PrintWarning(21, "WARNING: %s - Stoppable-Fade-out decals time of %g is invalid (must be between 0 and %g, exclusive.)\n", pParticleSystemDef->name, v39, DOUBLE_8191_8759765625);
                 LOWORD(v14[1].m_flags) = -1;
               }
             }
@@ -3183,15 +3042,10 @@ LABEL_57:
       break;
     }
 LABEL_59:
-    v10 = v69;
+    v10 = v45;
     v15 = isLoadingFile;
-    v12 = v71;
-    v11 = v70;
-    __asm
-    {
-      vmovaps xmm7, xmmword ptr [rsp+0A0h+var_68+8]
-      vmovaps xmm6, xmmword ptr [rsp+0A0h+var_58+8]
-    }
+    v12 = v47;
+    v11 = v46;
   }
   if ( !v10 )
     LOWORD(v14[1].m_flags) = -1;
@@ -3344,6 +3198,7 @@ char *ParticleModuleInitFlare::Parse(ParticleSystemDef *pParticleSystemDef, Part
 {
   char *v7; 
   ParticleStateDef *v8; 
+  ParticleModule *v11; 
   bool v12; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
   const char *v14; 
@@ -3367,21 +3222,21 @@ char *ParticleModuleInitFlare::Parse(ParticleSystemDef *pParticleSystemDef, Part
     __debugbreak();
   if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3924, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
-  _RDI = pBaseModule;
+  v11 = pBaseModule;
   if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3924, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
   v12 = isLoadingFile;
   if ( isLoadingFile )
   {
-    memset_0(_RDI, 0, 0x90ui64);
+    memset_0(v11, 0, 0x90ui64);
     initMembersFunc = ParticleModule::GetUpdateData()[6].initMembersFunc;
     if ( initMembersFunc )
-      initMembersFunc(_RDI);
+      initMembersFunc(v11);
   }
-  _RDI->m_type = PARTICLE_MODULE_INIT_FLARE;
+  v11->m_type = PARTICLE_MODULE_INIT_FLARE;
   if ( v12 )
   {
-    v7 = (char *)ParseModuleID(v7, pParticleSystemDef, _RDI);
+    v7 = (char *)ParseModuleID(v7, pParticleSystemDef, v11);
     pDataa = v7;
   }
   if ( v7 )
@@ -3418,54 +3273,25 @@ char *ParticleModuleInitFlare::Parse(ParticleSystemDef *pParticleSystemDef, Part
           if ( !v17 )
             goto LABEL_48;
         }
-        if ( !ParseMemberFlag((const char **)&pDataa, "disable", &_RDI->m_flags, 1u) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "position", (float *)&_RDI[1].m_flags) && !ParseMember_int__ParseInt_((const char **)&pDataa, "angularRotCount", (int *)&_RDI[4]) && !ParseMember_float4__ParseVector3_((const char **)&pDataa, "direction", (float4 *)&_RDI[2]) )
+        if ( !ParseMemberFlag((const char **)&pDataa, "disable", &v11->m_flags, 1u) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "position", (float *)&v11[1].m_flags) && !ParseMember_int__ParseInt_((const char **)&pDataa, "angularRotCount", (int *)&v11[4]) && !ParseMember_float4__ParseVector3_((const char **)&pDataa, "direction", (float4 *)&v11[2]) )
         {
-          if ( ParseMemberFloatRange((const char **)&pDataa, "depthScaleRange", (ParticleFloatRange *)&_RDI[5], 0, 1) )
+          if ( ParseMemberFloatRange((const char **)&pDataa, "depthScaleRange", (ParticleFloatRange *)&v11[5], 0, 1) )
+            *(float *)&v11[5].m_flags = *(float *)&v11[5].m_flags - *(float *)&v11[5].m_type;
+          if ( ParseMemberFloatRange((const char **)&pDataa, "depthScaleValue", (ParticleFloatRange *)&v11[6], 0, 1) )
+            *(float *)&v11[6].m_flags = *(float *)&v11[6].m_flags - *(float *)&v11[6].m_type;
+          if ( ParseMemberFloatRange((const char **)&pDataa, "radialRot", (ParticleFloatRange *)&v11[7], 0, 1) )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+2Ch]
-              vsubss  xmm1, xmm0, dword ptr [rdi+28h]
-              vmovss  dword ptr [rdi+2Ch], xmm1
-            }
+            *(float *)&v11[7].m_flags = *(float *)&v11[7].m_flags - *(float *)&v11[7].m_type;
           }
-          if ( ParseMemberFloatRange((const char **)&pDataa, "depthScaleValue", (ParticleFloatRange *)&_RDI[6], 0, 1) )
+          else if ( ParseMemberFloatRange((const char **)&pDataa, "radialScaleX", (ParticleFloatRange *)&v11[8], 0, 1) )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+34h]
-              vsubss  xmm1, xmm0, dword ptr [rdi+30h]
-              vmovss  dword ptr [rdi+34h], xmm1
-            }
+            *(float *)&v11[8].m_flags = *(float *)&v11[8].m_flags - *(float *)&v11[8].m_type;
           }
-          if ( ParseMemberFloatRange((const char **)&pDataa, "radialRot", (ParticleFloatRange *)&_RDI[7], 0, 1) )
+          else if ( ParseMemberFloatRange((const char **)&pDataa, "radialScaleY", (ParticleFloatRange *)&v11[9], 0, 1) )
           {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+3Ch]
-              vsubss  xmm1, xmm0, dword ptr [rdi+38h]
-              vmovss  dword ptr [rdi+3Ch], xmm1
-            }
+            *(float *)&v11[9].m_flags = *(float *)&v11[9].m_flags - *(float *)&v11[9].m_type;
           }
-          else if ( ParseMemberFloatRange((const char **)&pDataa, "radialScaleX", (ParticleFloatRange *)&_RDI[8], 0, 1) )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+44h]
-              vsubss  xmm1, xmm0, dword ptr [rdi+40h]
-              vmovss  dword ptr [rdi+44h], xmm1
-            }
-          }
-          else if ( ParseMemberFloatRange((const char **)&pDataa, "radialScaleY", (ParticleFloatRange *)&_RDI[9], 0, 1) )
-          {
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rdi+4Ch]
-              vsubss  xmm1, xmm0, dword ptr [rdi+48h]
-              vmovss  dword ptr [rdi+4Ch], xmm1
-            }
-          }
-          else if ( !ParseMemberFlag((const char **)&pDataa, "useScreenPositionIntensity", &_RDI[4].m_flags, 4u) && !ParseMemberFlag((const char **)&pDataa, "screenPositionIntensityAffectsAlpha", &_RDI[4].m_flags, 8u) && !ParseMemberFlag((const char **)&pDataa, "radiallySymmetric", &_RDI[4].m_flags, 0x10u) && !ParseMemberFlag((const char **)&pDataa, "useViewDir", &_RDI[4].m_flags, 2u) && !ParseMemberFlag((const char **)&pDataa, "useSourceSpot", &_RDI[4].m_flags, 0x20u) )
+          else if ( !ParseMemberFlag((const char **)&pDataa, "useScreenPositionIntensity", &v11[4].m_flags, 4u) && !ParseMemberFlag((const char **)&pDataa, "screenPositionIntensityAffectsAlpha", &v11[4].m_flags, 8u) && !ParseMemberFlag((const char **)&pDataa, "radiallySymmetric", &v11[4].m_flags, 0x10u) && !ParseMemberFlag((const char **)&pDataa, "useViewDir", &v11[4].m_flags, 2u) && !ParseMemberFlag((const char **)&pDataa, "useSourceSpot", &v11[4].m_flags, 0x20u) )
           {
             v7 = ++pDataa;
 LABEL_47:
@@ -3483,8 +3309,8 @@ LABEL_48:
     v12 = isLoadingFile;
     v8 = pParticleStateDef;
   }
-  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&_RDI[10], 4u, pMemPool, v12, _RDI->m_type, pParticleSystemDef->version);
-  SetParticleElementType(3u, v12, _RDI, v8);
+  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&v11[10], 4u, pMemPool, v12, v11->m_type, pParticleSystemDef->version);
+  SetParticleElementType(3u, v12, v11, v8);
   return pDataa;
 }
 
@@ -3803,169 +3629,147 @@ ParticleModuleInitLightOmni::Parse
 */
 char *ParticleModuleInitLightOmni::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  char *v9; 
-  ParticleStateDef *v10; 
-  bool v14; 
+  char *v7; 
+  ParticleStateDef *v8; 
+  ParticleModule *v11; 
+  bool v12; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
-  bool v16; 
-  const char *v18; 
-  __int64 v19; 
-  signed __int64 v20; 
+  const char *v14; 
+  __int64 v15; 
+  signed __int64 v16; 
+  int v17; 
+  __int64 v18; 
+  int v19; 
+  int v20; 
   int v21; 
   __int64 v22; 
-  int v23; 
-  int v24; 
+  const char *v23; 
+  signed __int64 v24; 
   int v25; 
   __int64 v26; 
-  const char *v27; 
-  signed __int64 v28; 
+  int v27; 
+  int v28; 
   int v29; 
-  __int64 v30; 
-  int v31; 
-  int v32; 
-  int v33; 
   char *pDataa; 
 
   pDataa = (char *)pData;
-  v9 = (char *)pData;
-  v10 = pParticleStateDef;
+  v7 = (char *)pData;
+  v8 = pParticleStateDef;
   if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4060, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
     __debugbreak();
   if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4060, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4060, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4060, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
     __debugbreak();
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4060, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4060, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
-  _RDI = pBaseModule;
+  v11 = pBaseModule;
   if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4060, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
-  v14 = isLoadingFile;
+  v12 = isLoadingFile;
   if ( isLoadingFile )
   {
-    memset_0(_RDI, 0, 0x50ui64);
+    memset_0(v11, 0, 0x50ui64);
     initMembersFunc = ParticleModule::GetUpdateData()[9].initMembersFunc;
     if ( initMembersFunc )
-      initMembersFunc(_RDI);
+      initMembersFunc(v11);
   }
-  _RDI->m_type = PARTICLE_MODULE_INIT_LIGHT_OMNI;
-  if ( v14 )
+  v11->m_type = PARTICLE_MODULE_INIT_LIGHT_OMNI;
+  if ( v12 )
   {
-    v9 = (char *)ParseModuleID(v9, pParticleSystemDef, _RDI);
-    pDataa = v9;
+    v7 = (char *)ParseModuleID(v7, pParticleSystemDef, v11);
+    pDataa = v7;
   }
-  v16 = v9 == NULL;
-  if ( v9 )
+  if ( v7 )
   {
-    __asm
-    {
-      vmovaps [rsp+50h+var_20], xmm6
-      vmovss  xmm6, cs:__real@3dcccccd
-    }
     while ( 2 )
     {
-      v16 = *v9 == 0;
-      if ( *v9 )
+      if ( *v7 )
       {
-        v18 = s_typeBasicEnd;
-        v19 = s_typeBasicEndLength;
+        v14 = s_typeBasicEnd;
+        v15 = s_typeBasicEndLength;
         if ( !s_typeBasicEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeBasicEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
           __debugbreak();
-        v20 = v9 - v18;
+        v16 = v7 - v14;
         while ( 1 )
         {
-          v21 = (unsigned __int8)v18[v20];
-          v22 = v19;
-          v23 = *(unsigned __int8 *)v18++;
-          --v19;
-          v16 = v22 == 0;
-          if ( !v22 )
-            goto LABEL_66;
-          if ( v21 != v23 )
+          v17 = (unsigned __int8)v14[v16];
+          v18 = v15;
+          v19 = *(unsigned __int8 *)v14++;
+          --v15;
+          if ( !v18 )
+            goto LABEL_65;
+          if ( v17 != v19 )
           {
-            v24 = v21 + 32;
-            if ( (unsigned int)(v21 - 65) > 0x19 )
-              v24 = v21;
-            v21 = v24;
-            v25 = v23 + 32;
-            if ( (unsigned int)(v23 - 65) > 0x19 )
-              v25 = v23;
-            if ( v21 != v25 )
+            v20 = v17 + 32;
+            if ( (unsigned int)(v17 - 65) > 0x19 )
+              v20 = v17;
+            v17 = v20;
+            v21 = v19 + 32;
+            if ( (unsigned int)(v19 - 65) > 0x19 )
+              v21 = v19;
+            if ( v17 != v21 )
               break;
           }
-          v16 = v21 == 0;
-          if ( !v21 )
-            goto LABEL_66;
+          if ( !v17 )
+            goto LABEL_65;
         }
-        v26 = s_typeGroupEndLength;
-        v27 = s_typeGroupEnd;
+        v22 = s_typeGroupEndLength;
+        v23 = s_typeGroupEnd;
         if ( !s_typeGroupEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
           __debugbreak();
-        v28 = v9 - v27;
+        v24 = v7 - v23;
         while ( 1 )
         {
-          v29 = (unsigned __int8)v27[v28];
-          v30 = v26;
-          v31 = *(unsigned __int8 *)v27++;
-          --v26;
-          v16 = v30 == 0;
-          if ( !v30 )
-            goto LABEL_66;
-          if ( v29 != v31 )
+          v25 = (unsigned __int8)v23[v24];
+          v26 = v22;
+          v27 = *(unsigned __int8 *)v23++;
+          --v22;
+          if ( !v26 )
+            goto LABEL_65;
+          if ( v25 != v27 )
           {
-            v32 = v29 + 32;
-            if ( (unsigned int)(v29 - 65) > 0x19 )
-              v32 = v29;
-            v29 = v32;
-            v33 = v31 + 32;
-            if ( (unsigned int)(v31 - 65) > 0x19 )
-              v33 = v31;
-            if ( v29 != v33 )
+            v28 = v25 + 32;
+            if ( (unsigned int)(v25 - 65) > 0x19 )
+              v28 = v25;
+            v25 = v28;
+            v29 = v27 + 32;
+            if ( (unsigned int)(v27 - 65) > 0x19 )
+              v29 = v27;
+            if ( v25 != v29 )
               break;
           }
-          v16 = v29 == 0;
-          if ( !v29 )
-            goto LABEL_66;
+          if ( !v25 )
+            goto LABEL_65;
         }
-        if ( !ParseMemberFlag((const char **)&pDataa, "disable", &_RDI->m_flags, 1u) && !ParseMember_float__ParseFloatAngle_((const char **)&pDataa, "fovOuter", (float *)&_RDI[3]) && !ParseMember_float__ParseFloatAngle_((const char **)&pDataa, "fovInner", (float *)&_RDI[3].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "bulbRadius", (float *)&_RDI[4]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "bulbLength", (float *)&_RDI[4].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "distanceFalloff", (float *)&_RDI[5]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "brightness", (float *)&_RDI[5].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "intensityUV", (float *)&_RDI[6]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "intensityIR", (float *)&_RDI[6].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "intensityHeat", (float *)&_RDI[7]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowSoftness", (float *)&_RDI[7].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowBias", (float *)&_RDI[8]) )
+        if ( !ParseMemberFlag((const char **)&pDataa, "disable", &v11->m_flags, 1u) && !ParseMember_float__ParseFloatAngle_((const char **)&pDataa, "fovOuter", (float *)&v11[3]) && !ParseMember_float__ParseFloatAngle_((const char **)&pDataa, "fovInner", (float *)&v11[3].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "bulbRadius", (float *)&v11[4]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "bulbLength", (float *)&v11[4].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "distanceFalloff", (float *)&v11[5]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "brightness", (float *)&v11[5].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "intensityUV", (float *)&v11[6]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "intensityIR", (float *)&v11[6].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "intensityHeat", (float *)&v11[7]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowSoftness", (float *)&v11[7].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowBias", (float *)&v11[8]) )
         {
-          if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowArea", (float *)&_RDI[8].m_flags) )
+          if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowArea", (float *)&v11[8].m_flags) )
           {
-            __asm
-            {
-              vmulss  xmm1, xmm6, dword ptr [rdi+44h]
-              vmovss  dword ptr [rdi+44h], xmm1
-            }
+            *(float *)&v11[8].m_flags = 0.1 * *(float *)&v11[8].m_flags;
           }
-          else if ( !ParseMember_float__ParseFloat_((const char **)&pDataa, "toneMappingScaleFactor", (float *)&_RDI[9]) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "disableVolumetric", (bool *)&_RDI[9].m_flags) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "disableShadowMap", (bool *)&_RDI[9].m_flags + 1) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "disableDynamicShadows", (bool *)&_RDI[9].m_flags + 2) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "scriptScale", (bool *)&_RDI[9].m_flags + 3) )
+          else if ( !ParseMember_float__ParseFloat_((const char **)&pDataa, "toneMappingScaleFactor", (float *)&v11[9]) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "disableVolumetric", (bool *)&v11[9].m_flags) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "disableShadowMap", (bool *)&v11[9].m_flags + 1) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "disableDynamicShadows", (bool *)&v11[9].m_flags + 2) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "scriptScale", (bool *)&v11[9].m_flags + 3) )
           {
-            v9 = ++pDataa;
-LABEL_65:
-            v16 = v9 == NULL;
-            if ( v9 )
+            v7 = ++pDataa;
+LABEL_64:
+            if ( v7 )
               continue;
             break;
           }
         }
-        v9 = pDataa;
-        goto LABEL_65;
+        v7 = pDataa;
+        goto LABEL_64;
       }
       break;
     }
-LABEL_66:
-    v14 = isLoadingFile;
-    v10 = pParticleStateDef;
-    __asm { vmovaps xmm6, [rsp+50h+var_20] }
+LABEL_65:
+    v12 = isLoadingFile;
+    v8 = pParticleStateDef;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm0, dword ptr [rdi+24h]
-  }
-  if ( v16 )
-    _RDI[4].m_flags = 998277249;
-  SetParticleElementType(5u, v14, _RDI, v10);
-  return v9;
+  if ( *(float *)&v11[4].m_flags == 0.0 )
+    v11[4].m_flags = 998277249;
+  SetParticleElementType(5u, v12, v11, v8);
+  return v7;
 }
 
 /*
@@ -3975,11 +3779,184 @@ ParticleModuleInitLightSpot::Parse
 */
 char *ParticleModuleInitLightSpot::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  char *v10; 
-  ParticleStateDef *v13; 
-  bool v15; 
+  char *v7; 
+  ParticleStateDef *v10; 
+  ParticleModule *v11; 
+  bool v12; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
+  const char *v14; 
+  __int64 v15; 
+  signed __int64 v16; 
+  int v17; 
+  __int64 v18; 
+  int v19; 
+  int v20; 
+  int v21; 
+  __int64 v22; 
+  const char *v23; 
+  signed __int64 v24; 
+  int v25; 
+  __int64 v26; 
+  int v27; 
+  int v28; 
+  int v29; 
+  float v30; 
+  float v31; 
+  double v32; 
+  double v33; 
+  char *result; 
+  char *pDataa; 
+
+  pDataa = (char *)pData;
+  v7 = (char *)pData;
+  v10 = pParticleStateDef;
+  if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4128, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
+    __debugbreak();
+  if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4128, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
+    __debugbreak();
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4128, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
+    __debugbreak();
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4128, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+    __debugbreak();
+  v11 = pBaseModule;
+  if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4128, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
+    __debugbreak();
+  v12 = isLoadingFile;
+  if ( isLoadingFile )
+  {
+    memset_0(v11, 0, 0x60ui64);
+    initMembersFunc = ParticleModule::GetUpdateData()[10].initMembersFunc;
+    if ( initMembersFunc )
+      initMembersFunc(v11);
+  }
+  v11->m_type = PARTICLE_MODULE_INIT_LIGHT_SPOT;
+  if ( v12 )
+  {
+    v7 = (char *)ParseModuleID(v7, pParticleSystemDef, v11);
+    pDataa = v7;
+  }
+  if ( v7 )
+  {
+    while ( 2 )
+    {
+      if ( *v7 )
+      {
+        v14 = s_typeBasicEnd;
+        v15 = s_typeBasicEndLength;
+        if ( !s_typeBasicEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeBasicEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
+          __debugbreak();
+        v16 = v7 - v14;
+        while ( 1 )
+        {
+          v17 = (unsigned __int8)v14[v16];
+          v18 = v15;
+          v19 = *(unsigned __int8 *)v14++;
+          --v15;
+          if ( !v18 )
+            goto LABEL_66;
+          if ( v17 != v19 )
+          {
+            v20 = v17 + 32;
+            if ( (unsigned int)(v17 - 65) > 0x19 )
+              v20 = v17;
+            v17 = v20;
+            v21 = v19 + 32;
+            if ( (unsigned int)(v19 - 65) > 0x19 )
+              v21 = v19;
+            if ( v17 != v21 )
+              break;
+          }
+          if ( !v17 )
+            goto LABEL_66;
+        }
+        v22 = s_typeGroupEndLength;
+        v23 = s_typeGroupEnd;
+        if ( !s_typeGroupEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+          __debugbreak();
+        v24 = v7 - v23;
+        while ( 1 )
+        {
+          v25 = (unsigned __int8)v23[v24];
+          v26 = v22;
+          v27 = *(unsigned __int8 *)v23++;
+          --v22;
+          if ( !v26 )
+            goto LABEL_66;
+          if ( v25 != v27 )
+          {
+            v28 = v25 + 32;
+            if ( (unsigned int)(v25 - 65) > 0x19 )
+              v28 = v25;
+            v25 = v28;
+            v29 = v27 + 32;
+            if ( (unsigned int)(v27 - 65) > 0x19 )
+              v29 = v27;
+            if ( v25 != v29 )
+              break;
+          }
+          if ( !v25 )
+            goto LABEL_66;
+        }
+        if ( !ParseMemberFlag((const char **)&pDataa, "disable", &v11->m_flags, 1u) && !ParseMember_float__ParseFloatAngle_((const char **)&pDataa, "fovOuter", (float *)&v11[3]) && !ParseMember_float__ParseFloatAngle_((const char **)&pDataa, "fovInner", (float *)&v11[3].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "bulbRadius", (float *)&v11[4]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "bulbLength", (float *)&v11[4].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "distanceFalloff", (float *)&v11[5]) && !ParseMember_float__ParseFloatAngle_((const char **)&pDataa, "fovCollimation", (float *)&v11[5].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "brightness", (float *)&v11[6]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "intensityUV", (float *)&v11[6].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "intensityIR", (float *)&v11[7]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "intensityHeat", (float *)&v11[7].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowSoftness", (float *)&v11[8]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowBias", (float *)&v11[8].m_flags) )
+        {
+          if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowArea", (float *)&v11[9]) )
+          {
+            *(float *)&v11[9].m_type = 0.1 * *(float *)&v11[9].m_type;
+          }
+          else if ( !ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowNearPlane", (float *)&v11[9].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "toneMappingScaleFactor", (float *)&v11[10]) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "disableVolumetric", (bool *)&v11[10].m_flags) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "disableShadowMap", (bool *)&v11[10].m_flags + 1) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "disableDynamicShadows", (bool *)&v11[10].m_flags + 2) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "scriptScale", (bool *)&v11[10].m_flags + 3) )
+          {
+            v7 = ++pDataa;
+LABEL_65:
+            if ( v7 )
+              continue;
+            break;
+          }
+        }
+        v7 = pDataa;
+        goto LABEL_65;
+      }
+      break;
+    }
+LABEL_66:
+    v12 = isLoadingFile;
+    v10 = pParticleStateDef;
+  }
+  if ( *(float *)&v11[4].m_flags == 0.0 )
+    v11[4].m_flags = 998277249;
+  SetParticleElementType(6u, v12, v11, v10);
+  v30 = *(float *)&v11[3].m_flags;
+  v31 = *(float *)&v11[3].m_type;
+  if ( v30 > v31 )
+  {
+    *(float *)&v11[3].m_flags = v31;
+    v31 = v30;
+    *(float *)&v11[3].m_type = v30;
+  }
+  v32 = I_fclamp(v31, 0.001, 1.5697963);
+  *(float *)&v11[3].m_type = *(float *)&v32;
+  v33 = I_fclamp(*(float *)&v11[3].m_flags, 0.0, *(float *)&v32 - 0.001);
+  result = v7;
+  v11[3].m_flags = LODWORD(v33);
+  return result;
+}
+
+/*
+==============
+ParticleModuleInitMaterial::Parse
+==============
+*/
+char *ParticleModuleInitMaterial::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
+{
+  bool translucentShadowsEnabled; 
+  float translucentShadowDensity; 
+  bool enableReverseZFeather; 
+  bool sphericalZEnabled; 
+  bool enableDepthScan; 
+  char *v12; 
+  float radialDepthOffset; 
+  ParticleModule *v16; 
   bool v17; 
+  void (__fastcall *initMembersFunc)(ParticleModule *); 
   const char *v19; 
   __int64 v20; 
   signed __int64 v21; 
@@ -3996,268 +3973,28 @@ char *ParticleModuleInitLightSpot::Parse(ParticleSystemDef *pParticleSystemDef, 
   int v32; 
   int v33; 
   int v34; 
-  char v39; 
-  char *result; 
-  void *retaddr; 
-  char *pDataa; 
-
-  _RAX = &retaddr;
-  pDataa = (char *)pData;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm6 }
-  v10 = (char *)pData;
-  __asm { vmovaps xmmword ptr [rax-58h], xmm7 }
-  v13 = pParticleStateDef;
-  if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4128, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
-    __debugbreak();
-  if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4128, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
-    __debugbreak();
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4128, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
-    __debugbreak();
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4128, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
-    __debugbreak();
-  _RBX = pBaseModule;
-  if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4128, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
-    __debugbreak();
-  v15 = isLoadingFile;
-  if ( isLoadingFile )
-  {
-    memset_0(_RBX, 0, 0x60ui64);
-    initMembersFunc = ParticleModule::GetUpdateData()[10].initMembersFunc;
-    if ( initMembersFunc )
-      initMembersFunc(_RBX);
-  }
-  _RBX->m_type = PARTICLE_MODULE_INIT_LIGHT_SPOT;
-  if ( v15 )
-  {
-    v10 = (char *)ParseModuleID(v10, pParticleSystemDef, _RBX);
-    pDataa = v10;
-  }
-  v17 = v10 == NULL;
-  if ( v10 )
-  {
-    __asm { vmovss  xmm6, cs:__real@3dcccccd }
-    while ( 2 )
-    {
-      v17 = *v10 == 0;
-      if ( *v10 )
-      {
-        v19 = s_typeBasicEnd;
-        v20 = s_typeBasicEndLength;
-        if ( !s_typeBasicEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeBasicEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
-          __debugbreak();
-        v21 = v10 - v19;
-        while ( 1 )
-        {
-          v22 = (unsigned __int8)v19[v21];
-          v23 = v20;
-          v24 = *(unsigned __int8 *)v19++;
-          --v20;
-          v17 = v23 == 0;
-          if ( !v23 )
-            goto LABEL_67;
-          if ( v22 != v24 )
-          {
-            v25 = v22 + 32;
-            if ( (unsigned int)(v22 - 65) > 0x19 )
-              v25 = v22;
-            v22 = v25;
-            v26 = v24 + 32;
-            if ( (unsigned int)(v24 - 65) > 0x19 )
-              v26 = v24;
-            if ( v22 != v26 )
-              break;
-          }
-          v17 = v22 == 0;
-          if ( !v22 )
-            goto LABEL_67;
-        }
-        v27 = s_typeGroupEndLength;
-        v28 = s_typeGroupEnd;
-        if ( !s_typeGroupEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
-          __debugbreak();
-        v29 = v10 - v28;
-        while ( 1 )
-        {
-          v30 = (unsigned __int8)v28[v29];
-          v31 = v27;
-          v32 = *(unsigned __int8 *)v28++;
-          --v27;
-          v17 = v31 == 0;
-          if ( !v31 )
-            goto LABEL_67;
-          if ( v30 != v32 )
-          {
-            v33 = v30 + 32;
-            if ( (unsigned int)(v30 - 65) > 0x19 )
-              v33 = v30;
-            v30 = v33;
-            v34 = v32 + 32;
-            if ( (unsigned int)(v32 - 65) > 0x19 )
-              v34 = v32;
-            if ( v30 != v34 )
-              break;
-          }
-          v17 = v30 == 0;
-          if ( !v30 )
-            goto LABEL_67;
-        }
-        if ( !ParseMemberFlag((const char **)&pDataa, "disable", &_RBX->m_flags, 1u) && !ParseMember_float__ParseFloatAngle_((const char **)&pDataa, "fovOuter", (float *)&_RBX[3]) && !ParseMember_float__ParseFloatAngle_((const char **)&pDataa, "fovInner", (float *)&_RBX[3].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "bulbRadius", (float *)&_RBX[4]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "bulbLength", (float *)&_RBX[4].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "distanceFalloff", (float *)&_RBX[5]) && !ParseMember_float__ParseFloatAngle_((const char **)&pDataa, "fovCollimation", (float *)&_RBX[5].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "brightness", (float *)&_RBX[6]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "intensityUV", (float *)&_RBX[6].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "intensityIR", (float *)&_RBX[7]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "intensityHeat", (float *)&_RBX[7].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowSoftness", (float *)&_RBX[8]) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowBias", (float *)&_RBX[8].m_flags) )
-        {
-          if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowArea", (float *)&_RBX[9]) )
-          {
-            __asm
-            {
-              vmulss  xmm1, xmm6, dword ptr [rbx+48h]
-              vmovss  dword ptr [rbx+48h], xmm1
-            }
-          }
-          else if ( !ParseMember_float__ParseFloat_((const char **)&pDataa, "shadowNearPlane", (float *)&_RBX[9].m_flags) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "toneMappingScaleFactor", (float *)&_RBX[10]) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "disableVolumetric", (bool *)&_RBX[10].m_flags) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "disableShadowMap", (bool *)&_RBX[10].m_flags + 1) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "disableDynamicShadows", (bool *)&_RBX[10].m_flags + 2) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "scriptScale", (bool *)&_RBX[10].m_flags + 3) )
-          {
-            v10 = ++pDataa;
-LABEL_66:
-            v17 = v10 == NULL;
-            if ( v10 )
-              continue;
-            break;
-          }
-        }
-        v10 = pDataa;
-        goto LABEL_66;
-      }
-      break;
-    }
-LABEL_67:
-    v15 = isLoadingFile;
-    v13 = pParticleStateDef;
-  }
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vucomiss xmm7, dword ptr [rbx+24h]
-  }
-  if ( v17 )
-    _RBX[4].m_flags = 998277249;
-  SetParticleElementType(6u, v15, _RBX, v13);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx+1Ch]
-    vmovss  xmm0, dword ptr [rbx+18h]
-    vcomiss xmm2, xmm0
-  }
-  if ( !(v39 | v17) )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rbx+1Ch], xmm0
-      vmovaps xmm0, xmm2; val
-      vmovss  dword ptr [rbx+18h], xmm2
-    }
-  }
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3fc8ef16; max
-    vmovss  xmm1, cs:__real@3a83126f; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm2, xmm0, cs:__real@3a83126f; max
-    vmovss  dword ptr [rbx+18h], xmm0
-    vmovss  xmm0, dword ptr [rbx+1Ch]; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm6, [rsp+70h+var_30] }
-  result = v10;
-  __asm
-  {
-    vmovaps xmm7, [rsp+70h+var_40]
-    vmovss  dword ptr [rbx+1Ch], xmm0
-  }
-  return result;
-}
-
-/*
-==============
-ParticleModuleInitMaterial::Parse
-==============
-*/
-char *ParticleModuleInitMaterial::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
-{
-  bool translucentShadowsEnabled; 
-  bool enableReverseZFeather; 
-  bool sphericalZEnabled; 
-  bool enableDepthScan; 
-  char *v25; 
-  ParticleModule *v29; 
-  bool v30; 
-  void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v32; 
-  __int64 v33; 
-  signed __int64 v34; 
-  int v35; 
-  __int64 v36; 
-  int v37; 
-  int v38; 
-  int v39; 
-  __int64 v40; 
-  const char *v41; 
-  signed __int64 v42; 
-  int v43; 
-  __int64 v44; 
-  int v45; 
-  int v46; 
-  int v47; 
-  unsigned __int64 v48; 
-  char *result; 
+  unsigned __int64 v35; 
   __int64 valueOut; 
   MaterialConstants constants; 
-  char v56; 
-  void *retaddr; 
   char *pDataa; 
 
-  _RAX = &retaddr;
   pDataa = (char *)pData;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@420c0000
-    vmovss  xmm1, cs:__real@42820000
-  }
   translucentShadowsEnabled = 0;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  [rsp+190h+constants.opaqueAngle], xmm0
-    vmovaps ymm0, cs:__ymm@3f0000003f0000003f0000003f0000003f8000003f8000003f8000003f800000
-    vmovups ymmword ptr [rsp+190h+constants.opaqueColor], ymm0
-    vmovss  xmm0, cs:__real@459c4000
-    vmovss  [rsp+190h+constants.falloffBeginDistance], xmm0
-    vmovss  xmm0, cs:__real@bdcccccd
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
+  translucentShadowDensity = FLOAT_1_0;
+  constants.opaqueAngle = FLOAT_35_0;
+  *(__m256i *)constants.opaqueColor.v = _ymm;
+  constants.falloffBeginDistance = FLOAT_5000_0;
   enableReverseZFeather = 0;
-  __asm
-  {
-    vmovss  [rsp+190h+constants.thermalBase], xmm0
-    vmovaps ymm0, cs:__ymm@3f8000003f8000003f8000003f8000003f8000003f8000003f8000003f800000
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
+  constants.thermalBase = FLOAT_N0_1;
   sphericalZEnabled = 0;
-  __asm { vxorps  xmm8, xmm8, xmm8 }
   constants.falloffEnabled = 0;
-  __asm
-  {
-    vmovups ymmword ptr [rbp+90h+constants.depthScanColor], ymm0
-    vmovups ymmword ptr [rbp+90h+constants.sphericalZColor0], ymm0
-    vmovss  xmm0, cs:__real@43fa0000
-    vmovss  [rsp+190h+constants.invisibleAngle], xmm1
-    vmovss  xmm1, cs:__real@469c4000
-  }
+  *(__m256i *)constants.depthScanColor.v = _ymm;
+  *(__m256i *)constants.sphericalZColor0.v = _ymm;
+  constants.invisibleAngle = FLOAT_65_0;
   enableDepthScan = 0;
   constants.useThermalParams = 0;
   constants.translucentShadowsEnabled = 0;
-  v25 = (char *)pData;
+  v12 = (char *)pData;
   constants.eyeOffsetEnabled = 0;
   constants.alphaDissolveEnabled = 0;
   constants.zFeatherEnabled = 0;
@@ -4267,164 +4004,148 @@ char *ParticleModuleInitMaterial::Parse(ParticleSystemDef *pParticleSystemDef, P
   *(_WORD *)&constants.mapToScreenSpaceEnabled = 0;
   constants.sphericalZEnabled = 0;
   LOBYTE(valueOut) = 0;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  [rbp+90h+constants.worldSpaceTileSize], xmm0
-    vmovss  [rsp+190h+constants.falloffEndDistance], xmm1
-    vmovss  [rsp+190h+constants.thermalScale], xmm8
-    vmovss  [rbp+90h+constants.translucentShadowDensity], xmm6
-    vmovss  [rbp+90h+constants.eyeOffsetDepth], xmm8
-    vmovss  [rbp+90h+constants.alphaDissolveBracket], xmm6
-    vmovss  [rbp+90h+constants.alphaDissolveSoftness], xmm6
-    vmovss  [rbp+90h+constants.zFeatherDepth], xmm6
-    vmovss  [rbp+90h+constants.radialDepthOffset], xmm7
-    vmovss  [rbp+90h+constants.reverseZFeatherDepth], xmm6
-    vmovss  [rbp+90h+constants.unfeatheredDepthSpan], xmm8
-    vmovss  [rbp+90h+constants.depthScanThickness], xmm8
-    vmovss  [rbp+90h+constants.depthScanOutlineThickness], xmm8
-    vmovss  [rbp+90h+constants.anisotropy], xmm8
-    vmovss  [rbp+90h+constants.beamMaskRadius], xmm6
-    vmovss  [rbp+90h+constants.sphericalZInnerRadius], xmm8
-    vmovss  [rbp+90h+constants.sphericalZOuterRadius], xmm8
-  }
+  radialDepthOffset = 0.0;
+  constants.worldSpaceTileSize = FLOAT_500_0;
+  constants.falloffEndDistance = FLOAT_20000_0;
+  constants.thermalScale = 0.0;
+  constants.translucentShadowDensity = FLOAT_1_0;
+  constants.eyeOffsetDepth = 0.0;
+  constants.alphaDissolveBracket = FLOAT_1_0;
+  constants.alphaDissolveSoftness = FLOAT_1_0;
+  constants.zFeatherDepth = FLOAT_1_0;
+  constants.radialDepthOffset = 0.0;
+  constants.reverseZFeatherDepth = FLOAT_1_0;
+  constants.unfeatheredDepthSpan = 0.0;
+  constants.depthScanThickness = 0.0;
+  constants.depthScanOutlineThickness = 0.0;
+  constants.anisotropy = 0.0;
+  constants.beamMaskRadius = FLOAT_1_0;
+  constants.sphericalZInnerRadius = 0.0;
+  constants.sphericalZOuterRadius = 0.0;
   if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4367, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef", valueOut) )
     __debugbreak();
   if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4367, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
   if ( !pParticleStateDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4367, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
     __debugbreak();
-  if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4367, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4367, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
-  v29 = pBaseModule;
+  v16 = pBaseModule;
   if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 4367, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
-  v30 = isLoadingFile;
+  v17 = isLoadingFile;
   if ( isLoadingFile )
   {
-    memset_0(v29, 0, 0xE0ui64);
+    memset_0(v16, 0, 0xE0ui64);
     initMembersFunc = ParticleModule::GetUpdateData()[11].initMembersFunc;
     if ( initMembersFunc )
-      initMembersFunc(v29);
+      initMembersFunc(v16);
   }
-  v29->m_type = PARTICLE_MODULE_INIT_MATERIAL;
-  if ( v30 )
+  v16->m_type = PARTICLE_MODULE_INIT_MATERIAL;
+  if ( v17 )
   {
-    v25 = (char *)ParseModuleID(v25, pParticleSystemDef, v29);
-    pDataa = v25;
+    v12 = (char *)ParseModuleID(v12, pParticleSystemDef, v16);
+    pDataa = v12;
   }
-  if ( v25 )
+  if ( v12 )
   {
 LABEL_22:
-    if ( *v25 )
+    if ( *v12 )
     {
-      v32 = s_typeBasicEnd;
-      v33 = s_typeBasicEndLength;
+      v19 = s_typeBasicEnd;
+      v20 = s_typeBasicEndLength;
       if ( !s_typeBasicEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeBasicEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v34 = v25 - v32;
+      v21 = v12 - v19;
       do
       {
-        v35 = (unsigned __int8)v32[v34];
-        v36 = v33;
-        v37 = *(unsigned __int8 *)v32++;
-        --v33;
-        if ( !v36 )
+        v22 = (unsigned __int8)v19[v21];
+        v23 = v20;
+        v24 = *(unsigned __int8 *)v19++;
+        --v20;
+        if ( !v23 )
           break;
-        if ( v35 != v37 )
+        if ( v22 != v24 )
         {
-          v38 = v35 + 32;
-          if ( (unsigned int)(v35 - 65) > 0x19 )
-            v38 = v35;
-          v35 = v38;
-          v39 = v37 + 32;
-          if ( (unsigned int)(v37 - 65) > 0x19 )
-            v39 = v37;
-          if ( v35 != v39 )
+          v25 = v22 + 32;
+          if ( (unsigned int)(v22 - 65) > 0x19 )
+            v25 = v22;
+          v22 = v25;
+          v26 = v24 + 32;
+          if ( (unsigned int)(v24 - 65) > 0x19 )
+            v26 = v24;
+          if ( v22 != v26 )
           {
-            v40 = s_typeGroupEndLength;
-            v41 = s_typeGroupEnd;
+            v27 = s_typeGroupEndLength;
+            v28 = s_typeGroupEnd;
             if ( !s_typeGroupEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
               __debugbreak();
-            v42 = v25 - v41;
+            v29 = v12 - v28;
             while ( 1 )
             {
-              v43 = (unsigned __int8)v41[v42];
-              v44 = v40;
-              v45 = *(unsigned __int8 *)v41++;
-              --v40;
-              if ( !v44 )
+              v30 = (unsigned __int8)v28[v29];
+              v31 = v27;
+              v32 = *(unsigned __int8 *)v28++;
+              --v27;
+              if ( !v31 )
                 goto LABEL_97;
-              if ( v43 != v45 )
+              if ( v30 != v32 )
               {
-                v46 = v43 + 32;
-                if ( (unsigned int)(v43 - 65) > 0x19 )
-                  v46 = v43;
-                v43 = v46;
-                v47 = v45 + 32;
-                if ( (unsigned int)(v45 - 65) > 0x19 )
-                  v47 = v45;
-                if ( v43 != v47 )
+                v33 = v30 + 32;
+                if ( (unsigned int)(v30 - 65) > 0x19 )
+                  v33 = v30;
+                v30 = v33;
+                v34 = v32 + 32;
+                if ( (unsigned int)(v32 - 65) > 0x19 )
+                  v34 = v32;
+                if ( v30 != v34 )
                 {
-                  if ( ParseMemberFlag((const char **)&pDataa, "disable", &v29->m_flags, 1u) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "renderOptions", (unsigned int *)&v29[1]) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "shaderGraphOptions", &v29[1].m_flags) || ParseMemberFlag64((const char **)&pDataa, "drawWithViewModel", &pParticleStateDef->flags, 0x4000000ui64) || ParseMember_bool__ParseBool_((const char **)&pDataa, "perEmitterConstantsSupported", (bool *)&valueOut) || ParseMember_bool__ParseBool_((const char **)&pDataa, "mapToScreenSpaceEnabled", &constants.mapToScreenSpaceEnabled) || ParseMember_bool__ParseBool_((const char **)&pDataa, "mapToWorldSpaceEnabled", &constants.mapToWorldSpaceEnabled) || ParseMember_float__ParseFloat_((const char **)&pDataa, "worldSpaceTileSize", &constants.worldSpaceTileSize) || ParseMember_float__ParseFloat_((const char **)&pDataa, "beamMaskRadius", &constants.beamMaskRadius) || ParseMember_bool__ParseBool_((const char **)&pDataa, "falloffEnabled", &constants.falloffEnabled) || ParseMember_float__ParseFloat_((const char **)&pDataa, "opaqueAngle", &constants.opaqueAngle) || ParseMember_float__ParseFloat_((const char **)&pDataa, "invisibleAngle", &constants.invisibleAngle) || ParseMember_vec4_t__ParseVector4_Vec4t_((const char **)&pDataa, "opaqueColor", &constants.opaqueColor) || ParseMember_vec4_t__ParseVector4_Vec4t_((const char **)&pDataa, "transparentColor", &constants.transparentColor) || ParseMember_float__ParseFloat_((const char **)&pDataa, "falloffBeginDistance", &constants.falloffBeginDistance) || ParseMember_float__ParseFloat_((const char **)&pDataa, "falloffEndDistance", &constants.falloffEndDistance) || ParseMember_bool__ParseBool_((const char **)&pDataa, "useThermalParams", &constants.useThermalParams) || ParseMember_float__ParseFloat_((const char **)&pDataa, "thermalBase", &constants.thermalBase) || ParseMember_float__ParseFloat_((const char **)&pDataa, "thermalScale", &constants.thermalScale) || ParseMember_bool__ParseBool_((const char **)&pDataa, "translucentShadowsEnabled", &constants.translucentShadowsEnabled) || ParseMember_float__ParseFloat_((const char **)&pDataa, "translucentShadowDensity", &constants.translucentShadowDensity) || ParseMember_bool__ParseBool_((const char **)&pDataa, "eyeOffsetEnabled", &constants.eyeOffsetEnabled) || ParseMember_float__ParseFloat_((const char **)&pDataa, "eyeOffsetDepth", &constants.eyeOffsetDepth) || ParseMember_bool__ParseBool_((const char **)&pDataa, "alphaDissolveEnabled", &constants.alphaDissolveEnabled) || ParseMember_float__ParseFloat_((const char **)&pDataa, "alphaDissolveBracket", &constants.alphaDissolveBracket) || ParseMember_float__ParseFloat_((const char **)&pDataa, "alphaDissolveSoftness", &constants.alphaDissolveSoftness) || ParseMember_bool__ParseBool_((const char **)&pDataa, "zFeatherEnabled", &constants.zFeatherEnabled) || ParseMember_float__ParseFloat_((const char **)&pDataa, "zFeatherDepth", &constants.zFeatherDepth) || ParseMember_bool__ParseBool_((const char **)&pDataa, "enablePercentDepth", &constants.enablePercentDepth) || ParseMember_float__ParseFloat_((const char **)&pDataa, "radialDepthOffset", &constants.radialDepthOffset) || ParseMember_bool__ParseBool_((const char **)&pDataa, "enableReverseZFeather", &constants.enableReverseZFeather) || ParseMember_float__ParseFloat_((const char **)&pDataa, "reverseZFeatherDepth", &constants.reverseZFeatherDepth) || ParseMember_float__ParseFloat_((const char **)&pDataa, "unfeatheredDepthSpan", &constants.unfeatheredDepthSpan) || ParseMember_bool__ParseBool_((const char **)&pDataa, "enableDepthScan", &constants.enableDepthScan) || ParseMember_vec4_t__ParseVector4_Vec4t_((const char **)&pDataa, "depthScanColor", &constants.depthScanColor) || ParseMember_vec4_t__ParseVector4_Vec4t_((const char **)&pDataa, "depthScanOutlineColor", &constants.depthScanOutlineColor) || ParseMember_float__ParseFloat_((const char **)&pDataa, "depthScanThickness", &constants.depthScanThickness) || ParseMember_float__ParseFloat_((const char **)&pDataa, "depthScanOutlineThickness", &constants.depthScanOutlineThickness) || ParseMember_float__ParseFloat_((const char **)&pDataa, "anisotropy", &constants.anisotropy) || ParseMember_bool__ParseBool_((const char **)&pDataa, "enableWaterZFeather", &constants.enableWaterZFeather) || ParseMember_vec4_t__ParseVector4_Vec4t_((const char **)&pDataa, "sphericalZInnerColor", &constants.sphericalZColor0) || ParseMember_vec4_t__ParseVector4_Vec4t_((const char **)&pDataa, "sphericalZOuterColor", &constants.sphericalZColor1) || ParseMember_float__ParseFloat_((const char **)&pDataa, "sphericalZInnerRadius", &constants.sphericalZInnerRadius) || ParseMember_float__ParseFloat_((const char **)&pDataa, "sphericalZOuterRadius", &constants.sphericalZOuterRadius) || ParseMember_bool__ParseBool_((const char **)&pDataa, "sphericalZEnable", &constants.sphericalZEnabled) )
-                    v25 = pDataa;
+                  if ( ParseMemberFlag((const char **)&pDataa, "disable", &v16->m_flags, 1u) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "renderOptions", (unsigned int *)&v16[1]) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "shaderGraphOptions", &v16[1].m_flags) || ParseMemberFlag64((const char **)&pDataa, "drawWithViewModel", &pParticleStateDef->flags, 0x4000000ui64) || ParseMember_bool__ParseBool_((const char **)&pDataa, "perEmitterConstantsSupported", (bool *)&valueOut) || ParseMember_bool__ParseBool_((const char **)&pDataa, "mapToScreenSpaceEnabled", &constants.mapToScreenSpaceEnabled) || ParseMember_bool__ParseBool_((const char **)&pDataa, "mapToWorldSpaceEnabled", &constants.mapToWorldSpaceEnabled) || ParseMember_float__ParseFloat_((const char **)&pDataa, "worldSpaceTileSize", &constants.worldSpaceTileSize) || ParseMember_float__ParseFloat_((const char **)&pDataa, "beamMaskRadius", &constants.beamMaskRadius) || ParseMember_bool__ParseBool_((const char **)&pDataa, "falloffEnabled", &constants.falloffEnabled) || ParseMember_float__ParseFloat_((const char **)&pDataa, "opaqueAngle", &constants.opaqueAngle) || ParseMember_float__ParseFloat_((const char **)&pDataa, "invisibleAngle", &constants.invisibleAngle) || ParseMember_vec4_t__ParseVector4_Vec4t_((const char **)&pDataa, "opaqueColor", &constants.opaqueColor) || ParseMember_vec4_t__ParseVector4_Vec4t_((const char **)&pDataa, "transparentColor", &constants.transparentColor) || ParseMember_float__ParseFloat_((const char **)&pDataa, "falloffBeginDistance", &constants.falloffBeginDistance) || ParseMember_float__ParseFloat_((const char **)&pDataa, "falloffEndDistance", &constants.falloffEndDistance) || ParseMember_bool__ParseBool_((const char **)&pDataa, "useThermalParams", &constants.useThermalParams) || ParseMember_float__ParseFloat_((const char **)&pDataa, "thermalBase", &constants.thermalBase) || ParseMember_float__ParseFloat_((const char **)&pDataa, "thermalScale", &constants.thermalScale) || ParseMember_bool__ParseBool_((const char **)&pDataa, "translucentShadowsEnabled", &constants.translucentShadowsEnabled) || ParseMember_float__ParseFloat_((const char **)&pDataa, "translucentShadowDensity", &constants.translucentShadowDensity) || ParseMember_bool__ParseBool_((const char **)&pDataa, "eyeOffsetEnabled", &constants.eyeOffsetEnabled) || ParseMember_float__ParseFloat_((const char **)&pDataa, "eyeOffsetDepth", &constants.eyeOffsetDepth) || ParseMember_bool__ParseBool_((const char **)&pDataa, "alphaDissolveEnabled", &constants.alphaDissolveEnabled) || ParseMember_float__ParseFloat_((const char **)&pDataa, "alphaDissolveBracket", &constants.alphaDissolveBracket) || ParseMember_float__ParseFloat_((const char **)&pDataa, "alphaDissolveSoftness", &constants.alphaDissolveSoftness) || ParseMember_bool__ParseBool_((const char **)&pDataa, "zFeatherEnabled", &constants.zFeatherEnabled) || ParseMember_float__ParseFloat_((const char **)&pDataa, "zFeatherDepth", &constants.zFeatherDepth) || ParseMember_bool__ParseBool_((const char **)&pDataa, "enablePercentDepth", &constants.enablePercentDepth) || ParseMember_float__ParseFloat_((const char **)&pDataa, "radialDepthOffset", &constants.radialDepthOffset) || ParseMember_bool__ParseBool_((const char **)&pDataa, "enableReverseZFeather", &constants.enableReverseZFeather) || ParseMember_float__ParseFloat_((const char **)&pDataa, "reverseZFeatherDepth", &constants.reverseZFeatherDepth) || ParseMember_float__ParseFloat_((const char **)&pDataa, "unfeatheredDepthSpan", &constants.unfeatheredDepthSpan) || ParseMember_bool__ParseBool_((const char **)&pDataa, "enableDepthScan", &constants.enableDepthScan) || ParseMember_vec4_t__ParseVector4_Vec4t_((const char **)&pDataa, "depthScanColor", &constants.depthScanColor) || ParseMember_vec4_t__ParseVector4_Vec4t_((const char **)&pDataa, "depthScanOutlineColor", &constants.depthScanOutlineColor) || ParseMember_float__ParseFloat_((const char **)&pDataa, "depthScanThickness", &constants.depthScanThickness) || ParseMember_float__ParseFloat_((const char **)&pDataa, "depthScanOutlineThickness", &constants.depthScanOutlineThickness) || ParseMember_float__ParseFloat_((const char **)&pDataa, "anisotropy", &constants.anisotropy) || ParseMember_bool__ParseBool_((const char **)&pDataa, "enableWaterZFeather", &constants.enableWaterZFeather) || ParseMember_vec4_t__ParseVector4_Vec4t_((const char **)&pDataa, "sphericalZInnerColor", &constants.sphericalZColor0) || ParseMember_vec4_t__ParseVector4_Vec4t_((const char **)&pDataa, "sphericalZOuterColor", &constants.sphericalZColor1) || ParseMember_float__ParseFloat_((const char **)&pDataa, "sphericalZInnerRadius", &constants.sphericalZInnerRadius) || ParseMember_float__ParseFloat_((const char **)&pDataa, "sphericalZOuterRadius", &constants.sphericalZOuterRadius) || ParseMember_bool__ParseBool_((const char **)&pDataa, "sphericalZEnable", &constants.sphericalZEnabled) )
+                    v12 = pDataa;
                   else
-                    v25 = ++pDataa;
-                  if ( v25 )
+                    v12 = ++pDataa;
+                  if ( v12 )
                     goto LABEL_22;
                   goto LABEL_97;
                 }
               }
-              if ( !v43 )
+              if ( !v30 )
                 goto LABEL_97;
             }
           }
         }
       }
-      while ( v35 );
+      while ( v22 );
     }
 LABEL_97:
     sphericalZEnabled = constants.sphericalZEnabled;
     enableDepthScan = constants.enableDepthScan;
     enableReverseZFeather = constants.enableReverseZFeather;
-    __asm
-    {
-      vmovss  xmm7, [rbp+90h+constants.radialDepthOffset]
-      vmovss  xmm6, [rbp+90h+constants.translucentShadowDensity]
-    }
+    radialDepthOffset = constants.radialDepthOffset;
+    translucentShadowDensity = constants.translucentShadowDensity;
     translucentShadowsEnabled = constants.translucentShadowsEnabled;
   }
-  __asm { vcomiss xmm7, xmm8 }
-  if ( enableDepthScan + enableReverseZFeather + (unsigned int)sphericalZEnabled > 1 )
+  if ( enableDepthScan + enableReverseZFeather + sphericalZEnabled + (unsigned int)(radialDepthOffset > 0.0) > 1 )
   {
     Com_PrintWarning(21, "WARNING: One or more mutual exclusive ZShader options have been selected. All have been disabled. (Exclusive options: Depthscan, ReverseZ, RadialZ, SphericalZ)\n");
-    __asm { vmovss  [rbp+90h+constants.radialDepthOffset], xmm8 }
+    constants.radialDepthOffset = 0.0;
     constants.enableDepthScan = 0;
     constants.enableReverseZFeather = 0;
     constants.sphericalZEnabled = 0;
   }
-  SetMaterialModuleFromConstants(&constants, (ParticleModuleInitMaterial *)v29);
-  if ( (v29->m_flags & 1) == 0 )
+  SetMaterialModuleFromConstants(&constants, (ParticleModuleInitMaterial *)v16);
+  if ( (v16->m_flags & 1) == 0 )
   {
-    v48 = pParticleStateDef->flags & 0xFFFFFFFF7FFFFFFFui64;
-    pParticleStateDef->flags = v48;
-    if ( translucentShadowsEnabled )
+    v35 = pParticleStateDef->flags & 0xFFFFFFFF7FFFFFFFui64;
+    pParticleStateDef->flags = v35;
+    if ( translucentShadowsEnabled && translucentShadowDensity > 0.0 )
     {
-      __asm { vcomiss xmm6, xmm8 }
-      pParticleStateDef->flags = v48 | 0x80000000;
+      pParticleStateDef->flags = v35 | 0x80000000;
       pParticleEmitterDef->flags |= 0x800u;
       pParticleSystemDef->flags |= 0x200u;
     }
   }
-  _R11 = &v56;
-  result = v25;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-  }
-  return result;
+  return v12;
 }
 
 /*
@@ -6078,619 +5799,9 @@ ParticleModuleInitSpawn::Parse
 */
 char *ParticleModuleInitSpawn::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  char *v9; 
-  ParticleSystemDef *v12; 
-  ParticleModule *v13; 
-  bool v14; 
-  void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v16; 
-  __int64 v17; 
-  signed __int64 v18; 
-  int v19; 
-  __int64 v20; 
-  int v21; 
-  int v22; 
-  int v23; 
-  int min; 
-  int v38; 
-  int max; 
-  int v40; 
-  unsigned int v48; 
-  signed int v49; 
-  bool v61; 
-  char v62; 
-  char v63; 
-  int v64; 
-  unsigned int valueOut; 
-  char *pDataa; 
-
-  pDataa = (char *)pData;
-  v9 = (char *)pData;
-  valueOut = 0;
-  _RBX = pParticleEmitterDef;
-  v12 = pParticleSystemDef;
-  if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5078, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
-    __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5078, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
-    __debugbreak();
-  if ( !pParticleStateDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5078, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
-    __debugbreak();
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5078, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
-    __debugbreak();
-  v13 = pBaseModule;
-  if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5078, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
-    __debugbreak();
-  v14 = isLoadingFile;
-  if ( isLoadingFile )
-  {
-    *v13 = 0i64;
-    v13[1] = 0i64;
-    v13[2] = 0i64;
-    v13[3] = 0i64;
-    initMembersFunc = ParticleModule::GetUpdateData()[23].initMembersFunc;
-    if ( initMembersFunc )
-      initMembersFunc(v13);
-  }
-  v13->m_type = PARTICLE_MODULE_INIT_SPAWN;
-  if ( v14 )
-  {
-    v9 = (char *)ParseModuleID(v9, v12, v13);
-    pDataa = v9;
-  }
-  if ( v9 )
-  {
-LABEL_22:
-    if ( *v9 )
-    {
-      v16 = s_typeGroupHeaderEnd;
-      v17 = s_typeGroupHeaderEndLength;
-      if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
-        __debugbreak();
-      v18 = v9 - v16;
-      do
-      {
-        v19 = (unsigned __int8)v16[v18];
-        v20 = v17;
-        v21 = *(unsigned __int8 *)v16++;
-        --v17;
-        if ( !v20 )
-          break;
-        if ( v19 != v21 )
-        {
-          v22 = v19 + 32;
-          if ( (unsigned int)(v19 - 65) > 0x19 )
-            v22 = v19;
-          v19 = v22;
-          v23 = v21 + 32;
-          if ( (unsigned int)(v21 - 65) > 0x19 )
-            v23 = v21;
-          if ( v19 != v23 )
-          {
-            if ( ParseMemberFlag((const char **)&pDataa, "disable", &v13->m_flags, 1u) )
-              goto LABEL_60;
-            if ( (v13->m_flags & 1) != 0 )
-              break;
-            if ( ParseMemberFloatRange((const char **)&pDataa, "particleSpawnRate", &_RBX->particleSpawnRate, 0, 0) || ParseMemberFloatRange((const char **)&pDataa, "particleSpawnShapeRange", &_RBX->particleSpawnShapeRange, 0, 0) || ParseMemberFloatRange((const char **)&pDataa, "particleLife", &_RBX->particleLife, 0, 0) || ParseMemberFloatRange((const char **)&pDataa, "particleDelay", &_RBX->particleDelay, 0, 0) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "particleCountMax", &valueOut) || ParseMemberFlag((const char **)&pDataa, "particleLifeInfinite", &_RBX->flags, 8u) || ParseMemberFlag((const char **)&pDataa, "particleLifeInfiniteLooped", &_RBX->flags, 0x10u) || ParseMemberFlag((const char **)&pDataa, "useBurstMode", &_RBX->flags, 2u) || ParseMemberIntRange((const char **)&pDataa, "particleBurstCount", &_RBX->particleBurstCount) || ParseMemberFloatRange((const char **)&pDataa, "emitterLife", &_RBX->emitterLife, 0, 0) || ParseMemberFloatRange((const char **)&pDataa, "emitterDelay", &_RBX->emitterDelay, 0, 0) || ParseMember_int__ParseInt_((const char **)&pDataa, "randomSeed", &_RBX->randomSeed) || ParseMemberFloatRange((const char **)&pDataa, "spawnRange", &_RBX->spawnRangeSq, 1, 0) || ParseMember_float__ParseFloat_((const char **)&pDataa, "fadeOutMaxDistance", &_RBX->fadeOutMaxDistance) || ParseMember_float__ParseFloat_((const char **)&pDataa, "spawnFrustumCullRadius", &_RBX->spawnFrustumCullRadius) || ParseMemberFlag((const char **)&pDataa, "drawPastFog", &_RBX->flags, 4u) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "soloInstanceMax", &_RBX->soloInstanceMax) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "instanceAction", (unsigned int *)&_RBX->instanceAction) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "instancePool", &_RBX->instancePool) || ParseMemberFlag((const char **)&pDataa, "emitByDistance", &_RBX->flags, 0x200u) || ParseMemberFloatRange((const char **)&pDataa, "emitByDistanceDensity", &_RBX->emitByDistanceDensity, 0, 0) )
-LABEL_60:
-              v9 = pDataa;
-            else
-              v9 = ++pDataa;
-            if ( v9 )
-              goto LABEL_22;
-            break;
-          }
-        }
-      }
-      while ( v19 );
-    }
-    v12 = pParticleSystemDef;
-    v14 = isLoadingFile;
-  }
-  ParseMemberCurveList((const char **)&pDataa, v12, "curveList", (ParticleCurveDef *)&v13[2], 1u, pMemPool, v14, v13->m_type, v12->version);
-  if ( (v13->m_flags & 1) == 0 )
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3a83126f; min
-      vmovss  xmm0, dword ptr [rbx+0Ch]; value
-      vmovaps [rsp+80h+var_20], xmm6
-      vmovaps [rsp+80h+var_30], xmm7
-      vmovss  xmm7, cs:__real@7f7fffff
-      vmovaps xmm2, xmm7; max
-    }
-    *(float *)&_XMM0 = Particle_VerifyValueFloat(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, "particleSpawnRateMin", v12->name, (const char *)&queryFormat.fmt + 3);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3a83126f; min
-      vmovss  dword ptr [rbx+0Ch], xmm0
-      vmovss  xmm0, dword ptr [rbx+10h]; value
-      vmovaps xmm2, xmm7; max
-    }
-    *(float *)&_XMM0 = Particle_VerifyValueFloat(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, "particleSpawnRateMax", v12->name, (const char *)&queryFormat.fmt + 3);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3c888889; min
-      vmovss  dword ptr [rbx+10h], xmm0
-      vmovss  xmm0, dword ptr [rbx+14h]; value
-      vmovaps xmm2, xmm7; max
-    }
-    *(float *)&_XMM0 = Particle_VerifyValueFloat(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, "particleLifeMin", v12->name, (const char *)&queryFormat.fmt + 3);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3c888889; min
-      vmovss  dword ptr [rbx+14h], xmm0
-      vmovss  xmm0, dword ptr [rbx+18h]; value
-      vmovaps xmm2, xmm7; max
-    }
-    *(float *)&_XMM0 = Particle_VerifyValueFloat(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, "particleLifeMax", v12->name, (const char *)&queryFormat.fmt + 3);
-    min = _RBX->particleBurstCount.min;
-    __asm { vmovss  dword ptr [rbx+18h], xmm0 }
-    v38 = Particle_VerifyValueInt(min, 0x80000000, 0x7FFFFFFF, "particleBurstCountMin", v12->name, (const char *)&queryFormat.fmt + 3);
-    max = _RBX->particleBurstCount.max;
-    _RBX->particleBurstCount.min = v38;
-    v40 = Particle_VerifyValueInt(max, 0x80000000, 0x7FFFFFFF, "particleBurstCountMax", v12->name, (const char *)&queryFormat.fmt + 3);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@38d1b717; min
-      vmovss  xmm0, dword ptr [rbx+7Ch]; value
-    }
-    _RBX->particleBurstCount.max = v40;
-    __asm { vmovaps xmm2, xmm7; max }
-    *(float *)&_XMM0 = Particle_VerifyValueFloat(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, "emitByDistanceDensity", v12->name, (const char *)&queryFormat.fmt + 3);
-    __asm
-    {
-      vmovss  xmm1, cs:__real@38d1b717; min
-      vmovss  dword ptr [rbx+7Ch], xmm0
-      vmovss  xmm0, dword ptr [rbx+80h]; value
-      vmovaps xmm2, xmm7; max
-    }
-    *(float *)&_XMM0 = Particle_VerifyValueFloat(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, "emitByDistanceDensity", v12->name, (const char *)&queryFormat.fmt + 3);
-    __asm { vmovaps xmm7, [rsp+80h+var_30] }
-    v48 = _RBX->flags >> 1;
-    __asm { vmovss  dword ptr [rbx+80h], xmm0 }
-    if ( (v48 & 1) != 0 )
-    {
-      v49 = _RBX->particleBurstCount.max;
-      if ( _RBX->particleBurstCount.min > v49 )
-        v49 = _RBX->particleBurstCount.min;
-      if ( v49 < 0 )
-        v49 = 0;
-    }
-    else
-    {
-      if ( !v14 )
-        goto LABEL_78;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx+34h]
-        vmovss  xmm0, dword ptr [rbx+18h]
-        vmaxss  xmm2, xmm1, dword ptr [rbx+30h]
-        vmaxss  xmm3, xmm0, dword ptr [rbx+14h]
-        vmovss  xmm0, dword ptr [rbx+10h]
-        vmaxss  xmm4, xmm0, dword ptr [rbx+0Ch]
-        vxorps  xmm1, xmm1, xmm1
-        vucomiss xmm2, xmm1
-        vcomiss xmm3, xmm2
-        vmulss  xmm2, xmm4, xmm2
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm3, xmm1, xmm2, 2
-        vcvttss2si edx, xmm3
-      }
-      _RBX->particleCountMax = _EDX;
-      v49 = valueOut;
-      if ( !valueOut )
-        goto LABEL_78;
-      if ( (_RBX->flags & 0x200) != 0 )
-        v61 = _EDX <= valueOut;
-      else
-        v61 = valueOut <= _EDX;
-      if ( !v61 )
-        v49 = _EDX;
-    }
-    _RBX->particleCountMax = v49;
-LABEL_78:
-    v64 = Particle_VerifyValueInt(_RBX->particleCountMax, 1, 0x7FFFFFFF, "particleCountMax", v12->name, (const char *)&queryFormat.fmt + 3);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+34h]
-      vmovss  xmm6, cs:__real@43340000
-      vcomiss xmm0, xmm6
-    }
-    _RBX->particleCountMax = v64;
-    if ( !(v62 | v63) )
-    {
-      __asm
-      {
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovq   r8, xmm2
-      }
-      Com_PrintWarning(21, "WARNING: Potential leak due to a large emitter life of %.2f seconds for effect %s | %s\n", _R8, v12->name, (char *)&queryFormat.fmt + 3);
-    }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vcomiss xmm0, xmm6
-      vmovaps xmm6, [rsp+80h+var_20]
-    }
-    if ( !(v62 | v63) )
-    {
-      __asm
-      {
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovq   r8, xmm2
-      }
-      Com_PrintWarning(21, "WARNING: Potential leak due to a large particle life of %.2f seconds for effect %s | %s\n", _R8, v12->name, (char *)&queryFormat.fmt + 3);
-    }
-    if ( _RBX->soloInstanceMax || _RBX->instancePool )
-    {
-      _RBX->flags |= 0x100000u;
-      v12->flags |= 0x1000000u;
-    }
-  }
-  return pDataa;
-}
-
-/*
-==============
-ParticleModuleInitSpawnShapeBox::Parse
-==============
-*/
-char *ParticleModuleInitSpawnShapeBox::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
-{
-  bool v8; 
-  char *v9; 
-  unsigned __int8 **v10; 
-  ParticleStateDef *v11; 
-  void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v21; 
-  __int64 v22; 
-  signed __int64 v23; 
-  int v24; 
-  __int64 v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  char v34; 
-  char *pDataa; 
-  ParticleStateDef *v37; 
-  unsigned __int8 **v38; 
-  float4 valueOut; 
-
-  v8 = isLoadingFile;
-  v9 = (char *)pData;
-  v10 = pMemPool;
-  v11 = pParticleStateDef;
-  _RDI = pBaseModule;
-  v37 = pParticleStateDef;
-  pDataa = (char *)pData;
-  v38 = pMemPool;
-  if ( isLoadingFile )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovups xmmword ptr [rbp+3Fh+valueOut.v], xmm0
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi+50h]
-      vsubps  xmm1, xmm0, xmmword ptr [rdi+40h]
-      vmulps  xmm2, xmm1, cs:__xmm@3f0000003f0000003f0000003f000000
-      vsubps  xmm1, xmm0, xmm2
-      vmovups xmmword ptr [rdi+20h], xmm1
-      vmovups xmmword ptr [rbp+3Fh+valueOut.v], xmm2
-    }
-  }
-  if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5201, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
-    __debugbreak();
-  if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5201, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
-    __debugbreak();
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5201, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
-    __debugbreak();
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5201, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
-    __debugbreak();
-  if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5201, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
-    __debugbreak();
-  if ( isLoadingFile )
-  {
-    memset_0(pBaseModule, 0, 0xC0ui64);
-    initMembersFunc = ParticleModule::GetUpdateData()[24].initMembersFunc;
-    if ( initMembersFunc )
-      initMembersFunc(pBaseModule);
-  }
-  pBaseModule->m_type = PARTICLE_MODULE_INIT_SPAWN_SHAPE_FIRST;
-  if ( isLoadingFile )
-  {
-    v9 = (char *)ParseModuleID(v9, pParticleSystemDef, pBaseModule);
-    pDataa = v9;
-  }
-  if ( v9 )
-  {
-LABEL_25:
-    if ( *v9 )
-    {
-      v21 = s_typeGroupHeaderEnd;
-      v22 = s_typeGroupHeaderEndLength;
-      if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
-        __debugbreak();
-      v23 = v21 - v9;
-      do
-      {
-        v24 = (unsigned __int8)*v9;
-        v25 = v22;
-        v26 = (unsigned __int8)(v9++)[v23];
-        --v22;
-        if ( !v25 )
-          break;
-        if ( v24 != v26 )
-        {
-          v27 = v24 + 32;
-          if ( (unsigned int)(v24 - 65) > 0x19 )
-            v27 = v24;
-          v24 = v27;
-          v28 = v26 + 32;
-          if ( (unsigned int)(v26 - 65) > 0x19 )
-            v28 = v26;
-          if ( v24 != v28 )
-          {
-            if ( ParseMemberFlag((const char **)&pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "dimensions", &valueOut) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "offset", (float4 *)&pBaseModule[4]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "calculationOffset", (float4 *)&pBaseModule[2]) || ParseMember_unsigned_char__ParseByte_((const char **)&pDataa, "spawnAxes", (unsigned __int8 *)&pBaseModule[1]) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "normalAxis", (unsigned int *)((char *)&pBaseModule[1] + 2)) || ParseMemberFlag((const char **)&pDataa, "useWorldSpace", &pBaseModule->m_flags, 0x80u) || ParseMember_bool__ParseBool_((const char **)&pDataa, "useBeamInfo", (bool *)&pBaseModule[6]) || ParseMemberFlag((const char **)&pDataa, "onlySpawnOnSurface", (unsigned int *)((char *)&pBaseModule[1] + 1), 1u) || ParseMemberFlag((const char **)&pDataa, "useCurveValues", (unsigned int *)((char *)&pBaseModule[1] + 1), 2u) || ParseMemberFlag((const char **)&pDataa, "useModifierScale", (unsigned int *)((char *)&pBaseModule[1] + 1), 4u) || ParseMemberFlag((const char **)&pDataa, "useDeterministicSpawn", (unsigned int *)((char *)&pBaseModule[1] + 1), 8u) )
-              v9 = pDataa;
-            else
-              v9 = ++pDataa;
-            if ( v9 )
-              goto LABEL_25;
-            break;
-          }
-        }
-      }
-      while ( v24 );
-    }
-    v11 = v37;
-    v8 = isLoadingFile;
-    v10 = v38;
-  }
-  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&pBaseModule[12], 6u, v10, v8, pBaseModule->m_type, pParticleSystemDef->version);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdi+20h]
-    vaddps  xmm1, xmm0, xmmword ptr [rbp+3Fh+valueOut.v]
-    vxorps  xmm0, xmm0, xmm0
-    vsubps  xmm2, xmm0, xmmword ptr [rbp+3Fh+valueOut.v]
-    vaddps  xmm0, xmm2, xmmword ptr [rdi+20h]
-  }
-  *((_BYTE *)&pBaseModule[1].m_type + 3) = 0;
-  __asm
-  {
-    vmovups xmmword ptr [rdi+40h], xmm0
-    vmovups xmmword ptr [rdi+50h], xmm1
-  }
-  *(double *)&_XMM0 = ParticleModuleInitSpawnShapeBox::GetVolumeSize((ParticleModuleInitSpawnShapeBox *)pBaseModule, &valueOut);
-  *(float *)&_XMM0 = cbrtf(*(float *)&_XMM0);
-  v34 = ~LOBYTE(pBaseModule->m_flags);
-  __asm { vmovss  dword ptr [rdi+0Ch], xmm0 }
-  if ( (v34 & 1) != 0 )
-  {
-    v11->flags |= 4ui64;
-  }
-  else if ( !v8 )
-  {
-    v11->flags &= ~4ui64;
-  }
-  return pDataa;
-}
-
-/*
-==============
-ParticleModuleInitSpawnShapeCylinder::Parse
-==============
-*/
-char *ParticleModuleInitSpawnShapeCylinder::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
-{
-  ParticleStateDef *v10; 
-  char *v11; 
-  ParticleSystemDef *v14; 
-  bool v16; 
-  void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v19; 
-  __int64 v20; 
-  signed __int64 v21; 
-  int v22; 
-  __int64 v23; 
-  int v24; 
-  int v25; 
-  int v26; 
-  char v32; 
-  const float4 *v34; 
-  vector3 *v40; 
-  char *pDataa; 
-  float valueOut; 
-  ParticleStateDef *v61; 
-  ParticleSystemDef *v62; 
-  unsigned __int8 **v63; 
-  void *retaddr; 
-
-  _R11 = &retaddr;
-  v10 = pParticleStateDef;
-  v11 = (char *)pData;
-  _RDI = pBaseModule;
-  v14 = pParticleSystemDef;
-  __asm { vmovaps xmmword ptr [r11-58h], xmm7 }
-  v61 = pParticleStateDef;
-  v62 = pParticleSystemDef;
-  pDataa = (char *)pData;
-  v63 = pMemPool;
-  __asm
-  {
-    vbroadcastss xmm7, dword ptr [rdi+1Ch]
-    vmovss  [rbp+3Fh+valueOut], xmm7
-  }
-  if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5246, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
-    __debugbreak();
-  if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5246, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
-    __debugbreak();
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5246, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
-    __debugbreak();
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5246, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
-    __debugbreak();
-  v16 = isLoadingFile;
-  if ( isLoadingFile )
-  {
-    memset_0(pBaseModule, 0, 0xA0ui64);
-    initMembersFunc = ParticleModule::GetUpdateData()[25].initMembersFunc;
-    if ( initMembersFunc )
-      initMembersFunc(pBaseModule);
-  }
-  pBaseModule->m_type = PARTICLE_MODULE_INIT_SPAWN_SHAPE_CYLINDER;
-  if ( isLoadingFile )
-  {
-    v11 = (char *)ParseModuleID(v11, v14, pBaseModule);
-    pDataa = v11;
-  }
-  __asm { vmovaps [rsp+0D0h+var_48+8], xmm6 }
-  if ( v11 )
-  {
-    __asm { vmovss  xmm6, cs:__real@3f000000 }
-    while ( 2 )
-    {
-      if ( *v11 )
-      {
-        v19 = s_typeGroupHeaderEnd;
-        v20 = s_typeGroupHeaderEndLength;
-        if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
-          __debugbreak();
-        v21 = v19 - v11;
-        while ( 1 )
-        {
-          v22 = (unsigned __int8)*v11;
-          v23 = v20;
-          v24 = (unsigned __int8)(v11++)[v21];
-          --v20;
-          if ( !v23 )
-            goto LABEL_39;
-          if ( v22 != v24 )
-          {
-            v25 = v22 + 32;
-            if ( (unsigned int)(v22 - 65) > 0x19 )
-              v25 = v22;
-            v22 = v25;
-            v26 = v24 + 32;
-            if ( (unsigned int)(v24 - 65) > 0x19 )
-              v26 = v24;
-            if ( v22 != v26 )
-              break;
-          }
-          if ( !v22 )
-            goto LABEL_39;
-        }
-        if ( !ParseMemberFlag((const char **)&pDataa, "disable", &pBaseModule->m_flags, 1u) )
-        {
-          if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "height", (float *)&pBaseModule[6].m_flags) )
-          {
-            __asm
-            {
-              vmulss  xmm1, xmm6, dword ptr [rdi+34h]
-              vmovss  dword ptr [rdi+34h], xmm1
-            }
-          }
-          else if ( !ParseMemberFloatRange((const char **)&pDataa, "radius", (ParticleFloatRange *)&pBaseModule[7], 0, 0) && !ParseMember_float4__ParseVector3_((const char **)&pDataa, "offset", (float4 *)&pBaseModule[4]) && !ParseMember_float4__ParseVector3_((const char **)&pDataa, "calculationOffset", (float4 *)&pBaseModule[2]) && !ParseMember_unsigned_char__ParseByte_((const char **)&pDataa, "spawnAxes", (unsigned __int8 *)&pBaseModule[1]) && !ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "normalAxis", (unsigned int *)((char *)&pBaseModule[1] + 2)) && !ParseMemberFlag((const char **)&pDataa, "useWorldSpace", &pBaseModule->m_flags, 0x80u) && !ParseMember_float4__ParseVector3AnglesToQuat_((const char **)&pDataa, "axis", (float4 *)&pBaseModule[8]) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "rotateCalculatedOffset", (bool *)&pBaseModule[6] + 1) && !ParseMemberFlag((const char **)&pDataa, "useCurveValues", (unsigned int *)((char *)&pBaseModule[1] + 1), 2u) && !ParseMemberFlag((const char **)&pDataa, "useModifierScale", (unsigned int *)((char *)&pBaseModule[1] + 1), 4u) && !ParseMemberFlag((const char **)&pDataa, "useDeterministicSpawn", (unsigned int *)((char *)&pBaseModule[1] + 1), 8u) && !ParseMemberFlag((const char **)&pDataa, "useUniformDistribution", (unsigned int *)((char *)&pBaseModule[1] + 1), 0x10u) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "spawnRangeMax", &valueOut) )
-          {
-            v11 = ++pDataa;
-LABEL_38:
-            if ( v11 )
-              continue;
-            break;
-          }
-        }
-        v11 = pDataa;
-        goto LABEL_38;
-      }
-      break;
-    }
-LABEL_39:
-    __asm { vmovss  xmm7, [rbp+3Fh+valueOut] }
-    v10 = v61;
-    v16 = isLoadingFile;
-    v14 = v62;
-  }
-  ParseMemberCurveList((const char **)&pDataa, v14, "curveList", (ParticleCurveDef *)&pBaseModule[10], 5u, v63, v16, pBaseModule->m_type, v14->version);
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rdi+3Ch]; radiusMax
-    vmovss  xmm2, dword ptr [rdi+38h]; radiusMin
-    vsubss  xmm0, xmm3, xmm2
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3a83126f
-  }
-  *((_BYTE *)&pBaseModule[1].m_type + 3) = 1;
-  if ( v32 )
-    HIBYTE(pBaseModule[1].m_type) |= 1u;
-  __asm { vmovss  xmm1, dword ptr [rdi+34h]; halfHeight }
-  *(double *)&_XMM0 = ParticleModuleInitSpawnShapeCylinder::GetVolumeSize((ParticleModuleInitSpawnShapeCylinder *)pBaseModule, *(const float *)&_XMM1, *(const float *)&_XMM2, *(const float *)&_XMM3);
-  *(float *)&_XMM0 = cbrtf(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  dword ptr [rdi+0Ch], xmm0
-    vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-    vmovups xmm1, xmmword ptr cs:?g_equalsEpsilon@@3Ufloat4@@B.v; float4 const g_equalsEpsilon
-    vandnps xmm2, xmm0, xmmword ptr [rdi+40h]
-    vcmpltps xmm0, xmm1, xmm2
-    vmovmskps ecx, xmm0
-  }
-  v40 = (vector3 *)(_ECX & 0xF);
-  LOBYTE(pBaseModule[6].m_type) = (_DWORD)v40 != 0;
-  if ( (_DWORD)v40 && HIBYTE(pBaseModule[6].m_type) )
-  {
-    __asm { vmovups xmm0, xmmword ptr [rdi+40h] }
-    Float4UnitQuatToAxis(v40, v34);
-    __asm
-    {
-      vmovups xmm3, xmmword ptr [rdi+10h]
-      vshufps xmm4, xmm3, xmm3, 0AAh ; 'ª'
-      vshufps xmm5, xmm3, xmm3, 55h ; 'U'
-      vmulps  xmm1, xmm1, xmm5
-      vshufps xmm6, xmm3, xmm3, 0
-      vmulps  xmm2, xmm2, xmm4
-      vaddps  xmm3, xmm1, xmm2
-      vmulps  xmm0, xmm0, xmm6
-      vaddps  xmm1, xmm0, xmm3
-      vmovups xmmword ptr [rdi+10h], xmm1
-    }
-  }
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rdi+10h]
-    vmovaps xmm6, [rsp+0D0h+var_48+8]
-    vmovaps xmm0, xmm7
-    vmovaps xmm7, [rsp+0D0h+var_58+8]
-    vshufps xmm0, xmm0, xmm0, 0
-    vshufps xmm0, xmm1, xmm0, 0FAh ; 'ú'
-    vshufps xmm1, xmm1, xmm0, 84h ; '„'
-    vmovups xmmword ptr [rdi+10h], xmm1
-  }
-  if ( (pBaseModule->m_flags & 1) != 0 )
-  {
-    if ( !v16 )
-      v10->flags &= ~4ui64;
-  }
-  else
-  {
-    v10->flags |= 4ui64;
-  }
-  return pDataa;
-}
-
-/*
-==============
-ParticleModuleInitSpawnShapeEllipsoid::Parse
-==============
-*/
-char *ParticleModuleInitSpawnShapeEllipsoid::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
-{
   char *v7; 
-  ParticleStateDef *v9; 
+  ParticleSystemDef *v10; 
+  ParticleModule *v11; 
   bool v12; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
   const char *v14; 
@@ -6701,38 +5812,53 @@ char *ParticleModuleInitSpawnShapeEllipsoid::Parse(ParticleSystemDef *pParticleS
   int v19; 
   int v20; 
   int v21; 
-  char v30; 
-  char v31; 
+  float v22; 
+  int min; 
+  int v24; 
+  int max; 
+  int v26; 
+  float v27; 
+  float v28; 
+  unsigned int v29; 
+  int v30; 
+  unsigned int v39; 
+  bool v40; 
+  unsigned int v41; 
+  float v42; 
+  float v43; 
+  unsigned int valueOut; 
   char *pDataa; 
-  ParticleStateDef *v34; 
 
-  v7 = (char *)pData;
-  _RSI = pBaseModule;
-  v9 = pParticleStateDef;
   pDataa = (char *)pData;
-  v34 = pParticleStateDef;
-  if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5313, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
+  v7 = (char *)pData;
+  valueOut = 0;
+  v10 = pParticleSystemDef;
+  if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5078, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
     __debugbreak();
-  if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5313, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
+  if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5078, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5313, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
+  if ( !pParticleStateDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5078, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
     __debugbreak();
-  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5313, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5078, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
-  if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5313, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
+  v11 = pBaseModule;
+  if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5078, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
   v12 = isLoadingFile;
   if ( isLoadingFile )
   {
-    memset_0(pBaseModule, 0, 0xB0ui64);
-    initMembersFunc = ParticleModule::GetUpdateData()[26].initMembersFunc;
+    *v11 = 0i64;
+    v11[1] = 0i64;
+    v11[2] = 0i64;
+    v11[3] = 0i64;
+    initMembersFunc = ParticleModule::GetUpdateData()[23].initMembersFunc;
     if ( initMembersFunc )
-      initMembersFunc(pBaseModule);
+      initMembersFunc(v11);
   }
-  pBaseModule->m_type = PARTICLE_MODULE_INIT_SPAWN_SHAPE_ELLIPSOID;
-  if ( isLoadingFile )
+  v11->m_type = PARTICLE_MODULE_INIT_SPAWN;
+  if ( v12 )
   {
-    v7 = (char *)ParseModuleID(v7, pParticleSystemDef, pBaseModule);
+    v7 = (char *)ParseModuleID(v7, v10, v11);
     pDataa = v7;
   }
   if ( v7 )
@@ -6764,7 +5890,12 @@ LABEL_22:
             v21 = v19;
           if ( v17 != v21 )
           {
-            if ( ParseMemberFlag((const char **)&pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "radiusMin", (float4 *)&pBaseModule[6]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "radiusMax", (float4 *)&pBaseModule[8]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "offset", (float4 *)&pBaseModule[4]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "calculationOffset", (float4 *)&pBaseModule[2]) || ParseMember_unsigned_char__ParseByte_((const char **)&pDataa, "spawnAxes", (unsigned __int8 *)&pBaseModule[1]) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "normalAxis", (unsigned int *)((char *)&pBaseModule[1] + 2)) || ParseMemberFlag((const char **)&pDataa, "useWorldSpace", &pBaseModule->m_flags, 0x80u) || ParseMemberFlag((const char **)&pDataa, "useCurveValues", (unsigned int *)((char *)&pBaseModule[1] + 1), 2u) || ParseMemberFlag((const char **)&pDataa, "useModifierScale", (unsigned int *)((char *)&pBaseModule[1] + 1), 4u) || ParseMemberFlag((const char **)&pDataa, "useDeterministicSpawn", (unsigned int *)((char *)&pBaseModule[1] + 1), 8u) )
+            if ( ParseMemberFlag((const char **)&pDataa, "disable", &v11->m_flags, 1u) )
+              goto LABEL_60;
+            if ( (v11->m_flags & 1) != 0 )
+              break;
+            if ( ParseMemberFloatRange((const char **)&pDataa, "particleSpawnRate", &pParticleEmitterDef->particleSpawnRate, 0, 0) || ParseMemberFloatRange((const char **)&pDataa, "particleSpawnShapeRange", &pParticleEmitterDef->particleSpawnShapeRange, 0, 0) || ParseMemberFloatRange((const char **)&pDataa, "particleLife", &pParticleEmitterDef->particleLife, 0, 0) || ParseMemberFloatRange((const char **)&pDataa, "particleDelay", &pParticleEmitterDef->particleDelay, 0, 0) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "particleCountMax", &valueOut) || ParseMemberFlag((const char **)&pDataa, "particleLifeInfinite", &pParticleEmitterDef->flags, 8u) || ParseMemberFlag((const char **)&pDataa, "particleLifeInfiniteLooped", &pParticleEmitterDef->flags, 0x10u) || ParseMemberFlag((const char **)&pDataa, "useBurstMode", &pParticleEmitterDef->flags, 2u) || ParseMemberIntRange((const char **)&pDataa, "particleBurstCount", &pParticleEmitterDef->particleBurstCount) || ParseMemberFloatRange((const char **)&pDataa, "emitterLife", &pParticleEmitterDef->emitterLife, 0, 0) || ParseMemberFloatRange((const char **)&pDataa, "emitterDelay", &pParticleEmitterDef->emitterDelay, 0, 0) || ParseMember_int__ParseInt_((const char **)&pDataa, "randomSeed", &pParticleEmitterDef->randomSeed) || ParseMemberFloatRange((const char **)&pDataa, "spawnRange", &pParticleEmitterDef->spawnRangeSq, 1, 0) || ParseMember_float__ParseFloat_((const char **)&pDataa, "fadeOutMaxDistance", &pParticleEmitterDef->fadeOutMaxDistance) || ParseMember_float__ParseFloat_((const char **)&pDataa, "spawnFrustumCullRadius", &pParticleEmitterDef->spawnFrustumCullRadius) || ParseMemberFlag((const char **)&pDataa, "drawPastFog", &pParticleEmitterDef->flags, 4u) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "soloInstanceMax", &pParticleEmitterDef->soloInstanceMax) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "instanceAction", (unsigned int *)&pParticleEmitterDef->instanceAction) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "instancePool", &pParticleEmitterDef->instancePool) || ParseMemberFlag((const char **)&pDataa, "emitByDistance", &pParticleEmitterDef->flags, 0x200u) || ParseMemberFloatRange((const char **)&pDataa, "emitByDistanceDensity", &pParticleEmitterDef->emitByDistanceDensity, 0, 0) )
+LABEL_60:
               v7 = pDataa;
             else
               v7 = ++pDataa;
@@ -6776,36 +5907,499 @@ LABEL_22:
       }
       while ( v17 );
     }
-    v9 = v34;
+    v10 = pParticleSystemDef;
     v12 = isLoadingFile;
   }
-  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&pBaseModule[10], 6u, pMemPool, v12, pBaseModule->m_type, pParticleSystemDef->version);
-  _R8 = (const float4 *)&pBaseModule[8];
-  *((_BYTE *)&pBaseModule[1].m_type + 3) = 2;
+  ParseMemberCurveList((const char **)&pDataa, v10, "curveList", (ParticleCurveDef *)&v11[2], 1u, pMemPool, v12, v11->m_type, v10->version);
+  if ( (v11->m_flags & 1) == 0 )
+  {
+    pParticleEmitterDef->particleSpawnRate.min = Particle_VerifyValueFloat(pParticleEmitterDef->particleSpawnRate.min, 0.001, 3.4028235e38, "particleSpawnRateMin", v10->name, (const char *)&queryFormat.fmt + 3);
+    pParticleEmitterDef->particleSpawnRate.max = Particle_VerifyValueFloat(pParticleEmitterDef->particleSpawnRate.max, 0.001, 3.4028235e38, "particleSpawnRateMax", v10->name, (const char *)&queryFormat.fmt + 3);
+    pParticleEmitterDef->particleLife.min = Particle_VerifyValueFloat(pParticleEmitterDef->particleLife.min, 0.016666668, 3.4028235e38, "particleLifeMin", v10->name, (const char *)&queryFormat.fmt + 3);
+    v22 = Particle_VerifyValueFloat(pParticleEmitterDef->particleLife.max, 0.016666668, 3.4028235e38, "particleLifeMax", v10->name, (const char *)&queryFormat.fmt + 3);
+    min = pParticleEmitterDef->particleBurstCount.min;
+    pParticleEmitterDef->particleLife.max = v22;
+    v24 = Particle_VerifyValueInt(min, 0x80000000, 0x7FFFFFFF, "particleBurstCountMin", v10->name, (const char *)&queryFormat.fmt + 3);
+    max = pParticleEmitterDef->particleBurstCount.max;
+    pParticleEmitterDef->particleBurstCount.min = v24;
+    v26 = Particle_VerifyValueInt(max, 0x80000000, 0x7FFFFFFF, "particleBurstCountMax", v10->name, (const char *)&queryFormat.fmt + 3);
+    v27 = pParticleEmitterDef->emitByDistanceDensity.min;
+    pParticleEmitterDef->particleBurstCount.max = v26;
+    pParticleEmitterDef->emitByDistanceDensity.min = Particle_VerifyValueFloat(v27, 0.000099999997, 3.4028235e38, "emitByDistanceDensity", v10->name, (const char *)&queryFormat.fmt + 3);
+    v28 = Particle_VerifyValueFloat(pParticleEmitterDef->emitByDistanceDensity.max, 0.000099999997, 3.4028235e38, "emitByDistanceDensity", v10->name, (const char *)&queryFormat.fmt + 3);
+    v29 = pParticleEmitterDef->flags >> 1;
+    pParticleEmitterDef->emitByDistanceDensity.max = v28;
+    if ( (v29 & 1) != 0 )
+    {
+      v30 = pParticleEmitterDef->particleBurstCount.max;
+      if ( pParticleEmitterDef->particleBurstCount.min > v30 )
+        v30 = pParticleEmitterDef->particleBurstCount.min;
+      if ( v30 < 0 )
+        v30 = 0;
+    }
+    else
+    {
+      if ( !v12 )
+        goto LABEL_78;
+      _XMM1 = LODWORD(pParticleEmitterDef->emitterLife.max);
+      _XMM0 = LODWORD(pParticleEmitterDef->particleLife.max);
+      __asm
+      {
+        vmaxss  xmm2, xmm1, dword ptr [rbx+30h]
+        vmaxss  xmm3, xmm0, dword ptr [rbx+14h]
+      }
+      _XMM0 = LODWORD(pParticleEmitterDef->particleSpawnRate.max);
+      __asm { vmaxss  xmm4, xmm0, dword ptr [rbx+0Ch] }
+      _XMM1 = 0i64;
+      __asm { vroundss xmm3, xmm1, xmm2, 2 }
+      v39 = (int)*(float *)&_XMM3;
+      pParticleEmitterDef->particleCountMax = (int)*(float *)&_XMM3;
+      v30 = valueOut;
+      if ( !valueOut )
+        goto LABEL_78;
+      if ( (pParticleEmitterDef->flags & 0x200) != 0 )
+        v40 = v39 <= valueOut;
+      else
+        v40 = valueOut <= v39;
+      if ( !v40 )
+        v30 = (int)*(float *)&_XMM3;
+    }
+    pParticleEmitterDef->particleCountMax = v30;
+LABEL_78:
+    v41 = Particle_VerifyValueInt(pParticleEmitterDef->particleCountMax, 1, 0x7FFFFFFF, "particleCountMax", v10->name, (const char *)&queryFormat.fmt + 3);
+    v42 = pParticleEmitterDef->emitterLife.max;
+    pParticleEmitterDef->particleCountMax = v41;
+    if ( v42 > 180.0 )
+      Com_PrintWarning(21, "WARNING: Potential leak due to a large emitter life of %.2f seconds for effect %s | %s\n", v42, v10->name, (char *)&queryFormat.fmt + 3);
+    v43 = pParticleEmitterDef->particleLife.max;
+    if ( v43 > 180.0 )
+      Com_PrintWarning(21, "WARNING: Potential leak due to a large particle life of %.2f seconds for effect %s | %s\n", v43, v10->name, (char *)&queryFormat.fmt + 3);
+    if ( pParticleEmitterDef->soloInstanceMax || pParticleEmitterDef->instancePool )
+    {
+      pParticleEmitterDef->flags |= 0x100000u;
+      v10->flags |= 0x1000000u;
+    }
+  }
+  return pDataa;
+}
+
+/*
+==============
+ParticleModuleInitSpawnShapeBox::Parse
+==============
+*/
+char *ParticleModuleInitSpawnShapeBox::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
+{
+  bool v7; 
+  char *v8; 
+  unsigned __int8 **v9; 
+  ParticleStateDef *v10; 
+  __m128 v13; 
+  __m128 v14; 
+  void (__fastcall *initMembersFunc)(ParticleModule *); 
+  const char *v16; 
+  __int64 v17; 
+  signed __int64 v18; 
+  int v19; 
+  __int64 v20; 
+  int v21; 
+  int v22; 
+  int v23; 
+  __m128 v24; 
+  __m128 v25; 
+  char v26; 
+  char *pDataa; 
+  ParticleStateDef *v29; 
+  unsigned __int8 **v30; 
+  float4 valueOut; 
+
+  v7 = isLoadingFile;
+  v8 = (char *)pData;
+  v9 = pMemPool;
+  v10 = pParticleStateDef;
+  v29 = pParticleStateDef;
+  pDataa = (char *)pData;
+  v30 = pMemPool;
+  if ( isLoadingFile )
+  {
+    valueOut.v = 0i64;
+  }
+  else
+  {
+    v13 = *(__m128 *)&pBaseModule[10].m_type;
+    v14 = _mm128_mul_ps(_mm128_sub_ps(v13, *(__m128 *)&pBaseModule[8].m_type), (__m128)_xmm);
+    *(__m128 *)&pBaseModule[4].m_type = _mm128_sub_ps(v13, v14);
+    valueOut.v = v14;
+  }
+  if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5201, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
+    __debugbreak();
+  if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5201, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
+    __debugbreak();
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5201, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
+    __debugbreak();
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5201, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+    __debugbreak();
+  if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5201, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
+    __debugbreak();
+  if ( isLoadingFile )
+  {
+    memset_0(pBaseModule, 0, 0xC0ui64);
+    initMembersFunc = ParticleModule::GetUpdateData()[24].initMembersFunc;
+    if ( initMembersFunc )
+      initMembersFunc(pBaseModule);
+  }
+  pBaseModule->m_type = PARTICLE_MODULE_INIT_SPAWN_SHAPE_FIRST;
+  if ( isLoadingFile )
+  {
+    v8 = (char *)ParseModuleID(v8, pParticleSystemDef, pBaseModule);
+    pDataa = v8;
+  }
+  if ( v8 )
+  {
+LABEL_25:
+    if ( *v8 )
+    {
+      v16 = s_typeGroupHeaderEnd;
+      v17 = s_typeGroupHeaderEndLength;
+      if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
+        __debugbreak();
+      v18 = v16 - v8;
+      do
+      {
+        v19 = (unsigned __int8)*v8;
+        v20 = v17;
+        v21 = (unsigned __int8)(v8++)[v18];
+        --v17;
+        if ( !v20 )
+          break;
+        if ( v19 != v21 )
+        {
+          v22 = v19 + 32;
+          if ( (unsigned int)(v19 - 65) > 0x19 )
+            v22 = v19;
+          v19 = v22;
+          v23 = v21 + 32;
+          if ( (unsigned int)(v21 - 65) > 0x19 )
+            v23 = v21;
+          if ( v19 != v23 )
+          {
+            if ( ParseMemberFlag((const char **)&pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "dimensions", &valueOut) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "offset", (float4 *)&pBaseModule[4]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "calculationOffset", (float4 *)&pBaseModule[2]) || ParseMember_unsigned_char__ParseByte_((const char **)&pDataa, "spawnAxes", (unsigned __int8 *)&pBaseModule[1]) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "normalAxis", (unsigned int *)((char *)&pBaseModule[1] + 2)) || ParseMemberFlag((const char **)&pDataa, "useWorldSpace", &pBaseModule->m_flags, 0x80u) || ParseMember_bool__ParseBool_((const char **)&pDataa, "useBeamInfo", (bool *)&pBaseModule[6]) || ParseMemberFlag((const char **)&pDataa, "onlySpawnOnSurface", (unsigned int *)((char *)&pBaseModule[1] + 1), 1u) || ParseMemberFlag((const char **)&pDataa, "useCurveValues", (unsigned int *)((char *)&pBaseModule[1] + 1), 2u) || ParseMemberFlag((const char **)&pDataa, "useModifierScale", (unsigned int *)((char *)&pBaseModule[1] + 1), 4u) || ParseMemberFlag((const char **)&pDataa, "useDeterministicSpawn", (unsigned int *)((char *)&pBaseModule[1] + 1), 8u) )
+              v8 = pDataa;
+            else
+              v8 = ++pDataa;
+            if ( v8 )
+              goto LABEL_25;
+            break;
+          }
+        }
+      }
+      while ( v19 );
+    }
+    v10 = v29;
+    v7 = isLoadingFile;
+    v9 = v30;
+  }
+  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&pBaseModule[12], 6u, v9, v7, pBaseModule->m_type, pParticleSystemDef->version);
+  v24 = _mm128_add_ps(*(__m128 *)&pBaseModule[4].m_type, valueOut.v);
+  v25 = _mm128_add_ps(_mm128_sub_ps((__m128)0i64, valueOut.v), *(__m128 *)&pBaseModule[4].m_type);
+  *((_BYTE *)&pBaseModule[1].m_type + 3) = 0;
+  *(__m128 *)&pBaseModule[8].m_type = v25;
+  *(__m128 *)&pBaseModule[10].m_type = v24;
+  *(double *)v25.m128_u64 = ParticleModuleInitSpawnShapeBox::GetVolumeSize((ParticleModuleInitSpawnShapeBox *)pBaseModule, &valueOut);
+  v25.m128_f32[0] = cbrtf(v25.m128_f32[0]);
+  v26 = ~LOBYTE(pBaseModule->m_flags);
+  *(float *)&pBaseModule[1].m_flags = v25.m128_f32[0];
+  if ( (v26 & 1) != 0 )
+  {
+    v10->flags |= 4ui64;
+  }
+  else if ( !v7 )
+  {
+    v10->flags &= ~4ui64;
+  }
+  return pDataa;
+}
+
+/*
+==============
+ParticleModuleInitSpawnShapeCylinder::Parse
+==============
+*/
+char *ParticleModuleInitSpawnShapeCylinder::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
+{
+  ParticleStateDef *v7; 
+  char *v8; 
+  ParticleSystemDef *v11; 
+  bool v13; 
+  void (__fastcall *initMembersFunc)(ParticleModule *); 
+  const char *v15; 
+  __int64 v16; 
+  signed __int64 v17; 
+  int v18; 
+  __int64 v19; 
+  int v20; 
+  int v21; 
+  int v22; 
+  float v23; 
+  float v24; 
+  double VolumeSize; 
+  const float4 *v26; 
+  vector3 *v32; 
+  __m128 v33; 
+  char *pDataa; 
+  float valueOut; 
+  ParticleStateDef *v37; 
+  ParticleSystemDef *v38; 
+  unsigned __int8 **v39; 
+
+  v7 = pParticleStateDef;
+  v8 = (char *)pData;
+  _RDI = pBaseModule;
+  v11 = pParticleSystemDef;
+  v37 = pParticleStateDef;
+  v38 = pParticleSystemDef;
+  pDataa = (char *)pData;
+  v39 = pMemPool;
+  __asm { vbroadcastss xmm7, dword ptr [rdi+1Ch] }
+  valueOut = _XMM7.m128_f32[0];
+  if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5246, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
+    __debugbreak();
+  if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5246, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
+    __debugbreak();
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5246, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
+    __debugbreak();
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5246, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+    __debugbreak();
+  v13 = isLoadingFile;
+  if ( isLoadingFile )
+  {
+    memset_0(pBaseModule, 0, 0xA0ui64);
+    initMembersFunc = ParticleModule::GetUpdateData()[25].initMembersFunc;
+    if ( initMembersFunc )
+      initMembersFunc(pBaseModule);
+  }
+  pBaseModule->m_type = PARTICLE_MODULE_INIT_SPAWN_SHAPE_CYLINDER;
+  if ( isLoadingFile )
+  {
+    v8 = (char *)ParseModuleID(v8, v11, pBaseModule);
+    pDataa = v8;
+  }
+  if ( v8 )
+  {
+    while ( 2 )
+    {
+      if ( *v8 )
+      {
+        v15 = s_typeGroupHeaderEnd;
+        v16 = s_typeGroupHeaderEndLength;
+        if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
+          __debugbreak();
+        v17 = v15 - v8;
+        while ( 1 )
+        {
+          v18 = (unsigned __int8)*v8;
+          v19 = v16;
+          v20 = (unsigned __int8)(v8++)[v17];
+          --v16;
+          if ( !v19 )
+            goto LABEL_38;
+          if ( v18 != v20 )
+          {
+            v21 = v18 + 32;
+            if ( (unsigned int)(v18 - 65) > 0x19 )
+              v21 = v18;
+            v18 = v21;
+            v22 = v20 + 32;
+            if ( (unsigned int)(v20 - 65) > 0x19 )
+              v22 = v20;
+            if ( v18 != v22 )
+              break;
+          }
+          if ( !v18 )
+            goto LABEL_38;
+        }
+        if ( !ParseMemberFlag((const char **)&pDataa, "disable", &pBaseModule->m_flags, 1u) )
+        {
+          if ( ParseMember_float__ParseFloat_((const char **)&pDataa, "height", (float *)&pBaseModule[6].m_flags) )
+          {
+            *(float *)&pBaseModule[6].m_flags = 0.5 * *(float *)&pBaseModule[6].m_flags;
+          }
+          else if ( !ParseMemberFloatRange((const char **)&pDataa, "radius", (ParticleFloatRange *)&pBaseModule[7], 0, 0) && !ParseMember_float4__ParseVector3_((const char **)&pDataa, "offset", (float4 *)&pBaseModule[4]) && !ParseMember_float4__ParseVector3_((const char **)&pDataa, "calculationOffset", (float4 *)&pBaseModule[2]) && !ParseMember_unsigned_char__ParseByte_((const char **)&pDataa, "spawnAxes", (unsigned __int8 *)&pBaseModule[1]) && !ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "normalAxis", (unsigned int *)((char *)&pBaseModule[1] + 2)) && !ParseMemberFlag((const char **)&pDataa, "useWorldSpace", &pBaseModule->m_flags, 0x80u) && !ParseMember_float4__ParseVector3AnglesToQuat_((const char **)&pDataa, "axis", (float4 *)&pBaseModule[8]) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "rotateCalculatedOffset", (bool *)&pBaseModule[6] + 1) && !ParseMemberFlag((const char **)&pDataa, "useCurveValues", (unsigned int *)((char *)&pBaseModule[1] + 1), 2u) && !ParseMemberFlag((const char **)&pDataa, "useModifierScale", (unsigned int *)((char *)&pBaseModule[1] + 1), 4u) && !ParseMemberFlag((const char **)&pDataa, "useDeterministicSpawn", (unsigned int *)((char *)&pBaseModule[1] + 1), 8u) && !ParseMemberFlag((const char **)&pDataa, "useUniformDistribution", (unsigned int *)((char *)&pBaseModule[1] + 1), 0x10u) && !ParseMember_float__ParseFloat_((const char **)&pDataa, "spawnRangeMax", &valueOut) )
+          {
+            v8 = ++pDataa;
+LABEL_37:
+            if ( v8 )
+              continue;
+            break;
+          }
+        }
+        v8 = pDataa;
+        goto LABEL_37;
+      }
+      break;
+    }
+LABEL_38:
+    _XMM7 = (__m128)LODWORD(valueOut);
+    v7 = v37;
+    v13 = isLoadingFile;
+    v11 = v38;
+  }
+  ParseMemberCurveList((const char **)&pDataa, v11, "curveList", (ParticleCurveDef *)&pBaseModule[10], 5u, v39, v13, pBaseModule->m_type, v11->version);
+  v23 = *(float *)&pBaseModule[7].m_flags;
+  v24 = *(float *)&pBaseModule[7].m_type;
+  *((_BYTE *)&pBaseModule[1].m_type + 3) = 1;
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v23 - v24) & _xmm) < 0.001 )
+    HIBYTE(pBaseModule[1].m_type) |= 1u;
+  VolumeSize = ParticleModuleInitSpawnShapeCylinder::GetVolumeSize((ParticleModuleInitSpawnShapeCylinder *)pBaseModule, *(const float *)&pBaseModule[6].m_flags, v24, v23);
+  *(float *)&pBaseModule[1].m_flags = cbrtf(*(float *)&VolumeSize);
+  _XMM0 = g_negativeZero.v;
+  _XMM1 = g_equalsEpsilon.v;
   __asm
   {
-    vmovups xmm0, xmmword ptr [r8]
-    vsubps  xmm1, xmm0, xmmword ptr [rdx]
-    vmulps  xmm2, xmm1, xmm1
+    vandnps xmm2, xmm0, xmmword ptr [rdi+40h]
+    vcmpltps xmm0, xmm1, xmm2
+    vmovmskps ecx, xmm0
+  }
+  v32 = (vector3 *)(_ECX & 0xF);
+  LOBYTE(pBaseModule[6].m_type) = (_DWORD)v32 != 0;
+  if ( (_DWORD)v32 && HIBYTE(pBaseModule[6].m_type) )
+  {
+    v33 = *(__m128 *)&pBaseModule[8].m_type;
+    Float4UnitQuatToAxis(v32, v26);
+    *(__m128 *)&pBaseModule[2].m_type = _mm128_add_ps(_mm128_mul_ps(v33, _mm_shuffle_ps(*(__m128 *)&pBaseModule[2].m_type, *(__m128 *)&pBaseModule[2].m_type, 0)), _mm128_add_ps(_mm128_mul_ps(_XMM1, _mm_shuffle_ps(*(__m128 *)&pBaseModule[2].m_type, *(__m128 *)&pBaseModule[2].m_type, 85)), _mm128_mul_ps(_XMM2, _mm_shuffle_ps(*(__m128 *)&pBaseModule[2].m_type, *(__m128 *)&pBaseModule[2].m_type, 170))));
+  }
+  *(__m128 *)&pBaseModule[2].m_type = _mm_shuffle_ps(*(__m128 *)&pBaseModule[2].m_type, _mm_shuffle_ps(*(__m128 *)&pBaseModule[2].m_type, _mm_shuffle_ps(_XMM7, _XMM7, 0), 250), 132);
+  if ( (pBaseModule->m_flags & 1) != 0 )
+  {
+    if ( !v13 )
+      v7->flags &= ~4ui64;
+  }
+  else
+  {
+    v7->flags |= 4ui64;
+  }
+  return pDataa;
+}
+
+/*
+==============
+ParticleModuleInitSpawnShapeEllipsoid::Parse
+==============
+*/
+char *ParticleModuleInitSpawnShapeEllipsoid::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
+{
+  char *v7; 
+  ParticleStateDef *v8; 
+  bool v11; 
+  void (__fastcall *initMembersFunc)(ParticleModule *); 
+  const char *v13; 
+  __int64 v14; 
+  signed __int64 v15; 
+  int v16; 
+  __int64 v17; 
+  int v18; 
+  int v19; 
+  int v20; 
+  __m128 v21; 
+  double VolumeSize; 
+  char v26; 
+  char *pDataa; 
+  ParticleStateDef *v29; 
+
+  v7 = (char *)pData;
+  v8 = pParticleStateDef;
+  pDataa = (char *)pData;
+  v29 = pParticleStateDef;
+  if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5313, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
+    __debugbreak();
+  if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5313, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
+    __debugbreak();
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5313, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
+    __debugbreak();
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5313, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+    __debugbreak();
+  if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5313, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
+    __debugbreak();
+  v11 = isLoadingFile;
+  if ( isLoadingFile )
+  {
+    memset_0(pBaseModule, 0, 0xB0ui64);
+    initMembersFunc = ParticleModule::GetUpdateData()[26].initMembersFunc;
+    if ( initMembersFunc )
+      initMembersFunc(pBaseModule);
+  }
+  pBaseModule->m_type = PARTICLE_MODULE_INIT_SPAWN_SHAPE_ELLIPSOID;
+  if ( isLoadingFile )
+  {
+    v7 = (char *)ParseModuleID(v7, pParticleSystemDef, pBaseModule);
+    pDataa = v7;
+  }
+  if ( v7 )
+  {
+LABEL_22:
+    if ( *v7 )
+    {
+      v13 = s_typeGroupHeaderEnd;
+      v14 = s_typeGroupHeaderEndLength;
+      if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
+        __debugbreak();
+      v15 = v7 - v13;
+      do
+      {
+        v16 = (unsigned __int8)v13[v15];
+        v17 = v14;
+        v18 = *(unsigned __int8 *)v13++;
+        --v14;
+        if ( !v17 )
+          break;
+        if ( v16 != v18 )
+        {
+          v19 = v16 + 32;
+          if ( (unsigned int)(v16 - 65) > 0x19 )
+            v19 = v16;
+          v16 = v19;
+          v20 = v18 + 32;
+          if ( (unsigned int)(v18 - 65) > 0x19 )
+            v20 = v18;
+          if ( v16 != v20 )
+          {
+            if ( ParseMemberFlag((const char **)&pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "radiusMin", (float4 *)&pBaseModule[6]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "radiusMax", (float4 *)&pBaseModule[8]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "offset", (float4 *)&pBaseModule[4]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "calculationOffset", (float4 *)&pBaseModule[2]) || ParseMember_unsigned_char__ParseByte_((const char **)&pDataa, "spawnAxes", (unsigned __int8 *)&pBaseModule[1]) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "normalAxis", (unsigned int *)((char *)&pBaseModule[1] + 2)) || ParseMemberFlag((const char **)&pDataa, "useWorldSpace", &pBaseModule->m_flags, 0x80u) || ParseMemberFlag((const char **)&pDataa, "useCurveValues", (unsigned int *)((char *)&pBaseModule[1] + 1), 2u) || ParseMemberFlag((const char **)&pDataa, "useModifierScale", (unsigned int *)((char *)&pBaseModule[1] + 1), 4u) || ParseMemberFlag((const char **)&pDataa, "useDeterministicSpawn", (unsigned int *)((char *)&pBaseModule[1] + 1), 8u) )
+              v7 = pDataa;
+            else
+              v7 = ++pDataa;
+            if ( v7 )
+              goto LABEL_22;
+            break;
+          }
+        }
+      }
+      while ( v16 );
+    }
+    v8 = v29;
+    v11 = isLoadingFile;
+  }
+  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&pBaseModule[10], 6u, pMemPool, v11, pBaseModule->m_type, pParticleSystemDef->version);
+  *((_BYTE *)&pBaseModule[1].m_type + 3) = 2;
+  v21 = _mm128_sub_ps(*(__m128 *)&pBaseModule[8].m_type, *(__m128 *)&pBaseModule[6].m_type);
+  _XMM2 = _mm128_mul_ps(v21, v21);
+  __asm
+  {
     vhaddps xmm0, xmm2, xmm2
     vhaddps xmm0, xmm0, xmm0
-    vsqrtps xmm1, xmm0
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3a83126f
   }
-  if ( v30 )
+  if ( COERCE_FLOAT(_mm_sqrt_ps(_XMM0).m128_u32[0] & _xmm) < 0.001 )
     HIBYTE(pBaseModule[1].m_type) |= 1u;
-  *(double *)&_XMM0 = ParticleModuleInitSpawnShapeEllipsoid::GetVolumeSize((ParticleModuleInitSpawnShapeEllipsoid *)pBaseModule, (const float4 *)&pBaseModule[6], _R8);
-  *(float *)&_XMM0 = cbrtf(*(float *)&_XMM0);
-  v31 = ~LOBYTE(pBaseModule->m_flags);
-  __asm { vmovss  dword ptr [rsi+0Ch], xmm0 }
-  if ( (v31 & 1) != 0 )
+  VolumeSize = ParticleModuleInitSpawnShapeEllipsoid::GetVolumeSize((ParticleModuleInitSpawnShapeEllipsoid *)pBaseModule, (const float4 *)&pBaseModule[6], (const float4 *)&pBaseModule[8]);
+  *(float *)&VolumeSize = cbrtf(*(float *)&VolumeSize);
+  v26 = ~LOBYTE(pBaseModule->m_flags);
+  pBaseModule[1].m_flags = LODWORD(VolumeSize);
+  if ( (v26 & 1) != 0 )
   {
-    v9->flags |= 4ui64;
+    v8->flags |= 4ui64;
   }
-  else if ( !v12 )
+  else if ( !v11 )
   {
-    v9->flags &= ~4ui64;
+    v8->flags &= ~4ui64;
   }
   return pDataa;
 }
@@ -6926,147 +6520,123 @@ ParticleModuleInitSpawnShapeSphere::Parse
 */
 char *ParticleModuleInitSpawnShapeSphere::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  char *v8; 
-  bool v13; 
+  char *v7; 
+  ParticleModule *v9; 
+  bool v12; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v15; 
-  __int64 v16; 
-  signed __int64 v17; 
-  int v18; 
-  __int64 v19; 
+  const char *v14; 
+  __int64 v15; 
+  signed __int64 v16; 
+  int v17; 
+  __int64 v18; 
+  int v19; 
   int v20; 
   int v21; 
-  int v22; 
-  char v23; 
-  char v31; 
+  float v22; 
+  float v23; 
+  double VolumeSize; 
+  char v25; 
   char *pDataa; 
 
   pDataa = (char *)pData;
-  v8 = (char *)pData;
-  _RSI = pBaseModule;
+  v7 = (char *)pData;
+  v9 = pBaseModule;
   if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5453, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
     __debugbreak();
   if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5453, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
   if ( !pParticleStateDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5453, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
     __debugbreak();
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5453, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5453, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
-  if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5453, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 5453, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
-  v13 = isLoadingFile;
+  v12 = isLoadingFile;
   if ( isLoadingFile )
   {
-    memset_0(_RSI, 0, 0x80ui64);
+    memset_0(v9, 0, 0x80ui64);
     initMembersFunc = ParticleModule::GetUpdateData()[28].initMembersFunc;
     if ( initMembersFunc )
-      initMembersFunc(_RSI);
+      initMembersFunc(v9);
   }
-  _RSI->m_type = PARTICLE_MODULE_INIT_SPAWN_SHAPE_SPHERE;
-  if ( v13 )
+  v9->m_type = PARTICLE_MODULE_INIT_SPAWN_SHAPE_SPHERE;
+  if ( v12 )
   {
-    v8 = (char *)ParseModuleID(v8, pParticleSystemDef, _RSI);
-    pDataa = v8;
+    v7 = (char *)ParseModuleID(v7, pParticleSystemDef, v9);
+    pDataa = v7;
   }
-  if ( v8 )
+  if ( v7 )
   {
 LABEL_22:
-    if ( *v8 )
+    if ( *v7 )
     {
-      v15 = s_typeGroupHeaderEnd;
-      v16 = s_typeGroupHeaderEndLength;
+      v14 = s_typeGroupHeaderEnd;
+      v15 = s_typeGroupHeaderEndLength;
       if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v17 = v8 - v15;
+      v16 = v7 - v14;
       do
       {
-        v18 = (unsigned __int8)v15[v17];
-        v19 = v16;
-        v20 = *(unsigned __int8 *)v15++;
-        --v16;
-        if ( !v19 )
+        v17 = (unsigned __int8)v14[v16];
+        v18 = v15;
+        v19 = *(unsigned __int8 *)v14++;
+        --v15;
+        if ( !v18 )
           break;
-        if ( v18 != v20 )
+        if ( v17 != v19 )
         {
-          v21 = v18 + 32;
-          if ( (unsigned int)(v18 - 65) > 0x19 )
-            v21 = v18;
-          v18 = v21;
-          v22 = v20 + 32;
-          if ( (unsigned int)(v20 - 65) > 0x19 )
-            v22 = v20;
-          if ( v18 != v22 )
+          v20 = v17 + 32;
+          if ( (unsigned int)(v17 - 65) > 0x19 )
+            v20 = v17;
+          v17 = v20;
+          v21 = v19 + 32;
+          if ( (unsigned int)(v19 - 65) > 0x19 )
+            v21 = v19;
+          if ( v17 != v21 )
           {
-            if ( ParseMemberFlag((const char **)&pDataa, "disable", &_RSI->m_flags, 1u) || ParseMemberFloatRange((const char **)&pDataa, "radius", (ParticleFloatRange *)&_RSI[7], 0, 0) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "offset", (float4 *)&_RSI[4]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "calculationOffset", (float4 *)&_RSI[2]) || ParseMember_unsigned_char__ParseByte_((const char **)&pDataa, "spawnAxes", (unsigned __int8 *)&_RSI[1]) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "normalAxis", (unsigned int *)((char *)&_RSI[1] + 2)) || ParseMemberFlag((const char **)&pDataa, "useWorldSpace", &_RSI->m_flags, 0x80u) || ParseMemberFlag((const char **)&pDataa, "useCurveValues", (unsigned int *)((char *)&_RSI[1] + 1), 2u) || ParseMemberFlag((const char **)&pDataa, "useModifierScale", (unsigned int *)((char *)&_RSI[1] + 1), 4u) || ParseMemberFlag((const char **)&pDataa, "useDeterministicSpawn", (unsigned int *)((char *)&_RSI[1] + 1), 8u) )
-              v8 = pDataa;
+            if ( ParseMemberFlag((const char **)&pDataa, "disable", &v9->m_flags, 1u) || ParseMemberFloatRange((const char **)&pDataa, "radius", (ParticleFloatRange *)&v9[7], 0, 0) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "offset", (float4 *)&v9[4]) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "calculationOffset", (float4 *)&v9[2]) || ParseMember_unsigned_char__ParseByte_((const char **)&pDataa, "spawnAxes", (unsigned __int8 *)&v9[1]) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "normalAxis", (unsigned int *)((char *)&v9[1] + 2)) || ParseMemberFlag((const char **)&pDataa, "useWorldSpace", &v9->m_flags, 0x80u) || ParseMemberFlag((const char **)&pDataa, "useCurveValues", (unsigned int *)((char *)&v9[1] + 1), 2u) || ParseMemberFlag((const char **)&pDataa, "useModifierScale", (unsigned int *)((char *)&v9[1] + 1), 4u) || ParseMemberFlag((const char **)&pDataa, "useDeterministicSpawn", (unsigned int *)((char *)&v9[1] + 1), 8u) )
+              v7 = pDataa;
             else
-              v8 = ++pDataa;
-            if ( v8 )
+              v7 = ++pDataa;
+            if ( v7 )
               goto LABEL_22;
             break;
           }
         }
       }
-      while ( v18 );
+      while ( v17 );
     }
-    v13 = isLoadingFile;
+    v12 = isLoadingFile;
   }
-  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&_RSI[8], 4u, pMemPool, v13, _RSI->m_type, pParticleSystemDef->version);
-  __asm
+  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&v9[8], 4u, pMemPool, v12, v9->m_type, pParticleSystemDef->version);
+  v22 = *(float *)&v9[7].m_type;
+  *((_BYTE *)&v9[1].m_type + 3) = 4;
+  if ( v22 < 0.0 || (v23 = *(float *)&v9[7].m_flags, v23 < 0.0) )
   {
-    vmovss  xmm1, dword ptr [rsi+38h]
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm1, xmm0
-  }
-  *((_BYTE *)&_RSI[1].m_type + 3) = 4;
-  if ( v23 )
-    goto LABEL_52;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsi+3Ch]
-    vcomiss xmm2, xmm0
-  }
-  if ( v23 )
-  {
-LABEL_52:
     Com_PrintWarning(21, "WARNING: Negative radius for effect %s | %s. Converting to a positive radius.\n", pParticleSystemDef->name, (const char *)&queryFormat.fmt + 3);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+38h]
-      vmovss  xmm2, dword ptr [rsi+3Ch]
-      vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  dword ptr [rsi+38h], xmm1
-      vmovss  dword ptr [rsi+3Ch], xmm2
-    }
+    LODWORD(v22) = *(_DWORD *)&v9[7].m_type & _xmm;
+    LODWORD(v23) = v9[7].m_flags & _xmm;
+    *(float *)&v9[7].m_type = v22;
+    *(float *)&v9[7].m_flags = v23;
   }
-  __asm
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v23 - v22) & _xmm) < 0.001 )
   {
-    vsubss  xmm0, xmm2, xmm1
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3a83126f
+    HIBYTE(v9[1].m_type) |= 1u;
+    v23 = *(float *)&v9[7].m_flags;
+    v22 = *(float *)&v9[7].m_type;
   }
-  if ( v23 )
-  {
-    HIBYTE(_RSI[1].m_type) |= 1u;
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi+3Ch]; radiusMax
-      vmovss  xmm1, dword ptr [rsi+38h]; radiusMin
-    }
-  }
-  *(double *)&_XMM0 = ParticleModuleInitSpawnShapeSphere::GetVolumeSize((ParticleModuleInitSpawnShapeSphere *)_RSI, *(const float *)&_XMM1, *(const float *)&_XMM2);
-  *(float *)&_XMM0 = cbrtf(*(float *)&_XMM0);
-  v31 = ~LOBYTE(_RSI->m_flags);
-  __asm { vmovss  dword ptr [rsi+0Ch], xmm0 }
-  if ( (v31 & 1) != 0 )
+  VolumeSize = ParticleModuleInitSpawnShapeSphere::GetVolumeSize((ParticleModuleInitSpawnShapeSphere *)v9, v22, v23);
+  *(float *)&VolumeSize = cbrtf(*(float *)&VolumeSize);
+  v25 = ~LOBYTE(v9->m_flags);
+  v9[1].m_flags = LODWORD(VolumeSize);
+  if ( (v25 & 1) != 0 )
   {
     pParticleStateDef->flags |= 4ui64;
     return pDataa;
   }
   else
   {
-    if ( !v13 )
+    if ( !v12 )
       pParticleStateDef->flags &= ~4ui64;
     return pDataa;
   }
@@ -7854,63 +7424,60 @@ ParticleModulePhysicsRayCast::Parse
 */
 char *ParticleModulePhysicsRayCast::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  char *v11; 
-  ParticleStateDef *v12; 
+  char *v8; 
+  ParticleStateDef *v9; 
+  float v12; 
+  __m128 v; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v23; 
-  __int64 v24; 
-  signed __int64 v25; 
-  int v26; 
-  __int64 v27; 
-  int v28; 
+  const char *v18; 
+  __int64 v19; 
+  signed __int64 v20; 
+  int v21; 
+  __int64 v22; 
+  int v23; 
+  int v24; 
+  int v25; 
+  __int64 v26; 
+  const char *v27; 
+  signed __int64 v28; 
   int v29; 
-  int v30; 
-  __int64 v31; 
-  const char *v32; 
-  signed __int64 v33; 
-  int v34; 
-  __int64 v35; 
-  int v36; 
-  int v37; 
-  int v38; 
+  __int64 v30; 
+  int v31; 
+  int v32; 
+  int v33; 
   unsigned __int64 flags; 
   char *result; 
-  __int64 v43; 
-  unsigned __int64 v44; 
+  __int64 v36; 
+  unsigned __int64 v37; 
   char *pDataa; 
   float valueOut; 
-  ParticleStateDef *v47; 
-  float4 v48; 
-  void *retaddr; 
+  ParticleStateDef *v40; 
+  float4 v41; 
 
-  _R11 = &retaddr;
   _R14 = pBaseModule;
-  v11 = (char *)pData;
-  v12 = pParticleStateDef;
-  __asm { vmovaps xmmword ptr [r11-48h], xmm6 }
-  v48.v.m128_i32[3] = 0;
-  __asm { vmovaps [rsp+0C0h+var_58+8], xmm7 }
-  v47 = pParticleStateDef;
+  v8 = (char *)pData;
+  v9 = pParticleStateDef;
+  v41.v.m128_i32[3] = 0;
+  v40 = pParticleStateDef;
   pDataa = (char *)pData;
+  v12 = *(float *)&pBaseModule[3].m_flags;
+  v = v41.v;
+  v.m128_f32[0] = *(float *)&pBaseModule[2].m_type;
+  _XMM6 = v;
   __asm
   {
-    vmovups xmm6, xmmword ptr [rbp-31h]
-    vmovss  xmm0, dword ptr [r14+10h]
-    vmovss  xmm7, dword ptr [r14+1Ch]
-    vmovss  xmm6, xmm6, xmm0
     vinsertps xmm6, xmm6, dword ptr [r14+14h], 10h
     vinsertps xmm6, xmm6, dword ptr [r14+18h], 20h ; ' '
-    vmovups xmmword ptr [rbp-31h], xmm6
-    vmovups xmmword ptr [rbp-31h], xmm6
-    vmovss  [rbp+3Fh+valueOut], xmm7
   }
+  v41.v = _XMM6;
+  valueOut = v12;
   if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6080, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
     __debugbreak();
   if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6080, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
-  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6080, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6080, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
     __debugbreak();
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6080, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6080, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
   if ( isLoadingFile )
   {
@@ -7927,24 +7494,207 @@ char *ParticleModulePhysicsRayCast::Parse(ParticleSystemDef *pParticleSystemDef,
   pBaseModule->m_type = PARTICLE_MODULE_PHYSICS_RAY_CAST;
   if ( isLoadingFile )
   {
-    v11 = (char *)ParseModuleID(v11, pParticleSystemDef, pBaseModule);
-    pDataa = v11;
+    v8 = (char *)ParseModuleID(v8, pParticleSystemDef, pBaseModule);
+    pDataa = v8;
   }
-  if ( v11 )
+  if ( v8 )
   {
 LABEL_19:
-    if ( *v11 )
+    if ( *v8 )
     {
-      v23 = s_typeBasicEnd;
-      v24 = s_typeBasicEndLength;
+      v18 = s_typeBasicEnd;
+      v19 = s_typeBasicEndLength;
       if ( !s_typeBasicEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeBasicEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v25 = v11 - v23;
+      v20 = v8 - v18;
       do
       {
-        v26 = (unsigned __int8)v23[v25];
+        v21 = (unsigned __int8)v18[v20];
+        v22 = v19;
+        v23 = *(unsigned __int8 *)v18++;
+        --v19;
+        if ( !v22 )
+          break;
+        if ( v21 != v23 )
+        {
+          v24 = v21 + 32;
+          if ( (unsigned int)(v21 - 65) > 0x19 )
+            v24 = v21;
+          v21 = v24;
+          v25 = v23 + 32;
+          if ( (unsigned int)(v23 - 65) > 0x19 )
+            v25 = v23;
+          if ( v21 != v25 )
+          {
+            v26 = s_typeGroupEndLength;
+            v27 = s_typeGroupEnd;
+            if ( !s_typeGroupEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+              __debugbreak();
+            v28 = v8 - v27;
+            while ( 1 )
+            {
+              v29 = (unsigned __int8)v27[v28];
+              v30 = v26;
+              v31 = *(unsigned __int8 *)v27++;
+              --v26;
+              if ( !v30 )
+                goto LABEL_58;
+              if ( v29 != v31 )
+              {
+                v32 = v29 + 32;
+                if ( (unsigned int)(v29 - 65) > 0x19 )
+                  v32 = v29;
+                v29 = v32;
+                v33 = v31 + 32;
+                if ( (unsigned int)(v31 - 65) > 0x19 )
+                  v33 = v31;
+                if ( v29 != v33 )
+                {
+                  if ( ParseMemberFlag((const char **)&pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMemberFloatRange((const char **)&pDataa, "bounce", (ParticleFloatRange *)&pBaseModule[1], 0, 0) || ParseMember_float__ParseFloat_((const char **)&pDataa, "boundsRadius", &valueOut) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "boundsOrigin", &v41) || ParseMember_bool__ParseBool_((const char **)&pDataa, "useItemClip", (bool *)&pBaseModule[5]) || ParseMember_bool__ParseBool_((const char **)&pDataa, "useSurfaceType", (bool *)&pBaseModule[5] + 1) || ParseMember_bool__ParseBool_((const char **)&pDataa, "collideWithWater", (bool *)&pBaseModule[5] + 2) || ParseMember_bool__ParseBool_((const char **)&pDataa, "ignoreContentItem", (bool *)&pBaseModule[5] + 3) || ParseMemberFlag((const char **)&pDataa, "collideWithWZTrain", &pBaseModule->m_flags, 0x20000u) )
+                    v8 = pDataa;
+                  else
+                    v8 = ++pDataa;
+                  if ( v8 )
+                    goto LABEL_19;
+                  goto LABEL_58;
+                }
+              }
+              if ( !v29 )
+                goto LABEL_58;
+            }
+          }
+        }
+      }
+      while ( v21 );
+    }
+LABEL_58:
+    v12 = valueOut;
+    _XMM6 = v41.v;
+    v9 = v40;
+  }
+  *(float *)&pBaseModule[2].m_type = _XMM6.m128_f32[0];
+  __asm
+  {
+    vextractps dword ptr [r14+14h], xmm6, 1
+    vextractps dword ptr [r14+18h], xmm6, 2
+  }
+  *(float *)&pBaseModule[3].m_flags = v12;
+  *(float *)&pBaseModule[4].m_type = v12;
+  *(float *)&pBaseModule[4].m_flags = v12;
+  flags = v9->flags;
+  result = v8;
+  if ( (pBaseModule->m_flags & 1) != 0 )
+  {
+    v37 = flags & 0xFFFFFFFFFFDFFFFFui64;
+  }
+  else
+  {
+    v36 = flags | 0x200000;
+    v9->flags = v36;
+    if ( !HIBYTE(pBaseModule[5].m_type) )
+      return result;
+    v37 = v36 | 0x20000000;
+  }
+  v9->flags = v37;
+  return result;
+}
+
+/*
+==============
+ParticleModulePositionGraph::Parse
+==============
+*/
+char *ParticleModulePositionGraph::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
+{
+  bool v7; 
+  char *v8; 
+  unsigned __int8 **v9; 
+  ParticleStateDef *v10; 
+  void (__fastcall *initMembersFunc)(ParticleModule *); 
+  const char *v23; 
+  __int64 v24; 
+  signed __int64 v25; 
+  int v26; 
+  __int64 v27; 
+  int v28; 
+  int v29; 
+  int v30; 
+  unsigned __int64 flags; 
+  char *result; 
+  char *pDataa; 
+  ParticleStateDef *v34; 
+  unsigned __int8 **v35; 
+  float4 valueOut; 
+  float4 v37; 
+
+  v7 = isLoadingFile;
+  v8 = (char *)pData;
+  v9 = pMemPool;
+  v10 = pParticleStateDef;
+  _RSI = pBaseModule;
+  v34 = pParticleStateDef;
+  pDataa = (char *)pData;
+  v35 = pMemPool;
+  if ( isLoadingFile )
+  {
+    _XMM6 = g_one.v;
+    _XMM7 = g_one.v;
+    v37.v = g_one.v;
+  }
+  else
+  {
+    _XMM7 = _xmm;
+    __asm { vinsertps xmm7, xmm7, dword ptr [rsi+4Ch], 0 }
+    _XMM6 = _xmm;
+    __asm
+    {
+      vinsertps xmm6, xmm6, dword ptr [rsi+1Ch], 0
+      vinsertps xmm7, xmm7, dword ptr [rsi+5Ch], 10h
+      vinsertps xmm7, xmm7, dword ptr [rsi+6Ch], 20h ; ' '
+      vinsertps xmm6, xmm6, dword ptr [rsi+2Ch], 10h
+      vinsertps xmm6, xmm6, dword ptr [rsi+3Ch], 20h ; ' '
+    }
+    v37.v = _XMM7;
+  }
+  valueOut.v = _XMM6;
+  if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6132, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
+    __debugbreak();
+  if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6132, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
+    __debugbreak();
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6132, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
+    __debugbreak();
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6132, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+    __debugbreak();
+  if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6132, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
+    __debugbreak();
+  if ( isLoadingFile )
+  {
+    memset_0(pBaseModule, 0, 0x70ui64);
+    initMembersFunc = ParticleModule::GetUpdateData()[47].initMembersFunc;
+    if ( initMembersFunc )
+      initMembersFunc(pBaseModule);
+  }
+  pBaseModule->m_type = PARTICLE_MODULE_POSITION_GRAPH;
+  if ( isLoadingFile )
+  {
+    v8 = (char *)ParseModuleID(v8, pParticleSystemDef, pBaseModule);
+    pDataa = v8;
+  }
+  if ( v8 )
+  {
+LABEL_25:
+    if ( *v8 )
+    {
+      v23 = s_typeGroupHeaderEnd;
+      v24 = s_typeGroupHeaderEndLength;
+      if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
+        __debugbreak();
+      v25 = v23 - v8;
+      do
+      {
+        v26 = (unsigned __int8)*v8;
         v27 = v24;
-        v28 = *(unsigned __int8 *)v23++;
+        v28 = (unsigned __int8)(v8++)[v25];
         --v24;
         if ( !v27 )
           break;
@@ -7959,255 +7709,50 @@ LABEL_19:
             v30 = v28;
           if ( v26 != v30 )
           {
-            v31 = s_typeGroupEndLength;
-            v32 = s_typeGroupEnd;
-            if ( !s_typeGroupEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
-              __debugbreak();
-            v33 = v11 - v32;
-            while ( 1 )
-            {
-              v34 = (unsigned __int8)v32[v33];
-              v35 = v31;
-              v36 = *(unsigned __int8 *)v32++;
-              --v31;
-              if ( !v35 )
-                goto LABEL_58;
-              if ( v34 != v36 )
-              {
-                v37 = v34 + 32;
-                if ( (unsigned int)(v34 - 65) > 0x19 )
-                  v37 = v34;
-                v34 = v37;
-                v38 = v36 + 32;
-                if ( (unsigned int)(v36 - 65) > 0x19 )
-                  v38 = v36;
-                if ( v34 != v38 )
-                {
-                  if ( ParseMemberFlag((const char **)&pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMemberFloatRange((const char **)&pDataa, "bounce", (ParticleFloatRange *)&pBaseModule[1], 0, 0) || ParseMember_float__ParseFloat_((const char **)&pDataa, "boundsRadius", &valueOut) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "boundsOrigin", &v48) || ParseMember_bool__ParseBool_((const char **)&pDataa, "useItemClip", (bool *)&pBaseModule[5]) || ParseMember_bool__ParseBool_((const char **)&pDataa, "useSurfaceType", (bool *)&pBaseModule[5] + 1) || ParseMember_bool__ParseBool_((const char **)&pDataa, "collideWithWater", (bool *)&pBaseModule[5] + 2) || ParseMember_bool__ParseBool_((const char **)&pDataa, "ignoreContentItem", (bool *)&pBaseModule[5] + 3) || ParseMemberFlag((const char **)&pDataa, "collideWithWZTrain", &pBaseModule->m_flags, 0x20000u) )
-                    v11 = pDataa;
-                  else
-                    v11 = ++pDataa;
-                  if ( v11 )
-                    goto LABEL_19;
-                  goto LABEL_58;
-                }
-              }
-              if ( !v34 )
-                goto LABEL_58;
-            }
-          }
-        }
-      }
-      while ( v26 );
-    }
-LABEL_58:
-    __asm
-    {
-      vmovss  xmm7, [rbp+3Fh+valueOut]
-      vmovups xmm6, xmmword ptr [rbp+3Fh+var_70.v]
-    }
-    v12 = v47;
-  }
-  __asm
-  {
-    vmovss  dword ptr [r14+10h], xmm6
-    vextractps dword ptr [r14+14h], xmm6, 1
-    vextractps dword ptr [r14+18h], xmm6, 2
-    vmovaps xmm6, [rsp+0C0h+var_48+8]
-    vmovss  dword ptr [r14+1Ch], xmm7
-    vmovss  dword ptr [r14+20h], xmm7
-    vmovss  dword ptr [r14+24h], xmm7
-  }
-  flags = v12->flags;
-  __asm { vmovaps xmm7, [rsp+0C0h+var_58+8] }
-  result = v11;
-  if ( (pBaseModule->m_flags & 1) != 0 )
-  {
-    v44 = flags & 0xFFFFFFFFFFDFFFFFui64;
-  }
-  else
-  {
-    v43 = flags | 0x200000;
-    v12->flags = v43;
-    if ( !HIBYTE(pBaseModule[5].m_type) )
-      return result;
-    v44 = v43 | 0x20000000;
-  }
-  v12->flags = v44;
-  return result;
-}
-
-/*
-==============
-ParticleModulePositionGraph::Parse
-==============
-*/
-char *ParticleModulePositionGraph::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
-{
-  bool v10; 
-  char *v11; 
-  unsigned __int8 **v12; 
-  ParticleStateDef *v13; 
-  void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v26; 
-  __int64 v27; 
-  signed __int64 v28; 
-  int v29; 
-  __int64 v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  unsigned __int64 flags; 
-  char *result; 
-  char *pDataa; 
-  ParticleStateDef *v40; 
-  unsigned __int8 **v41; 
-  float4 valueOut; 
-  float4 v43; 
-  char v44; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  v10 = isLoadingFile;
-  v11 = (char *)pData;
-  v12 = pMemPool;
-  v13 = pParticleStateDef;
-  _RSI = pBaseModule;
-  v40 = pParticleStateDef;
-  pDataa = (char *)pData;
-  v41 = pMemPool;
-  if ( isLoadingFile )
-  {
-    __asm
-    {
-      vmovups xmm6, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-      vmovdqa xmm7, xmm6
-      vmovups xmmword ptr [rbp+3Fh+var_70.v], xmm6
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vmovups xmm7, cs:__xmm@3f800000000000000000000000000000
-      vinsertps xmm7, xmm7, dword ptr [rsi+4Ch], 0
-      vmovups xmm6, cs:__xmm@3f800000000000000000000000000000
-      vinsertps xmm6, xmm6, dword ptr [rsi+1Ch], 0
-      vinsertps xmm7, xmm7, dword ptr [rsi+5Ch], 10h
-      vinsertps xmm7, xmm7, dword ptr [rsi+6Ch], 20h ; ' '
-      vinsertps xmm6, xmm6, dword ptr [rsi+2Ch], 10h
-      vinsertps xmm6, xmm6, dword ptr [rsi+3Ch], 20h ; ' '
-      vmovups xmmword ptr [rbp+3Fh+var_70.v], xmm7
-    }
-  }
-  __asm { vmovups xmmword ptr [rbp+3Fh+valueOut.v], xmm6 }
-  if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6132, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
-    __debugbreak();
-  if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6132, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
-    __debugbreak();
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6132, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
-    __debugbreak();
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6132, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
-    __debugbreak();
-  if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6132, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
-    __debugbreak();
-  if ( isLoadingFile )
-  {
-    memset_0(pBaseModule, 0, 0x70ui64);
-    initMembersFunc = ParticleModule::GetUpdateData()[47].initMembersFunc;
-    if ( initMembersFunc )
-      initMembersFunc(pBaseModule);
-  }
-  pBaseModule->m_type = PARTICLE_MODULE_POSITION_GRAPH;
-  if ( isLoadingFile )
-  {
-    v11 = (char *)ParseModuleID(v11, pParticleSystemDef, pBaseModule);
-    pDataa = v11;
-  }
-  if ( v11 )
-  {
-LABEL_25:
-    if ( *v11 )
-    {
-      v26 = s_typeGroupHeaderEnd;
-      v27 = s_typeGroupHeaderEndLength;
-      if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
-        __debugbreak();
-      v28 = v26 - v11;
-      do
-      {
-        v29 = (unsigned __int8)*v11;
-        v30 = v27;
-        v31 = (unsigned __int8)(v11++)[v28];
-        --v27;
-        if ( !v30 )
-          break;
-        if ( v29 != v31 )
-        {
-          v32 = v29 + 32;
-          if ( (unsigned int)(v29 - 65) > 0x19 )
-            v32 = v29;
-          v29 = v32;
-          v33 = v31 + 32;
-          if ( (unsigned int)(v31 - 65) > 0x19 )
-            v33 = v31;
-          if ( v29 != v33 )
-          {
-            if ( ParseMemberFlag((const char **)&pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "scale1", &valueOut) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "scale2", &v43) || ParseMemberFlag((const char **)&pDataa, "useEmitterLife", &pBaseModule->m_flags, 4u) || ParseMemberFlag((const char **)&pDataa, "graphByLength", &pBaseModule->m_flags, 0x100u) || ParseMemberFlag((const char **)&pDataa, "randomizeBetweenCurves", &pBaseModule->m_flags, 0x10u) )
-              v11 = pDataa;
+            if ( ParseMemberFlag((const char **)&pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "scale1", &valueOut) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "scale2", &v37) || ParseMemberFlag((const char **)&pDataa, "useEmitterLife", &pBaseModule->m_flags, 4u) || ParseMemberFlag((const char **)&pDataa, "graphByLength", &pBaseModule->m_flags, 0x100u) || ParseMemberFlag((const char **)&pDataa, "randomizeBetweenCurves", &pBaseModule->m_flags, 0x10u) )
+              v8 = pDataa;
             else
-              v11 = ++pDataa;
-            if ( v11 )
+              v8 = ++pDataa;
+            if ( v8 )
               goto LABEL_25;
             break;
           }
         }
       }
-      while ( v29 );
+      while ( v26 );
     }
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rbp+3Fh+valueOut.v]
-      vmovups xmm7, xmmword ptr [rbp+3Fh+var_70.v]
-    }
-    v13 = v40;
-    v10 = isLoadingFile;
-    v12 = v41;
+    _XMM6 = valueOut.v;
+    _XMM7 = v37.v;
+    v10 = v34;
+    v7 = isLoadingFile;
+    v9 = v35;
   }
-  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&pBaseModule[2], 6u, v12, v10, pBaseModule->m_type, pParticleSystemDef->version);
+  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&pBaseModule[2], 6u, v9, v7, pBaseModule->m_type, pParticleSystemDef->version);
+  *(float *)&pBaseModule[3].m_flags = _XMM6.m128_f32[0];
   __asm
   {
-    vmovss  dword ptr [rsi+1Ch], xmm6
     vextractps dword ptr [rsi+2Ch], xmm6, 1
     vextractps dword ptr [rsi+3Ch], xmm6, 2
-    vmovss  dword ptr [rsi+4Ch], xmm7
+  }
+  *(float *)&pBaseModule[9].m_flags = _XMM7.m128_f32[0];
+  __asm
+  {
     vextractps dword ptr [rsi+5Ch], xmm7, 1
     vextractps dword ptr [rsi+6Ch], xmm7, 2
   }
-  flags = v13->flags;
+  flags = v10->flags;
   if ( (pBaseModule->m_flags & 1) != 0 )
   {
     result = pDataa;
-    v13->flags = flags & 0xFFFFFFFFFFFFFFF7ui64;
+    v10->flags = flags & 0xFFFFFFFFFFFFFFF7ui64;
     pBaseModule->m_flags &= ~0x200u;
   }
   else
   {
-    v13->flags = flags | 8;
+    v10->flags = flags | 8;
     result = pDataa;
     if ( (pBaseModule->m_flags & 0x100) != 0 )
       pBaseModule->m_flags |= 0x200u;
-  }
-  _R11 = &v44;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
   return result;
 }
@@ -8219,56 +7764,47 @@ ParticleModuleRotationGraph3D::Parse
 */
 char *ParticleModuleRotationGraph3D::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  bool v11; 
-  char v12; 
-  char v13; 
-  char *v15; 
-  ParticleStateDef *v16; 
-  ParticleSystemDef *v18; 
+  __m128 v; 
+  bool v8; 
+  char v9; 
+  char v10; 
+  char *v12; 
+  ParticleStateDef *v13; 
+  ParticleSystemDef *v15; 
+  __m128 v16; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v21; 
+  const char *v18; 
+  __int64 v19; 
+  signed __int64 v20; 
+  int v21; 
   __int64 v22; 
-  signed __int64 v23; 
+  int v23; 
   int v24; 
-  __int64 v25; 
-  int v26; 
-  int v27; 
-  int v28; 
-  unsigned __int64 v31; 
+  int v25; 
+  unsigned __int64 v28; 
   char *result; 
   char *pDataa; 
-  ParticleSystemDef *v37; 
-  ParticleStateDef *v38; 
-  unsigned __int8 **v39; 
+  ParticleSystemDef *v31; 
+  ParticleStateDef *v32; 
+  unsigned __int8 **v33; 
   float4 valueOut; 
-  float4 v41; 
-  char v42; 
-  void *retaddr; 
+  float4 v35; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-    vmovups xmm6, xmmword ptr cs:?g_degreeToRadian@@3Ufloat4@@B.v; float4 const g_degreeToRadian
-  }
-  v11 = isLoadingFile;
-  v12 = 0;
-  v13 = 0;
+  v = g_degreeToRadian.v;
+  v8 = isLoadingFile;
+  v9 = 0;
+  v10 = 0;
   _R14 = pBaseModule;
-  v15 = (char *)pData;
-  v38 = pParticleStateDef;
-  v16 = pParticleStateDef;
-  v37 = pParticleSystemDef;
+  v12 = (char *)pData;
+  v32 = pParticleStateDef;
+  v13 = pParticleStateDef;
+  v31 = pParticleSystemDef;
   pDataa = (char *)pData;
-  v18 = pParticleSystemDef;
-  v39 = pMemPool;
-  __asm
-  {
-    vmovups xmmword ptr [rsp+0F8h+valueOut.v], xmm6
-    vmovdqa xmm7, xmm6
-    vmovups xmmword ptr [r11-78h], xmm6
-  }
+  v15 = pParticleSystemDef;
+  v33 = pMemPool;
+  valueOut.v = g_degreeToRadian.v;
+  v16 = g_degreeToRadian.v;
+  v35.v = g_degreeToRadian.v;
   if ( isLoadingFile )
   {
     pBaseModule[3].m_flags = 1016003125;
@@ -8282,9 +7818,9 @@ char *ParticleModuleRotationGraph3D::Parse(ParticleSystemDef *pParticleSystemDef
     __debugbreak();
   if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6222, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
-  if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6222, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6222, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
     __debugbreak();
-  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6222, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6222, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
   if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6222, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
@@ -8298,109 +7834,100 @@ char *ParticleModuleRotationGraph3D::Parse(ParticleSystemDef *pParticleSystemDef
   pBaseModule->m_type = PARTICLE_MODULE_ROTATION_GRAPH_3D;
   if ( isLoadingFile )
   {
-    v15 = (char *)ParseModuleID(v15, v18, pBaseModule);
-    pDataa = v15;
+    v12 = (char *)ParseModuleID(v12, v15, pBaseModule);
+    pDataa = v12;
   }
-  if ( v15 )
+  if ( v12 )
   {
     while ( 2 )
     {
-      if ( *v15 )
+      if ( *v12 )
       {
-        v21 = s_typeGroupHeaderEnd;
-        v22 = s_typeGroupHeaderEndLength;
+        v18 = s_typeGroupHeaderEnd;
+        v19 = s_typeGroupHeaderEndLength;
         if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
           __debugbreak();
-        v23 = v15 - v21;
+        v20 = v12 - v18;
         while ( 1 )
         {
-          v24 = (unsigned __int8)v21[v23];
-          v25 = v22;
-          v26 = *(unsigned __int8 *)v21++;
-          --v22;
-          if ( !v25 )
+          v21 = (unsigned __int8)v18[v20];
+          v22 = v19;
+          v23 = *(unsigned __int8 *)v18++;
+          --v19;
+          if ( !v22 )
             goto LABEL_43;
-          if ( v24 != v26 )
+          if ( v21 != v23 )
           {
-            v27 = v24 + 32;
-            if ( (unsigned int)(v24 - 65) > 0x19 )
-              v27 = v24;
-            v24 = v27;
-            v28 = v26 + 32;
-            if ( (unsigned int)(v26 - 65) > 0x19 )
-              v28 = v26;
-            if ( v24 != v28 )
+            v24 = v21 + 32;
+            if ( (unsigned int)(v21 - 65) > 0x19 )
+              v24 = v21;
+            v21 = v24;
+            v25 = v23 + 32;
+            if ( (unsigned int)(v23 - 65) > 0x19 )
+              v25 = v23;
+            if ( v21 != v25 )
               break;
           }
-          if ( !v24 )
+          if ( !v21 )
             goto LABEL_43;
         }
         if ( !ParseMemberFlag((const char **)&pDataa, "disable", &pBaseModule->m_flags, 1u) )
         {
           if ( ParseMember_float4__ParseVector3_((const char **)&pDataa, "scale1", &valueOut) )
           {
-            v12 = 1;
+            v9 = 1;
           }
-          else if ( ParseMember_float4__ParseVector3_((const char **)&pDataa, "scale2", &v41) )
+          else if ( ParseMember_float4__ParseVector3_((const char **)&pDataa, "scale2", &v35) )
           {
-            v13 = 1;
+            v10 = 1;
           }
           else if ( !ParseMemberFlag((const char **)&pDataa, "useEmitterLife", &pBaseModule->m_flags, 4u) && !ParseMemberFlag((const char **)&pDataa, "randomizeBetweenCurves", &pBaseModule->m_flags, 0x10u) && !ParseMember_bool__ParseBool_((const char **)&pDataa, "useRotationRate", (bool *)&pBaseModule[1]) )
           {
-            v15 = ++pDataa;
+            v12 = ++pDataa;
 LABEL_42:
-            if ( v15 )
+            if ( v12 )
               continue;
             break;
           }
         }
-        v15 = pDataa;
+        v12 = pDataa;
         goto LABEL_42;
       }
       break;
     }
 LABEL_43:
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rsp+0F8h+valueOut.v]
-      vmovups xmm7, xmmword ptr [rsp+0F8h+var_78.v]
-    }
-    v11 = isLoadingFile;
-    v18 = v37;
-    v16 = v38;
+    v = valueOut.v;
+    v16 = v35.v;
+    v8 = isLoadingFile;
+    v15 = v31;
+    v13 = v32;
   }
-  ParseMemberCurveList((const char **)&pDataa, v18, "curveList", (ParticleCurveDef *)&pBaseModule[2], 6u, v39, v11, pBaseModule->m_type, v18->version);
-  if ( v12 )
+  ParseMemberCurveList((const char **)&pDataa, v15, "curveList", (ParticleCurveDef *)&pBaseModule[2], 6u, v33, v8, pBaseModule->m_type, v15->version);
+  if ( v9 )
   {
+    _XMM1 = _mm128_mul_ps(v, g_degreeToRadian.v);
+    *(float *)&pBaseModule[3].m_flags = _XMM1.m128_f32[0];
     __asm
     {
-      vmulps  xmm1, xmm6, xmmword ptr cs:?g_degreeToRadian@@3Ufloat4@@B.v; float4 const g_degreeToRadian
-      vmovss  dword ptr [r14+1Ch], xmm1
       vextractps dword ptr [r14+2Ch], xmm1, 1
       vextractps dword ptr [r14+3Ch], xmm1, 2
     }
   }
-  if ( v13 )
+  if ( v10 )
   {
+    _XMM1 = _mm128_mul_ps(v16, g_degreeToRadian.v);
+    *(float *)&pBaseModule[9].m_flags = _XMM1.m128_f32[0];
     __asm
     {
-      vmulps  xmm1, xmm7, xmmword ptr cs:?g_degreeToRadian@@3Ufloat4@@B.v; float4 const g_degreeToRadian
-      vmovss  dword ptr [r14+4Ch], xmm1
       vextractps dword ptr [r14+5Ch], xmm1, 1
       vextractps dword ptr [r14+6Ch], xmm1, 2
     }
   }
-  v31 = v16->flags | 0x20;
+  v28 = v13->flags | 0x20;
   if ( (pBaseModule->m_flags & 1) != 0 )
-    v31 = v16->flags & 0xFFFFFFFFFFFFFFDFui64;
+    v28 = v13->flags & 0xFFFFFFFFFFFFFFDFui64;
   result = pDataa;
-  v16->flags = v31;
-  _R11 = &v42;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  v13->flags = v28;
   return result;
 }
 
@@ -8518,143 +8045,124 @@ ParticleModuleScaleByDistance::Parse
 */
 char *ParticleModuleScaleByDistance::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  bool v9; 
-  char *v10; 
+  bool v7; 
+  char *v8; 
+  ParticleModule *v9; 
+  float v13; 
+  float v14; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v18; 
-  __int64 v19; 
-  signed __int64 v20; 
+  const char *v16; 
+  __int64 v17; 
+  signed __int64 v18; 
+  int v19; 
+  __int64 v20; 
   int v21; 
-  __int64 v22; 
+  int v22; 
   int v23; 
-  int v24; 
-  int v25; 
-  unsigned __int64 v28; 
+  unsigned __int64 v24; 
   char *result; 
   float valueOut; 
   char *pDataa; 
 
   pDataa = (char *)pData;
-  v9 = isLoadingFile;
-  v10 = (char *)pData;
-  _R14 = pBaseModule;
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_48], xmm6
-    vmovaps [rsp+0A8h+var_58], xmm7
-  }
+  v7 = isLoadingFile;
+  v8 = (char *)pData;
+  v9 = pBaseModule;
   if ( isLoadingFile )
   {
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3f800000
-      vmovaps xmm7, xmm6
-    }
+    v13 = FLOAT_1_0;
+    v14 = FLOAT_1_0;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [r14+2Ch]
-      vmovss  xmm7, dword ptr [r14+1Ch]
-    }
+    v13 = *(float *)&pBaseModule[5].m_flags;
+    v14 = *(float *)&pBaseModule[3].m_flags;
   }
-  __asm
-  {
-    vmovss  dword ptr [rsp+0A8h+pBaseModule], xmm7
-    vmovss  [rsp+0A8h+valueOut], xmm6
-  }
+  *(float *)&pBaseModule = v14;
+  valueOut = v13;
   if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6285, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
     __debugbreak();
   if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6285, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
   if ( !pParticleStateDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6285, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
     __debugbreak();
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6285, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6285, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6285, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6285, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
-  if ( v9 )
+  if ( v7 )
   {
-    *_R14 = 0i64;
-    _R14[1] = 0i64;
-    _R14[2] = 0i64;
-    _R14[3] = 0i64;
-    _R14[4] = 0i64;
-    _R14[5] = 0i64;
-    _R14[6] = 0i64;
-    _R14[7] = 0i64;
+    *v9 = 0i64;
+    v9[1] = 0i64;
+    v9[2] = 0i64;
+    v9[3] = 0i64;
+    v9[4] = 0i64;
+    v9[5] = 0i64;
+    v9[6] = 0i64;
+    v9[7] = 0i64;
     initMembersFunc = ParticleModule::GetUpdateData()[50].initMembersFunc;
     if ( initMembersFunc )
-      initMembersFunc(_R14);
+      initMembersFunc(v9);
   }
-  _R14->m_type = PARTICLE_MODULE_SCALE_BY_DISTANCE;
-  if ( v9 )
+  v9->m_type = PARTICLE_MODULE_SCALE_BY_DISTANCE;
+  if ( v7 )
   {
-    v10 = (char *)ParseModuleID(v10, pParticleSystemDef, _R14);
-    pDataa = v10;
+    v8 = (char *)ParseModuleID(v8, pParticleSystemDef, v9);
+    pDataa = v8;
   }
-  if ( v10 )
+  if ( v8 )
   {
 LABEL_25:
-    if ( *v10 )
+    if ( *v8 )
     {
-      v18 = s_typeGroupHeaderEnd;
-      v19 = s_typeGroupHeaderEndLength;
+      v16 = s_typeGroupHeaderEnd;
+      v17 = s_typeGroupHeaderEndLength;
       if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v20 = v10 - v18;
+      v18 = v8 - v16;
       do
       {
-        v21 = (unsigned __int8)v18[v20];
-        v22 = v19;
-        v23 = *(unsigned __int8 *)v18++;
-        --v19;
-        if ( !v22 )
+        v19 = (unsigned __int8)v16[v18];
+        v20 = v17;
+        v21 = *(unsigned __int8 *)v16++;
+        --v17;
+        if ( !v20 )
           break;
-        if ( v21 != v23 )
+        if ( v19 != v21 )
         {
-          v24 = v21 + 32;
+          v22 = v19 + 32;
+          if ( (unsigned int)(v19 - 65) > 0x19 )
+            v22 = v19;
+          v19 = v22;
+          v23 = v21 + 32;
           if ( (unsigned int)(v21 - 65) > 0x19 )
-            v24 = v21;
-          v21 = v24;
-          v25 = v23 + 32;
-          if ( (unsigned int)(v23 - 65) > 0x19 )
-            v25 = v23;
-          if ( v21 != v25 )
+            v23 = v21;
+          if ( v19 != v23 )
           {
-            if ( ParseMemberFlag((const char **)&pDataa, "disable", &_R14->m_flags, 1u) || ParseMember_float__ParseFloat_((const char **)&pDataa, "maxDistance", (float *)&_R14[6]) || ParseMember_float__ParseFloat_((const char **)&pDataa, "scale1", (float *)&pBaseModule) || ParseMember_float__ParseFloat_((const char **)&pDataa, "scale2", &valueOut) || ParseMemberFlag((const char **)&pDataa, "randomizeBetweenCurves", &_R14->m_flags, 0x10u) )
-              v10 = pDataa;
+            if ( ParseMemberFlag((const char **)&pDataa, "disable", &v9->m_flags, 1u) || ParseMember_float__ParseFloat_((const char **)&pDataa, "maxDistance", (float *)&v9[6]) || ParseMember_float__ParseFloat_((const char **)&pDataa, "scale1", (float *)&pBaseModule) || ParseMember_float__ParseFloat_((const char **)&pDataa, "scale2", &valueOut) || ParseMemberFlag((const char **)&pDataa, "randomizeBetweenCurves", &v9->m_flags, 0x10u) )
+              v8 = pDataa;
             else
-              v10 = ++pDataa;
-            if ( v10 )
+              v8 = ++pDataa;
+            if ( v8 )
               goto LABEL_25;
             break;
           }
         }
       }
-      while ( v21 );
+      while ( v19 );
     }
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rsp+0A8h+pBaseModule]
-      vmovss  xmm6, [rsp+0A8h+valueOut]
-    }
-    v9 = isLoadingFile;
+    v14 = *(float *)&pBaseModule;
+    v13 = valueOut;
+    v7 = isLoadingFile;
   }
-  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&_R14[2], 2u, pMemPool, v9, _R14->m_type, pParticleSystemDef->version);
-  __asm
-  {
-    vmovss  dword ptr [r14+1Ch], xmm7
-    vmovaps xmm7, [rsp+0A8h+var_58]
-    vmovss  dword ptr [r14+2Ch], xmm6
-    vmovaps xmm6, [rsp+0A8h+var_48]
-  }
-  v28 = pParticleStateDef->flags | 0x800000000i64;
-  if ( (_R14->m_flags & 1) != 0 )
-    v28 = pParticleStateDef->flags & 0xFFFFFFF7FFFFFFFFui64;
+  ParseMemberCurveList((const char **)&pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&v9[2], 2u, pMemPool, v7, v9->m_type, pParticleSystemDef->version);
+  *(float *)&v9[3].m_flags = v14;
+  *(float *)&v9[5].m_flags = v13;
+  v24 = pParticleStateDef->flags | 0x800000000i64;
+  if ( (v9->m_flags & 1) != 0 )
+    v24 = pParticleStateDef->flags & 0xFFFFFFF7FFFFFFFFui64;
   result = pDataa;
-  pParticleStateDef->flags = v28;
+  pParticleStateDef->flags = v24;
   return result;
 }
 
@@ -8767,74 +8275,62 @@ ParticleModuleSizeGraph::Parse
 */
 char *ParticleModuleSizeGraph::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  bool v10; 
-  char *v11; 
-  unsigned __int8 **v12; 
-  ParticleStateDef *v13; 
+  bool v7; 
+  char *v8; 
+  unsigned __int8 **v9; 
+  ParticleStateDef *v10; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v26; 
+  const char *v23; 
+  __int64 v24; 
+  signed __int64 v25; 
+  int v26; 
   __int64 v27; 
-  signed __int64 v28; 
+  int v28; 
   int v29; 
-  __int64 v30; 
-  int v31; 
-  int v32; 
-  int v33; 
-  char *result; 
+  int v30; 
   char *pDataa[2]; 
   float4 valueOut; 
-  ParticleStateDef *v40; 
-  unsigned __int8 **v41; 
-  float4 v42; 
-  char v43; 
-  void *retaddr; 
+  ParticleStateDef *v34; 
+  unsigned __int8 **v35; 
+  float4 v36; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
-  v10 = isLoadingFile;
-  v11 = (char *)pData;
-  v12 = pMemPool;
-  v13 = pParticleStateDef;
+  v7 = isLoadingFile;
+  v8 = (char *)pData;
+  v9 = pMemPool;
+  v10 = pParticleStateDef;
   _R14 = pBaseModule;
-  v40 = pParticleStateDef;
+  v34 = pParticleStateDef;
   pDataa[0] = (char *)pData;
-  v41 = pMemPool;
+  v35 = pMemPool;
   if ( isLoadingFile )
   {
-    __asm
-    {
-      vmovups xmm6, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-      vmovdqa xmm7, xmm6
-      vmovups xmmword ptr [rbp+3Fh+var_70.v], xmm6
-    }
+    _XMM6 = g_one.v;
+    _XMM7 = g_one.v;
+    v36.v = g_one.v;
   }
   else
   {
+    _XMM7 = _xmm;
+    __asm { vinsertps xmm7, xmm7, dword ptr [r14+4Ch], 0 }
+    _XMM6 = _xmm;
     __asm
     {
-      vmovups xmm7, cs:__xmm@3f800000000000000000000000000000
-      vinsertps xmm7, xmm7, dword ptr [r14+4Ch], 0
-      vmovups xmm6, cs:__xmm@3f800000000000000000000000000000
       vinsertps xmm6, xmm6, dword ptr [r14+1Ch], 0
       vinsertps xmm7, xmm7, dword ptr [r14+5Ch], 10h
       vinsertps xmm7, xmm7, dword ptr [r14+6Ch], 20h ; ' '
       vinsertps xmm6, xmm6, dword ptr [r14+2Ch], 10h
       vinsertps xmm6, xmm6, dword ptr [r14+3Ch], 20h ; ' '
-      vmovups xmmword ptr [rbp+3Fh+var_70.v], xmm7
     }
+    v36.v = _XMM7;
   }
-  __asm { vmovups xmmword ptr [rbp+3Fh+valueOut.v], xmm6 }
+  valueOut.v = _XMM6;
   if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6329, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
     __debugbreak();
   if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6329, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
-  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6329, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
+  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6329, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
     __debugbreak();
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6329, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6329, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
   if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6329, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
@@ -8848,87 +8344,80 @@ char *ParticleModuleSizeGraph::Parse(ParticleSystemDef *pParticleSystemDef, Part
   pBaseModule->m_type = PARTICLE_MODULE_SIZE_GRAPH;
   if ( isLoadingFile )
   {
-    v11 = (char *)ParseModuleID(v11, pParticleSystemDef, pBaseModule);
-    pDataa[0] = v11;
+    v8 = (char *)ParseModuleID(v8, pParticleSystemDef, pBaseModule);
+    pDataa[0] = v8;
   }
-  if ( v11 )
+  if ( v8 )
   {
 LABEL_25:
-    if ( *v11 )
+    if ( *v8 )
     {
-      v26 = s_typeGroupHeaderEnd;
-      v27 = s_typeGroupHeaderEndLength;
+      v23 = s_typeGroupHeaderEnd;
+      v24 = s_typeGroupHeaderEndLength;
       if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v28 = v26 - v11;
+      v25 = v23 - v8;
       do
       {
-        v29 = (unsigned __int8)*v11;
-        v30 = v27;
-        v31 = (unsigned __int8)(v11++)[v28];
-        --v27;
-        if ( !v30 )
+        v26 = (unsigned __int8)*v8;
+        v27 = v24;
+        v28 = (unsigned __int8)(v8++)[v25];
+        --v24;
+        if ( !v27 )
           break;
-        if ( v29 != v31 )
+        if ( v26 != v28 )
         {
-          v32 = v29 + 32;
-          if ( (unsigned int)(v29 - 65) > 0x19 )
-            v32 = v29;
-          v29 = v32;
-          v33 = v31 + 32;
-          if ( (unsigned int)(v31 - 65) > 0x19 )
-            v33 = v31;
-          if ( v29 != v33 )
+          v29 = v26 + 32;
+          if ( (unsigned int)(v26 - 65) > 0x19 )
+            v29 = v26;
+          v26 = v29;
+          v30 = v28 + 32;
+          if ( (unsigned int)(v28 - 65) > 0x19 )
+            v30 = v28;
+          if ( v26 != v30 )
           {
-            if ( ParseMemberFlag((const char **)pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMember_float4__ParseVector3_((const char **)pDataa, "scale1", &valueOut) || ParseMember_float4__ParseVector3_((const char **)pDataa, "scale2", &v42) || ParseMemberFlag((const char **)pDataa, "useEmitterLife", &pBaseModule->m_flags, 4u) || ParseMemberFlag((const char **)pDataa, "randomizeBetweenCurves", &pBaseModule->m_flags, 0x10u) || ParseMemberFlag((const char **)pDataa, "useNonUniformInterpolation", &pBaseModule->m_flags, 0x20u) )
-              v11 = pDataa[0];
+            if ( ParseMemberFlag((const char **)pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMember_float4__ParseVector3_((const char **)pDataa, "scale1", &valueOut) || ParseMember_float4__ParseVector3_((const char **)pDataa, "scale2", &v36) || ParseMemberFlag((const char **)pDataa, "useEmitterLife", &pBaseModule->m_flags, 4u) || ParseMemberFlag((const char **)pDataa, "randomizeBetweenCurves", &pBaseModule->m_flags, 0x10u) || ParseMemberFlag((const char **)pDataa, "useNonUniformInterpolation", &pBaseModule->m_flags, 0x20u) )
+              v8 = pDataa[0];
             else
-              v11 = ++pDataa[0];
-            if ( v11 )
+              v8 = ++pDataa[0];
+            if ( v8 )
               goto LABEL_25;
             break;
           }
         }
       }
-      while ( v29 );
+      while ( v26 );
     }
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rbp+3Fh+valueOut.v]
-      vmovups xmm7, xmmword ptr [rbp+3Fh+var_70.v]
-    }
-    v13 = v40;
-    v10 = isLoadingFile;
-    v12 = v41;
+    _XMM6 = valueOut.v;
+    _XMM7 = v36.v;
+    v10 = v34;
+    v7 = isLoadingFile;
+    v9 = v35;
   }
-  ParseMemberCurveList((const char **)pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&pBaseModule[2], 6u, v12, v10, pBaseModule->m_type, pParticleSystemDef->version);
+  ParseMemberCurveList((const char **)pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&pBaseModule[2], 6u, v9, v7, pBaseModule->m_type, pParticleSystemDef->version);
+  *(float *)&pBaseModule[3].m_flags = _XMM6.m128_f32[0];
   __asm
   {
-    vmovss  dword ptr [r14+1Ch], xmm6
     vextractps dword ptr [r14+2Ch], xmm6, 1
     vextractps dword ptr [r14+3Ch], xmm6, 2
-    vmovss  dword ptr [r14+4Ch], xmm7
+  }
+  *(float *)&pBaseModule[9].m_flags = _XMM7.m128_f32[0];
+  __asm
+  {
     vextractps dword ptr [r14+5Ch], xmm7, 1
     vextractps dword ptr [r14+6Ch], xmm7, 2
   }
   ParticleModuleGraph_ConvertToLerpIfPossible(pBaseModule, (const ParticleCurveDef *)&pBaseModule[2], 6u, &valueOut, (float4 *)&pBaseModule[14], (float4 *)&pBaseModule[16]);
   if ( (pBaseModule->m_flags & 1) != 0 )
   {
-    if ( !v10 )
-      v13->flags &= ~0x8000000000ui64;
+    if ( !v7 )
+      v10->flags &= ~0x8000000000ui64;
   }
   else
   {
-    v13->flags |= 0x8000000000ui64;
+    v10->flags |= 0x8000000000ui64;
   }
-  result = pDataa[0];
-  _R11 = &v43;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  return pDataa[0];
 }
 
 /*
@@ -10358,73 +9847,61 @@ ParticleModuleVelocityGraph::Parse
 */
 char *ParticleModuleVelocityGraph::Parse(ParticleSystemDef *pParticleSystemDef, ParticleEmitterDef *pParticleEmitterDef, ParticleStateDef *pParticleStateDef, const char *pData, unsigned __int8 **pMemPool, ParticleModule *pBaseModule, bool isLoadingFile)
 {
-  bool v10; 
-  char *v11; 
-  unsigned __int8 **v12; 
+  bool v7; 
+  char *v8; 
+  unsigned __int8 **v9; 
   void (__fastcall *initMembersFunc)(ParticleModule *); 
-  const char *v26; 
+  const char *v23; 
+  __int64 v24; 
+  signed __int64 v25; 
+  int v26; 
   __int64 v27; 
-  signed __int64 v28; 
+  int v28; 
   int v29; 
-  __int64 v30; 
-  int v31; 
-  int v32; 
-  int v33; 
+  int v30; 
   unsigned __int64 flags; 
   unsigned int m_flags; 
-  unsigned __int64 v36; 
-  char *result; 
+  unsigned __int64 v33; 
   char *pDataa[2]; 
   float4 valueOut; 
-  unsigned __int8 **v43; 
-  float4 v44; 
-  char v45; 
-  void *retaddr; 
+  unsigned __int8 **v37; 
+  float4 v38; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-48h], xmm6
-    vmovaps xmmword ptr [r11-58h], xmm7
-  }
-  v10 = isLoadingFile;
-  v11 = (char *)pData;
-  v12 = pMemPool;
+  v7 = isLoadingFile;
+  v8 = (char *)pData;
+  v9 = pMemPool;
   _RDI = pBaseModule;
   pDataa[0] = (char *)pData;
-  v43 = pMemPool;
+  v37 = pMemPool;
   if ( isLoadingFile )
   {
-    __asm
-    {
-      vmovups xmm6, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-      vmovdqa xmm7, xmm6
-      vmovups xmmword ptr [r11-78h], xmm6
-    }
+    _XMM6 = g_one.v;
+    _XMM7 = g_one.v;
+    v38.v = g_one.v;
   }
   else
   {
+    _XMM7 = _xmm;
+    __asm { vinsertps xmm7, xmm7, dword ptr [rdi+4Ch], 0 }
+    _XMM6 = _xmm;
     __asm
     {
-      vmovups xmm7, cs:__xmm@3f800000000000000000000000000000
-      vinsertps xmm7, xmm7, dword ptr [rdi+4Ch], 0
-      vmovups xmm6, cs:__xmm@3f800000000000000000000000000000
       vinsertps xmm6, xmm6, dword ptr [rdi+1Ch], 0
       vinsertps xmm7, xmm7, dword ptr [rdi+5Ch], 10h
       vinsertps xmm7, xmm7, dword ptr [rdi+6Ch], 20h ; ' '
       vinsertps xmm6, xmm6, dword ptr [rdi+2Ch], 10h
       vinsertps xmm6, xmm6, dword ptr [rdi+3Ch], 20h ; ' '
-      vmovups xmmword ptr [rsp+0F8h+var_78.v], xmm7
     }
+    v38.v = _XMM7;
   }
-  __asm { vmovups xmmword ptr [rsp+0F8h+valueOut.v], xmm6 }
+  valueOut.v = _XMM6;
   if ( !pParticleSystemDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6408, ASSERT_TYPE_ASSERT, "(pParticleSystemDef)", (const char *)&queryFormat, "pParticleSystemDef") )
     __debugbreak();
   if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6408, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
   if ( !pParticleStateDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6408, ASSERT_TYPE_ASSERT, "(pParticleStateDef)", (const char *)&queryFormat, "pParticleStateDef") )
     __debugbreak();
-  if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6408, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6408, ASSERT_TYPE_ASSERT, "(pData)", (const char *)&queryFormat, "pData") )
     __debugbreak();
   if ( !pBaseModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 6408, ASSERT_TYPE_ASSERT, "(pBaseModule)", (const char *)&queryFormat, "pBaseModule") )
     __debugbreak();
@@ -10438,70 +9915,70 @@ char *ParticleModuleVelocityGraph::Parse(ParticleSystemDef *pParticleSystemDef, 
   pBaseModule->m_type = PARTICLE_MODULE_VELOCITY_GRAPH;
   if ( isLoadingFile )
   {
-    v11 = (char *)ParseModuleID(v11, pParticleSystemDef, pBaseModule);
-    pDataa[0] = v11;
+    v8 = (char *)ParseModuleID(v8, pParticleSystemDef, pBaseModule);
+    pDataa[0] = v8;
   }
-  if ( v11 )
+  if ( v8 )
   {
 LABEL_25:
-    if ( *v11 )
+    if ( *v8 )
     {
-      v26 = s_typeGroupHeaderEnd;
-      v27 = s_typeGroupHeaderEndLength;
+      v23 = s_typeGroupHeaderEnd;
+      v24 = s_typeGroupHeaderEndLength;
       if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v28 = v26 - v11;
+      v25 = v23 - v8;
       do
       {
-        v29 = (unsigned __int8)*v11;
-        v30 = v27;
-        v31 = (unsigned __int8)v11[v28];
-        ++v11;
-        --v27;
-        if ( !v30 )
+        v26 = (unsigned __int8)*v8;
+        v27 = v24;
+        v28 = (unsigned __int8)v8[v25];
+        ++v8;
+        --v24;
+        if ( !v27 )
           break;
-        if ( v29 != v31 )
+        if ( v26 != v28 )
         {
-          v32 = v29 + 32;
-          if ( (unsigned int)(v29 - 65) > 0x19 )
-            v32 = v29;
-          v29 = v32;
-          v33 = v31 + 32;
-          if ( (unsigned int)(v31 - 65) > 0x19 )
-            v33 = v31;
-          if ( v29 != v33 )
+          v29 = v26 + 32;
+          if ( (unsigned int)(v26 - 65) > 0x19 )
+            v29 = v26;
+          v26 = v29;
+          v30 = v28 + 32;
+          if ( (unsigned int)(v28 - 65) > 0x19 )
+            v30 = v28;
+          if ( v26 != v30 )
           {
-            if ( ParseMemberFlag((const char **)pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMember_float4__ParseVector3_((const char **)pDataa, "scale1", &valueOut) || ParseMember_float4__ParseVector3_((const char **)pDataa, "scale2", &v44) || ParseMemberFlag((const char **)pDataa, "useEmitterLife", &pBaseModule->m_flags, 4u) || ParseMemberFlag((const char **)pDataa, "randomizeBetweenCurves", &pBaseModule->m_flags, 0x10u) || ParseMemberFlag((const char **)pDataa, "useWorldSpace", &pBaseModule->m_flags, 0x80u) )
-              v11 = pDataa[0];
+            if ( ParseMemberFlag((const char **)pDataa, "disable", &pBaseModule->m_flags, 1u) || ParseMember_float4__ParseVector3_((const char **)pDataa, "scale1", &valueOut) || ParseMember_float4__ParseVector3_((const char **)pDataa, "scale2", &v38) || ParseMemberFlag((const char **)pDataa, "useEmitterLife", &pBaseModule->m_flags, 4u) || ParseMemberFlag((const char **)pDataa, "randomizeBetweenCurves", &pBaseModule->m_flags, 0x10u) || ParseMemberFlag((const char **)pDataa, "useWorldSpace", &pBaseModule->m_flags, 0x80u) )
+              v8 = pDataa[0];
             else
-              v11 = ++pDataa[0];
-            if ( v11 )
+              v8 = ++pDataa[0];
+            if ( v8 )
               goto LABEL_25;
             break;
           }
         }
       }
-      while ( v29 );
+      while ( v26 );
     }
-    __asm
-    {
-      vmovups xmm6, xmmword ptr [rsp+0F8h+valueOut.v]
-      vmovups xmm7, xmmword ptr [rsp+0F8h+var_78.v]
-    }
-    v10 = isLoadingFile;
-    v12 = v43;
+    _XMM6 = valueOut.v;
+    _XMM7 = v38.v;
+    v7 = isLoadingFile;
+    v9 = v37;
   }
-  ParseMemberCurveList((const char **)pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&pBaseModule[2], 6u, v12, v10, pBaseModule->m_type, pParticleSystemDef->version);
+  ParseMemberCurveList((const char **)pDataa, pParticleSystemDef, "curveList", (ParticleCurveDef *)&pBaseModule[2], 6u, v9, v7, pBaseModule->m_type, pParticleSystemDef->version);
+  *(float *)&pBaseModule[3].m_flags = _XMM6.m128_f32[0];
   __asm
   {
-    vmovss  dword ptr [rdi+1Ch], xmm6
     vextractps dword ptr [rdi+2Ch], xmm6, 1
     vextractps dword ptr [rdi+3Ch], xmm6, 2
-    vmovss  dword ptr [rdi+4Ch], xmm7
+  }
+  *(float *)&pBaseModule[9].m_flags = _XMM7.m128_f32[0];
+  __asm
+  {
     vextractps dword ptr [rdi+5Ch], xmm7, 1
     vextractps dword ptr [rdi+6Ch], xmm7, 2
   }
-  if ( v10 && (pBaseModule->m_flags & 1) == 0 )
+  if ( v7 && (pBaseModule->m_flags & 1) == 0 )
   {
     flags = pParticleStateDef->flags;
     if ( (flags & 0x300) != 0 )
@@ -10522,27 +9999,20 @@ LABEL_25:
   {
     if ( (m_flags & 1) != 0 )
     {
-      if ( !v10 || (pParticleStateDef->flags & 0x300) == 0 )
+      if ( !v7 || (pParticleStateDef->flags & 0x300) == 0 )
         pParticleStateDef->flags &= 0xFFFFFFFFFFFFFCFFui64;
     }
     else
     {
-      v36 = pParticleStateDef->flags;
+      v33 = pParticleStateDef->flags;
       if ( (m_flags & 0x80) != 0 )
-        pParticleStateDef->flags = v36 & 0xFFFFFFFFFFFFFCFFui64 | 0x200;
+        pParticleStateDef->flags = v33 & 0xFFFFFFFFFFFFFCFFui64 | 0x200;
       else
-        pParticleStateDef->flags = v36 & 0xFFFFFFFFFFFFFCFFui64 | 0x100;
+        pParticleStateDef->flags = v33 & 0xFFFFFFFFFFFFFCFFui64 | 0x100;
     }
   }
   ParticleModuleGraph_ConvertToLerpIfPossible(pBaseModule, (const ParticleCurveDef *)&pBaseModule[2], 6u, &valueOut, (float4 *)&pBaseModule[14], (float4 *)&pBaseModule[16]);
-  result = pDataa[0];
-  _R11 = &v45;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
-  return result;
+  return pDataa[0];
 }
 
 /*
@@ -11106,96 +10576,90 @@ char *ParseEmitterMembers(const char *pData, ParticleSystemDef *pParticleSystemD
   char *v4; 
   ParticleSystemDef *v7; 
   unsigned int v8; 
+  int v15; 
+  unsigned int v16; 
   int v17; 
-  unsigned int v18; 
-  int v19; 
-  const char *v20; 
-  char *v21; 
-  __int64 v22; 
-  signed __int64 v23; 
+  const char *v18; 
+  char *v19; 
+  __int64 v20; 
+  signed __int64 v21; 
+  int v22; 
+  __int64 v23; 
   int v24; 
-  __int64 v25; 
+  int v25; 
   int v26; 
-  int v27; 
-  int v28; 
   ParticleGroupID *groupIDs; 
   unsigned int flags; 
-  int v31; 
+  int v29; 
   unsigned int valueOut[6]; 
   char *pDataa; 
-  ParticleSystemDef *v35; 
-  int v36; 
-  int v37; 
+  ParticleSystemDef *v33; 
+  int v34; 
+  int v35; 
 
-  v35 = pParticleSystemDef;
+  v33 = pParticleSystemDef;
   pDataa = (char *)pData;
   v4 = (char *)pData;
-  _RBX = pParticleEmitterDef;
   v7 = pParticleSystemDef;
   if ( !pParticleEmitterDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3423, ASSERT_TYPE_ASSERT, "(pParticleEmitterDef)", (const char *)&queryFormat, "pParticleEmitterDef") )
     __debugbreak();
   v8 = 0;
   if ( isLoadingFile )
   {
-    _RBX->particleSpawnRate.min = 1.0;
-    _RBX->particleSpawnRate.max = 1.0;
-    _RBX->particleLife.min = 10.0;
-    _RBX->particleLife.max = 10.0;
-    _RBX->particleBurstCount.min = 1;
-    _RBX->particleBurstCount.max = 1;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rbx+10h]
-      vmaxss  xmm2, xmm1, dword ptr [rbx+0Ch]
-      vmovss  xmm0, dword ptr [rbx+18h]
-      vmaxss  xmm3, xmm0, dword ptr [rbx+14h]
-      vmulss  xmm3, xmm3, xmm2
-      vxorps  xmm1, xmm1, xmm1
-      vroundss xmm2, xmm1, xmm3, 2
-      vcvttss2si eax, xmm2
-    }
-    _RBX->particleCountMax = _EAX;
-    _RBX->emitByDistanceDensity.min = 0.1;
-    _RBX->emitByDistanceDensity.max = 0.1;
-    _RBX->particleSpawnShapeRange = 0i64;
+    pParticleEmitterDef->particleSpawnRate.min = 1.0;
+    pParticleEmitterDef->particleSpawnRate.max = 1.0;
+    pParticleEmitterDef->particleLife.min = 10.0;
+    pParticleEmitterDef->particleLife.max = 10.0;
+    pParticleEmitterDef->particleBurstCount.min = 1;
+    pParticleEmitterDef->particleBurstCount.max = 1;
+    _XMM1 = LODWORD(pParticleEmitterDef->particleSpawnRate.max);
+    __asm { vmaxss  xmm2, xmm1, dword ptr [rbx+0Ch] }
+    _XMM0 = LODWORD(pParticleEmitterDef->particleLife.max);
+    __asm { vmaxss  xmm3, xmm0, dword ptr [rbx+14h] }
+    _XMM1 = 0i64;
+    __asm { vroundss xmm2, xmm1, xmm3, 2 }
+    pParticleEmitterDef->particleCountMax = (int)*(float *)&_XMM2;
+    pParticleEmitterDef->emitByDistanceDensity.min = 0.1;
+    pParticleEmitterDef->emitByDistanceDensity.max = 0.1;
+    pParticleEmitterDef->particleSpawnShapeRange = 0i64;
   }
-  v36 = 0;
-  v17 = 0;
-  v37 = 0;
-  v18 = 0;
+  v34 = 0;
+  v15 = 0;
+  v35 = 0;
+  v16 = 0;
   valueOut[0] = 0;
-  v19 = 0;
+  v17 = 0;
   if ( v4 )
   {
 LABEL_7:
     if ( *v4 )
     {
-      v20 = s_typeGroupHeaderEnd;
-      v21 = v4;
-      v22 = s_typeGroupHeaderEndLength;
+      v18 = s_typeGroupHeaderEnd;
+      v19 = v4;
+      v20 = s_typeGroupHeaderEndLength;
       if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v23 = v20 - v4;
+      v21 = v18 - v4;
       do
       {
-        v24 = (unsigned __int8)*v21;
-        v25 = v22;
-        v26 = (unsigned __int8)(v21++)[v23];
-        --v22;
-        if ( !v25 )
+        v22 = (unsigned __int8)*v19;
+        v23 = v20;
+        v24 = (unsigned __int8)(v19++)[v21];
+        --v20;
+        if ( !v23 )
           break;
-        if ( v24 != v26 )
+        if ( v22 != v24 )
         {
-          v27 = v24 + 32;
+          v25 = v22 + 32;
+          if ( (unsigned int)(v22 - 65) > 0x19 )
+            v25 = v22;
+          v22 = v25;
+          v26 = v24 + 32;
           if ( (unsigned int)(v24 - 65) > 0x19 )
-            v27 = v24;
-          v24 = v27;
-          v28 = v26 + 32;
-          if ( (unsigned int)(v26 - 65) > 0x19 )
-            v28 = v26;
-          if ( v24 != v28 )
+            v26 = v24;
+          if ( v22 != v26 )
           {
-            if ( ParseMemberFlag((const char **)&pDataa, "disable", &_RBX->flags, 1u) || ParseMember_int__ParseInt_((const char **)&pDataa, "numStates", &_RBX->numStates) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "gravityOptions", (unsigned int *)&_RBX->gravityOptions) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "multiSampleOverride", valueOut) || ParseMemberFlag((const char **)&pDataa, "useScriptedVelocity", &_RBX->flags, 0x100u) || ParseMemberFlag((const char **)&pDataa, "ignoreModifiers", &_RBX->flags, 0x800000u) || ParseMember_enum_ParticleGroupID__ParseGroupID_((const char **)&pDataa, "groupID1", _RBX->groupIDs) || ParseMember_enum_ParticleGroupID__ParseGroupID_((const char **)&pDataa, "groupID2", &_RBX->groupIDs[1]) || ParseMember_enum_ParticleGroupID__ParseGroupID_((const char **)&pDataa, "groupID3", &_RBX->groupIDs[2]) || ParseMember_enum_ParticleGroupID__ParseGroupID_((const char **)&pDataa, "groupID4", &_RBX->groupIDs[3]) || ParseMemberFlag((const char **)&pDataa, "disableInSP", &_RBX->flags, 0x10000u) || ParseMemberFlag((const char **)&pDataa, "disableInMP", &_RBX->flags, 0x20000u) || ParseMemberFlag((const char **)&pDataa, "disableInMPHPC", &_RBX->flags, 0x40000u) || ParseMemberFlag((const char **)&pDataa, "disableInCP", &_RBX->flags, 0x80000u) || ParseMember_int__ParseInt_((const char **)&pDataa, "nvgEnable", &v37) || ParseMember_int__ParseInt_((const char **)&pDataa, "thermalEnable", &v36) || ParseMemberFlag((const char **)&pDataa, "barrelHeatScale", &_RBX->flags, 0x1000000u) || ParseMemberFlag((const char **)&pDataa, "ignoreFOVScale", &_RBX->flags, 0x2000000u) )
+            if ( ParseMemberFlag((const char **)&pDataa, "disable", &pParticleEmitterDef->flags, 1u) || ParseMember_int__ParseInt_((const char **)&pDataa, "numStates", &pParticleEmitterDef->numStates) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "gravityOptions", (unsigned int *)&pParticleEmitterDef->gravityOptions) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "multiSampleOverride", valueOut) || ParseMemberFlag((const char **)&pDataa, "useScriptedVelocity", &pParticleEmitterDef->flags, 0x100u) || ParseMemberFlag((const char **)&pDataa, "ignoreModifiers", &pParticleEmitterDef->flags, 0x800000u) || ParseMember_enum_ParticleGroupID__ParseGroupID_((const char **)&pDataa, "groupID1", pParticleEmitterDef->groupIDs) || ParseMember_enum_ParticleGroupID__ParseGroupID_((const char **)&pDataa, "groupID2", &pParticleEmitterDef->groupIDs[1]) || ParseMember_enum_ParticleGroupID__ParseGroupID_((const char **)&pDataa, "groupID3", &pParticleEmitterDef->groupIDs[2]) || ParseMember_enum_ParticleGroupID__ParseGroupID_((const char **)&pDataa, "groupID4", &pParticleEmitterDef->groupIDs[3]) || ParseMemberFlag((const char **)&pDataa, "disableInSP", &pParticleEmitterDef->flags, 0x10000u) || ParseMemberFlag((const char **)&pDataa, "disableInMP", &pParticleEmitterDef->flags, 0x20000u) || ParseMemberFlag((const char **)&pDataa, "disableInMPHPC", &pParticleEmitterDef->flags, 0x40000u) || ParseMemberFlag((const char **)&pDataa, "disableInCP", &pParticleEmitterDef->flags, 0x80000u) || ParseMember_int__ParseInt_((const char **)&pDataa, "nvgEnable", &v35) || ParseMember_int__ParseInt_((const char **)&pDataa, "thermalEnable", &v34) || ParseMemberFlag((const char **)&pDataa, "barrelHeatScale", &pParticleEmitterDef->flags, 0x1000000u) || ParseMemberFlag((const char **)&pDataa, "ignoreFOVScale", &pParticleEmitterDef->flags, 0x2000000u) )
               v4 = pDataa;
             else
               v4 = ++pDataa;
@@ -11205,15 +10669,15 @@ LABEL_7:
           }
         }
       }
-      while ( v24 );
+      while ( v22 );
     }
-    v17 = v37;
+    v15 = v35;
     v8 = 0;
-    v19 = v36;
-    v18 = valueOut[0];
-    v7 = v35;
+    v17 = v34;
+    v16 = valueOut[0];
+    v7 = v33;
   }
-  groupIDs = _RBX->groupIDs;
+  groupIDs = pParticleEmitterDef->groupIDs;
   while ( *groupIDs == NONE )
   {
     ++v8;
@@ -11223,45 +10687,45 @@ LABEL_7:
   }
   v7->flags |= 0x400000u;
 LABEL_48:
-  _RBX->flags &= 0xFFFF0FFF;
-  flags = _RBX->flags;
+  pParticleEmitterDef->flags &= 0xFFFF0FFF;
+  flags = pParticleEmitterDef->flags;
+  if ( v15 == 1 )
+  {
+    v29 = flags | 0x1000;
+  }
+  else
+  {
+    if ( v15 != 2 )
+      goto LABEL_53;
+    v29 = flags | 0x2000;
+  }
+  pParticleEmitterDef->flags = v29;
+  v7->flags |= 0x800000u;
+LABEL_53:
   if ( v17 == 1 )
   {
-    v31 = flags | 0x1000;
+    pParticleEmitterDef->flags |= 0x4000u;
   }
   else
   {
     if ( v17 != 2 )
-      goto LABEL_53;
-    v31 = flags | 0x2000;
-  }
-  _RBX->flags = v31;
-  v7->flags |= 0x800000u;
-LABEL_53:
-  if ( v19 == 1 )
-  {
-    _RBX->flags |= 0x4000u;
-  }
-  else
-  {
-    if ( v19 != 2 )
       goto LABEL_58;
-    _RBX->flags |= 0x8000u;
+    pParticleEmitterDef->flags |= 0x8000u;
   }
   v7->flags |= 0x800000u;
 LABEL_58:
-  if ( v18 )
+  if ( v16 )
   {
-    if ( v18 == 1 )
+    if ( v16 == 1 )
     {
-      _RBX->flags |= 0x400000u;
+      pParticleEmitterDef->flags |= 0x400000u;
     }
-    else if ( v18 == 2 )
+    else if ( v16 == 2 )
     {
-      _RBX->flags |= 0x200000u;
+      pParticleEmitterDef->flags |= 0x200000u;
     }
   }
-  if ( (_RBX->flags & 1) == 0 && !_RBX->numStates )
+  if ( (pParticleEmitterDef->flags & 1) == 0 && !pParticleEmitterDef->numStates )
     Com_PrintError(21, "ERROR: VFX Particle emitter has no states and is potentially wasting memory: %s | %s\n", v7->name, (const char *)&queryFormat.fmt + 3);
   return v4;
 }
@@ -11286,12 +10750,8 @@ ParseFloatAngle
 float ParseFloatAngle(const char **pData)
 {
   *(double *)&_XMM0 = atof(*pData);
-  __asm
-  {
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm1, cs:__real@3c8efa35
-  }
-  return *(float *)&_XMM0;
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  return *(float *)&_XMM1 * 0.017453292;
 }
 
 /*
@@ -11787,9 +11247,9 @@ char ParseMemberFloatRange(const char **pData, const char *memberName, ParticleF
   __int64 v19; 
   char v20; 
   char *v22; 
+  float min; 
   char dest[64]; 
 
-  _RBP = valueOut;
   if ( !*pData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 837, ASSERT_TYPE_ASSERT, "(*pData)", (const char *)&queryFormat, "*pData") )
     __debugbreak();
   if ( !memberName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 837, ASSERT_TYPE_ASSERT, "(memberName)", (const char *)&queryFormat, "memberName") )
@@ -11831,36 +11291,26 @@ char ParseMemberFloatRange(const char **pData, const char *memberName, ParticleF
   while ( v18 );
   *pData += v14;
   *(double *)&_XMM0 = atof(*pData);
-  __asm
-  {
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmovss  dword ptr [rbp+0], xmm1
-  }
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  valueOut->min = *(float *)&_XMM1;
   v22 = strchr_0(*pData, 32);
   *pData = v22;
   *(double *)&_XMM0 = atof(v22);
-  __asm
-  {
-    vcvtsd2ss xmm2, xmm0, xmm0
-    vmovss  dword ptr [rbp+4], xmm2
-  }
+  __asm { vcvtsd2ss xmm2, xmm0, xmm0 }
+  valueOut->max = *(float *)&_XMM2;
   if ( squareValues )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm2, xmm2, xmm2
-      vmovss  dword ptr [rbp+0], xmm1
-      vmovss  dword ptr [rbp+4], xmm2
-    }
+    *(float *)&_XMM2 = *(float *)&_XMM2 * *(float *)&_XMM2;
+    valueOut->min = valueOut->min * valueOut->min;
+    valueOut->max = *(float *)&_XMM2;
   }
   if ( !ignoreSwap )
   {
-    __asm
+    min = valueOut->min;
+    if ( valueOut->min > *(float *)&_XMM2 )
     {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vcomiss xmm0, xmm2
+      valueOut->min = *(float *)&_XMM2;
+      valueOut->max = min;
     }
   }
   *pData = strchr_0(*pData + 1, 34);
@@ -11885,12 +11335,10 @@ char ParseMemberFloatRangeAngle(const char **pData, const char *memberName, Part
   char v15; 
   __int64 v16; 
   char v17; 
-  char *v20; 
-  char v24; 
-  char v25; 
+  char *v19; 
+  float min; 
   char dest[64]; 
 
-  _R15 = valueOut;
   if ( !*pData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 858, ASSERT_TYPE_ASSERT, "(*pData)", (const char *)&queryFormat, "*pData") )
     __debugbreak();
   if ( !memberName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 858, ASSERT_TYPE_ASSERT, "(memberName)", (const char *)&queryFormat, "memberName") )
@@ -11932,30 +11380,18 @@ char ParseMemberFloatRangeAngle(const char **pData, const char *memberName, Part
   while ( v15 );
   *pData += v11;
   *(double *)&_XMM0 = atof(*pData);
-  __asm
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  valueOut->min = *(float *)&_XMM1 * 0.017453292;
+  v19 = strchr_0(*pData, 32);
+  *pData = v19;
+  *(double *)&_XMM0 = atof(v19);
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  min = valueOut->min;
+  valueOut->max = *(float *)&_XMM1 * 0.017453292;
+  if ( min > (float)(*(float *)&_XMM1 * 0.017453292) )
   {
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmulss  xmm1, xmm1, cs:__real@3c8efa35
-    vmovss  dword ptr [r15], xmm1
-  }
-  v20 = strchr_0(*pData, 32);
-  *pData = v20;
-  *(double *)&_XMM0 = atof(v20);
-  __asm
-  {
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmulss  xmm2, xmm1, cs:__real@3c8efa35
-    vmovss  xmm0, dword ptr [r15]
-    vcomiss xmm0, xmm2
-    vmovss  dword ptr [r15+4], xmm2
-  }
-  if ( !(v24 | v25) )
-  {
-    __asm
-    {
-      vmovss  dword ptr [r15], xmm2
-      vmovss  dword ptr [r15+4], xmm0
-    }
+    valueOut->min = *(float *)&_XMM1 * 0.017453292;
+    valueOut->max = min;
   }
   *pData = strchr_0(*pData + 1, 34);
   return 1;
@@ -12140,7 +11576,6 @@ char ParseMemberVector2(const char **pData, const char *memberName, vec2_t *valu
   char *v19; 
   char dest[64]; 
 
-  _R15 = valueOut;
   if ( !*pData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 825, ASSERT_TYPE_ASSERT, "(*pData)", (const char *)&queryFormat, "*pData") )
     __debugbreak();
   if ( !memberName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 825, ASSERT_TYPE_ASSERT, "(memberName)", (const char *)&queryFormat, "memberName") )
@@ -12179,19 +11614,13 @@ char ParseMemberVector2(const char **pData, const char *memberName, vec2_t *valu
 LABEL_23:
       *pData += v11;
       *(double *)&_XMM0 = atof(*pData);
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [r15], xmm1
-      }
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      valueOut->v[0] = *(float *)&_XMM1;
       v19 = strchr_0(*pData, 32);
       *pData = v19;
       *(double *)&_XMM0 = atof(v19);
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [r15+4], xmm1
-      }
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      valueOut->v[1] = *(float *)&_XMM1;
       *pData = strchr_0(*pData + 1, 34);
       return 1;
     }
@@ -12404,99 +11833,79 @@ ParseSystemMembers
 */
 char *ParseSystemMembers(const char *pData, ParticleSystemDef *pParticleSystemDef, int *outNumEmittersTotal)
 {
-  char *v7; 
-  bool v10; 
-  const char *v11; 
-  __int64 v12; 
-  signed __int64 v13; 
+  char *v5; 
+  float v6; 
+  const char *v7; 
+  __int64 v8; 
+  signed __int64 v9; 
+  int v10; 
+  __int64 v11; 
+  int v12; 
+  int v13; 
   int v14; 
-  __int64 v15; 
-  int v16; 
-  int v17; 
-  int v18; 
+  int v15; 
   char *result; 
   char *pDataa; 
   float valueOut; 
 
-  __asm { vmovaps [rsp+80h+var_30], xmm6 }
-  _R14 = (float4 *)pParticleSystemDef;
   pDataa = (char *)pData;
-  v7 = (char *)pData;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+valueOut], xmm0
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v10 = pData == NULL;
+  v5 = (char *)pData;
+  v6 = 0.0;
+  valueOut = 0.0;
   if ( pData )
   {
 LABEL_2:
-    v10 = *v7 == 0;
-    if ( *v7 )
+    if ( *v5 )
     {
-      v11 = s_typeGroupHeaderEnd;
-      v12 = s_typeGroupHeaderEndLength;
+      v7 = s_typeGroupHeaderEnd;
+      v8 = s_typeGroupHeaderEndLength;
       if ( !s_typeGroupHeaderEnd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, (AssertType)((_DWORD)s_typeGroupHeaderEnd + 1), "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v13 = v7 - v11;
+      v9 = v5 - v7;
       do
       {
-        v14 = (unsigned __int8)v11[v13];
-        v15 = v12;
-        v16 = *(unsigned __int8 *)v11++;
-        --v12;
-        v10 = v15 == 0;
-        if ( !v15 )
+        v10 = (unsigned __int8)v7[v9];
+        v11 = v8;
+        v12 = *(unsigned __int8 *)v7++;
+        --v8;
+        if ( !v11 )
           break;
-        if ( v14 != v16 )
+        if ( v10 != v12 )
         {
-          v17 = v14 + 32;
-          if ( (unsigned int)(v14 - 65) > 0x19 )
-            v17 = v14;
-          v14 = v17;
-          v18 = v16 + 32;
-          if ( (unsigned int)(v16 - 65) > 0x19 )
-            v18 = v16;
-          if ( v14 != v18 )
+          v13 = v10 + 32;
+          if ( (unsigned int)(v10 - 65) > 0x19 )
+            v13 = v10;
+          v10 = v13;
+          v14 = v12 + 32;
+          if ( (unsigned int)(v12 - 65) > 0x19 )
+            v14 = v12;
+          if ( v10 != v14 )
           {
-            if ( ParseMember_int__ParseInt_((const char **)&pDataa, "version", &_R14[1].v.m128_i32[2]) || ParseMember_int__ParseInt_((const char **)&pDataa, "numEmitters", outNumEmittersTotal) || ParseMember_int__ParseInt_((const char **)&pDataa, "numScriptedInputNodes", (int *)&_R14[2]) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "phaseOptions", &_R14[2].v.m128_u32[3]) || ParseMember_float__ParseFloat_((const char **)&pDataa, "drawFrustumCullRadius", _R14[3].v.m128_f32) || ParseMember_float__ParseFloat_((const char **)&pDataa, "updateFrustumCullRadius", &_R14[3].v.m128_f32[1]) || ParseMemberFlag((const char **)&pDataa, "killOnOwnerEntityDeath", &_R14[2].v.m128_u32[1], 0x100u) || ParseMemberFlag((const char **)&pDataa, "stopOnDynamicBoltDeath", &_R14[2].v.m128_u32[1], 0x100000u) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "editorPosition", _R14 + 4) || ParseMember_float4__ParseVector3AnglesToQuat_((const char **)&pDataa, "editorRotation", _R14 + 5) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "gameTweakPosition", _R14 + 6) || ParseMember_float4__ParseVector3AnglesToQuat_((const char **)&pDataa, "gameTweakRotation", _R14 + 7) || ParseMemberFlag((const char **)&pDataa, "alignToSun", &_R14[2].v.m128_u32[1], 0x400u) || ParseMember_float__ParseFloat_((const char **)&pDataa, "sunDistance", &_R14[3].v.m128_f32[2]) || ParseMember_float__ParseFloat_((const char **)&pDataa, "preRollSec", &valueOut) || ParseMemberFlag((const char **)&pDataa, "killOnKillcamTransition", &_R14[2].v.m128_u32[1], 0x800u) || ParseMemberFlag((const char **)&pDataa, "killOnKillcamEntity", &_R14[2].v.m128_u32[1], 0x20000u) || ParseMemberFlag((const char **)&pDataa, "alwaysUpdateBoneIndex", &_R14[2].v.m128_u32[1], 0x2000u) || ParseMemberFlag((const char **)&pDataa, "updateChildrenAfterBolting", &_R14[2].v.m128_u32[1], 0x8000u) || ParseMemberFlag((const char **)&pDataa, "preRollChildEffects", &_R14[2].v.m128_u32[1], 0x10000u) || ParseMemberFlag((const char **)&pDataa, "killStoppedInfiniteEffects", &_R14[2].v.m128_u32[1], 0x40000u) || ParseMemberFlag((const char **)&pDataa, "parentUpdatesChild", &_R14[2].v.m128_u32[1], 0x80000u) || ParseMemberFlag((const char **)&pDataa, "disableInSplitScreen", &_R14[2].v.m128_u32[1], 0x200000u) || ParseMemberFlag((const char **)&pDataa, "hideIfBoneIsHidden", &_R14[2].v.m128_u32[1], 0x2000000u) || ParseMemberFlag((const char **)&pDataa, "fovCull", &_R14[2].v.m128_u32[1], 0x4000000u) )
-              v7 = pDataa;
+            if ( ParseMember_int__ParseInt_((const char **)&pDataa, "version", &pParticleSystemDef->version) || ParseMember_int__ParseInt_((const char **)&pDataa, "numEmitters", outNumEmittersTotal) || ParseMember_int__ParseInt_((const char **)&pDataa, "numScriptedInputNodes", &pParticleSystemDef->numScriptedInputNodes) || ParseMember_unsigned_int__ParseUInt_((const char **)&pDataa, "phaseOptions", (unsigned int *)&pParticleSystemDef->phaseOptions) || ParseMember_float__ParseFloat_((const char **)&pDataa, "drawFrustumCullRadius", &pParticleSystemDef->drawFrustumCullRadius) || ParseMember_float__ParseFloat_((const char **)&pDataa, "updateFrustumCullRadius", &pParticleSystemDef->updateFrustumCullRadius) || ParseMemberFlag((const char **)&pDataa, "killOnOwnerEntityDeath", &pParticleSystemDef->flags, 0x100u) || ParseMemberFlag((const char **)&pDataa, "stopOnDynamicBoltDeath", &pParticleSystemDef->flags, 0x100000u) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "editorPosition", &pParticleSystemDef->editorPosition) || ParseMember_float4__ParseVector3AnglesToQuat_((const char **)&pDataa, "editorRotation", &pParticleSystemDef->editorRotation) || ParseMember_float4__ParseVector3_((const char **)&pDataa, "gameTweakPosition", &pParticleSystemDef->gameTweakPosition) || ParseMember_float4__ParseVector3AnglesToQuat_((const char **)&pDataa, "gameTweakRotation", &pParticleSystemDef->gameTweakRotation) || ParseMemberFlag((const char **)&pDataa, "alignToSun", &pParticleSystemDef->flags, 0x400u) || ParseMember_float__ParseFloat_((const char **)&pDataa, "sunDistance", &pParticleSystemDef->sunDistance) || ParseMember_float__ParseFloat_((const char **)&pDataa, "preRollSec", &valueOut) || ParseMemberFlag((const char **)&pDataa, "killOnKillcamTransition", &pParticleSystemDef->flags, 0x800u) || ParseMemberFlag((const char **)&pDataa, "killOnKillcamEntity", &pParticleSystemDef->flags, 0x20000u) || ParseMemberFlag((const char **)&pDataa, "alwaysUpdateBoneIndex", &pParticleSystemDef->flags, 0x2000u) || ParseMemberFlag((const char **)&pDataa, "updateChildrenAfterBolting", &pParticleSystemDef->flags, 0x8000u) || ParseMemberFlag((const char **)&pDataa, "preRollChildEffects", &pParticleSystemDef->flags, 0x10000u) || ParseMemberFlag((const char **)&pDataa, "killStoppedInfiniteEffects", &pParticleSystemDef->flags, 0x40000u) || ParseMemberFlag((const char **)&pDataa, "parentUpdatesChild", &pParticleSystemDef->flags, 0x80000u) || ParseMemberFlag((const char **)&pDataa, "disableInSplitScreen", &pParticleSystemDef->flags, 0x200000u) || ParseMemberFlag((const char **)&pDataa, "hideIfBoneIsHidden", &pParticleSystemDef->flags, 0x2000000u) || ParseMemberFlag((const char **)&pDataa, "fovCull", &pParticleSystemDef->flags, 0x4000000u) )
+              v5 = pDataa;
             else
-              v7 = ++pDataa;
-            v10 = v7 == NULL;
-            if ( v7 )
+              v5 = ++pDataa;
+            if ( v5 )
               goto LABEL_2;
             break;
           }
         }
-        v10 = v14 == 0;
       }
-      while ( v14 );
+      while ( v10 );
     }
-    __asm { vmovss  xmm0, [rbp+valueOut] }
+    v6 = valueOut;
   }
+  v15 = (int)(float)(v6 * 1000.0);
+  _XMM1 = _mm128_mul_ps(pParticleSystemDef->editorRotation.v, pParticleSystemDef->editorRotation.v);
   __asm
   {
-    vmulss  xmm0, xmm0, cs:__real@447a0000
-    vcvttss2si eax, xmm0
-    vmovups xmm0, xmmword ptr [r14+50h]
-    vmulps  xmm1, xmm0, xmm0
     vhaddps xmm2, xmm1, xmm1
     vhaddps xmm0, xmm2, xmm2
-    vucomiss xmm0, xmm6
-    vmovaps xmm6, [rsp+80h+var_30]
   }
-  _R14[3].v.m128_i32[3] = _EAX;
-  result = v7;
-  if ( v10 )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-      vmovups xmmword ptr [r14+50h], xmm0
-    }
-  }
+  pParticleSystemDef->preRollMSec = v15;
+  result = v5;
+  if ( *(float *)&_XMM0 == 0.0 )
+    pParticleSystemDef->editorRotation = (float4)g_unit.v;
   return result;
 }
 
@@ -12528,41 +11937,32 @@ unsigned __int16 ParseUShort(const char **pData)
 ParseVector3
 ==============
 */
-
-float4 *__fastcall ParseVector3(float4 *result, const char **pData, double _XMM2_8)
+float4 *ParseVector3(float4 *result, const char **pData)
 {
-  char *v9; 
-  char *v11; 
-  float4 *v12; 
+  char *v6; 
+  char *v8; 
+  float4 *v9; 
 
-  _RDI = result;
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps [rsp+48h+var_28], xmm7
-  }
   *(double *)&_XMM0 = atof(*pData);
   __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
-  v9 = strchr_0(*pData, 32);
-  *pData = v9;
-  *(double *)&_XMM0 = atof(v9);
+  v6 = strchr_0(*pData, 32);
+  *pData = v6;
+  *(double *)&_XMM0 = atof(v6);
   __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-  v11 = strchr_0(*pData + 1, 32);
-  *pData = v11;
-  *(double *)&_XMM0 = atof(v11);
-  v12 = _RDI;
+  v8 = strchr_0(*pData + 1, 32);
+  *pData = v8;
+  *(double *)&_XMM0 = atof(v8);
+  v9 = result;
+  _XMM2 = 0i64;
   __asm
   {
-    vxorps  xmm2, xmm2, xmm2
     vinsertps xmm2, xmm2, xmm7, 0
-    vmovaps xmm7, [rsp+48h+var_28]
     vinsertps xmm2, xmm2, xmm6, 10h
-    vmovaps xmm6, [rsp+48h+var_18]
     vcvtsd2ss xmm1, xmm0, xmm0
     vinsertps xmm2, xmm2, xmm1, 20h ; ' '
-    vmovups xmmword ptr [rdi], xmm2
   }
-  return v12;
+  *result = (float4)_XMM2.v;
+  return v9;
 }
 
 /*
@@ -12570,46 +11970,32 @@ float4 *__fastcall ParseVector3(float4 *result, const char **pData, double _XMM2
 ParseVector3AngleToRadians
 ==============
 */
-
-float4 *__fastcall ParseVector3AngleToRadians(float4 *result, const char **pData, double _XMM2_8)
+float4 *ParseVector3AngleToRadians(float4 *result, const char **pData)
 {
-  char *v9; 
-  char *v11; 
-  float4 *v19; 
+  char *v6; 
+  char *v8; 
+  __m128 v14; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  _RDI = result;
   *(double *)&_XMM0 = atof(*pData);
   __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
-  v9 = strchr_0(*pData, 32);
-  *pData = v9;
-  *(double *)&_XMM0 = atof(v9);
+  v6 = strchr_0(*pData, 32);
+  *pData = v6;
+  *(double *)&_XMM0 = atof(v6);
   __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-  v11 = strchr_0(*pData + 1, 32);
-  *pData = v11;
-  *(double *)&_XMM0 = atof(v11);
+  v8 = strchr_0(*pData + 1, 32);
+  *pData = v8;
+  *(double *)&_XMM0 = atof(v8);
+  _XMM2 = 0i64;
   __asm
   {
-    vxorps  xmm2, xmm2, xmm2
     vinsertps xmm2, xmm2, xmm7, 0
     vcvtsd2ss xmm1, xmm0, xmm0
     vinsertps xmm2, xmm2, xmm6, 10h
     vinsertps xmm2, xmm2, xmm1, 20h ; ' '
-    vmulps  xmm1, xmm2, cs:__xmm@3c8efa353c8efa353c8efa353c8efa35
-    vshufps xmm1, xmm1, xmm1, 0C9h ; 'É'
-    vmovups xmmword ptr [rdi], xmm1
   }
-  v19 = _RDI;
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  return v19;
+  v14 = _mm128_mul_ps(_XMM2, (__m128)_xmm);
+  result->v = _mm_shuffle_ps(v14, v14, 201);
+  return result;
 }
 
 /*
@@ -12617,18 +12003,17 @@ float4 *__fastcall ParseVector3AngleToRadians(float4 *result, const char **pData
 ParseVector3AnglesToQuat
 ==============
 */
-float4 *ParseVector3AnglesToQuat(float4 *result, const char **pData, double a3)
+float4 *ParseVector3AnglesToQuat(float4 *result, const char **pData)
 {
-  const float4 *v6; 
-  float4 *v7; 
+  __m128 v; 
+  const float4 *v4; 
+  float4 *v5; 
   float4 resulta; 
 
-  _RBX = result;
-  _RAX = ParseVector3AngleToRadians(&resulta, pData, a3);
-  __asm { vmovups xmm0, xmmword ptr [rax] }
-  Float4RadianToQuat(v7, v6);
-  __asm { vmovups xmmword ptr [rbx], xmm0 }
-  return _RBX;
+  v = ParseVector3AngleToRadians(&resulta, pData)->v;
+  Float4RadianToQuat(v5, v4);
+  *result = (float4)v;
+  return result;
 }
 
 /*
@@ -12638,45 +12023,35 @@ ParseVector4
 */
 float4 *ParseVector4(float4 *result, const char **pData)
 {
-  char *v9; 
-  char *v11; 
-  char *v13; 
-  float4 *v14; 
+  char *v6; 
+  char *v8; 
+  char *v10; 
+  float4 *v11; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RDI = result;
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-  }
   *(double *)&_XMM0 = atof(*pData);
   __asm { vcvtsd2ss xmm8, xmm0, xmm0 }
-  v9 = strchr_0(*pData, 32);
-  *pData = v9;
-  *(double *)&_XMM0 = atof(v9);
+  v6 = strchr_0(*pData, 32);
+  *pData = v6;
+  *(double *)&_XMM0 = atof(v6);
   __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
-  v11 = strchr_0(*pData + 1, 32);
-  *pData = v11;
-  *(double *)&_XMM0 = atof(v11);
+  v8 = strchr_0(*pData + 1, 32);
+  *pData = v8;
+  *(double *)&_XMM0 = atof(v8);
   __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-  v13 = strchr_0(*pData + 1, 32);
-  *pData = v13;
-  *(double *)&_XMM0 = atof(v13);
-  v14 = _RDI;
+  v10 = strchr_0(*pData + 1, 32);
+  *pData = v10;
+  *(double *)&_XMM0 = atof(v10);
+  v11 = result;
+  _XMM2 = _XMM8;
   __asm
   {
-    vmovaps xmm2, xmm8
-    vmovaps xmm8, [rsp+58h+var_38]
     vinsertps xmm2, xmm2, xmm7, 10h
-    vmovaps xmm7, [rsp+58h+var_28]
     vinsertps xmm2, xmm2, xmm6, 20h ; ' '
-    vmovaps xmm6, [rsp+58h+var_18]
     vcvtsd2ss xmm1, xmm0, xmm0
     vinsertps xmm2, xmm2, xmm1, 30h ; '0'
-    vmovups xmmword ptr [rdi], xmm2
   }
-  return v14;
+  *result = (float4)_XMM2.v;
+  return v11;
 }
 
 /*
@@ -12686,44 +12061,31 @@ ParseVector4_Vec4t
 */
 vec4_t *ParseVector4_Vec4t(vec4_t *result, const char **pData)
 {
-  char *v9; 
-  char *v11; 
-  char *v13; 
-  vec4_t *v14; 
+  char *v6; 
+  char *v8; 
+  char *v10; 
+  vec4_t *v11; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RDI = result;
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm7
-    vmovaps [rsp+58h+var_38], xmm8
-  }
   *(double *)&_XMM0 = atof(*pData);
   __asm { vcvtsd2ss xmm8, xmm0, xmm0 }
-  v9 = strchr_0(*pData, 32);
-  *pData = v9;
-  *(double *)&_XMM0 = atof(v9);
+  v6 = strchr_0(*pData, 32);
+  *pData = v6;
+  *(double *)&_XMM0 = atof(v6);
   __asm { vcvtsd2ss xmm7, xmm0, xmm0 }
-  v11 = strchr_0(*pData + 1, 32);
-  *pData = v11;
-  *(double *)&_XMM0 = atof(v11);
+  v8 = strchr_0(*pData + 1, 32);
+  *pData = v8;
+  *(double *)&_XMM0 = atof(v8);
   __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-  v13 = strchr_0(*pData + 1, 32);
-  *pData = v13;
-  *(double *)&_XMM0 = atof(v13);
-  v14 = _RDI;
-  __asm
-  {
-    vcvtsd2ss xmm1, xmm0, xmm0
-    vmovss  dword ptr [rdi], xmm8
-    vmovaps xmm8, [rsp+58h+var_38]
-    vmovss  dword ptr [rdi+4], xmm7
-    vmovaps xmm7, [rsp+58h+var_28]
-    vmovss  dword ptr [rdi+8], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovss  dword ptr [rdi+0Ch], xmm1
-  }
-  return v14;
+  v10 = strchr_0(*pData + 1, 32);
+  *pData = v10;
+  *(double *)&_XMM0 = atof(v10);
+  v11 = result;
+  __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+  result->v[0] = *(float *)&_XMM8;
+  result->v[1] = *(float *)&_XMM7;
+  result->v[2] = *(float *)&_XMM6;
+  result->v[3] = *(float *)&_XMM1;
+  return v11;
 }
 
 /*
@@ -12733,14 +12095,14 @@ ParticleModuleGraph_ConvertToLerpIfPossible
 */
 void ParticleModuleGraph_ConvertToLerpIfPossible(ParticleModule *pModule, const ParticleCurveDef *pCurveList, unsigned int numCurves, const float4 *scale, float4 *outBegin, float4 *outEnd)
 {
-  unsigned int v16; 
-  unsigned int v17; 
-  const ParticleCurveDef *v18; 
-  const ParticleCurveDef *v38; 
+  unsigned int v10; 
+  unsigned int v11; 
+  const ParticleCurveDef *v12; 
+  ParticleCurveControlPointDef *controlPoints; 
+  ParticleCurveControlPointDef *v14; 
+  ParticleCurveControlPointDef *v15; 
+  const ParticleCurveDef *v16; 
 
-  _RBP = outBegin;
-  _R15 = scale;
-  _R14 = outEnd;
   if ( !pModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3572, ASSERT_TYPE_ASSERT, "(pModule)", (const char *)&queryFormat, "pModule") )
     __debugbreak();
   if ( !pCurveList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 3573, ASSERT_TYPE_ASSERT, "(pCurveList)", (const char *)&queryFormat, "pCurveList") )
@@ -12749,151 +12111,76 @@ void ParticleModuleGraph_ConvertToLerpIfPossible(ParticleModule *pModule, const 
     __debugbreak();
   if ( (pModule->m_flags & 0x30) == 0 )
   {
-    __asm
-    {
-      vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm2, cs:__real@3a83126f
-      vmovss  xmm3, cs:__real@3f800000
-    }
-    v16 = 0;
-    v17 = numCurves >> 1;
-    if ( v17 < 4 )
+    v10 = 0;
+    v11 = numCurves >> 1;
+    if ( v11 < 4 )
     {
 LABEL_26:
-      if ( v16 >= v17 )
+      if ( v10 >= v11 )
       {
 LABEL_32:
+        _XMM0 = 0i64;
         __asm
         {
-          vxorps  xmm0, xmm0, xmm0
           vinsertps xmm0, xmm0, dword ptr [rax+4], 0
           vinsertps xmm0, xmm0, dword ptr [rcx+4], 10h
           vinsertps xmm0, xmm0, dword ptr [rdx+4], 20h ; ' '
-          vmovups xmmword ptr [rbp+0], xmm0
-          vxorps  xmm0, xmm0, xmm0
+        }
+        *outBegin = (float4)_XMM0.v;
+        _XMM0 = 0i64;
+        __asm
+        {
           vinsertps xmm0, xmm0, dword ptr [rax+14h], 0
           vinsertps xmm0, xmm0, dword ptr [rcx+14h], 10h
           vinsertps xmm0, xmm0, dword ptr [rdx+14h], 20h ; ' '
-          vmovups xmmword ptr [r14], xmm0
-          vmovups xmm1, xmmword ptr [r15]
-          vmulps  xmm0, xmm1, xmmword ptr [rbp+0]
-          vmovups xmmword ptr [rbp+0], xmm0
-          vmovups xmm1, xmmword ptr [r15]
-          vmulps  xmm0, xmm1, xmmword ptr [r14]
-          vmovups xmmword ptr [r14], xmm0
         }
+        *outEnd = (float4)_XMM0.v;
+        outBegin->v = _mm128_mul_ps(scale->v, outBegin->v);
+        outEnd->v = _mm128_mul_ps(scale->v, outEnd->v);
         pModule->m_flags |= 0x1000u;
       }
       else
       {
-        v38 = &pCurveList[v16];
-        while ( v38->numControlPoints == 2 )
+        v16 = &pCurveList[v10];
+        while ( v16->numControlPoints == 2 && COERCE_FLOAT(LODWORD(v16->controlPoints->time) & _xmm) <= 0.001 && COERCE_FLOAT(COERCE_UNSIGNED_INT(1.0 - v16->controlPoints[1].time) & _xmm) <= 0.001 )
         {
-          _RCX = v38->controlPoints;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rcx]
-            vandps  xmm0, xmm0, xmm1
-            vcomiss xmm0, xmm2
-          }
-          if ( v38->numControlPoints > 2u )
-            break;
-          __asm
-          {
-            vsubss  xmm0, xmm3, dword ptr [rcx+10h]
-            vandps  xmm0, xmm0, xmm1
-            vcomiss xmm0, xmm2
-          }
-          if ( v38->numControlPoints > 2u )
-            break;
-          ++v38;
-          if ( ++v16 >= v17 )
+          ++v16;
+          if ( ++v10 >= v11 )
             goto LABEL_32;
         }
       }
     }
     else
     {
-      v18 = pCurveList;
-      while ( v18->numControlPoints == 2 )
+      v12 = pCurveList;
+      while ( v12->numControlPoints == 2 )
       {
-        _RAX = v18->controlPoints;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vandps  xmm0, xmm0, xmm1
-          vcomiss xmm0, xmm2
-        }
-        if ( v18->numControlPoints > 2u )
+        if ( COERCE_FLOAT(LODWORD(v12->controlPoints->time) & _xmm) > 0.001 )
           break;
-        __asm
-        {
-          vsubss  xmm0, xmm3, dword ptr [rax+10h]
-          vandps  xmm0, xmm0, xmm1
-          vcomiss xmm0, xmm2
-        }
-        if ( v18->numControlPoints > 2u )
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(1.0 - v12->controlPoints[1].time) & _xmm) > 0.001 )
           break;
-        if ( v18[1].numControlPoints != 2 )
+        if ( v12[1].numControlPoints != 2 )
           break;
-        _RAX = v18[1].controlPoints;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vandps  xmm0, xmm0, xmm1
-          vcomiss xmm0, xmm2
-        }
-        if ( v18[1].numControlPoints > 2u )
+        controlPoints = v12[1].controlPoints;
+        if ( COERCE_FLOAT(LODWORD(controlPoints->time) & _xmm) > 0.001 )
           break;
-        __asm
-        {
-          vsubss  xmm0, xmm3, dword ptr [rax+10h]
-          vandps  xmm0, xmm0, xmm1
-          vcomiss xmm0, xmm2
-        }
-        if ( v18[1].numControlPoints > 2u )
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(1.0 - controlPoints[1].time) & _xmm) > 0.001 )
           break;
-        if ( v18[2].numControlPoints != 2 )
+        if ( v12[2].numControlPoints != 2 )
           break;
-        _RAX = v18[2].controlPoints;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vandps  xmm0, xmm0, xmm1
-          vcomiss xmm0, xmm2
-        }
-        if ( v18[2].numControlPoints > 2u )
+        v14 = v12[2].controlPoints;
+        if ( COERCE_FLOAT(LODWORD(v14->time) & _xmm) > 0.001 )
           break;
-        __asm
-        {
-          vsubss  xmm0, xmm3, dword ptr [rax+10h]
-          vandps  xmm0, xmm0, xmm1
-          vcomiss xmm0, xmm2
-        }
-        if ( v18[2].numControlPoints > 2u )
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(1.0 - v14[1].time) & _xmm) > 0.001 )
           break;
-        if ( v18[3].numControlPoints != 2 )
+        if ( v12[3].numControlPoints != 2 )
           break;
-        _RAX = v18[3].controlPoints;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vandps  xmm0, xmm0, xmm1
-          vcomiss xmm0, xmm2
-        }
-        if ( v18[3].numControlPoints > 2u )
+        v15 = v12[3].controlPoints;
+        if ( COERCE_FLOAT(LODWORD(v15->time) & _xmm) > 0.001 || COERCE_FLOAT(COERCE_UNSIGNED_INT(1.0 - v15[1].time) & _xmm) > 0.001 )
           break;
-        __asm
-        {
-          vsubss  xmm0, xmm3, dword ptr [rax+10h]
-          vandps  xmm0, xmm0, xmm1
-          vcomiss xmm0, xmm2
-        }
-        if ( v18[3].numControlPoints > 2u )
-          break;
-        v18 += 4;
-        v16 += 4;
-        if ( v16 >= v17 - 3 )
+        v12 += 4;
+        v10 += 4;
+        if ( v10 >= v11 - 3 )
           goto LABEL_26;
       }
     }
@@ -12907,220 +12194,201 @@ Particle_CurveCalcInverseTimeDeltas
 */
 void Particle_CurveCalcInverseTimeDeltas(ParticleCurveControlPointDef *pControlPoints, unsigned int numControlPoints)
 {
+  unsigned int v4; 
+  unsigned int v5; 
   unsigned int v7; 
-  unsigned int v8; 
-  unsigned int v10; 
+  __int128 time_low; 
+  __int128 v32; 
+  __m128 v34; 
+  __int64 v38; 
+  __int64 v39; 
+  __int64 v40; 
+  __int128 v64; 
+  __m128 v66; 
+  float *p_invTimeDelta; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  ParticleCurveControlPointDef *v79; 
+  float v80; 
+  float v81; 
 
-  _RBX = pControlPoints;
   if ( !pControlPoints && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 932, ASSERT_TYPE_ASSERT, "(pControlPoints)", (const char *)&queryFormat, "pControlPoints") )
     __debugbreak();
   if ( numControlPoints <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 933, ASSERT_TYPE_ASSERT, "(numControlPoints > 1)", (const char *)&queryFormat, "numControlPoints > 1") )
     __debugbreak();
-  v7 = 1;
-  _RBX->invTimeDelta = 0.0;
-  v8 = numControlPoints - 1;
+  v4 = 1;
+  pControlPoints->invTimeDelta = 0.0;
+  v5 = numControlPoints - 1;
   if ( numControlPoints > 1 )
   {
-    if ( v8 >= 8 )
+    if ( v5 >= 8 )
     {
-      __asm
-      {
-        vmovaps [rsp+58h+var_18], xmm6
-        vmovaps [rsp+58h+var_28], xmm7
-        vxorps  xmm7, xmm7, xmm7
-      }
-      v10 = 5;
+      _XMM7 = 0i64;
+      v7 = 5;
       do
       {
-        _RDX = 2i64 * v7;
-        _R9 = 2i64 * (v10 - 3);
-        _R10 = 2i64 * (v10 - 3 + 1);
-        _R8 = 2i64 * (v10 - 3 + 2);
+        _XMM0 = LODWORD(pControlPoints[v4].time);
         __asm
         {
-          vmovss  xmm0, dword ptr [rbx+rdx*8]
           vinsertps xmm0, xmm0, dword ptr [rbx+r9*8], 10h
           vinsertps xmm0, xmm0, dword ptr [rbx+r10*8], 20h ; ' '
-          vmovss  xmm6, dword ptr [rbx+r8*8]
-          vinsertps xmm0, xmm0, xmm6, 30h ; '0'
         }
-        _RCX = 2i64 * (v10 - 5);
+        time_low = LODWORD(pControlPoints[v7 - 1].time);
+        __asm { vinsertps xmm0, xmm0, xmm6, 30h ; '0' }
+        _XMM1 = LODWORD(pControlPoints[v7 - 5].time);
         __asm
         {
-          vmovss  xmm1, dword ptr [rbx+rcx*8]
           vinsertps xmm1, xmm1, dword ptr [rbx+rdx*8], 10h
           vinsertps xmm1, xmm1, dword ptr [rbx+r9*8], 20h ; ' '
           vinsertps xmm1, xmm1, dword ptr [rbx+r10*8], 30h ; '0'
-          vsubps  xmm2, xmm0, xmm1
+        }
+        _XMM2 = _mm128_sub_ps(_XMM0, _XMM1);
+        __asm
+        {
           vcmpltps xmm5, xmm7, xmm2
           vrcpps  xmm1, xmm2
-          vmulps  xmm0, xmm1, xmm1
-          vmulps  xmm2, xmm0, xmm2
-          vmovss  xmm0, dword ptr [rbx+rdx*8+8]
+        }
+        _XMM0 = LODWORD(pControlPoints[v4].invTimeDelta);
+        __asm
+        {
           vinsertps xmm0, xmm0, dword ptr [rbx+r9*8+8], 10h
           vinsertps xmm0, xmm0, dword ptr [rbx+r10*8+8], 20h ; ' '
           vinsertps xmm0, xmm0, dword ptr [rbx+r8*8+8], 30h ; '0'
           vandnps xmm0, xmm5, xmm0
-          vaddps  xmm1, xmm1, xmm1
-          vsubps  xmm2, xmm1, xmm2
-          vandps  xmm3, xmm2, xmm5
-          vorps   xmm0, xmm3, xmm0
-          vshufps xmm4, xmm0, xmm0, 0E5h ; 'å'
+        }
+        _XMM0 = (__m128)(*(_OWORD *)&_mm128_sub_ps(_mm128_add_ps(_XMM1, _XMM1), _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM1), _XMM2)) & _XMM5 | _XMM0);
+        _XMM4 = _mm_shuffle_ps(_XMM0, _XMM0, 229);
+        __asm
+        {
           vinsertps xmm0, xmm0, xmm4, 10h
           vunpckhps xmm2, xmm4, xmm4
           vinsertps xmm0, xmm0, xmm2, 20h ; ' '
           vunpckhps xmm1, xmm2, xmm2
           vinsertps xmm0, xmm0, xmm1, 30h ; '0'
-          vandps  xmm1, xmm0, xmm5
-          vandnps xmm0, xmm5, xmm7
-          vorps   xmm2, xmm1, xmm0
-          vshufps xmm0, xmm2, xmm2, 0E5h ; 'å'
-          vunpckhps xmm1, xmm0, xmm0
-          vmovss  dword ptr [rbx+r9*8+8], xmm0
-          vunpckhps xmm0, xmm1, xmm1
-          vmovss  dword ptr [rbx+r8*8+8], xmm0
-          vmovss  dword ptr [rbx+r10*8+8], xmm1
-          vmovss  dword ptr [rbx+rdx*8+8], xmm2
         }
-        _RCX = 2i64 * v10;
-        _R8 = 2i64 * (v10 + 1);
-        _R9 = 2i64 * (v10 + 2);
-        _RDX = 2i64 * (v10 + 3);
+        v32 = _XMM0 & _XMM5;
+        __asm { vandnps xmm0, xmm5, xmm7 }
+        v34 = (__m128)(v32 | _XMM0);
+        _XMM0 = _mm_shuffle_ps(v34, v34, 229);
+        __asm { vunpckhps xmm1, xmm0, xmm0 }
+        pControlPoints[v7 - 3].invTimeDelta = _XMM0.m128_f32[0];
+        __asm { vunpckhps xmm0, xmm1, xmm1 }
+        pControlPoints[v7 - 1].invTimeDelta = *(float *)&_XMM0;
+        pControlPoints[v7 - 2].invTimeDelta = *(float *)&_XMM1;
+        pControlPoints[v4].invTimeDelta = v34.m128_f32[0];
+        v38 = v7;
+        v39 = v7 + 2;
+        v40 = v7 + 3;
+        _XMM1 = LODWORD(pControlPoints[v7].time);
         __asm
         {
-          vmovss  xmm1, dword ptr [rbx+rcx*8]
           vinsertps xmm1, xmm1, dword ptr [rbx+r8*8], 10h
           vinsertps xmm1, xmm1, dword ptr [rbx+r9*8], 20h ; ' '
           vinsertps xmm1, xmm1, dword ptr [rbx+rdx*8], 30h ; '0'
-          vmovaps xmm0, xmm6
+        }
+        _XMM0 = time_low;
+        __asm
+        {
           vinsertps xmm0, xmm0, dword ptr [rbx+rcx*8], 10h
           vinsertps xmm0, xmm0, dword ptr [rbx+r8*8], 20h ; ' '
           vinsertps xmm0, xmm0, dword ptr [rbx+r9*8], 30h ; '0'
-          vsubps  xmm2, xmm1, xmm0
+        }
+        _XMM2 = _mm128_sub_ps(_XMM1, _XMM0);
+        __asm
+        {
           vrcpps  xmm1, xmm2
           vcmpltps xmm4, xmm7, xmm2
-          vmulps  xmm0, xmm1, xmm1
-          vmulps  xmm2, xmm0, xmm2
-          vmovss  xmm0, dword ptr [rbx+rcx*8+8]
+        }
+        _XMM0 = LODWORD(pControlPoints[v7].invTimeDelta);
+        __asm
+        {
           vinsertps xmm0, xmm0, dword ptr [rbx+r8*8+8], 10h
           vinsertps xmm0, xmm0, dword ptr [rbx+r9*8+8], 20h ; ' '
           vinsertps xmm0, xmm0, dword ptr [rbx+rdx*8+8], 30h ; '0'
-          vaddps  xmm1, xmm1, xmm1
-          vsubps  xmm2, xmm1, xmm2
-          vandps  xmm3, xmm2, xmm4
           vandnps xmm0, xmm4, xmm0
-          vorps   xmm0, xmm3, xmm0
-          vshufps xmm3, xmm0, xmm0, 0E5h ; 'å'
+        }
+        _XMM0 = (__m128)(*(_OWORD *)&_mm128_sub_ps(_mm128_add_ps(_XMM1, _XMM1), _mm128_mul_ps(_mm128_mul_ps(_XMM1, _XMM1), _XMM2)) & _XMM4 | _XMM0);
+        _XMM3 = _mm_shuffle_ps(_XMM0, _XMM0, 229);
+        __asm
+        {
           vinsertps xmm0, xmm0, xmm3, 10h
           vunpckhps xmm2, xmm3, xmm3
           vinsertps xmm0, xmm0, xmm2, 20h ; ' '
           vunpckhps xmm1, xmm2, xmm2
           vinsertps xmm0, xmm0, xmm1, 30h ; '0'
-          vandps  xmm1, xmm0, xmm4
-          vandnps xmm0, xmm4, xmm7
-          vorps   xmm2, xmm1, xmm0
-          vshufps xmm0, xmm2, xmm2, 0E5h ; 'å'
-          vunpckhps xmm1, xmm0, xmm0
-          vmovss  dword ptr [rbx+r8*8+8], xmm0
         }
+        v64 = _XMM0 & _XMM4;
+        __asm { vandnps xmm0, xmm4, xmm7 }
+        v66 = (__m128)(v64 | _XMM0);
+        _XMM0 = _mm_shuffle_ps(v66, v66, 229);
+        __asm { vunpckhps xmm1, xmm0, xmm0 }
+        pControlPoints[v7 + 1].invTimeDelta = _XMM0.m128_f32[0];
+        v4 += 8;
         v7 += 8;
-        v10 += 8;
-        __asm
-        {
-          vunpckhps xmm0, xmm1, xmm1
-          vmovss  dword ptr [rbx+rdx*8+8], xmm0
-          vmovss  dword ptr [rbx+rcx*8+8], xmm2
-          vmovss  dword ptr [rbx+r9*8+8], xmm1
-        }
+        __asm { vunpckhps xmm0, xmm1, xmm1 }
+        pControlPoints[v40].invTimeDelta = *(float *)&_XMM0;
+        pControlPoints[v38].invTimeDelta = v66.m128_f32[0];
+        pControlPoints[v39].invTimeDelta = *(float *)&_XMM1;
       }
-      while ( v7 < numControlPoints - (v8 & 7) );
-      __asm
-      {
-        vmovaps xmm7, [rsp+58h+var_28]
-        vmovaps xmm6, [rsp+58h+var_18]
-      }
+      while ( v4 < numControlPoints - (v5 & 7) );
     }
-    if ( v7 < numControlPoints )
+    if ( v4 < numControlPoints )
     {
-      __asm
+      if ( numControlPoints - v4 >= 4 )
       {
-        vmovss  xmm2, cs:__real@3f800000
-        vxorps  xmm1, xmm1, xmm1
-      }
-      if ( numControlPoints - v7 >= 4 )
-      {
-        _RDX = (__int64)&_RBX[v7].invTimeDelta;
+        p_invTimeDelta = &pControlPoints[v4].invTimeDelta;
         do
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdx-8]
-            vsubss  xmm3, xmm0, dword ptr [rbx+rcx*8]
-            vcomiss xmm3, xmm1
-          }
-          if ( __CFADD__(v7 - 1, v7 - 1) || 2i64 * (v7 - 1) == 0 )
-            __asm { vmovaps xmm0, xmm1 }
+          v71 = *(p_invTimeDelta - 2) - pControlPoints[v4 - 1].time;
+          if ( v71 <= 0.0 )
+            v72 = 0.0;
           else
-            __asm { vdivss  xmm0, xmm2, xmm3 }
-          __asm
-          {
-            vmovss  dword ptr [rdx], xmm0
-            vmovss  xmm0, dword ptr [rdx+8]
-            vsubss  xmm3, xmm0, dword ptr [rbx+rax*8]
-            vcomiss xmm3, xmm1
-          }
-          if ( __CFADD__(v7, v7) || 2i64 * v7 == 0 )
-            __asm { vmovaps xmm0, xmm1 }
+            v72 = 1.0 / v71;
+          *p_invTimeDelta = v72;
+          v73 = p_invTimeDelta[2] - pControlPoints[v4].time;
+          if ( v73 <= 0.0 )
+            v74 = 0.0;
           else
-            __asm { vdivss  xmm0, xmm2, xmm3 }
-          __asm
-          {
-            vmovss  dword ptr [rdx+10h], xmm0
-            vmovss  xmm0, dword ptr [rdx+18h]
-            vsubss  xmm3, xmm0, dword ptr [rbx+rcx*8]
-            vcomiss xmm3, xmm1
-          }
-          if ( __CFADD__(v7 + 1, v7 + 1) || 2i64 * (v7 + 1) == 0 )
-            __asm { vmovaps xmm0, xmm1 }
+            v74 = 1.0 / v73;
+          p_invTimeDelta[4] = v74;
+          v75 = p_invTimeDelta[6] - pControlPoints[v4 + 1].time;
+          if ( v75 <= 0.0 )
+            v76 = 0.0;
           else
-            __asm { vdivss  xmm0, xmm2, xmm3 }
-          __asm
-          {
-            vmovss  dword ptr [rdx+20h], xmm0
-            vmovss  xmm0, dword ptr [rdx+28h]
-            vsubss  xmm3, xmm0, dword ptr [rbx+rax*8]
-            vcomiss xmm3, xmm1
-          }
-          if ( __CFADD__(v7 + 2, v7 + 2) || 2i64 * (v7 + 2) == 0 )
-            __asm { vmovaps xmm0, xmm1 }
+            v76 = 1.0 / v75;
+          p_invTimeDelta[8] = v76;
+          v77 = p_invTimeDelta[10] - pControlPoints[v4 + 2].time;
+          if ( v77 <= 0.0 )
+            v78 = 0.0;
           else
-            __asm { vdivss  xmm0, xmm2, xmm3 }
-          __asm { vmovss  dword ptr [rdx+30h], xmm0 }
-          _RDX += 64i64;
-          v7 += 4;
+            v78 = 1.0 / v77;
+          p_invTimeDelta[12] = v78;
+          p_invTimeDelta += 16;
+          v4 += 4;
         }
-        while ( v7 < numControlPoints - 3 );
+        while ( v4 < numControlPoints - 3 );
       }
-      if ( v7 < numControlPoints )
+      if ( v4 < numControlPoints )
       {
-        _RDX = &_RBX[v7];
+        v79 = &pControlPoints[v4];
         do
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdx]
-            vsubss  xmm3, xmm0, dword ptr [rbx+rcx*8]
-            vcomiss xmm3, xmm1
-          }
-          if ( __CFADD__(v7 - 1, v7 - 1) || 2i64 * (v7 - 1) == 0 )
-            __asm { vmovaps xmm0, xmm1 }
+          v80 = v79->time - pControlPoints[v4 - 1].time;
+          if ( v80 <= 0.0 )
+            v81 = 0.0;
           else
-            __asm { vdivss  xmm0, xmm2, xmm3 }
-          __asm { vmovss  dword ptr [rdx+8], xmm0 }
-          ++_RDX;
-          ++v7;
+            v81 = 1.0 / v80;
+          v79->invTimeDelta = v81;
+          ++v79;
+          ++v4;
         }
-        while ( v7 < numControlPoints );
+        while ( v4 < numControlPoints );
       }
     }
   }
@@ -13131,68 +12399,30 @@ void Particle_CurveCalcInverseTimeDeltas(ParticleCurveControlPointDef *pControlP
 Particle_VerifyValueFloat
 ==============
 */
-
-float __fastcall Particle_VerifyValueFloat(double value, double min, double max, const char *valueName, const char *vfxName, const char *emitterName)
+float Particle_VerifyValueFloat(float value, float min, float max, const char *valueName, const char *vfxName, const char *emitterName)
 {
-  bool v13; 
-  bool v14; 
-  __int64 v24; 
-  __int128 v25; 
-  char v28; 
-
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps xmm8, xmm1
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm0
-  }
   if ( !valueName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 445, ASSERT_TYPE_ASSERT, "(valueName)", (const char *)&queryFormat, "valueName") )
     __debugbreak();
   if ( !vfxName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 446, ASSERT_TYPE_ASSERT, "(vfxName)", (const char *)&queryFormat, "vfxName") )
     __debugbreak();
-  v13 = emitterName == NULL;
-  if ( !emitterName )
+  if ( !emitterName && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 447, ASSERT_TYPE_ASSERT, "(emitterName)", (const char *)&queryFormat, "emitterName") )
+    __debugbreak();
+  if ( value >= min )
   {
-    v14 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleparser.cpp", 447, ASSERT_TYPE_ASSERT, "(emitterName)", (const char *)&queryFormat, "emitterName");
-    v13 = !v14;
-    if ( v14 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vcomiss xmm6, xmm8
-    vcomiss xmm6, xmm7
-  }
-  if ( v13 )
-  {
-    __asm { vmovaps xmm0, xmm6 }
+    if ( value > max )
+    {
+      if ( g_vfxWarn )
+        Com_PrintWarning(21, "WARNING: %s (%f) greater than max %s (%f) for effect %s | %s\n", valueName, value, valueName, max, vfxName, emitterName);
+      return max;
+    }
   }
   else
   {
     if ( g_vfxWarn )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm7, xmm7
-        vcvtss2sd xmm3, xmm6, xmm6
-        vmovsd  [rsp+78h+var_50], xmm0
-        vmovq   r9, xmm3
-      }
-      Com_PrintWarning(21, "WARNING: %s (%f) greater than max %s (%f) for effect %s | %s\n", valueName, _R9, valueName, v24, vfxName, emitterName, v25);
-    }
-    __asm { vmovaps xmm0, xmm7 }
+      Com_PrintWarning(21, "WARNING: %s (%f) less than min %s (%f) for effect %s | %s\n", valueName, value, valueName, min, vfxName, emitterName);
+    return min;
   }
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
-  _R11 = &v28;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  return *(float *)&_XMM0;
+  return value;
 }
 
 /*
@@ -13244,254 +12474,189 @@ SetMaterialModuleFromConstants
 */
 void SetMaterialModuleFromConstants(const MaterialConstants *constants, ParticleModuleInitMaterial *pModule)
 {
-  char v11; 
-  char v12; 
-  char v36; 
-  int v38; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float falloffEndDistance; 
+  float v9; 
+  float falloffBeginDistance; 
+  float v11; 
+  float v12; 
+  float thermalBase; 
+  __int128 thermalBase_low; 
+  float v16; 
+  char v17; 
+  int v19; 
+  float worldSpaceTileSize; 
+  float v21; 
+  float alphaDissolveBracket; 
+  float v23; 
   float alphaDissolveSoftness; 
-  int v75; 
-  int v76; 
-  int v77; 
-  int v78; 
-  int v79; 
-  int v80; 
-  int v81; 
-  int v82; 
-  int v83; 
-  int v84; 
-  int v85; 
-  int v86; 
+  float zFeatherDepth; 
+  float v26; 
+  float reverseZFeatherDepth; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float radialDepthOffset; 
+  double v33; 
+  float depthScanThickness; 
+  double v35; 
+  int v36; 
+  int v37; 
+  int v38; 
+  int v39; 
+  int v40; 
+  int v41; 
+  int v42; 
+  int v43; 
+  int v44; 
+  int v45; 
+  int v46; 
+  int v47; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = pModule;
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3c8efa35
-    vmulss  xmm0, xmm6, dword ptr [rcx+4]; X
-    vmovaps [rsp+58h+var_28], xmm7
-  }
-  _RDI = constants;
-  __asm { vmovaps [rsp+58h+var_38], xmm8 }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovaps xmm7, xmm0
-    vmulss  xmm0, xmm6, dword ptr [rdi+8]; X
-  }
-  *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@34000000
-    vmovss  xmm6, cs:__real@3f800000
-    vmulss  xmm4, xmm7, xmm7
-    vmulss  xmm0, xmm0, xmm0
-    vsubss  xmm1, xmm4, xmm0
-    vcomiss xmm1, xmm3
-  }
-  if ( v11 | v12 )
-    __asm { vmovaps xmm2, xmm6 }
+  v4 = cosf_0(0.017453292 * constants->opaqueAngle);
+  v5 = cosf_0(0.017453292 * constants->invisibleAngle);
+  v6 = (float)(v4 * v4) - (float)(v5 * v5);
+  if ( v6 <= 0.00000011920929 )
+    v7 = FLOAT_1_0;
   else
-    __asm { vdivss  xmm2, xmm6, xmm1 }
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+30h]
-    vmulss  xmm0, xmm2, xmm4
-    vsubss  xmm7, xmm6, xmm0
-    vmovss  xmm0, dword ptr [rdi+2Ch]
-    vcomiss xmm1, xmm0
-    vmulss  xmm5, xmm1, xmm1
-  }
-  if ( v11 | v12 )
-  {
-    __asm { vmovaps xmm4, xmm6 }
-  }
+    v7 = 1.0 / v6;
+  falloffEndDistance = constants->falloffEndDistance;
+  v9 = 1.0 - (float)(v7 * (float)(v4 * v4));
+  falloffBeginDistance = constants->falloffBeginDistance;
+  v11 = falloffEndDistance * falloffEndDistance;
+  if ( falloffEndDistance <= falloffBeginDistance )
+    v12 = FLOAT_1_0;
   else
+    v12 = 1.0 / (float)(v11 - (float)(falloffBeginDistance * falloffBeginDistance));
+  pModule->m_materialData.falloffParms.v[3] = v9;
+  pModule->m_materialData.falloffParms.v[0] = v11;
+  pModule->m_materialData.falloffParms.v[1] = v12;
+  pModule->m_materialData.falloffParms.v[2] = v7;
+  pModule->m_materialData.opaqueColor = constants->opaqueColor;
+  pModule->m_materialData.transparentColor = constants->transparentColor;
+  if ( constants->useThermalParams && (thermalBase = constants->thermalBase, thermalBase >= 0.0) )
   {
-    __asm
-    {
-      vmulss  xmm0, xmm0, xmm0
-      vsubss  xmm1, xmm5, xmm0
-      vdivss  xmm4, xmm6, xmm1
-    }
-  }
-  __asm
-  {
-    vmovss  dword ptr [rbx+2Ch], xmm7
-    vmovss  dword ptr [rbx+20h], xmm5
-    vmovss  dword ptr [rbx+24h], xmm4
-    vmovss  dword ptr [rbx+28h], xmm2
-    vmovups xmm0, xmmword ptr [rdi+0Ch]
-    vmovups xmmword ptr [rbx+30h], xmm0
-    vmovups xmm0, xmmword ptr [rdi+1Ch]
-    vmovups xmmword ptr [rbx+40h], xmm0
-    vxorps  xmm7, xmm7, xmm7
-  }
-  if ( _RDI->useThermalParams )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+38h]
-      vcomiss xmm0, xmm7
-      vsubss  xmm0, xmm0, cs:__real@42000000
-      vmulss  xmm0, xmm0, cs:__real@3f0e38e4
-      vaddss  xmm1, xmm0, cs:__real@43889333
-      vmovss  xmm0, dword ptr [rdi+3Ch]
-      vmulss  xmm5, xmm0, cs:__real@3f0e38e4
-    }
-    v36 = 1;
+    thermalBase_low = LODWORD(constants->thermalBase);
+    *(float *)&thermalBase_low = (float)((float)(thermalBase - 32.0) * 0.55555558) + 273.14999;
+    _XMM1 = thermalBase_low;
+    v16 = constants->thermalScale * 0.55555558;
+    v17 = 1;
     __asm { vmaxss  xmm4, xmm1, xmm7 }
   }
   else
   {
-    __asm { vmovss  xmm4, cs:__real@bdcccccd }
-    v36 = 0;
-    __asm { vxorps  xmm5, xmm5, xmm5 }
+    *(float *)&_XMM4 = FLOAT_N0_1;
+    v17 = 0;
+    v16 = 0.0;
   }
-  __asm
+  pModule->m_materialData.thermalParams.v[0] = *(float *)&_XMM4;
+  pModule->m_materialData.thermalParams.v[1] = v16;
+  v19 = 0;
+  pModule->m_materialData.translucentShadowParams = (vec2_t)LODWORD(constants->translucentShadowDensity);
+  worldSpaceTileSize = constants->worldSpaceTileSize;
+  if ( worldSpaceTileSize <= 0.00000011920929 )
+    v21 = FLOAT_1_0;
+  else
+    v21 = 1.0 / worldSpaceTileSize;
+  pModule->m_materialData.beamParms.v[1] = constants->beamMaskRadius;
+  pModule->m_materialData.beamParms.v[0] = v21;
+  pModule->m_materialData.eyeOffsetParms.v[0] = constants->eyeOffsetDepth;
+  *(_QWORD *)&pModule->m_materialData.eyeOffsetParms.xyz.y = 0i64;
+  pModule->m_materialData.eyeOffsetParms.v[3] = 0.0;
+  alphaDissolveBracket = constants->alphaDissolveBracket;
+  if ( alphaDissolveBracket <= 0.00000011920929 )
+    v23 = FLOAT_1_0;
+  else
+    v23 = 1.0 / alphaDissolveBracket;
+  alphaDissolveSoftness = constants->alphaDissolveSoftness;
+  pModule->m_materialData.alphaDissolveParms.v[1] = alphaDissolveBracket + 1.0;
+  pModule->m_materialData.alphaDissolveParms.v[2] = v23;
+  pModule->m_materialData.alphaDissolveParms.v[0] = alphaDissolveSoftness;
+  pModule->m_materialData.alphaDissolveParms.v[3] = 0.0;
+  zFeatherDepth = constants->zFeatherDepth;
+  if ( zFeatherDepth <= 0.00000011920929 )
+    v26 = FLOAT_1_0;
+  else
+    v26 = 1.0 / zFeatherDepth;
+  reverseZFeatherDepth = constants->reverseZFeatherDepth;
+  if ( reverseZFeatherDepth <= 0.00000011920929 )
+    v28 = FLOAT_1_0;
+  else
+    v28 = 1.0 / reverseZFeatherDepth;
+  v29 = zFeatherDepth + constants->unfeatheredDepthSpan;
+  pModule->m_materialData.featherParms0.v[3] = v28;
+  pModule->m_materialData.featherParms0.v[0] = v26;
+  pModule->m_materialData.featherParms0.v[1] = zFeatherDepth;
+  pModule->m_materialData.featherParms0.v[2] = v29;
+  v30 = 0.0099999998 * constants->zFeatherDepth;
+  v31 = 0.0099999998 * constants->reverseZFeatherDepth;
+  radialDepthOffset = constants->radialDepthOffset;
+  pModule->m_materialData.featherParms1.v[2] = (float)(0.0099999998 * constants->unfeatheredDepthSpan) + v30;
+  pModule->m_materialData.featherParms1.v[0] = v30;
+  pModule->m_materialData.featherParms1.v[1] = radialDepthOffset;
+  pModule->m_materialData.featherParms1.v[3] = v31;
+  if ( constants->sphericalZEnabled )
   {
-    vmovss  dword ptr [rbx+0D0h], xmm4
-    vmovss  dword ptr [rbx+0D4h], xmm5
-  }
-  v38 = 0;
-  _RBX->m_materialData.translucentShadowParams = (vec2_t)LODWORD(_RDI->translucentShadowDensity);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+0CCh]
-    vcomiss xmm0, xmm3
-    vmovaps xmm1, xmm6
-    vmovss  xmm0, dword ptr [rdi+0D0h]
-    vmovss  dword ptr [rbx+5Ch], xmm0
-    vmovss  dword ptr [rbx+58h], xmm1
-  }
-  _RBX->m_materialData.eyeOffsetParms.v[0] = _RDI->eyeOffsetDepth;
-  *(_QWORD *)&_RBX->m_materialData.eyeOffsetParms.xyz.y = 0i64;
-  _RBX->m_materialData.eyeOffsetParms.v[3] = 0.0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+54h]
-    vcomiss xmm0, xmm3
-    vmovaps xmm1, xmm6
-  }
-  alphaDissolveSoftness = _RDI->alphaDissolveSoftness;
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm6
-    vmovss  dword ptr [rbx+74h], xmm0
-    vmovss  dword ptr [rbx+78h], xmm1
-  }
-  _RBX->m_materialData.alphaDissolveParms.v[0] = alphaDissolveSoftness;
-  _RBX->m_materialData.alphaDissolveParms.v[3] = 0.0;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [rdi+60h]
-    vcomiss xmm1, xmm3
-    vmovaps xmm4, xmm6
-    vmovss  xmm0, dword ptr [rdi+70h]
-    vcomiss xmm0, xmm3
-    vmovaps xmm2, xmm6
-    vaddss  xmm0, xmm1, dword ptr [rdi+74h]
-    vmovss  dword ptr [rbx+8Ch], xmm2
-    vmovss  xmm2, cs:__real@3c23d70a
-    vmovss  dword ptr [rbx+80h], xmm4
-    vmovss  dword ptr [rbx+84h], xmm1
-    vmovss  dword ptr [rbx+88h], xmm0
-    vmulss  xmm4, xmm2, dword ptr [rdi+60h]
-    vmulss  xmm5, xmm2, dword ptr [rdi+70h]
-    vmulss  xmm2, xmm2, dword ptr [rdi+74h]
-    vmovss  xmm0, dword ptr [rdi+68h]
-    vaddss  xmm3, xmm2, xmm4
-    vmovss  dword ptr [rbx+98h], xmm3
-    vmovss  dword ptr [rbx+90h], xmm4
-    vmovss  dword ptr [rbx+94h], xmm0
-    vmovss  dword ptr [rbx+9Ch], xmm5
-  }
-  if ( _RDI->sphericalZEnabled )
-  {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi+0A4h]
-      vmovups xmmword ptr [rbx+0B0h], xmm0
-      vmovups xmm0, xmmword ptr [rdi+0B4h]
-      vmovups xmmword ptr [rbx+0C0h], xmm0
-      vmovss  xmm3, dword ptr [rdi+0D4h]
-      vmulss  xmm4, xmm3, xmm3
-      vsubss  xmm0, xmm6, xmm4; val
-      vmovaps xmm2, xmm6; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rdi+0D8h]
-      vmulss  xmm4, xmm3, xmm3
-      vmovaps xmm8, xmm0
-      vsubss  xmm0, xmm6, xmm4; val
-      vmovaps xmm2, xmm6; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+    pModule->m_materialData.depthScanColor = constants->sphericalZColor0;
+    pModule->m_materialData.depthScanOutlineColor = constants->sphericalZColor1;
+    v33 = I_fclamp(1.0 - (float)(constants->sphericalZInnerRadius * constants->sphericalZInnerRadius), 0.0, 1.0);
+    depthScanThickness = *(float *)&v33;
+    v35 = I_fclamp(1.0 - (float)(constants->sphericalZOuterRadius * constants->sphericalZOuterRadius), 0.0, 1.0);
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi+7Ch]
-      vmovups xmmword ptr [rbx+0B0h], xmm0
-      vmovups xmm0, xmmword ptr [rdi+8Ch]
-      vmovups xmmword ptr [rbx+0C0h], xmm0
-      vmovss  xmm0, dword ptr [rdi+0A0h]
-      vmovss  xmm8, dword ptr [rdi+9Ch]
-    }
+    pModule->m_materialData.depthScanColor = constants->depthScanColor;
+    pModule->m_materialData.depthScanOutlineColor = constants->depthScanOutlineColor;
+    *(float *)&v35 = constants->depthScanOutlineThickness;
+    depthScanThickness = constants->depthScanThickness;
   }
-  __asm { vmovss  dword ptr [rbx+0A0h], xmm8 }
-  _RBX->m_materialData.regionHighlightParms.v[1] = 0.0;
-  __asm { vmovss  dword ptr [rbx+0A8h], xmm0 }
-  _RBX->m_materialData.regionHighlightParms.v[3] = 0.0;
-  _RBX->m_materialData.anisotropy = _RDI->anisotropy;
-  __asm
-  {
-    vmovaps xmm6, [rsp+58h+var_18]
-    vmovaps xmm7, [rsp+58h+var_28]
-  }
-  LOBYTE(v38) = _RDI->falloffEnabled;
-  __asm { vmovaps xmm8, [rsp+58h+var_38] }
-  v75 = v38 | 2;
-  if ( !_RDI->translucentShadowsEnabled )
-    v75 = v38;
-  v76 = v75 | 4;
-  if ( !_RDI->eyeOffsetEnabled )
-    v76 = v75;
-  v77 = v76 | 8;
-  if ( !_RDI->alphaDissolveEnabled )
-    v77 = v76;
-  v78 = v77 | 0x10;
-  if ( !_RDI->zFeatherEnabled )
-    v78 = v77;
-  v79 = v78 | 0x20;
-  if ( !_RDI->enablePercentDepth )
-    v79 = v78;
-  v80 = v79 | 0x40;
-  if ( !_RDI->enableReverseZFeather )
-    v80 = v79;
-  v81 = v80 | 0x80;
-  if ( !_RDI->enableDepthScan )
-    v81 = v80;
-  v82 = v81 | 0x100;
-  if ( !_RDI->mapToScreenSpaceEnabled )
-    v82 = v81;
-  v83 = v82 | 0x200;
-  if ( !_RDI->mapToWorldSpaceEnabled )
-    v83 = v82;
-  v84 = v83 | 0x400;
-  if ( !_RDI->sphericalZEnabled )
-    v84 = v83;
-  v85 = v84 | 0x800;
-  if ( !_RDI->enableWaterZFeather )
-    v85 = v84;
-  v86 = v85 | 0x1000;
-  if ( !v36 )
-    v86 = v85;
-  _RBX->m_materialData.featureEnabledFlags = v86;
+  pModule->m_materialData.regionHighlightParms.v[0] = depthScanThickness;
+  pModule->m_materialData.regionHighlightParms.v[1] = 0.0;
+  pModule->m_materialData.regionHighlightParms.v[2] = *(float *)&v35;
+  pModule->m_materialData.regionHighlightParms.v[3] = 0.0;
+  pModule->m_materialData.anisotropy = constants->anisotropy;
+  LOBYTE(v19) = constants->falloffEnabled;
+  v36 = v19 | 2;
+  if ( !constants->translucentShadowsEnabled )
+    v36 = v19;
+  v37 = v36 | 4;
+  if ( !constants->eyeOffsetEnabled )
+    v37 = v36;
+  v38 = v37 | 8;
+  if ( !constants->alphaDissolveEnabled )
+    v38 = v37;
+  v39 = v38 | 0x10;
+  if ( !constants->zFeatherEnabled )
+    v39 = v38;
+  v40 = v39 | 0x20;
+  if ( !constants->enablePercentDepth )
+    v40 = v39;
+  v41 = v40 | 0x40;
+  if ( !constants->enableReverseZFeather )
+    v41 = v40;
+  v42 = v41 | 0x80;
+  if ( !constants->enableDepthScan )
+    v42 = v41;
+  v43 = v42 | 0x100;
+  if ( !constants->mapToScreenSpaceEnabled )
+    v43 = v42;
+  v44 = v43 | 0x200;
+  if ( !constants->mapToWorldSpaceEnabled )
+    v44 = v43;
+  v45 = v44 | 0x400;
+  if ( !constants->sphericalZEnabled )
+    v45 = v44;
+  v46 = v45 | 0x800;
+  if ( !constants->enableWaterZFeather )
+    v46 = v45;
+  v47 = v46 | 0x1000;
+  if ( !v17 )
+    v47 = v46;
+  pModule->m_materialData.featureEnabledFlags = v47;
 }
 
 /*

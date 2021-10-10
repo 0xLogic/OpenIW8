@@ -233,16 +233,31 @@ bdStreamingTask::getStatus
 */
 __int64 bdStreamingTask::getStatus(bdStreamingTask *this)
 {
-  _RBX = this;
-  if ( bdRemoteTask::getStatus(this) == BD_PENDING )
+  double ElapsedTimeInSeconds; 
+  bdByteBuffer *m_ptr; 
+  bdByteBuffer *v4; 
+
+  if ( bdRemoteTask::getStatus(this) == BD_PENDING && this->m_streamingTimeout > 0.0 )
   {
-    __asm
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_streamingTimer);
+    if ( *(float *)&ElapsedTimeInSeconds >= this->m_streamingTimeout )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm0, dword ptr [rbx+78h]
+      this->m_status = BD_TIMED_OUT;
+      m_ptr = this->m_byteResults.m_ptr;
+      if ( m_ptr )
+      {
+        if ( _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+        {
+          v4 = this->m_byteResults.m_ptr;
+          if ( v4 )
+            ((void (__fastcall *)(bdByteBuffer *, __int64))v4->~bdReferencable)(v4, 1i64);
+        }
+      }
+      this->m_byteResults.m_ptr = NULL;
+      bdLogMessage(BD_LOG_INFO, "info/", "streaming task", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdremotetaskmanager\\bdstreamingtask.cpp", "bdStreamingTask::getStatus", 0x29u, "Streaming task timed out after %.3fs.", this->m_streamingTimeout);
     }
   }
-  return (unsigned int)_RBX->m_status;
+  return (unsigned int)this->m_status;
 }
 
 /*
@@ -252,8 +267,7 @@ bdStreamingTask::getStreamingTimeout
 */
 float bdStreamingTask::getStreamingTimeout(bdStreamingTask *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+78h] }
-  return *(float *)&_XMM0;
+  return this->m_streamingTimeout;
 }
 
 /*
@@ -359,10 +373,9 @@ void bdStreamingTask::setFailBehavior(bdStreamingTask *this, bool failOnPartialE
 bdStreamingTask::setStreamingTimeout
 ==============
 */
-
-void __fastcall bdStreamingTask::setStreamingTimeout(bdStreamingTask *this, double timeout)
+void bdStreamingTask::setStreamingTimeout(bdStreamingTask *this, float timeout)
 {
-  __asm { vmovss  dword ptr [rcx+78h], xmm1 }
+  this->m_streamingTimeout = timeout;
 }
 
 /*

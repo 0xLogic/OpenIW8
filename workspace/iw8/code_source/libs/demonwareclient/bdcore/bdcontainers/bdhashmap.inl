@@ -3147,30 +3147,31 @@ bdHashMap<bdString,bdService *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdService *,bdHashingClass>::put(bdHashMap<bdString,bdService *,bdHashingClass> *this, const bdString *key, bdService *const *value)
 {
-  bdService *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdService *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdService *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdService *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdService *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdService *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdService *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdService *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdService *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdService *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdService *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdService *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdService *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -3192,64 +3193,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdService *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdService *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdService *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdService *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -3278,11 +3273,12 @@ void bdHashMap<bdString,bdService *,bdHashingClass>::resize(bdHashMap<bdString,b
   bdHashMap<bdString,bdService *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdService *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdService *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdService *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdService *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdService *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdService *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -3290,37 +3286,31 @@ void bdHashMap<bdString,bdService *,bdHashingClass>::resize(bdHashMap<bdString,b
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdService *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdService *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -3331,42 +3321,29 @@ void bdHashMap<bdString,bdService *,bdHashingClass>::resize(bdHashMap<bdString,b
 bdHashMap<bdString,bdJSONValue,bdHashingClass>::bdHashMap<bdString,bdJSONValue,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdJSONValue,bdHashingClass>::bdHashMap<bdString,bdJSONValue,bdHashingClass>(bdHashMap<bdString,bdJSONValue,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdJSONValue,bdHashingClass>::bdHashMap<bdString,bdJSONValue,bdHashingClass>(bdHashMap<bdString,bdJSONValue,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdJSONValue,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdJSONValue,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -3440,41 +3417,28 @@ bool bdHashMap<bdString,bdJSONValue,bdHashingClass>::containsKey(bdHashMap<bdStr
 bdHashMap<bdString,bdJSONValue,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdJSONValue,bdHashingClass>::createMap(bdHashMap<bdString,bdJSONValue,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdJSONValue,bdHashingClass>::createMap(bdHashMap<bdString,bdJSONValue,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdJSONValue,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdJSONValue,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -3655,29 +3619,25 @@ bdHashMap<bdString,bdJSONValue,bdHashingClass>::putAll
 void bdHashMap<bdString,bdJSONValue,bdHashingClass>::putAll(bdHashMap<bdString,bdJSONValue,bdHashingClass> *this, const bdHashMap<bdString,bdJSONValue,bdHashingClass> *map)
 {
   unsigned int m_size; 
+  unsigned int v5; 
+  float v6; 
   unsigned int m_capacity; 
   __int64 i; 
   bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **m_map; 
-  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node *v14; 
+  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node *v10; 
   const bdString *p_m_key; 
-  unsigned int v16; 
-  unsigned int v17; 
-  __int64 v18; 
+  unsigned int v12; 
+  unsigned int v13; 
+  __int64 v14; 
 
   m_size = map->m_size;
   if ( m_size )
   {
-    if ( m_size + this->m_size > this->m_threshold )
+    v5 = m_size + this->m_size;
+    if ( v5 > this->m_threshold )
     {
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vdivss  xmm1, xmm0, dword ptr [rcx+8]
-        vaddss  xmm2, xmm1, cs:__real@3f800000
-        vcvttss2si rdx, xmm2; newSize
-      }
-      bdHashMap<bdString,bdJSONValue,bdHashingClass>::resize(this, _RDX);
+      v6 = (float)v5;
+      bdHashMap<bdString,bdJSONValue,bdHashingClass>::resize(this, (int)(float)((float)(v6 / this->m_loadFactor) + 1.0));
       m_size = map->m_size;
     }
     if ( m_size )
@@ -3694,30 +3654,30 @@ void bdHashMap<bdString,bdJSONValue,bdHashingClass>::putAll(bdHashMap<bdString,b
         _InterlockedExchangeAdd((volatile signed __int32 *)&map->m_numIterators, 1u);
         m_map = map->m_map;
       }
-      v14 = m_map[i];
-      if ( v14 )
+      v10 = m_map[i];
+      if ( v10 )
       {
         while ( 1 )
         {
           do
           {
-            p_m_key = &v14->m_key;
-            bdHashMap<bdString,bdJSONValue,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-            v14 = v14->m_next;
+            p_m_key = &v10->m_key;
+            bdHashMap<bdString,bdJSONValue,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+            v10 = v10->m_next;
           }
-          while ( v14 );
-          v16 = bdHashingClass::getHash<bdString>(&map->m_hashClass, p_m_key);
-          v17 = map->m_capacity;
-          v18 = (v16 & (v17 - 1)) + 1;
-          if ( (unsigned int)v18 >= v17 )
+          while ( v10 );
+          v12 = bdHashingClass::getHash<bdString>(&map->m_hashClass, p_m_key);
+          v13 = map->m_capacity;
+          v14 = (v12 & (v13 - 1)) + 1;
+          if ( (unsigned int)v14 >= v13 )
             break;
           while ( 1 )
           {
-            v14 = map->m_map[v18];
-            if ( v14 )
+            v10 = map->m_map[v14];
+            if ( v10 )
               break;
-            v18 = (unsigned int)(v18 + 1);
-            if ( (unsigned int)v18 >= v17 )
+            v14 = (unsigned int)(v14 + 1);
+            if ( (unsigned int)v14 >= v13 )
               goto LABEL_15;
           }
         }
@@ -3789,11 +3749,12 @@ void bdHashMap<bdString,bdJSONValue,bdHashingClass>::resize(bdHashMap<bdString,b
   bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node *v14; 
-  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node *v15; 
+  float v6; 
+  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node *v10; 
+  bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -3801,38 +3762,32 @@ void bdHashMap<bdString,bdJSONValue,bdHashingClass>::resize(bdHashMap<bdString,b
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdJSONValue,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdJSONValue,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = v14;
-          v14 = v14->m_next;
-          bdString::~bdString((bdString *)&v15->m_key);
-          bdJSONValue::~bdJSONValue(&v15->m_data);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdJSONValue,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = v10;
+          v10 = v10->m_next;
+          bdString::~bdString((bdString *)&v11->m_key);
+          bdJSONValue::~bdJSONValue(&v11->m_data);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -3967,41 +3922,28 @@ void bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::clear
 bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::createMap(bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::createMap(bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned __int64,class bdReference<class bdByteBuffer>,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned __int64,class bdReference<class bdByteBuffer>,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -4009,41 +3951,28 @@ void __fastcall bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingCl
 bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::createMap(bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::createMap(bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned __int64,class bdReference<class bdRemoteTask>,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned __int64,class bdReference<class bdRemoteTask>,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -4276,39 +4205,40 @@ bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::put
 */
 char bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::put(bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass> *this, const unsigned __int64 *key, const bdReference<bdByteBuffer> *value)
 {
-  const bdReference<bdByteBuffer> *v4; 
-  int v7; 
+  const bdReference<bdByteBuffer> *v3; 
+  int v6; 
   __int64 m_capacity; 
-  __int64 v9; 
+  __int64 v8; 
   bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **m_map; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v11; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v10; 
   unsigned int m_size; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **v19; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **v20; 
-  __int64 v21; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v22; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v23; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v24; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v25; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **v15; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v18; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v19; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v20; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v21; 
   bdByteBuffer *m_ptr; 
-  int v28; 
+  int v24; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned __int64,class bdReference<class bdByteBuffer>,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = *((unsigned __int8 *)key + 7) ^ (16777619 * (*((unsigned __int8 *)key + 6) ^ (16777619 * (*((unsigned __int8 *)key + 5) ^ (16777619 * (*((unsigned __int8 *)key + 4) ^ (16777619 * (*((unsigned __int8 *)key + 3) ^ (16777619 * (*((unsigned __int8 *)key + 2) ^ (16777619 * (*((unsigned __int8 *)key + 1) ^ (16777619 * *(unsigned __int8 *)key)))))))))))));
-  v28 = v7;
+  v6 = *((unsigned __int8 *)key + 7) ^ (16777619 * (*((unsigned __int8 *)key + 6) ^ (16777619 * (*((unsigned __int8 *)key + 5) ^ (16777619 * (*((unsigned __int8 *)key + 4) ^ (16777619 * (*((unsigned __int8 *)key + 3) ^ (16777619 * (*((unsigned __int8 *)key + 2) ^ (16777619 * (*((unsigned __int8 *)key + 1) ^ (16777619 * *(unsigned __int8 *)key)))))))))))));
+  v24 = v6;
   m_capacity = this->m_capacity;
-  v9 = v7 & (unsigned int)(m_capacity - 1);
+  v8 = v6 & (unsigned int)(m_capacity - 1);
   m_map = this->m_map;
-  v11 = m_map[v9];
-  if ( v11 )
+  v10 = m_map[v8];
+  if ( v10 )
   {
-    while ( *key != v11->m_key )
+    while ( *key != v10->m_key )
     {
-      v11 = v11->m_next;
-      if ( !v11 )
+      v10 = v10->m_next;
+      if ( !v10 )
         goto LABEL_4;
     }
     return 0;
@@ -4320,72 +4250,66 @@ LABEL_4:
     if ( this->m_size + 1 > this->m_threshold )
     {
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( (_DWORD)m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = v22;
-              v22 = v22->m_next;
-              if ( v23->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v23->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+              bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = v18;
+              v18 = v18->m_next;
+              if ( v19->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
               {
-                if ( v23->m_data.m_ptr )
-                  ((void (__fastcall *)(bdByteBuffer *, __int64))v23->m_data.m_ptr->~bdReferencable)(v23->m_data.m_ptr, 1i64);
-                v23->m_data.m_ptr = NULL;
+                if ( v19->m_data.m_ptr )
+                  ((void (__fastcall *)(bdByteBuffer *, __int64))v19->m_data.m_ptr->~bdReferencable)(v19->m_data.m_ptr, 1i64);
+                v19->m_data.m_ptr = NULL;
               }
-              bdMemory::deallocate(v23);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v7 = v28;
-          v4 = value;
+          while ( v17 );
+          v6 = v24;
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v9 = v7 & (v14 - 1);
+      v8 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *)bdMemory::allocate(0x18ui64);
-    if ( v24 )
+    v20 = (bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *)bdMemory::allocate(0x18ui64);
+    if ( v20 )
     {
-      v25 = this->m_map[v9];
-      m_ptr = v4->m_ptr;
-      v24->m_data = (bdReference<bdByteBuffer>)v4->m_ptr;
+      v21 = this->m_map[v8];
+      m_ptr = v3->m_ptr;
+      v20->m_data = (bdReference<bdByteBuffer>)v3->m_ptr;
       if ( m_ptr )
         _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-      v24->m_key = *key;
-      v24->m_next = v25;
+      v20->m_key = *key;
+      v20->m_next = v21;
     }
     else
     {
-      v24 = NULL;
+      v20 = NULL;
     }
-    this->m_map[(unsigned int)v9] = v24;
+    this->m_map[(unsigned int)v8] = v20;
     return 1;
   }
 }
@@ -4397,39 +4321,40 @@ bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::put
 */
 char bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::put(bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass> *this, const unsigned __int64 *key, const bdReference<bdRemoteTask> *value)
 {
-  const bdReference<bdRemoteTask> *v4; 
-  int v7; 
+  const bdReference<bdRemoteTask> *v3; 
+  int v6; 
   __int64 m_capacity; 
-  __int64 v9; 
+  __int64 v8; 
   bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **m_map; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v11; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v10; 
   unsigned int m_size; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **v19; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **v20; 
-  __int64 v21; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v22; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v23; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v24; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v25; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **v15; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v18; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v19; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v20; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v21; 
   bdRemoteTask *m_ptr; 
-  int v28; 
+  int v24; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<unsigned __int64,class bdReference<class bdRemoteTask>,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = *((unsigned __int8 *)key + 7) ^ (16777619 * (*((unsigned __int8 *)key + 6) ^ (16777619 * (*((unsigned __int8 *)key + 5) ^ (16777619 * (*((unsigned __int8 *)key + 4) ^ (16777619 * (*((unsigned __int8 *)key + 3) ^ (16777619 * (*((unsigned __int8 *)key + 2) ^ (16777619 * (*((unsigned __int8 *)key + 1) ^ (16777619 * *(unsigned __int8 *)key)))))))))))));
-  v28 = v7;
+  v6 = *((unsigned __int8 *)key + 7) ^ (16777619 * (*((unsigned __int8 *)key + 6) ^ (16777619 * (*((unsigned __int8 *)key + 5) ^ (16777619 * (*((unsigned __int8 *)key + 4) ^ (16777619 * (*((unsigned __int8 *)key + 3) ^ (16777619 * (*((unsigned __int8 *)key + 2) ^ (16777619 * (*((unsigned __int8 *)key + 1) ^ (16777619 * *(unsigned __int8 *)key)))))))))))));
+  v24 = v6;
   m_capacity = this->m_capacity;
-  v9 = v7 & (unsigned int)(m_capacity - 1);
+  v8 = v6 & (unsigned int)(m_capacity - 1);
   m_map = this->m_map;
-  v11 = m_map[v9];
-  if ( v11 )
+  v10 = m_map[v8];
+  if ( v10 )
   {
-    while ( *key != v11->m_key )
+    while ( *key != v10->m_key )
     {
-      v11 = v11->m_next;
-      if ( !v11 )
+      v10 = v10->m_next;
+      if ( !v10 )
         goto LABEL_4;
     }
     return 0;
@@ -4441,72 +4366,66 @@ LABEL_4:
     if ( this->m_size + 1 > this->m_threshold )
     {
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( (_DWORD)m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = v22;
-              v22 = v22->m_next;
-              if ( v23->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v23->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+              bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = v18;
+              v18 = v18->m_next;
+              if ( v19->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
               {
-                if ( v23->m_data.m_ptr )
-                  ((void (__fastcall *)(bdRemoteTask *, __int64))v23->m_data.m_ptr->~bdReferencable)(v23->m_data.m_ptr, 1i64);
-                v23->m_data.m_ptr = NULL;
+                if ( v19->m_data.m_ptr )
+                  ((void (__fastcall *)(bdRemoteTask *, __int64))v19->m_data.m_ptr->~bdReferencable)(v19->m_data.m_ptr, 1i64);
+                v19->m_data.m_ptr = NULL;
               }
-              bdMemory::deallocate(v23);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v7 = v28;
-          v4 = value;
+          while ( v17 );
+          v6 = v24;
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v9 = v7 & (v14 - 1);
+      v8 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *)bdMemory::allocate(0x18ui64);
-    if ( v24 )
+    v20 = (bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *)bdMemory::allocate(0x18ui64);
+    if ( v20 )
     {
-      v25 = this->m_map[v9];
-      m_ptr = v4->m_ptr;
-      v24->m_data = (bdReference<bdRemoteTask>)v4->m_ptr;
+      v21 = this->m_map[v8];
+      m_ptr = v3->m_ptr;
+      v20->m_data = (bdReference<bdRemoteTask>)v3->m_ptr;
       if ( m_ptr )
         _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-      v24->m_key = *key;
-      v24->m_next = v25;
+      v20->m_key = *key;
+      v20->m_next = v21;
     }
     else
     {
-      v24 = NULL;
+      v20 = NULL;
     }
-    this->m_map[(unsigned int)v9] = v24;
+    this->m_map[(unsigned int)v8] = v20;
     return 1;
   }
 }
@@ -4674,11 +4593,12 @@ void bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::resiz
   bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **v11; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v14; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v15; 
+  float v6; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **v7; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v10; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -4686,42 +4606,36 @@ void bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::resiz
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = v14;
-          v14 = v14->m_next;
-          if ( v15->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v15->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+          bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = v10;
+          v10 = v10->m_next;
+          if ( v11->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
           {
-            if ( v15->m_data.m_ptr )
-              ((void (__fastcall *)(bdByteBuffer *, __int64))v15->m_data.m_ptr->~bdReferencable)(v15->m_data.m_ptr, 1i64);
-            v15->m_data.m_ptr = NULL;
+            if ( v11->m_data.m_ptr )
+              ((void (__fastcall *)(bdByteBuffer *, __int64))v11->m_data.m_ptr->~bdReferencable)(v11->m_data.m_ptr, 1i64);
+            v11->m_data.m_ptr = NULL;
           }
-          bdMemory::deallocate(v15);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -4737,11 +4651,12 @@ void bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::resiz
   bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **v11; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v14; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v15; 
+  float v6; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **v7; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v10; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -4749,42 +4664,36 @@ void bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::resiz
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = v14;
-          v14 = v14->m_next;
-          if ( v15->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v15->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+          bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = v10;
+          v10 = v10->m_next;
+          if ( v11->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
           {
-            if ( v15->m_data.m_ptr )
-              ((void (__fastcall *)(bdRemoteTask *, __int64))v15->m_data.m_ptr->~bdReferencable)(v15->m_data.m_ptr, 1i64);
-            v15->m_data.m_ptr = NULL;
+            if ( v11->m_data.m_ptr )
+              ((void (__fastcall *)(bdRemoteTask *, __int64))v11->m_data.m_ptr->~bdReferencable)(v11->m_data.m_ptr, 1i64);
+            v11->m_data.m_ptr = NULL;
           }
-          bdMemory::deallocate(v15);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -4795,42 +4704,29 @@ void bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::resiz
 bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>(bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>(bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdDemonataPushMessageHandler *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdDemonataPushMessageHandler *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -4838,42 +4734,29 @@ void __fastcall bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass
 bdHashMap<bdString,bdMail *,bdHashingClass>::bdHashMap<bdString,bdMail *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdMail *,bdHashingClass>::bdHashMap<bdString,bdMail *,bdHashingClass>(bdHashMap<bdString,bdMail *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdMail *,bdHashingClass>::bdHashMap<bdString,bdMail *,bdHashingClass>(bdHashMap<bdString,bdMail *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdMail *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdMail *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMail *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMail *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdMail *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdMail *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -4881,42 +4764,29 @@ void __fastcall bdHashMap<bdString,bdMail *,bdHashingClass>::bdHashMap<bdString,
 bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::bdHashMap<bdString,bdMarketingComms *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::bdHashMap<bdString,bdMarketingComms *,bdHashingClass>(bdHashMap<bdString,bdMarketingComms *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::bdHashMap<bdString,bdMarketingComms *,bdHashingClass>(bdHashMap<bdString,bdMarketingComms *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMarketingComms *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMarketingComms *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -4924,42 +4794,29 @@ void __fastcall bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::bdHashMap
 bdHashMap<bdString,bdMarketplace *,bdHashingClass>::bdHashMap<bdString,bdMarketplace *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdMarketplace *,bdHashingClass>::bdHashMap<bdString,bdMarketplace *,bdHashingClass>(bdHashMap<bdString,bdMarketplace *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdMarketplace *,bdHashingClass>::bdHashMap<bdString,bdMarketplace *,bdHashingClass>(bdHashMap<bdString,bdMarketplace *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMarketplace *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMarketplace *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -4967,42 +4824,29 @@ void __fastcall bdHashMap<bdString,bdMarketplace *,bdHashingClass>::bdHashMap<bd
 bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::bdHashMap<bdString,bdMatchMaking *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::bdHashMap<bdString,bdMatchMaking *,bdHashingClass>(bdHashMap<bdString,bdMatchMaking *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::bdHashMap<bdString,bdMatchMaking *,bdHashingClass>(bdHashMap<bdString,bdMatchMaking *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMatchMaking *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMatchMaking *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -5010,42 +4854,29 @@ void __fastcall bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::bdHashMap<bd
 bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::bdHashMap<bdString,bdPlayerVote *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::bdHashMap<bdString,bdPlayerVote *,bdHashingClass>(bdHashMap<bdString,bdPlayerVote *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::bdHashMap<bdString,bdPlayerVote *,bdHashingClass>(bdHashMap<bdString,bdPlayerVote *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdPlayerVote *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdPlayerVote *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -5053,42 +4884,29 @@ void __fastcall bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::bdHashMap<bdS
 bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>(bdHashMap<bdString,bdPublisherVariables *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>(bdHashMap<bdString,bdPublisherVariables *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdPublisherVariables *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdPublisherVariables *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -5096,42 +4914,29 @@ void __fastcall bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::bdHas
 bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>(bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>(bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdRedeemableCodeService *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdRedeemableCodeService *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -5139,42 +4944,29 @@ void __fastcall bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::bd
 bdHashMap<bdString,bdReward *,bdHashingClass>::bdHashMap<bdString,bdReward *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdReward *,bdHashingClass>::bdHashMap<bdString,bdReward *,bdHashingClass>(bdHashMap<bdString,bdReward *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdReward *,bdHashingClass>::bdHashMap<bdString,bdReward *,bdHashingClass>(bdHashMap<bdString,bdReward *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdReward *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdReward *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdReward *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdReward *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdReward *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdReward *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -5182,42 +4974,29 @@ void __fastcall bdHashMap<bdString,bdReward *,bdHashingClass>::bdHashMap<bdStrin
 bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>(bdHashMap<bdString,bdRichPresenceService *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>(bdHashMap<bdString,bdRichPresenceService *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdRichPresenceService *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdRichPresenceService *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -5225,42 +5004,29 @@ void __fastcall bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::bdHa
 bdHashMap<bdString,bdService *,bdHashingClass>::bdHashMap<bdString,bdService *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdService *,bdHashingClass>::bdHashMap<bdString,bdService *,bdHashingClass>(bdHashMap<bdString,bdService *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdService *,bdHashingClass>::bdHashMap<bdString,bdService *,bdHashingClass>(bdHashMap<bdString,bdService *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdService *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdService *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdService *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdService *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdService *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -5268,42 +5034,29 @@ void __fastcall bdHashMap<bdString,bdService *,bdHashingClass>::bdHashMap<bdStri
 bdHashMap<bdString,bdStorage *,bdHashingClass>::bdHashMap<bdString,bdStorage *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdStorage *,bdHashingClass>::bdHashMap<bdString,bdStorage *,bdHashingClass>(bdHashMap<bdString,bdStorage *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdStorage *,bdHashingClass>::bdHashMap<bdString,bdStorage *,bdHashingClass>(bdHashMap<bdString,bdStorage *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdStorage *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdStorage *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -5311,42 +5064,29 @@ void __fastcall bdHashMap<bdString,bdStorage *,bdHashingClass>::bdHashMap<bdStri
 bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>(bdHashMap<bdString,bdTeamShowcase *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>(bdHashMap<bdString,bdTeamShowcase *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdTeamShowcase *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdTeamShowcase *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -5354,42 +5094,29 @@ void __fastcall bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::bdHashMap<b
 bdHashMap<bdString,bdTeams *,bdHashingClass>::bdHashMap<bdString,bdTeams *,bdHashingClass>
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdTeams *,bdHashingClass>::bdHashMap<bdString,bdTeams *,bdHashingClass>(bdHashMap<bdString,bdTeams *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdTeams *,bdHashingClass>::bdHashMap<bdString,bdTeams *,bdHashingClass>(bdHashMap<bdString,bdTeams *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdTeams *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdTeams *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6081,41 +5808,28 @@ void bdHashMap<bdString,bdTeams *,bdHashingClass>::clear(bdHashMap<bdString,bdTe
 bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::createMap(bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::createMap(bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdDemonataPushMessageHandler *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdDemonataPushMessageHandler *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6123,41 +5837,28 @@ void __fastcall bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass
 bdHashMap<bdString,bdMail *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdMail *,bdHashingClass>::createMap(bdHashMap<bdString,bdMail *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdMail *,bdHashingClass>::createMap(bdHashMap<bdString,bdMail *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdMail *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdMail *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMail *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMail *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdMail *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdMail *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6165,41 +5866,28 @@ void __fastcall bdHashMap<bdString,bdMail *,bdHashingClass>::createMap(bdHashMap
 bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::createMap(bdHashMap<bdString,bdMarketingComms *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::createMap(bdHashMap<bdString,bdMarketingComms *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMarketingComms *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMarketingComms *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6207,41 +5895,28 @@ void __fastcall bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::createMap
 bdHashMap<bdString,bdMarketplace *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdMarketplace *,bdHashingClass>::createMap(bdHashMap<bdString,bdMarketplace *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdMarketplace *,bdHashingClass>::createMap(bdHashMap<bdString,bdMarketplace *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMarketplace *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMarketplace *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6249,41 +5924,28 @@ void __fastcall bdHashMap<bdString,bdMarketplace *,bdHashingClass>::createMap(bd
 bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::createMap(bdHashMap<bdString,bdMatchMaking *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::createMap(bdHashMap<bdString,bdMatchMaking *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMatchMaking *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMatchMaking *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6291,41 +5953,28 @@ void __fastcall bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::createMap(bd
 bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::createMap(bdHashMap<bdString,bdPlayerVote *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::createMap(bdHashMap<bdString,bdPlayerVote *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdPlayerVote *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdPlayerVote *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6333,41 +5982,28 @@ void __fastcall bdHashMap<bdString,bdPlayerVote *,bdHashingClass>::createMap(bdH
 bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::createMap(bdHashMap<bdString,bdPublisherVariables *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::createMap(bdHashMap<bdString,bdPublisherVariables *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdPublisherVariables *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdPublisherVariables *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6375,41 +6011,28 @@ void __fastcall bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::creat
 bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::createMap(bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::createMap(bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdRedeemableCodeService *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdRedeemableCodeService *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6417,41 +6040,28 @@ void __fastcall bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::cr
 bdHashMap<bdString,bdReward *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdReward *,bdHashingClass>::createMap(bdHashMap<bdString,bdReward *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdReward *,bdHashingClass>::createMap(bdHashMap<bdString,bdReward *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdReward *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdReward *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdReward *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdReward *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdReward *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdReward *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6459,41 +6069,28 @@ void __fastcall bdHashMap<bdString,bdReward *,bdHashingClass>::createMap(bdHashM
 bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::createMap(bdHashMap<bdString,bdRichPresenceService *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::createMap(bdHashMap<bdString,bdRichPresenceService *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdRichPresenceService *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdRichPresenceService *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6501,41 +6098,28 @@ void __fastcall bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::crea
 bdHashMap<bdString,bdService *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdService *,bdHashingClass>::createMap(bdHashMap<bdString,bdService *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdService *,bdHashingClass>::createMap(bdHashMap<bdString,bdService *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdService *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdService *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdService *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdService *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdService *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6543,41 +6127,28 @@ void __fastcall bdHashMap<bdString,bdService *,bdHashingClass>::createMap(bdHash
 bdHashMap<bdString,bdStorage *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdStorage *,bdHashingClass>::createMap(bdHashMap<bdString,bdStorage *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdStorage *,bdHashingClass>::createMap(bdHashMap<bdString,bdStorage *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdStorage *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdStorage *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6585,41 +6156,28 @@ void __fastcall bdHashMap<bdString,bdStorage *,bdHashingClass>::createMap(bdHash
 bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::createMap(bdHashMap<bdString,bdTeamShowcase *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::createMap(bdHashMap<bdString,bdTeamShowcase *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdTeamShowcase *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdTeamShowcase *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -6627,41 +6185,28 @@ void __fastcall bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::createMap(b
 bdHashMap<bdString,bdTeams *,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdString,bdTeams *,bdHashingClass>::createMap(bdHashMap<bdString,bdTeams *,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdString,bdTeams *,bdHashingClass>::createMap(bdHashMap<bdString,bdTeams *,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdTeams *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdTeams *,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -8280,30 +7825,31 @@ bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::put(bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass> *this, const bdString *key, bdDemonataPushMessageHandler *const *value)
 {
-  bdDemonataPushMessageHandler *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdDemonataPushMessageHandler *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdDemonataPushMessageHandler *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -8325,64 +7871,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -8394,30 +7934,31 @@ bdHashMap<bdString,bdMail *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdMail *,bdHashingClass>::put(bdHashMap<bdString,bdMail *,bdHashingClass> *this, const bdString *key, bdMail *const *value)
 {
-  bdMail *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdMail *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdMail *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdMail *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdMail *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdMail *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdMail *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdMail *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdMail *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdMail *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdMail *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdMail *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMail *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -8439,64 +7980,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdMail *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdMail *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdMail *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdMail *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdMail *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdMail *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -8508,30 +8043,31 @@ bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::put(bdHashMap<bdString,bdMarketingComms *,bdHashingClass> *this, const bdString *key, bdMarketingComms *const *value)
 {
-  bdMarketingComms *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdMarketingComms *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMarketingComms *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -8553,64 +8089,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -8622,30 +8152,31 @@ bdHashMap<bdString,bdMarketplace *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdMarketplace *,bdHashingClass>::put(bdHashMap<bdString,bdMarketplace *,bdHashingClass> *this, const bdString *key, bdMarketplace *const *value)
 {
-  bdMarketplace *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdMarketplace *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMarketplace *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -8667,64 +8198,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdMarketplace *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdMarketplace *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -8736,30 +8261,31 @@ bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::put(bdHashMap<bdString,bdMatchMaking *,bdHashingClass> *this, const bdString *key, bdMatchMaking *const *value)
 {
-  bdMatchMaking *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdMatchMaking *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdMatchMaking *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -8781,64 +8307,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -8850,30 +8370,31 @@ bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::put(bdHashMap<bdString,bdPublisherVariables *,bdHashingClass> *this, const bdString *key, bdPublisherVariables *const *value)
 {
-  bdPublisherVariables *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdPublisherVariables *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdPublisherVariables *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -8895,64 +8416,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -8964,30 +8479,31 @@ bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::put(bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass> *this, const bdString *key, bdRedeemableCodeService *const *value)
 {
-  bdRedeemableCodeService *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdRedeemableCodeService *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdRedeemableCodeService *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -9009,64 +8525,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -9078,30 +8588,31 @@ bdHashMap<bdString,bdReward *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdReward *,bdHashingClass>::put(bdHashMap<bdString,bdReward *,bdHashingClass> *this, const bdString *key, bdReward *const *value)
 {
-  bdReward *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdReward *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdReward *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdReward *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdReward *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdReward *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdReward *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdReward *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdReward *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdReward *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdReward *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdReward *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdReward *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -9123,64 +8634,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdReward *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdReward *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdReward *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdReward *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdReward *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdReward *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -9192,30 +8697,31 @@ bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::put(bdHashMap<bdString,bdRichPresenceService *,bdHashingClass> *this, const bdString *key, bdRichPresenceService *const *value)
 {
-  bdRichPresenceService *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdRichPresenceService *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdRichPresenceService *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -9237,64 +8743,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -9306,30 +8806,31 @@ bdHashMap<bdString,bdStorage *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdStorage *,bdHashingClass>::put(bdHashMap<bdString,bdStorage *,bdHashingClass> *this, const bdString *key, bdStorage *const *value)
 {
-  bdStorage *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdStorage *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdStorage *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdStorage *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -9351,64 +8852,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdStorage *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdStorage *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdStorage *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdStorage *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -9420,30 +8915,31 @@ bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::put(bdHashMap<bdString,bdTeamShowcase *,bdHashingClass> *this, const bdString *key, bdTeamShowcase *const *value)
 {
-  bdTeamShowcase *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdTeamShowcase *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdTeamShowcase *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -9465,64 +8961,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -9534,30 +9024,31 @@ bdHashMap<bdString,bdTeams *,bdHashingClass>::put
 */
 char bdHashMap<bdString,bdTeams *,bdHashingClass>::put(bdHashMap<bdString,bdTeams *,bdHashingClass> *this, const bdString *key, bdTeams *const *value)
 {
-  bdTeams *const *v4; 
-  unsigned int v7; 
-  __int64 v8; 
+  bdTeams *const *v3; 
+  unsigned int v6; 
+  __int64 v7; 
   bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **m_map; 
   const bdString *m_string; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **v19; 
-  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **v15; 
+  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node *v18; 
+  bdString *v19; 
+  bdString *v20; 
+  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node *v21; 
   bdHashMap<bdString,bdTeams *,bdHashingClass>::Node *v22; 
-  bdString *v23; 
-  bdString *v24; 
-  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node *v25; 
-  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdString,class bdTeams *,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = bdHashingClass::getHash<bdString>(&this->m_hashClass, key);
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  m_string = (const bdString *)m_map[v8];
+  m_string = (const bdString *)m_map[v7];
   if ( m_string )
   {
     while ( !bdString::operator==((bdString *)key, m_string + 1) )
@@ -9579,64 +9070,58 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdString,bdTeams *,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = (bdString *)v22;
-              v22 = v22->m_next;
-              bdString::~bdString(v23 + 1);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdString,bdTeams *,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = (bdString *)v18;
+              v18 = v18->m_next;
+              bdString::~bdString(v19 + 1);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdString *)bdMemory::allocate(0x18ui64);
-    v25 = (bdHashMap<bdString,bdTeams *,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdString *)bdMemory::allocate(0x18ui64);
+    v21 = (bdHashMap<bdString,bdTeams *,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      v24->m_string = *(char **)v4;
-      bdString::bdString(v24 + 1, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      v20->m_string = *(char **)v3;
+      bdString::bdString(v20 + 1, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -9855,11 +9340,12 @@ void bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::resize(b
   bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -9867,37 +9353,31 @@ void bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::resize(b
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdDemonataPushMessageHandler *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -9913,11 +9393,12 @@ void bdHashMap<bdString,bdMail *,bdHashingClass>::resize(bdHashMap<bdString,bdMa
   bdHashMap<bdString,bdMail *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdMail *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdMail *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdMail *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdMail *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdMail *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdMail *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -9925,37 +9406,31 @@ void bdHashMap<bdString,bdMail *,bdHashingClass>::resize(bdHashMap<bdString,bdMa
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdMail *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdMail *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdMail *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdMail *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -9971,11 +9446,12 @@ void bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::resize(bdHashMap<bdS
   bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -9983,37 +9459,31 @@ void bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::resize(bdHashMap<bdS
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdMarketingComms *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -10029,11 +9499,12 @@ void bdHashMap<bdString,bdMarketplace *,bdHashingClass>::resize(bdHashMap<bdStri
   bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -10041,37 +9512,31 @@ void bdHashMap<bdString,bdMarketplace *,bdHashingClass>::resize(bdHashMap<bdStri
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdMarketplace *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdMarketplace *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdMarketplace *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -10087,11 +9552,12 @@ void bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::resize(bdHashMap<bdStri
   bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -10099,37 +9565,31 @@ void bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::resize(bdHashMap<bdStri
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdMatchMaking *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -10145,11 +9605,12 @@ void bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::resize(bdHashMap
   bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -10157,37 +9618,31 @@ void bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::resize(bdHashMap
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdPublisherVariables *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -10203,11 +9658,12 @@ void bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::resize(bdHash
   bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -10215,37 +9671,31 @@ void bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::resize(bdHash
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdRedeemableCodeService *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -10261,11 +9711,12 @@ void bdHashMap<bdString,bdReward *,bdHashingClass>::resize(bdHashMap<bdString,bd
   bdHashMap<bdString,bdReward *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdReward *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdReward *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdReward *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdReward *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdReward *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdReward *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -10273,37 +9724,31 @@ void bdHashMap<bdString,bdReward *,bdHashingClass>::resize(bdHashMap<bdString,bd
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdReward *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdReward *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdReward *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdReward *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -10319,11 +9764,12 @@ void bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::resize(bdHashMa
   bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -10331,37 +9777,31 @@ void bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::resize(bdHashMa
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdRichPresenceService *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -10377,11 +9817,12 @@ void bdHashMap<bdString,bdStorage *,bdHashingClass>::resize(bdHashMap<bdString,b
   bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdStorage *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -10389,37 +9830,31 @@ void bdHashMap<bdString,bdStorage *,bdHashingClass>::resize(bdHashMap<bdString,b
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdStorage *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdStorage *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdStorage *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -10435,11 +9870,12 @@ void bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::resize(bdHashMap<bdStr
   bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -10447,37 +9883,31 @@ void bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::resize(bdHashMap<bdStr
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdTeamShowcase *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -10493,11 +9923,12 @@ void bdHashMap<bdString,bdTeams *,bdHashingClass>::resize(bdHashMap<bdString,bdT
   bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **v11; 
-  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node *v14; 
-  bdString *v15; 
+  float v6; 
+  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **v7; 
+  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdString,bdTeams *,bdHashingClass>::Node *v10; 
+  bdString *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -10505,37 +9936,31 @@ void bdHashMap<bdString,bdTeams *,bdHashingClass>::resize(bdHashMap<bdString,bdT
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdString,bdTeams *,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdString,bdTeams *,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdString *)v14;
-          v14 = v14->m_next;
-          bdString::~bdString(v15 + 1);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdString,bdTeams *,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdString *)v10;
+          v10 = v10->m_next;
+          bdString::~bdString(v11 + 1);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -10546,42 +9971,29 @@ void bdHashMap<bdString,bdTeams *,bdHashingClass>::resize(bdHashMap<bdString,bdT
 bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>
 ==============
 */
-
-void __fastcall bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>(bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>(bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **v7; 
+  size_t v8; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
-  }
-  _RBX = this;
   this->m_numIterators.m_value._My_val = 0;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdReference<class bdCommonAddr>,class bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>,class bdCommonAddrHash>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
-  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdReference<class bdCommonAddr>,class bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>,class bdCommonAddrHash>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  memset_0(v14, 0, v15);
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
+  this->m_size = 0;
+  PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -10674,41 +10086,28 @@ bool bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrap
 bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::createMap(bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::createMap(bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdReference<class bdCommonAddr>,class bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>,class bdCommonAddrHash>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdReference<class bdCommonAddr>,class bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>,class bdCommonAddrHash>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -10858,42 +10257,43 @@ char bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrap
   bdCommonAddr *m_ptr; 
   unsigned int m_hash; 
   __int64 m_capacity; 
-  __int64 v10; 
+  __int64 v9; 
   bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **m_map; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v12; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v11; 
   unsigned int m_size; 
-  bdQoSProbe::bdQoSProbeEntryWrapper *v14; 
+  bdQoSProbe::bdQoSProbeEntryWrapper *v13; 
   unsigned int PowerOf2; 
-  unsigned int v16; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **v21; 
-  __int64 v22; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v23; 
+  unsigned int v15; 
+  float v16; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **v17; 
+  __int64 v18; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v19; 
   bdArray<bdQoSProbe::bdQoSProbeEntryWrapper> *p_m_data; 
   bdQoSProbe::bdQoSProbeEntryWrapper *m_data; 
-  bdQoSProbe::bdQoSProbeEntryWrapper *v26; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v27; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v28; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v29; 
-  __int64 v30; 
-  bdCommonAddr *v31; 
-  unsigned int v33; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **v35; 
+  bdQoSProbe::bdQoSProbeEntryWrapper *v22; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v23; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v24; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v25; 
+  __int64 v26; 
+  bdCommonAddr *v27; 
+  unsigned int v29; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **v31; 
 
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdReference<class bdCommonAddr>,class bdArray<struct bdQoSProbe::bdQoSProbeEntryWrapper>,class bdCommonAddrHash>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
   m_ptr = key->m_ptr;
   m_hash = key->m_ptr->m_hash;
-  v33 = m_hash;
+  v29 = m_hash;
   m_capacity = this->m_capacity;
-  v10 = m_hash & ((_DWORD)m_capacity - 1);
+  v9 = m_hash & ((_DWORD)m_capacity - 1);
   m_map = this->m_map;
-  v35 = m_map;
-  v12 = m_map[v10];
-  if ( v12 )
+  v31 = m_map;
+  v11 = m_map[v9];
+  if ( v11 )
   {
-    while ( m_ptr != v12->m_key.m_ptr )
+    while ( m_ptr != v11->m_key.m_ptr )
     {
-      v12 = v12->m_next;
-      if ( !v12 )
+      v11 = v11->m_next;
+      if ( !v11 )
         goto LABEL_4;
     }
     return 0;
@@ -10902,87 +10302,81 @@ char bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrap
   {
 LABEL_4:
     m_size = this->m_size;
-    v14 = NULL;
+    v13 = NULL;
     if ( this->m_size + 1 > this->m_threshold )
     {
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v16 = this->m_capacity;
-      if ( PowerOf2 > v16 )
+      v15 = this->m_capacity;
+      if ( PowerOf2 > v15 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v21 = (bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v21;
+        v16 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v16 * this->m_loadFactor);
+        v17 = (bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v17;
         this->m_size = 0;
-        memset_0(v21, 0, 8i64 * this->m_capacity);
+        memset_0(v17, 0, 8i64 * this->m_capacity);
         if ( (_DWORD)m_capacity )
         {
-          v22 = m_capacity;
+          v18 = m_capacity;
           do
           {
-            v23 = *m_map;
-            while ( v23 )
+            v19 = *m_map;
+            while ( v19 )
             {
-              bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::put(this, &v23->m_key, &v23->m_data);
-              p_m_data = &v23->m_data;
-              v23 = v23->m_next;
+              bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::put(this, &v19->m_key, &v19->m_data);
+              p_m_data = &v19->m_data;
+              v19 = v19->m_next;
               m_data = p_m_data[1].m_data;
               if ( m_data && _InterlockedExchangeAdd((volatile signed __int32 *)&m_data->m_id, 0xFFFFFFFF) == 1 )
               {
-                v26 = p_m_data[1].m_data;
-                if ( v26 )
-                  ((void (__fastcall *)(bdQoSProbe::bdQoSProbeEntryWrapper *, __int64))v26->m_addr.m_ptr->__vftable)(v26, 1i64);
+                v22 = p_m_data[1].m_data;
+                if ( v22 )
+                  ((void (__fastcall *)(bdQoSProbe::bdQoSProbeEntryWrapper *, __int64))v22->m_addr.m_ptr->__vftable)(v22, 1i64);
                 p_m_data[1].m_data = NULL;
               }
               bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::~bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>(p_m_data);
               bdMemory::deallocate(p_m_data);
             }
             ++m_map;
-            --v22;
+            --v18;
           }
-          while ( v22 );
-          m_map = v35;
-          m_hash = v33;
+          while ( v18 );
+          m_map = v31;
+          m_hash = v29;
         }
         bdMemory::deallocate(m_map);
-        v16 = this->m_capacity;
+        v15 = this->m_capacity;
       }
-      v10 = m_hash & (v16 - 1);
+      v9 = m_hash & (v15 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v27 = (bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *)bdMemory::allocate(0x20ui64);
-    v28 = v27;
-    if ( v27 )
+    v23 = (bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *)bdMemory::allocate(0x20ui64);
+    v24 = v23;
+    if ( v23 )
     {
-      v29 = this->m_map[v10];
-      v27->m_data.m_capacity = value->m_capacity;
-      v27->m_data.m_size = value->m_size;
-      v30 = value->m_capacity;
-      if ( (_DWORD)v30 )
+      v25 = this->m_map[v9];
+      v23->m_data.m_capacity = value->m_capacity;
+      v23->m_data.m_size = value->m_size;
+      v26 = value->m_capacity;
+      if ( (_DWORD)v26 )
       {
-        v14 = (bdQoSProbe::bdQoSProbeEntryWrapper *)bdMemory::allocate(640 * v30);
-        bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::copyConstructArrayArray(&v28->m_data, v14, value->m_data, value->m_size);
+        v13 = (bdQoSProbe::bdQoSProbeEntryWrapper *)bdMemory::allocate(640 * v26);
+        bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::copyConstructArrayArray(&v24->m_data, v13, value->m_data, value->m_size);
       }
-      v28->m_data.m_data = v14;
-      v31 = key->m_ptr;
-      v28->m_key.m_ptr = key->m_ptr;
-      if ( v31 )
-        _InterlockedExchangeAdd((volatile signed __int32 *)&v31->m_refCount, 1u);
-      v28->m_next = v29;
+      v24->m_data.m_data = v13;
+      v27 = key->m_ptr;
+      v24->m_key.m_ptr = key->m_ptr;
+      if ( v27 )
+        _InterlockedExchangeAdd((volatile signed __int32 *)&v27->m_refCount, 1u);
+      v24->m_next = v25;
     }
     else
     {
-      v28 = NULL;
+      v24 = NULL;
     }
-    this->m_map[v10] = v28;
+    this->m_map[v9] = v24;
     return 1;
   }
 }
@@ -11137,13 +10531,14 @@ void bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrap
   bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **v11; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v14; 
+  float v6; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **v7; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node *v10; 
   bdArray<bdQoSProbe::bdQoSProbeEntryWrapper> *p_m_data; 
   bdQoSProbe::bdQoSProbeEntryWrapper *m_data; 
-  bdQoSProbe::bdQoSProbeEntryWrapper *v17; 
+  bdQoSProbe::bdQoSProbeEntryWrapper *v13; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -11151,45 +10546,39 @@ void bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrap
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::put(this, &v14->m_key, &v14->m_data);
-          p_m_data = &v14->m_data;
-          v14 = v14->m_next;
+          bdHashMap<bdReference<bdCommonAddr>,bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>,bdCommonAddrHash>::put(this, &v10->m_key, &v10->m_data);
+          p_m_data = &v10->m_data;
+          v10 = v10->m_next;
           m_data = p_m_data[1].m_data;
           if ( m_data && _InterlockedExchangeAdd((volatile signed __int32 *)&m_data->m_id, 0xFFFFFFFF) == 1 )
           {
-            v17 = p_m_data[1].m_data;
-            if ( v17 )
-              ((void (__fastcall *)(bdQoSProbe::bdQoSProbeEntryWrapper *, __int64))v17->m_addr.m_ptr->__vftable)(v17, 1i64);
+            v13 = p_m_data[1].m_data;
+            if ( v13 )
+              ((void (__fastcall *)(bdQoSProbe::bdQoSProbeEntryWrapper *, __int64))v13->m_addr.m_ptr->__vftable)(v13, 1i64);
             p_m_data[1].m_data = NULL;
           }
           bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>::~bdArray<bdQoSProbe::bdQoSProbeEntryWrapper>(p_m_data);
           bdMemory::deallocate(p_m_data);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -11425,41 +10814,28 @@ void bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::clear(bdHashMap<bdSec
 bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::createMap(bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::createMap(bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdReference<class bdCommonAddr>,class bdReference<class bdDTLSAssociation>,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdReference<class bdCommonAddr>,class bdReference<class bdDTLSAssociation>,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -11467,41 +10843,28 @@ void __fastcall bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociatio
 bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::createMap(bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::createMap(bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdEndpoint,class bdReference<class bdAddrHandle>,class bdEndpointHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdEndpoint,class bdReference<class bdAddrHandle>,class bdEndpointHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -11509,41 +10872,28 @@ void __fastcall bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashing
 bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::createMap(bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::createMap(bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdEndpoint,class bdReference<class bdDTLSAssociation>,class bdEndpointHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdEndpoint,class bdReference<class bdDTLSAssociation>,class bdEndpointHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -12310,13 +11660,14 @@ void bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashin
   bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **v11; 
-  bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node *v14; 
-  bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node *v15; 
+  float v6; 
+  bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **v7; 
+  bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node *v10; 
+  bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node *v11; 
   bdCommonAddr *m_ptr; 
-  bdCommonAddr *v17; 
+  bdCommonAddr *v13; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -12324,50 +11675,44 @@ void bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashin
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = v14;
-          v14 = v14->m_next;
-          m_ptr = v15->m_key.m_ptr;
+          bdHashMap<bdReference<bdCommonAddr>,bdReference<bdDTLSAssociation>,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = v10;
+          v10 = v10->m_next;
+          m_ptr = v11->m_key.m_ptr;
           if ( m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
           {
-            v17 = v15->m_key.m_ptr;
-            if ( v17 )
-              ((void (__fastcall *)(bdCommonAddr *, __int64))v17->~bdReferencable)(v17, 1i64);
-            v15->m_key.m_ptr = NULL;
+            v13 = v11->m_key.m_ptr;
+            if ( v13 )
+              ((void (__fastcall *)(bdCommonAddr *, __int64))v13->~bdReferencable)(v13, 1i64);
+            v11->m_key.m_ptr = NULL;
           }
-          if ( v15->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v15->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+          if ( v11->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
           {
-            if ( v15->m_data.m_ptr )
-              ((void (__fastcall *)(bdDTLSAssociation *, __int64))v15->m_data.m_ptr->~bdReferencable)(v15->m_data.m_ptr, 1i64);
-            v15->m_data.m_ptr = NULL;
+            if ( v11->m_data.m_ptr )
+              ((void (__fastcall *)(bdDTLSAssociation *, __int64))v11->m_data.m_ptr->~bdReferencable)(v11->m_data.m_ptr, 1i64);
+            v11->m_data.m_ptr = NULL;
           }
-          bdMemory::deallocate(v15);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -12383,13 +11728,14 @@ void bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::res
   bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **v11; 
-  bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node *v14; 
-  bdSecurityID *v15; 
-  bdSecurityID v16; 
-  void (__fastcall ***v17)(_QWORD, __int64); 
+  float v6; 
+  bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **v7; 
+  bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node *v10; 
+  bdSecurityID *v11; 
+  bdSecurityID v12; 
+  void (__fastcall ***v13)(_QWORD, __int64); 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -12397,51 +11743,45 @@ void bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::res
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdSecurityID *)v14;
-          v14 = v14->m_next;
-          bdSecurityID::~bdSecurityID(v15 + 2);
-          v16 = v15[1];
-          if ( *(_QWORD *)&v16 && _InterlockedExchangeAdd((volatile signed __int32 *)(*(_QWORD *)&v16 + 8i64), 0xFFFFFFFF) == 1 )
+          bdHashMap<bdEndpoint,bdReference<bdAddrHandle>,bdEndpointHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdSecurityID *)v10;
+          v10 = v10->m_next;
+          bdSecurityID::~bdSecurityID(v11 + 2);
+          v12 = v11[1];
+          if ( *(_QWORD *)&v12 && _InterlockedExchangeAdd((volatile signed __int32 *)(*(_QWORD *)&v12 + 8i64), 0xFFFFFFFF) == 1 )
           {
-            v17 = (void (__fastcall ***)(_QWORD, __int64))v15[1];
-            if ( v17 )
-              (**v17)(v17, 1i64);
-            v15[1] = 0i64;
+            v13 = (void (__fastcall ***)(_QWORD, __int64))v11[1];
+            if ( v13 )
+              (**v13)(v13, 1i64);
+            v11[1] = 0i64;
           }
-          if ( *(_QWORD *)v15 && _InterlockedExchangeAdd((volatile signed __int32 *)(*(_QWORD *)v15 + 8i64), 0xFFFFFFFF) == 1 )
+          if ( *(_QWORD *)v11 && _InterlockedExchangeAdd((volatile signed __int32 *)(*(_QWORD *)v11 + 8i64), 0xFFFFFFFF) == 1 )
           {
-            if ( *v15 )
-              (***(void (__fastcall ****)(bdSecurityID, __int64))v15)(*v15, 1i64);
-            *v15 = 0i64;
+            if ( *v11 )
+              (***(void (__fastcall ****)(bdSecurityID, __int64))v11)(*v11, 1i64);
+            *v11 = 0i64;
           }
-          bdMemory::deallocate(v15);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -12457,13 +11797,14 @@ void bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>
   bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **v11; 
-  bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node *v14; 
-  bdSecurityID *v15; 
-  bdSecurityID v16; 
-  void (__fastcall ***v17)(_QWORD, __int64); 
+  float v6; 
+  bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **v7; 
+  bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node *v10; 
+  bdSecurityID *v11; 
+  bdSecurityID v12; 
+  void (__fastcall ***v13)(_QWORD, __int64); 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -12471,51 +11812,45 @@ void bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = (bdSecurityID *)v14;
-          v14 = v14->m_next;
-          bdSecurityID::~bdSecurityID(v15 + 2);
-          v16 = v15[1];
-          if ( *(_QWORD *)&v16 && _InterlockedExchangeAdd((volatile signed __int32 *)(*(_QWORD *)&v16 + 8i64), 0xFFFFFFFF) == 1 )
+          bdHashMap<bdEndpoint,bdReference<bdDTLSAssociation>,bdEndpointHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = (bdSecurityID *)v10;
+          v10 = v10->m_next;
+          bdSecurityID::~bdSecurityID(v11 + 2);
+          v12 = v11[1];
+          if ( *(_QWORD *)&v12 && _InterlockedExchangeAdd((volatile signed __int32 *)(*(_QWORD *)&v12 + 8i64), 0xFFFFFFFF) == 1 )
           {
-            v17 = (void (__fastcall ***)(_QWORD, __int64))v15[1];
-            if ( v17 )
-              (**v17)(v17, 1i64);
-            v15[1] = 0i64;
+            v13 = (void (__fastcall ***)(_QWORD, __int64))v11[1];
+            if ( v13 )
+              (**v13)(v13, 1i64);
+            v11[1] = 0i64;
           }
-          if ( *(_QWORD *)v15 && _InterlockedExchangeAdd((volatile signed __int32 *)(*(_QWORD *)v15 + 8i64), 0xFFFFFFFF) == 1 )
+          if ( *(_QWORD *)v11 && _InterlockedExchangeAdd((volatile signed __int32 *)(*(_QWORD *)v11 + 8i64), 0xFFFFFFFF) == 1 )
           {
-            if ( *v15 )
-              (***(void (__fastcall ****)(bdSecurityID, __int64))v15)(*v15, 1i64);
-            *v15 = 0i64;
+            if ( *v11 )
+              (***(void (__fastcall ****)(bdSecurityID, __int64))v11)(*v11, 1i64);
+            *v11 = 0i64;
           }
-          bdMemory::deallocate(v15);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -12555,41 +11890,28 @@ bool bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::containsKey(bdHashMap
 bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::createMap(bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::createMap(bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdSecurityID,class bdSecurityKey,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdSecurityID,class bdSecurityKey,class bdHashingClass>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -12599,20 +11921,17 @@ bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::get
 */
 bool bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::get(bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass> *this, const bdSecurityID *key, bdSecurityKey *value)
 {
-  _RDI = value;
-  _RAX = bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::getIterator(this, key);
-  if ( _RAX )
+  bdSecurityKey *Iterator; 
+
+  Iterator = (bdSecurityKey *)bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::getIterator(this, key);
+  if ( Iterator )
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rdi], xmm0
-    }
+    *value = *Iterator;
     bdHandleAssert(this->m_numIterators.m_value._My_val != 0, "m_numIterators != 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdSecurityID,class bdSecurityKey,class bdHashingClass>::releaseIterator", 0x18Au, "bdHashMap::releaseIterator Iterator count reached 0, can't release iterator");
     _InterlockedExchangeAdd((volatile signed __int32 *)&this->m_numIterators, 0xFFFFFFFF);
-    LOBYTE(_RAX) = 1;
+    LOBYTE(Iterator) = 1;
   }
-  return (char)_RAX;
+  return (char)Iterator;
 }
 
 /*
@@ -12732,36 +12051,37 @@ bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::put
 */
 char bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::put(bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass> *this, const bdSecurityID *key, const bdSecurityKey *value)
 {
-  const bdSecurityKey *v4; 
-  int v7; 
-  __int64 v8; 
+  const bdSecurityKey *v3; 
+  int v6; 
+  __int64 v7; 
   bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **m_map; 
-  const bdSecurityID *v10; 
+  const bdSecurityID *v9; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **v19; 
-  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **v20; 
-  __int64 v21; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **v15; 
+  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *v18; 
+  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *v19; 
+  bdSecurityKey *v20; 
+  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *v21; 
   bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *v22; 
-  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *v23; 
-  bdSecurityKey *v24; 
-  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *v25; 
-  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *v26; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdSecurityID,class bdSecurityKey,class bdHashingClass>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
-  v7 = key->ab[7] ^ (16777619 * (key->ab[6] ^ (16777619 * (key->ab[5] ^ (16777619 * (key->ab[4] ^ (16777619 * (key->ab[3] ^ (16777619 * (key->ab[2] ^ (16777619 * (key->ab[1] ^ (16777619 * key->ab[0])))))))))))));
-  v8 = v7 & (this->m_capacity - 1);
+  v6 = key->ab[7] ^ (16777619 * (key->ab[6] ^ (16777619 * (key->ab[5] ^ (16777619 * (key->ab[4] ^ (16777619 * (key->ab[3] ^ (16777619 * (key->ab[2] ^ (16777619 * (key->ab[1] ^ (16777619 * key->ab[0])))))))))))));
+  v7 = v6 & (this->m_capacity - 1);
   m_map = this->m_map;
-  v10 = (const bdSecurityID *)m_map[v8];
-  if ( v10 )
+  v9 = (const bdSecurityID *)m_map[v7];
+  if ( v9 )
   {
-    while ( !bdSecurityID::operator==((bdSecurityID *)key, v10 + 2) )
+    while ( !bdSecurityID::operator==((bdSecurityID *)key, v9 + 2) )
     {
-      v10 = (const bdSecurityID *)v10[3];
-      if ( !v10 )
+      v9 = (const bdSecurityID *)v9[3];
+      if ( !v9 )
       {
         m_map = this->m_map;
         goto LABEL_5;
@@ -12777,65 +12097,59 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::put(this, &v22->m_key, &v22->m_data);
-              v23 = v22;
-              v22 = v22->m_next;
-              bdSecurityID::~bdSecurityID((bdSecurityID *)&v23->m_key);
-              bdSecurityKey::~bdSecurityKey(&v23->m_data);
-              bdMemory::deallocate(v23);
+              bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::put(this, &v18->m_key, &v18->m_data);
+              v19 = v18;
+              v18 = v18->m_next;
+              bdSecurityID::~bdSecurityID((bdSecurityID *)&v19->m_key);
+              bdSecurityKey::~bdSecurityKey(&v19->m_data);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          v4 = value;
+          while ( v17 );
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = v7 & (v14 - 1);
+      v7 = v6 & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdSecurityKey *)bdMemory::allocate(0x20ui64);
-    v25 = (bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *)v24;
-    if ( v24 )
+    v20 = (bdSecurityKey *)bdMemory::allocate(0x20ui64);
+    v21 = (bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *)v20;
+    if ( v20 )
     {
-      v26 = this->m_map[v8];
-      bdSecurityKey::bdSecurityKey(v24, v4);
-      bdSecurityID::bdSecurityID((bdSecurityID *)&v25->m_key, key);
-      v25->m_next = v26;
+      v22 = this->m_map[v7];
+      bdSecurityKey::bdSecurityKey(v20, v3);
+      bdSecurityID::bdSecurityID((bdSecurityID *)&v21->m_key, key);
+      v21->m_next = v22;
     }
     else
     {
-      v25 = NULL;
+      v21 = NULL;
     }
-    this->m_map[v8] = v25;
+    this->m_map[v7] = v21;
     return 1;
   }
 }
@@ -12901,11 +12215,12 @@ void bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::resize(bdHashMap<bdSe
   bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **v11; 
-  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *v14; 
-  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *v15; 
+  float v6; 
+  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **v7; 
+  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *v10; 
+  bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -12913,38 +12228,32 @@ void bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::resize(bdHashMap<bdSe
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::put(this, &v14->m_key, &v14->m_data);
-          v15 = v14;
-          v14 = v14->m_next;
-          bdSecurityID::~bdSecurityID((bdSecurityID *)&v15->m_key);
-          bdSecurityKey::~bdSecurityKey(&v15->m_data);
-          bdMemory::deallocate(v15);
+          bdHashMap<bdSecurityID,bdSecurityKey,bdHashingClass>::put(this, &v10->m_key, &v10->m_data);
+          v11 = v10;
+          v10 = v10->m_next;
+          bdSecurityID::~bdSecurityID((bdSecurityID *)&v11->m_key);
+          bdSecurityKey::~bdSecurityKey(&v11->m_data);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -13007,41 +12316,28 @@ void bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::clear(bdHashM
 bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::createMap(bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::createMap(bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdAddr,class bdReference<class bdRelayAssociation>,class bdAddrHash>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdAddr,class bdReference<class bdRelayAssociation>,class bdAddrHash>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -13188,38 +12484,39 @@ bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::put
 */
 char bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::put(bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash> *this, const bdAddr *key, const bdReference<bdRelayAssociation> *value)
 {
-  const bdReference<bdRelayAssociation> *v4; 
+  const bdReference<bdRelayAssociation> *v3; 
   unsigned int Hash; 
-  __int64 v8; 
+  __int64 v7; 
   bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **m_map; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v10; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v9; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  unsigned int v14; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **v19; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **v20; 
-  __int64 v21; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v22; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v23; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v24; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v25; 
+  unsigned int v13; 
+  float v14; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **v15; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **v16; 
+  __int64 v17; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v18; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v19; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v20; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v21; 
   bdRelayAssociation *m_ptr; 
-  unsigned int v28; 
+  unsigned int v24; 
 
-  v4 = value;
+  v3 = value;
   bdHandleAssert(this->m_numIterators.m_value._My_val == 0, "(m_numIterators == 0)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdAddr,class bdReference<class bdRelayAssociation>,class bdAddrHash>::put", 0x64u, "bdHashMap::put, another iterator is being held while inserting to hashmap", -2i64);
   Hash = bdAddr::getHash((bdAddr *)key);
-  v28 = Hash;
-  v8 = Hash & (this->m_capacity - 1);
+  v24 = Hash;
+  v7 = Hash & (this->m_capacity - 1);
   m_map = this->m_map;
-  v10 = m_map[v8];
-  if ( v10 )
+  v9 = m_map[v7];
+  if ( v9 )
   {
-    while ( !bdSockAddr::compare(&key->m_address, &v10->m_key.m_address, 1) )
+    while ( !bdSockAddr::compare(&key->m_address, &v9->m_key.m_address, 1) )
     {
-      v10 = v10->m_next;
-      if ( !v10 )
+      v9 = v9->m_next;
+      if ( !v9 )
       {
         m_map = this->m_map;
         goto LABEL_5;
@@ -13235,72 +12532,66 @@ LABEL_5:
     {
       m_capacity = this->m_capacity;
       PowerOf2 = bdBitOperations::nextPowerOf2(2 * m_capacity);
-      v14 = this->m_capacity;
-      if ( PowerOf2 > v14 )
+      v13 = this->m_capacity;
+      if ( PowerOf2 > v13 )
       {
         this->m_capacity = PowerOf2;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rcx
-          vmulss  xmm0, xmm0, dword ptr [rsi+8]
-          vcvttss2si rcx, xmm0
-        }
-        this->m_threshold = _RCX;
-        v19 = (bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-        this->m_map = v19;
+        v14 = (float)PowerOf2;
+        this->m_threshold = (int)(float)(v14 * this->m_loadFactor);
+        v15 = (bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+        this->m_map = v15;
         this->m_size = 0;
-        memset_0(v19, 0, 8i64 * this->m_capacity);
+        memset_0(v15, 0, 8i64 * this->m_capacity);
         if ( m_capacity )
         {
-          v20 = m_map;
-          v21 = m_capacity;
+          v16 = m_map;
+          v17 = m_capacity;
           do
           {
-            v22 = *v20;
-            while ( v22 )
+            v18 = *v16;
+            while ( v18 )
             {
-              bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::put(this, &v22->m_key, &v22->m_data);
-              v23 = v22;
-              v22 = v22->m_next;
-              if ( v23->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v23->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+              bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::put(this, &v18->m_key, &v18->m_data);
+              v19 = v18;
+              v18 = v18->m_next;
+              if ( v19->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v19->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
               {
-                if ( v23->m_data.m_ptr )
-                  ((void (__fastcall *)(bdRelayAssociation *, __int64))v23->m_data.m_ptr->~bdReferencable)(v23->m_data.m_ptr, 1i64);
-                v23->m_data.m_ptr = NULL;
+                if ( v19->m_data.m_ptr )
+                  ((void (__fastcall *)(bdRelayAssociation *, __int64))v19->m_data.m_ptr->~bdReferencable)(v19->m_data.m_ptr, 1i64);
+                v19->m_data.m_ptr = NULL;
               }
-              bdMemory::deallocate(v23);
+              bdMemory::deallocate(v19);
             }
-            ++v20;
-            --v21;
+            ++v16;
+            --v17;
           }
-          while ( v21 );
-          Hash = v28;
-          v4 = value;
+          while ( v17 );
+          Hash = v24;
+          v3 = value;
         }
         bdMemory::deallocate(m_map);
-        v14 = this->m_capacity;
+        v13 = this->m_capacity;
       }
-      v8 = Hash & (v14 - 1);
+      v7 = Hash & (v13 - 1);
       m_size = this->m_size;
     }
     this->m_size = m_size + 1;
-    v24 = (bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *)bdMemory::allocate(0xA8ui64);
-    if ( v24 )
+    v20 = (bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *)bdMemory::allocate(0xA8ui64);
+    if ( v20 )
     {
-      v25 = this->m_map[v8];
-      m_ptr = v4->m_ptr;
-      v24->m_data = (bdReference<bdRelayAssociation>)v4->m_ptr;
+      v21 = this->m_map[v7];
+      m_ptr = v3->m_ptr;
+      v20->m_data = (bdReference<bdRelayAssociation>)v3->m_ptr;
       if ( m_ptr )
         _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-      bdAddr::bdAddr((bdAddr *)&v24->m_key, key);
-      v24->m_next = v25;
+      bdAddr::bdAddr((bdAddr *)&v20->m_key, key);
+      v20->m_next = v21;
     }
     else
     {
-      v24 = NULL;
+      v20 = NULL;
     }
-    this->m_map[v8] = v24;
+    this->m_map[v7] = v20;
     return 1;
   }
 }
@@ -13370,11 +12661,12 @@ void bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::resize(bdHash
   bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **v11; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v14; 
-  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v15; 
+  float v6; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **v7; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v10; 
+  bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node *v11; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -13382,42 +12674,36 @@ void bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::resize(bdHash
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::put(this, &v14->m_key, &v14->m_data);
-          v15 = v14;
-          v14 = v14->m_next;
-          if ( v15->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v15->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+          bdHashMap<bdAddr,bdReference<bdRelayAssociation>,bdAddrHash>::put(this, &v10->m_key, &v10->m_data);
+          v11 = v10;
+          v10 = v10->m_next;
+          if ( v11->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
           {
-            if ( v15->m_data.m_ptr )
-              ((void (__fastcall *)(bdRelayAssociation *, __int64))v15->m_data.m_ptr->~bdReferencable)(v15->m_data.m_ptr, 1i64);
-            v15->m_data.m_ptr = NULL;
+            if ( v11->m_data.m_ptr )
+              ((void (__fastcall *)(bdRelayAssociation *, __int64))v11->m_data.m_ptr->~bdReferencable)(v11->m_data.m_ptr, 1i64);
+            v11->m_data.m_ptr = NULL;
           }
-          bdMemory::deallocate(v15);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }
@@ -13501,41 +12787,28 @@ void bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefW
 bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::createMap
 ==============
 */
-
-void __fastcall bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::createMap(bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper> *this, const unsigned int initialCapacity, double loadFactor)
+void bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::createMap(bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper> *this, const unsigned int initialCapacity, const float loadFactor)
 {
-  __int64 PowerOf2; 
-  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **v14; 
-  size_t v15; 
+  unsigned int PowerOf2; 
+  float v6; 
+  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **v7; 
+  size_t v8; 
 
-  __asm
+  if ( loadFactor <= 0.0 || loadFactor > 1.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+58h+var_18], xmm6
-    vmovaps xmm6, xmm2
+    bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdAddrHandleRefWrapper,class bdReference<class bdConnection>,class bdAddrHandleRefWrapper>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
+    this->m_loadFactor = 0.75;
   }
-  _RBX = this;
-  __asm { vcomiss xmm2, cs:__real@3f800000 }
-  bdLogMessage(BD_LOG_WARNING, "warn/", "hashmap", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdhashmap.inl", "bdHashMap<class bdAddrHandleRefWrapper,class bdReference<class bdConnection>,class bdAddrHandleRefWrapper>::createMap", 0x1E6u, "Illegal loadFactor. Using default value.");
-  _RBX->m_loadFactor = 0.75;
-  _RBX->m_size = 0;
+  this->m_size = 0;
   PowerOf2 = bdBitOperations::nextPowerOf2(initialCapacity);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, xmm6
-    vcvttss2si rax, xmm1
-  }
-  _RBX->m_capacity = PowerOf2;
-  _RBX->m_threshold = _RAX;
-  __asm { vmovss  dword ptr [rbx+8], xmm6 }
-  v14 = (bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **)bdMemory::allocate(8 * PowerOf2);
-  v15 = 8i64 * _RBX->m_capacity;
-  _RBX->m_map = v14;
-  __asm { vmovaps xmm6, [rsp+58h+var_18] }
-  memset_0(v14, 0, v15);
+  v6 = (float)PowerOf2;
+  this->m_capacity = PowerOf2;
+  this->m_threshold = (int)(float)(v6 * loadFactor);
+  this->m_loadFactor = loadFactor;
+  v7 = (bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  v8 = 8i64 * this->m_capacity;
+  this->m_map = v7;
+  memset_0(v7, 0, v8);
 }
 
 /*
@@ -13811,13 +13084,14 @@ void bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefW
   bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **m_map; 
   unsigned int m_capacity; 
   unsigned int PowerOf2; 
-  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **v11; 
-  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **v12; 
-  __int64 v13; 
-  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node *v14; 
-  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node *v15; 
+  float v6; 
+  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **v7; 
+  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **v8; 
+  __int64 v9; 
+  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node *v10; 
+  bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node *v11; 
   bdAddrHandle *m_ptr; 
-  bdAddrHandle *v17; 
+  bdAddrHandle *v13; 
 
   m_map = this->m_map;
   m_capacity = this->m_capacity;
@@ -13825,50 +13099,44 @@ void bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefW
   if ( PowerOf2 > this->m_capacity )
   {
     this->m_capacity = PowerOf2;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rdx
-      vmulss  xmm0, xmm0, dword ptr [rsi+8]
-      vcvttss2si rcx, xmm0
-    }
-    this->m_threshold = _RCX;
-    v11 = (bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-    this->m_map = v11;
+    v6 = (float)PowerOf2;
+    this->m_threshold = (int)(float)(v6 * this->m_loadFactor);
+    v7 = (bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+    this->m_map = v7;
     this->m_size = 0;
-    memset_0(v11, 0, 8i64 * this->m_capacity);
+    memset_0(v7, 0, 8i64 * this->m_capacity);
     if ( m_capacity )
     {
-      v12 = m_map;
-      v13 = m_capacity;
+      v8 = m_map;
+      v9 = m_capacity;
       do
       {
-        v14 = *v12;
-        while ( v14 )
+        v10 = *v8;
+        while ( v10 )
         {
-          bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::put(this, &v14->m_key, &v14->m_data);
-          v15 = v14;
-          v14 = v14->m_next;
-          m_ptr = v15->m_key.m_handle.m_ptr;
+          bdHashMap<bdAddrHandleRefWrapper,bdReference<bdConnection>,bdAddrHandleRefWrapper>::put(this, &v10->m_key, &v10->m_data);
+          v11 = v10;
+          v10 = v10->m_next;
+          m_ptr = v11->m_key.m_handle.m_ptr;
           if ( m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
           {
-            v17 = v15->m_key.m_handle.m_ptr;
-            if ( v17 )
-              ((void (__fastcall *)(bdAddrHandle *, __int64))v17->~bdReferencable)(v17, 1i64);
-            v15->m_key.m_handle.m_ptr = NULL;
+            v13 = v11->m_key.m_handle.m_ptr;
+            if ( v13 )
+              ((void (__fastcall *)(bdAddrHandle *, __int64))v13->~bdReferencable)(v13, 1i64);
+            v11->m_key.m_handle.m_ptr = NULL;
           }
-          if ( v15->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v15->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+          if ( v11->m_data.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_data.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
           {
-            if ( v15->m_data.m_ptr )
-              ((void (__fastcall *)(bdConnection *, __int64))v15->m_data.m_ptr->~bdReferencable)(v15->m_data.m_ptr, 1i64);
-            v15->m_data.m_ptr = NULL;
+            if ( v11->m_data.m_ptr )
+              ((void (__fastcall *)(bdConnection *, __int64))v11->m_data.m_ptr->~bdReferencable)(v11->m_data.m_ptr, 1i64);
+            v11->m_data.m_ptr = NULL;
           }
-          bdMemory::deallocate(v15);
+          bdMemory::deallocate(v11);
         }
-        ++v12;
-        --v13;
+        ++v8;
+        --v9;
       }
-      while ( v13 );
+      while ( v9 );
     }
     bdMemory::deallocate(m_map);
   }

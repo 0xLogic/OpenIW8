@@ -423,7 +423,10 @@ HavokPhysicsInstanceManager_AllocateInstance
 __int64 HavokPhysicsInstanceManager_AllocateInstance(HavokPhysicsInstanceManager *manager)
 {
   volatile int *p_debugEditOwnership; 
+  __int64 freeInstances; 
   HavokPhysicsInstance *buffer; 
+  unsigned int peakInstanceId; 
+  unsigned int v6; 
 
   if ( !manager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsinstancemanager.cpp", 410, ASSERT_TYPE_ASSERT, "(manager)", (const char *)&queryFormat, "manager") )
     __debugbreak();
@@ -436,8 +439,8 @@ __int64 HavokPhysicsInstanceManager_AllocateInstance(HavokPhysicsInstanceManager
     __debugbreak();
   if ( _InterlockedCompareExchange(p_debugEditOwnership, 1, 0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsinstancemanager.cpp", 419, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &manager->debugEditOwnership, 1, 0 ) == 0)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &manager->debugEditOwnership, 1, 0 ) == 0") )
     __debugbreak();
-  _RSI = manager->freeInstances;
-  if ( (_DWORD)_RSI == -1 )
+  freeInstances = manager->freeInstances;
+  if ( (_DWORD)freeInstances == -1 )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsinstancemanager.cpp", 446, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Havok Physics - Not enough instances") )
       __debugbreak();
@@ -450,36 +453,32 @@ __int64 HavokPhysicsInstanceManager_AllocateInstance(HavokPhysicsInstanceManager
   else
   {
     buffer = manager->buffer;
-    manager->freeInstances = manager->buffer[_RSI].nextInstanceId;
-    buffer[_RSI].nextInstanceId = -1;
-    manager->buffer[_RSI].inUse = 1;
-    if ( manager->buffer[_RSI].addedToWorld && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsinstancemanager.cpp", 430, ASSERT_TYPE_ASSERT, "(!manager->buffer[id].addedToWorld)", (const char *)&queryFormat, "!manager->buffer[id].addedToWorld") )
+    manager->freeInstances = manager->buffer[freeInstances].nextInstanceId;
+    buffer[freeInstances].nextInstanceId = -1;
+    manager->buffer[freeInstances].inUse = 1;
+    if ( manager->buffer[freeInstances].addedToWorld && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsinstancemanager.cpp", 430, ASSERT_TYPE_ASSERT, "(!manager->buffer[id].addedToWorld)", (const char *)&queryFormat, "!manager->buffer[id].addedToWorld") )
       __debugbreak();
-    if ( manager->buffer[_RSI].addToWorldPending && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsinstancemanager.cpp", 431, ASSERT_TYPE_ASSERT, "(!manager->buffer[id].addToWorldPending)", (const char *)&queryFormat, "!manager->buffer[id].addToWorldPending") )
+    if ( manager->buffer[freeInstances].addToWorldPending && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsinstancemanager.cpp", 431, ASSERT_TYPE_ASSERT, "(!manager->buffer[id].addToWorldPending)", (const char *)&queryFormat, "!manager->buffer[id].addToWorldPending") )
       __debugbreak();
     if ( --manager->numFreeInstances + ++manager->numAllocatedInstances + manager->numDestroyedInstances != manager->capacity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsinstancemanager.cpp", 436, ASSERT_TYPE_ASSERT, "(manager->numFreeInstances + manager->numAllocatedInstances + manager->numDestroyedInstances == manager->capacity)", (const char *)&queryFormat, "manager->numFreeInstances + manager->numAllocatedInstances + manager->numDestroyedInstances == manager->capacity") )
       __debugbreak();
-    _EAX = manager->peakInstanceId;
-    if ( _EAX == -1 )
+    peakInstanceId = manager->peakInstanceId;
+    if ( peakInstanceId == -1 )
     {
-      _EAX = _RSI;
+      v6 = freeInstances;
     }
     else
     {
-      __asm
-      {
-        vmovd   xmm0, eax
-        vmovd   xmm1, esi
-        vpmaxud xmm1, xmm0, xmm1
-        vmovd   eax, xmm1
-      }
+      _XMM0 = peakInstanceId;
+      __asm { vpmaxud xmm1, xmm0, xmm1 }
+      v6 = _XMM1;
     }
-    manager->peakInstanceId = _EAX;
+    manager->peakInstanceId = v6;
     if ( (((_BYTE)manager + 52) & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &manager->debugEditOwnership) )
       __debugbreak();
     if ( _InterlockedCompareExchange(p_debugEditOwnership, 0, 1) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\havok\\havokphysicsinstancemanager.cpp", 440, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &manager->debugEditOwnership, 0, 1 ) == 1)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &manager->debugEditOwnership, 0, 1 ) == 1") )
       __debugbreak();
-    return (unsigned int)_RSI;
+    return (unsigned int)freeInstances;
   }
 }
 

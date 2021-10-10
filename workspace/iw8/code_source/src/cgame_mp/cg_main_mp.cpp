@@ -2860,66 +2860,40 @@ CG_MainMP_LoadMigrationPers
 void CG_MainMP_LoadMigrationPers(LocalClientNum_t localClientNum)
 {
   __int64 v1; 
+  __int64 v2; 
+  cg_t *LocalClientGlobals; 
   ViewJostleState *linkedToPlayerView; 
-  __int64 v15; 
+  __int64 v5; 
   char *fmt; 
-  __int64 v17; 
+  __int64 v7; 
 
   v1 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  _RSI = v1;
-  _RBP = clientUIActives;
-  if ( clientUIActives[v1].migrationPers.weaponSelectInAlt && !BG_HasUnderbarrelAmmo(&clientUIActives[_RSI].migrationPers.weaponSelect) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 2523, ASSERT_TYPE_ASSERT, "(!clM->weaponSelectInAlt || BG_HasUnderbarrelAmmo( clM->weaponSelect ))", (const char *)&queryFormat, "!clM->weaponSelectInAlt || BG_HasUnderbarrelAmmo( clM->weaponSelect )") )
+  v2 = v1;
+  if ( clientUIActives[v1].migrationPers.weaponSelectInAlt && !BG_HasUnderbarrelAmmo(&clientUIActives[v2].migrationPers.weaponSelect) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 2523, ASSERT_TYPE_ASSERT, "(!clM->weaponSelectInAlt || BG_HasUnderbarrelAmmo( clM->weaponSelect ))", (const char *)&queryFormat, "!clM->weaponSelectInAlt || BG_HasUnderbarrelAmmo( clM->weaponSelect )") )
     __debugbreak();
-  _RBX = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
-  LODWORD(v17) = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v1)->serverTimeDelta;
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
+  LODWORD(v7) = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v1)->serverTimeDelta;
   LODWORD(fmt) = cls.realtime;
-  Com_Printf(25, "CG_LoadMigrationPers: cgameGlob->time(%d), cgameGlob->oldTime(%d), cls.realtime(%d), serverTimeDelta(%d)\n", (unsigned int)_RBX->time, (unsigned int)_RBX->oldTime, fmt, v17);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+rbp+0C0h]
-    vmovups ymmword ptr [rbx+18114h], ymm0
-    vmovups xmm1, xmmword ptr [rsi+rbp+0E0h]
-    vmovups xmmword ptr [rbx+18134h], xmm1
-    vmovsd  xmm0, qword ptr [rsi+rbp+0F0h]
-    vmovsd  qword ptr [rbx+18144h], xmm0
-  }
-  *(_DWORD *)&_RBX->weaponSelect.weaponCamo = *(_DWORD *)&clientUIActives[_RSI].migrationPers.weaponSelect.weaponCamo;
-  _RBX->weaponSelectTime = clientUIActives[_RSI].migrationPers.weaponSelectTime;
-  _RBX->weaponForcedSelectTime = clientUIActives[_RSI].migrationPers.weaponForcedSelectTime;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+rbp+108h]
-    vmovups ymmword ptr [rbx+1815Ch], ymm0
-    vmovups xmm1, xmmword ptr [rsi+rbp+128h]
-    vmovups xmmword ptr [rbx+1817Ch], xmm1
-    vmovsd  xmm0, qword ptr [rsi+rbp+138h]
-    vmovsd  qword ptr [rbx+1818Ch], xmm0
-  }
-  *(_DWORD *)&_RBX->weaponLatestPrimary.weaponCamo = *(_DWORD *)&clientUIActives[_RSI].migrationPers.weaponLatestPrimary.weaponCamo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+rbp+144h]
-    vmovups ymmword ptr [rbx+18198h], ymm0
-    vmovups xmm1, xmmword ptr [rsi+rbp+164h]
-    vmovups xmmword ptr [rbx+181B8h], xmm1
-    vmovsd  xmm0, qword ptr [rsi+rbp+174h]
-    vmovsd  qword ptr [rbx+181C8h], xmm0
-  }
-  *(_DWORD *)&_RBX->weaponPrevPrimary.weaponCamo = *(_DWORD *)&clientUIActives[_RSI].migrationPers.weaponPrevPrimary.weaponCamo;
-  _RBX->holdBreathTime = clientUIActives[_RSI].migrationPers.holdBreathTime;
-  _RBX->holdBreathDelay = clientUIActives[_RSI].migrationPers.holdBreathDelay;
-  _RBX->holdBreathFrac = clientUIActives[_RSI].migrationPers.holdBreathFrac;
-  CG_Blur_LoadMigrationPers((LocalClientNum_t)v1, &clientUIActives[_RSI].migrationPers.blurPers);
-  linkedToPlayerView = _RBX->linkedToPlayerView;
-  v15 = 4i64;
+  Com_Printf(25, "CG_LoadMigrationPers: cgameGlob->time(%d), cgameGlob->oldTime(%d), cls.realtime(%d), serverTimeDelta(%d)\n", (unsigned int)LocalClientGlobals->time, (unsigned int)LocalClientGlobals->oldTime, fmt, v7);
+  LocalClientGlobals->weaponSelect = clientUIActives[v2].migrationPers.weaponSelect;
+  LocalClientGlobals->weaponSelectTime = clientUIActives[v2].migrationPers.weaponSelectTime;
+  LocalClientGlobals->weaponForcedSelectTime = clientUIActives[v2].migrationPers.weaponForcedSelectTime;
+  LocalClientGlobals->weaponLatestPrimary = clientUIActives[v2].migrationPers.weaponLatestPrimary;
+  LocalClientGlobals->weaponPrevPrimary = clientUIActives[v2].migrationPers.weaponPrevPrimary;
+  LocalClientGlobals->holdBreathTime = clientUIActives[v2].migrationPers.holdBreathTime;
+  LocalClientGlobals->holdBreathDelay = clientUIActives[v2].migrationPers.holdBreathDelay;
+  LocalClientGlobals->holdBreathFrac = clientUIActives[v2].migrationPers.holdBreathFrac;
+  CG_Blur_LoadMigrationPers((LocalClientNum_t)v1, &clientUIActives[v2].migrationPers.blurPers);
+  linkedToPlayerView = LocalClientGlobals->linkedToPlayerView;
+  v5 = 4i64;
   do
   {
     ViewJostleState::Reset(linkedToPlayerView++);
-    --v15;
+    --v5;
   }
-  while ( v15 );
+  while ( v5 );
 }
 
 /*
@@ -2986,274 +2960,20 @@ void CG_MainMP_LoadNewMapBsp(LocalClientNum_t localClientNum, const char *mapnam
 CG_MainMP_RegisterDvars
 ==============
 */
-
-void __fastcall CG_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
+void CG_MainMP_RegisterDvars(void)
 {
-  const dvar_t *v18; 
-  const dvar_t *v22; 
-  const dvar_t *v26; 
-  const dvar_t *v30; 
-  const dvar_t *v34; 
-  const dvar_t *v43; 
-  const dvar_t *v57; 
-  const dvar_t *v61; 
-  const dvar_t *v68; 
-  const dvar_t *v72; 
-  const dvar_t *v81; 
-  const dvar_t *v85; 
-  const dvar_t *v89; 
-  const dvar_t *v93; 
-  const dvar_t *v97; 
-  const dvar_t *v109; 
-  const dvar_t *v116; 
-  const dvar_t *v121; 
-  const dvar_t *v125; 
-  const dvar_t *v130; 
-  const dvar_t *v134; 
-  const dvar_t *v138; 
-  const dvar_t *v142; 
-  const dvar_t *v146; 
-  const dvar_t *v150; 
-  const dvar_t *v154; 
-  const dvar_t *v158; 
-  const dvar_t *v162; 
-  const dvar_t *v166; 
-  const dvar_t *v170; 
-  const dvar_t *v174; 
-  const dvar_t *v178; 
-  const dvar_t *v186; 
-  const dvar_t *v190; 
-  const dvar_t *v194; 
-  const dvar_t *v198; 
-  const dvar_t *v202; 
-  const dvar_t *v207; 
-  const dvar_t *v211; 
-  const dvar_t *v215; 
-  const dvar_t *v219; 
-  const dvar_t *v223; 
-  const dvar_t *v246; 
-  const dvar_t *v261; 
-  const dvar_t *v265; 
-  const dvar_t *v282; 
-  const dvar_t *v289; 
-  const dvar_t *v299; 
-  const dvar_t *v306; 
-  const dvar_t *v310; 
-  const dvar_t *v319; 
-  const dvar_t *v323; 
-  const dvar_t *v327; 
-  const dvar_t *v348; 
-  const dvar_t *v359; 
-  const dvar_t *v363; 
-  const dvar_t *v367; 
-  const dvar_t *v372; 
-  const dvar_t *v403; 
-  const dvar_t *v414; 
-  const dvar_t *v419; 
-  const dvar_t *v423; 
-  const dvar_t *v433; 
-  const dvar_t *v438; 
-  const dvar_t *v442; 
-  const dvar_t *v449; 
-  const dvar_t *v453; 
-  const dvar_t *v457; 
-  const dvar_t *v464; 
-  const dvar_t *v468; 
-  const dvar_t *v475; 
-  const dvar_t *v489; 
-  const dvar_t *v501; 
-  const dvar_t *v508; 
-  const dvar_t *v516; 
-  const dvar_t *v520; 
-  const dvar_t *v524; 
-  const dvar_t *v550; 
-  const dvar_t *v560; 
-  const dvar_t *v567; 
-  const dvar_t *v581; 
-  const dvar_t *v585; 
-  const dvar_t *v590; 
-  const dvar_t *v597; 
-  const dvar_t *v601; 
-  const dvar_t *v608; 
-  const dvar_t *v615; 
-  const dvar_t *v619; 
-  const dvar_t *v623; 
-  const dvar_t *v627; 
-  const dvar_t *v632; 
-  const dvar_t *v637; 
-  const dvar_t *v648; 
-  const dvar_t *v652; 
-  const dvar_t *v656; 
-  const dvar_t *v660; 
-  const dvar_t *v664; 
-  const dvar_t *v668; 
-  const dvar_t *v672; 
-  const dvar_t *v683; 
-  const dvar_t *v688; 
-  const dvar_t *v692; 
-  const dvar_t *v696; 
-  const dvar_t *v700; 
-  const dvar_t *v719; 
-  const dvar_t *v723; 
-  const dvar_t *v727; 
-  const dvar_t *v731; 
-  const dvar_t *v735; 
-  const dvar_t *v739; 
-  const dvar_t *v749; 
-  const dvar_t *v756; 
-  const dvar_t *v760; 
-  const dvar_t *v764; 
-  const dvar_t *v768; 
-  const dvar_t *v773; 
-  const dvar_t *v778; 
-  const dvar_t *v782; 
-  const dvar_t *v795; 
-  float flags; 
-  float flagsa; 
-  float flagsb; 
-  float flagsc; 
-  float flagsd; 
-  float flagse; 
-  float flagsf; 
-  float flagsg; 
-  float flagsh; 
-  float flagsi; 
-  float flagsj; 
-  float flagsk; 
-  float flagsl; 
-  float flagsm; 
-  float flagsn; 
-  float flagso; 
-  float flagsp; 
-  float flagsq; 
-  float flagsr; 
-  float flagss; 
-  float flagst; 
-  float flagsu; 
-  float flagsv; 
-  float flagsw; 
-  float flagsx; 
-  float flagsy; 
-  float flagsz; 
-  float flagsba; 
-  float flagsbb; 
-  float flagsbc; 
-  float flagsbd; 
-  float flagsbe; 
-  float flagsbf; 
-  float flagsbg; 
-  float flagsbh; 
-  float description; 
-  float descriptiona; 
-  float descriptionb; 
-  float descriptionc; 
-  float descriptiond; 
-  float descriptione; 
-  float descriptionf; 
-  float descriptiong; 
-  float descriptionh; 
-  float descriptioni; 
-  float descriptionj; 
-  float descriptionk; 
-  float v854; 
-  float v855; 
-  float v856; 
-  float v857; 
-  float v858; 
-  float v859; 
-  float v860; 
-  char v864; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  xmm1, cs:__real@44800000; value
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovss  xmm6, cs:__real@487a0000
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0F8h+var_88], xmm13
-    vmovaps [rsp+0F8h+var_98], xmm14
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps [rsp+0F8h+var_A8], xmm15
-  }
-  v18 = Dvar_RegisterFloat("cg_distanceCache_ringRadius0", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "CG_DistanceCacheMP ring 0 radius");
-  __asm { vmovss  xmm1, cs:__real@46000000; value }
-  DCONST_DVARFLT_cg_distanceCache_ringRadius0 = v18;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v22 = Dvar_RegisterFloat("cg_distanceCache_ringRadius1", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "CG_DistanceCacheMP ring 1 radius");
-  __asm { vmovss  xmm1, cs:__real@46800000; value }
-  DCONST_DVARFLT_cg_distanceCache_ringRadius1 = v22;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v26 = Dvar_RegisterFloat("cg_distanceCache_ringRadius2", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "CG_DistanceCacheMP ring 2 radius");
-  __asm { vmovss  xmm1, cs:__real@47000000; value }
-  DCONST_DVARFLT_cg_distanceCache_ringRadius2 = v26;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v30 = Dvar_RegisterFloat("cg_distanceCache_ringRadius3", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "CG_DistanceCacheMP ring 3 radius");
-  __asm { vmovss  xmm1, cs:__real@47800000; value }
-  DCONST_DVARFLT_cg_distanceCache_ringRadius3 = v30;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v34 = Dvar_RegisterFloat("cg_distanceCache_ringRadius4", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "CG_DistanceCacheMP ring 4 radius");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm1, cs:__real@3eb33333; value
-  }
-  DCONST_DVARFLT_cg_distanceCache_ringRadius4 = v34;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  xmm11, cs:__real@461c4000
-  }
-  DCONST_DVARFLT_no_kick_velocity_dampen = Dvar_RegisterFloat("no_kick_velocity_dampen", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "On weapons without kick return, the angular velocity needs to decay to 0. This controls the rate at which the weapon decellerates.");
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v43 = Dvar_RegisterFloat("LQQQTTTMMO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Things closer than this aren't drawn. Reducing this increases z-fighting in the distance. This is active during the front-end scene only");
-  __asm { vmovss  xmm3, cs:__real@7f7fffff; max }
-  DVARFLT_cg_frontEndSceneZnear = v43;
-  __asm
-  {
-    vmovss  xmm1, cs:__real@41c00000; value
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cg_deathCamMaxCutThreshold = Dvar_RegisterFloat("cg_deathCamMaxCutThreshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Maximum distance (inches) that the third-person death camera can cut toward the victim due to an obstruction without falling back to the fixed death camera.");
+  DCONST_DVARFLT_cg_distanceCache_ringRadius0 = Dvar_RegisterFloat("cg_distanceCache_ringRadius0", 1024.0, 0.0, 256000.0, 0x40004u, "CG_DistanceCacheMP ring 0 radius");
+  DCONST_DVARFLT_cg_distanceCache_ringRadius1 = Dvar_RegisterFloat("cg_distanceCache_ringRadius1", 8192.0, 0.0, 256000.0, 0x40004u, "CG_DistanceCacheMP ring 1 radius");
+  DCONST_DVARFLT_cg_distanceCache_ringRadius2 = Dvar_RegisterFloat("cg_distanceCache_ringRadius2", 16384.0, 0.0, 256000.0, 0x40004u, "CG_DistanceCacheMP ring 2 radius");
+  DCONST_DVARFLT_cg_distanceCache_ringRadius3 = Dvar_RegisterFloat("cg_distanceCache_ringRadius3", 32768.0, 0.0, 256000.0, 0x40004u, "CG_DistanceCacheMP ring 3 radius");
+  DCONST_DVARFLT_cg_distanceCache_ringRadius4 = Dvar_RegisterFloat("cg_distanceCache_ringRadius4", 65536.0, 0.0, 256000.0, 0x40004u, "CG_DistanceCacheMP ring 4 radius");
+  DCONST_DVARFLT_no_kick_velocity_dampen = Dvar_RegisterFloat("no_kick_velocity_dampen", 0.34999999, 0.0, 1.0, 0x40004u, "On weapons without kick return, the angular velocity needs to decay to 0. This controls the rate at which the weapon decellerates.");
+  DVARFLT_cg_frontEndSceneZnear = Dvar_RegisterFloat("LQQQTTTMMO", 0.0, 0.0, 10000.0, 0, "Things closer than this aren't drawn. Reducing this increases z-fighting in the distance. This is active during the front-end scene only");
+  DCONST_DVARFLT_cg_deathCamMaxCutThreshold = Dvar_RegisterFloat("cg_deathCamMaxCutThreshold", 24.0, 0.0, 3.4028235e38, 0x40004u, "Maximum distance (inches) that the third-person death camera can cut toward the victim due to an obstruction without falling back to the fixed death camera.");
   DVARINT_cg_fixedDeathCamInterpTimeMs = Dvar_RegisterInt("LRPNPLOORM", 0, 0, 5000, 0, "The time it takes for the camera to catch up to the death body look at orientation.");
   DVARINT_cg_fixedDeathCamTraceFailedInterpTimeMs = Dvar_RegisterInt("MKRPTLLKKM", 300, 0, 5000, 0, "Similar to cg_FixedDeathCamInterpTimeMs, but only used using fixed camera due to death camera shapecasts failing.");
-  __asm { vmovss  xmm3, cs:__real@447a0000; max }
   DCONST_DVARBOOL_cg_thirdPersonCamDebug = Dvar_RegisterBool("cg_thirdPersonCamDebug", 0, 0x40004u, "Debug third-person camera");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DCONST_DVARFLT_cg_debugCamPivot = Dvar_RegisterFloat("cg_debugCamPivot", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Any value >0 (radius) to render debug sphere on the camera pivot used for streaming (orbit pivot or first person view origin)");
+  DCONST_DVARFLT_cg_debugCamPivot = Dvar_RegisterFloat("cg_debugCamPivot", 0.0, 0.0, 1000.0, 0x40004u, "Any value >0 (radius) to render debug sphere on the camera pivot used for streaming (orbit pivot or first person view origin)");
   DCONST_DVARBOOL_cg_playerCullingPriorities = Dvar_RegisterBool("cg_playerCullingPriorities", 1, 0x40004u, "Enable player update culling and LOD Controls for large-modes");
   DCONST_DVARBOOL_cg_playerAnimUpdateCulling = Dvar_RegisterBool("cg_playerAnimUpdateCulling", 1, 0x40004u, "Enable player update animation culling");
   DCONST_DVARBOOL_cg_playerAnimUpdateDebug = Dvar_RegisterBool("cg_playerAnimUpdateDebug", 0, 0x40004u, "Enable debugging for the animation culling");
@@ -3273,685 +2993,112 @@ void __fastcall CG_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
   DVARBOOL_cg_playerAnimReuseSkelPose = Dvar_RegisterBool("LRPLOQQNSM", 1, 0, "Enable optimization that reuses pose calculated for previous frame when skipping player animation updates.");
   DCONST_DVARINT_cg_prefetchPlayerCardsFrameCount = Dvar_RegisterInt("cg_prefetchPlayerCardsFrameCount", 20, 1, 200, 0x40004u, "Number of characters to prefetch playercards for each frame");
   DCONST_DVARBOOL_cg_localPlayerDObjFrameOrderFix = Dvar_RegisterBool("cg_localPlayerDObjFrameOrderFix", 1, 0x40004u, "Moves the processing of the local player dobj to an earlier place in the frame so all systems access the correct pose");
-  __asm
-  {
-    vmovss  xmm13, cs:__real@42c80000
-    vmovss  xmm1, cs:__real@3f266666; value
-  }
   DVARBOOL_cg_mlg_enable_cameras = Dvar_RegisterBool("MOMRRMTMN", 1, 0x40000u, "enable or disable the CoDCaster cameras (free, aerial) capabilities");
-  __asm
-  {
-    vmovaps xmm3, xmm13; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cg_mlg_freecam_speed_base = Dvar_RegisterFloat("NRKNMTPMTO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "CoDCaster free camera base speed.");
-  __asm { vmovss  xmm1, cs:__real@3ecccccd; value }
+  DVARFLT_cg_mlg_freecam_speed_base = Dvar_RegisterFloat("NRKNMTPMTO", 0.64999998, 0.0, 100.0, 0, "CoDCaster free camera base speed.");
   DVARBOOL_cg_mlg_freecam_speed_toggle = Dvar_RegisterBool("OMQMPLPOLR", 1, 0, "enable or disable the speed toggling of CoDCaster cameras.");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v57 = Dvar_RegisterFloat("PPQPQLPKQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "CoDCaster free camera minimal speed.");
-  __asm { vmovss  xmm1, cs:__real@3ff33333; value }
-  DVARFLT_cg_mlg_freecam_speed_slow_factor = v57;
-  __asm
-  {
-    vmovaps xmm3, xmm13; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v61 = Dvar_RegisterFloat("NLSLSQLQP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "CoDCaster free camera maximal speed.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@47c35000; max
-    vmovss  xmm1, cs:__real@3b03126f; value
-  }
-  DVARFLT_cg_mlg_freecam_speed_fast_factor = v61;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_cg_mlg_freecam_sensitivity = Dvar_RegisterFloat("LMRLKTKKRK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40000u, "CoDCaster free camera sensitivity.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42b40000; max
-    vmovss  xmm1, cs:__real@428c0000; value
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v68 = Dvar_RegisterFloat("MPNKKLQRLL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40000u, "CoDCaster aerial camera pitch");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm1, cs:__real@40400000; value
-  }
-  DVARFLT_cg_mlg_aerialcam_pitch = v68;
-  __asm { vmovaps xmm2, xmm8; min }
-  v72 = Dvar_RegisterFloat("QTRLNNRTR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40000u, "CoDCaster aerial camera horizontal distance factor");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@41200000; min
-    vmovss  xmm1, cs:__real@44960000; value
-  }
-  DVARFLT_cg_mlg_aerialcam_horizontal_distance_factor = v72;
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vmovss  xmm7, cs:__real@49742400
-    vmovss  xmm10, cs:__real@43fa0000
-  }
-  DVARFLT_cg_mlg_aerialcam_base_vertical_distance = Dvar_RegisterFloat("NSMLPKLRLR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40000u, "CoDCaster aerial camera base distance");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm10; value
-  }
-  v81 = Dvar_RegisterFloat("OKPQONTRRP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40000u, "CoDCaster aerial camera min distance");
-  __asm { vmovss  xmm1, cs:__real@457a0000; value }
-  DVARFLT_cg_mlg_aerialcam_minimal_vertical_distance = v81;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v85 = Dvar_RegisterFloat("MRRMNNKQMP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40000u, "CoDCaster aerial camera max distance");
-  __asm { vmovss  xmm1, cs:__real@44160000; value }
-  DVARFLT_cg_mlg_aerialcam_maximal_vertical_distance = v85;
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v89 = Dvar_RegisterFloat("NOKQLPKNTK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40000u, "CoDCaster aerial camera max radius around tethered player");
-  __asm { vmovss  xmm1, cs:__real@457a0000; value }
-  DVARFLT_cg_mlg_aerialcam_maximal_tether_radius = v89;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v93 = Dvar_RegisterFloat("MTLOLRRLQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40000u, "CoDCaster camera distance for the max animation duration");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42700000; max
-    vmovss  xmm1, cs:__real@3f000000; value
-  }
-  DVARFLT_cg_mlg_cam_animation_distance_max_time = v93;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v97 = Dvar_RegisterFloat("NNTQNOQKQT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40000u, "CoDCaster camera minimun animation duration in seconds");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42700000; max
-    vmovss  xmm1, cs:__real@3fcccccd; value
-  }
-  DVARFLT_cg_mlg_cam_animation_min_duration = v97;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_cg_mlg_cam_animation_max_duration = Dvar_RegisterFloat("LLNLQPSOTL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40000u, "CoDCaster maximum camera animation duration in seconds");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3be56042; value
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cg_mlg_cam_smooth_factor = Dvar_RegisterFloat("NKOLKNSQNP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "CoDCaster camera smooth factor.");
+  DVARFLT_cg_mlg_freecam_speed_slow_factor = Dvar_RegisterFloat("PPQPQLPKQ", 0.40000001, 0.0, 1.0, 0, "CoDCaster free camera minimal speed.");
+  DVARFLT_cg_mlg_freecam_speed_fast_factor = Dvar_RegisterFloat("NLSLSQLQP", 1.9, 0.0, 100.0, 0, "CoDCaster free camera maximal speed.");
+  DVARFLT_cg_mlg_freecam_sensitivity = Dvar_RegisterFloat("LMRLKTKKRK", 0.0020000001, 0.0, 100000.0, 0x40000u, "CoDCaster free camera sensitivity.");
+  DVARFLT_cg_mlg_aerialcam_pitch = Dvar_RegisterFloat("MPNKKLQRLL", 70.0, 0.0, 90.0, 0x40000u, "CoDCaster aerial camera pitch");
+  DVARFLT_cg_mlg_aerialcam_horizontal_distance_factor = Dvar_RegisterFloat("QTRLNNRTR", 3.0, 1.0, 10.0, 0x40000u, "CoDCaster aerial camera horizontal distance factor");
+  DVARFLT_cg_mlg_aerialcam_base_vertical_distance = Dvar_RegisterFloat("NSMLPKLRLR", 1200.0, 10.0, 10000.0, 0x40000u, "CoDCaster aerial camera base distance");
+  DVARFLT_cg_mlg_aerialcam_minimal_vertical_distance = Dvar_RegisterFloat("OKPQONTRRP", 500.0, 0.0, 1000000.0, 0x40000u, "CoDCaster aerial camera min distance");
+  DVARFLT_cg_mlg_aerialcam_maximal_vertical_distance = Dvar_RegisterFloat("MRRMNNKQMP", 4000.0, 0.0, 1000000.0, 0x40000u, "CoDCaster aerial camera max distance");
+  DVARFLT_cg_mlg_aerialcam_maximal_tether_radius = Dvar_RegisterFloat("NOKQLPKNTK", 600.0, 0.0, 10000.0, 0x40000u, "CoDCaster aerial camera max radius around tethered player");
+  DVARFLT_cg_mlg_cam_animation_distance_max_time = Dvar_RegisterFloat("MTLOLRRLQ", 4000.0, 0.0, 1000000.0, 0x40000u, "CoDCaster camera distance for the max animation duration");
+  DVARFLT_cg_mlg_cam_animation_min_duration = Dvar_RegisterFloat("NNTQNOQKQT", 0.5, 0.0, 60.0, 0x40000u, "CoDCaster camera minimun animation duration in seconds");
+  DVARFLT_cg_mlg_cam_animation_max_duration = Dvar_RegisterFloat("LLNLQPSOTL", 1.6, 0.0, 60.0, 0x40000u, "CoDCaster maximum camera animation duration in seconds");
+  DVARFLT_cg_mlg_cam_smooth_factor = Dvar_RegisterFloat("NKOLKNSQNP", 0.0070000002, 0.0, 1.0, 0, "CoDCaster camera smooth factor.");
   DVARBOOL_cg_enableLaserWorkers = Dvar_RegisterBool("LTKKRTQSPP", 1, 0, "Enable laser draw workers.");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@43200000
-    vmovss  xmm11, cs:__real@3dcccccd
-    vmovss  xmm1, cs:__real@41700000; value
-  }
   DCONST_DVARBOOL_cg_killcamdebug = Dvar_RegisterBool("cg_killcamdebug", 0, 0x40004u, "Enables debugging visualization of the killcam entity system");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vmovaps xmm2, xmm11; min
-  }
-  v109 = Dvar_RegisterFloat("LRMTKKLPOS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Helicopter kill camera field of view.");
-  __asm { vmovss  xmm1, cs:__real@42480000; value }
-  DVARFLT_cg_heliKillCamFov = v109;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vmovaps xmm2, xmm11; min
-  }
-  DVARFLT_cg_airstrikeKillCamFov = Dvar_RegisterFloat("LNPLOROPQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Airstrike kill camera field of view.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm2, cs:__real@ff7fffff; min
-    vmovss  xmm1, cs:__real@41a00000; value
-  }
+  DVARFLT_cg_heliKillCamFov = Dvar_RegisterFloat("LRMTKKLPOS", 15.0, 0.1, 160.0, 4u, "Helicopter kill camera field of view.");
+  DVARFLT_cg_airstrikeKillCamFov = Dvar_RegisterFloat("LNPLOROPQ", 50.0, 0.1, 160.0, 4u, "Airstrike kill camera field of view.");
   DCONST_DVARBOOL_cg_explosiveKillCamUseLegacy = Dvar_RegisterBool("cg_explosiveKillCamUseLegacy", 0, 0x40004u, "Use legacy explosive killcam.  (emergency fallback)");
-  v116 = Dvar_RegisterFloat("cg_explosiveKillCamUpDist", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Explosive kill camera: distance of camera vertically from explosive.");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@42f00000
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm2, cs:__real@ff7fffff; min
-  }
-  DCONST_DVARFLT_cg_explosiveKillCamUpDist = v116;
-  __asm { vmovaps xmm1, xmm7; value }
-  v121 = Dvar_RegisterFloat("cg_explosiveKillCamBackDist", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Explosive kill camera: distance of camera backwards from explosive.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm2, cs:__real@ff7fffff; min
-    vmovss  xmm1, cs:__real@41a00000; value
-  }
-  DCONST_DVARFLT_cg_explosiveKillCamBackDist = v121;
-  v125 = Dvar_RegisterFloat("cg_explosiveKillCamGroundUpDist", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Explosive kill camera when stuck to ground: distance of camera vertically from explosive.");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@ff7fffff
-    vmovss  xmm3, cs:__real@7f7fffff; max
-  }
-  DCONST_DVARFLT_cg_explosiveKillCamGroundUpDist = v125;
-  __asm
-  {
-    vmovaps xmm2, xmm6; min
-    vmovaps xmm1, xmm7; value
-  }
-  v130 = Dvar_RegisterFloat("cg_explosiveKillCamGroundBackDist", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Explosive kill camera when stuck to ground: distance of camera backwards from explosive.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@41200000; value
-  }
-  DCONST_DVARFLT_cg_explosiveKillCamGroundBackDist = v130;
-  __asm { vmovaps xmm2, xmm6; min }
-  v134 = Dvar_RegisterFloat("cg_rocketKillCamUpDist", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Rocket kill camera: distance of camera vertically from rocket.");
-  __asm { vmovss  xmm3, cs:__real@7f7fffff; max }
-  DCONST_DVARFLT_cg_rocketKillCamUpDist = v134;
-  __asm
-  {
-    vmovaps xmm2, xmm6; min
-    vmovaps xmm1, xmm7; value
-  }
-  v138 = Dvar_RegisterFloat("cg_rocketKillCamBackDist", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Rocket kill camera: distance of camera backwards from rocket.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@42700000; value
-  }
-  DCONST_DVARFLT_cg_rocketKillCamBackDist = v138;
-  __asm { vmovaps xmm2, xmm6; min }
-  v142 = Dvar_RegisterFloat("cg_remoteMissileKillCamUpDist", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Remote missile kill camera: distance of camera vertically from rocket.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@43960000; value
-  }
-  DCONST_DVARFLT_cg_remoteMissileKillCamUpDist = v142;
-  __asm { vmovaps xmm2, xmm6; min }
-  v146 = Dvar_RegisterFloat("cg_remoteMissileKillCamBackDist", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Remote missile kill camera: distance of camera backwards from rocket.");
-  __asm { vmovss  xmm3, cs:__real@7f7fffff; max }
-  DCONST_DVARFLT_cg_remoteMissileKillCamBackDist = v146;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm7; value
-  }
-  v150 = Dvar_RegisterFloat("cg_explosiveKillCamStopDist", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Rocket and Grenade Launcher kill camera: distance from player to begin coming to rest");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@447a0000; value
-  }
-  DCONST_DVARFLT_cg_explosiveKillCamStopDist = v150;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v154 = Dvar_RegisterFloat("cg_explosiveKillCamStopDecelDist", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Rocket and Grenade Launcher kill camera: distance over which to decelerate when coming to rest");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@43480000; value
-  }
-  DCONST_DVARFLT_cg_explosiveKillCamStopDecelDist = v154;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v158 = Dvar_RegisterFloat("cg_explosiveKillCamStopSpeedThreshold", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Rocket and grenade launcher kill camera: minimum speed of projectile for deceleration algorithm to kick in (inches per second)");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@41c00000; value
-  }
-  DCONST_DVARFLT_cg_explosiveKillCamStopSpeedThreshold = v158;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v162 = Dvar_RegisterFloat("cg_explosiveKillCamPredictStickDist", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance between killCamEntity and killCamLookAtEntity where the client can predict that the projectile is stuck.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@41200000; value
-  }
-  DCONST_DVARFLT_cg_explosiveKillCamPredictStickDist = v162;
-  __asm { vmovaps xmm2, xmm6; min }
-  v166 = Dvar_RegisterFloat("MPSSNLOSSK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Turret kill camera: distance of camera vertically from Turret.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@41200000; value
-  }
-  DVARFLT_cg_turretKillCamUpDist = v166;
-  __asm { vmovaps xmm2, xmm6; min }
-  v170 = Dvar_RegisterFloat("NSMKSMPPTS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Turret kill camera: distance of camera backwards from Turret.");
-  __asm { vmovss  xmm1, cs:__real@42480000; value }
-  DVARFLT_cg_turretKillCamBackDist = v170;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vmovaps xmm2, xmm11; min
-  }
-  v174 = Dvar_RegisterFloat("NMQTRORTPM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Turret kill camera field of view.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@42200000; value
-  }
-  DVARFLT_cg_turretKillCamFov = v174;
-  __asm { vmovaps xmm2, xmm6; min }
-  v178 = Dvar_RegisterFloat("TOSKRRNMK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Remote Turret kill camera: distance of camera vertically from Turret.");
-  __asm { vmovss  xmm3, cs:__real@7f7fffff; max }
-  DVARFLT_cg_turretRemoteKillCamUpDist = v178;
-  __asm
-  {
-    vmovaps xmm2, xmm6; min
-    vmovaps xmm1, xmm13; value
-  }
-  DVARFLT_cg_turretRemoteKillCamBackDist = Dvar_RegisterFloat("LTTMLTOQLO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Remote Turret kill camera: distance of camera backwards from Turret.");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vmovss  xmm8, cs:__real@42480000
-    vmovaps xmm1, xmm8; value
-    vmovaps xmm2, xmm11; min
-  }
-  v186 = Dvar_RegisterFloat("NNRKTRSLNQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Remote Turret kill camera field of view.");
-  __asm { vmovss  xmm3, cs:__real@7f7fffff; max }
-  DVARFLT_cg_turretRemoteKillCamFov = v186;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm10; value
-  }
-  v190 = Dvar_RegisterFloat("LTMQPOOPRO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Javelin kill camera: closest distance above the target.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@40a00000; value
-  }
-  DVARFLT_cg_javelinKillCamCloseZDist = v190;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v194 = Dvar_RegisterFloat("MRNQSMPPKK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Javelin kill camera: time in seconds to pass javelin on the way up");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43340000; max
-    vmovss  xmm1, cs:__real@42700000; value
-  }
-  DVARFLT_cg_javelinKillCamPassTime = v194;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v198 = Dvar_RegisterFloat("NTRSNPPPQN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Javelin kill camera: fov");
-  __asm { vmovss  xmm3, cs:__real@43340000; max }
-  DVARFLT_cg_javelinKillCamFov = v198;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  v202 = Dvar_RegisterFloat("LSRRROPSLT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Javelin kill camera: distance away when passing.");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@7f7fffff
-    vmovss  xmm1, cs:__real@43480000; value
-  }
-  DVARFLT_cg_javelinKillCamPassDist = v202;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v207 = Dvar_RegisterFloat("NRLNSNOLKN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Javelin kill camera: distance to follow during ascent.");
-  __asm { vmovss  xmm1, cs:__real@43160000; value }
-  DVARFLT_cg_javelinKillCamUpDist = v207;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v211 = Dvar_RegisterFloat("NNLTLOLTNQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Javelin kill camera: distance to follow during descent.");
-  __asm { vmovss  xmm1, cs:__real@453b8000; value }
-  DVARFLT_cg_javelinKillCamDownDist = v211;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v215 = Dvar_RegisterFloat("NLTLKKKTPS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Javelin kill camera: distance over which to lerp to look at player during descent.  A value of zero means don't lerp at all.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42b40000; max
-    vmovss  xmm2, cs:__real@c2a00000; min
-    vmovss  xmm1, cs:__real@42340000; value
-  }
-  DVARFLT_cg_javelinKillCamLookLerpDist = v215;
-  v219 = Dvar_RegisterFloat("MOSNPPMQOQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Javelin kill camera: missile pitch angle where 'down' camera behavior is completely blended in.");
-  __asm { vmovss  xmm1, cs:__real@40a00000; value }
-  DVARFLT_cg_javelinKillCamPitchDownBlendFinish = v219;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v223 = Dvar_RegisterFloat("NSKRQNKKOK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Killcam blend speed to gdt offset killcamOffset.");
-  __asm { vmovss  xmm1, cs:__real@3f000000; value }
-  DVARFLT_cg_killcamOffsetBlendSpeed = v223;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cg_killcamOffsetBlendDelayTime = Dvar_RegisterFloat("MTRLKQPRQR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Time before offset blend will start once the conditions are met.");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_cg_killcamEntityLookAtOffset = Dvar_RegisterFloat("LLNKPKTSTL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "The look at offset from the base position of the entity alongside their up vector.");
+  DCONST_DVARFLT_cg_explosiveKillCamUpDist = Dvar_RegisterFloat("cg_explosiveKillCamUpDist", 20.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Explosive kill camera: distance of camera vertically from explosive.");
+  DCONST_DVARFLT_cg_explosiveKillCamBackDist = Dvar_RegisterFloat("cg_explosiveKillCamBackDist", 120.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Explosive kill camera: distance of camera backwards from explosive.");
+  DCONST_DVARFLT_cg_explosiveKillCamGroundUpDist = Dvar_RegisterFloat("cg_explosiveKillCamGroundUpDist", 20.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Explosive kill camera when stuck to ground: distance of camera vertically from explosive.");
+  DCONST_DVARFLT_cg_explosiveKillCamGroundBackDist = Dvar_RegisterFloat("cg_explosiveKillCamGroundBackDist", 120.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Explosive kill camera when stuck to ground: distance of camera backwards from explosive.");
+  DCONST_DVARFLT_cg_rocketKillCamUpDist = Dvar_RegisterFloat("cg_rocketKillCamUpDist", 10.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Rocket kill camera: distance of camera vertically from rocket.");
+  DCONST_DVARFLT_cg_rocketKillCamBackDist = Dvar_RegisterFloat("cg_rocketKillCamBackDist", 120.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Rocket kill camera: distance of camera backwards from rocket.");
+  DCONST_DVARFLT_cg_remoteMissileKillCamUpDist = Dvar_RegisterFloat("cg_remoteMissileKillCamUpDist", 60.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Remote missile kill camera: distance of camera vertically from rocket.");
+  DCONST_DVARFLT_cg_remoteMissileKillCamBackDist = Dvar_RegisterFloat("cg_remoteMissileKillCamBackDist", 300.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Remote missile kill camera: distance of camera backwards from rocket.");
+  DCONST_DVARFLT_cg_explosiveKillCamStopDist = Dvar_RegisterFloat("cg_explosiveKillCamStopDist", 120.0, 0.0, 3.4028235e38, 0x40004u, "Rocket and Grenade Launcher kill camera: distance from player to begin coming to rest");
+  DCONST_DVARFLT_cg_explosiveKillCamStopDecelDist = Dvar_RegisterFloat("cg_explosiveKillCamStopDecelDist", 1000.0, 0.0, 3.4028235e38, 0x40004u, "Rocket and Grenade Launcher kill camera: distance over which to decelerate when coming to rest");
+  DCONST_DVARFLT_cg_explosiveKillCamStopSpeedThreshold = Dvar_RegisterFloat("cg_explosiveKillCamStopSpeedThreshold", 200.0, 0.0, 3.4028235e38, 0x40004u, "Rocket and grenade launcher kill camera: minimum speed of projectile for deceleration algorithm to kick in (inches per second)");
+  DCONST_DVARFLT_cg_explosiveKillCamPredictStickDist = Dvar_RegisterFloat("cg_explosiveKillCamPredictStickDist", 24.0, 0.0, 3.4028235e38, 0x40004u, "Distance between killCamEntity and killCamLookAtEntity where the client can predict that the projectile is stuck.");
+  DVARFLT_cg_turretKillCamUpDist = Dvar_RegisterFloat("MPSSNLOSSK", 10.0, -3.4028235e38, 3.4028235e38, 4u, "Turret kill camera: distance of camera vertically from Turret.");
+  DVARFLT_cg_turretKillCamBackDist = Dvar_RegisterFloat("NSMKSMPPTS", 10.0, -3.4028235e38, 3.4028235e38, 4u, "Turret kill camera: distance of camera backwards from Turret.");
+  DVARFLT_cg_turretKillCamFov = Dvar_RegisterFloat("NMQTRORTPM", 50.0, 0.1, 160.0, 4u, "Turret kill camera field of view.");
+  DVARFLT_cg_turretRemoteKillCamUpDist = Dvar_RegisterFloat("TOSKRRNMK", 40.0, -3.4028235e38, 3.4028235e38, 4u, "Remote Turret kill camera: distance of camera vertically from Turret.");
+  DVARFLT_cg_turretRemoteKillCamBackDist = Dvar_RegisterFloat("LTTMLTOQLO", 100.0, -3.4028235e38, 3.4028235e38, 4u, "Remote Turret kill camera: distance of camera backwards from Turret.");
+  DVARFLT_cg_turretRemoteKillCamFov = Dvar_RegisterFloat("NNRKTRSLNQ", 50.0, 0.1, 160.0, 4u, "Remote Turret kill camera field of view.");
+  DVARFLT_cg_javelinKillCamCloseZDist = Dvar_RegisterFloat("LTMQPOOPRO", 500.0, 0.0, 3.4028235e38, 4u, "Javelin kill camera: closest distance above the target.");
+  DVARFLT_cg_javelinKillCamPassTime = Dvar_RegisterFloat("MRNQSMPPKK", 5.0, 0.0, 3.4028235e38, 4u, "Javelin kill camera: time in seconds to pass javelin on the way up");
+  DVARFLT_cg_javelinKillCamFov = Dvar_RegisterFloat("NTRSNPPPQN", 60.0, 0.0, 180.0, 4u, "Javelin kill camera: fov");
+  DVARFLT_cg_javelinKillCamPassDist = Dvar_RegisterFloat("LSRRROPSLT", 50.0, 0.0, 180.0, 4u, "Javelin kill camera: distance away when passing.");
+  DVARFLT_cg_javelinKillCamUpDist = Dvar_RegisterFloat("NRLNSNOLKN", 200.0, 0.0, 3.4028235e38, 4u, "Javelin kill camera: distance to follow during ascent.");
+  DVARFLT_cg_javelinKillCamDownDist = Dvar_RegisterFloat("NNLTLOLTNQ", 150.0, 0.0, 3.4028235e38, 4u, "Javelin kill camera: distance to follow during descent.");
+  DVARFLT_cg_javelinKillCamLookLerpDist = Dvar_RegisterFloat("NLTLKKKTPS", 3000.0, 0.0, 3.4028235e38, 4u, "Javelin kill camera: distance over which to lerp to look at player during descent.  A value of zero means don't lerp at all.");
+  DVARFLT_cg_javelinKillCamPitchDownBlendFinish = Dvar_RegisterFloat("MOSNPPMQOQ", 45.0, -80.0, 90.0, 4u, "Javelin kill camera: missile pitch angle where 'down' camera behavior is completely blended in.");
+  DVARFLT_cg_killcamOffsetBlendSpeed = Dvar_RegisterFloat("NSKRQNKKOK", 5.0, 0.0, 3.4028235e38, 4u, "Killcam blend speed to gdt offset killcamOffset.");
+  DVARFLT_cg_killcamOffsetBlendDelayTime = Dvar_RegisterFloat("MTRLKQPRQR", 0.5, 0.0, 3.4028235e38, 4u, "Time before offset blend will start once the conditions are met.");
+  DVARFLT_cg_killcamEntityLookAtOffset = Dvar_RegisterFloat("LLNKPKTSTL", 50.0, 0.0, 3.4028235e38, 4u, "The look at offset from the base position of the entity alongside their up vector.");
   DVARINT_cg_throwingAxeKillCamEntIgnoreTime = Dvar_RegisterInt("MPPPQPPQNP", 100, 0, 1000, 4u, "The amount of time to ignore the kill cam entity since the launch of the projectile (makes the kill cam not follow the throwing axe within the first x milliseconds.");
   DVARBOOL_compassPrototypeElevation = Dvar_RegisterBool("QOTRQLLKK", 1, 0, "Should the compass display relative elevation indicators");
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f800000
-    vmovss  xmm6, cs:__real@3c23d70a
-    vmovss  xmm8, cs:__real@3f19999a
-  }
   DVARBOOL_compassPrototypeFiring = Dvar_RegisterBool("MMRMSQKQRS", 1, 0, "Should the compass display enemy firing status indicators");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vmovaps xmm2, xmm6; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_compassTacmapMiniIconZoomPOI = Dvar_RegisterFloat("NLTRRSLOKQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "zoom level at which point to switch to the mini-icons POI (kiosks)");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vmovaps xmm2, xmm6; min
-    vmovaps xmm1, xmm8; value
-  }
-  DVARFLT_compassTacmapMiniIconZoomMission = Dvar_RegisterFloat("RLKOPMNRM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "zoom level at which point to switch to the mini-icons mission tablets");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vmovaps xmm2, xmm6; min
-    vmovaps xmm1, xmm8; value
-    vmovss  xmm11, cs:__real@3f4ccccd
-  }
-  DVARFLT_compassTacmapMiniIconZoomVehicle = Dvar_RegisterFloat("TTRLOKSMS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "zoom level at which point to switch to the mini-icons for vehicles");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vmovaps xmm2, xmm6; min
-    vmovaps xmm1, xmm11; value
-  }
-  v246 = Dvar_RegisterFloat("NONSRTQORS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Filter out POIs (kiosks) if zoom is higher than this, 1.0 would never filter, 0.0 would always filter");
-  __asm { vmovss  xmm1, cs:__real@3f666666; value }
-  DVARFLT_compassTacmapFilterZoomPOI = v246;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vmovaps xmm2, xmm6; min
-    vmovss  xmm12, cs:__real@3f333333
-  }
-  DVARFLT_compassTacmapFilterZoomMission = Dvar_RegisterFloat("LTRMRRONMO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Filter out mission tablets if zoom is higher than this, 1.0 would never filter, 0.0 would always filter");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vmovaps xmm2, xmm6; min
-    vmovaps xmm1, xmm12; value
-  }
-  DVARFLT_compassTacmapFilterZoomVehicle = Dvar_RegisterFloat("NRLNMKTPQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Filter out vehicles if zoom is higher than this, 1.0 would never filter, 0.0 would always filter");
+  DVARFLT_compassTacmapMiniIconZoomPOI = Dvar_RegisterFloat("NLTRRSLOKQ", 0.60000002, 0.0099999998, 1.0, 0, "zoom level at which point to switch to the mini-icons POI (kiosks)");
+  DVARFLT_compassTacmapMiniIconZoomMission = Dvar_RegisterFloat("RLKOPMNRM", 0.60000002, 0.0099999998, 1.0, 0, "zoom level at which point to switch to the mini-icons mission tablets");
+  DVARFLT_compassTacmapMiniIconZoomVehicle = Dvar_RegisterFloat("TTRLOKSMS", 0.60000002, 0.0099999998, 1.0, 0, "zoom level at which point to switch to the mini-icons for vehicles");
+  DVARFLT_compassTacmapFilterZoomPOI = Dvar_RegisterFloat("NONSRTQORS", 0.80000001, 0.0099999998, 1.0, 0, "Filter out POIs (kiosks) if zoom is higher than this, 1.0 would never filter, 0.0 would always filter");
+  DVARFLT_compassTacmapFilterZoomMission = Dvar_RegisterFloat("LTRMRRONMO", 0.89999998, 0.0099999998, 1.0, 0, "Filter out mission tablets if zoom is higher than this, 1.0 would never filter, 0.0 would always filter");
+  DVARFLT_compassTacmapFilterZoomVehicle = Dvar_RegisterFloat("NRLNMKTPQ", 0.69999999, 0.0099999998, 1.0, 0, "Filter out vehicles if zoom is higher than this, 1.0 would never filter, 0.0 would always filter");
   DVARBOOL_compassTacmapFilterVehicle = Dvar_RegisterBool("OKLSLRLLOR", 0, 0, "Never draw vehicles on the tacmap");
   DVARBOOL_compassTacmapFilterObjective = Dvar_RegisterBool("LLSLRPKOMO", 0, 0, "Never draw tablets on the tacmap");
   DVARBOOL_compassTacmapFilterPOI = Dvar_RegisterBool("PQRNNSNSP", 0, 0, "Never draw POIs on the tacmap");
   DVARBOOL_compassTacmapFilterObjectiveIfActive = Dvar_RegisterBool("LTLLKQNKSN", 0, 0, "Filter all objectives if one is active");
   DVARBOOL_compassScramblerDrawSquadColor = Dvar_RegisterBool("NSSPKSPTSL", 0, 0, "Draw friendly scramblers with the color of the squadmate that called it in. If false, will default to team blue.");
   DVARBOOL_compassScramblerDrawDottedBorder = Dvar_RegisterBool("TTMTRQOKO", 1, 0, "Draw scramblers with a dotted border. If false, will default to solid border.");
-  __asm { vmovss  xmm3, cs:__real@7f7fffff; max }
   DVARBOOL_compassScramblerDrawEnemyBorder = Dvar_RegisterBool("LRRSSPTSRQ", 0, 0, "If true, will draw a border around the scrambler effect on the map.");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm10; value
-    vmovss  xmm10, cs:__real@7f7fffff
-  }
-  DVARFLT_compassEnemyFootstepMaxRange = Dvar_RegisterFloat("LNTLSNKQOK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "The maximum distance at which an enemy may appear on the compass due to 'footsteps'");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm13; value
-  }
-  v261 = Dvar_RegisterFloat("LLQORTSSP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "The maximum vertical distance enemy may be from the player and appear on the compass due to 'footsteps'");
-  __asm { vmovss  xmm1, cs:__real@430c0000; value }
-  DVARFLT_compassEnemyFootstepMaxZ = v261;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v265 = Dvar_RegisterFloat("NNOQLTMQPS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "The minimum speed an enemy must be moving to appear on the compass due to 'footsteps'");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41200000; max
-    vmovss  xmm1, cs:__real@3e19999a; value
-  }
-  DVARFLT_compassEnemyFootstepMinSpeed = v265;
-  __asm { vmovaps xmm2, xmm6; min }
-  DVARFLT_cg_hudMapRadarLineThickness = Dvar_RegisterFloat("MMTNTRMSLL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Thickness, relative to the map width, of the radar texture that sweeps across the full screen map");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm12; value
-  }
-  DCONST_DVARFLT_compassPlayerGhostFade = Dvar_RegisterFloat("compassPlayerGhostFade", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The amount of fade when radar jamming is active from the ghost ability");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm11; value
-  }
-  DVARFLT_compassObjectiveIconBackgroundScalar = Dvar_RegisterFloat("MKSQKQRNKT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The size multiplier of the background icon relative to the objective");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41f00000; max
-    vmovss  xmm2, cs:__real@c1f00000; min
-    vmovss  xmm1, cs:__real@bf0ccccd; value
-  }
+  DVARFLT_compassEnemyFootstepMaxRange = Dvar_RegisterFloat("LNTLSNKQOK", 500.0, 0.0, 3.4028235e38, 4u, "The maximum distance at which an enemy may appear on the compass due to 'footsteps'");
+  DVARFLT_compassEnemyFootstepMaxZ = Dvar_RegisterFloat("LLQORTSSP", 100.0, 0.0, 3.4028235e38, 4u, "The maximum vertical distance enemy may be from the player and appear on the compass due to 'footsteps'");
+  DVARFLT_compassEnemyFootstepMinSpeed = Dvar_RegisterFloat("NNOQLTMQPS", 140.0, 0.0, 3.4028235e38, 4u, "The minimum speed an enemy must be moving to appear on the compass due to 'footsteps'");
+  DVARFLT_cg_hudMapRadarLineThickness = Dvar_RegisterFloat("MMTNTRMSLL", 0.15000001, 0.0099999998, 10.0, 4u, "Thickness, relative to the map width, of the radar texture that sweeps across the full screen map");
+  DCONST_DVARFLT_compassPlayerGhostFade = Dvar_RegisterFloat("compassPlayerGhostFade", 0.69999999, 0.0, 1.0, 0x40004u, "The amount of fade when radar jamming is active from the ghost ability");
+  DVARFLT_compassObjectiveIconBackgroundScalar = Dvar_RegisterFloat("MKSQKQRNKT", 0.80000001, 0.0, 3.4028235e38, 0, "The size multiplier of the background icon relative to the objective");
   DCONST_DVARINT_compassObjectivePopTime = Dvar_RegisterInt("compassObjectivePopTime", 125, 0, 0x7FFFFFFF, 0x40004u, "The duration in ms the objective icon will pop when changing state");
-  DCONST_DVARFLT_compassObjectiveIconHeightAdjust = Dvar_RegisterFloat("compassObjectiveIconHeightAdjust", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The height adjustment of the background icon relative to the main objective icon");
-  __asm { vmovss  xmm13, cs:__real@463b8000 }
+  DCONST_DVARFLT_compassObjectiveIconHeightAdjust = Dvar_RegisterFloat("compassObjectiveIconHeightAdjust", -0.55000001, -30.0, 30.0, 0x40004u, "The height adjustment of the background icon relative to the main objective icon");
   DVARBOOL_compassUAVDrawOuterCircle = Dvar_RegisterBool("MTPNNRQLOK", 0, 0, "Should the compass draw the outerCircle for the UAV in large map");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm13; value
-  }
-  v282 = Dvar_RegisterFloat("compassCUAVRadius", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The radius of the CUAV for large maps");
-  __asm { vmovss  xmm1, cs:__real@3f733333; value }
-  DCONST_DVARFLT_compassCUAVRadius = v282;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_compassCUAVGlitchAmount = Dvar_RegisterFloat("compassCUAVGlitchAmount", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The glitch amount applied to the compass during the CUAV in small maps and the max amount applied in large maps");
-  __asm { vmovss  xmm1, cs:__real@447a0000; value }
+  DCONST_DVARFLT_compassCUAVRadius = Dvar_RegisterFloat("compassCUAVRadius", 12000.0, 0.0, 3.4028235e38, 0x40004u, "The radius of the CUAV for large maps");
+  DCONST_DVARFLT_compassCUAVGlitchAmount = Dvar_RegisterFloat("compassCUAVGlitchAmount", 0.94999999, 0.0, 1.0, 0x40004u, "The glitch amount applied to the compass during the CUAV in small maps and the max amount applied in large maps");
   DVARBOOL_compassCUAVDrawOuterCircle = Dvar_RegisterBool("NQTTMLPRNL", 0, 0, "Should the compass draw the outerCircle for the CUAV in large map");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v289 = Dvar_RegisterFloat("compassScramblerRadius", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The maximum range from the scrambler in world space that glitch effect would affect");
-  __asm { vmovss  xmm1, cs:__real@44480000; value }
-  DCONST_DVARFLT_compassScramblerRadius = v289;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_compassEMPDroneRadius = Dvar_RegisterFloat("compassEMPDroneRadius", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The maximum range from the EMP Drone in world space");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm13; value
-  }
-  DVARFLT_brCompassCUAVScramblerRadius = Dvar_RegisterFloat("PNMPSQNON", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The radius of scrambler glitch FX for the CUAV in BR");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  v299 = Dvar_RegisterFloat("LQSMQPLTRN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The multiplier for the glitch FX for the CUAV in BR");
-  __asm { vmovss  xmm1, cs:__real@448fc000; value }
-  DVARFLT_brCompassCUAVScramblerLocSelectSizeMultiplier = v299;
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_compassSelectorSizeBase = Dvar_RegisterFloat("NTPPKLNKNM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "The baseline size for the location selector arrow");
+  DCONST_DVARFLT_compassScramblerRadius = Dvar_RegisterFloat("compassScramblerRadius", 1000.0, 0.0, 3.4028235e38, 0x40004u, "The maximum range from the scrambler in world space that glitch effect would affect");
+  DCONST_DVARFLT_compassEMPDroneRadius = Dvar_RegisterFloat("compassEMPDroneRadius", 800.0, 0.0, 3.4028235e38, 0x40004u, "The maximum range from the EMP Drone in world space");
+  DVARFLT_brCompassCUAVScramblerRadius = Dvar_RegisterFloat("PNMPSQNON", 12000.0, 0.0, 3.4028235e38, 0, "The radius of scrambler glitch FX for the CUAV in BR");
+  DVARFLT_brCompassCUAVScramblerLocSelectSizeMultiplier = Dvar_RegisterFloat("LQSMQPLTRN", 1.0, 0.0, 3.4028235e38, 0, "The multiplier for the glitch FX for the CUAV in BR");
+  DVARFLT_compassSelectorSizeBase = Dvar_RegisterFloat("NTPPKLNKNM", 1150.0, 0.0, 3.4028235e38, 4u, "The baseline size for the location selector arrow");
   DVARBOOL_compassDynamicSelectorSizeEnabled = Dvar_RegisterBool("MKOSKLNLOL", 1, 0, "Killswitch for the dynamic location selector which resizes based on the map");
   DVARINT_minimapPlayerCirclePingDuration = Dvar_RegisterInt("MPPKMQPPOT", 500, 0, 0x7FFFFFFF, 0, "The duration of player ping animation ( millisecond )");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@461c4000; max
-    vmovss  xmm2, cs:__real@c61c4000; min
-  }
   DCONST_DVARINT_minimapPlayerCirclePinRepeatCount = Dvar_RegisterInt("minimapPlayerCirclePinRepeatCount", 2, -1, 0x7FFFFFFF, 0x40004u, "How many times the circle blips after open the pause menu. -1 for always repeat");
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  v306 = Dvar_RegisterFloat("MNTSSMTOMR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "Circle Radius of player ping animation");
-  __asm { vmovss  xmm1, cs:__real@3f000000; value }
-  DVARFLT_minimapPlayerCirclePingRadius = v306;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v310 = Dvar_RegisterFloat("compassObjectiveIconActiveMissionRGB", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "rgb override color for for mission tablet icons when a mission is active");
-  __asm { vmovss  xmm1, cs:__real@3f59999a; value }
-  DCONST_DVARFLT_compassObjectiveIconActiveMissionRGB = v310;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_compassObjectiveIconActiveMissionAlpha = Dvar_RegisterFloat("compassObjectiveIconActiveMissionAlpha", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "fade out alpha level for mission tablet icons when a mission is active");
+  DVARFLT_minimapPlayerCirclePingRadius = Dvar_RegisterFloat("MNTSSMTOMR", 0.0, -10000.0, 10000.0, 0, "Circle Radius of player ping animation");
+  DCONST_DVARFLT_compassObjectiveIconActiveMissionRGB = Dvar_RegisterFloat("compassObjectiveIconActiveMissionRGB", 0.5, 0.0, 1.0, 0x40004u, "rgb override color for for mission tablet icons when a mission is active");
+  DCONST_DVARFLT_compassObjectiveIconActiveMissionAlpha = Dvar_RegisterFloat("compassObjectiveIconActiveMissionAlpha", 0.85000002, 0.0, 1.0, 0x40004u, "fade out alpha level for mission tablet icons when a mission is active");
   DVARINT_cg_drawCrosshairNamesPosX = Dvar_RegisterInt("NQNKLTTNQM", 300, 0, 640, 0, "Virtual screen space position of the crosshair name");
-  __asm
-  {
-    vmovss  xmm10, cs:__real@40a00000
-    vmovss  xmm9, cs:__real@44200000
-    vmovss  xmm2, cs:__real@437a0000; y
-  }
   DVARINT_cg_drawCrosshairNamesPosY = Dvar_RegisterInt("LOKRSPLOTT", 180, 0, 480, 0, "Virtual screen space position of the crosshair name");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovaps xmm1, xmm10; x
-    vmovss  [rsp+0F8h+flags], xmm9
-  }
-  v319 = Dvar_RegisterVec2("OLMTSNOLQO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flags, 0, "Position of the HUD chat box");
-  __asm { vmovss  xmm2, cs:__real@42dc0000; y }
-  DVARVEC2_cg_hudChatPosition = v319;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovaps xmm1, xmm10; x
-    vmovss  [rsp+0F8h+flags], xmm9
-  }
-  v323 = Dvar_RegisterVec2("TSSNPNMNQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsa, 0, "Position of the HUD chat box during intermission");
-  __asm { vmovss  xmm2, cs:__real@43610000; y }
-  DVARVEC2_cg_hudChatIntermissionPosition = v323;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovaps xmm1, xmm10; x
-    vmovss  [rsp+0F8h+flags], xmm9
-  }
-  v327 = Dvar_RegisterVec2("MSLTKKOKST", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsb, 0, "Position of the HUD say box");
-  __asm { vmovss  xmm2, cs:__real@435c0000; y }
-  DVARVEC2_cg_hudSayPosition = v327;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovaps xmm1, xmm10; x
-    vmovss  [rsp+0F8h+flags], xmm9
-  }
-  DVARVEC2_cg_hudVotePosition = Dvar_RegisterVec2("MKKPSOONLO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsc, 0, "Position of the HUD vote box");
+  DVARVEC2_cg_hudChatPosition = Dvar_RegisterVec2("OLMTSNOLQO", 5.0, 250.0, 0.0, 640.0, 0, "Position of the HUD chat box");
+  DVARVEC2_cg_hudChatIntermissionPosition = Dvar_RegisterVec2("TSSNPNMNQ", 5.0, 110.0, 0.0, 640.0, 0, "Position of the HUD chat box during intermission");
+  DVARVEC2_cg_hudSayPosition = Dvar_RegisterVec2("MSLTKKOKST", 5.0, 225.0, 0.0, 640.0, 0, "Position of the HUD say box");
+  DVARVEC2_cg_hudVotePosition = Dvar_RegisterVec2("MKKPSOONLO", 5.0, 220.0, 0.0, 640.0, 0, "Position of the HUD vote box");
   DVARBOOL_cg_drawDisconnectPercentage = Dvar_RegisterBool("OLNSKNLPPS", 0, 0, "Enable the disconnect visualizer");
-  __asm
-  {
-    vmovss  xmm0, cs:__real@7f7fffff
-    vmovss  xmm10, cs:__real@ff7fffff
-    vmovss  xmm2, cs:__real@41200000; y
-    vmovss  xmm1, cs:__real@4400c000; x
-  }
   DVARBOOL_drawEntityCount = Dvar_RegisterBool("NRQTKKNSNN", 0, 0, "Enable entity count drawing");
-  __asm
-  {
-    vmovaps xmm3, xmm10; min
-    vmovss  [rsp+0F8h+flags], xmm0
-  }
-  DVARVEC2_drawEntityCountPos = Dvar_RegisterVec2("LPTOQPNN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsd, 0, "Where to draw the entity count graph");
+  DVARVEC2_drawEntityCountPos = Dvar_RegisterVec2("LPTOQPNN", 515.0, 10.0, -3.4028235e38, 3.4028235e38, 0, "Where to draw the entity count graph");
   DVARINT_drawEntityCountSize = Dvar_RegisterInt("MLQLKQMTTM", 32, 0, 0x7FFFFFFF, 0, "How big to draw the entity count graph");
-  __asm
-  {
-    vmovss  xmm0, cs:__real@7f7fffff
-    vmovss  xmm2, cs:__real@435c0000; y
-    vmovss  xmm1, cs:__real@44124000; x
-  }
   DVARBOOL_drawServerBandwidth = Dvar_RegisterBool("MTKKTORKNP", 0, 0, "Enable drawing server bandwidth");
-  __asm
-  {
-    vmovaps xmm3, xmm10; min
-    vmovss  [rsp+0F8h+flags], xmm0
-  }
-  DVARVEC2_drawServerBandwidthPos = Dvar_RegisterVec2("LROMRNROKR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagse, 0, "Where to draw the server bandwidth graph");
-  __asm
-  {
-    vmovss  xmm0, cs:__real@7f7fffff
-    vmovss  xmm2, cs:__real@430c0000; y
-    vmovss  xmm1, cs:__real@44124000; x
-  }
+  DVARVEC2_drawServerBandwidthPos = Dvar_RegisterVec2("LROMRNROKR", 585.0, 220.0, -3.4028235e38, 3.4028235e38, 0, "Where to draw the server bandwidth graph");
   DVARBOOL_drawKillcamData = Dvar_RegisterBool("MKSRKOLPNQ", 0, 0, "Enable drawing server killcam data");
-  __asm
-  {
-    vmovaps xmm3, xmm10; min
-    vmovss  [rsp+0F8h+flags], xmm0
-  }
-  DVARVEC2_drawKillcamDataPos = Dvar_RegisterVec2("MMPQSMMONM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsf, 0, "Where to draw the server killcam graph");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@42c80000
-    vmovss  xmm1, cs:__real@41300000; value
-  }
+  DVARVEC2_drawKillcamDataPos = Dvar_RegisterVec2("MMPQSMMONM", 585.0, 140.0, -3.4028235e38, 3.4028235e38, 0, "Where to draw the server killcam graph");
   DVARINT_drawKillcamDataSize = Dvar_RegisterInt("MLRRRKQLQL", 32, 0, 0x7FFFFFFF, 0, "How big to draw the killcam data graph");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v348 = Dvar_RegisterFloat("NKTLKOMOSK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The text size of the packet analysis debug prints");
-  __asm { vmovss  xmm1, cs:__real@41300000; value }
-  DVARFLT_cg_packetAnalysisTextSize = v348;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cg_packetAnalysisEntTextSize = Dvar_RegisterFloat("LSSRRSMRLL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "The text size of the packet analysis entity debug prints");
+  DVARFLT_cg_packetAnalysisTextSize = Dvar_RegisterFloat("NKTLKOMOSK", 11.0, 0.0, 100.0, 0, "The text size of the packet analysis debug prints");
+  DVARFLT_cg_packetAnalysisEntTextSize = Dvar_RegisterFloat("LSSRRSMRLL", 11.0, 0.0, 100.0, 0, "The text size of the packet analysis entity debug prints");
   DVARINT_cg_packetAnalysisTextY = Dvar_RegisterInt("MSSSQNMPOS", -10, -20, 1024, 0, "The y coordinate of the packet analysis debug prints");
   DVARINT_cg_packetAnalysisEntTextY = Dvar_RegisterInt("LMPOOORKNL", -5, -20, 1024, 0, "The y coordinate of the packet analysis entity debug prints");
   DVARBOOL_cg_packetAnalysisAutoScale = Dvar_RegisterBool("LKLRQLSQTP", 1, 0, "Whether the graphcs for packet analysis automatically scale based on bandwidth");
@@ -3975,13 +3122,7 @@ void __fastcall CG_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
   DVARINT_cg_hearVictimTime = Dvar_RegisterInt("NTTNORKMKT", 2000, 0, 0x7FFFFFFF, 4u, "Duration (in milliseconds) to hear the person you just killed");
   DVARINT_cg_killCamDefaultLerpTime = Dvar_RegisterInt("NRQLSKOPSM", 0, 0, 0x7FFFFFFF, 4u, "Default time used to lerp between killcam entities.");
   DVARINT_cg_killCamTurretLerpTime = Dvar_RegisterInt("LKKMOKOMMT", 900, 0, 0x7FFFFFFF, 4u, "Time used to lerp to a killcam entity of the TURRET type.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@7f7fffff; max
-    vmovss  xmm1, cs:__real@461c4000; value
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cg_overheadNamesMaxDist = Dvar_RegisterFloat("NNPTKPSPPK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "The maximum distance for showing friendly player names");
+  DVARFLT_cg_overheadNamesMaxDist = Dvar_RegisterFloat("NNPTKPSPPK", 10000.0, 0.0, 3.4028235e38, 4u, "The maximum distance for showing friendly player names");
   DVARBOOL_cg_drawFriendlyNames = Dvar_RegisterBool("MTKNKRMMP", 1, 4u, "Whether to show friendly names in game");
   DVARINT_cg_enemyNameFadeIn = Dvar_RegisterInt("NLLSMTRNMQ", 250, 0, 0x7FFFFFFF, 4u, "Time in milliseconds to fade in enemy names");
   DVARINT_cg_enemyNameFadeOut = Dvar_RegisterInt("OKNMRTLRQN", 250, 0, 0x7FFFFFFF, 4u, "Time in milliseconds to fade out enemy names");
@@ -3992,461 +3133,67 @@ void __fastcall CG_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
   DVARINT_cg_flashbangNameFadeOut = Dvar_RegisterInt("NQPLQLSLTP", 50, 0, 0x7FFFFFFF, 4u, "Time in milliseconds to fade out friendly names when flash banged");
   DVARSTR_thermal_playerModel = Dvar_RegisterString("NLKKKQKQPN", (const char *)&queryFormat.fmt + 3, 0, "Model to draw for players when in thermal vision mode");
   DVARBOOL_useRelativeTeamColors = Dvar_RegisterBool("LMNPKTTN", 1, 0, "Whether to use relative team colors.");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovss  xmm3, cs:__real@3f30a3d7; b
-    vmovss  xmm2, cs:__real@3f23d70a; g
-  }
   DVARINT_cg_weaponVisInterval = Dvar_RegisterInt("LNTSPPQLMR", 4, 1, 20, 4u, "Do weapon vis checks once per this many frames, per centity");
-  __asm
-  {
-    vmovaps xmm1, xmm8; r
-    vmovss  [rsp+0F8h+flags], xmm6
-  }
-  v359 = Dvar_RegisterColor("NPTQOLNNNP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsg, 0, "Allies team color");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3ed1eb85; b
-    vmovss  xmm2, cs:__real@3f11eb85; g
-    vmovss  xmm1, cs:__real@3f266666; r
-  }
-  DVARCLR_cg_TeamColor_Allies = v359;
-  __asm { vmovss  [rsp+0F8h+flags], xmm6 }
-  v363 = Dvar_RegisterColor("NSMQONORSQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsh, 0, "Axis team color");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f358106; b
-    vmovss  xmm2, cs:__real@3f60c49c; g
-    vmovss  xmm1, cs:__real@3f2f9db2; r
-  }
-  DVARCLR_cg_TeamColor_Axis = v363;
-  __asm { vmovss  [rsp+0F8h+flags], xmm6 }
-  v367 = Dvar_RegisterColor("TKKTLQNPM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsi, 0, "Player team color");
-  __asm { vmovss  xmm3, cs:__real@3ecccccd; b }
-  DVARCLR_cg_TeamColor_MyTeam = v367;
-  __asm
-  {
-    vmovaps xmm15, xmm6
-    vmovaps xmm2, xmm11; g
-    vmovaps xmm1, xmm15; r
-    vmovss  [rsp+0F8h+flags], xmm6
-  }
-  v372 = Dvar_RegisterColor("LRQONROMRL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsj, 0, "Player team color when in the same party");
-  __asm
-  {
-    vmovss  xmm11, cs:__real@3f000000
-    vmovss  xmm2, cs:__real@3ee66666; g
-  }
-  DVARCLR_cg_TeamColor_MyParty = v372;
-  __asm
-  {
-    vmovaps xmm3, xmm11; b
-    vmovaps xmm1, xmm15; r
-    vmovss  [rsp+0F8h+flags], xmm15
-    vmovss  xmm8, cs:__real@3e800000
-  }
-  DVARCLR_cg_TeamColor_EnemyTeam = Dvar_RegisterColor("PNTRSSKPS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsk, 0, "Enemy team color");
-  __asm
-  {
-    vmovaps xmm3, xmm8; b
-    vmovaps xmm2, xmm8; g
-    vmovaps xmm1, xmm8; r
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  DVARCLR_cg_TeamColor_Spectator = Dvar_RegisterColor("LNTKMKNOKS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsl, 0, "Spectator team color");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@3f400000; r
-    vmovaps xmm3, xmm8; b
-    vmovaps xmm2, xmm8; g
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  DVARCLR_cg_TeamColor_Free = Dvar_RegisterColor("OLNNTQKPNR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsm, 0, "Free Team color");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; b
-    vmovaps xmm2, xmm15; g
-    vmovaps xmm1, xmm15; r
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  DVARCLR_cg_TeamColor_Team_Three = Dvar_RegisterColor("LNPQSTLRTN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsn, 0, "Team_Three team color");
-  __asm
-  {
-    vmovaps xmm3, xmm15; b
-    vmovaps xmm2, xmm15; g
-    vxorps  xmm1, xmm1, xmm1; r
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  DVARCLR_cg_TeamColor_Team_Four = Dvar_RegisterColor("MPLTTKMPNN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagso, 0, "Team_Four team color");
-  __asm
-  {
-    vmovaps xmm3, xmm15; b
-    vxorps  xmm2, xmm2, xmm2; g
-    vmovaps xmm1, xmm15; r
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  DVARCLR_cg_TeamColor_Team_Five = Dvar_RegisterColor("MNKRSNOPT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsp, 0, "Team_Five team color");
-  __asm
-  {
-    vmovaps xmm3, xmm12; b
-    vmovaps xmm2, xmm12; g
-    vmovaps xmm1, xmm12; r
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  DVARCLR_cg_TeamColor_Team_Six = Dvar_RegisterColor("LRMSRLSLKT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsq, 0, "Team_Six team color");
+  DVARCLR_cg_TeamColor_Allies = Dvar_RegisterColor("NPTQOLNNNP", 0.60000002, 0.63999999, 0.69, 1.0, 0, "Allies team color");
+  DVARCLR_cg_TeamColor_Axis = Dvar_RegisterColor("NSMQONORSQ", 0.64999998, 0.56999999, 0.41, 1.0, 0, "Axis team color");
+  DVARCLR_cg_TeamColor_MyTeam = Dvar_RegisterColor("TKKTLQNPM", 0.68599999, 0.87800002, 0.70899999, 1.0, 0, "Player team color");
+  DVARCLR_cg_TeamColor_MyParty = Dvar_RegisterColor("LRQONROMRL", 1.0, 0.80000001, 0.40000001, 1.0, 0, "Player team color when in the same party");
+  DVARCLR_cg_TeamColor_EnemyTeam = Dvar_RegisterColor("PNTRSSKPS", 1.0, 0.44999999, 0.5, 1.0, 0, "Enemy team color");
+  DVARCLR_cg_TeamColor_Spectator = Dvar_RegisterColor("LNTKMKNOKS", 0.25, 0.25, 0.25, 1.0, 0, "Spectator team color");
+  DVARCLR_cg_TeamColor_Free = Dvar_RegisterColor("OLNNTQKPNR", 0.75, 0.25, 0.25, 1.0, 0, "Free Team color");
+  DVARCLR_cg_TeamColor_Team_Three = Dvar_RegisterColor("LNPQSTLRTN", 1.0, 1.0, 0.0, 1.0, 0, "Team_Three team color");
+  DVARCLR_cg_TeamColor_Team_Four = Dvar_RegisterColor("MPLTTKMPNN", 0.0, 1.0, 1.0, 1.0, 0, "Team_Four team color");
+  DVARCLR_cg_TeamColor_Team_Five = Dvar_RegisterColor("MNKRSNOPT", 1.0, 0.0, 1.0, 1.0, 0, "Team_Five team color");
+  DVARCLR_cg_TeamColor_Team_Six = Dvar_RegisterColor("LRMSRLSLKT", 0.69999999, 0.69999999, 0.69999999, 1.0, 0, "Team_Six team color");
   DVARINT_cg_drawDebugRootMotion = Dvar_RegisterInt("QOLOLKTPT", 0, 0, 60000, 4u, "Time (seconds) to draw debug lines for the path taken by root motion anim");
   DVARBOOL_cg_mlg_static_cameras = Dvar_RegisterBool("OLNMMRPTTS", 0, 0, "If the MLG/CodCaster static cameras are present or not");
-  __asm { vmovss  xmm3, cs:__real@7f7fffff; max }
   DCONST_DVARBOOL_cg_debugFireAnimStabilizer = Dvar_RegisterBool("cg_debugFireAnimStabilizer", 0, 0x40004u, "Enables the logging for the fire animation stabilizer used during the spectator cam or kill cam");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm7; value
-    vmovss  xmm7, cs:__real@7f7fffff
-  }
-  DCONST_DVARFLT_deltaTimeMaxCorrectionDisplacement = Dvar_RegisterFloat("deltaTimeMaxCorrectionDisplacement", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max displacement before we use max speed to correct time delta issues.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v403 = Dvar_RegisterFloat("deltaTimeMinCorrectionDisplacement", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Min displacement before we use min speed to correct time delta issues.");
-  __asm { vmovss  xmm1, cs:__real@41c80000; value }
-  DCONST_DVARFLT_deltaTimeMinCorrectionDisplacement = v403;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_deltaTimeMaxCorrectionSpeed = Dvar_RegisterFloat("deltaTimeMaxCorrectionSpeed", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max correction speed to correct time delta issues.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm15; value
-  }
-  DCONST_DVARFLT_deltaTimeMinCorrectionSpeed = Dvar_RegisterFloat("deltaTimeMinCorrectionSpeed", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Min correction speed to correct time delta issues.");
+  DCONST_DVARFLT_deltaTimeMaxCorrectionDisplacement = Dvar_RegisterFloat("deltaTimeMaxCorrectionDisplacement", 100.0, 0.0, 3.4028235e38, 0x40004u, "Max displacement before we use max speed to correct time delta issues.");
+  DCONST_DVARFLT_deltaTimeMinCorrectionDisplacement = Dvar_RegisterFloat("deltaTimeMinCorrectionDisplacement", 0.0, 0.0, 3.4028235e38, 0x40004u, "Min displacement before we use min speed to correct time delta issues.");
+  DCONST_DVARFLT_deltaTimeMaxCorrectionSpeed = Dvar_RegisterFloat("deltaTimeMaxCorrectionSpeed", 25.0, 0.0, 3.4028235e38, 0x40004u, "Max correction speed to correct time delta issues.");
+  DCONST_DVARFLT_deltaTimeMinCorrectionSpeed = Dvar_RegisterFloat("deltaTimeMinCorrectionSpeed", 1.0, 0.0, 3.4028235e38, 0x40004u, "Min correction speed to correct time delta issues.");
   DCONST_DVARBOOL_deltaTimeAlwaysUseNewAlgorithm = Dvar_RegisterBool("deltaTimeAlwaysUseNewAlgorithm", 0, 0x40004u, "When enabled, we always use the new delta time adjustment algorithm.");
   DCONST_DVARBOOL_cg_enablePlayerEntityWorkers = Dvar_RegisterBool("cg_enablePlayerEntityWorkers", 1, 0x40004u, "When enabled, ET_Player entities will be threaded off in entity workers");
   DCONST_DVARSTR_cg_brCircleFX = Dvar_RegisterString("cg_brCircleFX", "vfx/iw8_br/gameplay/vfx_br_circle_mainwall", 0x40004u, "FX to use for the BR Circle (make sure it's precached)");
-  __asm
-  {
-    vmovaps xmm14, xmm10
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm14; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v414 = Dvar_RegisterFloat("cg_brCircleZ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "height where the BR Circle FX is rendered at");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3a83126f
-    vmovss  xmm1, cs:__real@44df0000; value
-  }
-  DCONST_DVARFLT_cg_brCircleZ = v414;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-  }
-  v419 = Dvar_RegisterFloat("cg_brCircleBaseRadius", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "radius in world units of the BR Circle FX at scale 1.0");
-  __asm { vmovss  xmm1, cs:__real@47c35000; value }
-  DCONST_DVARFLT_cg_brCircleBaseRadius = v419;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-  }
-  v423 = Dvar_RegisterFloat("cg_brCircleEmissionCurveMaxRadius", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The BR Circle FX emission curve X-axis value is determined by the BR circle radius.  At radius 0, emission curve X-axis value is 0.  At radius 'cg_brCircleEmissionCurveMaxRadius', emission curve X-axis value is 1.");
-  __asm { vmovss  xmm1, cs:__real@bf800000; value }
-  DCONST_DVARFLT_cg_brCircleEmissionCurveMaxRadius = v423;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm1; min
-  }
-  DCONST_DVARFLT_cg_brCircleEmissionCurveDebugValue = Dvar_RegisterFloat("cg_brCircleEmissionCurveDebugValue", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Sets the X-axis value for BR Circle FX emission curves to this value (debug only).  Debug is disabled if value is below 0.");
+  DCONST_DVARFLT_cg_brCircleZ = Dvar_RegisterFloat("cg_brCircleZ", 0.0, -3.4028235e38, 3.4028235e38, 0x40004u, "height where the BR Circle FX is rendered at");
+  DCONST_DVARFLT_cg_brCircleBaseRadius = Dvar_RegisterFloat("cg_brCircleBaseRadius", 1784.0, 0.001, 3.4028235e38, 0x40004u, "radius in world units of the BR Circle FX at scale 1.0");
+  DCONST_DVARFLT_cg_brCircleEmissionCurveMaxRadius = Dvar_RegisterFloat("cg_brCircleEmissionCurveMaxRadius", 100000.0, 0.001, 3.4028235e38, 0x40004u, "The BR Circle FX emission curve X-axis value is determined by the BR circle radius.  At radius 0, emission curve X-axis value is 0.  At radius 'cg_brCircleEmissionCurveMaxRadius', emission curve X-axis value is 1.");
+  DCONST_DVARFLT_cg_brCircleEmissionCurveDebugValue = Dvar_RegisterFloat("cg_brCircleEmissionCurveDebugValue", -1.0, -1.0, 1.0, 0x40004u, "Sets the X-axis value for BR Circle FX emission curves to this value (debug only).  Debug is disabled if value is below 0.");
   DCONST_DVARSTR_cg_brCircleLoopSound = Dvar_RegisterString("cg_brCircleLoopSound", "br_circle_proximity_lp", 0x40004u, "Loop sound to play when player is close to or outside of circle.");
-  __asm { vmovss  xmm1, cs:__real@41c00000; value }
   DCONST_DVARSTR_cg_brCircleTickSound = Dvar_RegisterString("cg_brCircleTickSound", "br_circle_proximity_tick", 0x40004u, "A ticking sound to play when player is close to or outside of circle.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cg_brCircleProximityDistMin = Dvar_RegisterFloat("cg_brCircleProximityDistMin", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "When player's distance to circle's edge is closer than this, circle sounds play at full intensity.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm9; value
-  }
-  v433 = Dvar_RegisterFloat("cg_brCircleProximityDistMax", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "When player's distance to circle's edge is further than this, circle sounds stop.");
-  __asm { vmovss  xmm1, cs:__real@3dcccccd; value }
-  DCONST_DVARFLT_cg_brCircleProximityDistMax = v433;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm9, xmm9, xmm9
-  }
-  v438 = Dvar_RegisterFloat("cg_brCircleProximityVolumeMin", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Min volume that the circle sounds will be played at.");
-  __asm { vmovss  xmm1, cs:__real@3f353f7d; value }
-  DCONST_DVARFLT_cg_brCircleProximityVolumeMin = v438;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v442 = Dvar_RegisterFloat("cg_brCircleProximityVolumeMax", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max volume that the circle sounds will be played at.");
-  __asm { vmovss  xmm1, cs:__real@3fb4fdf4; value }
-  DCONST_DVARFLT_cg_brCircleProximityVolumeMax = v442;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cg_brCircleLoopPitchMin = Dvar_RegisterFloat("cg_brCircleLoopPitchMin", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Min pitch that the circle loop sound will be played at.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm15; value
-  }
-  v449 = Dvar_RegisterFloat("cg_brCircleLoopPitchMax", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max pitch that the circle loop sound will be played at.");
-  __asm { vmovss  xmm1, cs:__real@3c888889; value }
-  DCONST_DVARFLT_cg_brCircleLoopPitchMax = v449;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v453 = Dvar_RegisterFloat("cg_brCircleTickIntervalMin", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Min interval that the circle ticking sound will be played at.");
-  __asm { vmovss  xmm1, cs:__real@3eaa7efa; value }
-  DCONST_DVARFLT_cg_brCircleTickIntervalMin = v453;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v457 = Dvar_RegisterFloat("cg_brCircleTickIntervalMax", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max interval that the circle ticking sound will be played at.");
-  __asm { vmovss  xmm1, cs:__real@3f34fdf4; value }
-  DCONST_DVARFLT_cg_brCircleTickIntervalMax = v457;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cg_brCircleTickPitchMin = Dvar_RegisterFloat("cg_brCircleTickPitchMin", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Min pitch that the circle ticking sound will be played at.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm15; value
-  }
-  v464 = Dvar_RegisterFloat("cg_brCircleTickPitchMax", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Max pitch that the circle ticking sound will be played at.");
-  __asm { vmovss  xmm1, cs:__real@40c00000; value }
-  DCONST_DVARFLT_cg_brCircleTickPitchMax = v464;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v468 = Dvar_RegisterFloat("cg_brCircleFogBlendInTime", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Duration (in seconds) to blend in volumetric- and distance-based fog for the BR Circle when starting the effect.");
-  __asm { vmovss  xmm1, cs:__real@459c4000; value }
-  DCONST_DVARFLT_cg_brCircleFogBlendInTime = v468;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cg_brCircleFogHeight = Dvar_RegisterFloat("cg_brCircleFogHeight", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Circle fog height");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm14; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v475 = Dvar_RegisterFloat("cg_brCircleFogInset", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Circle fog inset");
-  __asm { vmovss  xmm1, cs:__real@447a0000; value }
-  DCONST_DVARFLT_cg_brCircleFogInset = v475;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cg_brCircleFogOuterColorDistance = Dvar_RegisterFloat("cg_brCircleFogOuterColorDistance", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Circle fog outer color distance");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovaps xmm2, xmm15; y
-    vmovaps xmm1, xmm6; x
-    vmovss  [rsp+0F8h+flags], xmm7
-    vmovss  xmm6, cs:__real@3fc00000
-  }
-  DCONST_DVARVEC2_cg_brCircleVolumetricFogParams = Dvar_RegisterVec2("cg_brCircleVolumetricFogParams", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsr, 0x40004u, "Circle volumetric fog params: density - x, scale - y");
-  __asm
-  {
-    vmovss  dword ptr [rsp+0F8h+description], xmm7
-    vmovaps xmm3, xmm15; z
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm6; x
-    vmovss  [rsp+0F8h+flags], xmm9
-  }
-  DVARVEC3_cg_brCircleVolumetricFogInnerColor = Dvar_RegisterVec3("MTMOOOQKKL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagss, description, 0, "Circle volumetric fog inner color");
-  __asm
-  {
-    vmovss  dword ptr [rsp+0F8h+description], xmm7
-    vmovaps xmm3, xmm15; z
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm6; x
-    vmovss  [rsp+0F8h+flags], xmm9
-  }
-  v489 = Dvar_RegisterVec3("OMRQMSLSRK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagst, descriptiona, 0, "Circle volumetric fog outer color");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42960000; z
-    vmovss  xmm1, cs:__real@3cf5c28f; x
-  }
-  DVARVEC3_cg_brCircleVolumetricFogOuterColor = v489;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0F8h+description], xmm7
-    vmovaps xmm2, xmm15; y
-    vmovss  [rsp+0F8h+flags], xmm9
-  }
-  DCONST_DVARVEC3_cg_brCircleDistanceFogParams = Dvar_RegisterVec3("cg_brCircleDistanceFogParams", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsu, descriptionb, 0x40004u, "Circle distance fog params: density - x, scale - y, half plane - z");
-  __asm
-  {
-    vmovss  dword ptr [rsp+0F8h+description], xmm7
-    vmovss  xmm7, cs:__real@40000000
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm7; x
-    vmovaps xmm3, xmm11; z
-    vmovss  [rsp+0F8h+flags], xmm9
-    vmovss  xmm6, cs:__real@7f7fffff
-  }
-  DVARVEC3_cg_brCircleDistanceFogInnerColor = Dvar_RegisterVec3("LOTQPTKLO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsv, descriptionc, 0, "Circle distance fog inner color");
-  __asm
-  {
-    vmovss  dword ptr [rsp+0F8h+description], xmm6
-    vmovaps xmm3, xmm11; z
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm7; x
-    vmovss  [rsp+0F8h+flags], xmm9
-  }
-  v501 = Dvar_RegisterVec3("LOPRPSKMST", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsw, descriptiond, 0, "Circle distance fog outer color");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3d75c28f; z
-    vmovss  xmm2, cs:__real@3eae147b; y
-    vmovss  xmm1, cs:__real@3eb851ec; x
-  }
-  DVARVEC3_cg_brCircleDistanceFogOuterColor = v501;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0F8h+var_C8], xmm6
-    vmovss  dword ptr [rsp+0F8h+description], xmm9
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  DVARVEC4_cg_brCirclePerceptualTint = Dvar_RegisterVec4("MSNRKNQPRS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsx, descriptione, v854, 0, "Circle fog scattering bias - rgb and intensity. (HACK)");
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; min
-    vmovaps xmm2, xmm13; y
-    vmovaps xmm1, xmm13; x
-    vmovss  [rsp+0F8h+flags], xmm6
-  }
-  v508 = Dvar_RegisterVec2("cg_brCircleHeightFalloff", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsy, 0x40004u, "Circle falloffs: distance fog - x, volumetric - y");
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3c23d70a
-    vmovss  xmm1, cs:__real@41200000; value
-  }
-  DCONST_DVARVEC2_cg_brCircleHeightFalloff = v508;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm9; min
-  }
-  DCONST_DVARFLT_cg_brCircleSkyDistanceMultiplier = Dvar_RegisterFloat("cg_brCircleSkyDistanceMultiplier", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Circle sky distance multiplier");
-  __asm
-  {
-    vmovss  [rsp+0F8h+flags], xmm15
-    vxorps  xmm3, xmm3, xmm3; min
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-  }
-  v516 = Dvar_RegisterVec2("cg_brCircleDistanceFogBlend", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsz, 0x40004u, "Circle blend with distance fog");
-  __asm { vmovss  xmm1, cs:__real@447a0000; value }
-  DCONST_DVARVEC2_cg_brCircleDistanceFogBlend = v516;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm9; min
-  }
-  v520 = Dvar_RegisterFloat("cg_brCircleDistanceHeightBlend", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Circle distance fog height blend");
-  __asm { vmovss  xmm1, cs:__real@453b8000; value }
-  DCONST_DVARFLT_cg_brCircleDistanceHeightBlend = v520;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm9; min
-  }
-  v524 = Dvar_RegisterFloat("cg_brCircleDistanceHeightViewBlend", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Circle distnace fog height blend by view ray start");
-  __asm { vmovss  xmm1, cs:__real@453b8000; value }
-  DCONST_DVARFLT_cg_brCircleDistanceHeightViewBlend = v524;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm9; min
-  }
-  DCONST_DVARFLT_cg_brCircleDistanceHeightBlendStart = Dvar_RegisterFloat("cg_brCircleDistanceHeightBlendStart", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Circle distance fog start of height blend");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm14; min
-    vmovaps xmm1, xmm15; value
-  }
-  DCONST_DVARFLT_cg_brCircleFogDensityScale = Dvar_RegisterFloat("cg_brCircleFogDensityScale", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Circle fog density scale");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm14; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DCONST_DVARFLT_cg_brCircleFogDensityBias = Dvar_RegisterFloat("cg_brCircleFogDensityBias", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Circle fog density bias");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm14; min
-    vmovaps xmm1, xmm15; value
-  }
-  DCONST_DVARFLT_cg_brCircleFogDensityNoiseScale = Dvar_RegisterFloat("cg_brCircleFogDensityNoiseScale", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Circle fog density noise scale");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm14; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DCONST_DVARFLT_cg_brCircleFogDensityNoiseBias = Dvar_RegisterFloat("cg_brCircleFogDensityNoiseBias", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Circle fog density noise bias");
-  __asm
-  {
-    vmovaps xmm3, xmm14; min
-    vmovaps xmm2, xmm15; y
-    vmovaps xmm1, xmm15; x
-    vmovss  [rsp+0F8h+flags], xmm6
-  }
-  DCONST_DVARVEC2_cg_brCircleFogDensityTiling = Dvar_RegisterVec2("cg_brCircleFogDensityTiling", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsba, 0x40004u, "Circle fog density noise tiling");
-  __asm
-  {
-    vmovaps xmm3, xmm14; min
-    vmovaps xmm2, xmm15; y
-    vmovaps xmm1, xmm15; x
-    vmovss  [rsp+0F8h+flags], xmm6
-  }
-  DCONST_DVARVEC2_cg_brCircleFogDensityScrollingSpeed = Dvar_RegisterVec2("cg_brCircleFogDensityScrollingSpeed", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsbb, 0x40004u, "Circle fog density noise scrolling speed");
+  DCONST_DVARFLT_cg_brCircleProximityDistMin = Dvar_RegisterFloat("cg_brCircleProximityDistMin", 24.0, 0.0, 3.4028235e38, 0x40004u, "When player's distance to circle's edge is closer than this, circle sounds play at full intensity.");
+  DCONST_DVARFLT_cg_brCircleProximityDistMax = Dvar_RegisterFloat("cg_brCircleProximityDistMax", 640.0, 0.0, 3.4028235e38, 0x40004u, "When player's distance to circle's edge is further than this, circle sounds stop.");
+  DCONST_DVARFLT_cg_brCircleProximityVolumeMin = Dvar_RegisterFloat("cg_brCircleProximityVolumeMin", 0.1, 0.0, 3.4028235e38, 0x40004u, "Min volume that the circle sounds will be played at.");
+  DCONST_DVARFLT_cg_brCircleProximityVolumeMax = Dvar_RegisterFloat("cg_brCircleProximityVolumeMax", 0.708, 0.0, 3.4028235e38, 0x40004u, "Max volume that the circle sounds will be played at.");
+  DCONST_DVARFLT_cg_brCircleLoopPitchMin = Dvar_RegisterFloat("cg_brCircleLoopPitchMin", 1.414, 0.0, 3.4028235e38, 0x40004u, "Min pitch that the circle loop sound will be played at.");
+  DCONST_DVARFLT_cg_brCircleLoopPitchMax = Dvar_RegisterFloat("cg_brCircleLoopPitchMax", 1.0, 0.0, 3.4028235e38, 0x40004u, "Max pitch that the circle loop sound will be played at.");
+  DCONST_DVARFLT_cg_brCircleTickIntervalMin = Dvar_RegisterFloat("cg_brCircleTickIntervalMin", 0.016666668, 0.0, 3.4028235e38, 0x40004u, "Min interval that the circle ticking sound will be played at.");
+  DCONST_DVARFLT_cg_brCircleTickIntervalMax = Dvar_RegisterFloat("cg_brCircleTickIntervalMax", 0.333, 0.0, 3.4028235e38, 0x40004u, "Max interval that the circle ticking sound will be played at.");
+  DCONST_DVARFLT_cg_brCircleTickPitchMin = Dvar_RegisterFloat("cg_brCircleTickPitchMin", 0.70700002, 0.0, 3.4028235e38, 0x40004u, "Min pitch that the circle ticking sound will be played at.");
+  DCONST_DVARFLT_cg_brCircleTickPitchMax = Dvar_RegisterFloat("cg_brCircleTickPitchMax", 1.0, 0.0, 3.4028235e38, 0x40004u, "Max pitch that the circle ticking sound will be played at.");
+  DCONST_DVARFLT_cg_brCircleFogBlendInTime = Dvar_RegisterFloat("cg_brCircleFogBlendInTime", 6.0, 0.0, 3.4028235e38, 0x40004u, "Duration (in seconds) to blend in volumetric- and distance-based fog for the BR Circle when starting the effect.");
+  DCONST_DVARFLT_cg_brCircleFogHeight = Dvar_RegisterFloat("cg_brCircleFogHeight", 5000.0, 0.0, 3.4028235e38, 0x40004u, "Circle fog height");
+  DCONST_DVARFLT_cg_brCircleFogInset = Dvar_RegisterFloat("cg_brCircleFogInset", 0.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Circle fog inset");
+  DCONST_DVARFLT_cg_brCircleFogOuterColorDistance = Dvar_RegisterFloat("cg_brCircleFogOuterColorDistance", 1000.0, 0.0, 3.4028235e38, 0x40004u, "Circle fog outer color distance");
+  DCONST_DVARVEC2_cg_brCircleVolumetricFogParams = Dvar_RegisterVec2("cg_brCircleVolumetricFogParams", 0.001, 1.0, 0.0, 3.4028235e38, 0x40004u, "Circle volumetric fog params: density - x, scale - y");
+  DVARVEC3_cg_brCircleVolumetricFogInnerColor = Dvar_RegisterVec3("MTMOOOQKKL", 1.5, 1.5, 1.0, 0.0, 3.4028235e38, 0, "Circle volumetric fog inner color");
+  DVARVEC3_cg_brCircleVolumetricFogOuterColor = Dvar_RegisterVec3("OMRQMSLSRK", 1.5, 1.5, 1.0, 0.0, 3.4028235e38, 0, "Circle volumetric fog outer color");
+  DCONST_DVARVEC3_cg_brCircleDistanceFogParams = Dvar_RegisterVec3("cg_brCircleDistanceFogParams", 0.029999999, 1.0, 75.0, 0.0, 3.4028235e38, 0x40004u, "Circle distance fog params: density - x, scale - y, half plane - z");
+  DVARVEC3_cg_brCircleDistanceFogInnerColor = Dvar_RegisterVec3("LOTQPTKLO", 2.0, 2.0, 0.5, 0.0, 3.4028235e38, 0, "Circle distance fog inner color");
+  DVARVEC3_cg_brCircleDistanceFogOuterColor = Dvar_RegisterVec3("LOPRPSKMST", 2.0, 2.0, 0.5, 0.0, 3.4028235e38, 0, "Circle distance fog outer color");
+  DVARVEC4_cg_brCirclePerceptualTint = Dvar_RegisterVec4("MSNRKNQPRS", 0.36000001, 0.34, 0.059999999, 1.0, 0.0, 3.4028235e38, 0, "Circle fog scattering bias - rgb and intensity. (HACK)");
+  DCONST_DVARVEC2_cg_brCircleHeightFalloff = Dvar_RegisterVec2("cg_brCircleHeightFalloff", 12000.0, 12000.0, 0.0, 3.4028235e38, 0x40004u, "Circle falloffs: distance fog - x, volumetric - y");
+  DCONST_DVARFLT_cg_brCircleSkyDistanceMultiplier = Dvar_RegisterFloat("cg_brCircleSkyDistanceMultiplier", 10.0, 0.0099999998, 3.4028235e38, 0x40004u, "Circle sky distance multiplier");
+  DCONST_DVARVEC2_cg_brCircleDistanceFogBlend = Dvar_RegisterVec2("cg_brCircleDistanceFogBlend", 0.0, 0.0, 0.0, 1.0, 0x40004u, "Circle blend with distance fog");
+  DCONST_DVARFLT_cg_brCircleDistanceHeightBlend = Dvar_RegisterFloat("cg_brCircleDistanceHeightBlend", 1000.0, 0.0099999998, 3.4028235e38, 0x40004u, "Circle distance fog height blend");
+  DCONST_DVARFLT_cg_brCircleDistanceHeightViewBlend = Dvar_RegisterFloat("cg_brCircleDistanceHeightViewBlend", 3000.0, 0.0099999998, 3.4028235e38, 0x40004u, "Circle distnace fog height blend by view ray start");
+  DCONST_DVARFLT_cg_brCircleDistanceHeightBlendStart = Dvar_RegisterFloat("cg_brCircleDistanceHeightBlendStart", 3000.0, 0.0099999998, 3.4028235e38, 0x40004u, "Circle distance fog start of height blend");
+  DCONST_DVARFLT_cg_brCircleFogDensityScale = Dvar_RegisterFloat("cg_brCircleFogDensityScale", 1.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Circle fog density scale");
+  DCONST_DVARFLT_cg_brCircleFogDensityBias = Dvar_RegisterFloat("cg_brCircleFogDensityBias", 0.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Circle fog density bias");
+  DCONST_DVARFLT_cg_brCircleFogDensityNoiseScale = Dvar_RegisterFloat("cg_brCircleFogDensityNoiseScale", 1.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Circle fog density noise scale");
+  DCONST_DVARFLT_cg_brCircleFogDensityNoiseBias = Dvar_RegisterFloat("cg_brCircleFogDensityNoiseBias", 0.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Circle fog density noise bias");
+  DCONST_DVARVEC2_cg_brCircleFogDensityTiling = Dvar_RegisterVec2("cg_brCircleFogDensityTiling", 1.0, 1.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Circle fog density noise tiling");
+  DCONST_DVARVEC2_cg_brCircleFogDensityScrollingSpeed = Dvar_RegisterVec2("cg_brCircleFogDensityScrollingSpeed", 1.0, 1.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Circle fog density noise scrolling speed");
   DCONST_DVARBOOL_cg_customization_devVerbose = Dvar_RegisterBool("cg_customization_devVerbose", 0, 0x40004u, "Enables debugging spam for CG_CustomizationMP");
   DCONST_DVARBOOL_cg_enableDetachableClientCorpses = Dvar_RegisterBool("cg_enableDetachableClientCorpses", 1, 0x40004u, "When enabled, client corpses will be allowed to be detached and not synchronized with the server");
   DCONST_DVARBOOL_cg_clientCorpse_devVerbose = Dvar_RegisterBool("cg_clientCorpse_devVerbose", 0, 0x40004u, "Enables debugging spam for client corpses");
@@ -4454,594 +3201,96 @@ void __fastcall CG_MainMP_RegisterDvars(__int64 a1, __int64 a2, double _XMM2_8)
   DCONST_DVARINT_cg_corpseFreshTimeout = Dvar_RegisterInt("cg_corpseFreshTimeout", 3000, 0, 0x7FFFFFFF, 0x40004u, "Defines Freshness timeout in milliseconds");
   DCONST_DVARBOOL_cg_customizationStreamingEnabled = Dvar_RegisterBool("cg_customizationStreamingEnabled", 1, 0x40004u, "Disable to turn off client-side streaming for currently equipped customizations");
   DCONST_DVARBOOL_cg_weaponStreamingEnabled = Dvar_RegisterBool("cg_weaponStreamingEnabled", 1, 0x40004u, "Disable to turn off client-side streaming for currently equipped weapons");
-  __asm
-  {
-    vmovss  xmm11, cs:__real@449c4000
-    vmovss  xmm1, cs:__real@44a8c000; value
-  }
   DCONST_DVARINT_cg_streamingMaxTeamSizeForBoostedTeammatePrioritization = Dvar_RegisterInt("cg_streamingMaxTeamSizeForBoostedTeammatePrioritization", 4, 0, 200, 0x40004u, "The maximum team size (max players / team count) that will trigger boosted teammate streaming priorities to be infinitely closer than other entity types (enemies, items, corpses, etc.).");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm11; min
-  }
-  v550 = Dvar_RegisterFloat("cg_streamingMaxDistanceForNearWorldModelPrioritization", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance at which we promote world models to a protected priority of \"near\" world models.");
-  __asm { vmovss  xmm1, cs:__real@45af0000; value }
-  DCONST_DVARFLT_cg_streamingMaxDistanceForNearWorldModelPrioritization = v550;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vmovaps xmm2, xmm11; min
-  }
-  DCONST_DVARFLT_cg_streamingMinDistanceForFarWorldModelPrioritization = Dvar_RegisterFloat("cg_streamingMinDistanceForFarWorldModelPrioritization", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance at which we demote world models to a far world model priority.");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43a00000; value
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cg_streamingMinVelocityDeprioritizeCommonMPTransients = Dvar_RegisterFloat("cg_streamingMinVelocityDeprioritizeCommonMPTransients", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The minimum parametric velocity at which we flag common mp transients to be deprioritized and potentially allow more I/O bandwidth to be used by tile-streamed transients.");
+  DCONST_DVARFLT_cg_streamingMaxDistanceForNearWorldModelPrioritization = Dvar_RegisterFloat("cg_streamingMaxDistanceForNearWorldModelPrioritization", 1350.0, 1250.0, 3.4028235e38, 0x40004u, "Distance at which we promote world models to a protected priority of \"near\" world models.");
+  DCONST_DVARFLT_cg_streamingMinDistanceForFarWorldModelPrioritization = Dvar_RegisterFloat("cg_streamingMinDistanceForFarWorldModelPrioritization", 5600.0, 1250.0, 3.4028235e38, 0x40004u, "Distance at which we demote world models to a far world model priority.");
+  DCONST_DVARFLT_cg_streamingMinVelocityDeprioritizeCommonMPTransients = Dvar_RegisterFloat("cg_streamingMinVelocityDeprioritizeCommonMPTransients", 320.0, 0.0, 3.4028235e38, 0x40004u, "The minimum parametric velocity at which we flag common mp transients to be deprioritized and potentially allow more I/O bandwidth to be used by tile-streamed transients.");
   DCONST_DVARBOOL_cg_devLoadWeaponAttachmentIcons = Dvar_RegisterBool("cg_devLoadWeaponAttachmentIcons", 0, 0x40004u, "Enables loading of weapon attachment icons to simulate real game image load");
   DCONST_DVARBOOL_cg_skipStreamedModelValidation = Dvar_RegisterBool("cg_skipStreamedModelValidation", 0, 0x40004u, "Enable to turn off runtime validation of streamed models.");
   DCONST_DVARBOOL_cg_customizationMP_devNoLatch = Dvar_RegisterBool("cg_customizationMP_devNoLatch", 1, 0x40004u, "When set, disables the latching system for character models");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm11; value
-  }
-  v560 = Dvar_RegisterFloat("cg_customizationMP_latchMaxDistance", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The maximum distance we will latch a character's model.");
-  __asm { vmovss  xmm1, cs:__real@3c800000; value }
-  DCONST_DVARFLT_cg_customizationMP_latchMaxDistance = v560;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cg_highPriorityCorpseDistanceSqMultiplier = Dvar_RegisterFloat("cg_highPriorityCorpseDistanceSqMultiplier", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The distanceSq multiplier used to elevate high priority corpses in our distance cache for streaming.");
+  DCONST_DVARFLT_cg_customizationMP_latchMaxDistance = Dvar_RegisterFloat("cg_customizationMP_latchMaxDistance", 1250.0, 0.0, 3.4028235e38, 0x40004u, "The maximum distance we will latch a character's model.");
+  DCONST_DVARFLT_cg_highPriorityCorpseDistanceSqMultiplier = Dvar_RegisterFloat("cg_highPriorityCorpseDistanceSqMultiplier", 0.015625, 0.0, 3.4028235e38, 0x40004u, "The distanceSq multiplier used to elevate high priority corpses in our distance cache for streaming.");
   DCONST_DVARBOOL_cg_prefetchPlayercards = Dvar_RegisterBool("cg_prefetchPlayercards", 1, 0x40004u, "Enables prefetching of all playercard backgrounds and emblems. WARNING: For large player counts, this may cost a significant amount of memory to enable");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  v567 = Dvar_RegisterFloat("cg_imageHintDistancePlayerCards", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance used to hint playercard images for preloading");
-  __asm { vmovss  xmm1, cs:__real@3fa00000; value }
-  DCONST_DVARFLT_cg_imageHintDistancePlayerCards = v567;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cg_imageHintDistancePlayerCardsLow = Dvar_RegisterFloat("cg_imageHintDistancePlayerCardsLow", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance used to hint playercard images for preloading. This is a lowered priority value to be usedfor high streaming pressure scenarios.");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm8; value
-  }
-  DCONST_DVARFLT_cg_imageHintDistanceWeaponAttachmentIcons = Dvar_RegisterFloat("cg_imageHintDistanceWeaponAttachmentIcons", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance used to hint weapon attachment images for preloading");
-  __asm
-  {
-    vmovaps xmm8, xmm6
-    vmovss  xmm1, cs:__real@3fa00000; value
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cg_imageHintDistanceWeaponAttachmentIconsLow = Dvar_RegisterFloat("cg_imageHintDistanceWeaponAttachmentIconsLow", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Distance used to hint weapon attachment images for preloading. This is a lowered priority value to be usedfor high streaming pressure scenarios.");
+  DCONST_DVARFLT_cg_imageHintDistancePlayerCards = Dvar_RegisterFloat("cg_imageHintDistancePlayerCards", 0.25, 0.0, 3.4028235e38, 0x40004u, "Distance used to hint playercard images for preloading");
+  DCONST_DVARFLT_cg_imageHintDistancePlayerCardsLow = Dvar_RegisterFloat("cg_imageHintDistancePlayerCardsLow", 1.25, 0.0, 3.4028235e38, 0x40004u, "Distance used to hint playercard images for preloading. This is a lowered priority value to be usedfor high streaming pressure scenarios.");
+  DCONST_DVARFLT_cg_imageHintDistanceWeaponAttachmentIcons = Dvar_RegisterFloat("cg_imageHintDistanceWeaponAttachmentIcons", 0.25, 0.0, 3.4028235e38, 0x40004u, "Distance used to hint weapon attachment images for preloading");
+  DCONST_DVARFLT_cg_imageHintDistanceWeaponAttachmentIconsLow = Dvar_RegisterFloat("cg_imageHintDistanceWeaponAttachmentIconsLow", 1.25, 0.0, 3.4028235e38, 0x40004u, "Distance used to hint weapon attachment images for preloading. This is a lowered priority value to be usedfor high streaming pressure scenarios.");
   DCONST_DVARINT_cg_forceCustomizationHead = Dvar_RegisterInt("cg_forceCustomizationHead", -1, -1, 0x7FFFFFFF, 0x40004u, "Force customization head model index for all local clients (client-only). Use -1 to turn off.");
   DCONST_DVARINT_cg_forceCustomizationBody = Dvar_RegisterInt("cg_forceCustomizationBody", -1, -1, 0x7FFFFFFF, 0x40004u, "Force customization body model index for all local clients (client-only). Use -1 to turn off.");
-  __asm { vmovss  xmm3, cs:__real@43340000; max }
   DCONST_DVARINT_cg_forceCustomizationViewhands = Dvar_RegisterInt("cg_forceCustomizationViewhands", -1, -1, 0x7FFFFFFF, 0x40004u, "Force customization viewhands model index for all local clients (client-only). Use -1 to turn off.");
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v581 = Dvar_RegisterFloat("OLRKNSKNPS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Angle from the view vector where enemy nameplates are visible (degrees).");
-  __asm { vmovss  xmm1, cs:__real@44898000; value }
-  DVARFLT_cg_enemyNameplateAngle = v581;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vmovaps xmm2, xmm9; min
-  }
-  v585 = Dvar_RegisterFloat("NPNSLTNQLM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Distance from the player below which you can see enemy nameplates.  Overridden by weapon's Enemy Crosshair Range property if less.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43340000; max
-    vmovss  xmm1, cs:__real@42820000; value
-  }
-  DVARFLT_cg_enemyNameplateDistance = v585;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm6, xmm6, xmm6
-  }
-  v590 = Dvar_RegisterFloat("MLOSMPPQON", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Angle from the view vector where friendly nameplates are visible (degrees).");
-  __asm { vmovss  xmm1, cs:__real@45098000; value }
-  DVARFLT_cg_friendlyNameplateAngle = v590;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vmovaps xmm2, xmm9; min
-  }
-  DVARFLT_cg_friendlyNameplateDistance = Dvar_RegisterFloat("MMMMPLOOTN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Distance from the player below which you can see friendly nameplates");
+  DVARFLT_cg_enemyNameplateAngle = Dvar_RegisterFloat("OLRKNSKNPS", 0.0, 0.0, 180.0, 4u, "Angle from the view vector where enemy nameplates are visible (degrees).");
+  DVARFLT_cg_enemyNameplateDistance = Dvar_RegisterFloat("NPNSLTNQLM", 1100.0, 0.0099999998, 3.4028235e38, 4u, "Distance from the player below which you can see enemy nameplates.  Overridden by weapon's Enemy Crosshair Range property if less.");
+  DVARFLT_cg_friendlyNameplateAngle = Dvar_RegisterFloat("MLOSMPPQON", 65.0, 0.0, 180.0, 4u, "Angle from the view vector where friendly nameplates are visible (degrees).");
+  DVARFLT_cg_friendlyNameplateDistance = Dvar_RegisterFloat("MMMMPLOOTN", 2200.0, 0.0099999998, 3.4028235e38, 4u, "Distance from the player below which you can see friendly nameplates");
   DVARBOOL_cg_friendlyNameplateSnapToEdge = Dvar_RegisterBool("TKKLKNNNO", 1, 4u, "If true, friendly nameplate chevrons are always visible and snap to the screen edge.");
   DVARBOOL_cg_friendlyReviveNameplateEnabled = Dvar_RegisterBool("LSSKOMTQKK", 1, 4u, "If true, friendly revive nameplates are visible above killed friendly players.");
   DVARBOOL_cg_playerNameplatesFastTrace = Dvar_RegisterBool("RQORKNQOO", 1, 4u, "If true, nameplate trace targets are approximated based on stance rather than pose evaluation.");
-  __asm { vmovss  xmm1, cs:__real@43480000; value }
   DVARBOOL_cg_playerNameplatesFastPosition = Dvar_RegisterBool("LNQMQMSNSS", 1, 4u, "If true, offscreen nameplate positions are approximated based on stance rather than pose evaluation.");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v597 = Dvar_RegisterFloat("LTRLMOOMPN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "The distance off the screen where the nameplate blends out to use approximated position rather than pose");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42480000; max
-    vmovss  xmm2, cs:__real@c2480000; min
-    vmovss  xmm1, cs:__real@c1200000; value
-  }
-  DVARFLT_cg_playerNameplatesFastFalloff = v597;
-  v601 = Dvar_RegisterFloat("NNRRKPKNKR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "When using fast traces, this value offsets the trace position to the root in the X direction");
-  __asm { vmovss  xmm1, cs:__real@3e99999a; value }
-  DVARFLT_cg_playerNameplatesFastTraceRootXOffset = v601;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_cg_playerNameplatesTextOutlineStrokeWidth = Dvar_RegisterFloat("cg_playerNameplatesTextOutlineStrokeWidth", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The width of the outline on the text displayed in the player nameplate.");
+  DVARFLT_cg_playerNameplatesFastFalloff = Dvar_RegisterFloat("LTRLMOOMPN", 200.0, 0.0, 3.4028235e38, 4u, "The distance off the screen where the nameplate blends out to use approximated position rather than pose");
+  DVARFLT_cg_playerNameplatesFastTraceRootXOffset = Dvar_RegisterFloat("NNRRKPKNKR", -10.0, -50.0, 50.0, 4u, "When using fast traces, this value offsets the trace position to the root in the X direction");
+  DCONST_DVARFLT_cg_playerNameplatesTextOutlineStrokeWidth = Dvar_RegisterFloat("cg_playerNameplatesTextOutlineStrokeWidth", 0.30000001, 0.0, 1.0, 0x40004u, "The width of the outline on the text displayed in the player nameplate.");
   DVARINT_cg_nameplateSettingOverride = Dvar_RegisterInt("NKMNSKNOQN", -1, -1, 10, 0, "This will override the nameplate setting that is set in the recipe for the gamemode.");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@3f59d495; y
-    vmovss  xmm1, cs:__real@3ef2f1aa; x
-  }
   DVARINT_cg_nameplateEnemyVisibleTimeout = Dvar_RegisterInt("QOPMSOTSM", 1000, 0, 10000, 0, "How long (in ms) after last seeing an enemy do we reset the 'enemyVisible' datamodel. Used for the contextual ping widget.");
-  __asm
-  {
-    vmovss  dword ptr [rsp+0F8h+var_C8], xmm15
-    vmovss  dword ptr [rsp+0F8h+description], xmm6
-    vmovaps xmm3, xmm15; z
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  v608 = Dvar_RegisterVec4("cg_playerNameplatesFriendlyColor", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsbc, descriptionf, v855, 0x40004u, "The color for the friendly player nameplates.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3d8068dc; z
-    vmovss  xmm2, cs:__real@3dd8adac; y
-  }
-  DCONST_DVARVEC4_cg_playerNameplatesFriendlyColor = v608;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0F8h+var_C8], xmm15
-    vmovss  dword ptr [rsp+0F8h+description], xmm6
-    vmovaps xmm1, xmm15; x
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  DCONST_DVARVEC4_cg_playerNameplatesEnemyColor = Dvar_RegisterVec4("cg_playerNameplatesEnemyColor", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsbd, descriptiong, v856, 0x40004u, "The color for the enemy player nameplates.");
-  __asm
-  {
-    vmovss  dword ptr [rsp+0F8h+var_C8], xmm15
-    vmovss  dword ptr [rsp+0F8h+description], xmm6
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  v615 = Dvar_RegisterVec4("cg_playerNameplatesTextOutlineColor", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsbe, descriptionh, v857, 0x40004u, "The outline color of the text on the player nameplates.");
-  __asm { vmovss  xmm3, cs:__real@3cfdf3b6; z }
-  DCONST_DVARVEC4_cg_playerNameplatesTextOutlineColor = v615;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0F8h+var_C8], xmm15
-    vmovss  dword ptr [rsp+0F8h+description], xmm6
-    vmovaps xmm2, xmm15; y
-    vmovaps xmm1, xmm15; x
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  v619 = Dvar_RegisterVec4("cg_playerNameplatesBountyIconColor", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsbf, descriptioni, v858, 0x40004u, "The color of the bounty icons.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3f20a0a1; z
-    vmovss  xmm2, cs:__real@3e868686; y
-    vmovss  dword ptr [rsp+0F8h+var_C8], xmm15
-    vmovss  dword ptr [rsp+0F8h+description], xmm6
-    vxorps  xmm1, xmm1, xmm1; x
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  DCONST_DVARVEC4_cg_playerNameplatesBountyIconColor = v619;
-  v623 = Dvar_RegisterVec4("cg_playerNameplatesDeuteranopiaFriendlyColor", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsbg, descriptionj, v859, 0x40004u, "The color for the friendly player nameplates.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3e1c9c9c; z
-    vmovss  xmm2, cs:__real@3f4fcfd0; y
-    vmovss  xmm1, cs:__real@3f60e0e1; x
-    vmovss  dword ptr [rsp+0F8h+var_C8], xmm15
-    vmovss  dword ptr [rsp+0F8h+description], xmm6
-    vmovss  [rsp+0F8h+flags], xmm15
-  }
-  DCONST_DVARVEC4_cg_playerNameplatesDeuteranopiaFriendlyColor = v623;
-  v627 = Dvar_RegisterVec4("cg_playerNameplatesDeuteranopiaEnemyColor", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flagsbh, descriptionk, v860, 0x40004u, "The color for the enemy player nameplates.");
-  __asm
-  {
-    vmovss  xmm9, cs:__real@c47a0000
-    vmovss  xmm3, cs:__real@447a0000; max
-  }
-  DCONST_DVARVEC4_cg_playerNameplatesDeuteranopiaEnemyColor = v627;
-  __asm
-  {
-    vmovaps xmm2, xmm9; min
-    vmovaps xmm1, xmm7; value
-  }
-  v632 = Dvar_RegisterFloat("cg_playerNameplatesNameOffsetX", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The X offset of the player name relative to the right chevron.");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@447a0000
-    vmovss  xmm1, cs:__real@c0000000; value
-  }
-  DCONST_DVARFLT_cg_playerNameplatesNameOffsetX = v632;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-  }
-  v637 = Dvar_RegisterFloat("cg_playerNameplatesNameOffsetY", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The Y offset of the player name relative to the center of the chevron.");
-  __asm { vmovss  xmm1, cs:__real@43a68000; value }
-  DCONST_DVARFLT_cg_playerNameplatesNameOffsetY = v637;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-  }
-  DCONST_DVARFLT_cg_playerNameplatesNameWrapWidth = Dvar_RegisterFloat("cg_playerNameplatesNameWrapWidth", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The wrap width of the player name. A long name will wrap past this width.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-    vmovss  xmm8, cs:__real@41800000
-    vmovaps xmm1, xmm8; value
-  }
-  DCONST_DVARFLT_cg_playerNameplatesNameFontHeight = Dvar_RegisterFloat("cg_playerNameplatesNameFontHeight", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The font height of the player name.");
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-    vmovaps xmm1, xmm8; value
-  }
-  v648 = Dvar_RegisterFloat("cg_playerNameplatesNameTextWidth", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The text width of the player name.");
-  __asm { vmovss  xmm1, cs:__real@c2200000; value }
-  DCONST_DVARFLT_cg_playerNameplatesNameTextWidth = v648;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-  }
-  v652 = Dvar_RegisterFloat("cg_playerNameplatesReviveNameOffsetX", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The X offset of the revive player name from the origin of the nameplate (top-left).");
-  __asm { vmovss  xmm1, cs:__real@41f00000; value }
-  DCONST_DVARFLT_cg_playerNameplatesReviveNameOffsetX = v652;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-  }
-  v656 = Dvar_RegisterFloat("cg_playerNameplatesReviveNameOffsetY", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The Y offset of the revive player name from the origin of the nameplate (top-left).");
-  __asm { vmovss  xmm1, cs:__real@41900000; value }
-  DCONST_DVARFLT_cg_playerNameplatesReviveNameOffsetY = v656;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-  }
-  v660 = Dvar_RegisterFloat("cg_playerNameplatesReviveNameFontHeight", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The font height of the revive player name.");
-  __asm { vmovss  xmm1, cs:__real@41900000; value }
-  DCONST_DVARFLT_cg_playerNameplatesReviveNameFontHeight = v660;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-  }
-  v664 = Dvar_RegisterFloat("cg_playerNameplatesReviveNameTextWidth", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The text width of the revive player name.");
-  __asm { vmovss  xmm1, cs:__real@40c00000; value }
-  DCONST_DVARFLT_cg_playerNameplatesReviveNameTextWidth = v664;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-  }
-  v668 = Dvar_RegisterFloat("cg_playerNameplatesRankOffsetX", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The X offset of the rank number from the origin of the nameplate (top-left).");
-  __asm { vmovss  xmm1, cs:__real@41d00000; value }
-  DCONST_DVARFLT_cg_playerNameplatesRankOffsetX = v668;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm9; min
-  }
-  v672 = Dvar_RegisterFloat("cg_playerNameplatesRankOffsetY", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The Y offset of the rank number from the origin of the nameplate (top-left).");
-  __asm { vmovss  xmm1, cs:__real@41500000; value }
-  DCONST_DVARFLT_cg_playerNameplatesRankOffsetY = v672;
-  __asm
-  {
-    vmovaps xmm10, xmm7
-    vmovaps xmm3, xmm10; max
-    vmovaps xmm2, xmm9; min
-  }
-  DCONST_DVARFLT_cg_playerNameplatesRankWrapWidth = Dvar_RegisterFloat("cg_playerNameplatesRankWrapWidth", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The wrap width of the rank number. A large number will wrap past this width.");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@41400000; value
-    vmovaps xmm3, xmm10; max
-    vmovaps xmm2, xmm9; min
-  }
-  DCONST_DVARFLT_cg_playerNameplatesRankFontHeight = Dvar_RegisterFloat("cg_playerNameplatesRankFontHeight", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The font height of the rank number.");
-  __asm
-  {
-    vmovaps xmm3, xmm10; max
-    vmovaps xmm2, xmm9; min
-    vmovaps xmm1, xmm15; value
-  }
-  v683 = Dvar_RegisterFloat("cg_playerNameplatesPerkOffsetX", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The X offset of the perk icon from the origin of the nameplate (top-left).");
-  __asm { vmovss  xmm1, cs:__real@c1500000; value }
-  DCONST_DVARFLT_cg_playerNameplatesPerkOffsetX = v683;
-  __asm
-  {
-    vmovaps xmm15, xmm7
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  v688 = Dvar_RegisterFloat("cg_playerNameplatesPerkOffsetY", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The Y offset of the perk icon from the origin of the nameplate (top-left).");
-  __asm { vmovss  xmm1, cs:__real@41c00000; value }
-  DCONST_DVARFLT_cg_playerNameplatesPerkOffsetY = v688;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  v692 = Dvar_RegisterFloat("cg_playerNameplatesPerkWidth", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The width of the perk icon.");
-  __asm { vmovss  xmm1, cs:__real@41c00000; value }
-  DCONST_DVARFLT_cg_playerNameplatesPerkWidth = v692;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  v696 = Dvar_RegisterFloat("cg_playerNameplatesPerkHeight", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The height of the perk icon.");
-  __asm { vmovss  xmm1, cs:__real@41d00000; value }
-  DCONST_DVARFLT_cg_playerNameplatesPerkHeight = v696;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  v700 = Dvar_RegisterFloat("cg_playerNameplatesBountyOffsetX", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The X offset of the bounty icons from the origin of the nameplate (top-left).");
-  __asm { vmovss  xmm1, cs:__real@41500000; value }
-  DCONST_DVARFLT_cg_playerNameplatesBountyOffsetX = v700;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  DCONST_DVARFLT_cg_playerNameplatesBountyOffsetY = Dvar_RegisterFloat("cg_playerNameplatesBountyOffsetY", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The Y offset of the bounty icons from the origin of the nameplate (top-left).");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-    vmovaps xmm1, xmm8; value
-  }
-  DCONST_DVARFLT_cg_playerNameplatesBountyWidth = Dvar_RegisterFloat("cg_playerNameplatesBountyWidth", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The width of the bounty icon.");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-    vmovaps xmm1, xmm8; value
-  }
-  DCONST_DVARFLT_cg_playerNameplatesBountyHeight = Dvar_RegisterFloat("cg_playerNameplatesBountyHeight", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The height of the bounty icon.");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@41700000; value
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  DCONST_DVARFLT_cg_playerNameplatesDistanceOffsetY = Dvar_RegisterFloat("cg_playerNameplatesDistanceOffsetY", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The Y offset of the distance meter from the revive player name.");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DCONST_DVARFLT_cg_playerNameplatesDistanceOffsetX = Dvar_RegisterFloat("cg_playerNameplatesDistanceOffsetX", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The X offset of the distance meter from the revive player name.");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v719 = Dvar_RegisterFloat("cg_playerNameplatesChevronOffsetX", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The X offset of the chevron icon from the origin of the nameplate (top-left).");
-  __asm { vmovss  xmm1, cs:__real@c2960000; value }
-  DCONST_DVARFLT_cg_playerNameplatesChevronOffsetX = v719;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  v723 = Dvar_RegisterFloat("cg_playerNameplatesChevronOffsetY", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The Y offset of the chevron icon from the origin of the nameplate (top-left).");
-  __asm { vmovss  xmm1, cs:__real@41600000; value }
-  DCONST_DVARFLT_cg_playerNameplatesChevronOffsetY = v723;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  v727 = Dvar_RegisterFloat("cg_playerNameplatesChevronWidth", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The width of the chevron icon.");
-  __asm { vmovss  xmm1, cs:__real@41600000; value }
-  DCONST_DVARFLT_cg_playerNameplatesChevronWidth = v727;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  v731 = Dvar_RegisterFloat("cg_playerNameplatesChevronHeight", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The height of the chevron icon.");
-  __asm { vmovss  xmm1, cs:__real@40b00000; value }
-  DCONST_DVARFLT_cg_playerNameplatesChevronHeight = v731;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  v735 = Dvar_RegisterFloat("cg_playerNameplatesRankIconOffsetLeft", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The X offset of the left edge of the rank icon from the origin of the nameplate (top-left).");
-  __asm { vmovss  xmm1, cs:__real@41ac0000; value }
-  DCONST_DVARFLT_cg_playerNameplatesRankIconOffsetLeft = v735;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  v739 = Dvar_RegisterFloat("cg_playerNameplatesRankIconOffsetRight", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The X offset of the right edge of the rank icon from the origin of the nameplate (top-left).");
-  __asm { vmovss  xmm1, cs:__real@c0b00000; value }
-  DCONST_DVARFLT_cg_playerNameplatesRankIconOffsetRight = v739;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  DCONST_DVARFLT_cg_playerNameplatesRankIconOffsetTop = Dvar_RegisterFloat("cg_playerNameplatesRankIconOffsetTop", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The Y offset of the top edge of the rank icon from the origin of the nameplate (top-left).");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@41280000; value
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  DCONST_DVARFLT_cg_playerNameplatesRankIconOffsetBottom = Dvar_RegisterFloat("cg_playerNameplatesRankIconOffsetBottom", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The Y offset of the bottom edge of the rank icon from the origin of the nameplate (top-left).");
+  DCONST_DVARVEC4_cg_playerNameplatesFriendlyColor = Dvar_RegisterVec4("cg_playerNameplatesFriendlyColor", 0.4745, 0.85089999, 1.0, 1.0, 0.0, 1.0, 0x40004u, "The color for the friendly player nameplates.");
+  DCONST_DVARVEC4_cg_playerNameplatesEnemyColor = Dvar_RegisterVec4("cg_playerNameplatesEnemyColor", 1.0, 0.1058, 0.062700003, 1.0, 0.0, 1.0, 0x40004u, "The color for the enemy player nameplates.");
+  DCONST_DVARVEC4_cg_playerNameplatesTextOutlineColor = Dvar_RegisterVec4("cg_playerNameplatesTextOutlineColor", 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0x40004u, "The outline color of the text on the player nameplates.");
+  DCONST_DVARVEC4_cg_playerNameplatesBountyIconColor = Dvar_RegisterVec4("cg_playerNameplatesBountyIconColor", 1.0, 1.0, 0.030999999, 1.0, 0.0, 1.0, 0x40004u, "The color of the bounty icons.");
+  DCONST_DVARVEC4_cg_playerNameplatesDeuteranopiaFriendlyColor = Dvar_RegisterVec4("cg_playerNameplatesDeuteranopiaFriendlyColor", 0.0, 0.26274508, 0.627451, 1.0, 0.0, 1.0, 0x40004u, "The color for the friendly player nameplates.");
+  DCONST_DVARVEC4_cg_playerNameplatesDeuteranopiaEnemyColor = Dvar_RegisterVec4("cg_playerNameplatesDeuteranopiaEnemyColor", 0.87843138, 0.81176472, 0.15294117, 1.0, 0.0, 1.0, 0x40004u, "The color for the enemy player nameplates.");
+  DCONST_DVARFLT_cg_playerNameplatesNameOffsetX = Dvar_RegisterFloat("cg_playerNameplatesNameOffsetX", 2.0, -1000.0, 1000.0, 0x40004u, "The X offset of the player name relative to the right chevron.");
+  DCONST_DVARFLT_cg_playerNameplatesNameOffsetY = Dvar_RegisterFloat("cg_playerNameplatesNameOffsetY", -2.0, -1000.0, 1000.0, 0x40004u, "The Y offset of the player name relative to the center of the chevron.");
+  DCONST_DVARFLT_cg_playerNameplatesNameWrapWidth = Dvar_RegisterFloat("cg_playerNameplatesNameWrapWidth", 333.0, -1000.0, 1000.0, 0x40004u, "The wrap width of the player name. A long name will wrap past this width.");
+  DCONST_DVARFLT_cg_playerNameplatesNameFontHeight = Dvar_RegisterFloat("cg_playerNameplatesNameFontHeight", 16.0, -1000.0, 1000.0, 0x40004u, "The font height of the player name.");
+  DCONST_DVARFLT_cg_playerNameplatesNameTextWidth = Dvar_RegisterFloat("cg_playerNameplatesNameTextWidth", 16.0, -1000.0, 1000.0, 0x40004u, "The text width of the player name.");
+  DCONST_DVARFLT_cg_playerNameplatesReviveNameOffsetX = Dvar_RegisterFloat("cg_playerNameplatesReviveNameOffsetX", -40.0, -1000.0, 1000.0, 0x40004u, "The X offset of the revive player name from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesReviveNameOffsetY = Dvar_RegisterFloat("cg_playerNameplatesReviveNameOffsetY", 30.0, -1000.0, 1000.0, 0x40004u, "The Y offset of the revive player name from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesReviveNameFontHeight = Dvar_RegisterFloat("cg_playerNameplatesReviveNameFontHeight", 18.0, -1000.0, 1000.0, 0x40004u, "The font height of the revive player name.");
+  DCONST_DVARFLT_cg_playerNameplatesReviveNameTextWidth = Dvar_RegisterFloat("cg_playerNameplatesReviveNameTextWidth", 18.0, -1000.0, 1000.0, 0x40004u, "The text width of the revive player name.");
+  DCONST_DVARFLT_cg_playerNameplatesRankOffsetX = Dvar_RegisterFloat("cg_playerNameplatesRankOffsetX", 6.0, -1000.0, 1000.0, 0x40004u, "The X offset of the rank number from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesRankOffsetY = Dvar_RegisterFloat("cg_playerNameplatesRankOffsetY", 26.0, -1000.0, 1000.0, 0x40004u, "The Y offset of the rank number from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesRankWrapWidth = Dvar_RegisterFloat("cg_playerNameplatesRankWrapWidth", 13.0, -1000.0, 1000.0, 0x40004u, "The wrap width of the rank number. A large number will wrap past this width.");
+  DCONST_DVARFLT_cg_playerNameplatesRankFontHeight = Dvar_RegisterFloat("cg_playerNameplatesRankFontHeight", 12.0, -1000.0, 1000.0, 0x40004u, "The font height of the rank number.");
+  DCONST_DVARFLT_cg_playerNameplatesPerkOffsetX = Dvar_RegisterFloat("cg_playerNameplatesPerkOffsetX", 1.0, -1000.0, 1000.0, 0x40004u, "The X offset of the perk icon from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesPerkOffsetY = Dvar_RegisterFloat("cg_playerNameplatesPerkOffsetY", -13.0, -1000.0, 1000.0, 0x40004u, "The Y offset of the perk icon from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesPerkWidth = Dvar_RegisterFloat("cg_playerNameplatesPerkWidth", 24.0, -1000.0, 1000.0, 0x40004u, "The width of the perk icon.");
+  DCONST_DVARFLT_cg_playerNameplatesPerkHeight = Dvar_RegisterFloat("cg_playerNameplatesPerkHeight", 24.0, -1000.0, 1000.0, 0x40004u, "The height of the perk icon.");
+  DCONST_DVARFLT_cg_playerNameplatesBountyOffsetX = Dvar_RegisterFloat("cg_playerNameplatesBountyOffsetX", 26.0, -1000.0, 1000.0, 0x40004u, "The X offset of the bounty icons from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesBountyOffsetY = Dvar_RegisterFloat("cg_playerNameplatesBountyOffsetY", 13.0, -1000.0, 1000.0, 0x40004u, "The Y offset of the bounty icons from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesBountyWidth = Dvar_RegisterFloat("cg_playerNameplatesBountyWidth", 16.0, -1000.0, 1000.0, 0x40004u, "The width of the bounty icon.");
+  DCONST_DVARFLT_cg_playerNameplatesBountyHeight = Dvar_RegisterFloat("cg_playerNameplatesBountyHeight", 16.0, -1000.0, 1000.0, 0x40004u, "The height of the bounty icon.");
+  DCONST_DVARFLT_cg_playerNameplatesDistanceOffsetY = Dvar_RegisterFloat("cg_playerNameplatesDistanceOffsetY", 15.0, -1000.0, 1000.0, 0x40004u, "The Y offset of the distance meter from the revive player name.");
+  DCONST_DVARFLT_cg_playerNameplatesDistanceOffsetX = Dvar_RegisterFloat("cg_playerNameplatesDistanceOffsetX", 0.0, -1000.0, 1000.0, 0x40004u, "The X offset of the distance meter from the revive player name.");
+  DCONST_DVARFLT_cg_playerNameplatesChevronOffsetX = Dvar_RegisterFloat("cg_playerNameplatesChevronOffsetX", 0.0, -1000.0, 1000.0, 0x40004u, "The X offset of the chevron icon from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesChevronOffsetY = Dvar_RegisterFloat("cg_playerNameplatesChevronOffsetY", -75.0, -1000.0, 1000.0, 0x40004u, "The Y offset of the chevron icon from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesChevronWidth = Dvar_RegisterFloat("cg_playerNameplatesChevronWidth", 14.0, -1000.0, 1000.0, 0x40004u, "The width of the chevron icon.");
+  DCONST_DVARFLT_cg_playerNameplatesChevronHeight = Dvar_RegisterFloat("cg_playerNameplatesChevronHeight", 14.0, -1000.0, 1000.0, 0x40004u, "The height of the chevron icon.");
+  DCONST_DVARFLT_cg_playerNameplatesRankIconOffsetLeft = Dvar_RegisterFloat("cg_playerNameplatesRankIconOffsetLeft", 5.5, -1000.0, 1000.0, 0x40004u, "The X offset of the left edge of the rank icon from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesRankIconOffsetRight = Dvar_RegisterFloat("cg_playerNameplatesRankIconOffsetRight", 21.5, -1000.0, 1000.0, 0x40004u, "The X offset of the right edge of the rank icon from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesRankIconOffsetTop = Dvar_RegisterFloat("cg_playerNameplatesRankIconOffsetTop", -5.5, -1000.0, 1000.0, 0x40004u, "The Y offset of the top edge of the rank icon from the origin of the nameplate (top-left).");
+  DCONST_DVARFLT_cg_playerNameplatesRankIconOffsetBottom = Dvar_RegisterFloat("cg_playerNameplatesRankIconOffsetBottom", 10.5, -1000.0, 1000.0, 0x40004u, "The Y offset of the bottom edge of the rank icon from the origin of the nameplate (top-left).");
   DCONST_DVARINT_cg_playerNameplatesFadeoutTime = Dvar_RegisterInt("cg_playerNameplatesFadeoutTime", 400, 0, 5000, 0x40004u, "How long does it take for the nameplates to fade out (in ms).");
-  __asm { vmovss  xmm1, cs:__real@42700000; value }
   DVARBOOL_cg_playerNameplateOverlapCullingEnabled = Dvar_RegisterBool("MQKRLTMROM", 1, 4u, "If true, friendly nameplates that overlap other nameplates will be culled, this prevents confusion when trying to detect enemies.");
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v749 = Dvar_RegisterFloat("cg_playerNameplateOverlapCullingWidth", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The approximate width of the nameplate when culling.");
-  __asm { vmovss  xmm1, cs:__real@40a00000; value }
-  DCONST_DVARFLT_cg_playerNameplateOverlapCullingWidth = v749;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vmovaps xmm2, xmm9; min
-  }
-  DCONST_DVARFLT_cg_playerNameplateViewHeightOffset = Dvar_RegisterFloat("cg_playerNameplateViewHeightOffset", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "The height offset applied when approximating the screen position for the body/head of the target entity for rendering the nameplate");
+  DCONST_DVARFLT_cg_playerNameplateOverlapCullingWidth = Dvar_RegisterFloat("cg_playerNameplateOverlapCullingWidth", 60.0, 0.0, 1000.0, 0x40004u, "The approximate width of the nameplate when culling.");
+  DCONST_DVARFLT_cg_playerNameplateViewHeightOffset = Dvar_RegisterFloat("cg_playerNameplateViewHeightOffset", 5.0, -1000.0, 1000.0, 0x40004u, "The height offset applied when approximating the screen position for the body/head of the target entity for rendering the nameplate");
   DCONST_DVARINT_cg_playerNameplateStateChangeDuration = Dvar_RegisterInt("cg_playerNameplateStateChangeDuration", 500, 1, 1000, 0x40004u, "The time in ms it takes for the character to change from prone to crounch/standing");
   DCONST_DVARBOOL_collAvoid_debug = Dvar_RegisterBool("collAvoid_debug", 0, 0x40004u, "Turn on collision avoidance debugging");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@461c4000; max
-    vmovss  xmm1, cs:__real@41000000; value
-  }
   DCONST_DVARINT_collAvoid_avoidType = Dvar_RegisterInt("collAvoid_avoidType", 1, 0, 10, 0x40004u, "Avoidance force type 0) off 1) linear 2) cmd correction");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v756 = Dvar_RegisterFloat("collAvoid_linearAccel", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Linear acceleration to avoid players");
-  __asm { vmovss  xmm1, cs:__real@41c80000; value }
-  DCONST_DVARFLT_collAvoid_linearAccel = v756;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v760 = Dvar_RegisterFloat("collAvoid_linearMinSpeed", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Minimum speed when avoiding players");
-  __asm { vmovss  xmm1, cs:__real@41200000; value }
-  DCONST_DVARFLT_collAvoid_linearMinSpeed = v760;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v764 = Dvar_RegisterFloat("collAvoid_linearNearlyStoppedSpeed", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Speed at which we consider players basically stopped");
-  __asm { vmovss  xmm1, cs:__real@40a00000; value }
-  DCONST_DVARFLT_collAvoid_linearNearlyStoppedSpeed = v764;
-  __asm
-  {
-    vmovaps xmm3, xmm15; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v768 = Dvar_RegisterFloat("collAvoid_additionalAvoidDistance", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Additional space between players before they overlap");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@c3b40000
-    vmovss  xmm3, cs:__real@43b40000; max
-    vmovss  xmm1, cs:__real@428c0000; value
-  }
-  DCONST_DVARFLT_collAvoid_additionalAvoidDistance = v768;
-  __asm { vmovaps xmm2, xmm6; min }
-  v773 = Dvar_RegisterFloat("LMPQKKQLKO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, "How much to rotate the turret barrel when a helicopter fires");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@7f7fffff
-    vmovaps xmm3, xmm8; max
-    vmovaps xmm2, xmm6; min
-    vmovaps xmm1, xmm11; value
-  }
-  DVARFLT_heli_barrelRotation = v773;
-  v778 = Dvar_RegisterFloat("LOKMPRLNRL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, (const char *)&queryFormat.fmt + 3);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43b40000; value
-    vmovaps xmm3, xmm8; max
-    vmovaps xmm2, xmm6; min
-  }
-  DVARFLT_heli_barrelMaxVelocity = v778;
-  v782 = Dvar_RegisterFloat("NPRNKLTQOT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0, (const char *)&queryFormat.fmt + 3);
-  __asm { vmovss  xmm1, cs:__real@469c4000; value }
-  DVARFLT_heli_barrelSlowdown = v782;
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DCONST_DVARFLT_heli_audioPriorityCullDistance = Dvar_RegisterFloat("heli_audioPriorityCullDistance", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Helicopter audio is prioritized for helicopters within this range");
+  DCONST_DVARFLT_collAvoid_linearAccel = Dvar_RegisterFloat("collAvoid_linearAccel", 8.0, 0.0, 10000.0, 0x40004u, "Linear acceleration to avoid players");
+  DCONST_DVARFLT_collAvoid_linearMinSpeed = Dvar_RegisterFloat("collAvoid_linearMinSpeed", 25.0, 0.0, 1000.0, 0x40004u, "Minimum speed when avoiding players");
+  DCONST_DVARFLT_collAvoid_linearNearlyStoppedSpeed = Dvar_RegisterFloat("collAvoid_linearNearlyStoppedSpeed", 10.0, 0.0, 1000.0, 0x40004u, "Speed at which we consider players basically stopped");
+  DCONST_DVARFLT_collAvoid_additionalAvoidDistance = Dvar_RegisterFloat("collAvoid_additionalAvoidDistance", 5.0, 0.0, 1000.0, 0x40004u, "Additional space between players before they overlap");
+  DVARFLT_heli_barrelRotation = Dvar_RegisterFloat("LMPQKKQLKO", 70.0, -360.0, 360.0, 0, "How much to rotate the turret barrel when a helicopter fires");
+  DVARFLT_heli_barrelMaxVelocity = Dvar_RegisterFloat("LOKMPRLNRL", 1250.0, -360.0, 3.4028235e38, 0, (const char *)&queryFormat.fmt + 3);
+  DVARFLT_heli_barrelSlowdown = Dvar_RegisterFloat("NPRNKLTQOT", 360.0, -360.0, 3.4028235e38, 0, (const char *)&queryFormat.fmt + 3);
+  DCONST_DVARFLT_heli_audioPriorityCullDistance = Dvar_RegisterFloat("heli_audioPriorityCullDistance", 20000.0, 0.0, 3.4028235e38, 0x40004u, "Helicopter audio is prioritized for helicopters within this range");
   DCONST_DVARINT_heli_audioPriorityCount = Dvar_RegisterInt("heli_audioPriorityCount", 2, 0, 32, 0x40004u, "Helicopter audio is prioritized for up to this many helicopters");
   DVARBOOL_cg_anticheat_dataCollectionEnabled = Dvar_RegisterBool("LPMPTNTKTP", 0, 0, "Enable cg anticheat data collection.");
   DCONST_DVARBOOL_cg_anticheat_debugDrawTargetThroughWalls = Dvar_RegisterBool("cg_anticheat_debugDrawTargetThroughWalls", 0, 0x40004u, "Enable debug drawing for target through walls");
   DCONST_DVARBOOL_cg_player_visibility_test_active = Dvar_RegisterBool("cg_player_visibility_test_active", 0, 0x40004u, "Enable cg_player_visibility test");
   DCONST_DVARBOOL_cg_player_visibility_test_getResultWithWait = Dvar_RegisterBool("cg_player_visibility_test_getResultWithWait", 0, 0x40004u, "When accessing results of cg_player_visibility test, call version with wait");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DCONST_DVARFLT_cg_player_visibility_test_worldspacePadding = Dvar_RegisterFloat("cg_player_visibility_test_worldspacePadding", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "World space padding for cg_player_visibility test");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vmovaps xmm2, xmm14; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DCONST_DVARFLT_cg_player_visibility_test_extendedPitchAngle = Dvar_RegisterFloat("cg_player_visibility_test_extendedPitchAngle", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Extended pitch angle for cg_player_visibility test. NOTE: value will be clamped between 0 and 90 degrees. Unbounded to test clamping");
-  __asm
-  {
-    vmovaps xmm3, xmm8; max
-    vmovaps xmm2, xmm14; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  v795 = Dvar_RegisterFloat("cg_player_visibility_test_extendedYawAngle", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 0x40004u, "Extended pitch angle for cg_player_visibility test. NOTE: value will be clamped between 0 and 180 degrees. Unbounded to test clamping");
-  __asm { vmovaps xmm14, [rsp+0F8h+var_98] }
-  _R11 = &v864;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm15, [rsp+0F8h+var_A8]
-  }
-  DCONST_DVARFLT_cg_player_visibility_test_extendedYawAngle = v795;
+  DCONST_DVARFLT_cg_player_visibility_test_worldspacePadding = Dvar_RegisterFloat("cg_player_visibility_test_worldspacePadding", 0.0, 0.0, 3.4028235e38, 0x40004u, "World space padding for cg_player_visibility test");
+  DCONST_DVARFLT_cg_player_visibility_test_extendedPitchAngle = Dvar_RegisterFloat("cg_player_visibility_test_extendedPitchAngle", 0.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Extended pitch angle for cg_player_visibility test. NOTE: value will be clamped between 0 and 90 degrees. Unbounded to test clamping");
+  DCONST_DVARFLT_cg_player_visibility_test_extendedYawAngle = Dvar_RegisterFloat("cg_player_visibility_test_extendedYawAngle", 0.0, -3.4028235e38, 3.4028235e38, 0x40004u, "Extended pitch angle for cg_player_visibility test. NOTE: value will be clamped between 0 and 180 degrees. Unbounded to test clamping");
 }
 
 /*
@@ -5051,6 +3300,7 @@ CG_MainMP_RegisterGraphics
 */
 void CG_MainMP_RegisterGraphics(LocalClientNum_t localClientNum, const char *mapname, const char *gameType)
 {
+  __m256i v4; 
   __int64 v6; 
   char v7; 
   const dvar_t *v8; 
@@ -5243,11 +3493,8 @@ LABEL_20:
         cgMedia.objectiveBackgroundDiamond = Material_RegisterHandle("icon_waypoint_backing_poi", IMAGE_TRACK_HUD);
         cgMedia.objectiveBackgroundCircle = Material_RegisterHandle("iw7_waypoint_circle_backing_base", IMAGE_TRACK_HUD);
         v16 = Material_RegisterHandle("icon_waypoint_backing_sm", IMAGE_TRACK_HUD);
-        __asm
-        {
-          vpxor   xmm0, xmm0, xmm0
-          vmovdqu ymmword ptr cs:?cgMedia@@3UcgMedia_t@@A.objectiveBackgroundMission, ymm0; cgMedia_t cgMedia
-        }
+        __asm { vpxor   xmm0, xmm0, xmm0 }
+        *(__m256i *)&cgMedia.objectiveBackgroundMission = v4;
         cgMedia.objectiveBackgroundPentagon = v16;
         cgMedia.objectiveMiniIconVehicle = NULL;
       }
@@ -5344,102 +3591,92 @@ CG_MainMP_RegisterMarkerPingMaterialForVehicleDefAtIndex
 */
 void CG_MainMP_RegisterMarkerPingMaterialForVehicleDefAtIndex(const unsigned int vehDefIndex, const char *name)
 {
-  __int64 v3; 
-  __int64 v5; 
+  __int64 v2; 
+  __int64 v4; 
   int RowCount; 
-  __int64 v7; 
-  int v8; 
+  __int64 v6; 
+  int v7; 
+  __int64 v8; 
   __int64 v9; 
-  __int64 v10; 
-  const char *v11; 
+  const char *v10; 
   const char *ColumnValueForRow; 
-  signed __int64 v13; 
-  char v14; 
-  __int64 v15; 
-  char v16; 
+  signed __int64 v12; 
+  char v13; 
+  __int64 v14; 
+  char v15; 
+  const char *v16; 
   const char *v17; 
+  const char *v18; 
   const char *v19; 
-  const char *v20; 
-  const char *v21; 
-  __int64 v25; 
-  __int64 v26; 
+  __int64 v20; 
+  __int64 v21; 
 
-  v3 = vehDefIndex;
+  v2 = vehDefIndex;
   if ( !name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 711, ASSERT_TYPE_ASSERT, (const char *)&stru_143C9A1A4.m_end, (const char *)&queryFormat, &stru_143C9A1A4) )
     __debugbreak();
   if ( !*name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 712, ASSERT_TYPE_ASSERT, "(name[0] != '\\0')", (const char *)&queryFormat, "name[0] != '\\0'") )
     __debugbreak();
-  if ( (unsigned int)v3 >= 0x80 )
+  if ( (unsigned int)v2 >= 0x80 )
   {
-    LODWORD(v25) = v3;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 713, ASSERT_TYPE_ASSERT, "(unsigned)( vehDefIndex ) < (unsigned)( 128 )", "vehDefIndex doesn't index MAX_VEHICLE_DEF_GAME_CACHE\n\t%i not in [0, %i)", v25, 128) )
+    LODWORD(v20) = v2;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 713, ASSERT_TYPE_ASSERT, "(unsigned)( vehDefIndex ) < (unsigned)( 128 )", "vehDefIndex doesn't index MAX_VEHICLE_DEF_GAME_CACHE\n\t%i not in [0, %i)", v20, 128) )
       __debugbreak();
   }
   if ( !s_vehicleTable && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 714, ASSERT_TYPE_ASSERT, "(s_vehicleTable)", (const char *)&queryFormat, "s_vehicleTable") )
     __debugbreak();
-  if ( lastVehDefIndex != (_DWORD)v3 )
+  if ( lastVehDefIndex != (_DWORD)v2 )
   {
-    lastVehDefIndex = v3;
-    v5 = -1i64;
+    lastVehDefIndex = v2;
+    v4 = -1i64;
     RowCount = StringTable_GetRowCount(s_vehicleTable);
-    v7 = -1i64;
+    v6 = -1i64;
     do
-      ++v7;
-    while ( name[v7] );
-    v8 = 0;
+      ++v6;
+    while ( name[v6] );
+    v7 = 0;
     if ( RowCount > 0 )
     {
-      v9 = (int)v7;
-      v26 = (int)v7;
+      v8 = (int)v6;
+      v21 = (int)v6;
 LABEL_18:
-      v10 = v9;
-      v11 = name;
-      ColumnValueForRow = StringTable_GetColumnValueForRow(s_vehicleTable, v8, 1);
+      v9 = v8;
+      v10 = name;
+      ColumnValueForRow = StringTable_GetColumnValueForRow(s_vehicleTable, v7, 1);
       if ( !ColumnValueForRow && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
-      v13 = ColumnValueForRow - name;
+      v12 = ColumnValueForRow - name;
       do
       {
-        v14 = v11[v13];
-        v15 = v10;
-        v16 = *v11++;
-        --v10;
-        if ( !v15 )
+        v13 = v10[v12];
+        v14 = v9;
+        v15 = *v10++;
+        --v9;
+        if ( !v14 )
           break;
-        if ( v14 != v16 )
+        if ( v13 != v15 )
         {
-          if ( ++v8 >= RowCount )
+          if ( ++v7 >= RowCount )
             return;
-          v9 = v26;
+          v8 = v21;
           goto LABEL_18;
         }
       }
-      while ( v14 );
-      v17 = StringTable_GetColumnValueForRow(s_vehicleTable, v8, 2);
+      while ( v13 );
+      v16 = StringTable_GetColumnValueForRow(s_vehicleTable, v7, 2);
       do
-        ++v5;
-      while ( v17[v5] );
-      _RDI = &cgMedia;
-      if ( (_DWORD)v5 )
-        cgMedia.compass.vehicleMediaArray[v3].displayName = v17;
-      v19 = StringTable_GetColumnValueForRow(s_vehicleTable, v8, 3);
+        ++v4;
+      while ( v16[v4] );
+      if ( (_DWORD)v4 )
+        cgMedia.compass.vehicleMediaArray[v2].displayName = v16;
+      v17 = StringTable_GetColumnValueForRow(s_vehicleTable, v7, 3);
+      if ( *v17 )
+        cgMedia.compass.vehicleMediaArray[v2].pingIcon = Material_RegisterHandle(v17, IMAGE_TRACK_HUD);
+      v18 = StringTable_GetColumnValueForRow(s_vehicleTable, v7, 6);
+      if ( *v18 )
+        cgMedia.compass.vehicleMediaArray[v2].miniIcon = Image_Register(v18, IMAGE_TRACK_HUD);
+      v19 = StringTable_GetColumnValueForRow(s_vehicleTable, v7, 7);
       if ( *v19 )
-        cgMedia.compass.vehicleMediaArray[v3].pingIcon = Material_RegisterHandle(v19, IMAGE_TRACK_HUD);
-      v20 = StringTable_GetColumnValueForRow(s_vehicleTable, v8, 6);
-      if ( *v20 )
-        cgMedia.compass.vehicleMediaArray[v3].miniIcon = Image_Register(v20, IMAGE_TRACK_HUD);
-      v21 = StringTable_GetColumnValueForRow(s_vehicleTable, v8, 7);
-      if ( *v21 )
-      {
-        atoi(v21);
-        _RBX = 32 * v3;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [rbx+rdi+4450h], xmm0
-        }
-      }
+        cgMedia.compass.vehicleMediaArray[v2].pingZOffset = (float)atoi(v19);
     }
   }
 }
@@ -5449,47 +3686,30 @@ LABEL_18:
 CG_MainMP_RegisterReplicatedDvars
 ==============
 */
-
-void __fastcall CG_MainMP_RegisterReplicatedDvars(__int64 a1, __int64 a2, double _XMM2_8)
+void CG_MainMP_RegisterReplicatedDvars(void)
 {
-  const dvar_t *v17; 
   char ActiveGameMode; 
-  unsigned int v22; 
-  char v23; 
+  unsigned int v1; 
+  char v2; 
+  unsigned int v3; 
+  bool v4; 
+  unsigned int flags; 
+  unsigned int v6; 
+  unsigned int v7; 
+  unsigned int v16; 
+  unsigned int v23; 
   unsigned int v24; 
-  bool v25; 
+  char v25; 
   unsigned int v26; 
   unsigned int v27; 
   unsigned int v28; 
-  unsigned int v48; 
-  unsigned int v65; 
-  unsigned int v66; 
-  char v68; 
-  unsigned int v69; 
-  unsigned int v71; 
-  unsigned int v77; 
-  unsigned int v81; 
-  unsigned int v85; 
-  unsigned int v90; 
-  unsigned int v96; 
-  unsigned int v99; 
-  unsigned int v103; 
-  const dvar_t *v110; 
-  float flags; 
-  float description; 
-  char v120; 
-  void *retaddr; 
+  unsigned int v29; 
+  unsigned int v30; 
+  unsigned int v31; 
+  unsigned int v32; 
+  unsigned int v33; 
+  unsigned int v34; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-  }
   DVARBOOL_cg_drawFriendlyNamesAlways = Dvar_RegisterBool("NKMOPQSPMO", 0, 0x8Cu, "Whether to always show friendly names in game (for certain gametypes)");
   DVARBOOL_cg_drawFriendlyHUDGrenades = Dvar_RegisterBool("LMQOKPRSML", 0, 0x8Cu, "Draw grenade warning indicators for friendly grenades (should be true if friendly-fire is enabled)");
   DVARBOOL_cg_deadChatWithTeam = Dvar_RegisterBool("SKNSKQTQR", 0, 0x14u, "If true, dead players can talk to living players on their team");
@@ -5499,248 +3719,120 @@ void __fastcall CG_MainMP_RegisterReplicatedDvars(__int64 a1, __int64 a2, double
   DVARBOOL_cg_everyoneHearsEveryone = Dvar_RegisterBool("LQKPQMPRQN", 0, 0x14u, "If true, all players can all chat together, regardless of team or death");
   DVARSTR_cg_objectiveText = Dvar_RegisterString("MSRPQTQOOK", (const char *)&queryFormat.fmt + 3, 0x14u, "Objective text for each client (legacy use of dvars, instead of server commands");
   DVARINT_ui_customGameModeSlot = Dvar_RegisterInt("NPSTLPMPSS", -1, -1, 9, 4u, "Holds the currently selected custom game mode slot. -1 means the current game mode is NOT custom.");
-  __asm
-  {
-    vmovss  xmm6, cs:__real@49742400
-    vmovss  xmm1, cs:__real@44fa0000; value
-  }
   DVARBOOL_cg_playersmp_CoarseCullSystem_Enable = Dvar_RegisterBool("OMNSNROMPQ", 1, 4u, "Killswitch for Players MP Coards Cull System");
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cg_playersmp_CoarseCullSystem_SunShadowDist = Dvar_RegisterFloat("RLPNQQRPR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Distance beyond which we don't check for sun shadows in the coars cull system");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@463b8000; value
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v17 = Dvar_RegisterFloat("MSPSTOSTTL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Distance beyond which we don't render players at hipfire FOV");
-  __asm { vmovss  xmm1, cs:__real@46fa0000; value }
-  DVARFLT_playerCullDistHip = v17;
-  __asm
-  {
-    vmovaps xmm3, xmm6; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_playerCullDistMaxZoom = Dvar_RegisterFloat("LRSKLPRNOP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Distance beyond which we don't render players at max zoom FOV");
+  DVARFLT_cg_playersmp_CoarseCullSystem_SunShadowDist = Dvar_RegisterFloat("RLPNQQRPR", 2000.0, 0.0, 1000000.0, 4u, "Distance beyond which we don't check for sun shadows in the coars cull system");
+  DVARFLT_playerCullDistHip = Dvar_RegisterFloat("MSPSTOSTTL", 12000.0, 0.0, 1000000.0, 4u, "Distance beyond which we don't render players at hipfire FOV");
+  DVARFLT_playerCullDistMaxZoom = Dvar_RegisterFloat("LRSKLPRNOP", 32000.0, 0.0, 1000000.0, 4u, "Distance beyond which we don't render players at max zoom FOV");
   DVARBOOL_playerCulledDebugOverlay = Dvar_RegisterBool("NPPONOTRMM", 0, 0, "Enable the player culling debug overlay");
   ActiveGameMode = Com_GameMode_GetActiveGameMode();
-  v22 = 4;
+  v1 = 4;
   if ( ActiveGameMode != 1 )
-    v22 = 140;
-  DVARBOOL_voice_proximity_team = Dvar_RegisterBool("LKTPRPKPMR", 0, v22, "Uses proximity checks to send voice to players on team but not in squad");
-  v23 = Com_GameMode_GetActiveGameMode();
-  v24 = 4;
-  if ( v23 != 1 )
-    v24 = 140;
-  DVARBOOL_voice_proximity_enemy = Dvar_RegisterBool("LOSOOOTNMS", 0, v24, "Uses proximity checks to send voice to players on other team");
-  v25 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v26 = 4;
-  if ( !v25 )
-    v26 = 140;
-  DVARINT_voice_proximity_radius = Dvar_RegisterInt("NNMLSMNTOQ", 1000, 0, 0x7FFFFFFF, v26, "Radius to check around the player for sending proximity voice, depends on voice_proximity_enabled dvar");
-  v27 = 68;
-  v28 = 68;
+    v1 = 140;
+  DVARBOOL_voice_proximity_team = Dvar_RegisterBool("LKTPRPKPMR", 0, v1, "Uses proximity checks to send voice to players on team but not in squad");
+  v2 = Com_GameMode_GetActiveGameMode();
+  v3 = 4;
+  if ( v2 != 1 )
+    v3 = 140;
+  DVARBOOL_voice_proximity_enemy = Dvar_RegisterBool("LOSOOOTNMS", 0, v3, "Uses proximity checks to send voice to players on other team");
+  v4 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  flags = 4;
+  if ( !v4 )
+    flags = 140;
+  DVARINT_voice_proximity_radius = Dvar_RegisterInt("NNMLSMNTOQ", 1000, 0, 0x7FFFFFFF, flags, "Radius to check around the player for sending proximity voice, depends on voice_proximity_enabled dvar");
+  v6 = 68;
+  v7 = 68;
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v28 = 20;
+    v7 = 20;
+  _XMM9 = LODWORD(FLOAT_110_0);
+  _XMM0 = (unsigned __int8)Com_GameMode_GetActiveGameMode();
   __asm
   {
-    vmovss  xmm10, cs:__real@43200000
-    vmovss  xmm9, cs:__real@42dc0000
-  }
-  _EAX = (unsigned __int8)Com_GameMode_GetActiveGameMode();
-  _ESI = 1;
-  __asm
-  {
-    vmovd   xmm0, eax
-    vmovd   xmm1, esi
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm6, xmm9, xmm10, xmm2
-    vmovss  xmm11, cs:__real@3f800000
-    vmovss  xmm8, cs:__real@3f1745d1
   }
-  _EAX = (unsigned __int8)Com_GameMode_GetActiveGameMode();
+  _XMM8 = LODWORD(FLOAT_0_59090906);
+  _XMM0 = (unsigned __int8)Com_GameMode_GetActiveGameMode();
   __asm
   {
-    vmovd   xmm0, eax
-    vmovd   xmm1, esi
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm8, xmm11, xmm2
-    vmovaps xmm3, xmm6; max
-    vmovss  xmm1, cs:__real@42820000; value
-    vmovss  [rsp+0B8h+arg_0], xmm6
-    vmovaps xmm2, xmm0; min
-    vmovss  [rsp+0B8h+arg_0], xmm0
   }
-  DVARFLT_cg_fov = Dvar_RegisterFloat("QTSPTNLOL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v28, "The field of view angle in degrees");
-  v48 = 68;
+  DVARFLT_cg_fov = Dvar_RegisterFloat("QTSPTNLOL", 65.0, *(float *)&_XMM0, *(float *)&_XMM6, v7, "The field of view angle in degrees");
+  v16 = 68;
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v48 = 20;
-  _EAX = (unsigned __int8)Com_GameMode_GetActiveGameMode();
+    v16 = 20;
+  _XMM0 = (unsigned __int8)Com_GameMode_GetActiveGameMode();
   __asm
   {
-    vmovd   xmm0, eax
-    vmovd   xmm1, esi
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm6, xmm9, xmm10, xmm2
-    vmovss  xmm1, cs:__real@42820000; value
   }
-  _EAX = (unsigned __int8)Com_GameMode_GetActiveGameMode();
+  _XMM0 = (unsigned __int8)Com_GameMode_GetActiveGameMode();
   __asm
   {
-    vmovd   xmm0, eax
-    vmovd   xmm2, esi
     vpcmpeqd xmm3, xmm0, xmm2
     vblendvps xmm0, xmm8, xmm11, xmm3
-    vmovaps xmm2, xmm0; min
-    vmovaps xmm3, xmm6; max
-    vmovss  [rsp+0B8h+arg_0], xmm6
-    vmovss  [rsp+0B8h+arg_0], xmm0
   }
-  DVARFLT_cg_fov1 = Dvar_RegisterFloat("LQSSPMSRQK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v48, "The field of view angle in degrees for the second local client");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40000000; max
-    vmovss  xmm2, cs:__real@3e4ccccd; min
-  }
-  v25 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v65 = 64;
-  v66 = 64;
-  if ( !v25 )
-    v66 = 20;
-  __asm { vmovaps xmm1, xmm11; value }
-  DVARFLT_cg_fovScale = Dvar_RegisterFloat("NSSLSNKPN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v66, "Scale applied to the field of view");
+  DVARFLT_cg_fov1 = Dvar_RegisterFloat("LQSSPMSRQK", 65.0, *(float *)&_XMM0, *(float *)&_XMM6, v16, "The field of view angle in degrees for the second local client");
+  v4 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v23 = 64;
+  v24 = 64;
+  if ( !v4 )
+    v24 = 20;
+  DVARFLT_cg_fovScale = Dvar_RegisterFloat("NSSLSNKPN", 1.0, 0.2, 2.0, v24, "Scale applied to the field of view");
   if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
-    v65 = 140;
-  DVARBOOL_cg_drawCrosshair = Dvar_RegisterBool("LOPKSRNTTS", 1, v65, "Turn on weapon crosshair");
-  v68 = Com_GameMode_GetActiveGameMode();
-  v69 = 4;
-  if ( v68 != 1 )
-    v69 = 140;
-  DVARBOOL_cg_drawCrosshairNames = Dvar_RegisterBool("LROTSRRQMQ", 1, v69, "Draw the name of an enemy under the crosshair");
+    v23 = 140;
+  DVARBOOL_cg_drawCrosshair = Dvar_RegisterBool("LOPKSRNTTS", 1, v23, "Turn on weapon crosshair");
+  v25 = Com_GameMode_GetActiveGameMode();
+  v26 = 4;
+  if ( v25 != 1 )
+    v26 = 140;
+  DVARBOOL_cg_drawCrosshairNames = Dvar_RegisterBool("LROTSRRQMQ", 1, v26, "Draw the name of an enemy under the crosshair");
   DVARBOOL_cg_drawCrosshairWhileSprinting = Dvar_RegisterBool("MKPOPRMKLL", 1, 4u, "Draws the hip crosshairs while sprinting");
-  __asm { vmovss  xmm7, cs:__real@7f7fffff }
-  v25 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v71 = 68;
-  if ( !v25 )
-    v71 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovss  xmm6, cs:__real@38d1b717
-    vmovss  xmm1, cs:__real@44bb8000; value
-    vmovaps xmm2, xmm6; min
-  }
-  DVARFLT_compassMaxRange = Dvar_RegisterFloat("MKPRSSNNRO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v71, "The maximum range from the player in world space that objects will be shown on the compass");
-  __asm { vmovss  xmm1, cs:__real@451c4000; value }
-  v25 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v77 = 68;
-  if ( !v25 )
-    v77 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-  }
-  DVARFLT_compassExpandedMaxRange = Dvar_RegisterFloat("MROTQQSMP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v77, "The maximum range from the player in world space that objects will be shown on the compass when they have the EXPANDED_MINIMAP perk");
-  __asm { vmovss  xmm1, cs:__real@459c4000; value }
-  v25 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v81 = 68;
-  if ( !v25 )
-    v81 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-  }
-  DVARFLT_compassExpandedMaxRangeBR = Dvar_RegisterFloat("NQMONTLKNN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v81, "The maximum range from the player in world space that objects will be shown on the compass when they have the EXPANDED_MINIMAP perk in Battle Royale");
-  __asm { vmovss  xmm0, cs:__real@bf800000 }
-  v25 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v85 = 68;
-  if ( !v25 )
-    v85 = 140;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0B8h+description], xmm11
-    vxorps  xmm3, xmm3, xmm3; z
-    vxorps  xmm2, xmm2, xmm2; y
-    vmovaps xmm1, xmm11; x
-    vmovss  [rsp+0B8h+flags], xmm0
-  }
-  DVARVEC3_cg_defaultWindDir = Dvar_RegisterVec3("NTMMTOLQMQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, flags, description, v85, "IMPORTANT: Only applies in levels that do not have global wind.  Will be deprecated shortly.");
-  __asm { vmovss  xmm3, cs:__real@44160000; max }
-  v25 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v90 = 68;
-  if ( !v25 )
-    v90 = 140;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm11; value
-  }
-  DVARFLT_cg_defaultWindStrength = Dvar_RegisterFloat("NQTLPTNSSO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v90, "IMPORTANT: Only applies in levels that do not have global wind.  Will be deprecated shortly. Scale of the global wind direction (inches/sec)");
-  __asm
-  {
-    vmovss  xmm7, cs:__real@42c80000
-    vmovss  xmm6, cs:__real@c2c80000
-    vmovss  xmm1, cs:__real@42480000; value
-  }
-  v25 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v96 = 68;
-  if ( !v25 )
-    v96 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-  }
-  DVARFLT_cg_defaultWindAreaScale = Dvar_RegisterFloat("LQLSPQOPKM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v96, "Scales distribution of wind motion");
-  v25 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v99 = 68;
-  if ( !v25 )
-    v99 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vmovaps xmm1, xmm11; value
-  }
-  DVARFLT_cg_defaultWindAmplitudeScale = Dvar_RegisterFloat("MQPQKNPQOK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v99, "Scales amplitude of wind wave motion");
-  v25 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
-  v103 = 68;
-  if ( !v25 )
-    v103 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm7; max
-    vmovaps xmm2, xmm6; min
-    vmovaps xmm1, xmm11; value
-  }
-  DVARFLT_cg_defaultWindFrequencyScale = Dvar_RegisterFloat("MRNRKKOPLN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v103, "Scales frequency of wind wave motion");
-  __asm { vmovss  xmm1, cs:__real@3f333333; value }
-  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
+  v4 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v27 = 68;
+  if ( !v4 )
     v27 = 140;
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_cg_defaultWindNoiseScale = Dvar_RegisterFloat("OLSKLTPPMR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v27, "Scales conic noise of wind wave motion");
-  v110 = Dvar_RegisterBool("NRNQRLQKOR", 0, 0x14u, "Enable remote debug output for the automated client.");
-  _R11 = &v120;
-  DVARBOOL_ATClient_RemoteDebug = v110;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  DVARFLT_compassMaxRange = Dvar_RegisterFloat("MKPRSSNNRO", 1500.0, 0.000099999997, 3.4028235e38, v27, "The maximum range from the player in world space that objects will be shown on the compass");
+  v4 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v28 = 68;
+  if ( !v4 )
+    v28 = 140;
+  DVARFLT_compassExpandedMaxRange = Dvar_RegisterFloat("MROTQQSMP", 2500.0, 0.000099999997, 3.4028235e38, v28, "The maximum range from the player in world space that objects will be shown on the compass when they have the EXPANDED_MINIMAP perk");
+  v4 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v29 = 68;
+  if ( !v4 )
+    v29 = 140;
+  DVARFLT_compassExpandedMaxRangeBR = Dvar_RegisterFloat("NQMONTLKNN", 5000.0, 0.000099999997, 3.4028235e38, v29, "The maximum range from the player in world space that objects will be shown on the compass when they have the EXPANDED_MINIMAP perk in Battle Royale");
+  v4 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v30 = 68;
+  if ( !v4 )
+    v30 = 140;
+  DVARVEC3_cg_defaultWindDir = Dvar_RegisterVec3("NTMMTOLQMQ", 1.0, 0.0, 0.0, -1.0, 1.0, v30, "IMPORTANT: Only applies in levels that do not have global wind.  Will be deprecated shortly.");
+  v4 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v31 = 68;
+  if ( !v4 )
+    v31 = 140;
+  DVARFLT_cg_defaultWindStrength = Dvar_RegisterFloat("NQTLPTNSSO", 1.0, 0.0, 600.0, v31, "IMPORTANT: Only applies in levels that do not have global wind.  Will be deprecated shortly. Scale of the global wind direction (inches/sec)");
+  v4 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v32 = 68;
+  if ( !v4 )
+    v32 = 140;
+  DVARFLT_cg_defaultWindAreaScale = Dvar_RegisterFloat("LQLSPQOPKM", 50.0, -100.0, 100.0, v32, "Scales distribution of wind motion");
+  v4 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v33 = 68;
+  if ( !v4 )
+    v33 = 140;
+  DVARFLT_cg_defaultWindAmplitudeScale = Dvar_RegisterFloat("MQPQKNPQOK", 1.0, -100.0, 100.0, v33, "Scales amplitude of wind wave motion");
+  v4 = (unsigned __int8)Com_GameMode_GetActiveGameMode() == HALF;
+  v34 = 68;
+  if ( !v4 )
+    v34 = 140;
+  DVARFLT_cg_defaultWindFrequencyScale = Dvar_RegisterFloat("MRNRKKOPLN", 1.0, -100.0, 100.0, v34, "Scales frequency of wind wave motion");
+  if ( (unsigned __int8)Com_GameMode_GetActiveGameMode() != HALF )
+    v6 = 140;
+  DVARFLT_cg_defaultWindNoiseScale = Dvar_RegisterFloat("OLSKLTPPMR", 0.69999999, 0.0, 1.0, v6, "Scales conic noise of wind wave motion");
+  DVARBOOL_ATClient_RemoteDebug = Dvar_RegisterBool("NRNQRLQKOR", 0, 0x14u, "Enable remote debug output for the automated client.");
 }
 
 /*
@@ -5752,8 +3844,8 @@ void CG_MainMP_RegisterServerCompositeModel(const unsigned int index, const char
 {
   __int64 v3; 
   bool v4; 
-  __int64 v8; 
-  __int128 v9; 
+  __int64 v5; 
+  BgXModelHandle v6; 
 
   v3 = index;
   if ( !s_modelRegistrationCgs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 634, ASSERT_TYPE_ASSERT, "(s_modelRegistrationCgs != nullptr)", (const char *)&queryFormat, "s_modelRegistrationCgs != nullptr") )
@@ -5762,8 +3854,8 @@ void CG_MainMP_RegisterServerCompositeModel(const unsigned int index, const char
   {
     if ( (unsigned int)v3 < 0x800 )
       goto LABEL_10;
-    LODWORD(v8) = v3;
-    v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 636, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( s_modelRegistrationCgs->gameModels ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( s_modelRegistrationCgs->gameModels )\n\t%i not in [0, %i)", v8, 2048);
+    LODWORD(v5) = v3;
+    v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 636, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( s_modelRegistrationCgs->gameModels ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( s_modelRegistrationCgs->gameModels )\n\t%i not in [0, %i)", v5, 2048);
   }
   else
   {
@@ -5772,15 +3864,9 @@ void CG_MainMP_RegisterServerCompositeModel(const unsigned int index, const char
   if ( v4 )
     __debugbreak();
 LABEL_10:
-  LODWORD(v9) = 96;
-  *((_QWORD *)&v9 + 1) = R_RegisterCompositeModel(compositeModelName);
-  _RAX = s_modelRegistrationCgs;
-  _RCX = 2 * v3;
-  __asm
-  {
-    vmovups xmm0, [rsp+58h+var_18]
-    vmovups xmmword ptr [rax+rcx*8+691B8h], xmm0
-  }
+  v6.assetType = ASSET_TYPE_XCOMPOSITEMODEL;
+  v6.un.compositeModel = R_RegisterCompositeModel(compositeModelName);
+  s_modelRegistrationCgs->gameModels[v3] = v6;
 }
 
 /*
@@ -5792,8 +3878,8 @@ void CG_MainMP_RegisterServerModel(const unsigned int index, const char *modelNa
 {
   __int64 v3; 
   bool v4; 
-  __int64 v8; 
-  __int128 v9; 
+  __int64 v5; 
+  BgXModelHandle v6; 
 
   v3 = index;
   if ( !s_modelRegistrationCgs && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 608, ASSERT_TYPE_ASSERT, "(s_modelRegistrationCgs != nullptr)", (const char *)&queryFormat, "s_modelRegistrationCgs != nullptr") )
@@ -5802,8 +3888,8 @@ void CG_MainMP_RegisterServerModel(const unsigned int index, const char *modelNa
   {
     if ( (unsigned int)v3 < 0x800 )
       goto LABEL_10;
-    LODWORD(v8) = v3;
-    v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 610, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( s_modelRegistrationCgs->gameModels ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( s_modelRegistrationCgs->gameModels )\n\t%i not in [0, %i)", v8, 2048);
+    LODWORD(v5) = v3;
+    v4 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 610, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( sizeof( *array_counter( s_modelRegistrationCgs->gameModels ) ) + 0 ) )", "index doesn't index ARRAY_COUNT( s_modelRegistrationCgs->gameModels )\n\t%i not in [0, %i)", v5, 2048);
   }
   else
   {
@@ -5812,15 +3898,9 @@ void CG_MainMP_RegisterServerModel(const unsigned int index, const char *modelNa
   if ( v4 )
     __debugbreak();
 LABEL_10:
-  LODWORD(v9) = 9;
-  *((_QWORD *)&v9 + 1) = R_RegisterModel(modelName);
-  _RAX = s_modelRegistrationCgs;
-  _RCX = 2 * v3;
-  __asm
-  {
-    vmovups xmm0, [rsp+58h+var_18]
-    vmovups xmmword ptr [rax+rcx*8+691B8h], xmm0
-  }
+  v6.assetType = ASSET_TYPE_XMODEL;
+  v6.un.compositeModel = (XCompositeModelDef *)R_RegisterModel(modelName);
+  s_modelRegistrationCgs->gameModels[v3] = v6;
 }
 
 /*
@@ -5830,104 +3910,109 @@ CG_MainMP_RewindKillcamEffects
 */
 void CG_MainMP_RewindKillcamEffects(LocalClientNum_t localClientNum, int deltaTime)
 {
-  __int64 v4; 
-  cg_t *v6; 
+  __int64 v2; 
+  cg_t *v4; 
   const CgSnapshotMP *NextSnap; 
-  CgWeaponMap *v8; 
-  ParticleManager *v9; 
+  CgWeaponMap *v6; 
+  ParticleManager *v7; 
   __int64 m_pFxSystem; 
-  int v11; 
-  __int64 v12; 
-  entityState_t *v13; 
+  int v9; 
+  __int64 v10; 
+  entityState_t *v11; 
   int time; 
   entityType_s eType; 
-  __int64 v16; 
+  __int64 v14; 
+  float v15; 
   const Weapon *Weapon; 
-  FxCombinedDef v38; 
+  FxCombinedDef v17; 
   const ParticleSystemDef *particleSystemDef; 
   const char *WeaponName; 
-  const char *v41; 
-  const FxCamera *v45; 
-  int v53; 
-  ParticleSystemHandle v73; 
-  __int64 v74; 
-  ParticleSystem *v75; 
-  int v76; 
+  const char *v20; 
+  const FxCamera *v21; 
+  __m128 v23; 
+  int v26; 
+  __m128 v28; 
+  __m128 v32; 
+  __int128 v36; 
+  __m128 v40; 
+  ParticleSystemHandle v43; 
+  __int64 v44; 
+  ParticleSystem *v45; 
+  int v46; 
   __int64 spawnTimeMsec; 
   ParticleSystemFlags particleSystemFlags; 
   FxCamera *pCamera; 
   FxMarkSpawnData *pMarkSpawnData; 
-  unsigned int *v81; 
+  float *v51; 
   cg_t *LocalClientGlobals; 
-  BgWeaponMap *v83; 
-  __int64 v84; 
-  ParticleManager *v85; 
+  BgWeaponMap *v53; 
+  __int64 v54; 
+  ParticleManager *v55; 
   vec3_t dir; 
+  float v57; 
+  float v58; 
+  float v59; 
   vec3_t dst; 
-  unsigned int v91; 
-  unsigned int v92; 
-  unsigned int v93; 
-  __int128 v94; 
-  __int128 v95; 
-  __int128 v96; 
-  __int128 v97; 
-  __int128 v98; 
+  float v61; 
+  float v62; 
+  float v63; 
+  __m128 v64; 
+  __m128 v; 
+  __m128 v66; 
+  __m128 v67; 
+  __int128 v68; 
   float4 emitterPos; 
   vector3 emitterOrientationMat; 
+  __int128 v71; 
   char output[1024]; 
 
-  v4 = localClientNum;
+  v2 = localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
-  v6 = LocalClientGlobals;
-  NextSnap = CG_SnapshotMP_GetNextSnap((const LocalClientNum_t)v4);
-  if ( !CgWeaponMap::ms_instance[v4] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  v4 = LocalClientGlobals;
+  NextSnap = CG_SnapshotMP_GetNextSnap((const LocalClientNum_t)v2);
+  if ( !CgWeaponMap::ms_instance[v2] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  v8 = CgWeaponMap::ms_instance[v4];
-  v83 = v8;
-  if ( (unsigned int)v4 >= 2 )
+  v6 = CgWeaponMap::ms_instance[v2];
+  v53 = v6;
+  if ( (unsigned int)v2 >= 2 )
   {
-    LODWORD(spawnTimeMsec) = v4;
+    LODWORD(spawnTimeMsec) = v2;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 866, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", spawnTimeMsec, 2) )
       __debugbreak();
   }
-  v9 = &g_particleManager[v4];
-  v85 = v9;
-  m_pFxSystem = (__int64)v9->m_pFxSystem;
-  v84 = m_pFxSystem;
+  v7 = &g_particleManager[v2];
+  v55 = v7;
+  m_pFxSystem = (__int64)v7->m_pFxSystem;
+  v54 = m_pFxSystem;
   if ( !deltaTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 1149, ASSERT_TYPE_ASSERT, "(deltaTime != 0)", (const char *)&queryFormat, "deltaTime != 0") )
     __debugbreak();
   if ( !NextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 1150, ASSERT_TYPE_ASSERT, "(nextSnap)", (const char *)&queryFormat, "nextSnap") )
     __debugbreak();
-  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 1151, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 1151, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
     __debugbreak();
   Physics_WaitForAllCommandsToFinish();
-  if ( v9->m_isRunning && m_pFxSystem )
+  if ( v7->m_isRunning && m_pFxSystem )
   {
-    ParticleManager::OnKillcamTransition(v9, (LocalClientNum_t)v4);
-    FX_OnKillcamTransition((LocalClientNum_t)v4);
+    ParticleManager::OnKillcamTransition(v7, (LocalClientNum_t)v2);
+    FX_OnKillcamTransition((LocalClientNum_t)v2);
     if ( !deltaTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 1166, ASSERT_TYPE_ASSERT, "(deltaTime != 0)", (const char *)&queryFormat, "deltaTime != 0") )
       __debugbreak();
-    FX_RewindTo((LocalClientNum_t)v4, LocalClientGlobals->time, deltaTime);
-    v11 = 0;
+    FX_RewindTo((LocalClientNum_t)v2, LocalClientGlobals->time, deltaTime);
+    v9 = 0;
     if ( NextSnap->numEntities > 0 )
     {
-      __asm
+      v10 = 0i64;
+      do
       {
-        vmovaps [rsp+5B0h+var_40], xmm6
-        vmovaps [rsp+5B0h+var_50], xmm7
-      }
-      v12 = 0i64;
-      while ( 1 )
-      {
-        v13 = &NextSnap->entities[v12];
+        v11 = &NextSnap->entities[v10];
         if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 190, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
           __debugbreak();
-        if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&NextSnap->entities[v12].lerp.eFlags, ACTIVE, 0x16u) )
+        if ( !GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&NextSnap->entities[v10].lerp.eFlags, ACTIVE, 0x16u) )
           goto LABEL_58;
-        time = v6->time;
-        if ( NextSnap->entities[v12].time2 < time || NextSnap->entities[v12].lerp.u.anonymous.data[0] > time )
+        time = v4->time;
+        if ( NextSnap->entities[v10].time2 < time || NextSnap->entities[v10].lerp.u.anonymous.data[0] > time )
           goto LABEL_58;
-        eType = NextSnap->entities[v12].eType;
+        eType = NextSnap->entities[v10].eType;
         if ( eType )
         {
           LODWORD(spawnTimeMsec) = eType;
@@ -5936,191 +4021,146 @@ void CG_MainMP_RewindKillcamEffects(LocalClientNum_t localClientNum, int deltaTi
         }
         if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
           __debugbreak();
-        if ( v13->number < (int)ComCharacterLimits::ms_gameData.m_clientCount )
+        if ( v11->number < (int)ComCharacterLimits::ms_gameData.m_clientCount )
         {
           if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 109, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
             __debugbreak();
           LODWORD(pMarkSpawnData) = ComCharacterLimits::ms_gameData.m_clientCount;
-          LODWORD(pCamera) = v13->number;
+          LODWORD(pCamera) = v11->number;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 1185, ASSERT_TYPE_ASSERT, "( es->number ) >= ( ComCharacterLimits::GetClientMaxCount() )", "%s >= %s\n\t%i, %i", "es->number", "ComCharacterLimits::GetClientMaxCount()", pCamera, pMarkSpawnData) )
             __debugbreak();
         }
-        v16 = ((unsigned __int8)NextSnap->entities[v12].eventSequence.combined - 1) & 3;
-        if ( (unsigned int)(v13->events[v16].eventType - 109) > 7 )
+        v14 = ((unsigned __int8)NextSnap->entities[v10].eventSequence.combined - 1) & 3;
+        if ( (unsigned int)(v11->events[v14].eventType - 109) > 7 )
         {
           LODWORD(pCamera) = 116;
           LODWORD(particleSystemFlags) = 109;
-          LODWORD(spawnTimeMsec) = v13->events[v16].eventType;
+          LODWORD(spawnTimeMsec) = v11->events[v14].eventType;
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 1187, ASSERT_TYPE_ASSERT, "( EV_GRENADE_EXPLODE ) <= ( es->events[eventIndex].eventType ) && ( es->events[eventIndex].eventType ) <= ( EV_CUSTOM_EXPLODE )", "es->events[eventIndex].eventType not in [EV_GRENADE_EXPLODE, EV_CUSTOM_EXPLODE]\n\t%i not in [%i, %i]", spawnTimeMsec, particleSystemFlags, pCamera) )
             __debugbreak();
         }
-        ByteToDir(LOBYTE(v13->events[v16].eventParm), &dir);
+        ByteToDir(LOBYTE(v11->events[v14].eventParm), &dir);
         PerpendicularVector(&dir, &dst);
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rbp+4B0h+dst+8]
-          vmovss  xmm5, dword ptr [rbp+4B0h+dir+8]
-          vmovss  xmm7, dword ptr [rbp+4B0h+dst+4]
-          vmovss  xmm6, dword ptr [rsp+5B0h+dir+4]
-          vmulss  xmm0, xmm6, xmm2
-          vmulss  xmm2, xmm2, dword ptr [rsp+5B0h+dir]
-          vmulss  xmm1, xmm5, xmm7
-          vsubss  xmm1, xmm1, xmm0
-          vmulss  xmm0, xmm5, dword ptr [rbp+4B0h+dst]
-          vmovss  [rbp+4B0h+var_52C], xmm1
-          vsubss  xmm1, xmm2, xmm0
-          vmulss  xmm2, xmm6, dword ptr [rbp+4B0h+dst]
-          vmulss  xmm0, xmm7, dword ptr [rsp+5B0h+dir]
-          vmovss  [rbp+4B0h+var_528], xmm1
-        }
-        _RDI = &NextSnap->entities[v12].lerp.pos;
-        __asm
-        {
-          vsubss  xmm1, xmm2, xmm0
-          vmovss  [rbp+4B0h+var_524], xmm1
-        }
-        if ( (const CgSnapshotMP *)((char *)NextSnap + 248 * v12) == (const CgSnapshotMP *)-21468i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 248 * v12 + (_DWORD)NextSnap + 21575, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
+        v57 = (float)(dir.v[2] * dst.v[1]) - (float)(dir.v[1] * dst.v[2]);
+        v58 = (float)(dst.v[2] * dir.v[0]) - (float)(dir.v[2] * dst.v[0]);
+        v59 = (float)(dir.v[1] * dst.v[0]) - (float)(dst.v[1] * dir.v[0]);
+        if ( (const CgSnapshotMP *)((char *)NextSnap + 248 * v10) == (const CgSnapshotMP *)-21468i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 248 * v10 + (_DWORD)NextSnap + 21575, ASSERT_TYPE_ASSERT, "(traj)", (const char *)&queryFormat, "traj") )
           __debugbreak();
-        if ( _RDI->trType == TR_LINEAR_STOP_SECURE )
+        if ( NextSnap->entities[v10].lerp.pos.trType == TR_LINEAR_STOP_SECURE )
         {
-          v81 = &v91;
-          v93 = s_trbase_aab_Z ^ LODWORD(NextSnap->entities[v12].lerp.pos.trBase.v[1]) ^ LODWORD(NextSnap->entities[v12].lerp.pos.trBase.v[2]);
-          v92 = s_trbase_aab_Y ^ LODWORD(NextSnap->entities[v12].lerp.pos.trBase.v[1]) ^ LODWORD(NextSnap->entities[v12].lerp.pos.trBase.v[0]);
-          v91 = LODWORD(NextSnap->entities[v12].lerp.pos.trBase.v[0]) ^ ~s_trbase_aab_X;
-          __asm { vmovss  xmm0, [rbp+4B0h+var_514] }
-          memset(&v81, 0, sizeof(v81));
-          __asm { vmovss  dword ptr [rsp+5B0h+var_560], xmm0 }
-          if ( ((unsigned int)v81 & 0x7F800000) == 2139095040 )
-            goto LABEL_73;
-          __asm
+          v51 = &v61;
+          LODWORD(v63) = s_trbase_aab_Z ^ LODWORD(NextSnap->entities[v10].lerp.pos.trBase.v[1]) ^ LODWORD(NextSnap->entities[v10].lerp.pos.trBase.v[2]);
+          LODWORD(v62) = s_trbase_aab_Y ^ LODWORD(NextSnap->entities[v10].lerp.pos.trBase.v[1]) ^ LODWORD(NextSnap->entities[v10].lerp.pos.trBase.v[0]);
+          LODWORD(v61) = LODWORD(NextSnap->entities[v10].lerp.pos.trBase.v[0]) ^ ~s_trbase_aab_X;
+          memset(&v51, 0, sizeof(v51));
+          *(float *)&v51 = v61;
+          if ( (LODWORD(v61) & 0x7F800000) == 2139095040 || (*(float *)&v51 = v62, (LODWORD(v62) & 0x7F800000) == 2139095040) || (*(float *)&v51 = v63, (LODWORD(v63) & 0x7F800000) == 2139095040) )
           {
-            vmovss  xmm0, [rbp+4B0h+var_510]
-            vmovss  dword ptr [rsp+5B0h+var_560], xmm0
-          }
-          if ( ((unsigned int)v81 & 0x7F800000) == 2139095040 )
-            goto LABEL_73;
-          __asm
-          {
-            vmovss  xmm0, [rbp+4B0h+var_50C]
-            vmovss  dword ptr [rsp+5B0h+var_560], xmm0
-          }
-          if ( ((unsigned int)v81 & 0x7F800000) == 2139095040 )
-          {
-LABEL_73:
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\q_shared_inline.h", 74, ASSERT_TYPE_SANITY, "( !IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( to )[0] ) && !IS_NAN( ( to )[1] ) && !IS_NAN( ( to )[2] )") )
               __debugbreak();
           }
         }
         else
         {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+0Ch]
-            vmovss  xmm1, dword ptr [rdi+10h]
-            vmovss  [rbp+4B0h+var_514], xmm0
-            vmovss  xmm0, dword ptr [rdi+14h]
-            vmovss  [rbp+4B0h+var_50C], xmm0
-            vmovss  [rbp+4B0h+var_510], xmm1
-          }
+          v15 = NextSnap->entities[v10].lerp.pos.trBase.v[1];
+          v61 = NextSnap->entities[v10].lerp.pos.trBase.v[0];
+          v63 = NextSnap->entities[v10].lerp.pos.trBase.v[2];
+          v62 = v15;
         }
-        Weapon = BgWeaponMap::GetWeapon(v83, NextSnap->entities[v12].weaponHandle);
-        v38.particleSystemDef = BG_ProjExplosionEffect(Weapon, NextSnap->entities[v12].inAltWeaponMode).particleSystemDef;
-        particleSystemDef = v38.particleSystemDef;
-        if ( v38.particleSystemDef )
+        Weapon = BgWeaponMap::GetWeapon(v53, NextSnap->entities[v10].weaponHandle);
+        v17.particleSystemDef = BG_ProjExplosionEffect(Weapon, NextSnap->entities[v10].inAltWeaponMode).particleSystemDef;
+        particleSystemDef = v17.particleSystemDef;
+        if ( v17.particleSystemDef )
         {
-          if ( (v38.particleSystemDef->flags & 0x800) == 0 )
-            Com_PrintError(21, "Smoke grenade FX \"%s\" is not marked to be killed on killcam transition.  The effect may appear to stack multiple times in killcam.", v38.particleSystemDef->name);
-          __asm { vmovss  xmm4, [rbp+4B0h+var_514] }
-          v45 = (const FxCamera *)(v84 + 96);
-          HIDWORD(v94) = 0;
+          if ( (v17.particleSystemDef->flags & 0x800) == 0 )
+            Com_PrintError(21, "Smoke grenade FX \"%s\" is not marked to be killed on killcam transition.  The effect may appear to stack multiple times in killcam.", v17.particleSystemDef->name);
+          v21 = (const FxCamera *)(v54 + 96);
+          v64.m128_i32[3] = 0;
+          v23 = v64;
+          v23.m128_f32[0] = v61;
+          _XMM0 = v23;
           __asm
           {
-            vmovups xmm0, xmmword ptr [rbp-50h]
-            vmovss  xmm0, xmm0, xmm4
             vinsertps xmm0, xmm0, [rbp+4B0h+var_510], 4B0h+emitterOrientationMat
             vinsertps xmm0, xmm0, [rbp+4B0h+var_50C], 4B0h+emitterOrientationMat.y
           }
-          HIDWORD(v95) = 0;
-          __asm { vmovups xmm3, xmmword ptr [rbp-40h] }
-          HIDWORD(v96) = 0;
-          HIDWORD(v98) = 0;
-          __asm { vmovups xmm2, xmmword ptr [rbp-10h] }
-          HIDWORD(v97) = 0;
+          v.m128_i32[3] = 0;
+          v66.m128_i32[3] = 0;
+          HIDWORD(v68) = 0;
+          v67.m128_i32[3] = 0;
+          v64 = _XMM0;
+          emitterPos.v = _XMM0;
+          v26 = LocalClientGlobals->time;
+          v28 = v;
+          v28.m128_f32[0] = dir.v[0];
+          _XMM3 = v28;
           __asm
           {
-            vmovups xmmword ptr [rbp-50h], xmm0
-            vmovups xmmword ptr [rbp+4B0h+emitterPos.v], xmm0
-            vmovss  xmm0, dword ptr [rsp+5B0h+dir]
-          }
-          v53 = LocalClientGlobals->time;
-          __asm
-          {
-            vmovss  xmm3, xmm3, xmm0
             vinsertps xmm3, xmm3, dword ptr [rsp+5B0h+dir+4], 4B0h+emitterOrientationMat
             vinsertps xmm3, xmm3, dword ptr [rbp+4B0h+dir+8], 4B0h+emitterOrientationMat.y
-            vmovss  xmm0, [rbp+4B0h+var_52C]
-            vmovups xmmword ptr [rbp-40h], xmm3
-            vmovups xmmword ptr [rbp+4B0h+emitterOrientationMat.x.v], xmm3
-            vmovups xmm3, xmmword ptr [rbp-30h]
-            vmovss  xmm3, xmm3, xmm0
+          }
+          v = _XMM3.v;
+          emitterOrientationMat.x = (float4)_XMM3.v;
+          v32 = v66;
+          v32.m128_f32[0] = v57;
+          _XMM3 = v32;
+          __asm
+          {
             vinsertps xmm3, xmm3, [rbp+4B0h+var_528], 4B0h+emitterOrientationMat
             vinsertps xmm3, xmm3, [rbp+4B0h+var_524], 4B0h+emitterOrientationMat.y
-            vmovss  xmm0, dword ptr [rbp+4B0h+dst]
-            vmovups xmmword ptr [rbp-30h], xmm3
-            vmovups xmmword ptr [rbp+4B0h+emitterOrientationMat.y.v], xmm3
-            vmovups xmm3, xmmword ptr [rbp-20h]
-            vmovss  xmm2, xmm2, xmm4
+          }
+          v66 = _XMM3.v;
+          emitterOrientationMat.y = (float4)_XMM3.v;
+          v36 = v68;
+          *(float *)&v36 = v61;
+          _XMM2 = v36;
+          __asm
+          {
             vinsertps xmm2, xmm2, [rbp+4B0h+var_510], 4B0h+emitterOrientationMat
             vinsertps xmm2, xmm2, [rbp+4B0h+var_50C], 4B0h+emitterOrientationMat.y
-            vmovss  xmm3, xmm3, xmm0
-            vxorps  xmm0, xmm2, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-            vandps  xmm1, xmm0, xmmword ptr cs:?g_keepW@@3Ufloat4@@B.v; float4 const g_keepW
+          }
+          v40 = v67;
+          v40.m128_f32[0] = dst.v[0];
+          _XMM3 = v40;
+          __asm
+          {
             vinsertps xmm3, xmm3, dword ptr [rbp+4B0h+dst+4], 4B0h+emitterOrientationMat
             vinsertps xmm3, xmm3, dword ptr [rbp+4B0h+dst+8], 4B0h+emitterOrientationMat.y
-            vmovups xmmword ptr [rbp-10h], xmm2
-            vxorps  xmm2, xmm1, xmm2
-            vmovups [rbp+4B0h+var_470], xmm2
-            vmovups xmmword ptr [rbp-20h], xmm3
-            vmovups xmmword ptr [rbp+4B0h+emitterOrientationMat.z.v], xmm3
           }
-          v73 = ParticleManager::AddSystem(v85, (LocalClientNum_t)v4, particleSystemDef, &emitterPos, &emitterOrientationMat, v53, PARTICLE_SYSTEM_FLAG_AUTO_DELETE, (const FxCamera *)(v84 + 96), NULL);
-          v74 = (v4 << 12) + (v73 & 0xFFF);
-          if ( g_particleSystemsGeneration[v74].__all32 != v73 && v73 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 933, ASSERT_TYPE_ASSERT, "(g_particleSystemsGeneration[localClientNum][handleImpl._index].__all32 == handleImpl.__all32 || particleSystemHandle == PARTICLE_SYSTEM_INVALID_HANDLE)", (const char *)&queryFormat, "g_particleSystemsGeneration[localClientNum][handleImpl._index].__all32 == handleImpl.__all32 || particleSystemHandle == PARTICLE_SYSTEM_INVALID_HANDLE") )
+          v68 = _XMM2;
+          v71 = (_XMM2 ^ *(_OWORD *)&g_one.v) & *(_OWORD *)&g_keepW.v ^ _XMM2;
+          v67 = _XMM3.v;
+          emitterOrientationMat.z = (float4)_XMM3.v;
+          v43 = ParticleManager::AddSystem(v55, (LocalClientNum_t)v2, particleSystemDef, &emitterPos, &emitterOrientationMat, v26, PARTICLE_SYSTEM_FLAG_AUTO_DELETE, (const FxCamera *)(v54 + 96), NULL);
+          v44 = (v2 << 12) + (v43 & 0xFFF);
+          if ( g_particleSystemsGeneration[v44].__all32 != v43 && v43 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemanager.h", 933, ASSERT_TYPE_ASSERT, "(g_particleSystemsGeneration[localClientNum][handleImpl._index].__all32 == handleImpl.__all32 || particleSystemHandle == PARTICLE_SYSTEM_INVALID_HANDLE)", (const char *)&queryFormat, "g_particleSystemsGeneration[localClientNum][handleImpl._index].__all32 == handleImpl.__all32 || particleSystemHandle == PARTICLE_SYSTEM_INVALID_HANDLE") )
             __debugbreak();
-          v75 = g_particleSystems[0][v74];
-          if ( v75 )
+          v45 = g_particleSystems[0][v44];
+          if ( v45 )
           {
-            v76 = NextSnap->entities[v12].lerp.u.anonymous.data[0] - LocalClientGlobals->time;
-            if ( v76 >= 0 )
+            v46 = NextSnap->entities[v10].lerp.u.anonymous.data[0] - LocalClientGlobals->time;
+            if ( v46 >= 0 )
             {
-              v6 = LocalClientGlobals;
+              v4 = LocalClientGlobals;
               goto LABEL_58;
             }
-            ParticleSystem::PreRoll(v75, v76, v45);
+            ParticleSystem::PreRoll(v45, v46, v21);
           }
         }
         else
         {
           WeaponName = BG_GetWeaponName(Weapon, output, 0x400u);
           Com_PrintError(21, "Smoke grenade FX entity with no explosion effect (%s)", WeaponName);
-          v41 = BG_GetWeaponName(Weapon, output, 0x400u);
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 1203, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Smoke grenade FX entity with no explosion effect (%s)", v41) )
+          v20 = BG_GetWeaponName(Weapon, output, 0x400u);
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 1203, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Smoke grenade FX entity with no explosion effect (%s)", v20) )
             __debugbreak();
         }
-        v6 = LocalClientGlobals;
+        v4 = LocalClientGlobals;
 LABEL_58:
-        ++v11;
-        ++v12;
-        if ( v11 >= NextSnap->numEntities )
-        {
-          __asm
-          {
-            vmovaps xmm7, [rsp+5B0h+var_50]
-            vmovaps xmm6, [rsp+5B0h+var_40]
-          }
-          return;
-        }
+        ++v9;
+        ++v10;
       }
+      while ( v9 < NextSnap->numEntities );
     }
   }
 }
@@ -6133,65 +4173,35 @@ CG_MainMP_SaveMigrationPers
 void CG_MainMP_SaveMigrationPers(LocalClientNum_t localClientNum)
 {
   __int64 v1; 
+  __int64 v2; 
+  cg_t *LocalClientGlobals; 
+  Weapon *p_weaponSelect; 
   int weaponSelectInAlt; 
   char *fmt; 
-  __int64 v17; 
-  int v19; 
+  __int64 v7; 
 
   v1 = localClientNum;
-  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
-  {
-    v19 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v19) )
-      __debugbreak();
-  }
-  _RBX = v1;
-  _RSI = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
-  LODWORD(v17) = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v1)->serverTimeDelta;
-  LODWORD(fmt) = cls.realtime;
-  Com_Printf(25, "CG_SaveMigrationPers: cgameGlob->time(%d), cgameGlob->oldTime(%d), cls.realtime(%d), serverTimeDelta(%d)\n", (unsigned int)_RSI->time, (unsigned int)_RSI->oldTime, fmt, v17);
-  __asm { vmovups ymm0, ymmword ptr [rsi+18114h] }
-  _RBP = clientUIActives;
-  _RCX = &clientUIActives[v1].migrationPers.weaponSelect;
-  __asm
-  {
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups xmm1, xmmword ptr [rsi+18134h]
-    vmovups xmmword ptr [rcx+20h], xmm1
-    vmovsd  xmm0, qword ptr [rsi+18144h]
-    vmovsd  qword ptr [rcx+30h], xmm0
-  }
-  *(_DWORD *)&_RCX->weaponCamo = *(_DWORD *)&_RSI->weaponSelect.weaponCamo;
-  weaponSelectInAlt = _RSI->weaponSelectInAlt;
-  clientUIActives[_RBX].migrationPers.weaponSelectInAlt = weaponSelectInAlt;
-  clientUIActives[_RBX].migrationPers.weaponSelectTime = _RSI->weaponSelectTime;
-  clientUIActives[_RBX].migrationPers.weaponForcedSelectTime = _RSI->weaponForcedSelectTime;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+1815Ch]
-    vmovups ymmword ptr [rbx+rbp+108h], ymm0
-    vmovups xmm1, xmmword ptr [rsi+1817Ch]
-    vmovups xmmword ptr [rbx+rbp+128h], xmm1
-    vmovsd  xmm0, qword ptr [rsi+1818Ch]
-    vmovsd  qword ptr [rbx+rbp+138h], xmm0
-  }
-  *(_DWORD *)&clientUIActives[_RBX].migrationPers.weaponLatestPrimary.weaponCamo = *(_DWORD *)&_RSI->weaponLatestPrimary.weaponCamo;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi+18198h]
-    vmovups ymmword ptr [rbx+rbp+144h], ymm0
-    vmovups xmm1, xmmword ptr [rsi+181B8h]
-    vmovups xmmword ptr [rbx+rbp+164h], xmm1
-    vmovsd  xmm0, qword ptr [rsi+181C8h]
-    vmovsd  qword ptr [rbx+rbp+174h], xmm0
-  }
-  *(_DWORD *)&clientUIActives[_RBX].migrationPers.weaponPrevPrimary.weaponCamo = *(_DWORD *)&_RSI->weaponPrevPrimary.weaponCamo;
-  if ( weaponSelectInAlt && !BG_HasUnderbarrelAmmo(_RCX) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 2504, ASSERT_TYPE_ASSERT, "(!clM->weaponSelectInAlt || BG_HasUnderbarrelAmmo( clM->weaponSelect ))", (const char *)&queryFormat, "!clM->weaponSelectInAlt || BG_HasUnderbarrelAmmo( clM->weaponSelect )") )
+  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  clientUIActives[_RBX].migrationPers.holdBreathTime = _RSI->holdBreathTime;
-  clientUIActives[_RBX].migrationPers.holdBreathDelay = _RSI->holdBreathDelay;
-  clientUIActives[_RBX].migrationPers.holdBreathFrac = _RSI->holdBreathFrac;
-  CG_Blur_SaveMigrationPers((LocalClientNum_t)v1, &clientUIActives[_RBX].migrationPers.blurPers);
+  v2 = v1;
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
+  LODWORD(v7) = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v1)->serverTimeDelta;
+  LODWORD(fmt) = cls.realtime;
+  Com_Printf(25, "CG_SaveMigrationPers: cgameGlob->time(%d), cgameGlob->oldTime(%d), cls.realtime(%d), serverTimeDelta(%d)\n", (unsigned int)LocalClientGlobals->time, (unsigned int)LocalClientGlobals->oldTime, fmt, v7);
+  p_weaponSelect = &clientUIActives[v1].migrationPers.weaponSelect;
+  *p_weaponSelect = LocalClientGlobals->weaponSelect;
+  weaponSelectInAlt = LocalClientGlobals->weaponSelectInAlt;
+  clientUIActives[v2].migrationPers.weaponSelectInAlt = weaponSelectInAlt;
+  clientUIActives[v2].migrationPers.weaponSelectTime = LocalClientGlobals->weaponSelectTime;
+  clientUIActives[v2].migrationPers.weaponForcedSelectTime = LocalClientGlobals->weaponForcedSelectTime;
+  clientUIActives[v2].migrationPers.weaponLatestPrimary = LocalClientGlobals->weaponLatestPrimary;
+  clientUIActives[v2].migrationPers.weaponPrevPrimary = LocalClientGlobals->weaponPrevPrimary;
+  if ( weaponSelectInAlt && !BG_HasUnderbarrelAmmo(p_weaponSelect) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 2504, ASSERT_TYPE_ASSERT, "(!clM->weaponSelectInAlt || BG_HasUnderbarrelAmmo( clM->weaponSelect ))", (const char *)&queryFormat, "!clM->weaponSelectInAlt || BG_HasUnderbarrelAmmo( clM->weaponSelect )") )
+    __debugbreak();
+  clientUIActives[v2].migrationPers.holdBreathTime = LocalClientGlobals->holdBreathTime;
+  clientUIActives[v2].migrationPers.holdBreathDelay = LocalClientGlobals->holdBreathDelay;
+  clientUIActives[v2].migrationPers.holdBreathFrac = LocalClientGlobals->holdBreathFrac;
+  CG_Blur_SaveMigrationPers((LocalClientNum_t)v1, &clientUIActives[v2].migrationPers.blurPers);
 }
 
 /*
@@ -6199,74 +4209,72 @@ void CG_MainMP_SaveMigrationPers(LocalClientNum_t localClientNum)
 CG_MainMP_Shutdown
 ==============
 */
-
-void __fastcall CG_MainMP_Shutdown(LocalClientNum_t localClientNum, double _XMM1_8)
+void CG_MainMP_Shutdown(LocalClientNum_t localClientNum)
 {
-  __int64 v2; 
+  __int64 v1; 
   CgGlobalsMP *LocalClientGlobals; 
   cgs_t *LocalClientStaticGlobals; 
   CgCompassSystemMP *CompassSystemMP; 
   int localServer; 
-  CgPlayer_Asm *v8; 
+  CgPlayer_Asm *v6; 
   CgWeaponSystemMP *WeaponSystemMP; 
   CgClientSideEffectsSystemMP *ClientSideEffectsSystemMP; 
-  __int64 v12; 
-  __int64 v13; 
+  __int64 v9; 
+  __int64 v10; 
 
-  v2 = localClientNum;
-  __asm { vmovss  xmm0, cs:__real@3f800000; volume }
+  v1 = localClientNum;
   LocalClientGlobals = CgGlobalsMP::GetLocalClientGlobals(localClientNum);
-  SND_FadeAllSounds(*(float *)&_XMM0, 0);
+  SND_FadeAllSounds(1.0, 0);
   if ( !LocalClientGlobals->m_frontEndScene )
     SND_StopSounds(SND_KEEP_MUSIC);
   CG_FrontEndScene_Shutdown();
-  LocalClientStaticGlobals = CG_GetLocalClientStaticGlobals((const LocalClientNum_t)v2);
-  CG_Rumble_StopAll((LocalClientNum_t)v2);
+  LocalClientStaticGlobals = CG_GetLocalClientStaticGlobals((const LocalClientNum_t)v1);
+  CG_Rumble_StopAll((LocalClientNum_t)v1);
   if ( !LocalClientStaticGlobals->localServer )
     Rumble_Shutdown();
   CG_Foliage_StartProcessCharacterEntityCmds();
   Sys_WaitWorkerCmdsOfType(WRKCMD_CG_FOLIAGE_PROCESSCHARACTERENTITY);
   Physics_WaitForAllCommandsToFinish();
-  CG_Entity_PhysicsCheckPostAssetChangeEmpty((const LocalClientNum_t)v2);
-  CG_Main_FreePhysics((LocalClientNum_t)v2);
-  CG_Main_FreeRagdolls((LocalClientNum_t)v2);
-  CG_PlayersMP_ResetClientWeaponVisibility((const LocalClientNum_t)v2);
+  CG_Entity_PhysicsCheckPostAssetChangeEmpty((const LocalClientNum_t)v1);
+  CG_Main_FreePhysics((LocalClientNum_t)v1);
+  CG_Main_FreeRagdolls((LocalClientNum_t)v1);
+  CG_PlayersMP_ResetClientWeaponVisibility((const LocalClientNum_t)v1);
   CG_PlayersMP_ResetPlayerBrCircleEffects();
-  if ( Ragdoll_IsRegistered((LocalClientNum_t)v2) )
-    Ragdoll_Unregister((LocalClientNum_t)v2);
-  CG_Main_FreeCloth((LocalClientNum_t)v2);
+  if ( Ragdoll_IsRegistered((LocalClientNum_t)v1) )
+    Ragdoll_Unregister((LocalClientNum_t)v1);
+  CG_Main_FreeCloth((LocalClientNum_t)v1);
   g_mapLoaded = 0;
   BG_ShutDownTurretAnims(0);
   cg_t::FreeViewModelHands(LocalClientGlobals);
   cg_t::FreePlayerLegs(LocalClientGlobals);
-  CG_AnimTreeMP_FreeEntityDObjInfo((LocalClientNum_t)v2);
+  CG_AnimTreeMP_FreeEntityDObjInfo((LocalClientNum_t)v1);
   Com_FreeWeaponInfoMemory(2);
   CG_ModelPreviewerDestroyDevGui();
   CG_CreateFx_DestroyDevGui();
-  FX_Dismemberment_Shutdown((LocalClientNum_t)v2);
-  FX_WaitKillAllEffects((LocalClientNum_t)v2, 1);
-  FX_ShutdownSystem((LocalClientNum_t)v2);
-  DynEntCl_Shutdown((LocalClientNum_t)v2);
-  if ( !LUI_CoD_InFrontend() && !CG_GameInterface_ShutdownCompassSystem((LocalClientNum_t)v2) )
+  FX_Dismemberment_Shutdown((LocalClientNum_t)v1);
+  FX_WaitKillAllEffects((LocalClientNum_t)v1, 1);
+  FX_ShutdownSystem((LocalClientNum_t)v1);
+  DynEntCl_Shutdown((LocalClientNum_t)v1);
+  if ( !LUI_CoD_InFrontend() && !CG_GameInterface_ShutdownCompassSystem((LocalClientNum_t)v1) )
   {
-    CompassSystemMP = CgCompassSystemMP::GetCompassSystemMP((const LocalClientNum_t)v2);
+    CompassSystemMP = CgCompassSystemMP::GetCompassSystemMP((const LocalClientNum_t)v1);
     CgCompassSystemMP::ShutdownCompass(CompassSystemMP);
   }
-  ScriptableCl_Shutdown((const LocalClientNum_t)v2);
-  CG_Particle_ClearParticleDeferredPhysics((LocalClientNum_t)v2, 0);
-  CG_MainMP_FreeAnimTreeInstances((LocalClientNum_t)v2);
-  CG_ClientCharacter_Shutdown((const LocalClientNum_t)v2);
+  ScriptableCl_Shutdown((const LocalClientNum_t)v1);
+  CG_Particle_ClearParticleDeferredPhysics((LocalClientNum_t)v1, 0);
+  CG_MainMP_FreeAnimTreeInstances((LocalClientNum_t)v1);
+  CG_ClientCharacter_Shutdown((const LocalClientNum_t)v1);
   CG_ClientWeapon_Shutdown();
-  CL_UIStreaming_Shutdown((const LocalClientNum_t)v2);
-  CG_WeaponStreamingMP_Shutdown((const LocalClientNum_t)v2);
-  CG_CustomizationStreamingMP_Shutdown((const LocalClientNum_t)v2);
-  CG_PlayerFade_Shutdown((const LocalClientNum_t)v2);
-  CG_WeaponFade_Shutdown((const LocalClientNum_t)v2);
+  CL_UIStreaming_Shutdown((const LocalClientNum_t)v1);
+  CG_WeaponStreamingMP_Shutdown((const LocalClientNum_t)v1);
+  CG_CustomizationStreamingMP_Shutdown((const LocalClientNum_t)v1);
+  CG_PlayerFade_Shutdown((const LocalClientNum_t)v1);
+  CG_WeaponFade_Shutdown((const LocalClientNum_t)v1);
   CG_CustomizationMP_Shutdown();
-  CG_WorldStreaming_Shutdown((const LocalClientNum_t)v2);
+  CG_WorldStreaming_Shutdown((const LocalClientNum_t)v1);
   BG_WorldStreaming_Shutdown();
-  CG_PlayerVisibilityMP_Shutdown((const LocalClientNum_t)v2);
-  CG_ClientAntiCheatMP_Shutdown((const LocalClientNum_t)v2);
+  CG_PlayerVisibilityMP_Shutdown((const LocalClientNum_t)v1);
+  CG_ClientAntiCheatMP_Shutdown((const LocalClientNum_t)v1);
   localServer = LocalClientStaticGlobals->localServer;
   if ( !localServer )
   {
@@ -6281,48 +4289,47 @@ void __fastcall CG_MainMP_Shutdown(LocalClientNum_t localClientNum, double _XMM1
   }
   if ( PlayerASM_IsEnabled() )
   {
-    v8 = CgPlayer_Asm::Singleton((const LocalClientNum_t)v2);
-    BgPlayer_Asm::Shutdown(v8, localServer == 0);
+    v6 = CgPlayer_Asm::Singleton((const LocalClientNum_t)v1);
+    BgPlayer_Asm::Shutdown(v6, localServer == 0);
   }
   if ( !LocalClientStaticGlobals->localServer )
     ASM_ReleaseAllHistoryObjects();
-  WeaponSystemMP = CgWeaponSystemMP::GetWeaponSystemMP((const LocalClientNum_t)v2);
+  WeaponSystemMP = CgWeaponSystemMP::GetWeaponSystemMP((const LocalClientNum_t)v1);
   CgWeaponSystemMP::ShutdownViewModel(WeaponSystemMP);
-  CgGlobalsMP::ClearLocalClientGlobals((const LocalClientNum_t)v2);
+  CgGlobalsMP::ClearLocalClientGlobals((const LocalClientNum_t)v1);
   if ( LocalClientGlobals->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_main_mp.cpp", 2390, ASSERT_TYPE_ASSERT, "(!cgameGlob->nextSnap)", (const char *)&queryFormat, "!cgameGlob->nextSnap") )
     __debugbreak();
-  CgWeaponSystemMP::ClearWeaponSystem((const LocalClientNum_t)v2);
-  CgEventSystemMP::ClearEventSystem((const LocalClientNum_t)v2);
-  CgSoundSystemMP::ClearSoundSystem((const LocalClientNum_t)v2);
-  CgDrawSystemMP::ClearDrawSystem((const LocalClientNum_t)v2);
-  if ( !CG_GameInterface_ClearCompassSystem((LocalClientNum_t)v2) )
-    CgCompassSystemMP::ClearCompassSystem((const LocalClientNum_t)v2);
-  CgViewSystemMP::ClearViewSystem((const LocalClientNum_t)v2);
-  CgStaticMP::ClearGameStatics((const LocalClientNum_t)v2);
-  CgVehicleSystemMP::ClearVehicleSystem((const LocalClientNum_t)v2);
-  CgTargetAssistMP::ClearInstance((const LocalClientNum_t)v2);
-  CgPredictedEntitySystemMP::ClearSystem((const LocalClientNum_t)v2);
-  CgBallisticsMP::ClearSystem((const LocalClientNum_t)v2);
-  CgMissileMP::ClearSystem((const LocalClientNum_t)v2);
+  CgWeaponSystemMP::ClearWeaponSystem((const LocalClientNum_t)v1);
+  CgEventSystemMP::ClearEventSystem((const LocalClientNum_t)v1);
+  CgSoundSystemMP::ClearSoundSystem((const LocalClientNum_t)v1);
+  CgDrawSystemMP::ClearDrawSystem((const LocalClientNum_t)v1);
+  if ( !CG_GameInterface_ClearCompassSystem((LocalClientNum_t)v1) )
+    CgCompassSystemMP::ClearCompassSystem((const LocalClientNum_t)v1);
+  CgViewSystemMP::ClearViewSystem((const LocalClientNum_t)v1);
+  CgStaticMP::ClearGameStatics((const LocalClientNum_t)v1);
+  CgVehicleSystemMP::ClearVehicleSystem((const LocalClientNum_t)v1);
+  CgTargetAssistMP::ClearInstance((const LocalClientNum_t)v1);
+  CgPredictedEntitySystemMP::ClearSystem((const LocalClientNum_t)v1);
+  CgBallisticsMP::ClearSystem((const LocalClientNum_t)v1);
+  CgMissileMP::ClearSystem((const LocalClientNum_t)v1);
   if ( (_BYTE)CgClientSideEffectsSystem::ms_allocatedType != HALF_HALF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 388, ASSERT_TYPE_ASSERT, "(ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE)", "%s\n\tCgClientSideEffectsSystem::ClearClientSideEffectsSystemCommon: Trying to clear client-side effects system but the allocated type does not match. System Type:%d  Allocated Type:%d\n", "ms_allocatedType == SubSystem::CSE_SYSTEM_TYPE", 2, (unsigned __int8)CgClientSideEffectsSystem::ms_allocatedType) )
     __debugbreak();
-  if ( (unsigned int)v2 >= CgClientSideEffectsSystem::ms_allocatedCount )
+  if ( (unsigned int)v1 >= CgClientSideEffectsSystem::ms_allocatedCount )
   {
-    LODWORD(v13) = CgClientSideEffectsSystem::ms_allocatedCount;
-    LODWORD(v12) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 389, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v12, v13) )
+    LODWORD(v10) = CgClientSideEffectsSystem::ms_allocatedCount;
+    LODWORD(v9) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_client_side_effects.h", 389, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v9, v10) )
       __debugbreak();
   }
-  CgClientSideEffectsSystem::ClearMemory(CgClientSideEffectsSystem::ms_cseSystemArray[v2]);
-  __asm { vxorps  xmm1, xmm1, xmm1; fadeTimeSec }
-  SND_SubmixClearAllFromSource(SND_SUBMIX_TYPE_GAMECODE, *(float *)&_XMM1);
+  CgClientSideEffectsSystem::ClearMemory(CgClientSideEffectsSystem::ms_cseSystemArray[v1]);
+  SND_SubmixClearAllFromSource(SND_SUBMIX_TYPE_GAMECODE, 0.0);
   CG_ConsoleCmds_Unregister();
   CG_ConsoleCmdsMP_Unregister();
   BG_RadiantLiveEnable(0);
-  ClientSideEffectsSystemMP = CgClientSideEffectsSystemMP::GetClientSideEffectsSystemMP((const LocalClientNum_t)v2);
+  ClientSideEffectsSystemMP = CgClientSideEffectsSystemMP::GetClientSideEffectsSystemMP((const LocalClientNum_t)v1);
   CgClientSideEffectsSystem::Shutdown(ClientSideEffectsSystemMP);
-  CG_ShutdownClientSideTriggers((LocalClientNum_t)v2);
-  CL_Keys_ClearStates((LocalClientNum_t)v2);
+  CG_ShutdownClientSideTriggers((LocalClientNum_t)v1);
+  CL_Keys_ClearStates((LocalClientNum_t)v1);
   XAnimIKShutdown();
   if ( !LocalClientStaticGlobals->localServer )
   {

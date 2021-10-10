@@ -124,20 +124,16 @@ bit_checkbit
 */
 __int64 bit_checkbit(lua_State *L, int narg)
 {
+  TValue *v4; 
   __int64 v5; 
-  __int64 v9; 
+  long double v7; 
 
-  _RBX = &L->base[narg - 1];
-  if ( _RBX >= L->top || (v5 = _RBX->it64 >> 47, (unsigned int)v5 > 0xFFFFFFF2) && ((_DWORD)v5 != -5 || !j_lj_strscan_num((GCstr *)(_RBX->u64 & 0x7FFFFFFFFFFFi64), _RBX)) )
+  v4 = &L->base[narg - 1];
+  if ( v4 >= L->top || (v5 = v4->it64 >> 47, (unsigned int)v5 > 0xFFFFFFF2) && ((_DWORD)v5 != -5 || !j_lj_strscan_num((GCstr *)(v4->u64 & 0x7FFFFFFFFFFFi64), v4)) )
     j_lj_err_argt(L, narg, 3);
-  if ( (unsigned int)(_RBX->it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lib_bit.c", 48, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
+  if ( (unsigned int)(v4->it64 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lib_bit.c", 48, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
     __debugbreak();
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rbx]
-    vaddsd  xmm1, xmm0, cs:__real@4338000000000000
-    vmovsd  [rsp+28h+arg_0], xmm1
-  }
-  return (unsigned int)v9;
+  v7 = v4->n + 6.755399441055744e15;
+  return LODWORD(v7);
 }
 

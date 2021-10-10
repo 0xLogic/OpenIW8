@@ -27,283 +27,174 @@ Avoid
 */
 __int64 Avoid(const AvoidingEntityInfo *avoidingEntityInfo, const AvoidSettings *settings, vec3_t *avoidancePoly, int numberOfVertices, vec3_t *outAvoidingVelocity, AvoidanceResult (*fnCollisionCheck)(const AvoidingEntityInfo *, const AvoidSettings *, const vec3_t *, float *))
 {
-  __int64 v14; 
-  __int64 result; 
-  __int64 v19; 
-  int v20; 
-  AvoidSettings *v45; 
-  signed int v46; 
-  int v47; 
-  const vec3_t *v49; 
-  const vec3_t *v50; 
-  __int64 v52; 
-  vec3_t *v53; 
-  AvoidanceResult v54; 
-  char v55; 
-  bool v56; 
-  AvoidanceResult v57; 
-  char v70; 
-  bool v71; 
+  vec3_t *v6; 
+  __int64 v7; 
+  __int64 v10; 
+  int v11; 
+  float *v12; 
+  float maxSpeed; 
+  float v14; 
+  AvoidSettings *v15; 
+  AvoidanceResult v16; 
+  int v17; 
+  float v18; 
+  const vec3_t *v19; 
+  const vec3_t *v20; 
+  float *v21; 
+  __int64 v22; 
+  vec3_t *v23; 
+  AvoidanceResult v24; 
+  __int128 v26; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
   int numberOfFoundPointsOut; 
-  int v100; 
-  int v101; 
-  int v102; 
+  float v34; 
+  int v35; 
+  int v36; 
   AvoidSettings *settingsa; 
-  AvoidanceResult (__fastcall *v104)(const AvoidingEntityInfo *, const AvoidSettings *, const vec3_t *, float *); 
-  vec3_t *v105; 
-  vec3_t v106; 
+  AvoidanceResult (__fastcall *v38)(const AvoidingEntityInfo *, const AvoidSettings *, const vec3_t *, float *); 
+  vec3_t *v39; 
+  vec3_t v40; 
   vec3_t center; 
   vec4_t color; 
   vec3_t resultingPoints[4]; 
 
-  _R13 = avoidancePoly;
-  _R14 = outAvoidingVelocity;
-  _RSI = settings;
-  v14 = numberOfVertices;
-  _R15 = avoidingEntityInfo;
-  v102 = numberOfVertices;
-  v104 = fnCollisionCheck;
-  v105 = avoidancePoly;
+  v6 = avoidancePoly;
+  v7 = numberOfVertices;
+  v36 = numberOfVertices;
+  v38 = fnCollisionCheck;
+  v39 = avoidancePoly;
   settingsa = (AvoidSettings *)settings;
   if ( !numberOfVertices )
     return 0i64;
-  __asm
-  {
-    vmovaps [rsp+150h+var_50], xmm6
-    vmovaps [rsp+150h+var_60], xmm7
-  }
   if ( numberOfVertices <= 0 )
   {
 LABEL_7:
-    if ( fnCollisionCheck(_R15, settings, &_R15->desiredVelocity, (float *)&v101) == AVOIDANCE_SUCCESS )
+    if ( fnCollisionCheck(avoidingEntityInfo, settings, &avoidingEntityInfo->desiredVelocity, (float *)&v35) == AVOIDANCE_SUCCESS )
     {
-      if ( _R15->drawAvoidance )
+      if ( avoidingEntityInfo->drawAvoidance )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [r15+10h]
-          vaddss  xmm1, xmm0, dword ptr [r15+1Ch]
-          vmovss  xmm2, dword ptr [r15+20h]
-          vaddss  xmm0, xmm2, dword ptr [r15+14h]
-          vmovss  dword ptr [rsp+150h+var_F8], xmm1
-          vmovss  xmm1, dword ptr [r15+24h]
-          vaddss  xmm2, xmm1, dword ptr [r15+18h]
-          vmovss  xmm1, cs:__real@40a00000; radius
-          vmovss  dword ptr [rsp+150h+var_F8+8], xmm2
-          vmovss  dword ptr [rsp+150h+var_F8+4], xmm0
-        }
-        G_DebugCircle(&v106, *(float *)&_XMM1, &colorGreen, 0, 1, 0);
+        v32 = avoidingEntityInfo->desiredVelocity.v[1] + avoidingEntityInfo->position.v[1];
+        v40.v[0] = avoidingEntityInfo->position.v[0] + avoidingEntityInfo->desiredVelocity.v[0];
+        v40.v[2] = avoidingEntityInfo->desiredVelocity.v[2] + avoidingEntityInfo->position.v[2];
+        v40.v[1] = v32;
+        G_DebugCircle(&v40, 5.0, &colorGreen, 0, 1, 0);
       }
-      *outAvoidingVelocity = _R15->desiredVelocity;
-      result = 5i64;
+      *outAvoidingVelocity = avoidingEntityInfo->desiredVelocity;
+      return 5i64;
     }
     else
     {
-      *outAvoidingVelocity = _R15->desiredVelocity;
-      result = 4i64;
+      *outAvoidingVelocity = avoidingEntityInfo->desiredVelocity;
+      return 4i64;
     }
-    goto LABEL_35;
   }
-  __asm
+  v10 = 0i64;
+  v11 = 1;
+  v12 = (float *)v6;
+  while ( (float)((float)((float)(v12[1] - v6[v11 % (int)v7].v[1]) * (float)(avoidingEntityInfo->desiredVelocity.v[0] - *v12)) + (float)((float)(v6[v11 % (int)v7].v[0] - *v12) * (float)(avoidingEntityInfo->desiredVelocity.v[1] - v12[1]))) >= 0.0 )
   {
-    vmovss  xmm5, dword ptr [rcx+1Ch]
-    vmovss  xmm6, dword ptr [rcx+20h]
-  }
-  v19 = 0i64;
-  v20 = 1;
-  _R9 = _R13;
-  __asm { vxorps  xmm7, xmm7, xmm7 }
-  while ( 1 )
-  {
-    __asm
-    {
-      vmovss  xmm4, dword ptr [r9+4]
-      vsubss  xmm0, xmm5, dword ptr [r9]
-    }
-    _RCX = 3i64 * (v20 % (int)v14);
-    __asm
-    {
-      vsubss  xmm1, xmm4, dword ptr [r13+rcx*4+4]
-      vmulss  xmm3, xmm1, xmm0
-      vmovss  xmm1, dword ptr [r13+rcx*4+0]
-      vsubss  xmm2, xmm1, dword ptr [r9]
-      vsubss  xmm0, xmm6, xmm4
-      vmulss  xmm2, xmm2, xmm0
-      vaddss  xmm1, xmm3, xmm2
-      vcomiss xmm1, xmm7
-    }
-    if ( v55 )
-      break;
-    ++v20;
-    ++v19;
-    ++_R9;
-    if ( v19 >= v14 )
+    ++v11;
+    ++v10;
+    v12 += 3;
+    if ( v10 >= v7 )
       goto LABEL_7;
   }
-  v56 = !_R15->drawAvoidance;
-  __asm
+  if ( avoidingEntityInfo->drawAvoidance )
   {
-    vmovaps [rsp+150h+var_70], xmm8
-    vmovaps [rsp+150h+var_80], xmm9
-    vmovss  xmm9, cs:__real@40a00000
-    vmovaps [rsp+150h+var_90], xmm10
+    maxSpeed = settings->maxSpeed;
+    color = (vec4_t)_xmm;
+    G_DebugCircle(&avoidingEntityInfo->position, maxSpeed, &color, 0, 1, 0);
+    v14 = avoidingEntityInfo->desiredVelocity.v[1] + avoidingEntityInfo->position.v[1];
+    center.v[0] = avoidingEntityInfo->desiredVelocity.v[0] + avoidingEntityInfo->position.v[0];
+    center.v[2] = avoidingEntityInfo->desiredVelocity.v[2] + avoidingEntityInfo->position.v[2];
+    center.v[1] = v14;
+    G_DebugCircle(&center, 5.0, &colorRed, 0, 1, 0);
   }
-  if ( !v56 )
-  {
-    __asm
-    {
-      vmovups xmm0, cs:__xmm@3f8000003f800000000000003f800000
-      vmovss  xmm1, dword ptr [rsi+8]; radius
-      vmovups xmmword ptr [rsp+150h+color], xmm0
-    }
-    G_DebugCircle(&_R15->position, *(float *)&_XMM1, &color, 0, 1, 0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r15+1Ch]
-      vaddss  xmm1, xmm0, dword ptr [r15+10h]
-      vmovss  xmm2, dword ptr [r15+20h]
-      vaddss  xmm0, xmm2, dword ptr [r15+14h]
-      vmovss  dword ptr [rsp+150h+center], xmm1
-      vmovss  xmm1, dword ptr [r15+24h]
-      vaddss  xmm2, xmm1, dword ptr [r15+18h]
-      vmovaps xmm1, xmm9; radius
-      vmovss  dword ptr [rsp+150h+center+8], xmm2
-      vmovss  dword ptr [rsp+150h+center+4], xmm0
-    }
-    G_DebugCircle(&center, *(float *)&_XMM1, &colorRed, 0, 1, 0);
-  }
-  __asm
-  {
-    vmovss  xmm10, cs:__real@3e2aaaab
-    vmovss  xmm8, cs:__real@3f800000
-  }
-  v45 = settingsa;
-  v46 = 0;
-  v47 = 0;
-  *(_QWORD *)center.v = _R13;
-  __asm { vmovaps xmm6, xmm7 }
-  v49 = _R13;
+  v15 = settingsa;
+  v16 = AVOIDANCE_BLOCKED;
+  v17 = 0;
+  *(_QWORD *)center.v = v6;
+  v18 = 0.0;
+  v19 = v6;
   do
   {
     numberOfFoundPointsOut = 0;
-    v101 = v47 + 1;
-    GetPointsFromSegment(_R15, v45, v49, &_R13[(v47 + 1) % (int)v14], (vec3_t (*)[4])resultingPoints, &numberOfFoundPointsOut);
+    v35 = v17 + 1;
+    GetPointsFromSegment(avoidingEntityInfo, v15, v19, &v6[(v17 + 1) % (int)v7], (vec3_t (*)[4])resultingPoints, &numberOfFoundPointsOut);
     if ( numberOfFoundPointsOut <= 0 )
       goto LABEL_25;
-    _RBX = &resultingPoints[0].v[2];
-    v52 = (unsigned int)numberOfFoundPointsOut;
-    v53 = resultingPoints;
+    v21 = &resultingPoints[0].v[2];
+    v22 = (unsigned int)numberOfFoundPointsOut;
+    v23 = resultingPoints;
     do
     {
-      v54 = v104(_R15, v45, v53, (float *)&v100);
-      v55 = 0;
-      v56 = !_R15->drawAvoidance;
-      v57 = v54;
-      if ( _R15->drawAvoidance )
+      v24 = v38(avoidingEntityInfo, v15, v23, &v34);
+      if ( avoidingEntityInfo->drawAvoidance )
       {
+        v26 = LODWORD(FLOAT_0_16666667);
+        *(float *)&v26 = 0.16666667 * v34;
+        _XMM1 = v26;
         __asm
         {
-          vmulss  xmm1, xmm10, [rsp+150h+var_11C]
           vmaxss  xmm1, xmm1, xmm7
           vminss  xmm2, xmm1, xmm8
-          vsubss  xmm0, xmm8, xmm2
-          vmovss  dword ptr [rsp+150h+color], xmm0
-          vmovss  xmm0, dword ptr [rbx-8]
-          vaddss  xmm1, xmm0, dword ptr [r15+10h]
-          vmovss  dword ptr [rsp+150h+color+4], xmm2
-          vmovss  xmm2, dword ptr [rbx-4]
-          vaddss  xmm0, xmm2, dword ptr [r15+14h]
-          vmovss  dword ptr [rsp+150h+var_F8], xmm1
-          vmovss  xmm1, dword ptr [r15+18h]
-          vaddss  xmm2, xmm1, dword ptr [rbx]
-          vmovaps xmm1, xmm9; radius
-          vmovss  dword ptr [rsp+150h+var_F8+8], xmm2
-          vmovss  dword ptr [rbp+50h+color+8], xmm7
-          vmovss  dword ptr [rbp+50h+color+0Ch], xmm8
-          vmovss  dword ptr [rsp+150h+var_F8+4], xmm0
         }
-        G_DebugCircle(&v106, *(float *)&_XMM1, &color, 0, 1, 0);
+        color.v[0] = 1.0 - *(float *)&_XMM2;
+        *(float *)&_XMM1 = *(v21 - 2) + avoidingEntityInfo->position.v[0];
+        color.v[1] = *(float *)&_XMM2;
+        v29 = *(v21 - 1) + avoidingEntityInfo->position.v[1];
+        v40.v[0] = *(float *)&_XMM1;
+        v40.v[2] = avoidingEntityInfo->position.v[2] + *v21;
+        color.v[2] = 0.0;
+        color.v[3] = FLOAT_1_0;
+        v40.v[1] = v29;
+        G_DebugCircle(&v40, 5.0, &color, 0, 1, 0);
       }
-      __asm
+      v30 = v34;
+      if ( v34 == 0.0 )
       {
-        vmovss  xmm0, [rsp+150h+var_11C]
-        vucomiss xmm0, xmm7
-      }
-      if ( v56 )
-      {
-        if ( v57 <= v46 )
+        if ( v24 <= v16 )
           goto LABEL_23;
         goto LABEL_22;
       }
-      __asm { vcomiss xmm0, xmm6 }
-      if ( !(v55 | v56) || v57 > v46 )
+      if ( v34 > v18 || v24 > v16 )
       {
-        *outAvoidingVelocity = *(vec3_t *)(_RBX - 2);
-        __asm { vmovaps xmm6, xmm0 }
+        *outAvoidingVelocity = *(vec3_t *)(v21 - 2);
+        v18 = v30;
 LABEL_22:
-        v46 = v57;
+        v16 = v24;
       }
 LABEL_23:
-      v45 = settingsa;
-      ++v53;
-      _RBX += 3;
-      --v52;
+      v15 = settingsa;
+      ++v23;
+      v21 += 3;
+      --v22;
     }
-    while ( v52 );
-    LODWORD(v14) = v102;
-    v50 = *(const vec3_t **)center.v;
-    _R13 = v105;
+    while ( v22 );
+    LODWORD(v7) = v36;
+    v20 = *(const vec3_t **)center.v;
+    v6 = v39;
 LABEL_25:
-    v47 = v101;
-    v49 = v50 + 1;
-    *(_QWORD *)center.v = v49;
+    v17 = v35;
+    v19 = v20 + 1;
+    *(_QWORD *)center.v = v19;
   }
-  while ( v101 < (int)v14 );
-  v70 = 0;
-  v71 = !_R15->drawAvoidance;
-  __asm { vmovaps xmm10, [rsp+150h+var_90] }
-  if ( _R15->drawAvoidance )
+  while ( v35 < (int)v7 );
+  if ( avoidingEntityInfo->drawAvoidance )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14]
-      vaddss  xmm2, xmm0, dword ptr [r15+10h]
-      vmovss  xmm3, dword ptr [r14+4]
-      vaddss  xmm0, xmm3, dword ptr [r15+14h]
-      vmovss  dword ptr [rsp+150h+var_F8], xmm2
-      vmovss  xmm2, dword ptr [r14+8]
-      vaddss  xmm3, xmm2, dword ptr [r15+18h]
-      vmovaps xmm1, xmm9; radius
-      vmovss  dword ptr [rsp+150h+var_F8+8], xmm3
-      vmovss  dword ptr [rsp+150h+var_F8+4], xmm0
-    }
-    G_DebugCircle(&v106, *(float *)&_XMM1, &colorBlue, 0, 1, 0);
+    v31 = outAvoidingVelocity->v[1] + avoidingEntityInfo->position.v[1];
+    v40.v[0] = outAvoidingVelocity->v[0] + avoidingEntityInfo->position.v[0];
+    v40.v[2] = outAvoidingVelocity->v[2] + avoidingEntityInfo->position.v[2];
+    v40.v[1] = v31;
+    G_DebugCircle(&v40, 5.0, &colorBlue, 0, 1, 0);
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14+4]
-    vmovss  xmm2, dword ptr [r14]
-    vmovss  xmm3, dword ptr [r14+8]
-    vmovaps xmm9, [rsp+150h+var_80]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, xmm8
-    vmovaps xmm8, [rsp+150h+var_70]
-  }
-  if ( !(v70 | v71) || ((v46 - 1) & 0xFFFFFFFB) != 0 )
-    result = (unsigned int)v46;
+  if ( (float)((float)((float)(outAvoidingVelocity->v[1] * outAvoidingVelocity->v[1]) + (float)(outAvoidingVelocity->v[0] * outAvoidingVelocity->v[0])) + (float)(outAvoidingVelocity->v[2] * outAvoidingVelocity->v[2])) > 1.0 || ((v16 - 1) & 0xFFFFFFFB) != 0 )
+    return (unsigned int)v16;
   else
-    result = 2i64;
-LABEL_35:
-  __asm
-  {
-    vmovaps xmm6, [rsp+150h+var_50]
-    vmovaps xmm7, [rsp+150h+var_60]
-  }
-  return result;
+    return 2i64;
 }
 
 /*
@@ -319,30 +210,31 @@ void BuildVelocityObstaclePlanes(const AvoidingEntityInfo *avoidingEntityInfo, c
   const bfx::PathSpec *PathSpec; 
   const bfx::AreaHandle *hHintArea; 
   const bfx::PathSpec *v13; 
-  const bfx::PathSpec *v31; 
-  __int64 v35; 
-  __int64 v36; 
-  __int64 v37; 
+  nav_posAlongPathResults_t *posAlongPath; 
+  nav_posAlongPathResults_t *v15; 
+  const bfx::PathSpec *v16; 
+  __int64 v17; 
+  __int64 v18; 
+  __int64 v19; 
+  __int64 v20; 
   bfx::AreaHandle desiredVelocityPointArea; 
   AvoidSettings *settingsa; 
-  int *v47; 
+  int *v23; 
   bfx::AreaHandle hStartArea; 
-  __int64 v49; 
+  __int64 v25; 
   vec3_t pos; 
   vec4_t color; 
   vec3_t center; 
   vec4_t outPlane; 
   vec3_t outSnappedPos; 
 
-  v49 = -2i64;
+  v25 = -2i64;
   v6 = numberOfColliders;
-  _RDI = colliderInfos;
   settingsa = (AvoidSettings *)settings;
-  _RSI = avoidingEntityInfo;
   *(_QWORD *)center.v = planes;
-  v47 = numberOfPlanesOut;
+  v23 = numberOfPlanesOut;
   bfx::AreaHandle::AreaHandle(&desiredVelocityPointArea);
-  Navigator = Nav_GetNavigator(_RSI->ent);
+  Navigator = Nav_GetNavigator(avoidingEntityInfo->ent);
   if ( !Navigator && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\orca_avoidance.cpp", 798, ASSERT_TYPE_ASSERT, "(pNavigator)", (const char *)&queryFormat, "pNavigator") )
     __debugbreak();
   v10 = Navigator->Get2DNavigator(Navigator);
@@ -351,103 +243,57 @@ void BuildVelocityObstaclePlanes(const AvoidingEntityInfo *avoidingEntityInfo, c
   bfx::AreaHandle::AreaHandle(&hStartArea);
   PathSpec = AINavigator2D::GetPathSpec(v10);
   hHintArea = AINavigator2D::GetCurArea(v10);
-  if ( Nav_IsPointOnMeshCustomWithHint(v10->m_pSpace, &_RSI->position, v10->m_Layer, PathSpec, &outSnappedPos, hHintArea, &hStartArea) && (v13 = AINavigator2D::GetPathSpec(v10), Nav_IsStraightLineReachable(&outSnappedPos, &hStartArea, &_RSI->posAlongPath->m_Pos, &_RSI->posAlongPath->m_hArea, v13)) )
+  if ( Nav_IsPointOnMeshCustomWithHint(v10->m_pSpace, &avoidingEntityInfo->position, v10->m_Layer, PathSpec, &outSnappedPos, hHintArea, &hStartArea) && (v13 = AINavigator2D::GetPathSpec(v10), Nav_IsStraightLineReachable(&outSnappedPos, &hStartArea, &avoidingEntityInfo->posAlongPath->m_Pos, &avoidingEntityInfo->posAlongPath->m_hArea, v13)) )
   {
-    _RDX = _RSI->posAlongPath;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx]
-      vmovss  dword ptr [rbp+47h+pos], xmm0
-      vmovss  xmm1, dword ptr [rdx+4]
-      vmovss  dword ptr [rbp+47h+pos+4], xmm1
-      vmovss  xmm0, dword ptr [rdx+8]
-      vmovss  dword ptr [rbp+47h+pos+8], xmm0
-    }
-    bfx::AreaHandle::operator=(&desiredVelocityPointArea, &_RDX->m_hArea);
-    _RAX = _RSI->posAlongPath;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax]
-      vsubss  xmm1, xmm0, dword ptr [rsi+10h]
-      vmovss  dword ptr [rbp+47h+color], xmm1
-      vmovss  xmm2, dword ptr [rax+4]
-      vsubss  xmm0, xmm2, dword ptr [rsi+14h]
-      vmovss  dword ptr [rbp+47h+color+4], xmm0
-      vmovss  xmm1, dword ptr [rax+8]
-      vsubss  xmm2, xmm1, dword ptr [rsi+18h]
-      vmovss  dword ptr [rbp+47h+color+8], xmm2
-    }
+    posAlongPath = avoidingEntityInfo->posAlongPath;
+    pos = posAlongPath->m_Pos;
+    bfx::AreaHandle::operator=(&desiredVelocityPointArea, &posAlongPath->m_hArea);
+    v15 = avoidingEntityInfo->posAlongPath;
+    color.v[0] = v15->m_Pos.v[0] - avoidingEntityInfo->position.v[0];
+    color.v[1] = v15->m_Pos.v[1] - avoidingEntityInfo->position.v[1];
+    color.v[2] = v15->m_Pos.v[2] - avoidingEntityInfo->position.v[2];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+1Ch]
-      vaddss  xmm1, xmm0, dword ptr [rsi+10h]
-      vmovss  dword ptr [rbp+47h+pos], xmm1
-      vmovss  xmm2, dword ptr [rsi+20h]
-      vaddss  xmm0, xmm2, dword ptr [rsi+14h]
-      vmovss  dword ptr [rbp+47h+pos+4], xmm0
-      vmovss  xmm1, dword ptr [rsi+24h]
-      vaddss  xmm2, xmm1, dword ptr [rsi+18h]
-      vmovss  dword ptr [rbp+47h+pos+8], xmm2
-    }
-    v31 = AINavigator2D::GetPathSpec(v10);
-    if ( !Nav_IsPointOnMeshCustom(v10->m_pSpace, &pos, v10->m_Layer, v31, &pos, &desiredVelocityPointArea) )
+    pos.v[0] = avoidingEntityInfo->desiredVelocity.v[0] + avoidingEntityInfo->position.v[0];
+    pos.v[1] = avoidingEntityInfo->desiredVelocity.v[1] + avoidingEntityInfo->position.v[1];
+    pos.v[2] = avoidingEntityInfo->desiredVelocity.v[2] + avoidingEntityInfo->position.v[2];
+    v16 = AINavigator2D::GetPathSpec(v10);
+    if ( !Nav_IsPointOnMeshCustom(v10->m_pSpace, &pos, v10->m_Layer, v16, &pos, &desiredVelocityPointArea) )
       bfx::AreaHandle::Release(&desiredVelocityPointArea);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+28h]
-      vmovss  dword ptr [rbp+47h+color], xmm0
-      vmovss  xmm1, dword ptr [rsi+2Ch]
-      vmovss  dword ptr [rbp+47h+color+4], xmm1
-      vmovss  xmm0, dword ptr [rsi+30h]
-      vmovss  dword ptr [rbp+47h+color+8], xmm0
-    }
+    *(_QWORD *)color.v = *(_QWORD *)avoidingEntityInfo->currentVelocity.v;
+    color.v[2] = avoidingEntityInfo->currentVelocity.v[2];
   }
-  v35 = *numberOfPlanesOut;
+  v17 = *numberOfPlanesOut;
   if ( v6 > 0 )
   {
-    v36 = *numberOfPlanesOut;
-    v37 = 0i64;
-    _RBX = *(_QWORD *)center.v + 16 * v35 + 8;
+    v18 = *numberOfPlanesOut;
+    v19 = 0i64;
+    v20 = *(_QWORD *)center.v + 16 * v17 + 8;
     do
     {
-      if ( _RSI->drawAvoidance )
+      if ( avoidingEntityInfo->drawAvoidance )
       {
-        __asm
-        {
-          vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-          vmovups xmmword ptr [rbp+47h+color], xmm0
-          vmovss  xmm1, dword ptr [rdi+4]
-          vmovss  dword ptr [rbp+47h+center], xmm1
-          vmovss  xmm0, dword ptr [rdi+8]
-          vmovss  dword ptr [rbp+47h+center+4], xmm0
-          vmovss  xmm1, dword ptr [rsi+18h]
-          vmovss  dword ptr [rbp+47h+center+8], xmm1
-          vmovss  xmm1, dword ptr [rdi]; radius
-        }
-        G_DebugCircle(&center, *(float *)&_XMM1, &color, 0, 1, 0);
+        color = (vec4_t)_xmm;
+        *(_QWORD *)center.v = *(_QWORD *)colliderInfos->position.v;
+        center.v[2] = avoidingEntityInfo->position.v[2];
+        G_DebugCircle(&center, colliderInfos->radius, &color, 0, 1, 0);
       }
-      GetVelocityObstaclePlane(_RSI, settingsa, (const vec3_t *)&color, &pos, &desiredVelocityPointArea, _RDI, &outPlane);
-      if ( v36 >= 32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\orca_avoidance.cpp", 841, ASSERT_TYPE_ASSERT, "(numberOfPlanes < 32)", (const char *)&queryFormat, "numberOfPlanes < MAX_PLANES") )
+      GetVelocityObstaclePlane(avoidingEntityInfo, settingsa, (const vec3_t *)&color, &pos, &desiredVelocityPointArea, colliderInfos, &outPlane);
+      if ( v18 >= 32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\orca_avoidance.cpp", 841, ASSERT_TYPE_ASSERT, "(numberOfPlanes < 32)", (const char *)&queryFormat, "numberOfPlanes < MAX_PLANES") )
         __debugbreak();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+47h+outPlane]
-        vmovups xmmword ptr [rbx-8], xmm0
-      }
-      LODWORD(v35) = v35 + 1;
-      ++v36;
-      _RBX += 16i64;
-      if ( v36 >= 32 )
+      *(vec4_t *)(v20 - 8) = outPlane;
+      LODWORD(v17) = v17 + 1;
+      ++v18;
+      v20 += 16i64;
+      if ( v18 >= 32 )
         break;
-      ++v37;
-      ++_RDI;
+      ++v19;
+      ++colliderInfos;
     }
-    while ( v37 < v6 );
+    while ( v19 < v6 );
   }
-  *v47 = v35;
+  *v23 = v17;
   bfx::AreaHandle::~AreaHandle(&hStartArea);
   bfx::AreaHandle::~AreaHandle(&desiredVelocityPointArea);
 }
@@ -459,65 +305,55 @@ DrawPolygon
 */
 void DrawPolygon(const vec3_t (*polygon)[32], int numberOfVertices, const vec3_t *offset, const vec4_t *color)
 {
-  float *v6; 
-  __int64 v7; 
+  __int64 v5; 
+  float *v8; 
+  __int64 v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
   vec3_t end; 
   vec3_t start; 
 
   if ( numberOfVertices )
   {
-    _RDI = offset;
+    v5 = numberOfVertices;
     if ( numberOfVertices > 1i64 )
     {
-      v6 = &(*polygon)[0].v[2];
-      v7 = numberOfVertices - 1i64;
+      v8 = &(*polygon)[0].v[2];
+      v9 = numberOfVertices - 1i64;
       do
       {
-        __asm
-        {
-          vmovss  xmm4, dword ptr [rdi]
-          vaddss  xmm0, xmm4, dword ptr [rbx-8]
-          vmovss  xmm3, dword ptr [rdi+4]
-          vmovss  xmm2, dword ptr [rdi+8]
-          vmovss  dword ptr [rsp+68h+start], xmm0
-          vaddss  xmm0, xmm3, dword ptr [rbx-4]
-          vmovss  dword ptr [rsp+68h+start+4], xmm0
-          vaddss  xmm1, xmm2, dword ptr [rbx]
-          vmovss  dword ptr [rsp+68h+start+8], xmm1
-          vaddss  xmm0, xmm4, dword ptr [rbx+4]
-          vmovss  dword ptr [rsp+68h+end], xmm0
-          vaddss  xmm1, xmm3, dword ptr [rbx+8]
-          vmovss  dword ptr [rsp+68h+end+4], xmm1
-        }
-        v6 += 3;
-        __asm
-        {
-          vaddss  xmm0, xmm2, dword ptr [rbx]
-          vmovss  dword ptr [rsp+68h+end+8], xmm0
-        }
+        v10 = offset->v[0];
+        v11 = offset->v[1];
+        v12 = offset->v[2];
+        start.v[0] = offset->v[0] + *(v8 - 2);
+        start.v[1] = v11 + *(v8 - 1);
+        start.v[2] = v12 + *v8;
+        end.v[0] = v10 + v8[1];
+        end.v[1] = v11 + v8[2];
+        v8 += 3;
+        end.v[2] = v12 + *v8;
         G_DebugLine(&start, &end, color, 1);
-        --v7;
+        --v9;
       }
-      while ( v7 );
+      while ( v9 );
     }
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi]
-      vmovss  xmm3, dword ptr [rdi+4]
-      vmovss  xmm2, dword ptr [rdi+8]
-      vaddss  xmm0, xmm1, dword ptr [rsi+rax*4-0Ch]
-      vaddss  xmm1, xmm1, dword ptr [rsi]
-      vmovss  dword ptr [rsp+68h+start], xmm0
-      vaddss  xmm0, xmm3, dword ptr [rsi+rax*4-8]
-      vmovss  dword ptr [rsp+68h+start+4], xmm0
-      vaddss  xmm0, xmm2, dword ptr [rsi+rax*4-4]
-      vmovss  dword ptr [rsp+68h+start+8], xmm0
-      vaddss  xmm0, xmm3, dword ptr [rsi+4]
-      vmovss  dword ptr [rsp+68h+end], xmm1
-      vaddss  xmm1, xmm2, dword ptr [rsi+8]
-      vmovss  dword ptr [rsp+68h+end+4], xmm0
-      vmovss  dword ptr [rsp+68h+end+8], xmm1
-    }
+    v13 = offset->v[1];
+    v14 = offset->v[2];
+    v15 = offset->v[0] + (*polygon)[0].v[0];
+    start.v[0] = offset->v[0] + (*polygon)[v5 - 1].v[0];
+    start.v[1] = v13 + (*polygon)[v5 - 1].v[1];
+    start.v[2] = v14 + (*polygon)[v5 - 1].v[2];
+    v16 = v13 + (*polygon)[0].v[1];
+    end.v[0] = v15;
+    v17 = v14 + (*polygon)[0].v[2];
+    end.v[1] = v16;
+    end.v[2] = v17;
     G_DebugLine(&start, &end, color, 1);
   }
 }
@@ -529,44 +365,126 @@ GetPointsFromSegment
 */
 void GetPointsFromSegment(const AvoidingEntityInfo *avoidingEntityInfo, const AvoidSettings *settings, const vec3_t *pointA, const vec3_t *pointB, vec3_t (*resultingPoints)[4], int *numberOfFoundPointsOut)
 {
-  char v26; 
-  void *retaddr; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  unsigned int v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  __int64 v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __int64 v23; 
+  __int64 v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  __int64 v34; 
+  __int64 v35; 
+  __int64 v36; 
+  float v37; 
+  float v38; 
+  __int64 v39; 
 
-  _RAX = &retaddr;
-  __asm
+  v6 = pointB->v[0];
+  v7 = pointA->v[0];
+  v8 = pointB->v[1];
+  v9 = pointA->v[1];
+  v10 = 0;
+  v11 = pointB->v[2] - pointA->v[2];
+  v12 = pointB->v[0] - pointA->v[0];
+  v14 = v8 - v9;
+  v13 = v8 - v9;
+  if ( v12 == 0.0 && v14 == 0.0 && v11 == 0.0 )
   {
-    vmovss  xmm2, dword ptr [r9]
-    vmovss  xmm3, dword ptr [r8]
-    vmovss  xmm1, dword ptr [r9+4]
-    vmovss  xmm5, dword ptr [r8+4]
-    vmovss  xmm0, dword ptr [r9+8]
+    (*resultingPoints)[0].v[0] = v12;
+    (*resultingPoints)[0].v[1] = v14;
+    (*resultingPoints)[0].v[2] = 0;
+    *numberOfFoundPointsOut = 1;
   }
-  _R11 = resultingPoints;
-  __asm
+  else
   {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vsubss  xmm7, xmm0, dword ptr [r8+8]
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vxorps  xmm10, xmm10, xmm10
-    vsubss  xmm9, xmm2, xmm3
-    vucomiss xmm9, xmm10
-    vsubss  xmm8, xmm1, xmm5
-    vucomiss xmm8, xmm10
-    vucomiss xmm7, xmm10
-    vmovss  dword ptr [r11], xmm9
-    vmovss  dword ptr [r11+4], xmm8
-    vmovss  dword ptr [r11+8], xmm7
-  }
-  *numberOfFoundPointsOut = 1;
-  _R11 = &v26;
-  __asm
-  {
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
+    v15 = settings->maxSpeed * settings->maxSpeed;
+    if ( (float)((float)(v9 * v9) + (float)(v7 * v7)) <= v15 )
+    {
+      (*resultingPoints)[0].v[0] = v7;
+      v10 = 1;
+      *(_QWORD *)&(*resultingPoints)[0].y = *(_QWORD *)&pointA->y;
+    }
+    if ( (float)((float)(v8 * v8) + (float)(v6 * v6)) <= v15 )
+    {
+      v16 = v10++;
+      (*resultingPoints)[v16] = *pointB;
+    }
+    v17 = pointA->v[1];
+    v18 = pointA->v[2];
+    v19 = (float)(v12 * v12) + (float)(v14 * v14);
+    v20 = (float)((float)((float)(avoidingEntityInfo->desiredVelocity.v[1] - v17) * v14) + (float)((float)(avoidingEntityInfo->desiredVelocity.v[0] - pointA->v[0]) * v12)) + (float)((float)(avoidingEntityInfo->desiredVelocity.v[2] - v18) * v11);
+    if ( v20 > 0.0 && v20 < v19 )
+    {
+      v21 = (float)(v12 * (float)(v20 / v19)) + pointA->v[0];
+      v22 = (float)(v13 * (float)(v20 / v19)) + v17;
+      if ( (float)((float)(v22 * v22) + (float)(v21 * v21)) <= v15 )
+      {
+        v23 = v10++;
+        v24 = v23;
+        (*resultingPoints)[v24].v[0] = v21;
+        (*resultingPoints)[v24].v[1] = v22;
+        (*resultingPoints)[v24].v[2] = (float)(v11 * (float)(v20 / v19)) + v18;
+      }
+    }
+    if ( v10 <= 2 )
+    {
+      v25 = pointA->v[1];
+      v26 = pointA->v[0];
+      v27 = pointA->v[2];
+      v28 = (float)(v11 * v11) + v19;
+      v29 = (float)((float)(pointA->v[0] * v12) + (float)(v13 * v25)) + (float)(v27 * v11);
+      v30 = (float)((float)(v29 * v29) * 4.0) - (float)((float)((float)((float)((float)((float)(v25 * v25) + (float)(v26 * v26)) + (float)(v27 * v27)) - v15) * v28) * 4.0);
+      if ( v30 >= 0.0 )
+      {
+        v31 = fsqrt(v30);
+        v32 = (float)(v31 + (float)(v29 * -2.0)) * (float)(0.5 / v28);
+        v33 = (float)((float)(v29 * -2.0) - v31) * (float)(0.5 / v28);
+        if ( v32 >= 0.0 && v32 <= 1.0 )
+        {
+          v34 = v10++;
+          v35 = v34;
+          (*resultingPoints)[v35].v[0] = (float)(v12 * v32) + v26;
+          (*resultingPoints)[v35].v[1] = (float)(v13 * v32) + v25;
+          (*resultingPoints)[v35].v[2] = (float)(v11 * v32) + v27;
+        }
+        if ( v33 >= 0.0 && v33 <= 1.0 )
+        {
+          v36 = v10++;
+          v37 = (float)(v11 * v33) + pointA->v[2];
+          v38 = (float)(v13 * v33) + pointA->v[1];
+          v39 = v36;
+          (*resultingPoints)[v39].v[0] = (float)(v12 * v33) + pointA->v[0];
+          (*resultingPoints)[v39].v[1] = v38;
+          (*resultingPoints)[v39].v[2] = v37;
+        }
+      }
+      *numberOfFoundPointsOut = v10;
+    }
+    else
+    {
+      *numberOfFoundPointsOut = v10;
+    }
   }
 }
 
@@ -577,450 +495,344 @@ GetVelocityObstaclePlane
 */
 void GetVelocityObstaclePlane(const AvoidingEntityInfo *avoidingEntityInfo, const AvoidSettings *settings, const vec3_t *desiredVelocity, const vec3_t *desiredVelocityPoint, const bfx::AreaHandle *desiredVelocityPointArea, const OrcaColliderInfo *colliderInfo, vec4_t *outPlane)
 {
-  bool v85; 
+  vec3_t *p_position; 
+  float v9; 
+  __int128 v10; 
+  __int128 v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  __int128 v34; 
+  __int128 v35; 
+  bool v36; 
   AINavigator *Navigator; 
-  __int64 v87; 
-  nav_space_s *v88; 
+  __int64 v38; 
+  nav_space_s *m_pSpace; 
   const bfx::PathSpec *PathSpec; 
-  AINavLayer v90; 
-  char v94; 
-  __int64 v95; 
-  nav_space_s *v99; 
+  __int64 v41; 
+  float v42; 
+  float *v43; 
+  const OrcaColliderInfo *v44; 
+  float v45; 
+  __int128 v46; 
+  float v47; 
+  __int128 v48; 
+  __int128 v52; 
+  __int128 v53; 
+  __int128 v54; 
+  __int128 v55; 
+  float v56; 
+  __int128 v57; 
   bool IsStraightLineReachable; 
-  bool IsValid; 
-  char v138; 
-  bool v139; 
-  bool v181; 
-  __int64 v228; 
-  int v229; 
+  float v62; 
+  __int128 v63; 
+  __int128 v67; 
+  float v68; 
+  __int128 v69; 
+  float v70; 
+  __int128 v71; 
+  __int128 v72; 
+  __int128 v76; 
+  float v77; 
+  float v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  __int128 v82; 
+  float v86; 
+  vec4_t *v87; 
+  __int128 v88; 
+  bool IsPointOnMeshCustomWithHint; 
+  float v93; 
+  float v94; 
+  float v95; 
+  float v96; 
+  float v97; 
+  float v98; 
   AINavLayer layer; 
-  const OrcaColliderInfo *v238; 
+  float v100; 
+  float v101; 
+  float v102; 
+  float v103; 
+  float v104; 
+  float v105; 
   nav_space_s *pSpace; 
-  bfx::AreaHandle *hEndArea; 
   bfx::AreaHandle hStartArea; 
   vec3_t *endPos; 
-  vec4_t *v249; 
-  bfx::AreaHandle v250; 
+  vec4_t *v109; 
+  bfx::AreaHandle v110; 
   bfx::AreaHandle hHintArea; 
-  __int64 v252; 
+  __int64 v112; 
   vec3_t outSnappedPos; 
   vec3_t pos; 
-  vec3_t v255; 
+  vec3_t v115; 
   vec3_t startPos; 
-  vec3_t v257; 
-  int v260[4]; 
-  char v261; 
-  void *retaddr; 
+  vec3_t v117; 
+  float v118; 
+  float v119; 
+  int v120[4]; 
 
-  _RAX = &retaddr;
-  v252 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
+  v112 = -2i64;
   endPos = (vec3_t *)desiredVelocityPoint;
-  hEndArea = (bfx::AreaHandle *)desiredVelocityPointArea;
-  v238 = colliderInfo;
-  _R13 = outPlane;
-  v249 = outPlane;
-  _RBX = &colliderInfo->position;
-  __asm
+  v109 = outPlane;
+  p_position = &colliderInfo->position;
+  v9 = colliderInfo->position.v[0] - avoidingEntityInfo->position.v[0];
+  v11 = LODWORD(colliderInfo->position.v[1]);
+  *(float *)&v11 = colliderInfo->position.v[1] - avoidingEntityInfo->position.v[1];
+  v10 = v11;
+  v12 = 1.0 / settings->lookAheadTime;
+  v13 = v9 * v12;
+  v14 = *(float *)&v11 * v12;
+  v102 = v14;
+  v16 = v12 * (float)(settings->radius + colliderInfo->radius);
+  v15 = v16;
+  v103 = v16;
+  v17 = (float)(v14 * v14) + (float)(v13 * v13);
+  if ( v17 <= (float)((float)(v16 + 5.0) * (float)(v16 + 5.0)) )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vsubss  xmm5, xmm0, dword ptr [rcx+10h]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vsubss  xmm6, xmm1, dword ptr [rcx+14h]
-    vmovss  xmm8, cs:__real@3f800000
-    vdivss  xmm2, xmm8, dword ptr [rdx+20h]
-    vmulss  xmm13, xmm5, xmm2
-    vmovss  [rsp+220h+var_1AC], xmm13
-    vmulss  xmm14, xmm6, xmm2
-    vmovss  [rsp+220h+var_1A8], xmm14
-    vmovss  xmm0, dword ptr [rdx+10h]
-    vaddss  xmm1, xmm0, dword ptr [rax]
-    vmulss  xmm15, xmm2, xmm1
-    vmovss  [rsp+220h+var_1A4], xmm15
-    vaddss  xmm3, xmm15, cs:__real@40a00000
-    vmulss  xmm2, xmm14, xmm14
-    vmulss  xmm0, xmm13, xmm13
-    vaddss  xmm7, xmm2, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vcomiss xmm7, xmm1
-  }
-  if ( (unsigned __int64)&v228 != _security_cookie )
-  {
+    v88 = v10;
+    *(float *)&v88 = fsqrt((float)(*(float *)&v10 * *(float *)&v10) + (float)(v9 * v9));
+    _XMM2 = v88;
     __asm
     {
-      vmovss  xmm3, cs:__real@3f000000
-      vmulss  xmm1, xmm13, xmm3
-      vmulss  xmm2, xmm14, xmm3
-      vsqrtss xmm0, xmm7, xmm7
-      vmulss  xmm5, xmm0, xmm3
-      vsubss  xmm9, xmm1, xmm13
-      vsubss  xmm10, xmm2, xmm14
-      vmulss  xmm1, xmm10, xmm10
-      vmulss  xmm0, xmm9, xmm9
-      vaddss  xmm2, xmm1, xmm0
-      vsqrtss xmm4, xmm2, xmm2
-      vmulss  xmm11, xmm15, xmm15
-      vmulss  xmm0, xmm7, cs:__real@3e800000
-      vsubss  xmm1, xmm11, xmm0
-      vaddss  xmm2, xmm1, xmm2
-      vdivss  xmm0, xmm3, xmm4
-      vmulss  xmm3, xmm2, xmm0
-      vdivss  xmm12, xmm8, xmm4
-      vmulss  xmm1, xmm3, xmm12
-      vmulss  xmm0, xmm1, xmm9
-      vaddss  xmm7, xmm0, xmm13
-      vmulss  xmm1, xmm1, xmm10
-      vaddss  xmm6, xmm1, xmm14
-      vsubss  xmm0, xmm15, xmm5
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vxorps  xmm13, xmm13, xmm13
-      vcomiss xmm4, xmm0
-      vmulss  xmm0, xmm3, xmm3
-      vsubss  xmm1, xmm11, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vmulss  xmm3, xmm2, xmm12
-      vmulss  xmm4, xmm3, xmm10
-      vmulss  xmm0, xmm3, xmm9
-      vaddss  xmm9, xmm0, xmm6
-      vsubss  xmm12, xmm7, xmm4
-      vmovss  [rbp+120h+var_F0], xmm12
-      vmovss  [rbp+120h+var_EC], xmm9
-      vsubss  xmm6, xmm6, xmm0
-      vaddss  xmm7, xmm7, xmm4
-      vxorps  xmm11, xmm11, xmm11
-      vxorps  xmm10, xmm10, xmm10
-      vmovss  [rbp+120h+var_DC], xmm11
-      vmovss  [rbp+120h+var_E0], xmm6
-      vmovss  [rbp+120h+var_E4], xmm7
-      vmovss  [rbp+120h+var_E8], xmm10
-      vmovss  xmm0, dword ptr [rcx+28h]
-      vsubss  xmm14, xmm0, dword ptr [rax+10h]
-      vmovss  xmm1, dword ptr [rcx+2Ch]
-      vsubss  xmm15, xmm1, dword ptr [rax+14h]
-      vmovss  xmm0, dword ptr [rcx+30h]
-      vsubss  xmm0, xmm0, dword ptr [rax+18h]
-      vmovss  [rsp+220h+var_1B0], xmm0
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  [rsp+220h+var_1D4], xmm1
-      vxorps  xmm2, xmm2, xmm2
-      vmovss  [rsp+220h+var_1D0], xmm2
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  [rsp+220h+var_1DC], xmm0
-      vmovss  [rsp+220h+var_1D8], xmm1
-      vmovss  xmm5, cs:__real@bf800000
-      vmovss  [rsp+220h+var_1C8], xmm5
-      vmovss  xmm2, cs:__real@7f7fffff
-      vmovss  dword ptr [rsp+220h+var_1C0], xmm2
+      vcmpless xmm0, xmm2, cs:__real@80000000
+      vblendvps xmm0, xmm2, xmm8, xmm0
     }
-    v85 = 0;
-    Navigator = Nav_GetNavigator(avoidingEntityInfo->ent);
-    v87 = (__int64)Navigator->Get2DNavigator(Navigator);
-    if ( !v87 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\orca_avoidance.cpp", 630, ASSERT_TYPE_ASSERT, "(pNav2D)", (const char *)&queryFormat, "pNav2D") )
-      __debugbreak();
-    pSpace = Navigator->m_pSpace;
-    v88 = pSpace;
-    PathSpec = AINavigator2D::GetPathSpec((AINavigator2D *)v87);
-    v90 = *(_DWORD *)(v87 + 112);
-    layer = v90;
-    bfx::AreaHandle::AreaHandle(&hHintArea, &v238->hArea);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vmovss  dword ptr [rbp+120h+outSnappedPos], xmm0
-      vmovss  xmm1, dword ptr [rbx+4]
-      vmovss  dword ptr [rbp+120h+outSnappedPos+4], xmm1
-      vmovss  xmm0, dword ptr [rbx+8]
-      vmovss  dword ptr [rbp+120h+outSnappedPos+8], xmm0
-    }
-    LOBYTE(v229) = Nav_IsPointOnMeshCustomWithHint(v88, _RBX, v90, PathSpec, &outSnappedPos, &hHintArea, &hHintArea);
-    __asm { vucomiss xmm12, xmm7 }
-    if ( !v94 )
-      goto LABEL_8;
-    __asm { vucomiss xmm9, xmm6 }
-    if ( !v94 )
-      goto LABEL_8;
-    __asm { vucomiss xmm10, xmm11 }
-    v95 = 1i64;
-    if ( !v94 )
-LABEL_8:
-      v95 = 2i64;
-    __asm { vmovaps xmm5, xmm8 }
-    _R14 = v260;
-    __asm { vmovss  xmm10, cs:__real@80000000 }
-    v99 = pSpace;
-    _RAX = v238;
-    do
-    {
-      __asm
-      {
-        vmovss  xmm4, [rsp+220h+var_1C8]
-        vmovss  [rbp+120h+var_19C], xmm4
-        vmovss  xmm7, dword ptr [r14-4]
-        vmovss  xmm6, dword ptr [r14-8]
-        vmovss  xmm9, dword ptr [r14]
-        vmulss  xmm1, xmm6, xmm6
-        vmulss  xmm0, xmm7, xmm7
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm9, xmm9
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
-        vcmpless xmm0, xmm3, xmm10
-        vblendvps xmm1, xmm3, xmm8, xmm0
-        vmovss  [rsp+220h+var_1CC], xmm1
-        vdivss  xmm0, xmm8, xmm1
-        vmulss  xmm10, xmm6, xmm0
-        vmulss  xmm11, xmm7, xmm0
-        vmulss  xmm12, xmm0, xmm9
-        vmulss  xmm0, xmm11, xmm4
-        vxorps  xmm3, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm4, xmm10, xmm4
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm3, xmm3
-        vaddss  xmm1, xmm1, xmm0
-        vsqrtss xmm2, xmm1, xmm1
-        vcmpless xmm0, xmm2, cs:__real@80000000
-        vblendvps xmm1, xmm2, xmm8, xmm0
-        vmovss  [rsp+220h+var_1CC], xmm1
-        vdivss  xmm0, xmm8, xmm1
-        vmulss  xmm1, xmm3, xmm0
-        vmovss  [rsp+220h+var_1CC], xmm1
-        vmulss  xmm0, xmm4, xmm0
-        vmovss  [rbp+120h+var_1A0], xmm0
-      }
-      IsStraightLineReachable = 0;
-      __asm
-      {
-        vmovss  [rsp+220h+var_1C8], xmm5
-        vucomiss xmm13, dword ptr [rax+1Ch]
-        vaddss  xmm0, xmm6, dword ptr [rdi+10h]
-        vmovss  dword ptr [rbp+120h+pos], xmm0
-        vaddss  xmm1, xmm7, dword ptr [rdi+14h]
-        vmovss  dword ptr [rbp+120h+pos+4], xmm1
-        vaddss  xmm2, xmm9, dword ptr [rdi+18h]
-        vmovss  dword ptr [rbp+120h+pos+8], xmm2
-        vmovss  xmm0, dword ptr [rbp+120h+outSnappedPos]
-        vmovss  dword ptr [rbp+120h+var_120], xmm0
-        vmovss  xmm1, dword ptr [rbp+120h+outSnappedPos+4]
-        vmovss  dword ptr [rbp+120h+var_120+4], xmm1
-        vmovss  dword ptr [rbp+120h+var_120+8], xmm2
-      }
-      IsValid = bfx::AreaHandle::IsValid(hEndArea);
-      v138 = 0;
-      v139 = !IsValid;
-      if ( IsValid )
-      {
-        bfx::AreaHandle::AreaHandle(&hStartArea);
-        if ( Nav_IsPointOnMeshCustom(v99, &pos, layer, PathSpec, &startPos, &hStartArea) && Nav_IsStraightLineReachable(&startPos, &hStartArea, endPos, hEndArea, PathSpec) )
-        {
-          if ( (_BYTE)v229 )
-          {
-            bfx::AreaHandle::AreaHandle(&v250);
-            if ( Nav_IsPointOnMeshCustom(v99, &v255, layer, PathSpec, &v257, &v250) )
-              IsStraightLineReachable = Nav_IsStraightLineReachable(&v257, &v250, &startPos, &hStartArea, PathSpec);
-            bfx::AreaHandle::~AreaHandle(&v250);
-          }
-          else
-          {
-            IsStraightLineReachable = 1;
-          }
-        }
-        bfx::AreaHandle::~AreaHandle(&hStartArea);
-      }
-      _RAX = v238;
-      __asm
-      {
-        vmulss  xmm1, xmm10, xmm6
-        vmulss  xmm0, xmm11, xmm7
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm12, xmm9
-        vaddss  xmm4, xmm2, xmm1
-        vmulss  xmm3, xmm15, xmm11
-        vmulss  xmm0, xmm14, xmm10
-        vaddss  xmm2, xmm3, xmm0
-        vmulss  xmm1, xmm12, [rsp+220h+var_1B0]
-        vaddss  xmm5, xmm2, xmm1
-        vcomiss xmm5, xmm4
-      }
-      if ( v138 )
-      {
-        __asm
-        {
-          vsubss  xmm3, xmm14, [rsp+220h+var_1AC]
-          vsubss  xmm4, xmm15, [rsp+220h+var_1A8]
-          vmulss  xmm1, xmm4, xmm4
-          vmulss  xmm0, xmm3, xmm3
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm2, xmm1, xmm1
-          vmovss  xmm10, cs:__real@80000000
-          vcmpless xmm0, xmm2, xmm10
-          vblendvps xmm1, xmm2, xmm8, xmm0
-          vmovss  [rsp+220h+var_1CC], xmm1
-          vdivss  xmm0, xmm8, xmm1
-          vmulss  xmm6, xmm0, xmm3
-          vmulss  xmm7, xmm0, xmm4
-          vmulss  xmm0, xmm6, [rsp+220h+var_1A4]
-          vaddss  xmm3, xmm0, [rsp+220h+var_1AC]
-          vmulss  xmm1, xmm7, [rsp+220h+var_1A4]
-          vaddss  xmm2, xmm1, [rsp+220h+var_1A8]
-          vsubss  xmm4, xmm3, xmm14
-          vsubss  xmm5, xmm2, xmm15
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm10, xmm5
-          vmulss  xmm1, xmm11, xmm5
-          vsubss  xmm4, xmm0, xmm14
-          vsubss  xmm5, xmm1, xmm15
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm1, xmm1, xmm0
-          vsqrtss xmm2, xmm1, xmm1
-          vmovss  xmm10, cs:__real@80000000
-          vcmpless xmm0, xmm2, xmm10
-          vblendvps xmm1, xmm2, xmm8, xmm0
-          vdivss  xmm0, xmm8, xmm1
-          vmulss  xmm6, xmm4, xmm0
-          vmulss  xmm7, xmm5, xmm0
-          vmulss  xmm1, xmm15, [rbp+120h+var_1A0]
-          vmulss  xmm0, xmm14, [rsp+220h+var_1CC]
-          vaddss  xmm2, xmm1, xmm0
-          vcomiss xmm2, xmm13
-        }
-        if ( !(v138 | v139) )
-        {
-          __asm
-          {
-            vxorps  xmm6, xmm6, cs:__xmm@80000000800000008000000080000000
-            vxorps  xmm7, xmm7, cs:__xmm@80000000800000008000000080000000
-          }
-        }
-      }
-      v181 = !v85;
-      if ( v85 )
-      {
-        v181 = !IsStraightLineReachable;
-        if ( !IsStraightLineReachable )
-          goto LABEL_29;
-      }
-      __asm
-      {
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmovss  xmm0, dword ptr [rsp+220h+var_1C0]
-        vcomiss xmm0, xmm2
-      }
-      if ( !v181 )
-        goto LABEL_28;
-      if ( v85 || !IsStraightLineReachable )
-      {
-LABEL_29:
-        __asm
-        {
-          vmovss  xmm6, [rsp+220h+var_1DC]
-          vmovss  xmm7, [rsp+220h+var_1D8]
-          vmovss  xmm0, [rsp+220h+var_1D4]
-          vmovss  xmm2, [rsp+220h+var_1D0]
-        }
-      }
-      else
-      {
-LABEL_28:
-        v85 = IsStraightLineReachable;
-        __asm
-        {
-          vmovss  dword ptr [rsp+220h+var_1C0], xmm2
-          vmovaps xmm0, xmm4
-          vmovss  [rsp+220h+var_1D4], xmm4
-          vmovaps xmm2, xmm5
-          vmovss  [rsp+220h+var_1D0], xmm5
-          vmovss  [rsp+220h+var_1DC], xmm6
-          vmovss  [rsp+220h+var_1D8], xmm7
-        }
-      }
-      _R14 += 3;
-      __asm { vmovss  xmm5, [rbp+120h+var_19C] }
-      --v95;
-    }
-    while ( v95 );
-    __asm
-    {
-      vsubss  xmm1, xmm8, dword ptr [rax+1Ch]
-      vmulss  xmm0, xmm0, xmm1
-      vaddss  xmm5, xmm0, dword ptr [rdi+28h]
-      vmulss  xmm1, xmm2, xmm1
-      vaddss  xmm4, xmm1, dword ptr [rdi+2Ch]
-      vmulss  xmm2, xmm7, xmm7
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm1, xmm2, xmm0
-      vsqrtss xmm3, xmm1, xmm1
-      vcmpless xmm0, xmm3, xmm10
-      vblendvps xmm1, xmm3, xmm8, xmm0
-      vdivss  xmm0, xmm8, xmm1
-      vmulss  xmm2, xmm6, xmm0
-      vmulss  xmm3, xmm7, xmm0
-      vmulss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm5, xmm2
-      vaddss  xmm4, xmm1, xmm0
-    }
-    _R13 = (__int64)v249;
-    __asm
-    {
-      vmovss  dword ptr [r13+0], xmm2
-      vmovss  dword ptr [r13+4], xmm3
-    }
-    *(_DWORD *)(_R13 + 8) = 0;
-    __asm { vmovss  dword ptr [r13+0Ch], xmm4 }
-    bfx::AreaHandle::~AreaHandle(&hHintArea);
+    outPlane->v[0] = COERCE_FLOAT(COERCE_UNSIGNED_INT(v9 * (float)(1.0 / *(float *)&_XMM0)) ^ _xmm);
+    outPlane->v[1] = COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&v10 * (float)(1.0 / *(float *)&_XMM0)) ^ _xmm);
+    *(_QWORD *)&outPlane->xyz.z = 0i64;
   }
   else
   {
+    v18 = fsqrt(v17) * 0.5;
+    v19 = (float)(v13 * 0.5) - v13;
+    v20 = (float)(v14 * 0.5) - v14;
+    v21 = (float)(v20 * v20) + (float)(v19 * v19);
+    v22 = fsqrt(v21);
+    v23 = v16 * v16;
+    v24 = (float)((float)((float)(v16 * v16) - (float)(v17 * 0.25)) + v21) * (float)(0.5 / v22);
+    v25 = v24 * (float)(1.0 / v22);
+    v26 = (float)(v25 * v19) + v13;
+    v28 = (float)(v25 * v20) + v14;
+    v27 = v28;
+    if ( v22 >= COERCE_FLOAT(COERCE_UNSIGNED_INT(v15 - v18) & _xmm) )
+    {
+      v31 = fsqrt(v23 - (float)(v24 * v24)) * (float)(1.0 / v22);
+      v32 = v31 * v19;
+      v30 = (float)(v31 * v19) + v28;
+      v29 = v26 - (float)(v31 * v20);
+      v118 = v29;
+      v119 = v30;
+      v27 = v28 - v32;
+      v26 = v26 + (float)(v31 * v20);
+    }
+    else
+    {
+      v29 = (float)((float)(v24 * (float)(1.0 / v22)) * v19) + v13;
+      v118 = v29;
+      v30 = (float)(v25 * v20) + v14;
+      v119 = v30;
+    }
+    *(float *)&v120[3] = 0.0;
+    *(float *)&v120[2] = v27;
+    *(float *)&v120[1] = v26;
+    *(float *)v120 = 0.0;
+    v33 = avoidingEntityInfo->currentVelocity.v[0] - colliderInfo->velocity.v[0];
+    v35 = LODWORD(avoidingEntityInfo->currentVelocity.v[1]);
+    *(float *)&v35 = avoidingEntityInfo->currentVelocity.v[1] - colliderInfo->velocity.v[1];
+    v34 = v35;
+    v101 = avoidingEntityInfo->currentVelocity.v[2] - colliderInfo->velocity.v[2];
+    v95 = 0.0;
+    v96 = 0.0;
+    v93 = 0.0;
+    v94 = 0.0;
+    v98 = FLOAT_N1_0;
+    v100 = FLOAT_3_4028235e38;
+    v36 = 0;
+    Navigator = Nav_GetNavigator(avoidingEntityInfo->ent);
+    v38 = (__int64)Navigator->Get2DNavigator(Navigator);
+    if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\orca_avoidance.cpp", 630, ASSERT_TYPE_ASSERT, "(pNav2D)", (const char *)&queryFormat, "pNav2D") )
+      __debugbreak();
+    m_pSpace = Navigator->m_pSpace;
+    pSpace = m_pSpace;
+    PathSpec = AINavigator2D::GetPathSpec((AINavigator2D *)v38);
+    layer = *(_DWORD *)(v38 + 112);
+    bfx::AreaHandle::AreaHandle(&hHintArea, &colliderInfo->hArea);
+    *(_QWORD *)outSnappedPos.v = *(_QWORD *)p_position->v;
+    outSnappedPos.v[2] = colliderInfo->position.v[2];
+    IsPointOnMeshCustomWithHint = Nav_IsPointOnMeshCustomWithHint(m_pSpace, p_position, layer, PathSpec, &outSnappedPos, &hHintArea, &hHintArea);
+    if ( v29 == v26 && v30 == v27 )
+      v41 = 1i64;
+    else
+      v41 = 2i64;
+    v42 = FLOAT_1_0;
+    v43 = (float *)v120;
+    v44 = colliderInfo;
+    do
+    {
+      v105 = v98;
+      v45 = *(v43 - 1);
+      v46 = *((unsigned int *)v43 - 2);
+      v47 = *v43;
+      v48 = v46;
+      *(float *)&v48 = fsqrt((float)((float)(*(float *)&v46 * *(float *)&v46) + (float)(v45 * v45)) + (float)(v47 * v47));
+      _XMM3 = v48;
+      __asm
+      {
+        vcmpless xmm0, xmm3, xmm10
+        vblendvps xmm1, xmm3, xmm8, xmm0
+      }
+      v53 = v46;
+      *(float *)&v53 = *(float *)&v46 * (float)(1.0 / *(float *)&_XMM1);
+      v52 = v53;
+      v55 = LODWORD(v45);
+      *(float *)&v55 = v45 * (float)(1.0 / *(float *)&_XMM1);
+      v54 = v55;
+      v56 = (float)(1.0 / *(float *)&_XMM1) * *v43;
+      LODWORD(_XMM3) = COERCE_UNSIGNED_INT(*(float *)&v55 * v98) ^ _xmm;
+      v57 = v52;
+      *(float *)&v57 = fsqrt((float)((float)(*(float *)&v52 * v98) * (float)(*(float *)&v52 * v98)) + (float)(*(float *)&_XMM3 * *(float *)&_XMM3));
+      _XMM2 = v57;
+      __asm
+      {
+        vcmpless xmm0, xmm2, cs:__real@80000000
+        vblendvps xmm1, xmm2, xmm8, xmm0
+      }
+      v97 = *(float *)&_XMM3 * (float)(1.0 / *(float *)&_XMM1);
+      v104 = (float)(*(float *)&v52 * v98) * (float)(1.0 / *(float *)&_XMM1);
+      IsStraightLineReachable = 0;
+      v98 = v42;
+      if ( v44->reciprocality == 0.0 )
+      {
+        pos.v[0] = *(float *)&v46 + avoidingEntityInfo->position.v[0];
+        pos.v[1] = v45 + avoidingEntityInfo->position.v[1];
+        pos.v[2] = v47 + avoidingEntityInfo->position.v[2];
+        v115.v[0] = outSnappedPos.v[0];
+        v115.v[1] = outSnappedPos.v[1];
+        v115.v[2] = pos.v[2];
+        if ( bfx::AreaHandle::IsValid((bfx::AreaHandle *)desiredVelocityPointArea) )
+        {
+          bfx::AreaHandle::AreaHandle(&hStartArea);
+          if ( Nav_IsPointOnMeshCustom(pSpace, &pos, layer, PathSpec, &startPos, &hStartArea) && Nav_IsStraightLineReachable(&startPos, &hStartArea, endPos, desiredVelocityPointArea, PathSpec) )
+          {
+            if ( IsPointOnMeshCustomWithHint )
+            {
+              bfx::AreaHandle::AreaHandle(&v110);
+              if ( Nav_IsPointOnMeshCustom(pSpace, &v115, layer, PathSpec, &v117, &v110) )
+                IsStraightLineReachable = Nav_IsStraightLineReachable(&v117, &v110, &startPos, &hStartArea, PathSpec);
+              bfx::AreaHandle::~AreaHandle(&v110);
+            }
+            else
+            {
+              IsStraightLineReachable = 1;
+            }
+          }
+          bfx::AreaHandle::~AreaHandle(&hStartArea);
+        }
+        v44 = colliderInfo;
+      }
+      v62 = (float)((float)(*(float *)&v34 * *(float *)&v54) + (float)(v33 * *(float *)&v52)) + (float)(v56 * v101);
+      if ( v62 >= (float)((float)((float)(*(float *)&v52 * *(float *)&v46) + (float)(*(float *)&v54 * v45)) + (float)(v56 * v47)) )
+      {
+        v72 = v54;
+        v70 = (float)(*(float *)&v52 * v62) - v33;
+        *(float *)&v72 = (float)(*(float *)&v54 * v62) - *(float *)&v34;
+        v71 = v72;
+        *(float *)&v72 = fsqrt((float)(*(float *)&v72 * *(float *)&v72) + (float)(v70 * v70));
+        _XMM2 = v72;
+        __asm
+        {
+          vcmpless xmm0, xmm2, xmm10
+          vblendvps xmm1, xmm2, xmm8, xmm0
+        }
+        v68 = v70 * (float)(1.0 / *(float *)&_XMM1);
+        v76 = v71;
+        *(float *)&v76 = *(float *)&v71 * (float)(1.0 / *(float *)&_XMM1);
+        v69 = v76;
+        if ( (float)((float)(*(float *)&v34 * v104) + (float)(v33 * v97)) > 0.0 )
+        {
+          LODWORD(v68) ^= _xmm;
+          v69 = v76 ^ _xmm;
+        }
+      }
+      else
+      {
+        v63 = v34;
+        *(float *)&v63 = fsqrt((float)((float)(*(float *)&v34 - v102) * (float)(*(float *)&v34 - v102)) + (float)((float)(v33 - v13) * (float)(v33 - v13)));
+        _XMM2 = v63;
+        __asm
+        {
+          vcmpless xmm0, xmm2, xmm10
+          vblendvps xmm1, xmm2, xmm8, xmm0
+        }
+        v67 = LODWORD(FLOAT_1_0);
+        v68 = (float)(1.0 / *(float *)&_XMM1) * (float)(v33 - v13);
+        *(float *)&v67 = (float)(1.0 / *(float *)&_XMM1) * (float)(*(float *)&v34 - v102);
+        v69 = v67;
+        v70 = (float)((float)(v68 * v103) + v13) - v33;
+        *(float *)&v71 = (float)((float)(*(float *)&v67 * v103) + v102) - *(float *)&v34;
+      }
+      if ( v36 && !IsStraightLineReachable || v100 <= (float)((float)(v70 * v70) + (float)(*(float *)&v71 * *(float *)&v71)) && (v36 || !IsStraightLineReachable) )
+      {
+        v68 = v93;
+        v69 = LODWORD(v94);
+        v77 = v95;
+        v78 = v96;
+      }
+      else
+      {
+        v36 = IsStraightLineReachable;
+        v100 = (float)(v70 * v70) + (float)(*(float *)&v71 * *(float *)&v71);
+        v77 = v70;
+        v95 = v70;
+        v78 = *(float *)&v71;
+        v96 = *(float *)&v71;
+        v93 = v68;
+        v94 = *(float *)&v69;
+      }
+      v43 += 3;
+      v42 = v105;
+      --v41;
+    }
+    while ( v41 );
+    v79 = 1.0 - v44->reciprocality;
+    v80 = (float)(v77 * v79) + avoidingEntityInfo->currentVelocity.v[0];
+    v81 = (float)(v78 * v79) + avoidingEntityInfo->currentVelocity.v[1];
+    v82 = v69;
+    *(float *)&v82 = fsqrt((float)(*(float *)&v69 * *(float *)&v69) + (float)(v68 * v68));
+    _XMM3 = v82;
     __asm
     {
-      vmulss  xmm1, xmm6, xmm6
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm1, xmm1, xmm0
-      vsqrtss xmm2, xmm1, xmm1
-      vcmpless xmm0, xmm2, cs:__real@80000000
-      vblendvps xmm0, xmm2, xmm8, xmm0
-      vdivss  xmm4, xmm8, xmm0
-      vmulss  xmm1, xmm5, xmm4
-      vxorps  xmm3, xmm1, cs:__xmm@80000000800000008000000080000000
-      vmulss  xmm0, xmm6, xmm4
-      vxorps  xmm2, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmovss  dword ptr [r13+0], xmm3
-      vmovss  dword ptr [r13+4], xmm2
+      vcmpless xmm0, xmm3, xmm10
+      vblendvps xmm1, xmm3, xmm8, xmm0
     }
-    *(_QWORD *)&outPlane->xyz.z = 0i64;
-  }
-  _R11 = &v261;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
+    v86 = v68 * (float)(1.0 / *(float *)&_XMM1);
+    *(float *)&_XMM3 = *(float *)&v69 * (float)(1.0 / *(float *)&_XMM1);
+    v87 = v109;
+    v109->v[0] = v86;
+    v87->v[1] = *(float *)&_XMM3;
+    v87->v[2] = 0.0;
+    v87->v[3] = (float)(v81 * *(float *)&_XMM3) + (float)(v80 * v86);
+    bfx::AreaHandle::~AreaHandle(&hHintArea);
   }
 }
 
@@ -1032,174 +844,196 @@ ORCA_DoAvoidance
 __int64 ORCA_DoAvoidance(AvoidingEntityInfo *avoidingEntityInfo, const AvoidSettings *settings, vec3_t *outAvoidingVelocity, AvoidanceResult (*fnCollisionCheck)(const AvoidingEntityInfo *, const AvoidSettings *, const vec3_t *, float *), int *outColliderEntNums, int *outColliderCount)
 {
   signed __int64 v6; 
-  void *v17; 
-  int v20; 
-  __int64 v27; 
-  const gentity_s *ent; 
-  __int64 (__fastcall ***v65)(_QWORD); 
+  void *v7; 
+  int v10; 
+  __int64 v11; 
+  float v12; 
+  float v13; 
+  __int128 v14; 
+  float v15; 
+  float v18; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+  __int128 v23; 
+  gentity_s *ent; 
+  __int64 (__fastcall ***v28)(_QWORD); 
   ai_agent_t *ScriptedAgentInfo; 
   actor_s *actor; 
-  char v68; 
-  sentient_s *v74; 
+  int v31; 
+  bitarray<224> *v32; 
+  sentient_s *v33; 
+  float *v34; 
   const gentity_s **p_ent; 
   AICommonInterface *m_pAI; 
-  __int64 v78; 
-  __int64 v79; 
-  char v80; 
-  bool v126; 
-  bool v151; 
+  __int64 v37; 
+  __int64 v38; 
+  __int128 v39; 
+  float v40; 
+  float v41; 
+  __int128 v42; 
+  float v46; 
+  float v47; 
+  float v48; 
+  __int128 v49; 
+  float v50; 
+  float v51; 
+  float v52; 
+  float v53; 
+  float v54; 
+  __int128 v56; 
+  float v59; 
+  float v60; 
+  float v61; 
+  __int128 v63; 
+  __int128 v66; 
+  __int128 v67; 
+  vec3_t *v71; 
+  __int128 v72; 
+  float v73; 
+  __int128 v74; 
   AINavigator *pNavigator; 
-  AINavigator2D *v186; 
+  AINavigator2D *v79; 
   const bfx::AreaHandle *CurArea; 
-  _DWORD *v188; 
+  _DWORD *v81; 
+  float v82; 
+  float v83; 
+  float v84; 
   unsigned __int64 eTeam; 
-  int v194; 
-  bool v196; 
+  int v86; 
+  nav_repulsor_s *FirstRepulsor; 
+  float *v88; 
+  float radius; 
   gentity_s *ignoreEnt; 
-  __int64 v214; 
-  _DWORD *v263; 
+  gentity_s *v91; 
+  __int64 v92; 
+  float v93; 
+  float v94; 
+  __int128 v95; 
+  float v96; 
+  __int128 v97; 
+  float v98; 
+  float v99; 
+  __int128 v100; 
+  float *p_commandTime; 
+  float v102; 
+  float v103; 
+  float v104; 
+  float v105; 
+  __int128 v107; 
+  float v110; 
+  __int128 v111; 
+  __int128 v112; 
+  float v116; 
+  __int128 v118; 
+  _DWORD *v121; 
   AINavigator *Navigator; 
-  __int64 v267; 
-  __int64 v279; 
-  __int64 v280; 
-  bool v285; 
-  bool v286; 
-  int v287; 
-  int v288; 
-  bool v289; 
-  bool v292; 
-  int v302; 
-  unsigned int v303; 
-  const dvar_t *v313; 
-  __int64 result; 
+  __int64 v123; 
+  AvoidSettings *v124; 
+  __int64 v125; 
+  __int64 v126; 
+  float v127; 
+  bool v128; 
+  bool v129; 
+  int v130; 
+  int v131; 
+  vec3_t *v132; 
+  bool v133; 
+  vec3_t *v134; 
+  int v135; 
+  unsigned int v136; 
+  const dvar_t *v137; 
   int destructor; 
   int *numberOfPlanesOut; 
-  __int64 v336; 
+  __int64 v141; 
   int numberOfVerticesOut; 
-  int v338; 
+  float v143[2]; 
+  float v144; 
+  float v145; 
+  float v146; 
+  float v147; 
+  float v148; 
+  float v149; 
+  float v150; 
+  float v151; 
+  float v152; 
+  float v153; 
+  float v154; 
   AvoidSettings *settingsa; 
-  AIActorInterface v351; 
-  AIAgentInterface v352; 
-  __int64 (__fastcall ***v353)(_QWORD); 
-  __int64 v354; 
-  AICommonWrapper v355; 
+  AIActorInterface v156; 
+  AIAgentInterface v157; 
+  __int64 (__fastcall ***v158)(_QWORD); 
+  __int64 v159; 
+  AICommonWrapper v160; 
   Bounds box; 
   vec4_t plane; 
   bitarray<224> iTeamFlags; 
   AvoidanceResult (__fastcall *fnCollisionChecka[2])(const AvoidingEntityInfo *, const AvoidSettings *, const vec3_t *, float *); 
   vec4_t color; 
   vec3_t *outAvoidingVelocitya[2]; 
-  char v362[20]; 
-  bfx::AreaHandle v363; 
-  bfx::LinkHandle v364; 
+  char v167[20]; 
+  bfx::AreaHandle v168; 
+  bfx::LinkHandle v169; 
   vec3_t polygon[32]; 
   vec4_t planes[32]; 
   OrcaColliderInfo ptr[272]; 
-  char v378; 
 
-  v17 = alloca(v6);
-  v354 = -2i64;
-  __asm
-  {
-    vmovaps [rsp+3DE0h+var_50], xmm6
-    vmovaps [rsp+3DE0h+var_60], xmm7
-    vmovaps [rsp+3DE0h+var_70], xmm8
-    vmovaps [rsp+3DE0h+var_80], xmm9
-    vmovaps [rsp+3DE0h+var_90], xmm10
-    vmovaps [rsp+3DE0h+var_A0], xmm11
-    vmovaps [rsp+3DE0h+var_B0], xmm12
-    vmovaps [rsp+3DE0h+var_C0], xmm13
-    vmovaps [rsp+3DE0h+var_D0], xmm14
-    vmovaps [rsp+3DE0h+var_E0], xmm15
-  }
+  v7 = alloca(v6);
+  v159 = -2i64;
   fnCollisionChecka[0] = fnCollisionCheck;
   outAvoidingVelocitya[0] = outAvoidingVelocity;
-  _RDI = settings;
   settingsa = (AvoidSettings *)settings;
-  _R15 = avoidingEntityInfo;
   *(_QWORD *)plane.v = outColliderEntNums;
   *(_QWORD *)color.v = outColliderCount;
   `eh vector constructor iterator'(ptr, 0x34ui64, 0x110ui64, (void (__fastcall *)(void *))OrcaColliderInfo::OrcaColliderInfo, (void (__fastcall *)(void *))OrcaColliderInfo::~OrcaColliderInfo);
   Sys_ProfBeginNamedEvent(0xFFFFFFFF, "Orca_DoAvoidance");
-  v20 = 0;
+  v10 = 0;
   numberOfVerticesOut = 0;
+  box.midPoint = avoidingEntityInfo->position;
+  box.halfSize = settings->avoidanceBoundsHalfSize;
+  v11 = 0i64;
+  v12 = avoidingEntityInfo->goalPosition.v[0] - box.midPoint.v[0];
+  v14 = LODWORD(avoidingEntityInfo->goalPosition.v[1]);
+  v13 = avoidingEntityInfo->goalPosition.v[1] - box.midPoint.v[1];
+  v15 = avoidingEntityInfo->goalPosition.v[2] - box.midPoint.v[2];
+  v149 = (float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v15 * v15);
+  *(float *)&v14 = fsqrt(v149);
+  _XMM8 = v14;
+  __asm { vcmpless xmm0, xmm8, xmm12 }
+  v18 = FLOAT_1_0;
+  __asm { vblendvps xmm1, xmm8, xmm11, xmm0 }
+  v145 = *(float *)&_XMM1;
+  v151 = (float)(1.0 / *(float *)&_XMM1) * v12;
+  v150 = (float)(1.0 / *(float *)&_XMM1) * v13;
+  v152 = (float)(1.0 / *(float *)&_XMM1) * v15;
+  v20 = avoidingEntityInfo->currentVelocity.v[1];
+  v21 = LODWORD(avoidingEntityInfo->currentVelocity.v[0]);
+  v22 = avoidingEntityInfo->currentVelocity.v[2];
+  v23 = v21;
+  *(float *)&v23 = fsqrt((float)((float)(*(float *)&v21 * *(float *)&v21) + (float)(v20 * v20)) + (float)(v22 * v22));
+  _XMM2 = v23;
+  v145 = *(float *)&v23;
   __asm
   {
-    vmovss  xmm2, dword ptr [r15+10h]
-    vmovss  dword ptr [rbp+3CE0h+box.midPoint], xmm2
-    vmovss  xmm3, dword ptr [r15+14h]
-    vmovss  dword ptr [rbp+3CE0h+box.midPoint+4], xmm3
-    vmovss  xmm4, dword ptr [r15+18h]
-    vmovss  dword ptr [rbp+3CE0h+box.midPoint+8], xmm4
-    vmovss  xmm0, dword ptr [rdi+14h]
-    vmovss  dword ptr [rbp+3CE0h+box.halfSize], xmm0
-    vmovss  xmm1, dword ptr [rdi+18h]
-    vmovss  dword ptr [rbp+3CE0h+box.halfSize+4], xmm1
-    vmovss  xmm0, dword ptr [rdi+1Ch]
-    vmovss  dword ptr [rbp+3CE0h+box.halfSize+8], xmm0
-  }
-  v27 = 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r15+34h]
-    vsubss  xmm7, xmm0, xmm2
-    vmovss  xmm1, dword ptr [r15+38h]
-    vsubss  xmm6, xmm1, xmm3
-    vmovss  xmm0, dword ptr [r15+3Ch]
-    vsubss  xmm5, xmm0, xmm4
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm0, xmm3, xmm0
-    vmovss  [rsp+3DE0h+var_3D70], xmm0
-    vsqrtss xmm8, xmm0, xmm0
-    vmovss  xmm12, cs:__real@80000000
-    vcmpless xmm0, xmm8, xmm12
-    vmovss  xmm11, cs:__real@3f800000
-    vblendvps xmm1, xmm8, xmm11, xmm0
-    vmovss  [rsp+3DE0h+var_3D80], xmm1
-    vdivss  xmm0, xmm11, xmm1
-    vmulss  xmm1, xmm0, xmm7
-    vmovss  [rsp+3DE0h+var_3D68], xmm1
-    vmulss  xmm1, xmm0, xmm6
-    vmovss  [rsp+3DE0h+var_3D6C], xmm1
-    vmulss  xmm0, xmm0, xmm5
-    vmovss  [rsp+3DE0h+var_3D64], xmm0
-    vmovss  xmm5, dword ptr [r15+2Ch]
-    vmovss  xmm3, dword ptr [r15+28h]
-    vmovss  xmm4, dword ptr [r15+30h]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm2, xmm2, xmm2
-    vmovss  [rsp+3DE0h+var_3D80], xmm2
     vcmpless xmm0, xmm2, xmm12
     vblendvps xmm1, xmm2, xmm11, xmm0
-    vmovss  [rsp+3DE0h+var_3D84], xmm1
-    vdivss  xmm0, xmm11, xmm1
-    vmulss  xmm1, xmm3, xmm0
-    vmovss  [rsp+3DE0h+var_3D78], xmm1
-    vmulss  xmm1, xmm5, xmm0
-    vmovss  [rsp+3DE0h+var_3D7C], xmm1
-    vmulss  xmm0, xmm4, xmm0
-    vmovss  [rsp+3DE0h+var_3D74], xmm0
-    vdivss  xmm0, xmm8, xmm2
-    vmovss  [rsp+3DE0h+var_3D8C], xmm0
   }
-  ent = _R15->ent;
-  AIActorInterface::AIActorInterface(&v351);
-  AIAgentInterface::AIAgentInterface(&v352);
-  v352.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-  v65 = NULL;
-  v353 = NULL;
+  v144 = *(float *)&_XMM1;
+  v147 = *(float *)&v21 * (float)(1.0 / *(float *)&_XMM1);
+  v146 = v20 * (float)(1.0 / *(float *)&_XMM1);
+  v148 = v22 * (float)(1.0 / *(float *)&_XMM1);
+  v143[0] = *(float *)&_XMM8 / *(float *)&v23;
+  ent = avoidingEntityInfo->ent;
+  AIActorInterface::AIActorInterface(&v156);
+  AIAgentInterface::AIAgentInterface(&v157);
+  v157.__vftable = (AIAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+  v28 = NULL;
+  v158 = NULL;
   if ( !ent )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 79, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
       __debugbreak();
-    v65 = v353;
+    v28 = v158;
   }
   if ( ent->agent )
   {
@@ -1210,703 +1044,440 @@ __int64 ORCA_DoAvoidance(AvoidingEntityInfo *avoidingEntityInfo, const AvoidSett
         __debugbreak();
       if ( !ScriptedAgentInfo->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 98, ASSERT_TYPE_ASSERT, "( pInfo->sentientInfo )", (const char *)&queryFormat, "pInfo->sentientInfo") )
         __debugbreak();
-      AINewAgentInterface::SetAgent((AINewAgentInterface *)&v352, ScriptedAgentInfo);
-      v65 = (__int64 (__fastcall ***)(_QWORD))&v352;
-      v353 = (__int64 (__fastcall ***)(_QWORD))&v352;
+      AINewAgentInterface::SetAgent((AINewAgentInterface *)&v157, ScriptedAgentInfo);
+      v28 = (__int64 (__fastcall ***)(_QWORD))&v157;
+      v158 = (__int64 (__fastcall ***)(_QWORD))&v157;
       goto LABEL_21;
     }
-    v65 = v353;
+    v28 = v158;
   }
   actor = ent->actor;
   if ( actor )
   {
     if ( !actor->sentientInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\ai_wrapper.h", 105, ASSERT_TYPE_ASSERT, "( ent->actor->sentientInfo )", (const char *)&queryFormat, "ent->actor->sentientInfo") )
       __debugbreak();
-    AIActorInterface::SetActor(&v351, ent->actor);
-    v65 = (__int64 (__fastcall ***)(_QWORD))&v351;
-    v353 = (__int64 (__fastcall ***)(_QWORD))&v351;
+    AIActorInterface::SetActor(&v156, ent->actor);
+    v28 = (__int64 (__fastcall ***)(_QWORD))&v156;
+    v158 = (__int64 (__fastcall ***)(_QWORD))&v156;
     goto LABEL_21;
   }
-  v68 = 0;
-  if ( v65 )
+  if ( v28 )
 LABEL_21:
-    v27 = (**v65)(v65);
-  __asm
+    v11 = (**v28)(v28);
+  v31 = _xmm;
+  if ( settings->reciprocality > 0.0 )
   {
-    vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vxorps  xmm9, xmm9, xmm9
-    vcomiss xmm9, dword ptr [rdi+4]
-  }
-  if ( v68 )
-  {
-    _RAX = Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) ? Com_TeamsSP_GetAllTeamFlags() : Com_TeamsMP_GetAllTeamFlags();
-    __asm
+    v32 = (bitarray<224> *)(Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) ? Com_TeamsSP_GetAllTeamFlags() : Com_TeamsMP_GetAllTeamFlags());
+    iTeamFlags = *v32;
+    v33 = Sentient_FirstSentient(&iTeamFlags);
+    if ( v33 )
     {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbp+3CE0h+iTeamFlags.array], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-      vmovsd  qword ptr [rbp+3CE0h+iTeamFlags.array+10h], xmm1
-    }
-    iTeamFlags.array[6] = _RAX->array[6];
-    v74 = Sentient_FirstSentient(&iTeamFlags);
-    if ( v74 )
-    {
-      _RBX = &ptr[0].position.v[1];
-      while ( 1 )
+      v34 = &ptr[0].position.v[1];
+      do
       {
-        if ( v74->ent != _R15->ent && v74->ent != _R15->ignoreEnt )
+        if ( v33->ent != avoidingEntityInfo->ent && v33->ent != avoidingEntityInfo->ignoreEnt )
         {
-          p_ent = (const gentity_s **)&v74->ai->ent;
+          p_ent = (const gentity_s **)&v33->ai->ent;
           if ( p_ent )
           {
-            AIActorInterface::AIActorInterface(&v355.m_actorInterface);
-            AIAgentInterface::AIAgentInterface(&v355.m_newAgentInterface);
-            v355.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
-            AICommonInterface::AICommonInterface(&v355.m_botInterface);
-            v355.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
-            AICommonInterface::AICommonInterface(&v355.m_botAgentInterface);
-            v355.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
-            v355.m_pAI = NULL;
-            AICommonWrapper::Setup(&v355, *p_ent);
-            m_pAI = v355.m_pAI;
-            if ( !v355.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\orca_avoidance.cpp", 1151, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
+            AIActorInterface::AIActorInterface(&v160.m_actorInterface);
+            AIAgentInterface::AIAgentInterface(&v160.m_newAgentInterface);
+            v160.m_newAgentInterface.__vftable = (AINewAgentInterface_vtbl *)&AINewAgentInterface::`vftable';
+            AICommonInterface::AICommonInterface(&v160.m_botInterface);
+            v160.m_botInterface.__vftable = (AIBotInterface_vtbl *)&AIBotInterface::`vftable';
+            AICommonInterface::AICommonInterface(&v160.m_botAgentInterface);
+            v160.m_botAgentInterface.__vftable = (AIBotAgentInterface_vtbl *)&AIBotAgentInterface::`vftable';
+            v160.m_pAI = NULL;
+            AICommonWrapper::Setup(&v160, *p_ent);
+            m_pAI = v160.m_pAI;
+            if ( !v160.m_pAI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\orca_avoidance.cpp", 1151, ASSERT_TYPE_ASSERT, "(pAI)", (const char *)&queryFormat, "pAI") )
               __debugbreak();
             if ( m_pAI->IsAlive(m_pAI) )
             {
-              v78 = m_pAI->GetAI(m_pAI);
-              if ( *(_BYTE *)(v78 + 442) )
+              v37 = m_pAI->GetAI(m_pAI);
+              if ( *(_BYTE *)(v37 + 442) )
               {
-                v79 = numberOfVerticesOut;
-                Sentient_GetOrigin(v74, &ptr[v79].position);
-                __asm
+                v38 = numberOfVerticesOut;
+                Sentient_GetOrigin(v33, &ptr[v38].position);
+                if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(*(v34 - 1) - box.midPoint.v[0]) & v31) < box.halfSize.v[0] && COERCE_FLOAT(COERCE_UNSIGNED_INT(*v34 - box.midPoint.v[1]) & v31) < box.halfSize.v[1] && COERCE_FLOAT(COERCE_UNSIGNED_INT(v34[1] - box.midPoint.v[2]) & v31) < box.halfSize.v[2] )
                 {
-                  vmovss  xmm0, dword ptr [rbx-4]
-                  vsubss  xmm1, xmm0, dword ptr [rbp+3CE0h+box.midPoint]
-                  vandps  xmm1, xmm1, xmm6
-                  vcomiss xmm1, dword ptr [rbp+3CE0h+box.halfSize]
-                }
-                if ( v80 )
-                {
+                  Sentient_GetVelocity(v33, &ptr[v38].velocity);
+                  v39 = *((unsigned int *)v34 + 3);
+                  v40 = v34[2];
+                  v41 = v34[4];
+                  v42 = v39;
+                  *(float *)&v42 = fsqrt((float)((float)(*(float *)&v39 * *(float *)&v39) + (float)(v40 * v40)) + (float)(v41 * v41));
+                  _XMM7 = v42;
                   __asm
                   {
-                    vmovss  xmm0, dword ptr [rbx]
-                    vsubss  xmm1, xmm0, dword ptr [rbp+3CE0h+box.midPoint+4]
-                    vandps  xmm1, xmm1, xmm6
-                    vcomiss xmm1, dword ptr [rbp+3CE0h+box.halfSize+4]
+                    vcmpless xmm0, xmm7, xmm12
+                    vblendvps xmm1, xmm7, xmm11, xmm0
                   }
-                  if ( v80 )
+                  v144 = *(float *)&_XMM1;
+                  v46 = (float)(v18 / *(float *)&_XMM1) * v40;
+                  v47 = (float)(v18 / *(float *)&_XMM1) * *(float *)&v39;
+                  v48 = (float)(v18 / *(float *)&_XMM1) * v41;
+                  v49 = *((unsigned int *)v34 - 1);
+                  v50 = avoidingEntityInfo->position.v[0];
+                  v56 = v49;
+                  v51 = *v34;
+                  v52 = avoidingEntityInfo->position.v[1];
+                  *(float *)&v39 = *v34 - v52;
+                  v53 = v34[1];
+                  v54 = v53 - avoidingEntityInfo->position.v[2];
+                  *(float *)&v56 = fsqrt((float)((float)((float)(*(float *)&v49 - v50) * (float)(*(float *)&v49 - v50)) + (float)(*(float *)&v39 * *(float *)&v39)) + (float)(v54 * v54));
+                  _XMM12 = v56;
+                  __asm
                   {
+                    vcmpless xmm0, xmm12, cs:__real@80000000
+                    vblendvps xmm1, xmm12, xmm2, xmm0
+                  }
+                  v154 = (float)(1.0 / *(float *)&_XMM1) * (float)(*(float *)&v49 - v50);
+                  v153 = (float)(1.0 / *(float *)&_XMM1) * *(float *)&v39;
+                  v144 = (float)(1.0 / *(float *)&_XMM1) * v54;
+                  if ( *(_BYTE *)(v37 + 441) && *(float *)&_XMM7 > 10.0 && settingsa->othersAvoidMe )
+                  {
+                    v63 = LODWORD(avoidingEntityInfo->goalPosition.v[0]);
+                    v59 = avoidingEntityInfo->goalPosition.v[0] - *(float *)&v49;
+                    v60 = avoidingEntityInfo->goalPosition.v[1] - v51;
+                    v61 = avoidingEntityInfo->goalPosition.v[2] - v53;
+                    *(float *)&v63 = fsqrt((float)((float)(v59 * v59) + (float)(v60 * v60)) + (float)(v61 * v61));
+                    _XMM8 = v63;
                     __asm
                     {
-                      vmovss  xmm0, dword ptr [rbx+4]
-                      vsubss  xmm1, xmm0, dword ptr [rbp+3CE0h+box.midPoint+8]
-                      vandps  xmm1, xmm1, xmm6
-                      vcomiss xmm1, dword ptr [rbp+3CE0h+box.halfSize+8]
+                      vcmpless xmm0, xmm8, cs:__real@80000000
+                      vblendvps xmm1, xmm8, xmm2, xmm0
                     }
-                    if ( v80 )
+                    if ( (float)((float)((float)((float)((float)(1.0 / *(float *)&_XMM1) * v60) * v150) + (float)((float)((float)(1.0 / *(float *)&_XMM1) * v59) * v151)) + (float)((float)((float)(1.0 / *(float *)&_XMM1) * v61) * v152)) >= 0.0 || v143[0] >= (float)(*(float *)&v63 / *(float *)&_XMM7) )
                     {
-                      Sentient_GetVelocity(v74, &ptr[v79].velocity);
-                      __asm
+                      v34[5] = *(float *)(v37 + 444);
+                      if ( v11 && !*(_BYTE *)(v11 + 2988) )
+                        goto LABEL_58;
+                      if ( (float)((float)((float)(v146 * v153) + (float)(v147 * v154)) + (float)(v148 * v144)) <= 0.90899998 )
+                        goto LABEL_58;
+                      if ( (float)((float)((float)(v47 * v146) + (float)(v46 * v147)) + (float)(v148 * v48)) <= 0.96499997 )
+                        goto LABEL_58;
+                      v34[5] = 0.0;
+                      if ( v145 <= *(float *)&_XMM7 )
+                        goto LABEL_58;
+                      v18 = FLOAT_1_0;
+                      if ( *(float *)&_XMM12 < 150.0 )
                       {
-                        vmovss  xmm4, dword ptr [rbx+0Ch]
-                        vmovss  xmm3, dword ptr [rbx+8]
-                        vmovss  xmm5, dword ptr [rbx+10h]
-                        vmulss  xmm1, xmm4, xmm4
-                        vmulss  xmm0, xmm3, xmm3
-                        vaddss  xmm2, xmm1, xmm0
-                        vmulss  xmm1, xmm5, xmm5
-                        vaddss  xmm2, xmm2, xmm1
-                        vsqrtss xmm7, xmm2, xmm2
-                        vcmpless xmm0, xmm7, xmm12
-                        vblendvps xmm1, xmm7, xmm11, xmm0
-                        vmovss  [rsp+3DE0h+var_3D84], xmm1
-                        vdivss  xmm0, xmm11, xmm1
-                        vmulss  xmm9, xmm0, xmm3
-                        vmulss  xmm10, xmm0, xmm4
-                        vmulss  xmm11, xmm0, xmm5
-                        vmovss  xmm6, dword ptr [rbx-4]
-                        vmovss  xmm14, dword ptr [r15+10h]
-                        vsubss  xmm5, xmm6, xmm14
-                        vmovss  xmm8, dword ptr [rbx]
-                        vmovss  xmm15, dword ptr [r15+14h]
-                        vsubss  xmm4, xmm8, xmm15
-                        vmovss  xmm13, dword ptr [rbx+4]
-                        vsubss  xmm3, xmm13, dword ptr [r15+18h]
-                        vmulss  xmm1, xmm5, xmm5
-                        vmulss  xmm0, xmm4, xmm4
-                        vaddss  xmm2, xmm1, xmm0
-                        vmulss  xmm1, xmm3, xmm3
-                        vaddss  xmm2, xmm2, xmm1
-                        vsqrtss xmm12, xmm2, xmm2
-                        vcmpless xmm0, xmm12, cs:__real@80000000
-                        vmovss  xmm2, cs:__real@3f800000
-                        vblendvps xmm1, xmm12, xmm2, xmm0
-                        vmovss  [rsp+3DE0h+var_3D84], xmm1
-                        vdivss  xmm0, xmm2, xmm1
-                        vmulss  xmm1, xmm0, xmm5
-                        vmovss  [rbp+3CE0h+var_3D5C], xmm1
-                        vmulss  xmm1, xmm0, xmm4
-                        vmovss  [rbp+3CE0h+var_3D60], xmm1
-                        vmulss  xmm0, xmm0, xmm3
-                        vmovss  [rsp+3DE0h+var_3D84], xmm0
-                      }
-                      v126 = *(_BYTE *)(v78 + 441) == 0;
-                      if ( !*(_BYTE *)(v78 + 441) )
-                        goto LABEL_46;
-                      __asm { vcomiss xmm7, cs:__real@41200000 }
-                      if ( !*(_BYTE *)(v78 + 441) )
-                        goto LABEL_46;
-                      v126 = !settingsa->othersAvoidMe;
-                      if ( settingsa->othersAvoidMe )
-                      {
+                        v66 = LODWORD(avoidingEntityInfo->desiredVelocity.v[0]);
+                        v67 = v66;
+                        *(float *)&v67 = fsqrt((float)((float)(*(float *)&v66 * *(float *)&v66) + (float)(avoidingEntityInfo->desiredVelocity.v[1] * avoidingEntityInfo->desiredVelocity.v[1])) + (float)(avoidingEntityInfo->desiredVelocity.v[2] * avoidingEntityInfo->desiredVelocity.v[2]));
+                        _XMM4 = v67;
                         __asm
                         {
-                          vmovss  xmm0, dword ptr [r15+34h]
-                          vsubss  xmm6, xmm0, xmm6
-                          vmovss  xmm1, dword ptr [r15+38h]
-                          vsubss  xmm5, xmm1, xmm8
-                          vmovss  xmm0, dword ptr [r15+3Ch]
-                          vsubss  xmm4, xmm0, xmm13
-                          vmulss  xmm2, xmm6, xmm6
-                          vmulss  xmm1, xmm5, xmm5
-                          vaddss  xmm3, xmm2, xmm1
-                          vmulss  xmm0, xmm4, xmm4
-                          vaddss  xmm2, xmm3, xmm0
-                          vsqrtss xmm8, xmm2, xmm2
-                          vcmpless xmm0, xmm8, cs:__real@80000000
-                          vmovss  xmm2, cs:__real@3f800000
-                          vblendvps xmm1, xmm8, xmm2, xmm0
-                          vdivss  xmm2, xmm2, xmm1
-                          vmulss  xmm4, xmm2, xmm4
-                          vmulss  xmm0, xmm2, xmm5
-                          vmulss  xmm3, xmm0, [rsp+3DE0h+var_3D6C]
-                          vmulss  xmm1, xmm2, xmm6
-                          vmulss  xmm2, xmm1, [rsp+3DE0h+var_3D68]
-                          vaddss  xmm3, xmm3, xmm2
-                          vmulss  xmm0, xmm4, [rsp+3DE0h+var_3D64]
-                          vaddss  xmm1, xmm3, xmm0
-                          vcomiss xmm1, cs:__real@00000000
+                          vcmpless xmm0, xmm4, xmm12
+                          vblendvps xmm1, xmm4, xmm11, xmm0
                         }
-                        _RBX[5] = *(float *)(v78 + 444);
-                        v151 = v27 == 0;
-                        if ( !v27 || (v151 = *(_BYTE *)(v27 + 2988) == 0, *(_BYTE *)(v27 + 2988)) )
-                        {
-                          __asm
-                          {
-                            vmovss  xmm8, [rsp+3DE0h+var_3D7C]
-                            vmulss  xmm1, xmm8, [rbp+3CE0h+var_3D60]
-                            vmovss  xmm6, [rsp+3DE0h+var_3D78]
-                            vmulss  xmm0, xmm6, [rbp+3CE0h+var_3D5C]
-                            vaddss  xmm2, xmm1, xmm0
-                            vmovss  xmm13, [rsp+3DE0h+var_3D74]
-                            vmulss  xmm1, xmm13, [rsp+3DE0h+var_3D84]
-                            vaddss  xmm2, xmm2, xmm1
-                            vcomiss xmm2, cs:__real@3f68b439
-                          }
-                          if ( !v151 )
-                          {
-                            __asm
-                            {
-                              vmulss  xmm1, xmm10, xmm8
-                              vmulss  xmm0, xmm9, xmm6
-                              vaddss  xmm2, xmm1, xmm0
-                              vmulss  xmm1, xmm13, xmm11
-                              vaddss  xmm2, xmm2, xmm1
-                              vcomiss xmm2, cs:__real@3f770a3d
-                            }
-                            _RBX[5] = 0.0;
-                            __asm
-                            {
-                              vmovss  xmm0, [rsp+3DE0h+var_3D80]
-                              vcomiss xmm0, xmm7
-                              vmovss  xmm11, cs:__real@3f800000
-                              vcomiss xmm12, cs:__real@43160000
-                              vmovss  xmm12, cs:__real@80000000
-                            }
-                            goto LABEL_54;
-                          }
-                        }
-                      }
-                      else
-                      {
-LABEL_46:
-                        __asm { vucomiss xmm7, cs:__real@00000000 }
-                        if ( v126 )
-                        {
-                          __asm
-                          {
-                            vmovss  xmm1, [rsp+3DE0h+var_3D70]
-                            vsqrtss xmm0, xmm1, xmm1
-                            vaddss  xmm0, xmm0, cs:__real@41c80000
-                            vcomiss xmm0, xmm12
-                          }
-                        }
+                        avoidingEntityInfo->desiredVelocity.v[0] = (float)(1.0 / *(float *)&_XMM1) * *(float *)&v66;
+                        avoidingEntityInfo->desiredVelocity.v[1] = (float)(1.0 / *(float *)&_XMM1) * avoidingEntityInfo->desiredVelocity.v[1];
+                        avoidingEntityInfo->desiredVelocity.v[2] = (float)(1.0 / *(float *)&_XMM1) * avoidingEntityInfo->desiredVelocity.v[2];
+                        avoidingEntityInfo->desiredVelocity.v[0] = *(float *)&_XMM7 * avoidingEntityInfo->desiredVelocity.v[0];
+                        avoidingEntityInfo->desiredVelocity.v[1] = *(float *)&_XMM7 * avoidingEntityInfo->desiredVelocity.v[1];
+                        avoidingEntityInfo->desiredVelocity.v[2] = *(float *)&_XMM7 * avoidingEntityInfo->desiredVelocity.v[2];
+                        v71 = outAvoidingVelocitya[0];
+                        *(float *)&v66 = outAvoidingVelocitya[0]->v[1];
+                        v72 = (unsigned int)outAvoidingVelocitya[0]->v[0];
+                        v73 = outAvoidingVelocitya[0]->v[2];
+                        v74 = v72;
+                        *(float *)&v74 = fsqrt((float)((float)(*(float *)&v72 * *(float *)&v72) + (float)(*(float *)&v66 * *(float *)&v66)) + (float)(v73 * v73));
+                        _XMM3 = v74;
                         __asm
                         {
-                          vsubss  xmm0, xmm14, xmm6
-                          vsubss  xmm1, xmm15, xmm8
-                          vmovss  xmm2, dword ptr [r15+18h]
-                          vsubss  xmm3, xmm2, xmm13
+                          vcmpless xmm0, xmm3, xmm12
+                          vblendvps xmm1, xmm3, xmm11, xmm0
                         }
-                        if ( !*(_BYTE *)(v78 + 440) )
-                          goto LABEL_52;
-                        __asm
-                        {
-                          vmulss  xmm1, xmm1, xmm10
-                          vmulss  xmm0, xmm0, xmm9
-                          vaddss  xmm2, xmm1, xmm0
-                          vmulss  xmm1, xmm3, xmm11
-                          vaddss  xmm2, xmm2, xmm1
-                          vcomiss xmm2, cs:__real@3f68b439
-                        }
-                        if ( !*(_BYTE *)(v78 + 440) )
-                          goto LABEL_52;
-                        __asm
-                        {
-                          vmulss  xmm1, xmm10, [rsp+3DE0h+var_3D7C]
-                          vmulss  xmm0, xmm9, [rsp+3DE0h+var_3D78]
-                          vaddss  xmm2, xmm1, xmm0
-                          vmulss  xmm1, xmm11, [rsp+3DE0h+var_3D74]
-                          vaddss  xmm2, xmm2, xmm1
-                          vcomiss xmm2, cs:__real@3f770a3d
-                        }
-                        if ( *(_BYTE *)(v78 + 440) )
-                          _RBX[5] = 1.0;
-                        else
-LABEL_52:
-                          _RBX[5] = 0.0;
+                        outAvoidingVelocitya[0]->v[0] = (float)(*(float *)&v72 * (float)(1.0 / *(float *)&_XMM1)) * *(float *)&_XMM7;
+                        v71->v[1] = (float)(*(float *)&v66 * (float)(1.0 / *(float *)&_XMM1)) * *(float *)&_XMM7;
+                        v71->v[2] = (float)(v73 * (float)(1.0 / *(float *)&_XMM1)) * *(float *)&_XMM7;
                       }
-                      __asm
-                      {
-                        vmovss  xmm12, cs:__real@80000000
-                        vmovss  xmm11, cs:__real@3f800000
-                      }
-LABEL_54:
-                      pNavigator = v74->ai->pNavigator;
-                      if ( pNavigator )
-                      {
-                        v186 = pNavigator->Get2DNavigator(pNavigator);
-                        if ( v186 )
-                        {
-                          CurArea = AINavigator2D::GetCurArea(v186);
-                          bfx::AreaHandle::operator=(&ptr[v79].hArea, CurArea);
-                        }
-                      }
-                      *(_RBX - 2) = *(float *)(v78 + 456);
-                      *((_DWORD *)_RBX + 10) = v74->ent->s.number;
-                      v188 = *(_DWORD **)color.v;
-                      *(_DWORD *)(*(_QWORD *)plane.v + 4i64 * (int)**(_DWORD **)color.v) = v74->ent->s.number;
-                      ++*v188;
-                      v20 = ++numberOfVerticesOut;
-                      _RBX += 13;
-                      __asm { vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
                       goto LABEL_59;
                     }
                   }
+                  else if ( *(float *)&_XMM7 != 0.0 || (float)(fsqrt(v149) + 25.0) >= *(float *)&v56 )
+                  {
+                    if ( *(_BYTE *)(v37 + 440) && (float)((float)((float)((float)(v52 - v51) * v47) + (float)((float)(v50 - *(float *)&v49) * v46)) + (float)((float)(avoidingEntityInfo->position.v[2] - v53) * v48)) > 0.90899998 && (float)((float)((float)(v47 * v146) + (float)(v46 * v147)) + (float)(v48 * v148)) > 0.96499997 )
+                      v34[5] = 1.0;
+                    else
+                      v34[5] = 0.0;
+LABEL_58:
+                    v18 = FLOAT_1_0;
+LABEL_59:
+                    pNavigator = v33->ai->pNavigator;
+                    if ( pNavigator )
+                    {
+                      v79 = pNavigator->Get2DNavigator(pNavigator);
+                      if ( v79 )
+                      {
+                        CurArea = AINavigator2D::GetCurArea(v79);
+                        bfx::AreaHandle::operator=(&ptr[v38].hArea, CurArea);
+                      }
+                    }
+                    *(v34 - 2) = *(float *)(v37 + 456);
+                    *((_DWORD *)v34 + 10) = v33->ent->s.number;
+                    v81 = *(_DWORD **)color.v;
+                    *(_DWORD *)(*(_QWORD *)plane.v + 4i64 * (int)**(_DWORD **)color.v) = v33->ent->s.number;
+                    ++*v81;
+                    v10 = ++numberOfVerticesOut;
+                    v34 += 13;
+                    v31 = _xmm;
+                    goto LABEL_65;
+                  }
+                  v31 = _xmm;
+                  v18 = FLOAT_1_0;
                 }
               }
             }
           }
-          v20 = numberOfVerticesOut;
+          v10 = numberOfVerticesOut;
         }
-LABEL_59:
-        v74 = Sentient_NextSentient(v74, &iTeamFlags);
-        if ( !v74 )
-        {
-          __asm { vxorps  xmm9, xmm9, xmm9 }
-          break;
-        }
+LABEL_65:
+        v33 = Sentient_NextSentient(v33, &iTeamFlags);
       }
+      while ( v33 );
     }
   }
-  __asm
-  {
-    vmovss  xmm7, dword ptr [rbp+3CE0h+box.midPoint]
-    vmovss  [rsp+3DE0h+var_3D80], xmm7
-    vmovss  xmm15, dword ptr [rbp+3CE0h+box.midPoint+4]
-    vmovss  xmm14, dword ptr [rbp+3CE0h+box.midPoint+8]
-  }
-  eTeam = (unsigned int)_R15->ent->sentient->eTeam;
+  v82 = box.midPoint.v[0];
+  v145 = box.midPoint.v[0];
+  v83 = box.midPoint.v[1];
+  v84 = box.midPoint.v[2];
+  eTeam = (unsigned int)avoidingEntityInfo->ent->sentient->eTeam;
   memset(&iTeamFlags, 0, sizeof(iTeamFlags));
   if ( (unsigned int)eTeam >= 0xE0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 263, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "%s < %s\n\t%u, %u", "pos", "impl()->getBitCount()", eTeam, 224) )
     __debugbreak();
   iTeamFlags.array[eTeam >> 5] |= 0x80000000 >> (eTeam & 0x1F);
-  v194 = Nav_TranslateTeamFlagsToRepulsorUsageFlags(&iTeamFlags);
-  _RBX = Nav_GetFirstRepulsor();
-  if ( _RBX )
+  v86 = Nav_TranslateTeamFlagsToRepulsorUsageFlags(&iTeamFlags);
+  FirstRepulsor = Nav_GetFirstRepulsor();
+  if ( FirstRepulsor )
   {
-    v196 = (unsigned __int128)(52 * (__int128)v20) >> 64 != 0;
-    _RDI = &ptr[v20].velocity.v[2];
-    __asm { vmovss  xmm13, cs:__real@461c4000 }
+    v88 = &ptr[v10].velocity.v[2];
     do
     {
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx+30h]
-        vaddss  xmm4, xmm2, dword ptr [rbp+3CE0h+box.halfSize+4]
-        vaddss  xmm3, xmm2, dword ptr [rbp+3CE0h+box.halfSize]
-        vmovss  xmm2, dword ptr [rbp+3CE0h+box.halfSize+8]
-        vmovss  xmm0, dword ptr [rbx+24h]
-        vsubss  xmm1, xmm0, xmm7
-        vandps  xmm1, xmm1, xmm6
-        vcomiss xmm1, xmm3
-      }
-      if ( !v196 )
-        goto LABEL_104;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+28h]
-        vsubss  xmm1, xmm0, xmm15
-        vandps  xmm1, xmm1, xmm6
-        vcomiss xmm1, xmm4
-      }
-      if ( !v196 )
-        goto LABEL_104;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+2Ch]
-        vsubss  xmm1, xmm0, xmm14
-        vandps  xmm1, xmm1, xmm6
-        vcomiss xmm1, xmm2
-      }
-      if ( !v196 || _R15->ent && _R15->ent->s.number == _RBX->entNum )
-        goto LABEL_104;
-      ignoreEnt = _R15->ignoreEnt;
+      radius = FirstRepulsor->radius;
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(FirstRepulsor->origin.v[0] - v82) & v31) >= (float)(radius + box.halfSize.v[0]) || COERCE_FLOAT(COERCE_UNSIGNED_INT(FirstRepulsor->origin.v[1] - v83) & v31) >= (float)(radius + box.halfSize.v[1]) || COERCE_FLOAT(COERCE_UNSIGNED_INT(FirstRepulsor->origin.v[2] - v84) & v31) >= box.halfSize.v[2] || avoidingEntityInfo->ent && avoidingEntityInfo->ent->s.number == FirstRepulsor->entNum )
+        goto LABEL_107;
+      ignoreEnt = avoidingEntityInfo->ignoreEnt;
       if ( ignoreEnt )
       {
-        if ( ignoreEnt->s.number == _RBX->entNum )
-          goto LABEL_104;
+        if ( ignoreEnt->s.number == FirstRepulsor->entNum )
+          goto LABEL_107;
       }
-      if ( (v194 & _RBX->usageFlags) == 0 )
-        goto LABEL_104;
-      _R14 = &g_entities[_RBX->entNum];
+      if ( (v86 & FirstRepulsor->usageFlags) == 0 )
+        goto LABEL_107;
+      v91 = &g_entities[FirstRepulsor->entNum];
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 196, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      v214 = _R14 - g_entities;
-      if ( (unsigned int)v214 >= 0x800 )
+      v92 = v91 - g_entities;
+      if ( (unsigned int)v92 >= 0x800 )
       {
-        LODWORD(v336) = 2048;
-        LODWORD(numberOfPlanesOut) = _R14 - g_entities;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", numberOfPlanesOut, v336) )
+        LODWORD(v141) = 2048;
+        LODWORD(numberOfPlanesOut) = v91 - g_entities;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 199, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( ( 2048 ) )", "index doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", numberOfPlanesOut, v141) )
           __debugbreak();
       }
-      v214 = (__int16)v214;
-      if ( (unsigned int)(__int16)v214 >= 0x800 )
+      v92 = (__int16)v92;
+      if ( (unsigned int)(__int16)v92 >= 0x800 )
       {
-        LODWORD(v336) = 2048;
-        LODWORD(numberOfPlanesOut) = v214;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", numberOfPlanesOut, v336) )
+        LODWORD(v141) = 2048;
+        LODWORD(numberOfPlanesOut) = v92;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", numberOfPlanesOut, v141) )
           __debugbreak();
       }
       if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
         __debugbreak();
-      if ( g_entities[v214].r.isInUse != g_entityIsInUse[v214] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+      if ( g_entities[v92].r.isInUse != g_entityIsInUse[v92] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
         __debugbreak();
-      if ( g_entityIsInUse[v214] && _R14->s.eType == ET_PLAYER )
+      if ( g_entityIsInUse[v92] && v91->s.eType == ET_PLAYER )
       {
-        __asm
+        v93 = v91->r.currentOrigin.v[0];
+        v94 = v93 - avoidingEntityInfo->position.v[0];
+        v95 = LODWORD(v91->r.currentOrigin.v[1]);
+        v97 = v95;
+        v96 = *(float *)&v95 - avoidingEntityInfo->position.v[1];
+        v98 = v91->r.currentOrigin.v[2];
+        v99 = v98 - avoidingEntityInfo->position.v[2];
+        *(float *)&v97 = (float)((float)(v96 * v96) + (float)(v94 * v94)) + (float)(v99 * v99);
+        v100 = v97;
+        if ( v149 < (float)(*(float *)&v97 - 2500.0) )
         {
-          vmovss  xmm4, dword ptr [r14+130h]
-          vsubss  xmm7, xmm4, dword ptr [r15+10h]
-          vmovss  xmm5, dword ptr [r14+134h]
-          vsubss  xmm8, xmm5, dword ptr [r15+14h]
-          vmovss  xmm6, dword ptr [r14+138h]
-          vsubss  xmm9, xmm6, dword ptr [r15+18h]
-          vmulss  xmm1, xmm8, xmm8
-          vmulss  xmm0, xmm7, xmm7
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm9, xmm9
-          vaddss  xmm10, xmm2, xmm1
-          vsubss  xmm0, xmm10, cs:__real@451c4000
-          vmovss  xmm1, [rsp+3DE0h+var_3D70]
-          vcomiss xmm1, xmm0
-        }
-        if ( _R14->s.eType )
-        {
-          __asm { vxorps  xmm9, xmm9, xmm9 }
-        }
-        else
-        {
-          _RAX = _R14->client;
+          p_commandTime = (float *)&v91->client->ps.commandTime;
+          v102 = fsqrt((float)((float)(p_commandTime[15] * p_commandTime[15]) + (float)(p_commandTime[16] * p_commandTime[16])) + (float)(p_commandTime[17] * p_commandTime[17]));
+          if ( v102 == 0.0 )
+            goto LABEL_106;
+          v103 = v93 - avoidingEntityInfo->goalPosition.v[0];
+          v107 = LODWORD(v91->r.currentOrigin.v[1]);
+          v104 = *(float *)&v95 - avoidingEntityInfo->goalPosition.v[1];
+          v105 = v98 - avoidingEntityInfo->goalPosition.v[2];
+          *(float *)&v107 = fsqrt((float)((float)(v104 * v104) + (float)(v103 * v103)) + (float)(v105 * v105));
+          _XMM11 = v107;
           __asm
           {
-            vmovss  xmm2, dword ptr [rax+40h]
-            vmovss  xmm0, dword ptr [rax+3Ch]
-            vmovss  xmm3, dword ptr [rax+44h]
-            vmulss  xmm1, xmm0, xmm0
-            vmulss  xmm0, xmm2, xmm2
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm3, xmm3
-            vaddss  xmm2, xmm2, xmm1
-            vsqrtss xmm12, xmm2, xmm2
-            vucomiss xmm12, cs:__real@00000000
-          }
-          if ( _R14->s.eType == ET_PLAYER )
-          {
-            __asm { vxorps  xmm9, xmm9, xmm9 }
-LABEL_103:
-            v20 = numberOfVerticesOut;
-            goto LABEL_104;
-          }
-          __asm
-          {
-            vsubss  xmm3, xmm4, dword ptr [r15+34h]
-            vsubss  xmm4, xmm5, dword ptr [r15+38h]
-            vsubss  xmm6, xmm6, dword ptr [r15+3Ch]
-            vmulss  xmm1, xmm4, xmm4
-            vmulss  xmm0, xmm3, xmm3
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm6, xmm6
-            vaddss  xmm2, xmm2, xmm1
-            vsqrtss xmm11, xmm2, xmm2
             vcmpless xmm0, xmm11, cs:__real@80000000
-            vmovss  xmm2, cs:__real@3f800000
             vblendvps xmm1, xmm11, xmm2, xmm0
-            vdivss  xmm5, xmm2, xmm1
-            vmulss  xmm0, xmm3, xmm5
-            vmulss  xmm3, xmm0, xmm7
-            vmulss  xmm1, xmm4, xmm5
-            vmulss  xmm2, xmm1, xmm8
-            vaddss  xmm4, xmm3, xmm2
-            vmulss  xmm0, xmm6, xmm5
-            vmulss  xmm1, xmm0, xmm9
-            vaddss  xmm2, xmm4, xmm1
-            vxorps  xmm9, xmm9, xmm9
-            vcomiss xmm2, xmm9
           }
-          if ( _R14->s.eType == ET_FIRST )
-          {
-            __asm
-            {
-              vdivss  xmm0, xmm11, xmm12
-              vmovss  xmm1, [rsp+3DE0h+var_3D8C]
-              vcomiss xmm1, xmm0
-            }
-            if ( _R14->s.eType == ET_FIRST )
-              goto LABEL_103;
-          }
+          if ( (float)((float)((float)((float)(v103 * (float)(1.0 / *(float *)&_XMM1)) * v94) + (float)((float)(v104 * (float)(1.0 / *(float *)&_XMM1)) * v96)) + (float)((float)(v105 * (float)(1.0 / *(float *)&_XMM1)) * v99)) < 0.0 && v143[0] < (float)(*(float *)&v107 / v102) )
+            goto LABEL_106;
         }
-        if ( settingsa->pushPlayerEnabled )
-          __asm { vcomiss xmm10, xmm13 }
-        *(_RDI - 2) = _RBX->velocity.v[0];
-        *(_RDI - 1) = _RBX->velocity.v[1];
-        *_RDI = _RBX->velocity.v[2];
-        _RDI[1] = 0.0;
-        __asm
+        if ( settingsa->pushPlayerEnabled && *(float *)&v100 < 10000.0 )
         {
-          vmovss  xmm0, dword ptr [rbx+30h]
-          vmulss  xmm1, xmm0, cs:__real@40000000
-          vmovss  dword ptr [rdi-18h], xmm1
+          v110 = avoidingEntityInfo->desiredVelocity.v[1];
+          v111 = LODWORD(avoidingEntityInfo->desiredVelocity.v[0]);
+          v112 = v111;
+          *(float *)&v112 = fsqrt((float)((float)(*(float *)&v111 * *(float *)&v111) + (float)(v110 * v110)) + (float)(avoidingEntityInfo->desiredVelocity.v[2] * avoidingEntityInfo->desiredVelocity.v[2]));
+          _XMM4 = v112;
+          __asm
+          {
+            vcmpless xmm0, xmm4, cs:__real@80000000
+            vblendvps xmm1, xmm4, xmm3, xmm0
+          }
+          v116 = (float)(1.0 / *(float *)&_XMM1) * *(float *)&v111;
+          *(float *)&_XMM4 = (float)(1.0 / *(float *)&_XMM1) * v110;
+          v118 = v100;
+          *(float *)&v118 = fsqrt(*(float *)&v100);
+          _XMM1 = v118;
+          __asm
+          {
+            vcmpless xmm0, xmm1, cs:__real@80000000
+            vblendvps xmm1, xmm1, xmm3, xmm0
+          }
+          if ( (float)((float)((float)(v94 * (float)(1.0 / *(float *)&_XMM1)) * v116) + (float)((float)(v96 * (float)(1.0 / *(float *)&_XMM1)) * *(float *)&_XMM4)) > 0.0 )
+          {
+LABEL_106:
+            v10 = numberOfVerticesOut;
+            goto LABEL_107;
+          }
         }
-        v263 = *(_DWORD **)color.v;
-        *(_DWORD *)(*(_QWORD *)plane.v + 4i64 * (int)**(_DWORD **)color.v) = _RBX->entNum;
-        ++*v263;
+        *(v88 - 2) = FirstRepulsor->velocity.v[0];
+        *(v88 - 1) = FirstRepulsor->velocity.v[1];
+        *v88 = FirstRepulsor->velocity.v[2];
+        v88[1] = 0.0;
+        *(v88 - 6) = FirstRepulsor->radius * 2.0;
+        v121 = *(_DWORD **)color.v;
+        *(_DWORD *)(*(_QWORD *)plane.v + 4i64 * (int)**(_DWORD **)color.v) = FirstRepulsor->entNum;
+        ++*v121;
       }
       else
       {
-        *(_RDI - 2) = _RBX->velocity.v[0];
-        *(_RDI - 1) = _RBX->velocity.v[1];
-        *_RDI = _RBX->velocity.v[2];
-        _RDI[1] = 0.0;
-        *(_RDI - 6) = _RBX->radius;
+        *(v88 - 2) = FirstRepulsor->velocity.v[0];
+        *(v88 - 1) = FirstRepulsor->velocity.v[1];
+        *v88 = FirstRepulsor->velocity.v[2];
+        v88[1] = 0.0;
+        *(v88 - 6) = FirstRepulsor->radius;
       }
-      *(_RDI - 5) = _RBX->origin.v[0];
-      *(_RDI - 4) = _RBX->origin.v[1];
-      *(_RDI - 3) = _RBX->origin.v[2];
-      v20 = ++numberOfVerticesOut;
-      _RDI += 13;
-      __asm { vxorps  xmm9, xmm9, xmm9 }
-LABEL_104:
-      _RBX = Nav_GetNextRepulsor(_RBX);
-      v196 = 0;
-      __asm
-      {
-        vmovss  xmm6, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovss  xmm7, [rsp+3DE0h+var_3D80]
-      }
+      *(v88 - 5) = FirstRepulsor->origin.v[0];
+      *(v88 - 4) = FirstRepulsor->origin.v[1];
+      *(v88 - 3) = FirstRepulsor->origin.v[2];
+      v10 = ++numberOfVerticesOut;
+      v88 += 13;
+LABEL_107:
+      FirstRepulsor = Nav_GetNextRepulsor(FirstRepulsor);
+      v31 = _xmm;
+      v82 = v145;
     }
-    while ( _RBX );
+    while ( FirstRepulsor );
   }
-  Navigator = Nav_GetNavigator(_R15->ent);
-  v267 = (__int64)Navigator->Get2DNavigator(Navigator);
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r15+20h]
-    vmovss  xmm0, dword ptr [r15+1Ch]
-    vmovss  xmm3, dword ptr [r15+24h]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm6, xmm2, xmm2
-  }
-  bfx::AreaHandle::AreaHandle(&v363);
-  bfx::LinkHandle::LinkHandle(&v364);
-  _R12 = settingsa;
-  __asm { vmulss  xmm1, xmm6, dword ptr [r12+20h] }
+  Navigator = Nav_GetNavigator(avoidingEntityInfo->ent);
+  v123 = (__int64)Navigator->Get2DNavigator(Navigator);
+  fsqrt((float)((float)(avoidingEntityInfo->desiredVelocity.v[0] * avoidingEntityInfo->desiredVelocity.v[0]) + (float)(avoidingEntityInfo->desiredVelocity.v[1] * avoidingEntityInfo->desiredVelocity.v[1])) + (float)(avoidingEntityInfo->desiredVelocity.v[2] * avoidingEntityInfo->desiredVelocity.v[2]));
+  bfx::AreaHandle::AreaHandle(&v168);
+  bfx::LinkHandle::LinkHandle(&v169);
+  v124 = settingsa;
   LOBYTE(destructor) = 1;
-  LOBYTE(v279) = 1;
-  (*(void (__fastcall **)(__int64, __int64, __int64, char *, int))(*(_QWORD *)v267 + 416i64))(v267, v280, v279, v362, destructor);
-  _R15->posAlongPath = (nav_posAlongPathResults_t *)v362;
-  v338 = 0;
-  BuildVelocityObstaclePlanes(_R15, _R12, ptr, v20, planes, &v338);
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r12+8]
-    vmovss  dword ptr [rbp+3CE0h+polygon], xmm1
-    vmovss  dword ptr [rbp+3CE0h+polygon+4], xmm1
-    vmovss  dword ptr [rbp+3CE0h+polygon+8], xmm9
-    vxorps  xmm0, xmm1, cs:__xmm@80000000800000008000000080000000
-    vmovss  [rbp+3CE0h+var_3BA4], xmm0
-    vmovss  [rbp+3CE0h+var_3BA0], xmm1
-    vmovss  [rbp+3CE0h+var_3B9C], xmm9
-    vmovss  [rbp+3CE0h+var_3B98], xmm0
-    vmovss  [rbp+3CE0h+var_3B94], xmm0
-    vmovss  [rbp+3CE0h+var_3B90], xmm9
-    vmovss  [rbp+3CE0h+var_3B8C], xmm1
-    vmovss  [rbp+3CE0h+var_3B88], xmm0
-    vmovss  [rbp+3CE0h+var_3B84], xmm9
-  }
+  LOBYTE(v125) = 1;
+  (*(void (__fastcall **)(__int64, __int64, __int64, char *, int))(*(_QWORD *)v123 + 416i64))(v123, v126, v125, v167, destructor);
+  avoidingEntityInfo->posAlongPath = (nav_posAlongPathResults_t *)v167;
+  v143[0] = 0.0;
+  BuildVelocityObstaclePlanes(avoidingEntityInfo, v124, ptr, v10, planes, (int *)v143);
+  polygon[0].v[0] = v124->maxSpeed;
+  polygon[0].v[1] = polygon[0].v[0];
+  polygon[0].v[2] = 0.0;
+  LODWORD(polygon[1].v[0]) = LODWORD(polygon[0].v[0]) ^ _xmm;
+  polygon[1].v[1] = polygon[0].v[0];
+  polygon[1].v[2] = 0.0;
+  LODWORD(polygon[2].v[0]) = LODWORD(polygon[0].v[0]) ^ _xmm;
+  LODWORD(polygon[2].v[1]) = LODWORD(polygon[0].v[0]) ^ _xmm;
+  polygon[2].v[2] = 0.0;
+  polygon[3].v[0] = polygon[0].v[0];
+  LODWORD(polygon[3].v[1]) = LODWORD(polygon[0].v[0]) ^ _xmm;
+  polygon[3].v[2] = 0.0;
   numberOfVerticesOut = 4;
-  __asm
-  {
-    vmovss  xmm1, dword ptr [r15+20h]
-    vmovss  xmm0, dword ptr [r15+1Ch]
-    vmovss  dword ptr [rbp+3CE0h+plane], xmm0
-    vmovss  dword ptr [rbp+3CE0h+plane+4], xmm1
-    vmovss  dword ptr [rbp+3CE0h+plane+8], xmm9
-    vmovss  dword ptr [rbp+3CE0h+plane+0Ch], xmm9
-  }
-  v285 = SplitPolygon(polygon, 32, &numberOfVerticesOut, &plane);
-  v286 = !v285;
-  if ( !v285 )
-    goto LABEL_124;
-  v287 = 0;
-  v288 = v338;
-  v289 = v338 == 0;
-  if ( v338 <= 0 )
-    goto LABEL_128;
-  _RDI = &planes[0].xyz + 1;
+  v127 = avoidingEntityInfo->desiredVelocity.v[1];
+  plane.v[0] = avoidingEntityInfo->desiredVelocity.v[0];
+  plane.v[1] = v127;
+  plane.v[2] = 0.0;
+  plane.v[3] = 0.0;
+  v128 = SplitPolygon(polygon, 32, &numberOfVerticesOut, &plane);
+  v129 = !v128;
+  if ( !v128 )
+    goto LABEL_127;
+  v130 = 0;
+  v131 = LODWORD(v143[0]);
+  if ( SLODWORD(v143[0]) <= 0 )
+    goto LABEL_131;
+  v132 = &planes[0].xyz + 1;
   do
   {
-    __asm
+    if ( v124->maxSpeed > v132->v[0] )
     {
-      vmovss  xmm0, dword ptr [r12+8]
-      vcomiss xmm0, dword ptr [rdi]
-    }
-    if ( !v289 )
-    {
-      v292 = SplitPolygon(polygon, 32, &numberOfVerticesOut, &planes[v287]);
-      v286 = !v292;
-      if ( !v292 )
+      v133 = SplitPolygon(polygon, 32, &numberOfVerticesOut, &planes[v130]);
+      v129 = !v133;
+      if ( !v133 )
         break;
     }
-    ++v287;
-    _RDI = (vec3_t *)((char *)_RDI + 16);
-    v289 = v287 <= (unsigned int)v288;
+    ++v130;
+    v132 = (vec3_t *)((char *)v132 + 16);
   }
-  while ( v287 < v288 );
-  if ( v286 )
+  while ( v130 < v131 );
+  if ( v129 )
   {
-LABEL_124:
+LABEL_127:
     Sys_ProfEndNamedEvent();
-    v303 = 3;
+    v136 = 3;
   }
   else
   {
-LABEL_128:
-    if ( _R15->drawAvoidance )
+LABEL_131:
+    if ( avoidingEntityInfo->drawAvoidance )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [r15+10h]
-        vaddss  xmm1, xmm0, dword ptr [r15+1Ch]
-        vmovss  dword ptr [rbp+3CE0h+plane], xmm1
-        vmovss  xmm2, dword ptr [r15+14h]
-        vaddss  xmm0, xmm2, dword ptr [r15+20h]
-        vmovss  dword ptr [rbp+3CE0h+plane+4], xmm0
-        vmovss  xmm1, dword ptr [r15+18h]
-        vaddss  xmm2, xmm1, dword ptr [r15+24h]
-        vmovss  dword ptr [rbp+3CE0h+plane+8], xmm2
-        vmovups xmm0, cs:__xmm@3f800000000000003f8000003f800000
-        vmovups xmmword ptr [rbp+3CE0h+color], xmm0
-      }
-      G_DebugLine(&_R15->position, (const vec3_t *)&plane, &color, 0);
-      __asm { vmovaps xmm2, xmm9; yaw }
-      G_DebugBox(&vec3_origin, &box, *(float *)&_XMM2, &colorCyan, 0, 1);
+      plane.v[0] = avoidingEntityInfo->position.v[0] + avoidingEntityInfo->desiredVelocity.v[0];
+      plane.v[1] = avoidingEntityInfo->position.v[1] + avoidingEntityInfo->desiredVelocity.v[1];
+      plane.v[2] = avoidingEntityInfo->position.v[2] + avoidingEntityInfo->desiredVelocity.v[2];
+      color = (vec4_t)_xmm;
+      G_DebugLine(&avoidingEntityInfo->position, (const vec3_t *)&plane, &color, 0);
+      G_DebugBox(&vec3_origin, &box, 0.0, &colorCyan, 0, 1);
     }
-    _RSI = outAvoidingVelocitya[0];
-    v302 = numberOfVerticesOut;
-    v303 = Avoid(_R15, _R12, polygon, numberOfVerticesOut, outAvoidingVelocitya[0], fnCollisionChecka[0]);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi+4]
-      vmovss  xmm0, dword ptr [rsi]
-      vmovss  xmm3, dword ptr [rsi+8]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vcomiss xmm3, xmm9
-    }
-    if ( !(v68 | v126) )
-      _RSI->v[2] = _R15->desiredVelocity.v[2];
+    v134 = outAvoidingVelocitya[0];
+    v135 = numberOfVerticesOut;
+    v136 = Avoid(avoidingEntityInfo, v124, polygon, numberOfVerticesOut, outAvoidingVelocitya[0], fnCollisionChecka[0]);
+    if ( (float)((float)((float)(v134->v[0] * v134->v[0]) + (float)(v134->v[1] * v134->v[1])) + (float)(v134->v[2] * v134->v[2])) > 0.0 )
+      v134->v[2] = avoidingEntityInfo->desiredVelocity.v[2];
     Sys_ProfEndNamedEvent();
-    if ( _R15->drawAvoidance )
+    if ( avoidingEntityInfo->drawAvoidance )
     {
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-        vmovups xmmword ptr [rbp+3CE0h+fnCollisionCheck], xmm0
-      }
-      DrawPolygon((const vec3_t (*)[32])polygon, v302, &_R15->position, (const vec4_t *)fnCollisionChecka);
+      *(_OWORD *)fnCollisionChecka = _xmm;
+      DrawPolygon((const vec3_t (*)[32])polygon, v135, &avoidingEntityInfo->position, (const vec4_t *)fnCollisionChecka);
     }
-    v313 = DCONST_DVARINT_ai_showRepulsors;
+    v137 = DCONST_DVARINT_ai_showRepulsors;
     if ( !DCONST_DVARINT_ai_showRepulsors && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showRepulsors") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v313);
-    if ( v313->current.integer == 2 || _R15->drawAvoidance )
+    Dvar_CheckFrontendServerThread(v137);
+    if ( v137->current.integer == 2 || avoidingEntityInfo->drawAvoidance )
     {
-      __asm { vmovss  xmm1, dword ptr [r12+10h]; radius }
-      G_DebugCircle(&_R15->position, *(float *)&_XMM1, &colorWhite, 0, 1, 1);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi]
-        vaddss  xmm1, xmm0, dword ptr [r15+10h]
-        vmovss  dword ptr [rbp+3CE0h+fnCollisionCheck], xmm1
-        vmovss  xmm2, dword ptr [r15+14h]
-        vaddss  xmm0, xmm2, dword ptr [rsi+4]
-        vmovss  dword ptr [rbp+3CE0h+fnCollisionCheck+4], xmm0
-        vmovss  xmm1, dword ptr [r15+18h]
-        vaddss  xmm2, xmm1, dword ptr [rsi+8]
-        vmovss  dword ptr [rbp+3CE0h+fnCollisionCheck+8], xmm2
-        vmovups xmm0, cs:__xmm@3f8000003f800000000000003f800000
-        vmovups xmmword ptr [rbp+3CE0h+outAvoidingVelocity], xmm0
-      }
-      G_DebugLine(&_R15->position, (const vec3_t *)fnCollisionChecka, (const vec4_t *)outAvoidingVelocitya, 0);
+      G_DebugCircle(&avoidingEntityInfo->position, v124->radius, &colorWhite, 0, 1, 1);
+      *(float *)fnCollisionChecka = v134->v[0] + avoidingEntityInfo->position.v[0];
+      *((float *)fnCollisionChecka + 1) = avoidingEntityInfo->position.v[1] + v134->v[1];
+      *(float *)&fnCollisionChecka[1] = avoidingEntityInfo->position.v[2] + v134->v[2];
+      *(_OWORD *)outAvoidingVelocitya = _xmm;
+      G_DebugLine(&avoidingEntityInfo->position, (const vec3_t *)fnCollisionChecka, (const vec4_t *)outAvoidingVelocitya, 0);
     }
   }
-  bfx::LinkHandle::~LinkHandle(&v364);
-  bfx::AreaHandle::~AreaHandle(&v363);
+  bfx::LinkHandle::~LinkHandle(&v169);
+  bfx::AreaHandle::~AreaHandle(&v168);
   `eh vector destructor iterator'(ptr, 0x34ui64, 0x110ui64, (void (__fastcall *)(void *))OrcaColliderInfo::~OrcaColliderInfo);
-  result = v303;
-  _R11 = &v378;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
-    vmovaps xmm9, xmmword ptr [r11-48h]
-    vmovaps xmm10, xmmword ptr [r11-58h]
-    vmovaps xmm11, xmmword ptr [r11-68h]
-    vmovaps xmm12, xmmword ptr [r11-78h]
-    vmovaps xmm13, xmmword ptr [r11-88h]
-    vmovaps xmm14, xmmword ptr [r11-98h]
-    vmovaps xmm15, xmmword ptr [r11-0A8h]
-  }
-  return result;
+  return v136;
 }
 
 /*
@@ -1914,34 +1485,14 @@ LABEL_128:
 ORCA_RateDistance
 ==============
 */
-
-float __fastcall ORCA_RateDistance(double distance, double minWeight, double maxWeight, float minDist, float maxDist)
+float ORCA_RateDistance(float distance, float minWeight, float maxWeight, float minDist, float maxDist)
 {
-  __asm
-  {
-    vmovss  xmm4, [rsp+48h+maxDist]
-    vmovaps [rsp+48h+var_18], xmm6
-    vsubss  xmm4, xmm4, xmm3
-    vcvtss2sd xmm5, xmm4, xmm4
-    vcomisd xmm5, cs:__real@3eb0c6f7a0b5ed8d
-    vmovaps [rsp+48h+var_28], xmm7
-    vmovaps xmm7, xmm2
-    vmovaps xmm6, xmm1
-    vmovss  xmm2, cs:__real@3f800000; max
-    vsubss  xmm0, xmm0, xmm3
-    vdivss  xmm0, xmm0, xmm4; val
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm1, xmm7, xmm6
-    vmovaps xmm7, [rsp+48h+var_28]
-    vmulss  xmm0, xmm0, xmm1
-    vaddss  xmm0, xmm0, xmm6
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  return *(float *)&_XMM0;
+  double v6; 
+
+  if ( (float)(maxDist - minDist) < 0.000001 )
+    return 0.0;
+  v6 = I_fclamp((float)(distance - minDist) / (float)(maxDist - minDist), 0.0, 1.0);
+  return (float)(*(float *)&v6 * (float)(maxWeight - minWeight)) + minWeight;
 }
 
 /*
@@ -1951,31 +1502,53 @@ ORCA_RateVelocity
 */
 __int64 ORCA_RateVelocity(const AvoidingEntityInfo *avoidingEntityInfo, const AvoidSettings *settings, const vec3_t *desiredDirection, float *result)
 {
-  char v55; 
-  const char *v65; 
-  const char *v89; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  double v18; 
+  const char *v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  double v24; 
+  float v25; 
+  const char *v26; 
   AINavigator *Navigator; 
-  AINavigator2D *v93; 
+  AINavigator2D *v28; 
   const bfx::AreaHandle *CurArea; 
   const bfx::PathSpec *PathSpec; 
-  nav_space_s *v102; 
-  char v106; 
-  const char *v119; 
-  const bfx::PathSpec *v126; 
+  nav_space_s *v31; 
+  float m_DistTraveled; 
+  bool v33; 
+  unsigned int v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  const char *v38; 
+  const bfx::PathSpec *v39; 
+  float v40; 
+  __int128 v41; 
+  float v42; 
+  __int128 v43; 
   bool IsPointOnMeshCustom; 
   const bfx::AreaHandle *NextCornerArea; 
-  unsigned int v156; 
-  bool v157; 
-  const char *v160; 
-  __int64 v163; 
-  int duration; 
+  float v49; 
+  const char *v50; 
   signed int layer; 
   bfx::AreaHandle outAreaHandle; 
   bfx::AreaHandle hStartArea; 
-  __int64 v177; 
+  __int64 v54; 
   vec3_t xyz; 
   vec3_t targetPos; 
-  vec3_t v180; 
+  vec3_t m_EndPos; 
   vec4_t color; 
   vec3_t hSpace; 
   vec3_t pos; 
@@ -1983,353 +1556,180 @@ __int64 ORCA_RateVelocity(const AvoidingEntityInfo *avoidingEntityInfo, const Av
   vec3_t outSnappedPos; 
   vec3_t outUp; 
   nav_probe_results_s pOutResults; 
-  nav_probe_results_s v188; 
-  char v189; 
-  void *retaddr; 
+  nav_probe_results_s v65; 
 
-  _RAX = &retaddr;
-  v177 = -2i64;
-  __asm
+  v54 = -2i64;
+  v7 = desiredDirection->v[1];
+  v8 = desiredDirection->v[0];
+  v9 = desiredDirection->v[2];
+  v10 = fsqrt((float)((float)(v8 * v8) + (float)(v7 * v7)) + (float)(v9 * v9));
+  if ( v10 < settings->minSpeed )
   {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
+    *result = 0.0;
+    return 0i64;
   }
-  _R15 = result;
-  _R14 = desiredDirection;
-  _RDI = avoidingEntityInfo;
-  __asm
+  v12 = avoidingEntityInfo->desiredVelocity.v[1];
+  v13 = avoidingEntityInfo->desiredVelocity.v[0];
+  v14 = avoidingEntityInfo->desiredVelocity.v[2];
+  v15 = fsqrt((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v14 * v14));
+  v16 = (float)((float)((float)(v7 - v12) * (float)(v7 - v12)) + (float)((float)(v8 - v13) * (float)(v8 - v13))) + (float)((float)(v9 - v14) * (float)(v9 - v14));
+  if ( v15 >= 0.000001 )
   {
-    vmovss  xmm6, dword ptr [r8+4]
-    vmovss  xmm7, dword ptr [r8]
-    vmovss  xmm8, dword ptr [r8+8]
-    vmulss  xmm1, xmm7, xmm7
-    vmulss  xmm0, xmm6, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm8, xmm8
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm10, xmm2, xmm2
-    vcomiss xmm10, dword ptr [rdx+0Ch]
-    vmovss  xmm5, dword ptr [rcx+20h]
-    vmovss  xmm3, dword ptr [rcx+1Ch]
-    vmovss  xmm4, dword ptr [rcx+24h]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm12, xmm2, xmm2
-    vsubss  xmm3, xmm7, xmm3
-    vsubss  xmm0, xmm6, xmm5
-    vsubss  xmm4, xmm8, xmm4
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm3, xmm2, xmm1
-    vcvtss2sd xmm13, xmm12, xmm12
-    vmovss  xmm11, cs:__real@3f800000
-    vxorps  xmm7, xmm7, xmm7
-    vcomisd xmm13, cs:__real@3eb0c6f7a0b5ed8d
-    vsqrtss xmm1, xmm3, xmm3
-    vdivss  xmm0, xmm11, xmm12
-    vmulss  xmm0, xmm1, xmm0; val
-    vmovaps xmm2, xmm11; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, cs:__real@40000000
-    vmulss  xmm1, xmm0, xmm2
-    vsubss  xmm8, xmm2, xmm1
-    vmovss  xmm9, cs:__real@3e4ccccd
-    vmovss  xmm6, cs:__real@c1000000
-  }
-  v55 = 0;
-  if ( _RDI->drawAvoidance )
-  {
-    __asm
-    {
-      vmovups xmm0, cs:__xmm@3f8000003f800000000000003f800000
-      vmovups xmmword ptr [rbp+160h+color], xmm0
-      vmovss  xmm1, dword ptr [rdi+10h]
-      vaddss  xmm0, xmm1, dword ptr [r14]
-      vmovss  dword ptr [rsp+260h+xyz], xmm0
-      vmovss  xmm2, dword ptr [rdi+14h]
-      vaddss  xmm1, xmm2, dword ptr [r14+4]
-      vmovss  dword ptr [rsp+260h+xyz+4], xmm1
-      vmovss  xmm0, dword ptr [rdi+18h]
-      vaddss  xmm2, xmm0, dword ptr [r14+8]
-      vmovss  dword ptr [rsp+260h+xyz+8], xmm2
-      vcvtss2sd xmm1, xmm8, xmm8
-      vmovq   rdx, xmm1
-    }
-    v65 = j_va("code dir:%f", _RDX);
-    __asm { vmovaps xmm2, xmm9; scale }
-    G_Main_AddDebugStringWithDuration(&xyz, &color, *(float *)&_XMM2, v65, 1);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rsp+260h+xyz+8]
-      vmovss  dword ptr [rsp+260h+xyz+8], xmm1
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vsubss  xmm3, xmm0, dword ptr [rdi+28h]
-    vmovss  xmm1, dword ptr [r14+4]
-    vsubss  xmm2, xmm1, dword ptr [rdi+2Ch]
-    vmovss  xmm0, dword ptr [r14+8]
-    vsubss  xmm4, xmm0, dword ptr [rdi+30h]
-    vmulss  xmm2, xmm2, xmm2
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm1, xmm2, xmm2
-    vcomisd xmm13, cs:__real@3eb0c6f7a0b5ed8d
-  }
-  if ( v55 )
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
+    v18 = I_fclamp(fsqrt(v16) * (float)(1.0 / v15), 0.0, 1.0);
+    v17 = 2.0 - (float)(*(float *)&v18 * 2.0);
   }
   else
   {
-    __asm
-    {
-      vdivss  xmm0, xmm1, xmm12; val
-      vmovaps xmm2, xmm11; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3fc00000
-      vmulss  xmm1, xmm0, xmm2
-      vsubss  xmm0, xmm2, xmm1
-    }
+    v17 = 0.0;
   }
-  __asm { vaddss  xmm12, xmm8, xmm0 }
-  if ( _RDI->drawAvoidance )
+  if ( avoidingEntityInfo->drawAvoidance )
   {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovq   rdx, xmm1
-    }
-    v89 = j_va("curr dir:%f", _RDX);
-    __asm { vmovaps xmm2, xmm9; scale }
-    G_Main_AddDebugStringWithDuration(&xyz, &color, *(float *)&_XMM2, v89, 1);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rsp+260h+xyz+8]
-      vmovss  dword ptr [rsp+260h+xyz+8], xmm1
-    }
+    color = (vec4_t)_xmm;
+    xyz.v[0] = avoidingEntityInfo->position.v[0] + desiredDirection->v[0];
+    xyz.v[1] = avoidingEntityInfo->position.v[1] + desiredDirection->v[1];
+    xyz.v[2] = avoidingEntityInfo->position.v[2] + desiredDirection->v[2];
+    v19 = j_va("code dir:%f", v17);
+    G_Main_AddDebugStringWithDuration(&xyz, &color, 0.2, v19, 1);
+    xyz.v[2] = xyz.v[2] + -8.0;
   }
-  Navigator = Nav_GetNavigator(_RDI->ent);
-  v93 = Navigator->Get2DNavigator(Navigator);
-  if ( !v93 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\orca_avoidance.cpp", 936, ASSERT_TYPE_ASSERT, "(pNav2D)", (const char *)&queryFormat, "pNav2D") )
+  v20 = desiredDirection->v[1] - avoidingEntityInfo->currentVelocity.v[1];
+  v21 = desiredDirection->v[2] - avoidingEntityInfo->currentVelocity.v[2];
+  v22 = fsqrt((float)((float)(v20 * v20) + (float)((float)(desiredDirection->v[0] - avoidingEntityInfo->currentVelocity.v[0]) * (float)(desiredDirection->v[0] - avoidingEntityInfo->currentVelocity.v[0]))) + (float)(v21 * v21));
+  if ( v15 >= 0.000001 )
+  {
+    v24 = I_fclamp(v22 / v15, 0.0, 1.0);
+    v23 = 1.5 - (float)(*(float *)&v24 * 1.5);
+  }
+  else
+  {
+    v23 = 0.0;
+  }
+  v25 = v17 + v23;
+  if ( avoidingEntityInfo->drawAvoidance )
+  {
+    v26 = j_va("curr dir:%f", v23);
+    G_Main_AddDebugStringWithDuration(&xyz, &color, 0.2, v26, 1);
+    xyz.v[2] = xyz.v[2] + -8.0;
+  }
+  Navigator = Nav_GetNavigator(avoidingEntityInfo->ent);
+  v28 = Navigator->Get2DNavigator(Navigator);
+  if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\orca_avoidance.cpp", 936, ASSERT_TYPE_ASSERT, "(pNav2D)", (const char *)&queryFormat, "pNav2D") )
     __debugbreak();
-  v93->GetCurPos(v93, &startPos);
-  CurArea = AINavigator2D::GetCurArea(v93);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r14]
-    vaddss  xmm1, xmm0, dword ptr [rdi+10h]
-    vmovss  dword ptr [rbp+160h+targetPos], xmm1
-    vmovss  xmm2, dword ptr [rdi+14h]
-    vaddss  xmm0, xmm2, dword ptr [r14+4]
-    vmovss  dword ptr [rbp+160h+targetPos+4], xmm0
-    vmovss  xmm1, dword ptr [rdi+18h]
-    vaddss  xmm2, xmm1, dword ptr [r14+8]
-    vmovss  dword ptr [rbp+160h+targetPos+8], xmm2
-  }
+  v28->GetCurPos(v28, &startPos);
+  CurArea = AINavigator2D::GetCurArea(v28);
+  targetPos.v[0] = desiredDirection->v[0] + avoidingEntityInfo->position.v[0];
+  targetPos.v[1] = avoidingEntityInfo->position.v[1] + desiredDirection->v[1];
+  targetPos.v[2] = avoidingEntityInfo->position.v[2] + desiredDirection->v[2];
   bfx::AreaHandle::AreaHandle(&pOutResults.m_hEndArea);
-  bfx::AreaHandle::AreaHandle(&v188.m_hEndArea);
-  PathSpec = AINavigator2D::GetPathSpec(v93);
+  bfx::AreaHandle::AreaHandle(&v65.m_hEndArea);
+  PathSpec = AINavigator2D::GetPathSpec(v28);
   *(_QWORD *)hSpace.v = Navigator->m_pSpace;
   layer = Navigator->m_Layer;
   bfx::AreaHandle::AreaHandle(&hStartArea);
   AINavigator::GetUpVector(Navigator, &outUp);
-  v102 = *(nav_space_s **)hSpace.v;
+  v31 = *(nav_space_s **)hSpace.v;
   Nav_GetClosestVerticalPos(&targetPos, &outUp, layer, *(bfx::SpaceHandle **)hSpace.v, PathSpec, &targetPos, &hStartArea);
   Nav_Trace(&startPos, CurArea, &targetPos, PathSpec, &pOutResults);
-  Nav_Trace(&targetPos, &hStartArea, &startPos, PathSpec, &v188);
-  __asm
-  {
-    vmovss  xmm4, [rbp+160h+pOutResults.m_DistTraveled]
-    vaddss  xmm1, xmm4, [rbp+160h+var_110.m_DistTraveled]
-    vsubss  xmm2, xmm10, xmm1
-    vcomiss xmm2, xmm11
-  }
-  v106 = v55;
+  Nav_Trace(&targetPos, &hStartArea, &startPos, PathSpec, &v65);
+  m_DistTraveled = pOutResults.m_DistTraveled;
+  v33 = (float)(v10 - (float)(pOutResults.m_DistTraveled + v65.m_DistTraveled)) < 1.0;
   if ( !level.frameDuration )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
       __debugbreak();
-    __asm { vmovss  xmm4, [rbp+160h+pOutResults.m_DistTraveled] }
+    m_DistTraveled = pOutResults.m_DistTraveled;
   }
-  __asm
+  if ( m_DistTraveled < (float)((float)((float)level.frameDuration * 0.001) * v10) && !v33 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vmulss  xmm3, xmm1, xmm10
-    vcomiss xmm4, xmm3
-    vmovss  xmm8, cs:__real@3f000000
-    vmulss  xmm3, xmm10, xmm8; minDist
-    vmovss  [rsp+260h+duration], xmm10
-    vmovaps xmm2, xmm11; maxWeight
-    vxorps  xmm1, xmm1, xmm1; minWeight
-    vmovaps xmm0, xmm4; distance
+    if ( avoidingEntityInfo->drawAvoidance )
+    {
+      G_Main_AddDebugStringWithDuration(&xyz, &color, 0.2, "NavTrace failed", 1);
+      xyz.v[2] = xyz.v[2] + -8.0;
+    }
+    v34 = 0;
+    *result = 0.0;
+    goto LABEL_45;
   }
-  *(float *)&_XMM0 = ORCA_RateDistance(*(double *)&_XMM0, *(double *)&_XMM1, *(double *)&_XMM2, *(float *)&_XMM3, *(float *)&duration);
-  __asm { vaddss  xmm10, xmm12, xmm0 }
-  if ( _RDI->drawAvoidance )
+  v35 = FLOAT_0_5;
+  v36 = ORCA_RateDistance(m_DistTraveled, 0.0, 1.0, v10 * 0.5, v10);
+  v37 = v25 + v36;
+  if ( avoidingEntityInfo->drawAvoidance )
   {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovq   rdx, xmm1
-    }
-    v119 = j_va("NavTrace dist:%f", _RDX);
-    __asm { vmovaps xmm2, xmm9; scale }
-    G_Main_AddDebugStringWithDuration(&xyz, &color, *(float *)&_XMM2, v119, 1);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [rsp+260h+xyz+8]
-      vmovss  dword ptr [rsp+260h+xyz+8], xmm1
-    }
+    v38 = j_va("NavTrace dist:%f", v36);
+    G_Main_AddDebugStringWithDuration(&xyz, &color, 0.2, v38, 1);
+    xyz.v[2] = xyz.v[2] + -8.0;
   }
-  if ( v106 )
-  {
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rbp+160h+targetPos]
-      vmovsd  qword ptr [rbp+160h+var_1D0], xmm0
-    }
-    v180.v[2] = targetPos.v[2];
-  }
+  if ( v33 )
+    m_EndPos = targetPos;
   else
+    m_EndPos = pOutResults.m_EndPos;
+  v39 = AINavigator2D::GetPathSpec(v28);
+  if ( Nav_IsStraightLineReachable(&m_EndPos, &pOutResults.m_hEndArea, &avoidingEntityInfo->posAlongPath->m_Pos, &avoidingEntityInfo->posAlongPath->m_hArea, v39) )
   {
-    __asm
+LABEL_41:
+    v49 = v37 + v35;
+    v34 = 0;
+    if ( avoidingEntityInfo->drawAvoidance )
     {
-      vmovss  xmm0, dword ptr [rbp+160h+pOutResults.m_EndPos]
-      vmovss  dword ptr [rbp+160h+var_1D0], xmm0
-      vmovss  xmm1, dword ptr [rbp+160h+pOutResults.m_EndPos+4]
-      vmovss  dword ptr [rbp+160h+var_1D0+4], xmm1
-      vmovss  xmm0, dword ptr [rbp+160h+pOutResults.m_EndPos+8]
-      vmovss  dword ptr [rbp+160h+var_1D0+8], xmm0
+      v50 = j_va("Final:%f", v49);
+      G_Main_AddDebugStringWithDuration(&xyz, &color, 0.2, v50, 1);
+      G_DebugCircle(&xyz, 5.0, &color, 1, 1, 0);
     }
+    *result = v49;
+    if ( v49 != 0.0 )
+      v34 = 5;
+    goto LABEL_45;
   }
-  v126 = AINavigator2D::GetPathSpec(v93);
-  if ( !Nav_IsStraightLineReachable(&v180, &pOutResults.m_hEndArea, &_RDI->posAlongPath->m_Pos, &_RDI->posAlongPath->m_hArea, v126) )
+  if ( avoidingEntityInfo->drawAvoidance )
   {
-    if ( _RDI->drawAvoidance )
-    {
-      __asm { vmovaps xmm2, xmm9; scale }
-      G_Main_AddDebugStringWithDuration(&xyz, &color, *(float *)&_XMM2, "Cornercheck Failed", 1);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [rsp+260h+xyz+8]
-        vmovss  dword ptr [rsp+260h+xyz+8], xmm1
-      }
-    }
-    bfx::AreaHandle::AreaHandle(&outAreaHandle);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [r14+4]
-      vmovss  xmm3, dword ptr [r14]
-      vmovss  xmm5, dword ptr [r14+8]
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm4, xmm2, xmm2
-      vcmpless xmm0, xmm4, cs:__real@80000000
-      vblendvps xmm1, xmm4, xmm11, xmm0
-      vmovss  dword ptr [rbp+160h+hSpace], xmm1
-      vdivss  xmm0, xmm11, xmm1
-      vmulss  xmm2, xmm0, xmm3
-      vmulss  xmm3, xmm0, xmm6
-      vmulss  xmm5, xmm0, xmm5
-      vmulss  xmm4, xmm4, xmm8
-      vmulss  xmm0, xmm2, xmm4
-      vaddss  xmm1, xmm0, dword ptr [rdi+10h]
-      vmovss  dword ptr [rbp+160h+pos], xmm1
-      vmulss  xmm2, xmm3, xmm4
-      vaddss  xmm0, xmm2, dword ptr [rdi+14h]
-      vmovss  dword ptr [rbp+160h+pos+4], xmm0
-      vmulss  xmm1, xmm5, xmm4
-      vaddss  xmm2, xmm1, dword ptr [rdi+18h]
-      vmovss  dword ptr [rbp+160h+pos+8], xmm2
-    }
-    IsPointOnMeshCustom = Nav_IsPointOnMeshCustom(v102, &pos, (AINavLayer)layer, PathSpec, &outSnappedPos, &outAreaHandle);
-    if ( IsPointOnMeshCustom && Nav_IsStraightLineReachable(&outSnappedPos, &outAreaHandle, &_RDI->posAlongPath->m_Pos, &_RDI->posAlongPath->m_hArea, PathSpec) )
-    {
-      __asm { vmovss  xmm8, cs:__real@3e800000 }
-    }
-    else
-    {
-      if ( !v93->HasPath(v93) || (v93->GetNextCorner(v93, &hSpace), !IsPointOnMeshCustom) || (NextCornerArea = AINavigator2D::GetNextCornerArea(v93), !Nav_IsStraightLineReachable(&outSnappedPos, &outAreaHandle, &hSpace, NextCornerArea, PathSpec)) )
-      {
-        *_R15 = 0.0;
-        bfx::AreaHandle::~AreaHandle(&outAreaHandle);
-        v156 = 1;
-        goto LABEL_35;
-      }
-      __asm { vxorps  xmm8, xmm8, xmm8 }
-    }
+    G_Main_AddDebugStringWithDuration(&xyz, &color, 0.2, "Cornercheck Failed", 1);
+    xyz.v[2] = xyz.v[2] + -8.0;
+  }
+  bfx::AreaHandle::AreaHandle(&outAreaHandle);
+  v40 = desiredDirection->v[1];
+  v41 = LODWORD(desiredDirection->v[0]);
+  v42 = desiredDirection->v[2];
+  v43 = v41;
+  *(float *)&v43 = fsqrt((float)((float)(*(float *)&v41 * *(float *)&v41) + (float)(v40 * v40)) + (float)(v42 * v42));
+  _XMM4 = v43;
+  __asm
+  {
+    vcmpless xmm0, xmm4, cs:__real@80000000
+    vblendvps xmm1, xmm4, xmm11, xmm0
+  }
+  hSpace.v[0] = *(float *)&_XMM1;
+  pos.v[0] = (float)((float)((float)(1.0 / *(float *)&_XMM1) * *(float *)&v41) * (float)(*(float *)&v43 * 0.5)) + avoidingEntityInfo->position.v[0];
+  pos.v[1] = (float)((float)((float)(1.0 / *(float *)&_XMM1) * v40) * (float)(*(float *)&v43 * 0.5)) + avoidingEntityInfo->position.v[1];
+  pos.v[2] = (float)((float)((float)(1.0 / *(float *)&_XMM1) * v42) * (float)(*(float *)&v43 * 0.5)) + avoidingEntityInfo->position.v[2];
+  IsPointOnMeshCustom = Nav_IsPointOnMeshCustom(v31, &pos, (AINavLayer)layer, PathSpec, &outSnappedPos, &outAreaHandle);
+  if ( IsPointOnMeshCustom && Nav_IsStraightLineReachable(&outSnappedPos, &outAreaHandle, &avoidingEntityInfo->posAlongPath->m_Pos, &avoidingEntityInfo->posAlongPath->m_hArea, PathSpec) )
+  {
+    v35 = FLOAT_0_25;
+LABEL_40:
     bfx::AreaHandle::~AreaHandle(&outAreaHandle);
+    goto LABEL_41;
   }
-  __asm { vaddss  xmm6, xmm10, xmm8 }
-  v156 = 0;
-  v157 = !_RDI->drawAvoidance;
-  if ( _RDI->drawAvoidance )
+  if ( v28->HasPath(v28) )
   {
-    __asm
+    v28->GetNextCorner(v28, &hSpace);
+    if ( IsPointOnMeshCustom )
     {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
+      NextCornerArea = AINavigator2D::GetNextCornerArea(v28);
+      if ( Nav_IsStraightLineReachable(&outSnappedPos, &outAreaHandle, &hSpace, NextCornerArea, PathSpec) )
+      {
+        v35 = 0.0;
+        goto LABEL_40;
+      }
     }
-    v160 = j_va("Final:%f", _RDX);
-    __asm { vmovaps xmm2, xmm9; scale }
-    G_Main_AddDebugStringWithDuration(&xyz, &color, *(float *)&_XMM2, v160, 1);
-    __asm { vmovss  xmm1, cs:__real@40a00000; radius }
-    G_DebugCircle(&xyz, *(float *)&_XMM1, &color, 1, 1, 0);
   }
-  __asm
-  {
-    vmovss  dword ptr [r15], xmm6
-    vucomiss xmm6, xmm7
-  }
-  if ( !v157 )
-    v156 = 5;
-LABEL_35:
+  *result = 0.0;
+  bfx::AreaHandle::~AreaHandle(&outAreaHandle);
+  v34 = 1;
+LABEL_45:
   bfx::AreaHandle::~AreaHandle(&hStartArea);
-  bfx::AreaHandle::~AreaHandle(&v188.m_hEndArea);
+  bfx::AreaHandle::~AreaHandle(&v65.m_hEndArea);
   bfx::AreaHandle::~AreaHandle(&pOutResults.m_hEndArea);
-  v163 = v156;
-  _R11 = &v189;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
-  return v163;
+  return v34;
 }
 
 /*
@@ -2339,151 +1739,114 @@ SplitPolygon
 */
 char SplitPolygon(vec3_t *polygon, int capacity, int *numberOfVerticesOut, const vec4_t *plane)
 {
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v13; 
+  int v15; 
   int v16; 
-  int v17; 
-  int v20; 
-  __int64 v22; 
-  __int64 v23; 
-  char v33; 
-  char v34; 
-  char v35; 
-  int v78; 
-  int v79; 
+  float *v17; 
+  int v18; 
+  float *v19; 
+  __int64 v20; 
+  __int64 v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  __int64 v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  int v33; 
+  int v34; 
   char Src[384]; 
-  void *retaddr; 
+  __int128 v37; 
+  __int128 v38; 
+  __int128 v39; 
+  __int128 v40; 
+  __int128 v41; 
+  __int128 v42; 
+  __int128 v43; 
+  __int128 v44; 
+  __int128 v45; 
+  __int128 v46; 
 
-  _R11 = &retaddr;
-  _RSI = polygon;
-  v16 = *numberOfVerticesOut;
-  v17 = 0;
-  _R15 = plane;
-  v79 = *numberOfVerticesOut;
+  v15 = *numberOfVerticesOut;
+  v16 = 0;
+  v34 = *numberOfVerticesOut;
   if ( *numberOfVerticesOut <= 0 )
     return 0;
-  _RBX = Src;
-  v20 = 1;
-  _R13 = &_RSI->v[2];
-  __asm { vmovaps xmmword ptr [r11-48h], xmm6 }
-  v22 = 0i64;
-  __asm { vmovaps xmmword ptr [r11-58h], xmm7 }
-  v23 = 0i64;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-68h], xmm8
-    vmovaps xmmword ptr [r11-78h], xmm9
-    vmovaps xmmword ptr [r11-88h], xmm10
-    vmovaps xmmword ptr [r11-98h], xmm11
-    vmovaps xmmword ptr [r11-0A8h], xmm12
-    vmovaps xmmword ptr [r11-0B8h], xmm13
-    vmovaps xmmword ptr [r11-0C8h], xmm14
-    vmovaps xmmword ptr [r11-0D8h], xmm15
-  }
-  v78 = 1;
+  v17 = (float *)Src;
+  v18 = 1;
+  v19 = &polygon->v[2];
+  v46 = v4;
+  v20 = 0i64;
+  v45 = v5;
+  v21 = 0i64;
+  v44 = v6;
+  v43 = v7;
+  v42 = v8;
+  v41 = v9;
+  v40 = v10;
+  v39 = v11;
+  v38 = v12;
+  v37 = v13;
+  v33 = 1;
   do
   {
-    __asm
+    v22 = *(v19 - 2);
+    v23 = *(v19 - 1);
+    v24 = (float)((float)((float)(v22 * plane->v[0]) + (float)(v23 * plane->v[1])) + (float)(*v19 * plane->v[2])) - plane->v[3];
+    v25 = v18 % v15;
+    v26 = polygon[v25].v[0];
+    v27 = polygon[v25].v[1];
+    v28 = polygon[v25].v[2];
+    v29 = (float)((float)((float)(v27 * plane->v[1]) + (float)(v26 * plane->v[0])) + (float)(v28 * plane->v[2])) - plane->v[3];
+    if ( (float)(v29 * v24) < 0.0 )
     {
-      vmovss  xmm11, dword ptr [r13-8]
-      vmovss  xmm12, dword ptr [r13-4]
-      vmulss  xmm1, xmm11, dword ptr [r15]
-      vmulss  xmm0, xmm12, dword ptr [r15+4]
-      vmovss  xmm13, dword ptr [r13+0]
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm13, dword ptr [r15+8]
-      vaddss  xmm2, xmm2, xmm1
-      vsubss  xmm10, xmm2, dword ptr [r15+0Ch]
-    }
-    v35 = v33 | v34;
-    _R14 = 3i64 * (v20 % v16);
-    __asm
-    {
-      vmovss  xmm9, dword ptr [rsi+r14*4]
-      vmovss  xmm7, dword ptr [rsi+r14*4+4]
-      vmulss  xmm3, xmm7, dword ptr [r15+4]
-      vmulss  xmm0, xmm9, dword ptr [r15]
-      vmovss  xmm8, dword ptr [rsi+r14*4+8]
-      vmulss  xmm1, xmm8, dword ptr [r15+8]
-      vaddss  xmm2, xmm3, xmm0
-      vaddss  xmm2, xmm2, xmm1
-      vsubss  xmm3, xmm2, dword ptr [r15+0Ch]
-      vmulss  xmm0, xmm3, xmm10
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vsubss  xmm14, xmm9, xmm11
-      vsubss  xmm15, xmm7, xmm12
-    }
-    if ( v33 )
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm10, xmm3
-        vdivss  xmm2, xmm10, xmm0
-        vmulss  xmm1, xmm14, xmm2
-        vaddss  xmm6, xmm1, xmm11
-        vsubss  xmm1, xmm8, xmm13
-        vmulss  xmm1, xmm1, xmm2
-        vmulss  xmm0, xmm15, xmm2
-        vaddss  xmm8, xmm1, xmm13
-        vaddss  xmm7, xmm0, xmm12
-        vmovss  dword ptr [rbx], xmm6
-        vmovss  dword ptr [rbx+4], xmm7
-        vmovss  dword ptr [rbx+8], xmm8
-      }
-      _RBX += 12;
-      ++v17;
-      v35 = (unsigned __int64)++v22 <= 0x20;
-      if ( v22 >= 32 )
+      v30 = v24 / (float)(v24 - v29);
+      v31 = (float)((float)(v28 - *v19) * v30) + *v19;
+      *v17 = (float)((float)(v26 - v22) * v30) + v22;
+      v17[1] = (float)((float)(v27 - v23) * v30) + v23;
+      v17[2] = v31;
+      v17 += 3;
+      ++v16;
+      if ( ++v20 >= 32 )
         break;
     }
-    __asm
+    if ( (float)((float)((float)(polygon[v25].v[1] * plane->v[1]) + (float)(polygon[v25].v[0] * plane->v[0])) + (float)(polygon[v25].v[2] * plane->v[2])) > plane->v[3] )
     {
-      vmovss  xmm0, dword ptr [rsi+r14*4+4]
-      vmovss  xmm1, dword ptr [rsi+r14*4]
-      vmulss  xmm2, xmm1, dword ptr [r15]
-      vmulss  xmm3, xmm0, dword ptr [r15+4]
-      vmovss  xmm0, dword ptr [rsi+r14*4+8]
-      vmulss  xmm1, xmm0, dword ptr [r15+8]
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm2, xmm4, xmm1
-      vcomiss xmm2, dword ptr [r15+0Ch]
-    }
-    if ( !v35 )
-    {
-      ++v17;
-      *(float *)_RBX = _RSI[v20 % v16].v[0];
-      ++v22;
-      *((_DWORD *)_RBX + 1) = LODWORD(_RSI[v20 % v16].v[1]);
-      *((_DWORD *)_RBX + 2) = LODWORD(_RSI[v20 % v16].v[2]);
-      _RBX += 12;
-      if ( v22 >= 32 )
+      ++v16;
+      *v17 = polygon[v25].v[0];
+      ++v20;
+      v17[1] = polygon[v25].v[1];
+      v17[2] = polygon[v25].v[2];
+      v17 += 3;
+      if ( v20 >= 32 )
         break;
     }
-    v16 = v79;
-    v20 = v78 + 1;
-    ++v23;
-    ++v78;
-    _R13 += 3;
+    v15 = v34;
+    v18 = v33 + 1;
+    ++v21;
+    ++v33;
+    v19 += 3;
   }
-  while ( v23 < v79 );
-  __asm
-  {
-    vmovaps xmm15, [rsp+2B8h+var_D8]
-    vmovaps xmm14, [rsp+2B8h+var_C8]
-    vmovaps xmm13, [rsp+2B8h+var_B8]
-    vmovaps xmm12, [rsp+2B8h+var_A8]
-    vmovaps xmm11, [rsp+2B8h+var_98]
-    vmovaps xmm10, [rsp+2B8h+var_88]
-    vmovaps xmm9, [rsp+2B8h+var_78]
-    vmovaps xmm8, [rsp+2B8h+var_68]
-    vmovaps xmm7, [rsp+2B8h+var_58]
-    vmovaps xmm6, [rsp+2B8h+var_48]
-  }
-  if ( !v17 )
+  while ( v21 < v34 );
+  if ( !v16 )
     return 0;
-  if ( v17 >= capacity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\orca_avoidance.cpp", 183, ASSERT_TYPE_ASSERT, "(newPolygonVertexCount < capacity)", (const char *)&queryFormat, "newPolygonVertexCount < capacity") )
+  if ( v16 >= capacity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\ai\\orca_avoidance.cpp", 183, ASSERT_TYPE_ASSERT, "(newPolygonVertexCount < capacity)", (const char *)&queryFormat, "newPolygonVertexCount < capacity") )
     __debugbreak();
-  *numberOfVerticesOut = v17;
-  memcpy_0(_RSI, Src, 12i64 * v17);
+  *numberOfVerticesOut = v16;
+  memcpy_0(polygon, Src, 12i64 * v16);
   return 1;
 }
 

@@ -71,893 +71,577 @@ SND_CsvSetField
 */
 __int64 SND_CsvSetField(const char *filename, unsigned int entry_count, const void *entries, const char *column_name, const char *entry, unsigned int row_number, void *structure, bool *has)
 {
-  __int64 v13; 
-  const char *v14; 
-  const char *v16; 
-  unsigned int v17; 
-  unsigned int v18; 
-  __int64 v19; 
-  const char *v20; 
-  const char *name; 
-  __int64 v27; 
-  const char *v28; 
-  signed __int64 v29; 
-  int v30; 
-  __int64 v31; 
-  int v32; 
+  __int64 v8; 
+  const char *v9; 
+  const char *v11; 
+  unsigned int v12; 
+  unsigned int v13; 
+  __int64 v14; 
+  const char *v15; 
+  __int64 v16; 
+  __int64 v17; 
+  __int64 v18; 
+  const char *v19; 
+  __int64 v20; 
+  int v21; 
+  __int64 v22; 
+  int v23; 
+  int v24; 
+  int v25; 
+  int v26; 
+  bool v27; 
+  bool *v28; 
+  __int64 v29; 
+  unsigned __int64 v30; 
+  unsigned int v31; 
+  unsigned int v32; 
   int v33; 
-  int v34; 
-  SndCsvParseEntryType type; 
+  float v34; 
+  float v35; 
   bool v36; 
-  bool *v37; 
+  bool v37; 
   __int64 v38; 
-  unsigned __int64 v39; 
-  unsigned int length; 
-  unsigned int v41; 
-  int v42; 
-  bool v45; 
-  char v46; 
-  const char *v51; 
-  int v52; 
-  bool v54; 
-  char v57; 
-  unsigned __int64 offset; 
-  int v62; 
-  bool v63; 
-  char v66; 
-  unsigned __int64 v68; 
-  int v69; 
-  bool v70; 
-  char v73; 
-  unsigned __int64 v75; 
-  unsigned int v76; 
-  bool v80; 
-  bool v81; 
-  bool v82; 
-  char v87; 
-  int v91; 
+  const char *v39; 
+  int v40; 
+  float v41; 
+  float v42; 
+  bool v43; 
+  bool v44; 
+  __int64 v45; 
+  int v46; 
+  bool v47; 
+  bool v48; 
+  __int64 v49; 
+  int v50; 
+  bool v51; 
+  bool v52; 
+  __int64 v53; 
+  int v54; 
+  float v55; 
+  float v56; 
+  float v57; 
+  bool v58; 
+  bool v59; 
+  int v60; 
   int StringIndex; 
-  int v93; 
+  int v62; 
+  int v63; 
+  int v64; 
   int StringFlags; 
-  unsigned __int64 v97; 
-  int v98; 
-  bool v100; 
-  char v101; 
+  __int64 v66; 
+  int v67; 
+  float v68; 
+  bool v69; 
+  bool v70; 
+  float v71; 
+  int v72; 
+  bool v73; 
+  bool v74; 
+  float v75; 
+  int v76; 
+  float v77; 
+  bool v78; 
+  bool v79; 
+  float v80; 
+  int v84; 
+  float v85; 
+  bool v86; 
+  bool v87; 
+  float v88; 
+  int v92; 
+  float v93; 
+  bool v94; 
+  bool v95; 
+  float v96; 
+  int v100; 
+  float v101; 
+  bool v102; 
+  bool v103; 
   int v104; 
+  int v105; 
   bool v106; 
-  char v107; 
-  int v113; 
-  bool v115; 
-  char v116; 
-  int v123; 
-  bool v125; 
-  char v126; 
-  int v133; 
-  bool v135; 
-  char v136; 
-  int v142; 
-  bool v144; 
-  char v145; 
-  bool v146; 
-  int v150; 
-  bool v152; 
-  char v155; 
-  int v156; 
-  bool v158; 
-  char v159; 
+  bool v107; 
+  int v108; 
+  float v109; 
+  bool v110; 
+  bool v111; 
   char *fmt; 
-  char *fmta; 
-  __int64 v171; 
-  __int64 v172; 
-  __int64 v173; 
-  __int64 v174; 
-  int v175; 
-  __int64 v176; 
-  __int64 v177; 
-  int v184; 
-  const char *v185; 
+  __int64 v114; 
+  __int64 v115; 
+  __int64 v116; 
+  int v117; 
+  __int64 v118; 
+  __int64 v119; 
+  float v122; 
+  const char *v123; 
 
-  v185 = column_name;
-  LODWORD(v13) = 0;
-  v14 = column_name;
-  v176 = 0i64;
-  _RSI = (const SndCsvParseEntry *)entries;
-  v16 = filename;
-  v17 = -1;
+  v123 = column_name;
+  LODWORD(v8) = 0;
+  v9 = column_name;
+  v118 = 0i64;
+  v11 = filename;
+  v12 = -1;
   if ( entry_count )
   {
-    v18 = entry_count;
-    v19 = 0i64;
-    v20 = entry;
-    __asm
-    {
-      vmovaps [rsp+0F0h+var_50], xmm6
-      vmovaps [rsp+0F0h+var_60], xmm7
-      vmovss  xmm7, cs:__real@3d4ccccd
-      vmovaps [rsp+0F0h+var_70], xmm8
-      vmovss  xmm8, cs:__real@41200000
-      vmovaps [rsp+0F0h+var_80], xmm9
-      vmovss  xmm9, cs:__real@37803e84
-    }
-    v177 = 0i64;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    v13 = entry_count;
+    v14 = 0i64;
+    v15 = entry;
+    v119 = 0i64;
     do
     {
-      _RDI = v19;
-      name = _RSI[v19].name;
-      if ( name )
+      v16 = 6 * v14;
+      v17 = *((_QWORD *)entries + 6 * v14);
+      if ( v17 )
       {
-        v27 = 0x7FFFFFFFi64;
-        v28 = v14;
-        if ( !v14 )
+        v18 = 0x7FFFFFFFi64;
+        v19 = v9;
+        if ( !v9 )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
             __debugbreak();
-          v14 = v185;
-          v16 = filename;
-          LODWORD(v13) = v176;
-          v19 = v177;
+          v9 = v123;
+          v11 = filename;
+          LODWORD(v8) = v118;
+          v14 = v119;
         }
-        v29 = name - v14;
+        v20 = v17 - (_QWORD)v9;
         do
         {
-          v30 = (unsigned __int8)v28[v29];
-          v31 = v27;
-          v32 = *(unsigned __int8 *)v28++;
-          --v27;
-          if ( !v31 )
+          v21 = (unsigned __int8)v19[v20];
+          v22 = v18;
+          v23 = *(unsigned __int8 *)v19++;
+          --v18;
+          if ( !v22 )
             break;
-          if ( v30 != v32 )
+          if ( v21 != v23 )
           {
-            v33 = v30 + 32;
-            if ( (unsigned int)(v30 - 65) > 0x19 )
-              v33 = v30;
-            v30 = v33;
-            v34 = v32 + 32;
-            if ( (unsigned int)(v32 - 65) > 0x19 )
-              v34 = v32;
-            if ( v30 != v34 )
+            v24 = v21 + 32;
+            if ( (unsigned int)(v21 - 65) > 0x19 )
+              v24 = v21;
+            v21 = v24;
+            v25 = v23 + 32;
+            if ( (unsigned int)(v23 - 65) > 0x19 )
+              v25 = v23;
+            if ( v21 != v25 )
               goto LABEL_190;
           }
         }
-        while ( v30 );
-        if ( v20 && *v20 || (type = _RSI[_RDI].type, type == SND_CSV_HASH) )
+        while ( v21 );
+        if ( v15 && *v15 || (v26 = *((_DWORD *)entries + 2 * v16 + 5), v26 == 9) )
         {
-          v37 = has;
-          v38 = v177;
+          v28 = has;
+          v29 = v119;
         }
         else
         {
-          v36 = type == SND_CSV_FLAG || type == SND_CSV_FLAG_BITS;
-          if ( _RSI[_RDI].required && !v36 )
-            Com_PrintError(1, "ERROR: %s row %u had empty required column %s\n", v16, row_number, _RSI[_RDI].name);
-          v37 = has;
-          v38 = v177;
+          v27 = v26 == 4 || v26 == 11;
+          if ( *((_BYTE *)entries + 8 * v16 + 16) && !v27 )
+            Com_PrintError(1, "ERROR: %s row %u had empty required column %s\n", v11, row_number, *((const char **)entries + v16));
+          v28 = has;
+          v29 = v119;
           if ( has )
-            has[v177] = 1;
+            has[v119] = 1;
         }
-        switch ( _RSI[_RDI].type )
+        switch ( *((_DWORD *)entries + 2 * v16 + 5) )
         {
-          case SND_CSV_STRING:
-            v39 = -1i64;
+          case 0:
+            v30 = -1i64;
             do
-              ++v39;
-            while ( v20[v39] );
-            if ( v39 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v39, "unsigned", v39) )
+              ++v30;
+            while ( v15[v30] );
+            if ( v30 > 0xFFFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned int __cdecl truncate_cast_impl<unsigned int,unsigned __int64>(unsigned __int64)", "unsigned", (unsigned int)v30, "unsigned", v30) )
               __debugbreak();
-            length = _RSI[_RDI].length;
-            if ( (unsigned int)v39 > length - 1 )
+            v31 = *((_DWORD *)entries + 2 * v16 + 8);
+            if ( (unsigned int)v30 > v31 - 1 )
             {
-              LODWORD(v173) = row_number;
-              LODWORD(fmt) = _RSI[_RDI].length;
-              Com_PrintError(1, "ERROR: %s string too long: %s (max %u) col '%s' row %u\n", filename, v20, fmt, _RSI[_RDI].name, v173);
-              length = _RSI[_RDI].length;
+              LODWORD(v115) = row_number;
+              LODWORD(fmt) = *((_DWORD *)entries + 2 * v16 + 8);
+              Com_PrintError(1, "ERROR: %s string too long: %s (max %u) col '%s' row %u\n", filename, v15, fmt, *((const char **)entries + v16), v115);
+              v31 = *((_DWORD *)entries + 2 * v16 + 8);
             }
-            Core_strcpy((char *)structure + _RSI[_RDI].offset, length, v20);
+            Core_strcpy((char *)structure + *((_QWORD *)entries + v16 + 1), v31, v15);
             goto LABEL_187;
-          case SND_CSV_FLOAT:
-            v42 = j_sscanf(v20, "%f", &v184);
-            __asm
+          case 1:
+            v33 = j_sscanf(v15, "%f", &v122);
+            v34 = *((float *)entries + 2 * v16 + 6);
+            v35 = *((float *)entries + 2 * v16 + 7);
+            v36 = v33 != 1;
+            v37 = v34 != v35 && (v122 < v34 || v122 > v35);
+            if ( v36 )
             {
-              vmovss  xmm1, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm2, dword ptr [rsi+rdi*8+1Ch]
-              vmovss  xmm0, [rbp+37h+arg_10]
-            }
-            v45 = v42 != 1;
-            __asm { vucomiss xmm1, xmm2 }
-            if ( v42 == 1 )
-            {
-              v46 = 0;
-            }
-            else
-            {
-              __asm { vcomiss xmm0, xmm1 }
-              if ( v42 )
-                __asm { vcomiss xmm0, xmm2 }
-              v46 = 1;
-            }
-            if ( v45 )
-            {
-              if ( _RSI[_RDI].required )
+              if ( *((_BYTE *)entries + 8 * v16 + 16) )
                 goto LABEL_50;
-              __asm { vmovss  xmm0, dword ptr [rsi+rdi*8+24h] }
-              _RAX = _RSI[_RDI].offset;
-              _RCX = structure;
-              __asm
-              {
-                vmovss  [rbp+37h+arg_10], xmm0
-                vmovss  dword ptr [rcx+rax], xmm0
-              }
+              v38 = *((_QWORD *)entries + v16 + 1);
+              v122 = *((float *)entries + 2 * v16 + 9);
+              *(float *)((char *)structure + v38) = v122;
             }
             else
             {
-              if ( v46 )
+              if ( v37 )
               {
 LABEL_50:
-                v51 = "ERROR: %s invalid value '%s' [%f, %f] col '%s' row %u\n";
+                v39 = "ERROR: %s invalid value '%s' [%f, %f] col '%s' row %u\n";
                 goto LABEL_186;
               }
-              _RAX = _RSI[_RDI].offset;
-              _RCX = structure;
-              __asm { vmovss  dword ptr [rcx+rax], xmm0 }
+              *(float *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = v122;
             }
             goto LABEL_187;
-          case SND_CSV_INT:
-            v52 = j_sscanf(v20, "%d", &v175);
-            __asm
+          case 2:
+            v40 = j_sscanf(v15, "%d", &v117);
+            v41 = *((float *)entries + 2 * v16 + 6);
+            v42 = *((float *)entries + 2 * v16 + 7);
+            v43 = v40 != 1;
+            v44 = v41 != v42 && (v117 < (int)v41 || v117 > (int)v42);
+            if ( v43 )
             {
-              vmovss  xmm0, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm1, dword ptr [rsi+rdi*8+1Ch]
-            }
-            v54 = v52 != 1;
-            __asm { vucomiss xmm0, xmm1 }
-            if ( v52 == 1 )
-              goto LABEL_55;
-            __asm { vcvttss2si eax, xmm0 }
-            if ( v175 < _EAX )
-              goto LABEL_54;
-            __asm { vcvttss2si eax, xmm1 }
-            if ( v175 <= _EAX )
-LABEL_55:
-              v57 = 0;
-            else
-LABEL_54:
-              v57 = 1;
-            if ( v54 )
-            {
-              if ( _RSI[_RDI].required )
+              if ( *((_BYTE *)entries + 8 * v16 + 16) )
                 goto LABEL_61;
-              __asm { vcvttss2si ecx, dword ptr [rsi+rdi*8+24h] }
-              offset = _RSI[_RDI].offset;
-              v175 = _ECX;
-              *(_DWORD *)((char *)structure + offset) = _ECX;
+              v45 = *((_QWORD *)entries + v16 + 1);
+              v117 = (int)*((float *)entries + 2 * v16 + 9);
+              *(_DWORD *)((char *)structure + v45) = v117;
             }
             else
             {
-              if ( v57 )
+              if ( v44 )
                 goto LABEL_61;
-              *(_DWORD *)((char *)structure + _RSI[_RDI].offset) = v175;
+              *(_DWORD *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = v117;
             }
             goto LABEL_187;
-          case SND_CSV_ENUM:
-            StringIndex = Snd_GetStringIndex(v20, &_RSI[(unsigned int)v176], filename);
-            v175 = StringIndex;
+          case 3:
+            StringIndex = Snd_GetStringIndex(v15, (const SndCsvParseEntry *)entries + (unsigned int)v118, filename);
+            v117 = StringIndex;
             if ( StringIndex >= 0 )
-              *(_DWORD *)((char *)structure + _RSI[_RDI].offset) = StringIndex;
+              *(_DWORD *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = StringIndex;
             goto LABEL_187;
-          case SND_CSV_FLAG:
-            StringFlags = Snd_GetStringFlags(v20, &_RSI[(unsigned int)v176], filename);
-            v97 = _RSI[_RDI].offset;
-            v175 = StringFlags;
-            *(_DWORD *)((char *)structure + v97) = StringFlags;
+          case 4:
+            StringFlags = Snd_GetStringFlags(v15, (const SndCsvParseEntry *)entries + (unsigned int)v118, filename);
+            v66 = *((_QWORD *)entries + v16 + 1);
+            v117 = StringFlags;
+            *(_DWORD *)((char *)structure + v66) = StringFlags;
             goto LABEL_187;
-          case SND_CSV_USHORT_DBSPL:
-            v113 = j_sscanf(v20, "%f", &v184);
-            __asm
+          case 5:
+            v76 = j_sscanf(v15, "%f", &v122);
+            v34 = *((float *)entries + 2 * v16 + 6);
+            v35 = *((float *)entries + 2 * v16 + 7);
+            v77 = v122;
+            v78 = v76 != 1;
+            v79 = v34 != v35 && (v122 < v34 || v122 > v35);
+            if ( v78 )
             {
-              vmovss  xmm1, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm2, dword ptr [rsi+rdi*8+1Ch]
-              vmovss  xmm0, [rbp+37h+arg_10]
-            }
-            v115 = v113 != 1;
-            __asm { vucomiss xmm1, xmm2 }
-            if ( v113 == 1 )
-            {
-              v116 = 0;
-            }
-            else
-            {
-              __asm { vcomiss xmm0, xmm1 }
-              if ( v113 )
-                __asm { vcomiss xmm0, xmm2 }
-              v116 = 1;
-            }
-            if ( v115 )
-            {
-              if ( _RSI[_RDI].required )
+              if ( *((_BYTE *)entries + 8 * v16 + 16) )
                 goto LABEL_185;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+rdi*8+24h]
-                vmovss  [rbp+37h+arg_10], xmm0
-              }
+              v77 = *((float *)entries + 2 * v16 + 9);
+              v122 = v77;
             }
-            else if ( v116 )
+            else if ( v79 )
             {
               goto LABEL_185;
             }
-            __asm
-            {
-              vsubss  xmm0, xmm0, cs:__real@42c80000
-              vmulss  xmm1, xmm0, xmm7; Y
-              vmovaps xmm0, xmm8; X
-            }
-            *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
+            v80 = (float)(v77 - 100.0) * 0.050000001;
+            _XMM0 = LODWORD(FLOAT_10_0);
+            *(float *)&_XMM0 = powf_0(10.0, v80);
             __asm
             {
               vcmpltss xmm1, xmm0, xmm9
               vblendvps xmm0, xmm0, xmm6, xmm1
-              vmulss  xmm0, xmm0, cs:__real@477fff00
-              vcvttss2si ecx, xmm0
             }
-            *(_WORD *)((char *)structure + _RSI[_RDI].offset) = _ECX;
+            *(_WORD *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = (int)(float)(*(float *)&_XMM0 * 65535.0);
             goto LABEL_187;
-          case SND_CSV_FLOAT_DBSPL:
-            v123 = j_sscanf(v20, "%f", &v184);
-            __asm
+          case 6:
+            v84 = j_sscanf(v15, "%f", &v122);
+            v34 = *((float *)entries + 2 * v16 + 6);
+            v35 = *((float *)entries + 2 * v16 + 7);
+            v85 = v122;
+            v86 = v84 != 1;
+            v87 = v34 != v35 && (v122 < v34 || v122 > v35);
+            if ( v86 )
             {
-              vmovss  xmm1, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm2, dword ptr [rsi+rdi*8+1Ch]
-              vmovss  xmm0, [rbp+37h+arg_10]
-            }
-            v125 = v123 != 1;
-            __asm { vucomiss xmm1, xmm2 }
-            if ( v123 == 1 )
-            {
-              v126 = 0;
-            }
-            else
-            {
-              __asm { vcomiss xmm0, xmm1 }
-              if ( v123 )
-                __asm { vcomiss xmm0, xmm2 }
-              v126 = 1;
-            }
-            if ( v125 )
-            {
-              if ( _RSI[_RDI].required )
+              if ( *((_BYTE *)entries + 8 * v16 + 16) )
                 goto LABEL_185;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+rdi*8+24h]
-                vmovss  [rbp+37h+arg_10], xmm0
-              }
+              v85 = *((float *)entries + 2 * v16 + 9);
+              v122 = v85;
             }
-            else if ( v126 )
+            else if ( v87 )
             {
               goto LABEL_185;
             }
-            __asm
-            {
-              vsubss  xmm0, xmm0, cs:__real@42c80000
-              vmulss  xmm1, xmm0, xmm7; Y
-            }
+            v88 = (float)(v85 - 100.0) * 0.050000001;
             goto LABEL_142;
-          case SND_CSV_CENTS:
-            v98 = j_sscanf(v20, "%f", &v184);
-            __asm
+          case 7:
+            v67 = j_sscanf(v15, "%f", &v122);
+            v34 = *((float *)entries + 2 * v16 + 6);
+            v35 = *((float *)entries + 2 * v16 + 7);
+            v68 = v122;
+            v69 = v67 != 1;
+            v70 = v34 != v35 && (v122 < v34 || v122 > v35);
+            if ( v69 )
             {
-              vmovss  xmm1, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm2, dword ptr [rsi+rdi*8+1Ch]
-              vmovss  xmm0, [rbp+37h+arg_10]
-            }
-            v100 = v98 != 1;
-            __asm { vucomiss xmm1, xmm2 }
-            if ( v98 == 1 )
-            {
-              v101 = 0;
-            }
-            else
-            {
-              __asm { vcomiss xmm0, xmm1 }
-              if ( v98 )
-                __asm { vcomiss xmm0, xmm2 }
-              v101 = 1;
-            }
-            if ( v100 )
-            {
-              if ( _RSI[_RDI].required )
+              if ( *((_BYTE *)entries + 8 * v16 + 16) )
                 goto LABEL_185;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+rdi*8+24h]
-                vmovss  [rbp+37h+arg_10], xmm0
-              }
+              v68 = *((float *)entries + 2 * v16 + 9);
+              v122 = v68;
             }
-            else if ( v101 )
+            else if ( v70 )
             {
               goto LABEL_185;
             }
-            __asm { vmulss  xmm0, xmm0, cs:__real@3a5a740e; X }
-            *(float *)&_XMM0 = exp2f(*(float *)&_XMM0);
-            __asm
-            {
-              vmulss  xmm1, xmm0, cs:__real@46fffe00
-              vcvttss2si ecx, xmm1
-            }
-            *(_WORD *)((char *)structure + _RSI[_RDI].offset) = _ECX;
+            v71 = exp2f(v68 * 0.00083333335) * 32767.0;
+            *(_WORD *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = (int)v71;
             goto LABEL_187;
-          case SND_CSV_SEMITONE:
-            v104 = j_sscanf(v20, "%f", &v184);
-            __asm
+          case 8:
+            v72 = j_sscanf(v15, "%f", &v122);
+            v34 = *((float *)entries + 2 * v16 + 6);
+            v35 = *((float *)entries + 2 * v16 + 7);
+            v73 = v72 != 1;
+            v74 = v34 != v35 && (v122 < v34 || v122 > v35);
+            if ( v73 )
             {
-              vmovss  xmm1, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm2, dword ptr [rsi+rdi*8+1Ch]
-              vmovss  xmm0, [rbp+37h+arg_10]
-            }
-            v106 = v104 != 1;
-            __asm { vucomiss xmm1, xmm2 }
-            if ( v104 == 1 )
-            {
-              v107 = 0;
+              if ( *((_BYTE *)entries + 8 * v16 + 16) )
+                goto LABEL_185;
+              v122 = *((float *)entries + 2 * v16 + 9);
+              v75 = exp2f(v122 * 0.083333336);
+              *(float *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = v75;
             }
             else
             {
-              __asm { vcomiss xmm0, xmm1 }
-              if ( v104 )
-                __asm { vcomiss xmm0, xmm2 }
-              v107 = 1;
-            }
-            if ( v106 )
-            {
-              if ( _RSI[_RDI].required )
+              if ( v74 )
                 goto LABEL_185;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+rdi*8+24h]
-                vmovss  [rbp+37h+arg_10], xmm0
-                vmulss  xmm0, xmm0, cs:__real@3daaaaab; X
-              }
-              *(float *)&_XMM0 = exp2f(*(float *)&_XMM0);
-              _RAX = _RSI[_RDI].offset;
-              _RCX = structure;
-              __asm { vmovss  dword ptr [rcx+rax], xmm0 }
-            }
-            else
-            {
-              if ( v107 )
-                goto LABEL_185;
-              __asm { vmulss  xmm0, xmm0, cs:__real@3daaaaab; X }
-              *(float *)&_XMM0 = exp2f(*(float *)&_XMM0);
-              _RAX = _RSI[_RDI].offset;
-              _RCX = structure;
-              __asm { vmovss  dword ptr [rcx+rax], xmm0 }
+              *(float *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = exp2f(v122 * 0.083333336);
             }
             goto LABEL_187;
-          case SND_CSV_HASH:
-            v41 = SND_HashName(v20);
-            *(_DWORD *)((char *)structure + _RSI[_RDI].offset) = v41;
+          case 9:
+            v32 = SND_HashName(v15);
+            *(_DWORD *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = v32;
             goto LABEL_187;
-          case SND_CSV_ENUM_BITS:
-            v93 = Snd_GetStringIndex(v20, &_RSI[(unsigned int)v176], filename);
+          case 0xA:
+            v62 = Snd_GetStringIndex(v15, (const SndCsvParseEntry *)entries + (unsigned int)v118, filename);
             goto LABEL_98;
-          case SND_CSV_FLAG_BITS:
-            v93 = Snd_GetStringFlags(v20, &_RSI[(unsigned int)v176], filename);
+          case 0xB:
+            v62 = Snd_GetStringFlags(v15, (const SndCsvParseEntry *)entries + (unsigned int)v118, filename);
 LABEL_98:
-            v175 = v93;
-            if ( v93 >= 0 )
+            v117 = v62;
+            if ( v62 >= 0 )
             {
-              __asm
+              v63 = (int)*((float *)entries + 2 * v16 + 7);
+              v64 = (1 << (int)*((float *)entries + 2 * v16 + 6)) - 1;
+              *(_DWORD *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = ((v62 & v64) << v63) | *(_DWORD *)((_BYTE *)structure + *((_QWORD *)entries + v16 + 1)) & ~(v64 << v63);
+            }
+            goto LABEL_187;
+          case 0xC:
+            v50 = j_sscanf(v15, "%d", &v117);
+            v41 = *((float *)entries + 2 * v16 + 6);
+            v42 = *((float *)entries + 2 * v16 + 7);
+            v51 = v50 != 1;
+            v52 = v41 != v42 && (v117 < (int)v41 || v117 > (int)v42);
+            if ( v51 )
+            {
+              if ( *((_BYTE *)entries + 8 * v16 + 16) )
+                goto LABEL_61;
+              v53 = *((_QWORD *)entries + v16 + 1);
+              v117 = (int)*((float *)entries + 2 * v16 + 9);
+              *((_BYTE *)structure + v53) = v117;
+            }
+            else
+            {
+              if ( v52 )
+                goto LABEL_61;
+              *((_BYTE *)structure + *((_QWORD *)entries + v16 + 1)) = v117;
+            }
+            goto LABEL_187;
+          case 0xD:
+            v60 = Snd_GetStringIndex(v15, (const SndCsvParseEntry *)entries + (unsigned int)v118, filename);
+            v117 = v60;
+            if ( v60 >= 0 )
+              *((_BYTE *)structure + *((_QWORD *)entries + v16 + 1)) = v60;
+            goto LABEL_187;
+          case 0xE:
+          case 0xF:
+            v46 = j_sscanf(v15, "%d", &v117);
+            v41 = *((float *)entries + 2 * v16 + 6);
+            v42 = *((float *)entries + 2 * v16 + 7);
+            v47 = v46 != 1;
+            v48 = v41 != v42 && (v117 < (int)v41 || v117 > (int)v42);
+            if ( v47 )
+            {
+              if ( *((_BYTE *)entries + 8 * v16 + 16) )
+                goto LABEL_61;
+              v49 = *((_QWORD *)entries + v16 + 1);
+              v117 = (int)*((float *)entries + 2 * v16 + 9);
+              *(_WORD *)((char *)structure + v49) = v117;
+            }
+            else
+            {
+              if ( v48 )
+                goto LABEL_61;
+              *(_WORD *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = v117;
+            }
+            goto LABEL_187;
+          case 0x10:
+            v54 = j_sscanf(v15, "%f", &v122);
+            v55 = *((float *)entries + 2 * v16 + 6);
+            v56 = *((float *)entries + 2 * v16 + 7);
+            v57 = v122;
+            v58 = v54 != 1;
+            v59 = v55 != v56 && (v122 < (float)(int)v55 || v122 > (float)(int)v56);
+            if ( v58 )
+            {
+              if ( !*((_BYTE *)entries + 8 * v16 + 16) )
               {
-                vcvttss2si ecx, dword ptr [rsi+rdi*8+18h]
-                vcvttss2si r9d, dword ptr [rsi+rdi*8+1Ch]
-              }
-              *(_DWORD *)((char *)structure + _RSI[_RDI].offset) = ((v93 & ((1 << _ECX) - 1)) << _ER9) | *(_DWORD *)((_BYTE *)structure + _RSI[_RDI].offset) & ~(((1 << _ECX) - 1) << _ER9);
-            }
-            goto LABEL_187;
-          case SND_CSV_BYTE:
-            v69 = j_sscanf(v20, "%d", &v175);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm1, dword ptr [rsi+rdi*8+1Ch]
-            }
-            v70 = v69 != 1;
-            __asm { vucomiss xmm0, xmm1 }
-            if ( v69 == 1 )
-              goto LABEL_76;
-            __asm { vcvttss2si eax, xmm0 }
-            if ( v175 < _EAX )
-              goto LABEL_75;
-            __asm { vcvttss2si eax, xmm1 }
-            if ( v175 <= _EAX )
-LABEL_76:
-              v73 = 0;
-            else
-LABEL_75:
-              v73 = 1;
-            if ( v70 )
-            {
-              if ( _RSI[_RDI].required )
-                goto LABEL_61;
-              __asm { vcvttss2si ecx, dword ptr [rsi+rdi*8+24h] }
-              v75 = _RSI[_RDI].offset;
-              v175 = _ECX;
-              *((_BYTE *)structure + v75) = _ECX;
-            }
-            else
-            {
-              if ( v73 )
-                goto LABEL_61;
-              *((_BYTE *)structure + _RSI[_RDI].offset) = v175;
-            }
-            goto LABEL_187;
-          case SND_CSV_ENUM_BYTE:
-            v91 = Snd_GetStringIndex(v20, &_RSI[(unsigned int)v176], filename);
-            v175 = v91;
-            if ( v91 >= 0 )
-              *((_BYTE *)structure + _RSI[_RDI].offset) = v91;
-            goto LABEL_187;
-          case SND_CSV_SHORT:
-          case SND_CSV_USHORT:
-            v62 = j_sscanf(v20, "%d", &v175);
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm1, dword ptr [rsi+rdi*8+1Ch]
-            }
-            v63 = v62 != 1;
-            __asm { vucomiss xmm0, xmm1 }
-            if ( v62 == 1 )
-              goto LABEL_66;
-            __asm { vcvttss2si eax, xmm0 }
-            if ( v175 < _EAX )
-              goto LABEL_65;
-            __asm { vcvttss2si eax, xmm1 }
-            if ( v175 <= _EAX )
-LABEL_66:
-              v66 = 0;
-            else
-LABEL_65:
-              v66 = 1;
-            if ( v63 )
-            {
-              if ( _RSI[_RDI].required )
-                goto LABEL_61;
-              __asm { vcvttss2si ecx, dword ptr [rsi+rdi*8+24h] }
-              v68 = _RSI[_RDI].offset;
-              v175 = _ECX;
-              *(_WORD *)((char *)structure + v68) = _ECX;
-            }
-            else
-            {
-              if ( v66 )
-                goto LABEL_61;
-              *(_WORD *)((char *)structure + _RSI[_RDI].offset) = v175;
-            }
-            goto LABEL_187;
-          case SND_CSV_NORM_BYTE:
-            v76 = j_sscanf(v20, "%f", &v184);
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm3, dword ptr [rsi+rdi*8+1Ch]
-              vmovss  xmm1, [rbp+37h+arg_10]
-            }
-            v80 = v76 == 0;
-            v81 = v76 <= 1;
-            v82 = v76 != 1;
-            __asm { vucomiss xmm2, xmm3 }
-            if ( v76 == 1 )
-              goto LABEL_86;
-            __asm
-            {
-              vcvttss2si eax, xmm2
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vcomiss xmm1, xmm0
-            }
-            if ( v80 )
-              goto LABEL_85;
-            __asm
-            {
-              vcvttss2si eax, xmm3
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, eax
-              vcomiss xmm1, xmm0
-            }
-            if ( v81 )
-LABEL_86:
-              v87 = 0;
-            else
-LABEL_85:
-              v87 = 1;
-            if ( v82 )
-            {
-              if ( !_RSI[_RDI].required )
-              {
-                __asm
-                {
-                  vmovss  xmm1, dword ptr [rsi+rdi*8+24h]
-                  vmovss  [rbp+37h+arg_10], xmm1
-                }
+                v57 = *((float *)entries + 2 * v16 + 9);
+                v122 = v57;
 LABEL_91:
-                __asm
-                {
-                  vmulss  xmm0, xmm1, cs:__real@437f0000
-                  vcvttss2si ecx, xmm0
-                }
-                *((_BYTE *)structure + _RSI[_RDI].offset) = _ECX;
+                *((_BYTE *)structure + *((_QWORD *)entries + v16 + 1)) = (int)(float)(v57 * 255.0);
                 goto LABEL_187;
               }
             }
-            else if ( !v87 )
+            else if ( !v59 )
             {
               goto LABEL_91;
             }
-            LODWORD(v174) = row_number;
-            __asm
-            {
-              vcvttss2si edx, xmm2
-              vcvttss2si ecx, xmm3
-            }
-            LODWORD(v171) = _ECX;
-            LODWORD(fmt) = _EDX;
-            Com_PrintError(1, "ERROR: %s invalid value '%s' [%d, %d] col '%s' row %u\n", filename, v20, fmt, v171, _RSI[_RDI].name, v174);
+            LODWORD(v116) = row_number;
+            LODWORD(v114) = (int)v56;
+            LODWORD(fmt) = (int)v55;
+            Com_PrintError(1, "ERROR: %s invalid value '%s' [%d, %d] col '%s' row %u\n", filename, v15, fmt, v114, *((_QWORD *)entries + v16), v116);
             goto LABEL_187;
-          case SND_CSV_DISTANCE:
-            v150 = j_sscanf(v20, "%d", &v175);
-            __asm
+          case 0x11:
+            v104 = j_sscanf(v15, "%d", &v117);
+            v41 = *((float *)entries + 2 * v16 + 6);
+            v42 = *((float *)entries + 2 * v16 + 7);
+            v105 = v117;
+            v106 = v104 != 1;
+            v107 = v41 != v42 && (v117 < (int)v41 || v117 > (int)v42);
+            if ( v106 )
             {
-              vmovss  xmm0, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm1, dword ptr [rsi+rdi*8+1Ch]
-            }
-            _ECX = v175;
-            v152 = v150 != 1;
-            __asm { vucomiss xmm0, xmm1 }
-            if ( v150 == 1 )
-              goto LABEL_169;
-            __asm { vcvttss2si eax, xmm0 }
-            if ( v175 < _EAX )
-              goto LABEL_168;
-            __asm { vcvttss2si eax, xmm1 }
-            if ( v175 <= _EAX )
-LABEL_169:
-              v155 = 0;
-            else
-LABEL_168:
-              v155 = 1;
-            if ( v152 )
-            {
-              if ( _RSI[_RDI].required )
+              if ( *((_BYTE *)entries + 8 * v16 + 16) )
                 goto LABEL_61;
-              __asm { vcvttss2si ecx, dword ptr [rsi+rdi*8+24h] }
-              v175 = _ECX;
+              v105 = (int)*((float *)entries + 2 * v16 + 9);
+              v117 = v105;
             }
-            else if ( v155 )
+            else if ( v107 )
             {
 LABEL_61:
-              LODWORD(v174) = row_number;
-              __asm
-              {
-                vcvttss2si edx, xmm0
-                vcvttss2si ecx, xmm1
-              }
-              LODWORD(v171) = _ECX;
-              LODWORD(fmt) = _EDX;
-              Com_PrintError(1, "ERROR: %s invalid value '%s' [%d, %d] col '%s' row %u\n", filename, v20, fmt, v171, _RSI[_RDI].name, v174);
+              LODWORD(v116) = row_number;
+              LODWORD(v114) = (int)v42;
+              LODWORD(fmt) = (int)v41;
+              Com_PrintError(1, "ERROR: %s invalid value '%s' [%d, %d] col '%s' row %u\n", filename, v15, fmt, v114, *((_QWORD *)entries + v16), v116);
               goto LABEL_187;
             }
-            *(_WORD *)((char *)structure + _RSI[_RDI].offset) = _ECX / 2;
+            *(_WORD *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = v105 / 2;
             goto LABEL_187;
-          case SND_CSV_FLOAT_DB:
-            v133 = j_sscanf(v20, "%f", &v184);
-            __asm
+          case 0x12:
+            v92 = j_sscanf(v15, "%f", &v122);
+            v34 = *((float *)entries + 2 * v16 + 6);
+            v35 = *((float *)entries + 2 * v16 + 7);
+            v93 = v122;
+            v94 = v92 != 1;
+            v95 = v34 != v35 && (v122 < v34 || v122 > v35);
+            if ( v94 )
             {
-              vmovss  xmm1, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm2, dword ptr [rsi+rdi*8+1Ch]
-              vmovss  xmm0, [rbp+37h+arg_10]
-            }
-            v135 = v133 != 1;
-            __asm { vucomiss xmm1, xmm2 }
-            if ( v133 == 1 )
-            {
-              v136 = 0;
-            }
-            else
-            {
-              __asm { vcomiss xmm0, xmm1 }
-              if ( v133 )
-                __asm { vcomiss xmm0, xmm2 }
-              v136 = 1;
-            }
-            if ( v135 )
-            {
-              if ( _RSI[_RDI].required )
+              if ( *((_BYTE *)entries + 8 * v16 + 16) )
                 goto LABEL_185;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+rdi*8+24h]
-                vmovss  [rbp+37h+arg_10], xmm0
-              }
+              v93 = *((float *)entries + 2 * v16 + 9);
+              v122 = v93;
             }
-            else if ( v136 )
+            else if ( v95 )
             {
               goto LABEL_185;
             }
-            __asm
-            {
-              vmulss  xmm1, xmm0, xmm7; Y
-              vmovaps xmm0, xmm8; X
-            }
-            *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-            _RAX = _RSI[_RDI].offset;
-            _RCX = structure;
+            v96 = v93 * 0.050000001;
+            _XMM0 = LODWORD(FLOAT_10_0);
+            *(float *)&_XMM0 = powf_0(10.0, v96);
             __asm
             {
               vcmpltss xmm1, xmm0, xmm9
               vblendvps xmm0, xmm0, xmm6, xmm1
-              vmovss  dword ptr [rcx+rax], xmm0
             }
+            *(float *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = *(float *)&_XMM0;
             goto LABEL_187;
-          case SND_CSV_FLOAT_DB_NORM:
-            v142 = j_sscanf(v20, "%f", &v184);
-            __asm
+          case 0x13:
+            v100 = j_sscanf(v15, "%f", &v122);
+            v34 = *((float *)entries + 2 * v16 + 6);
+            v35 = *((float *)entries + 2 * v16 + 7);
+            v101 = v122;
+            v102 = v100 != 1;
+            v103 = v34 != v35 && (v122 < v34 || v122 > v35);
+            if ( v102 )
             {
-              vmovss  xmm1, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm2, dword ptr [rsi+rdi*8+1Ch]
-              vmovss  xmm0, [rbp+37h+arg_10]
-            }
-            v144 = v142 != 1;
-            __asm { vucomiss xmm1, xmm2 }
-            if ( v142 == 1 )
-            {
-              v145 = 0;
-            }
-            else
-            {
-              __asm { vcomiss xmm0, xmm1 }
-              if ( v142 )
-                __asm { vcomiss xmm0, xmm2 }
-              v145 = 1;
-            }
-            if ( v144 )
-            {
-              v146 = !_RSI[_RDI].required;
-              if ( _RSI[_RDI].required )
+              if ( *((_BYTE *)entries + 8 * v16 + 16) )
                 goto LABEL_185;
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+rdi*8+24h]
-                vmovss  [rbp+37h+arg_10], xmm0
-              }
+              v101 = *((float *)entries + 2 * v16 + 9);
+              v122 = v101;
             }
-            else
+            else if ( v103 )
             {
-              v146 = v145 == 0;
-              if ( v145 )
-                goto LABEL_185;
+              goto LABEL_185;
             }
-            __asm
+            if ( (float)(v101 - 12.0) > -100.0 )
             {
-              vsubss  xmm1, xmm0, cs:__real@41400000
-              vcomiss xmm1, cs:__real@c2c80000
-            }
-            if ( v146 )
-            {
-              _RAX = _RSI[_RDI].offset;
-              _RCX = structure;
-              __asm
-              {
-                vmovaps xmm0, xmm6
-                vmovss  dword ptr [rcx+rax], xmm6
-              }
-            }
-            else
-            {
-              __asm { vmulss  xmm1, xmm1, xmm7 }
+              v88 = (float)(v101 - 12.0) * 0.050000001;
 LABEL_142:
-              __asm { vmovaps xmm0, xmm8; X }
-              *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-              _RAX = _RSI[_RDI].offset;
-              _RCX = structure;
+              _XMM0 = LODWORD(FLOAT_10_0);
+              *(float *)&_XMM0 = powf_0(10.0, v88);
               __asm
               {
                 vcmpltss xmm1, xmm0, xmm9
                 vblendvps xmm0, xmm0, xmm6, xmm1
-                vmovss  dword ptr [rcx+rax], xmm0
               }
-            }
-            goto LABEL_187;
-          case SND_CSV_ONEPOLE_CUTOFF:
-            v156 = j_sscanf(v20, "%f", &v184);
-            __asm
-            {
-              vmovss  xmm1, dword ptr [rsi+rdi*8+18h]
-              vmovss  xmm2, dword ptr [rsi+rdi*8+1Ch]
-              vmovss  xmm0, [rbp+37h+arg_10]
-            }
-            v158 = v156 != 1;
-            __asm { vucomiss xmm1, xmm2 }
-            if ( v156 == 1 )
-            {
-              v159 = 0;
+              *(float *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = *(float *)&_XMM0;
             }
             else
             {
-              __asm { vcomiss xmm0, xmm1 }
-              if ( v156 )
-                __asm { vcomiss xmm0, xmm2 }
-              v159 = 1;
+              *(float *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = 0;
             }
-            if ( v158 )
+            goto LABEL_187;
+          case 0x14:
+            v108 = j_sscanf(v15, "%f", &v122);
+            v34 = *((float *)entries + 2 * v16 + 6);
+            v35 = *((float *)entries + 2 * v16 + 7);
+            v109 = v122;
+            v110 = v108 != 1;
+            v111 = v34 != v35 && (v122 < v34 || v122 > v35);
+            if ( v110 )
             {
-              if ( !_RSI[_RDI].required )
+              if ( !*((_BYTE *)entries + 8 * v16 + 16) )
               {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rsi+rdi*8+24h]
-                  vmovss  [rbp+37h+arg_10], xmm0
-                }
+                v109 = *((float *)entries + 2 * v16 + 9);
+                v122 = v109;
 LABEL_184:
-                __asm
-                {
-                  vmulss  xmm0, xmm0, cs:__real@382ec33e; X
-                  vmovss  xmm1, cs:__real@3eaaaaab; Y
-                }
-                *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-                _RAX = _RSI[_RDI].offset;
-                _RCX = structure;
-                __asm { vmovss  dword ptr [rcx+rax], xmm0 }
+                *(float *)((char *)structure + *((_QWORD *)entries + v16 + 1)) = powf_0(v109 * 0.000041666666, 0.33333334);
                 goto LABEL_187;
               }
             }
-            else if ( !v159 )
+            else if ( !v111 )
             {
               goto LABEL_184;
             }
 LABEL_185:
-            v51 = "ERROR: %s invalid value %s [%f, %f] col '%s' row %u\n";
+            v39 = "ERROR: %s invalid value %s [%f, %f] col '%s' row %u\n";
 LABEL_186:
-            LODWORD(v174) = row_number;
-            __asm
-            {
-              vcvtss2sd xmm0, xmm2, xmm2
-              vcvtss2sd xmm1, xmm1, xmm1
-              vmovsd  [rsp+0F0h+var_C8], xmm0
-              vmovsd  [rsp+0F0h+fmt], xmm1
-            }
-            Com_PrintError(1, v51, filename, v20, fmta, v172, _RSI[_RDI].name, v174);
+            LODWORD(v116) = row_number;
+            Com_PrintError(1, v39, filename, v15, v34, v35, *((_QWORD *)entries + v16), v116);
 LABEL_187:
-            if ( v37 )
-              v37[v38] = 1;
-            LODWORD(v13) = v176;
-            v19 = v177;
-            v17 = v176;
+            if ( v28 )
+              v28[v29] = 1;
+            LODWORD(v8) = v118;
+            v14 = v119;
+            v12 = v118;
 LABEL_190:
-            v18 = entry_count;
-            v14 = v185;
+            v13 = entry_count;
+            v9 = v123;
             break;
           default:
             goto LABEL_187;
         }
       }
-      v16 = filename;
-      v13 = (unsigned int)(v13 + 1);
-      ++v19;
-      v176 = v13;
-      v177 = v19;
+      v11 = filename;
+      v8 = (unsigned int)(v8 + 1);
+      ++v14;
+      v118 = v8;
+      v119 = v14;
     }
-    while ( (unsigned int)v13 < v18 );
-    __asm
-    {
-      vmovaps xmm9, [rsp+0F0h+var_80]
-      vmovaps xmm8, [rsp+0F0h+var_70]
-      vmovaps xmm7, [rsp+0F0h+var_60]
-      vmovaps xmm6, [rsp+0F0h+var_50]
-    }
+    while ( (unsigned int)v8 < v13 );
   }
-  return v17;
+  return v12;
 }
 
 /*
@@ -967,491 +651,357 @@ SND_JsonSetDuck
 */
 __int64 SND_JsonSetDuck(const char *filename, unsigned int entry_count, const void *entries, const char *column_name, const char *entry, unsigned int row_number, void *structure, bool *has)
 {
-  bool *v15; 
-  unsigned int v19; 
-  unsigned int v20; 
-  unsigned int v23; 
-  bool *v24; 
-  const char *v30; 
-  int v31; 
-  bool v34; 
-  char v37; 
-  int v38; 
-  bool v41; 
-  char v45; 
-  int v56; 
-  bool v57; 
-  char v60; 
-  int v63; 
-  unsigned __int64 v64; 
+  bool *v9; 
+  unsigned int v13; 
+  unsigned int v14; 
+  unsigned int v15; 
+  bool *v16; 
+  unsigned __int64 *i; 
+  const char *v18; 
+  int v19; 
+  bool v22; 
+  char v25; 
+  int v26; 
+  double v27; 
+  double v28; 
+  bool v29; 
+  bool v30; 
+  int v34; 
+  bool v35; 
+  char v38; 
+  int v41; 
+  unsigned __int64 v42; 
   unsigned int VolModIndexFromName; 
-  __int64 v71; 
-  __int64 v72; 
-  __int64 v73; 
-  __int64 v74; 
-  int v75; 
-  __int64 v76; 
-  int v77; 
-  int v78; 
-  int v79; 
-  unsigned int v80; 
-  bool v82; 
-  char v83; 
-  __int64 v84; 
+  __int64 v44; 
+  __int64 v45; 
+  __int64 v46; 
+  __int64 v47; 
+  __int64 v48; 
+  int v49; 
+  __int64 v50; 
+  int v51; 
+  int v52; 
+  int v53; 
+  bool v54; 
+  bool v55; 
+  __int64 v56; 
+  __int64 v57; 
+  int v58; 
+  __int64 v59; 
+  int v60; 
+  int v61; 
+  int v62; 
+  bool v63; 
+  bool v64; 
+  __int64 v65; 
+  __int64 v66; 
+  int v67; 
+  __int64 v68; 
+  int v69; 
+  int v70; 
+  int v71; 
+  bool v72; 
+  bool v73; 
+  const char *jsonName; 
+  __int64 v78; 
+  __int64 v79; 
+  int v80; 
+  __int64 v81; 
+  int v82; 
+  int v83; 
+  int v84; 
   __int64 v85; 
-  int v86; 
-  __int64 v87; 
-  int v88; 
+  __int64 v86; 
+  int v87; 
+  __int64 v88; 
   int v89; 
   int v90; 
-  unsigned int v91; 
+  int v91; 
+  bool v92; 
   bool v93; 
-  char v94; 
+  int v94; 
   __int64 v95; 
-  __int64 v96; 
+  int v96; 
   int v97; 
-  __int64 v98; 
-  int v99; 
-  int v100; 
-  int v101; 
-  unsigned int v102; 
-  bool v104; 
-  char v105; 
-  const char *jsonName; 
-  __int64 v120; 
-  __int64 v121; 
-  int v122; 
-  __int64 v123; 
-  int v124; 
-  int v125; 
-  int v126; 
-  __int64 v127; 
-  __int64 v128; 
-  int v129; 
-  __int64 v130; 
-  int v131; 
-  int v132; 
-  int v133; 
-  unsigned int v134; 
-  bool v136; 
-  char v137; 
-  int v138; 
-  __int64 v139; 
-  int v140; 
-  int v141; 
-  int v142; 
-  __int64 v148; 
-  double v149; 
-  __int128 v150; 
-  double v151; 
-  double v152; 
-  __int64 v153; 
-  double v154; 
-  double v155; 
-  double v156; 
-  __int64 v157; 
-  __int64 v158; 
-  int v159; 
-  const char *v160; 
-  int v161; 
-  unsigned int v162; 
+  int v98; 
+  __int64 v100; 
+  __int64 v101; 
+  __int64 v102; 
+  __int64 v103; 
+  float v104; 
+  const char *v105; 
+  int v106; 
+  unsigned int v107; 
   char *s1; 
-  bool *v164; 
+  bool *v109; 
   char valuePropName[1024]; 
   char propName[1024]; 
+  __int128 v112; 
 
-  _R13 = structure;
-  v15 = has;
+  v9 = has;
   s1 = (char *)column_name;
-  v162 = entry_count;
-  v19 = -1;
-  v160 = filename;
-  v164 = has;
+  v107 = entry_count;
+  v13 = -1;
+  v105 = filename;
+  v109 = has;
   if ( !structure )
   {
     Com_PrintError(9, "ERROR: %s - missing duck structure: %s col '%s' row %d\n", filename, entry, column_name, row_number);
-    return v19;
+    return v13;
   }
-  __asm
-  {
-    vmovaps [rsp+910h+var_40], xmm6
-    vmovaps [rsp+910h+var_50], xmm7
-  }
+  v112 = _XMM7;
   SND_DevHostParseDuckColumn(column_name, propName, valuePropName);
   if ( !valuePropName[0] )
   {
-    v20 = 0;
+    v14 = 0;
     if ( !entry_count )
-      goto LABEL_152;
-    __asm
+      return v13;
+    v15 = v107;
+    v16 = has;
+    for ( i = (unsigned __int64 *)((char *)entries + 24); ; i += 9 )
     {
-      vmovss  xmm6, cs:__real@382ec33e
-      vmovss  xmm7, cs:__real@3eaaaaab
-    }
-    v23 = v162;
-    v24 = has;
-    __asm { vmovaps [rsp+910h+var_60], xmm8 }
-    _RBX = (char *)entries + 24;
-    __asm
-    {
-      vmovss  xmm8, cs:__real@3d4ccccd
-      vmovaps [rsp+910h+var_70], xmm9
-      vmovss  xmm9, cs:__real@41200000
-      vmovaps [rsp+910h+var_80], xmm10
-      vmovss  xmm10, cs:__real@37803e84
-      vmovaps [rsp+910h+var_90], xmm11
-      vxorps  xmm11, xmm11, xmm11
-    }
-    while ( 1 )
-    {
-      v30 = (const char *)*((_QWORD *)_RBX - 3);
-      if ( v30 )
+      v18 = (const char *)*(i - 3);
+      if ( v18 )
         break;
 LABEL_60:
-      ++v20;
-      _RBX += 72;
-      ++v24;
-      if ( v20 >= v23 )
-      {
-        __asm
-        {
-          vmovaps xmm11, [rsp+910h+var_90]
-          vmovaps xmm10, [rsp+910h+var_80]
-          vmovaps xmm9, [rsp+910h+var_70]
-          vmovaps xmm8, [rsp+910h+var_60]
-        }
-        goto LABEL_152;
-      }
+      ++v14;
+      ++v16;
+      if ( v14 >= v15 )
+        return v13;
     }
-    if ( I_stricmp(v30, s1) )
+    if ( I_stricmp(v18, s1) )
     {
 LABEL_59:
-      v23 = v162;
+      v15 = v107;
       goto LABEL_60;
     }
-    if ( (!entry || !*entry) && *((_DWORD *)_RBX - 2) != 2 && v15 )
-      *v24 = 1;
-    switch ( *((_DWORD *)_RBX - 2) )
+    if ( (!entry || !*entry) && *((_DWORD *)i - 2) != 2 && v9 )
+      *v16 = 1;
+    switch ( *((_DWORD *)i - 2) )
     {
       case 1:
-        v63 = *((_DWORD *)_RBX + 4);
-        v64 = -1i64;
+        v41 = *((_DWORD *)i + 4);
+        v42 = -1i64;
         do
-          ++v64;
-        while ( entry[v64] );
-        if ( truncate_cast<int,unsigned __int64>(v64) > v63 - 1 )
+          ++v42;
+        while ( entry[v42] );
+        if ( truncate_cast<int,unsigned __int64>(v42) > v41 - 1 )
         {
-          LODWORD(v157) = row_number;
-          LODWORD(v148) = v63;
-          Com_PrintError(9, "ERROR: %s string too long: %s (max %d) col '%s' row %d\n", v160, entry, v148, *((const char **)_RBX - 3), v157);
-          v63 = *((_DWORD *)_RBX + 4);
+          LODWORD(v102) = row_number;
+          LODWORD(v100) = v41;
+          Com_PrintError(9, "ERROR: %s string too long: %s (max %d) col '%s' row %d\n", v105, entry, v100, (const char *)*(i - 3), v102);
+          v41 = *((_DWORD *)i + 4);
         }
-        Core_strcpy((char *)structure + *((_QWORD *)_RBX - 2), v63, entry);
-        v15 = v164;
+        Core_strcpy((char *)structure + *(i - 2), v41, entry);
+        v9 = v109;
         goto LABEL_56;
       case 2:
-        *(_DWORD *)((char *)structure + *((_QWORD *)_RBX - 2)) = SND_HashName(entry);
+        *(_DWORD *)((char *)structure + *(i - 2)) = SND_HashName(entry);
         goto LABEL_56;
       case 3:
-        v56 = j_sscanf(entry, "%d", &v161);
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rbx]
-          vmovsd  xmm1, qword ptr [rbx+8]
-        }
-        v57 = v56 != 1;
-        __asm { vucomisd xmm0, xmm1 }
-        if ( v56 == 1 )
+        v34 = j_sscanf(entry, "%d", &v106);
+        _XMM0 = *i;
+        _XMM1 = i[1];
+        v35 = v34 != 1;
+        if ( *(double *)&_XMM0 == *(double *)&_XMM1 )
           goto LABEL_45;
         __asm { vcvttsd2si eax, xmm0 }
-        if ( v161 < _EAX )
+        if ( v106 < _EAX )
           goto LABEL_44;
         __asm { vcvttsd2si eax, xmm1 }
-        if ( v161 <= _EAX )
+        if ( v106 <= _EAX )
 LABEL_45:
-          v60 = 0;
+          v38 = 0;
         else
 LABEL_44:
-          v60 = 1;
-        if ( !v57 && !v60 )
+          v38 = 1;
+        if ( !v35 && !v38 )
         {
-          *(_DWORD *)((char *)structure + *((_QWORD *)_RBX - 2)) = v161;
+          *(_DWORD *)((char *)structure + *(i - 2)) = v106;
           goto LABEL_56;
         }
         break;
       case 4:
-        v38 = j_sscanf(entry, "%f", &v159);
-        __asm
+        v26 = j_sscanf(entry, "%f", &v104);
+        v27 = *(double *)i;
+        v28 = *((double *)i + 1);
+        v29 = v26 != 1;
+        v30 = *(double *)i != v28 && (v104 < v27 || v104 > v28);
+        if ( v29 || v30 )
         {
-          vmovsd  xmm2, qword ptr [rbx]
-          vmovsd  xmm3, qword ptr [rbx+8]
+          LODWORD(v103) = row_number;
+          Com_PrintError(9, "ERROR: %s invalid value '%s' [%f, %f] col '%s' row %d\n", v105, entry, v27, v28, (const char *)*(i - 3), v103);
         }
-        v41 = v38 != 1;
-        __asm { vucomisd xmm2, xmm3 }
-        if ( v38 == 1 )
+        else if ( I_stricmp((const char *)*(i - 3), "DuckAliasHpf") && I_stricmp((const char *)*(i - 3), "DuckAliasLpf") )
         {
-          v45 = 0;
-        }
-        else
-        {
-          __asm
+          if ( I_stricmp((const char *)*(i - 3), "DuckAliasAttenuation") )
           {
-            vmovss  xmm1, [rsp+910h+var_8D0]
-            vcvtss2sd xmm0, xmm1, xmm1
-            vcomisd xmm0, xmm2
-          }
-          if ( v38 )
-          {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm1, xmm1
-              vcomisd xmm0, xmm3
-            }
-          }
-          v45 = 1;
-        }
-        if ( v41 || v45 )
-        {
-          LODWORD(v158) = row_number;
-          __asm
-          {
-            vmovsd  qword ptr [rsp+910h+var_8F0+8], xmm3
-            vmovsd  qword ptr [rsp+910h+var_8F0], xmm2
-          }
-          Com_PrintError(9, "ERROR: %s invalid value '%s' [%f, %f] col '%s' row %d\n", v160, entry, v149, v154, *((const char **)_RBX - 3), v158);
-        }
-        else if ( I_stricmp(*((const char **)_RBX - 3), "DuckAliasHpf") && I_stricmp(*((const char **)_RBX - 3), "DuckAliasLpf") )
-        {
-          if ( I_stricmp(*((const char **)_RBX - 3), "DuckAliasAttenuation") )
-          {
-            _RAX = *((_QWORD *)_RBX - 2);
-            __asm
-            {
-              vmovss  xmm0, [rsp+910h+var_8D0]
-              vmovss  dword ptr [rax+r13], xmm0
-            }
+            *(float *)((char *)structure + *(i - 2)) = v104;
           }
           else
           {
-            __asm
-            {
-              vmulss  xmm1, xmm8, [rsp+910h+var_8D0]; Y
-              vmovaps xmm0, xmm9; X
-            }
-            *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-            _RAX = *((_QWORD *)_RBX - 2);
+            _XMM0 = LODWORD(FLOAT_10_0);
+            *(float *)&_XMM0 = powf_0(10.0, 0.050000001 * v104);
             __asm
             {
               vcmpltss xmm1, xmm0, xmm10
               vblendvps xmm0, xmm0, xmm11, xmm1
-              vmovss  dword ptr [rax+r13], xmm0
             }
+            *(float *)((char *)structure + *(i - 2)) = *(float *)&_XMM0;
           }
         }
         else
         {
-          __asm
-          {
-            vmulss  xmm0, xmm6, [rsp+910h+var_8D0]; X
-            vmovaps xmm1, xmm7; Y
-          }
-          *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-          _RAX = *((_QWORD *)_RBX - 2);
-          __asm { vmovss  dword ptr [rax+r13], xmm0 }
+          *(float *)((char *)structure + *(i - 2)) = powf_0(0.000041666666 * v104, 0.33333334);
         }
         goto LABEL_56;
       case 6:
-        v31 = j_sscanf(entry, "%d", &v161);
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rbx]
-          vmovsd  xmm1, qword ptr [rbx+8]
-        }
-        v34 = v31 != 1;
-        __asm { vucomisd xmm0, xmm1 }
-        if ( v31 == 1 )
+        v19 = j_sscanf(entry, "%d", &v106);
+        _XMM0 = *i;
+        _XMM1 = i[1];
+        v22 = v19 != 1;
+        if ( *(double *)&_XMM0 == *(double *)&_XMM1 )
           goto LABEL_23;
         __asm { vcvttsd2si eax, xmm0 }
-        if ( v161 < _EAX )
+        if ( v106 < _EAX )
           goto LABEL_22;
         __asm { vcvttsd2si eax, xmm1 }
-        if ( v161 <= _EAX )
+        if ( v106 <= _EAX )
 LABEL_23:
-          v37 = 0;
+          v25 = 0;
         else
 LABEL_22:
-          v37 = 1;
-        if ( !v34 && !v37 )
+          v25 = 1;
+        if ( !v22 && !v25 )
         {
-          *(_WORD *)((char *)structure + *((_QWORD *)_RBX - 2)) = v161;
+          *(_WORD *)((char *)structure + *(i - 2)) = v106;
           goto LABEL_56;
         }
         break;
       default:
-        LODWORD(v153) = row_number;
-        Com_PrintError(9, "ERROR: %s field not found: Entry %s, name %s, row_number %d\n", v160, entry, *((const char **)_RBX - 3), v153);
+        LODWORD(v101) = row_number;
+        Com_PrintError(9, "ERROR: %s field not found: Entry %s, name %s, row_number %d\n", v105, entry, (const char *)*(i - 3), v101);
 LABEL_56:
-        if ( v15 )
-          *v24 = 1;
-        v19 = v20;
+        if ( v9 )
+          *v16 = 1;
+        v13 = v14;
         goto LABEL_59;
     }
-    LODWORD(v158) = row_number;
+    LODWORD(v103) = row_number;
     __asm
     {
       vcvttsd2si ecx, xmm1
       vcvttsd2si edx, xmm0
     }
-    LODWORD(v153) = _ECX;
-    LODWORD(v148) = _EDX;
-    Com_PrintError(9, "ERROR: %s invalid value '%s' [%d, %d] col '%s' row %d\n", v160, entry, v148, v153, *((const char **)_RBX - 3), v158);
+    LODWORD(v101) = _ECX;
+    LODWORD(v100) = _EDX;
+    Com_PrintError(9, "ERROR: %s invalid value '%s' [%d, %d] col '%s' row %d\n", v105, entry, v100, v101, (const char *)*(i - 3), v103);
     goto LABEL_56;
   }
   VolModIndexFromName = SND_GetVolModIndexFromName(propName);
-  _RDI = (int)VolModIndexFromName;
+  v44 = (int)VolModIndexFromName;
   if ( VolModIndexFromName > 0x7F )
   {
     Com_PrintError(9, "ERROR: Invalid duck group name (%s) in %s. Row %s\n", propName, filename, entry);
   }
   else
   {
-    v71 = 0x7FFFFFFFi64;
-    v72 = 0i64;
-    v73 = 0x7FFFFFFFi64;
-    v74 = 0i64;
+    v45 = 0x7FFFFFFFi64;
+    v46 = 0i64;
+    v47 = 0x7FFFFFFFi64;
+    v48 = 0i64;
     do
     {
-      v75 = (unsigned __int8)valuePropName[v74];
-      v76 = v73;
-      v77 = (unsigned __int8)aHpf[v74++];
-      --v73;
-      __asm
-      {
-        vxorpd  xmm7, xmm7, xmm7
-        vxorps  xmm6, xmm6, xmm6
-      }
-      if ( !v76 )
+      v49 = (unsigned __int8)valuePropName[v48];
+      v50 = v47;
+      v51 = (unsigned __int8)aHpf[v48++];
+      --v47;
+      __asm { vxorpd  xmm7, xmm7, xmm7 }
+      if ( !v50 )
         break;
-      if ( v75 != v77 )
+      if ( v49 != v51 )
       {
-        v78 = v75 + 32;
-        if ( (unsigned int)(v75 - 65) > 0x19 )
-          v78 = v75;
-        v75 = v78;
-        v79 = v77 + 32;
-        if ( (unsigned int)(v77 - 65) > 0x19 )
-          v79 = v77;
-        if ( v75 != v79 )
+        v52 = v49 + 32;
+        if ( (unsigned int)(v49 - 65) > 0x19 )
+          v52 = v49;
+        v49 = v52;
+        v53 = v51 + 32;
+        if ( (unsigned int)(v51 - 65) > 0x19 )
+          v53 = v51;
+        if ( v49 != v53 )
         {
-          v84 = 0x7FFFFFFFi64;
-          v85 = 0i64;
+          v56 = 0x7FFFFFFFi64;
+          v57 = 0i64;
           do
           {
-            v86 = (unsigned __int8)valuePropName[v85];
-            v87 = v84;
-            v88 = (unsigned __int8)aLpf_1[v85++];
-            --v84;
-            if ( !v87 )
+            v58 = (unsigned __int8)valuePropName[v57];
+            v59 = v56;
+            v60 = (unsigned __int8)aLpf_1[v57++];
+            --v56;
+            if ( !v59 )
               break;
-            if ( v86 != v88 )
+            if ( v58 != v60 )
             {
-              v89 = v86 + 32;
-              if ( (unsigned int)(v86 - 65) > 0x19 )
-                v89 = v86;
-              v86 = v89;
-              v90 = v88 + 32;
-              if ( (unsigned int)(v88 - 65) > 0x19 )
-                v90 = v88;
-              if ( v86 != v90 )
+              v61 = v58 + 32;
+              if ( (unsigned int)(v58 - 65) > 0x19 )
+                v61 = v58;
+              v58 = v61;
+              v62 = v60 + 32;
+              if ( (unsigned int)(v60 - 65) > 0x19 )
+                v62 = v60;
+              if ( v58 != v62 )
               {
-                v95 = 0x7FFFFFFFi64;
-                v96 = 0i64;
+                v65 = 0x7FFFFFFFi64;
+                v66 = 0i64;
                 do
                 {
-                  v97 = (unsigned __int8)valuePropName[v96];
-                  v98 = v95;
-                  v99 = (unsigned __int8)aAttenuation_0[v96++];
-                  --v95;
-                  if ( !v98 )
+                  v67 = (unsigned __int8)valuePropName[v66];
+                  v68 = v65;
+                  v69 = (unsigned __int8)aAttenuation_0[v66++];
+                  --v65;
+                  if ( !v68 )
                     break;
-                  if ( v97 != v99 )
+                  if ( v67 != v69 )
                   {
-                    v100 = v97 + 32;
-                    if ( (unsigned int)(v97 - 65) > 0x19 )
-                      v100 = v97;
-                    v97 = v100;
-                    v101 = v99 + 32;
-                    if ( (unsigned int)(v99 - 65) > 0x19 )
-                      v101 = v99;
-                    if ( v97 != v101 )
+                    v70 = v67 + 32;
+                    if ( (unsigned int)(v67 - 65) > 0x19 )
+                      v70 = v67;
+                    v67 = v70;
+                    v71 = v69 + 32;
+                    if ( (unsigned int)(v69 - 65) > 0x19 )
+                      v71 = v69;
+                    if ( v67 != v71 )
                       goto LABEL_115;
                   }
                 }
-                while ( v97 );
-                v102 = j_sscanf(entry, "%f", &v159);
-                __asm { vmovss  xmm0, [rsp+910h+var_8D0] }
-                v104 = v102 != 1;
-                __asm { vcomiss xmm0, cs:__real@c2c80000 }
-                if ( !v102 )
-                  goto LABEL_99;
-                __asm { vcomiss xmm0, cs:__real@42f00000 }
-                if ( v102 <= 1 )
-                  v105 = 0;
-                else
-LABEL_99:
-                  v105 = 1;
-                if ( v104 || v105 )
+                while ( v67 );
+                v72 = j_sscanf(entry, "%f", &v104) != 1;
+                v73 = v104 < -100.0 || v104 > 120.0;
+                if ( v72 || v73 )
                 {
-                  __asm
-                  {
-                    vmovaps xmm0, cs:__xmm@405e000000000000c059000000000000
-                    vmovups [rsp+910h+var_8F0], xmm0
-                  }
-                  Com_PrintError(9, "ERROR: %s invalid value '%s' [%f, %f] col '%s' row %d\n", v160, entry, *(double *)&v150, *((double *)&v150 + 1), SND_DUCK_VALUE[7].jsonName, row_number);
+                  Com_PrintError(9, "ERROR: %s invalid value '%s' [%f, %f] col '%s' row %d\n", v105, entry, *(double *)&_xmm, *((double *)&_xmm + 1), SND_DUCK_VALUE[7].jsonName, row_number);
                 }
                 else
                 {
-                  __asm
-                  {
-                    vmulss  xmm1, xmm0, cs:__real@3d4ccccd; Y
-                    vmovss  xmm0, cs:__real@41200000; X
-                  }
-                  *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-                  _RAX = *((_QWORD *)structure + 13);
+                  _XMM0 = LODWORD(FLOAT_10_0);
+                  *(float *)&_XMM0 = powf_0(10.0, v104 * 0.050000001);
                   __asm
                   {
                     vcmpltss xmm1, xmm0, cs:__real@37803e84
                     vblendvps xmm0, xmm0, xmm6, xmm1
-                    vmovss  dword ptr [rax+rdi*4], xmm0
                   }
+                  *(float *)(*((_QWORD *)structure + 13) + 4 * v44) = *(float *)&_XMM0;
                 }
                 goto LABEL_115;
               }
             }
           }
-          while ( v86 );
-          v91 = j_sscanf(entry, "%f", &v159);
-          __asm { vmovss  xmm0, [rsp+910h+var_8D0] }
-          v93 = v91 != 1;
-          __asm { vcomiss xmm0, xmm6 }
-          if ( !v91 )
-            goto LABEL_104;
-          __asm { vcomiss xmm0, cs:__real@46bb8000 }
-          if ( v91 <= 1 )
-            v94 = 0;
-          else
-LABEL_104:
-            v94 = 1;
-          if ( !v93 && !v94 )
+          while ( v58 );
+          v63 = j_sscanf(entry, "%f", &v104) != 1;
+          v64 = v104 < 0.0 || v104 > 24000.0;
+          if ( !v63 && !v64 )
           {
-            __asm
-            {
-              vmulss  xmm0, xmm0, cs:__real@382ec33e; X
-              vmovss  xmm1, cs:__real@3eaaaaab; Y
-            }
-            *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-            _RAX = *((_QWORD *)structure + 15);
-            __asm { vmovss  dword ptr [rax+rdi*4], xmm0 }
+            *(float *)(*((_QWORD *)structure + 15) + 4 * v44) = powf_0(v104 * 0.000041666666, 0.33333334);
             goto LABEL_115;
           }
           jsonName = SND_DUCK_VALUE[6].jsonName;
@@ -1459,153 +1009,107 @@ LABEL_104:
         }
       }
     }
-    while ( v75 );
-    v80 = j_sscanf(entry, "%f", &v159);
-    __asm { vmovss  xmm0, [rsp+910h+var_8D0] }
-    v82 = v80 != 1;
-    __asm { vcomiss xmm0, xmm6 }
-    if ( !v80 )
-      goto LABEL_109;
-    __asm { vcomiss xmm0, cs:__real@46bb8000 }
-    if ( v80 <= 1 )
-      v83 = 0;
-    else
-LABEL_109:
-      v83 = 1;
-    if ( !v82 && !v83 )
+    while ( v49 );
+    v54 = j_sscanf(entry, "%f", &v104) != 1;
+    v55 = v104 < 0.0 || v104 > 24000.0;
+    if ( !v54 && !v55 )
     {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@382ec33e; X
-        vmovss  xmm1, cs:__real@3eaaaaab; Y
-      }
-      *(float *)&_XMM0 = powf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-      _RAX = *((_QWORD *)structure + 14);
-      __asm { vmovss  dword ptr [rax+rdi*4], xmm0 }
+      *(float *)(*((_QWORD *)structure + 14) + 4 * v44) = powf_0(v104 * 0.000041666666, 0.33333334);
       goto LABEL_115;
     }
     jsonName = SND_DUCK_VALUE[5].jsonName;
 LABEL_114:
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@40d7700000000000
-      vmovsd  qword ptr [rsp+910h+var_8F0+8], xmm0
-      vmovsd  qword ptr [rsp+910h+var_8F0], xmm7
-    }
-    Com_PrintError(9, "ERROR: %s invalid value '%s' [%f, %f] col '%s' row %d\n", v160, entry, v151, v155, jsonName, row_number);
+    Com_PrintError(9, "ERROR: %s invalid value '%s' [%f, %f] col '%s' row %d\n", v105, entry, *(double *)&_XMM7, DOUBLE_24000_0, jsonName, row_number);
 LABEL_115:
-    v120 = 0x7FFFFFFFi64;
-    v121 = 0i64;
+    v78 = 0x7FFFFFFFi64;
+    v79 = 0i64;
     do
     {
-      v122 = (unsigned __int8)valuePropName[v121];
-      v123 = v120;
-      v124 = (unsigned __int8)aFocuscone_1[v121++];
-      --v120;
-      if ( !v123 )
+      v80 = (unsigned __int8)valuePropName[v79];
+      v81 = v78;
+      v82 = (unsigned __int8)aFocuscone_1[v79++];
+      --v78;
+      if ( !v81 )
         break;
-      if ( v122 != v124 )
+      if ( v80 != v82 )
       {
-        v125 = v122 + 32;
-        if ( (unsigned int)(v122 - 65) > 0x19 )
-          v125 = v122;
-        v122 = v125;
-        v126 = v124 + 32;
-        if ( (unsigned int)(v124 - 65) > 0x19 )
-          v126 = v124;
-        if ( v122 != v126 )
+        v83 = v80 + 32;
+        if ( (unsigned int)(v80 - 65) > 0x19 )
+          v83 = v80;
+        v80 = v83;
+        v84 = v82 + 32;
+        if ( (unsigned int)(v82 - 65) > 0x19 )
+          v84 = v82;
+        if ( v80 != v84 )
           goto LABEL_125;
       }
     }
-    while ( v122 );
-    *(_DWORD *)(*((_QWORD *)structure + 17) + 4 * _RDI) = SND_HashName(entry);
+    while ( v80 );
+    *(_DWORD *)(*((_QWORD *)structure + 17) + 4 * v44) = SND_HashName(entry);
 LABEL_125:
-    v127 = 0x7FFFFFFFi64;
-    v128 = 0i64;
+    v85 = 0x7FFFFFFFi64;
+    v86 = 0i64;
     while ( 1 )
     {
-      v129 = (unsigned __int8)valuePropName[v128];
-      v130 = v127;
-      v131 = (unsigned __int8)aFocusamount[v128++];
-      --v127;
-      if ( !v130 )
+      v87 = (unsigned __int8)valuePropName[v86];
+      v88 = v85;
+      v89 = (unsigned __int8)aFocusamount[v86++];
+      --v85;
+      if ( !v88 )
       {
 LABEL_134:
-        v134 = j_sscanf(entry, "%f", &v159);
-        __asm { vmovss  xmm0, [rsp+910h+var_8D0] }
-        v136 = v134 != 1;
-        __asm { vcomiss xmm0, xmm6 }
-        if ( !v134 )
-          goto LABEL_146;
-        __asm { vcomiss xmm0, cs:__real@3f800000 }
-        if ( v134 <= 1 )
-          v137 = 0;
-        else
-LABEL_146:
-          v137 = 1;
-        if ( v136 || v137 )
+        v92 = j_sscanf(entry, "%f", &v104) != 1;
+        v93 = v104 < 0.0 || v104 > 1.0;
+        if ( v92 || v93 )
         {
-          __asm { vmovsd  xmm0, cs:__real@3ff0000000000000 }
-          LODWORD(v158) = row_number;
-          __asm
-          {
-            vmovsd  qword ptr [rsp+910h+var_8F0+8], xmm0
-            vmovsd  qword ptr [rsp+910h+var_8F0], xmm7
-          }
-          Com_PrintError(9, "ERROR: %s invalid value '%s' [%f, %f] col '%s' row %d\n", v160, entry, v152, v156, SND_DUCK_VALUE[10].jsonName, v158);
+          LODWORD(v103) = row_number;
+          Com_PrintError(9, "ERROR: %s invalid value '%s' [%f, %f] col '%s' row %d\n", v105, entry, *(double *)&_XMM7, DOUBLE_1_0, SND_DUCK_VALUE[10].jsonName, v103);
         }
         else
         {
-          _RAX = *((_QWORD *)structure + 16);
-          __asm { vmovss  dword ptr [rax+rdi*4], xmm0 }
+          *(float *)(*((_QWORD *)structure + 16) + 4 * v44) = v104;
         }
-        goto LABEL_152;
+        return v13;
       }
-      if ( v129 != v131 )
+      if ( v87 != v89 )
       {
-        v132 = v129 + 32;
-        if ( (unsigned int)(v129 - 65) > 0x19 )
-          v132 = v129;
-        v129 = v132;
-        v133 = v131 + 32;
-        if ( (unsigned int)(v131 - 65) > 0x19 )
-          v133 = v131;
-        if ( v129 != v133 )
+        v90 = v87 + 32;
+        if ( (unsigned int)(v87 - 65) > 0x19 )
+          v90 = v87;
+        v87 = v90;
+        v91 = v89 + 32;
+        if ( (unsigned int)(v89 - 65) > 0x19 )
+          v91 = v89;
+        if ( v87 != v91 )
           break;
       }
-      if ( !v129 )
+      if ( !v87 )
         goto LABEL_134;
     }
     do
     {
-      v138 = (unsigned __int8)valuePropName[v72];
-      v139 = v71;
-      v140 = (unsigned __int8)aUsedefaultvalu_0[v72++];
-      --v71;
-      if ( !v139 )
+      v94 = (unsigned __int8)valuePropName[v46];
+      v95 = v45;
+      v96 = (unsigned __int8)aUsedefaultvalu_0[v46++];
+      --v45;
+      if ( !v95 )
         break;
-      if ( v138 != v140 )
+      if ( v94 != v96 )
       {
-        v141 = v138 + 32;
-        if ( (unsigned int)(v138 - 65) > 0x19 )
-          v141 = v138;
-        v138 = v141;
-        v142 = v140 + 32;
-        if ( (unsigned int)(v140 - 65) > 0x19 )
-          v142 = v140;
-        if ( v138 != v142 )
+        v97 = v94 + 32;
+        if ( (unsigned int)(v94 - 65) > 0x19 )
+          v97 = v94;
+        v94 = v97;
+        v98 = v96 + 32;
+        if ( (unsigned int)(v96 - 65) > 0x19 )
+          v98 = v96;
+        if ( v94 != v98 )
           break;
       }
     }
-    while ( v138 );
+    while ( v94 );
   }
-LABEL_152:
-  __asm
-  {
-    vmovaps xmm7, [rsp+910h+var_50]
-    vmovaps xmm6, [rsp+910h+var_40]
-  }
-  return v19;
+  return v13;
 }
 
 /*
@@ -1620,239 +1124,200 @@ __int64 SND_JsonSetField(const char *filename, unsigned int entry_count, const v
   unsigned int v10; 
   unsigned int v11; 
   unsigned int v12; 
-  bool *v15; 
+  unsigned __int64 *v13; 
+  bool *v14; 
   bool *i; 
+  __int64 v16; 
   __int64 v17; 
-  __int64 v18; 
-  const char *v19; 
-  __int64 v20; 
-  int v21; 
-  __int64 v22; 
+  const char *v18; 
+  __int64 v19; 
+  int v20; 
+  __int64 v21; 
+  int v22; 
   int v23; 
   int v24; 
   int v25; 
-  int v26; 
-  bool v29; 
-  char v32; 
-  int v33; 
-  bool v37; 
-  char v40; 
-  int v42; 
-  bool v43; 
-  char v46; 
-  int v49; 
-  unsigned __int64 v50; 
+  bool v28; 
+  char v31; 
+  int v32; 
+  double v33; 
+  double v34; 
+  bool v35; 
+  bool v36; 
+  int v37; 
+  bool v38; 
+  char v41; 
+  int v44; 
+  unsigned __int64 v45; 
   char *fmt; 
-  char *fmta; 
-  __int64 v54; 
-  double v55; 
-  __int64 v56; 
-  __int64 v57; 
-  int v58; 
-  int v59; 
-  unsigned int v62; 
+  __int64 v48; 
+  __int64 v49; 
+  __int64 v50; 
+  int v51; 
+  float v52; 
+  unsigned int v55; 
 
   v8 = column_name;
   v9 = filename;
   v10 = 0;
   v11 = -1;
-  v62 = 0;
+  v55 = 0;
   if ( entry_count )
   {
     v12 = entry_count;
-    _RBX = (char *)entries + 24;
-    _R12 = structure;
-    v15 = has;
+    v13 = (unsigned __int64 *)((char *)entries + 24);
+    v14 = has;
     for ( i = has; ; ++i )
     {
-      v17 = *((_QWORD *)_RBX - 3);
-      if ( v17 )
+      v16 = *(v13 - 3);
+      if ( v16 )
         break;
 LABEL_64:
       v9 = filename;
       ++v10;
-      _RBX += 72;
-      v62 = v10;
+      v13 += 9;
+      v55 = v10;
       if ( v10 >= v12 )
         return v11;
     }
-    v18 = 0x7FFFFFFFi64;
-    v19 = v8;
+    v17 = 0x7FFFFFFFi64;
+    v18 = v8;
     if ( !v8 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v15 = has;
+      v14 = has;
       v8 = column_name;
       v9 = filename;
-      v10 = v62;
+      v10 = v55;
     }
-    v20 = v17 - (_QWORD)v8;
+    v19 = v16 - (_QWORD)v8;
     do
     {
-      v21 = (unsigned __int8)v19[v20];
-      v22 = v18;
-      v23 = *(unsigned __int8 *)v19++;
-      --v18;
-      if ( !v22 )
+      v20 = (unsigned __int8)v18[v19];
+      v21 = v17;
+      v22 = *(unsigned __int8 *)v18++;
+      --v17;
+      if ( !v21 )
         break;
-      if ( v21 != v23 )
+      if ( v20 != v22 )
       {
-        v24 = v21 + 32;
-        if ( (unsigned int)(v21 - 65) > 0x19 )
-          v24 = v21;
-        v21 = v24;
-        v25 = v23 + 32;
-        if ( (unsigned int)(v23 - 65) > 0x19 )
-          v25 = v23;
-        if ( v21 != v25 )
+        v23 = v20 + 32;
+        if ( (unsigned int)(v20 - 65) > 0x19 )
+          v23 = v20;
+        v20 = v23;
+        v24 = v22 + 32;
+        if ( (unsigned int)(v22 - 65) > 0x19 )
+          v24 = v22;
+        if ( v20 != v24 )
           goto LABEL_63;
       }
     }
-    while ( v21 );
-    if ( (!entry || !*entry) && *((_DWORD *)_RBX - 2) != 2 && v15 )
+    while ( v20 );
+    if ( (!entry || !*entry) && *((_DWORD *)v13 - 2) != 2 && v14 )
       *i = 1;
-    switch ( *((_DWORD *)_RBX - 2) )
+    switch ( *((_DWORD *)v13 - 2) )
     {
       case 1:
-        v49 = *((_DWORD *)_RBX + 4);
-        v50 = -1i64;
+        v44 = *((_DWORD *)v13 + 4);
+        v45 = -1i64;
         do
-          ++v50;
-        while ( entry[v50] );
-        if ( truncate_cast<int,unsigned __int64>(v50) > v49 - 1 )
+          ++v45;
+        while ( entry[v45] );
+        if ( truncate_cast<int,unsigned __int64>(v45) > v44 - 1 )
         {
-          LODWORD(v56) = row_number;
-          LODWORD(fmt) = v49;
-          Com_PrintError(9, "ERROR: %s string too long: %s (max %d) col '%s' row %u\n", filename, entry, fmt, *((const char **)_RBX - 3), v56);
-          v49 = *((_DWORD *)_RBX + 4);
+          LODWORD(v49) = row_number;
+          LODWORD(fmt) = v44;
+          Com_PrintError(9, "ERROR: %s string too long: %s (max %d) col '%s' row %u\n", filename, entry, fmt, (const char *)*(v13 - 3), v49);
+          v44 = *((_DWORD *)v13 + 4);
         }
-        Core_strcpy((char *)structure + *((_QWORD *)_RBX - 2), v49, entry);
+        Core_strcpy((char *)structure + *(v13 - 2), v44, entry);
         break;
       case 2:
-        *(_DWORD *)((char *)structure + *((_QWORD *)_RBX - 2)) = SND_HashName(entry);
+        *(_DWORD *)((char *)structure + *(v13 - 2)) = SND_HashName(entry);
         break;
       case 3:
-        v42 = j_sscanf(entry, "%d", &v58);
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rbx]
-          vmovsd  xmm1, qword ptr [rbx+8]
-        }
-        v43 = v42 != 1;
-        __asm { vucomisd xmm0, xmm1 }
-        if ( v42 == 1 )
+        v37 = j_sscanf(entry, "%d", &v51);
+        _XMM0 = *v13;
+        _XMM1 = v13[1];
+        v38 = v37 != 1;
+        if ( *(double *)&_XMM0 == *(double *)&_XMM1 )
           goto LABEL_49;
         __asm { vcvttsd2si eax, xmm0 }
-        if ( v58 < _EAX )
+        if ( v51 < _EAX )
           goto LABEL_48;
         __asm { vcvttsd2si eax, xmm1 }
-        if ( v58 <= _EAX )
+        if ( v51 <= _EAX )
 LABEL_49:
-          v46 = 0;
+          v41 = 0;
         else
 LABEL_48:
-          v46 = 1;
-        if ( !v43 && !v46 )
+          v41 = 1;
+        if ( !v38 && !v41 )
         {
-          *(_DWORD *)((char *)structure + *((_QWORD *)_RBX - 2)) = v58;
+          *(_DWORD *)((char *)structure + *(v13 - 2)) = v51;
           break;
         }
         goto LABEL_53;
       case 4:
-        v33 = j_sscanf(entry, "%f", &v59);
-        __asm
+        v32 = j_sscanf(entry, "%f", &v52);
+        v33 = *(double *)v13;
+        v34 = *((double *)v13 + 1);
+        v35 = v32 != 1;
+        v36 = *(double *)v13 != v34 && (v52 < v33 || v52 > v34);
+        if ( v35 || v36 )
         {
-          vmovsd  xmm2, qword ptr [rbx]
-          vmovsd  xmm3, qword ptr [rbx+8]
-          vmovss  xmm1, [rsp+98h+var_54]
-        }
-        v37 = v33 != 1;
-        __asm { vucomisd xmm2, xmm3 }
-        if ( v33 == 1 )
-        {
-          v40 = 0;
+          LODWORD(v50) = row_number;
+          Com_PrintError(9, "ERROR: %s invalid value '%s' [%f, %f] col '%s' row %u\n", filename, entry, v33, v34, (const char *)*(v13 - 3), v50);
         }
         else
         {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm1, xmm1
-            vcomisd xmm0, xmm2
-          }
-          if ( v33 )
-          {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm1, xmm1
-              vcomisd xmm0, xmm3
-            }
-          }
-          v40 = 1;
-        }
-        if ( v37 || v40 )
-        {
-          LODWORD(v57) = row_number;
-          __asm
-          {
-            vmovsd  [rsp+98h+var_70], xmm3
-            vmovsd  [rsp+98h+fmt], xmm2
-          }
-          Com_PrintError(9, "ERROR: %s invalid value '%s' [%f, %f] col '%s' row %u\n", filename, entry, *(double *)&fmta, v55, *((const char **)_RBX - 3), v57);
-        }
-        else
-        {
-          _RAX = *((_QWORD *)_RBX - 2);
-          __asm { vmovss  dword ptr [r12+rax], xmm1 }
+          *(float *)((char *)structure + *(v13 - 2)) = v52;
         }
         break;
       case 6:
-        v26 = j_sscanf(entry, "%d", &v58);
-        __asm
-        {
-          vmovsd  xmm0, qword ptr [rbx]
-          vmovsd  xmm1, qword ptr [rbx+8]
-        }
-        v29 = v26 != 1;
-        __asm { vucomisd xmm0, xmm1 }
-        if ( v26 == 1 )
+        v25 = j_sscanf(entry, "%d", &v51);
+        _XMM0 = *v13;
+        _XMM1 = v13[1];
+        v28 = v25 != 1;
+        if ( *(double *)&_XMM0 == *(double *)&_XMM1 )
           goto LABEL_32;
         __asm { vcvttsd2si eax, xmm0 }
-        if ( v58 < _EAX )
+        if ( v51 < _EAX )
           goto LABEL_31;
         __asm { vcvttsd2si eax, xmm1 }
-        if ( v58 <= _EAX )
+        if ( v51 <= _EAX )
 LABEL_32:
-          v32 = 0;
+          v31 = 0;
         else
 LABEL_31:
-          v32 = 1;
-        if ( !v29 && !v32 )
+          v31 = 1;
+        if ( !v28 && !v31 )
         {
-          *(_WORD *)((char *)structure + *((_QWORD *)_RBX - 2)) = v58;
+          *(_WORD *)((char *)structure + *(v13 - 2)) = v51;
           break;
         }
 LABEL_53:
-        LODWORD(v57) = row_number;
+        LODWORD(v50) = row_number;
         __asm
         {
           vcvttsd2si ecx, xmm1
           vcvttsd2si edx, xmm0
         }
-        LODWORD(v54) = _ECX;
+        LODWORD(v48) = _ECX;
         LODWORD(fmt) = _EDX;
-        Com_PrintError(9, "ERROR: %s invalid value '%s' [%d, %d] col '%s' row %u\n", filename, entry, fmt, v54, *((const char **)_RBX - 3), v57);
+        Com_PrintError(9, "ERROR: %s invalid value '%s' [%d, %d] col '%s' row %u\n", filename, entry, fmt, v48, (const char *)*(v13 - 3), v50);
         break;
       default:
-        LODWORD(v54) = row_number;
-        Com_PrintError(9, "ERROR: %s field not found: Entry %s, name %s, row_number %u\n", v9, entry, *((const char **)_RBX - 3), v54);
+        LODWORD(v48) = row_number;
+        Com_PrintError(9, "ERROR: %s field not found: Entry %s, name %s, row_number %u\n", v9, entry, (const char *)*(v13 - 3), v48);
         break;
     }
-    v15 = has;
+    v14 = has;
     if ( has )
       *i = 1;
-    v10 = v62;
-    v11 = v62;
+    v10 = v55;
+    v11 = v55;
 LABEL_63:
     v12 = entry_count;
     v8 = column_name;
@@ -1950,9 +1415,8 @@ __int64 Snd_GetStringFlags(const char *flags, const SndCsvParseEntry *p_entry, c
 Snd_GetStringIndex
 ==============
 */
-int Snd_GetStringIndex(const char *value, const SndCsvParseEntry *p_entry, const char *sourceFile)
+__int64 Snd_GetStringIndex(const char *value, const SndCsvParseEntry *p_entry, const char *sourceFile)
 {
-  int result; 
   const char **enum_ids; 
   __int64 v8; 
   __int64 v9; 
@@ -1969,78 +1433,71 @@ int Snd_GetStringIndex(const char *value, const SndCsvParseEntry *p_entry, const
   const char *i; 
   const char *v21; 
 
-  _R14 = p_entry;
   if ( !value && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_db.cpp", 24, ASSERT_TYPE_ASSERT, (const char *)&stru_143CE7590.m_end, (const char *)&queryFormat, &stru_143CE7590) )
     __debugbreak();
-  if ( !_R14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_db.cpp", 25, ASSERT_TYPE_ASSERT, "(p_entry)", (const char *)&queryFormat, "p_entry") )
+  if ( !p_entry && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_db.cpp", 25, ASSERT_TYPE_ASSERT, "(p_entry)", (const char *)&queryFormat, "p_entry") )
     __debugbreak();
-  if ( !_R14->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_db.cpp", 26, ASSERT_TYPE_ASSERT, "(p_entry->name)", (const char *)&queryFormat, "p_entry->name") )
+  if ( !p_entry->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_db.cpp", 26, ASSERT_TYPE_ASSERT, "(p_entry->name)", (const char *)&queryFormat, "p_entry->name") )
     __debugbreak();
-  if ( !_R14->enum_ids && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_db.cpp", 27, ASSERT_TYPE_ASSERT, "(p_entry->enum_ids)", (const char *)&queryFormat, "p_entry->enum_ids") )
+  if ( !p_entry->enum_ids && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_db.cpp", 27, ASSERT_TYPE_ASSERT, "(p_entry->enum_ids)", (const char *)&queryFormat, "p_entry->enum_ids") )
     __debugbreak();
   if ( !sourceFile && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\snd\\snd_db.cpp", 28, ASSERT_TYPE_ASSERT, "(sourceFile)", (const char *)&queryFormat, "sourceFile") )
     __debugbreak();
-  if ( *value || _R14->required )
+  if ( !*value && !p_entry->required )
+    return (unsigned int)(int)p_entry->defaultValue;
+  enum_ids = p_entry->enum_ids;
+  LODWORD(v8) = 0;
+  LODWORD(v9) = 0;
+  if ( *enum_ids )
   {
-    enum_ids = _R14->enum_ids;
-    LODWORD(v8) = 0;
-    LODWORD(v9) = 0;
-    if ( *enum_ids )
+    v10 = 0i64;
+    do
     {
-      v10 = 0i64;
-      do
+      v11 = enum_ids[v10];
+      v12 = 0x7FFFFFFFi64;
+      v13 = value;
+      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+        __debugbreak();
+      v14 = v11 - value;
+      while ( 1 )
       {
-        v11 = enum_ids[v10];
-        v12 = 0x7FFFFFFFi64;
-        v13 = value;
-        if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
-          __debugbreak();
-        v14 = v11 - value;
-        while ( 1 )
+        v15 = (unsigned __int8)v13[v14];
+        v16 = v12;
+        v17 = *(unsigned __int8 *)v13++;
+        --v12;
+        if ( !v16 )
+          return (unsigned int)v9;
+        if ( v15 != v17 )
         {
-          v15 = (unsigned __int8)v13[v14];
-          v16 = v12;
-          v17 = *(unsigned __int8 *)v13++;
-          --v12;
-          if ( !v16 )
-            return v9;
-          if ( v15 != v17 )
-          {
-            v18 = v15 + 32;
-            if ( (unsigned int)(v15 - 65) > 0x19 )
-              v18 = v15;
-            v15 = v18;
-            v19 = v17 + 32;
-            if ( (unsigned int)(v17 - 65) > 0x19 )
-              v19 = v17;
-            if ( v15 != v19 )
-              break;
-          }
-          if ( !v15 )
-            return v9;
+          v18 = v15 + 32;
+          if ( (unsigned int)(v15 - 65) > 0x19 )
+            v18 = v15;
+          v15 = v18;
+          v19 = v17 + 32;
+          if ( (unsigned int)(v17 - 65) > 0x19 )
+            v19 = v17;
+          if ( v15 != v19 )
+            break;
         }
-        enum_ids = _R14->enum_ids;
-        v9 = (unsigned int)(v9 + 1);
-        v10 = v9;
+        if ( !v15 )
+          return (unsigned int)v9;
       }
-      while ( enum_ids[v9] );
+      enum_ids = p_entry->enum_ids;
+      v9 = (unsigned int)(v9 + 1);
+      v10 = v9;
     }
-    Com_PrintError(1, "ERROR: Sound alias file %s: Unknown %s '%s'; should be one of ", sourceFile, _R14->name, value);
-    for ( i = *_R14->enum_ids; i; i = _R14->enum_ids[v8] )
-    {
-      v21 = (char *)&queryFormat.fmt + 3;
-      if ( (_DWORD)v8 )
-        v21 = ",";
-      Com_PrintError(1, "%s%s", v21, i);
-      v8 = (unsigned int)(v8 + 1);
-    }
-    Com_PrintError(1, "\n");
-    return -1;
+    while ( enum_ids[v9] );
   }
-  else
+  Com_PrintError(1, "ERROR: Sound alias file %s: Unknown %s '%s'; should be one of ", sourceFile, p_entry->name, value);
+  for ( i = *p_entry->enum_ids; i; i = p_entry->enum_ids[v8] )
   {
-    __asm { vcvttss2si eax, dword ptr [r14+24h] }
+    v21 = (char *)&queryFormat.fmt + 3;
+    if ( (_DWORD)v8 )
+      v21 = ",";
+    Com_PrintError(1, "%s%s", v21, i);
+    v8 = (unsigned int)(v8 + 1);
   }
-  return result;
+  Com_PrintError(1, "\n");
+  return 0xFFFFFFFFi64;
 }
 

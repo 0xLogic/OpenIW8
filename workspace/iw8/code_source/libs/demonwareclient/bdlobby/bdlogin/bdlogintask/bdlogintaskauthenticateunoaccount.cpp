@@ -235,28 +235,23 @@ bdLoginTaskAuthenticateUnoAccount::abortTask
 */
 void bdLoginTaskAuthenticateUnoAccount::abortTask(bdLoginTaskAuthenticateUnoAccount *this)
 {
+  double ElapsedTimeInSeconds; 
   bdHTTP *m_httpInterface; 
-  bdHTTP *v5; 
+  bdHTTP *v4; 
   char *m_httpUnoRequest; 
-  double v7; 
 
   bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xF4u, "Must provide valid message to update uno task status!");
   this->m_unoStatusCode = WAITING_FOR_REPORT_CONSOLE_DETAILS;
   bdStrlcpy(this->m_unoStatusMessage, "UnoAccount task aborted", 0x400ui64);
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-  __asm
-  {
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  [rsp+48h+var_10], xmm1
-  }
-  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", v7);
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+  bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   m_httpInterface = this->m_httpInterface;
   if ( m_httpInterface )
   {
     m_httpInterface->abortOperation(m_httpInterface);
-    v5 = this->m_httpInterface;
-    if ( v5 )
-      ((void (__fastcall *)(bdHTTP *, __int64))v5->~bdHTTP)(v5, 1i64);
+    v4 = this->m_httpInterface;
+    if ( v4 )
+      ((void (__fastcall *)(bdHTTP *, __int64))v4->~bdHTTP)(v4, 1i64);
     this->m_httpInterface = NULL;
   }
   m_httpUnoRequest = this->m_httpUnoRequest;
@@ -502,9 +497,9 @@ bdLoginTaskAuthenticateUnoAccount::processUnoErrorJSON
 void bdLoginTaskAuthenticateUnoAccount::processUnoErrorJSON(bdLoginTaskAuthenticateUnoAccount *this, const bdJSONDeserializer *responseJSON)
 {
   bool String; 
-  unsigned __int64 v6; 
-  size_t v7; 
-  double v9; 
+  unsigned __int64 v5; 
+  size_t v6; 
+  double ElapsedTimeInSeconds; 
   bdJSONDeserializer value; 
   unsigned int errorCode; 
   bdLoginTaskAuthenticateUnoAccount::AuthenticateUnoAccountStatusCode code; 
@@ -520,17 +515,17 @@ void bdLoginTaskAuthenticateUnoAccount::processUnoErrorJSON(bdLoginTaskAuthentic
     else
     {
       bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
-      v6 = -1i64;
+      v5 = -1i64;
       do
-        ++v6;
-      while ( aCouldNotRetrie_0[v6] );
+        ++v5;
+      while ( aCouldNotRetrie_0[v5] );
       if ( this != (bdLoginTaskAuthenticateUnoAccount *)-4168i64 )
       {
-        v7 = 127i64;
-        if ( v6 < 0x7F )
-          v7 = v6;
-        memcpy_0(this->m_unoStatusMessage, "Could not retrieve error information from Uno response.", v7);
-        this->m_unoStatusMessage[v7] = 0;
+        v6 = 127i64;
+        if ( v5 < 0x7F )
+          v6 = v5;
+        memcpy_0(this->m_unoStatusMessage, "Could not retrieve error information from Uno response.", v6);
+        this->m_unoStatusMessage[v6] = 0;
       }
     }
     errorCode = 0;
@@ -562,13 +557,8 @@ void bdLoginTaskAuthenticateUnoAccount::processUnoErrorJSON(bdLoginTaskAuthentic
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xF4u, "Must provide valid message to update uno task status!");
     this->m_unoStatusCode = WAITING_FOR_REPORT_CONSOLE_DETAILS;
     bdStrlcpy(this->m_unoStatusMessage, "Could not retrieve error information from Uno response.", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+88h+var_50], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", v9);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::processUnoErrorJSON", 0xDAu, "Could not retrieve error information from Uno response.");
   }
   bdJSONDeserializer::~bdJSONDeserializer(&value);
@@ -581,9 +571,9 @@ bdLoginTaskAuthenticateUnoAccount::processUnoJSON
 */
 void bdLoginTaskAuthenticateUnoAccount::processUnoJSON(bdLoginTaskAuthenticateUnoAccount *this, const bdJSONDeserializer *responseJSON)
 {
-  double v8; 
-  double v9; 
-  double v10; 
+  double ElapsedTimeInSeconds; 
+  double v5; 
+  double v6; 
   bdJSONDeserializer value; 
 
   if ( bdJSONDeserializer::hasKey((bdJSONDeserializer *)responseJSON, "tokens") )
@@ -595,26 +585,16 @@ void bdLoginTaskAuthenticateUnoAccount::processUnoJSON(bdLoginTaskAuthenticateUn
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xF4u, "Must provide valid message to update uno task status!");
       this->m_unoStatusCode = CONNECTED;
       bdStrlcpy(this->m_unoStatusMessage, "Saved UNO IDToken", 0x400ui64);
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+78h+var_40], xmm1
-      }
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", v8);
+      ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     }
     else
     {
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xF4u, "Must provide valid message to update uno task status!");
       this->m_unoStatusCode = WAITING_FOR_REPORT_CONSOLE_DETAILS;
       bdStrlcpy(this->m_unoStatusMessage, "Uno response does not contain an IDToken", 0x400ui64);
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+78h+var_40], xmm1
-      }
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", v9);
+      v5 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", *(float *)&v5);
       bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::processUnoJSON", 0x9Du, "Uno response does not contain an IDToken");
     }
     bdJSONDeserializer::~bdJSONDeserializer(&value);
@@ -624,13 +604,8 @@ void bdLoginTaskAuthenticateUnoAccount::processUnoJSON(bdLoginTaskAuthenticateUn
     bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xF4u, "Must provide valid message to update uno task status!");
     this->m_unoStatusCode = WAITING_FOR_REPORT_CONSOLE_DETAILS;
     bdStrlcpy(this->m_unoStatusMessage, "Uno response does not contain any tokens", 0x400ui64);
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+78h+var_40], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", v10);
+    v6 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", *(float *)&v6);
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::processUnoJSON", 0xA2u, "Uno response does not contain any tokens");
   }
 }
@@ -642,15 +617,15 @@ bdLoginTaskAuthenticateUnoAccount::processUnoReply
 */
 void bdLoginTaskAuthenticateUnoAccount::processUnoReply(bdLoginTaskAuthenticateUnoAccount *this)
 {
-  unsigned int v3; 
-  double v6; 
-  unsigned int v7; 
-  double v8; 
+  unsigned int v2; 
+  double ElapsedTimeInSeconds; 
+  double v4; 
+  unsigned int v5; 
   bdJSONDeserializer responseJSON; 
 
   bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::processUnoReply", 0x22u, "Processing bdLogin Uno Account Creation task reply");
-  v3 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
-  if ( v3 == 200 )
+  v2 = this->m_httpInterface->getLastHTTPStatus(this->m_httpInterface);
+  if ( v2 == 200 )
   {
     bdJSONDeserializer::bdJSONDeserializer(&responseJSON);
     if ( bdJSONDeserializer::parse(&responseJSON, this->m_httpUnoResponse) && bdJSONDeserializer::isObject(&responseJSON) )
@@ -663,19 +638,14 @@ void bdLoginTaskAuthenticateUnoAccount::processUnoReply(bdLoginTaskAuthenticateU
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xF4u, "Must provide valid message to update uno task status!");
       this->m_unoStatusCode = WAITING_FOR_REPORT_CONSOLE_DETAILS;
       bdStrlcpy(this->m_unoStatusMessage, "Failed to parse Uno response json", 0x400ui64);
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+78h+var_40], xmm1
-      }
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", v6);
+      ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
     }
   }
   else
   {
-    v7 = v3;
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::processUnoReply", 0x37u, "Uno task failed with HTTP code [%u]", v7);
+    v5 = v2;
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::processUnoReply", 0x37u, "Uno task failed with HTTP code [%u]", v5);
     bdJSONDeserializer::bdJSONDeserializer(&responseJSON);
     if ( bdJSONDeserializer::parse(&responseJSON, this->m_httpUnoResponse) && bdJSONDeserializer::isObject(&responseJSON) )
     {
@@ -687,13 +657,8 @@ void bdLoginTaskAuthenticateUnoAccount::processUnoReply(bdLoginTaskAuthenticateU
       bdHandleAssert(1, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xF4u, "Must provide valid message to update uno task status!");
       this->m_unoStatusCode = WAITING_FOR_REPORT_CONSOLE_DETAILS;
       bdStrlcpy(this->m_unoStatusMessage, "Failed to parse Uno error response json", 0x400ui64);
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-      __asm
-      {
-        vcvtss2sd xmm1, xmm0, xmm0
-        vmovsd  [rsp+78h+var_40], xmm1
-      }
-      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", v8);
+      v4 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+      bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", *(float *)&v4);
     }
   }
   bdJSONDeserializer::~bdJSONDeserializer(&responseJSON);
@@ -863,20 +828,15 @@ bdLoginTaskAuthenticateUnoAccount::updateUnoStatus
 */
 void bdLoginTaskAuthenticateUnoAccount::updateUnoStatus(bdLoginTaskAuthenticateUnoAccount *this, const char *messageInfo, const bdLoginTaskAuthenticateUnoAccount::AuthenticateUnoAccountStatusCode *code)
 {
-  double v8; 
+  double ElapsedTimeInSeconds; 
 
   bdHandleAssert(messageInfo != NULL, "(messageInfo != BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xF4u, "Must provide valid message to update uno task status!");
   this->m_unoStatusCode = *code;
   bdStrlcpy(this->m_unoStatusMessage, messageInfo, 0x400ui64);
   if ( (unsigned int)(*code - 3) <= 2 )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
-    __asm
-    {
-      vcvtss2sd xmm1, xmm0, xmm0
-      vmovsd  [rsp+48h+var_10], xmm1
-    }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", v8);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_taskTimer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdLogin", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlogin\\bdlogintask\\bdlogintaskauthenticateunoaccount.cpp", "bdLoginTaskAuthenticateUnoAccount::updateUnoStatus", 0xFCu, "Task finished after %2.1f seconds", *(float *)&ElapsedTimeInSeconds);
   }
 }
 

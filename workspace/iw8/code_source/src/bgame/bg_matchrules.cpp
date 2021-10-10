@@ -647,10 +647,10 @@ void __fastcall MatchRules_MLGSet_f(double _XMM0_8)
   fromState.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   toState.isValid = 0;
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rbp+57h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.arrayIndex = -1;
   toState.arrayIndex = -1;
   if ( Cmd_Argc() >= 2 )
@@ -668,12 +668,7 @@ void __fastcall MatchRules_MLGSet_f(double _XMM0_8)
       __debugbreak();
     Asset = Com_DDL_LoadAsset("ddl/mp/recipes.ddl");
     Com_DDL_CreateContext(v5->matchRules, 4097, Asset, &ddlContext, NULL, NULL);
-    _RAX = DDL_GetRootState(&result, Asset);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rbp+57h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, Asset);
     DDL_MoveToName(&fromState, &toState, "mlgVersion");
     DDL_SetString(&toState, &ddlContext, dest);
     RawHash = j_SL_GetRawHash(scr_const.recipeName);
@@ -707,10 +702,10 @@ void __fastcall MatchRules_Clear_f(double _XMM0_8)
   fromState.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+0C8h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   toState.isValid = 0;
   toState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+0C8h+toState.member], xmm0 }
+  *(_OWORD *)&toState.member = _XMM0;
   fromState.arrayIndex = -1;
   toState.arrayIndex = -1;
   v2 = GameStateInfo_Get();
@@ -718,12 +713,7 @@ void __fastcall MatchRules_Clear_f(double _XMM0_8)
     __debugbreak();
   Asset = Com_DDL_LoadAsset("ddl/mp/recipes.ddl");
   Com_DDL_CreateContext(v2->matchRules, 4097, Asset, &ddlContext, NULL, NULL);
-  _RAX = DDL_GetRootState(&result, Asset);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0C8h+fromState.isValid], ymm0
-  }
+  fromState = *DDL_GetRootState(&result, Asset);
   DDL_MoveToName(&fromState, &toState, "mlgVersion");
   DDL_SetString(&toState, &ddlContext, (const char *)&queryFormat.fmt + 3);
   RawHash = j_SL_GetRawHash(scr_const.recipeName);
@@ -765,9 +755,9 @@ _BOOL8 BG_MatchRulesData_GetCWLEnabled(MatchRules *matchRules)
   const DDLDef *Asset; 
   const char *v6; 
   unsigned int RawHash; 
-  const char *v10; 
+  const char *v8; 
   bool Bool; 
-  const char *v12; 
+  const char *v10; 
   DDLState fromState; 
   DDLState result; 
   DDLContext ddlContext; 
@@ -776,11 +766,8 @@ _BOOL8 BG_MatchRulesData_GetCWLEnabled(MatchRules *matchRules)
   String = SL_GetString("cwlRulesEnabled", 0);
   fromState.offset = 0;
   fromState.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+0A8h+fromState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   if ( !matchRules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 596, ASSERT_TYPE_ASSERT, "(matchRules)", (const char *)&queryFormat, "matchRules", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef) )
     __debugbreak();
   if ( !String && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 597, ASSERT_TYPE_ASSERT, "(lookupString != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "lookupString != NULL_SCR_STRING") )
@@ -794,23 +781,18 @@ LABEL_15:
     Bool = 1;
     goto LABEL_16;
   }
-  _RAX = DDL_GetRootState(&result, Asset);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0A8h+fromState.isValid], ymm0
-  }
+  fromState = *DDL_GetRootState(&result, Asset);
   RawHash = j_SL_GetRawHash(String);
   if ( !DDL_MoveToNameByHash(&fromState, &fromState, RawHash, NULL) )
   {
-    v10 = SL_ConvertToString(String);
-    Com_PrintError(28, "Could not find '%s' field in 'ddl/mp/recipes.ddl'\n", v10);
+    v8 = SL_ConvertToString(String);
+    Com_PrintError(28, "Could not find '%s' field in 'ddl/mp/recipes.ddl'\n", v8);
     Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
   }
   if ( DDL_GetType(&fromState) != DDL_UINT_TYPE || DDL_StateGetBitSize(&fromState) != 1 )
   {
-    v12 = SL_ConvertToString(String);
-    Com_PrintError(28, "'%s' field in 'ddl/mp/recipes.ddl' is not of string type\n", v12);
+    v10 = SL_ConvertToString(String);
+    Com_PrintError(28, "'%s' field in 'ddl/mp/recipes.ddl' is not of string type\n", v10);
     Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
     goto LABEL_15;
   }
@@ -843,51 +825,41 @@ BG_MatchRulesData_GetCommonOptionsBool
 bool BG_MatchRulesData_GetCommonOptionsBool(MatchRules *matchRules, const scr_string_t lookupString)
 {
   const DDLDef *Asset; 
-  const char *v8; 
+  const char *v7; 
   unsigned int RawHash; 
+  const char *v10; 
+  unsigned int v11; 
+  const char *v12; 
   const char *v13; 
-  unsigned int v14; 
-  const char *v15; 
-  const char *v16; 
   DDLState fromState; 
   DDLState result; 
   DDLContext ddlContext; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-68h], xmm0
-  }
-  if ( !matchRules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 642, ASSERT_TYPE_ASSERT, "(matchRules)", (const char *)&queryFormat, "matchRules", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
+  if ( !matchRules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 642, ASSERT_TYPE_ASSERT, "(matchRules)", (const char *)&queryFormat, "matchRules", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef) )
     __debugbreak();
   if ( !lookupString && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 643, ASSERT_TYPE_ASSERT, "(lookupString != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "lookupString != NULL_SCR_STRING") )
     __debugbreak();
   Asset = Com_DDL_LoadAsset("ddl/mp/recipes.ddl");
   if ( Com_DDL_CreateContext(matchRules, 4096, Asset, &ddlContext, NULL, NULL) )
   {
-    _RAX = DDL_GetRootState(&result, Asset);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+0A8h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, Asset);
     RawHash = j_SL_GetRawHash(scr_const.commonOption);
     if ( !DDL_MoveToNameByHash(&fromState, &fromState, RawHash, NULL) )
     {
-      v13 = SL_ConvertToString(scr_const.commonOption);
-      Com_PrintError(28, "Could not find '%s' field in 'ddl/mp/recipes.ddl'\n", v13);
+      v10 = SL_ConvertToString(scr_const.commonOption);
+      Com_PrintError(28, "Could not find '%s' field in 'ddl/mp/recipes.ddl'\n", v10);
       Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
     }
-    v14 = j_SL_GetRawHash(lookupString);
-    if ( !DDL_MoveToNameByHash(&fromState, &fromState, v14, NULL) )
+    v11 = j_SL_GetRawHash(lookupString);
+    if ( !DDL_MoveToNameByHash(&fromState, &fromState, v11, NULL) )
     {
-      v15 = SL_ConvertToString(lookupString);
-      Com_PrintError(28, "Could not find '%s' field in 'ddl/mp/recipes.ddl'\n", v15);
+      v12 = SL_ConvertToString(lookupString);
+      Com_PrintError(28, "Could not find '%s' field in 'ddl/mp/recipes.ddl'\n", v12);
       Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
     }
     if ( DDL_GetType(&fromState) == DDL_UINT_TYPE && DDL_StateGetBitSize(&fromState) == 1 )
@@ -896,16 +868,16 @@ bool BG_MatchRulesData_GetCommonOptionsBool(MatchRules *matchRules, const scr_st
     }
     else
     {
-      v16 = SL_ConvertToString(lookupString);
-      Com_PrintError(28, "'%s' field in 'ddl/mp/recipes.ddl' is not of bool/integer type\n", v16);
+      v13 = SL_ConvertToString(lookupString);
+      Com_PrintError(28, "'%s' field in 'ddl/mp/recipes.ddl' is not of bool/integer type\n", v13);
       Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
       return 0;
     }
   }
   else
   {
-    v8 = SL_ConvertToString(lookupString);
-    Com_PrintWarning(13, "Accessing matchrules field %s on an invalid buffer.\n", v8);
+    v7 = SL_ConvertToString(lookupString);
+    Com_PrintWarning(13, "Accessing matchrules field %s on an invalid buffer.\n", v7);
     return 1;
   }
 }
@@ -927,49 +899,39 @@ BG_MatchRulesData_GetGameTypeFromIndex
 */
 const char *BG_MatchRulesData_GetGameTypeFromIndex(unsigned int index)
 {
-  __int64 v3; 
+  __int64 v2; 
   const DDLDef *Asset; 
   unsigned int RawHash; 
+  const char *v6; 
+  const char *v7; 
+  const char *v8; 
   const char *v9; 
-  const char *v10; 
-  const char *v11; 
-  const char *v12; 
   int externalIndex; 
   int enumCount; 
   DDLState fromState; 
   DDLState result; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v3 = index;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-38h], xmm0
-  }
+  v2 = index;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
   Asset = Com_DDL_LoadAsset("ddl/mp/recipes.ddl");
-  _RAX = DDL_GetRootState(&result, Asset);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+88h+fromState.isValid], ymm0
-  }
+  fromState = *DDL_GetRootState(&result, Asset);
   RawHash = j_SL_GetRawHash(scr_const.gametype);
   if ( !DDL_MoveToNameByHash(&fromState, &fromState, RawHash, NULL) )
   {
-    v9 = SL_ConvertToString(scr_const.recipeName);
-    v10 = SL_ConvertToString(scr_const.gametype);
-    Com_PrintError(28, "Could not find '%s' field in '%s'\n", v10, v9);
+    v6 = SL_ConvertToString(scr_const.recipeName);
+    v7 = SL_ConvertToString(scr_const.gametype);
+    Com_PrintError(28, "Could not find '%s' field in '%s'\n", v7, v6);
     Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
   }
   if ( DDL_GetType(&fromState) != DDL_ENUM_TYPE )
   {
-    v11 = SL_ConvertToString(scr_const.recipeName);
-    v12 = SL_ConvertToString(scr_const.gametype);
-    Com_PrintError(28, "'%s' field in '%s' is not of enum type\n", v12, v11);
+    v8 = SL_ConvertToString(scr_const.recipeName);
+    v9 = SL_ConvertToString(scr_const.gametype);
+    Com_PrintError(28, "'%s' field in '%s' is not of enum type\n", v9, v8);
     Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
   }
   if ( fromState.member->externalIndex >= (unsigned int)Asset->enumCount )
@@ -979,7 +941,7 @@ const char *BG_MatchRulesData_GetGameTypeFromIndex(unsigned int index)
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 783, ASSERT_TYPE_ASSERT, "(unsigned)( currentState.member->externalIndex ) < (unsigned)( def->enumCount )", "currentState.member->externalIndex doesn't index def->enumCount\n\t%i not in [0, %i)", externalIndex, enumCount) )
       __debugbreak();
   }
-  return Asset->enumList[fromState.member->externalIndex].members[v3];
+  return Asset->enumList[fromState.member->externalIndex].members[v2];
 }
 
 /*
@@ -991,10 +953,10 @@ unsigned int BG_MatchRulesData_GetGameTypeIndex(MatchRules *matchRules)
 {
   const DDLDef *Asset; 
   unsigned int RawHash; 
+  const char *v6; 
+  const char *v7; 
   const char *v8; 
   const char *v9; 
-  const char *v10; 
-  const char *v11; 
   DDLState fromState; 
   DDLState result; 
   DDLContext ddlContext; 
@@ -1002,33 +964,25 @@ unsigned int BG_MatchRulesData_GetGameTypeIndex(MatchRules *matchRules)
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+0A8h+fromState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   if ( !matchRules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 797, ASSERT_TYPE_ASSERT, "(matchRules)", (const char *)&queryFormat, "matchRules", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef) )
     __debugbreak();
   Asset = Com_DDL_LoadAsset("ddl/mp/recipes.ddl");
-  _RAX = DDL_GetRootState(&result, Asset);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0A8h+fromState.isValid], ymm0
-  }
+  fromState = *DDL_GetRootState(&result, Asset);
   RawHash = j_SL_GetRawHash(scr_const.gametype);
   if ( !DDL_MoveToNameByHash(&fromState, &fromState, RawHash, NULL) )
   {
-    v8 = SL_ConvertToString(scr_const.recipeName);
-    v9 = SL_ConvertToString(scr_const.gametype);
-    Com_PrintError(16, "Could not find '%s' field in '%s'\n", v9, v8);
+    v6 = SL_ConvertToString(scr_const.recipeName);
+    v7 = SL_ConvertToString(scr_const.gametype);
+    Com_PrintError(16, "Could not find '%s' field in '%s'\n", v7, v6);
     Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
   }
   if ( DDL_GetType(&fromState) != DDL_ENUM_TYPE )
   {
-    v10 = SL_ConvertToString(scr_const.recipeName);
-    v11 = SL_ConvertToString(scr_const.gametype);
-    Com_PrintError(16, "'%s' field in '%s' is not of enum type\n", v11, v10);
+    v8 = SL_ConvertToString(scr_const.recipeName);
+    v9 = SL_ConvertToString(scr_const.gametype);
+    Com_PrintError(16, "'%s' field in '%s' is not of enum type\n", v9, v8);
     Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
   }
   Com_DDL_CreateContext(matchRules, 4096, Asset, &ddlContext, NULL, NULL);
@@ -1114,43 +1068,33 @@ BG_MatchRulesData_GetRootString
 const char *BG_MatchRulesData_GetRootString(MatchRules *matchRules, const scr_string_t lookupString)
 {
   const DDLDef *Asset; 
-  const char *v8; 
+  const char *v7; 
   unsigned int RawHash; 
-  const char *v13; 
+  const char *v10; 
   DDLType Type; 
-  const char *v15; 
+  const char *v12; 
   DDLState fromState; 
   DDLState result; 
   DDLContext ddlContext; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rax-68h], xmm0
-  }
-  if ( !matchRules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 551, ASSERT_TYPE_ASSERT, "(matchRules)", (const char *)&queryFormat, "matchRules", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex) )
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
+  if ( !matchRules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 551, ASSERT_TYPE_ASSERT, "(matchRules)", (const char *)&queryFormat, "matchRules", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef) )
     __debugbreak();
   if ( !lookupString && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 552, ASSERT_TYPE_ASSERT, "(lookupString != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "lookupString != NULL_SCR_STRING") )
     __debugbreak();
   Asset = Com_DDL_LoadAsset("ddl/mp/recipes.ddl");
   if ( Com_DDL_CreateContext(matchRules, 4096, Asset, &ddlContext, NULL, NULL) )
   {
-    _RAX = DDL_GetRootState(&result, Asset);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+0A8h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, Asset);
     RawHash = j_SL_GetRawHash(lookupString);
     if ( !DDL_MoveToNameByHash(&fromState, &fromState, RawHash, NULL) )
     {
-      v13 = SL_ConvertToString(lookupString);
-      Com_PrintError(28, "Could not find '%s' field in 'ddl/mp/recipes.ddl'\n", v13);
+      v10 = SL_ConvertToString(lookupString);
+      Com_PrintError(28, "Could not find '%s' field in 'ddl/mp/recipes.ddl'\n", v10);
       Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
     }
     Type = DDL_GetType(&fromState);
@@ -1164,16 +1108,16 @@ const char *BG_MatchRulesData_GetRootString(MatchRules *matchRules, const scr_st
     }
     else
     {
-      v15 = SL_ConvertToString(lookupString);
-      Com_PrintError(28, "'%s' field in 'ddl/mp/recipes.ddl' is not of string type\n", v15);
+      v12 = SL_ConvertToString(lookupString);
+      Com_PrintError(28, "'%s' field in 'ddl/mp/recipes.ddl' is not of string type\n", v12);
       Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
       return (char *)&queryFormat.fmt + 3;
     }
   }
   else
   {
-    v8 = SL_ConvertToString(lookupString);
-    Com_PrintWarning(13, "Accessing matchrules field %s on an invalid buffer.\n", v8);
+    v7 = SL_ConvertToString(lookupString);
+    Com_PrintWarning(13, "Accessing matchrules field %s on an invalid buffer.\n", v7);
     return (char *)&queryFormat.fmt + 3;
   }
 }
@@ -1602,14 +1546,14 @@ _BOOL8 MatchRules_IsLoadoutItemRestricted(const char *itemName, scr_string_t ite
   const DDLDef *Asset; 
   GameStateInfo *v11; 
   unsigned int RawHash; 
+  const char *v13; 
+  unsigned int v14; 
   const char *v15; 
-  unsigned int v16; 
+  const char *v16; 
   const char *v17; 
   const char *v18; 
-  const char *v19; 
   const char *v20; 
-  const char *v22; 
-  const char *v23; 
+  const char *v21; 
   DDLState fromState; 
   DDLState result; 
   DDLContext ddlContext; 
@@ -1617,7 +1561,7 @@ _BOOL8 MatchRules_IsLoadoutItemRestricted(const char *itemName, scr_string_t ite
   fromState.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rsp+0B8h+fromState.member], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   fromState.arrayIndex = -1;
   Asset = Com_DDL_LoadAsset("ddl/mp/recipes.ddl");
   if ( !GameStateInfo_Get()->matchRules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 104, ASSERT_TYPE_ASSERT, "(GameStateInfo_Get()->matchRules)", (const char *)&queryFormat, "GameStateInfo_Get()->matchRules", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef) )
@@ -1625,41 +1569,36 @@ _BOOL8 MatchRules_IsLoadoutItemRestricted(const char *itemName, scr_string_t ite
   v11 = GameStateInfo_Get();
   if ( DDL_CreateContext(v11->matchRules, 4096, Asset, &ddlContext, NULL, NULL) )
   {
-    _RAX = DDL_GetRootState(&result, Asset);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+0B8h+fromState.isValid], ymm0
-    }
+    fromState = *DDL_GetRootState(&result, Asset);
     RawHash = j_SL_GetRawHash(scr_const.commonOption);
     if ( !DDL_MoveToNameHash(&fromState, &fromState, RawHash, NULL) )
     {
-      v15 = SL_ConvertToString(scr_const.commonOption);
-      Com_PrintError(28, "Could not find '%s' field in 'ddl/mp/recipes.ddl'\n", v15);
+      v13 = SL_ConvertToString(scr_const.commonOption);
+      Com_PrintError(28, "Could not find '%s' field in 'ddl/mp/recipes.ddl'\n", v13);
       Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
     }
-    v16 = j_SL_GetRawHash(itemType);
-    if ( !DDL_MoveToNameHash(&fromState, &fromState, v16, NULL) )
+    v14 = j_SL_GetRawHash(itemType);
+    if ( !DDL_MoveToNameHash(&fromState, &fromState, v14, NULL) )
     {
-      v17 = SL_ConvertToString(itemType);
-      v18 = SL_ConvertToString(scr_const.commonOption);
-      Com_PrintError(28, "Could not find '%s %s' field in 'ddl/mp/recipes.ddl'\n", v18, v17);
+      v15 = SL_ConvertToString(itemType);
+      v16 = SL_ConvertToString(scr_const.commonOption);
+      Com_PrintError(28, "Could not find '%s %s' field in 'ddl/mp/recipes.ddl'\n", v16, v15);
       Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
     }
     if ( !DDL_MoveToName(&fromState, &fromState, itemName, suppressPrintErrorOnMissing) )
     {
       if ( !errorOnMissing )
         return 0i64;
-      v19 = SL_ConvertToString(itemType);
-      v20 = SL_ConvertToString(scr_const.commonOption);
-      Com_PrintError(28, "Could not find '%s %s %s' field in 'ddl/mp/recipes.ddl'\n", v20, v19, itemName);
+      v17 = SL_ConvertToString(itemType);
+      v18 = SL_ConvertToString(scr_const.commonOption);
+      Com_PrintError(28, "Could not find '%s %s %s' field in 'ddl/mp/recipes.ddl'\n", v18, v17, itemName);
       Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
     }
     if ( DDL_GetType(&fromState) == DDL_UINT_TYPE && DDL_StateGetBitSize(&fromState) == 1 )
       return DDL_GetBool(&fromState, &ddlContext);
-    v22 = SL_ConvertToString(itemType);
-    v23 = SL_ConvertToString(scr_const.commonOption);
-    Com_PrintError(28, "'%s %s %s' field in 'ddl/mp/recipes.ddl' is not of bool/integer type\n", v23, v22, itemName);
+    v20 = SL_ConvertToString(itemType);
+    v21 = SL_ConvertToString(scr_const.commonOption);
+    Com_PrintError(28, "'%s %s %s' field in 'ddl/mp/recipes.ddl' is not of bool/integer type\n", v21, v20, itemName);
     Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
   }
   else
@@ -1800,82 +1739,75 @@ MatchRules_SetLoadoutItemRestricted
 __int64 MatchRules_SetLoadoutItemRestricted(const char *itemName, const scr_string_t itemType, bool restricted)
 {
   const DDLDef *Asset; 
-  GameStateInfo *v10; 
-  const char *v11; 
-  __int64 v12; 
+  GameStateInfo *v9; 
+  const char *v10; 
+  __int64 v11; 
   unsigned int RawHash; 
+  const char *v13; 
+  unsigned int v14; 
+  const char *v15; 
   const char *v16; 
-  unsigned int v17; 
+  const char *v17; 
   const char *v18; 
   const char *v19; 
   const char *v20; 
-  const char *v21; 
-  const char *v22; 
-  const char *v23; 
   DDLState fromState; 
   DDLState result; 
   DDLContext ddlContext; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
   fromState.isValid = 0;
   __asm { vpxor   xmm0, xmm0, xmm0 }
   fromState.offset = 0;
-  __asm { vmovdqu xmmword ptr [rax-68h], xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   fromState.arrayIndex = -1;
   Asset = Com_DDL_LoadAsset("ddl/mp/recipes.ddl");
-  if ( !GameStateInfo_Get()->matchRules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 267, ASSERT_TYPE_ASSERT, "(GameStateInfo_Get()->matchRules)", (const char *)&queryFormat, "GameStateInfo_Get()->matchRules", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex) )
+  if ( !GameStateInfo_Get()->matchRules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 267, ASSERT_TYPE_ASSERT, "(GameStateInfo_Get()->matchRules)", (const char *)&queryFormat, "GameStateInfo_Get()->matchRules", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef) )
     __debugbreak();
-  v10 = GameStateInfo_Get();
-  if ( !DDL_CreateContext(v10->matchRules, 4096, Asset, &ddlContext, NULL, NULL) )
+  v9 = GameStateInfo_Get();
+  if ( !DDL_CreateContext(v9->matchRules, 4096, Asset, &ddlContext, NULL, NULL) )
   {
-    v11 = SL_ConvertToString(itemType);
-    Com_PrintWarning(13, "Accessing matchrules weaponRestricted field %s (type %s) on an invalid buffer.\n", itemName, v11);
+    v10 = SL_ConvertToString(itemType);
+    Com_PrintWarning(13, "Accessing matchrules weaponRestricted field %s (type %s) on an invalid buffer.\n", itemName, v10);
     return 0i64;
   }
-  _RAX = DDL_GetRootState(&result, Asset);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0A8h+fromState.isValid], ymm0
-  }
+  fromState = *DDL_GetRootState(&result, Asset);
   RawHash = j_SL_GetRawHash(scr_const.commonOption);
   if ( !DDL_MoveToNameHash(&fromState, &fromState, RawHash, NULL) )
   {
-    v16 = SL_ConvertToString(scr_const.commonOption);
-    Com_PrintError(28, "Could not find '%s' field in 'ddl/mp/recipes.ddl'\n", v16);
+    v13 = SL_ConvertToString(scr_const.commonOption);
+    Com_PrintError(28, "Could not find '%s' field in 'ddl/mp/recipes.ddl'\n", v13);
 LABEL_8:
     Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
     return 0i64;
   }
-  v17 = j_SL_GetRawHash(itemType);
-  if ( !DDL_MoveToNameHash(&fromState, &fromState, v17, NULL) )
+  v14 = j_SL_GetRawHash(itemType);
+  if ( !DDL_MoveToNameHash(&fromState, &fromState, v14, NULL) )
   {
-    v18 = SL_ConvertToString(itemType);
-    v19 = SL_ConvertToString(scr_const.commonOption);
-    Com_PrintError(28, "Could not find '%s %s' field in 'ddl/mp/recipes.ddl'\n", v19, v18);
+    v15 = SL_ConvertToString(itemType);
+    v16 = SL_ConvertToString(scr_const.commonOption);
+    Com_PrintError(28, "Could not find '%s %s' field in 'ddl/mp/recipes.ddl'\n", v16, v15);
     goto LABEL_8;
   }
   if ( !DDL_MoveToName(&fromState, &fromState, itemName) )
   {
-    v20 = SL_ConvertToString(itemType);
-    v21 = SL_ConvertToString(scr_const.commonOption);
-    Com_PrintError(28, "Could not find '%s %s %s' field in 'ddl/mp/recipes.ddl'\n", v21, v20, itemName);
+    v17 = SL_ConvertToString(itemType);
+    v18 = SL_ConvertToString(scr_const.commonOption);
+    Com_PrintError(28, "Could not find '%s %s %s' field in 'ddl/mp/recipes.ddl'\n", v18, v17, itemName);
     goto LABEL_8;
   }
   if ( DDL_GetType(&fromState) == DDL_UINT_TYPE && DDL_StateGetBitSize(&fromState) == 1 )
   {
-    LOBYTE(v12) = DDL_SetBool(&fromState, &ddlContext, restricted);
+    LOBYTE(v11) = DDL_SetBool(&fromState, &ddlContext, restricted);
   }
   else
   {
-    v22 = SL_ConvertToString(itemType);
-    v23 = SL_ConvertToString(scr_const.commonOption);
-    Com_PrintError(28, "'%s %s %s' field in 'ddl/mp/recipes.ddl' is not of bool/integer type\n", v23, v22, itemName);
+    v19 = SL_ConvertToString(itemType);
+    v20 = SL_ConvertToString(scr_const.commonOption);
+    Com_PrintError(28, "'%s %s %s' field in 'ddl/mp/recipes.ddl' is not of bool/integer type\n", v20, v19, itemName);
     Com_Error_impl(genericError[1].level, (const ObfuscateErrorText)&queryFormat, genericError[1].error);
-    LOBYTE(v12) = 0;
+    LOBYTE(v11) = 0;
   }
-  return (unsigned __int8)v12;
+  return (unsigned __int8)v11;
 }
 
 /*
@@ -1968,9 +1900,9 @@ SaveMatchRulesDataToFilesystem
 void SaveMatchRulesDataToFilesystem(MatchRules *matchRules, const char *gametype)
 {
   const DDLDef *Asset; 
-  const char *v11; 
-  fileHandle_t *v12; 
-  const DDLDef *v13; 
+  const char *v9; 
+  fileHandle_t *v10; 
+  const DDLDef *v11; 
   unsigned int RawHash; 
   DDLState fromState; 
   DDLHeader result; 
@@ -1981,41 +1913,28 @@ void SaveMatchRulesDataToFilesystem(MatchRules *matchRules, const char *gametype
   fromState.isValid = 0;
   fromState.offset = 0;
   fromState.arrayIndex = -1;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rsp+148h+fromState.member], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&fromState.member = _XMM0;
   if ( !matchRules && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 1234, ASSERT_TYPE_ASSERT, "(matchRules)", (const char *)&queryFormat, "matchRules", *(_QWORD *)&fromState.isValid, *(_QWORD *)&fromState.arrayIndex, fromState.member, fromState.ddlDef) )
     __debugbreak();
   Asset = Com_DDL_LoadAsset("ddl/mp/recipes.ddl");
-  _RAX = DDL_GetHeader(&result, matchRules, 0);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vextractf128 xmm0, ymm0, 1
-    vmovd   ecx, xmm0
-  }
-  if ( (_WORD)_ECX != Asset->version && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 1220, ASSERT_TYPE_ASSERT, "(bufferHeader.version == def->version)", (const char *)&queryFormat, "bufferHeader.version == def->version") )
+  _YMM0 = *(__m256i *)DDL_GetHeader(&result, matchRules, 0);
+  __asm { vextractf128 xmm0, ymm0, 1 }
+  if ( (_WORD)_XMM0 != Asset->version && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_matchrules.cpp", 1220, ASSERT_TYPE_ASSERT, "(bufferHeader.version == def->version)", (const char *)&queryFormat, "bufferHeader.version == def->version") )
     __debugbreak();
   Com_sprintf((char *)dest, 0x40ui64, "%s.recipe", gametype);
   Com_sprintf(filename, 0x40ui64, "raw_shared/%s", "mp/recipes");
-  v12 = FS_FOpenFileWriteToDir(dest, filename, v11);
-  if ( v12 == (fileHandle_t *)-1i64 )
+  v10 = FS_FOpenFileWriteToDir(dest, filename, v9);
+  if ( v10 == (fileHandle_t *)-1i64 )
   {
     Com_PrintError(13, "[SaveMatchRulesDataToFilesystem] Could not open %s/%s for writing\n", filename, (const char *)dest);
   }
   else
   {
-    FS_FCloseFile((fileHandle_t)v12);
-    v13 = Com_DDL_LoadAsset("ddl/mp/recipes.ddl");
-    Com_DDL_CreateContext(matchRules, 4096, v13, &ddlContext, NULL, NULL);
-    _RAX = DDL_GetRootState((DDLState *)&result, v13);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+148h+fromState.isValid], ymm0
-    }
+    FS_FCloseFile((fileHandle_t)v10);
+    v11 = Com_DDL_LoadAsset("ddl/mp/recipes.ddl");
+    Com_DDL_CreateContext(matchRules, 4096, v11, &ddlContext, NULL, NULL);
+    fromState = *DDL_GetRootState((DDLState *)&result, v11);
     RawHash = j_SL_GetRawHash(scr_const.recipeName);
     DDL_MoveToNameByHash(&fromState, &fromState, RawHash, NULL);
     DDL_SetString(&fromState, &ddlContext, (const char *)&queryFormat.fmt + 3);

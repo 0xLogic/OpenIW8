@@ -192,33 +192,22 @@ bdDTLSInitAck::bdDTLSInitAck
 */
 void bdDTLSInitAck::bdDTLSInitAck(bdDTLSInitAck *this, unsigned __int16 vtag, unsigned __int16 initTag, unsigned __int16 localTag, unsigned __int16 peerTag, unsigned __int16 localTieTag, unsigned __int16 peerTieTag, const unsigned __int16 cypherSuite, const bdDTLSRandom *localRandom, const bdDTLSRandom *peerRandom, unsigned int timestamp, const bdAddr *peerAddr, bdSecurityID secID)
 {
-  _R12 = this;
-  _RSI = localRandom;
-  _RBP = peerRandom;
   bdDTLSHeader::bdDTLSHeader(this, BD_DTLS_INIT_ACK, vtag, 0);
-  _R12->__vftable = (bdDTLSInitAck_vtbl *)&bdDTLSInitAck::`vftable';
-  _R12->m_cypherSuite = cypherSuite;
-  _R12->m_timestamp = timestamp;
-  _R12->m_initTag = initTag;
-  _R12->m_localTag = localTag;
-  _R12->m_peerTag = peerTag;
-  _R12->m_localTieTag = localTieTag;
-  _R12->m_peerTieTag = peerTieTag;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [r12+32h], ymm0
-  }
-  _R12->m_localRandom.m_initialized = 1;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+0]
-    vmovups ymmword ptr [r12+53h], ymm0
-  }
-  _R12->m_peerRandom.m_initialized = 1;
-  bdAddr::bdAddr(&_R12->m_peerAddr, peerAddr);
-  bdSecurityID::bdSecurityID(&_R12->m_secID, *(const bdSecurityID **)&secID);
-  bdCryptoUtils::zeroBuffer(_R12->m_signature, 0x10ui64);
+  this->__vftable = (bdDTLSInitAck_vtbl *)&bdDTLSInitAck::`vftable';
+  this->m_cypherSuite = cypherSuite;
+  this->m_timestamp = timestamp;
+  this->m_initTag = initTag;
+  this->m_localTag = localTag;
+  this->m_peerTag = peerTag;
+  this->m_localTieTag = localTieTag;
+  this->m_peerTieTag = peerTieTag;
+  *(__m256i *)this->m_localRandom.m_dtlsRandom = *(__m256i *)localRandom->m_dtlsRandom;
+  this->m_localRandom.m_initialized = 1;
+  *(__m256i *)this->m_peerRandom.m_dtlsRandom = *(__m256i *)peerRandom->m_dtlsRandom;
+  this->m_peerRandom.m_initialized = 1;
+  bdAddr::bdAddr(&this->m_peerAddr, peerAddr);
+  bdSecurityID::bdSecurityID(&this->m_secID, *(const bdSecurityID **)&secID);
+  bdCryptoUtils::zeroBuffer(this->m_signature, 0x10ui64);
   bdSecurityID::~bdSecurityID(*(bdSecurityID **)&secID);
 }
 
@@ -278,10 +267,10 @@ bool bdDTLSInitAck::deserialize(bdDTLSInitAck *this, const void *data, const uns
   __int64 v10; 
   unsigned int v11; 
   bool result; 
+  __m256i v13; 
   __m256i dest; 
-  __m256i v16; 
+  __m256i v15; 
 
-  _RDI = this;
   *newOffset = offset;
   if ( !bdDTLSHeader::deserialize(this, data, size, offset, newOffset) )
     goto LABEL_17;
@@ -293,9 +282,9 @@ bool bdDTLSInitAck::deserialize(bdDTLSInitAck *this, const void *data, const uns
     if ( v11 > size )
       bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 4i64);
     else
-      _RDI->m_timestamp = *(_DWORD *)((char *)data + v10);
+      this->m_timestamp = *(_DWORD *)((char *)data + v10);
   }
-  if ( (v11 <= size || !data) && bdBytePacker::removeBuffer(data, size, *newOffset, newOffset, _RDI->m_signature, 0x10u) && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &_RDI->m_initTag) && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &_RDI->m_localTag) && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &_RDI->m_peerTag) && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &_RDI->m_localTieTag) && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &_RDI->m_peerTieTag) && bdAddr::deserialize(&_RDI->m_peerAddr, data, size, *newOffset, newOffset) && bdBytePacker::removeBuffer(data, size, *newOffset, newOffset, &_RDI->m_secID, 8u) )
+  if ( (v11 <= size || !data) && bdBytePacker::removeBuffer(data, size, *newOffset, newOffset, this->m_signature, 0x10u) && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &this->m_initTag) && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &this->m_localTag) && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &this->m_peerTag) && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &this->m_localTieTag) && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &this->m_peerTieTag) && bdAddr::deserialize(&this->m_peerAddr, data, size, *newOffset, newOffset) && bdBytePacker::removeBuffer(data, size, *newOffset, newOffset, &this->m_secID, 8u) )
     result = 1;
   else
 LABEL_17:
@@ -307,22 +296,18 @@ LABEL_17:
   }
   else
   {
-    if ( result && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &_RDI->m_cypherSuite) )
+    if ( result && bdBytePacker::removeBasicType<unsigned short>(data, size, *newOffset, newOffset, &this->m_cypherSuite) )
     {
-      if ( expectedCypherSuite == _RDI->m_cypherSuite )
+      if ( expectedCypherSuite == this->m_cypherSuite )
       {
-        if ( bdBytePacker::removeBuffer(data, size, *newOffset, newOffset, &dest, 0x20u) && bdBytePacker::removeBuffer(data, size, *newOffset, newOffset, &v16, 0x20u) )
+        if ( bdBytePacker::removeBuffer(data, size, *newOffset, newOffset, &dest, 0x20u) && bdBytePacker::removeBuffer(data, size, *newOffset, newOffset, &v15, 0x20u) )
         {
-          __asm
-          {
-            vmovups ymm0, [rsp+0B8h+dest]
-            vmovups ymmword ptr [rdi+32h], ymm0
-            vmovups ymm0, [rsp+0B8h+var_58]
-          }
-          _RDI->m_localRandom.m_initialized = 1;
+          *(__m256i *)this->m_localRandom.m_dtlsRandom = dest;
+          v13 = v15;
+          this->m_localRandom.m_initialized = 1;
           result = 1;
-          __asm { vmovups ymmword ptr [rdi+53h], ymm0 }
-          _RDI->m_peerRandom.m_initialized = 1;
+          *(__m256i *)this->m_peerRandom.m_dtlsRandom = v13;
+          this->m_peerRandom.m_initialized = 1;
           return result;
         }
       }

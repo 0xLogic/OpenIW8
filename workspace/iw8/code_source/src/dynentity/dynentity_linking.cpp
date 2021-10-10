@@ -212,247 +212,209 @@ DynEnt_AddToSceneCmd
 */
 void DynEnt_AddToSceneCmd(const void *const cmdInfo)
 {
-  unsigned int *v3; 
+  unsigned int *v1; 
   char *Value; 
-  int *v5; 
-  _QWORD *v6; 
-  char *v7; 
-  __int64 v8; 
-  unsigned __int64 v9; 
+  int *v3; 
+  _QWORD *v4; 
+  char *v5; 
+  __int64 v6; 
+  unsigned __int64 v7; 
   ThreadContext CurrentThreadContext; 
+  int v9; 
+  __int64 v10; 
   int v11; 
   __int64 v12; 
   int v13; 
-  __int64 v14; 
-  int v15; 
-  unsigned int v16; 
-  __int64 v17; 
+  unsigned int v14; 
+  __int64 v15; 
   unsigned int id; 
-  __int64 v19; 
-  __int64 v20; 
-  unsigned int v23; 
+  __int64 v17; 
+  __int64 v18; 
+  unsigned int v19; 
   DynEntityClient *Client; 
-  char v26; 
-  char v27; 
+  DynEntityPose *Pose; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
   int *dynEntComplexCount; 
   int *dynEntComplexBodyCount; 
   int dynEntSimpleAdditionalBoneCount; 
-  int v55; 
-  unsigned int v56; 
+  int v30; 
+  unsigned int v31; 
   int dynEntTotalCount; 
   int dynEntSimpleCount[2]; 
   int dynEntComplexAdditionalBoneCount; 
-  int v60; 
-  int v61; 
-  int v62; 
-  unsigned int *v63; 
+  int v35; 
+  int v36; 
+  int v37; 
+  unsigned int *v38; 
 
-  v63 = (unsigned int *)cmdInfo;
-  v3 = (unsigned int *)cmdInfo;
+  v38 = (unsigned int *)cmdInfo;
+  v1 = (unsigned int *)cmdInfo;
   if ( !cmdInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 760, ASSERT_TYPE_ASSERT, "(cmd)", (const char *)&queryFormat, "cmd") )
     __debugbreak();
   Value = (char *)Sys_GetValue(0);
-  v5 = (int *)(Value + 23336);
+  v3 = (int *)(Value + 23336);
   if ( (unsigned int)(*((_DWORD *)Value + 5834) + 1) >= 3 )
   {
     LODWORD(dynEntComplexCount) = *((_DWORD *)Value + 5834) + 1;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 95, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting + 1 ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting + 1 doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", dynEntComplexCount, 3) )
       __debugbreak();
   }
-  if ( (unsigned int)++*v5 >= 3 )
+  if ( (unsigned int)++*v3 >= 3 )
   {
     LODWORD(dynEntComplexBodyCount) = 3;
-    LODWORD(dynEntComplexCount) = *v5;
+    LODWORD(dynEntComplexCount) = *v3;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 97, ASSERT_TYPE_ASSERT, "(unsigned)( p->write.nesting ) < (unsigned)( ( sizeof( *array_counter( p->write.start ) ) + 0 ) )", "p->write.nesting doesn't index ARRAY_COUNT( p->write.start )\n\t%i not in [0, %i)", dynEntComplexCount, dynEntComplexBodyCount) )
       __debugbreak();
   }
-  v6 = Value + 2088;
-  v7 = Value + 40;
-  if ( *v6 < (unsigned __int64)v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
+  v4 = Value + 2088;
+  v5 = Value + 40;
+  if ( *v4 < (unsigned __int64)v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 99, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack >= prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack >= prof_stack->prof_pStack") )
     __debugbreak();
-  *v6 += 8i64;
-  if ( *v6 >= (unsigned __int64)v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
+  *v4 += 8i64;
+  if ( *v4 >= (unsigned __int64)v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 101, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack < prof_stack->prof_pStack + 256 )", (const char *)&queryFormat, "prof_stack->prof_ppStack < prof_stack->prof_pStack + PROF_STACK_SIZE") )
     __debugbreak();
-  *(_QWORD *)*v6 = v5;
-  if ( *v6 <= (unsigned __int64)v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
+  *(_QWORD *)*v4 = v3;
+  if ( *v4 <= (unsigned __int64)v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\profile.h", 103, ASSERT_TYPE_ASSERT, "( prof_stack->prof_ppStack > prof_stack->prof_pStack )", (const char *)&queryFormat, "prof_stack->prof_ppStack > prof_stack->prof_pStack") )
     __debugbreak();
-  v8 = *v5;
-  v9 = __rdtsc();
-  v5[v8 + 2] = v9;
+  v6 = *v3;
+  v7 = __rdtsc();
+  v3[v6 + 2] = v7;
   if ( Sys_HasValidCurrentThreadContext() )
     CurrentThreadContext = Sys_GetCurrentThreadContext();
   else
     CurrentThreadContext = THREAD_CONTEXT_COUNT;
-  v11 = 0;
+  v9 = 0;
   dynEntSimpleAdditionalBoneCount = 0;
   CPUTimelineProfiler::BeginSample(&g_cpuProfiler, CurrentThreadContext, 531, NULL, 0);
-  v12 = (int)*v3;
+  v10 = (int)*v1;
   dynEntTotalCount = 0;
-  v13 = 0;
-  v55 = 0;
+  v11 = 0;
+  v30 = 0;
   dynEntSimpleCount[0] = 0;
-  v62 = 0;
-  v61 = 0;
-  v60 = 0;
+  v37 = 0;
+  v36 = 0;
+  v35 = 0;
   dynEntComplexAdditionalBoneCount = 0;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "DynEnt_UpdatePoseModel and DynEnt_LinkModel list");
-  v14 = v3[2];
-  v15 = v3[4] - v14;
-  if ( v15 < 0 )
-    v15 = 0;
-  if ( (int)v3[3] < v15 )
-    v15 = v3[3];
-  v56 = v15;
-  v16 = v14 + v15;
-  if ( (unsigned int)v14 < (int)v14 + v15 )
+  v12 = v1[2];
+  v13 = v1[4] - v12;
+  if ( v13 < 0 )
+    v13 = 0;
+  if ( (int)v1[3] < v13 )
+    v13 = v1[3];
+  v31 = v13;
+  v14 = v12 + v13;
+  if ( (unsigned int)v12 < (int)v12 + v13 )
   {
-    v17 = v14;
+    v15 = v12;
     do
     {
-      if ( (unsigned int)v12 >= 2 )
+      if ( (unsigned int)v10 >= 2 )
       {
         LODWORD(dynEntComplexBodyCount) = 2;
-        LODWORD(dynEntComplexCount) = v12;
+        LODWORD(dynEntComplexCount) = v10;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 87, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", dynEntComplexCount, dynEntComplexBodyCount) )
           __debugbreak();
       }
-      if ( (unsigned int)v14 >= g_dynEntAddToSceneCount[v12] )
+      if ( (unsigned int)v12 >= g_dynEntAddToSceneCount[v10] )
       {
-        LODWORD(dynEntComplexBodyCount) = g_dynEntAddToSceneCount[v12];
-        LODWORD(dynEntComplexCount) = v14;
+        LODWORD(dynEntComplexBodyCount) = g_dynEntAddToSceneCount[v10];
+        LODWORD(dynEntComplexCount) = v12;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 88, ASSERT_TYPE_ASSERT, "(unsigned)( sceneListIndex ) < (unsigned)( g_dynEntAddToSceneCount[localClientNum] )", "sceneListIndex doesn't index g_dynEntAddToSceneCount[localClientNum]\n\t%i not in [0, %i)", dynEntComplexCount, dynEntComplexBodyCount) )
           __debugbreak();
       }
-      if ( !g_dynEntAddToSceneList[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 89, ASSERT_TYPE_ASSERT, "(g_dynEntAddToSceneList[localClientNum])", (const char *)&queryFormat, "g_dynEntAddToSceneList[localClientNum]") )
+      if ( !g_dynEntAddToSceneList[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 89, ASSERT_TYPE_ASSERT, "(g_dynEntAddToSceneList[localClientNum])", (const char *)&queryFormat, "g_dynEntAddToSceneList[localClientNum]") )
         __debugbreak();
-      if ( g_dynEntAddToSceneList[v12][v17].basis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 90, ASSERT_TYPE_ASSERT, "(g_dynEntAddToSceneList[localClientNum][sceneListIndex].basis == basis)", (const char *)&queryFormat, "g_dynEntAddToSceneList[localClientNum][sceneListIndex].basis == basis") )
+      if ( g_dynEntAddToSceneList[v10][v15].basis && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 90, ASSERT_TYPE_ASSERT, "(g_dynEntAddToSceneList[localClientNum][sceneListIndex].basis == basis)", (const char *)&queryFormat, "g_dynEntAddToSceneList[localClientNum][sceneListIndex].basis == basis") )
         __debugbreak();
-      id = g_dynEntAddToSceneList[v12][v17].id;
-      if ( DynEnt_UpdatePoseModel((LocalClientNum_t)v12, id, &dynEntTotalCount, dynEntSimpleCount, &dynEntSimpleAdditionalBoneCount, &v61, &v60, &dynEntComplexAdditionalBoneCount) )
-        DynEnt_LinkModel((LocalClientNum_t)v12, id);
-      LODWORD(v14) = v14 + 1;
-      ++v17;
+      id = g_dynEntAddToSceneList[v10][v15].id;
+      if ( DynEnt_UpdatePoseModel((LocalClientNum_t)v10, id, &dynEntTotalCount, dynEntSimpleCount, &dynEntSimpleAdditionalBoneCount, &v36, &v35, &dynEntComplexAdditionalBoneCount) )
+        DynEnt_LinkModel((LocalClientNum_t)v10, id);
+      LODWORD(v12) = v12 + 1;
+      ++v15;
     }
-    while ( (unsigned int)v14 < v16 );
-    v11 = dynEntTotalCount;
-    v13 = dynEntSimpleCount[0];
-    v3 = v63;
-    v15 = v56;
+    while ( (unsigned int)v12 < v14 );
+    v9 = dynEntTotalCount;
+    v11 = dynEntSimpleCount[0];
+    v1 = v38;
+    v13 = v31;
     dynEntSimpleAdditionalBoneCount = dynEntTotalCount;
-    v55 = dynEntSimpleCount[0];
+    v30 = dynEntSimpleCount[0];
   }
   Sys_ProfEndNamedEvent();
   Sys_ProfBeginNamedEvent(0xFFFF0000, "DynEnt_UpdatePoseBrush and DynEnt_LinkBrush list");
-  v19 = v15 + v3[2];
-  v56 = v3[3] + v3[2];
-  if ( (unsigned int)v19 < v56 )
+  v17 = v13 + v1[2];
+  v31 = v1[3] + v1[2];
+  if ( (unsigned int)v17 < v31 )
   {
-    __asm { vmovaps [rsp+0C8h+var_38], xmm6 }
-    v20 = 8 * v19;
-    __asm
-    {
-      vmovss  xmm6, cs:__real@358637be
-      vmovaps [rsp+0C8h+var_48], xmm7
-      vmovss  xmm7, cs:__real@38d1b717
-    }
-    *(_QWORD *)dynEntSimpleCount = 8 * v19;
+    v18 = 8 * v17;
+    *(_QWORD *)dynEntSimpleCount = 8 * v17;
     do
     {
-      if ( (unsigned int)v12 >= 2 )
+      if ( (unsigned int)v10 >= 2 )
       {
         LODWORD(dynEntComplexBodyCount) = 2;
-        LODWORD(dynEntComplexCount) = v12;
+        LODWORD(dynEntComplexCount) = v10;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 87, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", dynEntComplexCount, dynEntComplexBodyCount) )
           __debugbreak();
       }
-      if ( (unsigned int)v19 >= g_dynEntAddToSceneCount[v12] )
+      if ( (unsigned int)v17 >= g_dynEntAddToSceneCount[v10] )
       {
-        LODWORD(dynEntComplexBodyCount) = g_dynEntAddToSceneCount[v12];
-        LODWORD(dynEntComplexCount) = v19;
+        LODWORD(dynEntComplexBodyCount) = g_dynEntAddToSceneCount[v10];
+        LODWORD(dynEntComplexCount) = v17;
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 88, ASSERT_TYPE_ASSERT, "(unsigned)( sceneListIndex ) < (unsigned)( g_dynEntAddToSceneCount[localClientNum] )", "sceneListIndex doesn't index g_dynEntAddToSceneCount[localClientNum]\n\t%i not in [0, %i)", dynEntComplexCount, dynEntComplexBodyCount) )
           __debugbreak();
       }
-      if ( !g_dynEntAddToSceneList[v12] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 89, ASSERT_TYPE_ASSERT, "(g_dynEntAddToSceneList[localClientNum])", (const char *)&queryFormat, "g_dynEntAddToSceneList[localClientNum]") )
+      if ( !g_dynEntAddToSceneList[v10] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 89, ASSERT_TYPE_ASSERT, "(g_dynEntAddToSceneList[localClientNum])", (const char *)&queryFormat, "g_dynEntAddToSceneList[localClientNum]") )
         __debugbreak();
-      if ( *((_BYTE *)&g_dynEntAddToSceneList[v12]->basis + v20) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 90, ASSERT_TYPE_ASSERT, "(g_dynEntAddToSceneList[localClientNum][sceneListIndex].basis == basis)", (const char *)&queryFormat, "g_dynEntAddToSceneList[localClientNum][sceneListIndex].basis == basis") )
+      if ( *((_BYTE *)&g_dynEntAddToSceneList[v10]->basis + v18) != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 90, ASSERT_TYPE_ASSERT, "(g_dynEntAddToSceneList[localClientNum][sceneListIndex].basis == basis)", (const char *)&queryFormat, "g_dynEntAddToSceneList[localClientNum][sceneListIndex].basis == basis") )
         __debugbreak();
-      v23 = *(unsigned int *)((char *)&g_dynEntAddToSceneList[v12]->id + v20);
-      Client = DynEnt_GetClient((LocalClientNum_t)v12, v23, DYNENT_BASIS_BRUSH);
+      v19 = *(unsigned int *)((char *)&g_dynEntAddToSceneList[v10]->id + v18);
+      Client = DynEnt_GetClient((LocalClientNum_t)v10, v19, DYNENT_BASIS_BRUSH);
       if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 709, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
         __debugbreak();
       if ( (Client->flags & 3) == 3 )
       {
-        _RBX = DynEnt_GetPose((LocalClientNum_t)v12, v23, DYNENT_BASIS_BRUSH);
-        if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 720, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
+        Pose = DynEnt_GetPose((LocalClientNum_t)v10, v19, DYNENT_BASIS_BRUSH);
+        if ( !Pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 720, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
           __debugbreak();
-        R_MDAO_ResetVolumesProcessed(_RBX);
-        ++v55;
-        dynEntSimpleAdditionalBoneCount = v11 + 1;
+        R_MDAO_ResetVolumesProcessed(Pose);
+        ++v30;
+        dynEntSimpleAdditionalBoneCount = v9 + 1;
         Sys_ProfBeginNamedEvent(0xFF008008, "Prep");
-        Physics_GetRigidBodyTransform((const Physics_WorldId)(3 * v12 + 3), Client->singlePhysicsBody, &_RBX->pose.origin, &_RBX->pose.quat);
-        __asm
+        Physics_GetRigidBodyTransform((const Physics_WorldId)(3 * v10 + 3), Client->singlePhysicsBody, &Pose->pose.origin, &Pose->pose.quat);
+        v22 = Pose->pose.origin.v[0] - Pose->posePart0.origin.v[0];
+        v23 = Pose->pose.origin.v[1] - Pose->posePart0.origin.v[1];
+        v24 = Pose->pose.origin.v[2] - Pose->posePart0.origin.v[2];
+        if ( (float)((float)((float)(v23 * v23) + (float)(v22 * v22)) + (float)(v24 * v24)) > 0.000099999997 || (v25 = Pose->pose.quat.v[1] - Pose->posePart0.quat.v[1], v26 = Pose->pose.quat.v[2] - Pose->posePart0.quat.v[2], (float)((float)((float)((float)(Pose->pose.quat.v[0] - Pose->posePart0.quat.v[0]) * (float)(Pose->pose.quat.v[0] - Pose->posePart0.quat.v[0])) + (float)(v25 * v25)) + (float)(v26 * v26)) > 0.0000010000001) )
         {
-          vmovss  xmm0, dword ptr [rbx+4Ch]
-          vsubss  xmm3, xmm0, dword ptr [rbx+10h]
-          vmovss  xmm1, dword ptr [rbx+50h]
-          vsubss  xmm2, xmm1, dword ptr [rbx+14h]
-          vmovss  xmm0, dword ptr [rbx+54h]
-          vsubss  xmm4, xmm0, dword ptr [rbx+18h]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vaddss  xmm2, xmm3, xmm0
-          vcomiss xmm2, xmm7
-        }
-        if ( !(v26 | v27) )
-          goto LABEL_67;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+3Ch]
-          vsubss  xmm2, xmm0, dword ptr [rbx]
-          vmovss  xmm0, dword ptr [rbx+40h]
-          vsubss  xmm3, xmm0, dword ptr [rbx+4]
-          vmovss  xmm0, dword ptr [rbx+44h]
-          vsubss  xmm4, xmm0, dword ptr [rbx+8]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm0, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm0
-          vmulss  xmm1, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm1
-          vcomiss xmm2, xmm6
-        }
-        if ( !(v26 | v27) )
-        {
-LABEL_67:
           Client->flags |= 0x40u;
-          _RBX->posePart0.origin.v[0] = _RBX->pose.origin.v[0];
-          _RBX->posePart0.origin.v[1] = _RBX->pose.origin.v[1];
-          _RBX->posePart0.origin.v[2] = _RBX->pose.origin.v[2];
-          _RBX->posePart0.quat.v[0] = _RBX->pose.quat.v[0];
-          _RBX->posePart0.quat.v[1] = _RBX->pose.quat.v[1];
-          _RBX->posePart0.quat.v[2] = _RBX->pose.quat.v[2];
-          _RBX->posePart0.quat.v[3] = _RBX->pose.quat.v[3];
+          Pose->posePart0.origin.v[0] = Pose->pose.origin.v[0];
+          Pose->posePart0.origin.v[1] = Pose->pose.origin.v[1];
+          Pose->posePart0.origin.v[2] = Pose->pose.origin.v[2];
+          Pose->posePart0.quat.v[0] = Pose->pose.quat.v[0];
+          Pose->posePart0.quat.v[1] = Pose->pose.quat.v[1];
+          Pose->posePart0.quat.v[2] = Pose->pose.quat.v[2];
+          Pose->posePart0.quat.v[3] = Pose->pose.quat.v[3];
         }
         Sys_ProfEndNamedEvent();
-        DynEnt_LinkBrush((LocalClientNum_t)v12, v23);
-        v20 = *(_QWORD *)dynEntSimpleCount;
+        DynEnt_LinkBrush((LocalClientNum_t)v10, v19);
+        v18 = *(_QWORD *)dynEntSimpleCount;
       }
-      v11 = dynEntSimpleAdditionalBoneCount;
-      v20 += 8i64;
-      LODWORD(v19) = v19 + 1;
-      *(_QWORD *)dynEntSimpleCount = v20;
+      v9 = dynEntSimpleAdditionalBoneCount;
+      v18 += 8i64;
+      LODWORD(v17) = v17 + 1;
+      *(_QWORD *)dynEntSimpleCount = v18;
     }
-    while ( (unsigned int)v19 < v56 );
-    v13 = v55;
-    __asm
-    {
-      vmovaps xmm7, [rsp+0C8h+var_48]
-      vmovaps xmm6, [rsp+0C8h+var_38]
-    }
+    while ( (unsigned int)v17 < v31 );
+    v11 = v30;
   }
   Sys_ProfEndNamedEvent();
-  Physics_SetCGDynEntAuthoritativeDebugData((LocalClientNum_t)v12, dynEntSimpleAdditionalBoneCount, v13, v62, v61, v60, dynEntComplexAdditionalBoneCount);
+  Physics_SetCGDynEntAuthoritativeDebugData((LocalClientNum_t)v10, dynEntSimpleAdditionalBoneCount, v11, v37, v36, v35, dynEntComplexAdditionalBoneCount);
   Profile_EndInternal(NULL);
 }
 
@@ -464,14 +426,9 @@ DynEnt_CheckLightCount
 void DynEnt_CheckLightCount(unsigned int basis, unsigned int dynEntId, const DynEntityClient *dynEntClient, unsigned int lightCount, const vec3_t *pos, const vec3_t *halfSize)
 {
   const char *name; 
-  char *fmt; 
-  double v30; 
-  double v31; 
-  double v32; 
 
   if ( messageCount < 100 && dynEntId != -1 && lightCount > r_linkLightWarningThreshold->current.integer )
   {
-    __asm { vmovaps [rsp+58h+var_18], xmm6 }
     name = "unknown";
     if ( basis )
     {
@@ -482,38 +439,8 @@ void DynEnt_CheckLightCount(unsigned int basis, unsigned int dynEntId, const Dyn
       name = dynEntClient->activeModel->name;
     }
     Com_Printf(8, "Warning: dynEnt(%d) model %s linked to %d lights.\n", dynEntId, name, lightCount);
-    __asm { vmovss  xmm3, cs:__real@40000000 }
-    _RAX = halfSize;
-    __asm
-    {
-      vmulss  xmm0, xmm3, dword ptr [rax+8]
-      vmovss  xmm1, dword ptr [rax+4]
-      vmulss  xmm2, xmm1, xmm3
-      vcvtss2sd xmm6, xmm0, xmm0
-      vmovss  xmm0, dword ptr [rax]
-    }
-    _RAX = pos;
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm3
-      vcvtss2sd xmm5, xmm2, xmm2
-      vmovsd  [rsp+58h+var_20], xmm6
-      vmovss  xmm3, dword ptr [rax+4]
-      vmovss  xmm2, dword ptr [rax]
-      vmovss  xmm0, dword ptr [rax+8]
-      vmovsd  [rsp+58h+var_28], xmm5
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm4, xmm1, xmm1
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovsd  [rsp+58h+var_30], xmm4
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+58h+fmt], xmm0
-    }
-    Com_Printf(8, "  Pos=(%3.0f,%3.0f,%3.0f) Size=(%3.0f,%3.0f,%3.0f).\n", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&fmt, v30, v31, v32);
+    Com_Printf(8, "  Pos=(%3.0f,%3.0f,%3.0f) Size=(%3.0f,%3.0f,%3.0f).\n", pos->v[0], pos->v[1], pos->v[2], (float)(halfSize->v[0] * 2.0), (float)(halfSize->v[1] * 2.0), (float)(2.0 * halfSize->v[2]));
     Com_Printf(8, "  Please enable \"no spotshadow\" checkbox in Radiant if we don't need spot shadow for this object.\n");
-    __asm { vmovaps xmm6, [rsp+58h+var_18] }
     if ( ((unsigned __int8)&messageCount & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&messageCount) )
       __debugbreak();
     if ( _InterlockedIncrement(&messageCount) >= 100 )
@@ -600,163 +527,132 @@ DynEnt_LinkModel
 ==============
 */
 
-void __fastcall DynEnt_LinkModel(LocalClientNum_t localClientNum, unsigned int dynEntId, double _XMM2_8)
+void __fastcall DynEnt_LinkModel(LocalClientNum_t localClientNum, unsigned int dynEntId, double a3)
 {
-  __int64 v14; 
+  __m128 v3; 
+  __int64 v5; 
   const DynEntityDef *Def; 
-  unsigned __int16 v16; 
+  unsigned __int16 v7; 
+  DynEntityPose *PoseFromClientId; 
   DynEntityClient *ClientFromClientId; 
-  const XModel *activeModel; 
-  const float4 *v31; 
-  vector3 *v32; 
-  bool IsSingleBody; 
+  __int128 v11; 
+  __m128 v15; 
+  vec4_t quat; 
+  const float4 *v19; 
+  vector3 *v20; 
+  __m128 v21; 
+  __m128 v25; 
+  __m128 v26; 
+  __m128 v27; 
+  __m128 v30; 
+  __m128 v33; 
+  __m128 v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
   unsigned __int16 flags; 
-  unsigned int v76; 
-  __int128 v77; 
-  __int128 v78; 
-  __int128 v79; 
+  unsigned int v40; 
+  __int128 v41; 
+  __m128 v42; 
+  __m128 v43; 
   Bounds halfSize; 
   Bounds bounds; 
 
-  v14 = localClientNum;
+  v5 = localClientNum;
   Def = DynEnt_GetDef(dynEntId, DYNENT_BASIS_MODEL);
   if ( !Def && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 193, ASSERT_TYPE_ASSERT, "(dynEntDef)", (const char *)&queryFormat, "dynEntDef") )
     __debugbreak();
-  v16 = Def->clientId[v14];
-  _RBX = DynEnt_GetPoseFromClientId((LocalClientNum_t)v14, v16, DYNENT_BASIS_MODEL);
-  ClientFromClientId = DynEnt_GetClientFromClientId((LocalClientNum_t)v14, v16, DYNENT_BASIS_MODEL);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 197, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
+  v7 = Def->clientId[v5];
+  PoseFromClientId = DynEnt_GetPoseFromClientId((LocalClientNum_t)v5, v7, DYNENT_BASIS_MODEL);
+  ClientFromClientId = DynEnt_GetClientFromClientId((LocalClientNum_t)v5, v7, DYNENT_BASIS_MODEL);
+  if ( !PoseFromClientId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 197, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
     __debugbreak();
   if ( !ClientFromClientId && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 198, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
     __debugbreak();
-  activeModel = ClientFromClientId->activeModel;
   if ( ClientFromClientId->activeModel )
   {
+    XModelGetBounds(ClientFromClientId->activeModel, &bounds);
+    HIDWORD(v41) = 0;
+    v11 = v41;
+    *(float *)&v11 = bounds.midPoint.v[0];
+    _XMM14 = v11;
     __asm
     {
-      vmovaps [rsp+130h+var_30], xmm6
-      vmovaps [rsp+130h+var_40], xmm7
-      vmovaps [rsp+130h+var_50], xmm8
-      vmovaps [rsp+130h+var_60], xmm9
-      vmovaps [rsp+130h+var_70], xmm10
-      vmovaps [rsp+130h+var_80], xmm11
-      vmovaps [rsp+130h+var_90], xmm12
-      vmovaps [rsp+130h+var_A0], xmm13
-      vmovaps [rsp+130h+var_B0], xmm14
-    }
-    XModelGetBounds(activeModel, &bounds);
-    __asm { vmovss  xmm0, dword ptr [rsp+130h+bounds.midPoint] }
-    HIDWORD(v77) = 0;
-    __asm
-    {
-      vmovups xmm14, xmmword ptr [rsp+30h]
-      vmovss  xmm14, xmm14, xmm0
-      vmovss  xmm0, dword ptr [rsp+130h+bounds.halfSize]
       vinsertps xmm14, xmm14, dword ptr [rsp+130h+bounds.midPoint+4], 30h+var_20
       vinsertps xmm14, xmm14, dword ptr [rsp+130h+bounds.midPoint+8], 20h
-      vmovups xmmword ptr [rsp+30h], xmm14
     }
-    HIDWORD(v78) = 0;
+    v42 = _XMM14;
+    v42.m128_i32[3] = 0;
+    v15 = v42;
+    v15.m128_f32[0] = bounds.halfSize.v[0];
+    _XMM6 = v15;
     __asm
     {
-      vmovups xmm6, xmmword ptr [rsp+30h]
-      vmovss  xmm6, xmm6, xmm0
       vinsertps xmm6, xmm6, dword ptr [rsp+130h+bounds.halfSize+4], 30h+var_20
       vinsertps xmm6, xmm6, dword ptr [rsp+130h+bounds.halfSize+8], 20h
-      vmovups xmm0, xmmword ptr [rbx+3Ch]
-      vmovups xmmword ptr [rsp+30h], xmm6
     }
-    Float4UnitQuatToAxis(v32, v31);
+    quat = PoseFromClientId->pose.quat;
+    v43 = _XMM6;
+    Float4UnitQuatToAxis(v20, v19);
+    v21 = (__m128)quat;
+    _XMM0 = g_negativeZero.v;
     __asm
     {
-      vmovss  xmm3, dword ptr [rbx+4Ch]
-      vmovups xmm13, xmm0
-      vmovups xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
       vandnps xmm7, xmm0, xmm2
-      vmovups xmm12, xmm1
       vandnps xmm5, xmm0, xmm13
-      vshufps xmm8, xmm6, xmm6, 0
-      vshufps xmm9, xmm6, xmm6, 55h ; 'U'
-      vshufps xmm10, xmm6, xmm6, 0AAh ; 'ª'
-      vandnps xmm6, xmm0, xmm1
-      vshufps xmm1, xmm14, xmm14, 0AAh ; 'ª'
-      vmulps  xmm0, xmm2, xmm1
     }
-    HIDWORD(v79) = 0;
+    v25 = _mm_shuffle_ps(_XMM6, _XMM6, 0);
+    v26 = _mm_shuffle_ps(_XMM6, _XMM6, 85);
+    v27 = _mm_shuffle_ps(_XMM6, _XMM6, 170);
+    __asm { vandnps xmm6, xmm0, xmm1 }
+    v43.m128_i32[3] = 0;
+    v30 = v43;
+    v30.m128_f32[0] = PoseFromClientId->pose.origin.v[0];
+    _XMM11 = v30;
     __asm
     {
-      vmovups xmm11, xmmword ptr [rsp+30h]
-      vmovss  xmm11, xmm11, xmm3
       vinsertps xmm11, xmm11, dword ptr [rbx+50h], 10h
       vinsertps xmm11, xmm11, dword ptr [rbx+54h], 20h ; ' '
-      vaddps  xmm2, xmm0, xmm11
-      vshufps xmm3, xmm14, xmm14, 55h ; 'U'
-      vmulps  xmm1, xmm12, xmm3
-      vaddps  xmm3, xmm1, xmm2
-      vmulps  xmm1, xmm8, xmm5
-      vshufps xmm4, xmm14, xmm14, 0
-      vmulps  xmm0, xmm13, xmm4
-      vaddps  xmm11, xmm0, xmm3
-      vmulps  xmm0, xmm9, xmm6
-      vaddps  xmm2, xmm0, xmm1
-      vmulps  xmm1, xmm10, xmm7
-      vaddps  xmm6, xmm1, xmm2
-      vshufps xmm9, xmm6, xmm6, 55h ; 'U'
-      vshufps xmm10, xmm6, xmm6, 0AAh ; 'ª'
-      vshufps xmm7, xmm11, xmm11, 55h ; 'U'
-      vshufps xmm8, xmm11, xmm11, 0AAh ; 'ª'
-      vmovss  dword ptr [rsp+130h+var_F0.halfSize+4], xmm9
-      vmovss  dword ptr [rsp+130h+var_F0.halfSize+8], xmm10
-      vmovss  dword ptr [rsp+130h+var_F0.midPoint], xmm11
-      vmovss  dword ptr [rsp+130h+var_F0.midPoint+4], xmm7
-      vmovss  dword ptr [rsp+130h+var_F0.midPoint+8], xmm8
-      vmovss  dword ptr [rsp+130h+var_F0.halfSize], xmm6
     }
-    IsSingleBody = DynEnt_IsSingleBody(ClientFromClientId, _RBX);
-    __asm
+    v33 = _mm128_add_ps(_mm128_mul_ps(v21, _mm_shuffle_ps(_XMM14, _XMM14, 0)), _mm128_add_ps(_mm128_mul_ps(v3, _mm_shuffle_ps(_XMM14, _XMM14, 85)), _mm128_add_ps(_mm128_mul_ps(*(__m128 *)&a3, _mm_shuffle_ps(_XMM14, _XMM14, 170)), _XMM11)));
+    v34 = _mm128_add_ps(_mm128_mul_ps(v27, _XMM7), _mm128_add_ps(_mm128_mul_ps(v26, _XMM6), _mm128_mul_ps(v25, _XMM5)));
+    v35 = _mm_shuffle_ps(v34, v34, 85).m128_f32[0];
+    v36 = _mm_shuffle_ps(v34, v34, 170).m128_f32[0];
+    v37 = _mm_shuffle_ps(v33, v33, 85).m128_f32[0];
+    v38 = _mm_shuffle_ps(v33, v33, 170).m128_f32[0];
+    halfSize.halfSize.v[1] = v35;
+    halfSize.halfSize.v[2] = v36;
+    halfSize.midPoint.v[0] = v33.m128_f32[0];
+    halfSize.midPoint.v[1] = v37;
+    halfSize.midPoint.v[2] = v38;
+    halfSize.halfSize.v[0] = v34.m128_f32[0];
+    if ( DynEnt_IsSingleBody(ClientFromClientId, PoseFromClientId) )
     {
-      vmovaps xmm14, [rsp+130h+var_B0]
-      vmovaps xmm13, [rsp+130h+var_A0]
-      vmovaps xmm12, [rsp+130h+var_90]
-    }
-    if ( IsSingleBody )
-    {
-      __asm
-      {
-        vmovss  dword ptr [rbx+24h], xmm11
-        vmovss  dword ptr [rbx+28h], xmm7
-        vmovss  dword ptr [rbx+2Ch], xmm8
-        vmovss  dword ptr [rbx+30h], xmm6
-        vmovss  dword ptr [rbx+34h], xmm9
-        vmovss  dword ptr [rbx+38h], xmm10
-      }
+      PoseFromClientId->bounds.midPoint.v[0] = v33.m128_f32[0];
+      PoseFromClientId->bounds.midPoint.v[1] = v37;
+      PoseFromClientId->bounds.midPoint.v[2] = v38;
+      PoseFromClientId->bounds.halfSize.v[0] = v34.m128_f32[0];
+      PoseFromClientId->bounds.halfSize.v[1] = v35;
+      PoseFromClientId->bounds.halfSize.v[2] = v36;
     }
     flags = ClientFromClientId->flags;
-    __asm
-    {
-      vmovaps xmm11, [rsp+130h+var_80]
-      vmovaps xmm10, [rsp+130h+var_70]
-      vmovaps xmm9, [rsp+130h+var_60]
-      vmovaps xmm8, [rsp+130h+var_50]
-      vmovaps xmm7, [rsp+130h+var_40]
-      vmovaps xmm6, [rsp+130h+var_30]
-    }
     if ( (flags & 0x408) != 0 )
     {
       if ( (flags & 0x800) != 0 )
       {
-        R_UnLinkDynEntClient_NoCull((LocalClientNum_t)v14, v16, DYNENT_BASIS_MODEL);
+        R_UnLinkDynEntClient_NoCull((LocalClientNum_t)v5, v7, DYNENT_BASIS_MODEL);
         ClientFromClientId->flags &= ~0x800u;
       }
     }
-    else if ( DynEnt_VisiblyChangedThisFrame((LocalClientNum_t)v14, DYNENT_BASIS_MODEL, dynEntId) || (ClientFromClientId->flags & 0x800) == 0 )
+    else if ( DynEnt_VisiblyChangedThisFrame((LocalClientNum_t)v5, DYNENT_BASIS_MODEL, dynEntId) || (ClientFromClientId->flags & 0x800) == 0 )
     {
-      v76 = R_LinkDynEntClient((LocalClientNum_t)v14, v16, DYNENT_BASIS_MODEL, &halfSize);
-      R_DynEntClientMoved((LocalClientNum_t)v14, DYNENT_BASIS_MODEL, v16);
+      v40 = R_LinkDynEntClient((LocalClientNum_t)v5, v7, DYNENT_BASIS_MODEL, &halfSize);
+      R_DynEntClientMoved((LocalClientNum_t)v5, DYNENT_BASIS_MODEL, v7);
       ClientFromClientId->flags |= 0x800u;
-      DynEnt_CheckLightCount(0, dynEntId, ClientFromClientId, v76, &halfSize.midPoint, &halfSize.halfSize);
+      DynEnt_CheckLightCount(0, dynEntId, ClientFromClientId, v40, &halfSize.midPoint, &halfSize.halfSize);
     }
-    R_LinkDynEntClientToCells((LocalClientNum_t)v14, v16, DYNENT_BASIS_MODEL, &halfSize);
+    R_LinkDynEntClientToCells((LocalClientNum_t)v5, v7, DYNENT_BASIS_MODEL, &halfSize);
   }
 }
 
@@ -883,163 +779,112 @@ DynEnt_UpdateBModelWorldBounds
 */
 void DynEnt_UpdateBModelWorldBounds(const DynEntityDef *dynEntDef, DynEntityPose *dynentPose)
 {
-  double v82; 
-  double v83; 
-  double v84; 
-  double v85; 
-  double baseBounds; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float4 v10; 
+  float v13; 
+  float4 v15; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
   Float4Bounds baseBounds_8; 
   Float4Bounds rotatedBounds_8; 
   tmat33_t<vec3_t> axis; 
-  char v90; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-  }
-  _RSI = dynentPose;
   _RDI = R_GetBrushModel(dynEntDef->brushModel);
   if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 289, ASSERT_TYPE_ASSERT, "(bmodel)", (const char *)&queryFormat, "bmodel") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+38h]
-    vmovss  xmm4, dword ptr [rsi+40h]
-    vmovss  xmm5, dword ptr [rsi+3Ch]
-    vmovss  xmm6, dword ptr [rsi+44h]
-    vmovss  xmm7, dword ptr [rsi+48h]
-    vmovss  xmm13, cs:__real@3f800000
-  }
+  v4 = _RDI->bounds.midPoint.v[0];
+  v5 = dynentPose->pose.quat.v[1];
+  v6 = dynentPose->pose.quat.v[0];
+  v7 = dynentPose->pose.quat.v[2];
+  v8 = dynentPose->pose.quat.v[3];
   rotatedBounds_8.midPoint.v.m128_i32[3] = 0;
+  v10.v = (__m128)rotatedBounds_8.midPoint;
+  v10.v.m128_f32[0] = v4;
+  _XMM3 = v10.v;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+150h+rotatedBounds+8]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rdi+3Ch], 10h
     vinsertps xmm3, xmm3, dword ptr [rdi+40h], 20h ; ' '
-    vmovss  xmm0, dword ptr [rdi+44h]
-    vmovups xmmword ptr [rsp+150h+rotatedBounds+8], xmm3
-    vmovups xmmword ptr [rsp+150h+baseBounds.midPoint.v+8], xmm3
   }
+  v13 = _RDI->bounds.halfSize.v[0];
+  rotatedBounds_8.midPoint = (float4)_XMM3.v;
+  baseBounds_8.midPoint = (float4)_XMM3.v;
   rotatedBounds_8.midPoint.v.m128_i32[3] = 0;
+  v15.v = (__m128)rotatedBounds_8.midPoint;
+  v15.v.m128_f32[0] = v13;
+  _XMM3 = v15.v;
   __asm
   {
-    vmovups xmm3, xmmword ptr [rsp+150h+rotatedBounds+8]
-    vmovss  xmm3, xmm3, xmm0
     vinsertps xmm3, xmm3, dword ptr [rdi+48h], 10h
     vinsertps xmm3, xmm3, dword ptr [rdi+4Ch], 20h ; ' '
-    vmulss  xmm1, xmm5, xmm5
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vmovups xmmword ptr [rsp+150h+rotatedBounds+8], xmm3
-    vmovups xmmword ptr [rsp+150h+baseBounds.halfSize.v+8], xmm3
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm0
-    vsubss  xmm1, xmm2, xmm13
-    vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm1, cs:__real@3b03126f
-    vsqrtss xmm0, xmm2, xmm2
-    vcvtss2sd xmm1, xmm0, xmm0
-    vmovsd  qword ptr [rsp+150h+baseBounds.midPoint.v], xmm1
-    vcvtss2sd xmm0, xmm4, xmm4
-    vcvtss2sd xmm2, xmm7, xmm7
-    vmovsd  [rsp+150h+var_110], xmm2
-    vcvtss2sd xmm3, xmm6, xmm6
-    vmovsd  [rsp+150h+var_118], xmm3
-    vmovsd  [rsp+150h+var_120], xmm0
-    vcvtss2sd xmm4, xmm5, xmm5
-    vmovsd  [rsp+150h+var_128], xmm4
   }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 770, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", v82, v83, v84, v85, baseBounds) )
+  rotatedBounds_8.midPoint = (float4)_XMM3.v;
+  baseBounds_8.halfSize = (float4)_XMM3.v;
+  v18 = (float)((float)((float)(v6 * v6) + (float)(v5 * v5)) + (float)(v7 * v7)) + (float)(v8 * v8);
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(v18 - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 770, ASSERT_TYPE_ASSERT, "( Vec4IsNormalized( quat ) )", "(%g, %g, %g, %g) len: %g", v6, v5, v7, v8, fsqrt(v18)) )
     __debugbreak();
+  v19 = 2.0 * dynentPose->pose.quat.v[0];
+  v20 = v19 * dynentPose->pose.quat.v[0];
+  v21 = dynentPose->pose.quat.v[1];
+  v22 = dynentPose->pose.quat.v[2];
+  v23 = dynentPose->pose.quat.v[3];
+  v24 = v21 * (float)(v21 * 2.0);
+  v25 = v22 * (float)(v21 * 2.0);
+  v26 = v23 * (float)(v21 * 2.0);
+  v27 = v21 * v19;
+  v28 = v23 * (float)(v22 * 2.0);
+  v29 = v22 * (float)(v22 * 2.0);
+  axis.m[0].v[0] = 1.0 - (float)(v29 + v24);
+  axis.m[0].v[2] = (float)(v22 * v19) - v26;
+  axis.m[0].v[1] = v28 + v27;
+  axis.m[1].v[0] = v27 - v28;
+  axis.m[1].v[1] = 1.0 - (float)(v29 + v20);
+  axis.m[2].v[0] = v26 + (float)(v22 * v19);
+  axis.m[1].v[2] = v25 + (float)(v23 * v19);
+  axis.m[2].v[2] = 1.0 - (float)(v24 + v20);
+  axis.m[2].v[1] = v25 - (float)(v23 * v19);
+  Float4Bounds_Transform(&baseBounds_8, &dynentPose->pose.origin, &axis, &rotatedBounds_8);
+  _XMM1.v = (__m128)rotatedBounds_8.midPoint;
+  _RDI->writable.bounds.midPoint.v[0] = rotatedBounds_8.midPoint.v.m128_f32[0];
   __asm
   {
-    vmovss  xmm5, cs:__real@40000000
-    vmulss  xmm1, xmm5, dword ptr [rsi+3Ch]
-    vmulss  xmm12, xmm1, dword ptr [rsi+3Ch]
-    vmovss  xmm2, dword ptr [rsi+40h]
-    vmovss  xmm4, dword ptr [rsi+44h]
-    vmovss  xmm3, dword ptr [rsi+48h]
-    vmulss  xmm9, xmm4, xmm1
-    vmulss  xmm0, xmm2, xmm5
-    vmulss  xmm11, xmm2, xmm0
-    vmulss  xmm8, xmm4, xmm0
-    vmulss  xmm7, xmm3, xmm0
-    vmulss  xmm6, xmm2, xmm1
-    vmulss  xmm10, xmm3, xmm1
-    vmulss  xmm0, xmm4, xmm5
-    vmulss  xmm2, xmm3, xmm0
-    vmulss  xmm5, xmm4, xmm0
-    vaddss  xmm1, xmm5, xmm11
-    vsubss  xmm0, xmm13, xmm1
-    vmovss  dword ptr [rbp+50h+axis], xmm0
-    vsubss  xmm0, xmm9, xmm7
-    vmovss  dword ptr [rbp+50h+axis+8], xmm0
-    vaddss  xmm1, xmm2, xmm6
-    vmovss  dword ptr [rbp+50h+axis+4], xmm1
-    vsubss  xmm1, xmm6, xmm2
-    vmovss  dword ptr [rbp+50h+axis+0Ch], xmm1
-    vaddss  xmm1, xmm8, xmm10
-    vaddss  xmm0, xmm5, xmm12
-    vsubss  xmm0, xmm13, xmm0
-    vmovss  dword ptr [rbp+50h+axis+10h], xmm0
-    vaddss  xmm0, xmm7, xmm9
-    vmovss  dword ptr [rbp+50h+axis+18h], xmm0
-    vaddss  xmm0, xmm11, xmm12
-    vmovss  dword ptr [rbp+50h+axis+14h], xmm1
-    vsubss  xmm0, xmm13, xmm0
-    vsubss  xmm1, xmm8, xmm10
-    vmovss  dword ptr [rbp+50h+axis+20h], xmm0
-    vmovss  dword ptr [rbp+50h+axis+1Ch], xmm1
-  }
-  Float4Bounds_Transform(&baseBounds_8, &_RSI->pose.origin, &axis, &rotatedBounds_8);
-  __asm
-  {
-    vmovups xmm1, xmmword ptr [rsp+150h+rotatedBounds+8]
-    vmovss  dword ptr [rdi], xmm1
     vextractps dword ptr [rdi+4], xmm1, 1
     vextractps dword ptr [rdi+8], xmm1, 2
-    vmovups xmm1, xmmword ptr [rbp+50h+rotatedBounds+18h]
-    vmovss  dword ptr [rdi+0Ch], xmm1
+  }
+  _XMM1.v = (__m128)rotatedBounds_8.halfSize;
+  _RDI->writable.bounds.halfSize.v[0] = rotatedBounds_8.halfSize.v.m128_f32[0];
+  __asm
+  {
     vextractps dword ptr [rdi+10h], xmm1, 1
     vextractps dword ptr [rdi+14h], xmm1, 2
   }
-  _RDI->writable.origin.v[0] = _RSI->pose.origin.v[0];
-  _RDI->writable.origin.v[1] = _RSI->pose.origin.v[1];
-  _RDI->writable.origin.v[2] = _RSI->pose.origin.v[2];
-  _RDI->writable.quat.v[0] = _RSI->pose.quat.v[0];
-  _RDI->writable.quat.v[1] = _RSI->pose.quat.v[1];
-  _RDI->writable.quat.v[2] = _RSI->pose.quat.v[2];
-  _RDI->writable.quat.v[3] = _RSI->pose.quat.v[3];
-  _RSI->bounds.midPoint.v[0] = _RDI->writable.bounds.midPoint.v[0];
-  _RSI->bounds.midPoint.v[1] = _RDI->writable.bounds.midPoint.v[1];
-  _RSI->bounds.midPoint.v[2] = _RDI->writable.bounds.midPoint.v[2];
-  _RSI->bounds.halfSize.v[0] = _RDI->writable.bounds.halfSize.v[0];
-  _RSI->bounds.halfSize.v[1] = _RDI->writable.bounds.halfSize.v[1];
-  _RSI->bounds.halfSize.v[2] = _RDI->writable.bounds.halfSize.v[2];
-  _R11 = &v90;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-  }
+  _RDI->writable.origin.v[0] = dynentPose->pose.origin.v[0];
+  _RDI->writable.origin.v[1] = dynentPose->pose.origin.v[1];
+  _RDI->writable.origin.v[2] = dynentPose->pose.origin.v[2];
+  _RDI->writable.quat.v[0] = dynentPose->pose.quat.v[0];
+  _RDI->writable.quat.v[1] = dynentPose->pose.quat.v[1];
+  _RDI->writable.quat.v[2] = dynentPose->pose.quat.v[2];
+  _RDI->writable.quat.v[3] = dynentPose->pose.quat.v[3];
+  dynentPose->bounds.midPoint.v[0] = _RDI->writable.bounds.midPoint.v[0];
+  dynentPose->bounds.midPoint.v[1] = _RDI->writable.bounds.midPoint.v[1];
+  dynentPose->bounds.midPoint.v[2] = _RDI->writable.bounds.midPoint.v[2];
+  dynentPose->bounds.halfSize.v[0] = _RDI->writable.bounds.halfSize.v[0];
+  dynentPose->bounds.halfSize.v[1] = _RDI->writable.bounds.halfSize.v[1];
+  dynentPose->bounds.halfSize.v[2] = _RDI->writable.bounds.halfSize.v[2];
 }
 
 /*
@@ -1049,616 +894,499 @@ DynEnt_UpdatePoseModel
 */
 char DynEnt_UpdatePoseModel(LocalClientNum_t localClientNum, unsigned int dynEntId, int *dynEntTotalCount, int *dynEntSimpleCount, int *dynEntSimpleAdditionalBoneCount, int *dynEntComplexCount, int *dynEntComplexBodyCount, int *dynEntComplexAdditionalBoneCount)
 {
-  LocalClientNum_t v18; 
-  const DynEntityClient *v22; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v14; 
+  __int128 v15; 
+  LocalClientNum_t v16; 
+  const DynEntityClient *v20; 
+  DynEntityPose *Pose; 
+  const XModel *activeModel; 
   unsigned __int8 numBones; 
-  char v27; 
-  bool v28; 
-  unsigned __int8 v54; 
-  LocalClientNum_t v56; 
-  __int64 v57; 
-  __int32 v58; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  bool v30; 
+  unsigned __int8 v31; 
+  float v32; 
+  LocalClientNum_t v33; 
+  __int64 v34; 
+  __int32 v35; 
   unsigned int physicsSystemId; 
   unsigned int m_serialAndIndex; 
   unsigned __int8 numParts; 
+  GfxPlacement *PosePartFromPose; 
+  float v40; 
+  __m128 v42; 
+  __m128 v46; 
+  __m128 v50; 
+  __m128 v54; 
   const vec4_t *p_quat; 
   vec3_t *p_origin; 
-  unsigned __int8 v105; 
-  unsigned __int8 v106; 
+  unsigned __int8 v65; 
+  unsigned __int8 v66; 
   DObjAnimMat *baseMat; 
-  unsigned __int8 v149; 
-  DynEnt_ExtraPosePart *v150; 
+  DObjAnimMat *v68; 
+  float transWeight; 
+  float v70; 
+  float v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  float v82; 
+  float v83; 
+  unsigned __int8 v84; 
+  DynEnt_ExtraPosePart *v85; 
   unsigned int posePart1FirstIndex; 
-  __int64 v211; 
-  __int64 v212; 
-  __int64 v213; 
-  __int64 v214; 
+  __m128 v88; 
+  __m128 v92; 
+  __m128 v96; 
+  __m128 v100; 
+  float v109; 
+  float v110; 
+  float v111; 
+  float v112; 
+  __int64 v113; 
+  __int64 v114; 
+  __int64 v115; 
+  __int64 v116; 
   unsigned __int8 numPhysicsBodies; 
-  LocalClientNum_t localClientNumb; 
-  LocalClientNum_t localClientNumc; 
-  LocalClientNum_t localClientNumd; 
-  LocalClientNum_t localClientNume; 
-  LocalClientNum_t localClientNumf; 
-  const XModel *activeModel; 
-  unsigned __int8 v223; 
-  DObjAnimMat *v224; 
+  const XModel *v119; 
+  unsigned __int8 v120; 
+  DObjAnimMat *v121; 
   hknpBodyId result; 
-  int *v226; 
+  int *v123; 
   DynEntityClient *Client; 
   Bounds bounds; 
   Bounds rotatedBounds; 
-  __int128 v230; 
-  __int128 v231; 
-  __int128 v232; 
-  __int128 v233; 
+  __m128 v127; 
+  __m128 v128; 
+  __m128 v129; 
+  __m128 v130; 
   vec3_t position; 
   vec4_t orientation; 
   tmat43_t<vec3_t> in1; 
   tmat43_t<vec3_t> out; 
   tmat33_t<vec3_t> axis; 
-  tmat43_t<vec3_t> v239; 
+  tmat43_t<vec3_t> v136; 
+  __int128 v137; 
+  __int128 v138; 
+  __int128 v139; 
+  __int128 v140; 
+  __int128 v141; 
+  __int128 v142; 
+  __int128 v143; 
+  __int128 v144; 
 
-  v18 = localClientNum;
-  v226 = dynEntComplexAdditionalBoneCount;
+  v16 = localClientNum;
+  v123 = dynEntComplexAdditionalBoneCount;
   Client = DynEnt_GetClient(localClientNum, dynEntId, DYNENT_BASIS_MODEL);
-  v22 = Client;
+  v20 = Client;
   if ( !Client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 513, ASSERT_TYPE_ASSERT, "(dynEntClient)", (const char *)&queryFormat, "dynEntClient") )
     __debugbreak();
   if ( (Client->flags & 3) != 3 )
     return 0;
-  _RBX = DynEnt_GetPose(v18, dynEntId, DYNENT_BASIS_MODEL);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 524, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
+  Pose = DynEnt_GetPose(v16, dynEntId, DYNENT_BASIS_MODEL);
+  if ( !Pose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 524, ASSERT_TYPE_ASSERT, "(dynEntPose)", (const char *)&queryFormat, "dynEntPose") )
     __debugbreak();
-  R_MDAO_ResetVolumesProcessed(_RBX);
+  R_MDAO_ResetVolumesProcessed(Pose);
   ++*dynEntTotalCount;
-  _R13 = v22->activeModel;
-  activeModel = v22->activeModel;
-  if ( !v22->activeModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 536, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
+  activeModel = v20->activeModel;
+  v119 = v20->activeModel;
+  if ( !v20->activeModel && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 536, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
     __debugbreak();
-  numBones = _R13->numBones;
-  if ( numBones > _RBX->numParts )
-    numBones = _RBX->numParts;
-  v223 = numBones;
-  if ( DynEnt_IsSingleBody(v22, _RBX) )
+  numBones = activeModel->numBones;
+  if ( numBones > Pose->numParts )
+    numBones = Pose->numParts;
+  v120 = numBones;
+  if ( DynEnt_IsSingleBody(v20, Pose) )
   {
     ++*dynEntSimpleCount;
-    Physics_GetRigidBodyTransform((const Physics_WorldId)(3 * (v18 + 1)), v22->singlePhysicsBody, &_RBX->pose.origin, &_RBX->pose.quat);
-    __asm
+    Physics_GetRigidBodyTransform((const Physics_WorldId)(3 * (v16 + 1)), v20->singlePhysicsBody, &Pose->pose.origin, &Pose->pose.quat);
+    v25 = Pose->pose.origin.v[0] - Pose->posePart0.origin.v[0];
+    v26 = Pose->pose.origin.v[1] - Pose->posePart0.origin.v[1];
+    v27 = Pose->pose.origin.v[2] - Pose->posePart0.origin.v[2];
+    if ( (float)((float)((float)(v26 * v26) + (float)(v25 * v25)) + (float)(v27 * v27)) > 0.000099999997 || (v28 = Pose->pose.quat.v[1] - Pose->posePart0.quat.v[1], v29 = Pose->pose.quat.v[2] - Pose->posePart0.quat.v[2], (float)((float)((float)((float)(Pose->pose.quat.v[0] - Pose->posePart0.quat.v[0]) * (float)(Pose->pose.quat.v[0] - Pose->posePart0.quat.v[0])) + (float)(v28 * v28)) + (float)(v29 * v29)) > 0.0000010000001) )
     {
-      vmovss  xmm0, dword ptr [rbx+4Ch]
-      vsubss  xmm3, xmm0, dword ptr [rbx+10h]
-      vmovss  xmm1, dword ptr [rbx+50h]
-      vsubss  xmm2, xmm1, dword ptr [rbx+14h]
-      vmovss  xmm0, dword ptr [rbx+54h]
-      vsubss  xmm4, xmm0, dword ptr [rbx+18h]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:__real@38d1b717
-    }
-    if ( !(v27 | v28) )
-      goto LABEL_17;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+3Ch]
-      vsubss  xmm2, xmm0, dword ptr [rbx]
-      vmovss  xmm1, dword ptr [rbx+40h]
-      vmovss  xmm0, dword ptr [rbx+44h]
-      vsubss  xmm3, xmm1, dword ptr [rbx+4]
-      vsubss  xmm4, xmm0, dword ptr [rbx+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm3, xmm2, xmm1
-      vaddss  xmm2, xmm3, xmm0
-      vcomiss xmm2, cs:__real@358637be
-    }
-    if ( !(v27 | v28) )
-    {
-LABEL_17:
-      v22->flags |= 0x40u;
-      _RBX->posePart0.origin.v[0] = _RBX->pose.origin.v[0];
-      _RBX->posePart0.origin.v[1] = _RBX->pose.origin.v[1];
-      _RBX->posePart0.origin.v[2] = _RBX->pose.origin.v[2];
-      _RBX->posePart0.quat.v[0] = _RBX->pose.quat.v[0];
-      _RBX->posePart0.quat.v[1] = _RBX->pose.quat.v[1];
-      _RBX->posePart0.quat.v[2] = _RBX->pose.quat.v[2];
-      _RBX->posePart0.quat.v[3] = _RBX->pose.quat.v[3];
+      v20->flags |= 0x40u;
+      Pose->posePart0.origin.v[0] = Pose->pose.origin.v[0];
+      Pose->posePart0.origin.v[1] = Pose->pose.origin.v[1];
+      Pose->posePart0.origin.v[2] = Pose->pose.origin.v[2];
+      Pose->posePart0.quat.v[0] = Pose->pose.quat.v[0];
+      Pose->posePart0.quat.v[1] = Pose->pose.quat.v[1];
+      Pose->posePart0.quat.v[2] = Pose->pose.quat.v[2];
+      Pose->posePart0.quat.v[3] = Pose->pose.quat.v[3];
     }
   }
   else
   {
-    __asm { vmovss  xmm1, cs:__real@ff7fffff }
     ++*dynEntComplexCount;
-    v28 = v22->physicsSystemId == -1;
-    __asm
+    v30 = v20->physicsSystemId == -1;
+    v144 = v8;
+    bounds.halfSize.v[1] = FLOAT_N3_4028235e38;
+    bounds.halfSize.v[2] = FLOAT_N3_4028235e38;
+    *(_OWORD *)bounds.midPoint.v = _xmm_ff7fffff000000000000000000000000;
+    if ( v30 )
     {
-      vmovups xmm0, cs:__xmm@ff7fffff000000000000000000000000
-      vmovaps [rsp+2C0h+var_50], xmm6
-      vmovaps [rsp+2C0h+var_D0], xmm14
-      vmovaps [rsp+2C0h+var_E0], xmm15
-      vmovss  xmm15, cs:__real@3c23d70a
-      vmovss  dword ptr [rbp+1C0h+bounds.halfSize+4], xmm1
-      vmovss  dword ptr [rbp+1C0h+bounds.halfSize+8], xmm1
-      vmovups xmmword ptr [rbp+1C0h+bounds.midPoint], xmm0
-    }
-    if ( v28 )
-    {
-      p_origin = &_RBX->posePart0.origin;
+      p_origin = &Pose->posePart0.origin;
       numPhysicsBodies = 1;
-      __asm
+      v32 = FLOAT_0_001;
+      if ( !VecNCompareCustomEpsilon(Pose->pose.origin.v, Pose->posePart0.origin.v, 0.0099999998, 3) || (p_quat = &Pose->pose.quat, !VecNCompareCustomEpsilon(Pose->pose.quat.v, Pose->posePart0.quat.v, 0.001, 4)) )
       {
-        vmovaps xmm2, xmm15; epsilon
-        vmovss  xmm14, cs:__real@3a83126f
+        v20->flags |= 0x40u;
+        p_quat = &Pose->pose.quat;
+        p_origin->v[0] = Pose->pose.origin.v[0];
+        Pose->posePart0.origin.v[1] = Pose->pose.origin.v[1];
+        Pose->posePart0.origin.v[2] = Pose->pose.origin.v[2];
+        Pose->posePart0.quat.v[0] = Pose->pose.quat.v[0];
+        Pose->posePart0.quat.v[1] = Pose->pose.quat.v[1];
+        Pose->posePart0.quat.v[2] = Pose->pose.quat.v[2];
+        Pose->posePart0.quat.v[3] = Pose->pose.quat.v[3];
       }
-      if ( !VecNCompareCustomEpsilon(_RBX->pose.origin.v, _RBX->posePart0.origin.v, *(float *)&_XMM2, 3) )
-        goto LABEL_57;
-      p_quat = &_RBX->pose.quat;
-      __asm { vmovaps xmm2, xmm14; epsilon }
-      if ( !VecNCompareCustomEpsilon(_RBX->pose.quat.v, _RBX->posePart0.quat.v, *(float *)&_XMM2, 4) )
+      if ( activeModel->boneInfo->radiusSquaredAsInt )
       {
-LABEL_57:
-        v22->flags |= 0x40u;
-        p_quat = &_RBX->pose.quat;
-        p_origin->v[0] = _RBX->pose.origin.v[0];
-        _RBX->posePart0.origin.v[1] = _RBX->pose.origin.v[1];
-        _RBX->posePart0.origin.v[2] = _RBX->pose.origin.v[2];
-        _RBX->posePart0.quat.v[0] = _RBX->pose.quat.v[0];
-        _RBX->posePart0.quat.v[1] = _RBX->pose.quat.v[1];
-        _RBX->posePart0.quat.v[2] = _RBX->pose.quat.v[2];
-        _RBX->posePart0.quat.v[3] = _RBX->pose.quat.v[3];
-      }
-      if ( _R13->boneInfo->radiusSquaredAsInt )
-      {
-        QuatToAxis(&_RBX->posePart0.quat, &axis);
-        Bounds_Transform(&_R13->boneInfo->bounds, p_origin, &axis, &rotatedBounds);
+        QuatToAxis(&Pose->posePart0.quat, &axis);
+        Bounds_Transform(&activeModel->boneInfo->bounds, p_origin, &axis, &rotatedBounds);
         Bounds_Expand(&bounds, &rotatedBounds);
       }
     }
     else
     {
-      v54 = 0;
-      numPhysicsBodies = v22->numPhysicsBodies;
-      __asm { vmovss  xmm14, cs:__real@3a83126f }
+      v31 = 0;
+      numPhysicsBodies = v20->numPhysicsBodies;
+      v32 = FLOAT_0_001;
       if ( numPhysicsBodies )
       {
-        v56 = localClientNum;
-        v57 = 0i64;
-        v58 = 3 * localClientNum + 3;
+        v33 = localClientNum;
+        v34 = 0i64;
+        v35 = 3 * localClientNum + 3;
         do
         {
           ++*dynEntComplexBodyCount;
-          physicsSystemId = v22->physicsSystemId;
+          physicsSystemId = v20->physicsSystemId;
           if ( !g_physicsInitialized && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 105, ASSERT_TYPE_ASSERT, "(g_physicsInitialized)", "%s\n\tPhysics: Trying to Get Rigid Body ID when system is not initialized", "g_physicsInitialized") )
             __debugbreak();
-          if ( (unsigned int)v58 > 7 )
+          if ( (unsigned int)v35 > 7 )
           {
-            LODWORD(v212) = 3 * localClientNum + 3;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v212) )
+            LODWORD(v114) = 3 * localClientNum + 3;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 106, ASSERT_TYPE_ASSERT, "(worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid world index %i", "worldId >= PHYSICS_WORLD_ID_FIRST && worldId <= PHYSICS_WORLD_ID_LAST", v114) )
               __debugbreak();
           }
           if ( physicsSystemId == -1 )
           {
-            LODWORD(v212) = 3 * localClientNum + 3;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v212) )
+            LODWORD(v114) = 3 * localClientNum + 3;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 107, ASSERT_TYPE_ASSERT, "(instanceId != 0xFFFFFFFF)", "%s\n\tPhysics: Trying to Get Rigid Body ID with invalid Instance in world %i", "instanceId != PHYSICSINSTANCEID_INVALID", v114) )
               __debugbreak();
           }
           if ( !g_physicsClientWorldsCreated && (unsigned int)(3 * localClientNum + 1) <= 5 )
           {
-            LODWORD(v212) = 3 * localClientNum + 3;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v212) )
+            LODWORD(v114) = 3 * localClientNum + 3;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 108, ASSERT_TYPE_ASSERT, "(g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in client world %i when client worlds have not been set up", "g_physicsClientWorldsCreated || worldId < PHYSICS_WORLD_ID_CLIENT_FIRST || worldId > PHYSICS_WORLD_ID_CLIENT_LAST", v114) )
               __debugbreak();
           }
-          if ( !g_physicsServerWorldsCreated && (unsigned int)v58 <= 1 )
+          if ( !g_physicsServerWorldsCreated && (unsigned int)v35 <= 1 )
           {
-            LODWORD(v212) = 3 * localClientNum + 3;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v212) )
+            LODWORD(v114) = 3 * localClientNum + 3;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\public\\physicsimplementationinterface.inl", 109, ASSERT_TYPE_ASSERT, "(g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST)", "%s\n\tPhysics: Trying to Get Rigid Body ID in server world %i when server worlds have not been set up", "g_physicsServerWorldsCreated || worldId < PHYSICS_WORLD_ID_SERVER_FIRST || worldId > PHYSICS_WORLD_ID_SERVER_LAST", v114) )
               __debugbreak();
           }
-          m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v58, physicsSystemId, v54)->m_serialAndIndex;
+          m_serialAndIndex = HavokPhysics_GetRigidBodyID(&result, (const Physics_WorldId)v35, physicsSystemId, v31)->m_serialAndIndex;
           if ( (m_serialAndIndex & 0xFFFFFF) == 0xFFFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 588, ASSERT_TYPE_ASSERT, "(Physics_IsRigidBodyIdValid( bodyId ))", (const char *)&queryFormat, "Physics_IsRigidBodyIdValid( bodyId )") )
             __debugbreak();
-          Physics_GetRigidBodyTransform((const Physics_WorldId)v58, m_serialAndIndex, &position, &orientation);
-          numParts = _RBX->numParts;
-          if ( v54 >= numParts )
+          Physics_GetRigidBodyTransform((const Physics_WorldId)v35, m_serialAndIndex, &position, &orientation);
+          numParts = Pose->numParts;
+          if ( v31 >= numParts )
           {
-            LODWORD(v214) = numParts;
-            LODWORD(v213) = numPhysicsBodies;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 595, ASSERT_TYPE_ASSERT, "(rigidBodyIdx < dynEntPose->numParts)", "%s\n\tDynEnt %s has %i rigid bodies and %i parts - there must be at least as many parts as bodies", "rigidBodyIdx < dynEntPose->numParts", activeModel->name, v213, v214) )
+            LODWORD(v116) = numParts;
+            LODWORD(v115) = numPhysicsBodies;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 595, ASSERT_TYPE_ASSERT, "(rigidBodyIdx < dynEntPose->numParts)", "%s\n\tDynEnt %s has %i rigid bodies and %i parts - there must be at least as many parts as bodies", "rigidBodyIdx < dynEntPose->numParts", v119->name, v115, v116) )
               __debugbreak();
           }
-          _RDI = DynEnt_GetPosePartFromPose(v56, _RBX, v54);
-          if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 597, ASSERT_TYPE_ASSERT, "(posePart)", (const char *)&queryFormat, "posePart") )
+          PosePartFromPose = DynEnt_GetPosePartFromPose(v33, Pose, v31);
+          if ( !PosePartFromPose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 597, ASSERT_TYPE_ASSERT, "(posePart)", (const char *)&queryFormat, "posePart") )
             __debugbreak();
-          __asm { vmovaps xmm2, xmm15; epsilon }
-          if ( !VecNCompareCustomEpsilon(position.v, _RDI->origin.v, *(float *)&_XMM2, 3) )
-            goto LABEL_49;
-          __asm { vmovaps xmm2, xmm14; epsilon }
-          if ( !VecNCompareCustomEpsilon(orientation.v, _RDI->quat.v, *(float *)&_XMM2, 4) )
+          if ( !VecNCompareCustomEpsilon(position.v, PosePartFromPose->origin.v, 0.0099999998, 3) || !VecNCompareCustomEpsilon(orientation.v, PosePartFromPose->quat.v, 0.001, 4) )
           {
-LABEL_49:
-            __asm { vmovss  xmm0, dword ptr [rbp+1C0h+position] }
-            v22->flags |= 0x40u;
-            __asm
-            {
-              vmovss  dword ptr [rdi+10h], xmm0
-              vmovss  xmm1, dword ptr [rbp+1C0h+position+4]
-              vmovss  dword ptr [rdi+14h], xmm1
-              vmovss  xmm0, dword ptr [rbp+1C0h+position+8]
-              vmovss  dword ptr [rdi+18h], xmm0
-              vmovss  xmm1, dword ptr [rbp+1C0h+orientation]
-              vmovss  dword ptr [rdi], xmm1
-              vmovss  xmm0, dword ptr [rbp+1C0h+orientation+4]
-              vmovss  dword ptr [rdi+4], xmm0
-              vmovss  xmm1, dword ptr [rbp+1C0h+orientation+8]
-              vmovss  dword ptr [rdi+8], xmm1
-              vmovss  xmm0, dword ptr [rbp+1C0h+orientation+0Ch]
-              vmovss  dword ptr [rdi+0Ch], xmm0
-            }
+            v40 = position.v[0];
+            v20->flags |= 0x40u;
+            PosePartFromPose->origin.v[0] = v40;
+            PosePartFromPose->origin.v[1] = position.v[1];
+            PosePartFromPose->origin.v[2] = position.v[2];
+            PosePartFromPose->quat = orientation;
           }
-          if ( activeModel->boneInfo[v57].radiusSquaredAsInt )
+          if ( v119->boneInfo[v34].radiusSquaredAsInt )
           {
-            QuatToAxis(&_RDI->quat, &axis);
-            Bounds_Transform(&activeModel->boneInfo[v57].bounds, &_RDI->origin, &axis, &rotatedBounds);
-            __asm { vmovss  xmm0, dword ptr [rbp+1C0h+bounds.midPoint] }
-            HIDWORD(v230) = 0;
+            QuatToAxis(&PosePartFromPose->quat, &axis);
+            Bounds_Transform(&v119->boneInfo[v34].bounds, &PosePartFromPose->origin, &axis, &rotatedBounds);
+            v127.m128_i32[3] = 0;
+            v42 = v127;
+            v42.m128_f32[0] = bounds.midPoint.v[0];
+            _XMM6 = v42;
             __asm
             {
-              vmovups xmm6, xmmword ptr [rbp-40h]
-              vmovss  xmm6, xmm6, xmm0
-              vmovss  xmm0, dword ptr [rbp+1C0h+bounds.halfSize]
               vinsertps xmm6, xmm6, dword ptr [rbp+1C0h+bounds.midPoint+4], 1C0h+orientation
               vinsertps xmm6, xmm6, dword ptr [rbp+1C0h+bounds.midPoint+8], 1C0h+in1
             }
-            HIDWORD(v231) = 0;
+            v128.m128_i32[3] = 0;
+            v46 = v128;
+            v46.m128_f32[0] = bounds.halfSize.v[0];
+            _XMM3 = v46;
             __asm
             {
-              vmovups xmm3, xmmword ptr [rbp-30h]
-              vmovss  xmm3, xmm3, xmm0
               vinsertps xmm3, xmm3, dword ptr [rbp+1C0h+bounds.halfSize+4], 1C0h+orientation
               vinsertps xmm3, xmm3, dword ptr [rbp+1C0h+bounds.halfSize+8], 1C0h+in1
-              vmovss  xmm0, dword ptr [rbp+1C0h+rotatedBounds.midPoint]
-              vsubps  xmm2, xmm6, xmm3
             }
-            HIDWORD(v232) = 0;
+            _mm128_sub_ps(_XMM6, _XMM3);
+            v129.m128_i32[3] = 0;
+            v50 = v129;
+            v50.m128_f32[0] = rotatedBounds.midPoint.v[0];
+            _XMM5 = v50;
             __asm
             {
-              vmovups xmm5, xmmword ptr [rbp-20h]
-              vmovss  xmm5, xmm5, xmm0
-              vmovss  xmm0, dword ptr [rbp+1C0h+rotatedBounds.halfSize]
               vinsertps xmm5, xmm5, dword ptr [rbp+1C0h+rotatedBounds.midPoint+4], 1C0h+orientation
               vinsertps xmm5, xmm5, dword ptr [rbp+1C0h+rotatedBounds.midPoint+8], 1C0h+in1
             }
-            HIDWORD(v233) = 0;
+            v130.m128_i32[3] = 0;
+            v54 = v130;
+            v54.m128_f32[0] = rotatedBounds.halfSize.v[0];
+            _XMM4 = v54;
             __asm
             {
-              vmovups xmm4, xmmword ptr [rbp-10h]
-              vmovss  xmm4, xmm4, xmm0
               vinsertps xmm4, xmm4, dword ptr [rbp+1C0h+rotatedBounds.halfSize+4], 1C0h+orientation
               vinsertps xmm4, xmm4, dword ptr [rbp+1C0h+rotatedBounds.halfSize+8], 1C0h+in1
-              vaddps  xmm1, xmm5, xmm4
-              vsubps  xmm0, xmm5, xmm4
-              vmovups xmmword ptr [rbp-30h], xmm3
-              vaddps  xmm3, xmm6, xmm3
-              vmovups xmmword ptr [rbp-10h], xmm4
+            }
+            _XMM1 = _mm128_add_ps(_XMM5, _XMM4);
+            _XMM0 = _mm128_sub_ps(_XMM5, _XMM4);
+            v128 = _XMM3;
+            _mm128_add_ps(_XMM6, _XMM3);
+            v130 = _XMM4;
+            __asm
+            {
               vminps  xmm4, xmm0, xmm2
               vmaxps  xmm0, xmm1, xmm3
-              vaddps  xmm1, xmm0, xmm4
-              vmulps  xmm2, xmm1, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-              vsubps  xmm3, xmm2, xmm4
-              vmovss  dword ptr [rbp+1C0h+bounds.halfSize], xmm3
+            }
+            _XMM2 = _mm128_mul_ps(_mm128_add_ps(_XMM0, _XMM4), g_oneHalf.v);
+            _XMM3 = _mm128_sub_ps(_XMM2, _XMM4);
+            bounds.halfSize.v[0] = _XMM3.m128_f32[0];
+            __asm
+            {
               vextractps dword ptr [rbp+1C0h+bounds.halfSize+4], xmm3, 1
               vextractps dword ptr [rbp+1C0h+bounds.halfSize+8], xmm3, 2
-              vmovss  dword ptr [rbp+1C0h+bounds.midPoint], xmm2
+            }
+            bounds.midPoint.v[0] = _XMM2.m128_f32[0];
+            __asm
+            {
               vextractps dword ptr [rbp+1C0h+bounds.midPoint+4], xmm2, 1
               vextractps dword ptr [rbp+1C0h+bounds.midPoint+8], xmm2, 2
-              vmovups xmmword ptr [rbp-40h], xmm6
-              vmovups xmmword ptr [rbp-20h], xmm5
             }
+            v127 = _XMM6;
+            v129 = _XMM5;
           }
-          v56 = localClientNum;
-          ++v54;
-          ++v57;
+          v33 = localClientNum;
+          ++v31;
+          ++v34;
         }
-        while ( v54 < numPhysicsBodies );
-        _R13 = activeModel;
+        while ( v31 < numPhysicsBodies );
+        activeModel = v119;
       }
-      v18 = localClientNum;
-      p_quat = &_RBX->pose.quat;
+      v16 = localClientNum;
+      p_quat = &Pose->pose.quat;
     }
-    v105 = numPhysicsBodies;
-    v106 = numPhysicsBodies;
-    baseMat = _R13->baseMat;
-    v224 = baseMat;
-    if ( numPhysicsBodies < v223 )
+    v65 = numPhysicsBodies;
+    v66 = numPhysicsBodies;
+    baseMat = activeModel->baseMat;
+    v121 = baseMat;
+    if ( numPhysicsBodies < v120 )
     {
-      __asm
-      {
-        vmovaps [rsp+2C0h+var_60], xmm7
-        vmovaps [rsp+2C0h+var_70], xmm8
-        vmovaps [rsp+2C0h+var_80], xmm9
-        vmovaps [rsp+2C0h+var_90], xmm10
-        vmovaps [rsp+2C0h+var_A0], xmm11
-        vmovaps [rsp+2C0h+var_B0], xmm12
-        vmovaps [rsp+2C0h+var_C0], xmm13
-        vmovss  xmm13, cs:__real@3f800000
-      }
+      v143 = v9;
+      v142 = v10;
+      v141 = v11;
+      v140 = v12;
+      v139 = v13;
+      v138 = v14;
+      v137 = v15;
       do
       {
-        _RDI = &baseMat[v106];
-        ++*v226;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi]
-          vmovss  [rsp+2C0h+localClientNum], xmm0
-        }
-        if ( (localClientNumb & 0x7F800000) == 2139095040 )
-          goto LABEL_96;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+4]
-          vmovss  [rsp+2C0h+localClientNum], xmm0
-        }
-        if ( (localClientNumc & 0x7F800000) == 2139095040 )
-          goto LABEL_96;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+8]
-          vmovss  [rsp+2C0h+localClientNum], xmm0
-        }
-        if ( (localClientNumd & 0x7F800000) == 2139095040 )
-          goto LABEL_96;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+0Ch]
-          vmovss  [rsp+2C0h+localClientNum], xmm0
-        }
-        if ( (localClientNume & 0x7F800000) == 2139095040 )
-        {
-LABEL_96:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1178, ASSERT_TYPE_SANITY, "( !IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] )") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi+1Ch]
-          vmovss  [rsp+2C0h+localClientNum], xmm0
-        }
-        if ( (localClientNumf & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1179, ASSERT_TYPE_SANITY, "( !IS_NAN( mat->transWeight ) )", (const char *)&queryFormat, "!IS_NAN( mat->transWeight )") )
+        v68 = &baseMat[v66];
+        ++*v123;
+        if ( ((LODWORD(v68->quat.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v68->quat.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v68->quat.v[2]) & 0x7F800000) == 2139095040 || (LODWORD(v68->quat.v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1178, ASSERT_TYPE_SANITY, "( !IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( mat->quat )[0] ) && !IS_NAN( ( mat->quat )[1] ) && !IS_NAN( ( mat->quat )[2] ) && !IS_NAN( ( mat->quat )[3] )") )
           __debugbreak();
-        __asm
+        if ( (LODWORD(v68->transWeight) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xanim_public.h", 1179, ASSERT_TYPE_SANITY, "( !IS_NAN( mat->transWeight ) )", (const char *)&queryFormat, "!IS_NAN( mat->transWeight )") )
+          __debugbreak();
+        transWeight = v68->transWeight;
+        v70 = transWeight * v68->quat.v[0];
+        v71 = v68->quat.v[1];
+        v72 = v68->quat.v[2];
+        v73 = v70 * v68->quat.v[0];
+        v74 = v71 * transWeight;
+        v75 = v72 * transWeight;
+        v76 = v68->quat.v[3];
+        v77 = v71 * v74;
+        v78 = v72 * v74;
+        v79 = v76 * v74;
+        in1.m[0].v[1] = (float)(v76 * v75) + (float)(v71 * v70);
+        in1.m[1].v[0] = (float)(v71 * v70) - (float)(v76 * v75);
+        in1.m[1].v[2] = v78 + (float)(v76 * v70);
+        in1.m[2].v[1] = v78 - (float)(v76 * v70);
+        v80 = v68->trans.v[0];
+        in1.m[0].v[0] = 1.0 - (float)((float)(v72 * v75) + v77);
+        in1.m[0].v[2] = (float)(v72 * v70) - v79;
+        in1.m[1].v[1] = 1.0 - (float)((float)(v72 * v75) + v73);
+        in1.m[2].v[0] = v79 + (float)(v72 * v70);
+        in1.m[2].v[2] = 1.0 - (float)(v77 + v73);
+        v81 = v68->trans.v[1];
+        in1.m[3].v[0] = v80;
+        v82 = v68->trans.v[2];
+        in1.m[3].v[1] = v81;
+        in1.m[3].v[2] = v82;
+        QuatToAxis(p_quat, (tmat33_t<vec3_t> *)&v136);
+        v83 = Pose->pose.origin.v[1];
+        v136.m[3].v[0] = Pose->pose.origin.v[0];
+        v136.m[3].v[2] = Pose->pose.origin.v[2];
+        v136.m[3].v[1] = v83;
+        MatrixMultiply43(&in1, &v136, &out);
+        v84 = Pose->numParts;
+        if ( v66 >= v84 )
         {
-          vmovss  xmm0, dword ptr [rdi+1Ch]
-          vmulss  xmm2, xmm0, dword ptr [rdi]
-          vmovss  xmm3, dword ptr [rdi+4]
-          vmovss  xmm5, dword ptr [rdi+8]
-          vmulss  xmm12, xmm2, dword ptr [rdi]
-          vmulss  xmm4, xmm3, xmm0
-          vmulss  xmm6, xmm5, xmm0
-          vmovss  xmm0, dword ptr [rdi+0Ch]
-          vmulss  xmm10, xmm0, xmm2
-          vmulss  xmm7, xmm3, xmm2
-          vmulss  xmm11, xmm3, xmm4
-          vmulss  xmm9, xmm5, xmm2
-          vmulss  xmm2, xmm0, xmm6
-          vmulss  xmm8, xmm5, xmm4
-          vmulss  xmm4, xmm0, xmm4
-          vmulss  xmm3, xmm5, xmm6
-          vaddss  xmm1, xmm2, xmm7
-          vmovss  dword ptr [rbp+1C0h+in1+4], xmm1
-          vsubss  xmm1, xmm7, xmm2
-          vmovss  dword ptr [rbp+1C0h+in1+0Ch], xmm1
-          vaddss  xmm1, xmm8, xmm10
-          vmovss  dword ptr [rbp+1C0h+in1+14h], xmm1
-          vsubss  xmm1, xmm8, xmm10
-          vmovss  dword ptr [rbp+1C0h+in1+1Ch], xmm1
-          vmovss  xmm1, dword ptr [rdi+10h]
-          vaddss  xmm0, xmm3, xmm11
-          vsubss  xmm0, xmm13, xmm0
-          vmovss  dword ptr [rbp+1C0h+in1], xmm0
-          vsubss  xmm0, xmm9, xmm4
-          vmovss  dword ptr [rbp+1C0h+in1+8], xmm0
-          vaddss  xmm0, xmm3, xmm12
-          vsubss  xmm0, xmm13, xmm0
-          vmovss  dword ptr [rbp+1C0h+in1+10h], xmm0
-          vaddss  xmm0, xmm4, xmm9
-          vmovss  dword ptr [rbp+1C0h+in1+18h], xmm0
-          vaddss  xmm0, xmm11, xmm12
-          vsubss  xmm0, xmm13, xmm0
-          vmovss  dword ptr [rbp+1C0h+in1+20h], xmm0
-          vmovss  xmm0, dword ptr [rdi+14h]
-          vmovss  dword ptr [rbp+1C0h+in1+24h], xmm1
-          vmovss  xmm1, dword ptr [rdi+18h]
-          vmovss  dword ptr [rbp+1C0h+in1+28h], xmm0
-          vmovss  dword ptr [rbp+1C0h+in1+2Ch], xmm1
-        }
-        QuatToAxis(p_quat, (tmat33_t<vec3_t> *)&v239);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+4Ch]
-          vmovss  xmm1, dword ptr [rbx+50h]
-          vmovss  [rbp+1C0h+var_F4], xmm0
-          vmovss  xmm0, dword ptr [rbx+54h]
-          vmovss  [rbp+1C0h+var_EC], xmm0
-          vmovss  [rbp+1C0h+var_F0], xmm1
-        }
-        MatrixMultiply43(&in1, &v239, &out);
-        v149 = _RBX->numParts;
-        if ( v106 >= v149 )
-        {
-          LODWORD(v212) = v149;
-          LODWORD(v211) = v106;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 236, ASSERT_TYPE_ASSERT, "(unsigned)( localPoseIdx ) < (unsigned)( pose->numParts )", "localPoseIdx doesn't index pose->numParts\n\t%i not in [0, %i)", v211, v212) )
+          LODWORD(v114) = v84;
+          LODWORD(v113) = v66;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 236, ASSERT_TYPE_ASSERT, "(unsigned)( localPoseIdx ) < (unsigned)( pose->numParts )", "localPoseIdx doesn't index pose->numParts\n\t%i not in [0, %i)", v113, v114) )
             __debugbreak();
         }
-        if ( v106 )
+        if ( v66 )
         {
-          posePart1FirstIndex = _RBX->posePart1FirstIndex;
-          if ( posePart1FirstIndex + v106 - 1 >= g_dynEntExtraPosePartsAllocCount[v18] )
+          posePart1FirstIndex = Pose->posePart1FirstIndex;
+          if ( posePart1FirstIndex + v66 - 1 >= g_dynEntExtraPosePartsAllocCount[v16] )
           {
-            LODWORD(v212) = g_dynEntExtraPosePartsAllocCount[v18];
-            LODWORD(v211) = posePart1FirstIndex + v106 - 1;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 242, ASSERT_TYPE_ASSERT, "(unsigned)( pose->posePart1FirstIndex + localPoseIdx - 1 ) < (unsigned)( g_dynEntExtraPosePartsAllocCount[localClientNum] )", "pose->posePart1FirstIndex + localPoseIdx - 1 doesn't index g_dynEntExtraPosePartsAllocCount[localClientNum]\n\t%i not in [0, %i)", v211, v212) )
+            LODWORD(v114) = g_dynEntExtraPosePartsAllocCount[v16];
+            LODWORD(v113) = posePart1FirstIndex + v66 - 1;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_client.h", 242, ASSERT_TYPE_ASSERT, "(unsigned)( pose->posePart1FirstIndex + localPoseIdx - 1 ) < (unsigned)( g_dynEntExtraPosePartsAllocCount[localClientNum] )", "pose->posePart1FirstIndex + localPoseIdx - 1 doesn't index g_dynEntExtraPosePartsAllocCount[localClientNum]\n\t%i not in [0, %i)", v113, v114) )
               __debugbreak();
           }
-          v150 = &g_dynEntPoseExtraParts[v18][v106 - 1 + _RBX->posePart1FirstIndex];
+          v85 = &g_dynEntPoseExtraParts[v16][v66 - 1 + Pose->posePart1FirstIndex];
         }
         else
         {
-          v150 = (DynEnt_ExtraPosePart *)_RBX;
+          v85 = (DynEnt_ExtraPosePart *)Pose;
         }
-        if ( !v150 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 657, ASSERT_TYPE_ASSERT, "(posePart)", (const char *)&queryFormat, "posePart") )
+        if ( !v85 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\dynentity\\dynentity_linking.cpp", 657, ASSERT_TYPE_ASSERT, "(posePart)", (const char *)&queryFormat, "posePart") )
           __debugbreak();
-        AxisToQuat((const tmat33_t<vec3_t> *)&out, &v150->posePart.quat);
-        __asm { vmovss  xmm0, dword ptr [rbp+1C0h+out+24h] }
-        _RDX = (unsigned int *)v150->posePart.origin.v;
+        AxisToQuat((const tmat33_t<vec3_t> *)&out, &v85->posePart.quat);
+        v85->posePart.origin = out.m[3];
+        Bounds_Transform(&v119->boneInfo[v66].bounds, &v85->posePart.origin, (const tmat33_t<vec3_t> *)&out, &rotatedBounds);
+        v130.m128_i32[3] = 0;
+        v88 = v130;
+        v88.m128_f32[0] = bounds.midPoint.v[0];
+        _XMM6 = v88;
         __asm
         {
-          vmovss  dword ptr [rdx], xmm0
-          vmovss  xmm1, dword ptr [rbp+1C0h+out+28h]
-          vmovss  dword ptr [rdx+4], xmm1
-          vmovss  xmm0, dword ptr [rbp+1C0h+out+2Ch]
-          vmovss  dword ptr [rdx+8], xmm0
-        }
-        Bounds_Transform(&activeModel->boneInfo[v106].bounds, &v150->posePart.origin, (const tmat33_t<vec3_t> *)&out, &rotatedBounds);
-        __asm { vmovss  xmm0, dword ptr [rbp+1C0h+bounds.midPoint] }
-        HIDWORD(v233) = 0;
-        __asm
-        {
-          vmovups xmm6, xmmword ptr [rbp-10h]
-          vmovss  xmm6, xmm6, xmm0
-          vmovss  xmm0, dword ptr [rbp+1C0h+bounds.halfSize]
           vinsertps xmm6, xmm6, dword ptr [rbp+1C0h+bounds.midPoint+4], 1C0h+orientation
           vinsertps xmm6, xmm6, dword ptr [rbp+1C0h+bounds.midPoint+8], 1C0h+in1
         }
-        HIDWORD(v232) = 0;
-        ++v106;
+        v129.m128_i32[3] = 0;
+        ++v66;
+        v92 = v129;
+        v92.m128_f32[0] = bounds.halfSize.v[0];
+        _XMM3 = v92;
         __asm
         {
-          vmovups xmm3, xmmword ptr [rbp-20h]
-          vmovss  xmm3, xmm3, xmm0
           vinsertps xmm3, xmm3, dword ptr [rbp+1C0h+bounds.halfSize+4], 1C0h+orientation
           vinsertps xmm3, xmm3, dword ptr [rbp+1C0h+bounds.halfSize+8], 1C0h+in1
-          vmovss  xmm0, dword ptr [rbp+1C0h+rotatedBounds.midPoint]
-          vsubps  xmm2, xmm6, xmm3
         }
-        HIDWORD(v231) = 0;
+        _mm128_sub_ps(_XMM6, _XMM3);
+        v128.m128_i32[3] = 0;
+        v96 = v128;
+        v96.m128_f32[0] = rotatedBounds.midPoint.v[0];
+        _XMM5 = v96;
         __asm
         {
-          vmovups xmm5, xmmword ptr [rbp-30h]
-          vmovss  xmm5, xmm5, xmm0
-          vmovss  xmm0, dword ptr [rbp+1C0h+rotatedBounds.halfSize]
           vinsertps xmm5, xmm5, dword ptr [rbp+1C0h+rotatedBounds.midPoint+4], 1C0h+orientation
           vinsertps xmm5, xmm5, dword ptr [rbp+1C0h+rotatedBounds.midPoint+8], 1C0h+in1
         }
-        HIDWORD(v230) = 0;
-        __asm { vmovups xmm4, xmmword ptr [rbp-40h] }
-        baseMat = v224;
+        v127.m128_i32[3] = 0;
+        baseMat = v121;
+        v100 = v127;
+        v100.m128_f32[0] = rotatedBounds.halfSize.v[0];
+        _XMM4 = v100;
         __asm
         {
-          vmovss  xmm4, xmm4, xmm0
           vinsertps xmm4, xmm4, dword ptr [rbp+1C0h+rotatedBounds.halfSize+4], 1C0h+orientation
           vinsertps xmm4, xmm4, dword ptr [rbp+1C0h+rotatedBounds.halfSize+8], 1C0h+in1
-          vaddps  xmm1, xmm5, xmm4
-          vsubps  xmm0, xmm5, xmm4
-          vmovups xmmword ptr [rbp-20h], xmm3
-          vaddps  xmm3, xmm6, xmm3
-          vmovups xmmword ptr [rbp-40h], xmm4
+        }
+        _XMM1 = _mm128_add_ps(_XMM5, _XMM4);
+        _XMM0 = _mm128_sub_ps(_XMM5, _XMM4);
+        v129 = _XMM3;
+        _mm128_add_ps(_XMM6, _XMM3);
+        v127 = _XMM4;
+        __asm
+        {
           vminps  xmm4, xmm0, xmm2
           vmaxps  xmm0, xmm1, xmm3
-          vaddps  xmm1, xmm0, xmm4
-          vmulps  xmm2, xmm1, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-          vsubps  xmm3, xmm2, xmm4
-          vmovss  dword ptr [rbp+1C0h+bounds.halfSize], xmm3
+        }
+        _XMM2 = _mm128_mul_ps(_mm128_add_ps(_XMM0, _XMM4), g_oneHalf.v);
+        _XMM3 = _mm128_sub_ps(_XMM2, _XMM4);
+        bounds.halfSize.v[0] = _XMM3.m128_f32[0];
+        __asm
+        {
           vextractps dword ptr [rbp+1C0h+bounds.halfSize+4], xmm3, 1
           vextractps dword ptr [rbp+1C0h+bounds.halfSize+8], xmm3, 2
-          vmovss  dword ptr [rbp+1C0h+bounds.midPoint], xmm2
+        }
+        bounds.midPoint.v[0] = _XMM2.m128_f32[0];
+        __asm
+        {
           vextractps dword ptr [rbp+1C0h+bounds.midPoint+4], xmm2, 1
           vextractps dword ptr [rbp+1C0h+bounds.midPoint+8], xmm2, 2
-          vmovups xmmword ptr [rbp-10h], xmm6
-          vmovups xmmword ptr [rbp-30h], xmm5
         }
+        v130 = _XMM6;
+        v128 = _XMM5;
       }
-      while ( v106 < v223 );
-      v22 = Client;
-      _R13 = activeModel;
-      v105 = numPhysicsBodies;
-      __asm
-      {
-        vmovaps xmm13, [rsp+2C0h+var_C0]
-        vmovaps xmm12, [rsp+2C0h+var_B0]
-        vmovaps xmm11, [rsp+2C0h+var_A0]
-        vmovaps xmm10, [rsp+2C0h+var_90]
-        vmovaps xmm9, [rsp+2C0h+var_80]
-        vmovaps xmm8, [rsp+2C0h+var_70]
-        vmovaps xmm7, [rsp+2C0h+var_60]
-      }
+      while ( v66 < v120 );
+      v20 = Client;
+      activeModel = v119;
+      v65 = numPhysicsBodies;
     }
-    __asm { vmovaps xmm6, [rsp+2C0h+var_50] }
-    if ( v22->physicsSystemId == -1 )
-      goto LABEL_89;
-    __asm { vmovaps xmm2, xmm15; epsilon }
-    if ( !VecNCompareCustomEpsilon(bounds.midPoint.v, _RBX->bounds.midPoint.v, *(float *)&_XMM2, 3) )
-      goto LABEL_89;
-    if ( v105 == 1 )
+    if ( v20->physicsSystemId == -1 || !VecNCompareCustomEpsilon(bounds.midPoint.v, Pose->bounds.midPoint.v, 0.0099999998, 3) || v65 == 1 && !VecNCompareCustomEpsilon(Pose->posePart0.quat.v, p_quat->v, v32, 4) )
     {
-      __asm { vmovaps xmm2, xmm14; epsilon }
-      if ( !VecNCompareCustomEpsilon(_RBX->posePart0.quat.v, p_quat->v, *(float *)&_XMM2, 4) )
+      v20->flags |= 0x40u;
+      Pose->pose.origin.v[0] = Pose->posePart0.origin.v[0];
+      Pose->pose.origin.v[1] = Pose->posePart0.origin.v[1];
+      Pose->pose.origin.v[2] = Pose->posePart0.origin.v[2];
+      if ( v65 == 1 )
       {
-LABEL_89:
-        v22->flags |= 0x40u;
-        _RBX->pose.origin.v[0] = _RBX->posePart0.origin.v[0];
-        _RBX->pose.origin.v[1] = _RBX->posePart0.origin.v[1];
-        _RBX->pose.origin.v[2] = _RBX->posePart0.origin.v[2];
-        if ( v105 == 1 )
-        {
-          _RBX->pose.quat.v[0] = _RBX->posePart0.quat.v[0];
-          _RBX->pose.quat.v[1] = _RBX->posePart0.quat.v[1];
-          _RBX->pose.quat.v[2] = _RBX->posePart0.quat.v[2];
-          _RBX->pose.quat.v[3] = _RBX->posePart0.quat.v[3];
-        }
-        else
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+1C0h+bounds.halfSize+4]
-            vmovss  xmm1, dword ptr [rbp+1C0h+bounds.halfSize]
-            vmulss  xmm3, xmm0, xmm0
-            vmovss  xmm0, dword ptr [rbp+1C0h+bounds.halfSize+8]
-            vmulss  xmm2, xmm1, xmm1
-          }
-          _RBX->pose.quat.v[3] = 1.0;
-          __asm
-          {
-            vmulss  xmm1, xmm0, xmm0
-            vaddss  xmm4, xmm3, xmm2
-            vaddss  xmm2, xmm4, xmm1
-          }
-          *(_QWORD *)_RBX->pose.quat.v = 0i64;
-          _RBX->pose.quat.v[2] = 0.0;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [r13+28h]
-            vmulss  xmm1, xmm0, cs:__real@41200000
-            vsqrtss xmm3, xmm2, xmm2
-            vcomiss xmm3, xmm1
-          }
-        }
+        Pose->pose.quat.v[0] = Pose->posePart0.quat.v[0];
+        Pose->pose.quat.v[1] = Pose->posePart0.quat.v[1];
+        Pose->pose.quat.v[2] = Pose->posePart0.quat.v[2];
+        Pose->pose.quat.v[3] = Pose->posePart0.quat.v[3];
+      }
+      else
+      {
+        v109 = bounds.halfSize.v[1] * bounds.halfSize.v[1];
+        v110 = bounds.halfSize.v[2];
+        v111 = bounds.halfSize.v[0] * bounds.halfSize.v[0];
+        Pose->pose.quat.v[3] = 1.0;
+        *(_QWORD *)Pose->pose.quat.v = 0i64;
+        Pose->pose.quat.v[2] = 0.0;
+        if ( fsqrt((float)(v109 + v111) + (float)(v110 * v110)) > (float)(activeModel->radius * 10.0) )
+          R_WarnOncePerFrame(R_WARN_DYNENT_SEPARATION, activeModel->name);
       }
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+1C0h+bounds.midPoint]
-      vmovss  xmm1, dword ptr [rbp+1C0h+bounds.halfSize+8]
-      vmovaps xmm15, [rsp+2C0h+var_E0]
-      vmovaps xmm14, [rsp+2C0h+var_D0]
-      vmovups xmmword ptr [rbx+24h], xmm0
-      vmovss  xmm0, dword ptr [rbp+1C0h+bounds.halfSize+4]
-      vmovss  dword ptr [rbx+34h], xmm0
-      vmovss  dword ptr [rbx+38h], xmm1
-    }
+    v112 = bounds.halfSize.v[2];
+    *(_OWORD *)Pose->bounds.midPoint.v = *(_OWORD *)bounds.midPoint.v;
+    Pose->bounds.halfSize.v[1] = bounds.halfSize.v[1];
+    Pose->bounds.halfSize.v[2] = v112;
   }
   return 1;
 }

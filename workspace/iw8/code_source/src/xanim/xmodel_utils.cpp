@@ -347,12 +347,7 @@ LGVDataGetLgvDensity
 */
 float LGVDataGetLgvDensity(const unsigned int dataBits)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  return *(float *)&_XMM0;
+  return (float)(dataBits & 0xFFF);
 }
 
 /*
@@ -362,12 +357,7 @@ LGVDataGetLgvThinPush
 */
 float LGVDataGetLgvThinPush(const unsigned int dataBits)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  return *(float *)&_XMM0;
+  return (float)(unsigned __int8)(dataBits >> 12);
 }
 
 /*
@@ -377,13 +367,10 @@ LGVDataGetLgvThinShrink
 */
 float LGVDataGetLgvThinShrink(const unsigned int dataBits)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, cs:__real@3b800000
-  }
-  return *(float *)&_XMM0;
+  float v1; 
+
+  v1 = (float)((dataBits >> 20) & 0x1FF);
+  return v1 * 0.00390625;
 }
 
 /*
@@ -391,57 +378,31 @@ float LGVDataGetLgvThinShrink(const unsigned int dataBits)
 XModelEncodeLightGridVolumeData
 ==============
 */
-
-__int64 __fastcall XModelEncodeLightGridVolumeData(double lgvDensity, double lgvThinPush, double lgvThinShrink, int lgvThinStableIn, bool lgvBoostWidth)
+__int64 XModelEncodeLightGridVolumeData(float lgvDensity, float lgvThinPush, float lgvThinShrink, int lgvThinStableIn, bool lgvBoostWidth)
 {
+  int v5; 
   int v6; 
   int v7; 
-  bool v8; 
-  int v9; 
+  int v8; 
 
-  __asm { vmovss  xmm3, cs:__real@3f800000 }
   if ( lgvThinStableIn > 1 )
     lgvThinStableIn = 1;
   if ( lgvThinStableIn < -1 )
     lgvThinStableIn = -1;
-  v6 = lgvBoostWidth << 31;
-  v7 = lgvThinStableIn + 1;
-  v8 = __CFSHL__(v7, 29);
-  v9 = v7 << 29;
-  __asm { vcomiss xmm0, cs:__real@457ff000 }
-  if ( !v8 && v9 != 0 )
-    goto LABEL_8;
-  __asm { vcomiss xmm0, xmm3 }
-  if ( v8 )
-LABEL_8:
-    LODWORD(_RDX) = 4095;
+  v5 = lgvBoostWidth << 31;
+  v6 = (lgvThinStableIn + 1) << 29;
+  if ( lgvDensity > 4095.0 || lgvDensity < 1.0 )
+    v7 = 4095;
   else
-    __asm { vcvttss2si rdx, xmm0 }
-  __asm
-  {
-    vcomiss xmm1, cs:__real@437f0000
-    vxorps  xmm0, xmm0, xmm0
-  }
-  if ( !v8 && v9 != 0 )
-    goto LABEL_12;
-  __asm { vcomiss xmm1, xmm0 }
-  if ( v8 )
-LABEL_12:
-    LODWORD(_RCX) = 255;
+    v7 = (int)lgvDensity;
+  if ( lgvThinPush > 255.0 || lgvThinPush < 0.0 )
+    v8 = 255;
   else
-    __asm { vcvttss2si rcx, xmm1 }
-  __asm { vcomiss xmm2, xmm3 }
-  if ( !v8 && v9 != 0 )
-    return (unsigned int)_RDX | v9 | v6 | (((unsigned int)_RCX | 0x10000) << 12);
-  __asm { vcomiss xmm2, xmm0 }
-  if ( v8 || v9 == 0 )
-    return (unsigned int)_RDX | v9 | v6 | (((unsigned int)_RCX | 0x10000) << 12);
-  __asm
-  {
-    vmulss  xmm0, xmm2, cs:__real@43800000
-    vcvttss2si rax, xmm0
-  }
-  return (unsigned int)_RDX | v9 | v6 | (((unsigned int)_RCX | ((_DWORD)_RAX << 8)) << 12);
+    v8 = (int)lgvThinPush;
+  if ( lgvThinShrink > 1.0 || lgvThinShrink <= 0.0 )
+    return v7 | v6 | v5 | ((v8 | 0x10000u) << 12);
+  else
+    return v7 | v6 | v5 | ((v8 | (unsigned int)((int)(float)(lgvThinShrink * 256.0) << 8)) << 12);
 }
 
 /*
@@ -594,12 +555,7 @@ XModelGetLgvDensity
 */
 float XModelGetLgvDensity(const XModel *model)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  return *(float *)&_XMM0;
+  return (float)(model->lgvData & 0xFFF);
 }
 
 /*
@@ -609,16 +565,15 @@ XModelGetLgvThinData
 */
 void XModelGetLgvThinData(const XModel *model, float *thinPush, float *thinShrink, int *thinStable)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmovss  dword ptr [rdx], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm1, xmm0, cs:__real@3b800000
-    vmovss  dword ptr [r8], xmm1
-  }
+  unsigned int lgvData; 
+  float v5; 
+  float v6; 
+
+  lgvData = model->lgvData;
+  v5 = (float)(unsigned __int8)(lgvData >> 12);
+  *thinPush = v5;
+  v6 = (float)((lgvData >> 20) & 0x1FF);
+  *thinShrink = v6 * 0.00390625;
   *thinStable = ((model->lgvData >> 29) & 3) - 1;
 }
 
@@ -629,12 +584,7 @@ XModelGetLgvThinPush
 */
 float XModelGetLgvThinPush(const XModel *model)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  return *(float *)&_XMM0;
+  return (float)(unsigned __int8)(model->lgvData >> 12);
 }
 
 /*
@@ -644,13 +594,10 @@ XModelGetLgvThinShrink
 */
 float XModelGetLgvThinShrink(const XModel *model)
 {
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm0, xmm0, cs:__real@3b800000
-  }
-  return *(float *)&_XMM0;
+  float v1; 
+
+  v1 = (float)((model->lgvData >> 20) & 0x1FF);
+  return v1 * 0.00390625;
 }
 
 /*
@@ -672,20 +619,11 @@ float XModelGetLodOutDist(const XModel *model)
 {
   signed int v2; 
 
-  _RBX = model;
   v2 = XModelGetNumLods(model) - 1;
-  _RCX = s_testLods;
-  _RDX = v2;
   if ( s_testLods[v2].distanceFlags && s_testLods[v2].distanceFlags == USE_CUSTOM_DISTANCE )
-  {
-    __asm { vmovss  xmm0, dword ptr [rcx+rdx*8+4] }
-  }
+    return s_testLods[v2].distance;
   else
-  {
-    _RDX = (__int64)v2 << 6;
-    __asm { vmovss  xmm0, dword ptr [rdx+rbx+0F0h] }
-  }
-  return *(float *)&_XMM0;
+    return model->lodInfo[(__int64)v2].dist;
 }
 
 /*
@@ -694,40 +632,28 @@ XModelGetMaterialLodForDist
 ==============
 */
 
-float __fastcall XModelGetMaterialLodForDist(double radius, double dist, const MaterialLodSettings *materialLodSettings)
+float __fastcall XModelGetMaterialLodForDist(double radius, float dist, const MaterialLodSettings *materialLodSettings)
 {
-  __asm { vmovaps xmm2, xmm0 }
-  if ( materialLodSettings->m_lodOverride < 0 )
-  {
-    __asm
-    {
-      vaddss  xmm0, xmm1, cs:__real@3a83126f
-      vmovss  xmm3, dword ptr [r8+0Ch]
-      vucomiss xmm3, cs:__real@80000000
-      vmovss  xmm5, cs:__real@3f800000
-      vdivss  xmm1, xmm2, xmm0
-      vmulss  xmm2, xmm1, cs:__real@40079857
-      vmulss  xmm4, xmm2, dword ptr [r8+8]
-      vmovss  xmm0, cs:__real@bf800000
-      vdivss  xmm1, xmm0, xmm3
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm1
-      vaddss  xmm3, xmm1, xmm5
-      vxorps  xmm0, xmm0, xmm0
-      vxorps  xmm2, xmm2, xmm2
-      vcvtsi2ss xmm2, xmm2, dword ptr [r8+4]
-      vmaxss  xmm4, xmm3, xmm2
-      vmaxss  xmm1, xmm4, xmm0
-      vminss  xmm0, xmm1, xmm5
-    }
-  }
+  float v4; 
+  __int128 v5; 
+  float v6; 
+
+  if ( materialLodSettings->m_lodOverride >= 0 )
+    return (float)materialLodSettings->m_lodOverride;
+  v4 = materialLodSettings->m_lodThresholds[0];
+  v5 = *(_OWORD *)&radius;
+  *(float *)&v5 = (float)((float)(*(float *)&radius / (float)(dist + 0.001)) * 2.1186731) * materialLodSettings->m_invFovScale;
+  if ( v4 == -0.0 )
+    v6 = FLOAT_1_0;
   else
+    v6 = -1.0 / v4;
+  *(float *)&v5 = (float)((float)(*(float *)&v5 - v4) * v6) + 1.0;
+  _XMM3 = v5;
+  __asm
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-    }
+    vmaxss  xmm4, xmm3, xmm2
+    vmaxss  xmm1, xmm4, xmm0
+    vminss  xmm0, xmm1, xmm5
   }
   return *(float *)&_XMM0;
 }
@@ -1148,37 +1074,21 @@ void XModelSetTestLodLevel(const unsigned int lodLevel, const TestLodEnableFlags
 XModelSetTestLodLevel
 ==============
 */
-
-void __fastcall XModelSetTestLodLevel(const unsigned int lodLevel, const TestLodEnableFlags enableFlags, double dist)
+void XModelSetTestLodLevel(const unsigned int lodLevel, const TestLodEnableFlags enableFlags, const float dist)
 {
-  bool v7; 
-  bool v8; 
-  bool v9; 
-  int v13; 
+  __int64 v4; 
+  int v6; 
 
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
-  _RBX = lodLevel;
-  __asm { vmovaps xmm6, xmm2 }
-  v7 = lodLevel < 6;
-  v8 = lodLevel == 6;
+  v4 = lodLevel;
   if ( lodLevel >= 6 )
   {
-    v13 = 6;
-    v9 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.cpp", 564, ASSERT_TYPE_ASSERT, "(unsigned)( lodLevel ) < (unsigned)( NUM_LODS )", "lodLevel doesn't index NUM_LODS\n\t%i not in [0, %i)", lodLevel, v13);
-    v7 = 0;
-    v8 = !v9;
-    if ( v9 )
+    v6 = 6;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.cpp", 564, ASSERT_TYPE_ASSERT, "(unsigned)( lodLevel ) < (unsigned)( NUM_LODS )", "lodLevel doesn't index NUM_LODS\n\t%i not in [0, %i)", lodLevel, v6) )
       __debugbreak();
   }
-  __asm { vcomiss xmm6, cs:__real@bf800000 }
-  _RDX = s_testLods;
-  s_testLods[_RBX].enableFlags = enableFlags;
-  s_testLods[_RBX].distanceFlags = !v7 && !v8;
-  __asm
-  {
-    vmovss  dword ptr [rdx+rbx*8+4], xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
+  s_testLods[v4].enableFlags = enableFlags;
+  s_testLods[v4].distanceFlags = dist > -1.0;
+  s_testLods[v4].distance = dist;
 }
 
 /*
@@ -1215,9 +1125,11 @@ void XModelSetupForNewSurfaces(XModel *const model)
 {
   int v2; 
   signed int v3; 
+  unsigned __int16 *p_numsurfs; 
+  __int64 v5; 
   const XModelLodInfo *LodInfo; 
   unsigned int i; 
-  _BYTE *v9; 
+  _BYTE *v8; 
 
   if ( !model && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.cpp", 236, ASSERT_TYPE_ASSERT, "(model)", (const char *)&queryFormat, "model") )
     __debugbreak();
@@ -1226,40 +1138,36 @@ void XModelSetupForNewSurfaces(XModel *const model)
   v3 = 0;
   if ( model->numLods )
   {
-    _RSI = &model->lodInfo[0].numsurfs;
+    p_numsurfs = &model->lodInfo[0].numsurfs;
     do
     {
-      if ( *_RSI )
+      if ( *p_numsurfs )
       {
         DB_ValidateRegistryState();
-        _RDI = *(_QWORD *)(_RSI - 10);
-        if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.cpp", 263, ASSERT_TYPE_ASSERT, "(modelSurfs)", (const char *)&queryFormat, "modelSurfs") )
+        v5 = *(_QWORD *)(p_numsurfs - 10);
+        if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\xmodel_utils.cpp", 263, ASSERT_TYPE_ASSERT, "(modelSurfs)", (const char *)&queryFormat, "modelSurfs") )
           __debugbreak();
         LodInfo = XModelGetLodInfo(model, v3);
         if ( LodInfo->surfs && Stream_MeshIsSafeToUse(LodInfo->modelSurfsStaging) )
         {
-          *_RSI = *(_WORD *)(_RDI + 56);
-          __asm
-          {
-            vmovups ymm0, ymmword ptr [rdi+3Ch]
-            vmovups ymmword ptr [rsi+4], ymm0
-          }
+          *p_numsurfs = *(_WORD *)(v5 + 56);
+          *(__m256i *)(p_numsurfs + 2) = *(__m256i *)(v5 + 60);
           if ( (v2 < 0 || (unsigned int)v2 > 0xFFFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,int>(int)", "unsigned", (unsigned __int16)v2, "signed", v2) )
             __debugbreak();
-          _RSI[1] = v2;
-          for ( i = 0; i < *(unsigned __int16 *)(_RDI + 56); ++i )
+          p_numsurfs[1] = v2;
+          for ( i = 0; i < *(unsigned __int16 *)(v5 + 56); ++i )
           {
-            v9 = (_BYTE *)(*(_QWORD *)(_RDI + 8) + 192i64 * i);
-            if ( (*v9 & 2) != 0 )
+            v8 = (_BYTE *)(*(_QWORD *)(v5 + 8) + 192i64 * i);
+            if ( (*v8 & 2) != 0 )
               model->flags |= 0x40000u;
-            if ( v9[8] > 1u )
+            if ( v8[8] > 1u )
               model->flags |= 0x80000u;
           }
         }
-        v2 += *_RSI;
+        v2 += *p_numsurfs;
       }
       ++v3;
-      _RSI += 32;
+      p_numsurfs += 32;
     }
     while ( v3 < model->numLods );
   }

@@ -100,73 +100,68 @@ PM_Damage_CalcMeleeDamage
 */
 __int64 PM_Damage_CalcMeleeDamage(const BgHandler *handler, const bool isFatalDamage, const Weapon *weapon, bool isAlternate, __int16 victim)
 {
-  const dvar_t *v10; 
+  const dvar_t *v9; 
+  int MeleeDamage; 
   int PerkNetworkPriorityIndex; 
-  unsigned __int64 v13; 
-  int v15; 
-  unsigned __int64 v16; 
-  const dvar_t *v17; 
-  __int64 v21; 
-  __int64 v22; 
-  int v23[2]; 
+  unsigned __int64 v12; 
+  int v14; 
+  unsigned __int64 v15; 
+  const dvar_t *v16; 
+  __int64 v17; 
+  __int64 v18; 
+  int v19[2]; 
 
   if ( !handler && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_damage.cpp", 14, ASSERT_TYPE_ASSERT, "( handler ) != ( nullptr )", "%s != %s\n\t%p, %p", "handler", "nullptr", NULL, NULL) )
     __debugbreak();
   if ( isFatalDamage )
   {
-    v10 = DCONST_DVARINT_bg_MeleeFinisherDamage;
+    v9 = DCONST_DVARINT_bg_MeleeFinisherDamage;
     if ( !DCONST_DVARINT_bg_MeleeFinisherDamage && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_MeleeFinisherDamage") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v10);
-    return v10->current.unsignedInt;
+    Dvar_CheckFrontendServerThread(v9);
+    return v9->current.unsignedInt;
   }
   else
   {
-    _EDI = BG_GetMeleeDamage(weapon, isAlternate);
-    if ( handler->GetPlayerPerks((BgHandler *)handler, victim, (bitarray<64> *)v23) )
+    MeleeDamage = BG_GetMeleeDamage(weapon, isAlternate);
+    if ( handler->GetPlayerPerks((BgHandler *)handler, victim, (bitarray<64> *)v19) )
     {
       PerkNetworkPriorityIndex = BG_GetPerkNetworkPriorityIndex(0x40u);
-      v13 = (unsigned int)PerkNetworkPriorityIndex;
+      v12 = (unsigned int)PerkNetworkPriorityIndex;
       if ( PerkNetworkPriorityIndex >= 0 )
       {
         if ( (unsigned int)PerkNetworkPriorityIndex >= 0x40 )
         {
-          LODWORD(v22) = 64;
-          LODWORD(v21) = PerkNetworkPriorityIndex;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v21, v22) )
+          LODWORD(v18) = 64;
+          LODWORD(v17) = PerkNetworkPriorityIndex;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v17, v18) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> (v13 & 0x1F)) & v23[v13 >> 5]) != 0 )
+        if ( ((0x80000000 >> (v12 & 0x1F)) & v19[v12 >> 5]) != 0 )
           return 0i64;
       }
-      v15 = BG_GetPerkNetworkPriorityIndex(0x3Fu);
-      v16 = (unsigned int)v15;
-      if ( v15 >= 0 )
+      v14 = BG_GetPerkNetworkPriorityIndex(0x3Fu);
+      v15 = (unsigned int)v14;
+      if ( v14 >= 0 )
       {
-        if ( (unsigned int)v15 >= 0x40 )
+        if ( (unsigned int)v14 >= 0x40 )
         {
-          LODWORD(v22) = 64;
-          LODWORD(v21) = v15;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v21, v22) )
+          LODWORD(v18) = 64;
+          LODWORD(v17) = v14;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v17, v18) )
             __debugbreak();
         }
-        if ( ((0x80000000 >> (v16 & 0x1F)) & v23[v16 >> 5]) != 0 )
+        if ( ((0x80000000 >> (v15 & 0x1F)) & v19[v15 >> 5]) != 0 )
         {
-          v17 = DCONST_DVARMPFLT_perk_melee_resist_factor;
+          v16 = DCONST_DVARMPFLT_perk_melee_resist_factor;
           if ( !DCONST_DVARMPFLT_perk_melee_resist_factor && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "perk_melee_resist_factor") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v17);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, edi
-            vmulss  xmm0, xmm0, dword ptr [rbx+28h]
-            vcvttss2si edi, xmm0
-          }
+          Dvar_CheckFrontendServerThread(v16);
+          return (unsigned int)(int)(float)((float)MeleeDamage * v16->current.value);
         }
       }
     }
   }
-  return _EDI;
+  return (unsigned int)MeleeDamage;
 }
 

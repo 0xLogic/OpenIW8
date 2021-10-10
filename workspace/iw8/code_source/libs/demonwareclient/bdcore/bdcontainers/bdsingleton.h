@@ -65,19 +65,18 @@ _BOOL8 bdSingletonRegistryImpl::add(bdSingletonRegistryImpl *this, void (*const 
   bool v4; 
   unsigned int m_capacity; 
   int v6; 
+  void (__fastcall **m_data)(); 
   unsigned int v8; 
   unsigned int m_size; 
   _BOOL8 result; 
-  FILE *v13; 
-  void (__fastcall *v14)(); 
+  FILE *v11; 
 
-  v14 = destroyFunction;
   m_cleaningUp = this->m_cleaningUp;
   v4 = !m_cleaningUp;
   if ( m_cleaningUp )
   {
-    v13 = __acrt_iob_func(2u);
-    bdFprintf(v13, "Error: %s (%u)\nbdSingletonRegistryImpl::add(), cannot register bdSingletons while in bdSingletonRegistryImpl::cleanUp.\n", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdsingleton.h", 124i64);
+    v11 = __acrt_iob_func(2u);
+    bdFprintf(v11, "Error: %s (%u)\nbdSingletonRegistryImpl::add(), cannot register bdSingletons while in bdSingletonRegistryImpl::cleanUp.\n", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdcontainers\\bdsingleton.h", 124i64);
     return v4;
   }
   else
@@ -88,31 +87,25 @@ _BOOL8 bdSingletonRegistryImpl::add(bdSingletonRegistryImpl *this, void (*const 
       v6 = m_capacity;
       if ( !m_capacity )
         v6 = 1;
-      _RDI = NULL;
+      m_data = NULL;
       v8 = m_capacity + v6;
       if ( m_capacity + v6 )
       {
-        _RDI = (void (__fastcall **)())bdMemory::allocate(8i64 * v8);
+        m_data = (void (__fastcall **)())bdMemory::allocate(8i64 * v8);
         m_size = this->m_destroyFunctions.m_size;
         if ( m_size )
-          memcpy_0(_RDI, this->m_destroyFunctions.m_data, 8i64 * m_size);
+          memcpy_0(m_data, this->m_destroyFunctions.m_data, 8i64 * m_size);
       }
       bdMemory::deallocate(this->m_destroyFunctions.m_data);
       this->m_destroyFunctions.m_capacity = v8;
-      this->m_destroyFunctions.m_data = _RDI;
+      this->m_destroyFunctions.m_data = m_data;
     }
     else
     {
-      _RDI = this->m_destroyFunctions.m_data;
+      m_data = this->m_destroyFunctions.m_data;
     }
-    _RCX = this->m_destroyFunctions.m_size;
     result = v4;
-    __asm
-    {
-      vmovsd  xmm0, [rsp+28h+arg_8]
-      vmovsd  qword ptr [rdi+rcx*8], xmm0
-    }
-    ++this->m_destroyFunctions.m_size;
+    m_data[this->m_destroyFunctions.m_size++] = destroyFunction;
   }
   return result;
 }

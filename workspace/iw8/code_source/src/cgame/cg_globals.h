@@ -209,8 +209,6 @@ cg_t::SetInvalidStanceHint
 */
 void cg_t::SetInvalidStanceHint(cg_t *this, stance_event_params_t type, const Weapon *weapon)
 {
-  _RDI = weapon;
-  _RBX = this;
   switch ( type )
   {
     case STANCE_EVENT_PARAM_INVALID_STAND_HINT:
@@ -246,16 +244,10 @@ void cg_t::SetInvalidStanceHint(cg_t *this, stance_event_params_t type, const We
         __debugbreak();
       break;
   }
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbx+180BCh], ymm0
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vmovups xmmword ptr [rbx+180DCh], xmm1
-    vmovsd  xmm0, qword ptr [rdi+30h]
-    vmovsd  qword ptr [rbx+180ECh], xmm0
-  }
-  *(_DWORD *)&_RBX->invalidCmdHintWeapon.weaponCamo = *(_DWORD *)&_RDI->weaponCamo;
+  *(__m256i *)&this->invalidCmdHintWeapon.weaponIdx = *(__m256i *)&weapon->weaponIdx;
+  *(_OWORD *)&this->invalidCmdHintWeapon.attachmentVariationIndices[5] = *(_OWORD *)&weapon->attachmentVariationIndices[5];
+  *(double *)&this->invalidCmdHintWeapon.attachmentVariationIndices[21] = *(double *)&weapon->attachmentVariationIndices[21];
+  *(_DWORD *)&this->invalidCmdHintWeapon.weaponCamo = *(_DWORD *)&weapon->weaponCamo;
 }
 
 /*

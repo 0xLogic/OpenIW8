@@ -806,74 +806,69 @@ void OnlineGroupsManager::AcceptApplication(OnlineGroupsManager *this, const int
 {
   __int64 v4; 
   __int64 v6; 
-  GroupTaskData *UnusedTaskDataSlot; 
+  double *UnusedTaskDataSlot; 
   __int64 v8; 
   bdUserAccountID *v9; 
   unsigned int v10; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
-  TaskCreateRequest v14; 
-  __int128 v15; 
-  FenceChannel v16; 
-  __int64 v17; 
-  FenceStartParameters v18; 
-  bdUserAccountID v19; 
+  TaskCreateRequest v12; 
+  __int128 v13; 
+  FenceChannel v14; 
+  __int64 v15; 
+  FenceStartParameters v16; 
+  bdUserAccountID v17; 
 
-  v17 = -2i64;
+  v15 = -2i64;
   v4 = applicationIndex;
   v6 = controllerIndex;
-  *(_QWORD *)&v14.m_controllerIndex = -1i64;
-  memset(&v14.m_appData, 0, 48);
-  v14.m_cancelTaskOnSignoutEvent = 1;
-  v14.m_timeoutInSeconds = 0;
-  UnusedTaskDataSlot = GetUnusedTaskDataSlot();
+  *(_QWORD *)&v12.m_controllerIndex = -1i64;
+  memset(&v12.m_appData, 0, 48);
+  v12.m_cancelTaskOnSignoutEvent = 1;
+  v12.m_timeoutInSeconds = 0;
+  UnusedTaskDataSlot = (double *)GetUnusedTaskDataSlot();
   if ( UnusedTaskDataSlot )
   {
-    v14.m_controllerIndex = v6;
-    v14.m_onCompletionCallback = OnAcceptApplicationComplete;
-    v14.m_appData = UnusedTaskDataSlot;
-    UnusedTaskDataSlot->fenceChannel = fenceChannel;
+    v12.m_controllerIndex = v6;
+    v12.m_onCompletionCallback = OnAcceptApplicationComplete;
+    v12.m_appData = UnusedTaskDataSlot;
+    *UnusedTaskDataSlot = *(double *)&fenceChannel;
     v8 = 27880 * v6 + 288 * v4;
-    bdUserAccountID::bdUserAccountID(&v19, (const bdUserAccountID *)((char *)&s_groupData[0].applications[0].__vftable + v8 + 24));
-    v10 = dwAcceptApplication(&v14, *(unsigned __int64 *)((char *)&s_groupData[0].applications[0].__vftable + v8 + 16), v9);
-    UnusedTaskDataSlot->taskId = v10;
+    bdUserAccountID::bdUserAccountID(&v17, (const bdUserAccountID *)((char *)&s_groupData[0].applications[0].__vftable + v8 + 24));
+    v10 = dwAcceptApplication(&v12, *(unsigned __int64 *)((char *)&s_groupData[0].applications[0].__vftable + v8 + 16), v9);
+    *((_DWORD *)UnusedTaskDataSlot + 2) = v10;
     if ( v10 )
     {
       if ( fenceChannel != FENCE_CHANNEL_NONE )
       {
-        LOBYTE(v15) = 0;
-        v16 = fenceChannel;
-        *((_QWORD *)&v15 + 1) = "searching for groups";
-        __asm
-        {
-          vmovups xmm0, [rbp+57h+var_C0]
-          vmovups [rbp+57h+var_90], xmm0
-          vmovsd  xmm1, [rbp+57h+var_B0]
-          vmovsd  [rbp+57h+var_80], xmm1
-        }
-        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v18);
+        LOBYTE(v13) = 0;
+        v14 = fenceChannel;
+        *((_QWORD *)&v13 + 1) = "searching for groups";
+        *(_OWORD *)&v16.m_shouldBlock = v13;
+        v16.m_channel = fenceChannel;
+        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v16);
       }
     }
   }
-  v14.m_onCompletionCallback = NULL;
-  v14.m_onUpdateCallback = NULL;
-  v14.m_appSecondaryCallback = NULL;
-  v14.m_timeoutInSeconds = 0;
-  m_asyncInfo = v14.m_asyncInfo;
-  if ( v14.m_asyncInfo )
+  v12.m_onCompletionCallback = NULL;
+  v12.m_onUpdateCallback = NULL;
+  v12.m_appSecondaryCallback = NULL;
+  v12.m_timeoutInSeconds = 0;
+  m_asyncInfo = v12.m_asyncInfo;
+  if ( v12.m_asyncInfo )
   {
-    v14.m_asyncInfo->__abi_Release(v14.m_asyncInfo);
+    v12.m_asyncInfo->__abi_Release(v12.m_asyncInfo);
     m_asyncInfo = NULL;
-    v14.m_asyncInfo = NULL;
+    v12.m_asyncInfo = NULL;
   }
-  if ( v14.m_remoteDemonwareTask.m_ptr )
+  if ( v12.m_remoteDemonwareTask.m_ptr )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v14.m_remoteDemonwareTask.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v12.m_remoteDemonwareTask.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
     {
-      if ( v14.m_remoteDemonwareTask.m_ptr )
-        ((void (__fastcall *)(bdRemoteTask *, __int64))v14.m_remoteDemonwareTask.m_ptr->~bdReferencable)(v14.m_remoteDemonwareTask.m_ptr, 1i64);
-      v14.m_remoteDemonwareTask.m_ptr = NULL;
+      if ( v12.m_remoteDemonwareTask.m_ptr )
+        ((void (__fastcall *)(bdRemoteTask *, __int64))v12.m_remoteDemonwareTask.m_ptr->~bdReferencable)(v12.m_remoteDemonwareTask.m_ptr, 1i64);
+      v12.m_remoteDemonwareTask.m_ptr = NULL;
     }
-    m_asyncInfo = v14.m_asyncInfo;
+    m_asyncInfo = v12.m_asyncInfo;
   }
   if ( m_asyncInfo )
     m_asyncInfo->__abi_Release(m_asyncInfo);
@@ -959,48 +954,43 @@ void OnlineGroupsManager::ApplyToJoin(OnlineGroupsManager *this, const int contr
 {
   __int64 v4; 
   __int64 v6; 
-  GroupTaskData *UnusedTaskDataSlot; 
-  GroupTaskData *v8; 
+  double *UnusedTaskDataSlot; 
+  double *v8; 
   unsigned int v9; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   TaskCreateRequest request; 
-  __int128 v14; 
-  FenceChannel v15; 
-  __int64 v16; 
-  FenceStartParameters v17; 
+  __int128 v12; 
+  FenceChannel v13; 
+  __int64 v14; 
+  FenceStartParameters v15; 
 
-  v16 = -2i64;
+  v14 = -2i64;
   v4 = groupId;
   v6 = controllerIndex;
   *(_QWORD *)&request.m_controllerIndex = -1i64;
   memset(&request.m_appData, 0, 48);
   request.m_cancelTaskOnSignoutEvent = 1;
   request.m_timeoutInSeconds = 0;
-  UnusedTaskDataSlot = GetUnusedTaskDataSlot();
+  UnusedTaskDataSlot = (double *)GetUnusedTaskDataSlot();
   v8 = UnusedTaskDataSlot;
   if ( UnusedTaskDataSlot )
   {
-    UnusedTaskDataSlot->fenceChannel = fenceChannel;
+    *UnusedTaskDataSlot = *(double *)&fenceChannel;
     request.m_appData = UnusedTaskDataSlot;
     request.m_controllerIndex = v6;
     request.m_onCompletionCallback = OnApplyToJoinComplete;
     if ( (unsigned int)v4 >= s_groupData[v6].searchResultCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 915, ASSERT_TYPE_ASSERT, "(unsigned)( groupId ) < (unsigned)( s_groupData[controllerIndex].searchResultCount )", "groupId doesn't index s_groupData[controllerIndex].searchResultCount\n\t%i not in [0, %i)", v4, s_groupData[v6].searchResultCount) )
       __debugbreak();
     v9 = dwAddApplication(&request, *((_QWORD *)&s_groupData[v6].searchResults[v4].__vftable + 2));
-    v8->taskId = v9;
+    *((_DWORD *)v8 + 2) = v9;
     if ( v9 && fenceChannel != FENCE_CHANNEL_NONE )
     {
-      LOBYTE(v14) = 0;
-      v15 = fenceChannel;
-      *((_QWORD *)&v14 + 1) = "applying to group";
-      __asm
-      {
-        vmovups xmm0, [rbp+57h+var_60]
-        vmovups [rbp+57h+var_40], xmm0
-        vmovsd  xmm1, [rbp+57h+var_50]
-        vmovsd  [rbp+57h+var_30], xmm1
-      }
-      OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v17);
+      LOBYTE(v12) = 0;
+      v13 = fenceChannel;
+      *((_QWORD *)&v12 + 1) = "applying to group";
+      *(_OWORD *)&v15.m_shouldBlock = v12;
+      v15.m_channel = fenceChannel;
+      OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v15);
     }
   }
   request.m_onCompletionCallback = NULL;
@@ -1037,29 +1027,29 @@ void OnlineGroupsManager::AutoJoin(OnlineGroupsManager *this, const int controll
 {
   __int64 v4; 
   __int64 v6; 
-  GroupTaskData *UnusedTaskDataSlot; 
-  GroupTaskData *v8; 
+  double *UnusedTaskDataSlot; 
+  double *v8; 
   __int64 v9; 
   unsigned __int64 *v10; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   TaskCreateRequest request; 
-  __int128 v15; 
-  FenceChannel v16; 
-  __int64 v17; 
-  FenceStartParameters v18; 
+  __int128 v13; 
+  FenceChannel v14; 
+  __int64 v15; 
+  FenceStartParameters v16; 
 
-  v17 = -2i64;
+  v15 = -2i64;
   v4 = groupId;
   v6 = controllerIndex;
   *(_QWORD *)&request.m_controllerIndex = -1i64;
   memset(&request.m_appData, 0, 48);
   request.m_cancelTaskOnSignoutEvent = 1;
   request.m_timeoutInSeconds = 0;
-  UnusedTaskDataSlot = GetUnusedTaskDataSlot();
+  UnusedTaskDataSlot = (double *)GetUnusedTaskDataSlot();
   v8 = UnusedTaskDataSlot;
   if ( UnusedTaskDataSlot )
   {
-    UnusedTaskDataSlot->fenceChannel = fenceChannel;
+    *UnusedTaskDataSlot = *(double *)&fenceChannel;
     request.m_appData = UnusedTaskDataSlot;
     request.m_controllerIndex = v6;
     request.m_onCompletionCallback = OnAutoJoinComplete;
@@ -1067,21 +1057,16 @@ void OnlineGroupsManager::AutoJoin(OnlineGroupsManager *this, const int controll
     if ( (unsigned int)v4 >= s_groupData[v6].searchResultCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1023, ASSERT_TYPE_ASSERT, "(unsigned)( groupId ) < (unsigned)( s_groupData[controllerIndex].searchResultCount )", "groupId doesn't index s_groupData[controllerIndex].searchResultCount\n\t%i not in [0, %i)", v4, s_groupData[v6].searchResultCount) )
       __debugbreak();
     v10 = (unsigned __int64 *)((char *)&s_groupData[0].searchResults[v4].__vftable + v9 * 27880 + 16);
-    v8->taskId = dwAutoJoinTeam(&request, *v10);
+    *((_DWORD *)v8 + 2) = dwAutoJoinTeam(&request, *v10);
     s_groupData[v9].autoJoinTeamId = *v10;
-    if ( v8->taskId && fenceChannel != FENCE_CHANNEL_NONE )
+    if ( *((_DWORD *)v8 + 2) && fenceChannel != FENCE_CHANNEL_NONE )
     {
-      LOBYTE(v15) = 0;
-      v16 = fenceChannel;
-      *((_QWORD *)&v15 + 1) = "joining group";
-      __asm
-      {
-        vmovups xmm0, [rbp+57h+var_60]
-        vmovups [rbp+57h+var_40], xmm0
-        vmovsd  xmm1, [rbp+57h+var_50]
-        vmovsd  [rbp+57h+var_30], xmm1
-      }
-      OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v18);
+      LOBYTE(v13) = 0;
+      v14 = fenceChannel;
+      *((_QWORD *)&v13 + 1) = "joining group";
+      *(_OWORD *)&v16.m_shouldBlock = v13;
+      v16.m_channel = fenceChannel;
+      OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v16);
     }
   }
   request.m_onCompletionCallback = NULL;
@@ -1117,46 +1102,41 @@ OnlineGroupsManager::CreateNewGroup
 void OnlineGroupsManager::CreateNewGroup(OnlineGroupsManager *this, const int controllerIndex, FenceChannel fenceChannel, const char *name, bool publicType)
 {
   __int64 v7; 
-  GroupTaskData *UnusedTaskDataSlot; 
-  GroupTaskData *v9; 
+  double *UnusedTaskDataSlot; 
+  double *v9; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   TaskCreateRequest request; 
-  __int128 v14; 
-  FenceChannel v15; 
-  __int64 v16; 
-  FenceStartParameters v17; 
+  __int128 v12; 
+  FenceChannel v13; 
+  __int64 v14; 
+  FenceStartParameters v15; 
 
-  v16 = -2i64;
+  v14 = -2i64;
   v7 = controllerIndex;
   *(_QWORD *)&request.m_controllerIndex = -1i64;
   memset(&request.m_appData, 0, 48);
   request.m_cancelTaskOnSignoutEvent = 1;
   request.m_timeoutInSeconds = 0;
-  UnusedTaskDataSlot = GetUnusedTaskDataSlot();
+  UnusedTaskDataSlot = (double *)GetUnusedTaskDataSlot();
   v9 = UnusedTaskDataSlot;
   if ( UnusedTaskDataSlot )
   {
-    UnusedTaskDataSlot->fenceChannel = fenceChannel;
+    *UnusedTaskDataSlot = *(double *)&fenceChannel;
     request.m_appData = UnusedTaskDataSlot;
     request.m_controllerIndex = v7;
     request.m_onCompletionCallback = OnCreateNewGroupComplete;
-    UnusedTaskDataSlot->taskId = dwCreateTeam(&request, name, &s_groupData[v7].newTeamProfile, 1, &s_groupData[v7].newTeamInfo);
+    *((_DWORD *)UnusedTaskDataSlot + 2) = dwCreateTeam(&request, name, &s_groupData[v7].newTeamProfile, 1, &s_groupData[v7].newTeamInfo);
     s_groupData[v7].createAutoJoin = publicType;
-    if ( v9->taskId )
+    if ( *((_DWORD *)v9 + 2) )
     {
       if ( fenceChannel != FENCE_CHANNEL_NONE )
       {
-        LOBYTE(v14) = 0;
-        v15 = fenceChannel;
-        *((_QWORD *)&v14 + 1) = "creating new group";
-        __asm
-        {
-          vmovups xmm0, [rbp+3Fh+var_60]
-          vmovups [rbp+3Fh+var_40], xmm0
-          vmovsd  xmm1, [rbp+3Fh+var_50]
-          vmovsd  [rbp+3Fh+var_30], xmm1
-        }
-        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v7, &v17);
+        LOBYTE(v12) = 0;
+        v13 = fenceChannel;
+        *((_QWORD *)&v12 + 1) = "creating new group";
+        *(_OWORD *)&v15.m_shouldBlock = v12;
+        v15.m_channel = fenceChannel;
+        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v7, &v15);
       }
     }
   }
@@ -1213,24 +1193,24 @@ OnlineGroupsManager::GetApplications
 void OnlineGroupsManager::GetApplications(OnlineGroupsManager *this, const int controllerIndex, FenceChannel fenceChannel, const int *teamIndex, const int numTeams, const int offset)
 {
   __int64 v8; 
-  GroupTaskData *UnusedTaskDataSlot; 
+  double *UnusedTaskDataSlot; 
   __int64 v10; 
   unsigned __int64 *applicationTeams; 
   unsigned int ApplicationsByTeamPaginated; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   TaskCreateRequest request; 
-  __int128 v17; 
-  FenceChannel v18; 
-  __int64 v19; 
-  FenceStartParameters v20; 
+  __int128 v15; 
+  FenceChannel v16; 
+  __int64 v17; 
+  FenceStartParameters v18; 
 
-  v19 = -2i64;
+  v17 = -2i64;
   v8 = controllerIndex;
   *(_QWORD *)&request.m_controllerIndex = -1i64;
   memset(&request.m_appData, 0, 48);
   request.m_cancelTaskOnSignoutEvent = 1;
   request.m_timeoutInSeconds = 0;
-  UnusedTaskDataSlot = GetUnusedTaskDataSlot();
+  UnusedTaskDataSlot = (double *)GetUnusedTaskDataSlot();
   if ( UnusedTaskDataSlot )
   {
     if ( numTeams > 0 )
@@ -1241,25 +1221,20 @@ void OnlineGroupsManager::GetApplications(OnlineGroupsManager *this, const int c
         *applicationTeams++ = *((_QWORD *)&s_groupData[0].teamInfo[teamIndex[v10++]].__vftable + 2);
       while ( v10 < numTeams );
     }
-    UnusedTaskDataSlot->fenceChannel = fenceChannel;
+    *UnusedTaskDataSlot = *(double *)&fenceChannel;
     request.m_controllerIndex = v8;
     request.m_onCompletionCallback = OnGetApplicationsComplete;
     request.m_appData = UnusedTaskDataSlot;
     ApplicationsByTeamPaginated = dwGetApplicationsByTeamPaginated(&request, s_groupData[v8].applicationTeams, numTeams, s_groupData[v8].applications, 0x10u, offset);
-    UnusedTaskDataSlot->taskId = ApplicationsByTeamPaginated;
+    *((_DWORD *)UnusedTaskDataSlot + 2) = ApplicationsByTeamPaginated;
     if ( ApplicationsByTeamPaginated && fenceChannel != FENCE_CHANNEL_NONE )
     {
-      LOBYTE(v17) = 0;
-      v18 = fenceChannel;
-      *((_QWORD *)&v17 + 1) = "searching for groups";
-      __asm
-      {
-        vmovups xmm0, [rbp+47h+var_50]
-        vmovups [rbp+47h+var_30], xmm0
-        vmovsd  xmm1, [rbp+47h+var_40]
-        vmovsd  [rbp+47h+var_20], xmm1
-      }
-      OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v8, &v20);
+      LOBYTE(v15) = 0;
+      v16 = fenceChannel;
+      *((_QWORD *)&v15 + 1) = "searching for groups";
+      *(_OWORD *)&v18.m_shouldBlock = v15;
+      v18.m_channel = fenceChannel;
+      OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v8, &v18);
     }
   }
   request.m_onCompletionCallback = NULL;
@@ -1352,48 +1327,43 @@ void OnlineGroupsManager::GetMembers(OnlineGroupsManager *this, const int contro
 {
   __int64 v5; 
   __int64 v7; 
-  GroupTaskData *UnusedTaskDataSlot; 
-  GroupTaskData *v9; 
+  double *UnusedTaskDataSlot; 
+  double *v9; 
   unsigned int Members; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   TaskCreateRequest request; 
-  __int128 v15; 
-  FenceChannel v16; 
-  __int64 v17; 
-  FenceStartParameters v18; 
+  __int128 v13; 
+  FenceChannel v14; 
+  __int64 v15; 
+  FenceStartParameters v16; 
 
-  v17 = -2i64;
+  v15 = -2i64;
   v5 = groupId;
   v7 = controllerIndex;
   *(_QWORD *)&request.m_controllerIndex = -1i64;
   memset(&request.m_appData, 0, 48);
   request.m_cancelTaskOnSignoutEvent = 1;
   request.m_timeoutInSeconds = 0;
-  UnusedTaskDataSlot = GetUnusedTaskDataSlot();
+  UnusedTaskDataSlot = (double *)GetUnusedTaskDataSlot();
   v9 = UnusedTaskDataSlot;
   if ( UnusedTaskDataSlot )
   {
-    UnusedTaskDataSlot->fenceChannel = fenceChannel;
+    *UnusedTaskDataSlot = *(double *)&fenceChannel;
     request.m_appData = UnusedTaskDataSlot;
     request.m_controllerIndex = v7;
     request.m_onCompletionCallback = OnGetMembersComplete;
     if ( (unsigned int)v5 >= s_groupData[v7].teamInfoCount && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1122, ASSERT_TYPE_ASSERT, "(unsigned)( groupId ) < (unsigned)( s_groupData[controllerIndex].teamInfoCount )", "groupId doesn't index s_groupData[controllerIndex].teamInfoCount\n\t%i not in [0, %i)", v5, s_groupData[v7].teamInfoCount) )
       __debugbreak();
     Members = dwGetMembers(&request, *((_QWORD *)&s_groupData[v7].teamInfo[v5].__vftable + 2), s_groupData[v7].memberList, 0x14u, offset, 0);
-    v9->taskId = Members;
+    *((_DWORD *)v9 + 2) = Members;
     if ( Members && fenceChannel != FENCE_CHANNEL_NONE )
     {
-      LOBYTE(v15) = 0;
-      v16 = fenceChannel;
-      *((_QWORD *)&v15 + 1) = "getting group members";
-      __asm
-      {
-        vmovups xmm0, [rbp+4Fh+var_60]
-        vmovups [rbp+4Fh+var_40], xmm0
-        vmovsd  xmm1, [rbp+4Fh+var_50]
-        vmovsd  [rbp+4Fh+var_30], xmm1
-      }
-      OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v7, &v18);
+      LOBYTE(v13) = 0;
+      v14 = fenceChannel;
+      *((_QWORD *)&v13 + 1) = "getting group members";
+      *(_OWORD *)&v16.m_shouldBlock = v13;
+      v16.m_channel = fenceChannel;
+      OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v7, &v16);
     }
   }
   request.m_onCompletionCallback = NULL;
@@ -1646,74 +1616,69 @@ void OnlineGroupsManager::KickMember(OnlineGroupsManager *this, const int contro
 {
   __int64 v4; 
   __int64 v6; 
-  GroupTaskData *UnusedTaskDataSlot; 
+  double *UnusedTaskDataSlot; 
   __int64 v8; 
   bdUserAccountID *v9; 
   unsigned int v10; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
-  TaskCreateRequest v14; 
-  __int128 v15; 
-  FenceChannel v16; 
-  __int64 v17; 
-  FenceStartParameters v18; 
-  bdUserAccountID v19; 
+  TaskCreateRequest v12; 
+  __int128 v13; 
+  FenceChannel v14; 
+  __int64 v15; 
+  FenceStartParameters v16; 
+  bdUserAccountID v17; 
 
-  v17 = -2i64;
+  v15 = -2i64;
   v4 = memberIndex;
   v6 = controllerIndex;
-  *(_QWORD *)&v14.m_controllerIndex = -1i64;
-  memset(&v14.m_appData, 0, 48);
-  v14.m_cancelTaskOnSignoutEvent = 1;
-  v14.m_timeoutInSeconds = 0;
-  UnusedTaskDataSlot = GetUnusedTaskDataSlot();
+  *(_QWORD *)&v12.m_controllerIndex = -1i64;
+  memset(&v12.m_appData, 0, 48);
+  v12.m_cancelTaskOnSignoutEvent = 1;
+  v12.m_timeoutInSeconds = 0;
+  UnusedTaskDataSlot = (double *)GetUnusedTaskDataSlot();
   if ( UnusedTaskDataSlot )
   {
-    v14.m_controllerIndex = v6;
-    v14.m_onCompletionCallback = OnKickMemberComplete;
-    v14.m_appData = UnusedTaskDataSlot;
-    UnusedTaskDataSlot->fenceChannel = fenceChannel;
+    v12.m_controllerIndex = v6;
+    v12.m_onCompletionCallback = OnKickMemberComplete;
+    v12.m_appData = UnusedTaskDataSlot;
+    *UnusedTaskDataSlot = *(double *)&fenceChannel;
     v8 = 27880 * v6 + 184 * v4;
-    bdUserAccountID::bdUserAccountID(&v19, (const bdUserAccountID *)((char *)&s_groupData[0].memberList[0].__vftable + v8 + 24));
-    v10 = dwKickMember(&v14, *(unsigned __int64 *)((char *)&s_groupData[0].memberList[0].__vftable + v8 + 16), v9);
-    UnusedTaskDataSlot->taskId = v10;
+    bdUserAccountID::bdUserAccountID(&v17, (const bdUserAccountID *)((char *)&s_groupData[0].memberList[0].__vftable + v8 + 24));
+    v10 = dwKickMember(&v12, *(unsigned __int64 *)((char *)&s_groupData[0].memberList[0].__vftable + v8 + 16), v9);
+    *((_DWORD *)UnusedTaskDataSlot + 2) = v10;
     if ( v10 )
     {
       if ( fenceChannel != FENCE_CHANNEL_NONE )
       {
-        LOBYTE(v15) = 0;
-        v16 = fenceChannel;
-        *((_QWORD *)&v15 + 1) = "kicking member";
-        __asm
-        {
-          vmovups xmm0, [rbp+57h+var_C0]
-          vmovups [rbp+57h+var_90], xmm0
-          vmovsd  xmm1, [rbp+57h+var_B0]
-          vmovsd  [rbp+57h+var_80], xmm1
-        }
-        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v18);
+        LOBYTE(v13) = 0;
+        v14 = fenceChannel;
+        *((_QWORD *)&v13 + 1) = "kicking member";
+        *(_OWORD *)&v16.m_shouldBlock = v13;
+        v16.m_channel = fenceChannel;
+        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v16);
       }
     }
   }
-  v14.m_onCompletionCallback = NULL;
-  v14.m_onUpdateCallback = NULL;
-  v14.m_appSecondaryCallback = NULL;
-  v14.m_timeoutInSeconds = 0;
-  m_asyncInfo = v14.m_asyncInfo;
-  if ( v14.m_asyncInfo )
+  v12.m_onCompletionCallback = NULL;
+  v12.m_onUpdateCallback = NULL;
+  v12.m_appSecondaryCallback = NULL;
+  v12.m_timeoutInSeconds = 0;
+  m_asyncInfo = v12.m_asyncInfo;
+  if ( v12.m_asyncInfo )
   {
-    v14.m_asyncInfo->__abi_Release(v14.m_asyncInfo);
+    v12.m_asyncInfo->__abi_Release(v12.m_asyncInfo);
     m_asyncInfo = NULL;
-    v14.m_asyncInfo = NULL;
+    v12.m_asyncInfo = NULL;
   }
-  if ( v14.m_remoteDemonwareTask.m_ptr )
+  if ( v12.m_remoteDemonwareTask.m_ptr )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v14.m_remoteDemonwareTask.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v12.m_remoteDemonwareTask.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
     {
-      if ( v14.m_remoteDemonwareTask.m_ptr )
-        ((void (__fastcall *)(bdRemoteTask *, __int64))v14.m_remoteDemonwareTask.m_ptr->~bdReferencable)(v14.m_remoteDemonwareTask.m_ptr, 1i64);
-      v14.m_remoteDemonwareTask.m_ptr = NULL;
+      if ( v12.m_remoteDemonwareTask.m_ptr )
+        ((void (__fastcall *)(bdRemoteTask *, __int64))v12.m_remoteDemonwareTask.m_ptr->~bdReferencable)(v12.m_remoteDemonwareTask.m_ptr, 1i64);
+      v12.m_remoteDemonwareTask.m_ptr = NULL;
     }
-    m_asyncInfo = v14.m_asyncInfo;
+    m_asyncInfo = v12.m_asyncInfo;
   }
   if ( m_asyncInfo )
     m_asyncInfo->__abi_Release(m_asyncInfo);
@@ -1728,48 +1693,43 @@ void OnlineGroupsManager::LeaveGroup(OnlineGroupsManager *this, const int contro
 {
   __int64 v4; 
   __int64 v6; 
-  GroupTaskData *UnusedTaskDataSlot; 
-  GroupTaskData *v8; 
+  double *UnusedTaskDataSlot; 
+  double *v8; 
   unsigned int v9; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   TaskCreateRequest request; 
-  __int128 v14; 
-  FenceChannel v15; 
-  __int64 v16; 
-  FenceStartParameters v17; 
+  __int128 v12; 
+  FenceChannel v13; 
+  __int64 v14; 
+  FenceStartParameters v15; 
 
-  v16 = -2i64;
+  v14 = -2i64;
   v4 = groupIndex;
   v6 = controllerIndex;
   *(_QWORD *)&request.m_controllerIndex = -1i64;
   memset(&request.m_appData, 0, 48);
   request.m_cancelTaskOnSignoutEvent = 1;
   request.m_timeoutInSeconds = 0;
-  UnusedTaskDataSlot = GetUnusedTaskDataSlot();
+  UnusedTaskDataSlot = (double *)GetUnusedTaskDataSlot();
   v8 = UnusedTaskDataSlot;
   if ( UnusedTaskDataSlot )
   {
-    UnusedTaskDataSlot->fenceChannel = fenceChannel;
+    *UnusedTaskDataSlot = *(double *)&fenceChannel;
     request.m_appData = UnusedTaskDataSlot;
     request.m_controllerIndex = v6;
     request.m_onCompletionCallback = OnLeaveGroupComplete;
     v9 = dwLeaveTeam(&request, *((_QWORD *)&s_groupData[v6].teamInfo[v4].__vftable + 2));
-    v8->taskId = v9;
+    *((_DWORD *)v8 + 2) = v9;
     if ( v9 )
     {
       if ( fenceChannel != FENCE_CHANNEL_NONE )
       {
-        LOBYTE(v14) = 0;
-        v15 = fenceChannel;
-        *((_QWORD *)&v14 + 1) = "leaving group";
-        __asm
-        {
-          vmovups xmm0, [rbp+57h+var_50]
-          vmovups [rbp+57h+var_30], xmm0
-          vmovsd  xmm1, [rbp+57h+var_40]
-          vmovsd  [rbp+57h+var_20], xmm1
-        }
-        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v17);
+        LOBYTE(v12) = 0;
+        v13 = fenceChannel;
+        *((_QWORD *)&v12 + 1) = "leaving group";
+        *(_OWORD *)&v15.m_shouldBlock = v12;
+        v15.m_channel = fenceChannel;
+        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v15);
       }
     }
   }
@@ -1808,11 +1768,11 @@ void OnAcceptApplicationComplete(GenericTask *pTask, eTaskManagerTaskState taskS
   GroupTaskData *m_appData; 
   FenceChannel fenceChannel; 
   const char *v6; 
-  FenceChannel v8; 
-  __int64 v12; 
-  __int128 v13; 
-  FenceChannel v14; 
-  FenceFailureParameters v15; 
+  FenceChannel v7; 
+  double v8; 
+  __int64 v9; 
+  __int128 v10; 
+  FenceFailureParameters v11; 
 
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1320, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING") )
     __debugbreak();
@@ -1829,60 +1789,45 @@ LABEL_10:
         fenceChannel = m_appData->fenceChannel;
         if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
         {
-          v15.m_statusIsCustomErrorString = 0;
-          v15.m_statusString = "accepting application";
-          v15.m_failureAction = FAILURE_FENCE;
-          v15.m_channel = fenceChannel;
+          v11.m_statusIsCustomErrorString = 0;
+          v11.m_statusString = "accepting application";
+          v11.m_failureAction = FAILURE_FENCE;
+          v11.m_channel = fenceChannel;
           v6 = j_va("%zu", 0x100ui64);
           OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)2048, v6);
-          __asm
-          {
-            vmovups ymm0, [rsp+78h+var_28]
-            vmovups [rsp+78h+var_28], ymm0
-          }
-          OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+          OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
         }
         Com_PrintError(25, "Canceled accepting application for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
         goto LABEL_19;
       }
 LABEL_8:
-      LODWORD(v12) = taskState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1353, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v12) )
+      LODWORD(v9) = taskState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1353, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v9) )
         __debugbreak();
       goto LABEL_10;
     }
-    v8 = m_appData->fenceChannel;
+    v7 = m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v15.m_statusIsCustomErrorString = 0;
-      v15.m_statusString = "accepting application";
-      v15.m_failureAction = FAILURE_FENCE;
-      v15.m_channel = v8;
+      v11.m_statusIsCustomErrorString = 0;
+      v11.m_statusString = "accepting application";
+      v11.m_failureAction = FAILURE_FENCE;
+      v11.m_channel = v7;
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)256, NULL);
-      __asm
-      {
-        vmovups ymm0, [rsp+78h+var_28]
-        vmovups [rsp+78h+var_28], ymm0
-      }
-      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
     }
     Com_PrintError(25, "Error accepting application for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   }
   else
   {
+    v8 = *(double *)&m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v14 = m_appData->fenceChannel;
-      __asm { vmovsd  xmm1, [rsp+78h+var_38] }
-      *(_QWORD *)&v13 = (char *)&queryFormat.fmt + 3;
-      BYTE8(v13) = 0;
-      __asm
-      {
-        vmovups xmm0, [rsp+78h+var_48]
-        vmovups xmmword ptr [rsp+78h+var_28], xmm0
-        vmovsd  qword ptr [rsp+78h+var_28+10h], xmm1
-      }
-      OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v15);
+      *(_QWORD *)&v10 = (char *)&queryFormat.fmt + 3;
+      BYTE8(v10) = 0;
+      *(_OWORD *)&v11.m_statusString = v10;
+      *(double *)&v11.m_channel = v8;
+      OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v11);
     }
     Com_Printf(25, "Accept application complete for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   }
@@ -1940,11 +1885,11 @@ void OnApplyToJoinComplete(GenericTask *pTask, eTaskManagerTaskState taskState)
   GroupTaskData *m_appData; 
   FenceChannel fenceChannel; 
   const char *v6; 
-  FenceChannel v8; 
-  __int64 v12; 
-  __int128 v13; 
-  FenceChannel v14; 
-  FenceFailureParameters v15; 
+  FenceChannel v7; 
+  double v8; 
+  __int64 v9; 
+  __int128 v10; 
+  FenceFailureParameters v11; 
 
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 844, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING") )
     __debugbreak();
@@ -1961,60 +1906,45 @@ LABEL_10:
         fenceChannel = m_appData->fenceChannel;
         if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
         {
-          v15.m_statusIsCustomErrorString = 0;
-          v15.m_statusString = "applying to group";
-          v15.m_failureAction = FAILURE_FENCE;
-          v15.m_channel = fenceChannel;
+          v11.m_statusIsCustomErrorString = 0;
+          v11.m_statusString = "applying to group";
+          v11.m_failureAction = FAILURE_FENCE;
+          v11.m_channel = fenceChannel;
           v6 = j_va("%zu", 0x20ui64);
           OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)2048, v6);
-          __asm
-          {
-            vmovups ymm0, [rsp+78h+var_28]
-            vmovups [rsp+78h+var_28], ymm0
-          }
-          OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+          OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
         }
         Com_PrintError(25, "Canceled applying to group for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
         goto LABEL_19;
       }
 LABEL_8:
-      LODWORD(v12) = taskState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 877, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v12) )
+      LODWORD(v9) = taskState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 877, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v9) )
         __debugbreak();
       goto LABEL_10;
     }
-    v8 = m_appData->fenceChannel;
+    v7 = m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v15.m_statusIsCustomErrorString = 0;
-      v15.m_failureAction = FAILURE_FENCE;
-      v15.m_statusString = "applying to group";
-      v15.m_channel = v8;
+      v11.m_statusIsCustomErrorString = 0;
+      v11.m_failureAction = FAILURE_FENCE;
+      v11.m_statusString = "applying to group";
+      v11.m_channel = v7;
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)32, NULL);
-      __asm
-      {
-        vmovups ymm0, [rsp+78h+var_28]
-        vmovups [rsp+78h+var_28], ymm0
-      }
-      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
     }
     Com_PrintError(25, "Error applying to group for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   }
   else
   {
+    v8 = *(double *)&m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v14 = m_appData->fenceChannel;
-      __asm { vmovsd  xmm1, [rsp+78h+var_38] }
-      *(_QWORD *)&v13 = (char *)&queryFormat.fmt + 3;
-      BYTE8(v13) = 0;
-      __asm
-      {
-        vmovups xmm0, [rsp+78h+var_48]
-        vmovups xmmword ptr [rsp+78h+var_28], xmm0
-        vmovsd  qword ptr [rsp+78h+var_28+10h], xmm1
-      }
-      OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v15);
+      *(_QWORD *)&v10 = (char *)&queryFormat.fmt + 3;
+      BYTE8(v10) = 0;
+      *(_OWORD *)&v11.m_statusString = v10;
+      *(double *)&v11.m_channel = v8;
+      OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v11);
     }
     Com_Printf(25, "Group application succeeded for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   }
@@ -2030,12 +1960,12 @@ OnAutoJoinComplete
 void OnAutoJoinComplete(GenericTask *pTask, eTaskManagerTaskState taskState)
 {
   GroupTaskData *m_appData; 
-  void (__fastcall *v5)(GenericTask *, eTaskManagerTaskState); 
+  void (__fastcall *fenceChannel)(GenericTask *, eTaskManagerTaskState); 
   const char *v6; 
-  void (__fastcall *v8)(GenericTask *, eTaskManagerTaskState); 
-  __int64 v12; 
-  __int128 v13; 
-  FenceChannel fenceChannel; 
+  void (__fastcall *v7)(GenericTask *, eTaskManagerTaskState); 
+  double v8; 
+  __int64 v9; 
+  __int128 v10; 
   TaskCreateRequest request; 
 
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 935, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING", -2i64) )
@@ -2043,18 +1973,13 @@ void OnAutoJoinComplete(GenericTask *pTask, eTaskManagerTaskState taskState)
   m_appData = (GroupTaskData *)pTask->m_appData;
   if ( taskState == TASKSTATE_SUCCESS )
   {
+    v8 = *(double *)&m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      *(_QWORD *)&v13 = (char *)&queryFormat.fmt + 3;
-      BYTE8(v13) = 0;
-      fenceChannel = m_appData->fenceChannel;
-      __asm
-      {
-        vmovups xmm0, [rbp+57h+var_58]
-        vmovups xmmword ptr [rbp+57h+request.m_controllerIndex], xmm0
-        vmovsd  xmm1, [rbp+57h+var_48]
-        vmovsd  [rbp+57h+request.m_appSecondaryCallback], xmm1
-      }
+      *(_QWORD *)&v10 = (char *)&queryFormat.fmt + 3;
+      BYTE8(v10) = 0;
+      *(_OWORD *)&request.m_controllerIndex = v10;
+      *(double *)&request.m_appSecondaryCallback = v8;
       OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&request);
     }
     Com_Printf(25, "Group autojoin succeeded for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
@@ -2067,28 +1992,23 @@ void OnAutoJoinComplete(GenericTask *pTask, eTaskManagerTaskState taskState)
     if ( taskState <= TASKSTATE_CANCELED )
     {
 LABEL_10:
-      v5 = (void (__fastcall *)(GenericTask *, eTaskManagerTaskState))m_appData->fenceChannel;
+      fenceChannel = (void (__fastcall *)(GenericTask *, eTaskManagerTaskState))m_appData->fenceChannel;
       if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
       {
         LOBYTE(request.m_asyncInfo) = 0;
         *(_QWORD *)&request.m_controllerIndex = "join group";
         request.m_appData = (void *)1;
-        request.m_appSecondaryCallback = v5;
+        request.m_appSecondaryCallback = fenceChannel;
         v6 = j_va("%zu", 0x20ui64);
         OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)2048, v6);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+57h+request.m_controllerIndex]
-          vmovups ymmword ptr [rbp+57h+request.m_controllerIndex], ymm0
-        }
         OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, (FenceFailureParameters *)&request);
       }
       Com_PrintError(25, "Canceled autojoining group for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
       goto LABEL_21;
     }
 LABEL_8:
-    LODWORD(v12) = taskState;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 986, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v12) )
+    LODWORD(v9) = taskState;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 986, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v9) )
       __debugbreak();
     goto LABEL_10;
   }
@@ -2107,19 +2027,14 @@ LABEL_8:
     TaskCreateRequest::~TaskCreateRequest(&request);
     return;
   }
-  v8 = (void (__fastcall *)(GenericTask *, eTaskManagerTaskState))m_appData->fenceChannel;
+  v7 = (void (__fastcall *)(GenericTask *, eTaskManagerTaskState))m_appData->fenceChannel;
   if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
   {
     LOBYTE(request.m_asyncInfo) = 0;
     *(_QWORD *)&request.m_controllerIndex = "join group";
     request.m_appData = (void *)1;
-    request.m_appSecondaryCallback = v8;
+    request.m_appSecondaryCallback = v7;
     OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)32, NULL);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+57h+request.m_controllerIndex]
-      vmovups ymmword ptr [rbp+57h+request.m_controllerIndex], ymm0
-    }
     OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, (FenceFailureParameters *)&request);
   }
   Com_PrintError(25, "Error autojoining group for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
@@ -2138,17 +2053,17 @@ void OnCreateNewGroupComplete(GenericTask *pTask, eTaskManagerTaskState taskStat
   FenceChannel v5; 
   const char *v6; 
   FenceChannel fenceChannel; 
-  unsigned int v10; 
-  FenceChannel v11; 
+  unsigned int v8; 
+  FenceChannel v9; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
+  __int64 v11; 
+  FenceFailureParameters v12; 
+  TaskCreateRequest request; 
   __int64 v14; 
   FenceFailureParameters v15; 
-  TaskCreateRequest request; 
-  __int64 v17; 
-  FenceFailureParameters v18; 
-  FenceFailureParameters v19; 
+  FenceFailureParameters v16; 
 
-  v17 = -2i64;
+  v14 = -2i64;
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 579, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING") )
     __debugbreak();
   m_appData = (GroupTaskData *)pTask->m_appData;
@@ -2161,17 +2076,12 @@ void OnCreateNewGroupComplete(GenericTask *pTask, eTaskManagerTaskState taskStat
       fenceChannel = m_appData->fenceChannel;
       if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
       {
-        v15.m_statusIsCustomErrorString = 0;
-        v15.m_statusString = "create group";
-        v15.m_failureAction = FAILURE_FENCE;
-        v15.m_channel = fenceChannel;
+        v12.m_statusIsCustomErrorString = 0;
+        v12.m_statusString = "create group";
+        v12.m_failureAction = FAILURE_FENCE;
+        v12.m_channel = fenceChannel;
         OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)8, NULL);
-        __asm
-        {
-          vmovups ymm0, [rbp+57h+var_B0]
-          vmovups [rbp+57h+var_B0], ymm0
-        }
-        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v12);
       }
       Com_PrintError(25, "Error creating group for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
       goto LABEL_16;
@@ -2179,25 +2089,21 @@ void OnCreateNewGroupComplete(GenericTask *pTask, eTaskManagerTaskState taskStat
     if ( taskState > TASKSTATE_CANCELED )
     {
 LABEL_8:
-      LODWORD(v14) = taskState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 633, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v14) )
+      LODWORD(v11) = taskState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 633, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v11) )
         __debugbreak();
     }
     v5 = m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v15.m_statusIsCustomErrorString = 0;
-      v15.m_statusString = "create group";
-      v15.m_failureAction = FAILURE_FENCE;
-      v15.m_channel = v5;
+      v12.m_statusIsCustomErrorString = 0;
+      v12.m_statusString = "create group";
+      v12.m_failureAction = FAILURE_FENCE;
+      v12.m_channel = v5;
       v6 = j_va("%zu", 8ui64);
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)2048, v6);
-      __asm
-      {
-        vmovups ymm0, [rbp+57h+var_B0]
-        vmovups [rbp+57h+var_40], ymm0
-      }
-      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v18);
+      v15 = v12;
+      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
     }
     Com_PrintError(25, "Canceled creating group for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
 LABEL_16:
@@ -2212,24 +2118,20 @@ LABEL_16:
   request.m_appData = pTask->m_appData;
   request.m_controllerIndex = pTask->m_controllerIndex;
   request.m_onCompletionCallback = OnSetTeamAutoJoinComplete;
-  v10 = dwSetTeamAutoJoin(&request, *((_QWORD *)&s_groupData[request.m_controllerIndex].newTeamInfo.__vftable + 2), s_groupData[request.m_controllerIndex].createAutoJoin);
-  m_appData->taskId = v10;
-  if ( !v10 )
+  v8 = dwSetTeamAutoJoin(&request, *((_QWORD *)&s_groupData[request.m_controllerIndex].newTeamInfo.__vftable + 2), s_groupData[request.m_controllerIndex].createAutoJoin);
+  m_appData->taskId = v8;
+  if ( !v8 )
   {
-    v11 = m_appData->fenceChannel;
+    v9 = m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v15.m_statusIsCustomErrorString = 0;
-      v15.m_statusString = "retrieve memberships";
-      v15.m_failureAction = FAILURE_FENCE;
-      v15.m_channel = v11;
+      v12.m_statusIsCustomErrorString = 0;
+      v12.m_statusString = "retrieve memberships";
+      v12.m_failureAction = FAILURE_FENCE;
+      v12.m_channel = v9;
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)128, NULL);
-      __asm
-      {
-        vmovups ymm0, [rbp+57h+var_B0]
-        vmovups [rbp+57h+var_20], ymm0
-      }
-      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v19);
+      v16 = v12;
+      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v16);
     }
     ReleaseTaskDataSlot(m_appData);
   }
@@ -2269,10 +2171,10 @@ void OnGetApplicationsComplete(GenericTask *pTask, eTaskManagerTaskState taskSta
   FenceChannel v5; 
   const char *v6; 
   FenceChannel fenceChannel; 
-  __int64 v12; 
-  __int128 v13; 
-  FenceChannel v14; 
-  FenceFailureParameters v15; 
+  double v8; 
+  __int64 v9; 
+  __int128 v10; 
+  FenceFailureParameters v11; 
 
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1202, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING") )
     __debugbreak();
@@ -2286,17 +2188,12 @@ void OnGetApplicationsComplete(GenericTask *pTask, eTaskManagerTaskState taskSta
       fenceChannel = m_appData->fenceChannel;
       if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
       {
-        v15.m_statusIsCustomErrorString = 0;
-        v15.m_statusString = "search for groups";
-        v15.m_failureAction = FAILURE_FENCE;
-        v15.m_channel = fenceChannel;
+        v11.m_statusIsCustomErrorString = 0;
+        v11.m_statusString = "search for groups";
+        v11.m_failureAction = FAILURE_FENCE;
+        v11.m_channel = fenceChannel;
         OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)4096, NULL);
-        __asm
-        {
-          vmovups ymm0, [rsp+78h+var_28]
-          vmovups [rsp+78h+var_28], ymm0
-        }
-        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
       }
       Com_PrintError(25, "Error getting applications for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
       goto LABEL_16;
@@ -2304,25 +2201,20 @@ void OnGetApplicationsComplete(GenericTask *pTask, eTaskManagerTaskState taskSta
     if ( taskState > TASKSTATE_CANCELED )
     {
 LABEL_8:
-      LODWORD(v12) = taskState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1239, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v12) )
+      LODWORD(v9) = taskState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1239, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v9) )
         __debugbreak();
     }
     v5 = m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v15.m_statusIsCustomErrorString = 0;
-      v15.m_statusString = "search for groups";
-      v15.m_failureAction = FAILURE_FENCE;
-      v15.m_channel = v5;
+      v11.m_statusIsCustomErrorString = 0;
+      v11.m_statusString = "search for groups";
+      v11.m_failureAction = FAILURE_FENCE;
+      v11.m_channel = v5;
       v6 = j_va("%zu", 0x1000ui64);
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)2048, v6);
-      __asm
-      {
-        vmovups ymm0, [rsp+78h+var_28]
-        vmovups [rsp+78h+var_28], ymm0
-      }
-      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
     }
     Com_PrintError(25, "Canceled getting applications for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
 LABEL_16:
@@ -2330,19 +2222,14 @@ LABEL_16:
     s_groupData[pTask->m_controllerIndex].totalApplicationCount = 0;
     goto LABEL_20;
   }
+  v8 = *(double *)&m_appData->fenceChannel;
   if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
   {
-    v14 = m_appData->fenceChannel;
-    __asm { vmovsd  xmm1, [rsp+78h+var_38] }
-    *(_QWORD *)&v13 = (char *)&queryFormat.fmt + 3;
-    BYTE8(v13) = 0;
-    __asm
-    {
-      vmovups xmm0, [rsp+78h+var_48]
-      vmovups xmmword ptr [rsp+78h+var_28], xmm0
-      vmovsd  qword ptr [rsp+78h+var_28+10h], xmm1
-    }
-    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v15);
+    *(_QWORD *)&v10 = (char *)&queryFormat.fmt + 3;
+    BYTE8(v10) = 0;
+    *(_OWORD *)&v11.m_statusString = v10;
+    *(double *)&v11.m_channel = v8;
+    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v11);
   }
   Com_Printf(25, "GetApplications complete for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   s_groupData[pTask->m_controllerIndex].applicationCount = bdRemoteTask::getNumResults(pTask->m_remoteDemonwareTask.m_ptr);
@@ -2362,10 +2249,10 @@ void OnGetMembersComplete(GenericTask *pTask, eTaskManagerTaskState taskState)
   FenceChannel v5; 
   const char *v6; 
   FenceChannel fenceChannel; 
-  __int64 v12; 
-  __int128 v13; 
-  FenceChannel v14; 
-  FenceFailureParameters v15; 
+  double v8; 
+  __int64 v9; 
+  __int128 v10; 
+  FenceFailureParameters v11; 
 
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1045, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING") )
     __debugbreak();
@@ -2379,17 +2266,12 @@ void OnGetMembersComplete(GenericTask *pTask, eTaskManagerTaskState taskState)
       fenceChannel = m_appData->fenceChannel;
       if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
       {
-        v15.m_statusIsCustomErrorString = 0;
-        v15.m_failureAction = FAILURE_FENCE;
-        v15.m_statusString = "getting group members";
-        v15.m_channel = fenceChannel;
+        v11.m_statusIsCustomErrorString = 0;
+        v11.m_failureAction = FAILURE_FENCE;
+        v11.m_statusString = "getting group members";
+        v11.m_channel = fenceChannel;
         OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)64, NULL);
-        __asm
-        {
-          vmovups ymm0, [rsp+78h+var_28]
-          vmovups [rsp+78h+var_28], ymm0
-        }
-        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
       }
       Com_PrintError(25, "Error getting members for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
       goto LABEL_16;
@@ -2397,25 +2279,20 @@ void OnGetMembersComplete(GenericTask *pTask, eTaskManagerTaskState taskState)
     if ( taskState > TASKSTATE_CANCELED )
     {
 LABEL_8:
-      LODWORD(v12) = taskState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1082, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v12) )
+      LODWORD(v9) = taskState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1082, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v9) )
         __debugbreak();
     }
     v5 = m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v15.m_statusIsCustomErrorString = 0;
-      v15.m_statusString = "getting group members";
-      v15.m_failureAction = FAILURE_FENCE;
-      v15.m_channel = v5;
+      v11.m_statusIsCustomErrorString = 0;
+      v11.m_statusString = "getting group members";
+      v11.m_failureAction = FAILURE_FENCE;
+      v11.m_channel = v5;
       v6 = j_va("%zu", 0x40ui64);
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)2048, v6);
-      __asm
-      {
-        vmovups ymm0, [rsp+78h+var_28]
-        vmovups [rsp+78h+var_28], ymm0
-      }
-      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
     }
     Com_PrintError(25, "Canceled getting members for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
 LABEL_16:
@@ -2423,19 +2300,14 @@ LABEL_16:
     s_groupData[pTask->m_controllerIndex].totalMemberCount = 0;
     goto LABEL_20;
   }
+  v8 = *(double *)&m_appData->fenceChannel;
   if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
   {
-    v14 = m_appData->fenceChannel;
-    __asm { vmovsd  xmm1, [rsp+78h+var_38] }
-    *(_QWORD *)&v13 = (char *)&queryFormat.fmt + 3;
-    BYTE8(v13) = 0;
-    __asm
-    {
-      vmovups xmm0, [rsp+78h+var_48]
-      vmovups xmmword ptr [rsp+78h+var_28], xmm0
-      vmovsd  qword ptr [rsp+78h+var_28+10h], xmm1
-    }
-    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v15);
+    *(_QWORD *)&v10 = (char *)&queryFormat.fmt + 3;
+    BYTE8(v10) = 0;
+    *(_OWORD *)&v11.m_statusString = v10;
+    *(double *)&v11.m_channel = v8;
+    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v11);
   }
   Com_Printf(25, "Get Members succeeded for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   s_groupData[pTask->m_controllerIndex].memberCount = bdRemoteTask::getNumResults(pTask->m_remoteDemonwareTask.m_ptr);
@@ -2497,10 +2369,10 @@ void OnKickMemberComplete(GenericTask *pTask, eTaskManagerTaskState taskState)
   const char *v6; 
   Online_Error_CAT_GROUPS_t v7; 
   FenceChannel fenceChannel; 
-  __int64 v12; 
-  __int128 v13; 
-  FenceChannel v14; 
-  FenceFailureParameters v15; 
+  double v9; 
+  __int64 v10; 
+  __int128 v11; 
+  FenceFailureParameters v12; 
 
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1497, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING") )
     __debugbreak();
@@ -2514,12 +2386,12 @@ void OnKickMemberComplete(GenericTask *pTask, eTaskManagerTaskState taskState)
       fenceChannel = m_appData->fenceChannel;
       if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
       {
-        v15.m_statusIsCustomErrorString = 0;
-        v15.m_statusString = "kicking member";
+        v12.m_statusIsCustomErrorString = 0;
+        v12.m_statusString = "kicking member";
         v6 = NULL;
-        v15.m_failureAction = FAILURE_FENCE;
+        v12.m_failureAction = FAILURE_FENCE;
         v7 = 1024;
-        v15.m_channel = fenceChannel;
+        v12.m_channel = fenceChannel;
         goto LABEL_14;
       }
 LABEL_15:
@@ -2529,44 +2401,34 @@ LABEL_15:
     if ( taskState != TASKSTATE_CANCELED )
     {
 LABEL_8:
-      LODWORD(v12) = taskState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1530, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v12) )
+      LODWORD(v10) = taskState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1530, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v10) )
         __debugbreak();
     }
     v5 = m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v15.m_statusIsCustomErrorString = 0;
-      v15.m_statusString = "kicking member";
-      v15.m_failureAction = FAILURE_FENCE;
-      v15.m_channel = v5;
+      v12.m_statusIsCustomErrorString = 0;
+      v12.m_statusString = "kicking member";
+      v12.m_failureAction = FAILURE_FENCE;
+      v12.m_channel = v5;
       v6 = j_va("%zu", 0x400ui64);
       v7 = 2048;
 LABEL_14:
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, v7, v6);
-      __asm
-      {
-        vmovups ymm0, [rsp+78h+var_28]
-        vmovups [rsp+78h+var_28], ymm0
-      }
-      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v12);
       goto LABEL_15;
     }
     goto LABEL_15;
   }
+  v9 = *(double *)&m_appData->fenceChannel;
   if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
   {
-    v14 = m_appData->fenceChannel;
-    __asm { vmovsd  xmm1, [rsp+78h+var_38] }
-    *(_QWORD *)&v13 = (char *)&queryFormat.fmt + 3;
-    BYTE8(v13) = 0;
-    __asm
-    {
-      vmovups xmm0, [rsp+78h+var_48]
-      vmovups xmmword ptr [rsp+78h+var_28], xmm0
-      vmovsd  qword ptr [rsp+78h+var_28+10h], xmm1
-    }
-    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v15);
+    *(_QWORD *)&v11 = (char *)&queryFormat.fmt + 3;
+    BYTE8(v11) = 0;
+    *(_OWORD *)&v12.m_statusString = v11;
+    *(double *)&v12.m_channel = v9;
+    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v12);
   }
   Com_Printf(25, "Kick member complete for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
 LABEL_19:
@@ -2583,11 +2445,11 @@ void OnLeaveGroupComplete(GenericTask *pTask, eTaskManagerTaskState taskState)
   GroupTaskData *m_appData; 
   FenceChannel fenceChannel; 
   const char *v6; 
-  FenceChannel v8; 
-  __int64 v12; 
-  __int128 v13; 
-  FenceChannel v14; 
-  FenceFailureParameters v15; 
+  FenceChannel v7; 
+  double v8; 
+  __int64 v9; 
+  __int128 v10; 
+  FenceFailureParameters v11; 
 
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1585, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING") )
     __debugbreak();
@@ -2604,60 +2466,45 @@ LABEL_10:
         fenceChannel = m_appData->fenceChannel;
         if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
         {
-          v15.m_statusIsCustomErrorString = 0;
-          v15.m_statusString = "leave group";
-          v15.m_failureAction = FAILURE_FENCE;
-          v15.m_channel = fenceChannel;
+          v11.m_statusIsCustomErrorString = 0;
+          v11.m_statusString = "leave group";
+          v11.m_failureAction = FAILURE_FENCE;
+          v11.m_channel = fenceChannel;
           v6 = j_va("%zu", 0x10ui64);
           OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)2048, v6);
-          __asm
-          {
-            vmovups ymm0, [rsp+78h+var_28]
-            vmovups [rsp+78h+var_28], ymm0
-          }
-          OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+          OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
         }
         Com_PrintError(25, "Canceled leaving group for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
         goto LABEL_19;
       }
 LABEL_8:
-      LODWORD(v12) = taskState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1619, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v12) )
+      LODWORD(v9) = taskState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1619, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v9) )
         __debugbreak();
       goto LABEL_10;
     }
-    v8 = m_appData->fenceChannel;
+    v7 = m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v15.m_statusIsCustomErrorString = 0;
-      v15.m_failureAction = FAILURE_FENCE;
-      v15.m_statusString = "leave group";
-      v15.m_channel = v8;
+      v11.m_statusIsCustomErrorString = 0;
+      v11.m_failureAction = FAILURE_FENCE;
+      v11.m_statusString = "leave group";
+      v11.m_channel = v7;
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)16, NULL);
-      __asm
-      {
-        vmovups ymm0, [rsp+78h+var_28]
-        vmovups [rsp+78h+var_28], ymm0
-      }
-      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
     }
     Com_PrintError(25, "Error leaving group for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   }
   else
   {
+    v8 = *(double *)&m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v14 = m_appData->fenceChannel;
-      __asm { vmovsd  xmm1, [rsp+78h+var_38] }
-      *(_QWORD *)&v13 = "successfully left group";
-      BYTE8(v13) = 0;
-      __asm
-      {
-        vmovups xmm0, [rsp+78h+var_48]
-        vmovups xmmword ptr [rsp+78h+var_28], xmm0
-        vmovsd  qword ptr [rsp+78h+var_28+10h], xmm1
-      }
-      OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v15);
+      *(_QWORD *)&v10 = "successfully left group";
+      BYTE8(v10) = 0;
+      *(_OWORD *)&v11.m_statusString = v10;
+      *(double *)&v11.m_channel = v8;
+      OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v11);
     }
     Com_Printf(25, "group left for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   }
@@ -2675,11 +2522,11 @@ void OnRejectApplicationComplete(GenericTask *pTask, eTaskManagerTaskState taskS
   GroupTaskData *m_appData; 
   FenceChannel fenceChannel; 
   const char *v6; 
-  FenceChannel v8; 
-  __int64 v12; 
-  __int128 v13; 
-  FenceChannel v14; 
-  FenceFailureParameters v15; 
+  FenceChannel v7; 
+  double v8; 
+  __int64 v9; 
+  __int128 v10; 
+  FenceFailureParameters v11; 
 
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1409, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING") )
     __debugbreak();
@@ -2696,60 +2543,45 @@ LABEL_10:
         fenceChannel = m_appData->fenceChannel;
         if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
         {
-          v15.m_statusIsCustomErrorString = 0;
-          v15.m_statusString = "rejecting application";
-          v15.m_failureAction = FAILURE_FENCE;
-          v15.m_channel = fenceChannel;
+          v11.m_statusIsCustomErrorString = 0;
+          v11.m_statusString = "rejecting application";
+          v11.m_failureAction = FAILURE_FENCE;
+          v11.m_channel = fenceChannel;
           v6 = j_va("%zu", 0x200ui64);
           OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)2048, v6);
-          __asm
-          {
-            vmovups ymm0, [rsp+78h+var_28]
-            vmovups [rsp+78h+var_28], ymm0
-          }
-          OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+          OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
         }
         Com_PrintError(25, "Canceled rejecting application for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
         goto LABEL_19;
       }
 LABEL_8:
-      LODWORD(v12) = taskState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1442, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v12) )
+      LODWORD(v9) = taskState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 1442, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v9) )
         __debugbreak();
       goto LABEL_10;
     }
-    v8 = m_appData->fenceChannel;
+    v7 = m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v15.m_statusIsCustomErrorString = 0;
-      v15.m_statusString = "rejecting application";
-      v15.m_failureAction = FAILURE_FENCE;
-      v15.m_channel = v8;
+      v11.m_statusIsCustomErrorString = 0;
+      v11.m_statusString = "rejecting application";
+      v11.m_failureAction = FAILURE_FENCE;
+      v11.m_channel = v7;
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)512, NULL);
-      __asm
-      {
-        vmovups ymm0, [rsp+78h+var_28]
-        vmovups [rsp+78h+var_28], ymm0
-      }
-      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
     }
     Com_PrintError(25, "Error rejecting application for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   }
   else
   {
+    v8 = *(double *)&m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v14 = m_appData->fenceChannel;
-      __asm { vmovsd  xmm1, [rsp+78h+var_38] }
-      *(_QWORD *)&v13 = (char *)&queryFormat.fmt + 3;
-      BYTE8(v13) = 0;
-      __asm
-      {
-        vmovups xmm0, [rsp+78h+var_48]
-        vmovups xmmword ptr [rsp+78h+var_28], xmm0
-        vmovsd  qword ptr [rsp+78h+var_28+10h], xmm1
-      }
-      OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v15);
+      *(_QWORD *)&v10 = (char *)&queryFormat.fmt + 3;
+      BYTE8(v10) = 0;
+      *(_OWORD *)&v11.m_statusString = v10;
+      *(double *)&v11.m_channel = v8;
+      OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v11);
     }
     Com_Printf(25, "Reject application complete for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   }
@@ -2808,10 +2640,10 @@ void OnRetrieveGroupInvitationsComplete(GenericTask *pTask, eTaskManagerTaskStat
   FenceChannel v5; 
   const char *v6; 
   FenceChannel fenceChannel; 
-  __int64 v12; 
-  __int128 v13; 
-  FenceChannel v14; 
-  FenceFailureParameters v15; 
+  double v8; 
+  __int64 v9; 
+  __int128 v10; 
+  FenceFailureParameters v11; 
 
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 331, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING") )
     __debugbreak();
@@ -2825,17 +2657,12 @@ void OnRetrieveGroupInvitationsComplete(GenericTask *pTask, eTaskManagerTaskStat
       fenceChannel = m_appData->fenceChannel;
       if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
       {
-        v15.m_statusIsCustomErrorString = 0;
-        v15.m_failureAction = FAILURE_FENCE;
-        v15.m_statusString = "retrieve group invitations";
-        v15.m_channel = fenceChannel;
+        v11.m_statusIsCustomErrorString = 0;
+        v11.m_failureAction = FAILURE_FENCE;
+        v11.m_statusString = "retrieve group invitations";
+        v11.m_channel = fenceChannel;
         OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)4, NULL);
-        __asm
-        {
-          vmovups ymm0, [rsp+78h+var_28]
-          vmovups [rsp+78h+var_28], ymm0
-        }
-        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
       }
       Com_PrintError(25, "Error fetching group invitations for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
       goto LABEL_16;
@@ -2843,25 +2670,20 @@ void OnRetrieveGroupInvitationsComplete(GenericTask *pTask, eTaskManagerTaskStat
     if ( taskState > TASKSTATE_CANCELED )
     {
 LABEL_8:
-      LODWORD(v12) = taskState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 371, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v12) )
+      LODWORD(v9) = taskState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 371, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v9) )
         __debugbreak();
     }
     v5 = m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v15.m_statusIsCustomErrorString = 0;
-      v15.m_statusString = "retrieve group invitations";
-      v15.m_failureAction = FAILURE_FENCE;
-      v15.m_channel = v5;
+      v11.m_statusIsCustomErrorString = 0;
+      v11.m_statusString = "retrieve group invitations";
+      v11.m_failureAction = FAILURE_FENCE;
+      v11.m_channel = v5;
       v6 = j_va("%zu", 4ui64);
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)2048, v6);
-      __asm
-      {
-        vmovups ymm0, [rsp+78h+var_28]
-        vmovups [rsp+78h+var_28], ymm0
-      }
-      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
     }
     Com_PrintError(25, "Canceled fetching group invitations for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
 LABEL_16:
@@ -2870,19 +2692,14 @@ LABEL_16:
     s_groupData[pTask->m_controllerIndex].totalTeamProposalCount = 0;
     goto LABEL_20;
   }
+  v8 = *(double *)&m_appData->fenceChannel;
   if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
   {
-    v14 = m_appData->fenceChannel;
-    __asm { vmovsd  xmm1, [rsp+78h+var_38] }
-    *(_QWORD *)&v13 = "successfully retrieved group invitations";
-    BYTE8(v13) = 0;
-    __asm
-    {
-      vmovups xmm0, [rsp+78h+var_48]
-      vmovups xmmword ptr [rsp+78h+var_28], xmm0
-      vmovsd  qword ptr [rsp+78h+var_28+10h], xmm1
-    }
-    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v15);
+    *(_QWORD *)&v10 = "successfully retrieved group invitations";
+    BYTE8(v10) = 0;
+    *(_OWORD *)&v11.m_statusString = v10;
+    *(double *)&v11.m_channel = v8;
+    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v11);
   }
   Com_Printf(25, "Group invitations fetched for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   s_groupData[pTask->m_controllerIndex].teamProposalValid = 1;
@@ -2903,12 +2720,12 @@ void OnRetrieveGroupMembershipsComplete(GenericTask *pTask, eTaskManagerTaskStat
   FenceChannel v5; 
   const char *v6; 
   FenceChannel fenceChannel; 
+  double v8; 
   bdRemoteTask *m_ptr; 
   unsigned int NumResults; 
-  __int64 v14; 
-  __int128 v15; 
-  FenceChannel v16; 
-  FenceFailureParameters v17; 
+  __int64 v11; 
+  __int128 v12; 
+  FenceFailureParameters v13; 
 
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 213, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING") )
     __debugbreak();
@@ -2922,17 +2739,12 @@ void OnRetrieveGroupMembershipsComplete(GenericTask *pTask, eTaskManagerTaskStat
       fenceChannel = m_appData->fenceChannel;
       if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
       {
-        v17.m_statusIsCustomErrorString = 0;
-        v17.m_failureAction = FAILURE_FENCE;
-        v17.m_statusString = "retrieve group memberships";
-        v17.m_channel = fenceChannel;
+        v13.m_statusIsCustomErrorString = 0;
+        v13.m_failureAction = FAILURE_FENCE;
+        v13.m_statusString = "retrieve group memberships";
+        v13.m_channel = fenceChannel;
         OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, DODGE, NULL);
-        __asm
-        {
-          vmovups ymm0, [rsp+78h+var_28]
-          vmovups [rsp+78h+var_28], ymm0
-        }
-        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v17);
+        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v13);
       }
       Com_PrintError(25, "Error fetching group membership for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
       goto LABEL_13;
@@ -2940,25 +2752,20 @@ void OnRetrieveGroupMembershipsComplete(GenericTask *pTask, eTaskManagerTaskStat
     if ( taskState > TASKSTATE_CANCELED )
     {
 LABEL_8:
-      LODWORD(v14) = taskState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 252, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v14) )
+      LODWORD(v11) = taskState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 252, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v11) )
         __debugbreak();
     }
     v5 = m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v17.m_statusIsCustomErrorString = 0;
-      v17.m_statusString = "retrieve group memberships";
-      v17.m_failureAction = FAILURE_FENCE;
-      v17.m_channel = v5;
+      v13.m_statusIsCustomErrorString = 0;
+      v13.m_statusString = "retrieve group memberships";
+      v13.m_failureAction = FAILURE_FENCE;
+      v13.m_channel = v5;
       v6 = j_va("%zu", 1ui64);
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)2048, v6);
-      __asm
-      {
-        vmovups ymm0, [rsp+78h+var_28]
-        vmovups [rsp+78h+var_28], ymm0
-      }
-      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v17);
+      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v13);
     }
     Com_PrintError(25, "Canceled fetching  group membership for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
 LABEL_13:
@@ -2966,19 +2773,14 @@ LABEL_13:
     s_groupData[pTask->m_controllerIndex].teamInfoCount = 0;
     goto LABEL_22;
   }
+  v8 = *(double *)&m_appData->fenceChannel;
   if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
   {
-    v16 = m_appData->fenceChannel;
-    __asm { vmovsd  xmm1, [rsp+78h+var_38] }
-    *(_QWORD *)&v15 = "successfully retrieved group memberships";
-    BYTE8(v15) = 0;
-    __asm
-    {
-      vmovups xmm0, [rsp+78h+var_48]
-      vmovups xmmword ptr [rsp+78h+var_28], xmm0
-      vmovsd  qword ptr [rsp+78h+var_28+10h], xmm1
-    }
-    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v17);
+    *(_QWORD *)&v12 = "successfully retrieved group memberships";
+    BYTE8(v12) = 0;
+    *(_OWORD *)&v13.m_statusString = v12;
+    *(double *)&v13.m_channel = v8;
+    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v13);
   }
   Com_Printf(25, "Group membership fetched for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   s_groupData[pTask->m_controllerIndex].teamInfoValid = 1;
@@ -3002,10 +2804,10 @@ void OnSearchForGroupComplete(GenericTask *pTask, eTaskManagerTaskState taskStat
   FenceChannel v5; 
   const char *v6; 
   FenceChannel fenceChannel; 
-  __int64 v12; 
-  __int128 v13; 
-  FenceChannel v14; 
-  FenceFailureParameters v15; 
+  double v8; 
+  __int64 v9; 
+  __int128 v10; 
+  FenceFailureParameters v11; 
 
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 693, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING") )
     __debugbreak();
@@ -3019,17 +2821,12 @@ void OnSearchForGroupComplete(GenericTask *pTask, eTaskManagerTaskState taskStat
       fenceChannel = m_appData->fenceChannel;
       if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
       {
-        v15.m_statusIsCustomErrorString = 0;
-        v15.m_failureAction = FAILURE_FENCE;
-        v15.m_statusString = "search for groups";
-        v15.m_channel = fenceChannel;
+        v11.m_statusIsCustomErrorString = 0;
+        v11.m_failureAction = FAILURE_FENCE;
+        v11.m_statusString = "search for groups";
+        v11.m_channel = fenceChannel;
         OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, DODGE, NULL);
-        __asm
-        {
-          vmovups ymm0, [rsp+78h+var_28]
-          vmovups [rsp+78h+var_28], ymm0
-        }
-        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
       }
       Com_PrintError(25, "Error searching for groups for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
       goto LABEL_16;
@@ -3037,25 +2834,20 @@ void OnSearchForGroupComplete(GenericTask *pTask, eTaskManagerTaskState taskStat
     if ( taskState > TASKSTATE_CANCELED )
     {
 LABEL_8:
-      LODWORD(v12) = taskState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 734, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v12) )
+      LODWORD(v9) = taskState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 734, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unhandled task state %d", v9) )
         __debugbreak();
     }
     v5 = m_appData->fenceChannel;
     if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
     {
-      v15.m_statusIsCustomErrorString = 0;
-      v15.m_statusString = "search for groups";
-      v15.m_failureAction = FAILURE_FENCE;
-      v15.m_channel = v5;
+      v11.m_statusIsCustomErrorString = 0;
+      v11.m_statusString = "search for groups";
+      v11.m_failureAction = FAILURE_FENCE;
+      v11.m_channel = v5;
       v6 = j_va("%zu", 1ui64);
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)2048, v6);
-      __asm
-      {
-        vmovups ymm0, [rsp+78h+var_28]
-        vmovups [rsp+78h+var_28], ymm0
-      }
-      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v15);
+      OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v11);
     }
     Com_PrintError(25, "Canceled searching for groups for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
 LABEL_16:
@@ -3063,19 +2855,14 @@ LABEL_16:
     s_groupData[pTask->m_controllerIndex].totalSearchResultCount = 0;
     goto LABEL_20;
   }
+  v8 = *(double *)&m_appData->fenceChannel;
   if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
   {
-    v14 = m_appData->fenceChannel;
-    __asm { vmovsd  xmm1, [rsp+78h+var_38] }
-    *(_QWORD *)&v13 = (char *)&queryFormat.fmt + 3;
-    BYTE8(v13) = 0;
-    __asm
-    {
-      vmovups xmm0, [rsp+78h+var_48]
-      vmovups xmmword ptr [rsp+78h+var_28], xmm0
-      vmovsd  qword ptr [rsp+78h+var_28+10h], xmm1
-    }
-    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v15);
+    *(_QWORD *)&v10 = (char *)&queryFormat.fmt + 3;
+    BYTE8(v10) = 0;
+    *(_OWORD *)&v11.m_statusString = v10;
+    *(double *)&v11.m_channel = v8;
+    OnlineErrorManager::FenceSuccess(&g_onlineMgr.m_errorManager, -1, (FenceSuccessParameters *)&v11);
   }
   Com_Printf(25, "Group search succeeded for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
   s_groupData[pTask->m_controllerIndex].searchResultCount = bdRemoteTask::getNumResults(pTask->m_remoteDemonwareTask.m_ptr);
@@ -3094,14 +2881,14 @@ void OnSetTeamAutoJoinComplete(GenericTask *pTask, eTaskManagerTaskState taskSta
   GroupTaskData *m_appData; 
   FenceChannel fenceChannel; 
   unsigned int Memberships; 
-  FenceChannel v8; 
+  FenceChannel v7; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   TaskCreateRequest request; 
+  FenceFailureParameters v10; 
+  __int64 v11; 
   FenceFailureParameters v12; 
-  __int64 v13; 
-  FenceFailureParameters v14; 
 
-  v13 = -2i64;
+  v11 = -2i64;
   if ( taskState == TASKSTATE_PENDING && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_groups.cpp", 515, ASSERT_TYPE_ASSERT, "(taskState != TASKSTATE_PENDING)", (const char *)&queryFormat, "taskState != TASKSTATE_PENDING") )
     __debugbreak();
   m_appData = (GroupTaskData *)pTask->m_appData;
@@ -3112,17 +2899,12 @@ void OnSetTeamAutoJoinComplete(GenericTask *pTask, eTaskManagerTaskState taskSta
       fenceChannel = m_appData->fenceChannel;
       if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
       {
-        v12.m_statusIsCustomErrorString = 0;
-        v12.m_statusString = "create group";
-        v12.m_failureAction = FAILURE_FENCE;
-        v12.m_channel = fenceChannel;
+        v10.m_statusIsCustomErrorString = 0;
+        v10.m_statusString = "create group";
+        v10.m_failureAction = FAILURE_FENCE;
+        v10.m_channel = fenceChannel;
         OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)8, NULL);
-        __asm
-        {
-          vmovups ymm0, [rbp+57h+var_50]
-          vmovups [rbp+57h+var_50], ymm0
-        }
-        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v12);
+        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v10);
       }
       Com_PrintError(25, "Error creating group for controller %d.\n", (unsigned int)pTask->m_controllerIndex);
       ReleaseTaskDataSlot(m_appData);
@@ -3142,20 +2924,16 @@ void OnSetTeamAutoJoinComplete(GenericTask *pTask, eTaskManagerTaskState taskSta
     m_appData->taskId = Memberships;
     if ( !Memberships )
     {
-      v8 = m_appData->fenceChannel;
+      v7 = m_appData->fenceChannel;
       if ( m_appData->fenceChannel != FENCE_CHANNEL_NONE )
       {
-        v12.m_statusIsCustomErrorString = 0;
-        v12.m_statusString = "setting auto join";
-        v12.m_failureAction = FAILURE_FENCE;
-        v12.m_channel = v8;
+        v10.m_statusIsCustomErrorString = 0;
+        v10.m_statusString = "setting auto join";
+        v10.m_failureAction = FAILURE_FENCE;
+        v10.m_channel = v7;
         OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_GROUPS_t)128, NULL);
-        __asm
-        {
-          vmovups ymm0, [rbp+57h+var_50]
-          vmovups [rbp+57h+var_20], ymm0
-        }
-        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v14);
+        v12 = v10;
+        OnlineErrorManager::FenceFailure(&g_onlineMgr.m_errorManager, &v12);
       }
       ReleaseTaskDataSlot(m_appData);
     }
@@ -3194,74 +2972,69 @@ void OnlineGroupsManager::RejectApplication(OnlineGroupsManager *this, const int
 {
   __int64 v4; 
   __int64 v6; 
-  GroupTaskData *UnusedTaskDataSlot; 
+  double *UnusedTaskDataSlot; 
   __int64 v8; 
   bdUserAccountID *v9; 
   unsigned int v10; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
-  TaskCreateRequest v14; 
-  __int128 v15; 
-  FenceChannel v16; 
-  __int64 v17; 
-  FenceStartParameters v18; 
-  bdUserAccountID v19; 
+  TaskCreateRequest v12; 
+  __int128 v13; 
+  FenceChannel v14; 
+  __int64 v15; 
+  FenceStartParameters v16; 
+  bdUserAccountID v17; 
 
-  v17 = -2i64;
+  v15 = -2i64;
   v4 = applicationIndex;
   v6 = controllerIndex;
-  *(_QWORD *)&v14.m_controllerIndex = -1i64;
-  memset(&v14.m_appData, 0, 48);
-  v14.m_cancelTaskOnSignoutEvent = 1;
-  v14.m_timeoutInSeconds = 0;
-  UnusedTaskDataSlot = GetUnusedTaskDataSlot();
+  *(_QWORD *)&v12.m_controllerIndex = -1i64;
+  memset(&v12.m_appData, 0, 48);
+  v12.m_cancelTaskOnSignoutEvent = 1;
+  v12.m_timeoutInSeconds = 0;
+  UnusedTaskDataSlot = (double *)GetUnusedTaskDataSlot();
   if ( UnusedTaskDataSlot )
   {
-    v14.m_controllerIndex = v6;
-    v14.m_onCompletionCallback = OnRejectApplicationComplete;
-    v14.m_appData = UnusedTaskDataSlot;
-    UnusedTaskDataSlot->fenceChannel = fenceChannel;
+    v12.m_controllerIndex = v6;
+    v12.m_onCompletionCallback = OnRejectApplicationComplete;
+    v12.m_appData = UnusedTaskDataSlot;
+    *UnusedTaskDataSlot = *(double *)&fenceChannel;
     v8 = 27880 * v6 + 288 * v4;
-    bdUserAccountID::bdUserAccountID(&v19, (const bdUserAccountID *)((char *)&s_groupData[0].applications[0].__vftable + v8 + 24));
-    v10 = dwRejectApplication(&v14, *(unsigned __int64 *)((char *)&s_groupData[0].applications[0].__vftable + v8 + 16), v9);
-    UnusedTaskDataSlot->taskId = v10;
+    bdUserAccountID::bdUserAccountID(&v17, (const bdUserAccountID *)((char *)&s_groupData[0].applications[0].__vftable + v8 + 24));
+    v10 = dwRejectApplication(&v12, *(unsigned __int64 *)((char *)&s_groupData[0].applications[0].__vftable + v8 + 16), v9);
+    *((_DWORD *)UnusedTaskDataSlot + 2) = v10;
     if ( v10 )
     {
       if ( fenceChannel != FENCE_CHANNEL_NONE )
       {
-        LOBYTE(v15) = 0;
-        v16 = fenceChannel;
-        *((_QWORD *)&v15 + 1) = "searching for groups";
-        __asm
-        {
-          vmovups xmm0, [rbp+57h+var_C0]
-          vmovups [rbp+57h+var_90], xmm0
-          vmovsd  xmm1, [rbp+57h+var_B0]
-          vmovsd  [rbp+57h+var_80], xmm1
-        }
-        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v18);
+        LOBYTE(v13) = 0;
+        v14 = fenceChannel;
+        *((_QWORD *)&v13 + 1) = "searching for groups";
+        *(_OWORD *)&v16.m_shouldBlock = v13;
+        v16.m_channel = fenceChannel;
+        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v16);
       }
     }
   }
-  v14.m_onCompletionCallback = NULL;
-  v14.m_onUpdateCallback = NULL;
-  v14.m_appSecondaryCallback = NULL;
-  v14.m_timeoutInSeconds = 0;
-  m_asyncInfo = v14.m_asyncInfo;
-  if ( v14.m_asyncInfo )
+  v12.m_onCompletionCallback = NULL;
+  v12.m_onUpdateCallback = NULL;
+  v12.m_appSecondaryCallback = NULL;
+  v12.m_timeoutInSeconds = 0;
+  m_asyncInfo = v12.m_asyncInfo;
+  if ( v12.m_asyncInfo )
   {
-    v14.m_asyncInfo->__abi_Release(v14.m_asyncInfo);
+    v12.m_asyncInfo->__abi_Release(v12.m_asyncInfo);
     m_asyncInfo = NULL;
-    v14.m_asyncInfo = NULL;
+    v12.m_asyncInfo = NULL;
   }
-  if ( v14.m_remoteDemonwareTask.m_ptr )
+  if ( v12.m_remoteDemonwareTask.m_ptr )
   {
-    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v14.m_remoteDemonwareTask.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+    if ( _InterlockedExchangeAdd((volatile signed __int32 *)&v12.m_remoteDemonwareTask.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
     {
-      if ( v14.m_remoteDemonwareTask.m_ptr )
-        ((void (__fastcall *)(bdRemoteTask *, __int64))v14.m_remoteDemonwareTask.m_ptr->~bdReferencable)(v14.m_remoteDemonwareTask.m_ptr, 1i64);
-      v14.m_remoteDemonwareTask.m_ptr = NULL;
+      if ( v12.m_remoteDemonwareTask.m_ptr )
+        ((void (__fastcall *)(bdRemoteTask *, __int64))v12.m_remoteDemonwareTask.m_ptr->~bdReferencable)(v12.m_remoteDemonwareTask.m_ptr, 1i64);
+      v12.m_remoteDemonwareTask.m_ptr = NULL;
     }
-    m_asyncInfo = v14.m_asyncInfo;
+    m_asyncInfo = v12.m_asyncInfo;
   }
   if ( m_asyncInfo )
     m_asyncInfo->__abi_Release(m_asyncInfo);
@@ -3372,47 +3145,42 @@ OnlineGroupsManager::RetrieveGroupInvitations
 void OnlineGroupsManager::RetrieveGroupInvitations(OnlineGroupsManager *this, const int controllerIndex, FenceChannel fenceChannel, const int offset)
 {
   __int64 v6; 
-  GroupTaskData *UnusedTaskDataSlot; 
-  GroupTaskData *v8; 
+  double *UnusedTaskDataSlot; 
+  double *v8; 
   unsigned int IncomingProposals; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   TaskCreateRequest request; 
-  __int128 v14; 
-  FenceChannel v15; 
-  __int64 v16; 
-  FenceStartParameters v17; 
+  __int128 v12; 
+  FenceChannel v13; 
+  __int64 v14; 
+  FenceStartParameters v15; 
 
-  v16 = -2i64;
+  v14 = -2i64;
   v6 = controllerIndex;
   *(_QWORD *)&request.m_controllerIndex = -1i64;
   memset(&request.m_appData, 0, 48);
   request.m_cancelTaskOnSignoutEvent = 1;
   request.m_timeoutInSeconds = 0;
-  UnusedTaskDataSlot = GetUnusedTaskDataSlot();
+  UnusedTaskDataSlot = (double *)GetUnusedTaskDataSlot();
   v8 = UnusedTaskDataSlot;
   if ( UnusedTaskDataSlot )
   {
-    UnusedTaskDataSlot->fenceChannel = fenceChannel;
+    *UnusedTaskDataSlot = *(double *)&fenceChannel;
     request.m_appData = UnusedTaskDataSlot;
     request.m_controllerIndex = v6;
     request.m_onCompletionCallback = OnRetrieveGroupInvitationsComplete;
     IncomingProposals = dwGetIncomingProposals(&request, s_groupData[v6].teamProposal, 16, offset);
-    v8->taskId = IncomingProposals;
+    *((_DWORD *)v8 + 2) = IncomingProposals;
     if ( IncomingProposals )
     {
       if ( fenceChannel != FENCE_CHANNEL_NONE )
       {
-        LOBYTE(v14) = 0;
-        v15 = fenceChannel;
-        *((_QWORD *)&v14 + 1) = "retrieving invitations";
-        __asm
-        {
-          vmovups xmm0, [rbp+57h+var_50]
-          vmovups [rbp+57h+var_30], xmm0
-          vmovsd  xmm1, [rbp+57h+var_40]
-          vmovsd  [rbp+57h+var_20], xmm1
-        }
-        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v17);
+        LOBYTE(v12) = 0;
+        v13 = fenceChannel;
+        *((_QWORD *)&v12 + 1) = "retrieving invitations";
+        *(_OWORD *)&v15.m_shouldBlock = v12;
+        v15.m_channel = fenceChannel;
+        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v15);
       }
     }
   }
@@ -3449,47 +3217,42 @@ OnlineGroupsManager::RetrieveGroupMemberships
 void OnlineGroupsManager::RetrieveGroupMemberships(OnlineGroupsManager *this, const int controllerIndex, FenceChannel fenceChannel)
 {
   __int64 v4; 
-  GroupTaskData *UnusedTaskDataSlot; 
-  GroupTaskData *v6; 
+  double *UnusedTaskDataSlot; 
+  double *v6; 
   unsigned int Memberships; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   TaskCreateRequest request; 
-  __int128 v12; 
-  FenceChannel v13; 
-  __int64 v14; 
-  FenceStartParameters v15; 
+  __int128 v10; 
+  FenceChannel v11; 
+  __int64 v12; 
+  FenceStartParameters v13; 
 
-  v14 = -2i64;
+  v12 = -2i64;
   v4 = controllerIndex;
   *(_QWORD *)&request.m_controllerIndex = -1i64;
   memset(&request.m_appData, 0, 48);
   request.m_cancelTaskOnSignoutEvent = 1;
   request.m_timeoutInSeconds = 0;
-  UnusedTaskDataSlot = GetUnusedTaskDataSlot();
+  UnusedTaskDataSlot = (double *)GetUnusedTaskDataSlot();
   v6 = UnusedTaskDataSlot;
   if ( UnusedTaskDataSlot )
   {
-    UnusedTaskDataSlot->fenceChannel = fenceChannel;
+    *UnusedTaskDataSlot = *(double *)&fenceChannel;
     request.m_appData = UnusedTaskDataSlot;
     request.m_controllerIndex = v4;
     request.m_onCompletionCallback = OnRetrieveGroupMembershipsComplete;
     Memberships = dwGetMemberships(&request, s_groupData[v4].teamInfo, 10);
-    v6->taskId = Memberships;
+    *((_DWORD *)v6 + 2) = Memberships;
     if ( Memberships )
     {
       if ( fenceChannel != FENCE_CHANNEL_NONE )
       {
-        LOBYTE(v12) = 0;
-        v13 = fenceChannel;
-        *((_QWORD *)&v12 + 1) = "retrieving memberships";
-        __asm
-        {
-          vmovups xmm0, [rbp+57h+var_50]
-          vmovups [rbp+57h+var_30], xmm0
-          vmovsd  xmm1, [rbp+57h+var_40]
-          vmovsd  [rbp+57h+var_20], xmm1
-        }
-        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v4, &v15);
+        LOBYTE(v10) = 0;
+        v11 = fenceChannel;
+        *((_QWORD *)&v10 + 1) = "retrieving memberships";
+        *(_OWORD *)&v13.m_shouldBlock = v10;
+        v13.m_channel = fenceChannel;
+        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v4, &v13);
       }
     }
   }
@@ -3526,29 +3289,29 @@ OnlineGroupsManager::SearchForGroup
 void OnlineGroupsManager::SearchForGroup(OnlineGroupsManager *this, const int controllerIndex, FenceChannel fenceChannel, const char *name)
 {
   __int64 v6; 
-  GroupTaskData *UnusedTaskDataSlot; 
-  GroupTaskData *v8; 
+  double *UnusedTaskDataSlot; 
+  double *v8; 
   unsigned int numProfileFilters; 
   __int64 v10; 
   unsigned int v11; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   TaskCreateRequest request; 
-  __int128 v16; 
-  FenceChannel v17; 
-  __int64 v18; 
-  FenceStartParameters v19; 
+  __int128 v14; 
+  FenceChannel v15; 
+  __int64 v16; 
+  FenceStartParameters v17; 
 
-  v18 = -2i64;
+  v16 = -2i64;
   v6 = controllerIndex;
   *(_QWORD *)&request.m_controllerIndex = -1i64;
   memset(&request.m_appData, 0, 48);
   request.m_cancelTaskOnSignoutEvent = 1;
   request.m_timeoutInSeconds = 0;
-  UnusedTaskDataSlot = GetUnusedTaskDataSlot();
+  UnusedTaskDataSlot = (double *)GetUnusedTaskDataSlot();
   v8 = UnusedTaskDataSlot;
   if ( UnusedTaskDataSlot )
   {
-    UnusedTaskDataSlot->fenceChannel = fenceChannel;
+    *UnusedTaskDataSlot = *(double *)&fenceChannel;
     request.m_appData = UnusedTaskDataSlot;
     request.m_controllerIndex = v6;
     request.m_onCompletionCallback = OnSearchForGroupComplete;
@@ -3566,22 +3329,17 @@ void OnlineGroupsManager::SearchForGroup(OnlineGroupsManager *this, const int co
       v10 = v6;
     }
     v11 = dwSearchTeams(&request, s_groupData[v10].searchResults, 0, 0, numProfileFilters, NULL, NULL, s_groupData[v10].searchFilters, 0, 0x14u);
-    v8->taskId = v11;
+    *((_DWORD *)v8 + 2) = v11;
     if ( v11 )
     {
       if ( fenceChannel != FENCE_CHANNEL_NONE )
       {
-        LOBYTE(v16) = 0;
-        v17 = fenceChannel;
-        *((_QWORD *)&v16 + 1) = "searching for groups";
-        __asm
-        {
-          vmovups xmm0, [rbp+4Fh+var_60]
-          vmovups [rbp+4Fh+var_40], xmm0
-          vmovsd  xmm1, [rbp+4Fh+var_50]
-          vmovsd  [rbp+4Fh+var_30], xmm1
-        }
-        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v19);
+        LOBYTE(v14) = 0;
+        v15 = fenceChannel;
+        *((_QWORD *)&v14 + 1) = "searching for groups";
+        *(_OWORD *)&v17.m_shouldBlock = v14;
+        v17.m_channel = fenceChannel;
+        OnlineErrorManager::StartFence(&g_onlineMgr.m_errorManager, v6, &v17);
       }
     }
   }

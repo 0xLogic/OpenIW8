@@ -274,56 +274,59 @@ Stream_ImageRecord_AddImageDataRecord
 */
 char Stream_ImageRecord_AddImageDataRecord(const GfxImage *image, const unsigned int imageIndex)
 {
+  __int64 v3; 
+  __int64 v4; 
   __int64 v5; 
-  __int64 v6; 
-  __int64 v7; 
-  const StreamImageRecord *v8; 
+  const StreamImageRecord *v6; 
   const char *ImageName; 
   const char *name; 
-  const char *v11; 
-  signed __int64 v12; 
+  const char *v9; 
+  signed __int64 v10; 
+  char v11; 
+  __int64 v12; 
   char v13; 
-  __int64 v14; 
-  char v15; 
   unsigned __int16 *texLength; 
-  __int64 v17; 
+  __int64 v15; 
   unsigned __int16 *p_height; 
-  unsigned __int16 v26; 
-  __int64 v27; 
-  __int64 v28; 
-  __int64 v30; 
+  unsigned int v17; 
+  unsigned __int16 v18; 
+  __int64 v19; 
+  __int64 v20; 
+  __int64 v22; 
+  __int64 v23; 
+  __int64 v24; 
+  const StreamImageRecord *v25; 
+  const char *v26; 
+  const char *v27; 
+  const char *v28; 
+  signed __int64 v29; 
+  char v30; 
   __int64 v31; 
-  __int64 v32; 
-  const StreamImageRecord *v33; 
-  const char *v34; 
-  const char *v35; 
-  const char *v36; 
-  signed __int64 v37; 
-  char v38; 
-  __int64 v39; 
-  char v40; 
-  unsigned __int16 *v41; 
-  __int64 v42; 
+  char v32; 
+  unsigned __int16 *v33; 
+  __int64 v34; 
   unsigned int *highestPriorities; 
-  unsigned __int16 *v44; 
-  const char *v52; 
-  unsigned int v53; 
-  const char *v54; 
-  char v55; 
-  unsigned int v56; 
-  unsigned int v57; 
-  unsigned int v58; 
-  unsigned int *v59; 
+  unsigned __int16 *v36; 
+  float v37; 
+  unsigned int v38; 
+  const char *v39; 
+  unsigned int v40; 
+  const char *v41; 
+  char v42; 
+  unsigned int v43; 
+  unsigned int v44; 
+  unsigned int v45; 
+  unsigned int *v46; 
   unsigned int ImageFlatPartIndex; 
-  unsigned __int64 v61; 
-  unsigned int v62; 
-  __int64 v63; 
-  __int64 v64; 
-  __int64 v65; 
-  __int64 v66; 
+  unsigned __int64 v48; 
+  unsigned int v49; 
+  __int64 v50; 
+  __int64 v51; 
+  __int64 v52; 
+  __int64 v53; 
   unsigned int outIndex; 
   unsigned int imageIndexa; 
-  const StreamImageRecord *v69; 
+  const StreamImageRecord *v56; 
 
   imageIndexa = imageIndex;
   if ( imageIndex >= 0x14000 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 878, ASSERT_TYPE_ASSERT, "(unsigned)( imageIndex ) < (unsigned)( IMAGE_POOL_SIZE )", "imageIndex doesn't index IMAGE_POOL_SIZE\n\t%i not in [0, %i)", imageIndex, 81920) )
@@ -334,82 +337,71 @@ char Stream_ImageRecord_AddImageDataRecord(const GfxImage *image, const unsigned
     __debugbreak();
   if ( Stream_ImageRecord_FindExistingRecord(image->name, &outIndex) )
   {
-    v5 = outIndex;
+    v3 = outIndex;
     if ( outIndex >= 0x14000 )
     {
-      LODWORD(v64) = 81920;
-      LODWORD(v63) = outIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 884, ASSERT_TYPE_ASSERT, "(unsigned)( recordIndex ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.record ) ) + 0 ) )", "recordIndex doesn't index ARRAY_COUNT( s_streamImageTracking.record )\n\t%i not in [0, %i)", v63, v64) )
+      LODWORD(v51) = 81920;
+      LODWORD(v50) = outIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 884, ASSERT_TYPE_ASSERT, "(unsigned)( recordIndex ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.record ) ) + 0 ) )", "recordIndex doesn't index ARRAY_COUNT( s_streamImageTracking.record )\n\t%i not in [0, %i)", v50, v51) )
         __debugbreak();
     }
-    v6 = v5;
-    v7 = 0x7FFFFFFFi64;
-    v8 = &s_streamImageTracking.record[v6];
-    v69 = v8;
-    ImageName = Stream_ImageRecord_GetImageName(v8);
+    v4 = v3;
+    v5 = 0x7FFFFFFFi64;
+    v6 = &s_streamImageTracking.record[v4];
+    v56 = v6;
+    ImageName = Stream_ImageRecord_GetImageName(v6);
     name = image->name;
-    v11 = ImageName;
+    v9 = ImageName;
     if ( !image->name && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
       __debugbreak();
-    if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+    if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
       __debugbreak();
-    v12 = name - v11;
+    v10 = name - v9;
     do
     {
-      v13 = v11[v12];
-      v14 = v7;
-      v15 = *v11++;
-      --v7;
-      if ( !v14 )
+      v11 = v9[v10];
+      v12 = v5;
+      v13 = *v9++;
+      --v5;
+      if ( !v12 )
         break;
-      if ( v13 != v15 )
+      if ( v11 != v13 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 886, ASSERT_TYPE_ASSERT, "(!I_strcmp( image->name, Stream_ImageRecord_GetImageName( imageRecord ) ))", (const char *)&queryFormat, "!I_strcmp( image->name, Stream_ImageRecord_GetImageName( imageRecord ) )") )
           __debugbreak();
         break;
       }
     }
-    while ( v13 );
-    texLength = v8->texLength;
-    v17 = 4i64;
+    while ( v11 );
+    texLength = v6->texLength;
+    v15 = 4i64;
     p_height = &image->streams[0].height;
     do
     {
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, eax
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm2, xmm0, xmm0
-        vmulss  xmm1, xmm1, xmm1
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm0, xmm2, xmm2
-        vcvttss2si rbx, xmm0
-      }
-      if ( (unsigned int)_RBX > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)_RBX, "unsigned", (unsigned int)_RBX) )
+      v17 = (int)fsqrt((float)((float)*p_height * (float)*p_height) + (float)((float)*(p_height - 1) * (float)*(p_height - 1)));
+      if ( v17 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v17, "unsigned", v17) )
         __debugbreak();
-      v26 = *texLength;
-      if ( *texLength != (_WORD)_RBX )
+      v18 = *texLength;
+      if ( *texLength != (_WORD)v17 )
       {
-        if ( (unsigned int)_RBX > 0xFFFF )
+        if ( v17 > 0xFFFF )
         {
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)_RBX, "unsigned", (unsigned int)_RBX) )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v17, "unsigned", v17) )
             __debugbreak();
-          v26 = *texLength;
+          v18 = *texLength;
         }
-        LODWORD(v66) = (unsigned __int16)_RBX;
-        LODWORD(v65) = v26;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 897, ASSERT_TYPE_ASSERT, "( imageRecord->texLength[imagePartIndex] ) == ( truncate_cast<ushort>( static_cast<uint>( Vec2Length( texSize ) ) ) )", "%s == %s\n\t%i, %i", "imageRecord->texLength[imagePartIndex]", "truncate_cast<ushort>( static_cast<uint>( Vec2Length( texSize ) ) )", v65, v66) )
+        LODWORD(v53) = (unsigned __int16)v17;
+        LODWORD(v52) = v18;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 897, ASSERT_TYPE_ASSERT, "( imageRecord->texLength[imagePartIndex] ) == ( truncate_cast<ushort>( static_cast<uint>( Vec2Length( texSize ) ) ) )", "%s == %s\n\t%i, %i", "imageRecord->texLength[imagePartIndex]", "truncate_cast<ushort>( static_cast<uint>( Vec2Length( texSize ) ) )", v52, v53) )
           __debugbreak();
       }
       ++texLength;
       p_height += 20;
-      --v17;
+      --v15;
     }
-    while ( v17 );
-    v27 = (__int64)v69;
-    LODWORD(v28) = outIndex;
+    while ( v15 );
+    v19 = (__int64)v56;
+    LODWORD(v20) = outIndex;
   }
   else
   {
@@ -420,169 +412,159 @@ char Stream_ImageRecord_AddImageDataRecord(const GfxImage *image, const unsigned
       Com_PrintError(16, "*********************************************************************************************\n");
       return 0;
     }
-    v30 = outIndex;
+    v22 = outIndex;
     if ( outIndex >= 0x14000 )
     {
-      LODWORD(v64) = 81920;
-      LODWORD(v63) = outIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 909, ASSERT_TYPE_ASSERT, "(unsigned)( recordIndex ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.record ) ) + 0 ) )", "recordIndex doesn't index ARRAY_COUNT( s_streamImageTracking.record )\n\t%i not in [0, %i)", v63, v64) )
+      LODWORD(v51) = 81920;
+      LODWORD(v50) = outIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 909, ASSERT_TYPE_ASSERT, "(unsigned)( recordIndex ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.record ) ) + 0 ) )", "recordIndex doesn't index ARRAY_COUNT( s_streamImageTracking.record )\n\t%i not in [0, %i)", v50, v51) )
         __debugbreak();
     }
-    v31 = v30;
-    v32 = 0x7FFFFFFFi64;
-    v33 = &s_streamImageTracking.record[v31];
-    v69 = v33;
-    v34 = Stream_ImageRecord_GetImageName(v33);
-    v35 = image->name;
-    v36 = v34;
+    v23 = v22;
+    v24 = 0x7FFFFFFFi64;
+    v25 = &s_streamImageTracking.record[v23];
+    v56 = v25;
+    v26 = Stream_ImageRecord_GetImageName(v25);
+    v27 = image->name;
+    v28 = v26;
     if ( !image->name && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
       __debugbreak();
-    if ( !v36 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+    if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 182, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
       __debugbreak();
-    v37 = v35 - v36;
+    v29 = v27 - v28;
     do
     {
-      v38 = v36[v37];
-      v39 = v32;
-      v40 = *v36++;
-      --v32;
-      if ( !v39 )
+      v30 = v28[v29];
+      v31 = v24;
+      v32 = *v28++;
+      --v24;
+      if ( !v31 )
         break;
-      if ( v38 != v40 )
+      if ( v30 != v32 )
       {
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 911, ASSERT_TYPE_ASSERT, "(!I_strcmp( image->name, Stream_ImageRecord_GetImageName( imageRecord ) ))", (const char *)&queryFormat, "!I_strcmp( image->name, Stream_ImageRecord_GetImageName( imageRecord ) )") )
           __debugbreak();
         break;
       }
     }
-    while ( v38 );
-    if ( !v33 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 830, ASSERT_TYPE_ASSERT, "(imageRecord)", (const char *)&queryFormat, "imageRecord") )
+    while ( v30 );
+    if ( !v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 830, ASSERT_TYPE_ASSERT, "(imageRecord)", (const char *)&queryFormat, "imageRecord") )
       __debugbreak();
-    v41 = &image->streams[0].height;
-    v42 = 4i64;
-    highestPriorities = v33->highestPriorities;
-    v44 = v33->texLength;
+    v33 = &image->streams[0].height;
+    v34 = 4i64;
+    highestPriorities = v25->highestPriorities;
+    v36 = v25->texLength;
     do
     {
-      __asm { vxorps  xmm1, xmm1, xmm1 }
       *highestPriorities = -1;
-      __asm
-      {
-        vcvtsi2ss xmm1, xmm1, eax
-        vxorps  xmm0, xmm0, xmm0
-        vmulss  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, xmm0
-        vaddss  xmm1, xmm1, xmm0
-        vsqrtss xmm2, xmm1, xmm1
-        vcvttss2si rbx, xmm2
-      }
-      if ( (unsigned int)_RBX > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)_RBX, "unsigned", (unsigned int)_RBX) )
+      v37 = (float)*(v33 - 1);
+      v38 = (int)fsqrt((float)(v37 * v37) + (float)((float)*v33 * (float)*v33));
+      if ( v38 > 0xFFFF && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,unsigned int>(unsigned int)", "unsigned", (unsigned __int16)v38, "unsigned", v38) )
         __debugbreak();
-      *v44 = _RBX;
+      *v36 = v38;
       ++highestPriorities;
-      ++v44;
-      v41 += 20;
-      --v42;
+      ++v36;
+      v33 += 20;
+      --v34;
     }
-    while ( v42 );
-    v28 = outIndex;
-    v27 = (__int64)v69;
+    while ( v34 );
+    v20 = outIndex;
+    v19 = (__int64)v56;
     if ( outIndex >= 0x14000 )
     {
-      LODWORD(v64) = 81920;
-      LODWORD(v63) = outIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 740, ASSERT_TYPE_ASSERT, "(unsigned)( entryIndex ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.record ) ) + 0 ) )", "entryIndex doesn't index ARRAY_COUNT( s_streamImageTracking.record )\n\t%i not in [0, %i)", v63, v64) )
+      LODWORD(v51) = 81920;
+      LODWORD(v50) = outIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 740, ASSERT_TYPE_ASSERT, "(unsigned)( entryIndex ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.record ) ) + 0 ) )", "entryIndex doesn't index ARRAY_COUNT( s_streamImageTracking.record )\n\t%i not in [0, %i)", v50, v51) )
         __debugbreak();
     }
-    v52 = Stream_ImageRecord_GetImageName(&s_streamImageTracking.record[v28]);
-    v53 = 0;
-    v54 = v52;
-    if ( v52 )
+    v39 = Stream_ImageRecord_GetImageName(&s_streamImageTracking.record[v20]);
+    v40 = 0;
+    v41 = v39;
+    if ( v39 )
     {
-      v55 = *v52;
-      if ( v55 )
+      v42 = *v39;
+      if ( v42 )
       {
         do
         {
-          ++v54;
-          v53 = v55 + 31 * v53;
-          v55 = *v54;
+          ++v41;
+          v40 = v42 + 31 * v40;
+          v42 = *v41;
         }
-        while ( *v54 );
+        while ( *v41 );
       }
     }
-    v56 = v53 % 0x14009;
-    if ( v53 % 0x14009 >= 0x14009 )
+    v43 = v40 % 0x14009;
+    if ( v40 % 0x14009 >= 0x14009 )
     {
-      LODWORD(v64) = 81929;
-      LODWORD(v63) = v53 % 0x14009;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 748, ASSERT_TYPE_ASSERT, "(unsigned)( hashTableIndex ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.recordHashTable ) ) + 0 ) )", "hashTableIndex doesn't index ARRAY_COUNT( s_streamImageTracking.recordHashTable )\n\t%i not in [0, %i)", v63, v64) )
+      LODWORD(v51) = 81929;
+      LODWORD(v50) = v40 % 0x14009;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 748, ASSERT_TYPE_ASSERT, "(unsigned)( hashTableIndex ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.recordHashTable ) ) + 0 ) )", "hashTableIndex doesn't index ARRAY_COUNT( s_streamImageTracking.recordHashTable )\n\t%i not in [0, %i)", v50, v51) )
         __debugbreak();
     }
-    s_streamImageTracking.record[v28].nextHash = s_streamImageTracking.recordHashTable[v56];
-    s_streamImageTracking.recordHashTable[v56] = v28;
+    s_streamImageTracking.record[v20].nextHash = s_streamImageTracking.recordHashTable[v43];
+    s_streamImageTracking.recordHashTable[v43] = v20;
   }
-  v57 = imageIndexa;
-  v58 = 0;
-  v59 = (unsigned int *)(v27 + 8);
+  v44 = imageIndexa;
+  v45 = 0;
+  v46 = (unsigned int *)(v19 + 8);
   do
   {
-    ImageFlatPartIndex = Stream_GetImageFlatPartIndex(v57, v58);
-    v61 = ImageFlatPartIndex;
+    ImageFlatPartIndex = Stream_GetImageFlatPartIndex(v44, v45);
+    v48 = ImageFlatPartIndex;
     if ( ImageFlatPartIndex >= 0x50000 )
     {
-      LODWORD(v64) = 327680;
-      LODWORD(v63) = ImageFlatPartIndex;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 939, ASSERT_TYPE_ASSERT, "(unsigned)( flatIndex ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.curHighestPriority ) ) + 0 ) )", "flatIndex doesn't index ARRAY_COUNT( s_streamImageTracking.curHighestPriority )\n\t%i not in [0, %i)", v63, v64) )
+      LODWORD(v51) = 327680;
+      LODWORD(v50) = ImageFlatPartIndex;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 939, ASSERT_TYPE_ASSERT, "(unsigned)( flatIndex ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.curHighestPriority ) ) + 0 ) )", "flatIndex doesn't index ARRAY_COUNT( s_streamImageTracking.curHighestPriority )\n\t%i not in [0, %i)", v50, v51) )
         __debugbreak();
     }
-    if ( (unsigned int)v61 >> 5 >= 0x2800 )
+    if ( (unsigned int)v48 >> 5 >= 0x2800 )
     {
-      LODWORD(v64) = 10240;
-      LODWORD(v63) = (unsigned int)v61 >> 5;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 940, ASSERT_TYPE_ASSERT, "(unsigned)( flatIndex >> 5 ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.curLoadedImages ) ) + 0 ) )", "flatIndex >> 5 doesn't index ARRAY_COUNT( s_streamImageTracking.curLoadedImages )\n\t%i not in [0, %i)", v63, v64) )
+      LODWORD(v51) = 10240;
+      LODWORD(v50) = (unsigned int)v48 >> 5;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 940, ASSERT_TYPE_ASSERT, "(unsigned)( flatIndex >> 5 ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.curLoadedImages ) ) + 0 ) )", "flatIndex >> 5 doesn't index ARRAY_COUNT( s_streamImageTracking.curLoadedImages )\n\t%i not in [0, %i)", v50, v51) )
         __debugbreak();
     }
-    if ( !s_streamImageTracking.curHighestPriority[v61] )
+    if ( !s_streamImageTracking.curHighestPriority[v48] )
     {
-      LODWORD(v65) = 0;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 943, ASSERT_TYPE_ASSERT, "( s_streamImageTracking.curHighestPriority[flatIndex] ) != ( S_STREAM_IMAGE_REPORT_INVALID )", "%s != %s\n\t%i, %i", "s_streamImageTracking.curHighestPriority[flatIndex]", "S_STREAM_IMAGE_REPORT_INVALID", v65, 0i64) )
+      LODWORD(v52) = 0;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 943, ASSERT_TYPE_ASSERT, "( s_streamImageTracking.curHighestPriority[flatIndex] ) != ( S_STREAM_IMAGE_REPORT_INVALID )", "%s != %s\n\t%i, %i", "s_streamImageTracking.curHighestPriority[flatIndex]", "S_STREAM_IMAGE_REPORT_INVALID", v52, 0i64) )
         __debugbreak();
     }
-    Stream_GetImageFlatPartIndex(v57, v58);
-    if ( s_streamImageTracking.curHighestPriority[v61] == 1 )
+    Stream_GetImageFlatPartIndex(v44, v45);
+    if ( s_streamImageTracking.curHighestPriority[v48] == 1 )
     {
-      LODWORD(v66) = 1;
-      LODWORD(v65) = 1;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 948, ASSERT_TYPE_ASSERT, "( s_streamImageTracking.curHighestPriority[flatIndex] ) != ( S_STREAM_IMAGE_REPORT_NOT_STREAMED )", "%s != %s\n\t%i, %i", "s_streamImageTracking.curHighestPriority[flatIndex]", "S_STREAM_IMAGE_REPORT_NOT_STREAMED", v65, v66) )
+      LODWORD(v53) = 1;
+      LODWORD(v52) = 1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 948, ASSERT_TYPE_ASSERT, "( s_streamImageTracking.curHighestPriority[flatIndex] ) != ( S_STREAM_IMAGE_REPORT_NOT_STREAMED )", "%s != %s\n\t%i, %i", "s_streamImageTracking.curHighestPriority[flatIndex]", "S_STREAM_IMAGE_REPORT_NOT_STREAMED", v52, v53) )
         __debugbreak();
     }
-    if ( *v59 == 1 && s_streamImageTracking.curHighestPriority[v61] != 1 )
+    if ( *v46 == 1 && s_streamImageTracking.curHighestPriority[v48] != 1 )
     {
-      LODWORD(v66) = 1;
-      LODWORD(v65) = s_streamImageTracking.curHighestPriority[v61];
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 957, ASSERT_TYPE_ASSERT, "( s_streamImageTracking.curHighestPriority[flatIndex] ) == ( S_STREAM_IMAGE_REPORT_NOT_STREAMED )", "%s == %s\n\t%i, %i", "s_streamImageTracking.curHighestPriority[flatIndex]", "S_STREAM_IMAGE_REPORT_NOT_STREAMED", v65, v66) )
+      LODWORD(v53) = 1;
+      LODWORD(v52) = s_streamImageTracking.curHighestPriority[v48];
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 957, ASSERT_TYPE_ASSERT, "( s_streamImageTracking.curHighestPriority[flatIndex] ) == ( S_STREAM_IMAGE_REPORT_NOT_STREAMED )", "%s == %s\n\t%i, %i", "s_streamImageTracking.curHighestPriority[flatIndex]", "S_STREAM_IMAGE_REPORT_NOT_STREAMED", v52, v53) )
         __debugbreak();
     }
-    v62 = s_streamImageTracking.curHighestPriority[v61];
-    if ( v62 < *v59 )
+    v49 = s_streamImageTracking.curHighestPriority[v48];
+    if ( v49 < *v46 )
     {
-      *v59 = v62;
-      if ( (unsigned int)v28 >> 5 >= 0xA00 )
+      *v46 = v49;
+      if ( (unsigned int)v20 >> 5 >= 0xA00 )
       {
-        LODWORD(v64) = 2560;
-        LODWORD(v63) = (unsigned int)v28 >> 5;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 335, ASSERT_TYPE_ASSERT, "(unsigned)( recordIndex >> 5 ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.recordDirty ) ) + 0 ) )", "recordIndex >> 5 doesn't index ARRAY_COUNT( s_streamImageTracking.recordDirty )\n\t%i not in [0, %i)", v63, v64) )
+        LODWORD(v51) = 2560;
+        LODWORD(v50) = (unsigned int)v20 >> 5;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 335, ASSERT_TYPE_ASSERT, "(unsigned)( recordIndex >> 5 ) < (unsigned)( ( sizeof( *array_counter( s_streamImageTracking.recordDirty ) ) + 0 ) )", "recordIndex >> 5 doesn't index ARRAY_COUNT( s_streamImageTracking.recordDirty )\n\t%i not in [0, %i)", v50, v51) )
           __debugbreak();
       }
-      s_streamImageTracking.recordDirty[(unsigned __int64)(unsigned int)v28 >> 5] |= 0x80000000 >> (v28 & 0x1F);
+      s_streamImageTracking.recordDirty[(unsigned __int64)(unsigned int)v20 >> 5] |= 0x80000000 >> (v20 & 0x1F);
     }
-    ++v58;
-    ++v59;
-    s_streamImageTracking.curReportedImages[v61 >> 5] |= 0x80000000 >> (v61 & 0x1F);
+    ++v45;
+    ++v46;
+    s_streamImageTracking.curReportedImages[v48 >> 5] |= 0x80000000 >> (v48 & 0x1F);
   }
-  while ( v58 < 4 );
+  while ( v45 < 4 );
   return 1;
 }
 
@@ -841,20 +823,21 @@ void Stream_ImageRecord_ClearTracking(const unsigned int imageIndex)
 Stream_ImageRecord_CommitRecords
 ==============
 */
-
-void __fastcall Stream_ImageRecord_CommitRecords(double _XMM0_8)
+void Stream_ImageRecord_CommitRecords()
 {
-  const dvar_t *v1; 
-  unsigned __int64 v2; 
-  unsigned int v3; 
+  const dvar_t *v0; 
+  unsigned __int64 v1; 
+  unsigned int v2; 
+  __int128 v5; 
+  __int128 v7; 
   unsigned int *recordHashTable; 
   __int64 i; 
+  const dvar_t *v11; 
   const dvar_t *v12; 
-  const dvar_t *v13; 
   int integer; 
   char *fmt; 
   char *fmta; 
-  __int64 v17; 
+  __int64 v16; 
   StreamImageReportHeader r_header; 
 
   if ( Stream_ImageRecord_AllowReporting() && s_streamImageTracking.recordCount )
@@ -863,52 +846,50 @@ void __fastcall Stream_ImageRecord_CommitRecords(double _XMM0_8)
     Stream_ImageRecord_ReportLocalFile();
     if ( !BB_IsInitializedAndActive() )
       goto LABEL_18;
-    v1 = DVARBOOL_stream_imagePriorityUseBlackbox;
+    v0 = DVARBOOL_stream_imagePriorityUseBlackbox;
     if ( !DVARBOOL_stream_imagePriorityUseBlackbox && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_imagePriorityUseBlackbox") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v1);
-    if ( v1->current.enabled )
+    Dvar_CheckFrontendServerThread(v0);
+    if ( v0->current.enabled )
     {
-      v2 = __rdtsc();
+      v1 = __rdtsc();
       r_header = (StreamImageReportHeader)3;
-      LODWORD(v17) = s_streamImageTracking.reportIndex;
+      LODWORD(v16) = s_streamImageTracking.reportIndex;
       LODWORD(fmt) = 0;
-      Com_Printf(16, "ImageReporting: Starting Blackbox Report. Version %i, Plat %u, Build %u, Report %i\n", (unsigned __int16)(LOBYTE(s_streamImageTracking.dataVersionNum) + 256), 3i64, fmt, v17);
-      v3 = 0;
+      Com_Printf(16, "ImageReporting: Starting Blackbox Report. Version %i, Plat %u, Build %u, Report %i\n", (unsigned __int16)(LOBYTE(s_streamImageTracking.dataVersionNum) + 256), 3i64, fmt, v16);
+      v2 = 0;
       if ( s_streamImageTracking.recordCount )
       {
         while ( Stream_ImageRecord_AllowReporting() )
         {
-          if ( !Stream_ImageRecord_ReportImageToBlackbox(v3, &s_streamImageTracking.record[v3], &r_header) )
+          if ( !Stream_ImageRecord_ReportImageToBlackbox(v2, &s_streamImageTracking.record[v2], &r_header) )
           {
             Com_PrintError(16, "*********************************************************************************************\n");
             Com_PrintError(16, "***** Error generating image streaming report. This is a serious issue, report to code. *****\n");
             Com_PrintError(16, "*********************************************************************************************\n");
             goto LABEL_15;
           }
-          if ( ++v3 >= s_streamImageTracking.recordCount )
+          if ( ++v2 >= s_streamImageTracking.recordCount )
             goto LABEL_15;
         }
         Com_Printf(16, "ImageReporting: Aborted blackbox report due to system being turned off\n");
       }
 LABEL_15:
       BB_NetworkFlush();
-      __asm
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      if ( (__int64)(__rdtsc() - v1) < 0 )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
+        *((_QWORD *)&v5 + 1) = *((_QWORD *)&_XMM0 + 1);
+        *(double *)&v5 = *(double *)&_XMM0 + 1.844674407370955e19;
+        _XMM0 = v5;
       }
-      if ( (__int64)(__rdtsc() - v2) < 0 )
-        __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-      __asm
-      {
-        vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vcvtss2sd xmm2, xmm1, xmm1
-        vmovq   r8, xmm2
-      }
+      *((_QWORD *)&v7 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v7 = *(double *)&_XMM0 * msecPerRawTimerTick;
+      _XMM0 = v7;
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
       LODWORD(fmta) = s_streamImageTracking.recordNameBufIndex;
-      Com_Printf(16, "ImageReporting: Blackbox Report took %f ms. Storage: %i records using %i bytes.\n", *(double *)&_XMM2, s_streamImageTracking.recordCount, fmta);
+      Com_Printf(16, "ImageReporting: Blackbox Report took %f ms. Storage: %i records using %i bytes.\n", *(float *)&_XMM1, s_streamImageTracking.recordCount, fmta);
     }
     else
     {
@@ -929,21 +910,21 @@ LABEL_18:
   *(_WORD *)&s_streamImageTracking.transferredPrioritiesSinceLastReport = 0;
   DebugWipe(s_streamImageTracking.record, 0x280000ui64);
   DebugWipe(s_streamImageTracking.recordNameBuf, 0x500000ui64);
-  v12 = DVARINT_stream_imagePriorityReportDelay;
+  v11 = DVARINT_stream_imagePriorityReportDelay;
   if ( !DVARINT_stream_imagePriorityReportDelay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_imagePriorityReportDelay") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.integer <= 0 )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.integer <= 0 )
   {
     s_streamImageTracking.nextTimedReport = 0;
   }
   else
   {
-    v13 = DVARINT_stream_imagePriorityReportDelay;
+    v12 = DVARINT_stream_imagePriorityReportDelay;
     if ( !DVARINT_stream_imagePriorityReportDelay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_imagePriorityReportDelay") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v13);
-    integer = v13->current.integer;
+    Dvar_CheckFrontendServerThread(v12);
+    integer = v12->current.integer;
     s_streamImageTracking.nextTimedReport = 1000 * integer + Sys_Milliseconds();
   }
 }
@@ -1286,16 +1267,16 @@ LABEL_29:
 Stream_ImageRecord_GenerateRecordsForAllImages
 ==============
 */
-
-void __fastcall Stream_ImageRecord_GenerateRecordsForAllImages(double _XMM0_8)
+void Stream_ImageRecord_GenerateRecordsForAllImages(void)
 {
   unsigned int recordCount; 
-  const dvar_t *v2; 
-  __int64 v3; 
+  const dvar_t *v1; 
+  __int64 v2; 
   unsigned int *curHighestPriority; 
-  __int64 v5; 
+  __int64 v4; 
+  unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
+  __int128 v10; 
   char *fmt; 
 
   if ( Stream_ImageRecord_AllowCollection() )
@@ -1305,45 +1286,42 @@ void __fastcall Stream_ImageRecord_GenerateRecordsForAllImages(double _XMM0_8)
     __rdtsc();
     Sys_ProfBeginNamedEvent(0xFF9ACD32, "Stream_ImageRecord_GenerateRecordsForAllImages");
     DB_EnumXAssets(ASSET_TYPE_IMAGE, Stream_ImageRecord_EnumCallback, NULL, 1);
-    v2 = DVARBOOL_stream_imagePriorityResetOnGenerate;
+    v1 = DVARBOOL_stream_imagePriorityResetOnGenerate;
     if ( !DVARBOOL_stream_imagePriorityResetOnGenerate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_imagePriorityResetOnGenerate") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v2);
-    if ( v2->current.enabled )
+    Dvar_CheckFrontendServerThread(v1);
+    if ( v1->current.enabled )
     {
-      v3 = 0i64;
+      v2 = 0i64;
       curHighestPriority = s_streamImageTracking.curHighestPriority;
-      v5 = 327680i64;
+      v4 = 327680i64;
       do
       {
-        v6 = *curHighestPriority;
+        v5 = *curHighestPriority;
         if ( *curHighestPriority >= 3 )
         {
-          v7 = v3 + 1;
+          v6 = v2 + 1;
           *curHighestPriority = -1;
-          if ( v6 == -1 )
-            v7 = v3;
-          v3 = v7;
+          if ( v5 == -1 )
+            v6 = v2;
+          v2 = v6;
         }
         ++curHighestPriority;
-        --v5;
+        --v4;
       }
-      while ( v5 );
-      Com_Printf(16, "ImageReporting: Reset highest priority latch for %i images.\n", v3);
+      while ( v4 );
+      Com_Printf(16, "ImageReporting: Reset highest priority latch for %i images.\n", v2);
     }
     Sys_ProfEndNamedEvent();
     __rdtsc();
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
-      vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-      vcvtsd2ss xmm2, xmm1, xmm1
-      vcvtss2sd xmm3, xmm2, xmm2
-    }
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    *((_QWORD *)&v10 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v10 = *(double *)&_XMM0 * msecPerRawTimerTick;
+    _XMM1 = v10;
+    __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
     LODWORD(fmt) = s_streamImageTracking.recordCount - recordCount;
-    __asm { vmovq   r9, xmm3 }
-    Com_Printf(16, "ImageReporting: Generated new reports. %d kb remaining. Spent %f ms to generate %i records\n", (5242880 - (unsigned __int64)s_streamImageTracking.recordNameBufIndex) >> 10, *(double *)&_XMM3, fmt);
+    Com_Printf(16, "ImageReporting: Generated new reports. %d kb remaining. Spent %f ms to generate %i records\n", (5242880 - (unsigned __int64)s_streamImageTracking.recordNameBufIndex) >> 10, *(float *)&_XMM2, fmt);
   }
   else
   {
@@ -1801,28 +1779,29 @@ char Stream_ImageRecord_ReportImageToBlackbox(unsigned int recordIndex, StreamIm
 Stream_ImageRecord_ReportLocalFile
 ==============
 */
-
-void __fastcall Stream_ImageRecord_ReportLocalFile(double _XMM0_8)
+void Stream_ImageRecord_ReportLocalFile()
 {
-  unsigned __int64 v1; 
-  int v2; 
-  __int64 v3; 
-  unsigned int v4; 
-  StreamImageRecord *v5; 
-  unsigned int v6; 
-  int v7; 
-  unsigned int v8; 
-  int v9; 
-  unsigned int v10; 
-  int v11; 
-  unsigned int v12; 
+  unsigned __int64 v0; 
+  int v1; 
+  __int64 v2; 
+  unsigned int v3; 
+  StreamImageRecord *v4; 
+  unsigned int v5; 
+  int v6; 
+  unsigned int v7; 
+  int v8; 
+  unsigned int v9; 
+  int v10; 
+  unsigned int v11; 
   char *ImageName; 
-  int v14; 
-  unsigned int v15; 
-  __int64 v16; 
+  int v13; 
+  unsigned int v14; 
+  __int64 v15; 
+  __int128 v18; 
+  __int128 v20; 
   char *fmt; 
   char *fmta; 
-  char *fmtb; 
+  __int64 v24; 
   __int64 v25; 
   __int64 v26; 
   __int64 v27; 
@@ -1830,17 +1809,16 @@ void __fastcall Stream_ImageRecord_ReportLocalFile(double _XMM0_8)
   __int64 v29; 
   __int64 v30; 
   __int64 v31; 
-  __int64 v32; 
+  unsigned int v32; 
   unsigned int v33; 
   unsigned int v34; 
-  unsigned int v35; 
-  unsigned __int64 v36; 
-  unsigned int v37; 
+  unsigned __int64 v35; 
+  unsigned int v36; 
   StreamImageRecord *imageRecord; 
   char dest[256]; 
 
-  v1 = __rdtsc();
-  v36 = v1;
+  v0 = __rdtsc();
+  v35 = v0;
   Com_sprintf(dest, 0x100ui64, "%s%s", "image_streaming_data", ".csv");
   if ( !s_streamImageTracking.rotatedLogFile )
   {
@@ -1857,75 +1835,75 @@ void __fastcall Stream_ImageRecord_ReportLocalFile(double _XMM0_8)
   else
   {
     Com_Printf(15, "ImageReporting: Reporting to log file: %s\n", dest);
-    LODWORD(v25) = 0;
+    LODWORD(v24) = 0;
     LODWORD(fmt) = 3;
-    v2 = Com_sprintf(s_streamImageTracking.writeScratchBuffer, 0x19400ui64, "#Version %i Platform %u Build %u\n\n%s", (unsigned __int16)(LOBYTE(s_streamImageTracking.dataVersionNum) + 256), fmt, v25, "name,size_base,pri_base,size_low,pri_low,size_mid,pri_mid,size_hi,pri_hi\n");
-    if ( v2 >= 0 )
+    v1 = Com_sprintf(s_streamImageTracking.writeScratchBuffer, 0x19400ui64, "#Version %i Platform %u Build %u\n\n%s", (unsigned __int16)(LOBYTE(s_streamImageTracking.dataVersionNum) + 256), fmt, v24, "name,size_base,pri_base,size_low,pri_low,size_mid,pri_mid,size_hi,pri_hi\n");
+    if ( v1 >= 0 )
     {
-      v3 = FS_Write(s_streamImageTracking.writeScratchBuffer, v2, s_streamImageTracking.reportFile);
-      if ( v3 > 0 )
+      v2 = FS_Write(s_streamImageTracking.writeScratchBuffer, v1, s_streamImageTracking.reportFile);
+      if ( v2 > 0 )
       {
-        v35 = 0;
-        v33 = 0;
-        v4 = 0;
-        v37 = s_streamImageTracking.recordCount / 0xA + 1;
+        v34 = 0;
+        v32 = 0;
+        v3 = 0;
+        v36 = s_streamImageTracking.recordCount / 0xA + 1;
         if ( s_streamImageTracking.recordCount )
         {
-          v34 = 0;
+          v33 = 0;
           while ( 1 )
           {
-            v5 = &s_streamImageTracking.record[v4];
-            imageRecord = v5;
-            v6 = v5->highestPriorities[3];
-            v7 = v5->texLength[3];
-            v8 = v5->highestPriorities[2];
-            v9 = v5->texLength[2];
-            v10 = v5->highestPriorities[1];
-            v11 = v5->texLength[1];
-            v12 = v5->highestPriorities[0];
-            LODWORD(v5) = v5->texLength[0];
+            v4 = &s_streamImageTracking.record[v3];
+            imageRecord = v4;
+            v5 = v4->highestPriorities[3];
+            v6 = v4->texLength[3];
+            v7 = v4->highestPriorities[2];
+            v8 = v4->texLength[2];
+            v9 = v4->highestPriorities[1];
+            v10 = v4->texLength[1];
+            v11 = v4->highestPriorities[0];
+            LODWORD(v4) = v4->texLength[0];
             ImageName = Stream_ImageRecord_GetImageName(imageRecord);
-            LODWORD(v32) = v6;
-            LODWORD(v31) = v7;
-            LODWORD(v30) = v8;
-            LODWORD(v29) = v9;
-            LODWORD(v28) = v10;
-            LODWORD(v27) = v11;
-            LODWORD(v26) = v12;
-            LODWORD(fmta) = (_DWORD)v5;
-            v14 = Com_sprintf(&s_streamImageTracking.writeScratchBuffer[v33], 103424 - v33, "%s,%u,%u,%u,%u,%u,%u,%u,%u\n", ImageName, fmta, v26, v27, v28, v29, v30, v31, v32);
-            if ( v14 < 0 )
+            LODWORD(v31) = v5;
+            LODWORD(v30) = v6;
+            LODWORD(v29) = v7;
+            LODWORD(v28) = v8;
+            LODWORD(v27) = v9;
+            LODWORD(v26) = v10;
+            LODWORD(v25) = v11;
+            LODWORD(fmta) = (_DWORD)v4;
+            v13 = Com_sprintf(&s_streamImageTracking.writeScratchBuffer[v32], 103424 - v32, "%s,%u,%u,%u,%u,%u,%u,%u,%u\n", ImageName, fmta, v25, v26, v27, v28, v29, v30, v31);
+            if ( v13 < 0 )
               break;
-            v15 = v14 + v33;
-            v33 = v15;
-            if ( v15 > 0x19400 )
+            v14 = v13 + v32;
+            v32 = v14;
+            if ( v14 > 0x19400 )
             {
-              LODWORD(v29) = 103424;
-              LODWORD(v28) = v15;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 1158, ASSERT_TYPE_ASSERT, "( outWriteBufferIndex + writtenStrLen ) <= ( writeBufferCapacity )", "%s <= %s\n\t%i, %i", "outWriteBufferIndex + writtenStrLen", "writeBufferCapacity", v28, v29) )
+              LODWORD(v28) = 103424;
+              LODWORD(v27) = v14;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 1158, ASSERT_TYPE_ASSERT, "( outWriteBufferIndex + writtenStrLen ) <= ( writeBufferCapacity )", "%s <= %s\n\t%i, %i", "outWriteBufferIndex + writtenStrLen", "writeBufferCapacity", v27, v28) )
                 __debugbreak();
             }
-            if ( v15 > 0x19000 )
+            if ( v14 > 0x19000 )
             {
               if ( s_streamImageTracking.reportFile.handle.handle == -1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 1302, ASSERT_TYPE_ASSERT, "(s_streamImageTracking.reportFile)", (const char *)&queryFormat, "s_streamImageTracking.reportFile") )
                 __debugbreak();
-              v16 = FS_Write(s_streamImageTracking.writeScratchBuffer, v15, s_streamImageTracking.reportFile);
-              if ( v16 <= 0 )
+              v15 = FS_Write(s_streamImageTracking.writeScratchBuffer, v14, s_streamImageTracking.reportFile);
+              if ( v15 <= 0 )
               {
-                Com_PrintWarning(16, "ImageReporting: Failed to write to file (%llx)\n", v16);
+                Com_PrintWarning(16, "ImageReporting: Failed to write to file (%llx)\n", v15);
                 Com_PrintError(16, "*********************************************************************************************\n");
                 Com_PrintError(16, "***** Error generating image streaming report. This is a serious issue, report to code. *****\n");
                 Com_PrintError(16, "*********************************************************************************************\n");
                 goto LABEL_30;
               }
-              v33 = 0;
+              v32 = 0;
             }
-            if ( v35 && !(v35 % v37) )
-              Com_Printf(16, "ImageReporting: Reporting to log file: %u %% complete\n", v34 / s_streamImageTracking.recordCount);
-            v34 += 100;
-            v4 = v35 + 1;
-            v35 = v4;
-            if ( v4 >= s_streamImageTracking.recordCount )
+            if ( v34 && !(v34 % v36) )
+              Com_Printf(16, "ImageReporting: Reporting to log file: %u %% complete\n", v33 / s_streamImageTracking.recordCount);
+            v33 += 100;
+            v3 = v34 + 1;
+            v34 = v3;
+            if ( v3 >= s_streamImageTracking.recordCount )
               goto LABEL_30;
           }
           Com_PrintWarning(16, "ImageReporting: Out of buffer space for sprintf\n");
@@ -1934,11 +1912,11 @@ void __fastcall Stream_ImageRecord_ReportLocalFile(double _XMM0_8)
           Com_PrintError(16, "*********************************************************************************************\n");
         }
 LABEL_30:
-        v1 = v36;
+        v0 = v35;
       }
       else
       {
-        Com_PrintWarning(16, "ImageReporting: Failed to write header string to file (%llx)\n", v3);
+        Com_PrintWarning(16, "ImageReporting: Failed to write header string to file (%llx)\n", v2);
       }
     }
     else
@@ -1949,23 +1927,21 @@ LABEL_30:
       __debugbreak();
     FS_FCloseFile(s_streamImageTracking.reportFile);
     s_streamImageTracking.reportFile.handle.handle = -1i64;
-    __asm
+    _XMM0 = 0i64;
+    __asm { vcvtsi2sd xmm0, xmm0, rax }
+    if ( (__int64)(__rdtsc() - v0) < 0 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2sd xmm0, xmm0, rax
+      *((_QWORD *)&v18 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v18 = *(double *)&_XMM0 + 1.844674407370955e19;
+      _XMM0 = v18;
     }
-    if ( (__int64)(__rdtsc() - v1) < 0 )
-      __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-    __asm { vmulsd  xmm0, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick }
-    LODWORD(v27) = s_streamImageTracking.recordNameBufIndex;
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vcvtss2sd xmm2, xmm1, xmm1
-    }
-    LODWORD(v26) = s_streamImageTracking.recordCount;
-    __asm { vmovsd  [rsp+1C8h+fmt], xmm2 }
-    Com_Printf(16, "ImageReporting: WriteRecords ver %i id %i took %f ms. %i records using %i bytes.\n", (unsigned __int16)(LOBYTE(s_streamImageTracking.dataVersionNum) + 256), s_streamImageTracking.reportIndex, *(double *)&fmtb, v26, v27);
+    *((_QWORD *)&v20 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v20 = *(double *)&_XMM0 * msecPerRawTimerTick;
+    _XMM0 = v20;
+    LODWORD(v26) = s_streamImageTracking.recordNameBufIndex;
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    LODWORD(v25) = s_streamImageTracking.recordCount;
+    Com_Printf(16, "ImageReporting: WriteRecords ver %i id %i took %f ms. %i records using %i bytes.\n", (unsigned __int16)(LOBYTE(s_streamImageTracking.dataVersionNum) + 256), s_streamImageTracking.reportIndex, *(float *)&_XMM1, v25, v26);
   }
 }
 
@@ -2272,13 +2248,12 @@ Stream_ImageRecord_Thread
 */
 void __noreturn Stream_ImageRecord_Thread(unsigned int threadContext)
 {
-  double v1; 
-  int v3; 
+  int v2; 
 
   if ( threadContext != 27 )
   {
-    v3 = 27;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 1610, ASSERT_TYPE_ASSERT, "( threadContext ) == ( THREAD_CONTEXT_IMAGE_RECORD )", "%s == %s\n\t%i, %i", "threadContext", "THREAD_CONTEXT_IMAGE_RECORD", threadContext, v3) )
+    v2 = 27;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 1610, ASSERT_TYPE_ASSERT, "( threadContext ) == ( THREAD_CONTEXT_IMAGE_RECORD )", "%s == %s\n\t%i, %i", "threadContext", "THREAD_CONTEXT_IMAGE_RECORD", threadContext, v2) )
       __debugbreak();
   }
   while ( 1 )
@@ -2288,7 +2263,7 @@ void __noreturn Stream_ImageRecord_Thread(unsigned int threadContext)
       __debugbreak();
     if ( _InterlockedCompareExchange(&s_streamImageTracking.writeImagePriorityReportState, 3, 2) == 2 )
     {
-      Stream_ImageRecord_CommitRecords(v1);
+      Stream_ImageRecord_CommitRecords();
       if ( ((unsigned int)&s_streamImageTracking.writeImagePriorityReportState & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 121, ASSERT_TYPE_ASSERT, "( ( IsAligned( target, sizeof( volatile_int32 ) ) ) )", "( target ) = %p", &s_streamImageTracking.writeImagePriorityReportState) )
         __debugbreak();
       if ( _InterlockedCompareExchange(&s_streamImageTracking.writeImagePriorityReportState, 0, 3) != 3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 1620, ASSERT_TYPE_ASSERT, "(Sys_InterlockedCompareExchange( &s_streamImageTracking.writeImagePriorityReportState, STREAM_IMAGE_REPORT_IDLE, STREAM_IMAGE_REPORT_PENDING ) == STREAM_IMAGE_REPORT_PENDING)", (const char *)&queryFormat, "Sys_InterlockedCompareExchange( &s_streamImageTracking.writeImagePriorityReportState, STREAM_IMAGE_REPORT_IDLE, STREAM_IMAGE_REPORT_PENDING ) == STREAM_IMAGE_REPORT_PENDING") )
@@ -2342,16 +2317,16 @@ void Stream_ImageRecord_TriggerImageReport(void)
 Stream_ImageRecord_TriggerTimedReportIfReady
 ==============
 */
-
-void __fastcall Stream_ImageRecord_TriggerTimedReportIfReady(double _XMM0_8)
+void Stream_ImageRecord_TriggerTimedReportIfReady(void)
 {
   unsigned int recordCount; 
-  const dvar_t *v2; 
-  __int64 v3; 
+  const dvar_t *v1; 
+  __int64 v2; 
   unsigned int *curHighestPriority; 
-  __int64 v5; 
+  __int64 v4; 
+  unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
+  __int128 v10; 
   char *fmt; 
 
   if ( !Stream_IsBeginScreenUpdateFrameThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_image_record.cpp", 1564, ASSERT_TYPE_ASSERT, "(Stream_IsBeginScreenUpdateFrameThread())", (const char *)&queryFormat, "Stream_IsBeginScreenUpdateFrameThread()") )
@@ -2365,45 +2340,42 @@ void __fastcall Stream_ImageRecord_TriggerTimedReportIfReady(double _XMM0_8)
       __rdtsc();
       Sys_ProfBeginNamedEvent(0xFF9ACD32, "Stream_ImageRecord_GenerateRecordsForAllImages");
       DB_EnumXAssets(ASSET_TYPE_IMAGE, Stream_ImageRecord_EnumCallback, NULL, 1);
-      v2 = DVARBOOL_stream_imagePriorityResetOnGenerate;
+      v1 = DVARBOOL_stream_imagePriorityResetOnGenerate;
       if ( !DVARBOOL_stream_imagePriorityResetOnGenerate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_imagePriorityResetOnGenerate") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v2);
-      if ( v2->current.enabled )
+      Dvar_CheckFrontendServerThread(v1);
+      if ( v1->current.enabled )
       {
-        v3 = 0i64;
+        v2 = 0i64;
         curHighestPriority = s_streamImageTracking.curHighestPriority;
-        v5 = 327680i64;
+        v4 = 327680i64;
         do
         {
-          v6 = *curHighestPriority;
+          v5 = *curHighestPriority;
           if ( *curHighestPriority >= 3 )
           {
-            v7 = v3 + 1;
+            v6 = v2 + 1;
             *curHighestPriority = -1;
-            if ( v6 == -1 )
-              v7 = v3;
-            v3 = v7;
+            if ( v5 == -1 )
+              v6 = v2;
+            v2 = v6;
           }
           ++curHighestPriority;
-          --v5;
+          --v4;
         }
-        while ( v5 );
-        Com_Printf(16, "ImageReporting: Reset highest priority latch for %i images.\n", v3);
+        while ( v4 );
+        Com_Printf(16, "ImageReporting: Reset highest priority latch for %i images.\n", v2);
       }
       Sys_ProfEndNamedEvent();
       __rdtsc();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, rax
-        vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-        vcvtsd2ss xmm2, xmm1, xmm1
-        vcvtss2sd xmm3, xmm2, xmm2
-      }
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, rax }
+      *((_QWORD *)&v10 + 1) = *((_QWORD *)&_XMM0 + 1);
+      *(double *)&v10 = *(double *)&_XMM0 * msecPerRawTimerTick;
+      _XMM1 = v10;
+      __asm { vcvtsd2ss xmm2, xmm1, xmm1 }
       LODWORD(fmt) = s_streamImageTracking.recordCount - recordCount;
-      __asm { vmovq   r9, xmm3 }
-      Com_Printf(16, "ImageReporting: Generated new reports. %d kb remaining. Spent %f ms to generate %i records\n", (5242880 - (unsigned __int64)s_streamImageTracking.recordNameBufIndex) >> 10, *(double *)&_XMM3, fmt);
+      Com_Printf(16, "ImageReporting: Generated new reports. %d kb remaining. Spent %f ms to generate %i records\n", (5242880 - (unsigned __int64)s_streamImageTracking.recordNameBufIndex) >> 10, *(float *)&_XMM2, fmt);
     }
     else
     {

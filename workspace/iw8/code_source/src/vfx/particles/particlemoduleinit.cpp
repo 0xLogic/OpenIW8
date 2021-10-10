@@ -900,8 +900,9 @@ ParticleModuleInitBeam::DebugDraw
 */
 void ParticleModuleInitBeam::DebugDraw(const ParticleModule *pModuleBase, const ParticleEmitter *pEmitterOwner, const ParticleData *pParticleData, const ParticleState *pParticleState)
 {
+  const float4 *EmitterPos; 
   const ParticleSystem *SystemOwner; 
-  const ParticleSystem *v17; 
+  __m128 *p_v; 
   vec3_t center; 
 
   if ( !pModuleBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 717, ASSERT_TYPE_ASSERT, "(pModuleBase)", (const char *)&queryFormat, "pModuleBase") )
@@ -914,63 +915,43 @@ void ParticleModuleInitBeam::DebugDraw(const ParticleModule *pModuleBase, const 
     __debugbreak();
   if ( ParticleModule::GlobalModuleDebugDraw((ParticleModule *)pModuleBase) )
   {
-    __asm
-    {
-      vmovaps [rsp+98h+var_38], xmm6
-      vmovaps [rsp+98h+var_48], xmm7
-    }
-    _RSI = ParticleEmitter::GetEmitterPos((ParticleEmitter *)pEmitterOwner, pParticleState);
+    EmitterPos = ParticleEmitter::GetEmitterPos((ParticleEmitter *)pEmitterOwner, pParticleState);
     SystemOwner = ParticleEmitter::GetSystemOwner((ParticleEmitter *)pEmitterOwner);
+    _XMM2 = _mm128_add_ps(EmitterPos->v, SystemOwner->m_beamData.m_beamStartPos.v);
+    _XMM6 = _mm128_add_ps(EmitterPos->v, SystemOwner->m_beamData.m_beamEndPos.v);
+    p_v = &SystemOwner->m_systemTransform.x.v;
+    center.v[0] = _XMM2.m128_f32[0];
     __asm
     {
-      vmovups xmm1, xmmword ptr [rsi]
-      vmovss  xmm7, cs:__real@41200000
-      vaddps  xmm2, xmm1, xmmword ptr [rax+0F0h]
-      vaddps  xmm6, xmm1, xmmword ptr [rax+100h]
-      vmovaps xmm1, xmm7; radius
-    }
-    v17 = SystemOwner;
-    __asm
-    {
-      vmovss  dword ptr [rsp+98h+center], xmm2
       vextractps dword ptr [rsp+98h+center+4], xmm2, 1
       vextractps dword ptr [rsp+98h+center+8], xmm2, 2
     }
-    Particle_DebugSphere(&center, *(float *)&_XMM1, &colorBlueHeat, 1, 0);
+    Particle_DebugSphere(&center, 10.0, &colorBlueHeat, 1, 0);
+    center.v[0] = _XMM6.m128_f32[0];
     __asm
     {
-      vmovaps xmm1, xmm7; radius
-      vmovss  dword ptr [rsp+98h+center], xmm6
       vextractps dword ptr [rsp+98h+center+4], xmm6, 1
       vextractps dword ptr [rsp+98h+center+8], xmm6, 2
     }
-    Particle_DebugSphere(&center, *(float *)&_XMM1, &colorBlueHeat, 1, 0);
-    if ( v17->m_beamData.m_useCurvePoints )
+    Particle_DebugSphere(&center, 10.0, &colorBlueHeat, 1, 0);
+    if ( p_v[19].m128_i8[12] )
     {
+      _XMM2 = _mm128_add_ps(EmitterPos->v, p_v[17]);
+      _XMM6 = _mm128_add_ps(EmitterPos->v, p_v[18]);
+      center.v[0] = _XMM2.m128_f32[0];
       __asm
       {
-        vmovups xmm1, xmmword ptr [rsi]
-        vaddps  xmm2, xmm1, xmmword ptr [rbx+110h]
-        vaddps  xmm6, xmm1, xmmword ptr [rbx+120h]
-        vmovaps xmm1, xmm7; radius
-        vmovss  dword ptr [rsp+98h+center], xmm2
         vextractps dword ptr [rsp+98h+center+4], xmm2, 1
         vextractps dword ptr [rsp+98h+center+8], xmm2, 2
       }
-      Particle_DebugSphere(&center, *(float *)&_XMM1, &colorBlueHeat, 1, 0);
+      Particle_DebugSphere(&center, 10.0, &colorBlueHeat, 1, 0);
+      center.v[0] = _XMM6.m128_f32[0];
       __asm
       {
-        vmovaps xmm1, xmm7; radius
-        vmovss  dword ptr [rsp+98h+center], xmm6
         vextractps dword ptr [rsp+98h+center+4], xmm6, 1
         vextractps dword ptr [rsp+98h+center+8], xmm6, 2
       }
-      Particle_DebugSphere(&center, *(float *)&_XMM1, &colorBlueHeat, 1, 0);
-    }
-    __asm
-    {
-      vmovaps xmm6, [rsp+98h+var_38]
-      vmovaps xmm7, [rsp+98h+var_48]
+      Particle_DebugSphere(&center, 10.0, &colorBlueHeat, 1, 0);
     }
   }
 }
@@ -987,7 +968,6 @@ void ParticleModuleInitKillWrapBox::DebugDraw(const ParticleModule *pModuleBase,
   Bounds bounds; 
   vec3_t outAngles; 
 
-  _RBX = (ParticleModule *)pModuleBase;
   if ( !pModuleBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 798, ASSERT_TYPE_ASSERT, "(pModuleBase)", (const char *)&queryFormat, "pModuleBase") )
     __debugbreak();
   if ( !pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 799, ASSERT_TYPE_ASSERT, "(pEmitterOwner)", (const char *)&queryFormat, "pEmitterOwner") )
@@ -996,24 +976,26 @@ void ParticleModuleInitKillWrapBox::DebugDraw(const ParticleModule *pModuleBase,
     __debugbreak();
   if ( !pParticleState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 801, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
     __debugbreak();
-  if ( ParticleModule::GlobalModuleDebugDraw(_RBX) || particle_debug_draw_wrap_bounds->current.enabled )
+  if ( ParticleModule::GlobalModuleDebugDraw((ParticleModule *)pModuleBase) || particle_debug_draw_wrap_bounds->current.enabled )
   {
-    Particle_GetShapeOffsetAndAngles(pEmitterOwner, pParticleState, (const float4 *)&_RBX[4], &outShapeOrigin, &outAngles, (_RBX->m_flags & 0x80) != 0);
+    Particle_GetShapeOffsetAndAngles(pEmitterOwner, pParticleState, (const float4 *)&pModuleBase[4], &outShapeOrigin, &outAngles, (pModuleBase->m_flags & 0x80) != 0);
+    _XMM1 = outShapeOrigin.v;
+    origin.v[0] = outShapeOrigin.v.m128_f32[0];
     __asm
     {
-      vmovups xmm1, xmmword ptr [rsp+0A8h+outShapeOrigin.v]
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+0A8h+origin], xmm1
       vextractps dword ptr [rsp+0A8h+origin+4], xmm1, 1
       vextractps dword ptr [rsp+0A8h+origin+8], xmm1, 2
-      vmovups xmm1, xmmword ptr [rbx+10h]
-      vmovss  dword ptr [rsp+0A8h+bounds.halfSize], xmm1
+    }
+    _XMM1 = *(_OWORD *)&pModuleBase[2].m_type;
+    LODWORD(bounds.halfSize.v[0]) = _XMM1;
+    __asm
+    {
       vextractps dword ptr [rsp+0A8h+bounds.halfSize+4], xmm1, 1
       vextractps dword ptr [rsp+0A8h+bounds.halfSize+8], xmm1, 2
-      vmovss  dword ptr [rsp+0A8h+bounds.midPoint], xmm0
-      vmovss  dword ptr [rsp+0A8h+bounds.midPoint+4], xmm0
-      vmovss  dword ptr [rsp+0A8h+bounds.midPoint+8], xmm0
     }
+    bounds.midPoint.v[0] = 0.0;
+    bounds.midPoint.v[1] = 0.0;
+    bounds.midPoint.v[2] = 0.0;
     Particle_DebugBox(&origin, &bounds, &outAngles, &colorLtPurple, 1, 0);
   }
 }
@@ -1026,12 +1008,14 @@ ParticleModuleInitLightOmni::DebugDraw
 void ParticleModuleInitLightOmni::DebugDraw(const ParticleModule *pModuleBase, const ParticleEmitter *pEmitterOwner, const ParticleData *pParticleData, const ParticleState *pParticleState)
 {
   const vector4 *EmitterTransform; 
-  ParticleState::ElementTypeModule v10; 
-  bool v11; 
+  ParticleState::ElementTypeModule v9; 
+  bool v10; 
   __int64 m_particleCountRunning; 
   const float4 *PositionArray; 
   float4 *ColorArray; 
   float4 *SizeArray; 
+  float4 *v15; 
+  signed __int64 v16; 
   float4 posWorld; 
   vec3_t center; 
   vec4_t color; 
@@ -1047,45 +1031,36 @@ void ParticleModuleInitLightOmni::DebugDraw(const ParticleModule *pModuleBase, c
   EmitterTransform = ParticleEmitter::GetEmitterTransform((ParticleEmitter *)pEmitterOwner, pParticleState);
   if ( ParticleModule::GlobalModuleDebugDraw((ParticleModule *)pModuleBase) || particle_debug_draw_lights->current.enabled )
   {
-    v10.pModule = (const ParticleModule *)pParticleState->m_elementTypeModule;
-    v11 = v10.pModule && (v10.pModule->m_flags & 1) == 0;
-    if ( pParticleState->m_pStateDef->elementType == 5 && v11 )
+    v9.pModule = (const ParticleModule *)pParticleState->m_elementTypeModule;
+    v10 = v9.pModule && (v9.pModule->m_flags & 1) == 0;
+    if ( pParticleState->m_pStateDef->elementType == 5 && v10 )
     {
       m_particleCountRunning = pParticleData->m_particleCountRunning;
       PositionArray = Particle_GetPositionArray(pParticleData);
       ColorArray = Particle_GetColorArray(pParticleData);
       SizeArray = Particle_GetSizeArray(pParticleData);
-      _RDI = SizeArray;
+      v15 = SizeArray;
       if ( (_DWORD)m_particleCountRunning )
       {
-        _RSI = (char *)ColorArray - (char *)SizeArray;
-        __asm
-        {
-          vmovaps [rsp+0C8h+var_58], xmm6
-          vmovss  xmm6, cs:__real@40400000
-        }
+        v16 = (char *)ColorArray - (char *)SizeArray;
         do
         {
           ParticleEmitter::GetWorldPos((ParticleEmitter *)pEmitterOwner, PositionArray, &posWorld, pParticleState, EmitterTransform);
+          _XMM1 = posWorld.v;
+          center.v[0] = posWorld.v.m128_f32[0];
           __asm
           {
-            vmovups xmm1, xmmword ptr [rsp+0C8h+posWorld.v]
-            vmovss  dword ptr [rsp+0C8h+center], xmm1
             vextractps dword ptr [rsp+0C8h+center+4], xmm1, 1
             vextractps dword ptr [rsp+0C8h+center+8], xmm1, 2
-            vmovups xmm0, xmmword ptr [rsi+rdi]
-            vmovups xmmword ptr [rsp+0C8h+color], xmm0
-            vmovups xmm1, xmmword ptr [rdi]; radius
           }
-          Particle_DebugSphere(&center, *(float *)&_XMM1, &color, 1, 0);
-          __asm { vmovaps xmm1, xmm6; radius }
-          Particle_DebugSphere(&center, *(float *)&_XMM1, &colorOrange, 1, 0);
+          color = *(vec4_t *)((char *)v15 + v16);
+          Particle_DebugSphere(&center, COERCE_FLOAT(*v15), &color, 1, 0);
+          Particle_DebugSphere(&center, 3.0, &colorOrange, 1, 0);
           ++PositionArray;
-          ++_RDI;
+          ++v15;
           --m_particleCountRunning;
         }
         while ( m_particleCountRunning );
-        __asm { vmovaps xmm6, [rsp+0C8h+var_58] }
       }
     }
   }
@@ -1098,23 +1073,53 @@ ParticleModuleInitLightSpot::DebugDraw
 */
 void ParticleModuleInitLightSpot::DebugDraw(const ParticleModule *pModuleBase, const ParticleEmitter *pEmitterOwner, const ParticleData *pParticleData, const ParticleState *pParticleState)
 {
-  bool v20; 
+  __int128 v4; 
+  __int128 v5; 
+  ParticleState::ElementTypeModule v9; 
+  bool v10; 
   __int64 m_particleCountRunning; 
   const vector4 *EmitterTransform; 
   float4 *SizeArray; 
+  float4 *RotationAngleArray; 
   float4 *ColorArray; 
   const ParticleStateDef *m_pStateDef; 
-  int v29; 
-  const float4 *v37; 
-  float4 *v38; 
-  const vector4 *v39; 
-  const float4 *v43; 
-  vector3 *v44; 
-  const vector4 *v47; 
-  const vector4 *v50; 
+  float4 v17; 
+  int v18; 
+  signed __int64 v19; 
+  signed __int64 v20; 
+  __int64 v21; 
+  __m128 v22; 
+  const float4 *v23; 
+  float4 *v24; 
+  const vector4 *v25; 
+  __int128 v26; 
+  __int128 v27; 
+  __int128 v28; 
+  __m128 v; 
+  const float4 *v30; 
+  vector3 *v31; 
+  const vector4 *v32; 
+  const vector4 *v33; 
+  __m256i v34; 
+  __m256i v35; 
+  __m128 v36; 
+  float4 v37; 
+  float v40; 
+  float v41; 
+  __m128 v42; 
+  __m128 v43; 
+  float v44; 
+  vec4_t v48; 
   float4 *PositionArray; 
-  __int64 v93; 
+  __int64 v50; 
   vector4 M1; 
+  __m256i v52; 
+  __m256i v53; 
+  __m256i v54; 
+  __m256i v55; 
+  __m256i v56; 
+  __m256i v57; 
+  __m256i v58; 
   vector4 result; 
   vec3_t center; 
   vec3_t start; 
@@ -1123,183 +1128,127 @@ void ParticleModuleInitLightSpot::DebugDraw(const ParticleModule *pModuleBase, c
 
   if ( ParticleModule::GlobalModuleDebugDraw((ParticleModule *)pModuleBase) || particle_debug_draw_lights->current.enabled )
   {
-    _RSI.pModule = (const ParticleModule *)pParticleState->m_elementTypeModule;
-    v20 = _RSI.pModule && (_RSI.pModule->m_flags & 1) == 0;
-    if ( pParticleState->m_pStateDef->elementType == 6 && v20 )
+    v9.pModule = (const ParticleModule *)pParticleState->m_elementTypeModule;
+    v10 = v9.pModule && (v9.pModule->m_flags & 1) == 0;
+    if ( pParticleState->m_pStateDef->elementType == 6 && v10 )
     {
       m_particleCountRunning = pParticleData->m_particleCountRunning;
       EmitterTransform = ParticleEmitter::GetEmitterTransform((ParticleEmitter *)pEmitterOwner, pParticleState);
       PositionArray = Particle_GetPositionArray(pParticleData);
       SizeArray = Particle_GetSizeArray(pParticleData);
-      _RBX = Particle_GetRotationAngleArray(pParticleData);
+      RotationAngleArray = Particle_GetRotationAngleArray(pParticleData);
       ColorArray = Particle_GetColorArray(pParticleData);
       m_pStateDef = pParticleState->m_pStateDef;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr cs:?g_0100@@3Ufloat4@@B.v; float4 const g_0100
-        vmovss  xmm2, cs:__real@3fc90fdb
-      }
+      v17.v = (__m128)LODWORD(FLOAT_1_5707964);
       *(_QWORD *)center.v = ColorArray;
-      v29 = m_pStateDef->flags & 0xF0;
-      __asm { vmovdqa xmmword ptr [rsp+2F8h+var_118], xmm0 }
-      Float4x4RotationAroundUnitAxis(&result, (const float4 *)&color, *(const float *)&_XMM2);
+      v18 = m_pStateDef->flags & 0xF0;
+      color = (vec4_t)g_0100.v;
+      Float4x4RotationAroundUnitAxis(&result, (const float4 *)&color, 1.5707964);
       if ( (_DWORD)m_particleCountRunning )
       {
-        _R14 = (char *)SizeArray - (char *)_RBX;
-        __asm { vmovaps [rsp+2F8h+var_48], xmm6 }
-        _R13 = (char *)PositionArray - (char *)_RBX;
-        *(_QWORD *)center.v -= _RBX;
-        __asm
-        {
-          vmovaps [rsp+2F8h+var_58], xmm7
-          vmovaps [rsp+2F8h+var_68], xmm8
-          vmovaps [rsp+2F8h+var_78], xmm9
-          vmovaps [rsp+2F8h+var_88], xmm10
-          vmovaps [rsp+2F8h+var_98], xmm11
-          vmovaps [rsp+2F8h+var_A8], xmm12
-          vmovaps [rsp+2F8h+var_B8], xmm13
-          vmovaps [rsp+2F8h+var_C8], xmm14
-          vmovss  xmm14, cs:__real@3f800000
-          vmovaps [rsp+2F8h+var_D8], xmm15
-          vmovss  xmm15, cs:__real@40400000
-        }
-        v93 = m_particleCountRunning;
-        _R12 = *(_QWORD *)center.v;
+        v19 = (char *)SizeArray - (char *)RotationAngleArray;
+        v20 = (char *)PositionArray - (char *)RotationAngleArray;
+        *(_QWORD *)center.v -= RotationAngleArray;
+        v50 = m_particleCountRunning;
+        v21 = *(_QWORD *)center.v;
         do
         {
-          __asm
+          v22 = *(__m128 *)((char *)&RotationAngleArray->v + v19);
+          M1.w = (float4)g_unit.v;
+          v26 = *(unsigned int *)&v9.pModule[3].m_type;
+          *(float *)&v26 = tanf_0(*(float *)&v26);
+          v28 = v26;
+          *(float *)&v28 = *(float *)&v26 * v22.m128_f32[0];
+          v27 = v28;
+          if ( v18 )
           {
-            vmovups xmm0, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-            vmovups xmm12, xmmword ptr [r14+rbx]
-            vmovdqa xmmword ptr [rsp+2F8h+M1.w.v], xmm0
-            vmovss  xmm0, dword ptr [rsi+18h]; X
-          }
-          *(float *)&_XMM0 = tanf_0(*(float *)&_XMM0);
-          __asm { vmulss  xmm13, xmm0, xmm12 }
-          if ( v29 )
-          {
-            __asm { vmovups xmm0, xmmword ptr [rbx] }
-            Float4RadianToQuat(v38, v37);
-            Float4UnitQuatToAxis(v44, v43);
-            __asm
-            {
-              vmovups xmm3, xmm2
-              vmovups xmmword ptr [rsp+2F8h+var_1A8+10h], xmm1
-              vmovups xmmword ptr [rsp+2F8h+var_1A8], xmm0
-              vmovups ymm2, [rsp+2F8h+var_1A8]
-              vmovups ymmword ptr [rsp+2F8h+M1.baseclass_0.x.v], ymm2
-              vmovups xmmword ptr [rsp+2F8h+M1.baseclass_0.z.v], xmm3
-            }
-            Float4x4Mul(&result, &M1, v47);
-            __asm
-            {
-              vmovups xmmword ptr [rsp+2F8h+var_248], xmm2
-              vmovups xmmword ptr [rsp+2F8h+var_268], xmm0
-              vmovups xmmword ptr [rsp+2F8h+var_248+10h], xmm3
-              vmovups ymm0, [rsp+2F8h+var_248]
-              vmovups xmmword ptr [rsp+2F8h+var_268+10h], xmm1
-              vmovups ymm2, [rsp+2F8h+var_268]
-              vmovups ymmword ptr [rsp+2F8h+M1.baseclass_0.x.v], ymm2
-              vmovups ymmword ptr [rsp+2F8h+M1.baseclass_0.z.v], ymm0
-            }
-            Float4x4Mul(&M1, EmitterTransform, v50);
-            __asm
-            {
-              vmovups xmmword ptr [rsp+2F8h+var_208], xmm2
-              vmovups xmmword ptr [rsp+2F8h+var_228], xmm0
-              vmovups xmmword ptr [rsp+2F8h+var_208+10h], xmm3
-              vmovups ymm0, [rsp+2F8h+var_208]
-              vmovups xmmword ptr [rsp+2F8h+var_228+10h], xmm1
-              vmovups ymm2, [rsp+2F8h+var_228]
-            }
+            v = RotationAngleArray->v;
+            Float4RadianToQuat(v24, v23);
+            Float4UnitQuatToAxis(v31, v30);
+            *(_OWORD *)&v58.m256i_u64[2] = v4;
+            *(__m128 *)v58.m256i_i8 = v;
+            *(__m256i *)M1.x.v.m128_f32 = v58;
+            M1.z = (float4)v17.v;
+            Float4x4Mul(&result, &M1, v32);
+            *(float4 *)v53.m256i_i8 = (float4)v17.v;
+            *(__m128 *)v52.m256i_i8 = v;
+            *(float4 *)&v53.m256i_u64[2] = (float4)v17.v;
+            *(_OWORD *)&v52.m256i_u64[2] = v4;
+            *(__m256i *)M1.x.v.m128_f32 = v52;
+            *(__m256i *)M1.z.v.m128_f32 = v53;
+            Float4x4Mul(&M1, EmitterTransform, v33);
+            *(float4 *)v55.m256i_i8 = (float4)v17.v;
+            *(__m128 *)v54.m256i_i8 = v;
+            *(float4 *)&v55.m256i_u64[2] = (float4)v17.v;
+            v34 = v55;
+            *(_OWORD *)&v54.m256i_u64[2] = v4;
+            v35 = v54;
           }
           else
           {
-            Float4x4Mul(&result, EmitterTransform, v39);
-            __asm
-            {
-              vmovups xmmword ptr [rsp+2F8h+var_1C8], xmm2
-              vmovups xmmword ptr [rsp+2F8h+var_1E8], xmm0
-              vmovups xmmword ptr [rsp+2F8h+var_1C8+10h], xmm3
-              vmovups ymm0, [rsp+2F8h+var_1C8]
-              vmovups xmmword ptr [rsp+2F8h+var_1E8+10h], xmm1
-              vmovups ymm2, [rsp+2F8h+var_1E8]
-            }
+            Float4x4Mul(&result, EmitterTransform, v25);
+            *(float4 *)v57.m256i_i8 = (float4)v17.v;
+            *(_OWORD *)v56.m256i_i8 = v26;
+            *(_OWORD *)&v57.m256i_u64[2] = v5;
+            v34 = v57;
+            *(_OWORD *)&v56.m256i_u64[2] = v4;
+            v35 = v56;
           }
+          v36 = *(__m128 *)((char *)&RotationAngleArray->v + v20);
+          *(__m256i *)M1.z.v.m128_f32 = v34;
+          v37.v = (__m128)M1.z;
+          *(__m256i *)M1.x.v.m128_f32 = v35;
+          _XMM1.v = (__m128)M1.x;
+          _XMM2.v = (__m128)M1.y;
+          rotation.m[0].v[0] = M1.x.v.m128_f32[0];
           __asm
           {
-            vmovups xmm4, xmmword ptr [rbx+r13]
-            vxorps  xmm6, xmm12, cs:__xmm@80000000800000008000000080000000
-            vmovups ymmword ptr [rsp+2F8h+M1.baseclass_0.z.v], ymm0
-            vmovups xmm9, xmmword ptr [rsp+2F8h+M1.baseclass_0.z.v]
-            vmovups ymmword ptr [rsp+2F8h+M1.baseclass_0.x.v], ymm2
-            vmovups xmm1, xmmword ptr [rsp+2F8h+M1.baseclass_0.x.v]
-            vmovups xmm2, xmmword ptr [rsp+2F8h+M1.baseclass_0.y.v]
-            vmovss  dword ptr [rsp+2F8h+rotation], xmm1
             vextractps dword ptr [rsp+2F8h+rotation+4], xmm1, 1
             vextractps dword ptr [rsp+2F8h+rotation+8], xmm1, 2
-            vmovss  dword ptr [rsp+2F8h+rotation+0Ch], xmm2
+          }
+          rotation.m[1].v[0] = M1.y.v.m128_f32[0];
+          __asm
+          {
             vextractps dword ptr [rsp+2F8h+rotation+10h], xmm2, 1
             vextractps dword ptr [rsp+2F8h+rotation+14h], xmm2, 2
-            vmulss  xmm0, xmm9, xmm9
-            vshufps xmm7, xmm4, xmm4, 55h ; 'U'
-            vshufps xmm8, xmm4, xmm4, 0AAh ; 'ª'
-            vshufps xmm10, xmm9, xmm9, 55h ; 'U'
-            vmulss  xmm1, xmm10, xmm10
-            vaddss  xmm2, xmm1, xmm0
-            vshufps xmm11, xmm9, xmm9, 0AAh ; 'ª'
-            vmulss  xmm1, xmm11, xmm11
-            vaddss  xmm2, xmm2, xmm1
-            vsqrtss xmm3, xmm2, xmm2
+          }
+          v40 = _mm_shuffle_ps(v36, v36, 85).m128_f32[0];
+          v41 = _mm_shuffle_ps(v36, v36, 170).m128_f32[0];
+          v42 = _mm_shuffle_ps(v37.v, v37.v, 85);
+          v43 = v42;
+          v44 = _mm_shuffle_ps(v37.v, v37.v, 170).m128_f32[0];
+          v43.m128_f32[0] = fsqrt((float)((float)(v42.m128_f32[0] * v42.m128_f32[0]) + (float)(v37.v.m128_f32[0] * v37.v.m128_f32[0])) + (float)(v44 * v44));
+          _XMM3 = v43;
+          __asm
+          {
             vcmpless xmm0, xmm3, cs:__real@80000000
             vblendvps xmm0, xmm3, xmm14, xmm0
-            vdivss  xmm5, xmm14, xmm0
-            vmulss  xmm0, xmm9, xmm5
-            vmulss  xmm1, xmm0, xmm6
-            vaddss  xmm2, xmm1, xmm4
-            vmulss  xmm0, xmm10, xmm5
-            vmulss  xmm1, xmm0, xmm6
-            vmulss  xmm0, xmm11, xmm5
-            vmovss  dword ptr [rsp+2F8h+start], xmm4
-            vaddss  xmm4, xmm1, xmm7
-            vmulss  xmm1, xmm0, xmm6
-            vmovups xmm0, xmmword ptr [r12+rbx]
-            vmovss  dword ptr [rsp+2F8h+center+4], xmm4
-            vaddss  xmm4, xmm1, xmm8
-            vmovss  dword ptr [rsp+2F8h+center], xmm2
-            vmovaps xmm3, xmm13; radius
-            vmovaps xmm2, xmm12; height
-            vmovss  dword ptr [rsp+2F8h+center+8], xmm4
-            vmovss  dword ptr [rsp+2F8h+rotation+18h], xmm9
-            vmovss  dword ptr [rsp+2F8h+rotation+1Ch], xmm10
-            vmovss  dword ptr [rsp+2F8h+rotation+20h], xmm11
-            vmovss  dword ptr [rsp+2F8h+start+4], xmm7
-            vmovss  dword ptr [rsp+2F8h+start+8], xmm8
-            vmovups xmmword ptr [rsp+2F8h+var_118], xmm0
           }
-          Particle_DebugCone(&center, &rotation, *(float *)&_XMM2, *(float *)&_XMM3, &color, 1, 0);
+          _XMM2.v.m128_f32[0] = (float)((float)(M1.z.v.m128_f32[0] * (float)(1.0 / *(float *)&_XMM0)) * COERCE_FLOAT(v22.m128_i32[0] ^ _xmm)) + v36.m128_f32[0];
+          start.v[0] = v36.m128_f32[0];
+          v36.m128_f32[0] = (float)((float)(v42.m128_f32[0] * (float)(1.0 / *(float *)&_XMM0)) * COERCE_FLOAT(v22.m128_i32[0] ^ _xmm)) + v40;
+          v43.m128_f32[0] = (float)(v44 * (float)(1.0 / *(float *)&_XMM0)) * COERCE_FLOAT(v22.m128_i32[0] ^ _xmm);
+          v48 = *(vec4_t *)((char *)RotationAngleArray + v21);
+          center.v[1] = v36.m128_f32[0];
+          center.v[0] = _XMM2.v.m128_f32[0];
+          v5 = v27;
+          v17.v = v22;
+          center.v[2] = v43.m128_f32[0] + v41;
+          rotation.m[2].v[0] = M1.z.v.m128_f32[0];
+          rotation.m[2].v[1] = v42.m128_f32[0];
+          rotation.m[2].v[2] = v44;
+          start.v[1] = v40;
+          start.v[2] = v41;
+          color = v48;
+          Particle_DebugCone(&center, &rotation, v22.m128_f32[0], *(float *)&v27, &color, 1, 0);
           Particle_DebugLine(&start, &center, &colorOrange, 1, 0);
-          __asm { vmovaps xmm1, xmm15; radius }
-          Particle_DebugSphere(&start, *(float *)&_XMM1, &color, 1, 0);
-          __asm { vmovaps xmm1, xmm15; radius }
-          Particle_DebugSphere(&center, *(float *)&_XMM1, &colorOrange, 1, 0);
-          ++_RBX;
-          --v93;
+          Particle_DebugSphere(&start, 3.0, &color, 1, 0);
+          v4 = LODWORD(FLOAT_3_0);
+          Particle_DebugSphere(&center, 3.0, &colorOrange, 1, 0);
+          ++RotationAngleArray;
+          --v50;
         }
-        while ( v93 );
-        __asm
-        {
-          vmovaps xmm15, [rsp+2F8h+var_D8]
-          vmovaps xmm14, [rsp+2F8h+var_C8]
-          vmovaps xmm13, [rsp+2F8h+var_B8]
-          vmovaps xmm12, [rsp+2F8h+var_A8]
-          vmovaps xmm11, [rsp+2F8h+var_98]
-          vmovaps xmm10, [rsp+2F8h+var_88]
-          vmovaps xmm9, [rsp+2F8h+var_78]
-          vmovaps xmm8, [rsp+2F8h+var_68]
-          vmovaps xmm7, [rsp+2F8h+var_58]
-          vmovaps xmm6, [rsp+2F8h+var_48]
-        }
+        while ( v50 );
       }
     }
   }
@@ -1329,37 +1278,28 @@ void ParticleModuleInitSpawnShapeBox::DebugDraw(const ParticleModule *pModuleBas
     __debugbreak();
   if ( ParticleModule::GlobalModuleDebugDraw((ParticleModule *)pModuleBase) || particle_debug_draw_spawn_shape->current.enabled )
   {
-    __asm { vmovaps [rsp+0C8h+var_38], xmm6 }
     ParticleModuleInitSpawnShapeBox::GetDimensions((ParticleModuleInitSpawnShapeBox *)pModuleBase, pParticleState, &dimensionsMin, &dimensionsMax);
-    __asm
-    {
-      vmovups xmm2, xmmword ptr [rsp+0C8h+dimensionsMax.v]
-      vsubps  xmm1, xmm2, xmmword ptr [rsp+0C8h+dimensionsMin.v]
-      vmulps  xmm6, xmm1, cs:__xmm@3f0000003f0000003f0000003f000000
-    }
+    _XMM6 = _mm128_mul_ps(_mm128_sub_ps(dimensionsMax.v, dimensionsMin.v), (__m128)_xmm);
     useWorldSpace = (pModuleBase->m_flags & 0x80) != 0;
-    __asm
-    {
-      vsubps  xmm1, xmm2, xmm6
-      vmovups xmmword ptr [rsp+0C8h+dimensionsMin.v], xmm1
-    }
+    dimensionsMin.v = _mm128_sub_ps(dimensionsMax.v, _XMM6);
     Particle_GetShapeOffsetAndAngles(pEmitterOwner, pParticleState, &dimensionsMin, &dimensionsMax, &outAngles, useWorldSpace);
+    _XMM1 = dimensionsMax.v;
+    origin.v[0] = dimensionsMax.v.m128_f32[0];
     __asm
     {
-      vmovups xmm1, xmmword ptr [rsp+0C8h+dimensionsMax.v]
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+0C8h+origin], xmm1
       vextractps dword ptr [rsp+0C8h+origin+4], xmm1, 1
       vextractps dword ptr [rsp+0C8h+origin+8], xmm1, 2
-      vmovss  dword ptr [rsp+0C8h+bounds.midPoint], xmm0
-      vmovss  dword ptr [rsp+0C8h+bounds.midPoint+4], xmm0
-      vmovss  dword ptr [rsp+0C8h+bounds.midPoint+8], xmm0
-      vmovss  dword ptr [rsp+0C8h+bounds.halfSize], xmm6
+    }
+    bounds.midPoint.v[0] = 0.0;
+    bounds.midPoint.v[1] = 0.0;
+    bounds.midPoint.v[2] = 0.0;
+    bounds.halfSize.v[0] = _XMM6.m128_f32[0];
+    __asm
+    {
       vextractps dword ptr [rsp+0C8h+bounds.halfSize+4], xmm6, 1
       vextractps dword ptr [rsp+0C8h+bounds.halfSize+8], xmm6, 2
     }
     Particle_DebugBox(&origin, &bounds, &outAngles, &colorLtGreen, 1, 0);
-    __asm { vmovaps xmm6, [rsp+0C8h+var_38] }
   }
 }
 
@@ -1370,20 +1310,28 @@ ParticleModuleInitSpawnShapeCylinder::DebugDraw
 */
 void ParticleModuleInitSpawnShapeCylinder::DebugDraw(const ParticleModule *pModuleBase, const ParticleEmitter *pEmitterOwner, const ParticleData *pParticleData, const ParticleState *pParticleState)
 {
+  __m128 v4; 
+  float4 v5; 
+  __int128 v6; 
   const ParticleModuleInitRelativeVelocity *m_pModuleInitRelativeVelocity; 
-  unsigned int v15; 
-  char v16; 
+  bool v12; 
+  __m128 v13; 
   ParticleRelativeVelocityType m_velocityType; 
-  bool v19; 
+  bool v15; 
   const vector4 *EmitterTransform; 
-  const float4 *v22; 
-  vector3 *v23; 
-  const vector4 *v27; 
+  const float4 *v17; 
+  vector3 *v18; 
+  __int128 v19; 
+  const vector4 *v20; 
+  __m128 v; 
+  __m128 v22; 
   ParticleEmitter *EmitterOwner; 
+  const vector4 *EmitterTransformTranspose; 
   float4 outOffset; 
+  __m256i v26; 
+  __m256i v27; 
   vector4 result; 
 
-  _RBX = (ParticleModuleInitSpawnShapeCylinder *)pModuleBase;
   if ( !pModuleBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1873, ASSERT_TYPE_ASSERT, "(pModuleBase)", (const char *)&queryFormat, "pModuleBase") )
     __debugbreak();
   if ( !pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1874, ASSERT_TYPE_ASSERT, "(pEmitterOwner)", (const char *)&queryFormat, "pEmitterOwner") )
@@ -1392,146 +1340,66 @@ void ParticleModuleInitSpawnShapeCylinder::DebugDraw(const ParticleModule *pModu
     __debugbreak();
   if ( !pParticleState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1876, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
     __debugbreak();
-  if ( ParticleModule::GlobalModuleDebugDraw(_RBX) || particle_debug_draw_spawn_shape->current.enabled )
+  if ( ParticleModule::GlobalModuleDebugDraw((ParticleModule *)pModuleBase) || particle_debug_draw_spawn_shape->current.enabled )
   {
     m_pModuleInitRelativeVelocity = pParticleState->m_pModuleInitRelativeVelocity;
-    v15 = _RBX->m_flags >> 7;
-    __asm { vmovaps [rsp+128h+var_38], xmm6 }
-    v16 = v15 & 1;
-    __asm
-    {
-      vmovaps [rsp+128h+var_48], xmm7
-      vxorps  xmm6, xmm6, xmm6
-    }
-    v19 = 0;
+    v12 = (pModuleBase->m_flags & 0x80) != 0;
+    v13 = 0i64;
+    v15 = 0;
     if ( m_pModuleInitRelativeVelocity )
     {
       if ( (m_pModuleInitRelativeVelocity->m_flags & 1) == 0 )
       {
         m_velocityType = m_pModuleInitRelativeVelocity->m_velocityType;
         if ( m_velocityType == PARTICLE_RELATIVE_VELOCITY_TYPE_RELATIVE_TO_EFFECT_ORIGIN || m_velocityType == PARTICLE_RELATIVE_VELOCITY_TYPE_RELATIVE_TO_EFFECT_ORIGIN_WITH_BOLT_INFO )
-          v19 = 1;
+          v15 = 1;
       }
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-      vmovdqa xmmword ptr [rsp+128h+result.w.v], xmm0
-    }
+    result.w = (float4)g_unit.v;
     EmitterTransform = ParticleEmitter::GetEmitterTransform((ParticleEmitter *)pEmitterOwner, pParticleState);
-    ParticleModuleInitSpawnShape::GetOffsetForShape(_RBX, pParticleState, &outOffset);
-    if ( v19 )
+    ParticleModuleInitSpawnShape::GetOffsetForShape((ParticleModuleInitSpawnShape *)pModuleBase, pParticleState, &outOffset);
+    if ( v15 )
     {
-      __asm
-      {
-        vmovups xmm1, xmmword ptr [rbx+10h]
-        vshufps xmm0, xmm1, xmm6, 0FAh ; 'ú'
-        vshufps xmm1, xmm1, xmm0, 84h ; '„'
-        vaddps  xmm6, xmm1, xmmword ptr [rbx+20h]
-      }
+      v4 = _mm_shuffle_ps(*(__m128 *)&pModuleBase[2].m_type, _mm_shuffle_ps(*(__m128 *)&pModuleBase[2].m_type, (__m128)0i64, 250), 132);
+      v13 = _mm128_add_ps(v4, *(__m128 *)&pModuleBase[4].m_type);
     }
-    __asm
+    v19 = *(_OWORD *)&pModuleBase[8].m_type;
+    Float4UnitQuatToAxis(v18, v17);
+    *(__m128 *)&v26.m256i_u64[2] = v4;
+    *(_OWORD *)v26.m256i_i8 = v19;
+    *(__m256i *)result.x.v.m128_f32 = v26;
+    result.z = (float4)v5.v;
+    if ( v12 )
     {
-      vmovups xmm0, xmmword ptr [rbx+40h]
-      vmovaps [rsp+128h+var_58], xmm8
-    }
-    Float4UnitQuatToAxis(v23, v22);
-    __asm
-    {
-      vmovups xmmword ptr [rsp+128h+var_E8+10h], xmm1
-      vmovups xmmword ptr [rsp+128h+var_E8], xmm0
-      vmovups ymm3, [rsp+128h+var_E8]
-      vmovups ymmword ptr [rsp+128h+result.baseclass_0.x.v], ymm3
-      vmovups xmmword ptr [rsp+128h+result.baseclass_0.z.v], xmm2
-    }
-    if ( v16 )
-    {
-      __asm { vmovups xmm5, xmmword ptr [rsp+128h+outOffset.v] }
+      v = outOffset.v;
     }
     else
     {
-      Float4x4Mul(&result, EmitterTransform, v27);
-      __asm
-      {
-        vmovups xmm7, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-        vmovups xmm8, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-        vmovups xmmword ptr [rsp+128h+var_C8], xmm2
-        vmovups xmmword ptr [rsp+128h+var_E8], xmm0
-        vmovups xmmword ptr [rsp+128h+var_E8+10h], xmm1
-        vmovups xmm1, xmmword ptr [rsp+128h+outOffset.v]
-        vmovups ymm2, [rsp+128h+var_E8]
-        vmovups ymmword ptr [rsp+128h+result.baseclass_0.x.v], ymm2
-        vshufps xmm2, xmm1, xmm1, 0
-        vshufps xmm4, xmm1, xmm1, 0AAh ; 'ª'
-        vmovups xmmword ptr [rsp+128h+var_C8+10h], xmm3
-        vmovups ymm0, [rsp+128h+var_C8]
-        vmovups ymmword ptr [rsp+128h+result.baseclass_0.z.v], ymm0
-        vmulps  xmm0, xmm2, xmmword ptr [r15]
-        vshufps xmm3, xmm1, xmm1, 55h ; 'U'
-        vaddps  xmm1, xmm0, xmm7
-        vmulps  xmm0, xmm3, xmmword ptr [r15+10h]
-        vaddps  xmm2, xmm0, xmm7
-        vmulps  xmm0, xmm4, xmmword ptr [r15+20h]
-        vaddps  xmm1, xmm0, xmm1
-        vaddps  xmm2, xmm2, xmm1
-        vandps  xmm5, xmm2, xmm8
-      }
-      if ( v19 )
-      {
-        __asm
-        {
-          vshufps xmm1, xmm6, xmm6, 0
-          vmulps  xmm0, xmm1, xmmword ptr [r15]
-          vshufps xmm2, xmm6, xmm6, 55h ; 'U'
-          vaddps  xmm3, xmm0, xmm7
-          vmulps  xmm0, xmm2, xmmword ptr [r15+10h]
-          vshufps xmm4, xmm6, xmm6, 0AAh ; 'ª'
-          vaddps  xmm2, xmm0, xmm7
-          vmulps  xmm0, xmm4, xmmword ptr [r15+20h]
-          vaddps  xmm1, xmm0, xmm3
-          vaddps  xmm2, xmm2, xmm1
-          vandps  xmm6, xmm2, xmm8
-        }
-      }
+      Float4x4Mul(&result, EmitterTransform, v20);
+      *(float4 *)v27.m256i_i8 = (float4)v5.v;
+      *(_OWORD *)v26.m256i_i8 = v19;
+      *(__m128 *)&v26.m256i_u64[2] = v4;
+      *(__m256i *)result.x.v.m128_f32 = v26;
+      *(_OWORD *)&v27.m256i_u64[2] = v6;
+      *(__m256i *)result.z.v.m128_f32 = v27;
+      v = (__m128)(*(_OWORD *)&_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(outOffset.v, outOffset.v, 85), EmitterTransform->y.v), g_negativeZero.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(outOffset.v, outOffset.v, 170), EmitterTransform->z.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(outOffset.v, outOffset.v, 0), EmitterTransform->x.v), g_negativeZero.v))) & *(_OWORD *)&g_keepXYZ.v);
+      if ( v15 )
+        v13 = (__m128)(*(_OWORD *)&_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v13, v13, 85), EmitterTransform->y.v), g_negativeZero.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v13, v13, 170), EmitterTransform->z.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v13, v13, 0), EmitterTransform->x.v), g_negativeZero.v))) & *(_OWORD *)&g_keepXYZ.v);
     }
-    __asm
-    {
-      vmovaps xmm8, [rsp+128h+var_58]
-      vaddps  xmm7, xmm5, xmmword ptr [r15+30h]
-      vmovups xmmword ptr [rsp+128h+outOffset.v], xmm7
-    }
-    if ( v16 )
+    v22 = _mm128_add_ps(v, EmitterTransform->w.v);
+    outOffset.v = v22;
+    if ( v12 )
     {
       EmitterOwner = (ParticleEmitter *)ParticleState::GetEmitterOwner((ParticleState *)pParticleState);
-      ParticleEmitter::GetEmitterTransformTranspose(EmitterOwner, pParticleState);
-      __asm
-      {
-        vshufps xmm2, xmm7, xmm7, 0
-        vshufps xmm4, xmm7, xmm7, 55h ; 'U'
-        vshufps xmm5, xmm7, xmm7, 0AAh ; 'ª'
-        vmulps  xmm0, xmm2, xmmword ptr [rax]
-        vaddps  xmm3, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-        vmulps  xmm0, xmm4, xmmword ptr [rax+10h]
-        vaddps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-        vmulps  xmm0, xmm5, xmmword ptr [rax+20h]
-        vaddps  xmm1, xmm0, xmm3
-        vaddps  xmm2, xmm2, xmm1
-        vandps  xmm0, xmm2, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-        vmovups xmmword ptr [rsp+128h+outOffset.v], xmm0
-      }
+      EmitterTransformTranspose = ParticleEmitter::GetEmitterTransformTranspose(EmitterOwner, pParticleState);
+      outOffset.v = (__m128)(*(_OWORD *)&_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v22, v22, 85), EmitterTransformTranspose->y.v), g_negativeZero.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v22, v22, 170), EmitterTransformTranspose->z.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v22, v22, 0), EmitterTransformTranspose->x.v), g_negativeZero.v))) & *(_OWORD *)&g_keepXYZ.v);
     }
-    Particle_SpawnShapeDrawCylinder(&outOffset, &result, &colorLtGreen, pParticleState, _RBX);
-    __asm { vmovaps xmm7, [rsp+128h+var_48] }
-    if ( v19 )
+    Particle_SpawnShapeDrawCylinder(&outOffset, &result, &colorLtGreen, pParticleState, (const ParticleModuleInitSpawnShapeCylinder *)pModuleBase);
+    if ( v15 )
     {
-      __asm
-      {
-        vaddps  xmm0, xmm6, xmmword ptr [r15+30h]
-        vmovups xmmword ptr [rsp+128h+outOffset.v], xmm0
-      }
-      Particle_SpawnShapeDrawCylinder(&outOffset, &result, &colorLtBlue, pParticleState, _RBX);
+      outOffset.v = _mm128_add_ps(v13, EmitterTransform->w.v);
+      Particle_SpawnShapeDrawCylinder(&outOffset, &result, &colorLtBlue, pParticleState, (const ParticleModuleInitSpawnShapeCylinder *)pModuleBase);
     }
-    __asm { vmovaps xmm6, [rsp+128h+var_38] }
   }
 }
 
@@ -1565,24 +1433,27 @@ void ParticleModuleInitSpawnShapeEllipsoid::DebugDraw(const ParticleModule *pMod
     ParticleModuleInitSpawnShapeEllipsoid::GetDimensions((ParticleModuleInitSpawnShapeEllipsoid *)pModuleBase, pParticleState, &radiusMin, &radiusMax);
     Particle_GetShapeOffsetAndAngles(pEmitterOwner, pParticleState, &outOffset, &outShapeOrigin, &outAngles, (pModuleBase->m_flags & 0x80) != 0);
     v8 = (HIBYTE(pModuleBase[1].m_type) & 1) == 0;
+    _XMM1 = outShapeOrigin.v;
+    center.v[0] = outShapeOrigin.v.m128_f32[0];
     __asm
     {
-      vmovups xmm1, xmmword ptr [rbp+57h+outShapeOrigin.v]
-      vmovss  dword ptr [rbp+57h+center], xmm1
       vextractps dword ptr [rbp+57h+center+4], xmm1, 1
       vextractps dword ptr [rbp+57h+center+8], xmm1, 2
     }
     p_outShapeOrigin = &outShapeOrigin;
     if ( v8 )
     {
+      _XMM1 = radiusMin.v;
+      _XMM2 = radiusMax.v;
+      outShapeOrigin.v.m128_f32[0] = radiusMin.v.m128_f32[0];
       __asm
       {
-        vmovups xmm1, xmmword ptr [rbp+57h+radiusMin.v]
-        vmovups xmm2, xmmword ptr [rbp+57h+radiusMax.v]
-        vmovss  dword ptr [rbp+57h+outShapeOrigin.v], xmm1
         vextractps dword ptr [rbp+57h+outShapeOrigin.v+4], xmm1, 1
         vextractps dword ptr [rbp+57h+outShapeOrigin.v+8], xmm1, 2
-        vmovss  dword ptr [rbp+57h+outOffset.v], xmm2
+      }
+      outOffset.v.m128_f32[0] = radiusMax.v.m128_f32[0];
+      __asm
+      {
         vextractps dword ptr [rbp+57h+outOffset.v+4], xmm2, 1
         vextractps dword ptr [rbp+57h+outOffset.v+8], xmm2, 2
       }
@@ -1591,10 +1462,10 @@ void ParticleModuleInitSpawnShapeEllipsoid::DebugDraw(const ParticleModule *pMod
     }
     else
     {
+      _XMM1 = radiusMax.v;
+      outShapeOrigin.v.m128_f32[0] = radiusMax.v.m128_f32[0];
       __asm
       {
-        vmovups xmm1, xmmword ptr [rbp+57h+radiusMax.v]
-        vmovss  dword ptr [rbp+57h+outShapeOrigin.v], xmm1
         vextractps dword ptr [rbp+57h+outShapeOrigin.v+4], xmm1, 1
         vextractps dword ptr [rbp+57h+outShapeOrigin.v+8], xmm1, 2
       }
@@ -1630,20 +1501,16 @@ void ParticleModuleInitSpawnShapeSphere::DebugDraw(const ParticleModule *pModule
     ParticleModuleInitSpawnShape::GetOffsetForShape((ParticleModuleInitSpawnShape *)pModuleBase, pParticleState, &outOffset);
     ParticleModuleInitSpawnShapeSphere::GetDimensions((ParticleModuleInitSpawnShapeSphere *)pModuleBase, pParticleState, radiusMin, &radiusMax);
     Particle_GetShapeOffsetAndAngles(pEmitterOwner, pParticleState, &outOffset, &outShapeOrigin, &outAngles, (pModuleBase->m_flags & 0x80) != 0);
+    _XMM1 = outShapeOrigin.v;
+    center.v[0] = outShapeOrigin.v.m128_f32[0];
     __asm
     {
-      vmovups xmm1, xmmword ptr [rsp+0B8h+outShapeOrigin.v]
-      vmovss  dword ptr [rsp+0B8h+center], xmm1
       vextractps dword ptr [rsp+0B8h+center+4], xmm1, 1
       vextractps dword ptr [rsp+0B8h+center+8], xmm1, 2
     }
     if ( (HIBYTE(pModuleBase[1].m_type) & 1) == 0 )
-    {
-      __asm { vmovss  xmm1, [rsp+0B8h+radiusMin]; radius }
-      Particle_DebugSphere(&center, *(float *)&_XMM1, &colorLtGreen, 1, 0);
-    }
-    __asm { vmovss  xmm1, [rsp+0B8h+radiusMax]; radius }
-    Particle_DebugSphere(&center, *(float *)&_XMM1, &colorLtGreen, 1, 0);
+      Particle_DebugSphere(&center, radiusMin[0], &colorLtGreen, 1, 0);
+    Particle_DebugSphere(&center, radiusMax, &colorLtGreen, 1, 0);
   }
 }
 
@@ -1655,28 +1522,36 @@ ParticleModuleInitVolumetric::DebugDraw
 void ParticleModuleInitVolumetric::DebugDraw(const ParticleModule *pModuleBase, const ParticleEmitter *pEmitterOwner, const ParticleData *pParticleData, const ParticleState *pParticleState)
 {
   __int64 m_particleCountRunning; 
+  float4 *PositionArray; 
   unsigned __int8 *ParticleDataArray; 
-  ParticleEmitter *v21; 
+  ParticleEmitter *v11; 
   const vector4 *EmitterTransform; 
   const ParticleSystem *SystemOwner; 
   const ParticleModuleInitRelativeVelocity *m_pModuleInitRelativeVelocity; 
-  unsigned int m_velocityType; 
-  const ParticleModuleInitRelativeVelocity *v30; 
+  ParticleRelativeVelocityType m_velocityType; 
+  const float4 *v16; 
+  signed __int64 v17; 
+  const ParticleModuleInitRelativeVelocity *v18; 
+  __m128 v; 
   const ParticleStateDef *m_pStateDef; 
-  float4 *v42; 
-  bool v46; 
-  const dvar_t *v97; 
-  double v110; 
-  double v111; 
-  double v112; 
-  double v113; 
-  char v114; 
+  float4 *v22; 
+  const ParticleSystem *v23; 
+  __m128 v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  const dvar_t *v33; 
+  char v34; 
   float4 *RotationAngleArray; 
-  const float4 *v116; 
+  const float4 *v36; 
   float4 *SizeArray; 
-  signed __int64 v118; 
-  __int64 v120; 
-  vec4_t v121; 
+  signed __int64 v38; 
+  __int64 v40; 
+  vec4_t v41; 
   vec3_t center; 
   vec4_t quat; 
   vec3_t size; 
@@ -1694,222 +1569,111 @@ void ParticleModuleInitVolumetric::DebugDraw(const ParticleModule *pModuleBase, 
   if ( ParticleModule::GlobalModuleDebugDraw((ParticleModule *)pModuleBase) )
   {
     m_particleCountRunning = pParticleData->m_particleCountRunning;
-    _RBX = Particle_GetPositionArray(pParticleData);
+    PositionArray = Particle_GetPositionArray(pParticleData);
     SizeArray = Particle_GetSizeArray(pParticleData);
     RotationAngleArray = Particle_GetRotationAngleArray(pParticleData);
     if ( !pParticleData->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 345, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
       __debugbreak();
     ParticleDataArray = ParticleData::GetParticleDataArray((ParticleData *)pParticleData, PARTICLE_DATA_SPAWN_QUAT);
-    v21 = (ParticleEmitter *)pEmitterOwner;
-    v120 = pParticleState->m_pStateDef->flags & 0xA0;
+    v11 = (ParticleEmitter *)pEmitterOwner;
+    v40 = pParticleState->m_pStateDef->flags & 0xA0;
     EmitterTransform = ParticleEmitter::GetEmitterTransform((ParticleEmitter *)pEmitterOwner, pParticleState);
     SystemOwner = ParticleEmitter::GetSystemOwner((ParticleEmitter *)pEmitterOwner);
     m_pModuleInitRelativeVelocity = pParticleState->m_pModuleInitRelativeVelocity;
-    v114 = SystemOwner->m_flags & 1;
+    v34 = SystemOwner->m_flags & 1;
     if ( !m_pModuleInitRelativeVelocity || (m_pModuleInitRelativeVelocity->m_flags & 1) != 0 )
-      m_velocityType = 0;
+      m_velocityType = PARTICLE_RELATIVE_VELOCITY_TYPE_LOCAL;
     else
       m_velocityType = m_pModuleInitRelativeVelocity->m_velocityType;
     Particle_RotMatrixToQuatVec(EmitterTransform, &quat);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+0E0h+quat]
-      vmovdqa xmmword ptr [rbp+0E0h+var_160], xmm0
-    }
+    v41 = quat;
     if ( (_DWORD)m_particleCountRunning )
     {
-      v118 = (char *)SizeArray - (char *)_RBX;
-      _RDX = (const float4 *)((char *)RotationAngleArray - (char *)_RBX);
-      __asm { vmovaps [rsp+1E0h+var_50], xmm6 }
-      _R12 = ParticleDataArray - (unsigned __int8 *)_RBX;
-      __asm
-      {
-        vmovaps [rsp+1E0h+var_B0], xmm12
-        vmovaps [rsp+1E0h+var_C0], xmm13
-        vmovaps [rsp+1E0h+var_D0], xmm14
-        vmovaps [rsp+1E0h+var_E0], xmm15
-        vmovss  xmm15, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovaps [rsp+1E0h+var_60], xmm7
-        vmovaps [rsp+1E0h+var_70], xmm8
-        vmovaps [rsp+1E0h+var_80], xmm9
-        vmovaps [rsp+1E0h+var_90], xmm10
-        vmovaps [rsp+1E0h+var_A0], xmm11
-      }
-      v116 = (const float4 *)((char *)RotationAngleArray - (char *)_RBX);
+      v38 = (char *)SizeArray - (char *)PositionArray;
+      v16 = (const float4 *)((char *)RotationAngleArray - (char *)PositionArray);
+      v17 = ParticleDataArray - (unsigned __int8 *)PositionArray;
+      v36 = (const float4 *)((char *)RotationAngleArray - (char *)PositionArray);
       do
       {
-        v30 = pParticleState->m_pModuleInitRelativeVelocity;
-        if ( !v30 || (v30->m_flags & 1) != 0 || ((v30->m_velocityType - 3) & 0xFFFFFFFD) != 0 )
+        v18 = pParticleState->m_pModuleInitRelativeVelocity;
+        if ( !v18 || (v18->m_flags & 1) != 0 || ((v18->m_velocityType - 3) & 0xFFFFFFFD) != 0 )
         {
-          __asm { vmovups xmm6, xmmword ptr [rbx] }
+          _XMM6 = PositionArray->v;
         }
         else
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx]
-            vshufps xmm2, xmm0, xmm0, 0AAh ; 'ª'
-            vshufps xmm3, xmm0, xmm0, 55h ; 'U'
-            vshufps xmm4, xmm0, xmm0, 0
-            vmulps  xmm0, xmm2, xmmword ptr [r13+20h]
-            vaddps  xmm2, xmm0, xmmword ptr [r13+30h]
-            vmulps  xmm0, xmm3, xmmword ptr [r13+10h]
-            vaddps  xmm1, xmm0, xmm2
-            vmulps  xmm0, xmm4, xmmword ptr [r13+0]
-            vaddps  xmm6, xmm0, xmm1
-          }
+          v = PositionArray->v;
+          _XMM6 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 0), EmitterTransform->x.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 85), EmitterTransform->y.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 170), EmitterTransform->z.v), EmitterTransform->w.v)));
         }
         m_pStateDef = pParticleState->m_pStateDef;
-        v42 = (float4 *)((unsigned __int64)LODWORD(m_pStateDef->flags) >> 28);
+        v22 = (float4 *)((unsigned __int64)LODWORD(m_pStateDef->flags) >> 28);
         if ( (m_pStateDef->flags & 0x10000000) != 0 )
         {
-          ParticleEmitter::GetSystemOwner(v21);
-          _RDX = v116;
-          __asm { vaddps  xmm6, xmm6, xmmword ptr [rax+30h] }
+          v23 = ParticleEmitter::GetSystemOwner(v11);
+          v16 = v36;
+          _XMM6 = _mm128_add_ps(_XMM6, v23->m_systemTransform.w.v);
         }
-        _RAX = v118;
+        center.v[0] = _XMM6.m128_f32[0];
         __asm
         {
-          vmovss  dword ptr [rbp+0E0h+center], xmm6
           vextractps dword ptr [rbp+0E0h+center+4], xmm6, 1
           vextractps dword ptr [rbp+0E0h+center+8], xmm6, 2
-          vmovups xmm2, xmmword ptr [rax+rbx]
-          vmovss  dword ptr [rbp+0E0h+size], xmm2
+        }
+        _XMM2 = *(__int128 *)((char *)PositionArray + v38);
+        LODWORD(size.v[0]) = _XMM2;
+        __asm
+        {
           vextractps dword ptr [rbp+0E0h+size+4], xmm2, 1
           vextractps dword ptr [rbp+0E0h+size+8], xmm2, 2
         }
-        if ( v120 )
+        if ( v40 )
         {
-          __asm { vmovups xmm0, xmmword ptr [rdx+rbx] }
-          Float4RadianToQuat(v42, _RDX);
-          __asm
-          {
-            vmovss  xmm10, dword ptr [rbp+0E0h+quat]
-            vmovss  xmm8, dword ptr [rbp+0E0h+quat+0Ch]
-            vmovss  xmm6, dword ptr [rbp+0E0h+quat+4]
-            vmovss  xmm5, dword ptr [rbp+0E0h+quat+8]
-            vmovups xmm11, xmm0
-            vshufps xmm9, xmm0, xmm0, 0FFh
-            vshufps xmm7, xmm0, xmm0, 0AAh ; 'ª'
-            vshufps xmm4, xmm11, xmm11, 55h ; 'U'
-            vmulss  xmm2, xmm10, xmm9
-            vmulss  xmm1, xmm8, xmm11
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm6, xmm7
-            vaddss  xmm1, xmm3, xmm0
-            vmulss  xmm0, xmm5, xmm4
-            vsubss  xmm12, xmm1, xmm0
-            vmulss  xmm1, xmm4, xmm8
-            vmulss  xmm0, xmm7, xmm10
-            vsubss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm6, xmm9
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm1, xmm4, xmm10
-            vmulss  xmm0, xmm5, xmm11
-            vaddss  xmm13, xmm3, xmm0
-            vmulss  xmm0, xmm7, xmm8
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm6, xmm11
-            vsubss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm5, xmm9
-            vaddss  xmm14, xmm3, xmm0
-            vmulss  xmm0, xmm10, xmm11
-            vmulss  xmm1, xmm9, xmm8
-            vsubss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm4, xmm6
-            vsubss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm5, xmm7
-            vsubss  xmm4, xmm3, xmm0
-            vmovss  dword ptr [rbp+0E0h+var_160+0Ch], xmm4
-            vmovss  dword ptr [rbp+0E0h+var_160], xmm12
-            vmovss  dword ptr [rbp+0E0h+var_160+4], xmm13
-            vmovss  dword ptr [rbp+0E0h+var_160+8], xmm14
-          }
+          v25 = *(__m128 *)((char *)&PositionArray->v + (_QWORD)v16);
+          Float4RadianToQuat(v22, v16);
+          v26 = _mm_shuffle_ps(v25, v25, 255).m128_f32[0];
+          v27 = _mm_shuffle_ps(v25, v25, 170).m128_f32[0];
+          v28 = _mm_shuffle_ps(v25, v25, 85).m128_f32[0];
+          v29 = (float)((float)((float)(quat.v[0] * v26) + (float)(quat.v[3] * v25.m128_f32[0])) + (float)(quat.v[1] * v27)) - (float)(quat.v[2] * v28);
+          v30 = (float)((float)((float)(v28 * quat.v[3]) - (float)(v27 * quat.v[0])) + (float)(quat.v[1] * v26)) + (float)(quat.v[2] * v25.m128_f32[0]);
+          v31 = (float)((float)((float)(v28 * quat.v[0]) + (float)(v27 * quat.v[3])) - (float)(quat.v[1] * v25.m128_f32[0])) + (float)(quat.v[2] * v26);
+          v32 = (float)((float)((float)(v26 * quat.v[3]) - (float)(quat.v[0] * v25.m128_f32[0])) - (float)(v28 * quat.v[1])) - (float)(quat.v[2] * v27);
+          v41.v[3] = v32;
+          v41.v[0] = v29;
+          v41.v[1] = v30;
+          v41.v[2] = v31;
         }
         else
         {
-          v46 = m_velocityType < 2;
-          if ( m_velocityType == 2 || (v46 = m_velocityType < 5, m_velocityType == 5) || (v46 = 0, v114) && (v46 = m_velocityType < 3, m_velocityType != 3) )
+          if ( m_velocityType == PARTICLE_RELATIVE_VELOCITY_TYPE_RELATIVE_TO_EFFECT_ORIGIN || m_velocityType == PARTICLE_RELATIVE_VELOCITY_TYPE_RELATIVE_TO_EFFECT_ORIGIN_WITH_BOLT_INFO || v34 && m_velocityType != PARTICLE_RELATIVE_VELOCITY_TYPE_COUNT )
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [r12+rbx]
-              vmovups xmmword ptr [rbp+0E0h+var_160], xmm0
-              vshufps xmm4, xmm0, xmm0, 0FFh
-            }
+            v41 = *(vec4_t *)((char *)PositionArray + v17);
+            LODWORD(v32) = _mm_shuffle_ps((__m128)v41, (__m128)v41, 255).m128_u32[0];
           }
           else
           {
-            __asm { vmovss  xmm4, dword ptr [rbp+0E0h+var_160+0Ch] }
+            v32 = v41.v[3];
           }
-          __asm
-          {
-            vmovss  xmm14, dword ptr [rbp+0E0h+var_160+8]
-            vmovss  xmm13, dword ptr [rbp+0E0h+var_160+4]
-            vmovss  xmm12, dword ptr [rbp+0E0h+var_160]
-          }
+          v31 = v41.v[2];
+          v30 = v41.v[1];
+          v29 = v41.v[0];
         }
-        __asm
-        {
-          vmulss  xmm1, xmm12, xmm12
-          vmulss  xmm0, xmm13, xmm13
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm14, xmm14
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vsubss  xmm1, xmm2, cs:__real@3f800000
-          vandps  xmm1, xmm1, xmm15
-          vcomiss xmm1, cs:__real@3b83126f
-        }
-        if ( !v46 )
-        {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm4, xmm4
-            vmovsd  [rsp+1E0h+var_198], xmm0
-            vcvtss2sd xmm1, xmm14, xmm14
-            vmovsd  [rsp+1E0h+var_1A0], xmm1
-            vcvtss2sd xmm2, xmm13, xmm13
-            vmovsd  [rsp+1E0h+var_1A8], xmm2
-            vcvtss2sd xmm3, xmm12, xmm12
-            vmovsd  [rsp+1E0h+var_1B0], xmm3
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 698, ASSERT_TYPE_ASSERT, "(Particle_Vec4IsNormalized( outQuat ))", "%s\n\t%g %g %g %g", "Particle_Vec4IsNormalized( outQuat )", v110, v111, v112, v113) )
-            __debugbreak();
-        }
-        QuatToAxis(&v121, &axis);
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)((float)(v29 * v29) + (float)(v30 * v30)) + (float)(v31 * v31)) + (float)(v32 * v32)) - 1.0) & _xmm) >= 0.0040000002 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 698, ASSERT_TYPE_ASSERT, "(Particle_Vec4IsNormalized( outQuat ))", "%s\n\t%g %g %g %g", "Particle_Vec4IsNormalized( outQuat )", v29, v30, v31, v32) )
+          __debugbreak();
+        QuatToAxis(&v41, &axis);
         AxisToAngles(&axis, &angles);
         Particle_DebugEllipsoid(&center, &angles, &size, &colorRedHeat, 1, 0);
-        v97 = particle_show_axes;
+        v33 = particle_show_axes;
         if ( !particle_show_axes && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 620, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar accessed after deregistration", "dvar") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v97);
-        if ( v97->current.enabled )
-        {
-          _RAX = particle_axes_length;
-          __asm { vmovss  xmm2, dword ptr [rax+28h]; length }
-          Particle_DebugAxis(&axis, &center, *(float *)&_XMM2, 1, 0);
-        }
-        v21 = (ParticleEmitter *)pEmitterOwner;
-        ++_RBX;
-        _RDX = v116;
+        Dvar_CheckFrontendServerThread(v33);
+        if ( v33->current.enabled )
+          Particle_DebugAxis(&axis, &center, particle_axes_length->current.value, 1, 0);
+        v11 = (ParticleEmitter *)pEmitterOwner;
+        ++PositionArray;
+        v16 = v36;
         --m_particleCountRunning;
       }
       while ( m_particleCountRunning );
-      __asm
-      {
-        vmovaps xmm15, [rsp+1E0h+var_E0]
-        vmovaps xmm14, [rsp+1E0h+var_D0]
-        vmovaps xmm13, [rsp+1E0h+var_C0]
-        vmovaps xmm12, [rsp+1E0h+var_B0]
-        vmovaps xmm11, [rsp+1E0h+var_A0]
-        vmovaps xmm10, [rsp+1E0h+var_90]
-        vmovaps xmm9, [rsp+1E0h+var_80]
-        vmovaps xmm8, [rsp+1E0h+var_70]
-        vmovaps xmm7, [rsp+1E0h+var_60]
-        vmovaps xmm6, [rsp+1E0h+var_50]
-      }
     }
   }
 }
@@ -1921,65 +1685,37 @@ ParticleModuleInitSpawnShape::GetCalculationOffset
 */
 void ParticleModuleInitSpawnShape::GetCalculationOffset(ParticleModuleInitSpawnShape *this, const ParticleEmitter *pEmitter, const ParticleState *pParticleState, float4 *outCalculationOffset)
 {
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovups xmm2, xmmword ptr [rcx+10h]
-  }
-  _RBX = outCalculationOffset;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vshufps xmm1, xmm2, xmm0, 0FAh ; 'ú'
-    vshufps xmm6, xmm2, xmm1, 84h ; '„'
-  }
+  float4 v5; 
+  const vector4 *EmitterTransformTranspose; 
+  __m128 v7; 
+  __m128 v8; 
+  __m128 v9; 
+  __m128 v10; 
+  __m128 v; 
+  __m128 v12; 
+  __m128 v13; 
+  __m128 v14; 
+  __m128 v15; 
+
+  v5.v = _mm_shuffle_ps(this->m_calculationOffset.v, _mm_shuffle_ps(this->m_calculationOffset.v, (__m128)0i64, 250), 132);
   if ( (this->m_flags & 0x80) != 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+88h+var_28], xmm7
-      vmovaps [rsp+88h+var_38], xmm8
-      vmovaps [rsp+88h+var_48], xmm9
-      vmovaps [rsp+88h+var_58], xmm10
-    }
-    _RAX = ParticleEmitter::GetEmitterTransformTranspose((ParticleEmitter *)pEmitter, pParticleState);
-    __asm
-    {
-      vshufps xmm7, xmm6, xmm6, 0
-      vshufps xmm8, xmm6, xmm6, 55h ; 'U'
-      vshufps xmm9, xmm6, xmm6, 0AAh ; 'ª'
-      vmovups xmm3, xmmword ptr [rax]
-      vshufps xmm2, xmm3, xmmword ptr [rax+10h], 0EEh ; 'î'
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vshufps xmm4, xmm1, xmmword ptr [rax+30h], 44h ; 'D'
-      vshufps xmm5, xmm1, xmmword ptr [rax+30h], 0EEh ; 'î'
-      vshufps xmm10, xmm6, xmm6, 0FFh
-      vshufps xmm6, xmm3, xmmword ptr [rax+10h], 44h ; 'D'
-      vshufps xmm3, xmm6, xmm4, 88h ; 'ˆ'
-      vmulps  xmm0, xmm7, xmm3
-      vmovaps xmm7, [rsp+88h+var_28]
-      vshufps xmm4, xmm6, xmm4, 0DDh ; 'Ý'
-      vshufps xmm6, xmm2, xmm5, 88h ; 'ˆ'
-      vshufps xmm5, xmm2, xmm5, 0DDh ; 'Ý'
-      vaddps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vmulps  xmm0, xmm8, xmm4
-      vaddps  xmm3, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vmovaps xmm8, [rsp+88h+var_38]
-      vmulps  xmm1, xmm9, xmm6
-      vmovaps xmm9, [rsp+88h+var_48]
-      vmulps  xmm0, xmm10, xmm5
-      vmovaps xmm10, [rsp+88h+var_58]
-      vaddps  xmm2, xmm1, xmm2
-      vaddps  xmm1, xmm0, xmm3
-      vaddps  xmm2, xmm1, xmm2
-      vmovups xmmword ptr [rbx], xmm2
-    }
+    EmitterTransformTranspose = ParticleEmitter::GetEmitterTransformTranspose((ParticleEmitter *)pEmitter, pParticleState);
+    v7 = _mm_shuffle_ps(v5.v, v5.v, 0);
+    v8 = _mm_shuffle_ps(v5.v, v5.v, 85);
+    v9 = _mm_shuffle_ps(v5.v, v5.v, 170);
+    v10 = _mm_shuffle_ps(EmitterTransformTranspose->x.v, EmitterTransformTranspose->y.v, 238);
+    v = EmitterTransformTranspose->z.v;
+    v12 = _mm_shuffle_ps(v, EmitterTransformTranspose->w.v, 68);
+    v13 = _mm_shuffle_ps(v, EmitterTransformTranspose->w.v, 238);
+    v14 = _mm_shuffle_ps(v5.v, v5.v, 255);
+    v15 = _mm_shuffle_ps(EmitterTransformTranspose->x.v, EmitterTransformTranspose->y.v, 68);
+    outCalculationOffset->v = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(v14, _mm_shuffle_ps(v10, v13, 221)), _mm128_add_ps(_mm128_mul_ps(v8, _mm_shuffle_ps(v15, v12, 221)), g_negativeZero.v)), _mm128_add_ps(_mm128_mul_ps(v9, _mm_shuffle_ps(v10, v13, 136)), _mm128_add_ps(_mm128_mul_ps(v7, _mm_shuffle_ps(v15, v12, 136)), g_negativeZero.v)));
   }
   else
   {
-    __asm { vmovups xmmword ptr [rbx], xmm6 }
+    *outCalculationOffset = (float4)v5.v;
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
 }
 
 /*
@@ -1989,124 +1725,75 @@ ParticleModuleInitSpawnShapeBox::GetDimensions
 */
 void ParticleModuleInitSpawnShapeBox::GetDimensions(ParticleModuleInitSpawnShapeBox *this, const ParticleState *pParticleState, float4 *dimensionsMin, float4 *dimensionsMax)
 {
+  ParticleEmitter *m_pEmitterOwner; 
   const ParticleSystem *SystemOwner; 
   ParticleSpawnFlags m_spawnFlags; 
-  ParticleSystem *v15; 
-  bool v16; 
-  char v22; 
+  ParticleSystem *v11; 
+  bool v12; 
+  char v17; 
+  float m_emitterLifeNormalized; 
+  __m128 v; 
+  __m128 v20; 
+  float4 *v21; 
   float4 result; 
-  float4 v48; 
-  float4 v49; 
+  float4 v23; 
+  float4 v24; 
 
-  _R14 = dimensionsMax;
-  _RDI = dimensionsMin;
-  _RBX = this;
   if ( !pParticleState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1338, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
     __debugbreak();
   if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
     __debugbreak();
-  _R15 = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
-  SystemOwner = ParticleEmitter::GetSystemOwner(_R15);
-  m_spawnFlags = _RBX->m_spawnFlags;
-  v15 = (ParticleSystem *)SystemOwner;
-  v16 = (m_spawnFlags & 4) != 0 && (SystemOwner->m_flags & 0x40000000) != 0;
-  if ( _RBX->m_useBeamInfo && (SystemOwner->m_flags & 0x100) != 0 )
+  m_pEmitterOwner = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
+  SystemOwner = ParticleEmitter::GetSystemOwner(m_pEmitterOwner);
+  m_spawnFlags = this->m_spawnFlags;
+  v11 = (ParticleSystem *)SystemOwner;
+  v12 = (m_spawnFlags & 4) != 0 && (SystemOwner->m_flags & 0x40000000) != 0;
+  if ( this->m_useBeamInfo && (SystemOwner->m_flags & 0x100) != 0 )
   {
-    ParticleEmitter::GetBeamLength(_R15, pParticleState);
+    ParticleEmitter::GetBeamLength(m_pEmitterOwner, pParticleState);
+    _XMM2.v = (__m128)this->m_dimensionsMin;
+    _XMM3.v = (__m128)this->m_dimensionsMax;
     __asm
     {
-      vmovups xmm2, xmmword ptr [rbx+40h]
-      vmovups xmm3, xmmword ptr [rbx+50h]
-      vxorps  xmm1, xmm1, xmm1
       vinsertps xmm2, xmm2, xmm1, 10h
       vinsertps xmm3, xmm3, xmm0, 10h
-      vmovups xmmword ptr [rdi], xmm2
-      vmovups xmmword ptr [r14], xmm3
     }
+    *dimensionsMin = (float4)_XMM2.v;
+    *dimensionsMax = (float4)_XMM3.v;
   }
   else
   {
-    v22 = m_spawnFlags & 2;
-    if ( v22 || v16 )
+    v17 = m_spawnFlags & 2;
+    if ( v17 || v12 )
     {
-      __asm { vmovaps [rsp+0C8h+var_58], xmm7 }
-      if ( v22 )
+      if ( v17 )
       {
-        __asm
-        {
-          vmovaps [rsp+0C8h+var_48], xmm6
-          vmovss  xmm6, dword ptr [r15+178h]
-          vmovaps xmm2, xmm6; life
-        }
-        _RAX = Particle_GetCurveValueFloat4(&result, _RBX->m_curves, *(float *)&_XMM2);
-        __asm
-        {
-          vmovaps xmm2, xmm6; life
-          vmovups xmm7, xmmword ptr [rax]
-        }
-        _RAX = Particle_GetCurveValueFloat4(&result, &_RBX->m_curves[3], *(float *)&_XMM2);
-        __asm
-        {
-          vmovaps xmm6, [rsp+0C8h+var_48]
-          vmovups xmm2, xmmword ptr [rax]
-        }
+        m_emitterLifeNormalized = m_pEmitterOwner->m_emitterLifeNormalized;
+        v = Particle_GetCurveValueFloat4(&result, this->m_curves, m_emitterLifeNormalized)->v;
+        v20 = Particle_GetCurveValueFloat4(&result, &this->m_curves[3], m_emitterLifeNormalized)->v;
       }
       else
       {
-        __asm
-        {
-          vmovups xmm7, xmmword ptr [rbx+20h]
-          vmovups xmm0, xmmword ptr [rbx+50h]
-          vsubps  xmm2, xmm0, xmm7
-        }
+        v = this->m_offset.v;
+        v20 = _mm128_sub_ps(this->m_dimensionsMax.v, v);
       }
-      __asm { vmovups [rsp+0C8h+var_88], xmm2 }
-      if ( v16 )
+      v23.v = v20;
+      if ( v12 )
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovups xmmword ptr [rsp+0C8h+result.v], xmm0
-        }
-        _RAX = ParticleSystem::ApplyScaleModifiers(v15, &v49, &v48, -1, &result, 0);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovdqu xmmword ptr [rdi], xmm0
-          vmovups xmm1, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-          vmovdqa xmmword ptr [rsp+0C8h+result.v], xmm1
-        }
-        _RAX = ParticleSystem::ApplyScaleModifiers(v15, &v49, &v48, -1, &result, 0);
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rax]
-          vmovdqu xmmword ptr [r14], xmm0
-          vmovups xmm0, xmmword ptr [rax]
-          vsubps  xmm0, xmm0, xmmword ptr [rdi]
-          vmulps  xmm1, xmm0, xmmword ptr cs:?g_oneHalf@@3Ufloat4@@B.v; float4 const g_oneHalf
-          vaddps  xmm2, xmm1, xmmword ptr [rdi]
-        }
+        result.v = 0i64;
+        *dimensionsMin = (float4)ParticleSystem::ApplyScaleModifiers(v11, &v24, &v23, -1, &result, 0)->v;
+        result.v = g_one.v;
+        v21 = ParticleSystem::ApplyScaleModifiers(v11, &v24, &v23, -1, &result, 0);
+        *dimensionsMax = (float4)v21->v;
+        v20 = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(v21->v, dimensionsMin->v), g_oneHalf.v), dimensionsMin->v);
       }
-      __asm
-      {
-        vaddps  xmm0, xmm2, xmm7
-        vmovups xmmword ptr [r14], xmm0
-        vxorps  xmm1, xmm1, xmm1
-        vsubps  xmm2, xmm1, xmm2
-        vaddps  xmm0, xmm2, xmm7
-        vmovaps xmm7, [rsp+0C8h+var_58]
-        vmovups xmmword ptr [rdi], xmm0
-      }
+      dimensionsMax->v = _mm128_add_ps(v20, v);
+      dimensionsMin->v = _mm128_add_ps(_mm128_sub_ps((__m128)0i64, v20), v);
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx+40h]
-        vmovdqu xmmword ptr [rdi], xmm0
-        vmovups xmm1, xmmword ptr [rbx+50h]
-        vmovdqu xmmword ptr [r14], xmm1
-      }
+      *dimensionsMin = this->m_dimensionsMin;
+      *dimensionsMax = this->m_dimensionsMax;
     }
   }
 }
@@ -2118,89 +1805,66 @@ ParticleModuleInitSpawnShapeCylinder::GetDimensions
 */
 void ParticleModuleInitSpawnShapeCylinder::GetDimensions(ParticleModuleInitSpawnShapeCylinder *this, const ParticleState *pParticleState, float *halfHeight, float *radiusMin, float *radiusMax)
 {
+  ParticleEmitter *m_pEmitterOwner; 
   ParticleSystem *SystemOwner; 
-  float4 v41; 
-  float4 v42; 
-  float4 v43; 
-  float4 v44; 
+  float m_emitterLifeNormalized; 
+  double CurveValue; 
+  double v13; 
+  float4 *v22; 
+  __m128 v; 
+  __m128 v26; 
+  float4 v29; 
+  float4 v30; 
+  float4 v31; 
+  float4 v32; 
 
-  _RSI = radiusMin;
-  _R14 = radiusMax;
-  _RDI = halfHeight;
   if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
     __debugbreak();
-  _RBP = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
-  SystemOwner = (ParticleSystem *)ParticleEmitter::GetSystemOwner(_RBP);
+  m_pEmitterOwner = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
+  SystemOwner = (ParticleSystem *)ParticleEmitter::GetSystemOwner(m_pEmitterOwner);
   if ( (this->m_spawnFlags & 2) != 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_48], xmm6
-      vmovss  xmm6, dword ptr [rbp+178h]
-      vmovaps xmm1, xmm6; time
-    }
-    *(double *)&_XMM0 = Particle_GetCurveValue(&this->m_curves[4], *(const float *)&_XMM1);
-    __asm
-    {
-      vmovss  dword ptr [rsi], xmm0
-      vmovaps xmm1, xmm6; time
-      vmovss  dword ptr [r14], xmm0
-    }
-    *(double *)&_XMM0 = Particle_GetCurveValue(&this->m_curves[3], *(const float *)&_XMM1);
-    __asm
-    {
-      vmovaps xmm6, [rsp+0C8h+var_48]
-      vmovss  dword ptr [rdi], xmm0
-    }
+    m_emitterLifeNormalized = m_pEmitterOwner->m_emitterLifeNormalized;
+    CurveValue = Particle_GetCurveValue(&this->m_curves[4], m_emitterLifeNormalized);
+    *radiusMin = *(float *)&CurveValue;
+    *radiusMax = *(float *)&CurveValue;
+    v13 = Particle_GetCurveValue(&this->m_curves[3], m_emitterLifeNormalized);
+    *halfHeight = *(float *)&v13;
   }
   else
   {
-    *_RDI = this->m_halfHeight;
-    *_RSI = this->m_radius.min;
+    *halfHeight = this->m_halfHeight;
+    *radiusMin = this->m_radius.min;
     *radiusMax = this->m_radius.max;
   }
   if ( (this->m_spawnFlags & 4) != 0 && (SystemOwner->m_flags & 0x40000000) != 0 )
   {
+    _XMM1 = _xmm;
+    __asm { vinsertps xmm1, xmm1, dword ptr [rsi], 0 }
+    _XMM2 = _xmm;
     __asm
     {
-      vmovups xmm1, cs:__xmm@3f800000000000000000000000000000
-      vinsertps xmm1, xmm1, dword ptr [rsi], 0
-      vmovups xmm2, cs:__xmm@3f800000000000000000000000000000
       vinsertps xmm2, xmm2, dword ptr [r14], 0
       vinsertps xmm1, xmm1, dword ptr [rsi], 10h
       vinsertps xmm2, xmm2, dword ptr [r14], 10h
       vinsertps xmm1, xmm1, dword ptr [rdi], 20h ; ' '
       vinsertps xmm2, xmm2, dword ptr [rdi], 20h ; ' '
-      vxorps  xmm0, xmm0, xmm0
-      vmovups [rsp+0C8h+var_88], xmm1
-      vmovups [rsp+0C8h+var_78], xmm2
-      vmovups [rsp+0C8h+var_98], xmm0
     }
-    _RAX = ParticleSystem::ApplyScaleModifiers(SystemOwner, &v44, &v42, -1, &v41, 0);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rsp+0C8h+var_88], xmm0
-      vmovdqa [rsp+0C8h+var_98], xmm1
-    }
-    _RAX = ParticleSystem::ApplyScaleModifiers(SystemOwner, &v44, &v43, -1, &v41, 0);
-    __asm
-    {
-      vmovups xmm3, [rsp+0C8h+var_88]
-      vshufps xmm0, xmm3, xmm3, 55h ; 'U'
-      vminss  xmm0, xmm0, xmm3
-      vmovups xmm2, xmmword ptr [rax]
-      vmovss  dword ptr [rsi], xmm0
-      vshufps xmm1, xmm2, xmm2, 55h ; 'U'
-      vmaxss  xmm0, xmm1, xmm2
-      vmovss  dword ptr [r14], xmm0
-      vshufps xmm0, xmm3, xmm3, 0AAh ; 'ª'
-      vshufps xmm2, xmm2, xmm2, 0AAh ; 'ª'
-      vaddss  xmm0, xmm2, xmm0
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vmovss  dword ptr [rdi], xmm1
-    }
+    v30.v = _XMM1;
+    v31.v = _XMM2;
+    v29.v = 0i64;
+    v30.v = ParticleSystem::ApplyScaleModifiers(SystemOwner, &v32, &v30, -1, &v29, 0)->v;
+    v29.v = g_one.v;
+    v22 = ParticleSystem::ApplyScaleModifiers(SystemOwner, &v32, &v31, -1, &v29, 0);
+    v = v30.v;
+    _XMM0 = _mm_shuffle_ps(v, v, 85);
+    __asm { vminss  xmm0, xmm0, xmm3 }
+    v26 = v22->v;
+    *radiusMin = *(float *)&_XMM0;
+    _XMM1 = _mm_shuffle_ps(v26, v26, 85);
+    __asm { vmaxss  xmm0, xmm1, xmm2 }
+    *radiusMax = *(float *)&_XMM0;
+    *halfHeight = (float)(_mm_shuffle_ps(v26, v26, 170).m128_f32[0] + _mm_shuffle_ps(v, v, 170).m128_f32[0]) * 0.5;
   }
 }
 
@@ -2211,59 +1875,35 @@ ParticleModuleInitSpawnShapeEllipsoid::GetDimensions
 */
 void ParticleModuleInitSpawnShapeEllipsoid::GetDimensions(ParticleModuleInitSpawnShapeEllipsoid *this, const ParticleState *pParticleState, float4 *radiusMin, float4 *radiusMax)
 {
+  ParticleEmitter *m_pEmitterOwner; 
   ParticleSystem *SystemOwner; 
+  float4 *CurveValueFloat4; 
+  float4 v11; 
   float4 result; 
-  float4 v21; 
+  float4 v13; 
 
-  _RSI = radiusMax;
-  _RDI = radiusMin;
-  _RBX = this;
   if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
     __debugbreak();
-  _RBP = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
-  SystemOwner = (ParticleSystem *)ParticleEmitter::GetSystemOwner(_RBP);
-  if ( (_RBX->m_spawnFlags & 2) != 0 )
+  m_pEmitterOwner = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
+  SystemOwner = (ParticleSystem *)ParticleEmitter::GetSystemOwner(m_pEmitterOwner);
+  if ( (this->m_spawnFlags & 2) != 0 )
   {
-    __asm { vmovss  xmm2, dword ptr [rbp+178h]; life }
-    _RAX = Particle_GetCurveValueFloat4(&result, &_RBX->m_curves[3], *(float *)&_XMM2);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovdqu xmmword ptr [rdi], xmm0
-      vmovdqu xmmword ptr [rsi], xmm0
-    }
+    CurveValueFloat4 = Particle_GetCurveValueFloat4(&result, &this->m_curves[3], m_pEmitterOwner->m_emitterLifeNormalized);
+    v11.v = CurveValueFloat4->v;
+    *radiusMin = (float4)CurveValueFloat4->v;
+    *radiusMax = (float4)v11.v;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx+30h]
-      vmovdqu xmmword ptr [rdi], xmm0
-      vmovups xmm1, xmmword ptr [rbx+40h]
-      vmovdqu xmmword ptr [rsi], xmm1
-    }
+    *radiusMin = this->m_radiusMin;
+    *radiusMax = this->m_radiusMax;
   }
-  if ( (_RBX->m_spawnFlags & 4) != 0 && (SystemOwner->m_flags & 0x40000000) != 0 )
+  if ( (this->m_spawnFlags & 4) != 0 && (SystemOwner->m_flags & 0x40000000) != 0 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovups xmmword ptr [rsp+88h+result.v], xmm0
-    }
-    _RAX = ParticleSystem::ApplyScaleModifiers(SystemOwner, &v21, _RDI, -1, &result, 0);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovdqu xmmword ptr [rdi], xmm0
-      vmovups xmm1, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-      vmovdqa xmmword ptr [rsp+88h+result.v], xmm1
-    }
-    _RAX = ParticleSystem::ApplyScaleModifiers(SystemOwner, &v21, _RSI, -1, &result, 0);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovdqu xmmword ptr [rsi], xmm0
-    }
+    result.v = 0i64;
+    *radiusMin = (float4)ParticleSystem::ApplyScaleModifiers(SystemOwner, &v13, radiusMin, -1, &result, 0)->v;
+    result.v = g_one.v;
+    *radiusMax = (float4)ParticleSystem::ApplyScaleModifiers(SystemOwner, &v13, radiusMax, -1, &result, 0)->v;
   }
 }
 
@@ -2274,76 +1914,65 @@ ParticleModuleInitSpawnShapeSphere::GetDimensions
 */
 void ParticleModuleInitSpawnShapeSphere::GetDimensions(ParticleModuleInitSpawnShapeSphere *this, const ParticleState *pParticleState, float *radiusMin, float *radiusMax)
 {
+  ParticleEmitter *m_pEmitterOwner; 
   ParticleSystem *SystemOwner; 
-  float4 v37; 
-  float4 v38; 
-  float4 v39; 
-  float4 v40; 
-  float4 v41; 
-  float4 v42; 
+  double CurveValue; 
+  float4 *v19; 
+  __m128 v; 
+  __m128 v23; 
+  float4 v28; 
+  float4 v29; 
+  float4 v30; 
+  float4 v31; 
+  float4 v32; 
+  float4 v33; 
 
-  _R14 = radiusMax;
-  _RDI = radiusMin;
-  _RBX = this;
   if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
     __debugbreak();
-  _RSI = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
-  SystemOwner = (ParticleSystem *)ParticleEmitter::GetSystemOwner(_RSI);
-  if ( (_RBX->m_spawnFlags & 2) != 0 )
+  m_pEmitterOwner = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
+  SystemOwner = (ParticleSystem *)ParticleEmitter::GetSystemOwner(m_pEmitterOwner);
+  if ( (this->m_spawnFlags & 2) != 0 )
   {
-    __asm { vmovss  xmm1, dword ptr [rsi+178h]; time }
-    *(double *)&_XMM0 = Particle_GetCurveValue(&_RBX->m_curves[3], *(const float *)&_XMM1);
-    __asm { vmovss  dword ptr [rdi], xmm0 }
+    CurveValue = Particle_GetCurveValue(&this->m_curves[3], m_pEmitterOwner->m_emitterLifeNormalized);
+    *radiusMin = *(float *)&CurveValue;
   }
   else
   {
-    *_RDI = _RBX->m_radius.min;
-    __asm { vmovss  xmm0, dword ptr [rbx+3Ch] }
+    *radiusMin = this->m_radius.min;
+    *(float *)&CurveValue = this->m_radius.max;
   }
-  __asm { vmovss  dword ptr [r14], xmm0 }
-  if ( (_RBX->m_spawnFlags & 4) != 0 && (SystemOwner->m_flags & 0x40000000) != 0 )
+  *radiusMax = *(float *)&CurveValue;
+  if ( (this->m_spawnFlags & 4) != 0 && (SystemOwner->m_flags & 0x40000000) != 0 )
   {
+    _XMM1 = _xmm;
+    _XMM2 = _xmm;
     __asm
     {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovups xmm1, cs:__xmm@3f800000000000000000000000000000
-      vmovups xmm2, cs:__xmm@3f800000000000000000000000000000
       vinsertps xmm1, xmm1, xmm0, 0
       vinsertps xmm1, xmm1, xmm0, 10h
       vinsertps xmm1, xmm1, xmm0, 20h ; ' '
-      vmovss  xmm0, dword ptr [r14]
       vinsertps xmm2, xmm2, xmm0, 0
       vinsertps xmm2, xmm2, xmm0, 10h
       vinsertps xmm2, xmm2, xmm0, 20h ; ' '
-      vxorps  xmm0, xmm0, xmm0
-      vmovups [rsp+0C8h+var_98], xmm0
-      vmovups [rsp+0C8h+var_78], xmm1
-      vmovups [rsp+0C8h+var_68], xmm2
     }
-    _RAX = ParticleSystem::ApplyScaleModifiers(SystemOwner, &v41, &v39, -1, &v37, 0);
-    __asm
-    {
-      vmovups xmm1, xmmword ptr cs:?g_one@@3Ufloat4@@B.v; float4 const g_one
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups [rsp+0C8h+var_78], xmm0
-      vmovdqa [rsp+0C8h+var_88], xmm1
-    }
-    _RAX = ParticleSystem::ApplyScaleModifiers(SystemOwner, &v42, &v40, -1, &v38, 0);
-    __asm
-    {
-      vmovups xmm1, [rsp+0C8h+var_78]
-      vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-      vminss  xmm0, xmm0, xmm1
-      vmovups xmm4, xmmword ptr [rax]
-      vshufps xmm2, xmm1, xmm1, 0AAh ; 'ª'
-      vminss  xmm1, xmm0, xmm2
-      vmovss  dword ptr [rdi], xmm1
-      vshufps xmm0, xmm4, xmm4, 55h ; 'U'
-      vmaxss  xmm0, xmm0, xmm4
-      vshufps xmm3, xmm4, xmm4, 0AAh ; 'ª'
-      vmaxss  xmm1, xmm0, xmm3
-      vmovss  dword ptr [r14], xmm1
-    }
+    v28.v = 0i64;
+    v30.v = _XMM1;
+    v31.v = _XMM2;
+    v30.v = ParticleSystem::ApplyScaleModifiers(SystemOwner, &v32, &v30, -1, &v28, 0)->v;
+    v29.v = g_one.v;
+    v19 = ParticleSystem::ApplyScaleModifiers(SystemOwner, &v33, &v31, -1, &v29, 0);
+    v = v30.v;
+    _XMM0 = _mm_shuffle_ps(v, v, 85);
+    __asm { vminss  xmm0, xmm0, xmm1 }
+    v23 = v19->v;
+    _mm_shuffle_ps(v, v, 170);
+    __asm { vminss  xmm1, xmm0, xmm2 }
+    *radiusMin = *(float *)&_XMM1;
+    _XMM0 = _mm_shuffle_ps(v23, v23, 85);
+    __asm { vmaxss  xmm0, xmm0, xmm4 }
+    _mm_shuffle_ps(v23, v23, 170);
+    __asm { vmaxss  xmm1, xmm0, xmm3 }
+    *radiusMax = *(float *)&_XMM1;
   }
 }
 
@@ -2354,34 +1983,19 @@ ParticleModuleInitSpawnShape::GetOffsetForShape
 */
 void ParticleModuleInitSpawnShape::GetOffsetForShape(ParticleModuleInitSpawnShape *this, const ParticleEmitter *pEmitter, float4 *outOffset)
 {
+  float m_emitterLifeNormalized; 
   const ParticleCurveDef *ModuleCurveList; 
   float4 result; 
 
-  _RBX = outOffset;
   if ( (this->m_spawnFlags & 2) != 0 )
   {
-    __asm
-    {
-      vmovaps [rsp+48h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rdx+178h]
-    }
+    m_emitterLifeNormalized = pEmitter->m_emitterLifeNormalized;
     ModuleCurveList = ParticleModule::GetModuleCurveList(this);
-    __asm { vmovaps xmm2, xmm6; life }
-    _RAX = Particle_GetCurveValueFloat4(&result, ModuleCurveList, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm6, [rsp+48h+var_18]
-      vmovups xmm0, xmmword ptr [rax]
-      vmovdqa xmmword ptr [rbx], xmm0
-    }
+    *outOffset = (float4)Particle_GetCurveValueFloat4(&result, ModuleCurveList, m_emitterLifeNormalized)->v;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rcx+20h]
-      vmovdqa xmmword ptr [r8], xmm0
-    }
+    *outOffset = this->m_offset;
   }
 }
 
@@ -2392,35 +2006,24 @@ ParticleModuleInitSpawnShape::GetOffsetForShape
 */
 void ParticleModuleInitSpawnShape::GetOffsetForShape(ParticleModuleInitSpawnShape *this, const ParticleState *pParticleState, float4 *outOffset)
 {
+  float m_emitterLifeNormalized; 
   const ParticleCurveDef *ModuleCurveList; 
+  float4 v8; 
   float4 result; 
 
-  _RDI = outOffset;
-  _RBX = this;
   if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
     __debugbreak();
-  if ( (_RBX->m_spawnFlags & 2) != 0 )
+  if ( (this->m_spawnFlags & 2) != 0 )
   {
-    _RAX = pParticleState->m_pEmitterOwner;
-    __asm
-    {
-      vmovaps [rsp+58h+var_18], xmm6
-      vmovss  xmm6, dword ptr [rax+178h]
-    }
-    ModuleCurveList = ParticleModule::GetModuleCurveList(_RBX);
-    __asm { vmovaps xmm2, xmm6; life }
-    _RAX = Particle_GetCurveValueFloat4(&result, ModuleCurveList, *(float *)&_XMM2);
-    __asm
-    {
-      vmovaps xmm6, [rsp+58h+var_18]
-      vmovups xmm0, xmmword ptr [rax]
-    }
+    m_emitterLifeNormalized = pParticleState->m_pEmitterOwner->m_emitterLifeNormalized;
+    ModuleCurveList = ParticleModule::GetModuleCurveList(this);
+    v8.v = Particle_GetCurveValueFloat4(&result, ModuleCurveList, m_emitterLifeNormalized)->v;
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [rbx+20h] }
+    v8.v = (__m128)this->m_offset;
   }
-  __asm { vmovdqa xmmword ptr [rdi], xmm0 }
+  *outOffset = (float4)v8.v;
 }
 
 /*
@@ -2449,133 +2052,64 @@ float ParticleModuleInitSpawnShape::GetVolumeSize(ParticleModuleInitSpawnShape *
 {
   const ParticleSystem *SystemOwner; 
   ParticleSpawnFlags m_spawnFlags; 
+  double VolumeSize; 
+  __m128 v8; 
+  float v9; 
   float radiusMax; 
   float radiusMin; 
-  float v47; 
+  float v12; 
   float4 dimensionsMin; 
   float4 dimensionsMax; 
 
-  _RBX = this;
   if ( !pParticleState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1237, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
     __debugbreak();
   if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
     __debugbreak();
   SystemOwner = ParticleEmitter::GetSystemOwner((ParticleEmitter *)pParticleState->m_pEmitterOwner);
-  m_spawnFlags = _RBX->m_spawnFlags;
-  if ( (m_spawnFlags & 4) != 0 && (SystemOwner->m_flags & 0x40000000) != 0 || (m_spawnFlags & 2) != 0 )
+  m_spawnFlags = this->m_spawnFlags;
+  if ( ((m_spawnFlags & 4) == 0 || (SystemOwner->m_flags & 0x40000000) == 0) && (m_spawnFlags & 2) == 0 )
+    return this->m_volumeCubeRoot;
+  if ( this->m_spawnType )
   {
-    if ( _RBX->m_spawnType )
+    switch ( this->m_spawnType )
     {
-      switch ( _RBX->m_spawnType )
-      {
-        case PARTICLE_SPAWN_SHAPE_CYLINDER:
-          ParticleModuleInitSpawnShapeCylinder::GetDimensions((ParticleModuleInitSpawnShapeCylinder *)_RBX, pParticleState, &radiusMax, &v47, &radiusMin);
-          __asm { vmovss  xmm2, [rsp+78h+radiusMin] }
-          if ( (_RBX->m_spawnFlags & 1) != 0 )
-          {
-            __asm
-            {
-              vmulss  xmm1, xmm2, [rsp+78h+radiusMax]
-              vmulss  xmm0, xmm1, cs:__real@41490fdb
-            }
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm5, [rsp+78h+var_40]
-              vsubss  xmm0, xmm2, xmm5
-              vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-              vcomiss xmm0, cs:__real@3a83126f
-              vmovss  xmm0, [rsp+78h+radiusMax]
-              vmulss  xmm1, xmm0, cs:__real@40490fdb
-              vmulss  xmm4, xmm1, cs:__real@40000000
-              vmulss  xmm0, xmm5, xmm5
-              vmulss  xmm1, xmm0, xmm4
-              vmulss  xmm2, xmm2, xmm2
-              vmulss  xmm3, xmm2, xmm4
-              vsubss  xmm0, xmm3, xmm1
-              vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-            }
-          }
-          break;
-        case PARTICLE_SPAWN_SHAPE_ELLIPSOID:
-          ParticleModuleInitSpawnShapeEllipsoid::GetDimensions((ParticleModuleInitSpawnShapeEllipsoid *)_RBX, pParticleState, &dimensionsMax, &dimensionsMin);
-          *(double *)&_XMM0 = ParticleModuleInitSpawnShapeEllipsoid::GetVolumeSize((ParticleModuleInitSpawnShapeEllipsoid *)_RBX, &dimensionsMax, &dimensionsMin);
-          break;
-        case PARTICLE_SPAWN_SHAPE_SPHERE:
-          ParticleModuleInitSpawnShapeSphere::GetDimensions((ParticleModuleInitSpawnShapeSphere *)_RBX, pParticleState, &radiusMin, &radiusMax);
-          __asm { vmovss  xmm1, [rsp+78h+radiusMax] }
-          if ( (_RBX->m_spawnFlags & 1) != 0 )
-          {
-            __asm
-            {
-              vmulss  xmm0, xmm1, cs:__real@41490fdb
-              vmulss  xmm0, xmm0, xmm1
-            }
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm4, [rsp+78h+radiusMin]
-              vmovss  xmm5, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-              vsubss  xmm0, xmm1, xmm4
-              vandps  xmm0, xmm0, xmm5
-              vcomiss xmm0, cs:__real@3a83126f
-              vmulss  xmm0, xmm1, xmm1
-              vmulss  xmm1, xmm0, xmm1
-              vmulss  xmm3, xmm1, cs:__real@40860a92
-              vmulss  xmm0, xmm4, xmm4
-              vmulss  xmm1, xmm0, xmm4
-              vmulss  xmm2, xmm1, cs:__real@40860a92
-              vsubss  xmm0, xmm3, xmm2
-              vandps  xmm0, xmm0, xmm5
-            }
-          }
-          break;
-        default:
-          __asm { vmovss  xmm0, cs:__real@3f800000 }
-          return *(float *)&_XMM0;
-      }
+      case PARTICLE_SPAWN_SHAPE_CYLINDER:
+        ParticleModuleInitSpawnShapeCylinder::GetDimensions((ParticleModuleInitSpawnShapeCylinder *)this, pParticleState, &radiusMax, &v12, &radiusMin);
+        if ( (this->m_spawnFlags & 1) != 0 || COERCE_FLOAT(COERCE_UNSIGNED_INT(radiusMin - v12) & _xmm) < 0.001 )
+          *(float *)&VolumeSize = (float)(radiusMin * radiusMax) * 12.566371;
+        else
+          LODWORD(VolumeSize) = COERCE_UNSIGNED_INT((float)((float)(radiusMin * radiusMin) * (float)((float)(radiusMax * 3.1415927) * 2.0)) - (float)((float)(v12 * v12) * (float)((float)(radiusMax * 3.1415927) * 2.0))) & _xmm;
+        break;
+      case PARTICLE_SPAWN_SHAPE_ELLIPSOID:
+        ParticleModuleInitSpawnShapeEllipsoid::GetDimensions((ParticleModuleInitSpawnShapeEllipsoid *)this, pParticleState, &dimensionsMax, &dimensionsMin);
+        VolumeSize = ParticleModuleInitSpawnShapeEllipsoid::GetVolumeSize((ParticleModuleInitSpawnShapeEllipsoid *)this, &dimensionsMax, &dimensionsMin);
+        break;
+      case PARTICLE_SPAWN_SHAPE_SPHERE:
+        ParticleModuleInitSpawnShapeSphere::GetDimensions((ParticleModuleInitSpawnShapeSphere *)this, pParticleState, &radiusMin, &radiusMax);
+        if ( (this->m_spawnFlags & 1) != 0 || COERCE_FLOAT(COERCE_UNSIGNED_INT(radiusMax - radiusMin) & _xmm) < 0.001 )
+          *(float *)&VolumeSize = (float)(radiusMax * 12.566371) * radiusMax;
+        else
+          LODWORD(VolumeSize) = COERCE_UNSIGNED_INT((float)((float)((float)(radiusMax * radiusMax) * radiusMax) * 4.1887903) - (float)((float)((float)(radiusMin * radiusMin) * radiusMin) * 4.1887903)) & _xmm;
+        break;
+      default:
+        return FLOAT_1_0;
+    }
+  }
+  else
+  {
+    ParticleModuleInitSpawnShapeBox::GetDimensions((ParticleModuleInitSpawnShapeBox *)this, pParticleState, &dimensionsMin, &dimensionsMax);
+    v8 = _mm128_sub_ps(dimensionsMax.v, dimensionsMin.v);
+    if ( (this->m_spawnFlags & 1) != 0 )
+    {
+      v9 = _mm_shuffle_ps(v8, v8, 85).m128_f32[0];
+      *(float *)&VolumeSize = (float)((float)((float)(v9 + v8.m128_f32[0]) * _mm_shuffle_ps(v8, v8, 170).m128_f32[0]) + (float)(v9 * v8.m128_f32[0])) * 2.0;
     }
     else
     {
-      ParticleModuleInitSpawnShapeBox::GetDimensions((ParticleModuleInitSpawnShapeBox *)_RBX, pParticleState, &dimensionsMin, &dimensionsMax);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+78h+dimensionsMax.v]
-        vsubps  xmm4, xmm0, xmmword ptr [rsp+78h+dimensionsMin.v]
-      }
-      if ( (_RBX->m_spawnFlags & 1) != 0 )
-      {
-        __asm
-        {
-          vshufps xmm3, xmm4, xmm4, 55h ; 'U'
-          vaddss  xmm0, xmm3, xmm4
-          vshufps xmm1, xmm4, xmm4, 0AAh ; 'ª'
-          vmulss  xmm2, xmm0, xmm1
-          vmulss  xmm1, xmm3, xmm4
-          vaddss  xmm2, xmm2, xmm1
-          vmulss  xmm0, xmm2, cs:__real@40000000
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vshufps xmm0, xmm4, xmm4, 55h ; 'U'
-          vmulss  xmm1, xmm0, xmm4
-          vshufps xmm0, xmm4, xmm4, 0AAh ; 'ª'
-          vmulss  xmm0, xmm1, xmm0; X
-        }
-      }
+      *(float *)&VolumeSize = (float)(_mm_shuffle_ps(v8, v8, 85).m128_f32[0] * v8.m128_f32[0]) * _mm_shuffle_ps(v8, v8, 170).m128_f32[0];
     }
-    *(float *)&_XMM0 = cbrtf(*(float *)&_XMM0);
-    return *(float *)&_XMM0;
   }
-  __asm { vmovss  xmm0, dword ptr [rbx+0Ch] }
-  return *(float *)&_XMM0;
+  return cbrtf(*(float *)&VolumeSize);
 }
 
 /*
@@ -2586,27 +2120,9 @@ ParticleModuleInitSpawnShapeBox::GetVolumeSize
 float ParticleModuleInitSpawnShapeBox::GetVolumeSize(ParticleModuleInitSpawnShapeBox *this, const float4 *dimensions)
 {
   if ( (this->m_spawnFlags & 1) != 0 )
-  {
-    __asm
-    {
-      vmovups xmm4, xmmword ptr [rdx]
-      vaddss  xmm0, xmm4, dword ptr [rdx+4]
-      vmulss  xmm2, xmm0, dword ptr [rdx+8]
-      vmulss  xmm1, xmm4, dword ptr [rdx+4]
-      vaddss  xmm2, xmm2, xmm1
-      vmulss  xmm0, xmm2, cs:__real@40000000
-    }
-  }
+    return (float)((float)((float)(COERCE_FLOAT(*dimensions) + dimensions->v.m128_f32[1]) * dimensions->v.m128_f32[2]) + (float)(COERCE_FLOAT(*dimensions) * dimensions->v.m128_f32[1])) * 2.0;
   else
-  {
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rdx]
-      vmulss  xmm1, xmm1, dword ptr [rdx+4]
-      vmulss  xmm0, xmm1, dword ptr [rdx+8]
-    }
-  }
-  return *(float *)&_XMM0;
+    return (float)(COERCE_FLOAT(*dimensions) * dimensions->v.m128_f32[1]) * dimensions->v.m128_f32[2];
 }
 
 /*
@@ -2614,37 +2130,14 @@ float ParticleModuleInitSpawnShapeBox::GetVolumeSize(ParticleModuleInitSpawnShap
 ParticleModuleInitSpawnShapeCylinder::GetVolumeSize
 ==============
 */
-
-float __fastcall ParticleModuleInitSpawnShapeCylinder::GetVolumeSize(ParticleModuleInitSpawnShapeCylinder *this, double halfHeight, double radiusMin, double radiusMax)
+float ParticleModuleInitSpawnShapeCylinder::GetVolumeSize(ParticleModuleInitSpawnShapeCylinder *this, const float halfHeight, const float radiusMin, const float radiusMax)
 {
-  __asm { vmovaps xmm4, xmm2 }
-  if ( (this->m_spawnFlags & 1) != 0 )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm1, xmm3
-      vmulss  xmm0, xmm0, cs:__real@41490fdb
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm5, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vsubss  xmm0, xmm3, xmm2
-      vandps  xmm0, xmm0, xmm5
-      vcomiss xmm0, cs:__real@3a83126f
-      vmulss  xmm0, xmm1, cs:__real@40490fdb
-      vmulss  xmm2, xmm0, cs:__real@40000000
-      vmulss  xmm0, xmm4, xmm4
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm3, xmm1, xmm2
-      vmulss  xmm2, xmm0, xmm2
-      vsubss  xmm0, xmm3, xmm2
-      vandps  xmm0, xmm0, xmm5
-    }
-  }
-  return *(float *)&_XMM0;
+  float result; 
+
+  if ( (this->m_spawnFlags & 1) != 0 || COERCE_FLOAT(COERCE_UNSIGNED_INT(radiusMax - radiusMin) & _xmm) < 0.001 )
+    return (float)(halfHeight * radiusMax) * 12.566371;
+  LODWORD(result) = COERCE_UNSIGNED_INT((float)((float)(radiusMax * radiusMax) * (float)((float)(halfHeight * 3.1415927) * 2.0)) - (float)((float)(radiusMin * radiusMin) * (float)((float)(halfHeight * 3.1415927) * 2.0))) & _xmm;
+  return result;
 }
 
 /*
@@ -2654,57 +2147,25 @@ ParticleModuleInitSpawnShapeEllipsoid::GetVolumeSize
 */
 float ParticleModuleInitSpawnShapeEllipsoid::GetVolumeSize(ParticleModuleInitSpawnShapeEllipsoid *this, const float4 *radiusMin, const float4 *radiusMax)
 {
-  __asm
-  {
-    vmovaps [rsp+28h+var_18], xmm7
-    vmovups xmm1, xmmword ptr [r8]
-    vmovss  xmm3, cs:__real@40860a92
-    vmovups xmm2, xmm1
-    vmulss  xmm1, xmm1, dword ptr [r8+4]
-    vshufps xmm0, xmm2, xmm2, 0AAh ; 'ª'
-    vmulss  xmm1, xmm1, xmm0
-    vmulss  xmm7, xmm1, xmm3
-    vsubps  xmm1, xmm2, xmmword ptr [rdx]
-    vmulps  xmm2, xmm1, xmm1
-    vhaddps xmm0, xmm2, xmm2
-  }
+  float v3; 
+  __m128 v4; 
+  float v8; 
+  float result; 
+
+  v3 = (float)((float)(COERCE_FLOAT(*radiusMax) * radiusMax->v.m128_f32[1]) * _mm_shuffle_ps(radiusMax->v, radiusMax->v, 170).m128_f32[0]) * 4.1887903;
+  v4 = _mm128_sub_ps(radiusMax->v, radiusMin->v);
+  _XMM2 = _mm128_mul_ps(v4, v4);
+  __asm { vhaddps xmm0, xmm2, xmm2 }
   if ( (this->m_spawnFlags & 1) != 0 )
-  {
-    __asm
-    {
-      vmovss  xmm4, cs:__real@3f800000
-      vmovss  xmm0, dword ptr [r8+4]
-      vmovups xmm1, xmmword ptr [r8]
-      vsubss  xmm2, xmm0, xmm4
-      vsubss  xmm0, xmm1, xmm4
-      vmulss  xmm1, xmm0, xmm3
-      vmulss  xmm3, xmm2, xmm1
-      vmovss  xmm2, dword ptr [r8+8]
-      vsubss  xmm0, xmm2, xmm4
-      vmulss  xmm2, xmm3, xmm0
-    }
-  }
+    goto LABEL_4;
+  __asm { vhaddps xmm0, xmm0, xmm0 }
+  if ( COERCE_FLOAT(_mm_sqrt_ps(_XMM0).m128_u32[0] & _xmm) < 0.001 )
+LABEL_4:
+    v8 = (float)((float)(radiusMax->v.m128_f32[1] - 1.0) * (float)((float)(COERCE_FLOAT(*radiusMax) - 1.0) * 4.1887903)) * (float)(radiusMax->v.m128_f32[2] - 1.0);
   else
-  {
-    __asm
-    {
-      vhaddps xmm0, xmm0, xmm0
-      vsqrtps xmm1, xmm0
-      vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm1, cs:__real@3a83126f
-      vmovups xmm1, xmmword ptr [rdx]
-      vmulss  xmm1, xmm1, dword ptr [rdx+4]
-      vmulss  xmm0, xmm1, dword ptr [rdx+8]
-      vmulss  xmm2, xmm0, xmm3
-    }
-  }
-  __asm
-  {
-    vsubss  xmm0, xmm7, xmm2
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovaps xmm7, [rsp+28h+var_18]
-  }
-  return *(float *)&_XMM0;
+    v8 = (float)((float)(COERCE_FLOAT(*radiusMin) * radiusMin->v.m128_f32[1]) * radiusMin->v.m128_f32[2]) * 4.1887903;
+  LODWORD(result) = COERCE_UNSIGNED_INT(v3 - v8) & _xmm;
+  return result;
 }
 
 /*
@@ -2712,36 +2173,14 @@ float ParticleModuleInitSpawnShapeEllipsoid::GetVolumeSize(ParticleModuleInitSpa
 ParticleModuleInitSpawnShapeSphere::GetVolumeSize
 ==============
 */
-
-float __fastcall ParticleModuleInitSpawnShapeSphere::GetVolumeSize(ParticleModuleInitSpawnShapeSphere *this, double radiusMin, double radiusMax)
+float ParticleModuleInitSpawnShapeSphere::GetVolumeSize(ParticleModuleInitSpawnShapeSphere *this, const float radiusMin, const float radiusMax)
 {
-  if ( (this->m_spawnFlags & 1) != 0 )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm2, cs:__real@41490fdb
-      vmulss  xmm0, xmm0, xmm2
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vmovss  xmm5, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vsubss  xmm0, xmm2, xmm1
-      vandps  xmm0, xmm0, xmm5
-      vcomiss xmm0, cs:__real@3a83126f
-      vmulss  xmm0, xmm2, xmm2
-      vmulss  xmm2, xmm0, xmm2
-      vmulss  xmm4, xmm2, cs:__real@40860a92
-      vmulss  xmm0, xmm1, xmm1
-      vmulss  xmm1, xmm0, xmm1
-      vmulss  xmm2, xmm1, cs:__real@40860a92
-      vsubss  xmm0, xmm4, xmm2
-      vandps  xmm0, xmm0, xmm5
-    }
-  }
-  return *(float *)&_XMM0;
+  float result; 
+
+  if ( (this->m_spawnFlags & 1) != 0 || COERCE_FLOAT(COERCE_UNSIGNED_INT(radiusMax - radiusMin) & _xmm) < 0.001 )
+    return (float)(radiusMax * 12.566371) * radiusMax;
+  LODWORD(result) = COERCE_UNSIGNED_INT((float)((float)((float)(radiusMax * radiusMax) * radiusMax) * 4.1887903) - (float)((float)((float)(radiusMin * radiusMin) * radiusMin) * 4.1887903)) & _xmm;
+  return result;
 }
 
 /*
@@ -2763,15 +2202,9 @@ ParticleModuleInitAttributes::Init
 */
 void ParticleModuleInitAttributes::Init(ParticleModule *pModuleBase)
 {
-  __asm
-  {
-    vmovaps ymm0, cs:__ymm@0000000041200000412000004120000000000000412000004120000041200000
-    vmovaps ymm1, cs:__ymm@3f8000003f8000003f8000003f8000003f8000003f8000003f8000003f800000
-    vmovups ymmword ptr [rcx+10h], ymm0
-    vmovaps ymm0, cs:__ymm@000000004248000000000000000000000000000041c800000000000000000000
-    vmovups ymmword ptr [rcx+50h], ymm0
-    vmovups ymmword ptr [rcx+30h], ymm1
-  }
+  *(__m256i *)&pModuleBase[2].m_type = _ymm;
+  *(__m256i *)&pModuleBase[10].m_type = _ymm;
+  *(__m256i *)&pModuleBase[6].m_type = _ymm;
 }
 
 /*
@@ -2781,13 +2214,8 @@ ParticleModuleInitBeam::Init
 */
 void ParticleModuleInitBeam::Init(ParticleModule *pModuleBase)
 {
-  __asm
-  {
-    vmovups xmm1, cs:__xmm@00000000000000000000000042c80000
-    vxorps  xmm0, xmm0, xmm0
-    vmovups xmmword ptr [rcx+10h], xmm0
-    vmovups xmmword ptr [rcx+20h], xmm1
-  }
+  *(_OWORD *)&pModuleBase[2].m_type = 0i64;
+  *(_OWORD *)&pModuleBase[4].m_type = _xmm;
   pModuleBase[1].m_flags = 1092616192;
 }
 
@@ -2808,11 +2236,7 @@ ParticleModuleInitDecal::Init
 */
 void ParticleModuleInitDecal::Init(ParticleModule *pModuleBase)
 {
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@3f8000003f8000003f8000003f800000
-    vmovups xmmword ptr [rcx+20h], xmm0
-  }
+  *(_OWORD *)&pModuleBase[4].m_type = _xmm;
   *((_BYTE *)&pModuleBase[6].m_type + 3) = 5;
 }
 
@@ -2834,7 +2258,6 @@ ParticleModuleInitFlare::Init
 */
 void ParticleModuleInitFlare::Init(ParticleModule *pModuleBase)
 {
-  __asm { vmovups xmm0, cs:__xmm@0000000000000000000000003f800000 }
   pModuleBase[11].m_flags = 1065353216;
   pModuleBase[13].m_flags = 1065353216;
   pModuleBase[15].m_flags = 1065353216;
@@ -2848,7 +2271,7 @@ void ParticleModuleInitFlare::Init(ParticleModule *pModuleBase)
   pModuleBase[9].m_flags = 1065353216;
   pModuleBase[7] = 0i64;
   pModuleBase[4] = 0i64;
-  __asm { vmovups xmmword ptr [rcx+10h], xmm0 }
+  *(_OWORD *)&pModuleBase[2].m_type = _xmm;
 }
 
 /*
@@ -2928,11 +2351,7 @@ ParticleModuleInitOrientedSprite::Init
 */
 void ParticleModuleInitOrientedSprite::Init(ParticleModule *pModuleBase)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-    vmovups xmmword ptr [rcx+10h], xmm0
-  }
+  *(float4 *)&pModuleBase[2].m_type = (float4)g_unit.v;
 }
 
 /*
@@ -2953,12 +2372,8 @@ ParticleModuleInitRunner::Init
 */
 void ParticleModuleInitRunner::Init(ParticleModule *pModuleBase)
 {
-  __asm
-  {
-    vmovaps ymm0, cs:__ymm@000000003f8000003f8000003f800000000000003f8000003f8000003f800000
-    vmovups ymmword ptr [rcx+10h], ymm0
-    vmovups ymmword ptr [rcx+30h], ymm0
-  }
+  *(__m256i *)&pModuleBase[2].m_type = _ymm;
+  *(__m256i *)&pModuleBase[6].m_type = _ymm;
 }
 
 /*
@@ -3050,6 +2465,9 @@ ParticleModuleInitAttributes::InitParticleColor
 */
 void ParticleModuleInitAttributes::InitParticleColor(const ParticleModuleInitAttributes *pModule, float4 *colorArray, const int *randomSeedArray, __int64 particleCountEmit)
 {
+  float4 v6; 
+  __m128 v7; 
+
   if ( (_DWORD)particleCountEmit )
   {
     particleCountEmit = (unsigned int)particleCountEmit;
@@ -3057,31 +2475,23 @@ void ParticleModuleInitAttributes::InitParticleColor(const ParticleModuleInitAtt
     do
     {
       _RAX = *randomSeedArray;
-      __asm { vmovups xmm0, xmmword ptr [rcx+40h] }
+      v6.v = (__m128)pModule->m_colorMax;
       if ( pModule->m_useNonUniformInterpolationForColor )
       {
+        _XMM1 = LODWORD(fx_randomTable[_RAX + 25]);
         __asm
         {
-          vmovss  xmm1, dword ptr [r10+rax*4+64h]
           vinsertps xmm1, xmm1, dword ptr [r10+rax*4+68h], 10h
           vinsertps xmm1, xmm1, dword ptr [r10+rax*4+6Ch], 20h ; ' '
           vinsertps xmm1, xmm1, dword ptr [r10+rax*4+70h], 30h ; '0'
-          vsubps  xmm0, xmm0, xmmword ptr [rcx+30h]
-          vmulps  xmm1, xmm1, xmm0
-          vaddps  xmm2, xmm1, xmmword ptr [rcx+30h]
-          vmovups xmmword ptr [rdx], xmm2
         }
+        colorArray->v = _mm128_add_ps(_mm128_mul_ps(_XMM1, _mm128_sub_ps(v6.v, pModule->m_colorMin.v)), pModule->m_colorMin.v);
       }
       else
       {
-        __asm
-        {
-          vsubps  xmm1, xmm0, xmmword ptr [rcx+30h]
-          vbroadcastss xmm0, dword ptr [r10+rax*4+60h]
-          vmulps  xmm0, xmm1, xmm0
-          vaddps  xmm1, xmm0, xmmword ptr [rcx+30h]
-          vmovups xmmword ptr [rdx], xmm1
-        }
+        v7 = _mm128_sub_ps(v6.v, pModule->m_colorMin.v);
+        __asm { vbroadcastss xmm0, dword ptr [r10+rax*4+60h] }
+        colorArray->v = _mm128_add_ps(_mm128_mul_ps(v7, _XMM0), pModule->m_colorMin.v);
       }
       ++randomSeedArray;
       ++colorArray;
@@ -3098,43 +2508,38 @@ ParticleModuleInitAttributes::InitParticleSize
 */
 void ParticleModuleInitAttributes::InitParticleSize(const ParticleModuleInitAttributes *pModule, float4 *sizeArray, const int *randomSeedArray, __int64 particleCountEmit)
 {
-  _R10 = sizeArray;
+  __int64 v5; 
+  float4 v8; 
+  __m128 v9; 
+
   if ( (_DWORD)particleCountEmit )
   {
-    _RAX = 0i64;
+    v5 = 0i64;
     particleCountEmit = (unsigned int)particleCountEmit;
     _R11 = fx_randomTable;
     do
     {
       _RDX = *randomSeedArray;
-      __asm { vmovups xmm0, xmmword ptr [rcx+20h] }
+      v8.v = (__m128)pModule->m_sizeMax;
       if ( pModule->m_useNonUniformInterpolationForSize )
       {
+        _XMM1 = 0i64;
         __asm
         {
-          vsubps  xmm0, xmm0, xmmword ptr [rcx+10h]
-          vxorps  xmm1, xmm1, xmm1
           vinsertps xmm1, xmm1, dword ptr [r11+rdx*4+0A0h], 0
           vinsertps xmm1, xmm1, dword ptr [r11+rdx*4+0A4h], 10h
           vinsertps xmm1, xmm1, dword ptr [r11+rdx*4+0A8h], 20h ; ' '
-          vmulps  xmm1, xmm1, xmm0
-          vaddps  xmm2, xmm1, xmmword ptr [rcx+10h]
-          vmovups xmmword ptr [rax+r10], xmm2
         }
+        sizeArray[v5].v = _mm128_add_ps(_mm128_mul_ps(_XMM1, _mm128_sub_ps(v8.v, pModule->m_sizeMin.v)), pModule->m_sizeMin.v);
       }
       else
       {
-        __asm
-        {
-          vsubps  xmm1, xmm0, xmmword ptr [rcx+10h]
-          vbroadcastss xmm0, dword ptr [r11+rdx*4+0A0h]
-          vmulps  xmm0, xmm1, xmm0
-          vaddps  xmm1, xmm0, xmmword ptr [rcx+10h]
-          vmovups xmmword ptr [rax+r10], xmm1
-        }
+        v9 = _mm128_sub_ps(v8.v, pModule->m_sizeMin.v);
+        __asm { vbroadcastss xmm0, dword ptr [r11+rdx*4+0A0h] }
+        sizeArray[v5].v = _mm128_add_ps(_mm128_mul_ps(v9, _XMM0), pModule->m_sizeMin.v);
       }
       ++randomSeedArray;
-      _RAX += 16i64;
+      ++v5;
       --particleCountEmit;
     }
     while ( particleCountEmit );
@@ -3149,99 +2554,65 @@ ParticleModuleInitAttributes::InitParticleVelocity
 void ParticleModuleInitAttributes::InitParticleVelocity(const ParticleModuleInitAttributes *pModule, float4 *velocityArray, const int *randomSeedArray, const ParticleState *pParticleState, const unsigned int particleCountEmit)
 {
   ParticleEmitter *m_pEmitterOwner; 
-  char v14; 
-  __int64 v28; 
+  const ParticleSystem *SystemOwner; 
+  char v11; 
+  const vector4 *EmitterTransformTranspose; 
+  __m128 v; 
+  float4 v14; 
+  float4 v15; 
+  __int64 v16; 
+  float4 v17; 
+  float4 v22; 
+  float4 v23; 
   float4 lookAtInput; 
   vector3 outMatrix; 
 
-  _RBX = velocityArray;
-  _RSI = pModule;
   if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
     __debugbreak();
   m_pEmitterOwner = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
-  _RBP = ParticleEmitter::GetSystemOwner(m_pEmitterOwner);
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 572, ASSERT_TYPE_ASSERT, "(pParticleSystem)", (const char *)&queryFormat, "pParticleSystem") )
+  SystemOwner = ParticleEmitter::GetSystemOwner(m_pEmitterOwner);
+  if ( !SystemOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 572, ASSERT_TYPE_ASSERT, "(pParticleSystem)", (const char *)&queryFormat, "pParticleSystem") )
     __debugbreak();
-  if ( (_RBP->m_flags & 0x4000) != 0 && (ParticleEmitter::GetEmitterDef(m_pEmitterOwner)->flags & 0x100) != 0 )
+  if ( (SystemOwner->m_flags & 0x4000) != 0 && (ParticleEmitter::GetEmitterDef(m_pEmitterOwner)->flags & 0x100) != 0 )
   {
-    v14 = 1;
-    ParticleEmitter::GetEmitterTransformTranspose(m_pEmitterOwner, pParticleState);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+90h]
-      vshufps xmm2, xmm0, xmm0, 0
-      vshufps xmm4, xmm0, xmm0, 55h ; 'U'
-      vshufps xmm5, xmm0, xmm0, 0AAh ; 'ª'
-      vmulps  xmm0, xmm2, xmmword ptr [rax]
-      vaddps  xmm3, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vmulps  xmm0, xmm4, xmmword ptr [rax+10h]
-      vaddps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vmulps  xmm0, xmm5, xmmword ptr [rax+20h]
-      vaddps  xmm1, xmm0, xmm3
-      vaddps  xmm2, xmm2, xmm1
-      vandps  xmm0, xmm2, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-      vmovups xmmword ptr [rsp+0D8h+lookAtInput.v], xmm0
-    }
+    v11 = 1;
+    EmitterTransformTranspose = ParticleEmitter::GetEmitterTransformTranspose(m_pEmitterOwner, pParticleState);
+    v = SystemOwner->m_scriptedVelocity.v;
+    lookAtInput.v = (__m128)(*(_OWORD *)&_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 85), EmitterTransformTranspose->y.v), g_negativeZero.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 170), EmitterTransformTranspose->z.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 0), EmitterTransformTranspose->x.v), g_negativeZero.v))) & *(_OWORD *)&g_keepXYZ.v);
     Particle_GenerateMatrixFromLookAt(&lookAtInput, &outMatrix);
   }
   else
   {
-    v14 = 0;
+    v11 = 0;
   }
   if ( particleCountEmit )
   {
-    __asm
-    {
-      vmovups xmm5, xmmword ptr [rsp+0D8h+outMatrix.z.v]
-      vmovaps [rsp+0D8h+var_38], xmm6
-      vmovups xmm6, xmmword ptr [rsp+0D8h+outMatrix.y.v]
-      vmovaps [rsp+0D8h+var_48], xmm7
-    }
-    v28 = particleCountEmit;
-    __asm { vmovups xmm7, xmmword ptr [rsp+0D8h+outMatrix.x.v] }
+    v14.v = (__m128)outMatrix.z;
+    v15.v = (__m128)outMatrix.y;
+    v16 = particleCountEmit;
+    v17.v = (__m128)outMatrix.x;
     do
     {
+      _XMM1 = 0i64;
       __asm
       {
-        vmovups xmm0, xmmword ptr [rsi+60h]
-        vsubps  xmm0, xmm0, xmmword ptr [rsi+50h]
-        vxorps  xmm1, xmm1, xmm1
         vinsertps xmm1, xmm1, dword ptr [rdx+rax*4], 0
         vinsertps xmm1, xmm1, dword ptr [rdx+rax*4+4], 10h
         vinsertps xmm1, xmm1, dword ptr [rdx+rax*4+8], 20h ; ' '
-        vmulps  xmm1, xmm1, xmm0
-        vaddps  xmm3, xmm1, xmmword ptr [rsi+50h]
-        vmovups xmmword ptr [rbx], xmm3
       }
-      if ( v14 )
+      v22.v = _mm128_add_ps(_mm128_mul_ps(_XMM1, _mm128_sub_ps(pModule->m_velocityMax.v, pModule->m_velocityMin.v)), pModule->m_velocityMin.v);
+      *velocityArray = (float4)v22.v;
+      if ( v11 )
       {
-        __asm
-        {
-          vshufps xmm2, xmm3, xmm3, 55h ; 'U'
-          vshufps xmm0, xmm3, xmm3, 0
-          vmulps  xmm0, xmm7, xmm0
-          vshufps xmm4, xmm3, xmm3, 0AAh ; 'ª'
-          vaddps  xmm3, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-          vmulps  xmm0, xmm6, xmm2
-          vaddps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-          vmulps  xmm1, xmm5, xmm4
-          vaddps  xmm0, xmm1, xmm3
-          vaddps  xmm0, xmm2, xmm0
-          vmovups xmmword ptr [rbx], xmm0
-          vandps  xmm0, xmm0, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-          vmovups xmmword ptr [rbx], xmm0
-        }
+        v23.v = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(v15.v, _mm_shuffle_ps(v22.v, v22.v, 85)), g_negativeZero.v), _mm128_add_ps(_mm128_mul_ps(v14.v, _mm_shuffle_ps(v22.v, v22.v, 170)), _mm128_add_ps(_mm128_mul_ps(v17.v, _mm_shuffle_ps(v22.v, v22.v, 0)), g_negativeZero.v)));
+        *velocityArray = (float4)v23.v;
+        *velocityArray = (float4)(*(_OWORD *)&v23.v & *(_OWORD *)&g_keepXYZ.v);
       }
       ++randomSeedArray;
-      ++_RBX;
-      --v28;
+      ++velocityArray;
+      --v16;
     }
-    while ( v28 );
-    __asm
-    {
-      vmovaps xmm7, [rsp+0D8h+var_48]
-      vmovaps xmm6, [rsp+0D8h+var_38]
-    }
+    while ( v16 );
   }
 }
 
@@ -3253,15 +2624,30 @@ ParticleModuleInitAtlas::InitParticles
 void ParticleModuleInitAtlas::InitParticles(const ParticleModule *pModuleBase, const ParticleState *pParticleState, ParticleData *pParticleData, const FxCamera *pCamera, const unsigned int particleCountEmit)
 {
   __int64 m_particleCountRunning; 
+  unsigned __int8 *v9; 
+  int *RandomSeedArrayNextFreeElem; 
+  int entryCount; 
   __int64 v12; 
-  unsigned int v14; 
-  __int64 v15; 
-  __int64 v24; 
-  unsigned int v29; 
-  unsigned int v34; 
-  __int64 v35; 
-  __int64 v43; 
-  __int64 v45; 
+  int *v13; 
+  unsigned __int8 *v14; 
+  signed __int64 v15; 
+  unsigned int v16; 
+  __int64 v17; 
+  int v18; 
+  signed __int64 v19; 
+  unsigned __int8 *v20; 
+  __int64 v21; 
+  int v22; 
+  __int64 v23; 
+  __m128 v26; 
+  unsigned int v27; 
+  __int64 v28; 
+  __int64 v29; 
+  unsigned int v30; 
+  __int64 v31; 
+  unsigned __int8 *v32; 
+  __int64 v33; 
+  __int64 v34; 
 
   if ( !pModuleBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 543, ASSERT_TYPE_ASSERT, "(pModuleBase)", (const char *)&queryFormat, "pModuleBase") )
     __debugbreak();
@@ -3282,141 +2668,109 @@ void ParticleModuleInitAtlas::InitParticles(const ParticleModule *pModuleBase, c
     __debugbreak();
   if ( (unsigned int)m_particleCountRunning >= pParticleData->m_particleCountMax )
   {
-    LODWORD(v45) = m_particleCountRunning;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 365, ASSERT_TYPE_ASSERT, "(unsigned)( particleIndex ) < (unsigned)( pParticleData->GetParticleCountMax() )", "particleIndex doesn't index pParticleData->GetParticleCountMax()\n\t%i not in [0, %i)", v45, pParticleData->m_particleCountMax) )
+    LODWORD(v34) = m_particleCountRunning;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 365, ASSERT_TYPE_ASSERT, "(unsigned)( particleIndex ) < (unsigned)( pParticleData->GetParticleCountMax() )", "particleIndex doesn't index pParticleData->GetParticleCountMax()\n\t%i not in [0, %i)", v34, pParticleData->m_particleCountMax) )
       __debugbreak();
   }
   if ( !pParticleData->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 365, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
     __debugbreak();
-  _RDI = &ParticleData::GetParticleDataArray(pParticleData, PARTICLE_DATA_ATLAS_INDEX)[4 * m_particleCountRunning];
+  v9 = &ParticleData::GetParticleDataArray(pParticleData, PARTICLE_DATA_ATLAS_INDEX)[4 * m_particleCountRunning];
   if ( LOBYTE(pModuleBase[2].m_type) )
   {
-    Particle_GetRandomSeedArrayNextFreeElem(pParticleData);
+    RandomSeedArrayNextFreeElem = Particle_GetRandomSeedArrayNextFreeElem(pParticleData);
+    entryCount = pParticleState->m_atlasData.entryCount;
     v12 = 0i64;
+    v13 = RandomSeedArrayNextFreeElem;
     if ( particleCountEmit >= 4 )
     {
-      _R8 = _RDI + 4;
-      v14 = ((particleCountEmit - 4) >> 2) + 1;
-      v15 = v14;
-      v12 = 4 * v14;
+      v14 = v9 + 4;
+      v15 = (char *)RandomSeedArrayNextFreeElem - (char *)v9;
+      v16 = ((particleCountEmit - 4) >> 2) + 1;
+      v17 = v16;
+      v12 = 4 * v16;
       do
       {
-        _R8 += 16;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [r8-14h], xmm0
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [r8-10h], xmm0
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [r8-0Ch], xmm0
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [r8-8], xmm0
-        }
-        --v15;
+        v18 = *(_DWORD *)&v14[v15 - 4];
+        v14 += 16;
+        *((float *)v14 - 5) = (float)((entryCount * LOWORD(fx_randomTable[v18 + 23])) >> 16);
+        *((float *)v14 - 4) = (float)((entryCount * LOWORD(fx_randomTable[*(_DWORD *)&v14[v15 - 16] + 23])) >> 16);
+        *((float *)v14 - 3) = (float)((entryCount * LOWORD(fx_randomTable[*(_DWORD *)&v14[v15 - 12] + 23])) >> 16);
+        *((float *)v14 - 2) = (float)((entryCount * LOWORD(fx_randomTable[*(_DWORD *)&v14[v15 - 8] + 23])) >> 16);
+        --v17;
       }
-      while ( v15 );
+      while ( v17 );
     }
     if ( (unsigned int)v12 < particleCountEmit )
     {
-      _R8 = &_RDI[4 * v12];
-      v24 = particleCountEmit - (unsigned int)v12;
+      v19 = (char *)v13 - (char *)v9;
+      v20 = &v9[4 * v12];
+      v21 = particleCountEmit - (unsigned int)v12;
       do
       {
-        _R8 += 4;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmovss  dword ptr [r8-4], xmm0
-        }
-        --v24;
+        v22 = *(_DWORD *)&v20[v19];
+        v20 += 4;
+        *((float *)v20 - 1) = (float)((entryCount * LOWORD(fx_randomTable[v22 + 23])) >> 16);
+        --v21;
       }
-      while ( v24 );
+      while ( v21 );
     }
   }
   else
   {
-    _RDX = 0i64;
+    v23 = 0i64;
     if ( particleCountEmit )
     {
       if ( particleCountEmit >= 0x10 )
       {
-        _R8 = pModuleBase + 1;
-        __asm
+        _XMM0 = *(unsigned int *)&pModuleBase[1].m_type;
+        __asm { vpshufd xmm0, xmm0, 0 }
+        if ( v9 > (unsigned __int8 *)&pModuleBase[1] || &v9[4 * particleCountEmit - 4] < (unsigned __int8 *)&pModuleBase[1] )
         {
-          vmovd   xmm0, dword ptr [r8]
-          vpshufd xmm0, xmm0, 0
-        }
-        if ( _RDI > (unsigned __int8 *)&pModuleBase[1] || &_RDI[4 * particleCountEmit - 4] < (unsigned __int8 *)_R8 )
-        {
-          __asm { vcvtdq2ps xmm0, xmm0 }
-          v29 = 8;
+          v26 = _mm_cvtepi32_ps(_XMM0);
+          v27 = 8;
           do
           {
-            __asm { vmovups xmmword ptr [rdi+rdx*4], xmm0 }
-            _RAX = v29 - 4;
-            _RDX = (unsigned int)(_RDX + 16);
-            __asm { vmovups xmmword ptr [rdi+rax*4], xmm0 }
-            _RAX = v29;
-            __asm { vmovups xmmword ptr [rdi+rax*4], xmm0 }
-            _RAX = v29 + 4;
-            v29 += 16;
-            __asm { vmovups xmmword ptr [rdi+rax*4], xmm0 }
+            *(__m128 *)&v9[4 * v23] = v26;
+            v23 = (unsigned int)(v23 + 16);
+            *(__m128 *)&v9[4 * v27 - 16] = v26;
+            *(__m128 *)&v9[4 * v27] = v26;
+            v28 = v27 + 4;
+            v27 += 16;
+            *(__m128 *)&v9[4 * v28] = v26;
           }
-          while ( (unsigned int)_RDX < (particleCountEmit & 0xFFFFFFF0) );
+          while ( (unsigned int)v23 < (particleCountEmit & 0xFFFFFFF0) );
         }
       }
-      if ( (unsigned int)_RDX < particleCountEmit )
+      if ( (unsigned int)v23 < particleCountEmit )
       {
-        if ( particleCountEmit - (unsigned int)_RDX >= 4 )
+        if ( particleCountEmit - (unsigned int)v23 >= 4 )
         {
-          _RCX = (__int64)&_RDI[4 * _RDX + 8];
-          v34 = ((particleCountEmit - (unsigned int)_RDX - 4) >> 2) + 1;
-          v35 = v34;
-          _RDX = (unsigned int)_RDX + 4 * v34;
+          v29 = (__int64)&v9[4 * v23 + 8];
+          v30 = ((particleCountEmit - (unsigned int)v23 - 4) >> 2) + 1;
+          v31 = v30;
+          v23 = (unsigned int)v23 + 4 * v30;
           do
           {
-            _RCX += 16i64;
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, dword ptr [rbx+8]
-              vmovss  dword ptr [rcx-18h], xmm0
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, dword ptr [rbx+8]
-              vmovss  dword ptr [rcx-14h], xmm1
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, dword ptr [rbx+8]
-              vmovss  dword ptr [rcx-10h], xmm0
-              vxorps  xmm1, xmm1, xmm1
-              vcvtsi2ss xmm1, xmm1, dword ptr [rbx+8]
-              vmovss  dword ptr [rcx-0Ch], xmm1
-            }
-            --v35;
+            v29 += 16i64;
+            *(float *)(v29 - 24) = (float)*(int *)&pModuleBase[1].m_type;
+            *(float *)(v29 - 20) = (float)*(int *)&pModuleBase[1].m_type;
+            *(float *)(v29 - 16) = (float)*(int *)&pModuleBase[1].m_type;
+            *(float *)(v29 - 12) = (float)*(int *)&pModuleBase[1].m_type;
+            --v31;
           }
-          while ( v35 );
+          while ( v31 );
         }
-        if ( (unsigned int)_RDX < particleCountEmit )
+        if ( (unsigned int)v23 < particleCountEmit )
         {
-          _RCX = &_RDI[4 * _RDX];
-          v43 = particleCountEmit - (unsigned int)_RDX;
+          v32 = &v9[4 * v23];
+          v33 = particleCountEmit - (unsigned int)v23;
           do
           {
-            _RCX += 4;
-            __asm
-            {
-              vxorps  xmm0, xmm0, xmm0
-              vcvtsi2ss xmm0, xmm0, dword ptr [rbx+8]
-              vmovss  dword ptr [rcx-4], xmm0
-            }
-            --v43;
+            v32 += 4;
+            *((float *)v32 - 1) = (float)*(int *)&pModuleBase[1].m_type;
+            --v33;
           }
-          while ( v43 );
+          while ( v33 );
         }
       }
     }
@@ -3432,20 +2786,28 @@ void ParticleModuleInitAttributes::InitParticles(const ParticleModule *pModuleBa
 {
   const int *RandomSeedArrayNextFreeElem; 
   float4 *VelocityArrayAtIndex; 
+  float4 *SizeArrayAtIndex; 
   __int64 m_particleCountRunning; 
-  const int *v16; 
+  __m128 *v12; 
+  __m128 *p_v; 
+  const int *v15; 
+  __int64 v16; 
   __int64 v17; 
-  __int64 v18; 
-  const int *v30; 
-  ParticleSystem *v44; 
-  const float4 *v45; 
-  __int64 v47; 
-  int v48; 
-  __int64 v53; 
-  float4 v54; 
+  __m128 v19; 
+  __m128 v20; 
+  const int *v26; 
+  __m128 v28; 
+  __m128 v29; 
+  ParticleSystem *v35; 
+  const float4 *v36; 
+  signed __int64 v37; 
+  __int64 v38; 
+  int v39; 
+  float4 *v40; 
+  __int64 v41; 
+  float4 v42; 
   float4 result; 
 
-  _RBX = pModuleBase;
   if ( !pModuleBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 659, ASSERT_TYPE_ASSERT, "(pModuleBase)", (const char *)&queryFormat, "pModuleBase") )
     __debugbreak();
   if ( !pParticleState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 659, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
@@ -3456,19 +2818,19 @@ void ParticleModuleInitAttributes::InitParticles(const ParticleModule *pModuleBa
     __debugbreak();
   if ( particleCountEmit + pParticleData->m_particleCountRunning > pParticleData->m_particleCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 659, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax())", (const char *)&queryFormat, "pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax()") )
     __debugbreak();
-  if ( (_RBX->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 659, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
+  if ( (pModuleBase->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 659, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
     __debugbreak();
   if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
     __debugbreak();
   result.v.m128_u64[0] = (unsigned __int64)pParticleState->m_pEmitterOwner;
-  v54.v.m128_u64[0] = (unsigned __int64)ParticleEmitter::GetSystemOwner((ParticleEmitter *)result.v.m128_u64[0]);
+  v42.v.m128_u64[0] = (unsigned __int64)ParticleEmitter::GetSystemOwner((ParticleEmitter *)result.v.m128_u64[0]);
   RandomSeedArrayNextFreeElem = Particle_GetRandomSeedArrayNextFreeElem(pParticleData);
   if ( !pParticleData->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 342, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
     __debugbreak();
   VelocityArrayAtIndex = Particle_GetVelocityArrayAtIndex(pParticleData, pParticleData->m_particleCountRunning);
   if ( !pParticleData->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 348, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
     __debugbreak();
-  _RSI = Particle_GetSizeArrayAtIndex(pParticleData, pParticleData->m_particleCountRunning);
+  SizeArrayAtIndex = Particle_GetSizeArrayAtIndex(pParticleData, pParticleData->m_particleCountRunning);
   if ( !pParticleData->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 343, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
     __debugbreak();
   m_particleCountRunning = pParticleData->m_particleCountRunning;
@@ -3476,117 +2838,92 @@ void ParticleModuleInitAttributes::InitParticles(const ParticleModule *pModuleBa
     __debugbreak();
   if ( (unsigned int)m_particleCountRunning >= pParticleData->m_particleCountMax )
   {
-    LODWORD(v53) = m_particleCountRunning;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 343, ASSERT_TYPE_ASSERT, "(unsigned)( particleIndex ) < (unsigned)( pParticleData->GetParticleCountMax() )", "particleIndex doesn't index pParticleData->GetParticleCountMax()\n\t%i not in [0, %i)", v53, pParticleData->m_particleCountMax) )
+    LODWORD(v41) = m_particleCountRunning;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 343, ASSERT_TYPE_ASSERT, "(unsigned)( particleIndex ) < (unsigned)( pParticleData->GetParticleCountMax() )", "particleIndex doesn't index pParticleData->GetParticleCountMax()\n\t%i not in [0, %i)", v41, pParticleData->m_particleCountMax) )
       __debugbreak();
   }
   if ( !pParticleData->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 343, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
     __debugbreak();
-  _RDI = &ParticleData::GetParticleDataArray(pParticleData, PARTICLE_DATA_COLOR)[16 * m_particleCountRunning];
-  ParticleModuleInitAttributes::InitParticleVelocity((const ParticleModuleInitAttributes *)_RBX, VelocityArrayAtIndex, RandomSeedArrayNextFreeElem, pParticleState, particleCountEmit);
+  v12 = (__m128 *)&ParticleData::GetParticleDataArray(pParticleData, PARTICLE_DATA_COLOR)[16 * m_particleCountRunning];
+  ParticleModuleInitAttributes::InitParticleVelocity((const ParticleModuleInitAttributes *)pModuleBase, VelocityArrayAtIndex, RandomSeedArrayNextFreeElem, pParticleState, particleCountEmit);
   if ( particleCountEmit )
   {
-    _RAX = _RSI;
+    p_v = &SizeArrayAtIndex->v;
     _R10 = fx_randomTable;
-    v16 = RandomSeedArrayNextFreeElem;
+    v15 = RandomSeedArrayNextFreeElem;
+    v16 = particleCountEmit;
     v17 = particleCountEmit;
-    v18 = particleCountEmit;
     do
     {
-      _RDX = *v16;
-      __asm { vmovups xmm0, xmmword ptr [rbx+20h] }
-      if ( HIBYTE(_RBX[1].m_type) )
+      _RDX = *v15;
+      v19 = *(__m128 *)&pModuleBase[4].m_type;
+      if ( HIBYTE(pModuleBase[1].m_type) )
       {
+        _XMM1 = 0i64;
         __asm
         {
-          vsubps  xmm0, xmm0, xmmword ptr [rbx+10h]
-          vxorps  xmm1, xmm1, xmm1
           vinsertps xmm1, xmm1, dword ptr [r10+rdx*4+0A0h], 0
           vinsertps xmm1, xmm1, dword ptr [r10+rdx*4+0A4h], 10h
           vinsertps xmm1, xmm1, dword ptr [r10+rdx*4+0A8h], 20h ; ' '
-          vmulps  xmm1, xmm1, xmm0
-          vaddps  xmm2, xmm1, xmmword ptr [rbx+10h]
-          vmovups xmmword ptr [rax], xmm2
         }
+        *p_v = _mm128_add_ps(_mm128_mul_ps(_XMM1, _mm128_sub_ps(v19, *(__m128 *)&pModuleBase[2].m_type)), *(__m128 *)&pModuleBase[2].m_type);
       }
       else
       {
-        __asm
-        {
-          vsubps  xmm1, xmm0, xmmword ptr [rbx+10h]
-          vbroadcastss xmm0, dword ptr [r10+rdx*4+0A0h]
-          vmulps  xmm0, xmm1, xmm0
-          vaddps  xmm1, xmm0, xmmword ptr [rbx+10h]
-          vmovups xmmword ptr [rax], xmm1
-        }
+        v20 = _mm128_sub_ps(v19, *(__m128 *)&pModuleBase[2].m_type);
+        __asm { vbroadcastss xmm0, dword ptr [r10+rdx*4+0A0h] }
+        *p_v = _mm128_add_ps(_mm128_mul_ps(v20, _XMM0), *(__m128 *)&pModuleBase[2].m_type);
       }
-      ++v16;
-      ++_RAX;
-      --v18;
-    }
-    while ( v18 );
-    v30 = RandomSeedArrayNextFreeElem;
-    do
-    {
-      _RAX = *v30;
-      __asm { vmovups xmm0, xmmword ptr [rbx+40h] }
-      if ( LOBYTE(_RBX[1].m_type) )
-      {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [r10+rax*4+64h]
-          vinsertps xmm1, xmm1, dword ptr [r10+rax*4+68h], 10h
-          vinsertps xmm1, xmm1, dword ptr [r10+rax*4+6Ch], 20h ; ' '
-          vinsertps xmm1, xmm1, dword ptr [r10+rax*4+70h], 30h ; '0'
-          vsubps  xmm0, xmm0, xmmword ptr [rbx+30h]
-          vmulps  xmm1, xmm1, xmm0
-          vaddps  xmm2, xmm1, xmmword ptr [rbx+30h]
-          vmovups xmmword ptr [rdi], xmm2
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vsubps  xmm1, xmm0, xmmword ptr [rbx+30h]
-          vbroadcastss xmm0, dword ptr [r10+rax*4+60h]
-          vmulps  xmm0, xmm1, xmm0
-          vaddps  xmm1, xmm0, xmmword ptr [rbx+30h]
-          vmovups xmmword ptr [rdi], xmm1
-        }
-      }
-      ++v30;
-      _RDI += 16;
+      ++v15;
+      ++p_v;
       --v17;
     }
     while ( v17 );
-  }
-  v44 = (ParticleSystem *)v54.v.m128_u64[0];
-  if ( (*(_DWORD *)(v54.v.m128_u64[0] + 416) & 0x40000000) != 0 && (ParticleEmitter::GetEmitterDef((ParticleEmitter *)result.v.m128_u64[0])->flags & 0x800000) == 0 && particleCountEmit )
-  {
-    v45 = _RSI;
-    _R15 = (char *)VelocityArrayAtIndex - (char *)_RSI;
-    v47 = particleCountEmit;
+    v26 = RandomSeedArrayNextFreeElem;
     do
     {
-      v48 = *RandomSeedArrayNextFreeElem;
-      _RAX = ParticleSystem::ApplyVelocityModifiers(v44, &result, (const float4 *)((char *)v45 + _R15), *RandomSeedArrayNextFreeElem);
-      __asm
+      _RAX = *v26;
+      v28 = *(__m128 *)&pModuleBase[8].m_type;
+      if ( LOBYTE(pModuleBase[1].m_type) )
       {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovdqu xmmword ptr [r15+rsi], xmm0
+        _XMM1 = LODWORD(fx_randomTable[_RAX + 25]);
+        __asm
+        {
+          vinsertps xmm1, xmm1, dword ptr [r10+rax*4+68h], 10h
+          vinsertps xmm1, xmm1, dword ptr [r10+rax*4+6Ch], 20h ; ' '
+          vinsertps xmm1, xmm1, dword ptr [r10+rax*4+70h], 30h ; '0'
+        }
+        *v12 = _mm128_add_ps(_mm128_mul_ps(_XMM1, _mm128_sub_ps(v28, *(__m128 *)&pModuleBase[6].m_type)), *(__m128 *)&pModuleBase[6].m_type);
       }
-      _RAX = ParticleSystem::ApplyScaleModifiers(v44, &v54, v45++, v48, 1);
-      ++_RSI;
-      ++RandomSeedArrayNextFreeElem;
-      __asm
+      else
       {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovdqu xmmword ptr [rsi-10h], xmm0
+        v29 = _mm128_sub_ps(v28, *(__m128 *)&pModuleBase[6].m_type);
+        __asm { vbroadcastss xmm0, dword ptr [r10+rax*4+60h] }
+        *v12 = _mm128_add_ps(_mm128_mul_ps(v29, _XMM0), *(__m128 *)&pModuleBase[6].m_type);
       }
-      --v47;
+      ++v26;
+      ++v12;
+      --v16;
     }
-    while ( v47 );
+    while ( v16 );
+  }
+  v35 = (ParticleSystem *)v42.v.m128_u64[0];
+  if ( (*(_DWORD *)(v42.v.m128_u64[0] + 416) & 0x40000000) != 0 && (ParticleEmitter::GetEmitterDef((ParticleEmitter *)result.v.m128_u64[0])->flags & 0x800000) == 0 && particleCountEmit )
+  {
+    v36 = SizeArrayAtIndex;
+    v37 = (char *)VelocityArrayAtIndex - (char *)SizeArrayAtIndex;
+    v38 = particleCountEmit;
+    do
+    {
+      v39 = *RandomSeedArrayNextFreeElem;
+      *(float4 *)((char *)SizeArrayAtIndex + v37) = (float4)ParticleSystem::ApplyVelocityModifiers(v35, &result, (const float4 *)((char *)v36 + v37), *RandomSeedArrayNextFreeElem)->v;
+      v40 = ParticleSystem::ApplyScaleModifiers(v35, &v42, v36++, v39, 1);
+      ++SizeArrayAtIndex;
+      ++RandomSeedArrayNextFreeElem;
+      SizeArrayAtIndex[-1] = (float4)v40->v;
+      --v38;
+    }
+    while ( v38 );
   }
 }
 
@@ -3598,11 +2935,11 @@ ParticleModuleInitBeam::InitParticles
 void ParticleModuleInitBeam::InitParticles(const ParticleModule *pModuleBase, const ParticleState *pParticleState, ParticleData *pParticleData, const FxCamera *pCamera, const unsigned int particleCountEmit)
 {
   ParticleEmitter *m_pEmitterOwner; 
+  float4 *PositionArrayNextFreeElem; 
   __int64 v10; 
   float4 outStartPos; 
   float4 outEndPos; 
 
-  _RDI = pModuleBase;
   if ( !pModuleBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 693, ASSERT_TYPE_ASSERT, "(pModuleBase)", (const char *)&queryFormat, "pModuleBase") )
     __debugbreak();
   if ( !pParticleState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 693, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
@@ -3613,27 +2950,22 @@ void ParticleModuleInitBeam::InitParticles(const ParticleModule *pModuleBase, co
     __debugbreak();
   if ( particleCountEmit + pParticleData->m_particleCountRunning > pParticleData->m_particleCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 693, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax())", (const char *)&queryFormat, "pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax()") )
     __debugbreak();
-  if ( (_RDI->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 693, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
+  if ( (pModuleBase->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 693, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
     __debugbreak();
   if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
     __debugbreak();
   m_pEmitterOwner = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
   if ( (ParticleEmitter::GetSystemOwner(m_pEmitterOwner)->m_flags & 0x100) == 0 )
   {
-    _RBX = Particle_GetPositionArrayNextFreeElem(pParticleData);
+    PositionArrayNextFreeElem = Particle_GetPositionArrayNextFreeElem(pParticleData);
     ParticleEmitter::GetBeamPos(m_pEmitterOwner, pParticleState, &outStartPos, &outEndPos);
     if ( particleCountEmit )
     {
       v10 = particleCountEmit;
       do
       {
-        ++_RBX;
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rdi+30h]
-          vaddps  xmm1, xmm1, xmmword ptr [rsp+78h+outStartPos.v]
-          vmovups xmmword ptr [rbx-10h], xmm1
-        }
+        ++PositionArrayNextFreeElem;
+        PositionArrayNextFreeElem[-1].v = _mm128_add_ps(*(__m128 *)&pModuleBase[6].m_type, outStartPos.v);
         --v10;
       }
       while ( v10 );
@@ -3821,9 +3153,14 @@ void ParticleModuleInitRotation3D::InitParticles(const ParticleModule *pModuleBa
   int *RandomSeedArrayNextFreeElem; 
   float4 *RotationAngleArrayNextFreeElem; 
   float4 *RotationRateArrayNextFreeElem; 
-  __int64 v19; 
+  float4 *v11; 
+  __m128 v12; 
+  __m128 v13; 
+  __m128 v14; 
+  __m128 v15; 
+  signed __int64 v16; 
+  __int64 v17; 
 
-  _RSI = pModuleBase;
   if ( !pModuleBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1140, ASSERT_TYPE_ASSERT, "(pModuleBase)", (const char *)&queryFormat, "pModuleBase") )
     __debugbreak();
   if ( !pParticleState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1140, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
@@ -3834,52 +3171,43 @@ void ParticleModuleInitRotation3D::InitParticles(const ParticleModule *pModuleBa
     __debugbreak();
   if ( particleCountEmit + pParticleData->m_particleCountRunning > pParticleData->m_particleCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1140, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax())", (const char *)&queryFormat, "pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax()") )
     __debugbreak();
-  if ( (_RSI->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1140, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
+  if ( (pModuleBase->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1140, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
     __debugbreak();
   RandomSeedArrayNextFreeElem = Particle_GetRandomSeedArrayNextFreeElem(pParticleData);
   RotationAngleArrayNextFreeElem = Particle_GetRotationAngleArrayNextFreeElem(pParticleData);
   RotationRateArrayNextFreeElem = Particle_GetRotationRateArrayNextFreeElem(pParticleData);
-  _RCX = RotationRateArrayNextFreeElem;
-  __asm
-  {
-    vmovups xmm2, xmmword ptr [rsi+10h]
-    vmovups xmm0, xmmword ptr [rsi+20h]
-    vmovups xmm3, xmmword ptr [rsi+30h]
-    vmovups xmm1, xmmword ptr [rsi+40h]
-  }
+  v11 = RotationRateArrayNextFreeElem;
+  v12 = *(__m128 *)&pModuleBase[2].m_type;
+  v13 = *(__m128 *)&pModuleBase[6].m_type;
   if ( particleCountEmit )
   {
-    __asm
-    {
-      vsubps  xmm4, xmm0, xmm2
-      vsubps  xmm5, xmm1, xmm3
-    }
-    _RBP = (char *)RotationAngleArrayNextFreeElem - (char *)RotationRateArrayNextFreeElem;
-    v19 = particleCountEmit;
+    v14 = _mm128_sub_ps(*(__m128 *)&pModuleBase[4].m_type, v12);
+    v15 = _mm128_sub_ps(*(__m128 *)&pModuleBase[8].m_type, v13);
+    v16 = (char *)RotationAngleArrayNextFreeElem - (char *)RotationRateArrayNextFreeElem;
+    v17 = particleCountEmit;
     do
     {
-      ++_RCX;
+      ++v11;
       ++RandomSeedArrayNextFreeElem;
+      _XMM0 = 0i64;
       __asm
       {
-        vxorps  xmm0, xmm0, xmm0
         vinsertps xmm0, xmm0, dword ptr [r8+rax*4+88h], 0
         vinsertps xmm0, xmm0, dword ptr [r8+rax*4+8Ch], 10h
         vinsertps xmm0, xmm0, dword ptr [r8+rax*4+90h], 20h ; ' '
-        vmulps  xmm0, xmm0, xmm4
-        vaddps  xmm1, xmm0, xmm2
-        vmovups xmmword ptr [rcx+rbp-10h], xmm1
-        vxorps  xmm0, xmm0, xmm0
+      }
+      *(__m128 *)((char *)&v11[-1].v + v16) = _mm128_add_ps(_mm128_mul_ps(_XMM0, v14), v12);
+      _XMM0 = 0i64;
+      __asm
+      {
         vinsertps xmm0, xmm0, dword ptr [r8+rax*4+94h], 0
         vinsertps xmm0, xmm0, dword ptr [r8+rax*4+98h], 10h
         vinsertps xmm0, xmm0, dword ptr [r8+rax*4+9Ch], 20h ; ' '
-        vmulps  xmm0, xmm0, xmm5
-        vaddps  xmm1, xmm0, xmm3
-        vmovups xmmword ptr [rcx-10h], xmm1
       }
-      --v19;
+      v11[-1].v = _mm128_add_ps(_mm128_mul_ps(_XMM0, v15), v13);
+      --v17;
     }
-    while ( v19 );
+    while ( v17 );
   }
 }
 
@@ -3893,7 +3221,12 @@ void ParticleModuleInitRotation::InitParticles(const ParticleModule *pModuleBase
   int *RandomSeedArrayNextFreeElem; 
   float4 *RotationAngleArrayNextFreeElem; 
   float4 *RotationRateArrayNextFreeElem; 
-  __int64 v15; 
+  float4 *v11; 
+  signed __int64 v12; 
+  __int64 v13; 
+  __int64 v14; 
+  __m128 v15; 
+  __m128 v16; 
 
   if ( !pModuleBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1114, ASSERT_TYPE_ASSERT, "(pModuleBase)", (const char *)&queryFormat, "pModuleBase") )
     __debugbreak();
@@ -3910,38 +3243,25 @@ void ParticleModuleInitRotation::InitParticles(const ParticleModule *pModuleBase
   RandomSeedArrayNextFreeElem = Particle_GetRandomSeedArrayNextFreeElem(pParticleData);
   RotationAngleArrayNextFreeElem = Particle_GetRotationAngleArrayNextFreeElem(pParticleData);
   RotationRateArrayNextFreeElem = Particle_GetRotationRateArrayNextFreeElem(pParticleData);
-  _RCX = RotationRateArrayNextFreeElem;
+  v11 = RotationRateArrayNextFreeElem;
   if ( particleCountEmit )
   {
-    __asm { vmovss  xmm3, cs:__real@3f800000 }
-    _RBP = (char *)RotationAngleArrayNextFreeElem - (char *)RotationRateArrayNextFreeElem;
-    _R8 = fx_randomTable;
-    v15 = particleCountEmit;
+    v12 = (char *)RotationAngleArrayNextFreeElem - (char *)RotationRateArrayNextFreeElem;
+    v13 = particleCountEmit;
     do
     {
-      _RAX = *RandomSeedArrayNextFreeElem;
-      ++_RCX;
+      v14 = *RandomSeedArrayNextFreeElem;
+      ++v11;
       ++RandomSeedArrayNextFreeElem;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [r8+rax*4+88h]
-        vsubss  xmm0, xmm3, xmm1
-        vmulss  xmm2, xmm0, dword ptr [rdi+10h]
-        vmulss  xmm1, xmm1, dword ptr [rdi+14h]
-        vaddss  xmm0, xmm2, xmm1
-        vshufps xmm0, xmm0, xmm0, 0
-        vmovups xmmword ptr [rcx+rbp-10h], xmm0
-        vmovss  xmm1, dword ptr [r8+rax*4+94h]
-        vsubss  xmm0, xmm3, xmm1
-        vmulss  xmm2, xmm0, dword ptr [rdi+18h]
-        vmulss  xmm1, xmm1, dword ptr [rdi+1Ch]
-        vaddss  xmm0, xmm2, xmm1
-        vshufps xmm0, xmm0, xmm0, 0
-        vmovups xmmword ptr [rcx-10h], xmm0
-      }
-      --v15;
+      v15 = (__m128)LODWORD(FLOAT_1_0);
+      v15.m128_f32[0] = (float)((float)(1.0 - fx_randomTable[v14 + 34]) * *(float *)&pModuleBase[2].m_type) + (float)(fx_randomTable[v14 + 34] * *(float *)&pModuleBase[2].m_flags);
+      *(__m128 *)((char *)&v11[-1].v + v12) = _mm_shuffle_ps(v15, v15, 0);
+      v16 = (__m128)LODWORD(FLOAT_1_0);
+      v16.m128_f32[0] = (float)((float)(1.0 - fx_randomTable[v14 + 37]) * *(float *)&pModuleBase[3].m_type) + (float)(fx_randomTable[v14 + 37] * *(float *)&pModuleBase[3].m_flags);
+      v11[-1].v = _mm_shuffle_ps(v16, v16, 0);
+      --v13;
     }
-    while ( v15 );
+    while ( v13 );
   }
 }
 
@@ -3983,17 +3303,25 @@ ParticleModuleInitSpawnShapeBox::InitParticles
 void ParticleModuleInitSpawnShapeBox::InitParticles(const ParticleModule *pModuleBase, const ParticleState *pParticleState, ParticleData *pParticleData, const FxCamera *pCamera, const unsigned int particleCountEmit)
 {
   float4 *PositionArrayNextFreeElem; 
-  unsigned int v15; 
+  float4 *SpawnPosArrayNextFreeElem; 
+  unsigned int v10; 
+  __m128 v; 
+  __m128 v12; 
   ParticleEmitter *m_pEmitterOwner; 
-  signed int v20; 
-  unsigned int v24; 
-  unsigned int v25; 
-  unsigned int v26; 
-  unsigned int v27; 
-  __int64 v55; 
-  __int64 v56; 
-  signed __int64 v57; 
-  signed __int64 v58; 
+  unsigned int v14; 
+  unsigned int v15; 
+  unsigned int v16; 
+  unsigned int v17; 
+  unsigned int v18; 
+  __m128 v28; 
+  __m128 v29; 
+  __m128 v30; 
+  signed __int64 v31; 
+  __m128 v36; 
+  __int64 v37; 
+  __int64 v38; 
+  signed __int64 v39; 
+  signed __int64 v40; 
   float4 dimensionsMax; 
   float4 dimensionsMin; 
 
@@ -4009,28 +3337,17 @@ void ParticleModuleInitSpawnShapeBox::InitParticles(const ParticleModule *pModul
     __debugbreak();
   if ( (pModuleBase->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1417, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
     __debugbreak();
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_48], xmm6
-    vmovaps [rsp+0E8h+var_58], xmm7
-  }
   PositionArrayNextFreeElem = Particle_GetPositionArrayNextFreeElem(pParticleData);
-  _RSI = Particle_GetSpawnPosArrayNextFreeElem(pParticleData);
+  SpawnPosArrayNextFreeElem = Particle_GetSpawnPosArrayNextFreeElem(pParticleData);
   ParticleModuleInitSpawnShapeBox::GetDimensions((ParticleModuleInitSpawnShapeBox *)pModuleBase, pParticleState, &dimensionsMin, &dimensionsMax);
-  v15 = 0;
+  v10 = 0;
   if ( (HIBYTE(pModuleBase[1].m_type) & 1) != 0 )
   {
     if ( particleCountEmit )
     {
-      __asm
-      {
-        vmovaps [rsp+0E8h+var_68], xmm8
-        vmovups xmm8, xmmword ptr [rsp+0E8h+dimensionsMin.v]
-        vmovaps [rsp+0E8h+var_78], xmm9
-        vmovups xmm9, xmmword ptr [rsp+0E8h+dimensionsMax.v]
-      }
-      v57 = (char *)PositionArrayNextFreeElem - (char *)_RSI;
-      _R13 = fx_randomTable;
+      v = dimensionsMin.v;
+      v12 = dimensionsMax.v;
+      v39 = (char *)PositionArrayNextFreeElem - (char *)SpawnPosArrayNextFreeElem;
       while ( 1 )
       {
         if ( (HIBYTE(pModuleBase[1].m_type) & 8) != 0 )
@@ -4038,113 +3355,84 @@ void ParticleModuleInitSpawnShapeBox::InitParticles(const ParticleModule *pModul
           if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
             __debugbreak();
           m_pEmitterOwner = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
-          v20 = (ParticleEmitter::GetEmitterDef(m_pEmitterOwner)->randomSeed + m_pEmitterOwner->m_lifetimeParticleCount + 10111 * (unsigned __int8)v15) % 0x3FE9;
+          v14 = (ParticleEmitter::GetEmitterDef(m_pEmitterOwner)->randomSeed + m_pEmitterOwner->m_lifetimeParticleCount + 10111 * (unsigned __int8)v10) % 0x3FE9;
         }
         else
         {
-          v20 = Particle_GetRandomSeedArrayNextFreeElem(pParticleData)[v15];
+          v14 = Particle_GetRandomSeedArrayNextFreeElem(pParticleData)[v10];
         }
-        _RAX = v20;
-        __asm
+        v15 = (6 * *((unsigned __int16 *)fx_randomTable + (int)(2 * v14 + 16))) >> 16;
+        if ( v15 >= 6 )
         {
-          vmovss  xmm6, dword ptr [r13+rax*4+18h]
-          vmovss  xmm7, dword ptr [r13+rax*4+1Ch]
-        }
-        v24 = (6 * LOWORD(fx_randomTable[v20 + 8])) >> 16;
-        if ( v24 >= 6 )
-        {
-          LODWORD(v56) = 6;
-          LODWORD(v55) = (6 * LOWORD(fx_randomTable[v20 + 8])) >> 16;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlerandom.h", 78, ASSERT_TYPE_ASSERT, "(unsigned)( randomIndex ) < (unsigned)( count )", "randomIndex doesn't index count\n\t%i not in [0, %i)", v55, v56) )
+          LODWORD(v38) = 6;
+          LODWORD(v37) = (6 * *((unsigned __int16 *)fx_randomTable + (int)(2 * v14 + 16))) >> 16;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlerandom.h", 78, ASSERT_TYPE_ASSERT, "(unsigned)( randomIndex ) < (unsigned)( count )", "randomIndex doesn't index count\n\t%i not in [0, %i)", v37, v38) )
             __debugbreak();
         }
-        if ( !v24 )
+        if ( !v15 )
           break;
-        v25 = v24 - 1;
-        if ( !v25 )
+        v16 = v15 - 1;
+        if ( !v16 )
         {
-          __asm { vmovups xmm1, cs:__xmm@0000000000000000000000003f800000 }
+          _XMM1 = _xmm;
 LABEL_42:
           __asm { vinsertps xmm1, xmm1, xmm6, 10h }
           goto LABEL_43;
         }
-        v26 = v25 - 1;
-        if ( v26 )
+        v17 = v16 - 1;
+        if ( v17 )
         {
-          v27 = v26 - 1;
-          if ( v27 )
+          v18 = v17 - 1;
+          if ( v18 )
           {
-            if ( v27 == 1 )
+            if ( v18 == 1 )
             {
+              _XMM1 = 0i64;
               __asm
               {
-                vxorps  xmm1, xmm1, xmm1
                 vinsertps xmm1, xmm1, xmm6, 0
                 vinsertps xmm1, xmm1, xmm7, 10h
               }
             }
             else
             {
+              _XMM1 = _xmm;
               __asm
               {
-                vmovups xmm1, cs:__xmm@000000003f8000000000000000000000
                 vinsertps xmm1, xmm1, xmm6, 0
                 vinsertps xmm1, xmm1, xmm7, 10h
               }
             }
             goto LABEL_44;
           }
-          __asm
-          {
-            vmovups xmm1, cs:__xmm@00000000000000003f80000000000000
-            vinsertps xmm1, xmm1, xmm6, 0
-          }
+          _XMM1 = _xmm;
+          __asm { vinsertps xmm1, xmm1, xmm6, 0 }
         }
         else
         {
-          __asm
-          {
-            vxorps  xmm1, xmm1, xmm1
-            vinsertps xmm1, xmm1, xmm6, 0
-          }
+          _XMM1 = 0i64;
+          __asm { vinsertps xmm1, xmm1, xmm6, 0 }
         }
 LABEL_43:
         __asm { vinsertps xmm1, xmm1, xmm7, 20h ; ' ' }
 LABEL_44:
-        _RAX = v57;
-        ++v15;
-        __asm
-        {
-          vsubps  xmm0, xmm9, xmm8
-          vmulps  xmm1, xmm0, xmm1
-          vaddps  xmm2, xmm1, xmm8
-          vmovups xmmword ptr [rax+rsi], xmm2
-          vmovups xmmword ptr [rsi], xmm2
-        }
-        ++_RSI;
-        if ( v15 >= particleCountEmit )
-        {
-          __asm
-          {
-            vmovaps xmm9, [rsp+0E8h+var_78]
-            vmovaps xmm8, [rsp+0E8h+var_68]
-          }
-          goto LABEL_55;
-        }
+        ++v10;
+        v28 = _mm128_add_ps(_mm128_mul_ps(_mm128_sub_ps(v12, v), _XMM1), v);
+        *(__m128 *)((char *)SpawnPosArrayNextFreeElem + v39) = v28;
+        *SpawnPosArrayNextFreeElem++ = (float4)v28;
+        if ( v10 >= particleCountEmit )
+          return;
       }
-      __asm { vxorps  xmm1, xmm1, xmm1 }
+      _XMM1 = 0i64;
       goto LABEL_42;
     }
   }
   else if ( particleCountEmit )
   {
-    __asm
-    {
-      vmovups xmm7, xmmword ptr [rsp+0E8h+dimensionsMax.v]
-      vmovups xmm6, xmmword ptr [rsp+0E8h+dimensionsMin.v]
-    }
-    _RBX = (char *)PositionArrayNextFreeElem - (char *)_RSI;
-    v58 = _RBX;
+    v29 = dimensionsMax.v;
+    v30 = dimensionsMin.v;
+    v31 = (char *)PositionArrayNextFreeElem - (char *)SpawnPosArrayNextFreeElem;
+    v40 = v31;
     do
     {
       if ( (HIBYTE(pModuleBase[1].m_type) & 8) != 0 )
@@ -4152,34 +3440,25 @@ LABEL_44:
         if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
           __debugbreak();
         ParticleEmitter::GetEmitterDef((ParticleEmitter *)pParticleState->m_pEmitterOwner);
-        _RBX = v58;
+        v31 = v40;
       }
       else
       {
         Particle_GetRandomSeedArrayNextFreeElem(pParticleData);
       }
-      ++v15;
+      ++v10;
+      _XMM1 = 0i64;
       __asm
       {
-        vxorps  xmm1, xmm1, xmm1
-        vsubps  xmm0, xmm7, xmm6
         vinsertps xmm1, xmm1, dword ptr [r13+rax*4+18h], 0
         vinsertps xmm1, xmm1, dword ptr [r13+rax*4+1Ch], 10h
         vinsertps xmm1, xmm1, dword ptr [r13+rax*4+20h], 20h ; ' '
-        vmulps  xmm1, xmm1, xmm0
-        vaddps  xmm2, xmm1, xmm6
-        vmovups xmmword ptr [rsi+rbx], xmm2
-        vmovups xmmword ptr [rsi], xmm2
       }
-      ++_RSI;
+      v36 = _mm128_add_ps(_mm128_mul_ps(_XMM1, _mm128_sub_ps(v29, v30)), v30);
+      *(__m128 *)((char *)SpawnPosArrayNextFreeElem + v31) = v36;
+      *SpawnPosArrayNextFreeElem++ = (float4)v36;
     }
-    while ( v15 < particleCountEmit );
-  }
-LABEL_55:
-  __asm
-  {
-    vmovaps xmm7, [rsp+0E8h+var_58]
-    vmovaps xmm6, [rsp+0E8h+var_48]
+    while ( v10 < particleCountEmit );
   }
 }
 
@@ -4190,596 +3469,421 @@ ParticleModuleInitSpawnShapeCylinder::InitParticles
 */
 void ParticleModuleInitSpawnShapeCylinder::InitParticles(const ParticleModule *pModuleBase, const ParticleState *pParticleState, ParticleData *pParticleData, const FxCamera *pCamera, const unsigned int particleCountEmit)
 {
-  ParticleData *v18; 
-  ParticleState *v19; 
+  __m128 v5; 
+  __m128 v6; 
+  __m128 v7; 
+  ParticleData *v8; 
+  ParticleState *v9; 
   float4 *SpawnPosArrayNextFreeElem; 
   char m_type; 
-  unsigned int v23; 
-  const float4 *v25; 
-  vector3 *v26; 
-  char v27; 
+  unsigned int v13; 
+  __int64 v14; 
+  const float4 *v15; 
+  vector3 *v16; 
+  char v17; 
   ParticleEmitter *EmitterOwner; 
-  ParticleEmitter *v42; 
   const vector4 *EmitterTransformTranspose; 
-  const vector4 *v44; 
-  unsigned int v47; 
+  __m128 v; 
+  __m128 v21; 
+  __int128 v22; 
+  __m128 v23; 
+  ParticleEmitter *v24; 
+  const vector4 *v25; 
+  const vector4 *v26; 
+  unsigned int v27; 
+  float v28; 
+  float v29; 
+  int v30; 
+  float v31; 
   ParticleEmitter *m_pEmitterOwner; 
-  unsigned int v53; 
-  bool v70; 
-  bool v71; 
-  bool v84; 
-  unsigned int v150; 
+  signed int v33; 
+  __int64 v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  __m128 v41; 
+  __m128 v44; 
+  __m128 v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  __int128 v52; 
+  __int128 v53; 
+  __m128 v55; 
+  __int128 v58; 
+  __int128 v63; 
+  __int128 v71; 
+  __int128 v72; 
+  unsigned int v77; 
   unsigned __int8 *ParticleDataArray; 
-  unsigned int v152; 
-  unsigned __int8 *v153; 
-  unsigned int v155; 
-  ParticleModuleAxesFlags v160; 
-  bool v189; 
-  __int64 v191; 
-  ParticleModuleAxesFlags v201; 
+  unsigned int v79; 
+  unsigned __int8 *v80; 
+  unsigned int v82; 
+  __m128 v83; 
+  __m128 v84; 
+  int v85; 
+  float v86; 
+  float4 v87; 
+  ParticleModuleAxesFlags v88; 
+  __int64 v89; 
+  float v90; 
+  __m128 v92; 
+  __m128 v96; 
+  __m128 *v97; 
+  __int64 v98; 
+  __m128 v99; 
+  __m128 v100; 
+  ParticleModuleAxesFlags v105; 
+  float v106; 
+  __m128 v108; 
+  __m128 v111; 
   char m_type_high; 
-  char v241; 
-  char v242; 
-  char v243; 
-  float halfHeight[2]; 
+  char v113; 
+  char v114; 
+  char v115; 
+  float halfHeight; 
+  int v117; 
   float radiusMax; 
-  unsigned int v246; 
+  unsigned int v119; 
   float4 *PositionArrayNextFreeElem; 
   float radiusMin; 
+  float v122; 
   float c; 
   float s; 
-  float v252; 
-  float v253[3]; 
+  float v125; 
+  float v126[3]; 
   float4 outOffset; 
-  __int64 v255; 
-  const FxCamera *v256; 
-  ParticleData *v257; 
-  const ParticleState *v258; 
-  __int64 v259; 
+  __int64 v128; 
+  const FxCamera *v129; 
+  ParticleData *v130; 
+  const ParticleState *v131; 
+  __int64 v132; 
   vector4 result; 
+  __m256i v134; 
+  __m256i v135; 
   vec3_t outPos; 
-  vec3_t v264; 
-  __int64 v265; 
-  __int128 v266; 
-  __int128 v267; 
-  __int128 v268; 
+  vec3_t v137; 
+  __int64 v138; 
+  __m128 v139; 
+  __m128 v140; 
+  __m128 v141; 
 
-  v256 = pCamera;
-  v18 = pParticleData;
-  v257 = pParticleData;
-  v19 = (ParticleState *)pParticleState;
-  v258 = pParticleState;
-  _R13 = (ParticleModule *)pModuleBase;
+  v129 = pCamera;
+  v8 = pParticleData;
+  v130 = pParticleData;
+  v9 = (ParticleState *)pParticleState;
+  v131 = pParticleState;
   if ( !pModuleBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1614, ASSERT_TYPE_ASSERT, "(pModuleBase)", (const char *)&queryFormat, "pModuleBase") )
     __debugbreak();
-  if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1614, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
+  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1614, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
     __debugbreak();
-  if ( !v18 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1614, ASSERT_TYPE_ASSERT, "(pParticleData)", (const char *)&queryFormat, "pParticleData") )
+  if ( !v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1614, ASSERT_TYPE_ASSERT, "(pParticleData)", (const char *)&queryFormat, "pParticleData") )
     __debugbreak();
   if ( !particleCountEmit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1614, ASSERT_TYPE_ASSERT, "(particleCountEmit > 0)", (const char *)&queryFormat, "particleCountEmit > 0") )
     __debugbreak();
-  if ( particleCountEmit + v18->m_particleCountRunning > v18->m_particleCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1614, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax())", (const char *)&queryFormat, "pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax()") )
+  if ( particleCountEmit + v8->m_particleCountRunning > v8->m_particleCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1614, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax())", (const char *)&queryFormat, "pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax()") )
     __debugbreak();
-  if ( (_R13->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1614, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
+  if ( (pModuleBase->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1614, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
     __debugbreak();
-  m_type_high = HIBYTE(_R13[1].m_type);
-  v243 = m_type_high & 1;
-  __asm { vmovaps [rsp+278h+var_D8], xmm15 }
-  PositionArrayNextFreeElem = Particle_GetPositionArrayNextFreeElem(v18);
-  SpawnPosArrayNextFreeElem = Particle_GetSpawnPosArrayNextFreeElem(v18);
-  m_type = _R13[6].m_type;
-  v242 = m_type;
-  v23 = _R13->m_flags >> 7;
-  _R14 = (__int64)SpawnPosArrayNextFreeElem;
-  v255 = (__int64)SpawnPosArrayNextFreeElem;
-  ParticleModuleInitSpawnShape::GetOffsetForShape((ParticleModuleInitSpawnShape *)_R13, v19, &outOffset);
-  ParticleModuleInitSpawnShapeCylinder::GetDimensions((ParticleModuleInitSpawnShapeCylinder *)_R13, v19, halfHeight, &radiusMin, &radiusMax);
-  v27 = v23 & 1;
-  if ( v27 )
+  m_type_high = HIBYTE(pModuleBase[1].m_type);
+  v115 = m_type_high & 1;
+  PositionArrayNextFreeElem = Particle_GetPositionArrayNextFreeElem(v8);
+  SpawnPosArrayNextFreeElem = Particle_GetSpawnPosArrayNextFreeElem(v8);
+  m_type = pModuleBase[6].m_type;
+  v114 = m_type;
+  v13 = pModuleBase->m_flags >> 7;
+  v14 = (__int64)SpawnPosArrayNextFreeElem;
+  v128 = (__int64)SpawnPosArrayNextFreeElem;
+  ParticleModuleInitSpawnShape::GetOffsetForShape((ParticleModuleInitSpawnShape *)pModuleBase, v9, &outOffset);
+  ParticleModuleInitSpawnShapeCylinder::GetDimensions((ParticleModuleInitSpawnShapeCylinder *)pModuleBase, v9, &halfHeight, &radiusMin, &radiusMax);
+  v17 = v13 & 1;
+  if ( v17 )
   {
-    EmitterOwner = (ParticleEmitter *)ParticleState::GetEmitterOwner(v19);
-    ParticleEmitter::GetEmitterTransformTranspose(EmitterOwner, v19);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+278h+outOffset.v]
-      vshufps xmm2, xmm0, xmm0, 0
-      vshufps xmm4, xmm0, xmm0, 55h ; 'U'
-      vshufps xmm5, xmm0, xmm0, 0AAh ; 'ª'
-      vmulps  xmm0, xmm2, xmmword ptr [rax]
-      vaddps  xmm3, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vmulps  xmm0, xmm4, xmmword ptr [rax+10h]
-      vaddps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vmulps  xmm0, xmm5, xmmword ptr [rax+20h]
-      vaddps  xmm1, xmm0, xmm3
-      vaddps  xmm2, xmm2, xmm1
-      vandps  xmm15, xmm2, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-    }
+    EmitterOwner = (ParticleEmitter *)ParticleState::GetEmitterOwner(v9);
+    EmitterTransformTranspose = ParticleEmitter::GetEmitterTransformTranspose(EmitterOwner, v9);
+    v = outOffset.v;
+    v7 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 0), EmitterTransformTranspose->x.v), g_negativeZero.v);
+    v5 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 170), EmitterTransformTranspose->z.v), v7);
+    v6 = _mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 85), EmitterTransformTranspose->y.v), g_negativeZero.v), v5);
+    v21 = (__m128)(*(_OWORD *)&v6 & *(_OWORD *)&g_keepXYZ.v);
   }
   else
   {
-    __asm { vmovups xmm15, xmmword ptr [rsp+278h+outOffset.v] }
+    v21 = outOffset.v;
   }
-  __asm
-  {
-    vmovaps [rsp+278h+var_48], xmm6
-    vmovups xmm0, xmmword ptr cs:?g_unit@@3Ufloat4@@B.v; float4 const g_unit
-    vmovdqa xmmword ptr [rsp+278h+result.w.v], xmm0
-  }
+  result.w = (float4)g_unit.v;
   if ( m_type )
   {
-    __asm { vmovups xmm0, xmmword ptr [r13+40h] }
-    Float4UnitQuatToAxis(v26, v25);
-    __asm
-    {
-      vmovups xmmword ptr [rsp+278h+var_188+10h], xmm1
-      vmovups xmmword ptr [rsp+278h+var_188], xmm0
-      vmovups ymm3, [rsp+278h+var_188]
-      vmovups ymmword ptr [rsp+278h+result.baseclass_0.x.v], ymm3
-      vmovups xmm6, xmm2
-      vmovups xmmword ptr [rsp+278h+outOffset.v], xmm2
-      vmovups xmmword ptr [rsp+278h+result.baseclass_0.z.v], xmm2
-    }
-    if ( !v27 )
+    v22 = *(_OWORD *)&pModuleBase[8].m_type;
+    Float4UnitQuatToAxis(v16, v15);
+    *(__m128 *)&v134.m256i_u64[2] = v5;
+    *(_OWORD *)v134.m256i_i8 = v22;
+    *(__m256i *)result.x.v.m128_f32 = v134;
+    v23 = v6;
+    outOffset.v = v6;
+    result.z.v = v6;
+    if ( !v17 )
       goto LABEL_26;
-    v42 = (ParticleEmitter *)ParticleState::GetEmitterOwner(v19);
-    EmitterTransformTranspose = ParticleEmitter::GetEmitterTransformTranspose(v42, v19);
-    Float4x4Mul(&result, EmitterTransformTranspose, v44);
-    __asm
-    {
-      vmovups xmmword ptr [rsp+278h+var_168], xmm2
-      vmovups xmmword ptr [rsp+278h+var_188], xmm0
-      vmovups xmmword ptr [rsp+278h+var_168+10h], xmm3
-      vmovups ymm0, [rsp+278h+var_168]
-      vmovups xmmword ptr [rsp+278h+var_188+10h], xmm1
-      vmovups ymm2, [rsp+278h+var_188]
-      vmovups ymmword ptr [rsp+278h+result.baseclass_0.x.v], ymm2
-      vmovups ymmword ptr [rsp+278h+result.baseclass_0.z.v], ymm0
-    }
+    v24 = (ParticleEmitter *)ParticleState::GetEmitterOwner(v9);
+    v25 = ParticleEmitter::GetEmitterTransformTranspose(v24, v9);
+    Float4x4Mul(&result, v25, v26);
+    *(__m128 *)v135.m256i_i8 = v6;
+    *(_OWORD *)v134.m256i_i8 = v22;
+    *(__m128 *)&v135.m256i_u64[2] = v7;
+    *(__m128 *)&v134.m256i_u64[2] = v5;
+    *(__m256i *)result.x.v.m128_f32 = v134;
+    *(__m256i *)result.z.v.m128_f32 = v135;
   }
-  __asm
-  {
-    vmovups xmm6, xmmword ptr [rsp+278h+result.baseclass_0.z.v]
-    vmovups xmmword ptr [rsp+278h+outOffset.v], xmm6
-  }
+  v23 = result.z.v;
+  outOffset.v = (__m128)result.z;
 LABEL_26:
-  v47 = 0;
-  v246 = 0;
+  v27 = 0;
+  v119 = 0;
   if ( particleCountEmit )
   {
-    v241 = m_type_high & 0x10;
-    PositionArrayNextFreeElem = (float4 *)((char *)PositionArrayNextFreeElem - _R14);
-    __asm
-    {
-      vmovaps [rsp+278h+var_58], xmm7
-      vmovss  xmm7, [rsp+278h+radiusMax]
-      vmovaps [rsp+278h+var_68], xmm8
-      vmovss  xmm8, cs:__real@40c90fdb
-      vmovaps [rsp+278h+var_78], xmm9
-      vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovaps [rsp+278h+var_88], xmm10
-      vmovaps [rsp+278h+var_98], xmm11
-      vmovss  xmm11, [rsp+278h+halfHeight]
-      vmovaps [rsp+278h+var_A8], xmm12
-      vmovaps [rsp+278h+var_B8], xmm13
-      vmovaps [rsp+278h+var_C8], xmm14
-    }
+    v113 = m_type_high & 0x10;
+    PositionArrayNextFreeElem = (float4 *)((char *)PositionArrayNextFreeElem - v14);
+    v28 = radiusMax;
+    v29 = FLOAT_6_2831855;
+    v30 = _xmm;
+    v31 = halfHeight;
     do
     {
-      if ( (HIBYTE(_R13[1].m_type) & 8) != 0 )
+      if ( (HIBYTE(pModuleBase[1].m_type) & 8) != 0 )
       {
-        if ( !v19->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
+        if ( !v9->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
           __debugbreak();
-        m_pEmitterOwner = (ParticleEmitter *)v19->m_pEmitterOwner;
-        v53 = (ParticleEmitter::GetEmitterDef(m_pEmitterOwner)->randomSeed + m_pEmitterOwner->m_lifetimeParticleCount + 10111 * (unsigned __int8)v47) % 0x3FE9;
+        m_pEmitterOwner = (ParticleEmitter *)v9->m_pEmitterOwner;
+        v33 = (ParticleEmitter::GetEmitterDef(m_pEmitterOwner)->randomSeed + m_pEmitterOwner->m_lifetimeParticleCount + 10111 * (unsigned __int8)v27) % 0x3FE9;
       }
       else
       {
-        v53 = Particle_GetRandomSeedArrayNextFreeElem(v18)[v47];
+        v33 = Particle_GetRandomSeedArrayNextFreeElem(v8)[v27];
       }
-      LODWORD(halfHeight[1]) = v53;
-      if ( v243 )
-      {
-        __asm { vmovaps xmm12, xmm7 }
-      }
+      v117 = v33;
+      v34 = v33;
+      if ( v115 )
+        v35 = v28;
       else
+        v35 = (float)((float)(1.0 - fx_randomTable[v33 + 11]) * radiusMin) + (float)(v28 * fx_randomTable[v33 + 11]);
+      if ( v113 )
       {
-        __asm
+        v36 = v29;
+        v37 = *(float *)&pModuleBase[3].m_flags;
+        v38 = 0.0;
+        if ( v37 > 0.0 )
         {
-          vmovss  xmm0, cs:__real@3f800000
-          vsubss  xmm0, xmm0, dword ptr [rax+rbx*4+2Ch]
-          vmulss  xmm2, xmm0, [rsp+278h+radiusMin]
-          vmulss  xmm1, xmm7, dword ptr [rax+rbx*4+2Ch]
-          vaddss  xmm12, xmm2, xmm1
-        }
-      }
-      if ( v241 )
-      {
-        __asm
-        {
-          vmovaps xmm14, xmm8
-          vmovss  xmm8, dword ptr [r13+1Ch]
-          vxorps  xmm10, xmm10, xmm10
-          vcomiss xmm8, xmm10
-          vxorps  xmm13, xmm13, xmm13
-        }
-        _RAX = v256;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax]
-          vmovss  xmm1, dword ptr [rax+4]
-          vmovss  xmm2, dword ptr [rax+8]
-        }
-        HIDWORD(v266) = 0;
-        __asm
-        {
-          vmovups xmm6, xmmword ptr [rsp+160h]
-          vmovss  xmm6, xmm6, xmm0
-          vinsertps xmm6, xmm6, xmm1, 10h
-          vinsertps xmm6, xmm6, xmm2, 20h ; ' '
-          vmovups xmmword ptr [rsp+160h], xmm6
-        }
-        if ( !v19->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
-          __debugbreak();
-        ParticleEmitter::GetEmitterTransform((ParticleEmitter *)v19->m_pEmitterOwner, v19);
-        __asm
-        {
-          vsubps  xmm7, xmm6, xmmword ptr [rax+30h]
-          vshufps xmm9, xmm7, xmm7, 55h ; 'U'
-          vmulss  xmm0, xmm9, xmm9
-          vmulss  xmm1, xmm7, xmm7
-          vaddss  xmm11, xmm1, xmm0
-          vmulss  xmm1, xmm9, xmm9
-          vmulss  xmm2, xmm7, xmm7
-          vaddss  xmm10, xmm2, xmm1
-          vsqrtss xmm6, xmm10, xmm10
-          vaddss  xmm0, xmm8, xmm12
-          vcomiss xmm6, xmm0
-        }
-        if ( v70 || v71 )
-        {
+          v39 = v129->origin.v[0];
+          v139.m128_i32[3] = 0;
+          v41 = v139;
+          v41.m128_f32[0] = v39;
+          _XMM6 = v41;
           __asm
           {
-            vsubss  xmm0, xmm12, xmm8
-            vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-            vcomiss xmm6, xmm0
+            vinsertps xmm6, xmm6, xmm1, 10h
+            vinsertps xmm6, xmm6, xmm2, 20h ; ' '
           }
-          if ( !v70 )
+          v139 = _XMM6;
+          if ( !v9->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
+            __debugbreak();
+          v44 = _mm128_sub_ps(_XMM6, ParticleEmitter::GetEmitterTransform((ParticleEmitter *)v9->m_pEmitterOwner, v9)->w.v);
+          v45 = _mm_shuffle_ps(v44, v44, 85);
+          v46 = (float)(v44.m128_f32[0] * v44.m128_f32[0]) + (float)(v45.m128_f32[0] * v45.m128_f32[0]);
+          v47 = fsqrt(v46);
+          if ( v47 <= (float)(v37 + v35) && v47 >= COERCE_FLOAT(COERCE_UNSIGNED_INT(v35 - v37) & _xmm) && (v47 > 0.00000011920929 || COERCE_FLOAT(COERCE_UNSIGNED_INT(v35 - v37) & _xmm) >= 0.00000011920929) )
           {
-            __asm
+            if ( v47 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 652, ASSERT_TYPE_SANITY, "( val != 0.0f )", (const char *)&queryFormat, "val != 0.0f") )
+              __debugbreak();
+            v48 = 1.0 / v47;
+            v49 = (float)((float)((float)(v35 * v35) - (float)(v37 * v37)) + v46) * v48;
+            v50 = (float)(v49 * 0.5) * v48;
+            v51 = fsqrt((float)(v35 * v35) - (float)((float)(v49 * v49) * 0.25)) * v48;
+            *(float *)&v132 = (float)(v45.m128_f32[0] * v51) + (float)(v44.m128_f32[0] * v50);
+            *((float *)&v132 + 1) = (float)(v45.m128_f32[0] * v50) - (float)(v44.m128_f32[0] * v51);
+            if ( v46 > 0.00000011920929 )
             {
-              vmovss  xmm1, cs:__real@34000000
-              vcomiss xmm6, xmm1
-            }
-            if ( v70 || v71 )
-              __asm { vcomiss xmm0, xmm1 }
-            __asm { vucomiss xmm6, cs:__real@00000000 }
-            if ( v71 )
-            {
-              v84 = CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 652, ASSERT_TYPE_SANITY, "( val != 0.0f )", (const char *)&queryFormat, "val != 0.0f");
-              v70 = 0;
-              v71 = !v84;
-              if ( v84 )
-                __debugbreak();
-            }
-            __asm
-            {
-              vcomiss xmm11, cs:__real@34000000
-              vmovss  xmm0, cs:__real@3f800000
-              vdivss  xmm6, xmm0, xmm6
-              vmulss  xmm4, xmm12, xmm12
-              vmulss  xmm0, xmm8, xmm8
-              vsubss  xmm1, xmm4, xmm0
-              vaddss  xmm2, xmm1, xmm10
-              vmulss  xmm3, xmm2, xmm6
-              vmulss  xmm0, xmm3, cs:__real@3f000000
-              vmulss  xmm5, xmm0, xmm6
-              vmulss  xmm1, xmm3, xmm3
-              vmulss  xmm2, xmm1, cs:__real@3e800000
-              vsubss  xmm0, xmm4, xmm2
-              vsqrtss xmm3, xmm0, xmm0
-              vmulss  xmm4, xmm3, xmm6
-              vmulss  xmm1, xmm9, xmm4
-              vmulss  xmm0, xmm7, xmm5
-              vaddss  xmm1, xmm1, xmm0
-              vmulss  xmm0, xmm7, xmm4
-              vmulss  xmm2, xmm9, xmm5
-              vmovss  dword ptr [rsp+278h+var_1D8], xmm1
-              vsubss  xmm1, xmm2, xmm0
-              vmovss  dword ptr [rsp+278h+var_1D8+4], xmm1
-            }
-            if ( !v70 && !v71 )
-            {
+              v53 = *(_OWORD *)&v45 & _xmm;
+              *(float *)&v53 = COERCE_FLOAT(v45.m128_i32[0] & _xmm) + 1.0e-10;
+              v52 = v53;
+              v55 = v44;
+              v55.m128_f32[0] = v44.m128_f32[0] + *(float *)&v52;
+              _XMM4 = v55;
+              _XMM10 = 0i64;
+              v58 = v52;
+              *(float *)&v58 = *(float *)&v52 - v44.m128_f32[0];
+              _XMM2 = v58;
               __asm
               {
-                vandps  xmm0, xmm9, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-                vaddss  xmm2, xmm0, cs:__real@2edbe6ff
-                vaddss  xmm4, xmm7, xmm2
-                vsubss  xmm1, xmm7, xmm2
-                vxorps  xmm10, xmm10, xmm10
-                vcomiss xmm11, xmm10
-                vsubss  xmm2, xmm2, xmm7
                 vcmpless xmm0, xmm10, xmm7
                 vblendvps xmm3, xmm4, xmm1, xmm0
                 vcmpless xmm0, xmm10, xmm7
                 vblendvps xmm0, xmm2, xmm4, xmm0
-                vdivss  xmm3, xmm3, xmm0
-                vmulss  xmm1, xmm3, cs:__real@3e4902de
-                vmulss  xmm2, xmm1, xmm3
-                vsubss  xmm0, xmm2, cs:__real@3f7b50b1
-                vmovss  xmm1, cs:__real@3f490fdb
-                vmovss  xmm2, cs:__real@4016cbe4
-                vmulss  xmm4, xmm0, xmm3
+              }
+              v63 = _XMM3;
+              _XMM2 = LODWORD(FLOAT_2_3561945);
+              *(float *)&v63 = (float)((float)((float)((float)(*(float *)&_XMM3 / *(float *)&_XMM0) * 0.1963) * (float)(*(float *)&_XMM3 / *(float *)&_XMM0)) - 0.9817) * (float)(*(float *)&_XMM3 / *(float *)&_XMM0);
+              __asm
+              {
                 vcmpless xmm0, xmm10, xmm7
                 vblendvps xmm0, xmm2, xmm1, xmm0
-                vaddss  xmm2, xmm4, xmm0
-                vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000
+              }
+              *(float *)&v63 = *(float *)&v63 + *(float *)&_XMM0;
+              _XMM1 = v63 ^ _xmm;
+              __asm
+              {
                 vcmpless xmm0, xmm10, xmm9
                 vblendvps xmm0, xmm1, xmm2, xmm0
-                vmovss  [rsp+278h+var_224], xmm0
               }
-              if ( (v70 || v71) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
+              v122 = *(float *)&_XMM0;
+              if ( v46 <= 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 639, ASSERT_TYPE_SANITY, "( val > 0 )", (const char *)&queryFormat, "val > 0") )
                 __debugbreak();
+              v138 = v132;
+              v71 = 0i64;
+              *(float *)&v71 = v46;
+              _XMM6 = v71;
+              v72 = HIDWORD(v132);
+              *(float *)&v72 = fsqrt((float)(*(float *)&v72 * *(float *)&v72) + (float)(*(float *)&v132 * *(float *)&v132));
+              _XMM2 = v72;
               __asm
               {
-                vmovss  xmm8, cs:__real@3f800000
-                vxorps  xmm0, xmm0, xmm0
-              }
-              v265 = v259;
-              __asm
-              {
-                vmovss  xmm3, dword ptr [rsp+278h+var_128]
-                vmovss  xmm5, dword ptr [rsp+278h+var_128+4]
-                vmovaps xmm1, xmm11
-                vmovss  xmm6, xmm0, xmm1
-                vmulss  xmm0, xmm3, xmm3
-                vmulss  xmm1, xmm5, xmm5
-                vaddss  xmm1, xmm1, xmm0
-                vsqrtss xmm2, xmm1, xmm1
                 vcmpless xmm0, xmm2, cs:__real@80000000
                 vblendvps xmm0, xmm2, xmm8, xmm0
-                vdivss  xmm1, xmm8, xmm0
-                vmulss  xmm4, xmm3, xmm1
-                vmulss  xmm2, xmm5, xmm1
                 vrsqrtss xmm6, xmm6, xmm6
-                vmulss  xmm1, xmm7, xmm6
-                vmulss  xmm0, xmm9, xmm6
-                vmulss  xmm3, xmm0, xmm2
-                vmulss  xmm2, xmm1, xmm4
-                vmovss  xmm1, cs:__real@bf800000; min
-                vaddss  xmm0, xmm3, xmm2; val
-                vmovaps xmm2, xmm8; max
               }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
+              *(double *)&_XMM0 = I_fclamp((float)((float)(v45.m128_f32[0] * *(float *)&_XMM6) * (float)(*((float *)&v132 + 1) * (float)(1.0 / *(float *)&_XMM0))) + (float)((float)(v44.m128_f32[0] * *(float *)&_XMM6) * (float)(*(float *)&v132 * (float)(1.0 / *(float *)&_XMM0))), -1.0, 1.0);
               *(float *)&_XMM0 = acosf_0(*(float *)&_XMM0);
-              __asm
-              {
-                vmovss  xmm1, [rsp+278h+var_224]
-                vmulss  xmm14, xmm0, cs:__real@40000000
-                vsubss  xmm13, xmm1, xmm0
-              }
+              v36 = *(float *)&_XMM0 * 2.0;
+              v38 = v122 - *(float *)&_XMM0;
             }
           }
+          v30 = _xmm;
         }
-        __asm { vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000 }
-        v150 = v47 + v18->m_particleCountRunning;
-        if ( !v18->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 344, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
+        v77 = v27 + v8->m_particleCountRunning;
+        if ( !v8->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 344, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
           __debugbreak();
-        ParticleDataArray = ParticleData::GetParticleDataArray(v18, PARTICLE_DATA_SPAWN_POS);
-        __asm { vmovss  xmm11, [rsp+278h+halfHeight] }
-        v152 = v150 + 1;
-        v153 = ParticleDataArray;
-        __asm { vxorps  xmm6, xmm6, xmm6 }
-        if ( v150 + 1 > 8 )
-          v152 = 8;
-        v155 = 0;
-        __asm { vxorps  xmm7, xmm7, xmm7 }
-        if ( v152 )
+        ParticleDataArray = ParticleData::GetParticleDataArray(v8, PARTICLE_DATA_SPAWN_POS);
+        v31 = halfHeight;
+        v79 = v77 + 1;
+        v80 = ParticleDataArray;
+        LODWORD(_XMM6) = 0;
+        if ( v77 + 1 > 8 )
+          v79 = 8;
+        v82 = 0;
+        v83 = 0i64;
+        if ( v79 )
         {
-          __asm
-          {
-            vmovups xmm10, xmmword ptr [rsp+278h+outOffset.v]
-            vxorps  xmm8, xmm11, xmm9
-            vsubss  xmm9, xmm11, xmm8
-            vmovups xmm11, xmmword ptr [rsp+278h+result.baseclass_0.y.v]
-          }
+          v84 = outOffset.v;
+          v85 = LODWORD(halfHeight) ^ v30;
+          v86 = halfHeight - COERCE_FLOAT(LODWORD(halfHeight) ^ v30);
+          v87.v = (__m128)result.y;
           do
           {
-            v160 = _R13[1].m_type;
+            v88 = pModuleBase[1].m_type;
+            v89 = (v82 + v117) % 0x3FE9;
+            FastSinCos((float)(v36 * fx_randomTable[v89 + 9]) + v38, &s, &c);
+            v90 = c * v35;
+            outPos.v[2] = (float)(v86 * fx_randomTable[v89 + 10]) + *(float *)&v85;
+            outPos.v[0] = c * v35;
+            outPos.v[1] = s * v35;
+            if ( v88 != PARTICLE_MODULE_AXES_FLAG_ALL )
+            {
+              Particle_SpawnShapeConvertPos(v88, &outPos);
+              v90 = outPos.v[0];
+            }
+            v140.m128_i32[3] = 0;
+            v92 = v140;
+            v92.m128_f32[0] = v90;
+            _XMM1 = v92;
             __asm
             {
-              vmulss  xmm0, xmm14, dword ptr [rax+rbx*4+24h]
-              vaddss  xmm0, xmm0, xmm13; radians
-            }
-            FastSinCos(*(const float *)&_XMM0, &s, &c);
-            __asm
-            {
-              vmovss  xmm0, [rsp+278h+c]
-              vmovss  xmm1, [rsp+278h+s]
-              vmulss  xmm2, xmm0, xmm12
-              vmulss  xmm0, xmm9, dword ptr [rax+rbx*4+28h]
-              vaddss  xmm4, xmm0, xmm8
-              vmulss  xmm3, xmm1, xmm12
-              vmovss  dword ptr [rsp+278h+outPos+8], xmm4
-              vmovss  dword ptr [rsp+278h+outPos], xmm2
-              vmovss  dword ptr [rsp+278h+outPos+4], xmm3
-            }
-            if ( v160 != PARTICLE_MODULE_AXES_FLAG_ALL )
-            {
-              Particle_SpawnShapeConvertPos(v160, &outPos);
-              __asm
-              {
-                vmovss  xmm4, dword ptr [rsp+278h+outPos+8]
-                vmovss  xmm3, dword ptr [rsp+278h+outPos+4]
-                vmovss  xmm2, dword ptr [rsp+278h+outPos]
-              }
-            }
-            HIDWORD(v267) = 0;
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rsp+170h]
-              vmovss  xmm1, xmm1, xmm2
               vinsertps xmm1, xmm1, xmm3, 10h
               vinsertps xmm1, xmm1, xmm4, 20h ; ' '
-              vmovups xmmword ptr [rsp+170h], xmm1
             }
-            if ( v242 )
+            v140 = _XMM1;
+            if ( v114 )
+              _XMM1 = (__m128)(*(_OWORD *)&_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(v87.v, _mm_shuffle_ps(_XMM1, _XMM1, 85)), g_negativeZero.v), _mm128_add_ps(_mm128_mul_ps(v84, _mm_shuffle_ps(_XMM1, _XMM1, 170)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM1, _XMM1, 0), result.x.v), g_negativeZero.v))) & *(_OWORD *)&g_keepXYZ.v);
+            _XMM3 = LODWORD(FLOAT_3_4028235e38);
+            v96 = _mm128_add_ps(v21, _XMM1);
+            if ( v77 )
             {
-              __asm
-              {
-                vshufps xmm2, xmm1, xmm1, 55h ; 'U'
-                vshufps xmm0, xmm1, xmm1, 0
-                vmulps  xmm0, xmm0, xmmword ptr [rsp+278h+result.baseclass_0.x.v]
-                vaddps  xmm3, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-                vmulps  xmm0, xmm11, xmm2
-                vaddps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-                vshufps xmm4, xmm1, xmm1, 0AAh ; 'ª'
-                vmulps  xmm1, xmm10, xmm4
-                vaddps  xmm0, xmm1, xmm3
-                vaddps  xmm2, xmm2, xmm0
-                vandps  xmm1, xmm2, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-              }
-            }
-            __asm
-            {
-              vmovss  xmm3, cs:__real@7f7fffff
-              vaddps  xmm4, xmm15, xmm1
-            }
-            v189 = v150 == 0;
-            if ( v150 )
-            {
-              _RAX = v153;
-              v191 = v150;
+              v97 = (__m128 *)v80;
+              v98 = v77;
               do
               {
-                __asm { vmovups xmm0, xmmword ptr [rax] }
-                _RAX += 16;
+                v99 = *v97++;
+                v100 = _mm128_sub_ps(v99, v96);
+                _XMM2 = _mm128_mul_ps(v100, v100);
                 __asm
                 {
-                  vsubps  xmm1, xmm0, xmm4
-                  vmulps  xmm2, xmm1, xmm1
                   vinsertps xmm0, xmm2, xmm2, 8
                   vhaddps xmm1, xmm0, xmm0
                   vhaddps xmm2, xmm1, xmm1
                   vminss  xmm3, xmm2, xmm3
                 }
-                v70 = v191-- == 0;
-                v189 = v70 || v191 == 0;
+                --v98;
               }
-              while ( v191 );
+              while ( v98 );
             }
-            __asm { vcomiss xmm3, xmm6 }
-            if ( !v189 )
-              __asm { vmovdqa xmm7, xmm4 }
-            ++v155;
+            if ( *(float *)&_XMM3 > *(float *)&_XMM6 )
+              v83 = v96;
+            ++v82;
             __asm { vmaxss  xmm6, xmm3, xmm6 }
           }
-          while ( v155 < v152 );
-          __asm { vmovss  xmm11, [rsp+278h+halfHeight] }
+          while ( v82 < v79 );
+          v31 = halfHeight;
         }
-        _R14 = v255;
-        _RAX = PositionArrayNextFreeElem;
-        __asm
-        {
-          vmovss  xmm9, dword ptr cs:__xmm@80000000800000008000000080000000
-          vmovss  xmm8, cs:__real@40c90fdb
-        }
-        v47 = v246;
-        v18 = v257;
-        m_type = v242;
-        __asm
-        {
-          vmovups xmmword ptr [rax+r14], xmm7
-          vmovups xmmword ptr [r14], xmm7
-          vmovss  xmm7, [rsp+278h+radiusMax]
-        }
+        v14 = v128;
+        v30 = _xmm;
+        v29 = FLOAT_6_2831855;
+        v27 = v119;
+        v8 = v130;
+        m_type = v114;
+        *(__m128 *)((char *)PositionArrayNextFreeElem + v128) = v83;
+        *(__m128 *)v14 = v83;
+        v28 = radiusMax;
       }
       else
       {
-        __asm { vmulss  xmm0, xmm8, dword ptr [rax+rbx*4+24h]; radians }
-        v201 = _R13[1].m_type;
-        FastSinCos(*(const float *)&_XMM0, v253, &v252);
+        v105 = pModuleBase[1].m_type;
+        FastSinCos(v29 * fx_randomTable[v33 + 9], v126, &v125);
+        v106 = v125 * v35;
+        v137.v[2] = (float)((float)(v31 - COERCE_FLOAT(LODWORD(v31) ^ v30)) * fx_randomTable[v34 + 10]) + COERCE_FLOAT(LODWORD(v31) ^ v30);
+        v137.v[0] = v125 * v35;
+        v137.v[1] = v126[0] * v35;
+        if ( v105 != PARTICLE_MODULE_AXES_FLAG_ALL )
+        {
+          Particle_SpawnShapeConvertPos(v105, &v137);
+          v106 = v137.v[0];
+        }
+        v141.m128_i32[3] = 0;
+        v108 = v141;
+        v108.m128_f32[0] = v106;
+        _XMM1 = v108;
         __asm
         {
-          vmovss  xmm0, [rsp+278h+var_218]
-          vmovss  xmm1, [rsp+278h+var_214]
-          vmulss  xmm3, xmm0, xmm12
-          vxorps  xmm2, xmm11, xmm9
-          vsubss  xmm0, xmm11, xmm2
-          vmulss  xmm0, xmm0, dword ptr [rax+rbx*4+28h]
-          vaddss  xmm5, xmm0, xmm2
-          vmulss  xmm4, xmm1, xmm12
-          vmovss  dword ptr [rsp+278h+var_138+8], xmm5
-          vmovss  dword ptr [rsp+278h+var_138], xmm3
-          vmovss  dword ptr [rsp+278h+var_138+4], xmm4
-        }
-        if ( v201 != PARTICLE_MODULE_AXES_FLAG_ALL )
-        {
-          Particle_SpawnShapeConvertPos(v201, &v264);
-          __asm
-          {
-            vmovss  xmm5, dword ptr [rsp+278h+var_138+8]
-            vmovss  xmm4, dword ptr [rsp+278h+var_138+4]
-            vmovss  xmm3, dword ptr [rsp+278h+var_138]
-          }
-        }
-        HIDWORD(v268) = 0;
-        __asm
-        {
-          vmovups xmm1, xmmword ptr [rsp+180h]
-          vmovss  xmm1, xmm1, xmm3
           vinsertps xmm1, xmm1, xmm4, 10h
           vinsertps xmm1, xmm1, xmm5, 20h ; ' '
-          vmovups xmmword ptr [rsp+180h], xmm1
         }
+        v141 = _XMM1;
         if ( m_type )
-        {
-          __asm
-          {
-            vshufps xmm2, xmm1, xmm1, 55h ; 'U'
-            vshufps xmm0, xmm1, xmm1, 0
-            vmulps  xmm0, xmm0, xmmword ptr [rsp+278h+result.baseclass_0.x.v]
-            vaddps  xmm3, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-            vmulps  xmm0, xmm2, xmmword ptr [rsp+278h+result.baseclass_0.y.v]
-            vaddps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-            vshufps xmm4, xmm1, xmm1, 0AAh ; 'ª'
-            vmulps  xmm1, xmm6, xmm4
-            vaddps  xmm0, xmm1, xmm3
-            vaddps  xmm2, xmm2, xmm0
-            vandps  xmm1, xmm2, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-          }
-        }
-        _RAX = PositionArrayNextFreeElem;
-        __asm
-        {
-          vaddps  xmm0, xmm15, xmm1
-          vmovups xmmword ptr [rax+r14], xmm0
-          vmovups xmmword ptr [r14], xmm0
-        }
+          _XMM1 = (__m128)(*(_OWORD *)&_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM1, _XMM1, 85), result.y.v), g_negativeZero.v), _mm128_add_ps(_mm128_mul_ps(v23, _mm_shuffle_ps(_XMM1, _XMM1, 170)), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM1, _XMM1, 0), result.x.v), g_negativeZero.v))) & *(_OWORD *)&g_keepXYZ.v);
+        v111 = _mm128_add_ps(v21, _XMM1);
+        *(__m128 *)((char *)PositionArrayNextFreeElem + v14) = v111;
+        *(__m128 *)v14 = v111;
       }
-      __asm { vmovups xmm6, xmmword ptr [rsp+278h+outOffset.v] }
-      v19 = (ParticleState *)v258;
-      ++v47;
-      _R14 += 16i64;
-      v246 = v47;
-      v255 = _R14;
+      v23 = outOffset.v;
+      v9 = (ParticleState *)v131;
+      ++v27;
+      v14 += 16i64;
+      v119 = v27;
+      v128 = v14;
     }
-    while ( v47 < particleCountEmit );
-    __asm
-    {
-      vmovaps xmm14, [rsp+278h+var_C8]
-      vmovaps xmm13, [rsp+278h+var_B8]
-      vmovaps xmm12, [rsp+278h+var_A8]
-      vmovaps xmm11, [rsp+278h+var_98]
-      vmovaps xmm10, [rsp+278h+var_88]
-      vmovaps xmm9, [rsp+278h+var_78]
-      vmovaps xmm8, [rsp+278h+var_68]
-      vmovaps xmm7, [rsp+278h+var_58]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm15, [rsp+278h+var_D8]
-    vmovaps xmm6, [rsp+278h+var_48]
+    while ( v27 < particleCountEmit );
   }
 }
 
@@ -4791,26 +3895,36 @@ ParticleModuleInitSpawnShapeEllipsoid::InitParticles
 void ParticleModuleInitSpawnShapeEllipsoid::InitParticles(const ParticleModule *pModuleBase, const ParticleState *pParticleState, ParticleData *pParticleData, const FxCamera *pCamera, const unsigned int particleCountEmit)
 {
   char m_type_high; 
-  unsigned int v20; 
+  float4 *PositionArrayNextFreeElem; 
+  unsigned int v10; 
+  __m128 v; 
   ParticleEmitter *m_pEmitterOwner; 
-  unsigned int v28; 
-  bool v29; 
-  bool v30; 
+  signed int v13; 
   ParticleModuleAxesFlags m_type; 
-  unsigned int v59; 
-  ParticleEmitter *v66; 
-  unsigned int v67; 
-  bool v68; 
-  bool v69; 
-  ParticleModuleAxesFlags v70; 
-  double v116; 
-  double v117; 
+  __int64 v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float4 *v19; 
+  __m128 v21; 
+  __m128 v24; 
+  unsigned int v25; 
+  ParticleEmitter *v26; 
+  signed int v27; 
+  ParticleModuleAxesFlags v28; 
+  __int64 v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  __m128 v35; 
+  float4 *v41; 
+  __m128 v42; 
   float c; 
   float s; 
   float4 *SpawnPosArrayNextFreeElem; 
   float4 outOffset; 
   vec3_t outPos; 
-  __int128 v123; 
+  __m128 v48; 
   float4 radiusMax; 
   float4 radiusMin; 
 
@@ -4827,38 +3941,17 @@ void ParticleModuleInitSpawnShapeEllipsoid::InitParticles(const ParticleModule *
   if ( (pModuleBase->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1965, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
     __debugbreak();
   m_type_high = HIBYTE(pModuleBase[1].m_type);
-  __asm
-  {
-    vmovaps [rsp+170h+var_40], xmm6
-    vmovaps [rsp+170h+var_50], xmm7
-    vmovaps [rsp+170h+var_60], xmm8
-    vmovaps [rsp+170h+var_70], xmm9
-    vmovaps [rsp+170h+var_80], xmm10
-    vmovaps [rsp+170h+var_90], xmm11
-    vmovaps [rsp+170h+var_A0], xmm12
-    vmovaps [rsp+170h+var_B0], xmm13
-    vmovaps [rsp+170h+var_C0], xmm14
-    vmovaps [rsp+170h+var_D0], xmm15
-  }
-  _R12 = Particle_GetPositionArrayNextFreeElem(pParticleData);
+  PositionArrayNextFreeElem = Particle_GetPositionArrayNextFreeElem(pParticleData);
   SpawnPosArrayNextFreeElem = Particle_GetSpawnPosArrayNextFreeElem(pParticleData);
   ParticleModuleInitSpawnShape::GetOffsetForShape((ParticleModuleInitSpawnShape *)pModuleBase, pParticleState, &outOffset);
   ParticleModuleInitSpawnShapeEllipsoid::GetDimensions((ParticleModuleInitSpawnShapeEllipsoid *)pModuleBase, pParticleState, &radiusMin, &radiusMax);
   if ( (m_type_high & 1) != 0 )
   {
-    v20 = 0;
+    v10 = 0;
     if ( particleCountEmit )
     {
-      SpawnPosArrayNextFreeElem = (float4 *)((char *)SpawnPosArrayNextFreeElem - (__int64)_R12);
-      __asm
-      {
-        vmovups xmm13, xmmword ptr [rsp+170h+outOffset.v]
-        vmovss  xmm14, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovss  xmm11, cs:__real@40000000
-        vmovss  xmm10, cs:__real@3f800000
-        vmovss  xmm12, cs:__real@bf800000
-        vmovss  xmm15, cs:__real@40c90fdb
-      }
+      SpawnPosArrayNextFreeElem = (float4 *)((char *)SpawnPosArrayNextFreeElem - (__int64)PositionArrayNextFreeElem);
+      v = outOffset.v;
       do
       {
         if ( (HIBYTE(pModuleBase[1].m_type) & 8) != 0 )
@@ -4866,225 +3959,114 @@ void ParticleModuleInitSpawnShapeEllipsoid::InitParticles(const ParticleModule *
           if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
             __debugbreak();
           m_pEmitterOwner = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
-          v28 = ParticleEmitter::GetEmitterDef(m_pEmitterOwner)->randomSeed + m_pEmitterOwner->m_lifetimeParticleCount + 10111 * (unsigned __int8)v20;
-          v29 = v28 < 16361 * (v28 / 0x3FE9);
-          v30 = v28 % 0x3FE9 == 0;
+          v13 = (ParticleEmitter::GetEmitterDef(m_pEmitterOwner)->randomSeed + m_pEmitterOwner->m_lifetimeParticleCount + 10111 * (unsigned __int8)v10) % 0x3FE9;
         }
         else
         {
-          Particle_GetRandomSeedArrayNextFreeElem(pParticleData);
+          v13 = Particle_GetRandomSeedArrayNextFreeElem(pParticleData)[v10];
         }
         m_type = pModuleBase[1].m_type;
-        __asm
-        {
-          vmulss  xmm1, xmm11, dword ptr [rax+r14*4+28h]
-          vsubss  xmm8, xmm1, xmm10
-          vcomiss xmm8, xmm12
-        }
-        if ( v29 )
-          goto LABEL_60;
-        __asm { vcomiss xmm8, xmm10 }
-        if ( !v29 && !v30 )
-        {
-LABEL_60:
-          __asm
-          {
-            vcvtss2sd xmm0, xmm8, xmm8
-            vmovsd  [rsp+170h+var_148], xmm0
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 129, ASSERT_TYPE_ASSERT, "( ( height >= -radius && height <= radius ) )", "( height ) = %g", v116) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmulss  xmm7, xmm8, xmm8
-          vsubss  xmm0, xmm10, xmm7
-          vsqrtss xmm6, xmm0, xmm0
-          vmulss  xmm0, xmm15, dword ptr [rax+r14*4+24h]; radians
-        }
-        FastSinCos(*(const float *)&_XMM0, &s, &c);
-        __asm
-        {
-          vmovss  xmm0, [rsp+170h+c]
-          vmulss  xmm9, xmm0, xmm6
-          vmovss  xmm0, [rsp+170h+s]
-          vmulss  xmm6, xmm0, xmm6
-          vmulss  xmm1, xmm6, xmm6
-          vmulss  xmm0, xmm9, xmm9
-          vaddss  xmm1, xmm1, xmm0
-          vaddss  xmm2, xmm1, xmm7
-          vsubss  xmm3, xmm2, xmm10
-          vandps  xmm3, xmm3, xmm14
-          vcomiss xmm3, cs:__real@358637be
-          vmovss  dword ptr [rsp+170h+outPos], xmm9
-          vmovss  dword ptr [rsp+170h+outPos+4], xmm6
-          vmovss  dword ptr [rsp+170h+outPos+8], xmm8
-        }
-        if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 140, ASSERT_TYPE_ASSERT, "(radiusSquared == 0.0f || (I_fabs( lengthSquared - radiusSquared ) / radiusSquared < 0.001f * 0.001f))", (const char *)&queryFormat, "radiusSquared == 0.0f || (I_fabs( lengthSquared - radiusSquared ) / radiusSquared < EQUAL_EPSILON * EQUAL_EPSILON)") )
+        v15 = v13;
+        v16 = (float)(2.0 * fx_randomTable[v13 + 10]) - 1.0;
+        if ( (v16 < -1.0 || v16 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 129, ASSERT_TYPE_ASSERT, "( ( height >= -radius && height <= radius ) )", "( height ) = %g", v16) )
+          __debugbreak();
+        v17 = fsqrt(1.0 - (float)(v16 * v16));
+        FastSinCos(6.2831855 * fx_randomTable[v15 + 9], &s, &c);
+        v18 = c * v17;
+        outPos.v[0] = v18;
+        outPos.v[1] = s * v17;
+        outPos.v[2] = v16;
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(outPos.v[1] * outPos.v[1]) + (float)(v18 * v18)) + (float)(v16 * v16)) - 1.0) & _xmm) >= 0.0000010000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 140, ASSERT_TYPE_ASSERT, "(radiusSquared == 0.0f || (I_fabs( lengthSquared - radiusSquared ) / radiusSquared < 0.001f * 0.001f))", (const char *)&queryFormat, "radiusSquared == 0.0f || (I_fabs( lengthSquared - radiusSquared ) / radiusSquared < EQUAL_EPSILON * EQUAL_EPSILON)") )
           __debugbreak();
         if ( m_type != PARTICLE_MODULE_AXES_FLAG_ALL )
         {
           Particle_SpawnShapeConvertPos(m_type, &outPos);
-          __asm
-          {
-            vmovss  xmm8, dword ptr [rsp+170h+outPos+8]
-            vmovss  xmm6, dword ptr [rsp+170h+outPos+4]
-            vmovss  xmm9, dword ptr [rsp+170h+outPos]
-          }
+          v18 = outPos.v[0];
         }
-        ++v20;
-        HIDWORD(v123) = 0;
-        __asm { vmovups xmm1, xmmword ptr [rsp+60h] }
-        _RAX = SpawnPosArrayNextFreeElem;
+        ++v10;
+        v48.m128_i32[3] = 0;
+        v19 = SpawnPosArrayNextFreeElem;
+        v21 = v48;
+        v21.m128_f32[0] = v18;
+        _XMM1 = v21;
         __asm
         {
-          vmovss  xmm1, xmm1, xmm9
           vinsertps xmm1, xmm1, xmm6, 10h
           vinsertps xmm1, xmm1, xmm8, 20h ; ' '
-          vmovups xmmword ptr [r12], xmm1
-          vmovups xmmword ptr [rsp+60h], xmm1
-          vmulps  xmm1, xmm1, xmmword ptr [rsp+170h+radiusMax.v]
-          vaddps  xmm2, xmm13, xmm1
-          vmovups xmmword ptr [r12], xmm2
-          vmovups xmmword ptr [rax+r12], xmm2
         }
-        ++_R12;
+        *PositionArrayNextFreeElem = (float4)_XMM1;
+        v48 = _XMM1;
+        v24 = _mm128_add_ps(v, _mm128_mul_ps(_XMM1, radiusMax.v));
+        *PositionArrayNextFreeElem = (float4)v24;
+        *(__m128 *)((char *)&PositionArrayNextFreeElem->v + (_QWORD)v19) = v24;
+        ++PositionArrayNextFreeElem;
       }
-      while ( v20 < particleCountEmit );
+      while ( v10 < particleCountEmit );
     }
   }
   else
   {
-    v59 = 0;
+    v25 = 0;
     if ( particleCountEmit )
     {
-      SpawnPosArrayNextFreeElem = (float4 *)((char *)SpawnPosArrayNextFreeElem - (__int64)_R12);
-      __asm
-      {
-        vmovss  xmm13, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vmovss  xmm11, cs:__real@40000000
-        vmovss  xmm10, cs:__real@3f800000
-        vmovss  xmm12, cs:__real@bf800000
-        vmovss  xmm14, cs:__real@40c90fdb
-        vmovss  xmm15, cs:__real@358637be
-      }
+      SpawnPosArrayNextFreeElem = (float4 *)((char *)SpawnPosArrayNextFreeElem - (__int64)PositionArrayNextFreeElem);
       do
       {
         if ( (HIBYTE(pModuleBase[1].m_type) & 8) != 0 )
         {
           if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
             __debugbreak();
-          v66 = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
-          v67 = ParticleEmitter::GetEmitterDef(v66)->randomSeed + v66->m_lifetimeParticleCount + 10111 * (unsigned __int8)v59;
-          v68 = v67 < 16361 * (v67 / 0x3FE9);
-          v69 = v67 % 0x3FE9 == 0;
+          v26 = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
+          v27 = (ParticleEmitter::GetEmitterDef(v26)->randomSeed + v26->m_lifetimeParticleCount + 10111 * (unsigned __int8)v25) % 0x3FE9;
         }
         else
         {
-          Particle_GetRandomSeedArrayNextFreeElem(pParticleData);
+          v27 = Particle_GetRandomSeedArrayNextFreeElem(pParticleData)[v25];
         }
-        v70 = pModuleBase[1].m_type;
-        __asm
-        {
-          vmulss  xmm1, xmm11, dword ptr [rax+r14*4+28h]
-          vsubss  xmm8, xmm1, xmm10
-          vcomiss xmm8, xmm12
-        }
-        if ( v68 )
-          goto LABEL_61;
-        __asm { vcomiss xmm8, xmm10 }
-        if ( !v68 && !v69 )
-        {
-LABEL_61:
-          __asm
-          {
-            vcvtss2sd xmm0, xmm8, xmm8
-            vmovsd  [rsp+170h+var_148], xmm0
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 129, ASSERT_TYPE_ASSERT, "( ( height >= -radius && height <= radius ) )", "( height ) = %g", v117) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmulss  xmm7, xmm8, xmm8
-          vsubss  xmm0, xmm10, xmm7
-          vsqrtss xmm6, xmm0, xmm0
-          vmulss  xmm0, xmm14, dword ptr [rax+r14*4+24h]; radians
-        }
-        FastSinCos(*(const float *)&_XMM0, &c, &s);
-        __asm
-        {
-          vmovss  xmm0, [rsp+170h+s]
-          vmulss  xmm9, xmm0, xmm6
-          vmovss  xmm0, [rsp+170h+c]
-          vmulss  xmm6, xmm0, xmm6
-          vmulss  xmm1, xmm6, xmm6
-          vmulss  xmm0, xmm9, xmm9
-          vaddss  xmm1, xmm1, xmm0
-          vaddss  xmm2, xmm1, xmm7
-          vsubss  xmm3, xmm2, xmm10
-          vandps  xmm3, xmm3, xmm13
-          vcomiss xmm3, xmm15
-          vmovss  dword ptr [rsp+170h+outPos], xmm9
-          vmovss  dword ptr [rsp+170h+outPos+4], xmm6
-          vmovss  dword ptr [rsp+170h+outPos+8], xmm8
-        }
-        if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 140, ASSERT_TYPE_ASSERT, "(radiusSquared == 0.0f || (I_fabs( lengthSquared - radiusSquared ) / radiusSquared < 0.001f * 0.001f))", (const char *)&queryFormat, "radiusSquared == 0.0f || (I_fabs( lengthSquared - radiusSquared ) / radiusSquared < EQUAL_EPSILON * EQUAL_EPSILON)") )
+        v28 = pModuleBase[1].m_type;
+        v29 = v27;
+        v30 = (float)(2.0 * fx_randomTable[v27 + 10]) - 1.0;
+        if ( (v30 < -1.0 || v30 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 129, ASSERT_TYPE_ASSERT, "( ( height >= -radius && height <= radius ) )", "( height ) = %g", v30) )
           __debugbreak();
-        if ( v70 != PARTICLE_MODULE_AXES_FLAG_ALL )
+        v31 = fsqrt(1.0 - (float)(v30 * v30));
+        FastSinCos(6.2831855 * fx_randomTable[v29 + 9], &c, &s);
+        v32 = s * v31;
+        outPos.v[0] = v32;
+        outPos.v[1] = c * v31;
+        outPos.v[2] = v30;
+        if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(outPos.v[1] * outPos.v[1]) + (float)(v32 * v32)) + (float)(v30 * v30)) - 1.0) & _xmm) >= 0.0000010000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 140, ASSERT_TYPE_ASSERT, "(radiusSquared == 0.0f || (I_fabs( lengthSquared - radiusSquared ) / radiusSquared < 0.001f * 0.001f))", (const char *)&queryFormat, "radiusSquared == 0.0f || (I_fabs( lengthSquared - radiusSquared ) / radiusSquared < EQUAL_EPSILON * EQUAL_EPSILON)") )
+          __debugbreak();
+        if ( v28 != PARTICLE_MODULE_AXES_FLAG_ALL )
         {
-          Particle_SpawnShapeConvertPos(v70, &outPos);
-          __asm
-          {
-            vmovss  xmm8, dword ptr [rsp+170h+outPos+8]
-            vmovss  xmm6, dword ptr [rsp+170h+outPos+4]
-            vmovss  xmm9, dword ptr [rsp+170h+outPos]
-          }
+          Particle_SpawnShapeConvertPos(v28, &outPos);
+          v32 = outPos.v[0];
         }
-        ++v59;
-        HIDWORD(v123) = 0;
+        ++v25;
+        v48.m128_i32[3] = 0;
+        _XMM2 = 0i64;
+        v35 = v48;
+        v35.m128_f32[0] = v32;
+        _XMM4 = v35;
         __asm
         {
-          vmovups xmm4, xmmword ptr [rsp+60h]
-          vxorps  xmm2, xmm2, xmm2
-          vmovss  xmm4, xmm4, xmm9
           vinsertps xmm4, xmm4, xmm6, 10h
           vinsertps xmm4, xmm4, xmm8, 20h ; ' '
-          vmovups xmmword ptr [r12], xmm4
+        }
+        *PositionArrayNextFreeElem = (float4)_XMM4;
+        __asm
+        {
           vinsertps xmm2, xmm2, dword ptr [rax+r14*4+0A0h], 0
           vinsertps xmm2, xmm2, dword ptr [rax+r14*4+0A4h], 10h
           vinsertps xmm2, xmm2, dword ptr [rax+r14*4+0A8h], 20h ; ' '
-          vmovups xmm0, xmmword ptr [rsp+170h+radiusMax.v]
-          vsubps  xmm1, xmm0, xmmword ptr [rbp+70h+radiusMin.v]
         }
-        _RAX = SpawnPosArrayNextFreeElem;
-        __asm
-        {
-          vmulps  xmm2, xmm2, xmm1
-          vaddps  xmm3, xmm2, xmmword ptr [rbp+70h+radiusMin.v]
-          vmulps  xmm0, xmm4, xmm3
-          vaddps  xmm1, xmm0, xmmword ptr [rsp+170h+outOffset.v]
-          vmovups xmmword ptr [r12], xmm1
-          vmovups xmmword ptr [r12+rax], xmm1
-        }
-        ++_R12;
-        __asm { vmovups xmmword ptr [rsp+60h], xmm4 }
+        v41 = SpawnPosArrayNextFreeElem;
+        v42 = _mm128_add_ps(_mm128_mul_ps(_XMM4, _mm128_add_ps(_mm128_mul_ps(_XMM2, _mm128_sub_ps(radiusMax.v, radiusMin.v)), radiusMin.v)), outOffset.v);
+        *PositionArrayNextFreeElem = (float4)v42;
+        *(__m128 *)((char *)&v41->v + (_QWORD)PositionArrayNextFreeElem++) = v42;
+        v48 = _XMM4;
       }
-      while ( v59 < particleCountEmit );
+      while ( v25 < particleCountEmit );
     }
-  }
-  __asm
-  {
-    vmovaps xmm15, [rsp+170h+var_D0]
-    vmovaps xmm14, [rsp+170h+var_C0]
-    vmovaps xmm13, [rsp+170h+var_B0]
-    vmovaps xmm12, [rsp+170h+var_A0]
-    vmovaps xmm11, [rsp+170h+var_90]
-    vmovaps xmm10, [rsp+170h+var_80]
-    vmovaps xmm9, [rsp+170h+var_70]
-    vmovaps xmm8, [rsp+170h+var_60]
-    vmovaps xmm7, [rsp+170h+var_50]
-    vmovaps xmm6, [rsp+170h+var_40]
   }
 }
 
@@ -5095,472 +4077,434 @@ ParticleModuleInitSpawnShapeMesh::InitParticles
 */
 void ParticleModuleInitSpawnShapeMesh::InitParticles(const ParticleModule *pModuleBase, const ParticleState *pParticleState, ParticleData *pParticleData, const FxCamera *pCamera, const unsigned int particleCountEmit)
 {
-  ParticleData *v9; 
-  ParticleState *v10; 
-  ParticleModule *v11; 
-  __int64 v13; 
-  XSurface *v14; 
-  __int64 v15; 
-  __int64 v16; 
-  const XModel *v17; 
-  ParticleModule v18; 
-  bool v19; 
-  _DWORD *v20; 
-  unsigned int v21; 
-  int v22; 
-  int v23; 
-  XSurface *v24; 
-  __int64 v25; 
-  __int64 v26; 
-  XSurface *v27; 
+  ParticleData *v5; 
+  ParticleState *v6; 
+  ParticleModule *v7; 
+  float4 *v8; 
+  __int64 v9; 
+  XSurface *v10; 
+  __int64 v11; 
+  __int64 v12; 
+  const XModel *v13; 
+  ParticleModule v14; 
+  bool v15; 
+  _DWORD *v16; 
+  unsigned int v17; 
+  int v18; 
+  int v19; 
+  XSurface *v20; 
+  __int64 v21; 
+  __int64 v22; 
+  XSurface *v23; 
   const char *VFXName; 
-  unsigned int v29; 
+  unsigned int v25; 
+  __m128 v; 
   ParticleEmitter *m_pEmitterOwner; 
+  int v29; 
+  __int64 v30; 
+  const XModel *v31; 
+  int *v32; 
   int v33; 
-  __int64 v34; 
-  const XModel *v35; 
-  int *v36; 
-  int v37; 
+  unsigned int v34; 
+  int v35; 
+  unsigned int v36; 
+  unsigned int v37; 
   unsigned int v38; 
-  int v39; 
+  XSurface *v39; 
   unsigned int v40; 
-  unsigned int v41; 
-  unsigned int v42; 
-  XSurface *v43; 
-  unsigned int v44; 
-  const char *v46; 
+  const char *v41; 
   const char *XModelSurfsName; 
-  unsigned int v48; 
+  unsigned int v43; 
   XSurfaceShared *shared; 
   unsigned __int8 *data; 
-  int v61; 
-  unsigned int v62; 
-  unsigned int v63; 
-  unsigned int v64; 
-  XSurface *v65; 
-  unsigned int v66; 
-  const char *v68; 
-  const char *v69; 
-  unsigned int v70; 
-  XSurfaceShared *v71; 
-  unsigned __int8 *v72; 
-  unsigned __int8 *v73; 
-  XSurfaceShared *v74; 
-  unsigned __int8 *v75; 
-  unsigned __int8 *v76; 
+  __int128 v47; 
+  float4 *v50; 
+  __m128 v51; 
+  int v52; 
+  unsigned int v53; 
+  unsigned int v54; 
+  unsigned int v55; 
+  XSurface *v56; 
+  unsigned int v57; 
+  const char *v58; 
+  const char *v59; 
+  unsigned int v60; 
+  XSurfaceShared *v61; 
+  unsigned __int8 *v62; 
+  unsigned __int8 *v63; 
+  XSurfaceShared *v64; 
+  unsigned __int8 *v65; 
+  unsigned __int8 *v66; 
   const Bounds *p_surfBounds; 
-  __int64 v78; 
-  __int64 v79; 
-  __int64 v80; 
+  __int64 v68; 
+  __int64 v69; 
+  __int64 v70; 
   ParticleModuleAxesFlags m_type; 
-  const char *v111; 
-  __int64 v113; 
-  __int64 v114; 
+  __m128 v78; 
+  __m128 v81; 
+  const char *v84; 
+  __int64 v85; 
+  __int64 v86; 
   char m_flags; 
   float4 *PositionArrayNextFreeElem; 
-  __int64 v119; 
-  unsigned int v120; 
-  XSurface *v121; 
-  __int64 v122; 
+  __int64 v91; 
+  unsigned int v92; 
+  XSurface *v93; 
+  __int64 v94; 
   float4 *SpawnPosArrayNextFreeElem; 
-  ParticleModule *v124; 
-  ParticleData *v125; 
+  ParticleModule *v96; 
+  ParticleData *v97; 
   vec3_t outPos; 
   vec3_t result; 
   XSurface *surfaces[2]; 
   float4 outOffset; 
-  float4 v130; 
-  float4 v131; 
-  float4 v132; 
+  float4 v102; 
+  float4 v103; 
+  float4 v104; 
 
-  v125 = pParticleData;
-  v9 = pParticleData;
-  v10 = (ParticleState *)pParticleState;
-  v11 = (ParticleModule *)pModuleBase;
+  v97 = pParticleData;
+  v5 = pParticleData;
+  v6 = (ParticleState *)pParticleState;
+  v7 = (ParticleModule *)pModuleBase;
   if ( !pModuleBase && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2078, ASSERT_TYPE_ASSERT, "(pModuleBase)", (const char *)&queryFormat, "pModuleBase") )
     __debugbreak();
-  if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2078, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
+  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2078, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
     __debugbreak();
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2078, ASSERT_TYPE_ASSERT, "(pParticleData)", (const char *)&queryFormat, "pParticleData") )
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2078, ASSERT_TYPE_ASSERT, "(pParticleData)", (const char *)&queryFormat, "pParticleData") )
     __debugbreak();
   if ( !particleCountEmit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2078, ASSERT_TYPE_ASSERT, "(particleCountEmit > 0)", (const char *)&queryFormat, "particleCountEmit > 0") )
     __debugbreak();
-  if ( particleCountEmit + v9->m_particleCountRunning > v9->m_particleCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2078, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax())", (const char *)&queryFormat, "pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax()") )
+  if ( particleCountEmit + v5->m_particleCountRunning > v5->m_particleCountMax && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2078, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax())", (const char *)&queryFormat, "pParticleData->GetParticleCountRunning() + particleCountEmit <= pParticleData->GetParticleCountMax()") )
     __debugbreak();
-  if ( (v11->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2078, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
+  if ( (v7->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2078, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
     __debugbreak();
-  m_flags = v11[6].m_flags;
-  PositionArrayNextFreeElem = Particle_GetPositionArrayNextFreeElem(v9);
-  _R15 = PositionArrayNextFreeElem;
-  SpawnPosArrayNextFreeElem = Particle_GetSpawnPosArrayNextFreeElem(v9);
-  ParticleModuleInitSpawnShape::GetOffsetForShape((ParticleModuleInitSpawnShape *)v11, v10, &outOffset);
-  if ( *(_DWORD *)&v11[8].m_type )
+  m_flags = v7[6].m_flags;
+  PositionArrayNextFreeElem = Particle_GetPositionArrayNextFreeElem(v5);
+  v8 = PositionArrayNextFreeElem;
+  SpawnPosArrayNextFreeElem = Particle_GetSpawnPosArrayNextFreeElem(v5);
+  ParticleModuleInitSpawnShape::GetOffsetForShape((ParticleModuleInitSpawnShape *)v7, v6, &outOffset);
+  if ( *(_DWORD *)&v7[8].m_type )
   {
-    v13 = (__int64)&v11[7];
-    v14 = (XSurface *)*(int *)&v11[8].m_type;
-    v124 = v11 + 7;
-    v121 = v14;
-    if ( (__int64)v14 > 0 )
+    v9 = (__int64)&v7[7];
+    v10 = (XSurface *)*(int *)&v7[8].m_type;
+    v96 = v7 + 7;
+    v93 = v10;
+    if ( (__int64)v10 > 0 )
     {
-      v15 = 0i64;
-      v16 = 0i64;
-      v119 = 0i64;
-      v122 = 0i64;
+      v11 = 0i64;
+      v12 = 0i64;
+      v91 = 0i64;
+      v94 = 0i64;
       do
       {
-        v17 = *(const XModel **)(v16 + *(_QWORD *)v13);
-        *(_QWORD *)result.v = v17;
-        if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2101, ASSERT_TYPE_ASSERT, "(pModel)", (const char *)&queryFormat, "pModel") )
+        v13 = *(const XModel **)(v12 + *(_QWORD *)v9);
+        *(_QWORD *)result.v = v13;
+        if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2101, ASSERT_TYPE_ASSERT, "(pModel)", (const char *)&queryFormat, "pModel") )
           __debugbreak();
-        v18 = v11[9];
-        v19 = v15 + *(_QWORD *)&v18 == 0;
-        v20 = (_DWORD *)(v15 + *(_QWORD *)&v18);
-        *(_QWORD *)outPos.v = v20;
-        if ( v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2104, ASSERT_TYPE_ASSERT, "(pMeshData)", (const char *)&queryFormat, "pMeshData") )
+        v14 = v7[9];
+        v15 = v11 + *(_QWORD *)&v14 == 0;
+        v16 = (_DWORD *)(v11 + *(_QWORD *)&v14);
+        *(_QWORD *)outPos.v = v16;
+        if ( v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2104, ASSERT_TYPE_ASSERT, "(pMeshData)", (const char *)&queryFormat, "pMeshData") )
           __debugbreak();
-        if ( (v17->flags & 0x8000) == 0 )
+        if ( (v13->flags & 0x8000) == 0 )
         {
-          v21 = XModelGetSurfaces(v17, surfaces, 0);
-          v22 = 0;
-          v23 = 0;
-          if ( v21 )
+          v17 = XModelGetSurfaces(v13, surfaces, 0);
+          v18 = 0;
+          v19 = 0;
+          if ( v17 )
           {
-            v24 = surfaces[0];
-            v25 = 0i64;
-            v26 = v21;
+            v20 = surfaces[0];
+            v21 = 0i64;
+            v22 = v17;
             do
             {
-              v27 = &v24[v25];
-              if ( !&v24[v25] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2121, ASSERT_TYPE_ASSERT, "(pSurface)", (const char *)&queryFormat, "pSurface") )
+              v23 = &v20[v21];
+              if ( !&v20[v21] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2121, ASSERT_TYPE_ASSERT, "(pSurface)", (const char *)&queryFormat, "pSurface") )
                 __debugbreak();
-              ++v25;
-              v22 += v27->vertCount;
-              v23 += v27->triCount;
-              --v26;
+              ++v21;
+              v18 += v23->vertCount;
+              v19 += v23->triCount;
+              --v22;
             }
-            while ( v26 );
-            v17 = *(const XModel **)result.v;
-            v20 = *(_DWORD **)outPos.v;
-            v16 = v122;
-            v15 = v119;
-            v14 = v121;
+            while ( v22 );
+            v13 = *(const XModel **)result.v;
+            v16 = *(_DWORD **)outPos.v;
+            v12 = v94;
+            v11 = v91;
+            v10 = v93;
           }
-          if ( *v20 == v22 && v20[1] == v23 )
+          if ( *v16 == v18 && v16[1] == v19 )
           {
-            v10 = (ParticleState *)pParticleState;
+            v6 = (ParticleState *)pParticleState;
           }
           else
           {
-            v10 = (ParticleState *)pParticleState;
+            v6 = (ParticleState *)pParticleState;
             VFXName = ParticleState::GetVFXName((ParticleState *)pParticleState);
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2129, ASSERT_TYPE_ASSERT, "(pMeshData->m_numVertsTotal == numVertsTotal && pMeshData->m_numTrisTotal == numTrisTotal)", "%s\n\tERROR: There is a vertex/triangle count mismatch for the model %s, referenced by the effect %s. This may be due to an incorrectly patched model/vfx reference.\n", "pMeshData->m_numVertsTotal == numVertsTotal && pMeshData->m_numTrisTotal == numTrisTotal", v17->name, VFXName) )
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2129, ASSERT_TYPE_ASSERT, "(pMeshData->m_numVertsTotal == numVertsTotal && pMeshData->m_numTrisTotal == numTrisTotal)", "%s\n\tERROR: There is a vertex/triangle count mismatch for the model %s, referenced by the effect %s. This may be due to an incorrectly patched model/vfx reference.\n", "pMeshData->m_numVertsTotal == numVertsTotal && pMeshData->m_numTrisTotal == numTrisTotal", v13->name, VFXName) )
               __debugbreak();
           }
-          v13 = (__int64)v124;
+          v9 = (__int64)v96;
         }
-        v11 = (ParticleModule *)pModuleBase;
-        v16 += 32i64;
-        v15 += 16i64;
-        v122 = v16;
-        v14 = (XSurface *)((char *)v14 - 1);
-        v119 = v15;
-        v121 = v14;
+        v7 = (ParticleModule *)pModuleBase;
+        v12 += 32i64;
+        v11 += 16i64;
+        v94 = v12;
+        v10 = (XSurface *)((char *)v10 - 1);
+        v91 = v11;
+        v93 = v10;
       }
-      while ( v14 );
-      _R15 = PositionArrayNextFreeElem;
-      v9 = v125;
+      while ( v10 );
+      v8 = PositionArrayNextFreeElem;
+      v5 = v97;
     }
-    v29 = 0;
-    v120 = 0;
+    v25 = 0;
+    v92 = 0;
     if ( particleCountEmit )
     {
-      SpawnPosArrayNextFreeElem = (float4 *)((char *)SpawnPosArrayNextFreeElem - (__int64)_R15);
-      __asm
-      {
-        vmovaps [rsp+170h+var_50], xmm7
-        vmovups xmm7, xmmword ptr [rbp+70h+outOffset.v]
-        vmovaps [rsp+170h+var_60], xmm8
-        vmovss  xmm8, cs:__real@3f800000
-        vmovaps [rsp+170h+var_40], xmm6
-      }
+      SpawnPosArrayNextFreeElem = (float4 *)((char *)SpawnPosArrayNextFreeElem - (__int64)v8);
+      v = outOffset.v;
+      _XMM8 = LODWORD(FLOAT_1_0);
       while ( 1 )
       {
-        if ( (HIBYTE(v11[1].m_type) & 8) != 0 )
+        if ( (HIBYTE(v7[1].m_type) & 8) != 0 )
         {
-          if ( !v10->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
+          if ( !v6->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
             __debugbreak();
-          m_pEmitterOwner = (ParticleEmitter *)v10->m_pEmitterOwner;
-          v33 = (ParticleEmitter::GetEmitterDef(m_pEmitterOwner)->randomSeed + m_pEmitterOwner->m_lifetimeParticleCount + 10111 * (unsigned __int8)v29) % 0x3FE9;
+          m_pEmitterOwner = (ParticleEmitter *)v6->m_pEmitterOwner;
+          v29 = (ParticleEmitter::GetEmitterDef(m_pEmitterOwner)->randomSeed + m_pEmitterOwner->m_lifetimeParticleCount + 10111 * (unsigned __int8)v25) % 0x3FE9;
         }
         else
         {
-          v33 = Particle_GetRandomSeedArrayNextFreeElem(v9)[v29];
+          v29 = Particle_GetRandomSeedArrayNextFreeElem(v5)[v25];
         }
-        if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleutil.h", 215, ASSERT_TYPE_ASSERT, "(pLinkedAssetList)", (const char *)&queryFormat, "pLinkedAssetList") )
+        if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleutil.h", 215, ASSERT_TYPE_ASSERT, "(pLinkedAssetList)", (const char *)&queryFormat, "pLinkedAssetList") )
           __debugbreak();
-        if ( !*(_QWORD *)v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleutil.h", 216, ASSERT_TYPE_ASSERT, "(pLinkedAssetList->assetList)", (const char *)&queryFormat, "pLinkedAssetList->assetList") )
+        if ( !*(_QWORD *)v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleutil.h", 216, ASSERT_TYPE_ASSERT, "(pLinkedAssetList->assetList)", (const char *)&queryFormat, "pLinkedAssetList->assetList") )
           __debugbreak();
-        if ( *(int *)(v13 + 8) <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleutil.h", 217, ASSERT_TYPE_ASSERT, "(pLinkedAssetList->numAssets > 0)", (const char *)&queryFormat, "pLinkedAssetList->numAssets > 0") )
+        if ( *(int *)(v9 + 8) <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleutil.h", 217, ASSERT_TYPE_ASSERT, "(pLinkedAssetList->numAssets > 0)", (const char *)&queryFormat, "pLinkedAssetList->numAssets > 0") )
           __debugbreak();
-        v34 = Particle_RandomIndex(v33, FXRAND_VISUAL, *(_DWORD *)(v13 + 8));
-        v35 = *(const XModel **)(32 * v34 + *(_QWORD *)v13);
-        if ( !v35 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2143, ASSERT_TYPE_ASSERT, "(pModel)", (const char *)&queryFormat, "pModel") )
+        v30 = Particle_RandomIndex(v29, FXRAND_VISUAL, *(_DWORD *)(v9 + 8));
+        v31 = *(const XModel **)(32 * v30 + *(_QWORD *)v9);
+        if ( !v31 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2143, ASSERT_TYPE_ASSERT, "(pModel)", (const char *)&queryFormat, "pModel") )
           __debugbreak();
-        v36 = (int *)(*(_QWORD *)&pModuleBase[9] + 16 * v34);
-        if ( !v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2146, ASSERT_TYPE_ASSERT, "(pMeshData)", (const char *)&queryFormat, "pMeshData") )
+        v32 = (int *)(*(_QWORD *)&pModuleBase[9] + 16 * v30);
+        if ( !v32 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2146, ASSERT_TYPE_ASSERT, "(pMeshData)", (const char *)&queryFormat, "pMeshData") )
           __debugbreak();
-        v37 = XModelGetSurfaces(v35, &v121, 0);
-        v38 = v37;
+        v33 = XModelGetSurfaces(v31, &v93, 0);
+        v34 = v33;
         if ( m_flags )
-          goto LABEL_94;
-        v39 = *v36;
-        if ( !*v36 || !v37 )
+          goto LABEL_93;
+        v35 = *v32;
+        if ( !*v32 || !v33 )
           break;
-        v40 = 0;
-        if ( v39 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlerandom.h", 74, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0") )
+        v36 = 0;
+        if ( v35 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlerandom.h", 74, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0") )
           __debugbreak();
-        v41 = abs32((v39 * LOWORD(fx_randomTable[v33 + 6])) >> 16);
-        if ( v41 >= v39 )
+        v37 = abs32((v35 * LOWORD(fx_randomTable[v29 + 6])) >> 16);
+        if ( v37 >= v35 )
         {
-          LODWORD(v114) = v39;
-          LODWORD(v113) = v41;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlerandom.h", 78, ASSERT_TYPE_ASSERT, "(unsigned)( randomIndex ) < (unsigned)( count )", "randomIndex doesn't index count\n\t%i not in [0, %i)", v113, v114) )
+          LODWORD(v86) = v35;
+          LODWORD(v85) = v37;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlerandom.h", 78, ASSERT_TYPE_ASSERT, "(unsigned)( randomIndex ) < (unsigned)( count )", "randomIndex doesn't index count\n\t%i not in [0, %i)", v85, v86) )
             __debugbreak();
         }
-        v42 = 0;
-        if ( v38 )
+        v38 = 0;
+        if ( v34 )
         {
-          v43 = v121;
+          v39 = v93;
           while ( 1 )
           {
-            v44 = v40 + v43->vertCount;
-            if ( v44 > v41 )
+            v40 = v36 + v39->vertCount;
+            if ( v40 > v37 )
               break;
-            ++v42;
-            ++v43;
-            v40 = v44;
-            if ( v42 >= v38 )
+            ++v38;
+            ++v39;
+            v36 = v40;
+            if ( v38 >= v34 )
               goto LABEL_80;
           }
-          v48 = v41 - v40;
-          if ( v43->sharedVertDataOffset >= v43->shared->dataSize )
+          v43 = v37 - v36;
+          if ( v39->sharedVertDataOffset >= v39->shared->dataSize )
           {
-            LODWORD(v114) = v43->shared->dataSize;
-            LODWORD(v113) = v43->sharedVertDataOffset;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_xsurface.h", 33, ASSERT_TYPE_ASSERT, "(unsigned)( surface->sharedVertDataOffset ) < (unsigned)( surface->shared->dataSize )", "surface->sharedVertDataOffset doesn't index surface->shared->dataSize\n\t%i not in [0, %i)", v113, v114) )
+            LODWORD(v86) = v39->shared->dataSize;
+            LODWORD(v85) = v39->sharedVertDataOffset;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_xsurface.h", 33, ASSERT_TYPE_ASSERT, "(unsigned)( surface->sharedVertDataOffset ) < (unsigned)( surface->shared->dataSize )", "surface->sharedVertDataOffset doesn't index surface->shared->dataSize\n\t%i not in [0, %i)", v85, v86) )
               __debugbreak();
           }
-          shared = v43->shared;
+          shared = v39->shared;
           if ( (shared->flags & 1) != 0 )
-            data = Stream_AddressSpace_ResolveHandle(&v43->shared->data.streamedDataHandle);
+            data = Stream_AddressSpace_ResolveHandle(&v39->shared->data.streamedDataHandle);
           else
             data = (unsigned __int8 *)shared->data.streamedDataHandle.data;
-          XSurfaceUnpackPosition(*(const PackedPosition *)&data[20 * v48 + v43->sharedVertDataOffset], &v43->surfBounds, &result);
-          __asm { vmovss  xmm0, dword ptr [rbp+70h+result] }
-          _R15 = PositionArrayNextFreeElem;
+          XSurfaceUnpackPosition(*(const PackedPosition *)&data[20 * v43 + v39->sharedVertDataOffset], &v39->surfBounds, &result);
+          v8 = PositionArrayNextFreeElem;
           HIDWORD(surfaces[1]) = 0;
+          v47 = *(_OWORD *)surfaces;
+          *(float *)&v47 = result.v[0];
+          _XMM3 = v47;
           __asm
           {
-            vmovups xmm3, xmmword ptr [rbp+70h+surfaces]
-            vmovss  xmm3, xmm3, xmm0
             vinsertps xmm3, xmm3, dword ptr [rbp+70h+result+4], 70h+var_60
             vinsertps xmm3, xmm3, dword ptr [rbp+70h+result+8], 70h+var_50
-            vmovups xmmword ptr [rbp+70h+surfaces], xmm3
-            vmovups xmmword ptr [r15], xmm3
           }
+          *(float4 *)surfaces = (float4)_XMM3.v;
+          *PositionArrayNextFreeElem = (float4)_XMM3.v;
 LABEL_88:
-          v11 = (ParticleModule *)pModuleBase;
+          v7 = (ParticleModule *)pModuleBase;
           goto LABEL_89;
         }
 LABEL_80:
-        _R15 = PositionArrayNextFreeElem;
-        v10 = (ParticleState *)pParticleState;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovups xmmword ptr [r15], xmm0
-        }
-        v46 = ParticleState::GetVFXName((ParticleState *)pParticleState);
-        XModelSurfsName = XModelGetXModelSurfsName(v35, 0);
-        Com_PrintWarning(21, "Could not find vertex index %d on model %s (lod model info %s) in effect %s. This may be due to transients loading the default FX model.\n", v41, v35->name, XModelSurfsName, v46);
-        v11 = (ParticleModule *)pModuleBase;
+        v8 = PositionArrayNextFreeElem;
+        v6 = (ParticleState *)pParticleState;
+        *PositionArrayNextFreeElem = 0i64;
+        v41 = ParticleState::GetVFXName((ParticleState *)pParticleState);
+        XModelSurfsName = XModelGetXModelSurfsName(v31, 0);
+        Com_PrintWarning(21, "Could not find vertex index %d on model %s (lod model info %s) in effect %s. This may be due to transients loading the default FX model.\n", v37, v31->name, XModelSurfsName, v41);
+        v7 = (ParticleModule *)pModuleBase;
 LABEL_90:
-        __asm { vmovups xmm0, xmmword ptr [r15] }
-        _RAX = SpawnPosArrayNextFreeElem;
-        v13 = (__int64)v124;
-        v29 = v120 + 1;
-        v9 = v125;
-        __asm
-        {
-          vaddps  xmm1, xmm7, xmm0
-          vmovups xmmword ptr [r15], xmm1
-          vmovups xmmword ptr [rax+r15], xmm1
-        }
-        ++_R15;
-        v120 = v29;
-        PositionArrayNextFreeElem = _R15;
-        if ( v29 >= particleCountEmit )
-        {
-          __asm
-          {
-            vmovaps xmm8, [rsp+170h+var_60]
-            vmovaps xmm7, [rsp+170h+var_50]
-            vmovaps xmm6, [rsp+170h+var_40]
-          }
+        v50 = SpawnPosArrayNextFreeElem;
+        v9 = (__int64)v96;
+        v25 = v92 + 1;
+        v5 = v97;
+        v51 = _mm128_add_ps(v, v8->v);
+        *v8 = (float4)v51;
+        *(__m128 *)((char *)&v8->v + (_QWORD)v50) = v51;
+        ++v8;
+        v92 = v25;
+        PositionArrayNextFreeElem = v8;
+        if ( v25 >= particleCountEmit )
           return;
-        }
       }
-      _R15 = PositionArrayNextFreeElem;
-LABEL_94:
-      v61 = v36[1];
-      if ( !v61 || !v37 )
+      v8 = PositionArrayNextFreeElem;
+LABEL_93:
+      v52 = v32[1];
+      if ( !v52 || !v33 )
       {
-        if ( !v35->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2245, ASSERT_TYPE_ASSERT, "(pModel->name)", (const char *)&queryFormat, "pModel->name") )
+        if ( !v31->name && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2245, ASSERT_TYPE_ASSERT, "(pModel->name)", (const char *)&queryFormat, "pModel->name") )
           __debugbreak();
-        if ( !v10 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2246, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
+        if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2246, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
           __debugbreak();
-        if ( !ParticleState::GetVFXName(v10) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2247, ASSERT_TYPE_ASSERT, "(pParticleState->GetVFXName())", (const char *)&queryFormat, "pParticleState->GetVFXName()") )
+        if ( !ParticleState::GetVFXName(v6) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2247, ASSERT_TYPE_ASSERT, "(pParticleState->GetVFXName())", (const char *)&queryFormat, "pParticleState->GetVFXName()") )
           __debugbreak();
-        v111 = ParticleState::GetVFXName(v10);
-        R_WarnOncePerFrame(R_WARN_FX_INVALID_SHAPE_MESH, v35->name, v111);
-        v11 = (ParticleModule *)pModuleBase;
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vmovups xmmword ptr [r15], xmm0
-        }
+        v84 = ParticleState::GetVFXName(v6);
+        R_WarnOncePerFrame(R_WARN_FX_INVALID_SHAPE_MESH, v31->name, v84);
+        v7 = (ParticleModule *)pModuleBase;
+        *v8 = 0i64;
         goto LABEL_90;
       }
-      v62 = 0;
-      if ( v61 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlerandom.h", 74, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0") )
+      v53 = 0;
+      if ( v52 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlerandom.h", 74, ASSERT_TYPE_ASSERT, "(count > 0)", (const char *)&queryFormat, "count > 0") )
         __debugbreak();
-      v63 = abs32((v61 * LOWORD(fx_randomTable[v33 + 22])) >> 16);
-      if ( v63 >= v61 )
+      v54 = abs32((v52 * LOWORD(fx_randomTable[v29 + 22])) >> 16);
+      if ( v54 >= v52 )
       {
-        LODWORD(v114) = v61;
-        LODWORD(v113) = v63;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlerandom.h", 78, ASSERT_TYPE_ASSERT, "(unsigned)( randomIndex ) < (unsigned)( count )", "randomIndex doesn't index count\n\t%i not in [0, %i)", v113, v114) )
+        LODWORD(v86) = v52;
+        LODWORD(v85) = v54;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlerandom.h", 78, ASSERT_TYPE_ASSERT, "(unsigned)( randomIndex ) < (unsigned)( count )", "randomIndex doesn't index count\n\t%i not in [0, %i)", v85, v86) )
           __debugbreak();
       }
-      v64 = 0;
-      v65 = v121;
+      v55 = 0;
+      v56 = v93;
       while ( 1 )
       {
-        v66 = v62 + v65->triCount;
-        if ( v66 > v63 )
+        v57 = v53 + v56->triCount;
+        if ( v57 > v54 )
           break;
-        ++v64;
-        ++v65;
-        v62 = v66;
-        if ( v64 >= v38 )
+        ++v55;
+        ++v56;
+        v53 = v57;
+        if ( v55 >= v34 )
         {
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vmovups xmmword ptr [r15], xmm0
-          }
-          v68 = ParticleState::GetVFXName((ParticleState *)pParticleState);
-          v69 = XModelGetXModelSurfsName(v35, 0);
-          Com_PrintWarning(21, "Could not find tri index %d on model %s (lod model info %s) in effect %s. This may be due to transients loading the default FX model", v63, v35->name, v69, v68);
+          *v8 = 0i64;
+          v58 = ParticleState::GetVFXName((ParticleState *)pParticleState);
+          v59 = XModelGetXModelSurfsName(v31, 0);
+          Com_PrintWarning(21, "Could not find tri index %d on model %s (lod model info %s) in effect %s. This may be due to transients loading the default FX model", v54, v31->name, v59, v58);
           goto LABEL_88;
         }
       }
-      v70 = v63 - v62;
-      if ( v65->sharedVertDataOffset >= v65->shared->dataSize )
+      v60 = v54 - v53;
+      if ( v56->sharedVertDataOffset >= v56->shared->dataSize )
       {
-        LODWORD(v114) = v65->shared->dataSize;
-        LODWORD(v113) = v65->sharedVertDataOffset;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_xsurface.h", 33, ASSERT_TYPE_ASSERT, "(unsigned)( surface->sharedVertDataOffset ) < (unsigned)( surface->shared->dataSize )", "surface->sharedVertDataOffset doesn't index surface->shared->dataSize\n\t%i not in [0, %i)", v113, v114) )
+        LODWORD(v86) = v56->shared->dataSize;
+        LODWORD(v85) = v56->sharedVertDataOffset;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_xsurface.h", 33, ASSERT_TYPE_ASSERT, "(unsigned)( surface->sharedVertDataOffset ) < (unsigned)( surface->shared->dataSize )", "surface->sharedVertDataOffset doesn't index surface->shared->dataSize\n\t%i not in [0, %i)", v85, v86) )
           __debugbreak();
       }
-      v71 = v65->shared;
-      if ( (v71->flags & 1) != 0 )
+      v61 = v56->shared;
+      if ( (v61->flags & 1) != 0 )
       {
-        v72 = Stream_AddressSpace_ResolveHandle(&v65->shared->data.streamedDataHandle);
-        v71 = v65->shared;
+        v62 = Stream_AddressSpace_ResolveHandle(&v56->shared->data.streamedDataHandle);
+        v61 = v56->shared;
       }
       else
       {
-        v72 = (unsigned __int8 *)v71->data.streamedDataHandle.data;
+        v62 = (unsigned __int8 *)v61->data.streamedDataHandle.data;
       }
-      v73 = &v72[v65->sharedVertDataOffset];
-      if ( v65->sharedIndexDataOffset >= v71->dataSize )
+      v63 = &v62[v56->sharedVertDataOffset];
+      if ( v56->sharedIndexDataOffset >= v61->dataSize )
       {
-        LODWORD(v114) = v71->dataSize;
-        LODWORD(v113) = v65->sharedIndexDataOffset;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_xsurface.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( surface->sharedIndexDataOffset ) < (unsigned)( surface->shared->dataSize )", "surface->sharedIndexDataOffset doesn't index surface->shared->dataSize\n\t%i not in [0, %i)", v113, v114) )
+        LODWORD(v86) = v61->dataSize;
+        LODWORD(v85) = v56->sharedIndexDataOffset;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_xsurface.h", 46, ASSERT_TYPE_ASSERT, "(unsigned)( surface->sharedIndexDataOffset ) < (unsigned)( surface->shared->dataSize )", "surface->sharedIndexDataOffset doesn't index surface->shared->dataSize\n\t%i not in [0, %i)", v85, v86) )
           __debugbreak();
       }
-      v74 = v65->shared;
-      if ( (v74->flags & 1) != 0 )
-        v75 = Stream_AddressSpace_ResolveHandle(&v65->shared->data.streamedDataHandle);
+      v64 = v56->shared;
+      if ( (v64->flags & 1) != 0 )
+        v65 = Stream_AddressSpace_ResolveHandle(&v56->shared->data.streamedDataHandle);
       else
-        v75 = (unsigned __int8 *)v74->data.streamedDataHandle.data;
-      v76 = &v75[v65->sharedIndexDataOffset];
-      if ( ((unsigned __int8)v76 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_xsurface.h", 48, ASSERT_TYPE_ASSERT, "(IsAligned( indices, 16 ))", (const char *)&queryFormat, "IsAligned( indices, 16 )") )
+        v65 = (unsigned __int8 *)v64->data.streamedDataHandle.data;
+      v66 = &v65[v56->sharedIndexDataOffset];
+      if ( ((unsigned __int8)v66 & 0xF) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_xsurface.h", 48, ASSERT_TYPE_ASSERT, "(IsAligned( indices, 16 ))", (const char *)&queryFormat, "IsAligned( indices, 16 )") )
         __debugbreak();
-      p_surfBounds = &v65->surfBounds;
-      v78 = 3 * v70;
-      v79 = 5i64 * *(unsigned __int16 *)&v76[2 * v78 + 2];
-      v80 = 5i64 * *(unsigned __int16 *)&v76[2 * v78 + 4];
-      XSurfaceUnpackPositionToFloat4(*(const PackedPosition *)&v73[20 * *(unsigned __int16 *)&v76[2 * v78]], p_surfBounds, &v130);
-      XSurfaceUnpackPositionToFloat4(*(const PackedPosition *)&v73[4 * v79], p_surfBounds, &v131);
-      XSurfaceUnpackPositionToFloat4(*(const PackedPosition *)&v73[4 * v80], p_surfBounds, &v132);
-      v11 = (ParticleModule *)pModuleBase;
-      _RDX = fx_randomTable;
-      _R15 = PositionArrayNextFreeElem;
-      _RAX = v33;
+      p_surfBounds = &v56->surfBounds;
+      v68 = 3 * v60;
+      v69 = 5i64 * *(unsigned __int16 *)&v66[2 * v68 + 2];
+      v70 = 5i64 * *(unsigned __int16 *)&v66[2 * v68 + 4];
+      XSurfaceUnpackPositionToFloat4(*(const PackedPosition *)&v63[20 * *(unsigned __int16 *)&v66[2 * v68]], p_surfBounds, &v102);
+      XSurfaceUnpackPositionToFloat4(*(const PackedPosition *)&v63[4 * v69], p_surfBounds, &v103);
+      XSurfaceUnpackPositionToFloat4(*(const PackedPosition *)&v63[4 * v70], p_surfBounds, &v104);
+      v7 = (ParticleModule *)pModuleBase;
+      v8 = PositionArrayNextFreeElem;
       m_type = pModuleBase[1].m_type;
+      _XMM2 = LODWORD(fx_randomTable[v29 + 7]);
+      _XMM4 = LODWORD(fx_randomTable[v29 + 6]);
       __asm
       {
-        vmovss  xmm2, dword ptr [rdx+rax*4+1Ch]
-        vmovss  xmm4, dword ptr [rdx+rax*4+18h]
-        vaddss  xmm3, xmm2, xmm4
         vcmpltss xmm0, xmm8, xmm3
-        vsubss  xmm1, xmm8, xmm2
         vblendvps xmm6, xmm2, xmm1, xmm0
-        vsubss  xmm1, xmm8, xmm4
         vcmpltss xmm0, xmm8, xmm3
         vblendvps xmm5, xmm4, xmm1, xmm0
-        vmovaps xmm0, xmm5
-        vshufps xmm0, xmm0, xmm0, 0
-        vmulps  xmm1, xmm0, xmmword ptr [rbp+70h+var_A0.v]
-        vmovaps xmm0, xmm6
-        vshufps xmm0, xmm0, xmm0, 0
-        vmulps  xmm0, xmm0, xmmword ptr [rbp+70h+var_90.v]
-        vaddps  xmm2, xmm0, xmm1
-        vsubss  xmm0, xmm8, xmm5
-        vsubss  xmm1, xmm0, xmm6
-        vshufps xmm1, xmm1, xmm1, 0
-        vmulps  xmm1, xmm1, xmmword ptr [rbp+70h+var_80.v]
-        vaddps  xmm0, xmm1, xmm2
-        vmovss  dword ptr [rsp+170h+var_100], xmm5
-        vmovups xmmword ptr [r15], xmm0
-        vmovss  dword ptr [rsp+170h+var_100], xmm6
       }
+      v78 = (__m128)LODWORD(FLOAT_1_0);
+      v78.m128_f32[0] = (float)(1.0 - _XMM5.m128_f32[0]) - _XMM6.m128_f32[0];
+      _XMM0 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v78, v78, 0), v104.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM6, _XMM6, 0), v103.v), _mm128_mul_ps(_mm_shuffle_ps(_XMM5, _XMM5, 0), v102.v)));
+      *PositionArrayNextFreeElem = (float4)_XMM0;
+      *(float *)&v94 = _XMM6.m128_f32[0];
       if ( m_type != PARTICLE_MODULE_AXES_FLAG_ALL )
       {
+        outPos.v[0] = _XMM0.m128_f32[0];
         __asm
         {
-          vmovss  dword ptr [rbp+70h+outPos], xmm0
           vextractps dword ptr [rbp+70h+outPos+4], xmm0, 1
           vextractps dword ptr [rbp+70h+outPos+8], xmm0, 2
         }
         Particle_SpawnShapeConvertPos(m_type, &outPos);
-        __asm { vmovss  xmm0, dword ptr [rbp+70h+outPos] }
         outOffset.v.m128_i32[3] = 0;
+        v81 = outOffset.v;
+        v81.m128_f32[0] = outPos.v[0];
+        _XMM3 = v81;
         __asm
         {
-          vmovups xmm3, xmmword ptr [rbp+70h+outOffset.v]
-          vmovss  xmm3, xmm3, xmm0
           vinsertps xmm3, xmm3, dword ptr [rbp+70h+outPos+4], 70h+var_60
           vinsertps xmm3, xmm3, dword ptr [rbp+70h+outPos+8], 70h+var_50
-          vmovups xmmword ptr [rbp+70h+outOffset.v], xmm3
-          vmovups xmmword ptr [r15], xmm3
         }
+        outOffset.v = _XMM3;
+        *PositionArrayNextFreeElem = (float4)_XMM3;
       }
 LABEL_89:
-      v10 = (ParticleState *)pParticleState;
+      v6 = (ParticleState *)pParticleState;
       goto LABEL_90;
     }
   }
@@ -5573,17 +4517,26 @@ ParticleModuleInitSpawnShapeSphere::InitParticles
 */
 void ParticleModuleInitSpawnShapeSphere::InitParticles(const ParticleModule *pModuleBase, const ParticleState *pParticleState, ParticleData *pParticleData, const FxCamera *pCamera, const unsigned int particleCountEmit)
 {
-  char v12; 
+  char v8; 
   float4 *PositionArrayNextFreeElem; 
   ParticleEmitter *EmitterOwner; 
-  unsigned int v27; 
+  const vector4 *EmitterTransformTranspose; 
+  __m128 v; 
+  unsigned int v13; 
+  float v14; 
+  __m128 *p_v; 
   ParticleEmitter *m_pEmitterOwner; 
-  int v31; 
-  ParticleEmitter *v39; 
-  int v40; 
+  int v17; 
+  __m128 v18; 
+  float v19; 
+  __m128 *v20; 
+  float v21; 
+  ParticleEmitter *v22; 
+  int v23; 
+  __m128 v24; 
   float4 *SpawnPosArrayNextFreeElem; 
-  signed __int64 v52; 
-  signed __int64 v53; 
+  signed __int64 v26; 
+  signed __int64 v27; 
   float radiusMax; 
   float radiusMin; 
   float4 outOffset; 
@@ -5600,8 +4553,7 @@ void ParticleModuleInitSpawnShapeSphere::InitParticles(const ParticleModule *pMo
     __debugbreak();
   if ( (pModuleBase->m_flags & 1) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 2295, ASSERT_TYPE_ASSERT, "(pModule->IsEnabled())", (const char *)&queryFormat, "pModule->IsEnabled()") )
     __debugbreak();
-  v12 = HIBYTE(pModuleBase[1].m_type) & 1;
-  __asm { vmovaps [rsp+0D8h+var_58], xmm7 }
+  v8 = HIBYTE(pModuleBase[1].m_type) & 1;
   PositionArrayNextFreeElem = Particle_GetPositionArrayNextFreeElem(pParticleData);
   SpawnPosArrayNextFreeElem = Particle_GetSpawnPosArrayNextFreeElem(pParticleData);
   ParticleModuleInitSpawnShape::GetOffsetForShape((ParticleModuleInitSpawnShape *)pModuleBase, pParticleState, &outOffset);
@@ -5609,36 +4561,21 @@ void ParticleModuleInitSpawnShapeSphere::InitParticles(const ParticleModule *pMo
   if ( (pModuleBase->m_flags & 0x80) != 0 )
   {
     EmitterOwner = (ParticleEmitter *)ParticleState::GetEmitterOwner((ParticleState *)pParticleState);
-    ParticleEmitter::GetEmitterTransformTranspose(EmitterOwner, pParticleState);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+0D8h+outOffset.v]
-      vshufps xmm2, xmm0, xmm0, 0
-      vshufps xmm4, xmm0, xmm0, 55h ; 'U'
-      vshufps xmm5, xmm0, xmm0, 0AAh ; 'ª'
-      vmulps  xmm0, xmm2, xmmword ptr [rax]
-      vaddps  xmm3, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vmulps  xmm0, xmm4, xmmword ptr [rax+10h]
-      vaddps  xmm2, xmm0, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-      vmulps  xmm0, xmm5, xmmword ptr [rax+20h]
-      vaddps  xmm1, xmm0, xmm3
-      vaddps  xmm2, xmm2, xmm1
-      vandps  xmm7, xmm2, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-    }
+    EmitterTransformTranspose = ParticleEmitter::GetEmitterTransformTranspose(EmitterOwner, pParticleState);
+    v = (__m128)(*(_OWORD *)&_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(outOffset.v, outOffset.v, 85), EmitterTransformTranspose->y.v), g_negativeZero.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(outOffset.v, outOffset.v, 170), EmitterTransformTranspose->z.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(outOffset.v, outOffset.v, 0), EmitterTransformTranspose->x.v), g_negativeZero.v))) & *(_OWORD *)&g_keepXYZ.v);
   }
   else
   {
-    __asm { vmovups xmm7, xmmword ptr [rsp+0D8h+outOffset.v] }
+    v = outOffset.v;
   }
-  v27 = 0;
-  __asm { vmovaps [rsp+0D8h+var_48], xmm6 }
-  if ( v12 )
+  v13 = 0;
+  if ( v8 )
   {
     if ( particleCountEmit )
     {
-      v52 = (char *)SpawnPosArrayNextFreeElem - (char *)PositionArrayNextFreeElem;
-      __asm { vmovss  xmm6, [rsp+0D8h+radiusMax] }
-      _R14 = PositionArrayNextFreeElem;
+      v26 = (char *)SpawnPosArrayNextFreeElem - (char *)PositionArrayNextFreeElem;
+      v14 = radiusMax;
+      p_v = &PositionArrayNextFreeElem->v;
       do
       {
         if ( (HIBYTE(pModuleBase[1].m_type) & 8) != 0 )
@@ -5646,84 +4583,47 @@ void ParticleModuleInitSpawnShapeSphere::InitParticles(const ParticleModule *pMo
           if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
             __debugbreak();
           m_pEmitterOwner = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
-          v31 = (ParticleEmitter::GetEmitterDef(m_pEmitterOwner)->randomSeed + m_pEmitterOwner->m_lifetimeParticleCount + 10111 * (unsigned __int8)v27) % 0x3FE9;
+          v17 = (ParticleEmitter::GetEmitterDef(m_pEmitterOwner)->randomSeed + m_pEmitterOwner->m_lifetimeParticleCount + 10111 * (unsigned __int8)v13) % 0x3FE9;
         }
         else
         {
-          v31 = Particle_GetRandomSeedArrayNextFreeElem(pParticleData)[v27];
+          v17 = Particle_GetRandomSeedArrayNextFreeElem(pParticleData)[v13];
         }
-        __asm { vmovaps xmm2, xmm6; radius }
-        Particle_RandomPointOnSphere(v31, &PositionArrayNextFreeElem[v27], *(const float *)&_XMM2, pModuleBase[1].m_type);
-        __asm { vaddps  xmm1, xmm7, xmmword ptr [r14] }
-        _RAX = v52;
-        ++v27;
-        __asm
-        {
-          vmovups xmmword ptr [r14], xmm1
-          vmovups xmmword ptr [rax+r14], xmm1
-        }
-        ++_R14;
+        Particle_RandomPointOnSphere(v17, &PositionArrayNextFreeElem[v13], v14, pModuleBase[1].m_type);
+        v18 = _mm128_add_ps(v, *p_v);
+        ++v13;
+        *p_v = v18;
+        *(__m128 *)((char *)p_v++ + v26) = v18;
       }
-      while ( v27 < particleCountEmit );
+      while ( v13 < particleCountEmit );
     }
   }
   else if ( particleCountEmit )
   {
-    v53 = (char *)SpawnPosArrayNextFreeElem - (char *)PositionArrayNextFreeElem;
-    __asm
-    {
-      vmovss  xmm6, [rsp+0D8h+radiusMax]
-      vmovaps [rsp+0D8h+var_68], xmm8
-    }
-    _R14 = PositionArrayNextFreeElem;
-    __asm
-    {
-      vmovss  xmm8, [rsp+0D8h+radiusMin]
-      vmovaps [rsp+0D8h+var_78], xmm9
-      vmovss  xmm9, cs:__real@3f800000
-    }
+    v27 = (char *)SpawnPosArrayNextFreeElem - (char *)PositionArrayNextFreeElem;
+    v19 = radiusMax;
+    v20 = &PositionArrayNextFreeElem->v;
+    v21 = radiusMin;
     do
     {
       if ( (HIBYTE(pModuleBase[1].m_type) & 8) != 0 )
       {
         if ( !pParticleState->m_pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlestate.h", 341, ASSERT_TYPE_ASSERT, "(m_pEmitterOwner)", (const char *)&queryFormat, "m_pEmitterOwner") )
           __debugbreak();
-        v39 = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
-        v40 = (ParticleEmitter::GetEmitterDef(v39)->randomSeed + v39->m_lifetimeParticleCount + 10111 * (unsigned __int8)v27) % 0x3FE9;
+        v22 = (ParticleEmitter *)pParticleState->m_pEmitterOwner;
+        v23 = (ParticleEmitter::GetEmitterDef(v22)->randomSeed + v22->m_lifetimeParticleCount + 10111 * (unsigned __int8)v13) % 0x3FE9;
       }
       else
       {
-        v40 = Particle_GetRandomSeedArrayNextFreeElem(pParticleData)[v27];
+        v23 = Particle_GetRandomSeedArrayNextFreeElem(pParticleData)[v13];
       }
-      __asm
-      {
-        vsubss  xmm0, xmm9, dword ptr [rdx+rax*4]
-        vmulss  xmm1, xmm6, dword ptr [rdx+rax*4]
-        vmulss  xmm2, xmm0, xmm8
-        vaddss  xmm2, xmm2, xmm1; radius
-      }
-      Particle_RandomPointOnSphere(v40, &PositionArrayNextFreeElem[v27], *(const float *)&_XMM2, pModuleBase[1].m_type);
-      __asm { vaddps  xmm1, xmm7, xmmword ptr [r14] }
-      _RAX = v53;
-      ++v27;
-      __asm
-      {
-        vmovups xmmword ptr [r14], xmm1
-        vmovups xmmword ptr [r14+rax], xmm1
-      }
-      ++_R14;
+      Particle_RandomPointOnSphere(v23, &PositionArrayNextFreeElem[v13], (float)((float)(1.0 - fx_randomTable[v23 + 11]) * v21) + (float)(v19 * fx_randomTable[v23 + 11]), pModuleBase[1].m_type);
+      v24 = _mm128_add_ps(v, *v20);
+      ++v13;
+      *v20 = v24;
+      *(__m128 *)((char *)v20++ + v27) = v24;
     }
-    while ( v27 < particleCountEmit );
-    __asm
-    {
-      vmovaps xmm9, [rsp+0D8h+var_78]
-      vmovaps xmm8, [rsp+0D8h+var_68]
-    }
-  }
-  __asm
-  {
-    vmovaps xmm7, [rsp+0D8h+var_58]
-    vmovaps xmm6, [rsp+0D8h+var_48]
+    while ( v13 < particleCountEmit );
   }
 }
 
@@ -5765,74 +4665,85 @@ ParticleModuleInitModel::InitPhysicsParticles
 void ParticleModuleInitModel::InitPhysicsParticles(ParticleModuleInitModel *this, ParticleData *pParticleData, const unsigned int particleCountEmit, const ParticleEmitter *pEmitterOwner, const ParticleState *pParticleState, FxPhysics *physicsInstanceIDList)
 {
   __int64 m_particleCountRunning; 
-  __int64 v22; 
+  float4 *PositionArrayAtIndex; 
+  __int64 v12; 
   unsigned __int8 *ParticleDataArray; 
-  __int64 v24; 
-  ParticleEmitter *v25; 
+  __int64 v14; 
+  ParticleEmitter *v15; 
   __int64 m_localClientNum; 
   unsigned __int64 flags; 
-  void (__fastcall *v28)(Physics_SimpleCollisionCallback_Data *); 
+  void (__fastcall *v18)(Physics_SimpleCollisionCallback_Data *); 
   const ParticleSystem *SystemOwner; 
   const ParticleModuleInitRelativeVelocity *m_pModuleInitRelativeVelocity; 
-  unsigned int m_velocityType; 
+  ParticleRelativeVelocityType m_velocityType; 
   unsigned int *p_createListIndex; 
   ParticleLinkedAssetListDef *p_m_linkedAssetList; 
-  signed __int64 v35; 
-  _DWORD *v37; 
-  unsigned __int8 *v38; 
-  int *v39; 
+  signed __int64 v24; 
+  signed __int64 v25; 
+  _DWORD *v26; 
+  unsigned __int8 *v27; 
+  int *v28; 
   Material *material; 
-  ParticleSystem *v41; 
-  const ParticleSystemDef *v42; 
-  unsigned __int32 v43; 
-  char v45; 
-  ParticleSystem *v46; 
+  ParticleSystem *v30; 
+  const ParticleSystemDef *v31; 
+  unsigned __int32 v32; 
+  double FixedMemoryPoolUsage; 
+  ParticleSystem *v34; 
   const ParticleSystemDef *Def; 
-  const ParticleState *v48; 
-  const ParticleModuleInitRelativeVelocity *v49; 
+  const ParticleState *v36; 
+  const ParticleModuleInitRelativeVelocity *v37; 
+  __m128 v; 
   const ParticleStateDef *m_pStateDef; 
-  float4 *v61; 
-  bool v64; 
+  float4 *v41; 
+  __m128 v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
   const ParticleSystem *m_pSystemOwner; 
-  int v120; 
-  __int64 v121; 
-  volatile signed __int32 *v122; 
-  __int64 v124; 
-  __int64 v136; 
-  __int64 v137; 
-  double v138; 
-  double v139; 
-  double v140; 
-  double v141; 
-  char v142; 
-  unsigned int v143; 
-  unsigned int v144; 
+  int v53; 
+  __int64 v54; 
+  volatile signed __int32 *v55; 
+  __m128 v56; 
+  __int64 v57; 
+  __int128 v59; 
+  bool v60; 
+  __int64 v61; 
+  __int64 v62; 
+  char v63; 
+  unsigned int v64; 
+  ParticleRelativeVelocityType v65; 
   Physics_WorldId worldId; 
-  unsigned int v147; 
+  unsigned int v68; 
   float4 *RotationAngleArrayAtIndex; 
-  signed __int64 v149; 
+  signed __int64 v70; 
   float4 *VelocityArrayAtIndex; 
-  signed __int64 v151; 
+  signed __int64 v72; 
   float4 *RotationRateArrayAtIndex; 
-  signed __int64 v153; 
-  unsigned __int8 *v154; 
-  signed __int64 v155; 
-  unsigned __int8 *v156; 
-  unsigned __int8 *v157; 
+  signed __int64 v74; 
+  unsigned __int8 *v75; 
+  signed __int64 v76; 
+  unsigned __int8 *v77; 
+  unsigned __int8 *v78; 
   int *RandomSeedArrayAtIndex; 
-  signed __int64 v159; 
+  signed __int64 v80; 
   int outAssetIndex; 
   vector3 *rotMatrix; 
-  __int64 v162; 
-  ParticleEmitter *v163; 
-  __int128 v164; 
-  __int64 v165; 
-  __int64 v166; 
-  void (__fastcall *v167)(Physics_SimpleCollisionCallback_Data *); 
-  ParticleLinkedAssetListDef *v168; 
+  __int64 v83; 
+  ParticleEmitter *v84; 
+  __int128 v85; 
+  __int64 v86; 
+  __int64 v87; 
+  void (__fastcall *v88)(Physics_SimpleCollisionCallback_Data *); 
+  ParticleLinkedAssetListDef *v89; 
+  __m128 v90; 
   vec4_t quat; 
+  __m128 v92; 
 
-  v163 = (ParticleEmitter *)pEmitterOwner;
+  v84 = (ParticleEmitter *)pEmitterOwner;
   if ( !pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 974, ASSERT_TYPE_ASSERT, "(pParticleData)", (const char *)&queryFormat, "pParticleData") )
     __debugbreak();
   if ( !particleCountEmit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 975, ASSERT_TYPE_ASSERT, "(particleCountEmit > 0)", (const char *)&queryFormat, "particleCountEmit > 0") )
@@ -5848,7 +4759,7 @@ void ParticleModuleInitModel::InitPhysicsParticles(ParticleModuleInitModel *this
   if ( !physicsInstanceIDList && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 980, ASSERT_TYPE_ASSERT, "(physicsInstanceIDList)", (const char *)&queryFormat, "physicsInstanceIDList") )
     __debugbreak();
   m_particleCountRunning = pParticleData->m_particleCountRunning;
-  _R13 = Particle_GetPositionArrayAtIndex(pParticleData, pParticleData->m_particleCountRunning);
+  PositionArrayAtIndex = Particle_GetPositionArrayAtIndex(pParticleData, pParticleData->m_particleCountRunning);
   VelocityArrayAtIndex = Particle_GetVelocityArrayAtIndex(pParticleData, m_particleCountRunning);
   Particle_GetSizeArrayAtIndex(pParticleData, m_particleCountRunning);
   RotationAngleArrayAtIndex = Particle_GetRotationAngleArrayAtIndex(pParticleData, m_particleCountRunning);
@@ -5858,343 +4769,230 @@ void ParticleModuleInitModel::InitPhysicsParticles(ParticleModuleInitModel *this
     __debugbreak();
   if ( (unsigned int)m_particleCountRunning >= pParticleData->m_particleCountMax )
   {
-    LODWORD(v136) = m_particleCountRunning;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 345, ASSERT_TYPE_ASSERT, "(unsigned)( particleIndex ) < (unsigned)( pParticleData->GetParticleCountMax() )", "particleIndex doesn't index pParticleData->GetParticleCountMax()\n\t%i not in [0, %i)", v136, pParticleData->m_particleCountMax) )
+    LODWORD(v61) = m_particleCountRunning;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 345, ASSERT_TYPE_ASSERT, "(unsigned)( particleIndex ) < (unsigned)( pParticleData->GetParticleCountMax() )", "particleIndex doesn't index pParticleData->GetParticleCountMax()\n\t%i not in [0, %i)", v61, pParticleData->m_particleCountMax) )
       __debugbreak();
   }
   if ( !pParticleData->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 345, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
     __debugbreak();
-  v154 = &ParticleData::GetParticleDataArray(pParticleData, PARTICLE_DATA_SPAWN_QUAT)[16 * m_particleCountRunning];
+  v75 = &ParticleData::GetParticleDataArray(pParticleData, PARTICLE_DATA_SPAWN_QUAT)[16 * m_particleCountRunning];
   if ( !pParticleData->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 356, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
     __debugbreak();
   if ( (unsigned int)m_particleCountRunning >= pParticleData->m_particleCountMax )
   {
-    LODWORD(v137) = pParticleData->m_particleCountMax;
-    LODWORD(v136) = m_particleCountRunning;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 356, ASSERT_TYPE_ASSERT, "(unsigned)( particleIndex ) < (unsigned)( pParticleData->GetParticleCountMax() )", "particleIndex doesn't index pParticleData->GetParticleCountMax()\n\t%i not in [0, %i)", v136, v137) )
+    LODWORD(v62) = pParticleData->m_particleCountMax;
+    LODWORD(v61) = m_particleCountRunning;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 356, ASSERT_TYPE_ASSERT, "(unsigned)( particleIndex ) < (unsigned)( pParticleData->GetParticleCountMax() )", "particleIndex doesn't index pParticleData->GetParticleCountMax()\n\t%i not in [0, %i)", v61, v62) )
       __debugbreak();
   }
   if ( !pParticleData->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 356, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
     __debugbreak();
-  v22 = 4 * m_particleCountRunning;
-  v156 = &ParticleData::GetParticleDataArray(pParticleData, PARTICLE_DATA_HANDLE)[4 * m_particleCountRunning];
+  v12 = 4 * m_particleCountRunning;
+  v77 = &ParticleData::GetParticleDataArray(pParticleData, PARTICLE_DATA_HANDLE)[4 * m_particleCountRunning];
   if ( !pParticleData->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 354, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
     __debugbreak();
   if ( (unsigned int)m_particleCountRunning >= pParticleData->m_particleCountMax )
   {
-    LODWORD(v137) = pParticleData->m_particleCountMax;
-    LODWORD(v136) = m_particleCountRunning;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( particleIndex ) < (unsigned)( pParticleData->GetParticleCountMax() )", "particleIndex doesn't index pParticleData->GetParticleCountMax()\n\t%i not in [0, %i)", v136, v137) )
+    LODWORD(v62) = pParticleData->m_particleCountMax;
+    LODWORD(v61) = m_particleCountRunning;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 354, ASSERT_TYPE_ASSERT, "(unsigned)( particleIndex ) < (unsigned)( pParticleData->GetParticleCountMax() )", "particleIndex doesn't index pParticleData->GetParticleCountMax()\n\t%i not in [0, %i)", v61, v62) )
       __debugbreak();
   }
   if ( !pParticleData->m_pParticleData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particle.h", 354, ASSERT_TYPE_ASSERT, "(pParticleData->GetParticleData())", (const char *)&queryFormat, "pParticleData->GetParticleData()") )
     __debugbreak();
   ParticleDataArray = ParticleData::GetParticleDataArray(pParticleData, PARTICLE_DATA_FLAGS);
-  v24 = m_particleCountRunning;
-  v25 = v163;
-  v162 = (__int64)&ParticleDataArray[v22];
-  m_localClientNum = v163->m_pSystemOwner->m_localClientNum;
-  v147 = m_localClientNum;
+  v14 = m_particleCountRunning;
+  v15 = v84;
+  v83 = (__int64)&ParticleDataArray[v12];
+  m_localClientNum = v84->m_pSystemOwner->m_localClientNum;
+  v68 = m_localClientNum;
   worldId = 3 * m_localClientNum + 3;
   flags = pParticleState->m_pStateDef->flags;
-  v28 = NULL;
+  v18 = NULL;
   if ( (flags & 0x10000) != 0 )
-    v28 = ParticleState::OnImpactCB;
-  v167 = v28;
-  v165 = (unsigned __int8)flags & 0xA0;
-  rotMatrix = (vector3 *)ParticleEmitter::GetEmitterTransform(v163, pParticleState);
-  SystemOwner = ParticleEmitter::GetSystemOwner(v163);
+    v18 = ParticleState::OnImpactCB;
+  v88 = v18;
+  v86 = (unsigned __int8)flags & 0xA0;
+  rotMatrix = (vector3 *)ParticleEmitter::GetEmitterTransform(v84, pParticleState);
+  SystemOwner = ParticleEmitter::GetSystemOwner(v84);
   m_pModuleInitRelativeVelocity = pParticleState->m_pModuleInitRelativeVelocity;
-  v142 = SystemOwner->m_flags & 1;
+  v63 = SystemOwner->m_flags & 1;
   if ( !m_pModuleInitRelativeVelocity || (m_pModuleInitRelativeVelocity->m_flags & 1) != 0 )
-    m_velocityType = 0;
+    m_velocityType = PARTICLE_RELATIVE_VELOCITY_TYPE_LOCAL;
   else
     m_velocityType = m_pModuleInitRelativeVelocity->m_velocityType;
-  v144 = m_velocityType;
+  v65 = m_velocityType;
   Particle_RotMatrixToQuatVec(rotMatrix, &quat);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+100h+quat]
-    vmovdqa [rbp+100h+var_110], xmm0
-  }
-  v143 = 0;
+  v90 = (__m128)quat;
+  v64 = 0;
   if ( particleCountEmit )
   {
-    p_createListIndex = &physicsInstanceIDList[v24].createListIndex;
+    p_createListIndex = &physicsInstanceIDList[v14].createListIndex;
     p_m_linkedAssetList = &this->m_linkedAssetList;
-    v35 = (char *)RandomSeedArrayAtIndex - (char *)v156;
-    _RBX = v154 - (unsigned __int8 *)_R13;
-    v149 = (char *)RotationAngleArrayAtIndex - (char *)_R13;
-    v37 = (_DWORD *)v162;
-    v151 = (char *)VelocityArrayAtIndex - (char *)_R13;
-    v153 = (char *)RotationRateArrayAtIndex - (char *)_R13;
-    __asm { vmovaps [rsp+200h+var_40], xmm6 }
-    v38 = &v156[-v162];
-    __asm
+    v24 = (char *)RandomSeedArrayAtIndex - (char *)v77;
+    v25 = v75 - (unsigned __int8 *)PositionArrayAtIndex;
+    v70 = (char *)RotationAngleArrayAtIndex - (char *)PositionArrayAtIndex;
+    v26 = (_DWORD *)v83;
+    v72 = (char *)VelocityArrayAtIndex - (char *)PositionArrayAtIndex;
+    v74 = (char *)RotationRateArrayAtIndex - (char *)PositionArrayAtIndex;
+    v27 = &v77[-v83];
+    v87 = m_localClientNum;
+    v89 = &this->m_linkedAssetList;
+    v80 = (char *)RandomSeedArrayAtIndex - (char *)v77;
+    v76 = v75 - (unsigned __int8 *)PositionArrayAtIndex;
+    v78 = &v77[-v83];
+    do
     {
-      vmovaps [rsp+200h+var_50], xmm7
-      vmovaps [rsp+200h+var_60], xmm8
-      vmovaps [rsp+200h+var_70], xmm9
-      vmovaps [rsp+200h+var_80], xmm10
-      vmovaps [rsp+200h+var_90], xmm11
-      vmovaps [rsp+200h+var_A0], xmm12
-      vmovaps [rsp+200h+var_B0], xmm13
-      vmovaps [rsp+200h+var_C0], xmm14
-      vmovaps [rsp+200h+var_D0], xmm15
-    }
-    v166 = m_localClientNum;
-    v168 = &this->m_linkedAssetList;
-    v159 = (char *)RandomSeedArrayAtIndex - (char *)v156;
-    v155 = v154 - (unsigned __int8 *)_R13;
-    v157 = &v156[-v162];
-    while ( 1 )
-    {
-      v39 = (_DWORD *)((char *)v37 + (_QWORD)v38);
-      material = Particle_GetRandomAssetWithIndex(p_m_linkedAssetList, *(_DWORD *)((char *)v37 + (_QWORD)v38 + v35), FXRAND_VISUAL, &outAssetIndex)->material;
+      v28 = (_DWORD *)((char *)v26 + (_QWORD)v27);
+      material = Particle_GetRandomAssetWithIndex(p_m_linkedAssetList, *(_DWORD *)((char *)v26 + (_QWORD)v27 + v24), FXRAND_VISUAL, &outAssetIndex)->material;
       if ( !material && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1038, ASSERT_TYPE_ASSERT, "(pModel)", (const char *)&queryFormat, "pModel") )
         __debugbreak();
       if ( *(_QWORD *)&material[5].cameraRegion )
       {
-        *(double *)&_XMM0 = Physics_GetFixedMemoryPoolUsage(worldId);
-        _RAX = particle_physics_memory_threshold;
-        __asm { vcomiss xmm0, dword ptr [rax+28h] }
-        if ( v64 | v45 )
+        FixedMemoryPoolUsage = Physics_GetFixedMemoryPoolUsage(worldId);
+        if ( *(float *)&FixedMemoryPoolUsage <= particle_physics_memory_threshold->current.value )
         {
-          v48 = pParticleState;
-          v49 = pParticleState->m_pModuleInitRelativeVelocity;
-          if ( !v49 || (v49->m_flags & 1) != 0 || ((v49->m_velocityType - 3) & 0xFFFFFFFD) != 0 )
+          v36 = pParticleState;
+          v37 = pParticleState->m_pModuleInitRelativeVelocity;
+          if ( !v37 || (v37->m_flags & 1) != 0 || ((v37->m_velocityType - 3) & 0xFFFFFFFD) != 0 )
           {
-            __asm { vmovups xmm15, xmmword ptr [r13+0] }
+            _XMM15 = PositionArrayAtIndex->v;
           }
           else
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [r13+0]
-              vshufps xmm2, xmm0, xmm0, 0AAh ; 'ª'
-              vshufps xmm3, xmm0, xmm0, 55h ; 'U'
-              vshufps xmm4, xmm0, xmm0, 0
-              vmulps  xmm0, xmm2, xmmword ptr [rax+20h]
-              vaddps  xmm2, xmm0, xmmword ptr [rax+30h]
-              vmulps  xmm0, xmm3, xmmword ptr [rax+10h]
-              vaddps  xmm1, xmm0, xmm2
-              vmulps  xmm0, xmm4, xmmword ptr [rax]
-              vaddps  xmm15, xmm0, xmm1
-            }
+            v = PositionArrayAtIndex->v;
+            _XMM15 = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 0), rotMatrix->x.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 85), rotMatrix->y.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 170), rotMatrix->z.v), rotMatrix[1].x.v)));
           }
           m_pStateDef = pParticleState->m_pStateDef;
-          v61 = (float4 *)((unsigned __int64)LODWORD(m_pStateDef->flags) >> 28);
+          v41 = (float4 *)((unsigned __int64)LODWORD(m_pStateDef->flags) >> 28);
           if ( (m_pStateDef->flags & 0x10000000) != 0 )
+            _XMM15 = _mm128_add_ps(_XMM15, ParticleEmitter::GetSystemOwner(v15)->m_systemTransform.w.v);
+          if ( v86 )
           {
-            ParticleEmitter::GetSystemOwner(v25);
-            __asm { vaddps  xmm15, xmm15, xmmword ptr [rax+30h] }
-          }
-          if ( v165 )
-          {
-            _RAX = v149;
-            __asm { vmovups xmm0, xmmword ptr [rax+r13] }
-            Float4RadianToQuat(v61, &v48->m_moduleGraphLengthData.color);
-            __asm
-            {
-              vmovss  xmm10, dword ptr [rbp+100h+quat]
-              vmovss  xmm8, dword ptr [rbp+100h+quat+0Ch]
-              vmovss  xmm6, dword ptr [rbp+100h+quat+4]
-              vmovss  xmm5, dword ptr [rbp+100h+quat+8]
-              vmovups xmm11, xmm0
-              vshufps xmm9, xmm0, xmm0, 0FFh
-              vshufps xmm7, xmm0, xmm0, 0AAh ; 'ª'
-              vmovups [rbp+100h+var_F0], xmm0
-              vshufps xmm4, xmm11, xmm11, 55h ; 'U'
-              vmulss  xmm2, xmm10, xmm9
-              vmulss  xmm1, xmm8, xmm11
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm0, xmm6, xmm7
-              vaddss  xmm1, xmm3, xmm0
-              vmulss  xmm0, xmm5, xmm4
-              vsubss  xmm12, xmm1, xmm0
-              vmulss  xmm1, xmm4, xmm8
-              vmulss  xmm0, xmm7, xmm10
-              vsubss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm6, xmm9
-              vaddss  xmm3, xmm2, xmm1
-              vmulss  xmm1, xmm4, xmm10
-              vmulss  xmm0, xmm5, xmm11
-              vaddss  xmm13, xmm3, xmm0
-              vmulss  xmm0, xmm7, xmm8
-              vaddss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm6, xmm11
-              vsubss  xmm3, xmm2, xmm1
-              vmulss  xmm0, xmm5, xmm9
-              vaddss  xmm14, xmm3, xmm0
-              vmulss  xmm0, xmm10, xmm11
-              vmulss  xmm1, xmm9, xmm8
-              vsubss  xmm2, xmm1, xmm0
-              vmulss  xmm1, xmm4, xmm6
-              vsubss  xmm3, xmm2, xmm1
-              vmulss  xmm0, xmm5, xmm7
-              vsubss  xmm4, xmm3, xmm0
-              vmovss  dword ptr [rbp+100h+var_110+0Ch], xmm4
-              vmovss  dword ptr [rbp+100h+var_110], xmm12
-              vmovss  dword ptr [rbp+100h+var_110+4], xmm13
-              vmovss  dword ptr [rbp+100h+var_110+8], xmm14
-            }
+            v42 = *(__m128 *)((char *)&PositionArrayAtIndex->v + v70);
+            Float4RadianToQuat(v41, &v36->m_moduleGraphLengthData.color);
+            v43 = _mm_shuffle_ps(v42, v42, 255).m128_f32[0];
+            v44 = _mm_shuffle_ps(v42, v42, 170).m128_f32[0];
+            v92 = v42;
+            v45 = _mm_shuffle_ps(v42, v42, 85).m128_f32[0];
+            v46 = (float)((float)((float)(quat.v[0] * v43) + (float)(quat.v[3] * v42.m128_f32[0])) + (float)(quat.v[1] * v44)) - (float)(quat.v[2] * v45);
+            v47 = (float)((float)((float)(v45 * quat.v[3]) - (float)(v44 * quat.v[0])) + (float)(quat.v[1] * v43)) + (float)(quat.v[2] * v42.m128_f32[0]);
+            v48 = (float)((float)((float)(v45 * quat.v[0]) + (float)(v44 * quat.v[3])) - (float)(quat.v[1] * v42.m128_f32[0])) + (float)(quat.v[2] * v43);
+            v49 = (float)((float)((float)(v43 * quat.v[3]) - (float)(quat.v[0] * v42.m128_f32[0])) - (float)(v45 * quat.v[1])) - (float)(quat.v[2] * v44);
+            v90.m128_f32[3] = v49;
+            v90.m128_f32[0] = v46;
+            v90.m128_f32[1] = v47;
+            v90.m128_f32[2] = v48;
           }
           else
           {
-            v64 = v144 < 2;
-            if ( v144 == 2 || (v64 = v144 < 5, v144 == 5) || (v64 = 0, v142) && (v64 = v144 < 3, v144 != 3) )
+            if ( v65 == PARTICLE_RELATIVE_VELOCITY_TYPE_RELATIVE_TO_EFFECT_ORIGIN || v65 == PARTICLE_RELATIVE_VELOCITY_TYPE_RELATIVE_TO_EFFECT_ORIGIN_WITH_BOLT_INFO || v63 && v65 != PARTICLE_RELATIVE_VELOCITY_TYPE_COUNT )
             {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rbx+r13]
-                vmovups [rbp+100h+var_110], xmm0
-                vshufps xmm4, xmm0, xmm0, 0FFh
-              }
+              v90 = *(__m128 *)((char *)&PositionArrayAtIndex->v + v25);
+              LODWORD(v49) = _mm_shuffle_ps(v90, v90, 255).m128_u32[0];
             }
             else
             {
-              __asm { vmovss  xmm4, dword ptr [rbp+100h+var_110+0Ch] }
+              v49 = v90.m128_f32[3];
             }
-            __asm
-            {
-              vmovss  xmm14, dword ptr [rbp+100h+var_110+8]
-              vmovss  xmm13, dword ptr [rbp+100h+var_110+4]
-              vmovss  xmm12, dword ptr [rbp+100h+var_110]
-            }
+            v48 = v90.m128_f32[2];
+            v47 = v90.m128_f32[1];
+            v46 = v90.m128_f32[0];
           }
-          __asm
-          {
-            vmulss  xmm1, xmm12, xmm12
-            vmulss  xmm0, xmm13, xmm13
-            vaddss  xmm2, xmm1, xmm0
-            vmulss  xmm1, xmm14, xmm14
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm0, xmm4, xmm4
-            vaddss  xmm2, xmm3, xmm0
-            vsubss  xmm1, xmm2, cs:__real@3f800000
-            vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-            vcomiss xmm1, cs:__real@3b83126f
-          }
-          if ( !v64 )
-          {
-            __asm
-            {
-              vcvtss2sd xmm0, xmm4, xmm4
-              vmovsd  [rsp+200h+var_1B8], xmm0
-              vcvtss2sd xmm1, xmm14, xmm14
-              vmovsd  [rsp+200h+var_1C0], xmm1
-              vcvtss2sd xmm2, xmm13, xmm13
-              vmovsd  [rsp+200h+var_1C8], xmm2
-              vcvtss2sd xmm3, xmm12, xmm12
-              vmovsd  [rsp+200h+var_1D0], xmm3
-            }
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 698, ASSERT_TYPE_ASSERT, "(Particle_Vec4IsNormalized( outQuat ))", "%s\n\t%g %g %g %g", "Particle_Vec4IsNormalized( outQuat )", v138, v139, v140, v141) )
-              __debugbreak();
-          }
-          _RAX = v151;
-          __asm { vmovups xmm6, xmmword ptr [rax+r13] }
-          _RAX = v153;
-          __asm { vmovups xmm7, xmmword ptr [rax+r13] }
-          if ( !v25->m_pSystemOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 204, ASSERT_TYPE_ASSERT, "(m_pSystemOwner)", (const char *)&queryFormat, "m_pSystemOwner") )
+          if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)((float)(v46 * v46) + (float)(v47 * v47)) + (float)(v48 * v48)) + (float)(v49 * v49)) - 1.0) & _xmm) >= 0.0040000002 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 698, ASSERT_TYPE_ASSERT, "(Particle_Vec4IsNormalized( outQuat ))", "%s\n\t%g %g %g %g", "Particle_Vec4IsNormalized( outQuat )", v46, v47, v48, v49) )
             __debugbreak();
-          m_pSystemOwner = v25->m_pSystemOwner;
+          _XMM6 = *(__int128 *)((char *)PositionArrayAtIndex + v72);
+          _XMM7 = *(__int128 *)((char *)PositionArrayAtIndex + v74);
+          if ( !v15->m_pSystemOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particleemitter.h", 204, ASSERT_TYPE_ASSERT, "(m_pSystemOwner)", (const char *)&queryFormat, "m_pSystemOwner") )
+            __debugbreak();
+          m_pSystemOwner = v15->m_pSystemOwner;
           if ( m_pSystemOwner->m_systemHandle == PARTICLE_SYSTEM_INVALID_HANDLE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlesystem.h", 196, ASSERT_TYPE_ASSERT, "(m_systemHandle != PARTICLE_SYSTEM_INVALID_HANDLE)", (const char *)&queryFormat, "m_systemHandle != PARTICLE_SYSTEM_INVALID_HANDLE") )
             __debugbreak();
-          LODWORD(v164) = m_pSystemOwner->m_systemHandle;
-          DWORD1(v164) = v25->m_emitterIndex;
-          DWORD2(v164) = pParticleState->m_stateIndex;
-          v120 = *v39;
-          *v37 |= 2u;
-          HIDWORD(v164) = v120;
-          if ( v147 >= 2 )
+          LODWORD(v85) = m_pSystemOwner->m_systemHandle;
+          DWORD1(v85) = v15->m_emitterIndex;
+          DWORD2(v85) = pParticleState->m_stateIndex;
+          v53 = *v28;
+          *v26 |= 2u;
+          HIDWORD(v85) = v53;
+          if ( v68 >= 2 )
           {
-            LODWORD(v137) = 2;
-            LODWORD(v136) = v147;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.h", 419, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v136, v137) )
+            LODWORD(v62) = 2;
+            LODWORD(v61) = v68;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.h", 419, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v61, v62) )
               __debugbreak();
           }
-          v121 = v166;
-          v122 = &g_particleDeferredPhysicsCreateListCount[v166];
-          if ( ((unsigned __int8)v122 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&g_particleDeferredPhysicsCreateListCount[v166]) )
+          v54 = v87;
+          v55 = &g_particleDeferredPhysicsCreateListCount[v87];
+          if ( ((unsigned __int8)v55 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&g_particleDeferredPhysicsCreateListCount[v87]) )
             __debugbreak();
-          v43 = _InterlockedExchangeAdd(v122, 1u);
-          if ( v43 >= 0x800 )
+          v32 = _InterlockedExchangeAdd(v55, 1u);
+          if ( v32 >= 0x800 )
           {
-            LODWORD(v137) = 2048;
-            LODWORD(v136) = v43;
-            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.h", 422, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( PARTICLE_DEFERRED_PHYSICS_LIST_MAX )", "index doesn't index PARTICLE_DEFERRED_PHYSICS_LIST_MAX\n\t%i not in [0, %i)", v136, v137) )
+            LODWORD(v62) = 2048;
+            LODWORD(v61) = v32;
+            if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_shared.h", 422, ASSERT_TYPE_ASSERT, "(unsigned)( index ) < (unsigned)( PARTICLE_DEFERRED_PHYSICS_LIST_MAX )", "index doesn't index PARTICLE_DEFERRED_PHYSICS_LIST_MAX\n\t%i not in [0, %i)", v61, v62) )
               __debugbreak();
           }
-          __asm { vmovaps xmm0, [rbp+100h+var_110] }
-          v25 = v163;
-          v124 = v162;
-          _RDX = &g_particleDeferredPhysicsCreateList[v121][v43];
+          v56 = v90;
+          v15 = v84;
+          v57 = v83;
+          _RDX = &g_particleDeferredPhysicsCreateList[v54][v32];
           _RDX->pModel = (const XModel *)material;
           _RDX->physicsRefId = 0;
+          _RDX->position.v[0] = _XMM15.m128_f32[0];
           __asm
           {
-            vmovss  dword ptr [rdx+10h], xmm15
             vextractps dword ptr [rdx+14h], xmm15, 1
             vextractps dword ptr [rdx+18h], xmm15, 2
-            vmovss  dword ptr [rdx+1Ch], xmm6
+          }
+          _RDX->velocity.v[0] = *(float *)&_XMM6;
+          __asm
+          {
             vextractps dword ptr [rdx+20h], xmm6, 1
             vextractps dword ptr [rdx+24h], xmm6, 2
-            vmovss  dword ptr [rdx+28h], xmm7
+          }
+          _RDX->angularVelocity.v[0] = *(float *)&_XMM7;
+          __asm
+          {
             vextractps dword ptr [rdx+2Ch], xmm7, 1
             vextractps dword ptr [rdx+30h], xmm7, 2
-            vmovups xmmword ptr [rdx], xmm0
-            vmovups xmm0, [rbp+100h+var_140]
           }
+          _RDX->quat = (vec4_t)v56;
+          v59 = v85;
           _RDX->physicsInstanceID = (FxPhysics *)(p_createListIndex - 2);
           *(p_createListIndex - 2) = -1;
           _RDX->physicsInstanceID->detailInstanceId = -1;
-          __asm { vmovups xmmword ptr [rdx+50h], xmm0 }
+          _RDX->onImpactData = (Particle_OnImpactCBData)v59;
           _RDX->state = PARTICLE_DEFERRED_PHYSICS_PENDING_CREATION;
-          _RDX->onImpactCB = v167;
-          _RDX->flags = (unsigned int *)(v124 + 4i64 * v143);
+          _RDX->onImpactCB = v88;
+          _RDX->flags = (unsigned int *)(v57 + 4i64 * v64);
           goto LABEL_100;
         }
-        v46 = (ParticleSystem *)ParticleEmitter::GetSystemOwner(v25);
-        Def = ParticleSystem::GetDef(v46);
+        v34 = (ParticleSystem *)ParticleEmitter::GetSystemOwner(v15);
+        Def = ParticleSystem::GetDef(v34);
         Com_PrintWarning(21, "FX Model %s used by Particle FX %s won't create physics asset because we are close to memory limits\n", material->name, Def->name);
       }
       else
       {
-        v41 = (ParticleSystem *)ParticleEmitter::GetSystemOwner(v25);
-        v42 = ParticleSystem::GetDef(v41);
-        Com_PrintWarning(21, "FX Model %s used by Particle FX %s has no physics asset\n", material->name, v42->name);
+        v30 = (ParticleSystem *)ParticleEmitter::GetSystemOwner(v15);
+        v31 = ParticleSystem::GetDef(v30);
+        Com_PrintWarning(21, "FX Model %s used by Particle FX %s has no physics asset\n", material->name, v31->name);
       }
       *((_QWORD *)p_createListIndex - 1) = -1i64;
-      v43 = -1;
+      v32 = -1;
 LABEL_100:
-      ++_R13;
-      v35 = v159;
-      p_m_linkedAssetList = v168;
-      ++v37;
-      *p_createListIndex = v43;
+      ++PositionArrayAtIndex;
+      v24 = v80;
+      p_m_linkedAssetList = v89;
+      ++v26;
+      *p_createListIndex = v32;
       p_createListIndex += 3;
-      v64 = v143 + 1 < particleCountEmit;
-      _RBX = v155;
-      ++v143;
-      v38 = v157;
-      if ( !v64 )
-      {
-        __asm
-        {
-          vmovaps xmm15, [rsp+200h+var_D0]
-          vmovaps xmm14, [rsp+200h+var_C0]
-          vmovaps xmm13, [rsp+200h+var_B0]
-          vmovaps xmm12, [rsp+200h+var_A0]
-          vmovaps xmm11, [rsp+200h+var_90]
-          vmovaps xmm10, [rsp+200h+var_80]
-          vmovaps xmm9, [rsp+200h+var_70]
-          vmovaps xmm8, [rsp+200h+var_60]
-          vmovaps xmm7, [rsp+200h+var_50]
-          vmovaps xmm6, [rsp+200h+var_40]
-        }
-        return;
-      }
+      v60 = v64 + 1 < particleCountEmit;
+      v25 = v76;
+      ++v64;
+      v27 = v78;
     }
+    while ( v60 );
   }
 }
 
@@ -6205,51 +5003,43 @@ Particle_GetShapeOffsetAndAngles
 */
 void Particle_GetShapeOffsetAndAngles(const ParticleEmitter *pEmitterOwner, const ParticleState *pParticleState, const float4 *offset, float4 *outShapeOrigin, vec3_t *outAngles, bool useWorldSpace)
 {
+  const vector4 *EmitterTransform; 
+  __m128 v; 
   tmat33_t<vec3_t> axis; 
 
-  _R14 = outShapeOrigin;
-  _RBP = offset;
   if ( !pEmitterOwner && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 188, ASSERT_TYPE_ASSERT, "(pEmitterOwner)", (const char *)&queryFormat, "pEmitterOwner") )
     __debugbreak();
   if ( !pParticleState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 189, ASSERT_TYPE_ASSERT, "(pParticleState)", (const char *)&queryFormat, "pParticleState") )
     __debugbreak();
-  _RAX = ParticleEmitter::GetEmitterTransform((ParticleEmitter *)pEmitterOwner, pParticleState);
+  EmitterTransform = ParticleEmitter::GetEmitterTransform((ParticleEmitter *)pEmitterOwner, pParticleState);
   if ( useWorldSpace )
   {
-    __asm
-    {
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vaddps  xmm0, xmm1, xmmword ptr [rbp+0]
-      vmovups xmmword ptr [r14], xmm0
-    }
+    outShapeOrigin->v = _mm128_add_ps(EmitterTransform->w.v, offset->v);
     *(_QWORD *)outAngles->v = 0i64;
     outAngles->v[2] = 0.0;
   }
   else
   {
+    v = offset->v;
+    outShapeOrigin->v = _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 0), EmitterTransform->x.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 85), EmitterTransform->y.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(v, v, 170), EmitterTransform->z.v), EmitterTransform->w.v)));
+    _XMM2 = EmitterTransform->x.v;
+    LODWORD(axis.m[0].v[0]) = EmitterTransform->x;
     __asm
     {
-      vmovups xmm0, xmmword ptr [rbp+0]
-      vshufps xmm2, xmm0, xmm0, 0AAh ; 'ª'
-      vshufps xmm3, xmm0, xmm0, 55h ; 'U'
-      vshufps xmm4, xmm0, xmm0, 0
-      vmulps  xmm0, xmm2, xmmword ptr [rax+20h]
-      vaddps  xmm2, xmm0, xmmword ptr [rax+30h]
-      vmulps  xmm0, xmm3, xmmword ptr [rax+10h]
-      vaddps  xmm1, xmm0, xmm2
-      vmulps  xmm0, xmm4, xmmword ptr [rax]
-      vaddps  xmm1, xmm0, xmm1
-      vmovups xmmword ptr [r14], xmm1
-      vmovups xmm2, xmmword ptr [rax]
-      vmovss  dword ptr [rsp+88h+axis], xmm2
       vextractps dword ptr [rsp+88h+axis+4], xmm2, 1
       vextractps dword ptr [rsp+88h+axis+8], xmm2, 2
-      vmovups xmm2, xmmword ptr [rax+10h]
-      vmovss  dword ptr [rsp+88h+axis+0Ch], xmm2
+    }
+    _XMM2.v = (__m128)EmitterTransform->y;
+    LODWORD(axis.m[1].v[0]) = _XMM2.v.m128_i32[0];
+    __asm
+    {
       vextractps dword ptr [rsp+88h+axis+10h], xmm2, 1
       vextractps dword ptr [rsp+88h+axis+14h], xmm2, 2
-      vmovups xmm2, xmmword ptr [rax+20h]
-      vmovss  dword ptr [rsp+88h+axis+18h], xmm2
+    }
+    _XMM2.v = (__m128)EmitterTransform->z;
+    LODWORD(axis.m[2].v[0]) = _XMM2.v.m128_i32[0];
+    __asm
+    {
       vextractps dword ptr [rsp+88h+axis+1Ch], xmm2, 1
       vextractps dword ptr [rsp+88h+axis+20h], xmm2, 2
     }
@@ -6262,117 +5052,44 @@ void Particle_GetShapeOffsetAndAngles(const ParticleEmitter *pEmitterOwner, cons
 Particle_RandomPointOnSphere
 ==============
 */
-
-void __fastcall Particle_RandomPointOnSphere(int seed, float4 *outPos, double radius, ParticleModuleAxesFlags spawnAxes)
+void Particle_RandomPointOnSphere(int seed, float4 *outPos, const float radius, ParticleModuleAxesFlags spawnAxes)
 {
-  char v26; 
-  char v32; 
-  __int64 v53; 
-  double v54; 
+  __int64 v4; 
+  float v7; 
+  float v8; 
+  float v9; 
+  __int128 v11; 
   float c; 
   float s[3]; 
-  __int128 v57; 
-  char v58; 
-  void *retaddr; 
+  __int128 v16; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  _RDI = seed;
-  _RBP = fx_randomTable;
-  __asm { vmovaps xmm6, xmm2 }
-  _RSI = outPos;
-  __asm
-  {
-    vmulss  xmm0, xmm2, dword ptr [rbp+rdi*4+28h]
-    vmulss  xmm1, xmm0, cs:__real@40000000
-    vsubss  xmm7, xmm1, xmm2
-    vxorps  xmm2, xmm2, cs:__xmm@80000000800000008000000080000000
-    vcomiss xmm7, xmm2
-    vcomiss xmm7, xmm6
-  }
-  if ( (unsigned __int64)&v53 != _security_cookie )
-  {
-    __asm
-    {
-      vcvtss2sd xmm0, xmm7, xmm7
-      vmovsd  [rsp+0C8h+var_A0], xmm0
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 129, ASSERT_TYPE_ASSERT, "( ( height >= -radius && height <= radius ) )", "( height ) = %g", v54) )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmulss  xmm9, xmm6, xmm6
-    vmulss  xmm10, xmm7, xmm7
-    vsubss  xmm0, xmm9, xmm10
-    vsqrtss xmm6, xmm0, xmm0
-    vmovss  xmm0, dword ptr [rbp+rdi*4+24h]
-    vmulss  xmm0, xmm0, cs:__real@40c90fdb; radians
-  }
-  FastSinCos(*(const float *)&_XMM0, s, &c);
-  __asm
-  {
-    vmovss  xmm0, [rsp+0C8h+c]
-    vmulss  xmm8, xmm0, xmm6
-    vmovss  xmm0, [rsp+0C8h+s]
-    vmulss  xmm6, xmm0, xmm6
-    vxorps  xmm0, xmm0, xmm0
-    vucomiss xmm9, xmm0
-    vmovss  dword ptr [rsp+0C8h+var_88], xmm8
-    vmovss  dword ptr [rsp+0C8h+var_88+4], xmm6
-    vmovss  dword ptr [rsp+0C8h+var_88+8], xmm7
-  }
-  if ( !v32 )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm8, xmm8
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm1, xmm1, xmm0
-      vaddss  xmm2, xmm1, xmm10
-      vsubss  xmm3, xmm2, xmm9
-      vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vdivss  xmm0, xmm3, xmm9
-      vcomiss xmm0, cs:__real@358637be
-    }
-    if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 140, ASSERT_TYPE_ASSERT, "(radiusSquared == 0.0f || (I_fabs( lengthSquared - radiusSquared ) / radiusSquared < 0.001f * 0.001f))", (const char *)&queryFormat, "radiusSquared == 0.0f || (I_fabs( lengthSquared - radiusSquared ) / radiusSquared < EQUAL_EPSILON * EQUAL_EPSILON)") )
-      __debugbreak();
-  }
+  v4 = seed;
+  v7 = (float)((float)(radius * fx_randomTable[seed + 10]) * 2.0) - radius;
+  if ( (v7 < COERCE_FLOAT(LODWORD(radius) ^ _xmm) || v7 > radius) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 129, ASSERT_TYPE_ASSERT, "( ( height >= -radius && height <= radius ) )", "( height ) = %g", v7) )
+    __debugbreak();
+  v8 = fsqrt((float)(radius * radius) - (float)(v7 * v7));
+  FastSinCos(fx_randomTable[v4 + 9] * 6.2831855, s, &c);
+  v9 = c * v8;
+  *(float *)&v16 = c * v8;
+  *((float *)&v16 + 1) = s[0] * v8;
+  *((float *)&v16 + 2) = v7;
+  if ( (float)(radius * radius) != 0.0 && (float)(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)((float)(s[0] * v8) * (float)(s[0] * v8)) + (float)(v9 * v9)) + (float)(v7 * v7)) - (float)(radius * radius)) & _xmm) / (float)(radius * radius)) >= 0.0000010000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 140, ASSERT_TYPE_ASSERT, "(radiusSquared == 0.0f || (I_fabs( lengthSquared - radiusSquared ) / radiusSquared < 0.001f * 0.001f))", (const char *)&queryFormat, "radiusSquared == 0.0f || (I_fabs( lengthSquared - radiusSquared ) / radiusSquared < EQUAL_EPSILON * EQUAL_EPSILON)") )
+    __debugbreak();
   if ( spawnAxes != PARTICLE_MODULE_AXES_FLAG_ALL )
   {
-    Particle_SpawnShapeConvertPos(spawnAxes, (vec3_t *)&v57);
-    __asm
-    {
-      vmovss  xmm7, dword ptr [rsp+0C8h+var_88+8]
-      vmovss  xmm6, dword ptr [rsp+0C8h+var_88+4]
-      vmovss  xmm8, dword ptr [rsp+0C8h+var_88]
-    }
+    Particle_SpawnShapeConvertPos(spawnAxes, (vec3_t *)&v16);
+    v9 = *(float *)&v16;
   }
-  HIDWORD(v57) = 0;
+  HIDWORD(v16) = 0;
+  v11 = v16;
+  *(float *)&v11 = v9;
+  _XMM0 = v11;
   __asm
   {
-    vmovups xmm0, [rsp+0C8h+var_88]
-    vmovss  xmm0, xmm0, xmm8
     vinsertps xmm0, xmm0, xmm6, 10h
     vinsertps xmm0, xmm0, xmm7, 20h ; ' '
-    vmovups xmmword ptr [rsi], xmm0
   }
-  _R11 = &v58;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  *outPos = (float4)_XMM0.v;
 }
 
 /*
@@ -6382,100 +5099,55 @@ Particle_SpawnShapeConvertPos
 */
 void Particle_SpawnShapeConvertPos(ParticleModuleAxesFlags spawnAxes, vec3_t *outPos)
 {
-  _RBX = outPos;
   if ( spawnAxes == PARTICLE_MODULE_AXES_FLAG_ALL && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 54, ASSERT_TYPE_ASSERT, "(spawnAxes != PARTICLE_MODULE_AXES_FLAG_ALL)", (const char *)&queryFormat, "spawnAxes != PARTICLE_MODULE_AXES_FLAG_ALL") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm1, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
   if ( (spawnAxes & 3) != 0 )
   {
     if ( (spawnAxes & 2) != 0 )
     {
       if ( (spawnAxes & 1) == 0 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vandps  xmm0, xmm0, xmm1
-          vxorps  xmm0, xmm0, xmm2
-          vmovss  dword ptr [rbx], xmm0
-        }
-      }
+        outPos->v[0] = COERCE_FLOAT(LODWORD(outPos->v[0]) & _xmm ^ _xmm);
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vandps  xmm0, xmm0, xmm1
-        vmovss  dword ptr [rbx], xmm0
-      }
+      outPos->v[0] = COERCE_FLOAT(LODWORD(outPos->v[0]) & _xmm);
     }
   }
   else
   {
-    _RBX->v[0] = 0.0;
+    outPos->v[0] = 0.0;
   }
   if ( (spawnAxes & 0xC) != 0 )
   {
     if ( (spawnAxes & 8) != 0 )
     {
       if ( (spawnAxes & 4) == 0 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+4]
-          vandps  xmm0, xmm0, xmm1
-          vxorps  xmm0, xmm0, xmm2
-          vmovss  dword ptr [rbx+4], xmm0
-        }
-      }
+        outPos->v[1] = COERCE_FLOAT(LODWORD(outPos->v[1]) & _xmm ^ _xmm);
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+4]
-        vandps  xmm0, xmm0, xmm1
-        vmovss  dword ptr [rbx+4], xmm0
-      }
+      outPos->v[1] = COERCE_FLOAT(LODWORD(outPos->v[1]) & _xmm);
     }
   }
   else
   {
-    _RBX->v[1] = 0.0;
+    outPos->v[1] = 0.0;
   }
   if ( (spawnAxes & 0x30) != 0 )
   {
     if ( (spawnAxes & 0x20) != 0 )
     {
       if ( (spawnAxes & 0x10) == 0 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+8]
-          vandps  xmm0, xmm0, xmm1
-          vxorps  xmm0, xmm0, xmm2
-          vmovss  dword ptr [rbx+8], xmm0
-        }
-      }
+        outPos->v[2] = COERCE_FLOAT(LODWORD(outPos->v[2]) & _xmm ^ _xmm);
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+8]
-        vandps  xmm0, xmm0, xmm1
-        vmovss  dword ptr [rbx+8], xmm0
-      }
+      outPos->v[2] = COERCE_FLOAT(LODWORD(outPos->v[2]) & _xmm);
     }
   }
   else
   {
-    _RBX->v[2] = 0.0;
+    outPos->v[2] = 0.0;
   }
 }
 
@@ -6486,8 +5158,7 @@ Particle_SpawnShapeDrawCylinder
 */
 void Particle_SpawnShapeDrawCylinder(const float4 *offset, const vector4 *axis, const vec4_t *color, const ParticleState *pParticleState, const ParticleModuleInitSpawnShapeCylinder *pModule)
 {
-  char v46; 
-  char v47; 
+  float v9; 
   float radiusMax; 
   float radiusMin; 
   float halfHeight; 
@@ -6495,77 +5166,49 @@ void Particle_SpawnShapeDrawCylinder(const float4 *offset, const vector4 *axis, 
   vec3_t start; 
   vec3_t end; 
   tmat33_t<vec3_t> axisa; 
-  char v68; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
-  _RBX = axis;
   if ( !pModule && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\vfx\\particles\\particlemoduleinit.cpp", 1787, ASSERT_TYPE_ASSERT, "(pModule)", (const char *)&queryFormat, "pModule") )
     __debugbreak();
   ParticleModuleInitSpawnShapeCylinder::GetDimensions((ParticleModuleInitSpawnShapeCylinder *)pModule, pParticleState, &halfHeight, &radiusMin, &radiusMax);
+  v9 = halfHeight;
+  _XMM2 = 0i64;
+  __asm { vinsertps xmm2, xmm2, xmm0, 20h ; ' ' }
+  _XMM7 = 0i64;
+  __asm { vinsertps xmm7, xmm7, xmm9, 20h ; ' ' }
+  _XMM2 = _mm128_add_ps((__m128)(*(_OWORD *)&_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM2, _XMM2, 85), axis->y.v), g_negativeZero.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM2, _XMM2, 170), axis->z.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM2, _XMM2, 0), axis->x.v), g_negativeZero.v))) & *(_OWORD *)&g_keepXYZ.v), offset->v);
+  _XMM3 = _mm128_add_ps((__m128)(*(_OWORD *)&_mm128_add_ps(_mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM7, _XMM7, 85), axis->y.v), g_negativeZero.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM7, _XMM7, 170), axis->z.v), _mm128_add_ps(_mm128_mul_ps(_mm_shuffle_ps(_XMM7, _XMM7, 0), axis->x.v), g_negativeZero.v))) & *(_OWORD *)&g_keepXYZ.v), offset->v);
+  start.v[0] = _XMM2.m128_f32[0];
   __asm
   {
-    vmovups xmm8, xmmword ptr cs:?g_negativeZero@@3Ufloat4@@B.v; float4 const g_negativeZero
-    vmovss  xmm9, [rbp+4Fh+halfHeight]
-    vxorps  xmm0, xmm9, cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm2, xmm2, xmm2
-    vinsertps xmm2, xmm2, xmm0, 20h ; ' '
-    vshufps xmm1, xmm2, xmm2, 0
-    vmulps  xmm0, xmm1, xmmword ptr [rbx]
-    vshufps xmm4, xmm2, xmm2, 55h ; 'U'
-    vaddps  xmm3, xmm0, xmm8
-    vmulps  xmm0, xmm4, xmmword ptr [rbx+10h]
-    vshufps xmm5, xmm2, xmm2, 0AAh ; 'ª'
-    vaddps  xmm2, xmm0, xmm8
-    vmulps  xmm0, xmm5, xmmword ptr [rbx+20h]
-    vaddps  xmm1, xmm0, xmm3
-    vaddps  xmm2, xmm2, xmm1
-    vandps  xmm6, xmm2, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-    vxorps  xmm7, xmm7, xmm7
-    vinsertps xmm7, xmm7, xmm9, 20h ; ' '
-    vshufps xmm1, xmm7, xmm7, 0
-    vmulps  xmm0, xmm1, xmmword ptr [rbx]
-    vaddps  xmm3, xmm0, xmm8
-    vshufps xmm2, xmm7, xmm7, 55h ; 'U'
-    vmulps  xmm0, xmm2, xmmword ptr [rbx+10h]
-    vaddps  xmm2, xmm0, xmm8
-    vshufps xmm4, xmm7, xmm7, 0AAh ; 'ª'
-    vmulps  xmm0, xmm4, xmmword ptr [rbx+20h]
-    vaddps  xmm1, xmm0, xmm3
-    vaddps  xmm2, xmm2, xmm1
-    vandps  xmm1, xmm2, xmmword ptr cs:?g_keepXYZ@@3Ufloat4@@B.v; float4 const g_keepXYZ
-    vaddps  xmm2, xmm6, xmmword ptr [r14]
-    vaddps  xmm3, xmm1, xmmword ptr [r14]
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm9, xmm6
-    vmovss  dword ptr [rbp+4Fh+start], xmm2
     vextractps dword ptr [rbp+4Fh+start+4], xmm2, 1
     vextractps dword ptr [rbp+4Fh+start+8], xmm2, 2
-    vmovss  dword ptr [rbp+4Fh+end], xmm3
+  }
+  end.v[0] = _XMM3.m128_f32[0];
+  __asm
+  {
     vextractps dword ptr [rbp+4Fh+end+4], xmm3, 1
     vextractps dword ptr [rbp+4Fh+end+8], xmm3, 2
   }
-  if ( v46 | v47 )
+  if ( halfHeight <= 0.0 )
   {
+    _XMM2.v = (__m128)axis->y;
+    _XMM1.v = (__m128)axis->x;
+    LODWORD(axisa.m[1].v[0]) = _XMM2.v.m128_i32[0];
     __asm
     {
-      vmovups xmm2, xmmword ptr [rbx+10h]
-      vmovups xmm1, xmmword ptr [rbx]
-      vmovss  dword ptr [rbp+4Fh+axis+0Ch], xmm2
       vextractps dword ptr [rbp+4Fh+axis+10h], xmm2, 1
       vextractps dword ptr [rbp+4Fh+axis+14h], xmm2, 2
-      vmovups xmm2, xmmword ptr [rbx+20h]
-      vmovss  dword ptr [rbp+4Fh+axis+18h], xmm2
+    }
+    _XMM2.v = (__m128)axis->z;
+    LODWORD(axisa.m[2].v[0]) = _XMM2.v.m128_i32[0];
+    __asm
+    {
       vextractps dword ptr [rbp+4Fh+axis+1Ch], xmm2, 1
       vextractps dword ptr [rbp+4Fh+axis+20h], xmm2, 2
-      vmovss  dword ptr [rbp+4Fh+axis], xmm1
+    }
+    axisa.m[0].v[0] = _XMM1.v.m128_f32[0];
+    __asm
+    {
       vextractps dword ptr [rbp+4Fh+axis+4], xmm1, 1
       vextractps dword ptr [rbp+4Fh+axis+8], xmm1, 2
     }
@@ -6573,44 +5216,28 @@ void Particle_SpawnShapeDrawCylinder(const float4 *offset, const vector4 *axis, 
   }
   else
   {
-    __asm
+    angles.v[2] = 0.0;
+    angles.v[1] = 0.0;
+    angles.v[0] = 0.0;
+  }
+  if ( (pModule->m_spawnFlags & 1) != 0 )
+  {
+    if ( v9 > 0.0 )
     {
-      vmovss  dword ptr [rbp+4Fh+angles+8], xmm6
-      vmovss  dword ptr [rbp+4Fh+angles+4], xmm6
-      vmovss  dword ptr [rbp+4Fh+angles], xmm6
+      Particle_DebugCylinder(&start, &end, radiusMax, &angles, color, 1, 0);
+      return;
     }
   }
-  if ( (pModule->m_spawnFlags & 1) == 0 )
+  else
   {
-    __asm { vcomiss xmm9, xmm6 }
-    if ( (pModule->m_spawnFlags & 1) != 0 )
+    if ( v9 > 0.0 )
     {
-      __asm { vmovss  xmm2, [rbp+4Fh+radiusMin]; radius }
-      Particle_DebugCylinder(&start, &end, *(float *)&_XMM2, &angles, color, 1, 0);
-      __asm { vmovss  xmm2, [rsp+110h+radiusMax]; radius }
-      Particle_DebugCylinder(&start, &end, *(float *)&_XMM2, &angles, color, 1, 0);
-      goto LABEL_14;
+      Particle_DebugCylinder(&start, &end, radiusMin, &angles, color, 1, 0);
+      Particle_DebugCylinder(&start, &end, radiusMax, &angles, color, 1, 0);
+      return;
     }
-    __asm { vmovss  xmm1, [rbp+4Fh+radiusMin]; radius }
-    Particle_DebugCircle(&start, *(float *)&_XMM1, &angles, color, 1, 0);
-LABEL_13:
-    __asm { vmovss  xmm1, [rsp+110h+radiusMax]; radius }
-    Particle_DebugCircle(&start, *(float *)&_XMM1, &angles, color, 1, 0);
-    goto LABEL_14;
+    Particle_DebugCircle(&start, radiusMin, &angles, color, 1, 0);
   }
-  __asm { vcomiss xmm9, xmm6 }
-  if ( (pModule->m_spawnFlags & 1) == 0 )
-    goto LABEL_13;
-  __asm { vmovss  xmm2, [rsp+110h+radiusMax]; radius }
-  Particle_DebugCylinder(&start, &end, *(float *)&_XMM2, &angles, color, 1, 0);
-LABEL_14:
-  _R11 = &v68;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
+  Particle_DebugCircle(&start, radiusMax, &angles, color, 1, 0);
 }
 

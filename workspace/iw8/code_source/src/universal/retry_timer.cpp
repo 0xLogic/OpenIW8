@@ -210,19 +210,16 @@ RetryTimer::Init
 void RetryTimer::Init(RetryTimer *this, const RetryTimer::Config *config)
 {
   int integer; 
-  unsigned int unsignedInt; 
-  RetryTimer *v5; 
+  unsigned int m_delay; 
   RetryTimer::Mode initialMode; 
   const dvar_t *backoffDelay; 
-  int v8; 
+  unsigned int unsignedInt; 
   const dvar_t *maxBackoffDelay; 
 
-  __asm { vmovups ymm0, ymmword ptr [rdx] }
   integer = 0;
-  unsignedInt = 0x7FFFFFFF;
-  __asm { vmovups ymmword ptr [rcx], ymm0 }
+  m_delay = 0x7FFFFFFF;
+  this->m_config = *config;
   this->m_retryCount = 0;
-  v5 = this;
   this->m_expiryTime = 0x7FFFFFFF;
   initialMode = config->initialMode;
   if ( initialMode )
@@ -239,32 +236,32 @@ void RetryTimer::Init(RetryTimer *this, const RetryTimer::Config *config)
       if ( (this->m_config.flags & 1) != 0 )
       {
         if ( backoffDelay )
-          v8 = I_irand(0, backoffDelay->current.integer);
+          unsignedInt = I_irand(0, backoffDelay->current.integer);
         else
-          v8 = I_irand(0, 1000);
+          unsignedInt = I_irand(0, 1000);
       }
       else if ( backoffDelay )
       {
-        v8 = backoffDelay->current.integer;
+        unsignedInt = backoffDelay->current.unsignedInt;
       }
       else
       {
-        v8 = 1000;
+        unsignedInt = 1000;
       }
-      v5->m_delay = v8;
-      maxBackoffDelay = v5->m_config.maxBackoffDelay;
+      this->m_delay = unsignedInt;
+      maxBackoffDelay = this->m_config.maxBackoffDelay;
       if ( maxBackoffDelay )
-        unsignedInt = maxBackoffDelay->current.unsignedInt;
-      if ( unsignedInt > v5->m_delay )
-        unsignedInt = v5->m_delay;
-      ++v5->m_retryCount;
-      v5->m_delay = unsignedInt;
+        m_delay = maxBackoffDelay->current.unsignedInt;
+      if ( m_delay > this->m_delay )
+        m_delay = this->m_delay;
+      ++this->m_retryCount;
+      this->m_delay = m_delay;
     }
     else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\retry_timer.cpp", 65, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "invalid timer mode %d", (unsigned __int8)initialMode) )
     {
       __debugbreak();
     }
-    v5->m_expiryTime = v5->m_delay + Sys_Milliseconds();
+    this->m_expiryTime = this->m_delay + Sys_Milliseconds();
   }
 }
 

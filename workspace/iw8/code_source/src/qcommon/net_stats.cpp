@@ -151,6 +151,7 @@ __int64 __fastcall CountMeasurements(int count, int *measurements, double _XMM2_
 {
   int v4; 
   __int64 v5; 
+  unsigned int v6; 
   int v7; 
   __int64 v10; 
   __int64 v16; 
@@ -158,7 +159,7 @@ __int64 __fastcall CountMeasurements(int count, int *measurements, double _XMM2_
 
   v4 = 0;
   v5 = count;
-  _ER10 = 0;
+  v6 = 0;
   v7 = 0;
   if ( count > 0 && (unsigned int)count >= 8 )
   {
@@ -186,13 +187,13 @@ __int64 __fastcall CountMeasurements(int count, int *measurements, double _XMM2_
       vpaddd  xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpaddd  xmm0, xmm2, xmm0
-      vmovd   r10d, xmm0
     }
+    v6 = _XMM0;
   }
   v16 = v7;
   v17 = 0;
   if ( v7 >= v5 )
-    return _ER10;
+    return v6;
   if ( v5 - v7 >= 2 )
   {
     do
@@ -204,8 +205,8 @@ __int64 __fastcall CountMeasurements(int count, int *measurements, double _XMM2_
     while ( v16 < v5 - 1 );
   }
   if ( v16 < v5 )
-    _ER10 += measurements[v16];
-  return _ER10 + v17 + v4;
+    v6 += measurements[v16];
+  return v6 + v17 + v4;
 }
 
 /*
@@ -218,6 +219,7 @@ __int64 __fastcall MeanMeasurements(int count, int *measurements, double _XMM2_8
 {
   int v4; 
   __int64 v5; 
+  unsigned int v6; 
   int v7; 
   __int64 v10; 
   __int64 v16; 
@@ -226,7 +228,7 @@ __int64 __fastcall MeanMeasurements(int count, int *measurements, double _XMM2_8
 
   v4 = 0;
   v5 = count;
-  _ER10 = 0;
+  v6 = 0;
   v7 = 0;
   if ( count > 0 && (unsigned int)count >= 8 )
   {
@@ -254,8 +256,8 @@ __int64 __fastcall MeanMeasurements(int count, int *measurements, double _XMM2_8
       vpaddd  xmm2, xmm1, xmm0
       vpsrldq xmm0, xmm2, 4
       vpaddd  xmm0, xmm2, xmm0
-      vmovd   r10d, xmm0
     }
+    v6 = _XMM0;
   }
   v16 = v7;
   v17 = 0;
@@ -272,12 +274,12 @@ __int64 __fastcall MeanMeasurements(int count, int *measurements, double _XMM2_8
       while ( v16 < v5 - 1 );
     }
     if ( v16 < v5 )
-      _ER10 += measurements[v16];
-    _ER10 += v17 + v4;
+      v6 += measurements[v16];
+    v6 += v17 + v4;
   }
-  result = _ER10;
+  result = v6;
   if ( (int)v5 > 0 )
-    return (unsigned int)((int)_ER10 / (int)v5);
+    return (unsigned int)((int)v6 / (int)v5);
   return result;
 }
 

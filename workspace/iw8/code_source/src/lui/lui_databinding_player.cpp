@@ -378,18 +378,12 @@ s_LUI_DataBinding_Get_LookPitchAngle
 */
 float s_LUI_DataBinding_Get_LookPitchAngle(LocalClientNum_t localClientNum)
 {
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+178C0h]
-    vmulss  xmm5, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm2, 1
-    vsubss  xmm1, xmm5, xmm4
-    vmulss  xmm0, xmm1, cs:__real@c3b40000
-  }
-  return *(float *)&_XMM0;
+  float v1; 
+
+  v1 = CG_GetLocalClientGlobals(localClientNum)->refdefViewAngles.v[0] * 0.0027777778;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm2, 1 }
+  return (float)(v1 - *(float *)&_XMM4) * -360.0;
 }
 
 /*

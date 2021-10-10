@@ -393,109 +393,83 @@ void bdAchievementDefinition::bdAchievementDefinition(bdAchievementDefinition *t
   __int64 v5; 
   unsigned int m_size; 
 
-  _R15 = __that;
-  _R14 = this;
   v5 = 0i64;
   if ( a3 )
   {
     *((_QWORD *)&this->__vftable + 1) = &bdAchievementDefinition::`vbtable';
     bdReferencable::bdReferencable((bdReferencable *)this->gapBE8, (const bdReferencable *)((char *)&__that->__vftable + *(int *)(*((_QWORD *)&__that->__vftable + 1) + 4i64) + 8));
   }
-  bdStructBufferSerializable::bdStructBufferSerializable(_R14, _R15);
-  _R14->__vftable = (bdAchievementDefinition_vtbl *)&bdAchievementDefinition::`vftable'{for `bdStructBufferSerializable'};
-  *(bdAchievementDefinition_vtbl **)((char *)&_R14->__vftable + *(int *)(*((_QWORD *)&_R14->__vftable + 1) + 4i64) + 8) = (bdAchievementDefinition_vtbl *)&bdAchievementDefinition::`vftable'{for `bdReferencable'};
-  *((_QWORD *)&_R14->__vftable + 2) = *((_QWORD *)&_R15->__vftable + 2);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r15+18h]
-    vmovups ymmword ptr [r14+18h], ymm0
-    vmovups ymm1, ymmword ptr [r15+38h]
-    vmovups ymmword ptr [r14+38h], ymm1
-    vmovups ymm0, ymmword ptr [r15+58h]
-    vmovups ymmword ptr [r14+58h], ymm0
-  }
-  *(_DWORD *)&_R14->m_name[88] = *(_DWORD *)&_R15->m_name[88];
-  _R14->m_name[92] = _R15->m_name[92];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r15+7Dh]
-    vmovups xmmword ptr [r14+7Dh], xmm0
-    vmovups xmm1, xmmword ptr [r15+8Dh]
-    vmovups xmmword ptr [r14+8Dh], xmm1
-    vmovups xmm0, xmmword ptr [r15+9Dh]
-    vmovups xmmword ptr [r14+9Dh], xmm0
-    vmovups xmm1, xmmword ptr [r15+0ADh]
-    vmovups xmmword ptr [r14+0ADh], xmm1
-    vmovups xmm0, xmmword ptr [r15+0BDh]
-    vmovups xmmword ptr [r14+0BDh], xmm0
-    vmovups xmm1, xmmword ptr [r15+0CDh]
-    vmovups xmmword ptr [r14+0CDh], xmm1
-    vmovups xmm0, xmmword ptr [r15+0DDh]
-    vmovups xmmword ptr [r14+0DDh], xmm0
-    vmovups xmm0, xmmword ptr [r15+0EDh]
-    vmovups xmmword ptr [r14+0EDh], xmm0
-    vmovups xmm1, xmmword ptr [r15+0FDh]
-    vmovups xmmword ptr [r14+0FDh], xmm1
-    vmovups xmm0, xmmword ptr [r15+10Dh]
-    vmovups xmmword ptr [r14+10Dh], xmm0
-    vmovups xmm1, xmmword ptr [r15+11Dh]
-    vmovups xmmword ptr [r14+11Dh], xmm1
-    vmovups xmm0, xmmword ptr [r15+12Dh]
-    vmovups xmmword ptr [r14+12Dh], xmm0
-    vmovups xmm1, xmmword ptr [r15+13Dh]
-    vmovups xmmword ptr [r14+13Dh], xmm1
-    vmovups xmm0, xmmword ptr [r15+14Dh]
-    vmovups xmmword ptr [r14+14Dh], xmm0
-    vmovups xmm1, xmmword ptr [r15+15Dh]
-    vmovups xmmword ptr [r14+15Dh], xmm1
-  }
-  *(_QWORD *)&_R14->m_description.m_buffer[240] = *(_QWORD *)&_R15->m_description.m_buffer[240];
-  *(_WORD *)&_R14->m_description.m_buffer[248] = *(_WORD *)&_R15->m_description.m_buffer[248];
-  _R14->m_description.m_buffer[250] = _R15->m_description.m_buffer[250];
-  _R14->m_kind = _R15->m_kind;
-  bdAchievementTriggers::bdAchievementTriggers(&_R14->m_successTriggers, &_R15->m_successTriggers);
-  _R14->m_successLimit = _R15->m_successLimit;
-  *((_QWORD *)&_R14->m_successCooldown.__vftable + 1) = &bdAchievementRelativeTimestamp::`vbtable';
-  bdReferencable::bdReferencable((bdReferencable *)&_R14->m_successCooldown.m_periodParams[48], (const bdReferencable *)((char *)&_R15->m_successCooldown.__vftable + *(int *)(*((_QWORD *)&_R15->m_successCooldown.__vftable + 1) + 4i64) + 8));
-  bdStructBufferSerializable::bdStructBufferSerializable(&_R14->m_successCooldown, &_R15->m_successCooldown);
-  _R14->m_successCooldown.__vftable = (bdAchievementRelativeTimestamp_vtbl *)&bdAchievementRelativeTimestamp::`vftable'{for `bdStructBufferSerializable'};
-  *(bdAchievementRelativeTimestamp_vtbl **)((char *)&_R14->m_successCooldown.__vftable + *(int *)(*((_QWORD *)&_R14->m_successCooldown.__vftable + 1) + 4i64) + 8) = (bdAchievementRelativeTimestamp_vtbl *)&bdAchievementRelativeTimestamp::`vftable'{for `bdReferencable'};
-  *((_DWORD *)&_R14->m_successCooldown.__vftable + 4) = *((_DWORD *)&_R15->m_successCooldown.__vftable + 4);
-  *(_QWORD *)_R14->m_successCooldown.m_periodParams = &bdAchievementRelativeTimestampPeriodParams::`vbtable';
-  bdReferencable::bdReferencable((bdReferencable *)&_R14->m_successCooldown.m_periodParams[32], (const bdReferencable *)&_R15->m_successCooldown.m_periodParams[*(int *)(*(_QWORD *)_R15->m_successCooldown.m_periodParams + 4i64)]);
-  bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)(&_R14->m_successCooldown.__vftable + 3), (const bdStructBufferSerializable *)(&_R15->m_successCooldown.__vftable + 3));
-  *((_QWORD *)&_R14->m_successCooldown.__vftable + 3) = &bdAchievementRelativeTimestampPeriodParams::`vftable'{for `bdStructBufferSerializable'};
-  *(_QWORD *)&_R14->m_successCooldown.m_periodParams[*(int *)(*(_QWORD *)_R14->m_successCooldown.m_periodParams + 4i64)] = &bdAchievementRelativeTimestampPeriodParams::`vftable'{for `bdReferencable'};
-  *(_DWORD *)&_R14->m_successCooldown.m_periodParams[8] = *(_DWORD *)&_R15->m_successCooldown.m_periodParams[8];
-  *(_DWORD *)&_R14->m_successCooldown.m_periodParams[12] = *(_DWORD *)&_R15->m_successCooldown.m_periodParams[12];
-  *(_DWORD *)&_R14->m_successCooldown.m_periodParams[16] = *(_DWORD *)&_R15->m_successCooldown.m_periodParams[16];
-  *(_DWORD *)&_R14->m_successCooldown.m_periodParams[20] = *(_DWORD *)&_R15->m_successCooldown.m_periodParams[20];
-  *(_DWORD *)&_R14->m_successCooldown.m_periodParams[24] = *(_DWORD *)&_R15->m_successCooldown.m_periodParams[24];
-  _R14->m_progressTarget = _R15->m_progressTarget;
-  _R14->m_requiresClaim = _R15->m_requiresClaim;
-  _R14->m_requiresActivation = _R15->m_requiresActivation;
-  bdAchievementTriggers::bdAchievementTriggers(&_R14->m_expiryTriggers, &_R15->m_expiryTriggers);
-  `eh vector vbase constructor iterator'(&_R14->m_multiProgressTarget, 0x50ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgressTarget::bdAchievementProgressTarget, (void (__fastcall *)(void *))bdAchievementProgressTarget::`vbase destructor);
-  _R14->m_multiProgressTarget.m_size = 0;
-  bdStructFixedSizeArray<bdAchievementProgressTarget,4>::copy(&_R14->m_multiProgressTarget, &_R15->m_multiProgressTarget);
-  bdStructOptionalObject<bdAchievementSchedule>::bdStructOptionalObject<bdAchievementSchedule>(&_R14->m_progressSchedule, &_R15->m_progressSchedule);
-  bdStructOptionalObject<bdAchievementSchedule>::bdStructOptionalObject<bdAchievementSchedule>(&_R14->m_activationSchedule, &_R15->m_activationSchedule);
-  _R14->m_archetypeID.m_hasValue = _R15->m_archetypeID.m_hasValue;
-  _R14->m_archetypeID.m_value = _R15->m_archetypeID.m_value;
-  `eh vector vbase constructor iterator'(&_R14->m_archetypeParameters, 0x30ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementArchetypeParameter::bdAchievementArchetypeParameter, (void (__fastcall *)(void *))bdAchievementArchetypeParameter::`vbase destructor);
-  _R14->m_archetypeParameters.m_size = 0;
-  bdStructFixedSizeArray<bdAchievementArchetypeParameter,4>::copy(&_R14->m_archetypeParameters, &_R15->m_archetypeParameters);
-  _R14->m_subscribedEvents.m_size = 0;
-  m_size = _R15->m_subscribedEvents.m_size;
-  _R14->m_subscribedEvents.m_size = m_size;
+  bdStructBufferSerializable::bdStructBufferSerializable(this, __that);
+  this->__vftable = (bdAchievementDefinition_vtbl *)&bdAchievementDefinition::`vftable'{for `bdStructBufferSerializable'};
+  *(bdAchievementDefinition_vtbl **)((char *)&this->__vftable + *(int *)(*((_QWORD *)&this->__vftable + 1) + 4i64) + 8) = (bdAchievementDefinition_vtbl *)&bdAchievementDefinition::`vftable'{for `bdReferencable'};
+  *((_QWORD *)&this->__vftable + 2) = *((_QWORD *)&__that->__vftable + 2);
+  *(bdStructBufferSerializable *)((char *)&this->bdStructBufferSerializable + 24) = *(bdStructBufferSerializable *)((char *)&__that->bdStructBufferSerializable + 24);
+  *(__m256i *)&this->m_name[24] = *(__m256i *)&__that->m_name[24];
+  *(__m256i *)&this->m_name[56] = *(__m256i *)&__that->m_name[56];
+  *(_DWORD *)&this->m_name[88] = *(_DWORD *)&__that->m_name[88];
+  this->m_name[92] = __that->m_name[92];
+  *(_OWORD *)this->m_description.m_buffer = *(_OWORD *)__that->m_description.m_buffer;
+  *(_OWORD *)&this->m_description.m_buffer[16] = *(_OWORD *)&__that->m_description.m_buffer[16];
+  *(_OWORD *)&this->m_description.m_buffer[32] = *(_OWORD *)&__that->m_description.m_buffer[32];
+  *(_OWORD *)&this->m_description.m_buffer[48] = *(_OWORD *)&__that->m_description.m_buffer[48];
+  *(_OWORD *)&this->m_description.m_buffer[64] = *(_OWORD *)&__that->m_description.m_buffer[64];
+  *(_OWORD *)&this->m_description.m_buffer[80] = *(_OWORD *)&__that->m_description.m_buffer[80];
+  *(_OWORD *)&this->m_description.m_buffer[96] = *(_OWORD *)&__that->m_description.m_buffer[96];
+  *(_OWORD *)&this->m_description.m_buffer[112] = *(_OWORD *)&__that->m_description.m_buffer[112];
+  *(_OWORD *)&this->m_description.m_buffer[128] = *(_OWORD *)&__that->m_description.m_buffer[128];
+  *(_OWORD *)&this->m_description.m_buffer[144] = *(_OWORD *)&__that->m_description.m_buffer[144];
+  *(_OWORD *)&this->m_description.m_buffer[160] = *(_OWORD *)&__that->m_description.m_buffer[160];
+  *(_OWORD *)&this->m_description.m_buffer[176] = *(_OWORD *)&__that->m_description.m_buffer[176];
+  *(_OWORD *)&this->m_description.m_buffer[192] = *(_OWORD *)&__that->m_description.m_buffer[192];
+  *(_OWORD *)&this->m_description.m_buffer[208] = *(_OWORD *)&__that->m_description.m_buffer[208];
+  *(_OWORD *)&this->m_description.m_buffer[224] = *(_OWORD *)&__that->m_description.m_buffer[224];
+  *(_QWORD *)&this->m_description.m_buffer[240] = *(_QWORD *)&__that->m_description.m_buffer[240];
+  *(_WORD *)&this->m_description.m_buffer[248] = *(_WORD *)&__that->m_description.m_buffer[248];
+  this->m_description.m_buffer[250] = __that->m_description.m_buffer[250];
+  this->m_kind = __that->m_kind;
+  bdAchievementTriggers::bdAchievementTriggers(&this->m_successTriggers, &__that->m_successTriggers);
+  this->m_successLimit = __that->m_successLimit;
+  *((_QWORD *)&this->m_successCooldown.__vftable + 1) = &bdAchievementRelativeTimestamp::`vbtable';
+  bdReferencable::bdReferencable((bdReferencable *)&this->m_successCooldown.m_periodParams[48], (const bdReferencable *)((char *)&__that->m_successCooldown.__vftable + *(int *)(*((_QWORD *)&__that->m_successCooldown.__vftable + 1) + 4i64) + 8));
+  bdStructBufferSerializable::bdStructBufferSerializable(&this->m_successCooldown, &__that->m_successCooldown);
+  this->m_successCooldown.__vftable = (bdAchievementRelativeTimestamp_vtbl *)&bdAchievementRelativeTimestamp::`vftable'{for `bdStructBufferSerializable'};
+  *(bdAchievementRelativeTimestamp_vtbl **)((char *)&this->m_successCooldown.__vftable + *(int *)(*((_QWORD *)&this->m_successCooldown.__vftable + 1) + 4i64) + 8) = (bdAchievementRelativeTimestamp_vtbl *)&bdAchievementRelativeTimestamp::`vftable'{for `bdReferencable'};
+  *((_DWORD *)&this->m_successCooldown.__vftable + 4) = *((_DWORD *)&__that->m_successCooldown.__vftable + 4);
+  *(_QWORD *)this->m_successCooldown.m_periodParams = &bdAchievementRelativeTimestampPeriodParams::`vbtable';
+  bdReferencable::bdReferencable((bdReferencable *)&this->m_successCooldown.m_periodParams[32], (const bdReferencable *)&__that->m_successCooldown.m_periodParams[*(int *)(*(_QWORD *)__that->m_successCooldown.m_periodParams + 4i64)]);
+  bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)(&this->m_successCooldown.__vftable + 3), (const bdStructBufferSerializable *)(&__that->m_successCooldown.__vftable + 3));
+  *((_QWORD *)&this->m_successCooldown.__vftable + 3) = &bdAchievementRelativeTimestampPeriodParams::`vftable'{for `bdStructBufferSerializable'};
+  *(_QWORD *)&this->m_successCooldown.m_periodParams[*(int *)(*(_QWORD *)this->m_successCooldown.m_periodParams + 4i64)] = &bdAchievementRelativeTimestampPeriodParams::`vftable'{for `bdReferencable'};
+  *(_DWORD *)&this->m_successCooldown.m_periodParams[8] = *(_DWORD *)&__that->m_successCooldown.m_periodParams[8];
+  *(_DWORD *)&this->m_successCooldown.m_periodParams[12] = *(_DWORD *)&__that->m_successCooldown.m_periodParams[12];
+  *(_DWORD *)&this->m_successCooldown.m_periodParams[16] = *(_DWORD *)&__that->m_successCooldown.m_periodParams[16];
+  *(_DWORD *)&this->m_successCooldown.m_periodParams[20] = *(_DWORD *)&__that->m_successCooldown.m_periodParams[20];
+  *(_DWORD *)&this->m_successCooldown.m_periodParams[24] = *(_DWORD *)&__that->m_successCooldown.m_periodParams[24];
+  this->m_progressTarget = __that->m_progressTarget;
+  this->m_requiresClaim = __that->m_requiresClaim;
+  this->m_requiresActivation = __that->m_requiresActivation;
+  bdAchievementTriggers::bdAchievementTriggers(&this->m_expiryTriggers, &__that->m_expiryTriggers);
+  `eh vector vbase constructor iterator'(&this->m_multiProgressTarget, 0x50ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementProgressTarget::bdAchievementProgressTarget, (void (__fastcall *)(void *))bdAchievementProgressTarget::`vbase destructor);
+  this->m_multiProgressTarget.m_size = 0;
+  bdStructFixedSizeArray<bdAchievementProgressTarget,4>::copy(&this->m_multiProgressTarget, &__that->m_multiProgressTarget);
+  bdStructOptionalObject<bdAchievementSchedule>::bdStructOptionalObject<bdAchievementSchedule>(&this->m_progressSchedule, &__that->m_progressSchedule);
+  bdStructOptionalObject<bdAchievementSchedule>::bdStructOptionalObject<bdAchievementSchedule>(&this->m_activationSchedule, &__that->m_activationSchedule);
+  this->m_archetypeID.m_hasValue = __that->m_archetypeID.m_hasValue;
+  this->m_archetypeID.m_value = __that->m_archetypeID.m_value;
+  `eh vector vbase constructor iterator'(&this->m_archetypeParameters, 0x30ui64, 4ui64, (void (__fastcall *)(void *))bdAchievementArchetypeParameter::bdAchievementArchetypeParameter, (void (__fastcall *)(void *))bdAchievementArchetypeParameter::`vbase destructor);
+  this->m_archetypeParameters.m_size = 0;
+  bdStructFixedSizeArray<bdAchievementArchetypeParameter,4>::copy(&this->m_archetypeParameters, &__that->m_archetypeParameters);
+  this->m_subscribedEvents.m_size = 0;
+  m_size = __that->m_subscribedEvents.m_size;
+  this->m_subscribedEvents.m_size = m_size;
   if ( m_size )
   {
     do
     {
-      _R14->m_subscribedEvents.m_elements[v5] = _R15->m_subscribedEvents.m_elements[v5];
+      this->m_subscribedEvents.m_elements[v5] = __that->m_subscribedEvents.m_elements[v5];
       v5 = (unsigned int)(v5 + 1);
     }
-    while ( (unsigned int)v5 < _R14->m_subscribedEvents.m_size );
+    while ( (unsigned int)v5 < this->m_subscribedEvents.m_size );
   }
 }
 

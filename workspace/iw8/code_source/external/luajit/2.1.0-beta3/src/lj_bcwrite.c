@@ -286,59 +286,60 @@ bcwrite_ktabk
 void bcwrite_ktabk(BCWriteCtx *ctx, const TValue *o, int narrow)
 {
   char *ptr64; 
-  __int64 v8; 
-  __int64 v9; 
-  size_t v10; 
-  unsigned int v11; 
+  __int64 v7; 
+  unsigned __int64 v8; 
+  size_t v9; 
+  unsigned int v10; 
+  char *v11; 
   char *v12; 
   char *v13; 
-  char *v14; 
-  char *v19; 
+  char *v18; 
 
-  _RBX = o;
   if ( (unsigned int)(LODWORD(ctx->sb.e.ptr64) - LODWORD(ctx->sb.p.ptr64)) >= 0xB )
     ptr64 = (char *)ctx->sb.p.ptr64;
   else
     ptr64 = j_lj_buf_more2(&ctx->sb, 0xBu);
-  v8 = _RBX->it64 >> 47;
-  if ( (_DWORD)v8 == -5 )
+  v7 = o->it64 >> 47;
+  if ( (_DWORD)v7 == -5 )
   {
-    v9 = _RBX->u64 & 0x7FFFFFFFFFFFi64;
-    v10 = *(unsigned int *)(v9 + 0x10);
-    v11 = v10 + 5;
-    if ( (int)v10 + 5 <= (unsigned int)(LODWORD(ctx->sb.e.ptr64) - LODWORD(ctx->sb.p.ptr64)) )
-      v12 = (char *)ctx->sb.p.ptr64;
+    v8 = o->u64 & 0x7FFFFFFFFFFFi64;
+    v9 = *(unsigned int *)(v8 + 0x10);
+    v10 = v9 + 5;
+    if ( (int)v9 + 5 <= (unsigned int)(LODWORD(ctx->sb.e.ptr64) - LODWORD(ctx->sb.p.ptr64)) )
+      v11 = (char *)ctx->sb.p.ptr64;
     else
-      v12 = j_lj_buf_more2(&ctx->sb, v11);
-    v13 = j_lj_strfmt_wuleb128(v12, v11);
-    v14 = &v13[v10];
-    memcpy_0(v13, (const void *)(v9 + 24), v10);
+      v11 = j_lj_buf_more2(&ctx->sb, v10);
+    v12 = j_lj_strfmt_wuleb128(v11, v10);
+    v13 = &v12[v9];
+    memcpy_0(v12, (const void *)(v8 + 24), v9);
   }
-  else if ( (unsigned int)v8 >= 0xFFFFFFF2 )
+  else if ( (unsigned int)v7 >= 0xFFFFFFF2 )
   {
-    if ( (unsigned int)v8 < 0xFFFFFFFD && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcwrite.c", 64, "(((uint32_t)((o)->it64 >> 47)) >= (~2u))") )
+    if ( (unsigned int)v7 < 0xFFFFFFFD && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcwrite.c", 64, "(((uint32_t)((o)->it64 >> 47)) >= (~2u))") )
       __debugbreak();
-    *ptr64 = ~(unsigned __int8)(_RBX->it64 >> 47);
-    v14 = ptr64 + 1;
+    *ptr64 = ~(unsigned __int8)(o->it64 >> 47);
+    v13 = ptr64 + 1;
   }
   else
   {
     if ( narrow )
     {
-      __asm
+      _XMM1 = o->u64;
+      __asm { vcvttsd2si edx, xmm1; v }
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, edx }
+      if ( *(double *)&_XMM1 == *(double *)&_XMM0 )
       {
-        vmovsd  xmm1, qword ptr [rbx]
-        vcvttsd2si edx, xmm1; v
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, edx
-        vucomisd xmm1, xmm0
+        *ptr64 = 3;
+        ctx->sb.p.ptr64 = (unsigned __int64)j_lj_strfmt_wuleb128(ptr64 + 1, _EDX);
+        return;
       }
     }
     *ptr64 = 4;
-    v19 = j_lj_strfmt_wuleb128(ptr64 + 1, _RBX->i);
-    v14 = j_lj_strfmt_wuleb128(v19, _RBX->it);
+    v18 = j_lj_strfmt_wuleb128(ptr64 + 1, o->i);
+    v13 = j_lj_strfmt_wuleb128(v18, o->it);
   }
-  ctx->sb.p.ptr64 = (unsigned __int64)v14;
+  ctx->sb.p.ptr64 = (unsigned __int64)v13;
 }
 
 /*
@@ -348,158 +349,145 @@ bcwrite_proto
 */
 void bcwrite_proto(BCWriteCtx *ctx, GCproto *pt)
 {
-  __int64 v5; 
+  __int64 v4; 
   __int64 sizekgc; 
-  GCproto **v7; 
-  unsigned int v8; 
+  GCproto **v6; 
+  unsigned int v7; 
   char *ptr64; 
+  char *v9; 
   char *v10; 
   char *v11; 
-  char *v12; 
-  unsigned __int64 v13; 
+  unsigned __int64 v12; 
+  char *v13; 
   char *v14; 
-  char *v15; 
-  size_t v16; 
-  char *v17; 
-  size_t v18; 
+  size_t v15; 
+  char *v16; 
+  size_t v17; 
   __int64 sizekn; 
-  char *v21; 
-  __int64 v22; 
-  __int64 v23; 
-  bool v24; 
-  int v25; 
-  char *v29; 
-  char *v30; 
+  unsigned __int64 *v19; 
+  char *v20; 
+  __int64 v21; 
+  char *v26; 
+  char *v27; 
+  unsigned int v28; 
+  unsigned int v29; 
+  unsigned int v30; 
   unsigned int v31; 
-  unsigned int v32; 
-  unsigned int v33; 
-  unsigned int v34; 
-  char *v35; 
+  char *v32; 
 
-  v5 = 0i64;
+  v4 = 0i64;
   if ( (pt->flags & 1) != 0 )
   {
     sizekgc = pt->sizekgc;
-    v7 = (GCproto **)(pt->k.ptr64 - 8);
+    v6 = (GCproto **)(pt->k.ptr64 - 8);
     if ( pt->sizekgc )
     {
       do
       {
-        if ( (*v7)->gct == 7 )
-          bcwrite_proto(ctx, *v7);
-        --v7;
+        if ( (*v6)->gct == 7 )
+          bcwrite_proto(ctx, *v6);
+        --v6;
         --sizekgc;
       }
       while ( sizekgc );
     }
   }
-  v8 = 2 * (pt->sizeuv + 2 * pt->sizebc) + 35;
-  if ( v8 <= LODWORD(ctx->sb.e.ptr64) - LODWORD(ctx->sb.b.ptr64) )
+  v7 = 2 * (pt->sizeuv + 2 * pt->sizebc) + 35;
+  if ( v7 <= LODWORD(ctx->sb.e.ptr64) - LODWORD(ctx->sb.b.ptr64) )
     ptr64 = (char *)ctx->sb.b.ptr64;
   else
-    ptr64 = j_lj_buf_need2(&ctx->sb, v8);
+    ptr64 = j_lj_buf_need2(&ctx->sb, v7);
   ptr64[5] = pt->flags & 7;
   ptr64[6] = pt->numparams;
   ptr64[7] = pt->framesize;
   ptr64[8] = pt->sizeuv;
-  v10 = j_lj_strfmt_wuleb128(ptr64 + 9, pt->sizekgc);
-  v11 = j_lj_strfmt_wuleb128(v10, pt->sizekn);
-  v12 = j_lj_strfmt_wuleb128(v11, pt->sizebc - 1);
+  v9 = j_lj_strfmt_wuleb128(ptr64 + 9, pt->sizekgc);
+  v10 = j_lj_strfmt_wuleb128(v9, pt->sizekn);
+  v11 = j_lj_strfmt_wuleb128(v10, pt->sizebc - 1);
   if ( !ctx->strip )
   {
-    v13 = pt->lineinfo.ptr64;
-    if ( v13 )
-      v5 = (unsigned int)((_DWORD)pt + pt->sizept - v13);
-    v14 = j_lj_strfmt_wuleb128(v12, v5);
-    v12 = v14;
-    if ( (_DWORD)v5 )
+    v12 = pt->lineinfo.ptr64;
+    if ( v12 )
+      v4 = (unsigned int)((_DWORD)pt + pt->sizept - v12);
+    v13 = j_lj_strfmt_wuleb128(v11, v4);
+    v11 = v13;
+    if ( (_DWORD)v4 )
     {
-      v15 = j_lj_strfmt_wuleb128(v14, pt->firstline);
-      v12 = j_lj_strfmt_wuleb128(v15, pt->numline);
+      v14 = j_lj_strfmt_wuleb128(v13, pt->firstline);
+      v11 = j_lj_strfmt_wuleb128(v14, pt->numline);
     }
   }
-  v16 = 4 * pt->sizebc - 4;
-  memcpy_0(v12, (char *)&pt[1].nextgc.gcptr64 + 4, v16);
-  v17 = &v12[v16];
-  v18 = 2i64 * pt->sizeuv;
-  memcpy_0(v17, (const void *)pt->uv.ptr64, v18);
-  ctx->sb.p.ptr64 = (unsigned __int64)&v17[v18];
+  v15 = 4 * pt->sizebc - 4;
+  memcpy_0(v11, (char *)&pt[1].nextgc.gcptr64 + 4, v15);
+  v16 = &v11[v15];
+  v17 = 2i64 * pt->sizeuv;
+  memcpy_0(v16, (const void *)pt->uv.ptr64, v17);
+  ctx->sb.p.ptr64 = (unsigned __int64)&v16[v17];
   bcwrite_kgc(ctx, pt);
   sizekn = pt->sizekn;
-  _RSI = pt->k.ptr64;
+  v19 = (unsigned __int64 *)pt->k.ptr64;
   if ( 10 * (int)sizekn <= (unsigned int)(LODWORD(ctx->sb.e.ptr64) - LODWORD(ctx->sb.p.ptr64)) )
-    v21 = (char *)ctx->sb.p.ptr64;
+    v20 = (char *)ctx->sb.p.ptr64;
   else
-    v21 = j_lj_buf_more2(&ctx->sb, 10 * (int)sizekn);
+    v20 = j_lj_buf_more2(&ctx->sb, 10 * (int)sizekn);
   if ( (_DWORD)sizekn )
   {
-    v22 = sizekn;
+    v21 = sizekn;
     do
     {
-      v23 = *(__int64 *)_RSI >> 47;
-      v24 = (_DWORD)v23 == -14;
-      if ( (unsigned int)v23 >= 0xFFFFFFF2 )
+      if ( (unsigned int)((__int64)*v19 >> 47) >= 0xFFFFFFF2 && j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcwrite.c", 182, "(((uint32_t)((o)->it64 >> 47)) < (~13u))") )
+        __debugbreak();
+      _XMM1 = *v19;
+      __asm { vcvttsd2si ebx, xmm1 }
+      _XMM0 = 0i64;
+      __asm { vcvtsi2sd xmm0, xmm0, ebx }
+      if ( *(double *)&_XMM1 == *(double *)&_XMM0 )
       {
-        v25 = j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcwrite.c", 182, "(((uint32_t)((o)->it64 >> 47)) < (~13u))");
-        v24 = v25 == 0;
-        if ( v25 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovsd  xmm1, qword ptr [rsi]
-        vcvttsd2si ebx, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2sd xmm0, xmm0, ebx
-        vucomisd xmm1, xmm0
-      }
-      if ( v24 )
-      {
-        v29 = j_lj_strfmt_wuleb128(v21, (2 * _EBX) | _EBX & 0x80000000);
-        v21 = v29;
+        v26 = j_lj_strfmt_wuleb128(v20, (2 * _EBX) | _EBX & 0x80000000);
+        v20 = v26;
         if ( _EBX < 0 )
         {
-          *(v29 - 1) &= 7u;
-          *(v29 - 1) |= (_EBX >> 27) & 0x18;
+          *(v26 - 1) &= 7u;
+          *(v26 - 1) |= (_EBX >> 27) & 0x18;
         }
       }
       else
       {
-        v30 = j_lj_strfmt_wuleb128(v21, ((2 * *(_DWORD *)_RSI) | *(_DWORD *)_RSI & 0x80000000) + 1);
-        v31 = *(_DWORD *)_RSI;
-        if ( *(_DWORD *)_RSI >= 0x80000000 )
+        v27 = j_lj_strfmt_wuleb128(v20, ((2 * *(_DWORD *)v19) | *(_DWORD *)v19 & 0x80000000) + 1);
+        v28 = *(_DWORD *)v19;
+        if ( *(_DWORD *)v19 >= 0x80000000 )
         {
-          *(v30 - 1) &= 7u;
-          *(v30 - 1) |= (v31 >> 27) & 0x18;
+          *(v27 - 1) &= 7u;
+          *(v27 - 1) |= (v28 >> 27) & 0x18;
         }
-        v21 = j_lj_strfmt_wuleb128(v30, *(_DWORD *)(_RSI + 4));
+        v20 = j_lj_strfmt_wuleb128(v27, *((_DWORD *)v19 + 1));
       }
-      _RSI += 8i64;
-      --v22;
+      ++v19;
+      --v21;
     }
-    while ( v22 );
+    while ( v21 );
   }
-  ctx->sb.p.ptr64 = (unsigned __int64)v21;
-  if ( (_DWORD)v5 )
+  ctx->sb.p.ptr64 = (unsigned __int64)v20;
+  if ( (_DWORD)v4 )
   {
-    if ( (unsigned int)v5 > LODWORD(ctx->sb.e.ptr64) - (int)v21 )
-      v21 = j_lj_buf_more2(&ctx->sb, v5);
-    memcpy_0(v21, (const void *)pt->lineinfo.ptr64, (unsigned int)v5);
-    ctx->sb.p.ptr64 = (unsigned __int64)&v21[v5];
-    LODWORD(v21) = v5 + (_DWORD)v21;
+    if ( (unsigned int)v4 > LODWORD(ctx->sb.e.ptr64) - (int)v20 )
+      v20 = j_lj_buf_more2(&ctx->sb, v4);
+    memcpy_0(v20, (const void *)pt->lineinfo.ptr64, (unsigned int)v4);
+    ctx->sb.p.ptr64 = (unsigned __int64)&v20[v4];
+    LODWORD(v20) = v4 + (_DWORD)v20;
   }
   if ( !ctx->status )
   {
-    v32 = (_DWORD)v21 - LODWORD(ctx->sb.b.ptr64) - 5;
-    _BitScanReverse(&v33, v32);
-    v34 = (9 * v33 + 72) >> 6;
-    v35 = (char *)(ctx->sb.b.ptr64 + 5 - v34);
-    if ( j_lj_strfmt_wuleb128(v35, v32) != (char *)(ctx->sb.b.ptr64 + 5) )
+    v29 = (_DWORD)v20 - LODWORD(ctx->sb.b.ptr64) - 5;
+    _BitScanReverse(&v30, v29);
+    v31 = (9 * v30 + 72) >> 6;
+    v32 = (char *)(ctx->sb.b.ptr64 + 5 - v31);
+    if ( j_lj_strfmt_wuleb128(v32, v29) != (char *)(ctx->sb.b.ptr64 + 5) )
     {
       if ( j_CoreAssert_Handler_AssertTypeAssert("c:\\workspace\\iw8\\code_source\\external\\luajit\\2.1.0-beta3\\src\\lj_bcwrite.c", 295, "p == (((char *)(void *)((&ctx->sb)->b).ptr64)) + 5") )
         __debugbreak();
     }
-    ctx->status = ctx->wfunc((lua_State *)ctx->sb.L.ptr64, v35, v34 + v32, ctx->wdata);
+    ctx->status = ctx->wfunc((lua_State *)ctx->sb.L.ptr64, v32, v31 + v29, ctx->wdata);
   }
 }
 

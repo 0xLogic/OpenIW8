@@ -826,28 +826,29 @@ void OnlineBattlepass::AddProgression(OnlineBattlepass *this, const int controll
   unsigned __int64 v9; 
   unsigned int v10; 
   __int64 v11; 
+  const bdAchievementProgress *MultiProgress; 
   unsigned __int64 AchievementCurrentProgress; 
   const char *TargetName; 
+  const char *v15; 
   const char *v16; 
-  const char *v17; 
-  __int64 v18; 
-  const char *v19; 
-  signed __int64 v20; 
+  __int64 v17; 
+  const char *v18; 
+  signed __int64 v19; 
+  int v20; 
   int v21; 
-  int v22; 
+  int v23; 
   int v24; 
-  int v25; 
-  _BYTE *v26; 
-  unsigned __int64 v27; 
-  const char *v28; 
-  __int64 v29; 
-  const char *v30; 
-  signed __int64 v31; 
+  _BYTE *v25; 
+  unsigned __int64 v26; 
+  const char *v27; 
+  __int64 v28; 
+  const char *v29; 
+  signed __int64 v30; 
+  int v31; 
   int v32; 
-  int v33; 
+  int v34; 
   int v35; 
   int v36; 
-  int v37; 
   bdAchievementProgress Buf; 
 
   v4 = controllerIndex;
@@ -864,94 +865,90 @@ void OnlineBattlepass::AddProgression(OnlineBattlepass *this, const int controll
       v11 = v4;
       do
       {
-        _RBX = bdAchievementState::getMultiProgress(state, v10);
+        MultiProgress = bdAchievementState::getMultiProgress(state, v10);
         *((_QWORD *)&Buf.__vftable + 1) = &bdAchievementProgress::`vbtable';
-        bdReferencable::bdReferencable((bdReferencable *)Buf.gap48, (const bdReferencable *)((char *)&_RBX->__vftable + *(int *)(*((_QWORD *)&_RBX->__vftable + 1) + 4i64) + 8));
-        v37 = v6 | 1;
-        bdStructBufferSerializable::bdStructBufferSerializable(&Buf, _RBX);
+        bdReferencable::bdReferencable((bdReferencable *)Buf.gap48, (const bdReferencable *)((char *)&MultiProgress->__vftable + *(int *)(*((_QWORD *)&MultiProgress->__vftable + 1) + 4i64) + 8));
+        v36 = v6 | 1;
+        bdStructBufferSerializable::bdStructBufferSerializable(&Buf, MultiProgress);
         Buf.__vftable = (bdAchievementProgress_vtbl *)&bdAchievementProgress::`vftable'{for `bdStructBufferSerializable'};
         *(_QWORD *)&Buf.m_targetName[*(int *)(*((_QWORD *)&Buf.__vftable + 1) + 4i64) - 24] = &bdAchievementProgress::`vftable'{for `bdReferencable'};
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbx+10h]
-          vmovups ymmword ptr [rsp+0E8h+Buf+10h], ymm0
-        }
-        Buf.m_targetName[16] = _RBX->m_targetName[16];
-        Buf.m_currentProgress = _RBX->m_currentProgress;
-        Buf.m_targetProgress = _RBX->m_targetProgress;
+        *(bdStructBufferSerializable *)((char *)&Buf.bdStructBufferSerializable + 16) = *(bdStructBufferSerializable *)((char *)&MultiProgress->bdStructBufferSerializable + 16);
+        Buf.m_targetName[16] = MultiProgress->m_targetName[16];
+        Buf.m_currentProgress = MultiProgress->m_currentProgress;
+        Buf.m_targetProgress = MultiProgress->m_targetProgress;
         AchievementCurrentProgress = bdAchievementProgress::getAchievementCurrentProgress(&Buf);
         TargetName = bdAchievementProgress::getTargetName(&Buf);
-        v16 = bdAchievementState::getName(state);
-        Com_Printf(25, "(%s) %s = %ld\n", v16, TargetName, AchievementCurrentProgress);
-        v17 = bdAchievementProgress::getTargetName(&Buf);
-        v18 = 0x7FFFFFFFi64;
-        v19 = "xp";
-        if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+        v15 = bdAchievementState::getName(state);
+        Com_Printf(25, "(%s) %s = %ld\n", v15, TargetName, AchievementCurrentProgress);
+        v16 = bdAchievementProgress::getTargetName(&Buf);
+        v17 = 0x7FFFFFFFi64;
+        v18 = "xp";
+        if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
-        v20 = v17 - "xp";
+        v19 = v16 - "xp";
         while ( 1 )
         {
-          v21 = (unsigned __int8)v19[v20];
-          v22 = *(unsigned __int8 *)v19++;
-          if ( !v18-- )
+          v20 = (unsigned __int8)v18[v19];
+          v21 = *(unsigned __int8 *)v18++;
+          if ( !v17-- )
           {
 LABEL_22:
             this->m_battlepassXP[v11][v9] = bdAchievementProgress::getAchievementCurrentProgress(&Buf);
             goto LABEL_23;
           }
-          if ( v21 != v22 )
+          if ( v20 != v21 )
           {
+            v23 = v20 + 32;
+            if ( (unsigned int)(v20 - 65) > 0x19 )
+              v23 = v20;
+            v20 = v23;
             v24 = v21 + 32;
             if ( (unsigned int)(v21 - 65) > 0x19 )
               v24 = v21;
-            v21 = v24;
-            v25 = v22 + 32;
-            if ( (unsigned int)(v22 - 65) > 0x19 )
-              v25 = v22;
-            if ( v21 != v25 )
+            if ( v20 != v24 )
               break;
           }
-          if ( !v21 )
+          if ( !v20 )
             goto LABEL_22;
         }
-        v28 = bdAchievementProgress::getTargetName(&Buf);
-        v29 = 0x7FFFFFFFi64;
-        v30 = "rank";
-        if ( !v28 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+        v27 = bdAchievementProgress::getTargetName(&Buf);
+        v28 = 0x7FFFFFFFi64;
+        v29 = "rank";
+        if ( !v27 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
           __debugbreak();
-        v31 = v28 - "rank";
+        v30 = v27 - "rank";
         do
         {
-          v32 = (unsigned __int8)v30[v31];
-          v33 = *(unsigned __int8 *)v30++;
-          if ( !v29-- )
+          v31 = (unsigned __int8)v29[v30];
+          v32 = *(unsigned __int8 *)v29++;
+          if ( !v28-- )
             break;
-          if ( v32 != v33 )
+          if ( v31 != v32 )
           {
+            v34 = v31 + 32;
+            if ( (unsigned int)(v31 - 65) > 0x19 )
+              v34 = v31;
+            v31 = v34;
             v35 = v32 + 32;
             if ( (unsigned int)(v32 - 65) > 0x19 )
               v35 = v32;
-            v32 = v35;
-            v36 = v33 + 32;
-            if ( (unsigned int)(v33 - 65) > 0x19 )
-              v36 = v33;
-            if ( v32 != v36 )
+            if ( v31 != v35 )
               goto LABEL_23;
           }
         }
-        while ( v32 );
+        while ( v31 );
         this->m_battlepassRank[v11][v9] = bdAchievementProgress::getAchievementCurrentProgress(&Buf);
 LABEL_23:
-        v26 = memchr_0(&Buf.__vftable + 2, 0, 0x21ui64);
-        if ( v26 )
-          v27 = v26 - (_BYTE *)(&Buf.__vftable + 2);
+        v25 = memchr_0(&Buf.__vftable + 2, 0, 0x21ui64);
+        if ( v25 )
+          v26 = v25 - (_BYTE *)(&Buf.__vftable + 2);
         else
-          v27 = 33i64;
-        bdHandleAssert(v27 < 0x21, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<32>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+          v26 = 33i64;
+        bdHandleAssert(v26 < 0x21, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<32>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
         bdStructBufferSerializable::~bdStructBufferSerializable((bdStructBufferSerializable *)(&Buf.__vftable + 2));
         bdReferencable::~bdReferencable((bdReferencable *)Buf.gap48);
         ++v10;
-        v6 = v37;
+        v6 = v36;
       }
       while ( v10 < bdAchievementState::getNumMultiProgresses(state) );
     }

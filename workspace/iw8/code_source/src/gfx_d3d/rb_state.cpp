@@ -82,11 +82,7 @@ RB_GetBackendCmdBufContext
 */
 const GfxCmdBufContext *RB_GetBackendCmdBufContext(const GfxCmdBufContext *result)
 {
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:s_backendGfxCmdBufContext.source
-    vmovups xmmword ptr [rcx], xmm0
-  }
+  *result = s_backendGfxCmdBufContext;
   return result;
 }
 
@@ -145,22 +141,12 @@ RB_SetInitialState
 */
 void RB_SetInitialState(void)
 {
-  __int64 v4; 
-  __int128 v5; 
+  __int64 v2; 
 
   R_LockGfxImmediateContext();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr cs:s_backendGfxCmdBufContext.source
-    vmovq   rcx, xmm0; source
-    vmovups [rsp+58h+var_28], xmm0
-  }
-  R_InitCmdBufSourceState(_RCX, &g_gfxCmdBufInput);
-  __asm
-  {
-    vmovups xmm0, [rsp+58h+var_28]
-    vpextrq rdi, xmm0, 1
-  }
+  R_InitCmdBufSourceState(s_backendGfxCmdBufContext.source, &g_gfxCmdBufInput);
+  _XMM0 = s_backendGfxCmdBufContext;
+  __asm { vpextrq rdi, xmm0, 1 }
   _RDI[170] = g_dx.immediateContext;
   _RDI[310] = &g_dx.immediateDescState;
   R_InitDescriptorHeapInfoState(&g_dx.immediateDescState, &g_dx.backendDescHeapInfo);
@@ -169,29 +155,29 @@ void RB_SetInitialState(void)
   R_LockGfxImmediateContext();
   R_InitCmdBufState(s_backendGfxCmdBufContext.state);
   R_UnlockGfxImmediateContext();
-  v4 = 0i64;
-  *(_QWORD *)(v5 + 11524) = 0i64;
-  *(_DWORD *)(v5 + 11532) = vidConfig.displayWidth;
-  *(_DWORD *)(v5 + 11536) = vidConfig.displayHeight;
-  if ( *(_DWORD *)(v5 + 11592) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 87, ASSERT_TYPE_SANITY, "( gfxContext.source->renderTargetWidth == 0 )", (const char *)&queryFormat, "gfxContext.source->renderTargetWidth == 0") )
+  v2 = 0i64;
+  *(_QWORD *)&s_backendGfxCmdBufContext.source->sceneViewport.x = 0i64;
+  s_backendGfxCmdBufContext.source->sceneViewport.width = vidConfig.displayWidth;
+  s_backendGfxCmdBufContext.source->sceneViewport.height = vidConfig.displayHeight;
+  if ( s_backendGfxCmdBufContext.source->renderTargetWidth && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 87, ASSERT_TYPE_SANITY, "( gfxContext.source->renderTargetWidth == 0 )", (const char *)&queryFormat, "gfxContext.source->renderTargetWidth == 0") )
     __debugbreak();
-  if ( *(_DWORD *)(v5 + 11596) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 88, ASSERT_TYPE_SANITY, "( gfxContext.source->renderTargetHeight == 0 )", (const char *)&queryFormat, "gfxContext.source->renderTargetHeight == 0") )
+  if ( s_backendGfxCmdBufContext.source->renderTargetHeight && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 88, ASSERT_TYPE_SANITY, "( gfxContext.source->renderTargetHeight == 0 )", (const char *)&queryFormat, "gfxContext.source->renderTargetHeight == 0") )
     __debugbreak();
-  if ( *(_BYTE *)(v5 + 11588) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 89, ASSERT_TYPE_SANITY, "( gfxContext.source->viewportBehavior == 0 )", (const char *)&queryFormat, "gfxContext.source->viewportBehavior == 0") )
+  if ( s_backendGfxCmdBufContext.source->viewportBehavior && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 89, ASSERT_TYPE_SANITY, "( gfxContext.source->viewportBehavior == 0 )", (const char *)&queryFormat, "gfxContext.source->viewportBehavior == 0") )
     __debugbreak();
   if ( _RDI[365] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 92, ASSERT_TYPE_SANITY, "( gfxContext.state->indexBuffer == 0 )", (const char *)&queryFormat, "gfxContext.state->indexBuffer == NULL") )
     __debugbreak();
   do
   {
-    if ( _RDI[v4 + 369] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 95, ASSERT_TYPE_SANITY, "( gfxContext.state->streams[i].buffer == 0 )", (const char *)&queryFormat, "gfxContext.state->streams[i].buffer == NULL") )
+    if ( _RDI[v2 + 369] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 95, ASSERT_TYPE_SANITY, "( gfxContext.state->streams[i].buffer == 0 )", (const char *)&queryFormat, "gfxContext.state->streams[i].buffer == NULL") )
       __debugbreak();
-    if ( LODWORD(_RDI[v4 + 370]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 96, ASSERT_TYPE_SANITY, "( gfxContext.state->streams[i].offset == 0 )", (const char *)&queryFormat, "gfxContext.state->streams[i].offset == 0") )
+    if ( LODWORD(_RDI[v2 + 370]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 96, ASSERT_TYPE_SANITY, "( gfxContext.state->streams[i].offset == 0 )", (const char *)&queryFormat, "gfxContext.state->streams[i].offset == 0") )
       __debugbreak();
-    if ( HIDWORD(_RDI[v4 + 370]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 97, ASSERT_TYPE_SANITY, "( gfxContext.state->streams[i].stride == 0 )", (const char *)&queryFormat, "gfxContext.state->streams[i].stride == 0") )
+    if ( HIDWORD(_RDI[v2 + 370]) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 97, ASSERT_TYPE_SANITY, "( gfxContext.state->streams[i].stride == 0 )", (const char *)&queryFormat, "gfxContext.state->streams[i].stride == 0") )
       __debugbreak();
-    v4 += 2i64;
+    v2 += 2i64;
   }
-  while ( v4 < 10 );
+  while ( v2 < 10 );
   if ( _RDI[352] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 107, ASSERT_TYPE_SANITY, "( gfxContext.state->material == 0 )", (const char *)&queryFormat, "gfxContext.state->material == NULL") )
     __debugbreak();
   if ( _RDI[353] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_state.cpp", 108, ASSERT_TYPE_SANITY, "( gfxContext.state->technique == 0 )", (const char *)&queryFormat, "gfxContext.state->technique == NULL") )

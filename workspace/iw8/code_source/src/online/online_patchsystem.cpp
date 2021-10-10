@@ -1149,7 +1149,10 @@ void Online_PatchStreamer::AddAction(Online_PatchStreamer *this, const CCSPatchT
   __int64 v3; 
   ntl::internal::pool_allocator_freelist<672> *p_m_freelist; 
   ntl::internal::list_node<psManifestActionInfo_t> *mp_next; 
+  psManifestActionInfo_t *v8; 
   __int64 v9; 
+  psManifestActionInfo_t *p_m_data; 
+  __int128 v11; 
 
   v3 = patchType;
   if ( !inActionInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_patchsystem.cpp", 1731, ASSERT_TYPE_ASSERT, "(inActionInfo)", (const char *)&queryFormat, "inActionInfo") )
@@ -1165,43 +1168,29 @@ void Online_PatchStreamer::AddAction(Online_PatchStreamer *this, const CCSPatchT
   if ( (ntl::internal::pool_allocator_freelist<672> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x2A0ui64, 0x1000ui64) )
     __debugbreak();
   mp_next = (ntl::internal::list_node<psManifestActionInfo_t> *)p_m_freelist->m_head.mp_next;
-  _RCX = inActionInfo;
+  v8 = inActionInfo;
   v9 = 5i64;
   p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
   mp_next->mp_prev = NULL;
   mp_next->mp_next = NULL;
-  _RAX = &mp_next->m_data;
+  p_m_data = &mp_next->m_data;
   do
   {
-    _RAX = (psManifestActionInfo_t *)((char *)_RAX + 128);
-    __asm { vmovups xmm0, xmmword ptr [rcx] }
-    _RCX = (psManifestActionInfo_t *)((char *)_RCX + 128);
-    __asm
-    {
-      vmovups xmmword ptr [rax-80h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-70h]
-      vmovups xmmword ptr [rax-70h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-60h]
-      vmovups xmmword ptr [rax-60h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-50h]
-      vmovups xmmword ptr [rax-50h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-40h]
-      vmovups xmmword ptr [rax-40h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-30h]
-      vmovups xmmword ptr [rax-30h], xmm1
-      vmovups xmm0, xmmword ptr [rcx-20h]
-      vmovups xmmword ptr [rax-20h], xmm0
-      vmovups xmm1, xmmword ptr [rcx-10h]
-      vmovups xmmword ptr [rax-10h], xmm1
-    }
+    p_m_data = (psManifestActionInfo_t *)((char *)p_m_data + 128);
+    v11 = *(_OWORD *)&v8->fileDetails.m_fileID;
+    v8 = (psManifestActionInfo_t *)((char *)v8 + 128);
+    *(_OWORD *)&p_m_data[-1].manifestEntry.encryptedHash.hashBytes[28] = v11;
+    *(_OWORD *)&p_m_data[-1].manifestEntry.compressedHash.hashBytes[12] = *(_OWORD *)&v8[-1].manifestEntry.compressedHash.hashBytes[12];
+    *(_OWORD *)&p_m_data[-1].manifestEntry.compressedHash.hashBytes[28] = *(_OWORD *)&v8[-1].manifestEntry.compressedHash.hashBytes[28];
+    *(_OWORD *)&p_m_data[-1].manifestEntry.encryptionKey.keyBytes[12] = *(_OWORD *)&v8[-1].manifestEntry.encryptionKey.keyBytes[12];
+    *(_OWORD *)&p_m_data[-1].manifestEntry.encryptionKey.keyBytes[28] = *(_OWORD *)&v8[-1].manifestEntry.encryptionKey.keyBytes[28];
+    *(_OWORD *)&p_m_data[-1].manifestEntry.encryptionKey.intialVectorBytes[12] = *(_OWORD *)&v8[-1].manifestEntry.encryptionKey.intialVectorBytes[12];
+    *(_OWORD *)&p_m_data[-1].manifestEntry.fileVersion = *(_OWORD *)&v8[-1].manifestEntry.fileVersion;
+    *(_OWORD *)p_m_data[-1].manifestEntry.gameMode = *(_OWORD *)v8[-1].manifestEntry.gameMode;
     --v9;
   }
   while ( v9 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rcx]
-    vmovups xmmword ptr [rax], xmm0
-  }
+  *(_OWORD *)&p_m_data->fileDetails.m_fileID = *(_OWORD *)&v8->fileDetails.m_fileID;
   ntl::internal::list_head_base<ntl::internal::list_node<psManifestActionInfo_t>>::insert_before(&this->m_currentActions.actionInfoList.m_listHead, (ntl::internal::list_node<psManifestActionInfo_t> *)&this->m_currentActions.actionInfoList.m_listHead, mp_next);
   this->m_currentActions.allActions[v3] |= inActionInfo->action;
   if ( (inActionInfo->action & 0x10) != 0 )
@@ -2029,41 +2018,29 @@ Online_PatchStreamer::GetPatchingProgressForMode
 */
 double Online_PatchStreamer::GetPatchingProgressForMode(Online_PatchStreamer *this, const CCSPatchType patchType, const GameModeType gamemode)
 {
-  __int64 v5; 
-  unsigned __int8 v6; 
-  __int64 v8; 
+  __int64 v3; 
+  unsigned __int8 v4; 
+  __int64 v6; 
+  __int64 v7; 
+  double result; 
+  int totalPatchBytes; 
 
-  v5 = patchType;
-  v6 = gamemode;
+  v3 = patchType;
+  v4 = gamemode;
   if ( (unsigned int)patchType >= COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_patchsystem.cpp", 304, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast< int >( patchType ) ) < (unsigned)( static_cast< int >( CCSPatchType::COUNT ) )", "static_cast< int >( patchType ) doesn't index static_cast< int >( CCSPatchType::COUNT )\n\t%i not in [0, %i)", patchType, 2) )
     __debugbreak();
-  v8 = v6 + 5 * v5;
-  if ( this->m_ccsPatchData[0].downloadInfo[v8].valid )
+  v6 = v4 + 5 * v3;
+  v7 = v6;
+  if ( !this->m_ccsPatchData[0].downloadInfo[v6].valid )
+    return 0.0;
+  if ( this->m_ccsPatchData[0].downloadInfo[v6].patchFilesNeeded > 0 )
   {
-    if ( this->m_ccsPatchData[0].downloadInfo[v8].patchFilesNeeded <= 0 || this->m_ccsPatchData[0].downloadInfo[v8].totalPatchBytes <= 0 )
-    {
-      __asm { vmovss  xmm0, cs:__real@3f800000 }
-    }
-    else
-    {
-      __asm
-      {
-        vmovss  xmm2, cs:__real@3f800000; max
-        vxorps  xmm1, xmm1, xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm1, xmm1, eax
-        vcvtsi2ss xmm0, xmm0, ecx
-        vdivss  xmm0, xmm1, xmm0; val
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    }
+    totalPatchBytes = this->m_ccsPatchData[0].downloadInfo[v6].totalPatchBytes;
+    if ( totalPatchBytes > 0 )
+      return I_fclamp((float)(this->m_ccsPatchData[0].downloadInfo[v7].streamedPatchBytesTotal + this->m_ccsPatchData[0].downloadInfo[v7].streamedPatchBytesCurrent) / (float)totalPatchBytes, 0.0, 1.0);
   }
-  else
-  {
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  return *(double *)&_XMM0;
+  *(_QWORD *)&result = LODWORD(FLOAT_1_0);
+  return result;
 }
 
 /*
@@ -2128,12 +2105,13 @@ void Online_PatchStreamer::MarkAllForDelete(Online_PatchStreamer *this, const CC
 {
   ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *> > *p_m_listHead; 
   ntl::internal::list_node<dcacheFileDetails_t *> *mp_next; 
+  dcacheFileDetails_t *m_data; 
   __int16 m_originID; 
   char *v12; 
-  ntl::internal::list_node_base *v26; 
+  ntl::internal::list_node_base *v13; 
   __int64 i; 
-  const dvar_t *v28; 
-  const char *v29; 
+  const dvar_t *v15; 
+  const char *v16; 
   psManifestActionInfo_t inActionInfo; 
 
   psManifestActionInfo_t::psManifestActionInfo_t(&inActionInfo);
@@ -2152,59 +2130,42 @@ void Online_PatchStreamer::MarkAllForDelete(Online_PatchStreamer *this, const CC
     {
       if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      _RAX = mp_next->m_data;
-      m_originID = _RAX->m_originID;
+      m_data = mp_next->m_data;
+      m_originID = m_data->m_originID;
       if ( m_originID == (_WORD)patchType )
       {
-        __asm { vmovups xmm0, xmmword ptr [rax] }
-        _RCX = &inActionInfo;
-        __asm
-        {
-          vmovups xmmword ptr [rcx], xmm0
-          vmovups xmm1, xmmword ptr [rax+10h]
-          vmovups xmmword ptr [rcx+10h], xmm1
-          vmovups xmm0, xmmword ptr [rax+20h]
-          vmovups xmmword ptr [rcx+20h], xmm0
-          vmovups xmm1, xmmword ptr [rax+30h]
-          vmovups xmmword ptr [rcx+30h], xmm1
-          vmovups xmm0, xmmword ptr [rax+40h]
-          vmovups xmmword ptr [rcx+40h], xmm0
-          vmovups xmm1, xmmword ptr [rax+50h]
-          vmovups xmmword ptr [rcx+50h], xmm1
-          vmovups xmm0, xmmword ptr [rax+60h]
-          vmovups xmmword ptr [rcx+60h], xmm0
-          vmovups xmm1, xmmword ptr [rax+70h]
-          vmovups xmmword ptr [rcx+70h], xmm1
-          vmovups xmm0, xmmword ptr [rax+80h]
-          vmovups xmmword ptr [rcx+80h], xmm0
-          vmovups xmm1, xmmword ptr [rax+90h]
-          vmovups xmmword ptr [rcx+90h], xmm1
-          vmovups xmm0, xmmword ptr [rax+0A0h]
-          vmovups xmmword ptr [rcx+0A0h], xmm0
-          vmovups xmm1, xmmword ptr [rax+0B0h]
-          vmovups xmmword ptr [rcx+0B0h], xmm1
-        }
-        *(_QWORD *)&inActionInfo.fileDetails.m_timestamp = *(_QWORD *)&_RAX->m_timestamp;
+        *(_OWORD *)&inActionInfo.fileDetails.m_fileID = *(_OWORD *)&m_data->m_fileID;
+        *(_OWORD *)&inActionInfo.fileDetails.m_name[4] = *(_OWORD *)&m_data->m_name[4];
+        *(_OWORD *)&inActionInfo.fileDetails.m_name[20] = *(_OWORD *)&m_data->m_name[20];
+        *(_OWORD *)&inActionInfo.fileDetails.m_name[36] = *(_OWORD *)&m_data->m_name[36];
+        *(_OWORD *)&inActionInfo.fileDetails.m_name[52] = *(_OWORD *)&m_data->m_name[52];
+        *(_OWORD *)&inActionInfo.fileDetails.m_name[68] = *(_OWORD *)&m_data->m_name[68];
+        *(_OWORD *)&inActionInfo.fileDetails.m_name[84] = *(_OWORD *)&m_data->m_name[84];
+        *(_OWORD *)&inActionInfo.fileDetails.m_name[100] = *(_OWORD *)&m_data->m_name[100];
+        *(_OWORD *)&inActionInfo.fileDetails.m_name[116] = *(_OWORD *)&m_data->m_name[116];
+        inActionInfo.fileDetails.m_computedHashValue = m_data->m_computedHashValue;
+        *(_OWORD *)&inActionInfo.fileDetails.m_size = *(_OWORD *)&m_data->m_size;
+        *(_QWORD *)&inActionInfo.fileDetails.m_timestamp = *(_QWORD *)&m_data->m_timestamp;
         ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *>>::remove(&inOutDCacheFiles->m_listHead, mp_next);
         mp_next->mp_prev = (ntl::internal::list_node_base *)inOutDCacheFiles->m_freelist.m_head.mp_next;
         inOutDCacheFiles->m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)mp_next;
         Online_PatchStreamer::AddAction(this, patchType, &inActionInfo);
-        v26 = inOutDCacheFiles->m_listHead.m_sentinel.mp_next;
-        for ( i = 0i64; v26 != (ntl::internal::list_node_base *)p_m_listHead; ++i )
-          v26 = v26->mp_next;
+        v13 = inOutDCacheFiles->m_listHead.m_sentinel.mp_next;
+        for ( i = 0i64; v13 != (ntl::internal::list_node_base *)p_m_listHead; ++i )
+          v13 = v13->mp_next;
         v12 = j_va("\t Adding Action: action:%10d, cacheType:%10d, location:%10d, cacheFiles:%31zu, name:%40s \n", (unsigned int)inActionInfo.action, (unsigned int)inActionInfo.dcacheType, (unsigned int)inActionInfo.fileDetails.m_location, i, inActionInfo.fileDetails.m_name);
       }
       else
       {
-        v12 = j_va("\t MarkAllForDelete: skipping file %s due to origin ID mismatch. PatchType: %d, File Origin ID: %d \n", _RAX->m_name, (unsigned int)patchType, (unsigned int)m_originID);
+        v12 = j_va("\t MarkAllForDelete: skipping file %s due to origin ID mismatch. PatchType: %d, File Origin ID: %d \n", m_data->m_name, (unsigned int)patchType, (unsigned int)m_originID);
       }
-      v28 = DVARINT_onlineSystemDebugAll;
-      v29 = v12;
+      v15 = DVARINT_onlineSystemDebugAll;
+      v16 = v12;
       if ( !DVARINT_onlineSystemDebugAll && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "onlineSystemDebugAll") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v28);
-      if ( v28->current.integer || this->ShowLogOutput(this) )
-        Com_Printf(25, "%s: %s", this->m_name, v29);
+      Dvar_CheckFrontendServerThread(v15);
+      if ( v15->current.integer || this->ShowLogOutput(this) )
+        Com_Printf(25, "%s: %s", this->m_name, v16);
       mp_next = (ntl::internal::list_node<dcacheFileDetails_t *> *)mp_next->mp_next;
     }
     while ( mp_next != (ntl::internal::list_node<dcacheFileDetails_t *> *)p_m_listHead );
@@ -2371,58 +2332,53 @@ void Online_PatchStreamer::OnPatchFileProgress(Online_PatchStreamer *this, const
 {
   Online_ErrorReporting *InstancePtr; 
   CCSPatchData *CCSPatchData; 
-  unsigned __int8 v13; 
+  unsigned __int8 v12; 
   unsigned __int8 ActiveGameMode; 
-  Online_ErrorReporting *v18; 
-  CCSPatchData *v19; 
-  int v20; 
-  __int64 v22; 
+  double PatchingProgressForMode; 
+  Online_ErrorReporting *v15; 
+  CCSPatchData *v16; 
+  int v17; 
+  __int64 v19; 
   char dest[1024]; 
 
   if ( this->m_controllerIndex == -1 )
   {
     Com_sprintf(dest, 0x400ui64, "OnPatchFileProgress: Invalid controller ID. (%d, %d, %zu)\n", (unsigned int)cacheType, location, fileID);
     OnlineSystem::DebugLog(this, dest);
-    LODWORD(v22) = location;
-    Com_sprintf(dest, 0x400ui64, "%d, %d, %zu", (unsigned int)cacheType, v22, fileID);
+    LODWORD(v19) = location;
+    Com_sprintf(dest, 0x400ui64, "%d, %d, %zu", (unsigned int)cacheType, v19, fileID);
     InstancePtr = Online_ErrorReporting::GetInstancePtr();
     Online_ErrorReporting::ReportError(InstancePtr, MOVEMENT, dest);
   }
   else
   {
     CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-    if ( CCSPatchData->requestedDownload && (v13 = CCSPatchData->requestedContext[0], v13 < 4u) )
+    if ( CCSPatchData->requestedDownload && (v12 = CCSPatchData->requestedContext[0], v12 < 4u) )
     {
-      CCSPatchData->downloadInfo[v13].streamedPatchBytesCurrent += packetBytes;
+      CCSPatchData->downloadInfo[v12].streamedPatchBytesCurrent += packetBytes;
       ActiveGameMode = Com_GameMode_GetActiveGameMode();
-      *(double *)&_XMM0 = Online_PatchStreamer::GetPatchingProgressForMode(this, patchType, (const GameModeType)ActiveGameMode);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@42c80000
-        vcvtss2sd xmm3, xmm1, xmm1
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x400ui64, "OnPatchFileProgress: patch progress %f %% \n", *(double *)&_XMM3);
+      PatchingProgressForMode = Online_PatchStreamer::GetPatchingProgressForMode(this, patchType, (const GameModeType)ActiveGameMode);
+      Com_sprintf(dest, 0x400ui64, "OnPatchFileProgress: patch progress %f %% \n", (float)(*(float *)&PatchingProgressForMode * 100.0));
       OnlineSystem::DebugLog(this, dest);
     }
     else
     {
       OnlineSystem::DebugLog(this, "OnPatchFileProgress: File progress callback not expected. \n");
       Com_sprintf(dest, 0x400ui64, "%d, %d, %zu", (unsigned int)cacheType, location, fileID);
-      v18 = Online_ErrorReporting::GetInstancePtr();
-      Online_ErrorReporting::ReportError(v18, MOVEMENT, dest);
-      v19 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-      v19->patchingStatus = PS_PATCHING_FAILED;
+      v15 = Online_ErrorReporting::GetInstancePtr();
+      Online_ErrorReporting::ReportError(v15, MOVEMENT, dest);
+      v16 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
+      v16->patchingStatus = PS_PATCHING_FAILED;
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, dest);
-      v20 = 0;
+      v17 = 0;
       do
       {
-        if ( v20 >= 65 )
+        if ( v17 >= 65 )
           break;
-        ++v20;
+        ++v17;
       }
-      while ( ((0x400000000000ui64 >> v20) & 1) == 0 );
-      v19->patchingErrorCode = v20;
+      while ( ((0x400000000000ui64 >> v17) & 1) == 0 );
+      v16->patchingErrorCode = v17;
     }
   }
 }
@@ -2854,60 +2810,55 @@ void PatchStreamer_OnPatchFileProgress(const CCSPatchType patchType, const dcach
 {
   Online_ErrorReporting *InstancePtr; 
   CCSPatchData *CCSPatchData; 
-  unsigned __int8 v12; 
+  unsigned __int8 v11; 
   unsigned __int8 ActiveGameMode; 
-  Online_ErrorReporting *v17; 
-  CCSPatchData *v18; 
-  int v19; 
-  __int64 v21; 
-  dcacheLocation_t v22; 
+  double PatchingProgressForMode; 
+  Online_ErrorReporting *v14; 
+  CCSPatchData *v15; 
+  int v16; 
+  __int64 v18; 
+  dcacheLocation_t v19; 
   char dest[1024]; 
 
   if ( Online_PatchStreamer::s_instance.m_controllerIndex == -1 )
   {
     Com_sprintf(dest, 0x400ui64, "OnPatchFileProgress: Invalid controller ID. (%d, %d, %zu)\n", (unsigned int)cacheType, location, fileID);
     OnlineSystem::DebugLog(&Online_PatchStreamer::s_instance, dest);
-    LODWORD(v21) = location;
-    Com_sprintf(dest, 0x400ui64, "%d, %d, %zu", (unsigned int)cacheType, v21, fileID);
+    LODWORD(v18) = location;
+    Com_sprintf(dest, 0x400ui64, "%d, %d, %zu", (unsigned int)cacheType, v18, fileID);
     InstancePtr = Online_ErrorReporting::GetInstancePtr();
     Online_ErrorReporting::ReportError(InstancePtr, MOVEMENT, dest);
   }
   else
   {
     CCSPatchData = Online_PatchStreamer::GetCCSPatchData(&Online_PatchStreamer::s_instance, patchType);
-    if ( CCSPatchData->requestedDownload && (v12 = CCSPatchData->requestedContext[0], v12 < 4u) )
+    if ( CCSPatchData->requestedDownload && (v11 = CCSPatchData->requestedContext[0], v11 < 4u) )
     {
-      CCSPatchData->downloadInfo[v12].streamedPatchBytesCurrent += packetBytes;
+      CCSPatchData->downloadInfo[v11].streamedPatchBytesCurrent += packetBytes;
       ActiveGameMode = Com_GameMode_GetActiveGameMode();
-      *(double *)&_XMM0 = Online_PatchStreamer::GetPatchingProgressForMode(&Online_PatchStreamer::s_instance, patchType, (const GameModeType)ActiveGameMode);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@42c80000
-        vcvtss2sd xmm3, xmm1, xmm1
-        vmovq   r9, xmm3
-      }
-      Com_sprintf(dest, 0x400ui64, "OnPatchFileProgress: patch progress %f %% \n", *(double *)&_XMM3);
+      PatchingProgressForMode = Online_PatchStreamer::GetPatchingProgressForMode(&Online_PatchStreamer::s_instance, patchType, (const GameModeType)ActiveGameMode);
+      Com_sprintf(dest, 0x400ui64, "OnPatchFileProgress: patch progress %f %% \n", (float)(*(float *)&PatchingProgressForMode * 100.0));
       OnlineSystem::DebugLog(&Online_PatchStreamer::s_instance, dest);
     }
     else
     {
       OnlineSystem::DebugLog(&Online_PatchStreamer::s_instance, "OnPatchFileProgress: File progress callback not expected. \n");
-      v22 = location;
-      Com_sprintf(dest, 0x400ui64, "%d, %d, %zu", (unsigned int)cacheType, v22, fileID);
-      v17 = Online_ErrorReporting::GetInstancePtr();
-      Online_ErrorReporting::ReportError(v17, MOVEMENT, dest);
-      v18 = Online_PatchStreamer::GetCCSPatchData(&Online_PatchStreamer::s_instance, patchType);
-      v18->patchingStatus = PS_PATCHING_FAILED;
+      v19 = location;
+      Com_sprintf(dest, 0x400ui64, "%d, %d, %zu", (unsigned int)cacheType, v19, fileID);
+      v14 = Online_ErrorReporting::GetInstancePtr();
+      Online_ErrorReporting::ReportError(v14, MOVEMENT, dest);
+      v15 = Online_PatchStreamer::GetCCSPatchData(&Online_PatchStreamer::s_instance, patchType);
+      v15->patchingStatus = PS_PATCHING_FAILED;
       OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, dest);
-      v19 = 0;
+      v16 = 0;
       do
       {
-        if ( v19 >= 65 )
+        if ( v16 >= 65 )
           break;
-        ++v19;
+        ++v16;
       }
-      while ( ((0x400000000000ui64 >> v19) & 1) == 0 );
-      v18->patchingErrorCode = v19;
+      while ( ((0x400000000000ui64 >> v16) & 1) == 0 );
+      v15->patchingErrorCode = v16;
     }
   }
 }
@@ -3558,84 +3509,85 @@ Online_PatchStreamer::ProcessDownloadActions
 */
 void Online_PatchStreamer::ProcessDownloadActions(Online_PatchStreamer *this, const CCSPatchType patchType, const GameModeType gameMode, const bool reevaluate, const bool requestDownload)
 {
-  __int64 v8; 
-  __int64 v11; 
-  CCSPatchData *v12; 
-  int v13; 
-  unsigned int v14; 
-  __int64 v15; 
+  __int128 v5; 
+  __int64 v6; 
+  __int64 v9; 
+  CCSPatchData *v10; 
+  int v11; 
+  unsigned int v12; 
+  __int64 v13; 
   bool valid; 
-  __int64 v17; 
+  __int64 v15; 
   ntl::internal::list_node_base *mp_next; 
-  ntl::internal::list_node_base *v19; 
-  ntl::internal::list_node<psManifestActionInfo_t> *v20; 
-  CCSPatchType v21; 
-  bool v22; 
-  unsigned int v23; 
-  const char *v24; 
+  ntl::internal::list_node_base *v17; 
+  ntl::internal::list_node<psManifestActionInfo_t> *v18; 
+  CCSPatchType v19; 
+  bool v20; 
+  unsigned int v21; 
+  const char *v22; 
   int *p_totalPatchBytes; 
-  char *v27; 
-  const dvar_t *v28; 
-  const char *v29; 
+  __int128 v24; 
+  __int128 v25; 
+  char *v26; 
+  const dvar_t *v27; 
+  const char *v28; 
   char *fmt; 
+  __int64 v30; 
+  __int64 v31; 
   __int64 v32; 
-  __int64 v33; 
-  double v34; 
-  __int64 v35; 
-  unsigned int v37; 
-  unsigned __int8 v39; 
+  unsigned int v33; 
+  unsigned __int8 v35; 
 
-  v39 = gameMode;
-  v8 = patchType;
+  v35 = gameMode;
+  v6 = patchType;
   if ( (unsigned int)patchType >= COUNT )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_patchsystem.cpp", 304, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast< int >( patchType ) ) < (unsigned)( static_cast< int >( CCSPatchType::COUNT ) )", "static_cast< int >( patchType ) doesn't index static_cast< int >( CCSPatchType::COUNT )\n\t%i not in [0, %i)", patchType, 2) )
       __debugbreak();
-    LOBYTE(gameMode) = v39;
+    LOBYTE(gameMode) = v35;
   }
-  v11 = v8;
-  v35 = v8;
-  v12 = &this->m_ccsPatchData[v8];
-  if ( this->m_currentActions.valid[v8] )
+  v9 = v6;
+  v32 = v6;
+  v10 = &this->m_ccsPatchData[v6];
+  if ( this->m_currentActions.valid[v6] )
   {
-    v37 = (unsigned __int8)gameMode;
-    __asm { vmovaps [rsp+98h+var_48], xmm6 }
+    v33 = (unsigned __int8)gameMode;
     switch ( (unsigned __int8)gameMode )
     {
       case HALF:
-        v13 = 3;
+        v11 = 3;
         break;
       case HALF_HALF:
-        v13 = 5;
+        v11 = 5;
         break;
       case LONG:
-        v13 = 9;
+        v11 = 9;
         break;
       default:
-        v13 = 1;
+        v11 = 1;
         break;
     }
-    v14 = 0;
-    v15 = (unsigned __int8)gameMode;
-    valid = v12->downloadInfo[(unsigned __int8)gameMode].valid;
+    v12 = 0;
+    v13 = (unsigned __int8)gameMode;
+    valid = v10->downloadInfo[(unsigned __int8)gameMode].valid;
     if ( reevaluate || !valid )
     {
-      *(_QWORD *)&v12->downloadInfo[(unsigned __int8)gameMode].patchFilesNeeded = 0i64;
-      *(_QWORD *)&v12->downloadInfo[(unsigned __int8)gameMode].streamedPatchBytesTotal = 0i64;
-      v12->downloadInfo[(unsigned __int8)gameMode].valid = 1;
+      *(_QWORD *)&v10->downloadInfo[(unsigned __int8)gameMode].patchFilesNeeded = 0i64;
+      *(_QWORD *)&v10->downloadInfo[(unsigned __int8)gameMode].streamedPatchBytesTotal = 0i64;
+      v10->downloadInfo[(unsigned __int8)gameMode].valid = 1;
     }
-    if ( (this->m_currentActions.allActions[v8] & 0x10) != 0 && (v13 & this->m_currentActions.downloadActionContexts[v8]) != 0 )
+    if ( (this->m_currentActions.allActions[v6] & 0x10) != 0 && (v11 & this->m_currentActions.downloadActionContexts[v6]) != 0 )
     {
       if ( reevaluate || !valid )
       {
-        if ( v12->requestedDownload )
+        if ( v10->requestedDownload )
         {
-          v17 = (unsigned __int8)this->m_ccsPatchData[v8].requestedContext[0];
-          this->m_ccsPatchData[v8].requestedContext[0] = gameMode;
-          v12->downloadInfo[(unsigned __int8)gameMode].patchFilesNeeded = 1;
-          v12->downloadInfo[(unsigned __int8)gameMode].totalPatchBytes = v12->downloadInfo[v17].totalPatchBytes;
-          v12->downloadInfo[(unsigned __int8)gameMode].streamedPatchBytesCurrent = v12->downloadInfo[v17].streamedPatchBytesCurrent;
-          v12->downloadInfo[(unsigned __int8)gameMode].streamedPatchBytesTotal = v12->downloadInfo[v17].streamedPatchBytesTotal;
+          v15 = (unsigned __int8)this->m_ccsPatchData[v6].requestedContext[0];
+          this->m_ccsPatchData[v6].requestedContext[0] = gameMode;
+          v10->downloadInfo[(unsigned __int8)gameMode].patchFilesNeeded = 1;
+          v10->downloadInfo[(unsigned __int8)gameMode].totalPatchBytes = v10->downloadInfo[v15].totalPatchBytes;
+          v10->downloadInfo[(unsigned __int8)gameMode].streamedPatchBytesCurrent = v10->downloadInfo[v15].streamedPatchBytesCurrent;
+          v10->downloadInfo[(unsigned __int8)gameMode].streamedPatchBytesTotal = v10->downloadInfo[v15].streamedPatchBytesTotal;
         }
         mp_next = this->m_currentActions.actionInfoList.m_listHead.m_sentinel.mp_next;
         if ( mp_next != (ntl::internal::list_node_base *)&this->m_currentActions.actionInfoList.m_listHead )
@@ -3644,122 +3596,118 @@ void Online_PatchStreamer::ProcessDownloadActions(Online_PatchStreamer *this, co
           {
             if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
               __debugbreak();
-            if ( (BYTE4(mp_next[13].mp_next) & 0x10) != 0 && (v13 & (__int64)mp_next[14].mp_prev) != 0 )
+            if ( (BYTE4(mp_next[13].mp_next) & 0x10) != 0 && (v11 & (__int64)mp_next[14].mp_prev) != 0 )
             {
-              v12->downloadInfo[v15].totalPatchBytes += LODWORD(mp_next[12].mp_prev);
-              ++v12->downloadInfo[v15].patchFilesNeeded;
+              v10->downloadInfo[v13].totalPatchBytes += LODWORD(mp_next[12].mp_prev);
+              ++v10->downloadInfo[v13].patchFilesNeeded;
               if ( !LODWORD(mp_next[13].mp_next) )
-                this->m_ccsPatchData[v8].restartRequired = 1;
+                this->m_ccsPatchData[v6].restartRequired = 1;
             }
             mp_next = mp_next->mp_next;
           }
           while ( mp_next != (ntl::internal::list_node_base *)&this->m_currentActions.actionInfoList.m_listHead );
-          v11 = v8;
-          v14 = 0;
+          v9 = v6;
+          v12 = 0;
         }
       }
       if ( requestDownload )
       {
-        v19 = this->m_currentActions.actionInfoList.m_listHead.m_sentinel.mp_next;
-        if ( v19 != (ntl::internal::list_node_base *)&this->m_currentActions.actionInfoList.m_listHead )
+        v17 = this->m_currentActions.actionInfoList.m_listHead.m_sentinel.mp_next;
+        if ( v17 != (ntl::internal::list_node_base *)&this->m_currentActions.actionInfoList.m_listHead )
         {
           do
           {
-            if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+            if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
               __debugbreak();
-            if ( (BYTE4(v19[13].mp_next) & 0x10) != 0 && (v13 & (__int64)v19[14].mp_prev) != 0 && !v12->requestedDownload && v12->patchingStatus != PS_PATCHING_FAILED && Online_PatchStreamer::PerformManifestDownloadAction(this, patchType, (GameModeType)v39, (const psManifestActionInfo_t *)&v19[1]) )
+            if ( (BYTE4(v17[13].mp_next) & 0x10) != 0 && (v11 & (__int64)v17[14].mp_prev) != 0 && !v10->requestedDownload && v10->patchingStatus != PS_PATCHING_FAILED && Online_PatchStreamer::PerformManifestDownloadAction(this, patchType, (GameModeType)v35, (const psManifestActionInfo_t *)&v17[1]) )
             {
-              v20 = (ntl::internal::list_node<psManifestActionInfo_t> *)v19;
-              if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 439, ASSERT_TYPE_ASSERT, "( pos.mp_node )", (const char *)&queryFormat, "pos.mp_node") )
+              v18 = (ntl::internal::list_node<psManifestActionInfo_t> *)v17;
+              if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 439, ASSERT_TYPE_ASSERT, "( pos.mp_node )", (const char *)&queryFormat, "pos.mp_node") )
                 __debugbreak();
-              v19 = v19->mp_next;
-              ntl::internal::list_head_base<ntl::internal::list_node<psManifestActionInfo_t>>::remove(&this->m_currentActions.actionInfoList.m_listHead, v20);
-              v20->mp_prev = (ntl::internal::list_node_base *)this->m_currentActions.actionInfoList.m_freelist.m_head.mp_next;
-              this->m_currentActions.actionInfoList.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v20;
+              v17 = v17->mp_next;
+              ntl::internal::list_head_base<ntl::internal::list_node<psManifestActionInfo_t>>::remove(&this->m_currentActions.actionInfoList.m_listHead, v18);
+              v18->mp_prev = (ntl::internal::list_node_base *)this->m_currentActions.actionInfoList.m_freelist.m_head.mp_next;
+              this->m_currentActions.actionInfoList.m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v18;
             }
             else
             {
-              v19 = v19->mp_next;
+              v17 = v17->mp_next;
             }
           }
-          while ( v19 != (ntl::internal::list_node_base *)&this->m_currentActions.actionInfoList.m_listHead );
-          v14 = 0;
+          while ( v17 != (ntl::internal::list_node_base *)&this->m_currentActions.actionInfoList.m_listHead );
+          v12 = 0;
         }
-        v11 = v35;
+        v9 = v32;
       }
     }
-    v21 = patchType;
+    v19 = patchType;
     if ( (unsigned int)patchType >= COUNT )
     {
-      LODWORD(v33) = 2;
-      LODWORD(v32) = patchType;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_patchsystem.cpp", 304, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast< int >( patchType ) ) < (unsigned)( static_cast< int >( CCSPatchType::COUNT ) )", "static_cast< int >( patchType ) doesn't index static_cast< int >( CCSPatchType::COUNT )\n\t%i not in [0, %i)", v32, v33) )
+      LODWORD(v31) = 2;
+      LODWORD(v30) = patchType;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_patchsystem.cpp", 304, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast< int >( patchType ) ) < (unsigned)( static_cast< int >( CCSPatchType::COUNT ) )", "static_cast< int >( patchType ) doesn't index static_cast< int >( CCSPatchType::COUNT )\n\t%i not in [0, %i)", v30, v31) )
         __debugbreak();
     }
-    if ( v12->patchingStatus != PS_PATCHING_FAILED && v12->downloadInfo[v15].valid && this->m_currentActions.valid[v11] )
+    if ( v10->patchingStatus != PS_PATCHING_FAILED && v10->downloadInfo[v13].valid && this->m_currentActions.valid[v9] )
     {
-      v22 = v12->downloadInfo[v15].patchFilesNeeded <= 0;
-      v23 = v37;
-      if ( v22 )
+      v20 = v10->downloadInfo[v13].patchFilesNeeded <= 0;
+      v21 = v33;
+      if ( v20 )
       {
-        v24 = j_va("UpdatePatchingStatus: All patch files acquired for mode %d", v37);
-        OnlineSystem::DebugLog(this, v24);
-        if ( v12->restartRequired || (this->m_currentActions.allActions[v11] & 0x40F) != 0 )
+        v22 = j_va("UpdatePatchingStatus: All patch files acquired for mode %d", v33);
+        OnlineSystem::DebugLog(this, v22);
+        if ( v10->restartRequired || (this->m_currentActions.allActions[v9] & 0x40F) != 0 )
         {
           if ( DVARINT_ccs_sendActionReport && Dvar_GetInt_Internal_DebugName(DVARINT_ccs_sendActionReport, "ccs_sendActionReport") )
             Online_PatchStreamer::SendActionReport(this);
           OnlineSystem::DebugLog(this, "UpdatePatchingStatus: Restart requested.");
-          v12->patchingStatus = PS_PATCHING_COMPLETE_RESTART;
+          v10->patchingStatus = PS_PATCHING_COMPLETE_RESTART;
         }
         else
         {
-          v12->patchingStatus = PS_PATCHING_COMPLETE;
+          v10->patchingStatus = PS_PATCHING_COMPLETE;
         }
       }
       else
       {
-        v12->patchingStatus = PS_PATCHING_IN_PROGRESS;
+        v10->patchingStatus = PS_PATCHING_IN_PROGRESS;
       }
     }
     else
     {
-      v23 = v37;
+      v21 = v33;
     }
-    __asm { vmovss  xmm6, cs:__real@42c80000 }
-    p_totalPatchBytes = &v12->downloadInfo[0].totalPatchBytes;
+    p_totalPatchBytes = &v10->downloadInfo[0].totalPatchBytes;
     do
     {
       if ( *((_BYTE *)p_totalPatchBytes - 8) )
       {
-        *(double *)&_XMM0 = Online_PatchStreamer::GetPatchingProgressForMode(this, v21, (const GameModeType)v39);
-        __asm { vmulss  xmm1, xmm0, xmm6 }
+        *(double *)&v5 = Online_PatchStreamer::GetPatchingProgressForMode(this, v19, (const GameModeType)v35);
+        v25 = v5;
+        *(float *)&v25 = *(float *)&v5 * 100.0;
+        v24 = v25;
       }
       else
       {
-        __asm { vxorps  xmm1, xmm1, xmm1 }
+        v24 = 0i64;
       }
-      __asm
-      {
-        vcvtss2sd xmm0, xmm1, xmm1
-        vmovsd  [rsp+98h+var_68], xmm0
-      }
-      LODWORD(v32) = v12->restartRequired;
+      *((_QWORD *)&v5 + 1) = *((_QWORD *)&v24 + 1);
+      LODWORD(v30) = v10->restartRequired;
       LODWORD(fmt) = *p_totalPatchBytes;
-      v27 = j_va("ProcessDownloadActions: [Current Gamemode:%d], GameMode:%d, File Needed: %d, Total Size: %d, Restart:%d, Percent: %f %% \n", v23, v14, (unsigned int)*(p_totalPatchBytes - 1), fmt, v32, v34);
-      v28 = DVARINT_onlineSystemDebugAll;
-      v29 = v27;
+      v26 = j_va("ProcessDownloadActions: [Current Gamemode:%d], GameMode:%d, File Needed: %d, Total Size: %d, Restart:%d, Percent: %f %% \n", v21, v12, (unsigned int)*(p_totalPatchBytes - 1), fmt, v30, *(float *)&v24);
+      v27 = DVARINT_onlineSystemDebugAll;
+      v28 = v26;
       if ( !DVARINT_onlineSystemDebugAll && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "onlineSystemDebugAll") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v28);
-      if ( v28->current.integer || this->ShowLogOutput(this) )
-        Com_Printf(25, "%s: %s", this->m_name, v29);
-      v21 = patchType;
-      ++v14;
+      Dvar_CheckFrontendServerThread(v27);
+      if ( v27->current.integer || this->ShowLogOutput(this) )
+        Com_Printf(25, "%s: %s", this->m_name, v28);
+      v19 = patchType;
+      ++v12;
       p_totalPatchBytes += 5;
-      v23 = v39;
+      v21 = v35;
     }
-    while ( v14 < 4 );
-    __asm { vmovaps xmm6, [rsp+98h+var_48] }
+    while ( v12 < 4 );
   }
 }
 
@@ -3771,90 +3719,106 @@ Online_PatchStreamer::ProcessManifestEntry
 char Online_PatchStreamer::ProcessManifestEntry(Online_PatchStreamer *this, const CCSPatchType patchType, const unsigned int entryIndex, const psManifestFileEntry_t *inManifestEntry, ntl::fixed_list<dcacheFileDetails_t *,2048,0> *inOutPermDCacheFiles, ntl::fixed_list<dcacheFileDetails_t *,2048,0> *inOutTempDcacheFiles, psManifestActionInfo_t *outAction)
 {
   ntl::fixed_list<dcacheFileDetails_t *,2048,0> *v7; 
-  const char *v11; 
+  const char *v10; 
+  __int64 v11; 
   __int64 v12; 
-  __int64 v13; 
-  PatchManifestActionContext v27; 
+  psManifestFileEntry_t *p_manifestEntry; 
+  const psManifestFileEntry_t *v14; 
+  __int128 v15; 
+  PatchManifestActionContext v16; 
   ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *> > *p_m_listHead; 
   ntl::internal::list_node_base *mp_next; 
-  __int64 v30; 
-  const psManifestFileEntry_t *v31; 
-  char *v32; 
-  char v33; 
-  char v34; 
+  __int64 v19; 
+  const psManifestFileEntry_t *v20; 
+  char *v21; 
+  char v22; 
+  char v23; 
+  ntl::internal::list_node_base *mp_prev; 
   __int64 mp_next_low; 
-  const char *v39; 
-  const char *v40; 
+  const char *v28; 
+  const char *v29; 
   Online_ErrorReporting *InstancePtr; 
   CCSPatchData *CCSPatchData; 
-  int v43; 
-  ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *> > *v51; 
-  ntl::internal::list_node_base *mp_prev; 
-  __int64 v75; 
-  const psManifestFileEntry_t *v76; 
-  char *v77; 
-  char v78; 
-  char v79; 
-  ntl::internal::list_node<dcacheFileDetails_t *> *v81; 
-  ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *> > *v82; 
-  __int64 v83; 
-  const psManifestFileEntry_t *v84; 
+  int v32; 
+  ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *> > *v33; 
+  ntl::internal::list_node_base v34; 
+  char *v35; 
+  ntl::internal::list_node_base *v36; 
+  ntl::internal::list_node_base *v37; 
+  char *v38; 
+  ntl::internal::list_node_base *v39; 
+  __int64 v40; 
+  const psManifestFileEntry_t *v41; 
+  char *v42; 
+  char v43; 
+  char v44; 
+  ntl::internal::list_node<dcacheFileDetails_t *> *v46; 
+  ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *> > *v47; 
+  __int64 v48; 
+  const psManifestFileEntry_t *v49; 
   char *m_name; 
-  char v86; 
-  char v87; 
-  dcacheType_t v90; 
-  __int64 v91; 
-  const char *v92; 
-  const char *v93; 
-  Online_ErrorReporting *v94; 
-  CCSPatchData *v95; 
-  int v96; 
-  int v97; 
-  __int64 v125; 
-  const char *v126; 
-  const char *v127; 
-  Online_ErrorReporting *v128; 
-  __int64 v143; 
-  const char *v144; 
-  const char *v145; 
-  Online_ErrorReporting *v146; 
-  const char *v162; 
-  const char *v163; 
-  Online_ErrorReporting *v164; 
-  __int64 v165; 
-  const char *v167; 
-  const char *v168; 
-  Online_ErrorReporting *v169; 
-  __int64 v184; 
+  char v51; 
+  char v52; 
+  dcacheFileDetails_t *m_data; 
+  dcacheType_t v55; 
+  __int64 v56; 
+  const char *v57; 
+  const char *v58; 
+  Online_ErrorReporting *v59; 
+  CCSPatchData *v60; 
+  int v61; 
+  int v62; 
+  PatchManifestAction v63; 
+  ntl::internal::list_node_base *v64; 
+  __int64 v65; 
+  const char *v66; 
+  const char *v67; 
+  Online_ErrorReporting *v68; 
+  ntl::internal::list_node_base *v69; 
+  __int64 v70; 
+  const char *v71; 
+  const char *v72; 
+  Online_ErrorReporting *v73; 
+  PatchManifestAction v74; 
+  char *v75; 
+  const char *v76; 
+  const char *v77; 
+  Online_ErrorReporting *v78; 
+  __int64 v79; 
+  const char *v80; 
+  const char *v81; 
+  Online_ErrorReporting *v82; 
+  char *v83; 
+  __int64 v84; 
   __int64 m_location; 
-  const char *v186; 
-  const char *v187; 
-  Online_ErrorReporting *v188; 
-  int v189; 
-  __int64 v205; 
-  int v206; 
-  char *v207; 
-  signed __int64 v208; 
-  char v209; 
-  __int64 v210; 
-  char v211; 
-  char *v212; 
-  char v213; 
-  __int64 v214; 
-  char v215; 
-  bool v216; 
+  const char *v86; 
+  const char *v87; 
+  Online_ErrorReporting *v88; 
+  int v89; 
+  char *v90; 
+  __int64 v91; 
+  int v92; 
+  char *v93; 
+  signed __int64 v94; 
+  char v95; 
+  __int64 v96; 
+  char v97; 
+  char *v98; 
+  char v99; 
+  __int64 v100; 
+  char v101; 
+  bool v102; 
   int fileSizeCompressed; 
-  __int64 v218; 
-  __int64 v219; 
+  __int64 v104; 
+  __int64 v105; 
   __int64 Buf1[4]; 
-  __int64 v223; 
-  __int64 v224; 
+  __int64 v109; 
+  __int64 v110; 
   char dest[256]; 
 
   v7 = inOutTempDcacheFiles;
-  _RBP = outAction;
-  v223 = 0i64;
-  v224 = 0i64;
+  v109 = 0i64;
+  v110 = 0i64;
   if ( !inManifestEntry && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_patchsystem.cpp", 1753, ASSERT_TYPE_ASSERT, "(inManifestEntry)", (const char *)&queryFormat, "inManifestEntry") )
     __debugbreak();
   if ( !inOutPermDCacheFiles && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_patchsystem.cpp", 1754, ASSERT_TYPE_ASSERT, "(inOutPermDCacheFiles)", (const char *)&queryFormat, "inOutPermDCacheFiles") )
@@ -3863,69 +3827,53 @@ char Online_PatchStreamer::ProcessManifestEntry(Online_PatchStreamer *this, cons
     __debugbreak();
   if ( !outAction && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_patchsystem.cpp", 1756, ASSERT_TYPE_ASSERT, "(outAction)", (const char *)&queryFormat, "outAction") )
     __debugbreak();
-  if ( patchType == MOVEMENT || (v11 = "comms", patchType != DODGE) )
-    v11 = "patch";
-  v12 = 256i64;
-  Com_sprintf(dest, 0x100ui64, "%s_%s_%s_%s.%s", "dev_pack", v11, "xb3", "8.24", "bin");
+  if ( patchType == MOVEMENT || (v10 = "comms", patchType != DODGE) )
+    v10 = "patch";
+  v11 = 256i64;
+  Com_sprintf(dest, 0x100ui64, "%s_%s_%s_%s.%s", "dev_pack", v10, "xb3", "8.24", "bin");
   memset(Buf1, 0, sizeof(Buf1));
-  v223 = 0i64;
-  v224 = 0i64;
+  v109 = 0i64;
+  v110 = 0i64;
   memset_0(outAction, 0, sizeof(psManifestActionInfo_t));
-  v13 = 3i64;
-  _RCX = &outAction->manifestEntry;
-  _RAX = inManifestEntry;
+  v12 = 3i64;
+  p_manifestEntry = &outAction->manifestEntry;
+  v14 = inManifestEntry;
   do
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rcx], xmm0
-      vmovups xmm1, xmmword ptr [rax+10h]
-      vmovups xmmword ptr [rcx+10h], xmm1
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rcx+20h], xmm0
-      vmovups xmm1, xmmword ptr [rax+30h]
-      vmovups xmmword ptr [rcx+30h], xmm1
-      vmovups xmm0, xmmword ptr [rax+40h]
-      vmovups xmmword ptr [rcx+40h], xmm0
-      vmovups xmm1, xmmword ptr [rax+50h]
-      vmovups xmmword ptr [rcx+50h], xmm1
-      vmovups xmm0, xmmword ptr [rax+60h]
-      vmovups xmmword ptr [rcx+60h], xmm0
-      vmovups xmm1, xmmword ptr [rax+70h]
-    }
-    _RCX = (psManifestFileEntry_t *)((char *)_RCX + 128);
-    _RAX = (const psManifestFileEntry_t *)((char *)_RAX + 128);
-    __asm { vmovups xmmword ptr [rcx-10h], xmm1 }
-    --v13;
+    *(_OWORD *)p_manifestEntry->fileName = *(_OWORD *)v14->fileName;
+    *(_OWORD *)&p_manifestEntry->fileName[16] = *(_OWORD *)&v14->fileName[16];
+    *(_OWORD *)&p_manifestEntry->fileName[32] = *(_OWORD *)&v14->fileName[32];
+    *(_OWORD *)&p_manifestEntry->fileName[48] = *(_OWORD *)&v14->fileName[48];
+    *(_OWORD *)&p_manifestEntry->fileName[64] = *(_OWORD *)&v14->fileName[64];
+    *(_OWORD *)&p_manifestEntry->fileName[80] = *(_OWORD *)&v14->fileName[80];
+    *(_OWORD *)&p_manifestEntry->fileName[96] = *(_OWORD *)&v14->fileName[96];
+    v15 = *(_OWORD *)&v14->fileName[112];
+    p_manifestEntry = (psManifestFileEntry_t *)((char *)p_manifestEntry + 128);
+    v14 = (const psManifestFileEntry_t *)((char *)v14 + 128);
+    *(_OWORD *)&p_manifestEntry[-1].isDormant = v15;
+    --v12;
   }
-  while ( v13 );
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups xmmword ptr [rcx], xmm0
-    vmovups xmm1, xmmword ptr [rax+10h]
-    vmovups xmmword ptr [rcx+10h], xmm1
-    vmovups xmm0, xmmword ptr [rax+20h]
-    vmovups xmmword ptr [rcx+20h], xmm0
-  }
-  *(_QWORD *)&_RCX->fileName[48] = *(_QWORD *)&_RAX->fileName[48];
+  while ( v12 );
+  *(_OWORD *)p_manifestEntry->fileName = *(_OWORD *)v14->fileName;
+  *(_OWORD *)&p_manifestEntry->fileName[16] = *(_OWORD *)&v14->fileName[16];
+  *(_OWORD *)&p_manifestEntry->fileName[32] = *(_OWORD *)&v14->fileName[32];
+  *(_QWORD *)&p_manifestEntry->fileName[48] = *(_QWORD *)&v14->fileName[48];
   switch ( inManifestEntry->gameMode[0] )
   {
     case 1:
-      v27 = PATCH_MAN_ACT_CONTEXT_SP;
+      v16 = PATCH_MAN_ACT_CONTEXT_SP;
       break;
     case 2:
-      v27 = PATCH_MAN_ACT_CONTEXT_MP;
+      v16 = PATCH_MAN_ACT_CONTEXT_MP;
       break;
     case 3:
-      v27 = PATCH_MAN_ACT_CONTEXT_CP;
+      v16 = PATCH_MAN_ACT_CONTEXT_CP;
       break;
     default:
-      v27 = PATCH_MAN_ACT_CONTEXT_SHARED;
+      v16 = PATCH_MAN_ACT_CONTEXT_SHARED;
       break;
   }
-  outAction->context = v27;
+  outAction->context = v16;
   p_m_listHead = &inOutPermDCacheFiles->m_listHead;
   mp_next = inOutPermDCacheFiles->m_listHead.m_sentinel.mp_next;
   if ( inManifestEntry->isDormant )
@@ -3936,24 +3884,24 @@ char Online_PatchStreamer::ProcessManifestEntry(Online_PatchStreamer *this, cons
     {
       if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      v30 = 128i64;
-      v31 = inManifestEntry;
-      v32 = (char *)&mp_next[1].mp_prev->mp_next + 4;
+      v19 = 128i64;
+      v20 = inManifestEntry;
+      v21 = (char *)&mp_next[1].mp_prev->mp_next + 4;
       if ( mp_next[1].mp_prev == (ntl::internal::list_node_base *)-12i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
       do
       {
-        v33 = *v32++;
-        v34 = v31->fileName[0];
-        v31 = (const psManifestFileEntry_t *)((char *)v31 + 1);
-        if ( !v30-- )
+        v22 = *v21++;
+        v23 = v20->fileName[0];
+        v20 = (const psManifestFileEntry_t *)((char *)v20 + 1);
+        if ( !v19-- )
           break;
-        if ( v33 != v34 )
+        if ( v22 != v23 )
           goto LABEL_38;
       }
-      while ( v33 );
-      _RDI = mp_next[1].mp_prev;
-      if ( memcmp_0(&_RDI[9], &inManifestEntry->rawHash, 0x20ui64) && memcmp_0(&_RDI[9], &inManifestEntry->encryptedHash, 0x20ui64) )
+      while ( v22 );
+      mp_prev = mp_next[1].mp_prev;
+      if ( memcmp_0(&mp_prev[9], &inManifestEntry->rawHash, 0x20ui64) && memcmp_0(&mp_prev[9], &inManifestEntry->encryptedHash, 0x20ui64) )
       {
 LABEL_38:
         mp_next = mp_next->mp_next;
@@ -3963,7 +3911,7 @@ LABEL_38:
       }
       break;
     }
-    mp_next_low = LODWORD(_RDI->mp_next);
+    mp_next_low = LODWORD(mp_prev->mp_next);
     switch ( (_DWORD)mp_next_low )
     {
       case 0x10:
@@ -3972,61 +3920,41 @@ LABEL_38:
         goto LABEL_47;
       case 0x40:
 LABEL_50:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi]
-          vmovups xmmword ptr [rbp+0], xmm0
-          vmovups xmm1, xmmword ptr [rdi+10h]
-          vmovups xmmword ptr [rbp+10h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+20h]
-          vmovups xmmword ptr [rbp+20h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+30h]
-          vmovups xmmword ptr [rbp+30h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+40h]
-          vmovups xmmword ptr [rbp+40h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+50h]
-          vmovups xmmword ptr [rbp+50h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+60h]
-          vmovups xmmword ptr [rbp+60h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+70h]
-        }
-        _R14 = 128i64;
-        __asm { vmovups xmmword ptr [r14+rbp-10h], xmm1 }
-        _RDI = _RDI + 8;
-        _RCX = &outAction->fileDetails.m_name[116];
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi]
-          vmovups xmmword ptr [rcx], xmm0
-          vmovups xmm1, xmmword ptr [rdi+10h]
-          vmovups xmmword ptr [rcx+10h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+20h]
-          vmovups xmmword ptr [rcx+20h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+30h]
-          vmovups xmmword ptr [rcx+30h], xmm1
-        }
-        mp_prev = _RDI[4].mp_prev;
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_fileID = *mp_prev;
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[4] = mp_prev[1];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[20] = mp_prev[2];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[36] = mp_prev[3];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[52] = mp_prev[4];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[68] = mp_prev[5];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[84] = mp_prev[6];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[100] = mp_prev[7];
+        v37 = mp_prev + 8;
+        v38 = &outAction->fileDetails.m_name[116];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[116] = *v37;
+        outAction->fileDetails.m_computedHashValue = *(cccHashValueSHA256_t *)&v37[1].mp_prev;
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_size = v37[3];
+        v39 = v37[4].mp_prev;
         outAction->action = PATCH_MAN_ACT_MARK_DORM;
         goto LABEL_51;
     }
-    v39 = j_va("\t Stale: Unexpected Location: name:%s, cacheType:%d, location:%d \n", (const char *)&_RDI->mp_next + 4, 1i64, mp_next_low);
-    OnlineSystem::DebugLog(this, v39);
-    v40 = j_va("%d,%zu,%d", 1i64, mp_next[1].mp_prev->mp_prev, LODWORD(mp_next[1].mp_prev->mp_next));
+    v28 = j_va("\t Stale: Unexpected Location: name:%s, cacheType:%d, location:%d \n", (const char *)&mp_prev->mp_next + 4, 1i64, mp_next_low);
+    OnlineSystem::DebugLog(this, v28);
+    v29 = j_va("%d,%zu,%d", 1i64, mp_next[1].mp_prev->mp_prev, LODWORD(mp_next[1].mp_prev->mp_next));
     InstancePtr = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(InstancePtr, MOVEMENT, v40);
+    Online_ErrorReporting::ReportError(InstancePtr, MOVEMENT, v29);
     CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
     CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v40);
-    v43 = 0;
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v29);
+    v32 = 0;
     do
     {
-      if ( v43 >= 65 )
+      if ( v32 >= 65 )
         break;
-      ++v43;
+      ++v32;
     }
-    while ( ((0x400000000ui64 >> v43) & 1) == 0 );
+    while ( ((0x400000000ui64 >> v32) & 1) == 0 );
 LABEL_46:
-    CCSPatchData->patchingErrorCode = v43;
+    CCSPatchData->patchingErrorCode = v32;
     return 0;
   }
   if ( mp_next == (ntl::internal::list_node_base *)p_m_listHead )
@@ -4035,247 +3963,165 @@ LABEL_46:
   {
     if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
       __debugbreak();
-    v75 = 128i64;
-    v76 = inManifestEntry;
-    v77 = (char *)&mp_next[1].mp_prev->mp_next + 4;
+    v40 = 128i64;
+    v41 = inManifestEntry;
+    v42 = (char *)&mp_next[1].mp_prev->mp_next + 4;
     if ( mp_next[1].mp_prev == (ntl::internal::list_node_base *)-12i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
       __debugbreak();
     do
     {
-      v78 = *v77++;
-      v79 = v76->fileName[0];
-      v76 = (const psManifestFileEntry_t *)((char *)v76 + 1);
-      if ( !v75-- )
+      v43 = *v42++;
+      v44 = v41->fileName[0];
+      v41 = (const psManifestFileEntry_t *)((char *)v41 + 1);
+      if ( !v40-- )
         break;
-      if ( v78 != v79 )
+      if ( v43 != v44 )
         goto LABEL_65;
     }
-    while ( v78 );
-    _RDI = mp_next[1].mp_prev;
-    if ( !memcmp_0(&_RDI[9], &inManifestEntry->rawHash, 0x20ui64) )
+    while ( v43 );
+    mp_prev = mp_next[1].mp_prev;
+    if ( !memcmp_0(&mp_prev[9], &inManifestEntry->rawHash, 0x20ui64) )
     {
-      v125 = LODWORD(_RDI->mp_next);
-      if ( (_DWORD)v125 == 16 )
+      v65 = LODWORD(mp_prev->mp_next);
+      if ( (_DWORD)v65 == 16 )
       {
 LABEL_47:
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi]
-          vmovups xmmword ptr [rbp+0], xmm0
-          vmovups xmm1, xmmword ptr [rdi+10h]
-          vmovups xmmword ptr [rbp+10h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+20h]
-          vmovups xmmword ptr [rbp+20h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+30h]
-          vmovups xmmword ptr [rbp+30h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+40h]
-          vmovups xmmword ptr [rbp+40h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+50h]
-          vmovups xmmword ptr [rbp+50h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+60h]
-        }
-        v51 = &inOutPermDCacheFiles->m_listHead;
-        __asm
-        {
-          vmovups xmmword ptr [rbp+60h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+70h]
-        }
-        _RBP = &outAction->fileDetails.m_name[116];
-        _RDI = _RDI + 8;
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_fileID = *mp_prev;
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[4] = mp_prev[1];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[20] = mp_prev[2];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[36] = mp_prev[3];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[52] = mp_prev[4];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[68] = mp_prev[5];
+        v33 = &inOutPermDCacheFiles->m_listHead;
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[84] = mp_prev[6];
+        v34 = mp_prev[7];
+        v35 = &outAction->fileDetails.m_name[116];
+        v36 = mp_prev + 8;
         goto LABEL_48;
       }
-      if ( (_DWORD)v125 != 32 )
+      if ( (_DWORD)v65 != 32 )
       {
-        v126 = j_va("\t Perm Raw match: Unexpected Location: name:%s, cacheType:%d, location:%d \n", (const char *)&_RDI->mp_next + 4, 1i64, v125);
-        OnlineSystem::DebugLog(this, v126);
-        v127 = j_va("%d,%zu,%d", 1i64, mp_next[1].mp_prev->mp_prev, LODWORD(mp_next[1].mp_prev->mp_next));
-        v128 = Online_ErrorReporting::GetInstancePtr();
-        Online_ErrorReporting::ReportError(v128, MOVEMENT, v127);
+        v66 = j_va("\t Perm Raw match: Unexpected Location: name:%s, cacheType:%d, location:%d \n", (const char *)&mp_prev->mp_next + 4, 1i64, v65);
+        OnlineSystem::DebugLog(this, v66);
+        v67 = j_va("%d,%zu,%d", 1i64, mp_next[1].mp_prev->mp_prev, LODWORD(mp_next[1].mp_prev->mp_next));
+        v68 = Online_ErrorReporting::GetInstancePtr();
+        Online_ErrorReporting::ReportError(v68, MOVEMENT, v67);
         CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
         CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-        OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v127);
-        v43 = 0;
-        while ( v43 < 65 )
+        OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v67);
+        v32 = 0;
+        while ( v32 < 65 )
         {
-          if ( ((0x800000000ui64 >> ++v43) & 1) != 0 )
+          if ( ((0x800000000ui64 >> ++v32) & 1) != 0 )
           {
-            CCSPatchData->patchingErrorCode = v43;
+            CCSPatchData->patchingErrorCode = v32;
             return 0;
           }
         }
         goto LABEL_46;
       }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups xmmword ptr [rbp+0], xmm0
-        vmovups xmm1, xmmword ptr [rdi+10h]
-        vmovups xmmword ptr [rbp+10h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+20h]
-        vmovups xmmword ptr [rbp+20h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+30h]
-        vmovups xmmword ptr [rbp+30h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+40h]
-        vmovups xmmword ptr [rbp+40h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+50h]
-        vmovups xmmword ptr [rbp+50h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+60h]
-        vmovups xmmword ptr [rbp+60h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+70h]
-      }
-      _R14 = 128i64;
-      __asm { vmovups xmmword ptr [r14+rbp-10h], xmm1 }
-      _RDI = _RDI + 8;
-      _RCX = &outAction->fileDetails.m_name[116];
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovups xmm1, xmmword ptr [rdi+10h]
-        vmovups xmmword ptr [rcx+10h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+20h]
-        vmovups xmmword ptr [rcx+20h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+30h]
-        vmovups xmmword ptr [rcx+30h], xmm1
-      }
-      mp_prev = _RDI[4].mp_prev;
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_fileID = *mp_prev;
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[4] = mp_prev[1];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[20] = mp_prev[2];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[36] = mp_prev[3];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[52] = mp_prev[4];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[68] = mp_prev[5];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[84] = mp_prev[6];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[100] = mp_prev[7];
+      v69 = mp_prev + 8;
+      v38 = &outAction->fileDetails.m_name[116];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[116] = *v69;
+      outAction->fileDetails.m_computedHashValue = *(cccHashValueSHA256_t *)&v69[1].mp_prev;
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_size = v69[3];
+      v39 = v69[4].mp_prev;
       outAction->action = PATCH_MAN_ACT_MARK_AVAIL;
 LABEL_51:
-      *((_QWORD *)_RCX + 8) = mp_prev;
-      v51 = &inOutPermDCacheFiles->m_listHead;
+      *((_QWORD *)v38 + 8) = v39;
+      v33 = &inOutPermDCacheFiles->m_listHead;
       outAction->dcacheType = DCACHE_TYPE_PERSISTENT;
 LABEL_52:
-      ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *>>::remove(v51, (ntl::internal::list_node<dcacheFileDetails_t *> *)mp_next);
+      ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *>>::remove(v33, (ntl::internal::list_node<dcacheFileDetails_t *> *)mp_next);
       mp_next->mp_prev = (ntl::internal::list_node_base *)inOutPermDCacheFiles->m_freelist.m_head.mp_next;
       inOutPermDCacheFiles->m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)mp_next;
       return 1;
     }
-    if ( !memcmp_0(&_RDI[9], &inManifestEntry->encryptedHash, 0x20ui64) )
+    if ( !memcmp_0(&mp_prev[9], &inManifestEntry->encryptedHash, 0x20ui64) )
     {
-      v91 = LODWORD(_RDI->mp_next);
-      if ( (_DWORD)v91 != 32 )
+      v56 = LODWORD(mp_prev->mp_next);
+      if ( (_DWORD)v56 != 32 )
       {
-        if ( (_DWORD)v91 != 64 )
+        if ( (_DWORD)v56 != 64 )
         {
-          v92 = j_va("\tPerm Ecrypted match: Unexpected Location: name:%s, cacheType:%d, location:%d \n", (const char *)&_RDI->mp_next + 4, 1i64, v91);
-          OnlineSystem::DebugLog(this, v92);
-          v93 = j_va("%d,%zu,%d", 1i64, mp_next[1].mp_prev->mp_prev, LODWORD(mp_next[1].mp_prev->mp_next));
-          v94 = Online_ErrorReporting::GetInstancePtr();
-          Online_ErrorReporting::ReportError(v94, MOVEMENT, v93);
-          v95 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-          v95->patchingStatus = PS_PATCHING_FAILED;
-          OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v93);
-          v96 = 0;
+          v57 = j_va("\tPerm Ecrypted match: Unexpected Location: name:%s, cacheType:%d, location:%d \n", (const char *)&mp_prev->mp_next + 4, 1i64, v56);
+          OnlineSystem::DebugLog(this, v57);
+          v58 = j_va("%d,%zu,%d", 1i64, mp_next[1].mp_prev->mp_prev, LODWORD(mp_next[1].mp_prev->mp_next));
+          v59 = Online_ErrorReporting::GetInstancePtr();
+          Online_ErrorReporting::ReportError(v59, MOVEMENT, v58);
+          v60 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
+          v60->patchingStatus = PS_PATCHING_FAILED;
+          OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v58);
+          v61 = 0;
           do
           {
-            if ( v96 >= 65 )
+            if ( v61 >= 65 )
               break;
-            ++v96;
+            ++v61;
           }
-          while ( ((0x1000000000ui64 >> v96) & 1) == 0 );
+          while ( ((0x1000000000ui64 >> v61) & 1) == 0 );
           goto LABEL_88;
         }
-        v97 = memcmp_0(Buf1, &inManifestEntry->encryptionKey, 0x30ui64);
-        __asm
+        v62 = memcmp_0(Buf1, &inManifestEntry->encryptionKey, 0x30ui64);
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_fileID = *mp_prev;
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[4] = mp_prev[1];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[20] = mp_prev[2];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[36] = mp_prev[3];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[52] = mp_prev[4];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[68] = mp_prev[5];
+        *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[84] = mp_prev[6];
+        v34 = mp_prev[7];
+        v63 = PATCH_MAN_ACT_DECRYPT;
+        v33 = &inOutPermDCacheFiles->m_listHead;
+        v36 = mp_prev + 8;
+        if ( v62 )
         {
-          vmovups xmm0, xmmword ptr [rdi]
-          vmovups xmmword ptr [rbp+0], xmm0
-          vmovups xmm1, xmmword ptr [rdi+10h]
-          vmovups xmmword ptr [rbp+10h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+20h]
-          vmovups xmmword ptr [rbp+20h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+30h]
-          vmovups xmmword ptr [rbp+30h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+40h]
-          vmovups xmmword ptr [rbp+40h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+50h]
-          vmovups xmmword ptr [rbp+50h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+60h]
-          vmovups xmmword ptr [rbp+60h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+70h]
-        }
-        _R14 = 128i64;
-        v51 = &inOutPermDCacheFiles->m_listHead;
-        _RDI = _RDI + 8;
-        if ( v97 )
-        {
-          __asm
-          {
-            vmovups xmmword ptr [r14+rbp-10h], xmm1
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovups xmmword ptr [r14+rbp], xmm0
-            vmovups xmm1, xmmword ptr [rdi+10h]
-          }
-          _RDX = &outAction->fileDetails.m_name[116];
-          __asm
-          {
-            vmovups xmmword ptr [rdx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+20h]
-            vmovups xmmword ptr [rdx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+30h]
-            vmovups xmmword ptr [rdx+30h], xmm1
-          }
-          *(_QWORD *)&outAction->fileDetails.m_timestamp = _RDI[4].mp_prev;
+          *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[100] = v34;
+          *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[116] = *v36;
+          outAction->fileDetails.m_computedHashValue = *(cccHashValueSHA256_t *)&v36[1].mp_prev;
+          *(ntl::internal::list_node_base *)&outAction->fileDetails.m_size = v36[3];
+          *(_QWORD *)&outAction->fileDetails.m_timestamp = v36[4].mp_prev;
           outAction->dcacheType = DCACHE_TYPE_PERSISTENT;
           if ( inManifestEntry->fileSizeCompressed )
-            LODWORD(_R14) = 512;
-          outAction->action = _R14;
+            v63 = PATCH_MAN_ACT_DECRYPT_INFLATE;
+          outAction->action = v63;
           goto LABEL_52;
         }
-        _RBP = &outAction->fileDetails.m_name[116];
+        v35 = &outAction->fileDetails.m_name[116];
 LABEL_48:
-        __asm
-        {
-          vmovups xmmword ptr [rbp-10h], xmm1
-          vmovups xmm0, xmmword ptr [rdi]
-          vmovups xmmword ptr [rbp+0], xmm0
-          vmovups xmm1, xmmword ptr [rdi+10h]
-          vmovups xmmword ptr [rbp+10h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+20h]
-          vmovups xmmword ptr [rbp+20h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+30h]
-          vmovups xmmword ptr [rbp+30h], xmm1
-        }
-        *((_QWORD *)_RBP + 8) = _RDI[4].mp_prev;
-        ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *>>::remove(v51, (ntl::internal::list_node<dcacheFileDetails_t *> *)mp_next);
+        *((ntl::internal::list_node_base *)v35 - 1) = v34;
+        *(ntl::internal::list_node_base *)v35 = *v36;
+        *((ntl::internal::list_node_base *)v35 + 1) = v36[1];
+        *((ntl::internal::list_node_base *)v35 + 2) = v36[2];
+        *((ntl::internal::list_node_base *)v35 + 3) = v36[3];
+        *((_QWORD *)v35 + 8) = v36[4].mp_prev;
+        ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *>>::remove(v33, (ntl::internal::list_node<dcacheFileDetails_t *> *)mp_next);
         mp_next->mp_prev = (ntl::internal::list_node_base *)inOutPermDCacheFiles->m_freelist.m_head.mp_next;
         inOutPermDCacheFiles->m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)mp_next;
         return 0;
       }
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups xmmword ptr [rbp+0], xmm0
-        vmovups xmm1, xmmword ptr [rdi+10h]
-        vmovups xmmword ptr [rbp+10h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+20h]
-        vmovups xmmword ptr [rbp+20h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+30h]
-        vmovups xmmword ptr [rbp+30h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+40h]
-        vmovups xmmword ptr [rbp+40h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+50h]
-        vmovups xmmword ptr [rbp+50h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+60h]
-        vmovups xmmword ptr [rbp+60h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+70h]
-      }
-      _R14 = 128i64;
-      __asm { vmovups xmmword ptr [r14+rbp-10h], xmm1 }
-      _RDI = _RDI + 8;
-      _RCX = &outAction->fileDetails.m_name[116];
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rdi]
-        vmovups xmmword ptr [rcx], xmm0
-        vmovups xmm1, xmmword ptr [rdi+10h]
-        vmovups xmmword ptr [rcx+10h], xmm1
-        vmovups xmm0, xmmword ptr [rdi+20h]
-        vmovups xmmword ptr [rcx+20h], xmm0
-        vmovups xmm1, xmmword ptr [rdi+30h]
-        vmovups xmmword ptr [rcx+30h], xmm1
-      }
-      mp_prev = _RDI[4].mp_prev;
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_fileID = *mp_prev;
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[4] = mp_prev[1];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[20] = mp_prev[2];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[36] = mp_prev[3];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[52] = mp_prev[4];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[68] = mp_prev[5];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[84] = mp_prev[6];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[100] = mp_prev[7];
+      v64 = mp_prev + 8;
+      v38 = &outAction->fileDetails.m_name[116];
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_name[116] = *v64;
+      outAction->fileDetails.m_computedHashValue = *(cccHashValueSHA256_t *)&v64[1].mp_prev;
+      *(ntl::internal::list_node_base *)&outAction->fileDetails.m_size = v64[3];
+      v39 = v64[4].mp_prev;
       outAction->action = PATCH_MAN_ACT_MARK_ENC;
       goto LABEL_51;
     }
@@ -4285,12 +4131,12 @@ LABEL_65:
   while ( mp_next != (ntl::internal::list_node_base *)&inOutPermDCacheFiles->m_listHead );
   v7 = inOutTempDcacheFiles;
 LABEL_67:
-  v81 = (ntl::internal::list_node<dcacheFileDetails_t *> *)v7->m_listHead.m_sentinel.mp_next;
-  v82 = &v7->m_listHead;
-  if ( v81 == (ntl::internal::list_node<dcacheFileDetails_t *> *)&v7->m_listHead )
+  v46 = (ntl::internal::list_node<dcacheFileDetails_t *> *)v7->m_listHead.m_sentinel.mp_next;
+  v47 = &v7->m_listHead;
+  if ( v46 == (ntl::internal::list_node<dcacheFileDetails_t *> *)&v7->m_listHead )
   {
 LABEL_81:
-    v90 = DCACHE_TYPE_TEMPORARY;
+    v55 = DCACHE_TYPE_TEMPORARY;
     if ( inManifestEntry->packSize )
     {
       outAction->action = PATCH_MAN_ACT_UNPACK;
@@ -4302,19 +4148,19 @@ LABEL_144:
     }
     else
     {
-      v212 = dest;
+      v98 = dest;
       do
       {
-        v213 = v212[(char *)inManifestEntry - dest];
-        v214 = v12;
-        v215 = *v212++;
-        --v12;
-        if ( !v214 )
+        v99 = v98[(char *)inManifestEntry - dest];
+        v100 = v11;
+        v101 = *v98++;
+        --v11;
+        if ( !v100 )
           break;
-        if ( v213 != v215 )
+        if ( v99 != v101 )
           goto LABEL_144;
       }
-      while ( v213 );
+      while ( v99 );
       outAction->action = PATCH_MAN_ACT_NONE;
     }
     Core_strcpy(outAction->fileDetails.m_name, 0x80ui64, inManifestEntry->fileName);
@@ -4323,7 +4169,7 @@ LABEL_144:
     {
       outAction->fileDetails.m_location = DCACHE_LOC_PATCH_MAN_ENC;
       outAction->fileDetails.m_size = inManifestEntry->fileSizeEncrypted;
-      v216 = memcmp_0(Buf1, &inManifestEntry->encryptionKey, 0x30ui64) == 0;
+      v102 = memcmp_0(Buf1, &inManifestEntry->encryptionKey, 0x30ui64) == 0;
     }
     else
     {
@@ -4333,225 +4179,183 @@ LABEL_144:
         outAction->fileDetails.m_size = fileSizeCompressed;
         outAction->fileDetails.m_location = DCACHE_LOC_PATCH_MAN_CMP;
 LABEL_151:
-        outAction->dcacheType = v90;
+        outAction->dcacheType = v55;
         return 1;
       }
       outAction->fileDetails.m_size = inManifestEntry->fileSizeRaw;
       outAction->fileDetails.m_location = DCACHE_LOC_PATCH_MAN;
-      v216 = inManifestEntry->forceRestart == 0;
+      v102 = inManifestEntry->forceRestart == 0;
     }
-    LOBYTE(v90) = v216;
+    LOBYTE(v55) = v102;
     goto LABEL_151;
   }
   while ( 2 )
   {
-    if ( !v81 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+    if ( !v46 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
       __debugbreak();
-    v83 = 128i64;
-    v84 = inManifestEntry;
-    m_name = v81->m_data->m_name;
-    if ( v81->m_data == (dcacheFileDetails_t *)-12i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
+    v48 = 128i64;
+    v49 = inManifestEntry;
+    m_name = v46->m_data->m_name;
+    if ( v46->m_data == (dcacheFileDetails_t *)-12i64 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 181, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
       __debugbreak();
     do
     {
-      v86 = *m_name++;
-      v87 = v84->fileName[0];
-      v84 = (const psManifestFileEntry_t *)((char *)v84 + 1);
-      if ( !v83-- )
+      v51 = *m_name++;
+      v52 = v49->fileName[0];
+      v49 = (const psManifestFileEntry_t *)((char *)v49 + 1);
+      if ( !v48-- )
         break;
-      if ( v86 != v87 )
+      if ( v51 != v52 )
         goto LABEL_80;
     }
-    while ( v86 );
-    _RDI = v81->m_data;
-    if ( !memcmp_0(&_RDI->m_computedHashValue, &inManifestEntry->rawHash, 0x20ui64) )
+    while ( v51 );
+    m_data = v46->m_data;
+    if ( !memcmp_0(&m_data->m_computedHashValue, &inManifestEntry->rawHash, 0x20ui64) )
     {
-      m_location = (unsigned int)_RDI->m_location;
+      m_location = (unsigned int)m_data->m_location;
       if ( (_DWORD)m_location == 16 )
       {
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi]
-          vmovups xmmword ptr [rbp+0], xmm0
-          vmovups xmm1, xmmword ptr [rdi+10h]
-          vmovups xmmword ptr [rbp+10h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+20h]
-          vmovups xmmword ptr [rbp+20h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+30h]
-          vmovups xmmword ptr [rbp+30h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+40h]
-          vmovups xmmword ptr [rbp+40h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+50h]
-          vmovups xmmword ptr [rbp+50h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+60h]
-          vmovups xmmword ptr [rbp+60h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+70h]
-        }
-        _R14 = 128i64;
-        __asm { vmovups xmmword ptr [r14+rbp-10h], xmm1 }
-        _RDI = &_RDI->m_name[116];
-        _RCX = &outAction->fileDetails.m_name[116];
-        __asm
-        {
-          vmovups xmm0, xmmword ptr [rdi]
-          vmovups xmmword ptr [rcx], xmm0
-          vmovups xmm1, xmmword ptr [rdi+10h]
-          vmovups xmmword ptr [rcx+10h], xmm1
-          vmovups xmm0, xmmword ptr [rdi+20h]
-          vmovups xmmword ptr [rcx+20h], xmm0
-          vmovups xmm1, xmmword ptr [rdi+30h]
-          vmovups xmmword ptr [rcx+30h], xmm1
-        }
-        v205 = *((_QWORD *)_RDI + 8);
-        v206 = 0;
-        *(_QWORD *)&outAction->fileDetails.m_timestamp = v205;
-        v207 = dest;
+        *(_OWORD *)&outAction->fileDetails.m_fileID = *(_OWORD *)&m_data->m_fileID;
+        *(_OWORD *)&outAction->fileDetails.m_name[4] = *(_OWORD *)&m_data->m_name[4];
+        *(_OWORD *)&outAction->fileDetails.m_name[20] = *(_OWORD *)&m_data->m_name[20];
+        *(_OWORD *)&outAction->fileDetails.m_name[36] = *(_OWORD *)&m_data->m_name[36];
+        *(_OWORD *)&outAction->fileDetails.m_name[52] = *(_OWORD *)&m_data->m_name[52];
+        *(_OWORD *)&outAction->fileDetails.m_name[68] = *(_OWORD *)&m_data->m_name[68];
+        *(_OWORD *)&outAction->fileDetails.m_name[84] = *(_OWORD *)&m_data->m_name[84];
+        *(_OWORD *)&outAction->fileDetails.m_name[100] = *(_OWORD *)&m_data->m_name[100];
+        v90 = &m_data->m_name[116];
+        *(_OWORD *)&outAction->fileDetails.m_name[116] = *(_OWORD *)v90;
+        outAction->fileDetails.m_computedHashValue = *(cccHashValueSHA256_t *)(v90 + 16);
+        *(_OWORD *)&outAction->fileDetails.m_size = *((_OWORD *)v90 + 3);
+        v91 = *((_QWORD *)v90 + 8);
+        v92 = 0;
+        *(_QWORD *)&outAction->fileDetails.m_timestamp = v91;
+        v93 = dest;
         outAction->dcacheType = DCACHE_TYPE_TEMPORARY;
-        v208 = (char *)inManifestEntry - dest;
+        v94 = (char *)inManifestEntry - dest;
         while ( 1 )
         {
-          v209 = v207[v208];
-          v210 = v12;
-          v211 = *v207++;
-          --v12;
-          if ( !v210 )
+          v95 = v93[v94];
+          v96 = v11;
+          v97 = *v93++;
+          --v11;
+          if ( !v96 )
             break;
-          if ( v209 != v211 )
+          if ( v95 != v97 )
           {
-            v206 = 1;
-            if ( v209 < v211 )
-              v206 = -1;
+            v92 = 1;
+            if ( v95 < v97 )
+              v92 = -1;
             break;
           }
-          if ( !v209 )
+          if ( !v95 )
           {
             outAction->action = PATCH_MAN_ACT_NONE;
             goto LABEL_111;
           }
         }
-        outAction->action = v206 != 0 ? PATCH_MAN_ACT_COPY : PATCH_MAN_ACT_NONE;
+        outAction->action = v92 != 0 ? PATCH_MAN_ACT_COPY : PATCH_MAN_ACT_NONE;
         goto LABEL_111;
       }
-      v186 = j_va("\t Temp raw match: Unexpected Location: name:%s, cacheType:%d, location:%d \n", _RDI->m_name, 0i64, m_location);
-      OnlineSystem::DebugLog(this, v186);
-      v187 = j_va("%d,%zu,%d", 0i64, v81->m_data->m_fileID, (unsigned int)v81->m_data->m_location);
-      v188 = Online_ErrorReporting::GetInstancePtr();
-      Online_ErrorReporting::ReportError(v188, MOVEMENT, v187);
+      v86 = j_va("\t Temp raw match: Unexpected Location: name:%s, cacheType:%d, location:%d \n", m_data->m_name, 0i64, m_location);
+      OnlineSystem::DebugLog(this, v86);
+      v87 = j_va("%d,%zu,%d", 0i64, v46->m_data->m_fileID, (unsigned int)v46->m_data->m_location);
+      v88 = Online_ErrorReporting::GetInstancePtr();
+      Online_ErrorReporting::ReportError(v88, MOVEMENT, v87);
       if ( (unsigned int)patchType >= COUNT )
       {
-        LODWORD(v219) = 2;
-        LODWORD(v218) = patchType;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_patchsystem.cpp", 304, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast< int >( patchType ) ) < (unsigned)( static_cast< int >( CCSPatchType::COUNT ) )", "static_cast< int >( patchType ) doesn't index static_cast< int >( CCSPatchType::COUNT )\n\t%i not in [0, %i)", v218, v219) )
+        LODWORD(v105) = 2;
+        LODWORD(v104) = patchType;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_patchsystem.cpp", 304, ASSERT_TYPE_ASSERT, "(unsigned)( static_cast< int >( patchType ) ) < (unsigned)( static_cast< int >( CCSPatchType::COUNT ) )", "static_cast< int >( patchType ) doesn't index static_cast< int >( CCSPatchType::COUNT )\n\t%i not in [0, %i)", v104, v105) )
           __debugbreak();
       }
       this->m_ccsPatchData[patchType].patchingStatus = PS_PATCHING_FAILED;
-      OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v187);
-      v189 = 0;
+      OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v87);
+      v89 = 0;
       do
       {
-        if ( v189 >= 65 )
+        if ( v89 >= 65 )
           break;
-        ++v189;
+        ++v89;
       }
-      while ( ((0x2000000000ui64 >> v189) & 1) == 0 );
-      this->m_ccsPatchData[patchType].patchingErrorCode = v189;
+      while ( ((0x2000000000ui64 >> v89) & 1) == 0 );
+      this->m_ccsPatchData[patchType].patchingErrorCode = v89;
       return 0;
     }
     else
     {
-      if ( !memcmp_0(&_RDI->m_computedHashValue, &inManifestEntry->compressedHash, 0x20ui64) )
+      if ( !memcmp_0(&m_data->m_computedHashValue, &inManifestEntry->compressedHash, 0x20ui64) )
       {
-        v165 = (unsigned int)_RDI->m_location;
-        _R14 = 128i64;
-        if ( (_DWORD)v165 == 128 )
+        v79 = (unsigned int)m_data->m_location;
+        if ( (_DWORD)v79 == 128 )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovups xmmword ptr [rbp+0], xmm0
-            vmovups xmm1, xmmword ptr [rdi+10h]
-            vmovups xmmword ptr [rbp+10h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+20h]
-            vmovups xmmword ptr [rbp+20h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+30h]
-            vmovups xmmword ptr [rbp+30h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+40h]
-            vmovups xmmword ptr [rbp+40h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+50h]
-            vmovups xmmword ptr [rbp+50h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+60h]
-            vmovups xmmword ptr [rbp+60h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+70h]
-            vmovups xmmword ptr [r14+rbp-10h], xmm1
-          }
-          _RDI = &_RDI->m_name[116];
-          _RCX = &outAction->fileDetails.m_name[116];
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rdi+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-          }
-          v184 = *((_QWORD *)_RDI + 8);
+          *(_OWORD *)&outAction->fileDetails.m_fileID = *(_OWORD *)&m_data->m_fileID;
+          *(_OWORD *)&outAction->fileDetails.m_name[4] = *(_OWORD *)&m_data->m_name[4];
+          *(_OWORD *)&outAction->fileDetails.m_name[20] = *(_OWORD *)&m_data->m_name[20];
+          *(_OWORD *)&outAction->fileDetails.m_name[36] = *(_OWORD *)&m_data->m_name[36];
+          *(_OWORD *)&outAction->fileDetails.m_name[52] = *(_OWORD *)&m_data->m_name[52];
+          *(_OWORD *)&outAction->fileDetails.m_name[68] = *(_OWORD *)&m_data->m_name[68];
+          *(_OWORD *)&outAction->fileDetails.m_name[84] = *(_OWORD *)&m_data->m_name[84];
+          *(_OWORD *)&outAction->fileDetails.m_name[100] = *(_OWORD *)&m_data->m_name[100];
+          v83 = &m_data->m_name[116];
+          *(_OWORD *)&outAction->fileDetails.m_name[116] = *(_OWORD *)v83;
+          outAction->fileDetails.m_computedHashValue = *(cccHashValueSHA256_t *)(v83 + 16);
+          *(_OWORD *)&outAction->fileDetails.m_size = *((_OWORD *)v83 + 3);
+          v84 = *((_QWORD *)v83 + 8);
           outAction->dcacheType = DCACHE_TYPE_TEMPORARY;
-          *(_QWORD *)&outAction->fileDetails.m_timestamp = v184;
+          *(_QWORD *)&outAction->fileDetails.m_timestamp = v84;
           outAction->action = PATCH_MAN_ACT_INFLATE;
 LABEL_111:
-          ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *>>::remove(v82, v81);
-          v81->mp_prev = (ntl::internal::list_node_base *)inOutTempDcacheFiles->m_freelist.m_head.mp_next;
-          inOutTempDcacheFiles->m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v81;
+          ntl::internal::list_head_base<ntl::internal::list_node<dcacheFileDetails_t *>>::remove(v47, v46);
+          v46->mp_prev = (ntl::internal::list_node_base *)inOutTempDcacheFiles->m_freelist.m_head.mp_next;
+          inOutTempDcacheFiles->m_freelist.m_head.mp_next = (ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *)v46;
           return 1;
         }
-        v167 = j_va("\t Temp Compressed match: Unexpected Location: name:%s, cacheType:%d, location:%d \n", _RDI->m_name, 0i64, v165);
-        OnlineSystem::DebugLog(this, v167);
-        v168 = j_va("%d,%zu,%d", 0i64, v81->m_data->m_fileID, (unsigned int)v81->m_data->m_location);
-        v169 = Online_ErrorReporting::GetInstancePtr();
-        Online_ErrorReporting::ReportError(v169, MOVEMENT, v168);
-        v95 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-        v95->patchingStatus = PS_PATCHING_FAILED;
-        OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v168);
-        v96 = 0;
-        while ( v96 < 65 )
+        v80 = j_va("\t Temp Compressed match: Unexpected Location: name:%s, cacheType:%d, location:%d \n", m_data->m_name, 0i64, v79);
+        OnlineSystem::DebugLog(this, v80);
+        v81 = j_va("%d,%zu,%d", 0i64, v46->m_data->m_fileID, (unsigned int)v46->m_data->m_location);
+        v82 = Online_ErrorReporting::GetInstancePtr();
+        Online_ErrorReporting::ReportError(v82, MOVEMENT, v81);
+        v60 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
+        v60->patchingStatus = PS_PATCHING_FAILED;
+        OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v81);
+        v61 = 0;
+        while ( v61 < 65 )
         {
-          if ( ((0x4000000000ui64 >> ++v96) & 1) != 0 )
+          if ( ((0x4000000000ui64 >> ++v61) & 1) != 0 )
           {
-            v95->patchingErrorCode = v96;
+            v60->patchingErrorCode = v61;
             return 0;
           }
         }
       }
       else
       {
-        if ( memcmp_0(&_RDI->m_computedHashValue, &inManifestEntry->encryptedHash, 0x20ui64) )
+        if ( memcmp_0(&m_data->m_computedHashValue, &inManifestEntry->encryptedHash, 0x20ui64) )
         {
 LABEL_80:
-          v81 = (ntl::internal::list_node<dcacheFileDetails_t *> *)v81->mp_next;
-          if ( v81 != (ntl::internal::list_node<dcacheFileDetails_t *> *)v82 )
+          v46 = (ntl::internal::list_node<dcacheFileDetails_t *> *)v46->mp_next;
+          if ( v46 != (ntl::internal::list_node<dcacheFileDetails_t *> *)v47 )
             continue;
           goto LABEL_81;
         }
-        v143 = (unsigned int)_RDI->m_location;
-        if ( (_DWORD)v143 != 64 )
+        v70 = (unsigned int)m_data->m_location;
+        if ( (_DWORD)v70 != 64 )
         {
-          v144 = j_va("\t Temp Encrypted match: Unexpected Location: name:%s, cacheType:%d, location:%d \n", _RDI->m_name, 0i64, v143);
-          OnlineSystem::DebugLog(this, v144);
-          v145 = j_va("%d,%zu,%d", 0i64, v81->m_data->m_fileID, (unsigned int)v81->m_data->m_location);
-          v146 = Online_ErrorReporting::GetInstancePtr();
-          Online_ErrorReporting::ReportError(v146, MOVEMENT, v145);
-          v95 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-          v95->patchingStatus = PS_PATCHING_FAILED;
-          OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v145);
-          v96 = 0;
-          while ( v96 < 65 )
+          v71 = j_va("\t Temp Encrypted match: Unexpected Location: name:%s, cacheType:%d, location:%d \n", m_data->m_name, 0i64, v70);
+          OnlineSystem::DebugLog(this, v71);
+          v72 = j_va("%d,%zu,%d", 0i64, v46->m_data->m_fileID, (unsigned int)v46->m_data->m_location);
+          v73 = Online_ErrorReporting::GetInstancePtr();
+          Online_ErrorReporting::ReportError(v73, MOVEMENT, v72);
+          v60 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
+          v60->patchingStatus = PS_PATCHING_FAILED;
+          OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v72);
+          v61 = 0;
+          while ( v61 < 65 )
           {
-            if ( ((0x8000000000ui64 >> ++v96) & 1) != 0 )
+            if ( ((0x8000000000ui64 >> ++v61) & 1) != 0 )
             {
-              v95->patchingErrorCode = v96;
+              v60->patchingErrorCode = v61;
               return 0;
             }
           }
@@ -4559,66 +4363,46 @@ LABEL_80:
         }
         if ( memcmp_0(Buf1, &inManifestEntry->encryptionKey, 0x30ui64) )
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovups xmmword ptr [rbp+0], xmm0
-            vmovups xmm1, xmmword ptr [rdi+10h]
-            vmovups xmmword ptr [rbp+10h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+20h]
-            vmovups xmmword ptr [rbp+20h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+30h]
-            vmovups xmmword ptr [rbp+30h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+40h]
-            vmovups xmmword ptr [rbp+40h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+50h]
-            vmovups xmmword ptr [rbp+50h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+60h]
-            vmovups xmmword ptr [rbp+60h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+70h]
-          }
-          _R14 = 128i64;
-          __asm { vmovups xmmword ptr [r14+rbp-10h], xmm1 }
-          _RDI = &_RDI->m_name[116];
-          _RDX = &outAction->fileDetails.m_name[116];
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdi]
-            vmovups xmmword ptr [rdx], xmm0
-            vmovups xmm1, xmmword ptr [rdi+10h]
-            vmovups xmmword ptr [rdx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rdi+20h]
-            vmovups xmmword ptr [rdx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rdi+30h]
-            vmovups xmmword ptr [rdx+30h], xmm1
-          }
-          *(_QWORD *)&outAction->fileDetails.m_timestamp = *((_QWORD *)_RDI + 8);
+          *(_OWORD *)&outAction->fileDetails.m_fileID = *(_OWORD *)&m_data->m_fileID;
+          *(_OWORD *)&outAction->fileDetails.m_name[4] = *(_OWORD *)&m_data->m_name[4];
+          *(_OWORD *)&outAction->fileDetails.m_name[20] = *(_OWORD *)&m_data->m_name[20];
+          *(_OWORD *)&outAction->fileDetails.m_name[36] = *(_OWORD *)&m_data->m_name[36];
+          *(_OWORD *)&outAction->fileDetails.m_name[52] = *(_OWORD *)&m_data->m_name[52];
+          *(_OWORD *)&outAction->fileDetails.m_name[68] = *(_OWORD *)&m_data->m_name[68];
+          *(_OWORD *)&outAction->fileDetails.m_name[84] = *(_OWORD *)&m_data->m_name[84];
+          v74 = PATCH_MAN_ACT_DECRYPT;
+          *(_OWORD *)&outAction->fileDetails.m_name[100] = *(_OWORD *)&m_data->m_name[100];
+          v75 = &m_data->m_name[116];
+          *(_OWORD *)&outAction->fileDetails.m_name[116] = *(_OWORD *)v75;
+          outAction->fileDetails.m_computedHashValue = *(cccHashValueSHA256_t *)(v75 + 16);
+          *(_OWORD *)&outAction->fileDetails.m_size = *((_OWORD *)v75 + 3);
+          *(_QWORD *)&outAction->fileDetails.m_timestamp = *((_QWORD *)v75 + 8);
           outAction->dcacheType = DCACHE_TYPE_TEMPORARY;
           if ( inManifestEntry->fileSizeCompressed )
-            LODWORD(_R14) = 512;
-          outAction->action = _R14;
+            v74 = PATCH_MAN_ACT_DECRYPT_INFLATE;
+          outAction->action = v74;
           goto LABEL_111;
         }
-        v162 = j_va("\t Temp Encrypted match: no key available: name:%s, cacheType:%d, location:%d \n", _RDI->m_name, 0i64, 64i64);
-        OnlineSystem::DebugLog(this, v162);
-        v163 = j_va("%d,%zu,%d", 0i64, v81->m_data->m_fileID, (unsigned int)v81->m_data->m_location);
-        v164 = Online_ErrorReporting::GetInstancePtr();
-        Online_ErrorReporting::ReportError(v164, MOVEMENT, v163);
-        v95 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-        v95->patchingStatus = PS_PATCHING_FAILED;
-        OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v163);
-        v96 = 0;
-        while ( v96 < 65 )
+        v76 = j_va("\t Temp Encrypted match: no key available: name:%s, cacheType:%d, location:%d \n", m_data->m_name, 0i64, 64i64);
+        OnlineSystem::DebugLog(this, v76);
+        v77 = j_va("%d,%zu,%d", 0i64, v46->m_data->m_fileID, (unsigned int)v46->m_data->m_location);
+        v78 = Online_ErrorReporting::GetInstancePtr();
+        Online_ErrorReporting::ReportError(v78, MOVEMENT, v77);
+        v60 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
+        v60->patchingStatus = PS_PATCHING_FAILED;
+        OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v77);
+        v61 = 0;
+        while ( v61 < 65 )
         {
-          if ( ((0x10000000000ui64 >> ++v96) & 1) != 0 )
+          if ( ((0x10000000000ui64 >> ++v61) & 1) != 0 )
           {
-            v95->patchingErrorCode = v96;
+            v60->patchingErrorCode = v61;
             return 0;
           }
         }
       }
 LABEL_88:
-      v95->patchingErrorCode = v96;
+      v60->patchingErrorCode = v61;
       return 0;
     }
   }
@@ -4859,134 +4643,101 @@ Online_PatchStreamer::StartupProcessingHandleCopy
 */
 __int64 Online_PatchStreamer::StartupProcessingHandleCopy(Online_PatchStreamer *this, const CCSPatchType patchType, psManifestActionInfo_t *action)
 {
-  const char *v20; 
-  const char *v21; 
+  const char *v6; 
+  const char *v7; 
   Online_ErrorReporting *InstancePtr; 
   CCSPatchData *CCSPatchData; 
-  int v24; 
-  const char *v25; 
-  const char *v26; 
-  Online_ErrorReporting *v27; 
-  unsigned __int8 v28; 
-  const char *v29; 
-  const char *v30; 
-  Online_ErrorReporting *v31; 
+  int v10; 
+  const char *v11; 
+  const char *v12; 
+  Online_ErrorReporting *v13; 
+  unsigned __int8 v14; 
+  const char *v15; 
+  const char *v16; 
+  Online_ErrorReporting *v17; 
   CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t fileSpecifier; 
-  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v34; 
-  CachedContentIOStreamDCache v35; 
-  CachedContentIOStreamDCache v36; 
+  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v20; 
+  CachedContentIOStreamDCache v21; 
+  CachedContentIOStreamDCache v22; 
 
-  _RBX = action;
   memset(&fileSpecifier.fileDetails.m_computedHashValue, 0, sizeof(fileSpecifier.fileDetails.m_computedHashValue));
   fileSpecifier.cacheType = action->dcacheType;
-  _RCX = &fileSpecifier.fileDetails;
-  __asm
+  fileSpecifier.fileDetails = action->fileDetails;
+  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v22, &fileSpecifier, CCIOSModeRead);
+  memset(&v20.fileDetails.m_computedHashValue, 0, sizeof(v20.fileDetails.m_computedHashValue));
+  v20.cacheType = DCACHE_TYPE_PERSISTENT;
+  v20.fileDetails = action->fileDetails;
+  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v21, &v20, CCIOSModeWrite);
+  if ( !CachedContentIOStreamCopy::PerformCopy(&v22, &v21) )
   {
-    vmovups ymm0, ymmword ptr [r8]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [r8+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [r8+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [r8+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymm1, ymmword ptr [r8+80h]
-    vmovups ymmword ptr [rcx+80h], ymm1
-    vmovups ymm1, ymmword ptr [r8+0A0h]
-    vmovups ymmword ptr [rcx+0A0h], ymm1
-  }
-  *(_QWORD *)&fileSpecifier.fileDetails.m_timestamp = *(_QWORD *)&action->fileDetails.m_timestamp;
-  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v36, &fileSpecifier, CCIOSModeRead);
-  memset(&v34.fileDetails.m_computedHashValue, 0, sizeof(v34.fileDetails.m_computedHashValue));
-  v34.cacheType = DCACHE_TYPE_PERSISTENT;
-  _RCX = &v34.fileDetails;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rbx+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymm0, ymmword ptr [rbx+80h]
-    vmovups ymmword ptr [rcx+80h], ymm0
-    vmovups ymm0, ymmword ptr [rbx+0A0h]
-    vmovups ymmword ptr [rcx+0A0h], ymm0
-  }
-  *(_QWORD *)&v34.fileDetails.m_timestamp = *(_QWORD *)&_RBX->fileDetails.m_timestamp;
-  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v35, &v34, CCIOSModeWrite);
-  if ( !CachedContentIOStreamCopy::PerformCopy(&v36, &v35) )
-  {
-    v20 = j_va("StartupProcessingHandleCopy: failed to copy %s \n", _RBX->fileDetails.m_name);
-    OnlineSystem::DebugLog(this, v20);
-    v21 = j_va("%d,%d,%zu,%d", (unsigned int)_RBX->dcacheType, 1i64, _RBX->fileDetails.m_fileID, _RBX->fileDetails.m_location);
+    v6 = j_va("StartupProcessingHandleCopy: failed to copy %s \n", action->fileDetails.m_name);
+    OnlineSystem::DebugLog(this, v6);
+    v7 = j_va("%d,%d,%zu,%d", (unsigned int)action->dcacheType, 1i64, action->fileDetails.m_fileID, action->fileDetails.m_location);
     InstancePtr = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(InstancePtr, (Online_Error_CAT_PATCHER_t)0x4000, v21);
+    Online_ErrorReporting::ReportError(InstancePtr, (Online_Error_CAT_PATCHER_t)0x4000, v7);
     CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
     CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x4000, v21);
-    v24 = 0;
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x4000, v7);
+    v10 = 0;
     do
     {
-      if ( v24 >= 65 )
+      if ( v10 >= 65 )
         break;
-      ++v24;
+      ++v10;
     }
-    while ( ((0x4000ui64 >> v24) & 1) == 0 );
+    while ( ((0x4000ui64 >> v10) & 1) == 0 );
 LABEL_16:
-    CCSPatchData->patchingErrorCode = v24;
-    v28 = 0;
+    CCSPatchData->patchingErrorCode = v10;
+    v14 = 0;
     goto LABEL_17;
   }
-  CachedContentIOStreamDCache::Close(&v36);
-  CachedContentIOStreamDCache::Close(&v35);
-  if ( !DCache_TOC_VerifyHash(DCACHE_TYPE_PERSISTENT, _RBX->fileDetails.m_fileID, _RBX->fileDetails.m_location, &_RBX->fileDetails.m_computedHashValue) )
+  CachedContentIOStreamDCache::Close(&v22);
+  CachedContentIOStreamDCache::Close(&v21);
+  if ( !DCache_TOC_VerifyHash(DCACHE_TYPE_PERSISTENT, action->fileDetails.m_fileID, action->fileDetails.m_location, &action->fileDetails.m_computedHashValue) )
   {
-    v29 = j_va("StartupProcessingHandleCopy: copy hash mismatch %s \n", _RBX->fileDetails.m_name);
-    OnlineSystem::DebugLog(this, v29);
-    v30 = j_va("%d,%zu,%d", (unsigned int)_RBX->dcacheType, _RBX->fileDetails.m_fileID, (unsigned int)_RBX->fileDetails.m_location);
-    v31 = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(v31, (Online_Error_CAT_PATCHER_t)0x8000, v30);
+    v15 = j_va("StartupProcessingHandleCopy: copy hash mismatch %s \n", action->fileDetails.m_name);
+    OnlineSystem::DebugLog(this, v15);
+    v16 = j_va("%d,%zu,%d", (unsigned int)action->dcacheType, action->fileDetails.m_fileID, (unsigned int)action->fileDetails.m_location);
+    v17 = Online_ErrorReporting::GetInstancePtr();
+    Online_ErrorReporting::ReportError(v17, (Online_Error_CAT_PATCHER_t)0x8000, v16);
     CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
     CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x8000, v30);
-    v24 = 0;
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x8000, v16);
+    v10 = 0;
     do
     {
-      if ( v24 >= 65 )
+      if ( v10 >= 65 )
         break;
-      ++v24;
+      ++v10;
     }
-    while ( ((0x8000ui64 >> v24) & 1) == 0 );
+    while ( ((0x8000ui64 >> v10) & 1) == 0 );
     goto LABEL_16;
   }
-  if ( !DCache_DeleteFromCacheInMemory(_RBX->dcacheType, _RBX->fileDetails.m_fileID, _RBX->fileDetails.m_location) )
+  if ( !DCache_DeleteFromCacheInMemory(action->dcacheType, action->fileDetails.m_fileID, action->fileDetails.m_location) )
   {
-    v25 = j_va("StartupProcessingHandleCopy: copy temp delete %s \n", _RBX->fileDetails.m_name);
-    OnlineSystem::DebugLog(this, v25);
-    v26 = j_va("%d,%zu,%d", (unsigned int)_RBX->dcacheType, _RBX->fileDetails.m_fileID, (unsigned int)_RBX->fileDetails.m_location);
-    v27 = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(v27, (Online_Error_CAT_PATCHER_t)0x10000, v26);
+    v11 = j_va("StartupProcessingHandleCopy: copy temp delete %s \n", action->fileDetails.m_name);
+    OnlineSystem::DebugLog(this, v11);
+    v12 = j_va("%d,%zu,%d", (unsigned int)action->dcacheType, action->fileDetails.m_fileID, (unsigned int)action->fileDetails.m_location);
+    v13 = Online_ErrorReporting::GetInstancePtr();
+    Online_ErrorReporting::ReportError(v13, (Online_Error_CAT_PATCHER_t)0x10000, v12);
     CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
     CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x10000, v26);
-    v24 = 0;
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x10000, v12);
+    v10 = 0;
     do
     {
-      if ( v24 >= 65 )
+      if ( v10 >= 65 )
         break;
-      ++v24;
+      ++v10;
     }
-    while ( ((0x10000ui64 >> v24) & 1) == 0 );
+    while ( ((0x10000ui64 >> v10) & 1) == 0 );
     goto LABEL_16;
   }
-  v28 = 1;
+  v14 = 1;
 LABEL_17:
-  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v35);
-  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v36);
-  return v28;
+  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v21);
+  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v22);
+  return v14;
 }
 
 /*
@@ -4996,244 +4747,195 @@ Online_PatchStreamer::StartupProcessingHandleDecrypt
 */
 __int64 Online_PatchStreamer::StartupProcessingHandleDecrypt(Online_PatchStreamer *this, const CCSPatchType patchType, psManifestActionInfo_t *action)
 {
-  int v13; 
-  const char *v21; 
-  const char *v22; 
-  Online_ErrorReporting *v23; 
+  int v6; 
+  const char *v7; 
+  const char *v8; 
+  Online_ErrorReporting *v9; 
   CCSPatchData *CCSPatchData; 
-  const char *v25; 
-  const char *v26; 
-  Online_ErrorReporting *v27; 
+  const char *v11; 
+  const char *v12; 
+  Online_ErrorReporting *v13; 
   CachedContentCrypto *Instance; 
-  const char *v36; 
-  const char *v37; 
-  Online_ErrorReporting *v38; 
-  CCSPatchData *v39; 
-  const char *v40; 
-  const char *v41; 
+  const char *v15; 
+  const char *v16; 
+  Online_ErrorReporting *v17; 
+  CCSPatchData *v18; 
+  const char *v19; 
+  const char *v20; 
   Online_ErrorReporting *InstancePtr; 
-  unsigned __int8 v43; 
-  const char *v44; 
-  const char *v45; 
-  Online_ErrorReporting *v46; 
-  const char *v47; 
-  const char *v48; 
-  Online_ErrorReporting *v49; 
-  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v51; 
-  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v52; 
-  CachedContentIOStreamDCache v53; 
+  unsigned __int8 v22; 
+  const char *v23; 
+  const char *v24; 
+  Online_ErrorReporting *v25; 
+  const char *v26; 
+  const char *v27; 
+  Online_ErrorReporting *v28; 
+  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v30; 
+  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v31; 
+  CachedContentIOStreamDCache v32; 
   CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t fileSpecifier; 
-  CachedContentIOStreamDCache v55; 
-  CachedContentIOStreamDCache v56; 
+  CachedContentIOStreamDCache v34; 
+  CachedContentIOStreamDCache v35; 
   char outHexString[112]; 
 
-  _RDI = action;
   memset(&fileSpecifier.fileDetails.m_computedHashValue, 0, sizeof(fileSpecifier.fileDetails.m_computedHashValue));
   fileSpecifier.cacheType = action->dcacheType;
-  _RCX = &fileSpecifier.fileDetails;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r8]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [r8+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [r8+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [r8+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymm1, ymmword ptr [r8+80h]
-    vmovups ymmword ptr [rcx+80h], ymm1
-    vmovups ymm1, ymmword ptr [r8+0A0h]
-    vmovups ymmword ptr [rcx+0A0h], ymm1
-  }
-  *(_QWORD *)&fileSpecifier.fileDetails.m_timestamp = *(_QWORD *)&action->fileDetails.m_timestamp;
-  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v53, &fileSpecifier, CCIOSModeRead);
-  v13 = 0;
-  if ( _RDI->dcacheType != DCACHE_TYPE_PERSISTENT )
+  fileSpecifier.fileDetails = action->fileDetails;
+  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v32, &fileSpecifier, CCIOSModeRead);
+  v6 = 0;
+  if ( action->dcacheType != DCACHE_TYPE_PERSISTENT )
     goto LABEL_14;
-  memset(&v52.fileDetails.m_computedHashValue, 0, sizeof(v52.fileDetails.m_computedHashValue));
-  v52.cacheType = DCACHE_TYPE_TEMPORARY;
-  _RCX = &v52.fileDetails;
-  __asm
+  memset(&v31.fileDetails.m_computedHashValue, 0, sizeof(v31.fileDetails.m_computedHashValue));
+  v31.cacheType = DCACHE_TYPE_TEMPORARY;
+  v31.fileDetails = action->fileDetails;
+  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v34, &v31, CCIOSModeWrite);
+  if ( CachedContentIOStreamCopy::PerformCopy(&v32, &v34) )
   {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+80h]
-    vmovups ymmword ptr [rcx+80h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+0A0h]
-    vmovups ymmword ptr [rcx+0A0h], ymm0
-  }
-  *(_QWORD *)&v52.fileDetails.m_timestamp = *(_QWORD *)&_RDI->fileDetails.m_timestamp;
-  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v55, &v52, CCIOSModeWrite);
-  if ( CachedContentIOStreamCopy::PerformCopy(&v53, &v55) )
-  {
-    CachedContentIOStreamDCache::Close(&v53);
-    CachedContentIOStreamDCache::Close(&v55);
-    if ( !DCache_TOC_VerifyHash(DCACHE_TYPE_TEMPORARY, _RDI->fileDetails.m_fileID, _RDI->fileDetails.m_location, &_RDI->fileDetails.m_computedHashValue) )
+    CachedContentIOStreamDCache::Close(&v32);
+    CachedContentIOStreamDCache::Close(&v34);
+    if ( !DCache_TOC_VerifyHash(DCACHE_TYPE_TEMPORARY, action->fileDetails.m_fileID, action->fileDetails.m_location, &action->fileDetails.m_computedHashValue) )
     {
-      v40 = j_va("StartupProcessingHandleCopy: copy hash mismatch %s \n", _RDI->fileDetails.m_name);
-      OnlineSystem::DebugLog(this, v40);
-      v41 = j_va("%d,%zu,%d", (unsigned int)_RDI->dcacheType, _RDI->fileDetails.m_fileID, (unsigned int)_RDI->fileDetails.m_location);
+      v19 = j_va("StartupProcessingHandleCopy: copy hash mismatch %s \n", action->fileDetails.m_name);
+      OnlineSystem::DebugLog(this, v19);
+      v20 = j_va("%d,%zu,%d", (unsigned int)action->dcacheType, action->fileDetails.m_fileID, (unsigned int)action->fileDetails.m_location);
       InstancePtr = Online_ErrorReporting::GetInstancePtr();
-      Online_ErrorReporting::ReportError(InstancePtr, MOVEMENT, v41);
+      Online_ErrorReporting::ReportError(InstancePtr, MOVEMENT, v20);
       CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
       CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-      OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v41);
+      OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v20);
       do
       {
-        if ( v13 >= 65 )
+        if ( v6 >= 65 )
           break;
-        ++v13;
+        ++v6;
       }
-      while ( ((0x100000000000ui64 >> v13) & 1) == 0 );
+      while ( ((0x100000000000ui64 >> v6) & 1) == 0 );
       goto LABEL_22;
     }
-    if ( !DCache_DeleteFromCacheInMemory(_RDI->dcacheType, _RDI->fileDetails.m_fileID, _RDI->fileDetails.m_location) )
+    if ( !DCache_DeleteFromCacheInMemory(action->dcacheType, action->fileDetails.m_fileID, action->fileDetails.m_location) )
     {
-      v25 = j_va("StartupProcessingHandleDecrypt: temp delete %s \n", _RDI->fileDetails.m_name);
-      OnlineSystem::DebugLog(this, v25);
-      v26 = j_va("%d,%zu,%d", (unsigned int)_RDI->dcacheType, _RDI->fileDetails.m_fileID, (unsigned int)_RDI->fileDetails.m_location);
-      v27 = Online_ErrorReporting::GetInstancePtr();
-      Online_ErrorReporting::ReportError(v27, MOVEMENT, v26);
+      v11 = j_va("StartupProcessingHandleDecrypt: temp delete %s \n", action->fileDetails.m_name);
+      OnlineSystem::DebugLog(this, v11);
+      v12 = j_va("%d,%zu,%d", (unsigned int)action->dcacheType, action->fileDetails.m_fileID, (unsigned int)action->fileDetails.m_location);
+      v13 = Online_ErrorReporting::GetInstancePtr();
+      Online_ErrorReporting::ReportError(v13, MOVEMENT, v12);
       CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
       CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-      OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v26);
+      OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v12);
       do
       {
-        if ( v13 >= 65 )
+        if ( v6 >= 65 )
           break;
-        ++v13;
+        ++v6;
       }
-      while ( ((0x80000000000ui64 >> v13) & 1) == 0 );
+      while ( ((0x80000000000ui64 >> v6) & 1) == 0 );
       goto LABEL_22;
     }
-    CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v53);
-    CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v53, &v52, CCIOSModeRead);
-    CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v55);
+    CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v32);
+    CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v32, &v31, CCIOSModeRead);
+    CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v34);
 LABEL_14:
-    memset(&v51.fileDetails.m_computedHashValue, 0, sizeof(v51.fileDetails.m_computedHashValue));
-    v51.cacheType = DCACHE_TYPE_PERSISTENT;
-    _RCX = &v51.fileDetails;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rdi+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rdi+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymm0, ymmword ptr [rdi+80h]
-      vmovups ymmword ptr [rcx+80h], ymm0
-      vmovups ymm0, ymmword ptr [rdi+0A0h]
-      vmovups ymmword ptr [rcx+0A0h], ymm0
-    }
-    *(_QWORD *)&v51.fileDetails.m_timestamp = *(_QWORD *)&_RDI->fileDetails.m_timestamp;
-    v51.fileDetails.m_size = _RDI->manifestEntry.fileSizeRaw;
-    v51.fileDetails.m_location = DCACHE_LOC_PATCH_MAN;
-    CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v56, &v51, CCIOSModeWrite);
+    memset(&v30.fileDetails.m_computedHashValue, 0, sizeof(v30.fileDetails.m_computedHashValue));
+    v30.cacheType = DCACHE_TYPE_PERSISTENT;
+    v30.fileDetails = action->fileDetails;
+    v30.fileDetails.m_size = action->manifestEntry.fileSizeRaw;
+    v30.fileDetails.m_location = DCACHE_LOC_PATCH_MAN;
+    CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v35, &v30, CCIOSModeWrite);
     Instance = CachedContentCrypto::GetInstance();
-    if ( CachedContentCrypto::Cipher_AESDecryptStream(Instance, &_RDI->manifestEntry.encryptionKey, &v53, &v56, _RDI->manifestEntry.fileSizeRaw) )
+    if ( CachedContentCrypto::Cipher_AESDecryptStream(Instance, &action->manifestEntry.encryptionKey, &v32, &v35, action->manifestEntry.fileSizeRaw) )
     {
-      CachedContentIOStreamDCache::Close(&v53);
-      CachedContentIOStreamDCache::Close(&v56);
-      if ( DCache_TOC_VerifyHash(DCACHE_TYPE_PERSISTENT, _RDI->fileDetails.m_fileID, DCACHE_LOC_PATCH_MAN, &_RDI->manifestEntry.rawHash) )
+      CachedContentIOStreamDCache::Close(&v32);
+      CachedContentIOStreamDCache::Close(&v35);
+      if ( DCache_TOC_VerifyHash(DCACHE_TYPE_PERSISTENT, action->fileDetails.m_fileID, DCACHE_LOC_PATCH_MAN, &action->manifestEntry.rawHash) )
       {
-        if ( DCache_DeleteFromCacheInMemory(DCACHE_TYPE_TEMPORARY, _RDI->fileDetails.m_fileID, _RDI->fileDetails.m_location) )
+        if ( DCache_DeleteFromCacheInMemory(DCACHE_TYPE_TEMPORARY, action->fileDetails.m_fileID, action->fileDetails.m_location) )
         {
-          v43 = 1;
+          v22 = 1;
 LABEL_34:
-          CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v56);
+          CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v35);
           goto LABEL_35;
         }
-        v44 = j_va("StartupProcessingHandleDecrypt: decrypt temp delete %s \n", _RDI->fileDetails.m_name);
-        OnlineSystem::DebugLog(this, v44);
-        v45 = j_va("%d,%zu,%d", 0i64, _RDI->fileDetails.m_fileID, (unsigned int)_RDI->fileDetails.m_location);
-        v46 = Online_ErrorReporting::GetInstancePtr();
-        Online_ErrorReporting::ReportError(v46, (Online_Error_CAT_PATCHER_t)0x400000, v45);
-        v39 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-        v39->patchingStatus = PS_PATCHING_FAILED;
-        OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x400000, v45);
+        v23 = j_va("StartupProcessingHandleDecrypt: decrypt temp delete %s \n", action->fileDetails.m_name);
+        OnlineSystem::DebugLog(this, v23);
+        v24 = j_va("%d,%zu,%d", 0i64, action->fileDetails.m_fileID, (unsigned int)action->fileDetails.m_location);
+        v25 = Online_ErrorReporting::GetInstancePtr();
+        Online_ErrorReporting::ReportError(v25, (Online_Error_CAT_PATCHER_t)0x400000, v24);
+        v18 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
+        v18->patchingStatus = PS_PATCHING_FAILED;
+        OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x400000, v24);
         do
         {
-          if ( v13 >= 65 )
+          if ( v6 >= 65 )
             break;
-          ++v13;
+          ++v6;
         }
-        while ( ((0x400000ui64 >> v13) & 1) == 0 );
+        while ( ((0x400000ui64 >> v6) & 1) == 0 );
       }
       else
       {
         memset_0(outHexString, 0, 0x61ui64);
-        ByteBufferToHexString(_RDI->manifestEntry.encryptionKey.keyBytes, 48, outHexString, 97);
-        v47 = j_va("StartupProcessingHandleDecrypt: decrypt hash mismatch %s using key %s\n", _RDI->fileDetails.m_name, outHexString);
-        OnlineSystem::DebugLog(this, v47);
-        v48 = j_va("%d,%zu,%d", 1i64, _RDI->fileDetails.m_fileID, 16i64);
-        v49 = Online_ErrorReporting::GetInstancePtr();
-        Online_ErrorReporting::ReportError(v49, (Online_Error_CAT_PATCHER_t)0x200000, v48);
-        v39 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-        v39->patchingStatus = PS_PATCHING_FAILED;
-        OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x200000, v48);
+        ByteBufferToHexString(action->manifestEntry.encryptionKey.keyBytes, 48, outHexString, 97);
+        v26 = j_va("StartupProcessingHandleDecrypt: decrypt hash mismatch %s using key %s\n", action->fileDetails.m_name, outHexString);
+        OnlineSystem::DebugLog(this, v26);
+        v27 = j_va("%d,%zu,%d", 1i64, action->fileDetails.m_fileID, 16i64);
+        v28 = Online_ErrorReporting::GetInstancePtr();
+        Online_ErrorReporting::ReportError(v28, (Online_Error_CAT_PATCHER_t)0x200000, v27);
+        v18 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
+        v18->patchingStatus = PS_PATCHING_FAILED;
+        OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x200000, v27);
         do
         {
-          if ( v13 >= 65 )
+          if ( v6 >= 65 )
             break;
-          ++v13;
+          ++v6;
         }
-        while ( ((0x200000ui64 >> v13) & 1) == 0 );
+        while ( ((0x200000ui64 >> v6) & 1) == 0 );
       }
     }
     else
     {
-      v36 = j_va("StartupProcessingHandleDecrypt: failed to decrypt %s using key\n", _RDI->fileDetails.m_name);
-      OnlineSystem::DebugLog(this, v36);
-      v37 = j_va("%d,%zu,%d", (unsigned int)_RDI->dcacheType, _RDI->fileDetails.m_fileID, (unsigned int)_RDI->fileDetails.m_location);
-      v38 = Online_ErrorReporting::GetInstancePtr();
-      Online_ErrorReporting::ReportError(v38, (Online_Error_CAT_PATCHER_t)0x100000, v37);
-      v39 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-      v39->patchingStatus = PS_PATCHING_FAILED;
-      OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x100000, v37);
+      v15 = j_va("StartupProcessingHandleDecrypt: failed to decrypt %s using key\n", action->fileDetails.m_name);
+      OnlineSystem::DebugLog(this, v15);
+      v16 = j_va("%d,%zu,%d", (unsigned int)action->dcacheType, action->fileDetails.m_fileID, (unsigned int)action->fileDetails.m_location);
+      v17 = Online_ErrorReporting::GetInstancePtr();
+      Online_ErrorReporting::ReportError(v17, (Online_Error_CAT_PATCHER_t)0x100000, v16);
+      v18 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
+      v18->patchingStatus = PS_PATCHING_FAILED;
+      OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x100000, v16);
       do
       {
-        if ( v13 >= 65 )
+        if ( v6 >= 65 )
           break;
-        ++v13;
+        ++v6;
       }
-      while ( ((0x100000ui64 >> v13) & 1) == 0 );
+      while ( ((0x100000ui64 >> v6) & 1) == 0 );
     }
-    v39->patchingErrorCode = v13;
-    v43 = 0;
+    v18->patchingErrorCode = v6;
+    v22 = 0;
     goto LABEL_34;
   }
-  v21 = j_va("StartupProcessingHandleDecrypt: failed to copy %s \n", _RDI->fileDetails.m_name);
-  OnlineSystem::DebugLog(this, v21);
-  v22 = j_va("%d,%d,%zu,%d", (unsigned int)_RDI->dcacheType, 0i64, _RDI->fileDetails.m_fileID, _RDI->fileDetails.m_location);
-  v23 = Online_ErrorReporting::GetInstancePtr();
-  Online_ErrorReporting::ReportError(v23, MOVEMENT, v22);
+  v7 = j_va("StartupProcessingHandleDecrypt: failed to copy %s \n", action->fileDetails.m_name);
+  OnlineSystem::DebugLog(this, v7);
+  v8 = j_va("%d,%d,%zu,%d", (unsigned int)action->dcacheType, 0i64, action->fileDetails.m_fileID, action->fileDetails.m_location);
+  v9 = Online_ErrorReporting::GetInstancePtr();
+  Online_ErrorReporting::ReportError(v9, MOVEMENT, v8);
   CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
   CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-  OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v22);
+  OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v8);
   do
   {
-    if ( v13 >= 65 )
+    if ( v6 >= 65 )
       break;
-    ++v13;
+    ++v6;
   }
-  while ( ((0x40000000000ui64 >> v13) & 1) == 0 );
+  while ( ((0x40000000000ui64 >> v6) & 1) == 0 );
 LABEL_22:
-  CCSPatchData->patchingErrorCode = v13;
-  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v55);
-  v43 = 0;
+  CCSPatchData->patchingErrorCode = v6;
+  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v34);
+  v22 = 0;
 LABEL_35:
-  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v53);
-  return v43;
+  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v32);
+  return v22;
 }
 
 /*
@@ -5243,239 +4945,190 @@ Online_PatchStreamer::StartupProcessingHandleDecryptInflate
 */
 __int64 Online_PatchStreamer::StartupProcessingHandleDecryptInflate(Online_PatchStreamer *this, const CCSPatchType patchType, psManifestActionInfo_t *action)
 {
-  int v13; 
+  int v6; 
   CachedContentCrypto *Instance; 
-  const char *v22; 
-  const char *v23; 
+  const char *v8; 
+  const char *v9; 
   Online_ErrorReporting *InstancePtr; 
   CCSPatchData *CCSPatchData; 
-  const char *v26; 
+  const char *v12; 
+  const char *v13; 
+  Online_ErrorReporting *v14; 
+  CachedContentCompressor *v15; 
+  const char *v16; 
+  const char *v17; 
+  Online_ErrorReporting *v18; 
+  CCSPatchData *v19; 
+  const char *v20; 
+  const char *v21; 
+  Online_ErrorReporting *v22; 
+  unsigned __int8 v23; 
+  const char *v24; 
+  const char *v25; 
+  Online_ErrorReporting *v26; 
   const char *v27; 
-  Online_ErrorReporting *v28; 
-  CachedContentCompressor *v36; 
-  const char *v37; 
-  const char *v38; 
-  Online_ErrorReporting *v39; 
-  CCSPatchData *v40; 
-  const char *v41; 
-  const char *v42; 
-  Online_ErrorReporting *v43; 
-  unsigned __int8 v44; 
-  const char *v45; 
-  const char *v46; 
-  Online_ErrorReporting *v47; 
-  const char *v48; 
-  const char *v49; 
-  Online_ErrorReporting *v50; 
-  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v52; 
-  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v53; 
+  const char *v28; 
+  Online_ErrorReporting *v29; 
+  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v31; 
+  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v32; 
   CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t fileSpecifier; 
-  CachedContentIOStreamDCache v55; 
-  CachedContentIOStreamDCache v56; 
-  CachedContentIOStreamDCache v57; 
-  CachedContentIOStreamDCache v58; 
+  CachedContentIOStreamDCache v34; 
+  CachedContentIOStreamDCache v35; 
+  CachedContentIOStreamDCache v36; 
+  CachedContentIOStreamDCache v37; 
 
-  _RDI = action;
   memset(&fileSpecifier.fileDetails.m_computedHashValue, 0, sizeof(fileSpecifier.fileDetails.m_computedHashValue));
   fileSpecifier.cacheType = action->dcacheType;
-  _RCX = &fileSpecifier.fileDetails;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r8]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [r8+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [r8+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [r8+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymm1, ymmword ptr [r8+80h]
-    vmovups ymmword ptr [rcx+80h], ymm1
-    vmovups ymm1, ymmword ptr [r8+0A0h]
-    vmovups ymmword ptr [rcx+0A0h], ymm1
-  }
-  *(_QWORD *)&fileSpecifier.fileDetails.m_timestamp = *(_QWORD *)&action->fileDetails.m_timestamp;
-  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v58, &fileSpecifier, CCIOSModeRead);
-  memset(&v52.fileDetails.m_computedHashValue, 0, sizeof(v52.fileDetails.m_computedHashValue));
-  v13 = 0;
-  v52.cacheType = DCACHE_TYPE_TEMPORARY;
-  _RCX = &v52.fileDetails;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+80h]
-    vmovups ymmword ptr [rcx+80h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+0A0h]
-    vmovups ymmword ptr [rcx+0A0h], ymm0
-  }
-  *(_QWORD *)&v52.fileDetails.m_timestamp = *(_QWORD *)&_RDI->fileDetails.m_timestamp;
-  v52.fileDetails.m_size = _RDI->manifestEntry.fileSizeCompressed;
-  v52.fileDetails.m_location = DCACHE_LOC_PATCH_MAN_SCRATCHPAD;
-  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v57, &v52, CCIOSModeWrite);
+  fileSpecifier.fileDetails = action->fileDetails;
+  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v37, &fileSpecifier, CCIOSModeRead);
+  memset(&v31.fileDetails.m_computedHashValue, 0, sizeof(v31.fileDetails.m_computedHashValue));
+  v6 = 0;
+  v31.cacheType = DCACHE_TYPE_TEMPORARY;
+  v31.fileDetails = action->fileDetails;
+  v31.fileDetails.m_size = action->manifestEntry.fileSizeCompressed;
+  v31.fileDetails.m_location = DCACHE_LOC_PATCH_MAN_SCRATCHPAD;
+  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v36, &v31, CCIOSModeWrite);
   Instance = CachedContentCrypto::GetInstance();
-  if ( !CachedContentCrypto::Cipher_AESDecryptStream(Instance, &_RDI->manifestEntry.encryptionKey, &v58, &v57, _RDI->manifestEntry.fileSizeCompressed) )
+  if ( !CachedContentCrypto::Cipher_AESDecryptStream(Instance, &action->manifestEntry.encryptionKey, &v37, &v36, action->manifestEntry.fileSizeCompressed) )
   {
-    v22 = j_va("StartupProcessingHandleDecryptInflate: failed to decrypt %s \n", _RDI->fileDetails.m_name);
-    OnlineSystem::DebugLog(this, v22);
-    v23 = j_va("%d,%zu,%d", (unsigned int)_RDI->dcacheType, _RDI->fileDetails.m_fileID, (unsigned int)_RDI->fileDetails.m_location);
+    v8 = j_va("StartupProcessingHandleDecryptInflate: failed to decrypt %s \n", action->fileDetails.m_name);
+    OnlineSystem::DebugLog(this, v8);
+    v9 = j_va("%d,%zu,%d", (unsigned int)action->dcacheType, action->fileDetails.m_fileID, (unsigned int)action->fileDetails.m_location);
     InstancePtr = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(InstancePtr, (Online_Error_CAT_PATCHER_t)0x800000, v23);
+    Online_ErrorReporting::ReportError(InstancePtr, (Online_Error_CAT_PATCHER_t)0x800000, v9);
     CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
     CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x800000, v23);
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x800000, v9);
     do
     {
-      if ( v13 >= 65 )
+      if ( v6 >= 65 )
         break;
-      ++v13;
+      ++v6;
     }
-    while ( ((0x800000ui64 >> v13) & 1) == 0 );
+    while ( ((0x800000ui64 >> v6) & 1) == 0 );
 LABEL_32:
-    CCSPatchData->patchingErrorCode = v13;
-    v44 = 0;
+    CCSPatchData->patchingErrorCode = v6;
+    v23 = 0;
     goto LABEL_33;
   }
-  CachedContentIOStreamDCache::Close(&v58);
-  CachedContentIOStreamDCache::Close(&v57);
-  if ( !DCache_TOC_VerifyHash(DCACHE_TYPE_TEMPORARY, _RDI->fileDetails.m_fileID, DCACHE_LOC_PATCH_MAN_SCRATCHPAD, &_RDI->manifestEntry.compressedHash) )
+  CachedContentIOStreamDCache::Close(&v37);
+  CachedContentIOStreamDCache::Close(&v36);
+  if ( !DCache_TOC_VerifyHash(DCACHE_TYPE_TEMPORARY, action->fileDetails.m_fileID, DCACHE_LOC_PATCH_MAN_SCRATCHPAD, &action->manifestEntry.compressedHash) )
   {
-    v48 = j_va("StartupProcessingHandleDecryptInflate: decrypt hash mismatch %s \n", _RDI->fileDetails.m_name);
-    OnlineSystem::DebugLog(this, v48);
-    v49 = j_va("%d,%zu,%d", 0i64, _RDI->fileDetails.m_fileID, 256i64);
-    v50 = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(v50, (Online_Error_CAT_PATCHER_t)0x1000000, v49);
+    v27 = j_va("StartupProcessingHandleDecryptInflate: decrypt hash mismatch %s \n", action->fileDetails.m_name);
+    OnlineSystem::DebugLog(this, v27);
+    v28 = j_va("%d,%zu,%d", 0i64, action->fileDetails.m_fileID, 256i64);
+    v29 = Online_ErrorReporting::GetInstancePtr();
+    Online_ErrorReporting::ReportError(v29, (Online_Error_CAT_PATCHER_t)0x1000000, v28);
     CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
     CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x1000000, v49);
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x1000000, v28);
     do
     {
-      if ( v13 >= 65 )
+      if ( v6 >= 65 )
         break;
-      ++v13;
+      ++v6;
     }
-    while ( ((0x1000000ui64 >> v13) & 1) == 0 );
+    while ( ((0x1000000ui64 >> v6) & 1) == 0 );
     goto LABEL_32;
   }
-  if ( !DCache_DeleteFromCacheInMemory(_RDI->dcacheType, _RDI->fileDetails.m_fileID, _RDI->fileDetails.m_location) )
+  if ( !DCache_DeleteFromCacheInMemory(action->dcacheType, action->fileDetails.m_fileID, action->fileDetails.m_location) )
   {
-    v26 = j_va("StartupProcessingHandleDecryptInflate: decrypt temp delete %s \n", _RDI->fileDetails.m_name);
-    OnlineSystem::DebugLog(this, v26);
-    v27 = j_va("%d,%zu,%d", (unsigned int)_RDI->dcacheType, _RDI->fileDetails.m_fileID, (unsigned int)_RDI->fileDetails.m_location);
-    v28 = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(v28, (Online_Error_CAT_PATCHER_t)0x2000000, v27);
+    v12 = j_va("StartupProcessingHandleDecryptInflate: decrypt temp delete %s \n", action->fileDetails.m_name);
+    OnlineSystem::DebugLog(this, v12);
+    v13 = j_va("%d,%zu,%d", (unsigned int)action->dcacheType, action->fileDetails.m_fileID, (unsigned int)action->fileDetails.m_location);
+    v14 = Online_ErrorReporting::GetInstancePtr();
+    Online_ErrorReporting::ReportError(v14, (Online_Error_CAT_PATCHER_t)0x2000000, v13);
     CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
     CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x2000000, v27);
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x2000000, v13);
     do
     {
-      if ( v13 >= 65 )
+      if ( v6 >= 65 )
         break;
-      ++v13;
+      ++v6;
     }
-    while ( ((0x2000000ui64 >> v13) & 1) == 0 );
+    while ( ((0x2000000ui64 >> v6) & 1) == 0 );
     goto LABEL_32;
   }
-  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v56, &v52, CCIOSModeRead);
-  memset(&v53.fileDetails.m_computedHashValue, 0, sizeof(v53.fileDetails.m_computedHashValue));
-  v53.cacheType = DCACHE_TYPE_PERSISTENT;
-  _RCX = &v53.fileDetails;
-  __asm
+  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v35, &v31, CCIOSModeRead);
+  memset(&v32.fileDetails.m_computedHashValue, 0, sizeof(v32.fileDetails.m_computedHashValue));
+  v32.cacheType = DCACHE_TYPE_PERSISTENT;
+  v32.fileDetails = action->fileDetails;
+  v32.fileDetails.m_size = action->manifestEntry.fileSizeRaw;
+  v32.fileDetails.m_location = DCACHE_LOC_PATCH_MAN;
+  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v34, &v32, CCIOSModeWrite);
+  v15 = CachedContentCompressor::GetInstance();
+  if ( !CachedContentCompressor::InflateStream(v15, &v35, &v34) )
   {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+80h]
-    vmovups ymmword ptr [rcx+80h], ymm0
-    vmovups ymm0, ymmword ptr [rdi+0A0h]
-    vmovups ymmword ptr [rcx+0A0h], ymm0
-  }
-  *(_QWORD *)&v53.fileDetails.m_timestamp = *(_QWORD *)&_RDI->fileDetails.m_timestamp;
-  v53.fileDetails.m_size = _RDI->manifestEntry.fileSizeRaw;
-  v53.fileDetails.m_location = DCACHE_LOC_PATCH_MAN;
-  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v55, &v53, CCIOSModeWrite);
-  v36 = CachedContentCompressor::GetInstance();
-  if ( !CachedContentCompressor::InflateStream(v36, &v56, &v55) )
-  {
-    v37 = j_va("StartupProcessingHandleDecryptInflate: failed to inflate %s \n", _RDI->fileDetails.m_name);
-    OnlineSystem::DebugLog(this, v37);
-    v38 = j_va("%d,%zu,%d", (unsigned int)_RDI->dcacheType, _RDI->fileDetails.m_fileID, (unsigned int)_RDI->fileDetails.m_location);
-    v39 = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(v39, (Online_Error_CAT_PATCHER_t)0x4000000, v38);
-    v40 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-    v40->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x4000000, v38);
+    v16 = j_va("StartupProcessingHandleDecryptInflate: failed to inflate %s \n", action->fileDetails.m_name);
+    OnlineSystem::DebugLog(this, v16);
+    v17 = j_va("%d,%zu,%d", (unsigned int)action->dcacheType, action->fileDetails.m_fileID, (unsigned int)action->fileDetails.m_location);
+    v18 = Online_ErrorReporting::GetInstancePtr();
+    Online_ErrorReporting::ReportError(v18, (Online_Error_CAT_PATCHER_t)0x4000000, v17);
+    v19 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
+    v19->patchingStatus = PS_PATCHING_FAILED;
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x4000000, v17);
     do
     {
-      if ( v13 >= 65 )
+      if ( v6 >= 65 )
         break;
-      ++v13;
+      ++v6;
     }
-    while ( ((0x4000000ui64 >> v13) & 1) == 0 );
+    while ( ((0x4000000ui64 >> v6) & 1) == 0 );
 LABEL_27:
-    v40->patchingErrorCode = v13;
-    v44 = 0;
+    v19->patchingErrorCode = v6;
+    v23 = 0;
     goto LABEL_28;
   }
-  CachedContentIOStreamDCache::Close(&v56);
-  CachedContentIOStreamDCache::Close(&v55);
-  if ( !DCache_TOC_VerifyHash(DCACHE_TYPE_PERSISTENT, _RDI->fileDetails.m_fileID, DCACHE_LOC_PATCH_MAN, &_RDI->manifestEntry.rawHash) )
+  CachedContentIOStreamDCache::Close(&v35);
+  CachedContentIOStreamDCache::Close(&v34);
+  if ( !DCache_TOC_VerifyHash(DCACHE_TYPE_PERSISTENT, action->fileDetails.m_fileID, DCACHE_LOC_PATCH_MAN, &action->manifestEntry.rawHash) )
   {
-    v45 = j_va("StartupProcessingHandleDecryptInflate: inflate hash mismatch %s \n", _RDI->fileDetails.m_name);
-    OnlineSystem::DebugLog(this, v45);
-    v46 = j_va("%d,%zu,%d", 1i64, _RDI->fileDetails.m_fileID, 16i64);
-    v47 = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(v47, (Online_Error_CAT_PATCHER_t)0x8000000, v46);
-    v40 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-    v40->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x8000000, v46);
+    v24 = j_va("StartupProcessingHandleDecryptInflate: inflate hash mismatch %s \n", action->fileDetails.m_name);
+    OnlineSystem::DebugLog(this, v24);
+    v25 = j_va("%d,%zu,%d", 1i64, action->fileDetails.m_fileID, 16i64);
+    v26 = Online_ErrorReporting::GetInstancePtr();
+    Online_ErrorReporting::ReportError(v26, (Online_Error_CAT_PATCHER_t)0x8000000, v25);
+    v19 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
+    v19->patchingStatus = PS_PATCHING_FAILED;
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x8000000, v25);
     do
     {
-      if ( v13 >= 65 )
+      if ( v6 >= 65 )
         break;
-      ++v13;
+      ++v6;
     }
-    while ( ((0x8000000ui64 >> v13) & 1) == 0 );
+    while ( ((0x8000000ui64 >> v6) & 1) == 0 );
     goto LABEL_27;
   }
-  if ( !DCache_DeleteFromCacheInMemory(DCACHE_TYPE_TEMPORARY, _RDI->fileDetails.m_fileID, DCACHE_LOC_PATCH_MAN_SCRATCHPAD) )
+  if ( !DCache_DeleteFromCacheInMemory(DCACHE_TYPE_TEMPORARY, action->fileDetails.m_fileID, DCACHE_LOC_PATCH_MAN_SCRATCHPAD) )
   {
-    v41 = j_va("StartupProcessingHandleDecryptInflate: inflate temp delete %s \n", _RDI->fileDetails.m_name);
-    OnlineSystem::DebugLog(this, v41);
-    v42 = j_va("%d,%zu,%d", 0i64, _RDI->fileDetails.m_fileID, 256i64);
-    v43 = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(v43, (Online_Error_CAT_PATCHER_t)0x10000000, v42);
-    v40 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-    v40->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x10000000, v42);
+    v20 = j_va("StartupProcessingHandleDecryptInflate: inflate temp delete %s \n", action->fileDetails.m_name);
+    OnlineSystem::DebugLog(this, v20);
+    v21 = j_va("%d,%zu,%d", 0i64, action->fileDetails.m_fileID, 256i64);
+    v22 = Online_ErrorReporting::GetInstancePtr();
+    Online_ErrorReporting::ReportError(v22, (Online_Error_CAT_PATCHER_t)0x10000000, v21);
+    v19 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
+    v19->patchingStatus = PS_PATCHING_FAILED;
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x10000000, v21);
     do
     {
-      if ( v13 >= 65 )
+      if ( v6 >= 65 )
         break;
-      ++v13;
+      ++v6;
     }
-    while ( ((0x10000000ui64 >> v13) & 1) == 0 );
+    while ( ((0x10000000ui64 >> v6) & 1) == 0 );
     goto LABEL_27;
   }
-  v44 = 1;
+  v23 = 1;
 LABEL_28:
-  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v55);
-  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v56);
+  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v34);
+  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v35);
 LABEL_33:
-  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v57);
-  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v58);
-  return v44;
+  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v36);
+  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v37);
+  return v23;
 }
 
 /*
@@ -5486,137 +5139,104 @@ Online_PatchStreamer::StartupProcessingHandleInflate
 __int64 Online_PatchStreamer::StartupProcessingHandleInflate(Online_PatchStreamer *this, const CCSPatchType patchType, psManifestActionInfo_t *action)
 {
   CachedContentCompressor *Instance; 
-  const char *v21; 
-  const char *v22; 
+  const char *v7; 
+  const char *v8; 
   Online_ErrorReporting *InstancePtr; 
   CCSPatchData *CCSPatchData; 
-  int v25; 
-  const char *v26; 
-  const char *v27; 
-  Online_ErrorReporting *v28; 
-  unsigned __int8 v29; 
-  const char *v30; 
-  const char *v31; 
-  Online_ErrorReporting *v32; 
-  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v34; 
+  int v11; 
+  const char *v12; 
+  const char *v13; 
+  Online_ErrorReporting *v14; 
+  unsigned __int8 v15; 
+  const char *v16; 
+  const char *v17; 
+  Online_ErrorReporting *v18; 
+  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v20; 
   CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t fileSpecifier; 
-  CachedContentIOStreamDCache v36; 
-  CachedContentIOStreamDCache v37; 
+  CachedContentIOStreamDCache v22; 
+  CachedContentIOStreamDCache v23; 
 
-  _RBX = action;
   memset(&fileSpecifier.fileDetails.m_computedHashValue, 0, sizeof(fileSpecifier.fileDetails.m_computedHashValue));
   fileSpecifier.cacheType = action->dcacheType;
-  _RCX = &fileSpecifier.fileDetails;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r8]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [r8+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [r8+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [r8+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymm1, ymmword ptr [r8+80h]
-    vmovups ymmword ptr [rcx+80h], ymm1
-    vmovups ymm1, ymmword ptr [r8+0A0h]
-    vmovups ymmword ptr [rcx+0A0h], ymm1
-  }
-  *(_QWORD *)&fileSpecifier.fileDetails.m_timestamp = *(_QWORD *)&action->fileDetails.m_timestamp;
-  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v37, &fileSpecifier, CCIOSModeRead);
-  memset(&v34.fileDetails.m_computedHashValue, 0, sizeof(v34.fileDetails.m_computedHashValue));
-  v34.cacheType = DCACHE_TYPE_PERSISTENT;
-  _RCX = &v34.fileDetails;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rbx+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups ymm0, ymmword ptr [rbx+80h]
-    vmovups ymmword ptr [rcx+80h], ymm0
-    vmovups ymm0, ymmword ptr [rbx+0A0h]
-    vmovups ymmword ptr [rcx+0A0h], ymm0
-  }
-  *(_QWORD *)&v34.fileDetails.m_timestamp = *(_QWORD *)&_RBX->fileDetails.m_timestamp;
-  v34.fileDetails.m_size = _RBX->manifestEntry.fileSizeRaw;
-  v34.fileDetails.m_location = DCACHE_LOC_PATCH_MAN;
-  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v36, &v34, CCIOSModeWrite);
+  fileSpecifier.fileDetails = action->fileDetails;
+  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v23, &fileSpecifier, CCIOSModeRead);
+  memset(&v20.fileDetails.m_computedHashValue, 0, sizeof(v20.fileDetails.m_computedHashValue));
+  v20.cacheType = DCACHE_TYPE_PERSISTENT;
+  v20.fileDetails = action->fileDetails;
+  v20.fileDetails.m_size = action->manifestEntry.fileSizeRaw;
+  v20.fileDetails.m_location = DCACHE_LOC_PATCH_MAN;
+  CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v22, &v20, CCIOSModeWrite);
   Instance = CachedContentCompressor::GetInstance();
-  if ( !CachedContentCompressor::InflateStream(Instance, &v37, &v36) )
+  if ( !CachedContentCompressor::InflateStream(Instance, &v23, &v22) )
   {
-    v21 = j_va("StartupProcessingHandleInflate: failed to inflate %s \n", _RBX->fileDetails.m_name);
-    OnlineSystem::DebugLog(this, v21);
-    v22 = j_va("%d,%d,%zu,%d", (unsigned int)_RBX->dcacheType, 1i64, _RBX->fileDetails.m_fileID, _RBX->fileDetails.m_location);
+    v7 = j_va("StartupProcessingHandleInflate: failed to inflate %s \n", action->fileDetails.m_name);
+    OnlineSystem::DebugLog(this, v7);
+    v8 = j_va("%d,%d,%zu,%d", (unsigned int)action->dcacheType, 1i64, action->fileDetails.m_fileID, action->fileDetails.m_location);
     InstancePtr = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(InstancePtr, (Online_Error_CAT_PATCHER_t)0x20000, v22);
+    Online_ErrorReporting::ReportError(InstancePtr, (Online_Error_CAT_PATCHER_t)0x20000, v8);
     CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
     CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x20000, v22);
-    v25 = 0;
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x20000, v8);
+    v11 = 0;
     do
     {
-      if ( v25 >= 65 )
+      if ( v11 >= 65 )
         break;
-      ++v25;
+      ++v11;
     }
-    while ( ((0x20000ui64 >> v25) & 1) == 0 );
+    while ( ((0x20000ui64 >> v11) & 1) == 0 );
 LABEL_16:
-    CCSPatchData->patchingErrorCode = v25;
-    v29 = 0;
+    CCSPatchData->patchingErrorCode = v11;
+    v15 = 0;
     goto LABEL_17;
   }
-  CachedContentIOStreamDCache::Close(&v37);
-  CachedContentIOStreamDCache::Close(&v36);
-  if ( !DCache_TOC_VerifyHash(DCACHE_TYPE_PERSISTENT, _RBX->fileDetails.m_fileID, DCACHE_LOC_PATCH_MAN, &_RBX->manifestEntry.rawHash) )
+  CachedContentIOStreamDCache::Close(&v23);
+  CachedContentIOStreamDCache::Close(&v22);
+  if ( !DCache_TOC_VerifyHash(DCACHE_TYPE_PERSISTENT, action->fileDetails.m_fileID, DCACHE_LOC_PATCH_MAN, &action->manifestEntry.rawHash) )
   {
-    v30 = j_va("StartupProcessingHandleInflate: inflate hash mismatch %s \n", _RBX->fileDetails.m_name);
-    OnlineSystem::DebugLog(this, v30);
-    v31 = j_va("%d,%zu,%d", (unsigned int)_RBX->dcacheType, _RBX->fileDetails.m_fileID, (unsigned int)_RBX->fileDetails.m_location);
-    v32 = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(v32, (Online_Error_CAT_PATCHER_t)0x40000, v31);
+    v16 = j_va("StartupProcessingHandleInflate: inflate hash mismatch %s \n", action->fileDetails.m_name);
+    OnlineSystem::DebugLog(this, v16);
+    v17 = j_va("%d,%zu,%d", (unsigned int)action->dcacheType, action->fileDetails.m_fileID, (unsigned int)action->fileDetails.m_location);
+    v18 = Online_ErrorReporting::GetInstancePtr();
+    Online_ErrorReporting::ReportError(v18, (Online_Error_CAT_PATCHER_t)0x40000, v17);
     CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
     CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x40000, v31);
-    v25 = 0;
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x40000, v17);
+    v11 = 0;
     do
     {
-      if ( v25 >= 65 )
+      if ( v11 >= 65 )
         break;
-      ++v25;
+      ++v11;
     }
-    while ( ((0x40000ui64 >> v25) & 1) == 0 );
+    while ( ((0x40000ui64 >> v11) & 1) == 0 );
     goto LABEL_16;
   }
-  if ( !DCache_DeleteFromCacheInMemory(_RBX->dcacheType, _RBX->fileDetails.m_fileID, _RBX->fileDetails.m_location) )
+  if ( !DCache_DeleteFromCacheInMemory(action->dcacheType, action->fileDetails.m_fileID, action->fileDetails.m_location) )
   {
-    v26 = j_va("StartupProcessingHandleInflate: inflate temp delete %s \n", _RBX->fileDetails.m_name);
-    OnlineSystem::DebugLog(this, v26);
-    v27 = j_va("%d,%zu,%d", (unsigned int)_RBX->dcacheType, _RBX->fileDetails.m_fileID, (unsigned int)_RBX->fileDetails.m_location);
-    v28 = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(v28, (Online_Error_CAT_PATCHER_t)0x80000, v27);
+    v12 = j_va("StartupProcessingHandleInflate: inflate temp delete %s \n", action->fileDetails.m_name);
+    OnlineSystem::DebugLog(this, v12);
+    v13 = j_va("%d,%zu,%d", (unsigned int)action->dcacheType, action->fileDetails.m_fileID, (unsigned int)action->fileDetails.m_location);
+    v14 = Online_ErrorReporting::GetInstancePtr();
+    Online_ErrorReporting::ReportError(v14, (Online_Error_CAT_PATCHER_t)0x80000, v13);
     CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
     CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x80000, v27);
-    v25 = 0;
+    OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, (Online_Error_CAT_PATCHER_t)0x80000, v13);
+    v11 = 0;
     do
     {
-      if ( v25 >= 65 )
+      if ( v11 >= 65 )
         break;
-      ++v25;
+      ++v11;
     }
-    while ( ((0x80000ui64 >> v25) & 1) == 0 );
+    while ( ((0x80000ui64 >> v11) & 1) == 0 );
     goto LABEL_16;
   }
-  v29 = 1;
+  v15 = 1;
 LABEL_17:
-  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v36);
-  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v37);
-  return v29;
+  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v22);
+  CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v23);
+  return v15;
 }
 
 /*
@@ -5628,25 +5248,24 @@ char Online_PatchStreamer::StartupProcessingHandleUnpack(Online_PatchStreamer *t
 {
   int v6; 
   const char *v7; 
-  const char *v15; 
-  const char *v16; 
+  const char *v8; 
+  const char *v9; 
   Online_ErrorReporting *InstancePtr; 
   CCSPatchData *CCSPatchData; 
-  char v19; 
-  const char *v21; 
-  Online_ErrorReporting *v22; 
-  CCSPatchData *v23; 
+  char v12; 
+  const char *v14; 
+  Online_ErrorReporting *v15; 
+  CCSPatchData *v16; 
   char *fmt; 
-  __int64 v25; 
+  __int64 v18; 
   unsigned __int64 outFileID[2]; 
-  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v27; 
+  CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t v20; 
   CachedContentIOStreamDCache::dcacheStreamFileSpecifier_t fileSpecifier; 
-  CachedContentIOStreamDCache v29; 
-  CachedContentIOStreamDCache v30; 
+  CachedContentIOStreamDCache v22; 
+  CachedContentIOStreamDCache v23; 
   char dest[256]; 
 
   outFileID[1] = -2i64;
-  _RDI = action;
   if ( action->action != PATCH_MAN_ACT_UNPACK && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_patchsystem.cpp", 2136, ASSERT_TYPE_ASSERT, "(action.action == PATCH_MAN_ACT_UNPACK)", (const char *)&queryFormat, "action.action == PATCH_MAN_ACT_UNPACK") )
     __debugbreak();
   memset(&fileSpecifier.fileDetails.m_computedHashValue, 0, sizeof(fileSpecifier.fileDetails.m_computedHashValue));
@@ -5657,46 +5276,30 @@ char Online_PatchStreamer::StartupProcessingHandleUnpack(Online_PatchStreamer *t
   Com_sprintf(dest, 0x100ui64, "%s_%s_%s_%s.%s", "dev_pack", v7, "xb3", "8.24", "bin");
   if ( DCache_TOC_GetFileIDByFilename(dest, DCACHE_TYPE_TEMPORARY, DCACHE_LOC_PATCH_MAN, outFileID) && DCache_TOC_GetFileDetails(DCACHE_TYPE_TEMPORARY, outFileID[0], DCACHE_LOC_PATCH_MAN, &fileSpecifier.fileDetails) )
   {
-    CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v30, &fileSpecifier, CCIOSModeRead);
-    memset(&v27.fileDetails.m_computedHashValue, 0, sizeof(v27.fileDetails.m_computedHashValue));
-    v27.cacheType = _RDI->dcacheType;
-    _RCX = &v27.fileDetails;
-    __asm
+    CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v23, &fileSpecifier, CCIOSModeRead);
+    memset(&v20.fileDetails.m_computedHashValue, 0, sizeof(v20.fileDetails.m_computedHashValue));
+    v20.cacheType = action->dcacheType;
+    v20.fileDetails = action->fileDetails;
+    v20.fileDetails.m_fileID = DCache_GetNextLocalFileID();
+    CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v22, &v20, CCIOSModeWrite);
+    if ( CachedContentIOStreamCopy::PerformCopyOffsetSize(&v23, action->manifestEntry.packOffset, action->manifestEntry.packSize, &v22) )
     {
-      vmovups ymm0, ymmword ptr [rdi]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rdi+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rdi+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rdi+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymm1, ymmword ptr [rdi+80h]
-      vmovups ymmword ptr [rcx+80h], ymm1
-      vmovups ymm1, ymmword ptr [rdi+0A0h]
-      vmovups ymmword ptr [rcx+0A0h], ymm1
-    }
-    *(_QWORD *)&v27.fileDetails.m_timestamp = *(_QWORD *)&_RDI->fileDetails.m_timestamp;
-    v27.fileDetails.m_fileID = DCache_GetNextLocalFileID();
-    CachedContentIOStreamDCache::CachedContentIOStreamDCache(&v29, &v27, CCIOSModeWrite);
-    if ( CachedContentIOStreamCopy::PerformCopyOffsetSize(&v30, _RDI->manifestEntry.packOffset, _RDI->manifestEntry.packSize, &v29) )
-    {
-      CachedContentIOStreamDCache::Close(&v30);
-      CachedContentIOStreamDCache::Close(&v29);
-      v19 = 1;
+      CachedContentIOStreamDCache::Close(&v23);
+      CachedContentIOStreamDCache::Close(&v22);
+      v12 = 1;
     }
     else
     {
-      v15 = j_va("StartupProcessingHandleUnpack: failed to copy %s \n", _RDI->fileDetails.m_name);
-      OnlineSystem::DebugLog(this, v15);
-      LODWORD(v25) = _RDI->manifestEntry.packSize;
-      LODWORD(fmt) = _RDI->manifestEntry.packOffset;
-      v16 = j_va("%d,%zu,%d,%u,%u", (unsigned int)_RDI->dcacheType, _RDI->fileDetails.m_fileID, (unsigned int)_RDI->fileDetails.m_location, fmt, v25);
+      v8 = j_va("StartupProcessingHandleUnpack: failed to copy %s \n", action->fileDetails.m_name);
+      OnlineSystem::DebugLog(this, v8);
+      LODWORD(v18) = action->manifestEntry.packSize;
+      LODWORD(fmt) = action->manifestEntry.packOffset;
+      v9 = j_va("%d,%zu,%d,%u,%u", (unsigned int)action->dcacheType, action->fileDetails.m_fileID, (unsigned int)action->fileDetails.m_location, fmt, v18);
       InstancePtr = Online_ErrorReporting::GetInstancePtr();
-      Online_ErrorReporting::ReportError(InstancePtr, MOVEMENT, v16);
+      Online_ErrorReporting::ReportError(InstancePtr, MOVEMENT, v9);
       CCSPatchData = Online_PatchStreamer::GetCCSPatchData(this, patchType);
       CCSPatchData->patchingStatus = PS_PATCHING_FAILED;
-      OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v16);
+      OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, v9);
       do
       {
         if ( v6 >= 65 )
@@ -5705,20 +5308,20 @@ char Online_PatchStreamer::StartupProcessingHandleUnpack(Online_PatchStreamer *t
       }
       while ( ((0x800000000000000ui64 >> v6) & 1) == 0 );
       CCSPatchData->patchingErrorCode = v6;
-      v19 = 0;
+      v12 = 0;
     }
-    CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v29);
-    CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v30);
-    return v19;
+    CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v22);
+    CachedContentIOStreamDCache::~CachedContentIOStreamDCache(&v23);
+    return v12;
   }
   else
   {
-    v21 = j_va("StartupProcessingHandleUnpack: failed to unpack due to missing pack file. \n");
-    OnlineSystem::DebugLog(this, v21);
-    v22 = Online_ErrorReporting::GetInstancePtr();
-    Online_ErrorReporting::ReportError(v22, MOVEMENT, NULL);
-    v23 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
-    v23->patchingStatus = PS_PATCHING_FAILED;
+    v14 = j_va("StartupProcessingHandleUnpack: failed to unpack due to missing pack file. \n");
+    OnlineSystem::DebugLog(this, v14);
+    v15 = Online_ErrorReporting::GetInstancePtr();
+    Online_ErrorReporting::ReportError(v15, MOVEMENT, NULL);
+    v16 = Online_PatchStreamer::GetCCSPatchData(this, patchType);
+    v16->patchingStatus = PS_PATCHING_FAILED;
     OnlineErrorManager::SetLastRecordedErrorCode(&g_onlineMgr.m_errorManager, MOVEMENT, NULL);
     do
     {
@@ -5727,7 +5330,7 @@ char Online_PatchStreamer::StartupProcessingHandleUnpack(Online_PatchStreamer *t
       ++v6;
     }
     while ( ((0x400000000000000ui64 >> v6) & 1) == 0 );
-    v23->patchingErrorCode = v6;
+    v16->patchingErrorCode = v6;
     return 0;
   }
 }

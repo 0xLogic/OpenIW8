@@ -3311,23 +3311,23 @@ OnlineMatchmakerOmniscient::AddPlayerFromDW
 */
 void OnlineMatchmakerOmniscient::AddPlayerFromDW(OnlineMatchmakerOmniscient *this, const XUID xuid, MemberStatus status)
 {
-  const dvar_t *v7; 
-  const char *v8; 
+  const dvar_t *v5; 
+  const char *v6; 
   ntl::internal::list_head_base<ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> > *p_m_listHead; 
   ntl::internal::list_node_base *mp_next; 
-  ntl::internal::list_node_base *v11; 
-  const dvar_t *v12; 
-  __int64 v13; 
+  ntl::internal::list_node_base *v9; 
+  const dvar_t *v10; 
+  __int64 v11; 
   ntl::internal::list_node_base *i; 
   ntl::internal::pool_allocator_freelist<232> *p_m_freelist; 
-  ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *v16; 
+  ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *v14; 
+  const char *v15; 
+  const char *v16; 
   const char *v17; 
   const char *v18; 
   const char *v19; 
-  const char *v20; 
-  const char *v21; 
   OnlineMatchmakerOmniscient::Player outplayer; 
-  __int64 v23[5]; 
+  __int64 v21[5]; 
   XUID xuida; 
 
   xuida.m_id = xuid.m_id;
@@ -3341,41 +3341,37 @@ void OnlineMatchmakerOmniscient::AddPlayerFromDW(OnlineMatchmakerOmniscient *thi
   memset(&outplayer.m_matchmakingToken, 0, 28);
   outplayer.m_squadId = -1;
   outplayer.m_mmId = 0i64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+90h+outplayer.m_performanceValue], xmm0
-  }
+  outplayer.m_performanceValue = 0.0;
   outplayer.m_isPaidUser = 0;
   outplayer.m_taskId = 0;
   outplayer.m_lastStateSyncTime = 0i64;
   XUID::operator=(&outplayer.m_userId, &xuida);
-  v7 = DVARBOOL_online_matchmaking_reduce_print_spam;
+  v5 = DVARBOOL_online_matchmaking_reduce_print_spam;
   if ( !DVARBOOL_online_matchmaking_reduce_print_spam && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_reduce_print_spam") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( !v7->current.enabled )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( !v5->current.enabled )
   {
-    v8 = XUID::ToDevString(&xuida);
-    Com_Printf(25, "[MM] %s - adding player - %s\n", "OnlineMatchmakerOmniscient::AddPlayerFromDW", v8);
+    v6 = XUID::ToDevString(&xuida);
+    Com_Printf(25, "[MM] %s - adding player - %s\n", "OnlineMatchmakerOmniscient::AddPlayerFromDW", v6);
   }
   p_m_listHead = &this->m_playerList.m_listHead;
   mp_next = this->m_playerList.m_listHead.m_sentinel.mp_next;
   if ( mp_next != (ntl::internal::list_node_base *)&this->m_playerList.m_listHead )
   {
-    v11 = this->m_playerList.m_listHead.m_sentinel.mp_next;
+    v9 = this->m_playerList.m_listHead.m_sentinel.mp_next;
     do
     {
-      if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
       if ( XUID::operator==(&xuida, (const XUID *)&mp_next[6].mp_next) )
         break;
       if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 109, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      v11 = mp_next->mp_next;
-      mp_next = v11;
+      v9 = mp_next->mp_next;
+      mp_next = v9;
     }
-    while ( v11 != (ntl::internal::list_node_base *)p_m_listHead );
+    while ( v9 != (ntl::internal::list_node_base *)p_m_listHead );
     if ( mp_next != (ntl::internal::list_node_base *)p_m_listHead && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 3302, ASSERT_TYPE_SANITY, "( !FindPlayer( xuid, &it ) )", (const char *)&queryFormat, "!FindPlayer( xuid, &it )") )
       __debugbreak();
   }
@@ -3392,20 +3388,20 @@ void OnlineMatchmakerOmniscient::AddPlayerFromDW(OnlineMatchmakerOmniscient *thi
   }
   outplayer.m_bIsLocal = 0;
   outplayer.m_isPrimaryAccount = 1;
-  v12 = DVARBOOL_online_matchmaking_use_pruning;
+  v10 = DVARBOOL_online_matchmaking_use_pruning;
   if ( !DVARBOOL_online_matchmaking_use_pruning && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_use_pruning") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v12);
-  if ( v12->current.enabled )
+  Dvar_CheckFrontendServerThread(v10);
+  if ( v10->current.enabled )
     OnlineMatchmakerOmniscient::AggressivelyPrunePlayers(this);
-  v13 = 0i64;
+  v11 = 0i64;
   for ( i = this->m_playerList.m_listHead.m_sentinel.mp_next; i != (ntl::internal::list_node_base *)&this->m_playerList.m_listHead; i = i->mp_next )
-    ++v13;
-  if ( (unsigned __int64)(v13 + 1) > 0xC8 )
+    ++v11;
+  if ( (unsigned __int64)(v11 + 1) > 0xC8 )
   {
-    v17 = XUID::ToString(&outplayer.m_userId);
-    v18 = j_va("{\"status\":\"No room to add player %s.\"}", v17);
-    OnlineMatchmakerOmniscient::Log(this, "AddPlayerFromDW", v18, NULL, NULL, 0i64);
+    v15 = XUID::ToString(&outplayer.m_userId);
+    v16 = j_va("{\"status\":\"No room to add player %s.\"}", v15);
+    OnlineMatchmakerOmniscient::Log(this, "AddPlayerFromDW", v16, NULL, NULL, 0i64);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 3340, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "AddPlayerFromDW - m_playerList out of space.") )
       __debugbreak();
   }
@@ -3421,24 +3417,24 @@ void OnlineMatchmakerOmniscient::AddPlayerFromDW(OnlineMatchmakerOmniscient *thi
     }
     if ( (ntl::internal::pool_allocator_freelist<232> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0xE8ui64, 0xC8ui64) )
       __debugbreak();
-    v16 = (ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *)p_m_freelist->m_head.mp_next;
+    v14 = (ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *)p_m_freelist->m_head.mp_next;
     p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-    v16->mp_prev = NULL;
-    v16->mp_next = NULL;
-    OnlineMatchmakerOmniscient::Player::Player(&v16->m_data, &outplayer);
-    ntl::internal::list_head_base<ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>>::insert_before(&this->m_playerList.m_listHead, (ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *)&this->m_playerList.m_listHead, v16);
+    v14->mp_prev = NULL;
+    v14->mp_next = NULL;
+    OnlineMatchmakerOmniscient::Player::Player(&v14->m_data, &outplayer);
+    ntl::internal::list_head_base<ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>>::insert_before(&this->m_playerList.m_listHead, (ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *)&this->m_playerList.m_listHead, v14);
     OnlineMatchmakerTelemetry::AddPlayer(&this->m_telemetry, outplayer.m_userId);
   }
   this->m_lobbyData.m_lobbyDocIsDirty = 1;
-  v23[0] = (__int64)"eNONE";
-  v23[1] = (__int64)"eINITED";
-  v23[2] = (__int64)"eCONNECTED";
-  v23[3] = (__int64)"eDISCONNECTED";
-  v23[4] = (__int64)"eUNKNOWN";
-  v19 = (const char *)v23[outplayer.m_sessionStatus];
-  v20 = XUID::ToString(&outplayer.m_userId);
-  v21 = j_va("{\"player\":%s,\"player_session_status\":\"%s\"}", v20, v19);
-  OnlineMatchmakerOmniscient::Log(this, "AddPlayerFromDW", v21, NULL, NULL, 0i64);
+  v21[0] = (__int64)"eNONE";
+  v21[1] = (__int64)"eINITED";
+  v21[2] = (__int64)"eCONNECTED";
+  v21[3] = (__int64)"eDISCONNECTED";
+  v21[4] = (__int64)"eUNKNOWN";
+  v17 = (const char *)v21[outplayer.m_sessionStatus];
+  v18 = XUID::ToString(&outplayer.m_userId);
+  v19 = j_va("{\"player\":%s,\"player_session_status\":\"%s\"}", v18, v17);
+  OnlineMatchmakerOmniscient::Log(this, "AddPlayerFromDW", v19, NULL, NULL, 0i64);
   bdUInt64Result::~bdUInt64Result((bdUInt64Result *)(&outplayer.m_matchmakingTokenResult.__vftable + 3));
   bdReferencable::~bdReferencable((bdReferencable *)(&outplayer.m_matchmakingTokenResult.__vftable + 3));
 }
@@ -3450,47 +3446,47 @@ OnlineMatchmakerOmniscient::AddPlayerFromLocal
 */
 void OnlineMatchmakerOmniscient::AddPlayerFromLocal(OnlineMatchmakerOmniscient *this, const XUID xuid, const XNADDR *addr, const int localControllerIndex, const bool isSplitscreenSecondaryPlayer)
 {
-  const dvar_t *v13; 
-  const char *v14; 
+  const dvar_t *v8; 
+  const char *v9; 
   bool IsNull; 
-  const dvar_t *v17; 
+  ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *mp_node; 
+  const dvar_t *v12; 
   const char *String; 
-  const char *v19; 
-  OnlineMatchmakerOmniscient::Player::PlayerState v23; 
-  const dvar_t *v24; 
-  const char *v25; 
-  const char *v26; 
+  const char *v14; 
+  OnlineMatchmakerOmniscient::Player::PlayerState v15; 
+  const dvar_t *v16; 
+  const char *v17; 
+  const char *v18; 
   bdCommonAddr *m_ptr; 
   int m_controllerIndex; 
-  bool v29; 
-  const char *v30; 
+  bool v21; 
+  const char *v22; 
   unsigned __int64 m_id; 
   const PartyData *PartyData; 
   int MemberByXUID_AllowNotPresent; 
-  bool v34; 
-  int v35; 
-  const dvar_t *v36; 
+  bool v26; 
+  int v27; 
+  const dvar_t *v28; 
   ntl::internal::pool_allocator_freelist<232> *p_m_freelist; 
   ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *mp_next; 
-  const dvar_t *v39; 
-  const char *v40; 
-  const char *v41; 
+  const dvar_t *v31; 
+  const char *v32; 
+  const char *v33; 
   MatchmakerOmniscientState m_state; 
   const char *StateString; 
-  const char *v44; 
+  const char *v36; 
   const char *LobbyStateString; 
-  const char *v46; 
+  const char *v38; 
   bdReference<bdCommonAddr> me; 
   ntl::internal::list_iterator<OnlineMatchmakerOmniscient::Player,ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>,OnlineMatchmakerOmniscient::Player *,OnlineMatchmakerOmniscient::Player &> it; 
-  bdCommonAddr *v49; 
-  __int64 v50; 
+  bdCommonAddr *v41; 
+  __int64 v42; 
   OnlineMatchmakerOmniscient::Player outplayer; 
-  bdCommonAddr v52; 
+  bdCommonAddr v44; 
   XUID xuida; 
 
   xuida.m_id = xuid.m_id;
-  v50 = -2i64;
-  _R14 = (XNADDR *)addr;
+  v42 = -2i64;
   outplayer.m_state = eIDLE;
   XUID::NullXUID(&outplayer.m_userId);
   outplayer.m_bIsLocal = 0;
@@ -3501,86 +3497,67 @@ void OnlineMatchmakerOmniscient::AddPlayerFromLocal(OnlineMatchmakerOmniscient *
   memset(&outplayer.m_matchmakingToken, 0, 28);
   outplayer.m_squadId = -1;
   outplayer.m_mmId = 0i64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rbp+570h+outplayer.m_performanceValue], xmm0
-  }
+  outplayer.m_performanceValue = 0.0;
   outplayer.m_isPaidUser = 0;
   outplayer.m_taskId = 0;
   outplayer.m_lastStateSyncTime = 0i64;
   XUID::operator=(&outplayer.m_userId, &xuida);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14]
-    vmovups ymmword ptr [rsp+670h+outplayer.m_address.addrBuff], ymm0
-    vmovups ymm1, ymmword ptr [r14+20h]
-    vmovups ymmword ptr [rbp+570h+outplayer.m_address.addrBuff+20h], ymm1
-    vmovups xmm0, xmmword ptr [r14+40h]
-    vmovups xmmword ptr [rbp+570h+outplayer.m_address.addrBuff+40h], xmm0
-  }
-  *(_DWORD *)&outplayer.m_address.addrBuff[80] = *(_DWORD *)&_R14->addrBuff[80];
-  v13 = DVARBOOL_online_matchmaking_reduce_print_spam;
+  outplayer.m_address = *addr;
+  v8 = DVARBOOL_online_matchmaking_reduce_print_spam;
   if ( !DVARBOOL_online_matchmaking_reduce_print_spam && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_reduce_print_spam") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v13);
-  if ( !v13->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( !v8->current.enabled )
   {
-    v14 = XUID::ToDevString(&xuida);
-    Com_Printf(25, "[MM] %s - adding player - %s\n", "OnlineMatchmakerOmniscient::AddPlayerFromLocal", v14);
+    v9 = XUID::ToDevString(&xuida);
+    Com_Printf(25, "[MM] %s - adding player - %s\n", "OnlineMatchmakerOmniscient::AddPlayerFromLocal", v9);
   }
   if ( OnlineMatchmakerOmniscient::FindPlayer(this, &xuida, &it) )
   {
     IsNull = XNADDR::IsNull(&outplayer.m_address);
-    _RBX = it.mp_node;
+    mp_node = it.mp_node;
     if ( !IsNull )
     {
       if ( !it.mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      if ( XNADDR::operator!=(&outplayer.m_address, &_RBX->m_data.m_address) )
+      if ( XNADDR::operator!=(&outplayer.m_address, &mp_node->m_data.m_address) )
       {
-        v17 = DVARBOOL_online_matchmaking_reduce_print_spam;
+        v12 = DVARBOOL_online_matchmaking_reduce_print_spam;
         if ( !DVARBOOL_online_matchmaking_reduce_print_spam && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_reduce_print_spam") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v17);
-        if ( !v17->current.enabled )
+        Dvar_CheckFrontendServerThread(v12);
+        if ( !v12->current.enabled )
         {
-          String = XNADDR::GetString(_R14);
-          if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+          String = XNADDR::GetString((XNADDR *)addr);
+          if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          v19 = XNADDR::GetString(&_RBX->m_data.m_address);
-          Com_Printf(25, "\t* adding player - we already have this player but their address (%s) has changed? Taking the new address (%s).\n", v19, String);
+          v14 = XNADDR::GetString(&mp_node->m_data.m_address);
+          Com_Printf(25, "\t* adding player - we already have this player but their address (%s) has changed? Taking the new address (%s).\n", v14, String);
         }
-        if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [r14]
-          vmovups ymmword ptr [rbx+14h], ymm0
-          vmovups ymm1, ymmword ptr [r14+20h]
-          vmovups ymmword ptr [rbx+34h], ymm1
-          vmovups xmm0, xmmword ptr [r14+40h]
-          vmovups xmmword ptr [rbx+54h], xmm0
-        }
-        *(_DWORD *)&_RBX->m_data.m_address.addrBuff[80] = *(_DWORD *)&_R14->addrBuff[80];
+        *(__m256i *)mp_node->m_data.m_address.addrBuff = *(__m256i *)addr->addrBuff;
+        *(__m256i *)&mp_node->m_data.m_address.addrBuff[32] = *(__m256i *)&addr->addrBuff[32];
+        *(_OWORD *)&mp_node->m_data.m_address.addrBuff[64] = *(_OWORD *)&addr->addrBuff[64];
+        *(_DWORD *)&mp_node->m_data.m_address.addrBuff[80] = *(_DWORD *)&addr->addrBuff[80];
       }
     }
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+    if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
       __debugbreak();
-    _RBX->m_data.m_sessionStatus = eNEW;
-    v23 = eREMOTE_WAITING_FOR_MMING_TOKEN;
-    if ( _RBX->m_data.m_matchmakingToken )
-      v23 = eREADY;
-    OnlineMatchmakerOmniscient::SetPlayerState(this, &outplayer, v23);
-    v24 = DVARBOOL_online_matchmaking_reduce_print_spam;
+    mp_node->m_data.m_sessionStatus = eNEW;
+    v15 = eREMOTE_WAITING_FOR_MMING_TOKEN;
+    if ( mp_node->m_data.m_matchmakingToken )
+      v15 = eREADY;
+    OnlineMatchmakerOmniscient::SetPlayerState(this, &outplayer, v15);
+    v16 = DVARBOOL_online_matchmaking_reduce_print_spam;
     if ( !DVARBOOL_online_matchmaking_reduce_print_spam && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_reduce_print_spam") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v24);
-    if ( !v24->current.enabled )
+    Dvar_CheckFrontendServerThread(v16);
+    if ( !v16->current.enabled )
     {
-      v25 = XUID::ToString(&outplayer.m_userId);
-      v26 = j_va("{\"player\":%s}", v25);
-      OnlineMatchmakerOmniscient::Log(this, "AddPlayerFromLocal", v26, NULL, NULL, 0i64);
+      v17 = XUID::ToString(&outplayer.m_userId);
+      v18 = j_va("{\"player\":%s}", v17);
+      OnlineMatchmakerOmniscient::Log(this, "AddPlayerFromLocal", v18, NULL, NULL, 0i64);
     }
     goto LABEL_85;
   }
@@ -3590,31 +3567,31 @@ void OnlineMatchmakerOmniscient::AddPlayerFromLocal(OnlineMatchmakerOmniscient *
   }
   else
   {
-    bdCommonAddr::bdCommonAddr(&v52);
+    bdCommonAddr::bdCommonAddr(&v44);
     m_ptr = NET_GetLocalCommonAddr()->m_ptr;
-    v49 = m_ptr;
+    v41 = m_ptr;
     if ( m_ptr )
       _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
     me.m_ptr = m_ptr;
     if ( m_ptr )
       _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
-    bdCommonAddr::deserialize(&v52, (bdReference<bdCommonAddr>)&me, outplayer.m_address.addrBuff);
-    outplayer.m_bIsLocal = v52.m_isLoopback;
+    bdCommonAddr::deserialize(&v44, (bdReference<bdCommonAddr>)&me, outplayer.m_address.addrBuff);
+    outplayer.m_bIsLocal = v44.m_isLoopback;
     if ( m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
       ((void (__fastcall *)(bdCommonAddr *, __int64))m_ptr->~bdReferencable)(m_ptr, 1i64);
-    bdCommonAddr::~bdCommonAddr(&v52);
+    bdCommonAddr::~bdCommonAddr(&v44);
     m_controllerIndex = outplayer.m_controllerIndex;
     if ( outplayer.m_bIsLocal )
       m_controllerIndex = localControllerIndex;
     outplayer.m_controllerIndex = m_controllerIndex;
   }
   outplayer.m_sessionStatus = eNEW;
-  v29 = isSplitscreenSecondaryPlayer;
+  v21 = isSplitscreenSecondaryPlayer;
   if ( isSplitscreenSecondaryPlayer )
   {
     outplayer.m_isPrimaryAccount = 0;
-    v30 = XUID::ToDevString(&outplayer.m_userId);
-    Com_Printf(25, "\tPlayer %s is splitscreen\n", v30);
+    v22 = XUID::ToDevString(&outplayer.m_userId);
+    Com_Printf(25, "\tPlayer %s is splitscreen\n", v22);
   }
   OnlineMatchmakerOmniscient::SetPlayerState(this, &outplayer, eNEW);
   if ( Lobby_IsInRunningLobby() )
@@ -3624,25 +3601,25 @@ void OnlineMatchmakerOmniscient::AddPlayerFromLocal(OnlineMatchmakerOmniscient *
     MemberByXUID_AllowNotPresent = Party_FindMemberByXUID_AllowNotPresent(PartyData, (const XUID)m_id);
     if ( MemberByXUID_AllowNotPresent < 0 )
       goto LABEL_56;
-    v34 = PartyData->partyMembers[MemberByXUID_AllowNotPresent].status == 1;
+    v26 = PartyData->partyMembers[MemberByXUID_AllowNotPresent].status == 1;
   }
   else
   {
     if ( !Party_IsTheActiveParty(&g_partyData) )
       goto LABEL_56;
-    v35 = Party_FindMemberByXUID_AllowNotPresent(&g_partyData, outplayer.m_userId);
-    if ( v35 < 0 )
+    v27 = Party_FindMemberByXUID_AllowNotPresent(&g_partyData, outplayer.m_userId);
+    if ( v27 < 0 )
       goto LABEL_56;
-    v34 = g_partyData.partyMembers[v35].status == 1;
+    v26 = g_partyData.partyMembers[v27].status == 1;
   }
-  if ( !v34 )
+  if ( !v26 )
     OnlineMatchmakerOmniscient::SetPlayerQueuedStatus(this, &outplayer, eADDING_LOCAL_PLAYER_TO_DW);
 LABEL_56:
-  v36 = DVARBOOL_online_matchmaking_use_pruning;
+  v28 = DVARBOOL_online_matchmaking_use_pruning;
   if ( !DVARBOOL_online_matchmaking_use_pruning && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_use_pruning") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v36);
-  if ( v36->current.enabled )
+  Dvar_CheckFrontendServerThread(v28);
+  if ( v28->current.enabled )
     OnlineMatchmakerOmniscient::AggressivelyPrunePlayers(this);
   p_m_freelist = &this->m_playerList.m_freelist;
   if ( !this->m_playerList.m_freelist.m_head.mp_next )
@@ -3661,19 +3638,19 @@ LABEL_56:
   OnlineMatchmakerOmniscient::Player::Player(&mp_next->m_data, &outplayer);
   ntl::internal::list_head_base<ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>>::insert_before(&this->m_playerList.m_listHead, (ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *)&this->m_playerList.m_listHead, mp_next);
   OnlineMatchmakerTelemetry::AddPlayer(&this->m_telemetry, outplayer.m_userId);
-  v39 = DVARBOOL_online_matchmaking_reduce_print_spam;
+  v31 = DVARBOOL_online_matchmaking_reduce_print_spam;
   if ( !DVARBOOL_online_matchmaking_reduce_print_spam && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_reduce_print_spam") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v39);
-  if ( !v39->current.enabled )
+  Dvar_CheckFrontendServerThread(v31);
+  if ( !v31->current.enabled )
   {
-    v40 = XUID::ToString(&outplayer.m_userId);
-    v41 = j_va("{\"player\":%s}", v40);
-    OnlineMatchmakerOmniscient::Log(this, "AddPlayerFromLocal", v41, NULL, NULL, 0i64);
+    v32 = XUID::ToString(&outplayer.m_userId);
+    v33 = j_va("{\"player\":%s}", v32);
+    OnlineMatchmakerOmniscient::Log(this, "AddPlayerFromLocal", v33, NULL, NULL, 0i64);
   }
-  if ( v29 )
+  if ( v21 )
     OnlineMatchmakerOmniscient::SyncSplitscreenPlayers(this);
-  if ( Party_GetActiveParty()->areWeHost && !v29 )
+  if ( Party_GetActiveParty()->areWeHost && !v21 )
   {
     m_state = this->m_state;
     if ( (unsigned int)(this->m_state - 4) > 2 )
@@ -3681,14 +3658,14 @@ LABEL_56:
       if ( m_state != eREMOVING_PLAYER || this->m_lobbyState != eADDING_LOCAL_PLAYER_TO_DW )
         goto LABEL_85;
       LobbyStateString = OnlineMatchmakerOmniscient::GetLobbyStateString(this, eADDING_LOCAL_PLAYER_TO_DW);
-      v46 = XUID::ToDevString(&outplayer.m_userId);
-      Com_Printf(25, "[MM] %s player %s added while in lobby state %s, will reset matchmaking\n", "OnlineMatchmakerOmniscient::AddPlayerFromLocal", v46, LobbyStateString);
+      v38 = XUID::ToDevString(&outplayer.m_userId);
+      Com_Printf(25, "[MM] %s player %s added while in lobby state %s, will reset matchmaking\n", "OnlineMatchmakerOmniscient::AddPlayerFromLocal", v38, LobbyStateString);
     }
     else
     {
       StateString = OnlineMatchmakerOmniscient::GetStateString(this, m_state);
-      v44 = XUID::ToDevString(&outplayer.m_userId);
-      Com_Printf(25, "[MM] %s player %s added while in state %s, will reset matchmaking\n", "OnlineMatchmakerOmniscient::AddPlayerFromLocal", v44, StateString);
+      v36 = XUID::ToDevString(&outplayer.m_userId);
+      Com_Printf(25, "[MM] %s player %s added while in state %s, will reset matchmaking\n", "OnlineMatchmakerOmniscient::AddPlayerFromLocal", v36, StateString);
     }
     OnlineMatchmakerOmniscient::ResetMatchmaking(this);
   }
@@ -4222,76 +4199,66 @@ OnlineMatchmakerOmniscient::CreateNewLobby
 */
 void OnlineMatchmakerOmniscient::CreateNewLobby(OnlineMatchmakerOmniscient *this, const unsigned __int64 mmId, const unsigned __int64 lobbyId, const unsigned __int64 updateId, const char *lobbyHostDoc, const unsigned int lobbyHostDocLength, const char *lobbyBackendDoc)
 {
-  __int64 v7; 
+  unsigned __int64 v7; 
   const char *v11; 
   const char *v12; 
   OnlineTimeSeriesLog *v13; 
   bool m_hasDedicatedServer; 
+  XNADDR *Address; 
   ntl::internal::list_node_base *mp_next; 
-  MemberStatus v21; 
+  MemberStatus v17; 
   ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *mp_node; 
-  OnlineMatchmakerOmniscient::Player::PlayerState v23; 
+  OnlineMatchmakerOmniscient::Player::PlayerState v19; 
   int m_playList; 
-  const XNADDR *Address; 
-  const XSECURITY_INFO *v47; 
+  const XNADDR *v21; 
+  const XSECURITY_INFO *v22; 
   const char *StateString; 
-  const char *v49; 
-  const char *v50; 
+  const char *v24; 
+  const char *v25; 
   ntl::internal::list_iterator<OnlineMatchmakerOmniscient::Player,ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>,OnlineMatchmakerOmniscient::Player *,OnlineMatchmakerOmniscient::Player &> it; 
-  const char *v52; 
-  const char *v53; 
-  unsigned __int64 v54; 
-  __int64 v55; 
-  XSECURITY_INFO v56; 
+  const char *v27; 
+  const char *v28; 
+  unsigned __int64 v29; 
+  __int64 v30; 
+  XSECURITY_INFO v31; 
   MatchMakerOmniLobbyData lobbyData; 
 
-  v55 = -2i64;
+  v30 = -2i64;
   v7 = updateId;
-  v54 = updateId;
-  _RSI = this;
+  v29 = updateId;
   v11 = lobbyHostDoc;
-  v52 = lobbyHostDoc;
+  v27 = lobbyHostDoc;
   v12 = lobbyBackendDoc;
-  v53 = lobbyBackendDoc;
+  v28 = lobbyBackendDoc;
   Com_Printf(25, "[MM] %s - mmid = %zu updateid = %zu lobbyid = %zu\n\n\"%s\"\n\n\"%s\"\n\n", "OnlineMatchmakerOmniscient::CreateNewLobby", mmId, updateId, lobbyId, lobbyBackendDoc, lobbyHostDoc);
   v13 = OnlineTimeSeriesLog::Get();
   OnlineTimeSeriesLog::WriteEventCounter(v13, "event.createnewlobby.received.count", 1u);
-  if ( _RSI->m_state == eREMOVING_PLAYER )
+  if ( this->m_state == eREMOVING_PLAYER )
   {
     Com_Printf(25, "\tstate is correct to create the new lobby.\n");
-    OnlineMatchmakerOmniscient::SetLobbyState(_RSI, eREMOTE_WAITING_FOR_MMING_TOKEN);
-    OnlineMatchmakerOmniscient::SetState(_RSI, eREMOVING_PLAYER);
-    _RSI->m_mmingData.m_matchmakingId = mmId;
-    _RSI->m_mmingData.m_timeOut = 0;
-    _RSI->m_lobbyData.m_lobbyid = lobbyId;
-    _RSI->m_lobbyData.m_updateId = v7;
-    _RSI->m_lobbyData.m_amITheLobbyHost = 1;
+    OnlineMatchmakerOmniscient::SetLobbyState(this, eREMOTE_WAITING_FOR_MMING_TOKEN);
+    OnlineMatchmakerOmniscient::SetState(this, eREMOVING_PLAYER);
+    this->m_mmingData.m_matchmakingId = mmId;
+    this->m_mmingData.m_timeOut = 0;
+    this->m_lobbyData.m_lobbyid = lobbyId;
+    this->m_lobbyData.m_updateId = v7;
+    this->m_lobbyData.m_amITheLobbyHost = 1;
     MatchMakerOmniLobbyData::MatchMakerOmniLobbyData(&lobbyData);
-    OnlineMatchmakerOmniscient::ParseLobbyHostDoc(_RSI, lobbyHostDoc, &lobbyData);
-    OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(_RSI, lobbyBackendDoc, &lobbyData);
-    _RSI->m_lobbyData.m_hostUID = lobbyData.m_hostUID;
+    OnlineMatchmakerOmniscient::ParseLobbyHostDoc(this, lobbyHostDoc, &lobbyData);
+    OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(this, lobbyBackendDoc, &lobbyData);
+    this->m_lobbyData.m_hostUID = lobbyData.m_hostUID;
     m_hasDedicatedServer = lobbyData.m_hasDedicatedServer;
-    _RSI->m_lobbyData.m_hasDedicatedServer = lobbyData.m_hasDedicatedServer;
+    this->m_lobbyData.m_hasDedicatedServer = lobbyData.m_hasDedicatedServer;
     if ( m_hasDedicatedServer )
     {
-      _RSI->m_lobbyData.m_allocatedServerGuid = lobbyData.m_allocatedServerGuid;
-      Core_strcpy(_RSI->m_lobbyData.m_allocatedDataCenter, 0x40ui64, lobbyData.m_allocatedDataCenter);
-      Core_strcpy(_RSI->m_lobbyData.m_allocatedServerInfo, 0x400ui64, lobbyData.m_allocatedServerInfo);
-      Core_strcpy(_RSI->m_lobbyData.m_allocatedServerAddr, 0x400ui64, lobbyData.m_allocatedServerAddr);
+      this->m_lobbyData.m_allocatedServerGuid = lobbyData.m_allocatedServerGuid;
+      Core_strcpy(this->m_lobbyData.m_allocatedDataCenter, 0x40ui64, lobbyData.m_allocatedDataCenter);
+      Core_strcpy(this->m_lobbyData.m_allocatedServerInfo, 0x400ui64, lobbyData.m_allocatedServerInfo);
+      Core_strcpy(this->m_lobbyData.m_allocatedServerAddr, 0x400ui64, lobbyData.m_allocatedServerAddr);
     }
-    Core_strcpy(_RSI->m_lobbyData.m_hostAddressBase64, 0x71ui64, lobbyData.m_hostAddressBase64);
-    _RBX = XSESSION_INFO::GetAddress(&lobbyData.m_hostAddress);
-    _RAX = XSESSION_INFO::GetAddress(&_RSI->m_lobbyData.m_hostAddress);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm1, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rax+20h], ymm1
-      vmovups xmm0, xmmword ptr [rbx+40h]
-      vmovups xmmword ptr [rax+40h], xmm0
-    }
-    *(_DWORD *)&_RAX->addrBuff[80] = *(_DWORD *)&_RBX->addrBuff[80];
+    Core_strcpy(this->m_lobbyData.m_hostAddressBase64, 0x71ui64, lobbyData.m_hostAddressBase64);
+    Address = XSESSION_INFO::GetAddress(&lobbyData.m_hostAddress);
+    *XSESSION_INFO::GetAddress(&this->m_lobbyData.m_hostAddress) = *Address;
     mp_next = lobbyData.m_playerStatusList.m_listHead.m_sentinel.mp_next;
     if ( (ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<enum MemberStatus> > > *)lobbyData.m_playerStatusList.m_listHead.m_sentinel.mp_next != &lobbyData.m_playerStatusList.m_listHead )
     {
@@ -4299,15 +4266,15 @@ void OnlineMatchmakerOmniscient::CreateNewLobby(OnlineMatchmakerOmniscient *this
       {
         if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        if ( OnlineMatchmakerOmniscient::FindPlayer(_RSI, (const XUID *)&mp_next[1], &it) )
+        if ( OnlineMatchmakerOmniscient::FindPlayer(this, (const XUID *)&mp_next[1], &it) )
         {
           if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          v21 = (MemberStatus)mp_next[1].mp_next;
+          v17 = (MemberStatus)mp_next[1].mp_next;
           mp_node = it.mp_node;
           if ( !it.mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          OnlineMatchmakerOmniscient::SetPlayerCurrentStatus(_RSI, &mp_node->m_data, v21);
+          OnlineMatchmakerOmniscient::SetPlayerCurrentStatus(this, &mp_node->m_data, v17);
           if ( LODWORD(mp_next[1].mp_next) == 2 )
           {
             if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
@@ -4316,7 +4283,7 @@ void OnlineMatchmakerOmniscient::CreateNewLobby(OnlineMatchmakerOmniscient *this
               __debugbreak();
             if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
               __debugbreak();
-            OnlineMatchmakerOmniscient::SetPlayerQueuedStatus(_RSI, &mp_node->m_data, eADDING_LOCAL_PLAYER_TO_DW);
+            OnlineMatchmakerOmniscient::SetPlayerQueuedStatus(this, &mp_node->m_data, eADDING_LOCAL_PLAYER_TO_DW);
           }
           else
           {
@@ -4326,202 +4293,98 @@ void OnlineMatchmakerOmniscient::CreateNewLobby(OnlineMatchmakerOmniscient *this
               __debugbreak();
             if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
               __debugbreak();
-            OnlineMatchmakerOmniscient::SetPlayerQueuedStatus(_RSI, &mp_node->m_data, eNEW);
+            OnlineMatchmakerOmniscient::SetPlayerQueuedStatus(this, &mp_node->m_data, eNEW);
             if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
               __debugbreak();
-            OnlineMatchmakerOmniscient::SetPlayerPotentiallyJoining(_RSI, &mp_node->m_data);
+            OnlineMatchmakerOmniscient::SetPlayerPotentiallyJoining(this, &mp_node->m_data);
           }
           if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          v23 = eREMOTE_WAITING_FOR_MMING_TOKEN;
+          v19 = eREMOTE_WAITING_FOR_MMING_TOKEN;
           if ( mp_node->m_data.m_matchmakingToken )
-            v23 = eREADY;
-          OnlineMatchmakerOmniscient::SetPlayerState(_RSI, &mp_node->m_data, v23);
-          OnlineMatchmakerTelemetry::AddPlayer(&_RSI->m_telemetry, (const XUID)mp_next[1].mp_prev);
+            v19 = eREADY;
+          OnlineMatchmakerOmniscient::SetPlayerState(this, &mp_node->m_data, v19);
+          OnlineMatchmakerTelemetry::AddPlayer(&this->m_telemetry, (const XUID)mp_next[1].mp_prev);
         }
         else
         {
           if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          OnlineMatchmakerOmniscient::AddPlayerFromDW(_RSI, (const XUID)mp_next[1].mp_prev, (MemberStatus)mp_next[1].mp_next);
+          OnlineMatchmakerOmniscient::AddPlayerFromDW(this, (const XUID)mp_next[1].mp_prev, (MemberStatus)mp_next[1].mp_next);
         }
         mp_next = mp_next->mp_next;
       }
       while ( mp_next != (ntl::internal::list_node_base *)&lobbyData.m_playerStatusList.m_listHead );
-      v11 = v52;
-      v12 = v53;
-      v7 = v54;
+      v11 = v27;
+      v12 = v28;
+      v7 = v29;
     }
-    if ( lobbyData.m_lobbyid != _RSI->m_lobbyData.m_lobbyid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 6490, ASSERT_TYPE_ASSERT, "(lobbyData.m_lobbyid == m_lobbyData.m_lobbyid)", (const char *)&queryFormat, "lobbyData.m_lobbyid == m_lobbyData.m_lobbyid") )
+    if ( lobbyData.m_lobbyid != this->m_lobbyData.m_lobbyid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 6490, ASSERT_TYPE_ASSERT, "(lobbyData.m_lobbyid == m_lobbyData.m_lobbyid)", (const char *)&queryFormat, "lobbyData.m_lobbyid == m_lobbyData.m_lobbyid") )
       __debugbreak();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+181E0h+lobbyData.m_key.ab]
-      vmovups xmmword ptr [rsi+13825h], xmm0
-    }
-    _RSI->m_lobbyData.m_keyId = lobbyData.m_keyId;
+    this->m_lobbyData.m_key = lobbyData.m_key;
+    this->m_lobbyData.m_keyId = lobbyData.m_keyId;
     m_playList = lobbyData.m_playList;
-    _RSI->m_lobbyData.m_playList = lobbyData.m_playList;
-    _RSI->m_lobbyData.m_playListVersion = lobbyData.m_playListVersion;
-    _RSI->m_lobbyData.m_mapWeights[0].mapIndex = lobbyData.m_mapWeights[0].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight]
-      vmovss  dword ptr [rsi+13844h], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[1].mapIndex = lobbyData.m_mapWeights[1].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+8]
-      vmovss  dword ptr [rsi+1384Ch], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[2].mapIndex = lobbyData.m_mapWeights[2].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+10h]
-      vmovss  dword ptr [rsi+13854h], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[3].mapIndex = lobbyData.m_mapWeights[3].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+18h]
-      vmovss  dword ptr [rsi+1385Ch], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[4].mapIndex = lobbyData.m_mapWeights[4].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+20h]
-      vmovss  dword ptr [rsi+13864h], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[5].mapIndex = lobbyData.m_mapWeights[5].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+28h]
-      vmovss  dword ptr [rsi+1386Ch], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[6].mapIndex = lobbyData.m_mapWeights[6].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+30h]
-      vmovss  dword ptr [rsi+13874h], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[7].mapIndex = lobbyData.m_mapWeights[7].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+38h]
-      vmovss  dword ptr [rsi+1387Ch], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[8].mapIndex = lobbyData.m_mapWeights[8].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+40h]
-      vmovss  dword ptr [rsi+13884h], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[9].mapIndex = lobbyData.m_mapWeights[9].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+48h]
-      vmovss  dword ptr [rsi+1388Ch], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[10].mapIndex = lobbyData.m_mapWeights[10].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+50h]
-      vmovss  dword ptr [rsi+13894h], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[11].mapIndex = lobbyData.m_mapWeights[11].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+58h]
-      vmovss  dword ptr [rsi+1389Ch], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[12].mapIndex = lobbyData.m_mapWeights[12].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+60h]
-      vmovss  dword ptr [rsi+138A4h], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[13].mapIndex = lobbyData.m_mapWeights[13].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+68h]
-      vmovss  dword ptr [rsi+138ACh], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[14].mapIndex = lobbyData.m_mapWeights[14].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+70h]
-      vmovss  dword ptr [rsi+138B4h], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[15].mapIndex = lobbyData.m_mapWeights[15].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+78h]
-      vmovss  dword ptr [rsi+138BCh], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[16].mapIndex = lobbyData.m_mapWeights[16].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+80h]
-      vmovss  dword ptr [rsi+138C4h], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[17].mapIndex = lobbyData.m_mapWeights[17].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+88h]
-      vmovss  dword ptr [rsi+138CCh], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[18].mapIndex = lobbyData.m_mapWeights[18].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+90h]
-      vmovss  dword ptr [rsi+138D4h], xmm0
-    }
-    _RSI->m_lobbyData.m_mapWeights[19].mapIndex = lobbyData.m_mapWeights[19].mapIndex;
-    __asm
-    {
-      vmovss  xmm0, [rbp+181E0h+lobbyData.m_mapWeights.mapWeight+98h]
-      vmovss  dword ptr [rsi+138DCh], xmm0
-    }
-    Playlist_UpdateFromMatchmaker(_RSI->m_controllerIndex, m_playList, 1);
-    _RSI->m_lobbyData.m_tournamentID = lobbyData.m_tournamentID;
-    _RSI->m_lobbyData.m_tournamentAlliesTeam = lobbyData.m_tournamentAlliesTeam;
-    _RSI->m_lobbyData.m_tournamentAxisTeam = lobbyData.m_tournamentAxisTeam;
-    _RSI->m_lobbyData.m_tournamentRound = lobbyData.m_tournamentRound;
-    _RSI->m_lobbyData.m_performanceGameType = lobbyData.m_performanceGameType;
-    ntl::list<XUID,ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>::assign<ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>(&_RSI->m_lobbyData.m_migrationList, &lobbyData.m_migrationList);
-    memcpy_0(_RSI->m_lobbyData.m_dvarOverrides, lobbyData.m_dvarOverrides, sizeof(_RSI->m_lobbyData.m_dvarOverrides));
-    _RSI->m_lobbyData.m_dvarOverrideCount = lobbyData.m_dvarOverrideCount;
-    _RSI->m_lobbyData.m_privateMatchId.m_id = lobbyData.m_privateMatchId.m_id;
-    Address = XSESSION_INFO::GetAddress(&lobbyData.m_hostAddress);
-    XSECURITY_INFO::XSECURITY_INFO(&v56, &lobbyData.m_keyId, &lobbyData.m_key);
-    XSESSION_INFO::Set(&_RSI->m_lobbyData.m_hostAddress, v47, Address);
-    bdSecurityKey::~bdSecurityKey(&v56.m_key);
-    bdSecurityID::~bdSecurityID(&v56.m_id);
-    _RSI->m_lobbyData.m_canGameStart = lobbyData.m_canGameStart;
-    memcpy_0(_RSI->m_lobbyData.m_dcPrefs._bytes_20, lobbyData.m_dcPrefs._bytes_20, 0x1000ui64);
-    _RSI->m_lobbyData.m_dcPrefs.m_numDataCenterPreferences = lobbyData.m_dcPrefs.m_numDataCenterPreferences;
-    OnlineMatchmakerOmniscient::UpdateTeamAssignments(_RSI, &lobbyData.m_teamAssignmentList);
-    OnlineMatchmakerOmniscient::UpdateSquadAssignments(_RSI, &lobbyData.m_squadAssignmentList);
-    OnlineMatchmakerOmniscient::UpdateMatchmakingIds(_RSI, &lobbyData.m_matchmakingIdList);
-    OnlineMatchmakerOmniscient::UpdatePerformanceValues(_RSI, &lobbyData.m_performanceValueList);
-    OnlineMatchmakerOmniscient::UpdateServiceLevels(_RSI, &lobbyData.m_paidUsersList, 1);
-    OnlineMatchmakerOmniscient::UpdateServiceLevels(_RSI, &lobbyData.m_freemiumUsersList, 0);
-    OnlineMatchmakerOmniscient::UpdateAdditionalPlayerSlots(_RSI, &lobbyData.m_additionalSlotsRequestedList);
-    OnlineMatchmakerOmniscient::SyncSplitscreenPlayers(_RSI);
-    _RSI->m_callbacks.m_outstandingCallback |= 2u;
-    _RSI->m_callbacks.m_callbackWasSuccessful[1] = 1;
-    OnlineMatchmakerOmniscient::Log(_RSI, "CreateNewLobby", (const char *)&queryFormat.fmt + 3, v12, v11, 0i64);
-    OnlineMatchmakerTelemetry::CreateNewLobby(&_RSI->m_telemetry, v7);
+    this->m_lobbyData.m_playList = lobbyData.m_playList;
+    this->m_lobbyData.m_playListVersion = lobbyData.m_playListVersion;
+    this->m_lobbyData.m_mapWeights[0] = lobbyData.m_mapWeights[0];
+    this->m_lobbyData.m_mapWeights[1] = lobbyData.m_mapWeights[1];
+    this->m_lobbyData.m_mapWeights[2] = lobbyData.m_mapWeights[2];
+    this->m_lobbyData.m_mapWeights[3] = lobbyData.m_mapWeights[3];
+    this->m_lobbyData.m_mapWeights[4] = lobbyData.m_mapWeights[4];
+    this->m_lobbyData.m_mapWeights[5] = lobbyData.m_mapWeights[5];
+    this->m_lobbyData.m_mapWeights[6] = lobbyData.m_mapWeights[6];
+    this->m_lobbyData.m_mapWeights[7] = lobbyData.m_mapWeights[7];
+    this->m_lobbyData.m_mapWeights[8] = lobbyData.m_mapWeights[8];
+    this->m_lobbyData.m_mapWeights[9] = lobbyData.m_mapWeights[9];
+    this->m_lobbyData.m_mapWeights[10] = lobbyData.m_mapWeights[10];
+    this->m_lobbyData.m_mapWeights[11] = lobbyData.m_mapWeights[11];
+    this->m_lobbyData.m_mapWeights[12] = lobbyData.m_mapWeights[12];
+    this->m_lobbyData.m_mapWeights[13] = lobbyData.m_mapWeights[13];
+    this->m_lobbyData.m_mapWeights[14] = lobbyData.m_mapWeights[14];
+    this->m_lobbyData.m_mapWeights[15] = lobbyData.m_mapWeights[15];
+    this->m_lobbyData.m_mapWeights[16] = lobbyData.m_mapWeights[16];
+    this->m_lobbyData.m_mapWeights[17] = lobbyData.m_mapWeights[17];
+    this->m_lobbyData.m_mapWeights[18] = lobbyData.m_mapWeights[18];
+    this->m_lobbyData.m_mapWeights[19] = lobbyData.m_mapWeights[19];
+    Playlist_UpdateFromMatchmaker(this->m_controllerIndex, m_playList, 1);
+    this->m_lobbyData.m_tournamentID = lobbyData.m_tournamentID;
+    this->m_lobbyData.m_tournamentAlliesTeam = lobbyData.m_tournamentAlliesTeam;
+    this->m_lobbyData.m_tournamentAxisTeam = lobbyData.m_tournamentAxisTeam;
+    this->m_lobbyData.m_tournamentRound = lobbyData.m_tournamentRound;
+    this->m_lobbyData.m_performanceGameType = lobbyData.m_performanceGameType;
+    ntl::list<XUID,ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>::assign<ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>(&this->m_lobbyData.m_migrationList, &lobbyData.m_migrationList);
+    memcpy_0(this->m_lobbyData.m_dvarOverrides, lobbyData.m_dvarOverrides, sizeof(this->m_lobbyData.m_dvarOverrides));
+    this->m_lobbyData.m_dvarOverrideCount = lobbyData.m_dvarOverrideCount;
+    this->m_lobbyData.m_privateMatchId.m_id = lobbyData.m_privateMatchId.m_id;
+    v21 = XSESSION_INFO::GetAddress(&lobbyData.m_hostAddress);
+    XSECURITY_INFO::XSECURITY_INFO(&v31, &lobbyData.m_keyId, &lobbyData.m_key);
+    XSESSION_INFO::Set(&this->m_lobbyData.m_hostAddress, v22, v21);
+    bdSecurityKey::~bdSecurityKey(&v31.m_key);
+    bdSecurityID::~bdSecurityID(&v31.m_id);
+    this->m_lobbyData.m_canGameStart = lobbyData.m_canGameStart;
+    memcpy_0(this->m_lobbyData.m_dcPrefs._bytes_20, lobbyData.m_dcPrefs._bytes_20, 0x1000ui64);
+    this->m_lobbyData.m_dcPrefs.m_numDataCenterPreferences = lobbyData.m_dcPrefs.m_numDataCenterPreferences;
+    OnlineMatchmakerOmniscient::UpdateTeamAssignments(this, &lobbyData.m_teamAssignmentList);
+    OnlineMatchmakerOmniscient::UpdateSquadAssignments(this, &lobbyData.m_squadAssignmentList);
+    OnlineMatchmakerOmniscient::UpdateMatchmakingIds(this, &lobbyData.m_matchmakingIdList);
+    OnlineMatchmakerOmniscient::UpdatePerformanceValues(this, &lobbyData.m_performanceValueList);
+    OnlineMatchmakerOmniscient::UpdateServiceLevels(this, &lobbyData.m_paidUsersList, 1);
+    OnlineMatchmakerOmniscient::UpdateServiceLevels(this, &lobbyData.m_freemiumUsersList, 0);
+    OnlineMatchmakerOmniscient::UpdateAdditionalPlayerSlots(this, &lobbyData.m_additionalSlotsRequestedList);
+    OnlineMatchmakerOmniscient::SyncSplitscreenPlayers(this);
+    this->m_callbacks.m_outstandingCallback |= 2u;
+    this->m_callbacks.m_callbackWasSuccessful[1] = 1;
+    OnlineMatchmakerOmniscient::Log(this, "CreateNewLobby", (const char *)&queryFormat.fmt + 3, v12, v11, 0i64);
+    OnlineMatchmakerTelemetry::CreateNewLobby(&this->m_telemetry, v7);
     MatchMakerOmniLobbyData::~MatchMakerOmniLobbyData(&lobbyData);
   }
   else
   {
-    StateString = OnlineMatchmakerOmniscient::GetStateString(_RSI, (const MatchmakerOmniscientState)_RSI->m_state);
+    StateString = OnlineMatchmakerOmniscient::GetStateString(this, (const MatchmakerOmniscientState)this->m_state);
     Com_Printf(25, "\tstate isn't correct to create the new lobby. FAILURE (state = %s)\n", StateString);
-    v49 = OnlineMatchmakerOmniscient::GetStateString(_RSI, (const MatchmakerOmniscientState)_RSI->m_state);
-    v50 = j_va("{\"state\":\"failed\", \"error\"=\"state isn't correct to create the new lobby.\",\"state\"=\"%s\"}", v49);
-    OnlineMatchmakerOmniscient::Log(_RSI, "CreateNewLobby", v50, lobbyBackendDoc, lobbyHostDoc, 0i64);
+    v24 = OnlineMatchmakerOmniscient::GetStateString(this, (const MatchmakerOmniscientState)this->m_state);
+    v25 = j_va("{\"state\":\"failed\", \"error\"=\"state isn't correct to create the new lobby.\",\"state\"=\"%s\"}", v24);
+    OnlineMatchmakerOmniscient::Log(this, "CreateNewLobby", v25, lobbyBackendDoc, lobbyHostDoc, 0i64);
   }
   if ( OnlineTournament_IsInTournament() )
     OnlineTournament_OnCreateNewLobby();
@@ -4565,12 +4428,7 @@ unsigned __int64 CreateUniqueId()
   j_sha256_init(&md);
   j_sha256_process(&md, (const unsigned __int8 *)dest, 0x31u);
   j_sha256_done(&md, out);
-  __asm
-  {
-    vmovsd  xmm0, qword ptr [rsp+238h+out]
-    vmovsd  [rsp+238h+macAddr], xmm0
-  }
-  return macAddr;
+  return *(_QWORD *)out;
 }
 
 /*
@@ -5386,14 +5244,9 @@ float OnlineMatchmakerOmniscient::GetMapWeight(OnlineMatchmakerOmniscient *this,
     ++v4;
     ++m_mapWeights;
     if ( v4 >= 20 )
-    {
-      __asm { vmovss  xmm0, cs:__real@3f800000 }
-      return *(float *)&_XMM0;
-    }
+      return FLOAT_1_0;
   }
-  _RAX = v2;
-  __asm { vmovss  xmm0, dword ptr [rcx+rax*8+13844h] }
-  return *(float *)&_XMM0;
+  return this->m_lobbyData.m_mapWeights[v2].mapWeight;
 }
 
 /*
@@ -6976,49 +6829,50 @@ void OnlineMatchmakerOmniscient::JoinLobby(OnlineMatchmakerOmniscient *this, con
   ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *m_tournamentID; 
   const dvar_t *v16; 
   OnlineTimeSeriesLog *v17; 
+  XNADDR *Address; 
   XSESSION_INFO *p_m_hostAddress; 
+  bool m_hasDedicatedServer; 
   ntl::internal::list_node_base *mp_next; 
   ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *mp_node; 
   OnlineMatchmakerOmniscient::Player *p_m_data; 
   int m_state; 
   int m_playList; 
-  const XNADDR *Address; 
-  const XSECURITY_INFO *v31; 
+  const XNADDR *v26; 
+  const XSECURITY_INFO *v27; 
   ntl::internal::list_iterator<OnlineMatchmakerOmniscient::Player,ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>,OnlineMatchmakerOmniscient::Player *,OnlineMatchmakerOmniscient::Player &> it; 
-  __int64 v33; 
+  __int64 v29; 
   bdJSONDeserializer value; 
-  bdJSONDeserializer v35; 
-  XSECURITY_INFO v36; 
+  bdJSONDeserializer v31; 
+  XSECURITY_INFO v32; 
   MatchMakerOmniLobbyData lobbyData; 
 
-  v33 = -2i64;
-  _RSI = this;
+  v29 = -2i64;
   Com_Printf(25, "[MM] %s - mmid = %zu lobbyid = %zu\n", "OnlineMatchmakerOmniscient::JoinLobby", mmId, lobbyId);
   Com_Printf(25, "[MM] %s - lobby backend doc = \"%s\"\n", "OnlineMatchmakerOmniscient::JoinLobby", lobbyBackendDoc);
   Com_Printf(25, "[MM] %s - lobby host doc = \"%s\"\n", "OnlineMatchmakerOmniscient::JoinLobby", lobbyHostDoc);
   v10 = "be from";
-  if ( _RSI->m_params.m_inviteLocalJoiningControllerIndex == -1 )
+  if ( this->m_params.m_inviteLocalJoiningControllerIndex == -1 )
     v10 = "not be from";
   Com_Printf(25, "\t- this appears to %s an invite\n", v10);
   v11 = g_partyData.areWeHost == 0;
   PartyData = Lobby_GetPartyData();
   v13 = Party_PrivateMatchmakingAllowed(PartyData) && !Lobby_AreWeHost();
-  if ( OnlineTournament_IsInTournament() || _RSI->m_state == eREMOVING_PLAYER || v11 || v13 || (StateString = OnlineMatchmakerOmniscient::GetStateString(_RSI, (const MatchmakerOmniscientState)_RSI->m_state), Com_Printf(25, "[MM] %s called in an invalid matchmaking state - %s.\n", "OnlineMatchmakerOmniscient::JoinLobby", StateString), Dvar_GetBool_Internal_DebugName(DVARBOOL_online_should_handle_matchmaker_join_lobby_while_invite_joining_in_starting_state, "online_should_handle_matchmaker_join_lobby_while_invite_joining_in_starting_state")) && _RSI->m_callbacks.m_inviteCallback && _RSI->m_state == eREADY_TO_REMOVE )
+  if ( OnlineTournament_IsInTournament() || this->m_state == eREMOVING_PLAYER || v11 || v13 || (StateString = OnlineMatchmakerOmniscient::GetStateString(this, (const MatchmakerOmniscientState)this->m_state), Com_Printf(25, "[MM] %s called in an invalid matchmaking state - %s.\n", "OnlineMatchmakerOmniscient::JoinLobby", StateString), Dvar_GetBool_Internal_DebugName(DVARBOOL_online_should_handle_matchmaker_join_lobby_while_invite_joining_in_starting_state, "online_should_handle_matchmaker_join_lobby_while_invite_joining_in_starting_state")) && this->m_callbacks.m_inviteCallback && this->m_state == eREADY_TO_REMOVE )
   {
-    bdJSONDeserializer::bdJSONDeserializer(&v35);
+    bdJSONDeserializer::bdJSONDeserializer(&v31);
     bdJSONDeserializer::bdJSONDeserializer(&value);
-    bdJSONDeserializer::parse(&v35, lobbyBackendDoc);
-    if ( bdJSONDeserializer::getObject(&v35, "tournament", &value) )
+    bdJSONDeserializer::parse(&v31, lobbyBackendDoc);
+    if ( bdJSONDeserializer::getObject(&v31, "tournament", &value) )
     {
       if ( !bdJSONDeserializer::getUInt64(&value, "tournament_id", (unsigned __int64 *)&it) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 6207, ASSERT_TYPE_ASSERT, "(tournamentObj.getUInt64( \"tournament_id\", backendDocTournamentID ))", (const char *)&queryFormat, "tournamentObj.getUInt64( \"tournament_id\", backendDocTournamentID )") )
         __debugbreak();
-      m_tournamentID = (ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *)_RSI->m_lobbyData.m_tournamentID;
+      m_tournamentID = (ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *)this->m_lobbyData.m_tournamentID;
       if ( m_tournamentID != it.mp_node )
       {
         Com_PrintError(25, "Tournament: received a stray msgJoinLobby from a different tournament %llu and %llu!  DemonWare needs to fix this!\n", m_tournamentID, it.mp_node);
 LABEL_67:
         bdJSONDeserializer::~bdJSONDeserializer(&value);
-        bdJSONDeserializer::~bdJSONDeserializer(&v35);
+        bdJSONDeserializer::~bdJSONDeserializer(&v31);
         return;
       }
       v16 = DVARBOOL_online_tournament_ignore_lobby_start;
@@ -7035,47 +6889,37 @@ LABEL_67:
       GameBattles_SetGameLobbyId(lobbyId);
     v17 = OnlineTimeSeriesLog::Get();
     OnlineTimeSeriesLog::WriteEventCounter(v17, "event.joinlobby.received.count", 1u);
-    _RSI->m_mmingData.m_matchmakingId = mmId;
-    _RSI->m_mmingData.m_timeOut = 0;
-    _RSI->m_lobbyData.m_lobbyid = lobbyId;
-    _RSI->m_lobbyData.m_amITheLobbyHost = 0;
-    OnlineMatchmakerOmniscient::SetLobbyState(_RSI, eREADY);
-    if ( _RSI->m_callbacks.m_inviteCallback )
+    this->m_mmingData.m_matchmakingId = mmId;
+    this->m_mmingData.m_timeOut = 0;
+    this->m_lobbyData.m_lobbyid = lobbyId;
+    this->m_lobbyData.m_amITheLobbyHost = 0;
+    OnlineMatchmakerOmniscient::SetLobbyState(this, eREADY);
+    if ( this->m_callbacks.m_inviteCallback )
     {
-      _RSI->m_callbacks.m_outstandingCallback |= 0x20u;
-      _RSI->m_callbacks.m_callbackWasSuccessful[5] = 2;
+      this->m_callbacks.m_outstandingCallback |= 0x20u;
+      this->m_callbacks.m_callbackWasSuccessful[5] = 2;
     }
     else if ( !OnlineTournament_IsInTournament() )
     {
-      _RSI->m_callbacks.m_outstandingCallback |= 4u;
-      _RSI->m_callbacks.m_callbackWasSuccessful[2] = 1;
+      this->m_callbacks.m_outstandingCallback |= 4u;
+      this->m_callbacks.m_callbackWasSuccessful[2] = 1;
     }
     MatchMakerOmniLobbyData::MatchMakerOmniLobbyData(&lobbyData);
-    OnlineMatchmakerOmniscient::ParseLobbyHostDoc(_RSI, lobbyHostDoc, &lobbyData);
-    OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(_RSI, lobbyBackendDoc, &lobbyData);
-    _RSI->m_lobbyData.m_hostUID = lobbyData.m_hostUID;
-    Core_strcpy(_RSI->m_lobbyData.m_hostAddressBase64, 0x71ui64, lobbyData.m_hostAddressBase64);
-    _RBX = XSESSION_INFO::GetAddress(&lobbyData.m_hostAddress);
-    p_m_hostAddress = &_RSI->m_lobbyData.m_hostAddress;
-    _RAX = XSESSION_INFO::GetAddress(&_RSI->m_lobbyData.m_hostAddress);
-    __asm
+    OnlineMatchmakerOmniscient::ParseLobbyHostDoc(this, lobbyHostDoc, &lobbyData);
+    OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(this, lobbyBackendDoc, &lobbyData);
+    this->m_lobbyData.m_hostUID = lobbyData.m_hostUID;
+    Core_strcpy(this->m_lobbyData.m_hostAddressBase64, 0x71ui64, lobbyData.m_hostAddressBase64);
+    Address = XSESSION_INFO::GetAddress(&lobbyData.m_hostAddress);
+    p_m_hostAddress = &this->m_lobbyData.m_hostAddress;
+    *XSESSION_INFO::GetAddress(&this->m_lobbyData.m_hostAddress) = *Address;
+    m_hasDedicatedServer = lobbyData.m_hasDedicatedServer;
+    this->m_lobbyData.m_hasDedicatedServer = lobbyData.m_hasDedicatedServer;
+    if ( m_hasDedicatedServer )
     {
-      vmovups ymm0, ymmword ptr [rbx]
-      vmovups ymmword ptr [rax], ymm0
-      vmovups ymm1, ymmword ptr [rbx+20h]
-      vmovups ymmword ptr [rax+20h], ymm1
-      vmovups xmm0, xmmword ptr [rbx+40h]
-      vmovups xmmword ptr [rax+40h], xmm0
-    }
-    *(_DWORD *)&_RAX->addrBuff[80] = *(_DWORD *)&_RBX->addrBuff[80];
-    LOBYTE(_RAX) = lobbyData.m_hasDedicatedServer;
-    _RSI->m_lobbyData.m_hasDedicatedServer = lobbyData.m_hasDedicatedServer;
-    if ( (_BYTE)_RAX )
-    {
-      _RSI->m_lobbyData.m_allocatedServerGuid = lobbyData.m_allocatedServerGuid;
-      Core_strcpy(_RSI->m_lobbyData.m_allocatedDataCenter, 0x40ui64, lobbyData.m_allocatedDataCenter);
-      Core_strcpy(_RSI->m_lobbyData.m_allocatedServerInfo, 0x400ui64, lobbyData.m_allocatedServerInfo);
-      Core_strcpy(_RSI->m_lobbyData.m_allocatedServerAddr, 0x400ui64, lobbyData.m_allocatedServerAddr);
+      this->m_lobbyData.m_allocatedServerGuid = lobbyData.m_allocatedServerGuid;
+      Core_strcpy(this->m_lobbyData.m_allocatedDataCenter, 0x40ui64, lobbyData.m_allocatedDataCenter);
+      Core_strcpy(this->m_lobbyData.m_allocatedServerInfo, 0x400ui64, lobbyData.m_allocatedServerInfo);
+      Core_strcpy(this->m_lobbyData.m_allocatedServerAddr, 0x400ui64, lobbyData.m_allocatedServerAddr);
     }
     mp_next = lobbyData.m_playerStatusList.m_listHead.m_sentinel.mp_next;
     if ( (ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<enum MemberStatus> > > *)lobbyData.m_playerStatusList.m_listHead.m_sentinel.mp_next != &lobbyData.m_playerStatusList.m_listHead )
@@ -7084,15 +6928,15 @@ LABEL_67:
       {
         if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        if ( OnlineMatchmakerOmniscient::FindPlayer(_RSI, (const XUID *)&mp_next[1], &it) )
+        if ( OnlineMatchmakerOmniscient::FindPlayer(this, (const XUID *)&mp_next[1], &it) )
         {
           mp_node = it.mp_node;
           if ( !it.mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          OnlineMatchmakerOmniscient::SetPlayerQueuedStatus(_RSI, &mp_node->m_data, eADDING_LOCAL_PLAYER_TO_DW);
+          OnlineMatchmakerOmniscient::SetPlayerQueuedStatus(this, &mp_node->m_data, eADDING_LOCAL_PLAYER_TO_DW);
           if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          OnlineMatchmakerOmniscient::SetPlayerCurrentStatus(_RSI, &mp_node->m_data, eADDING_LOCAL_PLAYER_TO_DW);
+          OnlineMatchmakerOmniscient::SetPlayerCurrentStatus(this, &mp_node->m_data, eADDING_LOCAL_PLAYER_TO_DW);
           if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
           p_m_data = &mp_node->m_data;
@@ -7100,46 +6944,42 @@ LABEL_67:
           if ( !m_state || m_state >= 6 )
           {
             if ( mp_node->m_data.m_matchmakingToken )
-              OnlineMatchmakerOmniscient::SetPlayerState(_RSI, p_m_data, eREADY);
+              OnlineMatchmakerOmniscient::SetPlayerState(this, p_m_data, eREADY);
             else
-              OnlineMatchmakerOmniscient::SetPlayerState(_RSI, p_m_data, eREMOTE_WAITING_FOR_MMING_TOKEN);
+              OnlineMatchmakerOmniscient::SetPlayerState(this, p_m_data, eREMOTE_WAITING_FOR_MMING_TOKEN);
           }
         }
         else
         {
           if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
             __debugbreak();
-          OnlineMatchmakerOmniscient::AddPlayerFromDW(_RSI, (const XUID)mp_next[1].mp_prev, (MemberStatus)mp_next[1].mp_next);
+          OnlineMatchmakerOmniscient::AddPlayerFromDW(this, (const XUID)mp_next[1].mp_prev, (MemberStatus)mp_next[1].mp_next);
         }
         if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 109, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
         mp_next = mp_next->mp_next;
       }
       while ( mp_next != (ntl::internal::list_node_base *)&lobbyData.m_playerStatusList.m_listHead );
-      p_m_hostAddress = &_RSI->m_lobbyData.m_hostAddress;
+      p_m_hostAddress = &this->m_lobbyData.m_hostAddress;
     }
-    if ( lobbyData.m_lobbyid != _RSI->m_lobbyData.m_lobbyid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 6307, ASSERT_TYPE_ASSERT, "(lobbyData.m_lobbyid == m_lobbyData.m_lobbyid)", (const char *)&queryFormat, "lobbyData.m_lobbyid == m_lobbyData.m_lobbyid") )
+    if ( lobbyData.m_lobbyid != this->m_lobbyData.m_lobbyid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 6307, ASSERT_TYPE_ASSERT, "(lobbyData.m_lobbyid == m_lobbyData.m_lobbyid)", (const char *)&queryFormat, "lobbyData.m_lobbyid == m_lobbyData.m_lobbyid") )
       __debugbreak();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+18210h+lobbyData.m_key.ab]
-      vmovups xmmword ptr [rsi+13825h], xmm0
-    }
-    _RSI->m_lobbyData.m_keyId = lobbyData.m_keyId;
+    this->m_lobbyData.m_key = lobbyData.m_key;
+    this->m_lobbyData.m_keyId = lobbyData.m_keyId;
     m_playList = lobbyData.m_playList;
-    _RSI->m_lobbyData.m_playList = lobbyData.m_playList;
-    _RSI->m_lobbyData.m_playListVersion = lobbyData.m_playListVersion;
-    Playlist_UpdateFromMatchmaker(_RSI->m_controllerIndex, m_playList, 0);
-    ntl::list<XUID,ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>::assign<ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>(&_RSI->m_lobbyData.m_migrationList, &lobbyData.m_migrationList);
-    memcpy_0(_RSI->m_lobbyData.m_dvarOverrides, lobbyData.m_dvarOverrides, sizeof(_RSI->m_lobbyData.m_dvarOverrides));
-    _RSI->m_lobbyData.m_dvarOverrideCount = lobbyData.m_dvarOverrideCount;
-    Address = XSESSION_INFO::GetAddress(&lobbyData.m_hostAddress);
-    XSECURITY_INFO::XSECURITY_INFO(&v36, &lobbyData.m_keyId, &lobbyData.m_key);
-    XSESSION_INFO::Set(p_m_hostAddress, v31, Address);
-    bdSecurityKey::~bdSecurityKey(&v36.m_key);
-    bdSecurityID::~bdSecurityID(&v36.m_id);
-    OnlineMatchmakerOmniscient::Log(_RSI, "JoinLobby", (const char *)&queryFormat.fmt + 3, lobbyBackendDoc, lobbyHostDoc, 0i64);
-    OnlineMatchmakerTelemetry::JoinLobby(&_RSI->m_telemetry);
+    this->m_lobbyData.m_playList = lobbyData.m_playList;
+    this->m_lobbyData.m_playListVersion = lobbyData.m_playListVersion;
+    Playlist_UpdateFromMatchmaker(this->m_controllerIndex, m_playList, 0);
+    ntl::list<XUID,ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>::assign<ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>(&this->m_lobbyData.m_migrationList, &lobbyData.m_migrationList);
+    memcpy_0(this->m_lobbyData.m_dvarOverrides, lobbyData.m_dvarOverrides, sizeof(this->m_lobbyData.m_dvarOverrides));
+    this->m_lobbyData.m_dvarOverrideCount = lobbyData.m_dvarOverrideCount;
+    v26 = XSESSION_INFO::GetAddress(&lobbyData.m_hostAddress);
+    XSECURITY_INFO::XSECURITY_INFO(&v32, &lobbyData.m_keyId, &lobbyData.m_key);
+    XSESSION_INFO::Set(p_m_hostAddress, v27, v26);
+    bdSecurityKey::~bdSecurityKey(&v32.m_key);
+    bdSecurityID::~bdSecurityID(&v32.m_id);
+    OnlineMatchmakerOmniscient::Log(this, "JoinLobby", (const char *)&queryFormat.fmt + 3, lobbyBackendDoc, lobbyHostDoc, 0i64);
+    OnlineMatchmakerTelemetry::JoinLobby(&this->m_telemetry);
     if ( OnlineTournament_IsInTournament() )
       OnlineTournament_OnJoinLobby();
     MatchMakerOmniLobbyData::~MatchMakerOmniLobbyData(&lobbyData);
@@ -7304,85 +7144,80 @@ OnlineMatchmakerOmniscient::LobbyNotFound
 */
 void OnlineMatchmakerOmniscient::LobbyNotFound(OnlineMatchmakerOmniscient *this, const unsigned __int64 mmId, const bdAsyncMatchMakingEventHandler::LobbyNotFoundCause cause, const char *optimizerErrorMessage)
 {
+  OnlineTimeSeriesLog *v8; 
   OnlineTimeSeriesLog *v9; 
-  OnlineTimeSeriesLog *v10; 
-  tCallbackResult v13; 
+  tCallbackResult v10; 
   unsigned __int64 m_matchmakingId; 
-  const char *v15; 
-  const char *v16; 
+  const char *v12; 
+  const char *v13; 
 
+  v8 = OnlineTimeSeriesLog::Get();
+  OnlineTimeSeriesLog::WriteEventCounter(v8, "event.lobbynotfound.received.count", 1u);
   v9 = OnlineTimeSeriesLog::Get();
-  OnlineTimeSeriesLog::WriteEventCounter(v9, "event.lobbynotfound.received.count", 1u);
-  v10 = OnlineTimeSeriesLog::Get();
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, ebp; value
-  }
-  OnlineTimeSeriesLog::WriteEventSet(v10, "event.lobbynotfound.received.reason", *(const float *)&_XMM2);
+  OnlineTimeSeriesLog::WriteEventSet(v9, "event.lobbynotfound.received.reason", (float)cause);
   switch ( cause )
   {
     case BD_NOT_ENOUGH_PLAYERS:
-      v13 = eREMOVING_PLAYER;
+      v10 = eREMOVING_PLAYER;
       break;
     case BD_REQUESTED_LOBBY_DISBANDED:
-      v13 = eFAILURE;
+      v10 = eFAILURE;
       break;
     case BD_TOO_MANY_PLAYERS:
-      v13 = eREADY_TO_REMOVE;
+      v10 = eREADY_TO_REMOVE;
       break;
     case BD_PARTY_MEMBER_DISCONNECTED:
-      v13 = eNONE;
+      v10 = eNONE;
       break;
     case BD_INTERNAL_ERROR:
-      v13 = eFAILURE|eADDING_LOCAL_PLAYER_TO_DW;
+      v10 = eFAILURE|eADDING_LOCAL_PLAYER_TO_DW;
       break;
     case BD_PARTY_HOST_MIGRATION:
-      v13 = eNONE|eADDING_LOCAL_PLAYER_TO_DW;
+      v10 = eNONE|eADDING_LOCAL_PLAYER_TO_DW;
       break;
     case BD_PLAYER_NOT_IN_LOBBY:
-      v13 = eREMOTE_WAITING_FOR_MMING_TOKEN;
+      v10 = eREMOTE_WAITING_FOR_MMING_TOKEN;
       break;
     case BD_PRESENCE_JOIN_REFUSED:
-      v13 = eUPDATING;
+      v10 = eUPDATING;
       break;
     case BD_SEARCH_EXPIRED:
-      v13 = eFAILURE|eREADY;
+      v10 = eFAILURE|eREADY;
       break;
     case BD_QOS_FAILED:
-      v13 = eNONE|eREADY;
+      v10 = eNONE|eREADY;
       break;
     case BD_OPTIMIZER_FAILURE:
-      v13 = eFAILURE|eREADY_TO_REMOVE;
+      v10 = eFAILURE|eREADY_TO_REMOVE;
       break;
     case BD_DEDICATED_SERVER_REQUIRED_NOT_ALLOCATED:
-      v13 = eNONE|eREADY_TO_REMOVE;
+      v10 = eNONE|eREADY_TO_REMOVE;
       break;
     case BD_ALREADY_IN_LOBBY:
-      v13 = 16;
+      v10 = 16;
       break;
     case BD_ILLEGAL_MAP_PACK:
-      v13 = 17;
+      v10 = 17;
       break;
     case BD_INCONSISTENT_BUILD_NAMES:
-      v13 = 18;
+      v10 = 18;
       break;
     case BD_UNACCEPTABLE_PLATFORMS:
-      v13 = eREMOTE_WAITING_FOR_MMING_TOKEN|0x10;
+      v10 = eREMOTE_WAITING_FOR_MMING_TOKEN|0x10;
       break;
     case BD_TOURNAMENT_PRESENCE_JOIN_REFUSED:
-      v13 = 20;
+      v10 = 20;
       break;
     default:
-      v13 = eREADY;
+      v10 = eREADY;
       break;
   }
   m_matchmakingId = this->m_mmingData.m_matchmakingId;
   if ( mmId == m_matchmakingId )
   {
     this->m_mmingData.m_timeOut = 0;
-    v15 = j_va("{\"error\"=\"Lobby not found due to %d, optimizer error message \"%s\".\"}", (unsigned int)cause, optimizerErrorMessage);
-    OnlineMatchmakerOmniscient::Log(this, "LobbyNotFound", v15, NULL, NULL, 0i64);
+    v12 = j_va("{\"error\"=\"Lobby not found due to %d, optimizer error message \"%s\".\"}", (unsigned int)cause, optimizerErrorMessage);
+    OnlineMatchmakerOmniscient::Log(this, "LobbyNotFound", v12, NULL, NULL, 0i64);
     if ( this->m_callbacks.m_inviteCallback )
     {
       if ( !InviteJoinHSM::IsHSMHandlingInvitation(&g_invitationHSM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5798, ASSERT_TYPE_ASSERT, "(g_invitationHSM.IsHSMHandlingInvitation())", (const char *)&queryFormat, "g_invitationHSM.IsHSMHandlingInvitation()") )
@@ -7397,11 +7232,11 @@ void OnlineMatchmakerOmniscient::LobbyNotFound(OnlineMatchmakerOmniscient *this,
   }
   else
   {
-    v16 = j_va("{\"msg\":\"mismatched matchmaking ids - ours - %zu incoming - %zu\"", m_matchmakingId, mmId);
-    OnlineMatchmakerOmniscient::Log(this, "LobbyNotFound", v16, NULL, NULL, 0i64);
+    v13 = j_va("{\"msg\":\"mismatched matchmaking ids - ours - %zu incoming - %zu\"", m_matchmakingId, mmId);
+    OnlineMatchmakerOmniscient::Log(this, "LobbyNotFound", v13, NULL, NULL, 0i64);
   }
   if ( this->m_callbacks.m_inviteCallback )
-    tCallbacks::AddCallbackToQueue(&this->m_callbacks, eUPDATING, v13);
+    tCallbacks::AddCallbackToQueue(&this->m_callbacks, eUPDATING, v10);
 }
 
 /*
@@ -7479,16 +7314,17 @@ void OnlineMatchmakerOmniscient::ParseAdditionalPlayerSlots(OnlineMatchmakerOmni
   unsigned int i; 
   unsigned __int64 v7; 
   ntl::internal::pool_allocator_freelist<32> *p_m_freelist; 
-  bdJSONDeserializer *v11; 
-  int v12; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  bdJSONDeserializer *v10; 
+  int v11; 
   XUID result; 
-  __int128 v14; 
+  __int128 v13; 
   bdJSONDeserializer value; 
-  __int64 v16; 
-  bdJSONDeserializer v17; 
+  __int64 v15; 
+  bdJSONDeserializer v16; 
   char key[32]; 
 
-  v16 = -2i64;
+  v15 = -2i64;
   bdJSONDeserializer::bdJSONDeserializer(&value);
   if ( bdJSONDeserializer::getObject(backendDoc, "player_id_to_slots", &value) )
   {
@@ -7497,14 +7333,14 @@ void OnlineMatchmakerOmniscient::ParseAdditionalPlayerSlots(OnlineMatchmakerOmni
     {
       if ( i >= 0xC8 )
         break;
-      bdJSONDeserializer::bdJSONDeserializer(&v17);
-      if ( bdJSONDeserializer::getFieldByIndex(&value, i, key, 0x20u, &v17) )
+      bdJSONDeserializer::bdJSONDeserializer(&v16);
+      if ( bdJSONDeserializer::getFieldByIndex(&value, i, key, 0x20u, &v16) )
       {
         v7 = I_atoui64(key);
         XUID::FromUInt64(&result, v7);
-        bdJSONDeserializer::getInt32(&value, key, &v12);
-        *(XUID *)&v14 = result;
-        DWORD2(v14) = v12;
+        bdJSONDeserializer::getInt32(&value, key, &v11);
+        *(XUID *)&v13 = result;
+        DWORD2(v13) = v11;
         p_m_freelist = &lobbyDataToBeFilledIn->m_additionalSlotsRequestedList.m_freelist;
         if ( !lobbyDataToBeFilledIn->m_additionalSlotsRequestedList.m_freelist.m_head.mp_next )
         {
@@ -7515,23 +7351,19 @@ void OnlineMatchmakerOmniscient::ParseAdditionalPlayerSlots(OnlineMatchmakerOmni
         }
         if ( (ntl::internal::pool_allocator_freelist<32> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x20ui64, 0xC8ui64) )
           __debugbreak();
-        _R8 = (ntl::internal::list_node<PlayerValue<int> > *)p_m_freelist->m_head.mp_next;
+        mp_next = p_m_freelist->m_head.mp_next;
         p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-        _R8->mp_prev = NULL;
-        _R8->mp_next = NULL;
-        __asm
-        {
-          vmovups xmm0, [rsp+0F8h+var_A8]
-          vmovups xmmword ptr [r8+10h], xmm0
-        }
-        ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<int>>>::insert_before(&lobbyDataToBeFilledIn->m_additionalSlotsRequestedList.m_listHead, (ntl::internal::list_node<PlayerValue<int> > *)&lobbyDataToBeFilledIn->m_additionalSlotsRequestedList.m_listHead, _R8);
+        mp_next->mp_next = NULL;
+        mp_next[1].mp_next = NULL;
+        *(_OWORD *)&mp_next[2].mp_next = v13;
+        ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<int>>>::insert_before(&lobbyDataToBeFilledIn->m_additionalSlotsRequestedList.m_listHead, (ntl::internal::list_node<PlayerValue<int> > *)&lobbyDataToBeFilledIn->m_additionalSlotsRequestedList.m_listHead, (ntl::internal::list_node<PlayerValue<int> > *)mp_next);
       }
-      bdJSONDeserializer::~bdJSONDeserializer(&v17);
+      bdJSONDeserializer::~bdJSONDeserializer(&v16);
     }
     if ( m_count > 0xC8 )
     {
-      LODWORD(v11) = 200;
-      Com_PrintError(131097, "[MM] %s received more entries (%i) than capacity (%i)\n", "OnlineMatchmakerOmniscient::ParseAdditionalPlayerSlots", m_count, v11);
+      LODWORD(v10) = 200;
+      Com_PrintError(131097, "[MM] %s received more entries (%i) than capacity (%i)\n", "OnlineMatchmakerOmniscient::ParseAdditionalPlayerSlots", m_count, v10);
     }
   }
   bdJSONDeserializer::~bdJSONDeserializer(&value);
@@ -7548,72 +7380,60 @@ void OnlineMatchmakerOmniscient::ParseDvarOverrides(OnlineMatchmakerOmniscient *
   signed int m_count; 
   const dvar_t *v7; 
   __int64 v8; 
+  char *v9; 
+  char *v10; 
   __int64 v11; 
-  bdJSONDeserializer v20; 
-  __int64 v21; 
-  bdJSONDeserializer v22; 
+  bdJSONDeserializer v12; 
+  __int64 v13; 
+  bdJSONDeserializer v14; 
   bdJSONDeserializer value; 
-  char v24[256]; 
+  char v16[256]; 
   char key[1024]; 
 
-  v21 = -2i64;
+  v13 = -2i64;
   bdJSONDeserializer::bdJSONDeserializer(&value);
   memset_0(lobbyDataToBeFilledIn->m_dvarOverrides, 0, sizeof(lobbyDataToBeFilledIn->m_dvarOverrides));
   v5 = 0;
   lobbyDataToBeFilledIn->m_dvarOverrideCount = 0;
   if ( bdJSONDeserializer::getObject(backendDoc, "ruleset_payload", &value) )
   {
-    bdJSONDeserializer::bdJSONDeserializer(&v20);
-    if ( bdJSONDeserializer::getObject(&value, "dvar_overrides", &v20) )
+    bdJSONDeserializer::bdJSONDeserializer(&v12);
+    if ( bdJSONDeserializer::getObject(&value, "dvar_overrides", &v12) )
     {
-      bdJSONDeserializer::bdJSONDeserializer(&v22);
+      bdJSONDeserializer::bdJSONDeserializer(&v14);
       m_count = 128;
-      if ( (int)v20.m_count < 128 )
-        m_count = v20.m_count;
-      if ( v20.m_count > 0x80 )
-        Com_Printf(131097, "[MM] Too many (%d) dvar overrides, max supported %d\n", v20.m_count, 128i64);
+      if ( (int)v12.m_count < 128 )
+        m_count = v12.m_count;
+      if ( v12.m_count > 0x80 )
+        Com_Printf(131097, "[MM] Too many (%d) dvar overrides, max supported %d\n", v12.m_count, 128i64);
       if ( m_count > 0 )
       {
         do
         {
-          if ( bdJSONDeserializer::getFieldByIndex(&v20, v5, key, 0x400u, &v22) )
+          if ( bdJSONDeserializer::getFieldByIndex(&v12, v5, key, 0x400u, &v14) )
           {
-            if ( bdJSONDeserializer::convertToString(&v22, v24, 0x100u) )
+            if ( bdJSONDeserializer::convertToString(&v14, v16, 0x100u) )
             {
-              v7 = PublisherVariableManager::RegisterDvarByString(key, v24);
+              v7 = PublisherVariableManager::RegisterDvarByString(key, v16);
               if ( v7 )
               {
                 v8 = lobbyDataToBeFilledIn->m_dvarOverrideCount++;
                 lobbyDataToBeFilledIn->m_dvarOverrides[v8].dvar = v7;
-                _RCX = lobbyDataToBeFilledIn->m_dvarOverrides[v8].value;
-                _RAX = v24;
+                v9 = lobbyDataToBeFilledIn->m_dvarOverrides[v8].value;
+                v10 = v16;
                 v11 = 2i64;
                 do
                 {
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr [rax]
-                    vmovups xmmword ptr [rcx], xmm0
-                    vmovups xmm1, xmmword ptr [rax+10h]
-                    vmovups xmmword ptr [rcx+10h], xmm1
-                    vmovups xmm0, xmmword ptr [rax+20h]
-                    vmovups xmmword ptr [rcx+20h], xmm0
-                    vmovups xmm1, xmmword ptr [rax+30h]
-                    vmovups xmmword ptr [rcx+30h], xmm1
-                    vmovups xmm0, xmmword ptr [rax+40h]
-                    vmovups xmmword ptr [rcx+40h], xmm0
-                    vmovups xmm1, xmmword ptr [rax+50h]
-                    vmovups xmmword ptr [rcx+50h], xmm1
-                    vmovups xmm0, xmmword ptr [rax+60h]
-                    vmovups xmmword ptr [rcx+60h], xmm0
-                  }
-                  _RCX += 128;
-                  __asm
-                  {
-                    vmovups xmm1, xmmword ptr [rax+70h]
-                    vmovups xmmword ptr [rcx-10h], xmm1
-                  }
-                  _RAX += 128;
+                  *(_OWORD *)v9 = *(_OWORD *)v10;
+                  *((_OWORD *)v9 + 1) = *((_OWORD *)v10 + 1);
+                  *((_OWORD *)v9 + 2) = *((_OWORD *)v10 + 2);
+                  *((_OWORD *)v9 + 3) = *((_OWORD *)v10 + 3);
+                  *((_OWORD *)v9 + 4) = *((_OWORD *)v10 + 4);
+                  *((_OWORD *)v9 + 5) = *((_OWORD *)v10 + 5);
+                  *((_OWORD *)v9 + 6) = *((_OWORD *)v10 + 6);
+                  v9 += 128;
+                  *((_OWORD *)v9 - 1) = *((_OWORD *)v10 + 7);
+                  v10 += 128;
                   --v11;
                 }
                 while ( v11 );
@@ -7628,9 +7448,9 @@ void OnlineMatchmakerOmniscient::ParseDvarOverrides(OnlineMatchmakerOmniscient *
         }
         while ( v5 < m_count );
       }
-      bdJSONDeserializer::~bdJSONDeserializer(&v22);
+      bdJSONDeserializer::~bdJSONDeserializer(&v14);
     }
-    bdJSONDeserializer::~bdJSONDeserializer(&v20);
+    bdJSONDeserializer::~bdJSONDeserializer(&v12);
   }
   bdJSONDeserializer::~bdJSONDeserializer(&value);
 }
@@ -7715,31 +7535,29 @@ OnlineMatchmakerOmniscient::ParseFilters
 void OnlineMatchmakerOmniscient::ParseFilters(OnlineMatchmakerOmniscient *this, bdJSONDeserializer *backendDoc, MatchMakerOmniLobbyData *lobbyDataToBeFilledIn)
 {
   signed int m_count; 
-  signed int v8; 
+  signed int v6; 
+  float *p_mapWeight; 
   int MapIndex; 
-  unsigned int v13; 
-  double v15; 
-  float v16; 
-  bdJSONDeserializer v17; 
-  bdJSONDeserializer v18; 
+  float v9; 
+  unsigned int v10; 
+  float v11; 
+  bdJSONDeserializer v12; 
+  bdJSONDeserializer v13; 
   bdJSONDeserializer value; 
-  __int64 v20; 
-  bdJSONDeserializer v21; 
+  __int64 v15; 
+  bdJSONDeserializer v16; 
   char key[24]; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v20 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm6 }
+  v15 = -2i64;
   bdJSONDeserializer::bdJSONDeserializer(&value);
   if ( bdJSONDeserializer::getObject(backendDoc, "ruleset_payload", &value) )
   {
-    bdJSONDeserializer::bdJSONDeserializer(&v18);
-    if ( bdJSONDeserializer::getObject(&value, "filter", &v18) )
+    bdJSONDeserializer::bdJSONDeserializer(&v13);
+    if ( bdJSONDeserializer::getObject(&value, "filter", &v13) )
     {
-      if ( !bdJSONDeserializer::getInt32(&v18, "playlist_id", &lobbyDataToBeFilledIn->m_playList) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5278, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unable to retrieve playlist from backend lobby document\n") )
+      if ( !bdJSONDeserializer::getInt32(&v13, "playlist_id", &lobbyDataToBeFilledIn->m_playList) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5278, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unable to retrieve playlist from backend lobby document\n") )
         __debugbreak();
-      if ( !bdJSONDeserializer::getInt32(&v18, "playlist_version", &lobbyDataToBeFilledIn->m_playListVersion) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5283, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unable to retrieve playlist version from backend lobby document\n") )
+      if ( !bdJSONDeserializer::getInt32(&v13, "playlist_version", &lobbyDataToBeFilledIn->m_playListVersion) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5283, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unable to retrieve playlist version from backend lobby document\n") )
         __debugbreak();
     }
     lobbyDataToBeFilledIn->m_mapWeights[0].mapIndex = 255;
@@ -7762,48 +7580,42 @@ void OnlineMatchmakerOmniscient::ParseFilters(OnlineMatchmakerOmniscient *this, 
     lobbyDataToBeFilledIn->m_mapWeights[17].mapIndex = 255;
     lobbyDataToBeFilledIn->m_mapWeights[18].mapIndex = 255;
     lobbyDataToBeFilledIn->m_mapWeights[19].mapIndex = 255;
-    bdJSONDeserializer::bdJSONDeserializer(&v17);
-    if ( bdJSONDeserializer::getObject(&value, "map_weights", &v17) )
+    bdJSONDeserializer::bdJSONDeserializer(&v12);
+    if ( bdJSONDeserializer::getObject(&value, "map_weights", &v12) )
     {
-      m_count = v17.m_count;
-      v8 = 0;
-      if ( (int)v17.m_count > 0 )
+      m_count = v12.m_count;
+      v6 = 0;
+      if ( (int)v12.m_count > 0 )
       {
-        _RDI = &lobbyDataToBeFilledIn->m_mapWeights[0].mapWeight;
+        p_mapWeight = &lobbyDataToBeFilledIn->m_mapWeights[0].mapWeight;
         do
         {
-          if ( v8 >= 20 )
+          if ( v6 >= 20 )
             break;
-          bdJSONDeserializer::bdJSONDeserializer(&v21);
-          if ( bdJSONDeserializer::getFieldByIndex(&v17, v8, key, 0x18u, &v21) && bdJSONDeserializer::getFloat32(&v21, &v16) )
+          bdJSONDeserializer::bdJSONDeserializer(&v16);
+          if ( bdJSONDeserializer::getFieldByIndex(&v12, v6, key, 0x18u, &v16) && bdJSONDeserializer::getFloat32(&v16, &v11) )
           {
             MapIndex = Playlist_FindMapIndex(key);
             if ( MapIndex != 255 )
             {
-              *((_DWORD *)_RDI - 1) = MapIndex;
-              __asm
-              {
-                vmovss  xmm0, [rbp+57h+var_D0]
-                vmovss  dword ptr [rdi], xmm0
-                vcvtss2sd xmm6, xmm0, xmm0
-              }
-              v13 = Playlist_FindMapIndex(key);
-              __asm { vmovsd  qword ptr [rsp+20h], xmm6 }
-              Com_Printf(25, "[MM] Found Map Weight: (%d) %s : %f\n", v13, key, v15);
+              *((_DWORD *)p_mapWeight - 1) = MapIndex;
+              v9 = v11;
+              *p_mapWeight = v11;
+              v10 = Playlist_FindMapIndex(key);
+              Com_Printf(25, "[MM] Found Map Weight: (%d) %s : %f\n", v10, key, v9);
             }
           }
-          bdJSONDeserializer::~bdJSONDeserializer(&v21);
-          ++v8;
-          _RDI += 2;
+          bdJSONDeserializer::~bdJSONDeserializer(&v16);
+          ++v6;
+          p_mapWeight += 2;
         }
-        while ( v8 < m_count );
+        while ( v6 < m_count );
       }
     }
-    bdJSONDeserializer::~bdJSONDeserializer(&v17);
-    bdJSONDeserializer::~bdJSONDeserializer(&v18);
+    bdJSONDeserializer::~bdJSONDeserializer(&v12);
+    bdJSONDeserializer::~bdJSONDeserializer(&v13);
   }
   bdJSONDeserializer::~bdJSONDeserializer(&value);
-  __asm { vmovaps xmm6, xmmword ptr [rsp+100h+var_28+8] }
 }
 
 /*
@@ -7840,35 +7652,37 @@ __int64 OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(OnlineMatchmakerOmnisci
   signed int v29; 
   unsigned __int64 v30; 
   ntl::internal::pool_allocator_freelist<32> *p_m_freelist; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  signed int v33; 
   signed int v34; 
-  signed int v35; 
-  unsigned __int64 v36; 
-  ntl::internal::pool_allocator_freelist<32> *v38; 
+  unsigned __int64 v35; 
+  ntl::internal::pool_allocator_freelist<32> *v36; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v37; 
+  const char *v38; 
+  const char *v39; 
+  OnlineTimeSeriesLog *v40; 
   const char *v41; 
-  const char *v42; 
-  OnlineTimeSeriesLog *v43; 
-  const char *v44; 
   const char *StateString; 
-  const char *v46; 
-  char v48; 
+  const char *v43; 
+  char v45; 
   XUID result; 
-  bdJSONDeserializer v50; 
+  bdJSONDeserializer v47; 
   bdJSONDeserializer backendDoc; 
-  OnlineMatchmakerOmniscient *v52; 
-  XUID v53; 
+  OnlineMatchmakerOmniscient *v49; 
+  XUID v50; 
   bdJSONDeserializer value; 
-  __int128 v55; 
-  char *v56; 
-  __int64 v57; 
+  __int128 v52; 
+  char *v53; 
+  __int64 v54; 
   bdJSONDeserializer key; 
-  bdJSONDeserializer v59; 
+  bdJSONDeserializer v56; 
   char src[256]; 
 
-  v57 = -2i64;
-  v56 = (char *)lobbyBackendDoc;
+  v54 = -2i64;
+  v53 = (char *)lobbyBackendDoc;
   v5 = this;
-  v52 = this;
-  v48 = 1;
+  v49 = this;
+  v45 = 1;
   bdJSONDeserializer::bdJSONDeserializer(&backendDoc);
   v6 = 1;
   if ( !bdJSONDeserializer::parse(&backendDoc, lobbyBackendDoc) )
@@ -7876,10 +7690,10 @@ __int64 OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(OnlineMatchmakerOmnisci
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5696, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unable to parse lobby document : [%s]\n", lobbyBackendDoc) )
       __debugbreak();
     StateString = OnlineMatchmakerOmniscient::GetStateString(v5, (const MatchmakerOmniscientState)v5->m_state);
-    v46 = j_va("{\"state\":\"failed\", \"error\"=\"failed to parse.\",\"state\"=\"%s\"}", StateString);
-    OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyBackendDoc", v46, lobbyBackendDoc, NULL, 0i64);
-    v43 = OnlineTimeSeriesLog::Get();
-    v44 = "mming.document.backend.parse.error.count";
+    v43 = j_va("{\"state\":\"failed\", \"error\"=\"failed to parse.\",\"state\"=\"%s\"}", StateString);
+    OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyBackendDoc", v43, lobbyBackendDoc, NULL, 0i64);
+    v40 = OnlineTimeSeriesLog::Get();
+    v41 = "mming.document.backend.parse.error.count";
     goto LABEL_95;
   }
   bdJSONDeserializer::bdJSONDeserializer(&value);
@@ -7897,7 +7711,7 @@ __int64 OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(OnlineMatchmakerOmnisci
     OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyBackendDoc", v9, lobbyBackendDoc, NULL, 0i64);
     v10 = OnlineTimeSeriesLog::Get();
     OnlineTimeSeriesLog::WriteEventCounter(v10, "mming.document.backend.listen_server.error.count", 1u);
-    v48 = 0;
+    v45 = 0;
     v7 = 0;
   }
   v11 = bdJSONDeserializer::getUInt64(&backendDoc, "lobby_id", &lobbyDataToBeFilledIn->m_lobbyid) && v7;
@@ -7933,7 +7747,7 @@ __int64 OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(OnlineMatchmakerOmnisci
     OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyBackendDoc", v16, lobbyBackendDoc, NULL, 0i64);
     v17 = OnlineTimeSeriesLog::Get();
     OnlineTimeSeriesLog::WriteEventCounter(v17, "mming.document.backend.dtls.security_id.error.count", 1u);
-    v48 = 0;
+    v45 = 0;
     v11 = 0;
   }
   if ( !bdJSONDeserializer::getString(&value, "security_key", src, 0x100u) )
@@ -7948,7 +7762,7 @@ __int64 OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(OnlineMatchmakerOmnisci
 LABEL_28:
     OnlineTimeSeriesLog::WriteEventCounter(v21, v22, 1u);
     v11 = 0;
-    v48 = 0;
+    v45 = 0;
     goto LABEL_29;
   }
   do
@@ -7961,12 +7775,12 @@ LABEL_29:
   v6 = bdJSONDeserializer::getUInt64(&backendDoc, "update_id", &lobbyDataToBeFilledIn->m_updateId) && v11;
   if ( bdJSONDeserializer::getObject(&backendDoc, "dedicated_server", &value) )
   {
-    bdJSONDeserializer::bdJSONDeserializer(&v50);
+    bdJSONDeserializer::bdJSONDeserializer(&v47);
     lobbyDataToBeFilledIn->m_dcPrefs.m_numDataCenterPreferences = 0;
-    if ( bdJSONDeserializer::getArray(&value, "data_center_preferences", &v50) )
+    if ( bdJSONDeserializer::getArray(&value, "data_center_preferences", &v47) )
     {
-      m_count = v50.m_count;
-      if ( v50.m_count > 0x40 )
+      m_count = v47.m_count;
+      if ( v47.m_count > 0x40 )
         m_count = 64;
       lobbyDataToBeFilledIn->m_dcPrefs.m_numDataCenterPreferences = m_count;
       v26 = 0;
@@ -7975,25 +7789,25 @@ LABEL_29:
         v27 = 0i64;
         do
         {
-          bdJSONDeserializer::getString(&v50, v26++, &lobbyDataToBeFilledIn->m_dcPrefs._bytes_20[v27], 0x40u);
+          bdJSONDeserializer::getString(&v47, v26++, &lobbyDataToBeFilledIn->m_dcPrefs._bytes_20[v27], 0x40u);
           v27 += 64i64;
         }
         while ( v26 < m_count );
-        v5 = v52;
+        v5 = v49;
       }
     }
-    bdJSONDeserializer::~bdJSONDeserializer(&v50);
+    bdJSONDeserializer::~bdJSONDeserializer(&v47);
   }
   if ( bdJSONDeserializer::getObject(&backendDoc, "tournament", &value) )
   {
-    bdJSONDeserializer::bdJSONDeserializer(&v50);
+    bdJSONDeserializer::bdJSONDeserializer(&v47);
     if ( !bdJSONDeserializer::getUInt64(&value, "tournament_id", &lobbyDataToBeFilledIn->m_tournamentID) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5649, ASSERT_TYPE_ASSERT, "(localDeserializer.getUInt64( \"tournament_id\", lobbyDataToBeFilledIn.m_tournamentID ))", (const char *)&queryFormat, "localDeserializer.getUInt64( \"tournament_id\", lobbyDataToBeFilledIn.m_tournamentID )") )
       __debugbreak();
-    if ( bdJSONDeserializer::getObject(&value, "lobby_to_tournament_team_ids", &v50) )
+    if ( bdJSONDeserializer::getObject(&value, "lobby_to_tournament_team_ids", &v47) )
     {
-      if ( !bdJSONDeserializer::getUInt32(&v50, "0", &lobbyDataToBeFilledIn->m_tournamentAxisTeam) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5652, ASSERT_TYPE_ASSERT, "(tournamentTeamIds.getUInt32( \"0\", lobbyDataToBeFilledIn.m_tournamentAxisTeam ))", (const char *)&queryFormat, "tournamentTeamIds.getUInt32( \"0\", lobbyDataToBeFilledIn.m_tournamentAxisTeam )") )
+      if ( !bdJSONDeserializer::getUInt32(&v47, "0", &lobbyDataToBeFilledIn->m_tournamentAxisTeam) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5652, ASSERT_TYPE_ASSERT, "(tournamentTeamIds.getUInt32( \"0\", lobbyDataToBeFilledIn.m_tournamentAxisTeam ))", (const char *)&queryFormat, "tournamentTeamIds.getUInt32( \"0\", lobbyDataToBeFilledIn.m_tournamentAxisTeam )") )
         __debugbreak();
-      if ( !bdJSONDeserializer::getUInt32(&v50, "1", &lobbyDataToBeFilledIn->m_tournamentAlliesTeam) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5653, ASSERT_TYPE_ASSERT, "(tournamentTeamIds.getUInt32( \"1\", lobbyDataToBeFilledIn.m_tournamentAlliesTeam ))", (const char *)&queryFormat, "tournamentTeamIds.getUInt32( \"1\", lobbyDataToBeFilledIn.m_tournamentAlliesTeam )") )
+      if ( !bdJSONDeserializer::getUInt32(&v47, "1", &lobbyDataToBeFilledIn->m_tournamentAlliesTeam) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5653, ASSERT_TYPE_ASSERT, "(tournamentTeamIds.getUInt32( \"1\", lobbyDataToBeFilledIn.m_tournamentAlliesTeam ))", (const char *)&queryFormat, "tournamentTeamIds.getUInt32( \"1\", lobbyDataToBeFilledIn.m_tournamentAlliesTeam )") )
         __debugbreak();
       Com_Printf(25, "Tournament: received tournament lobby doc teams: TEAM_AXIS = %d, TEAM_ALLIES = %d\n", lobbyDataToBeFilledIn->m_tournamentAxisTeam, lobbyDataToBeFilledIn->m_tournamentAlliesTeam);
     }
@@ -8004,7 +7818,7 @@ LABEL_29:
     }
     if ( !bdJSONDeserializer::getUInt16(&value, "round_id", &lobbyDataToBeFilledIn->m_tournamentRound) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5664, ASSERT_TYPE_ASSERT, "(localDeserializer.getUInt16( \"round_id\", lobbyDataToBeFilledIn.m_tournamentRound ))", (const char *)&queryFormat, "localDeserializer.getUInt16( \"round_id\", lobbyDataToBeFilledIn.m_tournamentRound )") )
       __debugbreak();
-    bdJSONDeserializer::~bdJSONDeserializer(&v50);
+    bdJSONDeserializer::~bdJSONDeserializer(&v47);
   }
   lobbyDataToBeFilledIn->m_performanceGameType = eGAME_TYPE_MULTIPLAYER;
   if ( bdJSONDeserializer::getObject(&backendDoc, "performance", &value) )
@@ -8015,23 +7829,23 @@ LABEL_29:
       Com_PrintWarning(25, "[MM] %s performance game_type field was not set!  Defaulting to eGAME_TYPE_MULTIPLAYER\n", "OnlineMatchmakerOmniscient::ParseLobbyBackendDoc");
   }
   OnlineMatchmakerOmniscient::ParseExpectedPlayers(v5, &backendDoc, lobbyDataToBeFilledIn);
-  bdJSONDeserializer::bdJSONDeserializer(&v50);
-  if ( bdJSONDeserializer::getObject(&backendDoc, "player_id_to_mm_id", &v50) )
+  bdJSONDeserializer::bdJSONDeserializer(&v47);
+  if ( bdJSONDeserializer::getObject(&backendDoc, "player_id_to_mm_id", &v47) )
   {
-    v28 = v50.m_count;
+    v28 = v47.m_count;
     v29 = 0;
-    if ( (int)v50.m_count > 0 )
+    if ( (int)v47.m_count > 0 )
     {
       do
       {
-        bdJSONDeserializer::bdJSONDeserializer(&v59);
-        if ( bdJSONDeserializer::getFieldByIndex(&v50, v29, (char *const)&key, 0x20u, &v59) )
+        bdJSONDeserializer::bdJSONDeserializer(&v56);
+        if ( bdJSONDeserializer::getFieldByIndex(&v47, v29, (char *const)&key, 0x20u, &v56) )
         {
           v30 = I_atoui64((const char *)&key);
           XUID::FromUInt64(&result, v30);
-          bdJSONDeserializer::getUInt64(&v50, (const char *const)&key, &v53.m_id);
-          *(XUID *)&v55 = result;
-          *((XUID *)&v55 + 1) = v53;
+          bdJSONDeserializer::getUInt64(&v47, (const char *const)&key, &v50.m_id);
+          *(XUID *)&v52 = result;
+          *((XUID *)&v52 + 1) = v50;
           p_m_freelist = &lobbyDataToBeFilledIn->m_matchmakingIdList.m_freelist;
           if ( !lobbyDataToBeFilledIn->m_matchmakingIdList.m_freelist.m_head.mp_next )
           {
@@ -8042,75 +7856,63 @@ LABEL_29:
           }
           if ( (ntl::internal::pool_allocator_freelist<32> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x20ui64, 0xC8ui64) )
             __debugbreak();
-          _R8 = (ntl::internal::list_node<PlayerValue<unsigned __int64> > *)p_m_freelist->m_head.mp_next;
+          mp_next = p_m_freelist->m_head.mp_next;
           p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-          _R8->mp_prev = NULL;
-          _R8->mp_next = NULL;
-          __asm
-          {
-            vmovups xmm0, [rbp+160h+var_1A0]
-            vmovups xmmword ptr [r8+10h], xmm0
-          }
-          ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<unsigned __int64>>>::insert_before(&lobbyDataToBeFilledIn->m_matchmakingIdList.m_listHead, (ntl::internal::list_node<PlayerValue<unsigned __int64> > *)&lobbyDataToBeFilledIn->m_matchmakingIdList.m_listHead, _R8);
+          mp_next->mp_next = NULL;
+          mp_next[1].mp_next = NULL;
+          *(_OWORD *)&mp_next[2].mp_next = v52;
+          ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<unsigned __int64>>>::insert_before(&lobbyDataToBeFilledIn->m_matchmakingIdList.m_listHead, (ntl::internal::list_node<PlayerValue<unsigned __int64> > *)&lobbyDataToBeFilledIn->m_matchmakingIdList.m_listHead, (ntl::internal::list_node<PlayerValue<unsigned __int64> > *)mp_next);
         }
-        bdJSONDeserializer::~bdJSONDeserializer(&v59);
+        bdJSONDeserializer::~bdJSONDeserializer(&v56);
         ++v29;
       }
       while ( v29 < v28 );
-      v5 = v52;
+      v5 = v49;
     }
   }
-  bdJSONDeserializer::~bdJSONDeserializer(&v50);
-  bdJSONDeserializer::bdJSONDeserializer(&v50);
-  if ( bdJSONDeserializer::getObject(&backendDoc, "player_id_to_performance", &v50) )
+  bdJSONDeserializer::~bdJSONDeserializer(&v47);
+  bdJSONDeserializer::bdJSONDeserializer(&v47);
+  if ( bdJSONDeserializer::getObject(&backendDoc, "player_id_to_performance", &v47) )
   {
-    v34 = v50.m_count;
-    v35 = 0;
-    if ( (int)v50.m_count > 0 )
+    v33 = v47.m_count;
+    v34 = 0;
+    if ( (int)v47.m_count > 0 )
     {
       do
       {
         bdJSONDeserializer::bdJSONDeserializer(&key);
-        if ( bdJSONDeserializer::getFieldByIndex(&v50, v35, (char *const)&v59, 0x20u, &key) )
+        if ( bdJSONDeserializer::getFieldByIndex(&v47, v34, (char *const)&v56, 0x20u, &key) )
         {
-          v36 = I_atoui64((const char *)&v59);
-          XUID::FromUInt64(&v53, v36);
-          bdJSONDeserializer::getFloat32(&v50, (const char *const)&v59, (float *)&result);
-          *(XUID *)&v55 = v53;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+260h+result.m_id]
-            vmovss  dword ptr [rbp+160h+var_1A0+8], xmm0
-          }
-          v38 = &lobbyDataToBeFilledIn->m_performanceValueList.m_freelist;
+          v35 = I_atoui64((const char *)&v56);
+          XUID::FromUInt64(&v50, v35);
+          bdJSONDeserializer::getFloat32(&v47, (const char *const)&v56, (float *)&result);
+          *(XUID *)&v52 = v50;
+          *((float *)&v52 + 2) = *(float *)&result.m_id;
+          v36 = &lobbyDataToBeFilledIn->m_performanceValueList.m_freelist;
           if ( !lobbyDataToBeFilledIn->m_performanceValueList.m_freelist.m_head.mp_next )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
               __debugbreak();
-            if ( !v38->m_head.mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+            if ( !v36->m_head.mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
               __debugbreak();
           }
-          if ( (ntl::internal::pool_allocator_freelist<32> *)v38->m_head.mp_next == v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x20ui64, 0xC8ui64) )
+          if ( (ntl::internal::pool_allocator_freelist<32> *)v36->m_head.mp_next == v36 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x20ui64, 0xC8ui64) )
             __debugbreak();
-          _R8 = (ntl::internal::list_node<PlayerValue<float> > *)v38->m_head.mp_next;
-          v38->m_head.mp_next = v38->m_head.mp_next->mp_next;
-          _R8->mp_prev = NULL;
-          _R8->mp_next = NULL;
-          __asm
-          {
-            vmovups xmm0, [rbp+160h+var_1A0]
-            vmovups xmmword ptr [r8+10h], xmm0
-          }
-          ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<float>>>::insert_before(&lobbyDataToBeFilledIn->m_performanceValueList.m_listHead, (ntl::internal::list_node<PlayerValue<float> > *)&lobbyDataToBeFilledIn->m_performanceValueList.m_listHead, _R8);
+          v37 = v36->m_head.mp_next;
+          v36->m_head.mp_next = v36->m_head.mp_next->mp_next;
+          v37->mp_next = NULL;
+          v37[1].mp_next = NULL;
+          *(_OWORD *)&v37[2].mp_next = v52;
+          ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<float>>>::insert_before(&lobbyDataToBeFilledIn->m_performanceValueList.m_listHead, (ntl::internal::list_node<PlayerValue<float> > *)&lobbyDataToBeFilledIn->m_performanceValueList.m_listHead, (ntl::internal::list_node<PlayerValue<float> > *)v37);
         }
         bdJSONDeserializer::~bdJSONDeserializer(&key);
-        ++v35;
+        ++v34;
       }
-      while ( v35 < v34 );
-      v5 = v52;
+      while ( v34 < v33 );
+      v5 = v49;
     }
   }
-  bdJSONDeserializer::~bdJSONDeserializer(&v50);
+  bdJSONDeserializer::~bdJSONDeserializer(&v47);
   OnlineMatchmakerOmniscient::ParseServiceLevels(v5, &backendDoc, lobbyDataToBeFilledIn);
   OnlineMatchmakerOmniscient::ParseTeamInfo(v5, &backendDoc, lobbyDataToBeFilledIn);
   OnlineMatchmakerOmniscient::ParseFilters(v5, &backendDoc, lobbyDataToBeFilledIn);
@@ -8118,15 +7920,15 @@ LABEL_29:
   OnlineMatchmakerOmniscient::ParseDvarOverrides(v5, &backendDoc, lobbyDataToBeFilledIn);
   OnlineMatchmakerOmniscient::ParseAdditionalPlayerSlots(v5, &backendDoc, lobbyDataToBeFilledIn);
   bdJSONDeserializer::~bdJSONDeserializer(&value);
-  if ( !v6 && v48 )
+  if ( !v6 && v45 )
   {
-    v41 = OnlineMatchmakerOmniscient::GetStateString(v5, (const MatchmakerOmniscientState)v5->m_state);
-    v42 = j_va("{\"state\":\"failed\", \"error\"=\"something failed, look at the doc.\",\"state\"=\"%s\"}", v41);
-    OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyBackendDoc", v42, v56, NULL, 0i64);
-    v43 = OnlineTimeSeriesLog::Get();
-    v44 = "mming.document.backend.general.error.count";
+    v38 = OnlineMatchmakerOmniscient::GetStateString(v5, (const MatchmakerOmniscientState)v5->m_state);
+    v39 = j_va("{\"state\":\"failed\", \"error\"=\"something failed, look at the doc.\",\"state\"=\"%s\"}", v38);
+    OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyBackendDoc", v39, v53, NULL, 0i64);
+    v40 = OnlineTimeSeriesLog::Get();
+    v41 = "mming.document.backend.general.error.count";
 LABEL_95:
-    OnlineTimeSeriesLog::WriteEventCounter(v43, v44, 1u);
+    OnlineTimeSeriesLog::WriteEventCounter(v40, v41, 1u);
   }
   bdJSONDeserializer::~bdJSONDeserializer(&backendDoc);
   return v6;
@@ -8154,56 +7956,57 @@ __int64 OnlineMatchmakerOmniscient::ParseLobbyHostDoc(OnlineMatchmakerOmniscient
   const char *v15; 
   const char *v16; 
   OnlineTimeSeriesLog *v17; 
-  ntl::internal::list_node<PlayerValue<enum MemberStatus> > **p_m_freelist; 
+  ntl::internal::pool_allocator_freelist<32> *p_m_freelist; 
   unsigned int v19; 
   unsigned __int64 v20; 
   unsigned int v21; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  const char *v23; 
   const char *v24; 
-  const char *v25; 
-  OnlineTimeSeriesLog *v26; 
+  OnlineTimeSeriesLog *v25; 
+  const char *v26; 
   const char *v27; 
-  const char *v28; 
-  OnlineTimeSeriesLog *v29; 
+  OnlineTimeSeriesLog *v28; 
+  const char *v29; 
   const char *v30; 
-  const char *v31; 
-  OnlineTimeSeriesLog *v32; 
+  OnlineTimeSeriesLog *v31; 
+  const char *v32; 
   const char *v33; 
-  const char *v34; 
-  OnlineTimeSeriesLog *v35; 
-  bool v37; 
-  unsigned int v38; 
+  OnlineTimeSeriesLog *v34; 
+  bool v36; 
+  unsigned int v37; 
   bdJSONDeserializer value; 
-  bdJSONDeserializer v40; 
-  MatchMakerOmniLobbyData *v41; 
-  OnlineMatchmakerOmniscient *v42; 
-  const char *v43; 
-  bdJSONDeserializer v44; 
-  __int128 v45; 
+  bdJSONDeserializer v39; 
+  MatchMakerOmniLobbyData *v40; 
+  OnlineMatchmakerOmniscient *v41; 
+  const char *v42; 
+  bdJSONDeserializer v43; 
+  __int128 v44; 
+  bdJSONDeserializer v45; 
   bdJSONDeserializer v46; 
-  bdJSONDeserializer v47; 
-  __int64 v48; 
+  __int64 v47; 
   XUID result; 
   char key[256]; 
 
-  v48 = -2i64;
+  v47 = -2i64;
   v3 = lobbyData;
-  v41 = lobbyData;
+  v40 = lobbyData;
   hostDoc = lobbyHostDoc;
-  v43 = lobbyHostDoc;
+  v42 = lobbyHostDoc;
   v5 = this;
-  v42 = this;
+  v41 = this;
   v6 = 1;
-  bdJSONDeserializer::bdJSONDeserializer(&v40);
-  if ( bdJSONDeserializer::parse(&v40, hostDoc) )
+  bdJSONDeserializer::bdJSONDeserializer(&v39);
+  if ( bdJSONDeserializer::parse(&v39, hostDoc) )
   {
-    bdJSONDeserializer::bdJSONDeserializer(&v47);
+    bdJSONDeserializer::bdJSONDeserializer(&v46);
     bdJSONDeserializer::bdJSONDeserializer(&value);
-    bdJSONDeserializer::bdJSONDeserializer(&v44);
-    if ( bdJSONDeserializer::getObject(&v40, "listen_server", &value) )
+    bdJSONDeserializer::bdJSONDeserializer(&v43);
+    if ( bdJSONDeserializer::getObject(&v39, "listen_server", &value) )
     {
       UInt64 = bdJSONDeserializer::getUInt64(&value, "host_player_id", &v3->m_hostUID);
       v8 = bdJSONDeserializer::getString(&value, "host_address", v3->m_hostAddressBase64, 0x71u) && UInt64;
-      v37 = v8;
+      v36 = v8;
       if ( v8 )
       {
         v9 = -1i64;
@@ -8235,76 +8038,72 @@ __int64 OnlineMatchmakerOmniscient::ParseLobbyHostDoc(OnlineMatchmakerOmniscient
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5008, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Failed to unpack \"listen_server\" [%s]", hostDoc) )
         __debugbreak();
       v8 = 0;
-      v37 = 0;
+      v36 = 0;
     }
-    if ( bdJSONDeserializer::getObject(&v40, "player_state", &v47) )
+    if ( bdJSONDeserializer::getObject(&v39, "player_state", &v46) )
     {
-      v38 = 0;
-      bdJSONDeserializer::bdJSONDeserializer(&v46);
-      if ( bdJSONDeserializer::getFieldByIndex(&v47, 0, key, 0x100u, &v46) )
+      v37 = 0;
+      bdJSONDeserializer::bdJSONDeserializer(&v45);
+      if ( bdJSONDeserializer::getFieldByIndex(&v46, 0, key, 0x100u, &v45) )
       {
-        p_m_freelist = (ntl::internal::list_node<PlayerValue<enum MemberStatus> > **)&v3->m_playerStatusList.m_freelist;
+        p_m_freelist = &v3->m_playerStatusList.m_freelist;
         v19 = 0;
         do
         {
           ++v19;
           v20 = _strtoui64(key, NULL, 10);
-          bdJSONDeserializer::getUInt32(&v46, &v38);
-          v21 = v38;
-          *(XUID *)&v45 = (XUID)XUID::FromUniversalId(&result, v20)->m_id;
-          DWORD2(v45) = v21;
-          if ( !*p_m_freelist )
+          bdJSONDeserializer::getUInt32(&v45, &v37);
+          v21 = v37;
+          *(XUID *)&v44 = (XUID)XUID::FromUniversalId(&result, v20)->m_id;
+          DWORD2(v44) = v21;
+          if ( !p_m_freelist->m_head.mp_next )
           {
             if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
               __debugbreak();
-            if ( !*p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+            if ( !p_m_freelist->m_head.mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
               __debugbreak();
           }
-          if ( *p_m_freelist == (ntl::internal::list_node<PlayerValue<enum MemberStatus> > *)p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x20ui64, 0xC8ui64) )
+          if ( (ntl::internal::pool_allocator_freelist<32> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x20ui64, 0xC8ui64) )
             __debugbreak();
-          _R8 = *p_m_freelist;
-          *p_m_freelist = (ntl::internal::list_node<PlayerValue<enum MemberStatus> > *)(*p_m_freelist)->mp_prev;
-          _R8->mp_prev = NULL;
-          _R8->mp_next = NULL;
-          __asm
-          {
-            vmovups xmm0, [rbp+160h+var_1A0]
-            vmovups xmmword ptr [r8+10h], xmm0
-          }
-          ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<enum MemberStatus>>>::insert_before(&v3->m_playerStatusList.m_listHead, (ntl::internal::list_node<PlayerValue<enum MemberStatus> > *)&v3->m_playerStatusList.m_listHead, _R8);
+          mp_next = p_m_freelist->m_head.mp_next;
+          p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
+          mp_next->mp_next = NULL;
+          mp_next[1].mp_next = NULL;
+          *(_OWORD *)&mp_next[2].mp_next = v44;
+          ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<enum MemberStatus>>>::insert_before(&v3->m_playerStatusList.m_listHead, (ntl::internal::list_node<PlayerValue<enum MemberStatus> > *)&v3->m_playerStatusList.m_listHead, (ntl::internal::list_node<PlayerValue<enum MemberStatus> > *)mp_next);
         }
-        while ( bdJSONDeserializer::getFieldByIndex(&v47, v19, key, 0x100u, &v46) );
-        v8 = v37;
-        v3 = v41;
-        v5 = v42;
-        hostDoc = v43;
+        while ( bdJSONDeserializer::getFieldByIndex(&v46, v19, key, 0x100u, &v45) );
+        v8 = v36;
+        v3 = v40;
+        v5 = v41;
+        hostDoc = v42;
       }
-      bdJSONDeserializer::~bdJSONDeserializer(&v46);
+      bdJSONDeserializer::~bdJSONDeserializer(&v45);
     }
     else
     {
-      v24 = OnlineMatchmakerOmniscient::GetStateString(v5, (const MatchmakerOmniscientState)v5->m_state);
-      v25 = j_va("{\"state\":\"failed\", \"error\"=\"something is wrong with the player_state.\",\"state\"=\"%s\"}", v24);
-      OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyHostDoc", v25, NULL, hostDoc, 0i64);
-      v26 = OnlineTimeSeriesLog::Get();
-      OnlineTimeSeriesLog::WriteEventCounter(v26, "mming.document.host.player_state.error.count", 1u);
+      v23 = OnlineMatchmakerOmniscient::GetStateString(v5, (const MatchmakerOmniscientState)v5->m_state);
+      v24 = j_va("{\"state\":\"failed\", \"error\"=\"something is wrong with the player_state.\",\"state\"=\"%s\"}", v23);
+      OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyHostDoc", v24, NULL, hostDoc, 0i64);
+      v25 = OnlineTimeSeriesLog::Get();
+      OnlineTimeSeriesLog::WriteEventCounter(v25, "mming.document.host.player_state.error.count", 1u);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5037, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Failed to unpack \"player_state\" [%s]", hostDoc) )
         __debugbreak();
       v8 = 0;
     }
-    if ( bdJSONDeserializer::getObject(&v40, "dedicated_server", &v44) )
+    if ( bdJSONDeserializer::getObject(&v39, "dedicated_server", &v43) )
     {
-      bdJSONDeserializer::getString(&v44, "info", v3->m_allocatedServerInfo, 0x400u);
-      bdJSONDeserializer::getString(&v44, "address", v3->m_allocatedServerAddr, 0x400u);
-      bdJSONDeserializer::getUInt64(&v44, "user_id", &v3->m_allocatedServerGuid);
-      bdJSONDeserializer::getString(&v44, "data_center", v3->m_allocatedDataCenter, 0x40u);
+      bdJSONDeserializer::getString(&v43, "info", v3->m_allocatedServerInfo, 0x400u);
+      bdJSONDeserializer::getString(&v43, "address", v3->m_allocatedServerAddr, 0x400u);
+      bdJSONDeserializer::getUInt64(&v43, "user_id", &v3->m_allocatedServerGuid);
+      bdJSONDeserializer::getString(&v43, "data_center", v3->m_allocatedDataCenter, 0x40u);
       v3->m_hasDedicatedServer = 1;
     }
     else
     {
       v3->m_hasDedicatedServer = 0;
     }
-    if ( bdJSONDeserializer::getObject(&v40, "ruleset_payload", &value) )
+    if ( bdJSONDeserializer::getObject(&v39, "ruleset_payload", &value) )
     {
       if ( bdJSONDeserializer::hasKey(&value, "is_merge_src") )
         bdJSONDeserializer::getBoolean(&value, "is_merge_src", &v3->m_canLobbyMerge);
@@ -8313,48 +8112,48 @@ __int64 OnlineMatchmakerOmniscient::ParseLobbyHostDoc(OnlineMatchmakerOmniscient
     }
     else
     {
-      v27 = OnlineMatchmakerOmniscient::GetStateString(v5, (const MatchmakerOmniscientState)v5->m_state);
-      v28 = j_va("{\"state\":\"failed\", \"error\"=\"something is wrong with the ruleset_payload.\",\"state\"=\"%s\"}", v27);
-      OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyHostDoc", v28, NULL, hostDoc, 0i64);
-      v29 = OnlineTimeSeriesLog::Get();
-      OnlineTimeSeriesLog::WriteEventCounter(v29, "mming.document.host.ruleset_payload.error.count", 1u);
+      v26 = OnlineMatchmakerOmniscient::GetStateString(v5, (const MatchmakerOmniscientState)v5->m_state);
+      v27 = j_va("{\"state\":\"failed\", \"error\"=\"something is wrong with the ruleset_payload.\",\"state\"=\"%s\"}", v26);
+      OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyHostDoc", v27, NULL, hostDoc, 0i64);
+      v28 = OnlineTimeSeriesLog::Get();
+      OnlineTimeSeriesLog::WriteEventCounter(v28, "mming.document.host.ruleset_payload.error.count", 1u);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5081, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Failed to unpack \"ruleset_payload\" [%s]", hostDoc) )
         __debugbreak();
       v8 = 0;
     }
-    bdJSONDeserializer::getBoolean(&v40, "lobby_open", &v3->m_shouldBackfill_JIP);
-    if ( bdJSONDeserializer::getObject(&v40, "team_balance", &value) )
+    bdJSONDeserializer::getBoolean(&v39, "lobby_open", &v3->m_shouldBackfill_JIP);
+    if ( bdJSONDeserializer::getObject(&v39, "team_balance", &value) )
     {
-      v37 = 0;
-      v6 = bdJSONDeserializer::getBoolean(&value, "can_change_teams", &v37) && v8;
-      v3->m_gameStartedCurrent = !v37;
+      v36 = 0;
+      v6 = bdJSONDeserializer::getBoolean(&value, "can_change_teams", &v36) && v8;
+      v3->m_gameStartedCurrent = !v36;
     }
     else
     {
-      v30 = OnlineMatchmakerOmniscient::GetStateString(v5, (const MatchmakerOmniscientState)v5->m_state);
-      v31 = j_va("{\"state\":\"failed\", \"error\"=\"something is wrong with the team_balance.\",\"state\"=\"%s\"}", v30);
-      OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyHostDoc", v31, NULL, hostDoc, 0i64);
-      v32 = OnlineTimeSeriesLog::Get();
-      OnlineTimeSeriesLog::WriteEventCounter(v32, "mming.document.host.ruleset_payload.error.count", 1u);
+      v29 = OnlineMatchmakerOmniscient::GetStateString(v5, (const MatchmakerOmniscientState)v5->m_state);
+      v30 = j_va("{\"state\":\"failed\", \"error\"=\"something is wrong with the team_balance.\",\"state\"=\"%s\"}", v29);
+      OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyHostDoc", v30, NULL, hostDoc, 0i64);
+      v31 = OnlineTimeSeriesLog::Get();
+      OnlineTimeSeriesLog::WriteEventCounter(v31, "mming.document.host.ruleset_payload.error.count", 1u);
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5103, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Failed to unpack \"team_balance\" [%s]", hostDoc) )
         __debugbreak();
       v6 = 0;
     }
-    bdJSONDeserializer::~bdJSONDeserializer(&v44);
+    bdJSONDeserializer::~bdJSONDeserializer(&v43);
     bdJSONDeserializer::~bdJSONDeserializer(&value);
-    bdJSONDeserializer::~bdJSONDeserializer(&v47);
+    bdJSONDeserializer::~bdJSONDeserializer(&v46);
   }
   else
   {
-    v33 = OnlineMatchmakerOmniscient::GetStateString(v5, (const MatchmakerOmniscientState)v5->m_state);
-    v34 = j_va("{\"state\":\"failed\", \"error\"=\"something is wrong with the team_balance.\",\"state\"=\"%s\"}", v33);
-    OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyHostDoc", v34, NULL, hostDoc, 0i64);
-    v35 = OnlineTimeSeriesLog::Get();
-    OnlineTimeSeriesLog::WriteEventCounter(v35, "mming.document.host.ruleset_payload.error.count", 1u);
+    v32 = OnlineMatchmakerOmniscient::GetStateString(v5, (const MatchmakerOmniscientState)v5->m_state);
+    v33 = j_va("{\"state\":\"failed\", \"error\"=\"something is wrong with the team_balance.\",\"state\"=\"%s\"}", v32);
+    OnlineMatchmakerOmniscient::Log(v5, "ParseLobbyHostDoc", v33, NULL, hostDoc, 0i64);
+    v34 = OnlineTimeSeriesLog::Get();
+    OnlineTimeSeriesLog::WriteEventCounter(v34, "mming.document.host.ruleset_payload.error.count", 1u);
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5112, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Failed to parse the host doc [%s]", hostDoc) )
       __debugbreak();
   }
-  bdJSONDeserializer::~bdJSONDeserializer(&v40);
+  bdJSONDeserializer::~bdJSONDeserializer(&v39);
   return v6;
 }
 
@@ -8445,27 +8244,28 @@ void OnlineMatchmakerOmniscient::ParseMatchmakingIds(OnlineMatchmakerOmniscient 
   signed int i; 
   unsigned __int64 v7; 
   ntl::internal::pool_allocator_freelist<32> *p_m_freelist; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
   __int128 result; 
-  __int128 v12; 
+  __int128 v11; 
   bdJSONDeserializer value; 
-  __int64 v14; 
-  bdJSONDeserializer v15; 
+  __int64 v13; 
+  bdJSONDeserializer v14; 
   char key[32]; 
 
-  v14 = -2i64;
+  v13 = -2i64;
   bdJSONDeserializer::bdJSONDeserializer(&value);
   if ( bdJSONDeserializer::getObject(backendDoc, "player_id_to_mm_id", &value) )
   {
     m_count = value.m_count;
     for ( i = 0; i < m_count; ++i )
     {
-      bdJSONDeserializer::bdJSONDeserializer(&v15);
-      if ( bdJSONDeserializer::getFieldByIndex(&value, i, key, 0x20u, &v15) )
+      bdJSONDeserializer::bdJSONDeserializer(&v14);
+      if ( bdJSONDeserializer::getFieldByIndex(&value, i, key, 0x20u, &v14) )
       {
         v7 = I_atoui64(key);
         XUID::FromUInt64((XUID *)&result, v7);
         bdJSONDeserializer::getUInt64(&value, key, (unsigned __int64 *)&result + 1);
-        v12 = result;
+        v11 = result;
         p_m_freelist = &lobbyDataToBeFilledIn->m_matchmakingIdList.m_freelist;
         if ( !lobbyDataToBeFilledIn->m_matchmakingIdList.m_freelist.m_head.mp_next )
         {
@@ -8476,18 +8276,14 @@ void OnlineMatchmakerOmniscient::ParseMatchmakingIds(OnlineMatchmakerOmniscient 
         }
         if ( (ntl::internal::pool_allocator_freelist<32> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x20ui64, 0xC8ui64) )
           __debugbreak();
-        _R8 = (ntl::internal::list_node<PlayerValue<unsigned __int64> > *)p_m_freelist->m_head.mp_next;
+        mp_next = p_m_freelist->m_head.mp_next;
         p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-        _R8->mp_prev = NULL;
-        _R8->mp_next = NULL;
-        __asm
-        {
-          vmovups xmm0, [rsp+0F8h+var_A8]
-          vmovups xmmword ptr [r8+10h], xmm0
-        }
-        ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<unsigned __int64>>>::insert_before(&lobbyDataToBeFilledIn->m_matchmakingIdList.m_listHead, (ntl::internal::list_node<PlayerValue<unsigned __int64> > *)&lobbyDataToBeFilledIn->m_matchmakingIdList.m_listHead, _R8);
+        mp_next->mp_next = NULL;
+        mp_next[1].mp_next = NULL;
+        *(_OWORD *)&mp_next[2].mp_next = v11;
+        ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<unsigned __int64>>>::insert_before(&lobbyDataToBeFilledIn->m_matchmakingIdList.m_listHead, (ntl::internal::list_node<PlayerValue<unsigned __int64> > *)&lobbyDataToBeFilledIn->m_matchmakingIdList.m_listHead, (ntl::internal::list_node<PlayerValue<unsigned __int64> > *)mp_next);
       }
-      bdJSONDeserializer::~bdJSONDeserializer(&v15);
+      bdJSONDeserializer::~bdJSONDeserializer(&v14);
     }
   }
   bdJSONDeserializer::~bdJSONDeserializer(&value);
@@ -8504,33 +8300,30 @@ void OnlineMatchmakerOmniscient::ParsePerformanceValues(OnlineMatchmakerOmniscie
   signed int i; 
   unsigned __int64 v7; 
   ntl::internal::pool_allocator_freelist<32> *p_m_freelist; 
-  float v12; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  float v10; 
   XUID result; 
-  __int128 v14; 
+  __int128 v12; 
   bdJSONDeserializer value; 
-  __int64 v16; 
-  bdJSONDeserializer v17; 
+  __int64 v14; 
+  bdJSONDeserializer v15; 
   char key[32]; 
 
-  v16 = -2i64;
+  v14 = -2i64;
   bdJSONDeserializer::bdJSONDeserializer(&value);
   if ( bdJSONDeserializer::getObject(backendDoc, "player_id_to_performance", &value) )
   {
     m_count = value.m_count;
     for ( i = 0; i < m_count; ++i )
     {
-      bdJSONDeserializer::bdJSONDeserializer(&v17);
-      if ( bdJSONDeserializer::getFieldByIndex(&value, i, key, 0x20u, &v17) )
+      bdJSONDeserializer::bdJSONDeserializer(&v15);
+      if ( bdJSONDeserializer::getFieldByIndex(&value, i, key, 0x20u, &v15) )
       {
         v7 = I_atoui64(key);
         XUID::FromUInt64(&result, v7);
-        bdJSONDeserializer::getFloat32(&value, key, &v12);
-        *(XUID *)&v14 = result;
-        __asm
-        {
-          vmovss  xmm0, [rsp+0F8h+var_B8]
-          vmovss  dword ptr [rsp+0F8h+var_A8+8], xmm0
-        }
+        bdJSONDeserializer::getFloat32(&value, key, &v10);
+        *(XUID *)&v12 = result;
+        *((float *)&v12 + 2) = v10;
         p_m_freelist = &lobbyDataToBeFilledIn->m_performanceValueList.m_freelist;
         if ( !lobbyDataToBeFilledIn->m_performanceValueList.m_freelist.m_head.mp_next )
         {
@@ -8541,18 +8334,14 @@ void OnlineMatchmakerOmniscient::ParsePerformanceValues(OnlineMatchmakerOmniscie
         }
         if ( (ntl::internal::pool_allocator_freelist<32> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x20ui64, 0xC8ui64) )
           __debugbreak();
-        _R8 = (ntl::internal::list_node<PlayerValue<float> > *)p_m_freelist->m_head.mp_next;
+        mp_next = p_m_freelist->m_head.mp_next;
         p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-        _R8->mp_prev = NULL;
-        _R8->mp_next = NULL;
-        __asm
-        {
-          vmovups xmm0, [rsp+0F8h+var_A8]
-          vmovups xmmword ptr [r8+10h], xmm0
-        }
-        ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<float>>>::insert_before(&lobbyDataToBeFilledIn->m_performanceValueList.m_listHead, (ntl::internal::list_node<PlayerValue<float> > *)&lobbyDataToBeFilledIn->m_performanceValueList.m_listHead, _R8);
+        mp_next->mp_next = NULL;
+        mp_next[1].mp_next = NULL;
+        *(_OWORD *)&mp_next[2].mp_next = v12;
+        ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<float>>>::insert_before(&lobbyDataToBeFilledIn->m_performanceValueList.m_listHead, (ntl::internal::list_node<PlayerValue<float> > *)&lobbyDataToBeFilledIn->m_performanceValueList.m_listHead, (ntl::internal::list_node<PlayerValue<float> > *)mp_next);
       }
-      bdJSONDeserializer::~bdJSONDeserializer(&v17);
+      bdJSONDeserializer::~bdJSONDeserializer(&v15);
     }
   }
   bdJSONDeserializer::~bdJSONDeserializer(&value);
@@ -8734,61 +8523,63 @@ __int64 OnlineMatchmakerOmniscient::ParseTeamInfo(OnlineMatchmakerOmniscient *th
   unsigned int m_count; 
   unsigned int v8; 
   ntl::internal::pool_allocator_freelist<32> *p_m_freelist; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *mp_next; 
+  signed int v11; 
   signed int v12; 
-  signed int v13; 
+  unsigned int v13; 
   unsigned int v14; 
   unsigned int v15; 
-  unsigned int v16; 
-  ntl::internal::pool_allocator_freelist<32> *v17; 
+  ntl::internal::pool_allocator_freelist<32> *v16; 
+  ntl::internal::pool_allocator_pointer_freelist::free_item_pointer *v17; 
+  bdJSONDeserializer *v19; 
+  bdJSONDeserializer *v20; 
   bdJSONDeserializer *v21; 
-  bdJSONDeserializer *v22; 
-  bdJSONDeserializer *v23; 
-  unsigned __int8 v24; 
+  unsigned __int8 v22; 
   unsigned int i; 
   signed int j; 
-  int v27; 
+  int v25; 
   unsigned __int64 id; 
   XUID result; 
-  XUID v30[2]; 
-  bdJSONDeserializer v31; 
-  bdJSONDeserializer v32; 
+  XUID v28[2]; 
+  bdJSONDeserializer v29; 
+  bdJSONDeserializer v30; 
   bdJSONDeserializer value; 
-  bdJSONDeserializer v34; 
-  __int64 v35; 
+  bdJSONDeserializer v32; 
+  __int64 v33; 
   bdJSONDeserializer key; 
-  char v37[32]; 
+  char v35[32]; 
 
-  v35 = -2i64;
-  v24 = 0;
+  v33 = -2i64;
+  v22 = 0;
   bdJSONDeserializer::bdJSONDeserializer(&value);
+  bdJSONDeserializer::bdJSONDeserializer(&v30);
   bdJSONDeserializer::bdJSONDeserializer(&v32);
-  bdJSONDeserializer::bdJSONDeserializer(&v34);
   Com_Printf(25, "[MM] %s STARTING.\n", "OnlineMatchmakerOmniscient::ParseTeamInfo");
   if ( bdJSONDeserializer::getObject(backendDoc, "team_balance", &value) )
   {
-    if ( bdJSONDeserializer::getObject(&value, "teams", &v32) )
+    if ( bdJSONDeserializer::getObject(&value, "teams", &v30) )
     {
-      v24 = 1;
-      bdJSONDeserializer::bdJSONDeserializer(&v31);
+      v22 = 1;
+      bdJSONDeserializer::bdJSONDeserializer(&v29);
       v5 = 0;
-      for ( i = 0; v5 < v32.m_count; i = v5 )
+      for ( i = 0; v5 < v30.m_count; i = v5 )
       {
-        if ( bdJSONDeserializer::getFieldByIndex(&v32, v5, (char *const)&key, 0x20u, &v31) )
+        if ( bdJSONDeserializer::getFieldByIndex(&v30, v5, (char *const)&key, 0x20u, &v29) )
         {
           v6 = (unsigned int)atoi((const char *)&key);
-          m_count = v31.m_count;
-          LODWORD(v21) = v31.m_count;
-          Com_Printf(25, "[MM] %s - DW team %i count %d\n", "OnlineMatchmakerOmniscient::ParseTeamInfo", v6, v21);
+          m_count = v29.m_count;
+          LODWORD(v19) = v29.m_count;
+          Com_Printf(25, "[MM] %s - DW team %i count %d\n", "OnlineMatchmakerOmniscient::ParseTeamInfo", v6, v19);
           v8 = 0;
           if ( m_count )
           {
             do
             {
-              if ( bdJSONDeserializer::getUInt64(&v31, v8, &id) )
+              if ( bdJSONDeserializer::getUInt64(&v29, v8, &id) )
               {
                 XUID::FromUInt64(&result, id);
-                v30[0] = result;
-                LODWORD(v30[1].m_id) = v6;
+                v28[0] = result;
+                LODWORD(v28[1].m_id) = v6;
                 p_m_freelist = &lobbyDataToBeFilledIn->m_teamAssignmentList.m_freelist;
                 if ( !lobbyDataToBeFilledIn->m_teamAssignmentList.m_freelist.m_head.mp_next )
                 {
@@ -8799,21 +8590,17 @@ __int64 OnlineMatchmakerOmniscient::ParseTeamInfo(OnlineMatchmakerOmniscient *th
                 }
                 if ( (ntl::internal::pool_allocator_freelist<32> *)p_m_freelist->m_head.mp_next == p_m_freelist && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x20ui64, 0xC8ui64) )
                   __debugbreak();
-                _R8 = (ntl::internal::list_node<PlayerValue<int> > *)p_m_freelist->m_head.mp_next;
+                mp_next = p_m_freelist->m_head.mp_next;
                 p_m_freelist->m_head.mp_next = p_m_freelist->m_head.mp_next->mp_next;
-                _R8->mp_prev = NULL;
-                _R8->mp_next = NULL;
-                __asm
-                {
-                  vmovups xmm0, xmmword ptr [rsp+170h+var_110.m_id]
-                  vmovups xmmword ptr [r8+10h], xmm0
-                }
-                ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<int>>>::insert_before(&lobbyDataToBeFilledIn->m_teamAssignmentList.m_listHead, (ntl::internal::list_node<PlayerValue<int> > *)&lobbyDataToBeFilledIn->m_teamAssignmentList.m_listHead, _R8);
+                mp_next->mp_next = NULL;
+                mp_next[1].mp_next = NULL;
+                *(_OWORD *)&mp_next[2].mp_next = *(_OWORD *)&v28[0].m_id;
+                ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<int>>>::insert_before(&lobbyDataToBeFilledIn->m_teamAssignmentList.m_listHead, (ntl::internal::list_node<PlayerValue<int> > *)&lobbyDataToBeFilledIn->m_teamAssignmentList.m_listHead, (ntl::internal::list_node<PlayerValue<int> > *)mp_next);
               }
               else
               {
-                LODWORD(v22) = v8;
-                Com_Printf(25, "[MM] %s - value at team [%d] array index [%d] is not a uint64! (getUInt64 failed)\n", "OnlineMatchmakerOmniscient::ParseTeamInfo", (unsigned int)v6, v22);
+                LODWORD(v20) = v8;
+                Com_Printf(25, "[MM] %s - value at team [%d] array index [%d] is not a uint64! (getUInt64 failed)\n", "OnlineMatchmakerOmniscient::ParseTeamInfo", (unsigned int)v6, v20);
               }
               ++v8;
             }
@@ -8823,73 +8610,69 @@ __int64 OnlineMatchmakerOmniscient::ParseTeamInfo(OnlineMatchmakerOmniscient *th
         }
         ++v5;
       }
-      bdJSONDeserializer::~bdJSONDeserializer(&v31);
+      bdJSONDeserializer::~bdJSONDeserializer(&v29);
     }
     else
     {
       Com_Printf(25, "[MM] %s - no key \"teams\" found in JSON for backend doc.\n", "OnlineMatchmakerOmniscient::ParseTeamInfo");
     }
-    if ( bdJSONDeserializer::getInt32(&value, "squad_size", &v27) )
+    if ( bdJSONDeserializer::getInt32(&value, "squad_size", &v25) )
     {
-      Com_Printf(25, "[MM] %s - squad size %i\n", "OnlineMatchmakerOmniscient::ParseTeamInfo", (unsigned int)v27);
-      if ( bdJSONDeserializer::getObject(&value, "squads", &v34) )
+      Com_Printf(25, "[MM] %s - squad size %i\n", "OnlineMatchmakerOmniscient::ParseTeamInfo", (unsigned int)v25);
+      if ( bdJSONDeserializer::getObject(&value, "squads", &v32) )
       {
         bdJSONDeserializer::bdJSONDeserializer(&key);
-        v12 = v34.m_count;
-        LODWORD(id) = v34.m_count;
-        v13 = 0;
-        for ( j = 0; v13 < v12; j = v13 )
+        v11 = v32.m_count;
+        LODWORD(id) = v32.m_count;
+        v12 = 0;
+        for ( j = 0; v12 < v11; j = v12 )
         {
-          if ( bdJSONDeserializer::getFieldByIndex(&v34, v13, v37, 0x20u, &key) )
+          if ( bdJSONDeserializer::getFieldByIndex(&v32, v12, v35, 0x20u, &key) )
           {
-            v14 = atoi(v37);
-            v15 = key.m_count;
-            if ( key.m_count > v27 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5238, ASSERT_TYPE_ASSERT, "(numPlayersOnSquad <= static_cast<uint>( squadSize ))", (const char *)&queryFormat, "numPlayersOnSquad <= static_cast<uint>( squadSize )") )
+            v13 = atoi(v35);
+            v14 = key.m_count;
+            if ( key.m_count > v25 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 5238, ASSERT_TYPE_ASSERT, "(numPlayersOnSquad <= static_cast<uint>( squadSize ))", (const char *)&queryFormat, "numPlayersOnSquad <= static_cast<uint>( squadSize )") )
               __debugbreak();
-            v16 = 0;
-            if ( v15 )
+            v15 = 0;
+            if ( v14 )
             {
               do
               {
-                if ( bdJSONDeserializer::getUInt64(&key, v16, &result.m_id) )
+                if ( bdJSONDeserializer::getUInt64(&key, v15, &result.m_id) )
                 {
-                  XUID::FromUInt64(v30, result.m_id);
-                  *(XUID *)&v31.m_type = v30[0];
-                  LODWORD(v31.m_ptr) = v14;
-                  v17 = &lobbyDataToBeFilledIn->m_squadAssignmentList.m_freelist;
+                  XUID::FromUInt64(v28, result.m_id);
+                  *(XUID *)&v29.m_type = v28[0];
+                  LODWORD(v29.m_ptr) = v13;
+                  v16 = &lobbyDataToBeFilledIn->m_squadAssignmentList.m_freelist;
                   if ( !lobbyDataToBeFilledIn->m_squadAssignmentList.m_freelist.m_head.mp_next )
                   {
                     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
                       __debugbreak();
-                    if ( !v17->m_head.mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
+                    if ( !v16->m_head.mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 112, ASSERT_TYPE_ASSERT, "( m_head.mp_next != 0 )", "This container was memset to zero") )
                       __debugbreak();
                   }
-                  if ( (ntl::internal::pool_allocator_freelist<32> *)v17->m_head.mp_next == v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x20ui64, 0xC8ui64) )
+                  if ( (ntl::internal::pool_allocator_freelist<32> *)v16->m_head.mp_next == v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\allocator\\pool_allocator.h", 298, ASSERT_TYPE_ASSERT, "( !empty() )", "Pool out of elements to allocate (Elem size=%zu, Num elems=%zu)", 0x20ui64, 0xC8ui64) )
                     __debugbreak();
-                  _R8 = (ntl::internal::list_node<PlayerValue<int> > *)v17->m_head.mp_next;
-                  v17->m_head.mp_next = v17->m_head.mp_next->mp_next;
-                  _R8->mp_prev = NULL;
-                  _R8->mp_next = NULL;
-                  __asm
-                  {
-                    vmovups xmm0, xmmword ptr [rsp+170h+var_100.m_type]
-                    vmovups xmmword ptr [r8+10h], xmm0
-                  }
-                  ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<int>>>::insert_before(&lobbyDataToBeFilledIn->m_squadAssignmentList.m_listHead, (ntl::internal::list_node<PlayerValue<int> > *)&lobbyDataToBeFilledIn->m_squadAssignmentList.m_listHead, _R8);
+                  v17 = v16->m_head.mp_next;
+                  v16->m_head.mp_next = v16->m_head.mp_next->mp_next;
+                  v17->mp_next = NULL;
+                  v17[1].mp_next = NULL;
+                  *(_OWORD *)&v17[2].mp_next = *(_OWORD *)&v29.m_type;
+                  ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<int>>>::insert_before(&lobbyDataToBeFilledIn->m_squadAssignmentList.m_listHead, (ntl::internal::list_node<PlayerValue<int> > *)&lobbyDataToBeFilledIn->m_squadAssignmentList.m_listHead, (ntl::internal::list_node<PlayerValue<int> > *)v17);
                 }
                 else
                 {
-                  LODWORD(v23) = v16;
-                  Com_PrintError(25, "[MM] %s - value at squad [%d] array index [%d] is not a uint64! (getUInt64 failed)\n", "OnlineMatchmakerOmniscient::ParseTeamInfo", v14, v23);
+                  LODWORD(v21) = v15;
+                  Com_PrintError(25, "[MM] %s - value at squad [%d] array index [%d] is not a uint64! (getUInt64 failed)\n", "OnlineMatchmakerOmniscient::ParseTeamInfo", v13, v21);
                 }
-                ++v16;
+                ++v15;
               }
-              while ( v16 < v15 );
-              v13 = j;
-              v12 = id;
+              while ( v15 < v14 );
+              v12 = j;
+              v11 = id;
             }
           }
-          ++v13;
+          ++v12;
         }
         bdJSONDeserializer::~bdJSONDeserializer(&key);
       }
@@ -8899,10 +8682,10 @@ __int64 OnlineMatchmakerOmniscient::ParseTeamInfo(OnlineMatchmakerOmniscient *th
       }
     }
   }
-  bdJSONDeserializer::~bdJSONDeserializer(&v34);
   bdJSONDeserializer::~bdJSONDeserializer(&v32);
+  bdJSONDeserializer::~bdJSONDeserializer(&v30);
   bdJSONDeserializer::~bdJSONDeserializer(&value);
-  return v24;
+  return v22;
 }
 
 /*
@@ -9360,53 +9143,54 @@ void OnlineMatchmakerOmniscient::QosCompleteCallback(OnlineMatchmakerOmniscient 
   const tQosEntry *v2; 
   OnlineMatchmakerOmniscient *v3; 
   bdQoSProbeInfo *m_data; 
+  ntl::internal::list_node_base *mp_next; 
   __int64 p_m_listHead; 
   unsigned int m_size; 
   unsigned int m_capacity; 
   unsigned int v9; 
   bdQoSProbeInfo *v10; 
+  char *p_m_latency; 
+  float *v12; 
   __int64 v13; 
   __int64 v14; 
-  bdQoSProbeInfo *v17; 
-  __int64 v18; 
-  __int64 v19; 
-  bool v20; 
-  bdQoSProbeInfo *v21; 
+  bdQoSProbeInfo *v15; 
+  __int64 v16; 
+  __int64 v17; 
+  bool v18; 
+  bdQoSProbeInfo *v19; 
   __int64 mp_next_high; 
-  const char *v24; 
-  OnlineTimeSeriesLog *v29; 
+  const char *v21; 
+  OnlineTimeSeriesLog *v22; 
   DWServicesAccess *Instance; 
   DWAsyncMatchMaking *AsyncMatchmaking; 
-  TaskCreateRequest *v32; 
-  bdRemoteTask *v33; 
-  TaskManager *v34; 
-  OnlineTimeSeriesLog *v35; 
+  TaskCreateRequest *v25; 
+  bdRemoteTask *v26; 
+  TaskManager *v27; 
+  OnlineTimeSeriesLog *v28; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
-  bdQoSProbeInfo *v37; 
-  __int64 v38; 
+  bdQoSProbeInfo *v30; 
+  __int64 v31; 
   char *fmt; 
   char *fmta; 
-  double demonwareTaskId; 
-  double v42; 
   bdArray<bdQoSProbeInfo> p; 
   TaskCreateRequest pTaskCreateRequest; 
-  ntl::internal::list_head_base<ntl::internal::list_node<QosDestinationEndpoint> > *v45; 
+  ntl::internal::list_head_base<ntl::internal::list_node<QosDestinationEndpoint> > *v36; 
   bdReference<bdRemoteTask> resulta; 
-  OnlineMatchmakerOmniscient *v47; 
-  const tQosEntry *v48; 
-  bdQoSProbeInfo *v49; 
-  __int64 v50; 
-  char *v51; 
-  bdQoSProbeInfo *v52; 
+  OnlineMatchmakerOmniscient *v38; 
+  const tQosEntry *v39; 
+  bdQoSProbeInfo *v40; 
+  __int64 v41; 
+  char *v42; 
+  bdQoSProbeInfo *v43; 
   TaskCreateResult pTaskCreateResult; 
-  bdJSONSerializer v54; 
+  bdJSONSerializer v45; 
   char str[24]; 
 
-  v50 = -2i64;
+  v41 = -2i64;
   v2 = result;
-  v48 = result;
+  v39 = result;
   v3 = this;
-  v47 = this;
+  v38 = this;
   Com_Printf(25, "[MM] %s - received qos complete callback. transaction id is %zu.\n", "OnlineMatchmakerOmniscient::QosCompleteCallback", result->m_DWQosTransactionId);
   m_data = NULL;
   p.m_data = NULL;
@@ -9414,18 +9198,18 @@ void OnlineMatchmakerOmniscient::QosCompleteCallback(OnlineMatchmakerOmniscient 
   v3->m_lobbyData.m_qosing = 0;
   v3->m_lobbyData.m_numQoses = 0;
   memset_0(v3->m_scratchBuffer, 0, sizeof(v3->m_scratchBuffer));
-  bdJSONSerializer::bdJSONSerializer(&v54, v3->m_scratchBuffer, 0x4000u);
-  bdJSONSerializer::writeBeginObject(&v54);
-  bdJSONSerializer::writeString(&v54, "state", "success");
-  bdJSONSerializer::writeBeginArray(&v54, "qos_results");
-  _RBX = v2->m_addressesToQos.m_listHead.m_sentinel.mp_next;
+  bdJSONSerializer::bdJSONSerializer(&v45, v3->m_scratchBuffer, 0x4000u);
+  bdJSONSerializer::writeBeginObject(&v45);
+  bdJSONSerializer::writeString(&v45, "state", "success");
+  bdJSONSerializer::writeBeginArray(&v45, "qos_results");
+  mp_next = v2->m_addressesToQos.m_listHead.m_sentinel.mp_next;
   p_m_listHead = (__int64)&v2->m_addressesToQos.m_listHead;
-  v45 = &v2->m_addressesToQos.m_listHead;
-  if ( _RBX != (ntl::internal::list_node_base *)&v2->m_addressesToQos.m_listHead )
+  v36 = &v2->m_addressesToQos.m_listHead;
+  if ( mp_next != (ntl::internal::list_node_base *)&v2->m_addressesToQos.m_listHead )
   {
     while ( 1 )
     {
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
       m_size = p.m_size;
       if ( p.m_size != p.m_capacity )
@@ -9449,121 +9233,106 @@ LABEL_26:
       p.m_capacity = v9;
       m_size = p.m_size;
 LABEL_28:
-      v19 = m_size;
-      v20 = &m_data[v19] == NULL;
-      v21 = &m_data[v19];
-      v52 = v21;
-      v49 = v21;
-      if ( !v20 )
+      v17 = m_size;
+      v18 = &m_data[v17] == NULL;
+      v19 = &m_data[v17];
+      v43 = v19;
+      v40 = v19;
+      if ( !v18 )
       {
-        bdQoSProbeInfo::bdQoSProbeInfo(v21, (const bdQoSProbeInfo *)&_RBX[3].mp_next);
+        bdQoSProbeInfo::bdQoSProbeInfo(v19, (const bdQoSProbeInfo *)&mp_next[3].mp_next);
         m_size = p.m_size;
       }
       p.m_size = m_size + 1;
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      bdAddr::toString((bdAddr *)&_RBX[4], str, 0x18ui64);
-      bdJSONSerializer::writeBeginObject(&v54);
-      bdJSONSerializer::writeString(&v54, "address", str);
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      bdAddr::toString((bdAddr *)&mp_next[4], str, 0x18ui64);
+      bdJSONSerializer::writeBeginObject(&v45);
+      bdJSONSerializer::writeString(&v45, "address", str);
+      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      __asm { vmovss  xmm2, dword ptr [rbx+0D8h]; value }
-      bdJSONSerializer::writeFloat32(&v54, "median_latency", *(const float *)&_XMM2, 0);
-      bdJSONSerializer::writeEndObject(&v54);
-      mp_next_high = HIDWORD(_RBX[15].mp_next);
-      v24 = "PACKET LOSS";
-      if ( (_DWORD)mp_next_high == HIDWORD(_RBX[20].mp_prev) )
-        v24 = (char *)&queryFormat.fmt + 3;
-      LODWORD(fmt) = HIDWORD(_RBX[20].mp_prev);
-      Com_Printf(25, "[QoS] %s received %i/%i probes to %s\n", v24, mp_next_high, fmt, str);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+0D8h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovss  xmm1, dword ptr [rbx+0F8h]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+260h+var_230], xmm0
-        vmovsd  [rsp+260h+demonwareTaskId], xmm1
-      }
-      LODWORD(fmta) = LODWORD(_RBX[21].mp_next) - HIDWORD(_RBX[21].mp_prev);
-      BB_Print(0, "online_omniscient_qos_probe", "num_probes %u time_to_complete_ms %u min_latency_value_sec %f latency_value_sec %f", HIDWORD(_RBX[21].mp_next), fmta, demonwareTaskId, v42);
-      _RBX = _RBX->mp_next;
+      bdJSONSerializer::writeFloat32(&v45, "median_latency", *(const float *)&mp_next[13].mp_next, 0);
+      bdJSONSerializer::writeEndObject(&v45);
+      mp_next_high = HIDWORD(mp_next[15].mp_next);
+      v21 = "PACKET LOSS";
+      if ( (_DWORD)mp_next_high == HIDWORD(mp_next[20].mp_prev) )
+        v21 = (char *)&queryFormat.fmt + 3;
+      LODWORD(fmt) = HIDWORD(mp_next[20].mp_prev);
+      Com_Printf(25, "[QoS] %s received %i/%i probes to %s\n", v21, mp_next_high, fmt, str);
+      LODWORD(fmta) = LODWORD(mp_next[21].mp_next) - HIDWORD(mp_next[21].mp_prev);
+      BB_Print(0, "online_omniscient_qos_probe", "num_probes %u time_to_complete_ms %u min_latency_value_sec %f latency_value_sec %f", HIDWORD(mp_next[21].mp_next), fmta, *(float *)&mp_next[15].mp_next, *(float *)&mp_next[13].mp_next);
+      mp_next = mp_next->mp_next;
       m_data = NULL;
-      if ( _RBX == (ntl::internal::list_node_base *)p_m_listHead )
+      if ( mp_next == (ntl::internal::list_node_base *)p_m_listHead )
       {
-        v3 = v47;
-        v2 = v48;
+        v3 = v38;
+        v2 = v39;
         goto LABEL_40;
       }
     }
-    _RDI = (char *)&v10->m_latency;
-    _RSI = &p.m_data->m_latency;
+    p_m_latency = (char *)&v10->m_latency;
+    v12 = &p.m_data->m_latency;
     v13 = p.m_size;
     do
     {
-      v51 = _RDI - 160;
-      v49 = (bdQoSProbeInfo *)(_RDI - 160);
-      if ( _RDI != (char *)160 )
+      v42 = p_m_latency - 160;
+      v40 = (bdQoSProbeInfo *)(p_m_latency - 160);
+      if ( p_m_latency != (char *)160 )
       {
-        v14 = *((_QWORD *)_RSI - 20);
-        *((_QWORD *)_RDI - 20) = v14;
+        v14 = *((_QWORD *)v12 - 20);
+        *((_QWORD *)p_m_latency - 20) = v14;
         if ( v14 )
           _InterlockedExchangeAdd((volatile signed __int32 *)(v14 + 8), 1u);
-        bdAddr::bdAddr((bdAddr *)_RDI - 1, (const bdAddr *)_RSI - 1);
-        *(float *)_RDI = *_RSI;
-        *((_QWORD *)_RDI + 1) = *((_QWORD *)_RSI + 1);
-        *((float *)_RDI + 4) = _RSI[4];
-        _RDI[20] = *((_BYTE *)_RSI + 20);
-        *((float *)_RDI + 6) = _RSI[6];
-        *((float *)_RDI + 7) = _RSI[7];
-        *((float *)_RDI + 8) = _RSI[8];
-        *((float *)_RDI + 9) = _RSI[9];
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rsi+28h]
-          vmovups ymmword ptr [rdi+28h], ymm0
-          vmovups ymm1, ymmword ptr [rsi+48h]
-          vmovups ymmword ptr [rdi+48h], ymm1
-        }
-        *((float *)_RDI + 26) = _RSI[26];
-        *((float *)_RDI + 27) = _RSI[27];
-        *((float *)_RDI + 28) = _RSI[28];
-        *((float *)_RDI + 29) = _RSI[29];
+        bdAddr::bdAddr((bdAddr *)p_m_latency - 1, (const bdAddr *)v12 - 1);
+        *(float *)p_m_latency = *v12;
+        *((_QWORD *)p_m_latency + 1) = *((_QWORD *)v12 + 1);
+        *((float *)p_m_latency + 4) = v12[4];
+        p_m_latency[20] = *((_BYTE *)v12 + 20);
+        *((float *)p_m_latency + 6) = v12[6];
+        *((float *)p_m_latency + 7) = v12[7];
+        *((float *)p_m_latency + 8) = v12[8];
+        *((float *)p_m_latency + 9) = v12[9];
+        *(__m256i *)(p_m_latency + 40) = *(__m256i *)(v12 + 10);
+        *(__m256i *)(p_m_latency + 72) = *(__m256i *)(v12 + 18);
+        *((float *)p_m_latency + 26) = v12[26];
+        *((float *)p_m_latency + 27) = v12[27];
+        *((float *)p_m_latency + 28) = v12[28];
+        *((float *)p_m_latency + 29) = v12[29];
       }
-      _RDI += 280;
-      _RSI += 70;
+      p_m_latency += 280;
+      v12 += 70;
       --v13;
     }
     while ( v13 );
     m_size = p.m_size;
-    p_m_listHead = (__int64)v45;
+    p_m_listHead = (__int64)v36;
 LABEL_17:
     if ( m_size )
     {
-      v17 = p.m_data;
-      v18 = m_size;
+      v15 = p.m_data;
+      v16 = m_size;
       do
       {
-        if ( v17->m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v17->m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+        if ( v15->m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v15->m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
         {
-          if ( v17->m_addr.m_ptr )
-            ((void (__fastcall *)(bdCommonAddr *, __int64))v17->m_addr.m_ptr->~bdReferencable)(v17->m_addr.m_ptr, 1i64);
-          v17->m_addr.m_ptr = NULL;
+          if ( v15->m_addr.m_ptr )
+            ((void (__fastcall *)(bdCommonAddr *, __int64))v15->m_addr.m_ptr->~bdReferencable)(v15->m_addr.m_ptr, 1i64);
+          v15->m_addr.m_ptr = NULL;
         }
-        ++v17;
-        --v18;
+        ++v15;
+        --v16;
       }
-      while ( v18 );
-      p_m_listHead = (__int64)v45;
+      while ( v16 );
+      p_m_listHead = (__int64)v36;
     }
     goto LABEL_26;
   }
 LABEL_40:
-  bdJSONSerializer::writeEndArray(&v54);
-  bdJSONSerializer::writeEndObject(&v54);
+  bdJSONSerializer::writeEndArray(&v45);
+  bdJSONSerializer::writeEndObject(&v45);
   OnlineMatchmakerOmniscient::Log(v3, "QosCompleteCallback", v3->m_scratchBuffer, NULL, NULL, 0i64);
-  v29 = OnlineTimeSeriesLog::Get();
-  OnlineTimeSeriesLog::WriteEventCounter(v29, "event.qoshosts.completed.count", 1u);
+  v22 = OnlineTimeSeriesLog::Get();
+  OnlineTimeSeriesLog::WriteEventCounter(v22, "event.qoshosts.completed.count", 1u);
   pTaskCreateRequest.m_appTaskType = -1;
   memset(&pTaskCreateRequest.m_appSecondaryCallback, 0, 24);
   pTaskCreateRequest.m_onUpdateCallback = NULL;
@@ -9576,22 +9345,22 @@ LABEL_40:
   pTaskCreateRequest.m_controllerIndex = v3->m_controllerIndex;
   Instance = DWServicesAccess::GetInstance();
   AsyncMatchmaking = DWServicesAccess::GetAsyncMatchmaking(Instance, v3->m_controllerIndex);
-  v32 = (TaskCreateRequest *)DWAsyncMatchMaking::qosHostsReply(AsyncMatchmaking, &resulta, v2->m_DWQosTransactionId, &p);
-  if ( v32 != (TaskCreateRequest *)&pTaskCreateRequest.m_remoteDemonwareTask )
+  v25 = (TaskCreateRequest *)DWAsyncMatchMaking::qosHostsReply(AsyncMatchmaking, &resulta, v2->m_DWQosTransactionId, &p);
+  if ( v25 != (TaskCreateRequest *)&pTaskCreateRequest.m_remoteDemonwareTask )
   {
     if ( pTaskCreateRequest.m_remoteDemonwareTask.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&pTaskCreateRequest.m_remoteDemonwareTask.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && pTaskCreateRequest.m_remoteDemonwareTask.m_ptr )
       ((void (__fastcall *)(bdRemoteTask *, __int64))pTaskCreateRequest.m_remoteDemonwareTask.m_ptr->~bdReferencable)(pTaskCreateRequest.m_remoteDemonwareTask.m_ptr, 1i64);
-    v33 = *(bdRemoteTask **)&v32->m_controllerIndex;
-    pTaskCreateRequest.m_remoteDemonwareTask.m_ptr = v33;
-    if ( v33 )
-      _InterlockedExchangeAdd((volatile signed __int32 *)&v33->m_refCount, 1u);
+    v26 = *(bdRemoteTask **)&v25->m_controllerIndex;
+    pTaskCreateRequest.m_remoteDemonwareTask.m_ptr = v26;
+    if ( v26 )
+      _InterlockedExchangeAdd((volatile signed __int32 *)&v26->m_refCount, 1u);
   }
   if ( resulta.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&resulta.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && resulta.m_ptr )
     ((void (__fastcall *)(bdRemoteTask *, __int64))resulta.m_ptr->~bdReferencable)(resulta.m_ptr, 1i64);
-  if ( !pTaskCreateRequest.m_remoteDemonwareTask.m_ptr || (v34 = TaskManager::GetInstance(), !TaskManager::CreateTask(v34, &pTaskCreateRequest, &pTaskCreateResult)) )
+  if ( !pTaskCreateRequest.m_remoteDemonwareTask.m_ptr || (v27 = TaskManager::GetInstance(), !TaskManager::CreateTask(v27, &pTaskCreateRequest, &pTaskCreateResult)) )
     Com_PrintError(25, "[MM] %s - failed to send the qos reply for transaction %zu.\n", "OnlineMatchmakerOmniscient::QosCompleteCallback", v2->m_DWQosTransactionId);
-  v35 = OnlineTimeSeriesLog::Get();
-  OnlineTimeSeriesLog::WriteEventCounter(v35, "mming.qoshostsreply.initiate.count", 1u);
+  v28 = OnlineTimeSeriesLog::Get();
+  OnlineTimeSeriesLog::WriteEventCounter(v28, "mming.qoshostsreply.initiate.count", 1u);
   pTaskCreateRequest.m_onCompletionCallback = NULL;
   pTaskCreateRequest.m_onUpdateCallback = NULL;
   pTaskCreateRequest.m_appSecondaryCallback = NULL;
@@ -9615,23 +9384,23 @@ LABEL_40:
   }
   if ( m_asyncInfo )
     m_asyncInfo->__abi_Release(m_asyncInfo);
-  bdJSONSerializer::~bdJSONSerializer(&v54);
+  bdJSONSerializer::~bdJSONSerializer(&v45);
   if ( p.m_size )
   {
-    v37 = p.m_data;
-    v38 = p.m_size;
+    v30 = p.m_data;
+    v31 = p.m_size;
     do
     {
-      if ( v37->m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v37->m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
+      if ( v30->m_addr.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&v30->m_addr.m_ptr->m_refCount, 0xFFFFFFFF) == 1 )
       {
-        if ( v37->m_addr.m_ptr )
-          ((void (__fastcall *)(bdCommonAddr *, __int64))v37->m_addr.m_ptr->~bdReferencable)(v37->m_addr.m_ptr, 1i64);
-        v37->m_addr.m_ptr = NULL;
+        if ( v30->m_addr.m_ptr )
+          ((void (__fastcall *)(bdCommonAddr *, __int64))v30->m_addr.m_ptr->~bdReferencable)(v30->m_addr.m_ptr, 1i64);
+        v30->m_addr.m_ptr = NULL;
       }
-      ++v37;
-      --v38;
+      ++v30;
+      --v31;
     }
-    while ( v38 );
+    while ( v31 );
   }
   bdMemory::deallocate(p.m_data);
 }
@@ -9647,18 +9416,19 @@ void OnlineMatchmakerOmniscient::QosHosts(OnlineMatchmakerOmniscient *this, cons
   unsigned int v9; 
   unsigned int m_size; 
   __int64 v11; 
+  bdQoSRemoteAddr *v12; 
   bdCommonAddr *m_ptr; 
   bdAddr *PublicAddr; 
   bdAddr *LocalAddrByIndex; 
-  OnlineTimeSeriesLog *v17; 
+  OnlineTimeSeriesLog *v16; 
   char *fmt; 
-  unsigned int v20; 
-  bdCommonAddr *v21; 
+  unsigned int v19; 
+  bdCommonAddr *v20; 
   bdSecurityID id; 
   bdSecurityKey key; 
   char buffer[24]; 
-  char v25[40]; 
-  char v26[48]; 
+  char v24[40]; 
+  char v25[48]; 
   char str[48]; 
 
   if ( !qosHosts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 4864, ASSERT_TYPE_ASSERT, "(qosHosts)", (const char *)&queryFormat, "qosHosts") )
@@ -9672,8 +9442,8 @@ void OnlineMatchmakerOmniscient::QosHosts(OnlineMatchmakerOmniscient *this, cons
     this->m_lobbyData.m_qosing = 1;
     this->m_lobbyData.m_numQoses = qosHosts->m_size;
     m_size = qosHosts->m_size;
-    v20 = m_size;
-    v21 = NULL;
+    v19 = m_size;
+    v20 = NULL;
     bdSecurityID::bdSecurityID(&id);
     bdSecurityKey::bdSecurityKey(&key);
     if ( m_size )
@@ -9683,46 +9453,42 @@ void OnlineMatchmakerOmniscient::QosHosts(OnlineMatchmakerOmniscient *this, cons
       {
         if ( v9 < qosHosts->m_size )
         {
-          _RBX = &qosHosts->m_data[v11];
-          if ( _RBX != (bdQoSRemoteAddr *)&v21 )
+          v12 = &qosHosts->m_data[v11];
+          if ( v12 != (bdQoSRemoteAddr *)&v20 )
           {
-            if ( v21 && _InterlockedExchangeAdd((volatile signed __int32 *)&v21->m_refCount, 0xFFFFFFFF) == 1 && v21 )
-              ((void (__fastcall *)(bdCommonAddr *, __int64))v21->~bdReferencable)(v21, 1i64);
-            m_ptr = _RBX->m_addr.m_ptr;
-            v21 = m_ptr;
+            if ( v20 && _InterlockedExchangeAdd((volatile signed __int32 *)&v20->m_refCount, 0xFFFFFFFF) == 1 && v20 )
+              ((void (__fastcall *)(bdCommonAddr *, __int64))v20->~bdReferencable)(v20, 1i64);
+            m_ptr = v12->m_addr.m_ptr;
+            v20 = m_ptr;
             if ( m_ptr )
               _InterlockedExchangeAdd((volatile signed __int32 *)&m_ptr->m_refCount, 1u);
           }
-          id = _RBX->m_id;
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rbx+10h]
-            vmovups xmmword ptr [rsp+160h+key.ab], xmm0
-          }
-          m_size = v20;
+          id = v12->m_id;
+          key = v12->m_key;
+          m_size = v19;
         }
-        PublicAddr = (bdAddr *)bdCommonAddr::getPublicAddr(v21);
+        PublicAddr = (bdAddr *)bdCommonAddr::getPublicAddr(v20);
         bdAddr::toString(PublicAddr, str, 0x2Aui64);
-        LocalAddrByIndex = (bdAddr *)bdCommonAddr::getLocalAddrByIndex(v21, 0);
-        bdAddr::toString(LocalAddrByIndex, v26, 0x2Aui64);
+        LocalAddrByIndex = (bdAddr *)bdCommonAddr::getLocalAddrByIndex(v20, 0);
+        bdAddr::toString(LocalAddrByIndex, v25, 0x2Aui64);
         bdSecurityInfo::toString(&id, buffer, 0x12u);
-        bdSecurityInfo::toString(&key, v25, 0x24u);
-        LODWORD(fmt) = bdCommonAddr::getLocalAddrs(v21)->m_size;
-        Com_Printf(25, "\tpublic: %s private: %s (%d) sec id = %s sec key = %s\n", str, v26, fmt, buffer, v25);
+        bdSecurityInfo::toString(&key, v24, 0x24u);
+        LODWORD(fmt) = bdCommonAddr::getLocalAddrs(v20)->m_size;
+        Com_Printf(25, "\tpublic: %s private: %s (%d) sec id = %s sec key = %s\n", str, v25, fmt, buffer, v24);
         ++v9;
         ++v11;
       }
       while ( v9 < m_size );
     }
-    v17 = OnlineTimeSeriesLog::Get();
-    OnlineTimeSeriesLog::WriteEventCounter(v17, "event.qoshosts.received.count", 1u);
+    v16 = OnlineTimeSeriesLog::Get();
+    OnlineTimeSeriesLog::WriteEventCounter(v16, "event.qoshosts.received.count", 1u);
     Qos::Probe(&this->m_qos, transactionId, qosHosts, numProbes, OnlineMatchmakerOmniscient::staticQosCompleteCallback, this);
     bdSecurityKey::~bdSecurityKey(&key);
     bdSecurityID::~bdSecurityID(&id);
-    if ( v21 && _InterlockedExchangeAdd((volatile signed __int32 *)&v21->m_refCount, 0xFFFFFFFF) == 1 )
+    if ( v20 && _InterlockedExchangeAdd((volatile signed __int32 *)&v20->m_refCount, 0xFFFFFFFF) == 1 )
     {
-      if ( v21 )
-        ((void (__fastcall *)(bdCommonAddr *, __int64))v21->~bdReferencable)(v21, 1i64);
+      if ( v20 )
+        ((void (__fastcall *)(bdCommonAddr *, __int64))v20->~bdReferencable)(v20, 1i64);
     }
   }
 }
@@ -11662,6 +11428,7 @@ __int64 OnlineMatchmakerOmniscient::SetPlayerInfo(OnlineMatchmakerOmniscient *th
   char *v9; 
   XB3ConsoleType XB3ConsoleType; 
   const char *v11; 
+  __int64 v12; 
   const dvar_t *v13; 
   unsigned int v14; 
   DWServicesAccess *Instance; 
@@ -11670,19 +11437,19 @@ __int64 OnlineMatchmakerOmniscient::SetPlayerInfo(OnlineMatchmakerOmniscient *th
   TaskCreateRequest *v18; 
   bdRemoteTask *v19; 
   TaskManager *v20; 
+  OnlineTimeSeriesLog *v21; 
+  int v22; 
   OnlineTimeSeriesLog *v23; 
-  int v24; 
-  OnlineTimeSeriesLog *v25; 
   Windows::Foundation::IAsyncInfo *m_asyncInfo; 
   TaskCreateRequest pTaskCreateRequest; 
   bdReference<bdRemoteTask> result; 
   TaskCreateResult pTaskCreateResult; 
-  __int64 v31; 
+  __int64 v29; 
   checksum128_t checksum; 
   bdJSONSerializer json; 
   char buildName[256]; 
 
-  v31 = -2i64;
+  v29 = -2i64;
   bdJSONSerializer::bdJSONSerializer(&json);
   ClientFromController = CL_Mgr_GetClientFromController(controllerIndex);
   v9 = s_jsonScratchBuffer[ClientFromController];
@@ -11702,8 +11469,8 @@ __int64 OnlineMatchmakerOmniscient::SetPlayerInfo(OnlineMatchmakerOmniscient *th
     if ( !bdJSONSerializer::validate(&json) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 3931, ASSERT_TYPE_ASSERT, "(json.validate())", (const char *)&queryFormat, "json.validate()") )
       __debugbreak();
     Core_StringChecksum(v9, &checksum);
-    _R14 = ClientFromController;
-    if ( *(_QWORD *)checksum.hash != *(_QWORD *)s_playerInfoChecksum[_R14].hash || *(_QWORD *)&checksum.hash[2] != *(_QWORD *)&s_playerInfoChecksum[_R14].hash[2] )
+    v12 = ClientFromController;
+    if ( *(_QWORD *)checksum.hash != *(_QWORD *)s_playerInfoChecksum[v12].hash || *(_QWORD *)&checksum.hash[2] != *(_QWORD *)&s_playerInfoChecksum[v12].hash[2] )
       goto LABEL_19;
     v13 = DVARBOOL_online_matchmaking_cached_player_info;
     if ( !DVARBOOL_online_matchmaking_cached_player_info && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "online_matchmaking_cached_player_info") )
@@ -11745,23 +11512,21 @@ LABEL_19:
         ((void (__fastcall *)(bdRemoteTask *, __int64))result.m_ptr->~bdReferencable)(result.m_ptr, 1i64);
       if ( pTaskCreateRequest.m_remoteDemonwareTask.m_ptr && (v20 = TaskManager::GetInstance(), TaskManager::CreateTask(v20, &pTaskCreateRequest, &pTaskCreateResult)) )
       {
-        __asm { vmovups xmm0, xmmword ptr [rbp+230h+checksum.hash] }
-        _RAX = s_playerInfoChecksum;
-        __asm { vmovups xmmword ptr [rax+r14*8], xmm0 }
+        s_playerInfoChecksum[v12] = checksum;
         if ( outTaskId )
           *outTaskId = pTaskCreateResult.m_localTaskId;
         Com_Printf(25, "[MM] %s - sending to Demonware %s\n", "OnlineMatchmakerOmniscient::SetPlayerInfo", v9);
-        v23 = OnlineTimeSeriesLog::Get();
-        OnlineTimeSeriesLog::WriteEventCounter(v23, "mming.setplayerinfo.initiate.count", 1u);
+        v21 = OnlineTimeSeriesLog::Get();
+        OnlineTimeSeriesLog::WriteEventCounter(v21, "mming.setplayerinfo.initiate.count", 1u);
         OnlineMatchmakerOmniscient::Log(this, "setPlayerInfo", v9, NULL, NULL, 0i64);
-        v24 = 0;
+        v22 = 0;
       }
       else
       {
         Com_PrintError(25, "[MM] %s - failed to create the task to add the player to the matchmaker.\n", "OnlineMatchmakerOmniscient::SetPlayerInfo");
-        v25 = OnlineTimeSeriesLog::Get();
-        OnlineTimeSeriesLog::WriteEventCounter(v25, "mming.setplayerinfo.failure.count", 1u);
-        v24 = 2;
+        v23 = OnlineTimeSeriesLog::Get();
+        OnlineTimeSeriesLog::WriteEventCounter(v23, "mming.setplayerinfo.failure.count", 1u);
+        v22 = 2;
       }
       pTaskCreateRequest.m_onCompletionCallback = NULL;
       pTaskCreateRequest.m_onUpdateCallback = NULL;
@@ -11786,7 +11551,7 @@ LABEL_19:
       }
       if ( m_asyncInfo )
         m_asyncInfo->__abi_Release(m_asyncInfo);
-      v14 = v24;
+      v14 = v22;
     }
   }
   else
@@ -13959,20 +13724,20 @@ void OnlineMatchmakerOmniscient::UpdateLobbyDocument(OnlineMatchmakerOmniscient 
   __int64 v15; 
   ntl::internal::list_node_base *k; 
   unsigned __int64 m_dwTimestampOfLastUpdate; 
-  const char *v24; 
+  XNADDR *Address; 
+  const char *v19; 
   MatchMakerOmniLobbyData lobbyData; 
 
-  _RDI = this;
   Com_Printf(131097, "[MM] %s - updateid = %zu lobbyid = %zu\n", "OnlineMatchmakerOmniscient::UpdateLobbyDocument", updateId, lobbyId);
   Com_Printf(25, "[MM] %s - lobby backend doc = \"%s\"\n", "OnlineMatchmakerOmniscient::UpdateLobbyDocument", lobbyBackendDoc);
   Com_Printf(25, "[MM] %s - lobby host doc = \"%s\"\n", "OnlineMatchmakerOmniscient::UpdateLobbyDocument", lobbyHostDoc);
   v10 = OnlineTimeSeriesLog::Get();
   OnlineTimeSeriesLog::WriteEventCounter(v10, "event.updatelobbydocument.received.count", 1u);
-  if ( _RDI->m_lobbyData.m_lobbyid == lobbyId )
+  if ( this->m_lobbyData.m_lobbyid == lobbyId )
   {
     MatchMakerOmniLobbyData::MatchMakerOmniLobbyData(&lobbyData);
-    OnlineMatchmakerOmniscient::ParseLobbyHostDoc(_RDI, lobbyHostDoc, &lobbyData);
-    OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(_RDI, lobbyBackendDoc, &lobbyData);
+    OnlineMatchmakerOmniscient::ParseLobbyHostDoc(this, lobbyHostDoc, &lobbyData);
+    OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(this, lobbyBackendDoc, &lobbyData);
     v11 = 0i64;
     for ( i = lobbyData.m_squadAssignmentList.m_listHead.m_sentinel.mp_next; i != (ntl::internal::list_node_base *)&lobbyData.m_squadAssignmentList.m_listHead; i = i->mp_next )
       ++v11;
@@ -13983,57 +13748,43 @@ void OnlineMatchmakerOmniscient::UpdateLobbyDocument(OnlineMatchmakerOmniscient 
     for ( k = lobbyData.m_expectedPlayers.m_listHead.m_sentinel.mp_next; k != (ntl::internal::list_node_base *)&lobbyData.m_expectedPlayers.m_listHead; k = k->mp_next )
       ++v15;
     Com_Printf(131097, "[MM] %s: Expected Players %lu, Team Count %lu, Squad Count %lu, updateId %zu\n", "OnlineMatchmakerOmniscient::UpdateLobbyDocument", v15, v13, v11, updateId);
-    if ( lobbyData.m_lobbyid != _RDI->m_lobbyData.m_lobbyid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 6746, ASSERT_TYPE_ASSERT, "(lobbyData.m_lobbyid == m_lobbyData.m_lobbyid)", (const char *)&queryFormat, "lobbyData.m_lobbyid == m_lobbyData.m_lobbyid") )
+    if ( lobbyData.m_lobbyid != this->m_lobbyData.m_lobbyid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 6746, ASSERT_TYPE_ASSERT, "(lobbyData.m_lobbyid == m_lobbyData.m_lobbyid)", (const char *)&queryFormat, "lobbyData.m_lobbyid == m_lobbyData.m_lobbyid") )
       __debugbreak();
-    m_dwTimestampOfLastUpdate = _RDI->m_lobbyData.m_dwTimestampOfLastUpdate;
+    m_dwTimestampOfLastUpdate = this->m_lobbyData.m_dwTimestampOfLastUpdate;
     if ( m_dwTimestampOfLastUpdate >= lobbyData.m_dwTimestampOfLastUpdate )
     {
       Com_PrintError(25, "[MM] %s Received old update - We're at %zu, the recently received update is at %zu. DROPPING\n", "OnlineMatchmakerOmniscient::UpdateLobbyDocument", m_dwTimestampOfLastUpdate, lobbyData.m_dwTimestampOfLastUpdate);
     }
     else
     {
-      _RDI->m_lobbyData.m_dwTimestampOfLastUpdate = lobbyData.m_dwTimestampOfLastUpdate;
-      _RDI->m_lobbyData.m_updateId = updateId;
-      _RDI->m_lobbyData.m_hostUID = lobbyData.m_hostUID;
-      Core_strcpy(_RDI->m_lobbyData.m_hostAddressBase64, 0x71ui64, lobbyData.m_hostAddressBase64);
-      _RBX = XSESSION_INFO::GetAddress(&lobbyData.m_hostAddress);
-      _RAX = XSESSION_INFO::GetAddress(&_RDI->m_lobbyData.m_hostAddress);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rax], ymm0
-        vmovups ymm1, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rax+20h], ymm1
-        vmovups xmm0, xmmword ptr [rbx+40h]
-        vmovups xmmword ptr [rax+40h], xmm0
-      }
-      *(_DWORD *)&_RAX->addrBuff[80] = *(_DWORD *)&_RBX->addrBuff[80];
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbp+181A0h+lobbyData.m_key.ab]
-        vmovups xmmword ptr [rdi+13825h], xmm0
-      }
-      _RDI->m_lobbyData.m_keyId = lobbyData.m_keyId;
-      _RDI->m_lobbyData.m_canGameStart = lobbyData.m_canGameStart;
-      ntl::list<XUID,ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>::assign<ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>(&_RDI->m_lobbyData.m_migrationList, &lobbyData.m_migrationList);
-      memcpy_0(_RDI->m_lobbyData.m_dvarOverrides, lobbyData.m_dvarOverrides, sizeof(_RDI->m_lobbyData.m_dvarOverrides));
-      _RDI->m_lobbyData.m_dvarOverrideCount = lobbyData.m_dvarOverrideCount;
-      memcpy_0(_RDI->m_lobbyData.m_dcPrefs._bytes_20, lobbyData.m_dcPrefs._bytes_20, 0x1000ui64);
-      _RDI->m_lobbyData.m_dcPrefs.m_numDataCenterPreferences = lobbyData.m_dcPrefs.m_numDataCenterPreferences;
-      v24 = j_va("\"update_id\":%zu", updateId);
-      OnlineMatchmakerOmniscient::Log(_RDI, "UpdateLobbyDocument", v24, lobbyBackendDoc, lobbyHostDoc, 0i64);
-      OnlineMatchmakerOmniscient::ReconcileExpectedPlayers(_RDI, &lobbyData.m_expectedPlayers);
-      OnlineMatchmakerOmniscient::UpdateTeamAssignments(_RDI, &lobbyData.m_teamAssignmentList);
-      OnlineMatchmakerOmniscient::UpdateSquadAssignments(_RDI, &lobbyData.m_squadAssignmentList);
-      OnlineMatchmakerOmniscient::UpdateMatchmakingIds(_RDI, &lobbyData.m_matchmakingIdList);
-      OnlineMatchmakerOmniscient::UpdatePerformanceValues(_RDI, &lobbyData.m_performanceValueList);
-      OnlineMatchmakerOmniscient::UpdateServiceLevels(_RDI, &lobbyData.m_paidUsersList, 1);
-      OnlineMatchmakerOmniscient::UpdateServiceLevels(_RDI, &lobbyData.m_freemiumUsersList, 0);
-      OnlineMatchmakerOmniscient::UpdateAdditionalPlayerSlots(_RDI, &lobbyData.m_additionalSlotsRequestedList);
-      OnlineMatchmakerOmniscient::SyncSplitscreenPlayers(_RDI);
-      _RDI->m_lobbyData.m_lobbyDocIsDirty = 1;
-      _RDI->m_callbacks.m_outstandingCallback |= 8u;
-      _RDI->m_callbacks.m_callbackWasSuccessful[3] = 1;
+      this->m_lobbyData.m_dwTimestampOfLastUpdate = lobbyData.m_dwTimestampOfLastUpdate;
+      this->m_lobbyData.m_updateId = updateId;
+      this->m_lobbyData.m_hostUID = lobbyData.m_hostUID;
+      Core_strcpy(this->m_lobbyData.m_hostAddressBase64, 0x71ui64, lobbyData.m_hostAddressBase64);
+      Address = XSESSION_INFO::GetAddress(&lobbyData.m_hostAddress);
+      *XSESSION_INFO::GetAddress(&this->m_lobbyData.m_hostAddress) = *Address;
+      this->m_lobbyData.m_key = lobbyData.m_key;
+      this->m_lobbyData.m_keyId = lobbyData.m_keyId;
+      this->m_lobbyData.m_canGameStart = lobbyData.m_canGameStart;
+      ntl::list<XUID,ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>::assign<ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>(&this->m_lobbyData.m_migrationList, &lobbyData.m_migrationList);
+      memcpy_0(this->m_lobbyData.m_dvarOverrides, lobbyData.m_dvarOverrides, sizeof(this->m_lobbyData.m_dvarOverrides));
+      this->m_lobbyData.m_dvarOverrideCount = lobbyData.m_dvarOverrideCount;
+      memcpy_0(this->m_lobbyData.m_dcPrefs._bytes_20, lobbyData.m_dcPrefs._bytes_20, 0x1000ui64);
+      this->m_lobbyData.m_dcPrefs.m_numDataCenterPreferences = lobbyData.m_dcPrefs.m_numDataCenterPreferences;
+      v19 = j_va("\"update_id\":%zu", updateId);
+      OnlineMatchmakerOmniscient::Log(this, "UpdateLobbyDocument", v19, lobbyBackendDoc, lobbyHostDoc, 0i64);
+      OnlineMatchmakerOmniscient::ReconcileExpectedPlayers(this, &lobbyData.m_expectedPlayers);
+      OnlineMatchmakerOmniscient::UpdateTeamAssignments(this, &lobbyData.m_teamAssignmentList);
+      OnlineMatchmakerOmniscient::UpdateSquadAssignments(this, &lobbyData.m_squadAssignmentList);
+      OnlineMatchmakerOmniscient::UpdateMatchmakingIds(this, &lobbyData.m_matchmakingIdList);
+      OnlineMatchmakerOmniscient::UpdatePerformanceValues(this, &lobbyData.m_performanceValueList);
+      OnlineMatchmakerOmniscient::UpdateServiceLevels(this, &lobbyData.m_paidUsersList, 1);
+      OnlineMatchmakerOmniscient::UpdateServiceLevels(this, &lobbyData.m_freemiumUsersList, 0);
+      OnlineMatchmakerOmniscient::UpdateAdditionalPlayerSlots(this, &lobbyData.m_additionalSlotsRequestedList);
+      OnlineMatchmakerOmniscient::SyncSplitscreenPlayers(this);
+      this->m_lobbyData.m_lobbyDocIsDirty = 1;
+      this->m_callbacks.m_outstandingCallback |= 8u;
+      this->m_callbacks.m_callbackWasSuccessful[3] = 1;
     }
     MatchMakerOmniLobbyData::~MatchMakerOmniLobbyData(&lobbyData);
   }
@@ -14222,85 +13973,47 @@ OnlineMatchmakerOmniscient::UpdatePerformanceValues
 */
 void OnlineMatchmakerOmniscient::UpdatePerformanceValues(OnlineMatchmakerOmniscient *this, const ntl::fixed_list<PlayerValue<float>,200,0> *performanceValueList)
 {
-  ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<float> > > *p_m_listHead; 
-  bool v9; 
-  bool v10; 
-  const char *v15; 
-  const char *v18; 
-  char *fmt; 
-  void *retaddr; 
+  ntl::internal::list_node_base *mp_next; 
+  ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<float> > > *i; 
+  ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *mp_node; 
+  float v6; 
+  double m_performanceValue; 
+  const char *v8; 
+  const char *v9; 
   ntl::internal::list_iterator<OnlineMatchmakerOmniscient::Player,ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>,OnlineMatchmakerOmniscient::Player *,OnlineMatchmakerOmniscient::Player &> it; 
 
-  _RAX = &retaddr;
-  _RBX = performanceValueList->m_listHead.m_sentinel.mp_next;
-  p_m_listHead = &performanceValueList->m_listHead;
-  if ( _RBX != (ntl::internal::list_node_base *)&performanceValueList->m_listHead )
+  mp_next = performanceValueList->m_listHead.m_sentinel.mp_next;
+  for ( i = &performanceValueList->m_listHead; mp_next != (ntl::internal::list_node_base *)i; mp_next = mp_next->mp_next )
   {
-    __asm
+    if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      __debugbreak();
+    if ( OnlineMatchmakerOmniscient::FindPlayer(this, (const XUID *)&mp_next[1], &it) )
     {
-      vmovaps xmmword ptr [rax-38h], xmm6
-      vmovaps xmmword ptr [rax-48h], xmm7
-    }
-    do
-    {
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      mp_node = it.mp_node;
+      if ( !it.mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      if ( OnlineMatchmakerOmniscient::FindPlayer(this, (const XUID *)&_RBX[1], &it) )
-      {
-        _RDI = it.mp_node;
-        if ( !it.mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
-          __debugbreak();
-        v9 = _RBX == NULL;
-        if ( !_RBX )
-        {
-          v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node");
-          v9 = !v10;
-          if ( v10 )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+18h]
-          vucomiss xmm0, dword ptr [rdi+0D0h]
-        }
-        if ( !v9 )
-        {
-          __asm { vcvtss2sd xmm7, xmm0, xmm0 }
-          if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
-            __debugbreak();
-          __asm
-          {
-            vmovss  xmm6, dword ptr [rdi+0D0h]
-            vcvtss2sd xmm6, xmm6, xmm6
-          }
-          v15 = XUID::ToDevString((XUID *)&_RBX[1]);
-          __asm
-          {
-            vmovaps xmm3, xmm6
-            vmovq   r9, xmm3
-            vmovsd  [rsp+78h+fmt], xmm7
-          }
-          Com_Printf(25, "\tChanging user %s from performanceValue %f to performanceValue %f\n", v15, *(double *)&_XMM3, *(double *)&fmt);
-          _RDI->m_data.m_performanceValue = *(float *)&_RBX[1].mp_next;
-        }
-      }
-      else
-      {
-        if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
-          __debugbreak();
-        v18 = XUID::ToDevString((XUID *)&_RBX[1]);
-        Com_PrintWarning(25, "\t%s user %s not found, this is bad\n", "OnlineMatchmakerOmniscient::UpdatePerformanceValues", v18);
-      }
-      if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 109, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      _RBX = _RBX->mp_next;
+      v6 = *(float *)&mp_next[1].mp_next;
+      if ( v6 != mp_node->m_data.m_performanceValue )
+      {
+        if ( !mp_node && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+          __debugbreak();
+        m_performanceValue = mp_node->m_data.m_performanceValue;
+        v8 = XUID::ToDevString((XUID *)&mp_next[1]);
+        Com_Printf(25, "\tChanging user %s from performanceValue %f to performanceValue %f\n", v8, m_performanceValue, v6);
+        mp_node->m_data.m_performanceValue = *(float *)&mp_next[1].mp_next;
+      }
     }
-    while ( _RBX != (ntl::internal::list_node_base *)p_m_listHead );
-    __asm
+    else
     {
-      vmovaps xmm7, [rsp+78h+var_48]
-      vmovaps xmm6, [rsp+78h+var_38]
+      if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+        __debugbreak();
+      v9 = XUID::ToDevString((XUID *)&mp_next[1]);
+      Com_PrintWarning(25, "\t%s user %s not found, this is bad\n", "OnlineMatchmakerOmniscient::UpdatePerformanceValues", v9);
     }
+    if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 109, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
+      __debugbreak();
   }
 }
 
@@ -14970,7 +14683,7 @@ void OnlineMatchmakerOmniscient::UpdatedLobbyDocumentsBecomeHost(OnlineMatchmake
   ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *mp_next; 
   ntl::internal::list_node_base *v8; 
   const char *v9; 
-  const char *m_backendDoc; 
+  char *m_backendDoc; 
   const char *v11; 
   const char *v12; 
   const char *v13; 
@@ -14981,40 +14694,39 @@ void OnlineMatchmakerOmniscient::UpdatedLobbyDocumentsBecomeHost(OnlineMatchmake
   const char *v18; 
   bool m_gameStartedCurrent; 
   XUID result; 
-  __int64 v22; 
-  ntl::internal::list_iterator<OnlineMatchmakerOmniscient::Player,ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>,OnlineMatchmakerOmniscient::Player *,OnlineMatchmakerOmniscient::Player &> v23; 
+  __int64 v21; 
+  ntl::internal::list_iterator<OnlineMatchmakerOmniscient::Player,ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>,OnlineMatchmakerOmniscient::Player *,OnlineMatchmakerOmniscient::Player &> v22; 
   MatchMakerOmniLobbyData lobbyData; 
-  __int64 v25[5]; 
+  __int64 v24[5]; 
 
-  v22 = -2i64;
-  _R14 = this;
+  v21 = -2i64;
   Com_Printf(25, "[MM] %s - backend doc = \"%s\"\n\n host doc = \"%s\"\n\n", "OnlineMatchmakerOmniscient::UpdatedLobbyDocumentsBecomeHost", this->m_lobbyDocuments.m_backendDoc, *((const char **)&this->m_lobbyDocuments.__vftable + 2));
   MatchMakerOmniLobbyData::MatchMakerOmniLobbyData(&lobbyData);
-  _R14->m_lobbyData.m_amITheLobbyHost = 1;
-  OnlineMatchmakerOmniscient::AddPlayersFromParty(_R14, &g_partyData);
+  this->m_lobbyData.m_amITheLobbyHost = 1;
+  OnlineMatchmakerOmniscient::AddPlayersFromParty(this, &g_partyData);
   PartyData = Lobby_GetPartyData();
-  OnlineMatchmakerOmniscient::AddPlayersFromParty(_R14, PartyData);
-  OnlineMatchmakerOmniscient::ParseLobbyHostDoc(_R14, *((const char **)&_R14->m_lobbyDocuments.__vftable + 2), &lobbyData);
-  Xuid = Live_GetXuid(&result, _R14->m_controllerIndex);
-  _R14->m_lobbyData.m_hostUID = XUID::GetUniversalId(Xuid);
-  _R14->m_lobbyData.m_gameid = lobbyData.m_gameid;
+  OnlineMatchmakerOmniscient::AddPlayersFromParty(this, PartyData);
+  OnlineMatchmakerOmniscient::ParseLobbyHostDoc(this, *((const char **)&this->m_lobbyDocuments.__vftable + 2), &lobbyData);
+  Xuid = Live_GetXuid(&result, this->m_controllerIndex);
+  this->m_lobbyData.m_hostUID = XUID::GetUniversalId(Xuid);
+  this->m_lobbyData.m_gameid = lobbyData.m_gameid;
   m_hasDedicatedServer = lobbyData.m_hasDedicatedServer;
-  _R14->m_lobbyData.m_hasDedicatedServer = lobbyData.m_hasDedicatedServer;
+  this->m_lobbyData.m_hasDedicatedServer = lobbyData.m_hasDedicatedServer;
   if ( m_hasDedicatedServer )
   {
-    _R14->m_lobbyData.m_allocatedServerGuid = lobbyData.m_allocatedServerGuid;
-    Core_strcpy(_R14->m_lobbyData.m_allocatedDataCenter, 0x40ui64, lobbyData.m_allocatedDataCenter);
-    Core_strcpy(_R14->m_lobbyData.m_allocatedServerInfo, 0x400ui64, lobbyData.m_allocatedServerInfo);
-    Core_strcpy(_R14->m_lobbyData.m_allocatedServerAddr, 0x400ui64, lobbyData.m_allocatedServerAddr);
+    this->m_lobbyData.m_allocatedServerGuid = lobbyData.m_allocatedServerGuid;
+    Core_strcpy(this->m_lobbyData.m_allocatedDataCenter, 0x40ui64, lobbyData.m_allocatedDataCenter);
+    Core_strcpy(this->m_lobbyData.m_allocatedServerInfo, 0x400ui64, lobbyData.m_allocatedServerInfo);
+    Core_strcpy(this->m_lobbyData.m_allocatedServerAddr, 0x400ui64, lobbyData.m_allocatedServerAddr);
   }
-  Address = XSESSION_INFO::GetAddress(&_R14->m_lobbyData.m_hostAddress);
+  Address = XSESSION_INFO::GetAddress(&this->m_lobbyData.m_hostAddress);
   NET_GetLocalXnaddr(Address);
-  v6 = XSESSION_INFO::GetAddress(&_R14->m_lobbyData.m_hostAddress);
-  bdBase64::encode((const char *)v6, 0x54u, _R14->m_lobbyData.m_hostAddressBase64, 0x71u);
-  OnlineMatchmakerOmniscient::SetLobbyState(_R14, eREADY_TO_REMOVE);
-  OnlineMatchmakerOmniscient::SetState(_R14, eREMOVING_PLAYER);
-  mp_next = (ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *)_R14->m_playerList.m_listHead.m_sentinel.mp_next;
-  for ( result.m_id = (unsigned __int64)mp_next; mp_next != (ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *)&_R14->m_playerList.m_listHead; result.m_id = (unsigned __int64)mp_next )
+  v6 = XSESSION_INFO::GetAddress(&this->m_lobbyData.m_hostAddress);
+  bdBase64::encode((const char *)v6, 0x54u, this->m_lobbyData.m_hostAddressBase64, 0x71u);
+  OnlineMatchmakerOmniscient::SetLobbyState(this, eREADY_TO_REMOVE);
+  OnlineMatchmakerOmniscient::SetState(this, eREMOVING_PLAYER);
+  mp_next = (ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *)this->m_playerList.m_listHead.m_sentinel.mp_next;
+  for ( result.m_id = (unsigned __int64)mp_next; mp_next != (ntl::internal::list_node<OnlineMatchmakerOmniscient::Player> *)&this->m_playerList.m_listHead; result.m_id = (unsigned __int64)mp_next )
   {
     v8 = lobbyData.m_playerStatusList.m_listHead.m_sentinel.mp_next;
     if ( (ntl::internal::list_head_base<ntl::internal::list_node<PlayerValue<enum MemberStatus> > > *)lobbyData.m_playerStatusList.m_listHead.m_sentinel.mp_next == &lobbyData.m_playerStatusList.m_listHead )
@@ -15036,22 +14748,22 @@ void OnlineMatchmakerOmniscient::UpdatedLobbyDocumentsBecomeHost(OnlineMatchmake
     if ( v8 == (ntl::internal::list_node_base *)&lobbyData.m_playerStatusList.m_listHead )
     {
 LABEL_16:
-      v9 = (const char *)*((_QWORD *)&_R14->m_lobbyDocuments.__vftable + 2);
-      m_backendDoc = _R14->m_lobbyDocuments.m_backendDoc;
+      v9 = (const char *)*((_QWORD *)&this->m_lobbyDocuments.__vftable + 2);
+      m_backendDoc = this->m_lobbyDocuments.m_backendDoc;
       if ( !mp_next && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
-      v25[0] = (__int64)"eUNACKNOWLEDGED";
-      v25[1] = (__int64)"eMAY_CONNECT";
-      v25[2] = (__int64)"eCONNECTED";
-      v25[3] = (__int64)"eWONT_CONNECT";
-      v25[4] = (__int64)"eREADY_TO_REMOVE";
-      v11 = (const char *)v25[mp_next->m_data.m_currentMemberStatus];
-      v25[0] = (__int64)"eUNACKNOWLEDGED";
-      v12 = (const char *)v25[mp_next->m_data.m_queuedMemberStatus];
+      v24[0] = (__int64)"eUNACKNOWLEDGED";
+      v24[1] = (__int64)"eMAY_CONNECT";
+      v24[2] = (__int64)"eCONNECTED";
+      v24[3] = (__int64)"eWONT_CONNECT";
+      v24[4] = (__int64)"eREADY_TO_REMOVE";
+      v11 = (const char *)v24[mp_next->m_data.m_currentMemberStatus];
+      v24[0] = (__int64)"eUNACKNOWLEDGED";
+      v12 = (const char *)v24[mp_next->m_data.m_queuedMemberStatus];
       v13 = XUID::ToString(&mp_next->m_data.m_userId);
       v14 = j_va("{\"status\":\"we have a player that Demonware doesn't know about\",\"info\":\"uid:%s qms:%s cms%s\"", v13, v12, v11);
-      OnlineMatchmakerOmniscient::Log(_R14, "UpdatedLobbyDocumentsBecomeHost", v14, m_backendDoc, v9, 0i64);
-      mp_next = OnlineMatchmakerOmniscient::ErasePlayer(_R14, &v23, (ntl::internal::list_iterator<OnlineMatchmakerOmniscient::Player,ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>,OnlineMatchmakerOmniscient::Player *,OnlineMatchmakerOmniscient::Player &> *)&result)->mp_node;
+      OnlineMatchmakerOmniscient::Log(this, "UpdatedLobbyDocumentsBecomeHost", v14, m_backendDoc, v9, 0i64);
+      mp_next = OnlineMatchmakerOmniscient::ErasePlayer(this, &v22, (ntl::internal::list_iterator<OnlineMatchmakerOmniscient::Player,ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>,OnlineMatchmakerOmniscient::Player *,OnlineMatchmakerOmniscient::Player &> *)&result)->mp_node;
     }
     else
     {
@@ -15064,7 +14776,7 @@ LABEL_16:
   {
     if ( !i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
       __debugbreak();
-    if ( OnlineMatchmakerOmniscient::FindPlayer(_R14, (const XUID *)&i[1], (ntl::internal::list_iterator<OnlineMatchmakerOmniscient::Player,ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>,OnlineMatchmakerOmniscient::Player *,OnlineMatchmakerOmniscient::Player &> *)&result) )
+    if ( OnlineMatchmakerOmniscient::FindPlayer(this, (const XUID *)&i[1], (ntl::internal::list_iterator<OnlineMatchmakerOmniscient::Player,ntl::internal::list_node<OnlineMatchmakerOmniscient::Player>,OnlineMatchmakerOmniscient::Player *,OnlineMatchmakerOmniscient::Player &> *)&result) )
     {
       m_id = result.m_id;
       if ( !result.m_id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
@@ -15076,7 +14788,7 @@ LABEL_16:
         v17 = (MemberStatus)i[1].mp_next;
         if ( !m_id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 97, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
-        OnlineMatchmakerOmniscient::SetPlayerCurrentStatus(_R14, (OnlineMatchmakerOmniscient::Player *)(m_id + 16), v17);
+        OnlineMatchmakerOmniscient::SetPlayerCurrentStatus(this, (OnlineMatchmakerOmniscient::Player *)(m_id + 16), v17);
         if ( !m_id && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
           __debugbreak();
         *(_DWORD *)(m_id + 188) = 0;
@@ -15086,11 +14798,11 @@ LABEL_16:
       {
         v18 = XUID::ToString((XUID *)(m_id + 104));
         Com_Printf(131097, "[MM] %s player %s SetPlayerQueuedStatus to eWONT_CONNECT\n", "OnlineMatchmakerOmniscient::UpdatedLobbyDocumentsBecomeHost", v18);
-        OnlineMatchmakerOmniscient::SetPlayerQueuedStatus(_R14, (OnlineMatchmakerOmniscient::Player *)(m_id + 16), eREMOTE_WAITING_FOR_MMING_TOKEN);
+        OnlineMatchmakerOmniscient::SetPlayerQueuedStatus(this, (OnlineMatchmakerOmniscient::Player *)(m_id + 16), eREMOTE_WAITING_FOR_MMING_TOKEN);
       }
       else
       {
-        OnlineMatchmakerOmniscient::SetPlayerState(_R14, (OnlineMatchmakerOmniscient::Player *)(m_id + 16), eREADY);
+        OnlineMatchmakerOmniscient::SetPlayerState(this, (OnlineMatchmakerOmniscient::Player *)(m_id + 16), eREADY);
       }
     }
     else
@@ -15098,46 +14810,42 @@ LABEL_16:
       if ( !i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 103, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
         __debugbreak();
       if ( LODWORD(i[1].mp_next) != 2 )
-        OnlineMatchmakerOmniscient::AddPlayerFromDW(_R14, (const XUID)i[1].mp_prev, eNEW);
+        OnlineMatchmakerOmniscient::AddPlayerFromDW(this, (const XUID)i[1].mp_prev, eNEW);
     }
     if ( !i && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\libs\\ntl\\ntl\\list\\list.h", 109, ASSERT_TYPE_ASSERT, "( mp_node )", (const char *)&queryFormat, "mp_node") )
       __debugbreak();
   }
-  OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(_R14, _R14->m_lobbyDocuments.m_backendDoc, &lobbyData);
-  if ( lobbyData.m_lobbyid != _R14->m_lobbyData.m_lobbyid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 6675, ASSERT_TYPE_ASSERT, "(lobbyData.m_lobbyid == m_lobbyData.m_lobbyid)", (const char *)&queryFormat, "lobbyData.m_lobbyid == m_lobbyData.m_lobbyid") )
+  OnlineMatchmakerOmniscient::ParseLobbyBackendDoc(this, this->m_lobbyDocuments.m_backendDoc, &lobbyData);
+  if ( lobbyData.m_lobbyid != this->m_lobbyData.m_lobbyid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\online_matchmaker.cpp", 6675, ASSERT_TYPE_ASSERT, "(lobbyData.m_lobbyid == m_lobbyData.m_lobbyid)", (const char *)&queryFormat, "lobbyData.m_lobbyid == m_lobbyData.m_lobbyid") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rbp+181B0h+lobbyData.m_key.ab]
-    vmovups xmmword ptr [r14+13825h], xmm0
-  }
-  _R14->m_lobbyData.m_keyId = lobbyData.m_keyId;
-  _R14->m_lobbyData.m_canGameStart = lobbyData.m_canGameStart;
-  _R14->m_lobbyData.m_shouldBackfill_JIP = lobbyData.m_shouldBackfill_JIP;
-  _R14->m_lobbyData.m_canLobbyMerge = lobbyData.m_canLobbyMerge;
-  _R14->m_lobbyData.m_acceptLobbyMerges = lobbyData.m_acceptLobbyMerges;
+  this->m_lobbyData.m_key = lobbyData.m_key;
+  this->m_lobbyData.m_keyId = lobbyData.m_keyId;
+  this->m_lobbyData.m_canGameStart = lobbyData.m_canGameStart;
+  this->m_lobbyData.m_shouldBackfill_JIP = lobbyData.m_shouldBackfill_JIP;
+  this->m_lobbyData.m_canLobbyMerge = lobbyData.m_canLobbyMerge;
+  this->m_lobbyData.m_acceptLobbyMerges = lobbyData.m_acceptLobbyMerges;
   m_gameStartedCurrent = lobbyData.m_gameStartedCurrent;
-  _R14->m_lobbyData.m_gameStartedPending = lobbyData.m_gameStartedCurrent;
-  _R14->m_lobbyData.m_gameStartedCurrent = m_gameStartedCurrent;
-  _R14->m_lobbyData.m_tournamentID = lobbyData.m_tournamentID;
-  _R14->m_lobbyData.m_tournamentAlliesTeam = lobbyData.m_tournamentAlliesTeam;
-  _R14->m_lobbyData.m_tournamentAxisTeam = lobbyData.m_tournamentAxisTeam;
-  _R14->m_lobbyData.m_tournamentRound = lobbyData.m_tournamentRound;
-  _R14->m_lobbyData.m_performanceGameType = lobbyData.m_performanceGameType;
-  ntl::list<XUID,ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>::assign<ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>(&_R14->m_lobbyData.m_migrationList, &lobbyData.m_migrationList);
-  memcpy_0(_R14->m_lobbyData.m_dvarOverrides, lobbyData.m_dvarOverrides, sizeof(_R14->m_lobbyData.m_dvarOverrides));
-  _R14->m_lobbyData.m_dvarOverrideCount = lobbyData.m_dvarOverrideCount;
-  _R14->m_lobbyData.m_privateMatchId.m_id = lobbyData.m_privateMatchId.m_id;
-  _R14->m_lobbyData.m_updateId = lobbyData.m_updateId;
-  _R14->m_lobbyData.m_gameid = lobbyData.m_gameid;
-  Core_strcpy(_R14->m_lobbyData.m_mapName, 0x18ui64, lobbyData.m_mapName);
-  Core_strcpy(_R14->m_lobbyData.m_modeName, 0x10ui64, lobbyData.m_modeName);
-  _R14->m_lobbyData.m_isGameInProgress = lobbyData.m_isGameInProgress;
-  memcpy_0(_R14->m_lobbyData.m_dcPrefs._bytes_20, lobbyData.m_dcPrefs._bytes_20, 0x1000ui64);
-  _R14->m_lobbyData.m_dcPrefs.m_numDataCenterPreferences = lobbyData.m_dcPrefs.m_numDataCenterPreferences;
-  OnlineMatchmakerOmniscient::Log(_R14, "UpdatedLobbyDocumentsBecomeHost", (const char *)&queryFormat.fmt + 3, _R14->m_lobbyDocuments.m_backendDoc, *((const char **)&_R14->m_lobbyDocuments.__vftable + 2), 0i64);
-  OnlineMatchmakerOmniscient::UpdatePlayers(_R14);
-  _R14->m_lobbyData.m_lobbyDocIsDirty = 1;
+  this->m_lobbyData.m_gameStartedPending = lobbyData.m_gameStartedCurrent;
+  this->m_lobbyData.m_gameStartedCurrent = m_gameStartedCurrent;
+  this->m_lobbyData.m_tournamentID = lobbyData.m_tournamentID;
+  this->m_lobbyData.m_tournamentAlliesTeam = lobbyData.m_tournamentAlliesTeam;
+  this->m_lobbyData.m_tournamentAxisTeam = lobbyData.m_tournamentAxisTeam;
+  this->m_lobbyData.m_tournamentRound = lobbyData.m_tournamentRound;
+  this->m_lobbyData.m_performanceGameType = lobbyData.m_performanceGameType;
+  ntl::list<XUID,ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>::assign<ntl::fixed_pool_allocator<ntl::internal::list_node<XUID>,200,0>>(&this->m_lobbyData.m_migrationList, &lobbyData.m_migrationList);
+  memcpy_0(this->m_lobbyData.m_dvarOverrides, lobbyData.m_dvarOverrides, sizeof(this->m_lobbyData.m_dvarOverrides));
+  this->m_lobbyData.m_dvarOverrideCount = lobbyData.m_dvarOverrideCount;
+  this->m_lobbyData.m_privateMatchId.m_id = lobbyData.m_privateMatchId.m_id;
+  this->m_lobbyData.m_updateId = lobbyData.m_updateId;
+  this->m_lobbyData.m_gameid = lobbyData.m_gameid;
+  Core_strcpy(this->m_lobbyData.m_mapName, 0x18ui64, lobbyData.m_mapName);
+  Core_strcpy(this->m_lobbyData.m_modeName, 0x10ui64, lobbyData.m_modeName);
+  this->m_lobbyData.m_isGameInProgress = lobbyData.m_isGameInProgress;
+  memcpy_0(this->m_lobbyData.m_dcPrefs._bytes_20, lobbyData.m_dcPrefs._bytes_20, 0x1000ui64);
+  this->m_lobbyData.m_dcPrefs.m_numDataCenterPreferences = lobbyData.m_dcPrefs.m_numDataCenterPreferences;
+  OnlineMatchmakerOmniscient::Log(this, "UpdatedLobbyDocumentsBecomeHost", (const char *)&queryFormat.fmt + 3, this->m_lobbyDocuments.m_backendDoc, *((const char **)&this->m_lobbyDocuments.__vftable + 2), 0i64);
+  OnlineMatchmakerOmniscient::UpdatePlayers(this);
+  this->m_lobbyData.m_lobbyDocIsDirty = 1;
   MatchMakerOmniLobbyData::~MatchMakerOmniLobbyData(&lobbyData);
 }
 

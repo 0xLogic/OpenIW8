@@ -36,82 +36,56 @@ XAnimNode_MayhemLink_Update
 */
 void XAnimNode_MayhemLink_Update(void *nodeData, const DObj *obj, XAnimInfo *animInfo, unsigned __int16 animInfoIndex)
 {
-  char v9; 
-  scr_string_t v10; 
+  scr_string_t v7; 
   int entnum; 
-  const char *v12; 
+  const char *v9; 
   scr_string_t String; 
+  DObjAnimMat *mat; 
   int DoesInstanceExist; 
-  scr_string_t v24; 
+  scr_string_t v13; 
   char *fmt; 
   vec3_t spawnPos; 
   vec4_t spawnQuat; 
   char dest[272]; 
 
-  __asm { vmovaps [rsp+198h+var_28], xmm6 }
-  _RBX = animInfo;
   if ( !XAnimIsClientOnlyNode(animInfo) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\xanim\\nodes\\xanimnode_mayhem.cpp", 98, ASSERT_TYPE_ASSERT, "(XAnimIsClientOnlyNode( animInfo ))", (const char *)&queryFormat, "XAnimIsClientOnlyNode( animInfo )") )
     __debugbreak();
   Sys_LockWrite(&s_xanimMayhemFastCS);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm6, dword ptr [rbx+3Ch]
-  }
-  if ( !v9 || (v10 = *((_DWORD *)nodeData + 3)) != 0 && Mayhem_DoesInstanceExist(v10) )
+  if ( animInfo->state.weight <= 0.0 || (v7 = *((_DWORD *)nodeData + 3)) != 0 && Mayhem_DoesInstanceExist(v7) )
   {
     Mayhem_FlagForTransfer(*((scr_string_t *)nodeData + 3), 0);
   }
   else
   {
     entnum = obj->entnum;
-    v12 = SL_ConvertToString((scr_string_t)*(_DWORD *)nodeData);
+    v9 = SL_ConvertToString((scr_string_t)*(_DWORD *)nodeData);
     LODWORD(fmt) = entnum;
-    Com_sprintf(dest, 0x104ui64, "%s%d", v12, fmt);
+    Com_sprintf(dest, 0x104ui64, "%s%d", v9, fmt);
     String = SL_GetString(dest, 0);
     *((_DWORD *)nodeData + 3) = String;
-    if ( obj->skel.mat )
+    mat = obj->skel.mat;
+    if ( mat )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rcx+10h]
-        vmovss  dword ptr [rsp+198h+spawnPos], xmm0
-        vmovss  xmm1, dword ptr [rcx+14h]
-        vmovss  dword ptr [rsp+198h+spawnPos+4], xmm1
-        vmovss  xmm0, dword ptr [rcx+18h]
-        vmovss  dword ptr [rsp+198h+spawnPos+8], xmm0
-        vmovss  xmm1, dword ptr [rcx]
-        vmovss  dword ptr [rsp+198h+spawnQuat], xmm1
-        vmovss  xmm0, dword ptr [rcx+4]
-        vmovss  dword ptr [rsp+198h+spawnQuat+4], xmm0
-        vmovss  xmm1, dword ptr [rcx+8]
-        vmovss  dword ptr [rsp+198h+spawnQuat+8], xmm1
-        vmovss  xmm0, dword ptr [rcx+0Ch]
-        vmovss  dword ptr [rsp+198h+spawnQuat+0Ch], xmm0
-      }
+      spawnPos = mat->trans;
+      spawnQuat = mat->quat;
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, cs:__xmm@3f800000000000000000000000000000
-        vmovups xmmword ptr [rsp+198h+spawnQuat], xmm0
-        vmovss  dword ptr [rsp+198h+spawnPos], xmm6
-        vmovss  dword ptr [rsp+198h+spawnPos+4], xmm6
-        vmovss  dword ptr [rsp+198h+spawnPos+8], xmm6
-      }
+      spawnQuat = (vec4_t)_xmm;
+      spawnPos.v[0] = 0.0;
+      spawnPos.v[1] = 0.0;
+      spawnPos.v[2] = 0.0;
     }
     DoesInstanceExist = Mayhem_DoesInstanceExist(String);
-    v24 = *((_DWORD *)nodeData + 3);
+    v13 = *((_DWORD *)nodeData + 3);
     if ( DoesInstanceExist )
-      Mayhem_FlagForTransfer(v24, 1);
+      Mayhem_FlagForTransfer(v13, 1);
     else
-      Mayhem_SpawnInstance(v24, *(scr_string_t *)nodeData, &spawnPos, &spawnQuat);
+      Mayhem_SpawnInstance(v13, *(scr_string_t *)nodeData, &spawnPos, &spawnQuat);
     Mayhem_HideInstance(*((scr_string_t *)nodeData + 3));
     Mayhem_SetDelayedUpdate(*((scr_string_t *)nodeData + 3));
   }
   Sys_UnlockWrite(&s_xanimMayhemFastCS);
-  __asm { vmovaps xmm6, [rsp+198h+var_28] }
 }
 
 /*
@@ -121,15 +95,22 @@ XAnimNode_MayhemLink_Calc
 */
 void XAnimNode_MayhemLink_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, const DObj *obj, const XAnimInfo *animInfo, float weightScale, bool bNormQuat, XAnimCalcBuffer *destBuffer)
 {
-  DObjPartBits *v16; 
-  scr_string_t v17; 
-  unsigned __int8 v18; 
-  unsigned __int8 v19; 
+  DObjPartBits *v11; 
+  scr_string_t v12; 
+  unsigned __int8 v13; 
+  unsigned __int8 v14; 
   unsigned int i; 
-  XAnimCalcBuffer *v26; 
-  int v29; 
-  const char *v63; 
-  const char *v64; 
+  XAnimCalcBuffer *v21; 
+  __m128 v; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  const char *v30; 
+  const char *v31; 
   int modelIndex; 
   XAnimCalcBuffer *buffer; 
   vec4_t newQuat; 
@@ -147,41 +128,40 @@ void XAnimNode_MayhemLink_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, 
   {
     if ( *((const DObj **)nodeData + 2) == obj && *((_BYTE *)nodeData + 8) )
     {
-      v16 = (DObjPartBits *)((char *)nodeData + 24);
+      v11 = (DObjPartBits *)((char *)nodeData + 24);
     }
     else
     {
-      v16 = (DObjPartBits *)((char *)nodeData + 24);
+      v11 = (DObjPartBits *)((char *)nodeData + 24);
       bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits((bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u> > *)((char *)nodeData + 24));
-      v17 = *((_DWORD *)nodeData + 1);
+      v12 = *((_DWORD *)nodeData + 1);
       *((_QWORD *)nodeData + 2) = obj;
       *(_WORD *)((char *)nodeData + 9) = -512;
-      DObjGetBoneIndexInternal_32(obj, v17, (unsigned __int8 *)nodeData + 10, &modelIndex);
-      v18 = *((_BYTE *)nodeData + 10);
-      if ( v18 == 0xFF )
+      DObjGetBoneIndexInternal_32(obj, v12, (unsigned __int8 *)nodeData + 10, &modelIndex);
+      v13 = *((_BYTE *)nodeData + 10);
+      if ( v13 == 0xFF )
       {
-        v63 = SL_ConvertToString((scr_string_t)*(_DWORD *)nodeData);
-        v64 = SL_ConvertToString((scr_string_t)*((_DWORD *)nodeData + 1));
-        Com_PrintError(19, "Failed to find bone %s to link Mayhem %s to.", v64, v63);
+        v30 = SL_ConvertToString((scr_string_t)*(_DWORD *)nodeData);
+        v31 = SL_ConvertToString((scr_string_t)*((_DWORD *)nodeData + 1));
+        Com_PrintError(19, "Failed to find bone %s to link Mayhem %s to.", v31, v30);
         *((_BYTE *)nodeData + 8) = 0;
         return;
       }
       *((_BYTE *)nodeData + 9) = 1;
-      bitarray_base<bitarray<256>>::setBit((bitarray_base<bitarray<256> > *)nodeData + 24, v18);
+      bitarray_base<bitarray<256>>::setBit((bitarray_base<bitarray<256> > *)nodeData + 24, v13);
       DObjCompleteHierarchyBits(obj, (DObjPartBits *)((char *)nodeData + 24));
       *((_BYTE *)nodeData + 8) = 1;
     }
-    __asm { vmovaps [rsp+138h+var_58], xmm6 }
-    bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits(v16);
-    v19 = *((_BYTE *)nodeData + 10);
-    if ( v19 != 0xFF )
+    bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::resetAllBits(v11);
+    v14 = *((_BYTE *)nodeData + 10);
+    if ( v14 != 0xFF )
     {
-      bitarray_base<bitarray<256>>::setBit(v16, v19);
-      DObjCompleteHierarchyBits(obj, v16);
+      bitarray_base<bitarray<256>>::setBit(v11, v14);
+      DObjCompleteHierarchyBits(obj, v11);
     }
     bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(&otherBitSet, animCalcInfo->partBits);
     _RSI = animCalcInfo->partBits;
-    _RBP = (char *)v16 - (char *)_RSI;
+    _RBP = (char *)v11 - (char *)_RSI;
     for ( i = 0; i < 2; ++i )
     {
       __asm
@@ -189,87 +169,42 @@ void XAnimNode_MayhemLink_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, 
         vlddqu  xmm6, xmmword ptr [rsi+rbp]
         vlddqu  xmm0, xmmword ptr [rsi]
         vpor    xmm6, xmm0, xmm6
-        vmovdqu xmmword ptr [rsi], xmm6
       }
+      *(_OWORD *)_RSI->array = _XMM6;
       _RSI = (DObjPartBits *)((char *)_RSI + 16);
     }
-    v26 = buffer;
-    __asm { vmovss  xmm3, [rsp+138h+weightScale]; weightScale }
-    XAnimCalcDefaultBlendNode(animCalcInfo, obj, animInfo, *(float *)&_XMM3, bNormQuat, buffer, LINEAR);
+    v21 = buffer;
+    XAnimCalcDefaultBlendNode(animCalcInfo, obj, animInfo, weightScale, bNormQuat, buffer, LINEAR);
     if ( Mayhem_DoesInstanceExist(*((scr_string_t *)nodeData + 3)) )
     {
-      v29 = *((unsigned __int8 *)nodeData + 10);
-      __asm
-      {
-        vmovaps [rsp+138h+var_68], xmm7
-        vmovaps [rsp+138h+var_78], xmm8
-      }
-      XAnimGetLocalBoneTransform(animCalcInfo, obj, v26, v29, &outModelQuat, &outModelTranslation);
-      __asm { vmovups xmm3, xmmword ptr [rsp+138h+outModelTranslation.v] }
-      _RAX = g_activeRefDef;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rsp+138h+outModelQuat.v]
-        vshufps xmm5, xmm3, xmm3, 55h ; 'U'
-        vshufps xmm6, xmm3, xmm3, 0AAh ; 'ª'
-        vmovups xmmword ptr [rsp+138h+newQuat], xmm0
-        vxorps  xmm4, xmm4, xmm4
-      }
+      XAnimGetLocalBoneTransform(animCalcInfo, obj, v21, *((unsigned __int8 *)nodeData + 10), &outModelQuat, &outModelTranslation);
+      v = outModelTranslation.v;
+      LODWORD(v23) = _mm_shuffle_ps(v, v, 85).m128_u32[0];
+      LODWORD(v24) = _mm_shuffle_ps(v, v, 170).m128_u32[0];
+      newQuat = (vec4_t)outModelQuat.v;
       if ( g_activeRefDef )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rax+7Ch]
-          vmovss  xmm1, dword ptr [rax+80h]
-          vmovss  xmm2, dword ptr [rax+84h]
-        }
+        v25 = g_activeRefDef->viewOffset.v[0];
+        v26 = g_activeRefDef->viewOffset.v[1];
+        v27 = g_activeRefDef->viewOffset.v[2];
       }
       else
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm1, xmm1, xmm1
-          vxorps  xmm2, xmm2, xmm2
-        }
+        v25 = 0.0;
+        v26 = 0.0;
+        v27 = 0.0;
       }
-      __asm
+      newPos.v[0] = v25 + outModelTranslation.v.m128_f32[0];
+      newPos.v[1] = v26 + v23;
+      newPos.v[2] = v27 + v24;
+      v28 = fsqrt((float)((float)((float)(newQuat.v[0] * newQuat.v[0]) + (float)(newQuat.v[1] * newQuat.v[1])) + (float)(newQuat.v[2] * newQuat.v[2])) + (float)(newQuat.v[3] * newQuat.v[3]));
+      if ( v28 != 0.0 )
       {
-        vmovss  xmm7, dword ptr [rsp+138h+newQuat+8]
-        vmovss  xmm8, dword ptr [rsp+138h+newQuat+0Ch]
-        vaddss  xmm0, xmm0, xmm3
-        vaddss  xmm1, xmm1, xmm5
-        vmovss  xmm5, dword ptr [rsp+138h+newQuat]
-        vmovss  dword ptr [rsp+138h+newPos], xmm0
-        vaddss  xmm0, xmm2, xmm6
-        vmovss  xmm6, dword ptr [rsp+138h+newQuat+4]
-        vmovss  dword ptr [rsp+138h+newPos+4], xmm1
-        vmovss  dword ptr [rsp+138h+newPos+8], xmm0
-        vmulss  xmm0, xmm6, xmm6
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm7, xmm7
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm8, xmm8
-        vaddss  xmm1, xmm3, xmm0
-        vsqrtss xmm2, xmm1, xmm1
-        vucomiss xmm2, xmm4
-      }
-      if ( g_activeRefDef )
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3f800000
-          vdivss  xmm2, xmm0, xmm2
-          vmulss  xmm1, xmm5, xmm2
-          vmulss  xmm0, xmm6, xmm2
-          vmovss  dword ptr [rsp+138h+newQuat], xmm1
-          vmovss  dword ptr [rsp+138h+newQuat+4], xmm0
-          vmulss  xmm1, xmm7, xmm2
-          vmulss  xmm0, xmm8, xmm2
-          vmovss  dword ptr [rsp+138h+newQuat+8], xmm1
-          vmovss  dword ptr [rsp+138h+newQuat+0Ch], xmm0
-        }
+        v29 = 1.0 / v28;
+        newQuat.v[0] = newQuat.v[0] * v29;
+        newQuat.v[1] = newQuat.v[1] * v29;
+        newQuat.v[2] = newQuat.v[2] * v29;
+        newQuat.v[3] = newQuat.v[3] * v29;
       }
       Sys_LockWrite(&s_xanimMayhemFastCS);
       Mayhem_ShowInstance(*((scr_string_t *)nodeData + 3));
@@ -277,17 +212,11 @@ void XAnimNode_MayhemLink_Calc(void *nodeData, XAnimCalcAnimInfo *animCalcInfo, 
       Mayhem_FlagForTransfer(*((scr_string_t *)nodeData + 3), 0);
       Sys_UnlockWrite(&s_xanimMayhemFastCS);
       bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(animCalcInfo->partBits, &otherBitSet);
-      __asm
-      {
-        vmovaps xmm8, [rsp+138h+var_78]
-        vmovaps xmm7, [rsp+138h+var_68]
-      }
     }
     else
     {
       bitarray_simd<256,bitarray_traits_simd128<bitarray_memory_traits_simd128u>>::copyBitArray<bitarray_traits_simd128<bitarray_memory_traits_simd128u>>(animCalcInfo->partBits, &otherBitSet);
     }
-    __asm { vmovaps xmm6, [rsp+138h+var_58] }
   }
 }
 

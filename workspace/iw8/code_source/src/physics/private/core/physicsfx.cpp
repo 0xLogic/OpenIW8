@@ -543,12 +543,14 @@ void PhysicsFX_GetParticleLinearVelocities(Physics_WorldId worldId, HavokPhysics
   int v14; 
   __int64 v15; 
   hkVector4f *m_data; 
-  char *v19; 
-  unsigned __int64 v20; 
-  __int64 v34; 
-  __int64 v35; 
-  hkMemoryAllocator *v39; 
-  hkArray<hkVector4f,hkContainerHeapAllocator> v40; 
+  float *v17; 
+  float *v18; 
+  unsigned __int64 v19; 
+  float *v20; 
+  float *v21; 
+  __int64 v22; 
+  hkMemoryAllocator *v23; 
+  hkArray<hkVector4f,hkContainerHeapAllocator> v24; 
   int numInOut; 
 
   v6 = numParticles;
@@ -560,9 +562,9 @@ void PhysicsFX_GetParticleLinearVelocities(Physics_WorldId worldId, HavokPhysics
   v9 = velocities;
   if ( !velocities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 525, ASSERT_TYPE_ASSERT, "(velocities)", (const char *)&queryFormat, "velocities") )
     __debugbreak();
-  v40.m_data = NULL;
-  v40.m_size = 0;
-  v40.m_capacityAndFlags = 0x80000000;
+  v24.m_data = NULL;
+  v24.m_size = 0;
+  v24.m_capacityAndFlags = 0x80000000;
   numInOut = v6;
   v10 = hkMemHeapAllocator();
   v11 = numInOut;
@@ -579,80 +581,58 @@ void PhysicsFX_GetParticleLinearVelocities(Physics_WorldId worldId, HavokPhysics
   v14 = 0x80000000;
   if ( v11 )
     v14 = v11;
-  v40.m_data = v13;
-  v40.m_size = v12;
-  v40.m_capacityAndFlags = v14;
-  HavokPhysicsFX_GetParticleLinearVelocities(worldId, pipelineInstance, v6, particleIds, &v40);
+  v24.m_data = v13;
+  v24.m_size = v12;
+  v24.m_capacityAndFlags = v14;
+  HavokPhysicsFX_GetParticleLinearVelocities(worldId, pipelineInstance, v6, particleIds, &v24);
   v15 = 0i64;
-  m_data = v40.m_data;
-  __asm { vmovss  xmm3, cs:__real@42000000 }
+  m_data = v24.m_data;
   if ( v6 >= 4 )
   {
-    _RAX = (char *)&v9[1].z;
-    v19 = &v40.m_data[1].m_quad.m128_i8[8];
-    v20 = ((unsigned __int64)(v6 - 4) >> 2) + 1;
-    v15 = 4 * v20;
+    v17 = &v9[1].v[2];
+    v18 = &v24.m_data[1].m_quad.m128_f32[2];
+    v19 = ((unsigned __int64)(v6 - 4) >> 2) + 1;
+    v15 = 4 * v19;
     do
     {
-      __asm
-      {
-        vmulss  xmm1, xmm3, dword ptr [rcx-18h]
-        vmovss  dword ptr [rax-14h], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rcx-14h]
-        vmovss  dword ptr [rax-10h], xmm0
-        vmulss  xmm2, xmm3, dword ptr [rcx-10h]
-        vmovss  dword ptr [rax-0Ch], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rcx-8]
-        vmovss  dword ptr [rax-8], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rcx-4]
-        vmovss  dword ptr [rax-4], xmm0
-        vmulss  xmm2, xmm3, dword ptr [rcx]
-        vmovss  dword ptr [rax], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rcx+8]
-        vmovss  dword ptr [rax+4], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rcx+0Ch]
-        vmovss  dword ptr [rax+8], xmm0
-        vmulss  xmm2, xmm3, dword ptr [rcx+10h]
-        vmovss  dword ptr [rax+0Ch], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rcx+18h]
-        vmovss  dword ptr [rax+10h], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rcx+1Ch]
-        vmovss  dword ptr [rax+14h], xmm0
-        vmulss  xmm2, xmm3, dword ptr [rcx+20h]
-        vmovss  dword ptr [rax+18h], xmm2
-      }
-      _RAX += 48;
-      v19 += 64;
-      --v20;
+      *(v17 - 5) = 32.0 * *(v18 - 6);
+      *(v17 - 4) = 32.0 * *(v18 - 5);
+      *(v17 - 3) = 32.0 * *(v18 - 4);
+      *(v17 - 2) = 32.0 * *(v18 - 2);
+      *(v17 - 1) = 32.0 * *(v18 - 1);
+      *v17 = 32.0 * *v18;
+      v17[1] = 32.0 * v18[2];
+      v17[2] = 32.0 * v18[3];
+      v17[3] = 32.0 * v18[4];
+      v17[4] = 32.0 * v18[6];
+      v17[5] = 32.0 * v18[7];
+      v17[6] = 32.0 * v18[8];
+      v17 += 12;
+      v18 += 16;
+      --v19;
     }
-    while ( v20 );
+    while ( v19 );
   }
   if ( v15 < v6 )
   {
-    _RCX = (__int64)&v9[v15].z;
-    v34 = (__int64)&m_data[v15].m_quad.m128_i64[1];
-    v35 = v6 - v15;
+    v20 = &v9[v15].v[2];
+    v21 = &m_data[v15].m_quad.m128_f32[2];
+    v22 = v6 - v15;
     do
     {
-      __asm
-      {
-        vmulss  xmm1, xmm3, dword ptr [rdx-8]
-        vmovss  dword ptr [rcx-8], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rdx-4]
-        vmovss  dword ptr [rcx-4], xmm0
-        vmulss  xmm2, xmm3, dword ptr [rdx]
-        vmovss  dword ptr [rcx], xmm2
-      }
-      _RCX += 12i64;
-      v34 += 16i64;
-      --v35;
+      *(v20 - 2) = 32.0 * *(v21 - 2);
+      *(v20 - 1) = 32.0 * *(v21 - 1);
+      *v20 = 32.0 * *v21;
+      v20 += 3;
+      v21 += 4;
+      --v22;
     }
-    while ( v35 );
+    while ( v22 );
   }
-  v39 = hkMemHeapAllocator();
-  v40.m_size = 0;
-  if ( v40.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v39, v40.m_data, 16, v40.m_capacityAndFlags & 0x3FFFFFFF);
+  v23 = hkMemHeapAllocator();
+  v24.m_size = 0;
+  if ( v24.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v23, v24.m_data, 16, v24.m_capacityAndFlags & 0x3FFFFFFF);
 }
 
 /*
@@ -662,21 +642,17 @@ PhysicsFX_GetParticleLinearVelocity
 */
 void PhysicsFX_GetParticleLinearVelocity(Physics_WorldId worldId, HavokPhysicsFX_Pipeline *pipelineInstance, int particleId, vec3_t *velocity)
 {
+  float v8; 
+  float v9; 
   hkVector4f velocitya; 
 
-  _RBP = velocity;
   PhysicsFX_AssertNotLocked();
   HavokPhysicsFX_GetParticleLinearVelocity(worldId, pipelineInstance, particleId, &velocitya);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42000000
-    vmulss  xmm1, xmm3, dword ptr [rsp+68h+velocity.m_quad]
-    vmulss  xmm0, xmm3, dword ptr [rsp+68h+velocity.m_quad+4]
-    vmulss  xmm2, xmm3, dword ptr [rsp+68h+velocity.m_quad+8]
-    vmovss  dword ptr [rbp+0], xmm1
-    vmovss  dword ptr [rbp+4], xmm0
-    vmovss  dword ptr [rbp+8], xmm2
-  }
+  v8 = 32.0 * velocitya.m_quad.m128_f32[1];
+  v9 = 32.0 * velocitya.m_quad.m128_f32[2];
+  velocity->v[0] = 32.0 * velocitya.m_quad.m128_f32[0];
+  velocity->v[1] = v8;
+  velocity->v[2] = v9;
 }
 
 /*
@@ -714,21 +690,17 @@ PhysicsFX_GetParticlePosition
 */
 void PhysicsFX_GetParticlePosition(Physics_WorldId worldId, HavokPhysicsFX_Pipeline *pipelineInstance, int particleId, vec3_t *position)
 {
+  float v8; 
+  float v9; 
   hkVector4f positiona; 
 
-  _RBP = position;
   PhysicsFX_AssertNotLocked();
   HavokPhysicsFX_GetParticlePosition(worldId, pipelineInstance, particleId, &positiona);
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42000000
-    vmulss  xmm1, xmm3, dword ptr [rsp+68h+position.m_quad]
-    vmulss  xmm0, xmm3, dword ptr [rsp+68h+position.m_quad+4]
-    vmulss  xmm2, xmm3, dword ptr [rsp+68h+position.m_quad+8]
-    vmovss  dword ptr [rbp+0], xmm1
-    vmovss  dword ptr [rbp+4], xmm0
-    vmovss  dword ptr [rbp+8], xmm2
-  }
+  v8 = 32.0 * positiona.m_quad.m128_f32[1];
+  v9 = 32.0 * positiona.m_quad.m128_f32[2];
+  position->v[0] = 32.0 * positiona.m_quad.m128_f32[0];
+  position->v[1] = v8;
+  position->v[2] = v9;
 }
 
 /*
@@ -747,12 +719,14 @@ void PhysicsFX_GetParticlePositions(Physics_WorldId worldId, HavokPhysicsFX_Pipe
   int v14; 
   __int64 v15; 
   hkVector4f *m_data; 
-  char *v19; 
-  unsigned __int64 v20; 
-  __int64 v34; 
-  __int64 v35; 
-  hkMemoryAllocator *v39; 
-  hkArray<hkVector4f,hkContainerHeapAllocator> v40; 
+  float *v17; 
+  float *v18; 
+  unsigned __int64 v19; 
+  float *v20; 
+  float *v21; 
+  __int64 v22; 
+  hkMemoryAllocator *v23; 
+  hkArray<hkVector4f,hkContainerHeapAllocator> v24; 
   int numInOut; 
 
   v6 = numParticles;
@@ -764,9 +738,9 @@ void PhysicsFX_GetParticlePositions(Physics_WorldId worldId, HavokPhysicsFX_Pipe
   v9 = positions;
   if ( !positions && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 467, ASSERT_TYPE_ASSERT, "(positions)", (const char *)&queryFormat, "positions") )
     __debugbreak();
-  v40.m_data = NULL;
-  v40.m_size = 0;
-  v40.m_capacityAndFlags = 0x80000000;
+  v24.m_data = NULL;
+  v24.m_size = 0;
+  v24.m_capacityAndFlags = 0x80000000;
   numInOut = v6;
   v10 = hkMemHeapAllocator();
   v11 = numInOut;
@@ -783,80 +757,58 @@ void PhysicsFX_GetParticlePositions(Physics_WorldId worldId, HavokPhysicsFX_Pipe
   v14 = 0x80000000;
   if ( v11 )
     v14 = v11;
-  v40.m_data = v13;
-  v40.m_size = v12;
-  v40.m_capacityAndFlags = v14;
-  HavokPhysicsFX_GetParticlePositions(worldId, pipelineInstance, v6, particleIds, &v40);
+  v24.m_data = v13;
+  v24.m_size = v12;
+  v24.m_capacityAndFlags = v14;
+  HavokPhysicsFX_GetParticlePositions(worldId, pipelineInstance, v6, particleIds, &v24);
   v15 = 0i64;
-  m_data = v40.m_data;
-  __asm { vmovss  xmm3, cs:__real@42000000 }
+  m_data = v24.m_data;
   if ( v6 >= 4 )
   {
-    _RAX = (char *)&v9[1].z;
-    v19 = &v40.m_data[1].m_quad.m128_i8[8];
-    v20 = ((unsigned __int64)(v6 - 4) >> 2) + 1;
-    v15 = 4 * v20;
+    v17 = &v9[1].v[2];
+    v18 = &v24.m_data[1].m_quad.m128_f32[2];
+    v19 = ((unsigned __int64)(v6 - 4) >> 2) + 1;
+    v15 = 4 * v19;
     do
     {
-      __asm
-      {
-        vmulss  xmm1, xmm3, dword ptr [rcx-18h]
-        vmovss  dword ptr [rax-14h], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rcx-14h]
-        vmovss  dword ptr [rax-10h], xmm0
-        vmulss  xmm2, xmm3, dword ptr [rcx-10h]
-        vmovss  dword ptr [rax-0Ch], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rcx-8]
-        vmovss  dword ptr [rax-8], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rcx-4]
-        vmovss  dword ptr [rax-4], xmm0
-        vmulss  xmm2, xmm3, dword ptr [rcx]
-        vmovss  dword ptr [rax], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rcx+8]
-        vmovss  dword ptr [rax+4], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rcx+0Ch]
-        vmovss  dword ptr [rax+8], xmm0
-        vmulss  xmm2, xmm3, dword ptr [rcx+10h]
-        vmovss  dword ptr [rax+0Ch], xmm2
-        vmulss  xmm1, xmm3, dword ptr [rcx+18h]
-        vmovss  dword ptr [rax+10h], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rcx+1Ch]
-        vmovss  dword ptr [rax+14h], xmm0
-        vmulss  xmm2, xmm3, dword ptr [rcx+20h]
-        vmovss  dword ptr [rax+18h], xmm2
-      }
-      _RAX += 48;
-      v19 += 64;
-      --v20;
+      *(v17 - 5) = 32.0 * *(v18 - 6);
+      *(v17 - 4) = 32.0 * *(v18 - 5);
+      *(v17 - 3) = 32.0 * *(v18 - 4);
+      *(v17 - 2) = 32.0 * *(v18 - 2);
+      *(v17 - 1) = 32.0 * *(v18 - 1);
+      *v17 = 32.0 * *v18;
+      v17[1] = 32.0 * v18[2];
+      v17[2] = 32.0 * v18[3];
+      v17[3] = 32.0 * v18[4];
+      v17[4] = 32.0 * v18[6];
+      v17[5] = 32.0 * v18[7];
+      v17[6] = 32.0 * v18[8];
+      v17 += 12;
+      v18 += 16;
+      --v19;
     }
-    while ( v20 );
+    while ( v19 );
   }
   if ( v15 < v6 )
   {
-    _RCX = (__int64)&v9[v15].z;
-    v34 = (__int64)&m_data[v15].m_quad.m128_i64[1];
-    v35 = v6 - v15;
+    v20 = &v9[v15].v[2];
+    v21 = &m_data[v15].m_quad.m128_f32[2];
+    v22 = v6 - v15;
     do
     {
-      __asm
-      {
-        vmulss  xmm1, xmm3, dword ptr [rdx-8]
-        vmovss  dword ptr [rcx-8], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rdx-4]
-        vmovss  dword ptr [rcx-4], xmm0
-        vmulss  xmm2, xmm3, dword ptr [rdx]
-        vmovss  dword ptr [rcx], xmm2
-      }
-      _RCX += 12i64;
-      v34 += 16i64;
-      --v35;
+      *(v20 - 2) = 32.0 * *(v21 - 2);
+      *(v20 - 1) = 32.0 * *(v21 - 1);
+      *v20 = 32.0 * *v21;
+      v20 += 3;
+      v21 += 4;
+      --v22;
     }
-    while ( v35 );
+    while ( v22 );
   }
-  v39 = hkMemHeapAllocator();
-  v40.m_size = 0;
-  if ( v40.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v39, v40.m_data, 16, v40.m_capacityAndFlags & 0x3FFFFFFF);
+  v23 = hkMemHeapAllocator();
+  v24.m_size = 0;
+  if ( v24.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v23, v24.m_data, 16, v24.m_capacityAndFlags & 0x3FFFFFFF);
 }
 
 /*
@@ -918,12 +870,11 @@ PhysicsFX_IsValidParticlePosition
 */
 bool PhysicsFX_IsValidParticlePosition(const float4 *position)
 {
+  _XMM2 = PHYSICS_FX_MAX_POS_FLOAT4.v;
+  _XMM1 = position->v;
+  _mm128_sub_ps((__m128)0i64, PHYSICS_FX_MAX_POS_FLOAT4.v);
   __asm
   {
-    vmovups xmm2, xmmword ptr cs:PHYSICS_FX_MAX_POS_FLOAT4.v
-    vmovups xmm1, xmmword ptr [rcx]
-    vxorps  xmm0, xmm0, xmm0
-    vsubps  xmm0, xmm0, xmm2
     vcmpltps xmm1, xmm1, xmm0
     vmovmskps eax, xmm1
   }
@@ -1069,38 +1020,10 @@ PhysicsFX_SetParticleAngularVelocity
 */
 void PhysicsFX_SetParticleAngularVelocity(Physics_WorldId worldId, HavokPhysicsFX_Pipeline *pipelineInstance, int particleId, const vec3_t *velocity)
 {
-  int v11; 
-  int v12; 
-  int v13; 
-
-  _RBX = velocity;
   PhysicsFX_AssertNotLocked();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+38h+arg_18], xmm0
-  }
-  if ( (v11 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+38h+arg_18], xmm0
-  }
-  if ( (v12 & 0x7F800000) == 2139095040 )
-    goto LABEL_9;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+38h+arg_18], xmm0
-  }
-  if ( (v13 & 0x7F800000) == 2139095040 )
-  {
-LABEL_9:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 403, ASSERT_TYPE_ASSERT, "(!IS_NAN( velocity[0] ) && !IS_NAN( velocity[1] ) && !IS_NAN( velocity[2] ))", (const char *)&queryFormat, "!IS_NAN( velocity[0] ) && !IS_NAN( velocity[1] ) && !IS_NAN( velocity[2] )") )
-      __debugbreak();
-  }
-  HavokPhysicsFX_SetParticleAngularVelocity(worldId, pipelineInstance, particleId, _RBX);
+  if ( ((LODWORD(velocity->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(velocity->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(velocity->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 403, ASSERT_TYPE_ASSERT, "(!IS_NAN( velocity[0] ) && !IS_NAN( velocity[1] ) && !IS_NAN( velocity[2] ))", (const char *)&queryFormat, "!IS_NAN( velocity[0] ) && !IS_NAN( velocity[1] ) && !IS_NAN( velocity[2] )") )
+    __debugbreak();
+  HavokPhysicsFX_SetParticleAngularVelocity(worldId, pipelineInstance, particleId, velocity);
 }
 
 /*
@@ -1110,181 +1033,102 @@ PhysicsFX_SetParticleLinearVelocities
 */
 void PhysicsFX_SetParticleLinearVelocities(Physics_WorldId worldId, HavokPhysicsFX_Pipeline *pipelineInstance, int numParticles, int *particleIds, const vec3_t *velocities)
 {
-  int *v9; 
+  int *v5; 
+  __int64 v6; 
+  HavokPhysicsFX_Pipeline *v7; 
+  Physics_WorldId v8; 
+  const vec3_t *v9; 
   __int64 v10; 
-  HavokPhysicsFX_Pipeline *v11; 
-  Physics_WorldId v12; 
-  const vec3_t *v13; 
-  hkMemoryAllocator *v15; 
-  int v16; 
-  int v17; 
-  hkVector4f *v18; 
-  int v19; 
-  __int64 v20; 
-  bool v28; 
-  bool v29; 
-  bool v30; 
-  bool v32; 
-  bool v34; 
-  hkMemoryAllocator *v40; 
-  int v44; 
-  int v45; 
-  int v46; 
-  hkArray<hkVector4f,hkContainerHeapAllocator> v47; 
-  void *retaddr; 
+  hkMemoryAllocator *v11; 
+  int v12; 
+  int v13; 
+  hkVector4f *v14; 
+  int v15; 
+  __int64 v16; 
+  float *v17; 
+  float v18; 
+  float v19; 
+  hkVector4f *m_data; 
+  hkMemoryAllocator *v21; 
+  __int64 v22; 
+  __int64 v23; 
+  hkArray<hkVector4f,hkContainerHeapAllocator> v24; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
-  v9 = particleIds;
-  v10 = numParticles;
-  v11 = pipelineInstance;
-  v12 = worldId;
+  v23 = -2i64;
+  v5 = particleIds;
+  v6 = numParticles;
+  v7 = pipelineInstance;
+  v8 = worldId;
   PhysicsFX_AssertNotLocked();
-  if ( (int)v10 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 353, ASSERT_TYPE_ASSERT, "(numParticles > 0)", (const char *)&queryFormat, "numParticles > 0") )
+  if ( (int)v6 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 353, ASSERT_TYPE_ASSERT, "(numParticles > 0)", (const char *)&queryFormat, "numParticles > 0") )
     __debugbreak();
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 354, ASSERT_TYPE_ASSERT, "(particleIds)", (const char *)&queryFormat, "particleIds") )
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 354, ASSERT_TYPE_ASSERT, "(particleIds)", (const char *)&queryFormat, "particleIds") )
     __debugbreak();
-  v13 = velocities;
+  v9 = velocities;
   if ( !velocities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 355, ASSERT_TYPE_ASSERT, "(velocities)", (const char *)&queryFormat, "velocities") )
     __debugbreak();
-  _RSI = 0i64;
-  v47.m_data = NULL;
-  v47.m_size = 0;
-  v47.m_capacityAndFlags = 0x80000000;
-  LODWORD(velocities) = v10;
-  v15 = hkMemHeapAllocator();
-  v16 = (int)velocities;
-  v17 = (int)velocities;
+  v10 = 0i64;
+  v24.m_data = NULL;
+  v24.m_size = 0;
+  v24.m_capacityAndFlags = 0x80000000;
+  LODWORD(velocities) = v6;
+  v11 = hkMemHeapAllocator();
+  v12 = (int)velocities;
+  v13 = (int)velocities;
   if ( (_DWORD)velocities )
   {
-    v18 = (hkVector4f *)hkMemoryAllocator::bufAlloc2(v15, 16, (int *)&velocities);
-    v16 = (int)velocities;
+    v14 = (hkVector4f *)hkMemoryAllocator::bufAlloc2(v11, 16, (int *)&velocities);
+    v12 = (int)velocities;
   }
   else
   {
-    v18 = NULL;
+    v14 = NULL;
   }
-  v19 = 0x80000000;
-  if ( v16 )
-    v19 = v16;
-  v47.m_data = v18;
-  v47.m_size = v17;
-  v47.m_capacityAndFlags = v19;
-  v20 = v10;
-  if ( (int)v10 > 0 )
+  v15 = 0x80000000;
+  if ( v12 )
+    v15 = v12;
+  v24.m_data = v14;
+  v24.m_size = v13;
+  v24.m_capacityAndFlags = v15;
+  v16 = v6;
+  if ( (int)v6 > 0 )
   {
-    _RBX = &v13->v[2];
-    __asm
-    {
-      vmovss  xmm6, cs:__real@c9742400
-      vmovss  xmm7, cs:__real@49742400
-      vmovss  xmm8, cs:__real@3d000000
-    }
+    v17 = &v9->v[2];
     do
     {
-      __asm
+      *(float *)&v22 = *(v17 - 2);
+      if ( (v22 & 0x7F800000) == 2139095040 || (*(float *)&v22 = *(v17 - 1), (v22 & 0x7F800000) == 2139095040) || (*(float *)&v22 = *v17, (*(_DWORD *)v17 & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rbx-8]
-        vmovss  [rsp+0C8h+var_98], xmm0
-      }
-      if ( (v44 & 0x7F800000) == 2139095040 )
-        goto LABEL_41;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx-4]
-        vmovss  [rsp+0C8h+var_98], xmm0
-      }
-      if ( (v45 & 0x7F800000) == 2139095040 )
-        goto LABEL_41;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  [rsp+0C8h+var_98], xmm0
-      }
-      v28 = (v46 & 0x7F800000u) < 0x7F800000;
-      v29 = (v46 & 0x7F800000u) <= 0x7F800000;
-      if ( (v46 & 0x7F800000) == 2139095040 )
-      {
-LABEL_41:
-        v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 361, ASSERT_TYPE_ASSERT, "(!IS_NAN( velocities[particleIt][0] ) && !IS_NAN( velocities[particleIt][1] ) && !IS_NAN( velocities[particleIt][2] ))", (const char *)&queryFormat, "!IS_NAN( velocities[particleIt][0] ) && !IS_NAN( velocities[particleIt][1] ) && !IS_NAN( velocities[particleIt][2] )");
-        v28 = 0;
-        v29 = !v30;
-        if ( v30 )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 361, ASSERT_TYPE_ASSERT, "(!IS_NAN( velocities[particleIt][0] ) && !IS_NAN( velocities[particleIt][1] ) && !IS_NAN( velocities[particleIt][2] ))", (const char *)&queryFormat, "!IS_NAN( velocities[particleIt][0] ) && !IS_NAN( velocities[particleIt][1] ) && !IS_NAN( velocities[particleIt][2] )", v22, v23) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx-8]
-        vcomiss xmm0, xmm6
-      }
-      if ( v28 )
-        goto LABEL_42;
-      __asm { vcomiss xmm0, xmm7 }
-      if ( !v29 )
-      {
-LABEL_42:
-        v32 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 362, ASSERT_TYPE_ASSERT, "(velocities[particleIt][0] >= -PHYSICS_FX_MAX_SPEED && velocities[particleIt][0] <= PHYSICS_FX_MAX_SPEED)", (const char *)&queryFormat, "velocities[particleIt][0] >= -PHYSICS_FX_MAX_SPEED && velocities[particleIt][0] <= PHYSICS_FX_MAX_SPEED");
-        v29 = !v32;
-        if ( v32 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx-4]
-        vcomiss xmm0, xmm6
-        vcomiss xmm0, xmm7
-      }
-      if ( !v29 )
-      {
-        v34 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 363, ASSERT_TYPE_ASSERT, "(velocities[particleIt][1] >= -PHYSICS_FX_MAX_SPEED && velocities[particleIt][1] <= PHYSICS_FX_MAX_SPEED)", (const char *)&queryFormat, "velocities[particleIt][1] >= -PHYSICS_FX_MAX_SPEED && velocities[particleIt][1] <= PHYSICS_FX_MAX_SPEED");
-        v29 = !v34;
-        if ( v34 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vcomiss xmm0, xmm6
-        vcomiss xmm0, xmm7
-      }
-      if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 364, ASSERT_TYPE_ASSERT, "(velocities[particleIt][2] >= -PHYSICS_FX_MAX_SPEED && velocities[particleIt][2] <= PHYSICS_FX_MAX_SPEED)", (const char *)&queryFormat, "velocities[particleIt][2] >= -PHYSICS_FX_MAX_SPEED && velocities[particleIt][2] <= PHYSICS_FX_MAX_SPEED") )
+      v18 = *(v17 - 2);
+      if ( (v18 < -1000000.0 || v18 > 1000000.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 362, ASSERT_TYPE_ASSERT, "(velocities[particleIt][0] >= -PHYSICS_FX_MAX_SPEED && velocities[particleIt][0] <= PHYSICS_FX_MAX_SPEED)", (const char *)&queryFormat, "velocities[particleIt][0] >= -PHYSICS_FX_MAX_SPEED && velocities[particleIt][0] <= PHYSICS_FX_MAX_SPEED") )
         __debugbreak();
-      _RAX = v47.m_data;
-      __asm
-      {
-        vmulss  xmm1, xmm8, dword ptr [rbx-8]
-        vmovss  dword ptr [rsi+rax], xmm1
-        vmulss  xmm0, xmm8, dword ptr [rbx-4]
-        vmovss  dword ptr [rsi+rax+4], xmm0
-        vmulss  xmm2, xmm8, dword ptr [rbx]
-        vmovss  dword ptr [rsi+rax+8], xmm2
-      }
-      _RAX[_RSI++].m_quad.m128_i32[3] = 0;
-      _RBX += 3;
-      --v20;
+      v19 = *(v17 - 1);
+      if ( (v19 < -1000000.0 || v19 > 1000000.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 363, ASSERT_TYPE_ASSERT, "(velocities[particleIt][1] >= -PHYSICS_FX_MAX_SPEED && velocities[particleIt][1] <= PHYSICS_FX_MAX_SPEED)", (const char *)&queryFormat, "velocities[particleIt][1] >= -PHYSICS_FX_MAX_SPEED && velocities[particleIt][1] <= PHYSICS_FX_MAX_SPEED") )
+        __debugbreak();
+      if ( (*v17 < -1000000.0 || *v17 > 1000000.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 364, ASSERT_TYPE_ASSERT, "(velocities[particleIt][2] >= -PHYSICS_FX_MAX_SPEED && velocities[particleIt][2] <= PHYSICS_FX_MAX_SPEED)", (const char *)&queryFormat, "velocities[particleIt][2] >= -PHYSICS_FX_MAX_SPEED && velocities[particleIt][2] <= PHYSICS_FX_MAX_SPEED") )
+        __debugbreak();
+      m_data = v24.m_data;
+      v24.m_data[v10].m_quad.m128_f32[0] = 0.03125 * *(v17 - 2);
+      m_data[v10].m_quad.m128_f32[1] = 0.03125 * *(v17 - 1);
+      m_data[v10].m_quad.m128_f32[2] = 0.03125 * *v17;
+      m_data[v10++].m_quad.m128_i32[3] = 0;
+      v17 += 3;
+      --v16;
     }
-    while ( v20 );
-    LODWORD(v10) = numParticles;
-    v9 = particleIds;
-    v11 = pipelineInstance;
-    v12 = worldId;
+    while ( v16 );
+    LODWORD(v6) = numParticles;
+    v5 = particleIds;
+    v7 = pipelineInstance;
+    v8 = worldId;
   }
-  HavokPhysicsFX_SetParticleLinearVelocities(v12, v11, v10, v9, &v47);
-  v40 = hkMemHeapAllocator();
-  v47.m_size = 0;
-  if ( v47.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v40, v47.m_data, 16, v47.m_capacityAndFlags & 0x3FFFFFFF);
-  __asm
-  {
-    vmovaps xmm6, [rsp+0C8h+var_58]
-    vmovaps xmm7, [rsp+0C8h+var_68]
-    vmovaps xmm8, [rsp+0C8h+var_78]
-  }
+  HavokPhysicsFX_SetParticleLinearVelocities(v8, v7, v6, v5, &v24);
+  v21 = hkMemHeapAllocator();
+  v24.m_size = 0;
+  if ( v24.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v21, v24.m_data, 16, v24.m_capacityAndFlags & 0x3FFFFFFF);
 }
 
 /*
@@ -1294,97 +1138,34 @@ PhysicsFX_SetParticleLinearVelocity
 */
 void PhysicsFX_SetParticleLinearVelocity(Physics_WorldId worldId, HavokPhysicsFX_Pipeline *pipelineInstance, int particleId, const vec3_t *velocity)
 {
-  bool v11; 
-  bool v12; 
-  bool v13; 
-  bool v15; 
-  bool v17; 
-  int v24; 
-  int v25; 
-  int v26; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
   hkVector4f velocitya; 
 
-  _RBX = velocity;
   PhysicsFX_AssertNotLocked();
-  __asm
+  v12 = velocity->v[0];
+  if ( (LODWORD(velocity->v[0]) & 0x7F800000) == 2139095040 || (v12 = velocity->v[1], (LODWORD(v12) & 0x7F800000) == 2139095040) || (v12 = velocity->v[2], (LODWORD(v12) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_21;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_21;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  v11 = (v26 & 0x7F800000u) < 0x7F800000;
-  v12 = (v26 & 0x7F800000u) <= 0x7F800000;
-  if ( (v26 & 0x7F800000) == 2139095040 )
-  {
-LABEL_21:
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 335, ASSERT_TYPE_ASSERT, "(!IS_NAN( velocity[0] ) && !IS_NAN( velocity[1] ) && !IS_NAN( velocity[2] ))", (const char *)&queryFormat, "!IS_NAN( velocity[0] ) && !IS_NAN( velocity[1] ) && !IS_NAN( velocity[2] )");
-    v11 = 0;
-    v12 = !v13;
-    if ( v13 )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 335, ASSERT_TYPE_ASSERT, "(!IS_NAN( velocity[0] ) && !IS_NAN( velocity[1] ) && !IS_NAN( velocity[2] ))", (const char *)&queryFormat, "!IS_NAN( velocity[0] ) && !IS_NAN( velocity[1] ) && !IS_NAN( velocity[2] )", v12) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vcomiss xmm0, cs:__real@c9742400
-  }
-  if ( v11 )
-    goto LABEL_22;
-  __asm { vcomiss xmm0, cs:__real@49742400 }
-  if ( !v12 )
-  {
-LABEL_22:
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 336, ASSERT_TYPE_ASSERT, "(velocity[0] >= -PHYSICS_FX_MAX_SPEED && velocity[0] <= PHYSICS_FX_MAX_SPEED)", (const char *)&queryFormat, "velocity[0] >= -PHYSICS_FX_MAX_SPEED && velocity[0] <= PHYSICS_FX_MAX_SPEED");
-    v12 = !v15;
-    if ( v15 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vcomiss xmm0, cs:__real@c9742400
-    vcomiss xmm0, cs:__real@49742400
-  }
-  if ( !v12 )
-  {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 337, ASSERT_TYPE_ASSERT, "(velocity[1] >= -PHYSICS_FX_MAX_SPEED && velocity[1] <= PHYSICS_FX_MAX_SPEED)", (const char *)&queryFormat, "velocity[1] >= -PHYSICS_FX_MAX_SPEED && velocity[1] <= PHYSICS_FX_MAX_SPEED");
-    v12 = !v17;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vcomiss xmm0, cs:__real@c9742400
-    vcomiss xmm0, cs:__real@49742400
-  }
-  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 338, ASSERT_TYPE_ASSERT, "(velocity[2] >= -PHYSICS_FX_MAX_SPEED && velocity[2] <= PHYSICS_FX_MAX_SPEED)", (const char *)&queryFormat, "velocity[2] >= -PHYSICS_FX_MAX_SPEED && velocity[2] <= PHYSICS_FX_MAX_SPEED") )
+  if ( (velocity->v[0] < -1000000.0 || velocity->v[0] > 1000000.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 336, ASSERT_TYPE_ASSERT, "(velocity[0] >= -PHYSICS_FX_MAX_SPEED && velocity[0] <= PHYSICS_FX_MAX_SPEED)", (const char *)&queryFormat, "velocity[0] >= -PHYSICS_FX_MAX_SPEED && velocity[0] <= PHYSICS_FX_MAX_SPEED") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3d000000
-    vmulss  xmm2, xmm3, dword ptr [rbx+4]
-    vmulss  xmm0, xmm3, dword ptr [rbx]
-    vmulss  xmm1, xmm3, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+88h+velocity.m_quad+4], xmm2
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  dword ptr [rsp+88h+velocity.m_quad+0Ch], xmm2
-    vmovss  dword ptr [rsp+88h+velocity.m_quad], xmm0
-    vmovss  dword ptr [rsp+88h+velocity.m_quad+8], xmm1
-  }
+  v8 = velocity->v[1];
+  if ( (v8 < -1000000.0 || v8 > 1000000.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 337, ASSERT_TYPE_ASSERT, "(velocity[1] >= -PHYSICS_FX_MAX_SPEED && velocity[1] <= PHYSICS_FX_MAX_SPEED)", (const char *)&queryFormat, "velocity[1] >= -PHYSICS_FX_MAX_SPEED && velocity[1] <= PHYSICS_FX_MAX_SPEED") )
+    __debugbreak();
+  v9 = velocity->v[2];
+  if ( (v9 < -1000000.0 || v9 > 1000000.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 338, ASSERT_TYPE_ASSERT, "(velocity[2] >= -PHYSICS_FX_MAX_SPEED && velocity[2] <= PHYSICS_FX_MAX_SPEED)", (const char *)&queryFormat, "velocity[2] >= -PHYSICS_FX_MAX_SPEED && velocity[2] <= PHYSICS_FX_MAX_SPEED") )
+    __debugbreak();
+  v10 = 0.03125 * velocity->v[0];
+  v11 = 0.03125 * velocity->v[2];
+  velocitya.m_quad.m128_f32[1] = 0.03125 * velocity->v[1];
+  velocitya.m_quad.m128_f32[3] = 0.0;
+  velocitya.m_quad.m128_f32[0] = v10;
+  velocitya.m_quad.m128_f32[2] = v11;
   HavokPhysicsFX_SetParticleLinearVelocity(worldId, pipelineInstance, particleId, &velocitya);
 }
 
@@ -1395,46 +1176,10 @@ PhysicsFX_SetParticleOrientation
 */
 void PhysicsFX_SetParticleOrientation(Physics_WorldId worldId, HavokPhysicsFX_Pipeline *pipelineInstance, int particleId, const vec4_t *orientation)
 {
-  int v12; 
-  int v13; 
-  int v14; 
-  int v15; 
-
-  _RBX = orientation;
   PhysicsFX_AssertNotLocked();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+38h+arg_18], xmm0
-  }
-  if ( (v12 & 0x7F800000) == 2139095040 )
-    goto LABEL_10;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+38h+arg_18], xmm0
-  }
-  if ( (v13 & 0x7F800000) == 2139095040 )
-    goto LABEL_10;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+38h+arg_18], xmm0
-  }
-  if ( (v14 & 0x7F800000) == 2139095040 )
-    goto LABEL_10;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+0Ch]
-    vmovss  [rsp+38h+arg_18], xmm0
-  }
-  if ( (v15 & 0x7F800000) == 2139095040 )
-  {
-LABEL_10:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 377, ASSERT_TYPE_ASSERT, "(!IS_NAN( orientation[0] ) && !IS_NAN( orientation[1] ) && !IS_NAN( orientation[2] ) && !IS_NAN( orientation[3] ))", (const char *)&queryFormat, "!IS_NAN( orientation[0] ) && !IS_NAN( orientation[1] ) && !IS_NAN( orientation[2] ) && !IS_NAN( orientation[3] )") )
-      __debugbreak();
-  }
-  HavokPhysicsFX_SetParticleOrientation(worldId, pipelineInstance, particleId, _RBX);
+  if ( ((LODWORD(orientation->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(orientation->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(orientation->v[2]) & 0x7F800000) == 2139095040 || (LODWORD(orientation->v[3]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 377, ASSERT_TYPE_ASSERT, "(!IS_NAN( orientation[0] ) && !IS_NAN( orientation[1] ) && !IS_NAN( orientation[2] ) && !IS_NAN( orientation[3] ))", (const char *)&queryFormat, "!IS_NAN( orientation[0] ) && !IS_NAN( orientation[1] ) && !IS_NAN( orientation[2] ) && !IS_NAN( orientation[3] )") )
+    __debugbreak();
+  HavokPhysicsFX_SetParticleOrientation(worldId, pipelineInstance, particleId, orientation);
 }
 
 /*
@@ -1461,97 +1206,34 @@ PhysicsFX_SetParticlePosition
 */
 void PhysicsFX_SetParticlePosition(Physics_WorldId worldId, HavokPhysicsFX_Pipeline *pipelineInstance, int particleId, const vec3_t *position)
 {
-  bool v11; 
-  bool v12; 
-  bool v13; 
-  bool v15; 
-  bool v17; 
-  int v24; 
-  int v25; 
-  int v26; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
   hkVector4f positiona; 
 
-  _RBX = position;
   PhysicsFX_AssertNotLocked();
-  __asm
+  v12 = position->v[0];
+  if ( (LODWORD(position->v[0]) & 0x7F800000) == 2139095040 || (v12 = position->v[1], (LODWORD(v12) & 0x7F800000) == 2139095040) || (v12 = position->v[2], (LODWORD(v12) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v24 & 0x7F800000) == 2139095040 )
-    goto LABEL_21;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  if ( (v25 & 0x7F800000) == 2139095040 )
-    goto LABEL_21;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  [rsp+88h+var_58], xmm0
-  }
-  v11 = (v26 & 0x7F800000u) < 0x7F800000;
-  v12 = (v26 & 0x7F800000u) <= 0x7F800000;
-  if ( (v26 & 0x7F800000) == 2139095040 )
-  {
-LABEL_21:
-    v13 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 268, ASSERT_TYPE_ASSERT, "(!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] ))", (const char *)&queryFormat, "!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] )");
-    v11 = 0;
-    v12 = !v13;
-    if ( v13 )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 268, ASSERT_TYPE_ASSERT, "(!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] ))", (const char *)&queryFormat, "!IS_NAN( position[0] ) && !IS_NAN( position[1] ) && !IS_NAN( position[2] )", v12) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vcomiss xmm0, cs:__real@c8000000
-  }
-  if ( v11 )
-    goto LABEL_22;
-  __asm { vcomiss xmm0, cs:__real@48000000 }
-  if ( !v12 )
-  {
-LABEL_22:
-    v15 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 269, ASSERT_TYPE_ASSERT, "(position[0] >= -PHYSICS_FX_MAX_POS && position[0] <= PHYSICS_FX_MAX_POS)", (const char *)&queryFormat, "position[0] >= -PHYSICS_FX_MAX_POS && position[0] <= PHYSICS_FX_MAX_POS");
-    v12 = !v15;
-    if ( v15 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+4]
-    vcomiss xmm0, cs:__real@c8000000
-    vcomiss xmm0, cs:__real@48000000
-  }
-  if ( !v12 )
-  {
-    v17 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 270, ASSERT_TYPE_ASSERT, "(position[1] >= -PHYSICS_FX_MAX_POS && position[1] <= PHYSICS_FX_MAX_POS)", (const char *)&queryFormat, "position[1] >= -PHYSICS_FX_MAX_POS && position[1] <= PHYSICS_FX_MAX_POS");
-    v12 = !v17;
-    if ( v17 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+8]
-    vcomiss xmm0, cs:__real@c8000000
-    vcomiss xmm0, cs:__real@48000000
-  }
-  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 271, ASSERT_TYPE_ASSERT, "(position[2] >= -PHYSICS_FX_MAX_POS && position[2] <= PHYSICS_FX_MAX_POS)", (const char *)&queryFormat, "position[2] >= -PHYSICS_FX_MAX_POS && position[2] <= PHYSICS_FX_MAX_POS") )
+  if ( (position->v[0] < -131072.0 || position->v[0] > 131072.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 269, ASSERT_TYPE_ASSERT, "(position[0] >= -PHYSICS_FX_MAX_POS && position[0] <= PHYSICS_FX_MAX_POS)", (const char *)&queryFormat, "position[0] >= -PHYSICS_FX_MAX_POS && position[0] <= PHYSICS_FX_MAX_POS") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm3, cs:__real@3d000000
-    vmulss  xmm2, xmm3, dword ptr [rbx+4]
-    vmulss  xmm0, xmm3, dword ptr [rbx]
-    vmulss  xmm1, xmm3, dword ptr [rbx+8]
-    vmovss  dword ptr [rsp+88h+position.m_quad+4], xmm2
-    vxorps  xmm2, xmm2, xmm2
-    vmovss  dword ptr [rsp+88h+position.m_quad+0Ch], xmm2
-    vmovss  dword ptr [rsp+88h+position.m_quad], xmm0
-    vmovss  dword ptr [rsp+88h+position.m_quad+8], xmm1
-  }
+  v8 = position->v[1];
+  if ( (v8 < -131072.0 || v8 > 131072.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 270, ASSERT_TYPE_ASSERT, "(position[1] >= -PHYSICS_FX_MAX_POS && position[1] <= PHYSICS_FX_MAX_POS)", (const char *)&queryFormat, "position[1] >= -PHYSICS_FX_MAX_POS && position[1] <= PHYSICS_FX_MAX_POS") )
+    __debugbreak();
+  v9 = position->v[2];
+  if ( (v9 < -131072.0 || v9 > 131072.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 271, ASSERT_TYPE_ASSERT, "(position[2] >= -PHYSICS_FX_MAX_POS && position[2] <= PHYSICS_FX_MAX_POS)", (const char *)&queryFormat, "position[2] >= -PHYSICS_FX_MAX_POS && position[2] <= PHYSICS_FX_MAX_POS") )
+    __debugbreak();
+  v10 = 0.03125 * position->v[0];
+  v11 = 0.03125 * position->v[2];
+  positiona.m_quad.m128_f32[1] = 0.03125 * position->v[1];
+  positiona.m_quad.m128_f32[3] = 0.0;
+  positiona.m_quad.m128_f32[0] = v10;
+  positiona.m_quad.m128_f32[2] = v11;
   HavokPhysicsFX_SetParticlePosition(worldId, pipelineInstance, particleId, &positiona);
 }
 
@@ -1562,181 +1244,102 @@ PhysicsFX_SetParticlePositions
 */
 void PhysicsFX_SetParticlePositions(Physics_WorldId worldId, HavokPhysicsFX_Pipeline *pipelineInstance, int numParticles, int *particleIds, const vec3_t *positions)
 {
-  int *v9; 
+  int *v5; 
+  __int64 v6; 
+  HavokPhysicsFX_Pipeline *v7; 
+  Physics_WorldId v8; 
+  const vec3_t *v9; 
   __int64 v10; 
-  HavokPhysicsFX_Pipeline *v11; 
-  Physics_WorldId v12; 
-  const vec3_t *v13; 
-  hkMemoryAllocator *v15; 
-  int v16; 
-  int v17; 
-  hkVector4f *v18; 
-  int v19; 
-  __int64 v20; 
-  bool v28; 
-  bool v29; 
-  bool v30; 
-  bool v32; 
-  bool v34; 
-  hkMemoryAllocator *v40; 
-  int v44; 
-  int v45; 
-  int v46; 
-  hkArray<hkVector4f,hkContainerHeapAllocator> v47; 
-  void *retaddr; 
+  hkMemoryAllocator *v11; 
+  int v12; 
+  int v13; 
+  hkVector4f *v14; 
+  int v15; 
+  __int64 v16; 
+  float *v17; 
+  float v18; 
+  float v19; 
+  hkVector4f *m_data; 
+  hkMemoryAllocator *v21; 
+  __int64 v22; 
+  __int64 v23; 
+  hkArray<hkVector4f,hkContainerHeapAllocator> v24; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
-  v9 = particleIds;
-  v10 = numParticles;
-  v11 = pipelineInstance;
-  v12 = worldId;
+  v23 = -2i64;
+  v5 = particleIds;
+  v6 = numParticles;
+  v7 = pipelineInstance;
+  v8 = worldId;
   PhysicsFX_AssertNotLocked();
-  if ( (int)v10 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 286, ASSERT_TYPE_ASSERT, "(numParticles > 0)", (const char *)&queryFormat, "numParticles > 0") )
+  if ( (int)v6 <= 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 286, ASSERT_TYPE_ASSERT, "(numParticles > 0)", (const char *)&queryFormat, "numParticles > 0") )
     __debugbreak();
-  if ( !v9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 287, ASSERT_TYPE_ASSERT, "(particleIds)", (const char *)&queryFormat, "particleIds") )
+  if ( !v5 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 287, ASSERT_TYPE_ASSERT, "(particleIds)", (const char *)&queryFormat, "particleIds") )
     __debugbreak();
-  v13 = positions;
+  v9 = positions;
   if ( !positions && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 288, ASSERT_TYPE_ASSERT, "(positions)", (const char *)&queryFormat, "positions") )
     __debugbreak();
-  _RSI = 0i64;
-  v47.m_data = NULL;
-  v47.m_size = 0;
-  v47.m_capacityAndFlags = 0x80000000;
-  LODWORD(positions) = v10;
-  v15 = hkMemHeapAllocator();
-  v16 = (int)positions;
-  v17 = (int)positions;
+  v10 = 0i64;
+  v24.m_data = NULL;
+  v24.m_size = 0;
+  v24.m_capacityAndFlags = 0x80000000;
+  LODWORD(positions) = v6;
+  v11 = hkMemHeapAllocator();
+  v12 = (int)positions;
+  v13 = (int)positions;
   if ( (_DWORD)positions )
   {
-    v18 = (hkVector4f *)hkMemoryAllocator::bufAlloc2(v15, 16, (int *)&positions);
-    v16 = (int)positions;
+    v14 = (hkVector4f *)hkMemoryAllocator::bufAlloc2(v11, 16, (int *)&positions);
+    v12 = (int)positions;
   }
   else
   {
-    v18 = NULL;
+    v14 = NULL;
   }
-  v19 = 0x80000000;
-  if ( v16 )
-    v19 = v16;
-  v47.m_data = v18;
-  v47.m_size = v17;
-  v47.m_capacityAndFlags = v19;
-  v20 = v10;
-  if ( (int)v10 > 0 )
+  v15 = 0x80000000;
+  if ( v12 )
+    v15 = v12;
+  v24.m_data = v14;
+  v24.m_size = v13;
+  v24.m_capacityAndFlags = v15;
+  v16 = v6;
+  if ( (int)v6 > 0 )
   {
-    _RBX = &v13->v[2];
-    __asm
-    {
-      vmovss  xmm6, cs:__real@c8000000
-      vmovss  xmm7, cs:__real@48000000
-      vmovss  xmm8, cs:__real@3d000000
-    }
+    v17 = &v9->v[2];
     do
     {
-      __asm
+      *(float *)&v22 = *(v17 - 2);
+      if ( (v22 & 0x7F800000) == 2139095040 || (*(float *)&v22 = *(v17 - 1), (v22 & 0x7F800000) == 2139095040) || (*(float *)&v22 = *v17, (*(_DWORD *)v17 & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rbx-8]
-        vmovss  [rsp+0C8h+var_98], xmm0
-      }
-      if ( (v44 & 0x7F800000) == 2139095040 )
-        goto LABEL_41;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx-4]
-        vmovss  [rsp+0C8h+var_98], xmm0
-      }
-      if ( (v45 & 0x7F800000) == 2139095040 )
-        goto LABEL_41;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vmovss  [rsp+0C8h+var_98], xmm0
-      }
-      v28 = (v46 & 0x7F800000u) < 0x7F800000;
-      v29 = (v46 & 0x7F800000u) <= 0x7F800000;
-      if ( (v46 & 0x7F800000) == 2139095040 )
-      {
-LABEL_41:
-        v30 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 294, ASSERT_TYPE_ASSERT, "(!IS_NAN( positions[particleIt][0] ) && !IS_NAN( positions[particleIt][1] ) && !IS_NAN( positions[particleIt][2] ))", (const char *)&queryFormat, "!IS_NAN( positions[particleIt][0] ) && !IS_NAN( positions[particleIt][1] ) && !IS_NAN( positions[particleIt][2] )");
-        v28 = 0;
-        v29 = !v30;
-        if ( v30 )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 294, ASSERT_TYPE_ASSERT, "(!IS_NAN( positions[particleIt][0] ) && !IS_NAN( positions[particleIt][1] ) && !IS_NAN( positions[particleIt][2] ))", (const char *)&queryFormat, "!IS_NAN( positions[particleIt][0] ) && !IS_NAN( positions[particleIt][1] ) && !IS_NAN( positions[particleIt][2] )", v22, v23) )
           __debugbreak();
       }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx-8]
-        vcomiss xmm0, xmm6
-      }
-      if ( v28 )
-        goto LABEL_42;
-      __asm { vcomiss xmm0, xmm7 }
-      if ( !v29 )
-      {
-LABEL_42:
-        v32 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 295, ASSERT_TYPE_ASSERT, "(positions[particleIt][0] >= -PHYSICS_FX_MAX_POS && positions[particleIt][0] <= PHYSICS_FX_MAX_POS)", (const char *)&queryFormat, "positions[particleIt][0] >= -PHYSICS_FX_MAX_POS && positions[particleIt][0] <= PHYSICS_FX_MAX_POS");
-        v29 = !v32;
-        if ( v32 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx-4]
-        vcomiss xmm0, xmm6
-        vcomiss xmm0, xmm7
-      }
-      if ( !v29 )
-      {
-        v34 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 296, ASSERT_TYPE_ASSERT, "(positions[particleIt][1] >= -PHYSICS_FX_MAX_POS && positions[particleIt][1] <= PHYSICS_FX_MAX_POS)", (const char *)&queryFormat, "positions[particleIt][1] >= -PHYSICS_FX_MAX_POS && positions[particleIt][1] <= PHYSICS_FX_MAX_POS");
-        v29 = !v34;
-        if ( v34 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx]
-        vcomiss xmm0, xmm6
-        vcomiss xmm0, xmm7
-      }
-      if ( !v29 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 297, ASSERT_TYPE_ASSERT, "(positions[particleIt][2] >= -PHYSICS_FX_MAX_POS && positions[particleIt][2] <= PHYSICS_FX_MAX_POS)", (const char *)&queryFormat, "positions[particleIt][2] >= -PHYSICS_FX_MAX_POS && positions[particleIt][2] <= PHYSICS_FX_MAX_POS") )
+      v18 = *(v17 - 2);
+      if ( (v18 < -131072.0 || v18 > 131072.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 295, ASSERT_TYPE_ASSERT, "(positions[particleIt][0] >= -PHYSICS_FX_MAX_POS && positions[particleIt][0] <= PHYSICS_FX_MAX_POS)", (const char *)&queryFormat, "positions[particleIt][0] >= -PHYSICS_FX_MAX_POS && positions[particleIt][0] <= PHYSICS_FX_MAX_POS") )
         __debugbreak();
-      _RAX = v47.m_data;
-      __asm
-      {
-        vmulss  xmm1, xmm8, dword ptr [rbx-8]
-        vmovss  dword ptr [rsi+rax], xmm1
-        vmulss  xmm0, xmm8, dword ptr [rbx-4]
-        vmovss  dword ptr [rsi+rax+4], xmm0
-        vmulss  xmm2, xmm8, dword ptr [rbx]
-        vmovss  dword ptr [rsi+rax+8], xmm2
-      }
-      _RAX[_RSI++].m_quad.m128_i32[3] = 0;
-      _RBX += 3;
-      --v20;
+      v19 = *(v17 - 1);
+      if ( (v19 < -131072.0 || v19 > 131072.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 296, ASSERT_TYPE_ASSERT, "(positions[particleIt][1] >= -PHYSICS_FX_MAX_POS && positions[particleIt][1] <= PHYSICS_FX_MAX_POS)", (const char *)&queryFormat, "positions[particleIt][1] >= -PHYSICS_FX_MAX_POS && positions[particleIt][1] <= PHYSICS_FX_MAX_POS") )
+        __debugbreak();
+      if ( (*v17 < -131072.0 || *v17 > 131072.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 297, ASSERT_TYPE_ASSERT, "(positions[particleIt][2] >= -PHYSICS_FX_MAX_POS && positions[particleIt][2] <= PHYSICS_FX_MAX_POS)", (const char *)&queryFormat, "positions[particleIt][2] >= -PHYSICS_FX_MAX_POS && positions[particleIt][2] <= PHYSICS_FX_MAX_POS") )
+        __debugbreak();
+      m_data = v24.m_data;
+      v24.m_data[v10].m_quad.m128_f32[0] = 0.03125 * *(v17 - 2);
+      m_data[v10].m_quad.m128_f32[1] = 0.03125 * *(v17 - 1);
+      m_data[v10].m_quad.m128_f32[2] = 0.03125 * *v17;
+      m_data[v10++].m_quad.m128_i32[3] = 0;
+      v17 += 3;
+      --v16;
     }
-    while ( v20 );
-    LODWORD(v10) = numParticles;
-    v9 = particleIds;
-    v11 = pipelineInstance;
-    v12 = worldId;
+    while ( v16 );
+    LODWORD(v6) = numParticles;
+    v5 = particleIds;
+    v7 = pipelineInstance;
+    v8 = worldId;
   }
-  HavokPhysicsFX_SetParticlePositions(v12, v11, v10, v9, &v47);
-  v40 = hkMemHeapAllocator();
-  v47.m_size = 0;
-  if ( v47.m_capacityAndFlags >= 0 )
-    hkMemoryAllocator::bufFree2(v40, v47.m_data, 16, v47.m_capacityAndFlags & 0x3FFFFFFF);
-  __asm
-  {
-    vmovaps xmm6, [rsp+0C8h+var_58]
-    vmovaps xmm7, [rsp+0C8h+var_68]
-    vmovaps xmm8, [rsp+0C8h+var_78]
-  }
+  HavokPhysicsFX_SetParticlePositions(v8, v7, v6, v5, &v24);
+  v21 = hkMemHeapAllocator();
+  v24.m_size = 0;
+  if ( v24.m_capacityAndFlags >= 0 )
+    hkMemoryAllocator::bufFree2(v21, v24.m_data, 16, v24.m_capacityAndFlags & 0x3FFFFFFF);
 }
 
 /*
@@ -1744,34 +1347,12 @@ LABEL_42:
 PhysicsFX_SetParticleScale
 ==============
 */
-
-void __fastcall PhysicsFX_SetParticleScale(Physics_WorldId worldId, HavokPhysicsFX_Pipeline *pipelineInstance, int particleId, double scale)
+void PhysicsFX_SetParticleScale(Physics_WorldId worldId, HavokPhysicsFX_Pipeline *pipelineInstance, int particleId, float scale)
 {
-  int v14; 
-
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm3
-  }
   PhysicsFX_AssertNotLocked();
-  __asm { vmovss  [rsp+48h+arg_18], xmm6 }
-  if ( (v14 & 0x7F800000) != 2139095040 )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcomiss xmm6, xmm0
-    }
-  }
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 309, ASSERT_TYPE_ASSERT, "(!IS_NAN( scale ) && scale > 0.f)", (const char *)&queryFormat, "!IS_NAN( scale ) && scale > 0.f") )
+  if ( ((LODWORD(scale) & 0x7F800000) == 2139095040 || scale <= 0.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsfx.cpp", 309, ASSERT_TYPE_ASSERT, "(!IS_NAN( scale ) && scale > 0.f)", (const char *)&queryFormat, "!IS_NAN( scale ) && scale > 0.f") )
     __debugbreak();
-  __asm
-  {
-    vmovaps xmm3, xmm6; scale
-    vmovaps xmm6, [rsp+48h+var_18]
-  }
-  HavokPhysicsFX_SetParticleScale(worldId, pipelineInstance, particleId, *(float *)&_XMM3);
+  HavokPhysicsFX_SetParticleScale(worldId, pipelineInstance, particleId, scale);
 }
 
 /*
@@ -1810,19 +1391,17 @@ PhysicsFX_StepWorld
 void PhysicsFX_StepWorld(Physics_WorldId worldId)
 {
   unsigned __int64 TickCounter; 
+  __int128 v7; 
+  __int128 v9; 
   int NumPipelineInstances; 
   int NumAllocatedParticles; 
+  const char *v13; 
   const char *v14; 
-  const char *v15; 
 
-  __asm
-  {
-    vmovaps [rsp+58h+var_28], xmm6
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2sd xmm6, xmm6, rax
-  }
+  _XMM6 = 0i64;
+  __asm { vcvtsi2sd xmm6, xmm6, rax }
   if ( (hkStopwatch::getTicksPerSecond() & 0x8000000000000000ui64) != 0i64 )
-    __asm { vaddsd  xmm6, xmm6, cs:__real@43f0000000000000 }
+    *(double *)&_XMM6 = *(double *)&_XMM6 + 1.844674407370955e19;
   TickCounter = hkStopwatch::getTickCounter();
   Profile2_UpdateEntry(89);
   if ( ((unsigned __int8)&dword_14FDE8134 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8134) )
@@ -1841,32 +1420,31 @@ void PhysicsFX_StepWorld(Physics_WorldId worldId)
   if ( ((unsigned __int64)&dword_14FDE8134 & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 44, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", &dword_14FDE8134) )
     __debugbreak();
   _InterlockedDecrement(&dword_14FDE8134);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (__int64)(hkStopwatch::getTickCounter() - TickCounter) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
   {
-    vdivsd  xmm0, xmm0, xmm6
-    vcvtsd2ss xmm0, xmm0, xmm0; time
+    *((_QWORD *)&v7 + 1) = *((_QWORD *)&_XMM0 + 1);
+    *(double *)&v7 = *(double *)&_XMM0 + 1.844674407370955e19;
+    _XMM0 = v7;
   }
+  *((_QWORD *)&v9 + 1) = *((_QWORD *)&_XMM0 + 1);
+  *(double *)&v9 = *(double *)&_XMM0 / *(double *)&_XMM6;
+  _XMM0 = v9;
+  __asm { vcvtsd2ss xmm0, xmm0, xmm0; time }
   PhysicsFX_Debug_SetLastFrameTime(*(float *)&_XMM0);
   NumPipelineInstances = HavokPhysicsFX_GetNumPipelineInstances(worldId);
   NumAllocatedParticles = HavokPhysicsFX_GetNumAllocatedParticles(worldId);
   if ( NumPipelineInstances > 10 )
   {
-    v14 = j_va("PhysFX Pipelines:%i max:%i", (unsigned int)NumPipelineInstances, 10i64);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_PHYS_FX_PIPELINE_INSTANCES, 3000, v14, NumPipelineInstances);
+    v13 = j_va("PhysFX Pipelines:%i max:%i", (unsigned int)NumPipelineInstances, 10i64);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_PHYS_FX_PIPELINE_INSTANCES, 3000, v13, NumPipelineInstances);
   }
   if ( NumAllocatedParticles > 500 )
   {
-    v15 = j_va("PhysFX Allocated Particles:%i max:%i", (unsigned int)NumAllocatedParticles, 500i64);
-    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_PHYS_FX_ALLOCATED_PARTICLES, 3000, v15, NumAllocatedParticles);
+    v14 = j_va("PhysFX Allocated Particles:%i max:%i", (unsigned int)NumAllocatedParticles, 500i64);
+    StatMon_Warning(STATMON_CLASS_BUDGET, STATMON_TYPE_PHYS_FX_ALLOCATED_PARTICLES, 3000, v14, NumAllocatedParticles);
   }
-  __asm { vmovaps xmm6, [rsp+58h+var_28] }
 }
 
 /*

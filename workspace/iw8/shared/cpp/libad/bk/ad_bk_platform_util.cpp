@@ -230,37 +230,38 @@ char AD_GetDeviceInfo(AD_COMContainer<IMMDevice> *device, AD_WASAPIDeviceInfo *d
   IMMDevice *v10; 
   __int16 v11; 
   int v12; 
-  __int64 v18; 
-  __int64 v19; 
+  double *v13; 
+  double v14; 
+  __int64 v16; 
+  __int64 v17; 
   LPVOID pv; 
-  __m256i v21; 
-  __int64 v22; 
+  __m256i v19; 
+  double v20; 
   wchar_t *str; 
 
-  _RBX = deviceInfo;
   instance = device->instance;
   v7 = flow;
   str = NULL;
   if ( ((int (__fastcall *)(IMMDevice *, wchar_t **, __int64, __int64))instance->GetId)(instance, &str, flow, role) < 0 )
     return 0;
-  AD_WCharToUTF8(str, _RBX->deviceId.value, 0x38ui64);
-  AD_WCharToUTF8(str, _RBX->deviceName, 0x100ui64);
+  AD_WCharToUTF8(str, deviceInfo->deviceId.value, 0x38ui64);
+  AD_WCharToUTF8(str, deviceInfo->deviceName, 0x100ui64);
   CoTaskMemFree(str);
-  if ( device->instance->GetState(device->instance, &_RBX->state) < 0 )
+  if ( device->instance->GetState(device->instance, &deviceInfo->state) < 0 )
     return 0;
   v8 = device->instance;
-  v19 = 0i64;
-  if ( v8->QueryInterface(v8, &IID_IMMEndpoint, (void **)&v19) < 0 )
+  v17 = 0i64;
+  if ( v8->QueryInterface(v8, &IID_IMMEndpoint, (void **)&v17) < 0 )
     return 0;
-  (*(void (__fastcall **)(__int64, __MIDL___MIDL_itf_mmdeviceapi_0000_0000_0001 *))(*(_QWORD *)v19 + 24i64))(v19, &_RBX->flow);
-  (*(void (__fastcall **)(__int64))(*(_QWORD *)v19 + 16i64))(v19);
-  v9 = _RBX->flow;
+  (*(void (__fastcall **)(__int64, __MIDL___MIDL_itf_mmdeviceapi_0000_0000_0001 *))(*(_QWORD *)v17 + 24i64))(v17, &deviceInfo->flow);
+  (*(void (__fastcall **)(__int64))(*(_QWORD *)v17 + 16i64))(v17);
+  v9 = deviceInfo->flow;
   if ( v9 == eRender )
   {
     if ( !v7 )
       goto LABEL_6;
 LABEL_14:
-    AD_LogFuncf("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_platform_util.cpp", "172", Error, "Device flow %d does not match requested flow direction %d", _RBX->flow, v7);
+    AD_LogFuncf("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_platform_util.cpp", "172", Error, "Device flow %d does not match requested flow direction %d", deviceInfo->flow, v7);
     if ( (unsigned int)AD_GetLogBreakLevel() <= Error )
       __debugbreak();
     return 0;
@@ -269,59 +270,51 @@ LABEL_14:
     goto LABEL_14;
 LABEL_6:
   v10 = device->instance;
-  v18 = 0i64;
-  if ( v10->Activate(v10, &IID_IAudioClient, 1u, NULL, (void **)&v18) < 0 )
+  v16 = 0i64;
+  if ( v10->Activate(v10, &IID_IAudioClient, 1u, NULL, (void **)&v16) < 0 )
   {
-    AD_LogFuncf("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_platform_util.cpp", "230", Canceled, "IAudioClient Activate failed for %s", _RBX->deviceId.value);
+    AD_LogFuncf("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_platform_util.cpp", "230", Canceled, "IAudioClient Activate failed for %s", deviceInfo->deviceId.value);
     return 0;
   }
-  *(_OWORD *)v21.m256i_i8 = 3ui64;
-  *(_OWORD *)&v21.m256i_u64[2] = 0ui64;
-  v22 = 0i64;
-  *(int *)((char *)&v21.m256i_i32[3] + 2) = 32;
-  if ( _RBX->flow )
+  *(_OWORD *)v19.m256i_i8 = 3ui64;
+  *(_OWORD *)&v19.m256i_u64[2] = 0ui64;
+  v20 = 0.0;
+  *(int *)((char *)&v19.m256i_i32[3] + 2) = 32;
+  if ( deviceInfo->flow )
   {
     if ( v7 != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_platform_util.cpp", 197, ASSERT_TYPE_ASSERT, "flow == AD_EndpointFlow::Input", "flow == AD_EndpointFlow::Input") )
       __debugbreak();
-    v21.m256i_i16[1] = 1;
+    v19.m256i_i16[1] = 1;
     v11 = 4;
-    *(__int64 *)((char *)v21.m256i_i64 + 4) = 412316860440000i64;
+    *(__int64 *)((char *)v19.m256i_i64 + 4) = 412316860440000i64;
   }
   else
   {
     if ( v7 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_platform_util.cpp", 188, ASSERT_TYPE_ASSERT, "flow == AD_EndpointFlow::Output", "flow == AD_EndpointFlow::Output") )
       __debugbreak();
-    *(__int64 *)((char *)v21.m256i_i64 + 4) = 13194139533360000i64;
-    v21.m256i_i16[1] = 16;
+    *(__int64 *)((char *)v19.m256i_i64 + 4) = 13194139533360000i64;
+    v19.m256i_i16[1] = 16;
     v11 = 64;
   }
-  v21.m256i_i16[6] = v11;
+  v19.m256i_i16[6] = v11;
   pv = NULL;
-  v12 = (*(__int64 (__fastcall **)(__int64, LPVOID *))(*(_QWORD *)v18 + 64i64))(v18, &pv);
-  _RCX = pv;
+  v12 = (*(__int64 (__fastcall **)(__int64, LPVOID *))(*(_QWORD *)v16 + 64i64))(v16, &pv);
+  v13 = (double *)pv;
   if ( v12 < 0 )
   {
-    __asm
-    {
-      vmovups ymm0, [rbp+var_28]
-      vmovsd  xmm1, [rbp+var_8]
-      vmovups ymmword ptr [rbx+144h], ymm0
-    }
+    v14 = v20;
+    *(__m256i *)&deviceInfo->defaultFormat.Format.wFormatTag = v19;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rcx]
-      vmovups ymmword ptr [rbx+144h], ymm0
-      vmovsd  xmm1, qword ptr [rcx+20h]
-    }
+    *(__m256i *)&deviceInfo->defaultFormat.Format.wFormatTag = *(__m256i *)pv;
+    v14 = v13[4];
   }
-  __asm { vmovsd  qword ptr [rbx+164h], xmm1 }
-  if ( _RCX )
-    CoTaskMemFree(_RCX);
-  (*(void (__fastcall **)(__int64, __int64 *, __int64 *))(*(_QWORD *)v18 + 72i64))(v18, &_RBX->defaultDevicePeriod, &_RBX->minimumDevicePeriod);
-  (*(void (__fastcall **)(__int64))(*(_QWORD *)v18 + 16i64))(v18);
+  *(double *)deviceInfo->defaultFormat.SubFormat.Data4 = v14;
+  if ( v13 )
+    CoTaskMemFree(v13);
+  (*(void (__fastcall **)(__int64, __int64 *, __int64 *))(*(_QWORD *)v16 + 72i64))(v16, &deviceInfo->defaultDevicePeriod, &deviceInfo->minimumDevicePeriod);
+  (*(void (__fastcall **)(__int64))(*(_QWORD *)v16 + 16i64))(v16);
   return 1;
 }
 

@@ -514,26 +514,26 @@ AD_XboxUserDeviceNotifier::AD_XboxUserDeviceNotifier
 */
 void AD_XboxUserDeviceNotifier::AD_XboxUserDeviceNotifier(AD_XboxUserDeviceNotifier *this)
 {
+  void *v2; 
   void *v3; 
-  void *v4; 
   int ActivationFactoryByPCWSTR; 
-  int v6; 
-  Platform::Object_vtbl *v7; 
-  void *v9; 
-  void *v10; 
-  int v11; 
-  int v12; 
-  Platform::Object_vtbl *v13; 
-  __int64 v14[2]; 
+  int v5; 
+  Platform::Object_vtbl *v6; 
+  void *v7; 
+  void *v8; 
+  int v9; 
+  int v10; 
+  Platform::Object_vtbl *v11; 
+  __int64 v12[2]; 
   Platform::Guid pGuid; 
-  Platform::Guid v16; 
-  __int128 v17; 
-  __int128 v18; 
+  Platform::Guid v14; 
+  __int128 v15; 
+  __int128 v16; 
   void *ppActivationFactory; 
-  void *v20; 
-  Platform::Object_vtbl *v21; 
+  void *v18; 
+  Platform::Object_vtbl *v19; 
 
-  v14[1] = -2i64;
+  v12[1] = -2i64;
   Platform::Object::Object(&this->Platform::Object);
   this->__IAD_XboxUserDeviceNotifierPublicNonVirtuals::Platform::Object::__vftable = (AD_XboxUserDeviceNotifier_vtbl *)&AD_XboxUserDeviceNotifier::`vftable'{for `__IAD_XboxUserDeviceNotifierPublicNonVirtuals'};
   this->Platform::IDisposable::Platform::Object::__vftable = (Platform::IDisposable_vtbl *)&AD_XboxUserDeviceNotifier::`vftable'{for `Platform::IDisposable'};
@@ -544,16 +544,11 @@ void AD_XboxUserDeviceNotifier::AD_XboxUserDeviceNotifier(AD_XboxUserDeviceNotif
   if ( __abi_module )
     __abi_module->__abi_IncrementObjectCount(__abi_module);
   ppActivationFactory = Platform::Details::Heap::Allocate(0x18ui64, 0x130ui64);
-  *(_QWORD *)&v17 = AD_XboxUserDeviceNotifier::OnAudioDeviceAdded;
-  DWORD2(v17) = 0;
-  __asm
-  {
-    vmovups xmm0, [rbp+var_20]
-    vmovdqa [rbp+var_20], xmm0
-  }
-  Windows::Foundation::EventHandler<Windows::Xbox::System::AudioDeviceAddedEventArgs __gc *>::EventHandler<Windows::Xbox::System::AudioDeviceAddedEventArgs __gc *>((Windows::Foundation::EventHandler<Windows::Xbox::System::AudioDeviceAddedEventArgs _> *)ppActivationFactory, this, &v17, (Platform::CallbackContext)2, 0);
-  v4 = v3;
-  v20 = v3;
+  *(_QWORD *)&v15 = AD_XboxUserDeviceNotifier::OnAudioDeviceAdded;
+  DWORD2(v15) = 0;
+  Windows::Foundation::EventHandler<Windows::Xbox::System::AudioDeviceAddedEventArgs __gc *>::EventHandler<Windows::Xbox::System::AudioDeviceAddedEventArgs __gc *>((Windows::Foundation::EventHandler<Windows::Xbox::System::AudioDeviceAddedEventArgs _> *)ppActivationFactory, this, &v15, (Platform::CallbackContext)2, 0);
+  v3 = v2;
+  v18 = v2;
   pGuid.__vftable = (Platform::Object_vtbl *)0x4A507FC6B4F23A93i64;
   *(_DWORD *)&pGuid.__d = 9786289;
   *(_DWORD *)&pGuid.__h = 1352546326;
@@ -561,44 +556,40 @@ void AD_XboxUserDeviceNotifier::AD_XboxUserDeviceNotifier(AD_XboxUserDeviceNotif
   ActivationFactoryByPCWSTR = __winRT::__getActivationFactoryByPCWSTR((void *)L"Windows.Xbox.System.User", &pGuid, &ppActivationFactory);
   if ( ActivationFactoryByPCWSTR < 0 )
     __abi_WinRTraiseException(ActivationFactoryByPCWSTR);
-  v21 = NULL;
-  v6 = (*(__int64 (__fastcall **)(void *, void *, Platform::Object_vtbl **))(*(_QWORD *)ppActivationFactory + 144i64))(ppActivationFactory, v4, &v21);
-  if ( v6 < 0 )
-    __abi_WinRTraiseException(v6);
-  v7 = v21;
+  v19 = NULL;
+  v5 = (*(__int64 (__fastcall **)(void *, void *, Platform::Object_vtbl **))(*(_QWORD *)ppActivationFactory + 144i64))(ppActivationFactory, v3, &v19);
+  if ( v5 < 0 )
+    __abi_WinRTraiseException(v5);
+  v6 = v19;
   if ( ppActivationFactory )
     (*(void (__fastcall **)(void *))(*(_QWORD *)ppActivationFactory + 16i64))(ppActivationFactory);
-  this->deviceAddedEventToken.__vftable = v7;
-  if ( v4 )
-    (*(void (__fastcall **)(void *))(*(_QWORD *)v4 + 16i64))(v4);
+  this->deviceAddedEventToken.__vftable = v6;
+  if ( v3 )
+    (*(void (__fastcall **)(void *))(*(_QWORD *)v3 + 16i64))(v3);
   ppActivationFactory = Platform::Details::Heap::Allocate(0x18ui64, 0x130ui64);
-  *(_QWORD *)&v17 = AD_XboxUserDeviceNotifier::OnAudioDeviceChanged;
-  DWORD2(v17) = 0;
-  __asm
-  {
-    vmovups xmm0, [rbp+var_20]
-    vmovdqa [rbp+var_10], xmm0
-  }
-  Windows::Foundation::EventHandler<Windows::Xbox::System::AudioDeviceChangedEventArgs __gc *>::EventHandler<Windows::Xbox::System::AudioDeviceChangedEventArgs __gc *>((Windows::Foundation::EventHandler<Windows::Xbox::System::AudioDeviceChangedEventArgs _> *)ppActivationFactory, this, &v18, (Platform::CallbackContext)2, 0);
-  v10 = v9;
-  ppActivationFactory = v9;
-  v16.__vftable = (Platform::Object_vtbl *)0x4A507FC6B4F23A93i64;
-  *(_DWORD *)&v16.__d = 9786289;
-  *(_DWORD *)&v16.__h = 1352546326;
-  v20 = NULL;
-  v11 = __winRT::__getActivationFactoryByPCWSTR((void *)L"Windows.Xbox.System.User", &v16, &v20);
-  if ( v11 < 0 )
-    __abi_WinRTraiseException(v11);
-  v14[0] = 0i64;
-  v12 = (*(__int64 (__fastcall **)(void *, void *, __int64 *))(*(_QWORD *)v20 + 176i64))(v20, v10, v14);
-  if ( v12 < 0 )
-    __abi_WinRTraiseException(v12);
-  v13 = (Platform::Object_vtbl *)v14[0];
-  if ( v20 )
-    (*(void (__fastcall **)(void *))(*(_QWORD *)v20 + 16i64))(v20);
-  this->deviceChangedEventToken.__vftable = v13;
-  if ( v10 )
-    (*(void (__fastcall **)(void *))(*(_QWORD *)v10 + 16i64))(v10);
+  *(_QWORD *)&v15 = AD_XboxUserDeviceNotifier::OnAudioDeviceChanged;
+  DWORD2(v15) = 0;
+  v16 = v15;
+  Windows::Foundation::EventHandler<Windows::Xbox::System::AudioDeviceChangedEventArgs __gc *>::EventHandler<Windows::Xbox::System::AudioDeviceChangedEventArgs __gc *>((Windows::Foundation::EventHandler<Windows::Xbox::System::AudioDeviceChangedEventArgs _> *)ppActivationFactory, this, &v16, (Platform::CallbackContext)2, 0);
+  v8 = v7;
+  ppActivationFactory = v7;
+  v14.__vftable = (Platform::Object_vtbl *)0x4A507FC6B4F23A93i64;
+  *(_DWORD *)&v14.__d = 9786289;
+  *(_DWORD *)&v14.__h = 1352546326;
+  v18 = NULL;
+  v9 = __winRT::__getActivationFactoryByPCWSTR((void *)L"Windows.Xbox.System.User", &v14, &v18);
+  if ( v9 < 0 )
+    __abi_WinRTraiseException(v9);
+  v12[0] = 0i64;
+  v10 = (*(__int64 (__fastcall **)(void *, void *, __int64 *))(*(_QWORD *)v18 + 176i64))(v18, v8, v12);
+  if ( v10 < 0 )
+    __abi_WinRTraiseException(v10);
+  v11 = (Platform::Object_vtbl *)v12[0];
+  if ( v18 )
+    (*(void (__fastcall **)(void *))(*(_QWORD *)v18 + 16i64))(v18);
+  this->deviceChangedEventToken.__vftable = v11;
+  if ( v8 )
+    (*(void (__fastcall **)(void *))(*(_QWORD *)v8 + 16i64))(v8);
 }
 
 /*
@@ -720,63 +711,57 @@ bool AD_EndpointGetDeviceConfig(AD_Endpoint *const endpoint, AD_DeviceConfig *co
 {
   bool v4; 
   char v5; 
+  AD_DeviceGUID *p_currentDeviceId; 
   bool result; 
 
-  _RBX = destDevInfo;
   if ( !endpoint && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_interface_ms.cpp", 1046, ASSERT_TYPE_ASSERT, "endpoint != nullptr", "endpoint != nullptr") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_interface_ms.cpp", 1047, ASSERT_TYPE_ASSERT, "destDevInfo != nullptr", "destDevInfo != nullptr") )
+  if ( !destDevInfo && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_interface_ms.cpp", 1047, ASSERT_TYPE_ASSERT, "destDevInfo != nullptr", "destDevInfo != nullptr") )
     __debugbreak();
-  _RBX->format = endpoint->platformData->deviceFormat;
+  destDevInfo->format = endpoint->platformData->deviceFormat;
   v4 = endpoint->flow == Screen && endpoint->platformData->state == 1;
-  _RBX->isMicEnabled = v4;
-  _RBX->isKnownHeadset = ((endpoint->platformData->deviceFormFactor - 3) & 0xFFFFFFFD) == 0;
+  destDevInfo->isMicEnabled = v4;
+  destDevInfo->isKnownHeadset = ((endpoint->platformData->deviceFormFactor - 3) & 0xFFFFFFFD) == 0;
   if ( endpoint->flow )
     v5 = 0;
   else
     v5 = endpoint->platformData[656].currentDeviceId.value[45];
-  _RBX->spatialSupport = v5;
+  destDevInfo->spatialSupport = v5;
   switch ( endpoint->platformData->deviceChannelCount )
   {
     case 1u:
-      _RBX->channelCount = Mono;
+      destDevInfo->channelCount = Mono;
       goto LABEL_22;
     case 2u:
-      _RBX->channelCount = Stereo;
+      destDevInfo->channelCount = Stereo;
       goto LABEL_22;
     case 4u:
-      _RBX->channelCount = Quadraphonic;
+      destDevInfo->channelCount = Quadraphonic;
       goto LABEL_22;
     case 6u:
-      _RBX->channelCount = Surround_5_1;
+      destDevInfo->channelCount = Surround_5_1;
       goto LABEL_22;
     case 8u:
-      _RBX->channelCount = Surround_7_1;
+      destDevInfo->channelCount = Surround_7_1;
       goto LABEL_22;
     case 0xAu:
-      _RBX->channelCount = Surround_7_1_2;
+      destDevInfo->channelCount = Surround_7_1_2;
       goto LABEL_22;
     case 0xCu:
-      _RBX->channelCount = Surround_7_1_4;
+      destDevInfo->channelCount = Surround_7_1_4;
       goto LABEL_22;
     case 0x10u:
-      _RBX->channelCount = Surround_7_1_4_4;
+      destDevInfo->channelCount = Surround_7_1_4_4;
 LABEL_22:
-      _RBX->endpointType = endpoint->platformData->currentEndpointType;
-      _RAX = &endpoint->platformData->currentDeviceId;
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbx+10h], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rbx+30h], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rbx+40h], xmm0
-      }
+      destDevInfo->endpointType = endpoint->platformData->currentEndpointType;
+      p_currentDeviceId = &endpoint->platformData->currentDeviceId;
+      *(__m256i *)destDevInfo->customEndpointId.value = *(__m256i *)p_currentDeviceId->value;
+      *(_OWORD *)&destDevInfo->customEndpointId.value[32] = *(_OWORD *)&p_currentDeviceId->value[32];
+      *(double *)&destDevInfo->customEndpointId.value[48] = *(double *)&p_currentDeviceId->value[48];
       result = 1;
       break;
     default:
-      _RBX->channelCount = Invalid;
+      destDevInfo->channelCount = Invalid;
       result = 0;
       break;
   }
@@ -796,49 +781,43 @@ char AD_EndpointSetDeviceConfig(AD_Interface *const iface, AD_Endpoint *const en
   AD_Endpoint_Platform *v9; 
   AD_EndpointType endpointType; 
   char v11; 
+  AD_Endpoint_Platform *v12; 
   int v13; 
 
-  _RBX = configRequest;
   if ( !endpoint && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_interface_ms.cpp", 1115, ASSERT_TYPE_ASSERT, "endpoint != nullptr", "endpoint != nullptr") )
     __debugbreak();
   v6 = 0;
   if ( endpoint->flow || endpoint->role )
   {
-    if ( _RBX->spatialSupport && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_interface_ms.cpp", 1127, ASSERT_TYPE_ASSERT, "configRequest.spatialSupport == false", "Spatial audio is only supported on the main SFX endpoint.") )
+    if ( configRequest->spatialSupport && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_interface_ms.cpp", 1127, ASSERT_TYPE_ASSERT, "configRequest.spatialSupport == false", "Spatial audio is only supported on the main SFX endpoint.") )
       __debugbreak();
   }
   else
   {
     platformData = endpoint->platformData;
-    v8 = platformData[656].currentDeviceId.value[44] == _RBX->spatialSupport;
-    platformData[656].currentDeviceId.value[44] = _RBX->spatialSupport;
+    v8 = platformData[656].currentDeviceId.value[44] == configRequest->spatialSupport;
+    platformData[656].currentDeviceId.value[44] = configRequest->spatialSupport;
     v6 = !v8;
   }
   v9 = endpoint->platformData;
-  endpointType = _RBX->endpointType;
+  endpointType = configRequest->endpointType;
   v11 = v6;
   v8 = v9->pendingEndpointType == endpointType;
   v9->pendingEndpointType = endpointType;
-  _RSI = endpoint->platformData;
+  v12 = endpoint->platformData;
   if ( !v8 )
     v11 = 1;
-  if ( _RBX->endpointType == Custom )
+  if ( configRequest->endpointType == Custom )
   {
-    v13 = memcmp_0(&_RSI->pendingDeviceId, &_RBX->customEndpointId, 0x38ui64);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+8]
-      vmovups ymmword ptr [rsi+4Ch], ymm0
-      vmovups xmm1, xmmword ptr [rbx+28h]
-      vmovups xmmword ptr [rsi+6Ch], xmm1
-      vmovsd  xmm0, qword ptr [rbx+38h]
-      vmovsd  qword ptr [rsi+7Ch], xmm0
-    }
+    v13 = memcmp_0(&v12->pendingDeviceId, &configRequest->customEndpointId, 0x38ui64);
+    *(__m256i *)v12->pendingDeviceId.value = *(__m256i *)configRequest->customEndpointId.value;
+    *(_OWORD *)&v12->pendingDeviceId.value[32] = *(_OWORD *)&configRequest->customEndpointId.value[32];
+    *(double *)&v12->pendingDeviceId.value[48] = *(double *)&configRequest->customEndpointId.value[48];
     v11 |= v13 != 0;
   }
   else
   {
-    _RSI->pendingDeviceId.value[0] = 0;
+    v12->pendingDeviceId.value[0] = 0;
   }
   if ( v11 )
   {
@@ -1137,6 +1116,12 @@ void AD_InterfaceThreadDestroyDevicesForUser(AD_Interface *const iface, const un
   const AD_UserInfo *v5; 
   AD_InterfaceThreadData *p_interfaceThreadData; 
   unsigned int v7; 
+  bool *v8; 
+  AD_UserInfo v9; 
+  bool *v10; 
+  AD_UserInfo v11; 
+  AD_UserInfo v12; 
+  AD_UserInfo v13; 
 
   v3 = userHandle;
   Info = AD_UserManagerGetInfo(&iface->userManager, userHandle);
@@ -1147,54 +1132,48 @@ void AD_InterfaceThreadDestroyDevicesForUser(AD_Interface *const iface, const un
   v7 = v3 + 2;
   if ( (unsigned int)(v3 + 2) >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_containers.h", 40, ASSERT_TYPE_ASSERT, "index < T_MAX", "index < T_MAX") )
     __debugbreak();
-  _RBP = &p_interfaceThreadData->inputDevicesChanged + 64 * (unsigned __int64)v7;
-  if ( AD_EndpointIsBoundToUser((const AD_Endpoint *const)(_RBP + 8544), v5) )
+  v8 = &p_interfaceThreadData->inputDevicesChanged + 64 * (unsigned __int64)v7;
+  if ( AD_EndpointIsBoundToUser((const AD_Endpoint *const)(v8 + 8544), v5) )
   {
     if ( v7 >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_containers.h", 40, ASSERT_TYPE_ASSERT, "index < T_MAX", "index < T_MAX") )
       __debugbreak();
-    if ( (*((_DWORD *)_RBP + 2142) != v5->userId || *((_QWORD *)_RBP + 1072) != v5->platformId) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.h", 150, ASSERT_TYPE_ASSERT, "endpoints[endpointIndx].pendingUserInfo == *userInfo", "endpoints[endpointIndx].pendingUserInfo == *userInfo") )
+    if ( (*((_DWORD *)v8 + 2142) != v5->userId || *((_QWORD *)v8 + 1072) != v5->platformId) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.h", 150, ASSERT_TYPE_ASSERT, "endpoints[endpointIndx].pendingUserInfo == *userInfo", "endpoints[endpointIndx].pendingUserInfo == *userInfo") )
       __debugbreak();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-      vmovups [rsp+68h+var_38], xmm0
-    }
+    v9 = AD_InvalidUser;
+    v12 = AD_InvalidUser;
     if ( v7 >= 4 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_containers.h", 40, ASSERT_TYPE_ASSERT, "index < T_MAX", "index < T_MAX") )
         __debugbreak();
-      __asm { vmovups xmm0, [rsp+68h+var_38] }
+      v9 = v12;
     }
-    __asm { vmovups xmmword ptr [rbp+2178h], xmm0 }
+    *(AD_UserInfo *)(v8 + 8568) = v9;
     if ( v7 >= 4 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_containers.h", 40, ASSERT_TYPE_ASSERT, "index < T_MAX", "index < T_MAX") )
       __debugbreak();
-    AD_EndpointScheduleClose((AD_Endpoint *const)(_RBP + 8544));
+    AD_EndpointScheduleClose((AD_Endpoint *const)(v8 + 8544));
     p_interfaceThreadData->outputDevicesChanged = 1;
   }
   if ( (unsigned int)v3 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_containers.h", 40, ASSERT_TYPE_ASSERT, "index < T_MAX", "index < T_MAX") )
     __debugbreak();
-  _RDI = &p_interfaceThreadData->inputDevicesChanged + 64 * v3;
-  if ( AD_EndpointIsBoundToUser((const AD_Endpoint *const)(_RDI + 32), v5) )
+  v10 = &p_interfaceThreadData->inputDevicesChanged + 64 * v3;
+  if ( AD_EndpointIsBoundToUser((const AD_Endpoint *const)(v10 + 32), v5) )
   {
     if ( (unsigned int)v3 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_containers.h", 40, ASSERT_TYPE_ASSERT, "index < T_MAX", "index < T_MAX") )
       __debugbreak();
-    if ( (*((_DWORD *)_RDI + 14) != v5->userId || *((_QWORD *)_RDI + 8) != v5->platformId) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.h", 150, ASSERT_TYPE_ASSERT, "endpoints[endpointIndx].pendingUserInfo == *userInfo", "endpoints[endpointIndx].pendingUserInfo == *userInfo") )
+    if ( (*((_DWORD *)v10 + 14) != v5->userId || *((_QWORD *)v10 + 8) != v5->platformId) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\bk\\ad_bk_endpoint.h", 150, ASSERT_TYPE_ASSERT, "endpoints[endpointIndx].pendingUserInfo == *userInfo", "endpoints[endpointIndx].pendingUserInfo == *userInfo") )
       __debugbreak();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr cs:?AD_InvalidUser@@3UAD_UserInfo@@B.userId; AD_UserInfo const AD_InvalidUser
-      vmovups [rsp+68h+var_38], xmm0
-    }
+    v11 = AD_InvalidUser;
+    v13 = AD_InvalidUser;
     if ( (unsigned int)v3 >= 2 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_containers.h", 40, ASSERT_TYPE_ASSERT, "index < T_MAX", "index < T_MAX") )
         __debugbreak();
-      __asm { vmovups xmm0, [rsp+68h+var_38] }
+      v11 = v13;
     }
-    __asm { vmovups xmmword ptr [rdi+38h], xmm0 }
+    *(AD_UserInfo *)(v10 + 56) = v11;
     if ( (unsigned int)v3 >= 2 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\cpp\\libad\\rt\\ad_rt_containers.h", 40, ASSERT_TYPE_ASSERT, "index < T_MAX", "index < T_MAX") )
       __debugbreak();
-    AD_EndpointScheduleClose((AD_Endpoint *const)(_RDI + 32));
+    AD_EndpointScheduleClose((AD_Endpoint *const)(v10 + 32));
     p_interfaceThreadData->inputDevicesChanged = 1;
   }
 }

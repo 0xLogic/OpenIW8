@@ -229,99 +229,49 @@ CG_RumbleSP_Update
 void CG_RumbleSP_Update(const LocalClientNum_t localClientNum)
 {
   ClientRumbleGlobals *p_crData; 
-  const dvar_t *v10; 
-  __int64 v11; 
-  const char *v20; 
-  const char *v31; 
-  const char *v41; 
+  const dvar_t *v3; 
+  __int64 v4; 
+  float v5; 
+  float v6; 
+  const char *v7; 
+  const RumbleInfo *rumbleInfo; 
+  const char *v9; 
+  const RumbleInfo *v10; 
+  const char *v11; 
   vec3_t outDebugStrPos; 
 
   p_crData = &CG_GetLocalClientGlobals(localClientNum)->crData;
   CG_RumbleSP_RemoveInactiveRumbles(localClientNum, p_crData->activeRumbles);
   CG_Rumble_CalcActiveRumbles(localClientNum, p_crData->activeRumbles, &p_crData->receiverPos, &p_crData->receiverOrientation);
-  v10 = DVARBOOL_cg_drawrumbledebug;
+  v3 = DVARBOOL_cg_drawrumbledebug;
   if ( !DVARBOOL_cg_drawrumbledebug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawrumbledebug") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v10);
-  if ( v10->current.enabled )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.enabled )
   {
-    v11 = 32i64;
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_38], xmm8
-      vmovss  xmm8, cs:__real@3f000000
-      vmovaps [rsp+0C8h+var_48], xmm9
-      vmovss  xmm9, cs:__real@c0c00000
-      vmovaps [rsp+0C8h+var_58], xmm10
-      vmovss  xmm10, cs:__real@3a83126f
-      vmovaps [rsp+0C8h+var_68], xmm11
-      vmovss  xmm11, cs:__real@3f800000
-      vmovaps [rsp+0C8h+var_18], xmm6
-      vmovaps [rsp+0C8h+var_28], xmm7
-    }
+    v4 = 32i64;
     do
     {
       if ( p_crData->activeRumbles[0].rumbleInfo )
       {
         CG_Rumble_DrawActiveRumble(localClientNum, p_crData->activeRumbles, &outDebugStrPos);
-        CG_GetLocalClientGlobals(localClientNum);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vxorps  xmm6, xmm6, xmm6
-          vcvtsi2ss xmm0, xmm0, dword ptr [rdx+8]
-          vcvtsi2ss xmm6, xmm6, ecx
-          vdivss  xmm7, xmm6, xmm0
-        }
-        v20 = j_va("Rumble: %s", p_crData->activeRumbles[0].rumbleInfo->name);
-        __asm { vmovaps xmm2, xmm8; scale }
-        CL_AddDebugString(&outDebugStrPos, &colorRed, *(float *)&_XMM2, v20, 0, 3);
-        __asm
-        {
-          vaddss  xmm1, xmm9, dword ptr [rsp+0C8h+outDebugStrPos+8]
-          vmovss  dword ptr [rsp+0C8h+outDebugStrPos+8], xmm1
-          vxorps  xmm0, xmm0, xmm0
-          vmulss  xmm3, xmm6, xmm10
-          vcvtsi2ss xmm0, xmm0, dword ptr [rax+8]
-          vmulss  xmm1, xmm0, xmm10
-          vcvtss2sd xmm2, xmm1, xmm1
-          vcvtss2sd xmm1, xmm3, xmm3
-          vmovq   rdx, xmm1
-          vmovq   r8, xmm2
-        }
-        v31 = j_va("  Time: %.2f sec/%.2f sec", _RDX, _R8);
-        __asm { vmovaps xmm2, xmm8; scale }
-        CL_AddDebugString(&outDebugStrPos, &colorRed, *(float *)&_XMM2, v31, 0, 3);
-        __asm { vaddss  xmm1, xmm9, dword ptr [rsp+0C8h+outDebugStrPos+8] }
-        _RAX = p_crData->activeRumbles[0].rumbleInfo;
-        __asm
-        {
-          vmovss  dword ptr [rsp+0C8h+outDebugStrPos+8], xmm1
-          vsubss  xmm0, xmm11, xmm7
-          vmovss  xmm3, dword ptr [rax+0Ch]
-          vmulss  xmm1, xmm0, xmm3
-          vcvtss2sd xmm1, xmm1, xmm1
-          vcvtss2sd xmm2, xmm3, xmm3
-          vmovq   rdx, xmm1
-          vmovq   r8, xmm2
-        }
-        v41 = j_va("  Dist: %.2f/%.2f", _RDX, _R8);
-        __asm { vmovaps xmm2, xmm8; scale }
-        CL_AddDebugString(&outDebugStrPos, &colorRed, *(float *)&_XMM2, v41, 0, 3);
+        v5 = (float)(CG_GetLocalClientGlobals(localClientNum)->time - p_crData->activeRumbles[0].startTime);
+        v6 = v5 / (float)p_crData->activeRumbles[0].rumbleInfo->duration;
+        v7 = j_va("Rumble: %s", p_crData->activeRumbles[0].rumbleInfo->name);
+        CL_AddDebugString(&outDebugStrPos, &colorRed, 0.5, v7, 0, 3);
+        rumbleInfo = p_crData->activeRumbles[0].rumbleInfo;
+        outDebugStrPos.v[2] = outDebugStrPos.v[2] + -6.0;
+        v9 = j_va("  Time: %.2f sec/%.2f sec", (float)(v5 * 0.001), (float)((float)rumbleInfo->duration * 0.001));
+        CL_AddDebugString(&outDebugStrPos, &colorRed, 0.5, v9, 0, 3);
+        v10 = p_crData->activeRumbles[0].rumbleInfo;
+        outDebugStrPos.v[2] = outDebugStrPos.v[2] + -6.0;
+        v11 = j_va("  Dist: %.2f/%.2f", (float)((float)(1.0 - v6) * v10->range), v10->range);
+        CL_AddDebugString(&outDebugStrPos, &colorRed, 0.5, v11, 0, 3);
       }
       p_crData = (ClientRumbleGlobals *)((char *)p_crData + 56);
-      --v11;
+      --v4;
     }
-    while ( v11 );
-    __asm
-    {
-      vmovaps xmm11, [rsp+0C8h+var_68]
-      vmovaps xmm10, [rsp+0C8h+var_58]
-      vmovaps xmm9, [rsp+0C8h+var_48]
-      vmovaps xmm8, [rsp+0C8h+var_38]
-      vmovaps xmm7, [rsp+0C8h+var_28]
-      vmovaps xmm6, [rsp+0C8h+var_18]
-    }
+    while ( v4 );
   }
 }
 

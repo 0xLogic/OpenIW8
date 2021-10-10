@@ -98,106 +98,48 @@ SND_SubmixDebugDrawHUD
 */
 void SND_SubmixDebugDrawHUD(LocalClientNum_t localClientNum)
 {
-  int v5; 
-  int v6; 
-  int v7; 
+  int v2; 
+  int v3; 
+  int v4; 
   const ScreenPlacement *ActivePlacement; 
-  const char *v15; 
+  const char *v6; 
   const char *NameForId; 
-  const char *v22; 
-  const char *v30; 
-  vec4_t *setColor; 
-  float v36; 
-  float v37; 
-  float v38; 
-  float v39; 
+  const char *v8; 
+  const char *v9; 
   float lerpA[4]; 
   unsigned int zoneA; 
   unsigned int zoneB; 
   float lerpB; 
 
-  v5 = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_snd_submix_debug_draw, "snd_submix_debug_draw") - 1;
-  if ( v5 )
+  v2 = Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_snd_submix_debug_draw, "snd_submix_debug_draw") - 1;
+  if ( v2 )
   {
-    v6 = v5 - 1;
-    if ( v6 )
+    v3 = v2 - 1;
+    if ( v3 )
     {
-      v7 = v6 - 1;
-      if ( v7 )
+      v4 = v3 - 1;
+      if ( v4 )
       {
-        if ( v7 == 1 )
+        if ( v4 == 1 )
           SND_SubmixDebugDrawZoneCalls(localClientNum);
       }
       else
       {
-        __asm
-        {
-          vmovaps [rsp+0A8h+var_38], xmm7
-          vmovaps [rsp+0A8h+var_48], xmm8
-          vmovss  xmm7, cs:__real@41c00000
-          vmovss  xmm8, cs:__real@41400000
-          vmovss  [rsp+0A8h+var_70], xmm8
-        }
         ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-        __asm
-        {
-          vmovaps xmm2, xmm7; y
-          vmovaps xmm1, xmm7; x
-        }
-        CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "time", &colorWhiteFaded, 0, 1, v36, 0);
-        __asm
-        {
-          vmovss  xmm1, cs:__real@42a00000; x
-          vmovss  [rsp+0A8h+var_70], xmm8
-          vmovaps xmm2, xmm7; y
-        }
-        CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "ZONE SUBMIXES", &colorWhiteFaded, 0, 1, v37, 0);
+        CG_DrawStringExt(ActivePlacement, 24.0, 24.0, "time", &colorWhiteFaded, 0, 1, 12.0, 0);
+        CG_DrawStringExt(ActivePlacement, 80.0, 24.0, "ZONE SUBMIXES", &colorWhiteFaded, 0, 1, 12.0, 0);
         SND_SubmixDebugGetZones(&zoneA, lerpA, &zoneB, &lerpB);
-        v15 = "none";
+        v6 = "none";
         if ( zoneA )
           NameForId = SND_SubmixDebugGetNameForId(zoneA);
         else
           NameForId = "none";
         if ( zoneB )
-          v15 = SND_SubmixDebugGetNameForId(zoneB);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, cs:?g_snd@@3Usnd_local_t@@A.time; snd_local_t g_snd
-          vmulss  xmm1, xmm0, cs:__real@3a83126f
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovq   rdx, xmm1
-        }
-        v22 = j_va("%5.1f", _RDX);
-        __asm
-        {
-          vmovss  xmm2, cs:__real@42100000; y
-          vmovss  [rsp+0A8h+var_70], xmm8
-          vmovaps xmm1, xmm7; x
-        }
-        CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v22, &colorYellow, 0, 1, v38, 0);
-        __asm
-        {
-          vmovss  xmm2, [rsp+0A8h+lerpA]
-          vmovss  xmm0, [rsp+0A8h+lerpB]
-          vcvtss2sd xmm2, xmm2, xmm2
-          vcvtss2sd xmm0, xmm0, xmm0
-          vmovq   r8, xmm2
-          vmovsd  [rsp+0A8h+setColor], xmm0
-        }
-        v30 = j_va("%s (%.2f) / %s (%.2f)", NameForId, _R8, v15, setColor);
-        __asm
-        {
-          vmovss  xmm2, cs:__real@42100000; y
-          vmovss  xmm1, cs:__real@42a00000; x
-          vmovss  [rsp+0A8h+var_70], xmm8
-        }
-        CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v30, &colorYellow, 0, 1, v39, 0);
-        __asm
-        {
-          vmovaps xmm8, [rsp+0A8h+var_48]
-          vmovaps xmm7, [rsp+0A8h+var_38]
-        }
+          v6 = SND_SubmixDebugGetNameForId(zoneB);
+        v8 = j_va("%5.1f", (float)((float)g_snd.time * 0.001));
+        CG_DrawStringExt(ActivePlacement, 24.0, 36.0, v8, &colorYellow, 0, 1, 12.0, 0);
+        v9 = j_va("%s (%.2f) / %s (%.2f)", NameForId, lerpA[0], v6, lerpB);
+        CG_DrawStringExt(ActivePlacement, 80.0, 36.0, v9, &colorYellow, 0, 1, 12.0, 0);
       }
     }
     else
@@ -216,290 +158,91 @@ void SND_SubmixDebugDrawHUD(LocalClientNum_t localClientNum)
 SND_SubmixDebugDrawSubmixes
 ==============
 */
-
-void __fastcall SND_SubmixDebugDrawSubmixes(LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+void SND_SubmixDebugDrawSubmixes(LocalClientNum_t localClientNum)
 {
   const ScreenPlacement *ActivePlacement; 
+  __int128 v2; 
   int i; 
   const char *NameForId; 
-  const char *v33; 
-  const char *v39; 
-  const char *v45; 
-  const char *v51; 
-  const char *v57; 
+  const char *v5; 
+  const char *v6; 
+  const char *v7; 
+  const char *v8; 
+  const char *v9; 
+  __int128 v10; 
+  __int128 v11; 
+  __int128 v12; 
   int j; 
-  const char *v69; 
-  const char *v70; 
-  const char *v76; 
-  const char *v82; 
-  const char *v88; 
-  const char *v94; 
-  float v105; 
-  float v106; 
-  float v107; 
-  float v108; 
-  float v109; 
-  float v110; 
-  float v111; 
-  float v112; 
-  float v113; 
-  float v114; 
-  float v115; 
-  float v116; 
-  float v117; 
-  float v118; 
-  float v119; 
-  float v120; 
-  float v121; 
-  float v122; 
-  float v123; 
+  const char *v14; 
+  const char *v15; 
+  const char *v16; 
+  const char *v17; 
+  const char *v18; 
+  const char *v19; 
+  __int128 v20; 
   float maxCutoffHpfHz; 
   float minCutoffLpfHz; 
   int type; 
-  char v129; 
-  void *retaddr; 
   unsigned int id; 
   float effect; 
   float maxAttnLinear; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps [rsp+0F8h+var_88], xmm11
-    vmovaps [rsp+0F8h+var_98], xmm12
-    vmovss  xmm7, cs:__real@41400000
-    vmovss  xmm8, cs:__real@41c00000
-    vmovss  [rsp+0F8h+var_C0], xmm7
-  }
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2; y
-    vmovaps xmm1, xmm8; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "SUBMIX REQUESTS", &colorYellow, 0, 1, v105, 0);
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_C0], xmm7
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm8; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "Name", &colorWhiteFaded, 0, 1, v106, 0);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@43480000
-    vmovss  [rsp+0F8h+var_C0], xmm7
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm9; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "Effect", &colorWhiteFaded, 0, 1, v107, 0);
-  __asm
-  {
-    vmovss  xmm10, cs:__real@437a0000
-    vmovss  [rsp+0F8h+var_C0], xmm7
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm10; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "Low Scale", &colorWhiteFaded, 0, 1, v108, 0);
-  __asm
-  {
-    vmovss  xmm11, cs:__real@43a28000
-    vmovss  [rsp+0F8h+var_C0], xmm7
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm11; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "High HPF", &colorWhiteFaded, 0, 1, v109, 0);
-  __asm
-  {
-    vmovss  xmm12, cs:__real@43c80000
-    vmovss  [rsp+0F8h+var_C0], xmm7
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm12; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "Low LPF", &colorWhiteFaded, 0, 1, v110, 0);
-  __asm { vmovaps xmm6, xmm8 }
+  CG_DrawStringExt(ActivePlacement, 24.0, 0.0, "SUBMIX REQUESTS", &colorYellow, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 24.0, 12.0, "Name", &colorWhiteFaded, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 200.0, 12.0, "Effect", &colorWhiteFaded, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 250.0, 12.0, "Low Scale", &colorWhiteFaded, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 325.0, 12.0, "High HPF", &colorWhiteFaded, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 400.0, 12.0, "Low LPF", &colorWhiteFaded, 0, 1, 12.0, 0);
+  v2 = LODWORD(FLOAT_24_0);
   for ( i = 0; i < 141; ++i )
   {
     if ( SND_SubmixDebugGetData(i, &type, &id, &effect, &maxAttnLinear, &minCutoffLpfHz, &maxCutoffHpfHz) && id )
     {
       NameForId = SND_SubmixDebugGetNameForId(id);
-      v33 = j_va((const char *)&queryFormat, NameForId);
-      __asm
-      {
-        vmovss  [rsp+0F8h+var_C0], xmm7
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm8; x
-      }
-      CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v33, &colorYellow, 0, 1, v111, 0);
-      __asm
-      {
-        vmovss  xmm1, [rsp+0F8h+effect]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v39 = j_va("%.02f", _RDX);
-      __asm
-      {
-        vmovss  [rsp+0F8h+var_C0], xmm7
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm9; x
-      }
-      CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v39, &colorYellow, 0, 1, v112, 0);
-      __asm
-      {
-        vmovss  xmm1, [rsp+0F8h+maxAttnLinear]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v45 = j_va("%.02f", _RDX);
-      __asm
-      {
-        vmovss  [rsp+0F8h+var_C0], xmm7
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm10; x
-      }
-      CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v45, &colorYellow, 0, 1, v113, 0);
-      __asm
-      {
-        vmovss  xmm1, [rsp+0F8h+maxCutoffHpfHz]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v51 = j_va("%.02f", _RDX);
-      __asm
-      {
-        vmovss  [rsp+0F8h+var_C0], xmm7
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm11; x
-      }
-      CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v51, &colorYellow, 0, 1, v114, 0);
-      __asm
-      {
-        vmovss  xmm1, [rsp+0F8h+minCutoffLpfHz]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v57 = j_va("%.02f", _RDX);
-      __asm
-      {
-        vmovss  [rsp+0F8h+var_C0], xmm7
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm12; x
-      }
-      CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v57, &colorYellow, 0, 1, v115, 0);
-      __asm { vaddss  xmm6, xmm6, xmm7 }
+      v5 = j_va((const char *)&queryFormat, NameForId);
+      CG_DrawStringExt(ActivePlacement, 24.0, *(float *)&v2, v5, &colorYellow, 0, 1, 12.0, 0);
+      v6 = j_va("%.02f", effect);
+      CG_DrawStringExt(ActivePlacement, 200.0, *(float *)&v2, v6, &colorYellow, 0, 1, 12.0, 0);
+      v7 = j_va("%.02f", maxAttnLinear);
+      CG_DrawStringExt(ActivePlacement, 250.0, *(float *)&v2, v7, &colorYellow, 0, 1, 12.0, 0);
+      v8 = j_va("%.02f", maxCutoffHpfHz);
+      CG_DrawStringExt(ActivePlacement, 325.0, *(float *)&v2, v8, &colorYellow, 0, 1, 12.0, 0);
+      v9 = j_va("%.02f", minCutoffLpfHz);
+      CG_DrawStringExt(ActivePlacement, 400.0, *(float *)&v2, v9, &colorYellow, 0, 1, 12.0, 0);
+      v10 = v2;
+      *(float *)&v10 = *(float *)&v2 + 12.0;
+      v2 = v10;
     }
   }
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_C0], xmm7
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "UNIQUE SUBMIXES", &colorRed, 0, 1, v116, 0);
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_C0], xmm7
-    vaddss  xmm6, xmm6, xmm7
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm8; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "Name", &colorWhiteFaded, 0, 1, v117, 0);
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_C0], xmm7
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm9; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "Effect", &colorWhiteFaded, 0, 1, v118, 0);
-  __asm { vaddss  xmm6, xmm6, xmm7 }
+  CG_DrawStringExt(ActivePlacement, 24.0, *(float *)&v2, "UNIQUE SUBMIXES", &colorRed, 0, 1, 12.0, 0);
+  v11 = v2;
+  CG_DrawStringExt(ActivePlacement, 24.0, *(float *)&v2 + 12.0, "Name", &colorWhiteFaded, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 200.0, *(float *)&v2 + 12.0, "Effect", &colorWhiteFaded, 0, 1, 12.0, 0);
+  *(float *)&v11 = (float)(*(float *)&v2 + 12.0) + 12.0;
+  v12 = v11;
   for ( j = 0; j < 141; ++j )
   {
-    if ( SND_SubmixDebugGetDataUnique(j, &type, &id, &effect, &maxAttnLinear, &maxCutoffHpfHz, &minCutoffLpfHz) && id )
+    if ( SND_SubmixDebugGetDataUnique(j, &type, &id, &effect, &maxAttnLinear, &maxCutoffHpfHz, &minCutoffLpfHz) )
     {
-      v69 = SND_SubmixDebugGetNameForId(id);
-      v70 = j_va((const char *)&queryFormat, v69);
-      __asm
+      if ( id )
       {
-        vmovss  [rsp+0F8h+var_C0], xmm7
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm8; x
+        v14 = SND_SubmixDebugGetNameForId(id);
+        v15 = j_va((const char *)&queryFormat, v14);
+        CG_DrawStringExt(ActivePlacement, 24.0, *(float *)&v12, v15, &colorRed, 0, 1, 12.0, 0);
+        v16 = j_va("%.02f", effect);
+        CG_DrawStringExt(ActivePlacement, 200.0, *(float *)&v12, v16, &colorRed, 0, 1, 12.0, 0);
+        v17 = j_va("%.02f", maxAttnLinear);
+        CG_DrawStringExt(ActivePlacement, 250.0, *(float *)&v12, v17, &colorRed, 0, 1, 12.0, 0);
+        v18 = j_va("%.02f", minCutoffLpfHz);
+        CG_DrawStringExt(ActivePlacement, 325.0, *(float *)&v12, v18, &colorRed, 0, 1, 12.0, 0);
+        v19 = j_va("%.02f", maxCutoffHpfHz);
+        CG_DrawStringExt(ActivePlacement, 400.0, *(float *)&v12, v19, &colorRed, 0, 1, 12.0, 0);
+        v20 = v12;
+        *(float *)&v20 = *(float *)&v12 + 12.0;
+        v12 = v20;
       }
-      CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v70, &colorRed, 0, 1, v119, 0);
-      __asm
-      {
-        vmovss  xmm1, [rsp+0F8h+effect]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v76 = j_va("%.02f", _RDX);
-      __asm
-      {
-        vmovss  [rsp+0F8h+var_C0], xmm7
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm9; x
-      }
-      CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v76, &colorRed, 0, 1, v120, 0);
-      __asm
-      {
-        vmovss  xmm1, [rsp+0F8h+maxAttnLinear]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v82 = j_va("%.02f", _RDX);
-      __asm
-      {
-        vmovss  [rsp+0F8h+var_C0], xmm7
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm10; x
-      }
-      CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v82, &colorRed, 0, 1, v121, 0);
-      __asm
-      {
-        vmovss  xmm1, [rsp+0F8h+minCutoffLpfHz]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v88 = j_va("%.02f", _RDX);
-      __asm
-      {
-        vmovss  [rsp+0F8h+var_C0], xmm7
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm11; x
-      }
-      CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v88, &colorRed, 0, 1, v122, 0);
-      __asm
-      {
-        vmovss  xmm1, [rsp+0F8h+maxCutoffHpfHz]
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovq   rdx, xmm1
-      }
-      v94 = j_va("%.02f", _RDX);
-      __asm
-      {
-        vmovss  [rsp+0F8h+var_C0], xmm7
-        vmovaps xmm2, xmm6; y
-        vmovaps xmm1, xmm12; x
-      }
-      CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v94, &colorRed, 0, 1, v123, 0);
-      __asm { vaddss  xmm6, xmm6, xmm7 }
     }
-  }
-  _R11 = &v129;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
   }
 }
 
@@ -508,265 +251,92 @@ void __fastcall SND_SubmixDebugDrawSubmixes(LocalClientNum_t localClientNum, __i
 SND_SubmixDebugDrawVolmods
 ==============
 */
-
-void __fastcall SND_SubmixDebugDrawVolmods(LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+void SND_SubmixDebugDrawVolmods(LocalClientNum_t localClientNum)
 {
   const ScreenPlacement *ActivePlacement; 
+  __int128 v2; 
   int VolmodActiveCount; 
-  int v36; 
-  unsigned int v37; 
+  int v4; 
+  unsigned int v5; 
+  double VolmodAttenuation; 
+  float v7; 
+  double HpFilterValue; 
+  float v9; 
   const FocusCone *VolmodFocusCone; 
   unsigned int VolmodFocusConeId; 
-  char v44; 
-  const char *v46; 
-  const char *v51; 
-  const char *v61; 
-  const char *v70; 
-  const char *v75; 
-  const char *v78; 
-  const char *v79; 
-  float v95; 
-  float v96; 
-  float v97; 
-  float v98; 
-  float v99; 
-  float v100; 
-  float v101; 
-  float v102; 
-  float v103; 
-  float v104; 
-  float v105; 
-  float v106; 
-  float v107; 
-  float v108; 
-  char v116; 
-  void *retaddr; 
+  double VolmodFocusAmount; 
+  float v13; 
+  double LpFilterValue; 
+  const char *v15; 
+  const char *v16; 
+  const char *v17; 
+  const char *v18; 
+  const char *v19; 
+  const char *v20; 
+  const char *v21; 
+  __int128 v22; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps [rsp+118h+var_B8], xmm14
-    vmovaps [rsp+118h+var_C8], xmm15
-    vmovss  xmm6, cs:__real@41400000
-    vmovss  xmm15, cs:__real@41c00000
-  }
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  __asm
-  {
-    vmovss  [rsp+118h+var_E0], xmm6
-    vxorps  xmm2, xmm2, xmm2; y
-    vmovaps xmm1, xmm15; x
-    vxorps  xmm11, xmm11, xmm11
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "VOLMODS", &colorRed, 0, 1, v95, 0);
-  __asm
-  {
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm15; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "#", &colorWhiteFaded, 0, 1, v96, 0);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@42a00000; x
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm6; y
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "Att.", &colorWhiteFaded, 0, 1, v97, 0);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43020000; x
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm6; y
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "HPF", &colorWhiteFaded, 0, 1, v98, 0);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43660000; x
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm6; y
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "LPF", &colorWhiteFaded, 0, 1, v99, 0);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43a50000; x
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm6; y
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "FocusAmt", &colorWhiteFaded, 0, 1, v100, 0);
-  __asm
-  {
-    vmovss  xmm14, cs:__real@43d70000
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm14; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "FocusCone", &colorWhiteFaded, 0, 1, v101, 0);
-  __asm { vmovaps xmm7, xmm15 }
+  CG_DrawStringExt(ActivePlacement, 24.0, 0.0, "VOLMODS", &colorRed, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 24.0, 12.0, "#", &colorWhiteFaded, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 80.0, 12.0, "Att.", &colorWhiteFaded, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 130.0, 12.0, "HPF", &colorWhiteFaded, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 230.0, 12.0, "LPF", &colorWhiteFaded, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 330.0, 12.0, "FocusAmt", &colorWhiteFaded, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 430.0, 12.0, "FocusCone", &colorWhiteFaded, 0, 1, 12.0, 0);
+  v2 = LODWORD(FLOAT_24_0);
   VolmodActiveCount = SND_SubmixGetVolmodActiveCount();
-  v36 = 0;
-  v37 = 0;
-  if ( VolmodActiveCount <= 0 )
-    goto LABEL_18;
-  __asm
+  v4 = 0;
+  v5 = 0;
+  if ( VolmodActiveCount > 0 )
   {
-    vmovaps [rsp+118h+var_58], xmm8
-    vmovaps [rsp+118h+var_68], xmm9
-    vmovaps [rsp+118h+var_78], xmm10
-    vmovaps [rsp+118h+var_98], xmm12
-    vmovss  xmm12, cs:__real@3f800000
-    vmovaps [rsp+118h+var_A8], xmm13
-  }
-  while ( 1 )
-  {
-    *(double *)&_XMM0 = SND_SubmixGetVolmodAttenuation(v37);
-    __asm { vmovaps xmm13, xmm0 }
-    *(double *)&_XMM0 = SND_SubmixGetHpFilterValue(v37);
-    __asm { vmovaps xmm9, xmm0 }
-    SND_SubmixGetLpFilterValue(v37);
-    VolmodFocusCone = SND_SubmixGetVolmodFocusCone(v37);
-    VolmodFocusConeId = SND_SubmixGetVolmodFocusConeId(v37);
-    *(double *)&_XMM0 = SND_SubmixGetVolmodFocusAmount(v37);
-    __asm { vmovaps xmm10, xmm0 }
-    *(double *)&_XMM0 = SND_SubmixGetLpFilterValue(v37);
-    __asm
+    while ( 1 )
     {
-      vucomiss xmm13, xmm12
-      vmovaps xmm8, xmm0
+      VolmodAttenuation = SND_SubmixGetVolmodAttenuation(v5);
+      v7 = *(float *)&VolmodAttenuation;
+      HpFilterValue = SND_SubmixGetHpFilterValue(v5);
+      v9 = *(float *)&HpFilterValue;
+      SND_SubmixGetLpFilterValue(v5);
+      VolmodFocusCone = SND_SubmixGetVolmodFocusCone(v5);
+      VolmodFocusConeId = SND_SubmixGetVolmodFocusConeId(v5);
+      VolmodFocusAmount = SND_SubmixGetVolmodFocusAmount(v5);
+      v13 = *(float *)&VolmodFocusAmount;
+      LpFilterValue = SND_SubmixGetLpFilterValue(v5);
+      if ( v7 != 1.0 || v9 != 0.0 || *(float *)&LpFilterValue != 1.0 || VolmodFocusConeId || v13 != 0.0 )
+      {
+        v15 = j_va("%3d", v5);
+        CG_DrawStringExt(ActivePlacement, 24.0, *(float *)&v2, v15, &colorYellow, 0, 1, 12.0, 0);
+        v16 = j_va("%4.02f", v7);
+        CG_DrawStringExt(ActivePlacement, 80.0, *(float *)&v2, v16, &colorYellow, 0, 1, 12.0, 0);
+        v17 = j_va("%4.02f %3.1fkHz", v9, (float)((float)((float)(v9 * v9) * v9) * 24.0));
+        CG_DrawStringExt(ActivePlacement, 130.0, *(float *)&v2, v17, &colorYellow, 0, 1, 12.0, 0);
+        v18 = j_va("%4.02f %3.1fkHz", *(float *)&LpFilterValue, (float)((float)((float)(*(float *)&LpFilterValue * *(float *)&LpFilterValue) * *(float *)&LpFilterValue) * 24.0));
+        CG_DrawStringExt(ActivePlacement, 230.0, *(float *)&v2, v18, &colorYellow, 0, 1, 12.0, 0);
+        v19 = j_va("%4.02f", v13);
+        CG_DrawStringExt(ActivePlacement, 330.0, *(float *)&v2, v19, &colorYellow, 0, 1, 12.0, 0);
+        if ( VolmodFocusConeId )
+        {
+          v20 = "???";
+          if ( VolmodFocusCone )
+            v20 = (const char *)VolmodFocusCone;
+        }
+        else
+        {
+          v20 = (char *)&queryFormat.fmt + 3;
+        }
+        v21 = j_va((const char *)&queryFormat, v20);
+        CG_DrawStringExt(ActivePlacement, 430.0, *(float *)&v2, v21, &colorYellow, 0, 1, 12.0, 0);
+        ++v4;
+        v22 = v2;
+        *(float *)&v22 = *(float *)&v2 + 12.0;
+        v2 = v22;
+        if ( v4 >= 32 )
+          break;
+      }
+      if ( (int)++v5 >= VolmodActiveCount )
+        return;
     }
-    if ( !v44 )
-      break;
-    __asm { vucomiss xmm9, xmm11 }
-    if ( !v44 )
-      break;
-    __asm { vucomiss xmm0, xmm12 }
-    if ( !v44 || VolmodFocusConeId )
-      break;
-    __asm { vucomiss xmm10, xmm11 }
-LABEL_14:
-    if ( (int)++v37 >= VolmodActiveCount )
-      goto LABEL_17;
-  }
-  v46 = j_va("%3d", v37);
-  __asm
-  {
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm15; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v46, &colorYellow, 0, 1, v102, 0);
-  __asm
-  {
-    vcvtss2sd xmm1, xmm13, xmm13
-    vmovq   rdx, xmm1
-  }
-  v51 = j_va("%4.02f", _RDX);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@42a00000; x
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm7; y
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v51, &colorYellow, 0, 1, v103, 0);
-  __asm
-  {
-    vmulss  xmm0, xmm9, xmm9
-    vmulss  xmm1, xmm0, xmm9
-    vmulss  xmm2, xmm1, xmm15
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm1, xmm9, xmm9
-    vmovq   r8, xmm2
-    vmovq   rdx, xmm1
-  }
-  v61 = j_va("%4.02f %3.1fkHz", _RDX, _R8);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43020000; x
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm7; y
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v61, &colorYellow, 0, 1, v104, 0);
-  __asm
-  {
-    vmulss  xmm0, xmm8, xmm8
-    vmulss  xmm1, xmm0, xmm8
-    vmulss  xmm2, xmm1, xmm15
-    vcvtss2sd xmm2, xmm2, xmm2
-    vcvtss2sd xmm1, xmm8, xmm8
-    vmovq   r8, xmm2
-    vmovq   rdx, xmm1
-  }
-  v70 = j_va("%4.02f %3.1fkHz", _RDX, _R8);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43660000; x
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm7; y
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v70, &colorYellow, 0, 1, v105, 0);
-  __asm
-  {
-    vcvtss2sd xmm1, xmm10, xmm10
-    vmovq   rdx, xmm1
-  }
-  v75 = j_va("%4.02f", _RDX);
-  __asm
-  {
-    vmovss  xmm1, cs:__real@43a50000; x
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm7; y
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v75, &colorYellow, 0, 1, v106, 0);
-  if ( VolmodFocusConeId )
-  {
-    v78 = "???";
-    if ( VolmodFocusCone )
-      v78 = (const char *)VolmodFocusCone;
-  }
-  else
-  {
-    v78 = (char *)&queryFormat.fmt + 3;
-  }
-  v79 = j_va((const char *)&queryFormat, v78);
-  __asm
-  {
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm14; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v79, &colorYellow, 0, 1, v107, 0);
-  ++v36;
-  __asm { vaddss  xmm7, xmm7, xmm6 }
-  if ( v36 < 32 )
-    goto LABEL_14;
-  __asm
-  {
-    vmovss  [rsp+118h+var_E0], xmm6
-    vmovaps xmm2, xmm7; y
-    vmovaps xmm1, xmm15; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "...", &colorYellow, 0, 1, v108, 0);
-LABEL_17:
-  __asm
-  {
-    vmovaps xmm12, [rsp+118h+var_98]
-    vmovaps xmm10, [rsp+118h+var_78]
-    vmovaps xmm9, [rsp+118h+var_68]
-    vmovaps xmm8, [rsp+118h+var_58]
-    vmovaps xmm13, [rsp+118h+var_A8]
-  }
-LABEL_18:
-  __asm { vmovaps xmm14, [rsp+118h+var_B8] }
-  _R11 = &v116;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm15, [rsp+118h+var_C8]
+    CG_DrawStringExt(ActivePlacement, 24.0, *(float *)&v22, "...", &colorYellow, 0, 1, 12.0, 0);
   }
 }
 
@@ -775,184 +345,84 @@ LABEL_18:
 SND_SubmixDebugDrawZoneCalls
 ==============
 */
-
-void __fastcall SND_SubmixDebugDrawZoneCalls(LocalClientNum_t localClientNum, __int64 a2, double _XMM2_8)
+void SND_SubmixDebugDrawZoneCalls(LocalClientNum_t localClientNum)
 {
   const ScreenPlacement *ActivePlacement; 
-  unsigned int v28; 
+  __int128 v2; 
+  unsigned int v3; 
+  __int64 v4; 
   unsigned int idA; 
   const char *NameForId; 
   unsigned int idB; 
-  const char *v34; 
+  const char *v8; 
   unsigned int idAprev; 
-  const char *v36; 
+  const char *v10; 
   unsigned int idBprev; 
-  const char *v38; 
-  const char *v43; 
-  const char *v46; 
-  const char *v49; 
-  const char *v55; 
-  float v66; 
-  float v67; 
-  float v68; 
-  float v69; 
-  float v70; 
-  float v71; 
-  float v72; 
-  float v73; 
-  char v76; 
-  void *retaddr; 
+  const char *v12; 
+  const char *v13; 
+  const char *v14; 
+  const char *v15; 
+  const char *v16; 
+  __int128 v17; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps [rsp+0E8h+var_88], xmm11
-    vmovaps [rsp+0E8h+var_98], xmm12
-    vmovss  xmm6, cs:__real@41400000
-    vmovss  xmm8, cs:__real@41c00000
-  }
   ActivePlacement = ScrPlace_GetActivePlacement(localClientNum);
-  __asm
-  {
-    vmovss  [rsp+0E8h+var_B0], xmm6
-    vxorps  xmm2, xmm2, xmm2; y
-    vmovaps xmm1, xmm8; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "time", &colorYellow, 0, 1, v66, 0);
-  __asm
-  {
-    vmovss  xmm9, cs:__real@42a00000
-    vmovss  [rsp+0E8h+var_B0], xmm6
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm9; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "Zone A", &colorWhiteFaded, 0, 1, v67, 0);
-  __asm
-  {
-    vmovss  xmm10, cs:__real@43a00000
-    vmovss  [rsp+0E8h+var_B0], xmm6
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm10; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "Zone B", &colorWhiteFaded, 0, 1, v68, 0);
-  __asm
-  {
-    vmovss  xmm11, cs:__real@44070000
-    vmovss  [rsp+0E8h+var_B0], xmm6
-    vmovaps xmm2, xmm6; y
-    vmovaps xmm1, xmm11; x
-  }
-  CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, "Lerp", &colorWhiteFaded, 0, 1, v69, 0);
-  __asm
-  {
-    vmovss  xmm12, cs:__real@3a83126f
-    vmovaps xmm7, xmm8
-  }
-  v28 = 0;
-  _R13 = s_recordsZones;
+  CG_DrawStringExt(ActivePlacement, 24.0, 0.0, "time", &colorYellow, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 80.0, 12.0, "Zone A", &colorWhiteFaded, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 320.0, 12.0, "Zone B", &colorWhiteFaded, 0, 1, 12.0, 0);
+  CG_DrawStringExt(ActivePlacement, 540.0, 12.0, "Lerp", &colorWhiteFaded, 0, 1, 12.0, 0);
+  v2 = LODWORD(FLOAT_24_0);
+  v3 = 0;
   do
   {
-    _RBX = ((_BYTE)v28 + (_BYTE)s_recordsZonesIdx) & 0x1F;
-    idA = s_recordsZones[((_BYTE)v28 + (_BYTE)s_recordsZonesIdx) & 0x1F].idA;
+    v4 = ((_BYTE)v3 + (_BYTE)s_recordsZonesIdx) & 0x1F;
+    idA = s_recordsZones[((_BYTE)v3 + (_BYTE)s_recordsZonesIdx) & 0x1F].idA;
     if ( idA )
       NameForId = SND_SubmixDebugGetNameForId(idA);
     else
       NameForId = "none";
-    idB = s_recordsZones[_RBX].idB;
+    idB = s_recordsZones[v4].idB;
     if ( idB )
-      v34 = SND_SubmixDebugGetNameForId(idB);
+      v8 = SND_SubmixDebugGetNameForId(idB);
     else
-      v34 = "none";
-    idAprev = s_recordsZones[_RBX].idAprev;
+      v8 = "none";
+    idAprev = s_recordsZones[v4].idAprev;
     if ( idAprev )
     {
-      if ( idAprev == s_recordsZones[_RBX].idA )
-        v36 = "same";
+      if ( idAprev == s_recordsZones[v4].idA )
+        v10 = "same";
       else
-        v36 = SND_SubmixDebugGetNameForId(idAprev);
+        v10 = SND_SubmixDebugGetNameForId(idAprev);
     }
     else
     {
-      v36 = "none";
+      v10 = "none";
     }
-    idBprev = s_recordsZones[_RBX].idBprev;
+    idBprev = s_recordsZones[v4].idBprev;
     if ( idBprev )
     {
-      if ( idBprev == s_recordsZones[_RBX].idB )
-        v38 = "same";
+      if ( idBprev == s_recordsZones[v4].idB )
+        v12 = "same";
       else
-        v38 = SND_SubmixDebugGetNameForId(idBprev);
+        v12 = SND_SubmixDebugGetNameForId(idBprev);
     }
     else
     {
-      v38 = "none";
+      v12 = "none";
     }
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, cs:?g_snd@@3Usnd_local_t@@A.time; snd_local_t g_snd
-      vmulss  xmm1, xmm0, xmm12
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v43 = j_va("%5.1f", _RDX);
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B0], xmm6
-      vmovaps xmm2, xmm7; y
-      vmovaps xmm1, xmm8; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v43, &colorYellow, 0, 1, v70, 0);
-    v46 = j_va("%s/%s", NameForId, v36);
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B0], xmm6
-      vmovaps xmm2, xmm7; y
-      vmovaps xmm1, xmm9; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v46, &colorYellow, 0, 1, v71, 0);
-    v49 = j_va("%s/%s", v34, v38);
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B0], xmm6
-      vmovaps xmm2, xmm7; y
-      vmovaps xmm1, xmm10; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v49, &colorYellow, 0, 1, v72, 0);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [r13+rbx*8+0Ch]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v55 = j_va("%3.2f", _RDX);
-    __asm
-    {
-      vmovss  [rsp+0E8h+var_B0], xmm6
-      vmovaps xmm2, xmm7; y
-      vmovaps xmm1, xmm11; x
-    }
-    CG_DrawStringExt(ActivePlacement, *(float *)&_XMM1, *(float *)&_XMM2, v55, &colorYellow, 0, 1, v73, 0);
-    ++v28;
-    __asm { vaddss  xmm7, xmm7, xmm6 }
+    v13 = j_va("%5.1f", (float)((float)g_snd.time * 0.001));
+    CG_DrawStringExt(ActivePlacement, 24.0, *(float *)&v2, v13, &colorYellow, 0, 1, 12.0, 0);
+    v14 = j_va("%s/%s", NameForId, v10);
+    CG_DrawStringExt(ActivePlacement, 80.0, *(float *)&v2, v14, &colorYellow, 0, 1, 12.0, 0);
+    v15 = j_va("%s/%s", v8, v12);
+    CG_DrawStringExt(ActivePlacement, 320.0, *(float *)&v2, v15, &colorYellow, 0, 1, 12.0, 0);
+    v16 = j_va("%3.2f", s_recordsZones[v4].lerp);
+    CG_DrawStringExt(ActivePlacement, 540.0, *(float *)&v2, v16, &colorYellow, 0, 1, 12.0, 0);
+    ++v3;
+    v17 = v2;
+    *(float *)&v17 = *(float *)&v2 + 12.0;
+    v2 = v17;
   }
-  while ( v28 < 0x20 );
-  _R11 = &v76;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
+  while ( v3 < 0x20 );
 }
 
 /*
@@ -963,26 +433,17 @@ SND_SubmixDebugGetCutoffAsHz
 
 float __fastcall SND_SubmixDebugGetCutoffAsHz(double linearValue)
 {
-  char v1; 
+  __int128 v2; 
 
+  v2 = *(_OWORD *)&linearValue;
+  *(float *)&v2 = *(float *)&linearValue * 24000.0;
+  _XMM2 = v2;
+  if ( (float)(*(float *)&linearValue * 24000.0) == -1.0 )
+    return FLOAT_24000_0;
   __asm
   {
-    vmovss  xmm1, cs:__real@46bb8000
-    vmulss  xmm2, xmm0, xmm1
-    vucomiss xmm2, cs:__real@bf800000
-  }
-  if ( v1 )
-  {
-    __asm { vmovaps xmm0, xmm1 }
-  }
-  else
-  {
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcmpless xmm0, xmm2, xmm1
-      vblendvps xmm0, xmm2, xmm1, xmm0
-    }
+    vcmpless xmm0, xmm2, xmm1
+    vblendvps xmm0, xmm2, xmm1, xmm0
   }
   return *(float *)&_XMM0;
 }
@@ -995,19 +456,14 @@ SND_SubmixDebugGetCutoffAsHzFaded
 
 float __fastcall SND_SubmixDebugGetCutoffAsHzFaded(double linearValue)
 {
-  char v1; 
-  char v2; 
+  __int128 v2; 
 
-  __asm
-  {
-    vmovss  xmm2, cs:__real@46bb8000
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm1, xmm0
-    vmulss  xmm3, xmm0, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm3, xmm0
-  }
-  if ( !(v1 | v2) )
+  _XMM2 = LODWORD(FLOAT_24000_0);
+  v2 = *(_OWORD *)&linearValue;
+  *(float *)&v2 = (float)((float)(*(float *)&linearValue * *(float *)&linearValue) * *(float *)&linearValue) * 24000.0;
+  _XMM3 = v2;
+  LODWORD(linearValue) = 0;
+  if ( *(float *)&v2 > 0.0 )
   {
     __asm
     {
@@ -1015,7 +471,7 @@ float __fastcall SND_SubmixDebugGetCutoffAsHzFaded(double linearValue)
       vblendvps xmm0, xmm3, xmm2, xmm0
     }
   }
-  return *(float *)&_XMM0;
+  return *(float *)&linearValue;
 }
 
 /*
@@ -1044,20 +500,19 @@ __int64 SND_SubmixDebugGetUnits()
 SND_SubmixDebugRecordZones
 ==============
 */
-
-void __fastcall SND_SubmixDebugRecordZones(int time, unsigned int idA, unsigned int idB, double lerp, unsigned int zoneA, unsigned int zoneB)
+void SND_SubmixDebugRecordZones(int time, unsigned int idA, unsigned int idB, float lerp, unsigned int zoneA, unsigned int zoneB)
 {
   char v6; 
+  __int64 v7; 
 
   v6 = s_recordsZonesIdx;
-  _R11 = s_recordsZones;
-  _R9 = s_recordsZonesIdx;
-  s_recordsZones[_R9].idAprev = zoneA;
-  s_recordsZones[_R9].idBprev = zoneB;
-  s_recordsZones[_R9].time = time;
+  v7 = s_recordsZonesIdx;
+  s_recordsZones[v7].idAprev = zoneA;
+  s_recordsZones[v7].idBprev = zoneB;
+  s_recordsZones[v7].time = time;
   s_recordsZonesIdx = (v6 + 1) & 0x1F;
-  __asm { vmovss  dword ptr [r11+r9*8+0Ch], xmm3 }
-  s_recordsZones[_R9].idA = idA;
-  s_recordsZones[_R9].idB = idB;
+  s_recordsZones[v7].lerp = lerp;
+  s_recordsZones[v7].idA = idA;
+  s_recordsZones[v7].idB = idB;
 }
 

@@ -312,32 +312,31 @@ LABEL_23:
 CG_Player_AlignPlayerModelForScriptLink
 ==============
 */
-bool CG_Player_AlignPlayerModelForScriptLink(cg_t *cgameGlob, centity_t *cent)
+char CG_Player_AlignPlayerModelForScriptLink(cg_t *cgameGlob, centity_t *cent)
 {
   entityState_t *p_nextState; 
   entityType_s eType; 
   LocalClientNum_t localClientNum; 
+  characterInfo_t *CharacterInfo; 
+  centity_t *LinkToParent; 
   int number; 
   int clientNum; 
   __int16 linkEnt; 
   clientLinkInfo_t *p_clientLinkInfo; 
   const DObj *ClientDObj; 
   int WorldTagMatrix; 
-  double v46; 
-  bool result; 
+  vec3_t *p_angles; 
+  float v16; 
+  double v21; 
+  double v22; 
+  double v23; 
+  double v24; 
+  double v25; 
   vec3_t inOrigin; 
-  __int64 v52; 
+  __int64 v28; 
   tmat43_t<vec3_t> outTagMat; 
-  char v54; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v52 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm8
-  }
+  v28 = -2i64;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 486, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 487, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
@@ -349,130 +348,79 @@ bool CG_Player_AlignPlayerModelForScriptLink(cg_t *cgameGlob, centity_t *cent)
   if ( (((eType - 1) & 0xFFED) != 0 || eType == ET_ITEM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 488, ASSERT_TYPE_ASSERT, "(BG_IsCharacterEntity( &cent->nextState ))", (const char *)&queryFormat, "BG_IsCharacterEntity( &cent->nextState )") )
     __debugbreak();
   localClientNum = cgameGlob->localClientNum;
-  _R15 = CG_GetCharacterInfo(cgameGlob, cent->nextState.clientNum);
-  if ( !_R15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 493, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
+  CharacterInfo = CG_GetCharacterInfo(cgameGlob, cent->nextState.clientNum);
+  if ( !CharacterInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 493, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  _RDI = CG_Entity_GetLinkToParent(localClientNum, cent);
+  LinkToParent = CG_Entity_GetLinkToParent(localClientNum, cent);
   number = p_nextState->number;
   clientNum = cgameGlob->predictedPlayerState.clientNum;
   if ( clientNum == number )
   {
     linkEnt = cgameGlob->predictedPlayerState.linkEnt;
     if ( linkEnt != 2047 )
-      _RDI = CG_GetEntity(localClientNum, linkEnt);
+      LinkToParent = CG_GetEntity(localClientNum, linkEnt);
   }
-  if ( _RDI && (_RDI->flags & 1) == 0 )
-    _RDI = NULL;
-  if ( !_R15->isScriptedSceneAnim || !_RDI )
-  {
-    result = 0;
-    goto LABEL_37;
-  }
+  if ( LinkToParent && (LinkToParent->flags & 1) == 0 )
+    LinkToParent = NULL;
+  if ( !CharacterInfo->isScriptedSceneAnim || !LinkToParent )
+    return 0;
   p_clientLinkInfo = &cent->nextState.clientLinkInfo;
   if ( clientNum == number )
   {
-    ClientDObj = Com_GetClientDObj(_RDI->nextState.number, localClientNum);
+    ClientDObj = Com_GetClientDObj(LinkToParent->nextState.number, localClientNum);
     if ( ClientDObj )
     {
-      WorldTagMatrix = CG_DObjGetWorldTagMatrix(&_RDI->pose, ClientDObj, scr_const.tag_player, (tmat33_t<vec3_t> *)&outTagMat, &outTagMat.m[3]);
+      WorldTagMatrix = CG_DObjGetWorldTagMatrix(&LinkToParent->pose, ClientDObj, scr_const.tag_player, (tmat33_t<vec3_t> *)&outTagMat, &outTagMat.m[3]);
       goto LABEL_30;
     }
 LABEL_32:
-    CG_GetPoseOrigin(&_RDI->pose, &inOrigin);
+    CG_GetPoseOrigin(&LinkToParent->pose, &inOrigin);
     CG_SetPoseOrigin(&cent->pose, &inOrigin);
-    _RSI = &cent->pose.angles;
-    cent->pose.angles.v[0] = _RDI->pose.angles.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+4Ch]
-      vmovss  dword ptr [rsi+4], xmm0
-      vmovss  xmm1, dword ptr [rdi+50h]
-      vmovss  dword ptr [rsi+8], xmm1
-    }
+    p_angles = &cent->pose.angles;
+    cent->pose.angles.v[0] = LinkToParent->pose.angles.v[0];
+    cent->pose.angles.v[1] = LinkToParent->pose.angles.v[1];
+    cent->pose.angles.v[2] = LinkToParent->pose.angles.v[2];
     memset(&inOrigin, 0, sizeof(inOrigin));
     goto LABEL_33;
   }
   if ( (*(_DWORD *)p_clientLinkInfo & 0x100000) != 0 )
     goto LABEL_32;
-  WorldTagMatrix = CG_Entity_GetParentAxis(localClientNum, p_nextState->number, p_clientLinkInfo, _RDI, &outTagMat);
+  WorldTagMatrix = CG_Entity_GetParentAxis(localClientNum, p_nextState->number, p_clientLinkInfo, LinkToParent, &outTagMat);
 LABEL_30:
   if ( !WorldTagMatrix )
     goto LABEL_32;
   CG_SetPoseOrigin(&cent->pose, &outTagMat.m[3]);
-  _RSI = &cent->pose.angles;
+  p_angles = &cent->pose.angles;
   AxisToAngles((const tmat33_t<vec3_t> *)&outTagMat, &cent->pose.angles);
 LABEL_33:
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi]
-    vmovss  dword ptr [r15+9C0h], xmm0
-  }
-  _R15->playerAngles.v[1] = _RSI->v[1];
-  _R15->playerAngles.v[2] = _RSI->v[2];
-  __asm
-  {
-    vmulss  xmm3, xmm0, cs:__real@3b360b61
-    vxorps  xmm8, xmm8, xmm8
-    vmovss  xmm6, cs:__real@3f000000
-    vaddss  xmm1, xmm3, xmm6
-    vroundss xmm2, xmm8, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmovss  xmm5, cs:__real@43b40000
-    vmulss  xmm0, xmm0, xmm5
-    vmovss  dword ptr [r15+9C0h], xmm0
-    vmovss  xmm1, dword ptr [r15+9C4h]
-    vmulss  xmm4, xmm1, cs:__real@3b360b61
-    vaddss  xmm2, xmm4, xmm6
-    vroundss xmm3, xmm8, xmm2, 1
-    vsubss  xmm0, xmm4, xmm3
-    vmulss  xmm1, xmm0, xmm5
-    vmovss  dword ptr [r15+9C4h], xmm1
-    vmovss  xmm2, dword ptr [r15+9C8h]
-    vmulss  xmm3, xmm2, cs:__real@3b360b61
-    vaddss  xmm1, xmm3, xmm6
-    vroundss xmm2, xmm8, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm1, xmm0, xmm5
-    vmovss  dword ptr [r15+9C8h], xmm1
-  }
-  *(double *)&_XMM0 = BG_MovementDirToDegrees(cent->nextState.lerp.u.player.movementDir);
-  __asm { vmovss  dword ptr [r15+8BCh], xmm0 }
-  _R15->leftStickInputInterpolated = BG_PackedPolarCoordsToCartesian(cent->nextState.lerp.u.player.leftStickPolarPacked);
-  _R15->rightStickInputInterpolated = BG_PackedPolarCoordsToCartesian(cent->nextState.lerp.u.player.rightStickPolarPacked);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@3f800000
-    vmovaps xmm1, xmm6; maxAbsValueSize
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(cent->nextState.lerp.u.player.extraAnimData.anonymous.data[0], *(float *)&_XMM1, 0x10u);
-  __asm
-  {
-    vmovss  dword ptr [r15+904h], xmm0
-    vmovaps xmm1, xmm6; maxAbsValueSize
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(cent->nextState.lerp.u.player.extraAnimData.anonymous.data[1], *(float *)&_XMM1, 0x10u);
-  __asm
-  {
-    vmovss  dword ptr [r15+908h], xmm0
-    vmovaps xmm1, xmm6; maxAbsValueSize
-  }
-  *(double *)&_XMM0 = MSG_UnpackSignedFloat(cent->nextState.lerp.u.player.extraAnimData.anonymous.data[2], *(float *)&_XMM1, 0x10u);
-  __asm { vmovss  dword ptr [r15+90Ch], xmm0 }
-  BG_SlopeWorldmodel_Unpack(&cent->nextState.lerp.u.player.slopePacked, &_R15->groundNormalInterpolated);
+  v16 = p_angles->v[0];
+  CharacterInfo->playerAngles.v[0] = p_angles->v[0];
+  CharacterInfo->playerAngles.v[1] = p_angles->v[1];
+  CharacterInfo->playerAngles.v[2] = p_angles->v[2];
+  _XMM8 = 0i64;
+  __asm { vroundss xmm2, xmm8, xmm1, 1 }
+  CharacterInfo->playerAngles.v[0] = (float)((float)(v16 * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+  __asm { vroundss xmm3, xmm8, xmm2, 1 }
+  CharacterInfo->playerAngles.v[1] = (float)((float)(CharacterInfo->playerAngles.v[1] * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+  __asm { vroundss xmm2, xmm8, xmm1, 1 }
+  CharacterInfo->playerAngles.v[2] = (float)((float)(CharacterInfo->playerAngles.v[2] * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+  v21 = BG_MovementDirToDegrees(cent->nextState.lerp.u.player.movementDir);
+  CharacterInfo->lerpMoveDir = *(float *)&v21;
+  CharacterInfo->leftStickInputInterpolated = BG_PackedPolarCoordsToCartesian(cent->nextState.lerp.u.player.leftStickPolarPacked);
+  CharacterInfo->rightStickInputInterpolated = BG_PackedPolarCoordsToCartesian(cent->nextState.lerp.u.player.rightStickPolarPacked);
+  v22 = MSG_UnpackSignedFloat(cent->nextState.lerp.u.player.extraAnimData.anonymous.data[0], 1.0, 0x10u);
+  CharacterInfo->skydivePitchInterpolated = *(float *)&v22;
+  v23 = MSG_UnpackSignedFloat(cent->nextState.lerp.u.player.extraAnimData.anonymous.data[1], 1.0, 0x10u);
+  CharacterInfo->skydiveRollInterpolated = *(float *)&v23;
+  v24 = MSG_UnpackSignedFloat(cent->nextState.lerp.u.player.extraAnimData.anonymous.data[2], 1.0, 0x10u);
+  CharacterInfo->skydiveThrottleInterpolated = *(float *)&v24;
+  BG_SlopeWorldmodel_Unpack(&cent->nextState.lerp.u.player.slopePacked, &CharacterInfo->groundNormalInterpolated);
   if ( PlayerASM_IsEnabled() )
   {
-    v46 = BG_MovementDirToDegrees(cent->nextState.lerp.u.player.velocityDir);
-    BG_PlayerASM_UpdateAngles(*(const float *)&v46, _R15);
+    v25 = BG_MovementDirToDegrees(cent->nextState.lerp.u.player.velocityDir);
+    BG_PlayerASM_UpdateAngles(*(const float *)&v25, CharacterInfo);
   }
-  result = 1;
-LABEL_37:
-  _R11 = &v54;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-  }
-  return result;
+  return 1;
 }
 
 /*
@@ -482,63 +430,62 @@ CG_Players_AddFirstPersonBodyModelsToScene
 */
 void CG_Players_AddFirstPersonBodyModelsToScene(LocalClientNum_t localClientNum, centity_t *cent, DObj *playerShadowDObj, unsigned int renderFlags, const vec3_t *lightingOrigin, unsigned int emissiveMaterialData, bool drawLegs, bool drawShadow)
 {
-  const dvar_t *v18; 
+  cg_t *LocalClientGlobals; 
+  const dvar_t *v12; 
   const DObj *ClientDObj; 
-  DObj *v20; 
-  unsigned int v22; 
-  DObj *v23; 
-  unsigned int v25; 
-  const dvar_t *v26; 
+  DObj *v14; 
+  unsigned int v15; 
+  DObj *v16; 
+  double Radius; 
+  unsigned int v18; 
+  double v19; 
+  const dvar_t *v20; 
+  float v21; 
+  float *v22; 
+  float *v23; 
   CgStatic *LocalClientStatics; 
   const XAnimTree *Tree; 
-  __int64 v54; 
-  void (__fastcall *v65)(const vec4_t *, vec3_t *); 
+  cg_t *v26; 
+  cpose_t *p_firstPersonLegsPose; 
+  __int128 v28; 
+  double v29; 
+  cpose_t *v30; 
+  centity_t *v31; 
+  __int64 v32; 
+  void (__fastcall *v33)(const vec4_t *, vec3_t *); 
   cpose_t *ViewModelPoseForHand; 
-  int v69; 
+  int v35; 
   const HudOutlineDef *HudOutlineDef; 
   int outlineWidth; 
-  const dvar_t *v73; 
-  unsigned int v87; 
-  const dvar_t *v88; 
-  float fmt; 
-  float v92; 
-  float v93; 
+  const dvar_t *v38; 
+  float frameInterpolation; 
+  float *p_commandTime; 
+  float *v41; 
+  unsigned int v42; 
+  const dvar_t *v43; 
   vec3_t outOrigin; 
-  unsigned int v95; 
+  unsigned int v45; 
   float characterEVOffset; 
-  GfxSceneHudOutlineInfo v97; 
+  GfxSceneHudOutlineInfo v47; 
   DObj *obj; 
-  const vec3_t *v99; 
+  const vec3_t *v49; 
   void (__fastcall *functionPointer)(const vec3_t *, vec4_t *); 
   void (__fastcall *FunctionPointer_origin)(const vec4_t *, vec3_t *); 
   void (__fastcall *Origin)(const vec3_t *, vec4_t *); 
   void (__fastcall *FunctionPointer_prevOrigin)(const vec4_t *, vec3_t *); 
-  vec3_t v104; 
-  shaderOverride_t v105; 
-  __int64 v106; 
+  vec3_t v54; 
+  shaderOverride_t v55; 
+  __int64 v56; 
   vec3_t inOrigin; 
   vec3_t playerViewOrigin; 
-  char v109; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v106 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-    vmovaps xmmword ptr [rax-78h], xmm8
-  }
-  v95 = renderFlags;
+  v56 = -2i64;
+  v45 = renderFlags;
   obj = playerShadowDObj;
-  v99 = lightingOrigin;
-  _R13 = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:NULL_HUDOUTLINE_INFO_5.color
-    vmovups [rbp+0B0h+var_D0], ymm0
-    vmovups [rsp+1B0h+var_140], ymm0
-  }
+  v49 = lightingOrigin;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  *(__m256i *)&v55.scrollRateX = *(__m256i *)&NULL_HUDOUTLINE_INFO_5.color;
+  *(__m256i *)&v47.color = *(__m256i *)&NULL_HUDOUTLINE_INFO_5.color;
   characterEVOffset = NULL_HUDOUTLINE_INFO_5.characterEVOffset;
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 684, ASSERT_TYPE_ASSERT, "(cent != 0)", (const char *)&queryFormat, "cent != NULL") )
     __debugbreak();
@@ -546,17 +493,16 @@ void CG_Players_AddFirstPersonBodyModelsToScene(LocalClientNum_t localClientNum,
     __debugbreak();
   if ( drawLegs || drawShadow )
   {
-    v18 = DCONST_DVARMPSPBOOL_cg_drawPlayerAlways;
+    v12 = DCONST_DVARMPSPBOOL_cg_drawPlayerAlways;
     if ( !DCONST_DVARMPSPBOOL_cg_drawPlayerAlways && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawPlayerAlways") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v18);
-    if ( v18->current.enabled || (unsigned int)(_R13->predictedPlayerState.pm_type - 2) > 1 )
+    Dvar_CheckFrontendServerThread(v12);
+    if ( v12->current.enabled || (unsigned int)(LocalClientGlobals->predictedPlayerState.pm_type - 2) > 1 )
     {
       cent->pose.player.control->tag_origin_offset.v[2] = 0.0;
       ClientDObj = Com_GetClientDObj(2114, localClientNum);
-      v20 = (DObj *)ClientDObj;
+      v14 = (DObj *)ClientDObj;
       *(_QWORD *)outOrigin.v = ClientDObj;
-      __asm { vxorps  xmm7, xmm7, xmm7 }
       if ( ClientDObj && drawLegs )
       {
         if ( DObjVerifyNumBones(ClientDObj) )
@@ -568,247 +514,152 @@ void CG_Players_AddFirstPersonBodyModelsToScene(LocalClientNum_t localClientNum,
           if ( !*(_QWORD *)playerViewOrigin.v && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 727, ASSERT_TYPE_ASSERT, "(ci != 0)", (const char *)&queryFormat, "ci != NULL") )
             __debugbreak();
           Tree = DObjGetTree(obj);
-          DObjCloneAnimTree(v20, Tree);
-          DObjClearSkel(v20);
-          _RSI = &CG_GetLocalClientGlobals(localClientNum)->firstPersonLegsPose;
-          __asm
-          {
-            vmovups xmm6, xmmword ptr [rsi+84h]
-            vmovsd  xmm8, qword ptr [rsi+94h]
-          }
-          CG_GetPoseOrigin(_RSI, &v104);
-          functionPointer = ObfuscateSetFunctionPointer_origin(_RSI->origin.Set_origin, _RSI);
-          FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(_RSI->origin.Get_origin, _RSI);
-          Origin = ObfuscateSetFunctionPointer_prevOrigin(_RSI->prevOrigin.Set_prevOrigin, _RSI);
-          FunctionPointer_prevOrigin = ObfuscateGetFunctionPointer_prevOrigin(_RSI->prevOrigin.Get_prevOrigin, _RSI);
-          _RCX = _RSI;
-          _RDX = cent;
-          v54 = 2i64;
+          DObjCloneAnimTree(v14, Tree);
+          DObjClearSkel(v14);
+          v26 = CG_GetLocalClientGlobals(localClientNum);
+          p_firstPersonLegsPose = &v26->firstPersonLegsPose;
+          v28 = *(_OWORD *)&v26->firstPersonLegsPose.skinCacheEntry.frameCount;
+          v29 = *(double *)&v26->firstPersonLegsPose.skinCacheEntry.subdivCacheOffset;
+          CG_GetPoseOrigin(&v26->firstPersonLegsPose, &v54);
+          functionPointer = ObfuscateSetFunctionPointer_origin(p_firstPersonLegsPose->origin.Set_origin, p_firstPersonLegsPose);
+          FunctionPointer_origin = ObfuscateGetFunctionPointer_origin(p_firstPersonLegsPose->origin.Get_origin, p_firstPersonLegsPose);
+          Origin = ObfuscateSetFunctionPointer_prevOrigin(p_firstPersonLegsPose->prevOrigin.Set_prevOrigin, p_firstPersonLegsPose);
+          FunctionPointer_prevOrigin = ObfuscateGetFunctionPointer_prevOrigin(p_firstPersonLegsPose->prevOrigin.Get_prevOrigin, p_firstPersonLegsPose);
+          v30 = p_firstPersonLegsPose;
+          v31 = cent;
+          v32 = 2i64;
           do
           {
-            __asm
-            {
-              vmovups xmm0, xmmword ptr [rdx]
-              vmovups xmmword ptr [rcx], xmm0
-              vmovups xmm1, xmmword ptr [rdx+10h]
-              vmovups xmmword ptr [rcx+10h], xmm1
-              vmovups xmm0, xmmword ptr [rdx+20h]
-              vmovups xmmword ptr [rcx+20h], xmm0
-              vmovups xmm1, xmmword ptr [rdx+30h]
-              vmovups xmmword ptr [rcx+30h], xmm1
-              vmovups xmm0, xmmword ptr [rdx+40h]
-              vmovups xmmword ptr [rcx+40h], xmm0
-              vmovups xmm1, xmmword ptr [rdx+50h]
-              vmovups xmmword ptr [rcx+50h], xmm1
-              vmovups xmm0, xmmword ptr [rdx+60h]
-              vmovups xmmword ptr [rcx+60h], xmm0
-            }
-            _RCX = (cpose_t *)((char *)_RCX + 128);
-            __asm
-            {
-              vmovups xmm1, xmmword ptr [rdx+70h]
-              vmovups xmmword ptr [rcx-10h], xmm1
-            }
-            _RDX = (centity_t *)((char *)_RDX + 128);
-            --v54;
+            *(_OWORD *)&v30->eType = *(_OWORD *)&v31->pose.eType;
+            *(_OWORD *)&v30->ragdollHandle = *(_OWORD *)&v31->pose.ragdollHandle;
+            *(_OWORD *)&v30->actualOrigin.y = *(_OWORD *)&v31->pose.actualOrigin.y;
+            *(_OWORD *)&v30->origin.Get_origin = *(_OWORD *)&v31->pose.origin.Get_origin;
+            *(SecureOrigin::secureUnion *)((char *)&v30->origin.origin + 8) = *(SecureOrigin::secureUnion *)((char *)&v31->pose.origin.origin + 8);
+            *(_OWORD *)&v30->angles.z = *(_OWORD *)&v31->pose.angles.z;
+            *(_OWORD *)&v30->prevOrigin.Get_prevOrigin = *(_OWORD *)&v31->pose.prevOrigin.Get_prevOrigin;
+            v30 = (cpose_t *)((char *)v30 + 128);
+            *((_OWORD *)&v30[-1].moverFx + 7) = *(vec4_t *)((char *)&v31->pose.prevOrigin.prevOrigin + 8);
+            v31 = (centity_t *)((char *)v31 + 128);
+            --v32;
           }
-          while ( v54 );
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdx]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rdx+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-          }
-          _RSI->origin.Set_origin = NULL;
-          _RSI->origin.Get_origin = NULL;
-          _RSI->prevOrigin.Set_prevOrigin = NULL;
-          _RSI->prevOrigin.Get_prevOrigin = NULL;
-          _RSI->origin.Set_origin = ObfuscateSetFunctionPointer_origin(functionPointer, _RSI);
-          _RSI->origin.Get_origin = ObfuscateGetFunctionPointer_origin(FunctionPointer_origin, _RSI);
-          _RSI->prevOrigin.Set_prevOrigin = ObfuscateSetFunctionPointer_prevOrigin(Origin, _RSI);
-          _RSI->prevOrigin.Get_prevOrigin = ObfuscateGetFunctionPointer_prevOrigin(FunctionPointer_prevOrigin, _RSI);
+          while ( v32 );
+          *(_OWORD *)&v30->eType = *(_OWORD *)&v31->pose.eType;
+          *(_OWORD *)&v30->ragdollHandle = *(_OWORD *)&v31->pose.ragdollHandle;
+          p_firstPersonLegsPose->origin.Set_origin = NULL;
+          p_firstPersonLegsPose->origin.Get_origin = NULL;
+          p_firstPersonLegsPose->prevOrigin.Set_prevOrigin = NULL;
+          p_firstPersonLegsPose->prevOrigin.Get_prevOrigin = NULL;
+          p_firstPersonLegsPose->origin.Set_origin = ObfuscateSetFunctionPointer_origin(functionPointer, p_firstPersonLegsPose);
+          p_firstPersonLegsPose->origin.Get_origin = ObfuscateGetFunctionPointer_origin(FunctionPointer_origin, p_firstPersonLegsPose);
+          p_firstPersonLegsPose->prevOrigin.Set_prevOrigin = ObfuscateSetFunctionPointer_prevOrigin(Origin, p_firstPersonLegsPose);
+          p_firstPersonLegsPose->prevOrigin.Get_prevOrigin = ObfuscateGetFunctionPointer_prevOrigin(FunctionPointer_prevOrigin, p_firstPersonLegsPose);
           CG_GetPoseOrigin(&cent->pose, &inOrigin);
-          CG_SetPoseOrigin(_RSI, &inOrigin);
-          if ( cent->pose.prevOrigin.Get_prevOrigin == (void (__fastcall *)(const vec4_t *, vec3_t *))(unsigned __int8)v54 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 568, ASSERT_TYPE_ASSERT, "(pose->prevOrigin.Get_prevOrigin)", (const char *)&queryFormat, "pose->prevOrigin.Get_prevOrigin") )
+          CG_SetPoseOrigin(p_firstPersonLegsPose, &inOrigin);
+          if ( !cent->pose.prevOrigin.Get_prevOrigin && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_pose.h", 568, ASSERT_TYPE_ASSERT, "(pose->prevOrigin.Get_prevOrigin)", (const char *)&queryFormat, "pose->prevOrigin.Get_prevOrigin") )
             __debugbreak();
-          v65 = ObfuscateGetFunctionPointer_prevOrigin(cent->pose.prevOrigin.Get_prevOrigin, &cent->pose);
-          v65(&cent->pose.prevOrigin.prevOrigin, &inOrigin);
-          CG_SetPrevPoseOrigin(_RSI, &inOrigin);
+          v33 = ObfuscateGetFunctionPointer_prevOrigin(cent->pose.prevOrigin.Get_prevOrigin, &cent->pose);
+          v33(&cent->pose.prevOrigin.prevOrigin, &inOrigin);
+          CG_SetPrevPoseOrigin(p_firstPersonLegsPose, &inOrigin);
           memset(&inOrigin, 0, sizeof(inOrigin));
-          CG_GetPoseOrigin(_RSI, &inOrigin);
-          XAnimBonePhysicsSetDObjMatrix(v20, &inOrigin, &_RSI->angles);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, dword ptr [r13+65E4h]
-            vmulss  xmm1, xmm0, cs:__real@3a83126f; deltaTime
-          }
-          XAnimBonePhysicsUpdateTime(v20, *(float *)&_XMM1);
+          CG_GetPoseOrigin(p_firstPersonLegsPose, &inOrigin);
+          XAnimBonePhysicsSetDObjMatrix(v14, &inOrigin, &p_firstPersonLegsPose->angles);
+          XAnimBonePhysicsUpdateTime(v14, (float)LocalClientGlobals->frametime * 0.001);
           memset(&inOrigin, 0, sizeof(inOrigin));
-          BG_Player_SetPlayerInfo(v20, (clientControllers_t *)(*(_QWORD *)playerViewOrigin.v + 2812i64), (CEntPlayerInfo *)&_RSI->160);
-          CG_SetPrevPoseOrigin(_RSI, &v104);
-          __asm
-          {
-            vmovups xmmword ptr [rsi+84h], xmm6
-            vmovsd  qword ptr [rsi+94h], xmm8
-          }
-          if ( CG_Cloth_Legs_ShouldCreateCloth(localClientNum, v20) )
-            CG_Cloth_Legs_SetupModel(localClientNum, _RSI, v20);
+          BG_Player_SetPlayerInfo(v14, (clientControllers_t *)(*(_QWORD *)playerViewOrigin.v + 2812i64), (CEntPlayerInfo *)&p_firstPersonLegsPose->160);
+          CG_SetPrevPoseOrigin(p_firstPersonLegsPose, &v54);
+          *(_OWORD *)&p_firstPersonLegsPose->skinCacheEntry.frameCount = v28;
+          *(double *)&p_firstPersonLegsPose->skinCacheEntry.subdivCacheOffset = v29;
+          if ( CG_Cloth_Legs_ShouldCreateCloth(localClientNum, v14) )
+            CG_Cloth_Legs_SetupModel(localClientNum, p_firstPersonLegsPose, v14);
           ViewModelPoseForHand = CG_GetViewModelPoseForHand(localClientNum, WEAPON_HAND_DEFAULT);
-          CG_Players_AdjustLegsModelToHideUpperBody(v20, ViewModelPoseForHand, _R13->firstPersonLegsAdjustmentBoneIndices);
-          CG_Ladder_SetLegsPose(localClientNum, &_R13->predictedPlayerState, _RSI);
-          if ( (*(_DWORD *)&_R13->predictedPlayerState.outlineData.viewmodel & 0x3F) != 0 )
+          CG_Players_AdjustLegsModelToHideUpperBody(v14, ViewModelPoseForHand, LocalClientGlobals->firstPersonLegsAdjustmentBoneIndices);
+          CG_Ladder_SetLegsPose(localClientNum, &LocalClientGlobals->predictedPlayerState, p_firstPersonLegsPose);
+          if ( (*(_DWORD *)&LocalClientGlobals->predictedPlayerState.outlineData.viewmodel & 0x3F) != 0 )
           {
-            v69 = _R13->time - _R13->predictedPlayerState.deltaTime;
-            HudOutlineDef = BG_GetHudOutlineDef(*(_DWORD *)&_R13->predictedPlayerState.outlineData.viewmodel & 0x3F);
-            __asm
-            {
-              vmovss  dword ptr [rbp+0B0h+inOrigin], xmm7
-              vmovss  dword ptr [rbp+0B0h+inOrigin+4], xmm7
-              vmovss  dword ptr [rbp+0B0h+inOrigin+8], xmm7
-              vmovss  dword ptr [rbp+0B0h+playerViewOrigin], xmm7
-              vmovss  dword ptr [rbp+0B0h+playerViewOrigin+4], xmm7
-              vmovss  dword ptr [rbp+0B0h+playerViewOrigin+8], xmm7
-            }
-            v97.color = BG_HudOutline_GetColor(HudOutlineDef, _R13->hudOutlineStartTime, v69, &playerViewOrigin, &inOrigin);
-            v97.drawOccludedPixels = HudOutlineDef->drawOccludedPixels;
-            v97.drawNonOccludedPixels = HudOutlineDef->drawNonOccludedPixels;
+            v35 = LocalClientGlobals->time - LocalClientGlobals->predictedPlayerState.deltaTime;
+            HudOutlineDef = BG_GetHudOutlineDef(*(_DWORD *)&LocalClientGlobals->predictedPlayerState.outlineData.viewmodel & 0x3F);
+            inOrigin.v[0] = 0.0;
+            inOrigin.v[1] = 0.0;
+            inOrigin.v[2] = 0.0;
+            playerViewOrigin.v[0] = 0.0;
+            playerViewOrigin.v[1] = 0.0;
+            playerViewOrigin.v[2] = 0.0;
+            v47.color = BG_HudOutline_GetColor(HudOutlineDef, LocalClientGlobals->hudOutlineStartTime, v35, &playerViewOrigin, &inOrigin);
+            v47.drawOccludedPixels = HudOutlineDef->drawOccludedPixels;
+            v47.drawNonOccludedPixels = HudOutlineDef->drawNonOccludedPixels;
             outlineWidth = HudOutlineDef->outlineWidth;
             if ( (outlineWidth < 0 || (unsigned int)outlineWidth > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)outlineWidth, "signed", outlineWidth) )
               __debugbreak();
-            v97.lineWidth = outlineWidth;
-            v97.renderMode = HudOutlineDef->outlineType;
-            v97.fill = HudOutlineDef->drawFill;
-            __asm
-            {
-              vmovups ymm0, [rsp+1B0h+var_140]
-              vmovups [rbp+0B0h+var_D0], ymm0
-            }
+            v47.lineWidth = outlineWidth;
+            v47.renderMode = HudOutlineDef->outlineType;
+            v47.fill = HudOutlineDef->drawFill;
+            *(__m256i *)&v55.scrollRateX = *(__m256i *)&v47.color;
           }
-          v73 = DCONST_DVARMPSPBOOL_cg_drawPlayerAlways;
+          v38 = DCONST_DVARMPSPBOOL_cg_drawPlayerAlways;
           if ( !DCONST_DVARMPSPBOOL_cg_drawPlayerAlways && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawPlayerAlways") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v73);
-          if ( v73->current.enabled && (unsigned int)(_R13->predictedPlayerState.pm_type - 2) <= 1 )
+          Dvar_CheckFrontendServerThread(v38);
+          if ( v38->current.enabled && (unsigned int)(LocalClientGlobals->predictedPlayerState.pm_type - 2) <= 1 )
           {
-            __asm { vmovss  xmm6, dword ptr [r13+65E0h] }
-            _RCX = _R13->nextPs;
-            __asm
-            {
-              vmovss  xmm0, dword ptr [rcx+30h]
-              vsubss  xmm1, xmm0, dword ptr [rax+30h]
-              vmulss  xmm2, xmm1, xmm6
-              vaddss  xmm3, xmm2, dword ptr [rax+30h]
-              vmovss  dword ptr [rbp+0B0h+inOrigin], xmm3
-              vmovss  xmm0, dword ptr [rcx+34h]
-              vsubss  xmm1, xmm0, dword ptr [rax+34h]
-              vmulss  xmm2, xmm1, xmm6
-              vaddss  xmm3, xmm2, dword ptr [rax+34h]
-              vmovss  dword ptr [rbp+0B0h+inOrigin+4], xmm3
-              vmovss  xmm0, dword ptr [rcx+38h]
-              vsubss  xmm1, xmm0, dword ptr [rax+38h]
-              vmulss  xmm2, xmm1, xmm6
-              vaddss  xmm3, xmm2, dword ptr [rax+38h]
-              vmovss  dword ptr [rbp+0B0h+inOrigin+8], xmm3
-            }
-            CG_SetPoseOrigin(_RSI, &inOrigin);
+            frameInterpolation = LocalClientGlobals->frameInterpolation;
+            p_commandTime = (float *)&LocalClientGlobals->nextPs->commandTime;
+            v41 = (float *)&LocalClientGlobals->ps->commandTime;
+            inOrigin.v[0] = (float)((float)(p_commandTime[12] - v41[12]) * frameInterpolation) + v41[12];
+            inOrigin.v[1] = (float)((float)(p_commandTime[13] - v41[13]) * frameInterpolation) + v41[13];
+            inOrigin.v[2] = (float)((float)(p_commandTime[14] - v41[14]) * frameInterpolation) + v41[14];
+            CG_SetPoseOrigin(p_firstPersonLegsPose, &inOrigin);
             memset(&inOrigin, 0, sizeof(inOrigin));
           }
-          v87 = v95 | 0x28;
-          v88 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
+          v42 = v45 | 0x28;
+          v43 = DCONST_DVARMPBOOL_ladderEnableEnhanced;
           if ( !DCONST_DVARMPBOOL_ladderEnableEnhanced && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ladderEnableEnhanced") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(v88);
-          if ( v88->current.enabled && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R13->predictedPlayerState.pm_flags, ACTIVE, 6u) )
-            v87 = v95 & 0xFFFFFFD6 | 0x28;
-          __asm
-          {
-            vmovups ymm0, [rbp+0B0h+var_D0]
-            vmovups [rsp+1B0h+var_140], ymm0
-          }
-          v97.characterEVOffset = characterEVOffset;
-          __asm
-          {
-            vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_4.scrollRateX
-            vmovups [rbp+0B0h+var_D0], ymm0
-          }
-          v105.atlasTime = NULL_SHADER_OVERRIDE_4.atlasTime;
-          v22 = emissiveMaterialData;
-          __asm { vmovss  dword ptr [rsp+1B0h+var_170], xmm7 }
-          CG_Entity_AddDObjToScene(localClientNum, *(const DObj **)outOrigin.v, _RSI, 0x842u, v87, &v105, &v97, v99, v93, emissiveMaterialData);
-          memset(&v104, 0, sizeof(v104));
+          Dvar_CheckFrontendServerThread(v43);
+          if ( v43->current.enabled && GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.pm_flags, ACTIVE, 6u) )
+            v42 = v45 & 0xFFFFFFD6 | 0x28;
+          *(__m256i *)&v47.color = *(__m256i *)&v55.scrollRateX;
+          v47.characterEVOffset = characterEVOffset;
+          memset(&v55, 0, sizeof(v55));
+          v15 = emissiveMaterialData;
+          CG_Entity_AddDObjToScene(localClientNum, *(const DObj **)outOrigin.v, p_firstPersonLegsPose, 0x842u, v42, &v55, &v47, v49, 0.0, emissiveMaterialData);
+          memset(&v54, 0, sizeof(v54));
           goto LABEL_20;
         }
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 714, ASSERT_TYPE_ASSERT, "( legsDObjValid )", "Trying to submit invalid player legs dobj to render. (DObjVerifyNumBones failed)") )
           __debugbreak();
       }
-      v22 = emissiveMaterialData;
+      v15 = emissiveMaterialData;
 LABEL_20:
       if ( drawShadow )
       {
-        v23 = obj;
+        v16 = obj;
         DObjClearSkel(obj);
         CG_GetPoseOrigin(&cent->pose, &outOrigin);
-        *(double *)&_XMM0 = DObjGetRadius(v23);
-        __asm { vmovaps xmm3, xmm0; radius }
-        v25 = R_LinkDObjEntity_NoCull(localClientNum, cent->nextState.clientNum, &outOrigin, *(float *)&_XMM3);
+        Radius = DObjGetRadius(v16);
+        v18 = R_LinkDObjEntity_NoCull(localClientNum, cent->nextState.clientNum, &outOrigin, *(float *)&Radius);
         cent->flags |= 0x80000u;
-        *(double *)&_XMM0 = DObjGetRadius(v23);
-        __asm { vmovss  dword ptr [rsp+1B0h+fmt], xmm0 }
-        CG_Entity_CheckLightCount(cent->nextState.clientNum, v23, v25, &outOrigin, fmt);
-        v26 = DCONST_DVARMPSPBOOL_cg_drawPlayerAlways;
+        v19 = DObjGetRadius(v16);
+        CG_Entity_CheckLightCount(cent->nextState.clientNum, v16, v18, &outOrigin, *(float *)&v19);
+        v20 = DCONST_DVARMPSPBOOL_cg_drawPlayerAlways;
         if ( !DCONST_DVARMPSPBOOL_cg_drawPlayerAlways && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawPlayerAlways") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v26);
-        if ( v26->current.enabled && (unsigned int)(_R13->predictedPlayerState.pm_type - 2) <= 1 )
+        Dvar_CheckFrontendServerThread(v20);
+        if ( v20->current.enabled && (unsigned int)(LocalClientGlobals->predictedPlayerState.pm_type - 2) <= 1 )
         {
-          __asm { vmovss  xmm6, dword ptr [r13+65E0h] }
-          _RCX = _R13->nextPs;
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rcx+30h]
-            vsubss  xmm1, xmm0, dword ptr [rax+30h]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rax+30h]
-            vmovss  dword ptr [rsp+1B0h+outOrigin], xmm3
-            vmovss  xmm0, dword ptr [rcx+34h]
-            vsubss  xmm1, xmm0, dword ptr [rax+34h]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rax+34h]
-            vmovss  dword ptr [rsp+1B0h+outOrigin+4], xmm3
-            vmovss  xmm0, dword ptr [rcx+38h]
-            vsubss  xmm1, xmm0, dword ptr [rax+38h]
-            vmulss  xmm2, xmm1, xmm6
-            vaddss  xmm3, xmm2, dword ptr [rax+38h]
-            vmovss  dword ptr [rsp+1B0h+outOrigin+8], xmm3
-          }
+          v21 = LocalClientGlobals->frameInterpolation;
+          v22 = (float *)&LocalClientGlobals->nextPs->commandTime;
+          v23 = (float *)&LocalClientGlobals->ps->commandTime;
+          outOrigin.v[0] = (float)((float)(v22[12] - v23[12]) * v21) + v23[12];
+          outOrigin.v[1] = (float)((float)(v22[13] - v23[13]) * v21) + v23[13];
+          outOrigin.v[2] = (float)((float)(v22[14] - v23[14]) * v21) + v23[14];
           CG_SetPoseOrigin(&cent->pose, &outOrigin);
         }
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:NULL_HUDOUTLINE_INFO_5.color
-          vmovups [rsp+1B0h+var_140], ymm0
-        }
-        v97.characterEVOffset = NULL_HUDOUTLINE_INFO_5.characterEVOffset;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:NULL_SHADER_OVERRIDE_4.scrollRateX
-          vmovups [rbp+0B0h+var_D0], ymm0
-        }
-        v105.atlasTime = NULL_SHADER_OVERRIDE_4.atlasTime;
-        __asm { vmovss  dword ptr [rsp+1B0h+var_170], xmm7 }
-        CG_Entity_AddDObjToScene(localClientNum, v23, &cent->pose, cent->nextState.clientNum, v95 | 0x8004, &v105, &v97, v99, v92, v22);
+        memset(&v47, 0, sizeof(v47));
+        memset(&v55, 0, sizeof(v55));
+        CG_Entity_AddDObjToScene(localClientNum, v16, &cent->pose, cent->nextState.clientNum, v45 | 0x8004, &v55, &v47, v49, 0.0, v15);
         memset(&outOrigin, 0, sizeof(outOrigin));
       }
     }
-  }
-  _R11 = &v109;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-18h]
-    vmovaps xmm7, xmmword ptr [r11-28h]
-    vmovaps xmm8, xmmword ptr [r11-38h]
   }
 }
 
@@ -843,103 +694,86 @@ CG_Players_AdjustLegsModelToHideUpperBody
 */
 void CG_Players_AdjustLegsModelToHideUpperBody(DObj *legsDObj, cpose_t *legsPose, const unsigned __int8 *adjustmentBoneIndices)
 {
-  unsigned int v10; 
-  const unsigned __int8 *v13; 
-  __int64 v14; 
+  unsigned int v7; 
+  DObjPartBits *p_partBits; 
+  const unsigned __int8 *v10; 
+  __int64 v11; 
+  const dvar_t *v12; 
+  float value; 
+  const dvar_t *v14; 
+  float v15; 
+  float v16; 
+  const dvar_t *v17; 
+  float v18; 
   vec3_t axis; 
   vec4_t modelToWorldQuat; 
   DObjPartBits partBits; 
-  vec4_t v35; 
+  vec4_t v22; 
   vec4_t modelAdjustmentQuat; 
   vec4_t quat; 
 
-  __asm { vmovaps [rsp+120h+var_40], xmm6 }
   if ( !legsDObj && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 235, ASSERT_TYPE_ASSERT, "(legsDObj != 0)", (const char *)&queryFormat, "legsDObj != NULL") )
     __debugbreak();
   if ( !legsPose && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 236, ASSERT_TYPE_ASSERT, "(legsPose != 0)", (const char *)&queryFormat, "legsPose != NULL") )
     __debugbreak();
   if ( !adjustmentBoneIndices && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 237, ASSERT_TYPE_ASSERT, "(adjustmentBoneIndices != 0)", (const char *)&queryFormat, "adjustmentBoneIndices != NULL") )
     __debugbreak();
-  v10 = 0;
+  v7 = 0;
   legsPose->coverWall.coverGrid[2] = -1;
-  _RDI = &partBits;
+  p_partBits = &partBits;
   __asm { vpxor   xmm6, xmm6, xmm6 }
   do
   {
-    __asm { vmovdqu xmmword ptr [rdi], xmm6 }
-    _RDI = (DObjPartBits *)((char *)_RDI + 16);
-    ++v10;
+    *(_OWORD *)p_partBits->array = _XMM6;
+    p_partBits = (DObjPartBits *)((char *)p_partBits + 16);
+    ++v7;
   }
-  while ( v10 < 2 );
-  v13 = adjustmentBoneIndices;
-  v14 = 7i64;
+  while ( v7 < 2 );
+  v10 = adjustmentBoneIndices;
+  v11 = 7i64;
   do
   {
-    if ( *v13 != 0xFF )
-      partBits.array[(unsigned __int64)*v13 >> 5] |= 0x80000000 >> (*v13 & 0x1F);
-    ++v13;
-    --v14;
+    if ( *v10 != 0xFF )
+      partBits.array[(unsigned __int64)*v10 >> 5] |= 0x80000000 >> (*v10 & 0x1F);
+    ++v10;
+    --v11;
   }
-  while ( v14 );
+  while ( v11 );
   DObjLock(legsDObj);
   if ( !CL_Pose_DObjCreateSkelForBones(legsDObj, &partBits) )
   {
-    _RBX = DCONST_DVARFLT_cg_playerLegsSpineLowAngle;
-    __asm
-    {
-      vmovaps [rsp+120h+var_50], xmm8
-      vmovaps [rsp+120h+var_60], xmm9
-      vmovss  xmm0, cs:__real@3f800000
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  dword ptr [rsp+120h+axis], xmm1
-      vmovss  dword ptr [rsp+120h+axis+4], xmm0
-      vmovss  dword ptr [rsp+120h+axis+8], xmm1
-    }
+    v12 = DCONST_DVARFLT_cg_playerLegsSpineLowAngle;
+    axis.v[0] = 0.0;
+    axis.v[1] = FLOAT_1_0;
+    axis.v[2] = 0.0;
     if ( !DCONST_DVARFLT_cg_playerLegsSpineLowAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_playerLegsSpineLowAngle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    _RBX = DCONST_DVARFLT_cg_playerLegsSpineMidAngle;
-    __asm { vmulss  xmm8, xmm0, cs:__real@3c8efa35 }
+    Dvar_CheckFrontendServerThread(v12);
+    value = v12->current.value;
+    v14 = DCONST_DVARFLT_cg_playerLegsSpineMidAngle;
+    v15 = value * 0.017453292;
     if ( !DCONST_DVARFLT_cg_playerLegsSpineMidAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_playerLegsSpineMidAngle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-    _RBX = DCONST_DVARFLT_cg_playerLegsArmsAngle;
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3c8efa35
-      vaddss  xmm9, xmm1, xmm8
-    }
+    Dvar_CheckFrontendServerThread(v14);
+    v16 = v14->current.value;
+    v17 = DCONST_DVARFLT_cg_playerLegsArmsAngle;
     if ( !DCONST_DVARFLT_cg_playerLegsArmsAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_playerLegsArmsAngle") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+28h]
-      vmovaps xmm0, xmm8; radians
-    }
-    AngleRadAxisToQuat(*(float *)&_XMM0, &axis, &quat);
-    __asm { vmovaps xmm0, xmm9; radians }
-    AngleRadAxisToQuat(*(float *)&_XMM0, &axis, &modelAdjustmentQuat);
-    __asm { vmulss  xmm0, xmm6, cs:__real@3c8efa35; radians }
-    AngleRadAxisToQuat(*(float *)&_XMM0, &axis, &v35);
+    Dvar_CheckFrontendServerThread(v17);
+    v18 = v17->current.value;
+    AngleRadAxisToQuat(v15, &axis, &quat);
+    AngleRadAxisToQuat((float)(v16 * 0.017453292) + v15, &axis, &modelAdjustmentQuat);
+    AngleRadAxisToQuat(v18 * 0.017453292, &axis, &v22);
     AnglesToQuat(&legsPose->angles, &modelToWorldQuat);
     CG_Players_AdjustBoneRelativeToBasePose(legsDObj, &partBits, *adjustmentBoneIndices, &quat, &modelToWorldQuat);
     CG_Players_AdjustBoneRelativeToBasePose(legsDObj, &partBits, adjustmentBoneIndices[1], &modelAdjustmentQuat, &modelToWorldQuat);
     CG_Players_AdjustBoneRelativeToBasePose(legsDObj, &partBits, adjustmentBoneIndices[2], &modelAdjustmentQuat, &modelToWorldQuat);
-    CG_Players_AdjustBoneRelativeToBasePose(legsDObj, &partBits, adjustmentBoneIndices[3], &v35, &modelToWorldQuat);
-    CG_Players_AdjustBoneRelativeToBasePose(legsDObj, &partBits, adjustmentBoneIndices[4], &v35, &modelToWorldQuat);
-    CG_Players_AdjustBoneRelativeToBasePose(legsDObj, &partBits, adjustmentBoneIndices[5], &v35, &modelToWorldQuat);
-    CG_Players_AdjustBoneRelativeToBasePose(legsDObj, &partBits, adjustmentBoneIndices[6], &v35, &modelToWorldQuat);
-    __asm
-    {
-      vmovaps xmm9, [rsp+120h+var_60]
-      vmovaps xmm8, [rsp+120h+var_50]
-    }
+    CG_Players_AdjustBoneRelativeToBasePose(legsDObj, &partBits, adjustmentBoneIndices[3], &v22, &modelToWorldQuat);
+    CG_Players_AdjustBoneRelativeToBasePose(legsDObj, &partBits, adjustmentBoneIndices[4], &v22, &modelToWorldQuat);
+    CG_Players_AdjustBoneRelativeToBasePose(legsDObj, &partBits, adjustmentBoneIndices[5], &v22, &modelToWorldQuat);
+    CG_Players_AdjustBoneRelativeToBasePose(legsDObj, &partBits, adjustmentBoneIndices[6], &v22, &modelToWorldQuat);
   }
   DObjUnlock(legsDObj);
-  __asm { vmovaps xmm6, [rsp+120h+var_40] }
 }
 
 /*
@@ -983,112 +817,81 @@ CG_Players_CalcFirstPersonModelPlacement
 */
 void CG_Players_CalcFirstPersonModelPlacement(LocalClientNum_t localClientNum, const playerState_s *ps, centity_t *cent)
 {
+  cg_t *LocalClientGlobals; 
   unsigned int refdefViewOrg_aab; 
-  const dvar_t *v20; 
+  float v8; 
+  const dvar_t *v9; 
+  float v10; 
+  float v11; 
+  const dvar_t *v12; 
+  float value; 
   unsigned int Animset; 
   unsigned int Anim; 
   int IsLadderAlias; 
   SuitAnimType SuitAnimIndexFromPlayerState; 
   int legsAnim; 
-  const dvar_t *v35; 
-  const dvar_t *v38; 
+  double Float_Internal_DebugName; 
+  const dvar_t *v20; 
+  double BoundsRadius; 
+  const dvar_t *v22; 
+  double v23; 
+  float v24; 
+  double v25; 
+  double v26; 
+  double v27; 
   CgHandler *Handler; 
   vec3_t inOrigin; 
-  int v69[3]; 
-  __int64 v70; 
+  int v30[3]; 
+  __int64 v31; 
   vec3_t inOutViewOrigin; 
   tmat33_t<vec3_t> axis; 
-  WorldUpReferenceFrame v73; 
-  char v74; 
-  void *retaddr; 
+  WorldUpReferenceFrame v34; 
 
-  _RAX = &retaddr;
-  v70 = -2i64;
-  __asm
+  v31 = -2i64;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  if ( !CG_Player_AlignPlayerModelForScriptLink(LocalClientGlobals, cent) )
   {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-  }
-  _RSI = ps;
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  if ( !CG_Player_AlignPlayerModelForScriptLink(_RBX, cent) )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+38h]
-      vmovss  dword ptr [rsp+150h+inOrigin], xmm0
-      vmovss  xmm1, dword ptr [rbx+3Ch]
-      vmovss  dword ptr [rsp+150h+inOrigin+4], xmm1
-      vmovss  xmm0, dword ptr [rbx+40h]
-      vmovss  dword ptr [rsp+150h+inOrigin+8], xmm0
-    }
-    if ( _RBX == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
+    inOrigin = LocalClientGlobals->predictedPlayerState.origin;
+    if ( LocalClientGlobals == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
       __debugbreak();
-    refdefViewOrg_aab = _RBX->refdef.view.refdefViewOrg_aab;
-    if ( _RBX == (cg_t *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
+    refdefViewOrg_aab = LocalClientGlobals->refdef.view.refdefViewOrg_aab;
+    if ( LocalClientGlobals == (cg_t *)-26936i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1284, ASSERT_TYPE_ASSERT, "(viewOrg)", (const char *)&queryFormat, "viewOrg") )
       __debugbreak();
-    v69[0] = LODWORD(_RBX->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_RBX + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)_RBX + 26936)) + 2));
-    v69[1] = LODWORD(_RBX->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_RBX + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)_RBX + 26940)) + 2));
-    v69[2] = LODWORD(_RBX->refdef.view.org.org.v[2]) ^ ((refdefViewOrg_aab ^ ((_DWORD)_RBX + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)_RBX + 26944)) + 2));
-    __asm
-    {
-      vmovsd  xmm0, qword ptr [rsi+30h]
-      vmovsd  qword ptr [rsp+150h+inOutViewOrigin], xmm0
-    }
-    inOutViewOrigin.v[2] = _RSI->origin.v[2];
+    v30[0] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[0]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26936)) + 2));
+    v30[1] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[1]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26940)) + 2));
+    v30[2] = LODWORD(LocalClientGlobals->refdef.view.org.org.v[2]) ^ ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) * ((refdefViewOrg_aab ^ ((_DWORD)LocalClientGlobals + 26944)) + 2));
+    inOutViewOrigin = ps->origin;
     if ( !CG_View_AddViewHeight(localClientNum, &inOutViewOrigin) )
     {
-      memset(v69, 0, sizeof(v69));
+      memset(v30, 0, sizeof(v30));
 LABEL_37:
       memset(&inOrigin, 0, sizeof(inOrigin));
-      goto LABEL_38;
+      return;
     }
-    __asm
-    {
-      vmovss  xmm0, [rsp+150h+var_F8]
-      vsubss  xmm1, xmm0, dword ptr [rsp+150h+inOutViewOrigin+8]
-    }
-    memset(v69, 0, sizeof(v69));
-    __asm
-    {
-      vaddss  xmm1, xmm1, dword ptr [rsp+150h+inOrigin+8]
-      vmovss  dword ptr [rsp+150h+inOrigin+8], xmm1
-    }
-    v20 = DVARBOOL_killswitch_view_legs_misprediction_fix_enabled;
+    v8 = *(float *)&v30[2] - inOutViewOrigin.v[2];
+    memset(v30, 0, sizeof(v30));
+    inOrigin.v[2] = v8 + inOrigin.v[2];
+    v9 = DVARBOOL_killswitch_view_legs_misprediction_fix_enabled;
     if ( !DVARBOOL_killswitch_view_legs_misprediction_fix_enabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "killswitch_view_legs_misprediction_fix_enabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v20);
-    if ( v20->current.enabled )
+    Dvar_CheckFrontendServerThread(v9);
+    if ( v9->current.enabled )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+150h+inOrigin]
-        vaddss  xmm1, xmm0, dword ptr [rbx+53CCh]
-        vmovss  dword ptr [rsp+150h+inOrigin], xmm1
-        vmovss  xmm2, dword ptr [rsp+150h+inOrigin+4]
-        vaddss  xmm0, xmm2, dword ptr [rbx+53D0h]
-        vmovss  dword ptr [rsp+150h+inOrigin+4], xmm0
-        vmovss  xmm1, dword ptr [rsp+150h+inOrigin+8]
-        vaddss  xmm2, xmm1, dword ptr [rbx+53D4h]
-        vmovss  dword ptr [rsp+150h+inOrigin+8], xmm2
-      }
+      inOrigin.v[0] = inOrigin.v[0] + LocalClientGlobals->predictedErrorCurrentFrame.v[0];
+      inOrigin.v[1] = inOrigin.v[1] + LocalClientGlobals->predictedErrorCurrentFrame.v[1];
+      inOrigin.v[2] = inOrigin.v[2] + LocalClientGlobals->predictedErrorCurrentFrame.v[2];
     }
-    __asm
-    {
-      vxorps  xmm8, xmm8, xmm8
-      vxorps  xmm9, xmm9, xmm9
-    }
-    _RDI = DCONST_DVARFLT_cg_playerLegsOffset;
+    v10 = 0.0;
+    v11 = 0.0;
+    v12 = DCONST_DVARFLT_cg_playerLegsOffset;
     if ( !DCONST_DVARFLT_cg_playerLegsOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_playerLegsOffset") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RDI);
-    __asm { vmovss  xmm7, dword ptr [rdi+28h] }
+    Dvar_CheckFrontendServerThread(v12);
+    value = v12->current.value;
     if ( PlayerASM_IsEnabled() )
     {
-      Animset = BG_PlayerASM_GetAnimset(_RSI);
-      Anim = BG_PlayerASM_GetAnim(_RSI, MOVEMENT);
+      Animset = BG_PlayerASM_GetAnimset(ps);
+      Anim = BG_PlayerASM_GetAnim(ps, MOVEMENT);
       if ( Anim )
       {
         IsLadderAlias = BG_PlayerASM_IsLadderAlias(Anim, Animset);
@@ -1097,103 +900,53 @@ LABEL_37:
     }
     else
     {
-      SuitAnimIndexFromPlayerState = BG_GetSuitAnimIndexFromPlayerState(_RSI);
-      legsAnim = _RSI->legsAnim;
+      SuitAnimIndexFromPlayerState = BG_GetSuitAnimIndexFromPlayerState(ps);
+      legsAnim = ps->legsAnim;
       if ( legsAnim )
       {
         IsLadderAlias = BG_IsLadderAnim(legsAnim, SuitAnimIndexFromPlayerState);
 LABEL_23:
         if ( IsLadderAlias )
         {
-          __asm { vxorps  xmm7, xmm7, xmm7 }
-          *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_playerLegsOffsetLadder, "cg_playerLegsOffsetLadder");
-          __asm { vmovaps xmm9, xmm0 }
+          value = 0.0;
+          Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_playerLegsOffsetLadder, "cg_playerLegsOffsetLadder");
+          v11 = *(float *)&Float_Internal_DebugName;
         }
       }
     }
-    v35 = DCONST_DVARBOOL_cg_playerLegsOffsetEnableRadiusClamp;
+    v20 = DCONST_DVARBOOL_cg_playerLegsOffsetEnableRadiusClamp;
     if ( !DCONST_DVARBOOL_cg_playerLegsOffsetEnableRadiusClamp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_playerLegsOffsetEnableRadiusClamp") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v35);
-    if ( v35->current.enabled )
+    Dvar_CheckFrontendServerThread(v20);
+    if ( v20->current.enabled )
     {
-      *(double *)&_XMM0 = BG_Suit_GetBoundsRadius(_RSI);
-      __asm
-      {
-        vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000; min
-        vmovaps xmm2, xmm0; max
-        vmovaps xmm0, xmm7; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovaps xmm7, xmm0 }
+      BoundsRadius = BG_Suit_GetBoundsRadius(ps);
+      I_fclamp(value, COERCE_FLOAT(LODWORD(BoundsRadius) ^ _xmm), *(float *)&BoundsRadius);
     }
-    v38 = DCONST_DVARBOOL_cg_disable_playerLegsOffset_fov_comp;
+    v22 = DCONST_DVARBOOL_cg_disable_playerLegsOffset_fov_comp;
     if ( !DCONST_DVARBOOL_cg_disable_playerLegsOffset_fov_comp && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_disable_playerLegsOffset_fov_comp") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v38);
-    if ( !v38->current.enabled && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_RSI->pm_flags, ACTIVE, 6u) )
+    Dvar_CheckFrontendServerThread(v22);
+    if ( !v22->current.enabled && !GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 6u) )
     {
-      *(double *)&_XMM0 = CG_View_CalcFovCompensation(_RBX);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_playerLegsOffset_fovComp_forward, "cg_playerLegsOffset_fovComp_forward");
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm7, xmm7, xmm1
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_playerLegsOffset_fovComp_right, "cg_playerLegsOffset_fovComp_right");
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vxorps  xmm8, xmm1, cs:__xmm@80000000800000008000000080000000
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_playerLegsOffset_fovComp_up, "cg_playerLegsOffset_fovComp_up");
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm6
-        vaddss  xmm9, xmm9, xmm1
-      }
+      v23 = CG_View_CalcFovCompensation(LocalClientGlobals);
+      v24 = *(float *)&v23;
+      v25 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_playerLegsOffset_fovComp_forward, "cg_playerLegsOffset_fovComp_forward");
+      value = value + (float)(*(float *)&v25 * v24);
+      v26 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_playerLegsOffset_fovComp_right, "cg_playerLegsOffset_fovComp_right");
+      LODWORD(v10) = COERCE_UNSIGNED_INT(*(float *)&v26 * v24) ^ _xmm;
+      v27 = Dvar_GetFloat_Internal_DebugName(DCONST_DVARFLT_cg_playerLegsOffset_fovComp_up, "cg_playerLegsOffset_fovComp_up");
+      v11 = v11 + (float)(*(float *)&v27 * v24);
     }
-    __asm { vmovss  xmm0, dword ptr [rsi+1DCh]; yaw }
-    YawToAxis(*(float *)&_XMM0, &axis);
+    YawToAxis(ps->viewangles.v[1], &axis);
     Handler = CgHandler::getHandler(localClientNum);
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v73, _RSI, Handler, 1);
-    WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&v73, &axis);
-    __asm
-    {
-      vmulss  xmm3, xmm8, dword ptr [rbp+50h+axis+0Ch]
-      vmulss  xmm2, xmm7, dword ptr [rbp+50h+axis]
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm1, xmm9, dword ptr [rbp+50h+axis+18h]
-      vaddss  xmm3, xmm4, xmm1
-      vaddss  xmm0, xmm3, dword ptr [rsp+150h+inOrigin]
-      vmovss  dword ptr [rsp+150h+inOrigin], xmm0
-      vmulss  xmm3, xmm8, dword ptr [rbp+50h+axis+10h]
-      vmulss  xmm2, xmm7, dword ptr [rbp+50h+axis+4]
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm0, xmm9, dword ptr [rbp+50h+axis+1Ch]
-      vaddss  xmm3, xmm4, xmm0
-      vaddss  xmm1, xmm3, dword ptr [rsp+150h+inOrigin+4]
-      vmovss  dword ptr [rsp+150h+inOrigin+4], xmm1
-      vmulss  xmm3, xmm8, dword ptr [rbp+50h+axis+14h]
-      vmulss  xmm2, xmm7, dword ptr [rbp+50h+axis+8]
-      vaddss  xmm4, xmm3, xmm2
-      vmulss  xmm1, xmm9, dword ptr [rbp+50h+axis+20h]
-      vaddss  xmm3, xmm4, xmm1
-      vaddss  xmm0, xmm3, dword ptr [rsp+150h+inOrigin+8]
-      vmovss  dword ptr [rsp+150h+inOrigin+8], xmm0
-    }
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v34, ps, Handler, 1);
+    WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&v34, &axis);
+    inOrigin.v[0] = (float)((float)((float)(v10 * axis.m[1].v[0]) + (float)(value * axis.m[0].v[0])) + (float)(v11 * axis.m[2].v[0])) + inOrigin.v[0];
+    inOrigin.v[1] = (float)((float)((float)(v10 * axis.m[1].v[1]) + (float)(value * axis.m[0].v[1])) + (float)(v11 * axis.m[2].v[1])) + inOrigin.v[1];
+    inOrigin.v[2] = (float)((float)((float)(v10 * axis.m[1].v[2]) + (float)(value * axis.m[0].v[2])) + (float)(v11 * axis.m[2].v[2])) + inOrigin.v[2];
     CG_SetPoseOrigin(&cent->pose, &inOrigin);
     goto LABEL_37;
-  }
-LABEL_38:
-  _R11 = &v74;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
   }
 }
 
@@ -1290,7 +1043,7 @@ void CG_Players_GetPlayerName(const LocalClientNum_t localClientNum, const int c
   char *v9; 
   CgStatic *LocalClientStatics; 
   __int64 v11; 
-  unsigned __int8 v13; 
+  unsigned __int8 v12; 
   char outBuffer[16]; 
   char out_playerNamea[48]; 
 
@@ -1309,10 +1062,9 @@ void CG_Players_GetPlayerName(const LocalClientNum_t localClientNum, const int c
       __debugbreak();
     if ( *(_BYTE *)(v11 + 124) && includeClanTag )
     {
-      __asm { vmovdqu xmm0, cs:__xmm@0000000000000000000000000000000c }
-      v13 = *(_BYTE *)(v11 + 133);
-      __asm { vmovdqu xmmword ptr [rsp+0A8h+outBuffer], xmm0 }
-      Com_PlayerUtils_ColorizeClanTag((const char *)(v11 + 124), v13, outBuffer, 0x10ui64, 0x37u);
+      v12 = *(_BYTE *)(v11 + 133);
+      *(_OWORD *)outBuffer = _xmm;
+      Com_PlayerUtils_ColorizeClanTag((const char *)(v11 + 124), v12, outBuffer, 0x10ui64, 0x37u);
       Com_sprintf(out_playerNamea, 0x2Fui64, "[%s]%s", outBuffer, (const char *)(v11 + 4));
       v9 = out_playerNamea;
     }
@@ -1334,7 +1086,7 @@ void CG_Players_GetPlayerNameWithHash(const LocalClientNum_t localClientNum, con
   char *v9; 
   CgStatic *LocalClientStatics; 
   __int64 v11; 
-  unsigned __int8 v13; 
+  unsigned __int8 v12; 
   char outBuffer[16]; 
   char out_playerName[64]; 
 
@@ -1353,10 +1105,9 @@ void CG_Players_GetPlayerNameWithHash(const LocalClientNum_t localClientNum, con
       __debugbreak();
     if ( *(_BYTE *)(v11 + 124) && includeClanTag )
     {
-      __asm { vmovdqu xmm0, cs:__xmm@0000000000000000000000000000000c }
-      v13 = *(_BYTE *)(v11 + 133);
-      __asm { vmovdqu xmmword ptr [rsp+0B8h+outBuffer], xmm0 }
-      Com_PlayerUtils_ColorizeClanTag((const char *)(v11 + 124), v13, outBuffer, 0x10ui64, 0x37u);
+      v12 = *(_BYTE *)(v11 + 133);
+      *(_OWORD *)outBuffer = _xmm;
+      Com_PlayerUtils_ColorizeClanTag((const char *)(v11 + 124), v12, outBuffer, 0x10ui64, 0x37u);
       Com_sprintf(out_playerName, 0x40ui64, "[%s]%s", outBuffer, (const char *)(v11 + 40));
       v9 = out_playerName;
     }
@@ -1382,45 +1133,43 @@ char CG_Players_HandleVehicleOccupancyLink(cg_t *cgameGlob, centity_t *cent)
   int clientNum; 
   CgHandler *Handler; 
   int LinkedVehicle; 
+  float v11; 
+  float v12; 
   int vehicleEntryFirstSnapTime; 
   int serverTime; 
+  float v15; 
   animScriptVehicleSeat_t outVehicleSeat; 
   animScriptVehicleType_t outVehicleType; 
   vec3_t viewAngles; 
   vec3_t outLinkAngles; 
   vec3_t inOrigin; 
 
-  _RDI = cent;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 389, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 390, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
+  if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 390, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
-  if ( _RDI == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
+  if ( cent == (centity_t *)-400i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1921, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
     __debugbreak();
-  eType = _RDI->nextState.eType;
+  eType = cent->nextState.eType;
   if ( (((eType - 1) & 0xFFED) != 0 || eType == ET_ITEM) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 391, ASSERT_TYPE_ASSERT, "(BG_IsCharacterEntity( &cent->nextState ))", (const char *)&queryFormat, "BG_IsCharacterEntity( &cent->nextState )") )
     __debugbreak();
   localClientNum = cgameGlob->localClientNum;
-  CharacterInfo = CG_GetCharacterInfo(cgameGlob, _RDI->nextState.clientNum);
+  CharacterInfo = CG_GetCharacterInfo(cgameGlob, cent->nextState.clientNum);
   if ( !CharacterInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 396, ASSERT_TYPE_ASSERT, "(ci)", (const char *)&queryFormat, "ci") )
     __debugbreak();
-  number = _RDI->nextState.number;
+  number = cent->nextState.number;
   clientNum = cgameGlob->predictedPlayerState.clientNum;
   if ( BG_IsPlayingVehicleOccupancyAnims(CharacterInfo) && CharacterInfo->linkedEntNum > 0 )
   {
     Handler = CgHandler::getHandler(localClientNum);
-    LinkedVehicle = BG_VehicleOccupancy_GetLinkedVehicle(Handler, &_RDI->nextState, CharacterInfo, &outVehicleType, &outVehicleSeat);
+    LinkedVehicle = BG_VehicleOccupancy_GetLinkedVehicle(Handler, &cent->nextState, CharacterInfo, &outVehicleType, &outVehicleSeat);
     if ( LinkedVehicle != 2047 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+48h]
-        vmovss  xmm1, dword ptr [rdi+4Ch]
-        vmovss  dword ptr [rsp+0A8h+viewAngles], xmm0
-        vmovss  xmm0, dword ptr [rdi+50h]
-        vmovss  dword ptr [rsp+0A8h+viewAngles+4], xmm1
-        vmovss  dword ptr [rsp+0A8h+viewAngles+8], xmm0
-      }
+      v11 = cent->pose.angles.v[1];
+      viewAngles.v[0] = cent->pose.angles.v[0];
+      v12 = cent->pose.angles.v[2];
+      viewAngles.v[1] = v11;
+      viewAngles.v[2] = v12;
       if ( BG_VehicleOccupancy_SetCharacterInfo(Handler, LinkedVehicle, outVehicleSeat, CharacterInfo, &viewAngles, &inOrigin, &outLinkAngles) )
       {
         if ( number == clientNum )
@@ -1443,16 +1192,11 @@ char CG_Players_HandleVehicleOccupancyLink(cg_t *cgameGlob, centity_t *cent)
           cgameGlob->renderingThirdPerson = 0;
         }
 LABEL_25:
-        CG_SetPoseOrigin(&_RDI->pose, &inOrigin);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsp+0A8h+var_50]
-          vmovss  xmm1, dword ptr [rsp+0A8h+var_50+4]
-          vmovss  dword ptr [rdi+48h], xmm0
-          vmovss  xmm0, dword ptr [rsp+0A8h+var_50+8]
-          vmovss  dword ptr [rdi+50h], xmm0
-          vmovss  dword ptr [rdi+4Ch], xmm1
-        }
+        CG_SetPoseOrigin(&cent->pose, &inOrigin);
+        v15 = outLinkAngles.v[1];
+        cent->pose.angles.v[0] = outLinkAngles.v[0];
+        cent->pose.angles.v[2] = outLinkAngles.v[2];
+        cent->pose.angles.v[1] = v15;
         return 1;
       }
     }
@@ -1473,30 +1217,23 @@ CG_Players_HeadIcons_GetWorldPosition
 bool CG_Players_HeadIcons_GetWorldPosition(LocalClientNum_t localClientNum, const HeadIconView *headIcon, const HeadIconExtendedView *headIconExtendedView, vec3_t *outWorldPosition)
 {
   bool result; 
+  float v9; 
   centity_t *Entity; 
   const DObj *ClientDObj; 
   tmat33_t<vec3_t> outTagMat; 
 
-  _RBX = outWorldPosition;
-  _RDI = headIconExtendedView;
   if ( !headIcon && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1535, ASSERT_TYPE_ASSERT, "(headIcon)", (const char *)&queryFormat, "headIcon") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1536, ASSERT_TYPE_ASSERT, "(headIconExtendedView)", (const char *)&queryFormat, "headIconExtendedView") )
+  if ( !headIconExtendedView && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1536, ASSERT_TYPE_ASSERT, "(headIconExtendedView)", (const char *)&queryFormat, "headIconExtendedView") )
     __debugbreak();
-  if ( _RDI->hasWorldOrigin )
+  if ( headIconExtendedView->hasWorldOrigin )
   {
-    _RBX->v[0] = _RDI->worldOrigin.v[0];
-    _RBX->v[1] = _RDI->worldOrigin.v[1];
+    outWorldPosition->v[0] = headIconExtendedView->worldOrigin.v[0];
+    outWorldPosition->v[1] = headIconExtendedView->worldOrigin.v[1];
     result = 1;
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rdi+8]
-      vmovss  dword ptr [rbx+8], xmm1
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rsi+14h]
-      vaddss  xmm1, xmm0, xmm1
-      vmovss  dword ptr [rbx+8], xmm1
-    }
+    v9 = headIconExtendedView->worldOrigin.v[2];
+    outWorldPosition->v[2] = v9;
+    outWorldPosition->v[2] = (float)headIcon->zOffset + v9;
   }
   else if ( headIcon->entityNumber == 2047 || !CG_Entity_CanUseDObj(localClientNum, headIcon->entityNumber) )
   {
@@ -1505,17 +1242,11 @@ bool CG_Players_HeadIcons_GetWorldPosition(LocalClientNum_t localClientNum, cons
   else
   {
     Entity = CG_GetEntity(localClientNum, headIcon->entityNumber);
-    CG_GetPoseOrigin(&Entity->pose, _RBX);
+    CG_GetPoseOrigin(&Entity->pose, outWorldPosition);
     ClientDObj = Com_GetClientDObj(Entity->nextState.number, localClientNum);
     if ( ClientDObj )
-      CG_DObjGetWorldTagMatrix(&Entity->pose, ClientDObj, scr_const.j_head, &outTagMat, _RBX);
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rsi+14h]
-      vaddss  xmm1, xmm0, dword ptr [rbx+8]
-      vmovss  dword ptr [rbx+8], xmm1
-    }
+      CG_DObjGetWorldTagMatrix(&Entity->pose, ClientDObj, scr_const.j_head, &outTagMat, outWorldPosition);
+    outWorldPosition->v[2] = (float)headIcon->zOffset + outWorldPosition->v[2];
     return 1;
   }
   return result;
@@ -1529,7 +1260,9 @@ CG_Players_InterpolateHeightOffset
 void CG_Players_InterpolateHeightOffset(const LocalClientNum_t localClientNum, centity_t *cent)
 {
   const dvar_t *v4; 
+  cg_t *LocalClientGlobals; 
   unsigned int clientNum; 
+  characterInfo_t *CharacterInfo; 
 
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1289, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
@@ -1539,28 +1272,17 @@ void CG_Players_InterpolateHeightOffset(const LocalClientNum_t localClientNum, c
   Dvar_CheckFrontendServerThread(v4);
   if ( v4->current.enabled )
   {
-    _RBX = CG_GetLocalClientGlobals(localClientNum);
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1297, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
+    LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+    if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1297, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
       __debugbreak();
     clientNum = cent->nextState.clientNum;
-    if ( _RBX->clientNum != clientNum && _RBX->HasCharacterInfo(_RBX, clientNum) )
+    if ( LocalClientGlobals->clientNum != clientNum && LocalClientGlobals->HasCharacterInfo(LocalClientGlobals, clientNum) )
     {
-      _RAX = CG_GetCharacterInfo(_RBX, clientNum);
-      if ( _RAX )
+      CharacterInfo = CG_GetCharacterInfo(LocalClientGlobals, clientNum);
+      if ( CharacterInfo )
       {
-        if ( _RAX->infoValid )
-        {
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rbx+65E0h]
-            vmovss  xmm0, cs:__real@3f800000
-            vsubss  xmm1, xmm0, xmm3
-            vmulss  xmm2, xmm1, dword ptr [rax+38D8h]
-            vmulss  xmm0, xmm3, dword ptr [rax+38DCh]
-            vaddss  xmm1, xmm2, xmm0
-            vmovss  dword ptr [rax+38E0h], xmm1
-          }
-        }
+        if ( CharacterInfo->infoValid )
+          CharacterInfo->heightOffset = (float)((float)(1.0 - LocalClientGlobals->frameInterpolation) * CharacterInfo->prevHeightOffset) + (float)(LocalClientGlobals->frameInterpolation * CharacterInfo->nextHeightOffset);
       }
     }
   }
@@ -1931,24 +1653,28 @@ void CG_PredictCharacterState(LocalClientNum_t localClientNum, centity_t *cent)
   entityType_s eType; 
   CgStatic *LocalClientStatics; 
   int clientNum; 
-  CgStatic *v11; 
+  CgStatic *v8; 
   cg_t *LocalClientGlobals; 
   characterInfo_t *CharacterInfo; 
   __int64 SuitAnimIndex; 
   int LegsAnimation; 
-  const BgAnimStatic *v16; 
-  PlayerAnimScript *v17; 
-  signed int v18; 
+  const BgAnimStatic *v13; 
+  PlayerAnimScript *v14; 
+  signed int v15; 
   int XAnimIndex; 
   unsigned int legsPredictingForThisAnim; 
-  unsigned int v21; 
+  unsigned int v18; 
   PlayerAnimEntry *animations; 
   unsigned __int8 syncGroup; 
   const DObj *ClientDObj; 
   const XAnimTree *Tree; 
+  double Time; 
+  float v24; 
   const XAnim_s *Anims; 
-  char v32; 
-  __int64 v35; 
+  double Length; 
+  float v27; 
+  double Rate; 
+  __int64 v30; 
 
   if ( !cent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1017, ASSERT_TYPE_ASSERT, "(cent)", (const char *)&queryFormat, "cent") )
     __debugbreak();
@@ -1962,7 +1688,7 @@ void CG_PredictCharacterState(LocalClientNum_t localClientNum, centity_t *cent)
     __debugbreak();
   LocalClientStatics = CgStatic::GetLocalClientStatics(localClientNum);
   clientNum = p_nextState->clientNum;
-  v11 = LocalClientStatics;
+  v8 = LocalClientStatics;
   LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)LocalClientStatics->m_localClientNum);
   if ( !LocalClientGlobals && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_static_inline.h", 25, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
@@ -1971,88 +1697,55 @@ void CG_PredictCharacterState(LocalClientNum_t localClientNum, centity_t *cent)
     __debugbreak();
   SuitAnimIndex = BG_AnimationMP_GetSuitAnimIndex(p_nextState);
   LegsAnimation = BG_AnimationMP_GetLegsAnimation(p_nextState);
-  if ( BG_IsTransitionalAnim(LegsAnimation, (SuitAnimType)SuitAnimIndex) )
+  if ( !BG_IsTransitionalAnim(LegsAnimation, (SuitAnimType)SuitAnimIndex) )
+    goto LABEL_44;
+  v13 = v8->GetAnimStatics(v8);
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1040, ASSERT_TYPE_ASSERT, "(bgameAnim)", (const char *)&queryFormat, "bgameAnim") )
+    __debugbreak();
+  v14 = v13->animScriptData.suitScript[SuitAnimIndex];
+  if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1043, ASSERT_TYPE_ASSERT, "(playerAnim)", (const char *)&queryFormat, "playerAnim") )
+    __debugbreak();
+  v15 = LegsAnimation & 0xFFFFEFFF;
+  XAnimIndex = BG_AnimationMP_GetXAnimIndex(v13, (const SuitAnimType)SuitAnimIndex, v15);
+  legsPredictingForThisAnim = CharacterInfo->legsPredictingForThisAnim;
+  v18 = XAnimIndex;
+  if ( legsPredictingForThisAnim != v15 )
   {
-    v16 = v11->GetAnimStatics(v11);
-    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1040, ASSERT_TYPE_ASSERT, "(bgameAnim)", (const char *)&queryFormat, "bgameAnim") )
-      __debugbreak();
-    v17 = v16->animScriptData.suitScript[SuitAnimIndex];
-    if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1043, ASSERT_TYPE_ASSERT, "(playerAnim)", (const char *)&queryFormat, "playerAnim") )
-      __debugbreak();
-    v18 = LegsAnimation & 0xFFFFEFFF;
-    XAnimIndex = BG_AnimationMP_GetXAnimIndex(v16, (const SuitAnimType)SuitAnimIndex, v18);
-    legsPredictingForThisAnim = CharacterInfo->legsPredictingForThisAnim;
-    v21 = XAnimIndex;
-    if ( legsPredictingForThisAnim == v18 )
-      goto LABEL_47;
-    if ( legsPredictingForThisAnim )
+    if ( !legsPredictingForThisAnim )
+      goto LABEL_41;
+    if ( legsPredictingForThisAnim >= v14->animationCount )
     {
-      if ( legsPredictingForThisAnim >= v17->animationCount )
-      {
-        LODWORD(v35) = CharacterInfo->legsPredictingForThisAnim;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1054, ASSERT_TYPE_ASSERT, "(unsigned)( ci->legsPredictingForThisAnim ) < (unsigned)( playerAnim->animationCount )", "ci->legsPredictingForThisAnim doesn't index playerAnim->animationCount\n\t%i not in [0, %i)", v35, v17->animationCount) )
-          __debugbreak();
-      }
-      animations = v17->animations;
-      syncGroup = animations[CharacterInfo->legsPredictingForThisAnim].syncGroup;
-      if ( syncGroup )
-      {
-        if ( syncGroup == animations[v18].syncGroup )
-          goto LABEL_47;
-      }
-    }
-    if ( legsPredictingForThisAnim == v18 )
-    {
-LABEL_47:
-      if ( CG_PredictTransitionalExitCharacterAnim(p_nextState, CharacterInfo) )
-      {
-        CharacterInfo->legsPredictingForThisAnim = v18;
-        return;
-      }
-    }
-    else
-    {
-      __asm
-      {
-        vmovaps [rsp+88h+var_38], xmm6
-        vmovaps [rsp+88h+var_48], xmm7
-      }
-      ClientDObj = Com_GetClientDObj(p_nextState->number, localClientNum);
-      Tree = DObjGetTree(ClientDObj);
-      if ( !Tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1066, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
+      LODWORD(v30) = CharacterInfo->legsPredictingForThisAnim;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1054, ASSERT_TYPE_ASSERT, "(unsigned)( ci->legsPredictingForThisAnim ) < (unsigned)( playerAnim->animationCount )", "ci->legsPredictingForThisAnim doesn't index playerAnim->animationCount\n\t%i not in [0, %i)", v30, v14->animationCount) )
         __debugbreak();
-      *(double *)&_XMM0 = XAnimGetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, v21);
-      __asm { vmovaps xmm6, xmm0 }
-      Anims = XAnimGetAnims(Tree);
-      *(double *)&_XMM0 = XAnimGetLength(Anims, v21);
-      __asm
+    }
+    animations = v14->animations;
+    syncGroup = animations[CharacterInfo->legsPredictingForThisAnim].syncGroup;
+    if ( !syncGroup || syncGroup != animations[v15].syncGroup )
+    {
+LABEL_41:
+      if ( legsPredictingForThisAnim != v15 )
       {
-        vmovss  xmm7, cs:__real@3f800000
-        vsubss  xmm1, xmm7, xmm6
-        vmulss  xmm6, xmm0, xmm1
+        ClientDObj = Com_GetClientDObj(p_nextState->number, localClientNum);
+        Tree = DObjGetTree(ClientDObj);
+        if ( !Tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1066, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
+          __debugbreak();
+        Time = XAnimGetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, v18);
+        v24 = *(float *)&Time;
+        Anims = XAnimGetAnims(Tree);
+        Length = XAnimGetLength(Anims, v18);
+        v27 = *(float *)&Length * (float)(1.0 - v24);
+        Rate = XAnimGetRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v18);
+        if ( !(*(float *)&Rate >= 1.0 ? v27 < 0.050000001 : (float)(*(float *)&Rate * 0.050000001) > v27) )
+          goto LABEL_44;
       }
-      *(double *)&_XMM0 = XAnimGetRate(Tree, 0, XANIM_SUBTREE_DEFAULT, v21);
-      __asm
-      {
-        vcomiss xmm0, xmm7
-        vmovaps xmm7, [rsp+88h+var_48]
-      }
-      if ( v32 )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm0, cs:__real@3d4ccccd
-          vcomiss xmm0, xmm6
-        }
-      }
-      else
-      {
-        __asm { vcomiss xmm6, cs:__real@3d4ccccd }
-      }
-      __asm { vmovaps xmm6, [rsp+88h+var_38] }
     }
   }
-  CharacterInfo->legsPredictingForThisAnim = 0;
+  if ( CG_PredictTransitionalExitCharacterAnim(p_nextState, CharacterInfo) )
+    CharacterInfo->legsPredictingForThisAnim = v15;
+  else
+LABEL_44:
+    CharacterInfo->legsPredictingForThisAnim = 0;
 }
 
 /*
@@ -2070,8 +1763,8 @@ _BOOL8 CG_PredictPlayerASMState(LocalClientNum_t localClientNum, centity_t *cent
   characterInfo_t *CharacterInfo; 
   unsigned int Animset; 
   unsigned int Anim; 
-  unsigned int v16; 
-  CgPlayer_Asm *v17; 
+  unsigned int v12; 
+  CgPlayer_Asm *v13; 
   scr_string_t StateNameFromIndex; 
   ASM *AssetBySuit; 
   ASM_State *StateByName; 
@@ -2079,28 +1772,24 @@ _BOOL8 CG_PredictPlayerASMState(LocalClientNum_t localClientNum, centity_t *cent
   const XAnimTree *Tree; 
   bool ShouldSyncAnims; 
   unsigned int DescendantWithGreatest; 
-  bool v31; 
-  char v32; 
-  _BOOL8 result; 
+  double Time; 
+  double v22; 
+  float v23; 
+  double Length; 
+  float v25; 
+  double Rate; 
   unsigned int outAnimState; 
   unsigned int pOutGraftIndex; 
   unsigned int outAnimEntry; 
   XAnim_s *anims; 
   ASM_State *state; 
   ASM *asmAsset; 
-  __int64 v43; 
-  void *retaddr; 
+  __int64 v34; 
   unsigned int inOutTimer; 
   XAnimSubTreeID pOutSubtreeID; 
   unsigned int pOutAnimIndex; 
 
-  _RAX = &retaddr;
-  v43 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm7
-  }
+  v34 = -2i64;
   pOutGraftIndex = 0;
   if ( !PlayerASM_IsEnabled() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1141, ASSERT_TYPE_ASSERT, "(PlayerASM_IsEnabled())", (const char *)&queryFormat, "PlayerASM_IsEnabled()") )
     __debugbreak();
@@ -2125,21 +1814,21 @@ _BOOL8 CG_PredictPlayerASMState(LocalClientNum_t localClientNum, centity_t *cent
     __debugbreak();
   Animset = BG_PlayerASM_GetAnimset(p_nextState);
   Anim = BG_PlayerASM_GetAnim(p_nextState, MOVEMENT);
-  v16 = Anim;
+  v12 = Anim;
   if ( !Anim )
     goto LABEL_51;
   BG_PlayerASM_UnpackAnim(Animset, Anim, &outAnimState, &outAnimEntry);
-  v17 = CgPlayer_Asm::Singleton(localClientNum);
-  if ( !v17 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1171, ASSERT_TYPE_ASSERT, "(playerASM)", (const char *)&queryFormat, "playerASM") )
+  v13 = CgPlayer_Asm::Singleton(localClientNum);
+  if ( !v13 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1171, ASSERT_TYPE_ASSERT, "(playerASM)", (const char *)&queryFormat, "playerASM") )
     __debugbreak();
   StateNameFromIndex = BG_PlayerASM_GetStateNameFromIndex(Animset, outAnimState);
   if ( !StateNameFromIndex && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1174, ASSERT_TYPE_ASSERT, "(stateName != ( static_cast< scr_string_t >( 0 ) ))", (const char *)&queryFormat, "stateName != NULL_SCR_STRING") )
     __debugbreak();
-  AssetBySuit = (ASM *)BgPlayer_Asm::GetAssetBySuit(v17, CharacterInfo->suitIndex);
+  AssetBySuit = (ASM *)BgPlayer_Asm::GetAssetBySuit(v13, CharacterInfo->suitIndex);
   asmAsset = AssetBySuit;
   if ( !AssetBySuit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1177, ASSERT_TYPE_ASSERT, "(asmAsset)", (const char *)&queryFormat, "asmAsset") )
     __debugbreak();
-  StateByName = (ASM_State *)BgPlayer_Asm::GetStateByName(v17, AssetBySuit, StateNameFromIndex);
+  StateByName = (ASM_State *)BgPlayer_Asm::GetStateByName(v13, AssetBySuit, StateNameFromIndex);
   state = StateByName;
   if ( !StateByName || (StateByName->m_Flags & 2) == 0 )
     goto LABEL_51;
@@ -2147,7 +1836,7 @@ _BOOL8 CG_PredictPlayerASMState(LocalClientNum_t localClientNum, centity_t *cent
   Tree = DObjGetTree(ClientDObj);
   if ( !Tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1196, ASSERT_TYPE_ASSERT, "(tree)", (const char *)&queryFormat, "tree") )
     __debugbreak();
-  ShouldSyncAnims = CharacterInfo->legsPredictingForThisAnim == v16;
+  ShouldSyncAnims = CharacterInfo->legsPredictingForThisAnim == v12;
   pOutAnimIndex = 0;
   pOutSubtreeID = XANIM_SUBTREE_DEFAULT;
   BG_PlayerASM_GetXAnimData(Animset, outAnimState, outAnimEntry, &pOutAnimIndex, &pOutGraftIndex, &pOutSubtreeID);
@@ -2164,47 +1853,23 @@ _BOOL8 CG_PredictPlayerASMState(LocalClientNum_t localClientNum, centity_t *cent
       goto LABEL_55;
     if ( CharacterInfo->legsPredictingForThisAnim )
     {
-      *(double *)&_XMM0 = XAnimGetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, DescendantWithGreatest);
-      __asm
-      {
-        vmulss  xmm1, xmm0, cs:__real@447a0000
-        vcvttss2si eax, xmm1
-      }
-      inOutTimer = 10 * _EAX;
-      ShouldSyncAnims = BG_PlayerASM_ShouldSyncAnims(Animset, CharacterInfo->legsPredictingForThisAnim, v16, &inOutTimer);
+      Time = XAnimGetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, DescendantWithGreatest);
+      inOutTimer = 10 * (int)(float)(*(float *)&Time * 1000.0);
+      ShouldSyncAnims = BG_PlayerASM_ShouldSyncAnims(Animset, CharacterInfo->legsPredictingForThisAnim, v12, &inOutTimer);
       if ( ShouldSyncAnims )
         goto LABEL_55;
     }
-    *(double *)&_XMM0 = XAnimGetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, DescendantWithGreatest);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = XAnimGetLength(anims, DescendantWithGreatest);
-    __asm
-    {
-      vmovss  xmm7, cs:__real@3f800000
-      vsubss  xmm1, xmm7, xmm6
-      vmulss  xmm6, xmm0, xmm1
-    }
-    *(double *)&_XMM0 = XAnimGetRate(Tree, 0, XANIM_SUBTREE_DEFAULT, DescendantWithGreatest);
-    __asm { vcomiss xmm0, xmm7 }
-    if ( v31 )
-    {
-      __asm
-      {
-        vmulss  xmm0, xmm0, cs:__real@3d4ccccd
-        vcomiss xmm0, xmm6
-      }
-      ShouldSyncAnims = !(v31 | v32);
-    }
-    else
-    {
-      __asm { vcomiss xmm6, cs:__real@3d4ccccd }
-      ShouldSyncAnims = v31;
-    }
+    v22 = XAnimGetTime(Tree, 0, XANIM_SUBTREE_DEFAULT, DescendantWithGreatest);
+    v23 = *(float *)&v22;
+    Length = XAnimGetLength(anims, DescendantWithGreatest);
+    v25 = *(float *)&Length * (float)(1.0 - v23);
+    Rate = XAnimGetRate(Tree, 0, XANIM_SUBTREE_DEFAULT, DescendantWithGreatest);
+    ShouldSyncAnims = *(float *)&Rate >= 1.0 ? v25 < 0.050000001 : (float)(*(float *)&Rate * 0.050000001) > v25;
     if ( ShouldSyncAnims )
     {
 LABEL_55:
-      if ( CG_PredictTransitionalExitPlayerASMAnim(localClientNum, p_nextState, CharacterInfo, v17, Animset, asmAsset, state) )
-        CharacterInfo->legsPredictingForThisAnim = v16;
+      if ( CG_PredictTransitionalExitPlayerASMAnim(localClientNum, p_nextState, CharacterInfo, v13, Animset, asmAsset, state) )
+        CharacterInfo->legsPredictingForThisAnim = v12;
     }
   }
   else
@@ -2213,13 +1878,7 @@ LABEL_51:
     ShouldSyncAnims = 0;
   }
   Sys_ProfEndNamedEvent();
-  result = ShouldSyncAnims;
-  __asm
-  {
-    vmovaps xmm6, [rsp+0E8h+var_58]
-    vmovaps xmm7, [rsp+0E8h+var_68]
-  }
-  return result;
+  return ShouldSyncAnims;
 }
 
 /*
@@ -2314,41 +1973,28 @@ CG_SetupPrePredictBounds
 */
 void CG_SetupPrePredictBounds(const cg_t *cgameGlob, Bounds *outBounds)
 {
+  const Bounds *Bounds; 
+  double v5; 
   float v1[4]; 
 
-  _RBX = outBounds;
-  _RDI = cgameGlob;
   if ( !cgameGlob && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1265, ASSERT_TYPE_ASSERT, "(cgameGlob)", (const char *)&queryFormat, "cgameGlob") )
     __debugbreak();
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1266, ASSERT_TYPE_ASSERT, "(outBounds)", (const char *)&queryFormat, "outBounds") )
+  if ( !outBounds && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_players.cpp", 1266, ASSERT_TYPE_ASSERT, "(outBounds)", (const char *)&queryFormat, "outBounds") )
     __debugbreak();
-  __asm
+  v1[0] = 0.0;
+  v1[1] = 0.0;
+  v1[2] = 0.0;
+  if ( VecNCompareCustomEpsilon(cgameGlob->playerBox.halfSize.v, v1, 0.001, 3) )
   {
-    vmovss  xmm2, cs:__real@3a83126f; epsilon
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+58h+v1], xmm0
-    vmovss  [rsp+58h+var_24], xmm0
-    vmovss  [rsp+58h+var_20], xmm0
-  }
-  if ( VecNCompareCustomEpsilon(_RDI->playerBox.halfSize.v, v1, *(float *)&_XMM2, 3) )
-  {
-    _RAX = BG_Suit_GetBounds(_RDI->predictedPlayerState.suitIndex, PM_EFF_STANCE_DEFAULT);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovsd  xmm1, qword ptr [rax+10h]
-    }
+    Bounds = BG_Suit_GetBounds(cgameGlob->predictedPlayerState.suitIndex, PM_EFF_STANCE_DEFAULT);
+    *(_OWORD *)outBounds->midPoint.v = *(_OWORD *)Bounds->midPoint.v;
+    v5 = *(double *)&Bounds->halfSize.y;
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rdi+6470h]
-      vmovups xmmword ptr [rbx], xmm0
-      vmovsd  xmm1, qword ptr [rdi+6480h]
-    }
+    *(_OWORD *)outBounds->midPoint.v = *(_OWORD *)cgameGlob->playerBox.midPoint.v;
+    v5 = *(double *)&cgameGlob->playerBox.halfSize.y;
   }
-  __asm { vmovsd  qword ptr [rbx+10h], xmm1 }
+  *(double *)&outBounds->halfSize.y = v5;
 }
 

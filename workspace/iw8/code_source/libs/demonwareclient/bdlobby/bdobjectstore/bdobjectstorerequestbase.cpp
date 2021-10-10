@@ -1296,55 +1296,44 @@ _BOOL8 bdObjectStoreRequestBase::serializeObjectIDsToHTTPHeader(bdObjectStoreReq
 {
   __int64 v4; 
   bool v7; 
-  bool v12; 
-  bdObjectStoreHTTPHeader_vtbl **v13; 
-  unsigned __int64 v14; 
-  size_t v15; 
-  bdObjectStoreObjectID v17; 
+  bool v8; 
+  bdObjectStoreHTTPHeader_vtbl **v9; 
+  unsigned __int64 v10; 
+  size_t v11; 
+  bdObjectStoreObjectID v13; 
   bdJSONSerializer json; 
 
   v4 = objectIDsSize;
-  _RBX = objectIDs;
   bdJSONSerializer::bdJSONSerializer(&json, objectIDsHeader->m_value, 0x1000u);
   v7 = bdJSONSerializer::writeBeginArray(&json);
   if ( (_DWORD)v4 )
   {
     do
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rbx]
-        vmovups ymmword ptr [rsp+1E8h+var_1A8.m_ownerType], ymm0
-        vmovups ymm1, ymmword ptr [rbx+20h]
-        vmovups ymmword ptr [rsp+1E8h+var_1A8.m_owner+1Ch], ymm1
-        vmovups ymm0, ymmword ptr [rbx+40h]
-        vmovups ymmword ptr [rsp+1E8h+var_1A8.m_objectName+1Eh], ymm0
-        vmovups xmm1, xmmword ptr [rbx+60h]
-        vmovups xmmword ptr [rsp+1E8h+var_1A8.m_objectName+3Eh], xmm1
-      }
-      v7 = v7 && bdObjectStoreObjectID::serializeToJSON(&v17, &json);
-      ++_RBX;
+      v13 = *objectIDs;
+      v7 = v7 && bdObjectStoreObjectID::serializeToJSON(&v13, &json);
+      ++objectIDs;
       --v4;
     }
     while ( v4 );
   }
-  v12 = v7 && bdJSONSerializer::writeEndArray(&json);
-  v13 = &objectIDsHeader->__vftable + 2;
+  v8 = v7 && bdJSONSerializer::writeEndArray(&json);
+  v9 = &objectIDsHeader->__vftable + 2;
   bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen", -2i64);
-  v14 = -1i64;
+  v10 = -1i64;
   do
-    ++v14;
-  while ( aDwObjectstoreO[v14] );
-  if ( v13 )
+    ++v10;
+  while ( aDwObjectstoreO[v10] );
+  if ( v9 )
   {
-    v15 = 99i64;
-    if ( v14 < 0x63 )
-      v15 = v14;
-    memcpy_0(v13, "DW-Objectstore-ObjectIDs", v15);
-    *((_BYTE *)v13 + v15) = 0;
+    v11 = 99i64;
+    if ( v10 < 0x63 )
+      v11 = v10;
+    memcpy_0(v9, "DW-Objectstore-ObjectIDs", v11);
+    *((_BYTE *)v9 + v11) = 0;
   }
   bdJSONSerializer::~bdJSONSerializer(&json);
-  return v12;
+  return v8;
 }
 
 /*

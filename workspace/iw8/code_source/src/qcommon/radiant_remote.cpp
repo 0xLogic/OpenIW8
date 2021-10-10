@@ -592,12 +592,13 @@ void CG_ProcessCameraCommand(RadiantCommandData *commandData)
   SpawnVar *spawnVar; 
   const char *PairValue; 
   const char *v5; 
-  int v15; 
-  int v16; 
-  int v17; 
-  int v18; 
-  int v19; 
-  int v20; 
+  cg_t *LocalClientGlobals; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
 
   FirstActiveGameLocalClient = ClStatic::GetFirstActiveGameLocalClient(&cls);
   if ( CL_IsLocalClientConnectedToAnyServer(FirstActiveGameLocalClient) )
@@ -605,33 +606,22 @@ void CG_ProcessCameraCommand(RadiantCommandData *commandData)
     spawnVar = commandData->spawnVar;
     PairValue = GetPairValue(spawnVar, "origin");
     v5 = GetPairValue(spawnVar, "angles");
-    _RBX = CG_GetLocalClientGlobals(FirstActiveGameLocalClient);
-    if ( _RBX )
+    LocalClientGlobals = CG_GetLocalClientGlobals(FirstActiveGameLocalClient);
+    if ( LocalClientGlobals )
     {
       if ( PairValue )
-        j_sscanf(PairValue, "%f %f %f", &v18, &v19, &v20);
+        j_sscanf(PairValue, "%f %f %f", &v10, &v11, &v12);
       if ( v5 )
-        j_sscanf(v5, "%f %f %f", &v15, &v16, &v17);
-      __asm
-      {
-        vmovss  xmm0, [rsp+68h+var_38]
-        vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm0, [rsp+68h+var_28]
-        vmovss  [rsp+68h+var_38], xmm1
-        vmovss  dword ptr [rbx+18048h], xmm0
-        vmovss  xmm1, [rsp+68h+var_24]
-        vmovss  dword ptr [rbx+1804Ch], xmm1
-        vmovss  xmm0, [rsp+68h+var_20]
-        vmovss  dword ptr [rbx+18050h], xmm0
-        vmovss  xmm1, [rsp+68h+var_38]
-        vmovss  dword ptr [rbx+18054h], xmm1
-        vmovss  xmm0, [rsp+68h+var_34]
-        vmovss  dword ptr [rbx+18058h], xmm0
-        vmovss  xmm1, [rsp+68h+var_30]
-        vmovss  dword ptr [rbx+1805Ch], xmm1
-      }
-      _RBX->radiantCamReceived = 1;
-      _RBX->radiantCamInUse = 1;
+        j_sscanf(v5, "%f %f %f", &v7, &v8, &v9);
+      LODWORD(v7) ^= _xmm;
+      LocalClientGlobals->radiantCameraOrigin.v[0] = v10;
+      LocalClientGlobals->radiantCameraOrigin.v[1] = v11;
+      LocalClientGlobals->radiantCameraOrigin.v[2] = v12;
+      LocalClientGlobals->radiantCameraAngles.v[0] = v7;
+      LocalClientGlobals->radiantCameraAngles.v[1] = v8;
+      LocalClientGlobals->radiantCameraAngles.v[2] = v9;
+      LocalClientGlobals->radiantCamReceived = 1;
+      LocalClientGlobals->radiantCamInUse = 1;
     }
   }
 }
@@ -725,8 +715,7 @@ LABEL_19:
       CG_UpdateDecalVolumeMaterial(spawnVar, &decalVolume, &outBlendMapAdjust, &outEdgeFeatherZ, outIndex, outIsDynamic[0]);
       R_DecalVolumes_PackOBB(&dst, &decalVolume.obb);
       R_DecalVolumes_PackUVTransform(&dst, &decalVolume.uvMatrix, &decalVolume.uvOffset);
-      __asm { vmovss  xmm2, [rbp+57h+outEdgeFeatherZ]; zFeather }
-      R_DecalVolumes_PackOpacityParams(&dst, &outBlendMapAdjust, *(float *)&_XMM2);
+      R_DecalVolumes_PackOpacityParams(&dst, &outBlendMapAdjust, outEdgeFeatherZ);
       R_DecalVolumes_PackMaterialInfo(&dst, decalVolume.packedMaterialInfo);
       R_DecalVolumes_DecalUpdate(outIndex, outIsDynamic[0], &dst);
       return;
@@ -777,13 +766,10 @@ void CG_ProcessExposureCommand(RadiantCommandData *commandData)
   PairValue = GetPairValue(commandData->spawnVar, "exposure");
   if ( PairValue )
   {
-    __asm { vmovaps [rsp+38h+var_18], xmm6 }
     *(double *)&_XMM0 = strtod(PairValue, NULL);
     __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
     Dvar_SetBool_Internal(DVARBOOL_r_tonemapUseTweaks, 1);
-    __asm { vmovaps xmm1, xmm6; value }
-    Dvar_SetFloat_Internal(DVARFLT_r_tonemapExposure, *(float *)&_XMM1);
-    __asm { vmovaps xmm6, [rsp+38h+var_18] }
+    Dvar_SetFloat_Internal(DVARFLT_r_tonemapExposure, *(float *)&_XMM6);
   }
 }
 
@@ -1323,60 +1309,46 @@ RadiantRemoteVolumetric *CG_AllocRadiantVolumetric()
 CG_DrawRadiantReflectionVolumes
 ==============
 */
-void CG_DrawRadiantReflectionVolumes()
+void CG_DrawRadiantReflectionVolumes(void)
 {
-  __int64 v3; 
-  bool v7; 
-  const vec4_t *v11; 
+  float *v0; 
+  __int64 v1; 
+  float v2; 
+  bool v3; 
+  float v4; 
+  float v5; 
+  const vec4_t *v6; 
   Bounds bounds; 
   tmat33_t<vec3_t> rotation; 
-  char v16; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RBX = &s_radiantReflectionVolumes[0].reflectionProbeInstance.volumeObb.halfSize.v[2];
-  v3 = 128i64;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v0 = &s_radiantReflectionVolumes[0].reflectionProbeInstance.volumeObb.halfSize.v[2];
+  v1 = 128i64;
   do
   {
-    if ( *((_BYTE *)_RBX - 168) )
+    if ( *((_BYTE *)v0 - 168) )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx-4]
-        vmovss  xmm0, dword ptr [rbx-8]
-      }
-      v7 = *((_BYTE *)_RBX - 167) == 0;
-      __asm
-      {
-        vmovss  dword ptr [rsp+98h+bounds.halfSize+4], xmm1
-        vmovups ymm1, ymmword ptr [rbx-2Ch]
-        vmovups ymmword ptr [rsp+98h+rotation], ymm1
-        vmovss  xmm1, dword ptr [rbx-0Ch]
-        vmovss  dword ptr [rsp+98h+bounds.halfSize], xmm0
-        vmovss  xmm0, dword ptr [rbx]
-      }
-      v11 = &colorRed;
-      if ( v7 )
-        v11 = &colorWhite;
-      __asm
-      {
-        vmovss  dword ptr [rsp+98h+rotation+20h], xmm1
-        vmovss  dword ptr [rsp+98h+bounds.midPoint], xmm6
-        vmovss  dword ptr [rsp+98h+bounds.midPoint+4], xmm6
-        vmovss  dword ptr [rsp+98h+bounds.midPoint+8], xmm6
-        vmovss  dword ptr [rsp+98h+bounds.halfSize+8], xmm0
-      }
-      CG_DebugBoxOriented((const vec3_t *)(_RBX - 14), &bounds, &rotation, v11, 1, 0);
-      R_AddReflectionProbeInstanceToScene((const GfxReflectionProbeInstance *)(_RBX - 24));
+      v2 = *(v0 - 2);
+      v3 = *((_BYTE *)v0 - 167) == 0;
+      bounds.halfSize.v[1] = *(v0 - 1);
+      *(__m256i *)rotation.m[0].v = *(__m256i *)(v0 - 11);
+      v4 = *(v0 - 3);
+      bounds.halfSize.v[0] = v2;
+      v5 = *v0;
+      v6 = &colorRed;
+      if ( v3 )
+        v6 = &colorWhite;
+      rotation.m[2].v[2] = v4;
+      bounds.midPoint.v[0] = 0.0;
+      bounds.midPoint.v[1] = 0.0;
+      bounds.midPoint.v[2] = 0.0;
+      bounds.halfSize.v[2] = v5;
+      CG_DebugBoxOriented((const vec3_t *)(v0 - 14), &bounds, &rotation, v6, 1, 0);
+      R_AddReflectionProbeInstanceToScene((const GfxReflectionProbeInstance *)(v0 - 24));
     }
-    _RBX += 54;
-    --v3;
+    v0 += 54;
+    --v1;
   }
-  while ( v3 );
-  _R11 = &v16;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  while ( v1 );
 }
 
 /*
@@ -1384,60 +1356,46 @@ void CG_DrawRadiantReflectionVolumes()
 CG_DrawRadiantVolumetrics
 ==============
 */
-void CG_DrawRadiantVolumetrics()
+void CG_DrawRadiantVolumetrics(void)
 {
-  __int64 v3; 
-  bool v7; 
-  const vec4_t *v11; 
+  float *v0; 
+  __int64 v1; 
+  float v2; 
+  bool v3; 
+  float v4; 
+  float v5; 
+  const vec4_t *v6; 
   Bounds bounds; 
   tmat33_t<vec3_t> rotation; 
-  char v16; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
-  _RBX = &s_radiantVolumetrics[0].volumetric.obb.halfSize.v[2];
-  v3 = 128i64;
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  v0 = &s_radiantVolumetrics[0].volumetric.obb.halfSize.v[2];
+  v1 = 128i64;
   do
   {
-    if ( *((_BYTE *)_RBX - 140) )
+    if ( *((_BYTE *)v0 - 140) )
     {
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbx-4]
-        vmovss  xmm0, dword ptr [rbx-8]
-      }
-      v7 = *((_BYTE *)_RBX - 139) == 0;
-      __asm
-      {
-        vmovss  dword ptr [rsp+98h+bounds.halfSize+4], xmm1
-        vmovups ymm1, ymmword ptr [rbx-2Ch]
-        vmovups ymmword ptr [rsp+98h+rotation], ymm1
-        vmovss  xmm1, dword ptr [rbx-0Ch]
-        vmovss  dword ptr [rsp+98h+bounds.halfSize], xmm0
-        vmovss  xmm0, dword ptr [rbx]
-      }
-      v11 = &colorRed;
-      if ( v7 )
-        v11 = &colorWhite;
-      __asm
-      {
-        vmovss  dword ptr [rsp+98h+rotation+20h], xmm1
-        vmovss  dword ptr [rsp+98h+bounds.midPoint], xmm6
-        vmovss  dword ptr [rsp+98h+bounds.midPoint+4], xmm6
-        vmovss  dword ptr [rsp+98h+bounds.midPoint+8], xmm6
-        vmovss  dword ptr [rsp+98h+bounds.halfSize+8], xmm0
-      }
-      CG_DebugBoxOriented((const vec3_t *)(_RBX - 14), &bounds, &rotation, v11, 1, 0);
-      R_AddVolumetricToScene((const GfxVolumetric *)(_RBX - 17));
+      v2 = *(v0 - 2);
+      v3 = *((_BYTE *)v0 - 139) == 0;
+      bounds.halfSize.v[1] = *(v0 - 1);
+      *(__m256i *)rotation.m[0].v = *(__m256i *)(v0 - 11);
+      v4 = *(v0 - 3);
+      bounds.halfSize.v[0] = v2;
+      v5 = *v0;
+      v6 = &colorRed;
+      if ( v3 )
+        v6 = &colorWhite;
+      rotation.m[2].v[2] = v4;
+      bounds.midPoint.v[0] = 0.0;
+      bounds.midPoint.v[1] = 0.0;
+      bounds.midPoint.v[2] = 0.0;
+      bounds.halfSize.v[2] = v5;
+      CG_DebugBoxOriented((const vec3_t *)(v0 - 14), &bounds, &rotation, v6, 1, 0);
+      R_AddVolumetricToScene((const GfxVolumetric *)(v0 - 17));
     }
-    _RBX += 84;
-    --v3;
+    v0 += 84;
+    --v1;
   }
-  while ( v3 );
-  _R11 = &v16;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
+  while ( v1 );
 }
 
 /*
@@ -1698,55 +1656,17 @@ CG_MakeReflectionProbeInstanceFeatherPositive
 */
 void CG_MakeReflectionProbeInstanceFeatherPositive(GfxReflectionProbeInstance *reflectionProbeInstance)
 {
-  unsigned int v7; 
-  bool v11; 
-  char v24; 
-  void *retaddr; 
+  unsigned int i; 
 
-  _RAX = &retaddr;
-  __asm
+  for ( i = 0; i < 3; ++i )
   {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovss  xmm7, cs:__real@3dcccccd
-    vmovaps xmmword ptr [rax-38h], xmm8
-  }
-  v7 = 0;
-  __asm { vmovaps xmmword ptr [rax-48h], xmm9 }
-  _RSI = reflectionProbeInstance;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovss  xmm8, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vxorps  xmm9, xmm9, xmm9
-  }
-  v11 = 1;
-  do
-  {
-    _RDI = (int)v7;
-    __asm { vcomiss xmm9, dword ptr [rsi+rdi*4+68h] }
-    if ( !v11 )
+    if ( reflectionProbeInstance->feather.v[i] < 0.0 )
     {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsi+rdi*4+68h]
-        vandps  xmm6, xmm6, xmm8
-        vmovss  dword ptr [rsi+rdi*4+68h], xmm6
-        vmovss  xmm6, dword ptr [rsi+rdi*4+68h]
-        vaddss  xmm0, xmm6, dword ptr [rsi+rdi*4+58h]
-        vmovss  dword ptr [rsi+rdi*4+58h], xmm0
-      }
+      reflectionProbeInstance->feather.v[i] = COERCE_FLOAT(LODWORD(reflectionProbeInstance->feather.v[i]) & _xmm);
+      reflectionProbeInstance->volumeObb.halfSize.v[i] = reflectionProbeInstance->feather.v[i] + reflectionProbeInstance->volumeObb.halfSize.v[i];
     }
-    __asm { vcomiss xmm7, dword ptr [rsi+rdi*4+68h] }
-    v11 = ++v7 <= 3;
-  }
-  while ( v7 < 3 );
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
-  _R11 = &v24;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+88h+var_28]
+    if ( reflectionProbeInstance->feather.v[i] < 0.1 )
+      reflectionProbeInstance->feather.v[i] = 0.1;
   }
 }
 
@@ -1795,8 +1715,7 @@ void CG_ProcessDecalVolumeRegisterCommand(const SpawnVar *spawnVar)
   CG_UpdateDecalVolumeMaterial(spawnVar, &decalVolume, &outBlendMapAdjust, &outEdgeFeatherZ, outIndex, outIsDynamic);
   R_DecalVolumes_PackOBB(&dst, &decalVolume.obb);
   R_DecalVolumes_PackUVTransform(&dst, &decalVolume.uvMatrix, &decalVolume.uvOffset);
-  __asm { vmovss  xmm2, [rsp+108h+outEdgeFeatherZ]; zFeather }
-  R_DecalVolumes_PackOpacityParams(&dst, &outBlendMapAdjust, *(float *)&_XMM2);
+  R_DecalVolumes_PackOpacityParams(&dst, &outBlendMapAdjust, outEdgeFeatherZ);
   R_DecalVolumes_PackMaterialInfo(&dst, decalVolume.packedMaterialInfo);
   R_DecalVolumes_DecalUpdate(outIndex, outIsDynamic, &dst);
 }
@@ -1861,8 +1780,7 @@ void CG_ProcessDecalVolumeUpdateCommand(const SpawnVar *spawnVar)
     CG_UpdateDecalVolumeMaterial(spawnVar, &decalVolume, &outBlendMapAdjust, &outEdgeFeatherZ, outIndex, outIsDynamic);
     R_DecalVolumes_PackOBB(&dst, &decalVolume.obb);
     R_DecalVolumes_PackUVTransform(&dst, &decalVolume.uvMatrix, &decalVolume.uvOffset);
-    __asm { vmovss  xmm2, [rsp+108h+outEdgeFeatherZ]; zFeather }
-    R_DecalVolumes_PackOpacityParams(&dst, &outBlendMapAdjust, *(float *)&_XMM2);
+    R_DecalVolumes_PackOpacityParams(&dst, &outBlendMapAdjust, outEdgeFeatherZ);
     R_DecalVolumes_PackMaterialInfo(&dst, decalVolume.packedMaterialInfo);
     R_DecalVolumes_DecalUpdate(outIndex, outIsDynamic, &dst);
   }
@@ -1877,8 +1795,7 @@ void CG_ProcessRadiantCmd(RadiantCommand *command)
 {
   unsigned __int64 v2; 
   void *v3; 
-  __int64 type; 
-  RadiantCommandData v6; 
+  RadiantCommandData v4; 
   SpawnVar spawnVar; 
 
   if ( s_isCommandBinary[command->type] )
@@ -1898,12 +1815,9 @@ void CG_ProcessRadiantCmd(RadiantCommand *command)
     ParseRadiantSpawnVars(command->command, &spawnVar);
     Com_EndParseSession();
   }
-  v6.radiantCommand = command;
-  v6.spawnVar = &spawnVar;
-  __asm { vmovups xmm0, [rsp+2468h+var_2438] }
-  type = command->type;
-  __asm { vmovdqa [rsp+2468h+var_2438], xmm0 }
-  ((void (__fastcall *)(RadiantCommandData *))g_radiantCommandTable[type])(&v6);
+  v4.radiantCommand = command;
+  v4.spawnVar = &spawnVar;
+  ((void (__fastcall *)(RadiantCommandData *))g_radiantCommandTable[command->type])(&v4);
 }
 
 /*
@@ -1914,136 +1828,119 @@ CG_ProcessRadiantCmds
 void CG_ProcessRadiantCmds(RadiantLiveGameMode inMode)
 {
   unsigned int TimeAsSeconds; 
+  unsigned int v3; 
   unsigned int v4; 
-  unsigned int v5; 
   volatile int i; 
-  bool v7; 
-  __int64 v8; 
-  __int64 v10; 
-  bool v14; 
-  const vec4_t *v18; 
-  const vec4_t *v25; 
-  char v27; 
+  bool v6; 
+  __int64 v7; 
+  float *v8; 
+  __int64 v9; 
+  float v10; 
+  bool v11; 
+  float v12; 
+  float v13; 
+  const vec4_t *v14; 
+  float *v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  const vec4_t *v19; 
+  char v20; 
   Bounds bounds; 
-  Bounds v29; 
+  Bounds v22; 
   tmat33_t<vec3_t> rotation; 
-  tmat33_t<vec3_t> v31; 
+  tmat33_t<vec3_t> v24; 
 
   Sys_EnterCriticalSection(CRITSECT_RADIANT_CLIENT_COMMAND);
   if ( bgRadiantLiveEnabled )
   {
-    __asm { vmovaps [rsp+0F0h+var_30], xmm6 }
     TimeAsSeconds = Sys_GetTimeAsSeconds();
-    v4 = lastSec;
-    v5 = TimeAsSeconds;
+    v3 = lastSec;
+    v4 = TimeAsSeconds;
     if ( !lastSec )
-      v4 = TimeAsSeconds;
-    lastSec = v4;
+      v3 = TimeAsSeconds;
+    lastSec = v3;
     if ( cgCommandCount )
     {
       Stream_ImageRecord_Disable("radiant_live_cmd");
       for ( i = 0; i < cgCommandCount; ++i )
         CG_ProcessRadiantCmd(&cgCommands[i]);
       cgRadiantLiveFlowing = 1;
-      lastSec = v5;
+      lastSec = v4;
     }
     else if ( (cgRadiantLiveStatus & 0x3F) != 0 )
     {
-      v7 = cgRadiantLiveFlowing;
+      v6 = cgRadiantLiveFlowing;
       if ( TimeAsSeconds > lastSec + 2 )
-        v7 = 0;
-      cgRadiantLiveFlowing = v7;
+        v6 = 0;
+      cgRadiantLiveFlowing = v6;
     }
-    v8 = 128i64;
-    _RBX = &s_radiantVolumetrics[0].volumetric.obb.halfSize.v[2];
-    v10 = 128i64;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    v7 = 128i64;
+    v8 = &s_radiantVolumetrics[0].volumetric.obb.halfSize.v[2];
+    v9 = 128i64;
     do
     {
-      if ( *((_BYTE *)_RBX - 140) )
+      if ( *((_BYTE *)v8 - 140) )
       {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx-4]
-          vmovss  xmm0, dword ptr [rbx-8]
-        }
-        v14 = *((_BYTE *)_RBX - 139) == 0;
-        __asm
-        {
-          vmovss  dword ptr [rbp+57h+bounds.halfSize+4], xmm1
-          vmovups ymm1, ymmword ptr [rbx-2Ch]
-          vmovups ymmword ptr [rbp+57h+rotation], ymm1
-          vmovss  xmm1, dword ptr [rbx-0Ch]
-          vmovss  dword ptr [rbp+57h+bounds.halfSize], xmm0
-          vmovss  xmm0, dword ptr [rbx]
-        }
-        v18 = &colorRed;
-        if ( v14 )
-          v18 = &colorWhite;
-        __asm
-        {
-          vmovss  dword ptr [rbp+57h+rotation+20h], xmm1
-          vmovss  dword ptr [rbp+57h+bounds.midPoint], xmm6
-          vmovss  dword ptr [rbp+57h+bounds.midPoint+4], xmm6
-          vmovss  dword ptr [rbp+57h+bounds.midPoint+8], xmm6
-          vmovss  dword ptr [rbp+57h+bounds.halfSize+8], xmm0
-        }
-        CG_DebugBoxOriented((const vec3_t *)(_RBX - 14), &bounds, &rotation, v18, 1, 0);
-        R_AddVolumetricToScene((const GfxVolumetric *)(_RBX - 17));
+        v10 = *(v8 - 2);
+        v11 = *((_BYTE *)v8 - 139) == 0;
+        bounds.halfSize.v[1] = *(v8 - 1);
+        *(__m256i *)rotation.m[0].v = *(__m256i *)(v8 - 11);
+        v12 = *(v8 - 3);
+        bounds.halfSize.v[0] = v10;
+        v13 = *v8;
+        v14 = &colorRed;
+        if ( v11 )
+          v14 = &colorWhite;
+        rotation.m[2].v[2] = v12;
+        bounds.midPoint.v[0] = 0.0;
+        bounds.midPoint.v[1] = 0.0;
+        bounds.midPoint.v[2] = 0.0;
+        bounds.halfSize.v[2] = v13;
+        CG_DebugBoxOriented((const vec3_t *)(v8 - 14), &bounds, &rotation, v14, 1, 0);
+        R_AddVolumetricToScene((const GfxVolumetric *)(v8 - 17));
       }
-      _RBX += 84;
-      --v10;
+      v8 += 84;
+      --v9;
     }
-    while ( v10 );
-    _RBX = &s_radiantReflectionVolumes[0].reflectionProbeInstance.volumeObb.halfSize.v[2];
+    while ( v9 );
+    v15 = &s_radiantReflectionVolumes[0].reflectionProbeInstance.volumeObb.halfSize.v[2];
     do
     {
-      if ( *((_BYTE *)_RBX - 168) )
+      if ( *((_BYTE *)v15 - 168) )
       {
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbx-4]
-          vmovss  xmm0, dword ptr [rbx-8]
-        }
-        v14 = *((_BYTE *)_RBX - 167) == 0;
-        __asm
-        {
-          vmovss  dword ptr [rbp+57h+var_A8.halfSize+4], xmm1
-          vmovups ymm1, ymmword ptr [rbx-2Ch]
-          vmovups ymmword ptr [rbp+57h+var_68], ymm1
-          vmovss  xmm1, dword ptr [rbx-0Ch]
-          vmovss  dword ptr [rbp+57h+var_A8.halfSize], xmm0
-          vmovss  xmm0, dword ptr [rbx]
-        }
-        v25 = &colorRed;
-        if ( v14 )
-          v25 = &colorWhite;
-        __asm
-        {
-          vmovss  dword ptr [rbp+57h+var_68+20h], xmm1
-          vmovss  dword ptr [rbp+57h+var_A8.midPoint], xmm6
-          vmovss  dword ptr [rbp+57h+var_A8.midPoint+4], xmm6
-          vmovss  dword ptr [rbp+57h+var_A8.midPoint+8], xmm6
-          vmovss  dword ptr [rbp+57h+var_A8.halfSize+8], xmm0
-        }
-        CG_DebugBoxOriented((const vec3_t *)(_RBX - 14), &v29, &v31, v25, 1, 0);
-        R_AddReflectionProbeInstanceToScene((const GfxReflectionProbeInstance *)(_RBX - 24));
+        v16 = *(v15 - 2);
+        v11 = *((_BYTE *)v15 - 167) == 0;
+        v22.halfSize.v[1] = *(v15 - 1);
+        *(__m256i *)v24.m[0].v = *(__m256i *)(v15 - 11);
+        v17 = *(v15 - 3);
+        v22.halfSize.v[0] = v16;
+        v18 = *v15;
+        v19 = &colorRed;
+        if ( v11 )
+          v19 = &colorWhite;
+        v24.m[2].v[2] = v17;
+        v22.midPoint.v[0] = 0.0;
+        v22.midPoint.v[1] = 0.0;
+        v22.midPoint.v[2] = 0.0;
+        v22.halfSize.v[2] = v18;
+        CG_DebugBoxOriented((const vec3_t *)(v15 - 14), &v22, &v24, v19, 1, 0);
+        R_AddReflectionProbeInstanceToScene((const GfxReflectionProbeInstance *)(v15 - 24));
       }
-      _RBX += 54;
-      --v8;
+      v15 += 54;
+      --v7;
     }
-    while ( v8 );
-    __asm { vmovaps xmm6, [rsp+0F0h+var_30] }
+    while ( v7 );
     if ( cgRadiantLiveProcessStatus )
     {
       Stream_ImageRecord_Disable("radiant_live");
-      v27 = cgRadiantLiveProcessStatus;
+      v20 = cgRadiantLiveProcessStatus;
       if ( (cgRadiantLiveProcessStatus & 1) != 0 && (cgRadiantLiveStatus & 0x400) != 0 && inMode == RADIANT_GAMEMODE_SP )
       {
         Dvar_SetIntByName("LTNQQOMQSO", 2);
-        v27 = cgRadiantLiveProcessStatus;
+        v20 = cgRadiantLiveProcessStatus;
       }
-      if ( (v27 & 2) != 0 )
+      if ( (v20 & 2) != 0 )
       {
         Dvar_SetBoolByName("TLMMOPMSK", 1);
         Dvar_SetIntByName("PNSPTQSLN", 0);
@@ -2201,39 +2098,46 @@ void CG_ProcessReflectionVolumeUpdateCommand(SpawnVar *spawnVar)
 {
   const char *PairValue; 
   RadiantRemoteReflectionVolume *RadiantReflectionVolume; 
+  GfxReflectionProbeInstance *p_reflectionProbeInstance; 
+  const char *v5; 
+  const char *v6; 
+  const char *v7; 
+  const char *v8; 
   const char *v9; 
   const char *v10; 
-  const char *v11; 
+  float v11; 
   const char *v12; 
-  const char *v13; 
+  float v13; 
   const char *v14; 
-  const char *v18; 
-  const char *v22; 
-  const char *v24; 
-  const char *v25; 
-  const char *v26; 
-  const char *v30; 
-  const char *v34; 
-  unsigned int v35; 
+  const char *v15; 
+  const char *v16; 
+  const char *v17; 
+  float v18; 
+  float v19; 
+  const char *v20; 
+  float v21; 
+  float v22; 
+  const char *v23; 
+  unsigned int v24; 
   unsigned int reflectionProbeCount; 
   char *livePath; 
-  __int64 v38; 
-  signed __int64 v39; 
-  char v40; 
-  __int64 v41; 
-  char v42; 
-  int v43; 
-  int v44; 
-  int v45; 
-  int v46; 
-  int v47; 
-  int v48; 
-  int v49; 
-  int v50; 
-  int v51; 
-  int v52; 
-  int v53; 
-  int v54; 
+  __int64 v27; 
+  signed __int64 v28; 
+  char v29; 
+  __int64 v30; 
+  char v31; 
+  float v32; 
+  int v33; 
+  int v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
 
   PairValue = GetPairValue(spawnVar, "livePath");
   if ( PairValue )
@@ -2241,154 +2145,120 @@ void CG_ProcessReflectionVolumeUpdateCommand(SpawnVar *spawnVar)
     RadiantReflectionVolume = CG_FindRadiantReflectionVolume(PairValue);
     if ( RadiantReflectionVolume )
     {
-      _RBX = &RadiantReflectionVolume->reflectionProbeInstance;
+      p_reflectionProbeInstance = &RadiantReflectionVolume->reflectionProbeInstance;
       memset_0(&RadiantReflectionVolume->reflectionProbeInstance, 0, sizeof(RadiantReflectionVolume->reflectionProbeInstance));
-      _RBX->flags = 0;
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B; vec4_t const quat_identity
-        vmovss  dword ptr [rbx+18h], xmm0
-        vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+4; vec4_t const quat_identity
-        vmovss  dword ptr [rbx+1Ch], xmm1
-        vmovss  xmm0, dword ptr cs:?quat_identity@@3Tvec4_t@@B+8; vec4_t const quat_identity
-        vmovss  dword ptr [rbx+20h], xmm0
-        vmovss  xmm1, dword ptr cs:?quat_identity@@3Tvec4_t@@B+0Ch; vec4_t const quat_identity
-        vmovss  dword ptr [rbx+24h], xmm1
-      }
-      v9 = GetPairValue(spawnVar, "obb_origin");
+      p_reflectionProbeInstance->flags = 0;
+      p_reflectionProbeInstance->probeRotation = quat_identity;
+      v5 = GetPairValue(spawnVar, "obb_origin");
+      if ( v5 )
+        j_sscanf(v5, "%f %f %f", &p_reflectionProbeInstance->volumeObb, &p_reflectionProbeInstance->volumeObb.center.y, &p_reflectionProbeInstance->volumeObb.center.z);
+      v6 = GetPairValue(spawnVar, "obb_xAxis");
+      if ( v6 )
+        j_sscanf(v6, "%f %f %f", &p_reflectionProbeInstance->volumeObb.xAxis, &p_reflectionProbeInstance->volumeObb.xAxis.y, &p_reflectionProbeInstance->volumeObb.xAxis.z);
+      v7 = GetPairValue(spawnVar, "obb_yAxis");
+      if ( v7 )
+        j_sscanf(v7, "%f %f %f", &p_reflectionProbeInstance->volumeObb.yAxis, &p_reflectionProbeInstance->volumeObb.yAxis.y, &p_reflectionProbeInstance->volumeObb.yAxis.z);
+      v8 = GetPairValue(spawnVar, "obb_zAxis");
+      if ( v8 )
+        j_sscanf(v8, "%f %f %f", &p_reflectionProbeInstance->volumeObb.zAxis, &p_reflectionProbeInstance->volumeObb.zAxis.y, &p_reflectionProbeInstance->volumeObb.zAxis.z);
+      v9 = GetPairValue(spawnVar, "obb_halfSize");
       if ( v9 )
-        j_sscanf(v9, "%f %f %f", &_RBX->volumeObb, &_RBX->volumeObb.center.y, &_RBX->volumeObb.center.z);
-      v10 = GetPairValue(spawnVar, "obb_xAxis");
-      if ( v10 )
-        j_sscanf(v10, "%f %f %f", &_RBX->volumeObb.xAxis, &_RBX->volumeObb.xAxis.y, &_RBX->volumeObb.xAxis.z);
-      v11 = GetPairValue(spawnVar, "obb_yAxis");
-      if ( v11 )
-        j_sscanf(v11, "%f %f %f", &_RBX->volumeObb.yAxis, &_RBX->volumeObb.yAxis.y, &_RBX->volumeObb.yAxis.z);
-      v12 = GetPairValue(spawnVar, "obb_zAxis");
-      if ( v12 )
-        j_sscanf(v12, "%f %f %f", &_RBX->volumeObb.zAxis, &_RBX->volumeObb.zAxis.y, &_RBX->volumeObb.zAxis.z);
-      v13 = GetPairValue(spawnVar, "obb_halfSize");
-      if ( v13 )
-        j_sscanf(v13, "%f %f %f", &_RBX->volumeObb.halfSize, &_RBX->volumeObb.halfSize.y, &_RBX->volumeObb.halfSize.z);
-      *(_QWORD *)_RBX->expandProjectionNeg.v = 0i64;
-      _RBX->expandProjectionNeg.v[2] = 0.0;
-      v14 = GetPairValue(spawnVar, "expandProjectionNeg");
-      if ( v14 && j_sscanf(v14, "%f %f %f", &v52, &v53, &v54) == 3 )
+        j_sscanf(v9, "%f %f %f", &p_reflectionProbeInstance->volumeObb.halfSize, &p_reflectionProbeInstance->volumeObb.halfSize.y, &p_reflectionProbeInstance->volumeObb.halfSize.z);
+      *(_QWORD *)p_reflectionProbeInstance->expandProjectionNeg.v = 0i64;
+      p_reflectionProbeInstance->expandProjectionNeg.v[2] = 0.0;
+      v10 = GetPairValue(spawnVar, "expandProjectionNeg");
+      if ( v10 && j_sscanf(v10, "%f %f %f", &v41, &v42, &v43) == 3 )
       {
-        __asm
+        v11 = v42;
+        p_reflectionProbeInstance->expandProjectionNeg.v[0] = v41;
+        p_reflectionProbeInstance->expandProjectionNeg.v[2] = v43;
+        p_reflectionProbeInstance->expandProjectionNeg.v[1] = v11;
+      }
+      *(_QWORD *)p_reflectionProbeInstance->expandProjectionPos.v = 0i64;
+      p_reflectionProbeInstance->expandProjectionPos.v[2] = 0.0;
+      v12 = GetPairValue(spawnVar, "expandProjectionPos");
+      if ( v12 && j_sscanf(v12, "%f %f %f", &v41, &v42, &v43) == 3 )
+      {
+        v13 = v42;
+        p_reflectionProbeInstance->expandProjectionPos.v[0] = v41;
+        p_reflectionProbeInstance->expandProjectionPos.v[2] = v43;
+        p_reflectionProbeInstance->expandProjectionPos.v[1] = v13;
+      }
+      v14 = GetPairValue(spawnVar, "priority");
+      p_reflectionProbeInstance->priority = -1.0;
+      if ( v14 && j_sscanf(v14, "%f", &v32) == 1 )
+        p_reflectionProbeInstance->priority = v32;
+      v15 = GetPairValue(spawnVar, "noParallax");
+      if ( v15 && j_sscanf(v15, "%d", &v33) == 1 && v33 == 1 )
+        p_reflectionProbeInstance->flags |= 1u;
+      v16 = GetPairValue(spawnVar, "overrideLightgrid");
+      if ( v16 && j_sscanf(v16, "%d", &v34) == 1 && v34 == 1 )
+        p_reflectionProbeInstance->flags |= 4u;
+      p_reflectionProbeInstance->feather.v[0] = 8.0;
+      p_reflectionProbeInstance->feather.v[1] = 8.0;
+      p_reflectionProbeInstance->feather.v[2] = 8.0;
+      v17 = GetPairValue(spawnVar, "feather");
+      if ( v17 && j_sscanf(v17, "%f %f %f", &v37, &v36, &v35) == 3 )
+      {
+        v18 = v35;
+        v19 = v36;
+        p_reflectionProbeInstance->feather.v[0] = v37;
+        p_reflectionProbeInstance->feather.v[1] = v19;
+        p_reflectionProbeInstance->feather.v[2] = v18;
+      }
+      *(_QWORD *)p_reflectionProbeInstance->probePosition.v = 0i64;
+      p_reflectionProbeInstance->probePosition.v[2] = 0.0;
+      v20 = GetPairValue(spawnVar, "probePosition");
+      if ( v20 )
+      {
+        if ( j_sscanf(v20, "%f %f %f", &v40, &v39, &v38) == 3 )
         {
-          vmovss  xmm0, [rbp+arg_8]
-          vmovss  xmm1, [rbp+arg_10]
-          vmovss  dword ptr [rbx+74h], xmm0
-          vmovss  xmm0, [rbp+arg_18]
-          vmovss  dword ptr [rbx+7Ch], xmm0
-          vmovss  dword ptr [rbx+78h], xmm1
+          v21 = v38;
+          v22 = v39;
+          p_reflectionProbeInstance->probePosition.v[0] = v40;
+          p_reflectionProbeInstance->probePosition.v[1] = v22;
+          p_reflectionProbeInstance->probePosition.v[2] = v21;
         }
       }
-      *(_QWORD *)_RBX->expandProjectionPos.v = 0i64;
-      _RBX->expandProjectionPos.v[2] = 0.0;
-      v18 = GetPairValue(spawnVar, "expandProjectionPos");
-      if ( v18 && j_sscanf(v18, "%f %f %f", &v52, &v53, &v54) == 3 )
+      v23 = GetPairValue(spawnVar, "reflectionProbeLivePath");
+      if ( v23 )
       {
-        __asm
-        {
-          vmovss  xmm0, [rbp+arg_8]
-          vmovss  xmm1, [rbp+arg_10]
-          vmovss  dword ptr [rbx+80h], xmm0
-          vmovss  xmm0, [rbp+arg_18]
-          vmovss  dword ptr [rbx+88h], xmm0
-          vmovss  dword ptr [rbx+84h], xmm1
-        }
-      }
-      v22 = GetPairValue(spawnVar, "priority");
-      _RBX->priority = -1.0;
-      if ( v22 && j_sscanf(v22, "%f", &v43) == 1 )
-      {
-        __asm
-        {
-          vmovss  xmm0, [rbp+var_48]
-          vmovss  dword ptr [rbx+64h], xmm0
-        }
-      }
-      v24 = GetPairValue(spawnVar, "noParallax");
-      if ( v24 && j_sscanf(v24, "%d", &v44) == 1 && v44 == 1 )
-        _RBX->flags |= 1u;
-      v25 = GetPairValue(spawnVar, "overrideLightgrid");
-      if ( v25 && j_sscanf(v25, "%d", &v45) == 1 && v45 == 1 )
-        _RBX->flags |= 4u;
-      _RBX->feather.v[0] = 8.0;
-      _RBX->feather.v[1] = 8.0;
-      _RBX->feather.v[2] = 8.0;
-      v26 = GetPairValue(spawnVar, "feather");
-      if ( v26 && j_sscanf(v26, "%f %f %f", &v48, &v47, &v46) == 3 )
-      {
-        __asm
-        {
-          vmovss  xmm2, [rbp+var_3C]
-          vmovss  xmm1, [rbp+var_38]
-          vmovss  xmm0, [rbp+var_34]
-          vmovss  dword ptr [rbx+68h], xmm0
-          vmovss  dword ptr [rbx+6Ch], xmm1
-          vmovss  dword ptr [rbx+70h], xmm2
-        }
-      }
-      *(_QWORD *)_RBX->probePosition.v = 0i64;
-      _RBX->probePosition.v[2] = 0.0;
-      v30 = GetPairValue(spawnVar, "probePosition");
-      if ( v30 )
-      {
-        if ( j_sscanf(v30, "%f %f %f", &v51, &v50, &v49) == 3 )
-        {
-          __asm
-          {
-            vmovss  xmm2, [rbp+var_30]
-            vmovss  xmm1, [rbp+var_2C]
-            vmovss  xmm0, [rbp+var_28]
-            vmovss  dword ptr [rbx+8], xmm0
-            vmovss  dword ptr [rbx+0Ch], xmm1
-            vmovss  dword ptr [rbx+10h], xmm2
-          }
-        }
-      }
-      v34 = GetPairValue(spawnVar, "reflectionProbeLivePath");
-      if ( v34 )
-      {
-        v35 = 0;
+        v24 = 0;
         reflectionProbeCount = rgp.world->draw.reflectionProbeData.reflectionProbeCount;
         if ( reflectionProbeCount )
         {
           while ( 1 )
           {
-            livePath = rgp.world->draw.reflectionProbeData.reflectionProbes[v35].livePath;
+            livePath = rgp.world->draw.reflectionProbeData.reflectionProbes[v24].livePath;
             if ( livePath )
               break;
 LABEL_45:
-            if ( ++v35 >= reflectionProbeCount )
+            if ( ++v24 >= reflectionProbeCount )
               goto LABEL_46;
           }
-          v38 = 0x7FFFFFFFi64;
-          v39 = v34 - livePath;
+          v27 = 0x7FFFFFFFi64;
+          v28 = v23 - livePath;
           do
           {
-            v40 = livePath[v39];
-            v41 = v38;
-            v42 = *livePath++;
-            --v38;
-            if ( !v41 )
+            v29 = livePath[v28];
+            v30 = v27;
+            v31 = *livePath++;
+            --v27;
+            if ( !v30 )
               break;
-            if ( v40 != v42 )
+            if ( v29 != v31 )
               goto LABEL_45;
           }
-          while ( v40 );
+          while ( v29 );
         }
         else
         {
 LABEL_46:
-          v35 = 0;
+          v24 = 0;
         }
-        _RBX->probeImageIndex = truncate_cast<unsigned short,unsigned int>(v35);
+        p_reflectionProbeInstance->probeImageIndex = truncate_cast<unsigned short,unsigned int>(v24);
       }
-      CG_MakeReflectionProbeInstanceFeatherPositive(_RBX);
+      CG_MakeReflectionProbeInstanceFeatherPositive(p_reflectionProbeInstance);
     }
   }
   else
@@ -2536,483 +2406,380 @@ void CG_ProcessVolumetricUnregisterCommand(SpawnVar *spawnVar)
 CG_ProcessVolumetricUpdateCommand
 ==============
 */
-
-void __fastcall CG_ProcessVolumetricUpdateCommand(SpawnVar *spawnVar, double _XMM1_8)
+void CG_ProcessVolumetricUpdateCommand(SpawnVar *spawnVar)
 {
-  SpawnVar *v5; 
+  SpawnVar *v1; 
   const char *PairValue; 
+  RadiantRemoteVolumetric *RadiantVolumetric; 
+  const char *v4; 
+  const char *v5; 
+  const char *v6; 
+  const char *v7; 
   const char *v8; 
   const char *v9; 
-  const char *v10; 
-  const char *v11; 
+  float v10; 
+  double v11; 
   const char *v12; 
-  const char *v13; 
-  const char *v22; 
-  int v23; 
-  const char *v32; 
-  const char *v38; 
-  const char *v42; 
-  int v43; 
+  const char *v17; 
+  float v18; 
+  double v20; 
+  const char *v21; 
+  float v22; 
+  double v23; 
+  const char *v24; 
+  int v25; 
   unsigned int flags; 
-  unsigned int v45; 
-  int v46; 
-  const char *v47; 
-  const char *v56; 
-  int v57; 
-  VolumetricMaskKey *v59; 
-  unsigned int v60; 
-  unsigned int v61; 
-  const char **v62; 
-  unsigned int v63; 
-  const char *v64; 
-  const char *v65; 
-  XAssetHeader v66; 
-  const char *v67; 
-  const char *v68; 
+  unsigned int v27; 
+  int v28; 
+  const char *v29; 
+  float v30; 
+  const char *v31; 
+  int v32; 
+  float *v33; 
+  VolumetricMaskKey *v34; 
+  unsigned int v35; 
+  unsigned int v36; 
+  const char **v37; 
+  unsigned int v38; 
+  const char *v39; 
+  const char *v40; 
+  XAssetHeader v41; 
+  const char *v42; 
+  const char *v43; 
   unsigned int i; 
   const char *name; 
-  __int64 v71; 
-  const char *v72; 
-  signed __int64 v73; 
-  int v74; 
-  __int64 v75; 
-  int v76; 
-  int v77; 
-  int v78; 
-  const char *v79; 
-  const char *v80; 
-  unsigned int v81; 
-  bool v82; 
-  const char *v92; 
-  const char *v93; 
-  const char *v96; 
-  const char *v97; 
-  char *fmt; 
-  char *fmta; 
-  int v105; 
-  int v106; 
-  unsigned int v107; 
-  int v108; 
-  int v109; 
-  int v110; 
-  int v111; 
+  __int64 v46; 
+  const char *v47; 
+  signed __int64 v48; 
+  int v49; 
+  __int64 v50; 
+  int v51; 
+  int v52; 
+  int v53; 
+  const char *v54; 
+  const char *v55; 
+  float v56; 
+  const char *v61; 
+  const char *v62; 
+  float v63; 
+  const char *v64; 
+  const char *v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  unsigned int v69; 
+  float v70; 
+  float v71; 
+  int v72; 
+  int v73; 
   SpawnVar *spawnVara; 
-  int v113; 
-  int v114; 
-  int v115; 
-  int v116; 
-  int v117; 
-  int v118; 
-  int v119; 
-  int v120; 
-  int v121; 
+  float v75; 
+  float v76; 
+  float v77; 
+  float v78; 
+  float v79; 
+  float v80; 
+  float v81; 
+  float v82; 
+  float v83; 
 
   spawnVara = spawnVar;
-  v5 = spawnVar;
+  v1 = spawnVar;
   PairValue = GetPairValue(spawnVar, "livePath");
-  if ( PairValue )
-  {
-    _RBX = CG_FindRadiantVolumetric(PairValue);
-    if ( _RBX )
-    {
-      __asm
-      {
-        vmovaps [rsp+0E0h+var_30], xmm6
-        vmovaps [rsp+0E0h+var_40], xmm7
-        vmovaps [rsp+0E0h+var_50], xmm8
-      }
-      v8 = GetPairValue(v5, "obb_origin");
-      if ( !v8 || j_sscanf(v8, "%f %f %f", &_RBX->volumetric.obb, &_RBX->volumetric.obb.center.y, &_RBX->volumetric.obb.center.z) != 3 )
-        Com_PrintWarning(14, "Radiant Live: Volumetric missing or incomplete origin.\n");
-      v9 = GetPairValue(v5, "obb_xAxis");
-      if ( !v9 || j_sscanf(v9, "%f %f %f", &_RBX->volumetric.obb.xAxis, &_RBX->volumetric.obb.xAxis.y, &_RBX->volumetric.obb.xAxis.z) != 3 )
-        Com_PrintWarning(14, "Radiant Live: Volumetric missing or incomplete xAxis.\n");
-      v10 = GetPairValue(v5, "obb_yAxis");
-      if ( !v10 || j_sscanf(v10, "%f %f %f", &_RBX->volumetric.obb.yAxis, &_RBX->volumetric.obb.yAxis.y, &_RBX->volumetric.obb.yAxis.z) != 3 )
-        Com_PrintWarning(14, "Radiant Live: Volumetric missing or incomplete yAxis.\n");
-      v11 = GetPairValue(v5, "obb_zAxis");
-      if ( !v11 || j_sscanf(v11, "%f %f %f", &_RBX->volumetric.obb.zAxis, &_RBX->volumetric.obb.zAxis.y, &_RBX->volumetric.obb.zAxis.z) != 3 )
-        Com_PrintWarning(14, "Radiant Live: Volumetric missing or incomplete zAxis.\n");
-      v12 = GetPairValue(v5, "obb_halfSize");
-      if ( !v12 || j_sscanf(v12, "%f %f %f", &_RBX->volumetric.obb.halfSize, &_RBX->volumetric.obb.halfSize.y, &_RBX->volumetric.obb.halfSize.z) != 3 )
-        Com_PrintWarning(14, "Radiant Live: Volumetric missing or incomplete halfSize.\n");
-      v13 = GetPairValue(v5, "density");
-      if ( v13 && j_sscanf(v13, "%f", &v108) == 1 )
-      {
-        __asm { vmovss  xmm0, [rbp+57h+var_A4] }
-      }
-      else
-      {
-        __asm
-        {
-          vmovsd  xmm2, cs:__real@3fb99999a0000000
-          vmovq   r8, xmm2
-        }
-        Com_PrintWarning(14, "Radiant Live: Volumetric is missing density, will use default: %.2f\n", _R8);
-        __asm
-        {
-          vmovss  xmm0, cs:__real@3dcccccd
-          vmovss  [rbp+57h+var_A4], xmm0
-        }
-      }
-      __asm
-      {
-        vmovss  xmm6, cs:__real@3f800000
-        vmulss  xmm0, xmm0, cs:__real@3c23d70a; val
-        vmovaps xmm2, xmm6; max
-        vxorps  xmm1, xmm1, xmm1; min
-        vxorps  xmm7, xmm7, xmm7
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rbx+9Ch], xmm0 }
-      v22 = GetPairValue(v5, "falloff");
-      if ( v22 && (v23 = j_sscanf(v22, "%f", &v105), v23 == 1) )
-      {
-        __asm
-        {
-          vmovss  xmm3, [rbp+57h+var_B0]
-          vcomiss xmm3, xmm7
-        }
-        Com_PrintWarning(14, "Radiant Live: Volumetric has zero or negative falloff, using default, but this will fail map compile!.\n");
-      }
-      else
-      {
-        __asm
-        {
-          vmovsd  xmm2, cs:__real@4034000000000000
-          vmovq   r8, xmm2
-        }
-        Com_PrintWarning(14, "Radiant Live: Volumetric is missing falloff, will use default: %.2f.\n", _R8);
-      }
-      __asm
-      {
-        vmovss  xmm3, cs:__real@41a00000
-        vmovss  [rbp+57h+var_B0], xmm3
-        vmovss  xmm0, dword ptr [rbx+88h]
-        vminss  xmm1, xmm0, dword ptr [rbx+84h]
-        vminss  xmm2, xmm1, dword ptr [rbx+8Ch]
-        vminss  xmm3, xmm2, xmm3
-        vmovss  dword ptr [rbx+0A0h], xmm3
-      }
-      v32 = GetPairValue(v5, "height_fade");
-      if ( v32 && j_sscanf(v32, "%f", &v106) == 1 )
-      {
-        __asm
-        {
-          vmovss  xmm0, [rbp+57h+var_AC]
-          vcomiss xmm0, xmm7
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vxorpd  xmm2, xmm2, xmm2
-          vmovq   r8, xmm2
-        }
-        Com_PrintWarning(14, "Radiant Live: Volumetric is missing height_fade, will use default: %.2f.\n", _R8);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0; val
-          vmovss  [rbp+57h+var_AC], xmm0
-        }
-      }
-      __asm
-      {
-        vmovaps xmm2, xmm6; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rbx+0A4h], xmm0 }
-      v38 = GetPairValue(v5, "anisotropy");
-      if ( v38 && j_sscanf(v38, "%f", &v109) == 1 )
-      {
-        __asm { vmovss  xmm0, [rbp+57h+var_A0] }
-      }
-      else
-      {
-        Com_PrintWarning(14, "Radiant Live: Volumetric is missing anisotropy, will be disabled.\n");
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0; val
-          vmovss  [rbp+57h+var_A0], xmm0
-        }
-      }
-      __asm
-      {
-        vmovss  xmm1, cs:__real@bf800000; min
-        vmovaps xmm2, xmm6; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rbx+0A8h], xmm0 }
-      v42 = GetPairValue(v5, "anisotropy_enabled");
-      if ( v42 && j_sscanf(v42, "%i", &v110) == 1 )
-      {
-        v43 = v110;
-      }
-      else
-      {
-        Com_PrintWarning(14, "Radiant Live: Volumetric is missing anisotropy_enabled, will be disabled.\n");
-        v43 = 0;
-        v110 = 0;
-      }
-      flags = _RBX->volumetric.flags;
-      v45 = flags & 0xFFFFFFFD;
-      v46 = flags | 2;
-      if ( v43 )
-        v45 = v46;
-      _RBX->volumetric.flags = v45;
-      v47 = GetPairValue(v5, "color");
-      __asm { vmovsd  xmm8, cs:__real@3ff0000000000000 }
-      if ( v47 && j_sscanf(v47, "%f %f %f", &v119, &v120, &v121) == 3 )
-      {
-        __asm { vmovss  xmm0, [rbp+57h+var_70] }
-      }
-      else
-      {
-        __asm
-        {
-          vmovaps xmm3, xmm8
-          vmovaps xmm2, xmm8
-          vmovq   r9, xmm3
-          vmovq   r8, xmm2
-          vmovsd  [rsp+0E0h+fmt], xmm8
-        }
-        Com_PrintWarning(14, "Radiant Live: Volumetric color missing or incomplete, will use [%.1f %.1f %.1f]\n", _R8, _R9, fmt);
-        __asm
-        {
-          vmovaps xmm0, xmm6
-          vmovss  [rbp+57h+var_70], xmm6
-          vmovss  [rbp+57h+var_6C], xmm6
-          vmovss  [rbp+57h+var_68], xmm6
-        }
-      }
-      __asm
-      {
-        vmovss  dword ptr [rbx+90h], xmm0
-        vmovss  xmm0, [rbp+57h+var_6C]
-        vmovss  dword ptr [rbx+94h], xmm0
-        vmovss  xmm1, [rbp+57h+var_68]
-        vmovss  dword ptr [rbx+98h], xmm1
-      }
-      v56 = GetPairValue(v5, "color_enabled");
-      if ( v56 && j_sscanf(v56, "%i", &v111) == 1 )
-      {
-        v57 = v111;
-      }
-      else
-      {
-        Com_PrintWarning(14, "Radiant Live: Volumetric is missing color_enabled, will be disabled.\n");
-        v57 = 0;
-        v111 = 0;
-      }
-      _R13 = (float *)&_RBX->volumetric.masks[0].offset + 1;
-      v59 = s_maskAxes;
-      v60 = _RBX->volumetric.flags & 0xFFFFFFFB;
-      if ( v57 )
-        v60 = _RBX->volumetric.flags | 4;
-      v61 = 0;
-      v107 = 0;
-      _RBX->volumetric.flags = v60;
-      do
-      {
-        *(_R13 - 7) = 0.0;
-        v62 = s_maskTypes;
-        v63 = 0;
-        *(_QWORD *)(_R13 - 5) = rgp.whiteImage;
-        while ( 1 )
-        {
-          v64 = j_va("mask%d%s", v61, *v62);
-          v65 = GetPairValue(v5, v64);
-          if ( v65 )
-          {
-            if ( *v65 )
-            {
-              v66.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_IMAGE, v65, 0).physicsLibrary;
-              if ( v66.physicsLibrary )
-                break;
-            }
-          }
-          ++v63;
-          ++v62;
-          if ( v63 >= 3 )
-            goto LABEL_61;
-        }
-        *((_DWORD *)_R13 - 7) = v63;
-        *(XAssetHeader *)(_R13 - 5) = v66;
-LABEL_61:
-        if ( v63 == 3 )
-        {
-          Com_PrintWarning(14, "Radiant Live: Volumetric mask %d type not specified, this mask will be ignored.\n", v61);
-        }
-        else if ( v63 )
-        {
-          *((_DWORD *)_R13 - 6) = 2;
-          v67 = j_va("mask%daxis", v61);
-          v68 = GetPairValue(v5, v67);
-          if ( v68 )
-          {
-            for ( i = 0; i < 6; ++i )
-            {
-              name = v59->name;
-              v71 = 0x7FFFFFFFi64;
-              v72 = v68;
-              if ( !v59->name && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
-                __debugbreak();
-              v73 = name - v68;
-              while ( 1 )
-              {
-                v74 = *(unsigned __int8 *)v72;
-                v75 = v71;
-                v76 = (unsigned __int8)(v72++)[v73];
-                --v71;
-                if ( !v75 )
-                {
-LABEL_78:
-                  v59 = s_maskAxes;
-                  *(_R13 - 6) = *(float *)&s_maskAxes[i].value;
-                  goto LABEL_81;
-                }
-                if ( v74 != v76 )
-                {
-                  v77 = v74 + 32;
-                  if ( (unsigned int)(v74 - 65) > 0x19 )
-                    v77 = v74;
-                  v74 = v77;
-                  v78 = v76 + 32;
-                  if ( (unsigned int)(v76 - 65) > 0x19 )
-                    v78 = v76;
-                  if ( v74 != v78 )
-                    break;
-                }
-                if ( !v74 )
-                  goto LABEL_78;
-              }
-              ++v59;
-            }
-            v59 = s_maskAxes;
-LABEL_81:
-            v61 = v107;
-            if ( i == 6 )
-              Com_PrintWarning(14, "Radiant Live: Volumetric mask %d has invalid axis: %s, using +Z axis instead, but this will fail map compile!.\n", v107, v68);
-          }
-          else
-          {
-            Com_PrintWarning(14, "Radiant Live: Volumetric mask %d axis not specified, will use +Z axis.\n", v61);
-          }
-          v79 = j_va("mask%dscale", v61);
-          v5 = spawnVara;
-          v80 = GetPairValue(spawnVara, v79);
-          if ( v80 && (v81 = j_sscanf(v80, "%f %f", &v113, &v114), v82 = v81 < 2, v81 == 2) )
-          {
-            __asm { vmovss  xmm0, [rbp+57h+var_88] }
-          }
-          else
-          {
-            __asm
-            {
-              vmovaps xmm3, xmm8
-              vmovq   r9, xmm3
-              vmovsd  [rsp+0E0h+fmt], xmm8
-            }
-            Com_PrintWarning(14, "Radiant Live: Volumetric mask %d scale missing or incomplete, will use [%.1f %.1f]\n", v61, _R9, fmta);
-            __asm
-            {
-              vmovaps xmm0, xmm6
-              vmovss  [rbp+57h+var_88], xmm6
-              vmovss  [rbp+57h+var_84], xmm6
-            }
-          }
-          __asm
-          {
-            vmovss  dword ptr [r13-0Ch], xmm0
-            vmovss  xmm1, dword ptr [r13-0Ch]
-            vcomiss xmm1, xmm6
-            vmovss  xmm0, [rbp+57h+var_84]
-            vmovss  dword ptr [r13-8], xmm0
-          }
-          if ( v82 )
-            goto LABEL_90;
-          __asm
-          {
-            vmovss  xmm0, [rbp+57h+var_84]
-            vcomiss xmm0, xmm6
-          }
-          if ( v82 )
-          {
-LABEL_90:
-            Com_PrintWarning(14, "Radiant Live: Volumetric scale is smaller than the minimum, this will fail the map compile.\n");
-            __asm { vmovss  xmm1, dword ptr [r13-0Ch] }
-          }
-          __asm
-          {
-            vmaxss  xmm0, xmm1, xmm6
-            vmovss  dword ptr [r13-0Ch], xmm0
-            vmovss  xmm1, dword ptr [r13-8]
-            vmaxss  xmm2, xmm1, xmm6
-            vmovss  dword ptr [r13-8], xmm2
-          }
-          v92 = j_va("mask%doffset", v61);
-          v93 = GetPairValue(v5, v92);
-          if ( v93 && j_sscanf(v93, "%f %f", &v115, &v116) == 2 )
-          {
-            __asm { vmovss  xmm0, [rbp+57h+var_80] }
-          }
-          else
-          {
-            Com_PrintWarning(14, "Radiant Live: Volumetric mask %d offset missing or incomplete, will use [0 0]\n", v61);
-            __asm
-            {
-              vmovaps xmm0, xmm7
-              vmovss  [rbp+57h+var_80], xmm7
-              vmovss  [rbp+57h+var_7C], xmm7
-            }
-          }
-          __asm
-          {
-            vmovss  dword ptr [r13-4], xmm0
-            vmovss  xmm0, [rbp+57h+var_7C]
-            vmovss  dword ptr [r13+0], xmm0
-          }
-          v96 = j_va("mask%dscroll", v61);
-          v97 = GetPairValue(v5, v96);
-          if ( v97 && j_sscanf(v97, "%f %f", &v117, &v118) == 2 )
-          {
-            __asm { vmovss  xmm0, [rbp+57h+var_78] }
-          }
-          else
-          {
-            Com_PrintWarning(14, "Radiant Live: Volumetric mask %d scroll missing or incomplete, will use [0 0]\n", v61);
-            __asm
-            {
-              vmovaps xmm0, xmm7
-              vmovss  [rbp+57h+var_78], xmm7
-              vmovss  [rbp+57h+var_74], xmm7
-            }
-          }
-          __asm
-          {
-            vmovss  dword ptr [r13+4], xmm0
-            vmovss  xmm0, [rbp+57h+var_74]
-            vmovss  dword ptr [r13+8], xmm0
-          }
-        }
-        ++v61;
-        _R13 += 10;
-        v107 = v61;
-      }
-      while ( v61 < 4 );
-      __asm
-      {
-        vmovaps xmm8, [rsp+0E0h+var_50]
-        vmovaps xmm7, [rsp+0E0h+var_40]
-        vmovaps xmm6, [rsp+0E0h+var_30]
-      }
-    }
-  }
-  else
+  if ( !PairValue )
   {
     Com_PrintWarning(14, "Radiant Live: Volumetric update command has no livePath KVP.\n");
+    return;
+  }
+  RadiantVolumetric = CG_FindRadiantVolumetric(PairValue);
+  if ( RadiantVolumetric )
+  {
+    v4 = GetPairValue(v1, "obb_origin");
+    if ( !v4 || j_sscanf(v4, "%f %f %f", &RadiantVolumetric->volumetric.obb, &RadiantVolumetric->volumetric.obb.center.y, &RadiantVolumetric->volumetric.obb.center.z) != 3 )
+      Com_PrintWarning(14, "Radiant Live: Volumetric missing or incomplete origin.\n");
+    v5 = GetPairValue(v1, "obb_xAxis");
+    if ( !v5 || j_sscanf(v5, "%f %f %f", &RadiantVolumetric->volumetric.obb.xAxis, &RadiantVolumetric->volumetric.obb.xAxis.y, &RadiantVolumetric->volumetric.obb.xAxis.z) != 3 )
+      Com_PrintWarning(14, "Radiant Live: Volumetric missing or incomplete xAxis.\n");
+    v6 = GetPairValue(v1, "obb_yAxis");
+    if ( !v6 || j_sscanf(v6, "%f %f %f", &RadiantVolumetric->volumetric.obb.yAxis, &RadiantVolumetric->volumetric.obb.yAxis.y, &RadiantVolumetric->volumetric.obb.yAxis.z) != 3 )
+      Com_PrintWarning(14, "Radiant Live: Volumetric missing or incomplete yAxis.\n");
+    v7 = GetPairValue(v1, "obb_zAxis");
+    if ( !v7 || j_sscanf(v7, "%f %f %f", &RadiantVolumetric->volumetric.obb.zAxis, &RadiantVolumetric->volumetric.obb.zAxis.y, &RadiantVolumetric->volumetric.obb.zAxis.z) != 3 )
+      Com_PrintWarning(14, "Radiant Live: Volumetric missing or incomplete zAxis.\n");
+    v8 = GetPairValue(v1, "obb_halfSize");
+    if ( !v8 || j_sscanf(v8, "%f %f %f", &RadiantVolumetric->volumetric.obb.halfSize, &RadiantVolumetric->volumetric.obb.halfSize.y, &RadiantVolumetric->volumetric.obb.halfSize.z) != 3 )
+      Com_PrintWarning(14, "Radiant Live: Volumetric missing or incomplete halfSize.\n");
+    v9 = GetPairValue(v1, "density");
+    if ( v9 && j_sscanf(v9, "%f", &v70) == 1 )
+    {
+      v10 = v70;
+    }
+    else
+    {
+      Com_PrintWarning(14, "Radiant Live: Volumetric is missing density, will use default: %.2f\n", DOUBLE_0_1000000014901161);
+      v10 = FLOAT_0_1;
+      v70 = FLOAT_0_1;
+    }
+    v11 = I_fclamp(v10 * 0.0099999998, 0.0, 1.0);
+    RadiantVolumetric->volumetric.density = *(float *)&v11;
+    v12 = GetPairValue(v1, "falloff");
+    if ( v12 && j_sscanf(v12, "%f", &v67) == 1 )
+    {
+      if ( v67 > 0.0 )
+      {
+LABEL_29:
+        _XMM0 = LODWORD(RadiantVolumetric->volumetric.obb.halfSize.v[1]);
+        __asm
+        {
+          vminss  xmm1, xmm0, dword ptr [rbx+84h]
+          vminss  xmm2, xmm1, dword ptr [rbx+8Ch]
+          vminss  xmm3, xmm2, xmm3
+        }
+        RadiantVolumetric->volumetric.falloff = *(float *)&_XMM3;
+        v17 = GetPairValue(v1, "height_fade");
+        if ( v17 && j_sscanf(v17, "%f", &v68) == 1 )
+        {
+          v18 = v68;
+          if ( v68 >= 0.0 )
+          {
+LABEL_35:
+            v20 = I_fclamp(v18, 0.0, 1.0);
+            RadiantVolumetric->volumetric.heightFade = *(float *)&v20;
+            v21 = GetPairValue(v1, "anisotropy");
+            if ( v21 && j_sscanf(v21, "%f", &v71) == 1 )
+            {
+              v22 = v71;
+            }
+            else
+            {
+              Com_PrintWarning(14, "Radiant Live: Volumetric is missing anisotropy, will be disabled.\n");
+              v22 = 0.0;
+              v71 = 0.0;
+            }
+            v23 = I_fclamp(v22, -1.0, 1.0);
+            RadiantVolumetric->volumetric.anisotropy = *(float *)&v23;
+            v24 = GetPairValue(v1, "anisotropy_enabled");
+            if ( v24 && j_sscanf(v24, "%i", &v72) == 1 )
+            {
+              v25 = v72;
+            }
+            else
+            {
+              Com_PrintWarning(14, "Radiant Live: Volumetric is missing anisotropy_enabled, will be disabled.\n");
+              v25 = 0;
+              v72 = 0;
+            }
+            flags = RadiantVolumetric->volumetric.flags;
+            v27 = flags & 0xFFFFFFFD;
+            v28 = flags | 2;
+            if ( v25 )
+              v27 = v28;
+            RadiantVolumetric->volumetric.flags = v27;
+            v29 = GetPairValue(v1, "color");
+            if ( v29 && j_sscanf(v29, "%f %f %f", &v81, &v82, &v83) == 3 )
+            {
+              v30 = v81;
+            }
+            else
+            {
+              Com_PrintWarning(14, "Radiant Live: Volumetric color missing or incomplete, will use [%.1f %.1f %.1f]\n", DOUBLE_1_0, DOUBLE_1_0, DOUBLE_1_0);
+              v30 = FLOAT_1_0;
+              v81 = FLOAT_1_0;
+              v82 = FLOAT_1_0;
+              v83 = FLOAT_1_0;
+            }
+            RadiantVolumetric->volumetric.color.v[0] = v30;
+            RadiantVolumetric->volumetric.color.v[1] = v82;
+            RadiantVolumetric->volumetric.color.v[2] = v83;
+            v31 = GetPairValue(v1, "color_enabled");
+            if ( v31 && j_sscanf(v31, "%i", &v73) == 1 )
+            {
+              v32 = v73;
+            }
+            else
+            {
+              Com_PrintWarning(14, "Radiant Live: Volumetric is missing color_enabled, will be disabled.\n");
+              v32 = 0;
+              v73 = 0;
+            }
+            v33 = (float *)&RadiantVolumetric->volumetric.masks[0].offset + 1;
+            v34 = s_maskAxes;
+            v35 = RadiantVolumetric->volumetric.flags & 0xFFFFFFFB;
+            if ( v32 )
+              v35 = RadiantVolumetric->volumetric.flags | 4;
+            v36 = 0;
+            v69 = 0;
+            RadiantVolumetric->volumetric.flags = v35;
+            do
+            {
+              *(v33 - 7) = 0.0;
+              v37 = s_maskTypes;
+              v38 = 0;
+              *(_QWORD *)(v33 - 5) = rgp.whiteImage;
+              while ( 1 )
+              {
+                v39 = j_va("mask%d%s", v36, *v37);
+                v40 = GetPairValue(v1, v39);
+                if ( v40 )
+                {
+                  if ( *v40 )
+                  {
+                    v41.physicsLibrary = DB_FindXAssetHeader(ASSET_TYPE_IMAGE, v40, 0).physicsLibrary;
+                    if ( v41.physicsLibrary )
+                      break;
+                  }
+                }
+                ++v38;
+                ++v37;
+                if ( v38 >= 3 )
+                  goto LABEL_63;
+              }
+              *((_DWORD *)v33 - 7) = v38;
+              *(XAssetHeader *)(v33 - 5) = v41;
+LABEL_63:
+              if ( v38 == 3 )
+              {
+                Com_PrintWarning(14, "Radiant Live: Volumetric mask %d type not specified, this mask will be ignored.\n", v36);
+              }
+              else if ( v38 )
+              {
+                *((_DWORD *)v33 - 6) = 2;
+                v42 = j_va("mask%daxis", v36);
+                v43 = GetPairValue(v1, v42);
+                if ( v43 )
+                {
+                  for ( i = 0; i < 6; ++i )
+                  {
+                    name = v34->name;
+                    v46 = 0x7FFFFFFFi64;
+                    v47 = v43;
+                    if ( !v34->name && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
+                      __debugbreak();
+                    v48 = name - v43;
+                    while ( 1 )
+                    {
+                      v49 = *(unsigned __int8 *)v47;
+                      v50 = v46;
+                      v51 = (unsigned __int8)(v47++)[v48];
+                      --v46;
+                      if ( !v50 )
+                      {
+LABEL_80:
+                        v34 = s_maskAxes;
+                        *(v33 - 6) = *(float *)&s_maskAxes[i].value;
+                        goto LABEL_83;
+                      }
+                      if ( v49 != v51 )
+                      {
+                        v52 = v49 + 32;
+                        if ( (unsigned int)(v49 - 65) > 0x19 )
+                          v52 = v49;
+                        v49 = v52;
+                        v53 = v51 + 32;
+                        if ( (unsigned int)(v51 - 65) > 0x19 )
+                          v53 = v51;
+                        if ( v49 != v53 )
+                          break;
+                      }
+                      if ( !v49 )
+                        goto LABEL_80;
+                    }
+                    ++v34;
+                  }
+                  v34 = s_maskAxes;
+LABEL_83:
+                  v36 = v69;
+                  if ( i == 6 )
+                    Com_PrintWarning(14, "Radiant Live: Volumetric mask %d has invalid axis: %s, using +Z axis instead, but this will fail map compile!.\n", v69, v43);
+                }
+                else
+                {
+                  Com_PrintWarning(14, "Radiant Live: Volumetric mask %d axis not specified, will use +Z axis.\n", v36);
+                }
+                v54 = j_va("mask%dscale", v36);
+                v1 = spawnVara;
+                v55 = GetPairValue(spawnVara, v54);
+                if ( v55 && j_sscanf(v55, "%f %f", &v75, &v76) == 2 )
+                {
+                  v56 = v75;
+                }
+                else
+                {
+                  Com_PrintWarning(14, "Radiant Live: Volumetric mask %d scale missing or incomplete, will use [%.1f %.1f]\n", v36, DOUBLE_1_0, DOUBLE_1_0);
+                  v56 = FLOAT_1_0;
+                  v75 = FLOAT_1_0;
+                  v76 = FLOAT_1_0;
+                }
+                *(v33 - 3) = v56;
+                _XMM1 = *((unsigned int *)v33 - 3);
+                *(v33 - 2) = v76;
+                if ( *(float *)&_XMM1 < 1.0 || v76 < 1.0 )
+                {
+                  Com_PrintWarning(14, "Radiant Live: Volumetric scale is smaller than the minimum, this will fail the map compile.\n");
+                  _XMM1 = *((unsigned int *)v33 - 3);
+                }
+                __asm { vmaxss  xmm0, xmm1, xmm6 }
+                *(v33 - 3) = *(float *)&_XMM0;
+                _XMM1 = *((unsigned int *)v33 - 2);
+                __asm { vmaxss  xmm2, xmm1, xmm6 }
+                *(v33 - 2) = *(float *)&_XMM2;
+                v61 = j_va("mask%doffset", v36);
+                v62 = GetPairValue(v1, v61);
+                if ( v62 && j_sscanf(v62, "%f %f", &v77, &v78) == 2 )
+                {
+                  v63 = v77;
+                }
+                else
+                {
+                  Com_PrintWarning(14, "Radiant Live: Volumetric mask %d offset missing or incomplete, will use [0 0]\n", v36);
+                  v63 = 0.0;
+                  v77 = 0.0;
+                  v78 = 0.0;
+                }
+                *(v33 - 1) = v63;
+                *v33 = v78;
+                v64 = j_va("mask%dscroll", v36);
+                v65 = GetPairValue(v1, v64);
+                if ( v65 && j_sscanf(v65, "%f %f", &v79, &v80) == 2 )
+                {
+                  v66 = v79;
+                }
+                else
+                {
+                  Com_PrintWarning(14, "Radiant Live: Volumetric mask %d scroll missing or incomplete, will use [0 0]\n", v36);
+                  v66 = 0.0;
+                  v79 = 0.0;
+                  v80 = 0.0;
+                }
+                v33[1] = v66;
+                v33[2] = v80;
+              }
+              ++v36;
+              v33 += 10;
+              v69 = v36;
+            }
+            while ( v36 < 4 );
+            return;
+          }
+          Com_PrintWarning(14, "Radiant Live: Volumetric has negative height_fade, using default, but this will fail map compile!.\n");
+        }
+        else
+        {
+          __asm { vxorpd  xmm2, xmm2, xmm2 }
+          Com_PrintWarning(14, "Radiant Live: Volumetric is missing height_fade, will use default: %.2f.\n", (_QWORD)_XMM2);
+        }
+        v18 = 0.0;
+        v68 = 0.0;
+        goto LABEL_35;
+      }
+      Com_PrintWarning(14, "Radiant Live: Volumetric has zero or negative falloff, using default, but this will fail map compile!.\n");
+    }
+    else
+    {
+      Com_PrintWarning(14, "Radiant Live: Volumetric is missing falloff, will use default: %.2f.\n", DOUBLE_20_0);
+    }
+    v67 = FLOAT_20_0;
+    goto LABEL_29;
   }
 }
 
@@ -3176,23 +2943,30 @@ CG_UpdateDecalVolumeMaterial
 void CG_UpdateDecalVolumeMaterial(const SpawnVar *spawnVar, GfxStaticDecalVolumeUnpacked *decalVolume, vec3_t *outBlendMapAdjust, float *outEdgeFeatherZ, unsigned int decalIndex, bool isDynamic)
 {
   const char *PairValue; 
+  Material *v11; 
+  GfxDecalVolumeMaterial *v12; 
   Material *v13; 
-  GfxDecalVolumeMaterial *v14; 
-  Material *v15; 
   GfxDecalVolumeMaterial *decalVolumeMaterial; 
+  const char *v15; 
+  int v16; 
   const char *v17; 
-  unsigned int v18; 
+  GfxDecalVolumeMask *v18; 
   const char *v19; 
-  GfxDecalVolumeMask *v20; 
-  const char *v21; 
+  const char *v20; 
+  unsigned __int8 v21; 
   const char *v22; 
-  unsigned __int8 v23; 
-  const char *v24; 
+  float v23; 
+  double v24; 
+  const char *v25; 
+  const char *v26; 
+  const char *v27; 
   const char *v28; 
-  const char *v29; 
-  const char *v30; 
-  const char *v31; 
-  int v36; 
+  float v29; 
+  float v31; 
+  float v32; 
+  float v34; 
+  const char *v35; 
+  const char *v36; 
   const char *v37; 
   const char *v38; 
   const char *v39; 
@@ -3200,46 +2974,34 @@ void CG_UpdateDecalVolumeMaterial(const SpawnVar *spawnVar, GfxStaticDecalVolume
   const char *v41; 
   const char *v42; 
   const char *v43; 
-  const char *v44; 
-  const char *v45; 
-  GfxImage **channels; 
-  GfxImage *v47; 
+  GfxImage **i; 
+  GfxImage *v45; 
   unsigned __int16 width; 
   unsigned __int16 height; 
-  vec3_t *p_size_min; 
-  vec3_t *p_size_max; 
-  unsigned int outMapIndex; 
-  unsigned int outDrawOrder; 
-  float v60; 
-  bool autoTiling; 
+  float v48; 
+  vec4_t v49; 
   DecalVolumesNormalBlendMode outNormalBlendMode; 
-  int v63; 
+  float v51; 
   GfxDecalVolumeMaterial *outMaterial; 
-  int v65; 
-  int v66; 
-  int v67; 
-  int v68; 
-  vec2_t v69; 
-  int v70; 
+  float v53; 
+  float v54; 
+  float v55; 
+  float v56; 
+  vec2_t v57; 
+  float v58; 
   GfxDecalVolumeMask *outMask; 
   unsigned int drawOrder; 
   unsigned int mapIndex; 
   vec2_t uvShift; 
   vec2_t uvScale; 
   vec3_t size_max; 
-  int v77; 
-  int v78; 
-  int v79; 
+  vec3_t v65; 
   vec2_t outUvOffset; 
-  int v81[4]; 
+  vec3_t v67; 
   vec3_t _size_min; 
   vec4_t outUvMatrix; 
   char dest[512]; 
 
-  __asm { vmovaps [rsp+380h+var_50], xmm6 }
-  _R12 = outEdgeFeatherZ;
-  _R13 = outBlendMapAdjust;
-  _R15 = decalVolume;
   R_DecalVolumes_GetMaterialInfo(decalIndex, isDynamic, &outMaterial, &outMask, &outNormalBlendMode, &mapIndex, &drawOrder);
   PairValue = GetPairValue(spawnVar, "modeloverridematerial");
   if ( PairValue )
@@ -3250,243 +3012,191 @@ void CG_UpdateDecalVolumeMaterial(const SpawnVar *spawnVar, GfxStaticDecalVolume
     {
       if ( I_strcmp(outMaterial->name, dest) )
       {
-        v15 = Material_Register(dest, IMAGE_TRACK_EMBLEM);
-        if ( v15 )
+        v13 = Material_Register(dest, IMAGE_TRACK_EMBLEM);
+        if ( v13 )
         {
-          decalVolumeMaterial = v15->decalVolumeMaterial;
-          v14 = outMaterial;
+          decalVolumeMaterial = v13->decalVolumeMaterial;
+          v12 = outMaterial;
           if ( decalVolumeMaterial )
-            v14 = decalVolumeMaterial;
+            v12 = decalVolumeMaterial;
           goto LABEL_9;
         }
       }
     }
     else
     {
-      v13 = Material_Register(dest, IMAGE_TRACK_EMBLEM);
-      if ( v13 )
+      v11 = Material_Register(dest, IMAGE_TRACK_EMBLEM);
+      if ( v11 )
       {
-        v14 = v13->decalVolumeMaterial;
+        v12 = v11->decalVolumeMaterial;
 LABEL_9:
-        outMaterial = v14;
+        outMaterial = v12;
       }
     }
   }
-  v17 = GetPairValue(spawnVar, "blendMapImageName");
-  v18 = 0;
-  v19 = v17;
-  if ( v17 && *v17 )
+  v15 = GetPairValue(spawnVar, "blendMapImageName");
+  v16 = 0;
+  v17 = v15;
+  if ( v15 && *v15 )
   {
-    if ( !outMask || !outMask->blendMap || I_strcmp(outMask->name, v17) )
+    if ( !outMask || !outMask->blendMap || I_strcmp(outMask->name, v15) )
     {
-      v20 = R_DecalVolume_RegisterMask(v19, IMAGE_TRACK_EMBLEM);
-      outMask = v20;
-      if ( v20 )
-        R_DecalVolumes_StartStreaming(v20->blendMap);
+      v18 = R_DecalVolume_RegisterMask(v17, IMAGE_TRACK_EMBLEM);
+      outMask = v18;
+      if ( v18 )
+        R_DecalVolumes_StartStreaming(v18->blendMap);
     }
   }
   else
   {
     outMask = NULL;
   }
-  v21 = GetPairValue(spawnVar, "normalBlendModeOverride");
-  v22 = v21;
-  if ( v21 && *v21 )
+  v19 = GetPairValue(spawnVar, "normalBlendModeOverride");
+  v20 = v19;
+  if ( v19 && *v19 )
   {
-    v23 = outNormalBlendMode;
-    if ( I_stricmp(v21, "blend") )
+    v21 = outNormalBlendMode;
+    if ( I_stricmp(v19, "blend") )
     {
-      if ( I_stricmp(v22, "add") )
+      if ( I_stricmp(v20, "add") )
       {
-        if ( I_stricmp(v22, "no_override") )
+        if ( I_stricmp(v20, "no_override") )
         {
-          Com_PrintWarning(8, "WARNING: Invalid normal blend mode for decal volume: '%s'\n", v22);
-          LOBYTE(outNormalBlendMode) = v23;
+          Com_PrintWarning(8, "WARNING: Invalid normal blend mode for decal volume: '%s'\n", v20);
+          LOBYTE(outNormalBlendMode) = v21;
         }
         else
         {
-          v23 = 2;
+          v21 = 2;
           LOBYTE(outNormalBlendMode) = 2;
         }
       }
       else
       {
-        v23 = 1;
+        v21 = 1;
         LOBYTE(outNormalBlendMode) = 1;
       }
     }
     else
     {
-      v23 = 0;
+      v21 = 0;
       LOBYTE(outNormalBlendMode) = 0;
     }
   }
   else
   {
-    v23 = outNormalBlendMode;
+    v21 = outNormalBlendMode;
   }
-  _R15->packedMaterialInfo = R_DecalVolumes_RadiantLive_PackMaterialInfo(outMaterial, outMask, (DecalVolumesNormalBlendMode)v23, mapIndex, drawOrder).packed;
-  v24 = GetPairValue(spawnVar, "edgeFeatherZ");
-  __asm { vxorps  xmm6, xmm6, xmm6 }
-  if ( v24 )
+  decalVolume->packedMaterialInfo = R_DecalVolumes_RadiantLive_PackMaterialInfo(outMaterial, outMask, (DecalVolumesNormalBlendMode)v21, mapIndex, drawOrder).packed;
+  v22 = GetPairValue(spawnVar, "edgeFeatherZ");
+  if ( v22 )
   {
-    __asm { vmovss  [rsp+380h+var_310], xmm6 }
-    j_sscanf(v24, "%f", &v65);
-    __asm
-    {
-      vmovss  xmm0, [rsp+380h+var_310]; zFeatherIn
-      vmovss  dword ptr [r12], xmm0
-      vmovss  xmm1, dword ptr [r15+30h]; decalHalfDepth
-    }
-    *(double *)&_XMM0 = R_DecalVolumes_CalculateZFeatherRcp(*(float *)&_XMM0, *(float *)&_XMM1);
+    v53 = 0.0;
+    j_sscanf(v22, "%f", &v53);
+    v23 = v53;
+    *outEdgeFeatherZ = v53;
+    v24 = R_DecalVolumes_CalculateZFeatherRcp(v23, decalVolume->obb.halfSize.v[0]);
   }
   else
   {
-    __asm { vmovss  xmm0, cs:__real@c7c35000 }
+    *(float *)&v24 = FLOAT_N100000_0;
   }
-  __asm
+  decalVolume->zFeatherRcp = *(float *)&v24;
+  v25 = GetPairValue(spawnVar, "blendMapAdjustEdge0");
+  v26 = GetPairValue(spawnVar, "blendMapAdjustEdge1");
+  v27 = GetPairValue(spawnVar, "blendMapAdjustScale");
+  v28 = v27;
+  if ( v25 && v26 && v27 )
   {
-    vmovaps [rsp+380h+var_60], xmm7
-    vmovss  dword ptr [r15+3Ch], xmm0
-  }
-  v28 = GetPairValue(spawnVar, "blendMapAdjustEdge0");
-  v29 = GetPairValue(spawnVar, "blendMapAdjustEdge1");
-  v30 = GetPairValue(spawnVar, "blendMapAdjustScale");
-  v31 = v30;
-  if ( v28 && v29 && v30 )
-  {
-    __asm
-    {
-      vmovss  xmm7, cs:__real@3f800000
-      vmovss  [rsp+380h+var_308], xmm7
-      vmovss  [rsp+380h+var_304], xmm7
-      vmovss  [rsp+380h+var_30C], xmm6
-    }
-    j_sscanf(v28, "%f", &v66);
-    j_sscanf(v29, "%f", &v67);
-    j_sscanf(v31, "%f", &v68);
-    __asm
-    {
-      vmovss  xmm0, [rsp+380h+var_30C]; edge0
-      vmovss  xmm1, [rsp+380h+var_308]; edge1
-      vmovss  xmm2, [rsp+380h+var_304]; scale
-      vunpcklps xmm3, xmm0, xmm1
-      vmovss  [rbp+280h+var_2F8], xmm2
-    }
-    v36 = v70;
-    __asm { vmovsd  qword ptr [r13+0], xmm3 }
-    LODWORD(_R13->v[2]) = v36;
-    R_DecalVolumes_PrecalculateBlendMapAdjust(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2, &_R15->blendMapAdjust);
+    v29 = FLOAT_1_0;
+    v55 = FLOAT_1_0;
+    v56 = FLOAT_1_0;
+    v54 = 0.0;
+    j_sscanf(v25, "%f", &v54);
+    j_sscanf(v26, "%f", &v55);
+    j_sscanf(v28, "%f", &v56);
+    _XMM0 = LODWORD(v54);
+    v31 = v55;
+    v32 = v56;
+    __asm { vunpcklps xmm3, xmm0, xmm1 }
+    v58 = v56;
+    v34 = v56;
+    *(double *)outBlendMapAdjust->v = *(double *)&_XMM3;
+    outBlendMapAdjust->v[2] = v34;
+    R_DecalVolumes_PrecalculateBlendMapAdjust(*(float *)&_XMM0, v31, v32, &decalVolume->blendMapAdjust);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm7, cs:__real@3f800000
-      vmovss  dword ptr [rbp+280h+var_300], xmm7
-      vmovss  dword ptr [rbp+280h+var_300+4], xmm6
-    }
-    _R15->blendMapAdjust = v69;
+    v29 = FLOAT_1_0;
+    v57.v[0] = FLOAT_1_0;
+    v57.v[1] = 0.0;
+    decalVolume->blendMapAdjust = v57;
   }
-  v37 = GetPairValue(spawnVar, "explicitUVShift");
-  v38 = GetPairValue(spawnVar, "explicitUVScale");
-  v39 = GetPairValue(spawnVar, "explicitUVRotateDeg");
-  v40 = GetPairValue(spawnVar, "uvAutoTiling");
-  v41 = v40;
-  if ( v37 && v38 && v39 && v40 )
+  v35 = GetPairValue(spawnVar, "explicitUVShift");
+  v36 = GetPairValue(spawnVar, "explicitUVScale");
+  v37 = GetPairValue(spawnVar, "explicitUVRotateDeg");
+  v38 = GetPairValue(spawnVar, "uvAutoTiling");
+  v39 = v38;
+  if ( v35 && v36 && v37 && v38 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rbp+280h+uvShift], xmm6
-      vmovss  dword ptr [rbp+280h+uvShift+4], xmm6
-      vmovss  dword ptr [rbp+280h+uvScale], xmm7
-      vmovss  dword ptr [rbp+280h+uvScale+4], xmm7
-      vmovss  [rsp+380h+var_31C], xmm6
-    }
-    j_sscanf(v37, "%f %f", &uvShift, &uvShift.y);
-    j_sscanf(v38, "%f %f", &uvScale, &uvScale.y);
-    j_sscanf(v39, "%f", &v63);
+    uvShift.v[0] = 0.0;
+    uvShift.v[1] = 0.0;
+    uvScale.v[0] = v29;
+    uvScale.v[1] = v29;
+    v51 = 0.0;
+    j_sscanf(v35, "%f %f", &uvShift, &uvShift.y);
+    j_sscanf(v36, "%f %f", &uvScale, &uvScale.y);
+    j_sscanf(v37, "%f", &v51);
     BYTE1(outNormalBlendMode) = 0;
-    GetBoolFromString(v41, (bool *)&outNormalBlendMode + 1);
+    GetBoolFromString(v39, (bool *)&outNormalBlendMode + 1);
     if ( !BYTE1(outNormalBlendMode) || !outMaterial )
     {
-      p_size_min = &_size_min;
-      p_size_max = (vec3_t *)v81;
-      autoTiling = 0;
-      __asm { vmovss  [rsp+380h+var_348], xmm6 }
-      outDrawOrder = 0;
-      outMapIndex = 0;
-      __asm
-      {
-        vmovss  [rbp+280h+var_2A8], xmm6
-        vmovss  [rbp+280h+var_2A4], xmm6
-        vmovss  [rbp+280h+var_2A0], xmm6
-        vmovss  dword ptr [rbp+280h+_size_min], xmm6
-        vmovss  dword ptr [rbp+280h+_size_min+4], xmm6
-        vmovss  dword ptr [rbp+280h+_size_min+8], xmm6
-      }
+      v67.v[0] = 0.0;
+      v67.v[1] = 0.0;
+      v67.v[2] = 0.0;
+      _size_min.v[0] = 0.0;
+      _size_min.v[1] = 0.0;
+      _size_min.v[2] = 0.0;
+      R_DecalVolumes_CalculateUVTranform(&uvScale, &uvShift, v51, &_size_min, &v67, 0, 0, 0.0, 0, &outUvMatrix, &outUvOffset);
       goto LABEL_53;
     }
-    v42 = GetPairValue(spawnVar, "RadiantDefaultTextureDensity");
-    v43 = GetPairValue(spawnVar, "size_min");
-    v44 = GetPairValue(spawnVar, "size_max");
-    v45 = v44;
-    if ( v42 && v43 && v44 )
+    v40 = GetPairValue(spawnVar, "RadiantDefaultTextureDensity");
+    v41 = GetPairValue(spawnVar, "size_min");
+    v42 = GetPairValue(spawnVar, "size_max");
+    v43 = v42;
+    if ( v40 && v41 && v42 )
     {
-      channels = outMaterial->channels;
-      while ( !*channels )
+      for ( i = outMaterial->channels; !*i; ++i )
       {
-        ++v18;
-        ++channels;
-        if ( v18 >= 4 )
-          goto LABEL_54;
+        if ( (unsigned int)++v16 >= 4 )
+          return;
       }
-      v47 = outMaterial->channels[v18];
-      width = v47->width;
-      height = v47->height;
+      v45 = outMaterial->channels[v16];
+      width = v45->width;
+      height = v45->height;
       if ( width )
       {
         if ( height )
         {
-          LODWORD(v69.v[0]) = 16;
-          __asm
-          {
-            vmovss  [rbp+280h+var_2C0], xmm6
-            vmovss  [rbp+280h+var_2BC], xmm6
-            vmovss  [rbp+280h+var_2B8], xmm6
-            vmovss  dword ptr [rbp+280h+size_max], xmm6
-            vmovss  dword ptr [rbp+280h+size_max+4], xmm6
-            vmovss  dword ptr [rbp+280h+size_max+8], xmm6
-          }
-          j_sscanf(v42, "%u", &v69);
-          j_sscanf(v43, "%f %f %f", &v77, &v78, &v79);
-          j_sscanf(v45, "%f %f %f", &size_max, &size_max.y, &size_max.z);
-          p_size_min = (vec3_t *)&v77;
-          autoTiling = 1;
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2ss xmm0, xmm0, rax
-            vmovss  [rsp+380h+var_348], xmm0
-          }
-          outDrawOrder = height;
-          p_size_max = &size_max;
-          outMapIndex = width;
+          LODWORD(v57.v[0]) = 16;
+          v65.v[0] = 0.0;
+          v65.v[1] = 0.0;
+          v65.v[2] = 0.0;
+          size_max.v[0] = 0.0;
+          size_max.v[1] = 0.0;
+          size_max.v[2] = 0.0;
+          j_sscanf(v40, "%u", &v57);
+          j_sscanf(v41, "%f %f %f", &v65, &v65.y, &v65.z);
+          j_sscanf(v43, "%f %f %f", &size_max, &size_max.y, &size_max.z);
+          v48 = (float)LODWORD(v57.v[0]);
+          R_DecalVolumes_CalculateUVTranform(&uvScale, &uvShift, v51, &v65, &size_max, width, height, v48, 1, &outUvMatrix, &outUvOffset);
 LABEL_53:
-          __asm { vmovss  xmm2, [rsp+380h+var_31C]; uvRotateDeg }
-          R_DecalVolumes_CalculateUVTranform(&uvScale, &uvShift, *(float *)&_XMM2, p_size_min, p_size_max, outMapIndex, outDrawOrder, v60, autoTiling, &outUvMatrix, &outUvOffset);
-          __asm { vmovups xmm0, xmmword ptr [rbp+280h+var_288] }
-          _R15->uvOffset = outUvOffset;
-          __asm { vmovups xmmword ptr [r15+48h], xmm0 }
+          v49 = outUvMatrix;
+          decalVolume->uvOffset = outUvOffset;
+          decalVolume->uvMatrix = v49;
         }
       }
     }
-  }
-LABEL_54:
-  __asm
-  {
-    vmovaps xmm7, [rsp+380h+var_60]
-    vmovaps xmm6, [rsp+380h+var_50]
   }
 }
 
@@ -3498,170 +3208,116 @@ CG_UpdateDecalVolumeObb
 void CG_UpdateDecalVolumeObb(const SpawnVar *spawnVar, GfxStaticDecalVolumeUnpacked *decalVolume)
 {
   const char *PairValue; 
-  const char *v12; 
-  const char *v13; 
-  const char *v14; 
-  const char *v15; 
-  const char *v52; 
-  int v71; 
-  int v72; 
-  __int64 v73; 
-  __int64 v74; 
-  float v75; 
-  int v76; 
-  int v77; 
-  int v78; 
-  int v79; 
-  int v80; 
-  __int64 v81; 
+  const char *v5; 
+  const char *v6; 
+  const char *v7; 
+  const char *v8; 
+  __int128 v19; 
+  __int128 v22; 
+  __int128 v25; 
+  const char *v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  __int128 v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
+  __int64 v39; 
+  vec3_t v40; 
+  int v41; 
+  int v42; 
+  int v43; 
+  unsigned int v44; 
+  unsigned int v45; 
+  __int64 v46; 
   tmat33_t<vec3_t> axis; 
   vec3_t angles; 
   vec3_t in1; 
   tmat43_t<vec3_t> in2; 
-  __int64 v86; 
-  char v90; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  _RBP = &v86;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  _RSI = decalVolume;
   PairValue = GetPairValue(spawnVar, "origin");
-  v12 = GetPairValue(spawnVar, "angles");
-  j_sscanf(PairValue, "%f %f %f", &v74, (char *)&v74 + 4, &v75);
-  j_sscanf(v12, "%f %f %f", &angles, &angles.y, &angles.z);
+  v5 = GetPairValue(spawnVar, "angles");
+  j_sscanf(PairValue, "%f %f %f", &v40, &v40.y, &v40.z);
+  j_sscanf(v5, "%f %f %f", &angles, &angles.y, &angles.z);
   AnglesToAxis(&angles, &axis);
-  v13 = GetPairValue(spawnVar, "size_min");
-  v14 = GetPairValue(spawnVar, "size_max");
-  v15 = v14;
-  __asm
+  v6 = GetPairValue(spawnVar, "size_min");
+  v7 = GetPairValue(spawnVar, "size_max");
+  v8 = v7;
+  if ( v6 && v7 )
   {
-    vmovss  xmm10, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm9, cs:__real@3f000000
-  }
-  if ( v13 && v14 )
-  {
+    j_sscanf(v6, "%f %f %f", &v41, &v42, &v43);
+    j_sscanf(v8, "%f %f %f", &v44, &v45, &v46);
+    _XMM2 = v44;
+    _XMM0 = (unsigned int)v46;
     __asm
     {
-      vmovaps xmmword ptr [rsp+150h+var_28+8], xmm6
-      vmovaps [rsp+150h+var_38+8], xmm7
-      vmovaps [rsp+150h+var_48+8], xmm8
-    }
-    j_sscanf(v13, "%f %f %f", &v76, &v77, &v78);
-    j_sscanf(v15, "%f %f %f", &v79, &v80, &v81);
-    __asm
-    {
-      vmovss  xmm2, [rsp+150h+var_F0]
-      vmovss  xmm0, [rsp+150h+var_100]
-      vmovss  xmm1, [rsp+150h+var_FC]
-      vxorps  xmm5, xmm0, xmm10
-      vmovss  xmm0, [rsp+150h+var_F8]
-      vxorps  xmm3, xmm0, xmm10
-      vmovss  xmm0, dword ptr [rsp+150h+var_E8]
       vminss  xmm8, xmm0, xmm3
       vmaxss  xmm3, xmm0, xmm3
-      vxorps  xmm4, xmm1, xmm10
-      vmovss  xmm1, [rsp+150h+var_EC]
+    }
+    _XMM1 = v45;
+    __asm
+    {
       vminss  xmm6, xmm2, xmm5
       vminss  xmm7, xmm1, xmm4
       vmaxss  xmm5, xmm2, xmm5
       vmaxss  xmm4, xmm1, xmm4
     }
     in2.m[0].v[2] = axis.m[0].v[2];
-    __asm
-    {
-      vaddss  xmm0, xmm5, xmm6
-      vmulss  xmm1, xmm0, xmm9
-      vmovss  dword ptr [rbp+50h+in1], xmm1
-      vaddss  xmm2, xmm4, xmm7
-      vmulss  xmm0, xmm2, xmm9
-      vmovss  dword ptr [rbp+50h+in1+4], xmm0
-      vaddss  xmm1, xmm3, xmm8
-      vmulss  xmm2, xmm1, xmm9
-      vmovss  dword ptr [rbp+50h+in1+8], xmm2
-      vsubss  xmm0, xmm5, xmm6
-      vmaxss  xmm1, xmm0, xmm9
-      vsubss  xmm2, xmm4, xmm7
-      vmaxss  xmm0, xmm2, xmm9
-      vmovss  [rsp+150h+var_11C], xmm0
-      vmovsd  xmm0, qword ptr [rsp+150h+axis]
-      vmovsd  qword ptr [rbp+50h+in2], xmm0
-      vmovsd  xmm0, qword ptr [rsp+150h+axis+0Ch]
-      vmovsd  qword ptr [rbp+50h+in2+0Ch], xmm0
-      vmovsd  xmm0, qword ptr [rbp+50h+axis+18h]
-    }
-    in2.m[1].v[2] = axis.m[1].v[2];
-    __asm
-    {
-      vmovss  [rsp+150h+var_120], xmm1
-      vsubss  xmm1, xmm3, xmm8
-      vmovsd  qword ptr [rbp+50h+in2+18h], xmm0
-      vmovsd  xmm0, qword ptr [rsp+150h+var_110]
-      vmaxss  xmm2, xmm1, xmm9
-    }
-    in2.m[2].v[2] = axis.m[2].v[2];
-    __asm
-    {
-      vmovsd  qword ptr [rbp+50h+in2+24h], xmm0
-      vmovss  dword ptr [rsp+150h+var_118], xmm2
-    }
-    in2.m[3].v[2] = v75;
-    MatrixTransformVector43(&in1, &in2, &_RSI->obb.center);
-    __asm
-    {
-      vmovaps xmm8, [rsp+150h+var_48+8]
-      vmovaps xmm7, [rsp+150h+var_38+8]
-      vmovaps xmm6, xmmword ptr [rsp+150h+var_28+8]
-    }
+    in1.v[0] = (float)(*(float *)&_XMM5 + *(float *)&_XMM6) * 0.5;
+    in1.v[1] = (float)(*(float *)&_XMM4 + *(float *)&_XMM7) * 0.5;
+    in1.v[2] = (float)(*(float *)&_XMM3 + *(float *)&_XMM8) * 0.5;
+    v19 = _XMM5;
+    *(float *)&v19 = *(float *)&_XMM5 - *(float *)&_XMM6;
+    _XMM0 = v19;
+    __asm { vmaxss  xmm1, xmm0, xmm9 }
+    v22 = _XMM4;
+    *(float *)&v22 = *(float *)&_XMM4 - *(float *)&_XMM7;
+    _XMM2 = v22;
+    __asm { vmaxss  xmm0, xmm2, xmm9 }
+    v38 = *(float *)&_XMM0;
+    *(double *)in2.m[0].v = *(double *)axis.m[0].v;
+    in2.m[1] = axis.m[1];
+    v37 = *(float *)&_XMM1;
+    v25 = _XMM3;
+    *(float *)&v25 = *(float *)&_XMM3 - *(float *)&_XMM8;
+    _XMM1 = v25;
+    in2.m[2] = axis.m[2];
+    __asm { vmaxss  xmm2, xmm1, xmm9 }
+    in2.m[3] = v40;
+    *(float *)&v39 = *(float *)&_XMM2;
+    MatrixTransformVector43(&in1, &in2, &decalVolume->obb.center);
   }
   else
   {
-    v52 = GetPairValue(spawnVar, "decalsize");
-    j_sscanf(v52, "%f %f %f", &v71, &v72, &v73);
-    __asm
-    {
-      vmovss  xmm0, [rsp+150h+var_110]
-      vmovss  xmm1, [rsp+150h+var_10C]
-      vmovss  dword ptr [rsi], xmm0
-      vmovss  xmm0, [rsp+150h+var_108]
-      vmovss  dword ptr [rsi+8], xmm0
-      vmovss  dword ptr [rsi+4], xmm1
-    }
+    v27 = GetPairValue(spawnVar, "decalsize");
+    j_sscanf(v27, "%f %f %f", &v37, &v38, &v39);
+    v28 = v40.v[1];
+    decalVolume->obb.center.v[0] = v40.v[0];
+    decalVolume->obb.center.v[2] = v40.v[2];
+    decalVolume->obb.center.v[1] = v28;
   }
-  __asm
-  {
-    vmulss  xmm1, xmm9, [rsp+150h+var_120]
-    vmulss  xmm0, xmm9, [rsp+150h+var_11C]
-    vmulss  xmm2, xmm9, dword ptr [rsp+150h+var_118]
-    vmovss  dword ptr [rsi+34h], xmm0
-    vmovss  xmm0, dword ptr [rsp+150h+axis]
-    vmovss  dword ptr [rsi+30h], xmm1
-    vmovss  dword ptr [rsi+38h], xmm2
-    vmovss  xmm2, dword ptr [rsp+150h+axis+4]
-    vxorps  xmm1, xmm0, xmm10
-    vmovss  dword ptr [rsi+0Ch], xmm1
-    vmovss  xmm1, dword ptr [rsp+150h+axis+8]
-    vxorps  xmm0, xmm2, xmm10
-    vmovss  dword ptr [rsi+10h], xmm0
-    vmovups xmm0, xmmword ptr [rsp+150h+axis+0Ch]
-    vxorps  xmm2, xmm1, xmm10
-    vmovss  xmm1, dword ptr [rbp+50h+axis+20h]
-    vmovss  dword ptr [rsi+14h], xmm2
-    vmovups xmmword ptr [rsi+18h], xmm0
-    vmovss  xmm0, dword ptr [rbp+50h+axis+1Ch]
-    vmovss  dword ptr [rsi+28h], xmm0
-    vmovss  dword ptr [rsi+2Ch], xmm1
-  }
-  _R11 = &v90;
-  __asm
-  {
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
+  v29 = 0.5 * v37;
+  v30 = 0.5 * *(float *)&v39;
+  decalVolume->obb.halfSize.v[1] = 0.5 * v38;
+  v31 = axis.m[0].v[0];
+  decalVolume->obb.halfSize.v[0] = v29;
+  decalVolume->obb.halfSize.v[2] = v30;
+  v32 = axis.m[0].v[1];
+  decalVolume->obb.axes.m[0].v[0] = COERCE_FLOAT(LODWORD(v31) ^ _xmm);
+  v33 = axis.m[0].v[2];
+  decalVolume->obb.axes.m[0].v[1] = COERCE_FLOAT(LODWORD(v32) ^ _xmm);
+  v34 = *(_OWORD *)axis.row1.v;
+  LODWORD(v35) = LODWORD(v33) ^ _xmm;
+  v36 = axis.m[2].v[2];
+  decalVolume->obb.axes.m[0].v[2] = v35;
+  *(_OWORD *)decalVolume->obb.axes.row1.v = v34;
+  decalVolume->obb.axes.m[2].v[1] = axis.m[2].v[1];
+  decalVolume->obb.axes.m[2].v[2] = v36;
 }
 
 /*
@@ -3671,30 +3327,26 @@ G_ProcessRadiantCmd
 */
 void G_ProcessRadiantCmd(RadiantCommand *command)
 {
-  __int64 v3; 
   RadiantCommandType type; 
-  int v5; 
-  RadiantCommandData v6; 
+  int v3; 
+  RadiantCommandData v4; 
   SpawnVar spawnVar; 
 
   Com_BeginParseSession("G_ProcessRadiantCmd");
   ParseRadiantSpawnVars(command->command, &spawnVar);
   Com_EndParseSession();
-  v6.radiantCommand = command;
-  v6.spawnVar = &spawnVar;
+  v4.radiantCommand = command;
+  v4.spawnVar = &spawnVar;
   if ( command->type >= (unsigned int)RADIANT_COMMAND_COUNT )
   {
-    v5 = 28;
+    v3 = 28;
     type = command->type;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\radiant_remote.cpp", 2098, ASSERT_TYPE_ASSERT, "(unsigned)( command->type ) < (unsigned)( RADIANT_COMMAND_COUNT )", "command->type doesn't index RADIANT_COMMAND_COUNT\n\t%i not in [0, %i)", type, v5) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\radiant_remote.cpp", 2098, ASSERT_TYPE_ASSERT, "(unsigned)( command->type ) < (unsigned)( RADIANT_COMMAND_COUNT )", "command->type doesn't index RADIANT_COMMAND_COUNT\n\t%i not in [0, %i)", type, v3) )
       __debugbreak();
   }
   if ( !g_radiantCommandTable[command->type] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\radiant_remote.cpp", 2099, ASSERT_TYPE_ASSERT, "(g_radiantCommandTable[command->type])", (const char *)&queryFormat, "g_radiantCommandTable[command->type]") )
     __debugbreak();
-  __asm { vmovups xmm0, [rsp+2478h+var_2438] }
-  v3 = command->type;
-  __asm { vmovdqa [rsp+2478h+var_2438], xmm0 }
-  ((void (__fastcall *)(RadiantCommandData *))g_radiantCommandTable[v3])(&v6);
+  ((void (__fastcall *)(RadiantCommandData *))g_radiantCommandTable[command->type])(&v4);
 }
 
 /*
@@ -3892,263 +3544,125 @@ void ParseRadiantSpawnVars(const char *command, SpawnVar *spawnVar)
 R_DrawRadiantLiveConnectionStatus
 ==============
 */
-
-void __fastcall R_DrawRadiantLiveConnectionStatus(__int64 a1, double _XMM1_8, double _XMM2_8)
+void R_DrawRadiantLiveConnectionStatus(void)
 {
-  Material *radiantLiveDebugConnectionMaterial; 
-  char v34; 
-  float v65; 
-  float v66; 
-  float v67; 
-  float v68; 
-  float v69; 
-  float v70; 
-  float v71; 
-  float v72; 
+  float v0; 
+  int v1; 
   __m256i verts_8; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
   if ( (cgRadiantLiveStatus & 0x3F) != 0 )
   {
-    radiantLiveDebugConnectionMaterial = rgp.radiantLiveDebugConnectionMaterial;
-    __asm
-    {
-      vmovups ymm0, cs:__ymm@42f800004220000042f8000042d000004270000042d000004270000042200000
-      vmovaps xmmword ptr [r11-18h], xmm6
-      vmovaps xmmword ptr [r11-28h], xmm7
-      vmovss  xmm7, cs:__real@42c80000
-      vmovaps xmmword ptr [r11-38h], xmm8
-      vmovss  xmm8, cs:__real@42700000
-      vmovaps xmmword ptr [r11-48h], xmm9
-      vmovaps xmmword ptr [r11-58h], xmm10
-      vmovaps xmmword ptr [r11-78h], xmm12
-      vmovaps xmmword ptr [r11-88h], xmm13
-      vmovss  xmm13, cs:__real@3e800000
-      vmovaps xmmword ptr [r11-98h], xmm14
-      vmovaps [rsp+110h+var_A8+8], xmm15
-      vmovss  xmm15, cs:__real@3f800000
-      vmovaps xmm3, xmm13; s1
-      vxorps  xmm2, xmm2, xmm2; t0
-      vxorps  xmm1, xmm1, xmm1; s0
-      vmovss  dword ptr [rsp+110h+var_F0], xmm15
-      vmovaps xmm6, xmm8
-      vmovups ymmword ptr [rsp+110h+verts+8], ymm0
-    }
-    R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v65, &color, radiantLiveDebugConnectionMaterial);
-    __asm
-    {
-      vmovss  xmm10, cs:__real@3f000000
-      vmovss  xmm14, cs:__real@3ec00000
-    }
+    v0 = FLOAT_100_0;
+    *(float *)&v1 = FLOAT_60_0;
+    verts_8 = _ymm;
+    R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, 0.0, 0.0, 0.25, 1.0, &color, rgp.radiantLiveDebugConnectionMaterial);
     if ( (cgRadiantLiveStatus & 1) != 0 )
     {
-      __asm
-      {
-        vmovups ymm0, cs:__ymm@4298000042c800004298000042e800004270000042e800004270000042c80000
-        vmovaps xmm3, xmm14; s1
-        vxorps  xmm2, xmm2, xmm2; t0
-        vmovaps xmm1, xmm13; s0
-        vmovss  dword ptr [rsp+110h+var_F0], xmm10
-        vmovups ymmword ptr [rsp+110h+verts+8], ymm0
-      }
-      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v66, &color, rgp.radiantLiveDebugConnectionMaterial);
-      __asm { vmovss  xmm6, cs:__real@42980000 }
-    }
-    __asm
-    {
-      vmovss  xmm9, cs:__real@41800000
-      vmovss  xmm12, cs:__real@42f80000
-      vmovaps [rsp+110h+var_68+8], xmm11
+      verts_8 = _ymm;
+      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, 0.25, 0.0, 0.375, 0.5, &color, rgp.radiantLiveDebugConnectionMaterial);
+      *(float *)&v1 = FLOAT_76_0;
     }
     if ( (cgRadiantLiveStatus & 2) != 0 )
     {
-      __asm
+      verts_8.m256i_i32[1] = v1;
+      verts_8.m256i_i32[3] = v1;
+      *(float *)&v1 = *(float *)&v1 + 16.0;
+      *(float *)verts_8.m256i_i32 = FLOAT_100_0;
+      *(float *)&verts_8.m256i_i32[2] = FLOAT_116_0;
+      *(float *)&verts_8.m256i_i32[4] = FLOAT_116_0;
+      verts_8.m256i_i32[5] = v1;
+      *(float *)&verts_8.m256i_i32[6] = FLOAT_100_0;
+      verts_8.m256i_i32[7] = v1;
+      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, 0.25, 0.5, 0.375, 1.0, &color, rgp.radiantLiveDebugConnectionMaterial);
+      if ( *(float *)&v1 >= 124.0 )
       {
-        vmovss  xmm11, cs:__real@42e80000
-        vmovss  dword ptr [rsp+110h+verts+0Ch], xmm6
-        vmovss  dword ptr [rsp+110h+verts+14h], xmm6
-        vaddss  xmm6, xmm6, xmm9
-        vmovaps xmm3, xmm14; s1
-        vmovaps xmm2, xmm10; t0
-        vmovaps xmm1, xmm13; s0
-        vmovss  dword ptr [rsp+110h+var_F0], xmm15
-        vmovss  dword ptr [rsp+110h+verts+8], xmm7
-        vmovss  dword ptr [rsp+110h+verts+10h], xmm11
-        vmovss  dword ptr [rsp+110h+verts+18h], xmm11
-        vmovss  dword ptr [rsp+110h+verts+1Ch], xmm6
-        vmovss  dword ptr [rsp+110h+var_B8], xmm7
-        vmovss  dword ptr [rsp+110h+var_B8+4], xmm6
-      }
-      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v67, &color, rgp.radiantLiveDebugConnectionMaterial);
-      __asm { vcomiss xmm6, xmm12 }
-      if ( !v34 )
-      {
-        __asm
-        {
-          vmovaps xmm6, xmm8
-          vmovaps xmm7, xmm11
-        }
+        *(float *)&v1 = FLOAT_60_0;
+        v0 = FLOAT_116_0;
       }
     }
     if ( (cgRadiantLiveStatus & 4) != 0 )
     {
-      __asm
+      verts_8.m256i_i32[1] = v1;
+      verts_8.m256i_i32[3] = v1;
+      *(float *)&v1 = *(float *)&v1 + 16.0;
+      *(float *)verts_8.m256i_i32 = v0;
+      *(float *)&verts_8.m256i_i32[2] = v0 + 16.0;
+      *(float *)&verts_8.m256i_i32[4] = v0 + 16.0;
+      verts_8.m256i_i32[5] = v1;
+      *(float *)&verts_8.m256i_i32[6] = v0;
+      verts_8.m256i_i32[7] = v1;
+      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, 0.375, 0.0, 0.5, 0.5, &color, rgp.radiantLiveDebugConnectionMaterial);
+      if ( *(float *)&v1 >= 124.0 )
       {
-        vmovss  dword ptr [rsp+110h+verts+0Ch], xmm6
-        vmovss  dword ptr [rsp+110h+verts+14h], xmm6
-        vaddss  xmm11, xmm7, xmm9
-        vaddss  xmm6, xmm6, xmm9
-        vmovaps xmm3, xmm10; s1
-        vxorps  xmm2, xmm2, xmm2; t0
-        vmovaps xmm1, xmm14; s0
-        vmovss  dword ptr [rsp+110h+var_F0], xmm10
-        vmovss  dword ptr [rsp+110h+verts+8], xmm7
-        vmovss  dword ptr [rsp+110h+verts+10h], xmm11
-        vmovss  dword ptr [rsp+110h+verts+18h], xmm11
-        vmovss  dword ptr [rsp+110h+verts+1Ch], xmm6
-        vmovss  dword ptr [rsp+110h+var_B8], xmm7
-        vmovss  dword ptr [rsp+110h+var_B8+4], xmm6
-      }
-      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v68, &color, rgp.radiantLiveDebugConnectionMaterial);
-      __asm { vcomiss xmm6, xmm12 }
-      if ( !v34 )
-      {
-        __asm
-        {
-          vmovaps xmm6, xmm8
-          vmovaps xmm7, xmm11
-        }
+        *(float *)&v1 = FLOAT_60_0;
+        v0 = v0 + 16.0;
       }
     }
     if ( (cgRadiantLiveStatus & 8) != 0 )
     {
-      __asm
+      verts_8.m256i_i32[1] = v1;
+      verts_8.m256i_i32[3] = v1;
+      *(float *)&v1 = *(float *)&v1 + 16.0;
+      *(float *)verts_8.m256i_i32 = v0;
+      *(float *)&verts_8.m256i_i32[2] = v0 + 16.0;
+      *(float *)&verts_8.m256i_i32[4] = v0 + 16.0;
+      verts_8.m256i_i32[5] = v1;
+      *(float *)&verts_8.m256i_i32[6] = v0;
+      verts_8.m256i_i32[7] = v1;
+      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, 0.375, 0.5, 0.5, 1.0, &color, rgp.radiantLiveDebugConnectionMaterial);
+      if ( *(float *)&v1 >= 124.0 )
       {
-        vmovss  dword ptr [rsp+110h+verts+0Ch], xmm6
-        vmovss  dword ptr [rsp+110h+verts+14h], xmm6
-        vaddss  xmm11, xmm7, xmm9
-        vaddss  xmm6, xmm6, xmm9
-        vmovaps xmm3, xmm10; s1
-        vmovaps xmm2, xmm10; t0
-        vmovaps xmm1, xmm14; s0
-        vmovss  dword ptr [rsp+110h+var_F0], xmm15
-        vmovss  dword ptr [rsp+110h+verts+8], xmm7
-        vmovss  dword ptr [rsp+110h+verts+10h], xmm11
-        vmovss  dword ptr [rsp+110h+verts+18h], xmm11
-        vmovss  dword ptr [rsp+110h+verts+1Ch], xmm6
-        vmovss  dword ptr [rsp+110h+var_B8], xmm7
-        vmovss  dword ptr [rsp+110h+var_B8+4], xmm6
-      }
-      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v69, &color, rgp.radiantLiveDebugConnectionMaterial);
-      __asm { vcomiss xmm6, xmm12 }
-      if ( !v34 )
-      {
-        __asm
-        {
-          vmovaps xmm6, xmm8
-          vmovaps xmm7, xmm11
-        }
+        *(float *)&v1 = FLOAT_60_0;
+        v0 = v0 + 16.0;
       }
     }
-    __asm { vmovss  xmm14, cs:__real@3f200000 }
     if ( (cgRadiantLiveStatus & 0x10) != 0 )
     {
-      __asm
+      verts_8.m256i_i32[1] = v1;
+      verts_8.m256i_i32[3] = v1;
+      *(float *)&v1 = *(float *)&v1 + 16.0;
+      *(float *)verts_8.m256i_i32 = v0;
+      *(float *)&verts_8.m256i_i32[2] = v0 + 16.0;
+      *(float *)&verts_8.m256i_i32[4] = v0 + 16.0;
+      verts_8.m256i_i32[5] = v1;
+      *(float *)&verts_8.m256i_i32[6] = v0;
+      verts_8.m256i_i32[7] = v1;
+      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, 0.5, 0.5, 0.625, 1.0, &color, rgp.radiantLiveDebugConnectionMaterial);
+      if ( *(float *)&v1 >= 124.0 )
       {
-        vmovss  dword ptr [rsp+110h+verts+0Ch], xmm6
-        vmovss  dword ptr [rsp+110h+verts+14h], xmm6
-        vaddss  xmm11, xmm7, xmm9
-        vaddss  xmm6, xmm6, xmm9
-        vmovaps xmm3, xmm14; s1
-        vmovaps xmm2, xmm10; t0
-        vmovaps xmm1, xmm10; s0
-        vmovss  dword ptr [rsp+110h+var_F0], xmm15
-        vmovss  dword ptr [rsp+110h+verts+8], xmm7
-        vmovss  dword ptr [rsp+110h+verts+10h], xmm11
-        vmovss  dword ptr [rsp+110h+verts+18h], xmm11
-        vmovss  dword ptr [rsp+110h+verts+1Ch], xmm6
-        vmovss  dword ptr [rsp+110h+var_B8], xmm7
-        vmovss  dword ptr [rsp+110h+var_B8+4], xmm6
-      }
-      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v70, &color, rgp.radiantLiveDebugConnectionMaterial);
-      __asm { vcomiss xmm6, xmm12 }
-      if ( !v34 )
-      {
-        __asm
-        {
-          vmovaps xmm6, xmm8
-          vmovaps xmm7, xmm11
-        }
+        *(float *)&v1 = FLOAT_60_0;
+        v0 = v0 + 16.0;
       }
     }
-    __asm { vmovss  xmm13, cs:__real@3f400000 }
     if ( (cgRadiantLiveStatus & 0x20) != 0 )
     {
-      __asm
+      verts_8.m256i_i32[1] = v1;
+      verts_8.m256i_i32[3] = v1;
+      *(float *)&v1 = *(float *)&v1 + 16.0;
+      *(float *)verts_8.m256i_i32 = v0;
+      *(float *)&verts_8.m256i_i32[2] = v0 + 16.0;
+      *(float *)&verts_8.m256i_i32[4] = v0 + 16.0;
+      verts_8.m256i_i32[5] = v1;
+      *(float *)&verts_8.m256i_i32[6] = v0;
+      verts_8.m256i_i32[7] = v1;
+      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, 0.75, 0.0, 0.875, 0.5, &color, rgp.radiantLiveDebugConnectionMaterial);
+      if ( *(float *)&v1 >= 124.0 )
       {
-        vmovss  xmm3, cs:__real@3f600000; s1
-        vmovss  dword ptr [rsp+110h+verts+0Ch], xmm6
-        vmovss  dword ptr [rsp+110h+verts+14h], xmm6
-        vaddss  xmm11, xmm7, xmm9
-        vaddss  xmm6, xmm6, xmm9
-        vxorps  xmm2, xmm2, xmm2; t0
-        vmovaps xmm1, xmm13; s0
-        vmovss  dword ptr [rsp+110h+var_F0], xmm10
-        vmovss  dword ptr [rsp+110h+verts+8], xmm7
-        vmovss  dword ptr [rsp+110h+verts+10h], xmm11
-        vmovss  dword ptr [rsp+110h+verts+18h], xmm11
-        vmovss  dword ptr [rsp+110h+verts+1Ch], xmm6
-        vmovss  dword ptr [rsp+110h+var_B8], xmm7
-        vmovss  dword ptr [rsp+110h+var_B8+4], xmm6
+        *(float *)&v1 = FLOAT_60_0;
+        v0 = v0 + 16.0;
       }
-      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v71, &color, rgp.radiantLiveDebugConnectionMaterial);
-      __asm { vcomiss xmm6, xmm12 }
-      if ( !v34 )
-      {
-        __asm
-        {
-          vmovaps xmm6, xmm8
-          vmovaps xmm7, xmm11
-        }
-      }
-    }
-    __asm
-    {
-      vmovaps xmm12, [rsp+110h+var_78+8]
-      vmovaps xmm11, [rsp+110h+var_68+8]
-      vmovaps xmm8, [rsp+110h+var_38+8]
     }
     if ( !cgRadiantLiveFlowing && (Sys_GetTimeAsSeconds() & 3) != 3 )
     {
-      __asm
-      {
-        vaddss  xmm0, xmm7, xmm9
-        vaddss  xmm4, xmm6, xmm9
-        vmovaps xmm3, xmm13; s1
-        vmovaps xmm2, xmm10; t0
-        vmovaps xmm1, xmm14; s0
-        vmovss  dword ptr [rsp+110h+var_F0], xmm15
-        vmovss  dword ptr [rsp+110h+verts+8], xmm7
-        vmovss  dword ptr [rsp+110h+verts+0Ch], xmm6
-        vmovss  dword ptr [rsp+110h+verts+10h], xmm0
-        vmovss  dword ptr [rsp+110h+verts+14h], xmm6
-        vmovss  dword ptr [rsp+110h+verts+18h], xmm0
-        vmovss  dword ptr [rsp+110h+verts+1Ch], xmm4
-        vmovss  dword ptr [rsp+110h+var_B8], xmm7
-        vmovss  dword ptr [rsp+110h+var_B8+4], xmm4
-      }
-      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v72, &color, rgp.radiantLiveDebugConnectionMaterial);
-    }
-    __asm
-    {
-      vmovaps xmm14, [rsp+110h+var_98+8]
-      vmovaps xmm13, [rsp+110h+var_88+8]
-      vmovaps xmm10, [rsp+110h+var_58+8]
-      vmovaps xmm9, [rsp+110h+var_48+8]
-      vmovaps xmm7, [rsp+110h+var_28+8]
-      vmovaps xmm6, xmmword ptr [rsp+110h+var_18+8]
-      vmovaps xmm15, [rsp+110h+var_A8+8]
+      *(float *)verts_8.m256i_i32 = v0;
+      verts_8.m256i_i32[1] = v1;
+      *(float *)&verts_8.m256i_i32[2] = v0 + 16.0;
+      verts_8.m256i_i32[3] = v1;
+      *(float *)&verts_8.m256i_i32[4] = v0 + 16.0;
+      *(float *)&verts_8.m256i_i32[5] = *(float *)&v1 + 16.0;
+      *(float *)&verts_8.m256i_i32[6] = v0;
+      *(float *)&verts_8.m256i_i32[7] = *(float *)&v1 + 16.0;
+      R_AddCmdDrawQuadPicST((const vec2_t *)&verts_8, 0.625, 0.5, 0.75, 1.0, &color, rgp.radiantLiveDebugConnectionMaterial);
     }
   }
 }
@@ -4160,26 +3674,19 @@ R_RadiantRemoteGetGfxReflectionProbeInstance
 */
 bool R_RadiantRemoteGetGfxReflectionProbeInstance(const char *livePath, GfxReflectionProbeInstance *outReflectionProbeInstance)
 {
-  _RBX = outReflectionProbeInstance;
-  _RAX = CG_FindRadiantReflectionVolume(livePath);
-  if ( _RAX )
+  RadiantRemoteReflectionVolume *RadiantReflectionVolume; 
+
+  RadiantReflectionVolume = CG_FindRadiantReflectionVolume(livePath);
+  if ( RadiantReflectionVolume )
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax+48h]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovups ymm1, ymmword ptr [rax+68h]
-      vmovups ymmword ptr [rbx+20h], ymm1
-      vmovups ymm0, ymmword ptr [rax+88h]
-      vmovups ymmword ptr [rbx+40h], ymm0
-      vmovups ymm1, ymmword ptr [rax+0A8h]
-      vmovups ymmword ptr [rbx+60h], ymm1
-      vmovups xmm0, xmmword ptr [rax+0C8h]
-      vmovups xmmword ptr [rbx+80h], xmm0
-    }
-    _RBX->livePath = NULL;
-    LOBYTE(_RAX) = 1;
+    *(__m256i *)&outReflectionProbeInstance->livePath = *(__m256i *)&RadiantReflectionVolume->reflectionProbeInstance.livePath;
+    *(__m256i *)&outReflectionProbeInstance->probeRotation.xyz.z = *(__m256i *)&RadiantReflectionVolume->reflectionProbeInstance.probeRotation.xyz.z;
+    *(__m256i *)outReflectionProbeInstance->volumeObb.yAxis.v = *(__m256i *)RadiantReflectionVolume->reflectionProbeInstance.volumeObb.yAxis.v;
+    *(__m256i *)&outReflectionProbeInstance->volumeObb.halfSize.z = *(__m256i *)&RadiantReflectionVolume->reflectionProbeInstance.volumeObb.halfSize.z;
+    *(_OWORD *)outReflectionProbeInstance->expandProjectionPos.v = *(_OWORD *)RadiantReflectionVolume->reflectionProbeInstance.expandProjectionPos.v;
+    outReflectionProbeInstance->livePath = NULL;
+    LOBYTE(RadiantReflectionVolume) = 1;
   }
-  return (char)_RAX;
+  return (char)RadiantReflectionVolume;
 }
 

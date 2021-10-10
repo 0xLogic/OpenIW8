@@ -152,7 +152,6 @@ void G_ScrMoverCmd_MoveTo(scrContext_t *scrContext, scr_entref_t entref)
   gentity_s *v4; 
   scr_string_t classname; 
   const char *v6; 
-  float fmt; 
   float pfDecelTime; 
   float pfAccelTime; 
   float pfTotalTime; 
@@ -186,14 +185,7 @@ void G_ScrMoverCmd_MoveTo(scrContext_t *scrContext, scr_entref_t entref)
   {
     Scr_GetVector(scrContext, 0, &vectorValue);
     G_ScrMover_GetCommandTimes(scrContext, &pfTotalTime, &pfAccelTime, &pfDecelTime);
-    __asm
-    {
-      vmovss  xmm0, [rsp+78h+pfDecelTime]
-      vmovss  xmm3, [rsp+78h+pfAccelTime]; fAccelTime
-      vmovss  xmm2, [rsp+78h+pfTotalTime]; fTotalTime
-      vmovss  dword ptr [rsp+78h+fmt], xmm0
-    }
-    G_ScrMover_Move(v4, &vectorValue, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt);
+    G_ScrMover_Move(v4, &vectorValue, pfTotalTime, pfAccelTime, pfDecelTime);
   }
 }
 
@@ -263,10 +255,9 @@ void G_ScrMoverCmd_GravityMove(scrContext_t *scrContext, scr_entref_t entref)
   gentity_s *v4; 
   scr_string_t classname; 
   const char *v6; 
-  const char *v16; 
-  int v18; 
-  int v19; 
-  int v20; 
+  const char *v7; 
+  double Float; 
+  float v9; 
   vec3_t vectorValue; 
 
   entnum = entref.entnum;
@@ -288,45 +279,22 @@ void G_ScrMoverCmd_GravityMove(scrContext_t *scrContext, scr_entref_t entref)
     }
   }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  __asm
+  v9 = vectorValue.v[0];
+  if ( (LODWORD(vectorValue.v[0]) & 0x7F800000) == 2139095040 || (v9 = vectorValue.v[1], (LODWORD(vectorValue.v[1]) & 0x7F800000) == 2139095040) || (v9 = vectorValue.v[2], (LODWORD(vectorValue.v[2]) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm4, dword ptr [rsp+68h+vectorValue]
-    vmovss  xmm0, dword ptr [rsp+68h+vectorValue+8]
-    vmovss  xmm1, dword ptr [rsp+68h+vectorValue+4]
-    vmovss  [rsp+68h+var_38], xmm4
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm { vmovss  [rsp+68h+var_38], xmm1 }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm { vmovss  [rsp+68h+var_38], xmm0 }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-  {
-LABEL_17:
-    __asm
-    {
-      vcvtss2sd xmm2, xmm1, xmm1
-      vcvtss2sd xmm1, xmm4, xmm4
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovq   rdx, xmm1
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    v16 = j_va("invalid velocity parameter in movegravity command: %f %f %f", _RDX, _R8, _R9);
-    Scr_Error(COM_ERR_2339, scrContext, v16);
+    v7 = j_va("invalid velocity parameter in movegravity command: %f %f %f", vectorValue.v[0], vectorValue.v[1], vectorValue.v[2]);
+    Scr_Error(COM_ERR_2339, scrContext, v7);
   }
   if ( v4->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
-    if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
+    if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )", v9) )
       __debugbreak();
     Scr_Error(COM_ERR_2340, scrContext, "Cannot set an entity's position while it is playing a delta animation. Call scriptmodelclearanim first.\n");
   }
   else
   {
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm2, xmm0; totalTime }
-    G_ScrMover_GravityMove(v4, &vectorValue, *(const float *)&_XMM2);
+    Float = Scr_GetFloat(scrContext, 1u);
+    G_ScrMover_GravityMove(v4, &vectorValue, *(const float *)&Float);
   }
 }
 
@@ -338,96 +306,58 @@ G_ScrMoverCmd_MoveSlide
 void G_ScrMoverCmd_MoveSlide(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *v4; 
   scr_string_t classname; 
+  const char *v6; 
+  double Float; 
   const char *v8; 
-  const char *v19; 
-  int v27; 
-  int v28; 
-  int v29; 
-  vec3_t v30; 
+  float v9; 
+  vec3_t v10; 
   vec3_t vectorValue; 
 
-  __asm { vmovaps [rsp+88h+var_28], xmm6 }
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_2787, scrContext, "not an entity");
-    _RDI = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1139, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    _RDI = &g_entities[entnum];
-    classname = _RDI->classname;
+    v4 = &g_entities[entnum];
+    classname = v4->classname;
     if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
     {
-      v8 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
-      Scr_ObjectError(COM_ERR_2786, scrContext, v8);
+      v6 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
+      Scr_ObjectError(COM_ERR_2786, scrContext, v6);
     }
   }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm6, xmm0 }
-  Scr_GetVector(scrContext, 2u, &v30);
-  __asm
+  Float = Scr_GetFloat(scrContext, 1u);
+  Scr_GetVector(scrContext, 2u, &v10);
+  v9 = v10.v[0];
+  if ( (LODWORD(v10.v[0]) & 0x7F800000) == 2139095040 || (v9 = v10.v[1], (LODWORD(v10.v[1]) & 0x7F800000) == 2139095040) || (v9 = v10.v[2], (LODWORD(v10.v[2]) & 0x7F800000) == 2139095040) )
   {
-    vmovss  xmm4, dword ptr [rsp+88h+var_50]
-    vmovss  xmm0, dword ptr [rsp+88h+var_50+8]
-    vmovss  xmm1, dword ptr [rsp+88h+var_50+4]
-    vmovss  [rsp+88h+var_58], xmm4
+    v8 = j_va("invalid velocity parameter in moveslide command: %f %f %f", v10.v[0], v10.v[1], v10.v[2]);
+    Scr_Error(COM_ERR_2341, scrContext, v8);
   }
-  if ( (v27 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm { vmovss  [rsp+88h+var_58], xmm1 }
-  if ( (v28 & 0x7F800000) == 2139095040 )
-    goto LABEL_17;
-  __asm { vmovss  [rsp+88h+var_58], xmm0 }
-  if ( (v29 & 0x7F800000) == 2139095040 )
+  if ( v4->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
-LABEL_17:
-    __asm
-    {
-      vcvtss2sd xmm2, xmm1, xmm1
-      vcvtss2sd xmm1, xmm4, xmm4
-      vcvtss2sd xmm3, xmm0, xmm0
-      vmovq   rdx, xmm1
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    v19 = j_va("invalid velocity parameter in moveslide command: %f %f %f", _RDX, _R8, _R9);
-    Scr_Error(COM_ERR_2341, scrContext, v19);
-  }
-  if ( _RDI->s.lerp.pos.trType == TR_ANIMATED_MOVER )
-  {
-    if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
+    if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )", v9) )
       __debugbreak();
     Scr_Error(COM_ERR_2342, scrContext, "Cannot set an entity's position while it is playing a delta animation. Call scriptmodelclearanim first.\n");
   }
   else
   {
-    _RDI->flags.m_flags[0] |= 0x80000u;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+88h+var_50]
-      vmovss  dword ptr [rdi+1D8h], xmm0
-      vmovss  xmm1, dword ptr [rsp+88h+var_50+4]
-      vmovss  dword ptr [rdi+1DCh], xmm1
-      vmovss  xmm0, dword ptr [rsp+88h+var_50+8]
-      vmovss  dword ptr [rdi+1E0h], xmm0
-      vmovss  xmm1, dword ptr [rsp+88h+vectorValue]
-      vmovss  dword ptr [rdi+1C0h], xmm1
-      vmovss  xmm0, dword ptr [rsp+88h+vectorValue+4]
-      vmovss  dword ptr [rdi+1C4h], xmm0
-      vmovss  xmm1, dword ptr [rsp+88h+vectorValue+8]
-      vmovss  dword ptr [rdi+1C8h], xmm1
-      vmovss  dword ptr [rdi+1CCh], xmm6
-      vmovss  dword ptr [rdi+1D0h], xmm6
-      vmovss  dword ptr [rdi+1D4h], xmm6
-    }
-    _RDI->s.lerp.pos.trType = TR_INTERPOLATE;
+    v4->flags.m_flags[0] |= 0x80000u;
+    v4->c.mover.pos.pos2 = v10;
+    v4->c.mover.slide.bounds.midPoint = vectorValue;
+    v4->c.mover.pos.pos1.v[0] = *(float *)&Float;
+    v4->c.mover.pos.pos1.v[1] = *(float *)&Float;
+    v4->c.mover.pos.pos1.v[2] = *(float *)&Float;
+    v4->s.lerp.pos.trType = TR_INTERPOLATE;
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
 }
 
 /*
@@ -666,6 +596,7 @@ void G_ScrMoverCmd_SetLinkedAngles(scrContext_t *scrContext, scr_entref_t entref
   gentity_s *v4; 
   scr_string_t classname; 
   const char *v6; 
+  TagInfoLinkedRotation *TagInfoLinkedRotation; 
   vec3_t vectorValue; 
 
   entnum = entref.entnum;
@@ -689,21 +620,13 @@ void G_ScrMoverCmd_SetLinkedAngles(scrContext_t *scrContext, scr_entref_t entref
   if ( G_ScrMoverCmd_LinkedRotationSupported(scrContext, v4, "G_ScrMoverCmd_SetLinkedAngles") )
   {
     Scr_GetVector(scrContext, 0, &vectorValue);
-    _RAX = G_GetTagInfoLinkedRotation(v4);
-    _RAX->hasLinkedRotation = 1;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+68h+vectorValue]
-      vmovss  dword ptr [rax+0Ch], xmm0
-      vmovss  xmm1, dword ptr [rsp+68h+vectorValue+4]
-      vmovss  dword ptr [rax+10h], xmm1
-      vmovss  xmm0, dword ptr [rsp+68h+vectorValue+8]
-      vmovss  dword ptr [rax+14h], xmm0
-    }
-    *(_QWORD *)_RAX->aposLocal.trDelta.v = 0i64;
-    _RAX->aposLocal.trDelta.v[2] = 0.0;
-    *(_QWORD *)&_RAX->aposLocal.trTime = 0i64;
-    _RAX->aposLocal.trType = TR_STATIONARY;
+    TagInfoLinkedRotation = G_GetTagInfoLinkedRotation(v4);
+    TagInfoLinkedRotation->hasLinkedRotation = 1;
+    TagInfoLinkedRotation->aposLocal.trBase = vectorValue;
+    *(_QWORD *)TagInfoLinkedRotation->aposLocal.trDelta.v = 0i64;
+    TagInfoLinkedRotation->aposLocal.trDelta.v[2] = 0.0;
+    *(_QWORD *)&TagInfoLinkedRotation->aposLocal.trTime = 0i64;
+    TagInfoLinkedRotation->aposLocal.trType = TR_STATIONARY;
   }
 }
 
@@ -775,8 +698,21 @@ G_ScrMoverCmd_Vibrate
 void G_ScrMoverCmd_Vibrate(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *v4; 
   scr_string_t classname; 
-  const char *v12; 
+  const char *v6; 
+  double Float; 
+  float v8; 
+  double v9; 
+  float v10; 
+  double v11; 
+  __int128 v12; 
+  float v15; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
   vec3_t vectorValue; 
   tmat33_t<vec3_t> axis; 
 
@@ -784,113 +720,65 @@ void G_ScrMoverCmd_Vibrate(scrContext_t *scrContext, scr_entref_t entref)
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_2787, scrContext, "not an entity");
-    _RDI = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1777, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    _RDI = &g_entities[entnum];
-    classname = _RDI->classname;
+    v4 = &g_entities[entnum];
+    classname = v4->classname;
     if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
     {
-      v12 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
-      Scr_ObjectError(COM_ERR_2786, scrContext, v12);
+      v6 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
+      Scr_ObjectError(COM_ERR_2786, scrContext, v6);
     }
   }
   if ( Scr_GetNumParam(scrContext) == 4 )
   {
-    if ( BgTrajectory::IsAnimatedTrajectory(&_RDI->s.lerp.apos) )
+    if ( BgTrajectory::IsAnimatedTrajectory(&v4->s.lerp.apos) )
     {
       Scr_Error(COM_ERR_2356, scrContext, "Cannot set an entity's angles while it is playing a delta animation. Call scriptmodelclearanim first.\n");
     }
     else
     {
-      __asm
-      {
-        vmovaps [rsp+0D8h+var_28], xmm6
-        vmovaps [rsp+0D8h+var_38], xmm7
-        vmovaps [rsp+0D8h+var_48], xmm8
-        vmovaps [rsp+0D8h+var_58], xmm9
-        vmovaps [rsp+0D8h+var_68], xmm10
-      }
       Scr_GetVector(scrContext, 0, &vectorValue);
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-      __asm { vmovaps xmm8, xmm0 }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-      __asm { vmovaps xmm10, xmm0 }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rsp+0D8h+vectorValue+4]
-        vmovss  xmm7, dword ptr [rsp+0D8h+vectorValue+8]
-        vmovss  xmm5, dword ptr [rsp+0D8h+vectorValue]
-        vmulss  xmm1, xmm6, xmm6
-        vmulss  xmm2, xmm5, xmm5
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm2, xmm7, xmm7
-        vaddss  xmm1, xmm3, xmm2
-        vmovss  xmm2, cs:__real@3f800000
-        vsqrtss xmm4, xmm1, xmm1
-        vcmpless xmm1, xmm4, cs:__real@80000000
-        vmovaps xmm9, xmm0
-        vblendvps xmm0, xmm4, xmm2, xmm1
-        vdivss  xmm3, xmm2, xmm0
-        vmulss  xmm0, xmm7, xmm3
-        vmulss  xmm4, xmm5, xmm3
-        vmulss  xmm1, xmm6, xmm3
-        vmulss  xmm7, xmm4, xmm8
-        vmulss  xmm6, xmm1, xmm8
-        vmulss  xmm8, xmm0, xmm8
-        vmovss  dword ptr [rsp+0D8h+vectorValue], xmm4
-        vmovss  dword ptr [rsp+0D8h+vectorValue+4], xmm1
-        vmovss  dword ptr [rsp+0D8h+vectorValue+8], xmm0
-      }
-      AnglesToAxis(&_RDI->r.currentAngles, &axis);
-      __asm
-      {
-        vmulss  xmm3, xmm6, dword ptr [rsp+0D8h+axis+4]
-        vmulss  xmm1, xmm8, dword ptr [rsp+0D8h+axis+8]
-        vmulss  xmm0, xmm8, dword ptr [rsp+0D8h+axis+14h]
-        vmulss  xmm2, xmm7, dword ptr [rsp+0D8h+axis]
-        vaddss  xmm4, xmm3, xmm2
-        vmulss  xmm3, xmm6, dword ptr [rsp+0D8h+axis+10h]
-        vaddss  xmm5, xmm4, xmm1
-        vmulss  xmm1, xmm7, dword ptr [rsp+0D8h+axis+0Ch]
-      }
-      _RDI->c.item[1].clipAmmoCount[0] = LODWORD(_RDI->r.currentAngles.v[0]);
-      _RDI->c.item[1].clipAmmoCount[1] = LODWORD(_RDI->r.currentAngles.v[1]);
-      _RDI->c.mover.angle.pos3.v[2] = _RDI->r.currentAngles.v[2];
-      __asm
-      {
-        vaddss  xmm4, xmm3, xmm1
-        vaddss  xmm1, xmm4, xmm0
-        vxorps  xmm3, xmm1, cs:__xmm@80000000800000008000000080000000
-        vmulss  xmm0, xmm10, cs:__real@447a0000
-        vmulss  xmm1, xmm9, cs:__real@c47a0000
-        vcvttss2si eax, xmm0
-      }
-      _RDI->s.lerp.apos.trDuration = _EAX;
-      __asm { vcvttss2si eax, xmm1 }
-      _RDI->s.lerp.apos.trTime = level.time - _EAX;
-      _RDI->s.lerp.apos.trBase.v[0] = _RDI->r.currentAngles.v[0];
-      _RDI->s.lerp.apos.trBase.v[1] = _RDI->r.currentAngles.v[1];
-      _RDI->s.lerp.apos.trBase.v[2] = _RDI->r.currentAngles.v[2];
-      __asm
-      {
-        vmovss  dword ptr [rdi+4Ch], xmm5
-        vmovss  dword ptr [rdi+54h], xmm3
-      }
-      _RDI->s.lerp.apos.trDelta.v[1] = 0.0;
-      _RDI->s.lerp.apos.trType = TR_SINE;
-      __asm
-      {
-        vmovaps xmm10, [rsp+0D8h+var_68]
-        vmovaps xmm9, [rsp+0D8h+var_58]
-        vmovaps xmm8, [rsp+0D8h+var_48]
-        vmovaps xmm7, [rsp+0D8h+var_38]
-        vmovaps xmm6, [rsp+0D8h+var_28]
-      }
+      Float = Scr_GetFloat(scrContext, 1u);
+      v8 = *(float *)&Float;
+      v9 = Scr_GetFloat(scrContext, 2u);
+      v10 = *(float *)&v9;
+      v11 = Scr_GetFloat(scrContext, 3u);
+      v12 = LODWORD(vectorValue.v[0]);
+      *(float *)&v12 = fsqrt((float)((float)(*(float *)&v12 * *(float *)&v12) + (float)(vectorValue.v[1] * vectorValue.v[1])) + (float)(vectorValue.v[2] * vectorValue.v[2]));
+      _XMM4 = v12;
+      __asm { vcmpless xmm1, xmm4, cs:__real@80000000 }
+      v15 = *(float *)&v11;
+      __asm { vblendvps xmm0, xmm4, xmm2, xmm1 }
+      v17 = 1.0 / *(float *)&_XMM0;
+      *(float *)&_XMM0 = vectorValue.v[2] * (float)(1.0 / *(float *)&_XMM0);
+      v18 = (float)(vectorValue.v[0] * v17) * v8;
+      *(float *)&v12 = (float)(vectorValue.v[1] * v17) * v8;
+      v19 = *(float *)&_XMM0 * v8;
+      vectorValue.v[0] = vectorValue.v[0] * v17;
+      vectorValue.v[1] = vectorValue.v[1] * v17;
+      vectorValue.v[2] = *(float *)&_XMM0;
+      AnglesToAxis(&v4->r.currentAngles, &axis);
+      *(float *)&_XMM0 = v19 * axis.m[1].v[2];
+      v20 = *(float *)&v12 * axis.m[1].v[1];
+      v21 = (float)((float)(*(float *)&v12 * axis.m[0].v[1]) + (float)(v18 * axis.m[0].v[0])) + (float)(v19 * axis.m[0].v[2]);
+      *(float *)&_XMM1 = v18 * axis.m[1].v[0];
+      v4->c.item[1].clipAmmoCount[0] = LODWORD(v4->r.currentAngles.v[0]);
+      v4->c.item[1].clipAmmoCount[1] = LODWORD(v4->r.currentAngles.v[1]);
+      v4->c.mover.angle.pos3.v[2] = v4->r.currentAngles.v[2];
+      v4->s.lerp.apos.trDuration = (int)(float)(v10 * 1000.0);
+      v4->s.lerp.apos.trTime = level.time - (int)(float)(v15 * -1000.0);
+      v4->s.lerp.apos.trBase.v[0] = v4->r.currentAngles.v[0];
+      v4->s.lerp.apos.trBase.v[1] = v4->r.currentAngles.v[1];
+      v4->s.lerp.apos.trBase.v[2] = v4->r.currentAngles.v[2];
+      v4->s.lerp.apos.trDelta.v[0] = v21;
+      v4->s.lerp.apos.trDelta.v[2] = COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(v20 + *(float *)&_XMM1) + *(float *)&_XMM0) ^ _xmm);
+      v4->s.lerp.apos.trDelta.v[1] = 0.0;
+      v4->s.lerp.apos.trType = TR_SINE;
     }
   }
   else
@@ -910,7 +798,6 @@ void G_ScrMoverCmd_RotateVelocity(scrContext_t *scrContext, scr_entref_t entref)
   gentity_s *v4; 
   scr_string_t classname; 
   const char *v6; 
-  float fmt; 
   float pfDecelTime; 
   float pfAccelTime; 
   float pfTotalTime; 
@@ -944,14 +831,7 @@ void G_ScrMoverCmd_RotateVelocity(scrContext_t *scrContext, scr_entref_t entref)
   {
     Scr_GetVector(scrContext, 0, &vectorValue);
     G_ScrMover_GetCommandTimes(scrContext, &pfTotalTime, &pfAccelTime, &pfDecelTime);
-    __asm
-    {
-      vmovss  xmm0, [rsp+88h+pfDecelTime]
-      vmovss  xmm3, [rsp+88h+pfAccelTime]; fAccelTime
-      vmovss  xmm2, [rsp+88h+pfTotalTime]; fTotalTime
-      vmovss  dword ptr [rsp+88h+fmt], xmm0
-    }
-    G_ScrMover_SetupMoveSpeed(&v4->s.lerp.apos, &vectorValue, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt, &v4->r.currentAngles, &v4->c.mover.angle);
+    G_ScrMover_SetupMoveSpeed(&v4->s.lerp.apos, &vectorValue, pfTotalTime, pfAccelTime, pfDecelTime, &v4->r.currentAngles, &v4->c.mover.angle);
     SV_LinkEntity(v4);
   }
 }
@@ -1044,16 +924,18 @@ G_ScrMoverCmd_PhysicsLaunchClient
 void G_ScrMoverCmd_PhysicsLaunchClient(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
+  gentity_s *v4; 
   scr_string_t classname; 
-  const char *v7; 
+  const char *v6; 
   unsigned int Instance; 
-  unsigned int v10; 
+  unsigned int v8; 
   unsigned int NumRigidBodys; 
   const char *name; 
-  const char *v13; 
-  GTrajectory v23; 
+  const char *v11; 
+  float v12; 
+  GTrajectory v13; 
   vec3_t vectorValue; 
-  vec3_t v25; 
+  vec3_t v15; 
   vec3_t outAng; 
   vec3_t outPos; 
 
@@ -1061,21 +943,21 @@ void G_ScrMoverCmd_PhysicsLaunchClient(scrContext_t *scrContext, scr_entref_t en
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_2787, scrContext, "not an entity");
-    _RDI = NULL;
+    v4 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1953, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    _RDI = &g_entities[entnum];
-    classname = _RDI->classname;
+    v4 = &g_entities[entnum];
+    classname = v4->classname;
     if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
     {
-      v7 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
-      Scr_ObjectError(COM_ERR_2786, scrContext, v7);
+      v6 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
+      Scr_ObjectError(COM_ERR_2786, scrContext, v6);
     }
   }
-  if ( _RDI->s.lerp.pos.trType == TR_ANIMATED_MOVER )
+  if ( v4->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
@@ -1084,76 +966,57 @@ void G_ScrMoverCmd_PhysicsLaunchClient(scrContext_t *scrContext, scr_entref_t en
   if ( Scr_GetNumParam(scrContext) == 2 )
   {
     Scr_GetVector(scrContext, 0, &vectorValue);
-    Scr_GetVector(scrContext, 1u, &v25);
+    Scr_GetVector(scrContext, 1u, &v15);
   }
   else
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rsp+0C8h+vectorValue], xmm0
-      vmovss  dword ptr [rsp+0C8h+vectorValue+4], xmm0
-      vmovss  dword ptr [rsp+0C8h+vectorValue+8], xmm0
-      vmovss  dword ptr [rsp+0C8h+var_68], xmm0
-      vmovss  dword ptr [rsp+0C8h+var_68+4], xmm0
-      vmovss  dword ptr [rsp+0C8h+var_68+8], xmm0
-    }
+    vectorValue.v[0] = 0.0;
+    vectorValue.v[1] = 0.0;
+    vectorValue.v[2] = 0.0;
+    v15.v[0] = 0.0;
+    v15.v[1] = 0.0;
+    v15.v[2] = 0.0;
   }
-  Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, _RDI->s.number);
-  v10 = Instance;
+  Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v4->s.number);
+  v8 = Instance;
   if ( Instance != -1 )
   {
     NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, Instance);
     if ( NumRigidBodys > 1 )
     {
-      if ( Physics_GetInstanceAsset(PHYSICS_WORLD_ID_FIRST, v10) )
-        name = Physics_GetInstanceAsset(PHYSICS_WORLD_ID_FIRST, v10)->name;
+      if ( Physics_GetInstanceAsset(PHYSICS_WORLD_ID_FIRST, v8) )
+        name = Physics_GetInstanceAsset(PHYSICS_WORLD_ID_FIRST, v8)->name;
       else
         name = "UNKNOWN";
-      v13 = j_va("PhysicsLaunchClient only supports entities with 1 rigid body - %s has %i.\n", name, NumRigidBodys);
-      Scr_Error(COM_ERR_2363, scrContext, v13);
+      v11 = j_va("PhysicsLaunchClient only supports entities with 1 rigid body - %s has %i.\n", name, NumRigidBodys);
+      Scr_Error(COM_ERR_2363, scrContext, v11);
     }
   }
-  G_Utils_DestroyEntityPhysics(_RDI);
-  if ( _RDI->s.lerp.pos.trType == TR_ANIMATED_MOVER )
+  G_Utils_DestroyEntityPhysics(v4);
+  if ( v4->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 396, ASSERT_TYPE_ASSERT, "( !BgTrajectory::IsAnimatedTrajectory( pTr ) )", (const char *)&queryFormat, "!BgTrajectory::IsAnimatedTrajectory( pTr )") )
       __debugbreak();
   }
-  if ( _RDI->s.lerp.pos.trType == TR_PHYSICS_CLIENT_AUTH )
+  if ( v4->s.lerp.pos.trType == TR_PHYSICS_CLIENT_AUTH )
     Scr_Error(COM_ERR_2327, scrContext, "physicslaunch called more than once for the same entity.");
-  _RDI->s.lerp.pos.trTime = level.time;
-  _RDI->s.lerp.pos.trDuration = 0x7FFFFFFF;
-  GTrajectory::GTrajectory(&v23, _RDI);
-  BgTrajectory::EvaluateTrajectories(&v23, level.time, &outPos, &outAng);
-  Trajectory_SetTrBase(&_RDI->s.lerp.pos, &outPos);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsp+0C8h+outAng]
-    vmovss  xmm1, dword ptr [rsp+0C8h+outAng+4]
-    vmovss  dword ptr [rdi+40h], xmm0
-    vmovss  xmm0, dword ptr [rsp+0C8h+outAng+8]
-    vmovss  dword ptr [rdi+48h], xmm0
-    vmovss  dword ptr [rdi+44h], xmm1
-    vmovss  xmm1, dword ptr [rsp+0C8h+vectorValue]
-    vmovss  dword ptr [rdi+28h], xmm1
-    vmovss  xmm0, dword ptr [rsp+0C8h+vectorValue+4]
-    vmovss  dword ptr [rdi+2Ch], xmm0
-    vmovss  xmm1, dword ptr [rsp+0C8h+vectorValue+8]
-    vmovss  dword ptr [rdi+30h], xmm1
-    vmovss  xmm0, dword ptr [rsp+0C8h+var_68]
-    vmovss  dword ptr [rdi+4Ch], xmm0
-    vmovss  xmm1, dword ptr [rsp+0C8h+var_68+4]
-    vmovss  dword ptr [rdi+50h], xmm1
-    vmovss  xmm0, dword ptr [rsp+0C8h+var_68+8]
-    vmovss  dword ptr [rdi+54h], xmm0
-  }
-  _RDI->s.lerp.pos.trType = TR_PHYSICS_CLIENT_AUTH;
-  _RDI->s.lerp.apos.trType = TR_PHYSICS_CLIENT_AUTH;
-  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_RDI->s.lerp.eFlags, ACTIVE, 0x10u);
-  SV_LinkEntity(_RDI);
+  v4->s.lerp.pos.trTime = level.time;
+  v4->s.lerp.pos.trDuration = 0x7FFFFFFF;
+  GTrajectory::GTrajectory(&v13, v4);
+  BgTrajectory::EvaluateTrajectories(&v13, level.time, &outPos, &outAng);
+  Trajectory_SetTrBase(&v4->s.lerp.pos, &outPos);
+  v12 = outAng.v[1];
+  v4->s.lerp.apos.trBase.v[0] = outAng.v[0];
+  v4->s.lerp.apos.trBase.v[2] = outAng.v[2];
+  v4->s.lerp.apos.trBase.v[1] = v12;
+  v4->s.lerp.pos.trDelta = vectorValue;
+  v4->s.lerp.apos.trDelta = v15;
+  v4->s.lerp.pos.trType = TR_PHYSICS_CLIENT_AUTH;
+  v4->s.lerp.apos.trType = TR_PHYSICS_CLIENT_AUTH;
+  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&v4->s.lerp.eFlags, ACTIVE, 0x10u);
+  SV_LinkEntity(v4);
 }
 
 /*
@@ -1161,158 +1024,128 @@ void G_ScrMoverCmd_PhysicsLaunchClient(scrContext_t *scrContext, scr_entref_t en
 G_ScrMoverCmd_PhysicsLaunchServer
 ==============
 */
-
-void __fastcall G_ScrMoverCmd_PhysicsLaunchServer(scrContext_t *scrContext, scr_entref_t entref, __int64 a3, double _XMM3_8)
+void G_ScrMoverCmd_PhysicsLaunchServer(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
   EntityClass entclass; 
-  gentity_s *v10; 
+  gentity_s *v5; 
   scr_string_t classname; 
-  const char *v12; 
-  scr_string_t v13; 
+  const char *v7; 
+  scr_string_t v8; 
+  float v9; 
+  __int128 v10; 
+  float v11; 
+  __int128 v13; 
   unsigned int Instance; 
-  unsigned int v34; 
+  unsigned int v17; 
   unsigned int NumRigidBodys; 
   const char *name; 
-  const char *v37; 
-  G_PhysicsObject *v38; 
+  const char *v20; 
+  G_PhysicsObject *v21; 
   unsigned int RigidBodyID; 
-  float fmt; 
-  GTrajectory v43; 
-  vec3_t v44; 
+  GTrajectory v23; 
+  vec3_t v24; 
   vec3_t vectorValue; 
   vec3_t normalizedDirection; 
   vec3_t outAng; 
   vec3_t outPos; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-28h], xmm6
-    vmovaps xmmword ptr [r11-38h], xmm7
-  }
   entnum = entref.entnum;
   entclass = entref.entclass;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_ScrMoverCmd_PhysicsLaunchServer");
   if ( entclass )
   {
     Scr_ObjectError(COM_ERR_2787, scrContext, "not an entity");
-    v10 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 2010, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v10 = &g_entities[entnum];
-    classname = v10->classname;
+    v5 = &g_entities[entnum];
+    classname = v5->classname;
     if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
     {
-      v12 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
-      Scr_ObjectError(COM_ERR_2786, scrContext, v12);
+      v7 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
+      Scr_ObjectError(COM_ERR_2786, scrContext, v7);
     }
   }
-  if ( v10->s.eType != ET_SCRIPTMOVER || (v13 = v10->classname, v13 != scr_const.script_model) && v13 != scr_const.script_brushmodel )
+  if ( v5->s.eType != ET_SCRIPTMOVER || (v8 = v5->classname, v8 != scr_const.script_model) && v8 != scr_const.script_brushmodel )
     Scr_Error(COM_ERR_2364, scrContext, "physicsLaunchServer valid only for script models and script brush models");
-  if ( !Com_GetServerDObjForEnt(v10) && v10->r.modelType != 5 )
+  if ( !Com_GetServerDObjForEnt(v5) && v5->r.modelType != 5 )
     Scr_Error(COM_ERR_2365, scrContext, "Ent does not have a model and is not a brush.  Cannot create physics for an ent without a model or that is a brush.");
-  if ( v10->s.lerp.pos.trType == TR_ANIMATED_MOVER )
+  if ( v5->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
     Scr_Error(COM_ERR_2366, scrContext, "Cannot set an entity's position while it is playing a delta animation. Call scriptmodelclearanim first.\n");
   }
-  __asm { vxorps  xmm6, xmm6, xmm6 }
   if ( Scr_GetNumParam(scrContext) < 2 )
   {
-    __asm
-    {
-      vxorps  xmm5, xmm5, xmm5
-      vxorps  xmm4, xmm4, xmm4
-      vxorps  xmm3, xmm3, xmm3
-      vmovss  dword ptr [rsp+0E8h+var_98], xmm5
-      vmovss  dword ptr [rsp+0E8h+var_98+4], xmm4
-      vmovss  dword ptr [rsp+0E8h+var_98+8], xmm3
-      vmovss  dword ptr [rsp+0E8h+vectorValue], xmm6
-      vmovss  dword ptr [rsp+0E8h+vectorValue+4], xmm6
-      vmovss  dword ptr [rsp+0E8h+vectorValue+8], xmm6
-    }
+    v11 = 0.0;
+    v10 = 0i64;
+    v9 = 0.0;
+    v24.v[0] = 0.0;
+    v24.v[1] = 0.0;
+    v24.v[2] = 0.0;
+    vectorValue.v[0] = 0.0;
+    vectorValue.v[1] = 0.0;
+    vectorValue.v[2] = 0.0;
   }
   else
   {
     Scr_GetVector(scrContext, 0, &vectorValue);
-    Scr_GetVector(scrContext, 1u, &v44);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsp+0E8h+var_98+8]
-      vmovss  xmm4, dword ptr [rsp+0E8h+var_98+4]
-      vmovss  xmm5, dword ptr [rsp+0E8h+var_98]
-    }
+    Scr_GetVector(scrContext, 1u, &v24);
+    v9 = v24.v[2];
+    v10 = LODWORD(v24.v[1]);
+    v11 = v24.v[0];
   }
+  v13 = v10;
+  *(float *)&v13 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(v11 * v11)) + (float)(v9 * v9));
+  _XMM7 = v13;
   __asm
   {
-    vmulss  xmm0, xmm5, xmm5
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  xmm1, cs:__real@3f800000
-    vsqrtss xmm7, xmm2, xmm2
     vcmpless xmm0, xmm7, cs:__real@80000000
     vblendvps xmm0, xmm7, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmulss  xmm0, xmm5, xmm2
-    vmovss  dword ptr [rsp+0E8h+normalizedDirection], xmm0
-    vmulss  xmm0, xmm3, xmm2
-    vmulss  xmm1, xmm4, xmm2
-    vmovss  dword ptr [rsp+0E8h+normalizedDirection+8], xmm0
-    vmovss  dword ptr [rsp+0E8h+normalizedDirection+4], xmm1
   }
-  GTrajectory::GTrajectory(&v43, v10);
-  BgTrajectory::EvaluateTrajectories(&v43, level.time, &outPos, &outAng);
-  if ( G_SetOriginAndAngle(v10, &outPos, &outAng, 1, 0) )
+  normalizedDirection.v[0] = v11 * (float)(1.0 / *(float *)&_XMM0);
+  normalizedDirection.v[2] = v9 * (float)(1.0 / *(float *)&_XMM0);
+  normalizedDirection.v[1] = *(float *)&v10 * (float)(1.0 / *(float *)&_XMM0);
+  GTrajectory::GTrajectory(&v23, v5);
+  BgTrajectory::EvaluateTrajectories(&v23, level.time, &outPos, &outAng);
+  if ( G_SetOriginAndAngle(v5, &outPos, &outAng, 1, 0) )
   {
     Physics_SetBroadphaseNeedsRefresh(PHYSICS_WORLD_ID_FIRST, 1);
     Physics_SetBroadphaseNeedsRefresh(PHYSICS_WORLD_ID_SERVER_DETAIL, 1);
   }
-  Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v10->s.number);
-  v34 = Instance;
+  Instance = G_PhysicsObject_GetInstance(PHYSICS_WORLD_ID_FIRST, v5->s.number);
+  v17 = Instance;
   if ( Instance != -1 )
   {
     NumRigidBodys = Physics_GetNumRigidBodys(PHYSICS_WORLD_ID_FIRST, Instance);
     if ( NumRigidBodys > 1 )
     {
-      if ( Physics_GetInstanceAsset(PHYSICS_WORLD_ID_FIRST, v34) )
-        name = Physics_GetInstanceAsset(PHYSICS_WORLD_ID_FIRST, v34)->name;
+      if ( Physics_GetInstanceAsset(PHYSICS_WORLD_ID_FIRST, v17) )
+        name = Physics_GetInstanceAsset(PHYSICS_WORLD_ID_FIRST, v17)->name;
       else
         name = "UNKNOWN";
-      v37 = j_va("PhysicsLaunchServer only supports entities with 1 rigid body - %s has %i.\n", name, NumRigidBodys);
-      Scr_Error(COM_ERR_2367, scrContext, v37);
+      v20 = j_va("PhysicsLaunchServer only supports entities with 1 rigid body - %s has %i.\n", name, NumRigidBodys);
+      Scr_Error(COM_ERR_2367, scrContext, v20);
     }
   }
-  G_Items_EnablePhysics(v10);
-  v38 = G_PhysicsObject_Get(v10);
-  if ( !v38 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 2055, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
+  G_Items_EnablePhysics(v5);
+  v21 = G_PhysicsObject_Get(v5);
+  if ( !v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 2055, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
     __debugbreak();
-  if ( v38->physicsInstances[0] == -1 )
+  if ( v21->physicsInstances[0] == -1 )
     Scr_Error(COM_ERR_2368, scrContext, "physicsLaunchServer failed to create physics");
-  if ( v38->mapping == PHYSICSOBJECT_MAPPING_PHYSICS_AUTH )
+  if ( v21->mapping == PHYSICSOBJECT_MAPPING_PHYSICS_AUTH && *(float *)&v13 > 0.0 )
   {
-    __asm { vcomiss xmm7, xmm6 }
-    if ( v38->mapping > (unsigned int)PHYSICSOBJECT_MAPPING_PHYSICS_AUTH )
-    {
-      RigidBodyID = Physics_GetRigidBodyID(PHYSICS_WORLD_ID_FIRST, v38->physicsInstances[0], 0);
-      __asm { vmovss  dword ptr [rsp+0E8h+fmt], xmm7 }
-      Physics_ApplyImpulse(PHYSICS_WORLD_ID_FIRST, RigidBodyID, &vectorValue, &normalizedDirection, fmt);
-    }
+    RigidBodyID = Physics_GetRigidBodyID(PHYSICS_WORLD_ID_FIRST, v21->physicsInstances[0], 0);
+    Physics_ApplyImpulse(PHYSICS_WORLD_ID_FIRST, RigidBodyID, &vectorValue, &normalizedDirection, *(float *)&v13);
   }
-  SV_LinkEntity(v10);
+  SV_LinkEntity(v5);
   Sys_ProfEndNamedEvent();
-  __asm
-  {
-    vmovaps xmm6, [rsp+0E8h+var_28]
-    vmovaps xmm7, [rsp+0E8h+var_38]
-  }
 }
 
 /*
@@ -1379,21 +1212,23 @@ void G_ScrMoverCmd_PhysicsStopServer(scrContext_t *scrContext, scr_entref_t entr
 G_ScrMoverCmd_PhysicsLaunchServerItem
 ==============
 */
-
-void __fastcall G_ScrMoverCmd_PhysicsLaunchServerItem(scrContext_t *scrContext, scr_entref_t entref, __int64 a3, double _XMM3_8)
+void G_ScrMoverCmd_PhysicsLaunchServerItem(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
   EntityClass entclass; 
-  gentity_s *v8; 
+  gentity_s *v5; 
   GWeaponMap *Instance; 
   unsigned __int16 weaponIdx; 
-  bool v11; 
-  G_PhysicsObject *v30; 
+  bool v8; 
+  float v9; 
+  __int128 v10; 
+  float v11; 
+  __int128 v13; 
+  G_PhysicsObject *v16; 
   unsigned int RigidBodyID; 
-  float fmt; 
-  __int64 v34; 
-  GTrajectory v35; 
-  vec3_t v36; 
+  __int64 v18; 
+  GTrajectory v19; 
+  vec3_t v20; 
   vec3_t vectorValue; 
   vec3_t normalizedDirection; 
   vec3_t outAng; 
@@ -1408,32 +1243,31 @@ void __fastcall G_ScrMoverCmd_PhysicsLaunchServerItem(scrContext_t *scrContext, 
   }
   else
   {
-    __asm { vmovaps [rsp+0E8h+var_28], xmm6 }
     if ( entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 2153, ASSERT_TYPE_ASSERT, "( entref.entnum < ( 2048 ) )", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v8 = &g_entities[entnum];
-    if ( v8->s.eType == ET_ITEM )
+    v5 = &g_entities[entnum];
+    if ( v5->s.eType == ET_ITEM )
     {
       Instance = GWeaponMap::GetInstance();
       if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons.h", 438, ASSERT_TYPE_ASSERT, "(weaponMap)", (const char *)&queryFormat, "weaponMap") )
         __debugbreak();
-      weaponIdx = BgWeaponMap::GetWeapon(Instance, v8->s.weaponHandle)->weaponIdx;
+      weaponIdx = BgWeaponMap::GetWeapon(Instance, v5->s.weaponHandle)->weaponIdx;
       if ( weaponIdx )
       {
         if ( weaponIdx > bg_lastParsedWeaponIndex )
         {
-          LODWORD(v34) = weaponIdx;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v34, bg_lastParsedWeaponIndex) )
+          LODWORD(v18) = weaponIdx;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1203, ASSERT_TYPE_ASSERT, "( weaponIdx ) <= ( bg_lastParsedWeaponIndex )", "weaponIdx not in [0, bg_lastParsedWeaponIndex]\n\t%u not in [0, %u]", v18, bg_lastParsedWeaponIndex) )
             __debugbreak();
         }
-        v11 = bg_weaponDefs[weaponIdx] == NULL;
+        v8 = bg_weaponDefs[weaponIdx] == NULL;
         if ( !bg_weaponDefs[weaponIdx] )
         {
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1204, ASSERT_TYPE_ASSERT, "(bg_weaponDefs[weaponIdx])", (const char *)&queryFormat, "bg_weaponDefs[weaponIdx]") )
             __debugbreak();
-          v11 = bg_weaponDefs[weaponIdx] == NULL;
+          v8 = bg_weaponDefs[weaponIdx] == NULL;
         }
-        if ( v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 2170, ASSERT_TYPE_ASSERT, "( weapDef )", (const char *)&queryFormat, "weapDef") )
+        if ( v8 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 2170, ASSERT_TYPE_ASSERT, "( weapDef )", (const char *)&queryFormat, "weapDef") )
           __debugbreak();
       }
     }
@@ -1441,76 +1275,60 @@ void __fastcall G_ScrMoverCmd_PhysicsLaunchServerItem(scrContext_t *scrContext, 
     {
       Scr_Error(COM_ERR_2373, scrContext, "physicsLaunchServerItem valid only for weapons/items");
     }
-    if ( !Com_GetServerDObjForEnt(v8) )
+    if ( !Com_GetServerDObjForEnt(v5) )
       Scr_Error(COM_ERR_2374, scrContext, "Ent does not have a model.  Cannot create physics for an ent without a model.");
-    if ( BgTrajectory::IsAnimatedTrajectory(&v8->s.lerp.pos) )
+    if ( BgTrajectory::IsAnimatedTrajectory(&v5->s.lerp.pos) )
       Scr_Error(COM_ERR_2375, scrContext, "Cannot set an entity's position while it is playing a delta animation. Call scriptmodelclearanim first.\n");
     if ( Scr_GetNumParam(scrContext) == 2 )
     {
       Scr_GetVector(scrContext, 0, &vectorValue);
-      Scr_GetVector(scrContext, 1u, &v36);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rsp+0E8h+var_88+8]
-        vmovss  xmm4, dword ptr [rsp+0E8h+var_88+4]
-        vmovss  xmm5, dword ptr [rsp+0E8h+var_88]
-      }
+      Scr_GetVector(scrContext, 1u, &v20);
+      v9 = v20.v[2];
+      v10 = LODWORD(v20.v[1]);
+      v11 = v20.v[0];
     }
     else
     {
-      __asm
-      {
-        vxorps  xmm3, xmm3, xmm3
-        vxorps  xmm5, xmm5, xmm5
-        vxorps  xmm4, xmm4, xmm4
-        vmovss  dword ptr [rsp+0E8h+vectorValue], xmm3
-        vmovss  dword ptr [rsp+0E8h+vectorValue+4], xmm3
-        vmovss  dword ptr [rsp+0E8h+vectorValue+8], xmm3
-        vmovss  dword ptr [rsp+0E8h+var_88], xmm5
-        vmovss  dword ptr [rsp+0E8h+var_88+4], xmm4
-        vmovss  dword ptr [rsp+0E8h+var_88+8], xmm3
-      }
+      v9 = 0.0;
+      v11 = 0.0;
+      v10 = 0i64;
+      vectorValue.v[0] = 0.0;
+      vectorValue.v[1] = 0.0;
+      vectorValue.v[2] = 0.0;
+      v20.v[0] = 0.0;
+      v20.v[1] = 0.0;
+      v20.v[2] = 0.0;
     }
+    v13 = v10;
+    *(float *)&v13 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(v11 * v11)) + (float)(v9 * v9));
+    _XMM6 = v13;
     __asm
     {
-      vmulss  xmm0, xmm5, xmm5
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vmovss  xmm1, cs:__real@3f800000
-      vsqrtss xmm6, xmm2, xmm2
       vcmpless xmm0, xmm6, cs:__real@80000000
       vblendvps xmm0, xmm6, xmm1, xmm0
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm5, xmm2
-      vmovss  dword ptr [rsp+0E8h+normalizedDirection], xmm0
-      vmulss  xmm0, xmm3, xmm2
-      vmulss  xmm1, xmm4, xmm2
-      vmovss  dword ptr [rsp+0E8h+normalizedDirection+8], xmm0
-      vmovss  dword ptr [rsp+0E8h+normalizedDirection+4], xmm1
     }
-    GTrajectory::GTrajectory(&v35, v8);
-    BgTrajectory::EvaluateTrajectories(&v35, level.time, &outPos, &outAng);
-    if ( G_SetOriginAndAngle(v8, &outPos, &outAng, 1, 0) )
+    normalizedDirection.v[0] = v11 * (float)(1.0 / *(float *)&_XMM0);
+    normalizedDirection.v[2] = v9 * (float)(1.0 / *(float *)&_XMM0);
+    normalizedDirection.v[1] = *(float *)&v10 * (float)(1.0 / *(float *)&_XMM0);
+    GTrajectory::GTrajectory(&v19, v5);
+    BgTrajectory::EvaluateTrajectories(&v19, level.time, &outPos, &outAng);
+    if ( G_SetOriginAndAngle(v5, &outPos, &outAng, 1, 0) )
     {
       Physics_SetBroadphaseNeedsRefresh(PHYSICS_WORLD_ID_FIRST, 1);
       Physics_SetBroadphaseNeedsRefresh(PHYSICS_WORLD_ID_SERVER_DETAIL, 1);
     }
-    G_Items_EnablePhysics(v8);
-    v30 = G_PhysicsObject_Get(v8);
-    if ( !v30 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 2208, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
+    G_Items_EnablePhysics(v5);
+    v16 = G_PhysicsObject_Get(v5);
+    if ( !v16 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 2208, ASSERT_TYPE_ASSERT, "(physObj)", (const char *)&queryFormat, "physObj") )
       __debugbreak();
-    if ( v30->physicsInstances[0] == -1 )
+    if ( v16->physicsInstances[0] == -1 )
       Scr_Error(COM_ERR_2376, scrContext, "physicsLaunchServerItem failed to create physics");
-    if ( v30->mapping == PHYSICSOBJECT_MAPPING_PHYSICS_AUTH )
+    if ( v16->mapping == PHYSICSOBJECT_MAPPING_PHYSICS_AUTH )
     {
-      RigidBodyID = Physics_GetRigidBodyID(PHYSICS_WORLD_ID_FIRST, v30->physicsInstances[0], 0);
-      __asm { vmovss  dword ptr [rsp+0E8h+fmt], xmm6 }
-      Physics_ApplyImpulse(PHYSICS_WORLD_ID_FIRST, RigidBodyID, &vectorValue, &normalizedDirection, fmt);
+      RigidBodyID = Physics_GetRigidBodyID(PHYSICS_WORLD_ID_FIRST, v16->physicsInstances[0], 0);
+      Physics_ApplyImpulse(PHYSICS_WORLD_ID_FIRST, RigidBodyID, &vectorValue, &normalizedDirection, *(float *)&v13);
     }
-    SV_LinkEntity(v8);
-    __asm { vmovaps xmm6, [rsp+0E8h+var_28] }
+    SV_LinkEntity(v5);
   }
   Sys_ProfEndNamedEvent();
 }
@@ -2025,39 +1843,38 @@ void G_ScrMoverCmd_SetMoverTransparentVolume(scrContext_t *scrContext, scr_entre
 G_ScrMoverCmd_BrCircleMoveTo
 ==============
 */
-
-void __fastcall G_ScrMoverCmd_BrCircleMoveTo(scrContext_t *scrContext, scr_entref_t entref, __int64 a3, double _XMM3_8)
+void G_ScrMoverCmd_BrCircleMoveTo(scrContext_t *scrContext, scr_entref_t entref)
 {
   unsigned int entnum; 
-  gentity_s *v9; 
+  gentity_s *v5; 
   scr_string_t classname; 
-  const char *v11; 
-  char v14; 
-  char v15; 
-  float fmt; 
+  const char *v7; 
+  double Float; 
+  double v9; 
+  double v10; 
   vec3_t vPos; 
 
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_2787, scrContext, "not an entity");
-    v9 = NULL;
+    v5 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 2718, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v9 = &g_entities[entnum];
-    classname = v9->classname;
+    v5 = &g_entities[entnum];
+    classname = v5->classname;
     if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
     {
-      v11 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
-      Scr_ObjectError(COM_ERR_2786, scrContext, v11);
+      v7 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
+      Scr_ObjectError(COM_ERR_2786, scrContext, v7);
     }
   }
-  if ( v9->s.un.scriptMoverType != 9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 2720, ASSERT_TYPE_ASSERT, "(mSelf->s.un.scriptMoverType == ScriptMoverType_BrCircle)", (const char *)&queryFormat, "mSelf->s.un.scriptMoverType == ScriptMoverType_BrCircle") )
+  if ( v5->s.un.scriptMoverType != 9 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 2720, ASSERT_TYPE_ASSERT, "(mSelf->s.un.scriptMoverType == ScriptMoverType_BrCircle)", (const char *)&queryFormat, "mSelf->s.un.scriptMoverType == ScriptMoverType_BrCircle") )
     __debugbreak();
-  if ( v9->s.lerp.pos.trType == TR_ANIMATED_MOVER )
+  if ( v5->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
@@ -2065,40 +1882,19 @@ void __fastcall G_ScrMoverCmd_BrCircleMoveTo(scrContext_t *scrContext, scr_entre
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+88h+var_28], xmm6
-      vmovaps [rsp+88h+var_38], xmm7
-    }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovss  dword ptr [rsp+88h+vPos], xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovss  dword ptr [rsp+88h+vPos+4], xmm0 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-    __asm { vmovss  dword ptr [rsp+88h+vPos+8], xmm0 }
+    Float = Scr_GetFloat(scrContext, 0);
+    vPos.v[0] = *(float *)&Float;
+    v9 = Scr_GetFloat(scrContext, 1u);
+    vPos.v[1] = *(float *)&v9;
+    v10 = Scr_GetFloat(scrContext, 2u);
+    vPos.v[2] = *(float *)&v10;
     *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm
-    {
-      vxorps  xmm7, xmm7, xmm7
-      vcomiss xmm0, xmm7
-      vmovaps xmm6, xmm0
-    }
-    if ( v14 | v15 )
-      Scr_ParamError(COM_ERR_5833, scrContext, 3u, "total time must be positive");
-    else
+    LODWORD(_XMM6) = _XMM0;
+    if ( *(float *)&_XMM0 > 0.0 )
       __asm { vmaxss  xmm6, xmm0, cs:__real@3a83126f }
-    __asm
-    {
-      vxorps  xmm3, xmm3, xmm3; fAccelTime
-      vmovaps xmm2, xmm6; fTotalTime
-      vmovss  dword ptr [rsp+88h+fmt], xmm7
-    }
-    G_ScrMover_Move(v9, &vPos, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt);
-    __asm
-    {
-      vmovaps xmm7, [rsp+88h+var_38]
-      vmovaps xmm6, [rsp+88h+var_28]
-    }
+    else
+      Scr_ParamError(COM_ERR_5833, scrContext, 3u, "total time must be positive");
+    G_ScrMover_Move(v5, &vPos, *(const float *)&_XMM6, 0.0, 0.0);
   }
 }
 
@@ -2230,8 +2026,12 @@ G_ScrMoverCmd_RotateByInternal
 void G_ScrMoverCmd_RotateByInternal(scrContext_t *scrContext, gentity_s *mSelf, int calculateLinkedRotation)
 {
   TagInfoLinkedRotation *TagInfoLinkedRotation; 
-  float fmt; 
-  float fmta; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
   float pfDecelTime; 
   float pfAccelTime; 
   float pfTotalTime; 
@@ -2240,11 +2040,10 @@ void G_ScrMoverCmd_RotateByInternal(scrContext_t *scrContext, gentity_s *mSelf, 
   vec3_t angle; 
   tmat43_t<vec3_t> axis; 
 
-  _RDI = mSelf;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "G_ScrMoverCmd_RotateByInternal");
   Scr_GetVector(scrContext, 0, &vectorValue);
   G_ScrMover_GetCommandTimes(scrContext, &pfTotalTime, &pfAccelTime, &pfDecelTime);
-  if ( _RDI->s.lerp.apos.trType == TR_ANIMATED_MOVER )
+  if ( mSelf->s.lerp.apos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
@@ -2253,68 +2052,42 @@ void G_ScrMoverCmd_RotateByInternal(scrContext_t *scrContext, gentity_s *mSelf, 
   }
   if ( calculateLinkedRotation )
   {
-    if ( !_RDI->tagInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1443, ASSERT_TYPE_ASSERT, "( mSelf->tagInfo )", (const char *)&queryFormat, "mSelf->tagInfo") )
+    if ( !mSelf->tagInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1443, ASSERT_TYPE_ASSERT, "( mSelf->tagInfo )", (const char *)&queryFormat, "mSelf->tagInfo") )
       __debugbreak();
-    if ( _RDI->s.eType != ET_SCRIPTMOVER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1444, ASSERT_TYPE_ASSERT, "( mSelf->s.eType == ET_SCRIPTMOVER )", (const char *)&queryFormat, "mSelf->s.eType == ET_SCRIPTMOVER") )
+    if ( mSelf->s.eType != ET_SCRIPTMOVER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1444, ASSERT_TYPE_ASSERT, "( mSelf->s.eType == ET_SCRIPTMOVER )", (const char *)&queryFormat, "mSelf->s.eType == ET_SCRIPTMOVER") )
       __debugbreak();
     if ( !Com_GameMode_SupportsFeature(WEAPON_MELEE_FATAL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1445, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_LINKED_ROTATION ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_LINKED_ROTATION )") )
       __debugbreak();
-    TagInfoLinkedRotation = G_GetTagInfoLinkedRotation(_RDI);
+    TagInfoLinkedRotation = G_GetTagInfoLinkedRotation(mSelf);
     if ( !TagInfoLinkedRotation->hasLinkedRotation )
     {
-      G_CalcFixedLinkTargetAxis(_RDI, &axis);
-      AxisToAngles((const tmat33_t<vec3_t> *)&axis, &_RDI->r.currentAngles);
+      G_CalcFixedLinkTargetAxis(mSelf, &axis);
+      AxisToAngles((const tmat33_t<vec3_t> *)&axis, &mSelf->r.currentAngles);
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+13Ch]
-      vmovss  xmm1, dword ptr [rdi+140h]
-      vmovss  dword ptr [rbp+57h+angle], xmm0
-      vmovss  xmm0, dword ptr [rdi+144h]
-      vmovss  dword ptr [rbp+57h+angle+8], xmm0
-      vmovss  dword ptr [rbp+57h+angle+4], xmm1
-    }
-    G_CalcTagConvertWorldToLocalAngles(_RDI, &_RDI->r.currentAngles, &_RDI->r.currentAngles);
-    __asm { vmovss  xmm3, [rbp+57h+pfAccelTime]; fAccelTime }
+    v7 = mSelf->r.currentAngles.v[1];
+    angle.v[0] = mSelf->r.currentAngles.v[0];
+    angle.v[2] = mSelf->r.currentAngles.v[2];
+    angle.v[1] = v7;
+    G_CalcTagConvertWorldToLocalAngles(mSelf, &mSelf->r.currentAngles, &mSelf->r.currentAngles);
+    v8 = pfAccelTime;
     TagInfoLinkedRotation->hasLinkedRotation = 1;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+57h+vectorValue]
-      vaddss  xmm1, xmm0, dword ptr [rdi+13Ch]
-      vmovss  xmm2, dword ptr [rbp+57h+vectorValue+4]
-      vaddss  xmm0, xmm2, dword ptr [rdi+140h]
-      vmovss  dword ptr [rbp+57h+vRot], xmm1
-      vmovss  xmm1, dword ptr [rbp+57h+vectorValue+8]
-      vaddss  xmm2, xmm1, dword ptr [rdi+144h]
-      vmovss  dword ptr [rbp+57h+vRot+4], xmm0
-      vmovss  xmm0, [rbp+57h+pfDecelTime]
-      vmovss  dword ptr [rbp+57h+vRot+8], xmm2
-      vmovss  xmm2, [rbp+57h+pfTotalTime]; fTotalTime
-      vmovss  dword ptr [rsp+0C0h+fmt], xmm0
-    }
-    G_ScrMover_RotateLinked(_RDI, &vRot, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt);
-    G_SetAngle(_RDI, &angle, 1, 1);
-    _RDI->s.lerp.apos.trType = TR_INTERPOLATE;
+    v9 = vectorValue.v[1] + mSelf->r.currentAngles.v[1];
+    vRot.v[0] = vectorValue.v[0] + mSelf->r.currentAngles.v[0];
+    v10 = vectorValue.v[2] + mSelf->r.currentAngles.v[2];
+    vRot.v[1] = v9;
+    vRot.v[2] = v10;
+    G_ScrMover_RotateLinked(mSelf, &vRot, pfTotalTime, v8, pfDecelTime);
+    G_SetAngle(mSelf, &angle, 1, 1);
+    mSelf->s.lerp.apos.trType = TR_INTERPOLATE;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+57h+vectorValue]
-      vaddss  xmm1, xmm0, dword ptr [rdi+13Ch]
-      vmovss  xmm2, dword ptr [rbp+57h+vectorValue+4]
-      vaddss  xmm0, xmm2, dword ptr [rdi+140h]
-      vmovss  xmm3, [rbp+57h+pfAccelTime]; fAccelTime
-      vmovss  dword ptr [rbp+57h+vRot], xmm1
-      vmovss  xmm1, dword ptr [rbp+57h+vectorValue+8]
-      vaddss  xmm2, xmm1, dword ptr [rdi+144h]
-      vmovss  dword ptr [rbp+57h+vRot+4], xmm0
-      vmovss  xmm0, [rbp+57h+pfDecelTime]
-      vmovss  dword ptr [rbp+57h+vRot+8], xmm2
-      vmovss  xmm2, [rbp+57h+pfTotalTime]; fTotalTime
-      vmovss  dword ptr [rsp+0C0h+fmt], xmm0
-    }
-    G_ScrMover_Rotate(_RDI, &vRot, *(const float *)&_XMM2, *(const float *)&_XMM3, fmta);
+    v11 = vectorValue.v[1] + mSelf->r.currentAngles.v[1];
+    vRot.v[0] = vectorValue.v[0] + mSelf->r.currentAngles.v[0];
+    v12 = vectorValue.v[2] + mSelf->r.currentAngles.v[2];
+    vRot.v[1] = v11;
+    vRot.v[2] = v12;
+    G_ScrMover_Rotate(mSelf, &vRot, pfTotalTime, pfAccelTime, pfDecelTime);
   }
   Sys_ProfEndNamedEvent();
 }
@@ -2327,14 +2100,21 @@ G_ScrMoverCmd_RotateToInternal
 void G_ScrMoverCmd_RotateToInternal(scrContext_t *scrContext, gentity_s *mSelf, int calculateLinkedRotation)
 {
   TagInfoLinkedRotation *TagInfoLinkedRotation; 
-  unsigned int v22; 
-  bool v23; 
-  unsigned int v41; 
-  bool v44; 
-  float fmt; 
-  float fmta; 
-  __int64 v66; 
-  __int64 v67; 
+  vec3_t *p_currentAngles; 
+  float v8; 
+  unsigned int v9; 
+  bool v10; 
+  float v12; 
+  float v13; 
+  float v15; 
+  vec3_t *v16; 
+  unsigned int v17; 
+  bool v18; 
+  float v20; 
+  float v21; 
+  float v23; 
+  __int64 v24; 
+  __int64 v25; 
   float pfDecelTime; 
   float pfAccelTime; 
   float pfTotalTime; 
@@ -2353,15 +2133,6 @@ void G_ScrMoverCmd_RotateToInternal(scrContext_t *scrContext, gentity_s *mSelf, 
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1282, ASSERT_TYPE_ASSERT, "( !BgTrajectory::IsAnimatedTrajectory( &mSelf->s.lerp.apos ) )", (const char *)&queryFormat, "!BgTrajectory::IsAnimatedTrajectory( &mSelf->s.lerp.apos )") )
       __debugbreak();
   }
-  __asm
-  {
-    vmovaps [rsp+148h+var_38], xmm6
-    vmovaps [rsp+148h+var_48], xmm7
-    vmovaps [rsp+148h+var_58], xmm8
-    vmovaps [rsp+148h+var_68], xmm9
-    vmovaps [rsp+148h+var_78], xmm10
-    vmovaps [rsp+148h+var_88], xmm11
-  }
   if ( calculateLinkedRotation )
   {
     if ( !mSelf->tagInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1289, ASSERT_TYPE_ASSERT, "( mSelf->tagInfo )", (const char *)&queryFormat, "mSelf->tagInfo") )
@@ -2376,173 +2147,107 @@ void G_ScrMoverCmd_RotateToInternal(scrContext_t *scrContext, gentity_s *mSelf, 
       G_CalcFixedLinkTargetAxis(mSelf, &axis);
       AxisToAngles((const tmat33_t<vec3_t> *)&axis, &mSelf->r.currentAngles);
     }
-    _RDI = &mSelf->r.currentAngles;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi]
-      vmovss  xmm1, dword ptr [rdi+4]
-      vmovss  dword ptr [rsp+148h+angle], xmm0
-      vmovss  xmm0, dword ptr [rdi+8]
-      vmovss  dword ptr [rsp+148h+angle+8], xmm0
-      vmovss  dword ptr [rsp+148h+angle+4], xmm1
-    }
+    p_currentAngles = &mSelf->r.currentAngles;
+    v8 = mSelf->r.currentAngles.v[1];
+    angle.v[0] = mSelf->r.currentAngles.v[0];
+    angle.v[2] = mSelf->r.currentAngles.v[2];
+    angle.v[1] = v8;
     G_CalcTagConvertWorldToLocalAngles(mSelf, &mSelf->r.currentAngles, &mSelf->r.currentAngles);
-    __asm
-    {
-      vmovss  xmm10, cs:__real@3b360b61
-      vmovss  xmm11, cs:__real@3f000000
-      vmovss  xmm8, cs:__real@43b40000
-    }
     TagInfoLinkedRotation->hasLinkedRotation = 1;
-    _R15 = (char *)&vectorValue - (char *)&mSelf->r.currentAngles;
-    _R14 = (char *)&vRot - (char *)&mSelf->r.currentAngles;
-    v22 = 0;
-    v23 = 1;
-    __asm { vxorps  xmm9, xmm9, xmm9 }
+    v9 = 0;
+    v10 = 1;
+    _XMM9 = 0i64;
     do
     {
-      if ( !v23 )
+      if ( !v10 )
       {
-        LODWORD(v67) = 3;
-        LODWORD(v66) = v22;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v66, v67) )
+        LODWORD(v25) = 3;
+        LODWORD(v24) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v25) )
           __debugbreak();
       }
-      __asm { vmovss  xmm6, dword ptr [rdi] }
-      if ( v22 >= 3 )
+      v12 = p_currentAngles->v[0];
+      if ( v9 >= 3 )
       {
-        LODWORD(v67) = 3;
-        LODWORD(v66) = v22;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v66, v67) )
+        LODWORD(v25) = 3;
+        LODWORD(v24) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v25) )
           __debugbreak();
       }
-      __asm
+      v13 = (float)(*(float *)((char *)p_currentAngles->v + (char *)&vectorValue - (char *)&mSelf->r.currentAngles) - v12) * 0.0027777778;
+      __asm { vroundss xmm7, xmm9, xmm2, 1 }
+      if ( v9 >= 3 )
       {
-        vmovss  xmm0, dword ptr [r15+rdi]
-        vsubss  xmm1, xmm0, xmm6
-        vmulss  xmm6, xmm1, xmm10
-        vaddss  xmm2, xmm6, xmm11
-        vroundss xmm7, xmm9, xmm2, 1
-      }
-      if ( v22 >= 3 )
-      {
-        LODWORD(v67) = 3;
-        LODWORD(v66) = v22;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v66, v67) )
+        LODWORD(v25) = 3;
+        LODWORD(v24) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v25) )
           __debugbreak();
       }
-      __asm
+      v15 = (float)((float)(v13 - *(float *)&_XMM7) * 360.0) + p_currentAngles->v[0];
+      if ( v9 >= 3 )
       {
-        vsubss  xmm0, xmm6, xmm7
-        vmulss  xmm1, xmm0, xmm8
-        vaddss  xmm6, xmm1, dword ptr [rdi]
-      }
-      if ( v22 >= 3 )
-      {
-        LODWORD(v67) = 3;
-        LODWORD(v66) = v22;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v66, v67) )
+        LODWORD(v25) = 3;
+        LODWORD(v24) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v25) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [r14+rdi], xmm6 }
-      _RDI = (vec3_t *)((char *)_RDI + 4);
-      v23 = ++v22 < 3;
+      *(float *)((char *)p_currentAngles->v + (char *)&vRot - (char *)&mSelf->r.currentAngles) = v15;
+      p_currentAngles = (vec3_t *)((char *)p_currentAngles + 4);
+      v10 = ++v9 < 3;
     }
-    while ( (int)v22 < 3 );
-    __asm
-    {
-      vmovss  xmm0, [rsp+148h+pfDecelTime]
-      vmovss  xmm3, [rsp+148h+pfAccelTime]; fAccelTime
-      vmovss  xmm2, [rsp+148h+pfTotalTime]; fTotalTime
-      vmovss  dword ptr [rsp+148h+fmt], xmm0
-    }
-    G_ScrMover_RotateLinked(mSelf, &vRot, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt);
+    while ( (int)v9 < 3 );
+    G_ScrMover_RotateLinked(mSelf, &vRot, pfTotalTime, pfAccelTime, pfDecelTime);
     G_SetAngle(mSelf, &angle, 1, 1);
     mSelf->s.lerp.apos.trType = TR_INTERPOLATE;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm10, cs:__real@3b360b61
-      vmovss  xmm11, cs:__real@3f000000
-      vmovss  xmm8, cs:__real@43b40000
-    }
-    _RDI = &mSelf->r.currentAngles;
-    v41 = 0;
-    _R15 = (char *)&vectorValue - (char *)&mSelf->r.currentAngles;
-    _R14 = (char *)&vRot - (char *)&mSelf->r.currentAngles;
-    v44 = 1;
-    __asm { vxorps  xmm9, xmm9, xmm9 }
+    v16 = &mSelf->r.currentAngles;
+    v17 = 0;
+    v18 = 1;
+    _XMM9 = 0i64;
     do
     {
-      if ( !v44 )
+      if ( !v18 )
       {
-        LODWORD(v67) = 3;
-        LODWORD(v66) = v41;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v66, v67) )
+        LODWORD(v25) = 3;
+        LODWORD(v24) = v17;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v25) )
           __debugbreak();
       }
-      __asm { vmovss  xmm6, dword ptr [rdi] }
-      if ( v41 >= 3 )
+      v20 = v16->v[0];
+      if ( v17 >= 3 )
       {
-        LODWORD(v67) = 3;
-        LODWORD(v66) = v41;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v66, v67) )
+        LODWORD(v25) = 3;
+        LODWORD(v24) = v17;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v25) )
           __debugbreak();
       }
-      __asm
+      v21 = (float)(*(float *)((char *)v16->v + (char *)&vectorValue - (char *)&mSelf->r.currentAngles) - v20) * 0.0027777778;
+      __asm { vroundss xmm7, xmm9, xmm2, 1 }
+      if ( v17 >= 3 )
       {
-        vmovss  xmm0, dword ptr [rdi+r15]
-        vsubss  xmm1, xmm0, xmm6
-        vmulss  xmm6, xmm1, xmm10
-        vaddss  xmm2, xmm6, xmm11
-        vroundss xmm7, xmm9, xmm2, 1
-      }
-      if ( v41 >= 3 )
-      {
-        LODWORD(v67) = 3;
-        LODWORD(v66) = v41;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v66, v67) )
+        LODWORD(v25) = 3;
+        LODWORD(v24) = v17;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v25) )
           __debugbreak();
       }
-      __asm
+      v23 = (float)((float)(v21 - *(float *)&_XMM7) * 360.0) + v16->v[0];
+      if ( v17 >= 3 )
       {
-        vsubss  xmm0, xmm6, xmm7
-        vmulss  xmm1, xmm0, xmm8
-        vaddss  xmm6, xmm1, dword ptr [rdi]
-      }
-      if ( v41 >= 3 )
-      {
-        LODWORD(v67) = 3;
-        LODWORD(v66) = v41;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v66, v67) )
+        LODWORD(v25) = 3;
+        LODWORD(v24) = v17;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v25) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [rdi+r14], xmm6 }
-      _RDI = (vec3_t *)((char *)_RDI + 4);
-      v44 = ++v41 < 3;
+      *(float *)((char *)v16->v + (char *)&vRot - (char *)&mSelf->r.currentAngles) = v23;
+      v16 = (vec3_t *)((char *)v16 + 4);
+      v18 = ++v17 < 3;
     }
-    while ( (int)v41 < 3 );
-    __asm
-    {
-      vmovss  xmm0, [rsp+148h+pfDecelTime]
-      vmovss  xmm3, [rsp+148h+pfAccelTime]; fAccelTime
-      vmovss  xmm2, [rsp+148h+pfTotalTime]; fTotalTime
-      vmovss  dword ptr [rsp+148h+fmt], xmm0
-    }
-    G_ScrMover_Rotate(mSelf, &vRot, *(const float *)&_XMM2, *(const float *)&_XMM3, fmta);
+    while ( (int)v17 < 3 );
+    G_ScrMover_Rotate(mSelf, &vRot, pfTotalTime, pfAccelTime, pfDecelTime);
   }
   Sys_ProfEndNamedEvent();
-  __asm
-  {
-    vmovaps xmm11, [rsp+148h+var_88]
-    vmovaps xmm10, [rsp+148h+var_78]
-    vmovaps xmm9, [rsp+148h+var_68]
-    vmovaps xmm8, [rsp+148h+var_58]
-    vmovaps xmm7, [rsp+148h+var_48]
-    vmovaps xmm6, [rsp+148h+var_38]
-  }
 }
 
 /*
@@ -2552,35 +2257,43 @@ G_ScrMover_AddRotate
 */
 void G_ScrMover_AddRotate(scrContext_t *scrContext, scr_entref_t entref, int iAxis)
 {
-  __int64 v5; 
+  __int64 v3; 
   unsigned int entnum; 
-  gentity_s *v8; 
+  gentity_s *v6; 
   scr_string_t classname; 
-  const char *v10; 
-  vec3_t *v12; 
+  const char *v8; 
+  double Float; 
+  vec3_t *v10; 
+  unsigned int v11; 
+  __int64 v12; 
   unsigned int v13; 
-  unsigned int v15; 
-  unsigned int v16; 
-  vec3_t *v32; 
-  gentity_s *v33; 
-  __int64 v35; 
-  __int64 v36; 
-  __int64 v37; 
-  __int64 v38; 
-  __int64 v39; 
-  __int64 v40; 
+  unsigned int v14; 
+  char *v15; 
+  float *v16; 
+  float v17; 
+  vec3_t *v18; 
+  float v19; 
+  float v20; 
+  vec3_t *v21; 
+  gentity_s *v22; 
+  __int64 v23; 
+  __int64 v24; 
+  __int64 v25; 
+  __int64 v26; 
+  __int64 v27; 
+  __int64 v28; 
   float c; 
   float s; 
   gentity_s *gEnt; 
-  vec3_t *v44; 
-  char *v45; 
-  vec3_t *v46; 
+  vec3_t *v32; 
+  char *v33; 
+  vec3_t *v34; 
   vec3_t *angles; 
   trajectory_t *p_apos; 
   tmat33_t<vec3_t> axis; 
-  tmat33_t<vec3_t> v50; 
+  tmat33_t<vec3_t> v38; 
 
-  v5 = iAxis;
+  v3 = iAxis;
   gEnt = (gentity_s *)entref;
   entnum = entref.entnum;
   if ( (unsigned int)iAxis > 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1577, ASSERT_TYPE_ASSERT, "( iAxis >= 0 && iAxis < 3 )", (const char *)&queryFormat, "iAxis >= 0 && iAxis < 3") )
@@ -2588,190 +2301,172 @@ void G_ScrMover_AddRotate(scrContext_t *scrContext, scr_entref_t entref, int iAx
   if ( BYTE4(gEnt) )
   {
     Scr_ObjectError(COM_ERR_2787, scrContext, "not an entity");
-    v8 = NULL;
+    v6 = NULL;
     gEnt = NULL;
   }
   else
   {
     if ( entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1579, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    v8 = &g_entities[entnum];
-    gEnt = v8;
-    classname = v8->classname;
+    v6 = &g_entities[entnum];
+    gEnt = v6;
+    classname = v6->classname;
     if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
     {
-      v10 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
-      Scr_ObjectError(COM_ERR_2786, scrContext, v10);
+      v8 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
+      Scr_ObjectError(COM_ERR_2786, scrContext, v8);
     }
   }
   if ( Scr_GetNumParam(scrContext) == 1 )
   {
-    p_apos = &v8->s.lerp.apos;
-    if ( BgTrajectory::IsAnimatedTrajectory(&v8->s.lerp.apos) )
+    p_apos = &v6->s.lerp.apos;
+    if ( BgTrajectory::IsAnimatedTrajectory(&v6->s.lerp.apos) )
     {
       Scr_Error(COM_ERR_2353, scrContext, "Cannot set an entity's angles while it is playing a delta animation. Call scriptmodelclearanim first.\n");
     }
     else
     {
-      __asm { vmovaps [rsp+118h+var_48], xmm6 }
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-      __asm { vmulss  xmm0, xmm0, cs:__real@3c8efa35; radians }
-      FastSinCos(*(const float *)&_XMM0, &s, &c);
-      angles = &v8->r.currentAngles;
-      AnglesToAxis(&v8->r.currentAngles, &axis);
-      v12 = &v50.m[v5];
-      v13 = 0;
-      v46 = v12;
-      _RDI = 0i64;
-      v15 = ((int)v5 + 1) % 3;
-      v16 = ((int)v5 + 2) % 3;
-      _R15 = (char *)((char *)&axis.m[v5] - (char *)v12);
-      v45 = _R15;
+      Float = Scr_GetFloat(scrContext, 0);
+      FastSinCos(*(float *)&Float * 0.017453292, &s, &c);
+      angles = &v6->r.currentAngles;
+      AnglesToAxis(&v6->r.currentAngles, &axis);
+      v10 = &v38.m[v3];
+      v11 = 0;
+      v34 = v10;
+      v12 = 0i64;
+      v13 = ((int)v3 + 1) % 3;
+      v14 = ((int)v3 + 2) % 3;
+      v15 = (char *)((char *)&axis.m[v3] - (char *)v10);
+      v33 = v15;
       do
       {
-        if ( (unsigned int)v5 >= 3 )
+        if ( (unsigned int)v3 >= 3 )
         {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = v5;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v35, v38) )
+          LODWORD(v26) = 3;
+          LODWORD(v23) = v3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v23, v26) )
+            __debugbreak();
+        }
+        if ( v11 >= 3 )
+        {
+          LODWORD(v26) = 3;
+          LODWORD(v23) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, v26) )
+            __debugbreak();
+        }
+        v16 = &v10->v[v12];
+        v17 = *(float *)&v15[(_QWORD)v16];
+        if ( (unsigned int)v3 >= 3 )
+        {
+          LODWORD(v26) = 3;
+          LODWORD(v23) = v3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v23, v26) )
+            __debugbreak();
+        }
+        if ( v11 >= 3 )
+        {
+          LODWORD(v26) = 3;
+          LODWORD(v23) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, v26) )
+            __debugbreak();
+        }
+        *v16 = v17;
+        if ( v13 >= 3 )
+        {
+          LODWORD(v26) = 3;
+          LODWORD(v23) = ((int)v3 + 1) % 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v23, v26) )
+            __debugbreak();
+        }
+        v32 = &axis.m[v13];
+        if ( v14 >= 3 )
+        {
+          LODWORD(v26) = 3;
+          LODWORD(v23) = ((int)v3 + 2) % 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v23, v26) )
+            __debugbreak();
+        }
+        v18 = &axis.m[v14];
+        if ( v11 >= 3 )
+        {
+          LODWORD(v26) = 3;
+          LODWORD(v23) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, v26) )
+            __debugbreak();
+          LODWORD(v27) = 3;
+          LODWORD(v24) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v24, v27) )
+            __debugbreak();
+        }
+        v19 = (float)(s * v18->v[v12]) + (float)(c * axis.m[v13].v[v12]);
+        if ( v13 >= 3 )
+        {
+          LODWORD(v26) = 3;
+          LODWORD(v23) = ((int)v3 + 1) % 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v23, v26) )
+            __debugbreak();
+        }
+        if ( v11 >= 3 )
+        {
+          LODWORD(v26) = 3;
+          LODWORD(v23) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, v26) )
+            __debugbreak();
+        }
+        v38.m[v13].v[v12] = v19;
+        if ( v14 >= 3 )
+        {
+          LODWORD(v26) = 3;
+          LODWORD(v23) = ((int)v3 + 2) % 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v23, v26) )
             __debugbreak();
         }
         if ( v13 >= 3 )
         {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = v13;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v35, v38) )
+          LODWORD(v26) = 3;
+          LODWORD(v23) = ((int)v3 + 1) % 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v23, v26) )
             __debugbreak();
         }
-        _RSI = (char *)v12 + _RDI;
-        __asm { vmovss  xmm6, dword ptr [rsi+r15] }
-        if ( (unsigned int)v5 >= 3 )
+        if ( v11 >= 3 )
         {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = v5;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v35, v38) )
+          LODWORD(v26) = 3;
+          LODWORD(v23) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, v26) )
+            __debugbreak();
+          LODWORD(v28) = 3;
+          LODWORD(v25) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v25, v28) )
             __debugbreak();
         }
-        if ( v13 >= 3 )
+        v20 = (float)(c * v18->v[v12]) - (float)(s * v32->v[v12]);
+        if ( v14 >= 3 )
         {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = v13;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v35, v38) )
+          LODWORD(v26) = 3;
+          LODWORD(v23) = ((int)v3 + 2) % 3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v23, v26) )
             __debugbreak();
         }
-        __asm { vmovss  dword ptr [rsi], xmm6 }
-        if ( v15 >= 3 )
+        if ( v11 >= 3 )
         {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = ((int)v5 + 1) % 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v35, v38) )
+          LODWORD(v26) = 3;
+          LODWORD(v23) = v11;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, v26) )
             __debugbreak();
         }
-        v44 = &axis.m[v15];
-        if ( v16 >= 3 )
-        {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = ((int)v5 + 2) % 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v35, v38) )
-            __debugbreak();
-        }
-        if ( v13 >= 3 )
-        {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = v13;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v35, v38) )
-            __debugbreak();
-          LODWORD(v39) = 3;
-          LODWORD(v36) = v13;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v36, v39) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, [rsp+118h+s]
-          vmovss  xmm1, [rsp+118h+c]
-          vmulss  xmm3, xmm0, dword ptr [rdi+r15]
-          vmulss  xmm2, xmm1, dword ptr [rdi+rax]
-          vaddss  xmm6, xmm3, xmm2
-        }
-        if ( v15 >= 3 )
-        {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = ((int)v5 + 1) % 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v35, v38) )
-            __debugbreak();
-        }
-        _RSI = &v50.m[v15];
-        if ( v13 >= 3 )
-        {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = v13;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v35, v38) )
-            __debugbreak();
-        }
-        __asm { vmovss  dword ptr [rdi+rsi], xmm6 }
-        if ( v16 >= 3 )
-        {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = ((int)v5 + 2) % 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v35, v38) )
-            __debugbreak();
-        }
-        if ( v15 >= 3 )
-        {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = ((int)v5 + 1) % 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v35, v38) )
-            __debugbreak();
-        }
-        if ( v13 >= 3 )
-        {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = v13;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v35, v38) )
-            __debugbreak();
-          LODWORD(v40) = 3;
-          LODWORD(v37) = v13;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v37, v40) )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm0, [rsp+118h+c]
-          vmovss  xmm1, [rsp+118h+s]
-          vmulss  xmm3, xmm0, dword ptr [rdi+r15]
-          vmulss  xmm2, xmm1, dword ptr [rdi+rax]
-          vsubss  xmm6, xmm3, xmm2
-        }
-        if ( v16 >= 3 )
-        {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = ((int)v5 + 2) % 3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 326, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( m ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( m )\n\t%i not in [0, %i)", v35, v38) )
-            __debugbreak();
-        }
-        _RSI = &v50.m[v16];
-        if ( v13 >= 3 )
-        {
-          LODWORD(v38) = 3;
-          LODWORD(v35) = v13;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v35, v38) )
-            __debugbreak();
-        }
-        _R15 = v45;
-        __asm { vmovss  dword ptr [rdi+rsi], xmm6 }
-        v12 = v46;
-        _RDI += 4i64;
-        ++v13;
+        v15 = v33;
+        v38.m[v14].v[v12] = v20;
+        v10 = v34;
+        ++v12;
+        ++v11;
       }
-      while ( (int)v13 < 3 );
-      v32 = angles;
-      AxisToAngles(&v50, angles);
-      v33 = gEnt;
+      while ( (int)v11 < 3 );
+      v21 = angles;
+      AxisToAngles(&v38, angles);
+      v22 = gEnt;
       p_apos->trType = TR_STATIONARY;
-      v33->s.lerp.apos.trBase = *v32;
-      SV_LinkEntity(v33);
-      __asm { vmovaps xmm6, [rsp+118h+var_48] }
+      v22->s.lerp.apos.trBase = *v21;
+      SV_LinkEntity(v22);
     }
   }
   else
@@ -2903,86 +2598,54 @@ G_ScrMover_GetCommandTimes
 */
 void G_ScrMover_GetCommandTimes(scrContext_t *scrContext, float *pfTotalTime, float *pfAccelTime, float *pfDecelTime)
 {
-  char v10; 
+  double Float; 
   int NumParam; 
-  char v13; 
-  char v14; 
+  double v10; 
+  double v11; 
+  float v12; 
+  float v13; 
 
-  _RDI = pfTotalTime;
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RSI = pfDecelTime;
-  _R14 = pfAccelTime;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vcomiss xmm0, xmm6
-    vmovss  dword ptr [rdi], xmm0
-  }
-  if ( v10 | v14 )
+  Float = Scr_GetFloat(scrContext, 1u);
+  *pfTotalTime = *(float *)&Float;
+  if ( *(float *)&Float <= 0.0 )
   {
     Scr_ParamError(COM_ERR_2332, scrContext, 1u, "total time must be positive");
-    __asm { vmovss  xmm0, dword ptr [rdi] }
+    *(float *)&Float = *pfTotalTime;
   }
-  __asm { vcomiss xmm0, cs:__real@3a83126f }
-  if ( v10 )
-    *_RDI = 0.001;
+  if ( *(float *)&Float < 0.001 )
+    *pfTotalTime = 0.001;
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam <= 2 )
   {
-    v13 = 0;
-    v14 = 1;
-    *_R14 = 0.0;
-    goto LABEL_13;
-  }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovss  dword ptr [r14], xmm0
-  }
-  if ( v10 )
-    Scr_ParamError(COM_ERR_2333, scrContext, 2u, "accel time must be nonnegative");
-  if ( NumParam <= 3 )
-  {
-    v13 = 0;
-    v14 = 1;
+    *pfAccelTime = 0.0;
 LABEL_13:
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    *_RSI = 0.0;
+    LODWORD(v11) = 0;
+    *pfDecelTime = 0.0;
     goto LABEL_14;
   }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovss  dword ptr [rsi], xmm0
-  }
-  if ( v13 )
+  v10 = Scr_GetFloat(scrContext, 2u);
+  *pfAccelTime = *(float *)&v10;
+  if ( *(float *)&v10 < 0.0 )
+    Scr_ParamError(COM_ERR_2333, scrContext, 2u, "accel time must be nonnegative");
+  if ( NumParam <= 3 )
+    goto LABEL_13;
+  v11 = Scr_GetFloat(scrContext, 3u);
+  *pfDecelTime = *(float *)&v11;
+  if ( *(float *)&v11 < 0.0 )
   {
     Scr_ParamError(COM_ERR_2334, scrContext, 3u, "decel time must be nonnegative");
-    __asm { vmovss  xmm0, dword ptr [rsi] }
+    *(float *)&v11 = *pfDecelTime;
   }
 LABEL_14:
-  __asm
+  v12 = *(float *)&v11 + *pfAccelTime;
+  v13 = *pfTotalTime;
+  if ( v12 > *pfTotalTime )
   {
-    vaddss  xmm1, xmm0, dword ptr [r14]
-    vmovss  xmm2, dword ptr [rdi]
-    vcomiss xmm1, xmm2
-  }
-  if ( !(v13 | v14) )
-  {
-    __asm
-    {
-      vmulss  xmm0, xmm2, cs:__real@3f800004
-      vcomiss xmm1, xmm0
-    }
-    if ( v13 | v14 )
-      __asm { vmovss  dword ptr [rdi], xmm0 }
+    if ( v12 <= (float)(v13 * 1.0000005) )
+      *pfTotalTime = v13 * 1.0000005;
     else
       Scr_Error(COM_ERR_2335, scrContext, "accel time plus decel time is greater than total time");
   }
-  __asm { vmovaps xmm6, [rsp+38h+var_18] }
 }
 
 /*
@@ -3017,96 +2680,35 @@ void G_ScrMover_GetSlideVelocity(scrContext_t *scrContext, gentity_s *ent, int o
 G_ScrMover_GravityMove
 ==============
 */
-
-void __fastcall G_ScrMover_GravityMove(gentity_s *mover, const vec3_t *velocity, double totalTime)
+void G_ScrMover_GravityMove(gentity_s *mover, const vec3_t *velocity, const float totalTime)
 {
-  GTrajectory v16; 
-  int v18; 
-  int v19; 
-  int v20; 
-  int v21; 
-  int v22; 
-  int v23; 
+  float v5; 
+  GTrajectory v6; 
 
-  __asm { vmovaps [rsp+78h+var_28], xmm6 }
-  _RDI = velocity;
-  _RSI = mover;
-  __asm { vmovaps xmm6, xmm2 }
   if ( !mover && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 535, ASSERT_TYPE_ASSERT, "( mover )", (const char *)&queryFormat, "mover") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  [rsp+78h+arg_10], xmm0
-  }
-  if ( (v18 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+4]
-    vmovss  [rsp+78h+arg_10], xmm0
-  }
-  if ( (v19 & 0x7F800000) == 2139095040 )
-    goto LABEL_23;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+8]
-    vmovss  [rsp+78h+arg_10], xmm0
-  }
-  if ( (v20 & 0x7F800000) == 2139095040 )
-  {
-LABEL_23:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 536, ASSERT_TYPE_SANITY, "( !IS_NAN( ( velocity )[0] ) && !IS_NAN( ( velocity )[1] ) && !IS_NAN( ( velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( velocity )[0] ) && !IS_NAN( ( velocity )[1] ) && !IS_NAN( ( velocity )[2] )") )
-      __debugbreak();
-  }
-  if ( _RSI->s.lerp.pos.trType == TR_ANIMATED_MOVER )
+  if ( ((LODWORD(velocity->v[0]) & 0x7F800000) == 2139095040 || (LODWORD(velocity->v[1]) & 0x7F800000) == 2139095040 || (LODWORD(velocity->v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 536, ASSERT_TYPE_SANITY, "( !IS_NAN( ( velocity )[0] ) && !IS_NAN( ( velocity )[1] ) && !IS_NAN( ( velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( velocity )[0] ) && !IS_NAN( ( velocity )[1] ) && !IS_NAN( ( velocity )[2] )") )
+    __debugbreak();
+  if ( mover->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 540, ASSERT_TYPE_ASSERT, "( !BgTrajectory::IsAnimatedTrajectory( trajectory ) )", (const char *)&queryFormat, "!BgTrajectory::IsAnimatedTrajectory( trajectory )") )
       __debugbreak();
   }
-  _RSI->s.lerp.pos.trTime = level.time;
-  Trajectory_SetTrBase(&_RSI->s.lerp.pos, &_RSI->r.currentOrigin);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi]
-    vmovss  dword ptr [rsi+28h], xmm0
-  }
-  _RSI->s.lerp.pos.trDelta.v[1] = _RDI->v[1];
-  _RSI->s.lerp.pos.trDelta.v[2] = _RDI->v[2];
-  __asm { vmovss  [rsp+78h+arg_10], xmm0 }
-  if ( (v21 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+2Ch]
-    vmovss  [rsp+78h+arg_10], xmm0
-  }
-  if ( (v22 & 0x7F800000) == 2139095040 )
-    goto LABEL_24;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+30h]
-    vmovss  [rsp+78h+arg_10], xmm0
-  }
-  if ( (v23 & 0x7F800000) == 2139095040 )
-  {
-LABEL_24:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 547, ASSERT_TYPE_SANITY, "( !IS_NAN( ( trajectory->trDelta )[0] ) && !IS_NAN( ( trajectory->trDelta )[1] ) && !IS_NAN( ( trajectory->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( trajectory->trDelta )[0] ) && !IS_NAN( ( trajectory->trDelta )[1] ) && !IS_NAN( ( trajectory->trDelta )[2] )") )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:__real@447a0000
-    vcvttss2si eax, xmm0
-  }
-  _RSI->s.lerp.pos.trDuration = _EAX;
-  _RSI->s.lerp.pos.trType = TR_GRAVITY;
-  GTrajectory::GTrajectory(&v16, _RSI);
-  BgTrajectory::EvaluatePosTrajectory(&v16, level.time, &_RSI->r.currentOrigin);
-  SV_LinkEntity(_RSI);
-  __asm { vmovaps xmm6, [rsp+78h+var_28] }
+  mover->s.lerp.pos.trTime = level.time;
+  Trajectory_SetTrBase(&mover->s.lerp.pos, &mover->r.currentOrigin);
+  v5 = velocity->v[0];
+  mover->s.lerp.pos.trDelta.v[0] = velocity->v[0];
+  mover->s.lerp.pos.trDelta.v[1] = velocity->v[1];
+  mover->s.lerp.pos.trDelta.v[2] = velocity->v[2];
+  if ( ((LODWORD(v5) & 0x7F800000) == 2139095040 || (LODWORD(mover->s.lerp.pos.trDelta.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(mover->s.lerp.pos.trDelta.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 547, ASSERT_TYPE_SANITY, "( !IS_NAN( ( trajectory->trDelta )[0] ) && !IS_NAN( ( trajectory->trDelta )[1] ) && !IS_NAN( ( trajectory->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( trajectory->trDelta )[0] ) && !IS_NAN( ( trajectory->trDelta )[1] ) && !IS_NAN( ( trajectory->trDelta )[2] )") )
+    __debugbreak();
+  mover->s.lerp.pos.trDuration = (int)(float)(totalTime * 1000.0);
+  mover->s.lerp.pos.trType = TR_GRAVITY;
+  GTrajectory::GTrajectory(&v6, mover);
+  BgTrajectory::EvaluatePosTrajectory(&v6, level.time, &mover->r.currentOrigin);
+  SV_LinkEntity(mover);
 }
 
 /*
@@ -3151,47 +2753,20 @@ void G_ScrMover_InitScriptMover(gentity_s *mSelf)
 G_ScrMover_Move
 ==============
 */
-
-void __fastcall G_ScrMover_Move(gentity_s *pEnt, const vec3_t *vPos, double fTotalTime, double fAccelTime, const float fDecelTime)
+void G_ScrMover_Move(gentity_s *pEnt, const vec3_t *vPos, const float fTotalTime, const float fAccelTime, const float fDecelTime)
 {
-  gentity_s *v13; 
+  float v6; 
   BgEntityComponents *positionControl; 
-  float v20; 
   vec3_t inOutCurrPos; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps [rsp+88h+var_28], xmm7
-  }
   pEnt->flags.m_flags[0] &= ~0x80000u;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+130h]
-    vmovss  xmm1, dword ptr [rcx+134h]
-    vmovss  dword ptr [rsp+88h+var_48], xmm0
-    vmovss  xmm0, dword ptr [rcx+138h]
-    vmovss  dword ptr [rsp+88h+var_48+8], xmm0
-    vmovss  dword ptr [rsp+88h+var_48+4], xmm1
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
-  v13 = pEnt;
+  v6 = pEnt->r.currentOrigin.v[1];
+  inOutCurrPos.v[0] = pEnt->r.currentOrigin.v[0];
+  inOutCurrPos.v[2] = pEnt->r.currentOrigin.v[2];
+  inOutCurrPos.v[1] = v6;
   positionControl = G_ScrMover_GetPositionController(pEnt);
-  __asm
-  {
-    vmovss  xmm0, [rsp+88h+fDecelTime]
-    vmovaps xmm3, xmm6; fAccelTime
-    vmovaps xmm2, xmm7; fTotalTime
-    vmovss  [rsp+88h+var_68], xmm0
-  }
-  G_ScrMover_SetupMove(&v13->s.lerp.pos, vPos, *(const float *)&_XMM2, *(const float *)&_XMM3, v20, &inOutCurrPos, (mover_positions_t *)positionControl);
-  SV_LinkEntity(v13);
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_18]
-    vmovaps xmm7, [rsp+88h+var_28]
-  }
+  G_ScrMover_SetupMove(&pEnt->s.lerp.pos, vPos, fTotalTime, fAccelTime, fDecelTime, &inOutCurrPos, (mover_positions_t *)positionControl);
+  SV_LinkEntity(pEnt);
 }
 
 /*
@@ -3201,36 +2776,42 @@ G_ScrMover_MoveAxis
 */
 void G_ScrMover_MoveAxis(scrContext_t *scrContext, scr_entref_t entref, int iAxis)
 {
+  __int64 v3; 
   unsigned int entnum; 
+  gentity_s *v6; 
   scr_string_t classname; 
-  const char *v10; 
-  float fmt; 
-  __int64 v21; 
+  const char *v8; 
+  double Float; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int64 v14; 
   float pfDecelTime; 
   float pfAccelTime; 
   float pfTotalTime; 
   vec3_t vPos; 
 
-  _RBP = iAxis;
+  v3 = iAxis;
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_2787, scrContext, "not an entity");
-    _RDI = NULL;
+    v6 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1190, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    _RDI = &g_entities[entnum];
-    classname = _RDI->classname;
+    v6 = &g_entities[entnum];
+    classname = v6->classname;
     if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
     {
-      v10 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
-      Scr_ObjectError(COM_ERR_2786, scrContext, v10);
+      v8 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
+      Scr_ObjectError(COM_ERR_2786, scrContext, v8);
     }
   }
-  if ( _RDI->s.lerp.pos.trType == TR_ANIMATED_MOVER )
+  if ( v6->s.lerp.pos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
@@ -3238,36 +2819,23 @@ void G_ScrMover_MoveAxis(scrContext_t *scrContext, scr_entref_t entref, int iAxi
   }
   else
   {
-    __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 0);
     G_ScrMover_GetCommandTimes(scrContext, &pfTotalTime, &pfAccelTime, &pfDecelTime);
-    __asm
+    v10 = v6->r.currentOrigin.v[1];
+    vPos.v[0] = v6->r.currentOrigin.v[0];
+    vPos.v[2] = v6->r.currentOrigin.v[2];
+    vPos.v[1] = v10;
+    if ( (unsigned int)v3 >= 3 )
     {
-      vmovss  xmm1, dword ptr [rdi+130h]
-      vmovss  xmm2, dword ptr [rdi+134h]
-      vmovss  dword ptr [rsp+0A8h+vPos], xmm1
-      vmovss  xmm1, dword ptr [rdi+138h]
-      vmovss  dword ptr [rsp+0A8h+vPos+8], xmm1
-      vmovss  dword ptr [rsp+0A8h+vPos+4], xmm2
-    }
-    if ( (unsigned int)_RBP >= 3 )
-    {
-      LODWORD(v21) = _RBP;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v21, 3) )
+      LODWORD(v14) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v14, 3) )
         __debugbreak();
     }
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rsp+rbp*4+0A8h+vPos]
-      vmovss  xmm1, [rsp+0A8h+pfDecelTime]
-      vmovss  xmm3, [rsp+0A8h+pfAccelTime]; fAccelTime
-      vmovss  xmm2, [rsp+0A8h+pfTotalTime]; fTotalTime
-      vmovss  dword ptr [rsp+rbp*4+0A8h+vPos], xmm0
-      vmovss  dword ptr [rsp+0A8h+fmt], xmm1
-    }
-    G_ScrMover_Move(_RDI, &vPos, *(double *)&_XMM2, *(double *)&_XMM3, fmt);
-    __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
+    v11 = pfDecelTime;
+    v12 = pfAccelTime;
+    v13 = pfTotalTime;
+    vPos.v[v3] = *(float *)&Float + vPos.v[v3];
+    G_ScrMover_Move(v6, &vPos, v13, v12, v11);
   }
 }
 
@@ -3299,47 +2867,47 @@ G_ScrMover_Reached
 void G_ScrMover_Reached(gentity_s *pEnt)
 {
   EntityTagInfo *tagInfo; 
-  int v4; 
+  int v3; 
   TagInfoLinkedRotation *TagInfoLinkedRotation; 
   trType_t trType; 
   trajectory_t_secure *p_pos; 
   int time; 
+  int v8; 
   int v9; 
-  int v10; 
-  bool v11; 
+  bool v10; 
   const DObj *ServerDObjForEnt; 
   const XAnimTree *Tree; 
   const XAnim_s *Anims; 
+  double v16; 
   BgEntityComponents *PositionController; 
   int updated; 
-  int v31; 
-  GTrajectory v47; 
+  int v20; 
+  double v23; 
+  GTrajectory v25; 
 
   tagInfo = pEnt->tagInfo;
-  _RDI = pEnt;
-  v4 = 1;
+  v3 = 1;
   if ( Com_GameMode_SupportsFeature(WEAPON_MELEE_FATAL) && tagInfo )
   {
-    TagInfoLinkedRotation = G_GetTagInfoLinkedRotation(_RDI);
+    TagInfoLinkedRotation = G_GetTagInfoLinkedRotation(pEnt);
     if ( !TagInfoLinkedRotation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 167, ASSERT_TYPE_ASSERT, "( linkedRotationData )", (const char *)&queryFormat, "linkedRotationData") )
       __debugbreak();
-    trType = _RDI->s.lerp.pos.trType;
-    p_pos = &_RDI->s.lerp.pos;
+    trType = pEnt->s.lerp.pos.trType;
+    p_pos = &pEnt->s.lerp.pos;
     time = level.time;
-    v9 = 0;
+    v8 = 0;
     goto LABEL_9;
   }
-  trType = _RDI->s.lerp.pos.trType;
-  p_pos = &_RDI->s.lerp.pos;
+  trType = pEnt->s.lerp.pos.trType;
+  p_pos = &pEnt->s.lerp.pos;
   time = level.time;
-  TagInfoLinkedRotation = (TagInfoLinkedRotation *)&_RDI->s.lerp.apos;
-  v9 = 0;
-  if ( trType == TR_STATIONARY || (v10 = 1, _RDI->s.lerp.pos.trTime + _RDI->s.lerp.pos.trDuration > level.time) )
+  TagInfoLinkedRotation = (TagInfoLinkedRotation *)&pEnt->s.lerp.apos;
+  v8 = 0;
+  if ( trType == TR_STATIONARY || (v9 = 1, pEnt->s.lerp.pos.trTime + pEnt->s.lerp.pos.trDuration > level.time) )
 LABEL_9:
-    v10 = 0;
+    v9 = 0;
   if ( TagInfoLinkedRotation->aposLocal.trType == TR_STATIONARY || TagInfoLinkedRotation->aposLocal.trTime + TagInfoLinkedRotation->aposLocal.trDuration > time )
-    v4 = 0;
-  __asm { vmovaps [rsp+88h+var_38], xmm9 }
+    v3 = 0;
   if ( trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
@@ -3348,111 +2916,78 @@ LABEL_9:
     {
       if ( Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) )
         goto LABEL_23;
-      v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )");
+      v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )");
     }
     else
     {
-      v11 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 186, ASSERT_TYPE_ASSERT, "( BgTrajectory::IsAnimatedTrajectory( angularTrajectory ) )", (const char *)&queryFormat, "BgTrajectory::IsAnimatedTrajectory( angularTrajectory )");
+      v10 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 186, ASSERT_TYPE_ASSERT, "( BgTrajectory::IsAnimatedTrajectory( angularTrajectory ) )", (const char *)&queryFormat, "BgTrajectory::IsAnimatedTrajectory( angularTrajectory )");
     }
-    if ( v11 )
+    if ( v10 )
       __debugbreak();
 LABEL_23:
-    if ( v10 != v4 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 187, ASSERT_TYPE_ASSERT, "( reachedPositionMove == reachedRotationMove )", (const char *)&queryFormat, "reachedPositionMove == reachedRotationMove") )
+    if ( v9 != v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 187, ASSERT_TYPE_ASSERT, "( reachedPositionMove == reachedRotationMove )", (const char *)&queryFormat, "reachedPositionMove == reachedRotationMove") )
       __debugbreak();
-    ServerDObjForEnt = Com_GetServerDObjForEnt(_RDI);
+    ServerDObjForEnt = Com_GetServerDObjForEnt(pEnt);
     if ( !ServerDObjForEnt && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 190, ASSERT_TYPE_ASSERT, "( dObj )", (const char *)&queryFormat, "dObj") )
       __debugbreak();
     Tree = DObjGetTree(ServerDObjForEnt);
     if ( !Tree && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 193, ASSERT_TYPE_ASSERT, "( tree )", (const char *)&queryFormat, "tree") )
       __debugbreak();
-    LOBYTE(v9) = XAnimIsSimpleBlendTree(Tree) != 0;
+    LOBYTE(v8) = XAnimIsSimpleBlendTree(Tree) != 0;
     Anims = XAnimGetAnims(Tree);
-    if ( !XAnimIsLooped(Anims, v9 + 1) && (v10 || v4) )
+    if ( !XAnimIsLooped(Anims, v8 + 1) && (v9 || v3) )
     {
-      G_ScrMover_ClearAnimatedTrajectory(_RDI);
+      G_ScrMover_ClearAnimatedTrajectory(pEnt);
       if ( p_pos->trType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 205, ASSERT_TYPE_ASSERT, "( pEnt->s.lerp.pos.trType == TR_STATIONARY )", (const char *)&queryFormat, "pEnt->s.lerp.pos.trType == TR_STATIONARY") )
         __debugbreak();
-      if ( _RDI->s.lerp.apos.trType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 206, ASSERT_TYPE_ASSERT, "( pEnt->s.lerp.apos.trType == TR_STATIONARY )", (const char *)&queryFormat, "pEnt->s.lerp.apos.trType == TR_STATIONARY") )
-        __debugbreak();
-      SV_LinkEntity(_RDI);
-      __asm
+      if ( pEnt->s.lerp.apos.trType )
       {
-        vmovss  xmm0, dword ptr [rdi+13Ch]
-        vmulss  xmm3, xmm0, cs:__real@3b360b61
-        vaddss  xmm1, xmm3, cs:__real@3f000000
-        vxorps  xmm9, xmm9, xmm9
-        vroundss xmm2, xmm9, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm0, xmm0, cs:__real@43b40000
-        vmovss  dword ptr [rdi+13Ch], xmm0
-        vmovss  xmm0, dword ptr [rdi+140h]; angle
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 206, ASSERT_TYPE_ASSERT, "( pEnt->s.lerp.apos.trType == TR_STATIONARY )", (const char *)&queryFormat, "pEnt->s.lerp.apos.trType == TR_STATIONARY") )
+          __debugbreak();
       }
-      *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-      __asm
-      {
-        vmovss  dword ptr [rdi+140h], xmm0
-        vmovss  xmm1, dword ptr [rdi+144h]
-        vmulss  xmm4, xmm1, cs:__real@3b360b61
-        vaddss  xmm2, xmm4, cs:__real@3f000000
-        vroundss xmm3, xmm9, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, cs:__real@43b40000
-        vmovss  dword ptr [rdi+144h], xmm1
-      }
-      GScr_Notify(_RDI, scr_const.movedone, 0);
+      SV_LinkEntity(pEnt);
+      _XMM9 = 0i64;
+      __asm { vroundss xmm2, xmm9, xmm1, 1 }
+      pEnt->r.currentAngles.v[0] = (float)((float)(pEnt->r.currentAngles.v[0] * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+      v16 = AngleNormalize360(pEnt->r.currentAngles.v[1]);
+      pEnt->r.currentAngles.v[1] = *(float *)&v16;
+      __asm { vroundss xmm3, xmm9, xmm2, 1 }
+      pEnt->r.currentAngles.v[2] = (float)((float)(pEnt->r.currentAngles.v[2] * 0.0027777778) - *(float *)&_XMM3) * 360.0;
+      GScr_Notify(pEnt, scr_const.movedone, 0);
       goto LABEL_51;
     }
-    goto LABEL_52;
+    return;
   }
-  if ( v10 )
+  if ( v9 )
   {
-    PositionController = G_ScrMover_GetPositionController(_RDI);
+    PositionController = G_ScrMover_GetPositionController(pEnt);
     updated = G_ScrMover_UpdateMove(p_pos, (const mover_positions_t *)PositionController);
-    GTrajectory::GTrajectory(&v47, _RDI);
-    BgTrajectory::EvaluatePosTrajectory(&v47, level.time, &_RDI->r.currentOrigin);
-    SV_LinkEntity(_RDI);
+    GTrajectory::GTrajectory(&v25, pEnt);
+    BgTrajectory::EvaluatePosTrajectory(&v25, level.time, &pEnt->r.currentOrigin);
+    SV_LinkEntity(pEnt);
     if ( updated )
-      GScr_Notify(_RDI, scr_const.movedone, 0);
+      GScr_Notify(pEnt, scr_const.movedone, 0);
   }
-  if ( v4 )
+  if ( v3 )
   {
-    v31 = G_ScrMover_UpdateMove(&TagInfoLinkedRotation->aposLocal, &_RDI->c.mover.angle);
-    BgTrajectory::LegacyEvaluateTrajectory(&TagInfoLinkedRotation->aposLocal, level.time, &_RDI->r.currentAngles);
+    v20 = G_ScrMover_UpdateMove(&TagInfoLinkedRotation->aposLocal, &pEnt->c.mover.angle);
+    BgTrajectory::LegacyEvaluateTrajectory(&TagInfoLinkedRotation->aposLocal, level.time, &pEnt->r.currentAngles);
     if ( Com_GameMode_SupportsFeature(WEAPON_MELEE_FATAL) && tagInfo )
-      G_CalcTagConvertLocalToWorldAngles(_RDI, &_RDI->r.currentAngles, &_RDI->r.currentAngles);
-    SV_LinkEntity(_RDI);
-    if ( v31 )
+      G_CalcTagConvertLocalToWorldAngles(pEnt, &pEnt->r.currentAngles, &pEnt->r.currentAngles);
+    SV_LinkEntity(pEnt);
+    if ( v20 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+13Ch]
-        vmulss  xmm3, xmm0, cs:__real@3b360b61
-        vaddss  xmm1, xmm3, cs:__real@3f000000
-        vxorps  xmm9, xmm9, xmm9
-        vroundss xmm2, xmm9, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm0, xmm0, cs:__real@43b40000
-        vmovss  dword ptr [rdi+13Ch], xmm0
-        vmovss  xmm0, dword ptr [rdi+140h]; angle
-      }
-      *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-      __asm
-      {
-        vmovss  dword ptr [rdi+140h], xmm0
-        vmovss  xmm1, dword ptr [rdi+144h]
-        vmulss  xmm4, xmm1, cs:__real@3b360b61
-        vaddss  xmm2, xmm4, cs:__real@3f000000
-        vroundss xmm3, xmm9, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, cs:__real@43b40000
-        vmovss  dword ptr [rdi+144h], xmm1
-      }
+      _XMM9 = 0i64;
+      __asm { vroundss xmm2, xmm9, xmm1, 1 }
+      pEnt->r.currentAngles.v[0] = (float)((float)(pEnt->r.currentAngles.v[0] * 0.0027777778) - *(float *)&_XMM2) * 360.0;
+      v23 = AngleNormalize360(pEnt->r.currentAngles.v[1]);
+      pEnt->r.currentAngles.v[1] = *(float *)&v23;
+      __asm { vroundss xmm3, xmm9, xmm2, 1 }
+      pEnt->r.currentAngles.v[2] = (float)((float)(pEnt->r.currentAngles.v[2] * 0.0027777778) - *(float *)&_XMM3) * 360.0;
 LABEL_51:
-      GScr_Notify(_RDI, scr_const.rotatedone, 0);
+      GScr_Notify(pEnt, scr_const.rotatedone, 0);
     }
   }
-LABEL_52:
-  __asm { vmovaps xmm9, [rsp+88h+var_38] }
 }
 
 /*
@@ -3462,60 +2997,46 @@ G_ScrMover_Rotate
 */
 void G_ScrMover_Rotate(gentity_s *pEnt, const vec3_t *vRot, const float fTotalTime, const float fAccelTime, const float fDecelTime)
 {
-  gentity_s *v8; 
-  int v11; 
-  bool v13; 
-  float fmt; 
+  float v5; 
+  int v7; 
+  vec3_t *p_trBase; 
+  bool v9; 
+  double v10; 
   vec3_t *inOutCurrPos; 
   mover_positions_t *positionControl; 
-  vec3_t v20; 
+  vec3_t v13; 
 
-  __asm
-  {
-    vmovaps [rsp+88h+var_28], xmm6
-    vmovss  xmm0, dword ptr [rcx+13Ch]
-    vmovss  xmm1, dword ptr [rcx+140h]
-  }
-  v8 = pEnt;
-  __asm
-  {
-    vmovss  dword ptr [rsp+88h+var_48], xmm0
-    vmovss  xmm0, dword ptr [rcx+144h]
-    vmovss  dword ptr [rsp+88h+var_48+8], xmm0
-    vmovss  xmm0, [rsp+88h+fDecelTime]
-    vmovss  dword ptr [rsp+88h+fmt], xmm0
-    vmovss  dword ptr [rsp+88h+var_48+4], xmm1
-  }
-  G_ScrMover_SetupMove(&pEnt->s.lerp.apos, vRot, fTotalTime, fAccelTime, fmt, &v20, &pEnt->c.mover.angle);
-  v11 = 0;
-  _RDI = &v8->s.lerp.apos.trBase;
-  v13 = 1;
+  v5 = pEnt->r.currentAngles.v[1];
+  v13.v[0] = pEnt->r.currentAngles.v[0];
+  v13.v[2] = pEnt->r.currentAngles.v[2];
+  v13.v[1] = v5;
+  G_ScrMover_SetupMove(&pEnt->s.lerp.apos, vRot, fTotalTime, fAccelTime, fDecelTime, &v13, &pEnt->c.mover.angle);
+  v7 = 0;
+  p_trBase = &pEnt->s.lerp.apos.trBase;
+  v9 = 1;
   do
   {
-    if ( !v13 )
+    if ( !v9 )
     {
       LODWORD(positionControl) = 3;
-      LODWORD(inOutCurrPos) = v11;
+      LODWORD(inOutCurrPos) = v7;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inOutCurrPos, positionControl) )
         __debugbreak();
     }
-    __asm { vmovss  xmm0, dword ptr [rdi]; angle }
-    *(double *)&_XMM0 = AngleNormalize360(*(const float *)&_XMM0);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( (unsigned int)v11 >= 3 )
+    v10 = AngleNormalize360(p_trBase->v[0]);
+    if ( (unsigned int)v7 >= 3 )
     {
       LODWORD(positionControl) = 3;
-      LODWORD(inOutCurrPos) = v11;
+      LODWORD(inOutCurrPos) = v7;
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", inOutCurrPos, positionControl) )
         __debugbreak();
     }
-    __asm { vmovss  dword ptr [rdi], xmm6 }
-    _RDI = (vec3_t *)((char *)_RDI + 4);
-    v13 = (unsigned int)++v11 < 3;
+    p_trBase->v[0] = *(float *)&v10;
+    p_trBase = (vec3_t *)((char *)p_trBase + 4);
+    v9 = (unsigned int)++v7 < 3;
   }
-  while ( v11 < 3 );
-  SV_LinkEntity(v8);
-  __asm { vmovaps xmm6, [rsp+88h+var_28] }
+  while ( v7 < 3 );
+  SV_LinkEntity(pEnt);
 }
 
 /*
@@ -3525,36 +3046,42 @@ G_ScrMover_RotateAxis
 */
 void G_ScrMover_RotateAxis(scrContext_t *scrContext, scr_entref_t entref, int iAxis)
 {
+  __int64 v3; 
   unsigned int entnum; 
+  gentity_s *v6; 
   scr_string_t classname; 
-  const char *v10; 
-  float fmt; 
-  __int64 v21; 
+  const char *v8; 
+  double Float; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  __int64 v14; 
   float pfDecelTime; 
   float pfAccelTime; 
   float pfTotalTime; 
   vec3_t vRot; 
 
-  _RBP = iAxis;
+  v3 = iAxis;
   entnum = entref.entnum;
   if ( entref.entclass )
   {
     Scr_ObjectError(COM_ERR_2787, scrContext, "not an entity");
-    _RDI = NULL;
+    v6 = NULL;
   }
   else
   {
     if ( entref.entnum >= 0x800 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 1675, ASSERT_TYPE_ASSERT, "(entref.entnum < ( 2048 ))", (const char *)&queryFormat, "entref.entnum < MAX_GENTITIES") )
       __debugbreak();
-    _RDI = &g_entities[entnum];
-    classname = _RDI->classname;
+    v6 = &g_entities[entnum];
+    classname = v6->classname;
     if ( classname != scr_const.script_brushmodel && classname != scr_const.script_model && classname != scr_const.script_origin && classname != scr_const.script_arms && classname != scr_const.script_weapon && classname != scr_const.light && classname != scr_const.script_vehicle )
     {
-      v10 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
-      Scr_ObjectError(COM_ERR_2786, scrContext, v10);
+      v8 = j_va("entity %i is not a script_brushmodel, script_model, script_origin, script_arms, script_weapon, light or script_vehicle", entnum);
+      Scr_ObjectError(COM_ERR_2786, scrContext, v8);
     }
   }
-  if ( _RDI->s.lerp.apos.trType == TR_ANIMATED_MOVER )
+  if ( v6->s.lerp.apos.trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
@@ -3562,36 +3089,23 @@ void G_ScrMover_RotateAxis(scrContext_t *scrContext, scr_entref_t entref, int iA
   }
   else
   {
-    __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 0);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 0);
     G_ScrMover_GetCommandTimes(scrContext, &pfTotalTime, &pfAccelTime, &pfDecelTime);
-    __asm
+    v10 = v6->r.currentAngles.v[1];
+    vRot.v[0] = v6->r.currentAngles.v[0];
+    vRot.v[2] = v6->r.currentAngles.v[2];
+    vRot.v[1] = v10;
+    if ( (unsigned int)v3 >= 3 )
     {
-      vmovss  xmm1, dword ptr [rdi+13Ch]
-      vmovss  xmm2, dword ptr [rdi+140h]
-      vmovss  dword ptr [rsp+0A8h+vRot], xmm1
-      vmovss  xmm1, dword ptr [rdi+144h]
-      vmovss  dword ptr [rsp+0A8h+vRot+8], xmm1
-      vmovss  dword ptr [rsp+0A8h+vRot+4], xmm2
-    }
-    if ( (unsigned int)_RBP >= 3 )
-    {
-      LODWORD(v21) = _RBP;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v21, 3) )
+      LODWORD(v14) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v14, 3) )
         __debugbreak();
     }
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rsp+rbp*4+0A8h+vRot]
-      vmovss  xmm1, [rsp+0A8h+pfDecelTime]
-      vmovss  xmm3, [rsp+0A8h+pfAccelTime]; fAccelTime
-      vmovss  xmm2, [rsp+0A8h+pfTotalTime]; fTotalTime
-      vmovss  dword ptr [rsp+rbp*4+0A8h+vRot], xmm0
-      vmovss  dword ptr [rsp+0A8h+fmt], xmm1
-    }
-    G_ScrMover_Rotate(_RDI, &vRot, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt);
-    __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
+    v11 = pfDecelTime;
+    v12 = pfAccelTime;
+    v13 = pfTotalTime;
+    vRot.v[v3] = *(float *)&Float + vRot.v[v3];
+    G_ScrMover_Rotate(v6, &vRot, v13, v12, v11);
   }
 }
 
@@ -3600,50 +3114,27 @@ void G_ScrMover_RotateAxis(scrContext_t *scrContext, scr_entref_t entref, int iA
 G_ScrMover_RotateLinked
 ==============
 */
-
-void __fastcall G_ScrMover_RotateLinked(gentity_s *pEnt, const vec3_t *vRot, double fTotalTime, double fAccelTime, const float fDecelTime)
+void G_ScrMover_RotateLinked(gentity_s *pEnt, const vec3_t *vRot, const float fTotalTime, const float fAccelTime, const float fDecelTime)
 {
   TagInfoLinkedRotation *TagInfoLinkedRotation; 
-  float fmt; 
+  float v8; 
   vec3_t inOutCurrPos; 
 
-  __asm
-  {
-    vmovaps [rsp+98h+var_28], xmm6
-    vmovaps [rsp+98h+var_38], xmm7
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
-  _RBX = pEnt;
   if ( !pEnt->tagInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 622, ASSERT_TYPE_ASSERT, "( pEnt->tagInfo )", (const char *)&queryFormat, "pEnt->tagInfo") )
     __debugbreak();
-  if ( _RBX->s.eType != ET_SCRIPTMOVER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 623, ASSERT_TYPE_ASSERT, "( pEnt->s.eType == ET_SCRIPTMOVER )", (const char *)&queryFormat, "pEnt->s.eType == ET_SCRIPTMOVER") )
+  if ( pEnt->s.eType != ET_SCRIPTMOVER && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 623, ASSERT_TYPE_ASSERT, "( pEnt->s.eType == ET_SCRIPTMOVER )", (const char *)&queryFormat, "pEnt->s.eType == ET_SCRIPTMOVER") )
     __debugbreak();
   if ( !Com_GameMode_SupportsFeature(WEAPON_MELEE_FATAL) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 624, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_LINKED_ROTATION ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_LINKED_ROTATION )") )
     __debugbreak();
-  TagInfoLinkedRotation = G_GetTagInfoLinkedRotation(_RBX);
+  TagInfoLinkedRotation = G_GetTagInfoLinkedRotation(pEnt);
   if ( !TagInfoLinkedRotation->hasLinkedRotation && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 627, ASSERT_TYPE_ASSERT, "( linkedRotationData->hasLinkedRotation )", (const char *)&queryFormat, "linkedRotationData->hasLinkedRotation") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+13Ch]
-    vmovss  xmm1, dword ptr [rbx+140h]
-    vmovss  dword ptr [rsp+98h+var_58], xmm0
-    vmovss  xmm0, dword ptr [rbx+144h]
-    vmovss  dword ptr [rsp+98h+var_58+8], xmm0
-    vmovss  xmm0, [rsp+98h+fDecelTime]
-    vmovaps xmm3, xmm6; fAccelTime
-    vmovaps xmm2, xmm7; fTotalTime
-    vmovss  dword ptr [rsp+98h+fmt], xmm0
-    vmovss  dword ptr [rsp+98h+var_58+4], xmm1
-  }
-  G_ScrMover_SetupMove(&TagInfoLinkedRotation->aposLocal, vRot, *(const float *)&_XMM2, *(const float *)&_XMM3, fmt, &inOutCurrPos, &_RBX->c.mover.angle);
-  SV_LinkEntity(_RBX);
-  __asm
-  {
-    vmovaps xmm6, [rsp+98h+var_28]
-    vmovaps xmm7, [rsp+98h+var_38]
-  }
+  v8 = pEnt->r.currentAngles.v[1];
+  inOutCurrPos.v[0] = pEnt->r.currentAngles.v[0];
+  inOutCurrPos.v[2] = pEnt->r.currentAngles.v[2];
+  inOutCurrPos.v[1] = v8;
+  G_ScrMover_SetupMove(&TagInfoLinkedRotation->aposLocal, vRot, fTotalTime, fAccelTime, fDecelTime, &inOutCurrPos, &pEnt->c.mover.angle);
+  SV_LinkEntity(pEnt);
 }
 
 /*
@@ -3663,357 +3154,189 @@ void G_ScrMover_SetSlideVelocity(scrContext_t *scrContext, gentity_s *ent, int o
 G_ScrMover_SetupMove
 ==============
 */
-
-void __fastcall G_ScrMover_SetupMove(trajectory_t_secure *pTr, const vec3_t *vPos, double fTotalTime, double fAccelTime, const float fDecelTime, vec3_t *inOutCurrPos, mover_positions_t *positionControl)
+void G_ScrMover_SetupMove(trajectory_t_secure *pTr, const vec3_t *vPos, const float fTotalTime, const float fAccelTime, const float fDecelTime, vec3_t *inOutCurrPos, mover_positions_t *positionControl)
 {
-  bool v22; 
-  bool v23; 
-  char v28; 
-  bool v29; 
+  float v10; 
+  __int128 v11; 
+  __int128 v12; 
+  float v13; 
+  __int128 v14; 
+  float v15; 
+  int v16; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  float v23; 
+  float v24; 
+  float v25; 
+  vec3_t *p_pos1; 
+  bool v27; 
+  float midTime; 
+  float v29; 
+  float v30; 
+  float v31; 
+  float v32; 
+  float v33; 
   int trDuration; 
-  bool v64; 
-  int v104; 
-  int v112; 
-  int v113; 
-  int v114; 
-  int v115; 
-  int v116; 
-  int v117; 
-  int v118; 
-  int v119; 
-  int v120; 
-  int v121; 
-  int v122; 
-  int v123; 
-  char v129; 
-  void *retaddr; 
+  float v35; 
+  float v36; 
+  float v37; 
+  float v38; 
 
-  _RAX = &retaddr;
-  v22 = pTr->trType == TR_ANIMATED_MOVER;
-  _R14 = (vec3_t *)vPos;
-  _RSI = positionControl;
-  _RBX = pTr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmm11, xmm3
-    vmovaps xmm6, xmm2
-  }
-  if ( v22 )
+  if ( pTr->trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
       __debugbreak();
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 268, ASSERT_TYPE_ASSERT, "( !BgTrajectory::IsAnimatedTrajectory( pTr ) )", (const char *)&queryFormat, "!BgTrajectory::IsAnimatedTrajectory( pTr )") )
       __debugbreak();
   }
-  v22 = level.frameDuration == 0;
-  if ( !level.frameDuration )
+  if ( !level.frameDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration") )
+    __debugbreak();
+  if ( (float)(fTotalTime - 0.001) > (float)((float)level.frameDuration * 0.001) )
   {
-    v23 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_level_locals.h", 349, ASSERT_TYPE_ASSERT, "(level.frameDuration)", "%s\n\tAccessing frame duration before it's been set", "level.frameDuration");
-    v22 = !v23;
-    if ( v23 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vsubss  xmm2, xmm6, cs:__real@3a83126f
-    vmovaps [rsp+0D8h+var_38], xmm7
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, cs:?level@@3Ulevel_locals_t@@A.frameDuration; level_locals_t level
-    vmulss  xmm1, xmm0, cs:__real@3a83126f
-    vcomiss xmm2, xmm1
-    vmovaps [rsp+0D8h+var_48], xmm8
-    vmovaps [rsp+0D8h+var_58], xmm9
-  }
-  if ( v22 )
-  {
-    v28 = 0;
-    v29 = _RBX->trType == TR_STATIONARY;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14]
-      vsubss  xmm7, xmm0, dword ptr [rdi]
-      vmovss  xmm0, dword ptr [r14+4]
-      vsubss  xmm8, xmm0, dword ptr [rdi+4]
-      vmovss  xmm0, dword ptr [r14+8]
-      vsubss  xmm9, xmm0, dword ptr [rdi+8]
-    }
-    if ( _RBX->trType )
-      BgTrajectory::LegacyEvaluateTrajectory(_RBX, level.time, inOutCurrPos);
+    if ( pTr->trType )
+      BgTrajectory::LegacyEvaluateTrajectory(pTr, level.time, inOutCurrPos);
+    v10 = vPos->v[0] - inOutCurrPos->v[0];
+    v14 = LODWORD(vPos->v[1]);
+    *(float *)&v14 = vPos->v[1] - inOutCurrPos->v[1];
+    v11 = v14;
+    v13 = vPos->v[2] - inOutCurrPos->v[2];
   }
   else
   {
-    v28 = 0;
-    v29 = _RBX->trType == TR_STATIONARY;
-    if ( _RBX->trType )
-      BgTrajectory::LegacyEvaluateTrajectory(_RBX, level.time, inOutCurrPos);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r14]
-      vsubss  xmm7, xmm0, dword ptr [rdi]
-      vmovss  xmm0, dword ptr [r14+4]
-      vsubss  xmm8, xmm0, dword ptr [rdi+4]
-      vmovss  xmm0, dword ptr [r14+8]
-      vsubss  xmm9, xmm0, dword ptr [rdi+8]
-    }
+    v10 = vPos->v[0] - inOutCurrPos->v[0];
+    v12 = LODWORD(vPos->v[1]);
+    *(float *)&v12 = vPos->v[1] - inOutCurrPos->v[1];
+    v11 = v12;
+    v13 = vPos->v[2] - inOutCurrPos->v[2];
+    if ( pTr->trType )
+      BgTrajectory::LegacyEvaluateTrajectory(pTr, level.time, inOutCurrPos);
   }
-  __asm
+  if ( fAccelTime >= 0.0020000001 || fDecelTime >= 0.0020000001 )
   {
-    vmovss  xmm10, cs:__real@3b03126f
-    vcomiss xmm11, xmm10
-    vmovss  xmm4, [rsp+0D8h+fDecelTime]
-  }
-  if ( !v28 )
-    goto LABEL_29;
-  __asm { vcomiss xmm4, xmm10 }
-  if ( v28 )
-  {
-    __asm { vmovss  xmm10, cs:__real@447a0000 }
-    _RBX->trTime = level.time;
-    __asm
-    {
-      vmulss  xmm0, xmm6, xmm10
-      vcvttss2si eax, xmm0
-    }
-    _RBX->trDuration = _EAX;
-    __asm { vmovss  dword ptr [rsi+8], xmm6 }
-    positionControl->decelTime = 0.0;
-    positionControl->pos3 = *_R14;
-    Trajectory_SetTrBase(_RBX, inOutCurrPos);
-    if ( !_RBX->trDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 301, ASSERT_TYPE_ASSERT, "( pTr->trDuration )", (const char *)&queryFormat, "pTr->trDuration") )
+    v18 = v11;
+    positionControl->midTime = (float)(fTotalTime - fAccelTime) - fDecelTime;
+    *(float *)&v18 = fsqrt((float)((float)(*(float *)&v11 * *(float *)&v11) + (float)(v10 * v10)) + (float)(v13 * v13));
+    _XMM13 = v18;
+    v19 = (float)((float)(fTotalTime * 2.0) - fAccelTime) - fDecelTime;
+    positionControl->decelTime = fDecelTime;
+    if ( v19 == 0.0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 324, ASSERT_TYPE_ASSERT, "( (2.0f * fTotalTime) - fAccelTime - fDecelTime )", (const char *)&queryFormat, "(2.0f * fTotalTime) - fAccelTime - fDecelTime") )
       __debugbreak();
+    v20 = (float)(*(float *)&v18 * 2.0) / v19;
     __asm
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+8]
-      vdivss  xmm1, xmm10, xmm0
-      vmulss  xmm2, xmm7, xmm1
-      vmulss  xmm0, xmm8, xmm1
-      vmovss  [rsp+0D8h+var_A8], xmm2
-      vmulss  xmm1, xmm9, xmm1
-      vmovss  dword ptr [rbx+18h], xmm2
-      vmovss  dword ptr [rbx+1Ch], xmm0
-      vmovss  dword ptr [rbx+20h], xmm1
-    }
-    if ( (v112 & 0x7F800000) == 2139095040 )
-      goto LABEL_62;
-    __asm { vmovss  [rsp+0D8h+var_A8], xmm0 }
-    if ( (v113 & 0x7F800000) == 2139095040 )
-      goto LABEL_62;
-    __asm { vmovss  [rsp+0D8h+var_A8], xmm1 }
-    if ( (v114 & 0x7F800000) == 2139095040 )
-    {
-LABEL_62:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 304, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )") )
-        __debugbreak();
-    }
-    _RBX->trType = TR_LINEAR_STOP;
-    BgTrajectory::LegacyEvaluateTrajectory(_RBX, level.time, inOutCurrPos);
-    if ( !_RBX->trTime )
-    {
-      trDuration = _RBX->trDuration;
-      _RBX->trTime = 1;
-      if ( trDuration > 1 )
-        _RBX->trDuration = trDuration - 1;
-    }
-  }
-  else
-  {
-LABEL_29:
-    __asm
-    {
-      vsubss  xmm0, xmm6, xmm11
-      vsubss  xmm1, xmm0, xmm4
-      vmulss  xmm0, xmm7, xmm7
-      vmovaps [rsp+0D8h+var_88], xmm12
-      vmovss  xmm12, cs:__real@40000000
-      vmulss  xmm2, xmm8, xmm8
-      vaddss  xmm3, xmm2, xmm0
-      vmovss  dword ptr [rsi+8], xmm1
-      vmulss  xmm1, xmm9, xmm9
-      vaddss  xmm2, xmm3, xmm1
-      vmulss  xmm0, xmm6, xmm12
-      vsubss  xmm1, xmm0, xmm11
-      vmovaps [rsp+0D8h+var_98], xmm13
-      vsqrtss xmm13, xmm2, xmm2
-      vsubss  xmm6, xmm1, xmm4
-      vxorps  xmm2, xmm2, xmm2
-      vucomiss xmm6, xmm2
-      vmovss  dword ptr [rsi], xmm4
-    }
-    if ( v29 )
-    {
-      v64 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 324, ASSERT_TYPE_ASSERT, "( (2.0f * fTotalTime) - fAccelTime - fDecelTime )", (const char *)&queryFormat, "(2.0f * fTotalTime) - fAccelTime - fDecelTime");
-      v28 = 0;
-      v29 = !v64;
-      if ( v64 )
-        __debugbreak();
-    }
-    __asm
-    {
-      vcomiss xmm11, xmm10
-      vmovss  xmm1, cs:__real@3f800000
-      vmulss  xmm0, xmm13, xmm12
-      vdivss  xmm3, xmm0, xmm6
       vcmpless xmm0, xmm13, cs:__real@80000000
       vblendvps xmm0, xmm13, xmm1, xmm0
-      vmovaps xmm13, [rsp+0D8h+var_98]
-      vdivss  xmm2, xmm1, xmm0
-      vmulss  xmm0, xmm7, xmm2
-      vmulss  xmm6, xmm0, xmm3
-      vmulss  xmm0, xmm8, xmm2
-      vmulss  xmm1, xmm9, xmm2
-      vmulss  xmm8, xmm0, xmm3
-      vmovss  dword ptr [rsi+4], xmm3
-      vmulss  xmm9, xmm1, xmm3
     }
-    if ( v28 | v29 )
+    v23 = (float)(v10 * (float)(1.0 / *(float *)&_XMM0)) * v20;
+    v24 = (float)(*(float *)&v11 * (float)(1.0 / *(float *)&_XMM0)) * v20;
+    positionControl->speed = v20;
+    v25 = (float)(v13 * (float)(1.0 / *(float *)&_XMM0)) * v20;
+    if ( fAccelTime <= 0.0020000001 )
     {
+      p_pos1 = &positionControl->pos1;
       positionControl->pos1 = *inOutCurrPos;
-      __asm { vcomiss xmm10, dword ptr [rsi+8] }
-      _RBX->trTime = level.time;
-      if ( v28 )
+      v27 = positionControl->midTime > 0.0020000001;
+      pTr->trTime = level.time;
+      if ( v27 )
       {
-        __asm
-        {
-          vmovss  xmm7, cs:__real@447a0000
-          vmulss  xmm0, xmm7, dword ptr [rsi+8]
-          vcvttss2si eax, xmm0
-        }
-        _RBX->trDuration = _EAX;
-        Trajectory_SetTrBase(_RBX, inOutCurrPos);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+8]
-          vmulss  xmm10, xmm0, xmm6
-          vmulss  xmm11, xmm0, xmm8
-          vmulss  xmm12, xmm0, xmm9
-        }
-        if ( !_RBX->trDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 353, ASSERT_TYPE_ASSERT, "( pTr->trDuration )", (const char *)&queryFormat, "pTr->trDuration") )
+        pTr->trDuration = (int)(float)(1000.0 * positionControl->midTime);
+        Trajectory_SetTrBase(pTr, inOutCurrPos);
+        midTime = positionControl->midTime;
+        v29 = midTime * v23;
+        v30 = midTime * v24;
+        v31 = midTime * v25;
+        if ( !pTr->trDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 353, ASSERT_TYPE_ASSERT, "( pTr->trDuration )", (const char *)&queryFormat, "pTr->trDuration") )
           __debugbreak();
-        __asm
+        v32 = 1000.0 / (float)pTr->trDuration;
+        v37 = v29 * v32;
+        pTr->trDelta.v[0] = v29 * v32;
+        pTr->trDelta.v[1] = v30 * v32;
+        pTr->trDelta.v[2] = v31 * v32;
+        if ( (COERCE_UNSIGNED_INT(v29 * v32) & 0x7F800000) == 2139095040 || (v37 = v30 * v32, (COERCE_UNSIGNED_INT(v30 * v32) & 0x7F800000) == 2139095040) || (v37 = v31 * v32, (COERCE_UNSIGNED_INT(v31 * v32) & 0x7F800000) == 2139095040) )
         {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, dword ptr [rbx+8]
-          vdivss  xmm1, xmm7, xmm0
-          vmulss  xmm2, xmm10, xmm1
-          vmulss  xmm0, xmm11, xmm1
-          vmovss  [rsp+0D8h+var_A8], xmm2
-          vmulss  xmm1, xmm12, xmm1
-          vmovss  dword ptr [rbx+18h], xmm2
-          vmovss  dword ptr [rbx+1Ch], xmm0
-          vmovss  dword ptr [rbx+20h], xmm1
-        }
-        if ( (v118 & 0x7F800000) == 2139095040 )
-          goto LABEL_63;
-        __asm { vmovss  [rsp+0D8h+var_A8], xmm0 }
-        if ( (v119 & 0x7F800000) == 2139095040 )
-          goto LABEL_63;
-        __asm { vmovss  [rsp+0D8h+var_A8], xmm1 }
-        if ( (v120 & 0x7F800000) == 2139095040 )
-        {
-LABEL_63:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 356, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )") )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 356, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )", v37) )
             __debugbreak();
         }
-        _RBX->trType = TR_LINEAR_STOP;
+        pTr->trType = TR_LINEAR_STOP;
       }
       else
       {
-        __asm
+        pTr->trDuration = (int)(float)(positionControl->decelTime * 1000.0);
+        Trajectory_SetTrBase(pTr, inOutCurrPos);
+        v38 = (float)(v10 * (float)(1.0 / *(float *)&_XMM0)) * v20;
+        pTr->trDelta.v[0] = v23;
+        pTr->trDelta.v[1] = v24;
+        pTr->trDelta.v[2] = v25;
+        if ( (LODWORD(v23) & 0x7F800000) == 2139095040 || (v38 = v24, (LODWORD(v24) & 0x7F800000) == 2139095040) || (v38 = v25, (LODWORD(v25) & 0x7F800000) == 2139095040) )
         {
-          vmovss  xmm0, dword ptr [rsi]
-          vmulss  xmm1, xmm0, cs:__real@447a0000
-          vcvttss2si eax, xmm1
-        }
-        _RBX->trDuration = _EAX;
-        Trajectory_SetTrBase(_RBX, inOutCurrPos);
-        __asm
-        {
-          vmovss  [rsp+0D8h+var_A8], xmm6
-          vmovss  dword ptr [rbx+18h], xmm6
-          vmovss  dword ptr [rbx+1Ch], xmm8
-          vmovss  dword ptr [rbx+20h], xmm9
-        }
-        if ( (v121 & 0x7F800000) == 2139095040 )
-          goto LABEL_64;
-        __asm { vmovss  [rsp+0D8h+var_A8], xmm8 }
-        if ( (v122 & 0x7F800000) == 2139095040 )
-          goto LABEL_64;
-        __asm { vmovss  [rsp+0D8h+var_A8], xmm9 }
-        if ( (v123 & 0x7F800000) == 2139095040 )
-        {
-LABEL_64:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 367, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )") )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 367, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )", v38) )
             __debugbreak();
         }
-        _RBX->trType = TR_DECELERATE;
+        pTr->trType = TR_DECELERATE;
       }
     }
     else
     {
-      __asm { vmulss  xmm0, xmm11, cs:__real@447a0000 }
-      _RBX->trTime = level.time;
-      __asm { vcvttss2si eax, xmm0 }
-      _RBX->trDuration = _EAX;
-      Trajectory_SetTrBase(_RBX, inOutCurrPos);
-      __asm
+      pTr->trTime = level.time;
+      pTr->trDuration = (int)(float)(fAccelTime * 1000.0);
+      Trajectory_SetTrBase(pTr, inOutCurrPos);
+      v36 = (float)(v10 * (float)(1.0 / *(float *)&_XMM0)) * v20;
+      pTr->trDelta.v[0] = v23;
+      pTr->trDelta.v[1] = v24;
+      pTr->trDelta.v[2] = v25;
+      if ( (LODWORD(v23) & 0x7F800000) == 2139095040 || (v36 = v24, (LODWORD(v24) & 0x7F800000) == 2139095040) || (v36 = v25, (LODWORD(v25) & 0x7F800000) == 2139095040) )
       {
-        vmovss  [rsp+0D8h+var_A8], xmm6
-        vmovss  dword ptr [rbx+18h], xmm6
-        vmovss  dword ptr [rbx+1Ch], xmm8
-        vmovss  dword ptr [rbx+20h], xmm9
-      }
-      if ( (v115 & 0x7F800000) == 2139095040 )
-        goto LABEL_65;
-      __asm { vmovss  [rsp+0D8h+var_A8], xmm8 }
-      if ( (v116 & 0x7F800000) == 2139095040 )
-        goto LABEL_65;
-      __asm { vmovss  [rsp+0D8h+var_A8], xmm9 }
-      if ( (v117 & 0x7F800000) == 2139095040 )
-      {
-LABEL_65:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 336, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )") )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 336, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )", v36) )
           __debugbreak();
       }
-      _RBX->trType = TR_ACCELERATE;
-      BgTrajectory::LegacyEvaluateTrajectory(_RBX, _RBX->trDuration + level.time, &positionControl->pos1);
+      pTr->trType = TR_ACCELERATE;
+      p_pos1 = &positionControl->pos1;
+      BgTrajectory::LegacyEvaluateTrajectory(pTr, pTr->trDuration + level.time, &positionControl->pos1);
     }
-    __asm
+    v33 = positionControl->midTime;
+    positionControl->pos2.v[0] = (float)(v33 * v23) + p_pos1->v[0];
+    positionControl->pos2.v[1] = (float)(v33 * v24) + p_pos1->v[1];
+    positionControl->pos2.v[2] = (float)(v33 * v25) + p_pos1->v[2];
+    positionControl->pos3 = *vPos;
+    if ( !pTr->trTime )
     {
-      vmovss  xmm3, dword ptr [rsi+8]
-      vmovaps xmm12, [rsp+0D8h+var_88]
-      vmulss  xmm0, xmm3, xmm6
-      vaddss  xmm1, xmm0, dword ptr [r15]
-      vmovss  dword ptr [rsi+18h], xmm1
-      vmulss  xmm2, xmm3, xmm8
-      vaddss  xmm0, xmm2, dword ptr [r15+4]
-      vmovss  dword ptr [rsi+1Ch], xmm0
-      vmulss  xmm1, xmm3, xmm9
-      vaddss  xmm2, xmm1, dword ptr [r15+8]
-      vmovss  dword ptr [rsi+20h], xmm2
+      trDuration = pTr->trDuration;
+      pTr->trTime = 1;
+      if ( trDuration > 1 )
+        pTr->trDuration = trDuration - 1;
     }
-    positionControl->pos3 = *_R14;
-    if ( !_RBX->trTime )
-    {
-      v104 = _RBX->trDuration;
-      _RBX->trTime = 1;
-      if ( v104 > 1 )
-        _RBX->trDuration = v104 - 1;
-    }
-    BgTrajectory::LegacyEvaluateTrajectory(_RBX, level.time, inOutCurrPos);
+    BgTrajectory::LegacyEvaluateTrajectory(pTr, level.time, inOutCurrPos);
   }
-  __asm { vmovaps xmm9, [rsp+0D8h+var_58] }
-  _R11 = &v129;
-  __asm
+  else
   {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm8, [rsp+0D8h+var_48]
-    vmovaps xmm7, [rsp+0D8h+var_38]
+    pTr->trTime = level.time;
+    pTr->trDuration = (int)(float)(fTotalTime * 1000.0);
+    positionControl->midTime = fTotalTime;
+    positionControl->decelTime = 0.0;
+    positionControl->pos3 = *vPos;
+    Trajectory_SetTrBase(pTr, inOutCurrPos);
+    if ( !pTr->trDuration && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 301, ASSERT_TYPE_ASSERT, "( pTr->trDuration )", (const char *)&queryFormat, "pTr->trDuration") )
+      __debugbreak();
+    v15 = 1000.0 / (float)pTr->trDuration;
+    v35 = v10 * v15;
+    pTr->trDelta.v[0] = v10 * v15;
+    pTr->trDelta.v[1] = *(float *)&v11 * v15;
+    pTr->trDelta.v[2] = v13 * v15;
+    if ( (COERCE_UNSIGNED_INT(v10 * v15) & 0x7F800000) == 2139095040 || (v35 = *(float *)&v11 * v15, (COERCE_UNSIGNED_INT(*(float *)&v11 * v15) & 0x7F800000) == 2139095040) || (v35 = v13 * v15, (COERCE_UNSIGNED_INT(v13 * v15) & 0x7F800000) == 2139095040) )
+    {
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 304, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )", v35) )
+        __debugbreak();
+    }
+    pTr->trType = TR_LINEAR_STOP;
+    BgTrajectory::LegacyEvaluateTrajectory(pTr, level.time, inOutCurrPos);
+    if ( !pTr->trTime )
+    {
+      v16 = pTr->trDuration;
+      pTr->trTime = 1;
+      if ( v16 > 1 )
+        pTr->trDuration = v16 - 1;
+    }
   }
 }
 
@@ -4022,45 +3345,32 @@ LABEL_65:
 G_ScrMover_SetupMoveSpeed
 ==============
 */
-
-void __fastcall G_ScrMover_SetupMoveSpeed(trajectory_t *pTr, const vec3_t *vSpeed, double fTotalTime, double fAccelTime, const float fDecelTime, vec3_t *inOutCurrPos, mover_positions_t *positionControl)
+void G_ScrMover_SetupMoveSpeed(trajectory_t *pTr, const vec3_t *vSpeed, const float fTotalTime, const float fAccelTime, const float fDecelTime, vec3_t *inOutCurrPos, mover_positions_t *positionControl)
 {
-  bool v16; 
+  float v9; 
   vec3_t *p_pos3; 
   int time; 
-  bool v43; 
-  bool v49; 
-  int v67; 
-  int v68; 
-  int v69; 
-  int v70; 
-  int v71; 
-  int v72; 
-  int v73; 
-  int v74; 
-  int v75; 
-  int v76; 
-  int v77; 
-  int v78; 
-  trajectory_t_secure tr; 
-  char v80; 
-  void *retaddr; 
+  float v12; 
+  vec3_t *p_pos1; 
+  bool v14; 
+  float v15; 
+  float v16; 
+  float midTime; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float decelTime; 
+  float v22; 
+  int v23; 
+  float v24; 
+  float v25; 
+  __int64 v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  char tr[40]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-  }
-  _RBP = vSpeed;
-  _RDI = positionControl;
-  _RBX = pTr;
-  __asm
-  {
-    vmovaps xmm8, xmm3
-    vmovaps xmm7, xmm2
-  }
   if ( pTr->trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
@@ -4068,236 +3378,133 @@ void __fastcall G_ScrMover_SetupMoveSpeed(trajectory_t *pTr, const vec3_t *vSpee
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 419, ASSERT_TYPE_ASSERT, "( !BgTrajectory::IsAnimatedTrajectory( pTr ) )", (const char *)&queryFormat, "!BgTrajectory::IsAnimatedTrajectory( pTr )") )
       __debugbreak();
   }
-  v16 = _RBX->trType == TR_STATIONARY;
-  if ( _RBX->trType )
-    BgTrajectory::LegacyEvaluateTrajectory(_RBX, level.time, inOutCurrPos);
-  __asm
+  if ( pTr->trType )
+    BgTrajectory::LegacyEvaluateTrajectory(pTr, level.time, inOutCurrPos);
+  if ( fAccelTime == 0.0 && fDecelTime == 0.0 )
   {
-    vmovss  xmm2, [rsp+0B8h+fDecelTime]
-    vxorps  xmm6, xmm6, xmm6
-    vucomiss xmm8, xmm6
-  }
-  if ( !v16 )
-    goto LABEL_17;
-  __asm { vucomiss xmm2, xmm6 }
-  if ( v16 )
-  {
-    __asm { vmulss  xmm0, xmm7, cs:__real@447a0000 }
-    _RBX->trTime = level.time;
-    __asm { vcvttss2si eax, xmm0 }
-    _RBX->trDuration = _EAX;
-    __asm { vmovss  dword ptr [rdi+8], xmm7 }
+    pTr->trTime = level.time;
+    pTr->trDuration = (int)(float)(fTotalTime * 1000.0);
+    positionControl->midTime = fTotalTime;
     positionControl->decelTime = 0.0;
-    _RBX->trBase = *inOutCurrPos;
-    __asm
+    pTr->trBase = *inOutCurrPos;
+    v9 = vSpeed->v[0];
+    pTr->trDelta.v[0] = vSpeed->v[0];
+    pTr->trDelta.v[1] = vSpeed->v[1];
+    pTr->trDelta.v[2] = vSpeed->v[2];
+    v27 = v9;
+    if ( (LODWORD(v9) & 0x7F800000) == 2139095040 || (v27 = pTr->trDelta.v[1], (LODWORD(v27) & 0x7F800000) == 2139095040) || (v27 = pTr->trDelta.v[2], (LODWORD(v27) & 0x7F800000) == 2139095040) )
     {
-      vmovss  xmm0, dword ptr [rbp+0]
-      vmovss  dword ptr [rbx+18h], xmm0
-    }
-    _RBX->trDelta.v[1] = _RBP->v[1];
-    _RBX->trDelta.v[2] = _RBP->v[2];
-    __asm { vmovss  [rsp+0B8h+var_88], xmm0 }
-    if ( (v67 & 0x7F800000) == 2139095040 )
-      goto LABEL_42;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+1Ch]
-      vmovss  [rsp+0B8h+var_88], xmm0
-    }
-    if ( (v68 & 0x7F800000) == 2139095040 )
-      goto LABEL_42;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+20h]
-      vmovss  [rsp+0B8h+var_88], xmm0
-    }
-    if ( (v69 & 0x7F800000) == 2139095040 )
-    {
-LABEL_42:
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 437, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )") )
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 437, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )", v27) )
         __debugbreak();
     }
-    _RBX->trType = TR_LINEAR_STOP;
-    BgTrajectory::LegacyEvaluateTrajectory(_RBX, level.time, inOutCurrPos);
+    pTr->trType = TR_LINEAR_STOP;
+    BgTrajectory::LegacyEvaluateTrajectory(pTr, level.time, inOutCurrPos);
     p_pos3 = &positionControl->pos3;
-    time = level.time + _RBX->trDuration;
+    time = level.time + pTr->trDuration;
   }
   else
   {
-LABEL_17:
-    __asm
+    positionControl->decelTime = fDecelTime;
+    positionControl->midTime = (float)(fTotalTime - fAccelTime) - fDecelTime;
+    positionControl->speed = fsqrt((float)((float)(vSpeed->v[0] * vSpeed->v[0]) + (float)(vSpeed->v[1] * vSpeed->v[1])) + (float)(vSpeed->v[2] * vSpeed->v[2]));
+    if ( fAccelTime == 0.0 )
     {
-      vucomiss xmm8, xmm6
-      vmovss  dword ptr [rdi], xmm2
-      vsubss  xmm0, xmm7, xmm8
-      vmovss  xmm7, cs:__real@447a0000
-      vsubss  xmm1, xmm0, xmm2
-      vmovss  dword ptr [rdi+8], xmm1
-      vmovss  xmm0, dword ptr [rbp+0]
-      vmovss  xmm2, dword ptr [rbp+4]
-      vmovss  xmm3, dword ptr [rbp+8]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm0, xmm2, xmm2
-      vmovss  dword ptr [rdi+4], xmm0
-    }
-    if ( v16 )
-    {
+      p_pos1 = &positionControl->pos1;
       positionControl->pos1 = *inOutCurrPos;
-      __asm { vucomiss xmm6, dword ptr [rdi+8] }
-      _RBX->trTime = level.time;
-      __asm
+      v14 = positionControl->midTime == 0.0;
+      pTr->trTime = level.time;
+      if ( v14 )
       {
-        vmulss  xmm0, xmm7, dword ptr [rdi]
-        vcvttss2si eax, xmm0
+        pTr->trDuration = (int)(float)(1000.0 * positionControl->decelTime);
+        pTr->trBase = *inOutCurrPos;
+        v16 = vSpeed->v[0];
+        pTr->trDelta.v[0] = vSpeed->v[0];
+        pTr->trDelta.v[1] = vSpeed->v[1];
+        pTr->trDelta.v[2] = vSpeed->v[2];
+        v30 = v16;
+        if ( (LODWORD(v16) & 0x7F800000) == 2139095040 || (v30 = pTr->trDelta.v[1], (LODWORD(v30) & 0x7F800000) == 2139095040) || (v30 = pTr->trDelta.v[2], (LODWORD(v30) & 0x7F800000) == 2139095040) )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 486, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )", v30) )
+            __debugbreak();
+        }
+        pTr->trType = TR_DECELERATE;
       }
-      _RBX->trDuration = _EAX;
-      _RBX->trBase = *inOutCurrPos;
-      __asm
+      else
       {
-        vmovss  xmm0, dword ptr [rbp+0]
-        vmovss  dword ptr [rbx+18h], xmm0
+        pTr->trDuration = (int)(float)(1000.0 * positionControl->midTime);
+        pTr->trBase = *inOutCurrPos;
+        v15 = vSpeed->v[0];
+        pTr->trDelta.v[0] = vSpeed->v[0];
+        pTr->trDelta.v[1] = vSpeed->v[1];
+        pTr->trDelta.v[2] = vSpeed->v[2];
+        v29 = v15;
+        if ( (LODWORD(v15) & 0x7F800000) == 2139095040 || (v29 = pTr->trDelta.v[1], (LODWORD(v29) & 0x7F800000) == 2139095040) || (v29 = pTr->trDelta.v[2], (LODWORD(v29) & 0x7F800000) == 2139095040) )
+        {
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 476, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )", v29) )
+            __debugbreak();
+        }
+        pTr->trType = TR_LINEAR_STOP;
       }
-      _RBX->trDelta.v[1] = _RBP->v[1];
-      _RBX->trDelta.v[2] = _RBP->v[2];
-      __asm { vmovss  [rsp+0B8h+var_88], xmm0 }
-      if ( (v73 & 0x7F800000) == 2139095040 )
-        goto LABEL_43;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+1Ch]
-        vmovss  [rsp+0B8h+var_88], xmm0
-      }
-      if ( (v74 & 0x7F800000) == 2139095040 )
-        goto LABEL_43;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+20h]
-        vmovss  [rsp+0B8h+var_88], xmm0
-      }
-      v43 = (v75 & 0x7F800000) == 2139095040;
-      if ( (v75 & 0x7F800000) == 2139095040 )
-      {
-LABEL_43:
-        v49 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 486, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )");
-        v43 = !v49;
-        if ( v49 )
-          __debugbreak();
-      }
-      _RBX->trType = TR_DECELERATE;
     }
     else
     {
-      _RBX->trTime = level.time;
-      __asm
+      pTr->trTime = level.time;
+      pTr->trDuration = (int)(float)(fAccelTime * 1000.0);
+      pTr->trBase = *inOutCurrPos;
+      v12 = vSpeed->v[0];
+      pTr->trDelta.v[0] = vSpeed->v[0];
+      pTr->trDelta.v[1] = vSpeed->v[1];
+      pTr->trDelta.v[2] = vSpeed->v[2];
+      v28 = v12;
+      if ( (LODWORD(v12) & 0x7F800000) == 2139095040 || (v28 = pTr->trDelta.v[1], (LODWORD(v28) & 0x7F800000) == 2139095040) || (v28 = pTr->trDelta.v[2], (LODWORD(v28) & 0x7F800000) == 2139095040) )
       {
-        vmulss  xmm0, xmm8, xmm7
-        vcvttss2si eax, xmm0
-      }
-      _RBX->trDuration = _EAX;
-      _RBX->trBase = *inOutCurrPos;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+0]
-        vmovss  dword ptr [rbx+18h], xmm0
-      }
-      _RBX->trDelta.v[1] = _RBP->v[1];
-      _RBX->trDelta.v[2] = _RBP->v[2];
-      __asm { vmovss  [rsp+0B8h+var_88], xmm0 }
-      if ( (v70 & 0x7F800000) == 2139095040 )
-        goto LABEL_44;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+1Ch]
-        vmovss  [rsp+0B8h+var_88], xmm0
-      }
-      if ( (v71 & 0x7F800000) == 2139095040 )
-        goto LABEL_44;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+20h]
-        vmovss  [rsp+0B8h+var_88], xmm0
-      }
-      if ( (v72 & 0x7F800000) == 2139095040 )
-      {
-LABEL_44:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 459, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )") )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 459, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )", v28) )
           __debugbreak();
       }
-      _RBX->trType = TR_ACCELERATE;
-      BgTrajectory::LegacyEvaluateTrajectory(_RBX, _RBX->trDuration + level.time, &positionControl->pos1);
+      pTr->trType = TR_ACCELERATE;
+      p_pos1 = &positionControl->pos1;
+      BgTrajectory::LegacyEvaluateTrajectory(pTr, pTr->trDuration + level.time, &positionControl->pos1);
     }
-    __asm
+    midTime = positionControl->midTime;
+    v18 = (float)(midTime * vSpeed->v[0]) + p_pos1->v[0];
+    positionControl->pos2.v[0] = v18;
+    v19 = (float)(midTime * vSpeed->v[1]) + p_pos1->v[1];
+    positionControl->pos2.v[1] = v19;
+    v20 = (float)(midTime * vSpeed->v[2]) + p_pos1->v[2];
+    positionControl->pos2.v[2] = v20;
+    decelTime = positionControl->decelTime;
+    if ( positionControl->decelTime == 0.0 )
     {
-      vmovss  xmm1, dword ptr [rdi+8]
-      vmulss  xmm0, xmm1, dword ptr [rbp+0]
-      vaddss  xmm2, xmm0, dword ptr [r14]
-      vmovss  dword ptr [rdi+18h], xmm2
-      vmulss  xmm0, xmm1, dword ptr [rbp+4]
-      vaddss  xmm3, xmm0, dword ptr [r14+4]
-      vmovss  dword ptr [rdi+1Ch], xmm3
-      vmulss  xmm0, xmm1, dword ptr [rbp+8]
-      vaddss  xmm4, xmm0, dword ptr [r14+8]
-      vmovss  dword ptr [rdi+20h], xmm4
-      vmovss  xmm0, dword ptr [rdi]
-      vucomiss xmm0, xmm6
-    }
-    if ( v43 )
-    {
-      __asm { vmovss  dword ptr [rdi+24h], xmm2 }
+      positionControl->pos3.v[0] = v18;
       *(_QWORD *)&positionControl->pos3.y = *(_QWORD *)&positionControl->pos2.y;
     }
     else
     {
-      __asm { vmovss  xmm1, dword ptr [rbp+4] }
-      tr.trTime = level.time;
-      __asm
+      v22 = vSpeed->v[1];
+      *(_DWORD *)&tr[4] = level.time;
+      v23 = (int)(float)(decelTime * 1000.0);
+      v24 = vSpeed->v[0];
+      *(_DWORD *)&tr[8] = v23;
+      *(float *)&v26 = v24;
+      *(_DWORD *)tr = 9;
+      *(float *)&tr[12] = v18;
+      v25 = vSpeed->v[2];
+      *(float *)&tr[16] = v19;
+      *(float *)&tr[20] = v20;
+      *(float *)&tr[24] = v24;
+      *(float *)&tr[28] = v22;
+      *(float *)&tr[32] = v25;
+      if ( (LODWORD(v24) & 0x7F800000) == 2139095040 || (*(float *)&v26 = v22, (LODWORD(v22) & 0x7F800000) == 2139095040) || (*(float *)&v26 = v25, (LODWORD(v25) & 0x7F800000) == 2139095040) )
       {
-        vmulss  xmm0, xmm0, xmm7
-        vcvttss2si eax, xmm0
-        vmovss  xmm0, dword ptr [rbp+0]
-      }
-      tr.trDuration = _EAX;
-      __asm { vmovss  [rsp+0B8h+var_88], xmm0 }
-      tr.trType = TR_DECELERATE;
-      __asm
-      {
-        vmovss  dword ptr [rsp+0B8h+tr.trBase], xmm2
-        vmovss  xmm2, dword ptr [rbp+8]
-        vmovss  dword ptr [rsp+0B8h+tr.trBase+4], xmm3
-        vmovss  dword ptr [rsp+0B8h+tr.trBase+8], xmm4
-        vmovss  dword ptr [rsp+0B8h+tr.trDelta], xmm0
-        vmovss  dword ptr [rsp+0B8h+tr.trDelta+4], xmm1
-        vmovss  dword ptr [rsp+0B8h+tr.trDelta+8], xmm2
-      }
-      if ( (v76 & 0x7F800000) == 2139095040 )
-        goto LABEL_45;
-      __asm { vmovss  [rsp+0B8h+var_88], xmm1 }
-      if ( (v77 & 0x7F800000) == 2139095040 )
-        goto LABEL_45;
-      __asm { vmovss  [rsp+0B8h+var_88], xmm2 }
-      if ( (v78 & 0x7F800000) == 2139095040 )
-      {
-LABEL_45:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 504, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tr.trDelta )[0] ) && !IS_NAN( ( tr.trDelta )[1] ) && !IS_NAN( ( tr.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tr.trDelta )[0] ) && !IS_NAN( ( tr.trDelta )[1] ) && !IS_NAN( ( tr.trDelta )[2] )") )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 504, ASSERT_TYPE_SANITY, "( !IS_NAN( ( tr.trDelta )[0] ) && !IS_NAN( ( tr.trDelta )[1] ) && !IS_NAN( ( tr.trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( tr.trDelta )[0] ) && !IS_NAN( ( tr.trDelta )[1] ) && !IS_NAN( ( tr.trDelta )[2] )", v26, *(_QWORD *)tr, *(_OWORD *)&tr[8], *(_OWORD *)&tr[24]) )
           __debugbreak();
       }
-      BgTrajectory::LegacyEvaluateTrajectory(&tr, tr.trDuration + level.time, &positionControl->pos3);
+      BgTrajectory::LegacyEvaluateTrajectory((const trajectory_t_secure *)tr, *(_DWORD *)&tr[8] + level.time, &positionControl->pos3);
     }
     time = level.time;
     p_pos3 = inOutCurrPos;
   }
-  BgTrajectory::LegacyEvaluateTrajectory(_RBX, time, p_pos3);
-  _R11 = &v80;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  BgTrajectory::LegacyEvaluateTrajectory(pTr, time, p_pos3);
 }
 
 /*
@@ -4311,13 +3518,13 @@ void G_ScrMover_SpawnArms(gentity_s *const mSelf)
   unsigned int NumParam; 
   const char *v4; 
   scr_entref_t EntityRef; 
+  gentity_s *Entity; 
   const char *v7; 
   scr_string_t targetname; 
   const char *v9; 
   const char *v10; 
-  const char *v19; 
-  const char *v20; 
-  char *fmt; 
+  const char *v11; 
+  const char *v12; 
   vec3_t vectorValue; 
 
   if ( !mSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 776, ASSERT_TYPE_ASSERT, "( ( mSelf != nullptr ) )", "%s\n\t( mSelf ) = %p", "( mSelf != nullptr )", NULL) )
@@ -4334,8 +3541,8 @@ void G_ScrMover_SpawnArms(gentity_s *const mSelf)
     Scr_Error(COM_ERR_6224, v2, v4);
   }
   EntityRef = Scr_GetEntityRef(v2, 4u);
-  _RBP = GetEntity(EntityRef);
-  if ( !_RBP && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 801, ASSERT_TYPE_ASSERT, "( ( ent != nullptr ) )", "%s\n\t( ent ) = %p", "( ent != nullptr )", NULL) )
+  Entity = GetEntity(EntityRef);
+  if ( !Entity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 801, ASSERT_TYPE_ASSERT, "( ( ent != nullptr ) )", "%s\n\t( ent ) = %p", "( ent != nullptr )", NULL) )
     __debugbreak();
   if ( EntityRef.entnum == -1 || (int)EntityRef.entnum >= level.maxclients )
   {
@@ -4343,34 +3550,22 @@ void G_ScrMover_SpawnArms(gentity_s *const mSelf)
     v7 = j_va("Spawn() with 'script_arms' called with invalid client id %d (level max is currently %d)\n", EntityRef.entnum, (unsigned int)level.maxclients);
     Scr_Error(COM_ERR_6225, v2, v7);
   }
-  if ( !G_Utils_IsClientOrAgent(_RBP) )
+  if ( !G_Utils_IsClientOrAgent(Entity) )
   {
-    targetname = _RBP->targetname;
+    targetname = Entity->targetname;
     if ( targetname )
       v9 = SL_ConvertToString(targetname);
     else
       v9 = "<undefined>";
-    v10 = SL_ConvertToString(_RBP->classname);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbp+134h]
-      vmovss  xmm2, dword ptr [rbp+130h]
-      vmovss  xmm0, dword ptr [rbp+138h]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm2, xmm2, xmm2
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-      vmovsd  [rsp+78h+fmt], xmm0
-    }
-    v19 = j_va("SetOnWallAnimConditional(): Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", EntityRef.entnum, _R8, _R9, fmt, v10, v9);
-    Scr_Error(COM_ERR_6226, v2, v19);
+    v10 = SL_ConvertToString(Entity->classname);
+    v11 = j_va("SetOnWallAnimConditional(): Only valid on players or agents; called on entity %i at %.0f %.0f %.0f classname %s targetname %s\n", EntityRef.entnum, Entity->r.currentOrigin.v[0], Entity->r.currentOrigin.v[1], Entity->r.currentOrigin.v[2], v10, v9);
+    Scr_Error(COM_ERR_6226, v2, v11);
   }
   if ( !SV_ClientMP_IsClientConnected(EntityRef.entnum) )
   {
     G_FreeEntity(mSelf);
-    v20 = j_va("Spawn() with 'script_arms' given client %d, which is not currently connected!\n", EntityRef.entnum);
-    Scr_Error(COM_ERR_2603, v2, v20);
+    v12 = j_va("Spawn() with 'script_arms' given client %d, which is not currently connected!\n", EntityRef.entnum);
+    Scr_Error(COM_ERR_2603, v2, v12);
   }
   mSelf->s.staticState.player.stowedWeaponHandle.m_mapEntryId = EntityRef.entnum;
   mSelf->s.clientNum = EntityRef.entnum;
@@ -4389,7 +3584,6 @@ G_ScrMover_SpawnBrushModel
 */
 void G_ScrMover_SpawnBrushModel(gentity_s *self)
 {
-  __int64 v10; 
   vec3_t trBase; 
 
   if ( SV_Game_SetBrushModel(self) )
@@ -4402,19 +3596,7 @@ void G_ScrMover_SpawnBrushModel(gentity_s *self)
   else
   {
     Trajectory_GetTrBase(&self->s.lerp.pos, &trBase);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+58h+trBase+8]
-      vcvtss2sd xmm0, xmm0, xmm0
-      vmovss  xmm3, dword ptr [rsp+58h+trBase+4]
-      vcvtss2sd xmm3, xmm3, xmm3
-      vmovss  xmm2, dword ptr [rsp+58h+trBase]
-      vcvtss2sd xmm2, xmm2, xmm2
-      vmovsd  [rsp+58h+var_38], xmm0
-      vmovq   r9, xmm3
-      vmovq   r8, xmm2
-    }
-    Com_PrintError(1, "Killing script_brushmodel at (%f %f %f) because the brush model is invalid.\n", _R8, _R9, v10);
+    Com_PrintError(1, "Killing script_brushmodel at (%f %f %f) because the brush model is invalid.\n", trBase.v[0], trBase.v[1], trBase.v[2]);
     G_FreeEntity(self);
     memset(&trBase, 0, sizeof(trBase));
   }
@@ -4456,89 +3638,50 @@ void G_ScrMover_SpawnWeapon(gentity_s *mSelf)
 {
   scrContext_t *v2; 
   unsigned int Int; 
-  char *v11; 
+  char *v4; 
   GWeaponMap *Instance; 
-  const char *v24; 
-  GWeaponMap *v25; 
+  const char *v6; 
+  GWeaponMap *v7; 
   DObj *ServerDObjForEnt; 
-  DObj *v27; 
-  char *fmt; 
-  char *fmta; 
-  __int64 v30; 
-  __int64 v31; 
+  DObj *v9; 
   int out; 
   bool outIsAlternate; 
   char *name; 
   Weapon result; 
   Weapon r_weapon; 
 
-  _RBX = mSelf;
   if ( !mSelf && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 855, ASSERT_TYPE_ASSERT, "( mSelf )", (const char *)&queryFormat, "mSelf") )
     __debugbreak();
   v2 = ScriptContext_Server();
-  G_ScrMover_InitScriptMover(_RBX);
+  G_ScrMover_InitScriptMover(mSelf);
   if ( level.spawnVar.spawnVarsValid )
   {
     if ( G_SpawnInt(0x200u, (const char *)&queryFormat.fmt + 3, &out) )
     {
-      _RBX->s.un.scriptMoverType = 5;
+      mSelf->s.un.scriptMoverType = 5;
       Int = out;
       if ( (unsigned int)out > 0x31 )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+138h]
-          vmovss  xmm3, dword ptr [rbx+130h]
-          vmovss  xmm1, dword ptr [rbx+134h]
-          vcvtss2sd xmm0, xmm0, xmm0
-          vcvtss2sd xmm3, xmm3, xmm3
-          vcvtss2sd xmm1, xmm1, xmm1
-          vmovsd  [rsp+0E8h+var_C0], xmm0
-          vmovq   r9, xmm3
-          vmovsd  [rsp+0E8h+fmt], xmm1
-        }
-        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE7230, 346i64, _R9, fmt, v30, 50, out);
-        _RBX->s.staticState.player.stowedWeaponHandle.m_mapEntryId = out;
+        Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE7230, 346i64, mSelf->r.currentOrigin.v[0], mSelf->r.currentOrigin.v[1], mSelf->r.currentOrigin.v[2], 50, out);
+        mSelf->s.staticState.player.stowedWeaponHandle.m_mapEntryId = out;
         goto LABEL_23;
       }
 LABEL_16:
-      _RBX->s.staticState.player.stowedWeaponHandle.m_mapEntryId = Int;
+      mSelf->s.staticState.player.stowedWeaponHandle.m_mapEntryId = Int;
       goto LABEL_23;
     }
     if ( G_LevelSpawnString(0x49Fu, "none", (const char **)&name) )
     {
-      v11 = name;
-      _RBX->s.un.scriptMoverType = 6;
-      _RAX = G_Weapon_GetWeaponForName(&result, v11);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0E8h+r_weapon.weaponIdx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rsp+0E8h+r_weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rsp+0E8h+r_weapon.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&r_weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+      v4 = name;
+      mSelf->s.un.scriptMoverType = 6;
+      r_weapon = *G_Weapon_GetWeaponForName(&result, v4);
       Instance = GWeaponMap::GetInstance();
-      BG_SetWeaponForEntity(Instance, &_RBX->s, &r_weapon);
-      G_DObjUpdate(_RBX, 1);
+      BG_SetWeaponForEntity(Instance, &mSelf->s, &r_weapon);
+      G_DObjUpdate(mSelf, 1);
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+138h]
-        vmovss  xmm3, dword ptr [rbx+130h]
-        vmovss  xmm1, dword ptr [rbx+134h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vcvtss2sd xmm3, xmm3, xmm3
-        vcvtss2sd xmm1, xmm1, xmm1
-        vmovsd  [rsp+0E8h+var_C0], xmm0
-        vmovq   r9, xmm3
-        vmovsd  [rsp+0E8h+fmt], xmm1
-      }
-      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE72B8, 347i64, _R9, fmta, v31);
+      Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143FE72B8, 347i64, mSelf->r.currentOrigin.v[0], mSelf->r.currentOrigin.v[1], mSelf->r.currentOrigin.v[2]);
     }
   }
   else
@@ -4547,30 +3690,30 @@ LABEL_16:
       Scr_Error(COM_ERR_2329, v2, "USAGE: spawn( \"script_weapon\", <origin>, <spawnflags>, <forceNoCollision>, <weaponNameOrId> )");
     if ( Scr_GetType(v2, 4u) == VAR_INTEGER )
     {
-      _RBX->s.un.scriptMoverType = 5;
+      mSelf->s.un.scriptMoverType = 5;
       Int = Scr_GetInt(v2, 4u);
       out = Int;
       if ( Int > 0x31 )
       {
-        v24 = j_va("Invalid index specified for client weapon - valid range is [0,%d) value is %d", 50i64, Int);
-        Scr_Error(COM_ERR_2330, v2, v24);
+        v6 = j_va("Invalid index specified for client weapon - valid range is [0,%d) value is %d", 50i64, Int);
+        Scr_Error(COM_ERR_2330, v2, v6);
         Int = out;
       }
       goto LABEL_16;
     }
     if ( Scr_GetType(v2, 4u) )
     {
-      _RBX->s.un.scriptMoverType = 6;
+      mSelf->s.un.scriptMoverType = 6;
       GScr_Main_GetWeaponParam(v2, 4u, &r_weapon, &outIsAlternate);
-      v25 = GWeaponMap::GetInstance();
-      BG_SetWeaponForEntity(v25, &_RBX->s, &r_weapon);
-      G_DObjUpdate(_RBX, 1);
-      ServerDObjForEnt = Com_GetServerDObjForEnt(_RBX);
-      v27 = ServerDObjForEnt;
+      v7 = GWeaponMap::GetInstance();
+      BG_SetWeaponForEntity(v7, &mSelf->s, &r_weapon);
+      G_DObjUpdate(mSelf, 1);
+      ServerDObjForEnt = Com_GetServerDObjForEnt(mSelf);
+      v9 = ServerDObjForEnt;
       if ( ServerDObjForEnt )
       {
         BG_UpdateWeaponHidePartBitsForDObj(ServerDObjForEnt, &r_weapon, 0, 0);
-        BG_UpdatedWeaponBones(&r_weapon, v27, 0);
+        BG_UpdatedWeaponBones(&r_weapon, v9, 0);
       }
       else if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 918, ASSERT_TYPE_ASSERT, "(obj)", (const char *)&queryFormat, "obj") )
       {
@@ -4583,7 +3726,7 @@ LABEL_16:
     }
   }
 LABEL_23:
-  SV_LinkEntity(_RBX);
+  SV_LinkEntity(mSelf);
 }
 
 /*
@@ -4622,28 +3765,26 @@ G_ScrMover_UpdateMove
 */
 __int64 G_ScrMover_UpdateMove(trajectory_t_secure *pTr, const mover_positions_t *positionControl)
 {
-  unsigned int trType; 
-  bool v11; 
-  __int64 v24; 
-  int v56; 
-  int v57; 
-  int v58; 
-  int v59; 
-  int v60; 
-  int v61; 
+  int v4; 
+  trType_t trType; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v11; 
+  float v12; 
+  __int128 v13; 
+  float v14; 
+  float speed; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
   vec3_t result; 
-  __int64 v63; 
-  void *retaddr; 
+  __int64 v25; 
 
-  _RAX = &retaddr;
-  v63 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RSI = positionControl;
-  _RBX = pTr;
+  v25 = -2i64;
   if ( pTr->trType == TR_ANIMATED_MOVER )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_ALT) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_trajectory.h", 90, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ANIMATED_TRAJECTORIES )") )
@@ -4651,152 +3792,77 @@ __int64 G_ScrMover_UpdateMove(trajectory_t_secure *pTr, const mover_positions_t 
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 48, ASSERT_TYPE_ASSERT, "( !BgTrajectory::IsAnimatedTrajectory( pTr ) )", (const char *)&queryFormat, "!BgTrajectory::IsAnimatedTrajectory( pTr )") )
       __debugbreak();
   }
-  __asm
+  v4 = (int)(float)(1000.0 * positionControl->midTime);
+  trType = pTr->trType;
+  if ( pTr->trType == TR_ACCELERATE )
   {
-    vmovss  xmm6, cs:__real@447a0000
-    vmulss  xmm0, xmm6, dword ptr [rsi+8]
-    vcvttss2si ebp, xmm0
-  }
-  trType = _RBX->trType;
-  if ( _RBX->trType == TR_ACCELERATE )
-  {
-    v11 = 0;
-    if ( _EBP > 0 )
+    if ( v4 > 0 )
     {
-      _RBX->trTime = level.time;
-      _RBX->trDuration = _EBP;
-      Trajectory_SetTrBase(_RBX, &_RSI->pos1);
-      __asm
+      pTr->trTime = level.time;
+      pTr->trDuration = v4;
+      Trajectory_SetTrBase(pTr, &positionControl->pos1);
+      v6 = positionControl->pos2.v[1] - positionControl->pos1.v[1];
+      v7 = positionControl->pos2.v[2] - positionControl->pos1.v[2];
+      v8 = 1000.0 / (float)v4;
+      v9 = (float)(positionControl->pos2.v[0] - positionControl->pos1.v[0]) * v8;
+      pTr->trDelta.v[0] = v9;
+      pTr->trDelta.v[1] = v6 * v8;
+      pTr->trDelta.v[2] = v7 * v8;
+      v22 = v9;
+      if ( (LODWORD(v9) & 0x7F800000) == 2139095040 || (v22 = v6 * v8, (COERCE_UNSIGNED_INT(v6 * v8) & 0x7F800000) == 2139095040) || (v22 = v7 * v8, (COERCE_UNSIGNED_INT(v7 * v8) & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rsi+18h]
-        vsubss  xmm3, xmm0, dword ptr [rsi+0Ch]
-        vmovss  xmm1, dword ptr [rsi+1Ch]
-        vsubss  xmm4, xmm1, dword ptr [rsi+10h]
-        vmovss  xmm0, dword ptr [rsi+20h]
-        vsubss  xmm5, xmm0, dword ptr [rsi+14h]
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, ebp
-        vdivss  xmm2, xmm6, xmm1
-        vmulss  xmm3, xmm3, xmm2
-        vmovss  dword ptr [rbx+18h], xmm3
-        vmulss  xmm0, xmm4, xmm2
-        vmovss  dword ptr [rbx+1Ch], xmm0
-        vmulss  xmm1, xmm5, xmm2
-        vmovss  dword ptr [rbx+20h], xmm1
-        vmovss  [rsp+88h+var_58], xmm3
-      }
-      if ( (v56 & 0x7F800000) == 2139095040 )
-        goto LABEL_31;
-      __asm { vmovss  [rsp+88h+var_58], xmm0 }
-      if ( (v57 & 0x7F800000) == 2139095040 )
-        goto LABEL_31;
-      __asm { vmovss  [rsp+88h+var_58], xmm1 }
-      if ( (v58 & 0x7F800000) == 2139095040 )
-      {
-LABEL_31:
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 65, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )") )
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 65, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )", v22) )
           __debugbreak();
       }
-      _RBX->trType = TR_LINEAR_STOP;
-      v24 = 0i64;
-      goto LABEL_28;
+      pTr->trType = TR_LINEAR_STOP;
+      return 0i64;
     }
   }
-  else
+  else if ( trType != TR_LINEAR_STOP )
   {
-    v11 = trType < 3;
-    if ( trType != 3 )
-      goto LABEL_23;
+    goto LABEL_23;
   }
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm0, dword ptr [rsi]
-  }
-  if ( !v11 )
+  if ( positionControl->decelTime <= 0.0 )
   {
 LABEL_23:
-    if ( trType == 6 || trType - 24 <= 1 )
-    {
-      BgTrajectory::LegacyEvaluateTrajectory(_RBX, level.time, &result);
-    }
+    if ( trType == TR_GRAVITY || (unsigned int)(trType - 24) <= 1 )
+      BgTrajectory::LegacyEvaluateTrajectory(pTr, level.time, &result);
     else
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+24h]
-        vmovss  dword ptr [rsp+88h+result], xmm0
-        vmovss  xmm1, dword ptr [rsi+28h]
-        vmovss  dword ptr [rsp+88h+result+4], xmm1
-        vmovss  xmm0, dword ptr [rsi+2Ch]
-        vmovss  dword ptr [rsp+88h+result+8], xmm0
-      }
-    }
-    Trajectory_SetTrBase(_RBX, &result);
-    _RBX->trTime = level.time;
-    _RBX->trType = TR_STATIONARY;
+      result = positionControl->pos3;
+    Trajectory_SetTrBase(pTr, &result);
+    pTr->trTime = level.time;
+    pTr->trType = TR_STATIONARY;
     memset(&result, 0, sizeof(result));
-    v24 = 1i64;
-    goto LABEL_28;
+    return 1i64;
   }
-  _RBX->trTime = level.time;
+  pTr->trTime = level.time;
+  pTr->trDuration = (int)(float)(1000.0 * positionControl->decelTime);
+  Trajectory_SetTrBase(pTr, &positionControl->pos2);
+  v11 = positionControl->pos3.v[0] - positionControl->pos2.v[0];
+  v13 = LODWORD(positionControl->pos3.v[1]);
+  v12 = positionControl->pos3.v[1] - positionControl->pos2.v[1];
+  v14 = positionControl->pos3.v[2] - positionControl->pos2.v[2];
+  *(float *)&v13 = fsqrt((float)((float)(v12 * v12) + (float)(v11 * v11)) + (float)(v14 * v14));
+  _XMM4 = v13;
   __asm
   {
-    vmulss  xmm1, xmm6, dword ptr [rsi]
-    vcvttss2si eax, xmm1
-  }
-  _RBX->trDuration = _EAX;
-  Trajectory_SetTrBase(_RBX, &_RSI->pos2);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+24h]
-    vsubss  xmm5, xmm0, dword ptr [rsi+18h]
-    vmovss  xmm1, dword ptr [rsi+28h]
-    vsubss  xmm6, xmm1, dword ptr [rsi+1Ch]
-    vmovss  xmm0, dword ptr [rsi+2Ch]
-    vsubss  xmm7, xmm0, dword ptr [rsi+20h]
-    vmulss  xmm2, xmm6, xmm6
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm7, xmm7
-    vaddss  xmm2, xmm3, xmm0
-    vsqrtss xmm4, xmm2, xmm2
     vcmpless xmm0, xmm4, cs:__real@80000000
-    vmovss  xmm1, cs:__real@3f800000
     vblendvps xmm0, xmm4, xmm1, xmm0
-    vdivss  xmm2, xmm1, xmm0
-    vmovss  xmm4, dword ptr [rsi+4]
-    vmulss  xmm0, xmm5, xmm2
-    vmulss  xmm5, xmm0, xmm4
-    vmulss  xmm1, xmm6, xmm2
-    vmulss  xmm3, xmm1, xmm4
-    vmulss  xmm0, xmm7, xmm2
-    vmulss  xmm2, xmm0, xmm4
-    vmovss  dword ptr [rbx+18h], xmm5
-    vmovss  dword ptr [rbx+1Ch], xmm3
-    vmovss  dword ptr [rbx+20h], xmm2
-    vmovss  [rsp+88h+var_58], xmm5
   }
-  if ( (v59 & 0x7F800000) == 2139095040 )
-    goto LABEL_32;
-  __asm { vmovss  [rsp+88h+var_58], xmm3 }
-  if ( (v60 & 0x7F800000) == 2139095040 )
-    goto LABEL_32;
-  __asm { vmovss  [rsp+88h+var_58], xmm2 }
-  if ( (v61 & 0x7F800000) == 2139095040 )
+  speed = positionControl->speed;
+  v19 = (float)(v11 * (float)(1.0 / *(float *)&_XMM0)) * speed;
+  v20 = (float)(v12 * (float)(1.0 / *(float *)&_XMM0)) * speed;
+  v21 = (float)(v14 * (float)(1.0 / *(float *)&_XMM0)) * speed;
+  pTr->trDelta.v[0] = v19;
+  pTr->trDelta.v[1] = v20;
+  pTr->trDelta.v[2] = v21;
+  v23 = v19;
+  if ( (LODWORD(v19) & 0x7F800000) == 2139095040 || (v23 = (float)(v12 * (float)(1.0 / *(float *)&_XMM0)) * speed, (LODWORD(v20) & 0x7F800000) == 2139095040) || (v23 = (float)(v14 * (float)(1.0 / *(float *)&_XMM0)) * speed, (LODWORD(v21) & 0x7F800000) == 2139095040) )
   {
-LABEL_32:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 81, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_scr_mover.cpp", 81, ASSERT_TYPE_SANITY, "( !IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( pTr->trDelta )[0] ) && !IS_NAN( ( pTr->trDelta )[1] ) && !IS_NAN( ( pTr->trDelta )[2] )", v23) )
       __debugbreak();
   }
-  _RBX->trType = TR_DECELERATE;
-  v24 = 0i64;
-LABEL_28:
-  __asm
-  {
-    vmovaps xmm6, [rsp+88h+var_28]
-    vmovaps xmm7, [rsp+88h+var_38]
-  }
-  return v24;
+  pTr->trType = TR_DECELERATE;
+  return 0i64;
 }
 

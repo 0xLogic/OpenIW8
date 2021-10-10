@@ -234,15 +234,7 @@ CG_PredictSP_GetPlayerBounds
 */
 void CG_PredictSP_GetPlayerBounds(LocalClientNum_t localClientNum, Bounds *bounds)
 {
-  _RBX = bounds;
-  _RAX = CG_GetLocalClientGlobals(localClientNum);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax+6470h]
-    vmovups xmmword ptr [rbx], xmm0
-    vmovsd  xmm1, qword ptr [rax+6480h]
-    vmovsd  qword ptr [rbx+10h], xmm1
-  }
+  *bounds = CG_GetLocalClientGlobals(localClientNum)->playerBox;
 }
 
 /*
@@ -277,381 +269,152 @@ CG_PredictSP_InterpolatePlayerState
 */
 void CG_PredictSP_InterpolatePlayerState(LocalClientNum_t localClientNum, int grabStance, bool interpolateWorldUp)
 {
+  cg_t *LocalClientGlobals; 
   playerState_s *outPs; 
-  snapshot_t *v12; 
+  snapshot_t *v7; 
+  const playerState_s *nextPs; 
+  const playerState_s *ps; 
+  float frameInterpolation; 
   bool ShouldLerpViewFields; 
   int pm_type; 
-  bool v69; 
-  bool v70; 
+  bool v13; 
+  bool v14; 
   bool ShouldRunPrediction; 
   snapshot_t *prevSnap; 
   snapshot_t *nextSnap; 
   BobCycle result; 
-  char v194; 
-  bool v196; 
 
-  __asm { vmovaps [rsp+0E8h+var_68], xmm8 }
-  _R14 = CG_GetLocalClientGlobals(localClientNum);
-  outPs = &_R14->predictedPlayerState;
-  v12 = (snapshot_t *)_R14->nextSnap;
-  prevSnap = (snapshot_t *)_R14->snap;
-  nextSnap = v12;
-  if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 131, ASSERT_TYPE_ASSERT, "(nextSnap)", (const char *)&queryFormat, "nextSnap") )
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  outPs = &LocalClientGlobals->predictedPlayerState;
+  v7 = (snapshot_t *)LocalClientGlobals->nextSnap;
+  prevSnap = (snapshot_t *)LocalClientGlobals->snap;
+  nextSnap = v7;
+  if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 131, ASSERT_TYPE_ASSERT, "(nextSnap)", (const char *)&queryFormat, "nextSnap") )
     __debugbreak();
-  _RBP = _R14->nextPs;
-  memcpy_0(outPs, _RBP, sizeof(playerState_s));
-  _RSI = _R14->ps;
-  __asm
-  {
-    vmovss  xmm8, dword ptr [r14+65E0h]
-    vmovaps xmm2, xmm8; frameInterpolation
-  }
+  nextPs = LocalClientGlobals->nextPs;
+  memcpy_0(outPs, nextPs, sizeof(playerState_s));
+  ps = LocalClientGlobals->ps;
+  frameInterpolation = LocalClientGlobals->frameInterpolation;
   ShouldRunPrediction = CG_PredictSP_ShouldRunPrediction(localClientNum);
-  CG_Predict_InterpolatePlayerState(localClientNum, ShouldRunPrediction, *(const float *)&_XMM2, _RSI, _RBP, outPs);
-  if ( v12->serverTime <= prevSnap->serverTime )
+  CG_Predict_InterpolatePlayerState(localClientNum, ShouldRunPrediction, frameInterpolation, ps, nextPs, outPs);
+  if ( v7->serverTime <= prevSnap->serverTime )
   {
     if ( !ShouldRunPrediction )
     {
-      __asm { vmovaps xmm2, xmm8; fraction }
-      CGMovingPlatforms::InterpolatePlayerLocalOffset(_RSI, _RBP, *(float *)&_XMM2, outPs);
-      CG_View_UpdatePlayerView(localClientNum, 1, _R14->frametime, _R14->predictedPlayerState.inputTimeInterpolated, _R14->predictedPlayerState.serverTimeInterpolated, &_R14->predictedViewState);
+      CGMovingPlatforms::InterpolatePlayerLocalOffset(ps, nextPs, frameInterpolation, outPs);
+      CG_View_UpdatePlayerView(localClientNum, 1, LocalClientGlobals->frametime, LocalClientGlobals->predictedPlayerState.inputTimeInterpolated, LocalClientGlobals->predictedPlayerState.serverTimeInterpolated, &LocalClientGlobals->predictedViewState);
     }
-    goto LABEL_54;
-  }
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_78], xmm9
-    vmovaps [rsp+0E8h+var_88], xmm10
+    return;
   }
   if ( grabStance )
   {
-    __asm { vmovaps xmm3, xmm8; fraction }
-    BG_InterpolateBobCycle(&result, _RSI, _RBP, *(float *)&_XMM3);
-    BobCycle::PackBobCycle(&result, (int (*)[2])_R14->predictedPlayerState.packedBobCycle);
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi+744h]
-      vmovss  xmm0, dword ptr [rbp+744h]
-      vsubss  xmm1, xmm0, xmm3
-      vmulss  xmm2, xmm1, xmm8
-      vaddss  xmm3, xmm2, xmm3
-      vmovss  dword ptr [rdi+744h], xmm3
-      vmovss  xmm4, dword ptr [rsi+730h]
-      vmovss  xmm0, dword ptr [rbp+730h]
-      vsubss  xmm1, xmm0, xmm4
-      vmulss  xmm2, xmm1, xmm8
-      vaddss  xmm3, xmm2, xmm4
-      vmovss  dword ptr [rdi+730h], xmm3
-      vmovss  xmm5, dword ptr [rsi+1E8h]
-      vmovss  xmm0, dword ptr [rbp+1E8h]
-      vsubss  xmm1, xmm0, xmm5
-      vmulss  xmm2, xmm1, xmm8
-      vxorps  xmm0, xmm0, xmm0
-      vaddss  xmm3, xmm2, xmm5
-      vmovss  dword ptr [rdi+1E8h], xmm3
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm8
-      vcvttss2si eax, xmm1
-    }
-    _R14->predictedPlayerState.weapCommon.weaponIdleTime = _RSI->weapCommon.weaponIdleTime + _EAX;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, xmm8
-      vcvttss2si eax, xmm1
-    }
-    _R14->predictedPlayerState.weapCommon.weaponIdleTime2 = _RSI->weapCommon.weaponIdleTime2 + _EAX;
+    BG_InterpolateBobCycle(&result, ps, nextPs, frameInterpolation);
+    BobCycle::PackBobCycle(&result, (int (*)[2])LocalClientGlobals->predictedPlayerState.packedBobCycle);
+    LocalClientGlobals->predictedPlayerState.weapCommon.aimSpreadScale = (float)((float)(nextPs->weapCommon.aimSpreadScale - ps->weapCommon.aimSpreadScale) * frameInterpolation) + ps->weapCommon.aimSpreadScale;
+    LocalClientGlobals->predictedPlayerState.weapCommon.fWeaponPosFrac = (float)((float)(nextPs->weapCommon.fWeaponPosFrac - ps->weapCommon.fWeaponPosFrac) * frameInterpolation) + ps->weapCommon.fWeaponPosFrac;
+    LocalClientGlobals->predictedPlayerState.viewHeightCurrent = (float)((float)(nextPs->viewHeightCurrent - ps->viewHeightCurrent) * frameInterpolation) + ps->viewHeightCurrent;
+    LocalClientGlobals->predictedPlayerState.weapCommon.weaponIdleTime = ps->weapCommon.weaponIdleTime + (int)(float)((float)(nextPs->weapCommon.weaponIdleTime - ps->weapCommon.weaponIdleTime) * frameInterpolation);
+    LocalClientGlobals->predictedPlayerState.weapCommon.weaponIdleTime2 = ps->weapCommon.weaponIdleTime2 + (int)(float)((float)(nextPs->weapCommon.weaponIdleTime2 - ps->weapCommon.weaponIdleTime2) * frameInterpolation);
   }
-  __asm { vmovaps xmm2, xmm8; fraction }
-  BG_ContextMount_InterpolateMountState(_RSI, _RBP, *(float *)&_XMM2, &_R14->predictedPlayerState.mountState);
-  ShouldLerpViewFields = CG_Predict_ShouldLerpViewFields(_RSI, _RBP);
-  if ( (_RBP->pm_type != 1 || _RSI->pm_type || BGMovingPlatforms::IsOnMovingPlatform(_RSI)) && ShouldLerpViewFields )
+  BG_ContextMount_InterpolateMountState(ps, nextPs, frameInterpolation, &LocalClientGlobals->predictedPlayerState.mountState);
+  ShouldLerpViewFields = CG_Predict_ShouldLerpViewFields(ps, nextPs);
+  if ( (nextPs->pm_type != 1 || ps->pm_type || BGMovingPlatforms::IsOnMovingPlatform(ps)) && ShouldLerpViewFields )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+30h]
-      vsubss  xmm1, xmm0, dword ptr [rsi+30h]
-      vmulss  xmm2, xmm1, xmm8
-      vaddss  xmm3, xmm2, dword ptr [rsi+30h]
-      vmovss  dword ptr [rdi+30h], xmm3
-      vmovss  xmm0, dword ptr [rbp+34h]
-      vsubss  xmm1, xmm0, dword ptr [rsi+34h]
-      vmulss  xmm2, xmm1, xmm8
-      vaddss  xmm3, xmm2, dword ptr [rsi+34h]
-      vmovss  dword ptr [rdi+34h], xmm3
-      vmovss  xmm0, dword ptr [rbp+38h]
-      vsubss  xmm1, xmm0, dword ptr [rsi+38h]
-      vmulss  xmm2, xmm1, xmm8
-      vaddss  xmm3, xmm2, dword ptr [rsi+38h]
-      vmovss  dword ptr [rdi+38h], xmm3
-    }
-    _R14->originInterpolated = 1;
+    LocalClientGlobals->predictedPlayerState.origin.v[0] = (float)((float)(nextPs->origin.v[0] - ps->origin.v[0]) * frameInterpolation) + ps->origin.v[0];
+    LocalClientGlobals->predictedPlayerState.origin.v[1] = (float)((float)(nextPs->origin.v[1] - ps->origin.v[1]) * frameInterpolation) + ps->origin.v[1];
+    LocalClientGlobals->predictedPlayerState.origin.v[2] = (float)((float)(nextPs->origin.v[2] - ps->origin.v[2]) * frameInterpolation) + ps->origin.v[2];
+    LocalClientGlobals->originInterpolated = 1;
   }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+3Ch]
-    vsubss  xmm1, xmm0, dword ptr [rsi+3Ch]
-    vmulss  xmm2, xmm1, xmm8
-    vaddss  xmm3, xmm2, dword ptr [rsi+3Ch]
-    vmovss  dword ptr [rdi+3Ch], xmm3
-    vmovss  xmm0, dword ptr [rbp+40h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+40h]
-    vmulss  xmm2, xmm1, xmm8
-    vaddss  xmm3, xmm2, dword ptr [rsi+40h]
-    vmovss  dword ptr [rdi+40h], xmm3
-    vmovss  xmm0, dword ptr [rbp+44h]
-    vsubss  xmm1, xmm0, dword ptr [rsi+44h]
-    vmulss  xmm2, xmm1, xmm8
-    vaddss  xmm3, xmm2, dword ptr [rsi+44h]
-    vmovss  dword ptr [rdi+44h], xmm3
-  }
-  pm_type = _RSI->pm_type;
-  v69 = (_RSI->linkFlags.m_flags[0] & 4) != 0;
-  v70 = pm_type == 1 || pm_type == 8;
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_48], xmm6
-    vmovaps [rsp+0E8h+var_58], xmm7
-  }
-  v196 = v70;
-  __asm
-  {
-    vmovss  xmm9, cs:__real@3f000000
-    vmovss  xmm10, cs:__real@43b40000
-  }
+  LocalClientGlobals->predictedPlayerState.velocity.v[0] = (float)((float)(nextPs->velocity.v[0] - ps->velocity.v[0]) * frameInterpolation) + ps->velocity.v[0];
+  LocalClientGlobals->predictedPlayerState.velocity.v[1] = (float)((float)(nextPs->velocity.v[1] - ps->velocity.v[1]) * frameInterpolation) + ps->velocity.v[1];
+  LocalClientGlobals->predictedPlayerState.velocity.v[2] = (float)((float)(nextPs->velocity.v[2] - ps->velocity.v[2]) * frameInterpolation) + ps->velocity.v[2];
+  pm_type = ps->pm_type;
+  v13 = (ps->linkFlags.m_flags[0] & 4) != 0;
+  v14 = pm_type == 1 || pm_type == 8;
   if ( ShouldLerpViewFields )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_RELOAD_END_RECHAMBER) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 192, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_AIM_ASSIST_REF ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_AIM_ASSIST_REF )") )
       __debugbreak();
-    __asm { vmovaps xmm2, xmm8; frac }
-    LerpAngles(&_RSI->groundTiltAngles, &_RBP->groundTiltAngles, *(const float *)&_XMM2, &_R14->predictedPlayerState.groundTiltAngles);
-    __asm { vmovaps xmm2, xmm8; frac }
-    LerpAngles(&_RSI->viewangles, &_RBP->viewangles, *(const float *)&_XMM2, &_R14->predictedPlayerState.viewangles);
-    if ( !v69 && !v70 )
-      goto LABEL_32;
-    __asm { vmovaps xmm2, xmm8; frac }
-    LerpAngles(&_RSI->linkAngles, &_RBP->linkAngles, *(const float *)&_XMM2, &_R14->predictedPlayerState.linkAngles);
-  }
-  if ( v69 )
-  {
-LABEL_29:
-    _RBX = &_R14->predictedPlayerState.delta_angles;
-    __asm { vmovaps xmm2, xmm8; frac }
-    LerpAngles(&_RSI->delta_angles, &_RBP->delta_angles, *(const float *)&_XMM2, &_R14->predictedPlayerState.delta_angles);
-    __asm
-    {
-      vmovss  xmm6, cs:__real@43360b61
-      vmulss  xmm0, xmm6, dword ptr [rbx]
-      vmovss  xmm5, cs:__real@37800000
-      vaddss  xmm2, xmm0, xmm9
-      vxorps  xmm7, xmm7, xmm7
-      vroundss xmm0, xmm7, xmm2, 1
-      vcvttss2si eax, xmm0
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm1, ecx
-      vcvtdq2ps xmm1, xmm1
-      vmulss  xmm4, xmm1, xmm5
-      vaddss  xmm2, xmm4, xmm9
-      vroundss xmm3, xmm7, xmm2, 1
-      vsubss  xmm0, xmm4, xmm3
-      vmulss  xmm1, xmm0, xmm10
-      vmovss  dword ptr [rbx], xmm1
-      vmulss  xmm1, xmm6, dword ptr [rdi+0B8h]
-      vaddss  xmm3, xmm1, xmm9
-      vroundss xmm1, xmm7, xmm3, 1
-      vcvttss2si eax, xmm1
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm4, xmm0, xmm5
-      vaddss  xmm2, xmm4, xmm9
-      vroundss xmm3, xmm7, xmm2, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, xmm10
-      vmovss  dword ptr [rdi+0B8h], xmm0
-      vmulss  xmm0, xmm6, dword ptr [rdi+0BCh]
-      vaddss  xmm3, xmm0, xmm9
-      vroundss xmm0, xmm7, xmm3, 1
-      vcvttss2si eax, xmm0
-    }
-    _ECX = (unsigned __int16)_EAX;
-    __asm
-    {
-      vmovd   xmm0, ecx
-      vcvtdq2ps xmm0, xmm0
-      vmulss  xmm4, xmm0, xmm5
-      vaddss  xmm2, xmm4, xmm9
-      vroundss xmm3, xmm7, xmm2, 1
-      vsubss  xmm1, xmm4, xmm3
-      vmulss  xmm0, xmm1, xmm10
-      vmovss  dword ptr [rdi+0BCh], xmm0
-    }
-    if ( v69 )
-      goto LABEL_41;
-    v70 = v196;
-LABEL_31:
-    if ( !v70 )
-      goto LABEL_32;
-LABEL_41:
-    if ( ShouldLerpViewFields )
-    {
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsi+1FCh]
-        vmovss  xmm0, dword ptr [rbp+1FCh]
-        vsubss  xmm1, xmm0, xmm4
-        vmulss  xmm3, xmm1, cs:__real@3b360b61
-        vaddss  xmm1, xmm3, xmm9
-        vxorps  xmm7, xmm7, xmm7
-        vroundss xmm2, xmm7, xmm1, 1
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm1, xmm0, xmm10
-        vmulss  xmm2, xmm1, xmm8
-        vaddss  xmm3, xmm2, xmm4
-        vmovss  dword ptr [rdi+1FCh], xmm3
-        vmovss  xmm5, dword ptr [rsi+1F8h]
-        vmovss  xmm0, dword ptr [rbp+1F8h]
-        vsubss  xmm1, xmm0, xmm5
-        vmulss  xmm4, xmm1, cs:__real@3b360b61
-        vaddss  xmm2, xmm4, xmm9
-        vroundss xmm3, xmm7, xmm2, 1
-        vsubss  xmm0, xmm4, xmm3
-        vmulss  xmm1, xmm0, xmm10
-        vmulss  xmm2, xmm1, xmm8
-        vaddss  xmm3, xmm2, xmm5
-        vmovss  dword ptr [rdi+1F8h], xmm3
-        vmovss  xmm3, dword ptr [rsi+200h]
-        vmovss  xmm0, dword ptr [rbp+200h]
-        vsubss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm8
-        vaddss  xmm3, xmm2, xmm3
-        vmovss  dword ptr [rdi+200h], xmm3
-        vmovss  xmm4, dword ptr [rsi+204h]
-        vmovss  xmm0, dword ptr [rbp+204h]
-        vsubss  xmm1, xmm0, xmm4
-        vmulss  xmm2, xmm1, xmm8
-        vaddss  xmm3, xmm2, xmm4
-        vmovss  dword ptr [rdi+204h], xmm3
-      }
-    }
-    if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_IDLE|WEAPON_OFFHAND_END) )
-    {
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rsi+210h]
-        vmovss  xmm0, dword ptr [rbp+210h]
-        vsubss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm8
-        vaddss  xmm3, xmm2, xmm3
-        vmovss  dword ptr [rdi+210h], xmm3
-        vmovss  xmm4, dword ptr [rsi+214h]
-        vmovss  xmm0, dword ptr [rbp+214h]
-        vsubss  xmm1, xmm0, xmm4
-        vmulss  xmm2, xmm1, xmm8
-        vaddss  xmm3, xmm2, xmm4
-        vmovss  dword ptr [rdi+214h], xmm3
-        vmovss  xmm3, dword ptr [rsi+208h]
-        vmovss  xmm0, dword ptr [rbp+208h]
-        vsubss  xmm1, xmm0, xmm3
-        vmulss  xmm2, xmm1, xmm8
-        vaddss  xmm3, xmm2, xmm3
-        vmovss  dword ptr [rdi+208h], xmm3
-        vmovss  xmm4, dword ptr [rsi+20Ch]
-        vmovss  xmm0, dword ptr [rbp+20Ch]
-        vsubss  xmm1, xmm0, xmm4
-        vmulss  xmm2, xmm1, xmm8
-        vaddss  xmm3, xmm2, xmm4
-        vmovss  dword ptr [rdi+20Ch], xmm3
-      }
-    }
-    goto LABEL_45;
-  }
-  if ( v70 )
-  {
-    if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RBP->eFlags, ACTIVE, 0xBu) || !ShouldLerpViewFields )
+    LerpAngles(&ps->groundTiltAngles, &nextPs->groundTiltAngles, frameInterpolation, &LocalClientGlobals->predictedPlayerState.groundTiltAngles);
+    LerpAngles(&ps->viewangles, &nextPs->viewangles, frameInterpolation, &LocalClientGlobals->predictedPlayerState.viewangles);
+    if ( !v13 && !v14 )
       goto LABEL_31;
-    goto LABEL_29;
+    LerpAngles(&ps->linkAngles, &nextPs->linkAngles, frameInterpolation, &LocalClientGlobals->predictedPlayerState.linkAngles);
   }
-LABEL_32:
-  if ( _RSI == (const playerState_s *)-376i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2042, ASSERT_TYPE_ASSERT, "(esFlags)", (const char *)&queryFormat, "esFlags") )
+  if ( v13 )
+    goto LABEL_29;
+  if ( v14 )
+  {
+    if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&nextPs->eFlags, ACTIVE, 0xBu) || !ShouldLerpViewFields )
+    {
+LABEL_30:
+      if ( !v14 )
+        goto LABEL_31;
+LABEL_40:
+      if ( ShouldLerpViewFields )
+      {
+        _XMM7 = 0i64;
+        __asm { vroundss xmm2, xmm7, xmm1, 1 }
+        LocalClientGlobals->predictedPlayerState.viewAngleClampBase.v[1] = (float)((float)((float)((float)((float)(nextPs->viewAngleClampBase.v[1] - ps->viewAngleClampBase.v[1]) * 0.0027777778) - *(float *)&_XMM2) * 360.0) * frameInterpolation) + ps->viewAngleClampBase.v[1];
+        __asm { vroundss xmm3, xmm7, xmm2, 1 }
+        LocalClientGlobals->predictedPlayerState.viewAngleClampBase.v[0] = (float)((float)((float)((float)((float)(nextPs->viewAngleClampBase.v[0] - ps->viewAngleClampBase.v[0]) * 0.0027777778) - *(float *)&_XMM3) * 360.0) * frameInterpolation) + ps->viewAngleClampBase.v[0];
+        LocalClientGlobals->predictedPlayerState.viewAngleClampRange.v[0] = (float)((float)(nextPs->viewAngleClampRange.v[0] - ps->viewAngleClampRange.v[0]) * frameInterpolation) + ps->viewAngleClampRange.v[0];
+        LocalClientGlobals->predictedPlayerState.viewAngleClampRange.v[1] = (float)((float)(nextPs->viewAngleClampRange.v[1] - ps->viewAngleClampRange.v[1]) * frameInterpolation) + ps->viewAngleClampRange.v[1];
+      }
+      if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_FREEFALL_IDLE|WEAPON_OFFHAND_END) )
+      {
+        LocalClientGlobals->predictedPlayerState.viewAngleResistMin.v[0] = (float)((float)(nextPs->viewAngleResistMin.v[0] - ps->viewAngleResistMin.v[0]) * frameInterpolation) + ps->viewAngleResistMin.v[0];
+        LocalClientGlobals->predictedPlayerState.viewAngleResistMin.v[1] = (float)((float)(nextPs->viewAngleResistMin.v[1] - ps->viewAngleResistMin.v[1]) * frameInterpolation) + ps->viewAngleResistMin.v[1];
+        LocalClientGlobals->predictedPlayerState.viewAngleResistMax.v[0] = (float)((float)(nextPs->viewAngleResistMax.v[0] - ps->viewAngleResistMax.v[0]) * frameInterpolation) + ps->viewAngleResistMax.v[0];
+        LocalClientGlobals->predictedPlayerState.viewAngleResistMax.v[1] = (float)((float)(nextPs->viewAngleResistMax.v[1] - ps->viewAngleResistMax.v[1]) * frameInterpolation) + ps->viewAngleResistMax.v[1];
+      }
+      goto LABEL_44;
+    }
+LABEL_29:
+    LerpAngles(&ps->delta_angles, &nextPs->delta_angles, frameInterpolation, &LocalClientGlobals->predictedPlayerState.delta_angles);
+    _XMM7 = 0i64;
+    __asm
+    {
+      vroundss xmm0, xmm7, xmm2, 1
+      vroundss xmm3, xmm7, xmm2, 1
+    }
+    LocalClientGlobals->predictedPlayerState.delta_angles.v[0] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM0).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+    __asm
+    {
+      vroundss xmm1, xmm7, xmm3, 1
+      vroundss xmm3, xmm7, xmm2, 1
+    }
+    LocalClientGlobals->predictedPlayerState.delta_angles.v[1] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM1).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+    __asm
+    {
+      vroundss xmm0, xmm7, xmm3, 1
+      vroundss xmm3, xmm7, xmm2, 1
+    }
+    LocalClientGlobals->predictedPlayerState.delta_angles.v[2] = (float)((float)(_mm_cvtepi32_ps((__m128i)(unsigned __int16)(int)*(float *)&_XMM0).m128_f32[0] * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+    if ( v13 )
+      goto LABEL_40;
+    goto LABEL_30;
+  }
+LABEL_31:
+  if ( ps == (const playerState_s *)-376i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2042, ASSERT_TYPE_ASSERT, "(esFlags)", (const char *)&queryFormat, "esFlags") )
     __debugbreak();
-  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RSI->eFlags, ACTIVE, 5u) || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RSI->eFlags, ACTIVE, 6u) )
-    goto LABEL_41;
-  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&_RSI->eFlags, ACTIVE, 7u) )
+  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, ACTIVE, 5u) || GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, ACTIVE, 6u) )
+    goto LABEL_40;
+  if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&ps->eFlags, ACTIVE, 7u) )
   {
     if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING_LADDER_CLIMB) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2052, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::TURRET_REMOTE_CONTROL ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::TURRET_REMOTE_CONTROL )") )
       __debugbreak();
-    goto LABEL_41;
+    goto LABEL_40;
   }
-LABEL_45:
-  __asm { vmovaps xmm3, xmm8; f }
-  CG_Vehicle_InterpolatePlayerState(localClientNum, prevSnap, nextSnap, *(float *)&_XMM3, outPs);
-  __asm
-  {
-    vmovaps xmm10, [rsp+0E8h+var_88]
-    vmovaps xmm9, [rsp+0E8h+var_78]
-    vmovaps xmm7, [rsp+0E8h+var_58]
-    vmovaps xmm6, [rsp+0E8h+var_48]
-  }
-  if ( interpolateWorldUp )
-  {
-    _RDX = &_RBP->worldUpAngles;
-    __asm { vmovss  xmm0, dword ptr [rdx] }
-    _RCX = &_RSI->worldUpAngles;
-    __asm { vucomiss xmm0, dword ptr [rcx] }
-    if ( interpolateWorldUp )
-      goto LABEL_49;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+4]
-      vucomiss xmm0, dword ptr [rcx+4]
-    }
-    if ( interpolateWorldUp )
-      goto LABEL_49;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdx+8]
-      vucomiss xmm0, dword ptr [rcx+8]
-    }
-    if ( interpolateWorldUp )
-    {
-LABEL_49:
-      if ( ShouldLerpViewFields )
-      {
-        __asm { vmovaps xmm2, xmm8; fraction }
-        BgSpaceship::AngleLerp(_RCX, _RDX, *(const float *)&_XMM2, &_R14->predictedPlayerState.worldUpAngles);
-      }
-    }
-  }
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, dword ptr [rsi+1130h]
-    vsubss  xmm1, xmm0, xmm8
-    vmulss  xmm3, xmm2, xmm1
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, dword ptr [rbp+1130h]
-    vmulss  xmm0, xmm2, xmm8
-    vaddss  xmm1, xmm3, xmm0
-    vcvttss2si eax, xmm1
-  }
-  _R14->predictedPlayerState.weapCommon.crouchProneBlendMap = _EAX;
+LABEL_44:
+  CG_Vehicle_InterpolatePlayerState(localClientNum, prevSnap, nextSnap, frameInterpolation, outPs);
+  if ( interpolateWorldUp && (nextPs->worldUpAngles.v[0] != ps->worldUpAngles.v[0] || nextPs->worldUpAngles.v[1] != ps->worldUpAngles.v[1] || nextPs->worldUpAngles.v[2] != ps->worldUpAngles.v[2]) && ShouldLerpViewFields )
+    BgSpaceship::AngleLerp(&ps->worldUpAngles, &nextPs->worldUpAngles, frameInterpolation, &LocalClientGlobals->predictedPlayerState.worldUpAngles);
+  LocalClientGlobals->predictedPlayerState.weapCommon.crouchProneBlendMap = (int)(float)((float)((float)ps->weapCommon.crouchProneBlendMap * (float)(1.0 - frameInterpolation)) + (float)((float)nextPs->weapCommon.crouchProneBlendMap * frameInterpolation));
   if ( !ShouldRunPrediction )
-    CG_View_UpdatePlayerView(localClientNum, 1, _R14->frametime, _R14->predictedPlayerState.inputTimeInterpolated, _R14->predictedPlayerState.serverTimeInterpolated, &_R14->predictedViewState);
-  __asm { vmovaps xmm2, xmm8; fraction }
-  CGMovingPlatforms::InterpolatePlayerLocalOffset(_RSI, _RBP, *(float *)&_XMM2, outPs);
+    CG_View_UpdatePlayerView(localClientNum, 1, LocalClientGlobals->frametime, LocalClientGlobals->predictedPlayerState.inputTimeInterpolated, LocalClientGlobals->predictedPlayerState.serverTimeInterpolated, &LocalClientGlobals->predictedViewState);
+  CGMovingPlatforms::InterpolatePlayerLocalOffset(ps, nextPs, frameInterpolation, outPs);
   CG_DrawDebug_Player_InterpolatePs(localClientNum);
-LABEL_54:
-  _R11 = &v194;
-  __asm { vmovaps xmm8, xmmword ptr [r11-30h] }
 }
 
 /*
@@ -678,14 +441,16 @@ CG_PredictSP_PrePredictAllPlayerState
 void CG_PredictSP_PrePredictAllPlayerState(void)
 {
   LocalClientNum_t OnlyLocalClientNum; 
+  cg_t *LocalClientGlobals; 
   const dvar_t *v2; 
+  double v3; 
   Bounds outBounds; 
-  _BYTE v11[96]; 
+  _BYTE v5[96]; 
 
   OnlyLocalClientNum = CL_GetOnlyLocalClientNum();
-  _RDI = CG_GetLocalClientGlobals(OnlyLocalClientNum);
-  CG_SetupPrePredictBounds(_RDI, &outBounds);
-  memset_0(v11, 0, sizeof(v11));
+  LocalClientGlobals = CG_GetLocalClientGlobals(OnlyLocalClientNum);
+  CG_SetupPrePredictBounds(LocalClientGlobals, &outBounds);
+  memset_0(v5, 0, sizeof(v5));
   cg_pmove_0.localClientNum = OnlyLocalClientNum;
   cg_pmove_0.ps = NULL;
   cg_pmove_0.bounds = &outBounds;
@@ -696,7 +461,7 @@ void CG_PredictSP_PrePredictAllPlayerState(void)
   cg_pmove_0.m_flags = 0;
   cg_pmove_0.initialCall = 0;
   cg_pmove_0.isExtrapolation = 0;
-  cg_pmove_0.ground = (BgGroundState *)v11;
+  cg_pmove_0.ground = (BgGroundState *)v5;
   CgPMove::InitExternalSystems(&cg_pmove_0);
   if ( CG_PredictSP_PredictPlayerState_Internal(OnlyLocalClientNum, 1) )
   {
@@ -706,27 +471,14 @@ void CG_PredictSP_PrePredictAllPlayerState(void)
     Dvar_CheckFrontendServerThread(v2);
     if ( v2->current.enabled )
     {
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rdi+5971Ch]
-        vmovsd  xmm1, qword ptr [rdi+5973Ch]
-        vmovups ymmword ptr [rdi+184h], ymm0
-        vmovsd  qword ptr [rdi+1A4h], xmm1
-      }
+      v3 = *(double *)&LocalClientGlobals->playerEvents.events[3].eventParm;
+      *(__m256i *)&LocalClientGlobals->predictedPlayerState.pe.eventSequence = *(__m256i *)&LocalClientGlobals->playerEvents.eventSequence;
+      *(double *)&LocalClientGlobals->predictedPlayerState.pe.events[3].eventParm = v3;
     }
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rsp+0D8h+outBounds.midPoint]
-      vmovups xmmword ptr [rdi+6470h], xmm0
-      vmovsd  xmm1, qword ptr [rsp+0D8h+outBounds.halfSize+4]
-      vmovsd  qword ptr [rdi+6480h], xmm1
-      vmovups ymm0, [rsp+0D8h+var_78]
-      vmovups ymmword ptr [rdi+6488h], ymm0
-      vmovups ymm1, [rsp+0D8h+var_58]
-      vmovups ymmword ptr [rdi+64A8h], ymm1
-      vmovups ymm0, [rsp+0D8h+var_38]
-      vmovups ymmword ptr [rdi+64C8h], ymm0
-    }
+    LocalClientGlobals->playerBox = outBounds;
+    *(__m256i *)&LocalClientGlobals->playerGround.trace.fraction = *(__m256i *)v5;
+    *(__m256i *)&LocalClientGlobals->playerGround.trace.contents = *(__m256i *)&v5[32];
+    *(__m256i *)&LocalClientGlobals->playerGround.trace.allsolid = *(__m256i *)&v5[64];
   }
 }
 
@@ -752,16 +504,21 @@ void CG_PredictSP_PredictPlayerState(LocalClientNum_t localClientNum)
 {
   __int64 v1; 
   cg_t *LocalClientGlobals; 
+  centity_t *Entity; 
   CgHandler *Handler; 
   int time; 
   CgHandler *v6; 
+  __m256i v7; 
+  __m256i v8; 
   __int16 eType; 
+  __m256i v10; 
+  LerpEntityStateInfoVolumeGrapple v11; 
   unsigned __int8 v12; 
   CgAntiLag *Instance; 
-  int v16; 
+  int v14; 
   const int *p_weaponShotCount; 
-  __int64 v18; 
-  __int64 v19; 
+  __int64 v16; 
+  __int64 v17; 
 
   v1 = localClientNum;
   LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
@@ -777,92 +534,84 @@ void CG_PredictSP_PredictPlayerState(LocalClientNum_t localClientNum)
   CG_PMove_ApplyPMoveFlags(&cg_pmove_0);
   if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&LocalClientGlobals->predictedPlayerState.pm_flags, ACTIVE, 0xFu) )
     CL_SetStance((LocalClientNum_t)v1, CL_STANCE_STAND, 0);
-  _R14 = CG_GetEntity((const LocalClientNum_t)v1, LocalClientGlobals->predictedPlayerState.clientNum);
+  Entity = CG_GetEntity((const LocalClientNum_t)v1, LocalClientGlobals->predictedPlayerState.clientNum);
   CG_Vehicle_PlayerStateToVehicleState((LocalClientNum_t)v1);
-  _R14->nextState.number = LocalClientGlobals->predictedPlayerState.clientNum;
+  Entity->nextState.number = LocalClientGlobals->predictedPlayerState.clientNum;
   Handler = CgHandler::getHandler((LocalClientNum_t)v1);
   if ( !CgWeaponMap::ms_instance[v1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  BG_PlayerStateToEntityState(CgWeaponMap::ms_instance[v1], &LocalClientGlobals->predictedPlayerState, &_R14->nextState, 0, Handler);
+  BG_PlayerStateToEntityState(CgWeaponMap::ms_instance[v1], &LocalClientGlobals->predictedPlayerState, &Entity->nextState, 0, Handler);
   time = LocalClientGlobals->time;
   v6 = CgHandler::getHandler((LocalClientNum_t)v1);
   if ( !CgWeaponMap::ms_instance[v1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  BG_PlayerToEntity_ProcessEvents(CgWeaponMap::ms_instance[v1], &LocalClientGlobals->predictedPlayerState, &_R14->nextState, v6, time);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [r14+19Ch]
-    vmovups ymm1, ymmword ptr [r14+1BCh]
-  }
-  _R14->flags |= 1u;
-  eType = _R14->nextState.eType;
-  __asm
-  {
-    vmovups ymmword ptr [r14+120h], ymm0
-    vmovups ymm0, ymmword ptr [r14+1DCh]
-    vmovups ymmword ptr [r14+140h], ymm1
-    vmovups xmm1, xmmword ptr [r14+1FCh]
-    vmovups ymmword ptr [r14+160h], ymm0
-    vmovups xmmword ptr [r14+180h], xmm1
-  }
+  BG_PlayerToEntity_ProcessEvents(CgWeaponMap::ms_instance[v1], &LocalClientGlobals->predictedPlayerState, &Entity->nextState, v6, time);
+  v7 = *(__m256i *)Entity->nextState.lerp.eFlags.m_flags;
+  v8 = *(__m256i *)&Entity->nextState.lerp.pos.trDelta.y;
+  Entity->flags |= 1u;
+  eType = Entity->nextState.eType;
+  *(__m256i *)Entity->prevState.eFlags.m_flags = v7;
+  v10 = *(__m256i *)Entity->nextState.lerp.apos.trDelta.v;
+  *(__m256i *)&Entity->prevState.pos.trDelta.y = v8;
+  v11 = *(LerpEntityStateInfoVolumeGrapple *)((char *)&Entity->nextState.lerp.u.infoVolumeGrapple + 20);
+  *(__m256i *)Entity->prevState.apos.trDelta.v = v10;
+  *(LerpEntityStateInfoVolumeGrapple *)((char *)&Entity->prevState.u.infoVolumeGrapple + 20) = v11;
   if ( eType < 0 || (unsigned __int16)eType > 0xFFu )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,int>(int)", "unsigned", (unsigned __int8)eType, "signed", eType) )
       __debugbreak();
-    v12 = _R14->nextState.eType;
+    v12 = Entity->nextState.eType;
   }
   else
   {
     v12 = eType;
   }
-  _R14->prevOtherEntityNum = _R14->nextState.otherEntityNum;
-  _R14->prevPhysicsChildBodyIdx = _R14->nextState.un.vehicleXModel;
-  _R14->prevUseCount = _R14->nextUseCount;
-  _R14->prevEType = eType;
-  _R14->pose.eType = v12;
-  if ( v12 != _R14->nextState.eType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 883, ASSERT_TYPE_ASSERT, "(es->pose.eType == es->nextState.eType)", (const char *)&queryFormat, "es->pose.eType == es->nextState.eType") )
+  Entity->prevOtherEntityNum = Entity->nextState.otherEntityNum;
+  Entity->prevPhysicsChildBodyIdx = Entity->nextState.un.vehicleXModel;
+  Entity->prevUseCount = Entity->nextUseCount;
+  Entity->prevEType = eType;
+  Entity->pose.eType = v12;
+  if ( v12 != Entity->nextState.eType && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 883, ASSERT_TYPE_ASSERT, "(es->pose.eType == es->nextState.eType)", (const char *)&queryFormat, "es->pose.eType == es->nextState.eType") )
     __debugbreak();
-  __asm { vmovss  xmm0, cs:cg_pmove_0.baseclass_0.fTorsoPitch; pitch }
-  _R14->nextState.lerp.u.player.torsoPitchPacked = BG_AnimationMP_PackPitch(*(float *)&_XMM0);
-  __asm { vmovss  xmm0, cs:cg_pmove_0.baseclass_0.fWaistPitch; pitch }
-  _R14->nextState.lerp.u.actor.lookAtEntityNum = BG_AnimationMP_PackPitch(*(float *)&_XMM0);
+  Entity->nextState.lerp.u.player.torsoPitchPacked = BG_AnimationMP_PackPitch(cg_pmove_0.fTorsoPitch);
+  Entity->nextState.lerp.u.actor.lookAtEntityNum = BG_AnimationMP_PackPitch(cg_pmove_0.fWaistPitch);
   CG_Door_PlayerStateToCharacterInfo((const LocalClientNum_t)v1, &LocalClientGlobals->predictedPlayerState);
   Instance = CgAntiLag::GetInstance((const LocalClientNum_t)v1);
   if ( !Instance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 891, ASSERT_TYPE_ASSERT, "(antiLag)", (const char *)&queryFormat, "antiLag") )
     __debugbreak();
-  CgAntiLag::ArchiveEntity(Instance, _R14, 1);
-  v16 = 0;
+  CgAntiLag::ArchiveEntity(Instance, Entity, 1);
+  v14 = 0;
   p_weaponShotCount = (const int *)&LocalClientGlobals->predictedPlayerState.weapState[0].weaponShotCount;
   do
   {
-    Tracer_SetDrawCounter((const LocalClientNum_t)v1, _R14->nextState.number, (const PlayerHandIndex)v16++, *p_weaponShotCount);
+    Tracer_SetDrawCounter((const LocalClientNum_t)v1, Entity->nextState.number, (const PlayerHandIndex)v14++, *p_weaponShotCount);
     p_weaponShotCount += 20;
   }
-  while ( v16 < 2 );
-  CG_EntitySP_CalcPlayerLerpPositions((LocalClientNum_t)v1, _R14);
-  LocalClientGlobals->predictedPlayerEntity = _R14;
+  while ( v14 < 2 );
+  CG_EntitySP_CalcPlayerLerpPositions((LocalClientNum_t)v1, Entity);
+  LocalClientGlobals->predictedPlayerEntity = Entity;
   LocalClientGlobals->lastGroundSurfaceType = cg_pmove_0.ground->surfaceType;
-  _R14->surfaceType = cg_pmove_0.ground->surfaceType;
+  Entity->surfaceType = cg_pmove_0.ground->surfaceType;
   AimAssist_UpdateAimAssistPlayerState((LocalClientNum_t)v1, &LocalClientGlobals->predictedPlayerState);
   LocalClientGlobals->fWeaponPosFrac = LocalClientGlobals->predictedPlayerState.weapCommon.fWeaponPosFrac;
   LocalClientGlobals->fOffhandPosFrac = LocalClientGlobals->predictedPlayerState.weapCommon.offhandAdsFrac;
   if ( !(_BYTE)CgVehicleSystem::ms_allocatedType )
   {
-    LODWORD(v19) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 406, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the vehicle system for localClientNum %d but the vehicle system type is not known\n", "ms_allocatedType != GameModeType::NONE", v19) )
+    LODWORD(v17) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 406, ASSERT_TYPE_ASSERT, "(ms_allocatedType != GameModeType::NONE)", "%s\n\tTrying to access the vehicle system for localClientNum %d but the vehicle system type is not known\n", "ms_allocatedType != GameModeType::NONE", v17) )
       __debugbreak();
   }
   if ( (unsigned int)v1 >= CgVehicleSystem::ms_allocatedCount )
   {
-    LODWORD(v19) = CgVehicleSystem::ms_allocatedCount;
-    LODWORD(v18) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 407, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v18, v19) )
+    LODWORD(v17) = CgVehicleSystem::ms_allocatedCount;
+    LODWORD(v16) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 407, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( ms_allocatedCount )", "localClientNum doesn't index ms_allocatedCount\n\t%i not in [0, %i)", v16, v17) )
       __debugbreak();
   }
   if ( !CgVehicleSystem::ms_vehicleSystemArray[v1] )
   {
-    LODWORD(v19) = v1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 408, ASSERT_TYPE_ASSERT, "(ms_vehicleSystemArray[localClientNum])", "%s\n\tTrying to access unallocated vehicle system for localClientNum %d\n", "ms_vehicleSystemArray[localClientNum]", v19) )
+    LODWORD(v17) = v1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_vehicle.h", 408, ASSERT_TYPE_ASSERT, "(ms_vehicleSystemArray[localClientNum])", "%s\n\tTrying to access unallocated vehicle system for localClientNum %d\n", "ms_vehicleSystemArray[localClientNum]", v17) )
       __debugbreak();
   }
   CgVehicleSystem::UpdatePlayerVehicle(CgVehicleSystem::ms_vehicleSystemArray[v1]);
@@ -876,98 +625,87 @@ CG_PredictSP_PredictPlayerState_Internal
 */
 __int64 CG_PredictSP_PredictPlayerState_Internal(LocalClientNum_t localClientNum, bool initialCall)
 {
+  cg_t *LocalClientGlobals; 
   unsigned __int8 v5; 
-  ClActiveClient *v12; 
+  ClActiveClient *v6; 
   const ClActiveClient *Client; 
   int CmdNumber; 
-  int v15; 
-  char v16; 
-  const ClActiveClient *v17; 
-  int v18; 
-  int v19; 
-  __int64 v22; 
+  int v9; 
+  char v10; 
+  const ClActiveClient *v11; 
+  int v12; 
+  int v13; 
+  usercmd_s *v14; 
+  usercmd_s *p_cmd; 
+  __int64 v16; 
   playerState_s *ps; 
-  bool v32; 
+  bool v18; 
   int commandTime; 
-  int v34; 
-  const dvar_t *v35; 
-  const dvar_t *v36; 
+  int v20; 
+  const dvar_t *v21; 
+  const dvar_t *v22; 
   char *fmt; 
-  int v40; 
+  int v26; 
   usercmd_s ucmd; 
-  __int64 v42; 
-  int v43; 
+  __int64 v28; 
+  float v29; 
 
   Profile_Begin(429);
-  _R13 = CG_GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
   v5 = 0;
   if ( CG_PredictSP_ShouldRunPrediction(localClientNum) )
   {
-    CG_PredictSP_UpdatePMove(&cg_pmove_0, &_R13->predictedPlayerState, initialCall, 0);
+    CG_PredictSP_UpdatePMove(&cg_pmove_0, &LocalClientGlobals->predictedPlayerState, initialCall, 0);
     Client = ClActiveClient::GetClient(localClientNum);
     CmdNumber = ClActiveClient_GetCmdNumber(Client);
-    v40 = CmdNumber;
+    v26 = CmdNumber;
     if ( CL_GetUserCmd(localClientNum, CmdNumber, &ucmd) )
     {
-      v15 = CmdNumber - 127;
+      v9 = CmdNumber - 127;
       if ( CmdNumber - 127 <= CmdNumber )
       {
-        v16 = CmdNumber - 127;
+        v10 = CmdNumber - 127;
         do
         {
-          v42 = 0i64;
-          v17 = ClActiveClient::GetClient(localClientNum);
-          v18 = ClActiveClient_GetCmdNumber(v17);
-          v19 = v18;
-          LODWORD(v42) = v18;
-          if ( v15 > v18 )
+          v28 = 0i64;
+          v11 = ClActiveClient::GetClient(localClientNum);
+          v12 = ClActiveClient_GetCmdNumber(v11);
+          v13 = v12;
+          LODWORD(v28) = v12;
+          if ( v9 > v12 )
           {
-            LODWORD(fmt) = v18;
-            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CEE128, 754i64, (unsigned int)v15, fmt);
+            LODWORD(fmt) = v12;
+            Com_Error_impl(ERR_DROP, (const ObfuscateErrorText)&stru_143CEE128, 754i64, (unsigned int)v9, fmt);
           }
-          if ( v15 <= v19 - 128 || v15 <= 0 )
+          if ( v9 <= v13 - 128 || v9 <= 0 )
           {
-            memset(&v42, 0, 4ui64);
+            memset(&v28, 0, 4ui64);
           }
           else
           {
-            _RBX = &v17->cmds[v16 & 0x7F];
-            memset(&v42, 0, 4ui64);
-            if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
+            v14 = &v11->cmds[v10 & 0x7F];
+            memset(&v28, 0, 4ui64);
+            if ( !v14 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 385, ASSERT_TYPE_ASSERT, "(requestedCmd)", (const char *)&queryFormat, "requestedCmd") )
               __debugbreak();
-            _RCX = &cg_pmove_0.cmd;
-            v22 = 2i64;
+            p_cmd = &cg_pmove_0.cmd;
+            v16 = 2i64;
             do
             {
-              __asm
-              {
-                vmovups xmm0, xmmword ptr [rbx]
-                vmovups xmmword ptr [rcx], xmm0
-                vmovups xmm1, xmmword ptr [rbx+10h]
-                vmovups xmmword ptr [rcx+10h], xmm1
-                vmovups xmm0, xmmword ptr [rbx+20h]
-                vmovups xmmword ptr [rcx+20h], xmm0
-                vmovups xmm1, xmmword ptr [rbx+30h]
-                vmovups xmmword ptr [rcx+30h], xmm1
-                vmovups xmm0, xmmword ptr [rbx+40h]
-                vmovups xmmword ptr [rcx+40h], xmm0
-                vmovups xmm1, xmmword ptr [rbx+50h]
-                vmovups xmmword ptr [rcx+50h], xmm1
-                vmovups xmm0, xmmword ptr [rbx+60h]
-                vmovups xmmword ptr [rcx+60h], xmm0
-              }
-              _RCX = (usercmd_s *)((char *)_RCX + 128);
-              __asm
-              {
-                vmovups xmm1, xmmword ptr [rbx+70h]
-                vmovups xmmword ptr [rcx-10h], xmm1
-              }
-              _RBX = (usercmd_s *)((char *)_RBX + 128);
-              --v22;
+              *(_OWORD *)&p_cmd->buttons = *(_OWORD *)&v14->buttons;
+              *(_OWORD *)&p_cmd->commandTime = *(_OWORD *)&v14->commandTime;
+              *(_OWORD *)(&p_cmd->angles.xy + 1) = *(_OWORD *)(&v14->angles.xy + 1);
+              *(_OWORD *)&p_cmd->weapon.weaponOthers = *(_OWORD *)&v14->weapon.weaponOthers;
+              *(_OWORD *)&p_cmd->weapon.attachmentVariationIndices[1] = *(_OWORD *)&v14->weapon.attachmentVariationIndices[1];
+              *(_OWORD *)&p_cmd->weapon.attachmentVariationIndices[17] = *(_OWORD *)&v14->weapon.attachmentVariationIndices[17];
+              *(_OWORD *)&p_cmd->offHand.weaponIdx = *(_OWORD *)&v14->offHand.weaponIdx;
+              p_cmd = (usercmd_s *)((char *)p_cmd + 128);
+              *(_OWORD *)&p_cmd[-1].sightedClientsMask.data[4] = *(_OWORD *)&v14->offHand.weaponAttachments[2];
+              v14 = (usercmd_s *)((char *)v14 + 128);
+              --v16;
             }
-            while ( v22 );
-            _RCX->buttons = _RBX->buttons;
-            if ( CL_GetUserCmd(localClientNum, v15 - 1, &cg_pmove_0.oldcmd) )
+            while ( v16 );
+            p_cmd->buttons = v14->buttons;
+            if ( CL_GetUserCmd(localClientNum, v9 - 1, &cg_pmove_0.oldcmd) )
             {
               ps = cg_pmove_0.ps;
               if ( !cg_pmove_0.ps )
@@ -980,38 +718,38 @@ __int64 CG_PredictSP_PredictPlayerState_Internal(LocalClientNum_t localClientNum
               {
                 if ( !CG_PredictSP_IsFreeMove() )
                 {
-                  v32 = BGMovingPlatforms::IsOnMovingPlatform(&_R13->predictedPlayerState) || BGMovingPlatforms::IsOnMovingPlatform(_R13->ps);
-                  CgPMove::UpdatePredictionError(&cg_pmove_0, v32, 0);
+                  v18 = BGMovingPlatforms::IsOnMovingPlatform(&LocalClientGlobals->predictedPlayerState) || BGMovingPlatforms::IsOnMovingPlatform(LocalClientGlobals->ps);
+                  CgPMove::UpdatePredictionError(&cg_pmove_0, v18, 0);
                 }
-                commandTime = _R13->predictedPlayerState.commandTime;
-                v34 = Com_GetUserCommandTime(&cg_pmove_0.cmd) - commandTime;
+                commandTime = LocalClientGlobals->predictedPlayerState.commandTime;
+                v20 = Com_GetUserCommandTime(&cg_pmove_0.cmd) - commandTime;
                 Profile_Begin(10);
                 if ( Pmove(&cg_pmove_0) )
                   v5 = 1;
                 Profile_EndInternal(NULL);
                 if ( v5 && !initialCall )
-                  CG_View_UpdatePlayerView(localClientNum, 1, v34, cg_pmove_0.cmd.inputTime, cg_pmove_0.cmd.serverTime, &_R13->predictedViewState);
+                  CG_View_UpdatePlayerView(localClientNum, 1, v20, cg_pmove_0.cmd.inputTime, cg_pmove_0.cmd.serverTime, &LocalClientGlobals->predictedViewState);
               }
             }
           }
-          ++v15;
-          ++v16;
+          ++v9;
+          ++v10;
         }
-        while ( v15 <= v40 );
+        while ( v9 <= v26 );
       }
-      v35 = DVARINT_cg_showmiss;
+      v21 = DVARINT_cg_showmiss;
       if ( !DVARINT_cg_showmiss && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_showmiss") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v35);
-      if ( v35->current.integer > 1 )
-        Com_Printf(17, "[%i : %i] ", (unsigned int)cg_pmove_0.cmd.serverTime, (unsigned int)_R13->time);
+      Dvar_CheckFrontendServerThread(v21);
+      if ( v21->current.integer > 1 )
+        Com_Printf(17, "[%i : %i] ", (unsigned int)cg_pmove_0.cmd.serverTime, (unsigned int)LocalClientGlobals->time);
       if ( !v5 )
       {
-        v36 = DVARINT_cg_showmiss;
+        v22 = DVARINT_cg_showmiss;
         if ( !DVARINT_cg_showmiss && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_showmiss") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(v36);
-        if ( v36->current.integer )
+        Dvar_CheckFrontendServerThread(v22);
+        if ( v22->current.integer )
           Com_Printf(17, "no prediction run\n");
       }
     }
@@ -1022,25 +760,16 @@ __int64 CG_PredictSP_PredictPlayerState_Internal(LocalClientNum_t localClientNum
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r13+1E0h]
-      vsubss  xmm1, xmm0, dword ptr [r13+0BCh]
-      vmovss  dword ptr [rsp+1A8h+var_48], xmm1
-      vmovss  xmm2, dword ptr [r13+1E4h]
-      vsubss  xmm0, xmm2, dword ptr [r13+0C0h]
-      vmovss  dword ptr [rsp+1A8h+var_48+4], xmm0
-      vmovss  xmm1, dword ptr [r13+1E8h]
-      vsubss  xmm2, xmm1, dword ptr [r13+0C4h]
-      vmovss  [rsp+1A8h+var_40], xmm2
-    }
-    v12 = ClActiveClient::GetClient(localClientNum);
-    if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 225, ASSERT_TYPE_ASSERT, "(activeClient)", (const char *)&queryFormat, "activeClient") )
+    *(float *)&v28 = LocalClientGlobals->predictedPlayerState.viewangles.v[0] - LocalClientGlobals->predictedPlayerState.delta_angles.v[0];
+    *((float *)&v28 + 1) = LocalClientGlobals->predictedPlayerState.viewangles.v[1] - LocalClientGlobals->predictedPlayerState.delta_angles.v[1];
+    v29 = LocalClientGlobals->predictedPlayerState.viewangles.v[2] - LocalClientGlobals->predictedPlayerState.delta_angles.v[2];
+    v6 = ClActiveClient::GetClient(localClientNum);
+    if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_active_client.h", 225, ASSERT_TYPE_ASSERT, "(activeClient)", (const char *)&queryFormat, "activeClient") )
       __debugbreak();
-    v12->clviewangles_aab += v12->clviewangles_set_aab;
-    LODWORD(v12->clViewangles.clViewangles.v[0]) = v42 ^ ((((_DWORD)v12 + 428) ^ v12->clviewangles_aab) * ((((_DWORD)v12 + 428) ^ v12->clviewangles_aab) + 2));
-    LODWORD(v12->clViewangles.clViewangles.v[1]) = HIDWORD(v42) ^ ((((_DWORD)v12 + 432) ^ v12->clviewangles_aab) * ((((_DWORD)v12 + 432) ^ v12->clviewangles_aab) + 2));
-    LODWORD(v12->clViewangles.clViewangles.v[2]) = ((((_DWORD)v12 + 436) ^ v12->clviewangles_aab) * ((((_DWORD)v12 + 436) ^ v12->clviewangles_aab) + 2)) ^ v43;
+    v6->clviewangles_aab += v6->clviewangles_set_aab;
+    LODWORD(v6->clViewangles.clViewangles.v[0]) = v28 ^ ((((_DWORD)v6 + 428) ^ v6->clviewangles_aab) * ((((_DWORD)v6 + 428) ^ v6->clviewangles_aab) + 2));
+    LODWORD(v6->clViewangles.clViewangles.v[1]) = HIDWORD(v28) ^ ((((_DWORD)v6 + 432) ^ v6->clviewangles_aab) * ((((_DWORD)v6 + 432) ^ v6->clviewangles_aab) + 2));
+    LODWORD(v6->clViewangles.clViewangles.v[2]) = ((((_DWORD)v6 + 436) ^ v6->clviewangles_aab) * ((((_DWORD)v6 + 436) ^ v6->clviewangles_aab) + 2)) ^ LODWORD(v29);
     v5 = 0;
   }
   Profile_EndInternal(NULL);
@@ -1054,89 +783,44 @@ CG_PredictSP_RestorePlayerOrientation
 */
 void CG_PredictSP_RestorePlayerOrientation(cg_t *cgameGlob)
 {
+  float v2; 
+  float v3; 
+  float v4; 
+  float v7; 
   cg_t *LocalClientGlobals; 
   vec3_t vec; 
   vec3_t angles; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm8
-    vmovaps [rsp+78h+var_28], xmm9
-  }
-  _RBX = cgameGlob;
-  _RAX = CG_GetLocalClientGlobals((const LocalClientNum_t)cgameGlob->localClientNum);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+6944h]
-    vmovss  dword ptr [rsp+78h+vec], xmm0
-    vmovss  xmm1, dword ptr [rax+6948h]
-    vmovss  dword ptr [rsp+78h+vec+4], xmm1
-    vmovss  xmm0, dword ptr [rax+694Ch]
-    vmovss  dword ptr [rsp+78h+vec+8], xmm0
-  }
+  vec = CG_GetLocalClientGlobals((const LocalClientNum_t)cgameGlob->localClientNum)->refdef.view.axis.m[0];
   vectoangles(&vec, &angles);
+  v2 = angles.v[0];
+  v3 = angles.v[1];
+  v4 = angles.v[2];
+  cgameGlob->predictedPlayerState.viewangles.v[2] = angles.v[2];
+  cgameGlob->predictedPlayerState.viewangles.v[0] = v2;
+  cgameGlob->predictedPlayerState.viewangles.v[1] = v3;
+  cgameGlob->predictedPlayerState.delta_angles.v[2] = v4;
+  cgameGlob->predictedPlayerState.delta_angles.v[1] = v3;
+  _XMM9 = 0i64;
+  __asm { vroundss xmm2, xmm9, xmm1, 1 }
+  v7 = (float)(unsigned __int16)(int)*(float *)&_XMM2 * 0.000015258789;
+  __asm { vroundss xmm2, xmm9, xmm1, 1 }
+  cgameGlob->predictedPlayerState.delta_angles.v[0] = (float)(v7 - *(float *)&_XMM2) * 360.0;
   __asm
   {
-    vmovss  xmm8, cs:__real@3f000000
-    vmovss  xmm2, dword ptr [rsp+78h+angles]
-    vmovss  xmm1, dword ptr [rsp+78h+angles+4]
-    vmovss  xmm0, dword ptr [rsp+78h+angles+8]
-    vmovss  xmm5, cs:__real@43b40000
-    vmovss  dword ptr [rbx+1E8h], xmm0
-    vmovss  dword ptr [rbx+1E0h], xmm2
-    vmovss  dword ptr [rbx+1E4h], xmm1
-    vmovss  dword ptr [rbx+0C4h], xmm0
-    vmulss  xmm0, xmm2, cs:__real@43360b61
-    vmovss  dword ptr [rbx+0C0h], xmm1
-    vaddss  xmm1, xmm0, xmm8
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm9, xmm9, xmm9
-    vroundss xmm2, xmm9, xmm1, 1
-    vcvttss2si eax, xmm2
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm3, xmm0, cs:__real@37800000
-    vaddss  xmm1, xmm3, xmm8
-    vroundss xmm2, xmm9, xmm1, 1
-    vsubss  xmm0, xmm3, xmm2
-    vmulss  xmm0, xmm0, xmm5
-    vmovss  dword ptr [rbx+0BCh], xmm0
-    vmovss  xmm1, dword ptr [rbx+0C0h]
-    vmulss  xmm0, xmm1, cs:__real@43360b61
-    vaddss  xmm3, xmm0, xmm8
     vroundss xmm0, xmm9, xmm3, 1
-    vcvttss2si eax, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm4, xmm0, cs:__real@37800000
-    vaddss  xmm2, xmm4, xmm8
     vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm1, xmm4, xmm3
-    vmulss  xmm0, xmm1, xmm5
-    vmovss  dword ptr [rbx+0C0h], xmm0
-    vmovss  xmm1, dword ptr [rbx+0C4h]
-    vmulss  xmm0, xmm1, cs:__real@43360b61
-    vaddss  xmm3, xmm0, xmm8
-    vroundss xmm0, xmm9, xmm3, 1
-    vcvttss2si eax, xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ecx
-    vmulss  xmm4, xmm0, cs:__real@37800000
-    vaddss  xmm2, xmm4, xmm8
-    vroundss xmm3, xmm9, xmm2, 1
-    vsubss  xmm1, xmm4, xmm3
-    vmulss  xmm0, xmm1, xmm5
-    vmovss  dword ptr [rbx+0C4h], xmm0
   }
-  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)_RBX->localClientNum);
-  RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &_RBX->predictedPlayerState.origin);
+  cgameGlob->predictedPlayerState.delta_angles.v[1] = (float)((float)((float)(unsigned __int16)(int)*(float *)&_XMM0 * 0.000015258789) - *(float *)&_XMM3) * 360.0;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbx+40h]
-    vsubss  xmm1, xmm0, dword ptr [rbx+1F0h]
-    vmovss  dword ptr [rbx+40h], xmm1
-    vmovaps xmm8, [rsp+78h+var_18]
-    vmovaps xmm9, [rsp+78h+var_28]
+    vroundss xmm0, xmm9, xmm3, 1
+    vroundss xmm3, xmm9, xmm2, 1
   }
+  cgameGlob->predictedPlayerState.delta_angles.v[2] = (float)((float)((float)(unsigned __int16)(int)*(float *)&_XMM0 * 0.000015258789) - *(float *)&_XMM3) * 360.0;
+  LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)cgameGlob->localClientNum);
+  RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &cgameGlob->predictedPlayerState.origin);
+  cgameGlob->predictedPlayerState.origin.v[2] = cgameGlob->predictedPlayerState.origin.v[2] - cgameGlob->predictedPlayerState.viewHeightCurrent;
 }
 
 /*
@@ -1146,20 +830,19 @@ CG_PredictSP_SavePlayerState
 */
 void CG_PredictSP_SavePlayerState(LocalClientNum_t localClientNum)
 {
-  _RDI = CG_GetLocalClientGlobals(localClientNum);
-  _RDI->oldCommandTime = _RDI->predictedPlayerState.commandTime;
-  _RDI->oldServerTime = _RDI->predictedPlayerState.serverTime;
-  _RDI->oldOrigin = _RDI->predictedPlayerState.origin;
-  MatrixCopy43(&_RDI->moverTransform, &_RDI->oldMoverTransform);
-  _RDI->oldMoverId = _RDI->predictedPlayerState.movingPlatforms.m_movingPlatformEntity;
-  CG_PlayerState_ExtractTransPlayerState(&_RDI->predictedPlayerState, &_RDI->oldTransPlayerState);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi+184h]
-    vmovsd  xmm1, qword ptr [rdi+1A4h]
-    vmovups ymmword ptr [rdi+5971Ch], ymm0
-    vmovsd  qword ptr [rdi+5973Ch], xmm1
-  }
+  cg_t *LocalClientGlobals; 
+  double v2; 
+
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals->oldCommandTime = LocalClientGlobals->predictedPlayerState.commandTime;
+  LocalClientGlobals->oldServerTime = LocalClientGlobals->predictedPlayerState.serverTime;
+  LocalClientGlobals->oldOrigin = LocalClientGlobals->predictedPlayerState.origin;
+  MatrixCopy43(&LocalClientGlobals->moverTransform, &LocalClientGlobals->oldMoverTransform);
+  LocalClientGlobals->oldMoverId = LocalClientGlobals->predictedPlayerState.movingPlatforms.m_movingPlatformEntity;
+  CG_PlayerState_ExtractTransPlayerState(&LocalClientGlobals->predictedPlayerState, &LocalClientGlobals->oldTransPlayerState);
+  v2 = *(double *)&LocalClientGlobals->predictedPlayerState.pe.events[3].eventParm;
+  *(__m256i *)&LocalClientGlobals->playerEvents.eventSequence = *(__m256i *)&LocalClientGlobals->predictedPlayerState.pe.eventSequence;
+  *(double *)&LocalClientGlobals->playerEvents.events[3].eventParm = v2;
 }
 
 /*
@@ -1169,259 +852,203 @@ CG_PredictSP_SetupPlayerState
 */
 void CG_PredictSP_SetupPlayerState(LocalClientNum_t localClientNum)
 {
-  __int64 v3; 
+  __int64 v1; 
+  cg_t *LocalClientGlobals; 
+  centity_t *Entity; 
+  playerState_s *ps; 
+  playerState_s *nextPs; 
   CgHandler *Handler; 
-  CgHandler *v52; 
-  cgs_t *v54; 
-  const dvar_t *v55; 
-  const dvar_t *v56; 
-  const dvar_t *v58; 
-  int v59; 
+  float frameInterpolation; 
+  float v10; 
+  float v11; 
+  CgHandler *v12; 
+  cgs_t *v13; 
+  const dvar_t *v14; 
+  const dvar_t *v15; 
+  const dvar_t *v16; 
+  int v17; 
   int pm_type; 
   __int16 groundEntityNum; 
   playerState_s *p_predictedPlayerState; 
   int time; 
   int groundEntityTime; 
-  playerState_s *nextPs; 
-  const vec3_t *ps; 
+  cg_t *v23; 
+  playerState_s *v24; 
+  const vec3_t *v25; 
+  float v26; 
   __int64 duration; 
-  __int64 v73; 
-  int v74; 
+  __int64 v28; 
   vec3_t outOrigin; 
-  __int64 v76; 
-  WorldUpReferenceFrame v77; 
-  char v78; 
-  void *retaddr; 
+  __int64 v30; 
+  WorldUpReferenceFrame v31; 
 
-  _RAX = &retaddr;
-  v76 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-38h], xmm6 }
-  v3 = localClientNum;
-  _RBX = CG_GetLocalClientGlobals(localClientNum);
-  _RBX->refdef.viewOffsetPrev.v[0] = _RBX->refdef.viewOffset.v[0];
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+69A0h]
-    vmovss  dword ptr [rbx+69ACh], xmm0
-    vmovss  xmm1, dword ptr [rbx+69A4h]
-    vmovss  dword ptr [rbx+69B0h], xmm1
-  }
-  _R13 = CG_GetEntity((const LocalClientNum_t)v3, v3);
-  _R14 = _RBX->ps;
-  _RSI = _RBX->nextPs;
-  if ( _R14->clientNum != (_DWORD)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 385, ASSERT_TYPE_ASSERT, "(prevPs->clientNum == localClientNum)", (const char *)&queryFormat, "prevPs->clientNum == localClientNum") )
+  v30 = -2i64;
+  v1 = localClientNum;
+  LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
+  LocalClientGlobals->refdef.viewOffsetPrev = LocalClientGlobals->refdef.viewOffset;
+  Entity = CG_GetEntity((const LocalClientNum_t)v1, v1);
+  ps = LocalClientGlobals->ps;
+  nextPs = LocalClientGlobals->nextPs;
+  if ( ps->clientNum != (_DWORD)v1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 385, ASSERT_TYPE_ASSERT, "(prevPs->clientNum == localClientNum)", (const char *)&queryFormat, "prevPs->clientNum == localClientNum") )
     __debugbreak();
-  if ( _RSI->clientNum != (_DWORD)v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 386, ASSERT_TYPE_ASSERT, "(nextPs->clientNum == localClientNum)", (const char *)&queryFormat, "nextPs->clientNum == localClientNum") )
+  if ( nextPs->clientNum != (_DWORD)v1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 386, ASSERT_TYPE_ASSERT, "(nextPs->clientNum == localClientNum)", (const char *)&queryFormat, "nextPs->clientNum == localClientNum") )
     __debugbreak();
-  Handler = CgHandler::getHandler((LocalClientNum_t)v3);
-  if ( !CgWeaponMap::ms_instance[v3] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
+  Handler = CgHandler::getHandler((LocalClientNum_t)v1);
+  if ( !CgWeaponMap::ms_instance[v1] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapon_map.h", 60, ASSERT_TYPE_ASSERT, "(ms_instance[localClientNum])", (const char *)&queryFormat, "ms_instance[localClientNum]") )
     __debugbreak();
-  BG_UpdateWeaponAnimArrays(CgWeaponMap::ms_instance[v3], _RSI, Handler);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+65E0h]
-    vmovss  xmm0, dword ptr [rsi+30h]
-    vsubss  xmm1, xmm0, dword ptr [r14+30h]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [r14+30h]
-    vmovss  dword ptr [rsp+0C8h+outOrigin], xmm3
-    vmovss  xmm0, dword ptr [rsi+34h]
-    vsubss  xmm1, xmm0, dword ptr [r14+34h]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [r14+34h]
-    vmovss  dword ptr [rsp+0C8h+outOrigin+4], xmm3
-    vmovss  xmm0, dword ptr [rsi+38h]
-    vsubss  xmm1, xmm0, dword ptr [r14+38h]
-    vmulss  xmm2, xmm1, xmm6
-    vaddss  xmm3, xmm2, dword ptr [r14+38h]
-    vmovss  dword ptr [rsp+0C8h+outOrigin+8], xmm3
-  }
-  CG_GetPoseOrigin(&_R13->pose, &outOrigin);
-  *(_QWORD *)_R13->pose.angles.v = 0i64;
-  _R13->pose.angles.v[2] = 0.0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r13+1D4h]
-    vmovss  xmm5, dword ptr [r13+158h]
-    vsubss  xmm0, xmm0, xmm5
-    vmulss  xmm4, xmm0, cs:__real@3b360b61
-    vaddss  xmm2, xmm4, cs:__real@3f000000
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm1, xmm0, xmm2, 1
-    vsubss  xmm0, xmm4, xmm1
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vmulss  xmm2, xmm1, dword ptr [rbx+65E0h]
-    vaddss  xmm3, xmm2, xmm5
-    vmovss  dword ptr [r13+4Ch], xmm3
-  }
-  if ( CG_ModelPreviewerNeedsVieworgInterpSkipped((LocalClientNum_t)v3) )
+  BG_UpdateWeaponAnimArrays(CgWeaponMap::ms_instance[v1], nextPs, Handler);
+  frameInterpolation = LocalClientGlobals->frameInterpolation;
+  outOrigin.v[0] = (float)((float)(nextPs->origin.v[0] - ps->origin.v[0]) * frameInterpolation) + ps->origin.v[0];
+  outOrigin.v[1] = (float)((float)(nextPs->origin.v[1] - ps->origin.v[1]) * frameInterpolation) + ps->origin.v[1];
+  outOrigin.v[2] = (float)((float)(nextPs->origin.v[2] - ps->origin.v[2]) * frameInterpolation) + ps->origin.v[2];
+  CG_GetPoseOrigin(&Entity->pose, &outOrigin);
+  *(_QWORD *)Entity->pose.angles.v = 0i64;
+  Entity->pose.angles.v[2] = 0.0;
+  _XMM0 = 0i64;
+  __asm { vroundss xmm1, xmm0, xmm2, 1 }
+  Entity->pose.angles.v[1] = (float)((float)((float)((float)((float)(Entity->nextState.lerp.apos.trBase.v[1] - Entity->prevState.apos.trBase.v[1]) * 0.0027777778) - *(float *)&_XMM1) * 360.0) * LocalClientGlobals->frameInterpolation) + Entity->prevState.apos.trBase.v[1];
+  if ( CG_ModelPreviewerNeedsVieworgInterpSkipped((LocalClientNum_t)v1) )
     goto LABEL_18;
-  if ( CG_Weapons_GetWeaponViewRoughOriginIfValid((LocalClientNum_t)v3, _RSI, &_RBX->refdef.viewOffset) )
+  if ( CG_Weapons_GetWeaponViewRoughOriginIfValid((LocalClientNum_t)v1, nextPs, &LocalClientGlobals->refdef.viewOffset) )
     goto LABEL_19;
-  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 1u) || (_RSI->linkFlags.m_flags[0] & 4) != 0 || BG_GetRemoteControlledVehicleEntityNum(_RSI, Handler) != 2047 )
+  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&nextPs->otherFlags, ACTIVE, 1u) || (nextPs->linkFlags.m_flags[0] & 4) != 0 || BG_GetRemoteControlledVehicleEntityNum(nextPs, Handler) != 2047 )
   {
 LABEL_18:
-    RefdefView_GetOrg(&_RBX->refdef.view, &_RBX->refdef.viewOffset);
+    RefdefView_GetOrg(&LocalClientGlobals->refdef.view, &LocalClientGlobals->refdef.viewOffset);
   }
-  else if ( _RSI->vehicleState.entity == 2047 )
+  else if ( nextPs->vehicleState.entity == 2047 )
   {
-    CG_GetPoseOrigin(&_R13->pose, &_RBX->refdef.viewOffset);
-    v52 = CgHandler::getHandler((LocalClientNum_t)v3);
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v77, _RSI, v52);
-    __asm { vmovss  xmm1, dword ptr [rsi+1E8h]; height }
-    WorldUpReferenceFrame::AddUpContribution(&v77, *(float *)&_XMM1, &_RBX->refdef.viewOffset);
+    CG_GetPoseOrigin(&Entity->pose, &LocalClientGlobals->refdef.viewOffset);
+    v12 = CgHandler::getHandler((LocalClientNum_t)v1);
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v31, nextPs, v12);
+    WorldUpReferenceFrame::AddUpContribution(&v31, nextPs->viewHeightCurrent, &LocalClientGlobals->refdef.viewOffset);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+65E0h]
-      vmovss  xmm3, dword ptr [r14+12Ch]
-      vmovss  xmm0, dword ptr [rsi+12Ch]
-      vsubss  xmm1, xmm0, xmm3
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, xmm3
-      vmovss  dword ptr [rbx+699Ch], xmm3
-      vmovss  xmm4, dword ptr [r14+130h]
-      vmovss  xmm0, dword ptr [rsi+130h]
-      vsubss  xmm1, xmm0, xmm4
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, xmm4
-      vmovss  dword ptr [rbx+69A0h], xmm3
-      vmovss  xmm5, dword ptr [r14+134h]
-      vmovss  xmm0, dword ptr [rsi+134h]
-      vsubss  xmm1, xmm0, xmm5
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, xmm5
-      vmovss  dword ptr [rbx+69A4h], xmm3
-      vaddss  xmm0, xmm3, dword ptr [rsi+1E8h]
-      vmovss  dword ptr [rbx+69A4h], xmm0
-    }
+    v10 = LocalClientGlobals->frameInterpolation;
+    LocalClientGlobals->refdef.viewOffset.v[0] = (float)((float)(nextPs->vehicleState.origin.v[0] - ps->vehicleState.origin.v[0]) * v10) + ps->vehicleState.origin.v[0];
+    LocalClientGlobals->refdef.viewOffset.v[1] = (float)((float)(nextPs->vehicleState.origin.v[1] - ps->vehicleState.origin.v[1]) * v10) + ps->vehicleState.origin.v[1];
+    v11 = (float)((float)(nextPs->vehicleState.origin.v[2] - ps->vehicleState.origin.v[2]) * v10) + ps->vehicleState.origin.v[2];
+    LocalClientGlobals->refdef.viewOffset.v[2] = v11;
+    LocalClientGlobals->refdef.viewOffset.v[2] = v11 + nextPs->viewHeightCurrent;
   }
 LABEL_19:
-  if ( !_RBX->validPPS )
+  if ( !LocalClientGlobals->validPPS )
   {
-    _RBX->validPPS = 1;
-    memcpy_0(&_RBX->predictedPlayerState, _RSI, sizeof(_RBX->predictedPlayerState));
-    _RBX->predictedPlayerState.commandTimeInterpolated = _RBX->predictedPlayerState.commandTime;
-    _RBX->predictedPlayerState.serverTimeInterpolated = _RBX->predictedPlayerState.serverTime;
-    _RBX->predictedPlayerState.inputTimeInterpolated = _RBX->predictedPlayerState.inputTime;
-    _RBX->groundEntityTime = _RBX->time - 1000;
-    CG_SetupPrePredictBounds(_RBX, &_RBX->playerBox);
-    if ( (unsigned int)v3 >= cgs_t::ms_allocatedCount )
+    LocalClientGlobals->validPPS = 1;
+    memcpy_0(&LocalClientGlobals->predictedPlayerState, nextPs, sizeof(LocalClientGlobals->predictedPlayerState));
+    LocalClientGlobals->predictedPlayerState.commandTimeInterpolated = LocalClientGlobals->predictedPlayerState.commandTime;
+    LocalClientGlobals->predictedPlayerState.serverTimeInterpolated = LocalClientGlobals->predictedPlayerState.serverTime;
+    LocalClientGlobals->predictedPlayerState.inputTimeInterpolated = LocalClientGlobals->predictedPlayerState.inputTime;
+    LocalClientGlobals->groundEntityTime = LocalClientGlobals->time - 1000;
+    CG_SetupPrePredictBounds(LocalClientGlobals, &LocalClientGlobals->playerBox);
+    if ( (unsigned int)v1 >= cgs_t::ms_allocatedCount )
     {
-      v74 = cgs_t::ms_allocatedCount;
-      LODWORD(duration) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 112, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cgs_t::ms_allocatedCount )", "localClientNum doesn't index cgs_t::ms_allocatedCount\n\t%i not in [0, %i)", duration, v74) )
+      LODWORD(duration) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 112, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( cgs_t::ms_allocatedCount )", "localClientNum doesn't index cgs_t::ms_allocatedCount\n\t%i not in [0, %i)", duration, cgs_t::ms_allocatedCount) )
         __debugbreak();
     }
-    if ( !cgs_t::ms_cgsArray[v3] )
+    if ( !cgs_t::ms_cgsArray[v1] )
     {
-      LODWORD(v73) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 113, ASSERT_TYPE_ASSERT, "(cgs_t::ms_cgsArray[localClientNum])", "%s\n\tTrying to access unallocated client static globals for localClientNum %d\n", "cgs_t::ms_cgsArray[localClientNum]", v73) )
+      LODWORD(v28) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 113, ASSERT_TYPE_ASSERT, "(cgs_t::ms_cgsArray[localClientNum])", "%s\n\tTrying to access unallocated client static globals for localClientNum %d\n", "cgs_t::ms_cgsArray[localClientNum]", v28) )
         __debugbreak();
     }
     if ( cgs_t::ms_allocatedType == STATIC_GLOB_TYPE_UNKNOWN )
     {
-      LODWORD(v73) = v3;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 114, ASSERT_TYPE_ASSERT, "(cgs_t::ms_allocatedType != CgStaticGlobalsType::STATIC_GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client static globals for localClientNum %d but the client static global type is not known\n", "cgs_t::ms_allocatedType != CgStaticGlobalsType::STATIC_GLOB_TYPE_UNKNOWN", v73) )
+      LODWORD(v28) = v1;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals_static.h", 114, ASSERT_TYPE_ASSERT, "(cgs_t::ms_allocatedType != CgStaticGlobalsType::STATIC_GLOB_TYPE_UNKNOWN)", "%s\n\tTrying to access client static globals for localClientNum %d but the client static global type is not known\n", "cgs_t::ms_allocatedType != CgStaticGlobalsType::STATIC_GLOB_TYPE_UNKNOWN", v28) )
         __debugbreak();
     }
-    v54 = cgs_t::ms_cgsArray[v3];
-    v55 = DVARINT_cl_freemove;
+    v13 = cgs_t::ms_cgsArray[v1];
+    v14 = DVARINT_cl_freemove;
     if ( !DVARINT_cl_freemove && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_freemove") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v55);
-    if ( v55->current.integer && v54->started )
-      CG_PredictSP_RestorePlayerOrientation(_RBX);
-    v54->started = 1;
+    Dvar_CheckFrontendServerThread(v14);
+    if ( v14->current.integer && v13->started )
+      CG_PredictSP_RestorePlayerOrientation(LocalClientGlobals);
+    v13->started = 1;
   }
-  if ( !_RBX->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 454, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
+  if ( !LocalClientGlobals->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 454, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
     __debugbreak();
-  _RBX->physicsTime = _RBX->nextSnap->serverTime;
-  v56 = DVARBOOL_cg_drawPlayerBoundingBox;
+  LocalClientGlobals->physicsTime = LocalClientGlobals->nextSnap->serverTime;
+  v15 = DVARBOOL_cg_drawPlayerBoundingBox;
   if ( !DVARBOOL_cg_drawPlayerBoundingBox && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawPlayerBoundingBox") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v56);
-  if ( v56->current.enabled || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RSI->otherFlags, ACTIVE, 0x20u) )
-  {
-    __asm { vmovss  xmm2, dword ptr [rsi+1DCh]; yaw }
-    CG_DebugBox(&_RSI->origin, &_RBX->playerBox, *(float *)&_XMM2, &colorRed, 1, 0);
-  }
-  v58 = DVARINT_cl_freemove;
+  Dvar_CheckFrontendServerThread(v15);
+  if ( v15->current.enabled || GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&nextPs->otherFlags, ACTIVE, 0x20u) )
+    CG_DebugBox(&nextPs->origin, &LocalClientGlobals->playerBox, nextPs->viewangles.v[1], &colorRed, 1, 0);
+  v16 = DVARINT_cl_freemove;
   if ( !DVARINT_cl_freemove && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_freemove") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v58);
-  if ( v58->current.integer )
+  Dvar_CheckFrontendServerThread(v16);
+  if ( v16->current.integer )
   {
-    CG_PredictSP_UpdateFreeMove(_RBX);
+    CG_PredictSP_UpdateFreeMove(LocalClientGlobals);
     goto LABEL_77;
   }
-  if ( !CG_PredictSP_ShouldRunPrediction((const LocalClientNum_t)v3) )
+  if ( !CG_PredictSP_ShouldRunPrediction((const LocalClientNum_t)v1) )
   {
-    v59 = 1;
+    v17 = 1;
 LABEL_76:
-    CG_PredictSP_InterpolatePlayerState((LocalClientNum_t)v3, v59, 1);
+    CG_PredictSP_InterpolatePlayerState((LocalClientNum_t)v1, v17, 1);
     goto LABEL_77;
   }
-  pm_type = _RSI->pm_type;
-  if ( pm_type == 1 || pm_type == 8 || (_RSI->linkFlags.m_flags[0] & 4) != 0 )
+  pm_type = nextPs->pm_type;
+  if ( pm_type == 1 || pm_type == 8 || (nextPs->linkFlags.m_flags[0] & 4) != 0 )
   {
-    v59 = 0;
+    v17 = 0;
     goto LABEL_76;
   }
-  groundEntityNum = _RSI->groundEntityNum;
+  groundEntityNum = nextPs->groundEntityNum;
   if ( groundEntityNum <= 0 || (unsigned __int16)groundEntityNum >= 0x7FEu )
   {
-    p_predictedPlayerState = &_RBX->predictedPlayerState;
-    if ( BGMovingPlatforms::IsOnMovingPlatform(&_RBX->predictedPlayerState) )
+    p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
+    if ( BGMovingPlatforms::IsOnMovingPlatform(&LocalClientGlobals->predictedPlayerState) )
     {
-      time = _RBX->time;
-      _RBX->groundEntityTime = time;
+      time = LocalClientGlobals->time;
+      LocalClientGlobals->groundEntityTime = time;
       groundEntityTime = time;
     }
     else
     {
-      time = _RBX->time;
-      groundEntityTime = _RBX->groundEntityTime;
+      time = LocalClientGlobals->time;
+      groundEntityTime = LocalClientGlobals->groundEntityTime;
     }
   }
   else
   {
-    p_predictedPlayerState = &_RBX->predictedPlayerState;
-    time = _RBX->time;
-    _RBX->groundEntityTime = time;
+    p_predictedPlayerState = &LocalClientGlobals->predictedPlayerState;
+    time = LocalClientGlobals->time;
+    LocalClientGlobals->groundEntityTime = time;
     groundEntityTime = time;
   }
   if ( (unsigned int)(time - groundEntityTime) < 0x3E8 )
   {
-    memcpy_0(p_predictedPlayerState, _RSI, sizeof(playerState_s));
-    _RBX->predictedPlayerState.commandTimeInterpolated = p_predictedPlayerState->commandTime;
-    _RBX->predictedPlayerState.serverTimeInterpolated = _RBX->predictedPlayerState.serverTime;
-    _RBX->predictedPlayerState.inputTimeInterpolated = _RBX->predictedPlayerState.inputTime;
+    memcpy_0(p_predictedPlayerState, nextPs, sizeof(playerState_s));
+    LocalClientGlobals->predictedPlayerState.commandTimeInterpolated = p_predictedPlayerState->commandTime;
+    LocalClientGlobals->predictedPlayerState.serverTimeInterpolated = LocalClientGlobals->predictedPlayerState.serverTime;
+    LocalClientGlobals->predictedPlayerState.inputTimeInterpolated = LocalClientGlobals->predictedPlayerState.inputTime;
   }
-  _RDI = CG_GetLocalClientGlobals((const LocalClientNum_t)v3);
-  if ( !_RDI->snap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 64, ASSERT_TYPE_ASSERT, "(cgameGlob->snap)", (const char *)&queryFormat, "cgameGlob->snap") )
+  v23 = CG_GetLocalClientGlobals((const LocalClientNum_t)v1);
+  if ( !v23->snap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 64, ASSERT_TYPE_ASSERT, "(cgameGlob->snap)", (const char *)&queryFormat, "cgameGlob->snap") )
     __debugbreak();
-  if ( !_RDI->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 65, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
+  if ( !v23->nextSnap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 65, ASSERT_TYPE_ASSERT, "(cgameGlob->nextSnap)", (const char *)&queryFormat, "cgameGlob->nextSnap") )
     __debugbreak();
-  if ( _RDI->nextSnap->serverTime > _RDI->snap->serverTime )
+  if ( v23->nextSnap->serverTime > v23->snap->serverTime )
   {
-    nextPs = _RDI->nextPs;
-    if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&nextPs->otherFlags, ACTIVE, 9u) )
+    v24 = v23->nextPs;
+    if ( !GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&v24->otherFlags, ACTIVE, 9u) )
     {
-      ps = (const vec3_t *)_RDI->ps;
-      __asm { vmovss  xmm6, dword ptr [rdi+65E0h] }
+      v25 = (const vec3_t *)v23->ps;
+      v26 = v23->frameInterpolation;
       if ( !Com_GameMode_SupportsFeature(WEAPON_RELOAD_END_RECHAMBER) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 77, ASSERT_TYPE_ASSERT, "(Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_AIM_ASSIST_REF ))", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_AIM_ASSIST_REF )") )
         __debugbreak();
-      __asm { vmovaps xmm2, xmm6; frac }
-      LerpAngles(ps + 56, &nextPs->groundTiltAngles, *(const float *)&_XMM2, &_RDI->predictedPlayerState.groundTiltAngles);
+      LerpAngles(v25 + 56, &v24->groundTiltAngles, v26, &v23->predictedPlayerState.groundTiltAngles);
     }
   }
 LABEL_77:
   memset(&outOrigin, 0, sizeof(outOrigin));
-  _R11 = &v78;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -1455,110 +1082,72 @@ CG_PredictSP_UpdateFreeMove
 */
 void CG_PredictSP_UpdateFreeMove(cg_t *cgameGlob)
 {
-  const dvar_t *v4; 
-  const dvar_t *v6; 
-  int v7; 
-  const dvar_t *v11; 
+  const dvar_t *v1; 
+  const dvar_t *v3; 
+  int v4; 
+  playerState_s *ps; 
+  playerState_s *nextPs; 
+  float frameInterpolation; 
+  const dvar_t *v8; 
+  float v11; 
   CgHandler *Handler; 
+  float v13; 
   vec3_t inOutViewAngles; 
   vec3_t origin; 
   tmat33_t<vec3_t> axis; 
-  WorldUpReferenceFrame v45; 
-  char v46; 
-  void *retaddr; 
+  WorldUpReferenceFrame v17; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  v4 = DVARINT_cl_freemove;
-  _RBX = cgameGlob;
+  v1 = DVARINT_cl_freemove;
   if ( !DVARINT_cl_freemove && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_freemove") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( !v4->current.integer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 285, ASSERT_TYPE_ASSERT, "(Dvar_GetInt_Internal_DebugName( DVARINT_cl_freemove, \"cl_freemove\" ) != FREEMOVE_NONE)", (const char *)&queryFormat, "Dvar_GetInt( cl_freemove ) != FREEMOVE_NONE") )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( !v1->current.integer && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 285, ASSERT_TYPE_ASSERT, "(Dvar_GetInt_Internal_DebugName( DVARINT_cl_freemove, \"cl_freemove\" ) != FREEMOVE_NONE)", (const char *)&queryFormat, "Dvar_GetInt( cl_freemove ) != FREEMOVE_NONE") )
     __debugbreak();
-  v6 = DVARINT_cl_freemove;
+  v3 = DVARINT_cl_freemove;
   if ( !DVARINT_cl_freemove && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_freemove") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  v7 = 3;
-  if ( v6->current.integer == 1 )
-    v7 = 2;
-  _RBX->predictedPlayerState.pm_type = v7;
-  _RBX->predictedPlayerState.eFlags.m_flags[0] &= 4u;
-  _RBX->predictedPlayerState.weapCommon.aimSpreadScale = 0.0;
-  _RBX->predictedPlayerState.pm_flags = 0i64;
-  _RBX->predictedPlayerState.weapCommon.weapFlags = 0i64;
-  _RBX->predictedPlayerState.otherFlags = 0i64;
-  _RDI = _RBX->ps;
-  _RAX = _RBX->nextPs;
-  __asm { vmovss  xmm7, dword ptr [rbx+65E0h] }
-  v11 = DVARBOOL_cg_drawPlayerPosInFreeMove;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+30h]
-    vsubss  xmm1, xmm0, dword ptr [rdi+30h]
-    vmulss  xmm2, xmm1, xmm7
-    vaddss  xmm3, xmm2, dword ptr [rdi+30h]
-    vmovss  dword ptr [rsp+0F8h+origin], xmm3
-    vmovss  xmm0, dword ptr [rax+34h]
-    vsubss  xmm1, xmm0, dword ptr [rdi+34h]
-    vmulss  xmm2, xmm1, xmm7
-    vaddss  xmm3, xmm2, dword ptr [rdi+34h]
-    vmovss  dword ptr [rsp+0F8h+origin+4], xmm3
-    vmovss  xmm0, dword ptr [rax+38h]
-    vsubss  xmm1, xmm0, dword ptr [rdi+38h]
-    vmulss  xmm2, xmm1, xmm7
-    vaddss  xmm3, xmm2, dword ptr [rdi+38h]
-    vmovss  dword ptr [rsp+0F8h+origin+8], xmm3
-    vmovss  xmm6, dword ptr [rdi+1DCh]
-    vmovss  xmm0, dword ptr [rax+1DCh]
-    vsubss  xmm1, xmm0, xmm6
-    vmulss  xmm5, xmm1, cs:__real@3b360b61
-    vaddss  xmm2, xmm5, cs:__real@3f000000
-    vxorps  xmm1, xmm1, xmm1
-    vroundss xmm4, xmm1, xmm2, 1
-    vsubss  xmm0, xmm5, xmm4
-    vmulss  xmm1, xmm0, cs:__real@43b40000
-    vmulss  xmm2, xmm1, xmm7
-    vaddss  xmm6, xmm2, xmm6
-  }
+  Dvar_CheckFrontendServerThread(v3);
+  v4 = 3;
+  if ( v3->current.integer == 1 )
+    v4 = 2;
+  cgameGlob->predictedPlayerState.pm_type = v4;
+  cgameGlob->predictedPlayerState.eFlags.m_flags[0] &= 4u;
+  cgameGlob->predictedPlayerState.weapCommon.aimSpreadScale = 0.0;
+  cgameGlob->predictedPlayerState.pm_flags = 0i64;
+  cgameGlob->predictedPlayerState.weapCommon.weapFlags = 0i64;
+  cgameGlob->predictedPlayerState.otherFlags = 0i64;
+  ps = cgameGlob->ps;
+  nextPs = cgameGlob->nextPs;
+  frameInterpolation = cgameGlob->frameInterpolation;
+  v8 = DVARBOOL_cg_drawPlayerPosInFreeMove;
+  origin.v[0] = (float)((float)(nextPs->origin.v[0] - ps->origin.v[0]) * frameInterpolation) + ps->origin.v[0];
+  origin.v[1] = (float)((float)(nextPs->origin.v[1] - ps->origin.v[1]) * frameInterpolation) + ps->origin.v[1];
+  origin.v[2] = (float)((float)(nextPs->origin.v[2] - ps->origin.v[2]) * frameInterpolation) + ps->origin.v[2];
+  _XMM1 = 0i64;
+  __asm { vroundss xmm4, xmm1, xmm2, 1 }
+  v11 = (float)((float)((float)((float)((float)(nextPs->viewangles.v[1] - ps->viewangles.v[1]) * 0.0027777778) - *(float *)&_XMM4) * 360.0) * frameInterpolation) + ps->viewangles.v[1];
   if ( !DVARBOOL_cg_drawPlayerPosInFreeMove && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cg_drawPlayerPosInFreeMove") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( v11->current.enabled )
+  Dvar_CheckFrontendServerThread(v8);
+  if ( v8->current.enabled )
   {
-    Handler = CgHandler::getHandler(_RBX->localClientNum);
-    WorldUpReferenceFrame::WorldUpReferenceFrame(&v45, _RDI, Handler);
-    if ( v45.m_axisAdjusted )
+    Handler = CgHandler::getHandler(cgameGlob->localClientNum);
+    WorldUpReferenceFrame::WorldUpReferenceFrame(&v17, ps, Handler);
+    if ( v17.m_axisAdjusted )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+1DCh]
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  dword ptr [rsp+0F8h+inOutViewAngles], xmm1
-        vmovss  dword ptr [rsp+0F8h+inOutViewAngles+4], xmm0
-        vmovss  dword ptr [rsp+0F8h+inOutViewAngles+8], xmm1
-      }
-      BG_CalcLinkedViewValues(_RDI, &inOutViewAngles);
+      v13 = ps->viewangles.v[1];
+      inOutViewAngles.v[0] = 0.0;
+      inOutViewAngles.v[1] = v13;
+      inOutViewAngles.v[2] = 0.0;
+      BG_CalcLinkedViewValues(ps, &inOutViewAngles);
       AnglesToAxis(&inOutViewAngles, &axis);
-      WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&v45, &axis);
-      CG_DebugBoxOriented(&origin, &_RBX->playerBox, &axis, &colorOrange, 1, 0);
+      WorldUpReferenceFrame::ApplyReferenceFrameToAxis(&v17, &axis);
+      CG_DebugBoxOriented(&origin, &cgameGlob->playerBox, &axis, &colorOrange, 1, 0);
     }
     else
     {
-      __asm { vmovaps xmm2, xmm6; yaw }
-      CG_DebugBox(&origin, &_RBX->playerBox, *(float *)&_XMM2, &colorOrange, 1, 0);
+      CG_DebugBox(&origin, &cgameGlob->playerBox, v11, &colorOrange, 1, 0);
     }
-  }
-  _R11 = &v46;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
   }
 }
 
@@ -1569,8 +1158,9 @@ CG_PredictSP_UpdatePMove
 */
 void CG_PredictSP_UpdatePMove(pmove_t *pm, playerState_s *const playerState, const bool isInitialCall, const bool isExtrapolation)
 {
+  Bounds *bounds; 
   cg_t *LocalClientGlobals; 
-  int v12; 
+  int v10; 
 
   if ( !pm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_sp\\cg_predict_sp.cpp", 535, ASSERT_TYPE_ASSERT, "(pm)", (const char *)&queryFormat, "pm") )
     __debugbreak();
@@ -1581,21 +1171,18 @@ void CG_PredictSP_UpdatePMove(pmove_t *pm, playerState_s *const playerState, con
   pm->isExtrapolation = isExtrapolation;
   if ( isInitialCall )
   {
-    _RAX = pm->bounds;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vucomiss xmm0, dword ptr [rax+0Ch]
-    }
+    bounds = pm->bounds;
+    if ( bounds->halfSize.v[0] == 0.0 )
+      *bounds = playerBox;
     if ( !CG_PredictSP_IsFreeMove() )
     {
       LocalClientGlobals = CG_GetLocalClientGlobals((const LocalClientNum_t)pm->localClientNum);
       CGMovingPlatformClient::UpdatePredictedClient(&LocalClientGlobals->movingPlatforms, pm->localClientNum, pm, &LocalClientGlobals->moverTransform, &LocalClientGlobals->originMoverLocal);
     }
   }
-  v12 = 65553;
+  v10 = 65553;
   if ( pm->ps->pm_type < 7 )
-    v12 = 33636369;
-  pm->tracemask = v12;
+    v10 = 33636369;
+  pm->tracemask = v10;
 }
 

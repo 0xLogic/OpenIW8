@@ -1108,7 +1108,7 @@ void LiveAntiCheat_InfractionCheck(const int controllerIndex, unsigned __int8 *o
 {
   __asm { vpxor   xmm0, xmm0, xmm0 }
   s_playerInfractionsNum = 0;
-  __asm { vmovdqu xmmword ptr cs:s_playerInfractions, xmm0 }
+  *(_OWORD *)s_playerInfractions = _XMM0;
   *(_QWORD *)&s_playerInfractions[4] = 0i64;
 }
 
@@ -1121,7 +1121,7 @@ void LiveAntiCheat_InfractionCheck_Squads(const int controllerIndex)
 {
   __asm { vpxor   xmm0, xmm0, xmm0 }
   s_playerInfractionsNum = 0;
-  __asm { vmovdqu xmmword ptr cs:s_playerInfractions, xmm0 }
+  *(_OWORD *)s_playerInfractions = _XMM0;
   *(_QWORD *)&s_playerInfractions[4] = 0i64;
   if ( LiveStorage_GetActiveStatsSource(controllerIndex) == STATS_ONLINE )
     LiveStorage_GetPlayerDataBuffer(controllerIndex, STATSGROUP_RANKED);

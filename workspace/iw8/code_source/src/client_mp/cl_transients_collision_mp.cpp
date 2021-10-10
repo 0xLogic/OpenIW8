@@ -377,133 +377,81 @@ void CL_TransientsCollisionMP_OnClosePreUnload(void)
 CLTransientsCollisionMP_CalculateTileDistances
 ==============
 */
-
-void __fastcall CLTransientsCollisionMP_CalculateTileDistances(double _XMM0_8)
+void CLTransientsCollisionMP_CalculateTileDistances(void)
 {
-  unsigned int v8; 
-  unsigned int v10; 
-  __int64 v17; 
-  unsigned int v26; 
-  bool v29; 
-  void *retaddr; 
+  unsigned int v0; 
+  __int64 v1; 
+  unsigned int v2; 
+  __int64 v3; 
+  unsigned int v5; 
+  float v6; 
+  __int64 v7; 
+  __int128 v8; 
+  __int128 v9; 
+  __int128 v10; 
+  __int128 v12; 
+  __int128 v14; 
+  int v16[2]; 
+  int v17[2]; 
+  float v18; 
+  float v19; 
 
-  _R11 = &retaddr;
-  v8 = s_transientsCollisionMP_NumTiles;
-  _RBP = 0i64;
+  v0 = s_transientsCollisionMP_NumTiles;
+  v1 = 0i64;
   if ( (_DWORD)s_transientsCollisionMP_NumTiles )
   {
-    v10 = s_transientsCollisionMP_NumStreamPositions;
-    _R15 = 0x140000000ui64;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-28h], xmm6
-      vmovaps xmmword ptr [r11-38h], xmm7
-      vmovaps xmmword ptr [r11-48h], xmm8
-      vmovss  xmm8, cs:__real@45800000
-      vmovaps xmmword ptr [r11-58h], xmm9
-      vmovaps xmmword ptr [r11-68h], xmm10
-      vmovss  xmm10, cs:__real@46000000
-      vmovaps xmmword ptr [r11-78h], xmm11
-      vmovss  xmm11, cs:__real@7f7fffff
-      vxorps  xmm7, xmm7, xmm7
-    }
+    v2 = s_transientsCollisionMP_NumStreamPositions;
     do
     {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      v17 = 0i64;
-      __asm
-      {
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm10
-        vaddss  xmm2, xmm1, xmm8
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm1, xmm0, xmm10
-        vmovss  [rsp+0D8h+var_90], xmm2
-        vaddss  xmm2, xmm1, xmm8
-        vmovss  [rsp+0D8h+var_8C], xmm2
-        vmovaps xmm9, xmm11
-      }
-      if ( v10 )
+      v3 = 0i64;
+      *(float *)v17 = (float)((float)(int)((v1 & 0x1F) - 16) * 8192.0) + 4096.0;
+      *(float *)&v17[1] = (float)((float)(int)(((unsigned int)v1 >> 5) - 16) * 8192.0) + 4096.0;
+      *(float *)&_XMM9 = FLOAT_3_4028235e38;
+      if ( v2 )
       {
         do
         {
-          _RCX = 3 * v17;
-          v26 = 0;
-          __asm
-          {
-            vmovss  xmm0, dword ptr rva ?s_transientsCollisionMP_StreamPositions@@3PAUCL_TransientsCollisionMP_StreamingPosition@@A.origin[r15+rcx*4]; CL_TransientsCollisionMP_StreamingPosition near * s_transientsCollisionMP_StreamPositions
-            vmovss  xmm1, dword ptr (rva ?s_transientsCollisionMP_StreamPositions@@3PAUCL_TransientsCollisionMP_StreamingPosition@@A.origin+4)[r15+rcx*4]; CL_TransientsCollisionMP_StreamingPosition near * s_transientsCollisionMP_StreamPositions
-            vmovss  [rsp+0D8h+var_98], xmm0
-            vmovss  [rsp+0D8h+var_94], xmm1
-          }
-          v29 = 1;
+          v5 = 0;
+          v6 = s_transientsCollisionMP_StreamPositions[v3].origin.v[1];
+          v16[0] = LODWORD(s_transientsCollisionMP_StreamPositions[v3].origin.v[0]);
+          *(float *)&v16[1] = v6;
           do
           {
-            _RDI = (int)v26;
-            __asm
+            v7 = (int)v5;
+            if ( (float)(*(float *)&v16[v5] - *(float *)&v17[v5]) >= 0.0 )
             {
-              vmovss  xmm0, [rsp+rdi*4+0D8h+var_98]
-              vsubss  xmm1, xmm0, [rsp+rdi*4+0D8h+var_90]
-              vcomiss xmm1, xmm7
-            }
-            if ( v29 )
-            {
-              __asm
-              {
-                vmovss  xmm0, [rsp+rdi*4+0D8h+var_90]
-                vsubss  xmm1, xmm0, [rsp+rdi*4+0D8h+var_98]
-              }
+              v10 = (unsigned int)v16[v5];
+              *(float *)&v10 = *(float *)&v16[v5] - *(float *)&v17[v5];
+              v8 = v10;
             }
             else
             {
-              __asm
-              {
-                vmovss  xmm0, [rsp+rdi*4+0D8h+var_98]
-                vsubss  xmm1, xmm0, [rsp+rdi*4+0D8h+var_90]
-              }
+              v9 = (unsigned int)v17[v5];
+              *(float *)&v9 = *(float *)&v17[v5] - *(float *)&v16[v5];
+              v8 = v9;
             }
-            __asm
-            {
-              vsubss  xmm2, xmm1, xmm8
-              vmaxss  xmm6, xmm2, xmm7
-            }
-            ++v26;
-            __asm { vmovss  [rsp+rdi*4+0D8h+var_88], xmm6 }
-            v29 = v26 < 2;
+            v12 = v8;
+            *(float *)&v12 = *(float *)&v8 - 4096.0;
+            _XMM2 = v12;
+            __asm { vmaxss  xmm6, xmm2, xmm7 }
+            ++v5;
+            *(&v18 + v7) = *(float *)&_XMM6;
           }
-          while ( v26 < 2 );
-          __asm
-          {
-            vmovss  xmm0, [rsp+0D8h+var_88]
-            vmovss  xmm1, [rsp+0D8h+var_84]
-          }
-          v10 = s_transientsCollisionMP_NumStreamPositions;
-          v17 = (unsigned int)(v17 + 1);
-          __asm
-          {
-            vmulss  xmm3, xmm0, xmm0
-            vmulss  xmm2, xmm1, xmm1
-            vaddss  xmm0, xmm3, xmm2
-            vminss  xmm9, xmm0, xmm9
-          }
+          while ( v5 < 2 );
+          v2 = s_transientsCollisionMP_NumStreamPositions;
+          v3 = (unsigned int)(v3 + 1);
+          v14 = LODWORD(v18);
+          *(float *)&v14 = (float)(v18 * v18) + (float)(v19 * v19);
+          _XMM0 = v14;
+          __asm { vminss  xmm9, xmm0, xmm9 }
         }
-        while ( (unsigned int)v17 < s_transientsCollisionMP_NumStreamPositions );
-        v8 = s_transientsCollisionMP_NumTiles;
+        while ( (unsigned int)v3 < s_transientsCollisionMP_NumStreamPositions );
+        v0 = s_transientsCollisionMP_NumTiles;
       }
-      __asm { vmovss  rva s_transientsCollisionMP_TileStreamingDistancesSq[r15+rbp*4], xmm9 }
-      _RBP = (unsigned int)(_RBP + 1);
+      s_transientsCollisionMP_TileStreamingDistancesSq[v1] = *(float *)&_XMM9;
+      v1 = (unsigned int)(v1 + 1);
     }
-    while ( (unsigned int)_RBP < v8 );
-    __asm
-    {
-      vmovaps xmm11, [rsp+0D8h+var_78]
-      vmovaps xmm10, [rsp+0D8h+var_68]
-      vmovaps xmm9, [rsp+0D8h+var_58]
-      vmovaps xmm8, [rsp+0D8h+var_48]
-      vmovaps xmm7, [rsp+0D8h+var_38]
-      vmovaps xmm6, [rsp+0D8h+var_28]
-    }
+    while ( (unsigned int)v1 < v0 );
   }
 }
 
@@ -516,17 +464,7 @@ __int64 CL_TransientCollisionMP_GetTileForPos(const vec3_t *pos)
 {
   __int64 result; 
 
-  __asm
-  {
-    vmovss  xmm3, cs:__real@39000000
-    vmulss  xmm1, xmm3, dword ptr [rcx+4]
-    vaddss  xmm0, xmm1, cs:__real@41800000
-    vcvttss2si eax, xmm0
-    vmulss  xmm0, xmm3, dword ptr [rcx]
-    vaddss  xmm2, xmm0, cs:__real@41800000
-    vcvttss2si ecx, xmm2
-  }
-  result = (unsigned int)(_ECX + 32 * _EAX);
+  result = (unsigned int)((int)(float)((float)(0.00012207031 * pos->v[0]) + 16.0) + 32 * (int)(float)((float)(0.00012207031 * pos->v[1]) + 16.0));
   if ( (unsigned int)result >= (unsigned int)s_transientsCollisionMP_NumTiles )
     return 0xFFFFi64;
   return result;
@@ -625,23 +563,22 @@ CL_TransientsCollisionMP_Debug_Draw
 */
 void CL_TransientsCollisionMP_Debug_Draw(const LocalClientNum_t localClientNum)
 {
-  __int64 v4; 
-  bool v5; 
-  const ScreenPlacement *v6; 
-  const dvar_t *v7; 
+  __int64 v1; 
+  bool v2; 
+  const ScreenPlacement *v3; 
+  const dvar_t *v4; 
+  float integer; 
+  const dvar_t *v6; 
+  float v7; 
+  float v8; 
+  const dvar_t *v9; 
+  float v10; 
   const dvar_t *v11; 
-  const dvar_t *v15; 
-  const dvar_t *v20; 
-  const dvar_t *v23; 
+  const dvar_t *v12; 
   float x; 
   float y; 
 
-  v4 = localClientNum;
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm6
-    vmovaps [rsp+78h+var_38], xmm7
-  }
+  v1 = localClientNum;
   if ( (unsigned int)localClientNum > LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_collision_mp.cpp", 1758, ASSERT_TYPE_ASSERT, "(localClientNum >= LOCAL_CLIENT_0 && localClientNum <= 2)", (const char *)&queryFormat, "localClientNum >= LOCAL_CLIENT_0 && localClientNum <= STATIC_MAX_LOCAL_CLIENTS") )
     __debugbreak();
   if ( activeScreenPlacementMode == SCRMODE_FULL )
@@ -649,93 +586,59 @@ void CL_TransientsCollisionMP_Debug_Draw(const LocalClientNum_t localClientNum)
   if ( activeScreenPlacementMode != SCRMODE_DISPLAY )
   {
     if ( activeScreenPlacementMode == SCRMODE_INVALID )
-      v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
+      v2 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 127, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "ScrPlace_GetActivePlacement() called when outside of a valid render loop.");
     else
-      v5 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
-    if ( v5 )
+      v2 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\screen_placement.h", 130, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "Unsupported activeScreenPlacementMode");
+    if ( v2 )
       __debugbreak();
 LABEL_10:
-    v6 = &scrPlaceFull;
+    v3 = &scrPlaceFull;
     goto LABEL_11;
   }
-  v6 = &scrPlaceViewDisplay[v4];
-  if ( !v6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_collision_mp.cpp", 1762, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
+  v3 = &scrPlaceViewDisplay[v1];
+  if ( !v3 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_collision_mp.cpp", 1762, ASSERT_TYPE_ASSERT, "(scrPlace)", (const char *)&queryFormat, "scrPlace") )
     __debugbreak();
 LABEL_11:
-  v7 = DVARINT_cl_transientCollision_debugDisplayOffsetX;
+  v4 = DVARINT_cl_transientCollision_debugDisplayOffsetX;
   if ( !DVARINT_cl_transientCollision_debugDisplayOffsetX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transientCollision_debugDisplayOffsetX") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41000000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+28h]
-  }
-  v11 = DVARINT_cl_transientCollision_debugDisplayOffsetY;
-  __asm
-  {
-    vaddss  xmm7, xmm0, xmm6
-    vmovss  [rsp+78h+x], xmm7
-  }
+  Dvar_CheckFrontendServerThread(v4);
+  integer = (float)v4->current.integer;
+  v6 = DVARINT_cl_transientCollision_debugDisplayOffsetY;
+  v7 = integer + 8.0;
+  x = integer + 8.0;
   if ( !DVARINT_cl_transientCollision_debugDisplayOffsetY && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transientCollision_debugDisplayOffsetY") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, dword ptr [rdi+28h]
-  }
-  v15 = DVARBOOL_cl_transientCollision_EnableStreamingUpdates;
-  __asm
-  {
-    vaddss  xmm6, xmm0, xmm6
-    vmovss  [rsp+78h+y], xmm6
-  }
+  Dvar_CheckFrontendServerThread(v6);
+  v8 = (float)v6->current.integer;
+  v9 = DVARBOOL_cl_transientCollision_EnableStreamingUpdates;
+  v10 = v8 + 8.0;
+  y = v10;
   if ( !DVARBOOL_cl_transientCollision_EnableStreamingUpdates && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transientCollision_EnableStreamingUpdates") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v15);
-  if ( !v15->current.enabled )
+  Dvar_CheckFrontendServerThread(v9);
+  if ( !v9->current.enabled )
   {
-    __asm
-    {
-      vmovaps xmm2, xmm6; y
-      vmovaps xmm1, xmm7; x
-    }
-    CL_TransientsCollisionMP_Debug_DrawString(v6, *(float *)&_XMM1, *(float *)&_XMM2, "MP Collision Transients position streaming disabled", &colorWhite);
-    __asm
-    {
-      vaddss  xmm0, xmm6, cs:__real@40c00000
-      vmovss  [rsp+78h+y], xmm0
-    }
+    CL_TransientsCollisionMP_Debug_DrawString(v3, v7, v10, "MP Collision Transients position streaming disabled", &colorWhite);
+    y = v10 + 6.0;
   }
-  v20 = DVARBOOL_cl_transientCollision_Overlay;
+  v11 = DVARBOOL_cl_transientCollision_Overlay;
   if ( !DVARBOOL_cl_transientCollision_Overlay && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transientCollision_Overlay") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  if ( v20->current.enabled )
+  Dvar_CheckFrontendServerThread(v11);
+  if ( v11->current.enabled )
   {
-    CL_TransientsCollisionMP_Debug_DrawTitle(v6, &x, &y, (const LocalClientNum_t)v4);
-    __asm
-    {
-      vmovss  xmm0, [rsp+78h+x]
-      vaddss  xmm1, xmm0, cs:__real@40c00000
-      vmovss  [rsp+78h+x], xmm1
-    }
-    CL_TransientsCollisionMP_Debug_DrawMinimap(v6, &x, &y, (const LocalClientNum_t)v4);
-    CL_TransientsCollisionMP_Debug_DrawMemorySummary(v6, &x, &y);
+    CL_TransientsCollisionMP_Debug_DrawTitle(v3, &x, &y, (const LocalClientNum_t)v1);
+    x = x + 6.0;
+    CL_TransientsCollisionMP_Debug_DrawMinimap(v3, &x, &y, (const LocalClientNum_t)v1);
+    CL_TransientsCollisionMP_Debug_DrawMemorySummary(v3, &x, &y);
   }
-  v23 = DVARBOOL_cl_transientCollision_debugDump;
+  v12 = DVARBOOL_cl_transientCollision_debugDump;
   if ( !DVARBOOL_cl_transientCollision_debugDump && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transientCollision_debugDump") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v23);
-  if ( v23->current.enabled )
+  Dvar_CheckFrontendServerThread(v12);
+  if ( v12->current.enabled )
     Dvar_SetBool_Internal(DVARBOOL_cl_transientCollision_debugDump, 0);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_28]
-    vmovaps xmm7, [rsp+78h+var_38]
-  }
 }
 
 /*
@@ -745,310 +648,257 @@ CL_TransientsCollisionMP_Debug_DrawMemorySummary
 */
 void CL_TransientsCollisionMP_Debug_DrawMemorySummary(const ScreenPlacement *const scrPlace, float *x, float *y)
 {
-  __int64 v4; 
+  __int64 v3; 
+  unsigned int v4; 
   unsigned int v5; 
   unsigned int v6; 
-  unsigned int v7; 
+  float *v7; 
   bool IsLoadModeInFrontend; 
-  unsigned int v10; 
+  unsigned int v9; 
+  bool v10; 
   bool v11; 
-  bool v12; 
   unsigned int TileCost; 
-  unsigned __int64 v14; 
-  unsigned int v15; 
-  char *v16; 
-  const char *v18; 
+  unsigned __int64 v13; 
+  unsigned int v14; 
+  const char *v15; 
+  const char *v16; 
+  const char *v17; 
+  unsigned int v18; 
+  unsigned int v19; 
+  unsigned int v20; 
+  unsigned __int64 v21; 
+  unsigned int v22; 
   const char *v23; 
-  const char *v28; 
+  const char *v24; 
+  unsigned int v25; 
+  unsigned int v26; 
+  unsigned __int64 v27; 
+  unsigned int v28; 
+  const char *v29; 
+  const char *v30; 
+  unsigned int v31; 
   unsigned int v32; 
-  unsigned int v33; 
+  unsigned __int64 v33; 
   unsigned int v34; 
-  unsigned __int64 v35; 
-  unsigned int v36; 
-  const char *v37; 
-  const char *v41; 
-  unsigned int v45; 
-  unsigned int v46; 
-  unsigned __int64 v47; 
-  unsigned int v48; 
-  const char *v49; 
-  const char *v53; 
-  unsigned int v57; 
-  unsigned int v58; 
-  unsigned __int64 v59; 
-  unsigned int v60; 
-  const char *v61; 
-  const char *v65; 
-  unsigned __int64 v69; 
-  unsigned int v70; 
-  unsigned int v71; 
-  const char *v72; 
+  const char *v35; 
+  const char *v36; 
+  unsigned __int64 v37; 
+  unsigned int v38; 
+  unsigned int v39; 
+  const char *v40; 
   char *fmt; 
   const vec4_t *fmta; 
   const vec4_t *fmtb; 
   const vec4_t *fmtc; 
   const vec4_t *fmtd; 
-  __int64 v82; 
-  __int64 v83; 
-  bool v84; 
-  unsigned int v85; 
-  int v86; 
-  char v90[64]; 
-  char v91[64]; 
-  char v92[64]; 
+  __int64 v46; 
+  __int64 v47; 
+  bool v48; 
+  unsigned int v49; 
+  int v50; 
+  char v54[64]; 
+  char v55[64]; 
+  char v56[64]; 
   char dest[64]; 
-  char v94[64]; 
-  char v95[64]; 
-  char v96[64]; 
-  char v97[64]; 
-  char v98[64]; 
+  char v58[64]; 
+  char v59[64]; 
+  char v60[64]; 
+  char v61[64]; 
+  char v62[64]; 
 
-  __asm { vmovaps [rsp+300h+var_40], xmm6 }
-  v4 = 0i64;
-  v86 = 0;
+  v3 = 0i64;
+  v50 = 0;
+  v4 = 0;
   v5 = 0;
+  v49 = 0;
   v6 = 0;
-  v85 = 0;
-  v7 = 0;
-  _R14 = y;
+  v7 = y;
   IsLoadModeInFrontend = CL_TransientsMP_IsLoadModeInFrontend();
-  v10 = 0;
-  v84 = IsLoadModeInFrontend;
-  v11 = IsLoadModeInFrontend;
+  v9 = 0;
+  v48 = IsLoadModeInFrontend;
+  v10 = IsLoadModeInFrontend;
   if ( (_DWORD)s_transientsCollisionMP_NumTiles )
   {
-    v12 = IsLoadModeInFrontend;
+    v11 = IsLoadModeInFrontend;
     while ( 1 )
     {
-      TileCost = CL_TransientsCollisionMP_GetTileCost(v10, v12);
-      if ( v10 >= 0x400 )
+      TileCost = CL_TransientsCollisionMP_GetTileCost(v9, v11);
+      if ( v9 >= 0x400 )
       {
-        LODWORD(v83) = 1024;
-        LODWORD(v82) = v10;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+        LODWORD(v47) = 1024;
+        LODWORD(v46) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
           __debugbreak();
       }
-      v14 = (unsigned __int64)v10 >> 5;
-      v15 = 0x80000000 >> (v10 & 0x1F);
-      if ( (v15 & s_transientsCollisionMP_LoadedTiles.array[v14]) != 0 || s_transientsCollisionMP_LoadedAllTiles )
+      v13 = (unsigned __int64)v9 >> 5;
+      v14 = 0x80000000 >> (v9 & 0x1F);
+      if ( (v14 & s_transientsCollisionMP_LoadedTiles.array[v13]) != 0 || s_transientsCollisionMP_LoadedAllTiles )
         break;
-      if ( v10 >= 0x400 )
+      if ( v9 >= 0x400 )
       {
-        LODWORD(v83) = 1024;
-        LODWORD(v82) = v10;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+        LODWORD(v47) = 1024;
+        LODWORD(v46) = v9;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
           __debugbreak();
       }
-      if ( (v15 & s_transientsCollisionMP_LoadRequestedTiles.array[v14]) != 0 || s_transientsCollisionMP_LoadRequestedAllTiles )
+      if ( (v14 & s_transientsCollisionMP_LoadRequestedTiles.array[v13]) != 0 || s_transientsCollisionMP_LoadRequestedAllTiles )
       {
-        v6 += TileCost;
+        v5 += TileCost;
 LABEL_16:
-        v7 = v85;
+        v6 = v49;
         goto LABEL_17;
       }
-      v7 = TileCost + v85;
-      v85 += TileCost;
+      v6 = TileCost + v49;
+      v49 += TileCost;
 LABEL_17:
-      if ( ++v10 >= (unsigned int)s_transientsCollisionMP_NumTiles )
+      if ( ++v9 >= (unsigned int)s_transientsCollisionMP_NumTiles )
       {
-        _R14 = y;
-        v4 = 0i64;
-        v11 = v84;
+        v7 = y;
+        v3 = 0i64;
+        v10 = v48;
         goto LABEL_19;
       }
     }
-    v5 += TileCost;
+    v4 += TileCost;
     goto LABEL_16;
   }
 LABEL_19:
-  v16 = j_va("%i Loaded Pages, %i Requested Pages, %i Unloaded Pages.", v5, v6, v7);
-  __asm { vmovss  xmm2, dword ptr [r14]; y }
-  v18 = v16;
-  _RAX = x;
-  __asm { vmovss  xmm1, dword ptr [rax]; x }
-  CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v18, &colorWhite);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@40c00000
-    vaddss  xmm0, xmm6, dword ptr [r14]
-    vmovss  dword ptr [r14], xmm0
-  }
-  v23 = j_va("%i Loaded Bytes, %i Requested Bytes, %i Unloaded Bytes.", v5 << 16, v6 << 16, v7 << 16);
-  _R13 = x;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r14]; y
-    vmovss  xmm1, dword ptr [r13+0]; x
-  }
-  CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v23, &colorWhite);
-  __asm
-  {
-    vaddss  xmm1, xmm6, dword ptr [r14]
-    vmovss  dword ptr [r14], xmm1
-  }
+  v15 = j_va("%i Loaded Pages, %i Requested Pages, %i Unloaded Pages.", v4, v5, v6);
+  CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *v7, v15, &colorWhite);
+  *v7 = *v7 + 6.0;
+  v16 = j_va("%i Loaded Bytes, %i Requested Bytes, %i Unloaded Bytes.", v4 << 16, v5 << 16, v6 << 16);
+  CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *v7, v16, &colorWhite);
+  *v7 = *v7 + 6.0;
   if ( s_transientsCollisionMP_SetupRequestedAllTiles && s_transientsCollisionMP_SetupAllTiles )
   {
     Com_sprintf(dest, 0x40ui64, "%s_cg_ls_tr", s_transientsCollisionMP_MapName);
-    v28 = j_va("%s is Loaded/Setup and costs %i pages, %i bytes", dest, s_transientsCollisionMP_LocalServerCost, s_transientsCollisionMP_LocalServerCost << 16);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r14]; y
-      vmovss  xmm1, dword ptr [r13+0]; x
-    }
-    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v28, &colorBlue);
-    __asm
-    {
-      vaddss  xmm1, xmm6, dword ptr [r14]
-      vmovss  dword ptr [r14], xmm1
-    }
+    v17 = j_va("%s is Loaded/Setup and costs %i pages, %i bytes", dest, s_transientsCollisionMP_LocalServerCost, s_transientsCollisionMP_LocalServerCost << 16);
+    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *v7, v17, &colorBlue);
+    *v7 = *v7 + 6.0;
   }
-  v32 = s_transientsCollisionMP_NumTiles;
-  v33 = 0;
+  v18 = s_transientsCollisionMP_NumTiles;
+  v19 = 0;
   if ( (_DWORD)s_transientsCollisionMP_NumTiles )
   {
     do
     {
-      LODWORD(fmt) = v33;
-      v34 = CL_TransientsCollisionMP_GetTileCost(v33, v11);
-      Com_sprintf(v94, 0x40ui64, "%s_cg_%05u_tr", s_transientsCollisionMP_MapName, fmt);
-      if ( v33 >= 0x400 )
+      LODWORD(fmt) = v19;
+      v20 = CL_TransientsCollisionMP_GetTileCost(v19, v10);
+      Com_sprintf(v58, 0x40ui64, "%s_cg_%05u_tr", s_transientsCollisionMP_MapName, fmt);
+      if ( v19 >= 0x400 )
       {
-        LODWORD(v83) = 1024;
-        LODWORD(v82) = v33;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+        LODWORD(v47) = 1024;
+        LODWORD(v46) = v19;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
           __debugbreak();
       }
-      v35 = (unsigned __int64)v33 >> 5;
-      v36 = 0x80000000 >> (v33 & 0x1F);
-      if ( (v36 & s_transientsCollisionMP_SetupRequestedTiles.array[v35]) != 0 )
+      v21 = (unsigned __int64)v19 >> 5;
+      v22 = 0x80000000 >> (v19 & 0x1F);
+      if ( (v22 & s_transientsCollisionMP_SetupRequestedTiles.array[v21]) != 0 )
       {
-        if ( v33 >= 0x400 )
+        if ( v19 >= 0x400 )
         {
-          LODWORD(v83) = 1024;
-          LODWORD(v82) = v33;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+          LODWORD(v47) = 1024;
+          LODWORD(v46) = v19;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
             __debugbreak();
         }
-        if ( (v36 & s_transientsCollisionMP_SetupTiles.array[v35]) != 0 )
+        if ( (v22 & s_transientsCollisionMP_SetupTiles.array[v21]) != 0 )
         {
-          v37 = j_va("%s is Loaded/Setup and costs %i pages, %i bytes", v94, v34, v34 << 16);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [r14]; y
-            vmovss  xmm1, dword ptr [r13+0]; x
-          }
-          CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v37, &colorBlue);
-          __asm
-          {
-            vaddss  xmm1, xmm6, dword ptr [r14]
-            vmovss  dword ptr [r14], xmm1
-          }
+          v23 = j_va("%s is Loaded/Setup and costs %i pages, %i bytes", v58, v20, v20 << 16);
+          CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *v7, v23, &colorBlue);
+          *v7 = *v7 + 6.0;
         }
       }
-      v32 = s_transientsCollisionMP_NumTiles;
-      ++v33;
-      v11 = v84;
+      v18 = s_transientsCollisionMP_NumTiles;
+      ++v19;
+      v10 = v48;
     }
-    while ( v33 < (unsigned int)s_transientsCollisionMP_NumTiles );
-    v4 = 0i64;
+    while ( v19 < (unsigned int)s_transientsCollisionMP_NumTiles );
+    v3 = 0i64;
   }
   if ( s_transientsCollisionMP_SetupRequestedAllTiles )
   {
     if ( s_transientsCollisionMP_SetupAllTiles )
       goto LABEL_40;
-    Com_sprintf(v95, 0x40ui64, "%s_cg_ls_tr", s_transientsCollisionMP_MapName);
-    v41 = j_va("%s is Loaded/Setting up and costs %i pages, %i bytes", v95, s_transientsCollisionMP_LocalServerCost, s_transientsCollisionMP_LocalServerCost << 16);
+    Com_sprintf(v59, 0x40ui64, "%s_cg_ls_tr", s_transientsCollisionMP_MapName);
+    v24 = j_va("%s is Loaded/Setting up and costs %i pages, %i bytes", v59, s_transientsCollisionMP_LocalServerCost, s_transientsCollisionMP_LocalServerCost << 16);
     fmta = &colorGreen;
   }
   else
   {
     if ( !s_transientsCollisionMP_SetupAllTiles )
       goto LABEL_40;
-    Com_sprintf(v96, 0x40ui64, "%s_cg_ls_tr", s_transientsCollisionMP_MapName);
-    v41 = j_va("%s is Loaded/Shutting down and costs %i pages, %i bytes", v96, s_transientsCollisionMP_LocalServerCost, s_transientsCollisionMP_LocalServerCost << 16);
+    Com_sprintf(v60, 0x40ui64, "%s_cg_ls_tr", s_transientsCollisionMP_MapName);
+    v24 = j_va("%s is Loaded/Shutting down and costs %i pages, %i bytes", v60, s_transientsCollisionMP_LocalServerCost, s_transientsCollisionMP_LocalServerCost << 16);
     fmta = &colorDkGreen;
   }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r14]; y
-    vmovss  xmm1, dword ptr [r13+0]; x
-  }
-  CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v41, fmta);
-  __asm { vaddss  xmm1, xmm6, dword ptr [r14] }
-  v32 = s_transientsCollisionMP_NumTiles;
-  __asm { vmovss  dword ptr [r14], xmm1 }
+  CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *v7, v24, fmta);
+  v18 = s_transientsCollisionMP_NumTiles;
+  *v7 = *v7 + 6.0;
 LABEL_40:
-  v45 = 0;
-  if ( v32 )
+  v25 = 0;
+  if ( v18 )
   {
     while ( 1 )
     {
-      LODWORD(fmt) = v45;
-      v46 = CL_TransientsCollisionMP_GetTileCost(v45, v84);
-      Com_sprintf(v91, 0x40ui64, "%s_cg_%05u_tr", s_transientsCollisionMP_MapName, fmt);
-      if ( v45 >= 0x400 )
+      LODWORD(fmt) = v25;
+      v26 = CL_TransientsCollisionMP_GetTileCost(v25, v48);
+      Com_sprintf(v55, 0x40ui64, "%s_cg_%05u_tr", s_transientsCollisionMP_MapName, fmt);
+      if ( v25 >= 0x400 )
       {
-        LODWORD(v83) = 1024;
-        LODWORD(v82) = v45;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+        LODWORD(v47) = 1024;
+        LODWORD(v46) = v25;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
           __debugbreak();
       }
-      v47 = (unsigned __int64)v45 >> 5;
-      v48 = 0x80000000 >> (v45 & 0x1F);
-      if ( (v48 & s_transientsCollisionMP_SetupRequestedTiles.array[v47]) == 0 )
-        goto LABEL_128;
-      if ( v45 >= 0x400 )
+      v27 = (unsigned __int64)v25 >> 5;
+      v28 = 0x80000000 >> (v25 & 0x1F);
+      if ( (v28 & s_transientsCollisionMP_SetupRequestedTiles.array[v27]) == 0 )
+        goto LABEL_127;
+      if ( v25 >= 0x400 )
       {
-        LODWORD(v83) = 1024;
-        LODWORD(v82) = v45;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+        LODWORD(v47) = 1024;
+        LODWORD(v46) = v25;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
           __debugbreak();
       }
-      if ( (v48 & s_transientsCollisionMP_SetupTiles.array[v47]) != 0 )
+      if ( (v28 & s_transientsCollisionMP_SetupTiles.array[v27]) != 0 )
       {
-LABEL_128:
-        if ( v45 >= 0x400 )
+LABEL_127:
+        if ( v25 >= 0x400 )
         {
-          LODWORD(v83) = 1024;
-          LODWORD(v82) = v45;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+          LODWORD(v47) = 1024;
+          LODWORD(v46) = v25;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
             __debugbreak();
         }
-        if ( (v48 & s_transientsCollisionMP_SetupRequestedTiles.array[v47]) != 0 )
+        if ( (v28 & s_transientsCollisionMP_SetupRequestedTiles.array[v27]) != 0 )
           goto LABEL_60;
-        if ( v45 >= 0x400 )
+        if ( v25 >= 0x400 )
         {
-          LODWORD(v83) = 1024;
-          LODWORD(v82) = v45;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+          LODWORD(v47) = 1024;
+          LODWORD(v46) = v25;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
             __debugbreak();
         }
-        if ( (v48 & s_transientsCollisionMP_SetupTiles.array[v47]) == 0 )
+        if ( (v28 & s_transientsCollisionMP_SetupTiles.array[v27]) == 0 )
           goto LABEL_60;
-        v49 = j_va("%s is Loaded/Shutting down and costs %i pages, %i bytes", v91, v46, v46 << 16);
+        v29 = j_va("%s is Loaded/Shutting down and costs %i pages, %i bytes", v55, v26, v26 << 16);
         fmtb = &colorDkGreen;
       }
       else
       {
-        v49 = j_va("%s is Loaded/Setting up and costs %i pages, %i bytes", v91, v46, v46 << 16);
+        v29 = j_va("%s is Loaded/Setting up and costs %i pages, %i bytes", v55, v26, v26 << 16);
         fmtb = &colorGreen;
       }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r14]; y
-        vmovss  xmm1, dword ptr [r13+0]; x
-      }
-      CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v49, fmtb);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [r14]
-        vmovss  dword ptr [r14], xmm1
-      }
+      CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *v7, v29, fmtb);
+      *v7 = *v7 + 6.0;
 LABEL_60:
-      v32 = s_transientsCollisionMP_NumTiles;
-      if ( ++v45 >= (unsigned int)s_transientsCollisionMP_NumTiles )
+      v18 = s_transientsCollisionMP_NumTiles;
+      if ( ++v25 >= (unsigned int)s_transientsCollisionMP_NumTiles )
       {
-        v4 = 0i64;
+        v3 = 0i64;
         break;
       }
     }
@@ -1059,209 +909,178 @@ LABEL_60:
     {
       if ( s_transientsCollisionMP_LoadedAllTiles )
         goto LABEL_70;
-      Com_sprintf(v97, 0x40ui64, "%s_cg_ls_tr", s_transientsCollisionMP_MapName);
-      v53 = j_va("%s is Loading and costs %i pages, %i bytes", v97, s_transientsCollisionMP_LocalServerCost, s_transientsCollisionMP_LocalServerCost << 16);
+      Com_sprintf(v61, 0x40ui64, "%s_cg_ls_tr", s_transientsCollisionMP_MapName);
+      v30 = j_va("%s is Loading and costs %i pages, %i bytes", v61, s_transientsCollisionMP_LocalServerCost, s_transientsCollisionMP_LocalServerCost << 16);
       fmtc = &colorYellow;
     }
     else
     {
       if ( !s_transientsCollisionMP_LoadedAllTiles )
         goto LABEL_70;
-      Com_sprintf(v98, 0x40ui64, "%s_cg_ls_tr", s_transientsCollisionMP_MapName);
-      v53 = j_va("%s is Unloading and costs %i pages, %i bytes", v98, s_transientsCollisionMP_LocalServerCost, s_transientsCollisionMP_LocalServerCost << 16);
+      Com_sprintf(v62, 0x40ui64, "%s_cg_ls_tr", s_transientsCollisionMP_MapName);
+      v30 = j_va("%s is Unloading and costs %i pages, %i bytes", v62, s_transientsCollisionMP_LocalServerCost, s_transientsCollisionMP_LocalServerCost << 16);
       fmtc = &colorDkYellow;
     }
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r14]; y
-      vmovss  xmm1, dword ptr [r13+0]; x
-    }
-    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v53, fmtc);
-    __asm { vaddss  xmm1, xmm6, dword ptr [r14] }
-    v32 = s_transientsCollisionMP_NumTiles;
-    __asm { vmovss  dword ptr [r14], xmm1 }
+    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *v7, v30, fmtc);
+    v18 = s_transientsCollisionMP_NumTiles;
+    *v7 = *v7 + 6.0;
   }
 LABEL_70:
-  v57 = 0;
-  if ( v32 )
+  v31 = 0;
+  if ( v18 )
   {
     while ( 1 )
     {
-      LODWORD(fmt) = v57;
-      v58 = CL_TransientsCollisionMP_GetTileCost(v57, v84);
-      Com_sprintf(v92, 0x40ui64, "%s_cg_%05u_tr", s_transientsCollisionMP_MapName, fmt);
-      if ( v57 >= 0x400 )
+      LODWORD(fmt) = v31;
+      v32 = CL_TransientsCollisionMP_GetTileCost(v31, v48);
+      Com_sprintf(v56, 0x40ui64, "%s_cg_%05u_tr", s_transientsCollisionMP_MapName, fmt);
+      if ( v31 >= 0x400 )
       {
-        LODWORD(v83) = 1024;
-        LODWORD(v82) = v57;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+        LODWORD(v47) = 1024;
+        LODWORD(v46) = v31;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
           __debugbreak();
       }
-      v59 = (unsigned __int64)v57 >> 5;
-      v60 = 0x80000000 >> (v57 & 0x1F);
-      if ( (v60 & s_transientsCollisionMP_SetupRequestedTiles.array[v59]) != 0 )
-        goto LABEL_129;
-      if ( v57 >= 0x400 )
+      v33 = (unsigned __int64)v31 >> 5;
+      v34 = 0x80000000 >> (v31 & 0x1F);
+      if ( (v34 & s_transientsCollisionMP_SetupRequestedTiles.array[v33]) != 0 )
+        goto LABEL_128;
+      if ( v31 >= 0x400 )
       {
-        LODWORD(v83) = 1024;
-        LODWORD(v82) = v57;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+        LODWORD(v47) = 1024;
+        LODWORD(v46) = v31;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
           __debugbreak();
       }
-      if ( (v60 & s_transientsCollisionMP_SetupTiles.array[v59]) != 0 )
-        goto LABEL_129;
-      if ( v57 >= 0x400 )
+      if ( (v34 & s_transientsCollisionMP_SetupTiles.array[v33]) != 0 )
+        goto LABEL_128;
+      if ( v31 >= 0x400 )
       {
-        LODWORD(v83) = 1024;
-        LODWORD(v82) = v57;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+        LODWORD(v47) = 1024;
+        LODWORD(v46) = v31;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
           __debugbreak();
       }
-      if ( (v60 & s_transientsCollisionMP_LoadRequestedTiles.array[v59]) == 0 )
-        goto LABEL_129;
-      if ( v57 >= 0x400 )
+      if ( (v34 & s_transientsCollisionMP_LoadRequestedTiles.array[v33]) == 0 )
+        goto LABEL_128;
+      if ( v31 >= 0x400 )
       {
-        LODWORD(v83) = 1024;
-        LODWORD(v82) = v57;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+        LODWORD(v47) = 1024;
+        LODWORD(v46) = v31;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
           __debugbreak();
       }
-      if ( (v60 & s_transientsCollisionMP_LoadedTiles.array[v59]) != 0 )
+      if ( (v34 & s_transientsCollisionMP_LoadedTiles.array[v33]) != 0 )
       {
-LABEL_129:
-        if ( v57 >= 0x400 )
+LABEL_128:
+        if ( v31 >= 0x400 )
         {
-          LODWORD(v83) = 1024;
-          LODWORD(v82) = v57;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+          LODWORD(v47) = 1024;
+          LODWORD(v46) = v31;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
             __debugbreak();
         }
-        if ( (v60 & s_transientsCollisionMP_SetupRequestedTiles.array[v59]) != 0 )
+        if ( (v34 & s_transientsCollisionMP_SetupRequestedTiles.array[v33]) != 0 )
           goto LABEL_106;
-        if ( v57 >= 0x400 )
+        if ( v31 >= 0x400 )
         {
-          LODWORD(v83) = 1024;
-          LODWORD(v82) = v57;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+          LODWORD(v47) = 1024;
+          LODWORD(v46) = v31;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
             __debugbreak();
         }
-        if ( (v60 & s_transientsCollisionMP_SetupTiles.array[v59]) != 0 )
+        if ( (v34 & s_transientsCollisionMP_SetupTiles.array[v33]) != 0 )
           goto LABEL_106;
-        if ( v57 >= 0x400 )
+        if ( v31 >= 0x400 )
         {
-          LODWORD(v83) = 1024;
-          LODWORD(v82) = v57;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+          LODWORD(v47) = 1024;
+          LODWORD(v46) = v31;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
             __debugbreak();
         }
-        if ( (v60 & s_transientsCollisionMP_LoadRequestedTiles.array[v59]) != 0 )
+        if ( (v34 & s_transientsCollisionMP_LoadRequestedTiles.array[v33]) != 0 )
           goto LABEL_106;
-        if ( v57 >= 0x400 )
+        if ( v31 >= 0x400 )
         {
-          LODWORD(v83) = 1024;
-          LODWORD(v82) = v57;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+          LODWORD(v47) = 1024;
+          LODWORD(v46) = v31;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
             __debugbreak();
         }
-        if ( (v60 & s_transientsCollisionMP_LoadedTiles.array[v59]) == 0 )
+        if ( (v34 & s_transientsCollisionMP_LoadedTiles.array[v33]) == 0 )
           goto LABEL_106;
-        v61 = j_va("%s is Unloading and costs %i pages, %i bytes", v92, v58, v58 << 16);
+        v35 = j_va("%s is Unloading and costs %i pages, %i bytes", v56, v32, v32 << 16);
         fmtd = &colorDkYellow;
       }
       else
       {
-        v61 = j_va("%s is Loading and costs %i pages, %i bytes", v92, v58, v58 << 16);
+        v35 = j_va("%s is Loading and costs %i pages, %i bytes", v56, v32, v32 << 16);
         fmtd = &colorYellow;
       }
-      __asm
-      {
-        vmovss  xmm2, dword ptr [r14]; y
-        vmovss  xmm1, dword ptr [r13+0]; x
-      }
-      CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v61, fmtd);
-      __asm
-      {
-        vaddss  xmm1, xmm6, dword ptr [r14]
-        vmovss  dword ptr [r14], xmm1
-      }
+      CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *v7, v35, fmtd);
+      *v7 = *v7 + 6.0;
 LABEL_106:
-      v32 = s_transientsCollisionMP_NumTiles;
-      if ( ++v57 >= (unsigned int)s_transientsCollisionMP_NumTiles )
+      v18 = s_transientsCollisionMP_NumTiles;
+      if ( ++v31 >= (unsigned int)s_transientsCollisionMP_NumTiles )
       {
-        v4 = 0i64;
+        v3 = 0i64;
         break;
       }
     }
   }
   if ( !s_transientsCollisionMP_LoadedAllTiles && !s_transientsCollisionMP_LoadRequestedAllTiles )
   {
-    Com_sprintf(v90, 0x40ui64, "%s_cg_ls_tr", s_transientsCollisionMP_MapName);
-    v65 = j_va("%s is Unloaded and costs %i pages, %i bytes", v90, s_transientsCollisionMP_LocalServerCost, s_transientsCollisionMP_LocalServerCost << 16);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [r14]; y
-      vmovss  xmm1, dword ptr [r13+0]; x
-    }
-    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v65, &colorRed);
-    __asm { vaddss  xmm1, xmm6, dword ptr [r14] }
-    v32 = s_transientsCollisionMP_NumTiles;
-    __asm { vmovss  dword ptr [r14], xmm1 }
+    Com_sprintf(v54, 0x40ui64, "%s_cg_ls_tr", s_transientsCollisionMP_MapName);
+    v36 = j_va("%s is Unloaded and costs %i pages, %i bytes", v54, s_transientsCollisionMP_LocalServerCost, s_transientsCollisionMP_LocalServerCost << 16);
+    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *v7, v36, &colorRed);
+    v18 = s_transientsCollisionMP_NumTiles;
+    *v7 = *v7 + 6.0;
   }
-  if ( v32 )
+  if ( v18 )
   {
     do
     {
-      v69 = s_transientsCollisionMP_SortedTileIndices[v4];
-      if ( (unsigned int)v69 >= v32 )
+      v37 = s_transientsCollisionMP_SortedTileIndices[v3];
+      if ( (unsigned int)v37 >= v18 )
       {
-        LODWORD(v83) = v32;
-        LODWORD(v82) = s_transientsCollisionMP_SortedTileIndices[v4];
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_collision_mp.cpp", 1714, ASSERT_TYPE_ASSERT, "(unsigned)( tileIdx ) < (unsigned)( s_transientsCollisionMP_NumTiles )", "tileIdx doesn't index s_transientsCollisionMP_NumTiles\n\t%i not in [0, %i)", v82, v83) )
+        LODWORD(v47) = v18;
+        LODWORD(v46) = s_transientsCollisionMP_SortedTileIndices[v3];
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_collision_mp.cpp", 1714, ASSERT_TYPE_ASSERT, "(unsigned)( tileIdx ) < (unsigned)( s_transientsCollisionMP_NumTiles )", "tileIdx doesn't index s_transientsCollisionMP_NumTiles\n\t%i not in [0, %i)", v46, v47) )
           __debugbreak();
       }
-      LODWORD(fmt) = v69;
-      v70 = CL_TransientsCollisionMP_GetTileCost(v69, v84);
-      Com_sprintf(v90, 0x40ui64, "%s_cg_%05u_tr", s_transientsCollisionMP_MapName, fmt);
-      if ( (unsigned int)v69 >= 0x400 )
+      LODWORD(fmt) = v37;
+      v38 = CL_TransientsCollisionMP_GetTileCost(v37, v48);
+      Com_sprintf(v54, 0x40ui64, "%s_cg_%05u_tr", s_transientsCollisionMP_MapName, fmt);
+      if ( (unsigned int)v37 >= 0x400 )
       {
-        LODWORD(v83) = 1024;
-        LODWORD(v82) = v69;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+        LODWORD(v47) = 1024;
+        LODWORD(v46) = v37;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
           __debugbreak();
       }
-      v71 = 0x80000000 >> (v69 & 0x1F);
-      if ( (v71 & s_transientsCollisionMP_LoadedTiles.array[v69 >> 5]) == 0 )
+      v39 = 0x80000000 >> (v37 & 0x1F);
+      if ( (v39 & s_transientsCollisionMP_LoadedTiles.array[v37 >> 5]) == 0 )
       {
-        if ( (unsigned int)v69 >= 0x400 )
+        if ( (unsigned int)v37 >= 0x400 )
         {
-          LODWORD(v83) = 1024;
-          LODWORD(v82) = v69;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v82, v83) )
+          LODWORD(v47) = 1024;
+          LODWORD(v46) = v37;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v46, v47) )
             __debugbreak();
         }
-        if ( (v71 & s_transientsCollisionMP_LoadRequestedTiles.array[v69 >> 5]) == 0 )
+        if ( (v39 & s_transientsCollisionMP_LoadRequestedTiles.array[v37 >> 5]) == 0 )
         {
-          v72 = j_va("%s is Unloaded and costs %i pages, %i bytes", v90, v70, v70 << 16);
-          __asm
-          {
-            vmovss  xmm2, dword ptr [r14]; y
-            vmovss  xmm1, dword ptr [r13+0]; x
-          }
-          CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v72, &colorRed);
-          __asm
-          {
-            vaddss  xmm1, xmm6, dword ptr [r14]
-            vmovss  dword ptr [r14], xmm1
-          }
+          v40 = j_va("%s is Unloaded and costs %i pages, %i bytes", v54, v38, v38 << 16);
+          CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *v7, v40, &colorRed);
+          *v7 = *v7 + 6.0;
         }
       }
-      v32 = s_transientsCollisionMP_NumTiles;
-      v4 = (unsigned int)(v86 + 1);
-      v86 = v4;
+      v18 = s_transientsCollisionMP_NumTiles;
+      v3 = (unsigned int)(v50 + 1);
+      v50 = v3;
     }
-    while ( (unsigned int)v4 < (unsigned int)s_transientsCollisionMP_NumTiles );
+    while ( (unsigned int)v3 < (unsigned int)s_transientsCollisionMP_NumTiles );
   }
-  __asm { vmovaps xmm6, [rsp+300h+var_40] }
 }
 
 /*
@@ -1271,87 +1090,50 @@ CL_TransientsCollisionMP_Debug_DrawMinimap
 */
 void CL_TransientsCollisionMP_Debug_DrawMinimap(const ScreenPlacement *const scrPlace, float *x, float *y, const LocalClientNum_t localClientNum)
 {
-  const char *v19; 
-  const char *v24; 
-  const char *v28; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  const char *v11; 
+  const char *v12; 
+  const char *v13; 
+  float v14; 
   cg_t *LocalClientGlobals; 
-  int v48; 
-  unsigned int v49; 
-  unsigned int v50; 
-  unsigned int v69; 
+  int v16; 
+  __int64 v17; 
+  unsigned int v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  unsigned int v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
   bool IsLoadModeInFrontend; 
   unsigned int TileCost; 
-  const char *v79; 
-  const char *v82; 
-  float setColor; 
-  float setColora; 
-  float setColorb; 
-  float setColorc; 
+  const char *v30; 
+  const char *v31; 
   __int64 horzAlign; 
   __int64 vertAlign; 
-  float color; 
-  float v110; 
-  float v111; 
-  float v112; 
-  float v113; 
-  vec4_t v114; 
-  void *retaddr; 
+  vec4_t color; 
+  __int128 v35; 
+  __int128 v36; 
+  __int128 v37; 
 
-  _R11 = &retaddr;
-  _RSI = y;
-  _R14 = x;
   if ( (_DWORD)s_transientsCollisionMP_NumTiles )
   {
-    __asm
-    {
-      vmovaps xmmword ptr [r11-68h], xmm8
-      vmovaps xmmword ptr [r11-98h], xmm11
-      vmovaps xmmword ptr [r11-0B8h], xmm13
-      vmovaps xmmword ptr [r11-0C8h], xmm14
-      vmovaps xmmword ptr [r11-0D8h], xmm15
-    }
-    v19 = j_va("Red:Unloaded, Yellow:Streaming, Green:Loaded, Blue:Setup.");
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [r14]; x
-    }
-    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v19, &colorWhite);
-    __asm
-    {
-      vmovss  xmm14, cs:__real@40c00000
-      vaddss  xmm0, xmm14, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm0
-    }
-    v24 = j_va("Colored Numbers show memory in %i byte pages", 0x10000i64);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [r14]; x
-    }
-    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v24, &colorWhite);
-    __asm
-    {
-      vaddss  xmm1, xmm14, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-    }
-    v28 = j_va("White Numbers show transient collision file number");
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rsi]; y
-      vmovss  xmm1, dword ptr [r14]; x
-    }
-    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v28, &colorWhite);
-    __asm
-    {
-      vaddss  xmm2, xmm14, dword ptr [rsi]; y
-      vmovss  xmm15, cs:__real@43c00000
-      vmovss  dword ptr [rsi], xmm2
-      vmovss  xmm1, dword ptr [r14]; x
-      vmovaps xmm3, xmm15; width
-      vmovss  dword ptr [rsp+178h+setColor], xmm15
-    }
-    UI_FillRect(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColor, 1, 1, &colorBlack);
+    v11 = j_va("Red:Unloaded, Yellow:Streaming, Green:Loaded, Blue:Setup.");
+    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *y, v11, &colorWhite);
+    *y = *y + 6.0;
+    v12 = j_va("Colored Numbers show memory in %i byte pages", 0x10000i64);
+    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *y, v12, &colorWhite);
+    *y = *y + 6.0;
+    v13 = j_va("White Numbers show transient collision file number");
+    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *x, *y, v13, &colorWhite);
+    v14 = *y + 6.0;
+    *y = v14;
+    UI_FillRect(scrPlace, *x, v14, 384.0, 384.0, 1, 1, &colorBlack);
     if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
     {
       LODWORD(vertAlign) = 2;
@@ -1359,176 +1141,68 @@ void CL_TransientsCollisionMP_Debug_DrawMinimap(const ScreenPlacement *const scr
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", horzAlign, vertAlign) )
         __debugbreak();
     }
-    __asm
-    {
-      vmovss  xmm11, cs:__real@3ac00000
-      vmovss  xmm13, cs:__real@3f800000
-    }
     if ( localClientNum < cg_t::ms_allocatedCount )
     {
       LocalClientGlobals = CG_GetLocalClientGlobals(localClientNum);
       if ( LocalClientGlobals )
       {
         if ( LocalClientGlobals->compassMapMaterial )
-        {
-          __asm
-          {
-            vmovss  xmm3, cs:__real@43400000
-            vmulss  xmm1, xmm11, dword ptr [rax+4A018h]
-            vmulss  xmm2, xmm11, dword ptr [rax+4A01Ch]
-            vmulss  xmm4, xmm11, dword ptr [rax+4A024h]
-            vaddss  xmm1, xmm1, xmm3
-            vaddss  xmm5, xmm1, dword ptr [r14]
-            vxorps  xmm0, xmm0, xmm0
-            vmovss  [rsp+178h+var_120], xmm0
-            vmovss  [rsp+178h+var_128], xmm13
-            vmovss  [rsp+178h+var_130], xmm13
-            vmovss  [rsp+178h+var_138], xmm0
-            vsubss  xmm1, xmm3, xmm2
-            vaddss  xmm2, xmm1, dword ptr [rsi]; y
-            vmulss  xmm3, xmm11, dword ptr [rax+4A020h]; w
-            vmovss  dword ptr [rsp+178h+color], xmm0
-            vmovaps xmm1, xmm5; x
-            vmovss  dword ptr [rsp+178h+setColor], xmm4
-          }
-          CL_DrawRotatedStretchPicWithoutSplitScreenScaling(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColora, 1, 1, color, v110, v111, v112, v113, 0, &colorWhite, LocalClientGlobals->compassMapMaterial);
-        }
+          CL_DrawRotatedStretchPicWithoutSplitScreenScaling(scrPlace, (float)((float)(0.0014648438 * LocalClientGlobals->compassMapUpperLeft.v[0]) + 192.0) + *x, (float)(192.0 - (float)(0.0014648438 * LocalClientGlobals->compassMapUpperLeft.v[1])) + *y, 0.0014648438 * LocalClientGlobals->compassMapWorldSize.v[0], 0.0014648438 * LocalClientGlobals->compassMapWorldSize.v[1], 1, 1, 0.0, 0.0, 1.0, 1.0, 0.0, 0, &colorWhite, LocalClientGlobals->compassMapMaterial);
       }
     }
-    v48 = s_transientsCollisionMP_NumTiles;
-    v49 = 0;
-    __asm { vmovaps [rsp+178h+var_48], xmm6 }
-    v50 = 0;
-    __asm
-    {
-      vmovaps [rsp+178h+var_58], xmm7
-      vmovss  xmm8, cs:__real@41400000
-    }
+    v16 = s_transientsCollisionMP_NumTiles;
+    v17 = 0i64;
+    v18 = 0;
     if ( (_DWORD)s_transientsCollisionMP_NumTiles )
     {
-      __asm
-      {
-        vmovaps [rsp+178h+var_78], xmm9
-        vmovss  xmm9, cs:__real@3f000000
-        vmovaps [rsp+178h+var_88], xmm10
-        vmovss  xmm10, cs:__real@41300000
-        vmovaps [rsp+178h+var_A8], xmm12
-        vmovss  xmm12, cs:__real@3e99999a
-      }
+      v37 = v4;
+      v36 = v5;
+      v35 = v6;
       do
       {
-        __asm
-        {
-          vmovss  xmm7, dword ptr [rsi]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, xmm8
-          vaddss  xmm6, xmm1, dword ptr [r14]
-          vmovss  dword ptr [rsp+178h+var_F8+0Ch], xmm12
-        }
-        CL_TransientsCollisionMP_Debug_GetTileColor(v50, &v114);
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, xmm8
-          vaddss  xmm2, xmm1, xmm7
-          vaddss  xmm2, xmm2, xmm9; y
-          vaddss  xmm1, xmm6, xmm9; x
-          vmovaps xmm3, xmm10; width
-          vmovss  dword ptr [rsp+178h+setColor], xmm10
-        }
-        UI_FillRect(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorb, 1, 1, &v114);
-        v48 = s_transientsCollisionMP_NumTiles;
-        ++v50;
+        v19 = *y;
+        v20 = (float)(v18 & 0x1F);
+        v21 = (float)(v20 * 12.0) + *x;
+        color.v[3] = FLOAT_0_30000001;
+        CL_TransientsCollisionMP_Debug_GetTileColor(v18, &color);
+        v22 = (float)(31 - (v18 >> 5));
+        UI_FillRect(scrPlace, v21 + 0.5, (float)((float)(v22 * 12.0) + v19) + 0.5, 11.0, 11.0, 1, 1, &color);
+        v16 = s_transientsCollisionMP_NumTiles;
+        ++v18;
       }
-      while ( v50 < (unsigned int)s_transientsCollisionMP_NumTiles );
-      __asm
-      {
-        vmovaps xmm12, [rsp+178h+var_A8]
-        vmovaps xmm10, [rsp+178h+var_88]
-        vmovaps xmm9, [rsp+178h+var_78]
-      }
+      while ( v18 < (unsigned int)s_transientsCollisionMP_NumTiles );
     }
-    v69 = 0;
-    if ( v48 )
+    v23 = 0;
+    if ( v16 )
     {
       do
       {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, xmm8
-          vaddss  xmm7, xmm1, dword ptr [rsi]
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rax
-          vmulss  xmm1, xmm0, xmm8
-          vaddss  xmm6, xmm1, dword ptr [r14]
-          vmovss  dword ptr [rsp+178h+var_F8+0Ch], xmm13
-        }
-        CL_TransientsCollisionMP_Debug_GetTileColor(v69, &v114);
+        v24 = (float)(31 - (v23 >> 5));
+        v25 = (float)(v24 * 12.0) + *y;
+        v26 = (float)(v23 & 0x1F);
+        v27 = (float)(v26 * 12.0) + *x;
+        color.v[3] = FLOAT_1_0;
+        CL_TransientsCollisionMP_Debug_GetTileColor(v23, &color);
         IsLoadModeInFrontend = CL_TransientsMP_IsLoadModeInFrontend();
-        TileCost = CL_TransientsCollisionMP_GetTileCost(v69, IsLoadModeInFrontend);
-        v79 = j_va("%i", TileCost);
-        __asm
-        {
-          vmovaps xmm2, xmm7; y
-          vmovaps xmm1, xmm6; x
-        }
-        CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v79, &v114);
-        v82 = j_va("%i", v69);
-        __asm
-        {
-          vaddss  xmm2, xmm7, xmm14; y
-          vmovaps xmm1, xmm6; x
-        }
-        CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v82, &colorWhite);
-        ++v69;
+        TileCost = CL_TransientsCollisionMP_GetTileCost(v23, IsLoadModeInFrontend);
+        v30 = j_va("%i", TileCost);
+        CL_TransientsCollisionMP_Debug_DrawString(scrPlace, v27, v25, v30, &color);
+        v31 = j_va("%i", v23);
+        CL_TransientsCollisionMP_Debug_DrawString(scrPlace, v27, v25 + 6.0, v31, &colorWhite);
+        ++v23;
       }
-      while ( v69 < (unsigned int)s_transientsCollisionMP_NumTiles );
-    }
-    __asm
-    {
-      vmovaps xmm14, [rsp+178h+var_C8]
-      vmovaps xmm13, [rsp+178h+var_B8]
+      while ( v23 < (unsigned int)s_transientsCollisionMP_NumTiles );
     }
     if ( s_transientsCollisionMP_NumStreamPositions )
     {
-      __asm
-      {
-        vmovss  xmm8, cs:__real@bac00000
-        vmovss  xmm6, cs:__real@433e0000
-        vmovss  xmm7, cs:__real@40800000
-      }
       do
       {
-        __asm
-        {
-          vmulss  xmm1, xmm8, dword ptr [rdi+rcx*4+4]
-          vaddss  xmm2, xmm1, dword ptr [rsi]
-          vmulss  xmm1, xmm11, dword ptr [rdi+rcx*4]
-          vaddss  xmm3, xmm1, dword ptr [r14]
-          vaddss  xmm1, xmm3, xmm6; x
-          vmovaps xmm3, xmm7; width
-          vaddss  xmm2, xmm2, xmm6; y
-          vmovss  dword ptr [rsp+178h+setColor], xmm7
-        }
-        UI_FillRect(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, setColorc, 1, 1, &colorBlue);
-        ++v49;
+        UI_FillRect(scrPlace, (float)((float)(0.0014648438 * s_transientsCollisionMP_StreamPositions[v17].origin.v[0]) + *x) + 190.0, (float)((float)(-0.0014648438 * s_transientsCollisionMP_StreamPositions[v17].origin.v[1]) + *y) + 190.0, 4.0, 4.0, 1, 1, &colorBlue);
+        v17 = (unsigned int)(v17 + 1);
       }
-      while ( v49 < s_transientsCollisionMP_NumStreamPositions );
+      while ( (unsigned int)v17 < s_transientsCollisionMP_NumStreamPositions );
     }
-    __asm
-    {
-      vaddss  xmm1, xmm15, dword ptr [rsi]
-      vmovaps xmm15, [rsp+178h+var_D8]
-      vmovaps xmm11, [rsp+178h+var_98]
-      vmovaps xmm8, [rsp+178h+var_68]
-      vmovaps xmm7, [rsp+178h+var_58]
-      vmovaps xmm6, [rsp+178h+var_48]
-      vmovss  dword ptr [rsi], xmm1
-    }
+    *y = *y + 384.0;
   }
 }
 
@@ -1538,63 +1212,42 @@ CL_TransientsCollisionMP_Debug_DrawString
 ==============
 */
 
-void __fastcall CL_TransientsCollisionMP_Debug_DrawString(const ScreenPlacement *scrPlace, double x, double y, const char *string)
+void __fastcall CL_TransientsCollisionMP_Debug_DrawString(const ScreenPlacement *scrPlace, double x, float y, const char *string, const vec4_t *setColor)
 {
-  const dvar_t *v11; 
-  const dvar_t *v12; 
-  char v16; 
-  char v17; 
+  __int128 v6; 
+  const dvar_t *v7; 
+  const dvar_t *v8; 
+  float v9; 
+  __int128 v10; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm2, xmm0
-    vmovaps [rsp+88h+var_18], xmm6
-    vmovaps xmm6, xmm1
-    vcomiss xmm2, cs:__real@44870000
-  }
-  v11 = DVARBOOL_cl_transientCollision_debugDump;
+  v6 = *(_OWORD *)&x;
+  if ( y > 0.0 && y < 1080.0 )
+    CG_DrawStringExt(scrPlace, *(float *)&x, y, string, setColor, 0, 1, 6.0, 0);
+  v7 = DVARBOOL_cl_transientCollision_debugDump;
   if ( !DVARBOOL_cl_transientCollision_debugDump && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transientCollision_debugDump") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  if ( v11->current.enabled )
+  Dvar_CheckFrontendServerThread(v7);
+  if ( v7->current.enabled )
   {
-    v12 = DVARINT_cl_transientCollision_debugDisplayOffsetX;
-    __asm { vmovaps [rsp+88h+var_28], xmm7 }
+    v8 = DVARINT_cl_transientCollision_debugDisplayOffsetX;
     if ( !DVARINT_cl_transientCollision_debugDisplayOffsetX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_transientCollision_debugDisplayOffsetX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    __asm
+    Dvar_CheckFrontendServerThread(v8);
+    v9 = (float)v8->current.integer + 8.0;
+    if ( *(float *)&x > v9 )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, dword ptr [rbx+28h]
-      vaddss  xmm7, xmm0, cs:__real@41000000
-      vcomiss xmm6, xmm7
-    }
-    if ( !(v16 | v17) )
-    {
-      __asm
-      {
-        vmovaps [rsp+88h+var_38], xmm8
-        vmovss  xmm8, cs:__real@c0c00000
-      }
       do
       {
         Com_Printf(14, " ");
-        __asm
-        {
-          vaddss  xmm6, xmm6, xmm8
-          vcomiss xmm6, xmm7
-        }
+        v10 = v6;
+        *(float *)&v10 = *(float *)&v6 + -6.0;
+        v6 = v10;
       }
-      while ( !(v16 | v17) );
-      __asm { vmovaps xmm8, [rsp+88h+var_38] }
+      while ( *(float *)&v10 > v9 );
     }
     Com_Printf(14, (const char *)&queryFormat, string);
     Com_Printf(14, "\n");
-    __asm { vmovaps xmm7, [rsp+88h+var_28] }
   }
-  __asm { vmovaps xmm6, [rsp+88h+var_18] }
 }
 
 /*
@@ -1610,31 +1263,18 @@ void CL_TransientsCollisionMP_Debug_DrawTitle(const ScreenPlacement *const scrPl
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
   unsigned __int16 TileForPos; 
-  const char *v18; 
+  const char *v14; 
   int setColora; 
   vec4_t *setColor; 
   vec3_t pos; 
-  __int64 v26; 
+  __int64 v18; 
   char dest[64]; 
 
-  v26 = -2i64;
-  _RBX = y;
-  _RBP = x;
+  v18 = -2i64;
   setColora = CL_TransientsCollisionMP_GetBudgetBytes() >> 20;
   v8 = j_va("MP Collision Transients for %s - %i files - loading mode %s up to %iMB", s_transientsCollisionMP_MapName, (unsigned int)s_transientsCollisionMP_NumTiles, CL_TRANSIENTS_COLLISION_MP_TRANSIENTMODE_NAMES[s_transientsCollisionMP_TransientMode], setColora);
-  setColor = &colorWhite;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rbx]; y
-    vmovss  xmm1, dword ptr [rbp+0]; x
-  }
-  CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v8);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vaddss  xmm0, xmm0, cs:__real@40c00000
-    vmovss  dword ptr [rbx], xmm0
-  }
+  CL_TransientsCollisionMP_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v8, &colorWhite);
+  *y = *y + 6.0;
   if ( (_DWORD)s_transientsCollisionMP_NumTiles )
   {
     if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_globals.h", 1193, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
@@ -1659,26 +1299,16 @@ void CL_TransientsCollisionMP_Debug_DrawTitle(const ScreenPlacement *const scrPl
     if ( TileForPos == 0xFFFF )
     {
 LABEL_15:
-      v18 = j_va("No Tile");
+      v14 = j_va("No Tile");
     }
     else
     {
       LODWORD(setColor) = TileForPos;
       Com_sprintf(dest, 0x40ui64, "%s_cg_%05u_tr", s_transientsCollisionMP_MapName, setColor);
-      v18 = j_va("Current Tile: %s", dest);
+      v14 = j_va("Current Tile: %s", dest);
     }
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rbp+0]; x
-    }
-    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, *(double *)&_XMM1, *(double *)&_XMM2, v18);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx]
-      vaddss  xmm1, xmm0, cs:__real@40c00000
-      vmovss  dword ptr [rbx], xmm1
-    }
+    CL_TransientsCollisionMP_Debug_DrawString(scrPlace, COERCE_DOUBLE((unsigned __int64)*(_DWORD *)x), *y, v14, &colorWhite);
+    *y = *y + 6.0;
   }
 }
 
@@ -1689,243 +1319,224 @@ CL_TransientsCollisionMP_Debug_GetTileColor
 */
 void CL_TransientsCollisionMP_Debug_GetTileColor(int tileIdx, vec4_t *color)
 {
-  unsigned __int64 v6; 
-  unsigned __int64 v7; 
-  unsigned int v8; 
-  __int64 v27; 
-  __int64 v28; 
+  unsigned __int64 v3; 
+  unsigned __int64 v4; 
+  unsigned int v5; 
+  __int64 v6; 
+  __int64 v7; 
 
-  __asm
-  {
-    vmovss  xmm0, dword ptr cs:?colorOrange@@3Tvec4_t@@B; vec4_t const colorOrange
-    vmovss  dword ptr [rdx], xmm0
-    vmovss  xmm1, dword ptr cs:?colorOrange@@3Tvec4_t@@B+4; vec4_t const colorOrange
-    vmovss  dword ptr [rdx+4], xmm1
-    vmovss  xmm0, dword ptr cs:?colorOrange@@3Tvec4_t@@B+8; vec4_t const colorOrange
-    vmovss  dword ptr [rdx+8], xmm0
-  }
-  _RBX = color;
-  v6 = (unsigned int)tileIdx;
+  color->v[0] = colorOrange.v[0];
+  color->v[1] = colorOrange.v[1];
+  color->v[2] = colorOrange.v[2];
+  v3 = (unsigned int)tileIdx;
   if ( s_transientsCollisionMP_SetupRequestedAllTiles && s_transientsCollisionMP_SetupAllTiles )
     goto LABEL_11;
   if ( (unsigned int)tileIdx >= 0x400 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", tileIdx, 1024) )
     __debugbreak();
-  v7 = v6 >> 5;
-  v8 = 0x80000000 >> (v6 & 0x1F);
-  if ( (v8 & s_transientsCollisionMP_SetupRequestedTiles.array[v6 >> 5]) != 0 )
+  v4 = v3 >> 5;
+  v5 = 0x80000000 >> (v3 & 0x1F);
+  if ( (v5 & s_transientsCollisionMP_SetupRequestedTiles.array[v3 >> 5]) != 0 )
   {
-    if ( (unsigned int)v6 >= 0x400 )
+    if ( (unsigned int)v3 >= 0x400 )
     {
-      LODWORD(v28) = 1024;
-      LODWORD(v27) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+      LODWORD(v7) = 1024;
+      LODWORD(v6) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
         __debugbreak();
     }
-    if ( (v8 & s_transientsCollisionMP_SetupTiles.array[v7]) != 0 )
+    if ( (v5 & s_transientsCollisionMP_SetupTiles.array[v4]) != 0 )
     {
 LABEL_11:
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?colorBlue@@3Tvec4_t@@B; vec4_t const colorBlue
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm1, dword ptr cs:?colorBlue@@3Tvec4_t@@B+4; vec4_t const colorBlue
-        vmovss  dword ptr [rbx+4], xmm1
-        vmovss  xmm0, dword ptr cs:?colorBlue@@3Tvec4_t@@B+8; vec4_t const colorBlue
-        vmovss  dword ptr [rbx+8], xmm0
-      }
+      color->v[0] = colorBlue.v[0];
+      color->v[1] = colorBlue.v[1];
+      color->v[2] = colorBlue.v[2];
       return;
     }
   }
   if ( s_transientsCollisionMP_SetupRequestedAllTiles && !s_transientsCollisionMP_SetupAllTiles )
     goto LABEL_53;
-  if ( (unsigned int)v6 >= 0x400 )
+  if ( (unsigned int)v3 >= 0x400 )
   {
-    LODWORD(v28) = 1024;
-    LODWORD(v27) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+    LODWORD(v7) = 1024;
+    LODWORD(v6) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
       __debugbreak();
   }
-  if ( (v8 & s_transientsCollisionMP_SetupRequestedTiles.array[v7]) != 0 )
+  if ( (v5 & s_transientsCollisionMP_SetupRequestedTiles.array[v4]) != 0 )
   {
-    if ( (unsigned int)v6 >= 0x400 )
+    if ( (unsigned int)v3 >= 0x400 )
     {
-      LODWORD(v28) = 1024;
-      LODWORD(v27) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+      LODWORD(v7) = 1024;
+      LODWORD(v6) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
         __debugbreak();
     }
-    if ( (v8 & s_transientsCollisionMP_SetupTiles.array[v7]) == 0 )
+    if ( (v5 & s_transientsCollisionMP_SetupTiles.array[v4]) == 0 )
       goto LABEL_53;
   }
   if ( !s_transientsCollisionMP_SetupRequestedAllTiles && s_transientsCollisionMP_SetupAllTiles )
     goto LABEL_32;
-  if ( (unsigned int)v6 >= 0x400 )
+  if ( (unsigned int)v3 >= 0x400 )
   {
-    LODWORD(v28) = 1024;
-    LODWORD(v27) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+    LODWORD(v7) = 1024;
+    LODWORD(v6) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
       __debugbreak();
   }
-  if ( (v8 & s_transientsCollisionMP_SetupRequestedTiles.array[v7]) == 0 )
+  if ( (v5 & s_transientsCollisionMP_SetupRequestedTiles.array[v4]) == 0 )
   {
-    if ( (unsigned int)v6 >= 0x400 )
+    if ( (unsigned int)v3 >= 0x400 )
     {
-      LODWORD(v28) = 1024;
-      LODWORD(v27) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+      LODWORD(v7) = 1024;
+      LODWORD(v6) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
         __debugbreak();
     }
-    if ( (v8 & s_transientsCollisionMP_SetupTiles.array[v7]) != 0 )
+    if ( (v5 & s_transientsCollisionMP_SetupTiles.array[v4]) != 0 )
     {
 LABEL_32:
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?colorDkGreen@@3Tvec4_t@@B; vec4_t const colorDkGreen
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm1, dword ptr cs:?colorDkGreen@@3Tvec4_t@@B+4; vec4_t const colorDkGreen
-        vmovss  dword ptr [rbx+4], xmm1
-        vmovss  xmm0, dword ptr cs:?colorDkGreen@@3Tvec4_t@@B+8; vec4_t const colorDkGreen
-        vmovss  dword ptr [rbx+8], xmm0
-      }
+      color->v[0] = colorDkGreen.v[0];
+      color->v[1] = colorDkGreen.v[1];
+      color->v[2] = colorDkGreen.v[2];
       return;
     }
   }
   if ( !s_transientsCollisionMP_SetupRequestedAllTiles && !s_transientsCollisionMP_SetupAllTiles && s_transientsCollisionMP_LoadRequestedAllTiles && s_transientsCollisionMP_LoadedAllTiles )
     goto LABEL_53;
-  if ( (unsigned int)v6 >= 0x400 )
+  if ( (unsigned int)v3 >= 0x400 )
   {
-    LODWORD(v28) = 1024;
-    LODWORD(v27) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+    LODWORD(v7) = 1024;
+    LODWORD(v6) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
       __debugbreak();
   }
-  if ( (v8 & s_transientsCollisionMP_SetupRequestedTiles.array[v7]) != 0 )
+  if ( (v5 & s_transientsCollisionMP_SetupRequestedTiles.array[v4]) != 0 )
     goto LABEL_57;
-  if ( (unsigned int)v6 >= 0x400 )
+  if ( (unsigned int)v3 >= 0x400 )
   {
-    LODWORD(v28) = 1024;
-    LODWORD(v27) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+    LODWORD(v7) = 1024;
+    LODWORD(v6) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
       __debugbreak();
   }
-  if ( (v8 & s_transientsCollisionMP_SetupTiles.array[v7]) != 0 )
+  if ( (v5 & s_transientsCollisionMP_SetupTiles.array[v4]) != 0 )
     goto LABEL_57;
-  if ( (unsigned int)v6 >= 0x400 )
+  if ( (unsigned int)v3 >= 0x400 )
   {
-    LODWORD(v28) = 1024;
-    LODWORD(v27) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+    LODWORD(v7) = 1024;
+    LODWORD(v6) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
       __debugbreak();
   }
-  if ( (v8 & s_transientsCollisionMP_LoadRequestedTiles.array[v7]) == 0 )
+  if ( (v5 & s_transientsCollisionMP_LoadRequestedTiles.array[v4]) == 0 )
     goto LABEL_57;
-  if ( (unsigned int)v6 >= 0x400 )
+  if ( (unsigned int)v3 >= 0x400 )
   {
-    LODWORD(v28) = 1024;
-    LODWORD(v27) = v6;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+    LODWORD(v7) = 1024;
+    LODWORD(v6) = v3;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
       __debugbreak();
   }
-  if ( (v8 & s_transientsCollisionMP_LoadedTiles.array[v7]) == 0 )
+  if ( (v5 & s_transientsCollisionMP_LoadedTiles.array[v4]) == 0 )
   {
 LABEL_57:
     if ( !s_transientsCollisionMP_SetupRequestedAllTiles && !s_transientsCollisionMP_SetupAllTiles && s_transientsCollisionMP_LoadRequestedAllTiles && !s_transientsCollisionMP_LoadedAllTiles )
       goto LABEL_74;
-    if ( (unsigned int)v6 >= 0x400 )
+    if ( (unsigned int)v3 >= 0x400 )
     {
-      LODWORD(v28) = 1024;
-      LODWORD(v27) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+      LODWORD(v7) = 1024;
+      LODWORD(v6) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
         __debugbreak();
     }
-    if ( (v8 & s_transientsCollisionMP_SetupRequestedTiles.array[v7]) != 0 )
+    if ( (v5 & s_transientsCollisionMP_SetupRequestedTiles.array[v4]) != 0 )
       goto LABEL_78;
-    if ( (unsigned int)v6 >= 0x400 )
+    if ( (unsigned int)v3 >= 0x400 )
     {
-      LODWORD(v28) = 1024;
-      LODWORD(v27) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+      LODWORD(v7) = 1024;
+      LODWORD(v6) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
         __debugbreak();
     }
-    if ( (v8 & s_transientsCollisionMP_SetupTiles.array[v7]) != 0 )
+    if ( (v5 & s_transientsCollisionMP_SetupTiles.array[v4]) != 0 )
       goto LABEL_78;
-    if ( (unsigned int)v6 >= 0x400 )
+    if ( (unsigned int)v3 >= 0x400 )
     {
-      LODWORD(v28) = 1024;
-      LODWORD(v27) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+      LODWORD(v7) = 1024;
+      LODWORD(v6) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
         __debugbreak();
     }
-    if ( (v8 & s_transientsCollisionMP_LoadRequestedTiles.array[v7]) == 0 )
+    if ( (v5 & s_transientsCollisionMP_LoadRequestedTiles.array[v4]) == 0 )
       goto LABEL_78;
-    if ( (unsigned int)v6 >= 0x400 )
+    if ( (unsigned int)v3 >= 0x400 )
     {
-      LODWORD(v28) = 1024;
-      LODWORD(v27) = v6;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+      LODWORD(v7) = 1024;
+      LODWORD(v6) = v3;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
         __debugbreak();
     }
-    if ( (v8 & s_transientsCollisionMP_LoadedTiles.array[v7]) != 0 )
+    if ( (v5 & s_transientsCollisionMP_LoadedTiles.array[v4]) != 0 )
     {
 LABEL_78:
       if ( !s_transientsCollisionMP_SetupRequestedAllTiles && !s_transientsCollisionMP_SetupAllTiles && !s_transientsCollisionMP_LoadRequestedAllTiles && s_transientsCollisionMP_LoadedAllTiles )
         goto LABEL_95;
-      if ( (unsigned int)v6 >= 0x400 )
+      if ( (unsigned int)v3 >= 0x400 )
       {
-        LODWORD(v28) = 1024;
-        LODWORD(v27) = v6;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+        LODWORD(v7) = 1024;
+        LODWORD(v6) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
           __debugbreak();
       }
-      if ( (v8 & s_transientsCollisionMP_SetupRequestedTiles.array[v7]) != 0 )
+      if ( (v5 & s_transientsCollisionMP_SetupRequestedTiles.array[v4]) != 0 )
         goto LABEL_97;
-      if ( (unsigned int)v6 >= 0x400 )
+      if ( (unsigned int)v3 >= 0x400 )
       {
-        LODWORD(v28) = 1024;
-        LODWORD(v27) = v6;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+        LODWORD(v7) = 1024;
+        LODWORD(v6) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
           __debugbreak();
       }
-      if ( (v8 & s_transientsCollisionMP_SetupTiles.array[v7]) != 0 )
+      if ( (v5 & s_transientsCollisionMP_SetupTiles.array[v4]) != 0 )
         goto LABEL_97;
-      if ( (unsigned int)v6 >= 0x400 )
+      if ( (unsigned int)v3 >= 0x400 )
       {
-        LODWORD(v28) = 1024;
-        LODWORD(v27) = v6;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+        LODWORD(v7) = 1024;
+        LODWORD(v6) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
           __debugbreak();
       }
-      if ( (v8 & s_transientsCollisionMP_LoadRequestedTiles.array[v7]) != 0 )
+      if ( (v5 & s_transientsCollisionMP_LoadRequestedTiles.array[v4]) != 0 )
         goto LABEL_97;
-      if ( (unsigned int)v6 >= 0x400 )
+      if ( (unsigned int)v3 >= 0x400 )
       {
-        LODWORD(v28) = 1024;
-        LODWORD(v27) = v6;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+        LODWORD(v7) = 1024;
+        LODWORD(v6) = v3;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
           __debugbreak();
       }
-      if ( (v8 & s_transientsCollisionMP_LoadedTiles.array[v7]) == 0 )
+      if ( (v5 & s_transientsCollisionMP_LoadedTiles.array[v4]) == 0 )
       {
 LABEL_97:
         if ( !s_transientsCollisionMP_LoadedAllTiles && !s_transientsCollisionMP_LoadRequestedAllTiles )
           goto LABEL_106;
-        if ( (unsigned int)v6 >= 0x400 )
+        if ( (unsigned int)v3 >= 0x400 )
         {
-          LODWORD(v28) = 1024;
-          LODWORD(v27) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+          LODWORD(v7) = 1024;
+          LODWORD(v6) = v3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
             __debugbreak();
         }
-        if ( (v8 & s_transientsCollisionMP_LoadedTiles.array[v7]) != 0 )
+        if ( (v5 & s_transientsCollisionMP_LoadedTiles.array[v4]) != 0 )
           goto LABEL_111;
-        if ( (unsigned int)v6 >= 0x400 )
+        if ( (unsigned int)v3 >= 0x400 )
         {
-          LODWORD(v28) = 1024;
-          LODWORD(v27) = v6;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v27, v28) )
+          LODWORD(v7) = 1024;
+          LODWORD(v6) = v3;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v6, v7) )
             __debugbreak();
         }
-        if ( (v8 & s_transientsCollisionMP_LoadRequestedTiles.array[v7]) != 0 )
+        if ( (v5 & s_transientsCollisionMP_LoadRequestedTiles.array[v4]) != 0 )
         {
 LABEL_111:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_transients_collision_mp.cpp", 1443, ASSERT_TYPE_ASSERT, "(false)", (const char *)&queryFormat, "false") )
@@ -1934,57 +1545,33 @@ LABEL_111:
         else
         {
 LABEL_106:
-          __asm
-          {
-            vmovss  xmm0, dword ptr cs:?colorRed@@3Tvec4_t@@B; vec4_t const colorRed
-            vmovss  dword ptr [rbx], xmm0
-            vmovss  xmm1, dword ptr cs:?colorRed@@3Tvec4_t@@B+4; vec4_t const colorRed
-            vmovss  dword ptr [rbx+4], xmm1
-            vmovss  xmm0, dword ptr cs:?colorRed@@3Tvec4_t@@B+8; vec4_t const colorRed
-            vmovss  dword ptr [rbx+8], xmm0
-          }
+          color->v[0] = colorRed.v[0];
+          color->v[1] = colorRed.v[1];
+          color->v[2] = colorRed.v[2];
         }
       }
       else
       {
 LABEL_95:
-        __asm
-        {
-          vmovss  xmm0, dword ptr cs:?colorDkYellow@@3Tvec4_t@@B; vec4_t const colorDkYellow
-          vmovss  dword ptr [rbx], xmm0
-          vmovss  xmm1, dword ptr cs:?colorDkYellow@@3Tvec4_t@@B+4; vec4_t const colorDkYellow
-          vmovss  dword ptr [rbx+4], xmm1
-          vmovss  xmm0, dword ptr cs:?colorDkYellow@@3Tvec4_t@@B+8; vec4_t const colorDkYellow
-          vmovss  dword ptr [rbx+8], xmm0
-        }
+        color->v[0] = colorDkYellow.v[0];
+        color->v[1] = colorDkYellow.v[1];
+        color->v[2] = colorDkYellow.v[2];
       }
     }
     else
     {
 LABEL_74:
-      __asm
-      {
-        vmovss  xmm0, dword ptr cs:?colorYellow@@3Tvec4_t@@B; vec4_t const colorYellow
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm1, dword ptr cs:?colorYellow@@3Tvec4_t@@B+4; vec4_t const colorYellow
-        vmovss  dword ptr [rbx+4], xmm1
-        vmovss  xmm0, dword ptr cs:?colorYellow@@3Tvec4_t@@B+8; vec4_t const colorYellow
-        vmovss  dword ptr [rbx+8], xmm0
-      }
+      color->v[0] = colorYellow.v[0];
+      color->v[1] = colorYellow.v[1];
+      color->v[2] = colorYellow.v[2];
     }
   }
   else
   {
 LABEL_53:
-    __asm
-    {
-      vmovss  xmm0, dword ptr cs:?colorLtGreen@@3Tvec4_t@@B; vec4_t const colorLtGreen
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, dword ptr cs:?colorLtGreen@@3Tvec4_t@@B+4; vec4_t const colorLtGreen
-      vmovss  dword ptr [rbx+4], xmm1
-      vmovss  xmm0, dword ptr cs:?colorLtGreen@@3Tvec4_t@@B+8; vec4_t const colorLtGreen
-      vmovss  dword ptr [rbx+8], xmm0
-    }
+    color->v[0] = colorLtGreen.v[0];
+    color->v[1] = colorLtGreen.v[1];
+    color->v[2] = colorLtGreen.v[2];
   }
 }
 
@@ -1995,23 +1582,19 @@ CL_TransientsCollisionMP_DistanceSort
 */
 __int64 CL_TransientsCollisionMP_DistanceSort(const void *a, const void *b)
 {
-  char v2; 
-  char v3; 
+  __int64 v2; 
+  __int64 v3; 
+  float v4; 
 
-  _RAX = *(unsigned __int16 *)a;
-  _RCX = *(unsigned __int16 *)b;
-  _RDX = s_transientsCollisionMP_TileStreamingDistancesSq;
-  __asm
+  v2 = *(unsigned __int16 *)a;
+  v3 = *(unsigned __int16 *)b;
+  v4 = s_transientsCollisionMP_TileStreamingDistancesSq[v2];
+  if ( v4 >= s_transientsCollisionMP_TileStreamingDistancesSq[v3] )
   {
-    vmovss  xmm0, dword ptr [rdx+rax*4]
-    vcomiss xmm0, dword ptr [rdx+rcx*4]
-  }
-  if ( !v2 )
-  {
-    if ( !(v2 | v3) )
+    if ( v4 > s_transientsCollisionMP_TileStreamingDistancesSq[v3] )
       return 1i64;
-    if ( (unsigned __int16)_RAX >= (unsigned __int16)_RCX )
-      return (unsigned __int16)_RAX > (unsigned __int16)_RCX;
+    if ( (unsigned __int16)v2 >= (unsigned __int16)v3 )
+      return (unsigned __int16)v2 > (unsigned __int16)v3;
   }
   return 0xFFFFFFFFi64;
 }
@@ -2272,41 +1855,31 @@ CL_TransientsCollisionMP_HasGridSetupForPosition
 */
 char CL_TransientsCollisionMP_HasGridSetupForPosition(const LocalClientNum_t localClientNum, const vec3_t *pos)
 {
-  unsigned int v10; 
-  unsigned __int64 v11; 
-  unsigned int v12; 
-  bool v13; 
-  __int64 v14; 
-  __int64 v15; 
+  unsigned int v3; 
+  unsigned __int64 v4; 
+  unsigned int v5; 
+  bool v6; 
+  __int64 v7; 
+  __int64 v8; 
 
   if ( s_transientsCollisionMP_TransientMode == CL_TRANSIENTS_COLLISION_MP_TRANSIENTMODE_CLOSEST )
   {
-    __asm
-    {
-      vmovss  xmm3, cs:__real@39000000
-      vmulss  xmm1, xmm3, dword ptr [rdx+4]
-      vaddss  xmm0, xmm1, cs:__real@41800000
-      vcvttss2si ecx, xmm0
-      vmulss  xmm0, xmm3, dword ptr [rdx]
-      vaddss  xmm2, xmm0, cs:__real@41800000
-      vcvttss2si eax, xmm2
-    }
-    v10 = _EAX + 32 * _ECX;
-    if ( v10 >= (unsigned int)s_transientsCollisionMP_NumTiles || (_WORD)v10 == 0xFFFF )
+    v3 = (int)(float)((float)(0.00012207031 * pos->v[0]) + 16.0) + 32 * (int)(float)((float)(0.00012207031 * pos->v[1]) + 16.0);
+    if ( v3 >= (unsigned int)s_transientsCollisionMP_NumTiles || (_WORD)v3 == 0xFFFF )
       return 1;
-    v11 = (unsigned __int16)v10;
-    if ( (unsigned __int16)v10 >= 0x400u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", (unsigned __int16)v10, 1024) )
+    v4 = (unsigned __int16)v3;
+    if ( (unsigned __int16)v3 >= 0x400u && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", (unsigned __int16)v3, 1024) )
       __debugbreak();
-    v12 = 0x80000000 >> (v11 & 0x1F);
-    v13 = (v12 & s_transientsCollisionMP_LoadRequestedTiles.array[v11 >> 5]) != 0;
-    if ( (unsigned int)v11 >= 0x400 )
+    v5 = 0x80000000 >> (v4 & 0x1F);
+    v6 = (v5 & s_transientsCollisionMP_LoadRequestedTiles.array[v4 >> 5]) != 0;
+    if ( (unsigned int)v4 >= 0x400 )
     {
-      LODWORD(v15) = 1024;
-      LODWORD(v14) = v11;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v14, v15) )
+      LODWORD(v8) = 1024;
+      LODWORD(v7) = v4;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\bitarray.h", 257, ASSERT_TYPE_ASSERT, "( pos ) < ( impl()->getBitCount() )", "pos < impl()->getBitCount()\n\t%i, %i", v7, v8) )
         __debugbreak();
     }
-    return v13 ^ ((v12 & s_transientsCollisionMP_SetupTiles.array[v11 >> 5]) != 0) ^ 1;
+    return v6 ^ ((v5 & s_transientsCollisionMP_SetupTiles.array[v4 >> 5]) != 0) ^ 1;
   }
   else
   {

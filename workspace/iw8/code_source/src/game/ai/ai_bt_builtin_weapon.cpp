@@ -127,105 +127,74 @@ __int64 BT_ShouldReload(BehaviorTree *pTree, int entNum, int taskID, int paramsI
 {
   const gentity_s *Ent; 
   AIScriptedInterface *m_pAI; 
-  ai_common_t *v8; 
-  const Weapon *v9; 
+  ai_common_t *v6; 
+  const Weapon *v7; 
   gentity_s *TargetEntity; 
+  int ClipSize; 
   int faceLikelyEnemyPathNeedCheckTime_low; 
-  __int64 v16; 
-  const Weapon *v17; 
-  const scrContext_t *v19; 
+  int v11; 
+  float v12; 
+  __int64 v13; 
+  const Weapon *v14; 
+  gentity_s *v15; 
+  const scrContext_t *v16; 
   const Weapon *Weapon; 
-  char v32; 
-  char v33; 
-  __int64 result; 
-  AIWrapper v39; 
+  float PistolDist; 
+  float v19; 
+  float v20; 
+  float v21; 
+  double PathDistToGoal; 
+  AIWrapper v24; 
 
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
   Ent = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v39, Ent);
-  m_pAI = v39.m_pAI;
-  v8 = v39.m_pAI->GetAI(v39.m_pAI);
-  if ( BYTE1(v8[2].sight.faceLikelyEnemyPathNeedRecalculateTime) )
-    goto LABEL_15;
-  v9 = m_pAI->GetEquippedWeapon(m_pAI);
-  if ( !v9->weaponIdx )
-    goto LABEL_15;
+  AIWrapper::AIWrapper(&v24, Ent);
+  m_pAI = v24.m_pAI;
+  v6 = v24.m_pAI->GetAI(v24.m_pAI);
+  if ( BYTE1(v6[2].sight.faceLikelyEnemyPathNeedRecalculateTime) )
+    return 0i64;
+  v7 = m_pAI->GetEquippedWeapon(m_pAI);
+  if ( !v7->weaponIdx )
+    return 0i64;
   TargetEntity = AICommonInterface::GetTargetEntity(m_pAI);
-  BG_GetClipSize(NULL, v9, 0);
-  faceLikelyEnemyPathNeedCheckTime_low = LOWORD(v8[2].sight.faceLikelyEnemyPathNeedCheckTime);
-  __asm
+  ClipSize = BG_GetClipSize(NULL, v7, 0);
+  faceLikelyEnemyPathNeedCheckTime_low = LOWORD(v6[2].sight.faceLikelyEnemyPathNeedCheckTime);
+  v11 = ClipSize;
+  v12 = (float)faceLikelyEnemyPathNeedCheckTime_low;
+  if ( !TargetEntity && v12 < (float)((float)ClipSize * 0.5) )
+    return 1i64;
+  v13 = m_pAI->GetAI(m_pAI);
+  if ( !*(_BYTE *)(v13 + 1175) )
   {
-    vxorps  xmm6, xmm6, xmm6
-    vcvtsi2ss xmm6, xmm6, r12d
-  }
-  if ( !TargetEntity )
-  {
-    __asm
+    v14 = m_pAI->GetEquippedWeapon(m_pAI);
+    if ( BG_GetWeaponClass(v14, 0) != WEAPCLASS_PISTOL )
     {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, eax
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vcomiss xmm6, xmm1
-    }
-  }
-  v16 = m_pAI->GetAI(m_pAI);
-  if ( !*(_BYTE *)(v16 + 1175) )
-  {
-    v17 = m_pAI->GetEquippedWeapon(m_pAI);
-    if ( BG_GetWeaponClass(v17, 0) != WEAPCLASS_PISTOL )
-    {
-      if ( AICommonInterface::GetTargetEntity(m_pAI) )
+      v15 = AICommonInterface::GetTargetEntity(m_pAI);
+      if ( v15 )
       {
         if ( !AICommonInterface::HasPath(m_pAI) )
         {
-          v19 = ScriptContext_Server();
-          Weapon = GScr_Weapon_GetWeapon(v19, (const scr_weapon_t)*(_DWORD *)(v16 + 1164));
+          v16 = ScriptContext_Server();
+          Weapon = GScr_Weapon_GetWeapon(v16, (const scr_weapon_t)*(_DWORD *)(v13 + 1164));
           if ( Weapon->weaponIdx )
           {
             if ( BG_GetWeaponClass(Weapon, 0) == WEAPCLASS_PISTOL )
             {
-              *(float *)&_XMM0 = GetPistolDist(m_pAI, 0);
-              __asm
-              {
-                vmovss  xmm1, dword ptr [r15+130h]
-                vmovss  xmm2, dword ptr [r15+134h]
-                vmulss  xmm0, xmm0, xmm0
-                vsubss  xmm4, xmm1, dword ptr [rax+130h]
-                vsubss  xmm3, xmm2, dword ptr [rax+134h]
-                vmovss  xmm1, dword ptr [r15+138h]
-                vsubss  xmm5, xmm1, dword ptr [rax+138h]
-                vmulss  xmm3, xmm3, xmm3
-                vmulss  xmm2, xmm4, xmm4
-                vmulss  xmm1, xmm5, xmm5
-                vaddss  xmm4, xmm3, xmm2
-                vaddss  xmm5, xmm4, xmm1
-                vcomiss xmm0, xmm5
-              }
-              if ( !(v32 | v33) )
-                goto LABEL_15;
+              PistolDist = GetPistolDist(m_pAI, 0);
+              v19 = v15->r.currentOrigin.v[0] - *(float *)(*(_QWORD *)v13 + 304i64);
+              v20 = v15->r.currentOrigin.v[1] - *(float *)(*(_QWORD *)v13 + 308i64);
+              v21 = v15->r.currentOrigin.v[2] - *(float *)(*(_QWORD *)v13 + 312i64);
+              if ( (float)(PistolDist * PistolDist) > (float)((float)((float)(v20 * v20) + (float)(v19 * v19)) + (float)(v21 * v21)) )
+                return 0i64;
             }
           }
         }
       }
     }
   }
-  if ( faceLikelyEnemyPathNeedCheckTime_low )
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, r14d
-      vmulss  xmm1, xmm0, cs:__real@3dcccccd
-      vcomiss xmm6, xmm1
-    }
-LABEL_15:
-    result = 0i64;
-    goto LABEL_16;
-  }
-  result = 1i64;
-LABEL_16:
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  return result;
+  if ( faceLikelyEnemyPathNeedCheckTime_low && (v12 > (float)((float)v11 * 0.1) || AICommonInterface::HasPath(m_pAI) && (BYTE2(v6[2].sight.faceLikelyEnemyPathNeedRecalculateTime) || (unsigned int)BG_GetWeaponClass(v7, 0) > WEAPCLASS_SPREAD || (PathDistToGoal = Nav_GetPathDistToGoal(v6->pNavigator), *(float *)&PathDistToGoal < 256.0))) )
+    return 0i64;
+  else
+    return 1i64;
 }
 
 /*
@@ -235,200 +204,167 @@ BT_UpdateWeapon
 */
 __int64 BT_UpdateWeapon(BehaviorTree *pTree, int entNum, int taskID, int paramsID)
 {
+  __int128 v4; 
   const gentity_s *Ent; 
   AIScriptedInterface *m_pAI; 
-  bool v8; 
-  __int64 v18; 
-  int v19; 
-  scrContext_t *v21; 
-  AIScriptedInterface_vtbl *v22; 
-  const scrContext_t *v23; 
-  const Weapon *v24; 
+  bool v7; 
+  ai_common_t *v8; 
+  __int64 v9; 
+  int v10; 
+  float v11; 
+  scrContext_t *v12; 
+  AIScriptedInterface_vtbl *v13; 
+  const scrContext_t *v14; 
+  const Weapon *v15; 
   const Weapon *Weapon; 
-  const Weapon *v26; 
-  const Weapon *v27; 
-  int v28; 
-  __int64 *v29; 
-  char v30; 
-  const Weapon *v32; 
-  bool v33; 
-  bool v34; 
-  int v41; 
-  __int64 v42; 
-  __int64 v43; 
-  __int64 v55; 
-  int v56; 
-  __int64 v57; 
-  int v58; 
-  AIWrapper v59; 
-  __int64 v60; 
-  int v61; 
-  __int16 v62; 
-  char v63; 
+  const Weapon *v17; 
+  const Weapon *v18; 
+  int v19; 
+  __int64 *v20; 
+  float WeaponScore; 
+  const Weapon *v22; 
+  bool v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  int v27; 
+  __int64 v28; 
+  __int64 v29; 
+  __int64 v30; 
+  __int64 v32; 
+  int v33; 
+  __int64 v34; 
+  int v35; 
+  AIWrapper v36; 
+  __int64 v37; 
+  int v38; 
+  __int16 v39; 
+  char v40; 
+  __int128 v41; 
 
   Ent = BT_GetEnt(entNum);
-  AIWrapper::AIWrapper(&v59, Ent);
-  m_pAI = v59.m_pAI;
-  v8 = 0;
-  _RSI = v59.m_pAI->GetAI(v59.m_pAI);
-  if ( !AICommonInterface::HasPath(m_pAI) )
+  AIWrapper::AIWrapper(&v36, Ent);
+  m_pAI = v36.m_pAI;
+  v7 = 0;
+  v8 = v36.m_pAI->GetAI(v36.m_pAI);
+  if ( AICommonInterface::HasPath(m_pAI) && (float)((float)((float)(v8[4].sight.lastEnemySightPos.v[0] * v8[4].sight.lastEnemySightPos.v[0]) + (float)(v8[4].sight.lastEnemySightPos.v[1] * v8[4].sight.lastEnemySightPos.v[1])) + (float)(v8[4].sight.lastEnemySightPos.v[2] * v8[4].sight.lastEnemySightPos.v[2])) >= 1.0 )
+    goto LABEL_25;
+  v9 = m_pAI->GetAI(m_pAI);
+  if ( AICommonInterface::IsUsingTurret(m_pAI) )
   {
-    v18 = m_pAI->GetAI(m_pAI);
-    if ( AICommonInterface::IsUsingTurret(m_pAI) )
+    v10 = 14;
+  }
+  else
+  {
+    if ( *(_BYTE *)(v9 + 1172) || *(_BYTE *)(v9 + 570) )
     {
-      v19 = 14;
+      v10 = 5;
     }
     else
     {
-      if ( *(_BYTE *)(v18 + 1172) || *(_BYTE *)(v18 + 570) )
+      v41 = v4;
+      v10 = 14;
+      v11 = 0.0;
+      v12 = ScriptContext_Server();
+      v13 = m_pAI->__vftable;
+      v14 = v12;
+      v37 = 0i64;
+      v38 = 0;
+      v39 = 0;
+      v40 = 0;
+      v15 = v13->GetEquippedWeapon(m_pAI);
+      if ( v15->weaponIdx )
+        *((_BYTE *)&v37 + (int)BG_GetWeaponClass(v15, 0)) = 1;
+      Weapon = GScr_Weapon_GetWeapon(v14, (const scr_weapon_t)*(_DWORD *)(v9 + 1156));
+      if ( Weapon->weaponIdx )
+        *((_BYTE *)&v37 + (int)BG_GetWeaponClass(Weapon, 0)) = 1;
+      v17 = GScr_Weapon_GetWeapon(v14, (const scr_weapon_t)*(_DWORD *)(v9 + 1160));
+      if ( v17->weaponIdx )
+        *((_BYTE *)&v37 + (int)BG_GetWeaponClass(v17, 0)) = 1;
+      v18 = GScr_Weapon_GetWeapon(v14, (const scr_weapon_t)*(_DWORD *)(v9 + 1164));
+      if ( v18->weaponIdx )
+        *((_BYTE *)&v37 + (int)BG_GetWeaponClass(v18, 0)) = 1;
+      v19 = 0;
+      v20 = &v37;
+      do
       {
-        v19 = 5;
-      }
-      else
-      {
-        __asm { vmovaps [rsp+0E8h+var_38], xmm6 }
-        v19 = 14;
-        __asm { vxorps  xmm6, xmm6, xmm6 }
-        v21 = ScriptContext_Server();
-        v22 = m_pAI->__vftable;
-        v23 = v21;
-        v60 = 0i64;
-        v61 = 0;
-        v62 = 0;
-        v63 = 0;
-        v24 = v22->GetEquippedWeapon(m_pAI);
-        if ( v24->weaponIdx )
-          *((_BYTE *)&v60 + (int)BG_GetWeaponClass(v24, 0)) = 1;
-        Weapon = GScr_Weapon_GetWeapon(v23, (const scr_weapon_t)*(_DWORD *)(v18 + 1156));
-        if ( Weapon->weaponIdx )
-          *((_BYTE *)&v60 + (int)BG_GetWeaponClass(Weapon, 0)) = 1;
-        v26 = GScr_Weapon_GetWeapon(v23, (const scr_weapon_t)*(_DWORD *)(v18 + 1160));
-        if ( v26->weaponIdx )
-          *((_BYTE *)&v60 + (int)BG_GetWeaponClass(v26, 0)) = 1;
-        v27 = GScr_Weapon_GetWeapon(v23, (const scr_weapon_t)*(_DWORD *)(v18 + 1164));
-        if ( v27->weaponIdx )
-          *((_BYTE *)&v60 + (int)BG_GetWeaponClass(v27, 0)) = 1;
-        v28 = 0;
-        v29 = &v60;
-        do
+        if ( *(_BYTE *)v20 )
         {
-          if ( *(_BYTE *)v29 )
+          WeaponScore = GetWeaponScore(m_pAI, (const weapClass_t)v19);
+          if ( WeaponScore > v11 )
           {
-            *(float *)&_XMM0 = GetWeaponScore(m_pAI, (const weapClass_t)v28);
-            __asm { vcomiss xmm0, xmm6 }
-            if ( !(v34 | v30) )
-            {
-              __asm { vmovaps xmm6, xmm0 }
-              v19 = v28;
-            }
+            v11 = WeaponScore;
+            v10 = v19;
           }
-          ++v28;
-          v29 = (__int64 *)((char *)v29 + 1);
         }
-        while ( v28 < 15 );
-        __asm { vmovaps xmm6, [rsp+0E8h+var_38] }
-        if ( v19 == 14 )
-          goto LABEL_24;
+        ++v19;
+        v20 = (__int64 *)((char *)v20 + 1);
       }
-      v8 = _RSI[1].threat.iPacifistWait != v19;
+      while ( v19 < 15 );
+      if ( v10 == 14 )
+        goto LABEL_24;
     }
+    v7 = v8[1].threat.iPacifistWait != v10;
+  }
 LABEL_24:
-    _RSI[1].threat.iPacifistWait = v19;
-    goto LABEL_25;
-  }
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rsi+838h]
-    vmovss  xmm2, dword ptr [rsi+83Ch]
-    vmovss  xmm3, dword ptr [rsi+840h]
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm2, xmm2
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, cs:__real@3f800000
-  }
+  v8[1].threat.iPacifistWait = v10;
 LABEL_25:
-  if ( !_RSI[1].threat.bPacifist )
+  if ( !v8[1].threat.bPacifist )
     return 1i64;
   if ( !AIScriptedInterface::IsSniper(m_pAI, 0) )
     goto LABEL_51;
-  v32 = m_pAI->GetEquippedWeapon(m_pAI);
-  v33 = BG_GetWeaponClass(v32, 0) == WEAPCLASS_SNIPER;
-  if ( v8 )
-    HIBYTE(_RSI[1].threat.threatSightRateMin) = 0;
-  if ( !v33 || AIScriptedInterface::GetCoverNode(m_pAI) )
+  v22 = m_pAI->GetEquippedWeapon(m_pAI);
+  v23 = BG_GetWeaponClass(v22, 0) == WEAPCLASS_SNIPER;
+  if ( v7 )
+    HIBYTE(v8[1].threat.threatSightRateMin) = 0;
+  if ( !v23 || AIScriptedInterface::GetCoverNode(m_pAI) )
     return 1i64;
-  v34 = 0;
-  if ( BYTE1(_RSI[1].threat.threatSightRateMin) )
+  if ( BYTE1(v8[1].threat.threatSightRateMin) )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+1F0h]
-      vmovss  xmm1, dword ptr [rsi+1F4h]
-      vsubss  xmm3, xmm0, dword ptr [rax+130h]
-      vmovss  xmm0, dword ptr [rsi+1F8h]
-      vsubss  xmm4, xmm0, dword ptr [rax+138h]
-      vsubss  xmm2, xmm1, dword ptr [rax+134h]
-    }
+    v24 = *(float *)&v8[1].sentientInfo - v8->ent->r.currentOrigin.v[0];
+    v25 = *(float *)&v8[1].threat.hasThreateningEnemy - v8->ent->r.currentOrigin.v[2];
+    v26 = *((float *)&v8[1].sentientInfo + 1) - v8->ent->r.currentOrigin.v[1];
     goto LABEL_50;
   }
-  if ( !EntHandle::isDefined((EntHandle *)&_RSI[1].threat.threatSight) )
+  if ( !EntHandle::isDefined((EntHandle *)&v8[1].threat.threatSight) )
   {
 LABEL_51:
-    HIBYTE(_RSI[1].threat.threatSightRateMin) = 0;
+    HIBYTE(v8[1].threat.threatSightRateMin) = 0;
     return 1i64;
   }
-  v41 = *(unsigned __int16 *)&_RSI[1].threat.threatSight;
-  if ( (unsigned int)(v41 - 1) >= 0x7FF )
+  v27 = *(unsigned __int16 *)&v8[1].threat.threatSight;
+  if ( (unsigned int)(v27 - 1) >= 0x7FF )
   {
-    v58 = 2047;
-    v56 = v41 - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v56, v58) )
+    v35 = 2047;
+    v33 = v27 - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 223, ASSERT_TYPE_ASSERT, "(unsigned)( number - 1 ) < (unsigned)( ENTITYNUM_NONE )", "number - 1 doesn't index ENTITYNUM_NONE\n\t%i not in [0, %i)", v33, v35) )
       __debugbreak();
   }
-  v42 = *(unsigned __int16 *)&_RSI[1].threat.threatSight;
-  if ( (unsigned int)(v42 - 1) >= 0x800 )
+  v28 = *(unsigned __int16 *)&v8[1].threat.threatSight;
+  if ( (unsigned int)(v28 - 1) >= 0x800 )
   {
-    LODWORD(v57) = 2048;
-    LODWORD(v55) = v42 - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v55, v57) )
+    LODWORD(v34) = 2048;
+    LODWORD(v32) = v28 - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 207, ASSERT_TYPE_ASSERT, "(unsigned)( entityIndex ) < (unsigned)( ( 2048 ) )", "entityIndex doesn't index MAX_GENTITIES\n\t%i not in [0, %i)", v32, v34) )
       __debugbreak();
   }
   if ( !g_entities && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 208, ASSERT_TYPE_ASSERT, "( g_entities != nullptr )", (const char *)&queryFormat, "g_entities != nullptr") )
     __debugbreak();
-  v43 = v42 - 1;
-  if ( g_entities[v43].r.isInUse != g_entityIsInUse[v43] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
+  v29 = v28 - 1;
+  if ( g_entities[v29].r.isInUse != g_entityIsInUse[v29] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 209, ASSERT_TYPE_ASSERT, "( g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex] )", (const char *)&queryFormat, "g_entities[entityIndex].r.isInUse == g_entityIsInUse[entityIndex]") )
     __debugbreak();
-  if ( !g_entityIsInUse[v43] )
+  if ( !g_entityIsInUse[v29] )
   {
-    LODWORD(v57) = *(unsigned __int16 *)&_RSI[1].threat.threatSight - 1;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v57) )
+    LODWORD(v34) = *(unsigned __int16 *)&v8[1].threat.threatSight - 1;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_public.h", 224, ASSERT_TYPE_ASSERT, "( ( G_IsEntityInUse( number - 1 ) ) )", "%s\n\t( number - 1 ) = %i", "( G_IsEntityInUse( number - 1 ) )", v34) )
       __debugbreak();
   }
-  _RDX = g_entities;
-  _R8 = 1456i64 * *(unsigned __int16 *)&_RSI[1].threat.threatSight;
-  v34 = (1456 * (unsigned __int128)*(unsigned __int16 *)&_RSI[1].threat.threatSight) >> 64 != 0;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [r8+rdx-480h]
-    vsubss  xmm3, xmm0, dword ptr [rcx+130h]
-    vmovss  xmm0, dword ptr [r8+rdx-478h]
-    vmovss  xmm1, dword ptr [r8+rdx-47Ch]
-    vsubss  xmm4, xmm0, dword ptr [rcx+138h]
-    vsubss  xmm2, xmm1, dword ptr [rcx+134h]
-  }
+  v30 = *(unsigned __int16 *)&v8[1].threat.threatSight;
+  v24 = g_entities[v30 - 1].r.currentOrigin.v[0] - v8->ent->r.currentOrigin.v[0];
+  v25 = g_entities[v30 - 1].r.currentOrigin.v[2] - v8->ent->r.currentOrigin.v[2];
+  v26 = g_entities[v30 - 1].r.currentOrigin.v[1] - v8->ent->r.currentOrigin.v[1];
 LABEL_50:
-  __asm
-  {
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm2, xmm2, xmm2
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm5, xmm3, xmm0
-    vcomiss xmm5, cs:__real@48800000
-  }
-  if ( v34 )
+  if ( (float)((float)((float)(v26 * v26) + (float)(v24 * v24)) + (float)(v25 * v25)) < 262144.0 )
     goto LABEL_51;
   return 1i64;
 }
@@ -559,36 +495,29 @@ GetPistolDist
 */
 float GetPistolDist(const AIScriptedInterface *pAI, bool bCurrentlyUsingPistol)
 {
-  __int64 v5; 
-  const scrContext_t *v6; 
+  BOOL v3; 
+  __int64 v4; 
+  const scrContext_t *v5; 
   const Weapon *Weapon; 
+  __int128 v11; 
 
+  _XMM6 = LODWORD(FLOAT_409_0);
+  v3 = bCurrentlyUsingPistol;
+  v4 = pAI->GetAI(&pAI->AICommonInterface);
+  v5 = ScriptContext_Server();
+  Weapon = GScr_Weapon_GetWeapon(v5, (const scr_weapon_t)*(_DWORD *)(v4 + 1156));
+  _XMM0 = (unsigned int)BG_GetWeaponClass(Weapon, 0);
   __asm
   {
-    vmovaps [rsp+38h+var_18], xmm6
-    vmovss  xmm6, cs:__real@43cc8000
-  }
-  _EDI = bCurrentlyUsingPistol;
-  v5 = pAI->GetAI(&pAI->AICommonInterface);
-  v6 = ScriptContext_Server();
-  Weapon = GScr_Weapon_GetWeapon(v6, (const scr_weapon_t)*(_DWORD *)(v5 + 1156));
-  _EAX = BG_GetWeaponClass(Weapon, 0);
-  __asm { vmovss  xmm2, cs:__real@44000000 }
-  _ECX = 1;
-  __asm
-  {
-    vmovd   xmm1, ecx
-    vmovd   xmm0, eax
     vpcmpeqd xmm3, xmm0, xmm1
     vblendvps xmm4, xmm6, xmm2, xmm3
-    vaddss  xmm3, xmm4, cs:__real@42100000
-    vmovaps xmm6, [rsp+38h+var_18]
   }
-  _ECX = 0;
+  v11 = _XMM4;
+  *(float *)&v11 = *(float *)&_XMM4 + 36.0;
+  _XMM3 = v11;
+  _XMM0 = v3;
   __asm
   {
-    vmovd   xmm0, edi
-    vmovd   xmm1, ecx
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm3, xmm4, xmm2
   }
@@ -602,113 +531,89 @@ GetWeaponScore
 */
 float GetWeaponScore(AIScriptedInterface *pAI, const weapClass_t weapClass)
 {
-  __int64 v6; 
-  __int64 v7; 
-  const Weapon *v9; 
-  weapClass_t v10; 
-  const pathnode_t *v12; 
-  char v30; 
-  char v31; 
-  const Weapon *v32; 
+  __int64 v4; 
+  __int64 v5; 
+  const Weapon *v7; 
+  weapClass_t v8; 
+  gentity_s *TargetEntity; 
+  const pathnode_t *v10; 
+  float PistolDist; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  const Weapon *v16; 
   weapClass_t WeaponClass; 
   const pathnode_t *CoverNode; 
 
-  v6 = pAI->GetAI(pAI);
-  v7 = v6;
-  switch ( weapClass )
+  v4 = pAI->GetAI(pAI);
+  v5 = v4;
+  if ( weapClass == WEAPCLASS_MG )
   {
-    case WEAPCLASS_MG:
-      v32 = pAI->GetEquippedWeapon(pAI);
-      WeaponClass = BG_GetWeaponClass(v32, 0);
-      CoverNode = AIScriptedInterface::GetCoverNode(pAI);
-      if ( WeaponClass != WEAPCLASS_PISTOL || !CoverNode || AIScriptedInterface::Cover_IsValidAgainstEnemy(pAI, CoverNode, 1) )
-        break;
-      goto LABEL_28;
-    case WEAPCLASS_PISTOL:
-      if ( *(_BYTE *)(v6 + 1175) )
-        goto LABEL_28;
-      v9 = pAI->GetEquippedWeapon(pAI);
-      v10 = BG_GetWeaponClass(v9, 0);
-      if ( v10 != WEAPCLASS_ROCKETLAUNCHER || *(_BYTE *)(v7 + 1171) )
+    v16 = pAI->GetEquippedWeapon(pAI);
+    WeaponClass = BG_GetWeaponClass(v16, 0);
+    CoverNode = AIScriptedInterface::GetCoverNode(pAI);
+    if ( WeaponClass != WEAPCLASS_PISTOL || !CoverNode || AIScriptedInterface::Cover_IsValidAgainstEnemy(pAI, CoverNode, 1) )
+      return FLOAT_100_0;
+    return 0.0;
+  }
+  if ( weapClass != WEAPCLASS_PISTOL )
+  {
+    if ( weapClass == WEAPCLASS_ROCKETLAUNCHER )
+    {
+      if ( *(_BYTE *)(v4 + 1171) )
+        return FLOAT_100_0;
+    }
+    else if ( weapClass != WEAPCLASS_NONE )
+    {
+      return FLOAT_100_0;
+    }
+    return 0.0;
+  }
+  if ( !*(_BYTE *)(v4 + 1175) )
+  {
+    v7 = pAI->GetEquippedWeapon(pAI);
+    v8 = BG_GetWeaponClass(v7, 0);
+    if ( v8 == WEAPCLASS_ROCKETLAUNCHER && !*(_BYTE *)(v5 + 1171) )
+      return FLOAT_1000_0;
+    TargetEntity = AICommonInterface::GetTargetEntity(pAI);
+    if ( !TargetEntity )
+      return 0.0;
+    v10 = AIScriptedInterface::GetCoverNode(pAI);
+    if ( v10 )
+    {
+      if ( v8 == WEAPCLASS_MG && !AIScriptedInterface::Cover_IsValidAgainstEnemy(pAI, v10, 1) )
+        return FLOAT_1000_0;
+      if ( *(_DWORD *)(v5 + 488) != scr_const.hide )
+        return 0.0;
+    }
+    PistolDist = GetPistolDist(pAI, v8 == WEAPCLASS_PISTOL);
+    v12 = TargetEntity->r.currentOrigin.v[0] - *(float *)(*(_QWORD *)v5 + 304i64);
+    v13 = TargetEntity->r.currentOrigin.v[1] - *(float *)(*(_QWORD *)v5 + 308i64);
+    v14 = TargetEntity->r.currentOrigin.v[2] - *(float *)(*(_QWORD *)v5 + 312i64);
+    if ( v8 != WEAPCLASS_MG || (float)((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v14 * v14)) >= 16384.0 )
+    {
+      if ( (float)((float)((float)(v13 * v13) + (float)(v12 * v12)) + (float)(v14 * v14)) < (float)(PistolDist * PistolDist) )
       {
-        if ( !AICommonInterface::GetTargetEntity(pAI) )
-          goto LABEL_28;
-        v12 = AIScriptedInterface::GetCoverNode(pAI);
-        if ( v12 )
-        {
-          if ( v10 == WEAPCLASS_MG && !AIScriptedInterface::Cover_IsValidAgainstEnemy(pAI, v12, 1) )
-            goto LABEL_24;
-          if ( *(_DWORD *)(v7 + 488) != scr_const.hide )
-            goto LABEL_28;
-        }
-        *(float *)&_XMM0 = GetPistolDist(pAI, v10 == WEAPCLASS_PISTOL);
-        __asm
-        {
-          vmovss  xmm1, dword ptr [r14+130h]
-          vmovss  xmm2, dword ptr [r14+134h]
-          vsubss  xmm4, xmm1, dword ptr [rax+130h]
-          vsubss  xmm3, xmm2, dword ptr [rax+134h]
-          vmovss  xmm1, dword ptr [r14+138h]
-          vsubss  xmm5, xmm1, dword ptr [rax+138h]
-          vmulss  xmm2, xmm4, xmm4
-          vmulss  xmm3, xmm3, xmm3
-          vmulss  xmm1, xmm5, xmm5
-          vaddss  xmm4, xmm3, xmm2
-          vaddss  xmm2, xmm4, xmm1
-        }
-        if ( v10 == WEAPCLASS_MG )
-          __asm { vcomiss xmm2, cs:__real@46800000 }
-        __asm
-        {
-          vmulss  xmm0, xmm0, xmm0
-          vcomiss xmm2, xmm0
-        }
-        if ( (unsigned int)v10 >= WEAPCLASS_MG )
-          goto LABEL_28;
         if ( !AIScriptedInterface::IsSniper(pAI, 0) )
         {
-          if ( v9->weaponIdx )
+          if ( v7->weaponIdx )
           {
-            if ( *(_DWORD *)(v7 + 1152) == *(_DWORD *)(v7 + 1156) )
+            if ( *(_DWORD *)(v5 + 1152) == *(_DWORD *)(v5 + 1156) )
             {
-              __asm
-              {
-                vmovaps [rsp+48h+var_28], xmm6
-                vxorps  xmm6, xmm6, xmm6
-                vcvtsi2ss xmm6, xmm6, eax
-              }
-              BG_GetClipSize(NULL, v9, 0);
-              __asm
-              {
-                vxorps  xmm0, xmm0, xmm0
-                vcvtsi2ss xmm0, xmm0, eax
-                vmulss  xmm1, xmm0, cs:__real@3dcccccd
-                vcomiss xmm6, xmm1
-                vmovaps xmm6, [rsp+48h+var_28]
-              }
-              if ( !(v30 | v31) )
-              {
-                __asm { vmovss  xmm0, cs:__real@41200000 }
-                return *(float *)&_XMM0;
-              }
+              v15 = (float)*(unsigned __int16 *)(v5 + 1168);
+              if ( v15 > (float)((float)BG_GetClipSize(NULL, v7, 0) * 0.1) )
+                return FLOAT_10_0;
             }
           }
         }
+        return FLOAT_1000_0;
       }
-LABEL_24:
-      __asm { vmovss  xmm0, cs:__real@447a0000 }
-      return *(float *)&_XMM0;
-    case WEAPCLASS_ROCKETLAUNCHER:
-      if ( *(_BYTE *)(v6 + 1171) )
-        break;
-LABEL_28:
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-      return *(float *)&_XMM0;
-    case WEAPCLASS_NONE:
-      goto LABEL_28;
+      return 0.0;
+    }
+    return FLOAT_1000_0;
   }
-  __asm { vmovss  xmm0, cs:__real@42c80000 }
-  return *(float *)&_XMM0;
+  return 0.0;
 }
 
 /*
@@ -718,25 +623,20 @@ Reload_CheatAmmo
 */
 void Reload_CheatAmmo(ai_scripted_t *pScripted, int clipSize)
 {
-  int v9; 
+  int v4; 
+  int v5; 
 
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, edx
-    vmulss  xmm1, xmm0, cs:__real@3f000000
-    vcvttss2si ebx, xmm1
-  }
+  v4 = (int)(float)((float)clipSize * 0.5);
   if ( clipSize < 0 )
   {
-    v9 = 0;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v9, clipSize) )
+    v5 = 0;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 799, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%i, %i", v5, clipSize) )
       __debugbreak();
   }
-  if ( clipSize < _EBX )
-    _EBX = clipSize;
-  if ( _EBX < 0 )
-    LOWORD(_EBX) = 0;
-  pScripted->weaponInfo.bulletsInClip = _EBX;
+  if ( clipSize < v4 )
+    v4 = clipSize;
+  if ( v4 < 0 )
+    LOWORD(v4) = 0;
+  pScripted->weaponInfo.bulletsInClip = v4;
 }
 

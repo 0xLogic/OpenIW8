@@ -349,43 +349,39 @@ __int64 LUI_LuaCall_LUITournamentPackage_GetMapNameForRound(lua_State *luaVM)
 LUI_LuaCall_LUITournamentPackage_GetMatchTime
 ==============
 */
-
-__int64 __fastcall LUI_LuaCall_LUITournamentPackage_GetMatchTime(lua_State *luaVM, double _XMM1_8)
+__int64 LUI_LuaCall_LUITournamentPackage_GetMatchTime(lua_State *luaVM)
 {
-  unsigned int v3; 
+  unsigned int v2; 
+  int v3; 
   int v4; 
-  int v5; 
+  unsigned __int16 v5; 
   unsigned __int16 v6; 
-  unsigned __int16 v7; 
-  unsigned int v10; 
+  unsigned int v9; 
 
-  v3 = 1;
+  v2 = 1;
   if ( j_lua_gettop(luaVM) != 2 || !j_lua_isnumber(luaVM, 1) || !j_lua_isnumber(luaVM, 2) )
     j_luaL_error(luaVM, "USAGE: Tournament.GetMatchTime( round, match )");
   if ( j_lua_gettop(luaVM) == 2 && j_lua_isnumber(luaVM, 1) && j_lua_isnumber(luaVM, 2) )
   {
-    v4 = lui_tointeger32(luaVM, 1);
-    v5 = lui_tointeger32(luaVM, 2);
-    v6 = truncate_cast<unsigned short,int>(v5);
-    v7 = truncate_cast<unsigned short,int>(v4);
-    OnlineTournament_GetCurrentMatchTime(v7, v6);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, eax; n
-    }
+    v3 = lui_tointeger32(luaVM, 1);
+    v4 = lui_tointeger32(luaVM, 2);
+    v5 = truncate_cast<unsigned short,int>(v4);
+    v6 = truncate_cast<unsigned short,int>(v3);
+    OnlineTournament_GetCurrentMatchTime(v6, v5);
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, eax; n }
     j_lua_pushnumber(luaVM, *(long double *)&_XMM1);
   }
   else
   {
-    v3 = 0;
+    v2 = 0;
   }
-  if ( (int)v3 > j_lua_gettop(luaVM) )
+  if ( (int)v2 > j_lua_gettop(luaVM) )
   {
-    v10 = j_lua_gettop(luaVM);
-    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v3, v10);
+    v9 = j_lua_gettop(luaVM);
+    j_luaL_error(luaVM, "lua c binding return mismatch. claiming to be returning %d items, but there are only %d in the stack", v2, v9);
   }
-  return v3;
+  return v2;
 }
 
 /*

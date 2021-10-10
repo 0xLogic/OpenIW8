@@ -135,16 +135,13 @@ bdConsoleID::readConsoleID
 */
 char bdConsoleID::readConsoleID(bdConsoleID *this)
 {
-  _RBX = this;
+  const unsigned __int8 *DeviceID; 
+
   if ( bdAuthXboxOne::deviceIDInitialized() )
   {
-    _RAX = bdAuthXboxOne::getDeviceID();
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rbx+20h], xmm0
-    }
-    *(_DWORD *)_RBX->m_id = *((_DWORD *)_RAX + 4);
+    DeviceID = bdAuthXboxOne::getDeviceID();
+    *(_OWORD *)this->_bytes_20 = *(_OWORD *)DeviceID;
+    *(_DWORD *)this->m_id = *((_DWORD *)DeviceID + 4);
     return 1;
   }
   else

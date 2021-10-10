@@ -402,23 +402,22 @@ GVehicleSuspendManager::ReuseEntity
 void GVehicleSuspendManager::ReuseEntity(GVehicleSuspendManager *this, gentity_s *ent, const scr_string_t *classname)
 {
   float v3; 
+  double v4; 
   gentity_s *firstFreeEnt; 
   gentity_s *lastFreeEnt; 
-  gentity_s *v8; 
   scr_string_t targetname; 
   int eventTime; 
   __int16 number; 
   int maxHealth; 
   int health; 
-  int v15; 
+  int v14; 
   vec3_t angle; 
   vec3_t origin; 
 
   v3 = ent->r.currentOrigin.v[2];
-  __asm { vmovsd  xmm0, qword ptr [rdx+130h] }
+  v4 = *(double *)ent->r.currentOrigin.v;
   firstFreeEnt = level.firstFreeEnt;
   lastFreeEnt = level.lastFreeEnt;
-  v8 = ent;
   ent->r.svFlags |= 0x30u;
   targetname = ent->targetname;
   eventTime = ent->r.eventTime;
@@ -427,37 +426,33 @@ void GVehicleSuspendManager::ReuseEntity(GVehicleSuspendManager *this, gentity_s
   angle.v[2] = ent->r.currentAngles.v[2];
   health = ent->health;
   maxHealth = ent->maxHealth;
-  __asm
-  {
-    vmovsd  qword ptr [rsp+98h+origin], xmm0
-    vmovsd  xmm0, qword ptr [rdx+13Ch]
-  }
-  v15 = maxHealth;
-  __asm { vmovsd  qword ptr [rsp+98h+angle], xmm0 }
+  *(double *)origin.v = v4;
+  v14 = maxHealth;
+  *(_QWORD *)angle.v = *(_QWORD *)ent->r.currentAngles.v;
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
-  GUtils::ms_gUtils->FreeEntity(GUtils::ms_gUtils, v8);
+  GUtils::ms_gUtils->FreeEntity(GUtils::ms_gUtils, ent);
   if ( !GUtils::ms_gUtils && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_utils.h", 112, ASSERT_TYPE_ASSERT, "( ms_gUtils )", (const char *)&queryFormat, "ms_gUtils") )
     __debugbreak();
-  GUtils::ms_gUtils->InitGentity(GUtils::ms_gUtils, v8);
-  v8->spawnflags = 0;
-  Scr_SetString(&v8->script_classname, *classname);
-  G_Spawn_CallForEntity(v8);
-  if ( v8->s.number != number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 229, ASSERT_TYPE_ASSERT, "( ent->s.number == prevEntNum )", "We're expecting to reuse the same entity number") )
+  GUtils::ms_gUtils->InitGentity(GUtils::ms_gUtils, ent);
+  ent->spawnflags = 0;
+  Scr_SetString(&ent->script_classname, *classname);
+  G_Spawn_CallForEntity(ent);
+  if ( ent->s.number != number && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 229, ASSERT_TYPE_ASSERT, "( ent->s.number == prevEntNum )", "We're expecting to reuse the same entity number") )
     __debugbreak();
   level.lastFreeEnt = lastFreeEnt;
   level.firstFreeEnt = firstFreeEnt;
-  v8->r.eventTime = eventTime;
-  if ( level.lastFreeEnt && level.lastFreeEnt->nextFree == v8 )
+  ent->r.eventTime = eventTime;
+  if ( level.lastFreeEnt && level.lastFreeEnt->nextFree == ent )
     level.lastFreeEnt->nextFree = NULL;
-  if ( level.firstFreeEnt && level.firstFreeEnt->nextFree == v8 )
+  if ( level.firstFreeEnt && level.firstFreeEnt->nextFree == ent )
     level.firstFreeEnt->nextFree = NULL;
-  Scr_SetString(&v8->classname, *classname);
-  Scr_SetString(&v8->targetname, targetname);
-  G_SetOriginAndAngle(v8, &origin, &angle, 0, 0);
-  v8->health = health;
-  v8->maxHealth = v15;
-  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&v8->s.lerp.eFlags, ACTIVE, 0x10u);
+  Scr_SetString(&ent->classname, *classname);
+  Scr_SetString(&ent->targetname, targetname);
+  G_SetOriginAndAngle(ent, &origin, &angle, 0, 0);
+  ent->health = health;
+  ent->maxHealth = v14;
+  GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::SetFlagInternal(&ent->s.lerp.eFlags, ACTIVE, 0x10u);
 }
 
 /*
@@ -467,17 +462,19 @@ GVehicleSuspendManager::SaveInfo
 */
 void GVehicleSuspendManager::SaveInfo(GVehicleSuspendManager *this, const gentity_s *ent)
 {
+  __m256i *v4; 
   int v5; 
   __int64 v6; 
   GVehicleSuspendManager::SuspendInfo *v7; 
   __int16 number; 
-  __int64 v13; 
+  Vehicle *vehicle; 
+  __int64 v10; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 82, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
   if ( ent->s.eType != ET_VEHICLE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 83, ASSERT_TYPE_ASSERT, "(ent->s.eType == ET_VEHICLE)", (const char *)&queryFormat, "ent->s.eType == ET_VEHICLE") )
     __debugbreak();
-  _RBX = NULL;
+  v4 = NULL;
   v5 = 0;
   while ( 1 )
   {
@@ -488,34 +485,28 @@ void GVehicleSuspendManager::SaveInfo(GVehicleSuspendManager *this, const gentit
     if ( (unsigned int)++v5 >= 0x100 )
       goto LABEL_12;
   }
-  _RBX = &this->m_infos[v6];
+  v4 = (__m256i *)&this->m_infos[v6];
   this->m_nextAvailIndex = (unsigned __int8)(v6 + 1);
   if ( v7 )
     goto LABEL_14;
 LABEL_12:
-  LODWORD(v13) = 256;
-  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 86, ASSERT_TYPE_ASSERT, "( vinfo )", "Can't find an available slot, no more room for suspended vehicles: Max %d\n", v13) )
+  LODWORD(v10) = 256;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 86, ASSERT_TYPE_ASSERT, "( vinfo )", "Can't find an available slot, no more room for suspended vehicles: Max %d\n", v10) )
     __debugbreak();
 LABEL_14:
-  DebugWipe(_RBX, 0x5Cui64);
-  _RBX->vehDefIndex = ent->vehicle->defIndex;
+  DebugWipe(v4, 0x5Cui64);
+  v4[2].m256i_i32[5] = ent->vehicle->defIndex;
   number = ent->s.number;
   if ( ent->s.number < 0 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned short __cdecl truncate_cast_impl<unsigned short,short>(short)", "unsigned", (unsigned __int16)number, "signed", number) )
     __debugbreak();
-  _RBX->entityNumber = number;
-  _RBX->entityStateUn.vehicleXModel = ent->s.un.vehicleXModel;
-  _RBX->usableScriptablePartCount = ent->vehicle->usableScriptablePartCount;
-  _RAX = ent->vehicle;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax+74Ch]
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr [rax+76Ch]
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups xmm0, xmmword ptr [rax+78Ch]
-    vmovups xmmword ptr [rbx+40h], xmm0
-  }
-  this->m_entityNumToInfo[ent->s.number] = GVehicleSuspendManager::GetInfoNumber(this, _RBX);
+  v4[2].m256i_i16[12] = number;
+  v4[2].m256i_i32[4] = ent->s.un.vehicleXModel;
+  v4[2].m256i_i8[26] = ent->vehicle->usableScriptablePartCount;
+  vehicle = ent->vehicle;
+  *v4 = *(__m256i *)&vehicle->usableScriptableParts[0].serverInstanceFlatId;
+  v4[1] = *(__m256i *)&vehicle->usableScriptableParts[4].serverInstanceFlatId;
+  *(_OWORD *)v4[2].m256i_i8 = *(_OWORD *)&vehicle->usableScriptableParts[8].serverInstanceFlatId;
+  this->m_entityNumToInfo[ent->s.number] = GVehicleSuspendManager::GetInfoNumber(this, (const GVehicleSuspendManager::SuspendInfo *)v4);
 }
 
 /*
@@ -525,26 +516,21 @@ GVehicleSuspendManager::SetUsableInfo
 */
 void GVehicleSuspendManager::SetUsableInfo(GVehicleSuspendManager *this, const gentity_s *ent, unsigned __int8 usableScriptablePartCount, const VehicleUsableParts *usableScriptableParts)
 {
-  _RDI = usableScriptableParts;
+  GVehicleSuspendManager::SuspendInfo *SavedInfoConst; 
+
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 127, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 128, ASSERT_TYPE_ASSERT, "(usableScriptableParts)", (const char *)&queryFormat, "usableScriptableParts") )
+  if ( !usableScriptableParts && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 128, ASSERT_TYPE_ASSERT, "(usableScriptableParts)", (const char *)&queryFormat, "usableScriptableParts") )
     __debugbreak();
   if ( !GVehicleSuspendManager::IsSuspended(this, ent) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 129, ASSERT_TYPE_ASSERT, "(IsSuspended( ent ))", (const char *)&queryFormat, "IsSuspended( ent )") )
     __debugbreak();
-  _RBX = GVehicleSuspendManager::GetSavedInfoConst(this, ent);
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 133, ASSERT_TYPE_ASSERT, "(vinfo)", (const char *)&queryFormat, "vinfo") )
+  SavedInfoConst = (GVehicleSuspendManager::SuspendInfo *)GVehicleSuspendManager::GetSavedInfoConst(this, ent);
+  if ( !SavedInfoConst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 133, ASSERT_TYPE_ASSERT, "(vinfo)", (const char *)&queryFormat, "vinfo") )
     __debugbreak();
-  _RBX->usableScriptablePartCount = usableScriptablePartCount;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdi]
-    vmovups ymmword ptr [rbx], ymm0
-    vmovups ymm1, ymmword ptr [rdi+20h]
-    vmovups ymmword ptr [rbx+20h], ymm1
-    vmovups xmm0, xmmword ptr [rdi+40h]
-    vmovups xmmword ptr [rbx+40h], xmm0
-  }
+  SavedInfoConst->usableScriptablePartCount = usableScriptablePartCount;
+  *(__m256i *)&SavedInfoConst->usableScriptableParts[0].serverInstanceFlatId = *(__m256i *)&usableScriptableParts->serverInstanceFlatId;
+  *(__m256i *)&SavedInfoConst->usableScriptableParts[4].serverInstanceFlatId = *(__m256i *)&usableScriptableParts[4].serverInstanceFlatId;
+  *(_OWORD *)&SavedInfoConst->usableScriptableParts[8].serverInstanceFlatId = *(_OWORD *)&usableScriptableParts[8].serverInstanceFlatId;
 }
 
 /*
@@ -582,12 +568,13 @@ GVehicleSuspendManager::WakeUpVehicle
 */
 void GVehicleSuspendManager::WakeUpVehicle(GVehicleSuspendManager *this, gentity_s *ent)
 {
+  GVehicleSuspendManager::SuspendInfo *SavedInfoConst; 
   int health; 
   Vehicle *vehicle; 
   unsigned __int8 usableScriptablePartCount; 
-  __int64 v9; 
+  __int64 v8; 
   __int64 vehDefIndex; 
-  int v11; 
+  int v10; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 274, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
@@ -595,13 +582,12 @@ void GVehicleSuspendManager::WakeUpVehicle(GVehicleSuspendManager *this, gentity
     __debugbreak();
   if ( !GVehicleSuspendManager::IsSuspended(this, ent) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 276, ASSERT_TYPE_ASSERT, "( IsSuspended( ent ) )", "GVehicleSuspendManager::WakeUpVehicle(): There must be a saved vehicle info for this entity") )
     __debugbreak();
-  _RDI = (GVehicleSuspendManager::SuspendInfo *)GVehicleSuspendManager::GetSavedInfoConst(this, ent);
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 279, ASSERT_TYPE_ASSERT, "(vinfo)", (const char *)&queryFormat, "vinfo") )
+  SavedInfoConst = (GVehicleSuspendManager::SuspendInfo *)GVehicleSuspendManager::GetSavedInfoConst(this, ent);
+  if ( !SavedInfoConst && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 279, ASSERT_TYPE_ASSERT, "(vinfo)", (const char *)&queryFormat, "vinfo") )
     __debugbreak();
-  __asm { vmovsd  xmm1, qword ptr [rdi+50h] }
   health = ent->health;
-  v11 = *(_DWORD *)&_RDI->entityNumber;
-  __asm { vmovsd  qword ptr [rsp+0A8h+vehDefIndex], xmm1 }
+  v10 = *(_DWORD *)&SavedInfoConst->entityNumber;
+  vehDefIndex = *(_QWORD *)&SavedInfoConst->entityStateUn.scriptMoverType;
   GVehicleSuspendManager::ReuseEntity(this, ent, &scr_const.script_vehicle);
   G_Vehicle_Create(ent, HIDWORD(vehDefIndex), NULL, 0);
   if ( !ent->vehicle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 291, ASSERT_TYPE_ASSERT, "(ent->vehicle)", (const char *)&queryFormat, "ent->vehicle") )
@@ -611,12 +597,12 @@ void GVehicleSuspendManager::WakeUpVehicle(GVehicleSuspendManager *this, gentity
   vehicle = ent->vehicle;
   ent->health = health;
   usableScriptablePartCount = vehicle->usableScriptablePartCount;
-  if ( usableScriptablePartCount != BYTE2(v11) )
+  if ( usableScriptablePartCount != BYTE2(v10) )
   {
-    LODWORD(v9) = usableScriptablePartCount;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 302, ASSERT_TYPE_ASSERT, "( ent->vehicle->usableScriptablePartCount ) == ( vInfoCopy.usableScriptablePartCount )", "ent->vehicle->usableScriptablePartCount == vInfoCopy.usableScriptablePartCount\n\t%i, %i", v9, BYTE2(v11)) )
+    LODWORD(v8) = usableScriptablePartCount;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\g_vehicle_suspend.cpp", 302, ASSERT_TYPE_ASSERT, "( ent->vehicle->usableScriptablePartCount ) == ( vInfoCopy.usableScriptablePartCount )", "ent->vehicle->usableScriptablePartCount == vInfoCopy.usableScriptablePartCount\n\t%i, %i", v8, BYTE2(v10)) )
       __debugbreak();
   }
-  GVehicleSuspendManager::ClearSavedInfo(this, _RDI);
+  GVehicleSuspendManager::ClearSavedInfo(this, SavedInfoConst);
 }
 

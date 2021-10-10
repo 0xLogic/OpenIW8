@@ -117,50 +117,46 @@ ParticleSystem::SetSystemOrientation
 ==============
 */
 
-void __fastcall ParticleSystem::SetSystemOrientation(ParticleSystem *this, const float4 *systemOrientationQuat, double _XMM2_8)
+void __fastcall ParticleSystem::SetSystemOrientation(ParticleSystem *this, const float4 *systemOrientationQuat, double a3)
 {
+  float4 v3; 
+  __m128 v; 
+  float4 v6; 
+  float4 v7; 
+  float4 v8; 
+  __m128 v9; 
+  __m128 v10; 
+  __m128 v11; 
+  __m128 v12; 
+  __m256i v13; 
   float4 normal[2]; 
-  float4 v21[2]; 
+  float4 v15[2]; 
 
-  __asm { vmovups xmm0, xmmword ptr [rdx] }
-  _RBX = this;
+  v = systemOrientationQuat->v;
   Float4UnitQuatToAxis(&this->m_systemTransform, systemOrientationQuat);
-  __asm
-  {
-    vmovups xmmword ptr [rsp+68h+normal.v+10h], xmm1
-    vmovups xmmword ptr [rsp+68h+normal.v], xmm0
-    vmovups ymm3, ymmword ptr [rsp+68h+normal.v]
-    vmovups ymmword ptr [rsp+68h+normal.v], ymm3
-    vmovups xmmword ptr [rsp+68h+var_28.v], xmm2
-  }
+  normal[1] = (float4)v3.v;
+  normal[0] = (float4)v;
+  v15[0] = *(float4 *)&a3;
   Particle_AssertFloat4IsNormalized(normal);
   Particle_AssertFloat4IsNormalized(&normal[1]);
-  Particle_AssertFloat4IsNormalized(v21);
-  __asm
-  {
-    vmovups xmm5, xmmword ptr [rsp+68h+normal.v]
-    vmovups xmm3, xmmword ptr [rsp+68h+normal.v+10h]
-    vmovups xmm2, xmmword ptr [rsp+68h+var_28.v]
-    vshufps xmm1, xmm2, xmmword ptr [rbx+30h], 44h ; 'D'
-    vshufps xmm4, xmm5, xmm3, 44h ; 'D'
-    vshufps xmm0, xmm4, xmm1, 88h ; 'ˆ'
-    vshufps xmm1, xmm4, xmm1, 0DDh ; 'Ý'
-    vmovups xmmword ptr [rsp+68h+normal.v+10h], xmm1
-    vmovups xmmword ptr [rsp+68h+normal.v], xmm0
-    vmovups xmmword ptr [rbx+10h], xmm3
-    vshufps xmm3, xmm5, xmm3, 0EEh ; 'î'
-    vmovups xmmword ptr [rbx+20h], xmm2
-    vshufps xmm2, xmm2, xmmword ptr [rbx+30h], 0EEh ; 'î'
-    vshufps xmm0, xmm3, xmm2, 88h ; 'ˆ'
-    vshufps xmm1, xmm3, xmm2, 0DDh ; 'Ý'
-    vmovups xmmword ptr [rsp+68h+var_28.v], xmm0
-    vmovups ymm0, ymmword ptr [rsp+68h+normal.v]
-    vmovups xmmword ptr [rsp+68h+var_28.v+10h], xmm1
-    vmovups ymm1, ymmword ptr [rsp+68h+var_28.v]
-    vmovups ymmword ptr [rbx+40h], ymm0
-    vmovups ymmword ptr [rbx+60h], ymm1
-    vmovups xmmword ptr [rbx], xmm5
-  }
+  Particle_AssertFloat4IsNormalized(v15);
+  v6.v = (__m128)normal[0];
+  v7.v = (__m128)normal[1];
+  v8.v = (__m128)v15[0];
+  v9 = _mm_shuffle_ps(v15[0].v, this->m_systemTransform.w.v, 68);
+  v10 = _mm_shuffle_ps(normal[0].v, normal[1].v, 68);
+  normal[1].v = _mm_shuffle_ps(v10, v9, 221);
+  normal[0].v = _mm_shuffle_ps(v10, v9, 136);
+  this->m_systemTransform.y = (float4)v7.v;
+  v11 = _mm_shuffle_ps(v6.v, v7.v, 238);
+  this->m_systemTransform.z = (float4)v8.v;
+  v12 = _mm_shuffle_ps(v8.v, this->m_systemTransform.w.v, 238);
+  v15[0].v = _mm_shuffle_ps(v11, v12, 136);
+  v15[1].v = _mm_shuffle_ps(v11, v12, 221);
+  v13 = *(__m256i *)v15[0].v.m128_f32;
+  *(__m256i *)this->m_systemTransformTranspose.x.v.m128_f32 = *(__m256i *)normal[0].v.m128_f32;
+  *(__m256i *)this->m_systemTransformTranspose.z.v.m128_f32 = v13;
+  this->m_systemTransform.x = (float4)v6.v;
 }
 
 /*
@@ -211,38 +207,29 @@ ParticleSystem::SetSystemTransform
 */
 void ParticleSystem::SetSystemTransform(ParticleSystem *this, const vector4 *systemTransform)
 {
-  _RDI = this;
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RBX = systemTransform;
+  float4 v4; 
+  __m128 v5; 
+  __m128 v6; 
+  __m128 v7; 
+  __m128 v8; 
+  __m256i v9; 
+  __m256i v10; 
+
   Particle_AssertFloat4IsNormalized(&systemTransform->x);
-  Particle_AssertFloat4IsNormalized(&_RBX->y);
-  Particle_AssertFloat4IsNormalized(&_RBX->z);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rdi], ymm0
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups ymmword ptr [rdi+20h], ymm1
-    vmovups xmm1, xmmword ptr [rdi+20h]
-    vshufps xmm4, xmm1, xmmword ptr [rdi+30h], 44h ; 'D'
-    vshufps xmm5, xmm1, xmmword ptr [rdi+30h], 0EEh ; 'î'
-    vmovups xmm3, xmmword ptr [rdi]
-    vshufps xmm6, xmm3, xmmword ptr [rdi+10h], 44h ; 'D'
-    vshufps xmm2, xmm3, xmmword ptr [rdi+10h], 0EEh ; 'î'
-    vshufps xmm0, xmm6, xmm4, 88h ; 'ˆ'
-    vshufps xmm1, xmm6, xmm4, 0DDh ; 'Ý'
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovups xmmword ptr [rsp+78h+var_58+10h], xmm1
-    vmovups xmmword ptr [rsp+78h+var_58], xmm0
-    vshufps xmm0, xmm2, xmm5, 88h ; 'ˆ'
-    vshufps xmm1, xmm2, xmm5, 0DDh ; 'Ý'
-    vmovups xmmword ptr [rsp+78h+var_38], xmm0
-    vmovups ymm0, [rsp+78h+var_58]
-    vmovups xmmword ptr [rsp+78h+var_38+10h], xmm1
-    vmovups ymm1, [rsp+78h+var_38]
-    vmovups ymmword ptr [rdi+40h], ymm0
-    vmovups ymmword ptr [rdi+60h], ymm1
-  }
+  Particle_AssertFloat4IsNormalized(&systemTransform->y);
+  Particle_AssertFloat4IsNormalized(&systemTransform->z);
+  this->m_systemTransform = *systemTransform;
+  v4.v = (__m128)this->m_systemTransform.z;
+  v5 = _mm_shuffle_ps(v4.v, this->m_systemTransform.w.v, 68);
+  v6 = _mm_shuffle_ps(v4.v, this->m_systemTransform.w.v, 238);
+  v7 = _mm_shuffle_ps(this->m_systemTransform.x.v, this->m_systemTransform.y.v, 68);
+  v8 = _mm_shuffle_ps(this->m_systemTransform.x.v, this->m_systemTransform.y.v, 238);
+  *(__m128 *)&v9.m256i_u64[2] = _mm_shuffle_ps(v7, v5, 221);
+  *(__m128 *)v9.m256i_i8 = _mm_shuffle_ps(v7, v5, 136);
+  *(__m128 *)v10.m256i_i8 = _mm_shuffle_ps(v8, v6, 136);
+  *(__m128 *)&v10.m256i_u64[2] = _mm_shuffle_ps(v8, v6, 221);
+  *(__m256i *)this->m_systemTransformTranspose.x.v.m128_f32 = v9;
+  *(__m256i *)this->m_systemTransformTranspose.z.v.m128_f32 = v10;
 }
 
 /*
@@ -302,41 +289,37 @@ ParticleSystem::SetSystemTransform
 */
 void ParticleSystem::SetSystemTransform(ParticleSystem *this, const float4 *systemPos, const vector3 *systemOrientationMat)
 {
-  _R15 = this;
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
-  _RSI = systemOrientationMat;
-  _R14 = systemPos;
+  __m128 v; 
+  float4 v7; 
+  __m128 v8; 
+  __m128 v9; 
+  __m128 v10; 
+  __m128 v11; 
+  __m128 v12; 
+  __m128 v13; 
+  __m256i v14; 
+  __m256i v15; 
+
   Particle_AssertFloat4IsNormalized(&systemOrientationMat->x);
-  Particle_AssertFloat4IsNormalized(&_RSI->y);
-  Particle_AssertFloat4IsNormalized(&_RSI->z);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi]
-    vmovdqu xmmword ptr [r15], xmm0
-    vmovups xmm1, xmmword ptr [rsi+10h]
-    vmovups xmm3, xmmword ptr [r15]
-    vshufps xmm6, xmm3, xmm1, 44h ; 'D'
-    vmovdqu xmmword ptr [r15+10h], xmm1
-    vmovups xmm0, xmmword ptr [rsi+20h]
-    vshufps xmm4, xmm3, xmm1, 0EEh ; 'î'
-    vmovdqu xmmword ptr [r15+20h], xmm0
-    vmovups xmm5, xmmword ptr [r14]
-    vshufps xmm2, xmm0, xmm5, 44h ; 'D'
-    vshufps xmm3, xmm0, xmm5, 0EEh ; 'î'
-    vshufps xmm0, xmm6, xmm2, 88h ; 'ˆ'
-    vshufps xmm1, xmm6, xmm2, 0DDh ; 'Ý'
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovups xmmword ptr [rsp+78h+var_58+10h], xmm1
-    vmovups xmmword ptr [rsp+78h+var_58], xmm0
-    vshufps xmm0, xmm4, xmm3, 88h ; 'ˆ'
-    vshufps xmm1, xmm4, xmm3, 0DDh ; 'Ý'
-    vmovups xmmword ptr [rsp+78h+var_38], xmm0
-    vmovups ymm0, [rsp+78h+var_58]
-    vmovups xmmword ptr [rsp+78h+var_38+10h], xmm1
-    vmovups ymm1, [rsp+78h+var_38]
-    vmovups ymmword ptr [r15+40h], ymm0
-    vmovups ymmword ptr [r15+60h], ymm1
-    vmovdqu xmmword ptr [r15+30h], xmm5
-  }
+  Particle_AssertFloat4IsNormalized(&systemOrientationMat->y);
+  Particle_AssertFloat4IsNormalized(&systemOrientationMat->z);
+  this->m_systemTransform.x = systemOrientationMat->x;
+  v = systemOrientationMat->y.v;
+  v7.v = (__m128)this->m_systemTransform.x;
+  v8 = _mm_shuffle_ps(this->m_systemTransform.x.v, v, 68);
+  this->m_systemTransform.y.v = v;
+  v9 = systemOrientationMat->z.v;
+  v10 = _mm_shuffle_ps(v7.v, v, 238);
+  this->m_systemTransform.z.v = v9;
+  v11 = systemPos->v;
+  v12 = _mm_shuffle_ps(v9, systemPos->v, 68);
+  v13 = _mm_shuffle_ps(v9, systemPos->v, 238);
+  *(__m128 *)&v14.m256i_u64[2] = _mm_shuffle_ps(v8, v12, 221);
+  *(__m128 *)v14.m256i_i8 = _mm_shuffle_ps(v8, v12, 136);
+  *(__m128 *)v15.m256i_i8 = _mm_shuffle_ps(v10, v13, 136);
+  *(__m128 *)&v15.m256i_u64[2] = _mm_shuffle_ps(v10, v13, 221);
+  *(__m256i *)this->m_systemTransformTranspose.x.v.m128_f32 = v14;
+  *(__m256i *)this->m_systemTransformTranspose.z.v.m128_f32 = v15;
+  this->m_systemTransform.w.v = v11;
 }
 

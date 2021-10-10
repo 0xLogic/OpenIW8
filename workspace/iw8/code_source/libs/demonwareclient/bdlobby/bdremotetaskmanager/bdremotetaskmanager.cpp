@@ -226,10 +226,12 @@ bdRemoteTaskManager::bdRemoteTaskManager
 void bdRemoteTaskManager::bdRemoteTaskManager(bdRemoteTaskManager *this, bdReference<bdLobbyConnection> connection, const bool useEncryption)
 {
   unsigned int PowerOf2; 
-  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **v12; 
-  unsigned int v13; 
-  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **v18; 
-  bdLobbyConnection_vtbl *v19; 
+  float v7; 
+  bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **v8; 
+  unsigned int v9; 
+  float v10; 
+  bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **v11; 
+  bdLobbyConnection_vtbl *v12; 
 
   this->__vftable = (bdRemoteTaskManager_vtbl *)&bdRemoteTaskManager::`vftable';
   this->m_tasks.m_head = NULL;
@@ -240,37 +242,25 @@ void bdRemoteTaskManager::bdRemoteTaskManager(bdRemoteTaskManager *this, bdRefer
   PowerOf2 = bdBitOperations::nextPowerOf2(4u);
   this->m_asyncTasks.m_capacity = PowerOf2;
   this->m_asyncTasks.m_loadFactor = 0.75;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm0, xmm0, cs:__real@3f400000
-    vcvttss2si rcx, xmm0
-  }
-  this->m_asyncTasks.m_threshold = _RCX;
-  v12 = (bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
-  this->m_asyncTasks.m_map = v12;
-  memset_0(v12, 0, 8i64 * this->m_asyncTasks.m_capacity);
+  v7 = (float)PowerOf2;
+  this->m_asyncTasks.m_threshold = (int)(float)(v7 * 0.75);
+  v8 = (bdHashMap<unsigned __int64,bdReference<bdRemoteTask>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * PowerOf2);
+  this->m_asyncTasks.m_map = v8;
+  memset_0(v8, 0, 8i64 * this->m_asyncTasks.m_capacity);
   this->m_asyncResults.m_numIterators.m_value._My_val = 0;
   this->m_asyncResults.m_size = 0;
-  v13 = bdBitOperations::nextPowerOf2(4u);
-  this->m_asyncResults.m_capacity = v13;
+  v9 = bdBitOperations::nextPowerOf2(4u);
+  this->m_asyncResults.m_capacity = v9;
   this->m_asyncResults.m_loadFactor = 0.75;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rcx
-    vmulss  xmm1, xmm0, cs:__real@3f400000
-    vcvttss2si rcx, xmm1
-  }
-  this->m_asyncResults.m_threshold = _RCX;
-  v18 = (bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * v13);
-  this->m_asyncResults.m_map = v18;
-  memset_0(v18, 0, 8i64 * this->m_asyncResults.m_capacity);
-  v19 = connection.m_ptr->__vftable;
+  v10 = (float)v9;
+  this->m_asyncResults.m_threshold = (int)(float)(v10 * 0.75);
+  v11 = (bdHashMap<unsigned __int64,bdReference<bdByteBuffer>,bdHashingClass>::Node **)bdMemory::allocate(8i64 * v9);
+  this->m_asyncResults.m_map = v11;
+  memset_0(v11, 0, 8i64 * this->m_asyncResults.m_capacity);
+  v12 = connection.m_ptr->__vftable;
   this->m_lobbyConnection.m_ptr = (bdLobbyConnection *)connection.m_ptr->__vftable;
-  if ( v19 )
-    _InterlockedExchangeAdd((volatile signed __int32 *)&v19->sendTask, 1u);
+  if ( v12 )
+    _InterlockedExchangeAdd((volatile signed __int32 *)&v12->sendTask, 1u);
   this->m_encryptedConnection = useEncryption;
   this->m_connectionID = 0i64;
   this->m_restTaskManager = NULL;
@@ -863,37 +853,36 @@ bdRemoteTaskManager::sendTask
 */
 __int64 bdRemoteTaskManager::sendTask(bdRemoteTaskManager *this, bdReference<bdRemoteTask> newTask, bdReference<bdTaskByteBuffer> *queryParams)
 {
-  unsigned int v7; 
+  unsigned int v6; 
   bdLobbyConnection *m_ptr; 
   bool (__fastcall *sendTask)(bdLobbyConnection *, bdReference<bdTaskByteBuffer>, unsigned int, const bool); 
   bool m_encryptedConnection; 
   unsigned int DataSize; 
-  bdTaskByteBuffer *v12; 
-  bdTaskByteBuffer *v15; 
+  bdTaskByteBuffer *v11; 
+  bdTaskByteBuffer *v13; 
 
-  v7 = 0;
+  v6 = 0;
   if ( !bdByteBuffer::writeNoType(queryParams->m_ptr) )
     goto LABEL_6;
   m_ptr = this->m_lobbyConnection.m_ptr;
   sendTask = m_ptr->sendTask;
   m_encryptedConnection = this->m_encryptedConnection;
   DataSize = bdByteBuffer::getDataSize(queryParams->m_ptr);
-  v12 = queryParams->m_ptr;
-  v15 = v12;
-  if ( v12 )
-    _InterlockedExchangeAdd((volatile signed __int32 *)&v12->m_refCount, 1u);
-  if ( ((unsigned __int8 (__fastcall *)(bdLobbyConnection *, bdTaskByteBuffer **, _QWORD, bool, __int64))sendTask)(m_ptr, &v15, DataSize, m_encryptedConnection, -2i64) )
+  v11 = queryParams->m_ptr;
+  v13 = v11;
+  if ( v11 )
+    _InterlockedExchangeAdd((volatile signed __int32 *)&v11->m_refCount, 1u);
+  if ( ((unsigned __int8 (__fastcall *)(bdLobbyConnection *, bdTaskByteBuffer **, _QWORD, bool, __int64))sendTask)(m_ptr, &v13, DataSize, m_encryptedConnection, -2i64) )
   {
     LOBYTE(newTask.m_ptr->__vftable[2].~bdReferencable) = queryParams->m_ptr->m_serviceId;
     BYTE1(newTask.m_ptr->__vftable[2].~bdReferencable) = queryParams->m_ptr->m_taskId;
     bdLinkedList<bdReference<bdRemoteTask>>::addTail(&this->m_tasks, (const bdReference<bdRemoteTask> *)newTask.m_ptr);
-    __asm { vxorps  xmm1, xmm1, xmm1 }
     (*((void (__fastcall **)(bdRemoteTask_vtbl *))newTask.m_ptr->~bdReferencable + 4))(newTask.m_ptr->__vftable);
   }
   else
   {
 LABEL_6:
-    v7 = 3;
+    v6 = 3;
     HIDWORD(newTask.m_ptr->handleAsyncTaskReply) = 3;
     LODWORD(newTask.m_ptr->__vftable[1].start) = 3;
   }
@@ -903,7 +892,7 @@ LABEL_6:
       (*(void (__fastcall **)(bdRemoteTask_vtbl *, __int64))newTask.m_ptr->~bdReferencable)(newTask.m_ptr->__vftable, 1i64);
     newTask.m_ptr->__vftable = NULL;
   }
-  return v7;
+  return v6;
 }
 
 /*
@@ -998,89 +987,88 @@ bdRemoteTaskManager::startLSGTask
 */
 __int64 bdRemoteTaskManager::startLSGTask(bdRemoteTaskManager *this, bdReference<bdRemoteTask> *newTask, const unsigned __int8 serviceID, const unsigned __int8 taskID, const void *const queryParams, const unsigned int queryParamsSize)
 {
-  unsigned int v11; 
+  unsigned int v10; 
+  bdRemoteTask *v11; 
   bdRemoteTask *v12; 
   bdRemoteTask *v13; 
-  bdRemoteTask *v14; 
-  unsigned int v15; 
-  bdTaskByteBuffer *v16; 
+  unsigned int v14; 
+  bdTaskByteBuffer *v15; 
+  bdByteBuffer *v16; 
   bdByteBuffer *v17; 
-  bdByteBuffer *v18; 
   bdLobbyConnection *m_ptr; 
   bool (__fastcall *sendTask)(bdLobbyConnection *, bdReference<bdTaskByteBuffer>, unsigned int, const bool); 
   bool m_encryptedConnection; 
   __int64 DataSize; 
-  char v25[8]; 
-  __int64 v26[2]; 
-  bdTaskByteBuffer *v27; 
+  char v23[8]; 
+  __int64 v24[2]; 
+  bdTaskByteBuffer *v25; 
   bdRemoteTask *data; 
 
-  v26[1] = -2i64;
-  v11 = 3;
-  v12 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
-  data = v12;
-  if ( v12 )
+  v24[1] = -2i64;
+  v10 = 3;
+  v11 = (bdRemoteTask *)bdMemory::allocate(0x68ui64);
+  data = v11;
+  if ( v11 )
   {
-    bdRemoteTask::bdRemoteTask(v12);
-    v14 = v13;
+    bdRemoteTask::bdRemoteTask(v11);
+    v13 = v12;
   }
   else
   {
-    v14 = NULL;
+    v13 = NULL;
   }
   if ( newTask->m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&newTask->m_ptr->m_refCount, 0xFFFFFFFF) == 1 && newTask->m_ptr )
     ((void (__fastcall *)(bdRemoteTask *, __int64))newTask->m_ptr->~bdReferencable)(newTask->m_ptr, 1i64);
-  newTask->m_ptr = v14;
-  if ( v14 )
+  newTask->m_ptr = v13;
+  if ( v13 )
   {
-    _InterlockedExchangeAdd((volatile signed __int32 *)&v14->m_refCount, 1u);
+    _InterlockedExchangeAdd((volatile signed __int32 *)&v13->m_refCount, 1u);
     if ( newTask->m_ptr )
     {
       newTask->m_ptr->m_serviceId = serviceID;
       newTask->m_ptr->m_taskId = taskID;
-      v15 = queryParamsSize;
-      v16 = (bdTaskByteBuffer *)bdMemory::allocate(0x58ui64);
-      v27 = v16;
-      if ( v16 )
+      v14 = queryParamsSize;
+      v15 = (bdTaskByteBuffer *)bdMemory::allocate(0x58ui64);
+      v25 = v15;
+      if ( v15 )
       {
-        bdTaskByteBuffer::bdTaskByteBuffer(v16, v15 + 74, 0);
-        v18 = v17;
+        bdTaskByteBuffer::bdTaskByteBuffer(v15, v14 + 74, 0);
+        v17 = v16;
       }
       else
       {
-        v18 = NULL;
+        v17 = NULL;
       }
-      v27 = (bdTaskByteBuffer *)v18;
-      if ( v18 )
-        _InterlockedExchangeAdd((volatile signed __int32 *)&v18->m_refCount, 1u);
+      v25 = (bdTaskByteBuffer *)v17;
+      if ( v17 )
+        _InterlockedExchangeAdd((volatile signed __int32 *)&v17->m_refCount, 1u);
       LOBYTE(data) = serviceID;
-      if ( bdByteBuffer::write(v18, &data, 1u) )
+      if ( bdByteBuffer::write(v17, &data, 1u) )
       {
-        v25[0] = taskID;
-        if ( bdByteBuffer::write(v18, v25, 1u) && bdByteBuffer::write(v18, queryParams, v15) )
+        v23[0] = taskID;
+        if ( bdByteBuffer::write(v17, v23, 1u) && bdByteBuffer::write(v17, queryParams, v14) )
         {
           m_ptr = this->m_lobbyConnection.m_ptr;
           if ( m_ptr )
           {
             sendTask = m_ptr->sendTask;
             m_encryptedConnection = this->m_encryptedConnection;
-            DataSize = bdByteBuffer::getDataSize(v18);
-            v26[0] = (__int64)v18;
-            if ( v18 )
-              _InterlockedExchangeAdd((volatile signed __int32 *)&v18->m_refCount, 1u);
-            if ( ((unsigned __int8 (__fastcall *)(bdLobbyConnection *, __int64 *, __int64, bool))sendTask)(m_ptr, v26, DataSize, m_encryptedConnection) )
+            DataSize = bdByteBuffer::getDataSize(v17);
+            v24[0] = (__int64)v17;
+            if ( v17 )
+              _InterlockedExchangeAdd((volatile signed __int32 *)&v17->m_refCount, 1u);
+            if ( ((unsigned __int8 (__fastcall *)(bdLobbyConnection *, __int64 *, __int64, bool))sendTask)(m_ptr, v24, DataSize, m_encryptedConnection) )
             {
-              v11 = 0;
+              v10 = 0;
               bdLinkedList<bdReference<bdRemoteTask>>::addTail(&this->m_tasks, newTask);
-              __asm { vxorps  xmm1, xmm1, xmm1 }
               ((void (__fastcall *)(bdRemoteTask *))newTask->m_ptr->start)(newTask->m_ptr);
             }
           }
         }
       }
-      if ( v18 && _InterlockedExchangeAdd((volatile signed __int32 *)&v18->m_refCount, 0xFFFFFFFF) == 1 )
-        ((void (__fastcall *)(bdByteBuffer *, __int64))v18->~bdReferencable)(v18, 1i64);
-      if ( newTask->m_ptr && v11 )
+      if ( v17 && _InterlockedExchangeAdd((volatile signed __int32 *)&v17->m_refCount, 0xFFFFFFFF) == 1 )
+        ((void (__fastcall *)(bdByteBuffer *, __int64))v17->~bdReferencable)(v17, 1i64);
+      if ( newTask->m_ptr && v10 )
       {
         if ( _InterlockedExchangeAdd((volatile signed __int32 *)&newTask->m_ptr->m_refCount, 0xFFFFFFFF) == 1 && newTask->m_ptr )
           ((void (__fastcall *)(bdRemoteTask *, __int64))newTask->m_ptr->~bdReferencable)(newTask->m_ptr, 1i64);
@@ -1088,7 +1076,7 @@ __int64 bdRemoteTaskManager::startLSGTask(bdRemoteTaskManager *this, bdReference
       }
     }
   }
-  return v11;
+  return v10;
 }
 
 /*

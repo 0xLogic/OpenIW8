@@ -38,7 +38,6 @@ DeployTestResults::DeployTestResults
 */
 void DeployTestResults::DeployTestResults(DeployTestResults *this)
 {
-  __asm { vmovss  xmm3, cs:__real@3f800000; scale }
   *(_DWORD *)&this->passRangeTest = 0;
   *(_WORD *)&this->passMaterialTest = 0;
   this->hitEntityNum = 2047;
@@ -47,7 +46,7 @@ void DeployTestResults::DeployTestResults(DeployTestResults *this)
   this->equipBounds.halfSize.v[0] = -3.4028235e38;
   this->equipBounds.halfSize.v[1] = -3.4028235e38;
   this->equipBounds.halfSize.v[2] = -3.4028235e38;
-  MatrixSet43(&this->transform, &vec3_origin, &identityMatrix33, *(float *)&_XMM3);
+  MatrixSet43(&this->transform, &vec3_origin, &identityMatrix33, 1.0);
 }
 
 /*
@@ -58,11 +57,32 @@ BG_Deploy_CalcTestPoint
 bool BG_Deploy_CalcTestPoint(const vec3_t *viewOrigin, const tmat33_t<vec3_t> *viewAxis, const playerState_s *ps, const WeaponDef *weapDef, const Physics_WorldId worldId, const int traceMask, vec3_t *outTestPoint, trace_t *outTrace)
 {
   DeployType deployType; 
-  const int *p_clientNum; 
-  char v30; 
-  bool v68; 
-  const dvar_t *v90; 
-  bool result; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float deployMaxDistance; 
+  int *p_clientNum; 
+  float fraction; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  bool v30; 
+  float v31; 
+  float v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  float v36; 
+  float v37; 
+  const dvar_t *v38; 
   DeployType skipEntities; 
   int skipEntityCount; 
   vec3_t end; 
@@ -70,11 +90,6 @@ bool BG_Deploy_CalcTestPoint(const vec3_t *viewOrigin, const tmat33_t<vec3_t> *v
   vec3_t forward; 
   vec3_t up; 
 
-  _RDI = weapDef;
-  _RSI = outTestPoint;
-  _R13 = ps;
-  _RBX = outTrace;
-  _R14 = viewOrigin;
   if ( weapDef->deployType >= (unsigned int)COUNT )
   {
     skipEntityCount = 2;
@@ -82,165 +97,77 @@ bool BG_Deploy_CalcTestPoint(const vec3_t *viewOrigin, const tmat33_t<vec3_t> *v
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 282, ASSERT_TYPE_ASSERT, "(unsigned)( weapDef->deployType ) < (unsigned)( DeployType::COUNT )", "weapDef->deployType doesn't index DeployType::COUNT\n\t%i not in [0, %i)", skipEntities, skipEntityCount) )
       __debugbreak();
   }
-  deployType = _RDI->deployType;
-  __asm { vmovaps [rsp+110h+var_40], xmm6 }
+  deployType = weapDef->deployType;
   if ( deployType && deployType == DODGE )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r13+1DCh]
-      vxorps  xmm1, xmm1, xmm1
-      vmovaps [rsp+110h+var_50], xmm8
-      vmovss  xmm8, dword ptr [r14+8]
-      vmovaps [rsp+110h+var_60], xmm9
-      vmovss  xmm9, dword ptr [r13+38h]
-      vmovss  dword ptr [rbp+37h+angles], xmm1
-      vmovss  dword ptr [rbp+37h+angles+4], xmm0
-      vmovss  dword ptr [rbp+37h+angles+8], xmm1
-    }
+    v13 = ps->viewangles.v[1];
+    v14 = viewOrigin->v[2];
+    v15 = ps->origin.v[2];
+    angles.v[0] = 0.0;
+    angles.v[1] = v13;
+    angles.v[2] = 0.0;
     AngleVectors(&angles, &forward, NULL, &up);
-    __asm
+    deployMaxDistance = weapDef->deployMaxDistance;
+    p_clientNum = &ps->clientNum;
+    end.v[0] = (float)(deployMaxDistance * forward.v[0]) + viewOrigin->v[0];
+    end.v[1] = (float)(deployMaxDistance * forward.v[1]) + viewOrigin->v[1];
+    end.v[2] = (float)(deployMaxDistance * forward.v[2]) + viewOrigin->v[2];
+    PhysicsQuery_LegacyTraceSkipEntities(worldId, outTrace, viewOrigin, &end, &bounds_origin, p_clientNum, 1, 1, traceMask, 0, NULL, All);
+    fraction = outTrace->fraction;
+    v19 = end.v[1];
+    v20 = (float)((float)(end.v[0] - viewOrigin->v[0]) * outTrace->fraction) + viewOrigin->v[0];
+    outTestPoint->v[0] = v20;
+    v21 = v19 - viewOrigin->v[1];
+    v22 = end.v[2];
+    v23 = (float)(v21 * fraction) + viewOrigin->v[1];
+    outTestPoint->v[1] = v23;
+    v24 = (float)((float)(v22 - viewOrigin->v[2]) * fraction) + viewOrigin->v[2];
+    outTestPoint->v[2] = v24;
+    v25 = outTrace->fraction;
+    if ( outTrace->fraction >= 1.0 )
     {
-      vmovss  xmm3, dword ptr [rdi+1214h]
-      vmulss  xmm1, xmm3, dword ptr [rbp+37h+forward]
-      vaddss  xmm2, xmm1, dword ptr [r14]
-      vmulss  xmm1, xmm3, dword ptr [rbp+37h+forward+4]
-    }
-    p_clientNum = &_R13->clientNum;
-    __asm
-    {
-      vmovss  dword ptr [rbp+37h+end], xmm2
-      vaddss  xmm2, xmm1, dword ptr [r14+4]
-      vmulss  xmm1, xmm3, dword ptr [rbp+37h+forward+8]
-      vmovss  dword ptr [rbp+37h+end+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr [r14+8]
-      vmovss  dword ptr [rbp+37h+end+8], xmm2
-    }
-    PhysicsQuery_LegacyTraceSkipEntities(worldId, outTrace, _R14, &end, &bounds_origin, p_clientNum, 1, 1, traceMask, 0, NULL, All);
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbx]
-      vmovss  xmm0, dword ptr [rbp+37h+end]
-      vsubss  xmm1, xmm0, dword ptr [r14]
-      vmovss  xmm0, dword ptr [rbp+37h+end+4]
-      vmulss  xmm2, xmm1, xmm4
-      vaddss  xmm5, xmm2, dword ptr [r14]
-      vmovss  dword ptr [rsi], xmm5
-      vsubss  xmm1, xmm0, dword ptr [r14+4]
-      vmovss  xmm0, dword ptr [rbp+37h+end+8]
-      vmulss  xmm2, xmm1, xmm4
-      vaddss  xmm6, xmm2, dword ptr [r14+4]
-      vmovss  dword ptr [rsi+4], xmm6
-      vsubss  xmm1, xmm0, dword ptr [r14+8]
-      vmulss  xmm2, xmm1, xmm4
-      vaddss  xmm4, xmm2, dword ptr [r14+8]
-      vmovss  dword ptr [rsi+8], xmm4
-      vmovss  xmm0, dword ptr [rbx]
-      vcomiss xmm0, cs:__real@3f800000
-    }
-    if ( !v30 )
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm9, xmm8
-        vsubss  xmm3, xmm0, cs:belowDist
-        vmulss  xmm2, xmm3, dword ptr [rbp+37h+up]
-        vaddss  xmm0, xmm2, xmm5
-        vmulss  xmm2, xmm3, dword ptr [rbp+37h+up+4]
-        vmovss  dword ptr [rbp+37h+end], xmm0
-        vaddss  xmm0, xmm2, xmm6
-        vmulss  xmm2, xmm3, dword ptr [rbp+37h+up+8]
-        vmovss  dword ptr [rbp+37h+end+4], xmm0
-        vaddss  xmm0, xmm2, xmm4
-        vmovss  dword ptr [rbp+37h+end+8], xmm0
-      }
+      v26 = (float)(v15 - v14) - belowDist;
+      end.v[0] = (float)(v26 * up.v[0]) + v20;
+      end.v[1] = (float)(v26 * up.v[1]) + v23;
+      end.v[2] = (float)(v26 * up.v[2]) + v24;
       PhysicsQuery_LegacyTraceSkipEntities(worldId, outTrace, outTestPoint, &end, &bounds_origin, p_clientNum, 1, 1, traceMask, 0, NULL, All);
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbx]
-        vmovss  xmm0, dword ptr [rbp+37h+end]
-        vsubss  xmm1, xmm0, dword ptr [rsi]
-        vmovss  xmm0, dword ptr [rbp+37h+end+4]
-        vmulss  xmm2, xmm1, xmm6
-        vsubss  xmm1, xmm0, dword ptr [rsi+4]
-        vaddss  xmm3, xmm2, dword ptr [rsi]
-        vmovss  xmm0, dword ptr [rbp+37h+end+8]
-        vmulss  xmm2, xmm1, xmm6
-        vsubss  xmm1, xmm0, dword ptr [rsi+8]
-        vmovss  dword ptr [rsi], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rsi+4]
-        vmovss  dword ptr [rsi+4], xmm3
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rsi+8]
-        vmovss  dword ptr [rsi+8], xmm3
-        vmovss  xmm0, dword ptr [rbx]
-      }
+      v27 = outTrace->fraction;
+      v28 = (float)(end.v[1] - outTestPoint->v[1]) * outTrace->fraction;
+      v29 = end.v[2] - outTestPoint->v[2];
+      outTestPoint->v[0] = (float)((float)(end.v[0] - outTestPoint->v[0]) * outTrace->fraction) + outTestPoint->v[0];
+      outTestPoint->v[1] = v28 + outTestPoint->v[1];
+      outTestPoint->v[2] = (float)(v29 * v27) + outTestPoint->v[2];
+      v25 = outTrace->fraction;
     }
-    __asm
-    {
-      vcomiss xmm0, cs:__real@3f800000
-      vmovaps xmm9, [rsp+110h+var_60]
-      vmovaps xmm8, [rsp+110h+var_50]
-    }
-    if ( !v30 || (outTrace->contents & 0x800) != 0 )
-      goto LABEL_20;
-    v68 = !Dvar_GetBool_Internal_DebugName(DVARBOOL_deploy_allowInWater, "deploy_allowInWater");
+    if ( v25 >= 1.0 || (outTrace->contents & 0x800) != 0 )
+      return 0;
+    v30 = !Dvar_GetBool_Internal_DebugName(DVARBOOL_deploy_allowInWater, "deploy_allowInWater");
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rdi+1214h]
-      vmulss  xmm0, xmm2, dword ptr [r15]
-      vaddss  xmm1, xmm0, dword ptr [r14]
-      vmulss  xmm0, xmm2, dword ptr [r15+4]
-      vmovss  dword ptr [rbp+37h+end], xmm1
-      vaddss  xmm1, xmm0, dword ptr [r14+4]
-      vmulss  xmm0, xmm2, dword ptr [r15+8]
-      vmovss  dword ptr [rbp+37h+end+4], xmm1
-      vaddss  xmm1, xmm0, dword ptr [r14+8]
-      vmovss  dword ptr [rbp+37h+end+8], xmm1
-    }
-    PhysicsQuery_LegacyTraceSkipEntities(worldId, outTrace, _R14, &end, &bounds_origin, &_R13->clientNum, 1, 1, traceMask, 0, NULL, All);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx]
-      vmovss  xmm0, dword ptr [rbp+37h+end]
-      vsubss  xmm1, xmm0, dword ptr [r14]
-      vmovss  xmm0, dword ptr [rbp+37h+end+4]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [r14]
-      vmovss  dword ptr [rsi], xmm3
-      vsubss  xmm1, xmm0, dword ptr [r14+4]
-      vmovss  xmm0, dword ptr [rbp+37h+end+8]
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [r14+4]
-      vmovss  dword ptr [rsi+4], xmm3
-      vsubss  xmm1, xmm0, dword ptr [r14+8]
-      vmovss  xmm0, cs:__real@3f800000
-      vmulss  xmm2, xmm1, xmm6
-      vaddss  xmm3, xmm2, dword ptr [r14+8]
-      vmovss  dword ptr [rsi+8], xmm3
-      vcomiss xmm0, dword ptr [rbx]
-    }
-    if ( v30 | v68 || (outTrace->contents & 0x800) != 0 )
-      goto LABEL_20;
-    v90 = DVARBOOL_deploy_allowInWater;
+    v31 = weapDef->deployMaxDistance;
+    v32 = v31 * viewAxis->m[0].v[1];
+    end.v[0] = (float)(v31 * viewAxis->m[0].v[0]) + viewOrigin->v[0];
+    v33 = v31 * viewAxis->m[0].v[2];
+    end.v[1] = v32 + viewOrigin->v[1];
+    end.v[2] = v33 + viewOrigin->v[2];
+    PhysicsQuery_LegacyTraceSkipEntities(worldId, outTrace, viewOrigin, &end, &bounds_origin, &ps->clientNum, 1, 1, traceMask, 0, NULL, All);
+    v34 = outTrace->fraction;
+    v35 = end.v[1];
+    outTestPoint->v[0] = (float)((float)(end.v[0] - viewOrigin->v[0]) * outTrace->fraction) + viewOrigin->v[0];
+    v36 = v35 - viewOrigin->v[1];
+    v37 = end.v[2];
+    outTestPoint->v[1] = (float)(v36 * v34) + viewOrigin->v[1];
+    outTestPoint->v[2] = (float)((float)(v37 - viewOrigin->v[2]) * v34) + viewOrigin->v[2];
+    if ( outTrace->fraction >= 1.0 || (outTrace->contents & 0x800) != 0 )
+      return 0;
+    v38 = DVARBOOL_deploy_allowInWater;
     if ( !DVARBOOL_deploy_allowInWater && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_allowInWater") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v90);
-    v68 = !v90->current.enabled;
+    Dvar_CheckFrontendServerThread(v38);
+    v30 = !v38->current.enabled;
   }
-  if ( v68 && (outTrace->contents & 0x20) != 0 )
-  {
-LABEL_20:
-    result = 0;
-    goto LABEL_21;
-  }
-  result = 1;
-LABEL_21:
-  __asm { vmovaps xmm6, [rsp+110h+var_40] }
-  return result;
+  return !v30 || (outTrace->contents & 0x20) == 0;
 }
 
 /*
@@ -250,17 +177,17 @@ BG_Deploy_ComputeFXOffset
 */
 void BG_Deploy_ComputeFXOffset(float playerZ, float desiredHeightOffset, const tmat43_t<vec3_t> *transform, vec3_t *outFxOffset)
 {
+  __int128 v5; 
+
   outFxOffset->v[2] = 0.0;
   *(_QWORD *)outFxOffset->v = 0i64;
-  __asm
-  {
-    vmovss  xmm2, dword ptr [r8+2Ch]
-    vsubss  xmm0, xmm2, xmm0
-    vcmpltss xmm3, xmm0, cs:THRESHOLD_TO_CONSIDER_ON_GROUND
-    vmovss  xmm0, dword ptr [r9+8]
-    vblendvps xmm1, xmm0, xmm1, xmm3
-    vmovss  dword ptr [r9+8], xmm1
-  }
+  v5 = LODWORD(transform->m[3].v[2]);
+  *(float *)&v5 = transform->m[3].v[2] - playerZ;
+  _XMM0 = v5;
+  __asm { vcmpltss xmm3, xmm0, cs:THRESHOLD_TO_CONSIDER_ON_GROUND }
+  _XMM0 = LODWORD(outFxOffset->v[2]);
+  __asm { vblendvps xmm1, xmm0, xmm1, xmm3 }
+  outFxOffset->v[2] = *(float *)&_XMM1;
 }
 
 /*
@@ -268,27 +195,55 @@ void BG_Deploy_ComputeFXOffset(float playerZ, float desiredHeightOffset, const t
 BG_Deploy_EdgeSnap
 ==============
 */
-bool BG_Deploy_EdgeSnap(const BgHandler *pmoveHandler, const playerState_s *ps, const vec3_t *origin, const tmat33_t<vec3_t> *axis, const WeaponDef *weapDef, vec3_t *outPos, tmat33_t<vec3_t> *outAxis)
+char BG_Deploy_EdgeSnap(const BgHandler *pmoveHandler, const playerState_s *ps, const vec3_t *origin, const tmat33_t<vec3_t> *axis, const WeaponDef *weapDef, vec3_t *outPos, tmat33_t<vec3_t> *outAxis)
 {
+  const dvar_t *v7; 
+  float value; 
   DeployType deployType; 
-  DeployType v27; 
-  unsigned __int64 v71; 
-  EdgeId v76; 
-  DeployType v92; 
-  bool v93; 
-  bool v94; 
-  bool result; 
-  const dvar_t *v116; 
+  float v14; 
+  DeployType v15; 
+  float v16; 
+  float v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  __int64 v24; 
+  unsigned __int64 v25; 
+  float v26; 
+  EdgeId v27; 
+  float v28; 
+  float v29; 
+  float v30; 
+  float v31; 
+  DeployType v32; 
+  float v33; 
+  float v34; 
+  float v35; 
+  double v36; 
+  const dvar_t *v38; 
+  float v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float *v48; 
+  float v49; 
+  float v50; 
+  float v51; 
   __int64 farHalfWidth; 
-  float farHalfWidthb; 
   __int64 farHalfWidtha; 
-  int farHalfWidthc; 
   __int64 farHalfHeight; 
-  float farHalfHeightb; 
   __int64 farHalfHeighta; 
   unsigned __int64 outResultCount; 
-  vec3_t *v152; 
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum> v153; 
+  vec3_t *v57; 
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum> v58; 
   vec3_t outBelow; 
   vec3_t outEdgePoint; 
   vec3_t angles; 
@@ -300,39 +255,19 @@ bool BG_Deploy_EdgeSnap(const BgHandler *pmoveHandler, const playerState_s *ps, 
   vec3_t clipPlanePoints; 
   vec3_t outNormal; 
   vec3_t outParallel; 
-  EdgeOctreeQueryFrustum v165; 
+  EdgeOctreeQueryFrustum v70; 
   float resultFractionPool[6]; 
   float resultDistancePool[6]; 
   EdgeId resultIdPool[6]; 
-  char v170; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-  }
-  _RBX = DCONST_DVARFLT_deploy_offsetForwardOnEdge;
-  _RSI = ps;
-  _R14 = weapDef;
-  _R13 = axis;
-  _R15 = outAxis;
-  v152 = outPos;
+  v7 = DCONST_DVARFLT_deploy_offsetForwardOnEdge;
+  v57 = outPos;
   if ( !DCONST_DVARFLT_deploy_offsetForwardOnEdge && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_offsetForwardOnEdge") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm12, dword ptr [rbx+28h]
-    vmovss  xmm0, cs:edgeMaxDistFactor
-  }
+  Dvar_CheckFrontendServerThread(v7);
+  value = v7->current.value;
   deployType = weapDef->deployType;
-  __asm { vmulss  xmm9, xmm0, dword ptr [r14+1214h] }
+  v14 = edgeMaxDistFactor * weapDef->deployMaxDistance;
   outResultCount = 0i64;
   if ( (unsigned int)deployType >= COUNT )
   {
@@ -341,286 +276,144 @@ bool BG_Deploy_EdgeSnap(const BgHandler *pmoveHandler, const playerState_s *ps, 
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 154, ASSERT_TYPE_ASSERT, "(unsigned)( weapDef->deployType ) < (unsigned)( DeployType::COUNT )", "weapDef->deployType doesn't index DeployType::COUNT\n\t%i not in [0, %i)", farHalfWidth, farHalfHeight) )
       __debugbreak();
   }
-  v27 = weapDef->deployType;
-  if ( v27 && v27 == DODGE )
+  v15 = weapDef->deployType;
+  if ( v15 && v15 == DODGE )
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+1DCh]
-      vxorps  xmm1, xmm1, xmm1
-      vmovss  dword ptr [rbp+330h+angles], xmm1
-      vmovss  dword ptr [rbp+330h+angles+4], xmm0
-      vmovss  dword ptr [rbp+330h+angles+8], xmm1
-    }
+    v16 = ps->viewangles.v[1];
+    angles.v[0] = 0.0;
+    angles.v[1] = v16;
+    angles.v[2] = 0.0;
     AngleVectors(&angles, &forward, NULL, &up);
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbp+330h+forward+8]
-      vmovss  xmm7, dword ptr [rbp+330h+forward+4]
-      vmovss  xmm8, dword ptr [rbp+330h+forward]
-    }
+    v17 = forward.v[2];
+    v18 = forward.v[1];
+    v19 = forward.v[0];
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r13+18h]
-      vmovss  xmm8, dword ptr [r13+0]
-      vmovss  xmm7, dword ptr [r13+4]
-      vmovss  xmm6, dword ptr [r13+8]
-      vmovss  xmm1, dword ptr [r13+1Ch]
-      vmovss  dword ptr [rbp+330h+up], xmm0
-      vmovss  xmm0, dword ptr [r13+20h]
-      vmovss  dword ptr [rbp+330h+up+8], xmm0
-      vmovss  dword ptr [rbp+330h+forward], xmm8
-      vmovss  dword ptr [rbp+330h+forward+4], xmm7
-      vmovss  dword ptr [rbp+330h+forward+8], xmm6
-      vmovss  dword ptr [rbp+330h+up+4], xmm1
-    }
+    v19 = axis->m[0].v[0];
+    v18 = axis->m[0].v[1];
+    v17 = axis->m[0].v[2];
+    v20 = axis->m[2].v[1];
+    up.v[0] = axis->m[2].v[0];
+    up.v[2] = axis->m[2].v[2];
+    forward.v[0] = v19;
+    forward.v[1] = v18;
+    forward.v[2] = v17;
+    up.v[1] = v20;
   }
-  __asm
-  {
-    vmovss  xmm2, cs:frustumNearDist
-    vmovss  xmm3, cs:frustumHalfHeightNear; nearHalfHeight
-    vmulss  xmm0, xmm8, xmm2
-    vaddss  xmm1, xmm0, dword ptr [rdi]
-    vmulss  xmm0, xmm7, xmm2
-    vmovss  dword ptr [rbp+330h+nearCenterPoint], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rdi+4]
-    vmulss  xmm0, xmm6, xmm2
-    vmovss  dword ptr [rbp+330h+nearCenterPoint+4], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rdi+8]
-    vmovss  dword ptr [rbp+330h+nearCenterPoint+8], xmm1
-    vmulss  xmm2, xmm8, xmm9
-    vaddss  xmm0, xmm2, dword ptr [rdi]
-    vmovss  dword ptr [rbp+330h+farCenterPoint], xmm0
-    vmulss  xmm1, xmm7, xmm9
-    vaddss  xmm2, xmm1, dword ptr [rdi+4]
-    vmulss  xmm0, xmm6, xmm9
-    vaddss  xmm1, xmm0, dword ptr [rdi+8]
-    vmovss  xmm0, cs:frustumHalfHeightFar
-    vmovaps xmmword ptr [rsp+430h+var_98+8], xmm11
-    vmovss  [rsp+430h+farHalfHeight], xmm0
-    vmovss  dword ptr [rbp+330h+farCenterPoint+8], xmm1
-    vmovss  xmm1, cs:frustumHalfWidthFar
-    vmovss  dword ptr [rbp+330h+farCenterPoint+4], xmm2
-    vmovss  xmm2, cs:frustumHalfWidthNear; nearHalfWidth
-    vmovss  [rsp+430h+farHalfWidth], xmm1
-  }
-  EdgeOctreeQueryFrustum::EdgeOctreeQueryFrustum(&v165, &nearCenterPoint, *(float *)&_XMM2, *(float *)&_XMM3, &farCenterPoint, farHalfWidthb, farHalfHeightb, &up);
-  __asm { vmovss  xmm1, cs:queryBiasCenterline; centerBias }
-  EdgeOctreeQueryFrustum::SetDistanceCenterBias(&v165, *(float *)&_XMM1);
-  __asm { vmovss  xmm2, cs:queryBiasUp; bias }
-  EdgeOctreeQueryFrustum::SetAxisBias(&v165, &identityMatrix33.m[2], *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm2, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+1Ch; tmat33_t<vec3_t> const identityMatrix33
-    vmovss  xmm8, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm5, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+18h; tmat33_t<vec3_t> const identityMatrix33
-    vmovss  xmm4, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+20h; tmat33_t<vec3_t> const identityMatrix33
-    vxorps  xmm1, xmm2, xmm8
-    vxorps  xmm0, xmm5, xmm8
-    vmovss  dword ptr [rbp+330h+clipPlaneNormals+4], xmm1
-    vmovss  xmm1, dword ptr [r14+1218h]
-    vaddss  xmm3, xmm1, dword ptr [rdi+8]
-    vmovss  dword ptr [rbp+330h+clipPlaneNormals], xmm0
-    vxorps  xmm0, xmm4, xmm8
-    vmovss  dword ptr [rbp+330h+clipPlaneNormals+8], xmm0
-    vmulss  xmm0, xmm5, xmm3
-    vaddss  xmm1, xmm0, dword ptr [rsi+30h]
-    vmulss  xmm2, xmm2, xmm3
-    vaddss  xmm0, xmm2, dword ptr [rsi+34h]
-    vmovss  dword ptr [rbp+330h+clipPlanePoints], xmm1
-    vmulss  xmm1, xmm4, xmm3
-    vaddss  xmm2, xmm1, dword ptr [rsi+38h]
-    vmovss  dword ptr [rbp+330h+clipPlanePoints+8], xmm2
-    vmovss  dword ptr [rbp+330h+clipPlanePoints+4], xmm0
-  }
-  EdgeOctreeQueryShape::SetUserClipPlanes(&v165, 1ui64, &clipPlanePoints, &clipPlaneNormals);
-  v153.m_bucket = queryDbType;
-  v153.m_queryShape = &v165;
-  v153.m_hint = 16777208;
-  v153.m_flags = 1;
-  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute(&v153, pmoveHandler, resultIdPool, resultFractionPool, resultDistancePool, 6ui64, &outResultCount, NULL);
-  _RSI = 0i64;
-  v71 = maxEdgeCandidates;
-  __asm
-  {
-    vmovss  xmm0, cs:edgeMinLength
-    vmulss  xmm9, xmm9, xmm9
-  }
+  nearCenterPoint.v[0] = (float)(v19 * frustumNearDist) + origin->v[0];
+  nearCenterPoint.v[1] = (float)(v18 * frustumNearDist) + origin->v[1];
+  nearCenterPoint.v[2] = (float)(v17 * frustumNearDist) + origin->v[2];
+  farCenterPoint.v[0] = (float)(v19 * v14) + origin->v[0];
+  v21 = (float)(v18 * v14) + origin->v[1];
+  farCenterPoint.v[2] = (float)(v17 * v14) + origin->v[2];
+  farCenterPoint.v[1] = v21;
+  EdgeOctreeQueryFrustum::EdgeOctreeQueryFrustum(&v70, &nearCenterPoint, frustumHalfWidthNear, frustumHalfHeightNear, &farCenterPoint, frustumHalfWidthFar, frustumHalfHeightFar, &up);
+  EdgeOctreeQueryFrustum::SetDistanceCenterBias(&v70, queryBiasCenterline);
+  EdgeOctreeQueryFrustum::SetAxisBias(&v70, &identityMatrix33.m[2], queryBiasUp);
+  LODWORD(clipPlaneNormals.v[1]) = LODWORD(identityMatrix33.m[2].v[1]) ^ _xmm;
+  v22 = weapDef->deployMaxHeightAboveEye + origin->v[2];
+  LODWORD(clipPlaneNormals.v[0]) = LODWORD(identityMatrix33.m[2].v[0]) ^ _xmm;
+  LODWORD(clipPlaneNormals.v[2]) = LODWORD(identityMatrix33.m[2].v[2]) ^ _xmm;
+  v23 = (float)(0.0 * v22) + ps->origin.v[1];
+  clipPlanePoints.v[0] = (float)(0.0 * v22) + ps->origin.v[0];
+  clipPlanePoints.v[2] = (float)(1.0 * v22) + ps->origin.v[2];
+  clipPlanePoints.v[1] = v23;
+  EdgeOctreeQueryShape::SetUserClipPlanes(&v70, 1ui64, &clipPlanePoints, &clipPlaneNormals);
+  v58.m_bucket = queryDbType;
+  v58.m_queryShape = &v70;
+  v58.m_hint = 16777208;
+  v58.m_flags = 1;
+  EdgeOctreeQuery<EdgeOctreeQueryFrustum>::Execute(&v58, pmoveHandler, resultIdPool, resultFractionPool, resultDistancePool, 6ui64, &outResultCount, NULL);
+  v24 = 0i64;
+  v25 = maxEdgeCandidates;
   if ( maxEdgeCandidates > outResultCount )
-    v71 = outResultCount;
-  outResultCount = v71;
-  __asm { vmulss  xmm10, xmm0, xmm0 }
-  if ( v71 )
+    v25 = outResultCount;
+  outResultCount = v25;
+  v26 = edgeMinLength * edgeMinLength;
+  if ( !v25 )
+    return 0;
+  while ( 1 )
   {
-    __asm { vmovss  xmm11, cs:__real@3f800000 }
-    while ( 1 )
+    v27 = resultIdPool[v24];
+    v28 = resultFractionPool[v24];
+    Edge_CalculateVectors(pmoveHandler, v27, v28, &identityMatrix33.m[2], axis, &outNormal, &outParallel, &outBelow);
+    v29 = COERCE_FLOAT(LODWORD(outBelow.v[1]) ^ _xmm) * 0.0;
+    LODWORD(outBelow.v[1]) ^= _xmm;
+    v30 = COERCE_FLOAT(LODWORD(outBelow.v[0]) ^ _xmm) * 0.0;
+    LODWORD(outBelow.v[0]) ^= _xmm;
+    v31 = (float)(v29 + v30) + (float)(COERCE_FLOAT(LODWORD(outBelow.v[2]) ^ _xmm) * 1.0);
+    LODWORD(outBelow.v[2]) ^= _xmm;
+    if ( (float)(1.0 - v31) <= cosThresholdVerticality )
     {
-      v76 = resultIdPool[_RSI];
-      __asm
+      Edge_CalculatePoint(pmoveHandler, v27, v28, &outEdgePoint);
+      if ( weapDef->deployType >= (unsigned int)COUNT )
       {
-        vmovss  xmm7, [rbp+rsi*4+330h+resultFractionPool]
-        vmovaps xmm2, xmm7; fraction
+        LODWORD(farHalfHeighta) = 2;
+        LODWORD(farHalfWidtha) = weapDef->deployType;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 93, ASSERT_TYPE_ASSERT, "(unsigned)( weapDef->deployType ) < (unsigned)( DeployType::COUNT )", "weapDef->deployType doesn't index DeployType::COUNT\n\t%i not in [0, %i)", farHalfWidtha, farHalfHeighta) )
+          __debugbreak();
       }
-      Edge_CalculateVectors(pmoveHandler, v76, *(float *)&_XMM2, &identityMatrix33.m[2], _R13, &outNormal, &outParallel, &outBelow);
-      __asm
+      v32 = weapDef->deployType;
+      if ( v32 && v32 == DODGE )
       {
-        vmovss  xmm0, dword ptr [rsp+430h+var_3C8]
-        vmovss  xmm1, dword ptr [rsp+430h+var_3C8+4]
-        vxorps  xmm5, xmm0, xmm8
-        vmovss  xmm0, dword ptr [rsp+430h+var_3C8+8]
-        vxorps  xmm3, xmm1, xmm8
-        vmulss  xmm4, xmm3, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+1Ch; tmat33_t<vec3_t> const identityMatrix33
-        vmovss  dword ptr [rsp+430h+var_3C8+4], xmm3
-        vmulss  xmm3, xmm5, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+18h; tmat33_t<vec3_t> const identityMatrix33
-        vxorps  xmm6, xmm0, xmm8
-        vmulss  xmm0, xmm6, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+20h; tmat33_t<vec3_t> const identityMatrix33
-        vmovss  dword ptr [rsp+430h+var_3C8], xmm5
-        vaddss  xmm5, xmm4, xmm3
-        vaddss  xmm3, xmm5, xmm0
-        vsubss  xmm1, xmm11, xmm3
-        vcomiss xmm1, cs:cosThresholdVerticality
-        vmovss  dword ptr [rsp+430h+var_3C8+8], xmm6
+        ProjectPointOnPlane(&outEdgePoint, origin, &up, &angles);
+        v33 = angles.v[0] - origin->v[0];
+        v34 = angles.v[2];
+        v35 = angles.v[1];
       }
-      if ( v93 || v94 )
+      else
       {
-        __asm { vmovaps xmm2, xmm7; fraction }
-        Edge_CalculatePoint(pmoveHandler, v76, *(float *)&_XMM2, &outEdgePoint);
-        if ( weapDef->deployType >= (unsigned int)COUNT )
-        {
-          LODWORD(farHalfHeighta) = 2;
-          LODWORD(farHalfWidtha) = weapDef->deployType;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 93, ASSERT_TYPE_ASSERT, "(unsigned)( weapDef->deployType ) < (unsigned)( DeployType::COUNT )", "weapDef->deployType doesn't index DeployType::COUNT\n\t%i not in [0, %i)", farHalfWidtha, farHalfHeighta) )
-            __debugbreak();
-        }
-        v92 = weapDef->deployType;
-        v93 = 0;
-        v94 = v92 == MOVEMENT;
-        if ( v92 && (v93 = v92 == MOVEMENT, v94 = v92 == DODGE) )
-        {
-          ProjectPointOnPlane(&outEdgePoint, origin, &up, &angles);
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rbp+330h+angles]
-            vsubss  xmm3, xmm0, dword ptr [rdi]
-            vmovss  xmm0, dword ptr [rbp+330h+angles+8]
-            vmovss  xmm1, dword ptr [rbp+330h+angles+4]
-          }
-        }
-        else
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsp+430h+outEdgePoint]
-            vsubss  xmm3, xmm0, dword ptr [rdi]
-            vmovss  xmm0, dword ptr [rbp+330h+outEdgePoint+8]
-            vmovss  xmm1, dword ptr [rsp+430h+outEdgePoint+4]
-          }
-        }
-        __asm
-        {
-          vsubss  xmm2, xmm1, dword ptr [rdi+4]
-          vsubss  xmm4, xmm0, dword ptr [rdi+8]
-          vmulss  xmm2, xmm2, xmm2
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm5, xmm3, xmm0
-          vcomiss xmm5, xmm9
-        }
-        if ( v93 || v94 )
-        {
-          *(double *)&_XMM0 = Edge_CalculateLengthSq(v76);
-          __asm { vcomiss xmm0, xmm10 }
-          if ( !v93 )
-            break;
-        }
+        v33 = outEdgePoint.v[0] - origin->v[0];
+        v34 = outEdgePoint.v[2];
+        v35 = outEdgePoint.v[1];
       }
-      if ( ++_RSI >= outResultCount )
-        goto LABEL_26;
-    }
-    v116 = DCONST_DVARBOOL_deploy_debug;
-    if ( !DCONST_DVARBOOL_deploy_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_debug") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v116);
-    if ( v116->current.enabled )
-    {
-      __asm
+      if ( (float)((float)((float)((float)(v35 - origin->v[1]) * (float)(v35 - origin->v[1])) + (float)(v33 * v33)) + (float)((float)(v34 - origin->v[2]) * (float)(v34 - origin->v[2]))) <= (float)(v14 * v14) )
       {
-        vmovss  xmm0, dword ptr [r14+1214h]
-        vmovss  [rsp+430h+farHalfWidth], xmm0
+        v36 = Edge_CalculateLengthSq(v27);
+        if ( *(float *)&v36 >= v26 )
+          break;
       }
-      ((void (__fastcall *)(const BgHandler *, __int64, EdgeId *, float *, float *, int, _DWORD))pmoveHandler->DebugEdgeQueryResults)(pmoveHandler, 1i64, &resultIdPool[_RSI], &resultFractionPool[_RSI], &resultDistancePool[_RSI], farHalfWidthc, 0);
     }
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+330h+outNormal]
-      vxorps  xmm1, xmm0, xmm8
-      vmovss  xmm0, dword ptr [rbp+330h+outNormal+4]
-      vmovss  dword ptr [r15], xmm1
-      vxorps  xmm1, xmm0, xmm8
-      vmovss  xmm0, dword ptr [rbp+330h+outNormal+8]
-      vmovss  dword ptr [r15+4], xmm1
-      vxorps  xmm1, xmm0, xmm8
-      vmovss  xmm0, dword ptr [rbp+330h+outParallel]
-      vmovss  dword ptr [r15+8], xmm1
-      vmovss  xmm1, dword ptr [rbp+330h+outParallel+4]
-      vmovss  dword ptr [r15+0Ch], xmm0
-      vmovss  xmm0, dword ptr [rbp+330h+outParallel+8]
-      vmovss  dword ptr [r15+10h], xmm1
-      vmovss  xmm1, dword ptr [rsp+430h+var_3C8]
-      vmovss  dword ptr [r15+14h], xmm0
-      vmovss  xmm0, dword ptr [rsp+430h+var_3C8+4]
-      vmovss  dword ptr [r15+18h], xmm1
-      vmovss  xmm1, dword ptr [rsp+430h+var_3C8+8]
-      vmovss  dword ptr [r15+20h], xmm1
-      vmovss  dword ptr [r15+1Ch], xmm0
-    }
-    GenerateAxisFromUpVector(&identityMatrix33.m[2], outAxis, outAxis);
-    _RAX = v152;
-    __asm
-    {
-      vmovss  xmm2, cs:edgeSnapCylPosOffset
-      vmulss  xmm1, xmm2, dword ptr [rsp+430h+var_3C8]
-      vaddss  xmm3, xmm1, dword ptr [rsp+430h+outEdgePoint]
-      vmulss  xmm1, xmm2, dword ptr [rsp+430h+var_3C8+4]
-      vaddss  xmm4, xmm1, dword ptr [rsp+430h+outEdgePoint+4]
-      vmulss  xmm1, xmm2, dword ptr [rsp+430h+var_3C8+8]
-      vaddss  xmm5, xmm1, dword ptr [rbp+330h+outEdgePoint+8]
-      vmovss  dword ptr [rax+8], xmm5
-      vmovss  dword ptr [rax], xmm3
-      vmovss  dword ptr [rax+4], xmm4
-      vmulss  xmm0, xmm12, dword ptr [r15]
-      vaddss  xmm1, xmm0, xmm3
-      vmovss  dword ptr [rax], xmm1
-      vmulss  xmm0, xmm12, dword ptr [r15+4]
-      vaddss  xmm1, xmm0, xmm4
-      vmovss  dword ptr [rax+4], xmm1
-      vmulss  xmm0, xmm12, dword ptr [r15+8]
-      vaddss  xmm1, xmm0, xmm5
-      vmovss  dword ptr [rax+8], xmm1
-    }
-    result = 1;
+    if ( ++v24 >= outResultCount )
+      return 0;
   }
-  else
-  {
-LABEL_26:
-    result = 0;
-  }
-  __asm { vmovaps xmm11, xmmword ptr [rsp+430h+var_98+8] }
-  _R11 = &v170;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
-  return result;
+  v38 = DCONST_DVARBOOL_deploy_debug;
+  if ( !DCONST_DVARBOOL_deploy_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_debug") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v38);
+  if ( v38->current.enabled )
+    ((void (__fastcall *)(const BgHandler *, __int64, EdgeId *, float *, float *, _DWORD, _DWORD))pmoveHandler->DebugEdgeQueryResults)(pmoveHandler, 1i64, &resultIdPool[v24], &resultFractionPool[v24], &resultDistancePool[v24], LODWORD(weapDef->deployMaxDistance), 0);
+  v39 = outNormal.v[1];
+  outAxis->m[0].v[0] = COERCE_FLOAT(LODWORD(outNormal.v[0]) ^ _xmm);
+  LODWORD(v40) = LODWORD(v39) ^ _xmm;
+  v41 = outNormal.v[2];
+  outAxis->m[0].v[1] = v40;
+  LODWORD(v42) = LODWORD(v41) ^ _xmm;
+  v43 = outParallel.v[0];
+  outAxis->m[0].v[2] = v42;
+  v44 = outParallel.v[1];
+  outAxis->m[1].v[0] = v43;
+  v45 = outParallel.v[2];
+  outAxis->m[1].v[1] = v44;
+  v46 = outBelow.v[0];
+  outAxis->m[1].v[2] = v45;
+  v47 = outBelow.v[1];
+  outAxis->m[2].v[0] = v46;
+  outAxis->m[2].v[2] = outBelow.v[2];
+  outAxis->m[2].v[1] = v47;
+  GenerateAxisFromUpVector(&identityMatrix33.m[2], outAxis, outAxis);
+  v48 = (float *)v57;
+  v49 = (float)(edgeSnapCylPosOffset * outBelow.v[0]) + outEdgePoint.v[0];
+  v50 = (float)(edgeSnapCylPosOffset * outBelow.v[1]) + outEdgePoint.v[1];
+  v51 = (float)(edgeSnapCylPosOffset * outBelow.v[2]) + outEdgePoint.v[2];
+  v57->v[2] = v51;
+  *v48 = v49;
+  v48[1] = v50;
+  *v48 = (float)(value * outAxis->m[0].v[0]) + v49;
+  v48[1] = (float)(value * outAxis->m[0].v[1]) + v50;
+  v48[2] = (float)(value * outAxis->m[0].v[2]) + v51;
+  return 1;
 }
 
 /*
@@ -662,51 +455,62 @@ BG_Deploy_TestLocation
 */
 bool BG_Deploy_TestLocation(const BgHandler *pmoveHandler, Physics_WorldId worldId, const playerState_s *ps, const vec3_t *viewOrigin, const tmat33_t<vec3_t> *playerViewAxis, const WeaponDef *weapDef, DeployTestResults *outResults)
 {
+  __int128 v7; 
+  float v11; 
+  float v12; 
   bool deployRequireOnNavmesh; 
-  const dvar_t *v24; 
-  int v25; 
-  const dvar_t *v26; 
-  int v27; 
-  bool v28; 
+  const dvar_t *v14; 
+  int v15; 
+  const dvar_t *v16; 
+  int traceMask; 
+  bool v18; 
   bool result; 
   char IsTraceContentsValid; 
-  unsigned __int64 v49; 
-  const playerState_s *v52; 
+  float deployCylinderRadius; 
+  float v22; 
+  float v23; 
+  float v25; 
+  unsigned __int64 v27; 
+  const playerState_s *v28; 
+  float v29; 
+  double v30; 
+  const dvar_t *v31; 
+  float v32; 
+  int EntityNum; 
+  const vec3_t *v34; 
+  const dvar_t *v35; 
+  float v36; 
+  const dvar_t *v37; 
+  float v38; 
+  bool v39; 
+  float v40; 
+  const dvar_t *v41; 
+  float v42; 
+  double v43; 
+  float v44; 
+  bool v45; 
+  float v46; 
+  double v47; 
+  const dvar_t *v48; 
+  const dvar_t *v49; 
+  float value; 
+  int v51; 
+  const dvar_t *v52; 
+  int v53; 
+  bool v54; 
+  Physics_WorldId v55; 
+  bool v56; 
+  const dvar_t *v57; 
+  float v58; 
+  bool v59; 
+  __int128 v60; 
+  double v61; 
+  __int64 locational; 
+  bool v63; 
   char v64; 
   bool v65; 
-  bool v70; 
-  const dvar_t *v115; 
-  const vec3_t *v126; 
-  const dvar_t *v137; 
-  bool v148; 
-  const dvar_t *v150; 
-  bool v167; 
-  const dvar_t *v174; 
-  int v176; 
-  const dvar_t *v177; 
-  int v181; 
-  Physics_WorldId v186; 
-  bool v187; 
-  bool v197; 
-  char v198; 
-  double traceMask; 
-  __int128 outTestPoint; 
-  vec3_t *outTestPointa; 
-  vec3_t *outTestPointb; 
-  vec3_t *outTestPointc; 
-  vec3_t *outTestPoint_8; 
-  vec3_t *outTestPoint_8a; 
-  vec3_t *outTestPoint_8b; 
-  double contentMask; 
-  double contentMaska; 
-  double contentMaskb; 
-  __int64 locational; 
-  __int64 locationala; 
-  bool v223; 
-  char v224; 
-  bool v225; 
   hknpShape *shape; 
-  int v228; 
+  int contentMask; 
   int *skipEntities; 
   Physics_ShapecastExtendedData extendedData; 
   vec3_t outPos; 
@@ -715,609 +519,301 @@ bool BG_Deploy_TestLocation(const BgHandler *pmoveHandler, Physics_WorldId world
   vec3_t end; 
   vec3_t viewOrigina; 
   vec3_t start; 
-  vec3_t v239; 
+  vec3_t v79; 
   vec3_t origin; 
   vec3_t center; 
+  __int128 v82; 
+  double v83; 
   vec4_t out; 
   trace_t outTrace; 
   PhysicsQuery_ShapecastHit in2; 
   PhysicsQuery_ShapecastHit hit; 
   trace_t results; 
-  trace_t v249; 
-  char v255; 
+  trace_t v89; 
+  __int128 v90; 
 
-  __asm { vmovaps [rsp+3F0h+var_60], xmm8 }
-  _R15 = weapDef;
-  _R12 = ps;
-  _RDI = outResults;
-  _RBX = viewOrigin;
   if ( !weapDef && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 340, ASSERT_TYPE_ASSERT, "(weapDef)", (const char *)&queryFormat, "weapDef") )
     __debugbreak();
   if ( !outResults && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 341, ASSERT_TYPE_ASSERT, "(outResults)", (const char *)&queryFormat, "outResults") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx]
-    vmovss  xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rbp+2F0h+viewOrigin], xmm0
-    vmovss  xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rbp+2F0h+viewOrigin+4], xmm1
-    vmovss  dword ptr [rbp+2F0h+viewOrigin+8], xmm0
-  }
-  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&_R12->pm_flags, ACTIVE, 0x13u) && !_R12->pm_time )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [r12+0C8h]
-      vsubss  xmm2, xmm0, dword ptr [r12+38h]
-      vaddss  xmm2, xmm2, dword ptr [rbp+2F0h+viewOrigin+8]
-      vmovss  dword ptr [rbp+2F0h+viewOrigin+8], xmm2
-    }
-  }
+  v11 = viewOrigin->v[1];
+  viewOrigina.v[0] = viewOrigin->v[0];
+  v12 = viewOrigin->v[2];
+  viewOrigina.v[1] = v11;
+  viewOrigina.v[2] = v12;
+  if ( GameModeFlagContainer<enum PMoveFlagsCommon,enum PMoveFlagsSP,enum PMoveFlagsMP,64>::TestFlagInternal(&ps->pm_flags, ACTIVE, 0x13u) && !ps->pm_time )
+    viewOrigina.v[2] = (float)(ps->jumpState.jumpOriginZ - ps->origin.v[2]) + viewOrigina.v[2];
   deployRequireOnNavmesh = weapDef->deployRequireOnNavmesh;
-  v24 = DCONST_DVARBOOL_deploy_testMissileClip;
-  v25 = 8388883;
+  v14 = DCONST_DVARBOOL_deploy_testMissileClip;
+  v15 = 8388883;
   if ( deployRequireOnNavmesh )
-    v25 = 8585491;
+    v15 = 8585491;
   if ( !DCONST_DVARBOOL_deploy_testMissileClip && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_testMissileClip") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v24);
-  if ( v24->current.enabled )
+  Dvar_CheckFrontendServerThread(v14);
+  if ( v14->current.enabled )
   {
-    v25 = 8389011;
+    v15 = 8389011;
     if ( deployRequireOnNavmesh )
-      v25 = 8585619;
+      v15 = 8585619;
   }
-  v26 = DVARBOOL_deploy_allowInWater;
+  v16 = DVARBOOL_deploy_allowInWater;
   if ( !DVARBOOL_deploy_allowInWater && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_allowInWater") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v26);
-  v27 = v25 | 0x20;
-  if ( v26->current.enabled )
-    v27 = v25;
-  v228 = v27;
-  v28 = BG_Deploy_CalcTestPoint(&viewOrigina, playerViewAxis, _R12, weapDef, worldId, v27, &origin, &outTrace);
-  __asm { vmovss  xmm8, cs:__real@3f800000 }
-  if ( v28 )
-    goto LABEL_26;
-  outResults->passRangeTest = 0;
-  __asm { vmovaps xmm3, xmm8; scale }
-  MatrixSet43(&outResults->transform, &origin, playerViewAxis, *(float *)&_XMM3);
+  Dvar_CheckFrontendServerThread(v16);
+  traceMask = v15 | 0x20;
+  if ( v16->current.enabled )
+    traceMask = v15;
+  contentMask = traceMask;
+  v18 = BG_Deploy_CalcTestPoint(&viewOrigina, playerViewAxis, ps, weapDef, worldId, traceMask, &origin, &outTrace);
+  if ( !v18 )
+  {
+    outResults->passRangeTest = 0;
+    MatrixSet43(&outResults->transform, &origin, playerViewAxis, 1.0);
+    if ( !weapDef->deployEdgeSnap )
+      return 0;
+  }
+  IsTraceContentsValid = BG_Deploy_IsTraceContentsValid(&outTrace);
+  GenerateAxisFromUpVector(&outTrace.normal, playerViewAxis, &outAxis);
+  if ( !Physics_IsPredictiveWorld(worldId) || Sys_IsMainThread() )
+  {
+    v64 = 0;
+  }
+  else
+  {
+    v64 = 1;
+    Physics_LockWorld(worldId);
+  }
+  deployCylinderRadius = weapDef->deployCylinderRadius;
+  v22 = 0.0;
+  center.v[2] = 0.5 * weapDef->deployCylinderHeight;
+  center.v[0] = 0.0;
+  center.v[1] = 0.0;
+  shape = Physics_CreateShapeCylinder(&center, center.v[2], deployCylinderRadius, 32, 1);
+  if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 391, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
+    __debugbreak();
+  v23 = 0.5 * weapDef->deployCylinderHeight;
+  _XMM0 = LODWORD(FLOAT_0_016000001);
+  v25 = weapDef->deployCylinderRadius;
+  *((float *)&v82 + 1) = vec3_origin.v[1];
+  *((float *)&v82 + 2) = v23 + 0.0;
+  *((float *)&v83 + 1) = v23;
+  extendedData.contents = traceMask;
+  outPos.v[0] = (float)(0.125 * outTrace.normal.v[0]) + origin.v[0];
+  extendedData.accuracy = FLOAT_0_016000001;
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  v27 = 0i64;
+  extendedData.simplifyStart = 0;
+  outPos.v[1] = (float)(0.125 * outTrace.normal.v[1]) + origin.v[1];
+  *(_OWORD *)&extendedData.nonBrushShape = _XMM0;
+  outPos.v[2] = (float)(0.125 * outTrace.normal.v[2]) + origin.v[2];
+  extendedData.startTolerance = 0.0;
+  extendedData.collisionBuffer = FLOAT_0_125;
+  *(float *)&v82 = vec3_origin.v[0];
+  *((float *)&v82 + 3) = v25;
+  *(float *)&v83 = v25;
+  extendedData.ignoreBodies = NULL;
+  extendedData.permitOutwardTrace = 0;
+  extendedData.phaseSelection = All;
   if ( weapDef->deployEdgeSnap )
   {
-LABEL_26:
-    __asm
+    v28 = ps;
+    if ( !BG_Deploy_EdgeSnap(pmoveHandler, ps, &viewOrigina, playerViewAxis, weapDef, &outPos, &outAxis) && !v18 )
     {
-      vmovaps [rsp+3F0h+var_40], xmm6
-      vmovaps [rsp+3F0h+var_50], xmm7
-      vmovaps [rsp+3F0h+var_70], xmm11
+      MatrixSet43(&outResults->transform, &origin, playerViewAxis, 1.0);
+      Physics_ReleaseShape(worldId, shape, 0);
+      return 0;
     }
-    IsTraceContentsValid = BG_Deploy_IsTraceContentsValid(&outTrace);
-    GenerateAxisFromUpVector(&outTrace.normal, playerViewAxis, &outAxis);
-    if ( !Physics_IsPredictiveWorld(worldId) || Sys_IsMainThread() )
-    {
-      v224 = 0;
-    }
-    else
-    {
-      v224 = 1;
-      Physics_LockWorld(worldId);
-    }
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3f000000
-      vmulss  xmm1, xmm6, dword ptr [r15+1210h]; halfHeight
-      vmovss  xmm2, dword ptr [r15+120Ch]; radius
-      vxorps  xmm7, xmm7, xmm7
-      vmovss  dword ptr [rbp+2F0h+center+8], xmm1
-      vmovss  dword ptr [rbp+2F0h+center], xmm7
-      vmovss  dword ptr [rbp+2F0h+center+4], xmm7
-    }
-    shape = Physics_CreateShapeCylinder(&center, *(float *)&_XMM1, *(float *)&_XMM2, 32, 1);
-    if ( !shape && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 391, ASSERT_TYPE_ASSERT, "(shape)", (const char *)&queryFormat, "shape") )
+  }
+  else
+  {
+    v28 = ps;
+  }
+  v90 = v7;
+  if ( weapDef->deployAlwaysUpright )
+  {
+    AxisToAngles(&outAxis, &angles);
+    angles.v[0] = 0.0;
+    angles.v[2] = 0.0;
+    AnglesToAxis(&angles, &outAxis);
+    v29 = (float)((float)(outTrace.normal.v[1] * 0.0) + (float)(outTrace.normal.v[0] * 0.0)) + (float)(outTrace.normal.v[2] * 1.0);
+    v30 = I_fclamp(v29, -1.0, 1.0);
+    if ( (*(float *)&v30 < -1.0 || *(float *)&v30 > 1.0) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 428, ASSERT_TYPE_ASSERT, "( -1.0f ) <= ( normalDotUp ) && ( normalDotUp ) <= ( 1.0f )", "normalDotUp not in [-1.0f, 1.0f]\n\t%g not in [%g, %g]", *(float *)&v30, *(double *)&_xmm, *((double *)&_xmm + 1)) )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm11, cs:__real@3e000000
-      vmulss  xmm2, xmm6, dword ptr [r15+1210h]
-      vmovss  xmm1, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+4; vec3_t const vec3_origin
-      vmovss  xmm0, cs:__real@3c83126f
-      vmovss  xmm3, dword ptr [r15+120Ch]
-      vmovss  dword ptr [rbp+2F0h+var_278+4], xmm1
-      vaddss  xmm1, xmm2, dword ptr cs:?vec3_origin@@3Tvec3_t@@B+8; vec3_t const vec3_origin
-      vmovss  dword ptr [rbp+2F0h+var_278+8], xmm1
-      vmulss  xmm1, xmm11, dword ptr [rbp+2F0h+outTrace.normal]
-      vmovss  dword ptr [rbp+2F0h+var_268+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbp+2F0h+origin]
-      vmulss  xmm1, xmm11, dword ptr [rbp+2F0h+outTrace.normal+4]
-    }
-    extendedData.contents = v27;
-    __asm
-    {
-      vmovss  dword ptr [rbp+2F0h+outPos], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbp+2F0h+origin+4]
-      vmulss  xmm1, xmm11, dword ptr [rbp+2F0h+outTrace.normal+8]
-      vmovss  [rbp+2F0h+extendedData.accuracy], xmm0
-      vpxor   xmm0, xmm0, xmm0
-    }
-    v49 = 0i64;
-    extendedData.simplifyStart = 0;
-    __asm
-    {
-      vmovss  dword ptr [rbp+2F0h+outPos+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbp+2F0h+origin+8]
-      vmovdqu xmmword ptr [rbp+2F0h+extendedData.nonBrushShape], xmm0
-      vmovss  xmm0, dword ptr cs:?vec3_origin@@3Tvec3_t@@B; vec3_t const vec3_origin
-      vmovss  dword ptr [rbp+2F0h+outPos+8], xmm2
-      vmovss  [rbp+2F0h+extendedData.startTolerance], xmm7
-      vmovss  [rbp+2F0h+extendedData.collisionBuffer], xmm11
-      vmovss  dword ptr [rbp+2F0h+var_278], xmm0
-      vmovss  dword ptr [rbp+2F0h+var_278+0Ch], xmm3
-      vmovss  dword ptr [rbp+2F0h+var_268], xmm3
-    }
-    extendedData.ignoreBodies = NULL;
-    extendedData.permitOutwardTrace = 0;
-    extendedData.phaseSelection = All;
-    if ( weapDef->deployEdgeSnap )
-    {
-      v52 = ps;
-      if ( !BG_Deploy_EdgeSnap(pmoveHandler, ps, &viewOrigina, playerViewAxis, weapDef, &outPos, &outAxis) && !v28 )
-      {
-        __asm { vmovaps xmm3, xmm8; scale }
-        MatrixSet43(&outResults->transform, &origin, playerViewAxis, *(float *)&_XMM3);
-        Physics_ReleaseShape(worldId, shape, 0);
-        result = 0;
-LABEL_118:
-        __asm
-        {
-          vmovaps xmm7, [rsp+3F0h+var_50]
-          vmovaps xmm6, [rsp+3F0h+var_40]
-          vmovaps xmm11, [rsp+3F0h+var_70]
-        }
-        goto LABEL_119;
-      }
-    }
-    else
-    {
-      v52 = ps;
-    }
-    __asm
-    {
-      vmovaps [rsp+3F0h+var_80], xmm12
-      vmovss  xmm12, cs:__real@bf800000
-    }
-    if ( weapDef->deployAlwaysUpright )
-    {
-      AxisToAngles(&outAxis, &angles);
-      __asm
-      {
-        vmovss  dword ptr [rbp+2F0h+angles], xmm7
-        vmovss  dword ptr [rbp+2F0h+angles+8], xmm7
-      }
-      AnglesToAxis(&angles, &outAxis);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+2F0h+outTrace.normal+4]
-        vmulss  xmm3, xmm0, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+1Ch; tmat33_t<vec3_t> const identityMatrix33
-        vmovss  xmm1, dword ptr [rbp+2F0h+outTrace.normal]
-        vmulss  xmm2, xmm1, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+18h; tmat33_t<vec3_t> const identityMatrix33
-        vmovss  xmm0, dword ptr [rbp+2F0h+outTrace.normal+8]
-        vmulss  xmm1, xmm0, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+20h; tmat33_t<vec3_t> const identityMatrix33
-        vaddss  xmm4, xmm3, xmm2
-        vaddss  xmm0, xmm4, xmm1; val
-        vmovaps xmm1, xmm12; min
-        vmovaps xmm2, xmm8; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vcomiss xmm0, xmm12
-        vmovaps xmm6, xmm0
-      }
-      if ( v64 )
-        goto LABEL_122;
-      __asm { vcomiss xmm0, xmm8 }
-      if ( !(v64 | v65) )
-      {
-LABEL_122:
-        __asm
-        {
-          vmovaps xmm1, cs:__xmm@3ff0000000000000bff0000000000000
-          vmovups xmmword ptr [rsp+3F0h+outTestPoint], xmm1
-          vcvtss2sd xmm3, xmm6, xmm6
-          vmovsd  qword ptr [rsp+3F0h+traceMask], xmm3
-        }
-        v70 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 428, ASSERT_TYPE_ASSERT, "( -1.0f ) <= ( normalDotUp ) && ( normalDotUp ) <= ( 1.0f )", "normalDotUp not in [-1.0f, 1.0f]\n\t%g not in [%g, %g]", traceMask, *(double *)&outTestPoint, *((double *)&outTestPoint + 1));
-        v64 = 0;
-        v65 = !v70;
-        if ( v70 )
-          __debugbreak();
-      }
-      __asm
-      {
-        vcvtss2sd xmm0, xmm6, xmm6
-        vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-      }
-      if ( !(v64 | v65) )
-      {
-        __asm
-        {
-          vmulss  xmm0, xmm6, xmm6
-          vsubss  xmm0, xmm8, xmm0
-          vsqrtss xmm1, xmm0, xmm0
-          vmulss  xmm2, xmm1, dword ptr [r15+120Ch]
-          vdivss  xmm7, xmm2, xmm6
-        }
-      }
-    }
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbp+2F0h+outAxis]
-      vmovss  xmm5, dword ptr [rbp+2F0h+outAxis+4]
-      vmovss  xmm6, dword ptr [rbp+2F0h+outAxis+8]
-      vmulss  xmm1, xmm4, xmm4
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm6, xmm6
-      vaddss  xmm0, xmm2, xmm1
-      vsubss  xmm3, xmm0, xmm8
-      vandps  xmm3, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm3, cs:__real@3b03126f
-      vcvtss2sd xmm0, xmm6, xmm6
-      vcvtss2sd xmm1, xmm5, xmm5
-      vcvtss2sd xmm2, xmm4, xmm4
-      vmovsd  qword ptr [rsp+3F0h+contentMask], xmm0
-      vmovsd  [rsp+3F0h+outTestPoint+8], xmm1
-      vmovsd  [rsp+3F0h+outTestPoint], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 432, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( endAxis[0] ))", "%s\n\t%f %f %f, foundHit %d", "Vec3IsNormalized( endAxis[0] )", *(double *)&outTestPointa, *(double *)&outTestPoint_8, contentMask, v28) )
+    if ( v29 > 0.000001 )
+      v22 = (float)(fsqrt(1.0 - (float)(v29 * v29)) * weapDef->deployCylinderRadius) / v29;
+  }
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(outAxis.m[0].v[0] * outAxis.m[0].v[0]) + (float)(outAxis.m[0].v[1] * outAxis.m[0].v[1])) + (float)(outAxis.m[0].v[2] * outAxis.m[0].v[2])) - 1.0) & _xmm) >= 0.0020000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 432, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( endAxis[0] ))", "%s\n\t%f %f %f, foundHit %d", "Vec3IsNormalized( endAxis[0] )", outAxis.m[0].v[0], outAxis.m[0].v[1], outAxis.m[0].v[2], v18) )
+    __debugbreak();
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(outAxis.m[1].v[0] * outAxis.m[1].v[0]) + (float)(outAxis.m[1].v[1] * outAxis.m[1].v[1])) + (float)(outAxis.m[1].v[2] * outAxis.m[1].v[2])) - 1.0) & _xmm) >= 0.0020000001 )
+  {
+    LODWORD(locational) = v18;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 433, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( endAxis[1] ))", "%s\n\t%f %f %f, foundHit %d", "Vec3IsNormalized( endAxis[1] )", outAxis.m[1].v[0], outAxis.m[1].v[1], outAxis.m[1].v[2], locational) )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rbp+2F0h+outAxis+0Ch]
-      vmovss  xmm4, dword ptr [rbp+2F0h+outAxis+10h]
-      vmovss  xmm5, dword ptr [rbp+2F0h+outAxis+14h]
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm0, xmm2, xmm1
-      vsubss  xmm2, xmm0, xmm8
-      vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm2, cs:__real@3b03126f
-      vcvtss2sd xmm0, xmm5, xmm5
-      vcvtss2sd xmm1, xmm4, xmm4
-      vcvtss2sd xmm2, xmm3, xmm3
-    }
-    LODWORD(locational) = v28;
-    __asm
-    {
-      vmovsd  qword ptr [rsp+3F0h+contentMask], xmm0
-      vmovsd  [rsp+3F0h+outTestPoint+8], xmm1
-      vmovsd  [rsp+3F0h+outTestPoint], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 433, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( endAxis[1] ))", "%s\n\t%f %f %f, foundHit %d", "Vec3IsNormalized( endAxis[1] )", *(double *)&outTestPointb, *(double *)&outTestPoint_8a, contentMaska, locational) )
+  }
+  if ( COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(outAxis.m[2].v[0] * outAxis.m[2].v[0]) + (float)(outAxis.m[2].v[1] * outAxis.m[2].v[1])) + (float)(outAxis.m[2].v[2] * outAxis.m[2].v[2])) - 1.0) & _xmm) >= 0.0020000001 )
+  {
+    LODWORD(locational) = v18;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 434, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( endAxis[2] ))", "%s\n\t%f %f %f, foundHit %d", "Vec3IsNormalized( endAxis[2] )", outAxis.m[2].v[0], outAxis.m[2].v[1], outAxis.m[2].v[2], locational) )
       __debugbreak();
-    __asm
+  }
+  v31 = DCONST_DVARFLT_deploy_penTestSurfaceOffset;
+  if ( !DCONST_DVARFLT_deploy_penTestSurfaceOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_penTestSurfaceOffset") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v31);
+  v32 = v22 + v31->current.value;
+  start.v[0] = (float)(v32 * outAxis.m[2].v[0]) + outPos.v[0];
+  start.v[1] = (float)(v32 * outAxis.m[2].v[1]) + outPos.v[1];
+  start.v[2] = (float)(v32 * outAxis.m[2].v[2]) + outPos.v[2];
+  AxisToQuat(&outAxis, &out);
+  PhysicsQuery_ImmediateShapecastClosest(worldId, shape, &start, &outPos, &out, &extendedData, &hit);
+  v63 = 0;
+  if ( hit.isValid )
+  {
+    if ( hit.fraction <= 0.125 || hit.fraction >= 1.0 )
+      goto LABEL_62;
+    outPos.v[0] = (float)((float)(outPos.v[0] - start.v[0]) * hit.fraction) + start.v[0];
+    outPos.v[1] = (float)((float)(outPos.v[1] - start.v[1]) * hit.fraction) + start.v[1];
+    outPos.v[2] = (float)((float)(outPos.v[2] - start.v[2]) * hit.fraction) + start.v[2];
+    outTrace.hitType = TRACE_HITTYPE_ENTITY;
+    EntityNum = Physics_GetEntityNum(hit.ref);
+    outTrace.hitId = truncate_cast<unsigned short,int>(EntityNum);
+  }
+  v63 = 1;
+LABEL_62:
+  v65 = 1;
+  if ( weapDef->deployRequireNoOverhang )
+  {
+    MatrixSet43((tmat43_t<vec3_t> *)&in2, &outPos, &outAxis, weapDef->deployCylinderRadius);
+    skipEntities = &v28->clientNum;
+    v34 = s_overhangTestPoints;
+    while ( 1 )
     {
-      vmovss  xmm3, dword ptr [rbp+2F0h+outAxis+18h]
-      vmovss  xmm4, dword ptr [rbp+2F0h+outAxis+1Ch]
-      vmovss  xmm5, dword ptr [rbp+2F0h+outAxis+20h]
-      vmulss  xmm1, xmm3, xmm3
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm5, xmm5
-      vaddss  xmm0, xmm2, xmm1
-      vsubss  xmm2, xmm0, xmm8
-      vandps  xmm2, xmm2, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vcomiss xmm2, cs:__real@3b03126f
-      vcvtss2sd xmm0, xmm5, xmm5
-      vcvtss2sd xmm1, xmm4, xmm4
-      vcvtss2sd xmm2, xmm3, xmm3
-    }
-    LODWORD(locationala) = v28;
-    __asm
-    {
-      vmovsd  qword ptr [rsp+3F0h+contentMask], xmm0
-      vmovsd  [rsp+3F0h+outTestPoint+8], xmm1
-      vmovsd  [rsp+3F0h+outTestPoint], xmm2
-    }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_equip_deploy.cpp", 434, ASSERT_TYPE_ASSERT, "(Vec3IsNormalized( endAxis[2] ))", "%s\n\t%f %f %f, foundHit %d", "Vec3IsNormalized( endAxis[2] )", *(double *)&outTestPointc, *(double *)&outTestPoint_8b, contentMaskb, locationala) )
-      __debugbreak();
-    v115 = DCONST_DVARFLT_deploy_penTestSurfaceOffset;
-    if ( !DCONST_DVARFLT_deploy_penTestSurfaceOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_penTestSurfaceOffset") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v115);
-    __asm
-    {
-      vaddss  xmm3, xmm7, dword ptr [rbx+28h]
-      vmulss  xmm1, xmm3, dword ptr [rbp+2F0h+outAxis+18h]
-      vaddss  xmm2, xmm1, dword ptr [rbp+2F0h+outPos]
-      vmulss  xmm1, xmm3, dword ptr [rbp+2F0h+outAxis+1Ch]
-      vmovss  dword ptr [rbp+2F0h+start], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbp+2F0h+outPos+4]
-      vmulss  xmm1, xmm3, dword ptr [rbp+2F0h+outAxis+20h]
-      vmovss  dword ptr [rbp+2F0h+start+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbp+2F0h+outPos+8]
-      vmovss  dword ptr [rbp+2F0h+start+8], xmm2
-    }
-    AxisToQuat(&outAxis, &out);
-    PhysicsQuery_ImmediateShapecastClosest(worldId, shape, &start, &outPos, &out, &extendedData, &hit);
-    v223 = 0;
-    if ( hit.isValid )
-    {
-      __asm
-      {
-        vmovss  xmm6, [rbp+2F0h+hit.fraction]
-        vcomiss xmm6, xmm11
-        vcomiss xmm6, xmm8
-      }
-    }
-    else
-    {
-      v223 = 1;
-    }
-    v225 = 1;
-    if ( weapDef->deployRequireNoOverhang )
-    {
-      __asm { vmovss  xmm3, dword ptr [r15+120Ch]; scale }
-      MatrixSet43((tmat43_t<vec3_t> *)&in2, &outPos, &outAxis, *(float *)&_XMM3);
-      __asm { vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000 }
-      skipEntities = &v52->clientNum;
-      v126 = s_overhangTestPoints;
-      while ( 1 )
-      {
-        MatrixTransformVector43(v126, (const tmat43_t<vec3_t> *)&in2, &v239);
-        _RBX = DCONST_DVARFLT_deploy_overhangTestOffset;
-        if ( !DCONST_DVARFLT_deploy_overhangTestOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_overhangTestOffset") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vxorps  xmm3, xmm0, xmm6
-          vmulss  xmm2, xmm3, dword ptr [rbp+2F0h+outAxis+18h]
-          vaddss  xmm0, xmm2, dword ptr [rbp+2F0h+var_2A8]
-          vmulss  xmm2, xmm3, dword ptr [rbp+2F0h+outAxis+1Ch]
-          vmovss  dword ptr [rbp+2F0h+angles], xmm0
-          vaddss  xmm0, xmm2, dword ptr [rbp+2F0h+var_2A8+4]
-          vmulss  xmm2, xmm3, dword ptr [rbp+2F0h+outAxis+20h]
-          vmovss  dword ptr [rbp+2F0h+angles+4], xmm0
-          vaddss  xmm0, xmm2, dword ptr [rbp+2F0h+var_2A8+8]
-          vmovss  dword ptr [rbp+2F0h+angles+8], xmm0
-        }
-        PhysicsQuery_LegacyTraceSkipEntities(worldId, &results, &v239, &angles, &bounds_origin, skipEntities, 1, 1, v228, 0, NULL, All);
-        __asm
-        {
-          vmovss  xmm0, [rbp+2F0h+results.fraction]
-          vcomiss xmm0, xmm8
-        }
-        v137 = DCONST_DVARBOOL_deploy_debug;
-        if ( !v64 )
-          break;
-        if ( !DCONST_DVARBOOL_deploy_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_debug") )
-          __debugbreak();
-        Dvar_CheckFrontendServerThread(v137);
-        if ( v137->current.enabled )
-          pmoveHandler->DebugLine((BgHandler *)pmoveHandler, &v239, &angles, &colorGreen, 1, 0);
-        IsTraceContentsValid = IsTraceContentsValid && BG_Deploy_IsTraceContentsValid(&results);
-        v49 += 12i64;
-        ++v126;
-        if ( v49 >= 0x30 )
-          goto LABEL_80;
-      }
+      MatrixTransformVector43(v34, (const tmat43_t<vec3_t> *)&in2, &v79);
+      v35 = DCONST_DVARFLT_deploy_overhangTestOffset;
+      if ( !DCONST_DVARFLT_deploy_overhangTestOffset && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_overhangTestOffset") )
+        __debugbreak();
+      Dvar_CheckFrontendServerThread(v35);
+      LODWORD(v36) = v35->current.integer ^ _xmm;
+      angles.v[0] = (float)(v36 * outAxis.m[2].v[0]) + v79.v[0];
+      angles.v[1] = (float)(v36 * outAxis.m[2].v[1]) + v79.v[1];
+      angles.v[2] = (float)(v36 * outAxis.m[2].v[2]) + v79.v[2];
+      PhysicsQuery_LegacyTraceSkipEntities(worldId, &results, &v79, &angles, &bounds_origin, skipEntities, 1, 1, contentMask, 0, NULL, All);
+      v37 = DCONST_DVARBOOL_deploy_debug;
+      if ( results.fraction >= 1.0 )
+        break;
       if ( !DCONST_DVARBOOL_deploy_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_debug") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v137);
-      if ( v137->current.enabled )
-        pmoveHandler->DebugLine((BgHandler *)pmoveHandler, &v239, &angles, &colorRed, 1, 0);
-      v225 = 0;
+      Dvar_CheckFrontendServerThread(v37);
+      if ( v37->current.enabled )
+        pmoveHandler->DebugLine((BgHandler *)pmoveHandler, &v79, &angles, &colorGreen, 1, 0);
+      IsTraceContentsValid = IsTraceContentsValid && BG_Deploy_IsTraceContentsValid(&results);
+      v27 += 12i64;
+      ++v34;
+      if ( v27 >= 0x30 )
+        goto LABEL_85;
     }
-LABEL_80:
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+2F0h+outAxis+18h]
-      vmulss  xmm3, xmm0, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+18h; tmat33_t<vec3_t> const identityMatrix33
-      vmovss  xmm1, dword ptr [rbp+2F0h+outAxis+1Ch]
-      vmulss  xmm2, xmm1, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+1Ch; tmat33_t<vec3_t> const identityMatrix33
-      vmovss  xmm0, dword ptr [rbp+2F0h+outAxis+20h]
-      vmulss  xmm1, xmm0, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+20h; tmat33_t<vec3_t> const identityMatrix33
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm0, xmm4, xmm1; val
-      vmovaps xmm1, xmm12; min
-      vmovaps xmm2, xmm8; max
-    }
-    v148 = 1;
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( weapDef->deployRequireOnWalkableSurface )
-    {
-      v150 = DCONST_DVARFLT_deploy_maxWalkableSlopeAngle;
-      if ( !DCONST_DVARFLT_deploy_maxWalkableSlopeAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_maxWalkableSlopeAngle") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(v150);
-      __asm
-      {
-        vmovss  xmm0, cs:__real@42b40000
-        vsubss  xmm1, xmm0, dword ptr [rbx+28h]
-        vmovss  xmm7, cs:__real@3c8efa35
-        vmulss  xmm0, xmm1, xmm7; X
-      }
-      *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vmovaps xmm2, xmm8; max
-        vmovaps xmm1, xmm12; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+2F0h+outTrace.normal+4]
-        vmulss  xmm3, xmm1, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+1Ch; tmat33_t<vec3_t> const identityMatrix33
-        vcomiss xmm6, xmm0
-        vmovss  xmm0, dword ptr [rbp+2F0h+outTrace.normal]
-        vmulss  xmm2, xmm0, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+18h; tmat33_t<vec3_t> const identityMatrix33
-        vaddss  xmm4, xmm3, xmm2
-        vmovss  xmm3, dword ptr [rbp+2F0h+outTrace.normal+8]
-        vmulss  xmm0, xmm3, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+20h; tmat33_t<vec3_t> const identityMatrix33
-        vaddss  xmm0, xmm4, xmm0; val
-        vmovaps xmm2, xmm8; max
-        vmovaps xmm1, xmm12; min
-      }
-      v167 = !v64;
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vmulss  xmm0, xmm7, dword ptr [r15+1220h]; X
-      }
-      *(float *)&_XMM0 = cosf_0(*(float *)&_XMM0);
-      __asm
-      {
-        vmovaps xmm2, xmm8; max
-        vmovaps xmm1, xmm12; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vcomiss xmm0, xmm6 }
-      v148 = v167;
-      if ( !(v64 | v65) )
-        v148 = 0;
-    }
-    _RBX = DCONST_DVARFLT_deploy_maxSkyDistanceRayCheck;
-    __asm { vmovaps xmm12, [rsp+3F0h+var_80] }
-    if ( !DCONST_DVARFLT_deploy_maxSkyDistanceRayCheck && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_maxSkyDistanceRayCheck") )
+    if ( !DCONST_DVARBOOL_deploy_debug && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_debug") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    v174 = DCONST_DVARBOOL_deploy_testMissileClip;
-    __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-    if ( !DCONST_DVARBOOL_deploy_testMissileClip && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_testMissileClip") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v174);
-    v176 = 387;
-    v177 = DVARBOOL_deploy_allowInWater;
-    if ( !v174->current.enabled )
-      v176 = 259;
-    if ( !DVARBOOL_deploy_allowInWater && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_allowInWater") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(v177);
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+18h; tmat33_t<vec3_t> const identityMatrix33
-      vaddss  xmm2, xmm1, dword ptr [rbp+2F0h+outPos]
-      vmulss  xmm1, xmm6, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+1Ch; tmat33_t<vec3_t> const identityMatrix33
-    }
-    v181 = v176 | 0x20;
-    v65 = !v177->current.enabled;
-    __asm
-    {
-      vmovss  dword ptr [rbp+2F0h+end], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbp+2F0h+outPos+4]
-      vmulss  xmm1, xmm6, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+20h; tmat33_t<vec3_t> const identityMatrix33
-    }
-    if ( !v65 )
-      v181 = v176;
-    __asm
-    {
-      vmovss  dword ptr [rbp+2F0h+end+4], xmm2
-      vaddss  xmm2, xmm1, dword ptr [rbp+2F0h+outPos+8]
-      vmovss  dword ptr [rbp+2F0h+end+8], xmm2
-    }
-    PhysicsQuery_LegacyTraceSkipEntities(worldId, &v249, &outPos, &end, &bounds_origin, &ps->clientNum, 1, 1, v181, 0, NULL, All);
-    __asm
-    {
-      vmovss  xmm0, [rbp+2F0h+var_F0.fraction]
-      vucomiss xmm0, xmm8
-    }
-    if ( v65 )
-    {
-      _RBX = DCONST_DVARFLT_deploy_maxSkyDistanceShapeCheck;
-      if ( !DCONST_DVARFLT_deploy_maxSkyDistanceShapeCheck && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_maxSkyDistanceShapeCheck") )
-        __debugbreak();
-      Dvar_CheckFrontendServerThread(_RBX);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx+28h]
-        vmulss  xmm0, xmm3, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+18h; tmat33_t<vec3_t> const identityMatrix33
-        vaddss  xmm1, xmm0, dword ptr [rbp+2F0h+outPos]
-        vmulss  xmm2, xmm3, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+1Ch; tmat33_t<vec3_t> const identityMatrix33
-        vaddss  xmm0, xmm2, dword ptr [rbp+2F0h+outPos+4]
-        vmovss  dword ptr [rbp+2F0h+end], xmm1
-        vmulss  xmm1, xmm3, dword ptr cs:?identityMatrix33@@3T?$tmat33_t@Tvec3_t@@@@B+20h; tmat33_t<vec3_t> const identityMatrix33
-        vaddss  xmm2, xmm1, dword ptr [rbp+2F0h+outPos+8]
-      }
-      extendedData.contents = v181;
-      v186 = worldId;
-      __asm
-      {
-        vmovss  dword ptr [rbp+2F0h+end+8], xmm2
-        vmovss  dword ptr [rbp+2F0h+end+4], xmm0
-      }
-      PhysicsQuery_ImmediateShapecastClosest(worldId, shape, &outPos, &end, &out, &extendedData, &in2);
-      if ( in2.isValid )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+2F0h+in2+4]
-          vucomiss xmm0, xmm8
-        }
-        v187 = 0;
-      }
-      else
-      {
-        v187 = 1;
-      }
-    }
-    else
-    {
-      v186 = worldId;
-      v187 = 0;
-    }
-    v197 = !weapDef->deployRequireSkyAbove || v187;
-    if ( shape )
-      Physics_ReleaseShape(v186, shape, 0);
-    v198 = 0;
-    if ( v224 )
-      Physics_UnlockWorld(v186);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+2F0h+outPos+8]
-      vsubss  xmm1, xmm0, dword ptr [rbp+2F0h+viewOrigin+8]
-      vcomiss xmm1, dword ptr [r15+1218h]
-    }
-    if ( v198 )
-    {
-      __asm
-      {
-        vmovups xmm0, [rbp+2F0h+var_278]
-        vmovsd  xmm1, [rbp+2F0h+var_268]
-      }
-      outResults->passCylinderTest = v223;
-      __asm { vmovups xmmword ptr [rdi], xmm0 }
-      outResults->passOverhangTest = v225;
-      __asm { vmovsd  qword ptr [rdi+10h], xmm1 }
-      outResults->passRangeTest = 1;
-      outResults->passWalkableTest = v148;
-      outResults->passSkyTest = v197;
-      outResults->passMaterialTest = IsTraceContentsValid;
-      __asm { vmovaps xmm3, xmm8; scale }
-      outResults->hitEntityNum = Trace_GetEntityHitId(&outTrace);
-      MatrixSet43(&outResults->transform, &outPos, &outAxis, *(float *)&_XMM3);
-      result = 1;
-      outResults->isSkyVisible = v187;
-    }
-    else
-    {
-      __asm { vmovaps xmm3, xmm8; scale }
-      outResults->passRangeTest = 0;
-      MatrixSet43(&outResults->transform, &origin, playerViewAxis, *(float *)&_XMM3);
-      result = 0;
-    }
-    goto LABEL_118;
+    Dvar_CheckFrontendServerThread(v37);
+    if ( v37->current.enabled )
+      pmoveHandler->DebugLine((BgHandler *)pmoveHandler, &v79, &angles, &colorRed, 1, 0);
+    v65 = 0;
   }
-  result = 0;
-LABEL_119:
-  _R11 = &v255;
-  __asm { vmovaps xmm8, xmmword ptr [r11-30h] }
+LABEL_85:
+  v38 = (float)((float)(outAxis.m[2].v[0] * 0.0) + (float)(outAxis.m[2].v[1] * 0.0)) + (float)(outAxis.m[2].v[2] * 1.0);
+  v39 = 1;
+  I_fclamp(v38, -1.0, 1.0);
+  v40 = v38;
+  if ( weapDef->deployRequireOnWalkableSurface )
+  {
+    v41 = DCONST_DVARFLT_deploy_maxWalkableSlopeAngle;
+    if ( !DCONST_DVARFLT_deploy_maxWalkableSlopeAngle && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_maxWalkableSlopeAngle") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v41);
+    v42 = cosf_0((float)(90.0 - v41->current.value) * 0.017453292);
+    v43 = I_fclamp(v42, -1.0, 1.0);
+    v44 = (float)((float)(outTrace.normal.v[1] * 0.0) + (float)(outTrace.normal.v[0] * 0.0)) + (float)(outTrace.normal.v[2] * 1.0);
+    v45 = v40 >= *(float *)&v43;
+    I_fclamp(v44, -1.0, 1.0);
+    v46 = cosf_0(0.017453292 * weapDef->deployMaxSlope);
+    v47 = I_fclamp(v46, -1.0, 1.0);
+    v39 = v45;
+    if ( *(float *)&v47 > v44 )
+      v39 = 0;
+  }
+  v48 = DCONST_DVARFLT_deploy_maxSkyDistanceRayCheck;
+  if ( !DCONST_DVARFLT_deploy_maxSkyDistanceRayCheck && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_maxSkyDistanceRayCheck") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v48);
+  v49 = DCONST_DVARBOOL_deploy_testMissileClip;
+  value = v48->current.value;
+  if ( !DCONST_DVARBOOL_deploy_testMissileClip && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_testMissileClip") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v49);
+  v51 = 387;
+  v52 = DVARBOOL_deploy_allowInWater;
+  if ( !v49->current.enabled )
+    v51 = 259;
+  if ( !DVARBOOL_deploy_allowInWater && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_allowInWater") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v52);
+  v53 = v51 | 0x20;
+  v54 = !v52->current.enabled;
+  end.v[0] = (float)(value * 0.0) + outPos.v[0];
+  if ( !v54 )
+    v53 = v51;
+  end.v[1] = (float)(value * 0.0) + outPos.v[1];
+  end.v[2] = (float)(value * 1.0) + outPos.v[2];
+  PhysicsQuery_LegacyTraceSkipEntities(worldId, &v89, &outPos, &end, &bounds_origin, &ps->clientNum, 1, 1, v53, 0, NULL, All);
+  if ( v89.fraction == 1.0 )
+  {
+    v57 = DCONST_DVARFLT_deploy_maxSkyDistanceShapeCheck;
+    if ( !DCONST_DVARFLT_deploy_maxSkyDistanceShapeCheck && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "deploy_maxSkyDistanceShapeCheck") )
+      __debugbreak();
+    Dvar_CheckFrontendServerThread(v57);
+    v58 = v57->current.value;
+    end.v[0] = (float)(v58 * 0.0) + outPos.v[0];
+    extendedData.contents = v53;
+    v55 = worldId;
+    end.v[2] = (float)(v58 * 1.0) + outPos.v[2];
+    end.v[1] = (float)(v58 * 0.0) + outPos.v[1];
+    PhysicsQuery_ImmediateShapecastClosest(worldId, shape, &outPos, &end, &out, &extendedData, &in2);
+    v56 = !in2.isValid || in2.fraction == 1.0;
+  }
+  else
+  {
+    v55 = worldId;
+    v56 = 0;
+  }
+  v59 = !weapDef->deployRequireSkyAbove || v56;
+  if ( shape )
+    Physics_ReleaseShape(v55, shape, 0);
+  if ( v64 )
+    Physics_UnlockWorld(v55);
+  if ( (float)(outPos.v[2] - viewOrigina.v[2]) < weapDef->deployMaxHeightAboveEye )
+  {
+    v60 = v82;
+    v61 = v83;
+    outResults->passCylinderTest = v63;
+    *(_OWORD *)outResults->equipBounds.midPoint.v = v60;
+    outResults->passOverhangTest = v65;
+    *(double *)&outResults->equipBounds.halfSize.y = v61;
+    outResults->passRangeTest = 1;
+    outResults->passWalkableTest = v39;
+    outResults->passSkyTest = v59;
+    outResults->passMaterialTest = IsTraceContentsValid;
+    outResults->hitEntityNum = Trace_GetEntityHitId(&outTrace);
+    MatrixSet43(&outResults->transform, &outPos, &outAxis, 1.0);
+    result = 1;
+    outResults->isSkyVisible = v56;
+  }
+  else
+  {
+    outResults->passRangeTest = 0;
+    MatrixSet43(&outResults->transform, &origin, playerViewAxis, 1.0);
+    return 0;
+  }
   return result;
 }
 

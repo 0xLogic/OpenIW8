@@ -353,29 +353,26 @@ R_HW_AddResourceTransition
 */
 void R_HW_AddResourceTransition(CmdBufState *state, R_RT_Handle *rtHandle, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after, D3D12_RESOURCE_BARRIER_FLAGS flag)
 {
+  R_RT_Handle *v8; 
   const R_RT_Surface *Surface; 
   unsigned int m_subresourceToTransition; 
-  const R_RT_Surface *v12; 
+  const R_RT_Surface *v11; 
   const GfxTexture *Resident; 
-  R_RT_Handle v14; 
+  R_RT_Handle v13; 
 
-  _RBX = rtHandle;
+  v8 = rtHandle;
   Surface = R_RT_Handle::GetSurface(rtHandle);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymmword ptr [rsp+68h+var_28.m_surfaceID], ymm0
-  }
+  v13 = *v8;
   m_subresourceToTransition = Surface->m_subresourceToTransition;
-  LODWORD(_RBX) = R_RT_Handle::GetSurface(&v14)->m_rtFlagsInternal;
-  v12 = R_RT_Handle::GetSurface(&v14);
-  if ( ((unsigned __int8)_RBX & 8) != 0 )
+  LODWORD(v8) = R_RT_Handle::GetSurface(&v13)->m_rtFlagsInternal;
+  v11 = R_RT_Handle::GetSurface(&v13);
+  if ( ((unsigned __int8)v8 & 8) != 0 )
   {
-    Resident = (const GfxTexture *)&v12->1080;
+    Resident = (const GfxTexture *)&v11->1080;
   }
   else
   {
-    Resident = R_Texture_GetResident(v12->m_image.m_base.textureId);
+    Resident = R_Texture_GetResident(v11->m_image.m_base.textureId);
     if ( !Resident->basemap && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_manager.h", 300, ASSERT_TYPE_ASSERT, "(texture->map)", (const char *)&queryFormat, "texture->map") )
       __debugbreak();
   }

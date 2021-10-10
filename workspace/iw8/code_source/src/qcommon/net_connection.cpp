@@ -945,11 +945,11 @@ char NetConnection::Accept(NetConnection *this, const netadr_t *addr, const NetC
   NetEndpoint *v9; 
   const char *String; 
   const char *v11; 
+  __int128 v13; 
   const char *v14; 
   netadr_t v15; 
 
   m_endpoint = this->m_endpoint;
-  _RDI = addr;
   if ( m_endpoint )
   {
     if ( !NetEndpoint::IsOpened(m_endpoint) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_connection.cpp", 318, ASSERT_TYPE_ASSERT, "(m_endpoint == 0 || m_endpoint->IsOpened())", "%s\n\tEndpoint should always be open when referenced by a connection", "m_endpoint == NULL || m_endpoint->IsOpened()") )
@@ -957,10 +957,10 @@ char NetConnection::Accept(NetConnection *this, const netadr_t *addr, const NetC
     if ( this->m_endpoint && acceptStyle != ACCEPT_REPLACE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_connection.cpp", 117, ASSERT_TYPE_ASSERT, "(!IsOpened() || acceptStyle == ACCEPT_REPLACE)", "%s\n\tConnection already open - close first", "!IsOpened() || acceptStyle == ACCEPT_REPLACE") )
       __debugbreak();
   }
-  v9 = NET_AcceptConnection(this, _RDI->addrHandleIndex);
+  v9 = NET_AcceptConnection(this, addr->addrHandleIndex);
   if ( v9 )
   {
-    NetConnection::Update(this, v9, NS_MAXCLIENTS, _RDI->localNetID, type);
+    NetConnection::Update(this, v9, NS_MAXCLIENTS, addr->localNetID, type);
     String = NetConnection::GetString(this);
     switch ( this->m_type )
     {
@@ -988,9 +988,9 @@ char NetConnection::Accept(NetConnection *this, const netadr_t *addr, const NetC
   }
   else
   {
-    __asm { vmovups xmm0, xmmword ptr [rdi] }
-    v15.addrHandleIndex = _RDI->addrHandleIndex;
-    __asm { vmovups [rsp+58h+var_28], xmm0 }
+    v13 = *(_OWORD *)&addr->type;
+    v15.addrHandleIndex = addr->addrHandleIndex;
+    *(_OWORD *)&v15.type = v13;
     v14 = NET_AdrToString(&v15);
     Com_PrintWarning(131097, "[NET] Failed to accept connection %s\n", v14);
     return 0;
@@ -1742,55 +1742,55 @@ NetConnection::GetTelemetry
 bool NetConnection::GetTelemetry(NetConnection *this, DLogContext *context, const char *prefix, bool includeAddrs)
 {
   NetEndpoint *m_endpoint; 
-  int v10; 
+  int v8; 
   const bdDTLSAssociationTelemetry *Telemetry; 
   NetAddress *Address; 
   const bdReference<bdAddrHandle> *Handle; 
-  NetEndpoint *v14; 
-  const bdReference<bdAddrHandle> *v15; 
+  NetEndpoint *v12; 
+  const bdReference<bdAddrHandle> *v13; 
   const bdReference<bdCommonAddr> *CommonAddr; 
   bdSocketRouter *SocketRouter; 
   __int64 m_ptr; 
-  bdSocketRouter_vtbl *v19; 
+  bdSocketRouter_vtbl *v17; 
   bdDTLSAssociationStatus (__fastcall *getStatus)(bdSocketRouter *, const bdReference<bdAddrHandle>); 
-  int v21; 
+  int v19; 
   const bdAddr *PublicAddr; 
-  const char *v23; 
+  const char *v21; 
   const bdAddr *LocalAddrByIndex; 
-  const char *v25; 
-  const char *v26; 
-  int v27; 
+  const char *v23; 
+  const char *v24; 
+  int v25; 
   int LastSent; 
-  netsrc_t m_remoteId; 
-  unsigned __int8 v30; 
-  const char *v31; 
+  unsigned __int8 v27; 
+  const char *v28; 
   unsigned int m_establishedMsSinceStart; 
   unsigned int m_stageCookieAckMsSinceStart; 
   unsigned int m_stageInitAckMsSinceStart; 
+  float m_lifetimeMs; 
+  float v33; 
   int m_status; 
   int m_lastState; 
-  const char *v40; 
-  bool result; 
-  unsigned __int8 v44; 
+  const char *v36; 
+  unsigned __int8 v38; 
   unsigned __int8 m_initResends; 
   unsigned __int8 m_cookieResends; 
-  __int64 v47; 
-  const char *v48; 
-  const bdReference<bdAddrHandle> *v49; 
+  __int64 v41; 
+  const char *v42; 
+  const bdReference<bdAddrHandle> *v43; 
   char dest[8]; 
-  __int64 v51; 
-  int v52; 
-  __int16 v53; 
+  __int64 v45; 
+  int v46; 
+  __int16 v47; 
   char value[8]; 
-  __int64 v55; 
-  int v56; 
-  __int16 v57; 
-  char v58[8]; 
-  __int64 v59; 
-  int v60; 
-  __int16 v61; 
+  __int64 v49; 
+  int v50; 
+  __int16 v51; 
+  char v52[8]; 
+  __int64 v53; 
+  int v54; 
+  __int16 v55; 
 
-  v48 = prefix;
+  v42 = prefix;
   m_endpoint = this->m_endpoint;
   if ( m_endpoint )
   {
@@ -1798,48 +1798,48 @@ bool NetConnection::GetTelemetry(NetConnection *this, DLogContext *context, cons
       __debugbreak();
     if ( this->m_endpoint )
     {
-      v10 = Sys_Milliseconds();
+      v8 = Sys_Milliseconds();
       Telemetry = NetEndpoint::GetTelemetry(this->m_endpoint);
       Address = (NetAddress *)NetConnection::GetAddress(this);
       Handle = NetAddress::GetHandle(Address);
-      v14 = this->m_endpoint;
-      v15 = Handle;
-      v49 = Handle;
-      CommonAddr = NetEndpoint::GetCommonAddr(v14);
+      v12 = this->m_endpoint;
+      v13 = Handle;
+      v43 = Handle;
+      CommonAddr = NetEndpoint::GetCommonAddr(v12);
       NET_EnterCriticalSection();
       SocketRouter = dwGetSocketRouter();
-      m_ptr = (__int64)v15->m_ptr;
-      v19 = SocketRouter->bdNATTravListener::__vftable;
-      v47 = m_ptr;
-      getStatus = v19->getStatus;
+      m_ptr = (__int64)v13->m_ptr;
+      v17 = SocketRouter->bdNATTravListener::__vftable;
+      v41 = m_ptr;
+      getStatus = v17->getStatus;
       if ( m_ptr )
         _InterlockedExchangeAdd((volatile signed __int32 *)(m_ptr + 8), 1u);
-      v21 = ((__int64 (__fastcall *)(bdSocketRouter *, __int64 *))getStatus)(SocketRouter, &v47);
+      v19 = ((__int64 (__fastcall *)(bdSocketRouter *, __int64 *))getStatus)(SocketRouter, &v41);
       NET_ExitCriticalSection();
       *(_QWORD *)dest = 0i64;
-      v51 = 0i64;
-      v52 = 0;
-      v53 = 0;
+      v45 = 0i64;
+      v46 = 0;
+      v47 = 0;
       *(_QWORD *)value = 0i64;
-      v55 = 0i64;
-      v56 = 0;
-      v57 = 0;
-      *(_QWORD *)v58 = 0i64;
-      v59 = 0i64;
-      v60 = 0;
-      v61 = 0;
+      v49 = 0i64;
+      v50 = 0;
+      v51 = 0;
+      *(_QWORD *)v52 = 0i64;
+      v53 = 0i64;
+      v54 = 0;
+      v55 = 0;
       if ( includeAddrs )
       {
         PublicAddr = bdCommonAddr::getPublicAddr(CommonAddr->m_ptr);
-        v23 = dwAddrToString(PublicAddr);
-        Core_strcpy(dest, 0x16ui64, v23);
+        v21 = dwAddrToString(PublicAddr);
+        Core_strcpy(dest, 0x16ui64, v21);
         LocalAddrByIndex = bdCommonAddr::getLocalAddrByIndex(CommonAddr->m_ptr, 0);
-        v25 = dwAddrToString(LocalAddrByIndex);
-        Core_strcpy(value, 0x16ui64, v25);
-        v26 = dwAddrToString(&Telemetry->m_peerAddr);
-        Core_strcpy(v58, 0x16ui64, v26);
+        v23 = dwAddrToString(LocalAddrByIndex);
+        Core_strcpy(value, 0x16ui64, v23);
+        v24 = dwAddrToString(&Telemetry->m_peerAddr);
+        Core_strcpy(v52, 0x16ui64, v24);
       }
-      v27 = v10 - NetConnection::GetLastRecv(this);
+      v25 = v8 - NetConnection::GetLastRecv(this);
       if ( !this->m_endpoint )
         goto LABEL_16;
       if ( !NetEndpoint::IsOpened(this->m_endpoint) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_connection.cpp", 318, ASSERT_TYPE_ASSERT, "(m_endpoint == 0 || m_endpoint->IsOpened())", "%s\n\tEndpoint should always be open when referenced by a connection", "m_endpoint == NULL || m_endpoint->IsOpened()") )
@@ -1849,57 +1849,34 @@ bool NetConnection::GetTelemetry(NetConnection *this, DLogContext *context, cons
       else
 LABEL_16:
         LastSent = 0;
-      m_remoteId = this->m_remoteId;
-      __asm { vmovaps [rsp+108h+var_48], xmm6 }
-      v44 = truncate_cast<unsigned char,enum netsrc_t>(m_remoteId);
-      v30 = truncate_cast<unsigned char,enum netsrc_t>(this->m_localId);
-      v31 = j_va("%s_connection", v48);
-      if ( !DLog_IsActive() )
-        goto LABEL_52;
-      if ( !DLog_BeginRow(context, v31) || !DLog_UInt8(context, "local_id", v30) || !DLog_UInt8(context, "remote_id", v44) || !DLog_String(context, "public_addr", dest, 0) || !DLog_String(context, "private_addr", value, 0) || !DLog_Int32(context, "last_sent", v10 - LastSent) || !DLog_Int32(context, "last_recv", v27) || !DLog_EndRow(context) )
-        goto LABEL_53;
-      m_establishedMsSinceStart = Telemetry->m_establishedMsSinceStart;
-      m_stageCookieAckMsSinceStart = Telemetry->m_stageCookieAckMsSinceStart;
-      m_stageInitAckMsSinceStart = Telemetry->m_stageInitAckMsSinceStart;
-      m_cookieResends = Telemetry->m_cookieResends;
-      m_initResends = Telemetry->m_initResends;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vmulss  xmm6, xmm0, cs:__real@3a83126f
-      }
-      m_status = v49->m_ptr->m_status;
-      if ( (m_status < 0 || (unsigned int)m_status > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,enum bdAddrHandle::bdAddrHandleStatus>(enum bdAddrHandle::bdAddrHandleStatus)", "unsigned", (unsigned __int8)m_status, "signed", m_status) )
-        __debugbreak();
-      m_lastState = Telemetry->m_lastState;
-      if ( (Telemetry->m_lastState < BD_DTLS_CLOSED || (unsigned int)m_lastState > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,enum bdDTLSAssociationTelemetry::bdDTLSAssociationState>(enum bdDTLSAssociationTelemetry::bdDTLSAssociationState)", "unsigned", (unsigned __int8)m_lastState, "signed", m_lastState) )
-        __debugbreak();
-      if ( (v21 < 0 || (unsigned int)v21 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,enum bdDTLSAssociationStatus>(enum bdDTLSAssociationStatus)", "unsigned", (unsigned __int8)v21, "signed", v21) )
-        __debugbreak();
-      v40 = j_va("%s_dtls", v48);
+      v38 = truncate_cast<unsigned char,enum netsrc_t>(this->m_remoteId);
+      v27 = truncate_cast<unsigned char,enum netsrc_t>(this->m_localId);
+      v28 = j_va("%s_connection", v42);
       if ( DLog_IsActive() )
       {
-        if ( DLog_BeginRow(context, v40) && DLog_UInt8(context, "state", v21) && DLog_UInt8(context, "error", m_lastState) && DLog_String(context, "addr", v58, 0) && DLog_UInt8(context, "addr_state", m_status) )
-        {
-          __asm { vmovaps xmm2, xmm6; value }
-          if ( DLog_Float32(context, "lifetime", *(float *)&_XMM2) && DLog_UInt32(context, "init_ack_time", m_stageInitAckMsSinceStart) && DLog_UInt32(context, "cookie_ack_time", m_stageCookieAckMsSinceStart) && DLog_UInt32(context, "established_time", m_establishedMsSinceStart) && DLog_UInt8(context, "init_resends", m_initResends) && DLog_UInt8(context, "cookie_resends", m_cookieResends) && DLog_EndRow(context) )
-          {
-            result = 1;
-LABEL_54:
-            __asm { vmovaps xmm6, [rsp+108h+var_48] }
-            return result;
-          }
-        }
+        if ( !DLog_BeginRow(context, v28) || !DLog_UInt8(context, "local_id", v27) || !DLog_UInt8(context, "remote_id", v38) || !DLog_String(context, "public_addr", dest, 0) || !DLog_String(context, "private_addr", value, 0) || !DLog_Int32(context, "last_sent", v8 - LastSent) || !DLog_Int32(context, "last_recv", v25) || !DLog_EndRow(context) )
+          return 0;
+        m_establishedMsSinceStart = Telemetry->m_establishedMsSinceStart;
+        m_stageCookieAckMsSinceStart = Telemetry->m_stageCookieAckMsSinceStart;
+        m_stageInitAckMsSinceStart = Telemetry->m_stageInitAckMsSinceStart;
+        m_cookieResends = Telemetry->m_cookieResends;
+        m_initResends = Telemetry->m_initResends;
+        m_lifetimeMs = (float)Telemetry->m_lifetimeMs;
+        v33 = m_lifetimeMs * 0.001;
+        m_status = v43->m_ptr->m_status;
+        if ( (m_status < 0 || (unsigned int)m_status > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,enum bdAddrHandle::bdAddrHandleStatus>(enum bdAddrHandle::bdAddrHandleStatus)", "unsigned", (unsigned __int8)m_status, "signed", m_status) )
+          __debugbreak();
+        m_lastState = Telemetry->m_lastState;
+        if ( (Telemetry->m_lastState < BD_DTLS_CLOSED || (unsigned int)m_lastState > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,enum bdDTLSAssociationTelemetry::bdDTLSAssociationState>(enum bdDTLSAssociationTelemetry::bdDTLSAssociationState)", "unsigned", (unsigned __int8)m_lastState, "signed", m_lastState) )
+          __debugbreak();
+        if ( (v19 < 0 || (unsigned int)v19 > 0xFF) && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_assert.h", 385, ASSERT_TYPE_ASSERT, (const char *)&queryFormat.fmt + 3, "%s (SmallType) %s 0x%jx == (BigType) %s 0x%jx", "unsigned char __cdecl truncate_cast_impl<unsigned char,enum bdDTLSAssociationStatus>(enum bdDTLSAssociationStatus)", "unsigned", (unsigned __int8)v19, "signed", v19) )
+          __debugbreak();
+        v36 = j_va("%s_dtls", v42);
+        if ( DLog_IsActive() )
+          return DLog_BeginRow(context, v36) && DLog_UInt8(context, "state", v19) && DLog_UInt8(context, "error", m_lastState) && DLog_String(context, "addr", v52, 0) && DLog_UInt8(context, "addr_state", m_status) && DLog_Float32(context, "lifetime", v33) && DLog_UInt32(context, "init_ack_time", m_stageInitAckMsSinceStart) && DLog_UInt32(context, "cookie_ack_time", m_stageCookieAckMsSinceStart) && DLog_UInt32(context, "established_time", m_establishedMsSinceStart) && DLog_UInt8(context, "init_resends", m_initResends) && DLog_UInt8(context, "cookie_resends", m_cookieResends) && DLog_EndRow(context);
       }
-      else
-      {
-LABEL_52:
-        context->error = DLOG_ERROR_NOT_ACTIVE;
-      }
-LABEL_53:
-      result = 0;
-      goto LABEL_54;
+      context->error = DLOG_ERROR_NOT_ACTIVE;
+      return 0;
     }
   }
   return 0;

@@ -212,30 +212,24 @@ bdChannelInfo::bdChannelInfo
 */
 void bdChannelInfo::bdChannelInfo(bdChannelInfo *this, const bdChannelInfo *__that, int a3)
 {
-  _RSI = __that;
-  _RDI = this;
   if ( a3 )
   {
     *((_QWORD *)&this->__vftable + 1) = &bdChannelInfo::`vbtable'{for `bdTaskResult'};
     *((_QWORD *)&this->__vftable + 3) = &bdChannelInfo::`vbtable'{for `bdStructBufferSerializable'};
     bdReferencable::bdReferencable((bdReferencable *)(&this->m_dataVersion + 1), (const bdReferencable *)((char *)&__that->__vftable + *(int *)(*((_QWORD *)&__that->__vftable + 1) + 4i64) + 8));
   }
-  bdTaskResult::bdTaskResult(_RDI, _RSI);
-  bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)(&_RDI->__vftable + 2), (const bdStructBufferSerializable *)(&_RSI->__vftable + 2));
-  _RDI->__vftable = (bdChannelInfo_vtbl *)&bdChannelInfo::`vftable'{for `bdTaskResult'};
-  *((_QWORD *)&_RDI->__vftable + 2) = &bdChannelInfo::`vftable'{for `bdStructBufferSerializable'};
-  *(bdChannelInfo_vtbl **)((char *)&_RDI->__vftable + *(int *)(*((_QWORD *)&_RDI->__vftable + 1) + 4i64) + 8) = (bdChannelInfo_vtbl *)&bdChannelInfo::`vftable'{for `bdReferencable'};
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rsi+20h]
-    vmovups xmmword ptr [rdi+20h], xmm0
-  }
-  _RDI->m_channelID = _RSI->m_channelID;
-  _RDI->m_numSubscribers = _RSI->m_numSubscribers;
-  _RDI->m_maxSubscribers = _RSI->m_maxSubscribers;
-  _RDI->m_adminID = _RSI->m_adminID;
-  _RDI->m_isPasswordRequired = _RSI->m_isPasswordRequired;
-  _RDI->m_isPublicChannel = _RSI->m_isPublicChannel;
-  _RDI->m_dataVersion = _RSI->m_dataVersion;
+  bdTaskResult::bdTaskResult(this, __that);
+  bdStructBufferSerializable::bdStructBufferSerializable((bdStructBufferSerializable *)(&this->__vftable + 2), (const bdStructBufferSerializable *)(&__that->__vftable + 2));
+  this->__vftable = (bdChannelInfo_vtbl *)&bdChannelInfo::`vftable'{for `bdTaskResult'};
+  *((_QWORD *)&this->__vftable + 2) = &bdChannelInfo::`vftable'{for `bdStructBufferSerializable'};
+  *(bdChannelInfo_vtbl **)((char *)&this->__vftable + *(int *)(*((_QWORD *)&this->__vftable + 1) + 4i64) + 8) = (bdChannelInfo_vtbl *)&bdChannelInfo::`vftable'{for `bdReferencable'};
+  *(_OWORD *)this->_bytes_20 = *(_OWORD *)__that->_bytes_20;
+  this->m_channelID = __that->m_channelID;
+  this->m_numSubscribers = __that->m_numSubscribers;
+  this->m_maxSubscribers = __that->m_maxSubscribers;
+  this->m_adminID = __that->m_adminID;
+  this->m_isPasswordRequired = __that->m_isPasswordRequired;
+  this->m_isPublicChannel = __that->m_isPublicChannel;
+  this->m_dataVersion = __that->m_dataVersion;
 }
 

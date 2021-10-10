@@ -119,38 +119,34 @@ void AsyncRequestQueue<1024,128>::WriteRequest(AsyncRequestQueue<1024,128> *this
 {
   size_t v5; 
   int v8; 
-  int v11; 
+  int v9; 
+  __int64 v10; 
+  __int128 v11; 
   __int64 v12; 
-  __int128 v13; 
-  __int64 v14; 
   __int128 dataa; 
-  char v17[104]; 
+  __int64 v14; 
+  char v15[104]; 
 
   v5 = dataSize;
-  LODWORD(v13) = type;
-  *((_QWORD *)&v13 + 1) = handle;
-  LODWORD(v14) = dataSize;
+  LODWORD(v11) = type;
+  *((_QWORD *)&v11 + 1) = handle;
+  LODWORD(v12) = dataSize;
   v8 = dataSize + 25;
   if ( (unsigned int)(dataSize + 25) > 0x80 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\async_request_queue.h", 74, ASSERT_TYPE_ASSERT, "(sizeof( requestBuffer ) >= requestSize)", (const char *)&queryFormat, "sizeof( requestBuffer ) >= requestSize") )
     __debugbreak();
   if ( handle && AsyncRequestHandle::IsComplete(handle) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\async_request_queue.h", 75, ASSERT_TYPE_ASSERT, "(handle == 0 || !handle->IsComplete())", (const char *)&queryFormat, "handle == NULL || !handle->IsComplete()") )
     __debugbreak();
-  __asm
-  {
-    vmovups xmm0, [rsp+118h+var_E8]
-    vmovsd  xmm1, [rsp+118h+var_D8]
-    vmovups [rsp+118h+data], xmm0
-    vmovsd  [rsp+118h+var_B8], xmm1
-  }
-  memcpy_0(v17, data, v5);
-  v17[v5] = -1;
-  v11 = Sys_Milliseconds();
+  dataa = v11;
+  v14 = v12;
+  memcpy_0(v15, data, v5);
+  v15[v5] = -1;
+  v9 = Sys_Milliseconds();
   while ( MpscStream<1024>::Write(&this->m_requests, &dataa, v8) <= 0 )
   {
     Sys_Sleep(1);
-    v12 = (unsigned int)(Sys_Milliseconds() - v11);
-    if ( (int)v12 > 1000 )
-      Com_PrintWarning(25, "[NET] Waited %dms for space in request buffer, currently queued %uB\n", v12, this->m_requests.m_writeOffset - this->m_requests.m_readOffset);
+    v10 = (unsigned int)(Sys_Milliseconds() - v9);
+    if ( (int)v10 > 1000 )
+      Com_PrintWarning(25, "[NET] Waited %dms for space in request buffer, currently queued %uB\n", v10, this->m_requests.m_writeOffset - this->m_requests.m_readOffset);
   }
 }
 

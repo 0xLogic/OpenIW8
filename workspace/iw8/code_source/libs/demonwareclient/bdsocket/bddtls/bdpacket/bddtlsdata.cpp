@@ -354,24 +354,23 @@ bdDTLSData::generateIVNonce
 char bdDTLSData::generateIVNonce(bdDTLSData *this, const unsigned __int16 cypherSuite, const bdSequenceNumber *lastSequenceNumber, const unsigned __int8 (*keyingMaterials)[32], unsigned __int8 (*iv)[16], unsigned int *ivNonceSize, bdHash *const hash)
 {
   unsigned int m_seqNum; 
-  int v10; 
-  char v12; 
+  int v9; 
+  char v11; 
   bdHashAlgorithms m_type; 
-  bdSequenceNumber *v15; 
+  bdSequenceNumber *v14; 
   int Value; 
   bool appended; 
-  bdHashAlgorithms v18; 
-  bdSequenceNumber *v19; 
-  int v20; 
-  bdHash_vtbl *v21; 
-  bdSequenceNumber v23; 
-  bdSequenceNumber v24; 
+  bdHashAlgorithms v17; 
+  bdSequenceNumber *v18; 
+  int v19; 
+  bdHash_vtbl *v20; 
+  bdSequenceNumber v21; 
+  bdSequenceNumber v22; 
   void *Src; 
-  __int128 v26; 
+  __int128 v24; 
 
-  _R14 = iv;
   m_seqNum = 0;
-  v10 = cypherSuite;
+  v9 = cypherSuite;
   Src = (void *)keyingMaterials;
   *ivNonceSize = 0;
   if ( cypherSuite != 48385 )
@@ -380,58 +379,54 @@ char bdDTLSData::generateIVNonce(bdDTLSData *this, const unsigned __int16 cypher
     {
       bdHandleAssert(hash->m_type == BD_HASH_SHA256, "hash->m_type == BD_HASH_SHA256", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bdpacket\\bddtlsdata.cpp", "bdDTLSData::generateIVNonce", 0x161u, "Invalid bdHash function for CypherSuite");
       m_type = hash->m_type;
-      bdSequenceNumber::bdSequenceNumber(&v23, lastSequenceNumber, this->m_counter, 0x10u);
-      Value = bdSequenceNumber::getValue(v15);
+      bdSequenceNumber::bdSequenceNumber(&v21, lastSequenceNumber, this->m_counter, 0x10u);
+      Value = bdSequenceNumber::getValue(v14);
       if ( m_type )
         goto LABEL_13;
-      v23.m_seqNum = 4;
+      v21.m_seqNum = 4;
       bdHandleAssert(1, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 4i64);
       if ( iv )
         *(_DWORD *)iv = Value;
-      appended = bdBytePacker::appendBasicType<unsigned short>(iv, 0xCu, 4u, (unsigned int *)&v23, &this->m_vtag);
-      m_seqNum = v23.m_seqNum;
-      if ( !appended || (unsigned int)v23.m_seqNum >= 0xC )
+      appended = bdBytePacker::appendBasicType<unsigned short>(iv, 0xCu, 4u, (unsigned int *)&v21, &this->m_vtag);
+      m_seqNum = v21.m_seqNum;
+      if ( !appended || (unsigned int)v21.m_seqNum >= 0xC )
 LABEL_13:
-        v12 = 0;
+        v11 = 0;
       else
-        v12 = 1;
+        v11 = 1;
       bdHandleAssert(m_seqNum < 0xC, "(bytesWritten < BD_AES_GCM_NONCE_SIZE)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bdpacket\\bddtlsdata.cpp", "bdDTLSData::generateIVNonce", 0x16Du, "BD_AES_GCM_NONCE_SIZE too small for GCM nonce derivation");
-      if ( v12 )
+      if ( v11 )
       {
         memcpy_0(&(*iv)[m_seqNum], Src, 12 - m_seqNum);
         *ivNonceSize = 12;
-        return v12;
+        return v11;
       }
 LABEL_5:
       bdHandleAssert(0, "\"ok\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bdpacket\\bddtlsdata.cpp", "bdDTLSData::generateIVNonce", 0x1A0u, "Error generating IV / Nonce");
       bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bdpacket\\bddtlsdata.cpp", "bdDTLSData::generateIVNonce", 0x1A0u, "Error generating IV / Nonce");
-      return v12;
+      return v11;
     }
     bdHandleAssert(0, "\"false\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bdpacket\\bddtlsdata.cpp", "bdDTLSData::generateIVNonce", 0x19Bu, "Invalid Cypher Suite [%d] for generateIVNonce()", cypherSuite);
-    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bdpacket\\bddtlsdata.cpp", "bdDTLSData::generateIVNonce", 0x19Bu, "Invalid Cypher Suite [%d] for generateIVNonce()", v10);
+    bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bdpacket\\bddtlsdata.cpp", "bdDTLSData::generateIVNonce", 0x19Bu, "Invalid Cypher Suite [%d] for generateIVNonce()", v9);
 LABEL_4:
-    v12 = 0;
+    v11 = 0;
     goto LABEL_5;
   }
   bdHandleAssert(hash->m_type == BD_HASH_SHA256, "hash->m_type == BD_HASH_SHA256", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdsocket\\bddtls\\bdpacket\\bddtlsdata.cpp", "bdDTLSData::generateIVNonce", 0x17Cu, "Invalid bdHash function for CypherSuite");
-  v18 = hash->m_type;
-  bdSequenceNumber::bdSequenceNumber(&v24, lastSequenceNumber, this->m_counter, 0x10u);
-  v20 = bdSequenceNumber::getValue(v19);
-  if ( v18 )
+  v17 = hash->m_type;
+  bdSequenceNumber::bdSequenceNumber(&v22, lastSequenceNumber, this->m_counter, 0x10u);
+  v19 = bdSequenceNumber::getValue(v18);
+  if ( v17 )
     goto LABEL_4;
   bdHandleAssert(1, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 4i64);
-  LODWORD(Src) = v20;
+  LODWORD(Src) = v19;
   bdHandleAssert(1, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 2i64);
   WORD2(Src) = this->m_vtag;
-  v21 = hash->__vftable;
-  v23.m_seqNum = 32;
-  if ( !v21->hash(hash, (const unsigned __int8 *)&Src, 6u, (unsigned __int8 *)&v26, (unsigned int *)&v23) || (unsigned int)v23.m_seqNum < 0x10 )
+  v20 = hash->__vftable;
+  v21.m_seqNum = 32;
+  if ( !v20->hash(hash, (const unsigned __int8 *)&Src, 6u, (unsigned __int8 *)&v24, (unsigned int *)&v21) || (unsigned int)v21.m_seqNum < 0x10 )
     goto LABEL_4;
-  __asm
-  {
-    vmovups xmm0, [rsp+0C8h+var_78]
-    vmovups xmmword ptr [r14], xmm0
-  }
+  *(_OWORD *)iv = v24;
   *ivNonceSize = 16;
   return 1;
 }

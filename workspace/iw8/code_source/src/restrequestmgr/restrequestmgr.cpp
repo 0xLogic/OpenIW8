@@ -209,11 +209,8 @@ void RESTIssueUserCallback(RESTTask *pTask)
   }
   else
   {
-    __asm
-    {
-      vpxor   xmm0, xmm0, xmm0
-      vmovdqu [rsp+58h+var_28], xmm0
-    }
+    __asm { vpxor   xmm0, xmm0, xmm0 }
+    v11 = _XMM0;
     DataLength = 0i64;
   }
   UserCallback = pTask->UserCallback;

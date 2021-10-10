@@ -79,64 +79,49 @@ MemBudget_ContentMemRead_ParseFile
 */
 void MemBudget_ContentMemRead_ParseFile(const MemBudget_HardwareType hardware, const MemBudget_BuildType build)
 {
-  unsigned __int8 v12; 
-  unsigned __int8 v13; 
+  unsigned __int8 v4; 
+  unsigned __int8 v5; 
   const char *BuildTypeName; 
   const char *HardwareTypeName; 
   unsigned int RowCount; 
-  unsigned int v17; 
+  unsigned int v9; 
   const char *ColumnValueForRow; 
-  const char *v26; 
+  const char *v12; 
   unsigned __int8 PollTypeFromName; 
-  char v28; 
-  char v29; 
-  const char *v40; 
-  const char *v41; 
-  char *fmt; 
-  __int64 v58; 
-  double v59; 
-  double v60; 
-  __int64 v61; 
-  double v62; 
-  double v63; 
-  double v64; 
+  __int128 v15; 
+  __int128 v16; 
+  float v17; 
+  __int128 v18; 
+  unsigned __int64 v19; 
+  __int64 v20; 
+  const MemBudget_PollArray *BootPoll; 
+  __int128 v22; 
+  __int128 v23; 
+  const char *v24; 
+  const char *v25; 
+  __int64 v26; 
+  __int64 v27; 
   StringTable *tablePtr; 
   char dest[64]; 
+  __int128 v30; 
 
-  v12 = hardware;
-  v13 = build;
+  v4 = hardware;
+  v5 = build;
   BuildTypeName = MemBudget_GetBuildTypeName((MemBudget_BuildType)(unsigned __int8)build);
-  HardwareTypeName = MemBudget_GetHardwareTypeName((MemBudget_HardwareType)v12);
+  HardwareTypeName = MemBudget_GetHardwareTypeName((MemBudget_HardwareType)v4);
   if ( Com_sprintf_truncate(dest, 0x40ui64, "budgets/ContentMem_%s_%s.csv", HardwareTypeName, BuildTypeName) > 0 )
   {
     StringTable_GetAsset(dest, (const StringTable **)&tablePtr);
     RowCount = StringTable_GetRowCount(tablePtr);
     if ( RowCount )
     {
-      v17 = 0;
-      __asm
-      {
-        vmovaps [rsp+168h+var_68], xmm8
-        vmovss  xmm8, cs:__real@5f000000
-        vmovaps [rsp+168h+var_78], xmm9
-        vmovss  xmm9, cs:__real@5f800000
-        vmovaps [rsp+168h+var_88], xmm10
-        vmovss  xmm10, cs:__real@3f000000
-        vmovaps [rsp+168h+var_98], xmm11
-        vmovaps [rsp+168h+var_A8], xmm12
-        vmovss  xmm12, cs:__real@49800000
-        vmovaps [rsp+168h+var_B8], xmm13
-        vmovss  xmm13, cs:__real@35800000
-        vmovaps [rsp+168h+var_C8], xmm14
-        vmovaps [rsp+168h+var_48], xmm6
-        vmovaps [rsp+168h+var_58], xmm7
-        vxorps  xmm11, xmm11, xmm11
-        vxorpd  xmm14, xmm14, xmm14
-      }
+      v9 = 0;
+      v30 = _XMM14;
+      __asm { vxorpd  xmm14, xmm14, xmm14 }
       do
       {
-        ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v17, 0);
-        v26 = StringTable_GetColumnValueForRow(tablePtr, v17, 1);
+        ColumnValueForRow = StringTable_GetColumnValueForRow(tablePtr, v9, 0);
+        v12 = StringTable_GetColumnValueForRow(tablePtr, v9, 1);
         if ( ColumnValueForRow && *ColumnValueForRow )
         {
           PollTypeFromName = MemBudget_GetPollTypeFromName(ColumnValueForRow);
@@ -146,110 +131,74 @@ void MemBudget_ContentMemRead_ParseFile(const MemBudget_HardwareType hardware, c
           }
           else
           {
-            if ( !v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_contentmem_read.cpp", 48, ASSERT_TYPE_ASSERT, "(memStr)", (const char *)&queryFormat, "memStr") )
+            if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_contentmem_read.cpp", 48, ASSERT_TYPE_ASSERT, "(memStr)", (const char *)&queryFormat, "memStr") )
               __debugbreak();
-            if ( !*v26 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_contentmem_read.cpp", 49, ASSERT_TYPE_ASSERT, "(memStr[0])", (const char *)&queryFormat, "memStr[0]") )
+            if ( !*v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_contentmem_read.cpp", 49, ASSERT_TYPE_ASSERT, "(memStr[0])", (const char *)&queryFormat, "memStr[0]") )
               __debugbreak();
-            *(double *)&_XMM0 = atof(v26);
-            __asm
+            *(double *)&_XMM0 = atof(v12);
+            __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+            v16 = _XMM1;
+            *(float *)&v16 = *(float *)&_XMM1 * 1048576.0;
+            v15 = v16;
+            *(float *)&v16 = (float)-1i64;
+            v17 = *(float *)&v16 + 1.8446744e19;
+            if ( ((float)(*(float *)&_XMM1 * 1048576.0) < 0.0 || *(float *)&v15 > v17) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_contentmem_read.cpp", 52, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( floatVal ) && ( floatVal ) <= ( std::numeric_limits<size_t>::max() )", "floatVal not in [0.0f, std::numeric_limits<size_t>::max()]\n\t%g not in [%g, %g]", *(float *)&v15, *(double *)&_XMM14, v17) )
+              __debugbreak();
+            v18 = v15;
+            *(float *)&v18 = *(float *)&v15 + 0.5;
+            _XMM0 = v18;
+            v19 = 0i64;
+            if ( (float)(*(float *)&v15 + 0.5) >= 9.223372e18 )
             {
-              vcvtsd2ss xmm1, xmm0, xmm0
-              vxorps  xmm0, xmm0, xmm0
-              vmulss  xmm7, xmm1, xmm12
-              vcomiss xmm7, xmm11
-              vcvtsi2ss xmm0, xmm0, r13
-              vaddss  xmm0, xmm0, xmm9
+              *(float *)&v18 = *(float *)&v18 - 9.223372e18;
+              _XMM0 = v18;
+              if ( *(float *)&v18 < 9.223372e18 )
+                v19 = 0x8000000000000000ui64;
             }
-            if ( v28 )
-              goto LABEL_37;
-            __asm { vcomiss xmm7, xmm0 }
-            if ( !(v28 | v29) )
+            v20 = v19 + (unsigned int)(int)*(float *)&_XMM0;
+            if ( v4 >= 4u )
             {
-LABEL_37:
-              __asm
-              {
-                vcvtss2sd xmm0, xmm0, xmm0
-                vmovsd  [rsp+168h+var_130], xmm0
-                vcvtss2sd xmm1, xmm7, xmm7
-                vmovsd  [rsp+168h+var_138], xmm14
-                vmovsd  [rsp+168h+var_140], xmm1
-              }
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_contentmem_read.cpp", 52, ASSERT_TYPE_ASSERT, "( 0.0f ) <= ( floatVal ) && ( floatVal ) <= ( std::numeric_limits<size_t>::max() )", "floatVal not in [0.0f, std::numeric_limits<size_t>::max()]\n\t%g not in [%g, %g]", v59, v62, v64) )
+              LODWORD(v27) = 4;
+              LODWORD(v26) = v4;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_contentmem_read.cpp", 55, ASSERT_TYPE_ASSERT, "(unsigned)( hardware ) < (unsigned)( ( sizeof( *array_counter( s_contentMemFiles ) ) + 0 ) )", "hardware doesn't index ARRAY_COUNT( s_contentMemFiles )\n\t%i not in [0, %i)", v26, v27) )
                 __debugbreak();
             }
-            __asm
+            if ( v5 >= 3u )
             {
-              vaddss  xmm0, xmm7, xmm10
-              vcomiss xmm0, xmm8
-              vsubss  xmm0, xmm0, xmm8
-              vcomiss xmm0, xmm8
-              vcvttss2si rbx, xmm0
-            }
-            if ( v12 >= 4u )
-            {
-              LODWORD(v61) = 4;
-              LODWORD(v58) = v12;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_contentmem_read.cpp", 55, ASSERT_TYPE_ASSERT, "(unsigned)( hardware ) < (unsigned)( ( sizeof( *array_counter( s_contentMemFiles ) ) + 0 ) )", "hardware doesn't index ARRAY_COUNT( s_contentMemFiles )\n\t%i not in [0, %i)", v58, v61) )
-                __debugbreak();
-            }
-            if ( v13 >= 3u )
-            {
-              LODWORD(v61) = 3;
-              LODWORD(v58) = v13;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_contentmem_read.cpp", 56, ASSERT_TYPE_ASSERT, "(unsigned)( build ) < (unsigned)( ( sizeof( *array_counter( s_contentMemFiles[0] ) ) + 0 ) )", "build doesn't index ARRAY_COUNT( s_contentMemFiles[0] )\n\t%i not in [0, %i)", v58, v61) )
+              LODWORD(v27) = 3;
+              LODWORD(v26) = v5;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_contentmem_read.cpp", 56, ASSERT_TYPE_ASSERT, "(unsigned)( build ) < (unsigned)( ( sizeof( *array_counter( s_contentMemFiles[0] ) ) + 0 ) )", "build doesn't index ARRAY_COUNT( s_contentMemFiles[0] )\n\t%i not in [0, %i)", v26, v27) )
                 __debugbreak();
             }
             if ( PollTypeFromName >= 0x26u )
             {
-              LODWORD(v61) = 38;
-              LODWORD(v58) = PollTypeFromName;
-              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_types.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( pollType ) < (unsigned)( ( sizeof( *array_counter( outArray.pollValues ) ) + 0 ) )", "pollType doesn't index ARRAY_COUNT( outArray.pollValues )\n\t%i not in [0, %i)", v58, v61) )
+              LODWORD(v27) = 38;
+              LODWORD(v26) = PollTypeFromName;
+              if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\membudget\\membudget_types.h", 113, ASSERT_TYPE_ASSERT, "(unsigned)( pollType ) < (unsigned)( ( sizeof( *array_counter( outArray.pollValues ) ) + 0 ) )", "pollType doesn't index ARRAY_COUNT( outArray.pollValues )\n\t%i not in [0, %i)", v26, v27) )
                 __debugbreak();
             }
-            s_contentMemFiles[v12][v13].pollValues[PollTypeFromName] = _RBX;
+            s_contentMemFiles[v4][v5].pollValues[PollTypeFromName] = v20;
             if ( !PollTypeFromName )
             {
-              __asm
+              BootPoll = MemBudget_Poll_GetBootPoll();
+              v23 = 0i64;
+              *(float *)&v23 = (float)BootPoll->pollValues[0];
+              v22 = v23;
+              if ( BootPoll->pollValues[0] < 0 )
               {
-                vxorps  xmm6, xmm6, xmm6
-                vcvtsi2ss xmm6, xmm6, rcx
+                *(float *)&v23 = *(float *)&v23 + 1.8446744e19;
+                v22 = v23;
               }
-              if ( MemBudget_Poll_GetBootPoll()->pollValues[0] < 0 )
-                __asm { vaddss  xmm6, xmm6, xmm9 }
-              v40 = MemBudget_GetBuildTypeName((MemBudget_BuildType)v13);
-              v41 = MemBudget_GetHardwareTypeName((MemBudget_HardwareType)v12);
-              __asm
-              {
-                vmulss  xmm0, xmm7, xmm13
-                vcvtss2sd xmm4, xmm0, xmm0
-                vmulss  xmm1, xmm6, xmm13
-                vcvtss2sd xmm3, xmm1, xmm1
-                vmovsd  [rsp+168h+var_138], xmm4
-                vsubss  xmm0, xmm6, xmm7
-                vmulss  xmm2, xmm0, xmm13
-                vcvtss2sd xmm1, xmm2, xmm2
-                vmovsd  [rsp+168h+var_140], xmm3
-                vmovsd  [rsp+168h+fmt], xmm1
-              }
-              Com_Printf(0, "Contentmem Diff from %7s %5s : %.3fmb (%.3fmb - %.3fmb)\n", v41, v40, *(double *)&fmt, v60, v63);
+              v24 = MemBudget_GetBuildTypeName((MemBudget_BuildType)v5);
+              v25 = MemBudget_GetHardwareTypeName((MemBudget_HardwareType)v4);
+              *((_QWORD *)&_XMM0 + 1) = *((_QWORD *)&v22 + 1);
+              Com_Printf(0, "Contentmem Diff from %7s %5s : %.3fmb (%.3fmb - %.3fmb)\n", v25, v24, (float)((float)(*(float *)&v22 - *(float *)&v15) * 0.00000095367432), (float)(*(float *)&v22 * 0.00000095367432), (float)(*(float *)&v15 * 0.00000095367432));
             }
           }
         }
-        ++v17;
+        ++v9;
       }
-      while ( v17 < RowCount );
-      __asm
-      {
-        vmovaps xmm14, [rsp+168h+var_C8]
-        vmovaps xmm13, [rsp+168h+var_B8]
-        vmovaps xmm12, [rsp+168h+var_A8]
-        vmovaps xmm11, [rsp+168h+var_98]
-        vmovaps xmm10, [rsp+168h+var_88]
-        vmovaps xmm9, [rsp+168h+var_78]
-        vmovaps xmm8, [rsp+168h+var_68]
-        vmovaps xmm7, [rsp+168h+var_58]
-        vmovaps xmm6, [rsp+168h+var_48]
-      }
+      while ( v9 < RowCount );
     }
     else
     {

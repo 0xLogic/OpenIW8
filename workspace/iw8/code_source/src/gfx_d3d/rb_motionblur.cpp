@@ -60,148 +60,132 @@ RB_MBlur_Apply
 */
 void RB_MBlur_Apply(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, R_RT_Group *activeGroup)
 {
-  bool v9; 
+  __int128 v4; 
+  __int128 v5; 
+  __int128 v6; 
+  __int128 v7; 
+  bool v8; 
   GfxCmdBufState *state; 
-  CmdBufState *v14; 
+  GfxCmdBufState *v12; 
+  unsigned int v13; 
+  unsigned int v14; 
   unsigned int v15; 
-  unsigned int v16; 
-  unsigned int v17; 
   unsigned int m_allocHeight; 
+  const dvar_t *v17; 
+  int v18; 
   const dvar_t *v19; 
   int v20; 
-  const dvar_t *v21; 
-  int v22; 
   int rtFlags; 
-  unsigned int v29; 
+  unsigned int v23; 
   const R_RT_Surface *Surface; 
-  GfxCmdBufState *v37; 
-  unsigned int v39; 
-  const R_RT_Surface *v40; 
+  GfxCmdBufState *v26; 
+  unsigned int v27; 
+  const R_RT_Surface *v28; 
   GfxCmdBufSourceState *source; 
-  const char *m_location; 
+  GfxCmdBufContext v30; 
+  GfxCmdBufContext v31; 
+  float v32; 
   R_RT_Image *p_m_image; 
-  __int64 v67; 
-  unsigned int v69; 
-  const R_RT_Surface *v70; 
-  const char *v80; 
-  unsigned int v84; 
-  const R_RT_Surface *v85; 
-  const char *v95; 
-  const R_RT_Surface *v107; 
-  R_RT_Image *v111; 
-  __int64 v112; 
-  GfxCmdBufState *v121; 
-  unsigned int v123; 
-  const R_RT_Surface *v124; 
-  const char *v134; 
-  R_RT_Image *v138; 
-  R_RT_Image *v139; 
-  __int64 v140; 
-  GfxCmdBufState *v142; 
-  const dvar_t *v147; 
-  int v148; 
-  const dvar_t *v149; 
-  int v150; 
-  int v151; 
-  unsigned int v152; 
+  R_RT_Handle v34; 
+  unsigned int v35; 
+  const R_RT_Surface *v36; 
+  unsigned int v37; 
+  const R_RT_Surface *v38; 
+  float v39; 
+  float v40; 
+  __int128 v42; 
+  R_RT_Image *v43; 
+  GfxCmdBufState *v45; 
+  unsigned int v46; 
+  const R_RT_Surface *v47; 
+  R_RT_Image *v48; 
+  R_RT_Image *v49; 
+  GfxCmdBufState *v50; 
+  R_RT_Group *v51; 
+  const dvar_t *v52; 
+  int v53; 
+  const dvar_t *v54; 
+  int v55; 
+  int v56; 
+  unsigned int v57; 
   unsigned int m_allocWidth; 
-  unsigned int v154; 
-  const R_RT_Surface *v155; 
-  bool v159; 
-  GfxCmdBufState *v160; 
-  const char *v170; 
-  GfxCmdBufSourceState *v172; 
-  float depth; 
+  unsigned int v59; 
+  const R_RT_Surface *v60; 
+  R_RT_Handle v61; 
+  bool v63; 
+  GfxCmdBufState *v64; 
+  GfxCmdBufContext v65; 
+  GfxCmdBufSourceState *v66; 
   R_RT_Handle result; 
-  R_RT_Handle v186; 
-  R_RT_Handle v187; 
-  R_RT_Handle v188; 
+  R_RT_Handle v68; 
+  R_RT_Handle v69; 
+  R_RT_Handle v70; 
+  R_RT_Handle v71; 
   unsigned int allocHeight; 
   unsigned int height; 
-  GfxCmdBufContext v192; 
-  R_RT_Image *v193; 
-  R_RT_Handle v194; 
-  R_RT_ColorHandle v195; 
-  R_RT_Group v196; 
-  R_RT_Group v197; 
-  void *retaddr; 
+  GfxCmdBufContext v74; 
+  R_RT_Image *v75; 
+  R_RT_Handle v76; 
+  R_RT_ColorHandle m_halfVelocityMBlurRt; 
+  R_RT_Group v78; 
+  R_RT_Group v79; 
+  __int128 v80; 
+  __int128 v81; 
+  __int128 v82; 
+  __int128 v83; 
 
-  _R11 = &retaddr;
-  v9 = !viewInfo->motionBlur.enabled;
-  _RDI = viewInfo;
-  *(_QWORD *)&v194.m_surfaceID = activeGroup;
-  _R14 = gfxContext;
-  v192.source = (GfxCmdBufSourceState *)viewInfo;
-  if ( !v9 )
+  v8 = !viewInfo->motionBlur.enabled;
+  *(_QWORD *)&v76.m_surfaceID = activeGroup;
+  v74.source = (GfxCmdBufSourceState *)viewInfo;
+  if ( !v8 )
   {
     state = gfxContext->state;
-    __asm
-    {
-      vmovaps xmmword ptr [r11-48h], xmm6
-      vmovaps xmmword ptr [r11-58h], xmm7
-      vmovaps xmmword ptr [r11-68h], xmm8
-      vmovaps xmmword ptr [r11-78h], xmm9
-    }
+    v83 = v4;
+    v82 = v5;
+    v81 = v6;
+    v80 = v7;
     R_ProfBeginNamedEvent(state, "RB_ApplyMotionBlur");
-    __asm { vmovups ymm0, ymmword ptr [rdi+3648h] }
-    v14 = _R14->state;
-    __asm
-    {
-      vmovups [rbp+2B0h+var_240], ymm0
-      vmovups ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID], ymm0
-    }
-    R_ProfBeginNamedEvent(v14, "RB_MotionBlurPostfxVelocityPass");
-    v15 = R_RT_Handle::GetSurface(&v188)->m_image.m_base.width / 0xAu;
-    v16 = R_RT_Handle::GetSurface(&v188)->m_image.m_base.height / 0xAu;
-    height = v16;
-    v17 = R_RT_Handle::GetSurface(&v188)->m_allocWidth / 0xA;
-    m_allocHeight = R_RT_Handle::GetSurface(&v188)->m_allocHeight;
+    v12 = gfxContext->state;
+    m_halfVelocityMBlurRt = viewInfo->sceneRtInput.m_halfVelocityMBlurRt;
+    v70 = (R_RT_Handle)m_halfVelocityMBlurRt;
+    R_ProfBeginNamedEvent(v12, "RB_MotionBlurPostfxVelocityPass");
+    v13 = R_RT_Handle::GetSurface(&v70)->m_image.m_base.width / 0xAu;
+    v14 = R_RT_Handle::GetSurface(&v70)->m_image.m_base.height / 0xAu;
+    height = v14;
+    v15 = R_RT_Handle::GetSurface(&v70)->m_allocWidth / 0xA;
+    m_allocHeight = R_RT_Handle::GetSurface(&v70)->m_allocHeight;
     allocHeight = m_allocHeight / 0xA;
     if ( Dvar_GetBool_Internal(r_deviceDebug) )
       goto LABEL_7;
-    v19 = DCONST_DVARBOOL_r_esramPostFX;
+    v17 = DCONST_DVARBOOL_r_esramPostFX;
     if ( !DCONST_DVARBOOL_r_esramPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v19);
-    v20 = 2112;
-    if ( !v19->current.enabled )
+    Dvar_CheckFrontendServerThread(v17);
+    v18 = 2112;
+    if ( !v17->current.enabled )
 LABEL_7:
-      v20 = 2048;
-    v21 = DCONST_DVARINT_r_dccPostFX;
+      v18 = 2048;
+    v19 = DCONST_DVARINT_r_dccPostFX;
     if ( !DCONST_DVARINT_r_dccPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_dccPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v21);
-    v22 = 0;
-    if ( v21->current.integer == 1 )
-      v22 = 8;
-    rtFlags = v22 | v20;
-    _RAX = R_RT_CreateInternal(&result, v15, v16, v17, m_allocHeight / 0xA, 1u, 1u, 1u, g_R_RT_renderTargetFmts[18], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_VELOCITY_TILE0", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(87)");
-    __asm
+    Dvar_CheckFrontendServerThread(v19);
+    v20 = 0;
+    if ( v19->current.integer == 1 )
+      v20 = 8;
+    rtFlags = v20 | v18;
+    v71 = *R_RT_CreateInternal(&result, v13, v14, v15, m_allocHeight / 0xA, 1u, 1u, 1u, g_R_RT_renderTargetFmts[18], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_VELOCITY_TILE0", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(87)");
+    v69 = v71;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rbp+2B0h+var_2B0], ymm0
-      vmovups ymmword ptr [rbp+2B0h+var_2F0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v187);
-      if ( (R_RT_Handle::GetSurface(&v187)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v69);
+      if ( (R_RT_Handle::GetSurface(&v69)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+2B0h+var_2F0.m_surfaceID]
-          vmovups [rbp+2B0h+var_2B0], ymm0
-        }
+        v71 = v69;
         __debugbreak();
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+2B0h+var_2F0.m_surfaceID]
-          vmovups [rbp+2B0h+var_2B0], ymm0
-        }
+        v71 = v69;
       }
     }
     else
@@ -210,35 +194,21 @@ LABEL_7:
       if ( (_DWORD)_RAX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter") )
         __debugbreak();
     }
-    v29 = R_RT_Handle::GetSurface(&v188)->m_allocHeight;
-    Surface = R_RT_Handle::GetSurface(&v188);
-    _RAX = R_RT_CreateInternal(&result, v15, Surface->m_image.m_base.height, v17, v29, 1u, 1u, 1u, g_R_RT_renderTargetFmts[18], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_VELOCITY_TILE0_TEMP", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(88)");
-    __asm
+    v23 = R_RT_Handle::GetSurface(&v70)->m_allocHeight;
+    Surface = R_RT_Handle::GetSurface(&v70);
+    v70 = *R_RT_CreateInternal(&result, v13, Surface->m_image.m_base.height, v15, v23, 1u, 1u, 1u, g_R_RT_renderTargetFmts[18], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_VELOCITY_TILE0_TEMP", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(88)");
+    v69 = v70;
+    if ( (_WORD)_XMM0 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+2B0h+var_2F0.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v187);
-      if ( (R_RT_Handle::GetSurface(&v187)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v69);
+      if ( (R_RT_Handle::GetSurface(&v69)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+2B0h+var_2F0.m_surfaceID]
-          vmovups ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID], ymm0
-        }
+        v70 = v69;
         __debugbreak();
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+2B0h+var_2F0.m_surfaceID]
-          vmovups ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID], ymm0
-        }
+        v70 = v69;
       }
     }
     else
@@ -248,259 +218,115 @@ LABEL_7:
         __debugbreak();
     }
     R_GPU_BeginTimer(GPU_TIMER_MBLUR_TILE);
-    __asm { vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID] }
-    v37 = _R14->state;
-    __asm { vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0 }
-    R_AddRenderTargetTransition(v37, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(v37);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID]
-      vmovups ymmword ptr [rbp+2B0h+var_310.m_surfaceID], ymm0
-    }
-    v39 = R_RT_Handle::GetSurface(&v186)->m_image.m_base.height;
-    v40 = R_RT_Handle::GetSurface(&v186);
-    source = _R14->source;
-    R_SetRenderTargetSize(_R14->source, v40->m_image.m_base.width, v39, GFX_USE_VIEWPORT_FULL);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-    }
-    R_RT_Group::AssignColor(&v196, (R_RT_ColorHandle *)&result);
-    _RCX = &v197;
-    _RAX = &v196;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymm1, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups ymmword ptr [rcx+80h], ymm1
-      vmovups ymm1, ymmword ptr [rax+0A0h]
-    }
-    m_location = v196.m_vrsRt.m_tracking.m_location;
-    __asm { vmovups ymmword ptr [rcx+0A0h], ymm1 }
-    v197.m_vrsRt.m_tracking.m_location = m_location;
-    __asm { vmovups xmmword ptr [rbp+2B0h+var_2F0.m_surfaceID], xmm0 }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v187, &v197, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(97)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID]
-      vmovups ymm1, [rbp+2B0h+var_240]
-      vmovups xmm8, xmmword ptr [r14]
-      vmovups ymmword ptr [rbp+2B0h+var_310.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm1
-    }
-    R_RT_Handle::GetSurface(&v186);
-    __asm
-    {
-      vmovss  xmm9, cs:__real@3f800000
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vdivss  xmm6, xmm9, xmm0
-    }
-    R_RT_Handle::GetSurface(&v186);
-    __asm
-    {
-      vmulss  xmm2, xmm6, cs:__real@3dcccccd
-      vmovss  xmm7, cs:__real@3f000000
-      vmovq   rbx, xmm8
-      vmulss  xmm1, xmm2, xmm7
-      vmulss  xmm0, xmm6, xmm7
-      vsubss  xmm1, xmm1, xmm0
-    }
-    *(_QWORD *)&v187.m_surfaceID = _RBX;
-    __asm
-    {
-      vmovss  dword ptr [rbx+0EB0h], xmm1
-      vmovss  dword ptr [rbx+0EB4h], xmm2
-    }
-    *(_QWORD *)(_RBX + 3768) = 0i64;
-    ++*(_WORD *)(_RBX + 10410);
+    v26 = gfxContext->state;
+    result = v70;
+    R_AddRenderTargetTransition(v26, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(v26);
+    v68 = v70;
+    v27 = R_RT_Handle::GetSurface(&v68)->m_image.m_base.height;
+    v28 = R_RT_Handle::GetSurface(&v68);
+    source = gfxContext->source;
+    R_SetRenderTargetSize(gfxContext->source, v28->m_image.m_base.width, v27, GFX_USE_VIEWPORT_FULL);
+    result = v70;
+    R_RT_Group::AssignColor(&v78, (R_RT_ColorHandle *)&result);
+    *(__m256i *)&v79.m_colorRtCount = *(__m256i *)&v78.m_colorRtCount;
+    *(__m256i *)&v79.m_colorRts[0].m_tracking.m_location = *(__m256i *)&v78.m_colorRts[0].m_tracking.m_location;
+    *(__m256i *)&v79.m_colorRts[1].m_tracking.m_location = *(__m256i *)&v78.m_colorRts[1].m_tracking.m_location;
+    *(__m256i *)&v79.m_colorRts[2].m_tracking.m_location = *(__m256i *)&v78.m_colorRts[2].m_tracking.m_location;
+    v30 = *gfxContext;
+    *(__m256i *)&v79.m_colorRts[3].m_tracking.m_location = *(__m256i *)&v78.m_colorRts[3].m_tracking.m_location;
+    *(__m256i *)&v79.m_depthRt.m_tracking.m_location = *(__m256i *)&v78.m_depthRt.m_tracking.m_location;
+    v79.m_vrsRt.m_tracking.m_location = v78.m_vrsRt.m_tracking.m_location;
+    *(GfxCmdBufContext *)&v69.m_surfaceID = v30;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v69, &v79, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(97)");
+    v31 = *gfxContext;
+    v68 = v70;
+    result = (R_RT_Handle)m_halfVelocityMBlurRt;
+    v32 = 1.0 / (float)R_RT_Handle::GetSurface(&v68)->m_image.m_base.width;
+    R_RT_Handle::GetSurface(&v68);
+    *(_QWORD *)&v69.m_surfaceID = v31.source;
+    v31.source->input.consts[123].v[0] = (float)((float)(v32 * 0.1) * 0.5) - (float)(v32 * 0.5);
+    v31.source->input.consts[123].v[1] = v32 * 0.1;
+    *(_QWORD *)&v31.source->input.consts[123].xyz.z = 0i64;
+    ++v31.source->constVersions[123];
     p_m_image = &R_RT_Handle::GetSurface(&result)->m_image;
-    v193 = p_m_image;
-    v67 = _RBX + 1792;
-    if ( !v67 )
+    v75 = p_m_image;
+    if ( v31.source == (GfxCmdBufSourceState *)-1792i64 )
     {
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
         __debugbreak();
-      p_m_image = v193;
+      p_m_image = v75;
     }
-    __asm { vmovups ymm0, ymmword ptr [rbp+2B0h+var_310.m_surfaceID] }
-    *(_QWORD *)(v67 + 6376) = p_m_image;
-    __asm { vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0 }
-    v69 = R_RT_Handle::GetSurface(&result)->m_image.m_base.height;
-    v70 = R_RT_Handle::GetSurface(&result);
-    R_SetRenderTargetSize(*(GfxCmdBufSourceState **)&v187.m_surfaceID, v70->m_image.m_base.width, v69, GFX_USE_VIEWPORT_FULL);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+2B0h+var_310.m_surfaceID]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-    }
-    R_RT_Group::AssignColor(&v197, (R_RT_ColorHandle *)&result);
-    _RCX = &v196;
-    _RAX = &v197;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymm0, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx+80h], ymm0
-      vmovups ymm0, ymmword ptr [rax+0A0h]
-    }
-    v80 = v197.m_vrsRt.m_tracking.m_location;
-    __asm { vmovups ymmword ptr [rcx+0A0h], ymm0 }
-    v196.m_vrsRt.m_tracking.m_location = v80;
-    __asm { vmovdqa xmmword ptr [rbp+2B0h+var_2F0.m_surfaceID], xmm8 }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v187, &v196, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(27)");
-    __asm { vmovdqa xmmword ptr [rbp+2B0h+var_2F0.m_surfaceID], xmm8 }
-    RB_FullScreenFilterInternal((GfxCmdBufContext *)&v187, rgp.mblurTileDownsampleMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(28)");
-    __asm
-    {
-      vmovups ymm0, [rbp+2B0h+var_2B0]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-    }
-    R_AddRenderTargetTransition(v37, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-    }
-    R_AddRenderTargetTransition(v37, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(v37);
-    __asm
-    {
-      vmovups ymm0, [rbp+2B0h+var_2B0]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-    }
-    v84 = R_RT_Handle::GetSurface(&result)->m_image.m_base.height;
-    v85 = R_RT_Handle::GetSurface(&result);
-    R_SetRenderTargetSize(source, v85->m_image.m_base.width, v84, GFX_USE_VIEWPORT_FULL);
-    __asm
-    {
-      vmovups ymm0, [rbp+2B0h+var_2B0]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-    }
-    R_RT_Group::AssignColor(&v197, (R_RT_ColorHandle *)&result);
-    _RAX = &v197;
-    __asm { vmovups ymm0, ymmword ptr [rax] }
-    _RCX = &v196;
-    __asm
-    {
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymm0, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx+80h], ymm0
-      vmovups ymm0, ymmword ptr [rax+0A0h]
-    }
-    v95 = v197.m_vrsRt.m_tracking.m_location;
-    __asm { vmovups ymmword ptr [rcx+0A0h], ymm0 }
-    v196.m_vrsRt.m_tracking.m_location = v95;
-    __asm { vmovups xmmword ptr [rbp+2B0h+var_2F0.m_surfaceID], xmm8 }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v187, &v196, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(105)");
-    __asm
-    {
-      vmovups ymm0, [rbp+2B0h+var_2B0]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-      vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID]
-      vmovups ymmword ptr [rbp+2B0h+var_310.m_surfaceID], ymm0
-      vmovups xmm6, xmm8
-    }
+    v34 = v68;
+    v31.source->input.codeImages[29] = &p_m_image->m_base;
+    result = v34;
+    v35 = R_RT_Handle::GetSurface(&result)->m_image.m_base.height;
+    v36 = R_RT_Handle::GetSurface(&result);
+    R_SetRenderTargetSize(*(GfxCmdBufSourceState **)&v69.m_surfaceID, v36->m_image.m_base.width, v35, GFX_USE_VIEWPORT_FULL);
+    result = v68;
+    R_RT_Group::AssignColor(&v79, (R_RT_ColorHandle *)&result);
+    v78 = v79;
+    *(GfxCmdBufContext *)&v69.m_surfaceID = v31;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v69, &v78, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(27)");
+    *(GfxCmdBufContext *)&v69.m_surfaceID = v31;
+    RB_FullScreenFilterInternal((GfxCmdBufContext *)&v69, rgp.mblurTileDownsampleMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(28)");
+    result = v71;
+    R_AddRenderTargetTransition(v26, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    result = v70;
+    R_AddRenderTargetTransition(v26, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(v26);
+    result = v71;
+    v37 = R_RT_Handle::GetSurface(&result)->m_image.m_base.height;
+    v38 = R_RT_Handle::GetSurface(&result);
+    R_SetRenderTargetSize(source, v38->m_image.m_base.width, v37, GFX_USE_VIEWPORT_FULL);
+    result = v71;
+    R_RT_Group::AssignColor(&v79, (R_RT_ColorHandle *)&result);
+    v78 = v79;
+    *(GfxCmdBufContext *)&v69.m_surfaceID = v31;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v69, &v78, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(105)");
+    result = v71;
+    v68 = v70;
     R_RT_Handle::GetSurface(&result);
-    R_RT_Handle::GetSurface(&result);
-    __asm
-    {
-      vmovq   rbx, xmm6
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, ecx
-      vdivss  xmm2, xmm9, xmm0
-      vmulss  xmm3, xmm2, cs:__real@3dcccccd
-      vmulss  xmm1, xmm3, xmm7
-      vmulss  xmm0, xmm2, xmm7
-      vsubss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rbx+0EB0h], xmm1
-      vmovss  dword ptr [rbx+0EB4h], xmm3
-    }
-    *(_DWORD *)(_RBX + 3768) = 0;
-    *(_DWORD *)(_RBX + 3772) = 1065353216;
-    ++*(_WORD *)(_RBX + 10410);
-    v107 = R_RT_Handle::GetSurface(&v186);
-    __asm
-    {
-      vmovaps xmm9, [rsp+3D0h+var_78+8]
-      vmovaps xmm8, [rsp+3D0h+var_68+8]
-      vmovaps xmm7, [rsp+3D0h+var_58+8]
-    }
-    v111 = &v107->m_image;
-    v112 = _RBX + 1792;
-    if ( !v112 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    v42 = LODWORD(FLOAT_1_0);
+    *(float *)&v42 = 1.0 / (float)R_RT_Handle::GetSurface(&result)->m_image.m_base.height;
+    v39 = *(float *)&v42 * 0.1;
+    v40 = (float)(*(float *)&v42 * 0.1) * 0.5;
+    *(float *)&v42 = *(float *)&v42 * 0.5;
+    _XMM0 = v42;
+    v31.source->input.consts[123].v[0] = v40 - *(float *)&v42;
+    v31.source->input.consts[123].v[1] = v39;
+    v31.source->input.consts[123].v[2] = 0.0;
+    v31.source->input.consts[123].v[3] = 1.0;
+    ++v31.source->constVersions[123];
+    v43 = &R_RT_Handle::GetSurface(&v68)->m_image;
+    if ( v31.source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     {
       __debugbreak();
-      v37 = _R14->state;
+      v26 = gfxContext->state;
     }
-    *(_QWORD *)(v112 + 6376) = v111;
-    __asm { vmovdqa xmmword ptr [rbp+2B0h+var_2F0.m_surfaceID], xmm6 }
-    RB_FullScreenFilterInternal((GfxCmdBufContext *)&v187, rgp.mblurTileDownsampleMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(45)");
-    __asm
-    {
-      vmovups ymm0, [rbp+2B0h+var_2B0]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-    }
-    R_AddRenderTargetTransition(v37, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(v37);
+    v31.source->input.codeImages[29] = &v43->m_base;
+    *(GfxCmdBufContext *)&v69.m_surfaceID = v31;
+    RB_FullScreenFilterInternal((GfxCmdBufContext *)&v69, rgp.mblurTileDownsampleMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(45)");
+    result = v71;
+    R_AddRenderTargetTransition(v26, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(v26);
     R_GPU_EndTimer();
-    __asm
+    result = v70;
+    *(GfxCmdBufContext *)&v69.m_surfaceID = v31;
+    R_RT_Destroy((GfxCmdBufContext *)&v69, (R_RT_ColorHandle *)&result);
+    v70 = *R_RT_CreateInternal(&result, v13, height, v15, allocHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[18], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_VELOCITY_TILE1", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(116)");
+    v68 = v70;
+    if ( (_WORD)v42 )
     {
-      vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-      vmovups xmmword ptr [rbp+2B0h+var_2F0.m_surfaceID], xmm6
-    }
-    R_RT_Destroy((GfxCmdBufContext *)&v187, (R_RT_ColorHandle *)&result);
-    _RAX = R_RT_CreateInternal(&result, v15, height, v17, allocHeight, 1u, 1u, 1u, g_R_RT_renderTargetFmts[18], (R_RT_Flags)rtFlags, R_RT_FlagInternal_None, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "R_RENDERTARGET_VELOCITY_TILE1", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(116)");
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+2B0h+var_310.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v186);
-      if ( (R_RT_Handle::GetSurface(&v186)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v68);
+      if ( (R_RT_Handle::GetSurface(&v68)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+2B0h+var_310.m_surfaceID]
-          vmovups ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID], ymm0
-        }
+        v70 = v68;
         __debugbreak();
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+2B0h+var_310.m_surfaceID]
-          vmovups ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID], ymm0
-        }
+        v70 = v68;
       }
     }
     else
@@ -510,143 +336,88 @@ LABEL_7:
         __debugbreak();
     }
     R_GPU_BeginTimer(GPU_TIMER_MBLUR_TILE);
-    __asm { vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID] }
-    v121 = _R14->state;
-    __asm { vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0 }
-    R_AddRenderTargetTransition(v121, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(_R14->state);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-    }
-    v123 = R_RT_Handle::GetSurface(&result)->m_image.m_base.height;
-    v124 = R_RT_Handle::GetSurface(&result);
-    R_SetRenderTargetSize(_R14->source, v124->m_image.m_base.width, v123, GFX_USE_VIEWPORT_FULL);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-    }
-    R_RT_Group::AssignColor(&v197, (R_RT_ColorHandle *)&result);
-    _RCX = &v196;
-    _RAX = &v197;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymm0, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx+80h], ymm0
-      vmovups ymm0, ymmword ptr [rax+0A0h]
-    }
-    v134 = v197.m_vrsRt.m_tracking.m_location;
-    __asm { vmovups ymmword ptr [rcx+0A0h], ymm0 }
-    v196.m_vrsRt.m_tracking.m_location = v134;
-    __asm { vmovups xmmword ptr [rbp+2B0h+var_2F0.m_surfaceID], xmm6 }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v187, &v196, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(125)");
-    __asm
-    {
-      vmovups ymm0, [rbp+2B0h+var_2B0]
-      vmovups ymmword ptr [rbp+2B0h+var_310.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+2B0h+var_240]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-      vmovq   rbx, xmm6
-    }
-    v138 = &R_RT_Handle::GetSurface(&result)->m_image;
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    v45 = gfxContext->state;
+    result = v70;
+    R_AddRenderTargetTransition(v45, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(gfxContext->state);
+    result = v70;
+    v46 = R_RT_Handle::GetSurface(&result)->m_image.m_base.height;
+    v47 = R_RT_Handle::GetSurface(&result);
+    R_SetRenderTargetSize(gfxContext->source, v47->m_image.m_base.width, v46, GFX_USE_VIEWPORT_FULL);
+    result = v70;
+    R_RT_Group::AssignColor(&v79, (R_RT_ColorHandle *)&result);
+    v78 = v79;
+    *(GfxCmdBufContext *)&v69.m_surfaceID = v31;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v69, &v78, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(125)");
+    v68 = v71;
+    result = (R_RT_Handle)m_halfVelocityMBlurRt;
+    v48 = &R_RT_Handle::GetSurface(&result)->m_image;
+    if ( !v31.source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
-    if ( _RBX == -1792 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    if ( v31.source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    *(_QWORD *)(_RBX + 8168) = v138;
-    v139 = &R_RT_Handle::GetSurface(&v186)->m_image;
-    if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    v31.source->input.codeImages[29] = &v48->m_base;
+    v49 = &R_RT_Handle::GetSurface(&v68)->m_image;
+    if ( !v31.source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
       __debugbreak();
-    v140 = _RBX + 1792;
-    if ( !v140 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    if ( v31.source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
       __debugbreak();
-    *(_QWORD *)(v140 + 6384) = v139;
-    __asm { vmovdqa xmmword ptr [rbp+2B0h+var_2F0.m_surfaceID], xmm6 }
-    RB_FullScreenFilterInternal((GfxCmdBufContext *)&v187, rgp.mblurTileNeighborMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(53)");
-    __asm { vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID] }
-    v142 = _R14->state;
-    __asm { vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0 }
-    R_AddRenderTargetTransition(v142, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(v142);
+    v31.source->input.codeImages[30] = &v49->m_base;
+    *(GfxCmdBufContext *)&v69.m_surfaceID = v31;
+    RB_FullScreenFilterInternal((GfxCmdBufContext *)&v69, rgp.mblurTileNeighborMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(53)");
+    v50 = gfxContext->state;
+    result = v70;
+    R_AddRenderTargetTransition(v50, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(v50);
     R_GPU_EndTimer();
-    __asm
-    {
-      vmovups ymm0, [rbp+2B0h+var_2B0]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-      vmovups xmmword ptr [rbp+2B0h+var_2F0.m_surfaceID], xmm6
-    }
-    R_RT_Destroy((GfxCmdBufContext *)&v187, (R_RT_ColorHandle *)&result);
-    R_ProfEndNamedEvent(v142);
+    result = v71;
+    *(GfxCmdBufContext *)&v69.m_surfaceID = v31;
+    R_RT_Destroy((GfxCmdBufContext *)&v69, (R_RT_ColorHandle *)&result);
+    R_ProfEndNamedEvent(v50);
     R_GPU_BeginTimer(GPU_TIMER_MBLUR_FILTER);
-    _R12 = *(R_RT_Group **)&v194.m_surfaceID;
-    __asm { vmovaps xmm6, [rsp+3D0h+var_48+8] }
-    if ( **(_BYTE **)&v194.m_surfaceID != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
+    v51 = *(R_RT_Group **)&v76.m_surfaceID;
+    if ( **(_BYTE **)&v76.m_surfaceID != 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 559, ASSERT_TYPE_ASSERT, "(this->m_colorRtCount == 1)", (const char *)&queryFormat, "this->m_colorRtCount == 1") )
       __debugbreak();
-    __asm { vmovups ymm0, ymmword ptr [r12+8] }
-    v147 = DCONST_DVARINT_r_dccPostFX;
-    __asm
-    {
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-      vmovups ymmword ptr [rbp+2B0h+var_310.m_surfaceID], ymm0
-    }
+    v52 = DCONST_DVARINT_r_dccPostFX;
+    result = (R_RT_Handle)v51->m_colorRts[0];
+    v68 = result;
     if ( !DCONST_DVARINT_r_dccPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_dccPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v147);
-    v148 = 0;
-    if ( v147->current.integer == 1 )
-      v148 = 8;
+    Dvar_CheckFrontendServerThread(v52);
+    v53 = 0;
+    if ( v52->current.integer == 1 )
+      v53 = 8;
     if ( Dvar_GetBool_Internal(r_deviceDebug) )
       goto LABEL_69;
-    v149 = DCONST_DVARBOOL_r_esramPostFX;
+    v54 = DCONST_DVARBOOL_r_esramPostFX;
     if ( !DCONST_DVARBOOL_r_esramPostFX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "r_esramPostFX") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v149);
-    v150 = 2112;
-    if ( !v149->current.enabled )
+    Dvar_CheckFrontendServerThread(v54);
+    v55 = 2112;
+    if ( !v54->current.enabled )
 LABEL_69:
-      v150 = 2048;
-    v151 = v148 | v150;
-    v152 = R_RT_Handle::GetSurface(&v186)->m_allocHeight;
-    m_allocWidth = R_RT_Handle::GetSurface(&v186)->m_allocWidth;
-    v154 = R_RT_Handle::GetSurface(&v186)->m_image.m_base.height;
-    v155 = R_RT_Handle::GetSurface(&v186);
-    _RAX = R_RT_CreateInternal(&v194, v155->m_image.m_base.width, v154, m_allocWidth, v152, 1u, 1u, 1u, g_R_RT_renderTargetFmts[3], (R_RT_Flags)v151, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "motionblur color", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(143)");
-    __asm
+      v55 = 2048;
+    v56 = v53 | v55;
+    v57 = R_RT_Handle::GetSurface(&v68)->m_allocHeight;
+    m_allocWidth = R_RT_Handle::GetSurface(&v68)->m_allocWidth;
+    v59 = R_RT_Handle::GetSurface(&v68)->m_image.m_base.height;
+    v60 = R_RT_Handle::GetSurface(&v68);
+    v61 = *R_RT_CreateInternal(&v76, v60->m_image.m_base.width, v59, m_allocWidth, v57, 1u, 1u, 1u, g_R_RT_renderTargetFmts[3], (R_RT_Flags)v56, (R_RT_FlagsInternal)2, &colorBlack, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE|D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, "motionblur color", 0, NULL, NULL, NULL, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(143)");
+    v71 = v61;
+    v68 = v61;
+    if ( (_WORD)v42 )
     {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovd   eax, xmm0
-      vmovups [rbp+2B0h+var_2B0], ymm0
-      vmovups ymmword ptr [rbp+2B0h+var_310.m_surfaceID], ymm0
-    }
-    if ( (_WORD)_RAX )
-    {
-      R_RT_Handle::GetSurface(&v186);
-      if ( (R_RT_Handle::GetSurface(&v186)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
+      R_RT_Handle::GetSurface(&v68);
+      if ( (R_RT_Handle::GetSurface(&v68)->m_rtFlagsInternal & 0x18) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 217, ASSERT_TYPE_ASSERT, "(!unionHandle.IsValid() || unionHandle.IsColor())", (const char *)&queryFormat, "!unionHandle.IsValid() || unionHandle.IsColor()") )
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+2B0h+var_310.m_surfaceID]
-          vmovups [rbp+2B0h+var_2B0], ymm0
-        }
+        v61 = v68;
+        v71 = v68;
         __debugbreak();
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rbp+2B0h+var_310.m_surfaceID]
-          vmovups [rbp+2B0h+var_2B0], ymm0
-        }
+        v61 = v68;
+        v71 = v68;
       }
     }
     else
@@ -654,94 +425,46 @@ LABEL_69:
       __asm { vpextrd rax, xmm0, 2 }
       if ( (_DWORD)_RAX )
       {
-        v159 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
-        __asm { vmovups ymm0, [rbp+2B0h+var_2B0] }
-        if ( v159 )
+        v63 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_rt_handle.h", 100, ASSERT_TYPE_ASSERT, "(!this->m_tracking.m_allocCounter)", (const char *)&queryFormat, "!this->m_tracking.m_allocCounter");
+        v61 = v71;
+        if ( v63 )
           __debugbreak();
       }
     }
-    v160 = _R14->state;
-    __asm { vmovups ymmword ptr [rbp+2B0h+var_310.m_surfaceID], ymm0 }
-    R_AddRenderTargetTransition(v160, (R_RT_ColorHandle *)&v186, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(v160);
-    __asm
-    {
-      vmovups ymm0, [rbp+2B0h+var_2B0]
-      vmovups ymmword ptr [rbp+2B0h+var_310.m_surfaceID], ymm0
-    }
-    R_RT_Group::AssignColor(&v197, (R_RT_ColorHandle *)&v186);
-    _RCX = &v196;
-    _RAX = &v197;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups ymmword ptr [rcx], ymm0
-      vmovups ymm0, ymmword ptr [rax+20h]
-      vmovups ymmword ptr [rcx+20h], ymm0
-      vmovups ymm0, ymmword ptr [rax+40h]
-      vmovups ymmword ptr [rcx+40h], ymm0
-      vmovups ymm0, ymmword ptr [rax+60h]
-      vmovups ymmword ptr [rcx+60h], ymm0
-      vmovups ymm0, ymmword ptr [rax+80h]
-      vmovups ymmword ptr [rcx+80h], ymm0
-      vmovups ymm0, ymmword ptr [rax+0A0h]
-    }
-    v170 = v197.m_vrsRt.m_tracking.m_location;
-    __asm
-    {
-      vmovups ymmword ptr [rcx+0A0h], ymm0
-      vmovups xmm0, xmmword ptr [r14]
-    }
-    v196.m_vrsRt.m_tracking.m_location = v170;
-    __asm { vmovups xmmword ptr [rbp+2B0h+var_260.m_surfaceID], xmm0 }
-    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v194, &v196, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(148)");
-    v172 = v192.source;
-    R_DynamicResolutionForceRendertargetConstant(_R14->source, HIWORD(v192.source->decalVolumeSurfType), LOWORD(v192.source->viewStatsTarget));
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID]
-      vmovss  xmm1, cs:__real@3fe38e39
-      vmovups ymmword ptr [rbp+2B0h+var_310.m_surfaceID], ymm0
-      vmovups ymm0, [rbp+2B0h+var_240]
-      vmovups [rbp+2B0h+var_240], ymm0
-      vmovups ymm0, ymmword ptr [rbp+2B0h+result.m_surfaceID]
-      vmovups ymmword ptr [rbp+2B0h+var_260.m_surfaceID], ymm0
-      vmovups xmm0, xmmword ptr [r14]
-      vmovss  [rsp+3D0h+depth], xmm1
-      vmovups [rbp+2B0h+var_280], xmm0
-    }
-    R_MBlur_Filter(&v192, (const GfxViewInfo *)v172, (R_RT_ColorHandle *)&v194, &v195, (R_RT_ColorHandle *)&v186, depth);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+2B0h+result.m_surfaceID]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+2B0h+var_280], xmm0
-    }
-    R_RT_Destroy(&v192, (R_RT_ColorHandle *)&result);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbp+2B0h+var_2D0.m_surfaceID]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-      vmovups xmm0, xmmword ptr [r14]
-      vmovups [rbp+2B0h+var_280], xmm0
-    }
-    R_RT_Destroy(&v192, (R_RT_ColorHandle *)&result);
-    __asm
-    {
-      vmovups ymm0, [rbp+2B0h+var_2B0]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-    }
-    R_RT_Group::AssignColor(_R12, (R_RT_ColorHandle *)&result);
-    __asm
-    {
-      vmovups ymm0, [rbp+2B0h+var_2B0]
-      vmovups ymmword ptr [rbp+2B0h+result.m_surfaceID], ymm0
-    }
-    R_AddRenderTargetTransition(v160, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
-    R_FlushResourceTransitions(v160);
+    v64 = gfxContext->state;
+    v68 = v61;
+    R_AddRenderTargetTransition(v64, (R_RT_ColorHandle *)&v68, RENDERTARGET_TRANSITION_MODE_WRITE, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(v64);
+    v68 = v71;
+    R_RT_Group::AssignColor(&v79, (R_RT_ColorHandle *)&v68);
+    *(__m256i *)&v78.m_colorRtCount = *(__m256i *)&v79.m_colorRtCount;
+    *(__m256i *)&v78.m_colorRts[0].m_tracking.m_location = *(__m256i *)&v79.m_colorRts[0].m_tracking.m_location;
+    *(__m256i *)&v78.m_colorRts[1].m_tracking.m_location = *(__m256i *)&v79.m_colorRts[1].m_tracking.m_location;
+    *(__m256i *)&v78.m_colorRts[2].m_tracking.m_location = *(__m256i *)&v79.m_colorRts[2].m_tracking.m_location;
+    *(__m256i *)&v78.m_colorRts[3].m_tracking.m_location = *(__m256i *)&v79.m_colorRts[3].m_tracking.m_location;
+    *(__m256i *)&v78.m_depthRt.m_tracking.m_location = *(__m256i *)&v79.m_depthRt.m_tracking.m_location;
+    v65 = *gfxContext;
+    v78.m_vrsRt.m_tracking.m_location = v79.m_vrsRt.m_tracking.m_location;
+    *(GfxCmdBufContext *)&v76.m_surfaceID = v65;
+    R_SetRenderTargetsInternal((GfxCmdBufContext *)&v76, &v78, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(148)");
+    v66 = v74.source;
+    R_DynamicResolutionForceRendertargetConstant(gfxContext->source, HIWORD(v74.source->decalVolumeSurfType), LOWORD(v74.source->viewStatsTarget));
+    v68 = v70;
+    v76 = result;
+    v74 = *gfxContext;
+    R_MBlur_Filter(&v74, (const GfxViewInfo *)v66, (R_RT_ColorHandle *)&v76, &m_halfVelocityMBlurRt, (R_RT_ColorHandle *)&v68, 1.7777778);
+    v74 = *gfxContext;
+    R_RT_Destroy(&v74, (R_RT_ColorHandle *)&result);
+    result = v70;
+    v74 = *gfxContext;
+    R_RT_Destroy(&v74, (R_RT_ColorHandle *)&result);
+    result = v71;
+    R_RT_Group::AssignColor(v51, (R_RT_ColorHandle *)&result);
+    result = v71;
+    R_AddRenderTargetTransition(v64, (R_RT_ColorHandle *)&result, RENDERTARGET_TRANSITION_MODE_READ, D3D12_RESOURCE_BARRIER_FLAG_NONE);
+    R_FlushResourceTransitions(v64);
     R_GPU_EndTimer();
-    R_ProfEndNamedEvent(v160);
+    R_ProfEndNamedEvent(v64);
   }
 }
 
@@ -752,82 +475,61 @@ R_MBlur_Filter
 */
 void R_MBlur_Filter(GfxCmdBufContext *gfxContext, const GfxViewInfo *viewInfo, R_RT_ColorHandle *srcColorRt, R_RT_ColorHandle *srcVelocity, R_RT_ColorHandle *srcVelocityTileNeighbor, float aspectRatio)
 {
+  GfxCmdBufSourceState *source; 
   R_RT_Image *p_m_image; 
   GfxCmdBufInput *p_input; 
   const R_RT_Surface *Surface; 
-  GfxCmdBufSourceState *source; 
+  GfxCmdBufSourceState *v13; 
+  R_RT_Image *v14; 
+  GfxCmdBufInput *v15; 
+  const R_RT_Surface *v16; 
+  GfxCmdBufSourceState *v17; 
   R_RT_Image *v18; 
   GfxCmdBufInput *v19; 
-  const R_RT_Surface *v20; 
-  GfxCmdBufSourceState *v21; 
-  R_RT_Image *v22; 
-  GfxCmdBufInput *v23; 
+  GfxCmdBufContext v20; 
   Material *mblurFilterMaterial; 
-  float fmt; 
-  float v33; 
-  float v34; 
-  float v35; 
-  float v36; 
-  float v37; 
-  float v38; 
-  float v39; 
-  GfxCmdBufContext v40; 
+  float height; 
+  float width; 
+  GfxCmdBufContext v24; 
 
-  _RBX = gfxContext->source;
-  __asm { vmovss  xmm0, [rsp+0A8h+arg_28] }
-  _RSI = gfxContext;
-  __asm { vmovss  dword ptr [rbx+960h], xmm0 }
-  *(_QWORD *)&_RBX->input.consts[38].xyz.y = 0i64;
-  _RBX->input.consts[38].v[3] = 0.0;
-  ++_RBX->constVersions[38];
+  source = gfxContext->source;
+  source->input.consts[38].v[0] = aspectRatio;
+  *(_QWORD *)&source->input.consts[38].xyz.y = 0i64;
+  source->input.consts[38].v[3] = 0.0;
+  ++source->constVersions[38];
   p_m_image = &R_RT_Handle::GetSurface(srcColorRt)->m_image;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  p_input = &_RBX->input;
+  p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codeImages[4] = &p_m_image->m_base;
   Surface = R_RT_Handle::GetSurface(srcVelocity);
-  source = _RSI->source;
-  v18 = &Surface->m_image;
-  if ( !_RSI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  v13 = gfxContext->source;
+  v14 = &Surface->m_image;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  v19 = &source->input;
+  v15 = &v13->input;
+  if ( !v15 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+    __debugbreak();
+  v15->codeImages[29] = &v14->m_base;
+  v16 = R_RT_Handle::GetSurface(srcVelocityTileNeighbor);
+  v17 = gfxContext->source;
+  v18 = &v16->m_image;
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+    __debugbreak();
+  v19 = &v17->input;
   if ( !v19 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  v19->codeImages[29] = &v18->m_base;
-  v20 = R_RT_Handle::GetSurface(srcVelocityTileNeighbor);
-  v21 = _RSI->source;
-  v22 = &v20->m_image;
-  if ( !_RSI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
-    __debugbreak();
-  v23 = &v21->input;
-  if ( !v23 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
-    __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
-  v23->codeImages[31] = &v22->m_base;
+  v20 = *gfxContext;
+  v19->codeImages[31] = &v18->m_base;
   mblurFilterMaterial = rgp.mblurFilterMaterial;
   if ( rg.cinematic )
     mblurFilterMaterial = rgp.mblurFilterCinematicMaterial;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vxorps  xmm3, xmm3, xmm3
-    vcvtsi2ss xmm3, xmm3, rax
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, rax
-    vmovups [rsp+0A8h+var_38], xmm0
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+0A8h+var_50], xmm0
-    vmovss  [rsp+0A8h+var_58], xmm0
-    vmovss  [rsp+0A8h+var_60], xmm1
-    vmovss  [rsp+0A8h+var_68], xmm1
-    vmovss  [rsp+0A8h+var_70], xmm3
-    vmovss  [rsp+0A8h+var_78], xmm2
-    vmovss  dword ptr [rsp+0A8h+var_80], xmm1
-    vmovss  dword ptr [rsp+0A8h+fmt], xmm1
-  }
-  RB_ViewportFilterDirectInternal(&v40, mblurFilterMaterial, 0xFFFFFFFF, &viewInfo->sceneViewport, fmt, v33, v34, v35, v36, v37, v38, v39, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(64)");
+  height = (float)viewInfo->sceneViewport.height;
+  width = (float)viewInfo->sceneViewport.width;
+  v24 = v20;
+  RB_ViewportFilterDirectInternal(&v24, mblurFilterMaterial, 0xFFFFFFFF, &viewInfo->sceneViewport, 0.0, 0.0, width, height, 0.0, 0.0, 1.0, 1.0, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(64)");
 }
 
 /*
@@ -845,29 +547,29 @@ void R_MBlur_TileNeighbor(GfxCmdBufContext *gfxContext, R_RT_ColorHandle *srcVel
   GfxCmdBufSourceState *v10; 
   R_RT_Image *v11; 
   GfxCmdBufInput *v12; 
+  GfxCmdBufContext v13; 
   GfxCmdBufContext v14; 
 
-  _RDI = gfxContext;
   Surface = R_RT_Handle::GetSurface(srcVelocityRt);
-  source = _RDI->source;
+  source = gfxContext->source;
   p_m_image = &Surface->m_image;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
   p_input->codeImages[29] = &p_m_image->m_base;
   v9 = R_RT_Handle::GetSurface(srcVelocityTileRt);
-  v10 = _RDI->source;
+  v10 = gfxContext->source;
   v11 = &v9->m_image;
-  if ( !_RDI->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !gfxContext->source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
   v12 = &v10->input;
   if ( !v12 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rdi] }
+  v13 = *gfxContext;
   v12->codeImages[30] = &v11->m_base;
-  __asm { vmovups [rsp+58h+var_28], xmm0 }
+  v14 = v13;
   RB_FullScreenFilterInternal(&v14, rgp.mblurTileNeighborMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(53)");
 }
 
@@ -878,86 +580,51 @@ R_MBlur_VelocityTileDownsampleHorizontal
 */
 void R_MBlur_VelocityTileDownsampleHorizontal(GfxCmdBufContext *gfxContext, R_RT_ColorHandle *srcVelocityRt, R_RT_ColorHandle *dstVelocityRt)
 {
+  float v6; 
+  GfxCmdBufSourceState *source; 
   R_RT_Image *p_m_image; 
   GfxCmdBufInput *p_input; 
+  R_RT_Handle v10; 
   unsigned int height; 
   const R_RT_Surface *Surface; 
-  const char *m_location; 
-  R_RT_Handle v35; 
-  R_RT_Group v36; 
-  R_RT_Group v37; 
+  GfxCmdBufContext v13; 
+  R_RT_Handle v14; 
+  R_RT_Group v15; 
+  R_RT_Group v16; 
 
-  __asm { vmovaps [rsp+238h+var_38], xmm6 }
-  _R14 = gfxContext;
-  _RSI = dstVelocityRt;
+  v6 = 1.0 / (float)R_RT_Handle::GetSurface(dstVelocityRt)->m_image.m_base.width;
   R_RT_Handle::GetSurface(dstVelocityRt);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, edx
-    vdivss  xmm6, xmm0, xmm1
-  }
-  R_RT_Handle::GetSurface(_RSI);
-  _RDI = _R14->source;
-  __asm
-  {
-    vmulss  xmm2, xmm6, cs:__real@3dcccccd
-    vmulss  xmm1, xmm2, cs:__real@3f000000
-    vmulss  xmm0, xmm6, cs:__real@3f000000
-    vsubss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+0EB0h], xmm1
-    vmovss  dword ptr [rdi+0EB4h], xmm2
-  }
-  *(_QWORD *)&_RDI->input.consts[123].xyz.z = 0i64;
-  ++_RDI->constVersions[123];
+  source = gfxContext->source;
+  source->input.consts[123].v[0] = (float)((float)(v6 * 0.1) * 0.5) - (float)(v6 * 0.5);
+  source->input.consts[123].v[1] = v6 * 0.1;
+  *(_QWORD *)&source->input.consts[123].xyz.z = 0i64;
+  ++source->constVersions[123];
   p_m_image = &R_RT_Handle::GetSurface(srcVelocityRt)->m_image;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  p_input = &_RDI->input;
+  p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rsi] }
+  v10 = dstVelocityRt->R_RT_Handle;
   p_input->codeImages[29] = &p_m_image->m_base;
-  __asm { vmovups ymmword ptr [rsp+238h+var_208.m_surfaceID], ymm0 }
-  height = R_RT_Handle::GetSurface(&v35)->m_image.m_base.height;
-  Surface = R_RT_Handle::GetSurface(&v35);
-  R_SetRenderTargetSize(_R14->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FULL);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rsi]
-    vmovups ymmword ptr [rsp+238h+var_208.m_surfaceID], ymm0
-  }
-  R_RT_Group::AssignColor(&v36, (R_RT_ColorHandle *)&v35);
-  _RCX = &v37;
-  _RAX = &v36;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymm1, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [rcx], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rcx+20h], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rcx+40h], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rcx+60h], ymm0
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups ymmword ptr [rcx+80h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-  }
-  m_location = v36.m_vrsRt.m_tracking.m_location;
-  __asm { vmovups ymmword ptr [rcx+0A0h], ymm1 }
-  v37.m_vrsRt.m_tracking.m_location = m_location;
-  __asm { vmovups xmmword ptr [rsp+238h+var_208.m_surfaceID], xmm0 }
-  R_SetRenderTargetsInternal((GfxCmdBufContext *)&v35, &v37, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(27)");
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r14]
-    vmovups xmmword ptr [rsp+238h+var_208.m_surfaceID], xmm0
-  }
-  RB_FullScreenFilterInternal((GfxCmdBufContext *)&v35, rgp.mblurTileDownsampleMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(28)");
-  __asm { vmovaps xmm6, [rsp+238h+var_38] }
+  v14 = v10;
+  height = R_RT_Handle::GetSurface(&v14)->m_image.m_base.height;
+  Surface = R_RT_Handle::GetSurface(&v14);
+  R_SetRenderTargetSize(gfxContext->source, Surface->m_image.m_base.width, height, GFX_USE_VIEWPORT_FULL);
+  v14 = dstVelocityRt->R_RT_Handle;
+  R_RT_Group::AssignColor(&v15, (R_RT_ColorHandle *)&v14);
+  *(__m256i *)&v16.m_colorRtCount = *(__m256i *)&v15.m_colorRtCount;
+  *(__m256i *)&v16.m_colorRts[0].m_tracking.m_location = *(__m256i *)&v15.m_colorRts[0].m_tracking.m_location;
+  *(__m256i *)&v16.m_colorRts[1].m_tracking.m_location = *(__m256i *)&v15.m_colorRts[1].m_tracking.m_location;
+  *(__m256i *)&v16.m_colorRts[2].m_tracking.m_location = *(__m256i *)&v15.m_colorRts[2].m_tracking.m_location;
+  v13 = *gfxContext;
+  *(__m256i *)&v16.m_colorRts[3].m_tracking.m_location = *(__m256i *)&v15.m_colorRts[3].m_tracking.m_location;
+  *(__m256i *)&v16.m_depthRt.m_tracking.m_location = *(__m256i *)&v15.m_depthRt.m_tracking.m_location;
+  v16.m_vrsRt.m_tracking.m_location = v15.m_vrsRt.m_tracking.m_location;
+  *(GfxCmdBufContext *)&v14.m_surfaceID = v13;
+  R_SetRenderTargetsInternal((GfxCmdBufContext *)&v14, &v16, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(27)");
+  *(GfxCmdBufContext *)&v14.m_surfaceID = *gfxContext;
+  RB_FullScreenFilterInternal((GfxCmdBufContext *)&v14, rgp.mblurTileDownsampleMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(28)");
 }
 
 /*
@@ -967,39 +634,32 @@ R_MBlur_VelocityTileDownsampleVertical
 */
 void R_MBlur_VelocityTileDownsampleVertical(GfxCmdBufContext *gfxContext, R_RT_ColorHandle *srcVelocityRt, R_RT_ColorHandle *dstVelocityRt)
 {
+  const R_RT_Surface *Surface; 
+  GfxCmdBufSourceState *source; 
+  float v8; 
   R_RT_Image *p_m_image; 
   GfxCmdBufInput *p_input; 
-  GfxCmdBufContext v19; 
+  GfxCmdBufContext v11; 
+  GfxCmdBufContext v12; 
 
-  _RSI = gfxContext;
   R_RT_Handle::GetSurface(dstVelocityRt);
-  R_RT_Handle::GetSurface(dstVelocityRt);
-  _RBX = _RSI->source;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, edx
-    vdivss  xmm2, xmm0, xmm1
-    vmulss  xmm3, xmm2, cs:__real@3dcccccd
-    vmulss  xmm1, xmm3, cs:__real@3f000000
-    vmulss  xmm0, xmm2, cs:__real@3f000000
-    vsubss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rbx+0EB0h], xmm1
-    vmovss  dword ptr [rbx+0EB4h], xmm3
-  }
-  _RBX->input.consts[123].v[2] = 0.0;
-  _RBX->input.consts[123].v[3] = 1.0;
-  ++_RBX->constVersions[123];
+  Surface = R_RT_Handle::GetSurface(dstVelocityRt);
+  source = gfxContext->source;
+  v8 = 1.0 / (float)Surface->m_image.m_base.height;
+  source->input.consts[123].v[0] = (float)((float)(v8 * 0.1) * 0.5) - (float)(v8 * 0.5);
+  source->input.consts[123].v[1] = v8 * 0.1;
+  source->input.consts[123].v[2] = 0.0;
+  source->input.consts[123].v[3] = 1.0;
+  ++source->constVersions[123];
   p_m_image = &R_RT_Handle::GetSurface(srcVelocityRt)->m_image;
-  if ( !_RBX && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+  if ( !source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
     __debugbreak();
-  p_input = &_RBX->input;
+  p_input = &source->input;
   if ( !p_input && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
     __debugbreak();
-  __asm { vmovups xmm0, xmmword ptr [rsi] }
+  v11 = *gfxContext;
   p_input->codeImages[29] = &p_m_image->m_base;
-  __asm { vmovups [rsp+58h+var_28], xmm0 }
-  RB_FullScreenFilterInternal(&v19, rgp.mblurTileDownsampleMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(45)");
+  v12 = v11;
+  RB_FullScreenFilterInternal(&v12, rgp.mblurTileDownsampleMaterial, "c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\rb_motionblur.cpp(45)");
 }
 

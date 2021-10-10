@@ -423,16 +423,16 @@ _BOOL8 bdRESTInternalResponse::deserialize(bdRESTInternalResponse *this, bdRefer
   unsigned int m_retryTokenOffset; 
   unsigned int v11; 
   bool v12; 
+  bdRESTResponseMessage::bdRESTReplyExtra *p_m_replyExtra; 
+  unsigned __int8 *v14; 
   __int64 v15; 
-  __int64 v24; 
-  __int64 v27; 
-  double v29; 
+  __int64 v16; 
+  __int64 v17; 
   bdReference<bdByteBuffer> buffera; 
   bdByteBuffer *m_ptr; 
-  std::unique_ptr<bdRESTResponseMessage> v32; 
+  std::unique_ptr<bdRESTResponseMessage> v21; 
 
   m_ptr = buffer.m_ptr;
-  _RBP = this;
   this->m_state = BD_STOPPING;
   v4 = (bdByteBuffer *)bdMemory::allocate(0x3D18ui64);
   buffera.m_ptr = v4;
@@ -445,91 +445,71 @@ _BOOL8 bdRESTInternalResponse::deserialize(bdRESTInternalResponse *this, bdRefer
   {
     v6 = NULL;
   }
-  v32._Mypair._Myval2 = v6;
+  v21._Mypair._Myval2 = v6;
   v7 = (bdByteBuffer *)buffer.m_ptr->__vftable;
   buffera.m_ptr = v7;
   if ( v7 )
     _InterlockedExchangeAdd((volatile signed __int32 *)&v7->m_refCount, 1u);
-  v8 = bdRESTResponseMessage::initFromBuffer(v6, *((bdLobbyService **)&_RBP->__vftable + 2), (bdReference<bdByteBuffer>)&buffera);
+  v8 = bdRESTResponseMessage::initFromBuffer(v6, *((bdLobbyService **)&this->__vftable + 2), (bdReference<bdByteBuffer>)&buffera);
   if ( v8 )
   {
-    if ( *((_QWORD *)&_RBP->__vftable + 3) )
-      *(_QWORD *)(*((_QWORD *)&_RBP->__vftable + 3) + 32i64) = bdRESTResponseMessage::getTransactionID(v6);
+    if ( *((_QWORD *)&this->__vftable + 3) )
+      *(_QWORD *)(*((_QWORD *)&this->__vftable + 3) + 32i64) = bdRESTResponseMessage::getTransactionID(v6);
     if ( (bdRESTInternal::g_debug_flags & 2) != 0 )
       bdRESTResponseMessage::dumpToLog(v6);
-    if ( v6->m_lsgResponse.m_replyExtra.m_isRetryable && _RBP->m_retries < _RBP->m_maximumRetries )
+    if ( v6->m_lsgResponse.m_replyExtra.m_isRetryable && this->m_retries < this->m_maximumRetries )
     {
-      DataSize = bdByteBuffer::getDataSize(_RBP->m_taskBuffer.m_ptr);
-      m_retryTokenOffset = _RBP->m_retryTokenOffset;
+      DataSize = bdByteBuffer::getDataSize(this->m_taskBuffer.m_ptr);
+      m_retryTokenOffset = this->m_retryTokenOffset;
       v11 = m_retryTokenOffset + 256;
       v12 = m_retryTokenOffset + 256 < DataSize;
       bdHandleAssert(m_retryTokenOffset != 0, "m_retryTokenOffset != 0", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestinternal.cpp", "bdRESTInternalResponse::deserialize", 0x174u, "m_retryTokenOffset unset?");
       bdHandleAssert(v12, "inRange", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestinternal.cpp", "bdRESTInternalResponse::deserialize", 0x175u, "retry token offset overflows buffer. invalid offset?");
       if ( v11 < DataSize )
       {
-        _RDX = &v6->m_lsgResponse.m_replyExtra;
-        _RCX = &_RBP->m_taskBuffer.m_ptr->m_data[_RBP->m_retryTokenOffset];
+        p_m_replyExtra = &v6->m_lsgResponse.m_replyExtra;
+        v14 = &this->m_taskBuffer.m_ptr->m_data[this->m_retryTokenOffset];
         v15 = 2i64;
         do
         {
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rdx]
-            vmovups xmmword ptr [rcx], xmm0
-            vmovups xmm1, xmmword ptr [rdx+10h]
-            vmovups xmmword ptr [rcx+10h], xmm1
-            vmovups xmm0, xmmword ptr [rdx+20h]
-            vmovups xmmword ptr [rcx+20h], xmm0
-            vmovups xmm1, xmmword ptr [rdx+30h]
-            vmovups xmmword ptr [rcx+30h], xmm1
-            vmovups xmm0, xmmword ptr [rdx+40h]
-            vmovups xmmword ptr [rcx+40h], xmm0
-            vmovups xmm1, xmmword ptr [rdx+50h]
-            vmovups xmmword ptr [rcx+50h], xmm1
-            vmovups xmm0, xmmword ptr [rdx+60h]
-            vmovups xmmword ptr [rcx+60h], xmm0
-          }
-          _RCX += 128;
-          __asm
-          {
-            vmovups xmm1, xmmword ptr [rdx+70h]
-            vmovups xmmword ptr [rcx-10h], xmm1
-          }
-          _RDX = (bdRESTResponseMessage::bdRESTReplyExtra *)((char *)_RDX + 128);
+          *(_OWORD *)v14 = *(_OWORD *)p_m_replyExtra->m_retryToken;
+          *((_OWORD *)v14 + 1) = *(_OWORD *)&p_m_replyExtra->m_retryToken[16];
+          *((_OWORD *)v14 + 2) = *(_OWORD *)&p_m_replyExtra->m_retryToken[32];
+          *((_OWORD *)v14 + 3) = *(_OWORD *)&p_m_replyExtra->m_retryToken[48];
+          *((_OWORD *)v14 + 4) = *(_OWORD *)&p_m_replyExtra->m_retryToken[64];
+          *((_OWORD *)v14 + 5) = *(_OWORD *)&p_m_replyExtra->m_retryToken[80];
+          *((_OWORD *)v14 + 6) = *(_OWORD *)&p_m_replyExtra->m_retryToken[96];
+          v14 += 128;
+          *((_OWORD *)v14 - 1) = *(_OWORD *)&p_m_replyExtra->m_retryToken[112];
+          p_m_replyExtra = (bdRESTResponseMessage::bdRESTReplyExtra *)((char *)p_m_replyExtra + 128);
           --v15;
         }
         while ( v15 );
       }
-      _RBP->m_retryWaitFrom = bdPlatformTiming::getLoResTimeStamp();
-      _RBP->m_retryWaitSeconds = v6->m_lsgResponse.m_retryAfter;
-      ++_RBP->m_retries;
-      _RBP->m_state = BD_RUNNING;
-      _RBP->m_legacyTask.m_ptr->m_status = BD_PENDING;
-      v24 = *((_QWORD *)&_RBP->__vftable + 3);
-      if ( v24 )
-        *(_DWORD *)(v24 + 12) = _RBP->m_retries;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+54h]
-        vcvtss2sd xmm0, xmm0, xmm0
-        vmovsd  [rsp+98h+var_60], xmm0
-      }
-      bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestinternal.cpp", "bdRESTInternalResponse::deserialize", 0x186u, "Retrying request in %.3f seconds. Retry %d/%d", v29, _RBP->m_retries, _RBP->m_maximumRetries);
+      this->m_retryWaitFrom = bdPlatformTiming::getLoResTimeStamp();
+      this->m_retryWaitSeconds = v6->m_lsgResponse.m_retryAfter;
+      ++this->m_retries;
+      this->m_state = BD_RUNNING;
+      this->m_legacyTask.m_ptr->m_status = BD_PENDING;
+      v16 = *((_QWORD *)&this->__vftable + 3);
+      if ( v16 )
+        *(_DWORD *)(v16 + 12) = this->m_retries;
+      bdLogMessage(BD_LOG_INFO, "info/", "bdREST", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestinternal.cpp", "bdRESTInternalResponse::deserialize", 0x186u, "Retrying request in %.3f seconds. Retry %d/%d", this->m_retryWaitSeconds, this->m_retries, this->m_maximumRetries);
     }
     else
     {
-      bdRESTInternalResponse::doResultHandling(_RBP, v6);
+      bdRESTInternalResponse::doResultHandling(this, v6);
     }
   }
   else
   {
-    _RBP->m_legacyTask.m_ptr->m_status = BD_FAILED;
-    _RBP->m_legacyTask.m_ptr->m_errorCode = BD_HANDLE_TASK_FAILED;
-    v27 = *((_QWORD *)&_RBP->__vftable + 3);
-    if ( v27 )
-      *(_DWORD *)(v27 + 8) = 3;
+    this->m_legacyTask.m_ptr->m_status = BD_FAILED;
+    this->m_legacyTask.m_ptr->m_errorCode = BD_HANDLE_TASK_FAILED;
+    v17 = *((_QWORD *)&this->__vftable + 3);
+    if ( v17 )
+      *(_DWORD *)(v17 + 8) = 3;
   }
-  std::unique_ptr<bdRESTResponseMessage>::~unique_ptr<bdRESTResponseMessage>(&v32);
+  std::unique_ptr<bdRESTResponseMessage>::~unique_ptr<bdRESTResponseMessage>(&v21);
   if ( buffer.m_ptr->__vftable && !_InterlockedDecrement((volatile signed __int32 *)&buffer.m_ptr->allocateBuffer) )
   {
     if ( buffer.m_ptr->__vftable )
@@ -558,11 +538,12 @@ void bdRESTInternalResponse::doResultHandling(bdRESTInternalResponse *this, cons
   int v13; 
   bdRESTLegacyTask *v14; 
   __int64 v15; 
-  __int64 v18; 
-  bdRESTErrorMap v19; 
-  char v20[16]; 
+  bdRESTErrorMap *v16; 
+  __int64 v17; 
+  bdRESTErrorMap v18; 
+  char v19[16]; 
   bdRESTErrorMap maps; 
-  bdRESTErrorMap v22; 
+  bdRESTErrorMap v21; 
   const char *code; 
   char *str; 
   char *errName; 
@@ -632,15 +613,11 @@ void bdRESTInternalResponse::doResultHandling(bdRESTInternalResponse *this, cons
         {
           v15 = *((_QWORD *)&this->__vftable + 3);
           if ( v15 )
-            _RAX = (*(__int64 (__fastcall **)(__int64, char *))(*(_QWORD *)v15 + 24i64))(v15, v20);
+            v16 = (bdRESTErrorMap *)(*(__int64 (__fastcall **)(__int64, char *))(*(_QWORD *)v15 + 24i64))(v15, v19);
           else
-            bdRESTErrorMap::bdRESTErrorMap(&v19, NULL, 0);
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rsp+0A8h+maps.m_entries], xmm0
-          }
-          bdRESTErrorMap::bdRESTErrorMap(&v22, bdRESTInternal::BD_REST_STANDARD_ERRORS, 0x17u);
+            bdRESTErrorMap::bdRESTErrorMap(&v18, NULL, 0);
+          maps = *v16;
+          bdRESTErrorMap::bdRESTErrorMap(&v21, bdRESTInternal::BD_REST_STANDARD_ERRORS, 0x17u);
           bdRESTErrorMap::errorNameToCode(&maps, 2u, errName, (unsigned int *)&code);
         }
         p_m_legacyTask->m_ptr->m_errorCode = (int)code;
@@ -673,14 +650,14 @@ void bdRESTInternalResponse::doResultHandling(bdRESTInternalResponse *this, cons
   }
 LABEL_33:
   bdHandleAssert(1, "restResultStatus != bdRESTResponse::BD_INVALID", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdrestrequestmanager\\bdrestinternal.cpp", "bdRESTInternalResponse::doResultHandling", 0x1EBu, "response's rest status cannot be BD_INVALID. Ensure all cases are covered.");
-  v18 = *((_QWORD *)&this->__vftable + 3);
-  if ( v18 )
+  v17 = *((_QWORD *)&this->__vftable + 3);
+  if ( v17 )
   {
-    *(_DWORD *)(v18 + 8) = v10;
-    v18 = *((_QWORD *)&this->__vftable + 3);
+    *(_DWORD *)(v17 + 8) = v10;
+    v17 = *((_QWORD *)&this->__vftable + 3);
   }
-  if ( v18 && *(_BYTE *)(v18 + 16) )
-    p_m_legacyTask->m_ptr->m_errorCode = *(_DWORD *)(v18 + 20);
+  if ( v17 && *(_BYTE *)(v17 + 16) )
+    p_m_legacyTask->m_ptr->m_errorCode = *(_DWORD *)(v17 + 20);
   p_m_legacyTask->m_ptr->m_transactionID = bdRESTResponseMessage::getTransactionID((bdRESTResponseMessage *)msg);
 }
 
@@ -741,10 +718,11 @@ bdRESTInternalResponse::findErrorCode
 __int64 bdRESTInternalResponse::findErrorCode(bdRESTInternalResponse *this, const bdRESTResponseMessage *msg)
 {
   __int64 v3; 
-  bdRESTErrorMap v7; 
-  char v8[16]; 
+  bdRESTErrorMap *v4; 
+  bdRESTErrorMap v6; 
+  char v7[16]; 
   bdRESTErrorMap maps; 
-  bdRESTErrorMap v10; 
+  bdRESTErrorMap v9; 
   unsigned int code; 
   char *errName; 
 
@@ -753,15 +731,11 @@ __int64 bdRESTInternalResponse::findErrorCode(bdRESTInternalResponse *this, cons
   {
     v3 = *((_QWORD *)&this->__vftable + 3);
     if ( v3 )
-      _RAX = (*(__int64 (__fastcall **)(__int64, char *))(*(_QWORD *)v3 + 24i64))(v3, v8);
+      v4 = (bdRESTErrorMap *)(*(__int64 (__fastcall **)(__int64, char *))(*(_QWORD *)v3 + 24i64))(v3, v7);
     else
-      bdRESTErrorMap::bdRESTErrorMap(&v7, NULL, 0);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rax]
-      vmovups xmmword ptr [rsp+68h+maps.m_entries], xmm0
-    }
-    bdRESTErrorMap::bdRESTErrorMap(&v10, bdRESTInternal::BD_REST_STANDARD_ERRORS, 0x17u);
+      bdRESTErrorMap::bdRESTErrorMap(&v6, NULL, 0);
+    maps = *v4;
+    bdRESTErrorMap::bdRESTErrorMap(&v9, bdRESTInternal::BD_REST_STANDARD_ERRORS, 0x17u);
     bdRESTErrorMap::errorNameToCode(&maps, 2u, errName, &code);
   }
   return code;

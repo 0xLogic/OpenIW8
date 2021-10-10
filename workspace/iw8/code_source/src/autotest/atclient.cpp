@@ -390,253 +390,46 @@ void ATClient_PrintStateCmd()
 ATClient_RegisterDvars
 ==============
 */
-
-void __fastcall ATClient_RegisterDvars(__int64 a1, double _XMM1_8, double _XMM2_8)
+void ATClient_RegisterDvars(void)
 {
-  const dvar_t *v44; 
-  const dvar_t *v48; 
-  const dvar_t *v52; 
-  const dvar_t *v56; 
-  const dvar_t *v60; 
-  const dvar_t *v64; 
-  const dvar_t *v68; 
-  const dvar_t *v72; 
-  const dvar_t *v80; 
-  const dvar_t *v85; 
-  const dvar_t *v89; 
-  const dvar_t *v96; 
-  const dvar_t *v106; 
-  const dvar_t *v137; 
-  const dvar_t *v147; 
-  const dvar_t *v151; 
-  const dvar_t *v158; 
-  const dvar_t *v174; 
-  const dvar_t *v181; 
-  const dvar_t *v188; 
-  const dvar_t *v192; 
-  const dvar_t *v196; 
-  char v211; 
-  void *retaddr; 
-
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm11
-    vmovaps xmmword ptr [rax-68h], xmm13
-    vmovaps xmmword ptr [rax-78h], xmm14
-  }
   DVARBOOL_ATClient_Enabled = Dvar_RegisterBool("PPQLQTKTP", 0, 4u, "Enable the autotest client system.");
-  __asm { vmovss  xmm14, cs:__real@3f800000 }
   DVARSTR_ATClient_DeferredUiNav = Dvar_RegisterString("MNOPOLOMOK", (const char *)&queryFormat.fmt + 3, 4u, "ui_nav CFG file for deferred ui_nav_test execution");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_ATClient_ChanceRandomWalk = Dvar_RegisterFloat("LQOMKQTNRS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to enter the random walk state.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_ATClient_ChanceCaptureObjective = Dvar_RegisterFloat("LTOMOOQPTP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to select an objective to capture.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_ATClient_ChanceHuntEnemy = Dvar_RegisterFloat("PTQMKPTLR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to enter the hunt enemy state.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_ATClient_ChanceDoNothing = Dvar_RegisterFloat("MTKNROMMMM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to select ATClient NOP.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_ATClient_ChanceDriveAround = Dvar_RegisterFloat("LKQKSLNKKR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to enter the drive around state.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-    vmovss  xmm13, cs:__real@3f000000
-  }
-  DVARFLT_ATClient_ChancePerfTest = Dvar_RegisterFloat("LSMQLNSRLP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to enter the performance grid walk state.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm13; value
-  }
-  DVARFLT_ATClient_ChanceHuntRandomEnemy = Dvar_RegisterFloat("NSPMMOMSPO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to select a random enemy to hunt.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm13; value
-  }
-  DVARFLT_ATClient_ChanceHuntClosestEnemy = Dvar_RegisterFloat("LKKNPOSLNM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to select the closest enemy to hunt.");
+  DVARFLT_ATClient_ChanceRandomWalk = Dvar_RegisterFloat("LQOMKQTNRS", 0.0, 0.0, 1.0, 4u, "Percent chance to enter the random walk state.");
+  DVARFLT_ATClient_ChanceCaptureObjective = Dvar_RegisterFloat("LTOMOOQPTP", 0.0, 0.0, 1.0, 4u, "Percent chance to select an objective to capture.");
+  DVARFLT_ATClient_ChanceHuntEnemy = Dvar_RegisterFloat("PTQMKPTLR", 0.0, 0.0, 1.0, 4u, "Percent chance to enter the hunt enemy state.");
+  DVARFLT_ATClient_ChanceDoNothing = Dvar_RegisterFloat("MTKNROMMMM", 0.0, 0.0, 1.0, 4u, "Percent chance to select ATClient NOP.");
+  DVARFLT_ATClient_ChanceDriveAround = Dvar_RegisterFloat("LKQKSLNKKR", 0.0, 0.0, 1.0, 4u, "Percent chance to enter the drive around state.");
+  DVARFLT_ATClient_ChancePerfTest = Dvar_RegisterFloat("LSMQLNSRLP", 0.0, 0.0, 1.0, 4u, "Percent chance to enter the performance grid walk state.");
+  DVARFLT_ATClient_ChanceHuntRandomEnemy = Dvar_RegisterFloat("NSPMMOMSPO", 0.5, 0.0, 1.0, 4u, "Percent chance to select a random enemy to hunt.");
+  DVARFLT_ATClient_ChanceHuntClosestEnemy = Dvar_RegisterFloat("LKKNPOSLNM", 0.5, 0.0, 1.0, 4u, "Percent chance to select the closest enemy to hunt.");
   DVARINT_ATClient_HuntEnemyDurationMS = Dvar_RegisterInt("POPMNRL", 20000, 0, 0x7FFFFFFF, 4u, "Max duration (in ms) of the hunt before exiting the state.");
   DVARBOOL_ATClient_SwitchToClosestEnemyOnDamageReceived = Dvar_RegisterBool("LSTRQLLMQL", 1, 4u, "Select the closest enemy as new target when receiving damage.");
   DVARINT_ATClient_HuntEnemyVehicleDurationMS = Dvar_RegisterInt("MOQKMNTLTT", 30000, 0, 0x7FFFFFFF, 4u, "Max duration (in ms) of the hunt before exiting the state.");
   DVARINT_ATClient_DriveAroundDurationMS = Dvar_RegisterInt("LMQPTMOSQP", 20000, 0, 0x7FFFFFFF, 4u, "Max duration (in ms) of the drive before exiting the state.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@4f000000; max
-    vmovss  xmm1, cs:__real@4687f000; value
-  }
   DVARINT_ATClient_EnterVehicleDurationMS = Dvar_RegisterInt("NRNPQQPKLK", 2000, 0, 0x7FFFFFFF, 4u, "Duration of the enter vehicle animation.");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_ATClient_MaxDistSqToEnterVehicle = Dvar_RegisterFloat("NSQLMORKOT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Maximum distance squared to be from a vehicle before trying to enter it.");
+  DVARFLT_ATClient_MaxDistSqToEnterVehicle = Dvar_RegisterFloat("NSQLMORKOT", 17400.0, 0.0, 2147483600.0, 4u, "Maximum distance squared to be from a vehicle before trying to enter it.");
   DVARBOOL_ATClient_Pathing = Dvar_RegisterBool("LPPOLSPPSN", 1, 4u, "Enable navpower and pathing system for ATClients.");
-  __asm
-  {
-    vmovss  xmm8, cs:__real@4788b800
-    vmovss  xmm2, cs:__real@c7435000; min
-    vmovss  xmm1, cs:__real@c73f6800; value
-  }
   DVARBOOL_ATClient_AllowPerfTestBehavior = Dvar_RegisterBool("NORLOQLMSS", 1, 4u, "Allow/enable performance probe behaviors/sampling (including teleporting, cooldown periods).");
-  __asm { vmovaps xmm3, xmm8; max }
-  v44 = Dvar_RegisterFloat("NNPOONQRM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "ATClient Unique ID - Min X coordinate");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@c756d800; min
-    vmovss  xmm1, cs:__real@c750fc00; value
-  }
-  DVARFLT_ATClient_PerfClientMinX = v44;
-  __asm { vmovaps xmm3, xmm8; max }
-  v48 = Dvar_RegisterFloat("MOKSKQNLKP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "ATClient Unique ID - Min Y coordinate");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@c7435000; min
-    vmovss  xmm1, cs:__real@4787be00; value
-  }
-  DVARFLT_ATClient_PerfClientMinY = v48;
-  __asm { vmovaps xmm3, xmm8; max }
-  v52 = Dvar_RegisterFloat("LSLSLOLOM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "ATClient Unique ID - Max X coordinate");
-  __asm
-  {
-    vmovss  xmm2, cs:__real@c756d800; min
-    vmovss  xmm1, cs:__real@477fdc00; value
-  }
-  DVARFLT_ATClient_PerfClientMaxX = v52;
-  __asm { vmovaps xmm3, xmm8; max }
-  v56 = Dvar_RegisterFloat("MMPOONNPRP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "ATClient Unique ID - Max Y coordinate");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@469c4000; max
-    vmovss  xmm2, cs:__real@c47a0000; min
-    vmovss  xmm1, cs:__real@456d8000; value
-  }
-  DVARFLT_ATClient_PerfClientMaxY = v56;
-  v60 = Dvar_RegisterFloat("LSPRLPMOM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "ATClient Unique ID - Min Z coordinate");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@469c4000; max
-    vmovss  xmm2, cs:__real@c47a0000; min
-    vmovss  xmm1, cs:__real@456d8000; value
-  }
-  DVARFLT_ATClient_PerfClientMinZ = v60;
-  v64 = Dvar_RegisterFloat("NNLPOMPRM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "ATClient Unique ID - Max Z coordinate");
-  __asm { vmovss  xmm1, cs:__real@46c00000; value }
-  DVARFLT_ATClient_PerfClientMaxZ = v64;
-  __asm
-  {
-    vmovaps xmm3, xmm1; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v68 = Dvar_RegisterFloat("MSPOMNKRNS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Inward exclusion for out-of-bounds areas (max 3 tiles in)");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42b40000; max
-    vmovss  xmm2, cs:__real@c2b40000; min
-  }
-  DVARFLT_ATClient_PerfClientPaddingXY = v68;
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  v72 = Dvar_RegisterFloat("MMQMNMTRKM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Min Pitch (degrees) angle for random pitch.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42b40000; max
-    vmovss  xmm2, cs:__real@c2b40000; min
-  }
-  DVARFLT_ATClient_PerfClientPitchMin = v72;
-  __asm { vxorps  xmm1, xmm1, xmm1; value }
-  DVARFLT_ATClient_PerfClientPitchMax = Dvar_RegisterFloat("MKORTSORRQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Max Pitch (degrees) angle for random pitch.");
+  DVARFLT_ATClient_PerfClientMinX = Dvar_RegisterFloat("NNPOONQRM", -49000.0, -50000.0, 70000.0, 4u, "ATClient Unique ID - Min X coordinate");
+  DVARFLT_ATClient_PerfClientMinY = Dvar_RegisterFloat("MOKSKQNLKP", -53500.0, -55000.0, 70000.0, 4u, "ATClient Unique ID - Min Y coordinate");
+  DVARFLT_ATClient_PerfClientMaxX = Dvar_RegisterFloat("LSLSLOLOM", 69500.0, -50000.0, 70000.0, 4u, "ATClient Unique ID - Max X coordinate");
+  DVARFLT_ATClient_PerfClientMaxY = Dvar_RegisterFloat("MMPOONNPRP", 65500.0, -55000.0, 70000.0, 4u, "ATClient Unique ID - Max Y coordinate");
+  DVARFLT_ATClient_PerfClientMinZ = Dvar_RegisterFloat("LSPRLPMOM", 3800.0, -1000.0, 20000.0, 4u, "ATClient Unique ID - Min Z coordinate");
+  DVARFLT_ATClient_PerfClientMaxZ = Dvar_RegisterFloat("NNLPOMPRM", 3800.0, -1000.0, 20000.0, 4u, "ATClient Unique ID - Max Z coordinate");
+  DVARFLT_ATClient_PerfClientPaddingXY = Dvar_RegisterFloat("MSPOMNKRNS", 24576.0, 0.0, 24576.0, 4u, "Inward exclusion for out-of-bounds areas (max 3 tiles in)");
+  DVARFLT_ATClient_PerfClientPitchMin = Dvar_RegisterFloat("MMQMNMTRKM", 0.0, -90.0, 90.0, 4u, "Min Pitch (degrees) angle for random pitch.");
+  DVARFLT_ATClient_PerfClientPitchMax = Dvar_RegisterFloat("MKORTSORRQ", 0.0, -90.0, 90.0, 4u, "Max Pitch (degrees) angle for random pitch.");
   DVARINT_ATClient_PerfMode = Dvar_RegisterInt("NKPTQLQOSK", 0, 0, 3, 4u, "0: QA Reference Set. 1: Random in Bounds. 2: Grid in Bounds. 3: QA+Random.");
-  __asm { vmovss  xmm11, cs:__real@41200000 }
   DVARINT_ATClient_PerfModeAngles = Dvar_RegisterInt("TSRTLQLKM", 0, 0, 3, 4u, "0: QA Reference/Random Yaw. . 1: NSWE. 2: NSWE+UD. 3: QA+NSWE+UD.");
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm13; value
-  }
-  v80 = Dvar_RegisterFloat("NPKRMRPQTP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Permitted epsilon up/down variation at which we log performance.");
-  __asm
-  {
-    vmovss  xmm9, cs:__real@7f7fffff
-    vmovss  xmm1, cs:__real@44800000; value
-  }
-  DVARFLT_ATClient_PerfEpsImageMem = v80;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v85 = Dvar_RegisterFloat("MQLTQLSQQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Map grid distance to move in X on every sample.");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@44800000; value
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_ATClient_PerfNavGridDeltaX = v85;
-  v89 = Dvar_RegisterFloat("MNNOPSLMTT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Map grid distance to move in X on every sample.");
-  __asm { vmovss  xmm1, cs:__real@43000000; value }
-  DVARFLT_ATClient_PerfNavGridDeltaY = v89;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_ATClient_PerfNavRadiusMax = Dvar_RegisterFloat("OKLNTTNMMQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Navmesh search radius for random point selection (larger means slower).");
-  __asm { vmovss  xmm1, cs:__real@42000000; value }
+  DVARFLT_ATClient_PerfEpsImageMem = Dvar_RegisterFloat("NPKRMRPQTP", 0.5, 0.0, 10.0, 4u, "Permitted epsilon up/down variation at which we log performance.");
+  DVARFLT_ATClient_PerfNavGridDeltaX = Dvar_RegisterFloat("MQLTQLSQQ", 1024.0, 0.0, 3.4028235e38, 4u, "Map grid distance to move in X on every sample.");
+  DVARFLT_ATClient_PerfNavGridDeltaY = Dvar_RegisterFloat("MNNOPSLMTT", 1024.0, 0.0, 3.4028235e38, 4u, "Map grid distance to move in X on every sample.");
+  DVARFLT_ATClient_PerfNavRadiusMax = Dvar_RegisterFloat("OKLNTTNMMQ", 128.0, 0.0, 3.4028235e38, 4u, "Navmesh search radius for random point selection (larger means slower).");
   DVARINT_ATClient_PerfProbeInitialWaitSeconds = Dvar_RegisterInt("MMQMKNLPLL", 20, 0, 0x7FFFFFFF, 4u, "Initial wait w/o sampling at beginning of probe.");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v96 = Dvar_RegisterFloat("OMLTTMOPOO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Height increment applied on each teleportation.");
-  __asm { vmovss  xmm1, cs:__real@42c80000; value }
-  DVARFLT_ATClient_PerfSampleTeleportHeightAdjustment = v96;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_ATClient_PerfSampleTeleport2dDeviation = Dvar_RegisterFloat("MMTQLTKRQL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Permissible XY deviation on each teleportation.");
-  __asm { vmovss  xmm1, cs:__real@3dcccccd; value }
+  DVARFLT_ATClient_PerfSampleTeleportHeightAdjustment = Dvar_RegisterFloat("OMLTTMOPOO", 32.0, 0.0, 3.4028235e38, 4u, "Height increment applied on each teleportation.");
+  DVARFLT_ATClient_PerfSampleTeleport2dDeviation = Dvar_RegisterFloat("MMTQLTKRQL", 100.0, 0.0, 3.4028235e38, 4u, "Permissible XY deviation on each teleportation.");
   DVARINT_ATClient_PerfSampleTeleportWaitTimeMaxSeconds = Dvar_RegisterInt("SQKLQOSTR", 5, 1, 0x7FFFFFFF, 4u, "Maximum time to wait for teleport to succeed before retry.");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_ATClient_PerfSampleEpsAtRestSpeed = Dvar_RegisterFloat("MMMSNTMPST", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Velocity/speed threshold to determine client is at rest.");
+  DVARFLT_ATClient_PerfSampleEpsAtRestSpeed = Dvar_RegisterFloat("MMMSNTMPST", 0.1, 0.0, 3.4028235e38, 4u, "Velocity/speed threshold to determine client is at rest.");
   DVARINT_ATClient_PerfProbeSampleCountMax = Dvar_RegisterInt("NPMRMMPPKK", 0x7FFFFFFF, 0, 0x7FFFFFFF, 4u, "Clamp total number of (non-unique) positions/samples taken during probe/report");
   DVARINT_ATClient_PerfProbeSampleIndexStart = Dvar_RegisterInt("QLOLSQLSL", 0, 0, 0x7FFFFFFF, 4u, "For enumerated (e.g. QA) point sets, skip to this index for probe/report");
   DVARINT_ATClient_PerfProbeTimeMaxSeconds = Dvar_RegisterInt("MKQRSNLOMR", 43200, 0, 0x7FFFFFFF, 4u, "Total duration of probe/report if limited time window needed.");
@@ -644,255 +437,54 @@ void __fastcall ATClient_RegisterDvars(__int64 a1, double _XMM1_8, double _XMM2_
   DVARINT_ATClient_PerfSampleTimeMinSeconds = Dvar_RegisterInt("OLORLNSNSL", 1, 1, 0x7FFFFFFF, 4u, "Minimum time to wait at a given position before sampling - one second required.");
   DVARINT_ATClient_PerfSampleTimeNoChangeMaxSeconds = Dvar_RegisterInt("LSOKKSMPLM", 20, 1, 0x7FFFFFFF, 4u, "Maximum time to wait at a given position w/o change before ending sampling - one second required.");
   DVARINT_ATClient_MoveToTargetInputDurationMS = Dvar_RegisterInt("LTPQNLNTNT", 200, 0, 1000, 4u, "Input duration (in ms) when walking to a target position.");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovss  xmm1, cs:__real@461c4000; value
-  }
-  v106 = Dvar_RegisterFloat("LOQQLRKMMQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Squared distance to target under which we will scale down the input.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@40490fdb; max
-    vmovss  xmm1, cs:__real@3e800000; value
-  }
-  DVARFLT_ATClient_MoveToTargetInputScaleDistanceSq = v106;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_ATClient_MoveToTargetInputScaleAngle = Dvar_RegisterFloat("NQRRPTNTLK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Angle (in radians) to target under which we will scale down the input.");
-  __asm { vmovss  xmm1, cs:__real@47c35000; value }
+  DVARFLT_ATClient_MoveToTargetInputScaleDistanceSq = Dvar_RegisterFloat("LOQQLRKMMQ", 10000.0, 0.0, 3.4028235e38, 4u, "Squared distance to target under which we will scale down the input.");
+  DVARFLT_ATClient_MoveToTargetInputScaleAngle = Dvar_RegisterFloat("NQRRPTNTLK", 0.25, 0.0, 3.1415927, 4u, "Angle (in radians) to target under which we will scale down the input.");
   DVARBOOL_ATClient_MoveToTargetGenerateInput = Dvar_RegisterBool("LQPTTTNOTQ", 1, 4u, "Generate inputs to move to the target.");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_ATClient_MoveToTargetInputRunDistanceSq = Dvar_RegisterFloat("NOPRMQOPQN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Squared distance to target above which the client will run instead of walk.");
-  __asm { vmovss  xmm1, cs:__real@447a0000; value }
+  DVARFLT_ATClient_MoveToTargetInputRunDistanceSq = Dvar_RegisterFloat("NOPRMQOPQN", 100000.0, 0.0, 3.4028235e38, 4u, "Squared distance to target above which the client will run instead of walk.");
   DVARINT_ATClient_JumpWhenStuckForXMs = Dvar_RegisterInt("NOOLSLPLKR", 1000, 0, 0x7FFFFFFF, 4u, "The ATClient will try to jump/mantle if he's been stuck for X ms.");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_ATClient_MinDistSqToReachDestination = Dvar_RegisterFloat("LSRPPPLLSM", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "The destination is considered reached if within X squared distance.");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm11; value
-  }
-  DVARFLT_ATClient_NegligeableMovementSq = Dvar_RegisterFloat("NKQKMRSOOQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "The player is considered immobile if the squared distance travelled during his last move was less than X.");
-  __asm { vmovss  xmm1, cs:__real@47c35000; value }
+  DVARFLT_ATClient_MinDistSqToReachDestination = Dvar_RegisterFloat("LSRPPPLLSM", 1000.0, 0.0, 3.4028235e38, 4u, "The destination is considered reached if within X squared distance.");
+  DVARFLT_ATClient_NegligeableMovementSq = Dvar_RegisterFloat("NKQKMRSOOQ", 10.0, 0.0, 3.4028235e38, 4u, "The player is considered immobile if the squared distance travelled during his last move was less than X.");
   DVARINT_ATClient_CaptureObjectiveDurationMS = Dvar_RegisterInt("SKKOPLTRN", 20000, 0, 0x7FFFFFFF, 4u, "Max duration (in ms) when looking for an objective");
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_ATClient_CaptureObjectiveMaxDistanceSq = Dvar_RegisterFloat("MLMLRPPNMS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Once within this squared distance of the objective, the player will stop moving and defend the position.");
+  DVARFLT_ATClient_CaptureObjectiveMaxDistanceSq = Dvar_RegisterFloat("MLMLRPPNMS", 100000.0, 0.0, 3.4028235e38, 4u, "Once within this squared distance of the objective, the player will stop moving and defend the position.");
   DVARBOOL_ATClient_CaptureObjectiveUseADS = Dvar_RegisterBool("MMPTQKOPPM", 1, 4u, "ADS when defending position.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm13; value
-  }
-  DVARFLT_ATClient_ChanceCaptureRandomObjective = Dvar_RegisterFloat("PMMSPPOO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to select a random objective to capture.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm13; value
-  }
-  DVARFLT_ATClient_ChanceCaptureClosestObjective = Dvar_RegisterFloat("OKKNKQMNPK", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to select the closest objective to capture.");
-  __asm
-  {
-    vmovss  xmm1, cs:__real@461c4000; value
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
+  DVARFLT_ATClient_ChanceCaptureRandomObjective = Dvar_RegisterFloat("PMMSPPOO", 0.5, 0.0, 1.0, 4u, "Percent chance to select a random objective to capture.");
+  DVARFLT_ATClient_ChanceCaptureClosestObjective = Dvar_RegisterFloat("OKKNKQMNPK", 0.5, 0.0, 1.0, 4u, "Percent chance to select the closest objective to capture.");
   DVARINT_ATClient_DriveToTargetInputDurationMS = Dvar_RegisterInt("NLSLLLQPTS", 200, 0, 1000, 4u, "Input duration (in ms) when driving to a target position.");
-  DVARFLT_ATClient_DriveToTargetInputScaleDistanceSq = Dvar_RegisterFloat("LROQONTKPT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Squared distance to target under which we will scale down the input.");
+  DVARFLT_ATClient_DriveToTargetInputScaleDistanceSq = Dvar_RegisterFloat("LROQONTKPT", 10000.0, 0.0, 3.4028235e38, 4u, "Squared distance to target under which we will scale down the input.");
   DVARBOOL_ATClient_DriveToTargetGenerateInput = Dvar_RegisterBool("NTNMTLOKP", 1, 4u, "Generate inputs to drive to the target.");
   DVARBOOL_ATClient_AllowOffensiveBehavior = Dvar_RegisterBool("NMKQTSMQNO", 1, 4u, "Allow behaviors like shooting, throwing grenades...");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm14; value
-  }
-  DVARFLT_ATClient_ChanceShootAtEnemiesInLoS = Dvar_RegisterFloat("MMOKSLNSOP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to automatically shoot at enemies in line of sight.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm13; value
-  }
-  v137 = Dvar_RegisterFloat("MROQNSTNOS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to enter the heal state when wounded.");
-  __asm { vmovss  xmm1, cs:__real@3c23d70a; value }
-  DVARFLT_ATClient_ChanceHeal = v137;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_ATClient_ChanceRandomThrowGrenade = Dvar_RegisterFloat("PMRQMMNLP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to enter the throw grenade state.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_ATClient_ChanceRandomShoot = Dvar_RegisterFloat("MKRMMKRPNQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to randomly enter the shoot state without an enemy in target.");
-  __asm { vmovss  xmm1, cs:__real@3f7851ec; value }
+  DVARFLT_ATClient_ChanceShootAtEnemiesInLoS = Dvar_RegisterFloat("MMOKSLNSOP", 1.0, 0.0, 1.0, 4u, "Percent chance to automatically shoot at enemies in line of sight.");
+  DVARFLT_ATClient_ChanceHeal = Dvar_RegisterFloat("MROQNSTNOS", 0.5, 0.0, 1.0, 4u, "Percent chance to enter the heal state when wounded.");
+  DVARFLT_ATClient_ChanceRandomThrowGrenade = Dvar_RegisterFloat("PMRQMMNLP", 0.0099999998, 0.0, 1.0, 4u, "Percent chance to enter the throw grenade state.");
+  DVARFLT_ATClient_ChanceRandomShoot = Dvar_RegisterFloat("MKRMMKRPNQ", 0.0, 0.0, 1.0, 4u, "Percent chance to randomly enter the shoot state without an enemy in target.");
   DVARINT_ATClient_ShootDistanceSq = Dvar_RegisterInt("NLKKKOOO", 1000000, 0, 0x7FFFFFFF, 4u, "Max engagement distance squared.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v147 = Dvar_RegisterFloat("MRTRNONOML", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Shoot at enemy if aligned with direction.");
-  __asm { vmovss  xmm1, cs:__real@447a0000; value }
-  DVARFLT_ATClient_ShootDotProduct = v147;
-  __asm
-  {
-    vmovaps xmm3, xmm9; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v151 = Dvar_RegisterFloat("LOLKQNRKNP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Melee enemies within this distance squared.");
-  __asm { vmovss  xmm1, cs:__real@3dcccccd; value }
-  DVARFLT_ATClient_MeleeDistanceSq = v151;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_ATClient_ChanceAddCalloutMarker = Dvar_RegisterFloat("NKTSMKTQRP", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to randomly add a callout marker.");
+  DVARFLT_ATClient_ShootDotProduct = Dvar_RegisterFloat("MRTRNONOML", 0.97000003, 0.0, 1.0, 4u, "Shoot at enemy if aligned with direction.");
+  DVARFLT_ATClient_MeleeDistanceSq = Dvar_RegisterFloat("LOLKQNRKNP", 1000.0, 0.0, 3.4028235e38, 4u, "Melee enemies within this distance squared.");
+  DVARFLT_ATClient_ChanceAddCalloutMarker = Dvar_RegisterFloat("NKTSMKTQRP", 0.1, 0.0, 1.0, 4u, "Percent chance to randomly add a callout marker.");
   DVARINT_ATClient_CalloutMarkerCooldown = Dvar_RegisterInt("LKOMLKKRLN", 10000, 0, 0x7FFFFFFF, 4u, "Time in ms before another callout marker can be added by the player.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm13; value
-  }
-  v158 = Dvar_RegisterFloat("LSKPSNLRPS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to enter the aim at enemy state.");
-  __asm { vmovss  xmm1, cs:__real@3c23d70a; value }
-  DVARFLT_ATClient_ChanceAimAtEnemy = v158;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_ATClient_ChanceKillstreak = Dvar_RegisterFloat("MMNNLLORTQ", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to call in a random killstreak.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_ATClient_ChanceQuitGame = Dvar_RegisterFloat("MLKTOKKRLL", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to quit during a match.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_ATClient_ChanceHostQuitGame = Dvar_RegisterFloat("LTLKRNKNRT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to quit during a match if you're the host.");
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vxorps  xmm1, xmm1, xmm1; value
-  }
-  DVARFLT_ATClient_ChanceSendInvite = Dvar_RegisterFloat("NRTKRMRMML", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Percent chance to send an invite during a match. Use ATClient_FriendToInvite to specify invitee.");
+  DVARFLT_ATClient_ChanceAimAtEnemy = Dvar_RegisterFloat("LSKPSNLRPS", 0.5, 0.0, 1.0, 4u, "Percent chance to enter the aim at enemy state.");
+  DVARFLT_ATClient_ChanceKillstreak = Dvar_RegisterFloat("MMNNLLORTQ", 0.0099999998, 0.0, 1.0, 4u, "Percent chance to call in a random killstreak.");
+  DVARFLT_ATClient_ChanceQuitGame = Dvar_RegisterFloat("MLKTOKKRLL", 0.0, 0.0, 1.0, 4u, "Percent chance to quit during a match.");
+  DVARFLT_ATClient_ChanceHostQuitGame = Dvar_RegisterFloat("LTLKRNKNRT", 0.0, 0.0, 1.0, 4u, "Percent chance to quit during a match if you're the host.");
+  DVARFLT_ATClient_ChanceSendInvite = Dvar_RegisterFloat("NRTKRMRMML", 0.0, 0.0, 1.0, 4u, "Percent chance to send an invite during a match. Use ATClient_FriendToInvite to specify invitee.");
   DVARSTR_ATClient_FriendToInvite = Dvar_RegisterString("NPRLMQRMQM", (const char *)&queryFormat.fmt + 3, 4u, "When ATClient_ChanceSendInvite is non-zero, specify a partial/complete name of player to invite to the match. Empty string will choose a random victim.");
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm14; value
-  }
-  v174 = Dvar_RegisterFloat("NSKKOPRRT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Minimum time to spend doing this random walk movement.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41f00000; max
-    vmovss  xmm1, cs:__real@40800000; value
-  }
-  DVARFLT_ATClient_RandomWalkTimeMinimum = v174;
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  DVARFLT_ATClient_RandomWalkTimeDurationRange = Dvar_RegisterFloat("LKMPSTMQMS", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Maximum limit for range to be added to minimum time (min + (rand*range)).");
-  __asm
-  {
-    vmovaps xmm3, xmm11; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm14; value
-  }
-  v181 = Dvar_RegisterFloat("NNSQSNQPMT", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Minimum time to spend aiming at an enemy.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@41f00000; max
-    vxorps  xmm2, xmm2, xmm2; min
-    vmovaps xmm1, xmm11; value
-  }
-  DVARFLT_ATClient_AimAtTimeMinimum = v181;
-  DVARFLT_ATClient_AimAtTimeDurationRange = Dvar_RegisterFloat("LQQTPRKKPO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Maximum limit for range to be added to minimum time (min + (rand*range)).");
+  DVARFLT_ATClient_RandomWalkTimeMinimum = Dvar_RegisterFloat("NSKKOPRRT", 1.0, 0.0, 10.0, 4u, "Minimum time to spend doing this random walk movement.");
+  DVARFLT_ATClient_RandomWalkTimeDurationRange = Dvar_RegisterFloat("LKMPSTMQMS", 4.0, 0.0, 30.0, 4u, "Maximum limit for range to be added to minimum time (min + (rand*range)).");
+  DVARFLT_ATClient_AimAtTimeMinimum = Dvar_RegisterFloat("NNSQSNQPMT", 1.0, 0.0, 10.0, 4u, "Minimum time to spend aiming at an enemy.");
+  DVARFLT_ATClient_AimAtTimeDurationRange = Dvar_RegisterFloat("LQQTPRKKPO", 10.0, 0.0, 30.0, 4u, "Maximum limit for range to be added to minimum time (min + (rand*range)).");
   DVARINT_ATClient_ClassSelect = Dvar_RegisterInt("LSRTSKQQPM", -1, -1, 14, 4u, "The loadout class index to be selected. Random selection if set to -1.");
   DVARINT_ATClient_LoadoutCount = Dvar_RegisterInt("MKOLQNNTSP", 5, 0, 14, 4u, "The number of loadouts to select from.");
   DVARINT_ATClient_TeamSelect = Dvar_RegisterInt("MRNRMNNPKN", 2, 0, 4, 4u, "The team index to be selected. 0 = Axis / 1 = Allies / 2 = Auto / 3 = Spectate / 4 = Caster.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42c80000; max
-    vmovss  xmm1, cs:__real@41a00000; value
-  }
   DVARINT_ATClient_BRInfil = Dvar_RegisterInt("LTTMOOMSLO", 3, 0, 3, 4u, "Infil team to choose on headless client");
-  __asm { vxorps  xmm2, xmm2, xmm2; min }
-  v188 = Dvar_RegisterFloat("MLMOTTMPKN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Minimum time to wait before deploying");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@43160000; max
-    vmovss  xmm2, cs:__real@41a00000; min
-    vmovss  xmm1, cs:__real@42700000; value
-  }
-  DVARFLT_ATClient_BRInfilWaitMin = v188;
-  v192 = Dvar_RegisterFloat("LNNSNTPPTN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Maximum time to wait before deploying.");
-  __asm { vmovss  xmm1, cs:__real@3e4ccccd; value }
-  DVARFLT_ATClient_BRInfilWaitMax = v192;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  v196 = Dvar_RegisterFloat("MNQQNLMMMN", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Minimum percentage of infil length before deploying.");
-  __asm { vmovss  xmm1, cs:__real@3f4ccccd; value }
-  DVARFLT_ATClient_BRInfilPctMin = v196;
-  __asm
-  {
-    vmovaps xmm3, xmm14; max
-    vxorps  xmm2, xmm2, xmm2; min
-  }
-  DVARFLT_ATClient_BRInfilPctMax = Dvar_RegisterFloat("MKQPTKTSPR", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Maximum percentage of infil length before deploying.");
+  DVARFLT_ATClient_BRInfilWaitMin = Dvar_RegisterFloat("MLMOTTMPKN", 20.0, 0.0, 100.0, 4u, "Minimum time to wait before deploying");
+  DVARFLT_ATClient_BRInfilWaitMax = Dvar_RegisterFloat("LNNSNTPPTN", 60.0, 20.0, 150.0, 4u, "Maximum time to wait before deploying.");
+  DVARFLT_ATClient_BRInfilPctMin = Dvar_RegisterFloat("MNQQNLMMMN", 0.2, 0.0, 1.0, 4u, "Minimum percentage of infil length before deploying.");
+  DVARFLT_ATClient_BRInfilPctMax = Dvar_RegisterFloat("MKQPTKTSPR", 0.80000001, 0.0, 1.0, 4u, "Maximum percentage of infil length before deploying.");
   DVARBOOL_ATClient_DebugPrint = Dvar_RegisterBool("MQSNTRKKSM", 0, 0, "Enable debug output from the automated client.");
-  __asm
-  {
-    vmovss  xmm3, cs:__real@42700000; max
-    vmovss  xmm2, cs:__real@3dcccccd; min
-  }
   DVARBOOL_ATClient_DebugPrintTransitions = Dvar_RegisterBool("NLMOQQQRKM", 0, 0, "Print states everytime a transition happen.");
-  __asm { vmovaps xmm1, xmm14; value }
-  DVARFLT_ATClient_DebugStateSendRate = Dvar_RegisterFloat("MMLOTOLRRO", *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, 4u, "Time in seconds between automatic state updates to send");
+  DVARFLT_ATClient_DebugStateSendRate = Dvar_RegisterFloat("MMLOTOLRRO", 1.0, 0.1, 60.0, 4u, "Time in seconds between automatic state updates to send");
   DVARINT_ATClient_PlaylistId = Dvar_RegisterInt("MSNSLQQKTR", 0, 0, 0x7FFFFFFF, 0, "The playlist id from the playlist file, instead of having to know the mapping");
   DVARINT_ATClient_OnlineFenceDelay = Dvar_RegisterInt("NTOMMMLQQN", 0, 0, 0x7FFFFFFF, 0, "Artificial delay before online fence is passed, used when launching many instances on the same machine (see launch_headless.py)");
-  _R11 = &v211;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
-    vmovaps xmm13, xmmword ptr [r11-60h]
-    vmovaps xmm14, xmmword ptr [r11-70h]
-  }
 }
 
 /*
@@ -902,20 +494,15 @@ ATClient_ResetAutoSendTime
 */
 void ATClient_ResetAutoSendTime(LocalClientNum_t localClientNum)
 {
+  const dvar_t *v1; 
   __int64 v2; 
 
-  _RBX = DVARFLT_ATClient_DebugStateSendRate;
+  v1 = DVARFLT_ATClient_DebugStateSendRate;
   v2 = localClientNum;
   if ( !DVARFLT_ATClient_DebugStateSendRate && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ATClient_DebugStateSendRate") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmulss  xmm1, xmm0, cs:__real@447a0000
-    vcvttss2si ecx, xmm1
-  }
-  s_debugSendTimeRemaining[v2] = _ECX;
+  Dvar_CheckFrontendServerThread(v1);
+  s_debugSendTimeRemaining[v2] = (int)(float)(v1->current.value * 1000.0);
 }
 
 /*

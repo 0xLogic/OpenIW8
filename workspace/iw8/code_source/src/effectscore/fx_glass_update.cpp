@@ -89,352 +89,227 @@ Glass_UpdateFall
 void Glass_UpdateFall(FxGlassSystem *glassSys, unsigned int pieceIndex)
 {
   int time; 
-  int v17; 
+  FxGlassPieceDynamics *pieceDynamics; 
+  int v5; 
   int prevTime; 
   FxGlassPieceState *pieceStates; 
-  __int64 v21; 
-  unsigned __int64 v23; 
+  __int64 v8; 
+  unsigned __int64 v9; 
+  FxGlassPiecePlace *v10; 
+  __int64 v11; 
   int fallTime; 
-  int v41; 
+  float v13; 
+  float v14; 
+  float v15; 
+  int v16; 
   int LastPassedTraceTime; 
-  int v43; 
-  int v75; 
-  bool v145; 
-  bool v146; 
-  __int64 v147; 
-  FxGlassPieceState *v148; 
+  int v18; 
+  int v19; 
+  int v20; 
+  float v21; 
+  int v22; 
+  float v23; 
+  float v24; 
+  float v25; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  float fraction; 
+  int v31; 
+  float v32; 
+  __int128 v33; 
+  float v34; 
+  __int128 v35; 
+  int v39; 
+  int v40; 
+  int v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  __int64 v47; 
+  FxGlassPieceState *v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v54; 
   __int64 contentMask; 
   __int64 locational; 
   unsigned int traceTimeOffset; 
+  int traceTimeOffseta; 
   unsigned int pieceIndexa; 
   float s[2]; 
-  __int64 v181; 
-  FxGlassDef *v182; 
+  __int64 v61; 
+  FxGlassDef *v62; 
+  int v63; 
+  int v64; 
+  int v65; 
   float c; 
   vec3_t start; 
   vec3_t normal; 
   vec3_t end; 
   vec3_t origin; 
   trace_t results; 
-  char v197; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-  }
   time = glassSys->time;
-  _RBX = glassSys;
-  _R15 = glassSys->pieceDynamics;
-  v17 = glassSys->time;
+  pieceDynamics = glassSys->pieceDynamics;
+  v5 = glassSys->time;
   prevTime = glassSys->prevTime;
   pieceStates = glassSys->pieceStates;
-  __asm { vmovss  xmm13, cs:__real@3a83126f }
-  v21 = pieceIndex;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  v23 = pieceIndex;
-  _RDI = &glassSys->piecePlaces[v23];
-  v181 = v23 * 32;
-  _R14 = v21;
-  pieceIndexa = v21;
-  fallTime = _R15[v21].fallTime;
-  v182 = &fxWorld.glassGlob.defs[pieceStates[v23].defIndex];
-  __asm
-  {
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm12, xmm0, xmm13
-    vmulss  xmm0, xmm12, dword ptr [r15+r14*8+0Ch]
-    vaddss  xmm14, xmm0, dword ptr [rdi+10h]
-    vmulss  xmm1, xmm12, dword ptr [r15+r14*8+10h]
-    vaddss  xmm15, xmm1, dword ptr [rdi+14h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm13
-    vmovss  xmm0, dword ptr [r15+r14*8+14h]
-    vmulss  xmm2, xmm1, dword ptr [rax+28h]
-    vsubss  xmm1, xmm0, xmm2
-    vmulss  xmm2, xmm1, xmm12
-    vaddss  xmm0, xmm2, dword ptr [rdi+18h]
-    vmovss  [rsp+210h+s], xmm0
-  }
-  traceTimeOffset = (unsigned int)(17 * v21) % glass_trace_interval->current.integer;
+  v8 = pieceIndex;
+  v9 = pieceIndex;
+  v10 = &glassSys->piecePlaces[v9];
+  v61 = v9 * 32;
+  v11 = v8;
+  pieceIndexa = v8;
+  fallTime = pieceDynamics[v8].fallTime;
+  v62 = &fxWorld.glassGlob.defs[pieceStates[v9].defIndex];
+  v13 = (float)(time - prevTime) * 0.001;
+  v14 = (float)(v13 * pieceDynamics[v8].vel.v[0]) + v10->frame.origin.v[0];
+  v15 = (float)(v13 * pieceDynamics[v8].vel.v[1]) + v10->frame.origin.v[1];
+  s[0] = (float)((float)(pieceDynamics[v8].vel.v[2] - (float)((float)((float)((prevTime + time) / 2 - fallTime) * 0.001) * glass_fall_gravity->current.value)) * v13) + v10->frame.origin.v[2];
+  traceTimeOffset = (unsigned int)(17 * v8) % glass_trace_interval->current.integer;
   if ( time < fallTime && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_update.cpp", 90, ASSERT_TYPE_ASSERT, "( glassSys->time ) >= ( pieceDynamics->fallTime )", "%s >= %s\n\t%i, %i", "glassSys->time", "pieceDynamics->fallTime", time, fallTime) )
   {
     __debugbreak();
-    v17 = _RBX->time;
+    v5 = glassSys->time;
   }
-  v41 = _R15[_R14].fallTime;
-  __asm
+  v16 = pieceDynamics[v11].fallTime;
+  if ( prevTime >= v16 )
+    v16 = prevTime;
+  LastPassedTraceTime = Glass_Fall_GetLastPassedTraceTime(v16, traceTimeOffset);
+  traceTimeOffseta = Glass_Fall_GetLastPassedTraceTime(v5, traceTimeOffset);
+  v18 = traceTimeOffseta;
+  if ( traceTimeOffseta <= LastPassedTraceTime )
+    goto LABEL_17;
+  v19 = pieceDynamics[v11].fallTime;
+  if ( LastPassedTraceTime > v19 )
+    v20 = LastPassedTraceTime + glass_trace_interval->current.integer / 2;
+  else
+    v20 = pieceDynamics[v11].fallTime;
+  if ( traceTimeOffseta < v19 )
   {
-    vmovaps xmmword ptr [rsp+210h+var_48+8], xmm6
-    vmovaps [rsp+210h+var_58+8], xmm7
-    vmovaps [rsp+210h+var_68+8], xmm8
-  }
-  if ( prevTime >= v41 )
-    v41 = prevTime;
-  __asm
-  {
-    vmovaps [rsp+210h+var_78+8], xmm9
-    vmovaps [rsp+210h+var_88+8], xmm10
-  }
-  LastPassedTraceTime = Glass_Fall_GetLastPassedTraceTime(v41, traceTimeOffset);
-  v43 = Glass_Fall_GetLastPassedTraceTime(v17, traceTimeOffset);
-  __asm { vmovss  xmm11, cs:__real@3f800000 }
-  if ( v43 <= LastPassedTraceTime )
-    goto LABEL_13;
-  if ( v43 < _R15[_R14].fallTime )
-  {
-    LODWORD(locational) = _R15[_R14].fallTime;
-    LODWORD(contentMask) = v43;
+    LODWORD(locational) = pieceDynamics[v11].fallTime;
+    LODWORD(contentMask) = traceTimeOffseta;
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\effectscore\\fx_glass_update.cpp", 110, ASSERT_TYPE_ASSERT, "( nextTraceTime ) >= ( pieceDynamics->fallTime )", "%s >= %s\n\t%i, %i", "nextTraceTime", "pieceDynamics->fallTime", contentMask, locational) )
+    {
       __debugbreak();
+      prevTime = glassSys->prevTime;
+    }
+    v18 = traceTimeOffseta;
   }
-  __asm
-  {
-    vmovss  xmm10, dword ptr [r15+r14*8+14h]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm4, xmm0, xmm13
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm13
-    vmulss  xmm2, xmm1, dword ptr [r8+28h]
-    vmulss  xmm0, xmm4, dword ptr [r15+r14*8+0Ch]
-    vaddss  xmm1, xmm0, dword ptr [rdi+10h]
-    vmulss  xmm0, xmm4, dword ptr [r15+r14*8+10h]
-    vmovss  dword ptr [rbp+110h+start], xmm1
-    vaddss  xmm1, xmm0, dword ptr [rdi+14h]
-    vsubss  xmm3, xmm10, xmm2
-    vmovss  dword ptr [rbp+110h+start+4], xmm1
-    vmulss  xmm0, xmm3, xmm4
-    vaddss  xmm1, xmm0, dword ptr [rdi+18h]
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rbp+110h+start+8], xmm1
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm4, xmm0, xmm13
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, xmm13
-    vmulss  xmm2, xmm1, dword ptr [r8+28h]
-    vmulss  xmm0, xmm4, dword ptr [r15+r14*8+0Ch]
-    vaddss  xmm1, xmm0, dword ptr [rdi+10h]
-    vsubss  xmm3, xmm10, xmm2
-    vmulss  xmm2, xmm4, dword ptr [r15+r14*8+10h]
-    vaddss  xmm0, xmm2, dword ptr [rdi+14h]
-    vmovss  dword ptr [rbp+110h+end], xmm1
-    vmulss  xmm1, xmm3, xmm4
-    vaddss  xmm2, xmm1, dword ptr [rdi+18h]
-    vmovss  dword ptr [rbp+110h+end+8], xmm2
-    vmovss  dword ptr [rbp+110h+end+4], xmm0
-  }
+  v21 = pieceDynamics[v11].vel.v[2];
+  v22 = glass_trace_interval->current.integer / 2 + v18;
+  v23 = (float)(v20 - prevTime) * 0.001;
+  v24 = (float)((float)((prevTime + v20) / 2 - pieceDynamics[v11].fallTime) * 0.001) * glass_fall_gravity->current.value;
+  v25 = v23 * pieceDynamics[v11].vel.v[1];
+  start.v[0] = (float)(v23 * pieceDynamics[v11].vel.v[0]) + v10->frame.origin.v[0];
+  start.v[1] = v25 + v10->frame.origin.v[1];
+  start.v[2] = (float)((float)(v21 - v24) * v23) + v10->frame.origin.v[2];
+  v26 = (float)(v22 - prevTime) * 0.001;
+  v27 = (float)(v26 * pieceDynamics[v11].vel.v[0]) + v10->frame.origin.v[0];
+  v28 = v21 - (float)((float)((float)((prevTime + v22) / 2 - pieceDynamics[v11].fallTime) * 0.001) * glass_fall_gravity->current.value);
+  v29 = (float)(v26 * pieceDynamics[v11].vel.v[1]) + v10->frame.origin.v[1];
+  end.v[0] = v27;
+  end.v[2] = (float)(v28 * (float)((float)(v22 - prevTime) * 0.001)) + v10->frame.origin.v[2];
+  end.v[1] = v29;
   PhysicsQuery_LegacyTrace(PHYSICS_WORLD_ID_CLIENT0_AUTHORITATIVE, &results, &start, &end, &bounds_origin, 2047, 0, 41968017, 0, NULL, All);
-  __asm
-  {
-    vmovss  xmm6, [rbp+110h+results.fraction]
-    vcomiss xmm6, xmm11
-  }
-  if ( !v145 )
-    goto LABEL_13;
-  v75 = _RBX->time - _R15[_R14].fallTime;
+  fraction = results.fraction;
+  if ( results.fraction >= 1.0 )
+    goto LABEL_17;
+  v31 = glassSys->time - pieceDynamics[v11].fallTime;
   if ( !results.allsolid )
   {
-    v145 = (unsigned int)v75 < 0xC8;
-    v146 = (unsigned int)v75 <= 0xC8;
-    if ( v75 > 200 )
+    if ( v31 > 200 )
     {
-      v147 = v181;
-      v148 = _RBX->pieceStates;
-      goto LABEL_23;
+      v47 = v61;
+      v48 = glassSys->pieceStates;
+      goto LABEL_27;
     }
-LABEL_20:
-    v147 = v181;
-    v148 = _RBX->pieceStates;
-    v145 = 0;
-    v146 = (*((_BYTE *)&v148->flags + v181) & 0x10) == 0;
-    if ( (*((_BYTE *)&v148->flags + v181) & 0x10) == 0 )
+LABEL_24:
+    v47 = v61;
+    v48 = glassSys->pieceStates;
+    if ( (*((_BYTE *)&v48->flags + v61) & 0x10) == 0 )
     {
-LABEL_29:
-      Glass_FreePiece(_RBX, pieceIndexa);
-      goto LABEL_18;
+LABEL_33:
+      Glass_FreePiece(glassSys, pieceIndexa);
+      return;
     }
-LABEL_23:
-    _RAX = glass_fx_chance;
-    __asm
+LABEL_27:
+    v49 = glass_fx_chance->current.value + glassSys->effectChanceAccum;
+    glassSys->effectChanceAccum = v49;
+    if ( v49 >= 1.0 || (*((_BYTE *)&v48->flags + v47) & 0x10) != 0 )
     {
-      vmovss  xmm0, dword ptr [rax+28h]
-      vaddss  xmm2, xmm0, dword ptr [rbx+7Ch]
-      vcomiss xmm2, xmm11
-      vmovss  dword ptr [rbx+7Ch], xmm2
-    }
-    if ( !v145 || (v146 = (*((_BYTE *)&v148->flags + v147) & 0x10) == 0, (*((_BYTE *)&v148->flags + v147) & 0x10) != 0) )
-    {
-      __asm
+      v50 = results.normal.v[0];
+      v51 = results.normal.v[1];
+      _XMM1 = 0i64;
+      __asm { vroundss xmm1, xmm1, xmm2, 1 }
+      v54 = v49 - *(float *)&_XMM1;
+      *(float *)&_XMM1 = end.v[0];
+      glassSys->effectChanceAccum = v54;
+      origin.v[0] = (float)((float)(*(float *)&_XMM1 - start.v[0]) * fraction) + start.v[0];
+      origin.v[1] = (float)((float)(end.v[1] - start.v[1]) * fraction) + start.v[1];
+      origin.v[2] = (float)((float)(end.v[2] - start.v[2]) * fraction) + start.v[2];
+      if ( (float)((float)((float)(v50 * v50) + (float)(v51 * v51)) + (float)(results.normal.v[2] * results.normal.v[2])) <= 0.0 )
       {
-        vmovss  xmm4, dword ptr [rbp+110h+results.normal]
-        vmovss  xmm5, dword ptr [rbp+110h+results.normal+4]
-        vxorps  xmm1, xmm1, xmm1
-        vroundss xmm1, xmm1, xmm2, 1
-        vsubss  xmm0, xmm2, xmm1
-        vmovss  xmm1, dword ptr [rbp+110h+end]
-        vmovss  dword ptr [rbx+7Ch], xmm0
-        vsubss  xmm0, xmm1, dword ptr [rbp+110h+start]
-        vmulss  xmm2, xmm0, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rbp+110h+start]
-        vmovss  xmm0, dword ptr [rbp+110h+end+4]
-        vsubss  xmm1, xmm0, dword ptr [rbp+110h+start+4]
-        vmovss  xmm0, dword ptr [rbp+110h+end+8]
-        vmulss  xmm2, xmm1, xmm6
-        vsubss  xmm1, xmm0, dword ptr [rbp+110h+start+8]
-        vmovss  dword ptr [rbp+110h+origin], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rbp+110h+start+4]
-        vmulss  xmm2, xmm1, xmm6
-        vmovss  xmm6, dword ptr [rbp+110h+results.normal+8]
-        vmovss  dword ptr [rbp+110h+origin+4], xmm3
-        vaddss  xmm3, xmm2, dword ptr [rbp+110h+start+8]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vmovss  dword ptr [rbp+110h+origin+8], xmm3
-        vaddss  xmm0, xmm2, xmm1
-        vxorps  xmm3, xmm3, xmm3
-        vcomiss xmm0, xmm3
-      }
-      if ( v146 )
-      {
-        __asm
-        {
-          vmovss  dword ptr [rbp+110h+normal], xmm3
-          vmovss  dword ptr [rbp+110h+normal+4], xmm3
-          vmovss  dword ptr [rbp+110h+normal+8], xmm11
-        }
+        normal.v[0] = 0.0;
+        normal.v[1] = 0.0;
+        normal.v[2] = FLOAT_1_0;
       }
       else
       {
-        __asm
-        {
-          vmovss  dword ptr [rbp+110h+normal], xmm4
-          vmovss  dword ptr [rbp+110h+normal+4], xmm5
-          vmovss  dword ptr [rbp+110h+normal+8], xmm6
-        }
+        normal.v[0] = v50;
+        normal.v[1] = v51;
+        normal.v[2] = results.normal.v[2];
       }
-      Glass_PlayEffect(&v182->pieceBreakEffect, &origin, &normal);
+      Glass_PlayEffect(&v62->pieceBreakEffect, &origin, &normal);
     }
-    goto LABEL_29;
+    goto LABEL_33;
   }
-  if ( v75 > 200 )
-    goto LABEL_20;
-LABEL_13:
+  if ( v31 > 200 )
+    goto LABEL_24;
+LABEL_17:
+  v10->frame.origin.v[2] = s[0];
+  v10->frame.origin.v[0] = v14;
+  v10->frame.origin.v[1] = v15;
+  v32 = pieceDynamics[v11].avel.v[1];
+  v33 = LODWORD(pieceDynamics[v11].avel.v[0]);
+  v34 = pieceDynamics[v11].avel.v[2];
+  v35 = v33;
+  *(float *)&v35 = fsqrt((float)((float)(*(float *)&v33 * *(float *)&v33) + (float)(v32 * v32)) + (float)(v34 * v34));
+  _XMM3 = v35;
   __asm
   {
-    vmovss  xmm0, [rsp+210h+s]
-    vmovss  dword ptr [rdi+18h], xmm0
-    vmovss  dword ptr [rdi+10h], xmm14
-    vmovss  dword ptr [rdi+14h], xmm15
-    vmovss  xmm8, dword ptr [r15+r14*8+1Ch]
-    vmovss  xmm7, dword ptr [r15+r14*8+18h]
-    vmovss  xmm9, dword ptr [r15+r14*8+20h]
-    vmulss  xmm0, xmm8, xmm8
-    vmulss  xmm1, xmm7, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm9, xmm9
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm11, xmm0
-    vdivss  xmm6, xmm11, xmm0
-    vmulss  xmm0, xmm3, xmm12
-    vmulss  xmm0, xmm0, cs:__real@3f000000; radians
   }
-  FastSinCos(*(const float *)&_XMM0, &s[1], &c);
-  __asm
-  {
-    vmovss  xmm2, [rsp+210h+s+4]
-    vmulss  xmm0, xmm7, xmm6
-    vmulss  xmm13, xmm0, xmm2
-    vmulss  xmm0, xmm8, xmm6
-    vmulss  xmm1, xmm9, xmm6
-    vmulss  xmm14, xmm0, xmm2
-    vmulss  xmm15, xmm1, xmm2
-    vmovss  [rbp+110h+var_18C], xmm14
-    vmovss  [rbp+110h+var_190], xmm13
-    vmovss  [rbp+110h+var_188], xmm15
-  }
-  if ( _RDI == (FxGlassPiecePlace *)&end )
+  FastSinCos((float)(*(float *)&v35 * v13) * 0.5, &s[1], &c);
+  *(float *)&v39 = (float)(*(float *)&v33 * (float)(1.0 / *(float *)&_XMM0)) * s[1];
+  *(float *)&v40 = (float)(v32 * (float)(1.0 / *(float *)&_XMM0)) * s[1];
+  *(float *)&v41 = (float)(v34 * (float)(1.0 / *(float *)&_XMM0)) * s[1];
+  v64 = v40;
+  v63 = v39;
+  v65 = v41;
+  if ( v10 == (FxGlassPiecePlace *)&end )
   {
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_math.h", 722, ASSERT_TYPE_SANITY, "( &in1 != &out )", (const char *)&queryFormat, "&in1 != &out") )
       __debugbreak();
-    __asm
-    {
-      vmovss  xmm13, [rbp+110h+var_190]
-      vmovss  xmm14, [rbp+110h+var_18C]
-      vmovss  xmm15, [rbp+110h+var_188]
-    }
+    v39 = v63;
+    v40 = v64;
+    v41 = v65;
   }
-  __asm
-  {
-    vmovss  xmm11, dword ptr [rdi]
-    vmovss  xmm10, dword ptr [rdi+0Ch]
-    vmovss  xmm7, [rbp+110h+c]
-    vmovss  xmm12, dword ptr [rdi+8]
-    vmovss  xmm9, dword ptr [rdi+4]
-    vmulss  xmm1, xmm10, xmm13
-    vmulss  xmm0, xmm11, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm12, xmm14
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm9, xmm15
-    vsubss  xmm8, xmm3, xmm0
-    vmovss  dword ptr [rdi], xmm8
-    vmulss  xmm2, xmm9, xmm7
-    vmulss  xmm1, xmm12, xmm13
-    vsubss  xmm3, xmm2, xmm1
-    vmulss  xmm0, xmm10, xmm14
-    vaddss  xmm4, xmm3, xmm0
-    vmulss  xmm1, xmm11, xmm15
-    vaddss  xmm6, xmm4, xmm1
-    vmulss  xmm0, xmm12, xmm7
-    vmulss  xmm2, xmm9, xmm13
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm1, xmm11, xmm14
-    vsubss  xmm4, xmm3, xmm1
-    vmulss  xmm0, xmm10, xmm15
-    vaddss  xmm5, xmm4, xmm0
-    vmulss  xmm1, xmm11, xmm13
-    vmulss  xmm2, xmm10, xmm7
-    vsubss  xmm3, xmm2, xmm1
-    vmovss  dword ptr [rdi+4], xmm6
-    vmulss  xmm0, xmm9, xmm14
-    vsubss  xmm4, xmm3, xmm0
-    vmulss  xmm1, xmm12, xmm15
-    vsubss  xmm2, xmm4, xmm1
-    vmovss  dword ptr [rdi+8], xmm5
-    vmovss  dword ptr [rdi+0Ch], xmm2
-  }
-  Glass_LinkPiece_Dynamic(_RBX, pieceIndexa);
-LABEL_18:
-  __asm
-  {
-    vmovaps xmm10, [rsp+210h+var_88+8]
-    vmovaps xmm9, [rsp+210h+var_78+8]
-    vmovaps xmm8, [rsp+210h+var_68+8]
-    vmovaps xmm7, [rsp+210h+var_58+8]
-    vmovaps xmm6, xmmword ptr [rsp+210h+var_48+8]
-  }
-  _R11 = &v197;
-  __asm
-  {
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
+  v42 = v10->frame.quat.v[0];
+  v43 = v10->frame.quat.v[3];
+  v44 = c;
+  v45 = v10->frame.quat.v[2];
+  v46 = v10->frame.quat.v[1];
+  v10->frame.quat.v[0] = (float)((float)((float)(v43 * *(float *)&v39) + (float)(v10->frame.quat.v[0] * c)) + (float)(v45 * *(float *)&v40)) - (float)(v46 * *(float *)&v41);
+  v10->frame.quat.v[1] = (float)((float)((float)(v46 * v44) - (float)(v45 * *(float *)&v39)) + (float)(v43 * *(float *)&v40)) + (float)(v42 * *(float *)&v41);
+  v10->frame.quat.v[2] = (float)((float)((float)(v46 * *(float *)&v39) + (float)(v45 * v44)) - (float)(v42 * *(float *)&v40)) + (float)(v43 * *(float *)&v41);
+  v10->frame.quat.v[3] = (float)((float)((float)(v43 * v44) - (float)(v42 * *(float *)&v39)) - (float)(v46 * *(float *)&v40)) - (float)(v45 * *(float *)&v41);
+  Glass_LinkPiece_Dynamic(glassSys, pieceIndexa);
 }
 
 /*

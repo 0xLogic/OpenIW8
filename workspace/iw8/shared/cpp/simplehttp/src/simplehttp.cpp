@@ -478,6 +478,7 @@ simplehttp_open_connection
 */
 __int64 simplehttp_open_connection(SimpleHttpConnection *connection, const char *host, int port)
 {
+  __m256i v4; 
   unsigned int Error; 
   __int64 result; 
   __int64 ai_family; 
@@ -499,7 +500,7 @@ __int64 simplehttp_open_connection(SimpleHttpConnection *connection, const char 
   *(_QWORD *)connection->impl = socket(2, 1, 6);
   pHints.ai_family = 2;
   pHints.ai_socktype = 1;
-  __asm { vmovdqu ymmword ptr [rsp+78h+pHints.ai_addrlen], ymm0 }
+  *(__m256i *)&pHints.ai_addrlen = v4;
   pHints.ai_protocol = 6;
   if ( getaddrinfo(host, NULL, &pHints, &ppResult) )
   {

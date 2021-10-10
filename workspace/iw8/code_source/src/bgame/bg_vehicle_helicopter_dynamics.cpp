@@ -852,154 +852,61 @@ HelicopterRotorBlade::ApplyDeflectionForce
 ==============
 */
 
-float __fastcall HelicopterRotorBlade::ApplyDeflectionForce(HelicopterRotorBlade *this, double force, double centrifugalForce, double maxDeflection, float dT)
+float __fastcall HelicopterRotorBlade::ApplyDeflectionForce(HelicopterRotorBlade *this, double force, float centrifugalForce, double maxDeflection, float dT)
 {
-  char v34; 
-  char v93; 
-  void *retaddr; 
+  bool v7; 
+  float v9; 
+  float v11; 
+  double v12; 
+  float v13; 
+  double v14; 
+  float v15; 
+  double v16; 
+  float v17; 
+  float v18; 
+  double v19; 
+  double v20; 
+  float v21; 
+  float v22; 
+  double v23; 
+  float v24; 
+  double v25; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovss  dword ptr [rax+18h], xmm2
-    vcmpltss xmm4, xmm3, cs:__real@3a83126f
-    vmovss  xmm0, cs:__real@3c23d70a
-    vcomiss xmm3, cs:__real@3a83126f
-    vmovaps xmmword ptr [rax-18h], xmm6
-  }
-  _RBX = this;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm11
-    vmovaps xmmword ptr [rax-68h], xmm12
-    vblendvps xmm6, xmm3, xmm0, xmm4
-    vmulss  xmm9, xmm6, cs:__real@40000000
-    vmovss  xmm0, dword ptr [rcx+1Ch]; val
-    vmovaps xmmword ptr [rax-78h], xmm13
-    vmovaps xmm13, xmm1
-    vmovaps [rsp+0B8h+var_88], xmm14
-    vmovaps [rsp+0B8h+var_98], xmm15
-    vxorps  xmm15, xmm9, cs:__xmm@80000000800000008000000080000000
-    vmovaps xmm1, xmm15; min
-    vmovaps xmm2, xmm9; max
-    vmovss  [rsp+0B8h+arg_8], xmm6
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm12, [rsp+0B8h+arg_20]
-    vmulss  xmm1, xmm12, dword ptr [rbx+20h]
-    vmovss  xmm8, cs:__real@3f800000
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rbx+1Ch], xmm0
-    vaddss  xmm0, xmm6, xmm0
-    vmovss  [rsp+0B8h+arg_20], xmm1
-    vmovss  xmm1, cs:?HFD_BLADE_MIN_FORCE_FACTOR@@3MA; min
-    vdivss  xmm0, xmm0, xmm9; val
-    vmovaps xmm2, xmm8; max
-    vxorps  xmm14, xmm14, xmm14
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vcomiss xmm13, xmm14 }
-  if ( v34 )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm8, xmm0
-      vxorps  xmm11, xmm0, cs:__xmm@80000000800000008000000080000000
-    }
-  }
+  __asm { vcmpltss xmm4, xmm3, cs:__real@3a83126f }
+  v7 = *(float *)&maxDeflection < 0.001;
+  __asm { vblendvps xmm6, xmm3, xmm0, xmm4 }
+  v9 = *(float *)&_XMM6 * 2.0;
+  _XMM13 = *(_OWORD *)&force;
+  LODWORD(v11) = COERCE_UNSIGNED_INT(*(float *)&_XMM6 * 2.0) ^ _xmm;
+  v12 = I_fclamp(this->m_BladeDeflection, COERCE_FLOAT(LODWORD(v9) ^ _xmm), v9);
+  v13 = (float)(dT * this->m_BladeDeflectionVelocity) + *(float *)&v12;
+  this->m_BladeDeflection = *(float *)&v12;
+  v14 = I_fclamp((float)(*(float *)&_XMM6 + *(float *)&v12) / (float)(*(float *)&_XMM6 * 2.0), HFD_BLADE_MIN_FORCE_FACTOR, 1.0);
+  if ( *(float *)&_XMM13 >= 0.0 )
+    v15 = *(float *)&v14;
   else
-  {
-    __asm { vmovaps xmm11, xmm0 }
-  }
+    LODWORD(v15) = COERCE_UNSIGNED_INT(1.0 - *(float *)&v14) ^ _xmm;
+  v16 = FD_ComputeExpo(v15, HFD_BLADE_MAX_DEFLECTION_EXPO);
+  v17 = *(float *)&_XMM13 * HFD_BLADE_STIFFNESS_INV_MASS_MULTIPLIER;
+  v18 = (float)(*(float *)&v16 * HFD_BLADE_MAX_DEFLECTION_FORCE) * HFD_BLADE_STIFFNESS_INV_MASS_MULTIPLIER;
+  v19 = FD_ComputeExpo(COERCE_FLOAT(LODWORD(v13) ^ _xmm), HFD_BLADE_DEFLECTION_CENTRIFUGAL_EXPO);
+  this->m_BladeDeflectionVelocity = (float)((float)(COERCE_FLOAT(LODWORD(v15) & _xmm) * (float)((float)((float)((float)(*(float *)&v19 * centrifugalForce) * HFD_BLADE_STIFFNESS_INV_MASS_MULTIPLIER) + (float)(v18 + v17)) - (float)((float)((float)((float)(*(float *)&v19 * centrifugalForce) * HFD_BLADE_STIFFNESS_INV_MASS_MULTIPLIER) + (float)(v18 + v17)) * HFD_BLADE_DEFLECTION_DAMPING))) * dT) + this->m_BladeDeflectionVelocity;
+  v20 = I_fclamp(dT * HFD_BLADE_STIFFNESS_FACTOR_VEL, 0.0, 1.0);
+  v21 = (float)(1.0 - *(float *)&v20) * this->m_BladeDeflectionVelocity;
+  v22 = (float)(v21 * dT) + this->m_BladeDeflection;
+  this->m_BladeDeflection = v22;
+  this->m_BladeDeflectionVelocity = v21;
+  this->m_BladeDeflection = v22 - (float)((float)(v21 * HFD_BLADE_DEFLECTION_POS_DAMPING) * dT);
+  v23 = I_fclamp(dT * HFD_BLADE_STIFFNESS_FACTOR_POS, 0.0, 1.0);
+  v24 = (float)(1.0 - *(float *)&v23) * this->m_BladeDeflection;
+  this->m_BladeDeflection = v24;
+  v25 = I_fclamp(v24, v11, v9);
+  this->m_BladeDeflection = *(float *)&v25;
+  _XMM0 = v7;
   __asm
   {
-    vmovss  xmm1, cs:?HFD_BLADE_MAX_DEFLECTION_EXPO@@3MA; expo
-    vmovaps xmm0, xmm11; value
-  }
-  *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:?HFD_BLADE_MAX_DEFLECTION_FORCE@@3MA; float HFD_BLADE_MAX_DEFLECTION_FORCE
-    vmovss  xmm4, [rsp+0B8h+arg_20]
-    vxorps  xmm0, xmm4, cs:__xmm@80000000800000008000000080000000; value
-    vmovss  xmm1, cs:?HFD_BLADE_DEFLECTION_CENTRIFUGAL_EXPO@@3MA; expo
-    vmulss  xmm7, xmm13, cs:?HFD_BLADE_STIFFNESS_INV_MASS_MULTIPLIER@@3MA; float HFD_BLADE_STIFFNESS_INV_MASS_MULTIPLIER
-    vmulss  xmm6, xmm2, cs:?HFD_BLADE_STIFFNESS_INV_MASS_MULTIPLIER@@3MA; float HFD_BLADE_STIFFNESS_INV_MASS_MULTIPLIER
-  }
-  *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm1, xmm0, [rsp+0B8h+arg_10]
-    vmulss  xmm3, xmm1, cs:?HFD_BLADE_STIFFNESS_INV_MASS_MULTIPLIER@@3MA; float HFD_BLADE_STIFFNESS_INV_MASS_MULTIPLIER
-    vandps  xmm11, xmm11, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vaddss  xmm2, xmm6, xmm7
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm1, xmm4, cs:?HFD_BLADE_DEFLECTION_DAMPING@@3MA; float HFD_BLADE_DEFLECTION_DAMPING
-    vdivss  xmm0, xmm4, cs:?HFD_BLADE_STIFFNESS_MASS_MULTIPLIER@@3MA; float HFD_BLADE_STIFFNESS_MASS_MULTIPLIER
-    vsubss  xmm2, xmm4, xmm1
-    vmulss  xmm3, xmm11, xmm2
-    vsubss  xmm6, xmm13, xmm0
-    vmulss  xmm0, xmm3, xmm12
-    vaddss  xmm1, xmm0, dword ptr [rbx+20h]
-    vmovss  dword ptr [rbx+20h], xmm1
-    vmulss  xmm0, xmm12, cs:?HFD_BLADE_STIFFNESS_FACTOR_VEL@@3MA; val
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm8; max
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm0, xmm8, xmm0
-    vmulss  xmm3, xmm0, dword ptr [rbx+20h]
-    vmulss  xmm2, xmm3, xmm12
-    vaddss  xmm4, xmm2, dword ptr [rbx+1Ch]
-    vmovss  dword ptr [rbx+1Ch], xmm4
-    vmovss  dword ptr [rbx+20h], xmm3
-    vmulss  xmm0, xmm3, cs:?HFD_BLADE_DEFLECTION_POS_DAMPING@@3MA; float HFD_BLADE_DEFLECTION_POS_DAMPING
-    vmulss  xmm3, xmm0, xmm12
-    vsubss  xmm4, xmm4, xmm3
-    vmovss  dword ptr [rbx+1Ch], xmm4
-    vmulss  xmm0, xmm12, cs:?HFD_BLADE_STIFFNESS_FACTOR_POS@@3MA; val
-    vmovaps xmm2, xmm8; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vsubss  xmm0, xmm8, xmm0
-    vmulss  xmm0, xmm0, dword ptr [rbx+1Ch]; val
-    vmovaps xmm2, xmm9; max
-    vmovaps xmm1, xmm15; min
-    vmovss  dword ptr [rbx+1Ch], xmm0
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm15, [rsp+0B8h+var_98] }
-  _R11 = &v93;
-  __asm { vmovaps xmm7, xmmword ptr [r11-20h] }
-  _EAX = 0;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm11, xmmword ptr [r11-50h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
-    vmovaps xmm14, xmmword ptr [r11-80h]
-    vmovss  dword ptr [rbx+1Ch], xmm0
-    vmovd   xmm1, eax
-  }
-  _EAX = (unsigned __int64)&v93 < 0xB0;
-  __asm
-  {
-    vmovd   xmm0, eax
     vpcmpeqd xmm2, xmm0, xmm1
     vblendvps xmm0, xmm13, xmm6, xmm2
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm13, xmmword ptr [r11-70h]
   }
   return *(float *)&_XMM0;
 }
@@ -1019,10 +926,9 @@ void HelicopterDynamics::ApplyGravity(HelicopterDynamics *this, float dT)
 FlightDynamicsRotorSystem::ApplyShaftTorque
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::ApplyShaftTorque(FlightDynamicsRotorSystem *this, double torque)
+void FlightDynamicsRotorSystem::ApplyShaftTorque(FlightDynamicsRotorSystem *this, float torque)
 {
-  __asm { vmovss  dword ptr [rcx+4Ch], xmm1 }
+  this->m_InputTorque = torque;
 }
 
 /*
@@ -1030,75 +936,23 @@ void __fastcall FlightDynamicsRotorSystem::ApplyShaftTorque(FlightDynamicsRotorS
 HelicopterDynamics::BlendToPmoveObject
 ==============
 */
-
-void __fastcall HelicopterDynamics::BlendToPmoveObject(HelicopterDynamics *this, double deltaTime, const BgVehiclePhysics *pmoveObj, vec3_t *inOutLinearVelWs, vec3_t *inOutAngularVelWs)
+void HelicopterDynamics::BlendToPmoveObject(HelicopterDynamics *this, float deltaTime, const BgVehiclePhysics *pmoveObj, vec3_t *inOutLinearVelWs, vec3_t *inOutAngularVelWs)
 {
-  __asm { vmovaps [rsp+48h+var_18], xmm6 }
-  _RDI = this;
-  __asm { vmovaps xmm6, xmm1 }
-  FlightDynamics::BlendToPmoveObject(this, *(float *)&deltaTime, pmoveObj, inOutLinearVelWs, inOutAngularVelWs);
-  __asm
-  {
-    vmulss  xmm2, xmm6, dword ptr [rbx+47Ch]
-    vmovss  xmm0, cs:__real@3f800000
-    vsubss  xmm3, xmm0, xmm6
-    vmulss  xmm0, xmm3, dword ptr [rdi+47Ch]
-    vaddss  xmm1, xmm2, xmm0
-    vmovss  dword ptr [rdi+47Ch], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+480h]
-    vmulss  xmm0, xmm3, dword ptr [rdi+480h]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+480h], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+484h]
-    vmulss  xmm0, xmm3, dword ptr [rdi+484h]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+484h], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+488h]
-    vmulss  xmm0, xmm3, dword ptr [rdi+488h]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+488h], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+48Ch]
-    vmulss  xmm0, xmm3, dword ptr [rdi+48Ch]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+48Ch], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+490h]
-    vmulss  xmm0, xmm3, dword ptr [rdi+490h]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+490h], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+494h]
-    vmulss  xmm0, xmm3, dword ptr [rdi+494h]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+494h], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+498h]
-    vmulss  xmm0, xmm3, dword ptr [rdi+498h]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+498h], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+49Ch]
-    vmulss  xmm0, xmm3, dword ptr [rdi+49Ch]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+49Ch], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+4A0h]
-    vmulss  xmm0, xmm3, dword ptr [rdi+4A0h]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+4A0h], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+4A4h]
-    vmulss  xmm0, xmm3, dword ptr [rdi+4A4h]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+4A4h], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+4A8h]
-    vmulss  xmm0, xmm3, dword ptr [rdi+4A8h]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+4A8h], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+4ACh]
-    vmulss  xmm0, xmm3, dword ptr [rdi+4ACh]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+4ACh], xmm1
-    vmulss  xmm1, xmm6, dword ptr [rbx+4B0h]
-    vmulss  xmm0, xmm3, dword ptr [rdi+4B0h]
-    vmovaps xmm6, [rsp+48h+var_18]
-    vaddss  xmm1, xmm1, xmm0
-    vmovss  dword ptr [rdi+4B0h], xmm1
-  }
+  FlightDynamics::BlendToPmoveObject(this, deltaTime, pmoveObj, inOutLinearVelWs, inOutAngularVelWs);
+  this->m_FBWControlInputs[0] = (float)(deltaTime * pmoveObj[1].m_linearVelocityWs.v[0]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[0]);
+  this->m_FBWControlInputs[1] = (float)(deltaTime * pmoveObj[1].m_linearVelocityWs.v[1]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[1]);
+  this->m_FBWControlInputs[2] = (float)(deltaTime * pmoveObj[1].m_linearVelocityWs.v[2]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[2]);
+  this->m_FBWControlInputs[3] = (float)(deltaTime * pmoveObj[1].m_angularVelocityWs.v[0]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[3]);
+  this->m_FBWControlInputs[4] = (float)(deltaTime * pmoveObj[1].m_angularVelocityWs.v[1]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[4]);
+  this->m_FBWControlInputs[5] = (float)(deltaTime * pmoveObj[1].m_angularVelocityWs.v[2]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[5]);
+  this->m_FBWControlInputs[6] = (float)(deltaTime * pmoveObj[1].m_surfaceVelocity.v[0]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[6]);
+  this->m_FBWControlInputs[7] = (float)(deltaTime * pmoveObj[1].m_surfaceVelocity.v[1]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[7]);
+  this->m_FBWControlInputs[8] = (float)(deltaTime * pmoveObj[1].m_surfaceVelocity.v[2]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[8]);
+  this->m_FBWControlInputs[9] = (float)(deltaTime * pmoveObj[1].m_massFactorOnContact.v[0]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[9]);
+  this->m_FBWControlInputs[10] = (float)(deltaTime * pmoveObj[1].m_massFactorOnContact.v[1]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[10]);
+  this->m_FBWControlInputs[11] = (float)(deltaTime * pmoveObj[1].m_massFactorOnContact.v[2]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[11]);
+  this->m_FBWControlInputs[12] = (float)(deltaTime * pmoveObj[1].m_massFactorOnContact.v[3]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[12]);
+  this->m_FBWControlInputs[13] = (float)(deltaTime * pmoveObj[1].m_manualIntegratedPos.v[0]) + (float)((float)(1.0 - deltaTime) * this->m_FBWControlInputs[13]);
 }
 
 /*
@@ -1106,118 +960,79 @@ void __fastcall HelicopterDynamics::BlendToPmoveObject(HelicopterDynamics *this,
 FlightDynamicsRotorSystem::CalculateDeflectionFromOrientation
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::CalculateDeflectionFromOrientation(FlightDynamicsRotorSystem *this, vec4_t *newOrientationQuat, double dT)
+void FlightDynamicsRotorSystem::CalculateDeflectionFromOrientation(FlightDynamicsRotorSystem *this, vec4_t *newOrientationQuat, float dT)
 {
-  FlightDynamicsRotorSystem *v13; 
-  int v15; 
-  int v54; 
+  int v6; 
+  float *v7; 
+  float *v8; 
+  float *v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  __int128 v17; 
+  __int64 v21; 
   vec3_t in; 
   vec4_t out; 
   vec3_t angles; 
-  vec3_t v58; 
-  vec3_t v59; 
-  vec4_t v60; 
+  vec3_t v25; 
+  vec3_t v26; 
+  vec4_t v27; 
   vec4_t quat; 
-  vec4_t v62; 
+  vec4_t v29; 
 
-  __asm
-  {
-    vmovaps [rsp+140h+var_80], xmm10
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  dword ptr [rsp+140h+angles], xmm0
-    vmovss  dword ptr [rsp+140h+angles+8], xmm0
-    vmovss  xmm0, dword ptr [rcx+9Ch]
-    vmulss  xmm1, xmm0, cs:__real@40c00000
-  }
-  v13 = this;
-  __asm
-  {
-    vmovss  dword ptr [rsp+140h+angles+4], xmm1
-    vmovaps xmm10, xmm2
-  }
+  angles.v[0] = 0.0;
+  angles.v[2] = 0.0;
+  angles.v[1] = this->m_RotorPosition * 6.0;
   AnglesToQuat(&angles, &quat);
-  QuatMultiply(&quat, &v13->m_RotorAxisQuat, &out);
-  QuatMultiply(&out, &v13->m_RotationQuat, &v62);
-  QuatMultiply(&out, newOrientationQuat, &v60);
-  v15 = 0;
-  if ( v13->m_BladeCount > 0 )
+  QuatMultiply(&quat, &this->m_RotorAxisQuat, &out);
+  QuatMultiply(&out, &this->m_RotationQuat, &v29);
+  QuatMultiply(&out, newOrientationQuat, &v27);
+  v6 = 0;
+  if ( this->m_BladeCount > 0 )
   {
-    _RDI = &v13->m_RotorBlades[0].m_BladeRotationDirection.v[2];
-    __asm
-    {
-      vmovaps [rsp+140h+var_40], xmm6
-      vmovaps [rsp+140h+var_50], xmm7
-      vmovaps [rsp+140h+var_60], xmm8
-      vmovss  xmm8, cs:__real@be4ccccd
-      vmovaps [rsp+140h+var_70], xmm9
-      vmovss  xmm9, cs:__real@3e4ccccd
-    }
+    v7 = &this->m_RotorBlades[0].m_BladeRotationDirection.v[2];
     do
     {
-      if ( _RDI - 5 == (float *)&in && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
+      v8 = v7 - 5;
+      if ( v7 - 5 == (float *)&in && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1667, ASSERT_TYPE_ASSERT, "( &v0 != &cross )", (const char *)&queryFormat, "&v0 != &cross") )
         __debugbreak();
-      if ( _RDI - 2 == (float *)&in && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
+      v9 = v7 - 2;
+      if ( v7 - 2 == (float *)&in && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 1668, ASSERT_TYPE_ASSERT, "( &v1 != &cross )", (const char *)&queryFormat, "&v1 != &cross") )
         __debugbreak();
+      v10 = *(v7 - 4);
+      v11 = *(v7 - 3);
+      v12 = *(v7 - 1);
+      v13 = v12 * *v8;
+      v14 = *v7 * *v8;
+      in.v[0] = (float)(*v7 * v10) - (float)(v11 * v12);
+      v15 = (float)(v11 * *v9) - v14;
+      v16 = v10 * *v9;
+      in.v[1] = v15;
+      in.v[2] = v13 - v16;
+      QuatTransform(&v29, &this->m_RotorBlades[v6].m_BladeDirection, &v26);
+      QuatTransform(&v27, &this->m_RotorBlades[v6].m_BladeDirection, &v25);
+      QuatTransform(&v27, &in, (vec3_t *)&out);
+      v17 = LODWORD(v25.v[1]);
+      *(float *)&v17 = (float)((float)((float)(v25.v[1] - v26.v[1]) * out.v[1]) + (float)((float)(v25.v[0] - v26.v[0]) * out.v[0])) + (float)((float)(v25.v[2] - v26.v[2]) * out.v[2]);
+      _XMM2 = v17;
       __asm
       {
-        vmovss  xmm7, dword ptr [rdi-10h]
-        vmovss  xmm5, dword ptr [rdi]
-        vmovss  xmm4, dword ptr [rdi-0Ch]
-        vmovss  xmm6, dword ptr [rdi-4]
-        vmulss  xmm2, xmm6, dword ptr [r15]
-        vmulss  xmm1, xmm5, xmm7
-        vmulss  xmm0, xmm4, xmm6
-        vsubss  xmm1, xmm1, xmm0
-        vmulss  xmm0, xmm5, dword ptr [r15]
-        vmovss  dword ptr [rsp+140h+in], xmm1
-        vmulss  xmm1, xmm4, dword ptr [rbx]
-        vsubss  xmm1, xmm1, xmm0
-        vmulss  xmm0, xmm7, dword ptr [rbx]
-        vmovss  dword ptr [rsp+140h+in+4], xmm1
-        vsubss  xmm1, xmm2, xmm0
-        vmovss  dword ptr [rsp+140h+in+8], xmm1
-      }
-      QuatTransform(&v62, &v13->m_RotorBlades[v15].m_BladeDirection, &v59);
-      QuatTransform(&v60, &v13->m_RotorBlades[v15].m_BladeDirection, &v58);
-      QuatTransform(&v60, &in, (vec3_t *)&out);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+140h+var_D8+8]
-        vsubss  xmm4, xmm0, dword ptr [rbp+40h+var_C8+8]
-        vmovss  xmm1, dword ptr [rsp+140h+var_D8+4]
-        vsubss  xmm2, xmm1, dword ptr [rsp+140h+var_C8+4]
-        vmulss  xmm3, xmm2, dword ptr [rsp+140h+out+4]
-        vmovss  xmm0, dword ptr [rsp+140h+var_D8]
-        vsubss  xmm1, xmm0, dword ptr [rsp+140h+var_C8]
-        vmulss  xmm2, xmm1, dword ptr [rsp+140h+out]
-        vmulss  xmm1, xmm4, dword ptr [rsp+140h+out+8]
-        vaddss  xmm3, xmm3, xmm2
-        vaddss  xmm2, xmm3, xmm1
         vmaxss  xmm0, xmm2, xmm8
         vminss  xmm1, xmm0, xmm9
-        vdivss  xmm2, xmm1, dword ptr [r14+70h]
-        vmulss  xmm3, xmm2, cs:?HFD_ROTOR_DEFLECTION_VELOCITY_FACTOR@@3MA; float HFD_ROTOR_DEFLECTION_VELOCITY_FACTOR
-        vmulss  xmm0, xmm3, xmm10
-        vaddss  xmm1, xmm0, dword ptr [rdi+0Ch]
-        vmovss  [rsp+140h+var_110], xmm1
-        vmovss  dword ptr [rdi+0Ch], xmm1
       }
-      if ( (v54 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3708, ASSERT_TYPE_SANITY, "( !IS_NAN( m_RotorBlades[rotorBladeIndex].m_BladeDeflectionVelocity ) )", (const char *)&queryFormat, "!IS_NAN( m_RotorBlades[rotorBladeIndex].m_BladeDeflectionVelocity )") )
+      *(float *)&v21 = (float)((float)((float)(*(float *)&_XMM1 / this->m_BladeLength) * HFD_ROTOR_DEFLECTION_VELOCITY_FACTOR) * dT) + v7[3];
+      v7[3] = *(float *)&v21;
+      if ( (v21 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3708, ASSERT_TYPE_SANITY, "( !IS_NAN( m_RotorBlades[rotorBladeIndex].m_BladeDeflectionVelocity ) )", (const char *)&queryFormat, "!IS_NAN( m_RotorBlades[rotorBladeIndex].m_BladeDeflectionVelocity )", v21) )
         __debugbreak();
-      ++v15;
-      _RDI += 11;
+      ++v6;
+      v7 += 11;
     }
-    while ( v15 < v13->m_BladeCount );
-    __asm
-    {
-      vmovaps xmm9, [rsp+140h+var_70]
-      vmovaps xmm8, [rsp+140h+var_60]
-      vmovaps xmm7, [rsp+140h+var_50]
-      vmovaps xmm6, [rsp+140h+var_40]
-    }
+    while ( v6 < this->m_BladeCount );
   }
-  __asm { vmovaps xmm10, [rsp+140h+var_80] }
 }
 
 /*
@@ -1225,49 +1040,37 @@ void __fastcall FlightDynamicsRotorSystem::CalculateDeflectionFromOrientation(Fl
 CalculateDragAtDirection
 ==============
 */
-
-void __fastcall CalculateDragAtDirection(vec3_t *inputVector, vec3_t *directionOfDrag, double dragCoeff, double dT, vec3_t *outVector)
+void CalculateDragAtDirection(vec3_t *inputVector, vec3_t *directionOfDrag, float dragCoeff, float dT, vec3_t *outVector)
 {
-  _RAX = outVector;
-  __asm
-  {
-    vmovaps xmm4, xmm2
-    vmovaps [rsp+38h+var_18], xmm7
-    vmovss  xmm7, dword ptr [rdx+4]
-    vmulss  xmm0, xmm7, dword ptr [rcx+4]
-    vmovaps [rsp+38h+var_28], xmm9
-    vmovss  xmm9, dword ptr [rdx]
-    vmulss  xmm1, xmm9, dword ptr [rcx]
-    vaddss  xmm2, xmm1, xmm0
-    vmovaps [rsp+38h+var_38], xmm11
-    vmovss  xmm11, dword ptr [rdx+8]
-    vmulss  xmm1, xmm11, dword ptr [rcx+8]
-    vaddss  xmm5, xmm2, xmm1
-    vmulss  xmm0, xmm5, xmm4
-    vmovss  xmm4, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm2, xmm0, xmm3
-    vandps  xmm0, xmm2, xmm4
-    vandps  xmm1, xmm5, xmm4
-    vcomiss xmm0, xmm1
-    vxorps  xmm3, xmm3, xmm3
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm5, xmm3
-    vandps  xmm0, xmm0, xmm4
-    vsubss  xmm2, xmm1, xmm0
-    vsubss  xmm2, xmm0, xmm1
-    vmulss  xmm0, xmm7, xmm2
-    vaddss  xmm4, xmm0, dword ptr [rcx+4]
-    vmulss  xmm1, xmm11, xmm2
-    vaddss  xmm3, xmm1, dword ptr [rcx+8]
-    vmulss  xmm0, xmm9, xmm2
-    vaddss  xmm2, xmm0, dword ptr [rcx]
-    vmovss  dword ptr [rax], xmm2
-    vmovss  dword ptr [rax+4], xmm4
-    vmovss  dword ptr [rax+8], xmm3
-    vmovaps xmm7, [rsp+38h+var_18]
-    vmovaps xmm9, [rsp+38h+var_28]
-    vmovaps xmm11, [rsp+38h+var_38]
-  }
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+
+  v5 = directionOfDrag->v[1];
+  v6 = directionOfDrag->v[2];
+  v7 = (float)((float)(directionOfDrag->v[0] * inputVector->v[0]) + (float)(v5 * inputVector->v[1])) + (float)(v6 * inputVector->v[2]);
+  v8 = (float)(v7 * dragCoeff) * dT;
+  LODWORD(v9) = LODWORD(v7) & _xmm;
+  if ( COERCE_FLOAT(LODWORD(v8) & _xmm) <= COERCE_FLOAT(LODWORD(v7) & _xmm) )
+    v10 = v7 - v8;
+  else
+    v10 = 0.0;
+  LODWORD(v11) = LODWORD(v10) & _xmm;
+  v12 = v9 - v11;
+  if ( v7 > 0.0 )
+    v12 = v11 - v9;
+  v13 = (float)(v5 * v12) + inputVector->v[1];
+  v14 = (float)(v6 * v12) + inputVector->v[2];
+  outVector->v[0] = (float)(directionOfDrag->v[0] * v12) + inputVector->v[0];
+  outVector->v[1] = v13;
+  outVector->v[2] = v14;
 }
 
 /*
@@ -1277,35 +1080,25 @@ HelicopterDynamics::CalculateFlyByWireOffset
 */
 void HelicopterDynamics::CalculateFlyByWireOffset(HelicopterDynamics *this, float scale, vec3_t *result)
 {
-  const dvar_t *v6; 
+  const dvar_t *v5; 
 
-  _RBX = result;
-  _RDI = this;
   if ( !this->m_EnableFlyByWire )
     goto LABEL_7;
-  v6 = DVARINT_fd_helicopter_fbw_status;
+  v5 = DVARINT_fd_helicopter_fbw_status;
   if ( !DVARINT_fd_helicopter_fbw_status && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_fbw_status") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v6);
-  if ( v6->current.integer )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.integer )
   {
-    _RBX->v[0] = _RDI->m_UserControlInputs[8];
-    _RBX->v[1] = _RDI->m_UserControlInputs[9];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+404h]
-      vmovss  dword ptr [rbx+8], xmm0
-    }
+    result->v[0] = this->m_UserControlInputs[8];
+    result->v[1] = this->m_UserControlInputs[9];
+    result->v[2] = this->m_UserControlInputs[12];
   }
   else
   {
 LABEL_7:
-    *(_QWORD *)_RBX->v = 0i64;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rbx+8], xmm0
-    }
+    *(_QWORD *)result->v = 0i64;
+    result->v[2] = 0;
   }
 }
 
@@ -1326,193 +1119,100 @@ HelicopterDynamics::CollisionImpulseCallback
 */
 void HelicopterDynamics::CollisionImpulseCallback(HelicopterDynamics *this, const Physics_SimpleCollisionCallback_Data *cbData)
 {
-  char v39; 
-  char v40; 
-  int v78; 
-  char v98; 
-  void *retaddr; 
+  float v4; 
+  float v5; 
+  float v6; 
+  FlightDynamicsManager *FlightDynamicsManager; 
+  float v8; 
+  float v9; 
+  float v10; 
+  FlightDynamicsManager *v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  FlightDynamicsManager *v16; 
+  float v17; 
+  float v18; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  int v27; 
+  float v28; 
 
-  _RAX = &retaddr;
-  __asm
+  v4 = cbData->position.v[1] - this->m_centerOfMassWs.v[1];
+  v5 = cbData->position.v[0] - this->m_centerOfMassWs.v[0];
+  v6 = cbData->position.v[2] - this->m_centerOfMassWs.v[2];
+  v28 = (float)((float)(v4 * this->m_upVector.v[1]) + (float)(v5 * this->m_upVector.v[0])) + (float)(v6 * this->m_upVector.v[2]);
+  FlightDynamicsManager = BG_GetFlightDynamicsManager();
+  v8 = FlightDynamicsManager->m_UpAxis.v[0];
+  v9 = FlightDynamicsManager->m_UpAxis.v[1];
+  v10 = FlightDynamicsManager->m_UpAxis.v[2];
+  v11 = BG_GetFlightDynamicsManager();
+  v12 = v11->m_ElevatorAxis.v[0];
+  v13 = v11->m_ElevatorAxis.v[1];
+  v14 = v11->m_ElevatorAxis.v[2];
+  v15 = (float)((float)(v4 * this->m_sideVector.v[1]) + (float)(v5 * this->m_sideVector.v[0])) + (float)(v6 * this->m_sideVector.v[2]);
+  v16 = BG_GetFlightDynamicsManager();
+  v17 = (float)((float)(v4 * this->m_forwardVector.v[1]) + (float)(v5 * this->m_forwardVector.v[0])) + (float)(v6 * this->m_forwardVector.v[2]);
+  v18 = (float)((float)(v15 * v12) + (float)(v28 * v8)) + (float)(v17 * v16->m_ForwardAxis.v[0]);
+  _XMM5 = LODWORD(HFD_COLLISION_BOUNCE_STRENGTH);
+  v20 = (float)((float)(v28 * v9) + (float)(v15 * v13)) + (float)(v17 * v16->m_ForwardAxis.v[1]);
+  v21 = (float)((float)(v28 * v10) + (float)(v15 * v14)) + (float)(v17 * v16->m_ForwardAxis.v[2]);
+  this->m_collisionZone = HFD_COLLISION_ID_FUSELAGE;
+  if ( v21 < HFD_COLLISION_LANDING_GEAR_HEIGHT )
   {
-    vmovss  xmm0, dword ptr [rdx+14h]
-    vmovss  xmm1, dword ptr [rdx+18h]
-    vmovaps xmmword ptr [rax-18h], xmm6
-  }
-  _RDI = cbData;
-  __asm { vmovaps xmmword ptr [rax-28h], xmm7 }
-  _RBX = this;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps [rsp+0D8h+var_88], xmm13
-    vsubss  xmm13, xmm1, dword ptr [rcx+230h]
-    vmulss  xmm1, xmm13, dword ptr [rcx+360h]
-    vmovaps [rsp+0D8h+var_98], xmm14
-    vmovaps [rsp+0D8h+var_A8], xmm15
-    vsubss  xmm15, xmm0, dword ptr [rcx+22Ch]
-    vmovss  xmm0, dword ptr [rdx+1Ch]
-    vsubss  xmm14, xmm0, dword ptr [rcx+234h]
-    vmulss  xmm0, xmm15, dword ptr [rcx+35Ch]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm14, dword ptr [rcx+364h]
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  [rsp+0D8h+var_B8], xmm0
-  }
-  _RAX = BG_GetFlightDynamicsManager();
-  __asm
-  {
-    vmovss  xmm10, dword ptr [rax+0Ch]
-    vmovss  xmm11, dword ptr [rax+10h]
-    vmovss  xmm12, dword ptr [rax+14h]
-  }
-  _RAX = BG_GetFlightDynamicsManager();
-  __asm
-  {
-    vmulss  xmm1, xmm13, dword ptr [rbx+354h]
-    vmulss  xmm0, xmm15, dword ptr [rbx+350h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm14, dword ptr [rbx+358h]
-    vmovss  xmm6, dword ptr [rax+24h]
-    vmovss  xmm7, dword ptr [rax+28h]
-    vmovss  xmm8, dword ptr [rax+2Ch]
-    vaddss  xmm9, xmm2, xmm1
-  }
-  BG_GetFlightDynamicsManager();
-  __asm
-  {
-    vmovss  xmm5, [rsp+0D8h+var_B8]
-    vmulss  xmm1, xmm13, dword ptr [rbx+348h]
-    vmulss  xmm0, xmm15, dword ptr [rbx+344h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm14, dword ptr [rbx+34Ch]
-    vaddss  xmm4, xmm2, xmm1
-    vmulss  xmm1, xmm4, dword ptr [rax+18h]
-    vmulss  xmm0, xmm5, xmm10
-    vmulss  xmm2, xmm9, xmm6
-    vaddss  xmm3, xmm2, xmm0
-    vaddss  xmm6, xmm3, xmm1
-    vmulss  xmm1, xmm4, dword ptr [rax+1Ch]
-    vmulss  xmm2, xmm5, xmm11
-    vmulss  xmm0, xmm9, xmm7
-    vaddss  xmm3, xmm2, xmm0
-    vmulss  xmm2, xmm5, xmm12
-    vmovss  xmm5, cs:?HFD_COLLISION_BOUNCE_STRENGTH@@3MA; float HFD_COLLISION_BOUNCE_STRENGTH
-    vaddss  xmm10, xmm3, xmm1
-    vmulss  xmm1, xmm4, dword ptr [rax+20h]
-    vmulss  xmm0, xmm9, xmm8
-    vaddss  xmm3, xmm2, xmm0
-    vaddss  xmm7, xmm3, xmm1
-  }
-  _RBX->m_collisionZone = HFD_COLLISION_ID_FUSELAGE;
-  __asm { vcomiss xmm7, cs:?HFD_COLLISION_LANDING_GEAR_HEIGHT@@3MA; float HFD_COLLISION_LANDING_GEAR_HEIGHT }
-  if ( v39 )
-  {
-    __asm
+    v22 = cbData->normal.v[1] * this->m_upVector.v[1];
+    v23 = cbData->normal.v[0] * this->m_upVector.v[0];
+    v24 = cbData->normal.v[2] * this->m_upVector.v[2];
+    this->m_collisionZone = HFD_COLLISION_ID_LANDING_GEAR;
+    _XMM0 = LODWORD(HFD_COLLISION_LANDING_GEAR_ALLOWED_SPEED);
+    if ( (float)((float)(v22 + v23) + v24) > HFD_COLLISION_LANDING_GEAR_ALLOWED_ANGLE && HFD_COLLISION_LANDING_GEAR_ALLOWED_SPEED > cbData->impulse )
     {
-      vmovss  xmm0, dword ptr [rdi+24h]
-      vmulss  xmm3, xmm0, dword ptr [rbx+360h]
-      vmovss  xmm1, dword ptr [rdi+20h]
-      vmulss  xmm2, xmm1, dword ptr [rbx+35Ch]
-      vmovss  xmm0, dword ptr [rdi+28h]
-      vmulss  xmm1, xmm0, dword ptr [rbx+364h]
-    }
-    _RBX->m_collisionZone = HFD_COLLISION_ID_LANDING_GEAR;
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_COLLISION_LANDING_GEAR_ALLOWED_SPEED@@3MA; float HFD_COLLISION_LANDING_GEAR_ALLOWED_SPEED
-      vaddss  xmm4, xmm3, xmm2
-      vaddss  xmm2, xmm4, xmm1
-      vcomiss xmm2, cs:?HFD_COLLISION_LANDING_GEAR_ALLOWED_ANGLE@@3MA; float HFD_COLLISION_LANDING_GEAR_ALLOWED_ANGLE
-    }
-    if ( !(v39 | v40) )
-    {
-      __asm { vcomiss xmm0, dword ptr [rdi+2Ch] }
-      if ( !(v39 | v40) )
-      {
-        HelicopterDynamics::NotifyClientImpact(_RBX, _RDI);
-        goto LABEL_17;
-      }
+      HelicopterDynamics::NotifyClientImpact(this, cbData);
+      return;
     }
     __asm
     {
       vcmpltss xmm1, xmm0, dword ptr [rdi+2Ch]
-      vmovss  xmm0, cs:?HFD_COLLISION_BOUNCE_STRENGTH_LANDING@@3MA; float HFD_COLLISION_BOUNCE_STRENGTH_LANDING
       vblendvps xmm5, xmm5, xmm0, xmm1
     }
   }
-  __asm { vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-  *(_WORD *)&_RBX->m_applyCollisionExtraImpulse = 1;
-  _RBX->m_LandingTimer = 0.0;
-  __asm
+  *(_WORD *)&this->m_applyCollisionExtraImpulse = 1;
+  this->m_LandingTimer = 0.0;
+  if ( COERCE_FLOAT(LODWORD(v18) & _xmm) >= (float)((float)(HFD_MAIN_ROTOR_BLADE_LENGTH_SCALE_COLLISION * HFD_MAIN_ROTOR_BLADE_LENGTH) * 0.039370101) )
   {
-    vmovss  xmm0, cs:?HFD_MAIN_ROTOR_BLADE_LENGTH_SCALE_COLLISION@@3MA; float HFD_MAIN_ROTOR_BLADE_LENGTH_SCALE_COLLISION
-    vmulss  xmm1, xmm0, cs:?HFD_MAIN_ROTOR_BLADE_LENGTH@@3MA; float HFD_MAIN_ROTOR_BLADE_LENGTH
-    vmulss  xmm2, xmm1, cs:__real@3d21428b
-    vcomiss xmm6, xmm2
-  }
-  if ( v39 )
-  {
-    __asm { vcomiss xmm7, cs:?HFD_COLLISION_MAIN_ROTOR_HEIGHT@@3MA; float HFD_COLLISION_MAIN_ROTOR_HEIGHT }
-    if ( v39 | v40 )
-      goto LABEL_13;
-    v78 = HFD_COLLISION_ID_MAIN_ROTOR;
-    _RBX->m_applyCollisionExtraAngularImpulse = -1;
-  }
-  else
-  {
-    __asm
+    if ( (float)(v20 * HFD_COLLISION_TAIL_ROTOR_PLACEMENT) <= 0.001 )
     {
-      vmulss  xmm0, xmm10, cs:?HFD_COLLISION_TAIL_ROTOR_PLACEMENT@@3MA; float HFD_COLLISION_TAIL_ROTOR_PLACEMENT
-      vcomiss xmm0, cs:__real@3a83126f
-    }
-    if ( v39 | v40 )
-    {
-      v78 = HFD_COLLISION_ID_TAIL_FIN;
+      v27 = HFD_COLLISION_ID_TAIL_FIN;
     }
     else
     {
-      v78 = HFD_COLLISION_ID_TAIL_ROTOR;
-      _RBX->m_applyCollisionExtraAngularImpulse = 1;
+      v27 = HFD_COLLISION_ID_TAIL_ROTOR;
+      this->m_applyCollisionExtraAngularImpulse = 1;
     }
   }
-  _RBX->m_collisionZone = v78;
+  else
+  {
+    if ( v21 <= HFD_COLLISION_MAIN_ROTOR_HEIGHT )
+      goto LABEL_13;
+    v27 = HFD_COLLISION_ID_MAIN_ROTOR;
+    this->m_applyCollisionExtraAngularImpulse = -1;
+  }
+  this->m_collisionZone = v27;
 LABEL_13:
-  if ( !_RBX->m_playerControlled || !_RBX->m_inputControlsEnabled )
+  if ( !this->m_playerControlled || !this->m_inputControlsEnabled )
   {
-    __asm { vxorps  xmm5, xmm5, xmm5 }
-    *(_WORD *)&_RBX->m_applyCollisionExtraImpulse = 0;
+    LODWORD(_XMM5) = 0;
+    *(_WORD *)&this->m_applyCollisionExtraImpulse = 0;
   }
-  __asm
-  {
-    vmulss  xmm0, xmm5, dword ptr [rdi+20h]
-    vmovss  dword ptr [rbx+950h], xmm0
-    vmulss  xmm1, xmm5, dword ptr [rdi+24h]
-    vmovss  dword ptr [rbx+954h], xmm1
-    vmulss  xmm0, xmm5, dword ptr [rdi+28h]
-    vmovss  dword ptr [rbx+958h], xmm0
-  }
-  HelicopterDynamics::NotifyClientImpact(_RBX, _RDI);
-  FlightDynamics::CollisionImpulseCallback(_RBX, _RDI);
-LABEL_17:
-  __asm { vmovaps xmm14, [rsp+0D8h+var_98] }
-  _R11 = &v98;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm15, [rsp+0D8h+var_A8]
-  }
+  this->m_collisionExtraImpulse.v[0] = *(float *)&_XMM5 * cbData->normal.v[0];
+  this->m_collisionExtraImpulse.v[1] = *(float *)&_XMM5 * cbData->normal.v[1];
+  this->m_collisionExtraImpulse.v[2] = *(float *)&_XMM5 * cbData->normal.v[2];
+  HelicopterDynamics::NotifyClientImpact(this, cbData);
+  FlightDynamics::CollisionImpulseCallback(this, cbData);
 }
 
 /*
@@ -1520,4418 +1220,2097 @@ LABEL_17:
 HelicopterDynamics::ComputeLiftForces
 ==============
 */
-
-void __fastcall HelicopterDynamics::ComputeLiftForces(HelicopterDynamics *this, double dT)
+void HelicopterDynamics::ComputeLiftForces(HelicopterDynamics *this, float dT)
 {
-  const dvar_t *v104; 
-  bool Bool_Internal_DebugName; 
-  char v219; 
-  char v297; 
-  char v298; 
+  float v2; 
+  float v4; 
+  const dvar_t *v5; 
+  vec3_t *p_m_Velocity; 
+  __int128 v7; 
+  float v8; 
+  float v9; 
+  __int128 v10; 
+  vec4_t *p_m_RotationInertiaQuat; 
+  float v15; 
+  float v16; 
+  int v17; 
+  const dvar_t *v18; 
+  float v19; 
   FlightDynamicsManager *FlightDynamicsManager; 
-  bool v495; 
-  FlightDynamicsManager *v609; 
-  char v682; 
-  char v683; 
-  char v738; 
-  char v739; 
-  char v971; 
-  char v972; 
-  char v1179; 
-  char v1180; 
-  FlightDynamicsManager *v1212; 
-  char v1268; 
-  char v1269; 
-  FlightDynamicsManager *v1499; 
-  FlightDynamicsManager *v1506; 
+  vec3_t *p_m_upVector; 
+  double v22; 
+  float v23; 
+  FlightDynamicsManager *v24; 
+  double v25; 
+  float v26; 
+  FlightDynamicsManager *v27; 
+  double v28; 
+  float m_ManualControlTimer; 
+  float v31; 
+  double updated; 
+  double v33; 
+  double v34; 
+  float v35; 
+  int v36; 
+  double v37; 
+  float v38; 
+  __int128 v39; 
+  float v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  FlightDynamicsManager *v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  double Float_Internal_DebugName; 
+  float v49; 
+  float v50; 
+  double v51; 
+  double v52; 
+  double v53; 
+  double v54; 
+  float v55; 
+  double v56; 
+  double v57; 
+  float v58; 
+  double v59; 
+  float v60; 
+  double v61; 
+  float v62; 
+  double v63; 
+  double v64; 
+  __int128 v65; 
+  __int128 v66; 
+  __int128 v67; 
+  __int128 v68; 
+  __int128 v69; 
+  __int128 v70; 
+  double v78; 
+  float v79; 
+  float v80; 
+  double v81; 
+  float v82; 
+  float v83; 
+  float v84; 
+  __int128 v85; 
+  float v89; 
+  __int128 v90; 
+  float v94; 
+  float v95; 
+  float v96; 
+  float v97; 
+  float v98; 
+  FlightDynamicsManager *v99; 
+  __int128 v100; 
+  float v101; 
+  float v102; 
+  FlightDynamicsManager *v106; 
+  __int128 v107; 
+  float v108; 
+  float v109; 
+  float v113; 
+  __int128 v114; 
+  float *p_m_GyroRudderStrength; 
+  double v119; 
+  double v120; 
+  float v121; 
+  float m_LandingTimer; 
+  double v123; 
+  float v124; 
+  float v128; 
+  float v129; 
+  float v130; 
+  float v131; 
+  FlightDynamicsManager *v132; 
+  float v133; 
+  float v134; 
+  float v135; 
+  float v136; 
+  double v137; 
+  double v138; 
+  float *v139; 
+  float v140; 
+  double v141; 
+  double v142; 
+  double v143; 
+  float *v144; 
+  float m_GyroAltitude; 
+  float v146; 
+  float v147; 
+  double v148; 
+  float v149; 
+  double v150; 
+  float v151; 
+  float v152; 
+  double v153; 
+  float v154; 
+  double v155; 
+  float v156; 
+  double v157; 
+  double v158; 
+  double v159; 
+  float v160; 
+  float v161; 
+  double v162; 
+  double v163; 
+  float v164; 
+  FlightDynamicsManager *v165; 
+  double v166; 
+  double v167; 
+  float v168; 
+  double v169; 
+  double v170; 
+  double v171; 
+  float v172; 
+  double v173; 
+  double v174; 
+  float v175; 
+  float v176; 
+  float v177; 
+  float v178; 
+  float v179; 
+  float v180; 
+  double v181; 
+  double v182; 
+  float v183; 
+  float v184; 
+  float v185; 
+  float v186; 
+  float v187; 
+  double v188; 
+  float v189; 
+  float v190; 
+  float v191; 
+  double v192; 
+  double v193; 
+  float v194; 
+  FlightDynamicsManager *v195; 
+  float v196; 
+  double v197; 
+  float v198; 
+  float v199; 
+  double v200; 
+  double v201; 
+  double v202; 
+  float v203; 
+  float v204; 
+  double v205; 
+  float v206; 
+  double v207; 
+  double v208; 
+  float v209; 
+  double v210; 
+  float v211; 
+  float v212; 
+  float v213; 
+  double v214; 
+  float v215; 
+  float v216; 
+  float v217; 
+  double v218; 
+  double v219; 
+  float v220; 
+  float v221; 
+  float v222; 
+  double v223; 
+  float v224; 
+  FlightDynamicsManager *v225; 
+  float v226; 
+  double v227; 
+  float v228; 
+  float v229; 
+  double v230; 
+  double v231; 
+  float v232; 
+  float v233; 
+  double v234; 
+  double v235; 
+  float v236; 
+  float v237; 
+  float *v238; 
+  float v239; 
+  float *v240; 
+  float v241; 
+  float *v242; 
+  float v243; 
+  float v244; 
+  float v245; 
+  double v246; 
+  double v247; 
+  float v248; 
+  double v249; 
+  float v250; 
+  double v251; 
+  float v252; 
+  float v253; 
+  double v254; 
+  float v255; 
+  float v256; 
+  float v257; 
+  float v258; 
+  double v259; 
+  float v260; 
+  float v261; 
+  double v262; 
+  float v263; 
+  float v264; 
+  double v265; 
+  double v266; 
+  float v267; 
+  double v268; 
+  float *v269; 
+  float *v270; 
+  float v271; 
+  float v272; 
+  float *v273; 
+  float *v274; 
+  float v275; 
+  float v276; 
+  float *v277; 
+  float v278; 
+  FlightDynamicsManager *v279; 
+  float v280; 
+  float v281; 
+  float v282; 
+  float *v283; 
+  float v284; 
+  float v285; 
+  float *v286; 
+  float v287; 
+  float v288; 
+  float *v289; 
+  float v290; 
+  float v291; 
+  float v292; 
+  float v293; 
+  float v294; 
+  double v295; 
+  double v296; 
+  float v297; 
+  float v298; 
+  double v299; 
+  double v300; 
+  float v301; 
+  float v302; 
+  float v303; 
+  float v304; 
+  float v305; 
+  float v306; 
+  float *v307; 
+  float v308; 
+  float *v309; 
+  float v310; 
+  float v311; 
+  float v312; 
+  float v313; 
+  double v314; 
+  double v315; 
+  float v316; 
+  double v317; 
+  float v318; 
+  float v319; 
+  float v320; 
+  float v321; 
+  double v322; 
+  double v323; 
+  double v324; 
+  float v325; 
+  float v326; 
+  float *v327; 
+  float v328; 
+  float *v329; 
+  float v330; 
+  double v331; 
+  float v332; 
+  double v333; 
+  double v334; 
+  double v335; 
+  float v336; 
+  double v337; 
+  float v338; 
+  double v339; 
+  float v340; 
+  float v341; 
+  float v342; 
+  float *v343; 
+  float v344; 
+  double v345; 
+  float v346; 
+  float *v347; 
+  double v348; 
+  double v349; 
+  float v350; 
+  double v351; 
+  float v352; 
+  float v353; 
+  float v354; 
+  float v355; 
+  float v356; 
+  float v357; 
+  float v358; 
+  double v359; 
+  float v360; 
+  float v361; 
+  float v362; 
+  float v363; 
+  double v364; 
+  float v365; 
+  float v366; 
+  float *v367; 
+  float v368; 
+  float *v369; 
+  float v370; 
+  float *v371; 
+  float v372; 
+  FlightDynamicsManager *v373; 
+  FlightDynamicsManager *v374; 
+  double v375; 
+  double v376; 
+  float v377; 
+  float v378; 
+  float *v379; 
+  double v380; 
+  float v381; 
+  double v382; 
+  float v383; 
+  float v384; 
+  double v385; 
+  float *v389; 
+  float v390; 
+  float *v391; 
+  float v392; 
+  float *v393; 
+  double v394; 
+  float v395; 
+  float v396; 
+  float v397; 
   float *m_FBWControlInputs; 
   vec3_t *p_m_centerOfMassWs; 
-  int v1613; 
+  float *v400; 
+  float v401; 
+  float *v402; 
+  float v403; 
+  float *v404; 
+  float *v406; 
+  int v410; 
+  float m_OpposingTorque; 
+  float v412; 
+  float v413; 
+  float v414; 
+  float v415; 
+  float v416; 
+  float v417; 
+  float v418; 
+  float v419; 
+  float v420; 
+  float v421; 
+  float v422; 
+  float v423; 
+  float v424; 
+  float v425; 
+  float v426; 
   FlightDynamicsRotorSystem *p_m_MainRotor; 
-  bool v1669; 
-  bool v1670; 
-  char v1691; 
-  char v1692; 
+  float v428; 
+  double v429; 
+  float v430; 
+  double v431; 
+  float v432; 
+  double v433; 
+  double v434; 
+  float v435; 
+  double v436; 
+  double v437; 
+  double v438; 
+  float *v439; 
+  double v440; 
+  double v441; 
+  float v442; 
+  float v443; 
+  float v444; 
+  float v445; 
+  float v446; 
+  float v447; 
+  double v448; 
+  float v449; 
+  double v450; 
+  double v451; 
+  double v452; 
+  double v453; 
+  double v454; 
+  double v455; 
+  float v456; 
+  double v457; 
+  float v458; 
+  float v459; 
+  float v460; 
+  double v461; 
+  double v462; 
+  float v463; 
+  float v464; 
+  float v465; 
+  float v466; 
+  double v467; 
+  float v468; 
   vec3_t *p_cross; 
+  float v470; 
+  float v471; 
+  float v472; 
+  double v473; 
+  float v474; 
   vec3_t *p_m_sideVector; 
+  float v476; 
+  float v477; 
+  float v478; 
+  double v479; 
+  double LiftAtAOA; 
+  int v481; 
+  double v482; 
+  float v483; 
+  float v484; 
+  double v485; 
+  float v486; 
+  double v487; 
+  double v488; 
+  float v489; 
+  float v490; 
+  float v491; 
+  double v492; 
+  float v493; 
+  float v494; 
+  double v495; 
+  float v496; 
+  double v497; 
+  float v498; 
+  double v499; 
+  float v500; 
+  float v501; 
+  double v502; 
+  float v503; 
+  double DragAtAOA; 
+  float v505; 
+  double v506; 
+  float v507; 
+  double v508; 
+  float v509; 
+  double v510; 
+  float v511; 
+  double v512; 
+  float v513; 
+  double v514; 
+  float v515; 
+  double v516; 
+  float v517; 
+  double v518; 
+  float v519; 
   char m_applyCollisionExtraAngularImpulse; 
-  const vec3_t *p_m_AirflowVelocity; 
-  vec4_t *v1993; 
-  float fmt; 
-  float fmta; 
-  float fmtb; 
+  double v521; 
+  float v522; 
+  double v523; 
+  float v524; 
+  float v525; 
+  float v526; 
+  float v527; 
+  float *v528; 
+  float *v529; 
+  float *v530; 
+  float *v531; 
+  float v532; 
+  float v533; 
+  float v534; 
+  float v535; 
+  double v536; 
+  float v537; 
+  double v538; 
+  double v539; 
+  float v540; 
+  FlightDynamicsRotorSystem *p_m_RotorAxis; 
+  vec4_t *v542; 
+  float v543; 
+  float *v544; 
+  float *v545; 
+  float *v546; 
+  float v547; 
+  float v548; 
+  float v549; 
+  float v550; 
+  float v551; 
+  float v552; 
+  float v553; 
+  float v554; 
   float aileronInput; 
   float elevatorInput; 
-  int v2040; 
-  unsigned int unsignedInt; 
+  int v557; 
+  float v558; 
+  float value; 
+  float v560; 
   float collectiveInput; 
-  float rudderInput[2]; 
-  HelicopterDynamics *p_m_GyroRudderStrength; 
-  FlightDynamicsManager *v2062; 
-  vec4_t v2085; 
-  __int64 v2086; 
-  vec4_t v2087; 
+  float v562; 
+  float v563; 
+  float v564; 
+  float v565; 
+  float v566; 
+  float v567; 
+  float v568; 
+  float v569; 
+  float rudderInput; 
+  float v571; 
+  float v572; 
+  float v573; 
+  float v574; 
+  float v575; 
+  float *v576; 
+  float v577; 
+  float v578; 
+  float v579; 
+  FlightDynamicsManager *v580; 
+  float v581; 
+  float v582; 
+  float v583; 
+  float v584; 
+  float v585; 
+  float v586; 
+  float v587; 
+  float v588; 
+  float v589; 
+  float v590; 
+  float fraction; 
+  float v592; 
+  float v593; 
+  float v594; 
+  float v595; 
+  float v596; 
+  float v597; 
+  float v598; 
+  float v599; 
+  float v600; 
+  float v601; 
+  float v602; 
+  vec4_t m_RotationQuaternion; 
+  __int64 v604; 
+  vec4_t v605; 
   vec3_t cross; 
   vec3_t v1; 
   vec3_t start; 
-  vec3_t v2091; 
+  vec3_t v609; 
   vec3_t out; 
   vec3_t v0; 
-  vec3_t v2094; 
+  vec3_t v612; 
   vec3_t a; 
-  float v2097; 
+  double v614; 
+  float v615; 
   vec3_t end; 
   vec3_t v; 
   vec3_t b; 
-  float v2102; 
+  double v619; 
+  float v620; 
   vec3_t dir; 
-  vec3_t v2104; 
-  vec3_t v2105; 
-  vec3_t v2106; 
-  vec3_t v2107; 
+  vec3_t v622; 
+  vec3_t v623; 
+  vec3_t v624; 
+  vec3_t v625; 
   vec4_t result; 
-  vec4_t v2109; 
-  trace_t v2110; 
-  char v2111; 
-  void *retaddr; 
+  vec4_t v627; 
+  trace_t v628; 
 
-  _RAX = &retaddr;
-  v2086 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm8
-    vmovaps xmmword ptr [rax-78h], xmm9
-    vmovaps xmmword ptr [rax-88h], xmm10
-    vmovaps xmmword ptr [rax-98h], xmm11
-    vmovaps xmmword ptr [rax-0A8h], xmm12
-    vmovaps xmmword ptr [rax-0B8h], xmm13
-    vmovaps xmmword ptr [rax-0C8h], xmm14
-    vmovaps xmmword ptr [rax-0D8h], xmm15
-    vmovaps xmm12, xmm1
-    vmovss  [rsp+3D0h+var_354], xmm1
-  }
-  _RSI = this;
+  v604 = -2i64;
+  v2 = dT;
+  v567 = dT;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "HelicopterDynamics::ComputeLiftForces");
-  __asm { vmovss  xmm15, cs:__real@3f800000 }
-  if ( !_RSI->m_playerControlled )
+  v4 = FLOAT_1_0;
+  if ( !this->m_playerControlled && this->m_MainRotor.m_RotorRPM < 1.0 )
   {
-    __asm { vcomiss xmm15, dword ptr [rsi+5B8h] }
-    if ( _RSI->m_playerControlled )
-    {
-      _RSI->m_MainRotor.m_RotorRPM = 0.0;
-      _RSI->m_TailRotor.m_RotorRPM = 0.0;
-      goto LABEL_241;
-    }
+    this->m_MainRotor.m_RotorRPM = 0.0;
+    this->m_TailRotor.m_RotorRPM = 0.0;
+    goto LABEL_256;
   }
-  _RBX = DVARFLT_fd_helicopter_swash_driver;
+  v5 = DVARFLT_fd_helicopter_swash_driver;
   if ( !DVARFLT_fd_helicopter_swash_driver && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_swash_driver") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
+  Dvar_CheckFrontendServerThread(v5);
+  this->m_MainRotorSwashplateDriverOffset = v5->current.value;
+  FlightDynamics::EnterSecondDerivativeMode(this);
+  *(float *)&v580 = this->m_MainRotor.m_RotorRPM;
+  p_m_Velocity = &this->m_Velocity;
+  v7 = LODWORD(this->m_Velocity.v[0]);
+  v8 = this->m_Velocity.v[1];
+  v9 = this->m_Velocity.v[2];
+  v10 = v7;
+  v602 = (float)((float)(*(float *)&v7 * *(float *)&v7) + (float)(v8 * v8)) + (float)(v9 * v9);
+  *(float *)&v10 = fsqrt(v602);
+  _XMM9 = v10;
+  v560 = *(float *)&v10;
   __asm
   {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vmovss  dword ptr [rsi+938h], xmm0
-  }
-  FlightDynamics::EnterSecondDerivativeMode(_RSI);
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rsi+5B8h]
-    vmovss  dword ptr [rbp+2D0h+var_318], xmm6
-  }
-  _R14 = &_RSI->m_Velocity;
-  __asm
-  {
-    vmovss  xmm3, dword ptr [r14]
-    vmovss  xmm4, dword ptr [r14+4]
-    vmovss  xmm5, dword ptr [r14+8]
-    vmulss  xmm1, xmm3, xmm3
-    vmulss  xmm0, xmm4, xmm4
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  [rbp+2D0h+var_2BC], xmm0
-    vsqrtss xmm9, xmm0, xmm0
-    vmovss  [rsp+3D0h+var_370], xmm9
     vcmpless xmm0, xmm9, cs:__real@80000000
     vblendvps xmm1, xmm9, xmm15, xmm0
-    vmovss  [rbp+2D0h+var_310], xmm1
-    vdivss  xmm2, xmm15, xmm1
-    vmulss  xmm0, xmm2, xmm3
-    vmovss  dword ptr [rbp+2D0h+v0], xmm0
-    vmulss  xmm1, xmm2, xmm4
-    vmovss  dword ptr [rbp+2D0h+v0+4], xmm1
-    vmulss  xmm0, xmm2, xmm5
-    vmovss  dword ptr [rbp+2D0h+v0+8], xmm0
-    vmulss  xmm2, xmm6, cs:?HFD_TAIL_ROTOR_RATIO@@3MA; float HFD_TAIL_ROTOR_RATIO
-    vmovss  dword ptr [rsi+788h], xmm2
-    vmovss  xmm0, cs:?HFD_TAIL_ROTOR_POSITION@@3MA; float HFD_TAIL_ROTOR_POSITION
-    vmulss  xmm1, xmm0, dword ptr [rsi+344h]
-    vmovss  [rbp+2D0h+var_2C8], xmm1
-    vmulss  xmm1, xmm0, dword ptr [rsi+348h]
-    vmovss  [rbp+2D0h+var_2C4], xmm1
-    vmulss  xmm0, xmm0, dword ptr [rsi+34Ch]
-    vmovss  [rbp+2D0h+var_310], xmm0
   }
-  _R13 = &_RSI->m_RotationInertiaQuat;
-  QuatTransform(&_RSI->m_RotationInertiaQuat, &_RSI->m_forwardVector, &out);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+2D0h+out]
-    vsubss  xmm2, xmm0, dword ptr [rsi+344h]
-    vmovss  dword ptr [rbp+2D0h+out], xmm2
-    vmovss  xmm1, dword ptr [rbp+2D0h+out+4]
-    vsubss  xmm3, xmm1, dword ptr [rsi+348h]
-    vmovss  dword ptr [rbp+2D0h+out+4], xmm3
-    vmovss  xmm0, dword ptr [rbp+2D0h+out+8]
-    vsubss  xmm1, xmm0, dword ptr [rsi+34Ch]
-    vdivss  xmm8, xmm15, xmm12
-    vmulss  xmm5, xmm2, xmm8
-    vmovss  dword ptr [rbp+2D0h+out], xmm5
-    vmulss  xmm6, xmm3, xmm8
-    vmovss  dword ptr [rbp+2D0h+out+4], xmm6
-    vmulss  xmm7, xmm1, xmm8
-    vmovss  dword ptr [rbp+2D0h+out+8], xmm7
-    vmulss  xmm1, xmm6, dword ptr [rsi+348h]
-    vmulss  xmm0, xmm5, dword ptr [rsi+344h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, dword ptr [rsi+34Ch]
-    vaddss  xmm0, xmm2, xmm1
-    vmovss  xmm13, dword ptr cs:__xmm@80000000800000008000000080000000
-    vxorps  xmm3, xmm0, xmm13
-    vmulss  xmm0, xmm3, dword ptr [rsi+344h]
-    vaddss  xmm1, xmm0, xmm5
-    vmovss  dword ptr [rbp+2D0h+out], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rsi+348h]
-    vaddss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rbp+2D0h+out+4], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rsi+34Ch]
-    vaddss  xmm1, xmm0, xmm7
-    vmovss  dword ptr [rbp+2D0h+out+8], xmm1
-  }
-  QuatTransform(&_RSI->m_RotationInertiaQuat, &_RSI->m_sideVector, &v2094);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbp+2D0h+var_220]
-    vsubss  xmm2, xmm0, dword ptr [rsi+350h]
-    vmovss  dword ptr [rbp+2D0h+var_220], xmm2
-    vmovss  xmm1, dword ptr [rbp+2D0h+var_220+4]
-    vsubss  xmm3, xmm1, dword ptr [rsi+354h]
-    vmovss  dword ptr [rbp+2D0h+var_220+4], xmm3
-    vmovss  xmm0, dword ptr [rbp+2D0h+var_220+8]
-    vsubss  xmm1, xmm0, dword ptr [rsi+358h]
-    vmulss  xmm5, xmm8, xmm2
-    vmovss  dword ptr [rbp+2D0h+var_220], xmm5
-    vmulss  xmm6, xmm8, xmm3
-    vmovss  dword ptr [rbp+2D0h+var_220+4], xmm6
-    vmulss  xmm7, xmm8, xmm1
-    vmovss  dword ptr [rbp+2D0h+var_220+8], xmm7
-    vmulss  xmm1, xmm6, dword ptr [rsi+354h]
-    vmulss  xmm0, xmm5, dword ptr [rsi+350h]
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm7, dword ptr [rsi+358h]
-    vaddss  xmm0, xmm2, xmm1
-    vxorps  xmm4, xmm0, xmm13
-    vmulss  xmm2, xmm4, dword ptr [rsi+350h]
-    vaddss  xmm1, xmm2, xmm5
-    vmovss  dword ptr [rbp+2D0h+var_220], xmm1
-    vmulss  xmm0, xmm4, dword ptr [rsi+354h]
-    vaddss  xmm1, xmm0, xmm6
-    vmovss  dword ptr [rbp+2D0h+var_220+4], xmm1
-    vmulss  xmm0, xmm4, dword ptr [rsi+358h]
-    vaddss  xmm1, xmm0, xmm7
-    vmovss  dword ptr [rbp+2D0h+var_220+8], xmm1
-    vmovss  xmm2, cs:?HFD_TAIL_ROTOR_LOCAL_VELOCITY_DIRECTION@@3MA; float HFD_TAIL_ROTOR_LOCAL_VELOCITY_DIRECTION
-    vmulss  xmm3, xmm2, cs:?HFD_TAIL_ROTOR_POSITION@@3MA; float HFD_TAIL_ROTOR_POSITION
-    vmulss  xmm0, xmm3, dword ptr [rbp+2D0h+out]
-    vaddss  xmm1, xmm0, dword ptr [r14]
-    vmovss  dword ptr [rbp+2D0h+a], xmm1
-    vmulss  xmm2, xmm3, dword ptr [rbp+2D0h+out+4]
-    vaddss  xmm0, xmm2, dword ptr [r14+4]
-    vmovss  dword ptr [rbp+2D0h+a+4], xmm0
-    vmulss  xmm1, xmm3, dword ptr [rbp+2D0h+out+8]
-    vaddss  xmm2, xmm1, dword ptr [r14+8]
-    vmovss  dword ptr [rbp+2D0h+a+8], xmm2
-  }
-  v104 = DVARINT_fd_helicopter_fbw_status;
+  v581 = *(float *)&_XMM1;
+  v0.v[0] = (float)(1.0 / *(float *)&_XMM1) * *(float *)&v7;
+  v0.v[1] = (float)(1.0 / *(float *)&_XMM1) * v8;
+  v0.v[2] = (float)(1.0 / *(float *)&_XMM1) * v9;
+  this->m_TailRotor.m_RotorRPM = *(float *)&v580 * HFD_TAIL_ROTOR_RATIO;
+  v599 = HFD_TAIL_ROTOR_POSITION * this->m_forwardVector.v[0];
+  v600 = HFD_TAIL_ROTOR_POSITION * this->m_forwardVector.v[1];
+  v581 = HFD_TAIL_ROTOR_POSITION * this->m_forwardVector.v[2];
+  p_m_RotationInertiaQuat = &this->m_RotationInertiaQuat;
+  QuatTransform(&this->m_RotationInertiaQuat, &this->m_forwardVector, &out);
+  out.v[0] = out.v[0] - this->m_forwardVector.v[0];
+  v15 = out.v[0];
+  out.v[1] = out.v[1] - this->m_forwardVector.v[1];
+  *(float *)&_XMM1 = out.v[2] - this->m_forwardVector.v[2];
+  v16 = 1.0 / v2;
+  out.v[0] = out.v[0] * (float)(1.0 / v2);
+  out.v[1] = out.v[1] * (float)(1.0 / v2);
+  out.v[2] = *(float *)&_XMM1 * (float)(1.0 / v2);
+  v17 = _xmm;
+  LODWORD(v7) = COERCE_UNSIGNED_INT((float)((float)(out.v[1] * this->m_forwardVector.v[1]) + (float)((float)(v15 * (float)(1.0 / v2)) * this->m_forwardVector.v[0])) + (float)(out.v[2] * this->m_forwardVector.v[2])) ^ _xmm;
+  out.v[0] = (float)(*(float *)&v7 * this->m_forwardVector.v[0]) + out.v[0];
+  out.v[1] = (float)(*(float *)&v7 * this->m_forwardVector.v[1]) + out.v[1];
+  out.v[2] = (float)(*(float *)&v7 * this->m_forwardVector.v[2]) + out.v[2];
+  QuatTransform(&this->m_RotationInertiaQuat, &this->m_sideVector, &v612);
+  v612.v[0] = v612.v[0] - this->m_sideVector.v[0];
+  v612.v[1] = v612.v[1] - this->m_sideVector.v[1];
+  *(float *)&_XMM1 = v612.v[2] - this->m_sideVector.v[2];
+  v612.v[0] = (float)(1.0 / v2) * v612.v[0];
+  v612.v[1] = (float)(1.0 / v2) * v612.v[1];
+  v612.v[2] = (float)(1.0 / v2) * *(float *)&_XMM1;
+  *(float *)&v10 = (float)((float)(v612.v[1] * this->m_sideVector.v[1]) + (float)(v612.v[0] * this->m_sideVector.v[0])) + (float)(v612.v[2] * this->m_sideVector.v[2]);
+  v612.v[0] = (float)(COERCE_FLOAT(v10 ^ _xmm) * this->m_sideVector.v[0]) + v612.v[0];
+  v612.v[1] = (float)(COERCE_FLOAT(v10 ^ _xmm) * this->m_sideVector.v[1]) + v612.v[1];
+  v612.v[2] = (float)(COERCE_FLOAT(v10 ^ _xmm) * this->m_sideVector.v[2]) + v612.v[2];
+  a.v[0] = (float)((float)(HFD_TAIL_ROTOR_LOCAL_VELOCITY_DIRECTION * HFD_TAIL_ROTOR_POSITION) * out.v[0]) + this->m_Velocity.v[0];
+  a.v[1] = (float)((float)(HFD_TAIL_ROTOR_LOCAL_VELOCITY_DIRECTION * HFD_TAIL_ROTOR_POSITION) * out.v[1]) + this->m_Velocity.v[1];
+  a.v[2] = (float)((float)(HFD_TAIL_ROTOR_LOCAL_VELOCITY_DIRECTION * HFD_TAIL_ROTOR_POSITION) * out.v[2]) + this->m_Velocity.v[2];
+  v18 = DVARINT_fd_helicopter_fbw_status;
   if ( !DVARINT_fd_helicopter_fbw_status && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_fbw_status") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v104);
-  unsignedInt = v104->current.unsignedInt;
-  __asm { vmovss  xmm6, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_EXPO@@3MA; float HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_EXPO }
-  _RAX = BG_GetFlightDynamicsManager();
-  _RDI = &_RSI->m_upVector;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rax+10h]
-    vmulss  xmm4, xmm0, dword ptr [rdi+4]
-    vmovss  xmm2, dword ptr [rax+0Ch]
-    vmulss  xmm3, xmm2, dword ptr [rdi]
-    vaddss  xmm5, xmm4, xmm3
-    vmovss  xmm0, dword ptr [rax+14h]
-    vmulss  xmm2, xmm0, dword ptr [rdi+8]
-    vaddss  xmm0, xmm5, xmm2; value
-    vmovaps xmm1, xmm6; expo
-  }
-  *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  [rsp+3D0h+var_35C], xmm0
-    vmovss  xmm6, cs:?HFD_FBW_GYRO_CYCLIC_AIL_BANKED_EXPO@@3MA; float HFD_FBW_GYRO_CYCLIC_AIL_BANKED_EXPO
-  }
-  BG_GetFlightDynamicsManager();
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsi+354h]
-    vmulss  xmm5, xmm2, dword ptr [rax+10h]
-    vmovss  xmm3, dword ptr [rsi+350h]
-    vmulss  xmm4, xmm3, dword ptr [rax+0Ch]
-    vaddss  xmm4, xmm5, xmm4
-    vmovss  xmm2, dword ptr [rsi+358h]
-    vmulss  xmm3, xmm2, dword ptr [rax+14h]
-    vaddss  xmm0, xmm4, xmm3; value
-    vmovaps xmm1, xmm6; expo
-  }
-  *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  [rbp+2D0h+var_324], xmm0
-    vmovss  xmm6, cs:?HFD_FBW_GYRO_CYCLIC_AIL_BANKED_EXPO@@3MA; float HFD_FBW_GYRO_CYCLIC_AIL_BANKED_EXPO
-  }
-  BG_GetFlightDynamicsManager();
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsi+348h]
-    vmulss  xmm5, xmm2, dword ptr [rax+10h]
-    vmovss  xmm3, dword ptr [rsi+344h]
-    vmulss  xmm4, xmm3, dword ptr [rax+0Ch]
-    vaddss  xmm4, xmm5, xmm4
-    vmovss  xmm2, dword ptr [rsi+34Ch]
-    vmulss  xmm3, xmm2, dword ptr [rax+14h]
-    vaddss  xmm0, xmm4, xmm3; value
-    vmovaps xmm1, xmm6; expo
-  }
-  *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovss  [rbp+2D0h+var_2E4], xmm0
-    vmovss  [rsp+3D0h+var_358], xmm15
-  }
-  if ( unsignedInt )
-    __asm { vmovss  xmm7, dword ptr [rsi+944h] }
+  Dvar_CheckFrontendServerThread(v18);
+  value = v18->current.value;
+  v19 = HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_EXPO;
+  FlightDynamicsManager = BG_GetFlightDynamicsManager();
+  p_m_upVector = &this->m_upVector;
+  v22 = FD_ComputeExpo((float)((float)(FlightDynamicsManager->m_UpAxis.v[1] * this->m_upVector.v[1]) + (float)(FlightDynamicsManager->m_UpAxis.v[0] * this->m_upVector.v[0])) + (float)(FlightDynamicsManager->m_UpAxis.v[2] * this->m_upVector.v[2]), v19);
+  v565 = *(float *)&v22;
+  v23 = HFD_FBW_GYRO_CYCLIC_AIL_BANKED_EXPO;
+  v24 = BG_GetFlightDynamicsManager();
+  v25 = FD_ComputeExpo((float)((float)(this->m_sideVector.v[1] * v24->m_UpAxis.v[1]) + (float)(this->m_sideVector.v[0] * v24->m_UpAxis.v[0])) + (float)(this->m_sideVector.v[2] * v24->m_UpAxis.v[2]), v23);
+  v578 = *(float *)&v25;
+  v26 = HFD_FBW_GYRO_CYCLIC_AIL_BANKED_EXPO;
+  v27 = BG_GetFlightDynamicsManager();
+  v28 = FD_ComputeExpo((float)((float)(this->m_forwardVector.v[1] * v27->m_UpAxis.v[1]) + (float)(this->m_forwardVector.v[0] * v27->m_UpAxis.v[0])) + (float)(this->m_forwardVector.v[2] * v27->m_UpAxis.v[2]), v26);
+  v592 = *(float *)&v28;
+  v566 = FLOAT_1_0;
+  if ( value == 0.0 )
+    m_ManualControlTimer = FLOAT_1_0;
   else
-    __asm { vmovaps xmm7, xmm15 }
-  __asm { vmovss  [rbp+2D0h+var_338], xmm7 }
-  _RSI->m_TailRotor.m_SmoothCollective = HFD_TAIL_ROTOR_SMOOTH_COLLECTIVE;
-  _RSI->m_MainRotor.m_SmoothCollective = HFD_MAIN_ROTOR_SMOOTH_COLLECTIVE;
-  LOBYTE(v2040) = 0;
-  if ( _RSI->m_playerControlled )
+    m_ManualControlTimer = this->m_ManualControlTimer;
+  v574 = m_ManualControlTimer;
+  this->m_TailRotor.m_SmoothCollective = HFD_TAIL_ROTOR_SMOOTH_COLLECTIVE;
+  this->m_MainRotor.m_SmoothCollective = HFD_MAIN_ROTOR_SMOOTH_COLLECTIVE;
+  LOBYTE(v557) = 0;
+  if ( this->m_playerControlled )
+    this->m_GovernorRPM = HFD_GOVERNOR_MAX_SPEED;
+  if ( !this->m_inputControlsEnabled )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-      vmovss  dword ptr [rsi+8C4h], xmm0
-    }
+    this->m_GovernorRPM = HFD_GOVERNOR_MAX_SPEED;
+    this->m_EnableFlyByWire = 0;
+    this->m_ManualControlTimer = 1.0;
+    m_ManualControlTimer = FLOAT_1_0;
+    v574 = FLOAT_1_0;
   }
-  if ( !_RSI->m_inputControlsEnabled )
+  _XMM11 = 0i64;
+  v564 = 0.0;
+  collectiveInput = 0.0;
+  v31 = HFD_FBW_GROUND_PRESSURE_GAIN_EXPO;
+  updated = FlightDynamicsRotorSystem::UpdateGroundEffect(&this->m_MainRotor, HFD_BLADE_GROUND_EFFECT_DISTANCE_FACTOR * this->m_MainRotor.m_BladeLength, HFD_BLADE_GROUND_EFFECT_MULTIPLIER, v2);
+  v33 = I_fclamp(*(float *)&updated, 0.0, 1.0);
+  v34 = FD_ComputeExpo(*(float *)&v33, v31);
+  v35 = *(float *)&v34;
+  if ( (float)(v16 * 0.1) > 1.0 )
+    v35 = (float)(this->m_GroundEffectPressure - (float)((float)(1.0 / (float)(v16 * 0.1)) * this->m_GroundEffectPressure)) + (float)((float)(1.0 / (float)(v16 * 0.1)) * *(float *)&v34);
+  this->m_GroundEffectPressure = v35;
+  v36 = _xmm;
+  if ( value != 0.0 && (this->m_EnableFlyByWire && this->m_inputControlsEnabled || LODWORD(value) == 2 || m_ManualControlTimer < 1.0) )
   {
-    __asm
+    v37 = I_fclamp((float)(v16 - 30.0) * 0.033333335, 0.0, 1.0);
+    v584 = *(float *)&v37;
+    LOBYTE(v557) = 1;
+    this->m_MainRotor.m_SmoothCollective = 0;
+    this->m_TailRotor.m_SmoothCollective = 0;
+    aileronInput = 0.0;
+    rudderInput = 0.0;
+    elevatorInput = 0.0;
+    HelicopterDynamics::TranslateUserControlInputsToFBW(this, &aileronInput, &elevatorInput, &collectiveInput, &rudderInput);
+    v38 = collectiveInput;
+    v564 = collectiveInput;
+    v547 = aileronInput;
+    v39 = LODWORD(elevatorInput);
+    if ( COERCE_FLOAT(LODWORD(collectiveInput) & _xmm) <= 0.001 )
     {
-      vmovss  xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-      vmovss  dword ptr [rsi+8C4h], xmm0
+      v42 = COERCE_FLOAT(LODWORD(elevatorInput) & _xmm) * v2;
+      v40 = (float)(1.0 - v42) * (float)((float)((float)(1.0 - (float)(COERCE_FLOAT(LODWORD(aileronInput) & _xmm) * v2)) * (float)((float)((float)(1.0 - (float)(v2 * HFD_FBW_SMOOTH_COLLECTIVE_RATE_RAMP_DOWN)) * this->m_CollectiveSmoothingValue) + (float)((float)(v2 * HFD_FBW_SMOOTH_COLLECTIVE_RATE_RAMP_DOWN) * collectiveInput))) + (float)((float)(COERCE_FLOAT(LODWORD(aileronInput) & _xmm) * v2) * collectiveInput));
+      v41 = v42 * collectiveInput;
     }
-    _RSI->m_EnableFlyByWire = 0;
-    _RSI->m_ManualControlTimer = 1.0;
-    __asm
+    else
     {
-      vmovaps xmm7, xmm15
-      vmovss  [rbp+2D0h+var_338], xmm7
+      v40 = (float)(1.0 - (float)(v2 * HFD_FBW_SMOOTH_COLLECTIVE_RATE_RAMP_UP)) * this->m_CollectiveSmoothingValue;
+      v41 = (float)(v2 * HFD_FBW_SMOOTH_COLLECTIVE_RATE_RAMP_UP) * collectiveInput;
     }
-  }
-  __asm
-  {
-    vxorps  xmm11, xmm11, xmm11
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+3D0h+var_360], xmm0
-    vmovss  [rsp+3D0h+collectiveInput], xmm0
-    vmovss  xmm0, cs:?HFD_BLADE_GROUND_EFFECT_DISTANCE_FACTOR@@3MA; float HFD_BLADE_GROUND_EFFECT_DISTANCE_FACTOR
-    vmulss  xmm1, xmm0, dword ptr [rsi+590h]; distance
-    vmovss  xmm6, cs:?HFD_FBW_GROUND_PRESSURE_GAIN_EXPO@@3MA; float HFD_FBW_GROUND_PRESSURE_GAIN_EXPO
-    vmovaps xmm3, xmm12; dT
-    vmovss  xmm2, cs:?HFD_BLADE_GROUND_EFFECT_MULTIPLIER@@3MA; liftMultiplier
-  }
-  *(double *)&_XMM0 = FlightDynamicsRotorSystem::UpdateGroundEffect(&_RSI->m_MainRotor, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  __asm
-  {
-    vmovaps xmm2, xmm15; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm { vmovaps xmm1, xmm6; expo }
-  *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm3, xmm0
-    vmulss  xmm0, xmm8, cs:__real@3dcccccd
-    vmovss  xmm2, dword ptr [rsi+914h]
-    vcomiss xmm0, xmm15
-  }
-  if ( !(v219 | v298) )
-  {
-    __asm
+    this->m_CollectiveSmoothingValue = v40 + v41;
+    if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_start_no_input_before_spoolup, "fd_helicopter_start_no_input_before_spoolup") && this->m_MainRotor.m_RotorRPM < (float)(HFD_GOVERNOR_MAX_SPEED - HFD_FBW_GOVERNOR_OPERATING_RPM_THRESHOLD) )
     {
-      vdivss  xmm1, xmm15, xmm0
-      vmulss  xmm0, xmm1, xmm2
-      vsubss  xmm2, xmm2, xmm0
-      vmulss  xmm1, xmm1, xmm3
-      vaddss  xmm3, xmm2, xmm1
+      v547 = 0.0;
+      v43 = 0.0;
+      v39 = 0i64;
+      v38 = 0.0;
+      v564 = 0.0;
     }
-  }
-  __asm
-  {
-    vmovss  dword ptr [rsi+914h], xmm3
-    vmovss  xmm14, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-  }
-  if ( unsignedInt )
-  {
-    if ( _RSI->m_EnableFlyByWire && _RSI->m_inputControlsEnabled )
-      goto LABEL_24;
-    if ( unsignedInt == 2 )
-      goto LABEL_24;
-    __asm { vcomiss xmm7, xmm15 }
-    if ( unsignedInt < 2 )
+    else
     {
-LABEL_24:
-      __asm
-      {
-        vsubss  xmm0, xmm8, cs:__real@41f00000
-        vmulss  xmm0, xmm0, cs:__real@3d088889; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  [rbp+2D0h+var_304], xmm0 }
-      LOBYTE(v2040) = 1;
-      _RSI->m_MainRotor.m_SmoothCollective = 0;
-      _RSI->m_TailRotor.m_SmoothCollective = 0;
-      __asm
-      {
-        vmovss  [rsp+3D0h+aileronInput], xmm11
-        vmovss  [rbp+2D0h+rudderInput], xmm11
-        vmovss  [rsp+3D0h+elevatorInput], xmm11
-      }
-      HelicopterDynamics::TranslateUserControlInputsToFBW(_RSI, &aileronInput, &elevatorInput, &collectiveInput, rudderInput);
-      __asm
-      {
-        vmovss  xmm9, [rsp+3D0h+collectiveInput]
-        vmovss  [rsp+3D0h+var_360], xmm9
-        vandps  xmm0, xmm9, xmm14
-        vmovss  xmm2, [rsp+3D0h+aileronInput]
-        vmovss  [rsp+3D0h+var_390], xmm2
-        vmovss  xmm10, [rsp+3D0h+elevatorInput]
-        vcomiss xmm0, cs:__real@3a83126f
-      }
-      if ( v219 | v298 )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm12, cs:?HFD_FBW_SMOOTH_COLLECTIVE_RATE_RAMP_DOWN@@3MA; float HFD_FBW_SMOOTH_COLLECTIVE_RATE_RAMP_DOWN
-          vandps  xmm0, xmm2, xmm14
-          vmulss  xmm5, xmm0, xmm12
-          vsubss  xmm0, xmm15, xmm1
-          vmulss  xmm2, xmm0, dword ptr [rsi+92Ch]
-          vmulss  xmm1, xmm1, xmm9
-          vaddss  xmm3, xmm2, xmm1
-          vandps  xmm0, xmm10, xmm14
-          vmulss  xmm4, xmm0, xmm12
-          vsubss  xmm0, xmm15, xmm5
-          vmulss  xmm2, xmm0, xmm3
-          vmulss  xmm1, xmm5, xmm9
-          vaddss  xmm3, xmm2, xmm1
-          vsubss  xmm0, xmm15, xmm4
-          vmulss  xmm2, xmm0, xmm3
-          vmulss  xmm1, xmm4, xmm9
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm12, cs:?HFD_FBW_SMOOTH_COLLECTIVE_RATE_RAMP_UP@@3MA; float HFD_FBW_SMOOTH_COLLECTIVE_RATE_RAMP_UP
-          vsubss  xmm0, xmm15, xmm1
-          vmulss  xmm2, xmm0, dword ptr [rsi+92Ch]
-          vmulss  xmm1, xmm1, xmm9
-        }
-      }
-      __asm
-      {
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rsi+92Ch], xmm2
-      }
-      if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_start_no_input_before_spoolup, "fd_helicopter_start_no_input_before_spoolup") )
-      {
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rsi+5B8h]
-          vmovss  xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-          vsubss  xmm1, xmm0, cs:?HFD_FBW_GOVERNOR_OPERATING_RPM_THRESHOLD@@3MA; float HFD_FBW_GOVERNOR_OPERATING_RPM_THRESHOLD
-          vcomiss xmm2, xmm1
-        }
-      }
-      __asm
-      {
-        vmovss  xmm1, [rbp+2D0h+rudderInput]
-        vmovss  [rsp+3D0h+collectiveInput], xmm1
-        vmovss  xmm1, dword ptr [r14]
-        vmovss  xmm0, dword ptr [r14+4]
-        vmulss  xmm2, xmm0, xmm0
-        vmulss  xmm1, xmm1, xmm1
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm0, xmm2, xmm2
-        vmovss  [rbp+2D0h+var_2EC], xmm0
-        vmovss  xmm5, dword ptr [rbp+2D0h+v0+4]
-        vmulss  xmm1, xmm5, dword ptr [rsi+348h]
-        vmovss  xmm4, dword ptr [rbp+2D0h+v0]
-        vmulss  xmm0, xmm4, dword ptr [rsi+344h]
-        vaddss  xmm2, xmm1, xmm0
-        vmovss  xmm3, dword ptr [rbp+2D0h+v0+8]
-        vmulss  xmm0, xmm3, dword ptr [rsi+34Ch]
-        vaddss  xmm0, xmm2, xmm0
-        vmovss  [rbp+2D0h+var_34C], xmm0
-        vmulss  xmm1, xmm5, dword ptr [rsi+354h]
-        vmulss  xmm0, xmm4, dword ptr [rsi+350h]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm3, dword ptr [rsi+358h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  [rsp+3D0h+var_388], xmm0
-      }
-      _RAX = BG_GetFlightDynamicsManager();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax+0Ch]
-        vxorps  xmm6, xmm0, xmm13
-        vmovss  xmm1, dword ptr [rax+10h]
-        vxorps  xmm7, xmm1, xmm13
-        vmovss  xmm0, dword ptr [rax+14h]
-        vxorps  xmm8, xmm0, xmm13
-      }
-      *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_fd_helicopter_altitude_speedLimiter_range, "fd_helicopter_altitude_speedLimiter_range");
-      __asm
-      {
-        vmulss  xmm1, xmm6, xmm0
-        vaddss  xmm2, xmm1, dword ptr [rsi+22Ch]
-        vmovss  dword ptr [rbp+2D0h+var_290], xmm2
-        vmulss  xmm3, xmm7, xmm0
-        vaddss  xmm1, xmm3, dword ptr [rsi+230h]
-        vmovss  dword ptr [rbp+2D0h+var_290+4], xmm1
-        vmulss  xmm0, xmm0, xmm8
-        vaddss  xmm2, xmm0, dword ptr [rsi+234h]
-        vmovss  dword ptr [rbp+2D0h+var_290+8], xmm2
-        vmovss  [rbp+2D0h+var_140.fraction], xmm15
-      }
-      Bool_Internal_DebugName = Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_altitude_speedLimiter, "fd_helicopter_altitude_speedLimiter");
-      v219 = 0;
-      if ( Bool_Internal_DebugName )
-      {
-        v219 = 0;
-        if ( _RSI->m_playerControlled )
-        {
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rbp+2D0h+var_290]
-            vmovsd  qword ptr [rbp+2D0h+cross], xmm0
-          }
-          cross.v[2] = v2087.v[2];
-          __asm
-          {
-            vmovsd  xmm0, qword ptr [rsi+22Ch]
-            vmovsd  qword ptr [rbp+2D0h+var_290], xmm0
-          }
-          v2087.v[2] = _RSI->m_centerOfMassWs.v[2];
-          FD_Trace(_RSI->m_worldId, &v2110, (const vec3_t *)&v2087, &cross, NULL, 2097, NULL);
-        }
-      }
-      __asm
-      {
-        vmovss  xmm0, [rbp+2D0h+var_140.fraction]
-        vmovss  [rbp+2D0h+var_2E8], xmm0
-        vmovss  xmm1, cs:?HFD_FBW_GYRO_ELEVATOR_SPEED_LIMIT_FORWARD@@3MA; float HFD_FBW_GYRO_ELEVATOR_SPEED_LIMIT_FORWARD
-        vmovss  xmm8, cs:__real@ba83126f
-        vmovss  xmm0, [rbp+2D0h+var_34C]
-        vcomiss xmm0, xmm8
-      }
-      if ( v219 )
-      {
-        __asm { vcomiss xmm10, xmm8 }
-        if ( v219 )
-          __asm { vmovss  xmm1, cs:?HFD_FBW_GYRO_ELEVATOR_SPEED_LIMIT_BACKWARD@@3MA; float HFD_FBW_GYRO_ELEVATOR_SPEED_LIMIT_BACKWARD }
-        else
-          __asm { vmulss  xmm1, xmm1, cs:__real@3f000000 }
-      }
-      __asm
-      {
-        vandps  xmm0, xmm0, xmm14
-        vdivss  xmm6, xmm15, xmm1
-        vmovss  xmm7, [rsp+3D0h+var_370]
-        vmulss  xmm0, xmm7, xmm0
-        vmulss  xmm0, xmm0, xmm6; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm0, xmm15, xmm0
-        vmovss  [rsp+3D0h+var_38C], xmm0
-        vmulss  xmm0, xmm6, xmm7; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm0, xmm15, xmm0
-        vmovss  [rsp+3D0h+var_378], xmm0
-        vmovss  xmm1, [rsp+3D0h+var_388]
-        vandps  xmm1, xmm1, xmm14
-        vmulss  xmm0, xmm7, xmm1
-        vdivss  xmm0, xmm0, cs:?HFD_FBW_GYRO_AILERON_SPEED_LIMIT@@3MA; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm0, xmm15, xmm0
-        vmovss  [rbp+2D0h+var_340], xmm0
-        vdivss  xmm0, xmm7, cs:?HFD_FBW_GYRO_AILERON_SPEED_LIMIT@@3MA; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm6, xmm15, xmm0
-        vmovss  [rsp+3D0h+var_358], xmm6
-        vmovss  xmm1, cs:?HFD_FBW_GYRO_AILERON_SPEED_LIMIT_EXPO@@3MA; expo
-        vmovaps xmm0, xmm6; value
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  [rbp+2D0h+var_33C], xmm0
-        vmovss  xmm1, cs:?HFD_FBW_GYRO_ELEVATOR_SPEED_LIMIT_EXPO@@3MA; expo
-        vmovss  xmm0, [rsp+3D0h+var_378]; value
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm { vmovss  dword ptr [rbp+2D0h+cross], xmm0 }
-      if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_fbw_enhancer, "fd_helicopter_fbw_enhancer") && _RSI->m_playerControlled )
-      {
-        __asm
-        {
-          vmovss  xmm2, [rbp+2D0h+var_34C]
-          vcomiss xmm2, xmm8
-          vmovss  xmm0, dword ptr [rsi+8D4h]
-          vsubss  xmm0, xmm0, xmm12; val
-          vmovss  dword ptr [rsi+8D4h], xmm0
-          vmovaps xmm2, xmm15; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovss  dword ptr [rsi+8D4h], xmm0
-          vcomiss xmm0, cs:__real@3a83126f
-        }
-        if ( !(v219 | v298) )
-        {
-          __asm
-          {
-            vmovss  xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_REVERSE_LIMITER_VEC_EXPO@@3MA; expo
-            vmovaps xmm0, xmm6; value
-          }
-          *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-          __asm
-          {
-            vmovaps xmm6, xmm0
-            vmovss  xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_REVERSE_LIMITER_VEC_EXPO@@3MA; expo
-            vmovss  xmm7, [rsp+3D0h+var_38C]
-            vmovaps xmm0, xmm7; value
-          }
-          *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-          __asm
-          {
-            vmulss  xmm1, xmm6, xmm6
-            vmulss  xmm0, xmm0, xmm0
-            vaddss  xmm1, xmm1, xmm0
-            vsqrtss xmm2, xmm1, xmm1
-            vmovss  xmm6, dword ptr [rsi+8D8h]
-            vandps  xmm6, xmm6, xmm14
-            vsubss  xmm0, xmm15, xmm2; val
-            vmovaps xmm2, xmm15; max
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vaddss  xmm0, xmm0, xmm6; val
-            vmovaps xmm2, xmm15; max
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmulss  xmm1, xmm0, dword ptr [rsi+8D4h]
-            vsubss  xmm2, xmm15, xmm1
-            vmulss  xmm10, xmm10, xmm2
-            vmulss  xmm6, xmm2, [rsp+3D0h+var_390]
-          }
-          goto LABEL_42;
-        }
-      }
-      else
-      {
-        _RSI->m_GyroFBWEnhancerBackwardsAccumulator = 0.0;
-      }
-      __asm
-      {
-        vmovss  xmm7, [rsp+3D0h+var_38C]
-        vmovss  xmm6, [rsp+3D0h+var_390]
-      }
-LABEL_42:
-      __asm
-      {
-        vmovss  dword ptr [rsi+3E0h], xmm6
-        vmovss  xmm0, [rsp+3D0h+collectiveInput]; value
-        vmovss  dword ptr [rsi+3D4h], xmm0
-        vmovss  dword ptr [rsi+3E8h], xmm9
-        vmovss  dword ptr [rsi+3D8h], xmm10
-        vmovss  xmm1, cs:?HFD_CONTROL_INPUT_RUDDER_DEADZONE@@3MA; deadzone
-      }
-      *(double *)&_XMM0 = FlightDynamics::ComputeDeadzone(*(float *)&_XMM0, *(const float *)&_XMM1);
-      __asm
-      {
-        vmovaps xmm8, xmm0
-        vmovss  [rbp+2D0h+rudderInput], xmm0
-        vmovss  xmm1, cs:?HFD_CONTROL_INPUT_ELEVATOR_DEADZONE@@3MA; deadzone
-        vmovaps xmm0, xmm10; value
-      }
-      *(double *)&_XMM0 = FlightDynamics::ComputeDeadzone(*(float *)&_XMM0, *(const float *)&_XMM1);
-      __asm
-      {
-        vsubss  xmm3, xmm15, [rsp+3D0h+var_358]
-        vsubss  xmm1, xmm15, xmm3
-        vmulss  xmm4, xmm1, cs:?HFD_CONTROL_INPUT_ELEVATOR_EXPO@@3MA; float HFD_CONTROL_INPUT_ELEVATOR_EXPO
-        vmulss  xmm3, xmm3, cs:?HFD_CONTROL_INPUT_ELEVATOR_EXPO_SPEED@@3MA; float HFD_CONTROL_INPUT_ELEVATOR_EXPO_SPEED
-        vaddss  xmm1, xmm4, xmm3; expo
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovaps xmm10, xmm0
-        vmovss  xmm1, cs:?HFD_CONTROL_INPUT_AILERON_DEADZONE@@3MA; deadzone
-        vmovaps xmm0, xmm6; value
-      }
-      *(double *)&_XMM0 = FlightDynamics::ComputeDeadzone(*(float *)&_XMM0, *(const float *)&_XMM1);
-      __asm
-      {
-        vsubss  xmm3, xmm15, [rbp+2D0h+var_33C]
-        vsubss  xmm1, xmm15, xmm3
-        vmulss  xmm4, xmm1, cs:?HFD_CONTROL_INPUT_AILERON_EXPO@@3MA; float HFD_CONTROL_INPUT_AILERON_EXPO
-        vmulss  xmm3, xmm3, cs:?HFD_CONTROL_INPUT_AILERON_EXPO_SPEED@@3MA; float HFD_CONTROL_INPUT_AILERON_EXPO_SPEED
-        vaddss  xmm1, xmm4, xmm3; expo
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vmovss  xmm0, [rbp+2D0h+var_34C]
-        vcomiss xmm0, xmm11
-      }
-      if ( v297 | v298 )
-      {
-        __asm
-        {
-          vxorps  xmm1, xmm7, xmm13
-          vcmpltss xmm0, xmm10, xmm1
-          vblendvps xmm0, xmm10, xmm1, xmm0
-          vmovaps xmm10, xmm0
-          vmovss  [rsp+3D0h+elevatorInput], xmm0
-        }
-      }
-      else
-      {
-        __asm { vcomiss xmm10, xmm7 }
-        if ( !(v297 | v298) )
-          __asm { vmovaps xmm10, xmm7 }
-      }
-      __asm
-      {
-        vmovss  xmm0, [rsp+3D0h+var_388]
-        vcomiss xmm0, xmm11
-        vmovss  xmm0, [rbp+2D0h+var_340]
-      }
-      if ( v297 )
-      {
-        __asm { vcomiss xmm6, xmm0 }
-        if ( !(v297 | v298) )
-          __asm { vmovaps xmm6, xmm0 }
-      }
-      else
-      {
-        __asm
-        {
-          vxorps  xmm1, xmm0, xmm13
-          vcmpltss xmm0, xmm6, xmm1
-          vblendvps xmm0, xmm6, xmm1, xmm0
-          vmovaps xmm6, xmm0
-          vmovss  [rsp+3D0h+aileronInput], xmm0
-        }
-      }
-      __asm
-      {
-        vmulss  xmm0, xmm9, dword ptr [rsi+93Ch]; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm3, xmm10, cs:__real@3f400000
-        vsubss  xmm1, xmm15, xmm0
-        vmulss  xmm2, xmm1, xmm10
-        vmulss  xmm0, xmm3, xmm0
-        vaddss  xmm10, xmm2, xmm0
-        vmovss  [rsp+3D0h+var_364], xmm10
-        vmulss  xmm3, xmm9, dword ptr [rsi+93Ch]
-        vandps  xmm3, xmm3, xmm14
-        vmulss  xmm1, xmm6, cs:__real@3f000000
-        vsubss  xmm0, xmm15, xmm3
-        vmulss  xmm2, xmm0, xmm6
-        vmulss  xmm1, xmm1, xmm3
-        vaddss  xmm6, xmm2, xmm1
-        vxorps  xmm0, xmm9, xmm13; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm3, xmm6, cs:__real@3f400000
-        vsubss  xmm1, xmm15, xmm0
-        vmulss  xmm2, xmm1, xmm6
-        vmulss  xmm0, xmm3, xmm0
-        vaddss  xmm1, xmm2, xmm0
-        vmovss  [rsp+3D0h+var_390], xmm1
-        vmovaps xmm5, xmm1
-        vmovss  xmm2, [rbp+2D0h+var_324]
-        vmulss  xmm0, xmm1, xmm2
-        vcomiss xmm0, xmm11
-      }
-      if ( !(v219 | v298) )
-      {
-        __asm
-        {
-          vandps  xmm0, xmm2, xmm14
-          vsubss  xmm0, xmm15, xmm0
-          vmulss  xmm5, xmm0, xmm1
-          vmovss  [rsp+3D0h+var_390], xmm5
-        }
-      }
-      __asm
-      {
-        vmovss  xmm4, dword ptr [rsi+350h]
-        vmovss  dword ptr [rbp+2D0h+var_200], xmm4
-        vmovss  xmm3, dword ptr [rsi+354h]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm3, xmm3
-        vaddss  xmm1, xmm1, xmm0
-        vsqrtss xmm2, xmm1, xmm1
-        vcmpless xmm0, xmm2, cs:__real@80000000
-        vblendvps xmm1, xmm2, xmm15, xmm0
-        vmovss  [rbp+2D0h+var_334], xmm1
-        vdivss  xmm1, xmm15, xmm1
-        vmulss  xmm0, xmm4, xmm1
-        vmovss  dword ptr [rbp+2D0h+var_200], xmm0
-        vmulss  xmm1, xmm1, xmm3
-        vmovss  dword ptr [rbp+2D0h+var_200+4], xmm1
-        vmovss  [rbp+2D0h+var_1F8], xmm11
-        vmovss  xmm4, dword ptr [rsi+344h]
-        vmovss  dword ptr [rbp+2D0h+var_1C0], xmm4
-        vmovss  xmm3, dword ptr [rsi+348h]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm3, xmm3
-        vaddss  xmm1, xmm1, xmm0
-        vsqrtss xmm2, xmm1, xmm1
-        vcmpless xmm0, xmm2, cs:__real@80000000
-        vblendvps xmm1, xmm2, xmm15, xmm0
-        vmovss  [rbp+2D0h+var_334], xmm1
-        vdivss  xmm1, xmm15, xmm1
-        vmulss  xmm0, xmm4, xmm1
-        vmovss  dword ptr [rbp+2D0h+var_1C0], xmm0
-        vmulss  xmm1, xmm1, xmm3
-        vmovss  dword ptr [rbp+2D0h+var_1C0+4], xmm1
-        vmovss  [rbp+2D0h+var_1B8], xmm11
-        vmulss  xmm2, xmm10, xmm10
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm1, xmm2, xmm0
-        vsqrtss xmm0, xmm1, xmm1
-        vmovss  [rsp+3D0h+aileronInput], xmm0
-        vmovss  xmm2, dword ptr [r14]
-        vsubss  xmm5, xmm2, dword ptr [rsi+8FCh]
-        vmovss  xmm0, dword ptr [r14+4]
-        vsubss  xmm4, xmm0, dword ptr [rsi+900h]
-        vmovss  xmm1, dword ptr [r14+8]
-        vsubss  xmm3, xmm1, dword ptr [rsi+904h]
-        vmovss  dword ptr [rsi+8FCh], xmm2
-        vmovss  xmm0, dword ptr [rsi+2E8h]
-        vmovss  dword ptr [rsi+900h], xmm0
-        vmovss  xmm1, dword ptr [rsi+2ECh]
-        vmovss  dword ptr [rsi+904h], xmm1
-        vdivss  xmm7, xmm15, xmm12
-        vmulss  xmm0, xmm7, cs:?HFD_GYRO_ACCELERATION_PID_FACTOR@@3MA; float HFD_GYRO_ACCELERATION_PID_FACTOR
-        vmulss  xmm2, xmm0, xmm5
-        vmulss  xmm1, xmm0, xmm4
-        vmulss  xmm5, xmm0, xmm3
-        vaddss  xmm10, xmm2, dword ptr [r14]
-        vmovss  [rbp+2D0h+var_334], xmm10
-        vaddss  xmm4, xmm1, dword ptr [r14+4]
-        vmovss  [rbp+2D0h+var_2DC], xmm4
-        vaddss  xmm6, xmm5, dword ptr [r14+8]
-        vmovss  [rsp+3D0h+var_374], xmm6
-        vmulss  xmm2, xmm10, dword ptr [rbp+2D0h+var_200]
-        vmulss  xmm1, xmm4, dword ptr [rbp+2D0h+var_200+4]
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm6, [rbp+2D0h+var_1F8]
-        vaddss  xmm0, xmm3, xmm0
-        vmovss  [rbp+2D0h+var_2C0], xmm0
-        vmulss  xmm1, xmm4, dword ptr [rsi+348h]
-        vmulss  xmm0, xmm10, dword ptr [rsi+344h]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, dword ptr [rsi+34Ch]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  [rbp+2D0h+var_2FC], xmm0
-      }
-      BG_GetFlightDynamicsManager();
-      __asm
-      {
-        vmovss  xmm0, [rbp+2D0h+var_2DC]
-        vmulss  xmm1, xmm0, dword ptr [rax+10h]
-        vmulss  xmm0, xmm10, dword ptr [rax+0Ch]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, dword ptr [rax+14h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  [rbp+2D0h+var_350], xmm0
-        vmovss  xmm3, cs:?HFD_GYRO_VELOCITY_PID_FACTOR@@3MA; float HFD_GYRO_VELOCITY_PID_FACTOR
-        vmulss  xmm0, xmm3, dword ptr [r14]
-        vaddss  xmm0, xmm0, dword ptr [rsi+22Ch]
-        vmovss  [rbp+2D0h+var_2D4], xmm0
-        vmulss  xmm1, xmm3, dword ptr [r14+4]
-        vaddss  xmm0, xmm1, dword ptr [rsi+230h]
-        vmovss  [rbp+2D0h+var_320], xmm0
-        vmulss  xmm0, xmm3, dword ptr [r14+8]
-        vaddss  xmm0, xmm0, dword ptr [rsi+234h]
-        vmovss  [rbp+2D0h+var_308], xmm0
-      }
-      QuatTransform(&_RSI->m_RotationInertiaQuat, &_RSI->m_forwardVector, &v2104);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+1B4h]
-        vmulss  xmm3, xmm0, dword ptr [rdi+4]
-        vmovss  xmm1, dword ptr [rdi]
-        vmulss  xmm2, xmm1, dword ptr [rsi+1B0h]
-        vaddss  xmm4, xmm3, xmm2
-        vmovss  xmm0, dword ptr [rsi+1B8h]
-        vmulss  xmm1, xmm0, dword ptr [rdi+8]
-        vaddss  xmm2, xmm4, xmm1
-        vmovss  [rsp+3D0h+var_388], xmm2
-      }
-      QuatTransform(&_RSI->m_RotationInertiaQuat, &_RSI->m_upVector, &v2104);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+2D0h+var_1A0]
-        vsubss  xmm2, xmm0, dword ptr [rdi]
-        vmovss  xmm1, dword ptr [rbp+2D0h+var_1A0+4]
-        vsubss  xmm4, xmm1, dword ptr [rdi+4]
-        vmovss  xmm0, dword ptr [rbp+2D0h+var_1A0+8]
-        vsubss  xmm3, xmm0, dword ptr [rdi+8]
-        vmulss  xmm1, xmm7, cs:?HFD_GYRO_ANGULAR_CYCLIC_VELOCITY_FACTOR@@3MA; float HFD_GYRO_ANGULAR_CYCLIC_VELOCITY_FACTOR
-        vmulss  xmm2, xmm2, xmm1
-        vmulss  xmm0, xmm4, xmm1
-        vmulss  xmm5, xmm3, xmm1
-        vaddss  xmm7, xmm2, dword ptr [rdi]
-        vmovss  dword ptr [rbp+2D0h+v1], xmm7
-        vaddss  xmm6, xmm0, dword ptr [rsi+360h]
-        vmovss  dword ptr [rbp+2D0h+v1+4], xmm6
-        vaddss  xmm4, xmm5, dword ptr [rsi+364h]
-        vmulss  xmm1, xmm6, xmm6
-        vmulss  xmm0, xmm7, xmm7
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, xmm4
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
-        vmovss  xmm10, cs:__real@80000000
-        vcmpless xmm0, xmm3, xmm10
-        vblendvps xmm1, xmm3, xmm15, xmm0
-        vmovss  dword ptr [rbp+2D0h+var_330], xmm1
-        vdivss  xmm2, xmm15, xmm1
-        vmulss  xmm0, xmm7, xmm2
-        vmovss  dword ptr [rbp+2D0h+v1], xmm0
-        vmulss  xmm1, xmm6, xmm2
-        vmovss  dword ptr [rbp+2D0h+v1+4], xmm1
-        vmulss  xmm0, xmm4, xmm2
-        vmovss  dword ptr [rbp+2D0h+v1+8], xmm0
-      }
-      FlightDynamicsManager = BG_GetFlightDynamicsManager();
-      Vec3Cross(&FlightDynamicsManager->m_UpAxis, &v1, (vec3_t *)&v2087);
-      __asm
-      {
-        vmovss  xmm5, dword ptr [rbp+2D0h+var_290+4]
-        vmulss  xmm1, xmm5, dword ptr [rsi+348h]
-        vmovss  xmm3, dword ptr [rbp+2D0h+var_290]
-        vmulss  xmm0, xmm3, dword ptr [rsi+344h]
-        vaddss  xmm2, xmm1, xmm0
-        vmovss  xmm4, dword ptr [rbp+2D0h+var_290+8]
-        vmulss  xmm0, xmm4, dword ptr [rsi+34Ch]
-        vaddss  xmm0, xmm2, xmm0
-        vmovss  [rbp+2D0h+var_2CC], xmm0
-        vmulss  xmm1, xmm5, dword ptr [rsi+354h]
-        vmulss  xmm0, xmm3, dword ptr [rsi+350h]
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm4, dword ptr [rsi+358h]
-        vaddss  xmm0, xmm2, xmm1
-        vmovss  [rbp+2D0h+var_2F8], xmm0
-        vmovss  xmm6, [rsp+3D0h+var_388]
-        vmulss  xmm0, xmm6, dword ptr [rsi+344h]
-        vaddss  xmm5, xmm0, dword ptr [rsi+350h]
-        vmulss  xmm1, xmm6, dword ptr [rsi+348h]
-        vaddss  xmm4, xmm1, dword ptr [rsi+354h]
-        vmulss  xmm2, xmm5, xmm5
-        vmulss  xmm0, xmm4, xmm4
-        vaddss  xmm1, xmm2, xmm0
-        vsqrtss xmm3, xmm1, xmm1
-        vcmpless xmm0, xmm3, xmm10
-        vblendvps xmm1, xmm3, xmm15, xmm0
-        vmovss  dword ptr [rbp+2D0h+var_330], xmm1
-        vdivss  xmm0, xmm15, xmm1
-        vmulss  xmm1, xmm5, xmm0
-        vmovss  [rbp+2D0h+var_2F4], xmm1
-        vmulss  xmm0, xmm4, xmm0
-        vmovss  [rbp+2D0h+var_2F0], xmm0
-        vmovss  xmm3, dword ptr [rsi+344h]
-        vmovss  dword ptr [rbp+2D0h+var_250], xmm3
-        vmovss  xmm4, dword ptr [rsi+348h]
-        vmovss  dword ptr [rbp+2D0h+var_250+4], xmm4
-        vmulss  xmm2, xmm6, cs:?HFD_TAIL_GYRO_ANGULAR_VELOCITY_MULTIPLIER@@3MA; float HFD_TAIL_GYRO_ANGULAR_VELOCITY_MULTIPLIER
-        vmulss  xmm1, xmm2, dword ptr [rsi+350h]
-        vaddss  xmm6, xmm3, xmm1
-        vmovss  dword ptr [rbp+2D0h+var_250], xmm6
-        vmulss  xmm0, xmm2, dword ptr [rsi+354h]
-        vaddss  xmm5, xmm4, xmm0
-        vmulss  xmm2, xmm5, xmm5
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm0, xmm2, xmm1
-        vsqrtss xmm3, xmm0, xmm0
-        vcmpless xmm0, xmm3, xmm10
-        vblendvps xmm1, xmm3, xmm15, xmm0
-        vmovss  dword ptr [rbp+2D0h+var_330], xmm1
-        vdivss  xmm1, xmm15, xmm1
-        vmulss  xmm0, xmm6, xmm1
-        vmovss  dword ptr [rbp+2D0h+var_250], xmm0
-        vmulss  xmm1, xmm5, xmm1
-        vmovss  dword ptr [rbp+2D0h+var_250+4], xmm1
-        vmovss  dword ptr [rbp+2D0h+var_250+8], xmm11
-      }
-      if ( _RSI->m_playerControlled && Physics_IsPredictiveWorld(_RSI->m_worldId) && Sys_IsMainThread() && DEBUG_DRAW_FBW_LINES )
-      {
-        __asm
-        {
-          vmovss  xmm6, cs:__real@43fa0000
-          vmulss  xmm0, xmm6, dword ptr [rsi+4ECh]
-          vaddss  xmm1, xmm0, dword ptr [rcx]
-          vmovss  dword ptr [rbp+2D0h+end], xmm1
-          vmulss  xmm0, xmm6, dword ptr [rsi+4F0h]
-          vaddss  xmm1, xmm0, dword ptr [rcx+4]
-          vmovss  dword ptr [rbp+2D0h+end+4], xmm1
-          vmulss  xmm0, xmm6, dword ptr [rsi+4F4h]
-          vaddss  xmm1, xmm0, dword ptr [rcx+8]
-          vmovss  dword ptr [rbp+2D0h+end+8], xmm1
-        }
-        FD_DebugLine(&_RSI->m_centerOfMassWs, &end, &colorRed, 0, DEBUG_LINE_TIME);
-        __asm
-        {
-          vmulss  xmm1, xmm6, dword ptr [rbp+2D0h+var_250]
-          vaddss  xmm2, xmm1, dword ptr [rcx]
-          vmovss  dword ptr [rbp+2D0h+end], xmm2
-          vmulss  xmm1, xmm6, dword ptr [rbp+2D0h+var_250+4]
-          vaddss  xmm1, xmm1, dword ptr [rcx+4]
-          vmovss  dword ptr [rbp+2D0h+end+4], xmm1
-          vmulss  xmm2, xmm6, dword ptr [rbp+2D0h+var_250+8]
-          vaddss  xmm1, xmm2, dword ptr [rcx+8]
-          vmovss  dword ptr [rbp+2D0h+end+8], xmm1
-        }
-        FD_DebugLine(&_RSI->m_centerOfMassWs, &end, &colorBlue, 0, DEBUG_LINE_TIME);
-      }
-      v495 = !_RSI->m_GyroRudderForwardVectorSet;
-      if ( !_RSI->m_GyroRudderForwardVectorSet )
-      {
-        _RSI->m_GyroRudderForwardVectorSet = 1;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+2D0h+var_250]
-          vmovss  dword ptr [rsi+4ECh], xmm0
-          vmovss  xmm1, dword ptr [rbp+2D0h+var_250+4]
-          vmovss  dword ptr [rsi+4F0h], xmm1
-          vmovss  xmm0, dword ptr [rbp+2D0h+var_250+8]
-          vmovss  dword ptr [rsi+4F4h], xmm0
-        }
-      }
-      __asm
-      {
-        vandps  xmm0, xmm8, xmm14
-        vmovss  [rsp+3D0h+collectiveInput], xmm0
-      }
-      _RAX = &_RSI->m_GyroRudderStrength;
-      __asm { vcomiss xmm0, cs:__real@3a83126f }
-      if ( !v495 )
-      {
-        p_m_GyroRudderStrength = (HelicopterDynamics *)&_RSI->m_GyroRudderStrength;
-        __asm
-        {
-          vmovss  xmm2, dword ptr [rax]
-          vsubss  xmm0, xmm2, xmm8
-          vandps  xmm0, xmm0, xmm14
-          vcomiss xmm0, xmm15
-        }
-      }
-      p_m_GyroRudderStrength = (HelicopterDynamics *)&_RSI->m_GyroRudderStrength;
-      __asm
-      {
-        vmulss  xmm1, xmm12, cs:?HFD_FBW_GYRO_RUDDER_HEADHOLD_TO_RATE_DECAY@@3MA; float HFD_FBW_GYRO_RUDDER_HEADHOLD_TO_RATE_DECAY
-        vsubss  xmm1, xmm15, xmm1
-        vmulss  xmm0, xmm1, dword ptr [rax]
-        vmovss  dword ptr [rax], xmm0
-      }
-      Vec3Cross(&_RSI->m_GyroRudderForwardVector, &v2091, (vec3_t *)&v2087);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+2D0h+var_290+4]
-        vmulss  xmm3, xmm0, dword ptr [rdi+4]
-        vmovss  xmm1, dword ptr [rbp+2D0h+var_290]
-        vmulss  xmm2, xmm1, dword ptr [rdi]
-        vaddss  xmm4, xmm3, xmm2
-        vmovss  xmm0, dword ptr [rbp+2D0h+var_290+8]
-        vmulss  xmm1, xmm0, dword ptr [rdi+8]
-        vaddss  xmm2, xmm4, xmm1
-        vmulss  xmm0, xmm2, cs:?HFD_GYRO_TAIL_LOCK_STRENGTH@@3MA; value
-        vmovss  xmm1, cs:?HFD_GYRO_TAIL_LOCK_STRENGTH_EXPO@@3MA; expo
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovaps xmm5, xmm0
-        vmovss  [rsp+3D0h+var_368], xmm0
-        vsubss  xmm0, xmm15, [rsp+3D0h+var_38C]
-        vsubss  xmm1, xmm15, xmm0
-        vmovss  [rbp+2D0h+var_30C], xmm1
-        vmulss  xmm2, xmm1, cs:?HFD_FBW_GYRO_RUDDER_RATE_MANUAL@@3MA; float HFD_FBW_GYRO_RUDDER_RATE_MANUAL
-        vmulss  xmm1, xmm0, cs:?HFD_FBW_GYRO_RUDDER_RATE_MANUAL_SPEED@@3MA; float HFD_FBW_GYRO_RUDDER_RATE_MANUAL_SPEED
-        vaddss  xmm3, xmm2, xmm1
-      }
-      _RAX = (__int64)p_m_GyroRudderStrength;
-      __asm
-      {
-        vmovss  xmm7, dword ptr [rax]
-        vmulss  xmm4, xmm3, xmm7
-        vandps  xmm4, xmm4, xmm14
-        vsubss  xmm0, xmm15, xmm4
-        vmulss  xmm2, xmm0, xmm5
-        vmulss  xmm1, xmm4, xmm7
-        vaddss  xmm5, xmm2, xmm1
-        vmulss  xmm3, xmm8, cs:?HFD_GYRO_TAIL_MAX_TURN_RATE@@3MA; float HFD_GYRO_TAIL_MAX_TURN_RATE
-        vmovss  xmm1, cs:?HFD_TAIL_GYRO_ANGULAR_VELOCITY_MULTIPLIER@@3MA; float HFD_TAIL_GYRO_ANGULAR_VELOCITY_MULTIPLIER
-        vmulss  xmm2, xmm1, [rsp+3D0h+var_388]
-        vsubss  xmm0, xmm3, xmm2
-        vmulss  xmm3, xmm0, cs:?HFD_GYRO_TAIL_MAX_TURN_RATE_STRENGTH@@3MA; float HFD_GYRO_TAIL_MAX_TURN_RATE_STRENGTH
-        vmulss  xmm1, xmm3, xmm12
-        vmovss  xmm6, dword ptr [rsi+940h]
-        vandps  xmm7, xmm7, xmm14
-        vsubss  xmm0, xmm15, xmm7
-        vmulss  xmm2, xmm0, xmm5
-        vmulss  xmm1, xmm1, xmm7
-        vsubss  xmm0, xmm2, xmm1; val
-        vmovaps xmm2, xmm15; max
-        vmovss  xmm10, cs:__real@bf800000
-        vmovaps xmm1, xmm10; min
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm1, xmm15, xmm6
-        vmulss  xmm4, xmm1, xmm0
-        vmovss  xmm2, [rbp+2D0h+var_304]
-        vsubss  xmm1, xmm15, xmm2
-        vmulss  xmm2, xmm2, cs:?HFD_FBW_RESPOSNE_RATE_RUDDER@@3MA; float HFD_FBW_RESPOSNE_RATE_RUDDER
-        vmulss  xmm1, xmm1, cs:?HFD_FBW_RESPOSNE_RATE_RUDDER_LOW_HZ@@3MA; float HFD_FBW_RESPOSNE_RATE_RUDDER_LOW_HZ
-        vaddss  xmm2, xmm2, xmm1
-        vmulss  xmm3, xmm2, xmm12
-        vsubss  xmm0, xmm15, xmm3
-        vmulss  xmm2, xmm0, dword ptr [rsi+47Ch]
-        vmulss  xmm1, xmm4, xmm3
-        vaddss  xmm2, xmm2, xmm1
-        vmovss  dword ptr [rsi+47Ch], xmm2
-        vmovss  xmm1, [rsp+3D0h+var_368]
-        vcomiss xmm1, xmm11
-      }
-      if ( v219 )
-        __asm { vcmpltss xmm0, xmm11, xmm8 }
-      else
-        __asm { vcmpltss xmm0, xmm8, xmm11 }
-      __asm
-      {
-        vblendvps xmm0, xmm11, xmm1, xmm0
-        vmovss  [rsp+3D0h+var_388], xmm0
-        vmovss  xmm6, cs:?HFD_FBW_GYRO_RUDDER_VECTOR_DELTA_MAX@@3MA; float HFD_FBW_GYRO_RUDDER_VECTOR_DELTA_MAX
-        vmovss  xmm0, [rsp+3D0h+var_388]
-        vandps  xmm0, xmm0, xmm14
-        vsubss  xmm0, xmm15, xmm0; value
-        vmovaps xmm1, xmm6; deadzone
-      }
-      *(double *)&_XMM0 = FlightDynamics::ComputeDeadzone(*(float *)&_XMM0, *(const float *)&_XMM1);
-      __asm
-      {
-        vmovaps xmm2, xmm6; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vmovss  xmm1, cs:?HFD_FBW_GYRO_RUDDER_SPEEDLIMITER_EXPO@@3MA; expo
-        vmovss  xmm0, [rsp+3D0h+var_38C]; value
-      }
-      FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vsubss  xmm0, xmm15, xmm0
-        vmovss  [rbp+2D0h+var_2E0], xmm0
-        vsubss  xmm1, xmm15, xmm0
-        vmovss  [rbp+2D0h+var_2D8], xmm1
-        vmulss  xmm0, xmm6, xmm0
-        vaddss  xmm3, xmm0, xmm1
-        vmovss  xmm0, [rbp+2D0h+var_30C]
-        vmulss  xmm1, xmm0, cs:?HFD_FBW_GYRO_RUDDER_RATE@@3MA; float HFD_FBW_GYRO_RUDDER_RATE
-        vsubss  xmm0, xmm15, [rsp+3D0h+var_38C]
-        vmulss  xmm0, xmm0, cs:?HFD_FBW_GYRO_RUDDER_RATE_AT_SPEED@@3MA; float HFD_FBW_GYRO_RUDDER_RATE_AT_SPEED
-        vaddss  xmm2, xmm1, xmm0
-        vmovss  xmm4, [rsp+3D0h+var_370]
-        vmulss  xmm4, xmm4, cs:?HFD_FBW_GYRO_AIL_TO_RUDDER_SPEED@@3MA; float HFD_FBW_GYRO_AIL_TO_RUDDER_SPEED
-        vmulss  xmm0, xmm3, xmm8
-        vmulss  xmm3, xmm0, xmm2
-        vmovss  xmm1, cs:?HFD_FBW_GYRO_AIL_TO_RUDDER_RATE@@3MA; float HFD_FBW_GYRO_AIL_TO_RUDDER_RATE
-        vmulss  xmm2, xmm1, [rsp+3D0h+var_390]
-        vmulss  xmm0, xmm2, xmm4
-        vaddss  xmm3, xmm3, xmm0
-        vsubss  xmm1, xmm15, dword ptr [rsi+940h]
-        vmulss  xmm7, xmm1, xmm3
-        vandps  xmm2, xmm7, xmm14
-        vmulss  xmm1, xmm2, cs:?HFD_HFD_FBW_GYRO_RUDDER_RATE_MANUAL_VECTOR@@3MA; float HFD_HFD_FBW_GYRO_RUDDER_RATE_MANUAL_VECTOR
-        vmulss  xmm0, xmm1, xmm12; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vmovss  xmm1, dword ptr [rbp+2D0h+var_250]
-        vsubss  xmm2, xmm1, dword ptr [rsi+4ECh]
-        vmulss  xmm3, xmm2, xmm0
-        vaddss  xmm4, xmm3, dword ptr [rsi+4ECh]
-        vmovss  dword ptr [rsi+4ECh], xmm4
-        vmovss  xmm1, dword ptr [rbp+2D0h+var_250+4]
-        vsubss  xmm2, xmm1, dword ptr [rsi+4F0h]
-        vmulss  xmm3, xmm2, xmm0
-        vaddss  xmm4, xmm3, dword ptr [rsi+4F0h]
-        vmovss  dword ptr [rsi+4F0h], xmm4
-        vmovss  xmm0, dword ptr [rbp+2D0h+var_250+8]
-        vsubss  xmm1, xmm0, dword ptr [rsi+4F4h]
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm3, xmm2, dword ptr [rsi+4F4h]
-        vmovss  dword ptr [rsi+4F4h], xmm3
-      }
-      Vec3Normalize(&_RSI->m_GyroRudderForwardVector);
-      v609 = BG_GetFlightDynamicsManager();
-      Vec3Cross(&v609->m_UpAxis, &_RSI->m_GyroRudderForwardVector, (vec3_t *)&v2087);
-      Vec3Normalize((vec3_t *)&v2087);
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi+940h]
-        vsubss  xmm0, xmm15, xmm1
-        vmulss  xmm2, xmm0, xmm7
-        vmulss  xmm1, xmm1, xmm8
-        vaddss  xmm2, xmm2, xmm1
-        vmulss  xmm3, xmm2, xmm12
-        vmulss  xmm0, xmm3, dword ptr [rbp+2D0h+var_290]
-        vaddss  xmm1, xmm0, dword ptr [rsi+4ECh]
-        vmovss  dword ptr [rsi+4ECh], xmm1
-        vmulss  xmm2, xmm3, dword ptr [rbp+2D0h+var_290+4]
-        vaddss  xmm0, xmm2, dword ptr [rsi+4F0h]
-        vmovss  dword ptr [rsi+4F0h], xmm0
-      }
-      _RSI->m_GyroRudderForwardVector.v[2] = 0.0;
-      Vec3Normalize(&_RSI->m_GyroRudderForwardVector);
-      _RSI->m_FlyByWireNormalizedVector.v[0] = _RSI->m_GyroRudderForwardVector.v[0];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+4F0h]
-        vmovss  dword ptr [rsi+4CCh], xmm0
-        vmovss  xmm1, dword ptr [rsi+4F4h]
-        vmovss  dword ptr [rsi+4D0h], xmm1
-      }
-      _RAX = (__int64)p_m_GyroRudderStrength;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vandps  xmm0, xmm0, xmm14
-        vmovss  xmm1, [rsp+3D0h+var_390]
-        vandps  xmm1, xmm1, xmm14
-        vmovss  [rbp+2D0h+var_344], xmm1
-        vmovss  xmm8, [rsp+3D0h+var_364]
-        vandps  xmm2, xmm8, xmm14
-        vmovss  [rsp+3D0h+elevatorInput], xmm2
-        vaddss  xmm0, xmm1, xmm0
-        vaddss  xmm0, xmm0, xmm2; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm6, xmm15, [rsp+3D0h+var_38C]
-        vmulss  xmm3, xmm0, xmm6
-        vsubss  xmm1, xmm15, xmm3
-        vmulss  xmm2, xmm1, cs:?HFD_GYRO_ALTITUDE_LOCK_MAX_COLLECTIVE@@3MA; float HFD_GYRO_ALTITUDE_LOCK_MAX_COLLECTIVE
-        vmulss  xmm0, xmm3, cs:?HFD_GYRO_ALTITUDE_LOCK_MAX_COLLECTIVE_SPEED@@3MA; float HFD_GYRO_ALTITUDE_LOCK_MAX_COLLECTIVE_SPEED
-        vaddss  xmm7, xmm2, xmm0
-        vmovss  [rbp+2D0h+var_300], xmm7
-      }
-      _RAX = (__int64)p_m_GyroRudderStrength;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rax]
-        vandps  xmm1, xmm1, xmm14
-        vaddss  xmm0, xmm1, [rbp+2D0h+var_344]
-        vaddss  xmm0, xmm0, [rsp+3D0h+elevatorInput]; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm3, xmm0, xmm6
-        vsubss  xmm1, xmm15, xmm3
-        vmulss  xmm2, xmm1, cs:?HFD_GYRO_ALTITUDE_LOCK_MIN_COLLECTIVE@@3MA; float HFD_GYRO_ALTITUDE_LOCK_MIN_COLLECTIVE
-        vmulss  xmm0, xmm3, cs:?HFD_GYRO_ALTITUDE_LOCK_MIN_COLLECTIVE_SPEED@@3MA; float HFD_GYRO_ALTITUDE_LOCK_MIN_COLLECTIVE_SPEED
-        vaddss  xmm0, xmm2, xmm0
-        vmovss  [rsp+3D0h+var_368], xmm0
-      }
-      if ( _RSI->m_GyroAltitudeSet )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm12, cs:?HFD_GYRO_ALTITUDE_LOCK_STRENGTH_RATE@@3MA; float HFD_GYRO_ALTITUDE_LOCK_STRENGTH_RATE
-          vaddss  xmm0, xmm1, dword ptr [rsi+90Ch]; val
-          vmovss  dword ptr [rsi+90Ch], xmm0
-          vmovss  xmm2, cs:?HFD_GYRO_ALTITUDE_LOCK_STRENGTH@@3MA; float HFD_GYRO_ALTITUDE_LOCK_STRENGTH
-          vandps  xmm2, xmm2, xmm14; max
-          vxorps  xmm1, xmm2, xmm13; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovss  dword ptr [rsi+90Ch], xmm0
-          vdivss  xmm0, xmm0, cs:?HFD_GYRO_ALTITUDE_LOCK_STRENGTH@@3MA; float HFD_GYRO_ALTITUDE_LOCK_STRENGTH
-          vmovss  [rsp+3D0h+var_388], xmm0
-          vmovss  xmm0, cs:?HFD_HFD_GYRO_ALTITUDE_COLLECTIVE_FACTOR_SCALE@@3MA; float HFD_HFD_GYRO_ALTITUDE_COLLECTIVE_FACTOR_SCALE
-          vmulss  xmm0, xmm0, [rbp+2D0h+var_350]
-          vandps  xmm0, xmm0, xmm14; val
-          vmovss  xmm2, cs:__real@42fe0000; max
-          vmovss  xmm1, cs:?HFD_GYRO_ALTITUDE_COLLECTIVE_FACTOR_MIN@@3MA; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovaps xmm6, xmm0 }
-        vec3_t::operator[](&_RSI->m_centerOfMassWs, 2);
-        __asm
-        {
-          vsubss  xmm2, xmm15, xmm6
-          vmulss  xmm4, xmm2, dword ptr [rax]
-          vmulss  xmm3, xmm6, [rbp+2D0h+var_308]
-          vaddss  xmm5, xmm4, xmm3
-          vmovss  xmm2, dword ptr [rsi+910h]
-          vsubss  xmm4, xmm2, xmm5
-          vmulss  xmm3, xmm4, cs:?HFD_GYRO_ALTITUDE_DIFFERENCE_FACTOR@@3MA; float HFD_GYRO_ALTITUDE_DIFFERENCE_FACTOR
-          vmulss  xmm0, xmm6, [rsp+3D0h+var_374]
-          vaddss  xmm2, xmm0, xmm3
-          vmulss  xmm6, xmm2, dword ptr [rsi+90Ch]
-          vmovaps xmm2, xmm7; max
-          vmovss  xmm1, [rsp+3D0h+var_368]; min
-          vmovaps xmm0, xmm6; val
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovss  [rbp+2D0h+var_350], xmm0
-          vmovss  xmm1, cs:?HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_EXPO@@3MA; expo
-          vmovss  xmm0, [rsp+3D0h+var_35C]; value
-        }
-        *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
-        {
-          vmovaps xmm2, xmm15; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vsubss  xmm0, xmm15, xmm0
-          vmovss  [rsp+3D0h+var_368], xmm0
-        }
-        _RBX = vec3_t::operator[](&_RSI->m_Velocity, 2);
-        vec3_t::operator[](&_RSI->m_centerOfMassWs, 2);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx]
-          vaddss  xmm3, xmm0, dword ptr [rax]
-          vmovss  xmm1, dword ptr [rsi+910h]
-          vsubss  xmm2, xmm1, cs:?HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_THRESHOLD@@3MA; float HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_THRESHOLD
-          vcomiss xmm3, xmm2
-        }
-        if ( v682 )
-          goto LABEL_69;
-        __asm { vcomiss xmm6, xmm7 }
-        if ( v682 | v683 )
-          goto LABEL_68;
-        __asm
-        {
-          vmovss  xmm0, [rsp+3D0h+aileronInput]
-          vcomiss xmm0, cs:__real@3c23d70a
-        }
-        if ( v682 | v683 )
-        {
-LABEL_68:
-          __asm
-          {
-            vmulss  xmm1, xmm12, cs:?HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_DOWN@@3MA; float HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_DOWN
-            vsubss  xmm1, xmm15, xmm1
-            vmulss  xmm0, xmm1, dword ptr [rsi+93Ch]
-            vmovss  dword ptr [rsi+93Ch], xmm0
-          }
-        }
-        else
-        {
-LABEL_69:
-          __asm
-          {
-            vmulss  xmm4, xmm12, cs:?HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_UP@@3MA; float HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_UP
-            vmovss  xmm1, dword ptr [rsi+93Ch]
-            vmulss  xmm2, xmm1, dword ptr [rsi+90Ch]
-            vdivss  xmm3, xmm2, cs:?HFD_GYRO_ALTITUDE_LOCK_STRENGTH@@3MA; float HFD_GYRO_ALTITUDE_LOCK_STRENGTH
-            vsubss  xmm0, xmm15, xmm4
-            vmulss  xmm1, xmm0, xmm3
-            vaddss  xmm2, xmm1, xmm4
-            vmulss  xmm3, xmm2, [rsp+3D0h+var_368]
-            vmovss  dword ptr [rsi+93Ch], xmm3
-          }
-        }
-        __asm { vmovss  xmm6, dword ptr [rsi+910h] }
-        vec3_t::operator[](&_RSI->m_centerOfMassWs, 2);
-        __asm
-        {
-          vsubss  xmm0, xmm15, [rsp+3D0h+var_388]
-          vmulss  xmm2, xmm0, dword ptr [rax]
-          vmulss  xmm1, xmm6, [rsp+3D0h+var_388]
-          vaddss  xmm2, xmm2, xmm1
-          vmovss  dword ptr [rsi+910h], xmm2
-          vmovss  xmm0, cs:?HFD_FBW_RESPOSNE_RATE_COLLECTIVE@@3MA; float HFD_FBW_RESPOSNE_RATE_COLLECTIVE
-          vmulss  xmm3, xmm0, [rbp+2D0h+var_304]
-          vsubss  xmm0, xmm15, [rbp+2D0h+var_304]
-          vmulss  xmm2, xmm0, cs:?HFD_FBW_RESPOSNE_RATE_COLLECTIVE_LOW_HZ@@3MA; float HFD_FBW_RESPOSNE_RATE_COLLECTIVE_LOW_HZ
-          vaddss  xmm0, xmm3, xmm2
-          vmulss  xmm4, xmm0, xmm12
-          vsubss  xmm0, xmm15, xmm4
-          vmulss  xmm2, xmm0, dword ptr [rsi+490h]
-          vmulss  xmm1, xmm4, [rbp+2D0h+var_350]
-          vaddss  xmm2, xmm2, xmm1
-          vmovss  dword ptr [rsi+490h], xmm2
-          vandps  xmm7, xmm9, xmm14
-          vmovss  [rsp+3D0h+var_388], xmm7
-          vcomiss xmm7, cs:?HFD_GYRO_ALTITUDE_COLLECTIVE_THRESHOLD@@3MA; float HFD_GYRO_ALTITUDE_COLLECTIVE_THRESHOLD
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vandps  xmm0, xmm9, xmm14
-          vmovss  [rsp+3D0h+var_388], xmm0
-          vcomiss xmm0, cs:?HFD_GYRO_ALTITUDE_COLLECTIVE_THRESHOLD@@3MA; float HFD_GYRO_ALTITUDE_COLLECTIVE_THRESHOLD
-        }
-        if ( _RSI->m_GyroAltitudeSet )
-        {
-          vec3_t::operator[](&_RSI->m_linearVelocityWs, 2);
-          __asm
-          {
-            vmovss  xmm0, cs:?HFD_FBW_GROUND_PRESSURE_SPEED_FACTOR@@3MA; float HFD_FBW_GROUND_PRESSURE_SPEED_FACTOR
-            vmulss  xmm3, xmm0, dword ptr [rax]
-            vmovss  xmm1, dword ptr [rsi+914h]
-            vdivss  xmm2, xmm1, cs:?HFD_FBW_GROUND_PRESSURE_GAIN_THRESHOLD@@3MA; float HFD_FBW_GROUND_PRESSURE_GAIN_THRESHOLD
-            vmulss  xmm0, xmm3, xmm2
-            vxorps  xmm0, xmm0, xmm13; val
-            vmovaps xmm2, xmm15; max
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmovaps xmm6, xmm0
-            vmovss  xmm1, cs:?HFD_GYRO_ALTITUDE_COLLECTIVE_THRESHOLD@@3MA; float HFD_GYRO_ALTITUDE_COLLECTIVE_THRESHOLD
-            vmulss  xmm1, xmm1, cs:__real@3f0ccccd; deadzone
-            vmovaps xmm0, xmm9; value
-          }
-          *(double *)&_XMM0 = FlightDynamics::ComputeDeadzone(*(float *)&_XMM0, *(const float *)&_XMM1);
-          __asm
-          {
-            vmovaps xmm7, xmm0
-            vsubss  xmm6, xmm6, xmm15
-            vmulss  xmm1, xmm6, cs:?HFD_GYRO_ALTITUDE_MAX_DESCENT_RATE@@3MA; min
-            vmovss  xmm2, cs:?HFD_GYRO_ALTITUDE_MAX_CLIMB_RATE@@3MA; max
-            vmulss  xmm0, xmm0, xmm2; val
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmovaps xmm8, xmm0
-            vmulss  xmm0, xmm7, xmm6; val
-            vmovaps xmm2, xmm15; max
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vsubss  xmm1, xmm15, xmm0
-            vmulss  xmm2, xmm1, cs:?HFD_GYRO_ALTITUDE_MAX_CHANGE_RATE_STRENGTH@@3MA; float HFD_GYRO_ALTITUDE_MAX_CHANGE_RATE_STRENGTH
-            vsubss  xmm0, xmm8, [rbp+2D0h+var_350]
-            vmulss  xmm2, xmm0, xmm2
-            vmulss  xmm7, xmm2, xmm12
-            vmovss  dword ptr [rsi+490h], xmm7
-            vmovss  xmm0, cs:__real@3f733333
-            vcomiss xmm0, dword ptr [rsi+940h]
-          }
-          if ( v738 | v739 )
-          {
-            __asm
-            {
-              vmovaps xmm2, xmm15; max
-              vmovss  xmm1, cs:?HFD_FBW_LOWEST_COLLECTIVE_LANDED@@3MA; min
-              vmovaps xmm0, xmm7; val
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-            __asm { vmovss  dword ptr [rsi+490h], xmm0 }
-          }
-          __asm
-          {
-            vmovss  xmm6, [rbp+2D0h+var_300]
-            vcomiss xmm7, xmm6
-          }
-          if ( v738 | v739 )
-          {
-            __asm { vcomiss xmm9, cs:__real@3dcccccd }
-            if ( v738 )
-            {
-              __asm
-              {
-                vmulss  xmm1, xmm12, cs:?HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_DOWN@@3MA; float HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_DOWN
-                vsubss  xmm1, xmm15, xmm1
-                vmulss  xmm0, xmm1, dword ptr [rsi+93Ch]
-                vmovss  dword ptr [rsi+93Ch], xmm0
-              }
-            }
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm1, cs:?HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_EXPO@@3MA; expo
-              vmovss  xmm0, [rsp+3D0h+var_35C]; value
-            }
-            *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-            __asm
-            {
-              vmovaps xmm2, xmm15; max
-              vxorps  xmm1, xmm1, xmm1; min
-            }
-            *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-            __asm
-            {
-              vmulss  xmm3, xmm12, cs:?HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_UP_CHANGE@@3MA; float HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_UP_CHANGE
-              vsubss  xmm2, xmm15, xmm0
-              vmulss  xmm4, xmm3, xmm2
-              vmulss  xmm5, xmm0, xmm12
-              vsubss  xmm0, xmm15, xmm4
-              vmulss  xmm1, xmm0, dword ptr [rsi+93Ch]
-              vaddss  xmm2, xmm1, xmm4
-              vsubss  xmm0, xmm15, xmm5
-              vmulss  xmm1, xmm2, xmm0
-              vmovss  dword ptr [rsi+93Ch], xmm1
-            }
-          }
-          __asm
-          {
-            vmovaps xmm2, xmm6; max
-            vmovss  xmm1, [rsp+3D0h+var_368]; min
-            vmovss  xmm0, dword ptr [rsi+490h]; val
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmovss  dword ptr [rsi+490h], xmm0
-            vmovss  xmm8, [rsp+3D0h+var_364]
-          }
-        }
-        else
-        {
-          _RSI->m_EmergencyLevelForCollective = 0.0;
-          __asm
-          {
-            vmovss  xmm0, [rbp+2D0h+var_308]
-            vmovss  dword ptr [rsi+910h], xmm0
-          }
-          _RSI->m_GyroAltiudeStrength = 0.0;
-          _RSI->m_GyroAltitudeSet = 1;
-        }
-      }
-      __asm
-      {
-        vmovss  xmm0, [rsp+3D0h+var_370]
-        vmulss  xmm3, xmm0, cs:?HFD_FBW_GYRO_CYCLIC_SPEED_RATE@@3MA; float HFD_FBW_GYRO_CYCLIC_SPEED_RATE
-        vsubss  xmm2, xmm15, xmm3
-        vmulss  xmm1, xmm3, cs:?HFD_FBW_GYRO_CYCLIC_SPEED_FACTOR@@3MA; float HFD_FBW_GYRO_CYCLIC_SPEED_FACTOR
-        vaddss  xmm4, xmm1, xmm2
-        vmulss  xmm1, xmm3, cs:?HFD_FBW_GYRO_CYCLIC_SPEED_ELEV_FACTOR@@3MA; float HFD_FBW_GYRO_CYCLIC_SPEED_ELEV_FACTOR
-        vaddss  xmm5, xmm1, xmm2
-        vmovss  xmm0, cs:?HFD_FBW_GYRO_CYCLIC_AIL_RATE@@3MA; float HFD_FBW_GYRO_CYCLIC_AIL_RATE
-        vmulss  xmm2, xmm0, [rsp+3D0h+var_390]
-        vsubss  xmm1, xmm15, dword ptr [rsi+914h]
-        vmulss  xmm0, xmm2, xmm1
-        vmulss  xmm2, xmm0, xmm4
-        vmulss  xmm3, xmm2, xmm12
-        vaddss  xmm1, xmm3, dword ptr [rsi+8CCh]
-        vmovss  dword ptr [rsi+8CCh], xmm1
-        vmulss  xmm2, xmm8, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_RATE@@3MA; float HFD_FBW_GYRO_CYCLIC_ELEV_RATE
-        vsubss  xmm1, xmm15, dword ptr [rsi+914h]
-        vmulss  xmm0, xmm2, xmm1
-        vmulss  xmm2, xmm0, xmm5
-        vmulss  xmm3, xmm2, xmm12
-        vaddss  xmm1, xmm3, dword ptr [rsi+8D0h]
-        vmovss  dword ptr [rsi+8D0h], xmm1
-        vmovaps xmm2, xmm12; dT
-        vmovss  xmm1, cs:?HFD_FBW_GYRO_CYCLIC_AIL_DRAG@@3MA; dragCoefficient
-        vmovss  xmm0, dword ptr [rsi+8CCh]; value
-      }
-      *(double *)&_XMM0 = FlightDynamics::CalculateDrag(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  dword ptr [rsi+8CCh], xmm0
-        vmovaps xmm2, xmm12; dT
-        vmovss  xmm1, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_DRAG@@3MA; dragCoefficient
-        vmovss  xmm0, dword ptr [rsi+8D0h]; value
-      }
-      *(double *)&_XMM0 = FlightDynamics::CalculateDrag(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  dword ptr [rsi+8D0h], xmm0
-        vmovss  xmm6, cs:?HFD_FBW_GYRO_CYCLIC_AIL_RATE_MANUAL_EXPO@@3MA; float HFD_FBW_GYRO_CYCLIC_AIL_RATE_MANUAL_EXPO
-      }
-      BG_GetFlightDynamicsManager();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+2D0h+v1+4]
-        vmulss  xmm4, xmm0, dword ptr [rax+10h]
-        vmovss  xmm2, dword ptr [rbp+2D0h+v1]
-        vmulss  xmm3, xmm2, dword ptr [rax+0Ch]
-        vaddss  xmm5, xmm4, xmm3
-        vmovss  xmm0, dword ptr [rbp+2D0h+v1+8]
-        vmulss  xmm2, xmm0, dword ptr [rax+14h]
-        vaddss  xmm0, xmm5, xmm2; value
-        vmovaps xmm1, xmm6; expo
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  dword ptr [rbp+2D0h+var_330], xmm0
-        vmovss  xmm2, cs:?HFD_FBW_GYRO_CYCLIC_AIL_CLAMP@@3MA; max
-        vxorps  xmm1, xmm2, xmm13; min
-        vmovss  xmm0, dword ptr [rsi+8CCh]; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  [rbp+2D0h+var_300], xmm0
-        vmovss  xmm1, dword ptr [r14+4]
-        vmulss  xmm4, xmm1, dword ptr [rsi+348h]
-        vmovss  xmm2, dword ptr [r14]
-        vmulss  xmm3, xmm2, dword ptr [rsi+344h]
-        vaddss  xmm5, xmm4, xmm3
-        vmovss  xmm1, dword ptr [r14+8]
-        vmulss  xmm2, xmm1, dword ptr [rsi+34Ch]
-        vaddss  xmm3, xmm5, xmm2
-        vmulss  xmm0, xmm3, xmm8
-        vmovss  [rbp+2D0h+var_328], xmm0
-        vcomiss xmm0, cs:__real@ba83126f
-        vmovss  xmm0, dword ptr [rsi+8D0h]; val
-      }
-      if ( v219 )
-        __asm { vmovss  xmm2, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_CLAMP_REVERSE@@3MA; float HFD_FBW_GYRO_CYCLIC_ELEV_CLAMP_REVERSE }
-      else
-        __asm { vmovss  xmm2, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_CLAMP@@3MA; max }
-      __asm { vxorps  xmm1, xmm2, xmm13; min }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  [rsp+3D0h+var_368], xmm0
-        vmovss  xmm1, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_LIMITER_EXPO_ELEV@@3MA; expo
-        vmovss  xmm0, [rsp+3D0h+var_38C]; value
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  [rbp+2D0h+var_2D0], xmm0
-        vmovss  xmm1, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_LIMITER_EXPO_AILE@@3MA; expo
-        vmovss  xmm0, [rsp+3D0h+var_358]; value
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vsubss  xmm8, xmm15, xmm0
-        vmulss  xmm4, xmm0, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL
-        vmulss  xmm3, xmm8, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_SPEED@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_SPEED
-        vaddss  xmm5, xmm4, xmm3
-        vmovss  xmm3, dword ptr [rsi+92Ch]
-        vandps  xmm3, xmm3, xmm14
-        vsubss  xmm1, xmm15, xmm3
-        vmulss  xmm2, xmm1, xmm5
-        vmulss  xmm0, xmm3, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_COLLECTIVE@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_COLLECTIVE
-        vaddss  xmm3, xmm2, xmm0
-        vmovss  xmm0, [rsp+3D0h+collectiveInput]
-        vsubss  xmm2, xmm15, xmm0
-        vmulss  xmm1, xmm0, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_RUDDER_FACTOR@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_RUDDER_FACTOR
-        vmulss  xmm0, xmm3, xmm2
-        vaddss  xmm5, xmm1, xmm0
-        vmulss  xmm3, xmm6, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_LIMIT@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_LIMIT
-        vmulss  xmm2, xmm8, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_LIMIT_SPEED@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_LIMIT_SPEED
-        vaddss  xmm7, xmm3, xmm2
-        vmulss  xmm4, xmm6, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_EXPO@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_EXPO
-        vmulss  xmm2, xmm8, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_EXPO_SPEED@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_EXPO_SPEED
-        vaddss  xmm1, xmm4, xmm2; expo
-        vxorps  xmm6, xmm7, xmm13
-        vmulss  xmm0, xmm5, [rbp+2D0h+var_2C0]; value
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovaps xmm2, xmm7; max
-        vmovaps xmm1, xmm6; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm1, [rbp+2D0h+var_300]
-        vaddss  xmm5, xmm0, xmm1
-        vcomiss xmm1, xmm11
-      }
-      if ( v219 )
-      {
-        __asm
-        {
-          vandps  xmm1, xmm1, xmm14
-          vmulss  xmm0, xmm1, cs:?HFD_GYRO_CYCLIC_LEVELED_FACTOR_AIL_DECREASE_LEFT@@3MA; float HFD_GYRO_CYCLIC_LEVELED_FACTOR_AIL_DECREASE_LEFT
-          vmulss  xmm2, xmm0, [rbp+2D0h+var_30C]
-          vsubss  xmm1, xmm15, [rsp+3D0h+var_38C]
-          vmulss  xmm1, xmm1, cs:?HFD_GYRO_CYCLIC_SPEED_FACTOR_AIL_DECREASE_LEFT@@3MA; float HFD_GYRO_CYCLIC_SPEED_FACTOR_AIL_DECREASE_LEFT
-        }
-      }
-      else
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm1, cs:?HFD_GYRO_CYCLIC_LEVELED_FACTOR_AIL_DECREASE_RIGHT@@3MA; float HFD_GYRO_CYCLIC_LEVELED_FACTOR_AIL_DECREASE_RIGHT
-          vmulss  xmm2, xmm1, [rbp+2D0h+var_30C]
-          vsubss  xmm1, xmm15, [rsp+3D0h+var_38C]
-          vmulss  xmm1, xmm1, cs:?HFD_GYRO_CYCLIC_SPEED_FACTOR_AIL_DECREASE_RIGHT@@3MA; float HFD_GYRO_CYCLIC_SPEED_FACTOR_AIL_DECREASE_RIGHT
-        }
-      }
-      __asm
-      {
-        vaddss  xmm4, xmm2, xmm1
-        vmovss  xmm1, [rsp+3D0h+var_35C]
-        vsubss  xmm8, xmm15, xmm1
-        vmulss  xmm3, xmm1, cs:?HFD_GYRO_CYCLIC_LEVELED_FACTOR_AIL@@3MA; float HFD_GYRO_CYCLIC_LEVELED_FACTOR_AIL
-        vmulss  xmm2, xmm8, cs:?HFD_GYRO_CYCLIC_LEVELED_FACTOR_AIL_EMERGENCY@@3MA; float HFD_GYRO_CYCLIC_LEVELED_FACTOR_AIL_EMERGENCY
-        vaddss  xmm0, xmm3, xmm2
-        vsubss  xmm3, xmm0, xmm4
-        vmulss  xmm1, xmm3, [rbp+2D0h+var_2CC]
-        vsubss  xmm0, xmm5, xmm1
-        vmovss  [rbp+2D0h+var_350], xmm0
-        vsubss  xmm6, xmm15, [rbp+2D0h+var_2D0]
-        vsubss  xmm4, xmm15, xmm6
-        vmulss  xmm3, xmm4, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV
-        vmulss  xmm2, xmm6, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_SPEED@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_SPEED
-        vaddss  xmm5, xmm3, xmm2
-        vmulss  xmm3, xmm4, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_LIMIT@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_LIMIT
-        vmulss  xmm2, xmm6, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_LIMIT_SPEED@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_LIMIT_SPEED
-        vaddss  xmm7, xmm3, xmm2
-        vmovss  xmm4, dword ptr [rsi+92Ch]
-        vandps  xmm4, xmm4, xmm14
-        vsubss  xmm0, xmm15, xmm4
-        vmulss  xmm2, xmm0, xmm5
-        vmulss  xmm1, xmm4, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_COLLECTIVE@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_COLLECTIVE
-        vaddss  xmm4, xmm2, xmm1
-        vmovss  xmm0, [rsp+3D0h+collectiveInput]
-        vmulss  xmm3, xmm0, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_RUDDER_FACTOR@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_RUDDER_FACTOR
-        vsubss  xmm1, xmm15, xmm0
-        vmulss  xmm0, xmm4, xmm1
-        vaddss  xmm2, xmm3, xmm0
-        vxorps  xmm6, xmm7, xmm13
-        vmulss  xmm0, xmm2, [rbp+2D0h+var_2FC]; value
-        vmovss  xmm1, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_EXPO@@3MA; expo
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovaps xmm2, xmm7; max
-        vmovaps xmm1, xmm6; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm3, [rsp+3D0h+var_368]
-        vaddss  xmm1, xmm0, xmm3
-        vsubss  xmm0, xmm15, [rbp+2D0h+var_344]
-        vmulss  xmm6, xmm1, xmm0
-        vsubss  xmm4, xmm15, [rsp+3D0h+elevatorInput]
-        vandps  xmm3, xmm3, xmm14
-        vmovss  xmm1, [rsp+3D0h+var_378]
-        vsubss  xmm0, xmm15, xmm1
-        vmovss  [rbp+2D0h+var_2FC], xmm0
-        vmulss  xmm1, xmm1, cs:?HFD_GYRO_CYCLIC_INITIAL_FACTOR_ELEV_DECREASE@@3MA; float HFD_GYRO_CYCLIC_INITIAL_FACTOR_ELEV_DECREASE
-        vmulss  xmm2, xmm1, xmm3
-        vsubss  xmm0, xmm15, xmm3
-        vmulss  xmm1, xmm0, cs:?HFD_GYRO_CYCLIC_LEVELED_FACTOR_ELEV_DECREASE@@3MA; float HFD_GYRO_CYCLIC_LEVELED_FACTOR_ELEV_DECREASE
-        vaddss  xmm2, xmm2, xmm1
-        vsubss  xmm0, xmm15, xmm4
-        vmulss  xmm3, xmm0, xmm2
-        vmulss  xmm2, xmm4, cs:?HFD_GYRO_CYCLIC_SPEED_FACTOR_ELEV_DECREASE@@3MA; float HFD_GYRO_CYCLIC_SPEED_FACTOR_ELEV_DECREASE
-        vaddss  xmm5, xmm3, xmm2
-        vmovss  xmm0, cs:?HFD_GYRO_CYCLIC_LEVELED_FACTOR_ELEV@@3MA; float HFD_GYRO_CYCLIC_LEVELED_FACTOR_ELEV
-        vmulss  xmm4, xmm0, [rsp+3D0h+var_35C]
-        vmulss  xmm2, xmm8, cs:?HFD_GYRO_CYCLIC_LEVELED_FACTOR_ELEV_EMERGENCY@@3MA; float HFD_GYRO_CYCLIC_LEVELED_FACTOR_ELEV_EMERGENCY
-        vaddss  xmm0, xmm4, xmm2
-        vsubss  xmm3, xmm0, xmm5
-        vmulss  xmm1, xmm3, [rbp+2D0h+var_2F8]
-        vsubss  xmm0, xmm6, xmm1
-        vmovss  [rbp+2D0h+var_2F8], xmm0
-        vxorps  xmm8, xmm8, xmm8
-        vxorps  xmm0, xmm0, xmm0
-        vmovss  [rsp+3D0h+var_378], xmm0
-      }
-      if ( _RSI->m_GyroGPSlocationSet )
-      {
-        __asm
-        {
-          vmovss  xmm0, [rsp+3D0h+aileronInput]
-          vcomiss xmm0, cs:?HFD_GYRO_GPS_CYCLIC_THRESHOLD@@3MA; float HFD_GYRO_GPS_CYCLIC_THRESHOLD
-        }
-        _RSI->m_GyroGPSlocationSet = 0;
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm2, dword ptr [r14+4]
-          vmovss  xmm0, dword ptr [r14]
-          vmovss  xmm3, dword ptr [r14+8]
-          vmulss  xmm1, xmm0, xmm0
-          vmulss  xmm0, xmm2, xmm2
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm0, xmm2, xmm2
-          vcomiss xmm0, cs:?HFD_GYRO_GPS_VELOCITY_THRESHOLD@@3MA; float HFD_GYRO_GPS_VELOCITY_THRESHOLD
-        }
-      }
-      __asm
-      {
-        vmovss  xmm2, cs:?HFD_GYRO_CYCLIC_RESPONSE_CLAMP@@3MA; max
-        vxorps  xmm1, xmm2, xmm13; min
-        vaddss  xmm0, xmm8, [rbp+2D0h+var_2F8]
-        vmulss  xmm0, xmm0, cs:?HFD_GYRO_CYCLIC_POWER_ELEV@@3MA; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  [rbp+2D0h+var_2F4], xmm0
-        vmovss  xmm3, cs:?HFD_GYRO_CYCLIC_RESPONSE_CLAMP@@3MA; float HFD_GYRO_CYCLIC_RESPONSE_CLAMP
-        vxorps  xmm1, xmm3, xmm13; min
-        vmovss  xmm2, [rbp+2D0h+var_350]
-        vaddss  xmm2, xmm2, [rsp+3D0h+var_378]
-        vmulss  xmm0, xmm2, cs:?HFD_GYRO_CYCLIC_POWER_AIL@@3MA; val
-        vmovaps xmm2, xmm3; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  [rbp+2D0h+var_320], xmm0
-        vmovss  xmm6, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_EXPO@@3MA; float HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_EXPO
-      }
-      BG_GetFlightDynamicsManager();
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+2D0h+v1+4]
-        vmulss  xmm5, xmm2, dword ptr [rax+10h]
-        vmovss  xmm3, dword ptr [rbp+2D0h+v1]
-        vmulss  xmm4, xmm3, dword ptr [rax+0Ch]
-        vaddss  xmm4, xmm5, xmm4
-        vmovss  xmm2, dword ptr [rbp+2D0h+v1+8]
-        vmulss  xmm3, xmm2, dword ptr [rax+14h]
-        vaddss  xmm0, xmm4, xmm3; value
-        vmovaps xmm1, xmm6; expo
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovaps xmm8, xmm0
-        vmulss  xmm6, xmm0, [rsp+3D0h+var_38C]
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-        vcomiss xmm0, cs:?HFD_FBW_GYRO_CYCLIC_RATE_MANUAL_ELEV_THRESHOLD@@3MA; float HFD_FBW_GYRO_CYCLIC_RATE_MANUAL_ELEV_THRESHOLD
-      }
-      if ( v219 | v298 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+934h]
-          vsubss  xmm0, xmm0, xmm12; val
-        }
-      }
-      else
-      {
-        __asm { vaddss  xmm0, xmm12, dword ptr [rsi+934h] }
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  dword ptr [rsi+934h], xmm0
-        vsubss  xmm0, xmm15, [rsp+3D0h+var_388]
-        vmovss  xmm5, dword ptr [rsi+934h]
-        vmulss  xmm2, xmm0, cs:?HFD_FBW_GYRO_COL_MANUAL_RATE_LIMITER@@3MA; float HFD_FBW_GYRO_COL_MANUAL_RATE_LIMITER
-        vaddss  xmm3, xmm2, cs:?HFD_FBW_GYRO_COL_MANUAL_RATE_LIMITER_OFFSET@@3MA; float HFD_FBW_GYRO_COL_MANUAL_RATE_LIMITER_OFFSET
-        vmulss  xmm4, xmm3, xmm5
-        vsubss  xmm1, xmm15, xmm5
-        vmulss  xmm2, xmm1, xmm6
-        vaddss  xmm0, xmm4, xmm2
-        vmovss  [rbp+2D0h+var_2F0], xmm0
-        vmovss  xmm3, [rbp+2D0h+var_2EC]
-        vdivss  xmm0, xmm3, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_STOP_SPEED@@3MA; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  [rsp+3D0h+var_378], xmm0
-        vxorps  xmm2, xmm2, xmm2; max
-        vmovaps xmm1, xmm10; min
-        vmovss  xmm0, [rbp+2D0h+var_328]; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm13
-        vmovss  [rbp+2D0h+var_328], xmm0
-        vxorps  xmm7, xmm7, xmm7
-        vmovss  xmm0, cs:__real@ba83126f
-        vmovss  xmm2, [rbp+2D0h+var_34C]
-        vmovss  xmm6, [rsp+3D0h+var_364]
-        vcomiss xmm2, xmm0
-      }
-      if ( v971 )
-      {
-        __asm { vcomiss xmm6, xmm0 }
-        if ( v971 )
-        {
-          __asm
-          {
-            vsubss  xmm0, xmm15, [rbp+2D0h+var_33C]
-            vmulss  xmm7, xmm0, cs:__real@40400000
-          }
-        }
-        else
-        {
-          __asm { vcomiss xmm6, cs:__real@3a83126f }
-          if ( !(v971 | v972) )
-          {
-            __asm
-            {
-              vmovss  xmm0, [rsp+3D0h+var_378]
-              vxorps  xmm7, xmm0, xmm13
-            }
-          }
-        }
-      }
-      __asm
-      {
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovaps xmm0, xmm9; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm1, xmm15, xmm0
-        vmulss  xmm2, xmm1, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LIMITER@@3MA; float HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LIMITER
-        vmulss  xmm0, xmm0, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LIMITER_COLLECTIVE@@3MA; float HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LIMITER_COLLECTIVE
-        vaddss  xmm9, xmm2, xmm0
-      }
-      if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_altitude_speedLimiter, "fd_helicopter_altitude_speedLimiter") && _RSI->m_playerControlled )
-      {
-        __asm { vmovss  cs:?HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LOW_ALTITUDE@@3MA, xmm10; float HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LOW_ALTITUDE }
-      }
-      else
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL@@3MA; float HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL
-          vmovss  cs:?HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LOW_ALTITUDE@@3MA, xmm0; float HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LOW_ALTITUDE
-        }
-      }
-      __asm
-      {
-        vxorps  xmm0, xmm6, xmm13; val
-        vmovss  [rbp+2D0h+var_2EC], xmm0
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vaddss  xmm0, xmm0, [rbp+2D0h+var_2E8]; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm1, xmm15, xmm0
-        vmulss  xmm2, xmm1, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LOW_ALTITUDE@@3MA; float HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LOW_ALTITUDE
-        vmulss  xmm0, xmm0, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL@@3MA; float HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL
-        vaddss  xmm6, xmm2, xmm0
-        vmovss  xmm0, [rsp+3D0h+var_378]
-        vsubss  xmm1, xmm0, [rbp+2D0h+var_328]
-        vaddss  xmm0, xmm1, xmm7; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm1, xmm15, xmm0
-        vmulss  xmm2, xmm1, cs:?HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_STOP@@3MA; float HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_STOP
-        vmulss  xmm0, xmm0, xmm6
-        vaddss  xmm3, xmm2, xmm0
-        vcomiss xmm8, xmm9
-      }
-      _EAX = !(v219 | v298);
-      __asm
-      {
-        vmovd   xmm0, eax
-        vcvtdq2ps xmm0, xmm0
-        vmulss  xmm10, xmm3, xmm0
-        vmovss  xmm0, [rbp+2D0h+var_2E4]
-        vandps  xmm0, xmm0, xmm14
-        vsubss  xmm6, xmm15, xmm0
-        vmovss  xmm0, dword ptr [rbp+2D0h+v0+4]
-        vmulss  xmm3, xmm0, dword ptr [rsi+354h]
-        vmovss  xmm1, dword ptr [rbp+2D0h+v0]
-        vmulss  xmm2, xmm1, dword ptr [rsi+350h]
-        vaddss  xmm4, xmm3, xmm2
-        vmovss  xmm0, dword ptr [rbp+2D0h+v0+8]
-        vmulss  xmm1, xmm0, dword ptr [rsi+358h]
-        vaddss  xmm9, xmm4, xmm1
-        vsubss  xmm0, xmm15, [rbp+2D0h+var_33C]
-        vmulss  xmm0, xmm0, [rbp+2D0h+var_344]; value
-        vmovss  xmm1, cs:?HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_FACTOR_EXPO@@3MA; expo
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vsubss  xmm1, xmm15, xmm0
-        vmulss  xmm2, xmm1, cs:?HFD_FBW_GYRO_RUDDER_TO_ELEV@@3MA; float HFD_FBW_GYRO_RUDDER_TO_ELEV
-        vmulss  xmm0, xmm0, cs:?HFD_FBW_GYRO_RUDDER_TO_ELEV_SPEED@@3MA; float HFD_FBW_GYRO_RUDDER_TO_ELEV_SPEED
-        vaddss  xmm8, xmm2, xmm0
-        vmulss  xmm7, xmm6, cs:?HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_CLAMP_RIGHT@@3MA; float HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_CLAMP_RIGHT
-        vmulss  xmm2, xmm6, cs:?HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_CLAMP_LEFT@@3MA; float HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_CLAMP_LEFT
-        vxorps  xmm6, xmm2, xmm13
-        vmovss  xmm1, cs:?HFD_FBW_GYRO_RUDDER_TO_AIL_EXPO@@3MA; expo
-        vmovss  xmm0, [rbp+2D0h+rudderInput]; value
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm2, xmm0, xmm9
-        vsubss  xmm0, xmm15, [rbp+2D0h+var_33C]
-        vmulss  xmm3, xmm2, xmm0
-        vmulss  xmm0, xmm3, xmm8; val
-        vmovaps xmm2, xmm7; max
-        vmovaps xmm1, xmm6; min
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vandps  xmm2, xmm9, xmm14
-        vmovss  xmm7, [rsp+3D0h+var_364]
-        vmulss  xmm1, xmm9, xmm7
-        vandps  xmm1, xmm1, xmm14
-        vsubss  xmm1, xmm2, xmm1
-        vmulss  xmm6, xmm1, xmm0
-        vmovss  [rbp+2D0h+var_2E4], xmm6
-        vandps  xmm0, xmm6, xmm14
-        vmovss  xmm8, [rsp+3D0h+elevatorInput]
-        vaddss  xmm0, xmm0, xmm8
-        vmulss  xmm1, xmm0, [rbp+2D0h+var_2F0]
-        vmulss  xmm0, xmm1, xmm10; val
-        vmovaps xmm2, xmm15; max
-        vmovss  xmm1, cs:__real@bf800000; min
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm2, [rbp+2D0h+var_304]
-        vsubss  xmm1, xmm15, xmm2
-        vmulss  xmm3, xmm1, cs:?HFD_FBW_RESPOSNE_RATE_CYCLIC_LOW_HZ@@3MA; float HFD_FBW_RESPOSNE_RATE_CYCLIC_LOW_HZ
-        vmulss  xmm2, xmm2, cs:?HFD_FBW_RESPOSNE_RATE_CYCLIC@@3MA; float HFD_FBW_RESPOSNE_RATE_CYCLIC
-        vaddss  xmm5, xmm3, xmm2
-        vaddss  xmm3, xmm6, xmm7
-        vmulss  xmm4, xmm3, xmm0
-        vsubss  xmm0, xmm15, xmm0
-        vmulss  xmm1, xmm0, [rbp+2D0h+var_2F4]
-        vaddss  xmm2, xmm4, xmm1
-        vmulss  xmm1, xmm12, xmm5
-        vmovss  [rbp+2D0h+var_2E8], xmm1
-        vsubss  xmm3, xmm15, xmm1
-        vmovss  [rbp+2D0h+var_328], xmm3
-        vmulss  xmm1, xmm2, xmm1
-        vmulss  xmm0, xmm3, dword ptr [rsi+480h]
-        vaddss  xmm1, xmm1, xmm0
-        vmovss  dword ptr [rsi+480h], xmm1
-        vmovss  xmm6, cs:?HFD_FBW_GYRO_CYCLIC_AIL_RATE_MANUAL_EXPO@@3MA; float HFD_FBW_GYRO_CYCLIC_AIL_RATE_MANUAL_EXPO
-      }
-      BG_GetFlightDynamicsManager();
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+2D0h+v1+4]
-        vmulss  xmm4, xmm0, dword ptr [rax+10h]
-        vmovss  xmm2, dword ptr [rbp+2D0h+v1]
-        vmulss  xmm3, xmm2, dword ptr [rax+0Ch]
-        vaddss  xmm5, xmm4, xmm3
-        vmovss  xmm0, dword ptr [rbp+2D0h+v1+8]
-        vmulss  xmm2, xmm0, dword ptr [rax+14h]
-        vaddss  xmm0, xmm5, xmm2; value
-        vmovaps xmm1, xmm6; expo
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vmovss  [rsp+3D0h+var_35C], xmm0
-        vmulss  xmm9, xmm0, [rbp+2D0h+var_340]
-        vmovss  xmm1, [rbp+2D0h+var_2D8]
-        vmulss  xmm1, xmm1, cs:?HFD_FBW_GYRO_CYCLIC_RATE_MANUAL_AIL_THRESHOLD@@3MA; float HFD_FBW_GYRO_CYCLIC_RATE_MANUAL_AIL_THRESHOLD
-        vmovss  xmm0, [rbp+2D0h+var_2E0]
-        vmulss  xmm0, xmm0, cs:?HFD_FBW_GYRO_CYCLIC_RATE_MANUAL_AIL_THRESHOLD_SPEED@@3MA; float HFD_FBW_GYRO_CYCLIC_RATE_MANUAL_AIL_THRESHOLD_SPEED
-        vaddss  xmm1, xmm1, xmm0
-        vmovaps xmm2, xmm15; max
-        vcomiss xmm6, xmm1
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      if ( v219 | v298 )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi+930h]
-          vsubss  xmm0, xmm0, xmm12; val
-        }
-      }
-      else
-      {
-        __asm { vaddss  xmm0, xmm12, dword ptr [rsi+930h] }
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  dword ptr [rsi+930h], xmm0
-        vsubss  xmm2, xmm15, xmm6
-        vmovss  [rsp+3D0h+var_378], xmm2
-        vmulss  xmm1, xmm7, cs:?HFD_GYRO_CYCLIC_VELOCITY_FACTOR_COLLECTIVE_MIX@@3MA; float HFD_GYRO_CYCLIC_VELOCITY_FACTOR_COLLECTIVE_MIX
-        vmulss  xmm0, xmm1, xmm2
-        vandps  xmm0, xmm0, xmm14; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vaddss  xmm0, xmm0, dword ptr [rsi+490h]
-        vmovss  dword ptr [rsi+490h], xmm0
-        vmovss  xmm4, dword ptr [rsi+930h]
-        vsubss  xmm0, xmm15, [rsp+3D0h+var_388]
-        vmulss  xmm0, xmm0, cs:?HFD_FBW_GYRO_COL_MANUAL_RATE_LIMITER@@3MA; float HFD_FBW_GYRO_COL_MANUAL_RATE_LIMITER
-        vaddss  xmm2, xmm0, cs:?HFD_FBW_GYRO_COL_MANUAL_RATE_LIMITER_OFFSET@@3MA; float HFD_FBW_GYRO_COL_MANUAL_RATE_LIMITER_OFFSET
-        vmulss  xmm3, xmm2, xmm4
-        vsubss  xmm0, xmm15, xmm4
-        vmulss  xmm1, xmm0, xmm9
-        vaddss  xmm11, xmm3, xmm1
-        vmovss  xmm6, cs:?HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_FACTOR_EXPO@@3MA; float HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_FACTOR_EXPO
-        vmovaps xmm2, xmm15; max
-        vmovss  xmm1, cs:?HFD_FBW_GYRO_RUDDER_TO_AIL_MIN_ELEV@@3MA; min
-        vmovaps xmm0, xmm8; val
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm0, xmm0, [rbp+2D0h+var_2FC]; value
-        vmovaps xmm1, xmm6; expo
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vsubss  xmm1, xmm15, xmm0
-        vmulss  xmm3, xmm1, cs:?HFD_FBW_GYRO_RUDDER_TO_AIL@@3MA; float HFD_FBW_GYRO_RUDDER_TO_AIL
-        vmulss  xmm0, xmm0, cs:?HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED@@3MA; float HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED
-        vaddss  xmm9, xmm3, xmm0
-        vmovss  xmm0, [rbp+2D0h+var_324]
-        vandps  xmm0, xmm0, xmm14
-        vsubss  xmm8, xmm15, xmm0
-      }
-      vec3_t::operator[](&_RSI->m_forwardVector, 1);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+2D0h+v0+4]
-        vmulss  xmm7, xmm0, dword ptr [rax]
-      }
-      vec3_t::operator[](&_RSI->m_forwardVector, 0);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+2D0h+v0]
-        vmulss  xmm6, xmm0, dword ptr [rax]
-      }
-      vec3_t::operator[](&_RSI->m_forwardVector, 2);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+2D0h+v0+8]
-        vmulss  xmm2, xmm0, dword ptr [rax]
-        vaddss  xmm1, xmm6, xmm7
-        vaddss  xmm10, xmm2, xmm1
-        vandps  xmm10, xmm10, xmm14
-        vmulss  xmm7, xmm8, cs:?HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_CLAMP_RIGHT@@3MA; float HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_CLAMP_RIGHT
-        vmulss  xmm2, xmm8, cs:?HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_CLAMP_LEFT@@3MA; float HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_CLAMP_LEFT
-        vxorps  xmm6, xmm2, xmm13
-        vmovss  xmm1, cs:?HFD_FBW_GYRO_RUDDER_TO_AIL_EXPO@@3MA; expo
-        vmovss  xmm0, [rbp+2D0h+rudderInput]; value
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vsubss  xmm1, xmm15, [rsp+3D0h+var_38C]
-        vmulss  xmm2, xmm0, xmm1
-        vmulss  xmm0, xmm2, xmm9; val
-        vmovaps xmm2, xmm7; max
-        vmovaps xmm1, xmm6; min
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vsubss  xmm1, xmm15, [rbp+2D0h+var_344]
-        vmulss  xmm7, xmm1, xmm0
-        vmovss  xmm0, [rbp+2D0h+var_34C]
-        vxorps  xmm0, xmm0, xmm13; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovaps xmm6, xmm0
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-        vmovss  xmm0, [rbp+2D0h+var_2EC]; val
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vaddss  xmm1, xmm6, xmm0
-        vsubss  xmm1, xmm15, xmm1
-        vmulss  xmm6, xmm1, xmm7
-        vsubss  xmm0, xmm15, [rsp+3D0h+var_358]
-        vmulss  xmm2, xmm0, cs:?HFD_FBW_GYRO_CYCLIC_AIL_RATE_MANUAL@@3MA; float HFD_FBW_GYRO_CYCLIC_AIL_RATE_MANUAL
-        vmovss  xmm0, cs:?HFD_FBW_GYRO_CYCLIC_AIL_RATE_MANUAL_STOP@@3MA; float HFD_FBW_GYRO_CYCLIC_AIL_RATE_MANUAL_STOP
-        vmulss  xmm1, xmm0, [rsp+3D0h+var_358]
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm6, xmm10
-        vandps  xmm0, xmm0, xmm14
-        vaddss  xmm0, xmm0, [rbp+2D0h+var_344]
-        vmulss  xmm1, xmm0, xmm11
-        vmulss  xmm5, xmm1, xmm3
-        vmovss  xmm0, [rbp+2D0h+rudderInput]
-        vmulss  xmm4, xmm0, [rbp+2D0h+var_2E4]
-        vandps  xmm4, xmm4, xmm14
-        vxorps  xmm1, xmm0, xmm13
-        vsubss  xmm0, xmm15, xmm4
-        vmovss  xmm7, [rsp+3D0h+var_390]
-        vmulss  xmm2, xmm0, xmm7
-        vmulss  xmm1, xmm1, xmm4
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm4, xmm5, dword ptr [rbp+2D0h+var_330]
-        vaddss  xmm0, xmm3, xmm6
-        vmulss  xmm2, xmm0, xmm4
-        vsubss  xmm1, xmm15, xmm4
-        vmulss  xmm0, xmm1, [rbp+2D0h+var_320]
-        vaddss  xmm0, xmm2, xmm0; val
-        vmovaps xmm2, xmm15; max
-        vmovss  xmm6, cs:__real@bf800000
-        vmovaps xmm1, xmm6; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rsi+488h]
-        vmulss  xmm1, xmm0, [rbp+2D0h+var_2E8]
-        vmulss  xmm0, xmm2, [rbp+2D0h+var_328]
-        vaddss  xmm3, xmm1, xmm0
-        vmovss  dword ptr [rsi+488h], xmm3
-        vxorps  xmm11, xmm11, xmm11
-        vcomiss xmm3, xmm11
-      }
-      if ( v1179 )
-      {
-        __asm { vmulss  xmm0, xmm3, cs:?HFD_FBW_LEFT_RESPONSE_MODIFIER@@3MA; float HFD_FBW_LEFT_RESPONSE_MODIFIER }
-      }
-      else
-      {
-        if ( v1179 | v1180 )
-          goto LABEL_109;
-        __asm { vmulss  xmm0, xmm3, cs:?HFD_FBW_RIGHT_RESPONSE_MODIFIER@@3MA; val }
-      }
-      __asm
-      {
-        vmovaps xmm2, xmm15; max
-        vmovaps xmm1, xmm6; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rsi+488h], xmm0 }
-LABEL_109:
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rsi+480h]
-        vcomiss xmm1, xmm11
-      }
-      if ( v1179 | v1180 )
-      {
-        __asm { vcomiss xmm11, dword ptr [rsi+488h] }
-        if ( !v1179 )
-          goto LABEL_114;
-        __asm { vmulss  xmm0, xmm1, cs:?HFD_FBW_BACKWARD_RESPONSE_MODIFIER@@3MA; val }
-      }
-      else
-      {
-        __asm { vmulss  xmm0, xmm1, cs:?HFD_FBW_FORWARD_RESPONSE_MODIFIER@@3MA; float HFD_FBW_FORWARD_RESPONSE_MODIFIER }
-      }
-      __asm
-      {
-        vmovaps xmm2, xmm15; max
-        vmovaps xmm1, xmm6; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rsi+480h], xmm0 }
-LABEL_114:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsi+47Ch]
-        vcomiss xmm0, xmm11
-      }
-      if ( v1179 | v1180 )
-      {
-        if ( !v1179 )
-        {
-LABEL_119:
-          if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_fbw_enhancer, "fd_helicopter_fbw_enhancer") || !_RSI->m_playerControlled )
-            goto LABEL_133;
-          __asm
-          {
-            vmovss  xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_DEADZONE@@3MA; deadzone
-            vmovss  xmm0, [rsp+3D0h+var_364]; value
-          }
-          *(double *)&_XMM0 = FlightDynamics::ComputeDeadzone(*(float *)&_XMM0, *(const float *)&_XMM1);
-          __asm
-          {
-            vmovaps xmm10, xmm0
-            vmovss  xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_DEADZONE@@3MA; deadzone
-            vmovaps xmm0, xmm7; value
-          }
-          *(double *)&_XMM0 = FlightDynamics::ComputeDeadzone(*(float *)&_XMM0, *(const float *)&_XMM1);
-          __asm { vmovss  [rbp+2D0h+var_324], xmm0 }
-          _RBX = vec3_t::operator[](&_RSI->m_Velocity, 1);
-          _RAX = vec3_t::operator[](&_RSI->m_sideVector, 1);
-          __asm
-          {
-            vmovss  xmm9, dword ptr [rbx]
-            vmovss  xmm8, dword ptr [rax]
-          }
-          _RBX = vec3_t::operator[](&_RSI->m_Velocity, 0);
-          _RAX = vec3_t::operator[](&_RSI->m_sideVector, 0);
-          __asm
-          {
-            vmovss  xmm7, dword ptr [rbx]
-            vmovss  xmm6, dword ptr [rax]
-          }
-          _RBX = vec3_t::operator[](&_RSI->m_Velocity, 2);
-          vec3_t::operator[](&_RSI->m_sideVector, 2);
-          __asm
-          {
-            vmulss  xmm1, xmm8, xmm9
-            vmulss  xmm0, xmm6, xmm7
-            vaddss  xmm3, xmm1, xmm0
-            vmovss  xmm1, dword ptr [rbx]
-            vmulss  xmm2, xmm1, dword ptr [rax]
-            vaddss  xmm6, xmm3, xmm2
-          }
-          v1212 = BG_GetFlightDynamicsManager();
-          Vec3Cross(&v1212->m_UpAxis, &_RSI->m_GyroRudderForwardVector, (vec3_t *)&v2087);
-          __asm { vmovss  dword ptr [rbp+2D0h+var_290+8], xmm11 }
-          Vec3Normalize((vec3_t *)&v2087);
-          __asm
-          {
-            vmulss  xmm1, xmm6, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_BLOWBACK_EFFECT_MULTIPLIER@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_BLOWBACK_EFFECT_MULTIPLIER
-            vmovss  xmm0, [rbp+2D0h+var_324]
-            vmulss  xmm0, xmm0, [rbp+2D0h+var_340]
-            vmulss  xmm0, xmm1, xmm0; val
-            vmovaps xmm2, xmm15; max
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm { vmovaps xmm9, xmm0 }
-          _RAX = vec3_t::operator[](&_RSI->m_Velocity, 0);
-          __asm { vmovss  xmm6, dword ptr [rax] }
-          vec3_t::operator[](&_RSI->m_Velocity, 0);
-          __asm
-          {
-            vmovss  xmm0, [rbp+2D0h+var_334]
-            vsubss  xmm1, xmm0, xmm6
-            vmulss  xmm2, xmm1, xmm9
-            vaddss  xmm8, xmm2, dword ptr [rax]
-          }
-          _RAX = vec3_t::operator[](&_RSI->m_Velocity, 1);
-          __asm { vmovss  xmm6, dword ptr [rax] }
-          vec3_t::operator[](&_RSI->m_Velocity, 1);
-          __asm
-          {
-            vmovss  xmm0, [rbp+2D0h+var_2DC]
-            vsubss  xmm0, xmm0, xmm6
-            vmulss  xmm1, xmm0, xmm9
-            vaddss  xmm7, xmm1, dword ptr [rax]
-          }
-          _RAX = vec3_t::operator[](&_RSI->m_Velocity, 2);
-          __asm { vmovss  xmm6, dword ptr [rax] }
-          vec3_t::operator[](&_RSI->m_Velocity, 2);
-          __asm
-          {
-            vmovss  xmm0, [rsp+3D0h+var_374]
-            vsubss  xmm0, xmm0, xmm6
-            vmulss  xmm1, xmm0, xmm9
-            vaddss  xmm4, xmm1, dword ptr [rax]
-            vmulss  xmm2, xmm8, dword ptr [rbp+2D0h+var_290]
-            vmovss  xmm8, dword ptr [rbp+2D0h+var_290+4]
-            vmulss  xmm0, xmm7, xmm8
-            vaddss  xmm3, xmm2, xmm0
-            vmovss  xmm7, dword ptr [rbp+2D0h+var_290+8]
-            vmulss  xmm1, xmm4, xmm7
-            vaddss  xmm0, xmm3, xmm1
-            vmovss  [rbp+2D0h+var_334], xmm0
-            vmovss  xmm6, cs:?HFD_FBW_GYRO_AILERON_SPEED_LIMIT_EXPO@@3MA; float HFD_FBW_GYRO_AILERON_SPEED_LIMIT_EXPO
-            vandps  xmm0, xmm0, xmm14
-            vdivss  xmm0, xmm0, cs:?HFD_FBW_GYRO_AILERON_RELATIVE_SPEED_LIMIT@@3MA; val
-            vmovaps xmm2, xmm15; max
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vsubss  xmm0, xmm15, xmm0; value
-            vmovaps xmm1, xmm6; expo
-          }
-          *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-          __asm
-          {
-            vmovss  [rsp+3D0h+var_390], xmm0
-            vmulss  xmm2, xmm8, dword ptr [rbp+2D0h+v1+4]
-            vmovss  xmm6, dword ptr [rbp+2D0h+var_290]
-            vmulss  xmm1, xmm6, dword ptr [rbp+2D0h+v1]
-            vaddss  xmm3, xmm2, xmm1
-            vmulss  xmm2, xmm7, dword ptr [rbp+2D0h+v1+8]
-            vaddss  xmm8, xmm3, xmm2
-            vsubss  xmm1, xmm15, [rsp+3D0h+aileronInput]
-            vaddss  xmm0, xmm1, dword ptr [rsi+93Ch]; val
-            vmovaps xmm2, xmm15; max
-            vxorps  xmm1, xmm1, xmm1; min
-          }
-          *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-          __asm
-          {
-            vmulss  xmm0, xmm0, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_DRAG@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_DRAG
-            vmovss  dword ptr [rbp+2D0h+var_330], xmm0
-            vmulss  xmm1, xmm10, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_ELE@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_ELE
-            vsubss  xmm0, xmm15, dword ptr [rsi+93Ch]
-            vmulss  xmm0, xmm1, xmm0
-            vmovss  [rbp+2D0h+var_2E0], xmm0
-            vmovss  xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_LEVELED_FACTOR_EXPO@@3MA; expo
-            vmovss  xmm0, [rsp+3D0h+var_378]; value
-          }
-          *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-          __asm
-          {
-            vmovaps xmm4, xmm0
-            vmovss  [rsp+3D0h+var_374], xmm0
-            vmovss  xmm9, [rbp+2D0h+var_324]
-            vmulss  xmm1, xmm8, xmm9
-            vmovss  xmm7, [rbp+2D0h+var_334]
-            vmulss  xmm10, xmm7, xmm9
-            vcomiss xmm1, xmm11
-          }
-          if ( v1268 )
-          {
-            __asm { vcomiss xmm10, cs:?HFD_FBW_ENHANCER_TRANSITION_THRESHOLD@@3MA; float HFD_FBW_ENHANCER_TRANSITION_THRESHOLD }
-            if ( v1268 | v1269 )
-            {
-              __asm
-              {
-                vandps  xmm8, xmm8, xmm14
-                vmovss  xmm5, dword ptr [rsi+8D8h]
-                vandps  xmm5, xmm5, xmm14
-                vmulss  xmm0, xmm9, xmm8
-                vsubss  xmm1, xmm0, dword ptr [rsi+8DCh]
-                vmulss  xmm2, xmm1, xmm12
-                vmulss  xmm3, xmm2, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_AIL_RATE@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_AIL_RATE
-                vmovss  xmm13, [rsp+3D0h+var_390]
-                vmulss  xmm0, xmm3, xmm13
-                vmulss  xmm4, xmm0, xmm4
-                vsubss  xmm1, xmm15, xmm5
-                vmulss  xmm0, xmm4, xmm1
-                vaddss  xmm0, xmm0, dword ptr [rsi+8E0h]
-              }
-            }
-            else
-            {
-              __asm
-              {
-                vmulss  xmm1, xmm7, xmm12
-                vmulss  xmm2, xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_RATE_CHANGE_FACTOR@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_RATE_CHANGE_FACTOR
-                vxorps  xmm7, xmm2, xmm13
-              }
-              vec3_t::operator[](&_RSI->m_Velocity, 0);
-              __asm
-              {
-                vmulss  xmm0, xmm6, xmm7
-                vaddss  xmm6, xmm0, dword ptr [rax]
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 0);
-              __asm { vmovss  dword ptr [rax], xmm6 }
-              vec3_t::operator[](&_RSI->m_Velocity, 1);
-              __asm
-              {
-                vmulss  xmm0, xmm7, dword ptr [rbp+2D0h+var_290+4]
-                vaddss  xmm6, xmm0, dword ptr [rax]
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 1);
-              __asm { vmovss  dword ptr [rax], xmm6 }
-              vec3_t::operator[](&_RSI->m_Velocity, 2);
-              __asm
-              {
-                vmulss  xmm0, xmm7, dword ptr [rbp+2D0h+var_290+8]
-                vaddss  xmm6, xmm0, dword ptr [rax]
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 2);
-              __asm
-              {
-                vmovss  dword ptr [rax], xmm6
-                vandps  xmm8, xmm8, xmm14
-                vmovss  xmm5, dword ptr [rsi+8D8h]
-                vandps  xmm5, xmm5, xmm14
-                vmulss  xmm0, xmm9, xmm8
-                vsubss  xmm1, xmm0, dword ptr [rsi+8DCh]
-                vmulss  xmm2, xmm1, xmm12
-                vmulss  xmm3, xmm2, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_AIL_RATE@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_AIL_RATE
-                vmulss  xmm4, xmm3, [rsp+3D0h+var_374]
-                vsubss  xmm0, xmm15, xmm5
-                vmulss  xmm1, xmm4, xmm0
-                vaddss  xmm0, xmm1, dword ptr [rsi+8E0h]
-                vmovss  xmm13, [rsp+3D0h+var_390]
-              }
-            }
-            __asm
-            {
-              vmovss  dword ptr [rsi+8E0h], xmm0
-              vcomiss xmm10, xmm11
-            }
-            if ( v1268 )
-            {
-              __asm
-              {
-                vmovss  xmm6, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_BLOWBACK_EFFECT_EXPO@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_BLOWBACK_EFFECT_EXPO
-                vmovss  xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_BLOWBACK_EFFECT_THRESHOLD@@3MA; deadzone
-                vmovaps xmm0, xmm13; value
-              }
-              *(double *)&_XMM0 = FlightDynamics::ComputeDeadzone(*(float *)&_XMM0, *(const float *)&_XMM1);
-              __asm { vmovaps xmm1, xmm6; expo }
-              FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-              __asm
-              {
-                vsubss  xmm1, xmm15, [rbp+2D0h+var_340]
-                vaddss  xmm0, xmm1, xmm0; val
-                vmovaps xmm2, xmm15; max
-                vxorps  xmm1, xmm1, xmm1; min
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmovaps xmm8, xmm0
-                vaddss  xmm0, xmm0, dword ptr [rsi+93Ch]; val
-                vmovaps xmm2, xmm15; max
-                vxorps  xmm1, xmm1, xmm1; min
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmovaps xmm7, xmm0
-                vmovss  xmm6, dword ptr [rsi+488h]
-                vmovss  xmm0, [rbp+2D0h+var_350]
-                vmulss  xmm0, xmm0, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_BLOWBACK_EFFECT_MULTIPLIER@@3MA; val
-                vmovaps xmm2, xmm15; max
-                vmovss  xmm9, cs:__real@bf800000
-                vmovaps xmm1, xmm9; min
-              }
-              I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vsubss  xmm1, xmm15, xmm7
-                vmulss  xmm2, xmm1, xmm0
-                vmulss  xmm0, xmm7, xmm6
-                vaddss  xmm2, xmm2, xmm0
-                vmovss  dword ptr [rsi+488h], xmm2
-                vsubss  xmm1, xmm8, xmm15
-                vaddss  xmm0, xmm1, xmm8
-                vmulss  xmm2, xmm0, dword ptr [rsi+8DCh]
-                vmovss  dword ptr [rsi+8DCh], xmm2
-              }
-LABEL_132:
-              __asm
-              {
-                vmovaps xmm2, xmm12; dT
-                vmovss  xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_AIL_ACCUMULATOR_DECAY@@3MA; dragCoefficient
-                vmovss  xmm0, dword ptr [rsi+8DCh]; value
-              }
-              *(double *)&_XMM0 = FlightDynamics::CalculateDrag(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmovss  dword ptr [rsi+8DCh], xmm0
-                vmovss  xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_AIL_ACCUMULATOR_MULTIPLIER@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_AIL_ACCUMULATOR_MULTIPLIER
-                vmulss  xmm2, xmm1, dword ptr [rsi+8E0h]
-                vmulss  xmm3, xmm2, [rsp+3D0h+var_374]
-                vmulss  xmm4, xmm3, xmm12
-                vaddss  xmm0, xmm4, xmm0; val
-                vmovss  dword ptr [rsi+8DCh], xmm0
-                vmovaps xmm2, xmm15; max
-                vmovaps xmm1, xmm9; min
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmovss  dword ptr [rsi+8DCh], xmm0
-                vmovaps xmm2, xmm12; dT
-                vmovss  xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_AIL_ACCUMULATOR_RATE_DECAY@@3MA; dragCoefficient
-                vmovss  xmm0, dword ptr [rsi+8E0h]; value
-              }
-              *(double *)&_XMM0 = FlightDynamics::CalculateDrag(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmovss  dword ptr [rsi+8E0h], xmm0
-                vmovss  xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_COL_SPEED_EXPO@@3MA; expo
-                vsubss  xmm0, xmm15, [rsp+3D0h+var_38C]; value
-              }
-              *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-              __asm
-              {
-                vmovaps xmm6, xmm0
-                vmulss  xmm2, xmm0, xmm13
-                vmovss  xmm5, dword ptr [rsi+8D8h]
-                vandps  xmm5, xmm5, xmm14
-                vsubss  xmm1, xmm15, xmm2
-                vmulss  xmm3, xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_AIL@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_AIL
-                vmulss  xmm2, xmm2, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_AIL_SPEED@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_AIL_SPEED
-                vaddss  xmm4, xmm3, xmm2
-                vsubss  xmm1, xmm15, dword ptr [rsi+93Ch]
-                vmulss  xmm2, xmm4, xmm1
-                vsubss  xmm0, xmm15, xmm5
-                vmulss  xmm3, xmm2, xmm0
-                vmulss  xmm12, xmm3, dword ptr [rsi+8DCh]
-                vmovaps xmm2, xmm15; max
-                vxorps  xmm1, xmm1, xmm1; min
-                vmovss  xmm0, [rsp+3D0h+var_360]; val
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmulss  xmm2, xmm6, [rsp+3D0h+var_378]
-                vmulss  xmm0, xmm0, xmm2
-                vmulss  xmm13, xmm0, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_COL@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_COL
-                vxorps  xmm2, xmm2, xmm2; max
-                vmovaps xmm1, xmm9; min
-                vmovss  xmm0, [rsp+3D0h+var_360]; val
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vandps  xmm0, xmm0, xmm14
-                vsubss  xmm1, xmm15, xmm6
-                vmulss  xmm2, xmm1, [rsp+3D0h+var_35C]
-                vmulss  xmm0, xmm0, xmm2
-                vmulss  xmm14, xmm0, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_COL_DOWN@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_COL_DOWN
-                vmovss  xmm7, dword ptr [rbp+2D0h+var_330]
-                vmulss  xmm6, xmm7, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 0);
-              __asm
-              {
-                vmovss  xmm8, [rsp+3D0h+var_354]
-                vmovaps xmm2, xmm8; dT
-                vmovaps xmm1, xmm6; dragCoefficient
-                vmovss  xmm0, dword ptr [rax]; value
-              }
-              *(double *)&_XMM0 = FlightDynamics::CalculateDrag(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm { vmovaps xmm6, xmm0 }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 0);
-              __asm
-              {
-                vmovss  dword ptr [rax], xmm6
-                vmulss  xmm6, xmm7, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 1);
-              __asm
-              {
-                vmovaps xmm2, xmm8; dT
-                vmovaps xmm1, xmm6; dragCoefficient
-                vmovss  xmm0, dword ptr [rax]; value
-              }
-              *(double *)&_XMM0 = FlightDynamics::CalculateDrag(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm { vmovaps xmm6, xmm0 }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 1);
-              __asm
-              {
-                vmovss  dword ptr [rax], xmm6
-                vsubss  xmm0, xmm15, dword ptr [rbp+2D0h+cross]
-                vmulss  xmm0, xmm0, cs:__real@40000000; val
-                vmovaps xmm2, xmm15; max
-                vxorps  xmm1, xmm1, xmm1; min
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmulss  xmm6, xmm0, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_SPEED@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_SPEED
-                vsubss  xmm0, xmm15, [rbp+2D0h+var_33C]
-                vmulss  xmm0, xmm0, cs:__real@40000000; val
-                vmovaps xmm2, xmm15; max
-                vxorps  xmm1, xmm1, xmm1; min
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmulss  xmm7, xmm0, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_SPEED_AILERON@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_SPEED_AILERON
-                vmovsd  xmm1, [rbp+2D0h+var_1C0]
-                vmovsd  qword ptr [rbp+2D0h+var_290], xmm1
-              }
-              v2087.v[2] = v2102;
-              __asm
-              {
-                vmovsd  xmm0, qword ptr [r14]
-                vmovsd  qword ptr [rbp+2D0h+cross], xmm0
-              }
-              cross.v[2] = _RSI->m_Velocity.v[2];
-              __asm
-              {
-                vmulss  xmm2, xmm6, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-                vmovaps xmm3, xmm8
-              }
-              CalculateDragAtDirection(&cross, (vec3_t *)&v2087, *(float *)&_XMM2, *(float *)&_XMM3, &_RSI->m_Velocity);
-              __asm
-              {
-                vmovsd  xmm0, [rbp+2D0h+var_200]
-                vmovsd  qword ptr [rbp+2D0h+var_290], xmm0
-              }
-              v2087.v[2] = v2097;
-              __asm
-              {
-                vmovsd  xmm0, qword ptr [r14]
-                vmovsd  qword ptr [rbp+2D0h+cross], xmm0
-              }
-              cross.v[2] = _RSI->m_Velocity.v[2];
-              __asm
-              {
-                vmulss  xmm2, xmm7, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-                vmovaps xmm3, xmm8
-              }
-              CalculateDragAtDirection(&cross, (vec3_t *)&v2087, *(float *)&_XMM2, *(float *)&_XMM3, &_RSI->m_Velocity);
-              _RAX = vec3_t::operator[](&_RSI->m_forwardVector, 0);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rax]
-                vmovss  dword ptr [rbp+2D0h+var_290], xmm0
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_forwardVector, 1);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rax]
-                vmovss  dword ptr [rbp+2D0h+var_290+4], xmm0
-              }
-              vec3_t::operator[](&_RSI->m_forwardVector, 2);
-              __asm { vmovss  dword ptr [rbp+2D0h+var_290+8], xmm11 }
-              Vec3Normalize((vec3_t *)&v2087);
-              __asm
-              {
-                vmovss  xmm10, dword ptr [rbp+2D0h+var_290+4]
-                vmulss  xmm1, xmm10, dword ptr [rbp+2D0h+v1+4]
-                vmovss  xmm9, dword ptr [rbp+2D0h+var_290]
-                vmulss  xmm0, xmm9, dword ptr [rbp+2D0h+v1]
-                vaddss  xmm2, xmm1, xmm0
-                vmovss  xmm11, dword ptr [rbp+2D0h+var_290+8]
-                vmulss  xmm1, xmm11, dword ptr [rbp+2D0h+v1+8]
-                vaddss  xmm7, xmm2, xmm1
-                vmovss  xmm0, [rbp+2D0h+var_2E0]
-                vmulss  xmm0, xmm0, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-                vmulss  xmm2, xmm0, [rsp+3D0h+var_38C]
-                vsubss  xmm1, xmm15, dword ptr [rsi+8D8h]
-                vmulss  xmm8, xmm2, xmm1
-                vmulss  xmm0, xmm7, [rsp+3D0h+var_364]; val
-                vmovaps xmm2, xmm15; max
-                vxorps  xmm1, xmm1, xmm1; min
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmovaps xmm6, xmm0
-                vmovss  xmm2, [rsp+3D0h+elevatorInput]; max
-                vxorps  xmm1, xmm2, cs:__xmm@80000000800000008000000080000000; min
-                vmulss  xmm0, xmm2, xmm7; val
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-                vmulss  xmm1, xmm6, xmm8
-                vmulss  xmm0, xmm0, xmm1
-                vmulss  xmm7, xmm0, [rsp+3D0h+var_354]
-              }
-              vec3_t::operator[](&_RSI->m_Velocity, 0);
-              __asm
-              {
-                vmulss  xmm0, xmm7, xmm9
-                vaddss  xmm6, xmm0, dword ptr [rax]
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 0);
-              __asm { vmovss  dword ptr [rax], xmm6 }
-              vec3_t::operator[](&_RSI->m_Velocity, 1);
-              __asm
-              {
-                vmulss  xmm0, xmm7, xmm10
-                vaddss  xmm6, xmm0, dword ptr [rax]
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 1);
-              __asm { vmovss  dword ptr [rax], xmm6 }
-              vec3_t::operator[](&_RSI->m_Velocity, 2);
-              __asm
-              {
-                vmulss  xmm0, xmm7, xmm11
-                vaddss  xmm6, xmm0, dword ptr [rax]
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 2);
-              __asm { vmovss  dword ptr [rax], xmm6 }
-              _RAX = vec3_t::operator[](&_RSI->m_sideVector, 0);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rax]
-                vmovss  dword ptr [rbp+2D0h+v], xmm0
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_sideVector, 1);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rax]
-                vmovss  dword ptr [rbp+2D0h+v+4], xmm0
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_sideVector, 2);
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rax]
-                vmovss  dword ptr [rbp+2D0h+v+8], xmm0
-              }
-              *vec3_t::operator[](&v, 2) = 0.0;
-              Vec3Normalize(&v);
-              __asm
-              {
-                vmovss  xmm1, [rsp+3D0h+collectiveInput]
-                vsubss  xmm0, xmm15, xmm1
-                vmulss  xmm2, xmm0, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_RUD_ACCUMULATOR_DECAY@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_RUD_ACCUMULATOR_DECAY
-                vmulss  xmm1, xmm1, cs:__real@40a00000
-                vaddss  xmm2, xmm2, xmm1
-                vmulss  xmm0, xmm2, [rsp+3D0h+var_354]
-                vaddss  xmm0, xmm0, dword ptr [rsi+8D8h]; val
-                vmovaps xmm2, xmm15; max
-                vxorps  xmm11, xmm11, xmm11
-                vxorps  xmm1, xmm1, xmm1; min
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmovss  dword ptr [rsi+8D8h], xmm0
-                vsubss  xmm1, xmm15, dword ptr [rsi+914h]
-                vmulss  xmm2, xmm1, xmm12
-                vmulss  xmm3, xmm2, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-                vsubss  xmm0, xmm15, xmm0
-                vmulss  xmm1, xmm3, xmm0
-                vmovss  xmm12, [rsp+3D0h+var_354]
-                vmulss  xmm7, xmm1, xmm12
-              }
-              vec3_t::operator[](&_RSI->m_Velocity, 0);
-              __asm
-              {
-                vmulss  xmm0, xmm7, dword ptr [rbp+2D0h+v]
-                vaddss  xmm6, xmm0, dword ptr [rax]
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 0);
-              __asm { vmovss  dword ptr [rax], xmm6 }
-              vec3_t::operator[](&_RSI->m_Velocity, 1);
-              __asm
-              {
-                vmulss  xmm0, xmm7, dword ptr [rbp+2D0h+v+4]
-                vaddss  xmm6, xmm0, dword ptr [rax]
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 1);
-              __asm { vmovss  dword ptr [rax], xmm6 }
-              vec3_t::operator[](&_RSI->m_Velocity, 2);
-              __asm
-              {
-                vmulss  xmm0, xmm7, dword ptr [rbp+2D0h+v+8]
-                vaddss  xmm6, xmm0, dword ptr [rax]
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 2);
-              __asm { vmovss  dword ptr [rax], xmm6 }
-              v1499 = BG_GetFlightDynamicsManager();
-              __asm
-              {
-                vsubss  xmm0, xmm15, dword ptr [rsi+914h]
-                vmulss  xmm1, xmm0, xmm13
-                vmulss  xmm2, xmm1, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-                vsubss  xmm0, xmm15, dword ptr [rsi+8D8h]
-                vmulss  xmm1, xmm2, xmm0
-                vmulss  xmm1, xmm1, xmm12; scale
-              }
-              Vec3Mad(&_RSI->m_Velocity, *(float *)&_XMM1, &v1499->m_UpAxis, &_RSI->m_Velocity);
-              v1506 = BG_GetFlightDynamicsManager();
-              __asm
-              {
-                vmulss  xmm0, xmm14, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-                vmulss  xmm1, xmm0, xmm12; scale
-              }
-              Vec3Mad(&_RSI->m_Velocity, *(float *)&_XMM1, &v1506->m_UpAxis, &_RSI->m_Velocity);
-              __asm
-              {
-                vmovss  xmm1, [rsp+3D0h+var_38C]
-                vmulss  xmm0, xmm1, [rbp+2D0h+var_34C]
-                vmovss  xmm2, [rsp+3D0h+var_364]
-                vsubss  xmm0, xmm2, xmm0
-                vmovss  xmm14, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-                vandps  xmm0, xmm0, xmm14; value
-                vmovss  xmm2, cs:__real@40000000; range
-                vmovss  xmm1, cs:__real@3f8ccccd; deadzone
-              }
-              *(double *)&_XMM0 = FlightDynamics::ComputeDeadzoneRange(*(float *)&_XMM0, *(const float *)&_XMM1, *(const float *)&_XMM2);
-              __asm
-              {
-                vmovaps xmm2, xmm15; max
-                vxorps  xmm1, xmm1, xmm1; min
-              }
-              *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmulss  xmm7, xmm0, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_REVERSE@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_REVERSE
-                vmulss  xmm6, xmm7, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 0);
-              __asm
-              {
-                vmovaps xmm2, xmm12; dT
-                vmovaps xmm1, xmm6; dragCoefficient
-                vmovss  xmm0, dword ptr [rax]; value
-              }
-              *(double *)&_XMM0 = FlightDynamics::CalculateDrag(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm { vmovaps xmm6, xmm0 }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 0);
-              __asm
-              {
-                vmovss  dword ptr [rax], xmm6
-                vmulss  xmm6, xmm7, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 1);
-              __asm
-              {
-                vmovaps xmm2, xmm12; dT
-                vmovaps xmm1, xmm6; dragCoefficient
-                vmovss  xmm0, dword ptr [rax]; value
-              }
-              *(double *)&_XMM0 = FlightDynamics::CalculateDrag(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm { vmovaps xmm6, xmm0 }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 1);
-              __asm
-              {
-                vmovss  dword ptr [rax], xmm6
-                vmovss  xmm13, dword ptr cs:__xmm@80000000800000008000000080000000
-              }
-LABEL_133:
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+480h]
-                vmovss  dword ptr [rbp+2D0h+cross], xmm0
-              }
-              if ( (LODWORD(cross.v[0]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 2427, ASSERT_TYPE_SANITY, "( !IS_NAN( m_FBWControlInputs[FD_STICK_ELEVATOR] ) )", (const char *)&queryFormat, "!IS_NAN( m_FBWControlInputs[FD_STICK_ELEVATOR] )") )
-                __debugbreak();
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+488h]
-                vmovss  dword ptr [rbp+2D0h+cross], xmm0
-              }
-              if ( (LODWORD(cross.v[0]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 2428, ASSERT_TYPE_SANITY, "( !IS_NAN( m_FBWControlInputs[FD_STICK_AILERON] ) )", (const char *)&queryFormat, "!IS_NAN( m_FBWControlInputs[FD_STICK_AILERON] )") )
-                __debugbreak();
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+490h]
-                vmovss  dword ptr [rbp+2D0h+cross], xmm0
-              }
-              if ( (LODWORD(cross.v[0]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 2429, ASSERT_TYPE_SANITY, "( !IS_NAN( m_FBWControlInputs[FD_STICK_VERTICAL] ) )", (const char *)&queryFormat, "!IS_NAN( m_FBWControlInputs[FD_STICK_VERTICAL] )") )
-                __debugbreak();
-              __asm
-              {
-                vmovss  xmm0, dword ptr [rsi+47Ch]
-                vmovss  dword ptr [rbp+2D0h+cross], xmm0
-              }
-              if ( (LODWORD(cross.v[0]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 2430, ASSERT_TYPE_SANITY, "( !IS_NAN( m_FBWControlInputs[FD_STICK_RUDDER] ) )", (const char *)&queryFormat, "!IS_NAN( m_FBWControlInputs[FD_STICK_RUDDER] )") )
-                __debugbreak();
-              __asm { vmovss  xmm9, [rsp+3D0h+var_370] }
-              goto LABEL_146;
-            }
-          }
-          else
-          {
-            __asm
-            {
-              vmovss  xmm0, cs:?HFD_FBW_ENHANCER_TRANSITION_THRESHOLD@@3MA; float HFD_FBW_ENHANCER_TRANSITION_THRESHOLD
-              vcomiss xmm1, xmm0
-            }
-            if ( !(v1268 | v1269) )
-              goto LABEL_129;
-            __asm { vcomiss xmm10, xmm0 }
-            if ( !(v1268 | v1269) )
-            {
-LABEL_129:
-              __asm
-              {
-                vmovaps xmm2, xmm12; dT
-                vmovss  xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_AIL_ACCUMULATOR_EXTRA_RATE_DECAY@@3MA; dragCoefficient
-                vmovss  xmm0, dword ptr [rsi+8DCh]; value
-              }
-              *(double *)&_XMM0 = FlightDynamics::CalculateDrag(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmovss  dword ptr [rsi+8DCh], xmm0
-                vmovaps xmm2, xmm12; dT
-                vmovss  xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_AIL_ACCUMULATOR_EXTRA_RATE_DECAY@@3MA; dragCoefficient
-                vmovss  xmm0, dword ptr [rsi+8E0h]; value
-              }
-              *(double *)&_XMM0 = FlightDynamics::CalculateDrag(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-              __asm
-              {
-                vmovss  dword ptr [rsi+8E0h], xmm0
-                vmulss  xmm1, xmm7, xmm12
-                vmulss  xmm0, xmm1, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_RATE_CHANGE_FACTOR@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_RATE_CHANGE_FACTOR
-                vxorps  xmm7, xmm0, xmm13
-              }
-              vec3_t::operator[](&_RSI->m_Velocity, 0);
-              __asm
-              {
-                vmulss  xmm0, xmm7, xmm6
-                vaddss  xmm6, xmm0, dword ptr [rax]
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 0);
-              __asm { vmovss  dword ptr [rax], xmm6 }
-              vec3_t::operator[](&_RSI->m_Velocity, 1);
-              __asm
-              {
-                vmulss  xmm0, xmm7, dword ptr [rbp+2D0h+var_290+4]
-                vaddss  xmm6, xmm0, dword ptr [rax]
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 1);
-              __asm { vmovss  dword ptr [rax], xmm6 }
-              vec3_t::operator[](&_RSI->m_Velocity, 2);
-              __asm
-              {
-                vmulss  xmm0, xmm7, dword ptr [rbp+2D0h+var_290+8]
-                vaddss  xmm6, xmm0, dword ptr [rax]
-              }
-              _RAX = vec3_t::operator[](&_RSI->m_Velocity, 2);
-              __asm { vmovss  dword ptr [rax], xmm6 }
-            }
-            __asm { vmovss  xmm13, [rsp+3D0h+var_390] }
-          }
-          __asm { vmovss  xmm9, cs:__real@bf800000 }
-          goto LABEL_132;
-        }
-        __asm { vmulss  xmm0, xmm0, cs:?HFD_FBW_RIGHT_RESPONSE_MODIFIER@@3MA; val }
-      }
-      else
-      {
-        __asm { vmulss  xmm0, xmm0, cs:?HFD_FBW_LEFT_RESPONSE_MODIFIER@@3MA; float HFD_FBW_LEFT_RESPONSE_MODIFIER }
-      }
-      __asm
-      {
-        vmovaps xmm2, xmm15; max
-        vmovaps xmm1, xmm6; min
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rsi+47Ch], xmm0 }
-      goto LABEL_119;
+      v43 = rudderInput;
     }
-  }
-LABEL_146:
-  __asm
-  {
-    vmovss  xmm10, dword ptr [rsi+458h]
-    vmovss  xmm8, dword ptr [rsi+444h]
-    vmovss  xmm0, dword ptr [rsi+450h]
-    vmovss  [rsp+3D0h+elevatorInput], xmm0
-    vmovss  xmm0, dword ptr [rsi+448h]
-    vmovss  [rsp+3D0h+aileronInput], xmm0
-  }
-  if ( (_BYTE)v2040 )
-  {
-    m_FBWControlInputs = _RSI->m_FBWControlInputs;
-    *(_QWORD *)cross.v = _RSI->m_FBWControlInputs;
-  }
-  else
-  {
-    __asm
+    collectiveInput = v43;
+    v590 = fsqrt((float)(this->m_Velocity.v[1] * this->m_Velocity.v[1]) + (float)(this->m_Velocity.v[0] * this->m_Velocity.v[0]));
+    v569 = (float)((float)(v0.v[1] * this->m_forwardVector.v[1]) + (float)(v0.v[0] * this->m_forwardVector.v[0])) + (float)(v0.v[2] * this->m_forwardVector.v[2]);
+    v551 = (float)((float)(v0.v[1] * this->m_sideVector.v[1]) + (float)(v0.v[0] * this->m_sideVector.v[0])) + (float)(v0.v[2] * this->m_sideVector.v[2]);
+    v44 = BG_GetFlightDynamicsManager();
+    LODWORD(v45) = LODWORD(v44->m_UpAxis.v[0]) ^ _xmm;
+    LODWORD(v46) = LODWORD(v44->m_UpAxis.v[1]) ^ _xmm;
+    LODWORD(v47) = LODWORD(v44->m_UpAxis.v[2]) ^ _xmm;
+    Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_fd_helicopter_altitude_speedLimiter_range, "fd_helicopter_altitude_speedLimiter_range");
+    v605.v[0] = (float)(v45 * *(float *)&Float_Internal_DebugName) + this->m_centerOfMassWs.v[0];
+    v605.v[1] = (float)(v46 * *(float *)&Float_Internal_DebugName) + this->m_centerOfMassWs.v[1];
+    v605.v[2] = (float)(*(float *)&Float_Internal_DebugName * v47) + this->m_centerOfMassWs.v[2];
+    v628.fraction = FLOAT_1_0;
+    if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_altitude_speedLimiter, "fd_helicopter_altitude_speedLimiter") && this->m_playerControlled )
     {
-      vmulss  xmm1, xmm8, xmm8
-      vmulss  xmm0, xmm10, xmm10
-      vaddss  xmm0, xmm1, xmm0; value
-      vmovss  xmm1, cs:__real@3f000000; expo
+      cross = v605.xyz;
+      *(_QWORD *)v605.v = *(_QWORD *)this->m_centerOfMassWs.v;
+      v605.v[2] = this->m_centerOfMassWs.v[2];
+      FD_Trace(this->m_worldId, &v628, (const vec3_t *)&v605, &cross, NULL, 2097, NULL);
     }
-    FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
+    fraction = v628.fraction;
+    v49 = HFD_FBW_GYRO_ELEVATOR_SPEED_LIMIT_FORWARD;
+    if ( v569 < -0.001 )
     {
-      vmulss  xmm8, xmm8, xmm0
-      vmulss  xmm10, xmm10, xmm0
+      if ( *(float *)&v39 >= -0.001 )
+        v49 = HFD_FBW_GYRO_ELEVATOR_SPEED_LIMIT_FORWARD * 0.5;
+      else
+        v49 = HFD_FBW_GYRO_ELEVATOR_SPEED_LIMIT_BACKWARD;
     }
-    if ( !_RSI->m_playerControlled )
+    v50 = v560;
+    v51 = I_fclamp((float)(v560 * COERCE_FLOAT(LODWORD(v569) & _xmm)) * (float)(1.0 / v49), 0.0, 1.0);
+    v550 = 1.0 - *(float *)&v51;
+    v52 = I_fclamp((float)(1.0 / v49) * v50, 0.0, 1.0);
+    v558 = 1.0 - *(float *)&v52;
+    v53 = I_fclamp((float)(v50 * COERCE_FLOAT(LODWORD(v551) & _xmm)) / HFD_FBW_GYRO_AILERON_SPEED_LIMIT, 0.0, 1.0);
+    v572 = 1.0 - *(float *)&v53;
+    v54 = I_fclamp(v50 / HFD_FBW_GYRO_AILERON_SPEED_LIMIT, 0.0, 1.0);
+    v55 = 1.0 - *(float *)&v54;
+    v566 = 1.0 - *(float *)&v54;
+    v56 = FD_ComputeExpo(1.0 - *(float *)&v54, HFD_FBW_GYRO_AILERON_SPEED_LIMIT_EXPO);
+    v573 = *(float *)&v56;
+    v57 = FD_ComputeExpo(v558, HFD_FBW_GYRO_ELEVATOR_SPEED_LIMIT_EXPO);
+    cross.v[0] = *(float *)&v57;
+    if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_fbw_enhancer, "fd_helicopter_fbw_enhancer") && this->m_playerControlled )
     {
-      __asm
+      if ( v569 >= -0.001 )
+        v58 = this->m_GyroFBWEnhancerBackwardsAccumulator - v2;
+      else
+        v58 = v2 + this->m_GyroFBWEnhancerBackwardsAccumulator;
+      this->m_GyroFBWEnhancerBackwardsAccumulator = v58;
+      v59 = I_fclamp(v58, 0.0, 1.0);
+      this->m_GyroFBWEnhancerBackwardsAccumulator = *(float *)&v59;
+      if ( *(float *)&v59 > 0.001 )
       {
-        vmovss  xmm0, cs:__real@3a83126f
-        vcomiss xmm0, dword ptr [rsi+940h]
-      }
-      if ( _RSI->m_playerControlled )
-      {
-        __asm
-        {
-          vmovss  xmm8, cs:?HFD_ABANDONED_RUDDER_VALUE@@3MA; float HFD_ABANDONED_RUDDER_VALUE
-          vmovss  xmm10, cs:?HFD_ABANDONED_COLLECTIVE_VALUE@@3MA; float HFD_ABANDONED_COLLECTIVE_VALUE
-          vmovss  xmm2, cs:?HFD_ABANDONED_ELEVATOR_VALUE_SPEED@@3MA; float HFD_ABANDONED_ELEVATOR_VALUE_SPEED
-          vcmpltss xmm1, xmm9, cs:?HFD_ABANDONED_SPEED_THRESHOLD@@3MA; float HFD_ABANDONED_SPEED_THRESHOLD
-          vmovss  xmm0, cs:?HFD_ABANDONED_ELEVATOR_VALUE@@3MA; float HFD_ABANDONED_ELEVATOR_VALUE
-          vblendvps xmm1, xmm2, xmm0, xmm1
-          vmovss  [rsp+3D0h+aileronInput], xmm1
-          vmovss  dword ptr [rbp+2D0h+cross], xmm1
-        }
-      }
-    }
-    _RSI->m_FBWControlInputs[1] = 0.0;
-    _RSI->m_FBWControlInputs[3] = 0.0;
-    *(_QWORD *)cross.v = _RSI->m_FBWControlInputs;
-    _RSI->m_FBWControlInputs[0] = 0.0;
-    _RSI->m_GyroRudderForwardVectorSet = 0;
-    vec3_t::operator[](&_RSI->m_sideVector, 1);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+2D0h+out+4]
-      vmulss  xmm7, xmm0, dword ptr [rax]
-    }
-    vec3_t::operator[](&_RSI->m_sideVector, 0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbp+2D0h+out]
-      vmulss  xmm6, xmm0, dword ptr [rax]
-    }
-    vec3_t::operator[](&_RSI->m_sideVector, 2);
-    __asm
-    {
-      vaddss  xmm3, xmm7, xmm6
-      vmovss  xmm0, dword ptr [rbp+2D0h+out+8]
-      vmulss  xmm2, xmm0, dword ptr [rax]
-      vaddss  xmm3, xmm3, xmm2
-      vmulss  xmm4, xmm3, cs:?HFD_GYRO_ANGULAR_YAW_VELOCITY_FACTOR@@3MA; float HFD_GYRO_ANGULAR_YAW_VELOCITY_FACTOR
-      vdivss  xmm0, xmm15, xmm12
-      vmulss  xmm0, xmm4, xmm0; value
-      vmovss  xmm1, cs:__real@40000000; expo
-    }
-    *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:?HFD_MANUAL_FREELOOK_MULTIPLIER@@3MA; float HFD_MANUAL_FREELOOK_MULTIPLIER
-      vmovss  dword ptr [rsi+3F4h], xmm1
-    }
-    _RSI->m_UserControlInputs[9] = 0.0;
-    _RAX = vec3_t::operator[](&_RSI->m_forwardVector, 0);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec3_t::operator[](&_RSI->m_FlyByWireNormalizedVector, 0);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    _RAX = vec3_t::operator[](&_RSI->m_forwardVector, 1);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec3_t::operator[](&_RSI->m_FlyByWireNormalizedVector, 1);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    _RAX = vec3_t::operator[](&_RSI->m_forwardVector, 2);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec3_t::operator[](&_RSI->m_FlyByWireNormalizedVector, 2);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    m_FBWControlInputs = _RSI->m_FBWControlInputs;
-  }
-  if ( !HFD_ALLOW_FULL_COLLECTIVE )
-  {
-    *(_QWORD *)cross.v = m_FBWControlInputs;
-    __asm { vcomiss xmm10, xmm11 }
-    if ( HFD_ALLOW_FULL_COLLECTIVE )
-    {
-      __asm
-      {
-        vsubss  xmm0, xmm15, xmm10
-        vmulss  xmm1, xmm0, cs:?HFD_CENTER_COLLECTIVE_VALUE@@3MA; float HFD_CENTER_COLLECTIVE_VALUE
-        vaddss  xmm10, xmm10, xmm1
+        FD_ComputeExpo(v55, HFD_USE_ENHANCED_FBW_RESPONSE_REVERSE_LIMITER_VEC_EXPO);
+        v60 = v550;
+        v61 = FD_ComputeExpo(v550, HFD_USE_ENHANCED_FBW_RESPONSE_REVERSE_LIMITER_VEC_EXPO);
+        LODWORD(v62) = LODWORD(this->m_GyroFBWEnhancerRudderAccumulator) & _xmm;
+        v63 = I_fclamp(1.0 - fsqrt((float)(v55 * v55) + (float)(*(float *)&v61 * *(float *)&v61)), 0.0, 1.0);
+        v64 = I_fclamp(*(float *)&v63 + v62, 0.0, 1.0);
+        v66 = LODWORD(FLOAT_1_0);
+        *(float *)&v66 = 1.0 - (float)(*(float *)&v64 * this->m_GyroFBWEnhancerBackwardsAccumulator);
+        v65 = v66;
+        v67 = v39;
+        *(float *)&v67 = *(float *)&v39 * *(float *)&v65;
+        v39 = v67;
+        v69 = v65;
+        *(float *)&v69 = *(float *)&v65 * v547;
+        v68 = v69;
+        goto LABEL_47;
       }
     }
     else
     {
+      this->m_GyroFBWEnhancerBackwardsAccumulator = 0.0;
+    }
+    v60 = v550;
+    v68 = LODWORD(v547);
+LABEL_47:
+    this->m_UserControlInputs[3] = *(float *)&v68;
+    v70 = LODWORD(collectiveInput);
+    this->m_UserControlInputs[0] = collectiveInput;
+    this->m_UserControlInputs[5] = v38;
+    this->m_UserControlInputs[1] = *(float *)&v39;
+    *(double *)&v70 = FlightDynamics::ComputeDeadzone(*(float *)&v70, HFD_CONTROL_INPUT_RUDDER_DEADZONE);
+    _XMM8 = v70;
+    rudderInput = *(float *)&v70;
+    *((_QWORD *)&v70 + 1) = *((_QWORD *)&v39 + 1);
+    *(double *)&v70 = FlightDynamics::ComputeDeadzone(*(float *)&v39, HFD_CONTROL_INPUT_ELEVATOR_DEADZONE);
+    *(double *)&v70 = FD_ComputeExpo(*(float *)&v70, (float)((float)(1.0 - (float)(1.0 - v566)) * HFD_CONTROL_INPUT_ELEVATOR_EXPO) + (float)((float)(1.0 - v566) * HFD_CONTROL_INPUT_ELEVATOR_EXPO_SPEED));
+    _XMM10 = v70;
+    *((_QWORD *)&v70 + 1) = *((_QWORD *)&v68 + 1);
+    *(double *)&v70 = FlightDynamics::ComputeDeadzone(*(float *)&v68, HFD_CONTROL_INPUT_AILERON_DEADZONE);
+    *(double *)&v70 = FD_ComputeExpo(*(float *)&v70, (float)((float)(1.0 - (float)(1.0 - v573)) * HFD_CONTROL_INPUT_AILERON_EXPO) + (float)((float)(1.0 - v573) * HFD_CONTROL_INPUT_AILERON_EXPO_SPEED));
+    _XMM6 = v70;
+    if ( v569 <= 0.0 )
+    {
       __asm
       {
-        vxorps  xmm1, xmm10, xmm13
-        vsubss  xmm0, xmm15, xmm1
-        vmulss  xmm2, xmm0, cs:?HFD_CENTER_COLLECTIVE_VALUE@@3MA; float HFD_CENTER_COLLECTIVE_VALUE
-        vmulss  xmm1, xmm1, cs:?HFD_LOWER_COLLECTIVE_VALUE@@3MA; float HFD_LOWER_COLLECTIVE_VALUE
-        vaddss  xmm10, xmm2, xmm1
+        vcmpltss xmm0, xmm10, xmm1
+        vblendvps xmm0, xmm10, xmm1, xmm0
       }
+      LODWORD(_XMM10) = _XMM0;
+      elevatorInput = *(float *)&_XMM0;
     }
-  }
-  p_m_centerOfMassWs = &_RSI->m_centerOfMassWs;
-  vec3_t::operator[](&_RSI->m_centerOfMassWs, 0);
-  __asm
-  {
-    vmovss  xmm0, [rbp+2D0h+var_2C8]
-    vaddss  xmm7, xmm0, dword ptr [rax]
-  }
-  vec3_t::operator[](&_RSI->m_centerOfMassWs, 1);
-  __asm
-  {
-    vmovss  xmm0, [rbp+2D0h+var_2C4]
-    vaddss  xmm9, xmm0, dword ptr [rax]
-  }
-  vec3_t::operator[](&_RSI->m_centerOfMassWs, 2);
-  __asm
-  {
-    vmovss  xmm0, [rbp+2D0h+var_310]
-    vaddss  xmm0, xmm0, dword ptr [rax]
-    vmovss  [rbp+2D0h+var_310], xmm0
-  }
-  if ( HFD_USE_ADVANCED_TAIL_ROTOR )
-  {
-    __asm { vmovups xmm6, xmmword ptr [rsi+368h] }
-    _RAX = vec3_t::operator[](&_RSI->m_TailRotor.m_Position, 0);
-    __asm { vmovss  dword ptr [rax], xmm7 }
-    _RAX = vec3_t::operator[](&_RSI->m_TailRotor.m_Position, 1);
-    __asm { vmovss  dword ptr [rax], xmm9 }
-    _RAX = vec3_t::operator[](&_RSI->m_TailRotor.m_Position, 2);
+    else if ( *(float *)&_XMM10 > v60 )
+    {
+      *(float *)&_XMM10 = v60;
+    }
+    if ( v551 >= 0.0 )
+    {
+      __asm
+      {
+        vcmpltss xmm0, xmm6, xmm1
+        vblendvps xmm0, xmm6, xmm1, xmm0
+      }
+      LODWORD(_XMM6) = _XMM0;
+      aileronInput = *(float *)&_XMM0;
+    }
+    else if ( *(float *)&_XMM6 > v572 )
+    {
+      *(float *)&_XMM6 = v572;
+    }
+    v78 = I_fclamp(v38 * this->m_EmergencyLevelForCollective, 0.0, 1.0);
+    v79 = (float)((float)(1.0 - *(float *)&v78) * *(float *)&_XMM10) + (float)((float)(*(float *)&_XMM10 * 0.75) * *(float *)&v78);
+    v563 = v79;
+    v80 = (float)((float)(1.0 - COERCE_FLOAT(COERCE_UNSIGNED_INT(v38 * this->m_EmergencyLevelForCollective) & _xmm)) * *(float *)&_XMM6) + (float)((float)(*(float *)&_XMM6 * 0.5) * COERCE_FLOAT(COERCE_UNSIGNED_INT(v38 * this->m_EmergencyLevelForCollective) & _xmm));
+    v81 = I_fclamp(COERCE_FLOAT(LODWORD(v38) ^ _xmm), 0.0, 1.0);
+    v82 = (float)((float)(1.0 - *(float *)&v81) * v80) + (float)((float)(v80 * 0.75) * *(float *)&v81);
+    v548 = v82;
+    v83 = v82;
+    if ( (float)(v82 * v578) > 0.0 )
+    {
+      v83 = (float)(1.0 - COERCE_FLOAT(LODWORD(v578) & _xmm)) * v82;
+      v548 = v83;
+    }
+    *(float *)&v614 = this->m_sideVector.v[0];
+    v84 = this->m_sideVector.v[1];
+    v85 = LODWORD(v614);
+    *(float *)&v85 = fsqrt((float)(*(float *)&v85 * *(float *)&v85) + (float)(v84 * v84));
+    _XMM2 = v85;
     __asm
     {
-      vmovss  xmm0, [rbp+2D0h+var_310]
-      vmovss  dword ptr [rax], xmm0
+      vcmpless xmm0, xmm2, cs:__real@80000000
+      vblendvps xmm1, xmm2, xmm15, xmm0
     }
-    _RAX = vec4_t::operator[](&_RSI->m_TailRotor.m_RotationQuat, 0);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    _RAX = vec4_t::operator[](&_RSI->m_TailRotor.m_RotationQuat, 1);
+    v575 = *(float *)&_XMM1;
+    *(float *)&_XMM1 = 1.0 / *(float *)&_XMM1;
+    *(float *)&v614 = *(float *)&v614 * *(float *)&_XMM1;
+    *((float *)&v614 + 1) = *(float *)&_XMM1 * v84;
+    v615 = 0.0;
+    *(float *)&v619 = this->m_forwardVector.v[0];
+    v89 = this->m_forwardVector.v[1];
+    v90 = LODWORD(v619);
+    *(float *)&v90 = fsqrt((float)(*(float *)&v90 * *(float *)&v90) + (float)(v89 * v89));
+    _XMM2 = v90;
+    __asm
+    {
+      vcmpless xmm0, xmm2, cs:__real@80000000
+      vblendvps xmm1, xmm2, xmm15, xmm0
+    }
+    v575 = *(float *)&_XMM1;
+    *(float *)&_XMM1 = 1.0 / *(float *)&_XMM1;
+    *(float *)&v619 = *(float *)&v619 * *(float *)&_XMM1;
+    *((float *)&v619 + 1) = *(float *)&_XMM1 * v89;
+    v620 = 0.0;
+    aileronInput = fsqrt((float)(v79 * v79) + (float)(v83 * v83));
+    v94 = p_m_Velocity->v[0] - this->m_GyroVelocityDelta.v[0];
+    v95 = this->m_Velocity.v[1] - this->m_GyroVelocityDelta.v[1];
+    v96 = this->m_Velocity.v[2] - this->m_GyroVelocityDelta.v[2];
+    this->m_GyroVelocityDelta.v[0] = p_m_Velocity->v[0];
+    this->m_GyroVelocityDelta.v[1] = this->m_Velocity.v[1];
+    this->m_GyroVelocityDelta.v[2] = this->m_Velocity.v[2];
+    *(float *)&_XMM0 = (float)(1.0 / v2) * HFD_GYRO_ACCELERATION_PID_FACTOR;
+    v575 = (float)(*(float *)&_XMM0 * v94) + p_m_Velocity->v[0];
+    v97 = v575;
+    v594 = (float)(*(float *)&_XMM0 * v95) + this->m_Velocity.v[1];
+    v98 = (float)(*(float *)&_XMM0 * v96) + this->m_Velocity.v[2];
+    value = v98;
+    v601 = (float)((float)(v575 * *(float *)&v614) + (float)(v594 * *((float *)&v614 + 1))) + (float)(v98 * v615);
+    v586 = (float)((float)(v594 * this->m_forwardVector.v[1]) + (float)(v575 * this->m_forwardVector.v[0])) + (float)(v98 * this->m_forwardVector.v[2]);
+    v99 = BG_GetFlightDynamicsManager();
+    v568 = (float)((float)(v594 * v99->m_UpAxis.v[1]) + (float)(v97 * v99->m_UpAxis.v[0])) + (float)(v98 * v99->m_UpAxis.v[2]);
+    v596 = (float)(HFD_GYRO_VELOCITY_PID_FACTOR * p_m_Velocity->v[0]) + this->m_centerOfMassWs.v[0];
+    v579 = (float)(HFD_GYRO_VELOCITY_PID_FACTOR * this->m_Velocity.v[1]) + this->m_centerOfMassWs.v[1];
+    v583 = (float)(HFD_GYRO_VELOCITY_PID_FACTOR * this->m_Velocity.v[2]) + this->m_centerOfMassWs.v[2];
+    QuatTransform(&this->m_RotationInertiaQuat, &this->m_forwardVector, &v622);
+    v552 = (float)((float)(this->m_angularVelocityWs.v[1] * this->m_upVector.v[1]) + (float)(p_m_upVector->v[0] * this->m_angularVelocityWs.v[0])) + (float)(this->m_angularVelocityWs.v[2] * this->m_upVector.v[2]);
+    QuatTransform(&this->m_RotationInertiaQuat, &this->m_upVector, &v622);
+    v100 = LODWORD(v622.v[1]);
+    *(float *)&_XMM0 = (float)(v622.v[1] - this->m_upVector.v[1]) * (float)((float)(1.0 / v2) * HFD_GYRO_ANGULAR_CYCLIC_VELOCITY_FACTOR);
+    v101 = (float)(v622.v[2] - this->m_upVector.v[2]) * (float)((float)(1.0 / v2) * HFD_GYRO_ANGULAR_CYCLIC_VELOCITY_FACTOR);
+    v1.v[0] = (float)((float)(v622.v[0] - p_m_upVector->v[0]) * (float)((float)(1.0 / v2) * HFD_GYRO_ANGULAR_CYCLIC_VELOCITY_FACTOR)) + p_m_upVector->v[0];
+    v1.v[1] = *(float *)&_XMM0 + this->m_upVector.v[1];
+    v102 = v101 + this->m_upVector.v[2];
+    *(float *)&v100 = fsqrt((float)((float)(v1.v[1] * v1.v[1]) + (float)(v1.v[0] * v1.v[0])) + (float)(v102 * v102));
+    _XMM3 = v100;
+    __asm
+    {
+      vcmpless xmm0, xmm3, xmm10
+      vblendvps xmm1, xmm3, xmm15, xmm0
+    }
+    *(float *)&v576 = *(float *)&_XMM1;
+    v1.v[0] = v1.v[0] * (float)(1.0 / *(float *)&_XMM1);
+    v1.v[1] = v1.v[1] * (float)(1.0 / *(float *)&_XMM1);
+    v1.v[2] = v102 * (float)(1.0 / *(float *)&_XMM1);
+    v106 = BG_GetFlightDynamicsManager();
+    Vec3Cross(&v106->m_UpAxis, &v1, (vec3_t *)&v605);
+    v598 = (float)((float)(v605.v[1] * this->m_forwardVector.v[1]) + (float)(v605.v[0] * this->m_forwardVector.v[0])) + (float)(v605.v[2] * this->m_forwardVector.v[2]);
+    v587 = (float)((float)(v605.v[1] * this->m_sideVector.v[1]) + (float)(v605.v[0] * this->m_sideVector.v[0])) + (float)(v605.v[2] * this->m_sideVector.v[2]);
+    v107 = LODWORD(v552);
+    v108 = (float)(v552 * this->m_forwardVector.v[0]) + this->m_sideVector.v[0];
+    v109 = (float)(v552 * this->m_forwardVector.v[1]) + this->m_sideVector.v[1];
+    *(float *)&v107 = fsqrt((float)(v108 * v108) + (float)(v109 * v109));
+    _XMM3 = v107;
+    __asm
+    {
+      vcmpless xmm0, xmm3, xmm10
+      vblendvps xmm1, xmm3, xmm15, xmm0
+    }
+    *(float *)&v576 = *(float *)&_XMM1;
+    v588 = v108 * (float)(1.0 / *(float *)&_XMM1);
+    v589 = v109 * (float)(1.0 / *(float *)&_XMM1);
+    *(_QWORD *)v609.v = *(_QWORD *)this->m_forwardVector.v;
+    v609.v[0] = v609.v[0] + (float)((float)(v552 * HFD_TAIL_GYRO_ANGULAR_VELOCITY_MULTIPLIER) * this->m_sideVector.v[0]);
+    v114 = LODWORD(v609.v[1]);
+    v113 = v609.v[1] + (float)((float)(v552 * HFD_TAIL_GYRO_ANGULAR_VELOCITY_MULTIPLIER) * this->m_sideVector.v[1]);
+    *(float *)&v114 = fsqrt((float)(v113 * v113) + (float)(v609.v[0] * v609.v[0]));
+    _XMM3 = v114;
+    __asm
+    {
+      vcmpless xmm0, xmm3, xmm10
+      vblendvps xmm1, xmm3, xmm15, xmm0
+    }
+    *(float *)&v576 = *(float *)&_XMM1;
+    *(float *)&_XMM1 = 1.0 / *(float *)&_XMM1;
+    v609.v[0] = v609.v[0] * *(float *)&_XMM1;
+    v609.v[1] = v113 * *(float *)&_XMM1;
+    v609.v[2] = 0.0;
+    if ( this->m_playerControlled && Physics_IsPredictiveWorld(this->m_worldId) && Sys_IsMainThread() && DEBUG_DRAW_FBW_LINES )
+    {
+      end.v[0] = (float)(500.0 * this->m_GyroRudderForwardVector.v[0]) + this->m_centerOfMassWs.v[0];
+      end.v[1] = (float)(500.0 * this->m_GyroRudderForwardVector.v[1]) + this->m_centerOfMassWs.v[1];
+      end.v[2] = (float)(500.0 * this->m_GyroRudderForwardVector.v[2]) + this->m_centerOfMassWs.v[2];
+      FD_DebugLine(&this->m_centerOfMassWs, &end, &colorRed, 0, DEBUG_LINE_TIME);
+      end.v[0] = (float)(500.0 * v609.v[0]) + this->m_centerOfMassWs.v[0];
+      end.v[1] = (float)(500.0 * v609.v[1]) + this->m_centerOfMassWs.v[1];
+      end.v[2] = (float)(500.0 * v609.v[2]) + this->m_centerOfMassWs.v[2];
+      FD_DebugLine(&this->m_centerOfMassWs, &end, &colorBlue, 0, DEBUG_LINE_TIME);
+    }
+    if ( !this->m_GyroRudderForwardVectorSet )
+    {
+      this->m_GyroRudderForwardVectorSet = 1;
+      this->m_GyroRudderForwardVector = v609;
+    }
+    LODWORD(collectiveInput) = _XMM8 & _xmm;
+    p_m_GyroRudderStrength = &this->m_GyroRudderStrength;
+    if ( COERCE_FLOAT(_XMM8 & _xmm) <= 0.001 || (v576 = &this->m_GyroRudderStrength, COERCE_FLOAT(COERCE_UNSIGNED_INT(*p_m_GyroRudderStrength - *(float *)&_XMM8) & _xmm) >= 1.0) )
+    {
+      v576 = &this->m_GyroRudderStrength;
+      *p_m_GyroRudderStrength = (float)(1.0 - (float)(v2 * HFD_FBW_GYRO_RUDDER_HEADHOLD_TO_RATE_DECAY)) * *p_m_GyroRudderStrength;
+    }
+    else
+    {
+      v119 = I_fclamp((float)((float)(1.0 - (float)(v2 * HFD_FBW_GYRO_RUDDER_HEADHOLD_TO_RATE_SMOOTHING)) * *p_m_GyroRudderStrength) + (float)((float)(v2 * HFD_FBW_GYRO_RUDDER_HEADHOLD_TO_RATE_SMOOTHING) * *(float *)&_XMM8), -0.5, 0.5);
+      this->m_GyroRudderStrength = *(float *)&v119;
+    }
+    Vec3Cross(&this->m_GyroRudderForwardVector, &v609, (vec3_t *)&v605);
+    v120 = FD_ComputeExpo((float)((float)((float)(v605.v[1] * this->m_upVector.v[1]) + (float)(v605.v[0] * p_m_upVector->v[0])) + (float)(v605.v[2] * this->m_upVector.v[2])) * HFD_GYRO_TAIL_LOCK_STRENGTH, HFD_GYRO_TAIL_LOCK_STRENGTH_EXPO);
+    v562 = *(float *)&v120;
+    v582 = 1.0 - (float)(1.0 - v550);
+    LODWORD(v121) = COERCE_UNSIGNED_INT((float)((float)(v582 * HFD_FBW_GYRO_RUDDER_RATE_MANUAL) + (float)((float)(1.0 - v550) * HFD_FBW_GYRO_RUDDER_RATE_MANUAL_SPEED)) * *v576) & _xmm;
+    m_LandingTimer = this->m_LandingTimer;
+    v123 = I_fclamp((float)((float)(1.0 - COERCE_FLOAT(*(_DWORD *)v576 & _xmm)) * (float)((float)((float)(1.0 - v121) * *(float *)&v120) + (float)(v121 * *v576))) - (float)((float)((float)((float)((float)(*(float *)&_XMM8 * HFD_GYRO_TAIL_MAX_TURN_RATE) - (float)(HFD_TAIL_GYRO_ANGULAR_VELOCITY_MULTIPLIER * v552)) * HFD_GYRO_TAIL_MAX_TURN_RATE_STRENGTH) * v2) * COERCE_FLOAT(*(_DWORD *)v576 & _xmm)), -1.0, 1.0);
+    v124 = (float)((float)(v584 * HFD_FBW_RESPOSNE_RATE_RUDDER) + (float)((float)(1.0 - v584) * HFD_FBW_RESPOSNE_RATE_RUDDER_LOW_HZ)) * v2;
+    this->m_FBWControlInputs[0] = (float)((float)(1.0 - v124) * this->m_FBWControlInputs[0]) + (float)((float)((float)(1.0 - m_LandingTimer) * *(float *)&v123) * v124);
+    if ( v562 >= 0.0 )
+      __asm { vcmpltss xmm0, xmm8, xmm11 }
+    else
+      __asm { vcmpltss xmm0, xmm11, xmm8 }
+    __asm { vblendvps xmm0, xmm11, xmm1, xmm0 }
+    v128 = HFD_FBW_GYRO_RUDDER_VECTOR_DELTA_MAX;
+    *(double *)&_XMM0 = FlightDynamics::ComputeDeadzone(1.0 - COERCE_FLOAT(_XMM0 & _xmm), HFD_FBW_GYRO_RUDDER_VECTOR_DELTA_MAX);
+    v129 = COERCE_FLOAT(COERCE_UNSIGNED_INT64(I_fclamp(*(float *)&_XMM0, 0.0, v128)));
+    *(double *)&_XMM0 = FD_ComputeExpo(v550, HFD_FBW_GYRO_RUDDER_SPEEDLIMITER_EXPO);
+    v593 = 1.0 - *(float *)&_XMM0;
+    v595 = 1.0 - (float)(1.0 - *(float *)&_XMM0);
+    v130 = (float)(1.0 - this->m_LandingTimer) * (float)((float)((float)((float)((float)(v129 * (float)(1.0 - *(float *)&_XMM0)) + v595) * *(float *)&_XMM8) * (float)((float)(v582 * HFD_FBW_GYRO_RUDDER_RATE) + (float)((float)(1.0 - v550) * HFD_FBW_GYRO_RUDDER_RATE_AT_SPEED))) + (float)((float)(HFD_FBW_GYRO_AIL_TO_RUDDER_RATE * v548) * (float)(v560 * HFD_FBW_GYRO_AIL_TO_RUDDER_SPEED)));
+    v131 = (float)(COERCE_FLOAT(LODWORD(v130) & _xmm) * HFD_HFD_FBW_GYRO_RUDDER_RATE_MANUAL_VECTOR) * v2;
+    *(double *)&_XMM0 = I_fclamp(v131, 0.0, 1.0);
+    this->m_GyroRudderForwardVector.v[0] = (float)((float)(v609.v[0] - this->m_GyroRudderForwardVector.v[0]) * *(float *)&_XMM0) + this->m_GyroRudderForwardVector.v[0];
+    this->m_GyroRudderForwardVector.v[1] = (float)((float)(v609.v[1] - this->m_GyroRudderForwardVector.v[1]) * *(float *)&_XMM0) + this->m_GyroRudderForwardVector.v[1];
+    this->m_GyroRudderForwardVector.v[2] = (float)((float)(v609.v[2] - this->m_GyroRudderForwardVector.v[2]) * v131) + this->m_GyroRudderForwardVector.v[2];
+    Vec3Normalize(&this->m_GyroRudderForwardVector);
+    v132 = BG_GetFlightDynamicsManager();
+    Vec3Cross(&v132->m_UpAxis, &this->m_GyroRudderForwardVector, (vec3_t *)&v605);
+    Vec3Normalize((vec3_t *)&v605);
+    v133 = (float)((float)((float)(1.0 - this->m_LandingTimer) * v130) + (float)(this->m_LandingTimer * *(float *)&_XMM8)) * v2;
+    this->m_GyroRudderForwardVector.v[0] = (float)(v133 * v605.v[0]) + this->m_GyroRudderForwardVector.v[0];
+    this->m_GyroRudderForwardVector.v[1] = (float)(v133 * v605.v[1]) + this->m_GyroRudderForwardVector.v[1];
+    this->m_GyroRudderForwardVector.v[2] = 0.0;
+    Vec3Normalize(&this->m_GyroRudderForwardVector);
+    this->m_FlyByWireNormalizedVector.v[0] = this->m_GyroRudderForwardVector.v[0];
+    this->m_FlyByWireNormalizedVector.v[1] = this->m_GyroRudderForwardVector.v[1];
+    this->m_FlyByWireNormalizedVector.v[2] = this->m_GyroRudderForwardVector.v[2];
+    LODWORD(_XMM0) = *(_DWORD *)v576 & _xmm;
+    LODWORD(v571) = LODWORD(v548) & _xmm;
+    v134 = v563;
+    LODWORD(elevatorInput) = LODWORD(v563) & _xmm;
+    *(double *)&_XMM0 = I_fclamp((float)(COERCE_FLOAT(LODWORD(v548) & _xmm) + *(float *)&_XMM0) + COERCE_FLOAT(LODWORD(v563) & _xmm), 0.0, 1.0);
+    v135 = (float)((float)(1.0 - (float)(*(float *)&_XMM0 * (float)(1.0 - v550))) * HFD_GYRO_ALTITUDE_LOCK_MAX_COLLECTIVE) + (float)((float)(*(float *)&_XMM0 * (float)(1.0 - v550)) * HFD_GYRO_ALTITUDE_LOCK_MAX_COLLECTIVE_SPEED);
+    v585 = v135;
+    *(double *)&_XMM0 = I_fclamp((float)(COERCE_FLOAT(*(_DWORD *)v576 & _xmm) + v571) + elevatorInput, 0.0, 1.0);
+    v562 = (float)((float)(1.0 - (float)(*(float *)&_XMM0 * (float)(1.0 - v550))) * HFD_GYRO_ALTITUDE_LOCK_MIN_COLLECTIVE) + (float)((float)(*(float *)&_XMM0 * (float)(1.0 - v550)) * HFD_GYRO_ALTITUDE_LOCK_MIN_COLLECTIVE_SPEED);
+    if ( this->m_GyroAltitudeSet )
+    {
+      v136 = (float)(v2 * HFD_GYRO_ALTITUDE_LOCK_STRENGTH_RATE) + this->m_GyroAltiudeStrength;
+      this->m_GyroAltiudeStrength = v136;
+      v137 = I_fclamp(v136, COERCE_FLOAT(LODWORD(HFD_GYRO_ALTITUDE_LOCK_STRENGTH) & _xmm ^ _xmm), COERCE_FLOAT(LODWORD(HFD_GYRO_ALTITUDE_LOCK_STRENGTH) & _xmm));
+      this->m_GyroAltiudeStrength = *(float *)&v137;
+      v553 = *(float *)&v137 / HFD_GYRO_ALTITUDE_LOCK_STRENGTH;
+      v138 = I_fclamp(COERCE_FLOAT(COERCE_UNSIGNED_INT(HFD_HFD_GYRO_ALTITUDE_COLLECTIVE_FACTOR_SCALE * v568) & _xmm), HFD_GYRO_ALTITUDE_COLLECTIVE_FACTOR_MIN, 127.0);
+      v139 = vec3_t::operator[](&this->m_centerOfMassWs, 2);
+      v140 = (float)((float)(*(float *)&v138 * value) + (float)((float)(this->m_GyroAltitude - (float)((float)((float)(1.0 - *(float *)&v138) * *v139) + (float)(*(float *)&v138 * v583))) * HFD_GYRO_ALTITUDE_DIFFERENCE_FACTOR)) * this->m_GyroAltiudeStrength;
+      v141 = I_fclamp(v140, v562, v135);
+      v568 = *(float *)&v141;
+      v142 = FD_ComputeExpo(v565, HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_EXPO);
+      v143 = I_fclamp(*(float *)&v142, 0.0, 1.0);
+      v562 = 1.0 - *(float *)&v143;
+      v144 = vec3_t::operator[](&this->m_Velocity, 2);
+      if ( (float)(*v144 + *vec3_t::operator[](&this->m_centerOfMassWs, 2)) < (float)(this->m_GyroAltitude - HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_THRESHOLD) || v140 > v135 && aileronInput > 0.0099999998 )
+        this->m_EmergencyLevelForCollective = (float)((float)((float)(1.0 - (float)(v2 * HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_UP)) * (float)((float)(this->m_EmergencyLevelForCollective * this->m_GyroAltiudeStrength) / HFD_GYRO_ALTITUDE_LOCK_STRENGTH)) + (float)(v2 * HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_UP)) * v562;
+      else
+        this->m_EmergencyLevelForCollective = (float)(1.0 - (float)(v2 * HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_DOWN)) * this->m_EmergencyLevelForCollective;
+      m_GyroAltitude = this->m_GyroAltitude;
+      this->m_GyroAltitude = (float)((float)(1.0 - v553) * *vec3_t::operator[](&this->m_centerOfMassWs, 2)) + (float)(m_GyroAltitude * v553);
+      v146 = (float)((float)(HFD_FBW_RESPOSNE_RATE_COLLECTIVE * v584) + (float)((float)(1.0 - v584) * HFD_FBW_RESPOSNE_RATE_COLLECTIVE_LOW_HZ)) * v2;
+      this->m_FBWControlInputs[5] = (float)((float)(1.0 - v146) * this->m_FBWControlInputs[5]) + (float)(v146 * v568);
+      LODWORD(v554) = LODWORD(v38) & _xmm;
+      if ( COERCE_FLOAT(LODWORD(v38) & _xmm) > HFD_GYRO_ALTITUDE_COLLECTIVE_THRESHOLD )
+        this->m_GyroAltitudeSet = 0;
+    }
+    else
+    {
+      LODWORD(v554) = LODWORD(v38) & _xmm;
+      if ( COERCE_FLOAT(LODWORD(v38) & _xmm) <= HFD_GYRO_ALTITUDE_COLLECTIVE_THRESHOLD )
+      {
+        this->m_EmergencyLevelForCollective = 0.0;
+        this->m_GyroAltitude = v583;
+        this->m_GyroAltiudeStrength = 0.0;
+        this->m_GyroAltitudeSet = 1;
+      }
+      else
+      {
+        LODWORD(v147) = COERCE_UNSIGNED_INT((float)(HFD_FBW_GROUND_PRESSURE_SPEED_FACTOR * *vec3_t::operator[](&this->m_linearVelocityWs, 2)) * (float)(this->m_GroundEffectPressure / HFD_FBW_GROUND_PRESSURE_GAIN_THRESHOLD)) ^ _xmm;
+        v148 = I_fclamp(v147, 0.0, 1.0);
+        v149 = *(float *)&v148;
+        v150 = FlightDynamics::ComputeDeadzone(v38, HFD_GYRO_ALTITUDE_COLLECTIVE_THRESHOLD * 0.55000001);
+        v151 = v149 - 1.0;
+        v152 = *(float *)&v150 * HFD_GYRO_ALTITUDE_MAX_CLIMB_RATE;
+        I_fclamp(*(float *)&v150 * HFD_GYRO_ALTITUDE_MAX_CLIMB_RATE, v151 * HFD_GYRO_ALTITUDE_MAX_DESCENT_RATE, HFD_GYRO_ALTITUDE_MAX_CLIMB_RATE);
+        v153 = I_fclamp(v38 * v151, 0.0, 1.0);
+        v154 = (float)((float)(v152 - v568) * (float)((float)(1.0 - *(float *)&v153) * HFD_GYRO_ALTITUDE_MAX_CHANGE_RATE_STRENGTH)) * v2;
+        this->m_FBWControlInputs[5] = v154;
+        if ( this->m_LandingTimer >= 0.94999999 )
+        {
+          v155 = I_fclamp(v154, HFD_FBW_LOWEST_COLLECTIVE_LANDED, 1.0);
+          this->m_FBWControlInputs[5] = *(float *)&v155;
+        }
+        v156 = v585;
+        if ( v154 <= v585 )
+        {
+          if ( v38 < 0.1 )
+            this->m_EmergencyLevelForCollective = (float)(1.0 - (float)(v2 * HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_DOWN)) * this->m_EmergencyLevelForCollective;
+        }
+        else
+        {
+          v157 = FD_ComputeExpo(v565, HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_EXPO);
+          v158 = I_fclamp(*(float *)&v157, 0.0, 1.0);
+          this->m_EmergencyLevelForCollective = (float)((float)((float)(1.0 - (float)((float)(v2 * HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_UP_CHANGE) * (float)(1.0 - *(float *)&v158))) * this->m_EmergencyLevelForCollective) + (float)((float)(v2 * HFD_FBW_COLLECTIVE_EMERGENCY_LEVEL_RAMP_UP_CHANGE) * (float)(1.0 - *(float *)&v158))) * (float)(1.0 - (float)(*(float *)&v158 * v2));
+        }
+        v159 = I_fclamp(this->m_FBWControlInputs[5], v562, v156);
+        this->m_FBWControlInputs[5] = *(float *)&v159;
+        v134 = v563;
+      }
+    }
+    v160 = 1.0 - (float)(v560 * HFD_FBW_GYRO_CYCLIC_SPEED_RATE);
+    v161 = (float)((float)(v560 * HFD_FBW_GYRO_CYCLIC_SPEED_RATE) * HFD_FBW_GYRO_CYCLIC_SPEED_ELEV_FACTOR) + v160;
+    this->m_GyroAileronRate = (float)((float)((float)((float)(HFD_FBW_GYRO_CYCLIC_AIL_RATE * v548) * (float)(1.0 - this->m_GroundEffectPressure)) * (float)((float)((float)(v560 * HFD_FBW_GYRO_CYCLIC_SPEED_RATE) * HFD_FBW_GYRO_CYCLIC_SPEED_FACTOR) + v160)) * v2) + this->m_GyroAileronRate;
+    this->m_GyroElevatorRate = (float)((float)((float)((float)(v134 * HFD_FBW_GYRO_CYCLIC_ELEV_RATE) * (float)(1.0 - this->m_GroundEffectPressure)) * v161) * v2) + this->m_GyroElevatorRate;
+    v162 = FlightDynamics::CalculateDrag(this->m_GyroAileronRate, HFD_FBW_GYRO_CYCLIC_AIL_DRAG, v2);
+    this->m_GyroAileronRate = *(float *)&v162;
+    v163 = FlightDynamics::CalculateDrag(this->m_GyroElevatorRate, HFD_FBW_GYRO_CYCLIC_ELEV_DRAG, v2);
+    this->m_GyroElevatorRate = *(float *)&v163;
+    v164 = HFD_FBW_GYRO_CYCLIC_AIL_RATE_MANUAL_EXPO;
+    v165 = BG_GetFlightDynamicsManager();
+    v166 = FD_ComputeExpo((float)((float)(v1.v[1] * v165->m_UpAxis.v[1]) + (float)(v1.v[0] * v165->m_UpAxis.v[0])) + (float)(v1.v[2] * v165->m_UpAxis.v[2]), v164);
+    *(float *)&v576 = *(float *)&v166;
+    v167 = I_fclamp(this->m_GyroAileronRate, COERCE_FLOAT(LODWORD(HFD_FBW_GYRO_CYCLIC_AIL_CLAMP) ^ _xmm), HFD_FBW_GYRO_CYCLIC_AIL_CLAMP);
+    v585 = *(float *)&v167;
+    v577 = (float)((float)((float)(this->m_Velocity.v[1] * this->m_forwardVector.v[1]) + (float)(p_m_Velocity->v[0] * this->m_forwardVector.v[0])) + (float)(this->m_Velocity.v[2] * this->m_forwardVector.v[2])) * v134;
+    if ( v577 >= -0.001 )
+      v168 = HFD_FBW_GYRO_CYCLIC_ELEV_CLAMP;
+    else
+      v168 = HFD_FBW_GYRO_CYCLIC_ELEV_CLAMP_REVERSE;
+    v169 = I_fclamp(this->m_GyroElevatorRate, COERCE_FLOAT(LODWORD(v168) ^ _xmm), v168);
+    v562 = *(float *)&v169;
+    v170 = FD_ComputeExpo(v550, HFD_GYRO_CYCLIC_VELOCITY_FACTOR_LIMITER_EXPO_ELEV);
+    v597 = *(float *)&v170;
+    v171 = FD_ComputeExpo(v566, HFD_GYRO_CYCLIC_VELOCITY_FACTOR_LIMITER_EXPO_AILE);
+    v172 = (float)(*(float *)&v171 * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_LIMIT) + (float)((float)(1.0 - *(float *)&v171) * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_LIMIT_SPEED);
+    v173 = FD_ComputeExpo((float)((float)(collectiveInput * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_RUDDER_FACTOR) + (float)((float)((float)((float)(1.0 - COERCE_FLOAT(LODWORD(this->m_CollectiveSmoothingValue) & _xmm)) * (float)((float)(*(float *)&v171 * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL) + (float)((float)(1.0 - *(float *)&v171) * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_SPEED))) + (float)(COERCE_FLOAT(LODWORD(this->m_CollectiveSmoothingValue) & _xmm) * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_COLLECTIVE)) * (float)(1.0 - collectiveInput))) * v601, (float)(*(float *)&v171 * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_EXPO) + (float)((float)(1.0 - *(float *)&v171) * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_AIL_EXPO_SPEED));
+    v174 = I_fclamp(*(float *)&v173, COERCE_FLOAT(LODWORD(v172) ^ _xmm), v172);
+    if ( v585 >= 0.0 )
+    {
+      v175 = (float)(v585 * HFD_GYRO_CYCLIC_LEVELED_FACTOR_AIL_DECREASE_RIGHT) * v582;
+      v176 = (float)(1.0 - v550) * HFD_GYRO_CYCLIC_SPEED_FACTOR_AIL_DECREASE_RIGHT;
+    }
+    else
+    {
+      v175 = (float)(COERCE_FLOAT(LODWORD(v585) & _xmm) * HFD_GYRO_CYCLIC_LEVELED_FACTOR_AIL_DECREASE_LEFT) * v582;
+      v176 = (float)(1.0 - v550) * HFD_GYRO_CYCLIC_SPEED_FACTOR_AIL_DECREASE_LEFT;
+    }
+    v177 = 1.0 - v565;
+    v568 = (float)(*(float *)&v174 + v585) - (float)((float)((float)((float)(v565 * HFD_GYRO_CYCLIC_LEVELED_FACTOR_AIL) + (float)((float)(1.0 - v565) * HFD_GYRO_CYCLIC_LEVELED_FACTOR_AIL_EMERGENCY)) - (float)(v175 + v176)) * v598);
+    v178 = 1.0 - (float)(1.0 - v597);
+    v179 = (float)(v178 * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV) + (float)((float)(1.0 - v597) * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_SPEED);
+    v180 = (float)(v178 * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_LIMIT) + (float)((float)(1.0 - v597) * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_LIMIT_SPEED);
+    v181 = FD_ComputeExpo((float)((float)(collectiveInput * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_RUDDER_FACTOR) + (float)((float)((float)((float)(1.0 - COERCE_FLOAT(LODWORD(this->m_CollectiveSmoothingValue) & _xmm)) * v179) + (float)(COERCE_FLOAT(LODWORD(this->m_CollectiveSmoothingValue) & _xmm) * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_COLLECTIVE)) * (float)(1.0 - collectiveInput))) * v586, HFD_GYRO_CYCLIC_VELOCITY_FACTOR_ELEV_EXPO);
+    v182 = I_fclamp(*(float *)&v181, COERCE_FLOAT(LODWORD(v180) ^ _xmm), v180);
+    v586 = 1.0 - v558;
+    v587 = (float)((float)(*(float *)&v182 + v562) * (float)(1.0 - v571)) - (float)((float)((float)((float)(HFD_GYRO_CYCLIC_LEVELED_FACTOR_ELEV * v565) + (float)(v177 * HFD_GYRO_CYCLIC_LEVELED_FACTOR_ELEV_EMERGENCY)) - (float)((float)((float)(1.0 - (float)(1.0 - elevatorInput)) * (float)((float)((float)(v558 * HFD_GYRO_CYCLIC_INITIAL_FACTOR_ELEV_DECREASE) * COERCE_FLOAT(LODWORD(v562) & _xmm)) + (float)((float)(1.0 - COERCE_FLOAT(LODWORD(v562) & _xmm)) * HFD_GYRO_CYCLIC_LEVELED_FACTOR_ELEV_DECREASE))) + (float)((float)(1.0 - elevatorInput) * HFD_GYRO_CYCLIC_SPEED_FACTOR_ELEV_DECREASE))) * v587);
+    v183 = 0.0;
+    v558 = 0.0;
+    if ( this->m_GyroGPSlocationSet )
+    {
+      if ( aileronInput >= HFD_GYRO_GPS_CYCLIC_THRESHOLD )
+      {
+        this->m_GyroGPSlocationSet = 0;
+      }
+      else
+      {
+        v184 = v596 - this->m_GyroGPSlocation.v[0];
+        v185 = v579 - this->m_GyroGPSlocation.v[1];
+        v579 = v583 - this->m_GyroGPSlocation.v[2];
+        v186 = (float)(v184 * v588) + (float)(v185 * v589);
+        v187 = HFD_GYRO_GPS_DISTANCE_THRESHOLD;
+        if ( (float)(COERCE_FLOAT(LODWORD(v186) & _xmm) - HFD_GYRO_GPS_DISTANCE_THRESHOLD) > 0.0 )
+        {
+          v188 = I_fclamp(v186 * HFD_GYRO_GPS_AILERON_STRENGTH, COERCE_FLOAT(LODWORD(HFD_GYRO_GPS_AILERON_STRENGTH_MAX) ^ _xmm), HFD_GYRO_GPS_AILERON_STRENGTH_MAX);
+          v558 = *(float *)&v188;
+          v187 = HFD_GYRO_GPS_DISTANCE_THRESHOLD;
+        }
+        v190 = (float)((float)(v185 * v609.v[1]) + (float)(v184 * v609.v[0])) + (float)(v579 * v609.v[2]);
+        v189 = v190;
+        if ( (float)(COERCE_FLOAT(LODWORD(v190) & _xmm) - v187) > 0.0 )
+        {
+          v191 = v190 * HFD_GYRO_GPS_ELEVATOR_STRENGTH;
+          I_fclamp(v189 * HFD_GYRO_GPS_ELEVATOR_STRENGTH, COERCE_FLOAT(LODWORD(HFD_GYRO_GPS_ELEVATOR_STRENGTH_MAX) ^ _xmm), HFD_GYRO_GPS_ELEVATOR_STRENGTH_MAX);
+          v183 = v191;
+        }
+      }
+    }
+    else if ( fsqrt((float)((float)(this->m_Velocity.v[0] * this->m_Velocity.v[0]) + (float)(this->m_Velocity.v[1] * this->m_Velocity.v[1])) + (float)(this->m_Velocity.v[2] * this->m_Velocity.v[2])) < HFD_GYRO_GPS_VELOCITY_THRESHOLD && aileronInput < HFD_GYRO_GPS_CYCLIC_THRESHOLD )
+    {
+      this->m_GyroGPSlocation.v[0] = this->m_centerOfMassWs.v[0];
+      this->m_GyroGPSlocation.v[1] = this->m_centerOfMassWs.v[1];
+      this->m_GyroGPSlocation.v[2] = this->m_centerOfMassWs.v[2];
+      this->m_GyroGPSlocationSet = 1;
+    }
+    v192 = I_fclamp((float)(v183 + v587) * HFD_GYRO_CYCLIC_POWER_ELEV, COERCE_FLOAT(LODWORD(HFD_GYRO_CYCLIC_RESPONSE_CLAMP) ^ _xmm), HFD_GYRO_CYCLIC_RESPONSE_CLAMP);
+    v588 = *(float *)&v192;
+    v193 = I_fclamp((float)(v568 + v558) * HFD_GYRO_CYCLIC_POWER_AIL, COERCE_FLOAT(LODWORD(HFD_GYRO_CYCLIC_RESPONSE_CLAMP) ^ _xmm), HFD_GYRO_CYCLIC_RESPONSE_CLAMP);
+    v579 = *(float *)&v193;
+    v194 = HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_EXPO;
+    v195 = BG_GetFlightDynamicsManager();
+    v196 = (float)((float)(v1.v[1] * v195->m_UpAxis.v[1]) + (float)(v1.v[0] * v195->m_UpAxis.v[0])) + (float)(v1.v[2] * v195->m_UpAxis.v[2]);
+    v197 = FD_ComputeExpo(v196, v194);
+    v198 = *(float *)&v197 * v550;
+    if ( *(float *)&v197 <= HFD_FBW_GYRO_CYCLIC_RATE_MANUAL_ELEV_THRESHOLD )
+      v199 = this->m_GyroManualLimiterElevator - v2;
+    else
+      v199 = v2 + this->m_GyroManualLimiterElevator;
+    v200 = I_fclamp(v199, 0.0, 1.0);
+    this->m_GyroManualLimiterElevator = *(float *)&v200;
+    v589 = (float)((float)((float)((float)(1.0 - v554) * HFD_FBW_GYRO_COL_MANUAL_RATE_LIMITER) + HFD_FBW_GYRO_COL_MANUAL_RATE_LIMITER_OFFSET) * this->m_GyroManualLimiterElevator) + (float)((float)(1.0 - this->m_GyroManualLimiterElevator) * v198);
+    v201 = I_fclamp(v590 / HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_STOP_SPEED, 0.0, 1.0);
+    v558 = *(float *)&v201;
+    v202 = I_fclamp(v577, -1.0, 0.0);
+    LODWORD(v577) = LODWORD(v202) ^ _xmm;
+    v203 = 0.0;
+    v204 = v563;
+    if ( v569 < -0.001 )
+    {
+      if ( v563 >= -0.001 )
+      {
+        if ( v563 > 0.001 )
+          LODWORD(v203) = LODWORD(v558) ^ _xmm;
+      }
+      else
+      {
+        v203 = (float)(1.0 - v573) * 3.0;
+      }
+    }
+    v205 = I_fclamp(v38, 0.0, 1.0);
+    v206 = (float)((float)(1.0 - *(float *)&v205) * HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LIMITER) + (float)(*(float *)&v205 * HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LIMITER_COLLECTIVE);
+    if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_altitude_speedLimiter, "fd_helicopter_altitude_speedLimiter") && this->m_playerControlled )
+      HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LOW_ALTITUDE = FLOAT_N1_0;
+    else
+      HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LOW_ALTITUDE = HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL;
+    LODWORD(v590) = LODWORD(v204) ^ _xmm;
+    v207 = I_fclamp(COERCE_FLOAT(LODWORD(v204) ^ _xmm), 0.0, 1.0);
+    v208 = I_fclamp(*(float *)&v207 + fraction, 0.0, 1.0);
+    v209 = (float)((float)(1.0 - *(float *)&v208) * HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_LOW_ALTITUDE) + (float)(*(float *)&v208 * HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL);
+    v210 = I_fclamp((float)(v558 - v577) + v203, 0.0, 1.0);
+    v211 = (float)((float)((float)(1.0 - *(float *)&v210) * HFD_FBW_GYRO_CYCLIC_ELEV_RATE_MANUAL_STOP) + (float)(*(float *)&v210 * v209)) * _mm_cvtepi32_ps((__m128i)(v196 > v206)).m128_f32[0];
+    v212 = 1.0 - COERCE_FLOAT(LODWORD(v592) & _xmm);
+    v213 = (float)((float)(v0.v[1] * this->m_sideVector.v[1]) + (float)(v0.v[0] * this->m_sideVector.v[0])) + (float)(v0.v[2] * this->m_sideVector.v[2]);
+    v214 = FD_ComputeExpo((float)(1.0 - v573) * v571, HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_FACTOR_EXPO);
+    v215 = (float)((float)(1.0 - *(float *)&v214) * HFD_FBW_GYRO_RUDDER_TO_ELEV) + (float)(*(float *)&v214 * HFD_FBW_GYRO_RUDDER_TO_ELEV_SPEED);
+    v216 = v212 * HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_CLAMP_RIGHT;
+    LODWORD(v217) = COERCE_UNSIGNED_INT(v212 * HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_CLAMP_LEFT) ^ _xmm;
+    v218 = FD_ComputeExpo(rudderInput, HFD_FBW_GYRO_RUDDER_TO_AIL_EXPO);
+    v219 = I_fclamp((float)((float)(*(float *)&v218 * v213) * (float)(1.0 - v573)) * v215, v217, v216);
+    v220 = v563;
+    v221 = (float)(COERCE_FLOAT(LODWORD(v213) & _xmm) - COERCE_FLOAT(COERCE_UNSIGNED_INT(v213 * v563) & _xmm)) * *(float *)&v219;
+    v592 = v221;
+    v222 = elevatorInput;
+    v223 = I_fclamp((float)((float)(COERCE_FLOAT(LODWORD(v221) & _xmm) + elevatorInput) * v589) * v211, -1.0, 1.0);
+    fraction = v2 * (float)((float)((float)(1.0 - v584) * HFD_FBW_RESPOSNE_RATE_CYCLIC_LOW_HZ) + (float)(v584 * HFD_FBW_RESPOSNE_RATE_CYCLIC));
+    v577 = 1.0 - fraction;
+    this->m_FBWControlInputs[1] = (float)((float)((float)((float)(v221 + v220) * *(float *)&v223) + (float)((float)(1.0 - *(float *)&v223) * v588)) * fraction) + (float)((float)(1.0 - fraction) * this->m_FBWControlInputs[1]);
+    v224 = HFD_FBW_GYRO_CYCLIC_AIL_RATE_MANUAL_EXPO;
+    v225 = BG_GetFlightDynamicsManager();
+    v226 = (float)((float)(v1.v[1] * v225->m_UpAxis.v[1]) + (float)(v1.v[0] * v225->m_UpAxis.v[0])) + (float)(v1.v[2] * v225->m_UpAxis.v[2]);
+    v227 = FD_ComputeExpo(v226, v224);
+    v565 = *(float *)&v227;
+    v228 = *(float *)&v227 * v572;
+    if ( v226 <= (float)((float)(v595 * HFD_FBW_GYRO_CYCLIC_RATE_MANUAL_AIL_THRESHOLD) + (float)(v593 * HFD_FBW_GYRO_CYCLIC_RATE_MANUAL_AIL_THRESHOLD_SPEED)) )
+      v229 = this->m_GyroManualLimiterAileron - v2;
+    else
+      v229 = v2 + this->m_GyroManualLimiterAileron;
+    v230 = I_fclamp(v229, 0.0, 1.0);
+    this->m_GyroManualLimiterAileron = *(float *)&v230;
+    v558 = 1.0 - v226;
+    v231 = I_fclamp(COERCE_FLOAT(COERCE_UNSIGNED_INT((float)(v220 * HFD_GYRO_CYCLIC_VELOCITY_FACTOR_COLLECTIVE_MIX) * (float)(1.0 - v226)) & _xmm), 0.0, 1.0);
+    this->m_FBWControlInputs[5] = *(float *)&v231 + this->m_FBWControlInputs[5];
+    v232 = (float)((float)((float)((float)(1.0 - v554) * HFD_FBW_GYRO_COL_MANUAL_RATE_LIMITER) + HFD_FBW_GYRO_COL_MANUAL_RATE_LIMITER_OFFSET) * this->m_GyroManualLimiterAileron) + (float)((float)(1.0 - this->m_GyroManualLimiterAileron) * v228);
+    v233 = HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_FACTOR_EXPO;
+    v234 = I_fclamp(v222, HFD_FBW_GYRO_RUDDER_TO_AIL_MIN_ELEV, 1.0);
+    v235 = FD_ComputeExpo(*(float *)&v234 * v586, v233);
+    v236 = (float)((float)(1.0 - *(float *)&v235) * HFD_FBW_GYRO_RUDDER_TO_AIL) + (float)(*(float *)&v235 * HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED);
+    v237 = 1.0 - COERCE_FLOAT(LODWORD(v578) & _xmm);
+    v238 = (float *)vec3_t::operator[](&this->m_forwardVector, 1);
+    v239 = v0.v[1] * *v238;
+    v240 = (float *)vec3_t::operator[](&this->m_forwardVector, 0);
+    v241 = v0.v[0] * *v240;
+    v242 = (float *)vec3_t::operator[](&this->m_forwardVector, 2);
+    LODWORD(v243) = COERCE_UNSIGNED_INT((float)(v0.v[2] * *v242) + (float)(v241 + v239)) & _xmm;
+    v244 = v237 * HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_CLAMP_RIGHT;
+    LODWORD(v245) = COERCE_UNSIGNED_INT(v237 * HFD_FBW_GYRO_RUDDER_TO_AIL_SPEED_CLAMP_LEFT) ^ _xmm;
+    v246 = FD_ComputeExpo(rudderInput, HFD_FBW_GYRO_RUDDER_TO_AIL_EXPO);
+    v247 = I_fclamp((float)(*(float *)&v246 * (float)(1.0 - v550)) * v236, v245, v244);
+    v248 = (float)(1.0 - v571) * *(float *)&v247;
+    v249 = I_fclamp(COERCE_FLOAT(LODWORD(v569) ^ _xmm), 0.0, 1.0);
+    v250 = *(float *)&v249;
+    v251 = I_fclamp(v590, 0.0, 1.0);
+    v252 = (float)(1.0 - (float)(v250 + *(float *)&v251)) * v248;
+    v253 = (float)((float)(COERCE_FLOAT(COERCE_UNSIGNED_INT(v252 * v243) & _xmm) + v571) * v232) * (float)((float)((float)(1.0 - v566) * HFD_FBW_GYRO_CYCLIC_AIL_RATE_MANUAL) + (float)(HFD_FBW_GYRO_CYCLIC_AIL_RATE_MANUAL_STOP * v566));
+    v254 = I_fclamp((float)((float)((float)((float)((float)(1.0 - COERCE_FLOAT(COERCE_UNSIGNED_INT(rudderInput * v592) & _xmm)) * v548) + (float)(COERCE_FLOAT(LODWORD(rudderInput) ^ _xmm) * COERCE_FLOAT(COERCE_UNSIGNED_INT(rudderInput * v592) & _xmm))) + v252) * (float)(v253 * *(float *)&v576)) + (float)((float)(1.0 - (float)(v253 * *(float *)&v576)) * v579), -1.0, 1.0);
+    v255 = *(float *)&v254 * fraction;
+    v256 = this->m_FBWControlInputs[3] * v577;
+    v257 = v255 + v256;
+    this->m_FBWControlInputs[3] = v255 + v256;
+    LODWORD(_XMM11) = 0;
+    if ( (float)(v255 + v256) >= 0.0 )
+    {
+      if ( (float)(v255 + v256) <= 0.0 )
+        goto LABEL_124;
+      v258 = v257 * HFD_FBW_RIGHT_RESPONSE_MODIFIER;
+    }
+    else
+    {
+      v258 = v257 * HFD_FBW_LEFT_RESPONSE_MODIFIER;
+    }
+    v259 = I_fclamp(v258, -1.0, 1.0);
+    this->m_FBWControlInputs[3] = *(float *)&v259;
+LABEL_124:
+    v260 = this->m_FBWControlInputs[1];
+    if ( v260 <= 0.0 )
+    {
+      if ( this->m_FBWControlInputs[3] <= 0.0 )
+        goto LABEL_129;
+      v261 = v260 * HFD_FBW_BACKWARD_RESPONSE_MODIFIER;
+    }
+    else
+    {
+      v261 = v260 * HFD_FBW_FORWARD_RESPONSE_MODIFIER;
+    }
+    v262 = I_fclamp(v261, -1.0, 1.0);
+    this->m_FBWControlInputs[1] = *(float *)&v262;
+LABEL_129:
+    v263 = this->m_FBWControlInputs[0];
+    if ( v263 <= 0.0 )
+    {
+      if ( v263 >= 0.0 )
+      {
+LABEL_134:
+        if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_fbw_enhancer, "fd_helicopter_fbw_enhancer") || !this->m_playerControlled )
+          goto LABEL_148;
+        v266 = FlightDynamics::ComputeDeadzone(v563, HFD_USE_ENHANCED_FBW_RESPONSE_DEADZONE);
+        v267 = *(float *)&v266;
+        v268 = FlightDynamics::ComputeDeadzone(v548, HFD_USE_ENHANCED_FBW_RESPONSE_DEADZONE);
+        v578 = *(float *)&v268;
+        v269 = (float *)vec3_t::operator[](&this->m_Velocity, 1);
+        v270 = (float *)vec3_t::operator[](&this->m_sideVector, 1);
+        v271 = *v269;
+        v272 = *v270;
+        v273 = (float *)vec3_t::operator[](&this->m_Velocity, 0);
+        v274 = (float *)vec3_t::operator[](&this->m_sideVector, 0);
+        v275 = *v273;
+        v276 = *v274;
+        v277 = (float *)vec3_t::operator[](&this->m_Velocity, 2);
+        v278 = (float)((float)(v272 * v271) + (float)(v276 * v275)) + (float)(*v277 * *vec3_t::operator[](&this->m_sideVector, 2));
+        v279 = BG_GetFlightDynamicsManager();
+        Vec3Cross(&v279->m_UpAxis, &this->m_GyroRudderForwardVector, (vec3_t *)&v605);
+        v605.v[2] = 0.0;
+        Vec3Normalize((vec3_t *)&v605);
+        v280 = (float)(v278 * HFD_USE_ENHANCED_FBW_RESPONSE_BLOWBACK_EFFECT_MULTIPLIER) * (float)(v578 * v572);
+        I_fclamp(v280, 0.0, 1.0);
+        v281 = v280;
+        v282 = *vec3_t::operator[](&this->m_Velocity, 0);
+        v283 = (float *)vec3_t::operator[](&this->m_Velocity, 0);
+        v284 = (float)((float)(v575 - v282) * v280) + *v283;
+        v285 = *vec3_t::operator[](&this->m_Velocity, 1);
+        v286 = (float *)vec3_t::operator[](&this->m_Velocity, 1);
+        v287 = (float)((float)(v594 - v285) * v280) + *v286;
+        v288 = *vec3_t::operator[](&this->m_Velocity, 2);
+        v289 = (float *)vec3_t::operator[](&this->m_Velocity, 2);
+        v290 = v284 * v605.v[0];
+        v291 = v605.v[1];
+        v292 = v290 + (float)(v287 * v605.v[1]);
+        v293 = v605.v[2];
+        v575 = v292 + (float)((float)((float)((float)(value - v288) * v281) + *v289) * v605.v[2]);
+        v294 = HFD_FBW_GYRO_AILERON_SPEED_LIMIT_EXPO;
+        v295 = I_fclamp(COERCE_FLOAT(LODWORD(v575) & _xmm) / HFD_FBW_GYRO_AILERON_RELATIVE_SPEED_LIMIT, 0.0, 1.0);
+        v296 = FD_ComputeExpo(1.0 - *(float *)&v295, v294);
+        v549 = *(float *)&v296;
+        v297 = v605.v[0];
+        v298 = (float)((float)(v291 * v1.v[1]) + (float)(v605.v[0] * v1.v[0])) + (float)(v293 * v1.v[2]);
+        v299 = I_fclamp((float)(1.0 - aileronInput) + this->m_EmergencyLevelForCollective, 0.0, 1.0);
+        *(float *)&v576 = *(float *)&v299 * HFD_USE_ENHANCED_FBW_RESPONSE_DRAG;
+        v593 = (float)(v267 * HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_ELE) * (float)(1.0 - this->m_EmergencyLevelForCollective);
+        v300 = FD_ComputeExpo(v558, HFD_USE_ENHANCED_FBW_RESPONSE_LEVELED_FACTOR_EXPO);
+        value = *(float *)&v300;
+        v301 = v578;
+        v302 = v575;
+        v304 = v575 * v578;
+        v303 = v575 * v578;
+        if ( (float)(v298 * v578) >= 0.0 )
+        {
+          if ( (float)(v298 * v578) > HFD_FBW_ENHANCER_TRANSITION_THRESHOLD || v304 > HFD_FBW_ENHANCER_TRANSITION_THRESHOLD )
+          {
+            v323 = FlightDynamics::CalculateDrag(this->m_GyroFBWEnhancerAileronAccumulator, HFD_USE_ENHANCED_FBW_RESPONSE_AIL_ACCUMULATOR_EXTRA_RATE_DECAY, v2);
+            this->m_GyroFBWEnhancerAileronAccumulator = *(float *)&v323;
+            v324 = FlightDynamics::CalculateDrag(this->m_GyroFBWEnhancerAileronAccumulatorVelocity, HFD_USE_ENHANCED_FBW_RESPONSE_AIL_ACCUMULATOR_EXTRA_RATE_DECAY, v2);
+            this->m_GyroFBWEnhancerAileronAccumulatorVelocity = *(float *)&v324;
+            LODWORD(v325) = COERCE_UNSIGNED_INT((float)(v302 * v2) * HFD_USE_ENHANCED_FBW_RESPONSE_RATE_CHANGE_FACTOR) ^ _xmm;
+            v326 = (float)(v325 * v297) + *vec3_t::operator[](&this->m_Velocity, 0);
+            *vec3_t::operator[](&this->m_Velocity, 0) = v326;
+            v327 = (float *)vec3_t::operator[](&this->m_Velocity, 1);
+            v328 = (float)(v325 * v605.v[1]) + *v327;
+            *vec3_t::operator[](&this->m_Velocity, 1) = v328;
+            v329 = (float *)vec3_t::operator[](&this->m_Velocity, 2);
+            v330 = (float)(v325 * v605.v[2]) + *v329;
+            *vec3_t::operator[](&this->m_Velocity, 2) = v330;
+          }
+          v312 = v549;
+        }
+        else
+        {
+          if ( v304 <= HFD_FBW_ENHANCER_TRANSITION_THRESHOLD )
+          {
+            v312 = v549;
+            v311 = (float)((float)((float)((float)((float)((float)((float)(v578 * COERCE_FLOAT(LODWORD(v298) & _xmm)) - this->m_GyroFBWEnhancerAileronAccumulator) * v2) * HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_AIL_RATE) * v549) * *(float *)&v300) * (float)(1.0 - COERCE_FLOAT(LODWORD(this->m_GyroFBWEnhancerRudderAccumulator) & _xmm))) + this->m_GyroFBWEnhancerAileronAccumulatorVelocity;
+          }
+          else
+          {
+            LODWORD(v305) = COERCE_UNSIGNED_INT((float)(v575 * v2) * HFD_USE_ENHANCED_FBW_RESPONSE_RATE_CHANGE_FACTOR) ^ _xmm;
+            v306 = (float)(v297 * v305) + *vec3_t::operator[](&this->m_Velocity, 0);
+            *vec3_t::operator[](&this->m_Velocity, 0) = v306;
+            v307 = (float *)vec3_t::operator[](&this->m_Velocity, 1);
+            v308 = (float)(v305 * v605.v[1]) + *v307;
+            *vec3_t::operator[](&this->m_Velocity, 1) = v308;
+            v309 = (float *)vec3_t::operator[](&this->m_Velocity, 2);
+            v310 = (float)(v305 * v605.v[2]) + *v309;
+            *vec3_t::operator[](&this->m_Velocity, 2) = v310;
+            v311 = (float)((float)((float)((float)((float)((float)(v301 * COERCE_FLOAT(LODWORD(v298) & _xmm)) - this->m_GyroFBWEnhancerAileronAccumulator) * v2) * HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_AIL_RATE) * value) * (float)(1.0 - COERCE_FLOAT(LODWORD(this->m_GyroFBWEnhancerRudderAccumulator) & _xmm))) + this->m_GyroFBWEnhancerAileronAccumulatorVelocity;
+            v312 = v549;
+          }
+          this->m_GyroFBWEnhancerAileronAccumulatorVelocity = v311;
+          if ( v303 < 0.0 )
+          {
+            v313 = HFD_USE_ENHANCED_FBW_RESPONSE_BLOWBACK_EFFECT_EXPO;
+            v314 = FlightDynamics::ComputeDeadzone(v312, HFD_USE_ENHANCED_FBW_RESPONSE_BLOWBACK_EFFECT_THRESHOLD);
+            v315 = FD_ComputeExpo(*(float *)&v314, v313);
+            v316 = (float)(1.0 - v572) + *(float *)&v315;
+            v317 = I_fclamp(v316, 0.0, 1.0);
+            v318 = v316;
+            v319 = *(float *)&v317 + this->m_EmergencyLevelForCollective;
+            I_fclamp(v319, 0.0, 1.0);
+            v320 = this->m_FBWControlInputs[3];
+            v321 = FLOAT_N1_0;
+            v322 = I_fclamp(v568 * HFD_USE_ENHANCED_FBW_RESPONSE_BLOWBACK_EFFECT_MULTIPLIER, -1.0, 1.0);
+            this->m_FBWControlInputs[3] = (float)((float)(1.0 - v319) * *(float *)&v322) + (float)(v319 * v320);
+            this->m_GyroFBWEnhancerAileronAccumulator = (float)((float)(v318 - 1.0) + v318) * this->m_GyroFBWEnhancerAileronAccumulator;
+LABEL_147:
+            v331 = FlightDynamics::CalculateDrag(this->m_GyroFBWEnhancerAileronAccumulator, HFD_USE_ENHANCED_FBW_RESPONSE_AIL_ACCUMULATOR_DECAY, v2);
+            this->m_GyroFBWEnhancerAileronAccumulator = *(float *)&v331;
+            v332 = (float)((float)((float)(HFD_USE_ENHANCED_FBW_RESPONSE_AIL_ACCUMULATOR_MULTIPLIER * this->m_GyroFBWEnhancerAileronAccumulatorVelocity) * value) * v2) + *(float *)&v331;
+            this->m_GyroFBWEnhancerAileronAccumulator = v332;
+            v333 = I_fclamp(v332, v321, 1.0);
+            this->m_GyroFBWEnhancerAileronAccumulator = *(float *)&v333;
+            v334 = FlightDynamics::CalculateDrag(this->m_GyroFBWEnhancerAileronAccumulatorVelocity, HFD_USE_ENHANCED_FBW_RESPONSE_AIL_ACCUMULATOR_RATE_DECAY, v2);
+            this->m_GyroFBWEnhancerAileronAccumulatorVelocity = *(float *)&v334;
+            v335 = FD_ComputeExpo(1.0 - v550, HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_COL_SPEED_EXPO);
+            v336 = (float)((float)((float)((float)((float)(1.0 - (float)(*(float *)&v335 * v312)) * HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_AIL) + (float)((float)(*(float *)&v335 * v312) * HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_AIL_SPEED)) * (float)(1.0 - this->m_EmergencyLevelForCollective)) * (float)(1.0 - COERCE_FLOAT(LODWORD(this->m_GyroFBWEnhancerRudderAccumulator) & _xmm))) * this->m_GyroFBWEnhancerAileronAccumulator;
+            v337 = I_fclamp(v564, 0.0, 1.0);
+            v338 = (float)(*(float *)&v337 * (float)((float)(1.0 - v550) * v558)) * HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_COL;
+            v339 = I_fclamp(v564, v321, 0.0);
+            v340 = (float)(COERCE_FLOAT(LODWORD(v339) & _xmm) * (float)((float)(1.0 - (float)(1.0 - v550)) * v565)) * HFD_USE_ENHANCED_FBW_RESPONSE_BOOST_COL_DOWN;
+            v341 = *(float *)&v576;
+            v342 = *(float *)&v576 * HFD_AIRFRAME_INVERSE_MASS;
+            v343 = vec3_t::operator[](&this->m_Velocity, 0);
+            v344 = v567;
+            v345 = FlightDynamics::CalculateDrag(*v343, v342, v567);
+            *vec3_t::operator[](&this->m_Velocity, 0) = *(float *)&v345;
+            v346 = v341 * HFD_AIRFRAME_INVERSE_MASS;
+            v347 = vec3_t::operator[](&this->m_Velocity, 1);
+            v348 = FlightDynamics::CalculateDrag(*v347, v346, v344);
+            *vec3_t::operator[](&this->m_Velocity, 1) = *(float *)&v348;
+            v349 = I_fclamp((float)(1.0 - cross.v[0]) * 2.0, 0.0, 1.0);
+            v350 = *(float *)&v349 * HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_SPEED;
+            v351 = I_fclamp((float)(1.0 - v573) * 2.0, 0.0, 1.0);
+            v352 = *(float *)&v351 * HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_SPEED_AILERON;
+            *(double *)v605.v = v619;
+            v605.v[2] = v620;
+            *(_QWORD *)cross.v = *(_QWORD *)p_m_Velocity->v;
+            cross.v[2] = this->m_Velocity.v[2];
+            CalculateDragAtDirection(&cross, (vec3_t *)&v605, v350 * HFD_AIRFRAME_INVERSE_MASS, v344, &this->m_Velocity);
+            *(double *)v605.v = v614;
+            v605.v[2] = v615;
+            *(_QWORD *)cross.v = *(_QWORD *)p_m_Velocity->v;
+            cross.v[2] = this->m_Velocity.v[2];
+            CalculateDragAtDirection(&cross, (vec3_t *)&v605, v352 * HFD_AIRFRAME_INVERSE_MASS, v344, &this->m_Velocity);
+            v605.v[0] = *vec3_t::operator[](&this->m_forwardVector, 0);
+            v605.v[1] = *vec3_t::operator[](&this->m_forwardVector, 1);
+            vec3_t::operator[](&this->m_forwardVector, 2);
+            v605.v[2] = 0.0;
+            Vec3Normalize((vec3_t *)&v605);
+            v353 = v605.v[1];
+            v354 = v605.v[0];
+            v355 = v605.v[2];
+            v356 = (float)((float)(v605.v[1] * v1.v[1]) + (float)(v605.v[0] * v1.v[0])) + (float)(v605.v[2] * v1.v[2]);
+            v357 = (float)((float)(v593 * HFD_AIRFRAME_INVERSE_MASS) * v550) * (float)(1.0 - this->m_GyroFBWEnhancerRudderAccumulator);
+            v358 = v356 * v563;
+            I_fclamp(v356 * v563, 0.0, 1.0);
+            v359 = I_fclamp(elevatorInput * v356, COERCE_FLOAT(LODWORD(elevatorInput) ^ _xmm), elevatorInput);
+            v360 = (float)(COERCE_FLOAT(LODWORD(v359) & _xmm) * (float)(v358 * v357)) * v567;
+            v361 = (float)(v360 * v354) + *vec3_t::operator[](&this->m_Velocity, 0);
+            *vec3_t::operator[](&this->m_Velocity, 0) = v361;
+            v362 = (float)(v360 * v353) + *vec3_t::operator[](&this->m_Velocity, 1);
+            *vec3_t::operator[](&this->m_Velocity, 1) = v362;
+            v363 = (float)(v360 * v355) + *vec3_t::operator[](&this->m_Velocity, 2);
+            *vec3_t::operator[](&this->m_Velocity, 2) = v363;
+            v.v[0] = *vec3_t::operator[](&this->m_sideVector, 0);
+            v.v[1] = *vec3_t::operator[](&this->m_sideVector, 1);
+            v.v[2] = *vec3_t::operator[](&this->m_sideVector, 2);
+            *vec3_t::operator[](&v, 2) = 0.0;
+            Vec3Normalize(&v);
+            LODWORD(_XMM11) = 0;
+            v364 = I_fclamp((float)((float)((float)((float)(1.0 - collectiveInput) * HFD_USE_ENHANCED_FBW_RESPONSE_RUD_ACCUMULATOR_DECAY) + (float)(collectiveInput * 5.0)) * v567) + this->m_GyroFBWEnhancerRudderAccumulator, 0.0, 1.0);
+            this->m_GyroFBWEnhancerRudderAccumulator = *(float *)&v364;
+            v365 = (float)((float)(1.0 - this->m_GroundEffectPressure) * v336) * HFD_AIRFRAME_INVERSE_MASS;
+            v2 = v567;
+            v366 = (float)(v365 * (float)(1.0 - *(float *)&v364)) * v567;
+            v367 = (float *)vec3_t::operator[](&this->m_Velocity, 0);
+            v368 = (float)(v366 * v.v[0]) + *v367;
+            *vec3_t::operator[](&this->m_Velocity, 0) = v368;
+            v369 = (float *)vec3_t::operator[](&this->m_Velocity, 1);
+            v370 = (float)(v366 * v.v[1]) + *v369;
+            *vec3_t::operator[](&this->m_Velocity, 1) = v370;
+            v371 = (float *)vec3_t::operator[](&this->m_Velocity, 2);
+            v372 = (float)(v366 * v.v[2]) + *v371;
+            *vec3_t::operator[](&this->m_Velocity, 2) = v372;
+            v373 = BG_GetFlightDynamicsManager();
+            Vec3Mad(&this->m_Velocity, (float)((float)((float)((float)(1.0 - this->m_GroundEffectPressure) * v338) * HFD_AIRFRAME_INVERSE_MASS) * (float)(1.0 - this->m_GyroFBWEnhancerRudderAccumulator)) * v2, &v373->m_UpAxis, &this->m_Velocity);
+            v374 = BG_GetFlightDynamicsManager();
+            Vec3Mad(&this->m_Velocity, (float)(v340 * HFD_AIRFRAME_INVERSE_MASS) * v2, &v374->m_UpAxis, &this->m_Velocity);
+            v36 = _xmm;
+            v375 = FlightDynamics::ComputeDeadzoneRange(COERCE_FLOAT(COERCE_UNSIGNED_INT(v563 - (float)(v550 * v569)) & _xmm), 1.1, 2.0);
+            v376 = I_fclamp(*(float *)&v375, 0.0, 1.0);
+            v377 = *(float *)&v376 * HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_REVERSE;
+            v378 = (float)(*(float *)&v376 * HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_REVERSE) * HFD_AIRFRAME_INVERSE_MASS;
+            v379 = vec3_t::operator[](&this->m_Velocity, 0);
+            v380 = FlightDynamics::CalculateDrag(*v379, v378, v2);
+            *vec3_t::operator[](&this->m_Velocity, 0) = *(float *)&v380;
+            v381 = v377 * HFD_AIRFRAME_INVERSE_MASS;
+            *(float *)&v380 = *vec3_t::operator[](&this->m_Velocity, 1);
+            v382 = FlightDynamics::CalculateDrag(*(float *)&v380, v381, v2);
+            *vec3_t::operator[](&this->m_Velocity, 1) = *(float *)&v382;
+            v17 = _xmm;
+LABEL_148:
+            cross.v[0] = this->m_FBWControlInputs[1];
+            if ( (LODWORD(cross.v[0]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 2427, ASSERT_TYPE_SANITY, "( !IS_NAN( m_FBWControlInputs[FD_STICK_ELEVATOR] ) )", (const char *)&queryFormat, "!IS_NAN( m_FBWControlInputs[FD_STICK_ELEVATOR] )") )
+              __debugbreak();
+            cross.v[0] = this->m_FBWControlInputs[3];
+            if ( (LODWORD(cross.v[0]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 2428, ASSERT_TYPE_SANITY, "( !IS_NAN( m_FBWControlInputs[FD_STICK_AILERON] ) )", (const char *)&queryFormat, "!IS_NAN( m_FBWControlInputs[FD_STICK_AILERON] )") )
+              __debugbreak();
+            cross.v[0] = this->m_FBWControlInputs[5];
+            if ( (LODWORD(cross.v[0]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 2429, ASSERT_TYPE_SANITY, "( !IS_NAN( m_FBWControlInputs[FD_STICK_VERTICAL] ) )", (const char *)&queryFormat, "!IS_NAN( m_FBWControlInputs[FD_STICK_VERTICAL] )") )
+              __debugbreak();
+            cross.v[0] = this->m_FBWControlInputs[0];
+            if ( (LODWORD(cross.v[0]) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 2430, ASSERT_TYPE_SANITY, "( !IS_NAN( m_FBWControlInputs[FD_STICK_RUDDER] ) )", (const char *)&queryFormat, "!IS_NAN( m_FBWControlInputs[FD_STICK_RUDDER] )") )
+              __debugbreak();
+            _XMM9 = LODWORD(v560);
+            goto LABEL_161;
+          }
+        }
+        v321 = FLOAT_N1_0;
+        goto LABEL_147;
+      }
+      v264 = v263 * HFD_FBW_RIGHT_RESPONSE_MODIFIER;
+    }
+    else
+    {
+      v264 = v263 * HFD_FBW_LEFT_RESPONSE_MODIFIER;
+    }
+    v265 = I_fclamp(v264, -1.0, 1.0);
+    this->m_FBWControlInputs[0] = *(float *)&v265;
+    goto LABEL_134;
+  }
+LABEL_161:
+  v383 = this->m_ControlInputsNormalized[5];
+  v384 = this->m_ControlInputsNormalized[0];
+  elevatorInput = this->m_ControlInputsNormalized[3];
+  aileronInput = this->m_ControlInputsNormalized[1];
+  if ( (_BYTE)v557 )
+  {
+    m_FBWControlInputs = this->m_FBWControlInputs;
+    *(_QWORD *)cross.v = this->m_FBWControlInputs;
+  }
+  else
+  {
+    v385 = FD_ComputeExpo((float)(v384 * v384) + (float)(v383 * v383), 0.5);
+    v384 = v384 * *(float *)&v385;
+    v383 = v383 * *(float *)&v385;
+    if ( !this->m_playerControlled && this->m_LandingTimer < 0.001 )
+    {
+      v384 = HFD_ABANDONED_RUDDER_VALUE;
+      v383 = HFD_ABANDONED_COLLECTIVE_VALUE;
+      _XMM2 = LODWORD(HFD_ABANDONED_ELEVATOR_VALUE_SPEED);
+      __asm
+      {
+        vcmpltss xmm1, xmm9, cs:?HFD_ABANDONED_SPEED_THRESHOLD@@3MA; float HFD_ABANDONED_SPEED_THRESHOLD
+        vblendvps xmm1, xmm2, xmm0, xmm1
+      }
+      aileronInput = *(float *)&_XMM1;
+      cross.v[0] = *(float *)&_XMM1;
+    }
+    this->m_FBWControlInputs[1] = 0.0;
+    this->m_FBWControlInputs[3] = 0.0;
+    *(_QWORD *)cross.v = this->m_FBWControlInputs;
+    this->m_FBWControlInputs[0] = 0.0;
+    this->m_GyroRudderForwardVectorSet = 0;
+    v389 = (float *)vec3_t::operator[](&this->m_sideVector, 1);
+    v390 = out.v[1] * *v389;
+    v391 = (float *)vec3_t::operator[](&this->m_sideVector, 0);
+    v392 = out.v[0] * *v391;
+    v393 = (float *)vec3_t::operator[](&this->m_sideVector, 2);
+    v394 = FD_ComputeExpo((float)((float)((float)(v390 + v392) + (float)(out.v[2] * *v393)) * HFD_GYRO_ANGULAR_YAW_VELOCITY_FACTOR) * (float)(1.0 / v2), 2.0);
+    this->m_UserControlInputs[8] = *(float *)&v394 * HFD_MANUAL_FREELOOK_MULTIPLIER;
+    this->m_UserControlInputs[9] = 0.0;
+    v395 = *vec3_t::operator[](&this->m_forwardVector, 0);
+    *vec3_t::operator[](&this->m_FlyByWireNormalizedVector, 0) = v395;
+    v396 = *vec3_t::operator[](&this->m_forwardVector, 1);
+    *vec3_t::operator[](&this->m_FlyByWireNormalizedVector, 1) = v396;
+    v397 = *vec3_t::operator[](&this->m_forwardVector, 2);
+    *vec3_t::operator[](&this->m_FlyByWireNormalizedVector, 2) = v397;
+    m_FBWControlInputs = this->m_FBWControlInputs;
+  }
+  if ( !HFD_ALLOW_FULL_COLLECTIVE )
+  {
+    *(_QWORD *)cross.v = m_FBWControlInputs;
+    if ( v383 <= *(float *)&_XMM11 )
+      v383 = (float)((float)(1.0 - COERCE_FLOAT(LODWORD(v383) ^ v17)) * HFD_CENTER_COLLECTIVE_VALUE) + (float)(COERCE_FLOAT(LODWORD(v383) ^ v17) * HFD_LOWER_COLLECTIVE_VALUE);
+    else
+      v383 = v383 + (float)((float)(1.0 - v383) * HFD_CENTER_COLLECTIVE_VALUE);
+  }
+  p_m_centerOfMassWs = &this->m_centerOfMassWs;
+  v400 = (float *)vec3_t::operator[](&this->m_centerOfMassWs, 0);
+  v401 = v599 + *v400;
+  v402 = (float *)vec3_t::operator[](&this->m_centerOfMassWs, 1);
+  v403 = v600 + *v402;
+  v404 = (float *)vec3_t::operator[](&this->m_centerOfMassWs, 2);
+  v581 = v581 + *v404;
+  if ( HFD_USE_ADVANCED_TAIL_ROTOR )
+  {
+    _XMM6 = this->m_RotationQuaternion;
+    *vec3_t::operator[](&this->m_TailRotor.m_Position, 0) = v401;
+    *vec3_t::operator[](&this->m_TailRotor.m_Position, 1) = v403;
+    v406 = vec3_t::operator[](&this->m_TailRotor.m_Position, 2);
+    *v406 = v581;
+    *vec4_t::operator[](&this->m_TailRotor.m_RotationQuat, 0) = _XMM6.v[0];
+    _RAX = vec4_t::operator[](&this->m_TailRotor.m_RotationQuat, 1);
     __asm { vextractps dword ptr [rax], xmm6, 1 }
-    _RAX = vec4_t::operator[](&_RSI->m_TailRotor.m_RotationQuat, 2);
+    _RAX = vec4_t::operator[](&this->m_TailRotor.m_RotationQuat, 2);
     __asm { vextractps dword ptr [rax], xmm6, 2 }
-    _RAX = vec4_t::operator[](&_RSI->m_TailRotor.m_RotationQuat, 3);
+    _RAX = vec4_t::operator[](&this->m_TailRotor.m_RotationQuat, 3);
     __asm { vextractps dword ptr [rax], xmm6, 3 }
-    _RAX = vec4_t::operator[](&_RSI->m_TailRotor.m_RotationQuat, 0);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec4_t::operator[](&_RSI->m_TailRotor.m_PreviousRotationQuat, 0);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    _RAX = vec4_t::operator[](&_RSI->m_TailRotor.m_RotationQuat, 1);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec4_t::operator[](&_RSI->m_TailRotor.m_PreviousRotationQuat, 1);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    _RAX = vec4_t::operator[](&_RSI->m_TailRotor.m_RotationQuat, 2);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec4_t::operator[](&_RSI->m_TailRotor.m_PreviousRotationQuat, 2);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    _RAX = vec4_t::operator[](&_RSI->m_TailRotor.m_RotationQuat, 3);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec4_t::operator[](&_RSI->m_TailRotor.m_PreviousRotationQuat, 3);
-    __asm
-    {
-      vmovss  dword ptr [rax], xmm6
-      vmovsd  xmm0, qword ptr [rbp+2D0h+a]
-      vmovsd  qword ptr [rbp+2D0h+var_290], xmm0
-    }
-    v2087.v[2] = a.v[2];
-    FlightDynamicsRotorSystem::SetAirspeed(&_RSI->m_TailRotor, (vec3_t *)&v2087);
-    __asm
-    {
-      vmulss  xmm0, xmm8, [rbp+2D0h+var_338]
-      vaddss  xmm1, xmm0, dword ptr [rax]
-      vmulss  xmm3, xmm1, cs:?HFD_CONTROL_INPUT_MULTI_TAIL_ROTOR@@3MA; collective
-      vmovss  dword ptr [rsp+3D0h+fmt], xmm12
-      vxorps  xmm2, xmm2, xmm2; cyclicLateral
-      vxorps  xmm1, xmm1, xmm1; cyclicForward
-    }
-    FlightDynamicsRotorSystem::SetSwashplateDT(&_RSI->m_TailRotor, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt);
-    *vec3_t::operator[](&_RSI->m_TailRotor.m_LiftForceVector, 0) = 0.0;
-    *vec3_t::operator[](&_RSI->m_TailRotor.m_LiftForceVector, 1) = 0.0;
-    *vec3_t::operator[](&_RSI->m_TailRotor.m_LiftForceVector, 2) = 0.0;
-    *vec3_t::operator[](&_RSI->m_TailRotor.m_LiftTorqueVector, 0) = 0.0;
-    *vec3_t::operator[](&_RSI->m_TailRotor.m_LiftTorqueVector, 1) = 0.0;
-    *vec3_t::operator[](&_RSI->m_TailRotor.m_LiftTorqueVector, 2) = 0.0;
-    __asm { vmovaps xmm1, xmm12; dT }
-    v1613 = 6;
-    if ( !_RSI->m_playerControlled )
-      v1613 = 1;
-    FlightDynamicsRotorSystem::UpdateSteps(&_RSI->m_TailRotor, *(float *)&_XMM1, v1613, 1);
-    __asm { vmovss  xmm0, dword ptr [rsi+740h] }
-    _RDI = &_RSI->m_upVector;
-    p_m_centerOfMassWs = &_RSI->m_centerOfMassWs;
+    _XMM6.v[0] = *vec4_t::operator[](&this->m_TailRotor.m_RotationQuat, 0);
+    *vec4_t::operator[](&this->m_TailRotor.m_PreviousRotationQuat, 0) = _XMM6.v[0];
+    _XMM6.v[0] = *vec4_t::operator[](&this->m_TailRotor.m_RotationQuat, 1);
+    *vec4_t::operator[](&this->m_TailRotor.m_PreviousRotationQuat, 1) = _XMM6.v[0];
+    _XMM6.v[0] = *vec4_t::operator[](&this->m_TailRotor.m_RotationQuat, 2);
+    *vec4_t::operator[](&this->m_TailRotor.m_PreviousRotationQuat, 2) = _XMM6.v[0];
+    _XMM6.v[0] = *vec4_t::operator[](&this->m_TailRotor.m_RotationQuat, 3);
+    *vec4_t::operator[](&this->m_TailRotor.m_PreviousRotationQuat, 3) = _XMM6.v[0];
+    v605.xyz = a;
+    FlightDynamicsRotorSystem::SetAirspeed(&this->m_TailRotor, (vec3_t *)&v605);
+    FlightDynamicsRotorSystem::SetSwashplateDT(&this->m_TailRotor, 0.0, 0.0, (float)((float)(v384 * v574) + **(float **)cross.v) * HFD_CONTROL_INPUT_MULTI_TAIL_ROTOR, v2);
+    *vec3_t::operator[](&this->m_TailRotor.m_LiftForceVector, 0) = 0.0;
+    *vec3_t::operator[](&this->m_TailRotor.m_LiftForceVector, 1) = 0.0;
+    *vec3_t::operator[](&this->m_TailRotor.m_LiftForceVector, 2) = 0.0;
+    *vec3_t::operator[](&this->m_TailRotor.m_LiftTorqueVector, 0) = 0.0;
+    *vec3_t::operator[](&this->m_TailRotor.m_LiftTorqueVector, 1) = 0.0;
+    *vec3_t::operator[](&this->m_TailRotor.m_LiftTorqueVector, 2) = 0.0;
+    v410 = 6;
+    if ( !this->m_playerControlled )
+      v410 = 1;
+    FlightDynamicsRotorSystem::UpdateSteps(&this->m_TailRotor, v2, v410, 1);
+    m_OpposingTorque = this->m_TailRotor.m_OpposingTorque;
+    p_m_upVector = &this->m_upVector;
+    p_m_centerOfMassWs = &this->m_centerOfMassWs;
   }
   else
   {
-    __asm
+    FlightDynamicsRotorSystem::SetSwashplateDT(&this->m_TailRotor, 0.0, 0.0, (float)((float)(v384 * v574) + this->m_FBWControlInputs[0]) * HFD_CONTROL_INPUT_MULTI_TAIL_ROTOR, v2);
+    m_OpposingTorque = 0.0;
+  }
+  value = m_OpposingTorque;
+  v412 = HFD_MAIN_ROTOR_VERTICAL_OFFSET;
+  v413 = *vec3_t::operator[](p_m_upVector, 0);
+  v414 = (float)(v412 * v413) + *vec3_t::operator[](p_m_centerOfMassWs, 0);
+  v415 = *vec3_t::operator[](p_m_upVector, 1);
+  v416 = (float)(v412 * v415) + *vec3_t::operator[](p_m_centerOfMassWs, 1);
+  v417 = *vec3_t::operator[](p_m_upVector, 2);
+  v418 = (float)(v412 * v417) + *vec3_t::operator[](p_m_centerOfMassWs, 2);
+  m_RotationQuaternion = this->m_RotationQuaternion;
+  *vec3_t::operator[](&this->m_MainRotor.m_Position, 0) = v414;
+  *vec3_t::operator[](&this->m_MainRotor.m_Position, 1) = v416;
+  *vec3_t::operator[](&this->m_MainRotor.m_Position, 2) = v418;
+  v605 = m_RotationQuaternion;
+  FlightDynamicsRotorSystem::CalculateDeflectionFromOrientation(&this->m_MainRotor, &v605, v2);
+  v419 = *vec4_t::operator[](&this->m_MainRotor.m_RotationQuat, 0);
+  *vec4_t::operator[](&this->m_MainRotor.m_PreviousRotationQuat, 0) = v419;
+  v420 = *vec4_t::operator[](&this->m_MainRotor.m_RotationQuat, 1);
+  *vec4_t::operator[](&this->m_MainRotor.m_PreviousRotationQuat, 1) = v420;
+  v421 = *vec4_t::operator[](&this->m_MainRotor.m_RotationQuat, 2);
+  *vec4_t::operator[](&this->m_MainRotor.m_PreviousRotationQuat, 2) = v421;
+  v422 = *vec4_t::operator[](&this->m_MainRotor.m_RotationQuat, 3);
+  *vec4_t::operator[](&this->m_MainRotor.m_PreviousRotationQuat, 3) = v422;
+  v423 = *vec4_t::operator[](&m_RotationQuaternion, 0);
+  *vec4_t::operator[](&this->m_MainRotor.m_RotationQuat, 0) = v423;
+  v424 = *vec4_t::operator[](&m_RotationQuaternion, 1);
+  *vec4_t::operator[](&this->m_MainRotor.m_RotationQuat, 1) = v424;
+  v425 = *vec4_t::operator[](&m_RotationQuaternion, 2);
+  *vec4_t::operator[](&this->m_MainRotor.m_RotationQuat, 2) = v425;
+  v426 = *vec4_t::operator[](&m_RotationQuaternion, 3);
+  *vec4_t::operator[](&this->m_MainRotor.m_RotationQuat, 3) = v426;
+  *(_QWORD *)v605.v = *(_QWORD *)p_m_Velocity->v;
+  v605.v[2] = this->m_Velocity.v[2];
+  p_m_MainRotor = &this->m_MainRotor;
+  FlightDynamicsRotorSystem::SetAirspeed(&this->m_MainRotor, (vec3_t *)&v605);
+  v428 = v574;
+  v429 = I_flerp(this->m_FBWControlInputs[5], v383, v574);
+  v567 = *(float *)&v429;
+  if ( HFD_COLLISION_TIME_DETECTION <= this->m_timeSinceLastCollision || v383 >= -0.1 && v564 >= -0.1 )
+  {
+    v430 = v560;
+  }
+  else
+  {
+    this->m_timeSinceLastCollision = HFD_COLLISION_TIME_DETECTION;
+    v430 = v560;
+    if ( this->m_LandingTimer < 1.0 && v560 < 300.0 && this->m_collisionZone == HFD_COLLISION_ID_LANDING_GEAR )
     {
-      vmulss  xmm0, xmm8, [rbp+2D0h+var_338]
-      vaddss  xmm1, xmm0, dword ptr [rsi+47Ch]
-      vmulss  xmm3, xmm1, cs:?HFD_CONTROL_INPUT_MULTI_TAIL_ROTOR@@3MA; collective
-      vmovss  dword ptr [rsp+3D0h+fmt], xmm12
-      vxorps  xmm2, xmm2, xmm2; cyclicLateral
-      vxorps  xmm1, xmm1, xmm1; cyclicForward
+      v431 = FD_ComputeExpo(v565, HFD_FBW_LANDING_TIMER_LEVELED_EXPO);
+      this->m_LandingTimer = (float)((float)((float)(*(float *)&v431 * v566) * HFD_FBW_LANDING_TIMER_RATE) * v2) + this->m_LandingTimer;
     }
-    FlightDynamicsRotorSystem::SetSwashplateDT(&_RSI->m_TailRotor, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmta);
-    __asm { vxorps  xmm0, xmm0, xmm0 }
   }
-  __asm
+  v432 = this->m_LandingTimer;
+  if ( v432 <= *(float *)&_XMM11 || v432 >= 1.0 || v383 <= -0.001 || v564 <= -0.001 )
   {
-    vmovss  [rsp+3D0h+var_374], xmm0
-    vmovss  xmm8, cs:?HFD_MAIN_ROTOR_VERTICAL_OFFSET@@3MA; float HFD_MAIN_ROTOR_VERTICAL_OFFSET
-  }
-  _RAX = vec3_t::operator[](_RDI, 0);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  vec3_t::operator[](p_m_centerOfMassWs, 0);
-  __asm
-  {
-    vmulss  xmm0, xmm8, xmm6
-    vaddss  xmm9, xmm0, dword ptr [rax]
-  }
-  _RAX = vec3_t::operator[](_RDI, 1);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  vec3_t::operator[](p_m_centerOfMassWs, 1);
-  __asm
-  {
-    vmulss  xmm0, xmm8, xmm6
-    vaddss  xmm7, xmm0, dword ptr [rax]
-  }
-  _RAX = vec3_t::operator[](_RDI, 2);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  vec3_t::operator[](p_m_centerOfMassWs, 2);
-  __asm
-  {
-    vmulss  xmm0, xmm8, xmm6
-    vaddss  xmm6, xmm0, dword ptr [rax]
-    vmovups xmm0, xmmword ptr [rsi+368h]
-    vmovups xmmword ptr [rbp+2D0h+var_2B0], xmm0
-  }
-  _RAX = vec3_t::operator[](&_RSI->m_MainRotor.m_Position, 0);
-  __asm { vmovss  dword ptr [rax], xmm9 }
-  _RAX = vec3_t::operator[](&_RSI->m_MainRotor.m_Position, 1);
-  __asm { vmovss  dword ptr [rax], xmm7 }
-  _RAX = vec3_t::operator[](&_RSI->m_MainRotor.m_Position, 2);
-  __asm
-  {
-    vmovss  dword ptr [rax], xmm6
-    vmovups xmm0, xmmword ptr [rbp+2D0h+var_2B0]
-    vmovdqa [rbp+2D0h+var_290], xmm0
-    vmovaps xmm2, xmm12
-  }
-  FlightDynamicsRotorSystem::CalculateDeflectionFromOrientation(&_RSI->m_MainRotor, &v2087, *(float *)&_XMM2);
-  _RAX = vec4_t::operator[](&_RSI->m_MainRotor.m_RotationQuat, 0);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec4_t::operator[](&_RSI->m_MainRotor.m_PreviousRotationQuat, 0);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec4_t::operator[](&_RSI->m_MainRotor.m_RotationQuat, 1);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec4_t::operator[](&_RSI->m_MainRotor.m_PreviousRotationQuat, 1);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec4_t::operator[](&_RSI->m_MainRotor.m_RotationQuat, 2);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec4_t::operator[](&_RSI->m_MainRotor.m_PreviousRotationQuat, 2);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec4_t::operator[](&_RSI->m_MainRotor.m_RotationQuat, 3);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec4_t::operator[](&_RSI->m_MainRotor.m_PreviousRotationQuat, 3);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec4_t::operator[](&v2085, 0);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec4_t::operator[](&_RSI->m_MainRotor.m_RotationQuat, 0);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec4_t::operator[](&v2085, 1);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec4_t::operator[](&_RSI->m_MainRotor.m_RotationQuat, 1);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec4_t::operator[](&v2085, 2);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec4_t::operator[](&_RSI->m_MainRotor.m_RotationQuat, 2);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec4_t::operator[](&v2085, 3);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec4_t::operator[](&_RSI->m_MainRotor.m_RotationQuat, 3);
-  __asm
-  {
-    vmovss  dword ptr [rax], xmm6
-    vmovsd  xmm0, qword ptr [r14]
-    vmovsd  qword ptr [rbp+2D0h+var_290], xmm0
-  }
-  v2087.v[2] = _RSI->m_Velocity.v[2];
-  p_m_MainRotor = &_RSI->m_MainRotor;
-  FlightDynamicsRotorSystem::SetAirspeed(&_RSI->m_MainRotor, (vec3_t *)&v2087);
-  __asm
-  {
-    vmovss  xmm7, [rbp+2D0h+var_338]
-    vmovaps xmm2, xmm7; w
-    vmovaps xmm1, xmm10; b
-    vmovss  xmm0, dword ptr [rsi+490h]; a
-  }
-  *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  [rsp+3D0h+var_354], xmm0
-    vmovss  xmm2, cs:?HFD_COLLISION_TIME_DETECTION@@3MA; float HFD_COLLISION_TIME_DETECTION
-    vcomiss xmm2, dword ptr [rsi+2B0h]
-  }
-  if ( v1669 || v1670 )
-    goto LABEL_168;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@bdcccccd
-    vcomiss xmm10, xmm0
-  }
-  if ( v1669 )
-    goto LABEL_164;
-  __asm
-  {
-    vmovss  xmm1, [rsp+3D0h+var_360]
-    vcomiss xmm1, xmm0
-  }
-  if ( v1669 )
-  {
-LABEL_164:
-    __asm
+    v435 = FLOAT_0_001;
+    if ( v383 > 0.001 || v564 > 0.001 )
     {
-      vmovss  dword ptr [rsi+2B0h], xmm2
-      vmovss  xmm8, [rsp+3D0h+var_370]
-      vcomiss xmm15, dword ptr [rsi+940h]
-    }
-    if ( !v1669 && !v1670 )
-    {
-      __asm { vcomiss xmm8, cs:__real@43960000 }
-      if ( v1669 )
-      {
-        v1669 = _RSI->m_collisionZone < (unsigned int)HFD_COLLISION_ID_LANDING_GEAR;
-        v1670 = _RSI->m_collisionZone == HFD_COLLISION_ID_LANDING_GEAR;
-        if ( _RSI->m_collisionZone == HFD_COLLISION_ID_LANDING_GEAR )
-        {
-          __asm
-          {
-            vmovss  xmm1, cs:?HFD_FBW_LANDING_TIMER_LEVELED_EXPO@@3MA; expo
-            vmovss  xmm0, [rsp+3D0h+var_35C]; value
-          }
-          *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-          __asm
-          {
-            vmulss  xmm1, xmm0, [rsp+3D0h+var_358]
-            vmulss  xmm2, xmm1, cs:?HFD_FBW_LANDING_TIMER_RATE@@3MA; float HFD_FBW_LANDING_TIMER_RATE
-            vmulss  xmm3, xmm2, xmm12
-            vaddss  xmm0, xmm3, dword ptr [rsi+940h]
-            vmovss  dword ptr [rsi+940h], xmm0
-          }
-        }
-      }
+      v432 = v432 - (float)(v2 * HFD_COLLISION_TIME_DECAY);
+      this->m_LandingTimer = v432;
     }
   }
   else
   {
-LABEL_168:
-    __asm { vmovss  xmm8, [rsp+3D0h+var_370] }
-  }
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rsi+940h]
-    vmovss  xmm0, [rsp+3D0h+var_360]
-    vcomiss xmm3, xmm11
-  }
-  if ( v1669 || v1670 )
-    goto LABEL_176;
-  __asm { vcomiss xmm3, xmm15 }
-  if ( !v1669 )
-    goto LABEL_176;
-  __asm
-  {
-    vmovss  xmm1, cs:__real@ba83126f
-    vcomiss xmm10, xmm1
-  }
-  if ( v1669 || v1670 )
-    goto LABEL_176;
-  __asm { vcomiss xmm0, xmm1 }
-  if ( v1669 || v1670 )
-  {
-LABEL_176:
-    __asm
-    {
-      vmovss  xmm9, cs:__real@3a83126f
-      vcomiss xmm10, xmm9
-    }
-    if ( !v1669 && !v1670 )
-      goto LABEL_178;
-    __asm { vcomiss xmm0, xmm9 }
-    if ( !v1669 && !v1670 )
-    {
-LABEL_178:
-      __asm
-      {
-        vmulss  xmm2, xmm12, cs:?HFD_COLLISION_TIME_DECAY@@3MA; float HFD_COLLISION_TIME_DECAY
-        vsubss  xmm3, xmm3, xmm2
-        vmovss  dword ptr [rsi+940h], xmm3
-      }
-    }
-  }
-  else
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm12, cs:?HFD_COLLISION_TIME_DECAY@@3MA; float HFD_COLLISION_TIME_DECAY
-      vsubss  xmm2, xmm3, xmm1
-      vmovss  dword ptr [rsi+940h], xmm2
-    }
+    this->m_LandingTimer = v432 - (float)(v2 * HFD_COLLISION_TIME_DECAY);
     if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_fbw_enhancer, "fd_helicopter_fbw_enhancer") )
     {
-      __asm
-      {
-        vmulss  xmm2, xmm12, cs:?HFD_FBW_ENHANCER_LANDED_TAIL_ROTOR_REDUCER_RESTORE@@3MA; w
-        vmovaps xmm1, xmm15; b
-        vmovss  xmm0, dword ptr [rsi+928h]; a
-      }
-      *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  dword ptr [rsi+928h], xmm0
-        vmulss  xmm2, xmm12, cs:?HFD_FBW_ENHANCER_LANDED_MAIN_ROTOR_REDUCER_RESTORE@@3MA; w
-        vmovaps xmm1, xmm15; b
-        vmovss  xmm0, dword ptr [rsi+924h]; a
-      }
-      *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rsi+924h], xmm0 }
+      v433 = I_flerp(this->m_TailRotorAirflowLiftMultiplier, 1.0, v2 * HFD_FBW_ENHANCER_LANDED_TAIL_ROTOR_REDUCER_RESTORE);
+      this->m_TailRotorAirflowLiftMultiplier = *(float *)&v433;
+      v434 = I_flerp(this->m_MainRotorAirflowLiftMultiplier, 1.0, v2 * HFD_FBW_ENHANCER_LANDED_MAIN_ROTOR_REDUCER_RESTORE);
+      this->m_MainRotorAirflowLiftMultiplier = *(float *)&v434;
     }
-    __asm
-    {
-      vmovss  xmm3, dword ptr [rsi+940h]
-      vmovss  xmm9, cs:__real@3a83126f
-    }
+    v432 = this->m_LandingTimer;
+    v435 = FLOAT_0_001;
   }
-  __asm
-  {
-    vmovaps xmm2, xmm15; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm0, xmm3; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmovss  dword ptr [rsi+940h], xmm0
-    vcomiss xmm0, xmm9
-  }
-  if ( v1691 | v1692 )
+  v436 = I_fclamp(v432, 0.0, 1.0);
+  this->m_LandingTimer = *(float *)&v436;
+  if ( *(float *)&v436 <= v435 )
   {
     if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_fbw_enhancer, "fd_helicopter_fbw_enhancer") )
     {
-      __asm
-      {
-        vmulss  xmm2, xmm12, cs:?HFD_FBW_ENHANCER_LANDED_TAIL_ROTOR_REDUCER_RESTORE@@3MA; w
-        vmovaps xmm1, xmm15; b
-        vmovss  xmm0, dword ptr [rsi+928h]; a
-      }
-      *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  dword ptr [rsi+928h], xmm0
-        vmulss  xmm2, xmm12, cs:?HFD_FBW_ENHANCER_LANDED_MAIN_ROTOR_REDUCER_RESTORE@@3MA; w
-        vmovaps xmm1, xmm15; b
-        vmovss  xmm0, dword ptr [rsi+924h]; a
-      }
-      *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rsi+924h], xmm0 }
+      v453 = I_flerp(this->m_TailRotorAirflowLiftMultiplier, 1.0, v2 * HFD_FBW_ENHANCER_LANDED_TAIL_ROTOR_REDUCER_RESTORE);
+      this->m_TailRotorAirflowLiftMultiplier = *(float *)&v453;
+      v454 = I_flerp(this->m_MainRotorAirflowLiftMultiplier, 1.0, v2 * HFD_FBW_ENHANCER_LANDED_MAIN_ROTOR_REDUCER_RESTORE);
+      this->m_MainRotorAirflowLiftMultiplier = *(float *)&v454;
     }
-    goto LABEL_189;
+    goto LABEL_204;
   }
-  __asm { vcomiss xmm7, xmm15 }
-  if ( !v1691 )
+  if ( v428 >= 1.0 )
   {
-LABEL_189:
-    __asm { vmovss  xmm0, [rsp+3D0h+elevatorInput] }
-    goto LABEL_190;
+LABEL_204:
+    *(float *)&v452 = elevatorInput;
+    goto LABEL_205;
   }
-  __asm { vcomiss xmm0, cs:__real@3e800000 }
-  if ( !(v1691 | v1692) )
+  if ( *(float *)&v436 > 0.25 && v566 > 0.85000002 )
   {
-    __asm
+    v437 = I_flerp(v567, HFD_FBW_LOWEST_COLLECTIVE_LANDED, v432);
+    v567 = *(float *)&v437;
+    v438 = I_flerp(this->m_FBWControlInputs[1], 0.0, v432);
+    this->m_FBWControlInputs[1] = *(float *)&v438;
+    v439 = *(float **)cross.v;
+    v440 = I_flerp(**(float **)cross.v, 0.0, this->m_LandingTimer);
+    *v439 = *(float *)&v440;
+    v441 = I_flerp(aileronInput, 0.0, this->m_LandingTimer);
+    aileronInput = *(float *)&v441;
+    if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_fbw_enhancer, "fd_helicopter_fbw_enhancer") )
     {
-      vmovss  xmm0, [rsp+3D0h+var_358]
-      vcomiss xmm0, cs:__real@3f59999a
+      QuatSlerp(&this->m_RotationInertiaQuat, &quat_identity, (float)(v2 * HFD_FBW_ENHANCER_LANDED_ADDITIONAL_DRAG) * this->m_LandingTimer, &result);
+      v442 = *vec4_t::operator[](&result, 0);
+      *vec4_t::operator[](&this->m_RotationInertiaQuat, 0) = v442;
+      v443 = *vec4_t::operator[](&result, 1);
+      *vec4_t::operator[](&this->m_RotationInertiaQuat, 1) = v443;
+      v444 = *vec4_t::operator[](&result, 2);
+      *vec4_t::operator[](&this->m_RotationInertiaQuat, 2) = v444;
+      v445 = *vec4_t::operator[](&result, 3);
+      *vec4_t::operator[](&this->m_RotationInertiaQuat, 3) = v445;
+      v446 = *vec3_t::operator[](&this->m_Velocity, 2);
+      v605.v[0] = *(float *)&_XMM11;
+      v605.v[1] = *(float *)&_XMM11;
+      v605.v[2] = *(float *)&_XMM11;
+      Vec3Lerp(&this->m_Velocity, (const vec3_t *)&v605, (float)(v2 * HFD_FBW_ENHANCER_LANDED_ADDITIONAL_DRAG) * this->m_LandingTimer, &this->m_Velocity);
+      *vec3_t::operator[](&this->m_Velocity, 2) = v446;
+      v447 = (float)(HFD_FBW_ENHANCER_LANDED_TAIL_ROTOR_REDUCER * this->m_LandingTimer) * v2;
+      I_fclamp(v447, 0.0, 1.0);
+      v448 = I_flerp(this->m_TailRotorAirflowLiftMultiplier, 0.0, v447);
+      this->m_TailRotorAirflowLiftMultiplier = *(float *)&v448;
+      v449 = (float)(HFD_FBW_ENHANCER_LANDED_TAIL_ROTOR_REDUCER * this->m_LandingTimer) * v2;
+      I_fclamp(v449, 0.0, 1.0);
+      v450 = I_flerp(this->m_MainRotorAirflowLiftMultiplier, 0.0, v449);
+      this->m_MainRotorAirflowLiftMultiplier = *(float *)&v450;
     }
-    if ( !(v1691 | v1692) )
-    {
-      __asm
-      {
-        vmovaps xmm2, xmm6; w
-        vmovss  xmm1, cs:?HFD_FBW_LOWEST_COLLECTIVE_LANDED@@3MA; b
-        vmovss  xmm0, [rsp+3D0h+var_354]; a
-      }
-      *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  [rsp+3D0h+var_354], xmm0
-        vmovaps xmm2, xmm6; w
-        vxorps  xmm1, xmm1, xmm1; b
-        vmovss  xmm0, dword ptr [rsi+480h]; a
-      }
-      *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  dword ptr [rsi+480h], xmm0
-        vmovss  xmm2, dword ptr [rsi+940h]; w
-        vxorps  xmm1, xmm1, xmm1; b
-      }
-      _RBX = *(_QWORD *)cross.v;
-      __asm { vmovss  xmm0, dword ptr [rbx]; a }
-      *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  dword ptr [rbx], xmm0
-        vmovss  xmm2, dword ptr [rsi+940h]; w
-        vxorps  xmm1, xmm1, xmm1; b
-        vmovss  xmm0, [rsp+3D0h+aileronInput]; a
-      }
-      *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  [rsp+3D0h+aileronInput], xmm0 }
-      if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_fbw_enhancer, "fd_helicopter_fbw_enhancer") )
-      {
-        __asm
-        {
-          vmulss  xmm1, xmm12, cs:?HFD_FBW_ENHANCER_LANDED_ADDITIONAL_DRAG@@3MA; float HFD_FBW_ENHANCER_LANDED_ADDITIONAL_DRAG
-          vmulss  xmm2, xmm1, dword ptr [rsi+940h]; frac
-        }
-        QuatSlerp(&_RSI->m_RotationInertiaQuat, &quat_identity, *(float *)&_XMM2, &result);
-        _RAX = vec4_t::operator[](&result, 0);
-        __asm { vmovss  xmm6, dword ptr [rax] }
-        _RAX = vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 0);
-        __asm { vmovss  dword ptr [rax], xmm6 }
-        _RAX = vec4_t::operator[](&result, 1);
-        __asm { vmovss  xmm6, dword ptr [rax] }
-        _RAX = vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 1);
-        __asm { vmovss  dword ptr [rax], xmm6 }
-        _RAX = vec4_t::operator[](&result, 2);
-        __asm { vmovss  xmm6, dword ptr [rax] }
-        _RAX = vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 2);
-        __asm { vmovss  dword ptr [rax], xmm6 }
-        _RAX = vec4_t::operator[](&result, 3);
-        __asm { vmovss  xmm6, dword ptr [rax] }
-        _RAX = vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 3);
-        __asm { vmovss  dword ptr [rax], xmm6 }
-        _RAX = vec3_t::operator[](&_RSI->m_Velocity, 2);
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rax]
-          vmovss  dword ptr [rbp+2D0h+var_290], xmm11
-          vmovss  dword ptr [rbp+2D0h+var_290+4], xmm11
-          vmovss  dword ptr [rbp+2D0h+var_290+8], xmm11
-          vmulss  xmm1, xmm12, cs:?HFD_FBW_ENHANCER_LANDED_ADDITIONAL_DRAG@@3MA; float HFD_FBW_ENHANCER_LANDED_ADDITIONAL_DRAG
-          vmulss  xmm2, xmm1, dword ptr [rsi+940h]; frac
-        }
-        Vec3Lerp(&_RSI->m_Velocity, (const vec3_t *)&v2087, *(float *)&_XMM2, &_RSI->m_Velocity);
-        _RAX = vec3_t::operator[](&_RSI->m_Velocity, 2);
-        __asm
-        {
-          vmovss  dword ptr [rax], xmm6
-          vmovss  xmm0, cs:?HFD_FBW_ENHANCER_LANDED_TAIL_ROTOR_REDUCER@@3MA; float HFD_FBW_ENHANCER_LANDED_TAIL_ROTOR_REDUCER
-          vmulss  xmm1, xmm0, dword ptr [rsi+940h]
-          vmulss  xmm0, xmm1, xmm12; val
-          vmovaps xmm2, xmm15; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovaps xmm2, xmm0; w
-          vxorps  xmm1, xmm1, xmm1; b
-          vmovss  xmm0, dword ptr [rsi+928h]; a
-        }
-        *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovss  dword ptr [rsi+928h], xmm0
-          vmovss  xmm1, cs:?HFD_FBW_ENHANCER_LANDED_TAIL_ROTOR_REDUCER@@3MA; float HFD_FBW_ENHANCER_LANDED_TAIL_ROTOR_REDUCER
-          vmulss  xmm2, xmm1, dword ptr [rsi+940h]
-          vmulss  xmm0, xmm2, xmm12; val
-          vmovaps xmm2, xmm15; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vmovaps xmm2, xmm0; w
-          vxorps  xmm1, xmm1, xmm1; b
-          vmovss  xmm0, dword ptr [rsi+924h]; a
-        }
-        *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm { vmovss  dword ptr [rsi+924h], xmm0 }
-      }
-      p_m_MainRotor = &_RSI->m_MainRotor;
-    }
+    p_m_MainRotor = &this->m_MainRotor;
   }
-  __asm
-  {
-    vmovss  xmm2, dword ptr [rsi+940h]; w
-    vxorps  xmm1, xmm1, xmm1; b
-    vmovss  xmm0, dword ptr [rsi+488h]; a
-  }
-  *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsi+488h], xmm0
-    vmovss  xmm2, dword ptr [rsi+940h]; w
-    vxorps  xmm1, xmm1, xmm1; b
-    vmovss  xmm0, [rsp+3D0h+elevatorInput]; a
-  }
-  *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-LABEL_190:
-  __asm
-  {
-    vmovaps xmm2, xmm7; w
-    vmovaps xmm1, xmm0; b
-    vmovss  xmm0, dword ptr [rsi+488h]; a
-  }
-  *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmovss  xmm0, [rsp+3D0h+aileronInput]
-    vxorps  xmm1, xmm0, xmm13; b
-    vmovaps xmm2, xmm7; w
-    vmovss  xmm0, dword ptr [rsi+480h]; a
-  }
-  *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rsp+3D0h+fmt], xmm12
-    vmovss  xmm3, [rsp+3D0h+var_354]; collective
-    vmovaps xmm2, xmm6; cyclicLateral
-    vmovaps xmm1, xmm0; cyclicForward
-  }
-  FlightDynamicsRotorSystem::SetSwashplateDT(p_m_MainRotor, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmtb);
+  v451 = I_flerp(this->m_FBWControlInputs[3], 0.0, this->m_LandingTimer);
+  this->m_FBWControlInputs[3] = *(float *)&v451;
+  v452 = I_flerp(elevatorInput, 0.0, this->m_LandingTimer);
+LABEL_205:
+  v455 = I_flerp(this->m_FBWControlInputs[3], *(float *)&v452, v428);
+  v456 = *(float *)&v455;
+  v457 = I_flerp(this->m_FBWControlInputs[1], COERCE_FLOAT(LODWORD(aileronInput) ^ v17), v428);
+  FlightDynamicsRotorSystem::SetSwashplateDT(p_m_MainRotor, *(float *)&v457, v456, v567, v2);
   FlightDynamicsRotorSystem::ResetForces(p_m_MainRotor);
-  __asm { vmovaps xmm1, xmm12; dT }
-  if ( _RSI->m_playerControlled )
-    FlightDynamicsRotorSystem::UpdateSteps(p_m_MainRotor, *(float *)&_XMM1, 6, 1);
+  if ( this->m_playerControlled )
+    FlightDynamicsRotorSystem::UpdateSteps(p_m_MainRotor, v2, 6, 1);
   else
-    FlightDynamicsRotorSystem::Update(p_m_MainRotor, *(float *)&_XMM1, 1);
-  __asm
-  {
-    vmulss  xmm7, xmm12, cs:?HFD_TURBINE_DRAG@@3MA; float HFD_TURBINE_DRAG
-    vmovss  xmm0, dword ptr [rsi+8C4h]
-    vmovss  xmm10, dword ptr [rbp+2D0h+var_318]
-    vsubss  xmm1, xmm0, xmm10
-    vmulss  xmm0, xmm1, cs:?HFD_GOVERNOR_TORQUE_RESPONSE@@3MA; val
-    vmovaps xmm2, xmm15; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vdivss  xmm2, xmm10, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; w
-    vmovss  xmm1, cs:?HFD_TURBINE_MAX_TORQUE@@3MA; b
-    vmovss  xmm0, cs:?HFD_TURBINE_START_TORQUE@@3MA; a
-  }
-  I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm1, xmm6, xmm0; b
-    vmovaps xmm2, xmm7; w
-    vmovss  xmm0, dword ptr [rsi+8C8h]; a
-  }
-  *(double *)&_XMM0 = I_flerp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, xmm0
-    vmovss  dword ptr [rsi+8C8h], xmm0
-    vsubss  xmm1, xmm0, [rsp+3D0h+var_374]
-    vmovss  dword ptr [rsi+56Ch], xmm1
-  }
-  v2062 = BG_GetFlightDynamicsManager();
-  FlightDynamics::RecalculateDirectionVectors(_RSI);
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:?HFD_TURBINE_TORQUE_DAMPENER@@3MA; float HFD_TURBINE_TORQUE_DAMPENER
-    vmulss  xmm1, xmm0, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-    vmulss  xmm2, xmm1, dword ptr [rsi+928h]
-    vmulss  xmm3, xmm2, xmm12
-    vxorps  xmm1, xmm3, xmm13; scale
-  }
-  Vec3Scale(&_RSI->m_upVector, *(float *)&_XMM1, &start);
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+    FlightDynamicsRotorSystem::Update(p_m_MainRotor, v2, 1);
+  v458 = v2 * HFD_TURBINE_DRAG;
+  v459 = *(float *)&v580;
+  v460 = (float)(this->m_GovernorRPM - *(float *)&v580) * HFD_GOVERNOR_TORQUE_RESPONSE;
+  I_fclamp(v460, 0.0, 1.0);
+  v461 = I_flerp(HFD_TURBINE_START_TORQUE, HFD_TURBINE_MAX_TORQUE, v459 / HFD_GOVERNOR_MAX_SPEED);
+  v462 = I_flerp(this->m_TurbineTorque, v460 * *(float *)&v461, v458);
+  this->m_TurbineTorque = *(float *)&v462;
+  this->m_MainRotor.m_InputTorque = *(float *)&v462 - value;
+  v580 = BG_GetFlightDynamicsManager();
+  FlightDynamics::RecalculateDirectionVectors(this);
+  Vec3Scale(&this->m_upVector, COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(*(float *)&v462 * HFD_TURBINE_TORQUE_DAMPENER) * HFD_AIRFRAME_INVERSE_MOI) * this->m_TailRotorAirflowLiftMultiplier) * v2) ^ v17), &start);
+  v463 = 0.0;
   if ( HFD_USE_ADVANCED_TAIL_ROTOR )
   {
-    _RAX = vec3_t::operator[](&_RSI->m_TailRotor.m_AirflowVelocity, 0);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec3_t::operator[](&v2107, 0);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    _RAX = vec3_t::operator[](&_RSI->m_TailRotor.m_AirflowVelocity, 1);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec3_t::operator[](&v2107, 1);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    _RAX = vec3_t::operator[](&_RSI->m_TailRotor.m_AirflowVelocity, 2);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec3_t::operator[](&v2107, 2);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    Vec3Normalize(&v2107);
-    __asm
-    {
-      vmulss  xmm0, xmm8, cs:?HFD_TAIL_ROTOR_AIRFLOW_FACTOR@@3MA; float HFD_TAIL_ROTOR_AIRFLOW_FACTOR
-      vmulss  xmm1, xmm0, xmm12; scale
-    }
-    Vec3Mad(&_RSI->m_TailRotor.m_AirflowVelocity, *(float *)&_XMM1, &_RSI->m_sideVector, (vec3_t *)&v2087);
-    Vec3Cross(&_RSI->m_forwardVector, (const vec3_t *)&v2087, &cross);
-    *(double *)&_XMM0 = Vec3Dot(&_RSI->m_TailRotor.m_AirflowVelocity, &_RSI->m_sideVector);
-    __asm
-    {
-      vmovaps xmm6, xmm0
-      vmovss  xmm1, cs:?HFD_TAIL_ROTOR_AUTHORITY@@3MA; float HFD_TAIL_ROTOR_AUTHORITY
-      vmulss  xmm2, xmm1, cs:?HFD_TAIL_ROTOR_POSITION@@3MA; float HFD_TAIL_ROTOR_POSITION
-      vmulss  xmm3, xmm2, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm4, xmm3, dword ptr [rsi+928h]
-      vmulss  xmm1, xmm4, xmm12
-    }
+    v464 = *vec3_t::operator[](&this->m_TailRotor.m_AirflowVelocity, 0);
+    *vec3_t::operator[](&v625, 0) = v464;
+    v465 = *vec3_t::operator[](&this->m_TailRotor.m_AirflowVelocity, 1);
+    *vec3_t::operator[](&v625, 1) = v465;
+    v466 = *vec3_t::operator[](&this->m_TailRotor.m_AirflowVelocity, 2);
+    *vec3_t::operator[](&v625, 2) = v466;
+    Vec3Normalize(&v625);
+    Vec3Mad(&this->m_TailRotor.m_AirflowVelocity, (float)(v430 * HFD_TAIL_ROTOR_AIRFLOW_FACTOR) * v2, &this->m_sideVector, (vec3_t *)&v605);
+    Vec3Cross(&this->m_forwardVector, (const vec3_t *)&v605, &cross);
+    v467 = Vec3Dot(&this->m_TailRotor.m_AirflowVelocity, &this->m_sideVector);
+    v463 = *(float *)&v467;
+    v468 = (float)((float)((float)(HFD_TAIL_ROTOR_AUTHORITY * HFD_TAIL_ROTOR_POSITION) * HFD_AIRFRAME_INVERSE_MOI) * this->m_TailRotorAirflowLiftMultiplier) * v2;
     p_cross = &cross;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_TAIL_ROTOR_RATIO@@3MA; float HFD_TAIL_ROTOR_RATIO
-      vmulss  xmm1, xmm0, dword ptr [rsi+784h]
-      vmulss  xmm2, xmm1, cs:?HFD_TAIL_BASIC_ROTOR_STRENGTH@@3MA; float HFD_TAIL_BASIC_ROTOR_STRENGTH
-      vmulss  xmm3, xmm2, cs:?HFD_TAIL_ROTOR_AUTHORITY@@3MA; float HFD_TAIL_ROTOR_AUTHORITY
-      vmulss  xmm0, xmm3, cs:?HFD_TAIL_ROTOR_POSITION@@3MA; float HFD_TAIL_ROTOR_POSITION
-      vmulss  xmm1, xmm0, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm2, xmm1, dword ptr [rsi+928h]
-      vmulss  xmm1, xmm2, xmm12; scale
-    }
-    p_cross = &_RSI->m_upVector;
+    v468 = (float)((float)((float)((float)((float)((float)(HFD_TAIL_ROTOR_RATIO * this->m_TailRotor.m_SwashplateCollective) * HFD_TAIL_BASIC_ROTOR_STRENGTH) * HFD_TAIL_ROTOR_AUTHORITY) * HFD_TAIL_ROTOR_POSITION) * HFD_AIRFRAME_INVERSE_MOI) * this->m_TailRotorAirflowLiftMultiplier) * v2;
+    p_cross = &this->m_upVector;
   }
-  Vec3Mad(&start, *(float *)&_XMM1, p_cross, &start);
-  __asm
-  {
-    vmulss  xmm0, xmm6, cs:?HFD_TAIL_ROTOR_AUTHORITY@@3MA; float HFD_TAIL_ROTOR_AUTHORITY
-    vmulss  xmm1, xmm0, cs:?HFD_TAIL_ROTOR_INDUCED_TILT@@3MA; float HFD_TAIL_ROTOR_INDUCED_TILT
-    vmulss  xmm2, xmm1, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-    vmulss  xmm1, xmm2, xmm12; scale
-  }
-  Vec3Mad(&start, *(float *)&_XMM1, &_RSI->m_forwardVector, &start);
+  Vec3Mad(&start, v468, p_cross, &start);
+  Vec3Mad(&start, (float)((float)((float)(v463 * HFD_TAIL_ROTOR_AUTHORITY) * HFD_TAIL_ROTOR_INDUCED_TILT) * HFD_AIRFRAME_INVERSE_MOI) * v2, &this->m_forwardVector, &start);
   if ( HFD_USE_ADVANCED_MAIN_ROTOR )
   {
-    _RAX = vec3_t::operator[](&_RSI->m_MainRotor.m_LiftTorqueVector, 0);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec3_t::operator[](&v2105, 0);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    _RAX = vec3_t::operator[](&_RSI->m_MainRotor.m_LiftTorqueVector, 1);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec3_t::operator[](&v2105, 1);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    _RAX = vec3_t::operator[](&_RSI->m_MainRotor.m_LiftTorqueVector, 2);
-    __asm { vmovss  xmm6, dword ptr [rax] }
-    _RAX = vec3_t::operator[](&v2105, 2);
-    __asm { vmovss  dword ptr [rax], xmm6 }
-    *(double *)&_XMM0 = Vec3Normalize(&v2105);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:?HFD_MAIN_ROTOR_CYCLIC_AUTHORITY@@3MA; float HFD_MAIN_ROTOR_CYCLIC_AUTHORITY
-      vmulss  xmm2, xmm1, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm3, xmm2, dword ptr [rsi+924h]
-      vmulss  xmm1, xmm3, xmm12
-    }
-    p_m_sideVector = &v2105;
+    v470 = *vec3_t::operator[](&this->m_MainRotor.m_LiftTorqueVector, 0);
+    *vec3_t::operator[](&v623, 0) = v470;
+    v471 = *vec3_t::operator[](&this->m_MainRotor.m_LiftTorqueVector, 1);
+    *vec3_t::operator[](&v623, 1) = v471;
+    v472 = *vec3_t::operator[](&this->m_MainRotor.m_LiftTorqueVector, 2);
+    *vec3_t::operator[](&v623, 2) = v472;
+    v473 = Vec3Normalize(&v623);
+    v474 = (float)((float)((float)(*(float *)&v473 * HFD_MAIN_ROTOR_CYCLIC_AUTHORITY) * HFD_AIRFRAME_INVERSE_MOI) * this->m_MainRotorAirflowLiftMultiplier) * v2;
+    p_m_sideVector = &v623;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_MAIN_BASIC_ROTOR_STRENGTH@@3MA; float HFD_MAIN_BASIC_ROTOR_STRENGTH
-      vmulss  xmm1, xmm0, dword ptr [rsi+5B0h]
-      vmulss  xmm2, xmm1, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm1, xmm2, xmm12; scale
-    }
-    Vec3Mad(&start, *(float *)&_XMM1, &_RSI->m_forwardVector, &start);
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_MAIN_BASIC_ROTOR_STRENGTH@@3MA; float HFD_MAIN_BASIC_ROTOR_STRENGTH
-      vmulss  xmm1, xmm0, dword ptr [rsi+5ACh]
-      vmulss  xmm2, xmm1, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm1, xmm2, xmm12; scale
-    }
-    p_m_sideVector = &_RSI->m_sideVector;
+    Vec3Mad(&start, (float)((float)(HFD_MAIN_BASIC_ROTOR_STRENGTH * this->m_MainRotor.m_SwashplateCyclicLateral) * HFD_AIRFRAME_INVERSE_MOI) * v2, &this->m_forwardVector, &start);
+    v474 = (float)((float)(HFD_MAIN_BASIC_ROTOR_STRENGTH * this->m_MainRotor.m_SwashplateCyclicForward) * HFD_AIRFRAME_INVERSE_MOI) * v2;
+    p_m_sideVector = &this->m_sideVector;
   }
-  Vec3Mad(&start, *(float *)&_XMM1, p_m_sideVector, &start);
-  _RAX = vec3_t::operator[](&_RSI->m_MainRotor.m_AirflowVelocity, 0);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec3_t::operator[](&b, 0);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec3_t::operator[](&_RSI->m_MainRotor.m_AirflowVelocity, 1);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec3_t::operator[](&b, 1);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec3_t::operator[](&_RSI->m_MainRotor.m_AirflowVelocity, 2);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec3_t::operator[](&b, 2);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  Vec3Add(&_RSI->m_MainRotor.m_LiftForceVector, &b, &b);
-  Vec3Cross(&v0, &_RSI->m_upVector, &dir);
-  *(double *)&_XMM0 = Vec3Dot(&v0, &_RSI->m_upVector);
-  __asm { vmovaps xmm1, xmm0; angleOfAttack }
-  *(double *)&_XMM0 = FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA(&v2062->m_AirfoilData, *(float *)&_XMM1);
-  __asm
-  {
-    vandps  xmm6, xmm0, xmm14
-    vmovups xmm1, xmmword ptr [r13+0]
-    vmovups [rbp+2D0h+var_290], xmm1
-    vmulss  xmm2, xmm6, cs:?HFD_AIRFRAME_ROTOR_CENTERING_TORQUE_DRAG@@3MA; float HFD_AIRFRAME_ROTOR_CENTERING_TORQUE_DRAG
-    vmulss  xmm2, xmm2, [rbp+2D0h+var_2BC]
-    vmovaps xmm3, xmm12
-  }
-  FlightDynamics::ApplyRotationDragAroundAxis(&v2087, &dir, *(const float *)&_XMM2, *(const float *)&_XMM3, &_RSI->m_RotationInertiaQuat);
+  Vec3Mad(&start, v474, p_m_sideVector, &start);
+  v476 = *vec3_t::operator[](&this->m_MainRotor.m_AirflowVelocity, 0);
+  *vec3_t::operator[](&b, 0) = v476;
+  v477 = *vec3_t::operator[](&this->m_MainRotor.m_AirflowVelocity, 1);
+  *vec3_t::operator[](&b, 1) = v477;
+  v478 = *vec3_t::operator[](&this->m_MainRotor.m_AirflowVelocity, 2);
+  *vec3_t::operator[](&b, 2) = v478;
+  Vec3Add(&this->m_MainRotor.m_LiftForceVector, &b, &b);
+  Vec3Cross(&v0, &this->m_upVector, &dir);
+  v479 = Vec3Dot(&v0, &this->m_upVector);
+  LiftAtAOA = FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA(&v580->m_AirfoilData, *(float *)&v479);
+  v481 = LODWORD(LiftAtAOA) & v36;
+  v605 = *p_m_RotationInertiaQuat;
+  FlightDynamics::ApplyRotationDragAroundAxis(&v605, &dir, (float)(COERCE_FLOAT(LODWORD(LiftAtAOA) & v36) * HFD_AIRFRAME_ROTOR_CENTERING_TORQUE_DRAG) * v602, v2, &this->m_RotationInertiaQuat);
   Vec3Normalize(&dir);
-  Vec3Cross(&_RSI->m_upVector, &dir, (vec3_t *)&v2087);
-  Vec3Cross(&_RSI->m_Velocity, (const vec3_t *)&v2087, &dir);
-  __asm
+  Vec3Cross(&this->m_upVector, &dir, (vec3_t *)&v605);
+  Vec3Cross(&this->m_Velocity, (const vec3_t *)&v605, &dir);
+  Vec3Mad(&start, (float)((float)((float)(*(float *)&v481 * v602) * HFD_AIRFRAME_ROTOR_CENTERING_TORQUE_VELOCITY) * HFD_AIRFRAME_INVERSE_MOI) * v2, &dir, &start);
+  v482 = Vec3Length(&b);
+  v483 = *(float *)&v482;
+  if ( *(float *)&v482 > v435 )
   {
-    vmulss  xmm0, xmm6, [rbp+2D0h+var_2BC]
-    vmulss  xmm1, xmm0, cs:?HFD_AIRFRAME_ROTOR_CENTERING_TORQUE_VELOCITY@@3MA; float HFD_AIRFRAME_ROTOR_CENTERING_TORQUE_VELOCITY
-    vmulss  xmm2, xmm1, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-    vmulss  xmm1, xmm2, xmm12; scale
+    Vec3Cross(&this->m_upVector, &b, (vec3_t *)&v605);
+    v484 = HFD_AIRFRAME_ROTOR_CENTERING_TORQUE_EXPO;
+    v485 = Vec3Dot(&this->m_upVector, &b);
+    v486 = *(float *)&v485 / v483;
+    FD_ComputeExpo(*(float *)&v485 / v483, v484);
+    Vec3Scale((const vec3_t *)&v605, v486, (vec3_t *)&v605);
+    Vec3Mad(&start, (float)((float)(v430 * HFD_AIRFRAME_ROTOR_CENTERING_TORQUE) * HFD_AIRFRAME_INVERSE_MOI) * v2, (const vec3_t *)&v605, &start);
+    Vec3Mad(&start, (float)(HFD_AIRFRAME_ROTOR_CENTERING_TORQUE_AIRFLOW * HFD_AIRFRAME_INVERSE_MOI) * v2, (const vec3_t *)&v605, &start);
   }
-  Vec3Mad(&start, *(float *)&_XMM1, &dir, &start);
-  *(double *)&_XMM0 = Vec3Length(&b);
-  __asm
+  v487 = Vec3Normalize(&start);
+  if ( *(float *)&v487 > *(float *)&_XMM11 )
   {
-    vmovaps xmm7, xmm0
-    vcomiss xmm0, xmm9
+    v488 = I_fclamp(*(float *)&v487, 0.0, HFD_MAX_ALLOWED_TORQUE);
+    FlightDynamics::SetRotationNonLocal(this, &start, *(float *)&v488);
   }
-  if ( !(v219 | v298) )
+  v489 = *vec3_t::operator[](&a, 0);
+  *vec3_t::operator[](&v624, 0) = v489;
+  v490 = *vec3_t::operator[](&a, 1);
+  *vec3_t::operator[](&v624, 1) = v490;
+  v491 = *vec3_t::operator[](&a, 2);
+  *vec3_t::operator[](&v624, 2) = v491;
+  v492 = Vec3Normalize(&v624);
+  v493 = *(float *)&v492 * 25.399986;
+  if ( this->m_playerControlled )
   {
-    Vec3Cross(&_RSI->m_upVector, &b, (vec3_t *)&v2087);
-    __asm { vmovss  xmm6, cs:?HFD_AIRFRAME_ROTOR_CENTERING_TORQUE_EXPO@@3MA; float HFD_AIRFRAME_ROTOR_CENTERING_TORQUE_EXPO }
-    *(double *)&_XMM0 = Vec3Dot(&_RSI->m_upVector, &b);
-    __asm
+    v494 = (float)(25.399986 * HFD_TAIL_ROTOR_POSITION) * v435;
+    Vec3Cross(&v624, &this->m_forwardVector, (vec3_t *)&v605);
+    v495 = Vec3Dot((const vec3_t *)&v605, &this->m_upVector);
+    v496 = *(float *)&v495;
+    v497 = Vec3Dot((const vec3_t *)&v605, &this->m_sideVector);
+    v498 = *(float *)&v497;
+    v499 = Vec3Dot(&a, &this->m_forwardVector);
+    v500 = (float)((float)(*(float *)&v499 * 25.399986) * (float)(*(float *)&v499 * 25.399986)) * 0.00000050000006;
+    v501 = (float)(v493 * v493) * 0.00000050000006;
+    v502 = FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA(&v580->m_AirfoilData, v496);
+    v503 = (float)(*(float *)&v502 * v500) * HFD_AIRFLOW_CENTERING_FORCE_RUDDER_LIFT;
+    Vec3Mad(&this->m_Velocity, (float)(v503 * HFD_AIRFRAME_INVERSE_MASS) * v2, &this->m_sideVector, &this->m_Velocity);
+    FlightDynamics::SetRotationNonLocal(this, &this->m_upVector, (float)((float)(v503 * v494) * HFD_AIRFRAME_INVERSE_MOI) * v2);
+    DragAtAOA = FlightDynamicsNACALiftDragAOACurve::GetDragAtAOA(&v580->m_AirfoilData, v496);
+    v505 = (float)(*(float *)&DragAtAOA * v501) * HFD_AIRFLOW_CENTERING_FORCE_RUDDER_DRAG;
+    Vec3Mad(&this->m_Velocity, (float)(v505 * HFD_AIRFRAME_INVERSE_MASS) * v2, &v0, &this->m_Velocity);
+    FlightDynamics::SetRotationNonLocal(this, &this->m_upVector, COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v505 * v496) * v494) * HFD_AIRFRAME_INVERSE_MOI) * v2) ^ v17));
+    v506 = FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA(&v580->m_AirfoilData, v498);
+    v507 = (float)(*(float *)&v506 * v500) * HFD_AIRFLOW_CENTERING_FORCE_ELEVATOR_LIFT;
+    Vec3Mad(&this->m_Velocity, (float)(v507 * HFD_AIRFRAME_INVERSE_MASS) * v2, &this->m_upVector, &this->m_Velocity);
+    FlightDynamics::SetRotationNonLocal(this, &this->m_sideVector, (float)((float)(v507 * v494) * HFD_AIRFRAME_INVERSE_MOI) * v2);
+    v508 = FlightDynamicsNACALiftDragAOACurve::GetDragAtAOA(&v580->m_AirfoilData, v498);
+    v509 = (float)(*(float *)&v508 * v501) * HFD_AIRFLOW_CENTERING_FORCE_ELEVATOR_DRAG;
+    Vec3Mad(&this->m_Velocity, (float)(v509 * HFD_AIRFRAME_INVERSE_MASS) * v2, &v0, &this->m_Velocity);
+    FlightDynamics::SetRotationNonLocal(this, &this->m_sideVector, COERCE_FLOAT(COERCE_UNSIGNED_INT((float)((float)((float)(v509 * v498) * v494) * HFD_AIRFRAME_INVERSE_MOI) * v2) ^ v17));
+    if ( this->m_playerControlled )
     {
-      vdivss  xmm0, xmm0, xmm7; value
-      vmovaps xmm1, xmm6; expo
-    }
-    *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm1, xmm0; scale }
-    Vec3Scale((const vec3_t *)&v2087, *(float *)&_XMM1, (vec3_t *)&v2087);
-    __asm
-    {
-      vmulss  xmm0, xmm8, cs:?HFD_AIRFRAME_ROTOR_CENTERING_TORQUE@@3MA; float HFD_AIRFRAME_ROTOR_CENTERING_TORQUE
-      vmulss  xmm1, xmm0, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm1, xmm1, xmm12; scale
-    }
-    Vec3Mad(&start, *(float *)&_XMM1, (const vec3_t *)&v2087, &start);
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_AIRFRAME_ROTOR_CENTERING_TORQUE_AIRFLOW@@3MA; float HFD_AIRFRAME_ROTOR_CENTERING_TORQUE_AIRFLOW
-      vmulss  xmm1, xmm0, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm1, xmm1, xmm12; scale
-    }
-    Vec3Mad(&start, *(float *)&_XMM1, (const vec3_t *)&v2087, &start);
-  }
-  *(double *)&_XMM0 = Vec3Normalize(&start);
-  __asm { vcomiss xmm0, xmm11 }
-  if ( !(v219 | v298) )
-  {
-    __asm
-    {
-      vmovss  xmm2, cs:?HFD_MAX_ALLOWED_TORQUE@@3MA; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm2, xmm0; angle }
-    FlightDynamics::SetRotationNonLocal(_RSI, &start, *(float *)&_XMM2);
-  }
-  _RAX = vec3_t::operator[](&a, 0);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec3_t::operator[](&v2106, 0);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec3_t::operator[](&a, 1);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec3_t::operator[](&v2106, 1);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec3_t::operator[](&a, 2);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec3_t::operator[](&v2106, 2);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  *(double *)&_XMM0 = Vec3Normalize(&v2106);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41cb332c
-    vmulss  xmm14, xmm0, xmm6
-  }
-  if ( _RSI->m_playerControlled )
-  {
-    __asm
-    {
-      vmulss  xmm1, xmm6, cs:?HFD_TAIL_ROTOR_POSITION@@3MA; float HFD_TAIL_ROTOR_POSITION
-      vmulss  xmm11, xmm1, xmm9
-    }
-    Vec3Cross(&v2106, &_RSI->m_forwardVector, (vec3_t *)&v2087);
-    *(double *)&_XMM0 = Vec3Dot((const vec3_t *)&v2087, &_RSI->m_upVector);
-    __asm { vmovaps xmm7, xmm0 }
-    *(double *)&_XMM0 = Vec3Dot((const vec3_t *)&v2087, &_RSI->m_sideVector);
-    __asm { vmovaps xmm10, xmm0 }
-    *(double *)&_XMM0 = Vec3Dot(&a, &_RSI->m_forwardVector);
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm6
-      vmulss  xmm2, xmm1, xmm1
-      vmulss  xmm8, xmm2, cs:__real@350637be
-      vmulss  xmm1, xmm14, xmm14
-      vmulss  xmm9, xmm1, cs:__real@350637be
-      vmovaps xmm1, xmm7; angleOfAttack
-    }
-    *(double *)&_XMM0 = FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA(&v2062->m_AirfoilData, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm8
-      vmulss  xmm6, xmm1, cs:?HFD_AIRFLOW_CENTERING_FORCE_RUDDER_LIFT@@3MA; float HFD_AIRFLOW_CENTERING_FORCE_RUDDER_LIFT
-      vmulss  xmm0, xmm6, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-      vmulss  xmm1, xmm0, xmm12; scale
-    }
-    Vec3Mad(&_RSI->m_Velocity, *(float *)&_XMM1, &_RSI->m_sideVector, &_RSI->m_Velocity);
-    __asm
-    {
-      vmulss  xmm0, xmm6, xmm11
-      vmulss  xmm1, xmm0, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm2, xmm1, xmm12; angle
-    }
-    FlightDynamics::SetRotationNonLocal(_RSI, &_RSI->m_upVector, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm7; angleOfAttack }
-    *(double *)&_XMM0 = FlightDynamicsNACALiftDragAOACurve::GetDragAtAOA(&v2062->m_AirfoilData, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm9
-      vmulss  xmm6, xmm1, cs:?HFD_AIRFLOW_CENTERING_FORCE_RUDDER_DRAG@@3MA; float HFD_AIRFLOW_CENTERING_FORCE_RUDDER_DRAG
-      vmulss  xmm0, xmm6, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-      vmulss  xmm1, xmm0, xmm12; scale
-    }
-    Vec3Mad(&_RSI->m_Velocity, *(float *)&_XMM1, &v0, &_RSI->m_Velocity);
-    __asm
-    {
-      vmulss  xmm0, xmm6, xmm7
-      vmulss  xmm1, xmm0, xmm11
-      vmulss  xmm2, xmm1, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm3, xmm2, xmm12
-      vxorps  xmm2, xmm3, xmm13; angle
-    }
-    FlightDynamics::SetRotationNonLocal(_RSI, &_RSI->m_upVector, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm10; angleOfAttack }
-    *(double *)&_XMM0 = FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA(&v2062->m_AirfoilData, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm8
-      vmulss  xmm6, xmm1, cs:?HFD_AIRFLOW_CENTERING_FORCE_ELEVATOR_LIFT@@3MA; float HFD_AIRFLOW_CENTERING_FORCE_ELEVATOR_LIFT
-      vmulss  xmm0, xmm6, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-      vmulss  xmm1, xmm0, xmm12; scale
-    }
-    Vec3Mad(&_RSI->m_Velocity, *(float *)&_XMM1, &_RSI->m_upVector, &_RSI->m_Velocity);
-    __asm
-    {
-      vmulss  xmm0, xmm6, xmm11
-      vmulss  xmm1, xmm0, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm2, xmm1, xmm12; angle
-    }
-    FlightDynamics::SetRotationNonLocal(_RSI, &_RSI->m_sideVector, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm10; angleOfAttack }
-    *(double *)&_XMM0 = FlightDynamicsNACALiftDragAOACurve::GetDragAtAOA(&v2062->m_AirfoilData, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm9
-      vmulss  xmm6, xmm1, cs:?HFD_AIRFLOW_CENTERING_FORCE_ELEVATOR_DRAG@@3MA; float HFD_AIRFLOW_CENTERING_FORCE_ELEVATOR_DRAG
-      vmulss  xmm0, xmm6, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-      vmulss  xmm1, xmm0, xmm12; scale
-    }
-    Vec3Mad(&_RSI->m_Velocity, *(float *)&_XMM1, &v0, &_RSI->m_Velocity);
-    __asm
-    {
-      vmulss  xmm0, xmm6, xmm10
-      vmulss  xmm1, xmm0, xmm11
-      vmulss  xmm2, xmm1, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm3, xmm2, xmm12
-      vxorps  xmm2, xmm3, xmm13; angle
-    }
-    FlightDynamics::SetRotationNonLocal(_RSI, &_RSI->m_sideVector, *(float *)&_XMM2);
-    if ( _RSI->m_playerControlled )
-    {
-      Vec3Cross(&v0, &_RSI->m_forwardVector, (vec3_t *)&v2087);
-      *(double *)&_XMM0 = Vec3Dot((const vec3_t *)&v2087, &_RSI->m_upVector);
-      __asm { vmovaps xmm6, xmm0 }
-      *(double *)&_XMM0 = Vec3Dot((const vec3_t *)&v2087, &_RSI->m_sideVector);
-      __asm { vmovaps xmm8, xmm0 }
-      *(double *)&_XMM0 = Vec3Dot(&_RSI->m_Velocity, &_RSI->m_forwardVector);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm0
-        vmulss  xmm7, xmm1, cs:__real@3f000000
-        vmovaps xmm1, xmm6; angleOfAttack
-      }
-      *(double *)&_XMM0 = FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA(&v2062->m_AirfoilData, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm7
-        vmulss  xmm9, xmm1, cs:?HFD_FUSELAGE_LATERL_LIFT@@3MA; float HFD_FUSELAGE_LATERL_LIFT
-        vmulss  xmm3, xmm9, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-        vmulss  xmm1, xmm3, xmm12; scale
-      }
-      Vec3Mad(&_RSI->m_Velocity, *(float *)&_XMM1, &_RSI->m_sideVector, &_RSI->m_Velocity);
-      __asm { vmovaps xmm1, xmm8; angleOfAttack }
-      *(double *)&_XMM0 = FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA(&v2062->m_AirfoilData, *(float *)&_XMM1);
-      __asm
-      {
-        vmulss  xmm1, xmm0, xmm7
-        vmulss  xmm6, xmm1, cs:?HFD_FUSELAGE_HORIZONTAL_LIFT@@3MA; float HFD_FUSELAGE_HORIZONTAL_LIFT
-        vmulss  xmm0, xmm6, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-        vmulss  xmm1, xmm0, xmm12; scale
-      }
-      Vec3Mad(&_RSI->m_Velocity, *(float *)&_XMM1, &_RSI->m_upVector, &_RSI->m_Velocity);
-      __asm
-      {
-        vmulss  xmm0, xmm6, cs:?HFD_FUSELAGE_CENTERING_MOMENT_HORIZONTAL@@3MA; float HFD_FUSELAGE_CENTERING_MOMENT_HORIZONTAL
-        vmulss  xmm1, xmm0, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-        vmulss  xmm2, xmm1, xmm12; angle
-      }
-      FlightDynamics::SetRotationNonLocal(_RSI, &_RSI->m_sideVector, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm0, xmm9, cs:?HFD_FUSELAGE_CENTERING_MOMENT_LATERAL@@3MA; float HFD_FUSELAGE_CENTERING_MOMENT_LATERAL
-        vmulss  xmm1, xmm0, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-        vmulss  xmm2, xmm1, xmm12; angle
-      }
-      FlightDynamics::SetRotationNonLocal(_RSI, &_RSI->m_upVector, *(float *)&_XMM2);
+      Vec3Cross(&v0, &this->m_forwardVector, (vec3_t *)&v605);
+      v510 = Vec3Dot((const vec3_t *)&v605, &this->m_upVector);
+      v511 = *(float *)&v510;
+      v512 = Vec3Dot((const vec3_t *)&v605, &this->m_sideVector);
+      v513 = *(float *)&v512;
+      v514 = Vec3Dot(&this->m_Velocity, &this->m_forwardVector);
+      v515 = (float)(*(float *)&v514 * *(float *)&v514) * 0.5;
+      v516 = FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA(&v580->m_AirfoilData, v511);
+      v517 = (float)(*(float *)&v516 * v515) * HFD_FUSELAGE_LATERL_LIFT;
+      Vec3Mad(&this->m_Velocity, (float)(v517 * HFD_AIRFRAME_INVERSE_MASS) * v2, &this->m_sideVector, &this->m_Velocity);
+      v518 = FlightDynamicsNACALiftDragAOACurve::GetLiftAtAOA(&v580->m_AirfoilData, v513);
+      v519 = (float)(*(float *)&v518 * v515) * HFD_FUSELAGE_HORIZONTAL_LIFT;
+      Vec3Mad(&this->m_Velocity, (float)(v519 * HFD_AIRFRAME_INVERSE_MASS) * v2, &this->m_upVector, &this->m_Velocity);
+      FlightDynamics::SetRotationNonLocal(this, &this->m_sideVector, (float)((float)(v519 * HFD_FUSELAGE_CENTERING_MOMENT_HORIZONTAL) * HFD_AIRFRAME_INVERSE_MOI) * v2);
+      FlightDynamics::SetRotationNonLocal(this, &this->m_upVector, (float)((float)(v517 * HFD_FUSELAGE_CENTERING_MOMENT_LATERAL) * HFD_AIRFRAME_INVERSE_MOI) * v2);
     }
   }
-  if ( !_RSI->m_applyCollisionExtraImpulse )
-    goto LABEL_212;
-  _RSI->m_GyroGPSlocationSet = 0;
-  _RSI->m_applyCollisionExtraImpulse = 0;
-  __asm { vmovaps xmm1, xmm12; scale }
-  Vec3Mad(&_RSI->m_Velocity, *(float *)&_XMM1, &_RSI->m_collisionExtraImpulse, &_RSI->m_Velocity);
-  m_applyCollisionExtraAngularImpulse = _RSI->m_applyCollisionExtraAngularImpulse;
+  if ( !this->m_applyCollisionExtraImpulse )
+    goto LABEL_227;
+  this->m_GyroGPSlocationSet = 0;
+  this->m_applyCollisionExtraImpulse = 0;
+  Vec3Mad(&this->m_Velocity, v2, &this->m_collisionExtraImpulse, &this->m_Velocity);
+  m_applyCollisionExtraAngularImpulse = this->m_applyCollisionExtraAngularImpulse;
   if ( m_applyCollisionExtraAngularImpulse == 1 )
   {
-    *(double *)&_XMM0 = Vec3Length(&_RSI->m_collisionExtraImpulse);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:?HFD_COLLISION_BOUNCE_ANGULAR_STRENGTH@@3MA; float HFD_COLLISION_BOUNCE_ANGULAR_STRENGTH
-      vmulss  xmm2, xmm1, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm2, xmm2, xmm12
-    }
-LABEL_211:
-    FlightDynamics::SetRotationNonLocal(_RSI, &_RSI->m_upVector, *(float *)&_XMM2);
-    goto LABEL_212;
+    v521 = Vec3Length(&this->m_collisionExtraImpulse);
+    v522 = (float)((float)(*(float *)&v521 * HFD_COLLISION_BOUNCE_ANGULAR_STRENGTH) * HFD_AIRFRAME_INVERSE_MOI) * v2;
+LABEL_226:
+    FlightDynamics::SetRotationNonLocal(this, &this->m_upVector, v522);
+    goto LABEL_227;
   }
   if ( m_applyCollisionExtraAngularImpulse == -1 )
   {
-    *(double *)&_XMM0 = Vec3Length(&_RSI->m_collisionExtraImpulse);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:?HFD_COLLISION_BOUNCE_ANGULAR_STRENGTH@@3MA; float HFD_COLLISION_BOUNCE_ANGULAR_STRENGTH
-      vmulss  xmm2, xmm1, cs:?HFD_AIRFRAME_INVERSE_MOI@@3MA; float HFD_AIRFRAME_INVERSE_MOI
-      vmulss  xmm3, xmm2, xmm12
-      vxorps  xmm2, xmm3, xmm13; angle
-    }
-    goto LABEL_211;
+    v523 = Vec3Length(&this->m_collisionExtraImpulse);
+    LODWORD(v522) = COERCE_UNSIGNED_INT((float)((float)(*(float *)&v523 * HFD_COLLISION_BOUNCE_ANGULAR_STRENGTH) * HFD_AIRFRAME_INVERSE_MOI) * v2) ^ v17;
+    goto LABEL_226;
   }
-LABEL_212:
-  QuatMultiply(&_RSI->m_RotationInertiaQuat, &_RSI->m_RotationVelocity, &v2109);
-  _RAX = vec4_t::operator[](&v2109, 0);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 0);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec4_t::operator[](&v2109, 1);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 1);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec4_t::operator[](&v2109, 2);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 2);
-  __asm { vmovss  dword ptr [rax], xmm6 }
-  _RAX = vec4_t::operator[](&v2109, 3);
-  __asm { vmovss  xmm6, dword ptr [rax] }
-  _RAX = vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 3);
-  __asm
+LABEL_227:
+  QuatMultiply(&this->m_RotationInertiaQuat, &this->m_RotationVelocity, &v627);
+  v524 = *vec4_t::operator[](&v627, 0);
+  *vec4_t::operator[](&this->m_RotationInertiaQuat, 0) = v524;
+  v525 = *vec4_t::operator[](&v627, 1);
+  *vec4_t::operator[](&this->m_RotationInertiaQuat, 1) = v525;
+  v526 = *vec4_t::operator[](&v627, 2);
+  *vec4_t::operator[](&this->m_RotationInertiaQuat, 2) = v526;
+  v527 = *vec4_t::operator[](&v627, 3);
+  *vec4_t::operator[](&this->m_RotationInertiaQuat, 3) = v527;
+  v605 = *p_m_RotationInertiaQuat;
+  FlightDynamics::ApplyRotationDragAroundAxis(&v605, &this->m_sideVector, HFD_AIRFRAME_ROTATION_CYCLIC_PITCH_DRAG, v2, &this->m_RotationInertiaQuat);
+  v605 = *p_m_RotationInertiaQuat;
+  FlightDynamics::ApplyRotationDragAroundAxis(&v605, &this->m_forwardVector, HFD_AIRFRAME_ROTATION_CYCLIC_AILERON_DRAG, v2, &this->m_RotationInertiaQuat);
+  v605 = *p_m_RotationInertiaQuat;
+  FlightDynamics::ApplyRotationDragAroundAxis(&v605, &this->m_upVector, HFD_AIRFRAME_ROTATION_TAIL_ROTOR_DRAG, v2, &this->m_RotationInertiaQuat);
+  v528 = vec4_t::operator[](&this->m_RotationInertiaQuat, 0);
+  if ( IS_NAN(*v528) || (v529 = vec4_t::operator[](&this->m_RotationInertiaQuat, 1), IS_NAN(*v529)) || (v530 = vec4_t::operator[](&this->m_RotationInertiaQuat, 2), IS_NAN(*v530)) || (v531 = vec4_t::operator[](&this->m_RotationInertiaQuat, 3), IS_NAN(*v531)) )
   {
-    vmovss  dword ptr [rax], xmm6
-    vmovups xmm0, xmmword ptr [r13+0]
-    vmovups [rbp+2D0h+var_290], xmm0
-    vmovaps xmm3, xmm12
-    vmovss  xmm2, cs:?HFD_AIRFRAME_ROTATION_CYCLIC_PITCH_DRAG@@3MA; float HFD_AIRFRAME_ROTATION_CYCLIC_PITCH_DRAG
-  }
-  FlightDynamics::ApplyRotationDragAroundAxis(&v2087, &_RSI->m_sideVector, *(const float *)&_XMM2, *(const float *)&_XMM3, &_RSI->m_RotationInertiaQuat);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r13+0]
-    vmovups [rbp+2D0h+var_290], xmm0
-    vmovaps xmm3, xmm12
-    vmovss  xmm2, cs:?HFD_AIRFRAME_ROTATION_CYCLIC_AILERON_DRAG@@3MA; float HFD_AIRFRAME_ROTATION_CYCLIC_AILERON_DRAG
-  }
-  FlightDynamics::ApplyRotationDragAroundAxis(&v2087, &_RSI->m_forwardVector, *(const float *)&_XMM2, *(const float *)&_XMM3, &_RSI->m_RotationInertiaQuat);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [r13+0]
-    vmovups [rbp+2D0h+var_290], xmm0
-    vmovaps xmm3, xmm12
-    vmovss  xmm2, cs:?HFD_AIRFRAME_ROTATION_TAIL_ROTOR_DRAG@@3MA; float HFD_AIRFRAME_ROTATION_TAIL_ROTOR_DRAG
-  }
-  FlightDynamics::ApplyRotationDragAroundAxis(&v2087, &_RSI->m_upVector, *(const float *)&_XMM2, *(const float *)&_XMM3, &_RSI->m_RotationInertiaQuat);
-  _RAX = vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 0);
-  __asm { vmovss  xmm0, dword ptr [rax]; x }
-  if ( IS_NAN(*(float *)&_XMM0) )
-    goto LABEL_244;
-  _RAX = vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 1);
-  __asm { vmovss  xmm0, dword ptr [rax]; x }
-  if ( IS_NAN(*(float *)&_XMM0) )
-    goto LABEL_244;
-  _RAX = vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 2);
-  __asm { vmovss  xmm0, dword ptr [rax]; x }
-  if ( IS_NAN(*(float *)&_XMM0) )
-    goto LABEL_244;
-  _RAX = vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 3);
-  __asm { vmovss  xmm0, dword ptr [rax]; x }
-  if ( IS_NAN(*(float *)&_XMM0) )
-  {
-LABEL_244:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 2848, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_RotationInertiaQuat )[0] ) && !IS_NAN( ( m_RotationInertiaQuat )[1] ) && !IS_NAN( ( m_RotationInertiaQuat )[2] ) && !IS_NAN( ( m_RotationInertiaQuat )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_RotationInertiaQuat )[0] ) && !IS_NAN( ( m_RotationInertiaQuat )[1] ) && !IS_NAN( ( m_RotationInertiaQuat )[2] ) && !IS_NAN( ( m_RotationInertiaQuat )[3] )") )
       __debugbreak();
   }
-  FlightDynamics::ExitSecondDerivativeMode(_RSI);
-  _RAX = vec4_t::operator[](&_RSI->m_RotationQuaternion, 0);
-  __asm { vmovss  xmm0, dword ptr [rax]; x }
-  if ( IS_NAN(*(float *)&_XMM0) )
-    goto LABEL_245;
-  _RAX = vec4_t::operator[](&_RSI->m_RotationQuaternion, 1);
-  __asm { vmovss  xmm0, dword ptr [rax]; x }
-  if ( IS_NAN(*(float *)&_XMM0) )
-    goto LABEL_245;
-  _RAX = vec4_t::operator[](&_RSI->m_RotationQuaternion, 2);
-  __asm { vmovss  xmm0, dword ptr [rax]; x }
-  if ( IS_NAN(*(float *)&_XMM0) )
-    goto LABEL_245;
-  _RAX = vec4_t::operator[](&_RSI->m_RotationQuaternion, 3);
-  __asm { vmovss  xmm0, dword ptr [rax]; x }
-  if ( IS_NAN(*(float *)&_XMM0) )
+  FlightDynamics::ExitSecondDerivativeMode(this);
+  v532 = *vec4_t::operator[](&this->m_RotationQuaternion, 0);
+  if ( IS_NAN(v532) || (v533 = *vec4_t::operator[](&this->m_RotationQuaternion, 1), IS_NAN(v533)) || (v534 = *vec4_t::operator[](&this->m_RotationQuaternion, 2), IS_NAN(v534)) || (v535 = *vec4_t::operator[](&this->m_RotationQuaternion, 3), IS_NAN(v535)) )
   {
-LABEL_245:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 2852, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_RotationQuaternion )[0] ) && !IS_NAN( ( m_RotationQuaternion )[1] ) && !IS_NAN( ( m_RotationQuaternion )[2] ) && !IS_NAN( ( m_RotationQuaternion )[3] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_RotationQuaternion )[0] ) && !IS_NAN( ( m_RotationQuaternion )[1] ) && !IS_NAN( ( m_RotationQuaternion )[2] ) && !IS_NAN( ( m_RotationQuaternion )[3] )") )
       __debugbreak();
   }
   if ( HFD_USE_ADVANCED_MAIN_ROTOR )
   {
-    *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_fd_helicopter_altitude_limiter, "fd_helicopter_altitude_limiter");
-    __asm { vmovaps xmm6, xmm0 }
-    _RAX = vec3_t::operator[](&_RSI->m_centerOfMassWs, 2);
-    __asm { vcomiss xmm6, dword ptr [rax] }
-    if ( v219 )
+    v536 = Dvar_GetFloat_Internal_DebugName(DVARFLT_fd_helicopter_altitude_limiter, "fd_helicopter_altitude_limiter");
+    if ( *(float *)&v536 < *vec3_t::operator[](&this->m_centerOfMassWs, 2) )
     {
-      _RAX = vec3_t::operator[](&_RSI->m_centerOfMassWs, 2);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rax]
-        vsubss  xmm6, xmm0, xmm6
-      }
-      Dvar_GetFloat_Internal_DebugName(DVARFLT_fd_helicopter_altitude_limiter_range, "fd_helicopter_altitude_limiter_range");
-      __asm
-      {
-        vdivss  xmm0, xmm6, xmm0; val
-        vmovaps xmm2, xmm15; max
-        vxorps  xmm1, xmm1, xmm1; min
-      }
-      I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vsubss  xmm15, xmm15, xmm0 }
+      v537 = *vec3_t::operator[](&this->m_centerOfMassWs, 2) - *(float *)&v536;
+      v538 = Dvar_GetFloat_Internal_DebugName(DVARFLT_fd_helicopter_altitude_limiter_range, "fd_helicopter_altitude_limiter_range");
+      v539 = I_fclamp(v537 / *(float *)&v538, 0.0, 1.0);
+      v4 = 1.0 - *(float *)&v539;
     }
-    __asm
-    {
-      vmulss  xmm1, xmm15, cs:?HFD_MAIN_ROTOR_LIFT_MULTIPLIER@@3MA; float HFD_MAIN_ROTOR_LIFT_MULTIPLIER
-      vmulss  xmm2, xmm1, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-      vmulss  xmm3, xmm2, dword ptr [rsi+924h]
-    }
-    p_m_AirflowVelocity = &_RSI->m_MainRotor.m_AirflowVelocity;
+    v540 = (float)((float)(v4 * HFD_MAIN_ROTOR_LIFT_MULTIPLIER) * HFD_AIRFRAME_INVERSE_MASS) * this->m_MainRotorAirflowLiftMultiplier;
+    p_m_RotorAxis = &this->m_MainRotor;
   }
   else
   {
-    p_m_AirflowVelocity = &_RSI->m_MainRotor.m_RotorAxis;
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_MAIN_BASIC_ROTOR_LIFT_STRENGTH@@3MA; float HFD_MAIN_BASIC_ROTOR_LIFT_STRENGTH
-      vmulss  xmm1, xmm0, dword ptr [rsi+5B4h]
-      vmulss  xmm2, xmm1, cs:?HFD_MAIN_ROTOR_LIFT_MULTIPLIER@@3MA; float HFD_MAIN_ROTOR_LIFT_MULTIPLIER
-      vmulss  xmm3, xmm2, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-    }
+    p_m_RotorAxis = (FlightDynamicsRotorSystem *)&this->m_MainRotor.m_RotorAxis;
+    v540 = (float)((float)(HFD_MAIN_BASIC_ROTOR_LIFT_STRENGTH * this->m_MainRotor.m_SwashplateCollective) * HFD_MAIN_ROTOR_LIFT_MULTIPLIER) * HFD_AIRFRAME_INVERSE_MASS;
   }
-  __asm { vmulss  xmm1, xmm3, xmm12; scale }
-  Vec3Mad(&_RSI->m_Velocity, *(float *)&_XMM1, p_m_AirflowVelocity, &_RSI->m_Velocity);
-  v1993 = (vec4_t *)&_RSI->m_sideVector;
+  Vec3Mad(&this->m_Velocity, v540 * v2, &p_m_RotorAxis->m_AirflowVelocity, &this->m_Velocity);
+  v542 = (vec4_t *)&this->m_sideVector;
   if ( HFD_USE_ADVANCED_TAIL_ROTOR )
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+3D0h+var_370]
-      vmulss  xmm0, xmm0, cs:?HFD_TAIL_ROTOR_AIRFLOW_FACTOR@@3MA; float HFD_TAIL_ROTOR_AIRFLOW_FACTOR
-      vmulss  xmm1, xmm0, xmm12; scale
-    }
-    Vec3Mad(&_RSI->m_TailRotor.m_AirflowVelocity, *(float *)&_XMM1, (const vec3_t *)v1993, (vec3_t *)&v2087);
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_TAIL_ROTOR_LIFT_MULTIPLIER@@3MA; float HFD_TAIL_ROTOR_LIFT_MULTIPLIER
-      vmulss  xmm1, xmm0, dword ptr [rsi+928h]
-    }
-    v1993 = &v2087;
+    Vec3Mad(&this->m_TailRotor.m_AirflowVelocity, (float)(v560 * HFD_TAIL_ROTOR_AIRFLOW_FACTOR) * v2, (const vec3_t *)v542, (vec3_t *)&v605);
+    v543 = HFD_TAIL_ROTOR_LIFT_MULTIPLIER * this->m_TailRotorAirflowLiftMultiplier;
+    v542 = &v605;
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsi+784h]
-      vmulss  xmm1, xmm0, dword ptr [rsi+928h]
-      vmulss  xmm2, xmm1, cs:?HFD_TAIL_ROTOR_RATIO@@3MA; float HFD_TAIL_ROTOR_RATIO
-      vmulss  xmm3, xmm2, cs:?HFD_TAIL_BASIC_ROTOR_LIFT_STRENGTH@@3MA; float HFD_TAIL_BASIC_ROTOR_LIFT_STRENGTH
-      vmulss  xmm0, xmm3, cs:?HFD_TAIL_BASIC_ROTOR_STRENGTH@@3MA; float HFD_TAIL_BASIC_ROTOR_STRENGTH
-      vmulss  xmm1, xmm0, cs:?HFD_TAIL_ROTOR_LIFT_MULTIPLIER@@3MA; float HFD_TAIL_ROTOR_LIFT_MULTIPLIER
-    }
+    v543 = (float)((float)((float)((float)(this->m_TailRotor.m_SwashplateCollective * this->m_TailRotorAirflowLiftMultiplier) * HFD_TAIL_ROTOR_RATIO) * HFD_TAIL_BASIC_ROTOR_LIFT_STRENGTH) * HFD_TAIL_BASIC_ROTOR_STRENGTH) * HFD_TAIL_ROTOR_LIFT_MULTIPLIER;
   }
-  __asm
+  Vec3Mad(&this->m_Velocity, (float)(v543 * HFD_AIRFRAME_INVERSE_MASS) * v2, (const vec3_t *)v542, &this->m_Velocity);
+  v544 = vec3_t::operator[](&this->m_Velocity, 0);
+  if ( IS_NAN(*v544) || (v545 = vec3_t::operator[](&this->m_Velocity, 1), IS_NAN(*v545)) || (v546 = vec3_t::operator[](&this->m_Velocity, 2), IS_NAN(*v546)) )
   {
-    vmulss  xmm2, xmm1, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-    vmulss  xmm1, xmm2, xmm12; scale
-  }
-  Vec3Mad(&_RSI->m_Velocity, *(float *)&_XMM1, (const vec3_t *)v1993, &_RSI->m_Velocity);
-  _RAX = vec3_t::operator[](&_RSI->m_Velocity, 0);
-  __asm { vmovss  xmm0, dword ptr [rax]; x }
-  if ( IS_NAN(*(float *)&_XMM0) )
-    goto LABEL_246;
-  _RAX = vec3_t::operator[](&_RSI->m_Velocity, 1);
-  __asm { vmovss  xmm0, dword ptr [rax]; x }
-  if ( IS_NAN(*(float *)&_XMM0) )
-    goto LABEL_246;
-  _RAX = vec3_t::operator[](&_RSI->m_Velocity, 2);
-  __asm { vmovss  xmm0, dword ptr [rax]; x }
-  if ( IS_NAN(*(float *)&_XMM0) )
-  {
-LABEL_246:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 2885, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_Velocity )[0] ) && !IS_NAN( ( m_Velocity )[1] ) && !IS_NAN( ( m_Velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_Velocity )[0] ) && !IS_NAN( ( m_Velocity )[1] ) && !IS_NAN( ( m_Velocity )[2] )") )
       __debugbreak();
   }
   if ( Dvar_GetBool_Internal_DebugName(DVARBOOL_fd_helicopter_force_stationary, "fd_helicopter_force_stationary") )
   {
-    *vec3_t::operator[](&_RSI->m_Velocity, 0) = 0.0;
-    *vec3_t::operator[](&_RSI->m_Velocity, 1) = 0.0;
-    *vec3_t::operator[](&_RSI->m_Velocity, 2) = 0.0;
-    *vec3_t::operator[](&_RSI->m_Velocity, 2) = 1.0;
-    *vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 0) = 0.0;
-    *vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 1) = 0.0;
-    *vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 2) = 0.0;
-    *vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 3) = 0.0;
-    *vec4_t::operator[](&_RSI->m_RotationInertiaQuat, 3) = 1.0;
+    *vec3_t::operator[](&this->m_Velocity, 0) = 0.0;
+    *vec3_t::operator[](&this->m_Velocity, 1) = 0.0;
+    *vec3_t::operator[](&this->m_Velocity, 2) = 0.0;
+    *vec3_t::operator[](&this->m_Velocity, 2) = 1.0;
+    *vec4_t::operator[](&this->m_RotationInertiaQuat, 0) = 0.0;
+    *vec4_t::operator[](&this->m_RotationInertiaQuat, 1) = 0.0;
+    *vec4_t::operator[](&this->m_RotationInertiaQuat, 2) = 0.0;
+    *vec4_t::operator[](&this->m_RotationInertiaQuat, 3) = 0.0;
+    *vec4_t::operator[](&this->m_RotationInertiaQuat, 3) = 1.0;
   }
-  _RAX = vec3_t::operator[](&_RSI->m_Position, 2);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@c59c4000
-    vcomiss xmm0, dword ptr [rax]
-  }
-  if ( !(v219 | v298) )
-    *vec3_t::operator[](&_RSI->m_Velocity, 2) = 1000.0;
-LABEL_241:
+  if ( *vec3_t::operator[](&this->m_Position, 2) < -5000.0 )
+    *vec3_t::operator[](&this->m_Velocity, 2) = 1000.0;
+LABEL_256:
   Sys_ProfEndNamedEvent();
-  _R11 = &v2111;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
 }
 
 /*
@@ -5941,58 +3320,15 @@ HelicopterDynamics::DebugDraw
 */
 void HelicopterDynamics::DebugDraw(HelicopterDynamics *this, const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  vec4_t *setColor; 
-  float v38; 
   char _Buffer[128]; 
 
-  _RDI = y;
-  _RSI = x;
-  _RBX = this;
-  if ( Sys_IsMainThread() && scrPlace && _RSI && _RDI && _RBX->m_playerControlled )
+  if ( Sys_IsMainThread() && scrPlace && x && y && this->m_playerControlled )
   {
-    __asm
-    {
-      vmovss  xmm0, [rsp+118h+tabWidth]
-      vaddss  xmm1, xmm0, dword ptr [rsi]
-      vmovss  dword ptr [rsi], xmm1
-      vmovaps [rsp+118h+var_38], xmm6
-      vmovss  xmm6, [rsp+118h+charHeight]
-      vaddss  xmm0, xmm6, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm0
-      vmovss  xmm0, dword ptr [rbx+1A4h]
-      vmovss  xmm2, dword ptr [rbx+1A8h]
-      vmovss  xmm4, dword ptr [rbx+1ACh]
-      vmovss  xmm3, dword ptr [rbx+5B8h]
-      vmovss  xmm5, dword ptr [rbx+570h]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm2, xmm2
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm4, xmm4
-      vaddss  xmm2, xmm2, xmm1
-      vsqrtss xmm0, xmm2, xmm2
-      vmulss  xmm4, xmm0, cs:__real@3d68ba2f
-      vcvtss2sd xmm2, xmm4, xmm4
-      vcvtss2sd xmm3, xmm3, xmm3
-      vcvtss2sd xmm5, xmm5, xmm5
-      vmovq   r8, xmm2
-      vmovq   r9, xmm3
-      vmovsd  [rsp+118h+setColor], xmm5
-    }
-    j_sprintf(_Buffer, "%f MPH - %f RPM - torque %f ", *(double *)&_XMM2, *(double *)&_XMM3, *(double *)&setColor);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@41000000
-      vmovss  xmm2, dword ptr [rdi]; y
-      vmovss  xmm1, dword ptr [rsi]; x
-      vmovss  [rsp+118h+var_E0], xmm0
-    }
-    Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, _Buffer, &colorWhiteFaded, 0, 1, v38, 0);
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rdi]
-      vmovaps xmm6, [rsp+118h+var_38]
-      vmovss  dword ptr [rdi], xmm0
-    }
+    *x = tabWidth + *x;
+    *y = charHeight + *y;
+    j_sprintf(_Buffer, "%f MPH - %f RPM - torque %f ", (float)(fsqrt((float)((float)(this->m_linearVelocityWs.v[0] * this->m_linearVelocityWs.v[0]) + (float)(this->m_linearVelocityWs.v[1] * this->m_linearVelocityWs.v[1])) + (float)(this->m_linearVelocityWs.v[2] * this->m_linearVelocityWs.v[2])) * 0.056818184), this->m_MainRotor.m_RotorRPM, this->m_MainRotor.m_OpposingTorque);
+    Physics_DrawDebugString(scrPlace, *x, *y, _Buffer, &colorWhiteFaded, 0, 1, 8.0, 0);
+    *y = charHeight + *y;
   }
 }
 
@@ -6003,18 +3339,11 @@ HelicopterDynamics::GetAngularPositionForRotorIndex
 */
 float HelicopterDynamics::GetAngularPositionForRotorIndex(HelicopterDynamics *this, int rotorIndex)
 {
-  if ( rotorIndex )
-  {
-    if ( rotorIndex == 1 )
-      __asm { vmovss  xmm0, dword ptr [rcx+78Ch] }
-    else
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  else
-  {
-    __asm { vmovss  xmm0, dword ptr [rcx+5BCh] }
-  }
-  return *(float *)&_XMM0;
+  if ( !rotorIndex )
+    return this->m_MainRotor.m_RotorPosition;
+  if ( rotorIndex == 1 )
+    return this->m_TailRotor.m_RotorPosition;
+  return 0.0;
 }
 
 /*
@@ -6024,129 +3353,74 @@ HelicopterDynamics::GetAngularPositionStrobeForRotorIndex
 */
 float HelicopterDynamics::GetAngularPositionStrobeForRotorIndex(HelicopterDynamics *this, int rotorIndex)
 {
-  bool v20; 
-  char v40; 
+  float v2; 
+  float m_MainRotorSwashplateDriverOffset; 
+  float v4; 
+  float v5; 
+  float m_RotorPosition; 
+  float v7; 
+  float m_RotorRPM; 
+  float v9; 
+  float v10; 
+  double v11; 
+  double v12; 
+  float v13; 
 
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovss  xmm2, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-    vmovss  xmm5, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmovss  xmm9, cs:?HFD_ROTOR_STROBE_MULTIPLIER_GOVERNOR@@3MA; float HFD_ROTOR_STROBE_MULTIPLIER_GOVERNOR
-    vmovss  xmm3, dword ptr [rcx+938h]
-    vmovss  xmm4, cs:?HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE@@3MA; float HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE
-    vandps  xmm1, xmm2, xmm5
-    vxorps  xmm7, xmm7, xmm7
-  }
+  v2 = HFD_ROTOR_STROBE_MULTIPLIER_GOVERNOR;
+  m_MainRotorSwashplateDriverOffset = this->m_MainRotorSwashplateDriverOffset;
+  v4 = HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE;
+  LODWORD(v5) = LODWORD(HFD_GOVERNOR_MAX_SPEED) & _xmm;
   if ( rotorIndex == 1 )
   {
-    __asm
-    {
-      vmulss  xmm1, xmm2, cs:?HFD_TAIL_ROTOR_RATIO@@3MA; float HFD_TAIL_ROTOR_RATIO
-      vmovss  xmm9, cs:?HFD_ROTOR_STROBE_MULTIPLIER_GOVERNOR_TAIL@@3MA; float HFD_ROTOR_STROBE_MULTIPLIER_GOVERNOR_TAIL
-      vmovss  xmm4, cs:?HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL@@3MA; float HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL
-      vxorps  xmm3, xmm3, xmm3
-    }
+    v5 = HFD_GOVERNOR_MAX_SPEED * HFD_TAIL_ROTOR_RATIO;
+    v2 = HFD_ROTOR_STROBE_MULTIPLIER_GOVERNOR_TAIL;
+    v4 = HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL;
+    m_MainRotorSwashplateDriverOffset = 0.0;
   }
   if ( rotorIndex )
   {
     if ( rotorIndex == 1 )
-      __asm { vmovss  xmm0, dword ptr [rcx+78Ch] }
+      m_RotorPosition = this->m_TailRotor.m_RotorPosition;
     else
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      m_RotorPosition = 0.0;
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rcx+5BCh] }
+    m_RotorPosition = this->m_MainRotor.m_RotorPosition;
   }
-  __asm
-  {
-    vaddss  xmm0, xmm0, xmm3
-    vmulss  xmm8, xmm0, cs:__real@40c00000
-  }
-  v20 = rotorIndex == 0;
+  v7 = (float)(m_RotorPosition + m_MainRotorSwashplateDriverOffset) * 6.0;
   if ( rotorIndex )
   {
-    v20 = (unsigned int)rotorIndex <= 1;
     if ( rotorIndex == 1 )
-      __asm { vmovss  xmm0, dword ptr [rcx+788h] }
+      m_RotorRPM = this->m_TailRotor.m_RotorRPM;
     else
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      m_RotorRPM = 0.0;
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rcx+5B8h] }
+    m_RotorRPM = this->m_MainRotor.m_RotorRPM;
   }
-  __asm
+  if ( (float)(COERCE_FLOAT(LODWORD(m_RotorRPM) & _xmm) / HFD_ROTOR_STROBE_MULTIPLIER_HZ) <= v4 )
+    return v7 * 0.16666667;
+  v9 = HFD_ROTOR_STROBE_TIMING_EXPO;
+  if ( rotorIndex )
   {
-    vandps  xmm0, xmm0, xmm5
-    vdivss  xmm0, xmm0, cs:?HFD_ROTOR_STROBE_MULTIPLIER_HZ@@3MA; float HFD_ROTOR_STROBE_MULTIPLIER_HZ
-    vcomiss xmm0, xmm4
-  }
-  if ( v20 )
-  {
-    __asm { vmulss  xmm0, xmm8, cs:__real@3e2aaaab }
+    if ( rotorIndex == 1 )
+      v10 = this->m_TailRotor.m_RotorRPM;
+    else
+      v10 = 0.0;
   }
   else
   {
-    __asm
-    {
-      vmovaps [rsp+78h+var_18], xmm6
-      vmovaps [rsp+78h+var_58], xmm10
-      vmovss  xmm10, cs:?HFD_ROTOR_STROBE_TIMING_EXPO@@3MA; float HFD_ROTOR_STROBE_TIMING_EXPO
-    }
-    if ( rotorIndex )
-    {
-      if ( rotorIndex == 1 )
-        __asm { vmovss  xmm0, dword ptr [rcx+788h] }
-      else
-        __asm { vxorps  xmm0, xmm0, xmm0 }
-    }
-    else
-    {
-      __asm { vmovss  xmm0, dword ptr [rcx+5B8h] }
-    }
-    __asm
-    {
-      vmovss  xmm6, cs:__real@3f800000
-      vdivss  xmm0, xmm0, xmm1; val
-      vmovaps xmm2, xmm6; max
-      vxorps  xmm1, xmm1, xmm1; min
-    }
-    *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovaps xmm1, xmm10; expo }
-    *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vsubss  xmm1, xmm6, xmm0
-      vmulss  xmm2, xmm1, cs:?HFD_ROTOR_STROBE_MULTIPLIER_1HZ@@3MA; float HFD_ROTOR_STROBE_MULTIPLIER_1HZ
-      vmovss  xmm1, cs:__real@43b40000; Y
-      vmulss  xmm0, xmm0, xmm9
-      vaddss  xmm2, xmm2, xmm0
-      vmulss  xmm0, xmm2, xmm8; X
-    }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vcomiss xmm0, xmm7
-      vmulss  xmm1, xmm0, cs:__real@3e2aaaab
-      vmovaps xmm10, [rsp+78h+var_58]
-      vmovaps xmm6, [rsp+78h+var_18]
-    }
-    if ( v40 )
-      __asm { vaddss  xmm0, xmm1, cs:__real@42700000 }
-    else
-      __asm { vmovaps xmm0, xmm1 }
+    v10 = this->m_MainRotor.m_RotorRPM;
   }
-  __asm
-  {
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmovaps xmm9, [rsp+78h+var_48]
-  }
-  return *(float *)&_XMM0;
+  v11 = I_fclamp(v10 / v5, 0.0, 1.0);
+  v12 = FD_ComputeExpo(*(float *)&v11, v9);
+  *(float *)&v12 = fmodf_0((float)((float)((float)(1.0 - *(float *)&v12) * HFD_ROTOR_STROBE_MULTIPLIER_1HZ) + (float)(*(float *)&v12 * v2)) * v7, 360.0);
+  v13 = *(float *)&v12 * 0.16666667;
+  if ( *(float *)&v12 < 0.0 )
+    return v13 + 60.0;
+  return v13;
 }
 
 /*
@@ -6156,8 +3430,7 @@ FlightDynamicsRotorSystem::GetAverageBladePitch
 */
 float FlightDynamicsRotorSystem::GetAverageBladePitch(FlightDynamicsRotorSystem *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+0A0h] }
-  return *(float *)&_XMM0;
+  return this->m_AverageBladeTurbulence;
 }
 
 /*
@@ -6167,8 +3440,7 @@ FlightDynamicsRotorSystem::GetAveragePitchChange
 */
 float FlightDynamicsRotorSystem::GetAveragePitchChange(FlightDynamicsRotorSystem *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+0A4h] }
-  return *(float *)&_XMM0;
+  return this->m_AveragePitchChange;
 }
 
 /*
@@ -6178,25 +3450,26 @@ HelicopterDynamics::GetBladeAngleOffsetStrobeForRotorIndex
 */
 float HelicopterDynamics::GetBladeAngleOffsetStrobeForRotorIndex(HelicopterDynamics *this, int bladeIndex, int rotorIndex)
 {
+  int v6; 
   int m_BladeCount; 
-  int v17; 
-  bool v24; 
-  bool v25; 
-  void *retaddr; 
+  float m_RotorRPM; 
+  float v9; 
+  bool v10; 
+  bool v11; 
+  double AngularPositionStrobeForRotorIndex; 
+  float v13; 
+  float v14; 
+  __int128 m_RotorPosition_low; 
+  __int128 v17; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  _RSI = this;
-  __asm { vmovaps xmmword ptr [rax-78h], xmm11 }
+  v6 = 2;
   if ( rotorIndex )
   {
     if ( rotorIndex != 1 )
-      goto LABEL_8;
+    {
+      m_BladeCount = 2;
+      goto LABEL_9;
+    }
     m_BladeCount = this->m_TailRotor.m_BladeCount;
   }
   else
@@ -6205,93 +3478,60 @@ float HelicopterDynamics::GetBladeAngleOffsetStrobeForRotorIndex(HelicopterDynam
   }
   if ( m_BladeCount <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1317, ASSERT_TYPE_ASSERT, "(numberOfBlades > 1)", (const char *)&queryFormat, "numberOfBlades > 1") )
     __debugbreak();
-LABEL_8:
-  __asm
-  {
-    vmovss  xmm7, cs:__real@43b40000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, r14d
-    vdivss  xmm11, xmm7, xmm0
-  }
+LABEL_9:
   if ( rotorIndex )
   {
     if ( rotorIndex != 1 )
-      goto LABEL_15;
-    v17 = _RSI->m_TailRotor.m_BladeCount;
+      goto LABEL_16;
+    v6 = this->m_TailRotor.m_BladeCount;
   }
   else
   {
-    v17 = _RSI->m_MainRotor.m_BladeCount;
+    v6 = this->m_MainRotor.m_BladeCount;
   }
-  if ( v17 <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1271, ASSERT_TYPE_ASSERT, "(numberOfBlades > 1)", (const char *)&queryFormat, "numberOfBlades > 1") )
+  if ( v6 <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1271, ASSERT_TYPE_ASSERT, "(numberOfBlades > 1)", (const char *)&queryFormat, "numberOfBlades > 1") )
     __debugbreak();
-LABEL_15:
-  __asm
-  {
-    vxorps  xmm10, xmm10, xmm10
-    vcvtsi2ss xmm10, xmm10, ebp
-    vxorps  xmm6, xmm6, xmm6
-  }
+LABEL_16:
   if ( rotorIndex )
   {
     if ( rotorIndex == 1 )
-      __asm { vmovss  xmm0, dword ptr [rsi+788h] }
+      m_RotorRPM = this->m_TailRotor.m_RotorRPM;
     else
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      m_RotorRPM = 0.0;
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rsi+5B8h] }
+    m_RotorRPM = this->m_MainRotor.m_RotorRPM;
   }
-  __asm
-  {
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vdivss  xmm1, xmm0, cs:?HFD_ROTOR_STROBE_MULTIPLIER_HZ@@3MA; float HFD_ROTOR_STROBE_MULTIPLIER_HZ
-  }
-  v24 = 0;
-  v25 = rotorIndex == 0;
+  v9 = COERCE_FLOAT(LODWORD(m_RotorRPM) & _xmm) / HFD_ROTOR_STROBE_MULTIPLIER_HZ;
   if ( rotorIndex )
   {
-    v24 = rotorIndex == 0;
-    v25 = rotorIndex == 1;
     if ( rotorIndex != 1 )
-      goto LABEL_32;
-    __asm { vcomiss xmm1, cs:?HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL@@3MA; float HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL }
+      return (float)bladeIndex * (float)(360.0 / (float)m_BladeCount);
+    v10 = v9 < HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL;
+    v11 = v9 == HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL;
   }
   else
   {
-    __asm { vcomiss xmm1, cs:?HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE@@3MA; float HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE }
+    v10 = v9 < HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE;
+    v11 = v9 == HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE;
   }
-  if ( !v24 && !v25 )
+  if ( !v10 && !v11 )
   {
-    __asm { vmovaps [rsp+0A8h+var_58], xmm9 }
-    *(double *)&_XMM0 = HelicopterDynamics::GetAngularPositionStrobeForRotorIndex(_RSI, rotorIndex);
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@40c00000; X
-      vmovaps xmm1, xmm7; Y
-    }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm9, xmm0 }
+    AngularPositionStrobeForRotorIndex = HelicopterDynamics::GetAngularPositionStrobeForRotorIndex(this, rotorIndex);
+    v13 = *(float *)&AngularPositionStrobeForRotorIndex * 6.0;
+    fmodf_0(*(float *)&AngularPositionStrobeForRotorIndex * 6.0, 360.0);
+    v14 = v13;
     if ( rotorIndex )
-      __asm { vmovss  xmm1, dword ptr [rsi+78Ch] }
+      m_RotorPosition_low = LODWORD(this->m_TailRotor.m_RotorPosition);
     else
-      __asm { vmovss  xmm1, dword ptr [rsi+5BCh] }
-    __asm
+      m_RotorPosition_low = LODWORD(this->m_MainRotor.m_RotorPosition);
+    v17 = m_RotorPosition_low;
+    *(float *)&v17 = fmodf_0(*(float *)&m_RotorPosition_low * 6.0, 360.0) - v14;
+    _XMM1 = v17;
+    if ( *(float *)&v17 < -0.0099999998 )
     {
-      vmulss  xmm0, xmm1, cs:__real@40c00000; X
-      vmovaps xmm1, xmm7; Y
-    }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm9
-      vcomiss xmm1, cs:__real@bc23d70a
-      vmovaps xmm9, [rsp+0A8h+var_58]
-    }
-    if ( v24 )
-    {
-      __asm { vaddss  xmm2, xmm1, xmm7 }
+      *(float *)&_XMM2 = *(float *)&v17 + 360.0;
     }
     else
     {
@@ -6301,25 +3541,18 @@ LABEL_15:
         vblendvps xmm2, xmm1, xmm6, xmm0
       }
     }
-    __asm
+    bladeIndex -= (int)(float)((float)((float)v6 * *(float *)&_XMM2) * 0.0027777778);
+    if ( bladeIndex < v6 )
     {
-      vmulss  xmm0, xmm10, xmm2
-      vmulss  xmm1, xmm0, cs:__real@3b360b61
-      vcvttss2si eax, xmm1
+      if ( bladeIndex < 0 )
+        bladeIndex += v6;
+    }
+    else
+    {
+      bladeIndex -= v6;
     }
   }
-LABEL_32:
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_38]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-    vmovaps xmm10, [rsp+0A8h+var_68]
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, ebx
-    vmulss  xmm0, xmm0, xmm11
-    vmovaps xmm11, [rsp+0A8h+var_78]
-  }
-  return *(float *)&_XMM0;
+  return (float)bladeIndex * (float)(360.0 / (float)m_BladeCount);
 }
 
 /*
@@ -6330,21 +3563,24 @@ HelicopterDynamics::GetBladeDeflectionForRotorIndex
 float HelicopterDynamics::GetBladeDeflectionForRotorIndex(HelicopterDynamics *this, int bladeIndex, int rotorIndex)
 {
   int m_BladeCount; 
-  int v29; 
-  bool v30; 
-  int v32; 
-  __int64 v53; 
-  __int64 v54; 
-  char v59; 
+  double AngularPositionStrobeForRotorIndex; 
+  float v8; 
+  float v9; 
+  __int128 m_RotorPosition_low; 
+  __int128 v12; 
+  float v15; 
+  int v16; 
+  int v17; 
+  float m_RotorRPM; 
+  int v19; 
+  float result; 
+  float v21; 
+  float v22; 
+  float v23; 
+  float v24; 
+  __int64 v25; 
+  __int64 v26; 
 
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_38], xmm6
-    vmovaps [rsp+0A8h+var_48], xmm7
-    vmovaps [rsp+0A8h+var_58], xmm9
-  }
-  _R14 = this;
-  __asm { vmovaps [rsp+0A8h+var_68], xmm10 }
   if ( rotorIndex )
   {
     if ( rotorIndex != 1 )
@@ -6361,49 +3597,27 @@ float HelicopterDynamics::GetBladeDeflectionForRotorIndex(HelicopterDynamics *th
   if ( m_BladeCount <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1442, ASSERT_TYPE_ASSERT, "(numberOfBlades > 1)", (const char *)&queryFormat, "numberOfBlades > 1") )
     __debugbreak();
 LABEL_9:
-  __asm
-  {
-    vxorps  xmm10, xmm10, xmm10
-    vcvtsi2ss xmm10, xmm10, edi
-  }
-  *(double *)&_XMM0 = HelicopterDynamics::GetAngularPositionStrobeForRotorIndex(_R14, rotorIndex);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@43b40000
-    vmulss  xmm0, xmm0, cs:__real@40c00000; X
-    vmovaps xmm1, xmm7; Y
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm9, xmm0
-    vxorps  xmm6, xmm6, xmm6
-  }
+  AngularPositionStrobeForRotorIndex = HelicopterDynamics::GetAngularPositionStrobeForRotorIndex(this, rotorIndex);
+  v8 = *(float *)&AngularPositionStrobeForRotorIndex * 6.0;
+  fmodf_0(*(float *)&AngularPositionStrobeForRotorIndex * 6.0, 360.0);
+  v9 = v8;
   if ( rotorIndex )
   {
     if ( rotorIndex == 1 )
-      __asm { vmovss  xmm1, dword ptr [r14+78Ch] }
+      m_RotorPosition_low = LODWORD(this->m_TailRotor.m_RotorPosition);
     else
-      __asm { vxorps  xmm1, xmm1, xmm1 }
+      m_RotorPosition_low = 0i64;
   }
   else
   {
-    __asm { vmovss  xmm1, dword ptr [r14+5BCh] }
+    m_RotorPosition_low = LODWORD(this->m_MainRotor.m_RotorPosition);
   }
-  __asm
+  v12 = m_RotorPosition_low;
+  *(float *)&v12 = fmodf_0(*(float *)&m_RotorPosition_low * 6.0, 360.0) - v9;
+  _XMM1 = v12;
+  if ( *(float *)&v12 < -0.0099999998 )
   {
-    vmulss  xmm0, xmm1, cs:__real@40c00000; X
-    vmovaps xmm1, xmm7; Y
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm9
-    vcomiss xmm1, cs:__real@bc23d70a
-  }
-  if ( v30 )
-  {
-    __asm { vaddss  xmm2, xmm1, xmm7 }
+    *(float *)&_XMM2 = *(float *)&v12 + 360.0;
   }
   else
   {
@@ -6413,107 +3627,77 @@ LABEL_9:
       vblendvps xmm2, xmm1, xmm6, xmm0
     }
   }
-  __asm
-  {
-    vmulss  xmm0, xmm10, xmm2
-    vmulss  xmm7, xmm0, cs:__real@3b360b61
-    vcvttss2si r12d, xmm7
-  }
-  v29 = bladeIndex - _ER12;
-  v30 = 0;
+  v15 = (float)((float)m_BladeCount * *(float *)&_XMM2) * 0.0027777778;
+  v16 = (int)v15;
+  v17 = bladeIndex - (int)v15;
   if ( rotorIndex )
   {
-    v30 = rotorIndex == 0;
     if ( rotorIndex == 1 )
-      __asm { vmovss  xmm0, dword ptr [r14+788h] }
+      m_RotorRPM = this->m_TailRotor.m_RotorRPM;
     else
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      m_RotorRPM = 0.0;
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [r14+5B8h] }
+    m_RotorRPM = this->m_MainRotor.m_RotorRPM;
   }
-  __asm { vcomiss xmm0, cs:__real@ba83126f }
-  v32 = v29 + 1;
-  if ( !v30 )
-    v32 = v29 - 1;
-  if ( v29 < m_BladeCount )
+  v19 = v17 + 1;
+  if ( m_RotorRPM >= -0.001 )
+    v19 = v17 - 1;
+  if ( v17 < m_BladeCount )
   {
-    if ( v29 < 0 )
-      v29 += m_BladeCount;
-  }
-  else
-  {
-    v29 -= m_BladeCount;
-  }
-  if ( v32 < m_BladeCount )
-  {
-    if ( v32 < 0 )
-      v32 += m_BladeCount;
+    if ( v17 < 0 )
+      v17 += m_BladeCount;
   }
   else
   {
-    v32 -= m_BladeCount;
+    v17 -= m_BladeCount;
   }
-  if ( (unsigned int)v29 >= 6 )
+  if ( v19 < m_BladeCount )
   {
-    LODWORD(v53) = v29;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1482, ASSERT_TYPE_ASSERT, "(unsigned)( adjustedBladeIndex ) < (unsigned)( ( sizeof( *array_counter( m_MainRotor.m_RotorBlades ) ) + 0 ) )", "adjustedBladeIndex doesn't index m_MainRotor.m_RotorBlades\n\t%i not in [0, %i)", v53, 6) )
+    if ( v19 < 0 )
+      v19 += m_BladeCount;
+  }
+  else
+  {
+    v19 -= m_BladeCount;
+  }
+  if ( (unsigned int)v17 >= 6 )
+  {
+    LODWORD(v25) = v17;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1482, ASSERT_TYPE_ASSERT, "(unsigned)( adjustedBladeIndex ) < (unsigned)( ( sizeof( *array_counter( m_MainRotor.m_RotorBlades ) ) + 0 ) )", "adjustedBladeIndex doesn't index m_MainRotor.m_RotorBlades\n\t%i not in [0, %i)", v25, 6) )
       __debugbreak();
   }
-  if ( (unsigned int)v32 >= 6 )
+  if ( (unsigned int)v19 >= 6 )
   {
-    LODWORD(v54) = 6;
-    LODWORD(v53) = v32;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1483, ASSERT_TYPE_ASSERT, "(unsigned)( adjustedNextBladeIndex ) < (unsigned)( ( sizeof( *array_counter( m_MainRotor.m_RotorBlades ) ) + 0 ) )", "adjustedNextBladeIndex doesn't index m_MainRotor.m_RotorBlades\n\t%i not in [0, %i)", v53, v54) )
+    LODWORD(v26) = 6;
+    LODWORD(v25) = v19;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1483, ASSERT_TYPE_ASSERT, "(unsigned)( adjustedNextBladeIndex ) < (unsigned)( ( sizeof( *array_counter( m_MainRotor.m_RotorBlades ) ) + 0 ) )", "adjustedNextBladeIndex doesn't index m_MainRotor.m_RotorBlades\n\t%i not in [0, %i)", v25, v26) )
       __debugbreak();
   }
   if ( (unsigned int)bladeIndex >= 6 )
   {
-    LODWORD(v54) = 6;
-    LODWORD(v53) = bladeIndex;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1484, ASSERT_TYPE_ASSERT, "(unsigned)( bladeIndex ) < (unsigned)( ( sizeof( *array_counter( m_MainRotor.m_RotorBlades ) ) + 0 ) )", "bladeIndex doesn't index m_MainRotor.m_RotorBlades\n\t%i not in [0, %i)", v53, v54) )
+    LODWORD(v26) = 6;
+    LODWORD(v25) = bladeIndex;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1484, ASSERT_TYPE_ASSERT, "(unsigned)( bladeIndex ) < (unsigned)( ( sizeof( *array_counter( m_MainRotor.m_RotorBlades ) ) + 0 ) )", "bladeIndex doesn't index m_MainRotor.m_RotorBlades\n\t%i not in [0, %i)", v25, v26) )
       __debugbreak();
   }
-  __asm { vxorps  xmm0, xmm0, xmm0 }
-  if ( !rotorIndex )
+  result = 0.0;
+  if ( rotorIndex )
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000
-      vcvtsi2ss xmm0, xmm0, r12d
-      vsubss  xmm1, xmm7, xmm0
-      vsubss  xmm3, xmm2, xmm1
-      vsubss  xmm0, xmm2, xmm3
-      vmulss  xmm1, xmm0, dword ptr [rcx+r14]
-      vmulss  xmm0, xmm3, dword ptr [rcx+r14]
-    }
-    goto LABEL_45;
+    if ( rotorIndex != 1 )
+      return result;
+    v21 = 1.0 - (float)(v15 - (float)v16);
+    v22 = (float)(1.0 - v21) * this->m_TailRotor.m_RotorBlades[v19].m_BladeDeflection;
+    v23 = v21 * this->m_TailRotor.m_RotorBlades[v17].m_BladeDeflection;
   }
-  if ( rotorIndex == 1 )
+  else
   {
-    __asm
-    {
-      vmovss  xmm2, cs:__real@3f800000
-      vcvtsi2ss xmm0, xmm0, r12d
-      vsubss  xmm1, xmm7, xmm0
-      vsubss  xmm3, xmm2, xmm1
-      vsubss  xmm0, xmm2, xmm3
-      vmulss  xmm1, xmm0, dword ptr [rcx+r14+7D4h]
-      vmulss  xmm0, xmm3, dword ptr [rcx+r14+7D4h]
-    }
-LABEL_45:
-    __asm { vaddss  xmm0, xmm1, xmm0 }
+    v24 = 1.0 - (float)(v15 - (float)v16);
+    v22 = (float)(1.0 - v24) * this->m_MainRotor.m_RotorBlades[v19].m_BladeDeflection;
+    v23 = v24 * this->m_MainRotor.m_RotorBlades[v17].m_BladeDeflection;
   }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  _R11 = &v59;
-  __asm
-  {
-    vmovaps xmm9, xmmword ptr [r11-30h]
-    vmovaps xmm10, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+0A8h+var_48]
-  }
-  return *(float *)&_XMM0;
+  return v22 + v23;
 }
 
 /*
@@ -6524,16 +3708,16 @@ HelicopterDynamics::GetBladeIndexStrobeForRotorIndex
 __int64 HelicopterDynamics::GetBladeIndexStrobeForRotorIndex(HelicopterDynamics *this, int bladeIndex, int rotorIndex)
 {
   int m_BladeCount; 
-  bool v17; 
-  bool v18; 
-  __int64 result; 
+  float m_RotorRPM; 
+  float v8; 
+  bool v9; 
+  bool v10; 
+  double AngularPositionStrobeForRotorIndex; 
+  float v12; 
+  float v13; 
+  __int128 m_RotorPosition_low; 
+  __int128 v16; 
 
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_38], xmm10
-  }
-  _RBP = this;
   if ( rotorIndex )
   {
     if ( rotorIndex != 1 )
@@ -6550,72 +3734,46 @@ __int64 HelicopterDynamics::GetBladeIndexStrobeForRotorIndex(HelicopterDynamics 
   if ( m_BladeCount <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1271, ASSERT_TYPE_ASSERT, "(numberOfBlades > 1)", (const char *)&queryFormat, "numberOfBlades > 1") )
     __debugbreak();
 LABEL_9:
-  __asm
-  {
-    vxorps  xmm10, xmm10, xmm10
-    vcvtsi2ss xmm10, xmm10, esi
-    vxorps  xmm6, xmm6, xmm6
-  }
   if ( rotorIndex )
   {
     if ( rotorIndex == 1 )
-      __asm { vmovss  xmm0, dword ptr [rbp+788h] }
+      m_RotorRPM = this->m_TailRotor.m_RotorRPM;
     else
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      m_RotorRPM = 0.0;
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rbp+5B8h] }
+    m_RotorRPM = this->m_MainRotor.m_RotorRPM;
   }
-  __asm
-  {
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vdivss  xmm1, xmm0, cs:?HFD_ROTOR_STROBE_MULTIPLIER_HZ@@3MA; float HFD_ROTOR_STROBE_MULTIPLIER_HZ
-  }
-  v17 = 0;
-  v18 = rotorIndex == 0;
+  v8 = COERCE_FLOAT(LODWORD(m_RotorRPM) & _xmm) / HFD_ROTOR_STROBE_MULTIPLIER_HZ;
   if ( rotorIndex )
   {
-    v17 = rotorIndex == 0;
-    v18 = rotorIndex == 1;
     if ( rotorIndex != 1 )
-      goto LABEL_29;
-    __asm { vcomiss xmm1, cs:?HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL@@3MA; float HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL }
+      return (unsigned int)bladeIndex;
+    v9 = v8 < HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL;
+    v10 = v8 == HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL;
   }
   else
   {
-    __asm { vcomiss xmm1, cs:?HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE@@3MA; float HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE }
+    v9 = v8 < HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE;
+    v10 = v8 == HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE;
   }
-  if ( !v17 && !v18 )
+  if ( !v9 && !v10 )
   {
-    __asm { vmovaps [rsp+68h+var_28], xmm9 }
-    *(double *)&_XMM0 = HelicopterDynamics::GetAngularPositionStrobeForRotorIndex(_RBP, rotorIndex);
-    __asm
-    {
-      vmulss  xmm0, xmm0, cs:__real@40c00000; X
-      vmovss  xmm1, cs:__real@43b40000; Y
-    }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm { vmovaps xmm9, xmm0 }
+    AngularPositionStrobeForRotorIndex = HelicopterDynamics::GetAngularPositionStrobeForRotorIndex(this, rotorIndex);
+    v12 = *(float *)&AngularPositionStrobeForRotorIndex * 6.0;
+    fmodf_0(*(float *)&AngularPositionStrobeForRotorIndex * 6.0, 360.0);
+    v13 = v12;
     if ( rotorIndex )
-      __asm { vmovss  xmm1, dword ptr [rbp+78Ch] }
+      m_RotorPosition_low = LODWORD(this->m_TailRotor.m_RotorPosition);
     else
-      __asm { vmovss  xmm1, dword ptr [rbp+5BCh] }
-    __asm
+      m_RotorPosition_low = LODWORD(this->m_MainRotor.m_RotorPosition);
+    v16 = m_RotorPosition_low;
+    *(float *)&v16 = fmodf_0(*(float *)&m_RotorPosition_low * 6.0, 360.0) - v13;
+    _XMM1 = v16;
+    if ( *(float *)&v16 < -0.0099999998 )
     {
-      vmulss  xmm0, xmm1, cs:__real@40c00000; X
-      vmovss  xmm1, cs:__real@43b40000; Y
-    }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vsubss  xmm1, xmm0, xmm9
-      vcomiss xmm1, cs:__real@bc23d70a
-      vmovaps xmm9, [rsp+68h+var_28]
-    }
-    if ( v17 )
-    {
-      __asm { vaddss  xmm2, xmm1, cs:__real@43b40000 }
+      *(float *)&_XMM2 = *(float *)&v16 + 360.0;
     }
     else
     {
@@ -6625,13 +3783,7 @@ LABEL_9:
         vblendvps xmm2, xmm1, xmm6, xmm0
       }
     }
-    __asm
-    {
-      vmulss  xmm0, xmm10, xmm2
-      vmulss  xmm1, xmm0, cs:__real@3b360b61
-      vcvttss2si eax, xmm1
-    }
-    bladeIndex -= _EAX;
+    bladeIndex -= (int)(float)((float)((float)m_BladeCount * *(float *)&_XMM2) * 0.0027777778);
     if ( bladeIndex < m_BladeCount )
     {
       if ( bladeIndex < 0 )
@@ -6642,14 +3794,7 @@ LABEL_9:
       bladeIndex -= m_BladeCount;
     }
   }
-LABEL_29:
-  result = (unsigned int)bladeIndex;
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm10, [rsp+68h+var_38]
-  }
-  return result;
+  return (unsigned int)bladeIndex;
 }
 
 /*
@@ -6659,25 +3804,11 @@ HelicopterDynamics::GetBladePitchForRotorIndex
 */
 float HelicopterDynamics::GetBladePitchForRotorIndex(HelicopterDynamics *this, int bladeIndex, int rotorIndex)
 {
-  _R9 = this;
-  if ( rotorIndex )
-  {
-    if ( rotorIndex == 1 )
-    {
-      _RCX = 44i64 * bladeIndex;
-      __asm { vmovss  xmm0, dword ptr [rcx+r9+7D0h] }
-    }
-    else
-    {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-    }
-  }
-  else
-  {
-    _RCX = 44i64 * bladeIndex;
-    __asm { vmovss  xmm0, dword ptr [rcx+r9+600h] }
-  }
-  return *(float *)&_XMM0;
+  if ( !rotorIndex )
+    return this->m_MainRotor.m_RotorBlades[bladeIndex].m_BladePitch;
+  if ( rotorIndex == 1 )
+    return this->m_TailRotor.m_RotorBlades[bladeIndex].m_BladePitch;
+  return 0.0;
 }
 
 /*
@@ -6687,30 +3818,26 @@ HelicopterDynamics::GetBladePitchStrobeForRotorIndex
 */
 float HelicopterDynamics::GetBladePitchStrobeForRotorIndex(HelicopterDynamics *this, int bladeIndex, int rotorIndex)
 {
-  __int64 v12; 
+  __int64 v5; 
   int m_BladeCount; 
-  char v26; 
-  int v34; 
-  int v35; 
-  __int64 v48; 
-  __int64 v49; 
-  char v51; 
-  void *retaddr; 
+  double AngularPositionStrobeForRotorIndex; 
+  float v8; 
+  float v9; 
+  __int128 m_RotorPosition_low; 
+  __int128 v12; 
+  int v15; 
+  float m_RotorRPM; 
+  int v17; 
+  int v18; 
+  float v19; 
+  float v21; 
+  double v22; 
+  float v23; 
+  double v24; 
+  __int64 v25; 
+  __int64 v26; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-  }
-  _RBP = this;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-  }
-  v12 = bladeIndex;
+  v5 = bladeIndex;
   if ( rotorIndex )
   {
     if ( rotorIndex != 1 )
@@ -6727,50 +3854,27 @@ float HelicopterDynamics::GetBladePitchStrobeForRotorIndex(HelicopterDynamics *t
   if ( m_BladeCount <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1333, ASSERT_TYPE_ASSERT, "(numberOfBlades > 1)", (const char *)&queryFormat, "numberOfBlades > 1") )
     __debugbreak();
 LABEL_9:
-  __asm
-  {
-    vxorps  xmm10, xmm10, xmm10
-    vcvtsi2ss xmm10, xmm10, esi
-  }
-  *(double *)&_XMM0 = HelicopterDynamics::GetAngularPositionStrobeForRotorIndex(_RBP, rotorIndex);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@40c00000
-    vmovss  xmm6, cs:__real@43b40000
-    vmulss  xmm0, xmm0, xmm7; X
-    vmovaps xmm1, xmm6; Y
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmovaps xmm9, xmm0
-    vxorps  xmm8, xmm8, xmm8
-  }
+  AngularPositionStrobeForRotorIndex = HelicopterDynamics::GetAngularPositionStrobeForRotorIndex(this, rotorIndex);
+  v8 = *(float *)&AngularPositionStrobeForRotorIndex * 6.0;
+  fmodf_0(*(float *)&AngularPositionStrobeForRotorIndex * 6.0, 360.0);
+  v9 = v8;
   if ( rotorIndex )
   {
     if ( rotorIndex == 1 )
-      __asm { vmovss  xmm1, dword ptr [rbp+78Ch] }
+      m_RotorPosition_low = LODWORD(this->m_TailRotor.m_RotorPosition);
     else
-      __asm { vxorps  xmm1, xmm1, xmm1 }
+      m_RotorPosition_low = 0i64;
   }
   else
   {
-    __asm { vmovss  xmm1, dword ptr [rbp+5BCh] }
+    m_RotorPosition_low = LODWORD(this->m_MainRotor.m_RotorPosition);
   }
-  __asm
+  v12 = m_RotorPosition_low;
+  *(float *)&v12 = fmodf_0(*(float *)&m_RotorPosition_low * 6.0, 360.0) - v9;
+  _XMM1 = v12;
+  if ( *(float *)&v12 < -0.0099999998 )
   {
-    vmulss  xmm0, xmm1, xmm7; X
-    vmovaps xmm1, xmm6; Y
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vsubss  xmm1, xmm0, xmm9
-    vcomiss xmm1, cs:__real@bc23d70a
-  }
-  if ( v26 )
-  {
-    __asm { vaddss  xmm2, xmm1, xmm6 }
+    *(float *)&_XMM2 = *(float *)&v12 + 360.0;
   }
   else
   {
@@ -6780,100 +3884,91 @@ LABEL_9:
       vblendvps xmm2, xmm1, xmm8, xmm0
     }
   }
-  __asm
-  {
-    vmulss  xmm0, xmm10, xmm2
-    vmulss  xmm1, xmm0, cs:__real@3b360b61
-    vcvttss2si edx, xmm1
-  }
+  v15 = (int)(float)((float)((float)m_BladeCount * *(float *)&_XMM2) * 0.0027777778);
   if ( rotorIndex )
   {
     if ( rotorIndex == 1 )
-      __asm { vmovss  xmm6, dword ptr [rbp+788h] }
+      m_RotorRPM = this->m_TailRotor.m_RotorRPM;
     else
-      __asm { vxorps  xmm6, xmm6, xmm6 }
+      m_RotorRPM = 0.0;
   }
   else
   {
-    __asm { vmovss  xmm6, dword ptr [rbp+5B8h] }
+    m_RotorRPM = this->m_MainRotor.m_RotorRPM;
   }
-  v34 = v12 - _EDX;
-  __asm { vcomiss xmm6, cs:__real@ba83126f }
-  v35 = v12 - _EDX + 1;
-  if ( (unsigned int)v12 >= _EDX )
-    v35 = v12 - _EDX - 1;
-  if ( v34 < m_BladeCount )
+  v17 = v5 - v15;
+  v18 = v5 - v15 + 1;
+  if ( m_RotorRPM >= -0.001 )
+    v18 = v5 - v15 - 1;
+  if ( v17 < m_BladeCount )
   {
-    if ( v34 < 0 )
-      v34 += m_BladeCount;
+    if ( v17 < 0 )
+      v17 += m_BladeCount;
   }
   else
   {
-    v34 -= m_BladeCount;
+    v17 -= m_BladeCount;
   }
-  if ( v35 < m_BladeCount )
+  if ( v18 < m_BladeCount )
   {
-    if ( v35 < 0 )
-      v35 += m_BladeCount;
+    if ( v18 < 0 )
+      v18 += m_BladeCount;
   }
   else
   {
-    v35 -= m_BladeCount;
+    v18 -= m_BladeCount;
   }
-  if ( (unsigned int)v34 >= 6 )
+  if ( (unsigned int)v17 >= 6 )
   {
-    LODWORD(v48) = v34;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1374, ASSERT_TYPE_ASSERT, "(unsigned)( adjustedBladeIndex ) < (unsigned)( ( sizeof( *array_counter( m_MainRotor.m_RotorBlades ) ) + 0 ) )", "adjustedBladeIndex doesn't index m_MainRotor.m_RotorBlades\n\t%i not in [0, %i)", v48, 6) )
+    LODWORD(v25) = v17;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1374, ASSERT_TYPE_ASSERT, "(unsigned)( adjustedBladeIndex ) < (unsigned)( ( sizeof( *array_counter( m_MainRotor.m_RotorBlades ) ) + 0 ) )", "adjustedBladeIndex doesn't index m_MainRotor.m_RotorBlades\n\t%i not in [0, %i)", v25, 6) )
       __debugbreak();
   }
-  if ( (unsigned int)v35 >= 6 )
+  if ( (unsigned int)v18 >= 6 )
   {
-    LODWORD(v49) = 6;
-    LODWORD(v48) = v35;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1375, ASSERT_TYPE_ASSERT, "(unsigned)( adjustedNextBladeIndex ) < (unsigned)( ( sizeof( *array_counter( m_MainRotor.m_RotorBlades ) ) + 0 ) )", "adjustedNextBladeIndex doesn't index m_MainRotor.m_RotorBlades\n\t%i not in [0, %i)", v48, v49) )
+    LODWORD(v26) = 6;
+    LODWORD(v25) = v18;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1375, ASSERT_TYPE_ASSERT, "(unsigned)( adjustedNextBladeIndex ) < (unsigned)( ( sizeof( *array_counter( m_MainRotor.m_RotorBlades ) ) + 0 ) )", "adjustedNextBladeIndex doesn't index m_MainRotor.m_RotorBlades\n\t%i not in [0, %i)", v25, v26) )
       __debugbreak();
   }
-  if ( (unsigned int)v12 >= 6 )
+  if ( (unsigned int)v5 >= 6 )
   {
-    LODWORD(v49) = 6;
-    LODWORD(v48) = v12;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1376, ASSERT_TYPE_ASSERT, "(unsigned)( bladeIndex ) < (unsigned)( ( sizeof( *array_counter( m_MainRotor.m_RotorBlades ) ) + 0 ) )", "bladeIndex doesn't index m_MainRotor.m_RotorBlades\n\t%i not in [0, %i)", v48, v49) )
+    LODWORD(v26) = 6;
+    LODWORD(v25) = v5;
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 1376, ASSERT_TYPE_ASSERT, "(unsigned)( bladeIndex ) < (unsigned)( ( sizeof( *array_counter( m_MainRotor.m_RotorBlades ) ) + 0 ) )", "bladeIndex doesn't index m_MainRotor.m_RotorBlades\n\t%i not in [0, %i)", v25, v26) )
       __debugbreak();
   }
-  __asm
-  {
-    vandps  xmm6, xmm6, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vdivss  xmm9, xmm6, cs:?HFD_ROTOR_STROBE_MULTIPLIER_HZ@@3MA; float HFD_ROTOR_STROBE_MULTIPLIER_HZ
-  }
+  v19 = COERCE_FLOAT(LODWORD(m_RotorRPM) & _xmm) / HFD_ROTOR_STROBE_MULTIPLIER_HZ;
   if ( rotorIndex )
   {
     if ( rotorIndex == 1 )
     {
-      __asm { vcomiss xmm9, cs:?HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL@@3MA; float HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL }
-      _RCX = 44 * v12;
-      __asm { vmovss  xmm0, dword ptr [rcx+rbp+7D0h] }
+      if ( v19 <= HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL )
+      {
+        return this->m_TailRotor.m_RotorBlades[v5].m_BladePitch;
+      }
+      else
+      {
+        v21 = atanf_0(this->m_TailRotor.m_RotorBlades[v17].m_BladeDeflection - this->m_TailRotor.m_RotorBlades[v18].m_BladeDeflection) * HFD_ROTOR_STROBE_DISK_BLEND_PITCH;
+        v22 = I_fclamp(v19 - 1.0, 0.0, HFD_ROTOR_STROBE_PITCH_MULTIPLIER);
+        return (float)((float)(1.0 - *(float *)&v22) * this->m_TailRotor.m_RotorBlades[v5].m_BladePitch) + (float)(*(float *)&v22 * v21);
+      }
     }
     else
     {
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      return 0.0;
     }
+  }
+  else if ( v19 <= HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE )
+  {
+    return this->m_MainRotor.m_RotorBlades[v5].m_BladePitch;
   }
   else
   {
-    __asm { vcomiss xmm9, cs:?HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE@@3MA; float HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE }
-    _RCX = 44 * v12;
-    __asm { vmovss  xmm0, dword ptr [rcx+rbp+600h] }
+    v23 = atanf_0(this->m_MainRotor.m_RotorBlades[v17].m_BladeDeflection - this->m_MainRotor.m_RotorBlades[v18].m_BladeDeflection) * HFD_ROTOR_STROBE_DISK_BLEND_PITCH;
+    v24 = I_fclamp(v19 - 1.0, 0.0, HFD_ROTOR_STROBE_PITCH_MULTIPLIER);
+    return (float)((float)(1.0 - *(float *)&v24) * this->m_MainRotor.m_RotorBlades[v5].m_BladePitch) + (float)(*(float *)&v24 * v23);
   }
-  __asm { vmovaps xmm7, [rsp+0A8h+var_38] }
-  _R11 = &v51;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-  }
-  return *(float *)&_XMM0;
 }
 
 /*
@@ -6885,24 +3980,18 @@ float HelicopterDynamics::GetCameraFovDelta(HelicopterDynamics *this)
 {
   FlightDynamicsManager *FlightDynamicsManager; 
   LocalClientNum_t LocalClientForWorld; 
+  FlightDynamicCameraData *CameraCurrentData; 
 
   FlightDynamicsManager = BG_GetFlightDynamicsManager();
   if ( !FlightDynamicsManager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 868, ASSERT_TYPE_ASSERT, "(fdManager)", (const char *)&queryFormat, "fdManager") )
     __debugbreak();
   LocalClientForWorld = Physics_GetLocalClientForWorld(this->m_worldId);
-  _RAX = FlightDynamicsManager::GetCameraCurrentData(FlightDynamicsManager, LocalClientForWorld);
-  _RBX = _RAX;
-  if ( _RAX )
-  {
-    __asm { vmovss  xmm0, dword ptr [rax+110h] }
-  }
-  else
-  {
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 871, ASSERT_TYPE_ASSERT, "(fdLocalCameraData)", (const char *)&queryFormat, "fdLocalCameraData") )
-      __debugbreak();
-    __asm { vmovss  xmm0, dword ptr [rbx+110h] }
-  }
-  return *(float *)&_XMM0;
+  CameraCurrentData = FlightDynamicsManager::GetCameraCurrentData(FlightDynamicsManager, LocalClientForWorld);
+  if ( CameraCurrentData )
+    return CameraCurrentData->fovDeltaCurrent;
+  if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 871, ASSERT_TYPE_ASSERT, "(fdLocalCameraData)", (const char *)&queryFormat, "fdLocalCameraData") )
+    __debugbreak();
+  return MEMORY[0x110];
 }
 
 /*
@@ -6912,8 +4001,7 @@ HelicopterDynamics::GetMaxGovernorSpeed
 */
 float HelicopterDynamics::GetMaxGovernorSpeed(HelicopterDynamics *this)
 {
-  __asm { vmovss  xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED }
-  return *(float *)&_XMM0;
+  return HFD_GOVERNOR_MAX_SPEED;
 }
 
 /*
@@ -6947,18 +4035,11 @@ HelicopterDynamics::GetRPMForRotorIndex
 */
 float HelicopterDynamics::GetRPMForRotorIndex(HelicopterDynamics *this, int rotorIndex)
 {
-  if ( rotorIndex )
-  {
-    if ( rotorIndex == 1 )
-      __asm { vmovss  xmm0, dword ptr [rcx+788h] }
-    else
-      __asm { vxorps  xmm0, xmm0, xmm0 }
-  }
-  else
-  {
-    __asm { vmovss  xmm0, dword ptr [rcx+5B8h] }
-  }
-  return *(float *)&_XMM0;
+  if ( !rotorIndex )
+    return this->m_MainRotor.m_RotorRPM;
+  if ( rotorIndex == 1 )
+    return this->m_TailRotor.m_RotorRPM;
+  return 0.0;
 }
 
 /*
@@ -6968,8 +4049,7 @@ FlightDynamicsRotorSystem::GetRotorAngularPosition
 */
 float FlightDynamicsRotorSystem::GetRotorAngularPosition(FlightDynamicsRotorSystem *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+9Ch] }
-  return *(float *)&_XMM0;
+  return this->m_RotorPosition;
 }
 
 /*
@@ -6979,8 +4059,7 @@ FlightDynamicsRotorSystem::GetRotorAngularRPM
 */
 float FlightDynamicsRotorSystem::GetRotorAngularRPM(FlightDynamicsRotorSystem *this)
 {
-  __asm { vmovss  xmm0, dword ptr [rcx+98h] }
-  return *(float *)&_XMM0;
+  return this->m_RotorRPM;
 }
 
 /*
@@ -7020,66 +4099,23 @@ HelicopterDynamics::GetSoundValuesFD
 */
 void HelicopterDynamics::GetSoundValuesFD(HelicopterDynamics *this, const int clientNum, int time, float *outThrottle, float *outBrake, float *outRpmNormal, float *outGear, float *outMph, bool *outTurbineStart, bool *outTurbineStop, vec3_t *outPosition)
 {
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rcx+5B8h]
-    vdivss  xmm0, xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; val
-    vmovaps [rsp+38h+var_18], xmm7
-  }
-  _RBX = outThrottle;
-  __asm
-  {
-    vmovss  xmm7, cs:__real@3f800000
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  _RDI = this;
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  _RAX = outRpmNormal;
-  __asm
-  {
-    vmovaps xmm2, xmm7; max
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovss  dword ptr [rax], xmm0
-    vmovss  xmm0, dword ptr [rdi+8C8h]
-    vdivss  xmm0, xmm0, cs:?HFD_TURBINE_MAX_TORQUE@@3MA; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rbx], xmm0
-    vmovss  xmm1, dword ptr [rdi+5C0h]
-    vaddss  xmm0, xmm1, dword ptr [rdi+5C4h]; val
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovaps xmm2, xmm7; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  _RAX = outGear;
-  __asm
-  {
-    vmovss  xmm1, cs:__real@bf800000; min
-    vmovaps xmm2, xmm7; max
-    vmovss  dword ptr [rax], xmm0
-    vmovss  xmm0, dword ptr [rdi+4B4h]
-    vmulss  xmm3, xmm0, cs:__real@37a7c5ac
-  }
-  _RAX = outBrake;
-  __asm
-  {
-    vmovss  dword ptr [rax], xmm3
-    vmovss  xmm0, dword ptr [rdi+790h]
-    vaddss  xmm0, xmm0, dword ptr [rdi+794h]; val
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  _RAX = outMph;
-  __asm
-  {
-    vmovaps xmm7, [rsp+38h+var_18]
-    vmovss  dword ptr [rax], xmm0
-  }
-  *outTurbineStart = _RDI->m_TurbineAudioIgniter;
-  *outTurbineStop = _RDI->m_TurbineAudioShutdown;
-  *outPosition = _RDI->m_TailRotor.m_Position;
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
+
+  v13 = I_fclamp(this->m_MainRotor.m_RotorRPM / HFD_GOVERNOR_MAX_SPEED, 0.0, 1.0);
+  *outRpmNormal = *(float *)&v13;
+  v14 = I_fclamp(this->m_TurbineTorque / HFD_TURBINE_MAX_TORQUE, 0.0, 1.0);
+  *outThrottle = *(float *)&v14;
+  v15 = I_fclamp(this->m_MainRotor.m_AverageBladeTurbulence + this->m_MainRotor.m_AveragePitchChange, -1.0, 1.0);
+  *outGear = *(float *)&v15;
+  *outBrake = this->m_TurbineRPM * 0.000019999999;
+  v16 = I_fclamp(this->m_TailRotor.m_AverageBladeTurbulence + this->m_TailRotor.m_AveragePitchChange, -1.0, 1.0);
+  *outMph = *(float *)&v16;
+  *outTurbineStart = this->m_TurbineAudioIgniter;
+  *outTurbineStop = this->m_TurbineAudioShutdown;
+  *outPosition = this->m_TailRotor.m_Position;
 }
 
 /*
@@ -7089,39 +4125,26 @@ HelicopterDynamics::GetStrobeEffectToggle
 */
 bool HelicopterDynamics::GetStrobeEffectToggle(HelicopterDynamics *this, int rotorIndex)
 {
+  float m_RotorRPM; 
+  float v3; 
+
   if ( rotorIndex )
   {
     if ( rotorIndex == 1 )
-      __asm { vmovss  xmm0, dword ptr [rcx+788h] }
+      m_RotorRPM = this->m_TailRotor.m_RotorRPM;
     else
-      __asm { vxorps  xmm0, xmm0, xmm0 }
+      m_RotorRPM = 0.0;
   }
   else
   {
-    __asm { vmovss  xmm0, dword ptr [rcx+5B8h] }
+    m_RotorRPM = this->m_MainRotor.m_RotorRPM;
   }
-  __asm
-  {
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vdivss  xmm1, xmm0, cs:?HFD_ROTOR_STROBE_MULTIPLIER_HZ@@3MA; float HFD_ROTOR_STROBE_MULTIPLIER_HZ
-  }
-  if ( rotorIndex )
-  {
-    if ( rotorIndex == 1 )
-    {
-      __asm { vcomiss xmm1, cs:?HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL@@3MA; float HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL }
-      return (unsigned int)rotorIndex > 1;
-    }
-    else
-    {
-      return 0;
-    }
-  }
-  else
-  {
-    __asm { vcomiss xmm1, cs:?HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE@@3MA; float HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE }
-    return (unsigned __int8)rotorIndex != 0;
-  }
+  v3 = COERCE_FLOAT(LODWORD(m_RotorRPM) & _xmm) / HFD_ROTOR_STROBE_MULTIPLIER_HZ;
+  if ( !rotorIndex )
+    return v3 > HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE;
+  if ( rotorIndex == 1 )
+    return v3 > HFD_ROTOR_STROBE_MIN_HERTZ_TOGGLE_TAIL;
+  return 0;
 }
 
 /*
@@ -7131,77 +4154,25 @@ HelicopterDynamics::InitializeHelicopterRotors
 */
 void HelicopterDynamics::InitializeHelicopterRotors(HelicopterDynamics *this)
 {
-  const dvar_t *v20; 
-  float fmt; 
-  float fmta; 
-  float v25; 
-  float v26; 
-  float v27; 
-  float v28; 
-  float v29; 
-  float v30; 
-  float v31; 
-  float v32; 
+  float v2; 
+  float v3; 
+  const dvar_t *v4; 
 
-  __asm
-  {
-    vmovss  xmm0, cs:?HFD_BLADE_MAX_DEFLECTION_MAIN@@3MA; float HFD_BLADE_MAX_DEFLECTION_MAIN
-    vmovss  xmm1, cs:?HFD_MAIN_ROTOR_BLADE_WEIGHT@@3MA; float HFD_MAIN_ROTOR_BLADE_WEIGHT
-  }
-  _RDI = this;
-  __asm
-  {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovss  xmm6, cs:__real@3d21428b
-    vmulss  xmm3, xmm6, cs:?HFD_MAIN_ROTOR_BLADE_WIDTH@@3MA; bladeWidth
-    vmulss  xmm2, xmm6, cs:?HFD_MAIN_ROTOR_BLADE_LENGTH@@3MA; bladeLength
-    vmovaps [rsp+78h+var_28], xmm7
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  [rsp+78h+var_38], xmm7
-    vmovss  [rsp+78h+var_40], xmm7
-    vmovss  dword ptr [rsp+78h+var_48], xmm7
-    vmovss  dword ptr [rsp+78h+var_50], xmm0
-    vmovss  dword ptr [rsp+78h+fmt], xmm1
-  }
-  FlightDynamicsRotorSystem::SetupRotor(&this->m_MainRotor, 5, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v25, v27, v29, v31, this->m_worldId);
-  __asm
-  {
-    vmovss  xmm1, cs:?HFD_CONTROL_INPUT_DAMPER_COLLECTIVE@@3MA; float HFD_CONTROL_INPUT_DAMPER_COLLECTIVE
-    vmovss  xmm0, cs:?HFD_CONTROL_INPUT_MULTI@@3MA; float HFD_CONTROL_INPUT_MULTI
-    vmovss  dword ptr [rdi+5A4h], xmm0
-    vmovss  xmm0, cs:__real@42b40000
-    vmovss  dword ptr [rdi+5A8h], xmm1
-    vmovss  xmm1, cs:?HFD_TAIL_ROTOR_BLADE_WEIGHT@@3MA; float HFD_TAIL_ROTOR_BLADE_WEIGHT
-    vmulss  xmm3, xmm6, cs:?HFD_TAIL_ROTOR_BLADE_WIDTH@@3MA; bladeWidth
-    vmulss  xmm2, xmm6, cs:?HFD_TAIL_ROTOR_BLADE_LENGTH@@3MA; bladeLength
-    vmovss  [rsp+78h+var_38], xmm0
-    vmovss  xmm0, cs:?HFD_BLADE_MAX_DEFLECTION_TAIL@@3MA; float HFD_BLADE_MAX_DEFLECTION_TAIL
-    vmovss  [rsp+78h+var_40], xmm7
-    vmovss  dword ptr [rsp+78h+var_48], xmm7
-    vmovss  dword ptr [rsp+78h+var_50], xmm0
-    vmovss  dword ptr [rsp+78h+fmt], xmm1
-  }
-  FlightDynamicsRotorSystem::SetupRotor(&_RDI->m_TailRotor, 2, *(float *)&_XMM2, *(float *)&_XMM3, fmta, v26, v28, v30, v32, _RDI->m_worldId);
-  __asm
-  {
-    vmovss  xmm1, cs:?HFD_CONTROL_INPUT_DAMPER_TAIL_ROTOR@@3MA; float HFD_CONTROL_INPUT_DAMPER_TAIL_ROTOR
-    vmovss  xmm0, cs:?HFD_CONTROL_INPUT_MULTI@@3MA; float HFD_CONTROL_INPUT_MULTI
-    vmovss  dword ptr [rdi+778h], xmm1
-    vmovss  xmm1, cs:__real@41100000; value
-    vmovss  dword ptr [rdi+774h], xmm0
-  }
-  _RDI->m_NumberOfRotors = 2;
-  Dvar_SetFloat_Internal(DVARFLT_fd_helicopter_swash_driver, *(float *)&_XMM1);
-  v20 = DVARFLT_fd_helicopter_swash_driver;
+  FlightDynamicsRotorSystem::SetupRotor(&this->m_MainRotor, 5, 0.039370101 * HFD_MAIN_ROTOR_BLADE_LENGTH, 0.039370101 * HFD_MAIN_ROTOR_BLADE_WIDTH, HFD_MAIN_ROTOR_BLADE_WEIGHT, HFD_BLADE_MAX_DEFLECTION_MAIN, 0.0, 0.0, 0.0, this->m_worldId);
+  v2 = HFD_CONTROL_INPUT_DAMPER_COLLECTIVE;
+  this->m_MainRotor.m_SwasplateCyclicRate = HFD_CONTROL_INPUT_MULTI;
+  this->m_MainRotor.m_SwasplateCollectiveRate = v2;
+  FlightDynamicsRotorSystem::SetupRotor(&this->m_TailRotor, 2, 0.039370101 * HFD_TAIL_ROTOR_BLADE_LENGTH, 0.039370101 * HFD_TAIL_ROTOR_BLADE_WIDTH, HFD_TAIL_ROTOR_BLADE_WEIGHT, HFD_BLADE_MAX_DEFLECTION_TAIL, 0.0, 0.0, 90.0, this->m_worldId);
+  v3 = HFD_CONTROL_INPUT_MULTI;
+  this->m_TailRotor.m_SwasplateCollectiveRate = HFD_CONTROL_INPUT_DAMPER_TAIL_ROTOR;
+  this->m_TailRotor.m_SwasplateCyclicRate = v3;
+  this->m_NumberOfRotors = 2;
+  Dvar_SetFloat_Internal(DVARFLT_fd_helicopter_swash_driver, 9.0);
+  v4 = DVARFLT_fd_helicopter_swash_driver;
   if ( !DVARFLT_fd_helicopter_swash_driver && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_swash_driver") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v20);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  LODWORD(_RDI->m_MainRotorSwashplateDriverOffset) = v20->current.integer;
+  Dvar_CheckFrontendServerThread(v4);
+  LODWORD(this->m_MainRotorSwashplateDriverOffset) = v4->current.integer;
 }
 
 /*
@@ -7239,15 +4210,7 @@ HelicopterDynamics::IsInAir
 */
 bool HelicopterDynamics::IsInAir(HelicopterDynamics *this)
 {
-  char v1; 
-  char v2; 
-
-  __asm
-  {
-    vmovss  xmm0, cs:?HFD_FUSELAGE_LANDED_THRESHOLD@@3MA; float HFD_FUSELAGE_LANDED_THRESHOLD
-    vcomiss xmm0, dword ptr [rcx+940h]
-  }
-  return !(v1 | v2);
+  return HFD_FUSELAGE_LANDED_THRESHOLD > this->m_LandingTimer;
 }
 
 /*
@@ -7267,151 +4230,95 @@ HelicopterDynamics::LoadControlInputs
 */
 void HelicopterDynamics::LoadControlInputs(HelicopterDynamics *this, const usercmd_s *cmd, float *rawControlInputs)
 {
-  const dvar_t *v20; 
-  const dvar_t *v45; 
-  char v84; 
+  char v6; 
+  char v7; 
+  float v8; 
+  float v9; 
+  const dvar_t *v10; 
+  __int128 v11; 
+  __int128 v12; 
+  __int128 v13; 
+  __int128 v15; 
+  char v22; 
+  char v23; 
+  const dvar_t *v24; 
+  FlightDynamicsManager *FlightDynamicsManager; 
+  bool m_Use1stPerson; 
+  char v27; 
+  char pitchmove; 
 
-  __asm { vmovaps [rsp+0E8h+var_48], xmm7 }
-  _R13 = rawControlInputs;
-  __asm
-  {
-    vmovaps [rsp+0E8h+var_98], xmm12
-    vmovaps [rsp+0E8h+var_A8], xmm15
-  }
-  _RBP = this;
   BgVehiclePhysics::UpdateHornInputControls(this, cmd, 4u, 0x2000u);
-  __asm
-  {
-    vmovss  xmm12, cs:__real@3c010204
-    vxorps  xmm15, xmm15, xmm15
-    vcvtsi2ss xmm15, xmm15, eax
-    vxorps  xmm7, xmm7, xmm7
-    vcvtsi2ss xmm7, xmm7, eax
-    vmovss  [rsp+0E8h+arg_8], xmm7
-  }
+  v6 = -(char)(cmd->rightmove + cmd->remoteControlMove[1]);
+  v7 = cmd->forwardmove + cmd->remoteControlMove[0];
+  v27 = cmd->remoteControlMove[2];
+  v8 = (float)cmd->remoteControlAngles[0];
+  v9 = (float)cmd->remoteControlAngles[1];
   if ( (cmd->buttons & 0x8000000000000i64) == 0 )
   {
-    v20 = DVARBOOL_scaledRemoteAnglesKbmEnabled;
+    v10 = DVARBOOL_scaledRemoteAnglesKbmEnabled;
     if ( !DVARBOOL_scaledRemoteAnglesKbmEnabled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "scaledRemoteAnglesKbmEnabled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v20);
-    if ( v20->current.enabled )
+    Dvar_CheckFrontendServerThread(v10);
+    if ( v10->current.enabled )
     {
+      v11 = LODWORD(FLOAT_10_0);
+      *(double *)&v11 = FD_ComputeExpo(10.0, COERCE_FLOAT(COERCE_UNSIGNED_INT(v8 * 0.0078740157) & _xmm));
+      v12 = v11;
+      *(float *)&v12 = *(float *)&v11 - 1.0;
+      v13 = LODWORD(FLOAT_10_0);
+      *(double *)&v13 = FD_ComputeExpo(10.0, COERCE_FLOAT(COERCE_UNSIGNED_INT(v9 * 0.0078740157) & _xmm));
+      _XMM1 = v12 ^ _xmm;
+      v15 = v13;
+      *(float *)&v15 = *(float *)&v13 - 1.0;
+      _XMM8 = 0i64;
       __asm
       {
-        vmovss  xmm0, cs:__real@41200000; value
-        vmovaps [rsp+0E8h+var_58], xmm8
-        vmulss  xmm1, xmm15, xmm12
-        vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; expo
-        vmovaps [rsp+0E8h+var_68], xmm9
-        vmovaps [rsp+0E8h+var_78], xmm10
-        vmovaps [rsp+0E8h+var_88], xmm11
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm11, cs:__real@3f800000
-        vmulss  xmm1, xmm7, xmm12
-        vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; expo
-        vsubss  xmm9, xmm0, xmm11
-        vmovss  xmm0, cs:__real@41200000; value
-      }
-      *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vxorps  xmm1, xmm9, cs:__xmm@80000000800000008000000080000000
-        vsubss  xmm10, xmm0, xmm11
-        vxorps  xmm8, xmm8, xmm8
         vcmpless xmm0, xmm8, xmm15
         vblendvps xmm0, xmm1, xmm9, xmm0; val
-        vmovss  xmm1, cs:__real@bf800000; min
-        vmovaps xmm2, xmm11; max
       }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm15, xmm0, cs:__real@42fe0000
-        vcmpless xmm0, xmm8, [rsp+0E8h+arg_8]
-        vxorps  xmm3, xmm10, cs:__xmm@80000000800000008000000080000000
-        vmovss  xmm1, cs:__real@bf800000; min
-        vblendvps xmm0, xmm3, xmm10, xmm0; val
-        vmovaps xmm2, xmm11; max
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm
-      {
-        vmulss  xmm7, xmm0, cs:__real@42fe0000
-        vmovaps xmm11, [rsp+0E8h+var_88]
-        vmovaps xmm10, [rsp+0E8h+var_78]
-        vmovaps xmm9, [rsp+0E8h+var_68]
-        vmovaps xmm8, [rsp+0E8h+var_58]
-      }
+      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, -1.0, 1.0);
+      v8 = *(float *)&_XMM0 * 127.0;
+      __asm { vcmpless xmm0, xmm8, [rsp+0E8h+arg_8] }
+      _XMM3 = v15 ^ _xmm;
+      __asm { vblendvps xmm0, xmm3, xmm10, xmm0; val }
+      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, -1.0, 1.0);
+      v9 = *(float *)&_XMM0 * 127.0;
     }
   }
+  v22 = -cmd->yawmove;
+  pitchmove = cmd->pitchmove;
+  v23 = -((cmd->buttons & 0x200) != 0);
   if ( (cmd->buttons & 0x1000) != 0 )
   {
-    v45 = DVARBOOL_fd_helicopter_debug_cockpit;
+    v24 = DVARBOOL_fd_helicopter_debug_cockpit;
     if ( !DVARBOOL_fd_helicopter_debug_cockpit && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_debug_cockpit") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v45);
-    if ( v45->current.enabled )
+    Dvar_CheckFrontendServerThread(v24);
+    if ( v24->current.enabled && COERCE_FLOAT(COERCE_UNSIGNED_INT((float)v27) & _xmm) < 0.001 )
     {
-      __asm
+      FlightDynamicsManager = BG_GetFlightDynamicsManager();
+      if ( FlightDynamicsManager->m_Use1stPerson == BG_GetFlightDynamicsManager()->m_Prefer1stPerson )
       {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-        vcomiss xmm0, cs:__real@3a83126f
+        m_Use1stPerson = BG_GetFlightDynamicsManager()->m_Use1stPerson;
+        BG_GetFlightDynamicsManager()->m_Prefer1stPerson = !m_Use1stPerson;
       }
     }
   }
-  _R11 = &v84;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [r13+8], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vmovss  dword ptr [r13+14h], xmm1
-    vcvtsi2ss xmm0, xmm0, eax
-    vmulss  xmm1, xmm0, cs:__real@42fe0000
-    vmovss  dword ptr [r13+18h], xmm1
-    vxorps  xmm0, xmm0, xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [r13+0], xmm0
-    vcvtsi2ss xmm1, xmm1, eax
-    vsubss  xmm0, xmm1, xmm7
-    vmovaps xmm7, xmmword ptr [r11-10h]
-    vmovss  dword ptr [r13+0Ch], xmm0
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, eax
-    vaddss  xmm0, xmm1, xmm15
-    vmovaps xmm15, xmmword ptr [r11-70h]
-    vmovss  dword ptr [r13+4], xmm0
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, eax
-    vmovss  dword ptr [r13+2Ch], xmm0
-    vmulss  xmm0, xmm12, dword ptr [rbp+40Ch]
-    vmovss  dword ptr [rbp+0F0h], xmm0
-    vmulss  xmm1, xmm12, dword ptr [rbp+40Ch]
-    vmovss  dword ptr [rbp+0D0h], xmm1
-    vmulss  xmm1, xmm12, dword ptr [rbp+420h]
-    vmovss  dword ptr [rbp+0E8h], xmm1
-    vmulss  xmm0, xmm12, dword ptr [rbp+420h]
-    vmovss  dword ptr [rbp+0C8h], xmm0
-    vmulss  xmm0, xmm12, dword ptr [rbp+418h]
-    vmovss  dword ptr [rbp+0ECh], xmm0
-    vmulss  xmm1, xmm12, dword ptr [rbp+418h]
-    vmovss  dword ptr [rbp+0CCh], xmm1
-    vmulss  xmm1, xmm12, dword ptr [rbp+424h]
-    vmovss  dword ptr [rbp+0F4h], xmm1
-    vmulss  xmm0, xmm12, dword ptr [rbp+424h]
-    vmovaps xmm12, xmmword ptr [r11-60h]
-    vmovss  dword ptr [rbp+0D4h], xmm0
-  }
+  rawControlInputs[2] = (float)v27;
+  rawControlInputs[5] = (float)v7;
+  rawControlInputs[6] = (float)v23 * 127.0;
+  *rawControlInputs = (float)v6;
+  rawControlInputs[3] = (float)v22 - v9;
+  rawControlInputs[1] = (float)pitchmove + v8;
+  rawControlInputs[11] = (float)((LODWORD(cmd->buttons) >> 9) & 1);
+  this->m_controls.externalValues[2] = 0.0078740157 * this->m_ControlInputsRaw[0];
+  this->m_controls.playerValues[2] = 0.0078740157 * this->m_ControlInputsRaw[0];
+  this->m_controls.externalValues[0] = 0.0078740157 * this->m_ControlInputsRaw[5];
+  this->m_controls.playerValues[0] = 0.0078740157 * this->m_ControlInputsRaw[5];
+  this->m_controls.externalValues[1] = 0.0078740157 * this->m_ControlInputsRaw[3];
+  this->m_controls.playerValues[1] = 0.0078740157 * this->m_ControlInputsRaw[3];
+  this->m_controls.externalValues[3] = 0.0078740157 * this->m_ControlInputsRaw[6];
+  this->m_controls.playerValues[3] = 0.0078740157 * this->m_ControlInputsRaw[6];
 }
 
 /*
@@ -7449,352 +4356,226 @@ void HelicopterDynamics::NotifyClientImpact(HelicopterDynamics *this, const Phys
 HelicopterDynamics::PerformAutomaticControl
 ==============
 */
-
-void __fastcall HelicopterDynamics::PerformAutomaticControl(HelicopterDynamics *this, double dT)
+void HelicopterDynamics::PerformAutomaticControl(HelicopterDynamics *this, float dT)
 {
-  const dvar_t *v12; 
+  const dvar_t *v4; 
   FlightDynamicsManager *FlightDynamicsManager; 
-  bool v18; 
-  const dvar_t *v35; 
-  const dvar_t *v36; 
-  const dvar_t *v37; 
-  const dvar_t *v39; 
-  char v40; 
-  char v41; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  const dvar_t *v12; 
+  const dvar_t *v13; 
+  const dvar_t *v14; 
+  float m_RotorRPM; 
+  const dvar_t *v16; 
+  float v17; 
   bool m_EnableFlyByWire; 
-  char v57; 
-  bool v58; 
-  const dvar_t *v72; 
-  const dvar_t *v76; 
-  FlightDynamicsManager *v77; 
-  bool v84; 
-  vec4_t v97[8]; 
-  char v98; 
-  void *retaddr; 
+  const dvar_t *v19; 
+  const dvar_t *v20; 
+  const dvar_t *v21; 
+  FlightDynamicsManager *v22; 
+  const dvar_t *v23; 
+  const dvar_t *v24; 
+  bool v25; 
+  float v26; 
+  float m_ManualControlTimer; 
+  float v28; 
+  vec4_t v29[8]; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmm10, xmm1
-  }
-  _RDI = this;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "HelicopterDynamics::PerformAutomaticControl");
-  *(_WORD *)&_RDI->m_TurbineAudioIgniter = 0;
-  __asm { vmovss  xmm11, cs:__real@3f800000 }
-  if ( _RDI->m_playerControlled )
+  *(_WORD *)&this->m_TurbineAudioIgniter = 0;
+  if ( this->m_playerControlled )
   {
-    if ( !_RDI->m_PreviousUserControlled )
-      goto LABEL_10;
-    v12 = DVARINT_fd_helicopter_turbine_mode;
+    if ( !this->m_PreviousUserControlled )
+      goto LABEL_12;
+    v4 = DVARINT_fd_helicopter_turbine_mode;
     if ( !DVARINT_fd_helicopter_turbine_mode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_turbine_mode") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v12);
-    if ( v12->current.integer == 2 && !HFD_IGNORE_DVAR_TURBINE_MANAGEMENT )
+    Dvar_CheckFrontendServerThread(v4);
+    if ( v4->current.integer == 2 && !HFD_IGNORE_DVAR_TURBINE_MANAGEMENT )
     {
-LABEL_10:
-      *(_WORD *)&_RDI->m_TurbineStarter = 257;
+LABEL_12:
+      *(_WORD *)&this->m_TurbineStarter = 257;
       FlightDynamicsManager = BG_GetFlightDynamicsManager();
-      QuatTransform(&_RDI->m_RotationQuaternion, &FlightDynamicsManager->m_ForwardAxis, &_RDI->m_GyroRudderForwardVector);
-      _RDI->m_GyroAltitude = _RDI->m_centerOfMassWs.v[2];
+      QuatTransform(&this->m_RotationQuaternion, &FlightDynamicsManager->m_ForwardAxis, &this->m_GyroRudderForwardVector);
+      this->m_GyroAltitude = this->m_centerOfMassWs.v[2];
     }
-    _RDI->m_EnableFlyByWire = 1;
+    this->m_EnableFlyByWire = 1;
   }
-  else if ( _RDI->m_PreviousUserControlled )
+  else if ( this->m_PreviousUserControlled )
   {
-    __asm { vcomiss xmm11, dword ptr [rdi+8C4h] }
-    _RDI->m_TurbineStarter = 0;
-    _RDI->m_EnableFlyByWire = 0;
-    _RDI->m_GovernorRPM = 0.0;
+    if ( this->m_GovernorRPM > 1.0 )
+      this->m_TurbineAudioShutdown = 1;
+    this->m_TurbineStarter = 0;
+    this->m_EnableFlyByWire = 0;
+    this->m_GovernorRPM = 0.0;
   }
-  __asm
+  if ( !this->m_TurbineStarter && (float)(HFD_GOVERNOR_MAX_SPEED * 0.5) > this->m_GovernorRPM && !this->m_playerControlled )
   {
-    vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vxorps  xmm9, xmm9, xmm9
+    v6 = this->m_Velocity.v[0];
+    v7 = (float)((float)(HFD_AIRFRAME_INVERSE_MASS * HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_SPEED) * v6) * dT;
+    if ( COERCE_FLOAT(LODWORD(v7) & _xmm) <= COERCE_FLOAT(LODWORD(v6) & _xmm) )
+      v8 = v6 - v7;
+    else
+      v8 = 0.0;
+    this->m_Velocity.v[0] = v8;
+    v9 = this->m_Velocity.v[1];
+    v10 = (float)((float)(HFD_AIRFRAME_INVERSE_MASS * HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_SPEED) * v9) * dT;
+    if ( COERCE_FLOAT(LODWORD(v10) & _xmm) <= COERCE_FLOAT(LODWORD(v9) & _xmm) )
+      v11 = v9 - v10;
+    else
+      v11 = 0.0;
+    this->m_Velocity.v[1] = v11;
   }
-  if ( !_RDI->m_TurbineStarter )
-  {
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-      vmulss  xmm1, xmm0, cs:__real@3f000000
-      vcomiss xmm1, dword ptr [rdi+8C4h]
-    }
-    if ( _RDI->m_TurbineStarter )
-    {
-      v18 = !_RDI->m_playerControlled;
-      if ( !_RDI->m_playerControlled )
-      {
-        __asm
-        {
-          vmovss  xmm0, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-          vmulss  xmm1, xmm0, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_SPEED@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_SPEED
-          vmovss  xmm3, dword ptr [rdi+2E4h]
-          vmulss  xmm0, xmm1, xmm3
-          vmulss  xmm4, xmm0, xmm10
-          vandps  xmm2, xmm4, xmm7
-          vandps  xmm0, xmm3, xmm7
-          vcomiss xmm2, xmm0
-        }
-        if ( _RDI->m_playerControlled )
-          __asm { vxorps  xmm0, xmm0, xmm0 }
-        else
-          __asm { vsubss  xmm0, xmm3, xmm4 }
-        __asm
-        {
-          vmovss  dword ptr [rdi+2E4h], xmm0
-          vmovss  xmm0, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-          vmulss  xmm1, xmm0, cs:?HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_SPEED@@3MA; float HFD_USE_ENHANCED_FBW_RESPONSE_DRAG_SPEED
-          vmovss  xmm3, dword ptr [rdi+2E8h]
-          vmulss  xmm0, xmm1, xmm3
-          vmulss  xmm4, xmm0, xmm10
-          vandps  xmm2, xmm4, xmm7
-          vandps  xmm0, xmm3, xmm7
-          vcomiss xmm2, xmm0
-        }
-        if ( v18 )
-          __asm { vsubss  xmm0, xmm3, xmm4 }
-        else
-          __asm { vxorps  xmm0, xmm0, xmm0 }
-        __asm { vmovss  dword ptr [rdi+2E8h], xmm0 }
-      }
-    }
-  }
-  v35 = DVARINT_fd_helicopter_allow_autostarter;
+  v12 = DVARINT_fd_helicopter_allow_autostarter;
   if ( !DVARINT_fd_helicopter_allow_autostarter && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_allow_autostarter") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v35);
-  if ( !v35->current.integer )
-    goto LABEL_30;
-  v36 = DVARINT_fd_helicopter_turbine_mode;
+  Dvar_CheckFrontendServerThread(v12);
+  if ( !v12->current.integer )
+    goto LABEL_32;
+  v13 = DVARINT_fd_helicopter_turbine_mode;
   if ( !DVARINT_fd_helicopter_turbine_mode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_turbine_mode") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v36);
-  if ( v36->current.integer == 1 )
+  Dvar_CheckFrontendServerThread(v13);
+  if ( v13->current.integer == 1 )
   {
-LABEL_30:
+LABEL_32:
     if ( !HFD_IGNORE_DVAR_TURBINE_MANAGEMENT )
     {
       Com_PrintWarning(16, "[HelicopterDynamics::PerformAutomaticControl] - Turbine was forced to stop via using the dVars. DON'T DO THIS EXCEPT FOR DEBUGGING PURPOSES!");
-      _RDI->m_TurbineStarter = 0;
-      _RDI->m_GovernorRPM = 0.0;
+      this->m_TurbineStarter = 0;
+      this->m_GovernorRPM = 0.0;
     }
   }
-  if ( _RDI->m_TurbineStarter )
-    goto LABEL_38;
-  v37 = DVARINT_fd_helicopter_turbine_mode;
+  if ( this->m_TurbineStarter )
+    goto LABEL_40;
+  v14 = DVARINT_fd_helicopter_turbine_mode;
   if ( !DVARINT_fd_helicopter_turbine_mode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_turbine_mode") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v37);
-  if ( v37->current.integer == 2 && !HFD_IGNORE_DVAR_TURBINE_MANAGEMENT )
+  Dvar_CheckFrontendServerThread(v14);
+  if ( v14->current.integer == 2 && !HFD_IGNORE_DVAR_TURBINE_MANAGEMENT )
   {
-LABEL_38:
-    __asm { vmovss  xmm6, dword ptr [rdi+5B8h] }
-    v39 = DVARFLT_fd_helicopter_start_spoolup_speed;
+LABEL_40:
+    m_RotorRPM = this->m_MainRotor.m_RotorRPM;
+    v16 = DVARFLT_fd_helicopter_start_spoolup_speed;
     if ( !DVARFLT_fd_helicopter_start_spoolup_speed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_start_spoolup_speed") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v39);
-    __asm
+    Dvar_CheckFrontendServerThread(v16);
+    this->m_MainRotor.m_RotorRPM = (float)((float)(1.0 - (float)(dT * v16->current.value)) * m_RotorRPM) + (float)((float)(dT * v16->current.value) * HFD_GOVERNOR_MAX_SPEED);
+    if ( m_RotorRPM > (float)(HFD_GOVERNOR_MAX_SPEED - 10.0) )
+      this->m_TurbineStarter = 0;
+    if ( m_RotorRPM <= (float)(HFD_GOVERNOR_MAX_SPEED - 200.0) )
     {
-      vmulss  xmm3, xmm10, dword ptr [rbx+28h]
-      vsubss  xmm1, xmm11, xmm3
-      vmulss  xmm2, xmm1, xmm6
-      vmulss  xmm0, xmm3, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-      vaddss  xmm2, xmm2, xmm0
-      vmovss  dword ptr [rdi+5B8h], xmm2
-      vmovss  xmm8, cs:__real@41200000
-      vmovss  xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-      vsubss  xmm1, xmm0, xmm8
-      vcomiss xmm6, xmm1
-    }
-    if ( !(v40 | v41) )
-      _RDI->m_TurbineStarter = 0;
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-      vsubss  xmm1, xmm0, cs:__real@43480000
-      vcomiss xmm6, xmm1
-    }
-    if ( v40 | v41 )
-    {
-      _RBX = &_RDI->m_RotationInertiaQuat;
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups [rsp+0E8h+var_98], xmm0
-        vmovaps xmm3, xmm10
-        vmovaps xmm2, xmm8
-      }
-      FlightDynamics::ApplyRotationDragAroundAxis(v97, &_RDI->m_sideVector, *(const float *)&_XMM2, *(const float *)&_XMM3, &_RDI->m_RotationInertiaQuat);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups [rsp+0E8h+var_98], xmm0
-        vmovaps xmm3, xmm10
-        vmovaps xmm2, xmm8
-      }
-      FlightDynamics::ApplyRotationDragAroundAxis(v97, &_RDI->m_forwardVector, *(const float *)&_XMM2, *(const float *)&_XMM3, &_RDI->m_RotationInertiaQuat);
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups [rsp+0E8h+var_98], xmm0
-        vmovaps xmm3, xmm10
-        vmovaps xmm2, xmm8
-      }
-      FlightDynamics::ApplyRotationDragAroundAxis(v97, &_RDI->m_upVector, *(const float *)&_XMM2, *(const float *)&_XMM3, &_RDI->m_RotationInertiaQuat);
+      v29[0] = this->m_RotationInertiaQuat;
+      FlightDynamics::ApplyRotationDragAroundAxis(v29, &this->m_sideVector, 10.0, dT, &this->m_RotationInertiaQuat);
+      v29[0] = this->m_RotationInertiaQuat;
+      FlightDynamics::ApplyRotationDragAroundAxis(v29, &this->m_forwardVector, 10.0, dT, &this->m_RotationInertiaQuat);
+      v29[0] = this->m_RotationInertiaQuat;
+      FlightDynamics::ApplyRotationDragAroundAxis(v29, &this->m_upVector, 10.0, dT, &this->m_RotationInertiaQuat);
     }
     else
     {
-      __asm
+      v17 = this->m_centerOfMassWs.v[2];
+      if ( COERCE_FLOAT(COERCE_UNSIGNED_INT(this->m_GyroAltitude - v17) & _xmm) > 0.001 )
       {
-        vmovss  xmm2, dword ptr [rdi+234h]
-        vmovss  xmm0, dword ptr [rdi+910h]
-        vsubss  xmm1, xmm0, xmm2
-        vandps  xmm1, xmm1, xmm7
-        vcomiss xmm1, cs:__real@3a83126f
+        this->m_GyroAltitude = v17;
+        this->m_GyroAltitudeSet = 1;
       }
-      if ( !(v40 | v41) )
-      {
-        __asm { vmovss  dword ptr [rdi+910h], xmm2 }
-        _RDI->m_GyroAltitudeSet = 1;
-      }
-      m_EnableFlyByWire = _RDI->m_EnableFlyByWire;
-      v57 = 0;
-      v58 = !m_EnableFlyByWire;
+      m_EnableFlyByWire = this->m_EnableFlyByWire;
       if ( m_EnableFlyByWire )
       {
-        _RDI->m_ManualControlTimer = 0.0;
-        _RDI->m_PreviousEnableFlyByWire = m_EnableFlyByWire;
+        this->m_ManualControlTimer = 0.0;
+        this->m_PreviousEnableFlyByWire = m_EnableFlyByWire;
       }
-      __asm
-      {
-        vmovss  xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-        vmovss  dword ptr [rdi+8C4h], xmm0
-      }
+      this->m_GovernorRPM = HFD_GOVERNOR_MAX_SPEED;
     }
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-      vsubss  xmm1, xmm0, cs:?HFD_FBW_GOVERNOR_OPERATING_RPM_THRESHOLD@@3MA; float HFD_FBW_GOVERNOR_OPERATING_RPM_THRESHOLD
-      vcomiss xmm6, xmm1
-    }
-    if ( !(v57 | v58) )
+    if ( m_RotorRPM > (float)(HFD_GOVERNOR_MAX_SPEED - HFD_FBW_GOVERNOR_OPERATING_RPM_THRESHOLD) )
     {
       Dvar_SetInt_Internal(DVARINT_fd_helicopter_turbine_mode, 0);
-      v72 = DVARBOOL_fd_helicopter_start_autotakeoff;
+      v19 = DVARBOOL_fd_helicopter_start_autotakeoff;
       if ( !DVARBOOL_fd_helicopter_start_autotakeoff && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_start_autotakeoff") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(v72);
-      if ( v72->current.enabled )
+      Dvar_CheckFrontendServerThread(v19);
+      if ( v19->current.enabled )
       {
-        _RBX = DVARFLT_fd_helicopter_start_autotakeoff_height;
+        v20 = DVARFLT_fd_helicopter_start_autotakeoff_height;
         if ( !DVARFLT_fd_helicopter_start_autotakeoff_height && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_start_autotakeoff_height") )
           __debugbreak();
-        Dvar_CheckFrontendServerThread(_RBX);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+28h]
-          vaddss  xmm0, xmm0, dword ptr [rdi+910h]
-          vmovss  dword ptr [rdi+910h], xmm0
-        }
-        _RDI->m_GyroAltitudeSet = 1;
+        Dvar_CheckFrontendServerThread(v20);
+        this->m_GyroAltitude = v20->current.value + this->m_GyroAltitude;
+        this->m_GyroAltitudeSet = 1;
       }
     }
   }
-  v76 = DVARINT_fd_helicopter_start_spooled;
+  v21 = DVARINT_fd_helicopter_start_spooled;
   if ( !DVARINT_fd_helicopter_start_spooled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_start_spooled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v76);
-  if ( v76->current.integer && !_RDI->m_PreviousUserControlled )
+  Dvar_CheckFrontendServerThread(v21);
+  if ( v21->current.integer && !this->m_PreviousUserControlled )
   {
-    v77 = BG_GetFlightDynamicsManager();
-    QuatTransform(&_RDI->m_RotationQuaternion, &v77->m_ForwardAxis, &_RDI->m_GyroRudderForwardVector);
-    _RDI->m_GyroAltitude = _RDI->m_centerOfMassWs.v[2];
-    _RDI->m_GyroAltitudeSet = 0;
-    _RDI->m_GyroGPSlocation.v[0] = _RDI->m_centerOfMassWs.v[0];
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rdi+230h]
-      vmovss  dword ptr [rdi+8F0h], xmm0
-      vmovss  xmm1, dword ptr [rdi+234h]
-      vmovss  dword ptr [rdi+8F4h], xmm1
-    }
-    _RDI->m_GyroGPSlocationSet = 0;
+    v22 = BG_GetFlightDynamicsManager();
+    QuatTransform(&this->m_RotationQuaternion, &v22->m_ForwardAxis, &this->m_GyroRudderForwardVector);
+    this->m_GyroAltitude = this->m_centerOfMassWs.v[2];
+    this->m_GyroAltitudeSet = 0;
+    this->m_GyroGPSlocation.v[0] = this->m_centerOfMassWs.v[0];
+    this->m_GyroGPSlocation.v[1] = this->m_centerOfMassWs.v[1];
+    this->m_GyroGPSlocation.v[2] = this->m_centerOfMassWs.v[2];
+    this->m_GyroGPSlocationSet = 0;
   }
-  _RBX = DVARFLT_fd_helicopter_force_rotor_rpm;
+  v23 = DVARFLT_fd_helicopter_force_rotor_rpm;
   if ( !DVARFLT_fd_helicopter_force_rotor_rpm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_force_rotor_rpm") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+28h]
-    vcomiss xmm0, cs:__real@3c23d70a
-  }
-  if ( !(v40 | v18) )
+  Dvar_CheckFrontendServerThread(v23);
+  if ( v23->current.value > 0.0099999998 )
   {
     Com_PrintWarning(16, "[HelicopterDynamics::PerformAutomaticControl] - Turbine was forced to fixed RPM using dVars. DON'T DO THIS EXCEPT FOR DEBUGGING PURPOSES!");
-    _RBX = DVARFLT_fd_helicopter_force_rotor_rpm;
+    v24 = DVARFLT_fd_helicopter_force_rotor_rpm;
     if ( !DVARFLT_fd_helicopter_force_rotor_rpm && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_force_rotor_rpm") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm
+    Dvar_CheckFrontendServerThread(v24);
+    this->m_MainRotor.m_RotorRPM = v24->current.value;
+  }
+  this->m_PreviousUserControlled = this->m_playerControlled;
+  v25 = this->m_EnableFlyByWire;
+  if ( v25 != this->m_PreviousEnableFlyByWire )
+  {
+    if ( v25 )
     {
-      vmovss  xmm0, dword ptr [rbx+28h]
-      vmovss  dword ptr [rdi+5B8h], xmm0
+      v26 = dT * HFD_FBW_TRANSITION_TIME_ENABLE;
+      m_ManualControlTimer = this->m_ManualControlTimer;
+      this->m_ManualControlTimer = m_ManualControlTimer - (float)(dT * HFD_FBW_TRANSITION_TIME_ENABLE);
+      if ( (float)(m_ManualControlTimer - v26) >= 0.0 )
+        goto LABEL_84;
+      this->m_ManualControlTimer = 0.0;
+      goto LABEL_83;
+    }
+    this->m_FBWControlInputs[5] = -1.0;
+    if ( this->m_Velocity.v[2] > 0.0 )
+      this->m_Velocity.v[2] = 0.0;
+    v28 = (float)(dT * HFD_FBW_TRANSITION_TIME_DISABLE) + this->m_ManualControlTimer;
+    this->m_ManualControlTimer = v28;
+    if ( v28 > 1.0 )
+    {
+      this->m_ManualControlTimer = 1.0;
+      v25 = this->m_EnableFlyByWire;
+LABEL_83:
+      this->m_PreviousEnableFlyByWire = v25;
     }
   }
-  _RDI->m_PreviousUserControlled = _RDI->m_playerControlled;
-  v84 = _RDI->m_EnableFlyByWire;
-  if ( v84 != _RDI->m_PreviousEnableFlyByWire )
+LABEL_84:
+  if ( !this->m_inputControlsEnabled )
   {
-    if ( v84 )
-    {
-      __asm
-      {
-        vmulss  xmm2, xmm10, cs:?HFD_FBW_TRANSITION_TIME_ENABLE@@3MA; float HFD_FBW_TRANSITION_TIME_ENABLE
-        vmovss  xmm1, dword ptr [rdi+944h]
-        vsubss  xmm3, xmm1, xmm2
-        vmovss  dword ptr [rdi+944h], xmm3
-        vcomiss xmm3, xmm9
-      }
-    }
-    else
-    {
-      _RDI->m_FBWControlInputs[5] = -1.0;
-      __asm
-      {
-        vcomiss xmm9, dword ptr [rdi+2ECh]
-        vmulss  xmm1, xmm10, cs:?HFD_FBW_TRANSITION_TIME_DISABLE@@3MA; float HFD_FBW_TRANSITION_TIME_DISABLE
-        vaddss  xmm2, xmm1, dword ptr [rdi+944h]
-        vmovss  dword ptr [rdi+944h], xmm2
-        vcomiss xmm2, xmm11
-      }
-    }
-  }
-  if ( !_RDI->m_inputControlsEnabled )
-  {
-    __asm { vcomiss xmm11, dword ptr [rdi+8C4h] }
-    _RDI->m_ManualControlTimer = 1.0;
-    _RDI->m_TurbineStarter = 0;
-    _RDI->m_EnableFlyByWire = 0;
-    _RDI->m_GovernorRPM = 0.0;
+    if ( this->m_GovernorRPM > 1.0 )
+      this->m_TurbineAudioShutdown = 1;
+    this->m_ManualControlTimer = 1.0;
+    this->m_TurbineStarter = 0;
+    this->m_EnableFlyByWire = 0;
+    this->m_GovernorRPM = 0.0;
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v98;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
 }
 
 /*
@@ -7822,185 +4603,97 @@ void HelicopterDynamics::PerformCoordinatedFlight(HelicopterDynamics *this)
 HelicopterDynamics::PerformThrusterControl
 ==============
 */
-
-void __fastcall HelicopterDynamics::PerformThrusterControl(HelicopterDynamics *this, double dT)
+void HelicopterDynamics::PerformThrusterControl(HelicopterDynamics *this, float dT)
 {
-  char v24; 
-  char v25; 
-  int v92; 
-  int v93; 
-  int v94; 
-  vec3_t v95; 
-  __int64 v96; 
-  vec3_t v97; 
-  vec3_t v98; 
-  vec3_t v99; 
-  char vars0; 
-  void *retaddr; 
+  float v4; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  __int128 v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  __int128 v17; 
+  float v18; 
+  float v19; 
+  float v20; 
+  __int128 v22; 
+  float v26; 
+  float v27; 
+  float v28; 
+  float v29; 
+  vec3_t v30; 
+  __int64 v31; 
+  vec3_t v32; 
+  vec3_t v33; 
+  vec3_t v34; 
 
-  _RAX = &retaddr;
-  v96 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps xmmword ptr [rax-98h], xmm14
-    vmovaps xmm14, xmm1
-  }
-  _RBX = this;
+  v31 = -2i64;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "HelicopterDynamics::PerformThrusterControl");
-  __asm
+  v4 = (float)(dT * HFD_GRAVITY_CORRECTOR) + this->m_Velocity.v[2];
+  this->m_Velocity.v[2] = v4;
+  v5 = this->m_Velocity.v[1];
+  v6 = v4;
+  if ( (float)((float)((float)(this->m_Velocity.v[0] * this->m_Velocity.v[0]) + (float)(v5 * v5)) + (float)(v6 * v6)) > 12390400.0 )
   {
-    vmulss  xmm2, xmm14, cs:?HFD_GRAVITY_CORRECTOR@@3MA; float HFD_GRAVITY_CORRECTOR
-    vaddss  xmm3, xmm2, dword ptr [rbx+2ECh]
-    vmovss  dword ptr [rbx+2ECh], xmm3
-    vmovss  xmm12, dword ptr [rbx+2E8h]
-    vmovss  xmm0, dword ptr [rbx+2E4h]
-    vmovaps xmm13, xmm3
-    vmulss  xmm1, xmm0, xmm0
-    vmulss  xmm0, xmm12, xmm12
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm3, xmm3
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, cs:__real@4b3d1000
+    *(_QWORD *)this->m_Velocity.v = 0i64;
+    this->m_Velocity.v[2] = 0.0;
+    v6 = 0.0;
+    v5 = this->m_Velocity.v[1];
   }
-  if ( !(v24 | v25) )
+  v7 = this->m_forwardVector.v[0];
+  v8 = this->m_Velocity.v[0];
+  v9 = this->m_forwardVector.v[2];
+  v10 = (float)((float)(v8 * v7) + (float)(v5 * this->m_forwardVector.v[1])) + (float)(v9 * v6);
+  v12 = LODWORD(v7);
+  *(float *)&v12 = v7 * v10;
+  _XMM10 = v12;
+  v32.v[2] = v9 * v10;
+  v13 = this->m_upVector.v[0];
+  v14 = this->m_upVector.v[2];
+  v15 = (float)((float)(this->m_upVector.v[1] * v5) + (float)(v13 * v8)) + (float)(v14 * v6);
+  v17 = LODWORD(v13);
+  *(float *)&v17 = v13 * v15;
+  _XMM11 = v17;
+  v33.v[2] = v14 * v15;
+  v18 = this->m_sideVector.v[0];
+  v19 = this->m_sideVector.v[2];
+  v20 = (float)((float)(this->m_sideVector.v[1] * v5) + (float)(v18 * v8)) + (float)(v19 * v6);
+  v22 = LODWORD(v18);
+  *(float *)&v22 = v18 * v20;
+  _XMM7 = v22;
+  v34.v[2] = v19 * v20;
+  __asm { vunpcklps xmm1, xmm10, xmm8 }
+  *(double *)v32.v = *(double *)&_XMM1;
+  *(double *)v30.v = *(double *)&_XMM1;
+  v30.v[2] = v32.v[2];
+  FlightDynamics::CalculateAeroDrag(&v30, HFD_AIRFRAME_INVERSE_MASS * HFD_AIRFRAME_DRAG_FORWARD, dT, &v32);
+  __asm { vunpcklps xmm0, xmm11, xmm9 }
+  *(double *)v33.v = *(double *)&_XMM0;
+  *(double *)v30.v = *(double *)&_XMM0;
+  v30.v[2] = v33.v[2];
+  FlightDynamics::CalculateAeroDrag(&v30, HFD_AIRFRAME_DRAG_VERTICAL * HFD_AIRFRAME_INVERSE_MASS, dT, &v33);
+  __asm { vunpcklps xmm0, xmm7, xmm6 }
+  *(double *)v34.v = *(double *)&_XMM0;
+  *(double *)v30.v = *(double *)&_XMM0;
+  v30.v[2] = v34.v[2];
+  FlightDynamics::CalculateAeroDrag(&v30, HFD_AIRFRAME_DRAG_SIDEWAYS * HFD_AIRFRAME_INVERSE_MASS, dT, &v34);
+  v26 = (float)(v32.v[0] + v33.v[0]) + v34.v[0];
+  v27 = (float)(v32.v[1] + v33.v[1]) + v34.v[1];
+  v28 = (float)(v32.v[2] + v33.v[2]) + v34.v[2];
+  this->m_Velocity.v[0] = v26;
+  this->m_Velocity.v[1] = v27;
+  this->m_Velocity.v[2] = v28;
+  v29 = v26;
+  if ( (LODWORD(v26) & 0x7F800000) == 2139095040 || (v29 = v27, (LODWORD(v27) & 0x7F800000) == 2139095040) || (v29 = v28, (LODWORD(v28) & 0x7F800000) == 2139095040) )
   {
-    *(_QWORD *)_RBX->m_Velocity.v = 0i64;
-    _RBX->m_Velocity.v[2] = 0.0;
-    __asm
-    {
-      vxorps  xmm13, xmm3, xmm3
-      vmovss  xmm12, dword ptr [rbx+2E8h]
-    }
-  }
-  __asm
-  {
-    vmovss  xmm6, dword ptr [rbx+348h]
-    vmovss  xmm4, dword ptr [rbx+344h]
-    vmovss  xmm7, dword ptr [rbx+2E4h]
-    vmovss  xmm5, dword ptr [rbx+34Ch]
-    vmulss  xmm1, xmm7, xmm4
-    vmulss  xmm0, xmm12, xmm6
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm13
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm10, xmm4, xmm3
-    vmulss  xmm8, xmm6, xmm3
-    vmulss  xmm0, xmm5, xmm3
-    vmovss  dword ptr [rsp+130h+var_D0], xmm0
-    vmovss  xmm6, dword ptr [rbx+360h]
-    vmovss  xmm4, dword ptr [rbx+35Ch]
-    vmovss  xmm5, dword ptr [rbx+364h]
-    vmulss  xmm1, xmm6, xmm12
-    vmulss  xmm0, xmm4, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm13
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm11, xmm4, xmm3
-    vmulss  xmm9, xmm6, xmm3
-    vmulss  xmm0, xmm5, xmm3
-    vmovss  dword ptr [rsp+130h+var_C0], xmm0
-    vmovss  xmm6, dword ptr [rbx+354h]
-    vmovss  xmm4, dword ptr [rbx+350h]
-    vmovss  xmm5, dword ptr [rbx+358h]
-    vmulss  xmm1, xmm6, xmm12
-    vmulss  xmm0, xmm4, xmm7
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm13
-    vaddss  xmm3, xmm2, xmm1
-    vmulss  xmm7, xmm4, xmm3
-    vmulss  xmm6, xmm6, xmm3
-    vmulss  xmm0, xmm5, xmm3
-    vmovss  [rbp+30h+var_B0], xmm0
-    vunpcklps xmm1, xmm10, xmm8
-    vmovsd  qword ptr [rsp+130h+var_D8], xmm1
-    vmovsd  qword ptr [rsp+130h+var_F0], xmm1
-  }
-  v95.v[2] = v97.v[2];
-  __asm
-  {
-    vmovss  xmm0, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-    vmulss  xmm1, xmm0, cs:?HFD_AIRFRAME_DRAG_FORWARD@@3MA; float HFD_AIRFRAME_DRAG_FORWARD
-    vmovaps xmm2, xmm14
-  }
-  FlightDynamics::CalculateAeroDrag(&v95, *(float *)&_XMM1, *(float *)&_XMM2, &v97);
-  __asm
-  {
-    vunpcklps xmm0, xmm11, xmm9
-    vmovsd  qword ptr [rsp+130h+var_C8], xmm0
-    vmovsd  qword ptr [rsp+130h+var_F0], xmm0
-  }
-  v95.v[2] = v98.v[2];
-  __asm
-  {
-    vmovss  xmm0, cs:?HFD_AIRFRAME_DRAG_VERTICAL@@3MA; float HFD_AIRFRAME_DRAG_VERTICAL
-    vmulss  xmm1, xmm0, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-    vmovaps xmm2, xmm14
-  }
-  FlightDynamics::CalculateAeroDrag(&v95, *(float *)&_XMM1, *(float *)&_XMM2, &v98);
-  __asm
-  {
-    vunpcklps xmm0, xmm7, xmm6
-    vmovsd  [rsp+130h+var_B8], xmm0
-    vmovsd  qword ptr [rsp+130h+var_F0], xmm0
-  }
-  v95.v[2] = v99.v[2];
-  __asm
-  {
-    vmovss  xmm0, cs:?HFD_AIRFRAME_DRAG_SIDEWAYS@@3MA; float HFD_AIRFRAME_DRAG_SIDEWAYS
-    vmulss  xmm1, xmm0, cs:?HFD_AIRFRAME_INVERSE_MASS@@3MA; float HFD_AIRFRAME_INVERSE_MASS
-    vmovaps xmm2, xmm14
-  }
-  FlightDynamics::CalculateAeroDrag(&v95, *(float *)&_XMM1, *(float *)&_XMM2, &v99);
-  __asm
-  {
-    vmovss  xmm0, [rsp+130h+var_D8]
-    vaddss  xmm2, xmm0, [rsp+130h+var_C8]
-    vmovss  xmm1, [rsp+130h+var_D4]
-    vaddss  xmm3, xmm1, [rsp+130h+var_C4]
-    vmovss  xmm0, dword ptr [rsp+130h+var_D0]
-    vaddss  xmm4, xmm0, dword ptr [rsp+130h+var_C0]
-    vaddss  xmm5, xmm2, dword ptr [rsp+130h+var_B8]
-    vaddss  xmm2, xmm3, dword ptr [rsp+130h+var_B8+4]
-    vaddss  xmm1, xmm4, [rbp+30h+var_B0]
-    vmovss  dword ptr [rbx+2E4h], xmm5
-    vmovss  dword ptr [rbx+2E8h], xmm2
-    vmovss  dword ptr [rbx+2ECh], xmm1
-    vmovss  [rsp+130h+var_100], xmm5
-  }
-  if ( (v92 & 0x7F800000) == 2139095040 )
-    goto LABEL_11;
-  __asm { vmovss  [rsp+130h+var_100], xmm2 }
-  if ( (v93 & 0x7F800000) == 2139095040 )
-    goto LABEL_11;
-  __asm { vmovss  [rsp+130h+var_100], xmm1 }
-  if ( (v94 & 0x7F800000) == 2139095040 )
-  {
-LABEL_11:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3195, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_Velocity )[0] ) && !IS_NAN( ( m_Velocity )[1] ) && !IS_NAN( ( m_Velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_Velocity )[0] ) && !IS_NAN( ( m_Velocity )[1] ) && !IS_NAN( ( m_Velocity )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3195, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_Velocity )[0] ) && !IS_NAN( ( m_Velocity )[1] ) && !IS_NAN( ( m_Velocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_Velocity )[0] ) && !IS_NAN( ( m_Velocity )[1] ) && !IS_NAN( ( m_Velocity )[2] )", v29) )
       __debugbreak();
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-  }
 }
 
 /*
@@ -8071,28 +4764,18 @@ FlightDynamicsRotorSystem::SetAirspeed
 */
 void FlightDynamicsRotorSystem::SetAirspeed(FlightDynamicsRotorSystem *this, vec3_t *airspeedVector)
 {
-  char v2; 
+  float v2; 
+  float v3; 
+  float v4; 
 
-  __asm
+  v2 = airspeedVector->v[1];
+  v3 = airspeedVector->v[0];
+  v4 = airspeedVector->v[2];
+  if ( (float)((float)((float)(v3 * v3) + (float)(v2 * v2)) + (float)(v4 * v4)) < 151782400.0 )
   {
-    vmovss  xmm3, dword ptr [rdx+4]
-    vmovss  xmm4, dword ptr [rdx]
-    vmovss  xmm5, dword ptr [rdx+8]
-    vmulss  xmm1, xmm4, xmm4
-    vmulss  xmm0, xmm3, xmm3
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm2, xmm1
-    vcomiss xmm2, cs:__real@4d10c040
-  }
-  if ( v2 )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rcx+14h], xmm4
-      vmovss  dword ptr [rcx+18h], xmm3
-      vmovss  dword ptr [rcx+1Ch], xmm5
-    }
+    this->m_AirspeedVector.v[0] = v3;
+    this->m_AirspeedVector.v[1] = v2;
+    this->m_AirspeedVector.v[2] = v4;
   }
 }
 
@@ -8123,10 +4806,9 @@ void FlightDynamicsRotorSystem::SetPositionAndOrientation(FlightDynamicsRotorSys
 FlightDynamicsRotorSystem::SetRotorAngularPosition
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::SetRotorAngularPosition(FlightDynamicsRotorSystem *this, double angularPosition)
+void FlightDynamicsRotorSystem::SetRotorAngularPosition(FlightDynamicsRotorSystem *this, float angularPosition)
 {
-  __asm { vmovss  dword ptr [rcx+9Ch], xmm1 }
+  this->m_RotorPosition = angularPosition;
 }
 
 /*
@@ -8134,10 +4816,9 @@ void __fastcall FlightDynamicsRotorSystem::SetRotorAngularPosition(FlightDynamic
 FlightDynamicsRotorSystem::SetRotorAngularRPM
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::SetRotorAngularRPM(FlightDynamicsRotorSystem *this, double rpm)
+void FlightDynamicsRotorSystem::SetRotorAngularRPM(FlightDynamicsRotorSystem *this, float rpm)
 {
-  __asm { vmovss  dword ptr [rcx+98h], xmm1 }
+  this->m_RotorRPM = rpm;
 }
 
 /*
@@ -8164,36 +4845,16 @@ void HelicopterDynamics::SetSoundHorn(HelicopterDynamics *this, unsigned int hor
 FlightDynamicsRotorSystem::SetSwashplate
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::SetSwashplate(FlightDynamicsRotorSystem *this, double cyclicForward, double cyclicLateral, double collective)
+void FlightDynamicsRotorSystem::SetSwashplate(FlightDynamicsRotorSystem *this, float cyclicForward, float cyclicLateral, float collective)
 {
-  int v7; 
-  int v8; 
-  int v9; 
-
-  __asm { vmovss  [rsp+38h+arg_8], xmm1 }
-  _RBX = this;
-  __asm
-  {
-    vmovss  dword ptr [rcx+8Ch], xmm1
-    vmovss  dword ptr [rcx+90h], xmm2
-    vmovss  dword ptr [rcx+94h], xmm3
-  }
-  if ( (v7 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3584, ASSERT_TYPE_SANITY, "( !IS_NAN( m_SwashplateCyclicForward ) )", (const char *)&queryFormat, "!IS_NAN( m_SwashplateCyclicForward )") )
+  this->m_SwashplateCyclicForward = cyclicForward;
+  this->m_SwashplateCyclicLateral = cyclicLateral;
+  this->m_SwashplateCollective = collective;
+  if ( (LODWORD(cyclicForward) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3584, ASSERT_TYPE_SANITY, "( !IS_NAN( m_SwashplateCyclicForward ) )", (const char *)&queryFormat, "!IS_NAN( m_SwashplateCyclicForward )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+90h]
-    vmovss  [rsp+38h+arg_8], xmm0
-  }
-  if ( (v8 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3585, ASSERT_TYPE_SANITY, "( !IS_NAN( m_SwashplateCyclicLateral ) )", (const char *)&queryFormat, "!IS_NAN( m_SwashplateCyclicLateral )") )
+  if ( (LODWORD(this->m_SwashplateCyclicLateral) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3585, ASSERT_TYPE_SANITY, "( !IS_NAN( m_SwashplateCyclicLateral ) )", (const char *)&queryFormat, "!IS_NAN( m_SwashplateCyclicLateral )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+94h]
-    vmovss  [rsp+38h+arg_8], xmm0
-  }
-  if ( (v9 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3586, ASSERT_TYPE_SANITY, "( !IS_NAN( m_SwashplateCollective ) )", (const char *)&queryFormat, "!IS_NAN( m_SwashplateCollective )") )
+  if ( (LODWORD(this->m_SwashplateCollective) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3586, ASSERT_TYPE_SANITY, "( !IS_NAN( m_SwashplateCollective ) )", (const char *)&queryFormat, "!IS_NAN( m_SwashplateCollective )") )
     __debugbreak();
 }
 
@@ -8202,137 +4863,47 @@ void __fastcall FlightDynamicsRotorSystem::SetSwashplate(FlightDynamicsRotorSyst
 FlightDynamicsRotorSystem::SetSwashplateDT
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::SetSwashplateDT(FlightDynamicsRotorSystem *this, double cyclicForward, double cyclicLateral, double collective)
+void FlightDynamicsRotorSystem::SetSwashplateDT(FlightDynamicsRotorSystem *this, float cyclicForward, float cyclicLateral, float collective, float dT)
 {
-  bool v25; 
-  int dTa; 
-  int dTb; 
-  int dTc; 
+  float v6; 
+  double v7; 
+  float v8; 
+  double v9; 
+  bool v10; 
+  double v11; 
+  float v12; 
+  double v13; 
+  double v14; 
+  double v15; 
+  double v16; 
 
-  __asm
+  v6 = collective;
+  v7 = I_pow(COERCE_FLOAT(COERCE_UNSIGNED_INT(cyclicForward - this->m_SwashplateCyclicForward) & _xmm), HFD_CONTROL_INPUT_DAMPER_EXPO);
+  v8 = cyclicLateral - this->m_SwashplateCyclicLateral;
+  this->m_SwashplateCyclicForward = (float)((float)(1.0 - (float)((float)(*(float *)&v7 * HFD_CONTROL_INPUT_DAMPER) * dT)) * this->m_SwashplateCyclicForward) + (float)((float)((float)(*(float *)&v7 * HFD_CONTROL_INPUT_DAMPER) * dT) * cyclicForward);
+  v9 = I_pow(COERCE_FLOAT(LODWORD(v8) & _xmm), HFD_CONTROL_INPUT_DAMPER_EXPO);
+  v10 = !this->m_SmoothCollective;
+  this->m_SwashplateCyclicLateral = (float)((float)(1.0 - (float)((float)(*(float *)&v9 * HFD_CONTROL_INPUT_DAMPER) * dT)) * this->m_SwashplateCyclicLateral) + (float)((float)((float)(*(float *)&v9 * HFD_CONTROL_INPUT_DAMPER) * dT) * cyclicLateral);
+  if ( !v10 )
   {
-    vsubss  xmm0, xmm1, dword ptr [rcx+8Ch]
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; value
-    vmovaps [rsp+78h+var_18], xmm6
+    v11 = I_pow(COERCE_FLOAT(COERCE_UNSIGNED_INT(collective - this->m_SwashplateCollective) & _xmm), HFD_CONTROL_INPUT_DAMPER_COLLECTIVE_EXPOT);
+    v12 = (float)(*(float *)&v11 * this->m_SwasplateCollectiveRate) * dT;
+    v13 = FD_ComputeExpo(collective, HFD_CONTROL_INPUT_EXPO_COLLECTIVE);
+    v6 = (float)((float)(1.0 - v12) * this->m_SwashplateCollective) + (float)(v12 * *(float *)&v13);
   }
-  _RBX = this;
-  __asm
-  {
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps xmm6, xmm1
-    vmovss  xmm1, cs:?HFD_CONTROL_INPUT_DAMPER_EXPO@@3MA; expo
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm3
-    vmovaps xmm7, xmm2
-  }
-  *(double *)&_XMM0 = I_pow(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm3, xmm0, cs:?HFD_CONTROL_INPUT_DAMPER@@3MA; float HFD_CONTROL_INPUT_DAMPER
-    vmulss  xmm1, xmm3, [rsp+78h+dT]
-    vmovss  xmm8, cs:__real@3f800000
-    vsubss  xmm0, xmm8, xmm1
-    vmulss  xmm2, xmm0, dword ptr [rbx+8Ch]
-    vsubss  xmm0, xmm7, dword ptr [rbx+90h]
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; value
-    vmulss  xmm1, xmm1, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  dword ptr [rbx+8Ch], xmm2
-    vmovss  xmm1, cs:?HFD_CONTROL_INPUT_DAMPER_EXPO@@3MA; expo
-  }
-  *(double *)&_XMM0 = I_pow(*(float *)&_XMM0, *(float *)&_XMM1);
-  v25 = !_RBX->m_SmoothCollective;
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:?HFD_CONTROL_INPUT_DAMPER@@3MA; float HFD_CONTROL_INPUT_DAMPER
-    vmulss  xmm3, xmm1, [rsp+78h+dT]
-    vsubss  xmm0, xmm8, xmm3
-    vmulss  xmm2, xmm0, dword ptr [rbx+90h]
-    vmulss  xmm1, xmm3, xmm7
-    vaddss  xmm2, xmm2, xmm1
-    vmovss  dword ptr [rbx+90h], xmm2
-  }
-  if ( !v25 )
-  {
-    __asm
-    {
-      vsubss  xmm0, xmm9, dword ptr [rbx+94h]
-      vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff; value
-      vmovss  xmm1, cs:?HFD_CONTROL_INPUT_DAMPER_COLLECTIVE_EXPOT@@3MA; expo
-    }
-    *(double *)&_XMM0 = I_pow(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, dword ptr [rbx+88h]
-      vmulss  xmm6, xmm1, [rsp+78h+dT]
-      vmovss  xmm1, cs:?HFD_CONTROL_INPUT_EXPO_COLLECTIVE@@3MA; expo
-      vmovaps xmm0, xmm9; value
-    }
-    FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vsubss  xmm1, xmm8, xmm6
-      vmulss  xmm2, xmm1, dword ptr [rbx+94h]
-      vmulss  xmm0, xmm6, xmm0
-      vaddss  xmm9, xmm2, xmm0
-    }
-  }
-  __asm
-  {
-    vmovss  dword ptr [rbx+94h], xmm9
-    vmovss  xmm0, dword ptr [rbx+8Ch]
-    vmovss  [rsp+78h+dT], xmm0
-  }
-  if ( (dTa & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3611, ASSERT_TYPE_SANITY, "( !IS_NAN( m_SwashplateCyclicForward ) )", (const char *)&queryFormat, "!IS_NAN( m_SwashplateCyclicForward )") )
+  this->m_SwashplateCollective = v6;
+  if ( (LODWORD(this->m_SwashplateCyclicForward) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3611, ASSERT_TYPE_SANITY, "( !IS_NAN( m_SwashplateCyclicForward ) )", (const char *)&queryFormat, "!IS_NAN( m_SwashplateCyclicForward )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+90h]
-    vmovss  [rsp+78h+dT], xmm0
-  }
-  if ( (dTb & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3612, ASSERT_TYPE_SANITY, "( !IS_NAN( m_SwashplateCyclicLateral ) )", (const char *)&queryFormat, "!IS_NAN( m_SwashplateCyclicLateral )") )
+  if ( (LODWORD(this->m_SwashplateCyclicLateral) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3612, ASSERT_TYPE_SANITY, "( !IS_NAN( m_SwashplateCyclicLateral ) )", (const char *)&queryFormat, "!IS_NAN( m_SwashplateCyclicLateral )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rbx+94h]
-    vmovss  [rsp+78h+dT], xmm0
-  }
-  if ( (dTc & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3613, ASSERT_TYPE_SANITY, "( !IS_NAN( m_SwashplateCollective ) )", (const char *)&queryFormat, "!IS_NAN( m_SwashplateCollective )") )
+  if ( (LODWORD(this->m_SwashplateCollective) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3613, ASSERT_TYPE_SANITY, "( !IS_NAN( m_SwashplateCollective ) )", (const char *)&queryFormat, "!IS_NAN( m_SwashplateCollective )") )
     __debugbreak();
-  __asm
-  {
-    vmovss  xmm6, cs:__real@bf800000
-    vmovss  xmm0, dword ptr [rbx+8Ch]; val
-    vmovaps xmm1, xmm6; min
-    vmovaps xmm2, xmm8; max
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rbx+8Ch], xmm0
-    vmovss  xmm0, dword ptr [rbx+90h]; val
-    vmovaps xmm2, xmm8; max
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  dword ptr [rbx+90h], xmm0
-    vmovss  xmm0, dword ptr [rbx+94h]; val
-    vmovaps xmm2, xmm8; max
-    vmovaps xmm1, xmm6; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovaps xmm6, [rsp+78h+var_18]
-    vmovaps xmm7, [rsp+78h+var_28]
-    vmovaps xmm8, [rsp+78h+var_38]
-    vmovaps xmm9, [rsp+78h+var_48]
-    vmovss  dword ptr [rbx+94h], xmm0
-  }
+  v14 = I_fclamp(this->m_SwashplateCyclicForward, -1.0, 1.0);
+  this->m_SwashplateCyclicForward = *(float *)&v14;
+  v15 = I_fclamp(this->m_SwashplateCyclicLateral, -1.0, 1.0);
+  this->m_SwashplateCyclicLateral = *(float *)&v15;
+  v16 = I_fclamp(this->m_SwashplateCollective, -1.0, 1.0);
+  this->m_SwashplateCollective = *(float *)&v16;
 }
 
 /*
@@ -8340,14 +4911,10 @@ void __fastcall FlightDynamicsRotorSystem::SetSwashplateDT(FlightDynamicsRotorSy
 FlightDynamicsRotorSystem::SetSwasplateRates
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::SetSwasplateRates(FlightDynamicsRotorSystem *this, double cyclic, double collective)
+void FlightDynamicsRotorSystem::SetSwasplateRates(FlightDynamicsRotorSystem *this, float cyclic, float collective)
 {
-  __asm
-  {
-    vmovss  dword ptr [rcx+84h], xmm1
-    vmovss  dword ptr [rcx+88h], xmm2
-  }
+  this->m_SwasplateCyclicRate = cyclic;
+  this->m_SwasplateCollectiveRate = collective;
 }
 
 /*
@@ -8357,26 +4924,23 @@ HelicopterDynamics::Setup
 */
 bool HelicopterDynamics::Setup(HelicopterDynamics *this, BGVehicles *vehicleSystem, Physics_WorldId worldId, unsigned int vehicleId, int entityNumber, unsigned int vehDefIndex, const VehicleDef *vehDef)
 {
+  __int128 v7; 
+  __int128 v8; 
   bool result; 
-  const dvar_t *v27; 
-  const dvar_t *v30; 
-  float v34; 
-  float v39; 
+  float v11; 
+  float v12; 
+  const dvar_t *v13; 
+  const dvar_t *v14; 
+  float v15; 
+  float v16; 
+  __m128 v18; 
+  float v19; 
+  __m128 v20; 
   FlightDynamicsManager *FlightDynamicsManager; 
-  float bladeWeight; 
-  float bladeWeighta; 
-  float bladeMaxDeflection; 
-  float bladeMaxDeflectiona; 
-  float v49; 
-  float v50; 
-  float v51; 
-  float v52; 
-  float v53; 
-  float v54; 
   Physics_WorldId worldIda; 
-  float v56; 
-  float v57; 
   vec4_t out; 
+  __int128 v25; 
+  __int128 v26; 
 
   _RDI = this;
   result = FlightDynamics::Setup(this, vehicleSystem, worldId, vehicleId, entityNumber, vehDefIndex, vehDef);
@@ -8401,104 +4965,49 @@ bool HelicopterDynamics::Setup(HelicopterDynamics *this, BGVehicles *vehicleSyst
     _RDI->m_MainRotorSwashplateDriverOffset = 0.0;
     *(_WORD *)&_RDI->m_PreviousEnableFlyByWire = 0;
     _RDI->m_NumberOfRotors = 0;
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_BLADE_MAX_DEFLECTION_MAIN@@3MA; float HFD_BLADE_MAX_DEFLECTION_MAIN
-      vmovss  xmm1, cs:?HFD_MAIN_ROTOR_BLADE_WEIGHT@@3MA; float HFD_MAIN_ROTOR_BLADE_WEIGHT
-    }
     worldIda = _RDI->m_worldId;
-    __asm
-    {
-      vmovaps [rsp+0C8h+var_38], xmm6
-      vmovss  xmm6, cs:__real@3d21428b
-      vmulss  xmm3, xmm6, cs:?HFD_MAIN_ROTOR_BLADE_WIDTH@@3MA; bladeWidth
-      vmulss  xmm2, xmm6, cs:?HFD_MAIN_ROTOR_BLADE_LENGTH@@3MA; bladeLength
-      vmovaps [rsp+0C8h+var_48], xmm7
-      vxorps  xmm7, xmm7, xmm7
-      vmovss  [rsp+0C8h+var_88], xmm7
-      vmovss  [rsp+0C8h+var_90], xmm7
-      vmovss  dword ptr [rsp+0C8h+var_98], xmm7
-      vmovss  [rsp+0C8h+bladeMaxDeflection], xmm0
-      vmovss  [rsp+0C8h+bladeWeight], xmm1
-    }
-    FlightDynamicsRotorSystem::SetupRotor(&_RDI->m_MainRotor, 5, *(float *)&_XMM2, *(float *)&_XMM3, bladeWeight, bladeMaxDeflection, v49, v51, v53, worldIda);
-    __asm
-    {
-      vmovss  xmm1, cs:?HFD_CONTROL_INPUT_DAMPER_COLLECTIVE@@3MA; float HFD_CONTROL_INPUT_DAMPER_COLLECTIVE
-      vmovss  xmm0, cs:?HFD_CONTROL_INPUT_MULTI@@3MA; float HFD_CONTROL_INPUT_MULTI
-      vmovss  dword ptr [rdi+5A4h], xmm0
-      vmovss  xmm0, cs:__real@42b40000
-      vmovss  dword ptr [rdi+5A8h], xmm1
-      vmovss  xmm1, cs:?HFD_TAIL_ROTOR_BLADE_WEIGHT@@3MA; float HFD_TAIL_ROTOR_BLADE_WEIGHT
-      vmulss  xmm3, xmm6, cs:?HFD_TAIL_ROTOR_BLADE_WIDTH@@3MA; bladeWidth
-      vmulss  xmm2, xmm6, cs:?HFD_TAIL_ROTOR_BLADE_LENGTH@@3MA; bladeLength
-      vmovss  [rsp+0C8h+var_88], xmm0
-      vmovss  xmm0, cs:?HFD_BLADE_MAX_DEFLECTION_TAIL@@3MA; float HFD_BLADE_MAX_DEFLECTION_TAIL
-      vmovss  [rsp+0C8h+var_90], xmm7
-      vmovss  dword ptr [rsp+0C8h+var_98], xmm7
-      vmovss  [rsp+0C8h+bladeMaxDeflection], xmm0
-      vmovss  [rsp+0C8h+bladeWeight], xmm1
-    }
-    FlightDynamicsRotorSystem::SetupRotor(&_RDI->m_TailRotor, 2, *(float *)&_XMM2, *(float *)&_XMM3, bladeWeighta, bladeMaxDeflectiona, v50, v52, v54, _RDI->m_worldId);
-    __asm
-    {
-      vmovss  xmm1, cs:?HFD_CONTROL_INPUT_DAMPER_TAIL_ROTOR@@3MA; float HFD_CONTROL_INPUT_DAMPER_TAIL_ROTOR
-      vmovss  xmm0, cs:?HFD_CONTROL_INPUT_MULTI@@3MA; float HFD_CONTROL_INPUT_MULTI
-      vmovss  dword ptr [rdi+778h], xmm1
-      vmovss  xmm1, cs:__real@41100000; value
-      vmovss  dword ptr [rdi+774h], xmm0
-    }
+    v26 = v7;
+    v25 = v8;
+    FlightDynamicsRotorSystem::SetupRotor(&_RDI->m_MainRotor, 5, 0.039370101 * HFD_MAIN_ROTOR_BLADE_LENGTH, 0.039370101 * HFD_MAIN_ROTOR_BLADE_WIDTH, HFD_MAIN_ROTOR_BLADE_WEIGHT, HFD_BLADE_MAX_DEFLECTION_MAIN, 0.0, 0.0, 0.0, worldIda);
+    v11 = HFD_CONTROL_INPUT_DAMPER_COLLECTIVE;
+    _RDI->m_MainRotor.m_SwasplateCyclicRate = HFD_CONTROL_INPUT_MULTI;
+    _RDI->m_MainRotor.m_SwasplateCollectiveRate = v11;
+    FlightDynamicsRotorSystem::SetupRotor(&_RDI->m_TailRotor, 2, 0.039370101 * HFD_TAIL_ROTOR_BLADE_LENGTH, 0.039370101 * HFD_TAIL_ROTOR_BLADE_WIDTH, HFD_TAIL_ROTOR_BLADE_WEIGHT, HFD_BLADE_MAX_DEFLECTION_TAIL, 0.0, 0.0, 90.0, _RDI->m_worldId);
+    v12 = HFD_CONTROL_INPUT_MULTI;
+    _RDI->m_TailRotor.m_SwasplateCollectiveRate = HFD_CONTROL_INPUT_DAMPER_TAIL_ROTOR;
+    _RDI->m_TailRotor.m_SwasplateCyclicRate = v12;
     _RDI->m_NumberOfRotors = 2;
-    Dvar_SetFloat_Internal(DVARFLT_fd_helicopter_swash_driver, *(float *)&_XMM1);
-    v27 = DVARFLT_fd_helicopter_swash_driver;
-    __asm
-    {
-      vmovaps xmm7, [rsp+0C8h+var_48]
-      vmovaps xmm6, [rsp+0C8h+var_38]
-    }
+    Dvar_SetFloat_Internal(DVARFLT_fd_helicopter_swash_driver, 9.0);
+    v13 = DVARFLT_fd_helicopter_swash_driver;
     if ( !DVARFLT_fd_helicopter_swash_driver && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_swash_driver") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v27);
-    LODWORD(_RDI->m_MainRotorSwashplateDriverOffset) = v27->current.integer;
+    Dvar_CheckFrontendServerThread(v13);
+    LODWORD(_RDI->m_MainRotorSwashplateDriverOffset) = v13->current.integer;
     BgVehiclePhysics::SetActivatedAlways(_RDI);
-    v30 = DVARINT_fd_helicopter_start_spooled;
+    v14 = DVARINT_fd_helicopter_start_spooled;
     if ( !DVARINT_fd_helicopter_start_spooled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_start_spooled") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v30);
-    if ( v30->current.integer )
+    Dvar_CheckFrontendServerThread(v14);
+    if ( v14->current.integer )
     {
-      __asm
-      {
-        vmovss  xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-        vmovss  dword ptr [rdi+5B8h], xmm0
-        vmovss  xmm1, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-      }
+      _RDI->m_MainRotor.m_RotorRPM = HFD_GOVERNOR_MAX_SPEED;
+      v15 = HFD_GOVERNOR_MAX_SPEED;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, cs:?HFD_DEFAULT_ROTOR_RPM@@3MA; float HFD_DEFAULT_ROTOR_RPM
-        vmovss  dword ptr [rdi+5B8h], xmm0
-        vmovss  xmm1, cs:?HFD_DEFAULT_ROTOR_RPM@@3MA; float HFD_DEFAULT_ROTOR_RPM
-      }
+      _RDI->m_MainRotor.m_RotorRPM = HFD_DEFAULT_ROTOR_RPM;
+      v15 = HFD_DEFAULT_ROTOR_RPM;
     }
-    v34 = _RDI->m_Position.v[2];
+    v16 = _RDI->m_Position.v[2];
+    _XMM2 = _RDI->m_RotationQuaternion;
+    _RDI->m_GovernorRPM = v15;
+    v18 = (__m128)*(unsigned __int64 *)_RDI->m_Position.v;
+    _RDI->m_MainRotor.m_Position.v[0] = v18.m128_f32[0];
+    _RDI->m_MainRotor.m_Position.v[1] = _mm_shuffle_ps(v18, v18, 85).m128_f32[0];
+    _RDI->m_MainRotor.m_Position.v[2] = v16;
+    _RDI->m_MainRotor.m_RotationQuat.v[0] = _XMM2.v[0];
     __asm
     {
-      vmovups xmm2, xmmword ptr [rdi+368h]
-      vmovss  dword ptr [rdi+8C4h], xmm1
-      vmovsd  xmm1, qword ptr [rdi+2D8h]
-      vmovss  dword ptr [rdi+540h], xmm1
-    }
-    v56 = v34;
-    __asm
-    {
-      vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-      vmovss  dword ptr [rdi+544h], xmm0
-      vmovss  xmm0, [rsp+0C8h+var_70]
-      vmovss  dword ptr [rdi+548h], xmm0
-      vmovss  dword ptr [rdi+54Ch], xmm2
       vextractps dword ptr [rdi+550h], xmm2, 1
       vextractps dword ptr [rdi+554h], xmm2, 2
       vextractps dword ptr [rdi+558h], xmm2, 3
@@ -8507,21 +5016,15 @@ bool HelicopterDynamics::Setup(HelicopterDynamics *this, BGVehicles *vehicleSyst
     _RDI->m_MainRotor.m_PreviousRotationQuat.v[1] = _RDI->m_MainRotor.m_RotationQuat.v[1];
     _RDI->m_MainRotor.m_PreviousRotationQuat.v[2] = _RDI->m_MainRotor.m_RotationQuat.v[2];
     _RDI->m_MainRotor.m_PreviousRotationQuat.v[3] = _RDI->m_MainRotor.m_RotationQuat.v[3];
-    v39 = _RDI->m_Position.v[2];
+    v19 = _RDI->m_Position.v[2];
+    v20 = (__m128)*(unsigned __int64 *)_RDI->m_Position.v;
+    _XMM2 = _RDI->m_RotationQuaternion;
+    _RDI->m_TailRotor.m_Position.v[0] = v20.m128_f32[0];
+    _RDI->m_TailRotor.m_Position.v[1] = _mm_shuffle_ps(v20, v20, 85).m128_f32[0];
+    _RDI->m_TailRotor.m_Position.v[2] = v19;
+    _RDI->m_TailRotor.m_RotationQuat.v[0] = _XMM2.v[0];
     __asm
     {
-      vmovsd  xmm1, qword ptr [rdi+2D8h]
-      vmovups xmm2, xmmword ptr [rdi+368h]
-      vmovss  dword ptr [rdi+710h], xmm1
-    }
-    v57 = v39;
-    __asm
-    {
-      vshufps xmm0, xmm1, xmm1, 55h ; 'U'
-      vmovss  dword ptr [rdi+714h], xmm0
-      vmovss  xmm0, [rsp+0C8h+var_70]
-      vmovss  dword ptr [rdi+718h], xmm0
-      vmovss  dword ptr [rdi+71Ch], xmm2
       vextractps dword ptr [rdi+720h], xmm2, 1
       vextractps dword ptr [rdi+724h], xmm2, 2
       vextractps dword ptr [rdi+728h], xmm2, 3
@@ -8547,152 +5050,67 @@ bool HelicopterDynamics::Setup(HelicopterDynamics *this, BGVehicles *vehicleSyst
 FlightDynamicsRotorSystem::SetupRotor
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::SetupRotor(FlightDynamicsRotorSystem *this, int bladeCount, double bladeLength, double bladeWidth, float bladeWeight, float bladeMaxDeflection, float pitch, float yaw, float roll, Physics_WorldId worldId)
+void FlightDynamicsRotorSystem::SetupRotor(FlightDynamicsRotorSystem *this, int bladeCount, float bladeLength, float bladeWidth, float bladeWeight, float bladeMaxDeflection, float pitch, float yaw, float roll, Physics_WorldId worldId)
 {
-  __int64 v17; 
-  bool v21; 
-  bool v22; 
-  vec3_t *p_m_BladeDirection; 
-  __int64 v35; 
-  char v48; 
+  __int64 v10; 
+  HelicopterRotorBlade *m_RotorBlades; 
+  __int64 v13; 
+  float v14; 
+  float v15; 
   FlightDynamicsManager *FlightDynamicsManager; 
-  FlightDynamicsManager *v55; 
+  FlightDynamicsManager *v17; 
   vec4_t quat; 
-  vec3_t v67; 
+  vec3_t v19; 
   vec3_t angles; 
-  char v69; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-  }
-  v17 = (unsigned int)bladeCount;
-  _RDI = this;
-  __asm
-  {
-    vmovaps xmm7, xmm3
-    vmovaps xmm8, xmm2
-  }
+  v10 = (unsigned int)bladeCount;
   if ( bladeCount < 2 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3276, ASSERT_TYPE_ASSERT, "(bladeCount >= 2)", (const char *)&queryFormat, "bladeCount >= 2") )
     __debugbreak();
-  v21 = (unsigned int)v17 <= 6;
-  if ( (int)v17 >= 6 )
-  {
-    v22 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3277, ASSERT_TYPE_ASSERT, "(bladeCount < 6)", (const char *)&queryFormat, "bladeCount < FD_MAX_ROTOR_BLADES");
-    v21 = !v22;
-    if ( v22 )
-      __debugbreak();
-  }
-  __asm
-  {
-    vmovss  xmm6, [rsp+0D8h+bladeWeight]
-    vcomiss xmm6, cs:__real@3a83126f
-  }
-  if ( v21 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3278, ASSERT_TYPE_ASSERT, "(bladeWeight > 0.001f)", (const char *)&queryFormat, "bladeWeight > EQUAL_EPSILON") )
+  if ( (int)v10 >= 6 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3277, ASSERT_TYPE_ASSERT, "(bladeCount < 6)", (const char *)&queryFormat, "bladeCount < FD_MAX_ROTOR_BLADES") )
     __debugbreak();
-  __asm
+  if ( bladeWeight <= 0.001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3278, ASSERT_TYPE_ASSERT, "(bladeWeight > 0.001f)", (const char *)&queryFormat, "bladeWeight > EQUAL_EPSILON") )
+    __debugbreak();
+  this->m_BladeMaxDeflection = bladeMaxDeflection;
+  angles.v[0] = pitch;
+  this->m_worldId = worldId;
+  angles.v[2] = roll;
+  this->m_BladeLength = bladeLength;
+  this->m_BladeWidth = bladeWidth;
+  this->m_BladeWeight = bladeWeight;
+  v19.v[0] = 0.0;
+  v19.v[1] = 0.0;
+  v19.v[2] = 0.0;
+  angles.v[1] = yaw;
+  this->m_BladeCount = v10;
+  this->m_SwashplateCollective = 1.0;
+  AnglesToQuat(&angles, &this->m_RotorAxisQuat);
+  if ( (int)v10 > 0 )
   {
-    vmovss  xmm0, [rsp+0D8h+bladeMaxDeflection]
-    vmovss  xmm1, [rsp+0D8h+yaw]
-    vmovss  dword ptr [rdi+7Ch], xmm0
-    vmovss  xmm0, cs:__real@43b40000
-    vxorps  xmm9, xmm9, xmm9
-    vxorps  xmm11, xmm11, xmm11
-    vcvtsi2ss xmm11, xmm11, ebx
-    vdivss  xmm10, xmm0, xmm11
-    vmovss  xmm0, [rsp+0D8h+pitch]
-    vmovss  dword ptr [rsp+0D8h+angles], xmm0
-    vmovss  xmm0, [rsp+0D8h+roll]
-  }
-  _RDI->m_worldId = worldId;
-  __asm
-  {
-    vmovss  dword ptr [rsp+0D8h+angles+8], xmm0
-    vmovss  dword ptr [rdi+70h], xmm8
-    vmovss  dword ptr [rdi+74h], xmm7
-    vmovss  dword ptr [rdi+78h], xmm6
-    vmovss  dword ptr [rsp+0D8h+var_98], xmm9
-    vmovss  dword ptr [rsp+0D8h+var_98+4], xmm9
-    vmovss  dword ptr [rsp+0D8h+var_98+8], xmm9
-    vmovss  dword ptr [rsp+0D8h+angles+4], xmm1
-  }
-  _RDI->m_BladeCount = v17;
-  _RDI->m_SwashplateCollective = 1.0;
-  AnglesToQuat(&angles, &_RDI->m_RotorAxisQuat);
-  __asm { vmovss  xmm8, cs:__real@3f800000 }
-  if ( (int)v17 > 0 )
-  {
-    p_m_BladeDirection = &_RDI->m_RotorBlades[0].m_BladeDirection;
-    v35 = v17;
+    m_RotorBlades = this->m_RotorBlades;
+    v13 = v10;
     do
     {
-      AnglesToQuat(&v67, &quat);
-      __asm
+      AnglesToQuat(&v19, &quat);
+      v14 = fsqrt((float)((float)((float)(quat.v[1] * quat.v[1]) + (float)(quat.v[0] * quat.v[0])) + (float)(quat.v[2] * quat.v[2])) + (float)(quat.v[3] * quat.v[3]));
+      if ( v14 != 0.0 )
       {
-        vmovss  xmm4, dword ptr [rsp+0D8h+quat+4]
-        vmovss  xmm5, dword ptr [rsp+0D8h+quat]
-        vmovss  xmm6, dword ptr [rsp+0D8h+quat+8]
-        vmovss  xmm7, dword ptr [rsp+0D8h+quat+0Ch]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm3, xmm2, xmm1
-        vmulss  xmm0, xmm7, xmm7
-        vaddss  xmm1, xmm3, xmm0
-        vsqrtss xmm2, xmm1, xmm1
-        vucomiss xmm2, xmm9
-      }
-      if ( !v48 )
-      {
-        __asm
-        {
-          vdivss  xmm2, xmm8, xmm2
-          vmulss  xmm0, xmm5, xmm2
-          vmulss  xmm1, xmm4, xmm2
-          vmovss  dword ptr [rsp+0D8h+quat], xmm0
-          vmovss  dword ptr [rsp+0D8h+quat+4], xmm1
-          vmulss  xmm0, xmm6, xmm2
-          vmulss  xmm1, xmm7, xmm2
-          vmovss  dword ptr [rsp+0D8h+quat+8], xmm0
-          vmovss  dword ptr [rsp+0D8h+quat+0Ch], xmm1
-        }
+        v15 = 1.0 / v14;
+        quat.v[0] = quat.v[0] * v15;
+        quat.v[1] = quat.v[1] * v15;
+        quat.v[2] = quat.v[2] * v15;
+        quat.v[3] = quat.v[3] * v15;
       }
       FlightDynamicsManager = BG_GetFlightDynamicsManager();
-      QuatTransform(&quat, &FlightDynamicsManager->m_ForwardAxis, p_m_BladeDirection + 1);
-      v55 = BG_GetFlightDynamicsManager();
-      QuatTransform(&quat, &v55->m_ElevatorAxis, p_m_BladeDirection);
-      __asm { vaddss  xmm1, xmm10, dword ptr [rsp+0D8h+var_98+4] }
-      p_m_BladeDirection = (vec3_t *)((char *)p_m_BladeDirection + 44);
-      __asm { vmovss  dword ptr [rsp+0D8h+var_98+4], xmm1 }
-      --v35;
+      QuatTransform(&quat, &FlightDynamicsManager->m_ForwardAxis, &m_RotorBlades->m_BladeRotationDirection);
+      v17 = BG_GetFlightDynamicsManager();
+      QuatTransform(&quat, &v17->m_ElevatorAxis, &m_RotorBlades->m_BladeDirection);
+      ++m_RotorBlades;
+      v19.v[1] = (float)(360.0 / (float)(int)v10) + v19.v[1];
+      --v13;
     }
-    while ( v35 );
+    while ( v13 );
   }
-  __asm
-  {
-    vmulss  xmm0, xmm11, dword ptr [rdi+78h]
-    vdivss  xmm0, xmm8, xmm0
-    vmovss  dword ptr [rdi+80h], xmm0
-  }
-  _R11 = &v69;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-  }
+  this->m_InvRotorWeight = 1.0 / (float)((float)(int)v10 * this->m_BladeWeight);
 }
 
 /*
@@ -8700,23 +5118,12 @@ void __fastcall FlightDynamicsRotorSystem::SetupRotor(FlightDynamicsRotorSystem 
 HelicopterDynamics::SimulateRotorSpeed
 ==============
 */
-
-void __fastcall HelicopterDynamics::SimulateRotorSpeed(HelicopterDynamics *this, double targetRPM, double dT)
+void HelicopterDynamics::SimulateRotorSpeed(HelicopterDynamics *this, float targetRPM, float dT)
 {
-  __asm
-  {
-    vcomiss xmm1, dword ptr [rcx+5B8h]
-    vmovaps [rsp+18h+var_18], xmm6
-    vmovaps xmm6, xmm1
-    vmulss  xmm5, xmm2, cs:?HFD_SIMULATE_ROTOR_RPM_SPOOL_UP@@3MA; float HFD_SIMULATE_ROTOR_RPM_SPOOL_UP
-    vmovss  xmm2, cs:__real@3f800000
-    vsubss  xmm3, xmm2, xmm5
-    vmulss  xmm4, xmm3, dword ptr [rcx+5B8h]
-    vmulss  xmm0, xmm5, xmm1
-    vaddss  xmm1, xmm4, xmm0
-    vmovss  dword ptr [rcx+5B8h], xmm1
-    vmovaps xmm6, [rsp+18h+var_18]
-  }
+  if ( targetRPM <= this->m_MainRotor.m_RotorRPM )
+    this->m_MainRotor.m_RotorRPM = (float)((float)(1.0 - (float)(dT * HFD_SIMULATE_ROTOR_RPM_SPOOL_DOWN)) * this->m_MainRotor.m_RotorRPM) + (float)((float)(dT * HFD_SIMULATE_ROTOR_RPM_SPOOL_DOWN) * targetRPM);
+  else
+    this->m_MainRotor.m_RotorRPM = (float)((float)(1.0 - (float)(dT * HFD_SIMULATE_ROTOR_RPM_SPOOL_UP)) * this->m_MainRotor.m_RotorRPM) + (float)((float)(dT * HFD_SIMULATE_ROTOR_RPM_SPOOL_UP) * targetRPM);
 }
 
 /*
@@ -8724,128 +5131,54 @@ void __fastcall HelicopterDynamics::SimulateRotorSpeed(HelicopterDynamics *this,
 HelicopterDynamics::SimulateRotorsNoPhysics
 ==============
 */
-
-void __fastcall HelicopterDynamics::SimulateRotorsNoPhysics(HelicopterDynamics *this, double dT, double ail, double elev, float col)
+void HelicopterDynamics::SimulateRotorsNoPhysics(HelicopterDynamics *this, float dT, float ail, float elev, float col)
 {
-  HelicopterDynamics_vtbl *v9; 
-  int v16; 
-  char v31; 
-  float v52; 
-  float v53; 
-  char v58; 
+  float m_RotorRPM; 
+  int v7; 
+  float *p_m_BladeDeflectionVelocity; 
+  float v9; 
+  double v10; 
+  float v11; 
+  float v12; 
 
-  v9 = this->__vftable;
-  _RDI = this;
-  __asm
+  ((void (__fastcall *)(HelicopterDynamics *))this->SimulateTurbineOperation)(this);
+  m_RotorRPM = this->m_MainRotor.m_RotorRPM;
+  this->m_TailRotor.m_RotorRPM = m_RotorRPM * HFD_TAIL_ROTOR_RATIO;
+  v7 = 0;
+  *(_QWORD *)this->m_TailRotor.m_AirspeedVector.v = 0i64;
+  this->m_TailRotor.m_AirspeedVector.v[2] = 0.0;
+  FlightDynamicsRotorSystem::SetSwashplateDT(&this->m_TailRotor, 0.0, 0.0, 0.0, dT);
+  *(_QWORD *)this->m_TailRotor.m_LiftForceVector.v = 0i64;
+  *(_QWORD *)&this->m_TailRotor.m_LiftForceVector.z = 0i64;
+  *(_QWORD *)&this->m_TailRotor.m_LiftTorqueVector.y = 0i64;
+  FlightDynamicsRotorSystem::Update(&this->m_TailRotor, dT, 1);
+  *(_QWORD *)this->m_MainRotor.m_AirspeedVector.v = 0i64;
+  this->m_MainRotor.m_AirspeedVector.v[2] = 0.0;
+  FlightDynamicsRotorSystem::SetSwashplateDT(&this->m_MainRotor, ail, elev, col, dT);
+  FlightDynamicsRotorSystem::UpdateGroundEffect(&this->m_MainRotor, HFD_BLADE_GROUND_EFFECT_DISTANCE_FACTOR * this->m_MainRotor.m_BladeLength, HFD_BLADE_GROUND_EFFECT_MULTIPLIER, dT);
+  *(_QWORD *)this->m_MainRotor.m_LiftForceVector.v = 0i64;
+  *(_QWORD *)&this->m_MainRotor.m_LiftForceVector.z = 0i64;
+  *(_QWORD *)&this->m_MainRotor.m_LiftTorqueVector.y = 0i64;
+  this->m_MainRotor.m_InputTorque = COERCE_FLOAT(LODWORD(this->m_TailRotor.m_OpposingTorque) ^ _xmm);
+  FlightDynamicsRotorSystem::Update(&this->m_MainRotor, dT, 1);
+  if ( m_RotorRPM < 150.0 && this->m_MainRotor.m_BladeCount > 0 )
   {
-    vmovaps [rsp+78h+var_18], xmm6
-    vmovaps [rsp+78h+var_28], xmm7
-    vmovaps [rsp+78h+var_38], xmm8
-    vmovaps [rsp+78h+var_48], xmm9
-    vmovaps xmm9, xmm1
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
-  ((void (__fastcall *)(HelicopterDynamics *))v9->SimulateTurbineOperation)(this);
-  __asm
-  {
-    vmovss  xmm8, dword ptr [rdi+5B8h]
-    vmulss  xmm4, xmm8, cs:?HFD_TAIL_ROTOR_RATIO@@3MA; float HFD_TAIL_ROTOR_RATIO
-    vmovss  dword ptr [rdi+788h], xmm4
-  }
-  v16 = 0;
-  __asm
-  {
-    vxorps  xmm3, xmm3, xmm3; collective
-    vxorps  xmm2, xmm2, xmm2; cyclicLateral
-    vxorps  xmm1, xmm1, xmm1; cyclicForward
-  }
-  *(_QWORD *)_RDI->m_TailRotor.m_AirspeedVector.v = 0i64;
-  _RDI->m_TailRotor.m_AirspeedVector.v[2] = 0.0;
-  __asm { vmovss  [rsp+78h+var_58], xmm9 }
-  FlightDynamicsRotorSystem::SetSwashplateDT(&_RDI->m_TailRotor, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v52);
-  *(_QWORD *)_RDI->m_TailRotor.m_LiftForceVector.v = 0i64;
-  *(_QWORD *)&_RDI->m_TailRotor.m_LiftForceVector.z = 0i64;
-  __asm { vmovaps xmm1, xmm9; dT }
-  *(_QWORD *)&_RDI->m_TailRotor.m_LiftTorqueVector.y = 0i64;
-  FlightDynamicsRotorSystem::Update(&_RDI->m_TailRotor, *(float *)&_XMM1, 1);
-  __asm
-  {
-    vmovss  xmm3, [rsp+78h+col]; collective
-    vmovaps xmm2, xmm6; cyclicLateral
-    vmovaps xmm1, xmm7; cyclicForward
-  }
-  *(_QWORD *)_RDI->m_MainRotor.m_AirspeedVector.v = 0i64;
-  __asm { vmovss  [rsp+78h+var_58], xmm9 }
-  _RDI->m_MainRotor.m_AirspeedVector.v[2] = 0.0;
-  FlightDynamicsRotorSystem::SetSwashplateDT(&_RDI->m_MainRotor, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, v53);
-  __asm
-  {
-    vmovss  xmm0, cs:?HFD_BLADE_GROUND_EFFECT_DISTANCE_FACTOR@@3MA; float HFD_BLADE_GROUND_EFFECT_DISTANCE_FACTOR
-    vmulss  xmm1, xmm0, dword ptr [rdi+590h]; distance
-    vmovss  xmm2, cs:?HFD_BLADE_GROUND_EFFECT_MULTIPLIER@@3MA; liftMultiplier
-    vmovaps xmm3, xmm9; dT
-  }
-  FlightDynamicsRotorSystem::UpdateGroundEffect(&_RDI->m_MainRotor, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3);
-  *(_QWORD *)_RDI->m_MainRotor.m_LiftForceVector.v = 0i64;
-  *(_QWORD *)&_RDI->m_MainRotor.m_LiftForceVector.z = 0i64;
-  *(_QWORD *)&_RDI->m_MainRotor.m_LiftTorqueVector.y = 0i64;
-  __asm
-  {
-    vmovss  xmm0, dword ptr [rdi+740h]
-    vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-    vmovss  dword ptr [rdi+56Ch], xmm1
-    vmovaps xmm1, xmm9; dT
-  }
-  FlightDynamicsRotorSystem::Update(&_RDI->m_MainRotor, *(float *)&_XMM1, 1);
-  __asm { vcomiss xmm8, cs:__real@43160000 }
-  if ( v31 && _RDI->m_MainRotor.m_BladeCount > 0 )
-  {
-    __asm { vmovss  xmm7, cs:__real@3f800000 }
-    _RBX = &_RDI->m_MainRotor.m_RotorBlades[0].m_BladeDeflectionVelocity;
+    p_m_BladeDeflectionVelocity = &this->m_MainRotor.m_RotorBlades[0].m_BladeDeflectionVelocity;
     do
     {
-      __asm
-      {
-        vmovss  xmm1, cs:?HFD_BONE_STATIONARY_DEFLECTION_VELOCITY_RAND@@3MA; max
-        vmovss  xmm6, dword ptr [rbx-4]
-        vxorps  xmm0, xmm0, xmm0; min
-      }
-      *(double *)&_XMM0 = I_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]
-        vaddss  xmm1, xmm0, xmm6
-        vmulss  xmm3, xmm1, cs:?HFD_BONE_STATIONARY_DEFLECTION_RAND_AMPLITUDE@@3MA; float HFD_BONE_STATIONARY_DEFLECTION_RAND_AMPLITUDE
-        vsubss  xmm4, xmm2, xmm3
-        vmovss  dword ptr [rbx], xmm4
-        vmulss  xmm1, xmm9, cs:?HFD_BONE_STATIONARY_DEFLECTION_MIN_VELOCITY@@3MA; float HFD_BONE_STATIONARY_DEFLECTION_MIN_VELOCITY
-        vsubss  xmm1, xmm7, xmm1
-        vmulss  xmm0, xmm1, xmm4
-        vmovss  dword ptr [rbx], xmm0
-        vmulss  xmm0, xmm0, cs:?HFD_BONE_STATIONARY_DEFLECTION_VELOCITY_SCALE@@3MA; float HFD_BONE_STATIONARY_DEFLECTION_VELOCITY_SCALE
-        vmulss  xmm1, xmm0, xmm9
-        vaddss  xmm2, xmm1, xmm6
-        vmovss  dword ptr [rbx-4], xmm2
-      }
-      ++v16;
-      _RBX += 11;
+      v9 = *(p_m_BladeDeflectionVelocity - 1);
+      v10 = I_flrand(0.0, HFD_BONE_STATIONARY_DEFLECTION_VELOCITY_RAND);
+      v11 = *p_m_BladeDeflectionVelocity - (float)((float)(*(float *)&v10 + v9) * HFD_BONE_STATIONARY_DEFLECTION_RAND_AMPLITUDE);
+      *p_m_BladeDeflectionVelocity = v11;
+      v12 = (float)(1.0 - (float)(dT * HFD_BONE_STATIONARY_DEFLECTION_MIN_VELOCITY)) * v11;
+      *p_m_BladeDeflectionVelocity = v12;
+      *(p_m_BladeDeflectionVelocity - 1) = (float)((float)(v12 * HFD_BONE_STATIONARY_DEFLECTION_VELOCITY_SCALE) * dT) + v9;
+      ++v7;
+      p_m_BladeDeflectionVelocity += 11;
     }
-    while ( v16 < _RDI->m_MainRotor.m_BladeCount );
+    while ( v7 < this->m_MainRotor.m_BladeCount );
   }
-  __asm
-  {
-    vmovaps xmm1, xmm9
-    vmovaps xmm6, [rsp+78h+var_18]
-  }
-  _R11 = &v58;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm7, [rsp+78h+var_28]
-  }
-  ((void (__fastcall *)(HelicopterDynamics *))_RDI->PerformAutomaticControl)(_RDI);
+  ((void (__fastcall *)(HelicopterDynamics *))this->PerformAutomaticControl)(this);
 }
 
 /*
@@ -8853,94 +5186,55 @@ void __fastcall HelicopterDynamics::SimulateRotorsNoPhysics(HelicopterDynamics *
 HelicopterDynamics::SimulateStationaryRotorBladesMovement
 ==============
 */
-
-void __fastcall HelicopterDynamics::SimulateStationaryRotorBladesMovement(HelicopterDynamics *this, double dT)
+void HelicopterDynamics::SimulateStationaryRotorBladesMovement(HelicopterDynamics *this, float dT)
 {
-  HelicopterDynamics_vtbl *v6; 
-  int v7; 
+  HelicopterDynamics_vtbl *v2; 
+  int v3; 
+  float m_RotorRPM; 
+  double v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float *p_m_BladeDeflectionVelocity; 
+  float v11; 
+  double v12; 
+  float v13; 
+  float v14; 
 
-  v6 = this->__vftable;
-  v7 = 0;
-  __asm { vmovaps [rsp+68h+var_18], xmm6 }
-  _RDI = this;
-  __asm
-  {
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps [rsp+68h+var_48], xmm9
-    vmovaps xmm7, xmm1
-  }
+  v2 = this->__vftable;
+  v3 = 0;
   this->m_EnableFlyByWire = 0;
   this->m_PreviousEnableFlyByWire = 0;
   this->m_ManualControlTimer = 1.0;
   this->m_GyroAltitudeSet = 0;
   this->m_GyroGPSlocationSet = 0;
   *(_QWORD *)&this->m_GovernorRPM = 0i64;
-  ((void (*)(void))v6->SimulateTurbineOperation)();
-  __asm
+  ((void (*)(void))v2->SimulateTurbineOperation)();
+  m_RotorRPM = this->m_MainRotor.m_RotorRPM;
+  v6 = I_flrand(COERCE_FLOAT(LODWORD(dT) ^ _xmm), dT);
+  v7 = (float)(*(float *)&v6 * HFD_BONE_STATIONARY_WIND_ROTATION_HZ) * dT;
+  v8 = 1.0 - (float)(dT * HFD_SIMULATE_ROTOR_RPM_SPOOL_DOWN);
+  this->m_MainRotor.m_RotorRPM = v8 * (float)(v7 + m_RotorRPM);
+  v9 = (float)(v8 * (float)(v7 + m_RotorRPM)) * dT;
+  this->m_MainRotor.m_RotorPosition = v9 + this->m_MainRotor.m_RotorPosition;
+  if ( this->m_MainRotor.m_BladeCount > 0 )
   {
-    vxorps  xmm0, xmm7, cs:__xmm@80000000800000008000000080000000; min
-    vmovss  xmm6, dword ptr [rdi+5B8h]
-    vmovaps xmm1, xmm7; max
-  }
-  *(double *)&_XMM0 = I_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:?HFD_BONE_STATIONARY_WIND_ROTATION_HZ@@3MA; float HFD_BONE_STATIONARY_WIND_ROTATION_HZ
-    vmovss  xmm8, cs:__real@3f800000
-    vmulss  xmm2, xmm1, xmm7
-    vmulss  xmm1, xmm7, cs:?HFD_SIMULATE_ROTOR_RPM_SPOOL_DOWN@@3MA; float HFD_SIMULATE_ROTOR_RPM_SPOOL_DOWN
-    vsubss  xmm0, xmm8, xmm1
-    vaddss  xmm3, xmm2, xmm6
-    vmulss  xmm1, xmm0, xmm3
-    vmovss  dword ptr [rdi+5B8h], xmm1
-    vmulss  xmm9, xmm1, xmm7
-    vaddss  xmm0, xmm9, dword ptr [rdi+5BCh]
-    vmovss  dword ptr [rdi+5BCh], xmm0
-  }
-  if ( _RDI->m_MainRotor.m_BladeCount > 0 )
-  {
-    _RBX = &_RDI->m_MainRotor.m_RotorBlades[0].m_BladeDeflectionVelocity;
+    p_m_BladeDeflectionVelocity = &this->m_MainRotor.m_RotorBlades[0].m_BladeDeflectionVelocity;
     do
     {
-      __asm
-      {
-        vmovss  xmm1, cs:?HFD_BONE_STATIONARY_DEFLECTION_VELOCITY_RAND@@3MA; max
-        vmovss  xmm6, dword ptr [rbx-4]
-        vxorps  xmm0, xmm0, xmm0; min
-      }
-      *(double *)&_XMM0 = I_flrand(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbx]
-        vaddss  xmm1, xmm0, xmm6
-        vmulss  xmm3, xmm1, cs:?HFD_BONE_STATIONARY_DEFLECTION_RAND_AMPLITUDE@@3MA; float HFD_BONE_STATIONARY_DEFLECTION_RAND_AMPLITUDE
-        vsubss  xmm4, xmm2, xmm3
-        vmovss  dword ptr [rbx], xmm4
-        vmulss  xmm1, xmm7, cs:?HFD_BONE_STATIONARY_DEFLECTION_MIN_VELOCITY@@3MA; float HFD_BONE_STATIONARY_DEFLECTION_MIN_VELOCITY
-        vsubss  xmm1, xmm8, xmm1
-        vmulss  xmm0, xmm1, xmm4
-        vmovss  dword ptr [rbx], xmm0
-        vmulss  xmm0, xmm0, cs:?HFD_BONE_STATIONARY_DEFLECTION_VELOCITY_SCALE@@3MA; float HFD_BONE_STATIONARY_DEFLECTION_VELOCITY_SCALE
-        vmulss  xmm1, xmm0, xmm7
-        vaddss  xmm2, xmm1, xmm6
-        vmovss  dword ptr [rbx-4], xmm2
-      }
-      ++v7;
-      _RBX += 11;
+      v11 = *(p_m_BladeDeflectionVelocity - 1);
+      v12 = I_flrand(0.0, HFD_BONE_STATIONARY_DEFLECTION_VELOCITY_RAND);
+      v13 = *p_m_BladeDeflectionVelocity - (float)((float)(*(float *)&v12 + v11) * HFD_BONE_STATIONARY_DEFLECTION_RAND_AMPLITUDE);
+      *p_m_BladeDeflectionVelocity = v13;
+      v14 = (float)(1.0 - (float)(dT * HFD_BONE_STATIONARY_DEFLECTION_MIN_VELOCITY)) * v13;
+      *p_m_BladeDeflectionVelocity = v14;
+      *(p_m_BladeDeflectionVelocity - 1) = (float)((float)(v14 * HFD_BONE_STATIONARY_DEFLECTION_VELOCITY_SCALE) * dT) + v11;
+      ++v3;
+      p_m_BladeDeflectionVelocity += 11;
     }
-    while ( v7 < _RDI->m_MainRotor.m_BladeCount );
+    while ( v3 < this->m_MainRotor.m_BladeCount );
   }
-  __asm
-  {
-    vmulss  xmm1, xmm9, cs:?HFD_TAIL_ROTOR_RATIO@@3MA; float HFD_TAIL_ROTOR_RATIO
-    vaddss  xmm2, xmm1, dword ptr [rdi+78Ch]
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
-    vmovaps xmm9, [rsp+68h+var_48]
-    vmovss  dword ptr [rdi+78Ch], xmm2
-  }
+  this->m_TailRotor.m_RotorPosition = (float)(v9 * HFD_TAIL_ROTOR_RATIO) + this->m_TailRotor.m_RotorPosition;
 }
 
 /*
@@ -8948,74 +5242,30 @@ void __fastcall HelicopterDynamics::SimulateStationaryRotorBladesMovement(Helico
 HelicopterDynamics::SimulateTurbineOperation
 ==============
 */
-
-void __fastcall HelicopterDynamics::SimulateTurbineOperation(HelicopterDynamics *this, double dT)
+void HelicopterDynamics::SimulateTurbineOperation(HelicopterDynamics *this, float dT)
 {
   FlightDynamicsManager *FlightDynamicsManager; 
-  char v6; 
-  char v7; 
+  float *DynamicsMode; 
+  float m_TurbineRPM; 
+  float v6; 
+  float v7; 
+  float v8; 
 
-  __asm { vmovaps [rsp+38h+var_18], xmm6 }
-  _RBX = this;
-  __asm { vmovaps xmm6, xmm1 }
   FlightDynamicsManager = BG_GetFlightDynamicsManager();
-  FlightDynamicsManager::GetDynamicsMode(FlightDynamicsManager, _RBX->m_DynamicsModel);
-  __asm
+  DynamicsMode = FlightDynamicsManager::GetDynamicsMode(FlightDynamicsManager, this->m_DynamicsModel);
+  if ( HFD_GOVERNOR_MAX_SPEED > 0.001 )
   {
-    vmovss  xmm2, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-    vcomiss xmm2, cs:__real@3a83126f
+    m_TurbineRPM = this->m_TurbineRPM;
+    v6 = (float)(this->m_GovernorRPM * 50000.0) / HFD_GOVERNOR_MAX_SPEED;
+    if ( v6 > m_TurbineRPM )
+      this->m_TurbineRPM = (float)((float)(1.0 - (float)(dT * DynamicsMode[91])) * m_TurbineRPM) + (float)((float)(dT * DynamicsMode[91]) * v6);
   }
-  if ( !(v6 | v7) )
-  {
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rbx+8C4h]
-      vmulss  xmm1, xmm0, cs:__real@47435000
-      vmovss  xmm3, dword ptr [rbx+4B4h]
-      vdivss  xmm4, xmm1, xmm2
-      vcomiss xmm4, xmm3
-    }
-    if ( !(v6 | v7) )
-    {
-      __asm
-      {
-        vmulss  xmm2, xmm6, dword ptr [rax+16Ch]
-        vmovss  xmm0, cs:__real@3f800000
-        vsubss  xmm1, xmm0, xmm2
-        vmulss  xmm3, xmm1, xmm3
-        vmulss  xmm2, xmm2, xmm4
-        vaddss  xmm0, xmm3, xmm2
-        vmovss  dword ptr [rbx+4B4h], xmm0
-      }
-    }
-  }
-  __asm
-  {
-    vmovss  xmm3, dword ptr [rbx+4B4h]
-    vmulss  xmm0, xmm3, dword ptr [rax+168h]
-    vmulss  xmm4, xmm0, xmm6
-    vandps  xmm2, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vandps  xmm0, xmm3, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm2, xmm0
-  }
-  if ( v6 | v7 )
-  {
-    __asm
-    {
-      vmovaps xmm6, [rsp+38h+var_18]
-      vsubss  xmm0, xmm3, xmm4
-      vmovss  dword ptr [rbx+4B4h], xmm0
-    }
-  }
+  v7 = this->m_TurbineRPM;
+  v8 = (float)(v7 * DynamicsMode[90]) * dT;
+  if ( COERCE_FLOAT(LODWORD(v8) & _xmm) <= COERCE_FLOAT(LODWORD(v7) & _xmm) )
+    this->m_TurbineRPM = v7 - v8;
   else
-  {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vmovss  dword ptr [rbx+4B4h], xmm0
-      vmovaps xmm6, [rsp+38h+var_18]
-    }
-  }
+    this->m_TurbineRPM = 0;
 }
 
 /*
@@ -9026,12 +5276,8 @@ HelicopterDynamics::SpoolUpRotor
 
 void __fastcall HelicopterDynamics::SpoolUpRotor(HelicopterDynamics *this, double newRPM)
 {
-  __asm
-  {
-    vminss  xmm0, xmm1, cs:__real@3f800000
-    vmulss  xmm1, xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-    vmovss  dword ptr [rcx+8C4h], xmm1
-  }
+  __asm { vminss  xmm0, xmm1, cs:__real@3f800000 }
+  this->m_GovernorRPM = *(float *)&_XMM0 * HFD_GOVERNOR_MAX_SPEED;
 }
 
 /*
@@ -9042,40 +5288,33 @@ HelicopterDynamics::StartPlayerControlling
 void HelicopterDynamics::StartPlayerControlling(HelicopterDynamics *this)
 {
   HelicopterDynamics_vtbl *v1; 
-  const dvar_t *v4; 
+  const dvar_t *v3; 
   FlightDynamicsManager *FlightDynamicsManager; 
   LocalClientNum_t LocalClientForWorld; 
   FlightDynamicCameraData *CameraCurrentData; 
 
   v1 = this->__vftable;
-  _RBX = this;
-  __asm { vmovss  xmm1, cs:__real@3c83126f }
   *(_WORD *)&this->m_PreviousUserControlled = 0;
   this->m_EnableFlyByWire = 0;
   this->m_GovernorRPM = 0.0;
   ((void (*)(void))v1->PerformAutomaticControl)();
-  v4 = DVARINT_fd_helicopter_start_spooled;
+  v3 = DVARINT_fd_helicopter_start_spooled;
   if ( !DVARINT_fd_helicopter_start_spooled && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_start_spooled") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  if ( v4->current.integer )
+  Dvar_CheckFrontendServerThread(v3);
+  if ( v3->current.integer )
   {
-    __asm
-    {
-      vmovss  xmm0, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-      vmovss  dword ptr [rbx+5B8h], xmm0
-      vmovss  xmm1, cs:?HFD_GOVERNOR_MAX_SPEED@@3MA; float HFD_GOVERNOR_MAX_SPEED
-      vmovss  dword ptr [rbx+8C4h], xmm1
-    }
-    _RBX->m_TurbineStarter = 0;
+    this->m_MainRotor.m_RotorRPM = HFD_GOVERNOR_MAX_SPEED;
+    this->m_GovernorRPM = HFD_GOVERNOR_MAX_SPEED;
+    this->m_TurbineStarter = 0;
   }
-  FlightDynamics::StartPlayerControlling(_RBX);
-  if ( Physics_IsPredictiveWorld(_RBX->m_worldId) )
+  FlightDynamics::StartPlayerControlling(this);
+  if ( Physics_IsPredictiveWorld(this->m_worldId) )
   {
     FlightDynamicsManager = BG_GetFlightDynamicsManager();
     if ( !FlightDynamicsManager && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 754, ASSERT_TYPE_ASSERT, "(fdManager)", (const char *)&queryFormat, "fdManager") )
       __debugbreak();
-    LocalClientForWorld = Physics_GetLocalClientForWorld(_RBX->m_worldId);
+    LocalClientForWorld = Physics_GetLocalClientForWorld(this->m_worldId);
     CameraCurrentData = FlightDynamicsManager::GetCameraCurrentData(FlightDynamicsManager, LocalClientForWorld);
     if ( !CameraCurrentData && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 756, ASSERT_TYPE_ASSERT, "(cameraData)", (const char *)&queryFormat, "cameraData") )
       __debugbreak();
@@ -9097,7 +5336,6 @@ HelicopterDynamics::StopPlayerControlling
 void HelicopterDynamics::StopPlayerControlling(HelicopterDynamics *this)
 {
   FlightDynamics::StopPlayerControlling(this);
-  __asm { vmovss  xmm1, cs:__real@3c83126f }
   ((void (__fastcall *)(HelicopterDynamics *))this->PerformAutomaticControl)(this);
   if ( this->m_worldId <= (unsigned int)PHYSICS_WORLD_ID_SERVER_DETAIL )
   {
@@ -9124,135 +5362,94 @@ HelicopterDynamics::TranslateUserControlInputsToFBW
 */
 void HelicopterDynamics::TranslateUserControlInputsToFBW(HelicopterDynamics *this, float *aileronInput, float *elevatorInput, float *collectiveInput, float *rudderInput)
 {
-  const dvar_t *v7; 
+  const dvar_t *v6; 
   int integer; 
+  int v11; 
   int v12; 
   int v13; 
-  float v39; 
+  float *v14; 
+  float v15; 
+  float v16; 
+  double v17; 
+  float v18; 
 
-  _RDI = collectiveInput;
-  v7 = DVARINT_fd_helicopter_fbw_mode_config;
-  _RSI = aileronInput;
-  _RBX = this;
+  v6 = DVARINT_fd_helicopter_fbw_mode_config;
   if ( !DVARINT_fd_helicopter_fbw_mode_config && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "fd_helicopter_fbw_mode_config") )
     __debugbreak();
-  __asm { vmovaps [rsp+68h+var_28], xmm6 }
-  Dvar_CheckFrontendServerThread(v7);
-  integer = v7->current.integer;
+  Dvar_CheckFrontendServerThread(v6);
+  integer = v6->current.integer;
   if ( !integer )
   {
-    __asm
+    v13 = _xmm;
+    v14 = rudderInput;
+    *aileronInput = COERCE_FLOAT(LODWORD(this->m_ControlInputsNormalized[0]) ^ _xmm);
+    *rudderInput = COERCE_FLOAT(LODWORD(this->m_ControlInputsNormalized[3]) ^ _xmm);
+    *elevatorInput = this->m_ControlInputsNormalized[5];
+    *collectiveInput = this->m_ControlInputsNormalized[2];
+LABEL_17:
+    if ( Physics_IsPredictiveWorld(this->m_worldId) )
     {
-      vmovss  xmm0, dword ptr [rbx+444h]
-      vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
+      v18 = *v14;
+      this->m_UserControlInputs[9] = COERCE_FLOAT(LODWORD(this->m_ControlInputsNormalized[1]) ^ v13);
+      this->m_UserControlInputs[8] = v18;
+      this->m_UserControlInputs[12] = *aileronInput;
     }
-    _R14 = rudderInput;
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm6
-      vmovss  dword ptr [rsi], xmm0
-      vmovss  xmm1, dword ptr [rbx+450h]
-      vxorps  xmm2, xmm1, xmm6
-      vmovss  dword ptr [r14], xmm2
-    }
-    *elevatorInput = _RBX->m_ControlInputsNormalized[5];
-    *_RDI = _RBX->m_ControlInputsNormalized[2];
-LABEL_15:
-    if ( Physics_IsPredictiveWorld(_RBX->m_worldId) )
-    {
-      v39 = *_R14;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+448h]
-        vxorps  xmm1, xmm0, xmm6
-        vmovss  dword ptr [rbx+3F8h], xmm1
-      }
-      _RBX->m_UserControlInputs[8] = v39;
-      _RBX->m_UserControlInputs[12] = *_RSI;
-    }
-    goto LABEL_17;
+    return;
   }
-  v12 = integer - 1;
-  if ( v12 )
+  v11 = integer - 1;
+  if ( v11 )
   {
-    v13 = v12 - 1;
-    if ( v13 )
+    v12 = v11 - 1;
+    if ( v12 )
     {
-      if ( v13 != 1 )
-        goto LABEL_17;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+444h]
-        vmovss  xmm6, dword ptr cs:__xmm@80000000800000008000000080000000
-      }
-      _R14 = rudderInput;
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm6
-        vmovss  dword ptr [rsi], xmm0
-        vmovss  xmm1, dword ptr [rbx+450h]
-        vxorps  xmm2, xmm1, xmm6
-        vmovss  xmm1, cs:__real@bf800000; min
-        vmovss  dword ptr [r14], xmm2
-        vmovss  xmm2, cs:__real@3f800000; max
-      }
-      *elevatorInput = _RBX->m_ControlInputsNormalized[5];
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+45Ch]
-        vmovss  dword ptr [rdi], xmm0
-        vaddss  xmm0, xmm0, dword ptr [rbx+44Ch]; val
-        vmovss  dword ptr [rdi], xmm0
-      }
-      *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-      __asm { vmovss  dword ptr [rdi], xmm0 }
-      goto LABEL_15;
+      if ( v12 != 1 )
+        return;
+      v13 = _xmm;
+      v14 = rudderInput;
+      *aileronInput = COERCE_FLOAT(LODWORD(this->m_ControlInputsNormalized[0]) ^ _xmm);
+      *rudderInput = COERCE_FLOAT(LODWORD(this->m_ControlInputsNormalized[3]) ^ _xmm);
+      *elevatorInput = this->m_ControlInputsNormalized[5];
+      v15 = this->m_ControlInputsNormalized[6];
+      *collectiveInput = v15;
+      v16 = v15 + this->m_ControlInputsNormalized[2];
+      *collectiveInput = v16;
+      v17 = I_fclamp(v16, -1.0, 1.0);
+      *collectiveInput = *(float *)&v17;
+      goto LABEL_17;
     }
-    *_RSI = _RBX->m_ControlInputsNormalized[3];
-    *rudderInput = _RBX->m_ControlInputsNormalized[0];
-    *elevatorInput = _RBX->m_ControlInputsNormalized[1];
-    *_RDI = _RBX->m_ControlInputsNormalized[5];
-    if ( Physics_IsPredictiveWorld(_RBX->m_worldId) )
+    *aileronInput = this->m_ControlInputsNormalized[3];
+    *rudderInput = this->m_ControlInputsNormalized[0];
+    *elevatorInput = this->m_ControlInputsNormalized[1];
+    *collectiveInput = this->m_ControlInputsNormalized[5];
+    if ( Physics_IsPredictiveWorld(this->m_worldId) )
     {
-      _RBX->m_UserControlInputs[8] = *rudderInput;
-      _RBX->m_UserControlInputs[9] = 0.0;
+      this->m_UserControlInputs[8] = *rudderInput;
+      this->m_UserControlInputs[9] = 0.0;
     }
   }
   else
   {
-    *_RSI = _RBX->m_ControlInputsNormalized[3];
-    *rudderInput = _RBX->m_ControlInputsNormalized[0];
-    *elevatorInput = _RBX->m_ControlInputsNormalized[5];
-    __asm
+    *aileronInput = this->m_ControlInputsNormalized[3];
+    *rudderInput = this->m_ControlInputsNormalized[0];
+    *elevatorInput = this->m_ControlInputsNormalized[5];
+    *collectiveInput = COERCE_FLOAT(LODWORD(this->m_ControlInputsNormalized[1]) ^ _xmm);
+    if ( Physics_IsPredictiveWorld(this->m_worldId) )
     {
-      vmovss  xmm0, dword ptr [rbx+448h]
-      vxorps  xmm1, xmm0, cs:__xmm@80000000800000008000000080000000
-      vmovss  dword ptr [rdi], xmm1
-    }
-    if ( Physics_IsPredictiveWorld(_RBX->m_worldId) )
-    {
-      __asm
+      if ( this->m_ControlInputsNormalized[11] <= 0.001 )
       {
-        vmovss  xmm0, cs:__real@3a83126f
-        vcomiss xmm0, dword ptr [rbx+470h]
+        this->m_UserControlInputs[8] = *rudderInput;
+        this->m_UserControlInputs[9] = 0.0;
       }
-      _RBX->m_UserControlInputs[8] = *rudderInput;
-      _RBX->m_UserControlInputs[9] = 0.0;
+      else
+      {
+        this->m_UserControlInputs[8] = *rudderInput - (float)(HFD_FBW_FREELOOK_MULTIPLIER * *aileronInput);
+        this->m_UserControlInputs[9] = *collectiveInput;
+        *aileronInput = 0.0;
+        *collectiveInput = 0.0;
+      }
     }
-    __asm
-    {
-      vmovss  xmm4, dword ptr [rbx+44Ch]
-      vandps  xmm2, xmm4, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-      vmovss  xmm0, cs:__real@3f800000
-      vsubss  xmm1, xmm0, xmm2
-      vmulss  xmm3, xmm1, dword ptr [rdi]
-      vmulss  xmm2, xmm4, xmm2
-      vaddss  xmm0, xmm3, xmm2
-      vmovss  dword ptr [rdi], xmm0
-    }
+    *collectiveInput = (float)((float)(1.0 - COERCE_FLOAT(LODWORD(this->m_ControlInputsNormalized[2]) & _xmm)) * *collectiveInput) + (float)(this->m_ControlInputsNormalized[2] * COERCE_FLOAT(LODWORD(this->m_ControlInputsNormalized[2]) & _xmm));
   }
-LABEL_17:
-  __asm { vmovaps xmm6, [rsp+68h+var_28] }
 }
 
 /*
@@ -9260,129 +5457,57 @@ LABEL_17:
 FlightDynamicsRotorSystem::Update
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::Update(FlightDynamicsRotorSystem *this, double dT, bool drawBlade)
+void FlightDynamicsRotorSystem::Update(FlightDynamicsRotorSystem *this, float dT, bool drawBlade)
 {
-  char v16; 
-  vec3_t v70; 
-  __int64 v71; 
-  char v72; 
-  void *retaddr; 
+  float v5; 
+  float v6; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  vec3_t m_LiftForceVector; 
+  __int64 v15; 
 
-  _RAX = &retaddr;
-  v71 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmm12, xmm1
-  }
-  _RBX = this;
+  v15 = -2i64;
   Sys_ProfBeginNamedEvent(0xFFFF0000, "FlightDynamicsRotorSystem::Update");
-  __asm
+  if ( COERCE_FLOAT(LODWORD(this->m_RotorRPM) & _xmm) >= 1.0 )
   {
-    vmovss  xmm0, dword ptr [rbx+98h]
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vcomiss xmm0, cs:__real@3f800000
-  }
-  if ( v16 )
-  {
-    *(_QWORD *)_RBX->m_LiftTorqueVector.v = 0i64;
-    _RBX->m_LiftTorqueVector.v[2] = 0.0;
-    *(_QWORD *)_RBX->m_LiftForceVector.v = 0i64;
-    _RBX->m_LiftForceVector.v[2] = 0.0;
-    *(_QWORD *)_RBX->m_AirflowVelocity.v = 0i64;
-    _RBX->m_AirflowVelocity.v[2] = 0.0;
-    *(_QWORD *)_RBX->m_AirspeedVector.v = 0i64;
-    _RBX->m_AirspeedVector.v[2] = 0.0;
+    v5 = this->m_LiftTorqueVector.v[0];
+    v6 = this->m_LiftTorqueVector.v[1];
+    v7 = this->m_LiftTorqueVector.v[2];
+    v8 = this->m_LiftForceVector.v[0];
+    v9 = this->m_LiftForceVector.v[1];
+    v10 = this->m_LiftForceVector.v[2];
+    FlightDynamicsRotorSystem::UpdateRotor(this, dT, drawBlade);
+    v11 = dT * HFD_ROTOR_LIFT_TORQUE_RATE;
+    this->m_LiftTorqueVector.v[0] = (float)((float)(this->m_LiftTorqueVector.v[0] - v5) * (float)(dT * HFD_ROTOR_LIFT_TORQUE_RATE)) + v5;
+    this->m_LiftTorqueVector.v[1] = (float)((float)(this->m_LiftTorqueVector.v[1] - v6) * v11) + v6;
+    this->m_LiftTorqueVector.v[2] = (float)((float)(this->m_LiftTorqueVector.v[2] - v7) * v11) + v7;
+    v12 = dT * HFD_ROTOR_LIFT_FORCE_RATE;
+    this->m_LiftForceVector.v[0] = (float)((float)(this->m_LiftForceVector.v[0] - v8) * (float)(dT * HFD_ROTOR_LIFT_FORCE_RATE)) + v8;
+    this->m_LiftForceVector.v[1] = (float)((float)(this->m_LiftForceVector.v[1] - v9) * v12) + v9;
+    this->m_LiftForceVector.v[2] = (float)((float)(this->m_LiftForceVector.v[2] - v10) * v12) + v10;
+    v13 = (float)((float)((float)(this->m_InputTorque - this->m_OpposingTorque) * this->m_InvRotorWeight) * dT) + this->m_RotorRPM;
+    this->m_RotorRPM = v13;
+    this->m_RotorPosition = fmodf_0((float)((float)(v13 * dT) + this->m_RotorPosition) * 6.0, 360000.0) * 0.16666667;
+    m_LiftForceVector = this->m_LiftForceVector;
+    FlightDynamicsRotorSystem::UpdateAirflowMomemtum(this, &m_LiftForceVector, dT);
   }
   else
   {
-    __asm
-    {
-      vmovss  xmm6, dword ptr [rbx+60h]
-      vmovss  xmm7, dword ptr [rbx+64h]
-      vmovss  xmm8, dword ptr [rbx+68h]
-      vmovss  xmm9, dword ptr [rbx+54h]
-      vmovss  xmm10, dword ptr [rbx+58h]
-      vmovss  xmm11, dword ptr [rbx+5Ch]
-      vmovaps xmm1, xmm12; dT
-    }
-    FlightDynamicsRotorSystem::UpdateRotor(_RBX, *(float *)&_XMM1, drawBlade);
-    __asm
-    {
-      vmulss  xmm4, xmm12, cs:?HFD_ROTOR_LIFT_TORQUE_RATE@@3MA; float HFD_ROTOR_LIFT_TORQUE_RATE
-      vmovss  xmm1, dword ptr [rbx+60h]
-      vsubss  xmm0, xmm1, xmm6
-      vmulss  xmm2, xmm0, xmm4
-      vaddss  xmm3, xmm2, xmm6
-      vmovss  dword ptr [rbx+60h], xmm3
-      vmovss  xmm0, dword ptr [rbx+64h]
-      vsubss  xmm1, xmm0, xmm7
-      vmulss  xmm2, xmm1, xmm4
-      vaddss  xmm3, xmm2, xmm7
-      vmovss  dword ptr [rbx+64h], xmm3
-      vmovss  xmm0, dword ptr [rbx+68h]
-      vsubss  xmm1, xmm0, xmm8
-      vmulss  xmm2, xmm1, xmm4
-      vaddss  xmm3, xmm2, xmm8
-      vmovss  dword ptr [rbx+68h], xmm3
-      vmulss  xmm4, xmm12, cs:?HFD_ROTOR_LIFT_FORCE_RATE@@3MA; float HFD_ROTOR_LIFT_FORCE_RATE
-      vmovss  xmm1, dword ptr [rbx+54h]
-      vsubss  xmm0, xmm1, xmm9
-      vmulss  xmm2, xmm0, xmm4
-      vaddss  xmm3, xmm2, xmm9
-      vmovss  dword ptr [rbx+54h], xmm3
-      vmovss  xmm0, dword ptr [rbx+58h]
-      vsubss  xmm1, xmm0, xmm10
-      vmulss  xmm2, xmm1, xmm4
-      vaddss  xmm3, xmm2, xmm10
-      vmovss  dword ptr [rbx+58h], xmm3
-      vmovss  xmm0, dword ptr [rbx+5Ch]
-      vsubss  xmm1, xmm0, xmm11
-      vmulss  xmm2, xmm1, xmm4
-      vaddss  xmm3, xmm2, xmm11
-      vmovss  dword ptr [rbx+5Ch], xmm3
-      vmovss  xmm0, dword ptr [rbx+4Ch]
-      vsubss  xmm1, xmm0, dword ptr [rbx+50h]
-      vmulss  xmm2, xmm1, dword ptr [rbx+80h]
-      vmulss  xmm3, xmm2, xmm12
-      vaddss  xmm0, xmm3, dword ptr [rbx+98h]
-      vmovss  dword ptr [rbx+98h], xmm0
-      vmulss  xmm0, xmm0, xmm12
-      vaddss  xmm1, xmm0, dword ptr [rbx+9Ch]
-      vmulss  xmm0, xmm1, cs:__real@40c00000; X
-      vmovss  xmm1, cs:__real@48afc800; Y
-    }
-    *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-    __asm
-    {
-      vmulss  xmm1, xmm0, cs:__real@3e2aaaab
-      vmovss  dword ptr [rbx+9Ch], xmm1
-      vmovsd  xmm0, qword ptr [rbx+54h]
-      vmovsd  [rsp+0B8h+var_98], xmm0
-    }
-    v70.v[2] = _RBX->m_LiftForceVector.v[2];
-    __asm { vmovaps xmm2, xmm12 }
-    FlightDynamicsRotorSystem::UpdateAirflowMomemtum(_RBX, &v70, *(float *)&_XMM2);
+    *(_QWORD *)this->m_LiftTorqueVector.v = 0i64;
+    this->m_LiftTorqueVector.v[2] = 0.0;
+    *(_QWORD *)this->m_LiftForceVector.v = 0i64;
+    this->m_LiftForceVector.v[2] = 0.0;
+    *(_QWORD *)this->m_AirflowVelocity.v = 0i64;
+    this->m_AirflowVelocity.v[2] = 0.0;
+    *(_QWORD *)this->m_AirspeedVector.v = 0i64;
+    this->m_AirspeedVector.v[2] = 0.0;
   }
   Sys_ProfEndNamedEvent();
-  _R11 = &v72;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
 }
 
 /*
@@ -9390,221 +5515,147 @@ void __fastcall FlightDynamicsRotorSystem::Update(FlightDynamicsRotorSystem *thi
 FlightDynamicsRotorSystem::UpdateAirflowMomemtum
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::UpdateAirflowMomemtum(FlightDynamicsRotorSystem *this, vec3_t *liftForceVector, double dT)
+void FlightDynamicsRotorSystem::UpdateAirflowMomemtum(FlightDynamicsRotorSystem *this, vec3_t *liftForceVector, float dT)
 {
+  __int128 v3; 
+  double v8; 
+  float v9; 
+  __int128 v10; 
   __int64 m_BladeCount; 
-  __int64 v33; 
+  __int64 v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  __int128 v17; 
+  float v21; 
+  float v22; 
+  __int128 v23; 
+  __int128 v24; 
   float *p_m_BladeGroundEffect; 
-  unsigned __int64 v58; 
-  __int64 v64; 
-  __int64 p_m_GroundEffectTraceDistance; 
-  int v125; 
-  int v126; 
-  int v127; 
-  char v131; 
-  void *retaddr; 
+  unsigned __int64 v26; 
+  __int128 v27; 
+  __int128 v28; 
+  __int128 v29; 
+  __int128 v30; 
+  __int128 v31; 
+  __int128 v32; 
+  __int64 v33; 
+  float *p_m_GroundEffectTraceDistance; 
+  __int128 v35; 
+  __int128 v36; 
+  float v37; 
+  double v38; 
+  float v39; 
+  double v40; 
+  float v41; 
+  float v42; 
+  float v43; 
+  float v44; 
+  float v45; 
+  float v46; 
+  float v47; 
+  float v48; 
+  float v49; 
+  float v50; 
+  float v51; 
+  float v52; 
 
-  _RAX = &retaddr;
+  v3 = LODWORD(liftForceVector->v[0]);
+  *(float *)&v3 = (float)(liftForceVector->v[0] - this->m_AirflowVelocity.v[0]) * dT;
+  _XMM7 = v3;
+  v52 = (float)(liftForceVector->v[2] - this->m_AirflowVelocity.v[2]) * dT;
+  __asm { vunpcklps xmm6, xmm7, xmm3 }
+  v8 = I_fclamp(HFD_AIRFLOW_MOMENTUM_RESTITUTION, 0.0, 1.0);
+  v9 = this->m_AirspeedVector.v[0];
+  v10 = LODWORD(this->m_AirspeedVector.v[1]);
+  m_BladeCount = this->m_BladeCount;
+  v12 = 0i64;
+  v13 = *(float *)&_XMM7 - (float)(*(float *)&_XMM7 * *(float *)&v8);
+  v14 = _mm_shuffle_ps(_XMM6, _XMM6, 85).m128_f32[0];
+  _XMM6.m128_i32[0] = LODWORD(this->m_AirspeedVector.v[2]);
+  v15 = v14 - (float)(v14 * *(float *)&v8);
+  v16 = v52 - (float)(*(float *)&v8 * v52);
+  v17 = v10;
+  *(float *)&v17 = fsqrt((float)((float)(*(float *)&v10 * *(float *)&v10) + (float)(v9 * v9)) + (float)(_XMM6.m128_f32[0] * _XMM6.m128_f32[0]));
+  _XMM3 = v17;
   __asm
   {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovaps xmmword ptr [rax-58h], xmm10
-    vmovaps xmmword ptr [rax-68h], xmm11
-    vmovaps xmmword ptr [rax-78h], xmm12
-    vmovaps xmmword ptr [rax-88h], xmm13
-    vmovaps [rsp+108h+var_98], xmm14
-    vmovaps [rsp+108h+var_A8], xmm15
-    vmovss  xmm0, dword ptr [rdx]
-    vsubss  xmm1, xmm0, dword ptr [rcx]
-    vmovss  xmm0, dword ptr [rdx+4]
-    vmovss  xmm9, cs:__real@3f800000
-    vmulss  xmm7, xmm1, xmm2
-    vsubss  xmm1, xmm0, dword ptr [rcx+4]
-    vmulss  xmm3, xmm1, xmm2
-    vmovaps xmm10, xmm2
-    vmovss  xmm2, dword ptr [rdx+8]
-    vsubss  xmm0, xmm2, dword ptr [rcx+8]
-    vmulss  xmm1, xmm0, xmm10
-    vmovss  xmm0, cs:?HFD_AIRFLOW_MOMENTUM_RESTITUTION@@3MA; val
-    vmovss  [rsp+108h+var_C0], xmm1
-  }
-  _RBX = this;
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1; min
-    vmovaps xmm2, xmm9; max
-    vunpcklps xmm6, xmm7, xmm3
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmovss  xmm4, dword ptr [rbx+14h]
-    vmovss  xmm5, dword ptr [rbx+18h]
-  }
-  m_BladeCount = _RBX->m_BladeCount;
-  v33 = 0i64;
-  __asm
-  {
-    vmulss  xmm1, xmm7, xmm0
-    vsubss  xmm11, xmm7, xmm1
-    vshufps xmm2, xmm6, xmm6, 55h ; 'U'
-    vmovss  xmm6, dword ptr [rbx+1Ch]
-    vmulss  xmm1, xmm2, xmm0
-    vsubss  xmm12, xmm2, xmm1
-    vmovss  xmm2, [rsp+108h+var_C0]
-    vmulss  xmm0, xmm0, xmm2
-    vsubss  xmm13, xmm2, xmm0
-    vmulss  xmm0, xmm4, xmm4
-    vmulss  xmm1, xmm5, xmm5
-    vaddss  xmm2, xmm1, xmm0
-    vmulss  xmm1, xmm6, xmm6
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm9, xmm0
-    vdivss  xmm1, xmm9, xmm0
-    vmulss  xmm0, xmm6, xmm1
-    vmovss  [rsp+108h+var_D8], xmm0
-    vmulss  xmm14, xmm4, xmm1
-    vmulss  xmm15, xmm5, xmm1
-    vxorps  xmm7, xmm7, xmm7
-    vxorps  xmm8, xmm8, xmm8
   }
+  v50 = _XMM6.m128_f32[0] * (float)(1.0 / *(float *)&_XMM0);
+  v21 = v9 * (float)(1.0 / *(float *)&_XMM0);
+  v22 = *(float *)&v10 * (float)(1.0 / *(float *)&_XMM0);
+  v23 = 0i64;
+  v24 = 0i64;
   if ( m_BladeCount >= 4 )
   {
-    p_m_BladeGroundEffect = &_RBX->m_RotorBlades[1].m_BladeGroundEffect;
-    v58 = ((unsigned __int64)(m_BladeCount - 4) >> 2) + 1;
-    v33 = 4 * v58;
+    p_m_BladeGroundEffect = &this->m_RotorBlades[1].m_BladeGroundEffect;
+    v26 = ((unsigned __int64)(m_BladeCount - 4) >> 2) + 1;
+    v12 = 4 * v26;
     do
     {
-      __asm
-      {
-        vaddss  xmm0, xmm7, dword ptr [rax-2Ch]
-        vaddss  xmm1, xmm0, dword ptr [rax]
-        vaddss  xmm2, xmm1, dword ptr [rax+2Ch]
-        vaddss  xmm0, xmm8, dword ptr [rax-28h]
-        vaddss  xmm1, xmm0, dword ptr [rax+4]
-        vaddss  xmm7, xmm2, dword ptr [rax+58h]
-        vaddss  xmm2, xmm1, dword ptr [rax+30h]
-        vaddss  xmm8, xmm2, dword ptr [rax+5Ch]
-      }
+      v27 = v23;
+      *(float *)&v27 = (float)((float)(*(float *)&v23 + *(p_m_BladeGroundEffect - 11)) + *p_m_BladeGroundEffect) + p_m_BladeGroundEffect[11];
+      v28 = v27;
+      v29 = v24;
+      *(float *)&v29 = (float)(*(float *)&v24 + *(p_m_BladeGroundEffect - 10)) + p_m_BladeGroundEffect[1];
+      v30 = v29;
+      v31 = v28;
+      *(float *)&v31 = *(float *)&v28 + p_m_BladeGroundEffect[22];
+      v23 = v31;
+      v32 = v30;
+      *(float *)&v32 = (float)(*(float *)&v30 + p_m_BladeGroundEffect[12]) + p_m_BladeGroundEffect[23];
+      v24 = v32;
       p_m_BladeGroundEffect += 44;
-      --v58;
+      --v26;
     }
-    while ( v58 );
+    while ( v26 );
   }
-  if ( v33 < m_BladeCount )
+  if ( v12 < m_BladeCount )
   {
-    v64 = m_BladeCount - v33;
-    p_m_GroundEffectTraceDistance = (__int64)&_RBX->m_RotorBlades[v33].m_GroundEffectTraceDistance;
+    v33 = m_BladeCount - v12;
+    p_m_GroundEffectTraceDistance = &this->m_RotorBlades[v12].m_GroundEffectTraceDistance;
     do
     {
-      __asm
-      {
-        vaddss  xmm7, xmm7, dword ptr [rcx-4]
-        vaddss  xmm8, xmm8, dword ptr [rcx]
-      }
-      p_m_GroundEffectTraceDistance += 44i64;
-      --v64;
+      v35 = v23;
+      *(float *)&v35 = *(float *)&v23 + *(p_m_GroundEffectTraceDistance - 1);
+      v23 = v35;
+      v36 = v24;
+      *(float *)&v36 = *(float *)&v24 + *p_m_GroundEffectTraceDistance;
+      v24 = v36;
+      p_m_GroundEffectTraceDistance += 11;
+      --v33;
     }
-    while ( v64 );
+    while ( v33 );
   }
   if ( (int)m_BladeCount <= 1 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3513, ASSERT_TYPE_ASSERT, "(m_BladeCount > 1)", (const char *)&queryFormat, "m_BladeCount > 1") )
     __debugbreak();
-  __asm
+  v37 = 1.0 / _mm_cvtepi32_ps((__m128i)(unsigned int)this->m_BladeCount).m128_f32[0];
+  v38 = I_fclamp((float)((float)(1.0 - (float)(v37 * *(float *)&v24)) * (float)(v37 * *(float *)&v23)) * (float)((float)(this->m_RotorRPM * this->m_RotorRPM) * HFD_AIRFLOW_GROUND_EFFECT_RPM_FACTOR), 0.0, 1.0);
+  v39 = *(float *)&v38;
+  v40 = FD_ComputeExpo((float)((float)(v22 * this->m_RotorAxis.v[1]) + (float)(v21 * this->m_RotorAxis.v[0])) + (float)(v50 * this->m_RotorAxis.v[2]), HFD_AIRFLOW_MOMENTUM_GROUND_EFFECT_EXPO);
+  LODWORD(v41) = COERCE_UNSIGNED_INT((float)((float)(COERCE_FLOAT(LODWORD(v40) & _xmm) * HFD_AIRFLOW_MOMENTUM_GROUND_EFFECT_FACTOR) * v39) * dT) ^ _xmm;
+  v42 = (float)(v41 * this->m_AirspeedVector.v[0]) + this->m_AirflowVelocity.v[0];
+  this->m_AirflowVelocity.v[0] = v42;
+  this->m_AirflowVelocity.v[1] = (float)(v41 * this->m_AirspeedVector.v[1]) + this->m_AirflowVelocity.v[1];
+  this->m_AirflowVelocity.v[2] = (float)(v41 * this->m_AirspeedVector.v[2]) + this->m_AirflowVelocity.v[2];
+  v43 = (float)(v39 * HFD_AIRFLOW_MOMENTUM_GROUND_EFFECT_LIFT_FACTOR) * dT;
+  v44 = v15 + (float)(v43 * this->m_RotorAxis.v[1]);
+  v45 = HFD_AIRFLOW_MOMENTUM_CHANGE;
+  v46 = v16 + (float)(v43 * this->m_RotorAxis.v[2]);
+  v47 = (float)(HFD_AIRFLOW_MOMENTUM_CHANGE * (float)(v13 + (float)(v43 * this->m_RotorAxis.v[0]))) + v42;
+  this->m_AirflowVelocity.v[0] = v47;
+  v48 = (float)(v45 * v44) + this->m_AirflowVelocity.v[1];
+  this->m_AirflowVelocity.v[1] = v48;
+  v51 = v47;
+  v49 = (float)(v45 * v46) + this->m_AirflowVelocity.v[2];
+  this->m_AirflowVelocity.v[2] = v49;
+  if ( (LODWORD(v47) & 0x7F800000) == 2139095040 || (v51 = v48, (LODWORD(v48) & 0x7F800000) == 2139095040) || (v51 = v49, (LODWORD(v49) & 0x7F800000) == 2139095040) )
   {
-    vmovd   xmm0, dword ptr [rbx+6Ch]
-    vcvtdq2ps xmm0, xmm0
-    vdivss  xmm6, xmm9, xmm0
-    vmovss  xmm0, dword ptr [rbx+98h]
-    vmulss  xmm3, xmm0, xmm0
-    vmulss  xmm5, xmm3, cs:?HFD_AIRFLOW_GROUND_EFFECT_RPM_FACTOR@@3MA; float HFD_AIRFLOW_GROUND_EFFECT_RPM_FACTOR
-    vmulss  xmm4, xmm6, xmm8
-    vsubss  xmm3, xmm9, xmm4
-    vmulss  xmm0, xmm6, xmm7
-    vmulss  xmm3, xmm3, xmm0
-    vmulss  xmm0, xmm3, xmm5; val
-    vmovaps xmm2, xmm9; max
-    vxorps  xmm1, xmm1, xmm1; min
-  }
-  *(double *)&_XMM0 = I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-  __asm
-  {
-    vmulss  xmm3, xmm15, dword ptr [rbx+0B0h]
-    vmulss  xmm2, xmm14, dword ptr [rbx+0ACh]
-    vmovss  xmm1, cs:?HFD_AIRFLOW_MOMENTUM_GROUND_EFFECT_EXPO@@3MA; expo
-    vmovaps xmm7, xmm0
-    vmovss  xmm0, [rsp+108h+var_D8]
-    vaddss  xmm4, xmm3, xmm2
-    vmulss  xmm3, xmm0, dword ptr [rbx+0B4h]
-    vaddss  xmm0, xmm4, xmm3; value
-  }
-  *(double *)&_XMM0 = FD_ComputeExpo(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vandps  xmm0, xmm0, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    vmulss  xmm0, xmm0, cs:?HFD_AIRFLOW_MOMENTUM_GROUND_EFFECT_FACTOR@@3MA; float HFD_AIRFLOW_MOMENTUM_GROUND_EFFECT_FACTOR
-    vmulss  xmm1, xmm0, xmm7
-    vmulss  xmm2, xmm1, xmm10
-    vxorps  xmm3, xmm2, cs:__xmm@80000000800000008000000080000000
-    vmulss  xmm0, xmm3, dword ptr [rbx+14h]
-    vaddss  xmm6, xmm0, dword ptr [rbx]
-    vmovss  dword ptr [rbx], xmm6
-    vmulss  xmm0, xmm3, dword ptr [rbx+18h]
-    vaddss  xmm1, xmm0, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx+4], xmm1
-    vmulss  xmm0, xmm3, dword ptr [rbx+1Ch]
-    vaddss  xmm1, xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rbx+8], xmm1
-    vmulss  xmm1, xmm7, cs:?HFD_AIRFLOW_MOMENTUM_GROUND_EFFECT_LIFT_FACTOR@@3MA; float HFD_AIRFLOW_MOMENTUM_GROUND_EFFECT_LIFT_FACTOR
-    vmulss  xmm3, xmm1, xmm10
-    vmulss  xmm0, xmm3, dword ptr [rbx+0B0h]
-    vmulss  xmm2, xmm3, dword ptr [rbx+0ACh]
-    vaddss  xmm1, xmm12, xmm0
-    vmulss  xmm0, xmm3, dword ptr [rbx+0B4h]
-    vaddss  xmm5, xmm11, xmm2
-    vmovss  xmm2, cs:?HFD_AIRFLOW_MOMENTUM_CHANGE@@3MA; float HFD_AIRFLOW_MOMENTUM_CHANGE
-    vaddss  xmm4, xmm13, xmm0
-    vmulss  xmm0, xmm2, xmm5
-    vaddss  xmm3, xmm0, xmm6
-    vmovss  dword ptr [rbx], xmm3
-    vmulss  xmm1, xmm2, xmm1
-    vaddss  xmm5, xmm1, dword ptr [rbx+4]
-    vmovss  dword ptr [rbx+4], xmm5
-    vmovss  [rsp+108h+var_D8], xmm3
-    vmulss  xmm0, xmm2, xmm4
-    vaddss  xmm1, xmm0, dword ptr [rbx+8]
-    vmovss  dword ptr [rbx+8], xmm1
-  }
-  if ( (v125 & 0x7F800000) == 2139095040 )
-    goto LABEL_18;
-  __asm { vmovss  [rsp+108h+var_D8], xmm5 }
-  if ( (v126 & 0x7F800000) == 2139095040 )
-    goto LABEL_18;
-  __asm { vmovss  [rsp+108h+var_D8], xmm1 }
-  if ( (v127 & 0x7F800000) == 2139095040 )
-  {
-LABEL_18:
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3550, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_AirflowVelocity )[0] ) && !IS_NAN( ( m_AirflowVelocity )[1] ) && !IS_NAN( ( m_AirflowVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_AirflowVelocity )[0] ) && !IS_NAN( ( m_AirflowVelocity )[1] ) && !IS_NAN( ( m_AirflowVelocity )[2] )") )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3550, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_AirflowVelocity )[0] ) && !IS_NAN( ( m_AirflowVelocity )[1] ) && !IS_NAN( ( m_AirflowVelocity )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_AirflowVelocity )[0] ) && !IS_NAN( ( m_AirflowVelocity )[1] ) && !IS_NAN( ( m_AirflowVelocity )[2] )", v51) )
       __debugbreak();
-  }
-  _R11 = &v131;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, [rsp+108h+var_98]
-    vmovaps xmm15, [rsp+108h+var_A8]
   }
 }
 
@@ -9613,239 +5664,146 @@ LABEL_18:
 FlightDynamicsRotorSystem::UpdateGroundEffect
 ==============
 */
-
-float __fastcall FlightDynamicsRotorSystem::UpdateGroundEffect(FlightDynamicsRotorSystem *this, double distance, double liftMultiplier, double dT)
+float FlightDynamicsRotorSystem::UpdateGroundEffect(FlightDynamicsRotorSystem *this, float distance, float liftMultiplier, float dT)
 {
-  int v43; 
+  float v4; 
+  unsigned __int128 v5; 
+  unsigned __int128 v7; 
+  float v8; 
+  float v12; 
+  float v13; 
+  float v14; 
+  int m_BladeCount; 
+  int v17; 
+  __int128 v18; 
+  float *p_m_BladeGroundEffect; 
+  float v20; 
+  __int128 v21; 
+  float v22; 
+  __int128 v23; 
+  float m_BladeLength; 
+  float v28; 
+  float v29; 
+  bool v30; 
   Physics_WorldId m_worldId; 
-  char v87; 
-  bool v88; 
-  vec3_t v117; 
-  vec3_t v118; 
+  float fraction; 
+  double v33; 
+  float v34; 
+  float v35; 
+  __int128 v36; 
+  float v37; 
+  float v38; 
+  vec3_t v41; 
+  vec3_t v42; 
   vec3_t end; 
   vec3_t start; 
   vec3_t angles; 
   vec3_t in; 
-  vec3_t v123; 
+  vec3_t v47; 
   vec4_t quat; 
   vec4_t out; 
-  trace_t v126; 
-  char v127; 
-  void *retaddr; 
+  trace_t v50; 
 
-  _RAX = &retaddr;
+  LODWORD(v4) = LODWORD(this->m_AirflowVelocity.v[0]) ^ _xmm;
+  v5 = LODWORD(this->m_AirflowVelocity.v[1]) ^ (unsigned __int128)(unsigned int)_xmm;
+  v7 = v5;
+  LODWORD(v8) = LODWORD(this->m_AirflowVelocity.v[2]) ^ _xmm;
+  *(float *)&v7 = fsqrt((float)((float)(*(float *)&v5 * *(float *)&v5) + (float)(v4 * v4)) + (float)(v8 * v8));
+  _XMM3 = v7;
   __asm
   {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps xmmword ptr [rax-88h], xmm12
-    vmovaps xmmword ptr [rax-98h], xmm13
-    vmovaps xmmword ptr [rax-0A8h], xmm14
-    vmovaps xmmword ptr [rax-0B8h], xmm15
-    vmovss  xmm0, dword ptr [rcx]
-    vmovss  xmm5, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovss  xmm4, dword ptr [rcx+8]
-    vmovss  xmm8, cs:__real@3f800000
-    vxorps  xmm7, xmm0, xmm5
-    vmovss  xmm0, dword ptr [rcx+4]
-    vxorps  xmm6, xmm0, xmm5
-    vmulss  xmm0, xmm7, xmm7
-    vmovaps xmm11, xmm1
-    vmovaps xmm10, xmm3
-    vmulss  xmm3, xmm6, xmm6
-    vxorps  xmm4, xmm4, xmm5
-    vmovss  [rsp+200h+var_1C0], xmm2
-    vaddss  xmm2, xmm3, xmm0
-    vmulss  xmm1, xmm4, xmm4
-    vaddss  xmm2, xmm2, xmm1
-    vsqrtss xmm3, xmm2, xmm2
     vcmpless xmm0, xmm3, cs:__real@80000000
     vblendvps xmm0, xmm3, xmm8, xmm0
-    vdivss  xmm1, xmm8, xmm0
-    vmovss  xmm0, dword ptr [rcx+9Ch]
-    vmulss  xmm13, xmm7, xmm1
-    vmulss  xmm14, xmm6, xmm1
-    vmulss  xmm15, xmm4, xmm1
-    vmulss  xmm1, xmm0, cs:__real@40c00000
   }
-  _RDI = this;
-  __asm
-  {
-    vxorps  xmm12, xmm12, xmm12
-    vmovss  dword ptr [rbp+100h+angles+4], xmm1
-    vmovss  dword ptr [rbp+100h+angles], xmm12
-    vmovss  dword ptr [rbp+100h+angles+8], xmm12
-  }
+  v12 = v4 * (float)(1.0 / *(float *)&_XMM0);
+  v13 = *(float *)&v5 * (float)(1.0 / *(float *)&_XMM0);
+  v14 = v8 * (float)(1.0 / *(float *)&_XMM0);
+  angles.v[1] = this->m_RotorPosition * 6.0;
+  angles.v[0] = 0.0;
+  angles.v[2] = 0.0;
   AnglesToQuat(&angles, &quat);
-  QuatMultiply(&quat, &_RDI->m_RotorAxisQuat, &out);
-  __asm
+  QuatMultiply(&quat, &this->m_RotorAxisQuat, &out);
+  quat = out;
+  QuatMultiply(&quat, &this->m_RotationQuat, &out);
+  m_BladeCount = this->m_BladeCount;
+  this->m_BladeCollision = 0;
+  v17 = 0;
+  v18 = 0i64;
+  if ( m_BladeCount > 0 )
   {
-    vmovups xmm0, xmmword ptr [rbp+100h+out]
-    vmovdqa xmmword ptr [rbp+100h+quat], xmm0
-  }
-  QuatMultiply(&quat, &_RDI->m_RotationQuat, &out);
-  _EAX = _RDI->m_BladeCount;
-  _RDI->m_BladeCollision = 0;
-  v43 = 0;
-  __asm { vxorps  xmm9, xmm9, xmm9 }
-  if ( _EAX > 0 )
-  {
-    __asm { vmovss  xmm7, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff }
-    _RBX = &_RDI->m_RotorBlades[0].m_BladeGroundEffect;
+    p_m_BladeGroundEffect = &this->m_RotorBlades[0].m_BladeGroundEffect;
     do
     {
+      v20 = *(p_m_BladeGroundEffect - 9);
+      v21 = *((unsigned int *)p_m_BladeGroundEffect - 8);
+      v22 = *(p_m_BladeGroundEffect - 2);
+      v23 = v21;
+      *(float *)&v23 = fsqrt((float)((float)(*(float *)&v21 * *(float *)&v21) + (float)(v20 * v20)) + (float)(v22 * v22));
+      _XMM3 = v23;
       __asm
       {
-        vmovss  xmm4, dword ptr [rbx-24h]
-        vmovss  xmm5, dword ptr [rbx-20h]
-        vmovss  xmm6, dword ptr [rbx-8]
-        vmulss  xmm0, xmm4, xmm4
-        vmulss  xmm1, xmm5, xmm5
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm6, xmm6
-        vaddss  xmm2, xmm2, xmm1
-        vsqrtss xmm3, xmm2, xmm2
         vcmpless xmm0, xmm3, cs:__real@80000000
         vblendvps xmm0, xmm3, xmm8, xmm0
-        vdivss  xmm2, xmm8, xmm0
-        vmulss  xmm0, xmm2, xmm4
-        vmovss  dword ptr [rbp+100h+in], xmm0
-        vmulss  xmm0, xmm2, xmm6
-        vmulss  xmm1, xmm2, xmm5
-        vmovss  dword ptr [rbp+100h+in+8], xmm0
-        vmovss  dword ptr [rbp+100h+in+4], xmm1
       }
-      QuatTransform(&out, &in, &v123);
-      __asm
+      in.v[0] = (float)(1.0 / *(float *)&_XMM0) * v20;
+      in.v[2] = (float)(1.0 / *(float *)&_XMM0) * v22;
+      in.v[1] = (float)(1.0 / *(float *)&_XMM0) * *(float *)&v21;
+      QuatTransform(&out, &in, &v47);
+      m_BladeLength = this->m_BladeLength;
+      v28 = (float)(m_BladeLength * v47.v[0]) + this->m_Position.v[0];
+      *(float *)&_XMM3 = (float)(m_BladeLength * v47.v[1]) + this->m_Position.v[1];
+      v29 = (float)(m_BladeLength * v47.v[2]) + this->m_Position.v[2];
+      end.v[0] = (float)(v12 * distance) + v28;
+      end.v[1] = (float)(v13 * distance) + *(float *)&_XMM3;
+      v30 = HFD_TRACE_MIN_RPM < this->m_RotorRPM;
+      start.v[0] = v28;
+      start.v[1] = *(float *)&_XMM3;
+      start.v[2] = v29;
+      end.v[2] = (float)(v14 * distance) + v29;
+      if ( v30 )
       {
-        vmovss  xmm2, dword ptr [rdi+70h]
-        vmulss  xmm1, xmm2, dword ptr [rbp+100h+var_150]
-        vaddss  xmm4, xmm1, dword ptr [rdi+20h]
-        vmulss  xmm1, xmm2, dword ptr [rbp+100h+var_150+4]
-        vaddss  xmm3, xmm1, dword ptr [rdi+24h]
-        vmulss  xmm1, xmm2, dword ptr [rbp+100h+var_150+8]
-        vaddss  xmm2, xmm1, dword ptr [rdi+28h]
-        vmulss  xmm0, xmm13, xmm11
-        vaddss  xmm0, xmm0, xmm4
-        vmovss  dword ptr [rsp+200h+end], xmm0
-        vmulss  xmm0, xmm14, xmm11
-        vaddss  xmm1, xmm0, xmm3
-        vmovss  dword ptr [rsp+200h+end+4], xmm1
-        vmovss  xmm1, cs:?HFD_TRACE_MIN_RPM@@3MA; float HFD_TRACE_MIN_RPM
-        vcomiss xmm1, dword ptr [rdi+98h]
-        vmulss  xmm0, xmm15, xmm11
-        vaddss  xmm0, xmm0, xmm2
-        vmovss  dword ptr [rbp+100h+start], xmm4
-        vmovss  dword ptr [rbp+100h+start+4], xmm3
-        vmovss  dword ptr [rbp+100h+start+8], xmm2
-        vmovss  dword ptr [rsp+200h+end+8], xmm0
-      }
-      if ( v87 )
-      {
-        __asm { vmovsd  xmm0, qword ptr [rsp+200h+end] }
-        m_worldId = _RDI->m_worldId;
-        __asm
-        {
-          vmovsd  qword ptr [rsp+200h+var_1B0], xmm0
-          vmovsd  xmm0, qword ptr [rbp+100h+start]
-        }
-        v117.v[2] = end.v[2];
-        __asm { vmovsd  qword ptr [rsp+200h+var_1A0], xmm0 }
-        v118.v[2] = start.v[2];
-        FD_Trace(m_worldId, &v126, &v118, &v117, NULL, 2097, NULL);
-        __asm { vmovss  xmm0, [rbp+100h+var_120] }
-        if ( v126.startsolid )
-          _RDI->m_BladeCollision = 1;
+        m_worldId = this->m_worldId;
+        v41 = end;
+        v42 = start;
+        FD_Trace(m_worldId, &v50, &v42, &v41, NULL, 2097, NULL);
+        fraction = v50.fraction;
+        if ( v50.startsolid )
+          this->m_BladeCollision = 1;
       }
       else
       {
-        __asm
-        {
-          vmovaps xmm0, xmm8; value
-          vmovss  [rbp+100h+var_120], xmm0
-        }
+        fraction = FLOAT_1_0;
+        v50.fraction = FLOAT_1_0;
       }
-      __asm
-      {
-        vmovss  dword ptr [rbx+4], xmm0
-        vmovss  xmm1, cs:?HFD_BLADE_GROUND_EFFECT_DISTANCE_EXPO@@3MA; expo
-      }
-      I_pow(*(float *)&_XMM0, *(float *)&_XMM1);
-      __asm
-      {
-        vmovss  xmm3, dword ptr [rbx]
-        vsubss  xmm1, xmm8, xmm0
-        vsubss  xmm0, xmm1, xmm3
-        vmulss  xmm1, xmm0, [rsp+200h+var_1C0]
-        vmulss  xmm2, xmm1, xmm10
-        vaddss  xmm4, xmm3, xmm2
-        vmovss  dword ptr [rbx], xmm4
-      }
-      v87 = 0;
-      v88 = !DEBUG_DRAW_LINES;
-      __asm { vaddss  xmm9, xmm9, xmm2 }
+      p_m_BladeGroundEffect[1] = fraction;
+      v33 = I_pow(fraction, HFD_BLADE_GROUND_EFFECT_DISTANCE_EXPO);
+      v34 = (float)((float)((float)(1.0 - *(float *)&v33) - *p_m_BladeGroundEffect) * liftMultiplier) * dT;
+      v35 = *p_m_BladeGroundEffect + v34;
+      *p_m_BladeGroundEffect = v35;
+      v36 = v18;
+      *(float *)&v36 = *(float *)&v18 + v34;
+      v18 = v36;
       if ( DEBUG_DRAW_LINES )
       {
-        __asm
-        {
-          vmulss  xmm3, xmm11, [rbp+100h+var_120]
-          vmulss  xmm1, xmm13, xmm3
-          vaddss  xmm2, xmm1, dword ptr [rbp+100h+start]
-          vmulss  xmm0, xmm14, xmm3
-          vaddss  xmm1, xmm0, dword ptr [rbp+100h+start+4]
-          vmovss  dword ptr [rsp+200h+end], xmm2
-          vmulss  xmm2, xmm15, xmm3
-          vaddss  xmm0, xmm2, dword ptr [rbp+100h+start+8]
-          vmovss  dword ptr [rsp+200h+end+8], xmm0
-          vmovss  dword ptr [rsp+200h+end+4], xmm1
-        }
+        end.v[0] = (float)(v12 * (float)(distance * v50.fraction)) + start.v[0];
+        end.v[2] = (float)(v14 * (float)(distance * v50.fraction)) + start.v[2];
+        end.v[1] = (float)(v13 * (float)(distance * v50.fraction)) + start.v[1];
         FD_DebugLine(&start, &end, &colorBlue, 0, DEBUG_LINE_TIME);
-        __asm { vmovss  xmm4, dword ptr [rbx] }
+        v35 = *p_m_BladeGroundEffect;
       }
-      __asm
-      {
-        vmulss  xmm0, xmm4, cs:?HFD_BLADE_GROUND_EFFECT_DECAY@@3MA; float HFD_BLADE_GROUND_EFFECT_DECAY
-        vmulss  xmm2, xmm0, xmm10
-        vandps  xmm1, xmm2, xmm7
-        vandps  xmm0, xmm4, xmm7
-        vcomiss xmm1, xmm0
-      }
-      if ( v87 | v88 )
-        __asm { vsubss  xmm0, xmm4, xmm2 }
+      v37 = (float)(v35 * HFD_BLADE_GROUND_EFFECT_DECAY) * dT;
+      if ( COERCE_FLOAT(LODWORD(v37) & _xmm) <= COERCE_FLOAT(LODWORD(v35) & _xmm) )
+        v38 = v35 - v37;
       else
-        __asm { vmovaps xmm0, xmm12 }
-      __asm { vmovss  dword ptr [rbx], xmm0 }
-      _EAX = _RDI->m_BladeCount;
-      _RBX += 11;
-      ++v43;
+        v38 = 0.0;
+      *p_m_BladeGroundEffect = v38;
+      m_BladeCount = this->m_BladeCount;
+      p_m_BladeGroundEffect += 11;
+      ++v17;
     }
-    while ( v43 < _EAX );
+    while ( v17 < m_BladeCount );
   }
-  __asm
-  {
-    vmovd   xmm0, eax
-    vcvtdq2ps xmm0, xmm0
-    vdivss  xmm0, xmm9, xmm0
-  }
-  _R11 = &v127;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
-  }
-  return *(float *)&_XMM0;
+  return *(float *)&v18 / _mm_cvtepi32_ps((__m128i)(unsigned int)m_BladeCount).m128_f32[0];
 }
 
 /*
@@ -9853,23 +5811,17 @@ float __fastcall FlightDynamicsRotorSystem::UpdateGroundEffect(FlightDynamicsRot
 FlightDynamicsRotorSystem::UpdatePositionAndOrientation
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::UpdatePositionAndOrientation(FlightDynamicsRotorSystem *this, vec3_t *position, vec4_t *rotation, double dT)
+void FlightDynamicsRotorSystem::UpdatePositionAndOrientation(FlightDynamicsRotorSystem *this, vec3_t *position, vec4_t *rotation, float dT)
 {
-  vec4_t *v4; 
-  vec4_t v8; 
+  vec4_t v5; 
+  vec4_t v7; 
 
-  v4 = rotation;
-  __asm { vmovups xmm0, xmmword ptr [r8] }
+  v5 = *rotation;
   this->m_Position = *position;
-  __asm
-  {
-    vmovaps xmm2, xmm3
-    vmovups xmmword ptr [rsp+38h+var_18], xmm0
-  }
-  FlightDynamicsRotorSystem::CalculateDeflectionFromOrientation(this, &v8, *(float *)&_XMM2);
+  v7 = v5;
+  FlightDynamicsRotorSystem::CalculateDeflectionFromOrientation(this, &v7, dT);
   this->m_PreviousRotationQuat = this->m_RotationQuat;
-  this->m_RotationQuat = *v4;
+  this->m_RotationQuat = *rotation;
 }
 
 /*
@@ -9877,1578 +5829,891 @@ void __fastcall FlightDynamicsRotorSystem::UpdatePositionAndOrientation(FlightDy
 FlightDynamicsRotorSystem::UpdateRotor
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::UpdateRotor(FlightDynamicsRotorSystem *this, double dT, bool drawBlade)
+void FlightDynamicsRotorSystem::UpdateRotor(FlightDynamicsRotorSystem *this, float dT, bool drawBlade)
 {
-  FlightDynamicsManager *FlightDynamicsManager; 
-  int v47; 
-  char v79; 
+  float v3; 
+  float v5; 
+  float v6; 
+  float v7; 
+  __int128 v9; 
+  float v10; 
+  int v11; 
+  float v12; 
+  __int128 v13; 
+  float v14; 
+  float v17; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  float v23; 
+  int v24; 
+  float v25; 
+  float v32; 
   __int64 m_BladeCount; 
-  int v107; 
-  int v109; 
+  int v37; 
+  __int64 v38; 
+  int v39; 
   float *p_m_BladeDeflection; 
-  int v122; 
-  __int64 v123; 
-  int v128; 
-  __int64 v212; 
-  char v316; 
-  bool v425; 
-  bool v426; 
-  char v611; 
+  int v41; 
+  float *v42; 
+  int v43; 
+  HelicopterRotorBlade *m_RotorBlades; 
+  int v45; 
+  __int64 v46; 
+  float v51; 
+  float v52; 
+  float v53; 
+  __int128 v54; 
+  __int128 v58; 
+  float v59; 
+  float v60; 
+  float v64; 
+  float v65; 
+  float v66; 
+  float v67; 
+  float v68; 
+  float v69; 
+  float v70; 
+  __int64 v71; 
+  float v72; 
+  float v73; 
+  float v74; 
+  float v75; 
+  float v76; 
+  __int128 v77; 
+  __int128 v81; 
+  float v82; 
+  float v83; 
+  float v84; 
+  float v88; 
+  __int128 v89; 
+  float v90; 
+  __int128 v91; 
+  float v92; 
+  __int128 v94; 
+  __int128 v98; 
+  float v101; 
+  __int128 v103; 
+  float v106; 
+  float v107; 
+  float v108; 
+  float v109; 
+  double v110; 
+  float v111; 
+  __int128 v112; 
+  __int128 v113; 
+  float v116; 
+  __int128 v117; 
+  float v118; 
+  float v119; 
+  float v123; 
+  float v124; 
+  float v125; 
+  float v126; 
+  float v127; 
+  float v128; 
+  float v129; 
+  float v130; 
+  float v131; 
+  float m_BladeMaxDeflection; 
+  __int128 v133; 
+  float v137; 
+  float v138; 
+  __int128 v141; 
+  __int128 v145; 
+  __int128 v150; 
+  float v153; 
+  float v154; 
+  float v155; 
+  __int128 v157; 
+  float v160; 
+  float v161; 
+  float v162; 
+  float v163; 
+  float v164; 
+  float v165; 
+  float *v166; 
+  float v167; 
+  float v168; 
+  float v169; 
+  float v170; 
+  float v171; 
+  float v172; 
+  float v173; 
+  float m_BladeLength; 
+  float *v175; 
+  float *v176; 
+  float *v177; 
+  float v178; 
+  float v179; 
+  float v180; 
   int Int_Internal_DebugName; 
-  __int64 v757; 
-  int duration[2]; 
-  double v759; 
-  double v760; 
-  int v761; 
-  int v762; 
-  int v763; 
-  int v764; 
-  int v765; 
-  FlightDynamicsManager *v799; 
-  __int64 v800; 
-  vec3_t v801; 
-  vec3_t v802; 
+  float v182; 
+  float v183; 
+  float *v184; 
+  float *v185; 
+  float *v186; 
+  float v187; 
+  float v188; 
+  float v189; 
+  float v190; 
+  float v191; 
+  float v192; 
+  double v193; 
+  float v194; 
+  double v195; 
+  float v196; 
+  double v197; 
+  double v198; 
+  int v199; 
+  double v200; 
+  float v201; 
+  double v202; 
+  int v203; 
+  float *v204; 
+  float *v205; 
+  float *v206; 
+  float *v207; 
+  float *v208; 
+  float *v209; 
+  double v210; 
+  int v211; 
+  double v212; 
+  float v213; 
+  double v214; 
+  float v215; 
+  double v216; 
+  float v217; 
+  float v218; 
+  float v219; 
+  float v221; 
+  float v222; 
+  float v223; 
+  float v224; 
+  float v225; 
+  float v226; 
+  float v227; 
+  float v228; 
+  float v229; 
+  float v230; 
+  float v231; 
+  float v232; 
+  float v234; 
+  float v235; 
+  float v236; 
+  float v237; 
+  float v238; 
+  float v239; 
+  float v240; 
+  float v241; 
+  float v242; 
+  float v243; 
+  float v244; 
+  float v245; 
+  float v246; 
+  float v247; 
+  float v248; 
+  float v249; 
+  float v250; 
+  float v251; 
+  float v252; 
+  float v253; 
+  float v254; 
+  float v255; 
+  float v256; 
+  float v257; 
+  float v258; 
+  FlightDynamicsManager *FlightDynamicsManager; 
+  vec3_t v260; 
+  vec3_t v261; 
   vec3_t start; 
-  vec3_t v804; 
+  vec3_t v263; 
   vec3_t dir; 
-  vec3_t v806; 
-  vec4_t v807; 
-  vec3_t v808; 
+  vec3_t v265; 
+  vec4_t v266; 
+  vec3_t m_BladeDirection; 
   vec4_t color; 
   vec3_t v1; 
-  vec3_t v811; 
+  vec3_t v270; 
   vec3_t sum; 
-  vec3_t v813; 
-  vec3_t v814; 
+  vec3_t v272; 
+  vec3_t v273; 
   vec3_t cross; 
   vec3_t b; 
   vec3_t a; 
   vec3_t end; 
   vec3_t angles; 
-  vec3_t v820; 
-  vec3_t v821; 
+  vec3_t v279; 
+  vec3_t v280; 
   vec4_t in1; 
   vec4_t out; 
-  vec3_t v824; 
+  vec3_t v283; 
   vec4_t quat; 
-  vec3_t v826; 
+  vec3_t v285; 
   vec3_t result; 
-  vec3_t v828; 
-  vec4_t v829; 
-  vec3_t v830; 
+  vec3_t v287; 
+  vec4_t v288; 
+  vec3_t v289; 
   vec3_t in; 
-  vec4_t v832; 
-  char v834; 
-  void *retaddr; 
+  vec4_t v291; 
+  int v292[8]; 
 
-  _RAX = &retaddr;
-  v800 = -2i64;
-  __asm
+  v3 = dT;
+  v5 = FLOAT_0_001;
+  if ( dT >= 0.001 && dT <= 0.039999999 )
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  LOBYTE(v763) = drawBlade;
-  __asm
-  {
-    vmovaps xmm10, xmm1
-    vmovss  [rsp+3E0h+var_368], xmm1
-  }
-  _RSI = this;
-  __asm
-  {
-    vmovss  xmm14, cs:__real@3a83126f
-    vcomiss xmm1, xmm14
-    vcomiss xmm1, cs:__real@3d23d70a
-  }
-  if ( (unsigned __int64)&v757 == _security_cookie )
-  {
-    __asm
-    {
-      vmovss  xmm1, cs:__real@3cd013a2
-      vmulss  xmm11, xmm1, dword ptr [rcx+70h]
-      vmovss  [rbp+2E0h+var_30C], xmm11
-      vmulss  xmm2, xmm1, dword ptr [rcx+74h]
-      vmovss  xmm1, dword ptr [rcx+98h]
-      vmulss  xmm8, xmm1, cs:__real@3dd67750
-      vmulss  xmm0, xmm2, xmm11
-      vmovss  [rbp+2E0h+var_31C], xmm0
-    }
+    v6 = 0.025399987 * this->m_BladeLength;
+    v258 = v6;
+    v7 = this->m_RotorRPM * 0.10471976;
+    v254 = (float)(0.025399987 * this->m_BladeWidth) * v6;
     Sys_ProfBeginNamedEvent(0xFFFF0000, "FlightDynamicsRotorSystem::UpdateRotor");
     FlightDynamicsManager = BG_GetFlightDynamicsManager();
-    v799 = FlightDynamicsManager;
-    __asm
-    {
-      vxorps  xmm12, xmm12, xmm12
-      vmovss  dword ptr [rbp+2E0h+angles], xmm12
-      vmovss  dword ptr [rbp+2E0h+angles+4], xmm12
-      vmovss  dword ptr [rbp+2E0h+angles+8], xmm12
-      vmovss  xmm6, cs:__real@40c00000
-      vmulss  xmm1, xmm6, dword ptr [rsi+9Ch]
-      vmulss  xmm0, xmm10, dword ptr [rsi+98h]
-      vsubss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rbp+2E0h+angles+4], xmm1
-    }
+    _XMM12 = 0i64;
+    angles.v[0] = 0.0;
+    angles.v[1] = 0.0;
+    angles.v[2] = 0.0;
+    angles.v[1] = (float)(6.0 * this->m_RotorPosition) - (float)(dT * this->m_RotorRPM);
     AnglesToQuat(&angles, &quat);
-    QuatMultiply(&quat, &_RSI->m_RotorAxisQuat, &out);
-    QuatMultiply(&out, &_RSI->m_RotationQuat, &v832);
-    __asm
-    {
-      vmulss  xmm1, xmm6, dword ptr [rsi+9Ch]
-      vmovss  dword ptr [rbp+2E0h+angles+4], xmm1
-    }
+    QuatMultiply(&quat, &this->m_RotorAxisQuat, &out);
+    QuatMultiply(&out, &this->m_RotationQuat, &v291);
+    angles.v[1] = 6.0 * this->m_RotorPosition;
     AnglesToQuat(&angles, &quat);
-    QuatMultiply(&quat, &_RSI->m_RotorAxisQuat, &out);
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbp+2E0h+out]
-      vmovdqa xmmword ptr [rbp+2E0h+quat], xmm0
-    }
-    QuatMultiply(&quat, &_RSI->m_RotationQuat, &out);
-    QuatMultiply(&quat, &_RSI->m_PreviousRotationQuat, &v807);
-    QuatTransform(&_RSI->m_RotationQuat, &FlightDynamicsManager->m_ForwardAxis, &v1);
-    QuatTransform(&_RSI->m_RotorAxisQuat, &FlightDynamicsManager->m_UpAxis, &in);
-    QuatTransform(&_RSI->m_RotationQuat, &in, &_RSI->m_RotorAxis);
-    Vec3Cross(&_RSI->m_RotorAxis, &v1, &cross);
+    QuatMultiply(&quat, &this->m_RotorAxisQuat, &out);
+    quat = out;
+    QuatMultiply(&quat, &this->m_RotationQuat, &out);
+    QuatMultiply(&quat, &this->m_PreviousRotationQuat, &v266);
+    QuatTransform(&this->m_RotationQuat, &FlightDynamicsManager->m_ForwardAxis, &v1);
+    QuatTransform(&this->m_RotorAxisQuat, &FlightDynamicsManager->m_UpAxis, &in);
+    QuatTransform(&this->m_RotationQuat, &in, &this->m_RotorAxis);
+    Vec3Cross(&this->m_RotorAxis, &v1, &cross);
     if ( DEBUG_DRAW_LINES )
     {
-      __asm
-      {
-        vmovss  xmm3, cs:__real@42c80000
-        vmulss  xmm0, xmm3, dword ptr [rsi+0ACh]
-        vaddss  xmm1, xmm0, dword ptr [rcx]
-        vmovss  dword ptr [rbp+2E0h+end], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rsi+0B0h]
-        vaddss  xmm1, xmm0, dword ptr [rcx+4]
-        vmovss  dword ptr [rbp+2E0h+end+4], xmm1
-        vmulss  xmm0, xmm3, dword ptr [rsi+0B4h]
-        vaddss  xmm1, xmm0, dword ptr [rcx+8]
-        vmovss  dword ptr [rbp+2E0h+end+8], xmm1
-      }
-      FD_DebugLine(&_RSI->m_Position, &end, &colorGreen, 0, DEBUG_LINE_TIME);
+      end.v[0] = (float)(100.0 * this->m_RotorAxis.v[0]) + this->m_Position.v[0];
+      end.v[1] = (float)(100.0 * this->m_RotorAxis.v[1]) + this->m_Position.v[1];
+      end.v[2] = (float)(100.0 * this->m_RotorAxis.v[2]) + this->m_Position.v[2];
+      FD_DebugLine(&this->m_Position, &end, &colorGreen, 0, DEBUG_LINE_TIME);
     }
-    __asm
+    v9 = LODWORD(this->m_AirspeedVector.v[1]);
+    v10 = this->m_AirspeedVector.v[2];
+    v11 = 0;
+    if ( (float)((float)((float)(this->m_AirspeedVector.v[0] * this->m_AirspeedVector.v[0]) + (float)(*(float *)&v9 * *(float *)&v9)) + (float)(v10 * v10)) > 151782400.0 )
     {
-      vmovss  xmm6, dword ptr [rsi+18h]
-      vmovss  xmm0, dword ptr [rsi+14h]
-      vmovss  xmm7, dword ptr [rsi+1Ch]
-      vmulss  xmm1, xmm0, xmm0
-      vmulss  xmm0, xmm6, xmm6
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm7, xmm7
-      vaddss  xmm3, xmm2, xmm1
+      *(_QWORD *)this->m_AirspeedVector.v = 0i64;
+      this->m_AirspeedVector.v[2] = 0.0;
+      v9 = LODWORD(this->m_AirspeedVector.v[1]);
+      v10 = 0.0;
     }
-    v47 = 0;
-    __asm
+    v12 = this->m_AirspeedVector.v[0];
+    v13 = v9;
+    v14 = (float)((float)(*(float *)&v9 * *(float *)&v9) + (float)(v12 * v12)) + (float)(v10 * v10);
+    *(float *)&v13 = fsqrt(v14);
+    _XMM3 = v13;
+    __asm { vcmpless xmm0, xmm3, xmm9 }
+    v17 = FLOAT_1_0;
+    __asm { vblendvps xmm1, xmm3, xmm13, xmm0 }
+    v19 = (float)(1.0 / *(float *)&_XMM1) * v12;
+    v229 = v19;
+    v20 = *(float *)&v9 * (float)(1.0 / *(float *)&_XMM1);
+    v230 = v20;
+    v21 = v10 * (float)(1.0 / *(float *)&_XMM1);
+    v231 = v21;
+    v22 = *(float *)&v13 * 0.025400002;
+    v257 = *(float *)&_XMM3 * 0.025400002;
+    v242 = v14 * 0.00064516009;
+    if ( (float)(*(float *)&_XMM3 * 0.025400002) < 0.001 )
     {
-      vcomiss xmm3, cs:__real@4d10c040
-      vmovss  xmm5, dword ptr [rsi+14h]
-      vmulss  xmm1, xmm6, xmm6
-      vmulss  xmm0, xmm5, xmm5
-      vaddss  xmm2, xmm1, xmm0
-      vmulss  xmm1, xmm7, xmm7
-      vaddss  xmm4, xmm2, xmm1
-      vsqrtss xmm3, xmm4, xmm4
-      vmovss  xmm9, cs:__real@80000000
-      vcmpless xmm0, xmm3, xmm9
-      vmovss  xmm13, cs:__real@3f800000
-      vblendvps xmm1, xmm3, xmm13, xmm0
-      vmovss  [rsp+3E0h+var_390], xmm1
-      vdivss  xmm0, xmm13, xmm1
-      vmulss  xmm2, xmm0, xmm5
-      vmovss  [rsp+3E0h+var_378], xmm2
-      vmulss  xmm5, xmm6, xmm0
-      vmovss  [rsp+3E0h+var_374], xmm5
-      vmulss  xmm7, xmm7, xmm0
-      vmovss  [rsp+3E0h+var_370], xmm7
-      vmulss  xmm15, xmm3, cs:__real@3cd013aa
-      vmovss  [rbp+2E0h+var_310], xmm15
-      vmulss  xmm0, xmm4, cs:__real@3a291ff6
-      vmovss  [rbp+2E0h+var_34C], xmm0
-      vcomiss xmm15, xmm14
-      vmulss  xmm1, xmm15, cs:?HFD_BLADE_AIRSPEED_SCALE@@3MA; float HFD_BLADE_AIRSPEED_SCALE
-      vmulss  xmm0, xmm2, xmm1
-      vmovss  [rbp+2E0h+var_334], xmm0
-      vmulss  xmm0, xmm5, xmm1
-      vmovss  [rbp+2E0h+var_330], xmm0
-      vmulss  xmm0, xmm7, xmm1
-      vmovss  [rbp+2E0h+var_32C], xmm0
-      vmulss  xmm0, xmm1, xmm1
-      vmulss  xmm1, xmm2, xmm0
-      vmovss  [rbp+2E0h+var_328], xmm1
-      vmulss  xmm1, xmm5, xmm0
-      vmovss  [rbp+2E0h+var_324], xmm1
-      vmulss  xmm0, xmm7, xmm0
-      vmovss  [rbp+2E0h+var_320], xmm0
-      vmulss  xmm0, xmm15, cs:__real@3dcccccd; val
-      vmovaps xmm2, xmm13; max
-      vxorps  xmm1, xmm1, xmm1; min
+      v19 = this->m_RotorAxis.v[0];
+      v229 = v19;
+      v20 = this->m_RotorAxis.v[1];
+      v230 = v20;
+      v21 = this->m_RotorAxis.v[2];
+      v231 = v21;
     }
-    I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmulss  xmm2, xmm8, xmm11
-      vmulss  xmm0, xmm2, cs:?HFD_BLADE_AIRSPEED_SCALE@@3MA; float HFD_BLADE_AIRSPEED_SCALE
-      vmovss  [rsp+3E0h+var_384], xmm0
-      vmovss  dword ptr [rbp+2E0h+a], xmm12
-      vmovss  dword ptr [rbp+2E0h+a+4], xmm12
-      vmovss  dword ptr [rbp+2E0h+a+8], xmm12
-      vmovss  dword ptr [rbp+2E0h+sum], xmm12
-      vmovss  dword ptr [rbp+2E0h+sum+4], xmm12
-      vmovss  dword ptr [rbp+2E0h+sum+8], xmm12
-      vmovss  dword ptr [rbp+2E0h+var_228], xmm12
-      vmovss  dword ptr [rbp+2E0h+var_228+4], xmm12
-      vmovss  dword ptr [rbp+2E0h+var_228+8], xmm12
-      vcvtss2sd xmm0, xmm10, xmm10
-      vcomisd xmm0, cs:__real@3eb0c6f7a0b5ed8d
-    }
-    if ( v316 | v79 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics.inl", 693, ASSERT_TYPE_ASSERT, "(deltaTime > 1.0E-6)", (const char *)&queryFormat, "deltaTime > ZERO_EPSILON") )
+    v248 = v19 * (float)(v22 * HFD_BLADE_AIRSPEED_SCALE);
+    v249 = v20 * (float)(v22 * HFD_BLADE_AIRSPEED_SCALE);
+    v250 = v21 * (float)(v22 * HFD_BLADE_AIRSPEED_SCALE);
+    v23 = (float)(v22 * HFD_BLADE_AIRSPEED_SCALE) * (float)(v22 * HFD_BLADE_AIRSPEED_SCALE);
+    v251 = v19 * v23;
+    v252 = v20 * v23;
+    v253 = v21 * v23;
+    I_fclamp(v22 * 0.1, 0.0, 1.0);
+    v226 = (float)(v7 * v6) * HFD_BLADE_AIRSPEED_SCALE;
+    a.v[0] = 0.0;
+    a.v[1] = 0.0;
+    a.v[2] = 0.0;
+    sum.v[0] = 0.0;
+    sum.v[1] = 0.0;
+    sum.v[2] = 0.0;
+    v273.v[0] = 0.0;
+    v273.v[1] = 0.0;
+    v273.v[2] = 0.0;
+    if ( v3 <= 0.000001 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_physics.inl", 693, ASSERT_TYPE_ASSERT, "(deltaTime > 1.0E-6)", (const char *)&queryFormat, "deltaTime > ZERO_EPSILON") )
       __debugbreak();
+    v24 = _xmm;
+    LODWORD(in1.v[0]) = LODWORD(v266.v[0]) ^ _xmm;
+    LODWORD(in1.v[1]) = LODWORD(v266.v[1]) ^ _xmm;
+    LODWORD(in1.v[2]) = LODWORD(v266.v[2]) ^ _xmm;
+    in1.v[3] = v266.v[3];
+    QuatMultiply(&in1, &out, &v288);
+    v25 = (float)(1.0 / v3) * 0.5;
+    _XMM1 = LODWORD(v288.v[0]) ^ (unsigned __int128)(unsigned int)_xmm;
     __asm
     {
-      vdivss  xmm6, xmm13, xmm10
-      vmovss  xmm11, dword ptr cs:__xmm@80000000800000008000000080000000
-      vmovss  xmm0, dword ptr [rbp+2E0h+var_298]
-      vxorps  xmm1, xmm0, xmm11
-      vmovss  dword ptr [rbp+2E0h+in1], xmm1
-      vmovss  xmm2, dword ptr [rbp+2E0h+var_298+4]
-      vxorps  xmm0, xmm2, xmm11
-      vmovss  dword ptr [rbp+2E0h+in1+4], xmm0
-      vmovss  xmm1, dword ptr [rbp+2E0h+var_298+8]
-      vxorps  xmm2, xmm1, xmm11
-      vmovss  dword ptr [rbp+2E0h+in1+8], xmm2
-      vmovss  xmm0, dword ptr [rbp+2E0h+var_298+0Ch]
-      vmovss  dword ptr [rbp+2E0h+in1+0Ch], xmm0
+      vcmpless xmm0, xmm12, xmm4
+      vblendvps xmm0, xmm1, xmm2, xmm0
     }
-    QuatMultiply(&in1, &out, &v829);
+    b.v[0] = *(float *)&_XMM0 * v25;
+    _XMM1 = LODWORD(v288.v[1]) ^ (unsigned __int128)(unsigned int)_xmm;
     __asm
     {
-      vmulss  xmm5, xmm6, cs:__real@3f000000
-      vmovss  xmm4, dword ptr [rbp+2E0h+var_130+0Ch]
-      vmovss  xmm2, dword ptr [rbp+2E0h+var_130]
-      vxorps  xmm1, xmm2, xmm11
       vcmpless xmm0, xmm12, xmm4
       vblendvps xmm0, xmm1, xmm2, xmm0
-      vmulss  xmm3, xmm0, xmm5
-      vmovss  dword ptr [rbp+2E0h+b], xmm3
-      vmovss  xmm2, dword ptr [rbp+2E0h+var_130+4]
-      vxorps  xmm1, xmm2, xmm11
-      vcmpless xmm0, xmm12, xmm4
-      vblendvps xmm0, xmm1, xmm2, xmm0
-      vmulss  xmm6, xmm0, xmm5
-      vmovss  dword ptr [rbp+2E0h+b+4], xmm6
-      vmovss  xmm2, dword ptr [rbp+2E0h+var_130+8]
-      vxorps  xmm1, xmm2, xmm11
-      vcmpless xmm0, xmm12, xmm4
-      vblendvps xmm0, xmm1, xmm2, xmm0
-      vmulss  xmm4, xmm0, xmm5
-      vmovss  dword ptr [rbp+2E0h+b+8], xmm4
-      vmovss  [rsp+3E0h+var_394], xmm3
     }
-    if ( (v764 & 0x7F800000) == 2139095040 )
-      goto LABEL_11;
-    __asm { vmovss  [rsp+3E0h+var_394], xmm6 }
-    if ( (v764 & 0x7F800000) == 2139095040 )
-      goto LABEL_11;
-    __asm { vmovss  [rsp+3E0h+var_394], xmm4 }
-    if ( (v764 & 0x7F800000) == 2139095040 )
+    v32 = *(float *)&_XMM0 * v25;
+    b.v[1] = *(float *)&_XMM0 * v25;
+    _XMM1 = LODWORD(v288.v[2]) ^ (unsigned __int128)(unsigned int)_xmm;
+    __asm
     {
-LABEL_11:
-      __asm
-      {
-        vmovss  dword ptr [rbp+2E0h+var_258], xmm12
-        vmovss  dword ptr [rbp+2E0h+var_258+4], xmm12
-        vmovss  dword ptr [rbp+2E0h+var_258+8], xmm12
-      }
+      vcmpless xmm0, xmm12, xmm4
+      vblendvps xmm0, xmm1, xmm2, xmm0
+    }
+    b.v[2] = *(float *)&_XMM0 * v25;
+    if ( (LODWORD(b.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v32) & 0x7F800000) == 2139095040 || (COERCE_UNSIGNED_INT(*(float *)&_XMM0 * v25) & 0x7F800000) == 2139095040 )
+    {
+      v270.v[0] = 0.0;
+      v270.v[1] = 0.0;
+      v270.v[2] = 0.0;
     }
     else
     {
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbp+2E0h+b]
-        vmovsd  qword ptr [rbp+2E0h+var_258], xmm0
-      }
-      v811.v[2] = b.v[2];
+      v270 = b;
     }
-    m_BladeCount = _RSI->m_BladeCount;
-    v107 = 0;
-    _R8 = 0i64;
+    m_BladeCount = this->m_BladeCount;
+    v37 = 0;
+    v38 = 0i64;
     if ( m_BladeCount >= 4 )
     {
-      v109 = 2;
-      p_m_BladeDeflection = &_RSI->m_RotorBlades[1].m_BladeDeflection;
-      v107 = 4 * ((unsigned __int64)(m_BladeCount - 4) >> 2) + 4;
+      v39 = 2;
+      p_m_BladeDeflection = &this->m_RotorBlades[1].m_BladeDeflection;
+      v37 = 4 * ((unsigned __int64)(m_BladeCount - 4) >> 2) + 4;
       do
       {
-        _RCX = 44i64 * ((v109 - 1) % (int)m_BladeCount);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rsi+0E4h]
-          vsubss  xmm1, xmm0, dword ptr [r11-2Ch]
-          vmovss  [rbp+r8*4+2E0h+var_F0], xmm1
-        }
-        _RCX = 44i64 * (v109 % (int)m_BladeCount);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rsi+0E4h]
-          vsubss  xmm1, xmm0, dword ptr [r11]
-          vmovss  [rbp+r8*4+2E0h+var_EC], xmm1
-        }
-        _RCX = 44i64 * ((v109 + 1) % (int)m_BladeCount);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rsi+0E4h]
-          vsubss  xmm1, xmm0, dword ptr [r11+2Ch]
-          vmovss  [rbp+r8*4+2E0h+var_E8], xmm1
-        }
-        _RCX = 44i64 * ((v109 + 2) % (int)m_BladeCount);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rsi+0E4h]
-          vsubss  xmm1, xmm0, dword ptr [r11+58h]
-          vmovss  [rbp+r8*4+2E0h+var_E4], xmm1
-        }
-        v109 += 4;
-        _R8 += 4i64;
+        *(float *)&v292[v38] = this->m_RotorBlades[(v39 - 1) % (int)m_BladeCount].m_BladeDeflection - *(p_m_BladeDeflection - 11);
+        *(float *)&v292[v38 + 1] = this->m_RotorBlades[v39 % (int)m_BladeCount].m_BladeDeflection - *p_m_BladeDeflection;
+        *(float *)&v292[v38 + 2] = this->m_RotorBlades[(v39 + 1) % (int)m_BladeCount].m_BladeDeflection - p_m_BladeDeflection[11];
+        *(float *)&v292[v38 + 3] = this->m_RotorBlades[(v39 + 2) % (int)m_BladeCount].m_BladeDeflection - p_m_BladeDeflection[22];
+        v39 += 4;
+        v38 += 4i64;
         p_m_BladeDeflection += 44;
       }
-      while ( _R8 < m_BladeCount - 3 );
+      while ( v38 < m_BladeCount - 3 );
     }
-    if ( _R8 < m_BladeCount )
+    if ( v38 < m_BladeCount )
     {
-      v122 = v107 + 1;
-      v123 = (__int64)&_RSI->m_RotorBlades[_R8].m_BladeDeflection;
+      v41 = v37 + 1;
+      v42 = &this->m_RotorBlades[v38].m_BladeDeflection;
       do
       {
-        _RCX = 44i64 * (v122 % (int)m_BladeCount);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rcx+rsi+0E4h]
-          vsubss  xmm1, xmm0, dword ptr [r11]
-          vmovss  [rbp+r8*4+2E0h+var_F0], xmm1
-        }
-        ++v122;
-        ++_R8;
-        v123 += 44i64;
+        *(float *)&v292[v38] = this->m_RotorBlades[v41 % (int)m_BladeCount].m_BladeDeflection - *v42;
+        ++v41;
+        ++v38;
+        v42 += 11;
       }
-      while ( _R8 < m_BladeCount );
+      while ( v38 < m_BladeCount );
     }
-    __asm
-    {
-      vmovss  [rbp+2E0h+var_354], xmm12
-      vmovss  [rbp+2E0h+var_350], xmm12
-      vmovss  xmm15, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-    }
+    v241 = 0.0;
+    v43 = _xmm;
     if ( (int)m_BladeCount > 0 )
     {
-      _RDI = _RSI->m_RotorBlades;
+      m_RotorBlades = this->m_RotorBlades;
       do
       {
-        v128 = v47 + 1;
-        _RBX = (v47 + 1) % (int)m_BladeCount;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rdi]
-          vmovss  dword ptr [rbp+2E0h+var_288], xmm0
-          vmovss  xmm1, dword ptr [rdi+4]
-          vmovss  dword ptr [rbp+2E0h+var_288+4], xmm1
-          vmovss  xmm0, dword ptr [rdi+8]
-          vmovss  dword ptr [rbp+2E0h+var_288+8], xmm0
-        }
-        QuatTransform(&out, &v808, &v824);
-        __asm
-        {
-          vmovss  xmm6, dword ptr [rsi+7Ch]
-          vxorps  xmm7, xmm6, xmm11
-          vmovss  xmm8, dword ptr [rdi+1Ch]
-          vcomiss xmm7, xmm6
-        }
-        if ( !(v316 | v79) )
-        {
-          __asm
-          {
-            vcvtss2sd xmm0, xmm6, xmm6
-            vcvtss2sd xmm1, xmm7, xmm7
-            vmovsd  [rsp+3E0h+var_3B0], xmm0
-            vmovsd  [rsp+3E0h+var_3B8], xmm1
-          }
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", v759, v760) )
-            __debugbreak();
-        }
+        v45 = v11 + 1;
+        v46 = (v11 + 1) % (int)m_BladeCount;
+        m_BladeDirection = m_RotorBlades->m_BladeDirection;
+        QuatTransform(&out, &m_BladeDirection, &v283);
+        _XMM6 = LODWORD(this->m_BladeMaxDeflection);
+        _XMM8 = LODWORD(m_RotorBlades->m_BladeDeflection);
+        if ( COERCE_FLOAT(_XMM6 ^ v24) > *(float *)&_XMM6 && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vector.h", 713, ASSERT_TYPE_SANITY, "( min ) <= ( max )", "min <= max\n\t%g, %g", COERCE_FLOAT(_XMM6 ^ v24), *(float *)&_XMM6) )
+          __debugbreak();
         __asm
         {
           vmaxss  xmm0, xmm8, xmm7
           vminss  xmm6, xmm6, xmm0
-          vmovss  dword ptr [rdi+1Ch], xmm6
-          vmulss  xmm1, xmm6, cs:?HFD_BLADE_CORIOLIS_EFFECT@@3MA; float HFD_BLADE_CORIOLIS_EFFECT
-          vandps  xmm1, xmm1, xmm15
-          vaddss  xmm0, xmm1, xmm13
-          vmovss  [rsp+3E0h+var_394], xmm0
-          vmovss  xmm0, [rsp+3E0h+var_384]
-          vmulss  xmm2, xmm0, xmm0
-          vmulss  xmm0, xmm2, dword ptr [rsi+78h]
-          vmulss  xmm2, xmm0, cs:?HFD_ROTOR_CENTRIFUGAL_FORCE@@3MA; float HFD_ROTOR_CENTRIFUGAL_FORCE
-          vmulss  xmm11, xmm2, dword ptr [rbp+2E0h+var_180]
-          vmovss  [rsp+3E0h+var_390], xmm11
-          vmulss  xmm12, xmm2, dword ptr [rbp+2E0h+var_180+4]
-          vmovss  [rbp+2E0h+var_348], xmm12
-          vmulss  xmm0, xmm2, dword ptr [rbp+2E0h+var_180+8]
-          vmovss  [rsp+3E0h+var_37C], xmm0
-          vmovss  xmm4, dword ptr [rbp+2E0h+var_288]
-          vmulss  xmm2, xmm4, xmm4
-          vmovss  xmm5, dword ptr [rbp+2E0h+var_288+4]
-          vmulss  xmm0, xmm5, xmm5
-          vaddss  xmm2, xmm2, xmm0
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm3, xmm2, xmm2
+        }
+        m_RotorBlades->m_BladeDeflection = *(float *)&_XMM6;
+        v221 = COERCE_FLOAT(COERCE_UNSIGNED_INT(*(float *)&_XMM6 * HFD_BLADE_CORIOLIS_EFFECT) & v43) + v17;
+        v51 = (float)((float)(v226 * v226) * this->m_BladeWeight) * HFD_ROTOR_CENTRIFUGAL_FORCE;
+        v52 = v51 * v283.v[0];
+        v223 = v51 * v283.v[0];
+        v53 = v51 * v283.v[1];
+        v243 = v51 * v283.v[1];
+        v228 = v51 * v283.v[2];
+        v54 = LODWORD(m_BladeDirection.v[0]);
+        *(float *)&v54 = fsqrt((float)((float)(*(float *)&v54 * *(float *)&v54) + (float)(m_BladeDirection.v[1] * m_BladeDirection.v[1])) + (float)(*(float *)&_XMM6 * *(float *)&_XMM6));
+        _XMM3 = v54;
+        __asm
+        {
           vcmpless xmm0, xmm3, xmm9
           vblendvps xmm1, xmm3, xmm13, xmm0
-          vmovss  [rsp+3E0h+var_39C], xmm1
-          vdivss  xmm2, xmm13, xmm1
-          vmulss  xmm0, xmm4, xmm2
-          vmovss  dword ptr [rbp+2E0h+var_288], xmm0
-          vmulss  xmm1, xmm5, xmm2
-          vmovss  dword ptr [rbp+2E0h+var_288+4], xmm1
-          vmulss  xmm0, xmm2, xmm6
-          vmovss  dword ptr [rbp+2E0h+var_288+8], xmm0
         }
-        QuatTransform(&out, &v808, &v801);
+        m_BladeDirection.v[0] = m_BladeDirection.v[0] * (float)(v17 / *(float *)&_XMM1);
+        m_BladeDirection.v[1] = m_BladeDirection.v[1] * (float)(v17 / *(float *)&_XMM1);
+        m_BladeDirection.v[2] = (float)(v17 / *(float *)&_XMM1) * *(float *)&_XMM6;
+        QuatTransform(&out, &m_BladeDirection, &v260);
+        *(float *)&_XMM6 = (float)(v260.v[2] * v270.v[1]) - (float)(v260.v[1] * v270.v[2]);
+        v58 = LODWORD(v260.v[0]);
+        v59 = (float)(v260.v[0] * v270.v[2]) - (float)(v260.v[2] * v270.v[0]);
+        v60 = (float)(v260.v[1] * v270.v[0]) - (float)(v260.v[0] * v270.v[1]);
+        *(float *)&v58 = fsqrt((float)((float)(v59 * v59) + (float)(*(float *)&_XMM6 * *(float *)&_XMM6)) + (float)(v60 * v60));
+        _XMM3 = v58;
         __asm
         {
-          vmovss  xmm7, dword ptr [rbp+2E0h+var_2F8+8]
-          vmulss  xmm1, xmm7, dword ptr [rbp+2E0h+var_258+4]
-          vmovss  xmm8, dword ptr [rbp+2E0h+var_2F8+4]
-          vmulss  xmm0, xmm8, dword ptr [rbp+2E0h+var_258+8]
-          vsubss  xmm6, xmm1, xmm0
-          vmovss  xmm9, dword ptr [rbp+2E0h+var_2F8]
-          vmulss  xmm1, xmm9, dword ptr [rbp+2E0h+var_258+8]
-          vmulss  xmm0, xmm7, dword ptr [rbp+2E0h+var_258]
-          vsubss  xmm5, xmm1, xmm0
-          vmulss  xmm2, xmm8, dword ptr [rbp+2E0h+var_258]
-          vmulss  xmm1, xmm9, dword ptr [rbp+2E0h+var_258+4]
-          vsubss  xmm4, xmm2, xmm1
-          vmulss  xmm3, xmm5, xmm5
-          vmulss  xmm0, xmm6, xmm6
-          vaddss  xmm2, xmm3, xmm0
-          vmulss  xmm1, xmm4, xmm4
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm3, xmm2, xmm2
           vcmpless xmm0, xmm3, cs:__real@80000000
           vblendvps xmm1, xmm3, xmm13, xmm0
-          vmovss  [rsp+3E0h+var_39C], xmm1
-          vdivss  xmm0, xmm13, xmm1
-          vmulss  xmm13, xmm0, xmm6
-          vmovss  [rbp+2E0h+var_338], xmm13
-          vmulss  xmm5, xmm0, xmm5
-          vmovss  [rbp+2E0h+var_35C], xmm5
-          vmulss  xmm4, xmm0, xmm4
-          vmovss  [rsp+3E0h+var_36C], xmm4
-          vmulss  xmm0, xmm3, xmm10
-          vmulss  xmm2, xmm0, cs:__real@3cd013aa
-          vcomiss xmm2, xmm14
         }
-        if ( v316 )
+        *(float *)&_XMM0 = v17 / *(float *)&_XMM1;
+        v64 = (float)(v17 / *(float *)&_XMM1) * *(float *)&_XMM6;
+        v247 = v64;
+        v65 = *(float *)&_XMM0 * v59;
+        v238 = v65;
+        v66 = *(float *)&_XMM0 * v60;
+        v232 = v66;
+        v67 = (float)(*(float *)&v58 * v3) * 0.025400002;
+        if ( v67 < v5 )
         {
-          __asm
-          {
-            vmovss  xmm13, dword ptr [rsi+0ACh]
-            vmovss  [rbp+2E0h+var_338], xmm13
-            vmovss  xmm5, dword ptr [rsi+0B0h]
-            vmovss  [rbp+2E0h+var_35C], xmm5
-            vmovss  xmm4, dword ptr [rsi+0B4h]
-            vmovss  [rsp+3E0h+var_36C], xmm4
-          }
+          v64 = this->m_RotorAxis.v[0];
+          v247 = v64;
+          v65 = this->m_RotorAxis.v[1];
+          v238 = v65;
+          v66 = this->m_RotorAxis.v[2];
+          v232 = v66;
         }
+        v68 = (float)(v67 * HFD_BLADE_AIRSPEED_SCALE) * HFD_BLADE_EXTERNAL_ROTATION_FACTOR;
+        v239 = v64 * v68;
+        v69 = v65 * v68;
+        v70 = v68 * v66;
+        v234 = (float)(v64 * v68) * v67;
+        v236 = (float)(v65 * v68) * v67;
+        v217 = (float)(v68 * v66) * v67;
+        v244 = (float)((float)(v260.v[2] * v53) - (float)(v260.v[1] * v228)) * HFD_ROTOR_CENTRIFUGAL_TORQUE;
+        v245 = (float)((float)(v260.v[0] * v228) - (float)(v260.v[2] * v52)) * HFD_ROTOR_CENTRIFUGAL_TORQUE;
+        v246 = (float)((float)(v260.v[1] * v52) - (float)(v260.v[0] * v53)) * HFD_ROTOR_CENTRIFUGAL_TORQUE;
+        v71 = v11;
+        QuatTransform(&out, &this->m_RotorBlades[v71].m_BladeRotationDirection, &v261);
+        v225 = (float)(v261.v[1] * v260.v[2]) - (float)(v261.v[2] * v260.v[1]);
+        v227 = (float)(v261.v[2] * v260.v[0]) - (float)(v261.v[0] * v260.v[2]);
+        v224 = (float)(v261.v[0] * v260.v[1]) - (float)(v261.v[1] * v260.v[0]);
+        v72 = (float)(v64 * v261.v[0]) + (float)(v261.v[1] * v238);
+        v73 = (float)(v72 + (float)(v261.v[2] * v232)) * v261.v[0];
+        v74 = v261.v[1] * (float)(v72 + (float)(v261.v[2] * v232));
+        v75 = v261.v[2] * (float)(v72 + (float)(v261.v[2] * v232));
+        QuatTransform(&v291, &m_BladeDirection, &v279);
+        v77 = LODWORD(v260.v[1]);
+        v76 = v260.v[1] - v279.v[1];
+        *(float *)&v77 = fsqrt((float)((float)(v76 * v76) + (float)((float)(v260.v[0] - v279.v[0]) * (float)(v260.v[0] - v279.v[0]))) + (float)((float)(v260.v[2] - v279.v[2]) * (float)(v260.v[2] - v279.v[2])));
+        _XMM3 = v77;
         __asm
         {
-          vmulss  xmm0, xmm2, cs:?HFD_BLADE_AIRSPEED_SCALE@@3MA; float HFD_BLADE_AIRSPEED_SCALE
-          vmulss  xmm1, xmm0, cs:?HFD_BLADE_EXTERNAL_ROTATION_FACTOR@@3MA; float HFD_BLADE_EXTERNAL_ROTATION_FACTOR
-          vmulss  xmm0, xmm13, xmm1
-          vmovss  [rbp+2E0h+var_358], xmm0
-          vmulss  xmm15, xmm5, xmm1
-          vmulss  xmm14, xmm1, xmm4
-          vmulss  xmm3, xmm0, xmm2
-          vmovss  [rsp+3E0h+var_364], xmm3
-          vmulss  xmm1, xmm15, xmm2
-          vmovss  [rbp+2E0h+var_360], xmm1
-          vmulss  xmm4, xmm14, xmm2
-          vmovss  [rsp+3E0h+var_3A0], xmm4
-          vmulss  xmm1, xmm7, xmm12
-          vmulss  xmm0, xmm8, [rsp+3E0h+var_37C]
-          vsubss  xmm5, xmm1, xmm0
-          vmulss  xmm2, xmm9, [rsp+3E0h+var_37C]
-          vmulss  xmm1, xmm7, xmm11
-          vsubss  xmm4, xmm2, xmm1
-          vmulss  xmm3, xmm8, xmm11
-          vmulss  xmm0, xmm9, xmm12
-          vsubss  xmm2, xmm3, xmm0
-          vmovss  xmm1, cs:?HFD_ROTOR_CENTRIFUGAL_TORQUE@@3MA; float HFD_ROTOR_CENTRIFUGAL_TORQUE
-          vmulss  xmm0, xmm5, xmm1
-          vmovss  [rbp+2E0h+var_344], xmm0
-          vmulss  xmm0, xmm4, xmm1
-          vmovss  [rbp+2E0h+var_340], xmm0
-          vmulss  xmm0, xmm2, xmm1
-          vmovss  [rbp+2E0h+var_33C], xmm0
-        }
-        v212 = v47;
-        QuatTransform(&out, &_RSI->m_RotorBlades[v212].m_BladeRotationDirection, &v802);
-        __asm
-        {
-          vmovss  xmm7, dword ptr [rbp+2E0h+var_2E8+4]
-          vmulss  xmm1, xmm7, dword ptr [rbp+2E0h+var_2F8+8]
-          vmovss  xmm6, dword ptr [rbp+2E0h+var_2E8+8]
-          vmulss  xmm0, xmm6, dword ptr [rbp+2E0h+var_2F8+4]
-          vsubss  xmm0, xmm1, xmm0
-          vmovss  [rsp+3E0h+var_388], xmm0
-          vmulss  xmm1, xmm6, dword ptr [rbp+2E0h+var_2F8]
-          vmovss  xmm5, dword ptr [rbp+2E0h+var_2E8]
-          vmulss  xmm0, xmm5, dword ptr [rbp+2E0h+var_2F8+8]
-          vsubss  xmm0, xmm1, xmm0
-          vmovss  [rsp+3E0h+var_380], xmm0
-          vmulss  xmm2, xmm5, dword ptr [rbp+2E0h+var_2F8+4]
-          vmulss  xmm1, xmm7, dword ptr [rbp+2E0h+var_2F8]
-          vsubss  xmm0, xmm2, xmm1
-          vmovss  [rsp+3E0h+var_38C], xmm0
-          vmulss  xmm3, xmm13, xmm5
-          vmulss  xmm0, xmm7, [rbp+2E0h+var_35C]
-          vaddss  xmm2, xmm3, xmm0
-          vmulss  xmm1, xmm6, [rsp+3E0h+var_36C]
-          vaddss  xmm4, xmm2, xmm1
-          vmulss  xmm8, xmm4, xmm5
-          vmulss  xmm9, xmm7, xmm4
-          vmulss  xmm10, xmm6, xmm4
-        }
-        QuatTransform(&v832, &v808, &v820);
-        __asm
-        {
-          vmovss  xmm13, dword ptr [rbp+2E0h+var_2F8]
-          vsubss  xmm4, xmm13, dword ptr [rbp+2E0h+var_1C8]
-          vmovss  xmm11, dword ptr [rbp+2E0h+var_2F8+4]
-          vsubss  xmm5, xmm11, dword ptr [rbp+2E0h+var_1C8+4]
-          vmovss  xmm12, dword ptr [rbp+2E0h+var_2F8+8]
-          vsubss  xmm6, xmm12, dword ptr [rbp+2E0h+var_1C8+8]
-          vmulss  xmm1, xmm5, xmm5
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm3, xmm2, xmm2
           vcmpless xmm0, xmm3, cs:__real@80000000
-          vmovss  xmm2, cs:__real@3f800000
           vblendvps xmm1, xmm3, xmm2, xmm0
-          vmovss  [rsp+3E0h+var_39C], xmm1
-          vdivss  xmm0, xmm2, xmm1
-          vmulss  xmm2, xmm0, xmm4
-          vmovss  dword ptr [rbp+2E0h+var_1C8], xmm2
-          vmulss  xmm3, xmm0, xmm5
-          vmovss  dword ptr [rbp+2E0h+var_1C8+4], xmm3
-          vmulss  xmm5, xmm0, xmm6
-          vmovss  dword ptr [rbp+2E0h+var_1C8+8], xmm5
-          vmulss  xmm1, xmm2, dword ptr [rbp+2E0h+var_2E8]
-          vmulss  xmm0, xmm3, dword ptr [rbp+2E0h+var_2E8+4]
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm5, dword ptr [rbp+2E0h+var_2E8+8]
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm3, dword ptr [rbp+2E0h+var_2E8]
-          vaddss  xmm5, xmm0, xmm8
-          vmulss  xmm1, xmm3, dword ptr [rbp+2E0h+var_2E8+4]
-          vaddss  xmm6, xmm1, xmm9
-          vmulss  xmm0, xmm3, dword ptr [rbp+2E0h+var_2E8+8]
-          vaddss  xmm4, xmm0, xmm10
-          vmulss  xmm2, xmm6, xmm6
-          vmulss  xmm1, xmm5, xmm5
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, xmm4
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
+        }
+        v81 = LODWORD(FLOAT_1_0);
+        v279.v[0] = (float)(1.0 / *(float *)&_XMM1) * (float)(v260.v[0] - v279.v[0]);
+        v279.v[1] = (float)(1.0 / *(float *)&_XMM1) * (float)(v260.v[1] - v279.v[1]);
+        v279.v[2] = (float)(1.0 / *(float *)&_XMM1) * (float)(v260.v[2] - v279.v[2]);
+        *(float *)&_XMM3 = (float)((float)(v279.v[0] * v261.v[0]) + (float)((float)((float)(1.0 / *(float *)&_XMM1) * v76) * v261.v[1])) + (float)(v279.v[2] * v261.v[2]);
+        v82 = (float)(*(float *)&_XMM3 * v261.v[0]) + v73;
+        v83 = (float)(*(float *)&_XMM3 * v261.v[1]) + v74;
+        v84 = (float)(*(float *)&_XMM3 * v261.v[2]) + v75;
+        *(float *)&v81 = fsqrt((float)((float)(v83 * v83) + (float)(v82 * v82)) + (float)(v84 * v84));
+        _XMM1 = v81;
+        __asm
+        {
           vcmpless xmm0, xmm1, cs:__real@80000000
-          vmovss  xmm2, cs:__real@3f800000
           vblendvps xmm1, xmm1, xmm2, xmm0
-          vmovss  [rsp+3E0h+var_39C], xmm1
-          vdivss  xmm0, xmm2, xmm1
-          vmulss  xmm3, xmm0, xmm5
-          vmovss  dword ptr [rbp+2E0h+var_2E8], xmm3
-          vmulss  xmm1, xmm0, xmm6
-          vmovss  dword ptr [rbp+2E0h+var_2E8+4], xmm1
-          vmulss  xmm5, xmm0, xmm4
-          vmovss  dword ptr [rbp+2E0h+var_2E8+8], xmm5
-          vmovss  xmm10, [rsp+3E0h+var_394]
-          vmulss  xmm2, xmm10, [rsp+3E0h+var_384]
-          vmulss  xmm0, xmm2, xmm3
-          vaddss  xmm4, xmm0, [rbp+2E0h+var_334]
-          vmulss  xmm1, xmm2, xmm1
-          vaddss  xmm3, xmm1, [rbp+2E0h+var_330]
-          vmulss  xmm0, xmm2, xmm5
-          vaddss  xmm2, xmm0, [rbp+2E0h+var_32C]
-          vaddss  xmm6, xmm4, [rbp+2E0h+var_358]
-          vaddss  xmm7, xmm3, xmm15
-          vaddss  xmm8, xmm2, xmm14
-          vmovss  xmm9, [rsp+3E0h+var_378]
-          vmulss  xmm2, xmm13, xmm9
-          vmovss  xmm14, [rsp+3E0h+var_374]
-          vmulss  xmm0, xmm11, xmm14
-          vaddss  xmm3, xmm2, xmm0
-          vmovss  xmm11, [rsp+3E0h+var_370]
-          vmulss  xmm2, xmm12, xmm11
-          vaddss  xmm3, xmm3, xmm2
-          vmovss  xmm15, cs:__real@3f000000
-          vmulss  xmm0, xmm3, xmm15
-          vsubss  xmm2, xmm15, xmm0
-          vxorps  xmm12, xmm12, xmm12
-          vmaxss  xmm0, xmm2, xmm12
-          vmovss  xmm13, cs:__real@3f800000
-          vminss  xmm0, xmm0, xmm13; value
-          vmovss  xmm1, cs:?HFD_BLADE_DISYMMETRY_LIFT_EXPO@@3MA; expo
         }
-        *(double *)&_XMM0 = I_pow(*(float *)&_XMM0, *(float *)&_XMM1);
+        v261.v[0] = (float)(1.0 / *(float *)&_XMM1) * v82;
+        v261.v[1] = (float)(1.0 / *(float *)&_XMM1) * v83;
+        v261.v[2] = (float)(1.0 / *(float *)&_XMM1) * v84;
+        v88 = v221;
+        v89 = LODWORD(v221);
+        v90 = (float)((float)((float)(v221 * v226) * v261.v[0]) + v248) + v239;
+        *(float *)&v89 = (float)((float)((float)(v221 * v226) * v261.v[1]) + v249) + v69;
+        v91 = v89;
+        v92 = (float)((float)((float)(v221 * v226) * v261.v[2]) + v250) + v70;
+        v94 = LODWORD(FLOAT_0_5);
+        *(float *)&v94 = 0.5 - (float)((float)((float)((float)(v260.v[0] * v229) + (float)(v260.v[1] * v230)) + (float)(v260.v[2] * v231)) * 0.5);
+        _XMM2 = v94;
+        LODWORD(_XMM12) = 0;
+        __asm { vmaxss  xmm0, xmm2, xmm12 }
+        v17 = FLOAT_1_0;
+        __asm { vminss  xmm0, xmm0, xmm13; value }
+        *(double *)&_XMM0 = I_pow(*(float *)&_XMM0, HFD_BLADE_DISYMMETRY_LIFT_EXPO);
+        v240 = fmodf_0(*(float *)&_XMM0 + HFD_BLADE_DISYMMETRY_LIFT_ANGLE_OFFSET, 1.0);
+        v98 = LODWORD(FLOAT_0_5);
+        *(float *)&v98 = 0.5 - (float)((float)((float)((float)(v229 * v261.v[0]) + (float)(v230 * v261.v[1])) + (float)(v231 * v261.v[2])) * 0.5);
+        _XMM2 = v98;
         __asm
         {
-          vaddss  xmm0, xmm0, cs:?HFD_BLADE_DISYMMETRY_LIFT_ANGLE_OFFSET@@3MA; X
-          vmovaps xmm1, xmm13; Y
-        }
-        *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
-        {
-          vmovss  [rbp+2E0h+var_358], xmm0
-          vmulss  xmm4, xmm9, dword ptr [rbp+2E0h+var_2E8]
-          vmulss  xmm3, xmm14, dword ptr [rbp+2E0h+var_2E8+4]
-          vaddss  xmm5, xmm4, xmm3
-          vmulss  xmm2, xmm11, dword ptr [rbp+2E0h+var_2E8+8]
-          vaddss  xmm3, xmm5, xmm2
-          vmulss  xmm5, xmm3, xmm15
-          vsubss  xmm2, xmm15, xmm5
           vmaxss  xmm2, xmm2, xmm12
           vminss  xmm0, xmm2, xmm13; value
-          vmovss  xmm1, cs:?HFD_BLADE_DISYMMETRY_LIFT_EXPO@@3MA; expo
         }
-        *(double *)&_XMM0 = I_pow(*(float *)&_XMM0, *(float *)&_XMM1);
+        *(double *)&_XMM0 = I_pow(*(float *)&_XMM0, HFD_BLADE_DISYMMETRY_LIFT_EXPO);
+        v222 = fmodf_0(*(float *)&_XMM0 + HFD_BLADE_DISYMMETRY_LIFT_ANGLE_OFFSET, 1.0);
+        v103 = v91;
+        v101 = (float)((float)(*(float *)&v91 * *(float *)&v91) + (float)(v90 * v90)) + (float)(v92 * v92);
+        *(float *)&v103 = fsqrt(v101);
+        _XMM4 = v103;
         __asm
         {
-          vaddss  xmm0, xmm0, cs:?HFD_BLADE_DISYMMETRY_LIFT_ANGLE_OFFSET@@3MA; X
-          vmovaps xmm1, xmm13; Y
-        }
-        *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-        __asm
-        {
-          vmovss  [rsp+3E0h+var_394], xmm0
-          vmulss  xmm2, xmm7, xmm7
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm2, xmm8, xmm8
-          vaddss  xmm9, xmm3, xmm2
-          vsqrtss xmm4, xmm9, xmm9
-          vmovss  xmm15, cs:__real@80000000
           vcmpless xmm1, xmm4, xmm15
           vblendvps xmm2, xmm4, xmm13, xmm1
-          vmovss  [rsp+3E0h+var_39C], xmm2
-          vdivss  xmm3, xmm13, xmm2
-          vmulss  xmm0, xmm3, xmm6
-          vmovss  dword ptr [rbp+2E0h+var_2A8], xmm0
-          vmulss  xmm1, xmm3, xmm7
-          vmovss  dword ptr [rbp+2E0h+var_2A8+4], xmm1
-          vmulss  xmm0, xmm3, xmm8
-          vmovss  dword ptr [rbp+2E0h+var_2A8+8], xmm0
-          vcomiss xmm4, cs:__real@43c80000
         }
-        if ( !(v316 | v79) )
-          goto LABEL_27;
-        __asm { vcomiss xmm4, cs:__real@3a83126f }
-        if ( !v316 )
+        v265.v[0] = (float)(1.0 / *(float *)&_XMM2) * v90;
+        v265.v[1] = (float)(1.0 / *(float *)&_XMM2) * *(float *)&v91;
+        v265.v[2] = (float)(1.0 / *(float *)&_XMM2) * v92;
+        if ( *(float *)&v103 <= 400.0 && *(float *)&v103 >= 0.001 )
         {
-          __asm
-          {
-            vmovss  xmm7, [rsp+3E0h+var_364]
-            vmovss  xmm8, [rbp+2E0h+var_360]
-            vmovss  xmm11, [rsp+3E0h+var_3A0]
-          }
+          v106 = v234;
+          v107 = v236;
+          v108 = v217;
         }
         else
         {
-LABEL_27:
-          __asm
-          {
-            vmovss  dword ptr [rbp+2E0h+var_2E8], xmm12
-            vmovss  dword ptr [rbp+2E0h+var_2E8+4], xmm12
-            vmovss  dword ptr [rbp+2E0h+var_2E8+8], xmm12
-            vxorps  xmm7, xmm7, xmm7
-            vxorps  xmm8, xmm8, xmm8
-            vxorps  xmm11, xmm11, xmm11
-          }
+          v261.v[0] = 0.0;
+          v261.v[1] = 0.0;
+          v261.v[2] = 0.0;
+          v106 = 0.0;
+          v107 = 0.0;
+          v108 = 0.0;
         }
-        __asm
-        {
-          vmovss  xmm0, cs:?HFD_BLADE_STALL_SPEED@@3MA; float HFD_BLADE_STALL_SPEED
-          vmulss  xmm6, xmm0, xmm0
-          vmovss  [rsp+3E0h+var_3A0], xmm9
-        }
-        if ( (v761 & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.h", 453, ASSERT_TYPE_SANITY, "( !IS_NAN( normalizedSq ) )", (const char *)&queryFormat, "!IS_NAN( normalizedSq )") )
+        v109 = HFD_BLADE_STALL_SPEED * HFD_BLADE_STALL_SPEED;
+        if ( (LODWORD(v101) & 0x7F800000) == 2139095040 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_flight_dynamics.h", 453, ASSERT_TYPE_SANITY, "( !IS_NAN( normalizedSq ) )", (const char *)&queryFormat, "!IS_NAN( normalizedSq )") )
           __debugbreak();
+        v110 = I_fclamp((float)(v101 * 0.0000086505188) - 1.0, 0.0, 1.0);
+        v235 = (float)(1.0 - *(float *)&v110) * (float)(1.0 - (float)(v109 / (float)(v101 + v109)));
+        v111 = (float)(v88 * (float)(v226 * v226)) * v88;
+        v237 = fsqrt((float)((float)((float)((float)((float)(v111 * v261.v[1]) + v252) + v107) * (float)((float)((float)(v111 * v261.v[1]) + v252) + v107)) + (float)((float)((float)((float)(v111 * v261.v[0]) + v251) + v106) * (float)((float)((float)(v111 * v261.v[0]) + v251) + v106))) + (float)((float)((float)((float)(v111 * v261.v[2]) + v253) + v108) * (float)((float)((float)(v111 * v261.v[2]) + v253) + v108)));
+        v113 = LODWORD(HFD_BLADE_COLLECTIVE_MAX_PITCH);
+        *(float *)&v113 = (float)(HFD_BLADE_COLLECTIVE_MAX_PITCH * this->m_SwashplateCollective) + (float)((float)((float)((float)((float)((float)(v260.v[0] * cross.v[0]) + (float)(v260.v[1] * cross.v[1])) + (float)(v260.v[2] * cross.v[2])) * this->m_SwashplateCyclicForward) + (float)((float)((float)((float)(v260.v[0] * v1.v[0]) + (float)(v260.v[1] * v1.v[1])) + (float)(v260.v[2] * v1.v[2])) * this->m_SwashplateCyclicLateral)) * HFD_BLADE_CYCLIC_MAX_PITCH);
+        v112 = v113;
+        m_RotorBlades->m_BladePitch = *(float *)&v113;
+        if ( ((LODWORD(v261.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(v261.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(v261.v[2]) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3982, ASSERT_TYPE_SANITY, "( !IS_NAN( ( bladeTipSpeedVectorNormalized )[0] ) && !IS_NAN( ( bladeTipSpeedVectorNormalized )[1] ) && !IS_NAN( ( bladeTipSpeedVectorNormalized )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( bladeTipSpeedVectorNormalized )[0] ) && !IS_NAN( ( bladeTipSpeedVectorNormalized )[1] ) && !IS_NAN( ( bladeTipSpeedVectorNormalized )[2] )") )
+          __debugbreak();
+        _XMM1 = LODWORD(v261.v[0]);
+        __asm { vunpcklps xmm1, xmm1, xmm0 }
+        *(double *)v261.v = *(double *)&_XMM1;
+        *(double *)dir.v = *(double *)&_XMM1;
+        dir.v[2] = v261.v[2];
+        if ( ((LODWORD(v225) & 0x7F800000) == 2139095040 || (LODWORD(v227) & 0x7F800000) == 2139095040 || (LODWORD(v224) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3985, ASSERT_TYPE_SANITY, "( !IS_NAN( ( bladeUp )[0] ) && !IS_NAN( ( bladeUp )[1] ) && !IS_NAN( ( bladeUp )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( bladeUp )[0] ) && !IS_NAN( ( bladeUp )[1] ) && !IS_NAN( ( bladeUp )[2] )") )
+          __debugbreak();
+        v116 = (float)(v225 * *(float *)&v113) + dir.v[0];
+        v117 = LODWORD(v227);
+        v118 = (float)(v227 * *(float *)&v112) + dir.v[1];
+        v119 = (float)(v224 * *(float *)&v112) + dir.v[2];
+        *(float *)&v117 = fsqrt((float)((float)(v118 * v118) + (float)(v116 * v116)) + (float)(v119 * v119));
+        _XMM1 = v117;
         __asm
         {
-          vaddss  xmm0, xmm9, xmm6
-          vdivss  xmm1, xmm6, xmm0
-          vsubss  xmm6, xmm13, xmm1
-          vmulss  xmm0, xmm9, cs:__real@371121b2
-          vsubss  xmm0, xmm0, xmm13; val
-          vmovaps xmm2, xmm13; max
-          vxorps  xmm1, xmm1, xmm1; min
-        }
-        I_fclamp(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-        __asm
-        {
-          vsubss  xmm0, xmm13, xmm0
-          vmulss  xmm0, xmm0, xmm6
-          vmovss  [rsp+3E0h+var_364], xmm0
-          vmovss  xmm1, [rsp+3E0h+var_384]
-          vmulss  xmm0, xmm1, xmm1
-          vmulss  xmm1, xmm10, xmm0
-          vmulss  xmm3, xmm1, xmm10
-          vmulss  xmm0, xmm3, dword ptr [rbp+2E0h+var_2E8]
-          vaddss  xmm5, xmm0, [rbp+2E0h+var_328]
-          vmulss  xmm2, xmm3, dword ptr [rbp+2E0h+var_2E8+4]
-          vaddss  xmm4, xmm2, [rbp+2E0h+var_324]
-          vmulss  xmm1, xmm3, dword ptr [rbp+2E0h+var_2E8+8]
-          vaddss  xmm2, xmm1, [rbp+2E0h+var_320]
-          vaddss  xmm3, xmm5, xmm7
-          vaddss  xmm0, xmm4, xmm8
-          vaddss  xmm4, xmm2, xmm11
-          vmulss  xmm1, xmm0, xmm0
-          vmulss  xmm0, xmm3, xmm3
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm4, xmm4
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm0, xmm2, xmm2
-          vmovss  [rbp+2E0h+var_360], xmm0
-          vmovss  xmm7, dword ptr [rbp+2E0h+var_2F8]
-          vmulss  xmm2, xmm7, dword ptr [rbp+2E0h+v1]
-          vmovss  xmm6, dword ptr [rbp+2E0h+var_2F8+4]
-          vmulss  xmm0, xmm6, dword ptr [rbp+2E0h+v1+4]
-          vaddss  xmm3, xmm2, xmm0
-          vmovss  xmm4, dword ptr [rbp+2E0h+var_2F8+8]
-          vmulss  xmm0, xmm4, dword ptr [rbp+2E0h+v1+8]
-          vaddss  xmm5, xmm3, xmm0
-          vmulss  xmm2, xmm7, dword ptr [rbp+2E0h+cross]
-          vmulss  xmm1, xmm6, dword ptr [rbp+2E0h+cross+4]
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm4, dword ptr [rbp+2E0h+cross+8]
-          vaddss  xmm2, xmm3, xmm0
-          vmulss  xmm4, xmm2, dword ptr [rsi+8Ch]
-          vmulss  xmm1, xmm5, dword ptr [rsi+90h]
-          vaddss  xmm0, xmm4, xmm1
-          vmulss  xmm3, xmm0, cs:?HFD_BLADE_CYCLIC_MAX_PITCH@@3MA; float HFD_BLADE_CYCLIC_MAX_PITCH
-          vmovss  xmm2, cs:?HFD_BLADE_COLLECTIVE_MAX_PITCH@@3MA; float HFD_BLADE_COLLECTIVE_MAX_PITCH
-          vmulss  xmm1, xmm2, dword ptr [rsi+94h]
-          vaddss  xmm14, xmm1, xmm3
-          vmovss  dword ptr [rdi+18h], xmm14
-          vmovss  xmm0, dword ptr [rbp+2E0h+var_2E8]
-          vmovss  [rsp+3E0h+var_3A0], xmm0
-        }
-        if ( (v761 & 0x7F800000) == 2139095040 )
-          goto LABEL_109;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+2E0h+var_2E8+4]
-          vmovss  [rsp+3E0h+var_3A0], xmm0
-        }
-        if ( (v761 & 0x7F800000) == 2139095040 )
-          goto LABEL_109;
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+2E0h+var_2E8+8]
-          vmovss  [rsp+3E0h+var_3A0], xmm0
-        }
-        if ( (v761 & 0x7F800000) == 2139095040 )
-        {
-LABEL_109:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3982, ASSERT_TYPE_SANITY, "( !IS_NAN( ( bladeTipSpeedVectorNormalized )[0] ) && !IS_NAN( ( bladeTipSpeedVectorNormalized )[1] ) && !IS_NAN( ( bladeTipSpeedVectorNormalized )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( bladeTipSpeedVectorNormalized )[0] ) && !IS_NAN( ( bladeTipSpeedVectorNormalized )[1] ) && !IS_NAN( ( bladeTipSpeedVectorNormalized )[2] )") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm1, dword ptr [rbp+2E0h+var_2E8]
-          vmovss  xmm0, dword ptr [rbp+2E0h+var_2E8+4]
-          vunpcklps xmm1, xmm1, xmm0
-          vmovsd  qword ptr [rbp+2E0h+var_2E8], xmm1
-          vmovsd  qword ptr [rbp+2E0h+dir], xmm1
-        }
-        dir.v[2] = v802.v[2];
-        __asm
-        {
-          vmovss  xmm8, [rsp+3E0h+var_388]
-          vmovss  [rsp+3E0h+var_3A0], xmm8
-          vmovss  xmm6, [rsp+3E0h+var_380]
-          vmovss  xmm7, [rsp+3E0h+var_38C]
-        }
-        if ( (v761 & 0x7F800000) == 2139095040 )
-          goto LABEL_110;
-        __asm { vmovss  [rsp+3E0h+var_3A0], xmm6 }
-        if ( (v761 & 0x7F800000) == 2139095040 )
-          goto LABEL_110;
-        __asm { vmovss  [rsp+3E0h+var_3A0], xmm7 }
-        if ( (v761 & 0x7F800000) == 2139095040 )
-        {
-LABEL_110:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3985, ASSERT_TYPE_SANITY, "( !IS_NAN( ( bladeUp )[0] ) && !IS_NAN( ( bladeUp )[1] ) && !IS_NAN( ( bladeUp )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( bladeUp )[0] ) && !IS_NAN( ( bladeUp )[1] ) && !IS_NAN( ( bladeUp )[2] )") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmulss  xmm0, xmm8, xmm14
-          vaddss  xmm4, xmm0, dword ptr [rbp+2E0h+dir]
-          vmulss  xmm1, xmm6, xmm14
-          vaddss  xmm5, xmm1, dword ptr [rbp+2E0h+dir+4]
-          vmulss  xmm0, xmm7, xmm14
-          vaddss  xmm6, xmm0, dword ptr [rbp+2E0h+dir+8]
-          vmulss  xmm2, xmm5, xmm5
-          vmulss  xmm1, xmm4, xmm4
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm6, xmm6
-          vaddss  xmm2, xmm3, xmm0
-          vsqrtss xmm1, xmm2, xmm2
           vcmpless xmm0, xmm1, xmm15
           vblendvps xmm1, xmm1, xmm13, xmm0
-          vmovss  [rsp+3E0h+var_39C], xmm1
-          vdivss  xmm0, xmm13, xmm1
-          vmulss  xmm8, xmm4, xmm0
-          vmovss  dword ptr [rbp+2E0h+dir], xmm8
-          vmulss  xmm7, xmm5, xmm0
-          vmovss  dword ptr [rbp+2E0h+dir+4], xmm7
-          vmulss  xmm6, xmm6, xmm0
-          vmovss  dword ptr [rbp+2E0h+dir+8], xmm6
-          vmovss  [rsp+3E0h+var_3A0], xmm8
         }
-        if ( (v761 & 0x7F800000) == 2139095040 )
-          goto LABEL_111;
-        __asm { vmovss  [rsp+3E0h+var_3A0], xmm7 }
-        if ( (v761 & 0x7F800000) == 2139095040 )
-          goto LABEL_111;
-        __asm { vmovss  [rsp+3E0h+var_3A0], xmm6 }
-        if ( (v761 & 0x7F800000) == 2139095040 )
+        v123 = v116 * (float)(1.0 / *(float *)&_XMM1);
+        dir.v[0] = v123;
+        v124 = v118 * (float)(1.0 / *(float *)&_XMM1);
+        dir.v[1] = v124;
+        v126 = v119 * (float)(1.0 / *(float *)&_XMM1);
+        v125 = v126;
+        dir.v[2] = v126;
+        if ( (LODWORD(v123) & 0x7F800000) == 2139095040 || (LODWORD(v124) & 0x7F800000) == 2139095040 || (LODWORD(v126) & 0x7F800000) == 2139095040 )
         {
-LABEL_111:
           if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3988, ASSERT_TYPE_SANITY, "( !IS_NAN( ( bladePitch )[0] ) && !IS_NAN( ( bladePitch )[1] ) && !IS_NAN( ( bladePitch )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( bladePitch )[0] ) && !IS_NAN( ( bladePitch )[1] ) && !IS_NAN( ( bladePitch )[2] )") )
             __debugbreak();
-          __asm
-          {
-            vmovss  xmm8, dword ptr [rbp+2E0h+dir]
-            vmovss  xmm7, dword ptr [rbp+2E0h+dir+4]
-            vmovss  xmm6, dword ptr [rbp+2E0h+dir+8]
-          }
+          v123 = dir.v[0];
+          v124 = dir.v[1];
+          v125 = dir.v[2];
         }
-        __asm
+        v127 = v260.v[1];
+        v128 = v260.v[2];
+        v255 = (float)(v125 * v260.v[1]) - (float)(v124 * v260.v[2]);
+        v129 = v260.v[0];
+        v256 = (float)(v260.v[2] * v123) - (float)(v125 * v260.v[0]);
+        v219 = (float)(v124 * v260.v[0]) - (float)(v260.v[1] * v123);
+        if ( (LODWORD(v255) & 0x7F800000) == 2139095040 || (COERCE_UNSIGNED_INT((float)(v260.v[2] * v123) - (float)(v125 * v260.v[0])) & 0x7F800000) == 2139095040 || (COERCE_UNSIGNED_INT((float)(v124 * v260.v[0]) - (float)(v260.v[1] * v123)) & 0x7F800000) == 2139095040 )
         {
-          vmovss  xmm9, dword ptr [rbp+2E0h+var_2F8+4]
-          vmulss  xmm1, xmm6, xmm9
-          vmovss  xmm10, dword ptr [rbp+2E0h+var_2F8+8]
-          vmulss  xmm0, xmm7, xmm10
-          vsubss  xmm3, xmm1, xmm0
-          vmovss  [rbp+2E0h+var_318], xmm3
-          vmulss  xmm2, xmm10, xmm8
-          vmovss  xmm11, dword ptr [rbp+2E0h+var_2F8]
-          vmulss  xmm0, xmm6, xmm11
-          vsubss  xmm0, xmm2, xmm0
-          vmovss  [rbp+2E0h+var_314], xmm0
-          vmulss  xmm2, xmm7, xmm11
-          vmulss  xmm1, xmm9, xmm8
-          vsubss  xmm1, xmm2, xmm1
-          vmovss  [rsp+3E0h+var_39C], xmm1
-          vmovss  [rsp+3E0h+var_3A0], xmm3
-        }
-        if ( (v761 & 0x7F800000) == 2139095040 )
-          goto LABEL_51;
-        __asm { vmovss  [rsp+3E0h+var_3A0], xmm0 }
-        if ( (v761 & 0x7F800000) == 2139095040 )
-          goto LABEL_51;
-        __asm { vmovss  [rsp+3E0h+var_3A0], xmm1 }
-        v425 = (v761 & 0x7F800000u) <= 0x7F800000;
-        if ( (v761 & 0x7F800000) == 2139095040 )
-        {
-LABEL_51:
-          v426 = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3991, ASSERT_TYPE_SANITY, "( !IS_NAN( ( bladeNormalToPitch )[0] ) && !IS_NAN( ( bladeNormalToPitch )[1] ) && !IS_NAN( ( bladeNormalToPitch )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( bladeNormalToPitch )[0] ) && !IS_NAN( ( bladeNormalToPitch )[1] ) && !IS_NAN( ( bladeNormalToPitch )[2] )");
-          v425 = !v426;
-          if ( v426 )
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 3991, ASSERT_TYPE_SANITY, "( !IS_NAN( ( bladeNormalToPitch )[0] ) && !IS_NAN( ( bladeNormalToPitch )[1] ) && !IS_NAN( ( bladeNormalToPitch )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( bladeNormalToPitch )[0] ) && !IS_NAN( ( bladeNormalToPitch )[1] ) && !IS_NAN( ( bladeNormalToPitch )[2] )") )
             __debugbreak();
-          __asm
-          {
-            vmovss  xmm8, dword ptr [rbp+2E0h+dir]
-            vmovss  xmm7, dword ptr [rbp+2E0h+dir+4]
-            vmovss  xmm6, dword ptr [rbp+2E0h+dir+8]
-            vmovss  xmm11, dword ptr [rbp+2E0h+var_2F8]
-            vmovss  xmm9, dword ptr [rbp+2E0h+var_2F8+4]
-            vmovss  xmm10, dword ptr [rbp+2E0h+var_2F8+8]
-          }
+          v123 = dir.v[0];
+          v124 = dir.v[1];
+          v125 = dir.v[2];
+          v129 = v260.v[0];
+          v127 = v260.v[1];
+          v128 = v260.v[2];
         }
-        __asm
+        v218 = (float)(v125 * v265.v[1]) - (float)(v124 * v265.v[2]);
+        v130 = (float)(v123 * v265.v[2]) - (float)(v125 * v265.v[0]);
+        v131 = (float)(v124 * v265.v[0]) - (float)(v123 * v265.v[1]);
+        m_BladeMaxDeflection = this->m_BladeMaxDeflection;
+        if ( m_BladeMaxDeflection <= 0.001 )
         {
-          vmulss  xmm1, xmm6, dword ptr [rbp+2E0h+var_2A8+4]
-          vmulss  xmm0, xmm7, dword ptr [rbp+2E0h+var_2A8+8]
-          vsubss  xmm3, xmm1, xmm0
-          vmovss  [rsp+3E0h+var_3A0], xmm3
-          vmulss  xmm3, xmm8, dword ptr [rbp+2E0h+var_2A8+8]
-          vmulss  xmm0, xmm6, dword ptr [rbp+2E0h+var_2A8]
-          vsubss  xmm6, xmm3, xmm0
-          vmulss  xmm2, xmm7, dword ptr [rbp+2E0h+var_2A8]
-          vmulss  xmm1, xmm8, dword ptr [rbp+2E0h+var_2A8+4]
-          vsubss  xmm5, xmm2, xmm1
-          vmovss  xmm15, dword ptr [rsi+7Ch]
-          vcomiss xmm15, cs:__real@3a83126f
-        }
-        if ( v425 )
-        {
-          __asm { vxorps  xmm4, xmm4, xmm4 }
+          v137 = 0.0;
         }
         else
         {
+          v133 = LODWORD(HFD_BLADE_BLOWBACK_MULTIPLIER);
+          *(float *)&v133 = (float)(HFD_BLADE_BLOWBACK_MULTIPLIER * v242) * HFD_BLADE_LOCAL_AIRFLOW_SCALE;
+          _XMM1 = v133;
           __asm
           {
-            vsubss  xmm0, xmm13, [rsp+3E0h+var_394]
-            vsubss  xmm1, xmm0, [rsp+3E0h+var_394]
-            vmulss  xmm3, xmm1, cs:?HFD_BLADE_AOA_CHANGE_DEFLECTION@@3MA; float HFD_BLADE_AOA_CHANGE_DEFLECTION
-            vmovss  xmm2, cs:?HFD_BLADE_BLOWBACK_MULTIPLIER@@3MA; float HFD_BLADE_BLOWBACK_MULTIPLIER
-            vmulss  xmm0, xmm2, [rbp+2E0h+var_34C]
-            vmulss  xmm1, xmm0, cs:?HFD_BLADE_LOCAL_AIRFLOW_SCALE@@3MA; float HFD_BLADE_LOCAL_AIRFLOW_SCALE
             vmaxss  xmm1, xmm1, xmm12
             vminss  xmm0, xmm1, xmm13
-            vmulss  xmm4, xmm0, xmm3
           }
+          v137 = *(float *)&_XMM0 * (float)((float)((float)(1.0 - v222) - v222) * HFD_BLADE_AOA_CHANGE_DEFLECTION);
         }
+        v138 = (float)((float)((float)(v129 * v218) + (float)(v127 * v130)) + (float)(v128 * v131)) + v137;
+        v241 = *(float *)&v112 + v241;
+        _XMM14 = v112 & _xmm;
+        __asm { vmaxss  xmm0, xmm14, [rbp+2E0h+var_350] }
+        v141 = LODWORD(FLOAT_1_0);
+        *(float *)&v141 = (float)((float)(1.0 - (float)(COERCE_FLOAT(v292[v46] & _xmm) * HFD_BLADE_TRACKING_LIFT_LOSS)) * 0.5) / m_BladeMaxDeflection;
+        _XMM2 = v141;
         __asm
         {
-          vmovss  xmm3, [rsp+3E0h+var_3A0]
-          vmulss  xmm1, xmm11, xmm3
-          vmulss  xmm0, xmm9, xmm6
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm10, xmm5
-          vaddss  xmm2, xmm2, xmm1
-          vaddss  xmm8, xmm2, xmm4
-          vaddss  xmm0, xmm14, [rbp+2E0h+var_354]
-          vmovss  [rbp+2E0h+var_354], xmm0
-          vandps  xmm14, xmm14, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vmaxss  xmm0, xmm14, [rbp+2E0h+var_350]
-          vmovss  [rbp+2E0h+var_350], xmm0
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm6, xmm6
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm5, xmm5
-          vaddss  xmm2, xmm2, xmm1
-          vsqrtss xmm0, xmm2, xmm2
-          vsubss  xmm5, xmm13, xmm0
-          vmovss  xmm1, [rbp+rbx*4+2E0h+var_F0]
-          vandps  xmm1, xmm1, cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vmulss  xmm0, xmm1, cs:?HFD_BLADE_TRACKING_LIFT_LOSS@@3MA; float HFD_BLADE_TRACKING_LIFT_LOSS
-          vsubss  xmm0, xmm13, xmm0
-          vmovss  xmm7, cs:__real@3f000000
-          vmulss  xmm1, xmm0, xmm7
-          vdivss  xmm2, xmm1, xmm15
           vmaxss  xmm0, xmm2, xmm12
           vminss  xmm1, xmm0, xmm13
-          vmulss  xmm4, xmm1, cs:?HFD_BLADE_TRACKING_LIFT_LOSS@@3MA; float HFD_BLADE_TRACKING_LIFT_LOSS
-          vmulss  xmm7, xmm7, [rbp+2E0h+var_360]
-          vmulss  xmm3, xmm8, dword ptr [rbx+40h]
-          vmulss  xmm1, xmm3, xmm3
-          vmulss  xmm0, xmm3, xmm1
-          vmulss  xmm2, xmm0, xmm3
-          vaddss  xmm1, xmm1, dword ptr [rbx+48h]
-          vaddss  xmm0, xmm2, xmm1
-          vdivss  xmm2, xmm3, xmm0
-          vmulss  xmm3, xmm2, dword ptr [rbx+4Ch]
-          vmulss  xmm1, xmm3, dword ptr [rbx+30h]
-          vmulss  xmm0, xmm1, xmm5
-          vmulss  xmm2, xmm0, [rbp+2E0h+var_31C]
-          vmulss  xmm3, xmm2, [rsp+3E0h+var_364]
-          vmulss  xmm1, xmm3, xmm7
-          vmulss  xmm6, xmm1, xmm4
-          vmovss  xmm14, [rsp+3E0h+var_380]
-          vmulss  xmm1, xmm14, dword ptr [rbx+10h]
-          vmovss  xmm0, [rsp+3E0h+var_388]
-          vmulss  xmm0, xmm0, dword ptr [rbx+0Ch]
-          vaddss  xmm2, xmm1, xmm0
-          vmovss  xmm3, [rsp+3E0h+var_38C]
-          vmulss  xmm1, xmm3, dword ptr [rbx+14h]
-          vaddss  xmm0, xmm2, xmm1
-          vmulss  xmm2, xmm0, cs:?HFD_GRAVITY_CORRECTOR@@3MA; float HFD_GRAVITY_CORRECTOR
-          vmulss  xmm5, xmm2, cs:?HFD_BLADE_GRAVITY_MODIFIER@@3MA; float HFD_BLADE_GRAVITY_MODIFIER
-          vmovss  xmm0, [rbp+2E0h+var_344]
-          vmulss  xmm2, xmm0, dword ptr [rbp+2E0h+var_2E8]
-          vmovss  xmm0, dword ptr [rbp+2E0h+var_2E8+4]
-          vmulss  xmm1, xmm0, [rbp+2E0h+var_340]
-          vaddss  xmm4, xmm2, xmm1
-          vmovss  xmm2, dword ptr [rbp+2E0h+var_2E8+8]
-          vmulss  xmm0, xmm2, [rbp+2E0h+var_33C]
-          vaddss  xmm1, xmm4, xmm0
-          vmulss  xmm2, xmm1, cs:?HFD_ROTOR_DEFLECTION_FORCE@@3MA; centrifugalForce
-          vaddss  xmm1, xmm5, xmm6; force
-          vmovss  xmm0, [rsp+3E0h+var_368]
-          vmovss  [rsp+3E0h+duration], xmm0
-          vmovaps xmm3, xmm15; maxDeflection
         }
-        *(double *)&_XMM0 = HelicopterRotorBlade::ApplyDeflectionForce(&_RSI->m_RotorBlades[v212], *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, *(float *)duration);
+        *(float *)&v141 = v138 * FlightDynamicsManager->m_AirfoilData.m_AoAadjustment;
+        *(double *)&_XMM0 = HelicopterRotorBlade::ApplyDeflectionForce(&this->m_RotorBlades[v71], (float)((float)((float)((float)((float)(v227 * FlightDynamicsManager->m_UpAxis.v[1]) + (float)(v225 * FlightDynamicsManager->m_UpAxis.v[0])) + (float)(v224 * FlightDynamicsManager->m_UpAxis.v[2])) * HFD_GRAVITY_CORRECTOR) * HFD_BLADE_GRAVITY_MODIFIER) + (float)((float)((float)((float)((float)((float)((float)((float)(*(float *)&v141 / (float)((float)((float)(*(float *)&v141 * (float)(*(float *)&v141 * *(float *)&v141)) * *(float *)&v141) + (float)((float)(*(float *)&v141 * *(float *)&v141) + FlightDynamicsManager->m_AirfoilData.m_LiftBaseCurve))) * FlightDynamicsManager->m_AirfoilData.m_LiftSlopeCurve) * FlightDynamicsManager->m_AirfoilData.m_MaxCL) * (float)(1.0 - fsqrt((float)((float)(v218 * v218) + (float)(v130 * v130)) + (float)(v131 * v131)))) * v254) * v235) * (float)(0.5 * v237)) * (float)(*(float *)&_XMM1 * HFD_BLADE_TRACKING_LIFT_LOSS)), (float)((float)((float)(v244 * v261.v[0]) + (float)(v261.v[1] * v245)) + (float)(v261.v[2] * v246)) * HFD_ROTOR_DEFLECTION_FORCE, m_BladeMaxDeflection, dT);
+        v145 = LODWORD(HFD_BLADE_BLOWBACK_MULTIPLIER);
+        *(float *)&v145 = (float)((float)(HFD_BLADE_BLOWBACK_MULTIPLIER * v242) * 4.0) * HFD_BLADE_LOCAL_AIRFLOW_SCALE;
+        _XMM4 = v145;
         __asm
         {
-          vmovaps xmm6, xmm0
-          vmulss  xmm5, xmm0, cs:?HFD_BLADE_TURBULENT_AIRFLOW_LIFT_SCALE@@3MA; float HFD_BLADE_TURBULENT_AIRFLOW_LIFT_SCALE
-          vmovss  xmm1, cs:?HFD_BLADE_BLOWBACK_MULTIPLIER@@3MA; float HFD_BLADE_BLOWBACK_MULTIPLIER
-          vmulss  xmm2, xmm1, [rbp+2E0h+var_34C]
-          vmulss  xmm3, xmm2, cs:__real@40800000
-          vmulss  xmm4, xmm3, cs:?HFD_BLADE_LOCAL_AIRFLOW_SCALE@@3MA; float HFD_BLADE_LOCAL_AIRFLOW_SCALE
           vmaxss  xmm1, xmm4, xmm12
           vminss  xmm2, xmm1, xmm13
-          vmulss  xmm3, xmm2, [rbp+2E0h+var_358]
+        }
+        v150 = _XMM2;
+        *(float *)&v150 = *(float *)&_XMM2 * v240;
+        _XMM3 = v150;
+        __asm
+        {
           vmaxss  xmm1, xmm3, xmm12
           vminss  xmm4, xmm1, xmm13
-          vaddss  xmm2, xmm5, xmm0
-          vsubss  xmm0, xmm13, xmm4
-          vmulss  xmm3, xmm2, xmm0
-          vsubss  xmm1, xmm6, xmm5
-          vmulss  xmm2, xmm1, xmm4
-          vaddss  xmm3, xmm3, xmm2
-          vmulss  xmm1, xmm3, cs:?HFD_BLADE_STATIC_LIFT_FACTOR@@3MA; float HFD_BLADE_STATIC_LIFT_FACTOR
-          vmulss  xmm11, xmm1, [rbp+2E0h+var_318]
-          vmulss  xmm9, xmm1, [rbp+2E0h+var_314]
-          vmulss  xmm10, xmm1, [rsp+3E0h+var_39C]
-          vmovss  xmm0, cs:?HFD_BLADE_DRAG_AIRSPEED_RATIO@@3MA; float HFD_BLADE_DRAG_AIRSPEED_RATIO
-          vmulss  xmm1, xmm0, [rbp+2E0h+var_310]
+        }
+        *(float *)&_XMM1 = (float)((float)((float)((float)(*(float *)&_XMM0 * HFD_BLADE_TURBULENT_AIRFLOW_LIFT_SCALE) + *(float *)&_XMM0) * (float)(1.0 - *(float *)&_XMM4)) + (float)((float)(*(float *)&_XMM0 - (float)(*(float *)&_XMM0 * HFD_BLADE_TURBULENT_AIRFLOW_LIFT_SCALE)) * *(float *)&_XMM4)) * HFD_BLADE_STATIC_LIFT_FACTOR;
+        v153 = *(float *)&_XMM1 * v255;
+        v154 = *(float *)&_XMM1 * v256;
+        v155 = *(float *)&_XMM1 * v219;
+        v157 = LODWORD(HFD_BLADE_DRAG_AIRSPEED_RATIO);
+        *(float *)&v157 = HFD_BLADE_DRAG_AIRSPEED_RATIO * v257;
+        _XMM1 = v157;
+        __asm
+        {
           vmaxss  xmm1, xmm1, xmm12
           vminss  xmm3, xmm1, xmm13
-          vsubss  xmm0, xmm13, xmm3
-          vmulss  xmm2, xmm0, cs:?HFD_BLADE_DRAG_STATIC_RATIO@@3MA; float HFD_BLADE_DRAG_STATIC_RATIO
-          vmulss  xmm1, xmm3, cs:?HFD_BLADE_DRAG_DYNAMIC_RATIO@@3MA; float HFD_BLADE_DRAG_DYNAMIC_RATIO
-          vaddss  xmm4, xmm2, xmm1
-          vmulss  xmm3, xmm8, dword ptr [rbx+38h]
-          vmulss  xmm0, xmm3, xmm3
-          vmulss  xmm1, xmm0, xmm3
-          vmulss  xmm2, xmm1, xmm3
-          vaddss  xmm3, xmm2, dword ptr [rbx+3Ch]
-          vmulss  xmm0, xmm3, xmm4
-          vmulss  xmm1, xmm0, xmm7
-          vxorps  xmm2, xmm1, cs:__xmm@80000000800000008000000080000000
-          vmulss  xmm4, xmm2, dword ptr [rbp+2E0h+var_2A8]
-          vmulss  xmm3, xmm2, dword ptr [rbp+2E0h+var_2A8+4]
-          vmulss  xmm2, xmm2, dword ptr [rbp+2E0h+var_2A8+8]
-          vmovss  xmm0, cs:?HFD_BLADE_DRAG_FACTOR@@3MA; float HFD_BLADE_DRAG_FACTOR
-          vmulss  xmm6, xmm0, xmm4
-          vmulss  xmm7, xmm0, xmm3
-          vmulss  xmm8, xmm0, xmm2
-          vmovss  [rsp+3E0h+var_39C], xmm11
         }
-        if ( (v762 & 0x7F800000) == 2139095040 )
-          goto LABEL_112;
-        __asm { vmovss  [rsp+3E0h+var_39C], xmm9 }
-        if ( (v762 & 0x7F800000) == 2139095040 )
-          goto LABEL_112;
-        __asm { vmovss  [rsp+3E0h+var_39C], xmm10 }
-        if ( (v762 & 0x7F800000) == 2139095040 )
+        LODWORD(_XMM2) = COERCE_UNSIGNED_INT((float)((float)((float)((float)((float)((float)(v138 * FlightDynamicsManager->m_AirfoilData.m_CDslope) * (float)(v138 * FlightDynamicsManager->m_AirfoilData.m_CDslope)) * (float)(v138 * FlightDynamicsManager->m_AirfoilData.m_CDslope)) * (float)(v138 * FlightDynamicsManager->m_AirfoilData.m_CDslope)) + FlightDynamicsManager->m_AirfoilData.m_CDbase) * (float)((float)((float)(1.0 - *(float *)&_XMM3) * HFD_BLADE_DRAG_STATIC_RATIO) + (float)(*(float *)&_XMM3 * HFD_BLADE_DRAG_DYNAMIC_RATIO))) * (float)(0.5 * v237)) ^ _xmm;
+        v160 = HFD_BLADE_DRAG_FACTOR * (float)(*(float *)&_XMM2 * v265.v[0]);
+        v161 = HFD_BLADE_DRAG_FACTOR * (float)(*(float *)&_XMM2 * v265.v[1]);
+        v162 = HFD_BLADE_DRAG_FACTOR * (float)(*(float *)&_XMM2 * v265.v[2]);
+        if ( ((LODWORD(v153) & 0x7F800000) == 2139095040 || (LODWORD(v154) & 0x7F800000) == 2139095040 || (LODWORD(v155) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 4043, ASSERT_TYPE_SANITY, "( !IS_NAN( ( liftForceStatic )[0] ) && !IS_NAN( ( liftForceStatic )[1] ) && !IS_NAN( ( liftForceStatic )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( liftForceStatic )[0] ) && !IS_NAN( ( liftForceStatic )[1] ) && !IS_NAN( ( liftForceStatic )[2] )") )
+          __debugbreak();
+        if ( ((LODWORD(v160) & 0x7F800000) == 2139095040 || (LODWORD(v161) & 0x7F800000) == 2139095040 || (LODWORD(v162) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 4044, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dragForceScaled )[0] ) && !IS_NAN( ( dragForceScaled )[1] ) && !IS_NAN( ( dragForceScaled )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dragForceScaled )[0] ) && !IS_NAN( ( dragForceScaled )[1] ) && !IS_NAN( ( dragForceScaled )[2] )") )
+          __debugbreak();
+        if ( ((LODWORD(v223) & 0x7F800000) == 2139095040 || (LODWORD(v243) & 0x7F800000) == 2139095040 || (LODWORD(v228) & 0x7F800000) == 2139095040) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 4045, ASSERT_TYPE_SANITY, "( !IS_NAN( ( bladeCentrifugalForce )[0] ) && !IS_NAN( ( bladeCentrifugalForce )[1] ) && !IS_NAN( ( bladeCentrifugalForce )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( bladeCentrifugalForce )[0] ) && !IS_NAN( ( bladeCentrifugalForce )[1] ) && !IS_NAN( ( bladeCentrifugalForce )[2] )") )
+          __debugbreak();
+        b.v[0] = (float)((float)(v153 + 0.0) + v160) + v223;
+        b.v[1] = (float)((float)(v154 + 0.0) + v161) + v243;
+        b.v[2] = (float)((float)(v155 + 0.0) + v162) + v228;
+        v163 = (float)(v260.v[1] * v153) - (float)(v154 * v260.v[0]);
+        v164 = (float)((float)(v260.v[2] * v154) - (float)(v260.v[1] * v155)) * v258;
+        v165 = (float)((float)(v155 * v260.v[0]) - (float)(v260.v[2] * v153)) * v258;
+        v272.v[0] = (float)(v260.v[2] * v265.v[1]) - (float)(v260.v[1] * v265.v[2]);
+        v166 = (float *)vec3_t::operator[](&v260, 0);
+        v167 = v265.v[2] * *v166;
+        v168 = *vec3_t::operator[](&v265, 0);
+        v169 = v167 - (float)(v168 * *vec3_t::operator[](&v260, 2));
+        *vec3_t::operator[](&v272, 1) = v169;
+        v170 = *vec3_t::operator[](&v265, 0);
+        v171 = *vec3_t::operator[](&v260, 1);
+        v172 = *vec3_t::operator[](&v265, 1);
+        v173 = (float)(v171 * v170) - (float)(v172 * *vec3_t::operator[](&v260, 0));
+        *vec3_t::operator[](&v272, 2) = v173;
+        v272.v[0] = (float)(v258 * HFD_BLADE_DRAG_TORQUE_FACTOR) * v272.v[0];
+        v272.v[1] = (float)(v258 * HFD_BLADE_DRAG_TORQUE_FACTOR) * v272.v[1];
+        v272.v[2] = (float)(v258 * HFD_BLADE_DRAG_TORQUE_FACTOR) * v272.v[2];
+        in1.v[0] = (float)(v164 + 0.0) + v244;
+        in1.v[1] = (float)(v165 + 0.0) + v245;
+        in1.v[2] = (float)((float)(v163 * v258) + 0.0) + v246;
+        v266.xyz = v272;
+        if ( Physics_IsPredictiveWorld(this->m_worldId) && Sys_IsMainThread() )
         {
-LABEL_112:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 4043, ASSERT_TYPE_SANITY, "( !IS_NAN( ( liftForceStatic )[0] ) && !IS_NAN( ( liftForceStatic )[1] ) && !IS_NAN( ( liftForceStatic )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( liftForceStatic )[0] ) && !IS_NAN( ( liftForceStatic )[1] ) && !IS_NAN( ( liftForceStatic )[2] )") )
-            __debugbreak();
-        }
-        __asm { vmovss  [rsp+3E0h+var_39C], xmm6 }
-        if ( (v762 & 0x7F800000) == 2139095040 )
-          goto LABEL_113;
-        __asm { vmovss  [rsp+3E0h+var_39C], xmm7 }
-        if ( (v762 & 0x7F800000) == 2139095040 )
-          goto LABEL_113;
-        __asm { vmovss  [rsp+3E0h+var_39C], xmm8 }
-        if ( (v762 & 0x7F800000) == 2139095040 )
-        {
-LABEL_113:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 4044, ASSERT_TYPE_SANITY, "( !IS_NAN( ( dragForceScaled )[0] ) && !IS_NAN( ( dragForceScaled )[1] ) && !IS_NAN( ( dragForceScaled )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( dragForceScaled )[0] ) && !IS_NAN( ( dragForceScaled )[1] ) && !IS_NAN( ( dragForceScaled )[2] )") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vmovss  xmm15, [rsp+3E0h+var_390]
-          vmovss  [rsp+3E0h+var_390], xmm15
-        }
-        if ( (v765 & 0x7F800000) == 2139095040 )
-          goto LABEL_114;
-        __asm
-        {
-          vmovss  xmm0, [rbp+2E0h+var_348]
-          vmovss  [rsp+3E0h+var_390], xmm0
-        }
-        if ( (v765 & 0x7F800000) == 2139095040 )
-          goto LABEL_114;
-        __asm
-        {
-          vmovss  xmm0, [rsp+3E0h+var_37C]
-          vmovss  [rsp+3E0h+var_390], xmm0
-        }
-        if ( (v765 & 0x7F800000) == 2139095040 )
-        {
-LABEL_114:
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 4045, ASSERT_TYPE_SANITY, "( !IS_NAN( ( bladeCentrifugalForce )[0] ) && !IS_NAN( ( bladeCentrifugalForce )[1] ) && !IS_NAN( ( bladeCentrifugalForce )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( bladeCentrifugalForce )[0] ) && !IS_NAN( ( bladeCentrifugalForce )[1] ) && !IS_NAN( ( bladeCentrifugalForce )[2] )") )
-            __debugbreak();
-        }
-        __asm
-        {
-          vaddss  xmm0, xmm12, xmm11
-          vaddss  xmm1, xmm12, xmm9
-          vaddss  xmm2, xmm12, xmm10
-          vaddss  xmm3, xmm0, xmm6
-          vaddss  xmm4, xmm1, xmm7
-          vaddss  xmm5, xmm2, xmm8
-          vaddss  xmm0, xmm3, xmm15
-          vmovss  dword ptr [rbp+2E0h+b], xmm0
-          vaddss  xmm1, xmm4, [rbp+2E0h+var_348]
-          vmovss  dword ptr [rbp+2E0h+b+4], xmm1
-          vaddss  xmm0, xmm5, [rsp+3E0h+var_37C]
-          vmovss  dword ptr [rbp+2E0h+b+8], xmm0
-          vmovss  xmm6, dword ptr [rbp+2E0h+var_2F8+8]
-          vmulss  xmm1, xmm6, xmm9
-          vmovss  xmm7, dword ptr [rbp+2E0h+var_2F8+4]
-          vmulss  xmm0, xmm7, xmm10
-          vsubss  xmm5, xmm1, xmm0
-          vmulss  xmm1, xmm10, dword ptr [rbp+2E0h+var_2F8]
-          vmulss  xmm0, xmm6, xmm11
-          vsubss  xmm4, xmm1, xmm0
-          vmulss  xmm2, xmm7, xmm11
-          vmulss  xmm1, xmm9, dword ptr [rbp+2E0h+var_2F8]
-          vsubss  xmm0, xmm2, xmm1
-          vmovss  xmm15, [rbp+2E0h+var_30C]
-          vmulss  xmm9, xmm5, xmm15
-          vmulss  xmm10, xmm4, xmm15
-          vmulss  xmm11, xmm0, xmm15
-          vmulss  xmm3, xmm6, dword ptr [rbp+2E0h+var_2A8+4]
-          vmulss  xmm2, xmm7, dword ptr [rbp+2E0h+var_2A8+8]
-          vsubss  xmm0, xmm3, xmm2
-          vmovss  dword ptr [rbp+2E0h+var_238], xmm0
-        }
-        vec3_t::operator[](&v801, 0);
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbp+2E0h+var_2A8+8]
-          vmulss  xmm7, xmm0, dword ptr [rax]
-        }
-        _RAX = vec3_t::operator[](&v806, 0);
-        __asm { vmovss  xmm6, dword ptr [rax] }
-        vec3_t::operator[](&v801, 2);
-        __asm
-        {
-          vmulss  xmm0, xmm6, dword ptr [rax]
-          vsubss  xmm6, xmm7, xmm0
-        }
-        _RAX = vec3_t::operator[](&v813, 1);
-        __asm { vmovss  dword ptr [rax], xmm6 }
-        _RAX = vec3_t::operator[](&v806, 0);
-        __asm { vmovss  xmm8, dword ptr [rax] }
-        _RAX = vec3_t::operator[](&v801, 1);
-        __asm { vmovss  xmm7, dword ptr [rax] }
-        _RAX = vec3_t::operator[](&v806, 1);
-        __asm { vmovss  xmm6, dword ptr [rax] }
-        vec3_t::operator[](&v801, 0);
-        __asm
-        {
-          vmulss  xmm1, xmm7, xmm8
-          vmulss  xmm0, xmm6, dword ptr [rax]
-          vsubss  xmm6, xmm1, xmm0
-        }
-        _RAX = vec3_t::operator[](&v813, 2);
-        __asm
-        {
-          vmovss  dword ptr [rax], xmm6
-          vmulss  xmm2, xmm15, cs:?HFD_BLADE_DRAG_TORQUE_FACTOR@@3MA; float HFD_BLADE_DRAG_TORQUE_FACTOR
-          vmulss  xmm5, xmm2, dword ptr [rbp+2E0h+var_238]
-          vmovss  dword ptr [rbp+2E0h+var_238], xmm5
-          vmulss  xmm4, xmm2, dword ptr [rbp+2E0h+var_238+4]
-          vmovss  dword ptr [rbp+2E0h+var_238+4], xmm4
-          vmulss  xmm3, xmm2, dword ptr [rbp+2E0h+var_238+8]
-          vmovss  dword ptr [rbp+2E0h+var_238+8], xmm3
-          vaddss  xmm0, xmm12, xmm9
-          vaddss  xmm1, xmm0, [rbp+2E0h+var_344]
-          vmovss  dword ptr [rbp+2E0h+in1], xmm1
-          vaddss  xmm2, xmm12, xmm10
-          vaddss  xmm0, xmm2, [rbp+2E0h+var_340]
-          vmovss  dword ptr [rbp+2E0h+in1+4], xmm0
-          vaddss  xmm1, xmm12, xmm11
-          vaddss  xmm2, xmm1, [rbp+2E0h+var_33C]
-          vmovss  dword ptr [rbp+2E0h+in1+8], xmm2
-          vmovss  dword ptr [rbp+2E0h+var_298], xmm5
-          vmovss  dword ptr [rbp+2E0h+var_298+4], xmm4
-          vmovss  dword ptr [rbp+2E0h+var_298+8], xmm3
-        }
-        if ( Physics_IsPredictiveWorld(_RSI->m_worldId) && Sys_IsMainThread() )
-        {
-          v611 = v763;
-          if ( DEBUG_DRAW_LINES && (_BYTE)v763 )
+          if ( DEBUG_DRAW_LINES && drawBlade )
           {
-            __asm { vmovss  xmm6, dword ptr [rsi+70h] }
-            vec3_t::operator[](&_RSI->m_Position, 0);
-            __asm
-            {
-              vmulss  xmm1, xmm6, dword ptr [rbp+2E0h+var_2F8]
-              vaddss  xmm2, xmm1, dword ptr [rax]
-              vmovss  dword ptr [rbp+2E0h+start], xmm2
-            }
-            vec3_t::operator[](&_RSI->m_Position, 1);
-            __asm
-            {
-              vmulss  xmm1, xmm6, dword ptr [rbp+2E0h+var_2F8+4]
-              vaddss  xmm2, xmm1, dword ptr [rax]
-              vmovss  dword ptr [rbp+2E0h+start+4], xmm2
-            }
-            vec3_t::operator[](&_RSI->m_Position, 2);
-            __asm
-            {
-              vmulss  xmm1, xmm6, dword ptr [rbp+2E0h+var_2F8+8]
-              vaddss  xmm3, xmm1, dword ptr [rax]
-              vmovss  dword ptr [rbp+2E0h+start+8], xmm3
-              vmovss  xmm6, cs:__real@41f00000
-              vmulss  xmm1, xmm6, dword ptr [rbp+2E0h+var_2E8]
-              vaddss  xmm2, xmm1, dword ptr [rbp+2E0h+start]
-              vmovss  dword ptr [rbp+2E0h+var_2C8], xmm2
-              vmulss  xmm1, xmm6, dword ptr [rbp+2E0h+var_2E8+4]
-              vaddss  xmm2, xmm1, dword ptr [rbp+2E0h+start+4]
-              vmovss  dword ptr [rbp+2E0h+var_2C8+4], xmm2
-              vmulss  xmm1, xmm6, dword ptr [rbp+2E0h+var_2E8+8]
-              vaddss  xmm2, xmm1, xmm3
-              vmovss  dword ptr [rbp+2E0h+var_2C8+8], xmm2
-            }
-            FD_DebugLine(&start, &v804, &colorYellow, 0, DEBUG_LINE_TIME);
-            __asm
-            {
-              vmulss  xmm0, xmm6, [rsp+3E0h+var_378]
-              vaddss  xmm1, xmm0, dword ptr [rbp+2E0h+start]
-              vmovss  dword ptr [rbp+2E0h+var_2C8], xmm1
-              vmulss  xmm2, xmm6, [rsp+3E0h+var_374]
-              vaddss  xmm0, xmm2, dword ptr [rbp+2E0h+start+4]
-              vmovss  dword ptr [rbp+2E0h+var_2C8+4], xmm0
-              vmulss  xmm1, xmm6, [rsp+3E0h+var_370]
-              vaddss  xmm2, xmm1, dword ptr [rbp+2E0h+start+8]
-              vmovss  dword ptr [rbp+2E0h+var_2C8+8], xmm2
-            }
-            FD_DebugLine(&start, &v804, &colorGreen, 0, DEBUG_LINE_TIME);
-            __asm
-            {
-              vmulss  xmm0, xmm6, [rbp+2E0h+var_338]
-              vaddss  xmm1, xmm0, dword ptr [rbp+2E0h+start]
-              vmovss  dword ptr [rbp+2E0h+var_2C8], xmm1
-              vmulss  xmm2, xmm6, [rbp+2E0h+var_35C]
-              vaddss  xmm0, xmm2, dword ptr [rbp+2E0h+start+4]
-              vmovss  dword ptr [rbp+2E0h+var_2C8+4], xmm0
-              vmulss  xmm1, xmm6, [rsp+3E0h+var_36C]
-              vaddss  xmm2, xmm1, dword ptr [rbp+2E0h+start+8]
-              vmovss  dword ptr [rbp+2E0h+var_2C8+8], xmm2
-            }
-            FD_DebugLine(&start, &v804, &colorPurple, 0, DEBUG_LINE_TIME);
-            __asm
-            {
-              vmovss  xmm7, cs:__real@42480000
-              vmulss  xmm1, xmm7, dword ptr [rbp+2E0h+var_2A8]
-              vaddss  xmm2, xmm1, dword ptr [rbp+2E0h+start]
-              vmovss  dword ptr [rbp+2E0h+var_2C8], xmm2
-              vmulss  xmm1, xmm7, dword ptr [rbp+2E0h+var_2A8+4]
-              vaddss  xmm2, xmm1, dword ptr [rbp+2E0h+start+4]
-              vmovss  dword ptr [rbp+2E0h+var_2C8+4], xmm2
-              vmulss  xmm1, xmm7, dword ptr [rbp+2E0h+var_2A8+8]
-              vaddss  xmm2, xmm1, dword ptr [rbp+2E0h+start+8]
-              vmovss  dword ptr [rbp+2E0h+var_2C8+8], xmm2
-            }
-            FD_DebugLine(&start, &v804, &colorWhite, 0, DEBUG_LINE_TIME);
-            __asm
-            {
-              vmovss  xmm9, [rsp+3E0h+var_388]
-              vmulss  xmm0, xmm9, xmm6
-              vaddss  xmm1, xmm0, dword ptr [rbp+2E0h+start]
-              vmovss  dword ptr [rbp+2E0h+var_2C8], xmm1
-              vmulss  xmm2, xmm14, xmm6
-              vaddss  xmm0, xmm2, dword ptr [rbp+2E0h+start+4]
-              vmovss  dword ptr [rbp+2E0h+var_2C8+4], xmm0
-              vmovss  xmm8, [rsp+3E0h+var_38C]
-              vmulss  xmm1, xmm8, xmm6
-              vaddss  xmm2, xmm1, dword ptr [rbp+2E0h+start+8]
-              vmovss  dword ptr [rbp+2E0h+var_2C8+8], xmm2
-            }
-            FD_DebugLine(&start, &v804, &colorRed, 0, DEBUG_LINE_TIME);
-            __asm
-            {
-              vmulss  xmm1, xmm7, dword ptr [rbp+2E0h+dir]
-              vaddss  xmm2, xmm1, dword ptr [rbp+2E0h+start]
-              vmovss  dword ptr [rbp+2E0h+var_2C8], xmm2
-              vmulss  xmm1, xmm7, dword ptr [rbp+2E0h+dir+4]
-              vaddss  xmm2, xmm1, dword ptr [rbp+2E0h+start+4]
-              vmovss  dword ptr [rbp+2E0h+var_2C8+4], xmm2
-              vmulss  xmm1, xmm7, dword ptr [rbp+2E0h+dir+8]
-              vaddss  xmm2, xmm1, dword ptr [rbp+2E0h+start+8]
-              vmovss  dword ptr [rbp+2E0h+var_2C8+8], xmm2
-            }
-            FD_DebugLine(&start, &v804, &colorBlack, 0, DEBUG_LINE_TIME);
+            m_BladeLength = this->m_BladeLength;
+            v175 = (float *)vec3_t::operator[](&this->m_Position, 0);
+            start.v[0] = (float)(m_BladeLength * v260.v[0]) + *v175;
+            v176 = (float *)vec3_t::operator[](&this->m_Position, 1);
+            start.v[1] = (float)(m_BladeLength * v260.v[1]) + *v176;
+            v177 = (float *)vec3_t::operator[](&this->m_Position, 2);
+            start.v[2] = (float)(m_BladeLength * v260.v[2]) + *v177;
+            v263.v[0] = (float)(30.0 * v261.v[0]) + start.v[0];
+            v263.v[1] = (float)(30.0 * v261.v[1]) + start.v[1];
+            v263.v[2] = (float)(30.0 * v261.v[2]) + start.v[2];
+            FD_DebugLine(&start, &v263, &colorYellow, 0, DEBUG_LINE_TIME);
+            v263.v[0] = (float)(30.0 * v229) + start.v[0];
+            v263.v[1] = (float)(30.0 * v230) + start.v[1];
+            v263.v[2] = (float)(30.0 * v231) + start.v[2];
+            FD_DebugLine(&start, &v263, &colorGreen, 0, DEBUG_LINE_TIME);
+            v263.v[0] = (float)(30.0 * v247) + start.v[0];
+            v263.v[1] = (float)(30.0 * v238) + start.v[1];
+            v263.v[2] = (float)(30.0 * v232) + start.v[2];
+            FD_DebugLine(&start, &v263, &colorPurple, 0, DEBUG_LINE_TIME);
+            v178 = FLOAT_50_0;
+            v263.v[0] = (float)(50.0 * v265.v[0]) + start.v[0];
+            v263.v[1] = (float)(50.0 * v265.v[1]) + start.v[1];
+            v263.v[2] = (float)(50.0 * v265.v[2]) + start.v[2];
+            FD_DebugLine(&start, &v263, &colorWhite, 0, DEBUG_LINE_TIME);
+            v179 = v225;
+            v263.v[0] = (float)(v225 * 30.0) + start.v[0];
+            v263.v[1] = (float)(v227 * 30.0) + start.v[1];
+            v180 = v224;
+            v263.v[2] = (float)(v224 * 30.0) + start.v[2];
+            FD_DebugLine(&start, &v263, &colorRed, 0, DEBUG_LINE_TIME);
+            v263.v[0] = (float)(50.0 * dir.v[0]) + start.v[0];
+            v263.v[1] = (float)(50.0 * dir.v[1]) + start.v[1];
+            v263.v[2] = (float)(50.0 * dir.v[2]) + start.v[2];
+            FD_DebugLine(&start, &v263, &colorBlack, 0, DEBUG_LINE_TIME);
           }
           else
           {
-            __asm
-            {
-              vmovss  xmm9, [rsp+3E0h+var_388]
-              vmovss  xmm8, [rsp+3E0h+var_38C]
-              vmovss  xmm7, cs:__real@42480000
-            }
+            v179 = v225;
+            v180 = v224;
+            v178 = FLOAT_50_0;
           }
-          if ( DEBUG_DRAW_LINES_BLADE )
+          if ( DEBUG_DRAW_LINES_BLADE && drawBlade )
           {
-            if ( v611 )
+            Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_fd_helicopter_show_blade_index, "fd_helicopter_show_blade_index");
+            if ( Int_Internal_DebugName < 0 || Int_Internal_DebugName == v11 )
             {
-              Int_Internal_DebugName = Dvar_GetInt_Internal_DebugName(DVARINT_fd_helicopter_show_blade_index, "fd_helicopter_show_blade_index");
-              if ( Int_Internal_DebugName < 0 || Int_Internal_DebugName == v47 )
+              v182 = m_RotorBlades->m_BladeDeflection * 10.0;
+              v260.v[0] = (float)(v179 * v182) + v260.v[0];
+              v260.v[1] = (float)(v227 * v182) + v260.v[1];
+              v260.v[2] = (float)(v180 * v182) + v260.v[2];
+              v183 = this->m_BladeLength;
+              v184 = (float *)vec3_t::operator[](&this->m_Position, 0);
+              v285.v[0] = (float)(v183 * v260.v[0]) + *v184;
+              v185 = (float *)vec3_t::operator[](&this->m_Position, 1);
+              v285.v[1] = (float)(v183 * v260.v[1]) + *v185;
+              v186 = (float *)vec3_t::operator[](&this->m_Position, 2);
+              v285.v[2] = (float)(v183 * v260.v[2]) + *v186;
+              color.v[0] = colorBlack.v[0];
+              color.v[1] = colorBlack.v[1];
+              v187 = *vec4_t::operator[](&colorBlack, 2);
+              *vec4_t::operator[](&color, 2) = v187;
+              v188 = *vec4_t::operator[](&colorBlack, 3);
+              *vec4_t::operator[](&color, 3) = v188;
+              Vec3Scale((const vec3_t *)&colorWhite, v222, (vec3_t *)&color);
+              *vec4_t::operator[](&color, 3) = 1.0;
+              if ( !Physics_IsPredictiveWorld(this->m_worldId) )
               {
-                __asm
-                {
-                  vmovss  xmm0, dword ptr [rdi+1Ch]
-                  vmulss  xmm4, xmm0, cs:__real@41200000
-                  vmulss  xmm2, xmm9, xmm4
-                  vaddss  xmm0, xmm2, dword ptr [rbp+2E0h+var_2F8]
-                  vmovss  dword ptr [rbp+2E0h+var_2F8], xmm0
-                  vmulss  xmm3, xmm14, xmm4
-                  vaddss  xmm0, xmm3, dword ptr [rbp+2E0h+var_2F8+4]
-                  vmovss  dword ptr [rbp+2E0h+var_2F8+4], xmm0
-                  vmulss  xmm2, xmm8, xmm4
-                  vaddss  xmm0, xmm2, dword ptr [rbp+2E0h+var_2F8+8]
-                  vmovss  dword ptr [rbp+2E0h+var_2F8+8], xmm0
-                  vmovss  xmm6, dword ptr [rsi+70h]
-                }
-                vec3_t::operator[](&_RSI->m_Position, 0);
-                __asm
-                {
-                  vmulss  xmm1, xmm6, dword ptr [rbp+2E0h+var_2F8]
-                  vaddss  xmm2, xmm1, dword ptr [rax]
-                  vmovss  dword ptr [rbp+2E0h+var_160], xmm2
-                }
-                vec3_t::operator[](&_RSI->m_Position, 1);
-                __asm
-                {
-                  vmulss  xmm1, xmm6, dword ptr [rbp+2E0h+var_2F8+4]
-                  vaddss  xmm2, xmm1, dword ptr [rax]
-                  vmovss  dword ptr [rbp+2E0h+var_160+4], xmm2
-                }
-                vec3_t::operator[](&_RSI->m_Position, 2);
-                __asm
-                {
-                  vmulss  xmm1, xmm6, dword ptr [rbp+2E0h+var_2F8+8]
-                  vaddss  xmm2, xmm1, dword ptr [rax]
-                  vmovss  dword ptr [rbp+2E0h+var_160+8], xmm2
-                  vmovss  xmm0, dword ptr cs:?colorBlack@@3Tvec4_t@@B; vec4_t const colorBlack
-                  vmovss  dword ptr [rbp+2E0h+color], xmm0
-                  vmovss  xmm1, dword ptr cs:?colorBlack@@3Tvec4_t@@B+4; vec4_t const colorBlack
-                  vmovss  dword ptr [rbp+2E0h+color+4], xmm1
-                }
-                _RAX = vec4_t::operator[](&colorBlack, 2);
-                __asm { vmovss  xmm6, dword ptr [rax] }
-                _RAX = vec4_t::operator[](&color, 2);
-                __asm { vmovss  dword ptr [rax], xmm6 }
-                _RAX = vec4_t::operator[](&colorBlack, 3);
-                __asm { vmovss  xmm6, dword ptr [rax] }
-                _RAX = vec4_t::operator[](&color, 3);
-                __asm
-                {
-                  vmovss  dword ptr [rax], xmm6
-                  vmovss  xmm1, [rsp+3E0h+var_394]; scale
-                }
-                Vec3Scale((const vec3_t *)&colorWhite, *(float *)&_XMM1, (vec3_t *)&color);
-                *vec4_t::operator[](&color, 3) = 1.0;
-                if ( !Physics_IsPredictiveWorld(_RSI->m_worldId) )
-                {
-                  _RAX = vec4_t::operator[](&colorGreen, 0);
-                  __asm { vmovss  xmm6, dword ptr [rax] }
-                  _RAX = vec4_t::operator[](&color, 0);
-                  __asm { vmovss  dword ptr [rax], xmm6 }
-                  _RAX = vec4_t::operator[](&colorGreen, 1);
-                  __asm { vmovss  xmm6, dword ptr [rax] }
-                  _RAX = vec4_t::operator[](&color, 1);
-                  __asm { vmovss  dword ptr [rax], xmm6 }
-                  _RAX = vec4_t::operator[](&colorGreen, 2);
-                  __asm { vmovss  xmm6, dword ptr [rax] }
-                  _RAX = vec4_t::operator[](&color, 2);
-                  __asm { vmovss  dword ptr [rax], xmm6 }
-                  _RAX = vec4_t::operator[](&colorGreen, 3);
-                  __asm { vmovss  xmm6, dword ptr [rax] }
-                  _RAX = vec4_t::operator[](&color, 3);
-                  __asm { vmovss  dword ptr [rax], xmm6 }
-                }
-                FD_DebugLine(&_RSI->m_Position, &v826, &color, 0, DEBUG_LINE_TIME);
-                __asm { vmovss  xmm1, dword ptr [rsi+74h]; scale }
-                Vec3Mad(&_RSI->m_Position, *(float *)&_XMM1, &dir, &result);
-                FD_DebugLine(&_RSI->m_Position, &result, &color, 0, DEBUG_LINE_TIME);
-                __asm { vmovss  xmm1, dword ptr [rsi+70h]; scale }
-                Vec3Mad(&result, *(float *)&_XMM1, &v801, &v830);
-                FD_DebugLine(&result, &v830, &color, 0, DEBUG_LINE_TIME);
-                FD_DebugLine(&v830, &v826, &color, 0, DEBUG_LINE_TIME);
+                v189 = *vec4_t::operator[](&colorGreen, 0);
+                *vec4_t::operator[](&color, 0) = v189;
+                v190 = *vec4_t::operator[](&colorGreen, 1);
+                *vec4_t::operator[](&color, 1) = v190;
+                v191 = *vec4_t::operator[](&colorGreen, 2);
+                *vec4_t::operator[](&color, 2) = v191;
+                v192 = *vec4_t::operator[](&colorGreen, 3);
+                *vec4_t::operator[](&color, 3) = v192;
               }
+              FD_DebugLine(&this->m_Position, &v285, &color, 0, DEBUG_LINE_TIME);
+              Vec3Mad(&this->m_Position, this->m_BladeWidth, &dir, &result);
+              FD_DebugLine(&this->m_Position, &result, &color, 0, DEBUG_LINE_TIME);
+              Vec3Mad(&result, this->m_BladeLength, &v260, &v289);
+              FD_DebugLine(&result, &v289, &color, 0, DEBUG_LINE_TIME);
+              FD_DebugLine(&v289, &v285, &color, 0, DEBUG_LINE_TIME);
             }
           }
-          if ( DEBUG_DRAW_LINES_CENTRIFUGAL && v611 )
+          if ( DEBUG_DRAW_LINES_CENTRIFUGAL && drawBlade )
           {
-            __asm { vmovss  xmm1, dword ptr [rsi+70h]; scale }
-            Vec3Mad(&_RSI->m_Position, *(float *)&_XMM1, &v824, &v821);
-            FD_DebugLine(&_RSI->m_Position, &v821, &colorBlue, 0, DEBUG_LINE_TIME);
-            __asm { vmovss  xmm1, dword ptr [rsi+70h]; scale }
-            Vec3Mad(&_RSI->m_Position, *(float *)&_XMM1, &v801, &v821);
-            __asm { vmovaps xmm1, xmm7; scale }
-            Vec3Mad(&v821, *(float *)&_XMM1, &v824, &v828);
-            FD_DebugLine(&v821, &v828, &colorRed, 0, DEBUG_LINE_TIME);
-            __asm { vmovaps xmm1, xmm7; scale }
-            Vec3Mad(&v821, *(float *)&_XMM1, &v802, &v828);
-            FD_DebugLine(&v821, &v828, &colorPurple, 0, DEBUG_LINE_TIME);
+            Vec3Mad(&this->m_Position, this->m_BladeLength, &v283, &v280);
+            FD_DebugLine(&this->m_Position, &v280, &colorBlue, 0, DEBUG_LINE_TIME);
+            Vec3Mad(&this->m_Position, this->m_BladeLength, &v260, &v280);
+            Vec3Mad(&v280, v178, &v283, &v287);
+            FD_DebugLine(&v280, &v287, &colorRed, 0, DEBUG_LINE_TIME);
+            Vec3Mad(&v280, v178, &v261, &v287);
+            FD_DebugLine(&v280, &v287, &colorPurple, 0, DEBUG_LINE_TIME);
           }
         }
         Vec3Add(&a, &b, &a);
         Vec3Add(&sum, (const vec3_t *)&in1, &sum);
-        Vec3Add(&v814, (const vec3_t *)&v807, &v814);
-        ++v47;
-        ++_RDI;
-        LODWORD(m_BladeCount) = _RSI->m_BladeCount;
-        __asm
-        {
-          vmovss  xmm10, [rsp+3E0h+var_368]
-          vmovss  xmm11, dword ptr cs:__xmm@80000000800000008000000080000000
-          vmovss  xmm14, cs:__real@3a83126f
-          vmovss  xmm15, dword ptr cs:__xmm@7fffffff7fffffff7fffffff7fffffff
-          vmovss  xmm9, cs:__real@80000000
-        }
+        Vec3Add(&v273, (const vec3_t *)&v266, &v273);
+        ++v11;
+        ++m_RotorBlades;
+        LODWORD(m_BladeCount) = this->m_BladeCount;
+        v3 = dT;
+        v24 = _xmm;
+        v5 = FLOAT_0_001;
+        v43 = _xmm;
       }
-      while ( v128 < (int)m_BladeCount );
+      while ( v45 < (int)m_BladeCount );
     }
-    *(double *)&_XMM0 = Vec3Dot(&sum, &_RSI->m_RotorAxis);
-    __asm { vmovaps xmm9, xmm0 }
-    *(double *)&_XMM0 = Vec3Dot(&sum, &v1);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = Vec3Dot(&sum, &cross);
-    __asm
+    v193 = Vec3Dot(&sum, &this->m_RotorAxis);
+    v194 = *(float *)&v193;
+    v195 = Vec3Dot(&sum, &v1);
+    v196 = *(float *)&v195;
+    v197 = Vec3Dot(&sum, &cross);
+    Vec3Scale(&v1, v196, (vec3_t *)&v266);
+    Vec3Mad((const vec3_t *)&v266, *(float *)&v197, &cross, &sum);
+    v198 = Vec3Dot(&v273, &this->m_RotorAxis);
+    v199 = LODWORD(v198);
+    v200 = Vec3Dot(&v273, &v1);
+    v201 = *(float *)&v200;
+    v202 = Vec3Dot(&v273, &cross);
+    Vec3Scale(&v1, v201, (vec3_t *)&v266);
+    Vec3Mad((const vec3_t *)&v266, *(float *)&v202, &cross, &v273);
+    v203 = v199 & v43;
+    if ( *(float *)&_XMM12 >= this->m_RotorRPM )
+      v203 ^= v24;
+    this->m_OpposingTorque = (float)(*(float *)&v203 * HFD_MAIN_ROTOR_OPPOSING_TORQUE_DRAG) + (float)(v194 * HFD_MAIN_ROTOR_OPPOSING_TORQUE_LIFT);
+    Vec3Scale(&a, HFD_BLADE_LIFT_RATIO, &a);
+    Vec3Add(&a, &this->m_LiftForceVector, &this->m_LiftForceVector);
+    Vec3Cross(&sum, &this->m_RotorAxis, (vec3_t *)&v266);
+    Vec3Scale((const vec3_t *)&v266, HFD_BLADE_TORQUE_RATIO, (vec3_t *)&v266);
+    Vec3Add((const vec3_t *)&v266, &this->m_LiftTorqueVector, &this->m_LiftTorqueVector);
+    v204 = vec3_t::operator[](&this->m_LiftTorqueVector, 0);
+    if ( IS_NAN(*v204) || (v205 = vec3_t::operator[](&this->m_LiftTorqueVector, 1), IS_NAN(*v205)) || (v206 = vec3_t::operator[](&this->m_LiftTorqueVector, 2), IS_NAN(*v206)) )
     {
-      vmovaps xmm7, xmm0
-      vmovaps xmm1, xmm6; scale
-    }
-    Vec3Scale(&v1, *(float *)&_XMM1, (vec3_t *)&v807);
-    __asm { vmovaps xmm1, xmm7; scale }
-    Vec3Mad((const vec3_t *)&v807, *(float *)&_XMM1, &cross, &sum);
-    *(double *)&_XMM0 = Vec3Dot(&v814, &_RSI->m_RotorAxis);
-    __asm { vmovaps xmm8, xmm0 }
-    *(double *)&_XMM0 = Vec3Dot(&v814, &v1);
-    __asm { vmovaps xmm6, xmm0 }
-    *(double *)&_XMM0 = Vec3Dot(&v814, &cross);
-    __asm
-    {
-      vmovaps xmm7, xmm0
-      vmovaps xmm1, xmm6; scale
-    }
-    Vec3Scale(&v1, *(float *)&_XMM1, (vec3_t *)&v807);
-    __asm { vmovaps xmm1, xmm7; scale }
-    Vec3Mad((const vec3_t *)&v807, *(float *)&_XMM1, &cross, &v814);
-    __asm
-    {
-      vandps  xmm8, xmm8, xmm15
-      vcomiss xmm12, dword ptr [rsi+98h]
-    }
-    if ( !v316 )
-      __asm { vxorps  xmm8, xmm8, xmm11 }
-    __asm
-    {
-      vmulss  xmm1, xmm8, cs:?HFD_MAIN_ROTOR_OPPOSING_TORQUE_DRAG@@3MA; float HFD_MAIN_ROTOR_OPPOSING_TORQUE_DRAG
-      vmulss  xmm0, xmm9, cs:?HFD_MAIN_ROTOR_OPPOSING_TORQUE_LIFT@@3MA; float HFD_MAIN_ROTOR_OPPOSING_TORQUE_LIFT
-      vaddss  xmm1, xmm1, xmm0
-      vmovss  dword ptr [rsi+50h], xmm1
-      vmovss  xmm1, cs:?HFD_BLADE_LIFT_RATIO@@3MA; scale
-    }
-    Vec3Scale(&a, *(float *)&_XMM1, &a);
-    Vec3Add(&a, &_RSI->m_LiftForceVector, &_RSI->m_LiftForceVector);
-    Vec3Cross(&sum, &_RSI->m_RotorAxis, (vec3_t *)&v807);
-    __asm { vmovss  xmm1, cs:?HFD_BLADE_TORQUE_RATIO@@3MA; scale }
-    Vec3Scale((const vec3_t *)&v807, *(float *)&_XMM1, (vec3_t *)&v807);
-    Vec3Add((const vec3_t *)&v807, &_RSI->m_LiftTorqueVector, &_RSI->m_LiftTorqueVector);
-    _RAX = vec3_t::operator[](&_RSI->m_LiftTorqueVector, 0);
-    __asm { vmovss  xmm0, dword ptr [rax]; x }
-    if ( IS_NAN(*(float *)&_XMM0) )
-      goto LABEL_115;
-    _RAX = vec3_t::operator[](&_RSI->m_LiftTorqueVector, 1);
-    __asm { vmovss  xmm0, dword ptr [rax]; x }
-    if ( IS_NAN(*(float *)&_XMM0) )
-      goto LABEL_115;
-    _RAX = vec3_t::operator[](&_RSI->m_LiftTorqueVector, 2);
-    __asm { vmovss  xmm0, dword ptr [rax]; x }
-    if ( IS_NAN(*(float *)&_XMM0) )
-    {
-LABEL_115:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 4203, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_LiftTorqueVector )[0] ) && !IS_NAN( ( m_LiftTorqueVector )[1] ) && !IS_NAN( ( m_LiftTorqueVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_LiftTorqueVector )[0] ) && !IS_NAN( ( m_LiftTorqueVector )[1] ) && !IS_NAN( ( m_LiftTorqueVector )[2] )") )
         __debugbreak();
     }
-    _RAX = vec3_t::operator[](&_RSI->m_LiftForceVector, 0);
-    __asm { vmovss  xmm0, dword ptr [rax]; x }
-    if ( IS_NAN(*(float *)&_XMM0) )
-      goto LABEL_116;
-    _RAX = vec3_t::operator[](&_RSI->m_LiftForceVector, 1);
-    __asm { vmovss  xmm0, dword ptr [rax]; x }
-    if ( IS_NAN(*(float *)&_XMM0) )
-      goto LABEL_116;
-    _RAX = vec3_t::operator[](&_RSI->m_LiftForceVector, 2);
-    __asm { vmovss  xmm0, dword ptr [rax]; x }
-    if ( IS_NAN(*(float *)&_XMM0) )
+    v207 = vec3_t::operator[](&this->m_LiftForceVector, 0);
+    if ( IS_NAN(*v207) || (v208 = vec3_t::operator[](&this->m_LiftForceVector, 1), IS_NAN(*v208)) || (v209 = vec3_t::operator[](&this->m_LiftForceVector, 2), IS_NAN(*v209)) )
     {
-LABEL_116:
       if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_vehicle_helicopter_dynamics.cpp", 4204, ASSERT_TYPE_SANITY, "( !IS_NAN( ( m_LiftForceVector )[0] ) && !IS_NAN( ( m_LiftForceVector )[1] ) && !IS_NAN( ( m_LiftForceVector )[2] ) )", (const char *)&queryFormat, "!IS_NAN( ( m_LiftForceVector )[0] ) && !IS_NAN( ( m_LiftForceVector )[1] ) && !IS_NAN( ( m_LiftForceVector )[2] )") )
         __debugbreak();
     }
-    *(double *)&_XMM0 = Vec3Dot(&v811, &v1);
-    __asm { vandps  xmm6, xmm0, xmm15 }
-    *(double *)&_XMM0 = Vec3Dot(&v811, &cross);
-    __asm
+    v210 = Vec3Dot(&v270, &v1);
+    v211 = LODWORD(v210) & v43;
+    v212 = Vec3Dot(&v270, &cross);
+    v213 = (float)((float)((float)(COERCE_FLOAT(LODWORD(v212) & v43) + *(float *)&v211) * HFD_BLADE_AVERAGE_TURBULENCE_CHANGE) * v3) + this->m_AverageBladeTurbulence;
+    this->m_AverageBladeTurbulence = v213;
+    v214 = FlightDynamics::CalculateDrag(v213, HFD_BLADE_AVERAGE_TURBULENCE_DECAY, v3);
+    this->m_AverageBladeTurbulence = *(float *)&v214;
+    v215 = (float)((float)(COERCE_FLOAT(LODWORD(this->m_SwashplateCollective) & v43) * HFD_BLADE_AUDIO_AIRSPEED_CHANGE) * v3) + this->m_AveragePitchChange;
+    this->m_AveragePitchChange = v215;
+    v216 = FlightDynamics::CalculateDrag(v215, HFD_BLADE_AUDIO_AIRSPEED_DECAY, v3);
+    this->m_AveragePitchChange = *(float *)&v216;
+    if ( Physics_IsPredictiveWorld(this->m_worldId) && Sys_IsMainThread() && DEBUG_DRAW_LINES )
     {
-      vandps  xmm0, xmm0, xmm15
-      vaddss  xmm0, xmm0, xmm6
-      vmulss  xmm1, xmm0, cs:?HFD_BLADE_AVERAGE_TURBULENCE_CHANGE@@3MA; float HFD_BLADE_AVERAGE_TURBULENCE_CHANGE
-      vmulss  xmm2, xmm1, xmm10
-      vaddss  xmm0, xmm2, dword ptr [rsi+0A0h]; value
-      vmovss  dword ptr [rsi+0A0h], xmm0
-      vmovaps xmm2, xmm10; dT
-      vmovss  xmm1, cs:?HFD_BLADE_AVERAGE_TURBULENCE_DECAY@@3MA; dragCoefficient
-    }
-    *(double *)&_XMM0 = FlightDynamics::CalculateDrag(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm
-    {
-      vmovss  dword ptr [rsi+0A0h], xmm0
-      vmovss  xmm1, dword ptr [rsi+94h]
-      vandps  xmm1, xmm1, xmm15
-      vmulss  xmm1, xmm1, cs:?HFD_BLADE_AUDIO_AIRSPEED_CHANGE@@3MA; float HFD_BLADE_AUDIO_AIRSPEED_CHANGE
-      vmulss  xmm2, xmm1, xmm10
-      vaddss  xmm0, xmm2, dword ptr [rsi+0A4h]; value
-      vmovss  dword ptr [rsi+0A4h], xmm0
-      vmovaps xmm2, xmm10; dT
-      vmovss  xmm1, cs:?HFD_BLADE_AUDIO_AIRSPEED_DECAY@@3MA; dragCoefficient
-    }
-    *(double *)&_XMM0 = FlightDynamics::CalculateDrag(*(float *)&_XMM0, *(float *)&_XMM1, *(float *)&_XMM2);
-    __asm { vmovss  dword ptr [rsi+0A4h], xmm0 }
-    if ( Physics_IsPredictiveWorld(_RSI->m_worldId) && Sys_IsMainThread() && DEBUG_DRAW_LINES )
-    {
-      __asm { vmovss  xmm1, cs:__real@3c23d70a; scale }
-      Vec3Mad(&_RSI->m_Position, *(float *)&_XMM1, &_RSI->m_LiftForceVector, &end);
-      FD_DebugLine(&_RSI->m_Position, &end, &colorPurple, 0, DEBUG_LINE_TIME);
-      __asm { vmovss  xmm1, cs:__real@3c23d70a; scale }
-      Vec3Mad(&_RSI->m_Position, *(float *)&_XMM1, &_RSI->m_AirflowVelocity, &end);
-      FD_DebugLine(&_RSI->m_Position, &end, &colorBlue, 0, DEBUG_LINE_TIME);
+      Vec3Mad(&this->m_Position, 0.0099999998, &this->m_LiftForceVector, &end);
+      FD_DebugLine(&this->m_Position, &end, &colorPurple, 0, DEBUG_LINE_TIME);
+      Vec3Mad(&this->m_Position, 0.0099999998, &this->m_AirflowVelocity, &end);
+      FD_DebugLine(&this->m_Position, &end, &colorBlue, 0, DEBUG_LINE_TIME);
     }
     Sys_ProfEndNamedEvent();
-  }
-  _R11 = &v834;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 
@@ -11457,139 +6722,67 @@ LABEL_116:
 FlightDynamicsRotorSystem::UpdateSteps
 ==============
 */
-
-void __fastcall FlightDynamicsRotorSystem::UpdateSteps(FlightDynamicsRotorSystem *this, double dT, int steps, bool drawBlade)
+void FlightDynamicsRotorSystem::UpdateSteps(FlightDynamicsRotorSystem *this, float dT, int steps, bool drawBlade)
 {
-  __int64 v14; 
-  vec3_t v74; 
-  __int64 v75; 
-  char v77; 
-  void *retaddr; 
+  __int64 v5; 
+  float v7; 
+  float v8; 
+  float v9; 
+  float v10; 
+  float v11; 
+  float v12; 
+  float v13; 
+  float v14; 
+  float v15; 
+  float v16; 
+  float v17; 
+  float m_RotorPosition; 
+  vec3_t m_LiftForceVector; 
+  __int64 v20; 
 
-  _RAX = &retaddr;
-  v75 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-    vmovaps xmmword ptr [rax-68h], xmm10
-    vmovaps xmmword ptr [rax-78h], xmm11
-    vmovaps [rsp+0C8h+var_88], xmm12
-  }
-  v14 = (unsigned int)steps;
-  _RBX = this;
-  __asm
-  {
-    vxorps  xmm2, xmm2, xmm2
-    vcvtsi2ss xmm2, xmm2, edi
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm2, xmm0, xmm2
-    vmulss  xmm12, xmm1, xmm2
-  }
+  v20 = -2i64;
+  v5 = (unsigned int)steps;
+  v7 = dT * (float)(1.0 / (float)steps);
   Sys_ProfBeginNamedEvent(0xFFFF0000, "FlightDynamicsRotorSystem::UpdateSteps");
-  if ( (int)v14 <= 0 )
+  if ( (int)v5 <= 0 )
   {
-    __asm { vmovss  xmm1, dword ptr [rbx+9Ch] }
+    m_RotorPosition = this->m_RotorPosition;
   }
   else
   {
     do
     {
-      __asm
-      {
-        vmovss  xmm6, dword ptr [rbx+60h]
-        vmovss  xmm7, dword ptr [rbx+64h]
-        vmovss  xmm8, dword ptr [rbx+68h]
-        vmovss  xmm9, dword ptr [rbx+54h]
-        vmovss  xmm10, dword ptr [rbx+58h]
-        vmovss  xmm11, dword ptr [rbx+5Ch]
-      }
-      *(_QWORD *)_RBX->m_LiftForceVector.v = 0i64;
-      *(_QWORD *)&_RBX->m_LiftForceVector.z = 0i64;
-      *(_QWORD *)&_RBX->m_LiftTorqueVector.y = 0i64;
-      __asm { vmovaps xmm1, xmm12; dT }
-      FlightDynamicsRotorSystem::UpdateRotor(_RBX, *(float *)&_XMM1, drawBlade);
-      __asm
-      {
-        vmulss  xmm4, xmm12, cs:?HFD_ROTOR_LIFT_TORQUE_RATE@@3MA; float HFD_ROTOR_LIFT_TORQUE_RATE
-        vmovss  xmm1, dword ptr [rbx+60h]
-        vsubss  xmm2, xmm1, xmm6
-        vmulss  xmm0, xmm2, xmm4
-        vaddss  xmm3, xmm0, xmm6
-        vmovss  dword ptr [rbx+60h], xmm3
-        vmovss  xmm1, dword ptr [rbx+64h]
-        vsubss  xmm0, xmm1, xmm7
-        vmulss  xmm2, xmm0, xmm4
-        vaddss  xmm3, xmm2, xmm7
-        vmovss  dword ptr [rbx+64h], xmm3
-        vmovss  xmm0, dword ptr [rbx+68h]
-        vsubss  xmm1, xmm0, xmm8
-        vmulss  xmm2, xmm1, xmm4
-        vaddss  xmm3, xmm2, xmm8
-        vmovss  dword ptr [rbx+68h], xmm3
-        vmulss  xmm4, xmm12, cs:?HFD_ROTOR_LIFT_FORCE_RATE@@3MA; float HFD_ROTOR_LIFT_FORCE_RATE
-        vmovss  xmm1, dword ptr [rbx+54h]
-        vsubss  xmm0, xmm1, xmm9
-        vmulss  xmm2, xmm0, xmm4
-        vaddss  xmm3, xmm2, xmm9
-        vmovss  dword ptr [rbx+54h], xmm3
-        vmovss  xmm0, dword ptr [rbx+58h]
-        vsubss  xmm1, xmm0, xmm10
-        vmulss  xmm2, xmm1, xmm4
-        vaddss  xmm3, xmm2, xmm10
-        vmovss  dword ptr [rbx+58h], xmm3
-        vmovss  xmm0, dword ptr [rbx+5Ch]
-        vsubss  xmm1, xmm0, xmm11
-        vmulss  xmm2, xmm1, xmm4
-        vaddss  xmm3, xmm2, xmm11
-        vmovss  dword ptr [rbx+5Ch], xmm3
-        vmovsd  xmm0, qword ptr [rbx+54h]
-        vmovsd  [rsp+0C8h+var_A8], xmm0
-      }
-      v74.v[2] = _RBX->m_LiftForceVector.v[2];
-      __asm { vmovaps xmm2, xmm12 }
-      FlightDynamicsRotorSystem::UpdateAirflowMomemtum(_RBX, &v74, *(float *)&_XMM2);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+4Ch]
-        vsubss  xmm1, xmm0, dword ptr [rbx+50h]
-        vmulss  xmm2, xmm1, dword ptr [rbx+80h]
-        vmulss  xmm3, xmm2, xmm12
-        vaddss  xmm0, xmm3, dword ptr [rbx+98h]
-        vmovss  dword ptr [rbx+98h], xmm0
-        vmulss  xmm0, xmm0, xmm12
-        vaddss  xmm1, xmm0, dword ptr [rbx+9Ch]
-        vmovss  dword ptr [rbx+9Ch], xmm1
-      }
+      v8 = this->m_LiftTorqueVector.v[0];
+      v9 = this->m_LiftTorqueVector.v[1];
+      v10 = this->m_LiftTorqueVector.v[2];
+      v11 = this->m_LiftForceVector.v[0];
+      v12 = this->m_LiftForceVector.v[1];
+      v13 = this->m_LiftForceVector.v[2];
+      *(_QWORD *)this->m_LiftForceVector.v = 0i64;
+      *(_QWORD *)&this->m_LiftForceVector.z = 0i64;
+      *(_QWORD *)&this->m_LiftTorqueVector.y = 0i64;
+      FlightDynamicsRotorSystem::UpdateRotor(this, v7, drawBlade);
+      v14 = v7 * HFD_ROTOR_LIFT_TORQUE_RATE;
+      this->m_LiftTorqueVector.v[0] = (float)((float)(this->m_LiftTorqueVector.v[0] - v8) * (float)(v7 * HFD_ROTOR_LIFT_TORQUE_RATE)) + v8;
+      this->m_LiftTorqueVector.v[1] = (float)((float)(this->m_LiftTorqueVector.v[1] - v9) * v14) + v9;
+      this->m_LiftTorqueVector.v[2] = (float)((float)(this->m_LiftTorqueVector.v[2] - v10) * v14) + v10;
+      v16 = v7 * HFD_ROTOR_LIFT_FORCE_RATE;
+      v15 = v7 * HFD_ROTOR_LIFT_FORCE_RATE;
+      this->m_LiftForceVector.v[0] = (float)((float)(this->m_LiftForceVector.v[0] - v11) * (float)(v7 * HFD_ROTOR_LIFT_FORCE_RATE)) + v11;
+      this->m_LiftForceVector.v[1] = (float)((float)(this->m_LiftForceVector.v[1] - v12) * v16) + v12;
+      this->m_LiftForceVector.v[2] = (float)((float)(this->m_LiftForceVector.v[2] - v13) * v15) + v13;
+      m_LiftForceVector = this->m_LiftForceVector;
+      FlightDynamicsRotorSystem::UpdateAirflowMomemtum(this, &m_LiftForceVector, v7);
+      v17 = (float)((float)((float)(this->m_InputTorque - this->m_OpposingTorque) * this->m_InvRotorWeight) * v7) + this->m_RotorRPM;
+      this->m_RotorRPM = v17;
+      m_RotorPosition = (float)(v17 * v7) + this->m_RotorPosition;
+      this->m_RotorPosition = m_RotorPosition;
       drawBlade = 0;
-      --v14;
+      --v5;
     }
-    while ( v14 );
+    while ( v5 );
   }
-  __asm
-  {
-    vmulss  xmm0, xmm1, cs:__real@40c00000; X
-    vmovss  xmm1, cs:__real@48afc800; Y
-  }
-  *(float *)&_XMM0 = fmodf_0(*(float *)&_XMM0, *(float *)&_XMM1);
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@3e2aaaab
-    vmovss  dword ptr [rbx+9Ch], xmm1
-  }
+  this->m_RotorPosition = fmodf_0(m_RotorPosition * 6.0, 360000.0) * 0.16666667;
   Sys_ProfEndNamedEvent();
-  _R11 = &v77;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-  }
 }
 

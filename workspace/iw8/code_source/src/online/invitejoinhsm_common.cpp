@@ -1820,21 +1820,20 @@ InviteJoinHSM::HandleHSMCallback_BeginCurrentApplicationSpecificJoinabilityCheck
 */
 void InviteJoinHSM::HandleHSMCallback_BeginCurrentApplicationSpecificJoinabilityChecks(InviteJoinHSM *this)
 {
-  __int64 v3; 
-  XUID v4[4]; 
-  __m256i v5; 
+  __int64 v2; 
+  XUID v3[4]; 
+  __m256i v4; 
 
-  XUID::XUID(&v4[1]);
-  LODWORD(v4[0].m_id) = this->m_pendingInvitationController;
-  XUID::operator=(&v4[1], &this->m_commonInviteData.m_xuidOfUserBeingJoinedOn);
-  v4[2] = (XUID)this->m_joinInfoOfTheCurrentInviteJoinInProgress.tournamentId;
-  LODWORD(v4[3].m_id) = this->m_initialDataTypeForJoining;
+  XUID::XUID(&v3[1]);
+  LODWORD(v3[0].m_id) = this->m_pendingInvitationController;
+  XUID::operator=(&v3[1], &this->m_commonInviteData.m_xuidOfUserBeingJoinedOn);
+  v3[2] = (XUID)this->m_joinInfoOfTheCurrentInviteJoinInProgress.tournamentId;
+  LODWORD(v3[3].m_id) = this->m_initialDataTypeForJoining;
   if ( !this->m_applicationSpecificPreJoinChecks[this->m_currentApplicationSpecificPreJoinCheck].m_startCallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\invitejoinhsm_common.cpp", 1500, ASSERT_TYPE_ASSERT, "(m_applicationSpecificPreJoinChecks[m_currentApplicationSpecificPreJoinCheck].m_startCallback)", (const char *)&queryFormat, "m_applicationSpecificPreJoinChecks[m_currentApplicationSpecificPreJoinCheck].m_startCallback") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rsp+78h+var_48.m_id] }
-  v3 = 2 * (this->m_currentApplicationSpecificPreJoinCheck + 48i64);
-  __asm { vmovups ymmword ptr [rsp+78h+var_28], ymm0 }
-  (*((void (__fastcall **)(__m256i *))&this->__vftable + v3))(&v5);
+  v2 = 2 * (this->m_currentApplicationSpecificPreJoinCheck + 48i64);
+  v4 = *(__m256i *)&v3[0].m_id;
+  (*((void (__fastcall **)(__m256i *))&this->__vftable + v2))(&v4);
 }
 
 /*
@@ -2150,31 +2149,30 @@ InviteJoinHSM::HandleHSMCallback_WaitForCurrentApplicationSpecificJoinabilityChe
 void InviteJoinHSM::HandleHSMCallback_WaitForCurrentApplicationSpecificJoinabilityChecks(InviteJoinHSM *this)
 {
   __int64 m_currentApplicationSpecificPreJoinCheck; 
-  int v4; 
-  XUID v5[4]; 
-  __m256i v6; 
+  int v3; 
+  XUID v4[4]; 
+  __m256i v5; 
 
-  XUID::XUID(&v5[1]);
-  LODWORD(v5[0].m_id) = this->m_pendingInvitationController;
-  XUID::operator=(&v5[1], &this->m_commonInviteData.m_xuidOfUserBeingJoinedOn);
-  v5[2] = (XUID)this->m_joinInfoOfTheCurrentInviteJoinInProgress.tournamentId;
-  LODWORD(v5[3].m_id) = this->m_initialDataTypeForJoining;
+  XUID::XUID(&v4[1]);
+  LODWORD(v4[0].m_id) = this->m_pendingInvitationController;
+  XUID::operator=(&v4[1], &this->m_commonInviteData.m_xuidOfUserBeingJoinedOn);
+  v4[2] = (XUID)this->m_joinInfoOfTheCurrentInviteJoinInProgress.tournamentId;
+  LODWORD(v4[3].m_id) = this->m_initialDataTypeForJoining;
   if ( !this->m_applicationSpecificPreJoinChecks[this->m_currentApplicationSpecificPreJoinCheck].m_updateCallback && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\online\\invitejoinhsm_common.cpp", 1514, ASSERT_TYPE_ASSERT, "(m_applicationSpecificPreJoinChecks[m_currentApplicationSpecificPreJoinCheck].m_updateCallback)", (const char *)&queryFormat, "m_applicationSpecificPreJoinChecks[m_currentApplicationSpecificPreJoinCheck].m_updateCallback") )
     __debugbreak();
-  __asm { vmovups ymm0, ymmword ptr [rsp+78h+var_48.m_id] }
   m_currentApplicationSpecificPreJoinCheck = this->m_currentApplicationSpecificPreJoinCheck;
-  __asm { vmovups ymmword ptr [rsp+78h+var_28], ymm0 }
-  v4 = ((__int64 (__fastcall *)(__m256i *))this->m_applicationSpecificPreJoinChecks[m_currentApplicationSpecificPreJoinCheck].m_updateCallback)(&v6);
-  if ( v4 == 1 )
+  v5 = *(__m256i *)&v4[0].m_id;
+  v3 = ((__int64 (__fastcall *)(__m256i *))this->m_applicationSpecificPreJoinChecks[m_currentApplicationSpecificPreJoinCheck].m_updateCallback)(&v5);
+  if ( v3 == 1 )
   {
     InvitationHSM_base::HSM_TriggerEvent(this, CURRENT_APPLICATION_SEPECIFIC_CHECK_DONE);
     this->m_lastStateBeforeError = InvitationHSM_base::HSM_GetCurrentState(this);
     this->m_lastEventTriggeredBeforeError = 51;
     return;
   }
-  if ( v4 != 2 )
+  if ( v3 != 2 )
   {
-    if ( v4 != 3 )
+    if ( v3 != 3 )
       return;
     this->m_inviteJoinResult = DODGE;
   }
@@ -3440,11 +3438,8 @@ void InviteJoinHSM::ResolveInviterUniversalId(InviteJoinHSM *this)
   request.m_appTaskType = -1;
   request.m_appData = this;
   request.m_appSecondaryCallback = NULL;
-  __asm
-  {
-    vpxor   xmm0, xmm0, xmm0
-    vmovdqu xmmword ptr [rbp+57h+request.m_asyncInfo], xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
+  *(_OWORD *)&request.m_asyncInfo = _XMM0;
   request.m_onCompletionCallback = staticUserIdResolved;
   request.m_onUpdateCallback = NULL;
   request.m_cancelTaskOnSignoutEvent = 1;

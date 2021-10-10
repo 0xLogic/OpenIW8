@@ -279,35 +279,34 @@ LUI_Workers_AddRenderWorker
 */
 void LUI_Workers_AddRenderWorker(const GfxViewInfo *viewInfo, const GfxAsync2DRenderResources *resources, const bool receivePPFX)
 {
+  __m256i sceneColor; 
+  __m256i sceneDepth; 
+  __m256i packedStencil; 
+  __int128 v9; 
+  const GfxWrappedBuffer *exposureBuffer; 
   __int64 data[2]; 
-  _BYTE v13[128]; 
-  bool v16; 
+  _BYTE v12[128]; 
+  __int128 v13; 
+  __int64 v14; 
+  bool v15; 
 
-  _RBX = resources;
   if ( (!Dvar_GetBool_Internal_DebugName(DCONST_DVARBOOL_lui_render_worker, "lui_render_worker") || LUI_CoD_InFrontend() || R_Cinematic_IsStarted() || frontEndDataOut->async2D.renderSuspended) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_workers.cpp", 216, ASSERT_TYPE_ASSERT, "(LUI_Workers_Render_Enabled())", (const char *)&queryFormat, "LUI_Workers_Render_Enabled()") )
     __debugbreak();
-  memset_0(v13, 0, sizeof(v13));
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbx]
-    vmovups ymm1, ymmword ptr [rbx+20h]
-    vmovups [rsp+108h+var_C8], ymm0
-    vmovups ymm0, ymmword ptr [rbx+40h]
-    vmovups [rsp+108h+var_A8], ymm1
-    vmovups ymm1, ymmword ptr [rbx+60h]
-    vmovups [rsp+108h+var_88], ymm0
-    vmovups xmm0, xmmword ptr [rbx+80h]
-    vmovups [rsp+108h+var_68], ymm1
-    vmovsd  xmm1, qword ptr [rbx+90h]
-  }
+  memset_0(v12, 0, sizeof(v12));
+  sceneColor = (__m256i)resources->sceneColor;
+  *(R_RT_ColorHandle *)v12 = resources->displayColor;
+  sceneDepth = (__m256i)resources->sceneDepth;
+  *(__m256i *)&v12[32] = sceneColor;
+  packedStencil = (__m256i)resources->packedStencil;
+  *(__m256i *)&v12[64] = sceneDepth;
+  v9 = *(_OWORD *)&resources->universalClut;
+  *(__m256i *)&v12[96] = packedStencil;
+  exposureBuffer = resources->exposureBuffer;
   data[0] = (__int64)viewInfo;
   data[1] = (__int64)frontEndDataOut;
-  __asm
-  {
-    vmovups [rsp+108h+var_48], xmm0
-    vmovsd  [rsp+108h+var_38], xmm1
-  }
-  v16 = receivePPFX;
+  v13 = v9;
+  v14 = (__int64)exposureBuffer;
+  v15 = receivePPFX;
   Sys_AddWorkerCmd((WorkerCmdType)(!receivePPFX + 108), data);
 }
 
@@ -432,11 +431,11 @@ void LUI_Workers_ProcessQueuedDvarEvents()
   unsigned int v0; 
   __int64 v1; 
   const dvar_t *v2; 
+  LUI_QueuedDvarSet *v3; 
   const dvar_t *dvar; 
   unsigned int flags; 
   const char *UnobfuscatedName; 
   BOOL setExternal; 
-  float fmt; 
   __int64 source; 
 
   if ( !Sys_IsMainThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_workers.cpp", 299, ASSERT_TYPE_ASSERT, "(Sys_IsMainThread())", (const char *)&queryFormat, "Sys_IsMainThread()") )
@@ -448,8 +447,8 @@ void LUI_Workers_ProcessQueuedDvarEvents()
     do
     {
       v2 = DCONST_DVARBOOL_lua_enableDvarModifiedFlagCheck;
-      _RDI = &s_lui_queued_dvar_events[v0];
-      dvar = _RDI->dvar;
+      v3 = &s_lui_queued_dvar_events[v0];
+      dvar = v3->dvar;
       if ( !DCONST_DVARBOOL_lua_enableDvarModifiedFlagCheck && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "lua_enableDvarModifiedFlagCheck") )
         __debugbreak();
       if ( g_checkServerThread && Sys_IsAnyServerThreadWork() )
@@ -464,33 +463,24 @@ void LUI_Workers_ProcessQueuedDvarEvents()
         if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_workers.cpp", 310, ASSERT_TYPE_ASSERT, "(!( dvar->flags & ~dvar_allowedModifiedFlags ))", "%s\n\tLUI Not allowed to set dvar '%s' at this time. This will cause performance issues and could deadlock. Assign to Code - UI", "!( dvar->flags & ~dvar_allowedModifiedFlags )", UnobfuscatedName) )
           __debugbreak();
       }
-      setExternal = _RDI->setExternal;
+      setExternal = v3->setExternal;
       switch ( dvar->type )
       {
         case 0u:
-          Dvar_SetBoolFromSource(dvar, _RDI->sValue[0], (DvarSetSource)setExternal);
+          Dvar_SetBoolFromSource(dvar, v3->sValue[0], (DvarSetSource)setExternal);
           break;
         case 1u:
-          __asm { vmovss  xmm1, dword ptr [rdi+0Ch]; jumptable 00000001426369F1 case 1 }
-          Dvar_SetFloatFromSource(dvar, *(float *)&_XMM1, (DvarSetSource)setExternal);
+          Dvar_SetFloatFromSource(dvar, v3->fValue, (DvarSetSource)setExternal);
           break;
         case 5u:
-          Dvar_SetIntFromSource(dvar, _RDI->iValue, (DvarSetSource)setExternal);
+          Dvar_SetIntFromSource(dvar, v3->iValue, (DvarSetSource)setExternal);
           break;
         case 8u:
         case 9u:
-          Dvar_SetStringFromSource(dvar, _RDI->sValue, (DvarSetSource)setExternal);
+          Dvar_SetStringFromSource(dvar, v3->sValue, (DvarSetSource)setExternal);
           break;
         case 0xAu:
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rdi+18h]; jumptable 00000001426369F1 case 10
-            vmovss  xmm3, dword ptr [rdi+14h]; b
-            vmovss  xmm2, dword ptr [rdi+10h]; g
-            vmovss  xmm1, dword ptr [rdi+0Ch]; r
-            vmovss  dword ptr [rsp+58h+fmt], xmm0
-          }
-          Dvar_SetColorFromSource(dvar, *(float *)&_XMM1, *(float *)&_XMM2, *(float *)&_XMM3, fmt, (DvarSetSource)_RDI->setExternal);
+          Dvar_SetColorFromSource(dvar, v3->fValue, v3->cValue[1], v3->cValue[2], v3->cValue[3], (DvarSetSource)v3->setExternal);
           break;
         default:
           LODWORD(source) = dvar->type;
@@ -643,48 +633,28 @@ LABEL_5:
 LUI_Workers_QueueDvar_SetColor
 ==============
 */
-
-void __fastcall LUI_Workers_QueueDvar_SetColor(const dvar_t *dvar, double red, double blue, double green, const float alpha, bool setExternal)
+void LUI_Workers_QueueDvar_SetColor(const dvar_t *dvar, const float red, const float blue, const float green, const float alpha, bool setExternal)
 {
-  unsigned int v9; 
+  unsigned int v6; 
+  __int64 v8; 
 
-  v9 = s_lui_num_queued_dvar_events;
-  __asm
-  {
-    vmovaps [rsp+68h+var_18], xmm6
-    vmovaps [rsp+68h+var_28], xmm7
-    vmovaps [rsp+68h+var_38], xmm8
-    vmovaps xmm8, xmm1
-    vmovaps xmm6, xmm3
-    vmovaps xmm7, xmm2
-  }
+  v6 = s_lui_num_queued_dvar_events;
   if ( s_lui_num_queued_dvar_events < 0xA )
     goto LABEL_5;
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_workers.cpp", 406, ASSERT_TYPE_ASSERT, "(s_lui_num_queued_dvar_events < LUI_NUM_QUEUED_DVAR_EVENTS)", (const char *)&queryFormat, "s_lui_num_queued_dvar_events < LUI_NUM_QUEUED_DVAR_EVENTS") )
     __debugbreak();
-  v9 = s_lui_num_queued_dvar_events;
+  v6 = s_lui_num_queued_dvar_events;
   if ( s_lui_num_queued_dvar_events < 0xA )
   {
 LABEL_5:
-    __asm { vmovss  xmm0, [rsp+68h+alpha] }
-    _R8 = s_lui_queued_dvar_events;
-    _RCX = v9;
-    s_lui_num_queued_dvar_events = v9 + 1;
-    s_lui_queued_dvar_events[_RCX].dvar = dvar;
-    __asm
-    {
-      vmovss  dword ptr [rcx+r8+0Ch], xmm8
-      vmovss  dword ptr [rcx+r8+10h], xmm7
-      vmovss  dword ptr [rcx+r8+14h], xmm6
-      vmovss  dword ptr [rcx+r8+18h], xmm0
-    }
-    s_lui_queued_dvar_events[_RCX].setExternal = setExternal;
-  }
-  __asm
-  {
-    vmovaps xmm6, [rsp+68h+var_18]
-    vmovaps xmm7, [rsp+68h+var_28]
-    vmovaps xmm8, [rsp+68h+var_38]
+    v8 = v6;
+    s_lui_num_queued_dvar_events = v6 + 1;
+    s_lui_queued_dvar_events[v8].dvar = dvar;
+    s_lui_queued_dvar_events[v8].fValue = red;
+    s_lui_queued_dvar_events[v8].cValue[1] = blue;
+    s_lui_queued_dvar_events[v8].cValue[2] = green;
+    s_lui_queued_dvar_events[v8].cValue[3] = alpha;
+    s_lui_queued_dvar_events[v8].setExternal = setExternal;
   }
 }
 
@@ -693,33 +663,26 @@ LABEL_5:
 LUI_Workers_QueueDvar_SetFloat
 ==============
 */
-
-void __fastcall LUI_Workers_QueueDvar_SetFloat(const dvar_t *dvar, double value, bool setExternal)
+void LUI_Workers_QueueDvar_SetFloat(const dvar_t *dvar, const float value, bool setExternal)
 {
-  unsigned int v4; 
+  unsigned int v3; 
+  __int64 v6; 
 
-  v4 = s_lui_num_queued_dvar_events;
-  __asm
-  {
-    vmovaps [rsp+48h+var_18], xmm6
-    vmovaps xmm6, xmm1
-  }
+  v3 = s_lui_num_queued_dvar_events;
   if ( s_lui_num_queued_dvar_events < 0xA )
     goto LABEL_5;
   if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\lui\\lui_workers.cpp", 344, ASSERT_TYPE_ASSERT, "(s_lui_num_queued_dvar_events < LUI_NUM_QUEUED_DVAR_EVENTS)", (const char *)&queryFormat, "s_lui_num_queued_dvar_events < LUI_NUM_QUEUED_DVAR_EVENTS") )
     __debugbreak();
-  v4 = s_lui_num_queued_dvar_events;
+  v3 = s_lui_num_queued_dvar_events;
   if ( s_lui_num_queued_dvar_events < 0xA )
   {
 LABEL_5:
-    _RCX = v4;
-    _RAX = s_lui_queued_dvar_events;
-    s_lui_num_queued_dvar_events = v4 + 1;
-    s_lui_queued_dvar_events[_RCX].dvar = dvar;
-    __asm { vmovss  dword ptr [rcx+rax+0Ch], xmm6 }
-    s_lui_queued_dvar_events[_RCX].setExternal = setExternal;
+    v6 = v3;
+    s_lui_num_queued_dvar_events = v3 + 1;
+    s_lui_queued_dvar_events[v6].dvar = dvar;
+    s_lui_queued_dvar_events[v6].fValue = value;
+    s_lui_queued_dvar_events[v6].setExternal = setExternal;
   }
-  __asm { vmovaps xmm6, [rsp+48h+var_18] }
 }
 
 /*
@@ -840,24 +803,19 @@ LUI_Workers_RenderCmd
 */
 void LUI_Workers_RenderCmd(const void *const data)
 {
-  GfxCmdBufContext v3; 
-  __int64 v4; 
-  GfxCmdBufStateLocal v5; 
-  GfxCmdBufSourceStateLocal v6; 
+  GfxCmdBufContext v2; 
+  __int64 v3; 
+  GfxCmdBufStateLocal v4; 
+  GfxCmdBufSourceStateLocal v5; 
 
-  v4 = -2i64;
-  GfxCmdBufStateLocal::GfxCmdBufStateLocal(&v5);
-  GfxCmdBufSourceStateLocal::GfxCmdBufSourceStateLocal(&v6);
-  v3.source = &v6;
-  v3.state = &v5;
-  __asm
-  {
-    vmovups xmm0, [rsp+5088h+var_5058]
-    vmovdqa [rsp+5088h+var_5058], xmm0
-  }
-  R_Async2D_Render(&v3, *(const GfxViewInfo **)data, *((GfxBackEndData **)data + 1), (const GfxAsync2DRenderResources *)((char *)data + 16), *((_BYTE *)data + 168));
-  GfxCmdBufSourceStateLocal::~GfxCmdBufSourceStateLocal(&v6);
-  GfxCmdBufStateLocal::~GfxCmdBufStateLocal(&v5);
+  v3 = -2i64;
+  GfxCmdBufStateLocal::GfxCmdBufStateLocal(&v4);
+  GfxCmdBufSourceStateLocal::GfxCmdBufSourceStateLocal(&v5);
+  v2.source = &v5;
+  v2.state = &v4;
+  R_Async2D_Render(&v2, *(const GfxViewInfo **)data, *((GfxBackEndData **)data + 1), (const GfxAsync2DRenderResources *)((char *)data + 16), *((_BYTE *)data + 168));
+  GfxCmdBufSourceStateLocal::~GfxCmdBufSourceStateLocal(&v5);
+  GfxCmdBufStateLocal::~GfxCmdBufStateLocal(&v4);
 }
 
 /*

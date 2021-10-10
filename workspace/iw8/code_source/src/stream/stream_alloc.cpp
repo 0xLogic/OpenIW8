@@ -2484,132 +2484,103 @@ Stream_Alloc_InitialHandoffFromMemPaged
 */
 void Stream_Alloc_InitialHandoffFromMemPaged(const StreamerMemPageCounts *pageCounts)
 {
-  int v5; 
-  const StreamerMemPageCounts *v6; 
+  int v1; 
+  const StreamerMemPageCounts *v2; 
+  __int64 v3; 
+  __int64 v4; 
+  const StreamerMemPageCounts *v5; 
+  unsigned int v6; 
   __int64 v7; 
-  __int64 v8; 
-  const StreamerMemPageCounts *v9; 
-  int v10; 
-  __int64 v11; 
-  const StreamerMemPageCounts *v12; 
-  __int64 v16; 
-  const StreamerMemPageCounts *v17; 
-  __int64 v18; 
+  const StreamerMemPageCounts *v8; 
+  float v9; 
+  __int64 v10; 
+  const StreamerMemPageCounts *v11; 
+  __int64 v12; 
   unsigned __int64 i; 
-  int v27; 
-  __int64 v28; 
+  float v14; 
+  int v15; 
+  __int64 v16; 
   StreamerMemPageCounts *p_mFreePages; 
-  unsigned int v30; 
-  unsigned int v31; 
-  StreamerMemPageCounts *v32; 
+  unsigned int v18; 
+  unsigned int v19; 
+  StreamerMemPageCounts *v20; 
   __int64 j; 
-  char *fmt; 
-  char v42; 
 
-  v5 = 0;
-  __asm { vmovaps [rsp+0A8h+var_38], xmm6 }
-  v6 = pageCounts;
-  __asm { vmovaps [rsp+0A8h+var_48], xmm7 }
-  v7 = 2i64;
-  __asm { vmovaps [rsp+0A8h+var_58], xmm8 }
-  v8 = 2i64;
-  v9 = pageCounts;
-  v10 = 0;
-  v11 = 0i64;
-  v12 = v6 + 1;
-  if ( v6 > &v6[1] )
-    v8 = 0i64;
-  if ( v6 <= &v6[1] )
+  v1 = 0;
+  v2 = pageCounts;
+  v3 = 2i64;
+  v4 = 2i64;
+  v5 = pageCounts;
+  v6 = 0;
+  v7 = 0i64;
+  v8 = v2 + 1;
+  if ( v2 > &v2[1] )
+    v4 = 0i64;
+  if ( v2 <= &v2[1] )
   {
     do
     {
-      v10 += v6->pages[0];
-      v6 = (const StreamerMemPageCounts *)((char *)v6 + 4);
-      ++v11;
+      v6 += v2->pages[0];
+      v2 = (const StreamerMemPageCounts *)((char *)v2 + 4);
+      ++v7;
     }
-    while ( v11 != v8 );
+    while ( v7 != v4 );
   }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@5f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-  }
-  v16 = 0i64;
-  v17 = v9;
-  v18 = 0i64;
-  __asm
-  {
-    vmovss  xmm8, cs:__real@35800000
-    vmulss  xmm0, xmm0, xmm8
-    vcvtss2sd xmm3, xmm0, xmm0
-  }
-  if ( v9 <= v12 )
+  v10 = 0i64;
+  v11 = v5;
+  v12 = 0i64;
+  if ( v5 <= v8 )
   {
     do
     {
-      v16 = (unsigned int)(v17->pages[0] + v16);
-      v17 = (const StreamerMemPageCounts *)((char *)v17 + 4);
-      ++v18;
+      v10 = (unsigned int)(v11->pages[0] + v10);
+      v11 = (const StreamerMemPageCounts *)((char *)v11 + 4);
+      ++v12;
     }
-    while ( v18 != v8 );
+    while ( v12 != v4 );
   }
-  __asm { vmovq   r9, xmm3 }
-  Com_Printf(35, "Stream_Alloc_InitialHandoffFromMemPaged: Received %u pages (%.2f MB) total from mem_paged:\n", v16, *(double *)&_XMM3);
+  v9 = (float)((unsigned __int64)v6 << 16);
+  Com_Printf(35, "Stream_Alloc_InitialHandoffFromMemPaged: Received %u pages (%.2f MB) total from mem_paged:\n", v10, (float)(v9 * 0.00000095367432));
   for ( i = 0i64; i < 2; ++i )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm0, xmm0, xmm8
-      vcvtss2sd xmm6, xmm0, xmm0
-      vmovsd  [rsp+0A8h+fmt], xmm6
-    }
-    Com_Printf(35, "Stream_Alloc_InitialHandoffFromMemPaged:    Pool %zu: %u pages (%.2f MB)\n", i, v9->pages[(unsigned int)i], *(double *)&fmt);
+    v14 = (float)((unsigned __int64)v5->pages[(unsigned int)i] << 16);
+    Com_Printf(35, "Stream_Alloc_InitialHandoffFromMemPaged:    Pool %zu: %u pages (%.2f MB)\n", i, v5->pages[(unsigned int)i], (float)(v14 * 0.00000095367432));
   }
-  v27 = 0;
-  s_allocTracker.mFreePages.pages[0] += v9->pages[0];
-  s_allocTracker.mFreePages.pages[1] += v9->pages[1];
-  v28 = 0i64;
-  if ( v9 <= v12 )
+  v15 = 0;
+  s_allocTracker.mFreePages.pages[0] += v5->pages[0];
+  s_allocTracker.mFreePages.pages[1] += v5->pages[1];
+  v16 = 0i64;
+  if ( v5 <= v8 )
   {
     do
     {
-      v27 += v9->pages[0];
-      v9 = (const StreamerMemPageCounts *)((char *)v9 + 4);
-      ++v28;
+      v15 += v5->pages[0];
+      v5 = (const StreamerMemPageCounts *)((char *)v5 + 4);
+      ++v16;
     }
-    while ( v28 != v8 );
+    while ( v16 != v4 );
   }
   p_mFreePages = &s_allocTracker.mFreePages;
-  v30 = v27 + s_allocTracker.mTotalPages;
-  v31 = 0;
-  s_allocTracker.mTotalPages += v27;
-  v32 = &s_allocTracker.mFreePages;
+  v18 = v15 + s_allocTracker.mTotalPages;
+  v19 = 0;
+  s_allocTracker.mTotalPages += v15;
+  v20 = &s_allocTracker.mFreePages;
   do
   {
-    v31 += v32->pages[0];
-    v32 = (StreamerMemPageCounts *)((char *)v32 + 4);
-    --v7;
+    v19 += v20->pages[0];
+    v20 = (StreamerMemPageCounts *)((char *)v20 + 4);
+    --v3;
   }
-  while ( v7 );
-  if ( v31 > v30 )
+  while ( v3 );
+  if ( v19 > v18 )
   {
     for ( j = 0i64; j != 2; ++j )
     {
-      v5 += p_mFreePages->pages[0];
+      v1 += p_mFreePages->pages[0];
       p_mFreePages = (StreamerMemPageCounts *)((char *)p_mFreePages + 4);
     }
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_alloc.cpp", 75, ASSERT_TYPE_ASSERT, "( mFreePages.TotalPages() ) <= ( mTotalPages )", "%s <= %s\n\t%u, %u", "mFreePages.TotalPages()", "mTotalPages", v5, v30) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\stream\\stream_alloc.cpp", 75, ASSERT_TYPE_ASSERT, "( mFreePages.TotalPages() ) <= ( mTotalPages )", "%s <= %s\n\t%u, %u", "mFreePages.TotalPages()", "mTotalPages", v1, v18) )
       __debugbreak();
-  }
-  __asm { vmovaps xmm6, [rsp+0A8h+var_38] }
-  _R11 = &v42;
-  __asm
-  {
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm7, [rsp+0A8h+var_48]
   }
 }
 

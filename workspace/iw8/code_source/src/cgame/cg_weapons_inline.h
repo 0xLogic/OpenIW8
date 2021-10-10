@@ -34,19 +34,20 @@ void CG_CalcEyePoint(LocalClientNum_t localClientNum, int entityNum, vec3_t *out
   cg_t *LocalClientGlobals; 
   characterInfo_t *CharacterInfo; 
   const SuitDef *SuitDef; 
-  bool v24; 
-  __int64 v26; 
-  __int64 v27; 
+  float v13; 
+  bool v14; 
+  float v15; 
+  __int64 v16; 
+  __int64 v17; 
 
-  _RBX = outEyePos;
   LocalClientGlobalsForEnt = CG_GetLocalClientGlobalsForEnt(entityNum);
   if ( LocalClientGlobalsForEnt )
   {
-    RefdefView_GetOrg(&LocalClientGlobalsForEnt->refdef.view, _RBX);
+    RefdefView_GetOrg(&LocalClientGlobalsForEnt->refdef.view, outEyePos);
     return;
   }
   Entity = CG_GetEntity(localClientNum, entityNum);
-  CG_GetPoseOrigin(&Entity->pose, _RBX);
+  CG_GetPoseOrigin(&Entity->pose, outEyePos);
   if ( (Entity->flags & 1) != 0 && BG_IsCharacterEntity(&Entity->nextState) )
   {
     if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
@@ -55,8 +56,8 @@ void CG_CalcEyePoint(LocalClientNum_t localClientNum, int entityNum, vec3_t *out
     {
       if ( !ComCharacterLimits::ms_isGameDataValid && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_character_limits.h", 123, ASSERT_TYPE_ASSERT, "(ms_isGameDataValid)", (const char *)&queryFormat, "ms_isGameDataValid") )
         __debugbreak();
-      LODWORD(v26) = Entity->nextState.clientNum;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons_inline.h", 70, ASSERT_TYPE_ASSERT, "(unsigned)( cent->nextState.clientNum ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "cent->nextState.clientNum doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v26, ComCharacterLimits::ms_gameData.m_characterCount) )
+      LODWORD(v16) = Entity->nextState.clientNum;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame\\cg_weapons_inline.h", 70, ASSERT_TYPE_ASSERT, "(unsigned)( cent->nextState.clientNum ) < (unsigned)( ComCharacterLimits::GetCharacterMaxCount() )", "cent->nextState.clientNum doesn't index ComCharacterLimits::GetCharacterMaxCount()\n\t%i not in [0, %i)", v16, ComCharacterLimits::ms_gameData.m_characterCount) )
         __debugbreak();
     }
     LocalClientStatics = CgStatic::GetLocalClientStatics(localClientNum);
@@ -70,9 +71,9 @@ void CG_CalcEyePoint(LocalClientNum_t localClientNum, int entityNum, vec3_t *out
     {
       if ( (unsigned int)clientNum >= LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified )
       {
-        LODWORD(v27) = LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified;
-        LODWORD(v26) = clientNum;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 12, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v26, v27) )
+        LODWORD(v17) = LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[64].timeModified;
+        LODWORD(v16) = clientNum;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\cgame_mp\\cg_globals_mp_inline.h", 12, ASSERT_TYPE_ASSERT, "(unsigned)( characterIndex ) < (unsigned)( static_cast<int>( m_characterInfoCount ) )", "characterIndex doesn't index static_cast<int>( m_characterInfoCount )\n\t%i not in [0, %i)", v16, v17) )
           __debugbreak();
       }
       CharacterInfo = (characterInfo_t *)(*(_QWORD *)&LocalClientGlobals[1].predictedPlayerState.rxvOmnvars[62] + 14792 * clientNum);
@@ -85,55 +86,29 @@ void CG_CalcEyePoint(LocalClientNum_t localClientNum, int entityNum, vec3_t *out
     {
       if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&Entity->nextState.lerp.eFlags, ACTIVE, 4u) )
       {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rbx+8]
-          vaddss  xmm1, xmm0, cs:__real@41300000
-          vmovss  dword ptr [rbx+8], xmm1
-        }
+        outEyePos->v[2] = outEyePos->v[2] + 11.0;
         return;
       }
-      v24 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&Entity->nextState.lerp.eFlags, ACTIVE, 3u);
-      __asm { vmovss  xmm0, dword ptr [rbx+8] }
-      if ( v24 )
-        __asm { vaddss  xmm0, xmm0, cs:__real@42200000 }
+      v14 = GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&Entity->nextState.lerp.eFlags, ACTIVE, 3u);
+      v15 = outEyePos->v[2];
+      if ( v14 )
+        v13 = v15 + 40.0;
       else
-        __asm { vaddss  xmm0, xmm0, cs:__real@42700000 }
+        v13 = v15 + 60.0;
       goto LABEL_38;
     }
     SuitDef = BG_GetSuitDef(CharacterInfo->suitIndex);
     if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&Entity->nextState.lerp.eFlags, ACTIVE, 4u) )
     {
-      BG_Suit_GetProneViewHeight(SuitDef);
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vaddss  xmm0, xmm0, dword ptr [rbx+8]
-      }
+      v13 = (float)BG_Suit_GetProneViewHeight(SuitDef) + outEyePos->v[2];
 LABEL_38:
-      __asm { vmovss  dword ptr [rbx+8], xmm0 }
+      outEyePos->v[2] = v13;
       return;
     }
-    __asm { vxorps  xmm0, xmm0, xmm0 }
     if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&Entity->nextState.lerp.eFlags, ACTIVE, 3u) )
-    {
-      __asm
-      {
-        vcvtsi2ss xmm0, xmm0, dword ptr [rdi+204h]
-        vaddss  xmm1, xmm0, dword ptr [rbx+8]
-        vmovss  dword ptr [rbx+8], xmm1
-      }
-    }
+      outEyePos->v[2] = (float)SuitDef->viewheight_crouch + outEyePos->v[2];
     else
-    {
-      __asm
-      {
-        vcvtsi2ss xmm0, xmm0, dword ptr [rdi+200h]
-        vaddss  xmm1, xmm0, dword ptr [rbx+8]
-        vmovss  dword ptr [rbx+8], xmm1
-      }
-    }
+      outEyePos->v[2] = (float)SuitDef->viewheight_stand + outEyePos->v[2];
   }
 }
 

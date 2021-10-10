@@ -346,27 +346,16 @@ bdUserPresenceInfoV3::bdUserPresenceInfoV3
 */
 void bdUserPresenceInfoV3::bdUserPresenceInfoV3(bdUserPresenceInfoV3 *this, const bdUserPresenceInfoV3 *__that)
 {
-  const bdUserPresenceInfoV3 *v2; 
-  bdUserPresenceInfoV3 *v3; 
-
-  v2 = __that;
-  v3 = this;
   this->m_online = __that->m_online;
-  this->m_platform.m_hasValue = __that->m_platform.m_hasValue;
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+2]
-    vmovups xmmword ptr [rcx+2], xmm0
-  }
-  this->m_platform.m_value.m_buffer[16] = __that->m_platform.m_value.m_buffer[16];
+  this->m_platform = __that->m_platform;
   bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&this->m_titleToken, &__that->m_titleToken);
-  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&v3->m_presenceToken, &v2->m_presenceToken);
-  v3->m_titleID.m_hasValue = v2->m_titleID.m_hasValue;
-  v3->m_titleID.m_value = v2->m_titleID.m_value;
-  v3->m_data.m_hasValue = v2->m_data.m_hasValue;
-  bdPresenceData::bdPresenceData(&v3->m_data.m_value, &v2->m_data.m_value);
-  v3->m_updateTime.m_hasValue = v2->m_updateTime.m_hasValue;
-  v3->m_updateTime.m_value = v2->m_updateTime.m_value;
+  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&this->m_presenceToken, &__that->m_presenceToken);
+  this->m_titleID.m_hasValue = __that->m_titleID.m_hasValue;
+  this->m_titleID.m_value = __that->m_titleID.m_value;
+  this->m_data.m_hasValue = __that->m_data.m_hasValue;
+  bdPresenceData::bdPresenceData(&this->m_data.m_value, &__that->m_data.m_value);
+  this->m_updateTime.m_hasValue = __that->m_updateTime.m_hasValue;
+  this->m_updateTime.m_value = __that->m_updateTime.m_value;
 }
 
 /*
@@ -471,38 +460,33 @@ bdUserPresenceInfoV3::bdUserPresenceInfoV3
 */
 void bdUserPresenceInfoV3::bdUserPresenceInfoV3(bdUserPresenceInfoV3 *this, const bool online, const char *platform, const bdLocalizationToken *titleToken, const bdLocalizationToken *presenceToken, const bdPresenceData *data)
 {
-  _BYTE *v9; 
-  unsigned __int64 v10; 
+  _BYTE *v8; 
+  unsigned __int64 v9; 
   __int128 Buf; 
-  char v12; 
+  char v11; 
 
-  _RBX = this;
   this->m_online = online;
   if ( bdStrlcpy((char *const)&Buf, platform, 0x11ui64) > 0x10 )
   {
     bdHandleAssert(0, "\"sLength <= MaxLength\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
   }
-  _RBX->m_platform.m_hasValue = 1;
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+Buf]
-    vmovups xmmword ptr [rbx+2], xmm0
-  }
-  _RBX->m_platform.m_value.m_buffer[16] = v12;
-  v9 = memchr_0(&Buf, 0, 0x11ui64);
-  if ( v9 )
-    v10 = v9 - (_BYTE *)&Buf;
+  this->m_platform.m_hasValue = 1;
+  *(_OWORD *)this->m_platform.m_value.m_buffer = Buf;
+  this->m_platform.m_value.m_buffer[16] = v11;
+  v8 = memchr_0(&Buf, 0, 0x11ui64);
+  if ( v8 )
+    v9 = v8 - (_BYTE *)&Buf;
   else
-    v10 = 17i64;
-  bdHandleAssert(v10 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&_RBX->m_titleToken, titleToken);
-  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&_RBX->m_presenceToken, presenceToken);
-  _RBX->m_titleID.m_hasValue = 0;
-  _RBX->m_data.m_hasValue = 1;
-  bdPresenceData::bdPresenceData(&_RBX->m_data.m_value, data);
-  _RBX->m_updateTime.m_hasValue = 1;
-  _RBX->m_updateTime.m_value = 0i64;
+    v9 = 17i64;
+  bdHandleAssert(v9 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&this->m_titleToken, titleToken);
+  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&this->m_presenceToken, presenceToken);
+  this->m_titleID.m_hasValue = 0;
+  this->m_data.m_hasValue = 1;
+  bdPresenceData::bdPresenceData(&this->m_data.m_value, data);
+  this->m_updateTime.m_hasValue = 1;
+  this->m_updateTime.m_value = 0i64;
 }
 
 /*
@@ -512,38 +496,33 @@ bdUserPresenceInfoV3::bdUserPresenceInfoV3
 */
 void bdUserPresenceInfoV3::bdUserPresenceInfoV3(bdUserPresenceInfoV3 *this, const bool online, const char *platform, const bdLocalizationToken *titleToken, const bdLocalizationToken *presenceToken, const bdPresenceData *data, const unsigned __int64 updateTime)
 {
-  _BYTE *v10; 
-  unsigned __int64 v11; 
+  _BYTE *v9; 
+  unsigned __int64 v10; 
   __int128 Buf; 
-  char v13; 
+  char v12; 
 
-  _RBX = this;
   this->m_online = online;
   if ( bdStrlcpy((char *const)&Buf, platform, 0x11ui64) > 0x10 )
   {
     bdHandleAssert(0, "\"sLength <= MaxLength\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
   }
-  _RBX->m_platform.m_hasValue = 1;
-  __asm
-  {
-    vmovups xmm0, [rsp+88h+Buf]
-    vmovups xmmword ptr [rbx+2], xmm0
-  }
-  _RBX->m_platform.m_value.m_buffer[16] = v13;
-  v10 = memchr_0(&Buf, 0, 0x11ui64);
-  if ( v10 )
-    v11 = v10 - (_BYTE *)&Buf;
+  this->m_platform.m_hasValue = 1;
+  *(_OWORD *)this->m_platform.m_value.m_buffer = Buf;
+  this->m_platform.m_value.m_buffer[16] = v12;
+  v9 = memchr_0(&Buf, 0, 0x11ui64);
+  if ( v9 )
+    v10 = v9 - (_BYTE *)&Buf;
   else
-    v11 = 17i64;
-  bdHandleAssert(v11 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&_RBX->m_titleToken, titleToken);
-  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&_RBX->m_presenceToken, presenceToken);
-  _RBX->m_titleID.m_hasValue = 0;
-  _RBX->m_data.m_hasValue = 1;
-  bdPresenceData::bdPresenceData(&_RBX->m_data.m_value, data);
-  _RBX->m_updateTime.m_hasValue = 1;
-  _RBX->m_updateTime.m_value = updateTime;
+    v10 = 17i64;
+  bdHandleAssert(v10 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&this->m_titleToken, titleToken);
+  bdStructOptionalObject<bdLocalizationToken>::bdStructOptionalObject<bdLocalizationToken>(&this->m_presenceToken, presenceToken);
+  this->m_titleID.m_hasValue = 0;
+  this->m_data.m_hasValue = 1;
+  bdPresenceData::bdPresenceData(&this->m_data.m_value, data);
+  this->m_updateTime.m_hasValue = 1;
+  this->m_updateTime.m_value = updateTime;
 }
 
 /*
@@ -553,40 +532,35 @@ bdUserPresenceInfoV3::bdUserPresenceInfoV3
 */
 void bdUserPresenceInfoV3::bdUserPresenceInfoV3(bdUserPresenceInfoV3 *this, const bool online, const char *platform, const bdPresenceData *data)
 {
-  _BYTE *v7; 
-  unsigned __int64 v8; 
+  _BYTE *v6; 
+  unsigned __int64 v7; 
   __int128 Buf; 
-  char v10; 
+  char v9; 
 
-  _RBX = this;
   this->m_online = online;
   if ( bdStrlcpy((char *const)&Buf, platform, 0x11ui64) > 0x10 )
   {
     bdHandleAssert(0, "\"sLength <= MaxLength\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
   }
-  _RBX->m_platform.m_hasValue = 1;
-  __asm
-  {
-    vmovups xmm0, [rsp+98h+Buf]
-    vmovups xmmword ptr [rbx+2], xmm0
-  }
-  _RBX->m_platform.m_value.m_buffer[16] = v10;
-  v7 = memchr_0(&Buf, 0, 0x11ui64);
-  if ( v7 )
-    v8 = v7 - (_BYTE *)&Buf;
+  this->m_platform.m_hasValue = 1;
+  *(_OWORD *)this->m_platform.m_value.m_buffer = Buf;
+  this->m_platform.m_value.m_buffer[16] = v9;
+  v6 = memchr_0(&Buf, 0, 0x11ui64);
+  if ( v6 )
+    v7 = v6 - (_BYTE *)&Buf;
   else
-    v8 = 17i64;
-  bdHandleAssert(v8 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-  _RBX->m_titleToken.m_hasValue = 0;
-  bdLocalizationToken::bdLocalizationToken(&_RBX->m_titleToken.m_value);
-  _RBX->m_presenceToken.m_hasValue = 0;
-  bdLocalizationToken::bdLocalizationToken(&_RBX->m_presenceToken.m_value);
-  _RBX->m_titleID.m_hasValue = 0;
-  _RBX->m_data.m_hasValue = 1;
-  bdPresenceData::bdPresenceData(&_RBX->m_data.m_value, data);
-  _RBX->m_updateTime.m_hasValue = 1;
-  _RBX->m_updateTime.m_value = 0i64;
+    v7 = 17i64;
+  bdHandleAssert(v7 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+  this->m_titleToken.m_hasValue = 0;
+  bdLocalizationToken::bdLocalizationToken(&this->m_titleToken.m_value);
+  this->m_presenceToken.m_hasValue = 0;
+  bdLocalizationToken::bdLocalizationToken(&this->m_presenceToken.m_value);
+  this->m_titleID.m_hasValue = 0;
+  this->m_data.m_hasValue = 1;
+  bdPresenceData::bdPresenceData(&this->m_data.m_value, data);
+  this->m_updateTime.m_hasValue = 1;
+  this->m_updateTime.m_value = 0i64;
 }
 
 /*
@@ -596,40 +570,35 @@ bdUserPresenceInfoV3::bdUserPresenceInfoV3
 */
 void bdUserPresenceInfoV3::bdUserPresenceInfoV3(bdUserPresenceInfoV3 *this, const bool online, const char *platform, const bdPresenceData *data, const unsigned __int64 updateTime)
 {
-  _BYTE *v8; 
-  unsigned __int64 v9; 
+  _BYTE *v7; 
+  unsigned __int64 v8; 
   __int128 Buf; 
-  char v11; 
+  char v10; 
 
-  _RBX = this;
   this->m_online = online;
   if ( bdStrlcpy((char *const)&Buf, platform, 0x11ui64) > 0x10 )
   {
     bdHandleAssert(0, "\"sLength <= MaxLength\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
   }
-  _RBX->m_platform.m_hasValue = 1;
-  __asm
-  {
-    vmovups xmm0, [rsp+98h+Buf]
-    vmovups xmmword ptr [rbx+2], xmm0
-  }
-  _RBX->m_platform.m_value.m_buffer[16] = v11;
-  v8 = memchr_0(&Buf, 0, 0x11ui64);
-  if ( v8 )
-    v9 = v8 - (_BYTE *)&Buf;
+  this->m_platform.m_hasValue = 1;
+  *(_OWORD *)this->m_platform.m_value.m_buffer = Buf;
+  this->m_platform.m_value.m_buffer[16] = v10;
+  v7 = memchr_0(&Buf, 0, 0x11ui64);
+  if ( v7 )
+    v8 = v7 - (_BYTE *)&Buf;
   else
-    v9 = 17i64;
-  bdHandleAssert(v9 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-  _RBX->m_titleToken.m_hasValue = 0;
-  bdLocalizationToken::bdLocalizationToken(&_RBX->m_titleToken.m_value);
-  _RBX->m_presenceToken.m_hasValue = 0;
-  bdLocalizationToken::bdLocalizationToken(&_RBX->m_presenceToken.m_value);
-  _RBX->m_titleID.m_hasValue = 0;
-  _RBX->m_data.m_hasValue = 1;
-  bdPresenceData::bdPresenceData(&_RBX->m_data.m_value, data);
-  _RBX->m_updateTime.m_hasValue = 1;
-  _RBX->m_updateTime.m_value = updateTime;
+    v8 = 17i64;
+  bdHandleAssert(v8 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+  this->m_titleToken.m_hasValue = 0;
+  bdLocalizationToken::bdLocalizationToken(&this->m_titleToken.m_value);
+  this->m_presenceToken.m_hasValue = 0;
+  bdLocalizationToken::bdLocalizationToken(&this->m_presenceToken.m_value);
+  this->m_titleID.m_hasValue = 0;
+  this->m_data.m_hasValue = 1;
+  bdPresenceData::bdPresenceData(&this->m_data.m_value, data);
+  this->m_updateTime.m_hasValue = 1;
+  this->m_updateTime.m_value = updateTime;
 }
 
 /*
@@ -657,41 +626,41 @@ _BOOL8 bdUserPresenceInfoV3::deserialize(bdUserPresenceInfoV3 *this, const char 
   bool UInt64; 
   __int64 v9; 
   __int64 v10; 
+  __int128 v11; 
   char v12; 
-  _BYTE *v14; 
-  unsigned __int64 v15; 
-  bool v37; 
-  unsigned int v38; 
+  _BYTE *v13; 
+  unsigned __int64 v14; 
+  bool v16; 
+  unsigned int v17; 
   bdJSONDeserializer deserializera; 
   bdJSONDeserializer value; 
-  unsigned __int64 v41; 
+  unsigned __int64 v20; 
   bdPresenceData other; 
-  __int64 v43; 
+  __int64 v22; 
   __int128 Buf; 
-  char v45; 
-  bdLocalizationToken v46; 
-  bdLocalizationToken v47; 
+  char v24; 
+  bdLocalizationToken v25; 
+  bdLocalizationToken v26; 
   char Src[8]; 
-  __int64 v49; 
+  __int64 v28; 
   char buffer[320]; 
-  char v51[320]; 
+  char v30[320]; 
 
-  v43 = -2i64;
-  _RSI = this;
+  v22 = -2i64;
   bdJSONDeserializer::bdJSONDeserializer(&value);
   LOBYTE(presenceKey) = bdJSONDeserializer::getObject(deserializer, presenceKey, &value);
-  v37 = 0;
+  v16 = 0;
   *(_QWORD *)Src = 0i64;
-  v49 = 0i64;
+  v28 = 0i64;
   memset_0(buffer, 0, 0x138ui64);
-  memset_0(v51, 0, 0x138ui64);
-  bdLocalizationToken::bdLocalizationToken(&v47);
-  bdLocalizationToken::bdLocalizationToken(&v46);
-  v41 = 0i64;
-  v38 = 0;
+  memset_0(v30, 0, 0x138ui64);
+  bdLocalizationToken::bdLocalizationToken(&v26);
+  bdLocalizationToken::bdLocalizationToken(&v25);
+  v20 = 0i64;
+  v17 = 0;
   v6 = -1i64;
   v7 = 16i64;
-  if ( !(_BYTE)presenceKey || !bdJSONDeserializer::getBoolean(&value, "online", &v37) || bdJSONDeserializer::hasKey(&value, "platform") && !bdJSONDeserializer::getString(&value, "platform", Src, 0x10u) )
+  if ( !(_BYTE)presenceKey || !bdJSONDeserializer::getBoolean(&value, "online", &v16) || bdJSONDeserializer::hasKey(&value, "platform") && !bdJSONDeserializer::getString(&value, "platform", Src, 0x10u) )
     goto LABEL_20;
   UInt64 = 1;
   if ( bdJSONDeserializer::hasKey(&value, "titleName") )
@@ -706,7 +675,7 @@ _BOOL8 bdUserPresenceInfoV3::deserialize(bdUserPresenceInfoV3 *this, const char 
     if ( v9 )
     {
       bdJSONDeserializer::bdJSONDeserializer(&deserializera, buffer);
-      UInt64 = bdLocalizationToken::deserialize(&v47, &deserializera);
+      UInt64 = bdLocalizationToken::deserialize(&v26, &deserializera);
       bdJSONDeserializer::~bdJSONDeserializer(&deserializera);
       if ( !UInt64 )
         goto LABEL_21;
@@ -714,7 +683,7 @@ _BOOL8 bdUserPresenceInfoV3::deserialize(bdUserPresenceInfoV3 *this, const char 
   }
   if ( !bdJSONDeserializer::hasKey(&value, "presenceString") )
     goto LABEL_17;
-  if ( !bdJSONDeserializer::getString(&value, "presenceString", v51, 0x138u) )
+  if ( !bdJSONDeserializer::getString(&value, "presenceString", v30, 0x138u) )
   {
 LABEL_20:
     UInt64 = 0;
@@ -725,18 +694,18 @@ LABEL_20:
   v10 = -1i64;
   do
     ++v10;
-  while ( v51[v10] );
+  while ( v30[v10] );
   if ( v10 )
   {
-    bdJSONDeserializer::bdJSONDeserializer(&deserializera, v51);
-    UInt64 = bdLocalizationToken::deserialize(&v46, &deserializera);
+    bdJSONDeserializer::bdJSONDeserializer(&deserializera, v30);
+    UInt64 = bdLocalizationToken::deserialize(&v25, &deserializera);
     bdJSONDeserializer::~bdJSONDeserializer(&deserializera);
 LABEL_17:
     if ( !UInt64 )
       goto LABEL_21;
   }
   if ( bdJSONDeserializer::hasKey(&value, "updateTime") )
-    UInt64 = bdJSONDeserializer::getUInt64(&value, "updateTime", &v41);
+    UInt64 = bdJSONDeserializer::getUInt64(&value, "updateTime", &v20);
 LABEL_21:
   bdPresenceData::bdPresenceData(&other);
   if ( !UInt64 )
@@ -749,7 +718,7 @@ LABEL_21:
   }
   if ( !bdJSONDeserializer::hasKey(&value, "titleID") )
     goto LABEL_28;
-  if ( !bdJSONDeserializer::getUInt32(&value, "titleID", &v38) )
+  if ( !bdJSONDeserializer::getUInt32(&value, "titleID", &v17) )
   {
 LABEL_38:
     UInt64 = 0;
@@ -757,7 +726,7 @@ LABEL_38:
   }
   UInt64 = 1;
 LABEL_28:
-  _RSI->m_online = v37;
+  this->m_online = v16;
   bdHandleAssert(1, "s != BD_NULL", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdplatform\\bdplatformstring\\bdplatformstring.inl", "bdStrlen", 0x110u, "null ptr in bdStrlen");
   do
     ++v6;
@@ -772,109 +741,53 @@ LABEL_28:
     bdLogMessage(BD_LOG_ERROR, (const char *const)&::other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
   }
   LOBYTE(deserializera.m_type) = 1;
-  __asm
+  v11 = Buf;
+  *(_OWORD *)((char *)&deserializera.m_type + 1) = Buf;
+  v12 = v24;
+  BYTE1(deserializera.m_end) = v24;
+  if ( &this->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)&deserializera )
   {
-    vmovups xmm0, [rbp+4D0h+Buf]
-    vmovups xmmword ptr [rsp+5D0h+deserializer.m_type+1], xmm0
-  }
-  v12 = v45;
-  BYTE1(deserializera.m_end) = v45;
-  _RAX = &_RSI->m_platform;
-  if ( &_RSI->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)&deserializera )
-  {
-    _RAX->m_hasValue = 1;
-    __asm { vmovups xmmword ptr [rax+1], xmm0 }
-    _RSI->m_platform.m_value.m_buffer[16] = v12;
+    this->m_platform.m_hasValue = 1;
+    *(_OWORD *)this->m_platform.m_value.m_buffer = v11;
+    this->m_platform.m_value.m_buffer[16] = v12;
   }
   bdStructFixedSizeString<16>::~bdStructFixedSizeString<16>((bdStructFixedSizeString<16> *)((char *)&deserializera.m_type + 1));
-  v14 = memchr_0(&Buf, 0, 0x11ui64);
-  if ( v14 )
-    v15 = v14 - (_BYTE *)&Buf;
+  v13 = memchr_0(&Buf, 0, 0x11ui64);
+  if ( v13 )
+    v14 = v13 - (_BYTE *)&Buf;
   else
-    v15 = 17i64;
-  bdHandleAssert(v15 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
-  _RSI->m_titleToken.m_hasValue = 1;
-  __asm
+    v14 = 17i64;
+  bdHandleAssert(v14 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+  this->m_titleToken.m_hasValue = 1;
+  this->m_titleToken.m_value.m_stringSetIdentifier = v26.m_stringSetIdentifier;
+  this->m_titleToken.m_value.m_localizationToken = v26.m_localizationToken;
+  this->m_titleToken.m_value.m_apiVersion = v26.m_apiVersion;
+  this->m_presenceToken.m_hasValue = 1;
+  this->m_presenceToken.m_value.m_stringSetIdentifier = v25.m_stringSetIdentifier;
+  this->m_presenceToken.m_value.m_localizationToken = v25.m_localizationToken;
+  this->m_presenceToken.m_value.m_apiVersion = v25.m_apiVersion;
+  if ( &this->m_titleID != (bdStructOptionalObject<unsigned int> *)&Buf )
   {
-    vmovups ymm0, ymmword ptr [rbp+4D0h+var_3E0.m_stringSetIdentifier.m_buffer]
-    vmovups ymmword ptr [rsi+28h], ymm0
-    vmovups ymm1, ymmword ptr [rbp+4D0h+var_3E0.m_stringSetIdentifier.m_buffer+20h]
-    vmovups ymmword ptr [rsi+48h], ymm1
-    vmovsd  xmm0, qword ptr [rbp+4D0h+var_3E0.m_stringSetIdentifier.m_buffer+40h]
-    vmovsd  qword ptr [rsi+68h], xmm0
-  }
-  *(_DWORD *)&_RSI->m_titleToken.m_value.m_stringSetIdentifier.m_buffer[72] = *(_DWORD *)&v47.m_stringSetIdentifier.m_buffer[72];
-  *(_WORD *)&_RSI->m_titleToken.m_value.m_stringSetIdentifier.m_buffer[76] = *(_WORD *)&v47.m_stringSetIdentifier.m_buffer[76];
-  _RAX = &v47.m_localizationToken;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsi+76h], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsi+96h], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rsi+0B6h], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rsi+0D6h], ymm0
-    vmovups ymm1, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [rsi+0F6h], ymm1
-    vmovups ymm1, ymmword ptr [rax+0A0h]
-    vmovups ymmword ptr [rsi+116h], ymm1
-  }
-  *(_DWORD *)&_RSI->m_titleToken.m_value.m_localizationToken.m_buffer[192] = *(_DWORD *)&v47.m_localizationToken.m_buffer[192];
-  _RSI->m_titleToken.m_value.m_apiVersion = v47.m_apiVersion;
-  _RSI->m_presenceToken.m_hasValue = 1;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rbp+4D0h+var_500.m_stringSetIdentifier.m_buffer]
-    vmovups ymmword ptr [rsi+150h], ymm0
-    vmovups ymm1, ymmword ptr [rbp+4D0h+var_500.m_stringSetIdentifier.m_buffer+20h]
-    vmovups ymmword ptr [rsi+170h], ymm1
-    vmovsd  xmm0, qword ptr [rbp+4D0h+var_500.m_stringSetIdentifier.m_buffer+40h]
-    vmovsd  qword ptr [rsi+190h], xmm0
-  }
-  *(_DWORD *)&_RSI->m_presenceToken.m_value.m_stringSetIdentifier.m_buffer[72] = *(_DWORD *)&v46.m_stringSetIdentifier.m_buffer[72];
-  *(_WORD *)&_RSI->m_presenceToken.m_value.m_stringSetIdentifier.m_buffer[76] = *(_WORD *)&v46.m_stringSetIdentifier.m_buffer[76];
-  _RAX = &v46.m_localizationToken;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsi+19Eh], ymm0
-    vmovups ymm0, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsi+1BEh], ymm0
-    vmovups ymm0, ymmword ptr [rax+40h]
-    vmovups ymmword ptr [rsi+1DEh], ymm0
-    vmovups ymm0, ymmword ptr [rax+60h]
-    vmovups ymmword ptr [rsi+1FEh], ymm0
-    vmovups ymm0, ymmword ptr [rax+80h]
-    vmovups ymmword ptr [rsi+21Eh], ymm0
-    vmovups ymm0, ymmword ptr [rax+0A0h]
-    vmovups ymmword ptr [rsi+23Eh], ymm0
-  }
-  *(_DWORD *)&_RSI->m_presenceToken.m_value.m_localizationToken.m_buffer[192] = *(_DWORD *)&v46.m_localizationToken.m_buffer[192];
-  _RSI->m_presenceToken.m_value.m_apiVersion = v46.m_apiVersion;
-  if ( &_RSI->m_titleID != (bdStructOptionalObject<unsigned int> *)&Buf )
-  {
-    _RSI->m_titleID.m_hasValue = 1;
-    _RSI->m_titleID.m_value = v38;
+    this->m_titleID.m_hasValue = 1;
+    this->m_titleID.m_value = v17;
   }
   LOBYTE(deserializera.m_type) = 1;
   bdPresenceData::bdPresenceData((bdPresenceData *)&deserializera.m_ptr, &other);
-  if ( &_RSI->m_data != (bdStructOptionalObject<bdPresenceData> *)&deserializera )
+  if ( &this->m_data != (bdStructOptionalObject<bdPresenceData> *)&deserializera )
   {
-    _RSI->m_data.m_hasValue = deserializera.m_type;
-    bdCrossPlatformUserMetadata::operator=(&_RSI->m_data.m_value, (const bdCrossPlatformUserMetadata *)&deserializera.m_ptr);
+    this->m_data.m_hasValue = deserializera.m_type;
+    bdCrossPlatformUserMetadata::operator=(&this->m_data.m_value, (const bdCrossPlatformUserMetadata *)&deserializera.m_ptr);
   }
   bdPresenceData::~bdPresenceData((bdPresenceData *)&deserializera.m_ptr);
-  if ( &_RSI->m_updateTime != (bdStructOptionalObject<unsigned __int64> *)&Buf )
+  if ( &this->m_updateTime != (bdStructOptionalObject<unsigned __int64> *)&Buf )
   {
-    _RSI->m_updateTime.m_hasValue = 1;
-    _RSI->m_updateTime.m_value = v41;
+    this->m_updateTime.m_hasValue = 1;
+    this->m_updateTime.m_value = v20;
   }
 LABEL_46:
   bdPresenceData::~bdPresenceData(&other);
-  bdLocalizationToken::~bdLocalizationToken(&v46);
-  bdLocalizationToken::~bdLocalizationToken(&v47);
+  bdLocalizationToken::~bdLocalizationToken(&v25);
+  bdLocalizationToken::~bdLocalizationToken(&v26);
   bdJSONDeserializer::~bdJSONDeserializer(&value);
   return UInt64;
 }
@@ -1122,41 +1035,36 @@ bdUserPresenceInfoV3::setPlatform
 */
 void bdUserPresenceInfoV3::setPlatform(bdUserPresenceInfoV3 *this, const char *platform)
 {
+  __int128 v3; 
   char v4; 
-  _BYTE *v6; 
-  unsigned __int64 v7; 
-  __int128 Buf; 
-  char v9; 
-  char v10; 
-  bdStructFixedSizeString<16> v11; 
+  _BYTE *v5; 
+  unsigned __int64 v6; 
+  bdStructFixedSizeString<16> Buf; 
+  char v8; 
+  bdStructFixedSizeString<16> v9; 
 
-  if ( bdStrlcpy((char *const)&Buf, platform, 0x11ui64) > 0x10 )
+  if ( bdStrlcpy(Buf.m_buffer, platform, 0x11ui64) > 0x10 )
   {
     bdHandleAssert(0, "\"sLength <= MaxLength\" && false", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
     bdLogMessage(BD_LOG_ERROR, (const char *const)&other, "BD_ASSERT", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::copy", 0x56u, "bdStructFixedSizeString buffer is too small");
   }
-  v10 = 1;
-  __asm
+  v8 = 1;
+  v3 = *(_OWORD *)Buf.m_buffer;
+  v9 = Buf;
+  v4 = Buf.m_buffer[16];
+  if ( &this->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)&v8 )
   {
-    vmovups xmm0, [rsp+88h+Buf]
-    vmovups xmmword ptr [rsp+88h+var_27.m_buffer], xmm0
-  }
-  v4 = v9;
-  v11.m_buffer[16] = v9;
-  _RAX = &this->m_platform;
-  if ( &this->m_platform != (bdStructOptionalObject<bdStructFixedSizeString<16> > *)&v10 )
-  {
-    _RAX->m_hasValue = 1;
-    __asm { vmovups xmmword ptr [rax+1], xmm0 }
+    this->m_platform.m_hasValue = 1;
+    *(_OWORD *)this->m_platform.m_value.m_buffer = v3;
     this->m_platform.m_value.m_buffer[16] = v4;
   }
-  bdStructFixedSizeString<16>::~bdStructFixedSizeString<16>(&v11);
-  v6 = memchr_0(&Buf, 0, 0x11ui64);
-  if ( v6 )
-    v7 = v6 - (_BYTE *)&Buf;
+  bdStructFixedSizeString<16>::~bdStructFixedSizeString<16>(&v9);
+  v5 = memchr_0(&Buf, 0, 0x11ui64);
+  if ( v5 )
+    v6 = v5 - (_BYTE *)&Buf;
   else
-    v7 = 17i64;
-  bdHandleAssert(v7 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
+    v6 = 17i64;
+  bdHandleAssert(v6 < 0x11, "bdStrnlen(m_buffer, BufferSize) < BufferSize", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlobbycommon\\bdstructfixedsizestring.inl", "bdStructFixedSizeString<16>::~bdStructFixedSizeString", 0x1Fu, "Buffer overrun detected");
 }
 
 /*
@@ -1167,45 +1075,8 @@ bdUserPresenceInfoV3::setPresenceToken
 void bdUserPresenceInfoV3::setPresenceToken(bdUserPresenceInfoV3 *this, const bdLocalizationToken *presenceToken)
 {
   this->m_presenceToken.m_hasValue = 1;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+8]
-    vmovups ymmword ptr [rcx+150h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+28h]
-    vmovups ymmword ptr [rcx+170h], ymm1
-    vmovsd  xmm0, qword ptr [rdx+48h]
-    vmovsd  qword ptr [rcx+190h], xmm0
-  }
-  *(_DWORD *)&this->m_presenceToken.m_value.m_stringSetIdentifier.m_buffer[72] = *(_DWORD *)&presenceToken->m_stringSetIdentifier.m_buffer[72];
-  *(_WORD *)&this->m_presenceToken.m_value.m_stringSetIdentifier.m_buffer[76] = *(_WORD *)&presenceToken->m_stringSetIdentifier.m_buffer[76];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+56h]
-    vmovups xmmword ptr [rcx+19Eh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+66h]
-    vmovups xmmword ptr [rcx+1AEh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+76h]
-    vmovups xmmword ptr [rcx+1BEh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+86h]
-    vmovups xmmword ptr [rcx+1CEh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+96h]
-    vmovups xmmword ptr [rcx+1DEh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0A6h]
-    vmovups xmmword ptr [rcx+1EEh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0B6h]
-    vmovups xmmword ptr [rcx+1FEh], xmm0
-    vmovups xmm0, xmmword ptr [rdx+0C6h]
-    vmovups xmmword ptr [rcx+20Eh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0D6h]
-    vmovups xmmword ptr [rcx+21Eh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0E6h]
-    vmovups xmmword ptr [rcx+22Eh], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0F6h]
-    vmovups xmmword ptr [rcx+23Eh], xmm1
-    vmovups xmm0, xmmword ptr [rdx+106h]
-    vmovups xmmword ptr [rcx+24Eh], xmm0
-  }
-  *(_DWORD *)&this->m_presenceToken.m_value.m_localizationToken.m_buffer[192] = *(_DWORD *)&presenceToken->m_localizationToken.m_buffer[192];
+  this->m_presenceToken.m_value.m_stringSetIdentifier = presenceToken->m_stringSetIdentifier;
+  this->m_presenceToken.m_value.m_localizationToken = presenceToken->m_localizationToken;
   this->m_presenceToken.m_value.m_apiVersion = presenceToken->m_apiVersion;
 }
 
@@ -1235,45 +1106,8 @@ bdUserPresenceInfoV3::setTitleToken
 void bdUserPresenceInfoV3::setTitleToken(bdUserPresenceInfoV3 *this, const bdLocalizationToken *titleToken)
 {
   this->m_titleToken.m_hasValue = 1;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rdx+8]
-    vmovups ymmword ptr [rcx+28h], ymm0
-    vmovups ymm1, ymmword ptr [rdx+28h]
-    vmovups ymmword ptr [rcx+48h], ymm1
-    vmovsd  xmm0, qword ptr [rdx+48h]
-    vmovsd  qword ptr [rcx+68h], xmm0
-  }
-  *(_DWORD *)&this->m_titleToken.m_value.m_stringSetIdentifier.m_buffer[72] = *(_DWORD *)&titleToken->m_stringSetIdentifier.m_buffer[72];
-  *(_WORD *)&this->m_titleToken.m_value.m_stringSetIdentifier.m_buffer[76] = *(_WORD *)&titleToken->m_stringSetIdentifier.m_buffer[76];
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rdx+56h]
-    vmovups xmmword ptr [rcx+76h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+66h]
-    vmovups xmmword ptr [rcx+86h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+76h]
-    vmovups xmmword ptr [rcx+96h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+86h]
-    vmovups xmmword ptr [rcx+0A6h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+96h]
-    vmovups xmmword ptr [rcx+0B6h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0A6h]
-    vmovups xmmword ptr [rcx+0C6h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0B6h]
-    vmovups xmmword ptr [rcx+0D6h], xmm0
-    vmovups xmm0, xmmword ptr [rdx+0C6h]
-    vmovups xmmword ptr [rcx+0E6h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0D6h]
-    vmovups xmmword ptr [rcx+0F6h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+0E6h]
-    vmovups xmmword ptr [rcx+106h], xmm0
-    vmovups xmm1, xmmword ptr [rdx+0F6h]
-    vmovups xmmword ptr [rcx+116h], xmm1
-    vmovups xmm0, xmmword ptr [rdx+106h]
-    vmovups xmmword ptr [rcx+126h], xmm0
-  }
-  *(_DWORD *)&this->m_titleToken.m_value.m_localizationToken.m_buffer[192] = *(_DWORD *)&titleToken->m_localizationToken.m_buffer[192];
+  this->m_titleToken.m_value.m_stringSetIdentifier = titleToken->m_stringSetIdentifier;
+  this->m_titleToken.m_value.m_localizationToken = titleToken->m_localizationToken;
   this->m_titleToken.m_value.m_apiVersion = titleToken->m_apiVersion;
 }
 

@@ -511,75 +511,58 @@ Scr_CreateNavLink
 void Scr_CreateNavLink(scrContext_t *scrContext)
 {
   scr_string_t ConstString; 
-  unsigned int v8; 
+  unsigned int v3; 
   pathnode_t *Pathnode; 
   unsigned int Int; 
-  int v11; 
+  int v6; 
   const gentity_s *Entity; 
   nav_space_s *DefaultSpace; 
-  const char *v14; 
-  signed int v16; 
-  unsigned __int16 v17; 
+  const char *v9; 
+  signed int v10; 
+  unsigned __int16 v11; 
   bfx::LinkDat pLinkDat; 
   vec3_t targetPos; 
   vec3_t vectorValue; 
   bfx::PathSpec pPathSpec; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vmovss  [rsp+130h+pLinkDat.m_penaltyMult], xmm0
-  }
+  pLinkDat.m_penaltyMult = FLOAT_1_0;
   pLinkDat.m_type = JUMP_LINK;
   pLinkDat.m_userData = 0i64;
-  __asm { vmovaps xmmword ptr [r11-38h], xmm6 }
   pLinkDat.m_layerMask = -1;
   *(_WORD *)&pLinkDat.m_bidirectional = 1;
   *(_QWORD *)&pLinkDat.m_forwardLinkUsageFlags = -1i64;
-  *(float *)&_XMM0 = bfx::GetScale();
-  __asm
-  {
-    vmulss  xmm1, xmm0, cs:__real@40800000
-    vmovss  [rsp+130h+pLinkDat.m_maxSnapDist], xmm1
-  }
-  *(float *)&_XMM0 = bfx::GetScale();
-  __asm { vxorps  xmm6, xmm6, xmm6 }
+  pLinkDat.m_maxSnapDist = bfx::GetScale() * 4.0;
   pLinkDat.m_flowTune.m_maxSimultaneous = 0;
-  __asm
-  {
-    vmovss  [rsp+130h+pLinkDat.m_mustUseDist], xmm6
-    vmovss  [rsp+130h+pLinkDat.m_flowTune.m_delayBeforeNextUser], xmm6
-    vmovss  [rsp+130h+pLinkDat.m_mayUseDist], xmm0
-  }
+  pLinkDat.m_mustUseDist = 0.0;
+  pLinkDat.m_flowTune.m_delayBeforeNextUser = 0.0;
+  pLinkDat.m_mayUseDist = bfx::GetScale();
   if ( Scr_GetNumParam(scrContext) < 4 )
     Scr_Error(COM_ERR_1501, scrContext, "CreateNavLink( linkName, startPos, endPos, animscript ): invalid number of arguments.");
   if ( *Scr_GetString(scrContext, 0) )
     ConstString = Scr_GetConstString(scrContext, 0);
   else
     ConstString = 0;
-  v8 = 1;
+  v3 = 1;
   Scr_GetVector(scrContext, 1u, &vectorValue);
   Scr_GetVector(scrContext, 2u, &targetPos);
   if ( Scr_GetType(scrContext, 3u) == VAR_STRING )
   {
     Scr_GetString(scrContext, 3u);
-    v17 = -1;
+    v11 = -1;
   }
   else
   {
     Pathnode = Scr_GetPathnode(scrContext, 3u);
-    v17 = Path_ConvertNodeToIndex(Pathnode);
+    v11 = Path_ConvertNodeToIndex(Pathnode);
     if ( ((1 << LOBYTE(Pathnode->constant.type)) & 0x68010000) == 0 )
       Scr_Error(COM_ERR_1502, scrContext, "CreateNavLink: pathnode (arg4) must be a negotiation begin node.");
   }
   Int = 2047;
   if ( Scr_GetNumParam(scrContext) > 4 && Scr_GetType(scrContext, 4u) == VAR_INTEGER )
     Int = Scr_GetInt(scrContext, 4u);
-  v11 = -1;
+  v6 = -1;
   if ( Scr_GetNumParam(scrContext) > 5 && Scr_GetType(scrContext, 5u) == VAR_INTEGER )
-    v11 = Scr_GetInt(scrContext, 5u);
+    v6 = Scr_GetInt(scrContext, 5u);
   if ( Scr_GetNumParam(scrContext) <= 6 || Scr_GetType(scrContext, 6u) != VAR_POINTER )
   {
     DefaultSpace = Nav_GetDefaultSpace();
@@ -593,8 +576,8 @@ void Scr_CreateNavLink(scrContext_t *scrContext)
   DefaultSpace = Nav_GetSpaceByEntity(Entity);
   if ( !DefaultSpace )
   {
-    v14 = j_va("CreateNavLink: unable to find navigational space associated with entity %d.", (unsigned int)Entity->s.number);
-    Scr_Error(COM_ERR_1504, scrContext, v14);
+    v9 = j_va("CreateNavLink: unable to find navigational space associated with entity %d.", (unsigned int)Entity->s.number);
+    Scr_Error(COM_ERR_1504, scrContext, v9);
 LABEL_24:
     if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_scr.cpp", 379, ASSERT_TYPE_ASSERT, "( pSpace )", (const char *)&queryFormat, "pSpace") )
       __debugbreak();
@@ -603,35 +586,31 @@ LABEL_26:
   Nav_SetLinkDatToDefault(&pLinkDat);
   pLinkDat.m_forwardLinkUsageFlags = Int;
   pLinkDat.m_backwardLinkUsageFlags = Int;
-  pLinkDat.m_userData = Nav_ConstructLinkUserData(v17, 0xFFFFu);
+  pLinkDat.m_userData = Nav_ConstructLinkUserData(v11, 0xFFFFu);
   pPathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
   pPathSpec.m_usePathSharingPenalty = 0;
-  __asm
-  {
-    vmovss  [rbp+30h+pPathSpec.m_pathSharingPenalty], xmm6
-    vmovss  [rbp+30h+pPathSpec.m_maxPathSharingPenalty], xmm6
-    vmovss  [rbp+30h+pPathSpec.m_maxSearchDist], xmm6
-  }
+  pPathSpec.m_pathSharingPenalty = 0.0;
+  pPathSpec.m_maxPathSharingPenalty = 0.0;
+  pPathSpec.m_maxSearchDist = 0.0;
   *(_QWORD *)&pPathSpec.m_obstacleBlockageFlags = -1i64;
   *(_QWORD *)&pPathSpec.m_areaPenaltyFlags = -1i64;
   bfx::PenaltyTable::PenaltyTable(&pPathSpec.m_penaltyTable);
-  __asm { vmovaps xmm6, xmmword ptr [rsp+130h+var_38+8] }
-  v16 = 0;
+  v10 = 0;
   pPathSpec.m_snapMode = SNAP_CLOSEST;
   pPathSpec.m_obstacleBlockageFlags = 0;
   do
   {
-    if ( (v8 & v11) != 0 )
+    if ( (v3 & v6) != 0 )
     {
-      pLinkDat.m_layerMask = v8;
-      Nav_GetClosestVerticalPos(&vectorValue, &g_navUp, v16, &DefaultSpace->hSpace, &pPathSpec, &vectorValue, NULL);
-      Nav_GetClosestVerticalPos(&targetPos, &g_navUp, v16, &DefaultSpace->hSpace, &pPathSpec, &targetPos, NULL);
+      pLinkDat.m_layerMask = v3;
+      Nav_GetClosestVerticalPos(&vectorValue, &g_navUp, v10, &DefaultSpace->hSpace, &pPathSpec, &vectorValue, NULL);
+      Nav_GetClosestVerticalPos(&targetPos, &g_navUp, v10, &DefaultSpace->hSpace, &pPathSpec, &targetPos, NULL);
       Nav_CreateLink(DefaultSpace, &vectorValue, &targetPos, ConstString, -1, &pLinkDat);
     }
-    ++v16;
-    v8 = __ROL4__(v8, 1);
+    ++v10;
+    v3 = __ROL4__(v3, 1);
   }
-  while ( v16 < 3 );
+  while ( v10 < 3 );
 }
 
 /*
@@ -705,35 +684,28 @@ Scr_CreateNavObstacleByBounds_Internal
 */
 void Scr_CreateNavObstacleByBounds_Internal(scrContext_t *scrContext, int argOffset, unsigned int layermask, bool bSolid, int customBlockageFlags)
 {
-  int v14; 
+  int v9; 
+  float v10; 
   int ObstacleBlockageFlagsFromTeamFlags; 
   int NumParam; 
-  char v18; 
-  unsigned int v19; 
+  double Float; 
+  unsigned int v14; 
   bitarray<224> *p_result; 
-  int v26; 
+  bitarray<224> *AllCombatTeamFlags; 
+  int v19; 
   int blockageFlags; 
-  int v28; 
+  int v21; 
   nav_space_s *MostLikelySpaceWithRadius; 
-  int v32; 
+  int v23; 
   Bounds vectorValue; 
   bitarray<224> result; 
   vec3_t angles; 
-  char v39; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm7
-  }
   Scr_GetVector(scrContext, argOffset, &vectorValue.midPoint);
   Scr_GetVector(scrContext, argOffset + 1, &vectorValue.halfSize);
   Scr_GetVector(scrContext, argOffset + 2, &angles);
-  __asm { vmovss  xmm6, cs:__real@41700000 }
-  v14 = 3;
-  __asm { vmovaps xmm7, xmm6 }
+  v9 = 3;
+  v10 = FLOAT_15_0;
   ObstacleBlockageFlagsFromTeamFlags = customBlockageFlags;
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam <= 3 || (unsigned __int8)(Scr_GetType(scrContext, 3u) - 5) > 1u )
@@ -744,85 +716,63 @@ void Scr_CreateNavObstacleByBounds_Internal(scrContext_t *scrContext, int argOff
     Scr_Error(COM_ERR_6162, scrContext, "weight arg cannot be used with any blockage flags");
   if ( NumParam > 4 )
     Scr_Error(COM_ERR_6163, scrContext, "weight arg cannot be used with team blockage flags");
-  v14 = 4;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovaps xmm7, xmm0
-  }
-  if ( v18 )
-  {
-    ObstacleBlockageFlagsFromTeamFlags = 0x2000;
-  }
-  else
+  v9 = 4;
+  Float = Scr_GetFloat(scrContext, 3u);
+  v10 = *(float *)&Float;
+  if ( *(float *)&Float >= 15.0 )
   {
 LABEL_11:
     if ( !customBlockageFlags )
     {
-      Scr_GetTeamFlags(&result, scrContext, argOffset + v14);
-      v19 = 0;
+      Scr_GetTeamFlags(&result, scrContext, argOffset + v9);
+      v14 = 0;
       p_result = &result;
       while ( !p_result->array[0] )
       {
-        ++v19;
+        ++v14;
         p_result = (bitarray<224> *)((char *)p_result + 4);
-        if ( v19 >= 7 )
+        if ( v14 >= 7 )
         {
           if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-            _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+            AllCombatTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllCombatTeamFlags();
           else
-            _RAX = Com_TeamsMP_GetAllTeamFlags();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rsp+0D8h+result.array], xmm0
-            vmovsd  xmm1, qword ptr [rax+10h]
-            vmovsd  qword ptr [rsp+0D8h+result.array+10h], xmm1
-          }
-          result.array[6] = _RAX->array[6];
+            AllCombatTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+          result = *AllCombatTeamFlags;
           break;
         }
       }
       ObstacleBlockageFlagsFromTeamFlags = Nav_GetObstacleBlockageFlagsFromTeamFlags(&result);
     }
   }
-  __asm
+  else
   {
-    vmovss  xmm0, dword ptr [rsp+0D8h+var_9C]
-    vmaxss  xmm6, xmm0, dword ptr [rsp+0D8h+var_9C+4]
+    ObstacleBlockageFlagsFromTeamFlags = 0x2000;
   }
-  v26 = 0;
+  _XMM0 = LODWORD(vectorValue.halfSize.v[0]);
+  __asm { vmaxss  xmm6, xmm0, dword ptr [rsp+0D8h+var_9C+4] }
+  v19 = 0;
   blockageFlags = ObstacleBlockageFlagsFromTeamFlags | 1;
   if ( !bSolid )
     blockageFlags = ObstacleBlockageFlagsFromTeamFlags;
-  v28 = 1;
+  v21 = 1;
   while ( 1 )
   {
-    if ( (v28 & layermask) != 0 )
+    if ( (v21 & layermask) != 0 )
     {
-      __asm { vmovaps xmm1, xmm6; radius }
-      MostLikelySpaceWithRadius = Nav_FindMostLikelySpaceWithRadius(&vectorValue.midPoint, *(float *)&_XMM1, (const AINavLayer)v26, NULL);
+      MostLikelySpaceWithRadius = Nav_FindMostLikelySpaceWithRadius(&vectorValue.midPoint, *(float *)&_XMM6, (const AINavLayer)v19, NULL);
       if ( MostLikelySpaceWithRadius )
         break;
     }
-    ++v26;
-    v28 = __ROL4__(v28, 1);
-    if ( v26 >= 3 )
+    ++v19;
+    v21 = __ROL4__(v21, 1);
+    if ( v19 >= 3 )
     {
       MostLikelySpaceWithRadius = Nav_GetDefaultSpace();
       break;
     }
   }
-  __asm { vmovaps xmm3, xmm7; penalty }
-  v32 = Nav_CreateObstacleByBounds(MostLikelySpaceWithRadius, &vectorValue, &angles, *(float *)&_XMM3, layermask, blockageFlags);
-  Scr_AddInt(scrContext, v32);
-  _R11 = &v39;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-  }
+  v23 = Nav_CreateObstacleByBounds(MostLikelySpaceWithRadius, &vectorValue, &angles, v10, layermask, blockageFlags);
+  Scr_AddInt(scrContext, v23);
 }
 
 /*
@@ -872,28 +822,25 @@ Scr_CreateNavObstacleByEnt_Internal
 */
 void Scr_CreateNavObstacleByEnt_Internal(scrContext_t *scrContext, int argOffset, unsigned int layermask, bool bSolid, int customBlockageFlags)
 {
-  int v12; 
-  int v13; 
+  int v8; 
+  int v9; 
+  gentity_s *Entity; 
+  float v11; 
   int ObstacleBlockageFlagsFromTeamFlags; 
   int NumParam; 
-  char v18; 
-  unsigned int v19; 
+  double Float; 
+  unsigned int v15; 
   bitarray<224> *p_result; 
+  bitarray<224> *AllCombatTeamFlags; 
   int blockageFlags; 
-  int v27; 
+  int v21; 
   nav_space_s *MostLikelySpaceWithRadius; 
   bitarray<224> result; 
 
-  __asm
-  {
-    vmovaps [rsp+0C8h+var_48], xmm6
-    vmovaps [rsp+0C8h+var_58], xmm7
-    vmovss  xmm6, cs:__real@41700000
-  }
-  v12 = 1;
-  v13 = 1;
-  _RBP = GScr_GetEntity(argOffset);
-  __asm { vmovaps xmm7, xmm6 }
+  v8 = 1;
+  v9 = 1;
+  Entity = GScr_GetEntity(argOffset);
+  v11 = FLOAT_15_0;
   ObstacleBlockageFlagsFromTeamFlags = customBlockageFlags;
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam <= 1 || (unsigned __int8)(Scr_GetType(scrContext, 1u) - 5) > 1u )
@@ -904,83 +851,62 @@ void Scr_CreateNavObstacleByEnt_Internal(scrContext_t *scrContext, int argOffset
     Scr_Error(COM_ERR_6159, scrContext, "weight arg cannot be used with any other blockage flags.");
   if ( NumParam > 2 )
     Scr_Error(COM_ERR_6160, scrContext, "weight arg cannot be used with team blockage flags.");
-  v13 = 2;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovaps xmm7, xmm0
-  }
-  if ( v18 )
-  {
-    ObstacleBlockageFlagsFromTeamFlags = 0x2000;
-  }
-  else
+  v9 = 2;
+  Float = Scr_GetFloat(scrContext, 1u);
+  v11 = *(float *)&Float;
+  if ( *(float *)&Float >= 15.0 )
   {
 LABEL_11:
     if ( !customBlockageFlags )
     {
-      Scr_GetTeamFlags(&result, scrContext, argOffset + v13);
-      v19 = 0;
+      Scr_GetTeamFlags(&result, scrContext, argOffset + v9);
+      v15 = 0;
       p_result = &result;
       while ( !p_result->array[0] )
       {
-        ++v19;
+        ++v15;
         p_result = (bitarray<224> *)((char *)p_result + 4);
-        if ( v19 >= 7 )
+        if ( v15 >= 7 )
         {
           if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-            _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+            AllCombatTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllCombatTeamFlags();
           else
-            _RAX = Com_TeamsMP_GetAllTeamFlags();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rsp+0C8h+result.array], xmm0
-            vmovsd  xmm1, qword ptr [rax+10h]
-            vmovsd  qword ptr [rsp+0C8h+result.array+10h], xmm1
-          }
-          result.array[6] = _RAX->array[6];
+            AllCombatTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+          result = *AllCombatTeamFlags;
           break;
         }
       }
       ObstacleBlockageFlagsFromTeamFlags = Nav_GetObstacleBlockageFlagsFromTeamFlags(&result);
     }
   }
-  __asm
+  else
   {
-    vmovss  xmm0, dword ptr [rbp+110h]
-    vmaxss  xmm6, xmm0, dword ptr [rbp+10Ch]
+    ObstacleBlockageFlagsFromTeamFlags = 0x2000;
   }
+  _XMM0 = LODWORD(Entity->r.box.halfSize.v[1]);
+  __asm { vmaxss  xmm6, xmm0, dword ptr [rbp+10Ch] }
   blockageFlags = ObstacleBlockageFlagsFromTeamFlags | 1;
   if ( !bSolid )
     blockageFlags = ObstacleBlockageFlagsFromTeamFlags;
-  v27 = 0;
+  v21 = 0;
   while ( 1 )
   {
-    if ( (v12 & layermask) != 0 )
+    if ( (v8 & layermask) != 0 )
     {
-      __asm { vmovaps xmm1, xmm6; radius }
-      MostLikelySpaceWithRadius = Nav_FindMostLikelySpaceWithRadius(&_RBP->r.currentOrigin, *(float *)&_XMM1, (const AINavLayer)v27, NULL);
+      MostLikelySpaceWithRadius = Nav_FindMostLikelySpaceWithRadius(&Entity->r.currentOrigin, *(float *)&_XMM6, (const AINavLayer)v21, NULL);
       if ( MostLikelySpaceWithRadius )
         break;
     }
-    ++v27;
-    v12 = __ROL4__(v12, 1);
-    if ( v27 >= 3 )
+    ++v21;
+    v8 = __ROL4__(v8, 1);
+    if ( v21 >= 3 )
     {
       MostLikelySpaceWithRadius = Nav_GetDefaultSpace();
       break;
     }
   }
-  __asm { vmovaps xmm2, xmm7; penalty }
-  Nav_CreateObstacleByEnt(MostLikelySpaceWithRadius, _RBP, *(float *)&_XMM2, layermask, blockageFlags, 0, 0);
-  Scr_AddInt(scrContext, _RBP->s.number);
-  __asm
-  {
-    vmovaps xmm6, [rsp+0C8h+var_48]
-    vmovaps xmm7, [rsp+0C8h+var_58]
-  }
+  Nav_CreateObstacleByEnt(MostLikelySpaceWithRadius, Entity, v11, layermask, blockageFlags, 0, 0);
+  Scr_AddInt(scrContext, Entity->s.number);
 }
 
 /*
@@ -1030,158 +956,117 @@ Scr_CreateNavObstacleByShape_Internal
 */
 void Scr_CreateNavObstacleByShape_Internal(scrContext_t *scrContext, int argOffset, unsigned int layermask, bool bSolid, int customBlockageFlags)
 {
-  int v12; 
+  int v7; 
   int Int; 
-  int v15; 
-  signed int v17; 
-  bool v19; 
-  const char *v20; 
-  const char *v24; 
+  int v10; 
+  double Float; 
+  float v12; 
+  double v13; 
+  signed int v14; 
+  float v15; 
+  const char *v16; 
+  const char *v17; 
+  float v18; 
   int ObstacleBlockageFlagsFromTeamFlags; 
   signed int NumParam; 
-  unsigned int v28; 
+  double v21; 
+  unsigned int v22; 
   bitarray<224> *p_result; 
-  int v33; 
+  bitarray<224> *AllCombatTeamFlags; 
+  int v25; 
   int blockageFlags; 
-  int v35; 
+  int v27; 
   nav_space_s *MostLikelySpaceWithRadius; 
-  int v39; 
-  float v44; 
-  float v45; 
+  int v29; 
   vec3_t vectorValue; 
   bitarray<224> result; 
-  char v48; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-48h], xmm6
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-  }
-  v12 = argOffset;
+  v7 = argOffset;
   Scr_GetVector(scrContext, argOffset, &vectorValue);
-  Int = Scr_GetInt(scrContext, v12 + 1);
-  v12 += 2;
-  v15 = Int;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, v12);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, v12 + 1);
-  v17 = v12 + 2;
-  __asm { vmovaps xmm9, xmm0 }
-  v19 = (unsigned int)(v15 - 2) < 8;
-  if ( (unsigned int)(v15 - 2) > 8 )
+  Int = Scr_GetInt(scrContext, v7 + 1);
+  v7 += 2;
+  v10 = Int;
+  Float = Scr_GetFloat(scrContext, v7);
+  v12 = *(float *)&Float;
+  v13 = Scr_GetFloat(scrContext, v7 + 1);
+  v14 = v7 + 2;
+  v15 = *(float *)&v13;
+  if ( (unsigned int)(v10 - 2) > 8 )
   {
-    v20 = j_va("Number of sides must be greater than 2 and no more than %d", 10i64);
-    Scr_Error(COM_ERR_6402, scrContext, v20);
+    v16 = j_va("Number of sides must be greater than 2 and no more than %d", 10i64);
+    Scr_Error(COM_ERR_6402, scrContext, v16);
   }
-  __asm
+  if ( v12 < 0.0 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcomiss xmm6, xmm0
+    v17 = j_va("distFromCenter ( %.f ) must be greater than 0", v12);
+    Scr_Error(COM_ERR_6403, scrContext, v17);
   }
-  if ( v19 )
-  {
-    __asm
-    {
-      vcvtss2sd xmm1, xmm6, xmm6
-      vmovq   rdx, xmm1
-    }
-    v24 = j_va("distFromCenter ( %.f ) must be greater than 0", _RDX);
-    Scr_Error(COM_ERR_6403, scrContext, v24);
-  }
-  __asm { vmovss  xmm8, cs:__real@41700000 }
+  v18 = FLOAT_15_0;
   ObstacleBlockageFlagsFromTeamFlags = customBlockageFlags;
   NumParam = Scr_GetNumParam(scrContext);
-  if ( NumParam <= v17 || (unsigned __int8)(Scr_GetType(scrContext, v17) - 5) > 1u )
+  if ( NumParam <= v14 || (unsigned __int8)(Scr_GetType(scrContext, v14) - 5) > 1u )
     goto LABEL_15;
   if ( bSolid )
     Scr_Error(COM_ERR_6404, scrContext, "weight arg can only be used with non-solid obstacles.");
   if ( customBlockageFlags )
     Scr_Error(COM_ERR_6405, scrContext, "weight arg cannot be used with any other blockage flags.");
-  if ( NumParam > v17 + 1 )
+  if ( NumParam > v14 + 1 )
     Scr_Error(COM_ERR_6406, scrContext, "weight arg cannot be used with team blockage flags.");
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, v17);
-  __asm
-  {
-    vcomiss xmm0, cs:__real@41700000
-    vmovaps xmm8, xmm0
-  }
-  ++v17;
-  if ( v19 )
-  {
-    ObstacleBlockageFlagsFromTeamFlags = 0x2000;
-  }
-  else
+  v21 = Scr_GetFloat(scrContext, v14);
+  v18 = *(float *)&v21;
+  ++v14;
+  if ( *(float *)&v21 >= 15.0 )
   {
 LABEL_15:
     if ( !customBlockageFlags )
     {
-      Scr_GetTeamFlags(&result, scrContext, v17);
-      v28 = 0;
+      Scr_GetTeamFlags(&result, scrContext, v14);
+      v22 = 0;
       p_result = &result;
       while ( !p_result->array[0] )
       {
-        ++v28;
+        ++v22;
         p_result = (bitarray<224> *)((char *)p_result + 4);
-        if ( v28 >= 7 )
+        if ( v22 >= 7 )
         {
           if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-            _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+            AllCombatTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllCombatTeamFlags();
           else
-            _RAX = Com_TeamsMP_GetAllTeamFlags();
-          __asm
-          {
-            vmovups xmm0, xmmword ptr [rax]
-            vmovups xmmword ptr [rsp+0F8h+result.array], xmm0
-            vmovsd  xmm1, qword ptr [rax+10h]
-            vmovsd  qword ptr [rsp+0F8h+result.array+10h], xmm1
-          }
-          result.array[6] = _RAX->array[6];
+            AllCombatTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+          result = *AllCombatTeamFlags;
           break;
         }
       }
       ObstacleBlockageFlagsFromTeamFlags = Nav_GetObstacleBlockageFlagsFromTeamFlags(&result);
     }
   }
-  v33 = 1;
+  else
+  {
+    ObstacleBlockageFlagsFromTeamFlags = 0x2000;
+  }
+  v25 = 1;
   blockageFlags = ObstacleBlockageFlagsFromTeamFlags | 1;
   if ( !bSolid )
     blockageFlags = ObstacleBlockageFlagsFromTeamFlags;
-  v35 = 0;
+  v27 = 0;
   while ( 1 )
   {
-    if ( (v33 & layermask) != 0 )
+    if ( (v25 & layermask) != 0 )
     {
-      __asm { vmovaps xmm1, xmm6; radius }
-      MostLikelySpaceWithRadius = Nav_FindMostLikelySpaceWithRadius(&vectorValue, *(float *)&_XMM1, (const AINavLayer)v35, NULL);
+      MostLikelySpaceWithRadius = Nav_FindMostLikelySpaceWithRadius(&vectorValue, v12, (const AINavLayer)v27, NULL);
       if ( MostLikelySpaceWithRadius )
         break;
     }
-    ++v35;
-    v33 = __ROL4__(v33, 1);
-    if ( v35 >= 3 )
+    ++v27;
+    v25 = __ROL4__(v25, 1);
+    if ( v27 >= 3 )
     {
       MostLikelySpaceWithRadius = Nav_GetDefaultSpace();
       break;
     }
   }
-  __asm
-  {
-    vmovss  [rsp+0F8h+var_D0], xmm8
-    vmovaps xmm3, xmm6; distFromCenter
-    vmovss  [rsp+0F8h+var_D8], xmm9
-  }
-  v39 = Nav_CreateObstacleByShape(MostLikelySpaceWithRadius, &vectorValue, v15, *(float *)&_XMM3, v44, v45, layermask, blockageFlags, 0, 0);
-  Scr_AddInt(scrContext, v39);
-  _R11 = &v48;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm8, xmmword ptr [r11-20h]
-    vmovaps xmm9, xmmword ptr [r11-30h]
-  }
+  v29 = Nav_CreateObstacleByShape(MostLikelySpaceWithRadius, &vectorValue, v10, v12, v15, v18, layermask, blockageFlags, 0, 0);
+  Scr_AddInt(scrContext, v29);
 }
 
 /*
@@ -1189,110 +1074,70 @@ LABEL_15:
 Scr_CreateNavRepulsor
 ==============
 */
-
-void __fastcall Scr_CreateNavRepulsor(scrContext_t *scrContext, double _XMM1_8)
+void Scr_CreateNavRepulsor(scrContext_t *scrContext)
 {
+  __int128 v1; 
+  __int128 v2; 
   bool bBadplace; 
-  unsigned int v8; 
+  unsigned int v5; 
   scr_string_t name; 
-  unsigned int v18; 
+  int v9; 
+  double Float; 
+  unsigned int v12; 
   int entNum; 
   nav_space_s *m_pSpace; 
-  const char *v21; 
-  const char *v22; 
+  const char *v15; 
+  const char *v16; 
   bitarray<224> *p_result; 
-  VariableType Type; 
-  bool v31; 
-  bool v32; 
+  bitarray<224> *AllCombatTeamFlags; 
+  gentity_s *Entity; 
+  double v20; 
   AINavigator *Navigator; 
   int usageFlags; 
-  nav_repulsor_s *v39; 
-  const char *v41; 
-  float v42; 
+  const char *v24; 
   vec3_t vectorValue; 
   bitarray<224> result; 
-  void *retaddr; 
+  __int128 v27; 
+  __int128 v28; 
 
-  _R11 = &retaddr;
   bBadplace = 0;
-  __asm { vmovaps xmmword ptr [r11-38h], xmm6 }
-  v8 = 0;
+  v28 = v1;
+  v5 = 0;
   if ( *Scr_GetString(scrContext, 0) )
     name = Scr_GetConstString(scrContext, 0);
   else
     name = 0;
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm
-  {
-    vmulss  xmm2, xmm0, cs:__real@447a0000
-    vxorps  xmm1, xmm1, xmm1
-    vmovss  xmm3, xmm1, xmm2
-    vxorps  xmm0, xmm0, xmm0
-    vroundss xmm4, xmm0, xmm3, 2
-    vcvttss2si r13d, xmm4
-  }
+  Scr_GetFloat(scrContext, 1u);
+  _XMM0 = 0i64;
+  __asm { vroundss xmm4, xmm0, xmm3, 2 }
+  v9 = (int)*(float *)&_XMM4;
   if ( Scr_GetType(scrContext, 2u) == VAR_VECTOR )
   {
     Scr_GetVector(scrContext, 2u, &vectorValue);
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-      vmovaps xmm6, xmm0
-    }
-    v18 = 4;
-    if ( v31 )
+    Float = Scr_GetFloat(scrContext, 3u);
+    LODWORD(_XMM6) = LODWORD(Float);
+    v12 = 4;
+    if ( *(float *)&Float < 0.0 )
       Scr_Error(COM_ERR_1506, scrContext, "CreateNavRepulsor: cannot create repulsor with non-positive radius.");
     entNum = 2047;
   }
   else
   {
-    __asm { vmovaps [rsp+0D8h+var_48], xmm7 }
-    _RBP = GScr_GetEntity(2u);
-    v18 = 3;
-    if ( !_RBP )
+    v27 = v2;
+    Entity = GScr_GetEntity(2u);
+    v12 = 3;
+    if ( !Entity )
       Scr_Error(COM_ERR_1507, scrContext, "CreateNavRepulsor requires a valid entity. If no entity is desired, then create a repulsor with a point/radius instead.");
-    __asm
+    vectorValue = Entity->r.currentOrigin;
+    if ( Scr_GetType(scrContext, 3u) != VAR_INTEGER && Scr_GetType(scrContext, 3u) != VAR_FLOAT || (v20 = Scr_GetFloat(scrContext, 3u), LODWORD(_XMM6) = LODWORD(v20), v12 = 4, *(float *)&v20 <= 0.0) )
     {
-      vmovss  xmm0, dword ptr [rbp+130h]
-      vmovss  dword ptr [rsp+0D8h+vectorValue], xmm0
-      vmovss  xmm1, dword ptr [rbp+134h]
-      vmovss  dword ptr [rsp+0D8h+vectorValue+4], xmm1
-      vmovss  xmm0, dword ptr [rbp+138h]
-      vmovss  dword ptr [rsp+0D8h+vectorValue+8], xmm0
-      vxorps  xmm7, xmm7, xmm7
-    }
-    if ( Scr_GetType(scrContext, 3u) != VAR_INTEGER )
-    {
-      Type = Scr_GetType(scrContext, 3u);
-      v31 = (unsigned __int8)Type < VAR_FLOAT;
-      v32 = Type == VAR_FLOAT;
-      if ( Type != VAR_FLOAT )
-        goto LABEL_34;
-    }
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-    __asm
-    {
-      vcomiss xmm0, xmm7
-      vmovaps xmm6, xmm0
-    }
-    v18 = 4;
-    if ( v31 || v32 )
-    {
-LABEL_34:
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+110h]
-        vmaxss  xmm6, xmm0, dword ptr [rbp+10Ch]
-        vcomiss xmm6, xmm7
-      }
-      if ( v31 || v32 )
+      _XMM0 = LODWORD(Entity->r.box.halfSize.v[1]);
+      __asm { vmaxss  xmm6, xmm0, dword ptr [rbp+10Ch] }
+      if ( *(float *)&_XMM6 <= 0.0 )
         Scr_Error(COM_ERR_1508, scrContext, "CreateNavRepulsor: entity has non-positive radius.");
     }
-    entNum = _RBP->s.number;
-    Navigator = Nav_GetNavigator(_RBP);
-    __asm { vmovaps xmm7, [rsp+0D8h+var_48] }
+    entNum = Entity->s.number;
+    Navigator = Nav_GetNavigator(Entity);
     if ( Navigator )
     {
       m_pSpace = Navigator->m_pSpace;
@@ -1303,43 +1148,33 @@ LABEL_34:
 LABEL_9:
   if ( !m_pSpace )
   {
-    v21 = vtos(&vectorValue);
-    v22 = j_va("CreateNavRepulsor: unable to create repulsor in non-navigable space at %s.", v21);
-    Scr_Error(COM_ERR_1509, scrContext, v22);
+    v15 = vtos(&vectorValue);
+    v16 = j_va("CreateNavRepulsor: unable to create repulsor in non-navigable space at %s.", v15);
+    Scr_Error(COM_ERR_1509, scrContext, v16);
   }
-  if ( v18 < Scr_GetNumParam(scrContext) && Scr_GetType(scrContext, v18) == VAR_INTEGER )
-    bBadplace = Scr_GetInt(scrContext, v18++) != 0;
-  Scr_GetTeamFlags(&result, scrContext, v18);
+  if ( v12 < Scr_GetNumParam(scrContext) && Scr_GetType(scrContext, v12) == VAR_INTEGER )
+    bBadplace = Scr_GetInt(scrContext, v12++) != 0;
+  Scr_GetTeamFlags(&result, scrContext, v12);
   p_result = &result;
   while ( !p_result->array[0] )
   {
-    ++v8;
+    ++v5;
     p_result = (bitarray<224> *)((char *)p_result + 4);
-    if ( v8 >= 7 )
+    if ( v5 >= 7 )
     {
       if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) )
-        _RAX = Com_TeamsSP_GetAllCombatTeamFlags();
+        AllCombatTeamFlags = (bitarray<224> *)Com_TeamsSP_GetAllCombatTeamFlags();
       else
-        _RAX = Com_TeamsMP_GetAllTeamFlags();
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rax]
-        vmovups xmmword ptr [rsp+0D8h+result.array], xmm0
-        vmovsd  xmm1, qword ptr [rax+10h]
-        vmovsd  qword ptr [rsp+0D8h+result.array+10h], xmm1
-      }
-      result.array[6] = _RAX->array[6];
+        AllCombatTeamFlags = (bitarray<224> *)Com_TeamsMP_GetAllTeamFlags();
+      result = *AllCombatTeamFlags;
       break;
     }
   }
   usageFlags = Nav_TranslateTeamFlagsToRepulsorUsageFlags(&result);
-  __asm { vmovss  [rsp+0D8h+var_B8], xmm6 }
-  v39 = Nav_CreateRepulsor(m_pSpace, &vectorValue, &vec3_origin, _ER13, v42, entNum, usageFlags, name, bBadplace);
-  __asm { vmovaps xmm6, [rsp+0D8h+var_38] }
-  if ( !v39 )
+  if ( !Nav_CreateRepulsor(m_pSpace, &vectorValue, &vec3_origin, v9, *(float *)&_XMM6, entNum, usageFlags, name, bBadplace) )
   {
-    v41 = j_va("CreateNavRepulsor: unable to alloc repulsor.  Exceeded max (%d)?", 256i64);
-    Scr_Error(COM_ERR_1510, scrContext, v41);
+    v24 = j_va("CreateNavRepulsor: unable to alloc repulsor.  Exceeded max (%d)?", 256i64);
+    Scr_Error(COM_ERR_1510, scrContext, v24);
   }
 }
 
@@ -1544,26 +1379,22 @@ void Scr_FindPath(scrContext_t *scrContext, scr_entref_t entref)
   nav_repulsor_s *RepulsorByEntNum; 
   nav_space_s *pSpace; 
   AINavigator *Navigator; 
-  AINavLayer v11; 
-  AINavigator2D *v12; 
+  AINavLayer v9; 
+  AINavigator2D *v10; 
   int Int; 
   unsigned int m_obstacleBlockageFlags; 
-  int v19; 
+  int v13; 
   unsigned int m_linkUsageFlags; 
   bfx::PathSpec pathSpec; 
   vec3_t endPt; 
   vec3_t vectorValue; 
 
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   *(_QWORD *)&pathSpec.m_obstacleBlockageFlags = -1i64;
   *(_QWORD *)&pathSpec.m_areaPenaltyFlags = -1i64;
   pathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-  __asm
-  {
-    vmovss  [rbp+57h+var_A0.m_pathSharingPenalty], xmm0
-    vmovss  [rbp+57h+var_A0.m_maxPathSharingPenalty], xmm0
-    vmovss  [rbp+57h+var_A0.m_maxSearchDist], xmm0
-  }
+  pathSpec.m_pathSharingPenalty = 0.0;
+  pathSpec.m_maxPathSharingPenalty = 0.0;
+  pathSpec.m_maxSearchDist = 0.0;
   pathSpec.m_usePathSharingPenalty = 0;
   bfx::PenaltyTable::PenaltyTable(&pathSpec.m_penaltyTable);
   pathSpec.m_snapMode = SNAP_CLOSEST;
@@ -1582,23 +1413,12 @@ void Scr_FindPath(scrContext_t *scrContext, scr_entref_t entref)
     Navigator = Nav_GetNavigator(Entity);
     if ( !Navigator )
       Scr_Error(COM_ERR_1519, scrContext, "Unsupported ent type.  Currently supporting player, actor, and bot.");
-    v11 = Nav_GetLayer(Navigator);
+    v9 = Nav_GetLayer(Navigator);
     pSpace = Navigator->m_pSpace;
-    layer = v11;
-    v12 = Navigator->Get2DNavigator(Navigator);
-    if ( v12 )
-    {
-      _RAX = AINavigator2D::GetPathSpec(v12);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+57h+var_A0.m_obstacleMode], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rbp+57h+var_A0.m_maxSearchDist], ymm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rbp-9], xmm0
-      }
-    }
+    layer = v9;
+    v10 = Navigator->Get2DNavigator(Navigator);
+    if ( v10 )
+      pathSpec = *AINavigator2D::GetPathSpec(v10);
   }
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &endPt);
@@ -1612,9 +1432,9 @@ void Scr_FindPath(scrContext_t *scrContext, scr_entref_t entref)
   }
   if ( Scr_GetNumParam(scrContext) > 3 && Scr_GetType(scrContext, 3u) == VAR_INTEGER )
   {
-    v19 = Scr_GetInt(scrContext, 3u);
+    v13 = Scr_GetInt(scrContext, 3u);
     m_linkUsageFlags = pathSpec.m_linkUsageFlags;
-    if ( v19 > 0 )
+    if ( v13 > 0 )
       m_linkUsageFlags = 0;
     pathSpec.m_linkUsageFlags = m_linkUsageFlags;
   }
@@ -1632,7 +1452,7 @@ void Scr_FindPathCustom(scrContext_t *scrContext)
   int NumParam; 
   int Int; 
   unsigned int m_obstacleBlockageFlags; 
-  int v8; 
+  int v6; 
   unsigned int m_linkUsageFlags; 
   scr_string_t ConstString; 
   nav_space_s *DefaultSpace; 
@@ -1640,17 +1460,13 @@ void Scr_FindPathCustom(scrContext_t *scrContext)
   bfx::PathSpec pathSpec; 
   vec3_t endPt; 
 
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   *(_QWORD *)&pathSpec.m_obstacleBlockageFlags = -1i64;
   layer = NAV_LAYER_HUMAN;
   *(_QWORD *)&pathSpec.m_areaPenaltyFlags = -1i64;
   pathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-  __asm
-  {
-    vmovss  [rsp+0B8h+var_78.m_pathSharingPenalty], xmm0
-    vmovss  [rsp+0B8h+var_78.m_maxPathSharingPenalty], xmm0
-    vmovss  [rsp+0B8h+var_78.m_maxSearchDist], xmm0
-  }
+  pathSpec.m_pathSharingPenalty = 0.0;
+  pathSpec.m_maxPathSharingPenalty = 0.0;
+  pathSpec.m_maxSearchDist = 0.0;
   pathSpec.m_usePathSharingPenalty = 0;
   bfx::PenaltyTable::PenaltyTable(&pathSpec.m_penaltyTable);
   pathSpec.m_snapMode = SNAP_CLOSEST;
@@ -1667,9 +1483,9 @@ void Scr_FindPathCustom(scrContext_t *scrContext)
   }
   if ( NumParam > 3 && Scr_GetType(scrContext, 3u) == VAR_INTEGER )
   {
-    v8 = Scr_GetInt(scrContext, 3u);
+    v6 = Scr_GetInt(scrContext, 3u);
     m_linkUsageFlags = pathSpec.m_linkUsageFlags;
-    if ( v8 > 0 )
+    if ( v6 > 0 )
       m_linkUsageFlags = 0;
     pathSpec.m_linkUsageFlags = m_linkUsageFlags;
   }
@@ -1692,78 +1508,67 @@ Scr_FindPathInternal
 void Scr_FindPathInternal(scrContext_t *scrContext, nav_space_s *pSpace, const vec3_t *startPt, const vec3_t *endPt, AINavLayer layer, const bfx::PathSpec *pathSpec)
 {
   int NumSegments; 
-  const dvar_t *v11; 
-  int v12; 
+  const dvar_t *v10; 
+  int i; 
   bfx::SurfaceSegment *SurfaceSegment; 
-  bfx::PolylinePathRCPtr v24; 
-  unsigned int v25; 
-  __int64 v26; 
+  const bfx::Vector3 *StartPos; 
+  float m_z; 
+  float m_y; 
+  const bfx::Vector3 *EndPos; 
+  float v17; 
+  float v18; 
+  bfx::PolylinePathRCPtr v19; 
+  unsigned int v20; 
+  __int64 v21; 
   vec3_t *p_outPath; 
   bfx::PolylinePathRCPtr result; 
-  __int64 v30; 
+  __int64 v24; 
   vec3_t end; 
   vec3_t start; 
   vec3_t outPath; 
 
-  v30 = -2i64;
-  __asm { vmovaps [rsp+6D8h+var_58], xmm6 }
+  v24 = -2i64;
   Nav_FindPathCustom(&result, pSpace, startPt, endPt, layer, pathSpec->m_areaUsageFlags, pathSpec->m_linkUsageFlags, pathSpec->m_obstacleBlockageFlags);
   if ( !bfx::PolylinePathRCPtr::IsValid(&result) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_scr.cpp", 1133, ASSERT_TYPE_ASSERT, "( path.IsValid() )", (const char *)&queryFormat, "path.IsValid()") )
     __debugbreak();
   NumSegments = bfx::PolylinePathRCPtr::GetNumSegments(&result);
   if ( NumSegments )
   {
-    v11 = DVARINT_ai_showPaths;
+    v10 = DVARINT_ai_showPaths;
     if ( !DVARINT_ai_showPaths && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "ai_showPaths") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v11);
-    if ( v11->current.integer > 0 )
+    Dvar_CheckFrontendServerThread(v10);
+    if ( v10->current.integer > 0 )
     {
-      v12 = 0;
-      if ( NumSegments > 0 )
+      for ( i = 0; i < NumSegments; ++i )
       {
-        __asm { vmovss  xmm6, cs:__real@40c00000 }
-        do
+        if ( bfx::PolylinePathRCPtr::GetSegmentType(&result, i) == SURFACE_SEGMENT )
         {
-          if ( bfx::PolylinePathRCPtr::GetSegmentType(&result, v12) == SURFACE_SEGMENT )
-          {
-            SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment(&result, v12);
-            _RAX = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rax+8]
-              vmovss  xmm1, dword ptr [rax+4]
-              vmovss  xmm0, dword ptr [rax]
-              vmovss  dword ptr [rsp+6D8h+start], xmm0
-              vmovss  dword ptr [rsp+6D8h+start+4], xmm1
-              vmovss  dword ptr [rsp+6D8h+start+8], xmm2
-            }
-            _RAX = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
-            __asm
-            {
-              vmovss  xmm2, dword ptr [rax+8]
-              vmovss  xmm1, dword ptr [rax+4]
-              vmovss  xmm0, dword ptr [rax]
-              vmovss  dword ptr [rsp+6D8h+end], xmm0
-              vmovss  dword ptr [rsp+6D8h+end+4], xmm1
-              vmovss  dword ptr [rsp+6D8h+end+8], xmm2
-            }
-            G_DebugLineWithDuration(&start, &end, &colorBlue, 0, 60);
-            __asm { vmovaps xmm1, xmm6; radius }
-            G_DebugCircle(&end, *(float *)&_XMM1, &colorBlue, 0, 1, 60);
-          }
-          ++v12;
+          SurfaceSegment = bfx::PolylinePathRCPtr::GetSurfaceSegment(&result, i);
+          StartPos = bfx::SurfaceSegment::GetStartPos(SurfaceSegment);
+          m_z = StartPos->m_z;
+          m_y = StartPos->m_y;
+          start.v[0] = StartPos->m_x;
+          start.v[1] = m_y;
+          start.v[2] = m_z;
+          EndPos = bfx::SurfaceSegment::GetEndPos(SurfaceSegment);
+          v17 = EndPos->m_z;
+          v18 = EndPos->m_y;
+          end.v[0] = EndPos->m_x;
+          end.v[1] = v18;
+          end.v[2] = v17;
+          G_DebugLineWithDuration(&start, &end, &colorBlue, 0, 60);
+          G_DebugCircle(&end, 6.0, &colorBlue, 0, 1, 60);
         }
-        while ( v12 < NumSegments );
       }
     }
     bfx::PolylinePathRCPtr::PolylinePathRCPtr((bfx::PolylinePathRCPtr *)&end, &result);
-    v25 = Nav_SimplifyPath(pSpace, startPt, v24, layer, pathSpec, 128, &outPath);
-    v26 = v25;
-    if ( v25 - 1 > 0x7F && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_scr.cpp", 1164, ASSERT_TYPE_ASSERT, "( numPathPoints > 0 && numPathPoints <= cMaxPathPoints )", (const char *)&queryFormat, "numPathPoints > 0 && numPathPoints <= cMaxPathPoints") )
+    v20 = Nav_SimplifyPath(pSpace, startPt, v19, layer, pathSpec, 128, &outPath);
+    v21 = v20;
+    if ( v20 - 1 > 0x7F && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_scr.cpp", 1164, ASSERT_TYPE_ASSERT, "( numPathPoints > 0 && numPathPoints <= cMaxPathPoints )", (const char *)&queryFormat, "numPathPoints > 0 && numPathPoints <= cMaxPathPoints") )
       __debugbreak();
     Scr_MakeArray(scrContext);
-    if ( (int)v26 > 0 )
+    if ( (int)v21 > 0 )
     {
       p_outPath = &outPath;
       do
@@ -1771,13 +1576,12 @@ void Scr_FindPathInternal(scrContext_t *scrContext, nav_space_s *pSpace, const v
         Scr_AddVector(scrContext, p_outPath->v);
         Scr_AddArray(scrContext);
         ++p_outPath;
-        --v26;
+        --v21;
       }
-      while ( v26 );
+      while ( v21 );
     }
   }
   bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&result);
-  __asm { vmovaps xmm6, [rsp+6D8h+var_58] }
 }
 
 /*
@@ -1801,9 +1605,8 @@ void Scr_GetClosestPointOnNavmesh3d(scrContext_t *scrContext)
     m_pSpace = Navigator->m_pSpace;
   else
     m_pSpace = Nav_GetDefaultSpace();
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   *(_QWORD *)&pathSpec.m_volumeUsageFlags = -1i64;
-  __asm { vmovss  [rsp+68h+pathSpec.m_maxSearchDist], xmm0 }
+  pathSpec.m_maxSearchDist = 0.0;
   if ( !Nav3D_GetClosestPointOnMesh(m_pSpace, &pathSpec, &vectorValue, &outClosestPos) )
     Scr_Error(COM_ERR_1527, scrContext, "Either NavMesh is not loaded or no 3d volumes found!");
   Scr_AddVector(scrContext, outClosestPos.v);
@@ -1816,35 +1619,33 @@ Scr_GetClosestPointOnNavmesh
 */
 void Scr_GetClosestPointOnNavmesh(scrContext_t *scrContext)
 {
+  gentity_s *Entity; 
   int NumParam; 
-  char v6; 
+  char v4; 
   const AINavigator *Navigator; 
-  AINavigator *v8; 
+  AINavigator *v6; 
   AINavLayer Layer; 
   nav_space_s *m_pSpace; 
   AINavLayer LayerFromName; 
-  AINavigator2D *v12; 
+  AINavigator2D *v10; 
   scr_string_t ConstString; 
   unsigned int LayersLoaded; 
-  const char *v19; 
-  const char *v20; 
-  bool v22; 
+  const char *v13; 
+  const char *v14; 
+  float v15; 
+  bool v16; 
   vec3_t outClosestPos; 
   vec3_t vectorValue; 
   bfx::PathSpec pPathSpec; 
   vec3_t outUp; 
 
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   pPathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-  _RSI = NULL;
+  Entity = NULL;
   *(_QWORD *)&pPathSpec.m_obstacleBlockageFlags = -1i64;
   pPathSpec.m_usePathSharingPenalty = 0;
-  __asm
-  {
-    vmovss  [rbp+57h+pPathSpec.m_pathSharingPenalty], xmm0
-    vmovss  [rbp+57h+pPathSpec.m_maxPathSharingPenalty], xmm0
-    vmovss  [rbp+57h+pPathSpec.m_maxSearchDist], xmm0
-  }
+  pPathSpec.m_pathSharingPenalty = 0.0;
+  pPathSpec.m_maxPathSharingPenalty = 0.0;
+  pPathSpec.m_maxSearchDist = 0.0;
   *(_QWORD *)&pPathSpec.m_areaPenaltyFlags = -1i64;
   bfx::PenaltyTable::PenaltyTable(&pPathSpec.m_penaltyTable);
   pPathSpec.m_snapMode = SNAP_CLOSEST;
@@ -1854,16 +1655,16 @@ void Scr_GetClosestPointOnNavmesh(scrContext_t *scrContext)
   NumParam = Scr_GetNumParam(scrContext);
   if ( NumParam > 1 && Scr_GetType(scrContext, 1u) )
   {
-    v6 = 1;
+    v4 = 1;
     if ( Scr_GetType(scrContext, 1u) == VAR_POINTER )
     {
-      _RSI = GScr_GetEntity(1u);
-      Navigator = Nav_GetNavigator(_RSI);
-      v8 = (AINavigator *)Navigator;
+      Entity = GScr_GetEntity(1u);
+      Navigator = Nav_GetNavigator(Entity);
+      v6 = (AINavigator *)Navigator;
       if ( Navigator )
       {
         Layer = Nav_GetLayer(Navigator);
-        m_pSpace = v8->m_pSpace;
+        m_pSpace = v6->m_pSpace;
         LayerFromName = Layer;
         if ( NumParam > 3 )
         {
@@ -1871,20 +1672,9 @@ void Scr_GetClosestPointOnNavmesh(scrContext_t *scrContext)
           {
             if ( Scr_GetInt(scrContext, 3u) )
             {
-              v12 = v8->Get2DNavigator(v8);
-              if ( v12 )
-              {
-                _RAX = AINavigator2D::GetPathSpec(v12);
-                __asm
-                {
-                  vmovups ymm0, ymmword ptr [rax]
-                  vmovups ymmword ptr [rbp+57h+pPathSpec.m_obstacleMode], ymm0
-                  vmovups ymm1, ymmword ptr [rax+20h]
-                  vmovups ymmword ptr [rbp+57h+pPathSpec.m_maxSearchDist], ymm1
-                  vmovups xmm0, xmmword ptr [rax+40h]
-                  vmovups xmmword ptr [rbp+7], xmm0
-                }
-              }
+              v10 = v6->Get2DNavigator(v6);
+              if ( v10 )
+                pPathSpec = *AINavigator2D::GetPathSpec(v10);
             }
           }
         }
@@ -1894,10 +1684,10 @@ void Scr_GetClosestPointOnNavmesh(scrContext_t *scrContext)
   }
   else
   {
-    v6 = 0;
+    v4 = 0;
   }
   LayerFromName = NAV_LAYER_HUMAN;
-  if ( v6 )
+  if ( v4 )
   {
     if ( Scr_GetType(scrContext, 1u) == VAR_STRING )
     {
@@ -1906,9 +1696,9 @@ void Scr_GetClosestPointOnNavmesh(scrContext_t *scrContext)
       LayersLoaded = bfx::GetLayersLoaded();
       if ( !_bittest((const int *)&LayersLoaded, LayerFromName) )
       {
-        v19 = SL_ConvertToString(ConstString);
-        v20 = j_va("GetClosestPointOnNavmesh: No navmesh loaded in layer %s", v19);
-        Scr_Error(COM_ERR_1525, scrContext, v20);
+        v13 = SL_ConvertToString(ConstString);
+        v14 = j_va("GetClosestPointOnNavmesh: No navmesh loaded in layer %s", v13);
+        Scr_Error(COM_ERR_1525, scrContext, v14);
       }
     }
   }
@@ -1916,18 +1706,18 @@ void Scr_GetClosestPointOnNavmesh(scrContext_t *scrContext)
 LABEL_18:
   if ( NumParam > 2 && Scr_GetInt(scrContext, 2u) )
   {
-    if ( _RSI )
-      __asm { vmovss  xmm2, dword ptr [rsi+10Ch] }
+    if ( Entity )
+      v15 = Entity->r.box.halfSize.v[0];
     else
-      __asm { vmovss  xmm2, cs:__real@bf800000; radius }
-    v22 = Nav_GetClosestVerticalPosInMostLikelySpace(&vectorValue, LayerFromName, *(float *)&_XMM2, &pPathSpec, &outClosestPos, NULL) == NULL;
+      v15 = FLOAT_N1_0;
+    v16 = Nav_GetClosestVerticalPosInMostLikelySpace(&vectorValue, LayerFromName, v15, &pPathSpec, &outClosestPos, NULL) == NULL;
   }
   else
   {
     Nav_GetSpaceUp(m_pSpace, &outUp);
-    v22 = !Nav_GetClosestVerticalPos(&vectorValue, &outUp, LayerFromName, &m_pSpace->hSpace, &pPathSpec, &outClosestPos, NULL);
+    v16 = !Nav_GetClosestVerticalPos(&vectorValue, &outUp, LayerFromName, &m_pSpace->hSpace, &pPathSpec, &outClosestPos, NULL);
   }
-  if ( !v22 )
+  if ( !v16 )
     Scr_AddVector(scrContext, outClosestPos.v);
 }
 
@@ -1941,9 +1731,9 @@ void Scr_GetClosestReachablePointOnNavmesh(scrContext_t *scrContext, scr_entref_
   const gentity_s *Entity; 
   AINavigator *Navigator; 
   const char *v5; 
-  AINavigator_vtbl *v7; 
-  __int64 v8; 
-  float v9; 
+  AINavigator_vtbl *v6; 
+  __int64 v7; 
+  float v8; 
   vec3_t vectorValue; 
   float value[4]; 
 
@@ -1957,11 +1747,10 @@ void Scr_GetClosestReachablePointOnNavmesh(scrContext_t *scrContext, scr_entref_
     Scr_Error(COM_ERR_5790, scrContext, v5);
   }
   Scr_GetVector(scrContext, 0, &vectorValue);
-  __asm { vmovsd  xmm0, qword ptr [rsp+68h+vectorValue] }
-  v9 = vectorValue.v[2];
-  v7 = Navigator->__vftable;
-  __asm { vmovsd  [rsp+68h+var_48], xmm0 }
-  ((void (__fastcall *)(AINavigator *, __int64 *, float *))v7->GetClosestReachablePoint)(Navigator, &v8, value);
+  v8 = vectorValue.v[2];
+  v6 = Navigator->__vftable;
+  v7 = *(__int64 *)vectorValue.v;
+  ((void (__fastcall *)(AINavigator *, __int64 *, float *))v6->GetClosestReachablePoint)(Navigator, &v7, value);
   Scr_AddVector(scrContext, value);
 }
 
@@ -1973,30 +1762,27 @@ Scr_GetModifierLocationBetween
 void Scr_GetModifierLocationBetween(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *Entity; 
-  unsigned int v7; 
+  unsigned int layer; 
   nav_repulsor_s *RepulsorByEntNum; 
   nav_space_s *pSpace; 
   AINavigator *Navigator; 
   unsigned int ModifierFlagsFromString; 
+  float v9; 
   const char *String; 
-  float layer; 
+  double Float; 
   bfx::PolylinePathRCPtr result; 
-  __int64 v30; 
+  __int64 v13; 
   vec3_t outEndPoint; 
   vec3_t outStartPoint; 
   float value[4]; 
   vec3_t goalPos; 
   vec3_t vectorValue; 
-  char v36; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v30 = -2i64;
-  __asm { vmovaps xmmword ptr [rax-18h], xmm6 }
+  v13 = -2i64;
   Entity = GetEntity(entref);
   if ( Entity->client )
   {
-    v7 = 0;
+    layer = 0;
     RepulsorByEntNum = Nav_FindRepulsorByEntNum(Entity->s.number);
     if ( RepulsorByEntNum )
       pSpace = RepulsorByEntNum->pSpace;
@@ -2008,18 +1794,18 @@ void Scr_GetModifierLocationBetween(scrContext_t *scrContext, scr_entref_t entre
     Navigator = Nav_GetNavigator(Entity);
     if ( !Navigator )
       Scr_Error(COM_ERR_1532, scrContext, "Unsupported ent type.  Currently supporting player, actor, scripted agents, and bot.");
-    v7 = Nav_GetLayer(Navigator);
+    layer = Nav_GetLayer(Navigator);
     pSpace = Navigator->m_pSpace;
   }
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &goalPos);
-  Nav_FindPath(&result, pSpace, &vectorValue, &goalPos, v7);
+  Nav_FindPath(&result, pSpace, &vectorValue, &goalPos, layer);
   if ( !bfx::PolylinePathRCPtr::IsValid(&result) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game\\nav_scr.cpp", 1819, ASSERT_TYPE_ASSERT, "( path.IsValid() )", (const char *)&queryFormat, "path.IsValid()") )
     __debugbreak();
   if ( bfx::PolylinePathRCPtr::GetNumSegments(&result) )
   {
     ModifierFlagsFromString = -1;
-    __asm { vxorps  xmm6, xmm6, xmm6 }
+    v9 = 0.0;
     if ( Scr_GetNumParam(scrContext) >= 3 )
     {
       String = Scr_GetString(scrContext, 2u);
@@ -2027,39 +1813,18 @@ void Scr_GetModifierLocationBetween(scrContext_t *scrContext, scr_entref_t entre
     }
     if ( Scr_GetNumParam(scrContext) >= 4 )
     {
-      *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-      __asm { vmovaps xmm6, xmm0 }
+      Float = Scr_GetFloat(scrContext, 3u);
+      v9 = *(float *)&Float;
     }
-    __asm
+    if ( Nav_GetModifierLocationOnPath(&result, ModifierFlagsFromString, 0, v9, 3.4028235e38, &outStartPoint, &outEndPoint) )
     {
-      vmovss  xmm1, cs:__real@7f7fffff
-      vmovss  [rsp+0C8h+layer], xmm1
-      vmovaps xmm3, xmm6; minCheckDist
-    }
-    if ( Nav_GetModifierLocationOnPath(&result, ModifierFlagsFromString, 0, *(float *)&_XMM3, layer, &outStartPoint, &outEndPoint) )
-    {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+0C8h+var_78]
-        vaddss  xmm1, xmm0, dword ptr [rsp+0C8h+var_68]
-        vmovss  xmm3, cs:__real@3f000000
-        vmulss  xmm1, xmm1, xmm3
-        vmovss  [rsp+0C8h+value], xmm1
-        vmovss  xmm0, dword ptr [rsp+0C8h+var_78+4]
-        vaddss  xmm2, xmm0, dword ptr [rsp+0C8h+var_68+4]
-        vmulss  xmm1, xmm2, xmm3
-        vmovss  [rsp+0C8h+var_54], xmm1
-        vmovss  xmm0, dword ptr [rsp+0C8h+var_78+8]
-        vaddss  xmm2, xmm0, dword ptr [rsp+0C8h+var_68+8]
-        vmulss  xmm1, xmm2, xmm3
-        vmovss  [rsp+0C8h+var_50], xmm1
-      }
+      value[0] = (float)(outEndPoint.v[0] + outStartPoint.v[0]) * 0.5;
+      value[1] = (float)(outEndPoint.v[1] + outStartPoint.v[1]) * 0.5;
+      value[2] = (float)(outEndPoint.v[2] + outStartPoint.v[2]) * 0.5;
       Scr_AddVector(scrContext, value);
     }
   }
   bfx::PolylinePathRCPtr::~PolylinePathRCPtr(&result);
-  _R11 = &v36;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -2072,17 +1837,18 @@ void Scr_GetModifierLocationOnPath(scrContext_t *scrContext, scr_entref_t entref
   unsigned int NumParam; 
   const gentity_s *Entity; 
   AINavigator *Navigator; 
+  const char *v7; 
+  AINavigator2D *v8; 
   const char *v9; 
-  AINavigator2D *v10; 
-  const char *v11; 
   unsigned int ModifierFlagsFromString; 
-  unsigned int v14; 
+  float v11; 
+  unsigned int v12; 
+  double Float; 
   const char *String; 
   vec3_t outEndPoint; 
   vec3_t outStartPoint; 
   float value[4]; 
 
-  __asm { vmovaps [rsp+98h+var_28], xmm6 }
   NumParam = Scr_GetNumParam(scrContext);
   Entity = GetEntity(entref);
   if ( !Entity )
@@ -2090,50 +1856,35 @@ void Scr_GetModifierLocationOnPath(scrContext_t *scrContext, scr_entref_t entref
   Navigator = Nav_GetNavigator(Entity);
   if ( !Navigator )
   {
-    v9 = j_va("GetModifierLocationOnPath: Entity %d does not have a navigator.", (unsigned int)Entity->s.number);
-    Scr_Error(COM_ERR_1534, scrContext, v9);
+    v7 = j_va("GetModifierLocationOnPath: Entity %d does not have a navigator.", (unsigned int)Entity->s.number);
+    Scr_Error(COM_ERR_1534, scrContext, v7);
   }
-  v10 = Navigator->Get2DNavigator(Navigator);
-  if ( !v10 )
+  v8 = Navigator->Get2DNavigator(Navigator);
+  if ( !v8 )
   {
-    v11 = j_va("GetModifierLocationOnPath: Entity %d does not have a 2D navigator.", (unsigned int)Entity->s.number);
-    Scr_Error(COM_ERR_1535, scrContext, v11);
+    v9 = j_va("GetModifierLocationOnPath: Entity %d does not have a 2D navigator.", (unsigned int)Entity->s.number);
+    Scr_Error(COM_ERR_1535, scrContext, v9);
   }
   ModifierFlagsFromString = -1;
-  __asm { vmovss  xmm6, cs:__real@7f7fffff }
-  v14 = NumParam - 1;
-  if ( v14 )
+  v11 = FLOAT_3_4028235e38;
+  v12 = NumParam - 1;
+  if ( v12 )
   {
-    if ( v14 != 1 )
+    if ( v12 != 1 )
       goto LABEL_11;
-    *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-    __asm { vmovaps xmm6, xmm0 }
+    Float = Scr_GetFloat(scrContext, 1u);
+    v11 = *(float *)&Float;
   }
   String = Scr_GetString(scrContext, 0);
   ModifierFlagsFromString = NAV_GetModifierFlagsFromString(String);
 LABEL_11:
-  __asm { vmovaps xmm2, xmm6; checkDist }
-  if ( AINavigator2D::GetModifierLocationOnEntPath(v10, ModifierFlagsFromString, *(float *)&_XMM2, &outStartPoint, &outEndPoint) )
+  if ( AINavigator2D::GetModifierLocationOnEntPath(v8, ModifierFlagsFromString, v11, &outStartPoint, &outEndPoint) )
   {
-    __asm
-    {
-      vmovss  xmm3, cs:__real@3f000000
-      vmovss  xmm0, dword ptr [rsp+98h+outStartPoint]
-      vaddss  xmm1, xmm0, dword ptr [rsp+98h+var_68]
-      vmovss  xmm0, dword ptr [rsp+98h+var_68+4]
-      vaddss  xmm2, xmm0, dword ptr [rsp+98h+outStartPoint+4]
-      vmovss  xmm0, dword ptr [rsp+98h+var_68+8]
-      vmulss  xmm1, xmm1, xmm3
-      vmovss  [rsp+98h+value], xmm1
-      vmulss  xmm1, xmm2, xmm3
-      vaddss  xmm2, xmm0, dword ptr [rsp+98h+outStartPoint+8]
-      vmovss  [rsp+98h+var_44], xmm1
-      vmulss  xmm1, xmm2, xmm3
-      vmovss  [rsp+98h+var_40], xmm1
-    }
+    value[0] = (float)(outStartPoint.v[0] + outEndPoint.v[0]) * 0.5;
+    value[1] = (float)(outEndPoint.v[1] + outStartPoint.v[1]) * 0.5;
+    value[2] = (float)(outEndPoint.v[2] + outStartPoint.v[2]) * 0.5;
     Scr_AddVector(scrContext, value);
   }
-  __asm { vmovaps xmm6, [rsp+98h+var_28] }
 }
 
 /*
@@ -2208,36 +1959,27 @@ void Scr_GetNavSpaceEnt(scrContext_t *scrContext, scr_entref_t entref)
 Scr_GetRandomNavPoint
 ==============
 */
-
-void __fastcall Scr_GetRandomNavPoint(scrContext_t *scrContext, double _XMM1_8)
+void Scr_GetRandomNavPoint(scrContext_t *scrContext)
 {
-  int v7; 
+  double Float; 
+  int v3; 
   nav_space_s *DefaultSpace; 
   const gentity_s *Entity; 
   AINavigator *Navigator; 
-  const char *v12; 
+  const char *v7; 
   AINavLayer Layer; 
-  AINavigator2D *v14; 
-  int KindaRandomReachablePoints; 
+  AINavigator2D *v9; 
   bfx::PathSpec pathSpec; 
   vec3_t origin; 
   vec3_t outPoints; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-18h], xmm6 }
   Scr_GetVector(scrContext, 0, &origin);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm6, xmm0 }
-  v7 = 0;
-  __asm { vxorps  xmm1, xmm1, xmm1 }
+  Float = Scr_GetFloat(scrContext, 1u);
+  v3 = 0;
   pathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-  __asm
-  {
-    vmovss  [rsp+0D8h+var_98.m_pathSharingPenalty], xmm1
-    vmovss  [rsp+0D8h+var_98.m_maxPathSharingPenalty], xmm1
-    vmovss  [rsp+0D8h+var_98.m_maxSearchDist], xmm1
-  }
+  pathSpec.m_pathSharingPenalty = 0.0;
+  pathSpec.m_maxPathSharingPenalty = 0.0;
+  pathSpec.m_maxSearchDist = 0.0;
   DefaultSpace = Nav_GetDefaultSpace();
   *(_QWORD *)&pathSpec.m_obstacleBlockageFlags = -1i64;
   *(_QWORD *)&pathSpec.m_areaPenaltyFlags = -1i64;
@@ -2250,31 +1992,17 @@ void __fastcall Scr_GetRandomNavPoint(scrContext_t *scrContext, double _XMM1_8)
     Navigator = Nav_GetNavigator(Entity);
     if ( !Navigator )
     {
-      v12 = j_va("GetRandomNavPoint: Ref ent %d must have a navigator.", (unsigned int)Entity->s.number);
-      Scr_Error(COM_ERR_1520, scrContext, v12);
+      v7 = j_va("GetRandomNavPoint: Ref ent %d must have a navigator.", (unsigned int)Entity->s.number);
+      Scr_Error(COM_ERR_1520, scrContext, v7);
     }
     Layer = Nav_GetLayer(Navigator);
     DefaultSpace = Navigator->m_pSpace;
-    v7 = Layer;
-    v14 = Navigator->Get2DNavigator(Navigator);
-    if ( v14 )
-    {
-      _RAX = AINavigator2D::GetPathSpec(v14);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0D8h+var_98.m_obstacleMode], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+0D8h+var_98.m_maxSearchDist], ymm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rsp+80h], xmm0
-      }
-    }
+    v3 = Layer;
+    v9 = Navigator->Get2DNavigator(Navigator);
+    if ( v9 )
+      pathSpec = *AINavigator2D::GetPathSpec(v9);
   }
-  __asm { vmovaps xmm2, xmm6; radius }
-  KindaRandomReachablePoints = Nav_GetKindaRandomReachablePoints(DefaultSpace, &origin, *(float *)&_XMM2, v7, &pathSpec, 1, &outPoints);
-  __asm { vmovaps xmm6, [rsp+0D8h+var_18] }
-  if ( KindaRandomReachablePoints )
+  if ( Nav_GetKindaRandomReachablePoints(DefaultSpace, &origin, *(float *)&Float, v3, &pathSpec, 1, &outPoints) )
     Scr_AddVector(scrContext, outPoints.v);
 }
 
@@ -2285,47 +2013,42 @@ Scr_GetRandomNavPoints
 */
 void Scr_GetRandomNavPoints(scrContext_t *scrContext)
 {
+  double Float; 
+  float v3; 
   int Int; 
   int numPoints; 
-  const char *v8; 
-  int v9; 
+  const char *v6; 
+  int v7; 
   nav_space_s *DefaultSpace; 
   int NumParam; 
   const gentity_s *Entity; 
   AINavigator *Navigator; 
-  const char *v15; 
+  const char *v12; 
   AINavLayer Layer; 
-  AINavigator2D *v17; 
+  AINavigator2D *v14; 
   unsigned int KindaRandomReachablePoints; 
-  __int64 v25; 
+  __int64 v16; 
   vec3_t *p_outPoints; 
   bfx::PathSpec pathSpec; 
   vec3_t origin; 
   vec3_t vectorValue; 
   vec3_t outPoints; 
-  void *retaddr; 
 
-  _R11 = &retaddr;
-  __asm { vmovaps xmmword ptr [r11-28h], xmm6 }
   Scr_GetVector(scrContext, 0, &origin);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 1u);
-  __asm { vmovaps xmm6, xmm0 }
+  Float = Scr_GetFloat(scrContext, 1u);
+  v3 = *(float *)&Float;
   Int = Scr_GetInt(scrContext, 2u);
   numPoints = Int;
   if ( Int > 64 )
   {
-    v8 = j_va("GetRandomNavPoints: Can only find %d points at a time.  User requested %d.", 64i64, (unsigned int)Int);
-    Scr_Error(COM_ERR_1521, scrContext, v8);
+    v6 = j_va("GetRandomNavPoints: Can only find %d points at a time.  User requested %d.", 64i64, (unsigned int)Int);
+    Scr_Error(COM_ERR_1521, scrContext, v6);
   }
-  v9 = 0;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+  v7 = 0;
   pathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-  __asm
-  {
-    vmovss  [rsp+3E8h+var_3A8.m_pathSharingPenalty], xmm0
-    vmovss  [rsp+3E8h+var_3A8.m_maxPathSharingPenalty], xmm0
-    vmovss  [rsp+3E8h+var_3A8.m_maxSearchDist], xmm0
-  }
+  pathSpec.m_pathSharingPenalty = 0.0;
+  pathSpec.m_maxPathSharingPenalty = 0.0;
+  pathSpec.m_maxSearchDist = 0.0;
   DefaultSpace = Nav_GetDefaultSpace();
   *(_QWORD *)&pathSpec.m_obstacleBlockageFlags = -1i64;
   *(_QWORD *)&pathSpec.m_areaPenaltyFlags = -1i64;
@@ -2339,26 +2062,15 @@ void Scr_GetRandomNavPoints(scrContext_t *scrContext)
     Navigator = Nav_GetNavigator(Entity);
     if ( !Navigator )
     {
-      v15 = j_va("GetRandomNavPoints: ref ent %d must have a navigator.", (unsigned int)Entity->s.number);
-      Scr_Error(COM_ERR_1522, scrContext, v15);
+      v12 = j_va("GetRandomNavPoints: ref ent %d must have a navigator.", (unsigned int)Entity->s.number);
+      Scr_Error(COM_ERR_1522, scrContext, v12);
     }
     Layer = Nav_GetLayer(Navigator);
     DefaultSpace = Navigator->m_pSpace;
-    v9 = Layer;
-    v17 = Navigator->Get2DNavigator(Navigator);
-    if ( v17 )
-    {
-      _RAX = AINavigator2D::GetPathSpec(v17);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+3E8h+var_3A8.m_obstacleMode], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+3E8h+var_3A8.m_maxSearchDist], ymm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rsp+80h], xmm0
-      }
-    }
+    v7 = Layer;
+    v14 = Navigator->Get2DNavigator(Navigator);
+    if ( v14 )
+      pathSpec = *AINavigator2D::GetPathSpec(v14);
   }
   if ( NumParam > 4 )
   {
@@ -2367,14 +2079,12 @@ void Scr_GetRandomNavPoints(scrContext_t *scrContext)
     Scr_GetVector(scrContext, 4u, &vectorValue);
     Scr_GetFloat(scrContext, 5u);
   }
-  __asm { vmovaps xmm2, xmm6; radius }
-  KindaRandomReachablePoints = Nav_GetKindaRandomReachablePoints(DefaultSpace, &origin, *(float *)&_XMM2, v9, &pathSpec, numPoints, &outPoints);
-  __asm { vmovaps xmm6, [rsp+3E8h+var_28] }
-  v25 = KindaRandomReachablePoints;
+  KindaRandomReachablePoints = Nav_GetKindaRandomReachablePoints(DefaultSpace, &origin, v3, v7, &pathSpec, numPoints, &outPoints);
+  v16 = KindaRandomReachablePoints;
   if ( KindaRandomReachablePoints )
   {
     Scr_MakeArray(scrContext);
-    if ( (int)v25 > 0 )
+    if ( (int)v16 > 0 )
     {
       p_outPoints = &outPoints;
       do
@@ -2382,9 +2092,9 @@ void Scr_GetRandomNavPoints(scrContext_t *scrContext)
         Scr_AddVector(scrContext, p_outPoints->v);
         Scr_AddArray(scrContext);
         ++p_outPoints;
-        --v25;
+        --v16;
       }
-      while ( v25 );
+      while ( v16 );
     }
   }
 }
@@ -2412,30 +2122,20 @@ void Scr_IsPointOnNavMesh3d(scrContext_t *scrContext)
   const gentity_s *Entity; 
   AINavigator *Navigator; 
   nav_space_s *m_pSpace; 
+  __int64 v5; 
   bool IsPointOnMesh; 
   bfx::Path3DSpec pPathSpec; 
   vec3_t vectorValue; 
 
   Scr_GetVector(scrContext, 0, &vectorValue);
   *(_QWORD *)&pPathSpec.m_volumeUsageFlags = -1i64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+58h+pPathSpec.m_maxSearchDist], xmm0
-  }
+  pPathSpec.m_maxSearchDist = 0.0;
   if ( (int)Scr_GetNumParam(scrContext) > 1 && (Entity = GScr_GetEntity(1u), (Navigator = Nav_GetNavigator(Entity)) != NULL) )
   {
     m_pSpace = Navigator->m_pSpace;
-    _RAX = (__int64)Navigator->Get3DNavigator(Navigator);
-    if ( _RAX )
-    {
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rax+0DCh]
-        vmovsd  qword ptr [rsp+58h+pPathSpec.m_volumeUsageFlags], xmm0
-      }
-      pPathSpec.m_maxSearchDist = *(float *)(_RAX + 228);
-    }
+    v5 = (__int64)Navigator->Get3DNavigator(Navigator);
+    if ( v5 )
+      pPathSpec = *(bfx::Path3DSpec *)(v5 + 220);
   }
   else
   {
@@ -2456,9 +2156,9 @@ void Scr_IsPointOnNavMesh(scrContext_t *scrContext)
   int NumParam; 
   AINavigator *Navigator; 
   const gentity_s *Entity; 
-  bool v7; 
+  bool v6; 
   nav_space_s *m_pSpace; 
-  AINavigator2D *v10; 
+  AINavigator2D *v8; 
   bool IsPointOnMeshCustom; 
   bfx::PathSpec pPathSpec; 
   vec3_t vectorValue; 
@@ -2473,17 +2173,13 @@ void Scr_IsPointOnNavMesh(scrContext_t *scrContext)
     Entity = GScr_GetEntity(1u);
     Navigator = Nav_GetNavigator(Entity);
   }
-  v7 = 0;
+  v6 = 0;
   if ( NumParam > 2 && Scr_GetType(scrContext, 2u) )
-    v7 = Scr_GetInt(scrContext, 2u) != 0;
-  __asm { vxorps  xmm0, xmm0, xmm0 }
+    v6 = Scr_GetInt(scrContext, 2u) != 0;
   pPathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-  __asm
-  {
-    vmovss  [rsp+0C8h+pPathSpec.m_pathSharingPenalty], xmm0
-    vmovss  [rsp+0C8h+pPathSpec.m_maxPathSharingPenalty], xmm0
-    vmovss  [rsp+0C8h+pPathSpec.m_maxSearchDist], xmm0
-  }
+  pPathSpec.m_pathSharingPenalty = 0.0;
+  pPathSpec.m_maxPathSharingPenalty = 0.0;
+  pPathSpec.m_maxSearchDist = 0.0;
   *(_QWORD *)&pPathSpec.m_obstacleBlockageFlags = -1i64;
   *(_QWORD *)&pPathSpec.m_areaPenaltyFlags = -1i64;
   pPathSpec.m_usePathSharingPenalty = 0;
@@ -2493,20 +2189,9 @@ void Scr_IsPointOnNavMesh(scrContext_t *scrContext)
   {
     m_pSpace = Navigator->m_pSpace;
     Layer = Nav_GetLayer(Navigator);
-    v10 = Navigator->Get2DNavigator(Navigator);
-    if ( v7 && v10 )
-    {
-      _RAX = AINavigator2D::GetPathSpec(v10);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0C8h+pPathSpec.m_obstacleMode], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+0C8h+pPathSpec.m_maxSearchDist], ymm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rsp+70h], xmm0
-      }
-    }
+    v8 = Navigator->Get2DNavigator(Navigator);
+    if ( v6 && v8 )
+      pPathSpec = *AINavigator2D::GetPathSpec(v8);
   }
   else
   {
@@ -2526,6 +2211,7 @@ void Scr_NavIsStraightLineReachable3D(scrContext_t *scrContext)
   AINavigator *Navigator; 
   const gentity_s *Entity; 
   nav_space_s *DefaultSpace; 
+  __int64 v5; 
   bool IsStraightLineReachable; 
   bfx::Path3DSpec pPathSpec; 
   vec3_t endPos; 
@@ -2543,23 +2229,12 @@ void Scr_NavIsStraightLineReachable3D(scrContext_t *scrContext)
   if ( Navigator )
     DefaultSpace = Navigator->m_pSpace;
   *(_QWORD *)&pPathSpec.m_volumeUsageFlags = -1i64;
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vmovss  [rsp+68h+pPathSpec.m_maxSearchDist], xmm0
-  }
+  pPathSpec.m_maxSearchDist = 0.0;
   if ( Navigator )
   {
-    _RAX = (__int64)Navigator->Get3DNavigator(Navigator);
-    if ( _RAX )
-    {
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rax+0DCh]
-        vmovsd  qword ptr [rsp+68h+pPathSpec.m_volumeUsageFlags], xmm0
-      }
-      pPathSpec.m_maxSearchDist = *(float *)(_RAX + 228);
-    }
+    v5 = (__int64)Navigator->Get3DNavigator(Navigator);
+    if ( v5 )
+      pPathSpec = *(bfx::Path3DSpec *)(v5 + 220);
   }
   IsStraightLineReachable = Nav3D_IsStraightLineReachable(DefaultSpace, &vectorValue, &endPos, &pPathSpec);
   Scr_AddBool(scrContext, IsStraightLineReachable);
@@ -2576,7 +2251,7 @@ void Scr_NavIsStraightLineReachable(scrContext_t *scrContext)
   const gentity_s *Entity; 
   nav_space_s *DefaultSpace; 
   AINavLayer Layer; 
-  AINavigator2D *v8; 
+  AINavigator2D *v6; 
   bool IsStraightLineReachable; 
   bfx::PathSpec pPathSpec; 
   vec3_t vectorValue; 
@@ -2600,14 +2275,10 @@ void Scr_NavIsStraightLineReachable(scrContext_t *scrContext)
   {
     Layer = NAV_LAYER_HUMAN;
   }
-  __asm { vxorps  xmm0, xmm0, xmm0 }
   pPathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
-  __asm
-  {
-    vmovss  [rsp+0B8h+var_88.m_pathSharingPenalty], xmm0
-    vmovss  [rsp+0B8h+var_88.m_maxPathSharingPenalty], xmm0
-    vmovss  [rsp+0B8h+var_88.m_maxSearchDist], xmm0
-  }
+  pPathSpec.m_pathSharingPenalty = 0.0;
+  pPathSpec.m_maxPathSharingPenalty = 0.0;
+  pPathSpec.m_maxSearchDist = 0.0;
   *(_QWORD *)&pPathSpec.m_obstacleBlockageFlags = -1i64;
   *(_QWORD *)&pPathSpec.m_areaPenaltyFlags = -1i64;
   pPathSpec.m_usePathSharingPenalty = 0;
@@ -2615,20 +2286,9 @@ void Scr_NavIsStraightLineReachable(scrContext_t *scrContext)
   pPathSpec.m_snapMode = SNAP_CLOSEST;
   if ( Navigator )
   {
-    v8 = Navigator->Get2DNavigator(Navigator);
-    if ( v8 )
-    {
-      _RAX = AINavigator2D::GetPathSpec(v8);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0B8h+var_88.m_obstacleMode], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rsp+0B8h+var_88.m_maxSearchDist], ymm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rsp+70h], xmm0
-      }
-    }
+    v6 = Navigator->Get2DNavigator(Navigator);
+    if ( v6 )
+      pPathSpec = *AINavigator2D::GetPathSpec(v6);
   }
   IsStraightLineReachable = Nav_IsStraightLineReachable(DefaultSpace, &startPos, &vectorValue, Layer, &pPathSpec);
   Scr_AddBool(scrContext, IsStraightLineReachable);
@@ -2641,72 +2301,43 @@ Scr_NavTrace3D
 */
 void Scr_NavTrace3D(scrContext_t *scrContext)
 {
-  bool v3; 
+  bool v2; 
   nav_space_s *DefaultSpace; 
+  bool v5; 
   bool v6; 
-  bool v7; 
-  char v20; 
-  char v21; 
+  float v7; 
   bfx::Path3DSpec pathSpec; 
   vec3_t endPos; 
   vec3_t vectorValue; 
   nav_probe_results_3D_s pOutResults; 
-  char v37; 
 
-  __asm { vmovaps [rsp+0A8h+var_18], xmm6 }
   if ( !Nav_AnyVolumesLoaded() )
     Scr_Error(COM_ERR_1500, scrContext, "NavTrace3D: No nav volumes loaded!");
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &endPos);
-  v3 = Scr_GetNumParam(scrContext) >= 3 && Scr_GetInt(scrContext, 2u);
+  v2 = Scr_GetNumParam(scrContext) >= 3 && Scr_GetInt(scrContext, 2u);
   DefaultSpace = Nav_GetDefaultSpace();
   *(_QWORD *)&pathSpec.m_volumeUsageFlags = -1i64;
-  __asm
-  {
-    vxorps  xmm6, xmm6, xmm6
-    vmovss  [rsp+0A8h+pathSpec.m_maxSearchDist], xmm6
-  }
-  v6 = Nav_Trace3D(DefaultSpace, &vectorValue, &endPos, &pathSpec, &pOutResults);
-  v7 = v6;
-  if ( v3 )
+  _XMM6 = 0i64;
+  pathSpec.m_maxSearchDist = 0.0;
+  v5 = Nav_Trace3D(DefaultSpace, &vectorValue, &endPos, &pathSpec, &pOutResults);
+  v6 = v5;
+  if ( v2 )
   {
     Scr_MakeArray(scrContext);
-    __asm
+    v7 = fsqrt((float)((float)((float)(endPos.v[1] - vectorValue.v[1]) * (float)(endPos.v[1] - vectorValue.v[1])) + (float)((float)(endPos.v[0] - vectorValue.v[0]) * (float)(endPos.v[0] - vectorValue.v[0]))) + (float)((float)(endPos.v[2] - vectorValue.v[2]) * (float)(endPos.v[2] - vectorValue.v[2])));
+    if ( v7 <= 0.0 )
     {
-      vmovss  xmm0, dword ptr [rsp+0A8h+endPos]
-      vsubss  xmm3, xmm0, dword ptr [rsp+0A8h+vectorValue]
-      vmovss  xmm1, dword ptr [rsp+0A8h+endPos+4]
-      vsubss  xmm2, xmm1, dword ptr [rsp+0A8h+vectorValue+4]
-      vmovss  xmm0, dword ptr [rsp+0A8h+endPos+8]
-      vsubss  xmm4, xmm0, dword ptr [rsp+0A8h+vectorValue+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
-      vcomiss xmm1, xmm6
-    }
-    if ( v20 | v21 )
-    {
-      _EAX = 0;
-      __asm { vmovd   xmm1, eax }
-      _EAX = v7;
+      _XMM0 = v6;
       __asm
       {
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
-        vmovss  xmm1, cs:__real@3f800000
         vblendvps xmm1, xmm6, xmm1, xmm2; value
       }
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, [rsp+0A8h+var_40.m_DistTraveled]
-        vdivss  xmm1, xmm0, xmm1
-      }
+      *(float *)&_XMM1 = pOutResults.m_DistTraveled / v7;
     }
     Scr_AddFloat(scrContext, *(float *)&_XMM1);
     Scr_AddArrayStringIndexed(scrContext, scr_const.fraction);
@@ -2717,10 +2348,8 @@ void Scr_NavTrace3D(scrContext_t *scrContext)
   }
   else
   {
-    Scr_AddBool(scrContext, v6);
+    Scr_AddBool(scrContext, v5);
   }
-  _R11 = &v37;
-  __asm { vmovaps xmm6, xmmword ptr [r11-10h] }
 }
 
 /*
@@ -2733,82 +2362,62 @@ void Scr_NavTrace(scrContext_t *scrContext)
   int NumParam; 
   const AINavigator *Navigator; 
   const gentity_s *Entity; 
-  bool v11; 
+  bool v5; 
   nav_space_s *m_pSpace; 
-  AINavigator2D *v14; 
+  AINavigator2D *v8; 
   AINavLayer Layer; 
-  bool v20; 
-  bool v21; 
-  bool v48; 
-  bool v49; 
-  bool v75; 
-  int v97; 
-  int v98; 
-  int v99; 
-  int v100; 
-  int v101; 
-  int v102; 
-  int v103; 
-  int v104; 
-  int v105; 
+  bool v10; 
+  bool v11; 
+  float v12; 
+  float v13; 
+  float v17; 
+  __int128 v18; 
+  float v19; 
+  float v20; 
+  float v21; 
+  float v22; 
+  __int128 v23; 
+  float v27; 
+  float v28; 
+  float v29; 
+  int v30; 
+  float v31; 
+  float v32; 
   float value; 
+  int v34; 
+  float v35; 
   vec3_t vectorValue; 
   vec3_t endPos; 
   nav_probe_results_s pOutResults; 
   bfx::PathSpec pathSpec; 
-  char v113; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-28h], xmm6
-    vmovaps xmmword ptr [rax-38h], xmm7
-    vmovaps xmmword ptr [rax-48h], xmm8
-    vmovaps xmmword ptr [rax-58h], xmm9
-  }
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &endPos);
   NumParam = Scr_GetNumParam(scrContext);
-  _ER15 = 0;
   Navigator = NULL;
   if ( NumParam > 2 && Scr_GetType(scrContext, 2u) )
   {
     Entity = GScr_GetEntity(2u);
     Navigator = Nav_GetNavigator(Entity);
   }
-  v11 = NumParam > 3 && Scr_GetInt(scrContext, 3u) != 0;
+  v5 = NumParam > 3 && Scr_GetInt(scrContext, 3u) != 0;
   pathSpec.m_obstacleMode = BLOCKED_IF_ANY_MATCH;
   *(_QWORD *)&pathSpec.m_obstacleBlockageFlags = -1i64;
   *(_QWORD *)&pathSpec.m_areaPenaltyFlags = -1i64;
   pathSpec.m_usePathSharingPenalty = 0;
-  __asm
-  {
-    vxorps  xmm7, xmm7, xmm7
-    vmovss  [rbp+70h+var_B0.m_pathSharingPenalty], xmm7
-    vmovss  [rbp+70h+var_B0.m_maxPathSharingPenalty], xmm7
-    vmovss  [rbp+70h+var_B0.m_maxSearchDist], xmm7
-  }
+  _XMM7 = 0i64;
+  pathSpec.m_pathSharingPenalty = 0.0;
+  pathSpec.m_maxPathSharingPenalty = 0.0;
+  pathSpec.m_maxSearchDist = 0.0;
   bfx::PenaltyTable::PenaltyTable(&pathSpec.m_penaltyTable);
   pathSpec.m_snapMode = SNAP_CLOSEST;
   bfx::AreaHandle::AreaHandle(&pOutResults.m_hEndArea);
   if ( Navigator )
   {
     m_pSpace = Navigator->m_pSpace;
-    v14 = Navigator->Get2DNavigator(Navigator);
-    if ( v14 )
-    {
-      _RAX = AINavigator2D::GetPathSpec(v14);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rbp+70h+var_B0.m_obstacleMode], ymm0
-        vmovups ymm1, ymmword ptr [rax+20h]
-        vmovups ymmword ptr [rbp+70h+var_B0.m_maxSearchDist], ymm1
-        vmovups xmm0, xmmword ptr [rax+40h]
-        vmovups xmmword ptr [rbp+0], xmm0
-      }
-    }
+    v8 = Navigator->Get2DNavigator(Navigator);
+    if ( v8 )
+      pathSpec = *AINavigator2D::GetPathSpec(v8);
     Layer = Nav_GetLayer(Navigator);
   }
   else
@@ -2816,192 +2425,78 @@ void Scr_NavTrace(scrContext_t *scrContext)
     m_pSpace = Nav_GetDefaultSpace();
     Layer = NAV_LAYER_HUMAN;
   }
-  v20 = Nav_Trace(m_pSpace, &vectorValue, &endPos, Layer, &pathSpec, &pOutResults);
-  v21 = v20;
-  if ( v11 )
+  v10 = Nav_Trace(m_pSpace, &vectorValue, &endPos, Layer, &pathSpec, &pOutResults);
+  v11 = v10;
+  if ( v5 )
   {
     Scr_MakeArray(scrContext);
-    __asm
+    v12 = fsqrt((float)((float)((float)(endPos.v[1] - vectorValue.v[1]) * (float)(endPos.v[1] - vectorValue.v[1])) + (float)((float)(endPos.v[0] - vectorValue.v[0]) * (float)(endPos.v[0] - vectorValue.v[0]))) + (float)((float)(endPos.v[2] - vectorValue.v[2]) * (float)(endPos.v[2] - vectorValue.v[2])));
+    if ( v12 <= 0.0 )
     {
-      vmovss  xmm0, dword ptr [rsp+170h+endPos]
-      vsubss  xmm3, xmm0, dword ptr [rsp+170h+vectorValue]
-      vmovss  xmm1, dword ptr [rsp+170h+endPos+4]
-      vsubss  xmm2, xmm1, dword ptr [rsp+170h+vectorValue+4]
-      vmovss  xmm0, dword ptr [rsp+170h+endPos+8]
-      vsubss  xmm4, xmm0, dword ptr [rsp+170h+vectorValue+8]
-      vmulss  xmm2, xmm2, xmm2
-      vmulss  xmm1, xmm3, xmm3
-      vaddss  xmm3, xmm2, xmm1
-      vmulss  xmm0, xmm4, xmm4
-      vaddss  xmm2, xmm3, xmm0
-      vsqrtss xmm1, xmm2, xmm2
-      vmovss  xmm6, cs:__real@3f800000
-      vcomiss xmm1, xmm7
-    }
-    if ( v48 || v49 )
-    {
-      __asm { vmovd   xmm1, r15d }
-      _EAX = v21;
+      _XMM0 = v11;
       __asm
       {
-        vmovd   xmm0, eax
         vpcmpeqd xmm2, xmm0, xmm1
         vblendvps xmm0, xmm7, xmm6, xmm2
-        vmovaps xmm1, xmm0; value
-        vmovss  dword ptr [rsp+170h+var_140], xmm0
       }
+      v13 = *(float *)&_XMM0;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, [rbp+70h+var_100.m_DistTraveled]
-        vdivss  xmm1, xmm0, xmm1
-      }
+      v13 = pOutResults.m_DistTraveled / v12;
     }
-    Scr_AddFloat(scrContext, *(float *)&_XMM1);
+    Scr_AddFloat(scrContext, v13);
     Scr_AddArrayStringIndexed(scrContext, scr_const.fraction);
     Scr_AddVector(scrContext, pOutResults.m_EndPos.v);
     Scr_AddArrayStringIndexed(scrContext, scr_const.position);
-    if ( v21 )
+    if ( v11 )
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rsp+170h+var_100.m_edgeStartPos]
-        vmovss  dword ptr [rsp+170h+var_140], xmm0
-      }
-      if ( (v97 & 0x7F800000) == 2139095040 )
-        goto LABEL_20;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+70h+var_100.m_edgeStartPos+4]
-        vmovss  dword ptr [rsp+170h+var_140], xmm0
-      }
-      if ( (v98 & 0x7F800000) == 2139095040 )
-        goto LABEL_20;
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbp+70h+var_100.m_edgeStartPos+8]
-        vmovss  dword ptr [rsp+170h+var_140], xmm0
-      }
-      if ( (v99 & 0x7F800000) == 2139095040 )
-LABEL_20:
+      if ( (LODWORD(pOutResults.m_edgeStartPos.v[0]) & 0x7F800000) == 2139095040 || (LODWORD(pOutResults.m_edgeStartPos.v[1]) & 0x7F800000) == 2139095040 || (LODWORD(pOutResults.m_edgeStartPos.v[2]) & 0x7F800000) == 2139095040 )
         Scr_Error(COM_ERR_1497, scrContext, "NavTrace: edge start pos NAN");
-      __asm
+      v17 = pOutResults.m_edgeEndPos.v[0];
+      if ( (LODWORD(pOutResults.m_edgeEndPos.v[0]) & 0x7F800000) == 2139095040 || (v18 = LODWORD(pOutResults.m_edgeEndPos.v[1]), (LODWORD(pOutResults.m_edgeEndPos.v[1]) & 0x7F800000) == 2139095040) || (v19 = pOutResults.m_edgeEndPos.v[2], (LODWORD(pOutResults.m_edgeEndPos.v[2]) & 0x7F800000) == 2139095040) )
       {
-        vmovss  xmm0, dword ptr [rbp+70h+var_100.m_edgeEndPos]
-        vmovss  dword ptr [rsp+170h+var_140], xmm0
-      }
-      if ( (v100 & 0x7F800000) == 2139095040 )
-        goto LABEL_24;
-      __asm
-      {
-        vmovss  xmm1, dword ptr [rbp+70h+var_100.m_edgeEndPos+4]
-        vmovss  dword ptr [rsp+170h+var_140], xmm1
-      }
-      if ( (v101 & 0x7F800000) == 2139095040 )
-        goto LABEL_24;
-      __asm
-      {
-        vmovss  xmm2, dword ptr [rbp+70h+var_100.m_edgeEndPos+8]
-        vmovss  dword ptr [rsp+170h+var_140], xmm2
-      }
-      v48 = (v102 & 0x7F800000u) < 0x7F800000;
-      v49 = (v102 & 0x7F800000) == 2139095040;
-      if ( (v102 & 0x7F800000) == 2139095040 )
-      {
-LABEL_24:
         Scr_Error(COM_ERR_1498, scrContext, "NavTrace: edge end pos NAN");
+        v19 = pOutResults.m_edgeEndPos.v[2];
+        v18 = LODWORD(pOutResults.m_edgeEndPos.v[1]);
+        v17 = pOutResults.m_edgeEndPos.v[0];
+      }
+      v20 = v17 - pOutResults.m_edgeStartPos.v[0];
+      v23 = v18;
+      v21 = *(float *)&v18 - pOutResults.m_edgeStartPos.v[1];
+      v22 = v19 - pOutResults.m_edgeStartPos.v[2];
+      *(float *)&v23 = (float)((float)(v21 * v21) + (float)(v20 * v20)) + (float)(v22 * v22);
+      if ( *(float *)&v23 > 0.0 )
+      {
+        *(float *)&v23 = fsqrt(*(float *)&v23);
+        _XMM1 = v23;
         __asm
         {
-          vmovss  xmm2, dword ptr [rbp+70h+var_100.m_edgeEndPos+8]
-          vmovss  xmm1, dword ptr [rbp+70h+var_100.m_edgeEndPos+4]
-          vmovss  xmm0, dword ptr [rbp+70h+var_100.m_edgeEndPos]
-        }
-      }
-      __asm
-      {
-        vsubss  xmm3, xmm0, dword ptr [rsp+170h+var_100.m_edgeStartPos]
-        vsubss  xmm4, xmm1, dword ptr [rbp+70h+var_100.m_edgeStartPos+4]
-        vsubss  xmm8, xmm2, dword ptr [rbp+70h+var_100.m_edgeStartPos+8]
-        vmulss  xmm1, xmm4, xmm4
-        vmulss  xmm0, xmm3, xmm3
-        vaddss  xmm2, xmm1, xmm0
-        vmulss  xmm1, xmm8, xmm8
-        vaddss  xmm5, xmm2, xmm1
-        vcomiss xmm5, xmm7
-      }
-      if ( !v48 && !v49 )
-      {
-        __asm
-        {
-          vsqrtss xmm1, xmm5, xmm5
           vcmpless xmm0, xmm1, cs:__real@80000000
           vblendvps xmm1, xmm1, xmm6, xmm0
-          vmovss  dword ptr [rsp+170h+var_140], xmm1
-          vdivss  xmm0, xmm6, xmm1
-          vmulss  xmm6, xmm3, xmm0
-          vmulss  xmm5, xmm4, xmm0
-          vmulss  xmm3, xmm8, xmm0
-          vmulss  xmm1, xmm3, dword ptr [rbp+70h+var_100.m_areaNormal+4]
-          vmulss  xmm0, xmm5, dword ptr [rbp+70h+var_100.m_areaNormal+8]
-          vsubss  xmm9, xmm1, xmm0
-          vmovss  [rsp+170h+value], xmm9
-          vmulss  xmm2, xmm6, dword ptr [rbp+70h+var_100.m_areaNormal+8]
-          vmulss  xmm0, xmm3, dword ptr [rbp+70h+var_100.m_areaNormal]
-          vsubss  xmm8, xmm2, xmm0
-          vmovss  [rsp+170h+var_12C], xmm8
-          vmulss  xmm1, xmm5, dword ptr [rbp+70h+var_100.m_areaNormal]
-          vmulss  xmm0, xmm6, dword ptr [rbp+70h+var_100.m_areaNormal+4]
-          vsubss  xmm5, xmm1, xmm0
-          vmovss  [rsp+170h+var_128], xmm5
-          vmovss  dword ptr [rsp+170h+var_140], xmm9
         }
-        if ( (v103 & 0x7F800000) == 2139095040 )
-          goto LABEL_29;
-        __asm { vmovss  dword ptr [rsp+170h+var_140], xmm8 }
-        if ( (v104 & 0x7F800000) == 2139095040 )
-          goto LABEL_29;
-        __asm { vmovss  dword ptr [rsp+170h+var_140], xmm5 }
-        v75 = (v105 & 0x7F800000u) < 0x7F800000;
-        if ( (v105 & 0x7F800000) == 2139095040 )
+        v27 = v20 * (float)(1.0 / *(float *)&_XMM1);
+        v28 = v21 * (float)(1.0 / *(float *)&_XMM1);
+        v29 = (float)((float)(v22 * (float)(1.0 / *(float *)&_XMM1)) * pOutResults.m_areaNormal.v[1]) - (float)(v28 * pOutResults.m_areaNormal.v[2]);
+        value = v29;
+        *(float *)&v30 = (float)(v27 * pOutResults.m_areaNormal.v[2]) - (float)((float)(v22 * (float)(1.0 / *(float *)&_XMM1)) * pOutResults.m_areaNormal.v[0]);
+        v34 = v30;
+        *(float *)&_XMM1 = v28 * pOutResults.m_areaNormal.v[0];
+        v32 = (float)(v28 * pOutResults.m_areaNormal.v[0]) - (float)(v27 * pOutResults.m_areaNormal.v[1]);
+        v31 = v32;
+        v35 = *(float *)&_XMM1 - (float)(v27 * pOutResults.m_areaNormal.v[1]);
+        if ( (LODWORD(v29) & 0x7F800000) == 2139095040 || (v30 & 0x7F800000) == 2139095040 || (LODWORD(v32) & 0x7F800000) == 2139095040 )
         {
-LABEL_29:
           Scr_Error(COM_ERR_1499, scrContext, "NavTrace: normal NAN");
-          __asm
-          {
-            vmovss  xmm5, [rsp+170h+var_128]
-            vmovss  xmm8, [rsp+170h+var_12C]
-            vmovss  xmm9, [rsp+170h+value]
-          }
+          v31 = v35;
+          v30 = v34;
+          v29 = value;
         }
-        __asm
+        if ( (float)((float)((float)(*(float *)&v30 * (float)(vectorValue.v[1] - pOutResults.m_edgeStartPos.v[1])) + (float)(v29 * (float)(vectorValue.v[0] - pOutResults.m_edgeStartPos.v[0]))) + (float)(v31 * (float)(vectorValue.v[2] - pOutResults.m_edgeStartPos.v[2]))) < 0.0 )
         {
-          vmovss  xmm0, dword ptr [rsp+170h+vectorValue]
-          vsubss  xmm3, xmm0, dword ptr [rsp+170h+var_100.m_edgeStartPos]
-          vmovss  xmm1, dword ptr [rsp+170h+vectorValue+4]
-          vsubss  xmm2, xmm1, dword ptr [rbp+70h+var_100.m_edgeStartPos+4]
-          vmovss  xmm0, dword ptr [rsp+170h+vectorValue+8]
-          vsubss  xmm4, xmm0, dword ptr [rbp+70h+var_100.m_edgeStartPos+8]
-          vmulss  xmm2, xmm8, xmm2
-          vmulss  xmm1, xmm9, xmm3
-          vaddss  xmm3, xmm2, xmm1
-          vmulss  xmm0, xmm5, xmm4
-          vaddss  xmm4, xmm3, xmm0
-          vcomiss xmm4, xmm7
-        }
-        if ( v75 )
-        {
-          __asm
-          {
-            vmovss  xmm2, dword ptr cs:__xmm@80000000800000008000000080000000
-            vxorps  xmm0, xmm9, xmm2
-            vmovss  [rsp+170h+value], xmm0
-            vxorps  xmm1, xmm8, xmm2
-            vmovss  [rsp+170h+var_12C], xmm1
-            vxorps  xmm0, xmm5, xmm2
-            vmovss  [rsp+170h+var_128], xmm0
-          }
+          LODWORD(value) = LODWORD(v29) ^ _xmm;
+          v34 = v30 ^ _xmm;
+          LODWORD(v35) = LODWORD(v31) ^ _xmm;
         }
         Scr_AddVector(scrContext, &value);
         Scr_AddArrayStringIndexed(scrContext, scr_const.normal);
@@ -3010,17 +2505,9 @@ LABEL_29:
   }
   else
   {
-    Scr_AddBool(scrContext, v20);
+    Scr_AddBool(scrContext, v10);
   }
   bfx::AreaHandle::~AreaHandle(&pOutResults.m_hEndArea);
-  _R11 = &v113;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
 }
 
 /*

@@ -418,31 +418,24 @@ BG_GetAmmoInClip
 */
 __int64 BG_GetAmmoInClip(const playerState_s *ps, const Weapon *r_weapon, bool isAlternate, PlayerHandIndex hand)
 {
-  int v11; 
+  int v8; 
   AmmoStore result; 
   AmmoStore r_clip2; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1248, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BG_AmmoStoreForWeapon(&result, r_weapon, isAlternate);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0E8h+r_clip2.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+0E8h+r_clip2.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_clip2 = *BG_AmmoStoreForWeapon(&result, r_weapon, isAlternate);
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1229, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
   if ( BG_HasLadderHand(ps) && hand == WEAPON_HAND_LEFT )
     hand = WEAPON_HAND_DEFAULT;
-  v11 = 0;
-  while ( !BG_IsClipCompatible(&ps->weapCommon.ammoInClip[v11].clipIndex, &r_clip2) )
+  v8 = 0;
+  while ( !BG_IsClipCompatible(&ps->weapCommon.ammoInClip[v8].clipIndex, &r_clip2) )
   {
-    if ( (unsigned int)++v11 >= 0xF )
+    if ( (unsigned int)++v8 >= 0xF )
       return 0i64;
   }
-  return (unsigned int)ps->weapCommon.ammoInClip[v11].ammoCount[hand];
+  return (unsigned int)ps->weapCommon.ammoInClip[v8].ammoCount[hand];
 }
 
 /*
@@ -463,14 +456,17 @@ BG_GetBulletRange<CgBallisticInstance>
 */
 float BG_GetBulletRange<CgBallisticInstance>(const BgWeaponMap *weaponMap, const BgBallistics<CgBallisticInstance> *ballisticSystem, const playerState_s *ps, const entityState_t *entState, const bitarray<64> *r_perks, const Weapon *r_weapon, bool isAlternate)
 {
-  bool v14; 
-  const Weapon *v15; 
+  bool v11; 
+  const Weapon *v12; 
   bool IsBeamWeapon; 
-  const bitarray<64> *v17; 
-  bool v18; 
+  const bitarray<64> *v14; 
+  bool v15; 
   __int64 clientNum; 
-  char v22; 
-  char v23; 
+  double BulletTerminationRange; 
+  double BallisticMuzzleVelocityScale; 
+  float v19; 
+  const BallisticInfo *BallisticInfo; 
+  const dvar_t *v21; 
   float minDamageRange; 
   float maxDamageRange; 
 
@@ -478,63 +474,57 @@ float BG_GetBulletRange<CgBallisticInstance>(const BgWeaponMap *weaponMap, const
     __debugbreak();
   if ( !entState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1531, ASSERT_TYPE_ASSERT, "(entState)", (const char *)&queryFormat, "entState") )
     __debugbreak();
-  v14 = isAlternate;
-  v15 = r_weapon;
+  v11 = isAlternate;
+  v12 = r_weapon;
   if ( BG_GetWeaponType(r_weapon, isAlternate) != WEAPTYPE_BULLET && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1532, ASSERT_TYPE_ASSERT, "(BG_GetWeaponType( r_weapon, isAlternate ) == WEAPTYPE_BULLET)", (const char *)&queryFormat, "BG_GetWeaponType( r_weapon, isAlternate ) == WEAPTYPE_BULLET") )
     __debugbreak();
-  IsBeamWeapon = BG_IsBeamWeapon(v15, v14);
-  v17 = r_perks;
-  v18 = IsBeamWeapon;
-  if ( !BG_WeaponBulletFire_ShouldSpread(*r_perks, v15, v14) && !v18 )
+  IsBeamWeapon = BG_IsBeamWeapon(v12, v11);
+  v14 = r_perks;
+  v15 = IsBeamWeapon;
+  if ( !BG_WeaponBulletFire_ShouldSpread(*r_perks, v12, v11) && !v15 )
     goto LABEL_15;
   if ( !ps )
   {
     if ( !entState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1896, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
       __debugbreak();
-    if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entState->lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x19u) && BG_AlwaysFireAtMaxRangeInAds(NULL, NULL, v15, v14) )
+    if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entState->lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x19u) && BG_AlwaysFireAtMaxRangeInAds(NULL, NULL, v12, v11) )
       goto LABEL_15;
 LABEL_22:
-    BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, weaponMap, ps, v17, v15, v14, &minDamageRange, &maxDamageRange);
-    __asm { vmovss  xmm0, [rsp+88h+arg_8] }
-    return *(float *)&_XMM0;
+    BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, weaponMap, ps, v14, v12, v11, &minDamageRange, &maxDamageRange);
+    *(float *)&BulletTerminationRange = minDamageRange;
+    return *(float *)&BulletTerminationRange;
   }
-  if ( !BG_InADS(ps) || !BG_AlwaysFireAtMaxRangeInAds(weaponMap, ps, v15, v14) )
+  if ( !BG_InADS(ps) || !BG_AlwaysFireAtMaxRangeInAds(weaponMap, ps, v12, v11) )
     goto LABEL_22;
 LABEL_15:
   if ( ps )
     clientNum = (unsigned int)ps->clientNum;
   else
     clientNum = (unsigned int)entState->number;
-  if ( ballisticSystem->ShouldFireBallisticBullet((BgBallistics<CgBallisticInstance> *)ballisticSystem, v15, v14, clientNum) )
+  if ( ballisticSystem->ShouldFireBallisticBullet((BgBallistics<CgBallisticInstance> *)ballisticSystem, v12, v11, clientNum) )
   {
-    __asm { vmovaps [rsp+88h+var_48], xmm6 }
-    *(double *)&_XMM0 = BG_GetBallisticMuzzleVelocityScale(v15, v14);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( !BG_GetBallisticInfo(v15, v14) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1555, ASSERT_TYPE_ASSERT, "(ballisticInfo)", (const char *)&queryFormat, "ballisticInfo") )
+    BallisticMuzzleVelocityScale = BG_GetBallisticMuzzleVelocityScale(v12, v11);
+    v19 = *(float *)&BallisticMuzzleVelocityScale;
+    BallisticInfo = BG_GetBallisticInfo(v12, v11);
+    if ( !BallisticInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1555, ASSERT_TYPE_ASSERT, "(ballisticInfo)", (const char *)&queryFormat, "ballisticInfo") )
       __debugbreak();
-    *(double *)&_XMM0 = BG_GetBulletTerminationRange(weaponMap, ps, v15, v14);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-    if ( v22 | v23 )
-      __asm { vmulss  xmm0, xmm6, dword ptr [rcx+rdx*4-4] }
-    __asm { vmovaps xmm6, [rsp+88h+var_48] }
+    BulletTerminationRange = BG_GetBulletTerminationRange(weaponMap, ps, v12, v11);
+    if ( *(float *)&BulletTerminationRange <= 0.0 )
+      *(float *)&BulletTerminationRange = v19 * BallisticInfo->calculated->distances[BallisticInfo->calculated->numDistanceEntries - 1];
   }
   else if ( Com_GameMode_SupportsFeature(WEAPON_DROPPING|0x80) )
   {
-    _RBX = DCONST_DVARFLT_bg_bulletLongHitScanDistance;
+    v21 = DCONST_DVARFLT_bg_bulletLongHitScanDistance;
     if ( !DCONST_DVARFLT_bg_bulletLongHitScanDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bulletLongHitScanDistance") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v21);
+    LODWORD(BulletTerminationRange) = v21->current.integer;
   }
   else
   {
-    __asm { vmovss  xmm0, cs:__real@46000000 }
+    *(float *)&BulletTerminationRange = FLOAT_8192_0;
   }
-  return *(float *)&_XMM0;
+  return *(float *)&BulletTerminationRange;
 }
 
 /*
@@ -613,6 +603,7 @@ BG_GetAmmoInClipBothHands
 */
 int BG_GetAmmoInClipBothHands(const playerState_s *ps, const Weapon *r_weapon, bool isAlternate)
 {
+  AmmoStore *v6; 
   int v7; 
   int IsClipCompatible; 
   AmmoStore result; 
@@ -620,15 +611,9 @@ int BG_GetAmmoInClipBothHands(const playerState_s *ps, const Weapon *r_weapon, b
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1257, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BG_AmmoStoreForWeapon(&result, r_weapon, isAlternate);
+  v6 = BG_AmmoStoreForWeapon(&result, r_weapon, isAlternate);
   v7 = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0D8h+r_clip2.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+0D8h+r_clip2.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_clip2 = *v6;
   while ( 1 )
   {
     IsClipCompatible = BG_IsClipCompatible(&ps->weapCommon.ammoInClip[v7].clipIndex, &r_clip2);
@@ -726,14 +711,7 @@ int BG_GetAmmoInClipForWeapon(const playerState_s *ps, const Weapon *r_weapon, b
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1248, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BG_AmmoStoreForWeapon(&result, r_weapon, isAlternate);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0D8h+r_clipIndex.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+0D8h+r_clipIndex.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_clipIndex = *BG_AmmoStoreForWeapon(&result, r_weapon, isAlternate);
   return BG_GetAmmoInClipForClipType(ps, &r_clipIndex, hand);
 }
 
@@ -744,31 +722,24 @@ BG_GetAmmoNotInClip
 */
 __int64 BG_GetAmmoNotInClip(const playerState_s *ps, const Weapon *r_weapon, bool isAlternate)
 {
-  int v9; 
+  int v6; 
   AmmoStore result; 
   AmmoStore r_ammo2; 
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1322, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BG_AmmoStoreForWeapon(&result, r_weapon, isAlternate);
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0E8h+r_ammo2.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+0E8h+r_ammo2.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_ammo2 = *BG_AmmoStoreForWeapon(&result, r_weapon, isAlternate);
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1304, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  v9 = 0;
-  while ( !BG_IsAmmoCompatible(&ps->weapCommon.ammoNotInClip[v9].ammoType, &r_ammo2) )
+  v6 = 0;
+  while ( !BG_IsAmmoCompatible(&ps->weapCommon.ammoNotInClip[v6].ammoType, &r_ammo2) )
   {
-    if ( (unsigned int)++v9 >= 0xF )
+    if ( (unsigned int)++v6 >= 0xF )
       return 0i64;
   }
-  if ( (const playerState_s *)((char *)ps + 68 * v9) == (const playerState_s *)-1912i64 )
+  if ( (const playerState_s *)((char *)ps + 68 * v6) == (const playerState_s *)-1912i64 )
     return 0i64;
-  return (unsigned int)ps->weapCommon.ammoNotInClip[v9].ammoCount;
+  return (unsigned int)ps->weapCommon.ammoNotInClip[v6].ammoCount;
 }
 
 /*
@@ -906,14 +877,17 @@ BG_GetBulletRange<GBallisticInstance>
 */
 float BG_GetBulletRange<GBallisticInstance>(const BgWeaponMap *weaponMap, const BgBallistics<GBallisticInstance> *ballisticSystem, const playerState_s *ps, const entityState_t *entState, const bitarray<64> *r_perks, const Weapon *r_weapon, bool isAlternate)
 {
-  bool v14; 
-  const Weapon *v15; 
+  bool v11; 
+  const Weapon *v12; 
   bool IsBeamWeapon; 
-  const bitarray<64> *v17; 
-  bool v18; 
+  const bitarray<64> *v14; 
+  bool v15; 
   __int64 clientNum; 
-  char v22; 
-  char v23; 
+  double BulletTerminationRange; 
+  double BallisticMuzzleVelocityScale; 
+  float v19; 
+  const BallisticInfo *BallisticInfo; 
+  const dvar_t *v21; 
   float minDamageRange; 
   float maxDamageRange; 
 
@@ -921,63 +895,57 @@ float BG_GetBulletRange<GBallisticInstance>(const BgWeaponMap *weaponMap, const 
     __debugbreak();
   if ( !entState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1531, ASSERT_TYPE_ASSERT, "(entState)", (const char *)&queryFormat, "entState") )
     __debugbreak();
-  v14 = isAlternate;
-  v15 = r_weapon;
+  v11 = isAlternate;
+  v12 = r_weapon;
   if ( BG_GetWeaponType(r_weapon, isAlternate) != WEAPTYPE_BULLET && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1532, ASSERT_TYPE_ASSERT, "(BG_GetWeaponType( r_weapon, isAlternate ) == WEAPTYPE_BULLET)", (const char *)&queryFormat, "BG_GetWeaponType( r_weapon, isAlternate ) == WEAPTYPE_BULLET") )
     __debugbreak();
-  IsBeamWeapon = BG_IsBeamWeapon(v15, v14);
-  v17 = r_perks;
-  v18 = IsBeamWeapon;
-  if ( !BG_WeaponBulletFire_ShouldSpread(*r_perks, v15, v14) && !v18 )
+  IsBeamWeapon = BG_IsBeamWeapon(v12, v11);
+  v14 = r_perks;
+  v15 = IsBeamWeapon;
+  if ( !BG_WeaponBulletFire_ShouldSpread(*r_perks, v12, v11) && !v15 )
     goto LABEL_15;
   if ( !ps )
   {
     if ( !entState && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 1896, ASSERT_TYPE_ASSERT, "(es)", (const char *)&queryFormat, "es") )
       __debugbreak();
-    if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entState->lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x19u) && BG_AlwaysFireAtMaxRangeInAds(NULL, NULL, v15, v14) )
+    if ( GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::TestFlagInternal(&entState->lerp.eFlags, GameModeFlagValues::ms_mpValue, 0x19u) && BG_AlwaysFireAtMaxRangeInAds(NULL, NULL, v12, v11) )
       goto LABEL_15;
 LABEL_22:
-    BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, weaponMap, ps, v17, v15, v14, &minDamageRange, &maxDamageRange);
-    __asm { vmovss  xmm0, [rsp+88h+arg_8] }
-    return *(float *)&_XMM0;
+    BG_GetPlayerDamageRange(WEAP_DMG_CALC_TYPE_DEFAULT, weaponMap, ps, v14, v12, v11, &minDamageRange, &maxDamageRange);
+    *(float *)&BulletTerminationRange = minDamageRange;
+    return *(float *)&BulletTerminationRange;
   }
-  if ( !BG_InADS(ps) || !BG_AlwaysFireAtMaxRangeInAds(weaponMap, ps, v15, v14) )
+  if ( !BG_InADS(ps) || !BG_AlwaysFireAtMaxRangeInAds(weaponMap, ps, v12, v11) )
     goto LABEL_22;
 LABEL_15:
   if ( ps )
     clientNum = (unsigned int)ps->clientNum;
   else
     clientNum = (unsigned int)entState->number;
-  if ( ballisticSystem->ShouldFireBallisticBullet((BgBallistics<GBallisticInstance> *)ballisticSystem, v15, v14, clientNum) )
+  if ( ballisticSystem->ShouldFireBallisticBullet((BgBallistics<GBallisticInstance> *)ballisticSystem, v12, v11, clientNum) )
   {
-    __asm { vmovaps [rsp+88h+var_48], xmm6 }
-    *(double *)&_XMM0 = BG_GetBallisticMuzzleVelocityScale(v15, v14);
-    __asm { vmovaps xmm6, xmm0 }
-    if ( !BG_GetBallisticInfo(v15, v14) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1555, ASSERT_TYPE_ASSERT, "(ballisticInfo)", (const char *)&queryFormat, "ballisticInfo") )
+    BallisticMuzzleVelocityScale = BG_GetBallisticMuzzleVelocityScale(v12, v11);
+    v19 = *(float *)&BallisticMuzzleVelocityScale;
+    BallisticInfo = BG_GetBallisticInfo(v12, v11);
+    if ( !BallisticInfo && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1555, ASSERT_TYPE_ASSERT, "(ballisticInfo)", (const char *)&queryFormat, "ballisticInfo") )
       __debugbreak();
-    *(double *)&_XMM0 = BG_GetBulletTerminationRange(weaponMap, ps, v15, v14);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcomiss xmm0, xmm1
-    }
-    if ( v22 | v23 )
-      __asm { vmulss  xmm0, xmm6, dword ptr [rcx+rdx*4-4] }
-    __asm { vmovaps xmm6, [rsp+88h+var_48] }
+    BulletTerminationRange = BG_GetBulletTerminationRange(weaponMap, ps, v12, v11);
+    if ( *(float *)&BulletTerminationRange <= 0.0 )
+      *(float *)&BulletTerminationRange = v19 * BallisticInfo->calculated->distances[BallisticInfo->calculated->numDistanceEntries - 1];
   }
   else if ( Com_GameMode_SupportsFeature(WEAPON_DROPPING|0x80) )
   {
-    _RBX = DCONST_DVARFLT_bg_bulletLongHitScanDistance;
+    v21 = DCONST_DVARFLT_bg_bulletLongHitScanDistance;
     if ( !DCONST_DVARFLT_bg_bulletLongHitScanDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bulletLongHitScanDistance") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
+    Dvar_CheckFrontendServerThread(v21);
+    LODWORD(BulletTerminationRange) = v21->current.integer;
   }
   else
   {
-    __asm { vmovss  xmm0, cs:__real@46000000 }
+    *(float *)&BulletTerminationRange = FLOAT_8192_0;
   }
-  return *(float *)&_XMM0;
+  return *(float *)&BulletTerminationRange;
 }
 
 /*
@@ -987,6 +955,7 @@ BG_GetAmmoInClipBothHandsForWeapon
 */
 int BG_GetAmmoInClipBothHandsForWeapon(const playerState_s *ps, const Weapon *r_weapon, bool isAlternate)
 {
+  AmmoStore *v6; 
   int v7; 
   int IsClipCompatible; 
   AmmoStore result; 
@@ -994,15 +963,9 @@ int BG_GetAmmoInClipBothHandsForWeapon(const playerState_s *ps, const Weapon *r_
 
   if ( !ps && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_weapons_util.h", 1257, ASSERT_TYPE_ASSERT, "(ps)", (const char *)&queryFormat, "ps") )
     __debugbreak();
-  _RAX = BG_AmmoStoreForWeapon(&result, r_weapon, isAlternate);
+  v6 = BG_AmmoStoreForWeapon(&result, r_weapon, isAlternate);
   v7 = 0;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr [rax]
-    vmovups ymmword ptr [rsp+0D8h+r_clip2.weapon.weaponIdx], ymm0
-    vmovups ymm1, ymmword ptr [rax+20h]
-    vmovups ymmword ptr [rsp+0D8h+r_clip2.weapon.attachmentVariationIndices+5], ymm1
-  }
+  r_clip2 = *v6;
   while ( 1 )
   {
     IsClipCompatible = BG_IsClipCompatible(&ps->weapCommon.ammoInClip[v7].clipIndex, &r_clip2);
@@ -1021,19 +984,15 @@ BG_MaxBulletRange
 */
 float BG_MaxBulletRange()
 {
-  if ( Com_GameMode_SupportsFeature(WEAPON_DROPPING|0x80) )
-  {
-    _RBX = DCONST_DVARFLT_bg_bulletLongHitScanDistance;
-    if ( !DCONST_DVARFLT_bg_bulletLongHitScanDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bulletLongHitScanDistance") )
-      __debugbreak();
-    Dvar_CheckFrontendServerThread(_RBX);
-    __asm { vmovss  xmm0, dword ptr [rbx+28h] }
-  }
-  else
-  {
-    __asm { vmovss  xmm0, cs:__real@46000000 }
-  }
-  return *(float *)&_XMM0;
+  const dvar_t *v0; 
+
+  if ( !Com_GameMode_SupportsFeature(WEAPON_DROPPING|0x80) )
+    return FLOAT_8192_0;
+  v0 = DCONST_DVARFLT_bg_bulletLongHitScanDistance;
+  if ( !DCONST_DVARFLT_bg_bulletLongHitScanDistance && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "bg_bulletLongHitScanDistance") )
+    __debugbreak();
+  Dvar_CheckFrontendServerThread(v0);
+  return v0->current.value;
 }
 
 /*

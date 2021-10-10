@@ -39,32 +39,27 @@ G_VehicleScriptSPCmd_OrientTo
 void G_VehicleScriptSPCmd_OrientTo(scrContext_t *scrContext, scr_entref_t entref)
 {
   gentity_s *VehicleEntity; 
-  const char *v6; 
-  float fmt; 
+  const char *v4; 
+  double Float; 
+  float v6; 
+  double v7; 
   vec3_t tgtAngles; 
   vec3_t vectorValue; 
 
-  __asm { vmovaps [rsp+78h+var_18], xmm6 }
   VehicleEntity = G_VehicleScript_GetVehicleEntity(scrContext, entref);
   if ( !VehicleEntity && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_sp\\g_vehicle_script_sp.cpp", 34, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
   if ( !VehicleEntity->vehicle )
   {
-    v6 = j_va("Orient to is only for vehicles.");
-    Scr_Error(COM_ERR_5130, scrContext, v6);
+    v4 = j_va("Orient to is only for vehicles.");
+    Scr_Error(COM_ERR_5130, scrContext, v4);
   }
   Scr_GetVector(scrContext, 0, &vectorValue);
   Scr_GetVector(scrContext, 1u, &tgtAngles);
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 3u);
-  __asm { vmovaps xmm6, xmm0 }
-  *(double *)&_XMM0 = Scr_GetFloat(scrContext, 2u);
-  __asm
-  {
-    vmovaps xmm3, xmm0; tgtSpeed
-    vmovss  dword ptr [rsp+78h+fmt], xmm6
-  }
-  G_VehicleSP_OrientTo_Init(VehicleEntity->vehicle, &vectorValue, &tgtAngles, *(float *)&_XMM3, fmt);
-  __asm { vmovaps xmm6, [rsp+78h+var_18] }
+  Float = Scr_GetFloat(scrContext, 3u);
+  v6 = *(float *)&Float;
+  v7 = Scr_GetFloat(scrContext, 2u);
+  G_VehicleSP_OrientTo_Init(VehicleEntity->vehicle, &vectorValue, &tgtAngles, *(float *)&v7, v6);
 }
 
 /*

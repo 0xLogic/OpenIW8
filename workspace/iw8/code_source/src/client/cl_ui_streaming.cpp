@@ -1083,6 +1083,10 @@ char CL_UIStreaming_AreWeaponViewModelsLoaded(const LocalClientNum_t localClient
 {
   unsigned int v6; 
   AssetStreamingPriority v7; 
+  Weapon *WeaponForName; 
+  __m256i v9; 
+  __int128 v10; 
+  double v11; 
   int v12; 
   Weapon result; 
   Weapon weapon; 
@@ -1104,32 +1108,23 @@ char CL_UIStreaming_AreWeaponViewModelsLoaded(const LocalClientNum_t localClient
         __debugbreak();
       if ( CL_AnyLocalClientStateActive() )
       {
-        _RAX = CG_Weapons_GetWeaponForName(&result, dest);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+20h]
-          vmovsd  xmm2, qword ptr [rax+30h]
-        }
-        v12 = *(_DWORD *)&_RAX->weaponCamo;
+        WeaponForName = CG_Weapons_GetWeaponForName(&result, dest);
+        v9 = *(__m256i *)&WeaponForName->weaponIdx;
+        v10 = *(_OWORD *)&WeaponForName->attachmentVariationIndices[5];
+        v11 = *(double *)&WeaponForName->attachmentVariationIndices[21];
+        v12 = *(_DWORD *)&WeaponForName->weaponCamo;
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-          vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-          vmovsd  xmm2, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-        }
+        v9 = *(__m256i *)&NULL_WEAPON.weaponIdx;
+        v10 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+        v11 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
         v12 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
       }
       *(_DWORD *)&weapon.weaponCamo = v12;
-      __asm
-      {
-        vmovups ymmword ptr [rsp+348h+weapon.weaponIdx], ymm0
-        vmovups xmmword ptr [rsp+348h+weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  qword ptr [rsp+348h+weapon.attachmentVariationIndices+15h], xmm2
-      }
+      *(__m256i *)&weapon.weaponIdx = v9;
+      *(_OWORD *)&weapon.attachmentVariationIndices[5] = v10;
+      *(double *)&weapon.attachmentVariationIndices[21] = v11;
       CL_Streaming_GetWeaponViewRequest(&weapon, v7, &outRequest);
       if ( !CL_Streaming_IsClientRequestLoaded(localClientNum, &outRequest, STREAM_SYNC_CLIENT_TYPE_VIEW_WEAPON) )
         break;
@@ -1151,6 +1146,10 @@ char CL_UIStreaming_AreWeaponWorldModelsLoaded(const char **weaponNames, const u
 {
   unsigned int v4; 
   AssetStreamingPriority v5; 
+  Weapon *WeaponForName; 
+  __m256i v7; 
+  __int128 v8; 
+  double v9; 
   int v10; 
   Weapon result; 
   Weapon weapon; 
@@ -1172,32 +1171,23 @@ char CL_UIStreaming_AreWeaponWorldModelsLoaded(const char **weaponNames, const u
         __debugbreak();
       if ( CL_AnyLocalClientStateActive() )
       {
-        _RAX = CG_Weapons_GetWeaponForName(&result, dest);
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax]
-          vmovups xmm1, xmmword ptr [rax+20h]
-          vmovsd  xmm2, qword ptr [rax+30h]
-        }
-        v10 = *(_DWORD *)&_RAX->weaponCamo;
+        WeaponForName = CG_Weapons_GetWeaponForName(&result, dest);
+        v7 = *(__m256i *)&WeaponForName->weaponIdx;
+        v8 = *(_OWORD *)&WeaponForName->attachmentVariationIndices[5];
+        v9 = *(double *)&WeaponForName->attachmentVariationIndices[21];
+        v10 = *(_DWORD *)&WeaponForName->weaponCamo;
       }
       else
       {
-        __asm
-        {
-          vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-          vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-          vmovsd  xmm2, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-        }
+        v7 = *(__m256i *)&NULL_WEAPON.weaponIdx;
+        v8 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+        v9 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
         v10 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
       }
       *(_DWORD *)&weapon.weaponCamo = v10;
-      __asm
-      {
-        vmovups ymmword ptr [rsp+338h+weapon.weaponIdx], ymm0
-        vmovups xmmword ptr [rsp+338h+weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  qword ptr [rsp+338h+weapon.attachmentVariationIndices+15h], xmm2
-      }
+      *(__m256i *)&weapon.weaponIdx = v7;
+      *(_OWORD *)&weapon.attachmentVariationIndices[5] = v8;
+      *(double *)&weapon.attachmentVariationIndices[21] = v9;
       CL_Streaming_GetWeaponWorldRequest(&weapon, v5, &outRequest);
       if ( !CL_Streaming_IsWorldRequestLoaded(&outRequest, STREAM_SYNC_WORLD_TYPE_WEAPON) )
         break;
@@ -1612,33 +1602,13 @@ void CL_UIStreaming_GetStreamRequest(ClStreamingRequest *outRequest, const char 
     case STREAM_SYNC_CLIENT_TYPE_WEAPON:
       if ( !CL_AnyLocalClientStateActive() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_streaming.cpp", 315, ASSERT_TYPE_ASSERT, "(CL_AnyLocalClientStateActive())", "%s\n\tRegistering a weapon before the game is initialized.", "CL_AnyLocalClientStateActive()") )
         __debugbreak();
-      _RAX = CL_UIStreaming_GetWeaponForName(&result, requestName);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0D8h+weapon.weaponIdx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rsp+0D8h+weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rsp+0D8h+weapon.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+      weapon = *CL_UIStreaming_GetWeaponForName(&result, requestName);
       CL_Streaming_GetWeaponWorldRequest(&weapon, v9, outRequest);
       break;
     case STREAM_SYNC_CLIENT_TYPE_VIEW_WEAPON:
       if ( !CL_AnyLocalClientStateActive() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_streaming.cpp", 323, ASSERT_TYPE_ASSERT, "(CL_AnyLocalClientStateActive())", "%s\n\tRegistering a weapon before the game is initialized.", "CL_AnyLocalClientStateActive()") )
         __debugbreak();
-      _RAX = CL_UIStreaming_GetWeaponForName(&result, requestName);
-      __asm
-      {
-        vmovups ymm0, ymmword ptr [rax]
-        vmovups ymmword ptr [rsp+0D8h+weapon.weaponIdx], ymm0
-        vmovups xmm1, xmmword ptr [rax+20h]
-        vmovups xmmword ptr [rsp+0D8h+weapon.attachmentVariationIndices+5], xmm1
-        vmovsd  xmm0, qword ptr [rax+30h]
-        vmovsd  qword ptr [rsp+0D8h+weapon.attachmentVariationIndices+15h], xmm0
-      }
-      *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
+      weapon = *CL_UIStreaming_GetWeaponForName(&result, requestName);
       CL_Streaming_GetWeaponViewRequest(&weapon, v9, outRequest);
       break;
     default:
@@ -1655,43 +1625,31 @@ CL_UIStreaming_GetWeaponForName
 */
 Weapon *CL_UIStreaming_GetWeaponForName(Weapon *result, const char *name)
 {
-  int v8; 
+  Weapon *WeaponForName; 
+  __int128 v5; 
+  double v6; 
+  int v7; 
   Weapon resulta; 
 
-  _RBX = result;
   if ( CL_AnyLocalClientStateActive() )
   {
-    _RAX = CG_Weapons_GetWeaponForName(&resulta, name);
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rax]
-      vmovups xmm1, xmmword ptr [rax+20h]
-      vmovups ymmword ptr [rbx], ymm0
-      vmovsd  xmm0, qword ptr [rax+30h]
-    }
-    v8 = *(_DWORD *)&_RAX->weaponCamo;
+    WeaponForName = CG_Weapons_GetWeaponForName(&resulta, name);
+    v5 = *(_OWORD *)&WeaponForName->attachmentVariationIndices[5];
+    *(__m256i *)&result->weaponIdx = *(__m256i *)&WeaponForName->weaponIdx;
+    v6 = *(double *)&WeaponForName->attachmentVariationIndices[21];
+    v7 = *(_DWORD *)&WeaponForName->weaponCamo;
   }
   else
   {
-    __asm
-    {
-      vmovups ymm0, ymmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.weaponIdx; Weapon const NULL_WEAPON
-      vmovups xmm1, xmmword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+5; Weapon const NULL_WEAPON
-    }
-    v8 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
-    __asm
-    {
-      vmovups ymmword ptr [rbx], ymm0
-      vmovsd  xmm0, qword ptr cs:?NULL_WEAPON@@3UWeapon@@B.attachmentVariationIndices+15h; Weapon const NULL_WEAPON
-    }
+    v5 = *(_OWORD *)&NULL_WEAPON.attachmentVariationIndices[5];
+    v7 = *(_DWORD *)&NULL_WEAPON.weaponCamo;
+    *(__m256i *)&result->weaponIdx = *(__m256i *)&NULL_WEAPON.weaponIdx;
+    v6 = *(double *)&NULL_WEAPON.attachmentVariationIndices[21];
   }
-  __asm
-  {
-    vmovups xmmword ptr [rbx+20h], xmm1
-    vmovsd  qword ptr [rbx+30h], xmm0
-  }
-  *(_DWORD *)&_RBX->weaponCamo = v8;
-  return _RBX;
+  *(_OWORD *)&result->attachmentVariationIndices[5] = v5;
+  *(double *)&result->attachmentVariationIndices[21] = v6;
+  *(_DWORD *)&result->weaponCamo = v7;
+  return result;
 }
 
 /*
@@ -2492,26 +2450,21 @@ void CL_UIStreaming_StopStreamingTransients(void)
 CL_UIStreaming_StreamedEnough
 ==============
 */
-
-bool __fastcall CL_UIStreaming_StreamedEnough(double _XMM0_8)
+bool CL_UIStreaming_StreamedEnough()
 {
-  char v5; 
+  const dvar_t *v0; 
+  float value; 
+  double Quality_Image; 
 
   if ( !Stream_LevelInit_IsDone() )
     return 1;
-  _RBX = DVARFLT_stream_syncFrontend_imageQuality;
-  __asm { vmovaps [rsp+58h+var_18], xmm6 }
+  v0 = DVARFLT_stream_syncFrontend_imageQuality;
   if ( !DVARFLT_stream_syncFrontend_imageQuality && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_syncFrontend_imageQuality") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(_RBX);
-  __asm { vmovss  xmm6, dword ptr [rbx+28h] }
-  _XMM0_8 = Stream_LoadQuality_Image();
-  __asm
-  {
-    vcomiss xmm0, xmm6
-    vmovaps xmm6, [rsp+58h+var_18]
-  }
-  return !v5;
+  Dvar_CheckFrontendServerThread(v0);
+  value = v0->current.value;
+  Quality_Image = Stream_LoadQuality_Image();
+  return *(float *)&Quality_Image >= value;
 }
 
 /*
@@ -2661,11 +2614,11 @@ CL_UIStreaming_TouchStreamModels
 ==============
 */
 
-void __fastcall CL_UIStreaming_TouchStreamModels(UIStreamRequestItem *requestItem, const StreamSyncClientType requestType, double _XMM2_8)
+void __fastcall CL_UIStreaming_TouchStreamModels(UIStreamRequestItem *requestItem, const StreamSyncClientType requestType, double a3)
 {
   bool v5; 
   __int64 i; 
-  const XModel *v11; 
+  const XModel *v7; 
   ClStreamingModelList outModelList; 
   Weapon result; 
   Weapon weapon; 
@@ -2697,33 +2650,22 @@ LABEL_9:
   }
   if ( requestItem->touchImages )
   {
-    _RAX = CL_UIStreaming_GetWeaponForName(&result, requestItem->requestName);
-    __asm
-    {
-      vmovups ymm2, ymmword ptr [rax]
-      vmovups ymmword ptr [rsp+148h+weapon.weaponIdx], ymm2
-      vmovups xmm0, xmmword ptr [rax+20h]
-      vmovups xmmword ptr [rsp+148h+weapon.attachmentVariationIndices+5], xmm0
-      vmovsd  xmm1, qword ptr [rax+30h]
-      vmovsd  qword ptr [rsp+148h+weapon.attachmentVariationIndices+15h], xmm1
-    }
-    *(_DWORD *)&weapon.weaponCamo = *(_DWORD *)&_RAX->weaponCamo;
-    __asm { vmovd   eax, xmm2 }
-    if ( (_WORD)_RAX )
+    weapon = *CL_UIStreaming_GetWeaponForName(&result, requestItem->requestName);
+    if ( LOWORD(a3) )
     {
       CL_Streaming_GetWeaponViewModels(&weapon, &outModelList);
       for ( i = 0i64; (unsigned int)i < outModelList.modelCount; i = (unsigned int)(i + 1) )
       {
-        v11 = outModelList.models[i];
-        if ( !v11 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_streaming.cpp", 360, ASSERT_TYPE_ASSERT, "(model != nullptr)", (const char *)&queryFormat, "model != nullptr") )
+        v7 = outModelList.models[i];
+        if ( !v7 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_streaming.cpp", 360, ASSERT_TYPE_ASSERT, "(model != nullptr)", (const char *)&queryFormat, "model != nullptr") )
           __debugbreak();
-        if ( !Stream_TouchXModelAndCheck(v11, MIP0) )
+        if ( !Stream_TouchXModelAndCheck(v7, MIP0) )
         {
           if ( ((unsigned __int8)&s_uiStreamingAssetsMissing & 3) != 0 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\threads_interlock_pc.h", 37, ASSERT_TYPE_ASSERT, "( ( IsAligned( addend, sizeof( volatile_int32 ) ) ) )", "( addend ) = %p", (const void *)&s_uiStreamingAssetsMissing) )
             __debugbreak();
           _InterlockedIncrement(&s_uiStreamingAssetsMissing);
           if ( s_shouldPrintWarning )
-            Com_PrintWarning(35, "CL_UIStreaming_TouchStreamingModelList: waiting for images for UI xmodel: %s\n", v11->name);
+            Com_PrintWarning(35, "CL_UIStreaming_TouchStreamingModelList: waiting for images for UI xmodel: %s\n", v7->name);
         }
       }
       BG_WeaponIsUsingCamo(&weapon);
@@ -2928,48 +2870,44 @@ void CL_UIStreaming_UpdateClientRequestCount(const LocalClientNum_t localClientN
 CL_UIStreaming_UpdateImages
 ==============
 */
-
-_BOOL8 __fastcall CL_UIStreaming_UpdateImages(double _XMM0_8)
+_BOOL8 CL_UIStreaming_UpdateImages()
 {
+  bool v0; 
+  bool v1; 
   bool v2; 
-  bool v3; 
-  bool v4; 
-  char v8; 
-  const dvar_t *v9; 
-  bool v10; 
-  int v11; 
+  const dvar_t *v3; 
+  float value; 
+  double Quality_Image; 
+  const dvar_t *v6; 
+  bool v7; 
+  int v8; 
+  double v9; 
   unsigned int outImageCount; 
   unsigned int outModelCount; 
 
   if ( !Sys_IsUpdateScreenThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_streaming.cpp", 1722, ASSERT_TYPE_ASSERT, "(Sys_IsUpdateScreenThread())", (const char *)&queryFormat, "Sys_IsUpdateScreenThread()") )
     __debugbreak();
   CL_Streaming_GetPendingRequestedAssets(&outModelCount, &outImageCount);
-  v2 = s_uiStreamingImagesMissing && s_uiStreamingImagesMissingTime != dword_150B56FBC;
-  s_shouldPrintWarning = v2;
+  v0 = s_uiStreamingImagesMissing && s_uiStreamingImagesMissingTime != dword_150B56FBC;
+  s_shouldPrintWarning = v0;
   dword_150B56FBC = s_uiStreamingImagesMissingTime;
-  v3 = !s_uiStreamingAssetsMissing && outImageCount == s_uiStreamingAssetsMissing;
+  v1 = !s_uiStreamingAssetsMissing && outImageCount == s_uiStreamingAssetsMissing;
   s_uiStreamingAssetsMissingLastUpdate = s_uiStreamingAssetsMissing;
   s_uiStreamingAssetsMissing = 0;
-  v4 = 1;
+  v2 = 1;
   if ( Stream_CanStreamMore() )
   {
     if ( Stream_LevelInit_IsDone() )
     {
-      _RDI = DVARFLT_stream_syncFrontend_imageQuality;
-      __asm { vmovaps [rsp+78h+var_38], xmm6 }
+      v3 = DVARFLT_stream_syncFrontend_imageQuality;
       if ( !DVARFLT_stream_syncFrontend_imageQuality && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "stream_syncFrontend_imageQuality") )
         __debugbreak();
-      Dvar_CheckFrontendServerThread(_RDI);
-      __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-      _XMM0_8 = Stream_LoadQuality_Image();
-      __asm
-      {
-        vcomiss xmm0, xmm6
-        vmovaps xmm6, [rsp+78h+var_38]
-      }
-      v4 = !v8;
+      Dvar_CheckFrontendServerThread(v3);
+      value = v3->current.value;
+      Quality_Image = Stream_LoadQuality_Image();
+      v2 = *(float *)&Quality_Image >= value;
     }
-    v4 = v3 && v4;
+    v2 = v1 && v2;
   }
   if ( !Sys_IsUpdateScreenThread() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_streaming.cpp", 1672, ASSERT_TYPE_ASSERT, "(Sys_IsUpdateScreenThread())", (const char *)&queryFormat, "Sys_IsUpdateScreenThread()") )
     __debugbreak();
@@ -2980,39 +2918,34 @@ _BOOL8 __fastcall CL_UIStreaming_UpdateImages(double _XMM0_8)
     s_uiStreamingImagesRequestDisabled = 0;
     goto LABEL_40;
   }
-  v9 = DVARBOOL_frontEndPrioritizeLevelLoadImages;
+  v6 = DVARBOOL_frontEndPrioritizeLevelLoadImages;
   if ( !DVARBOOL_frontEndPrioritizeLevelLoadImages && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 692, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "frontEndPrioritizeLevelLoadImages") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v9);
-  v10 = v9->current.enabled && CL_UIStreaming_ShouldPrioritizeLevelPreload();
-  s_uiStreamingImagesRequestDisabled = v10;
+  Dvar_CheckFrontendServerThread(v6);
+  v7 = v6->current.enabled && CL_UIStreaming_ShouldPrioritizeLevelPreload();
+  s_uiStreamingImagesRequestDisabled = v7;
   if ( Com_FrontEndScene_IsActive() )
   {
-    Com_FrontEndScene_SetImageStreamingComplete(v4);
-    Com_FrontEndScene_SetImageStreamingRequestDisabled(v10);
+    Com_FrontEndScene_SetImageStreamingComplete(v2);
+    Com_FrontEndScene_SetImageStreamingRequestDisabled(v7);
 LABEL_40:
     s_uiStreamingImagesMissing = 0;
     return s_uiStreamingImagesActive;
   }
-  v11 = Sys_Milliseconds();
-  if ( s_uiStreamingImagesMissingTime <= v11 )
+  v8 = Sys_Milliseconds();
+  if ( s_uiStreamingImagesMissingTime <= v8 )
   {
-    if ( v4 )
+    if ( v2 )
     {
       s_uiStreamingImagesMissing = 0;
-      s_uiStreamingImagesMissingTime = v11 + Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_frontEndFastfilesMinTime, "frontEndFastfilesMinTime");
+      s_uiStreamingImagesMissingTime = v8 + Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_frontEndFastfilesMinTime, "frontEndFastfilesMinTime");
     }
     else
     {
       s_uiStreamingImagesMissing = 1;
-      s_uiStreamingImagesMissingTime = v11 + Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_frontEndStreamingMinTime, "frontEndStreamingMinTime");
-      _XMM0_8 = Stream_LoadQuality_Image();
-      __asm
-      {
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovq   r8, xmm2
-      }
-      Com_PrintWarning(35, "CL_UIStreaming_UpdateImages_CheckRequiredImages: waiting for the required UI images. Current StreamingQuality is %.4f\n", _R8);
+      s_uiStreamingImagesMissingTime = v8 + Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_frontEndStreamingMinTime, "frontEndStreamingMinTime");
+      v9 = Stream_LoadQuality_Image();
+      Com_PrintWarning(35, "CL_UIStreaming_UpdateImages_CheckRequiredImages: waiting for the required UI images. Current StreamingQuality is %.4f\n", *(float *)&v9);
     }
   }
   return s_uiStreamingImagesActive;

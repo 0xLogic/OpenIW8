@@ -91,141 +91,69 @@ void PhysPerfRaycast_ClearData(void)
 PhysPerfRaycast_DebugDraw
 ==============
 */
-
-void __fastcall PhysPerfRaycast_DebugDraw(const ScreenPlacement *scrPlace, float *x, float *y, double tabWidth, float charHeight)
+void PhysPerfRaycast_DebugDraw(const ScreenPlacement *scrPlace, float *x, float *y, float tabWidth, float charHeight)
 {
-  const dvar_t *v7; 
-  const dvar_t *v17; 
-  const char *v18; 
-  const char *v22; 
-  const char *v30; 
-  const dvar_t *v34; 
-  const char *v35; 
-  float v43; 
-  float v44; 
-  float v45; 
-  float v46; 
-  float v47; 
+  const dvar_t *v5; 
+  const dvar_t *v9; 
+  const char *v10; 
+  const char *v11; 
+  const dvar_t *v12; 
+  const char *v13; 
+  const dvar_t *v14; 
+  const char *v15; 
 
-  v7 = DVARINT_physics_debugRaycasterMode;
-  __asm { vmovaps [rsp+98h+var_48], xmm7 }
-  _RBX = y;
-  _RDI = x;
-  __asm { vmovaps xmm7, xmm3 }
+  v5 = DVARINT_physics_debugRaycasterMode;
   if ( !DVARINT_physics_debugRaycasterMode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_debugRaycasterMode") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v7);
-  if ( v7->current.integer )
+  Dvar_CheckFrontendServerThread(v5);
+  if ( v5->current.integer )
   {
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-      vmovaps [rsp+98h+var_38], xmm6
-      vmovss  xmm6, [rsp+98h+charHeight]
-      vmovss  [rsp+98h+var_60], xmm6
-    }
-    Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, "Physics Raycaster Enabled", &colorWhite, 0, 1, v43, 0);
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm0
-      vaddss  xmm1, xmm7, dword ptr [rdi]
-      vmovss  dword ptr [rdi], xmm1
-    }
-    v17 = DVARINT_physics_debugRaycasterMode;
+    Physics_DrawDebugString(scrPlace, *x, *y, "Physics Raycaster Enabled", &colorWhite, 0, 1, charHeight, 0);
+    *y = charHeight + *y;
+    *x = tabWidth + *x;
+    v9 = DVARINT_physics_debugRaycasterMode;
     if ( !DVARINT_physics_debugRaycasterMode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_debugRaycasterMode") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v17);
-    switch ( v17->current.integer )
+    Dvar_CheckFrontendServerThread(v9);
+    switch ( v9->current.integer )
     {
       case 1:
-        v18 = "Client PMove - we use the client predictive world and pmove contents flags";
+        v10 = "Client PMove - we use the client predictive world and pmove contents flags";
         break;
       case 2:
-        v18 = "Client Sim - we use the client auth world and common dynent/ragdoll contents flags";
+        v10 = "Client Sim - we use the client auth world and common dynent/ragdoll contents flags";
         break;
       case 3:
-        v18 = "Client Weapons, world only - we use the client detail world and bullet contents flags, but only collide against the world and static models";
+        v10 = "Client Weapons, world only - we use the client detail world and bullet contents flags, but only collide against the world and static models";
         break;
       case 4:
-        v18 = "Client Weapons - we use the client detail world and bullet contents flags";
+        v10 = "Client Weapons - we use the client detail world and bullet contents flags";
         break;
       default:
         goto LABEL_17;
     }
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-      vmovss  [rsp+98h+var_60], xmm6
-    }
-    Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v18, &colorWhite, 0, 1, v44, 0);
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm0
-    }
+    Physics_DrawDebugString(scrPlace, *x, *y, v10, &colorWhite, 0, 1, charHeight, 0);
+    *y = charHeight + *y;
 LABEL_17:
-    v22 = j_va("Image Dimensions: %ix%i", 256i64, 256i64);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-      vmovss  [rsp+98h+var_60], xmm6
-    }
-    Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v22, &colorWhite, 0, 1, v45, 0);
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm0
-    }
-    _RSI = DVARFLT_physics_debugRaycasterMaxCost;
+    v11 = j_va("Image Dimensions: %ix%i", 256i64, 256i64);
+    Physics_DrawDebugString(scrPlace, *x, *y, v11, &colorWhite, 0, 1, charHeight, 0);
+    *y = charHeight + *y;
+    v12 = DVARFLT_physics_debugRaycasterMaxCost;
     if ( !DVARFLT_physics_debugRaycasterMaxCost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_debugRaycasterMaxCost") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(_RSI);
-    __asm
-    {
-      vmovss  xmm1, dword ptr [rsi+28h]
-      vcvtss2sd xmm1, xmm1, xmm1
-      vmovq   rdx, xmm1
-    }
-    v30 = j_va("Max time: %.2f microseconds", _RDX);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-      vmovss  [rsp+98h+var_60], xmm6
-    }
-    Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v30, &colorWhite, 0, 1, v46, 0);
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rbx]
-      vmovss  dword ptr [rbx], xmm0
-    }
-    v34 = DVARINT_physics_debugRaycasterRaysPerFrame;
+    Dvar_CheckFrontendServerThread(v12);
+    v13 = j_va("Max time: %.2f microseconds", v12->current.value);
+    Physics_DrawDebugString(scrPlace, *x, *y, v13, &colorWhite, 0, 1, charHeight, 0);
+    *y = charHeight + *y;
+    v14 = DVARINT_physics_debugRaycasterRaysPerFrame;
     if ( !DVARINT_physics_debugRaycasterRaysPerFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_debugRaycasterRaysPerFrame") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v34);
-    v35 = j_va("Rays per frame: %i", v34->current.unsignedInt);
-    __asm
-    {
-      vmovss  xmm2, dword ptr [rbx]; y
-      vmovss  xmm1, dword ptr [rdi]; x
-      vmovss  [rsp+98h+var_60], xmm6
-    }
-    Physics_DrawDebugString(scrPlace, *(float *)&_XMM1, *(float *)&_XMM2, v35, &colorWhite, 0, 1, v47, 0);
-    __asm
-    {
-      vaddss  xmm0, xmm6, dword ptr [rbx]
-      vmovaps xmm6, [rsp+98h+var_38]
-      vmovss  dword ptr [rbx], xmm0
-      vmovss  xmm1, dword ptr [rdi]
-      vsubss  xmm2, xmm1, xmm7
-      vmovss  dword ptr [rdi], xmm2
-    }
+    Dvar_CheckFrontendServerThread(v14);
+    v15 = j_va("Rays per frame: %i", v14->current.unsignedInt);
+    Physics_DrawDebugString(scrPlace, *x, *y, v15, &colorWhite, 0, 1, charHeight, 0);
+    *y = charHeight + *y;
+    *x = *x - tabWidth;
   }
-  __asm { vmovaps xmm7, [rsp+98h+var_48] }
 }
 
 /*
@@ -235,80 +163,42 @@ PhysPerfRaycast_DebugRender
 */
 void PhysPerfRaycast_DebugRender(GfxCmdBufContext *gfxContext)
 {
-  const dvar_t *v3; 
+  const dvar_t *v1; 
+  GfxCmdBufContext v3; 
   GfxImage *physPerfRaycastImage; 
-  float fmt; 
-  float v26; 
-  float v27; 
-  float v28; 
-  float v29; 
-  float v30; 
-  GfxCmdBufContext v31; 
+  GfxMatrix *ActiveMatrixForEdit; 
+  float displayHeight; 
+  float v7; 
+  GfxCmdBufContext v8; 
 
-  v3 = DVARINT_physics_debugRaycasterMode;
-  _RDI = gfxContext;
+  v1 = DVARINT_physics_debugRaycasterMode;
   if ( !DVARINT_physics_debugRaycasterMode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_debugRaycasterMode") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v3);
-  if ( v3->current.integer )
+  Dvar_CheckFrontendServerThread(v1);
+  if ( v1->current.integer )
   {
-    __asm { vmovaps [rsp+98h+var_18], xmm6 }
     PhysPerfRaycast_DebugRender_PrepareImage();
-    __asm { vmovups xmm6, xmmword ptr [rdi] }
+    v3 = *gfxContext;
     physPerfRaycastImage = rgp.physPerfRaycastImage;
     if ( rgp.physPerfRaycastImage )
     {
-      __asm
-      {
-        vmovq   rsi, xmm6
-        vmovaps [rsp+98h+var_28], xmm7
-      }
-      _RBX = R_GetActiveMatrixForEdit(_RSI, 0xAAu);
-      MatrixIdentity44(&_RBX->m);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rbx+30h]
-        vsubss  xmm1, xmm0, dword ptr [rsi+2790h]
-        vmovss  dword ptr [rbx+30h], xmm1
-        vmovss  xmm0, dword ptr [rbx+34h]
-        vsubss  xmm1, xmm0, dword ptr [rsi+2794h]
-        vmovss  dword ptr [rbx+34h], xmm1
-        vmovss  xmm0, dword ptr [rbx+38h]
-        vsubss  xmm1, xmm0, dword ptr [rsi+2798h]
-        vmovss  dword ptr [rbx+38h], xmm1
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, rax
-        vsubss  xmm7, xmm0, cs:__real@44100000
-      }
-      if ( !_RSI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
+      ActiveMatrixForEdit = R_GetActiveMatrixForEdit(v3.source, 0xAAu);
+      MatrixIdentity44(&ActiveMatrixForEdit->m);
+      ActiveMatrixForEdit->m.m[3].v[0] = ActiveMatrixForEdit->m.m[3].v[0] - v3.source->eyeOffset.v[0];
+      ActiveMatrixForEdit->m.m[3].v[1] = ActiveMatrixForEdit->m.m[3].v[1] - v3.source->eyeOffset.v[1];
+      ActiveMatrixForEdit->m.m[3].v[2] = ActiveMatrixForEdit->m.m[3].v[2] - v3.source->eyeOffset.v[2];
+      displayHeight = (float)cls.vidConfig.displayHeight;
+      v7 = displayHeight - 576.0;
+      if ( !v3.source && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1577, ASSERT_TYPE_ASSERT, "(source)", (const char *)&queryFormat, "source") )
         __debugbreak();
-      if ( _RSI == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
+      if ( v3.source == (GfxCmdBufSourceState *)-1792i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\gfx_d3d\\r_state.h", 1470, ASSERT_TYPE_ASSERT, "(input)", (const char *)&queryFormat, "input") )
         __debugbreak();
-      __asm
-      {
-        vmovss  xmm0, cs:__real@3f800000
-        vmovss  xmm2, cs:__real@42800000
-        vxorps  xmm1, xmm1, xmm1
-        vmovss  [rsp+98h+var_50], xmm1
-        vmovss  [rsp+98h+var_58], xmm0
-        vmovss  [rsp+98h+var_60], xmm0
-        vmovss  xmm0, cs:__real@44000000
-        vmovss  dword ptr [rsp+98h+var_68], xmm1
-      }
-      _RSI->input.codeImages[4] = physPerfRaycastImage;
-      __asm
-      {
-        vmovss  dword ptr [rsp+98h+var_70], xmm0
-        vmovaps xmm3, xmm7
-        vmovss  dword ptr [rsp+98h+fmt], xmm0
-        vmovdqa [rsp+98h+var_38], xmm6
-      }
-      RB_DrawStretchPic(&v31, rgp.feedbackReplaceBackbufferMaterial, *(float *)&_XMM2, *(float *)&_XMM3, fmt, v26, v27, v28, v29, v30, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
-      __asm { vmovdqa [rsp+98h+var_38], xmm6 }
-      RB_EndTessSurfaceInternal(&v31, "c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsperformanceraycaster.cpp(378)");
-      __asm { vmovaps xmm7, [rsp+98h+var_28] }
+      v3.source->input.codeImages[4] = physPerfRaycastImage;
+      v8 = v3;
+      RB_DrawStretchPic(&v8, rgp.feedbackReplaceBackbufferMaterial, 64.0, v7, 512.0, 512.0, 0.0, 1.0, 1.0, 0.0, 0xFFFFFFFF, GFX_PRIM_STATS_HUD);
+      v8 = v3;
+      RB_EndTessSurfaceInternal(&v8, "c:\\workspace\\iw8\\code_source\\src\\physics\\private\\core\\physicsperformanceraycaster.cpp(378)");
     }
-    __asm { vmovaps xmm6, [rsp+98h+var_18] }
   }
 }
 
@@ -317,85 +207,60 @@ void PhysPerfRaycast_DebugRender(GfxCmdBufContext *gfxContext)
 PhysPerfRaycast_DebugRender_GetSampleValues
 ==============
 */
-
-void __fastcall PhysPerfRaycast_DebugRender_GetSampleValues(unsigned __int8 *pixels, double _XMM1_8)
+void PhysPerfRaycast_DebugRender_GetSampleValues(unsigned __int8 *pixels)
 {
-  const dvar_t *v4; 
-  signed __int64 v9; 
-  unsigned __int8 *v10; 
-  unsigned __int8 *v12; 
-  __int64 v13; 
-  bool v19; 
-  unsigned __int8 *v24; 
-  __int64 v25; 
+  const dvar_t *v1; 
+  float v3; 
+  signed __int64 v4; 
+  unsigned __int8 *v5; 
+  float *v6; 
+  unsigned __int8 *v7; 
+  __int64 v8; 
+  unsigned __int8 v9; 
+  float v10; 
+  int v11; 
+  bool v12; 
+  unsigned __int8 *v13; 
+  __int64 v14; 
 
-  v4 = DVARFLT_physics_debugRaycasterMaxCost;
-  __asm
-  {
-    vmovaps [rsp+0A8h+var_48], xmm6
-    vmovaps [rsp+0A8h+var_58], xmm7
-  }
+  v1 = DVARFLT_physics_debugRaycasterMaxCost;
   if ( !DVARFLT_physics_debugRaycasterMaxCost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_debugRaycasterMaxCost") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v4);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@3f800000
-    vdivss  xmm6, xmm0, dword ptr [rbx+28h]
-    vmovss  xmm7, cs:__real@437f0000
-  }
-  v25 = 256i64;
-  v9 = s_PhysPerfRaycastSampleValuesCounts - pixels - 65280;
-  v10 = pixels + 65280;
-  v24 = pixels + 65280;
-  _RSI = s_PhysPerfRaycastSampleValues;
+  Dvar_CheckFrontendServerThread(v1);
+  v3 = 1.0 / v1->current.value;
+  v14 = 256i64;
+  v4 = s_PhysPerfRaycastSampleValuesCounts - pixels - 65280;
+  v5 = pixels + 65280;
+  v13 = pixels + 65280;
+  v6 = s_PhysPerfRaycastSampleValues;
   do
   {
-    v12 = v10;
-    v13 = 256i64;
+    v7 = v5;
+    v8 = 256i64;
     do
     {
-      if ( v12[v9] )
-      {
-        __asm
-        {
-          vmovss  xmm0, dword ptr [rsi]
-          vxorps  xmm1, xmm1, xmm1
-          vcvtsi2ss xmm1, xmm1, eax
-          vdivss  xmm0, xmm0, xmm1
-        }
-      }
+      v9 = v7[v4];
+      if ( v9 )
+        v10 = *v6 / (float)v9;
       else
-      {
-        __asm { vxorps  xmm0, xmm0, xmm0 }
-      }
-      __asm
-      {
-        vmulss  xmm0, xmm0, xmm7
-        vmulss  xmm1, xmm0, xmm6
-        vcvttss2si ebx, xmm1
-      }
-      if ( _EBX > 255 )
-        _EBX = 255;
-      if ( _EBX < 0 )
-        LOBYTE(_EBX) = 0;
-      *v12 = _EBX;
-      ++_RSI;
-      ++v12;
-      --v13;
+        v10 = 0.0;
+      v11 = (int)(float)((float)(v10 * 255.0) * v3);
+      if ( v11 > 255 )
+        v11 = 255;
+      if ( v11 < 0 )
+        LOBYTE(v11) = 0;
+      *v7 = v11;
+      ++v6;
+      ++v7;
+      --v8;
     }
-    while ( v13 );
-    v9 += 512i64;
-    v10 = v24 - 256;
-    v19 = v25-- == 1;
-    v24 -= 256;
+    while ( v8 );
+    v4 += 512i64;
+    v5 = v13 - 256;
+    v12 = v14-- == 1;
+    v13 -= 256;
   }
-  while ( !v19 );
-  __asm
-  {
-    vmovaps xmm6, [rsp+0A8h+var_48]
-    vmovaps xmm7, [rsp+0A8h+var_58]
-  }
+  while ( !v12 );
 }
 
 /*
@@ -403,92 +268,67 @@ void __fastcall PhysPerfRaycast_DebugRender_GetSampleValues(unsigned __int8 *pix
 PhysPerfRaycast_DebugRender_PrepareImage
 ==============
 */
-
-void __fastcall PhysPerfRaycast_DebugRender_PrepareImage(__int64 a1, double _XMM1_8)
+void PhysPerfRaycast_DebugRender_PrepareImage()
 {
-  const dvar_t *v4; 
-  signed __int64 v8; 
-  char *v9; 
+  const dvar_t *v0; 
+  float v1; 
+  signed __int64 v2; 
+  char *v3; 
+  float *v4; 
+  char *v5; 
+  __int64 v6; 
+  unsigned __int8 v7; 
+  float v8; 
+  int v9; 
+  bool v10; 
   char *v11; 
   __int64 v12; 
-  bool v18; 
-  char *v21; 
-  __int64 v22; 
   const GfxImage *image; 
   unsigned __int8 src[65280]; 
-  char v25[256]; 
+  char v15[256]; 
 
   image = rgp.physPerfRaycastImage;
   if ( rgp.physPerfRaycastImage )
   {
-    v4 = DVARFLT_physics_debugRaycasterMaxCost;
-    __asm
-    {
-      vmovaps [rsp+100C8h+var_38], xmm6
-      vmovaps [rsp+100C8h+var_48], xmm7
-    }
+    v0 = DVARFLT_physics_debugRaycasterMaxCost;
     if ( !DVARFLT_physics_debugRaycasterMaxCost && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_debugRaycasterMaxCost") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v4);
-    __asm
-    {
-      vmovss  xmm0, cs:__real@3f800000
-      vdivss  xmm6, xmm0, dword ptr [rbx+28h]
-      vmovss  xmm7, cs:__real@437f0000
-    }
-    v22 = 256i64;
-    v8 = s_PhysPerfRaycastSampleValuesCounts - (unsigned __int8 *)v25;
-    v9 = v25;
-    v21 = v25;
-    _RSI = s_PhysPerfRaycastSampleValues;
+    Dvar_CheckFrontendServerThread(v0);
+    v1 = 1.0 / v0->current.value;
+    v12 = 256i64;
+    v2 = s_PhysPerfRaycastSampleValuesCounts - (unsigned __int8 *)v15;
+    v3 = v15;
+    v11 = v15;
+    v4 = s_PhysPerfRaycastSampleValues;
     do
     {
-      v11 = v9;
-      v12 = 256i64;
+      v5 = v3;
+      v6 = 256i64;
       do
       {
-        if ( v11[v8] )
-        {
-          __asm
-          {
-            vmovss  xmm0, dword ptr [rsi]
-            vxorps  xmm1, xmm1, xmm1
-            vcvtsi2ss xmm1, xmm1, eax
-            vdivss  xmm0, xmm0, xmm1
-          }
-        }
+        v7 = v5[v2];
+        if ( v7 )
+          v8 = *v4 / (float)v7;
         else
-        {
-          __asm { vxorps  xmm0, xmm0, xmm0 }
-        }
-        __asm
-        {
-          vmulss  xmm0, xmm0, xmm7
-          vmulss  xmm1, xmm0, xmm6
-          vcvttss2si ebx, xmm1
-        }
-        if ( _EBX > 255 )
-          _EBX = 255;
-        if ( _EBX < 0 )
-          LOBYTE(_EBX) = 0;
-        *v11 = _EBX;
-        ++_RSI;
-        ++v11;
-        --v12;
+          v8 = 0.0;
+        v9 = (int)(float)((float)(v8 * 255.0) * v1);
+        if ( v9 > 255 )
+          v9 = 255;
+        if ( v9 < 0 )
+          LOBYTE(v9) = 0;
+        *v5 = v9;
+        ++v4;
+        ++v5;
+        --v6;
       }
-      while ( v12 );
-      v8 += 512i64;
-      v9 = v21 - 256;
-      v18 = v22-- == 1;
-      v21 -= 256;
+      while ( v6 );
+      v2 += 512i64;
+      v3 = v11 - 256;
+      v10 = v12-- == 1;
+      v11 -= 256;
     }
-    while ( !v18 );
+    while ( !v10 );
     Image_UploadData(image, GFX_CUBE_FACE_POS_X, 0, src);
-    __asm
-    {
-      vmovaps xmm7, [rsp+100C8h+var_48]
-      vmovaps xmm6, [rsp+100C8h+var_38]
-    }
   }
 }
 
@@ -515,29 +355,24 @@ PhysPerfRaycast_GetImage
 GfxImage *__fastcall PhysPerfRaycast_GetImage(double _XMM0_8)
 {
   GfxImage *result; 
-  __m256i v5; 
-  __m256i v6; 
+  __m256i v3; 
+  __m256i v4; 
   Image_SetupParams params; 
 
   result = s_physPerfRaycasterImage;
   if ( !s_physPerfRaycasterImage )
   {
-    v5.m256i_i32[2] = 1;
+    v3.m256i_i32[2] = 1;
     __asm { vpxor   xmm0, xmm0, xmm0 }
-    v6.m256i_i64[0] = 0i64;
-    __asm { vmovdqu xmmword ptr [rsp+0A8h+var_68+8], xmm0 }
-    *(__int64 *)((char *)&v5.m256i_i64[1] + 4) = 1i64;
-    v6.m256i_i32[6] = -1;
-    __asm { vmovups ymm1, [rsp+0A8h+var_68] }
-    v5.m256i_i64[0] = 0x10000000100i64;
-    v5.m256i_i32[5] = 3;
-    v5.m256i_i32[6] = 1;
-    __asm
-    {
-      vmovups ymm0, [rsp+0A8h+var_88]
-      vmovups ymmword ptr [rsp+0A8h+params.width], ymm0
-      vmovups ymmword ptr [rsp+0A8h+params.customAllocFunc], ymm1
-    }
+    v4.m256i_i64[0] = 0i64;
+    *(_OWORD *)&v4.m256i_u64[1] = _XMM0;
+    *(__int64 *)((char *)&v3.m256i_i64[1] + 4) = 1i64;
+    v4.m256i_i32[6] = -1;
+    v3.m256i_i64[0] = 0x10000000100i64;
+    v3.m256i_i32[5] = 3;
+    v3.m256i_i32[6] = 1;
+    *(__m256i *)&params.width = v3;
+    *(__m256i *)&params.customAllocFunc = v4;
     s_physPerfRaycasterImage = Image_AllocProg(IMAGE_PROG_PHYS_PERF_RAYCASTER, IMG_CATEGORY_RAW, TS_FUNCTION);
     Image_Setup(s_physPerfRaycasterImage, &params);
     return s_physPerfRaycasterImage;
@@ -550,60 +385,50 @@ GfxImage *__fastcall PhysPerfRaycast_GetImage(double _XMM0_8)
 PhysPerfRaycast_Update
 ==============
 */
-void PhysPerfRaycast_Update()
+void PhysPerfRaycast_Update(void)
 {
-  const dvar_t *v11; 
+  const dvar_t *rbx1; 
   Physics_DebugRaycasterMode integer; 
   cg_t *LocalClientGlobals; 
   RefdefView *p_view; 
   unsigned int refdefViewOrg_aab; 
   _DWORD *v; 
-  Physics_WorldId v45; 
-  __int32 v47; 
-  __int32 v48; 
-  __int32 v49; 
+  double v8; 
+  Physics_WorldId v9; 
+  __int32 v10; 
+  __int32 v11; 
+  __int32 v12; 
   HavokPhysics_CollisionQueryResult *CollisionQueryResult; 
   unsigned __int8 *WeaponPriorityMap; 
-  const dvar_t *v52; 
-  int v53; 
-  __int64 v54; 
+  const dvar_t *v15; 
+  int v16; 
+  __int64 v17; 
+  double v18; 
+  int v19; 
+  int v20; 
+  __int64 v21; 
+  float v22; 
+  float v23; 
   unsigned __int64 TickCounter; 
-  hkMemoryAllocator *v101; 
-  hkMemoryAllocator *v102; 
+  __int128 v27; 
+  __int128 v29; 
+  hkMemoryAllocator *v31; 
+  hkMemoryAllocator *v32; 
   Physics_RaycastExtendedData extendedData; 
-  HavokPhysics_IgnoreBodies v115; 
-  __int64 v116; 
+  HavokPhysics_IgnoreBodies v34; 
+  __int64 v35; 
   vec3_t start; 
-  float v0[2]; 
-  float v119; 
-  float v120[2]; 
-  float v121; 
-  float v122[2]; 
-  float v123; 
+  vec3_t v0; 
+  vec3_t row1; 
+  vec3_t row2; 
   vec3_t end; 
-  char v125; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  v116 = -2i64;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vmovaps xmmword ptr [rax-68h], xmm9
-    vmovaps xmmword ptr [rax-78h], xmm10
-    vmovaps xmmword ptr [rax-88h], xmm11
-    vmovaps xmmword ptr [rax-98h], xmm12
-    vmovaps xmmword ptr [rax-0A8h], xmm13
-    vmovaps xmmword ptr [rax-0B8h], xmm14
-    vmovaps xmmword ptr [rax-0C8h], xmm15
-  }
-  v11 = DVARINT_physics_debugRaycasterMode;
+  v35 = -2i64;
+  rbx1 = DVARINT_physics_debugRaycasterMode;
   if ( !DVARINT_physics_debugRaycasterMode && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_debugRaycasterMode") )
     __debugbreak();
-  Dvar_CheckFrontendServerThread(v11);
-  integer = v11->current.integer;
+  Dvar_CheckFrontendServerThread(rbx1);
+  integer = rbx1->current.integer;
   if ( integer )
   {
     if ( s_physPerfRaycasterMode != integer )
@@ -612,36 +437,9 @@ void PhysPerfRaycast_Update()
       memset_0(s_PhysPerfRaycastSampleValuesCounts, 0, sizeof(s_PhysPerfRaycastSampleValuesCounts));
       s_physPerfRaycasterMode = integer;
     }
-    _RAX = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+6944h]
-      vmovss  [rbp+0D0h+v0], xmm0
-      vmovss  xmm1, dword ptr [rax+6948h]
-      vmovss  [rbp+0D0h+v0+4], xmm1
-      vmovss  xmm0, dword ptr [rax+694Ch]
-      vmovss  [rbp+0D0h+var_108], xmm0
-    }
-    _RAX = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+6950h]
-      vmovss  [rbp+0D0h+var_100], xmm0
-      vmovss  xmm1, dword ptr [rax+6954h]
-      vmovss  [rbp+0D0h+var_100+4], xmm1
-      vmovss  xmm0, dword ptr [rax+6958h]
-      vmovss  [rbp+0D0h+var_F8], xmm0
-    }
-    _RAX = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rax+695Ch]
-      vmovss  [rbp+0D0h+var_F0], xmm0
-      vmovss  xmm1, dword ptr [rax+6960h]
-      vmovss  [rbp+0D0h+var_F0+4], xmm1
-      vmovss  xmm0, dword ptr [rax+6964h]
-      vmovss  [rbp+0D0h+var_E8], xmm0
-    }
+    v0 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->refdef.view.axis.m[0];
+    row1 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->refdef.view.axis.row1;
+    row2 = CG_GetLocalClientGlobals(LOCAL_CLIENT_0)->refdef.view.axis.row2;
     LocalClientGlobals = CG_GetLocalClientGlobals(LOCAL_CLIENT_0);
     p_view = &LocalClientGlobals->refdef.view;
     if ( LocalClientGlobals == (cg_t *)-26928i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\renderer\\tr_types.h", 1316, ASSERT_TYPE_ASSERT, "(refdefView)", (const char *)&queryFormat, "refdefView") )
@@ -653,257 +451,138 @@ void PhysPerfRaycast_Update()
     LODWORD(start.v[0]) = *v ^ ((refdefViewOrg_aab ^ (unsigned int)v) * ((refdefViewOrg_aab ^ (unsigned int)v) + 2));
     LODWORD(start.v[1]) = v[1] ^ ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 4)) + 2));
     LODWORD(start.v[2]) = ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) * ((refdefViewOrg_aab ^ ((_DWORD)v + 8)) + 2)) ^ v[2];
-    __asm
+    if ( !VecNCompareCustomEpsilon(v0.v, s_physPerfRaycasterCamForward.v, 0.0099999998, 3) || !VecNCompareCustomEpsilon(row1.v, s_physPerfRaycasterCamLeft.v, 0.0099999998, 3) || !VecNCompareCustomEpsilon(row2.v, s_physPerfRaycasterCamUp.v, 0.0099999998, 3) || !VecNCompareCustomEpsilon(start.v, s_physPerfRaycasterCamPos.v, 1.0, 3) )
     {
-      vmovss  xmm6, cs:__real@3c23d70a
-      vmovaps xmm2, xmm6; epsilon
-      vmovss  xmm11, cs:__real@3f800000
-    }
-    if ( !VecNCompareCustomEpsilon(v0, s_physPerfRaycasterCamForward.v, *(float *)&_XMM2, 3) )
-      goto LABEL_18;
-    __asm { vmovaps xmm2, xmm6; epsilon }
-    if ( !VecNCompareCustomEpsilon(v120, s_physPerfRaycasterCamLeft.v, *(float *)&_XMM2, 3) )
-      goto LABEL_18;
-    __asm { vmovaps xmm2, xmm6; epsilon }
-    if ( !VecNCompareCustomEpsilon(v122, s_physPerfRaycasterCamUp.v, *(float *)&_XMM2, 3) )
-      goto LABEL_18;
-    __asm { vmovaps xmm2, xmm11; epsilon }
-    if ( !VecNCompareCustomEpsilon(start.v, s_physPerfRaycasterCamPos.v, *(float *)&_XMM2, 3) )
-    {
-LABEL_18:
       memset_0(s_PhysPerfRaycastSampleValues, 0, sizeof(s_PhysPerfRaycastSampleValues));
       memset_0(s_PhysPerfRaycastSampleValuesCounts, 0, sizeof(s_PhysPerfRaycastSampleValuesCounts));
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbp+0D0h+v0]
-        vmovsd  qword ptr cs:s_physPerfRaycasterCamForward, xmm0
-      }
-      s_physPerfRaycasterCamForward.v[2] = v119;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbp+0D0h+var_100]
-        vmovsd  qword ptr cs:s_physPerfRaycasterCamLeft, xmm0
-      }
-      s_physPerfRaycasterCamLeft.v[2] = v121;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbp+0D0h+var_F0]
-        vmovsd  qword ptr cs:s_physPerfRaycasterCamUp, xmm0
-      }
-      s_physPerfRaycasterCamUp.v[2] = v123;
-      __asm
-      {
-        vmovsd  xmm0, qword ptr [rbp+0D0h+start]
-        vmovsd  qword ptr cs:s_physPerfRaycasterCamPos, xmm0
-      }
-      s_physPerfRaycasterCamPos.v[2] = start.v[2];
+      s_physPerfRaycasterCamForward = v0;
+      s_physPerfRaycasterCamLeft = row1;
+      s_physPerfRaycasterCamUp = row2;
+      s_physPerfRaycasterCamPos = start;
     }
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2sd xmm1, xmm1, rax
-      vmovsd  xmm8, cs:__real@43f0000000000000
-    }
+    _XMM1 = 0i64;
+    __asm { vcvtsi2sd xmm1, xmm1, rax }
     if ( (hkStopwatch::getTicksPerSecond() & 0x8000000000000000ui64) != 0i64 )
-      __asm { vaddsd  xmm1, xmm1, xmm8 }
-    __asm
-    {
-      vmovsd  xmm0, cs:__real@3ff0000000000000
-      vdivsd  xmm13, xmm0, xmm1
-    }
-    v45 = PHYSICS_WORLD_ID_INVALID;
+      *(double *)&_XMM1 = *(double *)&_XMM1 + 1.844674407370955e19;
+    v8 = 1.0 / *(double *)&_XMM1;
+    v9 = PHYSICS_WORLD_ID_INVALID;
     extendedData.contents = -1;
     extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_COLLISION;
-    __asm
-    {
-      vxorps  xmm9, xmm9, xmm9
-      vmovss  [rsp+1D0h+extendedData.collisionBuffer], xmm9
-    }
+    extendedData.collisionBuffer = 0.0;
     extendedData.phaseSelection = All;
     extendedData.insideHitType = Physics_RaycastInsideHitType_InsideHits;
     *(_WORD *)&extendedData.collectInsideHits = 256;
-    HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v115, 1, 0);
-    HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v115, 0, 0, 1, 0, 0, 0, 0);
-    extendedData.ignoreBodies = &v115;
-    v47 = integer - 1;
-    if ( v47 )
+    HavokPhysics_IgnoreBodies::HavokPhysics_IgnoreBodies(&v34, 1, 0);
+    HavokPhysics_IgnoreBodies::SetIgnoreEntity(&v34, 0, 0, 1, 0, 0, 0, 0);
+    extendedData.ignoreBodies = &v34;
+    v10 = integer - 1;
+    if ( v10 )
     {
-      v48 = v47 - 1;
-      if ( v48 )
+      v11 = v10 - 1;
+      if ( v11 )
       {
-        v49 = v48 - 1;
-        if ( v49 )
+        v12 = v11 - 1;
+        if ( v12 )
         {
-          if ( v49 == 1 )
+          if ( v12 == 1 )
           {
-            v45 = PHYSICS_WORLD_ID_CLIENT0_DETAIL;
+            v9 = PHYSICS_WORLD_ID_CLIENT0_DETAIL;
             extendedData.contents = 41974001;
             extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
           }
         }
         else
         {
-          v45 = PHYSICS_WORLD_ID_CLIENT0_DETAIL;
+          v9 = PHYSICS_WORLD_ID_CLIENT0_DETAIL;
           extendedData.contents = 41974001;
           extendedData.characterProxyType = PHYSICS_CHARACTERPROXY_TYPE_DETAIL;
-          HavokPhysics_IgnoreBodies::SetIgnoreRefs(&v115, -2);
+          HavokPhysics_IgnoreBodies::SetIgnoreRefs(&v34, -2);
         }
       }
       else
       {
-        v45 = PHYSICS_WORLD_ID_CLIENT0_AUTHORITATIVE;
+        v9 = PHYSICS_WORLD_ID_CLIENT0_AUTHORITATIVE;
         extendedData.contents = 8391985;
       }
     }
     else
     {
-      v45 = PHYSICS_WORLD_ID_CLIENT_FIRST;
+      v9 = PHYSICS_WORLD_ID_CLIENT_FIRST;
       extendedData.contents = 198705;
     }
-    CollisionQueryResult = Physics_AllocateCollisionQueryResult(v45, PHYSICS_COLLISIONQUERY_COLLECTION_TYPE_CLOSEST);
-    if ( Physics_IsDetailWorld(v45) )
+    CollisionQueryResult = Physics_AllocateCollisionQueryResult(v9, PHYSICS_COLLISIONQUERY_COLLECTION_TYPE_CLOSEST);
+    if ( Physics_IsDetailWorld(v9) )
     {
       WeaponPriorityMap = BG_GetWeaponPriorityMap(&NULL_WEAPON, 0);
       Physics_AddDetailTrace(CollisionQueryResult, WeaponPriorityMap);
     }
-    v52 = DVARINT_physics_debugRaycasterRaysPerFrame;
+    v15 = DVARINT_physics_debugRaycasterRaysPerFrame;
     if ( !DVARINT_physics_debugRaycasterRaysPerFrame && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 699, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "physics_debugRaycasterRaysPerFrame") )
       __debugbreak();
-    Dvar_CheckFrontendServerThread(v52);
-    v53 = v52->current.integer;
-    if ( v53 > 0 )
+    Dvar_CheckFrontendServerThread(v15);
+    v16 = v15->current.integer;
+    if ( v16 > 0 )
     {
-      v54 = (unsigned int)v53;
-      __asm
-      {
-        vmovss  xmm10, cs:__real@43800000
-        vmovss  xmm15, cs:__real@4593cd3a
-        vmovss  xmm14, cs:__real@45800000
-        vmovss  xmm12, cs:__real@49742400
-      }
+      v17 = (unsigned int)v16;
       do
       {
-        __asm
+        BG_flrand(0.0, 1.0, &s_physPerfRaycastRandSeed);
+        v18 = BG_flrand(0.0, 1.0, &s_physPerfRaycastRandSeed);
+        v19 = (int)(float)(0.0 * 256.0);
+        if ( v19 > 255 )
+          v19 = 255;
+        if ( v19 < 0 )
+          v19 = 0;
+        v20 = (int)(float)(*(float *)&v18 * 256.0);
+        if ( v20 > 255 )
+          v20 = 255;
+        if ( v20 < 0 )
+          v20 = 0;
+        v21 = v19 + (v20 << 8);
+        if ( s_PhysPerfRaycastSampleValuesCounts[v21] != 0xFF )
         {
-          vmovaps xmm1, xmm11; max
-          vmovaps xmm0, xmm9; min
-        }
-        *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, &s_physPerfRaycastRandSeed);
-        __asm
-        {
-          vmovaps xmm6, xmm0
-          vmovaps xmm1, xmm11; max
-          vmovaps xmm0, xmm9; min
-        }
-        *(double *)&_XMM0 = BG_flrand(*(float *)&_XMM0, *(float *)&_XMM1, &s_physPerfRaycastRandSeed);
-        __asm
-        {
-          vmovaps xmm2, xmm0
-          vmulss  xmm1, xmm6, xmm10
-          vcvttss2si ecx, xmm1
-        }
-        if ( _ECX > 255 )
-          _ECX = 255;
-        if ( _ECX < 0 )
-          _ECX = 0;
-        __asm
-        {
-          vmulss  xmm1, xmm0, xmm10
-          vcvttss2si eax, xmm1
-        }
-        if ( _EAX > 255 )
-          _EAX = 255;
-        if ( _EAX < 0 )
-          _EAX = 0;
-        _RDI = _ECX + (_EAX << 8);
-        if ( s_PhysPerfRaycastSampleValuesCounts[_RDI] != 0xFF )
-        {
-          __asm
-          {
-            vmulss  xmm0, xmm6, xmm15
-            vmovss  xmm3, cs:__real@4513cd3a
-            vsubss  xmm6, xmm3, xmm0
-            vmulss  xmm1, xmm2, xmm15
-            vsubss  xmm7, xmm3, xmm1
-            vmulss  xmm1, xmm14, [rbp+0D0h+v0]
-            vaddss  xmm3, xmm1, dword ptr [rbp+0D0h+start]
-            vmulss  xmm0, xmm14, [rbp+0D0h+v0+4]
-            vaddss  xmm4, xmm0, dword ptr [rbp+0D0h+start+4]
-            vmulss  xmm2, xmm14, [rbp+0D0h+var_108]
-            vaddss  xmm5, xmm2, dword ptr [rbp+0D0h+start+8]
-            vmulss  xmm1, xmm6, [rbp+0D0h+var_100]
-            vaddss  xmm3, xmm1, xmm3
-            vmulss  xmm0, xmm6, [rbp+0D0h+var_100+4]
-            vaddss  xmm4, xmm0, xmm4
-            vmulss  xmm2, xmm6, [rbp+0D0h+var_F8]
-            vaddss  xmm5, xmm2, xmm5
-            vmulss  xmm1, xmm7, [rbp+0D0h+var_F0]
-            vaddss  xmm2, xmm1, xmm3
-            vmovss  dword ptr [rbp+0D0h+end], xmm2
-            vmulss  xmm1, xmm7, [rbp+0D0h+var_F0+4]
-            vaddss  xmm2, xmm1, xmm4
-            vmovss  dword ptr [rbp+0D0h+end+4], xmm2
-            vmulss  xmm1, xmm7, [rbp+0D0h+var_E8]
-            vaddss  xmm2, xmm1, xmm5
-            vmovss  dword ptr [rbp+0D0h+end+8], xmm2
-          }
+          v22 = 2364.8267 - (float)(0.0 * 4729.6533);
+          v23 = 2364.8267 - (float)(*(float *)&v18 * 4729.6533);
+          end.v[0] = (float)(v23 * row2.v[0]) + (float)((float)(v22 * row1.v[0]) + (float)((float)(4096.0 * v0.v[0]) + start.v[0]));
+          end.v[1] = (float)(v23 * row2.v[1]) + (float)((float)(v22 * row1.v[1]) + (float)((float)(4096.0 * v0.v[1]) + start.v[1]));
+          end.v[2] = (float)(v23 * row2.v[2]) + (float)((float)(v22 * row1.v[2]) + (float)((float)(4096.0 * v0.v[2]) + start.v[2]));
           HavokPhysics_CollisionQueryResult::Reset(CollisionQueryResult, 0);
           TickCounter = hkStopwatch::getTickCounter();
-          Physics_Raycast(v45, &start, &end, &extendedData, CollisionQueryResult);
-          __asm
-          {
-            vxorps  xmm0, xmm0, xmm0
-            vcvtsi2sd xmm0, xmm0, rax
-          }
+          Physics_Raycast(v9, &start, &end, &extendedData, CollisionQueryResult);
+          _XMM0 = 0i64;
+          __asm { vcvtsi2sd xmm0, xmm0, rax }
           if ( (__int64)(hkStopwatch::getTickCounter() - TickCounter) < 0 )
-            __asm { vaddsd  xmm0, xmm0, xmm8 }
-          __asm
           {
-            vmulsd  xmm0, xmm0, xmm13
-            vcvtsd2ss xmm1, xmm0, xmm0
-            vmulss  xmm2, xmm1, xmm12
+            *((_QWORD *)&v27 + 1) = *((_QWORD *)&_XMM0 + 1);
+            *(double *)&v27 = *(double *)&_XMM0 + 1.844674407370955e19;
+            _XMM0 = v27;
           }
-          _RAX = s_PhysPerfRaycastSampleValues;
-          __asm
-          {
-            vaddss  xmm0, xmm2, dword ptr [rax+rdi*4]
-            vmovss  dword ptr [rax+rdi*4], xmm0
-          }
-          ++s_PhysPerfRaycastSampleValuesCounts[_RDI];
+          *((_QWORD *)&v29 + 1) = *((_QWORD *)&_XMM0 + 1);
+          *(double *)&v29 = *(double *)&_XMM0 * v8;
+          _XMM0 = v29;
+          __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+          s_PhysPerfRaycastSampleValues[v21] = (float)(*(float *)&_XMM1 * 1000000.0) + s_PhysPerfRaycastSampleValues[v21];
+          ++s_PhysPerfRaycastSampleValuesCounts[v21];
         }
-        --v54;
+        --v17;
       }
-      while ( v54 );
+      while ( v17 );
     }
     Physics_FreeCollisionQueryResult(CollisionQueryResult);
-    v101 = hkMemHeapAllocator();
-    v115.m_ignoreBodies.m_size = 0;
-    if ( v115.m_ignoreBodies.m_capacityAndFlags >= 0 )
-      hkMemoryAllocator::bufFree2(v101, v115.m_ignoreBodies.m_data, 4, v115.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
-    v115.m_ignoreBodies.m_data = NULL;
-    v115.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
-    v102 = hkMemHeapAllocator();
-    v115.m_ignoreEntities.m_size = 0;
-    if ( v115.m_ignoreEntities.m_capacityAndFlags >= 0 )
-      hkMemoryAllocator::bufFree2(v102, v115.m_ignoreEntities.m_data, 8, v115.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
+    v31 = hkMemHeapAllocator();
+    v34.m_ignoreBodies.m_size = 0;
+    if ( v34.m_ignoreBodies.m_capacityAndFlags >= 0 )
+      hkMemoryAllocator::bufFree2(v31, v34.m_ignoreBodies.m_data, 4, v34.m_ignoreBodies.m_capacityAndFlags & 0x3FFFFFFF);
+    v34.m_ignoreBodies.m_data = NULL;
+    v34.m_ignoreBodies.m_capacityAndFlags = 0x80000000;
+    v32 = hkMemHeapAllocator();
+    v34.m_ignoreEntities.m_size = 0;
+    if ( v34.m_ignoreEntities.m_capacityAndFlags >= 0 )
+      hkMemoryAllocator::bufFree2(v32, v34.m_ignoreEntities.m_data, 8, v34.m_ignoreEntities.m_capacityAndFlags & 0x3FFFFFFF);
   }
   else
   {
     s_physPerfRaycasterMode = Physics_DebugRaycasterMode_Off;
-  }
-  _R11 = &v125;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-    vmovaps xmm10, xmmword ptr [r11-50h]
-    vmovaps xmm11, xmmword ptr [r11-60h]
-    vmovaps xmm12, xmmword ptr [r11-70h]
-    vmovaps xmm13, xmmword ptr [r11-80h]
-    vmovaps xmm14, xmmword ptr [r11-90h]
-    vmovaps xmm15, xmmword ptr [r11-0A0h]
   }
 }
 

@@ -16,143 +16,67 @@ SpartialPartition_Population_Test::MakePlaneBox
 */
 void SpartialPartition_Population_Test::MakePlaneBox(const ExtentBounds *box, vec4_t *planes)
 {
-  const ExtentBounds *v7; 
+  const ExtentBounds *v3; 
+  __m128 *v8; 
   vec4_t result; 
-  __int128 v57[3]; 
-  char vars0; 
+  __m128 v18; 
 
-  __asm
-  {
-    vmovaps [rsp+80h+var_10], xmm6
-    vmovaps [rsp+80h+var_20], xmm7
-    vmovaps [rsp+80h+var_30], xmm8
-    vmovss  xmm6, cs:__real@3f800000
-  }
-  _RDI = planes;
-  v7 = box;
-  __asm
-  {
-    vxorps  xmm8, xmm8, xmm8
-    vmovss  dword ptr [rbp+var_50], xmm6
-    vmovss  dword ptr [rbp+var_50+4], xmm8
-    vmovss  dword ptr [rbp+var_50+8], xmm8
-  }
-  _RAX = PlaneFromPoint(&result, &box->mins, (const vec3_t *)v57);
-  __asm
-  {
-    vmovss  xmm7, dword ptr cs:__xmm@80000000800000008000000080000000
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+var_50], xmm0
-    vmovups xmm1, [rbp+var_50]
-    vshufps xmm0, xmm0, xmm0, 0FFh
-    vxorps  xmm0, xmm0, xmm7
-    vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-    vmovups [rbp+var_50], xmm1
-  }
-  HIDWORD(v57[0]) = HIDWORD(_RT0);
-  __asm
-  {
-    vmovss  dword ptr [rbp+var_50], xmm8
-    vmovss  dword ptr [rbp+var_50+4], xmm6
-    vmovss  dword ptr [rbp+var_50+8], xmm8
-    vmovups xmmword ptr [rdi], xmm1
-  }
-  _RAX = PlaneFromPoint(&result, &v7->mins, (const vec3_t *)v57);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+var_50], xmm0
-    vmovups xmm1, [rbp+var_50]
-    vshufps xmm0, xmm0, xmm0, 0FFh
-    vxorps  xmm0, xmm0, xmm7
-    vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-    vmovups [rbp+var_50], xmm1
-  }
-  HIDWORD(v57[0]) = HIDWORD(_RT0);
-  __asm
-  {
-    vmovss  dword ptr [rbp+var_50], xmm8
-    vmovss  dword ptr [rbp+var_50+4], xmm8
-    vmovss  dword ptr [rbp+var_50+8], xmm6
-    vmovups xmmword ptr [rdi+10h], xmm1
-  }
-  _RAX = PlaneFromPoint(&result, &v7->mins, (const vec3_t *)v57);
-  __asm { vmovss  xmm6, cs:__real@bf800000 }
-  v7 = (const ExtentBounds *)((char *)v7 + 12);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+var_50], xmm0
-    vmovups xmm1, [rbp+var_50]
-    vshufps xmm0, xmm0, xmm0, 0FFh
-    vxorps  xmm0, xmm0, xmm7
-    vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-    vmovups [rbp+var_50], xmm1
-  }
-  HIDWORD(v57[0]) = HIDWORD(_RT0);
-  __asm
-  {
-    vmovss  dword ptr [rbp+var_50], xmm6
-    vmovss  dword ptr [rbp+var_50+4], xmm8
-    vmovss  dword ptr [rbp+var_50+8], xmm8
-    vmovups xmmword ptr [rdi+20h], xmm1
-  }
-  _RAX = PlaneFromPoint(&result, &v7->mins, (const vec3_t *)v57);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+var_50], xmm0
-    vmovups xmm1, [rbp+var_50]
-    vshufps xmm0, xmm0, xmm0, 0FFh
-    vxorps  xmm0, xmm0, xmm7
-    vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-    vmovups [rbp+var_50], xmm1
-  }
-  HIDWORD(v57[0]) = HIDWORD(_RT0);
-  __asm
-  {
-    vmovss  dword ptr [rbp+var_50], xmm8
-    vmovss  dword ptr [rbp+var_50+4], xmm6
-    vmovss  dword ptr [rbp+var_50+8], xmm8
-    vmovups xmmword ptr [rdi+30h], xmm1
-  }
-  _RAX = PlaneFromPoint(&result, &v7->mins, (const vec3_t *)v57);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+var_50], xmm0
-    vmovups xmm1, [rbp+var_50]
-    vshufps xmm0, xmm0, xmm0, 0FFh
-    vxorps  xmm0, xmm0, xmm7
-    vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-    vmovups [rbp+var_50], xmm1
-  }
-  HIDWORD(v57[0]) = HIDWORD(_RT0);
-  __asm
-  {
-    vmovss  dword ptr [rbp+var_50], xmm8
-    vmovss  dword ptr [rbp+var_50+4], xmm8
-    vmovss  dword ptr [rbp+var_50+8], xmm6
-    vmovups xmmword ptr [rdi+40h], xmm1
-  }
-  _RAX = PlaneFromPoint(&result, &v7->mins, (const vec3_t *)v57);
-  __asm
-  {
-    vmovups xmm0, xmmword ptr [rax]
-    vmovups [rbp+var_50], xmm0
-    vmovups xmm1, [rbp+var_50]
-    vshufps xmm0, xmm0, xmm0, 0FFh
-    vxorps  xmm0, xmm0, xmm7
-    vinsertps xmm1, xmm1, xmm0, 30h ; '0'
-    vmovups xmmword ptr [rdi+50h], xmm1
-  }
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, [rsp+80h+var_10]
-    vmovaps xmm7, [rsp+80h+var_20]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-  }
+  v3 = box;
+  v18.m128_f32[0] = FLOAT_1_0;
+  v18.m128_f32[1] = 0.0;
+  v18.m128_f32[2] = 0.0;
+  v18 = *(__m128 *)PlaneFromPoint(&result, &box->mins, (const vec3_t *)&v18);
+  _XMM1 = v18;
+  _mm_shuffle_ps(v18, v18, 255);
+  __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+  v18.m128_i32[3] = LODWORD(_XMM1.v[3]);
+  v18.m128_f32[0] = 0.0;
+  v18.m128_f32[1] = FLOAT_1_0;
+  v18.m128_f32[2] = 0.0;
+  *planes = _XMM1;
+  v18 = *(__m128 *)PlaneFromPoint(&result, &v3->mins, (const vec3_t *)&v18);
+  _XMM1 = v18;
+  _mm_shuffle_ps(v18, v18, 255);
+  __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+  v18.m128_i32[3] = LODWORD(_XMM1.v[3]);
+  v18.m128_f32[0] = 0.0;
+  v18.m128_f32[1] = 0.0;
+  v18.m128_f32[2] = FLOAT_1_0;
+  planes[1] = _XMM1;
+  v8 = (__m128 *)PlaneFromPoint(&result, &v3->mins, (const vec3_t *)&v18);
+  v3 = (const ExtentBounds *)((char *)v3 + 12);
+  v18 = *v8;
+  _XMM1 = v18;
+  _mm_shuffle_ps(v18, v18, 255);
+  __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+  v18.m128_i32[3] = LODWORD(_XMM1.v[3]);
+  v18.m128_f32[0] = FLOAT_N1_0;
+  v18.m128_f32[1] = 0.0;
+  v18.m128_f32[2] = 0.0;
+  planes[2] = _XMM1;
+  v18 = *(__m128 *)PlaneFromPoint(&result, &v3->mins, (const vec3_t *)&v18);
+  _XMM1 = v18;
+  _mm_shuffle_ps(v18, v18, 255);
+  __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+  v18.m128_i32[3] = LODWORD(_XMM1.v[3]);
+  v18.m128_f32[0] = 0.0;
+  v18.m128_f32[1] = FLOAT_N1_0;
+  v18.m128_f32[2] = 0.0;
+  planes[3] = _XMM1;
+  v18 = *(__m128 *)PlaneFromPoint(&result, &v3->mins, (const vec3_t *)&v18);
+  _XMM1 = v18;
+  _mm_shuffle_ps(v18, v18, 255);
+  __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+  v18.m128_i32[3] = LODWORD(_XMM1.v[3]);
+  v18.m128_f32[0] = 0.0;
+  v18.m128_f32[1] = 0.0;
+  v18.m128_f32[2] = FLOAT_N1_0;
+  planes[4] = _XMM1;
+  v18 = *(__m128 *)PlaneFromPoint(&result, &v3->mins, (const vec3_t *)&v18);
+  _XMM1 = v18;
+  _mm_shuffle_ps(v18, v18, 255);
+  __asm { vinsertps xmm1, xmm1, xmm0, 30h ; '0' }
+  planes[5] = _XMM1;
 }
 
 /*
@@ -163,302 +87,180 @@ SpartialPartition_Population_Test::RunTest_Simple
 
 char __fastcall SpartialPartition_Population_Test::RunTest_Simple(double _XMM0_8)
 {
-  unsigned int v32; 
-  __int64 v39; 
+  __m256i v1; 
+  unsigned int v3; 
+  __int64 v5; 
   unsigned int Partition; 
-  __int64 v41; 
-  int v42; 
+  __int64 v7; 
+  int v8; 
   unsigned int expectedHits[2]; 
   SpatialPartition_Population population; 
   ExtentBounds box; 
-  ExtentBounds v46; 
-  int v47; 
+  ExtentBounds v12; 
+  int v13; 
   SpatialPartition_Population_Tree_SpherePartitionIterator iter; 
-  char vars0; 
-  void *retaddr; 
 
-  _RAX = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [rax-18h], xmm6
-    vmovaps xmmword ptr [rax-28h], xmm7
-    vmovaps xmmword ptr [rax-38h], xmm8
-    vmovaps xmmword ptr [rax-48h], xmm9
-    vmovss  xmm7, cs:__real@40000000
-    vpxor   xmm0, xmm0, xmm0
-  }
+  __asm { vpxor   xmm0, xmm0, xmm0 }
   population.partitionCount = 7;
-  __asm
-  {
-    vmovdqu ymmword ptr [rsp+350h+population.buckets], ymm0
-    vmovups xmm0, cs:__xmm@400000003f8000003f8000003f800000
-  }
+  *(__m256i *)&population.buckets = v1;
   *(_QWORD *)&population.currentPopulation = 0i64;
   *((_DWORD *)&population.bucketsAreChanging + 1) = 0;
   population.tree = &SpartialPartition_Population_Test::TEST_POPULATION_TREE;
-  *(_QWORD *)v46.mins.v = 0x100000000i64;
-  __asm
-  {
-    vmovups xmmword ptr [rbp+250h+box.mins], xmm0
-    vmovss  dword ptr [rbp+250h+box.maxs+4], xmm7
-    vmovss  dword ptr [rbp+250h+box.maxs+8], xmm7
-  }
-  LODWORD(v46.mins.v[2]) = 2;
-  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_3_(&population, &box, (const unsigned int (*)[3])&v46);
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@400000003f8000003f8000003f800000
-    vmovss  xmm6, cs:__real@42c60000
-  }
+  *(_QWORD *)v12.mins.v = 0x100000000i64;
+  *(_OWORD *)box.mins.v = _xmm;
+  box.maxs.v[1] = FLOAT_2_0;
+  box.maxs.v[2] = FLOAT_2_0;
+  LODWORD(v12.mins.v[2]) = 2;
+  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_3_(&population, &box, (const unsigned int (*)[3])&v12);
   box.mins.v[0] = 0.0;
   *(_QWORD *)&box.mins.y = 0x200000001i64;
-  __asm
-  {
-    vmovups xmmword ptr [rbp+250h+var_2A8.mins], xmm0
-    vmovss  dword ptr [rbp+250h+var_2A8.maxs+4], xmm6
-    vmovss  dword ptr [rbp+250h+var_2A8.maxs+8], xmm7
-  }
+  *(_OWORD *)v12.mins.v = _xmm;
+  v12.maxs.v[1] = FLOAT_99_0;
+  v12.maxs.v[2] = FLOAT_2_0;
   LODWORD(box.maxs.v[0]) = 3;
-  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_4_(&population, &v46, (const unsigned int (*)[4])&box);
-  __asm { vmovups xmm0, cs:__xmm@400000003f80000042c400003f800000 }
-  v46.mins.v[0] = 0.0;
-  *(_QWORD *)&v46.mins.y = 0x300000001i64;
-  __asm
-  {
-    vmovups xmmword ptr [rbp+250h+box.mins], xmm0
-    vmovss  dword ptr [rbp+250h+box.maxs+4], xmm6
-    vmovss  dword ptr [rbp+250h+box.maxs+8], xmm7
-  }
-  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_3_(&population, &box, (const unsigned int (*)[3])&v46);
-  __asm { vmovups xmm0, cs:__xmm@425000003f8000003f800000424c0000 }
-  v46.mins.v[0] = 0.0;
-  *(_QWORD *)&v46.mins.y = 0x500000004i64;
-  __asm
-  {
-    vmovups xmmword ptr [rbp+250h+box.mins], xmm0
-    vmovss  dword ptr [rbp+250h+box.maxs+4], xmm7
-    vmovss  dword ptr [rbp+250h+box.maxs+8], xmm7
-  }
-  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_3_(&population, &box, (const unsigned int (*)[3])&v46);
-  __asm { vmovups xmm0, cs:__xmm@425000003f8000003f800000424c0000 }
+  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_4_(&population, &v12, (const unsigned int (*)[4])&box);
+  v12.mins.v[0] = 0.0;
+  *(_QWORD *)&v12.mins.y = 0x300000001i64;
+  *(_OWORD *)box.mins.v = _xmm;
+  box.maxs.v[1] = FLOAT_99_0;
+  box.maxs.v[2] = FLOAT_2_0;
+  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_3_(&population, &box, (const unsigned int (*)[3])&v12);
+  v12.mins.v[0] = 0.0;
+  *(_QWORD *)&v12.mins.y = 0x500000004i64;
+  *(_OWORD *)box.mins.v = _xmm;
+  box.maxs.v[1] = FLOAT_2_0;
+  box.maxs.v[2] = FLOAT_2_0;
+  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_3_(&population, &box, (const unsigned int (*)[3])&v12);
   box.mins.v[0] = 0.0;
   *(_QWORD *)&box.mins.y = 0x500000004i64;
-  __asm
-  {
-    vmovups xmmword ptr [rbp+250h+var_2A8.mins], xmm0
-    vmovss  dword ptr [rbp+250h+var_2A8.maxs+4], xmm6
-    vmovss  dword ptr [rbp+250h+var_2A8.maxs+8], xmm7
-  }
+  *(_OWORD *)v12.mins.v = _xmm;
+  v12.maxs.v[1] = FLOAT_99_0;
+  v12.maxs.v[2] = FLOAT_2_0;
   LODWORD(box.maxs.v[0]) = 6;
-  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_4_(&population, &v46, (const unsigned int (*)[4])&box);
-  __asm { vmovups xmm0, cs:__xmm@425000003f80000042c40000424c0000 }
-  v46.mins.v[0] = 0.0;
-  *(_QWORD *)&v46.mins.y = 0x600000004i64;
-  __asm
-  {
-    vmovups xmmword ptr [rbp+250h+box.mins], xmm0
-    vmovss  dword ptr [rbp+250h+box.maxs+4], xmm6
-    vmovss  dword ptr [rbp+250h+box.maxs+8], xmm7
-  }
-  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_3_(&population, &box, (const unsigned int (*)[3])&v46);
+  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_4_(&population, &v12, (const unsigned int (*)[4])&box);
+  v12.mins.v[0] = 0.0;
+  *(_QWORD *)&v12.mins.y = 0x600000004i64;
+  *(_OWORD *)box.mins.v = _xmm;
+  box.maxs.v[1] = FLOAT_99_0;
+  box.maxs.v[2] = FLOAT_2_0;
+  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_3_(&population, &box, (const unsigned int (*)[3])&v12);
   box.mins.v[0] = 0.0;
   *(_QWORD *)&box.mins.y = 0x200000001i64;
-  __asm { vmovups xmm0, cs:__xmm@42c600003f8000003f8000003f800000 }
   *(_QWORD *)box.maxs.v = 0x500000004i64;
-  __asm
-  {
-    vmovups xmmword ptr [rbp+250h+var_2A8.mins], xmm0
-    vmovss  dword ptr [rbp+250h+var_2A8.maxs+4], xmm7
-    vmovss  dword ptr [rbp+250h+var_2A8.maxs+8], xmm7
-  }
-  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_5_(&population, &v46, (const unsigned int (*)[5])&box);
-  __asm
-  {
-    vmovups xmm0, cs:__xmm@42c600003f800000427000003f800000
-    vmovss  xmm9, cs:__real@428c0000
-  }
+  *(_OWORD *)v12.mins.v = _xmm;
+  v12.maxs.v[1] = FLOAT_2_0;
+  v12.maxs.v[2] = FLOAT_2_0;
+  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_5_(&population, &v12, (const unsigned int (*)[5])&box);
   box.mins.v[0] = 0.0;
   *(_QWORD *)&box.mins.y = 0x300000001i64;
-  __asm
-  {
-    vmovups xmmword ptr [rbp+250h+var_2A8.mins], xmm0
-    vmovss  dword ptr [rbp+250h+var_2A8.maxs+4], xmm9
-    vmovss  dword ptr [rbp+250h+var_2A8.maxs+8], xmm7
-  }
+  *(_OWORD *)v12.mins.v = _xmm;
+  v12.maxs.v[1] = FLOAT_70_0;
+  v12.maxs.v[2] = FLOAT_2_0;
   *(_QWORD *)box.maxs.v = 0x600000004i64;
-  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_5_(&population, &v46, (const unsigned int (*)[5])&box);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@bf800000
-    vmovss  xmm3, cs:__real@3fea80a4; sphereRadius
-  }
+  SpartialPartition_Population_Test::TestBoxAndFrustumPartitions_5_(&population, &v12, (const unsigned int (*)[5])&box);
   box.mins.v[0] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [rbp+250h+var_2A8.mins], xmm6
-    vmovss  dword ptr [rbp+250h+var_2A8.mins+4], xmm6
-    vmovss  dword ptr [rbp+250h+var_2A8.mins+8], xmm6
-  }
+  v12.mins.v[0] = FLOAT_N1_0;
+  v12.mins.v[1] = FLOAT_N1_0;
+  v12.mins.v[2] = FLOAT_N1_0;
   *(_QWORD *)&box.mins.y = 0x200000001i64;
   iter.m_tree = NULL;
   *(_QWORD *)&iter.m_curPartition = 0i64;
-  SpatialPartition_Population_Tree_SpherePartitionIterator::Init(&iter, population.tree, &v46.mins, *(float *)&_XMM3);
+  SpatialPartition_Population_Tree_SpherePartitionIterator::Init(&iter, population.tree, &v12.mins, 1.8320508);
   SpartialPartition_Population_Test::TestPartitionIterator_SpatialPartition_Population_Tree_SpherePartitionIterator_(&iter, (const unsigned int *)&box, 3u);
-  __asm { vmovss  xmm3, cs:__real@3fd0e70a; sphereRadius }
   expectedHits[0] = 0;
-  __asm
-  {
-    vmovss  dword ptr [rbp+250h+box.mins], xmm6
-    vmovss  dword ptr [rbp+250h+box.mins+4], xmm6
-    vmovss  dword ptr [rbp+250h+box.mins+8], xmm6
-  }
+  box.mins.v[0] = FLOAT_N1_0;
+  box.mins.v[1] = FLOAT_N1_0;
+  box.mins.v[2] = FLOAT_N1_0;
   iter.m_tree = NULL;
   *(_QWORD *)&iter.m_curPartition = 0i64;
-  SpatialPartition_Population_Tree_SpherePartitionIterator::Init(&iter, population.tree, &box.mins, *(float *)&_XMM3);
+  SpatialPartition_Population_Tree_SpherePartitionIterator::Init(&iter, population.tree, &box.mins, 1.6320508);
   SpartialPartition_Population_Test::TestPartitionIterator_SpatialPartition_Population_Tree_SpherePartitionIterator_(&iter, expectedHits, 1u);
-  __asm
-  {
-    vmovss  xmm7, cs:__real@41c80000
-    vmovss  xmm6, cs:__real@425c0000
-    vmovss  xmm8, cs:__real@3f800000
-    vmovss  xmm3, cs:__real@409ccccd; sphereRadius
-  }
-  v46.mins.v[0] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [rbp+250h+box.mins], xmm7
-    vmovss  dword ptr [rbp+250h+box.mins+4], xmm6
-    vmovss  dword ptr [rbp+250h+box.mins+8], xmm8
-  }
-  *(_QWORD *)&v46.mins.y = 0x300000001i64;
+  v12.mins.v[0] = 0.0;
+  box.mins.v[0] = FLOAT_25_0;
+  box.mins.v[1] = FLOAT_55_0;
+  box.mins.v[2] = FLOAT_1_0;
+  *(_QWORD *)&v12.mins.y = 0x300000001i64;
   iter.m_tree = NULL;
   *(_QWORD *)&iter.m_curPartition = 0i64;
-  SpatialPartition_Population_Tree_SpherePartitionIterator::Init(&iter, population.tree, &box.mins, *(float *)&_XMM3);
-  SpartialPartition_Population_Test::TestPartitionIterator_SpatialPartition_Population_Tree_SpherePartitionIterator_(&iter, (const unsigned int *)&v46, 3u);
-  v46.mins.v[0] = 0.0;
-  *(_QWORD *)&v46.mins.y = 0x300000001i64;
-  LODWORD(v46.maxs.v[0]) = 2;
-  __asm { vmovss  xmm3, cs:__real@40a33333; sphereRadius }
+  SpatialPartition_Population_Tree_SpherePartitionIterator::Init(&iter, population.tree, &box.mins, 4.9000001);
+  SpartialPartition_Population_Test::TestPartitionIterator_SpatialPartition_Population_Tree_SpherePartitionIterator_(&iter, (const unsigned int *)&v12, 3u);
+  v12.mins.v[0] = 0.0;
+  *(_QWORD *)&v12.mins.y = 0x300000001i64;
+  LODWORD(v12.maxs.v[0]) = 2;
   iter.m_tree = NULL;
-  __asm
-  {
-    vmovss  dword ptr [rbp+250h+box.mins], xmm7
-    vmovss  dword ptr [rbp+250h+box.mins+4], xmm6
-    vmovss  dword ptr [rbp+250h+box.mins+8], xmm8
-  }
+  box.mins.v[0] = FLOAT_25_0;
+  box.mins.v[1] = FLOAT_55_0;
+  box.mins.v[2] = FLOAT_1_0;
   *(_QWORD *)&iter.m_curPartition = 0i64;
-  SpatialPartition_Population_Tree_SpherePartitionIterator::Init(&iter, population.tree, &box.mins, *(float *)&_XMM3);
-  SpartialPartition_Population_Test::TestPartitionIterator_SpatialPartition_Population_Tree_SpherePartitionIterator_(&iter, (const unsigned int *)&v46, 4u);
-  __asm
-  {
-    vmovss  xmm0, cs:__real@42480000
-    vmovaps xmm3, xmm8; sphereRadius
-  }
-  v46.mins.v[0] = 0.0;
-  __asm
-  {
-    vmovss  dword ptr [rbp+250h+box.mins], xmm0
-    vmovss  dword ptr [rbp+250h+box.mins+4], xmm0
-    vmovss  dword ptr [rbp+250h+box.mins+8], xmm8
-  }
-  *(_QWORD *)&v46.mins.y = 0x300000001i64;
-  *(_QWORD *)v46.maxs.v = 0x400000002i64;
-  LODWORD(v46.maxs.v[2]) = 6;
-  v47 = 5;
+  SpatialPartition_Population_Tree_SpherePartitionIterator::Init(&iter, population.tree, &box.mins, 5.0999999);
+  SpartialPartition_Population_Test::TestPartitionIterator_SpatialPartition_Population_Tree_SpherePartitionIterator_(&iter, (const unsigned int *)&v12, 4u);
+  v12.mins.v[0] = 0.0;
+  box.mins.v[0] = FLOAT_50_0;
+  box.mins.v[1] = FLOAT_50_0;
+  box.mins.v[2] = FLOAT_1_0;
+  *(_QWORD *)&v12.mins.y = 0x300000001i64;
+  *(_QWORD *)v12.maxs.v = 0x400000002i64;
+  LODWORD(v12.maxs.v[2]) = 6;
+  v13 = 5;
   iter.m_tree = NULL;
   *(_QWORD *)&iter.m_curPartition = 0i64;
-  SpatialPartition_Population_Tree_SpherePartitionIterator::Init(&iter, population.tree, &box.mins, *(float *)&_XMM3);
-  SpartialPartition_Population_Test::TestPartitionIterator_SpatialPartition_Population_Tree_SpherePartitionIterator_(&iter, (const unsigned int *)&v46, 7u);
-  __asm
-  {
-    vmovss  xmm6, cs:__real@41200000
-    vmovss  dword ptr [rbp+250h+box.mins], xmm6
-    vmovss  dword ptr [rbp+250h+box.mins+4], xmm6
-    vmovss  dword ptr [rbp+250h+box.mins+8], xmm6
-  }
+  SpatialPartition_Population_Tree_SpherePartitionIterator::Init(&iter, population.tree, &box.mins, 1.0);
+  SpartialPartition_Population_Test::TestPartitionIterator_SpatialPartition_Population_Tree_SpherePartitionIterator_(&iter, (const unsigned int *)&v12, 7u);
+  box.mins.v[0] = FLOAT_10_0;
+  box.mins.v[1] = FLOAT_10_0;
+  box.mins.v[2] = FLOAT_10_0;
   if ( SpatialPartition_Population_FindPartition(&population, &box.mins) != 2 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rbp+250h+box.mins], xmm6
-      vmovss  dword ptr [rbp+250h+box.mins+4], xmm6
-      vmovss  dword ptr [rbp+250h+box.mins+8], xmm6
-    }
-    v42 = 2;
+    box.mins.v[0] = FLOAT_10_0;
+    box.mins.v[1] = FLOAT_10_0;
+    box.mins.v[2] = FLOAT_10_0;
+    v8 = 2;
     Partition = SpatialPartition_Population_FindPartition(&population, &box.mins);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_test.cpp", 234, ASSERT_TYPE_ASSERT, "( SpatialPartition_Population_FindPartition( &population, vec3_t{ 10.0f,10.0f,10.0f } ) ) == ( TEST_PARTITION_LEFT_BOTTOM_LEAF )", "%s == %s\n\t%i, %i", "SpatialPartition_Population_FindPartition( &population, vec3_t{ 10.0f,10.0f,10.0f } )", "TEST_PARTITION_LEFT_BOTTOM_LEAF", Partition, v42) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_test.cpp", 234, ASSERT_TYPE_ASSERT, "( SpatialPartition_Population_FindPartition( &population, vec3_t{ 10.0f,10.0f,10.0f } ) ) == ( TEST_PARTITION_LEFT_BOTTOM_LEAF )", "%s == %s\n\t%i, %i", "SpatialPartition_Population_FindPartition( &population, vec3_t{ 10.0f,10.0f,10.0f } )", "TEST_PARTITION_LEFT_BOTTOM_LEAF", Partition, v8) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  xmm7, cs:__real@42a00000
-    vmovss  dword ptr [rbp+250h+box.mins+4], xmm7
-    vmovss  dword ptr [rbp+250h+box.mins], xmm6
-    vmovss  dword ptr [rbp+250h+box.mins+8], xmm6
-  }
+  box.mins.v[1] = FLOAT_80_0;
+  box.mins.v[0] = FLOAT_10_0;
+  box.mins.v[2] = FLOAT_10_0;
   if ( SpatialPartition_Population_FindPartition(&population, &box.mins) != 3 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rbp+250h+box.mins], xmm6
-      vmovss  dword ptr [rbp+250h+box.mins+4], xmm7
-      vmovss  dword ptr [rbp+250h+box.mins+8], xmm6
-    }
-    LODWORD(v41) = 3;
-    LODWORD(v39) = SpatialPartition_Population_FindPartition(&population, &box.mins);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_test.cpp", 235, ASSERT_TYPE_ASSERT, "( SpatialPartition_Population_FindPartition( &population, vec3_t{ 10.0f,80.0f,10.0f } ) ) == ( TEST_PARTITION_LEFT_TOP_LEAF )", "%s == %s\n\t%i, %i", "SpatialPartition_Population_FindPartition( &population, vec3_t{ 10.0f,80.0f,10.0f } )", "TEST_PARTITION_LEFT_TOP_LEAF", v39, v41) )
+    box.mins.v[0] = FLOAT_10_0;
+    box.mins.v[1] = FLOAT_80_0;
+    box.mins.v[2] = FLOAT_10_0;
+    LODWORD(v7) = 3;
+    LODWORD(v5) = SpatialPartition_Population_FindPartition(&population, &box.mins);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_test.cpp", 235, ASSERT_TYPE_ASSERT, "( SpatialPartition_Population_FindPartition( &population, vec3_t{ 10.0f,80.0f,10.0f } ) ) == ( TEST_PARTITION_LEFT_TOP_LEAF )", "%s == %s\n\t%i, %i", "SpatialPartition_Population_FindPartition( &population, vec3_t{ 10.0f,80.0f,10.0f } )", "TEST_PARTITION_LEFT_TOP_LEAF", v5, v7) )
       __debugbreak();
   }
-  __asm
-  {
-    vmovss  dword ptr [rbp+250h+box.mins], xmm9
-    vmovss  dword ptr [rbp+250h+box.mins+4], xmm6
-    vmovss  dword ptr [rbp+250h+box.mins+8], xmm6
-  }
+  box.mins.v[0] = FLOAT_70_0;
+  box.mins.v[1] = FLOAT_10_0;
+  box.mins.v[2] = FLOAT_10_0;
   if ( SpatialPartition_Population_FindPartition(&population, &box.mins) != 5 )
   {
-    __asm
-    {
-      vmovss  dword ptr [rbp+250h+box.mins], xmm9
-      vmovss  dword ptr [rbp+250h+box.mins+4], xmm6
-      vmovss  dword ptr [rbp+250h+box.mins+8], xmm6
-    }
-    LODWORD(v41) = 5;
-    LODWORD(v39) = SpatialPartition_Population_FindPartition(&population, &box.mins);
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_test.cpp", 236, ASSERT_TYPE_ASSERT, "( SpatialPartition_Population_FindPartition( &population, vec3_t{ 70.0f,10.0f,10.0f } ) ) == ( TEST_PARTITION_RIGHT_BOTTOM_LEAF )", "%s == %s\n\t%i, %i", "SpatialPartition_Population_FindPartition( &population, vec3_t{ 70.0f,10.0f,10.0f } )", "TEST_PARTITION_RIGHT_BOTTOM_LEAF", v39, v41) )
+    box.mins.v[0] = FLOAT_70_0;
+    box.mins.v[1] = FLOAT_10_0;
+    box.mins.v[2] = FLOAT_10_0;
+    LODWORD(v7) = 5;
+    LODWORD(v5) = SpatialPartition_Population_FindPartition(&population, &box.mins);
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_test.cpp", 236, ASSERT_TYPE_ASSERT, "( SpatialPartition_Population_FindPartition( &population, vec3_t{ 70.0f,10.0f,10.0f } ) ) == ( TEST_PARTITION_RIGHT_BOTTOM_LEAF )", "%s == %s\n\t%i, %i", "SpatialPartition_Population_FindPartition( &population, vec3_t{ 70.0f,10.0f,10.0f } )", "TEST_PARTITION_RIGHT_BOTTOM_LEAF", v5, v7) )
       __debugbreak();
   }
-  __asm
+  box.mins.v[1] = FLOAT_90_0;
+  box.mins.v[0] = FLOAT_70_0;
+  box.mins.v[2] = FLOAT_10_0;
+  v3 = SpatialPartition_Population_FindPartition(&population, &box.mins);
+  if ( v3 != 6 )
   {
-    vmovss  xmm7, cs:__real@42b40000
-    vmovss  dword ptr [rbp+250h+box.mins+4], xmm7
-    vmovss  dword ptr [rbp+250h+box.mins], xmm9
-    vmovss  dword ptr [rbp+250h+box.mins+8], xmm6
-  }
-  v32 = SpatialPartition_Population_FindPartition(&population, &box.mins);
-  if ( v32 != 6 )
-  {
-    __asm
-    {
-      vmovss  dword ptr [rbp+250h+box.mins], xmm9
-      vmovss  dword ptr [rbp+250h+box.mins+4], xmm7
-      vmovss  dword ptr [rbp+250h+box.mins+8], xmm6
-    }
-    LODWORD(v41) = 6;
-    LODWORD(v39) = SpatialPartition_Population_FindPartition(&population, &box.mins);
-    LOBYTE(v32) = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_test.cpp", 237, ASSERT_TYPE_ASSERT, "( SpatialPartition_Population_FindPartition( &population, vec3_t{ 70.0f,90.0f,10.0f } ) ) == ( TEST_PARTITION_RIGHT_TOP_LEAF )", "%s == %s\n\t%i, %i", "SpatialPartition_Population_FindPartition( &population, vec3_t{ 70.0f,90.0f,10.0f } )", "TEST_PARTITION_RIGHT_TOP_LEAF", v39, v41);
-    if ( (_BYTE)v32 )
+    box.mins.v[0] = FLOAT_70_0;
+    box.mins.v[1] = FLOAT_90_0;
+    box.mins.v[2] = FLOAT_10_0;
+    LODWORD(v7) = 6;
+    LODWORD(v5) = SpatialPartition_Population_FindPartition(&population, &box.mins);
+    LOBYTE(v3) = CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\spatialpartition\\spatialpartition_population_test.cpp", 237, ASSERT_TYPE_ASSERT, "( SpatialPartition_Population_FindPartition( &population, vec3_t{ 70.0f,90.0f,10.0f } ) ) == ( TEST_PARTITION_RIGHT_TOP_LEAF )", "%s == %s\n\t%i, %i", "SpatialPartition_Population_FindPartition( &population, vec3_t{ 70.0f,90.0f,10.0f } )", "TEST_PARTITION_RIGHT_TOP_LEAF", v5, v7);
+    if ( (_BYTE)v3 )
       __debugbreak();
   }
-  _R11 = &vars0;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
-    vmovaps xmm9, xmmword ptr [r11-40h]
-  }
-  return v32;
+  return v3;
 }
 
 /*
@@ -466,8 +268,7 @@ char __fastcall SpartialPartition_Population_Test::RunTest_Simple(double _XMM0_8
 SpatialPartition_Population_Test
 ==============
 */
-
-void __fastcall SpatialPartition_Population_Test(double _XMM0_8)
+void SpatialPartition_Population_Test(double a1)
 {
   unsigned __int64 v1; 
   unsigned int v2; 
@@ -478,23 +279,23 @@ void __fastcall SpatialPartition_Population_Test(double _XMM0_8)
   __int64 v7; 
   SpatialPartition_Population population; 
   unsigned int expectedCount[7]; 
-  __int64 v14[3]; 
-  int v15; 
+  __int64 v12[3]; 
+  int v13; 
 
   v1 = __rdtsc();
-  SpartialPartition_Population_Test::RunTest_Simple(_XMM0_8);
+  SpartialPartition_Population_Test::RunTest_Simple(a1);
   v2 = 0;
   population.partitionCount = 7;
   population.userData = NULL;
   population.tree = &SpartialPartition_Population_Test::TEST_POPULATION_TREE;
   v3 = &SpartialPartition_Population_Test::s_testObjects;
   *(_QWORD *)&population.currentPopulation = 0i64;
-  population.buckets = (SpatialPartition_Population_Node *)v14;
+  population.buckets = (SpatialPartition_Population_Node *)v12;
   *((_DWORD *)&population.bucketsAreChanging + 1) = 0;
   population.getIndexFromNode = SpartialPartition_Population_Test::TestPopulation_GetIndexFromNode;
-  memset(v14, 255, sizeof(v14));
+  memset(v12, 255, sizeof(v12));
   population.getNodeFromIndex = SpartialPartition_Population_Test::TestPopulation_GetNodeFromIndex;
-  v15 = -1;
+  v13 = -1;
   memset_0(&SpartialPartition_Population_Test::s_testObjects, 0, 0x960ui64);
   v4 = (unsigned int *)&unk_14EB00128;
   memset(expectedCount, 0, sizeof(expectedCount));
@@ -523,19 +324,11 @@ void __fastcall SpatialPartition_Population_Test(double _XMM0_8)
     --v7;
   }
   while ( v7 );
-  __asm
-  {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2sd xmm0, xmm0, rax
-  }
+  _XMM0 = 0i64;
+  __asm { vcvtsi2sd xmm0, xmm0, rax }
   if ( (__int64)(__rdtsc() - v1) < 0 )
-    __asm { vaddsd  xmm0, xmm0, cs:__real@43f0000000000000 }
-  __asm
-  {
-    vmulsd  xmm1, xmm0, cs:?msecPerRawTimerTick@@3NA; double msecPerRawTimerTick
-    vmovq   rdx, xmm1
-  }
-  Sys_Printf("SpatialPartition Population tests ran in %.3f ms.\n", *(double *)&_XMM1);
+    *(double *)&_XMM0 = *(double *)&_XMM0 + 1.844674407370955e19;
+  Sys_Printf("SpatialPartition Population tests ran in %.3f ms.\n", (double)(*(double *)&_XMM0 * msecPerRawTimerTick));
 }
 
 /*
@@ -562,7 +355,7 @@ void SpartialPartition_Population_Test::TestObjectIterator(SpatialPartition_Popu
   {
     __asm { vpxor   xmm0, xmm0, xmm0 }
     v10.m_curIndex = -1;
-    __asm { vmovdqu xmmword ptr [rsp+0A8h+var_58.m_population], xmm0 }
+    *(_OWORD *)&v10.m_population = _XMM0;
     v6 = 0;
     SpatialPartition_Population_NodeIterator::Init(&v10, v4, i);
     if ( SpatialPartition_Population_NodeIterator::Advance(&v10) )

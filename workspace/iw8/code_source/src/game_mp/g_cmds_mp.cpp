@@ -361,92 +361,65 @@ Cmd_SetMLGCamera_f
 */
 void Cmd_SetMLGCamera_f(gentity_s *ent)
 {
-  const char *v3; 
-  int v4; 
-  int v6; 
-  char v7; 
-  bool v8; 
-  __int64 v10; 
+  const char *v2; 
+  int v3; 
   gclient_s *client; 
-  __int64 v15; 
-  __int64 v16; 
+  int v5; 
+  char v6; 
+  __int64 v7; 
+  unsigned __int64 v8; 
+  gclient_s *v9; 
+  gclient_s *v10; 
+  __int64 v11; 
   vec3_t up; 
   vec3_t forward; 
 
-  v3 = ConcatArgs(1);
-  v4 = atoi(v3);
+  v2 = ConcatArgs(1);
+  v3 = atoi(v2);
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_cmds_mp.cpp", 487, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
   if ( !ent->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_cmds_mp.cpp", 488, ASSERT_TYPE_ASSERT, "( ent->client )", (const char *)&queryFormat, "ent->client") )
     __debugbreak();
-  _RCX = ent->client;
-  if ( _RCX->sess.sessionState == SESS_STATE_SPECTATOR && _RCX->sess.forceSpectatorClient < 0 && _RCX->cycleSpectatorClient < 0 )
+  client = ent->client;
+  if ( client->sess.sessionState == SESS_STATE_SPECTATOR && client->sess.forceSpectatorClient < 0 && client->cycleSpectatorClient < 0 )
   {
-    v6 = 7;
-    if ( v4 < 8 )
-      v6 = v4;
-    v7 = 0;
-    v8 = v6 == 0;
-    __asm { vxorps  xmm0, xmm0, xmm0 }
-    if ( v6 < 0 )
-      v6 = 0;
-    v10 = v6;
-    _RDI = v6;
-    __asm { vucomiss xmm0, dword ptr [rcx+rdi*4+599Ch] }
-    if ( v8 )
+    v5 = 7;
+    if ( v3 < 8 )
+      v5 = v3;
+    v6 = 0;
+    if ( v5 < 0 )
+      v5 = 0;
+    v7 = v5;
+    v8 = v5;
+    if ( client->sess.mlgCameraPos[v5].v[0] == 0.0 && client->sess.mlgCameraPos[v5].v[1] == 0.0 && client->sess.mlgCameraPos[v5].v[2] == 0.0 && client->sess.mlgCameraAngles[v5].v[0] == 0.0 && client->sess.mlgCameraAngles[v5].v[1] == 0.0 && client->sess.mlgCameraAngles[v5].v[2] == 0.0 )
     {
-      __asm { vucomiss xmm0, dword ptr [rcx+rdi*4+59A0h] }
-      if ( v8 )
-      {
-        __asm { vucomiss xmm0, dword ptr [rcx+rdi*4+59A4h] }
-        if ( v8 )
-        {
-          __asm { vucomiss xmm0, dword ptr [rcx+rdi*4+59FCh] }
-          if ( v8 )
-          {
-            __asm { vucomiss xmm0, dword ptr [rcx+rdi*4+5A00h] }
-            if ( v8 )
-            {
-              __asm { vucomiss xmm0, dword ptr [rcx+rdi*4+5A04h] }
-              if ( v8 )
-              {
-                if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_mlg_static_cameras_editing, "cg_mlg_static_cameras_editing") )
-                  return;
-                _RCX = ent->client;
-                v7 = 1;
-              }
-            }
-          }
-        }
-      }
+      if ( !Dvar_GetBool_Internal_DebugName(DVARBOOL_cg_mlg_static_cameras_editing, "cg_mlg_static_cameras_editing") )
+        return;
+      client = ent->client;
+      v6 = 1;
     }
-    _RCX->cycleSpectatorClient = -1;
+    client->cycleSpectatorClient = -1;
     if ( ent->client->sess.sessionState != SESS_STATE_SPECTATOR )
     {
-      LODWORD(v15) = ent->client->sess.sessionState;
-      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_cmds_mp.cpp", 523, ASSERT_TYPE_ASSERT, "( ent->client->sess.sessionState ) == ( SESS_STATE_SPECTATOR )", "ent->client->sess.sessionState == SESS_STATE_SPECTATOR\n\t%i, %i", v15, 2) )
+      LODWORD(v11) = ent->client->sess.sessionState;
+      if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_cmds_mp.cpp", 523, ASSERT_TYPE_ASSERT, "( ent->client->sess.sessionState ) == ( SESS_STATE_SPECTATOR )", "ent->client->sess.sessionState == SESS_STATE_SPECTATOR\n\t%i, %i", v11, 2) )
         __debugbreak();
     }
-    if ( !v7 )
+    if ( !v6 )
     {
-      AngleVectors(&ent->client->sess.mlgCameraAngles[_RDI], &forward, NULL, &up);
-      client = ent->client;
-      if ( client->sess.cs.isMLGSpectator )
+      AngleVectors(&ent->client->sess.mlgCameraAngles[v8], &forward, NULL, &up);
+      v9 = ent->client;
+      if ( v9->sess.cs.isMLGSpectator )
       {
-        client->ps.speed = 0;
-        _RAX = ent->client;
-        v16 = 0i64;
-        __asm
-        {
-          vmovsd  xmm0, [rsp+98h+var_58]
-          vmovsd  qword ptr [rax+53C8h], xmm0
-        }
-        _RAX->sess.cmd.angles.v[2] = 0;
-        client = ent->client;
+        v9->ps.speed = 0;
+        v10 = ent->client;
+        *(double *)v10->sess.cmd.angles.v = 0i64;
+        v10->sess.cmd.angles.v[2] = 0;
+        v9 = ent->client;
       }
-      G_SetSpectatorPosition(ent, &client->sess.mlgCameraPos[_RDI], &client->sess.mlgCameraAngles[_RDI]);
+      G_SetSpectatorPosition(ent, &v9->sess.mlgCameraPos[v8], &v9->sess.mlgCameraAngles[v8]);
     }
-    ent->client->sess.mlgCameraSelectedIconIndex = ent->client->sess.mlgCameraIconIndex[v10];
+    ent->client->sess.mlgCameraSelectedIconIndex = ent->client->sess.mlgCameraIconIndex[v7];
     GScr_Notify(ent, scr_const.spectating_mlg_camera, 0);
   }
 }
@@ -456,95 +429,80 @@ void Cmd_SetMLGCamera_f(gentity_s *ent)
 Cmd_SetSpectatorViewpos_f
 ==============
 */
-
-void __fastcall Cmd_SetSpectatorViewpos_f(gentity_s *ent, __int64 a2, double _XMM2_8)
+void Cmd_SetSpectatorViewpos_f(gentity_s *ent)
 {
-  int v5; 
-  unsigned int v7; 
-  int v9; 
-  const char *v10; 
-  int v15; 
-  int v17; 
-  int v18; 
-  const char *v19; 
-  const char *v21; 
-  __int64 v23; 
-  __int64 v24; 
+  int v2; 
+  unsigned int v4; 
+  vec3_t *p_pos; 
+  int v6; 
+  const char *v7; 
+  int v10; 
+  int v11; 
+  const char *v12; 
+  const char *v14; 
+  __int64 v16; 
+  __int64 v17; 
   vec3_t angles; 
   vec3_t pos; 
 
-  v5 = 0;
+  v2 = 0;
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_cmds_mp.cpp", 437, ASSERT_TYPE_ASSERT, "(ent)", (const char *)&queryFormat, "ent") )
     __debugbreak();
   if ( !ent->client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_cmds_mp.cpp", 438, ASSERT_TYPE_ASSERT, "(ent->client)", (const char *)&queryFormat, "ent->client") )
     __debugbreak();
   if ( SV_Cmd_Argc() >= 4 && SV_Cmd_Argc() <= 7 )
   {
-    __asm { vmovaps [rsp+98h+var_28], xmm6 }
     Stream_ImageRecord_Disable("setspectatorviewpos");
-    v7 = 0;
-    _RDI = &pos;
+    v4 = 0;
+    p_pos = &pos;
     do
     {
-      v9 = v7 + 1;
-      v10 = SV_Cmd_Argv(v7 + 1);
-      if ( *v10 == 40 )
-        ++v10;
-      *(double *)&_XMM0 = atof(v10);
+      v6 = v4 + 1;
+      v7 = SV_Cmd_Argv(v4 + 1);
+      if ( *v7 == 40 )
+        ++v7;
+      *(double *)&_XMM0 = atof(v7);
       __asm { vcvtsd2ss xmm6, xmm0, xmm0 }
-      if ( v7 >= 3 )
+      if ( v4 >= 3 )
       {
-        LODWORD(v24) = 3;
-        LODWORD(v23) = v7;
-        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v23, v24) )
+        LODWORD(v17) = 3;
+        LODWORD(v16) = v4;
+        if ( CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_vec_types.h", 53, ASSERT_TYPE_SANITY, "(unsigned)( idx ) < (unsigned)( ( sizeof( *array_counter( v ) ) + 0 ) )", "idx doesn't index ARRAY_COUNT( v )\n\t%i not in [0, %i)", v16, v17) )
           __debugbreak();
       }
-      __asm { vmovss  dword ptr [rdi], xmm6 }
-      _RDI = (vec3_t *)((char *)_RDI + 4);
-      ++v7;
+      p_pos->v[0] = *(float *)&_XMM6;
+      p_pos = (vec3_t *)((char *)p_pos + 4);
+      ++v4;
     }
-    while ( v9 < 3 );
-    __asm
+    while ( v6 < 3 );
+    _XMM0 = LODWORD(pos.v[2]);
+    pos.v[2] = pos.v[2] - ent->client->ps.viewHeightCurrent;
+    angles.v[0] = 0.0;
+    angles.v[1] = 0.0;
+    angles.v[2] = 0.0;
+    v10 = SV_Cmd_Argc() - 5;
+    if ( v10 )
     {
-      vmovss  xmm0, dword ptr [rsp+98h+pos+8]
-      vxorps  xmm2, xmm2, xmm2
-      vsubss  xmm1, xmm0, dword ptr [rax+1E8h]
-      vmovss  dword ptr [rsp+98h+pos+8], xmm1
-      vmovss  dword ptr [rsp+98h+angles], xmm2
-      vmovss  dword ptr [rsp+98h+angles+4], xmm2
-      vmovss  dword ptr [rsp+98h+angles+8], xmm2
-    }
-    v15 = SV_Cmd_Argc();
-    __asm { vmovaps xmm6, [rsp+98h+var_28] }
-    v17 = v15 - 5;
-    if ( v17 )
-    {
-      v18 = v17 - 1;
-      if ( v18 )
+      v11 = v10 - 1;
+      if ( v11 )
       {
-        if ( v18 != 1 )
+        if ( v11 != 1 )
         {
 LABEL_22:
           G_SetSpectatorPosition(ent, &pos, &angles);
           return;
         }
-        v5 = 1;
+        v2 = 1;
       }
-      v19 = SV_Cmd_Argv(v5 + 5);
-      *(double *)&_XMM0 = atof(v19);
-      __asm
-      {
-        vcvtsd2ss xmm1, xmm0, xmm0
-        vmovss  dword ptr [rsp+98h+angles], xmm1
-      }
+      v12 = SV_Cmd_Argv(v2 + 5);
+      *(double *)&_XMM0 = atof(v12);
+      __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+      angles.v[0] = *(float *)&_XMM1;
     }
-    v21 = SV_Cmd_Argv(v5 + 4);
-    *(double *)&_XMM0 = atof(v21);
-    __asm
-    {
-      vcvtsd2ss xmm1, xmm0, xmm0
-      vmovss  dword ptr [rsp+98h+angles+4], xmm1
-    }
+    v14 = SV_Cmd_Argv(v2 + 4);
+    *(double *)&_XMM0 = atof(v14);
+    __asm { vcvtsd2ss xmm1, xmm0, xmm0 }
+    angles.v[1] = *(float *)&_XMM1;
     goto LABEL_22;
   }
   Com_PrintError(15, "setspectatorviewpos x y z [yaw] [pitch]\n");
@@ -2761,13 +2719,16 @@ G_CmdsMP_SetStreamPos_f
 */
 void G_CmdsMP_SetStreamPos_f(gentity_s *ent)
 {
+  __int128 v1; 
+  __int128 v2; 
   playerState_s *EntityPlayerState; 
-  char v31; 
-  const char *v40; 
-  char *fmt; 
+  __int128 v5; 
+  const char *v9; 
   vec3_t forward; 
   vec3_t end; 
   trace_t results; 
+  __int128 v13; 
+  __int128 v14; 
 
   if ( !ent && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_cmds_mp.cpp", 1053, ASSERT_TYPE_ASSERT, "( ent )", (const char *)&queryFormat, "ent") )
     __debugbreak();
@@ -2780,68 +2741,28 @@ void G_CmdsMP_SetStreamPos_f(gentity_s *ent)
     {
       if ( EntityPlayerState->clientNum < ComCharacterLimits::GetCharacterMaxCount() )
       {
-        __asm
-        {
-          vmovaps [rsp+118h+var_18], xmm6
-          vmovaps [rsp+118h+var_28], xmm7
-        }
+        v14 = v1;
+        v13 = v2;
         AngleVectors(&EntityPlayerState->viewangles, &forward, NULL, NULL);
+        v5 = LODWORD(forward.v[1]);
+        *(float *)&v5 = fsqrt((float)((float)(*(float *)&v5 * *(float *)&v5) + (float)(forward.v[0] * forward.v[0])) + (float)(forward.v[2] * forward.v[2]));
+        _XMM3 = v5;
         __asm
         {
-          vmovss  xmm4, dword ptr [rsp+118h+forward]
-          vmovss  xmm6, dword ptr [rsp+118h+forward+4]
-          vmovss  xmm5, dword ptr [rsp+118h+forward+8]
-          vmovss  xmm7, cs:__real@3f800000
-          vmulss  xmm0, xmm4, xmm4
-          vmulss  xmm1, xmm6, xmm6
-          vaddss  xmm2, xmm1, xmm0
-          vmulss  xmm1, xmm5, xmm5
-          vaddss  xmm0, xmm2, xmm1
-          vsqrtss xmm3, xmm0, xmm0
           vcmpless xmm0, xmm3, cs:__real@80000000
           vblendvps xmm0, xmm3, xmm7, xmm0
-          vmovss  xmm3, cs:__real@48800000
-          vdivss  xmm1, xmm7, xmm0
-          vmulss  xmm2, xmm4, xmm1
-          vmulss  xmm4, xmm6, xmm1
-          vmulss  xmm0, xmm2, xmm3
-          vmovss  dword ptr [rsp+118h+forward], xmm2
-          vmulss  xmm5, xmm5, xmm1
-          vmovss  dword ptr [rsp+118h+forward+4], xmm4
-          vmovss  dword ptr [rsp+118h+forward+8], xmm5
-          vaddss  xmm1, xmm0, dword ptr [r8]
-          vmovss  dword ptr [rsp+118h+end], xmm1
-          vmulss  xmm2, xmm4, xmm3
-          vaddss  xmm0, xmm2, dword ptr [r8+4]
-          vmulss  xmm1, xmm5, xmm3
-          vmovss  dword ptr [rsp+118h+end+4], xmm0
-          vaddss  xmm2, xmm1, dword ptr [r8+8]
-          vmovss  dword ptr [rsp+118h+end+8], xmm2
         }
+        forward.v[0] = forward.v[0] * (float)(1.0 / *(float *)&_XMM0);
+        forward.v[1] = forward.v[1] * (float)(1.0 / *(float *)&_XMM0);
+        forward.v[2] = forward.v[2] * (float)(1.0 / *(float *)&_XMM0);
+        end.v[0] = (float)(forward.v[0] * 262144.0) + EntityPlayerState->origin.v[0];
+        end.v[1] = (float)(forward.v[1] * 262144.0) + EntityPlayerState->origin.v[1];
+        end.v[2] = (float)(forward.v[2] * 262144.0) + EntityPlayerState->origin.v[2];
         PhysicsQuery_LegacyTrace(PHYSICS_WORLD_ID_FIRST, &results, &EntityPlayerState->origin, &end, &bounds_origin, 0, 1, 2065, 1, NULL, All);
-        __asm
+        if ( results.fraction < 1.0 )
         {
-          vmovss  xmm0, [rsp+118h+results.fraction]
-          vmovaps xmm6, [rsp+118h+var_18]
-          vcomiss xmm0, xmm7
-          vmovaps xmm7, [rsp+118h+var_28]
-        }
-        if ( v31 )
-        {
-          __asm
-          {
-            vmovss  xmm3, dword ptr [rsp+118h+results.position+4]
-            vmovss  xmm2, dword ptr [rsp+118h+results.position]
-            vmovss  xmm0, dword ptr [rsp+118h+results.position+8]
-            vcvtss2sd xmm3, xmm3, xmm3
-            vcvtss2sd xmm2, xmm2, xmm2
-            vcvtss2sd xmm0, xmm0, xmm0
-            vmovq   r9, xmm3
-            vmovq   r8, xmm2
-            vmovsd  [rsp+118h+fmt], xmm0
-          }
-          v40 = j_va("%c \"setstreampos to [ %.2f, %.2f, %.2f ]\"", 101i64, _R8, _R9, fmt);
-          SV_Game_SendServerCommand(EntityPlayerState->clientNum, SV_CMD_CAN_IGNORE, v40);
+          v9 = j_va("%c \"setstreampos to [ %.2f, %.2f, %.2f ]\"", 101i64, results.position.v[0], results.position.v[1], results.position.v[2]);
+          SV_Game_SendServerCommand(EntityPlayerState->clientNum, SV_CMD_CAN_IGNORE, v9);
           G_WorldStreaming_SetNextStreamPosition(EntityPlayerState->clientNum, MOVEMENT, LINEAR, &results.position, NULL, 1);
         }
       }
@@ -3042,11 +2963,13 @@ G_CmdsMP_StopSpectating
 */
 void G_CmdsMP_StopSpectating(gentity_s *ent, const int clearCycle, const int force)
 {
+  gclient_s *client; 
   int commandTime; 
   int inputTime; 
   GHandler *Handler; 
   GWeaponMap *Instance; 
   GHandler *v11; 
+  float v12; 
   vec3_t outOrigin; 
   vec3_t end; 
   vec3_t angles; 
@@ -3055,130 +2978,67 @@ void G_CmdsMP_StopSpectating(gentity_s *ent, const int clearCycle, const int for
   Bounds bounds; 
   trace_t results; 
 
-  _RDI = ent->client;
-  if ( !_RDI && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_cmds_mp.cpp", 187, ASSERT_TYPE_ASSERT, "(client)", (const char *)&queryFormat, "client") )
+  client = ent->client;
+  if ( !client && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_cmds_mp.cpp", 187, ASSERT_TYPE_ASSERT, "(client)", (const char *)&queryFormat, "client") )
     __debugbreak();
   if ( clearCycle )
-    _RDI->cycleSpectatorClient = -1;
-  if ( _RDI->sess.cs.isMLGSpectator && force )
+    client->cycleSpectatorClient = -1;
+  if ( client->sess.cs.isMLGSpectator && force )
     goto LABEL_12;
   if ( GameModeFlagValues::ms_mpValue != ACTIVE && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_gamemode_flags.h", 190, ASSERT_TYPE_ASSERT, "(IsFlagActive( index ))", "%s\n\tThis function must be used in a MP-only context", "IsFlagActive( index )") )
     __debugbreak();
-  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&_RDI->ps.otherFlags, ACTIVE, 0x21u) )
+  if ( GameModeFlagContainer<enum POtherFlagsCommon,enum POtherFlagsSP,enum POtherFlagsMP,64>::TestFlagInternal(&client->ps.otherFlags, ACTIVE, 0x21u) )
   {
 LABEL_12:
     G_CharacterStreaming_ClearNextSpectateViewModels(ent->s.number);
     G_WeaponStreaming_ClearNextSpectateViewWeapons(ent->s.number);
     G_WorldStreaming_ClearNextStreamView(ent->s.number, MOVEMENT);
-    if ( _RDI == (gclient_s *)-376i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2062, ASSERT_TYPE_ASSERT, "(esFlags)", (const char *)&queryFormat, "esFlags") )
+    if ( client == (gclient_s *)-376i64 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\bgame\\bg_public.h", 2062, ASSERT_TYPE_ASSERT, "(esFlags)", (const char *)&queryFormat, "esFlags") )
       __debugbreak();
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_RDI->ps.eFlags, ACTIVE, 5u);
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_RDI->ps.eFlags, ACTIVE, 6u);
-    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&_RDI->ps.eFlags, ACTIVE, 7u);
-    BG_InitPlayerstateVehicle(&_RDI->ps);
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&client->ps.eFlags, ACTIVE, 5u);
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&client->ps.eFlags, ACTIVE, 6u);
+    GameModeFlagContainer<enum EntityStateFlagsCommon,enum EntityStateFlagsSP,enum EntityStateFlagsMP,32>::ClearFlagInternal(&client->ps.eFlags, ACTIVE, 7u);
+    BG_InitPlayerstateVehicle(&client->ps);
     if ( !Com_GameMode_SupportsFeature(WEAPON_MELEE) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_cmds_mp.cpp", 215, ASSERT_TYPE_ASSERT, "( Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_GROUND_REF ) )", (const char *)&queryFormat, "Com_GameMode_SupportsFeature( Com_GameMode_Feature::ENTITY_GROUND_REF )") )
       __debugbreak();
-    commandTime = _RDI->sess.cmd.commandTime;
-    _RDI->ps.groundRefEnt = 2047;
-    _RDI->ps.commandTime = commandTime;
-    _RDI->ps.commandTimeInterpolated = commandTime;
-    inputTime = _RDI->sess.cmd.inputTime;
-    _RDI->ps.inputTime = inputTime;
-    _RDI->ps.inputTimeInterpolated = inputTime;
+    commandTime = client->sess.cmd.commandTime;
+    client->ps.groundRefEnt = 2047;
+    client->ps.commandTime = commandTime;
+    client->ps.commandTimeInterpolated = commandTime;
+    inputTime = client->sess.cmd.inputTime;
+    client->ps.inputTime = inputTime;
+    client->ps.inputTimeInterpolated = inputTime;
     if ( Com_GameMode_SupportsFeature(WEAPON_SKYDIVE_WEAPON_DROP|0x80) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\com_teams.h", 112, ASSERT_TYPE_ASSERT, "(!Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER ))", "%s\n\tFreeLook is MP only", "!Com_GameMode_SupportsFeature( Com_GameMode_Feature::TEAMS_SINGLEPLAYER )") )
       __debugbreak();
-    if ( G_ActiveMP_ClientCanSpectateTeam(_RDI, TEAM_MP_NUM_TEAMS) )
+    if ( G_ActiveMP_ClientCanSpectateTeam(client, TEAM_MP_NUM_TEAMS) )
     {
       Handler = GHandler::getHandler();
       Instance = GWeaponMap::GetInstance();
-      BG_GetPlayerEyePosition(Instance, &_RDI->ps, &outOrigin, Handler);
+      BG_GetPlayerEyePosition(Instance, &client->ps, &outOrigin, Handler);
       v11 = GHandler::getHandler();
-      BG_GetPlayerViewDirection(&_RDI->ps, &forward, NULL, &up, v11, 0);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+1DCh]
-        vmovss  xmm2, dword ptr [rdi+1D8h]
-        vmovss  dword ptr [rsp+120h+angles+4], xmm0
-        vmovss  xmm1, dword ptr [rdi+1E0h]
-        vaddss  xmm0, xmm2, cs:__real@41700000
-        vmovss  dword ptr [rsp+120h+angles+8], xmm1
-        vmovss  dword ptr [rsp+120h+angles], xmm0
-      }
+      BG_GetPlayerViewDirection(&client->ps, &forward, NULL, &up, v11, 0);
+      v12 = client->ps.viewangles.v[0];
+      *(_QWORD *)&angles.y = *(_QWORD *)&client->ps.viewangles.y;
+      angles.v[0] = v12 + 15.0;
     }
     else
     {
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+5984h]
-        vmovss  dword ptr [rsp+120h+outOrigin], xmm0
-        vmovss  xmm1, dword ptr [rdi+5988h]
-        vmovss  dword ptr [rsp+120h+outOrigin+4], xmm1
-        vmovss  xmm0, dword ptr [rdi+598Ch]
-        vmovss  dword ptr [rsp+120h+outOrigin+8], xmm0
-      }
-      AngleVectors(&_RDI->sess.spectateDefaultAngles, &forward, NULL, &up);
-      __asm
-      {
-        vmovss  xmm0, dword ptr [rdi+5990h]
-        vmovss  dword ptr [rsp+120h+angles], xmm0
-        vmovss  xmm1, dword ptr [rdi+5994h]
-        vmovss  dword ptr [rsp+120h+angles+4], xmm1
-        vmovss  xmm0, dword ptr [rdi+5998h]
-        vmovss  dword ptr [rsp+120h+angles+8], xmm0
-      }
+      outOrigin = client->sess.spectateDefaultPos;
+      AngleVectors(&client->sess.spectateDefaultAngles, &forward, NULL, &up);
+      angles = client->sess.spectateDefaultAngles;
     }
-    __asm { vmovss  xmm5, cs:__real@41200000 }
-    *(_QWORD *)_RDI->ps.velocity.v = 0i64;
-    _RDI->ps.velocity.v[2] = 0.0;
-    __asm
-    {
-      vmovss  xmm0, dword ptr [rsp+120h+forward]
-      vmulss  xmm2, xmm0, cs:__real@42200000
-      vmovss  xmm1, dword ptr [rsp+120h+outOrigin]
-      vmovss  xmm0, dword ptr [rsp+120h+forward+4]
-      vsubss  xmm3, xmm1, xmm2
-      vmulss  xmm1, xmm5, dword ptr [rsp+120h+up]
-      vaddss  xmm2, xmm3, xmm1
-      vmulss  xmm3, xmm0, cs:__real@42200000
-      vmovss  xmm1, dword ptr [rsp+120h+outOrigin+4]
-      vmovss  xmm0, dword ptr [rsp+120h+forward+8]
-      vsubss  xmm4, xmm1, xmm3
-      vmovss  dword ptr [rsp+120h+end], xmm2
-      vmulss  xmm2, xmm5, dword ptr [rsp+120h+up+4]
-      vaddss  xmm1, xmm4, xmm2
-      vmulss  xmm2, xmm0, cs:__real@42200000
-      vmovups xmm0, cs:__xmm@41000000000000000000000000000000
-      vmovss  dword ptr [rsp+120h+end+4], xmm1
-      vmovss  xmm1, dword ptr [rsp+120h+outOrigin+8]
-      vsubss  xmm3, xmm1, xmm2
-      vmulss  xmm2, xmm5, dword ptr [rsp+120h+up+8]
-      vaddss  xmm1, xmm3, xmm2
-      vmovss  dword ptr [rsp+120h+end+8], xmm1
-      vmovss  xmm1, cs:__real@41000000
-      vmovss  dword ptr [rbp+20h+bounds.halfSize+4], xmm1
-      vmovss  dword ptr [rbp+20h+bounds.halfSize+8], xmm1
-      vmovups xmmword ptr [rbp+20h+bounds.midPoint], xmm0
-    }
+    *(_QWORD *)client->ps.velocity.v = 0i64;
+    client->ps.velocity.v[2] = 0.0;
+    end.v[0] = (float)(outOrigin.v[0] - (float)(forward.v[0] * 40.0)) + (float)(10.0 * up.v[0]);
+    end.v[1] = (float)(outOrigin.v[1] - (float)(forward.v[1] * 40.0)) + (float)(10.0 * up.v[1]);
+    end.v[2] = (float)(outOrigin.v[2] - (float)(forward.v[2] * 40.0)) + (float)(10.0 * up.v[2]);
+    bounds.halfSize.v[1] = FLOAT_8_0;
+    bounds.halfSize.v[2] = FLOAT_8_0;
+    *(_OWORD *)bounds.midPoint.v = _xmm;
     G_Main_TraceCapsule(&results, &outOrigin, &end, &bounds, 2047, 65553);
-    __asm
-    {
-      vmovss  xmm5, [rbp+20h+results.fraction]
-      vmovss  xmm0, dword ptr [rsp+120h+end]
-      vsubss  xmm1, xmm0, dword ptr [rsp+120h+outOrigin]
-      vmulss  xmm1, xmm1, xmm5
-      vaddss  xmm0, xmm1, dword ptr [rsp+120h+outOrigin]
-      vmovss  xmm1, dword ptr [rsp+120h+end+4]
-      vmovss  dword ptr [rsp+120h+outOrigin], xmm0
-      vsubss  xmm0, xmm1, dword ptr [rsp+120h+outOrigin+4]
-      vmulss  xmm2, xmm0, xmm5
-      vaddss  xmm3, xmm2, dword ptr [rsp+120h+outOrigin+4]
-      vmovss  xmm0, dword ptr [rsp+120h+end+8]
-      vsubss  xmm1, xmm0, dword ptr [rsp+120h+outOrigin+8]
-      vmulss  xmm2, xmm1, xmm5
-      vmovss  dword ptr [rsp+120h+outOrigin+4], xmm3
-      vaddss  xmm3, xmm2, dword ptr [rsp+120h+outOrigin+8]
-      vmovss  dword ptr [rsp+120h+outOrigin+8], xmm3
-    }
+    outOrigin.v[0] = (float)((float)(end.v[0] - outOrigin.v[0]) * results.fraction) + outOrigin.v[0];
+    outOrigin.v[1] = (float)((float)(end.v[1] - outOrigin.v[1]) * results.fraction) + outOrigin.v[1];
+    outOrigin.v[2] = (float)((float)(end.v[2] - outOrigin.v[2]) * results.fraction) + outOrigin.v[2];
     G_SetSpectatorPosition(ent, &outOrigin, &angles);
   }
 }
@@ -3239,20 +3099,14 @@ void ReportUnknownClientCommand(int clientNum, char *cmd)
 {
   SvClient *CommonClient; 
   char *fmt; 
-  char v7[32]; 
-  __int64 v8; 
+  _QWORD v6[6]; 
   char dest[1024]; 
 
-  LODWORD(v8) = 2257706;
-  __asm
-  {
-    vmovups ymm0, ymmword ptr cs:aCGameUnknowncl; "%c \"GAME/UNKNOWNCLIENTCOMMAND"
-    vmovups ymmword ptr [rsp+478h+var_448], ymm0
-  }
-  if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_cmds_mp.cpp", 866, ASSERT_TYPE_ASSERT, "(cmd != 0)", (const char *)&queryFormat, "cmd != NULL", *(_QWORD *)v7, *(_QWORD *)&v7[8], *(_QWORD *)&v7[16], *(_QWORD *)&v7[24], v8) )
+  strcpy((char *)v6, "%c \"GAME/UNKNOWNCLIENTCOMMAND\x1F%.*s\"");
+  if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\game_mp\\g_cmds_mp.cpp", 866, ASSERT_TYPE_ASSERT, "(cmd != 0)", (const char *)&queryFormat, "cmd != NULL", v6[0], v6[1], v6[2], v6[3], v6[4]) )
     __debugbreak();
   LODWORD(fmt) = 988;
-  Com_sprintf(dest, 0x400ui64, v7, 101i64, fmt, cmd);
+  Com_sprintf(dest, 0x400ui64, (const char *)v6, 101i64, fmt, cmd);
   if ( clientNum == -1 )
   {
     SV_Game_BroadcastServerCommand(SV_CMD_CAN_IGNORE, dest);

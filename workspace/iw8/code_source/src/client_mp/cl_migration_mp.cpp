@@ -239,6 +239,7 @@ HandlePingMsg
 void HandlePingMsg(const LocalClientNum_t localClientNum, netadr_t *from, msg_t *msg)
 {
   int Long; 
+  __int128 v6; 
   const PartyData *CurrentParty; 
   int ControllerFromClient; 
   int OurClientNum; 
@@ -248,18 +249,14 @@ void HandlePingMsg(const LocalClientNum_t localClientNum, netadr_t *from, msg_t 
   msg_t buf; 
   unsigned __int8 data[32]; 
 
-  _RBX = from;
   Long = MSG_ReadLong(msg);
   if ( Long >= 0 )
   {
-    __asm { vmovups xmm0, xmmword ptr [rbx] }
-    adr.addrHandleIndex = _RBX->addrHandleIndex;
+    v6 = *(_OWORD *)&from->type;
+    adr.addrHandleIndex = from->addrHandleIndex;
     v11.addrHandleIndex = adr.addrHandleIndex;
-    __asm
-    {
-      vmovups xmmword ptr [rsp+0E8h+adr.type], xmm0
-      vmovups [rsp+0E8h+var_B8], xmm0
-    }
+    *(_OWORD *)&adr.type = v6;
+    *(_OWORD *)&v11.type = v6;
     if ( NET_IsLocalAddress(&v11) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_migration_mp.cpp", 477, ASSERT_TYPE_ASSERT, "(!NET_IsLocalAddress( to ))", (const char *)&queryFormat, "!NET_IsLocalAddress( to )") )
       __debugbreak();
     CurrentParty = Live_GetCurrentParty();
@@ -295,13 +292,15 @@ void HandlePingAckMsg(const LocalClientNum_t localClientNum, netadr_t *from, msg
   __int64 Long; 
   int v5; 
   const PartyData *PartyData; 
-  int v9; 
+  ClientPing *v7; 
+  int v8; 
   int ping; 
+  unsigned int v10; 
   unsigned int v11; 
-  unsigned int v12; 
   int SplitscreenClientNumAtSameAddress; 
+  __int64 v13; 
   __int64 v14; 
-  unsigned int v17; 
+  unsigned int v15; 
 
   Long = MSG_ReadLong(msg);
   v5 = MSG_ReadLong(msg);
@@ -310,27 +309,25 @@ void HandlePingAckMsg(const LocalClientNum_t localClientNum, netadr_t *from, msg
     PartyData = Lobby_GetPartyData();
     if ( Party_IsMemberRegistered(PartyData, Long) && !Party_IsServer(PartyData, Long) )
     {
-      _R14 = s_clientPings;
-      _RSI = &s_clientPings[Long];
-      v9 = Sys_Milliseconds();
-      ping = _RSI->ping;
-      v11 = v9 - v5;
+      v7 = &s_clientPings[Long];
+      v8 = Sys_Milliseconds();
+      ping = v7->ping;
+      v10 = v8 - v5;
       if ( ping )
-        v12 = (int)(v11 + ping) / 2;
+        v11 = (int)(v10 + ping) / 2;
       else
-        v12 = v11;
-      v17 = v11;
-      _RSI->ping = v12;
-      Com_Printf(25, "Migration - HandlePingAckMsg - client %i ping %i, latest %i\n", (unsigned int)Long, v12, v17);
+        v11 = v10;
+      v15 = v10;
+      v7->ping = v11;
+      Com_Printf(25, "Migration - HandlePingAckMsg - client %i ping %i, latest %i\n", (unsigned int)Long, v11, v15);
       SplitscreenClientNumAtSameAddress = Party_GetSplitscreenClientNumAtSameAddress(PartyData, Long);
-      v14 = SplitscreenClientNumAtSameAddress;
+      v13 = SplitscreenClientNumAtSameAddress;
       if ( SplitscreenClientNumAtSameAddress != -1 )
       {
         Com_Printf(25, "Migration - HandlePingAckMsg - Other client at address (%i), copying.\n", (unsigned int)SplitscreenClientNumAtSameAddress);
-        __asm { vmovsd  xmm0, qword ptr [rsi] }
-        _RCX = v14;
-        __asm { vmovsd  qword ptr [r14+rcx*4], xmm0 }
-        s_clientPings[_RCX].nextPingTime = _RSI->nextPingTime;
+        v14 = v13;
+        *(double *)&s_clientPings[v14].active = *(double *)&v7->active;
+        s_clientPings[v14].nextPingTime = v7->nextPingTime;
       }
     }
   }
@@ -529,50 +526,29 @@ CL_LoadMigrationPers
 void CL_LoadMigrationPers(LocalClientNum_t localClientNum)
 {
   __int64 v1; 
+  clientUIActive_t *LocalClientUIGlobals; 
+  ClActiveClientMP *ClientMP; 
   unsigned int clviewangles_aab; 
-  int v12; 
 
   v1 = localClientNum;
-  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT )
-  {
-    v12 = 2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\client_mp.h", 254, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, v12) )
-      __debugbreak();
-  }
+  if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\client_mp.h", 254, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
+    __debugbreak();
   if ( clientUIActives[v1].migrationState )
   {
-    _RBX = CL_GetLocalClientUIGlobals((const LocalClientNum_t)v1);
-    _R8 = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v1);
-    _R8->cmdInputAccumTimeMs = _RBX->migrationPers.cmdInputAccumTimeMs;
-    _R8->stanceHeld = _RBX->migrationPers.stanceHeld;
-    _R8->crouchToggle = _RBX->migrationPers.crouchToggle;
-    _R8->crouchHoldReleased = _RBX->migrationPers.crouchHoldReleased;
-    _R8->stance = _RBX->migrationPers.stance;
-    _R8->stanceOnButtonDown = _RBX->migrationPers.stanceOnButtonDown;
-    _R8->stanceTime = _RBX->migrationPers.stanceTime;
-    __asm { vmovups ymm0, ymmword ptr [rbx+44h] }
-    clviewangles_aab = _R8->clviewangles_aab;
-    __asm
-    {
-      vmovups ymmword ptr [rax+90h], ymm0
-      vmovups xmm1, xmmword ptr [rbx+64h]
-      vmovups xmmword ptr [rax+0B0h], xmm1
-      vmovsd  xmm0, qword ptr [rbx+74h]
-      vmovsd  qword ptr [rax+0C0h], xmm0
-    }
-    *(_DWORD *)&_R8->cgameUserCmdWeapon.weaponCamo = *(_DWORD *)&_RBX->migrationPers.cgameUserCmdWeapon.weaponCamo;
-    __asm
-    {
-      vmovups ymm0, ymmword ptr [rbx+80h]
-      vmovups ymmword ptr [r8+0CCh], ymm0
-      vmovups xmm1, xmmword ptr [rbx+0A0h]
-      vmovups xmmword ptr [r8+0ECh], xmm1
-      vmovsd  xmm0, qword ptr [rbx+0B0h]
-      vmovsd  qword ptr [r8+0FCh], xmm0
-    }
-    *(_DWORD *)&_R8->cgameUserCmdOffHand.weaponCamo = *(_DWORD *)&_RBX->migrationPers.cgameUserCmdOffHand.weaponCamo;
-    _R8->cgameUserCmdAlternate = _RBX->migrationPers.cgameUserCmdAlternate;
-    LODWORD(_R8->clViewangles.clViewangles.v[2]) = (((_DWORD)_R8 + 436) ^ clviewangles_aab) * ((((_DWORD)_R8 + 436) ^ clviewangles_aab) + 2);
+    LocalClientUIGlobals = CL_GetLocalClientUIGlobals((const LocalClientNum_t)v1);
+    ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v1);
+    ClientMP->cmdInputAccumTimeMs = LocalClientUIGlobals->migrationPers.cmdInputAccumTimeMs;
+    ClientMP->stanceHeld = LocalClientUIGlobals->migrationPers.stanceHeld;
+    ClientMP->crouchToggle = LocalClientUIGlobals->migrationPers.crouchToggle;
+    ClientMP->crouchHoldReleased = LocalClientUIGlobals->migrationPers.crouchHoldReleased;
+    ClientMP->stance = LocalClientUIGlobals->migrationPers.stance;
+    ClientMP->stanceOnButtonDown = LocalClientUIGlobals->migrationPers.stanceOnButtonDown;
+    ClientMP->stanceTime = LocalClientUIGlobals->migrationPers.stanceTime;
+    clviewangles_aab = ClientMP->clviewangles_aab;
+    ClientMP->cgameUserCmdWeapon = LocalClientUIGlobals->migrationPers.cgameUserCmdWeapon;
+    ClientMP->cgameUserCmdOffHand = LocalClientUIGlobals->migrationPers.cgameUserCmdOffHand;
+    ClientMP->cgameUserCmdAlternate = LocalClientUIGlobals->migrationPers.cgameUserCmdAlternate;
+    LODWORD(ClientMP->clViewangles.clViewangles.v[2]) = (((_DWORD)ClientMP + 436) ^ clviewangles_aab) * ((((_DWORD)ClientMP + 436) ^ clviewangles_aab) + 2);
     CG_MainMP_LoadMigrationPers((LocalClientNum_t)v1);
   }
 }
@@ -594,7 +570,7 @@ void CL_Migrate(LocalClientNum_t localClientNum, const XSESSION_INFO *hostInfo)
   netsrc_t LocalNetIDFromLocalClientNum; 
   ClActiveClientMP *ClientMP; 
   __int64 type; 
-  __int64 v14; 
+  __int64 v13; 
 
   v2 = localClientNum;
   if ( !XSESSION_INFO::IsValidSessionId((XSESSION_INFO *)hostInfo) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_migration_mp.cpp", 239, ASSERT_TYPE_ASSERT, "(hostInfo.IsValidSessionId())", (const char *)&queryFormat, "hostInfo.IsValidSessionId()") )
@@ -642,18 +618,18 @@ void CL_Migrate(LocalClientNum_t localClientNum, const XSESSION_INFO *hostInfo)
   ClientConnectionData = ClConnectionMP::GetClientConnectionData((const LocalClientNum_t)v2);
   if ( (unsigned int)v2 >= 2 )
   {
-    LODWORD(v14) = 2;
+    LODWORD(v13) = 2;
     LODWORD(type) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", type, v14) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", type, v13) )
       __debugbreak();
   }
   if ( clientUIActives[v4].frontEndSceneState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_migration_mp.cpp", 321, ASSERT_TYPE_ASSERT, "(clientUIActive->frontEndSceneState == ClFrontEndSceneState::INACTIVE)", (const char *)&queryFormat, "clientUIActive->frontEndSceneState == ClFrontEndSceneState::INACTIVE") )
     __debugbreak();
   if ( (unsigned int)v2 >= 2 )
   {
-    LODWORD(v14) = 2;
+    LODWORD(v13) = 2;
     LODWORD(type) = v2;
-    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", type, v14) )
+    if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 195, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", type, v13) )
       __debugbreak();
   }
   Com_Printf(14, "CL_SetLocalConnectionState %i -> %i.\n", (unsigned int)clientUIActives[v4].connectionState, 1i64);
@@ -667,10 +643,9 @@ void CL_Migrate(LocalClientNum_t localClientNum, const XSESSION_INFO *hostInfo)
   ClientConnectionData->connectLastSendTime = -99999;
   cls.serverId = 0;
   ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v2);
-  __asm { vmovss  xmm0, cs:__real@3f800000; volume }
   ClientMP->serverId = 0;
   ClientMP->timeoutcount = 0;
-  SND_FadeAllSounds(*(float *)&_XMM0, 1000);
+  SND_FadeAllSounds(1.0, 1000);
 }
 
 /*
@@ -690,21 +665,25 @@ CL_MigrationFrame
 */
 void CL_MigrationFrame(const LocalClientNum_t localClientNum)
 {
+  __int128 v1; 
   int ControllerFromClient; 
   clientMigState_t LocalClientMigrationState; 
-  char v10; 
-  char v11; 
+  float v5; 
+  double Float_Internal_DebugName; 
   const PartyData *PartyData; 
   int OurClientNum; 
-  int v15; 
+  int v9; 
+  ClientPing *v10; 
   bool IsMemberRegistered; 
-  int v18; 
+  int v12; 
   int SplitscreenClientNumAtSameAddress; 
+  __int64 v14; 
   NetConnection *MemberConnection; 
-  int v23; 
+  int v16; 
   netsrc_t LocalNetIDFromLocalClientNum; 
   msg_t buf; 
   unsigned __int8 data[32]; 
+  __int128 v20; 
 
   if ( Live_IsInLiveGame() && CL_Mgr_IsClientActive(localClientNum) )
   {
@@ -728,20 +707,10 @@ void CL_MigrationFrame(const LocalClientNum_t localClientNum)
           {
             if ( s_lastPacketTime > 0 )
             {
-              __asm
-              {
-                vmovaps [rsp+0C8h+var_38], xmm6
-                vxorps  xmm6, xmm6, xmm6
-                vcvtsi2ss xmm6, xmm6, eax
-              }
-              *(double *)&_XMM0 = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
-              __asm
-              {
-                vmulss  xmm1, xmm0, cs:__real@44fa0000
-                vcomiss xmm6, xmm1
-                vmovaps xmm6, [rsp+0C8h+var_38]
-              }
-              if ( !(v10 | v11) )
+              v20 = v1;
+              v5 = (float)(cls.realtime - s_lastPacketTime);
+              Float_Internal_DebugName = Dvar_GetFloat_Internal_DebugName(DVARFLT_cl_connectTimeout, "cl_connectTimeout");
+              if ( v5 > (float)(*(float *)&Float_Internal_DebugName * 2000.0) )
                 CL_MainMP_ServerTimedOut(localClientNum);
             }
           }
@@ -758,51 +727,49 @@ void CL_MigrationFrame(const LocalClientNum_t localClientNum)
             __debugbreak();
           if ( Party_GetNumGameSlots(PartyData) > 24 && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_migration_mp.cpp", 416, ASSERT_TYPE_ASSERT, "(Party_GetNumGameSlots( party ) <= 24)", (const char *)&queryFormat, "Party_GetNumGameSlots( party ) <= MAX_CLIENTS_LISTEN") )
             __debugbreak();
-          _R12 = s_clientPings;
-          v15 = 0;
-          _RDI = s_clientPings;
+          v9 = 0;
+          v10 = s_clientPings;
           do
           {
-            IsMemberRegistered = Party_IsMemberRegistered(PartyData, v15);
-            if ( _RDI->active != IsMemberRegistered )
+            IsMemberRegistered = Party_IsMemberRegistered(PartyData, v9);
+            if ( v10->active != IsMemberRegistered )
             {
-              *(_QWORD *)&_RDI->active = 0i64;
-              _RDI->nextPingTime = 0;
+              *(_QWORD *)&v10->active = 0i64;
+              v10->nextPingTime = 0;
             }
-            _RDI->active = IsMemberRegistered;
-            if ( IsMemberRegistered && !Party_MemberHasLoopbackAddr(PartyData, v15) )
+            v10->active = IsMemberRegistered;
+            if ( IsMemberRegistered && !Party_MemberHasLoopbackAddr(PartyData, v9) )
             {
-              if ( Party_IsMemberLocalPlayer(PartyData, v15) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_migration_mp.cpp", 433, ASSERT_TYPE_ASSERT, "(!Party_IsMemberLocalPlayer( party, clientNum ))", (const char *)&queryFormat, "!Party_IsMemberLocalPlayer( party, clientNum )") )
+              if ( Party_IsMemberLocalPlayer(PartyData, v9) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_migration_mp.cpp", 433, ASSERT_TYPE_ASSERT, "(!Party_IsMemberLocalPlayer( party, clientNum ))", (const char *)&queryFormat, "!Party_IsMemberLocalPlayer( party, clientNum )") )
                 __debugbreak();
-              if ( !Party_IsServer(PartyData, v15) && Sys_Milliseconds() - _RDI->nextPingTime >= 0 )
+              if ( !Party_IsServer(PartyData, v9) && Sys_Milliseconds() - v10->nextPingTime >= 0 )
               {
-                v18 = 1000 * Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_cl_migrationPingTime, "cl_migrationPingTime");
-                _RDI->nextPingTime = v18 + Sys_Milliseconds();
-                SplitscreenClientNumAtSameAddress = Party_GetSplitscreenClientNumAtSameAddress(PartyData, v15);
+                v12 = 1000 * Dvar_GetInt_Internal_DebugName(DCONST_DVARINT_cl_migrationPingTime, "cl_migrationPingTime");
+                v10->nextPingTime = v12 + Sys_Milliseconds();
+                SplitscreenClientNumAtSameAddress = Party_GetSplitscreenClientNumAtSameAddress(PartyData, v9);
                 if ( SplitscreenClientNumAtSameAddress != -1 )
                 {
-                  __asm { vmovsd  xmm0, qword ptr [rdi] }
-                  _RCX = SplitscreenClientNumAtSameAddress;
-                  __asm { vmovsd  qword ptr [r12+rcx*4], xmm0 }
-                  s_clientPings[_RCX].nextPingTime = _RDI->nextPingTime;
+                  v14 = SplitscreenClientNumAtSameAddress;
+                  *(double *)&s_clientPings[v14].active = *(double *)&v10->active;
+                  s_clientPings[v14].nextPingTime = v10->nextPingTime;
                 }
-                MemberConnection = (NetConnection *)Party_GetMemberConnection(PartyData, v15);
+                MemberConnection = (NetConnection *)Party_GetMemberConnection(PartyData, v9);
                 if ( NetConnection::IsLocal(MemberConnection) && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_migration_mp.cpp", 348, ASSERT_TYPE_ASSERT, "(!connection.IsLocal())", (const char *)&queryFormat, "!connection.IsLocal()") )
                   __debugbreak();
                 MSG_Init(&buf, data, 32);
                 MSG_WriteString(&buf, "ping");
-                v23 = Sys_Milliseconds();
-                MSG_WriteLong(&buf, v23);
+                v16 = Sys_Milliseconds();
+                MSG_WriteLong(&buf, v16);
                 if ( buf.overflowed && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_migration_mp.cpp", 353, ASSERT_TYPE_ASSERT, "(!msg.overflowed)", (const char *)&queryFormat, "!msg.overflowed") )
                   __debugbreak();
                 LocalNetIDFromLocalClientNum = NET_GetLocalNetIDFromLocalClientNum(localClientNum);
                 NetConnection::SendP2P(MemberConnection, LocalNetIDFromLocalClientNum, buf.data, buf.cursize);
               }
             }
-            ++v15;
-            ++_RDI;
+            ++v9;
+            ++v10;
           }
-          while ( v15 < 24 );
+          while ( v9 < 24 );
         }
       }
     }
@@ -860,89 +827,88 @@ CL_MigrationPacket
 */
 char CL_MigrationPacket(const LocalClientNum_t localClientNum, const char *cmd, netadr_t *from, msg_t *msg)
 {
+  __int128 v4; 
   const char *string; 
-  int v7; 
+  int v6; 
+  __int64 v11; 
   __int64 v12; 
-  __int64 v13; 
-  const char *v14; 
-  int v15; 
-  __int64 v16; 
+  const char *v13; 
+  int v14; 
+  __int64 v15; 
+  int v16; 
   int v17; 
   int v18; 
-  int v19; 
-  char v23; 
-  __int128 v26; 
+  const dvar_t *v19; 
+  float value; 
+  double v21; 
+  __int128 v23; 
+  __int128 v24; 
   int addrHandleIndex; 
+  __int128 v26; 
 
   string = messageHandlers_3[0].string;
-  v7 = 0;
-  _R15 = from;
+  v6 = 0;
   if ( *messageHandlers_3[0].string )
   {
-    v12 = 0i64;
+    v11 = 0i64;
     while ( 2 )
     {
-      v13 = 0x7FFFFFFFi64;
+      v12 = 0x7FFFFFFFi64;
       if ( !cmd && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 212, ASSERT_TYPE_SANITY, "( s0 )", (const char *)&queryFormat, "s0") )
         __debugbreak();
       if ( !string && CoreAssert_Handler("c:\\workspace\\iw8\\shared\\codware\\core\\core_string.h", 213, ASSERT_TYPE_SANITY, "( s1 )", (const char *)&queryFormat, "s1") )
         __debugbreak();
-      v14 = (const char *)(cmd - string);
+      v13 = (const char *)(cmd - string);
       while ( 1 )
       {
-        v15 = (unsigned __int8)string[(_QWORD)v14];
-        v16 = v13;
-        v17 = *(unsigned __int8 *)string++;
-        --v13;
-        if ( !v16 )
+        v14 = (unsigned __int8)string[(_QWORD)v13];
+        v15 = v12;
+        v16 = *(unsigned __int8 *)string++;
+        --v12;
+        if ( !v15 )
         {
 LABEL_18:
-          __asm { vmovaps [rsp+98h+var_38], xmm6 }
-          if ( !messageHandlers_3[v7].func && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_migration_mp.cpp", 1132, ASSERT_TYPE_ASSERT, "(messageHandlers[handler].func)", (const char *)&queryFormat, "messageHandlers[handler].func") )
+          v26 = v4;
+          if ( !messageHandlers_3[v6].func && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_migration_mp.cpp", 1132, ASSERT_TYPE_ASSERT, "(messageHandlers[handler].func)", (const char *)&queryFormat, "messageHandlers[handler].func") )
             __debugbreak();
-          _RDI = DVARFLT_cl_migrationPacketLoss;
+          v19 = DVARFLT_cl_migrationPacketLoss;
           if ( !DVARFLT_cl_migrationPacketLoss && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\universal\\dvar.h", 720, ASSERT_TYPE_ASSERT, "(dvar)", "%s\n\tDvar %s accessed after deregistration", "dvar", "cl_migrationPacketLoss") )
             __debugbreak();
-          Dvar_CheckFrontendServerThread(_RDI);
-          __asm { vmovss  xmm6, dword ptr [rdi+28h] }
-          *(double *)&_XMM0 = I_random();
-          __asm
-          {
-            vcomiss xmm0, xmm6
-            vmovaps xmm6, [rsp+98h+var_38]
-          }
-          if ( v23 && I_strncmp(cmd, "ping", 4ui64) && I_strncmp(cmd, "mbndpck", 7ui64) )
+          Dvar_CheckFrontendServerThread(v19);
+          value = v19->current.value;
+          v21 = I_random();
+          if ( *(float *)&v21 < value && I_strncmp(cmd, "ping", 4ui64) && I_strncmp(cmd, "mbndpck", 7ui64) )
           {
             Com_Printf(25, "Migration - Dropping '%s' msg to test packet loss handling (cl_migrationPacketLoss)\n", cmd);
             return 1;
           }
           else
           {
-            __asm { vmovups xmm0, xmmword ptr [r15] }
-            addrHandleIndex = _R15->addrHandleIndex;
-            __asm { vmovups [rsp+98h+var_58], xmm0 }
-            ((void (__fastcall *)(_QWORD, __int128 *, msg_t *))messageHandlers_3[v7].func)((unsigned int)localClientNum, &v26, msg);
+            v23 = *(_OWORD *)&from->type;
+            addrHandleIndex = from->addrHandleIndex;
+            v24 = v23;
+            ((void (__fastcall *)(_QWORD, __int128 *, msg_t *))messageHandlers_3[v6].func)((unsigned int)localClientNum, &v24, msg);
             return 1;
           }
         }
-        if ( v15 != v17 )
+        if ( v14 != v16 )
         {
-          v18 = v15 + 32;
-          if ( (unsigned int)(v15 - 65) > 0x19 )
-            v18 = v15;
-          v15 = v18;
-          v19 = v17 + 32;
-          if ( (unsigned int)(v17 - 65) > 0x19 )
-            v19 = v17;
-          if ( v15 != v19 )
+          v17 = v14 + 32;
+          if ( (unsigned int)(v14 - 65) > 0x19 )
+            v17 = v14;
+          v14 = v17;
+          v18 = v16 + 32;
+          if ( (unsigned int)(v16 - 65) > 0x19 )
+            v18 = v16;
+          if ( v14 != v18 )
             break;
         }
-        if ( !v15 )
+        if ( !v14 )
           goto LABEL_18;
       }
-      ++v12;
-      ++v7;
-      string = messageHandlers_3[v12].string;
+      ++v11;
+      ++v6;
+      string = messageHandlers_3[v11].string;
       if ( *string )
         continue;
       break;
@@ -987,35 +953,21 @@ CL_UpdateMigrationProfile
 */
 void CL_UpdateMigrationProfile(clientMigState_t oldState, clientMigState_t newState)
 {
-  const char *v4; 
+  const char *v3; 
+  double v4; 
+  double v5; 
 
   if ( oldState != newState )
   {
     if ( oldState )
     {
-      v4 = UI_SafeTranslateString(s_stateStrings[oldState]);
-      Sys_Milliseconds();
-      __asm
-      {
-        vxorps  xmm0, xmm0, xmm0
-        vcvtsi2ss xmm0, xmm0, eax
-        vmulss  xmm0, xmm0, cs:__real@3a83126f
-        vcvtss2sd xmm2, xmm0, xmm0
-        vmovq   r8, xmm2
-      }
-      Com_Printf(25, "^6[MIGRATION PROFILE] - %.2f seconds [%s]\n", *(double *)&_XMM2, v4);
+      v3 = UI_SafeTranslateString(s_stateStrings[oldState]);
+      v4 = (float)((float)(Sys_Milliseconds() - lastProfTime) * 0.001);
+      Com_Printf(25, "^6[MIGRATION PROFILE] - %.2f seconds [%s]\n", v4, v3);
       if ( newState == CMSTATE_INACTIVE )
       {
-        Sys_Milliseconds();
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, eax
-          vmulss  xmm1, xmm0, cs:__real@3a83126f
-          vcvtss2sd xmm2, xmm1, xmm1
-          vmovq   r8, xmm2
-        }
-        Com_Printf(25, "^6[MIGRATION PROFILE] - %.2f seconds [TOTAL]\n", *(double *)&_XMM2);
+        v5 = (float)((float)(Sys_Milliseconds() - startTime) * 0.001);
+        Com_Printf(25, "^6[MIGRATION PROFILE] - %.2f seconds [TOTAL]\n", v5);
       }
       lastProfTime = Sys_Milliseconds();
     }
@@ -1161,77 +1113,59 @@ HandleStartMsg_Internal
 */
 void HandleStartMsg_Internal(const LocalClientNum_t localClientNum, int followPartyBackout)
 {
-  __int64 v3; 
+  __int64 v2; 
+  __int64 v4; 
   clientMigState_t LocalClientMigrationState; 
-  int v9; 
+  int v6; 
+  ClActiveClientMP *ClientMP; 
   __int64 ClientConnectivity; 
   unsigned int HostRating; 
   int ControllerFromClient; 
   const PartyData *PartyData; 
   int OurClientNum; 
-  unsigned int v22; 
+  unsigned int v13; 
   char *fmt; 
-  __int64 v24; 
-  __int64 v25; 
+  __int64 v15; 
+  __int64 v16; 
   msg_t buf; 
   unsigned __int8 data[16]; 
 
-  v3 = localClientNum;
+  v2 = localClientNum;
   if ( (unsigned int)localClientNum >= LOCAL_CLIENT_COUNT && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 165, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", localClientNum, 2) )
     __debugbreak();
-  _RBX = v3;
-  _RBP = clientUIActives;
-  if ( clientUIActives[v3].frontEndSceneState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_migration_mp.cpp", 863, ASSERT_TYPE_ASSERT, "(CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE)", (const char *)&queryFormat, "CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE") )
+  v4 = v2;
+  if ( clientUIActives[v2].frontEndSceneState[0] && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client_mp\\cl_migration_mp.cpp", 863, ASSERT_TYPE_ASSERT, "(CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE)", (const char *)&queryFormat, "CL_GetLocalClientFrontEntState( localClientNum ) == ClFrontEndSceneState::INACTIVE") )
     __debugbreak();
-  if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v3) == CA_ACTIVE )
+  if ( CL_GetLocalClientGameConnectionState((const LocalClientNum_t)v2) == CA_ACTIVE )
   {
-    LocalClientMigrationState = CL_GetLocalClientMigrationState((const LocalClientNum_t)v3);
+    LocalClientMigrationState = CL_GetLocalClientMigrationState((const LocalClientNum_t)v2);
     if ( (unsigned int)LocalClientMigrationState <= CMSTATE_OLDHOSTLEAVING )
     {
       Com_Printf(14, "Migration - HandleStartMsg - Got 'mstart' message\n");
-      __asm { vxorps  xmm0, xmm0, xmm0; volume }
-      SND_FadeAllSounds(*(float *)&_XMM0, 1000);
-      v9 = 1;
-      if ( CL_GetLocalClientMigrationState((const LocalClientNum_t)v3) != CMSTATE_OLDHOSTLEAVING )
+      SND_FadeAllSounds(0.0, 1000);
+      v6 = 1;
+      if ( CL_GetLocalClientMigrationState((const LocalClientNum_t)v2) != CMSTATE_OLDHOSTLEAVING )
       {
-        CL_SetLocalClientMigrationState(v3, CMSTATE_OLDHOSTLEAVING);
-        if ( (unsigned int)v3 >= 2 )
+        CL_SetLocalClientMigrationState(v2, CMSTATE_OLDHOSTLEAVING);
+        if ( (unsigned int)v2 >= 2 )
         {
-          LODWORD(v25) = 2;
-          LODWORD(v24) = v3;
-          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v24, v25) )
+          LODWORD(v16) = 2;
+          LODWORD(v15) = v2;
+          if ( CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\client\\cl_ui_active_client.h", 158, ASSERT_TYPE_ASSERT, "(unsigned)( localClientNum ) < (unsigned)( 2 )", "localClientNum doesn't index STATIC_MAX_LOCAL_CLIENTS\n\t%i not in [0, %i)", v15, v16) )
             __debugbreak();
         }
-        _RDX = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v3);
-        clientUIActives[_RBX].migrationPers.cmdInputAccumTimeMs = _RDX->cmdInputAccumTimeMs;
-        clientUIActives[_RBX].migrationPers.stanceHeld = _RDX->stanceHeld;
-        clientUIActives[_RBX].migrationPers.stance = _RDX->stance;
-        clientUIActives[_RBX].migrationPers.crouchToggle = _RDX->crouchToggle;
-        clientUIActives[_RBX].migrationPers.crouchHoldReleased = _RDX->crouchHoldReleased;
-        clientUIActives[_RBX].migrationPers.stanceOnButtonDown = _RDX->stanceOnButtonDown;
-        clientUIActives[_RBX].migrationPers.stanceTime = _RDX->stanceTime;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rax+90h]
-          vmovups ymmword ptr [rbx+rbp+44h], ymm0
-          vmovups xmm1, xmmword ptr [rax+0B0h]
-          vmovups xmmword ptr [rbx+rbp+64h], xmm1
-          vmovsd  xmm0, qword ptr [rax+0C0h]
-          vmovsd  qword ptr [rbx+rbp+74h], xmm0
-        }
-        *(_DWORD *)&clientUIActives[_RBX].migrationPers.cgameUserCmdWeapon.weaponCamo = *(_DWORD *)&_RDX->cgameUserCmdWeapon.weaponCamo;
-        __asm
-        {
-          vmovups ymm0, ymmword ptr [rdx+0CCh]
-          vmovups ymmword ptr [rbx+rbp+80h], ymm0
-          vmovups xmm1, xmmword ptr [rdx+0ECh]
-          vmovups xmmword ptr [rbx+rbp+0A0h], xmm1
-          vmovsd  xmm0, qword ptr [rdx+0FCh]
-          vmovsd  qword ptr [rbx+rbp+0B0h], xmm0
-        }
-        *(_DWORD *)&clientUIActives[_RBX].migrationPers.cgameUserCmdOffHand.weaponCamo = *(_DWORD *)&_RDX->cgameUserCmdOffHand.weaponCamo;
-        clientUIActives[_RBX].migrationPers.cgameUserCmdAlternate = _RDX->cgameUserCmdAlternate;
-        CG_MainMP_SaveMigrationPers((LocalClientNum_t)v3);
+        ClientMP = ClActiveClientMP::GetClientMP((const LocalClientNum_t)v2);
+        clientUIActives[v4].migrationPers.cmdInputAccumTimeMs = ClientMP->cmdInputAccumTimeMs;
+        clientUIActives[v4].migrationPers.stanceHeld = ClientMP->stanceHeld;
+        clientUIActives[v4].migrationPers.stance = ClientMP->stance;
+        clientUIActives[v4].migrationPers.crouchToggle = ClientMP->crouchToggle;
+        clientUIActives[v4].migrationPers.crouchHoldReleased = ClientMP->crouchHoldReleased;
+        clientUIActives[v4].migrationPers.stanceOnButtonDown = ClientMP->stanceOnButtonDown;
+        clientUIActives[v4].migrationPers.stanceTime = ClientMP->stanceTime;
+        clientUIActives[v4].migrationPers.cgameUserCmdWeapon = ClientMP->cgameUserCmdWeapon;
+        clientUIActives[v4].migrationPers.cgameUserCmdOffHand = ClientMP->cgameUserCmdOffHand;
+        clientUIActives[v4].migrationPers.cgameUserCmdAlternate = ClientMP->cgameUserCmdAlternate;
+        CG_MainMP_SaveMigrationPers((LocalClientNum_t)v2);
       }
       if ( followPartyBackout && Party_IsGameHostInPrivateParty() )
       {
@@ -1242,29 +1176,29 @@ void HandleStartMsg_Internal(const LocalClientNum_t localClientNum, int followPa
       else
       {
         LODWORD(ClientConnectivity) = 0;
-        HostRating = GetHostRating((const LocalClientNum_t)v3);
-        v9 = 0;
+        HostRating = GetHostRating((const LocalClientNum_t)v2);
+        v6 = 0;
       }
-      s_followPartyBackout = v9;
-      ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v3);
+      s_followPartyBackout = v6;
+      ControllerFromClient = CL_Mgr_GetControllerFromClient((LocalClientNum_t)v2);
       PartyData = Lobby_GetPartyData();
       OurClientNum = Live_GetOurClientNum(ControllerFromClient, PartyData);
-      v22 = OurClientNum;
+      v13 = OurClientNum;
       if ( OurClientNum >= 0 )
       {
         ClientConnectivity = PartyMigrate_GetClientConnectivity(PartyData, OurClientNum);
-        Com_Printf(25, "Migration - Our client (%i) connectivity bits: 0x%x\n", v22, ClientConnectivity);
+        Com_Printf(25, "Migration - Our client (%i) connectivity bits: 0x%x\n", v13, ClientConnectivity);
       }
       else
       {
         Com_PrintWarning(25, "Migration - Unknown client num, no connectivity bits.\n");
       }
-      LODWORD(fmt) = v3;
+      LODWORD(fmt) = v2;
       Com_Printf(14, "Migration - HandleStartMsg - Sending our host rating (%i), connectivity bits (%x) to the host for client %i.\n", HostRating, (unsigned int)ClientConnectivity, fmt);
       MSG_Init(&buf, data, 16);
       MSG_WriteLong(&buf, HostRating);
       MSG_WriteLong(&buf, ClientConnectivity);
-      SendToHost((const LocalClientNum_t)v3, "mrate", buf.data, buf.cursize);
+      SendToHost((const LocalClientNum_t)v2, "mrate", buf.data, buf.cursize);
     }
     else
     {

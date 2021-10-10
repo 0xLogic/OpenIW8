@@ -7,9 +7,9 @@ void jpeg_CreateCompress(jpeg_compress_struct *cinfo, int version, unsigned __in
 {
   jpeg_error_mgr *err; 
   void *client_data; 
+  jpeg_alloc alloc; 
 
   cinfo->mem = NULL;
-  _RSI = cinfo;
   if ( version != 62 )
   {
     cinfo->err->msg_code = 12;
@@ -19,39 +19,37 @@ void jpeg_CreateCompress(jpeg_compress_struct *cinfo, int version, unsigned __in
   }
   if ( structsize != 520 )
   {
-    _RSI->err->msg_code = 21;
-    _RSI->err->msg_parm.i[0] = 520;
-    _RSI->err->msg_parm.i[1] = structsize;
-    _RSI->err->error_exit((jpeg_common_struct *)_RSI);
+    cinfo->err->msg_code = 21;
+    cinfo->err->msg_parm.i[0] = 520;
+    cinfo->err->msg_parm.i[1] = structsize;
+    cinfo->err->error_exit((jpeg_common_struct *)cinfo);
   }
-  __asm { vmovups xmm0, xmmword ptr [rsi+28h] }
-  err = _RSI->err;
-  client_data = _RSI->client_data;
-  __asm { vmovups [rsp+38h+var_18], xmm0 }
-  memset_0(_RSI, 0, sizeof(jpeg_compress_struct));
-  __asm { vmovups xmm0, [rsp+38h+var_18] }
-  _RSI->err = err;
-  __asm { vmovups xmmword ptr [rsi+28h], xmm0 }
-  _RSI->client_data = client_data;
-  j_jinit_memory_mgr((jpeg_common_struct *)_RSI);
-  _RSI->progress = NULL;
-  _RSI->dest = NULL;
-  _RSI->comp_info = NULL;
-  _RSI->quant_tbl_ptrs[0] = NULL;
-  _RSI->quant_tbl_ptrs[1] = NULL;
-  _RSI->quant_tbl_ptrs[2] = NULL;
-  _RSI->quant_tbl_ptrs[3] = NULL;
-  _RSI->dc_huff_tbl_ptrs[0] = NULL;
-  _RSI->ac_huff_tbl_ptrs[0] = NULL;
-  _RSI->dc_huff_tbl_ptrs[1] = NULL;
-  _RSI->ac_huff_tbl_ptrs[1] = NULL;
-  _RSI->dc_huff_tbl_ptrs[2] = NULL;
-  _RSI->ac_huff_tbl_ptrs[2] = NULL;
-  _RSI->dc_huff_tbl_ptrs[3] = NULL;
-  _RSI->ac_huff_tbl_ptrs[3] = NULL;
-  _RSI->script_space = NULL;
-  _RSI->input_gamma = 1.0;
-  _RSI->global_state = 100;
+  err = cinfo->err;
+  client_data = cinfo->client_data;
+  alloc = cinfo->alloc;
+  memset_0(cinfo, 0, sizeof(jpeg_compress_struct));
+  cinfo->err = err;
+  cinfo->alloc = alloc;
+  cinfo->client_data = client_data;
+  j_jinit_memory_mgr((jpeg_common_struct *)cinfo);
+  cinfo->progress = NULL;
+  cinfo->dest = NULL;
+  cinfo->comp_info = NULL;
+  cinfo->quant_tbl_ptrs[0] = NULL;
+  cinfo->quant_tbl_ptrs[1] = NULL;
+  cinfo->quant_tbl_ptrs[2] = NULL;
+  cinfo->quant_tbl_ptrs[3] = NULL;
+  cinfo->dc_huff_tbl_ptrs[0] = NULL;
+  cinfo->ac_huff_tbl_ptrs[0] = NULL;
+  cinfo->dc_huff_tbl_ptrs[1] = NULL;
+  cinfo->ac_huff_tbl_ptrs[1] = NULL;
+  cinfo->dc_huff_tbl_ptrs[2] = NULL;
+  cinfo->ac_huff_tbl_ptrs[2] = NULL;
+  cinfo->dc_huff_tbl_ptrs[3] = NULL;
+  cinfo->ac_huff_tbl_ptrs[3] = NULL;
+  cinfo->script_space = NULL;
+  cinfo->input_gamma = 1.0;
+  cinfo->global_state = 100;
 }
 
 /*

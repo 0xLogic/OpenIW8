@@ -1642,25 +1642,24 @@ __int64 NET_SendTo(const void *data, const int length, const netadr_t *to, const
   NetEndpoint *v9; 
   NetAddress *Address; 
   bdAddrHandle *m_ptr; 
-  const char *v13; 
-  unsigned int v14; 
-  const char *v16; 
-  bdCommonAddr *v17; 
+  const char *v12; 
+  unsigned int v13; 
+  const char *v14; 
+  bdCommonAddr *v15; 
   bool m_isLoopback; 
-  int v19; 
+  int v17; 
+  NetAddress *v18; 
+  NetEndpoint *v19; 
   NetAddress *v20; 
-  NetEndpoint *v21; 
-  NetAddress *v22; 
   bdReference<bdAddrHandle> toa; 
-  bdCommonAddr *v25; 
-  netadr_t v26; 
-  netadr_t v27; 
-  __int64 v28; 
+  bdCommonAddr *v23; 
+  netadr_t v24; 
+  netadr_t v25; 
+  __int64 v26; 
   netadr_t outAddr; 
 
-  v28 = -2i64;
+  v26 = -2i64;
   v5 = flags;
-  _RBX = to;
   v9 = NetEndpointBuffer::Get(&s_statics.endpoints, to->addrHandleIndex);
   Address = NetEndpoint::GetAddress(v9);
   m_ptr = NetAddress::GetHandle(Address)->m_ptr;
@@ -1674,19 +1673,19 @@ __int64 NET_SendTo(const void *data, const int length, const netadr_t *to, const
       info->initialized = 1;
       info->netTicks = NetPing::Timestamp();
       NetEndpoint::OnSend(v9);
-      v17 = toa.m_ptr->m_endpoint.m_ca.m_ptr;
-      v25 = v17;
-      if ( v17 )
-        _InterlockedExchangeAdd((volatile signed __int32 *)&v17->m_refCount, 1u);
-      m_isLoopback = v17->m_isLoopback;
-      if ( v17 && _InterlockedExchangeAdd((volatile signed __int32 *)&v17->m_refCount, 0xFFFFFFFF) == 1 )
+      v15 = toa.m_ptr->m_endpoint.m_ca.m_ptr;
+      v23 = v15;
+      if ( v15 )
+        _InterlockedExchangeAdd((volatile signed __int32 *)&v15->m_refCount, 1u);
+      m_isLoopback = v15->m_isLoopback;
+      if ( v15 && _InterlockedExchangeAdd((volatile signed __int32 *)&v15->m_refCount, 0xFFFFFFFF) == 1 )
       {
-        ((void (__fastcall *)(bdCommonAddr *, __int64))v17->~bdReferencable)(v17, 1i64);
-        v25 = NULL;
+        ((void (__fastcall *)(bdCommonAddr *, __int64))v15->~bdReferencable)(v15, 1i64);
+        v23 = NULL;
       }
       if ( m_isLoopback )
       {
-        v19 = NetLoopback::SendTo(&s_statics.loopback, _RBX->localNetID, data, length, &toa, info);
+        v17 = NetLoopback::SendTo(&s_statics.loopback, to->localNetID, data, length, &toa, info);
       }
       else
       {
@@ -1694,54 +1693,44 @@ __int64 NET_SendTo(const void *data, const int length, const netadr_t *to, const
           __debugbreak();
         if ( !dwNetIsStarted() && CoreAssert_Handler("c:\\workspace\\iw8\\code_source\\src\\qcommon\\net_main.cpp", 200, ASSERT_TYPE_ASSERT, "(NET_IsStarted())", "%s\n\tCannot send network packets before networking is started", "NET_IsStarted()") )
           __debugbreak();
-        v20 = NetEndpoint::GetAddress(v9);
-        if ( NetAddress::IsBacklog(v20) && (v5 & 1) != 0 )
+        v18 = NetEndpoint::GetAddress(v9);
+        if ( NetAddress::IsBacklog(v18) && (v5 & 1) != 0 )
         {
-          v21 = NetBacklog::Graveyard(&s_statics.backlog, _RBX->addrHandleIndex, &s_statics.graveyard);
-          if ( v21 )
+          v19 = NetBacklog::Graveyard(&s_statics.backlog, to->addrHandleIndex, &s_statics.graveyard);
+          if ( v19 )
           {
-            v22 = NetEndpoint::GetAddress(v21);
-            NetAddress::GetNetadr(v22, &outAddr);
-            outAddr.localNetID = _RBX->localNetID;
-            RMsg_UpdateAddr(_RBX, &outAddr);
+            v20 = NetEndpoint::GetAddress(v19);
+            NetAddress::GetNetadr(v20, &outAddr);
+            outAddr.localNetID = to->localNetID;
+            RMsg_UpdateAddr(to, &outAddr);
           }
           else
           {
-            RMsg_DropAddr(_RBX, 0);
+            RMsg_DropAddr(to, 0);
           }
         }
-        v19 = NetThread::SendTo(&s_statics.thread, data, length, &toa, info);
+        v17 = NetThread::SendTo(&s_statics.thread, data, length, &toa, info);
       }
-      v14 = v19;
+      v13 = v17;
     }
     else
     {
-      __asm
-      {
-        vmovups xmm0, xmmword ptr [rbx]
-        vmovups [rsp+0E8h+var_88], xmm0
-      }
-      v27.addrHandleIndex = _RBX->addrHandleIndex;
-      v16 = NET_AdrToString(&v27);
-      Com_PrintWarning(131097, "[NET] Failed to send to '%s' - not connected\n", v16);
-      v14 = -11;
+      v25 = *to;
+      v14 = NET_AdrToString(&v25);
+      Com_PrintWarning(131097, "[NET] Failed to send to '%s' - not connected\n", v14);
+      v13 = -11;
     }
   }
   else
   {
-    __asm
-    {
-      vmovups xmm0, xmmword ptr [rbx]
-      vmovups [rsp+0E8h+var_A8], xmm0
-    }
-    v26.addrHandleIndex = _RBX->addrHandleIndex;
-    v13 = NET_AdrToString(&v26);
-    Com_Printf(131097, "[NET] Failed to send to '%s' - not opened\n", v13);
-    v14 = -9;
+    v24 = *to;
+    v12 = NET_AdrToString(&v24);
+    Com_Printf(131097, "[NET] Failed to send to '%s' - not opened\n", v12);
+    v13 = -9;
   }
   if ( toa.m_ptr && _InterlockedExchangeAdd((volatile signed __int32 *)&toa.m_ptr->m_refCount, 0xFFFFFFFF) == 1 && toa.m_ptr )
     ((void (__fastcall *)(bdAddrHandle *, __int64))toa.m_ptr->~bdReferencable)(toa.m_ptr, 1i64);
-  return v14;
+  return v13;
 }
 
 /*

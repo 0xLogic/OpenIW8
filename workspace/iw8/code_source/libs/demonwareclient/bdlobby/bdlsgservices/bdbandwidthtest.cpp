@@ -600,10 +600,10 @@ bool bdBandwidthTestClient::init(bdBandwidthTestClient *this, bdLobbyService *co
 bdBandwidthTestClient::pump
 ==============
 */
-
-void __fastcall bdBandwidthTestClient::pump(bdBandwidthTestClient *this, double _XMM1_8)
+void bdBandwidthTestClient::pump(bdBandwidthTestClient *this)
 {
-  char v7; 
+  double ElapsedTimeInSeconds; 
+  float m_senderInitialWait; 
 
   if ( this->m_initStatus != BD_BANDWIDTH_TEST_INITIALIZED )
     bdLogMessage(BD_LOG_WARNING, "warn/", "bdBandwidthTestClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlsgservices\\bdbandwidthtest.cpp", "bdBandwidthTestClient::pump", 0xC7u, "Pumping uninitialized bdBandwidthTestClient.");
@@ -616,15 +616,9 @@ void __fastcall bdBandwidthTestClient::pump(bdBandwidthTestClient *this, double 
       bdBandwidthTestClient::pumpRequest(this);
       break;
     case BD_BANDWIDTH_TEST_UPLOAD_WAITING:
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
-      __asm
-      {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rax
-        vmulss  xmm2, xmm1, cs:__real@3a83126f
-        vcomiss xmm0, xmm2
-      }
-      if ( !v7 )
+      ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+      m_senderInitialWait = (float)this->m_senderInitialWait;
+      if ( *(float *)&ElapsedTimeInSeconds >= (float)(m_senderInitialWait * 0.001) )
       {
         this->m_testStatus = BD_BANDWIDTH_TEST_UPLOAD_SENDING;
         this->m_nextPacketNum = 0;
@@ -651,53 +645,54 @@ void __fastcall bdBandwidthTestClient::pump(bdBandwidthTestClient *this, double 
 bdBandwidthTestClient::pumpDownloadReceive
 ==============
 */
-
-void __fastcall bdBandwidthTestClient::pumpDownloadReceive(bdBandwidthTestClient *this, double _XMM1_8)
+void bdBandwidthTestClient::pumpDownloadReceive(bdBandwidthTestClient *this)
 {
+  __int128 v1; 
   bdStopwatch *p_m_timer; 
-  unsigned int v9; 
+  unsigned int v4; 
   unsigned __int16 m_lsgPort; 
-  bool v11; 
+  bool v6; 
   unsigned int m_numPackets; 
   unsigned __int8 *m_packetBuffer; 
-  unsigned int v14; 
+  unsigned int v9; 
   __int64 i; 
-  unsigned __int8 *v16; 
-  unsigned __int8 v17; 
-  __int64 v18; 
+  unsigned __int8 *v11; 
+  unsigned __int8 v12; 
+  __int64 v13; 
   unsigned int m_bytesReceived; 
+  double ElapsedTimeInSeconds; 
   unsigned int m_packetSize; 
   unsigned int m_minSeqNumber; 
   unsigned int m_maxSeqNumber; 
-  char v27; 
-  unsigned int m_receivePeriodMs; 
-  __int64 v41; 
-  double v42; 
-  double v43; 
-  bdAddr v44; 
+  unsigned int m_receiveDuration; 
+  unsigned int v20; 
+  float v21; 
+  double v22; 
+  double v23; 
+  float v24; 
+  __int64 m_receivePeriodMs; 
+  double v26; 
+  float v27; 
+  float v28; 
+  __int64 v29; 
+  bdAddr v30; 
   bdSockAddr address; 
-  bdAddr v46; 
-  void *retaddr; 
+  bdAddr v32; 
+  __int128 v33; 
 
-  _R11 = &retaddr;
-  __asm
-  {
-    vmovaps xmmword ptr [r11-38h], xmm6
-    vmovss  xmm6, cs:__real@447a0000
-  }
   p_m_timer = &this->m_timer;
   while ( 1 )
   {
-    bdAddr::bdAddr(&v44);
-    v9 = this->m_socket.receiveFrom((bdSocket *)this, &v44, this->m_packetBuffer, this->m_packetSize);
-    if ( (int)v9 <= 0 )
+    bdAddr::bdAddr(&v30);
+    v4 = this->m_socket.receiveFrom((bdSocket *)this, &v30, this->m_packetBuffer, this->m_packetSize);
+    if ( (int)v4 <= 0 )
       break;
     m_lsgPort = this->m_lsgPort;
     bdSockAddr::bdSockAddr(&address, this->m_lsgAddr);
-    bdAddr::bdAddr(&v46, &address, m_lsgPort);
-    v11 = v9 == this->m_packetSize && bdSockAddr::compare(&v44.m_address, &v46.m_address, 1);
+    bdAddr::bdAddr(&v32, &address, m_lsgPort);
+    v6 = v4 == this->m_packetSize && bdSockAddr::compare(&v30.m_address, &v32.m_address, 1);
     m_numPackets = this->m_numPackets;
-    if ( !v11 )
+    if ( !v6 )
     {
 LABEL_32:
       bdLogMessage(BD_LOG_WARNING, "warn/", "bdBandwidthTestClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlsgservices\\bdbandwidthtest.cpp", "bdBandwidthTestClient::pumpDownloadReceive", 0x23Cu, "Received malformed bandwidth test packet.");
@@ -705,10 +700,10 @@ LABEL_32:
       continue;
     }
     m_packetBuffer = this->m_packetBuffer;
-    v14 = 4;
+    v9 = 4;
     if ( m_packetBuffer )
     {
-      if ( v9 < 4 )
+      if ( v4 < 4 )
       {
         bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 4i64);
 LABEL_12:
@@ -718,32 +713,32 @@ LABEL_12:
       }
       m_numPackets = *(_DWORD *)m_packetBuffer;
     }
-    if ( v9 < 4 )
+    if ( v4 < 4 )
       goto LABEL_12;
 LABEL_13:
     if ( m_numPackets >= this->m_numPackets )
       goto LABEL_32;
     for ( i = 0i64; (unsigned int)i < 8; i = (unsigned int)(i + 1) )
     {
-      v16 = this->m_packetBuffer;
-      v17 = 0;
-      v18 = v14++;
-      if ( !v16 )
+      v11 = this->m_packetBuffer;
+      v12 = 0;
+      v13 = v9++;
+      if ( !v11 )
         goto LABEL_19;
-      if ( v14 <= v9 )
+      if ( v9 <= v4 )
       {
-        v17 = v16[v18];
+        v12 = v11[v13];
 LABEL_19:
-        if ( v14 <= v9 )
+        if ( v9 <= v4 )
           goto LABEL_21;
         goto LABEL_20;
       }
       bdLogMessage(BD_LOG_WARNING, "warn/", "byte packer", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::removeBasicType", 0xA2u, "Not enough data left to read %u bytes.", 1i64);
 LABEL_20:
-      if ( v16 )
+      if ( v11 )
         goto LABEL_32;
 LABEL_21:
-      if ( v17 != this->m_cookie[i] )
+      if ( v12 != this->m_cookie[i] )
         goto LABEL_32;
     }
     m_bytesReceived = this->m_downloadResults.m_bytesReceived;
@@ -760,15 +755,10 @@ LABEL_21:
       this->m_downloadResults.m_minSeqNumber = m_numPackets;
       this->m_downloadResults.m_maxSeqNumber = m_numPackets;
     }
-    this->m_downloadResults.m_bytesReceived = m_bytesReceived + v9 + 8;
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+    this->m_downloadResults.m_bytesReceived = m_bytesReceived + v4 + 8;
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
     m_packetSize = this->m_packetSize;
-    __asm
-    {
-      vmulss  xmm1, xmm0, xmm6
-      vcvttss2si rax, xmm1
-    }
-    this->m_downloadResults.m_receivePeriodMs = _RAX;
+    this->m_downloadResults.m_receivePeriodMs = (int)(float)(*(float *)&ElapsedTimeInSeconds * 1000.0);
     m_minSeqNumber = this->m_downloadResults.m_minSeqNumber;
     if ( m_minSeqNumber >= m_numPackets )
       m_minSeqNumber = m_numPackets;
@@ -781,69 +771,40 @@ LABEL_21:
     this->m_downloadResults.m_avgSeqNumber = this->m_seqNumberTotal / (this->m_downloadResults.m_bytesReceived / (m_packetSize + 8));
     bdStopwatch::start(&this->m_recvTimeoutTimer);
   }
-  __asm { vmovss  xmm6, cs:__real@3a83126f }
   if ( this->m_testStatus == BD_BANDWIDTH_TEST_DOWNLOAD_WAITING )
   {
+    m_receiveDuration = this->m_receiveDuration;
     p_m_timer = &this->m_timer;
-    __asm
+    v33 = v1;
+    v20 = m_receiveDuration - this->m_sendDuration;
+    if ( m_receiveDuration <= this->m_sendDuration )
+      v20 = 0;
+    v21 = (float)(this->m_receiverInitialWait + v20);
+    v22 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+    if ( *(float *)&v22 >= (float)(v21 * 0.001) )
     {
-      vmovaps [rsp+268h+var_48], xmm7
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vmulss  xmm7, xmm0, xmm6
-    }
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
-    __asm { vcomiss xmm0, xmm7 }
-    if ( !v27 )
-    {
-      __asm
-      {
-        vcvtss2sd xmm0, xmm7, xmm7
-        vmovsd  [rsp+268h+var_230], xmm0
-      }
-      bdLogMessage(BD_LOG_WARNING, "warn/", "bdBandwidthTestClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlsgservices\\bdbandwidthtest.cpp", "bdBandwidthTestClient::pumpDownloadReceive", 0x250u, "Download test timed out. Failed to receive any download packets in %.2fs.", v42);
+      bdLogMessage(BD_LOG_WARNING, "warn/", "bdBandwidthTestClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlsgservices\\bdbandwidthtest.cpp", "bdBandwidthTestClient::pumpDownloadReceive", 0x250u, "Download test timed out. Failed to receive any download packets in %.2fs.", (float)(v21 * 0.001));
       bdBandwidthTestClient::finalizeTest(this);
     }
-    __asm { vmovaps xmm7, [rsp+268h+var_48] }
   }
   if ( this->m_testStatus == BD_BANDWIDTH_TEST_DOWNLOAD_RECEIVING )
   {
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(p_m_timer);
-    __asm
-    {
-      vxorps  xmm1, xmm1, xmm1
-      vcvtsi2ss xmm1, xmm1, rax
-      vmulss  xmm2, xmm1, xmm6
-      vcomiss xmm0, xmm2
-    }
-    if ( !v27 )
+    v23 = bdStopwatch::getElapsedTimeInSeconds(p_m_timer);
+    v24 = (float)this->m_receiveDuration;
+    if ( *(float *)&v23 >= (float)(v24 * 0.001) )
     {
       m_receivePeriodMs = this->m_downloadResults.m_receivePeriodMs;
-      *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_recvTimeoutTimer);
-      __asm
+      v26 = bdStopwatch::getElapsedTimeInSeconds(&this->m_recvTimeoutTimer);
+      v27 = (float)(unsigned int)(m_receivePeriodMs + this->m_lingerDuration);
+      if ( *(float *)&v26 >= (float)(v27 * 0.001) )
       {
-        vxorps  xmm1, xmm1, xmm1
-        vcvtsi2ss xmm1, xmm1, rax
-        vmulss  xmm2, xmm1, xmm6
-        vcomiss xmm0, xmm2
-      }
-      if ( !__CFADD__(m_receivePeriodMs, this->m_lingerDuration) )
-      {
-        __asm
-        {
-          vxorps  xmm0, xmm0, xmm0
-          vcvtsi2ss xmm0, xmm0, rbx
-          vmulss  xmm1, xmm0, xmm6
-          vcvtss2sd xmm2, xmm1, xmm1
-          vmovsd  [rsp+268h+var_228], xmm2
-        }
-        LODWORD(v41) = this->m_downloadResults.m_bytesReceived;
-        bdLogMessage(BD_LOG_INFO, "info/", "bdBandwidthTestClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlsgservices\\bdbandwidthtest.cpp", "bdBandwidthTestClient::pumpDownloadReceive", 0x25Bu, "Download test complete. Received %u bytes in %.2fs.", v41, v43);
+        v28 = (float)m_receivePeriodMs;
+        LODWORD(v29) = this->m_downloadResults.m_bytesReceived;
+        bdLogMessage(BD_LOG_INFO, "info/", "bdBandwidthTestClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlsgservices\\bdbandwidthtest.cpp", "bdBandwidthTestClient::pumpDownloadReceive", 0x25Bu, "Download test complete. Received %u bytes in %.2fs.", v29, (float)(v28 * 0.001));
         bdBandwidthTestClient::finalizeTest(this);
       }
     }
   }
-  __asm { vmovaps xmm6, [rsp+268h+var_38] }
 }
 
 /*
@@ -1011,82 +972,70 @@ LABEL_22:
 bdBandwidthTestClient::pumpUploadSend
 ==============
 */
-
-void __fastcall bdBandwidthTestClient::pumpUploadSend(bdBandwidthTestClient *this, double _XMM1_8)
+void bdBandwidthTestClient::pumpUploadSend(bdBandwidthTestClient *this)
 {
-  bool v11; 
+  float m_sendDuration; 
+  __int128 v3; 
+  float v4; 
+  __int128 v6; 
+  float v9; 
   unsigned int m_nextPacketNum; 
+  __int64 v11; 
+  __int128 v12; 
+  float v13; 
   unsigned int m_packetSize; 
   unsigned __int8 *m_packetBuffer; 
-  bool v23; 
+  bool v16; 
   unsigned __int16 m_lsgPort; 
-  signed int v25; 
-  unsigned int m_numPackets; 
-  unsigned int v34; 
-  unsigned int v35; 
-  unsigned int v36; 
+  int v18; 
+  __int128 v20; 
+  __int64 m_numPackets; 
+  float v24; 
+  unsigned int v25; 
+  unsigned int v26; 
+  int v27; 
+  unsigned int v28; 
   unsigned int m_actualNumSent; 
+  double ElapsedTimeInSeconds; 
   bdBandwidthTestType m_type; 
-  double v44; 
-  __int64 v45; 
-  unsigned int v46; 
-  __int64 v47; 
-  unsigned int v48; 
-  __int64 v49; 
-  unsigned int v50; 
-  __int64 v51; 
-  unsigned int m_receiverInitialWait; 
-  unsigned int m_receiveDuration; 
-  unsigned int m_lingerDuration; 
-  int v55; 
-  unsigned int m_lsgAddr; 
+  __int64 v32; 
+  __int64 v33; 
+  __int64 v34; 
+  __int64 v35; 
   unsigned int offset; 
-  bdRandom v58; 
-  __int64 v59; 
+  bdRandom v37; 
+  __int64 v38; 
   bdSockAddr address; 
-  bdAddr v61; 
-  char v62; 
-  void *retaddr; 
+  bdAddr v40; 
 
-  _RAX = &retaddr;
-  v59 = -2i64;
+  v38 = -2i64;
+  m_sendDuration = (float)this->m_sendDuration;
+  v3 = LODWORD(FLOAT_1000_0);
+  v4 = 1000.0 / m_sendDuration;
+  *(double *)&v3 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+  v6 = v3;
+  *(float *)&v6 = *(float *)&v3 * (float)(1000.0 / m_sendDuration);
+  _XMM1 = v6;
   __asm
   {
-    vmovaps xmmword ptr [rax-38h], xmm6
-    vmovaps xmmword ptr [rax-48h], xmm7
-    vmovaps xmmword ptr [rax-58h], xmm8
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmovss  xmm0, cs:__real@447a0000
-    vdivss  xmm7, xmm0, xmm1
-  }
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
-  __asm
-  {
-    vmulss  xmm1, xmm0, xmm7
-    vxorps  xmm8, xmm8, xmm8
     vmaxss  xmm0, xmm1, xmm8
     vminss  xmm2, xmm0, cs:__real@3f800000
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rax
-    vmulss  xmm6, xmm0, xmm2
   }
+  *(float *)&v6 = (float)this->m_numPackets;
+  v9 = *(float *)&v6 * *(float *)&_XMM2;
   m_nextPacketNum = this->m_nextPacketNum;
+  v11 = m_nextPacketNum;
   while ( 1 )
   {
-    __asm
-    {
-      vxorps  xmm0, xmm0, xmm0
-      vcvtsi2ss xmm0, xmm0, rax
-      vcomiss xmm0, xmm6
-    }
-    if ( !v11 )
+    v13 = (float)v11;
+    *((_QWORD *)&v12 + 1) = 0i64;
+    if ( v13 >= v9 )
       break;
     m_packetSize = this->m_packetSize;
     m_packetBuffer = this->m_packetBuffer;
     offset = 4;
-    v23 = m_packetSize >= 4 || !m_packetBuffer;
-    bdHandleAssert(v23, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 4i64);
+    v16 = m_packetSize >= 4 || !m_packetBuffer;
+    bdHandleAssert(v16, "ok || (buffer == BD_NULL)", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdcore\\bdutilities\\bdbytepacker.h", "bdBytePacker::appendBasicType", 0x37u, "Not enough room left to write %u bytes.", 4i64);
     if ( !m_packetBuffer )
       goto LABEL_10;
     if ( m_packetSize >= 4 )
@@ -1107,55 +1056,44 @@ LABEL_18:
     }
     if ( offset < this->m_packetSize )
     {
-      bdRandom::bdRandom(&v58);
-      bdRandom::nextUBytes(&v58, &this->m_packetBuffer[offset], this->m_packetSize - offset);
-      bdRandom::~bdRandom(&v58);
+      bdRandom::bdRandom(&v37);
+      bdRandom::nextUBytes(&v37, &this->m_packetBuffer[offset], this->m_packetSize - offset);
+      bdRandom::~bdRandom(&v37);
     }
     m_lsgPort = this->m_lsgPort;
     bdSockAddr::bdSockAddr(&address, this->m_lsgAddr);
-    bdAddr::bdAddr(&v61, &address, m_lsgPort);
-    v25 = this->m_socket.sendTo((bdSocket *)this, &v61, this->m_packetBuffer, this->m_packetSize);
-    if ( v25 <= 0 )
+    bdAddr::bdAddr(&v40, &address, m_lsgPort);
+    v18 = this->m_socket.sendTo((bdSocket *)this, &v40, this->m_packetBuffer, this->m_packetSize);
+    if ( v18 <= 0 || this->m_packetSize != v18 )
       break;
-    v11 = this->m_packetSize < v25;
-    if ( this->m_packetSize != v25 )
-      break;
-    ++this->m_nextPacketNum;
+    v11 = ++this->m_nextPacketNum;
     ++this->m_actualNumSent;
   }
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+  *(double *)&v12 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+  v20 = v12;
+  *(float *)&v20 = *(float *)&v12 * v4;
+  _XMM1 = v20;
   __asm
   {
-    vmulss  xmm1, xmm0, xmm7
     vmaxss  xmm1, xmm1, xmm8
     vminss  xmm2, xmm1, cs:__real@3f800000
   }
   m_numPackets = this->m_numPackets;
-  __asm
+  v24 = (float)m_numPackets;
+  v25 = (int)(float)(v24 * *(float *)&_XMM2);
+  v26 = this->m_nextPacketNum;
+  v27 = v26;
+  if ( v26 != m_nextPacketNum && v26 < v25 && v26 - m_nextPacketNum < v25 - v26 )
   {
-    vxorps  xmm0, xmm0, xmm0
-    vcvtsi2ss xmm0, xmm0, rbp
-    vmulss  xmm1, xmm0, xmm2
-    vcvttss2si r8, xmm1
+    this->m_nextPacketNum = v25;
+    v27 = (int)(float)(v24 * *(float *)&_XMM2);
   }
-  v34 = this->m_nextPacketNum;
-  v35 = v34;
-  if ( v34 != m_nextPacketNum && v34 < (unsigned int)_R8 && v34 - m_nextPacketNum < (unsigned int)_R8 - v34 )
+  if ( v27 == (_DWORD)m_numPackets )
   {
-    this->m_nextPacketNum = _R8;
-    v35 = _R8;
-  }
-  if ( v35 == m_numPackets )
-  {
-    v36 = this->m_packetSize;
+    v28 = this->m_packetSize;
     m_actualNumSent = this->m_actualNumSent;
-    *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
-    __asm { vcvtss2sd xmm1, xmm0, xmm0 }
-    v50 = v36;
-    v48 = m_numPackets;
-    v46 = m_actualNumSent;
-    __asm { vmovsd  [rsp+218h+var_1E0], xmm1 }
-    bdLogMessage(BD_LOG_INFO, "info/", "bdBandwidthTestClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlsgservices\\bdbandwidthtest.cpp", "bdBandwidthTestClient::pumpUploadSend", 0x1D1u, "Upload bandwidth test took %.2fs to send %u/%u packets of %u bytes each.", v44, v46, v48, v50);
+    ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+    bdLogMessage(BD_LOG_INFO, "info/", "bdBandwidthTestClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlsgservices\\bdbandwidthtest.cpp", "bdBandwidthTestClient::pumpUploadSend", 0x1D1u, "Upload bandwidth test took %.2fs to send %u/%u packets of %u bytes each.", *(float *)&ElapsedTimeInSeconds, m_actualNumSent, m_numPackets, v28);
     m_type = this->m_type;
     if ( m_type == BD_UPLOAD_TEST )
     {
@@ -1164,27 +1102,15 @@ LABEL_18:
     }
     if ( m_type == BD_UPLOAD_DOWNLOAD_TEST )
     {
-      m_lsgAddr = this->m_lsgAddr;
-      v55 = this->m_lsgPort;
-      m_lingerDuration = this->m_lingerDuration;
-      m_receiveDuration = this->m_receiveDuration;
-      m_receiverInitialWait = this->m_receiverInitialWait;
-      LODWORD(v51) = this->m_sendDuration;
-      LODWORD(v49) = this->m_senderInitialWait;
-      LODWORD(v47) = this->m_numPackets;
-      LODWORD(v45) = this->m_packetSize;
-      bdLogMessage(BD_LOG_INFO, "info/", "bdBandwidthTestClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlsgservices\\bdbandwidthtest.cpp", "bdBandwidthTestClient::startDownloadTest", 0x1E6u, "Starting download test: m_packetSize:%u m_numPackets:%u m_senderInitialWait:%u m_sendDuration:%u m_receiverInitialWait:%u m_receiveDuration:%u m_lingerDuration:%u m_lsgPort:%u m_lsgAddr:%u ", v45, v47, v49, v51, m_receiverInitialWait, m_receiveDuration, m_lingerDuration, v55, m_lsgAddr);
+      LODWORD(v35) = this->m_sendDuration;
+      LODWORD(v34) = this->m_senderInitialWait;
+      LODWORD(v33) = this->m_numPackets;
+      LODWORD(v32) = this->m_packetSize;
+      bdLogMessage(BD_LOG_INFO, "info/", "bdBandwidthTestClient", "c:\\workspace\\iw8\\code_source\\libs\\demonwareclient\\bdlobby\\bdlsgservices\\bdbandwidthtest.cpp", "bdBandwidthTestClient::startDownloadTest", 0x1E6u, "Starting download test: m_packetSize:%u m_numPackets:%u m_senderInitialWait:%u m_sendDuration:%u m_receiverInitialWait:%u m_receiveDuration:%u m_lingerDuration:%u m_lsgPort:%u m_lsgAddr:%u ", v32, v33, v34, v35, this->m_receiverInitialWait, this->m_receiveDuration, this->m_lingerDuration, this->m_lsgPort, this->m_lsgAddr);
       this->m_testStatus = BD_BANDWIDTH_TEST_DOWNLOAD_WAITING;
       bdStopwatch::start(&this->m_timer);
       this->m_seqNumberTotal = 0;
     }
-  }
-  _R11 = &v62;
-  __asm
-  {
-    vmovaps xmm6, xmmword ptr [r11-10h]
-    vmovaps xmm7, xmmword ptr [r11-20h]
-    vmovaps xmm8, xmmword ptr [r11-30h]
   }
 }
 
@@ -1193,20 +1119,14 @@ LABEL_18:
 bdBandwidthTestClient::pumpUploadWait
 ==============
 */
-
-void __fastcall bdBandwidthTestClient::pumpUploadWait(bdBandwidthTestClient *this, double _XMM1_8)
+void bdBandwidthTestClient::pumpUploadWait(bdBandwidthTestClient *this)
 {
-  char v7; 
+  double ElapsedTimeInSeconds; 
+  float m_senderInitialWait; 
 
-  *(double *)&_XMM0 = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
-  __asm
-  {
-    vxorps  xmm1, xmm1, xmm1
-    vcvtsi2ss xmm1, xmm1, rax
-    vmulss  xmm2, xmm1, cs:__real@3a83126f
-    vcomiss xmm0, xmm2
-  }
-  if ( !v7 )
+  ElapsedTimeInSeconds = bdStopwatch::getElapsedTimeInSeconds(&this->m_timer);
+  m_senderInitialWait = (float)this->m_senderInitialWait;
+  if ( *(float *)&ElapsedTimeInSeconds >= (float)(m_senderInitialWait * 0.001) )
   {
     this->m_testStatus = BD_BANDWIDTH_TEST_UPLOAD_SENDING;
     this->m_nextPacketNum = 0;
